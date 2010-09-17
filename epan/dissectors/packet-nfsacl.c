@@ -327,9 +327,20 @@ static int
 dissect_nfsacl2_access_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *tree)
 {
-	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle", NULL);
-	offset = dissect_access(tvb, offset, tree, "access");
+	guint32 *acc_request, amask;
+	rpc_call_info_value *civ;
 
+	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle", NULL);
+
+	/* Get access mask to check and save it for comparison to the access reply. */
+	amask = tvb_get_ntohl(tvb, offset);
+	acc_request = se_memdup( &amask, sizeof(guint32));
+	civ = pinfo->private_data;
+    civ->private_data = acc_request;
+
+	display_access_items(tvb, offset, pinfo, tree, amask, 'C', 3, NULL, "Check") ;
+
+	offset+=4;
 	return offset;
 }
 
@@ -348,7 +359,7 @@ dissect_nfsacl2_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	if (status == ACL2_OK)
 	{
 		offset = dissect_fattr(tvb, offset, tree, "attr");
-		offset = dissect_access(tvb, offset, tree, "access");
+		offset = dissect_access_reply(tvb, offset, pinfo, tree, 3, NULL);
 	}
 
 	return offset;

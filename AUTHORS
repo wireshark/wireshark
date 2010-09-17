@@ -3122,6 +3122,10 @@ Juha Siltanen <juha.siltanen [AT] nsn.com> {
     FLIP dissector
 }
 
+Cal Turney <turney_cal [AT] emc.com> {
+	NFS access tracking
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
@@ -3300,7 +3304,6 @@ Chuck Kristofek		<chuck.kristofek [AT] ngc.com>
 Markus Renz		<Markus.Renz [AT] hirschmann.de>
 Toshihiro Kataoka	<kataoka.toshihiro [AT] gmail.com>
 Petr Lautrbach		<plautrba [AT] redhat.com>
-Cal Turney		<turney_cal [AT] emc.com>
 Frank Lahm		<franklahm [AT] googlemail.com>
 
 Dan Lasley <dlasley[AT]promus.com> gave permission for his

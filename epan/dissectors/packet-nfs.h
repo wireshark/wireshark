@@ -160,6 +160,14 @@
 #define EXCLUSIVE4 2
 #define EXCLUSIVE4_1 3
 
+/* for access mask */
+#define NFS_ACCESS_MASK_READ		0x01
+#define NFS_ACCESS_MASK_LOOKUP		0x02
+#define NFS_ACCESS_MASK_MODIFY		0x04
+#define NFS_ACCESS_MASK_EXTEND		0x08
+#define NFS_ACCESS_MASK_DELETE		0x10
+#define NFS_ACCESS_MASK_EXECUTE		0x20
+
 /* pNFS layout types */
 #define LAYOUT4_NFSV4_1_FILES  1
 #define LAYOUT4_OSD2_OBJECTS   2
@@ -192,8 +200,11 @@ typedef int (diss_p)(tvbuff_t *tvb, int offset, proto_tree *tree, int hf);
 extern int dissect_fattr(tvbuff_t *tvb, int offset, proto_tree *tree, 
 	const char* name);
 
-extern int dissect_access(tvbuff_t *tvb, int offset, proto_tree *tree,
-	const char* name);
+extern proto_tree* display_access_items(tvbuff_t* tvb, int offset, packet_info* pinfo, proto_tree* tree,
+	guint32 amask, char mtype, int version, GString* optext, char* label);
+
+extern int dissect_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree* tree, 
+	int version, GString *optext);
 
 extern gint default_nfs_fhandle_type;
 extern gint hf_nfs_nfsstat;

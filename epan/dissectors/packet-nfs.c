@@ -48,7 +48,22 @@
 #include <glib/gprintf.h>
 
 static int proto_nfs = -1;
-
+static int hf_nfs_access_check  = -1;
+static int hf_nfs_access_supported  = -1;
+static int hf_nfs_access_rights = -1;
+static int hf_nfs_access_supp_read = -1;
+static int hf_nfs_access_supp_lookup = -1;
+static int hf_nfs_access_supp_modify = -1;
+static int hf_nfs_access_supp_extend = -1;
+static int hf_nfs_access_supp_delete = -1;
+static int hf_nfs_access_supp_execute = -1;
+static int hf_nfs_access_read = -1;
+static int hf_nfs_access_lookup = -1;
+static int hf_nfs_access_modify = -1;
+static int hf_nfs_access_extend = -1;
+static int hf_nfs_access_delete = -1;
+static int hf_nfs_access_execute = -1;
+static int hf_nfs_access_denied = -1;
 static int hf_nfs_procedure_v2 = -1;
 static int hf_nfs_procedure_v3 = -1;
 static int hf_nfs_procedure_v4 = -1;
@@ -509,7 +524,7 @@ static gint ett_nfs_pre_op_attr = -1;
 static gint ett_nfs_post_op_attr = -1;
 static gint ett_nfs_wcc_attr = -1;
 static gint ett_nfs_wcc_data = -1;
-static gint ett_nfs_access = -1;
+static gint ett_nfs_access3 = -1;
 static gint ett_nfs_fsinfo_properties = -1;
 static gint ett_nfs_gxfh3_utlfield = -1;
 static gint ett_nfs_gxfh3_sfhfield = -1;
@@ -521,6 +536,7 @@ static gint ett_nfs_utf8string = -1;
 static gint ett_nfs_argop4 = -1;
 static gint ett_nfs_resop4 = -1;
 static gint ett_nfs_access4 = -1;
+static gint ett_nfs_access_supp4 = -1;
 static gint ett_nfs_close4 = -1;
 static gint ett_nfs_commit4 = -1;
 static gint ett_nfs_create4 = -1;
@@ -4639,41 +4655,6 @@ dissect_nfs3_rmdir_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-/* RFC 1813, Page 40 */
-int
-dissect_access(tvbuff_t *tvb, int offset, proto_tree *tree,
-	const char* name)
-{
-	guint32 access;
-	proto_item* access_item = NULL;
-	proto_tree* access_tree = NULL;
-
-	access = tvb_get_ntohl(tvb, offset+0);
-
-	if (tree) {
-		access_item = proto_tree_add_text(tree, tvb, offset, 4,
-			"%s: 0x%02x", name, access);
-
-		access_tree = proto_item_add_subtree(access_item, ett_nfs_access);
-
-		proto_tree_add_text(access_tree, tvb, offset, 4, "%s READ",
-		decode_boolean_bitfield(access,  0x001, 6, "allow", "not allow"));
-		proto_tree_add_text(access_tree, tvb, offset, 4, "%s LOOKUP",
-		decode_boolean_bitfield(access,  0x002, 6, "allow", "not allow"));
-		proto_tree_add_text(access_tree, tvb, offset, 4, "%s MODIFY",
-		decode_boolean_bitfield(access,  0x004, 6, "allow", "not allow"));
-		proto_tree_add_text(access_tree, tvb, offset, 4, "%s EXTEND",
-		decode_boolean_bitfield(access,  0x008, 6, "allow", "not allow"));
-		proto_tree_add_text(access_tree, tvb, offset, 4, "%s DELETE",
-		decode_boolean_bitfield(access,  0x010, 6, "allow", "not allow"));
-		proto_tree_add_text(access_tree, tvb, offset, 4, "%s EXECUTE",
-		decode_boolean_bitfield(access,  0x020, 6, "allow", "not allow"));
-	}
-
-	offset += 4;
-	return offset;
-}
-
 
 /* RFC 1813, Page 32,33 */
 static int
@@ -4874,24 +4855,226 @@ dissect_nfs3_lookup_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-/* RFC 1813, Page 40..43 */
-static int
-dissect_nfs3_access_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree* tree)
+static const value_string accvs[] = {
+	{ 0x01,	"RD" },
+	{ 0x02,	"LU" },
+	{ 0x04,	"MD" },
+	{ 0x08,	"XT" },
+	{ 0x10,	"DL" },
+	{ 0x20,	"XE" },
+	{ 0,	NULL }
+};
+
+static const true_false_string tfs_access_supp = { "supported",	"!NOT Supported!"};
+static const true_false_string tfs_access_rights = {"allowed", "*Access Denied*"};
+
+proto_tree*
+display_access_items(tvbuff_t* tvb, int offset, packet_info* pinfo, proto_tree* tree,
+	guint32 amask, char mtype, int version, GString* optext, char* label)
 {
-	guint32 hash;
+	gboolean nfsv3 = (version==3 ? TRUE : FALSE);
+	proto_item* access_item = NULL;
+	proto_tree* access_subtree = NULL;
+	proto_item* access_subitem = NULL;
+	guint32 itype;
+	
+	/* XXX Legend (delete if desired) 
 
-	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "object", &hash);
-	offset = dissect_access (tvb, offset,        tree, "access");
+	   'C' CHECK access:      append label to both headers and create subtree and list
+	   'N' NOT SUPPORTED:     append label to both headers  
+	   'S' SUPPORTED or not:  create subtree and list 
+	   'D' DENIED:            append label to both headers  
+	   'A' ALLOWED:           append label to both headers 
+	   'R' RIGHTS:            create subtree and list */
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO,", FH:0x%08x", hash);
+	switch (mtype) {
+		case 'C':
+			access_item = proto_tree_add_item(tree, hf_nfs_access_check, tvb,
+				offset, 4, FALSE);
+			access_subtree = proto_item_add_subtree(access_item,
+				(nfsv3 ? ett_nfs_access3 : ett_nfs_access4));
+			break;
+		case 'S':
+			access_item = proto_tree_add_item(tree, hf_nfs_access_supported, tvb,
+				offset, 4, FALSE);
+			access_subtree = proto_item_add_subtree(access_item, ett_nfs_access_supp4);
+			break;
+		case 'R':
+			access_item = proto_tree_add_item(tree, hf_nfs_access_rights, tvb, 
+				offset, 4, FALSE);
+			access_subtree = proto_item_add_subtree(access_item,
+				(nfsv3 ? ett_nfs_access3 : ett_nfs_access4));
+			break;
 	}
-	proto_item_append_text(tree, ", ACCESS Call FH:0x%08x", hash);
+	/* Append label to the Info column and tree */
+	if (mtype!='S' && mtype!='R') {
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			if (nfsv3) {
+				col_append_fstr(pinfo->cinfo, COL_INFO,", [%s:", label);
+			} else {
+				g_string_append_printf (optext, ", [%s:", label);	
+			}
+		}
+		proto_item_append_text(tree, ", [%s:", label);
+	}
 
-	return offset;
+	for (itype=0; itype < 6; itype++) { 
+		if (amask & accvs[itype].value) {
+			if (mtype!='S' && mtype!='R')	{					
+				/* List access type in Info column and tree */
+				if (check_col(pinfo->cinfo, COL_INFO)) { 
+					if (nfsv3) {
+						col_append_fstr(pinfo->cinfo, COL_INFO," %s", accvs[itype].strptr); 
+					} else {
+						g_string_append_printf (optext, " %s", accvs[itype].strptr);
+					}
+				}
+				proto_item_append_text(tree, " %s", accvs[itype].strptr);
+			}
+			if (mtype=='C' || mtype=='S' || mtype=='R') {
+
+				switch (itype) {
+					case 0:
+						access_subitem = proto_tree_add_item (access_subtree, 
+							(mtype=='S' ? hf_nfs_access_supp_read : hf_nfs_access_read),
+							tvb, offset, 4, FALSE);
+						break;
+					case 1:
+						access_subitem = proto_tree_add_item (access_subtree, 
+							(mtype=='S' ? hf_nfs_access_supp_lookup : hf_nfs_access_lookup),
+							tvb, offset, 4, FALSE);
+						break;
+					case 2:
+						access_subitem = proto_tree_add_item (access_subtree, 
+							(mtype=='S' ? hf_nfs_access_supp_modify : hf_nfs_access_modify), 
+							tvb, offset, 4, FALSE);
+						break;
+					case 3:
+						access_subitem = proto_tree_add_item (access_subtree, 
+							(mtype=='S' ? hf_nfs_access_supp_extend : hf_nfs_access_extend),
+							tvb, offset, 4, FALSE);
+						break;
+					case 4:
+						access_subitem = proto_tree_add_item (access_subtree, 
+							(mtype=='S' ? hf_nfs_access_supp_delete : hf_nfs_access_delete),
+							tvb, offset, 4, FALSE);
+						break;
+					case 5:
+						access_subitem = proto_tree_add_item (access_subtree, 
+							(mtype=='S' ? hf_nfs_access_supp_execute : hf_nfs_access_execute),
+							tvb, offset, 4, FALSE);
+						break;
+				}
+				if (mtype=='C') proto_item_append_text(access_subitem, "?" );
+			}
+		}
+	}
+	if (mtype!='S' && mtype!='R') {
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			if (nfsv3) {
+				col_append_fstr(pinfo->cinfo, COL_INFO,"]");
+			} else {
+				g_string_append_printf (optext, "]");	
+			}
+		}
+		proto_item_append_text(tree, "]");
+	}
+	return access_subtree;
 }
 
+/* RFC 1813, Page 40..43 */
+/* RFC 3530, Page 140..142 */
+int
+dissect_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree* tree, 
+	int version, GString *optext)
+{
+	rpc_call_info_value *civ; 
+	guint32* acc_req=NULL, acc_supp=0, acc_rights=0;
+	guint32 mask_not_supp=0, mask_denied=0, mask_allowed=0;
+	guint32 e_check, e_rights;
+	gboolean nfsv3 = (version==3 ? TRUE : FALSE);
+	gboolean nfsv4 = (version==4 ? TRUE : FALSE);
+	proto_tree* access_tree = NULL;
+	proto_item* ditem = NULL;
+
+	/* Retrieve the access mask from the call */
+	civ = pinfo->private_data;
+	acc_req = civ->private_data;
+	/* Should never happen because ONC-RPC requires the call in order to dissect the reply. */
+	if (acc_req==NULL) {
+		return offset+=4;
+	}
+	if(nfsv4) {	
+		acc_supp = tvb_get_ntohl(tvb, offset+0);
+	} else {
+		acc_supp = *acc_req;
+	}
+	/*  V3/V4 - Get access rights mask and create a subtree for it */
+	acc_rights = tvb_get_ntohl(tvb, (nfsv3 ? offset+0: offset+4));
+
+	/* Create access masks: not_supported, denied, and allowed */
+	mask_not_supp = *acc_req ^ acc_supp;
+	e_check = acc_supp;
+	e_rights = acc_supp & acc_rights;  /* guard against broken implementations */  	
+	mask_denied =  e_check ^ e_rights; 
+	mask_allowed = e_check & e_rights; 
+
+	if (nfsv4) {
+		if (mask_not_supp > 0) {
+			display_access_items(tvb, offset, pinfo, tree, mask_not_supp, 'N', 4, 
+				optext, "NOT Supported") ;
+		}
+		display_access_items(tvb, offset, pinfo, tree, acc_supp, 'S', 4, 
+			optext, "Supported");
+		offset+=4;
+	}
+	if (mask_denied > 0) {
+		display_access_items(tvb, offset, pinfo, tree, mask_denied, 'D', version, 
+			optext, "Access Denied") ;
+	}
+	if (mask_allowed > 0) {
+		display_access_items(tvb, offset, pinfo, tree, mask_allowed, 'A', version,
+			optext, "Allowed") ;
+	}
+	/* Pass the OR'd masks rather than acc_rights so that display_access_items will 
+	   process types that have been denied access. Since proto_tree_add_item uses the 
+	   mask in the tvb (not the passed mask), the correct (denied) access is displayed. */
+	access_tree = display_access_items(tvb, offset, pinfo, tree, 
+		(mask_allowed | mask_denied), 'R', version, optext, NULL) ;
+
+	ditem=proto_tree_add_boolean(access_tree, hf_nfs_access_denied, tvb,
+			offset, 4, (mask_denied > 0 ? TRUE : FALSE ));
+    PROTO_ITEM_SET_GENERATED(ditem);
+
+	return offset+=4;
+}
+
+/* RFC 1813, Page 40..43 */
+static int
+dissect_nfs3_access_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree* tree)
+{
+	guint32 fhhash, *acc_request, amask;
+	rpc_call_info_value *civ;
+
+	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "object", &fhhash);
+	
+	/* Get access mask to check and save it for comparison to the access reply. */
+	amask = tvb_get_ntohl(tvb, offset);
+	acc_request = se_memdup( &amask, sizeof(guint32));
+	civ = pinfo->private_data;
+    civ->private_data = acc_request;
+
+	/* Append filehandle to Info column and main tree header */
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,", FH:0x%08x", fhhash);
+	}
+	proto_item_append_text(tree, ", ACCESS Call, FH:0x%08x", fhhash);
+	
+	display_access_items(tvb, offset, pinfo, tree, amask, 'C', 3, NULL, "Check") ;
+	
+	offset+=4;
+	return offset;
+}
 
 /* RFC 1813, Page 40..43 */
 static int
@@ -4902,26 +5085,19 @@ dissect_nfs3_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	const char *err;
 
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
-	switch (status) {
-		case 0:
-			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
-				"obj_attributes");
-			offset = dissect_access(tvb, offset, tree, "access");
+	offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
+			"obj_attributes");
 
-			proto_item_append_text(tree, ", ACCESS Reply");
-		break;
-		default:
-			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
-				"obj_attributes");
-
-			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
-			}
-			proto_item_append_text(tree, ", ACCESS Reply  Error:%s", err);
-		break;
+	if (status==0) {
+		proto_item_append_text(tree, ", ACCESS Reply");
+		offset = dissect_access_reply(tvb, offset, pinfo, tree, 3, NULL);
+	} else {
+		err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_fstr(pinfo->cinfo, COL_INFO," Error: %s", err);
+		}
+		proto_item_append_text(tree, ", ACCESS Reply  Error: %s", err);
 	}
-
 	return offset;
 }
 
@@ -8053,6 +8229,7 @@ static const value_string names_nfsv4_operation[] = {
 gint *nfsv4_operation_ett[] =
 {
 	 &ett_nfs_access4 ,
+	 &ett_nfs_access_supp4,
 	 &ett_nfs_close4 ,
 	 &ett_nfs_commit4 ,
 	 &ett_nfs_create4 ,
@@ -8977,11 +9154,28 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		g_string_append_printf (op_summary[ops_counter].optext, "%s", opname);
 		g_string_printf (op_summary[ops_counter].optext, "%s", val_to_str(opcode, names_nfsv4_operation, "Unknown"));
 
+
 		switch(opcode)
 		{
 		case NFS4_OP_ACCESS:
-			offset = dissect_access(tvb, offset, newftree, "access");
-			g_string_append_printf (op_summary[ops_counter].optext, " FH:0x%08x", last_fh_hash);
+			{
+				guint32 *acc_request, amask;
+				rpc_call_info_value *civ;
+				
+				/* Get access mask to check and save it for comparison in the reply. */
+				amask = tvb_get_ntohl(tvb, offset);
+				acc_request = se_memdup( &amask, sizeof(guint32));
+				civ = pinfo->private_data;
+				civ->private_data = acc_request;
+
+				if (check_col(pinfo->cinfo, COL_INFO)) {
+					g_string_append_printf (op_summary[ops_counter].optext, " FH:0x%08x", 
+						last_fh_hash);
+				}
+				display_access_items(tvb, offset, pinfo, fitem, amask, 'C', 4, 
+					op_summary[ops_counter].optext, "Check") ;
+				offset+=4;
+			}
 			break;
 
 		case NFS4_OP_CLOSE:
@@ -9632,8 +9826,8 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		switch(opcode)
 		{
 		case NFS4_OP_ACCESS:
-			offset = dissect_access(tvb, offset, newftree, "Supported");
-			offset = dissect_access(tvb, offset, newftree, "Access");
+			offset = dissect_access_reply(tvb, offset, pinfo, fitem, 4, 
+				op_summary[ops_counter].optext);
 			break;
 
 		case NFS4_OP_CLOSE:
@@ -11879,6 +12073,102 @@ proto_register_nfs(void)
 			"gid", "nfs.service4", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 
+		{ &hf_nfs_access_check,
+			{ "Check access", "nfs.access_check",
+			FT_UINT8, BASE_HEX,
+			NULL, 0x0,
+			"Access type(s) to be checked", HFILL }
+		},
+		{ &hf_nfs_access_supported,
+			{ "Supported types (of requested)", "nfs.access_supported",
+			FT_UINT8, BASE_HEX,
+			NULL, 0x0,
+			"Access types (of those requested) that the server can reliably verify", HFILL }
+		},
+		{ &hf_nfs_access_rights,
+			{ "Access rights (of requested)", "nfs.access_rights",
+			FT_UINT8, BASE_HEX,
+			NULL, 0x0,
+			"Access rights for the types requested", HFILL }
+		},
+		{ &hf_nfs_access_supp_read,
+			{ " 0x01  READ", "nfs.access_supp_read",
+			FT_BOOLEAN, 8,
+			TFS(&tfs_access_supp), NFS_ACCESS_MASK_READ,
+			NULL, HFILL }
+		},
+		{ &hf_nfs_access_supp_lookup,
+			{ " 0x02  LOOKUP", "nfs.access_supp_lookup",
+			FT_BOOLEAN, 8,
+			TFS(&tfs_access_supp), NFS_ACCESS_MASK_LOOKUP,
+			NULL, HFILL }
+		},	
+		{ &hf_nfs_access_supp_modify,
+			{ " 0x04  MODIFY", "nfs.access_supp_modify",
+			FT_BOOLEAN, 8,
+			TFS(&tfs_access_supp), NFS_ACCESS_MASK_MODIFY,
+			NULL, HFILL }
+		},	
+		{ &hf_nfs_access_supp_extend,
+			{ " 0x08  EXTEND", "nfs.access_supp_extend",
+			FT_BOOLEAN, 8,
+			TFS(&tfs_access_supp), NFS_ACCESS_MASK_EXTEND,
+			NULL, HFILL }
+		},	
+		{ &hf_nfs_access_supp_delete,
+			{ " 0x10  DELETE", "nfs.access_supp_delete",
+			FT_BOOLEAN, 8,
+			TFS(&tfs_access_supp), NFS_ACCESS_MASK_DELETE,
+			NULL, HFILL }
+		},	
+		{ &hf_nfs_access_supp_execute,
+			{ " 0x20  EXECUTE", "nfs.access_supp_execute",
+			FT_BOOLEAN, 8,
+			TFS(&tfs_access_supp), NFS_ACCESS_MASK_EXECUTE,
+			NULL, HFILL }
+		},		
+		{ &hf_nfs_access_read,
+			{ " 0x01  READ", "nfs.access_read",
+			FT_BOOLEAN, 8,
+			TFS(&tfs_access_rights), NFS_ACCESS_MASK_READ,
+			NULL, HFILL }
+		},
+		{ &hf_nfs_access_lookup,
+			{ " 0x02  LOOKUP", "nfs.access_lookup",
+			FT_BOOLEAN, 8,
+			TFS(&tfs_access_rights), NFS_ACCESS_MASK_LOOKUP,
+			NULL, HFILL }
+		},	
+		{ &hf_nfs_access_modify,
+			{ " 0x04  MODIFY", "nfs.access_modify",
+			FT_BOOLEAN, 8,
+			TFS(&tfs_access_rights), NFS_ACCESS_MASK_MODIFY,
+			NULL, HFILL }
+		},	
+		{ &hf_nfs_access_extend,
+			{ " 0x08  EXTEND", "nfs.access_extend",
+			FT_BOOLEAN, 8,
+			TFS(&tfs_access_rights), NFS_ACCESS_MASK_EXTEND,
+			NULL, HFILL }
+		},	
+		{ &hf_nfs_access_delete,
+			{ " 0x10  DELETE", "nfs.access_delete",
+			FT_BOOLEAN, 8,
+			TFS(&tfs_access_rights), NFS_ACCESS_MASK_DELETE,
+			NULL, HFILL }
+		},	
+		{ &hf_nfs_access_execute,
+			{ " 0x20  EXECUTE", "nfs.access_execute",
+			FT_BOOLEAN, 8,
+			TFS(&tfs_access_rights), NFS_ACCESS_MASK_EXECUTE,
+			NULL, HFILL }
+		},
+        { &hf_nfs_access_denied,
+			{ "Access Denied", "nfs.access_denied", 
+			FT_BOOLEAN, BASE_NONE,
+			NULL, 0x0,
+			"True: access has been denied to one or more of the requested types", HFILL }
+		},
 		{ &hf_nfs_sessionid4, {
 			"sessionid", "nfs.session_id4", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
@@ -12062,13 +12352,14 @@ proto_register_nfs(void)
 		&ett_nfs_post_op_attr,
 		&ett_nfs_wcc_attr,
 		&ett_nfs_wcc_data,
-		&ett_nfs_access,
+		&ett_nfs_access3,
 		&ett_nfs_fsinfo_properties,
 		&ett_nfs_compound_call4,
 		&ett_nfs_utf8string,
 		&ett_nfs_argop4,
 		&ett_nfs_resop4,
 		&ett_nfs_access4,
+		&ett_nfs_access_supp4,
 		&ett_nfs_close4,
 		&ett_nfs_commit4,
 		&ett_nfs_create4,
