@@ -439,7 +439,39 @@ colorize_conversation_cb(GtkWidget * w _U_, gpointer data _U_, int action)
     }
 }
 
-/* main menu */
+/*
+ * Main menu.
+ *
+ * Please do not use keystrokes that are used as "universal" shortcuts in
+ * various desktop environments:
+ *
+ *   Windows:
+ *	http://support.microsoft.com/kb/126449
+ *
+ *   GNOME:
+ *	http://library.gnome.org/users/user-guide/nightly/keyboard-skills.html.en
+ *
+ *   KDE:
+ *	http://developer.kde.org/documentation/standards/kde/style/keys/shortcuts.html
+ *
+ * In particular, do not use the following <control> sequences for anything
+ * other than their standard purposes:
+ *
+ *	<control>O	File->Open
+ *	<control>S	File->Save
+ *	<control>P	File->Print
+ *	<control>W	File->Close
+ *	<control>Q	File->Quit
+ *	<control>Z	Edit->Undo (which we don't currently have)
+ *	<control>X	Edit->Cut (which we don't currently have)
+ *	<control>C	Edit->Copy (which we don't currently have)
+ *	<control>V	Edit->Paste (which we don't currently have)
+ *	<control>A	Edit->Select All (which we don't currently have)
+ *
+ * Note that some if not all of the Edit keys above already perform those
+ * functions in text boxes, such as the Filter box.  Do no, under any
+ * circumstances, make a change that keeps them from doing so.
+ */
 static GtkItemFactoryEntry menu_items[] =
 {
     {"/_File", NULL, NULL, 0, "<Branch>", NULL,},
@@ -526,26 +558,29 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Edit/Find Previous Mark", "<shift><control>B", GTK_MENU_FUNC(find_prev_mark_cb),
                        0, NULL, NULL,},
 #ifdef NEW_PACKET_LIST
-    {"/Edit/Mark _All Displayed Packets", "<control>A", GTK_MENU_FUNC(new_packet_list_mark_all_frames_cb), 0, NULL, NULL,},
-    {"/Edit/_Unmark All Packets", "<control>D", GTK_MENU_FUNC(new_packet_list_unmark_all_frames_cb), 0, NULL, NULL,},
+    {"/Edit/Mark _All Displayed Packets", "<shift><control>M", GTK_MENU_FUNC(new_packet_list_mark_all_frames_cb), 0, NULL, NULL,},
+    {"/Edit/_Unmark All Packets", "<alt><control>M", GTK_MENU_FUNC(new_packet_list_unmark_all_frames_cb), 0, NULL, NULL,},
 #else
-    {"/Edit/Mark _All Displayed Packets", "<control>A", GTK_MENU_FUNC(packet_list_mark_all_frames_cb), 0, NULL, NULL,},
-    {"/Edit/_Unmark All Packets", "<control>D", GTK_MENU_FUNC(packet_list_unmark_all_frames_cb), 0, NULL, NULL,},
+    {"/Edit/Mark _All Displayed Packets", "<shift><control>M", GTK_MENU_FUNC(packet_list_mark_all_frames_cb), 0, NULL, NULL,},
+    {"/Edit/_Unmark All Packets", "<alt><control>M", GTK_MENU_FUNC(packet_list_unmark_all_frames_cb), 0, NULL, NULL,},
 #endif /* NEW_PACKET_LIST */
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 #ifdef NEW_PACKET_LIST
-    {"/Edit/_Ignore Packet (toggle)", "<control>X", GTK_MENU_FUNC(new_packet_list_ignore_frame_cb),
+    {"/Edit/_Ignore Packet (toggle)", "<control>D", GTK_MENU_FUNC(new_packet_list_ignore_frame_cb),
                        0, NULL, NULL,},
-    {"/Edit/Ignore All Displayed Packets", "<alt><shift><control>X", GTK_MENU_FUNC(new_packet_list_ignore_all_frames_cb),
+    /*
+     * XXX - this next one overrides /Edit/Copy/Description
+     */
+    {"/Edit/Ignore All Displayed Packets", "<shift><control>D", GTK_MENU_FUNC(new_packet_list_ignore_all_frames_cb),
                        0, NULL, NULL,},
-    {"/Edit/U_n-Ignore All Packets", "<shift><control>X", GTK_MENU_FUNC(new_packet_list_unignore_all_frames_cb),
+    {"/Edit/U_n-Ignore All Packets", "<alt><control>D", GTK_MENU_FUNC(new_packet_list_unignore_all_frames_cb),
                        0, NULL, NULL,},
 #else
-    {"/Edit/_Ignore Packet (toggle)", "<control>X", GTK_MENU_FUNC(packet_list_ignore_frame_cb),
+    {"/Edit/_Ignore Packet (toggle)", "<control>D", GTK_MENU_FUNC(packet_list_ignore_frame_cb),
                        0, NULL, NULL,},
-    {"/Edit/Ignore All Displayed Packets", "<alt><shift><control>X", GTK_MENU_FUNC(packet_list_ignore_all_frames_cb),
+    {"/Edit/Ignore All Displayed Packets", "<shift><control>D", GTK_MENU_FUNC(packet_list_ignore_all_frames_cb),
                        0, NULL, NULL,},
-    {"/Edit/U_n-Ignore All Packets", "<shift><control>X", GTK_MENU_FUNC(packet_list_unignore_all_frames_cb),
+    {"/Edit/U_n-Ignore All Packets", "<alt><control>D", GTK_MENU_FUNC(packet_list_unignore_all_frames_cb),
                        0, NULL, NULL,},
 #endif /* NEW_PACKET_LIST */
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
