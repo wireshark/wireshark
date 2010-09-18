@@ -535,6 +535,7 @@ set(TSHARK_TAP_SRC
 	tap-rpcstat.c
 	tap-rpcprogs.c
 	tap-rtp.c
+	tap-scsistat.c
 	tap-sctpchunkstat.c
 	tap-sipstat.c
 	tap-smbsids.c
