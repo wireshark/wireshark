@@ -543,18 +543,26 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
     }
 
-    /* Create the RTP summary str for the Voip Call analysis */
-    for (i = 0; i < transport_info.media[n].pt_count; i++)
-    {
-      /* if the payload type is dynamic (96 to 127), check the hash table to add the desc in the SDP summary */
-      if ( (transport_info.media[n].pt[i] >=96) && (transport_info.media[n].pt[i] <=127) ) {
-        encoding_name_and_rate_t *encoding_name_and_rate_pt = g_hash_table_lookup(transport_info.media[n].rtp_dyn_payload, &transport_info.media[n].pt[i]);
-        if (encoding_name_and_rate_pt)
-          g_snprintf(sdp_pi->summary_str, 50, "%s %s", sdp_pi->summary_str, encoding_name_and_rate_pt->encoding_name);
-        else
-          g_snprintf(sdp_pi->summary_str, 50, "%s %d", sdp_pi->summary_str, transport_info.media[n].pt[i]);
-      } else
-        g_snprintf(sdp_pi->summary_str, 50, "%s %s", sdp_pi->summary_str, val_to_str(transport_info.media[n].pt[i], rtp_payload_type_short_vals, "%u"));
+    if (port!=0) {
+      /* Create the RTP summary str for the Voip Call analysis */
+      for (i = 0; i < transport_info.media[n].pt_count; i++)
+      {
+        /* if the payload type is dynamic (96 to 127), check the hash table to add the desc in the SDP summary */
+        if ( (transport_info.media[n].pt[i] >=96) && (transport_info.media[n].pt[i] <=127) ) {
+          encoding_name_and_rate_t *encoding_name_and_rate_pt = g_hash_table_lookup(transport_info.media[n].rtp_dyn_payload, &transport_info.media[n].pt[i]);
+          if (encoding_name_and_rate_pt) {
+            if (strlen(sdp_pi->summary_str)) g_strlcat(sdp_pi->summary_str, " ", 50);
+            g_strlcat(sdp_pi->summary_str, encoding_name_and_rate_pt->encoding_name, 50);
+          } else {
+            char num_pt[10];
+            g_snprintf(num_pt, 10, "%u", transport_info.media[n].pt[i]);
+            if (strlen(sdp_pi->summary_str)) g_strlcat(sdp_pi->summary_str, " ", 50);
+            g_strlcat(sdp_pi->summary_str, num_pt, 50);
+          }
+        } else
+          if (strlen(sdp_pi->summary_str)) g_strlcat(sdp_pi->summary_str, " ", 50);
+          g_strlcat(sdp_pi->summary_str, val_to_str(transport_info.media[n].pt[i], rtp_payload_type_short_vals, "%u"), 50);
+      }
     }
 
     /* Free the hash table if we did't assigned it to a conv use it */
@@ -562,7 +570,10 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       rtp_free_hash_dyn_payload(transport_info.media[n].rtp_dyn_payload);
 
     /* Create the T38 summary str for the Voip Call analysis */
-    if (is_t38) g_snprintf(sdp_pi->summary_str, 50, "%s t38", sdp_pi->summary_str);
+    if (port!=0 && is_t38) {
+      if (strlen(sdp_pi->summary_str)) g_strlcat(sdp_pi->summary_str, " ", 50);
+      g_strlcat(sdp_pi->summary_str, "t38", 50);
+    }
   }
 
   /* Free the remainded hash tables not used */
