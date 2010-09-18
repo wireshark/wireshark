@@ -3119,11 +3119,12 @@ Owen Kirby		<osk [AT] exegin.com> {
 }
 
 Juha Siltanen <juha.siltanen [AT] nsn.com> {
-    FLIP dissector
+	FLIP dissector
 }
 
 Cal Turney <turney_cal [AT] emc.com> {
 	NFS access tracking
+	tshark version of the SCSI tap
 }
 
 and by:
