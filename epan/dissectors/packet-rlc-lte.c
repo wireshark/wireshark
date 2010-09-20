@@ -660,11 +660,12 @@ static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
                                                 tvb, 0, 0, TRUE);
                     PROTO_ITEM_SET_GENERATED(ti);
                     expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                           "AM SN Repeated for %s for UE %u - probably because didn't receive Status PDU?",
+                                           "AM SN %u Repeated for %s for UE %u - probably because didn't receive Status PDU?",
+                                           p->firstSN,
                                            val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
                                            p_rlc_lte_info->ueid);
                     proto_item_append_text(seqnum_ti, "- SN %u Repeated",
-                                           p->sequenceExpected);
+                                           p->firstSN);
                     break;
 
                 case SN_Missing:
@@ -768,7 +769,7 @@ static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
                                                val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
                                                p_rlc_lte_info->ueid);
                         proto_item_append_text(seqnum_ti, "- SN %u Repeated",
-                                               p->sequenceExpected);
+                                               p->firstSN);
                         break;
 
                     case SN_MAC_Retx:
@@ -1011,7 +1012,8 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
 
                 /* Set report for this frame */
                 p_report_in_frame->sequenceExpectedCorrect = FALSE;
-                p_report_in_frame->sequenceExpected = sequenceNumber;
+                p_report_in_frame->sequenceExpected = expectedSequenceNumber;
+                p_report_in_frame->firstSN = sequenceNumber;
                 p_report_in_frame->previousFrameNum = p_channel_status->previousFrameNum;
                 p_report_in_frame->previousSegmentIncomplete = p_channel_status->previousSegmentIncomplete;
 
