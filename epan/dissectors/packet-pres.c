@@ -501,13 +501,13 @@ static const ber_sequence_t Context_list_item_sequence[] = {
 
 static int
 dissect_pres_Context_list_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 91 "pres.cnf"
+#line 101 "pres.cnf"
 	abstract_syntax_name_oid=NULL;
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Context_list_item_sequence, hf_index, ett_pres_Context_list_item);
 
-#line 94 "pres.cnf"
+#line 104 "pres.cnf"
 	register_ctx_id_and_oid(actx->pinfo, presentation_context_identifier, abstract_syntax_name_oid);
 
   return offset;
@@ -1092,8 +1092,16 @@ static const value_string pres_Abort_reason_vals[] = {
 
 static int
 dissect_pres_Abort_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+#line 94 "pres.cnf"
+  guint32 reason;
+
+    offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                &reason);
+
+
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str(reason, pres_Abort_reason_vals, "unknown: %d"));
+
+
 
   return offset;
 }
@@ -1405,9 +1413,8 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 	/* get type of tag */
 	s_type = tvb_get_guint8(tvb, offset);
 	/*  set up type of PPDU */
-  	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO,
-			    val_to_str(session->spdu_type, ses_vals, "Unknown PPDU type (0x%02x)"));
+	col_add_str(pinfo->cinfo, COL_INFO,
+		    val_to_str(session->spdu_type, ses_vals, "Unknown PPDU type (0x%02x)"));
 	if (tree){
 		ti = proto_tree_add_item(tree, proto_pres, tvb, offset, -1, FALSE);
 		pres_tree = proto_item_add_subtree(ti, ett_pres);
@@ -1862,7 +1869,7 @@ void proto_register_pres(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pres-hfarr.c ---*/
-#line 404 "packet-pres-template.c"
+#line 403 "packet-pres-template.c"
   };
 
   /* List of subtrees */
@@ -1909,7 +1916,7 @@ void proto_register_pres(void) {
     &ett_pres_UD_type,
 
 /*--- End of included file: packet-pres-ettarr.c ---*/
-#line 410 "packet-pres-template.c"
+#line 409 "packet-pres-template.c"
   };
 
   static uat_field_t users_flds[] = {

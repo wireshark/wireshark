@@ -260,9 +260,8 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 	/* get type of tag */
 	s_type = tvb_get_guint8(tvb, offset);
 	/*  set up type of PPDU */
-  	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO,
-			    val_to_str(session->spdu_type, ses_vals, "Unknown PPDU type (0x%02x)"));
+	col_add_str(pinfo->cinfo, COL_INFO,
+		    val_to_str(session->spdu_type, ses_vals, "Unknown PPDU type (0x%02x)"));
 	if (tree){
 		ti = proto_tree_add_item(tree, proto_pres, tvb, offset, -1, FALSE);
 		pres_tree = proto_item_add_subtree(ti, ett_pres);

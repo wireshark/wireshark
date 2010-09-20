@@ -87,6 +87,16 @@ CPR-PPDU/normal-mode-parameters/provider-reason cPR_PPDU__provider-reason
 	proto_item_append_text(actx->created_item, " (%%s)", name);
   }
 
+#.FN_PARS Abort-reason
+  VAL_PTR = &reason
+
+#.FN_BODY Abort-reason
+  guint32 reason;
+
+  %(DEFAULT_BODY)s
+
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(reason, pres_Abort_reason_vals, "unknown: %%d"));
+
 #.FN_HDR Context-list/_item
 	abstract_syntax_name_oid=NULL;
 #.END
