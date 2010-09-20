@@ -1575,6 +1575,12 @@ packet_list_heading_rename_col_cb(GtkWidget *widget, gpointer user_data)
 }
 
 static void
+packet_list_heading_activate_all_columns(GtkWidget *widget _U_, gpointer user_data _U_)
+{
+	new_packet_list_set_all_columns_visible ();
+}
+
+static void
 packet_list_heading_hide_col_cb(GtkWidget *widget, gpointer user_data)
 {
 	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_HIDE);
@@ -2290,10 +2296,11 @@ static const char *ui_desc_packet_list_heading_menu_popup =
 "     <separator/>\n"
 "     <menuitem name='ColumnPreferences' action='/Column Preferences'/>\n"
 "     <separator/>\n"
-"     <menu name= 'DisplayedColumns' action='/Displayed Columns'>\n"
-"       <menuitem name='HideColumn' action='/Hide Column'/>\n"
-"       <menuitem name='RemoveColumn' action='/Remove Column'/>\n"
+"     <menu name='DisplayedColumns' action='/Displayed Columns'>\n"
+"       <menuitem name='Display All' action='/Displayed Columns/Display All'/>\n"
 "     </menu>\n"
+"     <menuitem name='HideColumn' action='/Hide Column'/>\n"
+"     <menuitem name='RemoveColumn' action='/Remove Column'/>\n"
 "  </popup>\n"
 "</ui>\n";
 
@@ -2308,6 +2315,7 @@ static const GtkActionEntry packet_list_heading_menu_popup_action_entries[] = {
   { "/Resize Column",					WIRESHARK_STOCK_RESIZE_COLUMNS,		"Resize Column",			NULL,	NULL,	G_CALLBACK(packet_list_heading_resize_col_cb) },
   { "/Rename Column Title",				GTK_STOCK_BOLD,						"Rename Column Title...",	NULL,	NULL,	G_CALLBACK(packet_list_heading_rename_col_cb) },
   { "/Displayed Columns",				NULL,								"Displayed Columns",		NULL,	NULL,	NULL },
+  { "/Displayed Columns/Display All",				NULL,								"Display All",		NULL,	NULL,	G_CALLBACK(packet_list_heading_activate_all_columns) },
   { "/Hide Column",						NULL,								"Hide Column",				NULL,	NULL,	G_CALLBACK(packet_list_heading_hide_col_cb) },
   { "/Remove Column",					GTK_STOCK_DELETE,					"Remove Column",			NULL,	NULL,	G_CALLBACK(packet_list_heading_remove_col_cb) },
 };
@@ -5265,11 +5273,13 @@ menu_visible_column_toggle (GtkWidget *w _U_, gpointer data)
     new_packet_list_toggle_visible_column (GPOINTER_TO_INT(data));
 }
 
+#ifndef MENUS_USE_UIMANAGER
 static void
 menu_activate_all_columns (GtkWidget *w _U_, gpointer data _U_)
 {
     new_packet_list_set_all_columns_visible ();
 }
+#endif
 
 void
 rebuild_visible_columns_menu (void)
@@ -5280,11 +5290,11 @@ rebuild_visible_columns_menu (void)
     fmt_data  *cfmt;
     gchar     *title;
     gint       i, col_id, cur_fmt;
+
+    menu_columns[0] = gtk_item_factory_get_widget(main_menu_factory, "/View/Displayed Columns");
 #ifdef MENUS_USE_UIMANAGER
-    menu_columns[0] = gtk_item_factory_get_widget(main_menu_factory, "/View/DisplayedColumns");
     menu_columns[1] = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/DisplayedColumns");
 #else
-    menu_columns[0] = gtk_item_factory_get_widget(main_menu_factory, "/View/Displayed Columns");
     menu_columns[1] = gtk_item_factory_get_widget(packet_list_heading_factory, "/Displayed Columns");
 #endif
 	/* Debug */
@@ -5322,7 +5332,11 @@ rebuild_visible_columns_menu (void)
 
         menu_item = gtk_menu_item_new_with_label ("Display All");
         gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
+#ifdef MENUS_USE_UIMANAGER
+        g_signal_connect(menu_item, "activate", G_CALLBACK(packet_list_heading_activate_all_columns), NULL);
+#else
         g_signal_connect(menu_item, "activate", G_CALLBACK(menu_activate_all_columns), NULL);
+#endif
         gtk_widget_show (menu_item);
     }
 }
