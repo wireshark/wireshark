@@ -908,74 +908,216 @@ copy_as_filter_cb(GtkWidget *widget, gpointer user_data)
 	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
 }
 
+static void
+set_reftime_cb(GtkWidget *widget, gpointer user_data)
+{
+	reftime_frame_cb( widget , user_data, REFTIME_TOGGLE);
+}
+
+static void
+find_next_ref_time_cb(GtkWidget *widget, gpointer user_data)
+{
+	reftime_frame_cb( widget , user_data, REFTIME_FIND_NEXT);
+}
+
+static void
+find_previous_ref_time_cb(GtkWidget *widget, gpointer user_data)
+{
+	reftime_frame_cb( widget , user_data, REFTIME_FIND_PREV);
+}
+
+static void
+prefs_cb(GtkWidget *widget, gpointer user_data)
+{
+	prefs_page_cb( widget , user_data, PREFS_PAGE_USER_INTERFACE);
+}
+
+static void
+main_toolbar_show_hide_cb(GtkAction *action, gpointer user_data)
+{
+	/* XXXX fixme show_hide_cb SHOW_HIDE_MAIN_TOOLBAR*/
+}
+
+static void
+filter_toolbar_show_hide_cb(GtkAction * action, gpointer user_data)
+{
+	/* XXXX fixme SHOW_HIDE_FILTER_TOOLBAR */
+}
+
+#ifdef HAVE_AIRPCAP
+static void
+wireless_toolbar_show_hide_cb(GtkAction *action, gpointer user_data)
+{
+	/* XXXX fixme SHOW_HIDE_AIRPCAP_TOOLBAR*/
+}
+#endif
+
+static void
+status_bar_show_hide_cb(GtkAction *action, gpointer user_data)
+{
+	/* XXXX fixme SHOW_HIDE_STATUSBAR*/
+}
+static void
+packet_list_show_hide_cb(GtkAction *action, gpointer user_data)
+{
+	/* XXXX fixme SHOW_HIDE_PACKET_LIST*/
+}
+static void
+packet_details_show_hide_cb(GtkAction *action, gpointer user_data)
+{
+	/* XXXX fixme SHOW_HIDE_TREE_VIEW*/
+}
+static void
+packet_bytes_show_hide_cb(GtkAction *action, gpointer user_data)
+{
+	/* XXXX fixme SHOW_HIDE_BYTE_VIEW*/
+}
+
+static void
+timestamp_format_new_cb (GtkRadioAction *action, GtkRadioAction *current, gpointer user_data)
+{
+	gint value;
+
+	value = gtk_radio_action_get_current_value (action);
+}
+
+static void
+timestamp_precision_new_cb (GtkRadioAction *action, GtkRadioAction *current, gpointer user_data)
+{
+	gint value;
+
+	value = gtk_radio_action_get_current_value (action);
+}
+
+static void
+view_menu_en_for_MAC_cb(GtkAction *action, gpointer user_data)
+{
+	gboolean state;
+	//name_resolution_cb( widget , user_data, RESOLV_MAC);
+
+	state = gtk_toggle_action_get_active (GTK_TOGGLE_ACTION (action));
+}
+
+
 static const char *ui_desc_menubar =
 "<ui>\n"
 "  <menubar name ='Menubar'>\n"
 "    <menu name= 'FileMenu' action='/File'>\n"
-"      <menuitem name='FileOpen' action='/File/Open'/>\n"
-"      <menuitem name='FileOpenRecent' action='/File/OpenRecent'/>\n"
-"      <menuitem name='FileMerge' action='/File/Merge'/>\n"
-"      <menuitem name='FileClose' action='/File/Close'/>\n"
+"      <menuitem name='Open' action='/File/Open'/>\n"
+"      <menuitem name='OpenRecent' action='/File/OpenRecent'/>\n"
+"      <menuitem name='Merge' action='/File/Merge'/>\n"
+"      <menuitem name='Close' action='/File/Close'/>\n"
 "      <separator/>\n"
-"      <menuitem name='FileSave' action='/File/Save'/>\n"
-"      <menuitem name='FileSaveAs' action='/File/SaveAs'/>\n"
+"      <menuitem name='Save' action='/File/Save'/>\n"
+"      <menuitem name='SaveAs' action='/File/SaveAs'/>\n"
 "      <separator/>\n"
-"      <menu name= 'FileSet' action='/File/FileSet'>\n"
-"        <menuitem name='ListFiles' action='/File/FileSet/ListFiles'/>\n"
-"        <menuitem name='NextFile' action='/File/FileSet/NextFile'/>\n"
-"        <menuitem name='PreviousFile' action='/File/FileSet/PreviousFile'/>\n"
+"      <menu name= 'Set' action='/File/Set'>\n"
+"        <menuitem name='ListFiles' action='/File/Set/ListFiles'/>\n"
+"        <menuitem name='NextFile' action='/File/Set/NextFile'/>\n"
+"        <menuitem name='PreviousFile' action='/File/Set/PreviousFile'/>\n"
 "      </menu>\n"
 "      <separator/>\n"
-"      <menu name= 'FileExport' action='/File/Export'>\n"
+"      <menu name= 'Export' action='/File/Export'>\n"
 #if _WIN32
-"        <menuitem name='FileExportFile' action='/File/Export/File'/>\n"
+"        <menuitem name='File' action='/File/Export/File'/>\n"
 #else
-"        <menu name= 'FileExportFile' action='/File/Export/File'>\n"
-"          <menuitem name='FileExportFileAsTxt' action='/File/Export/File/Text'/>\n"
-"          <menuitem name='ExportFileAsPostScript' action='/File/Export/File/PostScript'/>\n"
-"          <menuitem name='ExportFileAsCSV' action='/File/Export/File/CSV'/>\n"
-"          <menuitem name='ExportFileAsCArrays' action='/File/Export/File/CArrays'/>\n"
+"        <menu name= 'File' action='/File/Export/File'>\n"
+"          <menuitem name='AsTxt' action='/File/Export/File/Text'/>\n"
+"          <menuitem name='AsPostScript' action='/File/Export/File/PostScript'/>\n"
+"          <menuitem name='AsCSV' action='/File/Export/File/CSV'/>\n"
+"          <menuitem name='AsCArrays' action='/File/Export/File/CArrays'/>\n"
 "          <separator/>\n"
-"          <menuitem name='ExportFileAsPSML' action='/File/Export/File/PSML'/>\n"
-"          <menuitem name='ExportFileAsPDML' action='/File/Export/File/PDML'/>\n"
+"          <menuitem name='AsPSML' action='/File/Export/File/PSML'/>\n"
+"          <menuitem name='AsPDML' action='/File/Export/File/PDML'/>\n"
 "          <separator/>\n"
 "        </menu>\n"
 #endif
-"      <menuitem name='ExportFileSelectedPacketBytes' action='/File/Export/SelectedPacketBytes'/>\n"
-"        <menu name= 'FileExportObjects' action='/File/Export/Objects'>\n"
-"          <menuitem name='FileExportObjectsHTTP' action='/File/Export/Objects/HTTP'/>\n"
-"          <menuitem name='FileExportObjectsDICOM' action='/File/Export/Objects/DICOM'/>\n"
-"          <menuitem name='FileExportObjectsSMB' action='/File/Export/Objects/SMB'/>\n"
+"      <menuitem name='SelectedPacketBytes' action='/File/Export/SelectedPacketBytes'/>\n"
+"        <menu name= 'Objects' action='/File/Export/Objects'>\n"
+"          <menuitem name='HTTP' action='/File/Export/Objects/HTTP'/>\n"
+"          <menuitem name='DICOM' action='/File/Export/Objects/DICOM'/>\n"
+"          <menuitem name='SMB' action='/File/Export/Objects/SMB'/>\n"
 "        </menu>\n"
 "      </menu>\n"
 "      <separator/>\n"
-"      <menuitem name='FilePrint' action='/File/Print'/>\n"
+"      <menuitem name='Print' action='/File/Print'/>\n"
 "      <separator/>\n"
-"        <menuitem name='FileQuit' action='/File/Quit'/>\n"
+"        <menuitem name='Quit' action='/File/Quit'/>\n"
 "    </menu>\n"
 "    <menu name= 'EditMenu' action='/Edit'>\n"
-"        <menu name= 'EditMenuCopy' action='/Edit/Copy'>\n"
-"          <menuitem name='EditMenuCopyDescription' action='/Edit/Copy/Description'/>\n"
-"          <menuitem name='EditMenuCopyFieldname' action='/Edit/Copy/Fieldname'/>\n"
-"          <menuitem name='EditMenuCopyValue' action='/Edit/Copy/Value'/>\n"
+"        <menu name= 'Copy' action='/Edit/Copy'>\n"
+"          <menuitem name='Description' action='/Edit/Copy/Description'/>\n"
+"          <menuitem name='Fieldname' action='/Edit/Copy/Fieldname'/>\n"
+"          <menuitem name='Value' action='/Edit/Copy/Value'/>\n"
 "          <separator/>\n"
-"          <menuitem name='EditMenuCopyAsFilter' action='/Edit/Copy/AsFilter'/>\n"
+"          <menuitem name='AsFilter' action='/Edit/Copy/AsFilter'/>\n"
 "        </menu>\n"
-"        <menuitem name='EditMenuFindPacket' action='/Edit/FindPacket'/>\n"
-"        <menuitem name='EditMenuFindNext' action='/Edit/FindNext'/>\n"
-"        <menuitem name='EditMenuFindPrevious' action='/Edit/FindPrevious'/>\n"
-"      <separator/>\n"
+"        <menuitem name='FindPacket' action='/Edit/FindPacket'/>\n"
+"        <menuitem name='FindNext' action='/Edit/FindNext'/>\n"
+"        <menuitem name='FindPrevious' action='/Edit/FindPrevious'/>\n"
+"        <separator/>\n"
 #ifdef NEW_PACKET_LIST
-"        <menuitem name='EditMenuMarkPacket' action='/Edit/MarkPacket'/>\n"
-"        <menuitem name='EditMenuMarkAllDisplayedPackets' action='/Edit/MarkAllDisplayedPackets'/>\n"
+"        <menuitem name='MarkPacket' action='/Edit/MarkPacket'/>\n"
+"        <menuitem name='MarkAllDisplayedPackets' action='/Edit/MarkAllDisplayedPackets'/>\n"
+"        <menuitem name='UnmarkAllPackets' action='/Edit/UnmarkAllPackets'/>\n"
+"        <menuitem name='FindNextMark' action='/Edit/FindNextMark'/>\n"
+"        <menuitem name='FindPreviousMark' action='/Edit/FindPreviousMark'/>\n"
+"        <separator/>\n"
+"        <menuitem name='IgnorePacket' action='/Edit/IgnorePacket'/>\n"
+"        <menuitem name='IgnoreAllDisplayedPackets' action='/Edit/IgnoreAllDisplayedPackets'/>\n"
+"        <menuitem name='Un-IgnoreAllPackets' action='/Edit/Un-IgnoreAllPackets'/>\n"
+"        <separator/>\n"
+"        <menuitem name='SetTimeReference' action='/Edit/SetTimeReference'/>\n"
+"        <menuitem name='Un-TimeReferenceAllPackets' action='/Edit/Un-TimeReferenceAllPackets'/>\n"
+"        <menuitem name='FindNextTimeReference' action='/Edit/FindNextTimeReference'/>\n"
+"        <menuitem name='FindPreviousTimeReference' action='/Edit/FindPreviousTimeReference'/>\n"
+"        <separator/>\n"
 #else /* NEW_PACKET_LIST */
 Not implemented!
 #endif
+"        <menuitem name='ConfigurationProfiles' action='/Edit/ConfigurationProfiles'/>\n"
+"        <menuitem name='Preferences' action='/Edit/Preferences'/>\n"
+"    </menu>\n"
+"    <menu name= 'ViewMenu' action='/View'>\n"
+"      <menuitem name='MainToolbar' action='/View/MainToolbar'/>\n"
+"      <menuitem name='FilterToolbar' action='/View/FilterToolbar'/>\n"
+#ifdef HAVE_AIRPCAP
+"      <menuitem name='WirelessToolbar' action='/View/WirelessToolbar'/>\n"
+#endif
+"      <menuitem name='Statusbar' action='/View/Statusbar'/>\n"
+"      <separator/>\n"
+"      <menuitem name='PacketList' action='/View/PacketList'/>\n"
+"      <menuitem name='PacketDetails' action='/View/PacketDetails'/>\n"
+"      <menuitem name='PacketBytes' action='/View/PacketBytes'/>\n"
+"      <separator/>\n"
+"      <menu name= 'TimeDisplayFormat' action='/View/TimeDisplayFormat'>\n"
+"        <menuitem name='DateandTimeofDay' action='/View/TimeDisplayFormat/DateandTimeofDay'/>\n"
+"        <menuitem name='TimeofDay' action='/View/TimeDisplayFormat/TimeofDay'/>\n"
+"        <menuitem name='SecondsSinceEpoch' action='/View/TimeDisplayFormat/SecondsSinceEpoch'/>\n"
+"        <menuitem name='SecondsSinceBeginningofCapture' action='/View/TimeDisplayFormat/SecondsSinceBeginningofCapture'/>\n"
+"        <menuitem name='SecondsSincePreviousCapturedPacket' action='/View/TimeDisplayFormat/SecondsSincePreviousCapturedPacket'/>\n"
+"        <menuitem name='SecondsSincePreviousDisplayedPacket' action='/View/TimeDisplayFormat/SecondsSincePreviousDisplayedPacket'/>\n"
+"        <separator/>\n"
+"        <menuitem name='FileFormatPrecision-Automatic' action='/View/TimeDisplayFormat/FileFormatPrecision-Automatic'/>\n"
+"        <menuitem name='FileFormatPrecision-Seconds' action='/View/TimeDisplayFormat/FileFormatPrecision-Seconds'/>\n"
+"        <menuitem name='FileFormatPrecision-Deciseconds' action='/View/TimeDisplayFormat/FileFormatPrecision-Deciseconds'/>\n"
+"        <menuitem name='FileFormatPrecision-Centiseconds' action='/View/TimeDisplayFormat/FileFormatPrecision-Centiseconds'/>\n"
+"        <menuitem name='FileFormatPrecision-Milliseconds' action='/View/TimeDisplayFormat/FileFormatPrecision-Milliseconds'/>\n"
+"        <menuitem name='FileFormatPrecision-Microseconds' action='/View/TimeDisplayFormat/FileFormatPrecision-Microseconds'/>\n"
+"        <menuitem name='FileFormatPrecision-Nanoseconds' action='/View/TimeDisplayFormat/FileFormatPrecision-Nanoseconds'/>\n"
+"        <separator/>\n"
+"        <menuitem name='DisplaySecondsWithHoursAndMinutes' action='/View/TimeDisplayFormat/DisplaySecondsWithHoursAndMinutes'/>\n"
+"      </menu>\n"
+"      <menu name= 'NameResolutionMenu' action='/View/NameResolution'>\n"
+"         <menuitem name='ResolveName' action='/View/NameResolution/ResolveName'/>\n"
+"         <separator/>\n"
+"      </menu>\n"
 "    </menu>\n"
 "  </menubar>\n"
 "</ui>\n";
 
-/*
+
+/* 
  * GtkActionEntry
  * typedef struct {
  *   const gchar     *name;
@@ -985,21 +1127,22 @@ Not implemented!
  *   const gchar     *tooltip;
  *   GCallback  callback;
  * } GtkActionEntry;
- * const gchar *name;			The name of the action.
- * const gchar *stock_id;		The stock id for the action, or the name of an icon from the icon theme.
- * const gchar *label;			The label for the action. This field should typically be marked for translation,
- *								see gtk_action_group_set_translation_domain().
- *								If label is NULL, the label of the stock item with id stock_id is used.
- * const gchar *accelerator;	The accelerator for the action, in the format understood by gtk_accelerator_parse().
- * const gchar *tooltip;		The tooltip for the action. This field should typically be marked for translation,
- *                              see gtk_action_group_set_translation_domain().
- * GCallback callback;			The function to call when the action is activated.
+ * const gchar *name;			The name of the action.  
+ * const gchar *stock_id;		The stock id for the action, or the name of an icon from the icon theme.  
+ * const gchar *label;			The label for the action. This field should typically be marked for translation, 
+ *								see gtk_action_group_set_translation_domain(). 
+ *								If label is NULL, the label of the stock item with id stock_id is used.  
+ * const gchar *accelerator;	The accelerator for the action, in the format understood by gtk_accelerator_parse().  
+ * const gchar *tooltip;		The tooltip for the action. This field should typically be marked for translation, 
+ *                              see gtk_action_group_set_translation_domain().  
+ * GCallback callback;			The function to call when the action is activated.  
  *
  */
 static const GtkActionEntry main_menu_bar_entries[] = {
-  /* Top level */
+  /* Top level */ 
   { "/File",					NULL,							"_File",			NULL,					NULL,			NULL },
   { "/Edit",					NULL,							"_Edit",			NULL,					NULL,			NULL },
+  { "/View",					NULL,							"_View",			NULL,					NULL,			NULL },
 
   { "/File/Open",				GTK_STOCK_OPEN,					"_Open...",			"<control>O",			"Open a file",	G_CALLBACK(file_open_cmd_cb) },
   { "/File/OpenRecent",			NULL,							"Open _Recent",		NULL,					NULL,			NULL },
@@ -1009,14 +1152,14 @@ static const GtkActionEntry main_menu_bar_entries[] = {
   { "/File/Save",				GTK_STOCK_SAVE,					"_Save",			"<control>S",			NULL,			G_CALLBACK(file_save_cmd_cb) },
   { "/File/SaveAs",				GTK_STOCK_SAVE_AS,				"Save _As...",		"<shift><control>S",	NULL,			G_CALLBACK(file_save_as_cmd_cb) },
 
-  { "/File/FileSet",			NULL,							"File Set",			NULL,					NULL,			NULL },
+  { "/File/Set",				NULL,							"File Set",			NULL,					NULL,			NULL },
   { "/File/Export",				NULL,							"Export",			NULL,					NULL,			NULL },
   { "/File/Print",				GTK_STOCK_PRINT,				"_Print...",		"<control>P",			NULL,			G_CALLBACK(file_print_cmd_cb) },
   { "/File/Quit",				GTK_STOCK_QUIT,					"_Quit",			"<control>Q",			NULL,			G_CALLBACK(file_quit_cmd_cb) },
 
-  { "/File/FileSet/ListFiles",	WIRESHARK_STOCK_FILE_SET_LIST,	"List Files",		NULL,					NULL,			G_CALLBACK(fileset_cb) },
-  { "/File/FileSet/NextFile",	WIRESHARK_STOCK_FILE_SET_NEXT,	"Next File",		NULL,					NULL,			G_CALLBACK(fileset_next_cb) },
-  { "/File/FileSet/PreviousFile",WIRESHARK_STOCK_FILE_SET_PREVIOUS,	"Previous File",	NULL,				NULL,			G_CALLBACK(fileset_previous_cb) },
+  { "/File/Set/ListFiles",	WIRESHARK_STOCK_FILE_SET_LIST,	"List Files",		NULL,					NULL,			G_CALLBACK(fileset_cb) },
+  { "/File/Set/NextFile",	WIRESHARK_STOCK_FILE_SET_NEXT,	"Next File",		NULL,					NULL,			G_CALLBACK(fileset_next_cb) },
+  { "/File/Set/PreviousFile",WIRESHARK_STOCK_FILE_SET_PREVIOUS,	"Previous File",	NULL,				NULL,			G_CALLBACK(fileset_previous_cb) },
 
 #if _WIN32
   { "/File/Export/File",				NULL,		"File...",						NULL,					NULL,			G_CALLBACK(export_text_cmd_cb) },
@@ -1030,7 +1173,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 																					NULL,					NULL,			G_CALLBACK(export_carrays_cmd_cb) },
   { "/File/Export/File/PSML",			NULL,		"as XML - \"P_SML\" (packet summary) file...",
 																					NULL,					NULL,			G_CALLBACK(export_psml_cmd_cb) },
-  { "/File/Export/File/PDML",			NULL,		"as XML - \"P_DML\" (packet details) file...",
+  { "/File/Export/File/PDML",			NULL,		"as XML - \"P_DML\" (packet details) file...",	
 																					NULL,					NULL,			G_CALLBACK(export_pdml_cmd_cb) },
 #endif
   { "/File/Export/SelectedPacketBytes",	NULL,		"Selected Packet _Bytes...",	"<control>H",			NULL,			G_CALLBACK(savehex_cb) },
@@ -1112,11 +1255,74 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 
 #ifdef NEW_PACKET_LIST
    { "/Edit/MarkPacket",				NULL,				"_Mark Packet (toggle)",				"<control>M",			NULL,			G_CALLBACK(new_packet_list_mark_frame_cb) },
-   { "/Edit/MarkAllDisplayedPackets",	NULL,				"Mark All Displayed Packets (toggle)",	"<shift><control>M",	NULL,			G_CALLBACK(new_packet_list_mark_all_displayed_frames_cb) },
-};
+   { "/Edit/FindNextMark",				NULL,				"Find Next Mark",						"<shift><control>N",	NULL,			G_CALLBACK(find_next_mark_cb) },
+   { "/Edit/FindPreviousMark",			NULL,				"Find Next Mark",						"<shift><control>B",	NULL,			G_CALLBACK(find_prev_mark_cb) },
+   { "/Edit/MarkAllDisplayedPackets",	NULL,				"Mark All Displayed Packets (toggle)",	"<control>A",			NULL,			G_CALLBACK(new_packet_list_mark_all_displayed_frames_cb) },
+   { "/Edit/UnmarkAllPackets",			NULL,				"_Unmark All Packets",					"<control>D",			NULL,			G_CALLBACK(new_packet_list_unmark_all_frames_cb) },
+
+  { "/Edit/IgnorePacket",				NULL,				"_Ignore Packet (toggle)",				"<control>X",			NULL,			G_CALLBACK(new_packet_list_ignore_frame_cb) },
+    /*
+     * XXX - this next one overrides /Edit/Copy/Description
+     */
+   { "/Edit/IgnoreAllDisplayedPackets",	NULL,				"_Ignore All Displayed Packets (toggle)","<alt><shift><control>X",	NULL,			G_CALLBACK(new_packet_list_ignore_all_displayed_frames_cb) },
+   { "/Edit/Un-IgnoreAllPackets",		NULL,				"U_n-Ignore All Packets",				"<shift><control>X",		NULL,			G_CALLBACK(new_packet_list_unignore_all_frames_cb) },
+   { "/Edit/SetTimeReference",			WIRESHARK_STOCK_TIME,	"Set Time Reference (toggle)",			"<control>T",			NULL,			G_CALLBACK(set_reftime_cb) },
+   { "/Edit/Un-TimeReferenceAllPackets",NULL,				"Un-Time Reference All Packets",		"<alt><control>T",			NULL,			G_CALLBACK(new_packet_list_untime_reference_all_frames_cb) },
+   { "/Edit/FindNextTimeReference",		NULL,				"Find Next Time Reference",				"<alt><control>N",			NULL,			G_CALLBACK(find_next_ref_time_cb) },
+   { "/Edit/FindPreviousTimeReference",	NULL,				"Find Previous Time Reference",			"<alt><control>B",			NULL,			G_CALLBACK(find_previous_ref_time_cb) },
+
 #else /* NEW_PACKET_LIST */
 Not implemeted.
 #endif /* NEW_PACKET_LIST */
+   { "/Edit/ConfigurationProfiles",	NULL,					"_Configuration Profiles...",			"<shift><control>A",		NULL,			G_CALLBACK(profile_dialog_cb) },
+   { "/Edit/Preferences",			GTK_STOCK_PREFERENCES,	"_Preferences...",						"<shift><control>P",		NULL,			G_CALLBACK(prefs_cb) },
+
+
+   { "/View/TimeDisplayFormat",		NULL,					"_Time Display Format",					NULL,						NULL,			NULL },
+
+  { "/View/NameResolution",			NULL,					"Name Resol_ution",						NULL,						NULL,			NULL },
+  { "/View/NameResolution/ResolveName",	NULL,				"_Resolve Name",						NULL,						NULL,			G_CALLBACK(view_menu_en_for_MAC_cb) },
+
+};
+static const GtkToggleActionEntry main_menu_bar_toggle_action_entries[] = 
+{
+	/* name, stock id, label, accel, tooltip, callback, is_active */
+	{"/View/MainToolbar",	NULL, "_Main Toolbar",	NULL, NULL,	G_CALLBACK(main_toolbar_show_hide_cb), TRUE}, 
+	{"/View/FilterToolbar", NULL, "_FilterToolbar", NULL, NULL,	G_CALLBACK(filter_toolbar_show_hide_cb), TRUE}, 
+#ifdef HAVE_AIRPCAP
+	{"/View/WirelessToolbar", NULL, "_WirelessToolbar", NULL, NULL,	G_CALLBACK(wireless_toolbar_show_hide_cb), TRUE}, 
+#endif
+	{"/View/Statusbar",		NULL, "_Statusbar", NULL, NULL,	G_CALLBACK(status_bar_show_hide_cb), TRUE}, 
+	{"/View/PacketList",	NULL, "Packet _List", NULL, NULL,	G_CALLBACK(packet_list_show_hide_cb), TRUE}, 
+	{"/View/PacketDetails",	NULL, "Packet _Details", NULL, NULL,	G_CALLBACK(packet_details_show_hide_cb), TRUE}, 
+	{"/View/PacketBytes",	NULL, "Packet _Bytes", NULL, NULL,	G_CALLBACK(packet_bytes_show_hide_cb), TRUE}, 
+	{"/View/TimeDisplayFormat/DisplaySecondsWithHoursAndMinutes",	NULL, "Display Seconds with hours and minutes", NULL, NULL,	G_CALLBACK(timestamp_seconds_time_cb), FALSE}, 
+	{"/View/NameResolution/EnableforMACLayer",						NULL, "Enable for _MAC Layer",					NULL, NULL, G_CALLBACK(view_menu_en_for_MAC_cb) },
+
+};
+
+static const GtkRadioActionEntry main_menu_bar_radio_view_time_entries [] =
+{
+	/* /* name, stock id, label, accel, tooltip,  value */
+	{ "/View/TimeDisplayFormat/DateandTimeofDay",					NULL, "Date and Time of Day:   1970-01-01 01:02:03.123456", "<alt><control>1", NULL, TS_ABSOLUTE_WITH_DATE },
+	{ "/View/TimeDisplayFormat/TimeofDay",							NULL, "Time of Day:   01:02:03.123456", "<alt><control>2", NULL, TS_ABSOLUTE },
+	{ "/View/TimeDisplayFormat/SecondsSinceEpoch",					NULL, "Seconds Since Epoch (1970-01-01):   1234567890.123456", "<alt><control>3", NULL, TS_EPOCH },
+	{ "/View/TimeDisplayFormat/SecondsSinceBeginningofCapture",		NULL, "Seconds Since Beginning of Capture:   123.123456", "<alt><control>4", NULL, TS_RELATIVE },
+	{ "/View/TimeDisplayFormat/SecondsSincePreviousCapturedPacket", NULL, "Seconds Since Previous Captured Packet:   1.123456", "<alt><control>5", NULL, TS_DELTA },
+	{ "/View/TimeDisplayFormat/SecondsSincePreviousDisplayedPacket",NULL, "Seconds Since Previous Displayed Packet:   1.123456", "<alt><control>6", NULL, TS_DELTA_DIS },
+};
+
+static const GtkRadioActionEntry main_menu_bar_radio_view_time_fileformat_prec_entries [] =
+{
+	/* /* name, stock id, label, accel, tooltip,  value */
+	{ "/View/TimeDisplayFormat/FileFormatPrecision-Automatic",		NULL, "Automatic (File Format Precision)",	NULL, NULL, TS_PREC_AUTO },
+	{ "/View/TimeDisplayFormat/FileFormatPrecision-Seconds",		NULL, "Seconds:   0",					    NULL, NULL, TS_PREC_FIXED_SEC },
+	{ "/View/TimeDisplayFormat/FileFormatPrecision-Deciseconds",	NULL, "Deciseconds:   0.1",					NULL, NULL, TS_PREC_FIXED_DSEC },
+	{ "/View/TimeDisplayFormat/FileFormatPrecision-Centiseconds",	NULL, "Centiseconds:  0.12",				NULL, NULL, TS_PREC_FIXED_CSEC },
+	{ "/View/TimeDisplayFormat/FileFormatPrecision-Milliseconds",	NULL, "Milliseconds:  0.123",				NULL, NULL, TS_PREC_FIXED_MSEC },
+	{ "/View/TimeDisplayFormat/FileFormatPrecision-Microseconds",	NULL, "Microseconds:  0.123456",			NULL, NULL, TS_PREC_FIXED_USEC },
+	{ "/View/TimeDisplayFormat/FileFormatPrecision-Nanoseconds",	NULL, "Nanoseconds:   0.123456789",			NULL, NULL, TS_PREC_FIXED_NSEC },
+};
 #endif /* 0 Prepare for use of GTKUImanager*/
 
 /* calculate the number of menu_items */
