@@ -1710,6 +1710,23 @@ static GtkItemFactoryEntry bytes_menu_items[] =
 };
 #endif
 
+static int initialize = TRUE;
+static GtkItemFactory *main_menu_factory = NULL;
+#ifdef MENUS_USE_UIMANAGER
+static GtkUIManager *ui_manager_packet_list_heading = NULL;
+static GtkUIManager *ui_manager_packet_list_menu = NULL;
+static GtkUIManager *ui_manager_tree_view_menu = NULL;
+static GtkUIManager *ui_manager_bytes_menu = NULL;
+#else
+static GtkItemFactory *packet_list_heading_factory = NULL;
+static GtkItemFactory *packet_list_menu_factory = NULL;
+static GtkItemFactory *tree_view_menu_factory = NULL;
+static GtkItemFactory *bytes_menu_factory = NULL;
+#endif
+static GSList *popup_menu_list = NULL;
+
+static GtkAccelGroup *grp;
+
 #ifdef MENUS_USE_UIMANAGER
 
 static void
@@ -2960,23 +2977,6 @@ static const char *ui_desc_conv_filter_popup =
 "</ui>\n";
 #endif
 #endif
-
-static int initialize = TRUE;
-static GtkItemFactory *main_menu_factory = NULL;
-#ifdef MENUS_USE_UIMANAGER
-static GtkUIManager *ui_manager_packet_list_heading = NULL;
-static GtkUIManager *ui_manager_packet_list_menu = NULL;
-static GtkUIManager *ui_manager_tree_view_menu = NULL;
-static GtkUIManager *ui_manager_bytes_menu = NULL;
-#else
-static GtkItemFactory *packet_list_heading_factory = NULL;
-static GtkItemFactory *packet_list_menu_factory = NULL;
-static GtkItemFactory *tree_view_menu_factory = NULL;
-static GtkItemFactory *bytes_menu_factory = NULL;
-#endif
-static GSList *popup_menu_list = NULL;
-
-static GtkAccelGroup *grp;
 
 GtkWidget *
 main_menu_new(GtkAccelGroup ** table) {
