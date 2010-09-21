@@ -1303,7 +1303,7 @@ static const GtkToggleActionEntry main_menu_bar_toggle_action_entries[] =
 
 static const GtkRadioActionEntry main_menu_bar_radio_view_time_entries [] =
 {
-	/* /* name, stock id, label, accel, tooltip,  value */
+	/* name, stock id, label, accel, tooltip,  value */
 	{ "/View/TimeDisplayFormat/DateandTimeofDay",					NULL, "Date and Time of Day:   1970-01-01 01:02:03.123456", "<alt><control>1", NULL, TS_ABSOLUTE_WITH_DATE },
 	{ "/View/TimeDisplayFormat/TimeofDay",							NULL, "Time of Day:   01:02:03.123456", "<alt><control>2", NULL, TS_ABSOLUTE },
 	{ "/View/TimeDisplayFormat/SecondsSinceEpoch",					NULL, "Seconds Since Epoch (1970-01-01):   1234567890.123456", "<alt><control>3", NULL, TS_EPOCH },
@@ -1314,7 +1314,7 @@ static const GtkRadioActionEntry main_menu_bar_radio_view_time_entries [] =
 
 static const GtkRadioActionEntry main_menu_bar_radio_view_time_fileformat_prec_entries [] =
 {
-	/* /* name, stock id, label, accel, tooltip,  value */
+	/* name, stock id, label, accel, tooltip,  value */
 	{ "/View/TimeDisplayFormat/FileFormatPrecision-Automatic",		NULL, "Automatic (File Format Precision)",	NULL, NULL, TS_PREC_AUTO },
 	{ "/View/TimeDisplayFormat/FileFormatPrecision-Seconds",		NULL, "Seconds:   0",					    NULL, NULL, TS_PREC_FIXED_SEC },
 	{ "/View/TimeDisplayFormat/FileFormatPrecision-Deciseconds",	NULL, "Deciseconds:   0.1",					NULL, NULL, TS_PREC_FIXED_DSEC },
