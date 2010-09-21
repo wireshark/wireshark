@@ -1743,7 +1743,7 @@ no_sorting_cb(GtkWidget *widget, gpointer user_data)
 static void
 packet_list_heading_show_resolved_cb(GtkAction *action _U_, gpointer user_data)
 {
-	GtkWidget *widget = (GtkWidget *)user_data;
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/ShowResolved")
 
 	new_packet_list_column_menu_cb( widget , NULL, COLUMN_SELECTED_TOGGLE_RESOLVED);
 }
@@ -3153,7 +3153,7 @@ menus_init(void) {
 	gtk_action_group_add_toggle_actions(packet_list_heading_action_group,          /* the action group */
 								packet_list_heading_menu_toggle_action_entries,    /* an array of action descriptions */
 								G_N_ELEMENTS(packet_list_heading_menu_toggle_action_entries), /* the number of entries */
-								gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/ShowResolved")); /* data to pass to the action callbacks */
+								NULL);												/* data to pass to the action callbacks */
 
 	ui_manager_packet_list_heading = gtk_ui_manager_new ();
 	gtk_ui_manager_insert_action_group (ui_manager_packet_list_heading,
