@@ -993,7 +993,9 @@ static void
 view_menu_en_for_MAC_cb(GtkAction *action, gpointer user_data)
 {
 	gboolean state;
-	//name_resolution_cb( widget , user_data, RESOLV_MAC);
+#if 0
+	name_resolution_cb( widget , user_data, RESOLV_MAC);
+#endif
 
 	state = gtk_toggle_action_get_active (GTK_TOGGLE_ACTION (action));
 }
