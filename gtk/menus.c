@@ -1758,9 +1758,9 @@ no_sorting_cb(GtkWidget *widget, gpointer user_data)
 }
 
 static void
-packet_list_heading_show_resolved_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_heading_show_resolved_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
-	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/ShowResolved")
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/ShowResolved");
 
 	new_packet_list_column_menu_cb( widget , NULL, COLUMN_SELECTED_TOGGLE_RESOLVED);
 }
