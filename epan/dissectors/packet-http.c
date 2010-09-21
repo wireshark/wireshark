@@ -888,7 +888,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (tree && stat_info->http_host && stat_info->request_uri) {
 		proto_item *e_ti;
-		gint size = strlen("http://") + strlen(stat_info->http_host)
+		size_t size = strlen("http://") + strlen(stat_info->http_host)
 			    + strlen(stat_info->request_uri) + 1;
 		char *uri = ep_alloc(size);
 
