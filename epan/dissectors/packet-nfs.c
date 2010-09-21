@@ -11924,73 +11924,73 @@ proto_register_nfs(void)
 			"Access rights for the types requested", HFILL }
 		},
 		{ &hf_nfs_access_supp_read,
-			{ " 0x01  READ", "nfs.access_supp_read",
+			{ "0x01 READ", "nfs.access_supp_read",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_supp), NFS_ACCESS_MASK_READ,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_supp_lookup,
-			{ " 0x02  LOOKUP", "nfs.access_supp_lookup",
+			{ "0x02 LOOKUP", "nfs.access_supp_lookup",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_supp), NFS_ACCESS_MASK_LOOKUP,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_supp_modify,
-			{ " 0x04  MODIFY", "nfs.access_supp_modify",
+			{ "0x04 MODIFY", "nfs.access_supp_modify",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_supp), NFS_ACCESS_MASK_MODIFY,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_supp_extend,
-			{ " 0x08  EXTEND", "nfs.access_supp_extend",
+			{ "0x08 EXTEND", "nfs.access_supp_extend",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_supp), NFS_ACCESS_MASK_EXTEND,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_supp_delete,
-			{ " 0x10  DELETE", "nfs.access_supp_delete",
+			{ "0x10 DELETE", "nfs.access_supp_delete",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_supp), NFS_ACCESS_MASK_DELETE,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_supp_execute,
-			{ " 0x20  EXECUTE", "nfs.access_supp_execute",
+			{ "0x20 EXECUTE", "nfs.access_supp_execute",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_supp), NFS_ACCESS_MASK_EXECUTE,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_read,
-			{ " 0x01  READ", "nfs.access_read",
+			{ "0x01 READ", "nfs.access_read",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_rights), NFS_ACCESS_MASK_READ,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_lookup,
-			{ " 0x02  LOOKUP", "nfs.access_lookup",
+			{ "0x02 LOOKUP", "nfs.access_lookup",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_rights), NFS_ACCESS_MASK_LOOKUP,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_modify,
-			{ " 0x04  MODIFY", "nfs.access_modify",
+			{ "0x04 MODIFY", "nfs.access_modify",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_rights), NFS_ACCESS_MASK_MODIFY,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_extend,
-			{ " 0x08  EXTEND", "nfs.access_extend",
+			{ "0x08 EXTEND", "nfs.access_extend",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_rights), NFS_ACCESS_MASK_EXTEND,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_delete,
-			{ " 0x10  DELETE", "nfs.access_delete",
+			{ "0x10 DELETE", "nfs.access_delete",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_rights), NFS_ACCESS_MASK_DELETE,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_execute,
-			{ " 0x20  EXECUTE", "nfs.access_execute",
+			{ "0x20 EXECUTE", "nfs.access_execute",
 			FT_BOOLEAN, 8,
 			TFS(&tfs_access_rights), NFS_ACCESS_MASK_EXECUTE,
 			NULL, HFILL }
@@ -12008,28 +12008,28 @@ proto_register_nfs(void)
 			"eia_flags", "nfs.exch_id_flags", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs_exchid_flags_moved_refer, {
-			"EXCHGID4_FLAG_SUPP_MOVED_REFER   ", "nfs.exchange_id.flags.moved_refer", FT_BOOLEAN, 32,
+			"EXCHGID4_FLAG_SUPP_MOVED_REFER", "nfs.exchange_id.flags.moved_refer", FT_BOOLEAN, 32,
 			TFS(&tfs_set_notset), EXCHGID4_FLAG_SUPP_MOVED_REFER, NULL, HFILL}},
 		{ &hf_nfs_exchid_flags_moved_migr, {
-			"EXCHGID4_FLAG_SUPP_MOVED_MIGR    ", "nfs.exchange_id.flags.moved_migr", FT_BOOLEAN, 32,
+			"EXCHGID4_FLAG_SUPP_MOVED_MIGR", "nfs.exchange_id.flags.moved_migr", FT_BOOLEAN, 32,
 			TFS(&tfs_set_notset), EXCHGID4_FLAG_SUPP_MOVED_MIGR, NULL, HFILL}},
 		{ &hf_nfs_exchid_flags_bind_princ, {
-			"EXCHGID4_FLAG_BIND_PRINC_STATEID ", "nfs.exchange_id.flags.bind_princ", FT_BOOLEAN, 32,
+			"EXCHGID4_FLAG_BIND_PRINC_STATEID", "nfs.exchange_id.flags.bind_princ", FT_BOOLEAN, 32,
 			TFS(&tfs_set_notset), EXCHGID4_FLAG_BIND_PRINC_STATEID, NULL, HFILL}},
 		{ &hf_nfs_exchid_flags_non_pnfs, {
-			"EXCHGID4_FLAG_USE_NON_PNFS       ", "nfs.exchange_id.flags.non_pnfs", FT_BOOLEAN, 32,
+			"EXCHGID4_FLAG_USE_NON_PNFS", "nfs.exchange_id.flags.non_pnfs", FT_BOOLEAN, 32,
 			TFS(&tfs_set_notset), EXCHGID4_FLAG_USE_NON_PNFS, NULL, HFILL}},
 		{ &hf_nfs_exchid_flags_pnfs_mds, {
-			"EXCHGID4_FLAG_USE_PNFS_MDS       ", "nfs.exchange_id.flags.pnfs_mds", FT_BOOLEAN, 32,
+			"EXCHGID4_FLAG_USE_PNFS_MDS", "nfs.exchange_id.flags.pnfs_mds", FT_BOOLEAN, 32,
 			TFS(&tfs_set_notset), EXCHGID4_FLAG_USE_PNFS_MDS, NULL, HFILL}},
 		{ &hf_nfs_exchid_flags_pnfs_ds, {
-			"EXCHGID4_FLAG_USE_PNFS_DS        ", "nfs.exchange_id.flags.pnfs_ds", FT_BOOLEAN, 32,
+			"EXCHGID4_FLAG_USE_PNFS_DS", "nfs.exchange_id.flags.pnfs_ds", FT_BOOLEAN, 32,
 			TFS(&tfs_set_notset), EXCHGID4_FLAG_USE_PNFS_DS, NULL, HFILL}},
 		{ &hf_nfs_exchid_flags_upd_conf_rec_a, {
 			"EXCHGID4_FLAG_UPD_CONFIRMED_REC_A", "nfs.exchange_id.flags.confirmed_rec_a", FT_BOOLEAN, 32,
 			TFS(&tfs_set_notset), EXCHGID4_FLAG_UPD_CONFIRMED_REC_A, NULL, HFILL}},
 		{ &hf_nfs_exchid_flags_confirmed_r, {
-			"EXCHGID4_FLAG_CONFIRMED_R        ", "nfs.exchange_id.flags.confirmed_r", FT_BOOLEAN, 32,
+			"EXCHGID4_FLAG_CONFIRMED_R", "nfs.exchange_id.flags.confirmed_r", FT_BOOLEAN, 32,
 			TFS(&tfs_set_notset), EXCHGID4_FLAG_CONFIRMED_R, NULL, HFILL}},
 		{ &hf_nfs_prot_info4_hash_alg, {
 			"Prot Info hash algorithm", "nfs.prot_info4_hash_alg", FT_UINT32, BASE_HEX,

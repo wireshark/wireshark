@@ -13,7 +13,7 @@
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
  *
- 
+
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -847,7 +847,7 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     /* Do this again on re-dissection to re-discover offset of actual PDU */
-    
+
     /* Needs to be at least as long as:
        - the signature string
        - fixed header bytes
@@ -874,7 +874,7 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     else {
         p_mac_lte_info->detailed_phy_info.dl_info.present = FALSE;
     }
-        
+
     p_mac_lte_info->rntiType = tvb_get_guint8(tvb, offset++);
 
     /* Read optional fields */
@@ -984,7 +984,7 @@ static void show_extra_phy_parameters(packet_info *pinfo, tvbuff_t *tvb, proto_t
                                      tvb, 0, 0,
                                      p_mac_lte_info->detailed_phy_info.ul_info.modulation_type);
             PROTO_ITEM_SET_GENERATED(ti);
- 
+
             ti = proto_tree_add_uint(phy_tree, hf_mac_lte_context_phy_ul_tbs_index,
                                      tvb, 0, 0,
                                      p_mac_lte_info->detailed_phy_info.ul_info.tbs_index);
@@ -1087,7 +1087,7 @@ static void show_extra_phy_parameters(packet_info *pinfo, tvbuff_t *tvb, proto_t
                 col_set_writable(pinfo->cinfo, FALSE);
             }
         }
-    }   
+    }
 }
 
 
@@ -3173,7 +3173,7 @@ mac_lte_init_protocol(void)
 }
 
 
-static void* lcid_drb_mapping_copy_cb(void* dest, const void* orig, unsigned len _U_) 
+static void* lcid_drb_mapping_copy_cb(void* dest, const void* orig, unsigned len _U_)
 {
     const lcid_drb_mapping_t *o = orig;
     lcid_drb_mapping_t *d = dest;
@@ -3375,7 +3375,7 @@ void proto_register_mac_lte(void)
 
         /* Out-of-band events */
         { &hf_mac_lte_oob_send_preamble,
-            { "PRACH: ",
+            { "PRACH:",
               "mac-lte.preamble-sent", FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL
             }
@@ -3874,7 +3874,7 @@ void proto_register_mac_lte(void)
     prefs_register_obsolete_preference(mac_lte_module, "decode_rar_ul_grant");
     prefs_register_obsolete_preference(mac_lte_module, "show_rlc_info_column");
     prefs_register_obsolete_preference(mac_lte_module, "attempt_to_detect_dl_harq_resend");
-    
+
     prefs_register_uint_preference(mac_lte_module, "retx_count_warn",
         "Number of Re-Transmits before expert warning triggered",
         "Number of Re-Transmits before expert warning triggered",

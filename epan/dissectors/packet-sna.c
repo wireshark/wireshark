@@ -3241,7 +3241,7 @@ proto_register_sna(void)
 
 /*		{ &hf_sna_ru,
 		{ "Request/Response Unit", "sna.ru", FT_NONE, BASE_NONE,
-		    NULL, 0x0, "", HFILL }},*/
+		    NULL, 0x0, NULL, HFILL }},*/
 
 		{ &hf_sna_gds,
 		{ "GDS Variable", "sna.gds", FT_NONE, BASE_NONE, NULL, 0x0,

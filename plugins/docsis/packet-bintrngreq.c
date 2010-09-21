@@ -84,10 +84,10 @@ dissect_bintrngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 /* Register the protocol with Wireshark */
 
-/* 
- * this format is required because a script is used to build the C function  
+/*
+ * this format is required because a script is used to build the C function
  * that calls all the protocol registration.
- */ 
+ */
 void
 proto_register_docsis_bintrngreq (void)
 {
@@ -119,12 +119,12 @@ proto_register_docsis_bintrngreq (void)
       "MAC Domain Downstream Service Group Identifier", HFILL}
     },
     {&hf_docsis_bintrngreq_down_chid,
-     {"DS Chan ID ", "docsis_bintrngreq.downchid",
+     {"DS Chan ID", "docsis_bintrngreq.downchid",
       FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_bintrngreq_up_chid,
-     {"US Chan ID ", "docsis_bintrngreq.upchid",
+     {"US Chan ID", "docsis_bintrngreq.upchid",
       FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
       NULL, HFILL}
     },

@@ -23589,7 +23589,7 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_eutra_cap_feat_group_ind_13,
       { "Indicator 13", "lte-rrc.eutra_cap_feat_group_ind_13",
         FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_13_val), 0,
-        "EUTRA Feature Group Indicator ", HFILL }},
+        "EUTRA Feature Group Indicator", HFILL }},
     { &hf_lte_rrc_eutra_cap_feat_group_ind_14,
       { "Indicator 14", "lte-rrc.eutra_cap_feat_group_ind_14",
         FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_14_val), 0,

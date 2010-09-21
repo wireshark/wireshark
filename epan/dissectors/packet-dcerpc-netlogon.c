@@ -103,10 +103,10 @@ static void printnbyte(const guint8* tab _U_,int nb _U_,const char* txt _U_,cons
 
 static GHashTable *netlogon_auths=NULL;
 static GHashTable *schannel_auths;
-/* Added next two lines for decoding NetrLogonControl2 
+/* Added next two lines for decoding NetrLogonControl2
    Control_data_information Level. Frank Schorr */
-static gint hf_netlogon_TrustedDomainName_string = -1; 
-static gint hf_netlogon_UserName_string = -1;          
+static gint hf_netlogon_TrustedDomainName_string = -1;
+static gint hf_netlogon_UserName_string = -1;
 static gint DomainInfo_sid = -1;
 static gint DnsDomainInfo_sid = -1;
 static gint DnsDomainInfo_domain_guid = -1;
@@ -4904,14 +4904,14 @@ netlogon_dissect_CONTROL_DATA_INFORMATION(tvbuff_t *tvb, int offset,
     ALIGN_TO_4_BYTES;
     switch(level){
     case 5:
-        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo,			
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo,
 		/* Changed for decoding NetrLogonControl2 Control_data_information Level. Frank Schorr */
 							    tree, drep, NDR_POINTER_UNIQUE, "Trusted Domain Name",
                                               hf_netlogon_TrustedDomainName_string, 0);
         break;
     case 6:
         offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo,
-		/* Changed for decoding NetrLogonControl2 Control_data_information Level. Frank Schorr */ 
+		/* Changed for decoding NetrLogonControl2 Control_data_information Level. Frank Schorr */
 			                            tree, drep, NDR_POINTER_UNIQUE, "Trusted Domain Name",
                                               hf_netlogon_TrustedDomainName_string, 0);
         break;
@@ -9086,7 +9086,7 @@ proto_register_dcerpc_netlogon(void)
             NULL, HFILL }},
 
         { &hf_netlogon_trust_flags_dc_firsthop,
-          { " DC at the end of the first hop of cross forest", "netlogon.extra.flags.dc_firsthop",
+          { "DC at the end of the first hop of cross forest", "netlogon.extra.flags.dc_firsthop",
             FT_BOOLEAN, 32, TFS(&tfs_set_notset), RQ_DC_XFOREST,
             NULL, HFILL }},
 

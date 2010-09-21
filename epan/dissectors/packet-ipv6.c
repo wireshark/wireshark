@@ -1631,7 +1631,7 @@ again:
       plen -= advance;
       goto again;
 
-    case IP_PROTO_FRAGMENT:  
+    case IP_PROTO_FRAGMENT:
       advance = dissect_frag6(tvb, offset, pinfo, ipv6_tree,
           &offlg, &ident);
       nxt = tvb_get_guint8(tvb, offset);
@@ -1654,7 +1654,7 @@ again:
           offlg = 0;
           frag = FALSE;
           tvb = next_tvb;
-          goto again; 
+          goto again;
         }
       }
       if (!(offlg & IP6F_OFF_MASK)) /*...or in the first fragment */
@@ -1700,7 +1700,7 @@ again:
        * is an unknown IPv6 option
        */
       if (!dissector_get_port_handle(ip_dissector_table, nxt)) {
-        advance = dissect_unknown_option(tvb, offset, ipv6_tree); 
+        advance = dissect_unknown_option(tvb, offset, ipv6_tree);
         nxt = tvb_get_guint8(tvb, offset);
         poffset = offset;
         offset += advance;
@@ -2210,7 +2210,7 @@ proto_register_ipv6(void)
 #ifdef TEST_FINALHDR
     { &hf_ipv6_final,
       { "Final next header",	"ipv6.final",
-				FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 #endif
 
     { &hf_ipv6_traffic_class_dscp,

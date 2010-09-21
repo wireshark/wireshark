@@ -136,15 +136,15 @@ static int hf_capwap_msg_element_type_ac_information_value = -1;
 static int hf_capwap_msg_element_type_ac_information_hardware_version = -1;
 static int hf_capwap_msg_element_type_ac_information_software_version = -1;
 
-static int hf_capwap_msg_element_type_ac_name = -1;	
+static int hf_capwap_msg_element_type_ac_name = -1;
 static int hf_capwap_msg_element_type_ac_name_with_priority = -1;
 
-static int hf_capwap_msg_element_type_ac_ipv4_list = -1; 
-static int hf_capwap_msg_element_type_ac_ipv6_list = -1; 
+static int hf_capwap_msg_element_type_ac_ipv4_list = -1;
+static int hf_capwap_msg_element_type_ac_ipv6_list = -1;
 
-static int hf_capwap_msg_element_type_capwap_control_ipv4 = -1;	
-static int hf_capwap_msg_element_type_capwap_control_ipv6 = -1;	
-static int hf_capwap_msg_element_type_capwap_control_wtp_count = -1;	
+static int hf_capwap_msg_element_type_capwap_control_ipv4 = -1;
+static int hf_capwap_msg_element_type_capwap_control_ipv6 = -1;
+static int hf_capwap_msg_element_type_capwap_control_wtp_count = -1;
 
 static int hf_capwap_msg_element_type_capwap_timers_discovery = -1;
 static int hf_capwap_msg_element_type_capwap_timers_echo_request = -1;
@@ -473,7 +473,7 @@ static const value_string message_element_type_vals[] = {
   { TYPE_ADD_STATION, "Add Station" },
   { TYPE_RESERVED_9, "Reserved" },
   { TYPE_CAPWAP_CONTROL_IPV4_ADDRESS, "CAPWAP Control IPv4 Address" },
-  { TYPE_CAPWAP_CONTROL_IPV6_ADDRESS, "CAPWAP Control IPv6 Address" }, 
+  { TYPE_CAPWAP_CONTROL_IPV6_ADDRESS, "CAPWAP Control IPv6 Address" },
   { TYPE_CAPWAP_TIMERS, "CAPWAP Timers" },
   { TYPE_DATA_TRANSFER_DATA, "Data Transfer Data" },
   { TYPE_DATA_TRANSFER_MODE, "Data Transfer Mode" },
@@ -1060,7 +1060,7 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
 		}
 		else
 		{
-			/*in Draft 8, there is only one "encryption_capabilities*/ 
+			/*in Draft 8, there is only one "encryption_capabilities*/
 			proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_descriptor_encrypt_capabilities, tvb, offset+6, 2, FALSE);
 			offset_end = offset + optlen -4;
 			offset += 6 + 2;
@@ -1131,7 +1131,7 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
 		/* No Default Action */
 		break;
 	}
-	
+
 	return 2+2+optlen;
 }
 
@@ -1270,7 +1270,7 @@ dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint offs
 		/* 4 Bytes Alignment ? */
 		align = 4-((offset+plen)%4);
 		if (align != 4)
-		{ 
+		{
 			proto_tree_add_item(capwap_header_tree, hf_capwap_header_padding, tvb, offset+plen, align, FALSE);
 			plen += align;
 		}
@@ -1298,7 +1298,7 @@ dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint offs
 		/* 4 Bytes Alignment ? */
 		align = 4-((offset+plen)%4);
 		if (align != 4)
-		{ 
+		{
 			proto_tree_add_item(capwap_header_tree, hf_capwap_header_padding, tvb, offset+plen, align, FALSE);
 			plen += align;
 		}
@@ -1396,7 +1396,7 @@ dissect_capwap_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* CAPWAP Control Header */
 			offset = dissect_capwap_control_header(next_tvb, capwap_control_tree, 0, pinfo);
 
-			/* CAPWAP Message Element */ 
+			/* CAPWAP Message Element */
 			offset += dissect_capwap_message_element(next_tvb, capwap_control_tree, offset);
 			col_append_fstr(pinfo->cinfo, COL_INFO, " (Reassembled, Fragment ID: %u)", fragment_id);
 		}
@@ -1406,7 +1406,7 @@ dissect_capwap_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* CAPWAP Control Header */
 		offset += dissect_capwap_control_header(tvb, capwap_control_tree, offset, pinfo);
 
-		/* CAPWAP Message Element */ 
+		/* CAPWAP Message Element */
 		offset += dissect_capwap_message_element(tvb, capwap_control_tree, offset);
 	}
 }
@@ -1514,7 +1514,7 @@ proto_register_capwap_control(void)
 	static hf_register_info hf[] = {
 		/* Preamble */
 		{ &hf_capwap_preamble,
-		{ "Preamble",	"capwap.preamble", 
+		{ "Preamble",	"capwap.preamble",
 			FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_capwap_preamble_version,
@@ -1531,7 +1531,7 @@ proto_register_capwap_control(void)
 			NULL, HFILL }},
 		/* CAPWAP Header */
 		{ &hf_capwap_header,
-		{ "Header",	"capwap.header", 
+		{ "Header",	"capwap.header",
 			FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_capwap_header_hlen,
@@ -1555,9 +1555,9 @@ proto_register_capwap_control(void)
 			FT_BOOLEAN, 9, TFS(&flag_type_t), 0x100,
 			NULL, HFILL }},
 		{ &hf_capwap_header_flags_f,
-		{ "Fragment",	"capwap.header.flags.f", 
+		{ "Fragment",	"capwap.header.flags.f",
 			FT_BOOLEAN, 9, TFS(&flag_type_f), 0x80,
-			NULL, HFILL }},	
+			NULL, HFILL }},
 		{ &hf_capwap_header_flags_l,
 		{ "Last Fragment",	"capwap.header.flags.l",
 			FT_BOOLEAN, 9, TFS(&flag_type_l), 0x40,
@@ -1651,7 +1651,7 @@ proto_register_capwap_control(void)
 		/* CAPWAP Control Header Message */
 
 		{ &hf_capwap_control_header,
-		{ "Control Header",	"capwap.control.header", 
+		{ "Control Header",	"capwap.control.header",
 			FT_NONE, BASE_NONE, NULL, 0x00,
 			NULL, HFILL }},
 		{ &hf_capwap_control_header_msg_type,
@@ -1816,7 +1816,7 @@ proto_register_capwap_control(void)
 			FT_UINT8, BASE_DEC, NULL, 0x00,
 			NULL, HFILL }},
 		{ &hf_capwap_msg_element_type_decryption_error_report_period_radio_id,
-		{ "Decryption Error Report Period Radio ID ",	"capwap.control.message_element.decryption_error_report_period.radio_id",
+		{ "Decryption Error Report Period Radio ID",	"capwap.control.message_element.decryption_error_report_period.radio_id",
 			FT_UINT8, BASE_DEC, NULL, 0x00,
 			NULL, HFILL }},
 		{ &hf_capwap_msg_element_type_decryption_error_report_period_interval,
@@ -1972,7 +1972,7 @@ proto_register_capwap_control(void)
 		{ &hf_capwap_msg_element_type_wtp_descriptor_value,
 		{ "Descriptor Value",	"capwap.control.message_element.wtp_descriptor.value",
 			FT_BYTES, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }}, 
+			NULL, HFILL }},
 		{ &hf_capwap_msg_element_type_wtp_descriptor_hardware_version,
 		{ "WTP Hardware Version",	"capwap.control.message_element.wtp_descriptor.hardware_version",
 			FT_STRING, BASE_NONE, NULL, 0x0,

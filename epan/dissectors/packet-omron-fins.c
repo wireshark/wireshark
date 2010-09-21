@@ -81,7 +81,7 @@ static int hf_omron_icf_rb1 = -1; /* Reserved should be 0 */
 static int hf_omron_icf_rb2 = -1; /* Reserved should be 0 */
 static int hf_omron_icf_rb3 = -1; /* Reserved should be 0 */
 static int hf_omron_icf_rb4 = -1; /* Reserved should be 0 */
-static int hf_omron_icf_rsb = -1; /* Response setting (0: response required; 1: response not required) */ 
+static int hf_omron_icf_rsb = -1; /* Response setting (0: response required; 1: response not required) */
 
 static int hf_omron_rsv = -1;
 static int hf_omron_gct = -1;
@@ -505,7 +505,7 @@ static const value_string icf_rsb_vals[] = {
 static const range_string omron_dna_range[] = {
     { INT_DNA_MIN1, INT_DNA_MAX1,   "Local network"  },
     { INT_DNA_MIN2, INT_DNA_MAX2,   "Remote network" },
-    { 0,            0,              NULL             } }; 
+    { 0,            0,              NULL             } };
 
 static const range_string omron_da1_range[] = {
     { INT_DA1_MIN1, INT_DA1_MAX1,   "SYSMAC NET / LINK" },
@@ -1027,7 +1027,7 @@ const int *cyclic_non_fatal_8_fields[] = {
     &hf_omron_cyclic_62,
     NULL
 };
-    
+
 static const true_false_string boolean_data_type_protected = {
     "Protected",
     "Not Protected"
@@ -1113,7 +1113,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return 0;
     }
     /* get the command code: we need it later */
-    command_code = tvb_get_ntohs(tvb,10);    
+    command_code = tvb_get_ntohs(tvb,10);
 
     /* Set the protocol column */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OMRON");
@@ -1135,7 +1135,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
         is_command = TRUE;
         if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Command  : %s", cmd_str);                
+            col_add_fstr(pinfo->cinfo, COL_INFO, "Command  : %s", cmd_str);
         }
     }
 
@@ -1156,7 +1156,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Byte 3 GCT */
         offset = offset + 1;
         proto_tree_add_item(omron_header_tree, hf_omron_gct, tvb, offset, 1, FALSE);
-    
+
         /* Byte 4 DNA */
         offset = offset + 1;
         proto_tree_add_item(omron_header_tree, hf_omron_dna, tvb, offset, 1, FALSE);
@@ -1276,7 +1276,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 6)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_command_memory_area_code, 
+                    proto_tree_add_item(command_tree, hf_omron_command_memory_area_code,
                                         tvb, offset, 1, FALSE);
 
                     proto_tree_add_item(command_tree, hf_omron_address, tvb, (offset+1), 2, FALSE);
@@ -1295,7 +1295,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                     if(reported_length_remaining > 2)
                     {
-                        proto_tree_add_item(command_tree, hf_omron_response_data, tvb, 
+                        proto_tree_add_item(command_tree, hf_omron_response_data, tvb,
                                             (offset+2), -1, FALSE);
                     }
                     offset = offset + reported_length_remaining;
@@ -1376,7 +1376,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     reported_length_remaining = reported_length_remaining - 4;
                 }
             }
-            
+
             if(is_response)
             {
                 if(reported_length_remaining >= 3)
@@ -1477,7 +1477,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             default:
                                 memory_code_len = 0;
                         } /* switch */
-                        
+
                         offset = offset + 1;
                         reported_length_remaining = reported_length_remaining - 1;
 
@@ -1531,16 +1531,16 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         case 0x0201:
         {
-            
+
             if(is_command)
             {
                 if(reported_length_remaining == 6)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_parameter_area_code, tvb, offset, 2, FALSE); 
+                    proto_tree_add_item(command_tree, hf_omron_parameter_area_code, tvb, offset, 2, FALSE);
                     proto_tree_add_item(command_tree, hf_omron_beginning_word, tvb, (offset+2), 2, FALSE);
                     proto_tree_add_item(command_tree, hf_omron_num_words, tvb, (offset+4), 2, FALSE);
                     offset = offset + 6;
-                }            
+                }
             }
 
             if(is_response)
@@ -1693,7 +1693,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_item(command_tree, hf_omron_protect_code, tvb, (offset+2), 1, FALSE);
                     proto_tree_add_item(command_tree, hf_omron_begin_word, tvb, (offset+3),4,FALSE);
                     proto_tree_add_item(command_tree, hf_omron_last_word, tvb, (offset+7),4,FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_password, tvb, (offset+11),4,FALSE);    
+                    proto_tree_add_item(command_tree, hf_omron_password, tvb, (offset+11),4,FALSE);
                     offset = offset + 15;
                 }
             }
@@ -1721,7 +1721,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = offset + 8;
                 }
             }
-            
+
             if(is_response)
             {
                 if(reported_length_remaining >= 10)
@@ -1860,7 +1860,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     /* add area data sub tree */
                     ti = proto_tree_add_text(command_tree, tvb, (offset+82), 12, "Area Data");
                     area_data_tree = proto_item_add_subtree(ti, ett_area_data);
-                    proto_tree_add_item(area_data_tree, hf_omron_program_area_size, tvb, (offset+82), 2, FALSE); 
+                    proto_tree_add_item(area_data_tree, hf_omron_program_area_size, tvb, (offset+82), 2, FALSE);
                     proto_tree_add_item(area_data_tree, hf_omron_iom_size, tvb, (offset+84), 1, FALSE);
                     proto_tree_add_item(area_data_tree, hf_omron_num_dm_words, tvb, (offset+85), 2, FALSE);
                     proto_tree_add_item(area_data_tree, hf_omron_timer_counter_size, tvb, (offset+87), 1, FALSE);
@@ -1899,7 +1899,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_item(io_data_tree, hf_omron_io_data_num_sysmac_1, tvb, (offset+66), 1, FALSE);
                     proto_tree_add_item(io_data_tree, hf_omron_io_data_num_sysmac_2, tvb, (offset+67), 1, FALSE);
                     /* PC status */
-                    proto_tree_add_bitmask(command_tree, tvb, (offset+68), hf_omron_pc_status, 
+                    proto_tree_add_bitmask(command_tree, tvb, (offset+68), hf_omron_pc_status,
                         ett_pc_status_fields, pc_status_fields, FALSE);
                     offset = offset + 69;
                 }
@@ -1961,7 +1961,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining >= 1)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_unit_address, tvb, offset, 1, FALSE);    
+                    proto_tree_add_item(command_tree, hf_omron_unit_address, tvb, offset, 1, FALSE);
                     if (reported_length_remaining == 2)
                     {
                         proto_tree_add_item(command_tree, hf_omron_num_units, tvb, (offset+1), 1, FALSE);
@@ -2074,7 +2074,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                     netw_nodes_non_fatal_err_sts =
                         proto_tree_add_text(command_tree, tvb, offset, 8, "Network Nodes Non-Fatal Error Status");
-                    netw_nodes_non_fatal_err_sts_tree = 
+                    netw_nodes_non_fatal_err_sts_tree =
                         proto_item_add_subtree(netw_nodes_non_fatal_err_sts, ett_omron_netw_nodes_non_fatal_err_sts);
 
                     proto_tree_add_bitmask(netw_nodes_non_fatal_err_sts_tree, tvb, (offset+0), hf_omron_cyclic_label_1,
@@ -2399,7 +2399,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 {
                     proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
                     proto_tree_add_item(command_tree, hf_omron_num_receptions, tvb, (offset+2), 2, FALSE);
-                    offset = offset + 4; 
+                    offset = offset + 4;
                }
             }
         }
@@ -2486,7 +2486,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = offset + 2;
                 }
             }
-            
+
             if(is_response)
             {
                 if(reported_length_remaining == 2)
@@ -2502,7 +2502,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_item(command_tree, hf_omron_network_address, tvb, (offset+4), 1, FALSE);
                     offset = offset + 5;
                 }
-                 
+
             }
         }
         break;
@@ -2662,7 +2662,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     omron_byte = tvb_get_guint8(tvb, (offset+14));
                     proto_tree_add_uint_format(omron_disk_data_tree, hf_omron_date_year, tvb, (offset+14), 1, omron_byte,
                         "Year: %d", ((omron_byte>>1)+1980));
-                    
+
                     proto_tree_add_item(omron_disk_data_tree, hf_omron_date_month, tvb, (offset+14), 4, FALSE);
                     proto_tree_add_item(omron_disk_data_tree, hf_omron_date_day, tvb, (offset+14), 4, FALSE);
                     proto_tree_add_item(omron_disk_data_tree, hf_omron_date_hour, tvb, (offset+14), 4, FALSE);
@@ -2723,13 +2723,13 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = offset + 20;
                 }
             }
-            
+
             if(is_response)
             {
                 if(reported_length_remaining >= 12)
                 {
                     proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_file_capacity, tvb, (offset+2), 4, FALSE);    
+                    proto_tree_add_item(command_tree, hf_omron_file_capacity, tvb, (offset+2), 4, FALSE);
                     proto_tree_add_item(command_tree, hf_omron_file_position, tvb, (offset+6), 4, FALSE);
                     proto_tree_add_item(command_tree, hf_omron_data_length, tvb, (offset+10), 2, FALSE);
 
@@ -2764,7 +2764,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             if(is_response)
             {
-                if(reported_length_remaining == 2) 
+                if(reported_length_remaining == 2)
                 {
                     proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
                     offset = offset + 2;
@@ -2834,7 +2834,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 {
                     proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, offset, 2, FALSE);
                     proto_tree_add_item(command_tree, hf_omron_volume_parameter_code, tvb, (offset+2), 2, FALSE);
-    
+
                     if(reported_length_remaining == 16)
                     {
                         proto_tree_add_item(command_tree, hf_omron_volume_label, tvb, (offset+4), 12, FALSE);
@@ -2868,7 +2868,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = offset + 28;
                 }
             }
-            
+
             if(is_response)
             {
                 if(reported_length_remaining == 2)
@@ -2970,7 +2970,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = offset + 22;
                 }
             }
-            
+
             if(is_response)
             {
                 if(reported_length_remaining == 4)
@@ -3115,7 +3115,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         proto_tree_add_item(command_tree, hf_omron_set_reset_specification, tvb, offset, 2, FALSE);
                         proto_tree_add_item(command_tree, hf_omron_command_memory_area_code, tvb, (offset+2), 1, FALSE);
                         proto_tree_add_item(command_tree, hf_omron_bit_flag, tvb, (offset+3), 3, FALSE);
-                        
+
                         offset = offset + 6;
                         reported_length_remaining = reported_length_remaining - 6;
                     }
@@ -3165,7 +3165,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if(is_response)
             {
                 if(reported_length_remaining >= 8)
-                { 
+                {
                     proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
                     proto_tree_add_item(command_tree, hf_omron_command_memory_area_code, tvb, (offset+2), 1, FALSE);
                     proto_tree_add_item(command_tree, hf_omron_transfer_beginning_address, tvb, (offset+3), 3, FALSE);
@@ -3185,9 +3185,9 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 {
                     proto_tree_add_item(command_tree, hf_omron_name_data, tvb, offset, -1, FALSE);
                     offset = offset + reported_length_remaining;
-                }            
+                }
             }
-            
+
             if(is_response)
             {
                 if(reported_length_remaining == 2)
@@ -3220,7 +3220,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             if(is_response)
             {
-                if((reported_length_remaining > 2) && (reported_length_remaining <= (2+8))) 
+                if((reported_length_remaining > 2) && (reported_length_remaining <= (2+8)))
                 {
                     proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
                     proto_tree_add_item(command_tree, hf_omron_name_data, tvb, offset, -1, FALSE);
@@ -3243,7 +3243,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
     } /* if(tree) */
-    
+
     return tvb_length(tvb);
 }
 
@@ -3321,7 +3321,7 @@ proto_register_omron_fins(void)
         { "Response code", "omron.response.code", FT_UINT16, BASE_HEX, VALS(response_codes), 0x0, NULL, HFILL }},
 
         { &hf_omron_command_data,
-        { "Command Data", "omron.command.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }}, 
+        { "Command Data", "omron.command.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
         { &hf_omron_address,
         { "Beginning address", "omron.memory.address", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -3346,24 +3346,24 @@ proto_register_omron_fins(void)
 
         { &hf_omron_program_number,
         { "Program number", "omron.program_number", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
- 
-        { &hf_omron_protect_code, 
-        { "Protect code", "omron.protect_code", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
- 
-        { &hf_omron_begin_word, 
-        { "Beginning word", "omron.word.begin", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        
-        { &hf_omron_last_word, 
-        { "Last word", "omron.word.last", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }}, 
 
-        { &hf_omron_password, 
+        { &hf_omron_protect_code,
+        { "Protect code", "omron.protect_code", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_omron_begin_word,
+        { "Beginning word", "omron.word.begin", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_omron_last_word,
+        { "Last word", "omron.word.last", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_omron_password,
         { "Password", "omron.password", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_omron_clear_code,
         { "Clear Code", "omron.clearcode", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         { &hf_omron_mode_code,
-        { "Mode Code", "omron.mode_code", FT_UINT8, BASE_HEX, VALS(mode_codes), 0x0, NULL, HFILL }}, 
+        { "Mode Code", "omron.mode_code", FT_UINT8, BASE_HEX, VALS(mode_codes), 0x0, NULL, HFILL }},
 
         { &hf_omron_monitor_label,
         { "Mode Code (Default Monitor)", "omron.mode_code_default_monitor", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -3397,7 +3397,7 @@ proto_register_omron_fins(void)
 
         { &hf_omron_memory_card_size,
         { "Memory card size", "omron.area_data.memory_card.size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_omron_cpu_bus_unit_0, 
+        { &hf_omron_cpu_bus_unit_0,
         { "CPU Bus Unit No. 0", "omron.cpubus_unit.no0", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_omron_cpu_bus_unit_1,
         { "CPU Bus Unit No. 1", "omron.cpubus_unit.no1", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -3430,7 +3430,7 @@ proto_register_omron_fins(void)
         { &hf_omron_cpu_bus_unit_15,
         { "CPU Bus Unit No. 15", "omron.cpubus_unit.no15", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_omron_cpu_bus_reserved,
-        { "CPU Bus Unit Reserved ", "omron.cpubus_unit.reserved", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { "CPU Bus Unit Reserved", "omron.cpubus_unit.reserved", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_omron_io_data_num_sysmac_1,
         { "No. of SYSMAC BUS/2 Masters mounted", "omron.remote_io_date.sysmac_1", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_omron_io_data_num_sysmac_2,
@@ -3449,7 +3449,7 @@ proto_register_omron_fins(void)
         { "Rack Number", "omron.pcp_status.rack_num", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL}},
         { &hf_omron_unit_address,
         { "Unit address", "omron.unit_address", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
-        { &hf_omron_num_units, 
+        { &hf_omron_num_units,
         { "No. of Units", "omron.unit_nums", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_omron_model_number,
         { "Model Number", "omron.model_number", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
@@ -3557,8 +3557,8 @@ proto_register_omron_fins(void)
         { "Reserved", "omron.message.rv_6", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0002, NULL, HFILL }},
         { &hf_omron_message_rv_7,
         { "Reserved", "omron.message.rv_7", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0001, NULL, HFILL }},
-        { &hf_omron_fals, 
-        { "FALS / FALS no.", "omron.fals", FT_UINT16, BASE_HEX, NULL, 0x3FFF, NULL, HFILL}}, 
+        { &hf_omron_fals,
+        { "FALS / FALS no.", "omron.fals", FT_UINT16, BASE_HEX, NULL, 0x3FFF, NULL, HFILL}},
         { &hf_omron_error_message,
         { "Error message", "omron.error_message", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_omron_parameter,
@@ -3699,7 +3699,7 @@ proto_register_omron_fins(void)
         { "CIO Area first word", "omron.block_record.cio_area", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_omron_block_record_kind_of_dm,
         { "Kind of DM", "omron.block_record.kind_of_dm", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        { &hf_omron_block_record_dm_area_first_word, 
+        { &hf_omron_block_record_dm_area_first_word,
         { "DM Area first word", "omron.block_record.dm_area_first_word", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_omron_block_record_no_of_total_words,
         { "No. of total words", "omron.block_record.no_of_total_words", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -3730,17 +3730,17 @@ proto_register_omron_fins(void)
         { &hf_omron_status_1_node_0,
         { "Node 0", "omron.status.node.10", FT_BOOLEAN, 8, TFS(&boolean_status_block_stop_run), 0x01, NULL, HFILL }},
         { &hf_omron_status_1_node_1,
-        { "Node 1", "omron.status.node.11", FT_BOOLEAN, 8, TFS(&boolean_status_block_stop_run), 0x02, NULL, HFILL }}, 
+        { "Node 1", "omron.status.node.11", FT_BOOLEAN, 8, TFS(&boolean_status_block_stop_run), 0x02, NULL, HFILL }},
         { &hf_omron_status_1_node_2,
-        { "Node 2", "omron.status.node.12", FT_BOOLEAN, 8, TFS(&boolean_status_block_stop_run), 0x04, NULL, HFILL }}, 
+        { "Node 2", "omron.status.node.12", FT_BOOLEAN, 8, TFS(&boolean_status_block_stop_run), 0x04, NULL, HFILL }},
         { &hf_omron_status_1_node_3,
-        { "Node 3", "omron.status.node.13", FT_BOOLEAN, 8, TFS(&boolean_status_block_stop_run), 0x08, NULL, HFILL }}, 
+        { "Node 3", "omron.status.node.13", FT_BOOLEAN, 8, TFS(&boolean_status_block_stop_run), 0x08, NULL, HFILL }},
         { &hf_omron_status_1_node_4,
-        { "Node 4", "omron.status.node.14", FT_BOOLEAN, 8, TFS(&boolean_status_block_stop_run), 0x10, NULL, HFILL }}, 
+        { "Node 4", "omron.status.node.14", FT_BOOLEAN, 8, TFS(&boolean_status_block_stop_run), 0x10, NULL, HFILL }},
         { &hf_omron_status_1_node_5,
-        { "Node 5", "omron.status.node.15", FT_BOOLEAN, 8, TFS(&boolean_status_block_stop_run), 0x20, NULL, HFILL }}, 
+        { "Node 5", "omron.status.node.15", FT_BOOLEAN, 8, TFS(&boolean_status_block_stop_run), 0x20, NULL, HFILL }},
         { &hf_omron_status_1_node_6,
-        { "Node 6", "omron.status.node.16", FT_BOOLEAN, 8, TFS(&boolean_status_block_stop_run), 0x40, NULL, HFILL }}, 
+        { "Node 6", "omron.status.node.16", FT_BOOLEAN, 8, TFS(&boolean_status_block_stop_run), 0x40, NULL, HFILL }},
         { &hf_omron_status_1_node_7,
         { "Node 7", "omron.status.node.17", FT_BOOLEAN, 8, TFS(&boolean_status_block_stop_run), 0x80, NULL, HFILL }},
         { &hf_omron_status_2_node_0,

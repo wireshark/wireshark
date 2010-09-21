@@ -681,71 +681,71 @@ proto_register_sqloracle(void)
               { "user access buffer length", "sqloracle.uacBufLength", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
             },
 /*              { &hf_sqloracle_ttloac_header,
-                { "TTLOAC Header", "sqloracle.ttloac_header", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "TTLOAC Header", "sqloracle.ttloac_header", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
                 },
 
                 { &hf_sqloracle_ttloac_type,
-                { "type", "sqloracle.ttloac_type", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "type", "sqloracle.ttloac_type", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
                 },
                 { &hf_sqloracle_ttloac_flag1,
-                { "flag1", "sqloracle.ttloac_flag1", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "flag1", "sqloracle.ttloac_flag1", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
                 },
                 { &hf_sqloracle_ttloac_prefix,
-                { "prefix",             "sqloracle.ttloac_prefix", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "prefix",             "sqloracle.ttloac_prefix", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
                 },
                 { &hf_sqloracle_ttloac_scalesize,
-                { "scale size",         "sqloracle.ttloac_scalesize", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "scale size",         "sqloracle.ttloac_scalesize", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
                 },
                 { &hf_sqloracle_ttloac_dummy,
-                { "dummy",              "sqloracle.ottloac_dummy", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "dummy",              "sqloracle.ottloac_dummy", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
                 },
                 { &hf_sqloracle_ttloac_varcharlen,
-                { "varcharlen",         "sqloracle.ttloac_varcharlen", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "varcharlen",         "sqloracle.ttloac_varcharlen", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
                 },
                 { &hf_sqloracle_ttloac_mal,
-                { "mal",                "sqloracle.ttloac_mal", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "mal",                "sqloracle.ttloac_mal", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
                 },
                 { &hf_sqloracle_ttloac_flag2,
-                { "flag2",              "sqloracle.ttloac_flag2", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "flag2",              "sqloracle.ttloac_flag2", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
                 },
                 { &hf_sqloracle_v8ttloac_header,
-                { "V8TTLOAC Header", "sqloracle.v8ttloac_header", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "V8TTLOAC Header", "sqloracle.v8ttloac_header", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
                 },
 
                 { &hf_sqloracle_v8ttloac_oid,
-                { "oid", "sqloracle.v8ttloac_oid", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "oid", "sqloracle.v8ttloac_oid", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
                 },
                 { &hf_sqloracle_v8ttloac_vsn,
-                { "vsn", "sqloracle.v8ttloac_vsn", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "vsn", "sqloracle.v8ttloac_vsn", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
                 },
                 { &hf_sqloracle_v8ttloac_ncs,
-                { "ncs",                "sqloracle.v8ttloac_ncs", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "ncs",                "sqloracle.v8ttloac_ncs", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
                 },
                 { &hf_sqloracle_v8ttloac_formuse,
-                { "FormUse",            "sqloracle.v8ttloac_formuse", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "FormUse",            "sqloracle.v8ttloac_formuse", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
                 },
                 { &hf_sqloracle_v8ttluds_header,
-                { "V8TTLUDS Header", "sqloracle.v8ttluds_header", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "V8TTLUDS Header", "sqloracle.v8ttluds_header", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
                 },
 
                 { &hf_sqloracle_v8ttluds_nullallow,
-                { "null allowed", "sqloracle.v8ttluds_nullallow", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "null allowed", "sqloracle.v8ttluds_nullallow", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
                 },
                 { &hf_sqloracle_v8ttluds_scrlength,
-                { "screen length", "sqloracle.v8ttluds_scrlength", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "screen length", "sqloracle.v8ttluds_scrlength", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
                 },
                 { &hf_sqloracle_v8ttluds_columnname,
-                { "column name", "sqloracle.v8ttluds_columnname", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "column name", "sqloracle.v8ttluds_columnname", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
                 },
                 { &hf_sqloracle_v8ttluds_sname,
-                { "sName", "sqloracle.v8ttluds_snname", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "sName", "sqloracle.v8ttluds_snname", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
                 },
                 { &hf_sqloracle_v8ttluds_tname,
-                { "tName", "sqloracle.v8ttluds_tname", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+                { "tName", "sqloracle.v8ttluds_tname", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
                 },
                 { &hf_sqloracle_stmt_length,
                 { "SQL Statement Length",       "sqloracle.stmtlength", FT_UINT8, BASE_DEC, NULL, 0x0,
-                "", HFILL }},
+                NULL, HFILL }},
 */              { &hf_sqloracle_stmt,
                   { "SQL statement", "sqloracle.stmt", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
             },

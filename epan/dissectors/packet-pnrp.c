@@ -1,5 +1,5 @@
 /* packet-pnrp.h
- * Routines for Peer Name Resolution Protocol (PNRP) dissection  
+ * Routines for Peer Name Resolution Protocol (PNRP) dissection
  *
  *  Copyright 2010, Jan Gerbecks <jan.gerbecks@stud.uni-due.de>
  *
@@ -27,7 +27,7 @@
 
 /* The official Dokumentation for the Peer Name Resolution Protocol can be found at
  http://msdn.microsoft.com/en-us/library/cc239047(PROT.13).aspx
- This dissector is based on Revision 6.1.2 
+ This dissector is based on Revision 6.1.2
  */
 
 #ifdef HAVE_CONFIG_H
@@ -117,7 +117,7 @@ static void dissect_payload_structure(tvbuff_t *tvb, gint offset, gint length, p
 static void dissect_publicKey_structure(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree);
 static void dissect_signature_structure(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree);
 
-/* Define global variables 
+/* Define global variables
  ----------------------------*/
 static int proto_pnrp = -1;
 
@@ -343,7 +343,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 field_type;
 	guint16 data_length;
 
-	
+
 	/*----------------------------------------
 	 * Validate if it is really a PNRP Packet
 	 *----------------------------------------*/
@@ -353,13 +353,13 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*      new style dissector.                         */
 	/*      ToDo: confirm                                */
 	data_length = tvb_reported_length(tvb);
-	
+
 	/* Shortest Message is ACK -> 12 Bytes for Header plus 8 Bytes for Data */
 	if (data_length <  12+8 )
 	{
 		return 0;
 	}
-	
+
 	/* Check some values from the packet header */
 	/* First 2 bytes must be 0x0010 */
 	if (tvb_get_ntohs(tvb,0) != PNRP_HEADER )
@@ -375,34 +375,34 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return 0;
 	}
 
-	
+
 	/* Assign Values to Variables */
 	/* Use to track data */
 	offset= 0;
 	padding_bytes = 0;
 	/* Get the message Information beforehand */
 	message_type = tvb_get_guint8(tvb,7);
-	
-	
+
+
 	/* Simply Display the Protcol Name in the INFO column */
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "pnrp"); 
-	/* Clear out stuff in the info column */ 
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "pnrp");
+	/* Clear out stuff in the info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "PNRP %s Message ",
 				 val_to_str(message_type, messageType, "Unknown (0x%02x)"));
-	
-	
+
+
 	/* If tree is NULL we are asked for summary, otherwise for details */
 	if(tree){ /* we are beeing asked for details */
 		proto_item *ti = NULL;
 		proto_tree *pnrp_tree = NULL;
-		
+
 		proto_item *pnrp_header_item = NULL;
 		proto_tree *pnrp_header_tree = NULL;
-		
+
 		proto_item *pnrp_message_tree = NULL;
 		proto_item *pnrp_message_item = NULL;
-		
-		
+
+
 		/* Lets add a subtree to our dissection to display the info */
 		ti = proto_tree_add_item(tree, proto_pnrp, tvb, 0, -1, FALSE);
 		proto_item_append_text(ti, ", Message Type %s",
@@ -416,7 +416,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		pnrp_header_tree = proto_item_add_subtree(ti, ett_pnrp);
 		pnrp_header_item = proto_tree_add_item(pnrp_tree, hf_pnrp_header, tvb, offset,12,FALSE);
 		pnrp_header_tree = proto_item_add_subtree(pnrp_header_item, ett_pnrp);
-		
+
 		/* Add Field ID should be 0c0010 */
 		proto_tree_add_item(pnrp_header_tree,hf_pnrp_header_fieldID,tvb,offset,2,FALSE);
 		offset += 2;
@@ -438,19 +438,19 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Add Message ID */
 		proto_tree_add_item(pnrp_header_tree,hf_pnrp_header_messageID,tvb,offset,4,FALSE);
 		offset += 4;
-		
-		
+
+
 		/*-------------------------------
 		 *--Add all Message Fields
 		 *------------------------------*/
-		
+
 		/* The following part has dynamic length depending on message type */
 		while (tvb_reported_length_remaining(tvb, offset) > 0) {
 			/* Determine the Field Type */
 			field_type = tvb_get_ntohs(tvb,offset );
 			/* Determine length of this message */
 			data_length = tvb_get_ntohs(tvb,offset + 2);
-			
+
 			/* Length must be at least 4, because field_type and data_length are part of data_length information */
 			if (data_length < 4) {
 				if (tree) {
@@ -467,8 +467,8 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			switch (field_type) {
 				/* First Field in ACK Message */
 				case PNRP_HEADER_ACKED:
-					if (tree) {						
-						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset, 
+					if (tree) {
+						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
 						data_length, "Message ACK ID: ");
 						pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, FALSE);
@@ -478,26 +478,26 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					}
 					offset += data_length;
 					break;
-				
+
 					/* A validate pnrp id follows as found in FLOOD */
 				case VALIDATE_PNRP_ID:
 					if (tree) {
-						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset, 
+						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
 																data_length, "Validate PNRP ID: ");
 						pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, FALSE);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, FALSE);
 						/* We can have a large number of pnrp IDs here */
 						dissect_pnrp_ids(tvb,offset+4,data_length-4,pnrp_message_tree);
-						
+
 					}
 					offset += data_length;
 					break;
-					 
+
 					/* The Flags have different meaning, depending on the message */
 				case FLAGS_FIELD:
 					if (tree) {
-						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset, 
+						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
 																data_length, "Flags Field: ");
 						pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, FALSE);
@@ -509,7 +509,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								offset += data_length+2;
 
 								break;
-								
+
 							case ACK:
 								/* Reserved 0 - 14 bits */
 								proto_tree_add_bits_item(pnrp_message_tree, hf_pnrp_message_ack_flags_reserved, tvb, (offset + 4)*8, 15, FALSE);
@@ -530,22 +530,22 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 									offset += data_length+2;
 								}
 								break;
-								
+
 
 							default:
 								proto_tree_add_text(pnrp_message_tree, tvb, offset + 4, data_length -4, "Flags");
 								offset += data_length;
 								break;
 						}
-						
+
 					}
-					
+
 					break;
-					
+
 					/* Flood controls found in FLOOD Message */
 				case FLOOD_CONTROLS:
 					if (tree) {
-						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset, 
+						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
 																data_length, "Flood Control: ");
 						pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, FALSE);
@@ -559,14 +559,14 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						/* Padding 1 */
 						proto_tree_add_text(pnrp_message_tree, tvb, offset + 7, 1, "Padding: %d",tvb_get_guint8(tvb,offset+7));
 					}
-					
+
 					offset += data_length+1;
 					break;
-					
+
 					/* Solicit Controls found in SOLICIT Message */
 				case SOLICIT_CONTROLS:
 					if (tree) {
-						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset, 
+						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
 																data_length, "Solicit Controls: ");
 						pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, FALSE);
@@ -580,7 +580,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* Lookup controls found in LOOKUP Message */
 				case LOOKUP_CONTROLS:
 					if (tree) {
-						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset, 
+						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
 																data_length, "Lookup Control: ");
 						pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, FALSE);
@@ -595,42 +595,42 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_lookupControls_reasonCode, tvb, offset + 9, 1, FALSE);
 						/* Reserved */
 						proto_tree_add_text(pnrp_message_tree, tvb, offset + 10, 2, "Reserved : %d",tvb_get_ntohs(tvb,offset+10));
-						
+
 					}
-					
+
 					offset += data_length;
 					break;
 					/* Target PNRP ID found in Lookup Message */
 				case TARGET_PNRP_ID:
 					if (tree) {
-						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset, 
+						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
 																data_length, "Target PNRP ID: ");
 						pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, FALSE);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, FALSE);
 						dissect_pnrp_ids(tvb, offset+4, data_length-4, pnrp_message_tree);
 					}
-					
+
 					offset += data_length;
 					break;
 
 					/* Extended Payload found in AUTHORITY Message */
 				case EXTENDED_PAYLOAD:
 					if (tree) {
-						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset, 
+						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
 																data_length, "Extended Payload: ");
 						pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, FALSE);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, FALSE);
 						/* TODO: Do actual parsing */
 					}
-					
+
 					offset += data_length;
 					break;
 					/* Pnrp id Array as found in REQUEST & ADVERTISE Message */
 				case PNRP_ID_ARRAY:
 					if (tree) {
-						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset, 
+						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
 																data_length, "PNRP ID Array: ");
 						pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, FALSE);
@@ -641,20 +641,20 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_idarray_Entrylength, tvb, offset + 10, 2, FALSE);
 						dissect_pnrp_ids(tvb,offset+12,data_length-12,pnrp_message_tree);
 					}
-					
+
 					offset += data_length;
 					break;
 					/* Cert Chain follows as found in AUTHORITY */
 				case CERT_CHAIN:
 					if (tree) {
-						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset, 
+						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
 																data_length, "CERT Chain: ");
 						pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, FALSE);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, FALSE);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_certChain, tvb, offset + 4, data_length-4, FALSE);
 					}
-					
+
 					/* There might be padding, so fill up to the next byte */
 					padding_bytes = 0;
 					while (data_length%4 != 0 &&tvb_reported_length_remaining(tvb, offset+data_length)>0) {
@@ -670,7 +670,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* classifier: A classifier string follows as found in AUTHORITY */
 				case CLASSIFIER:
 					if (tree) {
-						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset, 
+						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
 																data_length, "Classifier: ");
 						pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, FALSE);
@@ -686,7 +686,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						/* The actual classifier String */
 						proto_tree_add_text(pnrp_message_tree, tvb, offset + 12, tvb_get_ntohs(tvb,offset+6)-8, "Classifier: %s",tvb_get_ephemeral_faked_unicode(tvb, offset + 12, (tvb_get_ntohs(tvb,offset+6)-8)/2, FALSE));
 					}
-					
+
 					/* There might be padding, so fill up to the next byte */
 					padding_bytes = 0;
 					while (data_length%4 != 0 &&tvb_reported_length_remaining(tvb, offset+data_length)>0) {
@@ -702,36 +702,36 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* A hashed nonce follows as found in ADVERTISE & SOLICIT */
 				case HASHED_NONCE:
 					if (tree) {
-						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset, 
+						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
 																data_length, "Hashed Nonce: ");
 						pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, FALSE);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, FALSE);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_hashednonce, tvb, offset + 4, data_length-4, FALSE);
-						
+
 					}
-					
+
 					offset += data_length;
 					break;
-					
+
 					/* A nonce follows as found in REQUEST & INQUIRE */
 				case NONCE:
 					if (tree) {
-						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset, 
+						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
 																data_length, "Nonce: ");
 						pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, FALSE);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, FALSE);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_nonce, tvb, offset + 4, data_length-4, FALSE);
 					}
-					
+
 					offset += data_length;
 					break;
-					
+
 					/* split controls as found in AUTHORITY */
 				case SPLIT_CONTROLS:
 					if (tree) {
-						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset, 
+						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
 																data_length, "Split controls: ");
 						pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, FALSE);
@@ -740,24 +740,24 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_splitControls_authorityBuffer, tvb, offset + 4, 2, FALSE);
 						/* Byte offset */
 						proto_tree_add_text(pnrp_message_tree, tvb, offset + 6, 2, "Offset : %d",tvb_get_ntohs(tvb,offset+6));
-		
+
 					}
-					
+
 					/* There could be data offset */
 					offset += data_length+tvb_get_ntohs(tvb,offset+6);
 					break;
-					
+
 					/* routing entry: A route entry follows as found in ADVERTISE, INQUIRE, LOOKUP & AUTHORITY */
 				case ROUTING_ENTRY:
 					if (tree) {
-						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset, 
+						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
 																data_length, "Routing Entry: ");
 						pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, FALSE);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, FALSE);
 						dissect_route_entry(tvb,offset+4, tvb_get_ntohs(tvb,offset+2)-4, pnrp_message_tree);
 					}
-					
+
 					/* There might be padding, so fill up to the next byte */
 					padding_bytes = 0;
 					while (data_length%4 != 0 &&tvb_reported_length_remaining(tvb, offset+data_length)>0) {
@@ -770,28 +770,28 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					}
 					offset += data_length;
 					break;
-					
+
 					/* validate cpa: an encoded CPA structure follows as found in AUTHORITY */
 				case VALIDATE_CPA:
 					if (tree) {
-						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset, 
+						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
 																data_length, "Validate CPA: ");
 						pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, FALSE);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, FALSE);
 						/* Do the actual parsing in own method */
 						dissect_encodedCPA_structure(tvb, offset+4, data_length-4, pnrp_message_tree);
-						
+
 					}
-					
+
 					offset += data_length;
 					break;
-					
-					
+
+
 					/* IPV6 Endpoint: an ipv6 endpoint array structure follows as found in LOOKUP */
 				case IPV6_ENDPOINT_ARRAY:
 					if (tree) {
-						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset, 
+						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
 																data_length, "IPv6 Endpoint Array: ");
 						pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
 						proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, FALSE);
@@ -807,13 +807,13 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						/* Flagged Path */
 						dissect_ipv6_endpoint_structure(tvb, offset+12, tvb_get_ntohs(tvb,offset+6)-8,pnrp_message_tree);
 					}
-					
+
 					offset += data_length;
 					break;
-					
+
 				default:
 					if (tree) {
-						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset, 
+						pnrp_message_item = proto_tree_add_text(pnrp_tree, tvb, offset,
 																data_length, "Type: %s, length: %u",
 																val_to_str(field_type, fieldID, "Unknown (0x%04x)"), data_length);
 						pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
@@ -833,7 +833,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 	return offset;
-	
+
 }
 
 /*--------------------------------------------------------------*
@@ -847,13 +847,13 @@ static void dissect_pnrp_ids(tvbuff_t *tvb, gint offset, gint length, proto_tree
 		length -= 32;
 		offset += 32;
 	}
-	
+
 }
 
 static void dissect_route_entry(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree)
 {
 	gint tmp_offset;
-	/* Check if we don't run out of data */ 
+	/* Check if we don't run out of data */
 	if (0 <= tvb_reported_length_remaining(tvb, offset+length)) {
 		tmp_offset = 0;
 		/* First, we have a 32 Bit long PNRP ID */
@@ -881,7 +881,7 @@ static void dissect_route_entry(tvbuff_t *tvb, gint offset, gint length, proto_t
 
 static void dissect_ipv6_endpoint_structure(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree)
 {
-	/* Check if we don't run out of data */ 
+	/* Check if we don't run out of data */
 	while (0 <= tvb_reported_length_remaining(tvb, offset+18) && 18 <=length) {
 		/* Port Number */
 		proto_tree_add_text(tree, tvb, offset, 2, "Port Number : %d",tvb_get_ntohs(tvb, offset));
@@ -903,7 +903,7 @@ static void dissect_ipv6_address(tvbuff_t *tvb, gint offset, gint length, proto_
 
 static void dissect_encodedCPA_structure(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree)
 {
-	/* Check if we don't run out of data */ 
+	/* Check if we don't run out of data */
 	if (0 <= tvb_reported_length_remaining(tvb, offset+length)) {
 		guint8 flagsField;
 		/* Add a new subtree */
@@ -911,7 +911,7 @@ static void dissect_encodedCPA_structure(tvbuff_t *tvb, gint offset, gint length
 		proto_item *pnrp_encodedCPA_item = NULL;
 		pnrp_encodedCPA_item = proto_tree_add_item(tree, hf_pnrp_encodedCPA, tvb, offset,length,FALSE);
 		pnrp_encodedCPA_tree = proto_item_add_subtree(pnrp_encodedCPA_item, ett_pnrp_message_encodedCPA);
-		
+
 		/* Length information */
 		proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_length, tvb, offset, 2, FALSE);
 		/* CPA Minor Version */
@@ -931,10 +931,10 @@ static void dissect_encodedCPA_structure(tvbuff_t *tvb, gint offset, gint length
 		proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_notAfter, tvb, offset+8, 8, FALSE);
 		/* Service Location */
 		proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_serviceLocation, tvb, offset+16, 16, FALSE);
-		
+
 		/* now, the structure is variable, so add bytes to offset */
 		offset +=32;
-		
+
 		/* Check if R Flag is set */
 		if ((flagsField & FLAGS_ENCODED_CPA_R)==0x00) {
 			/* Nonce follows */
@@ -994,7 +994,7 @@ static void dissect_payload_structure(tvbuff_t *tvb, gint offset, gint length, p
 	if (0<length ) {
 	pnrp_payload_item = proto_tree_add_text(tree, tvb, offset, length, "Payload Structure");
 	pnrp_payload_tree = proto_item_add_subtree(pnrp_payload_item, ett_pnrp_message_payloadStructure);
-	
+
 	/* Dissect the Payload Structure */
 	/* Payload Type */
 	proto_tree_add_text(pnrp_payload_tree, tvb, offset,4, "Payload Type : %d",tvb_get_letohl(tvb,offset));
@@ -1081,7 +1081,7 @@ static void dissect_signature_structure(tvbuff_t *tvb, gint offset, gint length,
 void proto_register_pnrp(void)
 {
 	/* A header field is something you can search/filter on.
-	 * 
+	 *
 	 * We create a structure to register our fields. It consists of an
 	 * array of hf_register_info structures, each of which are of the format
 	 * {&(field id), {name, abbrev, type, display, strings, bitmask, blurb, HFILL}}.
@@ -1210,7 +1210,7 @@ void proto_register_pnrp(void)
 			{ "Length", "pnrp.encodedCPA.lenght", FT_UINT16, BASE_DEC, NULL, 0x0,
 				NULL, HFILL }},
 		{ &hf_pnrp_encodedCPA_majorVersion,
-			{ "CPA Major Version ", "pnrp.encodedCPA.vMajor", FT_UINT8, BASE_DEC, NULL, 0x0,
+			{ "CPA Major Version", "pnrp.encodedCPA.vMajor", FT_UINT8, BASE_DEC, NULL, 0x0,
 				NULL, HFILL }},
 		{ &hf_pnrp_encodedCPA_minorVersion,
 			{ "CPA Minor Version", "pnrp.encodedCPA.vMinor", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -1220,22 +1220,22 @@ void proto_register_pnrp(void)
 			{ "Flags", "pnrp.encodedCPA.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
 				NULL, HFILL }},
 		{ &hf_pnrp_encodedCPA_flags_reserved,
-			{ "Reserved ", "pnrp.encodedCPA.flags.reserved", FT_UINT8, BASE_HEX, NULL, FLAGS_ENCODED_CPA_RESERVED,
+			{ "Reserved", "pnrp.encodedCPA.flags.reserved", FT_UINT8, BASE_HEX, NULL, FLAGS_ENCODED_CPA_RESERVED,
 				NULL, HFILL }},
 		{ &hf_pnrp_encodedCPA_flags_Xbit,
-			{ "CPA has E(X)tended Payload ", "pnrp.encodedCPA.flags.xbit", FT_UINT8, BASE_HEX, NULL, FLAGS_ENCODED_CPA_X,
+			{ "CPA has E(X)tended Payload", "pnrp.encodedCPA.flags.xbit", FT_UINT8, BASE_HEX, NULL, FLAGS_ENCODED_CPA_X,
 				NULL, HFILL }},
 		{ &hf_pnrp_encodedCPA_flags_Fbit,
-			{ "CPA contains (F)riendly Name ", "pnrp.encodedCPA.flags.fbit", FT_UINT8, BASE_HEX, NULL, FLAGS_ENCODED_CPA_F,
+			{ "CPA contains (F)riendly Name", "pnrp.encodedCPA.flags.fbit", FT_UINT8, BASE_HEX, NULL, FLAGS_ENCODED_CPA_F,
 				NULL, HFILL }},
 		{ &hf_pnrp_encodedCPA_flags_Cbit,
-			{ "CPA contains (C)lassifier Hash ", "pnrp.encodedCPA.flags.cbit", FT_UINT8, BASE_HEX, NULL, FLAGS_ENCODED_CPA_C,
+			{ "CPA contains (C)lassifier Hash", "pnrp.encodedCPA.flags.cbit", FT_UINT8, BASE_HEX, NULL, FLAGS_ENCODED_CPA_C,
 				NULL, HFILL }},
 		{ &hf_pnrp_encodedCPA_flags_Abit,
-			{ "CPA contains Binary (A)uthority field ", "pnrp.encodedCPA.flags.abit", FT_UINT8, BASE_HEX, NULL, FLAGS_ENCODED_CPA_A,
+			{ "CPA contains Binary (A)uthority field", "pnrp.encodedCPA.flags.abit", FT_UINT8, BASE_HEX, NULL, FLAGS_ENCODED_CPA_A,
 				NULL, HFILL }},
 		{ &hf_pnrp_encodedCPA_flags_Ubit,
-			{ "Friendly Name in (U)TF-8 ", "pnrp.encodedCPA.flags.ubit", FT_UINT8, BASE_HEX, NULL, FLAGS_ENCODED_CPA_U,
+			{ "Friendly Name in (U)TF-8", "pnrp.encodedCPA.flags.ubit", FT_UINT8, BASE_HEX, NULL, FLAGS_ENCODED_CPA_U,
 				NULL, HFILL }},
 		{ &hf_pnrp_encodedCPA_flags_Rbit,
 			{ "This is a (r)evoke CPA", "pnrp.encodedCPA.flags.rbit", FT_UINT8, BASE_HEX, NULL, FLAGS_ENCODED_CPA_R,
@@ -1261,13 +1261,13 @@ void proto_register_pnrp(void)
 			{ "Flags", "pnrp.lookupControls.flags", FT_UINT16, BASE_HEX, NULL, 0x0,
 				NULL, HFILL }},
 		{ &hf_pnrp_message_lookupControls_flags_reserved,
-			{ "Reserved ", "pnrp.lookupControls.flags.reserved", FT_UINT16, BASE_HEX, NULL, FLAGS_LOOKUPCONTROLS_RESERVED,
+			{ "Reserved", "pnrp.lookupControls.flags.reserved", FT_UINT16, BASE_HEX, NULL, FLAGS_LOOKUPCONTROLS_RESERVED,
 				NULL, HFILL }},
 		{ &hf_pnrp_message_lookupControls_flags_Abit,
-			{ "A bit: ", "pnrp.lookupControls.flags.Abit", FT_UINT16, BASE_HEX, NULL, FLAGS_LOOKUPCONTROLS_A,
+			{ "A bit:", "pnrp.lookupControls.flags.Abit", FT_UINT16, BASE_HEX, NULL, FLAGS_LOOKUPCONTROLS_A,
 				"Sender is willing to accept returned nodes that are not closer to the target ID than the Validate PNRP ID", HFILL }},
 		{ &hf_pnrp_message_lookupControls_flags_0bit,
-			{ "0 bit - reserved: ", "pnrp.lookupControls.flags.0bit", FT_UINT16, BASE_HEX, NULL, FLAGS_LOOKUPCONTROLS_0,
+			{ "0 bit - reserved:", "pnrp.lookupControls.flags.0bit", FT_UINT16, BASE_HEX, NULL, FLAGS_LOOKUPCONTROLS_0,
 				NULL, HFILL }},
 		{ &hf_pnrp_message_lookupControls_precision,
 			{ "Precision", "pnrp.lookupControls.precision", FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -1287,9 +1287,9 @@ void proto_register_pnrp(void)
 				"An ASN.1-encoded 1024-bit RSA public key", HFILL }},
 		/* Signature Structure */
 		{ &hf_pnrp_signature_signatureData,
-			{ "Signature ", "pnrp.signature.data", FT_BYTES,BASE_NONE, NULL, 0x0,
+			{ "Signature", "pnrp.signature.data", FT_BYTES,BASE_NONE, NULL, 0x0,
 				"Signature created when signing the CPA", HFILL }},
-		
+
 		/* Route Entry */
 		{ &hf_pnrp_message_routeEntry_portNumber,
 			{ "Port Number", "pnrp.segment.routeEntry.portNumber", FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -1310,24 +1310,24 @@ void proto_register_pnrp(void)
 			{ "Number of Entries", "pnrp.segment.idArray.NumEnries", FT_UINT16, BASE_DEC, NULL, 0x0,
 				NULL, HFILL }},
 		{ &hf_pnrp_message_idArray_Length,
-			{ "Length of Array ", "pnrp.segment.idArray.Length", FT_UINT16, BASE_DEC, NULL, 0x0,
+			{ "Length of Array", "pnrp.segment.idArray.Length", FT_UINT16, BASE_DEC, NULL, 0x0,
 				NULL, HFILL }},
 		{ &hf_pnrp_message_ElementFieldType,
-			{ "Type of Array Entry ", "pnrp.segment.ElementFieldType", FT_UINT16, BASE_HEX, VALS(fieldID), 0x0,
+			{ "Type of Array Entry", "pnrp.segment.ElementFieldType", FT_UINT16, BASE_HEX, VALS(fieldID), 0x0,
 				NULL, HFILL }},
 		{ &hf_pnrp_message_idarray_Entrylength,
-			{ "Length of each Array Entry ", "pnrp.segment.idArray.Entrylength", FT_UINT16, BASE_DEC, NULL, 0x0,
+			{ "Length of each Array Entry", "pnrp.segment.idArray.Entrylength", FT_UINT16, BASE_DEC, NULL, 0x0,
 				NULL, HFILL }},
 		{ &hf_pnrp_message_certChain,
-			{ "Certificate Chain ", "pnrp.segment.certChain", FT_BYTES,BASE_NONE, NULL, 0x0,
+			{ "Certificate Chain", "pnrp.segment.certChain", FT_BYTES,BASE_NONE, NULL, 0x0,
 				"A Certificate Chain, containing the public key used to sign the CPA and its Certificate Chain", HFILL }},
 		{ &hf_pnrp_message_solicitType,
-			{ "Solicit Type ", "pnrp.segment.solicitType", FT_UINT8, BASE_DEC, VALS(solicitType), 0x0,
+			{ "Solicit Type", "pnrp.segment.solicitType", FT_UINT8, BASE_DEC, VALS(solicitType), 0x0,
 				NULL, HFILL }},
 		{ &hf_pnrp_message_ipv6,
 			{ "IPv6 Address","pnrp.segment.ipv6Address",FT_IPv6, BASE_NONE, NULL, 0x0,"IPv6 Address",HFILL}}
 	};
-	
+
 	/* Protocol subtree array */
 	static gint *ett[] = {
 		&ett_pnrp,
@@ -1343,7 +1343,7 @@ void proto_register_pnrp(void)
 	};
 	/* Register the Dissector with Wireshark */
 	proto_pnrp = proto_register_protocol(PROTONAME,PROTOSHORTNAME,PROTOABBREV);
-	
+
 	proto_register_field_array(proto_pnrp,hf,array_length(hf));
 	proto_register_subtree_array (ett, array_length(ett));
 }

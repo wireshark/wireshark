@@ -721,7 +721,7 @@ proto_register_radiotap(void)
 #if 0
     { &hf_radiotap_xchannel_maxpower,
       { "Max transmit power", "radiotap.xchannel.maxpower",
-	FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
+	FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 #endif
     { &hf_radiotap_fhss_hopset,
       { "FHSS Hop Set", "radiotap.fhss.hopset",
@@ -835,7 +835,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     struct _radiotap_info *radiotap_info;
     static struct _radiotap_info rtp_info_arr[1];
-    
+
     radiotap_info = &rtp_info_arr[0];
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "WLAN");
@@ -845,7 +845,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     version = tvb_get_guint8(tvb, offset);
     length = tvb_get_letohs(tvb, offset+2);
     present = tvb_get_letohl(tvb, offset+4);
-    
+
     radiotap_info->radiotap_length = length;
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "Radiotap Capture v%u, Length %u",
@@ -1354,7 +1354,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     call_dissector((rflags & IEEE80211_RADIOTAP_F_DATAPAD) ?
         ieee80211_datapad_handle : ieee80211_handle,
         next_tvb, pinfo, tree);
-    
+
     tap_queue_packet(radiotap_tap, pinfo, radiotap_info);
 }
 

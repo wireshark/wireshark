@@ -4167,7 +4167,7 @@ dissect_smb2_QFid_buffer_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         if (tree) {
                 item = proto_tree_get_parent(tree);
         }
-	
+
 	if (item) {
 		if (tvb_length(tvb) == 0) {
 			proto_item_append_text(item, ": NO DATA");
@@ -4220,7 +4220,7 @@ dissect_smb2_DHnQ_buffer_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 static void
 dissect_smb2_DHnQ_buffer_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
 {
-	proto_tree_add_item(tree, hf_smb2_dhnq_buffer_reserved, tvb, 0, 8, TRUE);	
+	proto_tree_add_item(tree, hf_smb2_dhnq_buffer_reserved, tvb, 0, 8, TRUE);
 }
 
 static void
@@ -4258,7 +4258,7 @@ dissect_smb2_MxAc_buffer_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 	dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_mxac_timestamp);
 
-	return;	
+	return;
 }
 
 static void
@@ -4317,7 +4317,7 @@ struct create_context_data_tag_dissectors create_context_dissectors_array[] = {
 	{ "QFid", { dissect_smb2_QFid_buffer_request, dissect_smb2_QFid_buffer_response } }
 };
 
-static struct create_context_data_dissectors* 
+static struct create_context_data_dissectors*
 get_create_context_data_dissectors(const char *tag)
 {
 	size_t i;
@@ -4374,7 +4374,7 @@ dissect_smb2_create_extra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 	dissectors = get_create_context_data_dissectors(tag);
 	if (dissectors)
 		dissector = (si->flags & SMB2_FLAGS_RESPONSE) ? dissectors->response : dissectors->request;
-	
+
 	dissect_smb2_olb_buffer(pinfo, sub_tree, tvb, &data_olb, si, dissector);
 
 	if(chain_offset){
@@ -6408,7 +6408,7 @@ proto_register_smb2(void)
 
 	{ &hf_smb2_dhnq_buffer_reserved,
 		{ "Reserved", "smb2.hf_smb2_dhnq_buffer_reserved", FT_UINT64, BASE_HEX,
-		NULL, 0, "", HFILL}}, 
+		NULL, 0, NULL, HFILL}},
 	};
 
 	static gint *ett[] = {

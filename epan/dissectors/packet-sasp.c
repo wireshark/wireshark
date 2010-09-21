@@ -390,11 +390,11 @@ dissect_sasp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	hti = proto_tree_add_uint_format(sasp_tree,hf_sasp_type,tvb,offset,2,hdr_type,
 				   "Type: %s", (hdr_type==SASP_HDR_TYPE) ? "SASP" : "[Invalid]");
 	if (hdr_type != SASP_HDR_TYPE) {
-		expert_add_info_format(pinfo, hti, PI_MALFORMED, PI_ERROR, 
+		expert_add_info_format(pinfo, hti, PI_MALFORMED, PI_ERROR,
 				       "Invalid SASP Header Type [0x%04x]", hdr_type);
 		/* XXX: The folowing should actually happen automatically ? */
 		col_set_str(pinfo->cinfo, COL_INFO, "[Malformed: Invalid SASP Header Type]");
-		return;  
+		return;
 	}
 	offset+=2;
 	length = tvb_get_guint8(tvb, offset);
@@ -508,7 +508,7 @@ dissect_sasp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			/* Unknown SASP Message Type */
 			col_add_fstr(pinfo->cinfo, COL_INFO, "[Malformed: Unknown Message Type [0x%04x]", msg_type);
-			expert_add_info_format(pinfo, mti, PI_MALFORMED, PI_WARN, 
+			expert_add_info_format(pinfo, mti, PI_MALFORMED, PI_WARN,
 					       "Unknown SASP Message Type: 0x%4x", msg_type);
 			return;
 	 }
@@ -1318,7 +1318,7 @@ void proto_register_sasp(void)
 
 		{ &hf_sasp_memdatacomp_type,
 		  { "Message Type", "sasp.msg.type", FT_UINT16, BASE_HEX, VALS(msg_table), 0x0,
-		    "SASP Mem Data Comp ", HFILL } },
+		    "SASP Mem Data Comp", HFILL } },
 
 		{ &hf_sasp_memdatacomp_sz,
 		  { "Mem Data Comp-Size", "sasp.memdatacomp.size", FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -1376,13 +1376,13 @@ void proto_register_sasp(void)
 
 		{ &hf_sasp_setlbstate_rep,
 		  { "Set Lbstate Rep", "sasp.msg.type", FT_UINT32, BASE_HEX, NULL, 0x0,
-		    "SASP Set Lbstate Rep", HFILL } }, 
+		    "SASP Set Lbstate Rep", HFILL } },
 
 		{ &hf_sasp_setlbstate_rep_sz,
 		  { "Set Lbstate Rep-Size", "sasp.setlbstate-rep.size", FT_UINT16, BASE_DEC, NULL, 0x0,
-		    "SASP Set Lbstate Rep Size", HFILL } },	
+		    "SASP Set Lbstate Rep Size", HFILL } },
 
-		{ &hf_sasp_setlbstate_rep_rcode,	
+		{ &hf_sasp_setlbstate_rep_rcode,
 		  { "Set Lbstate Rep-Return Code", "sasp.setlbstate-rep.retcode", FT_UINT8, BASE_HEX, VALS(set_lb_state_reply_response_code), 0x0,
 		    "SASP Set Lbstate Rep Return Code", HFILL } },
 
@@ -1410,7 +1410,7 @@ void proto_register_sasp(void)
 		    "SASP Grp Data Comp Grp Name Len",HFILL } },
 
 		{ &hf_sasp_grpdatacomp_grp_name,
-	 	  { "Grp Data Comp-Grp Name ","sasp.grpdatacomp.grpname", FT_STRING, BASE_NONE, NULL, 0x0,
+	 	  { "Grp Data Comp-Grp Name","sasp.grpdatacomp.grpname", FT_STRING, BASE_NONE, NULL, 0x0,
 		    "SASP Grp Data Comp Grp Name", HFILL } },
 
 		/*grp mem data comp */
@@ -1421,7 +1421,7 @@ void proto_register_sasp(void)
 
 
 		{ &hf_sasp_grp_memdatacomp_sz,
-		  { "Grp Mem Data Comp-Size","sasp.grp-memdatacomp.size", FT_UINT16, BASE_DEC, NULL, 0x0,	
+		  { "Grp Mem Data Comp-Size","sasp.grp-memdatacomp.size", FT_UINT16, BASE_DEC, NULL, 0x0,
 		    "SASP Grp Mem Data Comp Size", HFILL } },
 
 		{ &hf_sasp_grp_memdatacomp_cnt,
@@ -1491,7 +1491,7 @@ void proto_register_sasp(void)
 
 		{ &hf_sasp_memstatedatacomp_state,
 		  { "Mem State-State", "sasp.memstate.state", FT_UINT8, BASE_HEX, NULL, 0x0,
-		    "SASP Mem State Data Comp State ", HFILL } },
+		    "SASP Mem State Data Comp State", HFILL } },
 
 		{ &hf_sasp_memstatedatacomp_quiesce_flag,
 		  { "Mem State-Quiesce Flag", "sasp.flags.quiesce", FT_BOOLEAN, 8, NULL, SASP_QUIESCE_FLAG,
@@ -1510,7 +1510,7 @@ void proto_register_sasp(void)
 
 		{ &hf_sasp_weight_entry_data_comp_state,
 		  { "Wt Entry Data Comp-state", "sasp.wtentry.state", FT_UINT8, BASE_HEX, NULL, 0x0,
-		    "SASP Wt Entry Data Comp State ", HFILL } },	
+		    "SASP Wt Entry Data Comp State", HFILL } },
 
 		{ &hf_wtstate_flag,
 		  { "Flags","sasp.flags.wtstate", FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -1605,12 +1605,12 @@ void proto_register_sasp(void)
 }
 
 /* Handing off to TCP */
-void 
-proto_reg_handoff_sasp(void) 
+void
+proto_reg_handoff_sasp(void)
 {
 	dissector_handle_t sasp_handle;
 	sasp_handle = create_dissector_handle(dissect_sasp, proto_sasp);
-	dissector_add("tcp.port", SASP_GLOBAL_PORT, sasp_handle); 
+	dissector_add("tcp.port", SASP_GLOBAL_PORT, sasp_handle);
 
 }
 
