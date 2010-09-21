@@ -75,6 +75,7 @@ static int hf_http_request = -1;
 static int hf_http_basic = -1;
 static int hf_http_request_method = -1;
 static int hf_http_request_uri = -1;
+static int hf_http_request_full_uri = -1;
 static int hf_http_version = -1;
 static int hf_http_response_code = -1;
 static int hf_http_authorization = -1;
@@ -127,7 +128,9 @@ static guint num_header_fields = 0;
 
 static GHashTable* header_fields_hash = NULL;
 
-static void header_fields_update_cb(void* r, const char** err) {
+static void
+header_fields_update_cb(void* r, const char** err)
+{
 	header_field_t* rec = r;
 
 	if (rec->header_name == NULL) {
@@ -142,26 +145,30 @@ static void header_fields_update_cb(void* r, const char** err) {
 	}
 }
 
-static void* header_fields_copy_cb(void* n, const void* o, unsigned siz _U_) {
+static void *
+header_fields_copy_cb(void* n, const void* o, unsigned siz _U_)
+{
     header_field_t* new_rec = n;
     const header_field_t* old_rec = o;
 
     if (old_rec->header_name) {
 	new_rec->header_name = g_strdup(old_rec->header_name);
     } else {
-        new_rec->header_name = NULL;
+	new_rec->header_name = NULL;
     }
 
     if (old_rec->header_desc) {
 	new_rec->header_desc = g_strdup(old_rec->header_desc);
     } else {
-        new_rec->header_desc = NULL;
+	new_rec->header_desc = NULL;
     }
 
     return new_rec;
 }
 
-static void header_fields_free_cb(void*r) {
+static void
+header_fields_free_cb(void*r)
+{
     header_field_t* rec = r;
 
     if (rec->header_name) g_free(rec->header_name);
@@ -249,15 +256,16 @@ static int is_http_request_or_reply(const gchar *data, int linelen,
 				    http_type_t *type, ReqRespDissector
 				    *reqresp_dissector, http_conv_t *conv_data);
 static int chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
-		proto_tree *tree, int offset);
+				      proto_tree *tree, int offset);
 static void process_header(tvbuff_t *tvb, int offset, int next_offset,
-    const guchar *line, int linelen, int colon_offset, packet_info *pinfo,
-    proto_tree *tree, headers_t *eh_ptr, http_conv_t *conv_data);
+			   const guchar *line, int linelen, int colon_offset,
+			   packet_info *pinfo, proto_tree *tree,
+			   headers_t *eh_ptr, http_conv_t *conv_data);
 static gint find_header_hf_value(tvbuff_t *tvb, int offset, guint header_len);
 static gboolean check_auth_ntlmssp(proto_item *hdr_item, tvbuff_t *tvb,
-    packet_info *pinfo, gchar *value);
+				   packet_info *pinfo, gchar *value);
 static gboolean check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb,
-    gchar *value);
+				 gchar *value);
 
 static dissector_table_t port_subdissector_table;
 static dissector_table_t media_type_subdissector_table;
@@ -309,7 +317,7 @@ static const value_string vals_status_code[] = {
 	{ 415, "Unsupported Media Type"},
 	{ 416, "Requested Range Not Satisfiable"},
 	{ 417, "Expectation Failed"},
-	{ 418, "I'm a teapot"},         /* RFC 2324 */
+	{ 418, "I'm a teapot"},		/* RFC 2324 */
 	{ 422, "Unprocessable Entity"},
 	{ 423, "Locked"},
 	{ 424, "Failed Dependency"},
@@ -518,7 +526,7 @@ http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* e
 
 static void
 dissect_http_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    const char *line)
+		     const char *line)
 {
 	tvbuff_t *ntlmssp_tvb;
 
@@ -561,7 +569,7 @@ static http_info_value_t	*stat_info;
 
 static int
 dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree, http_conv_t *conv_data)
+		     proto_tree *tree, http_conv_t *conv_data)
 {
 	http_proto_t	proto;
 	const char	*proto_tag;
@@ -878,13 +886,31 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset = next_offset;
 	}
 
+	if (tree && stat_info->http_host && stat_info->request_uri) {
+		proto_item *e_ti;
+		gint size = strlen("http://") + strlen(stat_info->http_host)
+			    + strlen(stat_info->request_uri) + 1;
+		char *uri = ep_alloc(size);
+
+		g_snprintf(uri, size, "%s://%s%s",
+			   "http",	/* XXX, https? */
+			    stat_info->http_host, stat_info->request_uri);
+
+		e_ti = proto_tree_add_string(http_tree,
+					     hf_http_request_full_uri, tvb, 0,
+					     0, uri);
+
+		PROTO_ITEM_SET_URL(e_ti);
+		PROTO_ITEM_SET_GENERATED(e_ti);
+	}
+
 	if (tree) {
 		switch (http_type) {
 
 		case HTTP_NOTIFICATION:
 			hidden_item = proto_tree_add_boolean(http_tree,
 					    hf_http_notification, tvb, 0, 0, 1);
-                        PROTO_ITEM_SET_HIDDEN(hidden_item);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 			break;
 
 		case HTTP_RESPONSE:
@@ -896,7 +922,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		case HTTP_REQUEST:
 			hidden_item = proto_tree_add_boolean(http_tree,
 					    hf_http_request, tvb, 0, 0, 1);
-                        PROTO_ITEM_SET_HIDDEN(hidden_item);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 			break;
 
 		case HTTP_OTHERS:
@@ -1302,7 +1328,7 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	if (tokenlen == 0)
 		return;
 	proto_tree_add_item(tree, hf_http_version, tvb, offset, tokenlen,
-		            FALSE);
+			    FALSE);
 	offset += (int) (next_token - line);
 	line = next_token;
 
@@ -1325,7 +1351,7 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
  */
 static int
 chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
-    proto_tree *tree, int offset)
+			   proto_tree *tree, int offset)
 {
 	guint8 *chunk_string = NULL;
 	guint32 chunk_size = 0;
@@ -1349,7 +1375,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 
 	if (tree) {
 		ti = proto_tree_add_text(tree, tvb, offset, datalen,
-				         "HTTP chunked response");
+					 "HTTP chunked response");
 		subtree = proto_item_add_subtree(ti, ett_http_chunked_response);
 	}
 
@@ -1445,9 +1471,9 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 					    "End of chunked encoding");
 			} else {
 				chunk_ti = proto_tree_add_text(subtree, tvb,
-				            offset,
-				            chunk_offset - offset + chunk_size + 2,
-				            "Data chunk (%u octets)", chunk_size);
+					    offset,
+					    chunk_offset - offset + chunk_size + 2,
+					    "Data chunk (%u octets)", chunk_size);
 			}
 
 			chunk_subtree = proto_item_add_subtree(chunk_ti,
@@ -1536,7 +1562,7 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 			PROTO_ITEM_SET_GENERATED(item);
 
 			item = proto_tree_add_uint(proxy_tree, hf_http_proxy_connect_port,
-					           tvb, 0, 0, strtol(strings[1], NULL, 10) );
+						   tvb, 0, 0, strtol(strings[1], NULL, 10) );
 			PROTO_ITEM_SET_GENERATED(item);
 		}
 
@@ -1553,10 +1579,10 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 			else
 				ptr = &pinfo->srcport;
 
-                        /* Increase pinfo->can_desegment because we are traversing
-                         * http and want to preserve desegmentation functionality for
-                         * the proxied protocol
-                         */
+			/* Increase pinfo->can_desegment because we are traversing
+			 * http and want to preserve desegmentation functionality for
+       			 * the proxied protocol
+			 */
 			if( pinfo->can_desegment>0 )
 				pinfo->can_desegment++;
 
@@ -1891,9 +1917,9 @@ add_hf_info_for_headers(void)
 
 static void
 process_header(tvbuff_t *tvb, int offset, int next_offset,
-    const guchar *line, int linelen, int colon_offset,
-    packet_info *pinfo, proto_tree *tree, headers_t *eh_ptr,
-    http_conv_t *conv_data)
+	       const guchar *line, int linelen, int colon_offset,
+	       packet_info *pinfo, proto_tree *tree, headers_t *eh_ptr,
+	       http_conv_t *conv_data)
 {
 	int len;
 	int line_end_offset;
@@ -2105,16 +2131,16 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 static gint
 find_header_hf_value(tvbuff_t *tvb, int offset, guint header_len)
 {
-        guint i;
+	guint i;
 
-        for (i = 0; i < array_length(headers); i++) {
-                if (header_len == strlen(headers[i].name) &&
-                    tvb_strncaseeql(tvb, offset,
-						headers[i].name, header_len) == 0)
-                        return i;
-        }
+	for (i = 0; i < array_length(headers); i++) {
+		if (header_len == strlen(headers[i].name) &&
+			tvb_strncaseeql(tvb, offset,
+				    headers[i].name, header_len) == 0)
+			return i;
+	}
 
-        return -1;
+	return -1;
 }
 
 /*
@@ -2236,20 +2262,24 @@ dissect_http_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_http_message(tvb, 0, pinfo, tree, conv_data);
 }
 
-static void range_delete_http_tcp_callback(guint32 port) {
-  dissector_delete("tcp.port", port, http_handle);
+static void
+range_delete_http_tcp_callback(guint32 port) {
+	dissector_delete("tcp.port", port, http_handle);
 }
 
-static void range_add_http_tcp_callback(guint32 port) {
-  dissector_add("tcp.port", port, http_handle);
+static void
+range_add_http_tcp_callback(guint32 port) {
+	dissector_add("tcp.port", port, http_handle);
 }
 
-static void range_delete_http_ssl_callback(guint32 port) {
-  ssl_dissector_delete(port, "http", TRUE);
+static void
+range_delete_http_ssl_callback(guint32 port) {
+	ssl_dissector_delete(port, "http", TRUE);
 }
 
-static void range_add_http_ssl_callback(guint32 port) {
-  ssl_dissector_add(port, "http", TRUE);
+static void
+range_add_http_ssl_callback(guint32 port) {
+	ssl_dissector_add(port, "http", TRUE);
 }
 
 static void reinit_http(void) {
@@ -2300,6 +2330,10 @@ proto_register_http(void)
 	      { "Request Version",	"http.request.version",
 		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP Request HTTP-Version", HFILL }},
+	    { &hf_http_request_full_uri,
+	      { "Full request URI",	"http.request.full_uri",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"The full requested URI (including host name)", HFILL }},
 	    { &hf_http_response_code,
 	      { "Response Code",	"http.response.code",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -2350,64 +2384,64 @@ proto_register_http(void)
 		"HTTP Transfer-Encoding header", HFILL }},
 	    { &hf_http_user_agent,
 	      { "User-Agent",	"http.user_agent",
-	        FT_STRING, BASE_NONE, NULL, 0x0,
-	        "HTTP User-Agent header", HFILL }},
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP User-Agent header", HFILL }},
 	    { &hf_http_host,
 	      { "Host",	"http.host",
-	        FT_STRING, BASE_NONE, NULL, 0x0,
-	        "HTTP Host", HFILL }},
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Host", HFILL }},
 	    { &hf_http_connection,
 	      { "Connection",	"http.connection",
-	        FT_STRING, BASE_NONE, NULL, 0x0,
-	        "HTTP Connection", HFILL }},
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Connection", HFILL }},
 	    { &hf_http_cookie,
 	      { "Cookie",	"http.cookie",
-	        FT_STRING, BASE_NONE, NULL, 0x0,
-	        "HTTP Cookie", HFILL }},
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Cookie", HFILL }},
 	    { &hf_http_accept,
 	      { "Accept",	"http.accept",
-	        FT_STRING, BASE_NONE, NULL, 0x0,
-	        "HTTP Accept", HFILL }},
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Accept", HFILL }},
 	    { &hf_http_referer,
 	      { "Referer",	"http.referer",
-	        FT_STRING, BASE_NONE, NULL, 0x0,
-	        "HTTP Referer", HFILL }},
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Referer", HFILL }},
 	    { &hf_http_accept_language,
 	      { "Accept-Language",	"http.accept_language",
-	        FT_STRING, BASE_NONE, NULL, 0x0,
-	    "HTTP Accept Language", HFILL }},
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Accept Language", HFILL }},
 	    { &hf_http_accept_encoding,
 	      { "Accept Encoding",	"http.accept_encoding",
-	        FT_STRING, BASE_NONE, NULL, 0x0,
-	        "HTTP Accept Encoding", HFILL }},
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Accept Encoding", HFILL }},
 	    { &hf_http_date,
 	      { "Date",	"http.date",
-	        FT_STRING, BASE_NONE, NULL, 0x0,
-	        "HTTP Date", HFILL }},
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Date", HFILL }},
 	    { &hf_http_cache_control,
 	      { "Cache-Control",	"http.cache_control",
-	        FT_STRING, BASE_NONE, NULL, 0x0,
-	        "HTTP Cache Control", HFILL }},
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Cache Control", HFILL }},
 	    { &hf_http_server,
 	      { "Server",	"http.server",
-	        FT_STRING, BASE_NONE, NULL, 0x0,
-	        "HTTP Server", HFILL }},
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Server", HFILL }},
 	    { &hf_http_location,
 	      { "Location",	"http.location",
-	        FT_STRING, BASE_NONE, NULL, 0x0,
-	        "HTTP Location", HFILL }},
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Location", HFILL }},
 	    { &hf_http_set_cookie,
 	      { "Set-Cookie",	"http.set_cookie",
-	        FT_STRING, BASE_NONE, NULL, 0x0,
-	        "HTTP Set Cookie", HFILL }},
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Set Cookie", HFILL }},
 	    { &hf_http_last_modified,
 	      { "Last-Modified",	"http.last_modified",
-	        FT_STRING, BASE_NONE, NULL, 0x0,
-	        "HTTP Last Modified", HFILL }},
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Last Modified", HFILL }},
 	    { &hf_http_x_forwarded_for,
 	      { "X-Forwarded-For",	"http.x_forwarded_for",
-	        FT_STRING, BASE_NONE, NULL, 0x0,
-	        "HTTP X-Forwarded-For", HFILL }},
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP X-Forwarded-For", HFILL }}
 	};
 	static gint *ett[] = {
 		&ett_http,
@@ -2440,7 +2474,7 @@ proto_register_http(void)
 	    "Whether the HTTP dissector should reassemble headers "
 	    "of a request spanning multiple TCP segments. "
 		"To use this option, you must also enable "
-        "\"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+	"\"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &http_desegment_headers);
 	prefs_register_bool_preference(http_module, "desegment_body",
 	    "Reassemble HTTP bodies spanning multiple TCP segments",
@@ -2449,7 +2483,7 @@ proto_register_http(void)
 	    "the body of a request spanning multiple TCP segments, "
 	    "and reassemble chunked data spanning multiple TCP segments. "
 		"To use this option, you must also enable "
-        "\"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+	"\"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &http_desegment_body);
 	prefs_register_bool_preference(http_module, "dechunk_body",
 	    "Reassemble chunked transfer-coded bodies",
@@ -2468,28 +2502,28 @@ proto_register_http(void)
 	range_convert_str(&global_http_tcp_range, TCP_DEFAULT_RANGE, 65535);
 	http_tcp_range = range_empty();
 	prefs_register_range_preference(http_module, "tcp.port", "TCP Ports",
-									"TCP Ports range",
-									&global_http_tcp_range, 65535);
+					"TCP Ports range",
+					&global_http_tcp_range, 65535);
 
 	range_convert_str(&global_http_ssl_range, SSL_DEFAULT_RANGE, 65535);
 	http_ssl_range = range_empty();
 	prefs_register_range_preference(http_module, "ssl.port", "SSL/TLS Ports",
-									"SSL/TLS Ports range",
-									&global_http_ssl_range, 65535);
+					"SSL/TLS Ports range",
+					&global_http_ssl_range, 65535);
 	/* UAT */
 	headers_uat = uat_new("Custom HTTP headers fields Table",
-			sizeof(header_field_t),
-		    "custom_http_header_fields",
-		    TRUE,
-		    (void*) &header_fields,
-		    &num_header_fields,
-		    UAT_CAT_GENERAL,
-		    NULL,
-		    header_fields_copy_cb,
-		    header_fields_update_cb,
-		    header_fields_free_cb,
-                    NULL,
-		    custom_header_uat_fields
+			      sizeof(header_field_t),
+			      "custom_http_header_fields",
+			      TRUE,
+			      (void*) &header_fields,
+			      &num_header_fields,
+			      UAT_CAT_GENERAL,
+			      NULL,
+			      header_fields_copy_cb,
+			      header_fields_update_cb,
+			      header_fields_free_cb,
+			      NULL,
+			      custom_header_uat_fields
 	);
 
 	prefs_register_uat_preference(http_module, "custom_http_header_fields", "Custom HTTP headers fields",
@@ -2576,9 +2610,9 @@ proto_reg_handoff_http(void)
 	ntlmssp_handle = find_dissector("ntlmssp");
 	gssapi_handle = find_dissector("gssapi");
 
-	stats_tree_register("http","http","HTTP/Packet Counter", 0, http_stats_tree_packet, http_stats_tree_init, NULL );
-	stats_tree_register("http","http_req","HTTP/Requests", 0, http_req_stats_tree_packet, http_req_stats_tree_init, NULL );
-	stats_tree_register("http","http_srv","HTTP/Load Distribution",0,http_reqs_stats_tree_packet,http_reqs_stats_tree_init, NULL );
+	stats_tree_register("http", "http",     "HTTP/Packet Counter",   0, http_stats_tree_packet,      http_stats_tree_init, NULL );
+	stats_tree_register("http", "http_req", "HTTP/Requests",         0, http_req_stats_tree_packet,  http_req_stats_tree_init, NULL );
+	stats_tree_register("http", "http_srv", "HTTP/Load Distribution",0, http_reqs_stats_tree_packet, http_reqs_stats_tree_init, NULL );
 
 }
 
