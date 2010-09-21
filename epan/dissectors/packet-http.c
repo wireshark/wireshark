@@ -892,7 +892,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    + strlen(stat_info->request_uri) + 1;
 		char *uri = ep_alloc(size);
 
-		g_snprintf(uri, size, "%s://%s%s",
+		g_snprintf(uri, (gulong)size, "%s://%s%s",
 			   "http",	/* XXX, https? */
 			    stat_info->http_host, stat_info->request_uri);
 
