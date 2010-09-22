@@ -49,9 +49,10 @@
 #include "gtk/filter_autocomplete.h"
 
 
-static GtkWidget *remove_bt, *field_te, *field_lb, *fmt_cmb;
+static GtkWidget *remove_bt, *field_te, *field_lb, *occurrence_te, *occurrence_lb, *fmt_cmb;
 static gulong column_menu_changed_handler_id;
 static gulong column_field_changed_handler_id;
+static gulong column_occurrence_changed_handler_id;
 static gulong column_row_deleted_handler_id;
 
 static void column_list_new_cb(GtkWidget *, gpointer);
@@ -59,8 +60,11 @@ static void column_list_delete_cb(GtkWidget *, gpointer);
 static void column_list_select_cb(GtkTreeSelection *, gpointer);
 static void column_menu_changed_cb(GtkWidget *, gpointer);
 static void column_field_changed_cb(GtkEditable *, gpointer);
+static void column_occurrence_changed_cb(GtkEditable *, gpointer);
 static void column_dnd_row_deleted_cb(GtkTreeModel *, GtkTreePath *, gpointer);
 static gboolean column_title_changed_cb(GtkCellRendererText *, const gchar *, const gchar *, gpointer);
+
+static char custom_occurrence_str[8] = "";
 
 enum {
 #ifdef NEW_PACKET_LIST
@@ -196,12 +200,17 @@ column_prefs_show(GtkWidget *prefs_window) {
         cfmt    = (fmt_data *) clp->data;
         cur_fmt = get_column_format_from_str(cfmt->fmt);
         if (cur_fmt == COL_CUSTOM) {
-            fmt = g_strdup_printf("%s (%s)", col_format_desc(cur_fmt), cfmt->custom_field);
+            if (cfmt->custom_occurrence) {
+                fmt = g_strdup_printf("%s (%s#%d)", col_format_desc(cur_fmt), cfmt->custom_field, cfmt->custom_occurrence);
+            } else {
+                fmt = g_strdup_printf("%s (%s)", col_format_desc(cur_fmt), cfmt->custom_field);
+            }
         } else {
             if (cfmt->custom_field) {
                 /* Delete custom_field from previous changes */
                 g_free (cfmt->custom_field);
                 cfmt->custom_field = NULL;
+                cfmt->custom_occurrence = 0;
             }
             fmt = g_strdup_printf("%s", col_format_desc(cur_fmt));
         }
@@ -257,7 +266,7 @@ column_prefs_show(GtkWidget *prefs_window) {
     gtk_widget_show(props_fr);
 
     /* Column name entry and format selection */
-    tb = gtk_table_new(2, 2, FALSE);
+    tb = gtk_table_new(2, 4, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(tb), 5);
     gtk_container_add(GTK_CONTAINER(props_fr), tb);
     gtk_table_set_row_spacings(GTK_TABLE(tb), 10);
@@ -265,7 +274,7 @@ column_prefs_show(GtkWidget *prefs_window) {
     gtk_widget_show(tb);
 
     lb = gtk_label_new("Field type:");
-    gtk_misc_set_alignment(GTK_MISC(lb), 1.0f, 0.5f);
+    gtk_misc_set_alignment(GTK_MISC(lb), 0.0f, 0.5f);
     gtk_table_attach_defaults(GTK_TABLE(tb), lb, 0, 1, 0, 1);
     gtk_tooltips_set_tip (tooltips, lb,
                           "Select which packet information to present in the column.", NULL);
@@ -278,7 +287,7 @@ column_prefs_show(GtkWidget *prefs_window) {
     gtk_widget_show(props_hb);
 
     field_lb = gtk_label_new("Field name:");
-    gtk_misc_set_alignment(GTK_MISC(field_lb), 1.0f, 0.5f);
+    gtk_misc_set_alignment(GTK_MISC(field_lb), 0.0f, 0.5f);
     gtk_table_attach_defaults(GTK_TABLE(tb), field_lb, 0, 1, 1, 2);
     gtk_widget_set_sensitive(field_lb, FALSE);
     gtk_tooltips_set_tip (tooltips, field_lb,
@@ -307,6 +316,30 @@ column_prefs_show(GtkWidget *prefs_window) {
                           "This string has the same syntax as a display filter string.", NULL);
     gtk_widget_show(field_te);
 
+    occurrence_lb = gtk_label_new("Field occurrence:");
+    gtk_misc_set_alignment(GTK_MISC(occurrence_lb), 0.0f, 0.5f);
+    gtk_table_attach_defaults(GTK_TABLE(tb), occurrence_lb, 2, 3, 1, 2);
+    gtk_widget_set_sensitive(occurrence_lb, FALSE);
+    gtk_tooltips_set_tip (tooltips, occurrence_lb,
+                          "Field occurence to use. "
+                          "0=all (default), 1=first, 2=second, ..., -1=last.", NULL);
+    gtk_widget_show(occurrence_lb);
+
+    occurrence_te = gtk_entry_new();
+    g_object_set_data (G_OBJECT(occurrence_te), "occurrence", "");
+
+    /* XXX: column_occurrence_changed_cb will be called for every character entered in the entry box.      */
+    /*       Consider Changing logic so that the field is "accepted" only when a return is entered ?? */
+    column_occurrence_changed_handler_id = 
+        g_signal_connect(occurrence_te, "changed", G_CALLBACK(column_occurrence_changed_cb), column_l);
+
+    gtk_table_attach_defaults(GTK_TABLE(tb), occurrence_te, 3, 4, 1, 2);
+    gtk_widget_set_sensitive(occurrence_te, FALSE);
+    gtk_tooltips_set_tip (tooltips, occurrence_te,
+                          "Field occurence to use. "
+                          "0=all (default), 1=first, 2=second, ..., -1=last.", NULL);
+    gtk_widget_show(occurrence_te);
+
     fmt_cmb = gtk_combo_box_new_text();
 
     for (i = 0; i < NUM_COL_FMTS; i++)
@@ -326,7 +359,7 @@ column_prefs_show(GtkWidget *prefs_window) {
 }
 
 void
-column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_field)
+column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_field, gint custom_occurrence)
 {
   GList *clp;
   fmt_data *cfmt, *last_cfmt;
@@ -340,6 +373,7 @@ column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_field)
   cfmt->title = g_strdup(title);
   cfmt->fmt = g_strdup(col_format_to_string(fmt));
   cfmt->custom_field = g_strdup(custom_field);
+  cfmt->custom_occurrence = custom_occurrence;
   cfmt->resolved = TRUE;
 
   if (custom_field) {
@@ -394,7 +428,7 @@ column_list_new_cb(GtkWidget *w _U_, gpointer data) {
     GtkTreeViewColumn *title_column;
 
     cur_fmt = COL_NUMBER;    /*  Set the default new column type */
-    column_prefs_add_custom (cur_fmt, title, NULL);
+    column_prefs_add_custom (cur_fmt, title, NULL, 0);
 
     model = gtk_tree_view_get_model(column_l);
 #if GTK_CHECK_VERSION(2,6,0)
@@ -546,15 +580,24 @@ column_list_select_cb(GtkTreeSelection *sel, gpointer data _U_)
         g_signal_handler_unblock(fmt_cmb, column_menu_changed_handler_id);
 
         g_signal_handler_block  (field_te, column_field_changed_handler_id);
+        g_signal_handler_block  (occurrence_te, column_occurrence_changed_handler_id);
         if (cur_fmt == COL_CUSTOM) {
             gtk_entry_set_text(GTK_ENTRY(field_te), cfmt->custom_field);
             gtk_widget_set_sensitive(field_lb, TRUE);
             gtk_widget_set_sensitive(field_te, TRUE);
+            g_snprintf(custom_occurrence_str, sizeof(custom_occurrence_str), "%d", cfmt->custom_occurrence);
+            gtk_entry_set_text(GTK_ENTRY(occurrence_te), custom_occurrence_str);
+            gtk_widget_set_sensitive(occurrence_lb, TRUE);
+            gtk_widget_set_sensitive(occurrence_te, TRUE);
         } else {
             gtk_editable_delete_text(GTK_EDITABLE(field_te), 0, -1);
             gtk_widget_set_sensitive(field_lb, FALSE);
             gtk_widget_set_sensitive(field_te, FALSE);
+            gtk_editable_delete_text(GTK_EDITABLE(occurrence_te), 0, -1);
+            gtk_widget_set_sensitive(occurrence_lb, FALSE);
+            gtk_widget_set_sensitive(occurrence_te, FALSE);
         }
+        g_signal_handler_unblock(occurrence_te, column_occurrence_changed_handler_id);
         g_signal_handler_unblock(field_te, column_field_changed_handler_id);
 
         gtk_widget_set_sensitive(remove_bt, TRUE);
@@ -563,9 +606,11 @@ column_list_select_cb(GtkTreeSelection *sel, gpointer data _U_)
     else
     {
         gtk_editable_delete_text(GTK_EDITABLE(field_te), 0, -1);
+        gtk_editable_delete_text(GTK_EDITABLE(occurrence_te), 0, -1);
 
         gtk_widget_set_sensitive(remove_bt, FALSE);
         gtk_widget_set_sensitive(field_te, FALSE);
+        gtk_widget_set_sensitive(occurrence_te, FALSE);
         gtk_widget_set_sensitive(fmt_cmb, FALSE);
     }
 }
@@ -615,12 +660,16 @@ column_menu_changed_cb(GtkWidget *w, gpointer data) {
     /* Update field widgets, list_store, column format array  */
     /*  entry as appropriate.                                 */
     g_signal_handler_block  (field_te, column_field_changed_handler_id);
+    g_signal_handler_block  (occurrence_te, column_occurrence_changed_handler_id);
     if (cur_fmt == COL_CUSTOM) {
         /* Changing from custom to non-custom   */
         gtk_editable_delete_text(GTK_EDITABLE(field_te), 0, -1);
+        gtk_editable_delete_text(GTK_EDITABLE(occurrence_te), 0, -1);
         fmt = g_strdup_printf("%s", col_format_desc(cur_cb_fmt));
         gtk_widget_set_sensitive(field_lb, FALSE);
         gtk_widget_set_sensitive(field_te, FALSE);
+        gtk_widget_set_sensitive(occurrence_lb, FALSE);
+        gtk_widget_set_sensitive(occurrence_te, FALSE);
 
     } else if (cur_cb_fmt == COL_CUSTOM) {
         /* Changing from non-custom to custom   */
@@ -628,14 +677,24 @@ column_menu_changed_cb(GtkWidget *w, gpointer data) {
             cfmt->custom_field = g_strdup("");
         /* The following doesn't trigger a call to menu_field_changed_cb()    */
         gtk_entry_set_text(GTK_ENTRY(field_te), cfmt->custom_field);
-        fmt = g_strdup_printf("%s (%s)", col_format_desc(cur_cb_fmt), cfmt->custom_field);
+        g_snprintf(custom_occurrence_str, sizeof(custom_occurrence_str), "%d", cfmt->custom_occurrence);
+        gtk_entry_set_text(GTK_ENTRY(occurrence_te), custom_occurrence_str);
+
+        if (cfmt->custom_occurrence) {
+            fmt = g_strdup_printf("%s (%s#%d)", col_format_desc(cur_cb_fmt), cfmt->custom_field, cfmt->custom_occurrence);
+        } else {
+            fmt = g_strdup_printf("%s (%s)", col_format_desc(cur_cb_fmt), cfmt->custom_field);
+        }
         gtk_widget_set_sensitive(field_lb, TRUE);
         gtk_widget_set_sensitive(field_te, TRUE);
+        gtk_widget_set_sensitive(occurrence_lb, TRUE);
+        gtk_widget_set_sensitive(occurrence_te, TRUE);
 
     } else {
         /* Changing from non-custom to non-custom */
         fmt = g_strdup_printf("%s", col_format_desc(cur_cb_fmt));
     }
+    g_signal_handler_unblock(occurrence_te, column_occurrence_changed_handler_id);
     g_signal_handler_unblock(field_te, column_field_changed_handler_id);
 
     gtk_list_store_set(GTK_LIST_STORE(model), &iter, FORMAT_COLUMN, fmt, -1);
@@ -680,12 +739,64 @@ column_field_changed_cb(GtkEditable *te, gpointer data) {
 
     /* The user has entered a new value in the field entry box: make the req'd changes */ 
     cur_fmt = get_column_format_from_str(cfmt->fmt);
-    fmt = g_strdup_printf("%s (%s)", col_format_desc(cur_fmt), field);
+    if (cfmt->custom_occurrence) {
+        fmt = g_strdup_printf("%s (%s#%d)", col_format_desc(cur_fmt), field, cfmt->custom_occurrence);
+    } else {
+        fmt = g_strdup_printf("%s (%s)", col_format_desc(cur_fmt), field);
+    }
 
     gtk_list_store_set(GTK_LIST_STORE(model), &iter, FORMAT_COLUMN, fmt, -1);
     g_free(fmt);
     g_free(cfmt->custom_field);
     cfmt->custom_field = field;
+    cfile.cinfo.columns_changed = TRUE;
+}
+
+
+/*
+ * The user changed the custom field occurrence entry box or
+ *  the field occurrece entry box has been updated because a new
+ *  column row with custom format has been selected.
+ * If the current field entry matches that of the current
+ *  column row, this is just an update because a new
+ *  column row has been selected. Do nothing.
+ * If the two are different, then update the column row & etc.
+ */
+static void
+column_occurrence_changed_cb(GtkEditable *te, gpointer data) {
+    fmt_data         *cfmt;
+    gint              cur_fmt;
+    gint              occurrence;
+    GList            *clp;
+    gchar            *fmt;
+    GtkTreeView      *tree = (GtkTreeView *)data;
+    GtkTreeSelection *sel;
+    GtkTreeModel     *model;
+    GtkTreeIter       iter;
+
+    sel = gtk_tree_view_get_selection(tree);
+    if ( ! (gtk_tree_selection_get_selected(sel, &model, &iter))) {
+        return;
+    }
+
+    occurrence = (gint)strtol(gtk_editable_get_chars(te, 0, -1), NULL, 10);
+    gtk_tree_model_get(model, &iter, DATA_COLUMN, &clp, -1);
+    cfmt  = (fmt_data *) clp->data;
+    if (cfmt->custom_occurrence == occurrence) {
+        return; /* no action req'd */
+    }
+
+    /* The user has entered a new value in the field occurrence entry box: make the req'd changes */ 
+    cur_fmt = get_column_format_from_str(cfmt->fmt);
+    if (occurrence) {
+        fmt = g_strdup_printf("%s (%s#%d)", col_format_desc(cur_fmt), cfmt->custom_field, occurrence);
+    } else {
+        fmt = g_strdup_printf("%s (%s)", col_format_desc(cur_fmt), cfmt->custom_field);
+    }
+
+    gtk_list_store_set(GTK_LIST_STORE(model), &iter, FORMAT_COLUMN, fmt, -1);
+    g_free(fmt);
+    cfmt->custom_occurrence = occurrence;
     cfile.cinfo.columns_changed = TRUE;
 }
 

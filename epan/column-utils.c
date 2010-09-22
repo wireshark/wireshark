@@ -59,6 +59,7 @@ col_setup(column_info *cinfo, const gint num_cols)
   cinfo->col_last   = g_new(int, NUM_COL_FMTS);
   cinfo->col_title  = g_new(gchar*, num_cols);
   cinfo->col_custom_field = g_new(gchar*, num_cols);
+  cinfo->col_custom_occurrence = g_new(gint, num_cols);
   cinfo->col_custom_field_id = g_new(int, num_cols);
   cinfo->col_custom_dfilter = g_new(dfilter_t*, num_cols);
   cinfo->col_data   = (const gchar **)g_new(gchar*, num_cols);
@@ -222,6 +223,7 @@ void col_custom_set_edt(epan_dissect_t *edt, column_info *cinfo)
         cinfo->col_custom_field_id[i] != -1) {
        cinfo->col_data[i] = cinfo->col_buf[i];
        cinfo->col_expr.col_expr[i] = epan_custom_set(edt, cinfo->col_custom_field_id[i],
+                                     cinfo->col_custom_occurrence[i],
                                      cinfo->col_buf[i],
                                      cinfo->col_expr.col_expr_val[i],
                                      COL_MAX_LEN);

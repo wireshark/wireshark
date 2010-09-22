@@ -62,7 +62,8 @@ void                 column_prefs_destroy(GtkWidget *widget);
  * @param custom_field column custom field
  */
 void                 column_prefs_add_custom(gint fmt, const gchar *title,
-					     const gchar *custom_field);
+					     const gchar *custom_field,
+					     gint custom_occurrence);
 
 /** Rename a column title.
  *

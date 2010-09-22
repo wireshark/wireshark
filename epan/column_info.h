@@ -44,7 +44,7 @@ typedef struct {
   gchar      **col_expr_val;  /**< Value for filter expression */
 } col_expr_t;
 
-/** Coulmn info */
+/** Column info */
 typedef struct _column_info {
   gint                num_cols;             /**< Number of columns */
   gint               *col_fmt;              /**< Format of column */
@@ -53,6 +53,7 @@ typedef struct _column_info {
   gint               *col_last;             /**< Last column number with a given format */
   gchar             **col_title;            /**< Column titles */
   gchar             **col_custom_field;     /**< Custom column field */
+  gint               *col_custom_occurrence;/**< Custom column field id*/
   gint               *col_custom_field_id;  /**< Custom column field id*/
   struct _dfilter_t **col_custom_dfilter;   /**< Compiled custom column field */
   const gchar       **col_data;             /**< Column data */

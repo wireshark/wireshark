@@ -33,6 +33,7 @@ typedef struct _fmt_data {
   gchar *title;
   gchar *fmt;
   gchar *custom_field;
+  gint custom_occurrence;
   gboolean visible;
   gboolean resolved;
 } fmt_data;
@@ -48,6 +49,7 @@ void                 set_column_visible(const gint, gboolean);
 gboolean             get_column_resolved(const gint);
 void                 set_column_resolved(const gint, gboolean);
 const gchar         *get_column_custom_field(const gint);
+gint                 get_column_custom_occurrence(const gint);
 const gchar         *get_column_width_string(const gint, const gint);
 const char          *get_column_longest_string(const gint);
 gint                 get_column_char_width(const gint format);

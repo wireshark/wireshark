@@ -1139,6 +1139,7 @@ init_prefs(void) {
     cfmt->visible = TRUE;
     cfmt->resolved = TRUE;
     cfmt->custom_field = NULL;
+    cfmt->custom_occurrence = 0;
     prefs.col_list = g_list_append(prefs.col_list, cfmt);
   }
   prefs.num_cols  = DEF_NUM_COLS;
@@ -1933,7 +1934,7 @@ try_convert_to_custom_column(gpointer *el_data)
 
         haystack_fmt = col_format_to_string(migrated_columns[haystack_idx].el);
         if (strcmp(haystack_fmt, *fmt) == 0) {
-            gchar *cust_col = g_strdup_printf("%%Cus:%s",
+            gchar *cust_col = g_strdup_printf("%%Cus:%s:0",
                                 migrated_columns[haystack_idx].col_expr);
 
             g_free(*fmt);
@@ -1957,6 +1958,7 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
   module_t *module;
   pref_t   *pref;
   gboolean had_a_dot;
+  gchar    **cust_format_info;
   const gchar *cust_format = col_format_to_string(COL_CUSTOM);
   size_t cust_format_len = strlen(cust_format);
 
@@ -2035,11 +2037,19 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
       if (strncmp(col_l_elt->data, cust_format, cust_format_len) == 0) {
         cfmt->fmt      = g_strdup(cust_format);
         prefs_fmt      = g_strdup(col_l_elt->data);
-        cfmt->custom_field = g_strdup(&prefs_fmt[cust_format_len+1]);  /* add 1 for ':' */
+        cust_format_info = g_strsplit(&prefs_fmt[cust_format_len+1],":",2); /* add 1 for ':' */
+        cfmt->custom_field = g_strdup(cust_format_info[0]);
+        if (cfmt->custom_field && cust_format_info[1]) {
+            cfmt->custom_occurrence = (int)strtol(cust_format_info[1],NULL,10);
+        } else {
+            cfmt->custom_occurrence = 0;
+        }
+        g_strfreev(cust_format_info);
       } else {
         cfmt->fmt      = g_strdup(col_l_elt->data);
         prefs_fmt      = g_strdup(cfmt->fmt);
         cfmt->custom_field = NULL;
+        cfmt->custom_occurrence = 0;
       }
       cfmt->visible   = prefs_is_column_hidden (cols_hidden_list, prefs_fmt) ? FALSE : TRUE;
       cfmt->resolved  = TRUE;
@@ -3067,7 +3077,7 @@ write_prefs(char **pf_path_return)
     cfmt = (fmt_data *) clp->data;
     col_l = g_list_append(col_l, g_strdup(cfmt->title));
     if ((strcmp(cfmt->fmt, cust_format) == 0) && (cfmt->custom_field)) {
-      prefs_fmt = g_strdup_printf("%s:%s", cfmt->fmt, cfmt->custom_field);
+      prefs_fmt = g_strdup_printf("%s:%s:%d", cfmt->fmt, cfmt->custom_field, cfmt->custom_occurrence);
       col_l = g_list_append(col_l, prefs_fmt);
     } else {
       prefs_fmt = cfmt->fmt;
@@ -3311,8 +3321,10 @@ copy_prefs(e_prefs *dest, e_prefs *src)
     dest_cfmt->fmt = g_strdup(src_cfmt->fmt);
     if (src_cfmt->custom_field) {
       dest_cfmt->custom_field = g_strdup(src_cfmt->custom_field);
+      dest_cfmt->custom_occurrence = src_cfmt->custom_occurrence;
     } else {
       dest_cfmt->custom_field = NULL;
+      dest_cfmt->custom_occurrence = 0;
     }
     dest_cfmt->visible = src_cfmt->visible;
     dest_cfmt->resolved = src_cfmt->resolved;

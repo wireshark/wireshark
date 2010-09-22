@@ -725,6 +725,20 @@ get_column_custom_field(const gint col)
   return(cfmt->custom_field);
 }
 
+gint
+get_column_custom_occurrence(const gint col)
+{
+  GList    *clp = g_list_nth(prefs.col_list, col);
+  fmt_data *cfmt;
+
+  if (!clp)  /* Invalid column requested */
+    return 0;
+
+  cfmt = (fmt_data *) clp->data;
+
+  return(cfmt->custom_occurrence);
+}
+
 void
 build_column_format_array(column_info *cinfo, const gint num_cols, const gboolean reset_fences)
 {
@@ -739,14 +753,17 @@ build_column_format_array(column_info *cinfo, const gint num_cols, const gboolea
 
     if (cinfo->col_fmt[i] == COL_CUSTOM) {
       cinfo->col_custom_field[i] = g_strdup(get_column_custom_field(i));
+      cinfo->col_custom_occurrence[i] = get_column_custom_occurrence(i);
       if(!dfilter_compile(cinfo->col_custom_field[i], &cinfo->col_custom_dfilter[i])) {
         /* XXX: Should we issue a warning? */
         g_free(cinfo->col_custom_field[i]);
         cinfo->col_custom_field[i] = NULL;
+        cinfo->col_custom_occurrence[i] = 0;
         cinfo->col_custom_dfilter[i] = NULL;
       }
     } else {
       cinfo->col_custom_field[i] = NULL;
+      cinfo->col_custom_occurrence[i] = 0;
       cinfo->col_custom_dfilter[i] = NULL;
     }
 

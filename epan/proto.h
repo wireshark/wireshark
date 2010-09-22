@@ -1822,11 +1822,13 @@ proto_check_field_name(const gchar *field_name);
 /** Check if given string is a valid field name
  @param tree the tree to append this item to
  @param field_id the field id used for custom column
+ @param occurrence the occurrence of the field used for custom column
  @param result the buffer to fill with the field string
  @param expr the filter expression
  @param size the size of the string buffer */
 const gchar *
 proto_custom_set(proto_tree* tree, const int field_id,
+                             gint occurrence,
                              gchar *result,
                              gchar *expr, const int size );
 

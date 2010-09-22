@@ -235,10 +235,11 @@ epan_dissect_prime_dfilter(epan_dissect_t *edt, const dfilter_t* dfcode)
 /* ----------------------- */
 const gchar *
 epan_custom_set(epan_dissect_t *edt, int field_id,
+                             gint occurrence,
                              gchar *result,
                              gchar *expr, const int size )
 {
-    return proto_custom_set(edt->tree, field_id, result, expr, size);
+    return proto_custom_set(edt->tree, field_id, occurrence, result, expr, size);
 }
 
 void

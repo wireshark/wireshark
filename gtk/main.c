@@ -897,7 +897,7 @@ void apply_as_custom_column_cb (GtkWidget *widget _U_, gpointer data _U_)
 {
   if (cfile.finfo_selected) {
     column_prefs_add_custom(COL_CUSTOM, cfile.finfo_selected->hfinfo->name,
-                            cfile.finfo_selected->hfinfo->abbrev);
+                            cfile.finfo_selected->hfinfo->abbrev,0);
     /* Recreate the packet list according to new preferences */
 #ifdef NEW_PACKET_LIST
     new_packet_list_recreate ();
