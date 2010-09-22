@@ -137,7 +137,7 @@ dissect_interlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ilb_type = tvb_get_guint8(tvb, offset);
 	ilb_version = tvb_get_guint8(tvb, offset + 1);
 	type_version = ilb_type << 8 | ilb_version;
-	col_append_fstr(pinfo->cinfo, COL_INFO, "Type: 0x%02x, Version: %d",
+	col_append_fstr(pinfo->cinfo, COL_INFO, "Type: %d, Version: %d",
 		ilb_type, ilb_version);
 
 	if (ilb_tree) {
@@ -209,7 +209,7 @@ proto_register_interlink(void)
 			16, TFS(&flags_set_notset), 0x02, NULL, HFILL }},
 		{ &hf_interlink_block_type, {
 			"Type", "interlink.type", FT_UINT8,
-			BASE_HEX, NULL, 0, NULL, HFILL }},
+			BASE_DEC, NULL, 0, NULL, HFILL }},
 		{ &hf_interlink_block_version, {
 			"Version", "interlink.block_version", FT_UINT8,
 			BASE_DEC, NULL, 0, NULL, HFILL }},
