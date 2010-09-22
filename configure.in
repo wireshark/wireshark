@@ -1157,6 +1157,12 @@ else
 	fi
 fi
 
+if test "x$want_zlib" != "xno" ; then
+	AC_CHECK_LIB(z, gzclearerr,
+	[
+		AC_DEFINE(HAVE_GZCLEARERR, 1, [Define if we have gzclearerr])
+	])
+fi
 
 dnl pcre check
 AC_MSG_CHECKING(whether to use libpcre for regular expressions in dfilters)
