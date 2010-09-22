@@ -3118,13 +3118,17 @@ Owen Kirby		<osk [AT] exegin.com> {
 	SCoP dissector
 }
 
-Juha Siltanen <juha.siltanen [AT] nsn.com> {
+Juha Siltanen		<juha.siltanen [AT] nsn.com> {
 	FLIP dissector
 }
 
-Cal Turney <turney_cal [AT] emc.com> {
+Cal Turney		<turney_cal [AT] emc.com> {
 	NFS access tracking
 	tshark version of the SCSI tap
+}
+
+Lukasz Kotasa		<lukasz.kotasa [AT] tieto.com> {
+	WAI authentication protocol
 }
 
 and by:

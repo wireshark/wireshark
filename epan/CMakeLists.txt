@@ -1026,6 +1026,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-vrrp.c
 	dissectors/packet-vtp.c
 	dissectors/packet-vxi11.c
+	dissectors/packet-wai.c
 	dissectors/packet-wap.c
 	dissectors/packet-wassp.c
 	dissectors/packet-wbxml.c
