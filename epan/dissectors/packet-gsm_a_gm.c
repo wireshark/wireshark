@@ -232,6 +232,7 @@ static int hf_gsm_a_tft_port_low = -1;
 static int hf_gsm_a_tft_port_high = -1;
 static int hf_gsm_a_tft_security = -1;
 static int hf_gsm_a_tft_traffic_mask = -1;
+static int hf_gsm_a_tft_flow_label_type = -1;
 static int hf_gsm_a_tft_param_id = -1;
 static int hf_gsm_a_gm_acc_tech_type = -1;
 static int hf_gsm_a_gm_acc_cap_struct_len = -1;
@@ -4133,7 +4134,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 			/* while ( filter_len > 1 ) */
 			/* packet filter component type identifier: */
 
-			if (pf_length > 0 ){
+			while (pf_length > 0 ){
 				if ((curr_offset-offset)<1) {
 					proto_tree_add_text(tf_tree,tvb, curr_offset, 1,"Not enough data");
 					return(len);
@@ -4141,6 +4142,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 				pack_component_type = tvb_get_guint8(tvb, curr_offset);
 				curr_offset++;
 				curr_len--;
+				pf_length--;
 
 				tf=proto_tree_add_text(tf_tree,tvb, curr_offset-1, 1,"Packet filter component type identifier: ");
 				comp_tree = proto_item_add_subtree(tf, ett_sm_tft );
@@ -4155,6 +4157,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 					proto_tree_add_item(comp_tree,hf_gsm_a_sm_ip4_mask,tvb,curr_offset,4,FALSE);
 					curr_offset+=4;
 					curr_len-=4;
+					pf_length-=8;
 					break;
 
 				case 0x20:
@@ -4165,6 +4168,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 					proto_tree_add_item(comp_tree,hf_gsm_a_sm_ip6_mask,tvb,curr_offset,16,FALSE);
 					curr_offset+=16;
 					curr_len-=16;
+					pf_length-=32;
 					break;
 
 				case 0x30:
@@ -4172,6 +4176,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 					proto_tree_add_item(comp_tree,hf_gsm_a_tft_protocol_header,tvb,curr_offset,1,FALSE);
 					curr_offset+=1;
 					curr_len-=1;
+					pf_length-=1;
 					break;
 
 				case 0x40:
@@ -4179,14 +4184,17 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port,tvb,curr_offset,2,FALSE);
 					curr_offset+=2;
 					curr_len-=2;
+					pf_length-=2;
 					break;
 
 				case 0x41:
 					str="Local port range type";
 					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port_low,tvb,curr_offset,2,FALSE);
+					curr_offset+=2;
 					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port_high,tvb,curr_offset,2,FALSE);
-					curr_offset+=4;
+					curr_offset+=2;
 					curr_len-=4;
+					pf_length-=4;
 					break;
 
 				case 0x50:
@@ -4194,14 +4202,17 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port,tvb,curr_offset,2,FALSE);
 					curr_offset+=2;
 					curr_len-=2;
+					pf_length-=2;
 					break;
 
 				case 0x51:
 					str="Remote port range type";
 					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port_low,tvb,curr_offset,2,FALSE);
+					curr_offset+=2;
 					proto_tree_add_item(comp_tree,hf_gsm_a_tft_port_high,tvb,curr_offset,2,FALSE);
-					curr_offset+=4;
+					curr_offset+=2;
 					curr_len-=4;
+					pf_length-=4;
 					break;
 
 				case 0x60:
@@ -4209,26 +4220,33 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 					proto_tree_add_item(comp_tree,hf_gsm_a_tft_security,tvb,curr_offset,4,FALSE);
 					curr_offset+=4;
 					curr_len-=4;
+					pf_length-=4;
 					break;
 
 
 				case 0x70:
 					str="Type of service/Traffic class type";
 					proto_tree_add_item(comp_tree,hf_gsm_a_qos_traffic_cls,tvb,curr_offset,1,FALSE);
+					curr_offset++;
 					proto_tree_add_item(comp_tree,hf_gsm_a_tft_traffic_mask,tvb,curr_offset,1,FALSE);
-					curr_offset+=2;
+					curr_offset++;
 					curr_len-=2;
+					pf_length-=2;
 					break;
 
 				case 0x80:
 					str="Flow label type";
-					proto_tree_add_item(comp_tree,hf_gsm_a_tft_traffic_mask,tvb,curr_offset,1,FALSE);
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_flow_label_type,tvb,curr_offset,3,FALSE);
 					curr_offset+=3;
 					curr_len-=3;
+					pf_length-=3;
 					break;
 
 				default:
 					str="not specified";
+					curr_offset+=pf_length;
+					curr_len-=pf_length;
+					pf_length=0;
 				}
 				proto_item_append_text(tf, "%s (%u)", str, pack_component_type);
 				count++;
@@ -4280,6 +4298,8 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 			count++;
 		}
 	}
+
+	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
 	return(len);
 }
@@ -6025,6 +6045,11 @@ proto_register_gsm_a_gm(void)
 	{ &hf_gsm_a_tft_traffic_mask,
 		{ "Mask field", "gsm_a.tft.traffic_mask",
 		  FT_UINT8, BASE_HEX, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_tft_flow_label_type,
+		{ "Flow Label Type", "gsm_a.tft.flow_label_type",
+		  FT_UINT24, BASE_HEX, NULL, 0x0FFFFF,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_tft_param_id,
