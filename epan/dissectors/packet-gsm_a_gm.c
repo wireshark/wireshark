@@ -5228,6 +5228,8 @@ dtap_sm_act_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
+	ELEM_OPT_TV_SHORT(0xA0, GSM_A_PDU_TYPE_GM, DE_REQ_TYPE, NULL);
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 

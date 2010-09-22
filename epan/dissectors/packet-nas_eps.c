@@ -186,7 +186,6 @@ static int hf_nas_eps_service_type = -1;
 static int hf_nas_eps_msg_esm_type = -1;
 int hf_nas_eps_esm_elem_id = -1;
 static int hf_nas_eps_esm_proc_trans_id = -1;
-static int hf_nas_eps_esm_request_type = -1;
 
 /* Initialize the subtree pointers */
 static int ett_nas_eps = -1;
@@ -2203,13 +2202,8 @@ static const value_string nas_eps_esm_pdn_type_values[] = {
  */
 /*
  * 9.9.4.14 Request type
- * Coded inline 1/2 octet
+ * See subclause 10.5.6.17 in 3GPP TS 24.008
  */
-static const value_string nas_eps_esm_request_type_values[] = {
-	{ 0x1,	"Initial attach" },
-	{ 0x2,	"Handover" },
-	{ 0, NULL }
-};
 /*
  * 9.9.4.15 Traffic flow aggregate description 
  * The Traffic flow aggregate description information element is encoded using the same format as the Traffic flow
@@ -3797,25 +3791,21 @@ nas_esm_pdn_con_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static void
 nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
-	guint32	curr_offset, bit_offset;
+	guint32	curr_offset;
 	guint32	consumed;
 	guint	curr_len;
 
 	curr_offset = offset;
 	curr_len = len;
 
-	bit_offset=curr_offset<<3;
 	/* PDN type PDN type 9.9.4.10 M V 1/2 */
-	proto_tree_add_bits_item(tree, hf_nas_eps_esm_pdn_type, tvb, bit_offset, 4, FALSE);
-	bit_offset+=4;
+	proto_tree_add_bits_item(tree, hf_nas_eps_esm_pdn_type, tvb, (curr_offset<<3), 4, FALSE);
 
 	/* Request type 9.9.4.14 M V 1/2 */
-	proto_tree_add_bits_item(tree, hf_nas_eps_esm_request_type, tvb, bit_offset, 4, FALSE);
-	bit_offset+=4;
+	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_REQ_TYPE);
 	
-	/* Fix up the lengths */
-	curr_len--;
-	curr_offset++;
+	/* Lengths already fixed by the call to ELEM_MAND_V macro */
+
 	if (curr_len==0)
 		return;
 
@@ -4899,11 +4889,6 @@ void proto_register_nas_eps(void) {
 	{ &hf_nas_eps_esm_pdn_type,
 		{ "PDN type",	"nas_eps.nas_eps_esm_pdn_type",
 		FT_UINT8, BASE_DEC, VALS(nas_eps_esm_pdn_type_values), 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_nas_eps_esm_request_type,
-		{ "Request type",	"nas_eps.esm_request_type",
-		FT_UINT8, BASE_HEX, VALS(nas_eps_esm_request_type_values), 0x0,
 		NULL, HFILL }
 	},
   };
