@@ -240,56 +240,53 @@ dissect_flag(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
     proto_item	*flag_item = NULL;
     proto_tree	*flag_tree = NULL;
-    gint8	flags = -1;
 
     flag_item = proto_tree_add_item(tree, hf_wai_flag, tvb, offset, 1, FALSE);
     flag_tree = proto_item_add_subtree (flag_item, ett_wai_flags);
 
-    flags = tvb_get_guint8(tvb, offset);
-
-    proto_tree_add_boolean (flag_tree, hf_wai_bk_rekeying_flag, tvb, 0, 0,  flags & FLAG_BIT0);
-    proto_tree_add_boolean (flag_tree, hf_wai_preauthentication_flag, tvb, 0, 0, flags & FLAG_BIT1);
-    proto_tree_add_boolean (flag_tree, hf_wai_certificate_flag, tvb, 0, 0, flags & FLAG_BIT2);
-    proto_tree_add_boolean (flag_tree, hf_wai_optional_flag, tvb, 0, 0, flags & FLAG_BIT3);
-    proto_tree_add_boolean (flag_tree, hf_wai_usk_rekeying_flag, tvb, 0, 0, flags & FLAG_BIT4);
-    proto_tree_add_boolean (flag_tree, hf_wai_negotiation_flag, tvb, 0, 0, flags & FLAG_BIT5);
-    proto_tree_add_boolean (flag_tree, hf_wai_revoking_flag, tvb, 0, 0, flags & FLAG_BIT6);
-    proto_tree_add_boolean (flag_tree, hf_wai_reserved_flag, tvb, 0, 0, flags & FLAG_BIT7);
+    proto_tree_add_item (flag_tree, hf_wai_bk_rekeying_flag, tvb, offset, 1, FALSE);
+    proto_tree_add_item (flag_tree, hf_wai_preauthentication_flag, tvb, offset, 1, FALSE);
+    proto_tree_add_item (flag_tree, hf_wai_certificate_flag, tvb, offset, 1, FALSE);
+    proto_tree_add_item (flag_tree, hf_wai_optional_flag, tvb, offset, 1, FALSE);
+    proto_tree_add_item (flag_tree, hf_wai_usk_rekeying_flag, tvb, offset, 1, FALSE);
+    proto_tree_add_item (flag_tree, hf_wai_negotiation_flag, tvb, offset, 1, FALSE);
+    proto_tree_add_item (flag_tree, hf_wai_revoking_flag, tvb, offset, 1, FALSE);
+    proto_tree_add_item (flag_tree, hf_wai_reserved_flag, tvb, offset, 1, FALSE);
 }
 
 inline static void
 dissect_bkid(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_tree_add_bytes(tree, hf_wai_bkid, tvb, offset, 16, tvb_get_ptr(tvb, offset, 16));
+    proto_tree_add_item(tree, hf_wai_bkid, tvb, offset, 16, FALSE);
 }
 
 inline static void
 dissect_uskid(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_tree_add_bytes(tree, hf_wai_uskid, tvb, offset, 1, tvb_get_ptr(tvb, offset, 1));
+    proto_tree_add_item(tree, hf_wai_uskid, tvb, offset, 1, FALSE);
 }
 
 inline static void dissect_wie(tvbuff_t *tvb, guint offset, guint length, proto_tree *tree)
 {
-    proto_tree_add_bytes(tree, hf_wai_wie, tvb, offset, length, tvb_get_ptr(tvb, offset, length));
+    proto_tree_add_item(tree, hf_wai_wie, tvb, offset, length, FALSE);
 }
 
 inline static void
 dissect_message_auth_code(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_tree_add_bytes(tree, hf_wai_message_auth_code, tvb, offset, 20, tvb_get_ptr(tvb, offset, 20));
+    proto_tree_add_item(tree, hf_wai_message_auth_code, tvb, offset, 20, FALSE);
 }
 
 inline static void
 dissect_mskid(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_tree_add_bytes(tree, hf_wai_mskid, tvb, offset, 1, tvb_get_ptr(tvb, offset, 1));
+    proto_tree_add_item(tree, hf_wai_mskid, tvb, offset, 1, FALSE);
 }
 
 inline static void
 dissect_key_announcement_identifier(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_tree_add_bytes(tree, hf_wai_key_ann_id, tvb, offset, 16, tvb_get_ptr(tvb, offset, 16));
+    proto_tree_add_item(tree, hf_wai_key_ann_id, tvb, offset, 16, FALSE);
 }
 
 inline static void
@@ -310,7 +307,7 @@ dissect_addid(tvbuff_t *tvb, guint offset, proto_tree *tree)
     proto_item	*mac_item = NULL;
     proto_tree	*mac_tree = NULL;
 
-    mac_item = proto_tree_add_string(tree, hf_wai_addid, tvb, 0, 0, "AE MAC and ASUE MAC addresses");
+    mac_item = proto_tree_add_string(tree, hf_wai_addid, tvb, offset, 12, "AE MAC and ASUE MAC addresses");
 
     mac_tree = proto_item_add_subtree(mac_item, ett_wai_mac);
     proto_tree_add_item(mac_tree, hf_wai_ae_mac, tvb, offset, 6, FALSE);
@@ -406,7 +403,7 @@ dissect_challenge(tvbuff_t *tvb, guint offset, proto_tree *tree, const gchar * c
     proto_item		*challenge_item;
     const guint16	challenge_length = 32;
 
-    challenge_item = proto_tree_add_bytes(tree, hf_wai_challenge, tvb, offset, 32, tvb_get_ptr(tvb, offset, 32));
+    challenge_item = proto_tree_add_item(tree, hf_wai_challenge, tvb, offset, 32, FALSE);
     proto_item_append_text(challenge_item, "(%schallenge)",  ((label==NULL)?"":label));
 
     return challenge_length;
@@ -783,7 +780,7 @@ dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, guint8 subtype, guint16 length
             offset += 1;
             dissect_addid(tvb, offset, data_tree);
             offset += 12;
-            proto_tree_add_bytes(data_tree, hf_wai_data_pack_num, tvb, offset, 16, tvb_get_ptr(tvb, offset, 16));
+            proto_tree_add_item(data_tree, hf_wai_data_pack_num, tvb, offset, 16, FALSE);
             offset += 16;
             dissect_key_announcement_identifier(tvb, offset, data_tree);
             offset += 16;
@@ -906,7 +903,7 @@ Figure 18 from [ref:1]
 
                 if (new_tvb) {
                     col_add_str(pinfo->cinfo, COL_INFO, "Last fragment of message, data dissected");
-                    col_append_sep_str(pinfo->cinfo, COL_INFO, ", WAI: ", subtype_name);
+                    col_append_sep_str(pinfo->cinfo, COL_INFO, ": ", subtype_name);
                     next_tvb=new_tvb;
                     length = tvb_length (next_tvb);
                 }
