@@ -392,7 +392,7 @@ dissect_ecdh_parameter(tvbuff_t * tvb, const gint offset, proto_tree * tree)
     ecdh_id_item = proto_tree_add_item(ecdh_tree, hf_wai_ecdh_id, tvb, offset, 1, FALSE);
     proto_item_set_text(ecdh_id_item, "ID: %s (%#x)", id_name, ecdh_id);
     proto_tree_add_item(ecdh_tree, hf_wai_ecdh_len, tvb, offset+1, 2, FALSE);
-    proto_tree_add_item(ecdh_tree, hf_wai_ecdh_content, tvb, offset+2, ecdh_len, FALSE);
+    proto_tree_add_item(ecdh_tree, hf_wai_ecdh_content, tvb, offset+3, ecdh_len, FALSE);
 
     return ecdh_len + 3;
 }
@@ -826,6 +826,9 @@ Figure 18 from [ref:1]
     guint8		fragment_num;
     guint8		flags;
     fragment_data	*frag_msg;
+    proto_tree		*wai_tree = NULL;
+    tvbuff_t		*next_tvb;
+    tvbuff_t		*new_tvb;
     const gchar		*subtype_name = "Unknown type";
 
     length = tvb_get_ntohs(tvb, 6)-WAI_MESSAGE_LENGTH;
@@ -851,20 +854,8 @@ Figure 18 from [ref:1]
     fragment_num = tvb_get_guint8(tvb, 10);
     flags = tvb_get_guint8(tvb, 11);
 
-    frag_msg =  fragment_add_seq_check (tvb, WAI_DATA_OFFSET, pinfo,
-    					packet_num,
-    					wai_fragment_table,
-    					wai_reassembled_table,
-    					fragment_num,
-    					length,
-    					flags);
-
     if (tree) {
         proto_item	*wai_item;
-        proto_tree	*wai_tree;
-        tvbuff_t	*next_tvb;
-        tvbuff_t	*new_tvb;
-
 
         wai_item = proto_tree_add_item(tree, proto_wai, tvb, 0, -1, ENC_NA);
 
@@ -881,34 +872,44 @@ Figure 18 from [ref:1]
         proto_tree_add_item(wai_tree, hf_wai_seq, tvb, 8, 2, FALSE);
         proto_tree_add_item(wai_tree, hf_wai_fragm_seq, tvb, 10, 1, FALSE);
         proto_tree_add_item(wai_tree, hf_wai_flag, tvb, 11, 1, FALSE);
+    }
 
-        next_tvb = tvb_new_subset_remaining(tvb, WAI_DATA_OFFSET);
+    frag_msg =  fragment_add_seq_check (tvb, WAI_DATA_OFFSET, pinfo,
+    					packet_num,
+    					wai_fragment_table,
+    					wai_reassembled_table,
+    					fragment_num,
+    					length,
+    					flags);
 
-        /* Replace INFO column if message is fragmented and call data_handle */
-        if (flags) {
-            col_add_fstr(pinfo->cinfo, COL_INFO,
-            		"Fragment (%d) of message, data not dissected", fragment_num);
+    next_tvb = tvb_new_subset_remaining(tvb, WAI_DATA_OFFSET);
 
-            process_reassembled_data(tvb, WAI_DATA_OFFSET, pinfo,
-                                     "Reassembled WAI", frag_msg, &wai_frag_items,
-                                     NULL, wai_tree);
+    /* Replace INFO column if message is fragmented and call data_handle */
+    if (flags) {
+        col_add_fstr(pinfo->cinfo, COL_INFO,
+                     "Fragment (%d) of message, data not dissected", fragment_num);
 
-            call_dissector(data_handle, next_tvb, pinfo, tree);
-        } else {
-            /* If this is the last fragment of fragmented message, then reassamble and dissect
-               otherwise only dissect */
-            if (fragment_num > 0) {
-                new_tvb = process_reassembled_data(tvb, WAI_DATA_OFFSET, pinfo, "Reassembled WAI", frag_msg, &wai_frag_items,
-                					NULL, wai_tree);
+        process_reassembled_data(tvb, WAI_DATA_OFFSET, pinfo,
+                                 "Reassembled WAI", frag_msg, &wai_frag_items,
+                                 NULL, wai_tree);
 
-                if (new_tvb) {
-                    col_add_str(pinfo->cinfo, COL_INFO, "Last fragment of message, data dissected");
-                    col_append_sep_str(pinfo->cinfo, COL_INFO, ": ", subtype_name);
-                    next_tvb=new_tvb;
-                    length = tvb_reported_length (next_tvb);
-                }
+        call_dissector(data_handle, next_tvb, pinfo, tree);
+    } else {
+        /* If this is the last fragment of fragmented message, then reassamble and dissect
+           otherwise only dissect */
+        if (fragment_num > 0) {
+            new_tvb = process_reassembled_data(tvb, WAI_DATA_OFFSET, pinfo, "Reassembled WAI", frag_msg, &wai_frag_items,
+                                               NULL, wai_tree);
+
+            if (new_tvb) {
+                col_add_str(pinfo->cinfo, COL_INFO, "Last fragment of message, data dissected");
+                col_append_sep_str(pinfo->cinfo, COL_INFO, ": ", subtype_name);
+                next_tvb=new_tvb;
+                length = tvb_reported_length (next_tvb);
             }
-            /* dissect Data field of WAI packet */
+        }
+        /* dissect Data field of WAI packet */
+        if (tree) {
             dissect_wai_data(next_tvb, wai_tree, subtype, length);
         }
     }
