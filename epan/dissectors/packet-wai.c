@@ -238,8 +238,8 @@ static const true_false_string  wai_reserved_flag = {
 static void
 dissect_flag(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_item	*flag_item = NULL;
-    proto_tree	*flag_tree = NULL;
+    proto_item	*flag_item;
+    proto_tree	*flag_tree;
 
     flag_item = proto_tree_add_item(tree, hf_wai_flag, tvb, offset, 1, FALSE);
     flag_tree = proto_item_add_subtree (flag_item, ett_wai_flags);
@@ -304,8 +304,8 @@ dissect_authentication_id(tvbuff_t *tvb, guint offset, proto_tree *tree)
 static void
 dissect_addid(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_item	*mac_item = NULL;
-    proto_tree	*mac_tree = NULL;
+    proto_item	*mac_item;
+    proto_tree	*mac_tree;
 
     mac_item = proto_tree_add_string(tree, hf_wai_addid, tvb, offset, 12, "AE MAC and ASUE MAC addresses");
 
@@ -318,8 +318,8 @@ static guint16
 dissect_identity(tvbuff_t * tvb, const guint16 offset, proto_tree * tree,
    const char * const label)
 {
-    proto_tree	*id_tree = NULL;
-    proto_item	*id_item = NULL;
+    proto_tree	*id_tree;
+    proto_item	*id_item;
     guint16	length;
 
     length = tvb_get_ntohs(tvb, offset+2);
@@ -338,9 +338,9 @@ static gint16
 dissect_certificate(tvbuff_t * tvb, const gint offset, proto_tree * tree,
                     const gchar * const label)
 {
-    proto_item	*certificate_item = NULL;
-    proto_tree	*certificate_tree = NULL;
-    proto_item	*id_item = NULL;
+    proto_item	*certificate_item;
+    proto_tree	*certificate_tree;
+    proto_item	*id_item;
     guint16	length;
     guint16	id;
     const gchar	*id_name = "unknown";
@@ -370,9 +370,9 @@ dissect_certificate(tvbuff_t * tvb, const gint offset, proto_tree * tree,
 static guint16
 dissect_ecdh_parameter(tvbuff_t * tvb, const gint offset, proto_tree * tree)
 {
-    proto_item	*ecdh_item = NULL;
-    proto_tree	*ecdh_tree = NULL;
-    proto_item	*ecdh_id_item = NULL;
+    proto_item	*ecdh_item;
+    proto_tree	*ecdh_tree;
+    proto_item	*ecdh_id_item;
     guint8	ecdh_id;
     guint16	ecdh_len;
     const gchar	*id_name = "unknown";
@@ -412,8 +412,8 @@ dissect_challenge(tvbuff_t *tvb, guint offset, proto_tree *tree, const gchar * c
 static guint16
 dissect_key_data(tvbuff_t *tvb, guint offset, proto_tree *tree, const gchar *const label)
 {
-    proto_item	*key_data_item = NULL;
-    proto_tree	*key_data_tree = NULL;
+    proto_item	*key_data_item;
+    proto_tree	*key_data_tree;
     guint8	length;
 
     length = tvb_get_guint8(tvb, offset);
@@ -433,10 +433,10 @@ dissect_key_data(tvbuff_t *tvb, guint offset, proto_tree *tree, const gchar *con
 static guint
 dissect_multiple_certificate(tvbuff_t * tvb, guint offset, proto_tree *tree)
 {
-    proto_item	*multicert_item = NULL;
-    proto_tree	*multicert_tree = NULL;
-    proto_item	*nonce_1_item = NULL;
-    proto_item	*nonce_2_item = NULL;
+    proto_item	*multicert_item;
+    proto_tree	*multicert_tree;
+    proto_item	*nonce_1_item;
+    proto_item	*nonce_2_item;
     guint	length;
 
     length = tvb_get_ntohs(tvb, offset+1);
@@ -465,8 +465,8 @@ dissect_multiple_certificate(tvbuff_t * tvb, guint offset, proto_tree *tree)
 static guint
 dissect_identity_list(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_item	*id_list_item = NULL;
-    proto_tree	*id_list_tree = NULL;
+    proto_item	*id_list_item;
+    proto_tree	*id_list_tree;
     guint16	length;
     guint16	no_of_ids;
     guint16	i;
@@ -497,12 +497,12 @@ dissect_identity_list(tvbuff_t *tvb, guint offset, proto_tree *tree)
 static guint16
 dissect_signature_algorithm(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_item	*sa_item = NULL;
-    proto_tree	*sa_tree = NULL;
-    proto_item	*param_item = NULL;
-    proto_tree	*param_tree = NULL;
-    proto_item	*alg_name_item = NULL;
-    proto_item	*sig_name_item = NULL;
+    proto_item	*sa_item;
+    proto_tree	*sa_tree;
+    proto_item	*param_item;
+    proto_tree	*param_tree;
+    proto_item	*alg_name_item;
+    proto_item	*sig_name_item;
     guint16	length;
     guint8	alg_id;
     guint8	sig_id;
@@ -547,8 +547,8 @@ dissect_signature_algorithm(tvbuff_t *tvb, guint offset, proto_tree *tree)
 static guint16
 dissect_signature_value(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_item	*sv_item = NULL;
-    proto_tree	*sv_tree = NULL;
+    proto_item	*sv_item;
+    proto_tree	*sv_tree;
     guint16	length = 0;
 
     length = tvb_get_ntohs(tvb, offset);
@@ -567,8 +567,8 @@ dissect_signature_value(tvbuff_t *tvb, guint offset, proto_tree *tree)
 static guint16
 dissect_signature(tvbuff_t *tvb, guint offset, proto_tree *tree, const gchar *const label)
 {
-    proto_item	*ss_item = NULL;
-    proto_tree	*ss_tree = NULL;
+    proto_item	*ss_item;
+    proto_tree	*ss_tree;
     guint	length = 0;
 
     length = tvb_get_ntohs(tvb, offset+1);
@@ -594,14 +594,14 @@ dissect_signature(tvbuff_t *tvb, guint offset, proto_tree *tree, const gchar *co
 static void
 dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, guint8 subtype, guint16 length)
 {
-    proto_item	*data_item = NULL;
-    proto_tree	*data_tree = NULL;
+    proto_item	*data_item;
+    proto_tree	*data_tree;
     const gchar	*type_name;
 
     data_item = proto_tree_add_item(tree, hf_wai_data, tvb, 0, length, FALSE);
     data_tree = proto_item_add_subtree (data_item, ett_wai_data);
 
-    type_name = val_to_str(subtype, wai_subtype_names, "%s");
+    type_name = val_to_str_const(subtype, wai_subtype_names, "Unknown type");
 
     proto_item_set_text(data_item, "%s data (%d bytes)", type_name, length);
 
@@ -731,7 +731,7 @@ dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, guint8 subtype, guint16 length
         case WAI_SUB_UNICAST_KEY_RESP:
         {
             /* Chapter 8.1.4.3.2 Unicast Key Negotiation Response [ref: 1] */
-            tvbuff_t  *next_tvb = NULL;
+            tvbuff_t  *next_tvb;
             guint length = 0;
 
             dissect_flag(tvb, 0, data_tree);
@@ -742,7 +742,7 @@ dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, guint8 subtype, guint16 length
             dissect_challenge(tvb, 62, data_tree, "AE ");
 
             next_tvb = tvb_new_subset_remaining(tvb, 96);
-            length = tvb_length(next_tvb);
+            length = tvb_reported_length(next_tvb);
 
             dissect_wie(next_tvb, 0, length-20, data_tree);
             dissect_message_auth_code(next_tvb, length-20, data_tree);
@@ -751,7 +751,7 @@ dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, guint8 subtype, guint16 length
         case WAI_SUB_UNICAST_KEY_CONFIRM:
         {
             /* Chapter 8.1.4.3.3 Unicast Key Negotiation Confirmation [ref: 1] */
-            tvbuff_t  *next_tvb = NULL;
+            tvbuff_t  *next_tvb;
             guint length = 0;
 
             dissect_flag(tvb, 0, data_tree);
@@ -761,7 +761,7 @@ dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, guint8 subtype, guint16 length
             dissect_challenge(tvb, 30, data_tree, "ASUE ");
 
             next_tvb = tvb_new_subset_remaining(tvb, 62);
-            length = tvb_length(next_tvb);
+            length = tvb_reported_length(next_tvb);
 
             dissect_wie(next_tvb, 0, length-20, data_tree);
             dissect_message_auth_code(next_tvb, length-20, data_tree);
@@ -825,14 +825,14 @@ Figure 18 from [ref:1]
     guint16		packet_num;
     guint8		fragment_num;
     guint8		flags;
-    fragment_data   *frag_msg = NULL;
+    fragment_data	*frag_msg;
     const gchar		*subtype_name = "Unknown type";
 
     length = tvb_get_ntohs(tvb, 6)-WAI_MESSAGE_LENGTH;
     subtype = tvb_get_guint8(tvb, 3);
 
     /* quick sanity check */
-    if ((length != tvb_length (tvb)-WAI_MESSAGE_LENGTH) || (subtype > WAI_SUB_MULTICAST_ANNOUNCE_RESP)) {
+    if ((length != tvb_reported_length (tvb)-WAI_MESSAGE_LENGTH) || (subtype > WAI_SUB_MULTICAST_ANNOUNCE_RESP)) {
         return;
     }
 
@@ -841,7 +841,7 @@ Figure 18 from [ref:1]
     version = tvb_get_ntohs(tvb, 0);
 
     if (version == 1) {
-        subtype_name = val_to_str(subtype, wai_subtype_names, "%s");
+        subtype_name = val_to_str_const(subtype, wai_subtype_names, "Unknown type");
     }
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s", subtype_name);
 
@@ -860,16 +860,16 @@ Figure 18 from [ref:1]
     					flags);
 
     if (tree) {
-        proto_item	*wai_item = NULL;
-        proto_tree	*wai_tree = NULL;
-        tvbuff_t	*next_tvb = NULL;
-        tvbuff_t	*new_tvb = NULL;
+        proto_item	*wai_item;
+        proto_tree	*wai_tree;
+        tvbuff_t	*next_tvb;
+        tvbuff_t	*new_tvb;
 
 
         wai_item = proto_tree_add_item(tree, proto_wai, tvb, 0, -1, ENC_NA);
 
         proto_item_set_text (wai_item, "WAI Protocol (%s)",
-        			val_to_str(subtype, wai_subtype_names, "%s"));
+        			val_to_str_const(subtype, wai_subtype_names, "Unknown type"));
         wai_tree = proto_item_add_subtree(wai_item, ett_wai);
 
         /* Field lengths and offsets in WAI protocol described above */
@@ -889,9 +889,9 @@ Figure 18 from [ref:1]
             col_add_fstr(pinfo->cinfo, COL_INFO,
             		"Fragment (%d) of message, data not dissected", fragment_num);
 
-            new_tvb = process_reassembled_data(tvb, WAI_DATA_OFFSET, pinfo,
-            					"Reassembled WAI", frag_msg, &wai_frag_items,
-            					NULL, wai_tree);
+            process_reassembled_data(tvb, WAI_DATA_OFFSET, pinfo,
+                                     "Reassembled WAI", frag_msg, &wai_frag_items,
+                                     NULL, wai_tree);
 
             call_dissector(data_handle, next_tvb, pinfo, tree);
         } else {
@@ -905,7 +905,7 @@ Figure 18 from [ref:1]
                     col_add_str(pinfo->cinfo, COL_INFO, "Last fragment of message, data dissected");
                     col_append_sep_str(pinfo->cinfo, COL_INFO, ": ", subtype_name);
                     next_tvb=new_tvb;
-                    length = tvb_length (next_tvb);
+                    length = tvb_reported_length (next_tvb);
                 }
             }
             /* dissect Data field of WAI packet */
@@ -925,8 +925,7 @@ void
 proto_register_wai(void)
 {
     static hf_register_info hf[] = {
-        { &hf_wai_version, 
-        { "Version", "wai.version", FT_UINT16, BASE_DEC, NULL,
+        { &hf_wai_version, { "Version", "wai.version", FT_UINT16, BASE_DEC, NULL,
             0x0, "Version of authentication inftastructure", HFILL }},
 
         { &hf_wai_type, { "Type", "wai.type", FT_UINT8, BASE_HEX, VALS(wai_type_names),
@@ -1169,9 +1168,9 @@ proto_register_wai(void)
 void
 proto_reg_handoff_wai(void)
 {
-    static dissector_handle_t wai_handle;
+    dissector_handle_t wai_handle;
 
     data_handle = find_dissector("data");
-    wai_handle = create_dissector_handle(dissect_wai, proto_wai);
+    wai_handle  = find_dissector("wai");
     dissector_add("ethertype", ETHERTYPE_WAI, wai_handle);
 }
