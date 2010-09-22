@@ -279,7 +279,7 @@ voip_calls_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 						h245_add = listb->data;
 						g_string_append_printf(filter_string_fwd,
 							" || (ip.addr == %s && tcp.port == %d && h245)",
-							ip_to_str((guint8 *)&(h245_add->h245_address)), h245_add->h245_port);
+							ip_to_str((guint8 *)(h245_add->h245_address.data)), h245_add->h245_port);
 						listb = g_list_next(listb);
 					}
 					g_string_append_printf(filter_string_fwd, ")");
