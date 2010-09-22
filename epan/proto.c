@@ -3432,7 +3432,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 	const true_false_string  *tfstring;
 	int		len, last, i, offset=0;
 	GPtrArray	*finfos;
-	field_info	*finfo;
+	field_info	*finfo = NULL;
 	header_field_info* hfinfo;
 
 	g_assert(field_id >= 0);
