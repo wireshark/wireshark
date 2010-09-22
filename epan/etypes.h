@@ -335,6 +335,15 @@
 #define ETHERTYPE_BRDWALK       	0x88AE
 #endif
 
+#ifndef ETHERTYPE_WAI
+#define ETHERTYPE_WAI                   0x88B4  /*  Instant Wireless Network Communications, Co. Ltd. */
+#endif                                          /*  WAI is a new authentication protocol that
+                                                    will be used to access authentication in
+                                                    IP based networks. This protocol establishes
+                                                    a logic channel between a station and access
+                                                    equipment by using an EtherType Field to
+                                                    accomplish authentication. */
+
 
 #ifndef ETHERTYPE_IEEE802_OUI_EXTENDED
 #define ETHERTYPE_IEEE802_OUI_EXTENDED	0x88B7	/* IEEE 802a OUI Extended Ethertype */

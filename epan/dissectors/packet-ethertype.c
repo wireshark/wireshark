@@ -159,6 +159,7 @@ const value_string etype_vals[] = {
   { ETHERTYPE_FLIP, "Flow Layer Internal Protocol" },
   { ETHERTYPE_ROCE, "RDMA over Converged Ethernet" },
   { ETHERTYPE_TDMOE, "Digium TDM over Ethernet Protocol" },
+  { ETHERTYPE_WAI, "WAI Authentication Protocol" },
   { 0, NULL }
 };
 
