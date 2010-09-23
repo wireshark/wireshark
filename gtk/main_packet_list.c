@@ -1244,7 +1244,7 @@ packet_list_recent_write_all(FILE *rf)
   fprintf (rf, "%s:", RECENT_KEY_COL_WIDTH);
   for (col = 0; col < cfile.cinfo.num_cols; col++) {
      if (cfile.cinfo.col_fmt[col] == COL_CUSTOM) {
-       fprintf (rf, " %%Cus:%s:%d,", get_column_custom_field(col),get_column_custom_occurrence(col));
+       fprintf (rf, " %%Cus:%s,", get_column_custom_field(col));
      } else {
        fprintf (rf, " %s,", col_format_to_string(cfile.cinfo.col_fmt[col]));
      }
