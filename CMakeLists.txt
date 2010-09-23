@@ -184,14 +184,12 @@ else()
 	add_definitions( -D_U_=\"\" )
 endif()
 
-if (NOT APPLE)
-	set(WIRESHARK_LD_FLAGS
-		-Wl,--as-needed
-		# -flto
-		# -fwhopr
-		# -fwhole-program
-	)
-endif()
+set(WIRESHARK_LD_FLAGS
+	-Wl,--as-needed
+	# -flto
+	# -fwhopr
+	# -fwhole-program
+)
 
 include(CheckCLinkerFlag)
 set(C 0)
@@ -212,11 +210,6 @@ if(ENABLE_STATIC)
   set(LINK_MODE_MODULE STATIC)
 else()
   set(LINK_MODE_LIB SHARED)
-  if(APPLE)
-    set(LINK_MODE_MODULE SHARED)
-  else(APPLE)
-    set(LINK_MODE_MODULE MODULE)
-  endif(APPLE)
   if(APPLE)
     set(LINK_MODE_MODULE SHARED)
   else()
