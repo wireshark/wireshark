@@ -6,17 +6,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -33,10 +33,9 @@
 #include "epan/value_string.h"
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
-#include "register.h"
 #include <epan/dissectors/packet-http.h>
 
-	
+
 /* used to keep track of the statictics for an entire program interface */
 typedef struct _http_stats_t {
 	char 		*filter;
@@ -101,7 +100,7 @@ static const value_string vals_status_code[] = {
         { 414, "Request-URI Too Large"},
         { 415, "Unsupported Media Type"},
 	{ 499, "Client Error - Others"},
-	
+
         { 500, "Internal Server Error"},
         { 501, "Not Implemented"},
         { 502, "Bad Gateway"},
@@ -119,8 +118,8 @@ http_init_hash( httpstat_t *sp)
 {
 	int i;
 
-	sp->hash_responses = g_hash_table_new( g_int_hash, g_int_equal);		
-			
+	sp->hash_responses = g_hash_table_new( g_int_hash, g_int_equal);
+
 	for (i=0 ; vals_status_code[i].strptr ; i++ )
 	{
 		gint *key = g_malloc (sizeof(gint));
@@ -139,7 +138,7 @@ http_draw_hash_requests( gchar *key _U_ , http_request_methode_t *data, gchar * 
 {
 	if (data->packets==0)
 		return;
-	printf( format, data->response, data->packets); 		
+	printf( format, data->response, data->packets);
 }
 
 static void
@@ -154,9 +153,9 @@ http_draw_hash_responses( gint * key _U_ , http_response_code_t *data, char * fo
 	/* "     HTTP %3d %-35s %9d packets", */
 	printf(format,  data->response_code, data->name, data->packets );
 }
-		
 
-		
+
+
 /* NOT USED at this moment */
 /*
 static void
@@ -167,13 +166,13 @@ http_free_hash( gpointer key, gpointer value, gpointer user_data _U_ )
 }
 */
 static void
-http_reset_hash_responses(gchar *key _U_ , http_response_code_t *data, gpointer ptr _U_ ) 
-{	
+http_reset_hash_responses(gchar *key _U_ , http_response_code_t *data, gpointer ptr _U_ )
+{
 	data->packets = 0;
 }
 static void
-http_reset_hash_requests(gchar *key _U_ , http_request_methode_t *data, gpointer ptr _U_ ) 
-{	
+http_reset_hash_requests(gchar *key _U_ , http_request_methode_t *data, gpointer ptr _U_ )
+{
 	data->packets = 0;
 }
 
@@ -198,10 +197,10 @@ httpstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
 	if (value->response_code!=0) {
 		guint *key=g_malloc( sizeof(guint) );
 		http_response_code_t *sc;
-		
+
 		*key=value->response_code;
-		sc =  g_hash_table_lookup( 
-				sp->hash_responses, 
+		sc =  g_hash_table_lookup(
+				sp->hash_responses,
 				key);
 		if (sc==NULL){
 			/* non standard status code ; we classify it as others
@@ -226,19 +225,19 @@ httpstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
 			else{
 				*key=599;
 			}
-			sc =  g_hash_table_lookup( 
-				sp->hash_responses, 
+			sc =  g_hash_table_lookup(
+				sp->hash_responses,
 				key);
 			if (sc==NULL)
 				return 0;
 		}
 		sc->packets++;
-	} 
+	}
 	else if (value->request_method){
 		http_request_methode_t *sc;
 
-		sc =  g_hash_table_lookup( 
-				sp->hash_requests, 
+		sc =  g_hash_table_lookup(
+				sp->hash_requests,
 				value->request_method);
 		if (sc==NULL){
 			sc=g_malloc( sizeof(http_request_methode_t) );
@@ -268,10 +267,10 @@ httpstat_draw(void *psp  )
 		printf("HTTP Statistics with filter %s\n", sp->filter);
 
 	printf(	"* HTTP Status Codes in reply packets\n");
-	g_hash_table_foreach( sp->hash_responses, (GHFunc)http_draw_hash_responses, 
+	g_hash_table_foreach( sp->hash_responses, (GHFunc)http_draw_hash_responses,
 		"    HTTP %3d %s\n");
 	printf("* List of HTTP Request methods\n");
-	g_hash_table_foreach( sp->hash_requests,  (GHFunc)http_draw_hash_requests, 
+	g_hash_table_foreach( sp->hash_requests,  (GHFunc)http_draw_hash_requests,
 		"    %9s %d \n");
 	printf("===================================================================\n");
 }
@@ -286,13 +285,13 @@ gtk_httpstat_init(const char *optarg,void* userdata _U_)
 	httpstat_t *sp;
 	const char *filter=NULL;
 	GString	*error_string;
-	
+
 	if (!strncmp (optarg, "http,stat,", 10)){
 		filter=optarg+10;
 	} else {
 		filter=NULL;
 	}
-	
+
 	sp = g_malloc( sizeof(httpstat_t) );
 	if(filter){
 		sp->filter=g_strdup(filter);
@@ -302,7 +301,7 @@ gtk_httpstat_init(const char *optarg,void* userdata _U_)
 	/*g_hash_table_foreach( http_status, (GHFunc)http_reset_hash_responses, NULL);*/
 
 
-	error_string = register_tap_listener( 
+	error_string = register_tap_listener(
 			"http",
 			sp,
 			filter,

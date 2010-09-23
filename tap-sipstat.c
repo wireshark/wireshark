@@ -38,7 +38,6 @@
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
 #include "epan/value_string.h"
-#include "register.h"
 #include <epan/dissectors/packet-sip.h>
 
 /* used to keep track of the statictics for an entire program interface */
@@ -247,7 +246,7 @@ sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 {
     const sip_info_value_t *value=pri;
     sipstat_t *sp = (sipstat_t *)psp;
-    
+
     /* Total number of packets, including continuation packets */
     sp->packets++;
 
@@ -269,17 +268,17 @@ sipstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 				sp->min_setup_time = value->setup_time;
 			}
 			/* Calculate average */
-			sp->average_setup_time = (guint32)(sp->total_setup_time / sp->no_of_completed_calls); 
+			sp->average_setup_time = (guint32)(sp->total_setup_time / sp->no_of_completed_calls);
 		}
 	}
-    
+
     /* Update resent count if flag set */
     if (value->resend)
     {
         sp->resent_packets++;
     }
 
-    
+
     /* Looking at both requests and responses */
     if (value->response_code != 0)
     {

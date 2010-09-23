@@ -6,17 +6,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -43,7 +43,6 @@
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
 #include <epan/dissectors/packet-rpc.h>
-#include "register.h"
 
 /* used to keep track of statistics for a specific procedure */
 typedef struct _rpc_procedure_t {
@@ -83,7 +82,7 @@ rpcstat_reset(void *prs)
 	guint32 i;
 
 	for(i=0;i<rs->num_procedures;i++){
-		rs->procedures[i].num=0;	
+		rs->procedures[i].num=0;
 		rs->procedures[i].min.secs=0;
 		rs->procedures[i].min.nsecs=0;
 		rs->procedures[i].max.secs=0;
@@ -106,7 +105,7 @@ rpcstat_reset(void *prs)
  * possible into (*draw) instead since that function executes asynchronously
  * and does not affect the main threads performance.
  *
- * If it is possible, try to do all "filtering" explicitely as we do below in 
+ * If it is possible, try to do all "filtering" explicitely as we do below in
  * this example since you will get MUCH better performance than applying
  * a similar display-filter in the register call.
  *
@@ -118,7 +117,7 @@ rpcstat_reset(void *prs)
  * we were called for the proper program and version. We didnt apply a filter
  * when we registered so we will be called for ALL rpc packets and not just
  * the ones we are collecting stats for.
- * 
+ *
  *
  * function returns :
  *  0: no updates, no need to call (*draw) later
@@ -173,7 +172,7 @@ rpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 		rp->max.secs=delta.secs;
 		rp->max.nsecs=delta.nsecs;
 	}
-	
+
 	rp->tot.secs += delta.secs;
 	rp->tot.nsecs += delta.nsecs;
 	if(rp->tot.nsecs>1000000000){
@@ -191,7 +190,7 @@ rpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
  * stdout.
  * TShark will only call this callback once, which is when tshark has
  * finished reading all packets and exists.
- * If used with wireshark this may be called any time, perhaps once every 3 
+ * If used with wireshark this may be called any time, perhaps once every 3
  * seconds or so.
  * This function may even be called in parallell with (*reset) or (*draw)
  * so make sure there are no races. The data in the rpcstat_t can thus change
@@ -313,7 +312,7 @@ rpcstat_init(const char *optarg, void* userdata _U_)
 	rs->procedures=g_malloc(sizeof(rpc_procedure_t)*(rs->num_procedures+1));
 	for(i=0;i<rs->num_procedures;i++){
 		rs->procedures[i].proc=rpc_proc_name(program, version, i);
-		rs->procedures[i].num=0;	
+		rs->procedures[i].num=0;
 		rs->procedures[i].min.secs=0;
 		rs->procedures[i].min.nsecs=0;
 		rs->procedures[i].max.secs=0;
@@ -325,8 +324,8 @@ rpcstat_init(const char *optarg, void* userdata _U_)
 /* It is possible to create a filter and attach it to the callbacks. Then the
  * callbacks would only be invoked if the filter matched.
  * Evaluating filters is expensive and if we can avoid it and not use them
- * we gain performance. 
- * In this case we do the filtering for protocol and version inside the 
+ * we gain performance.
+ * In this case we do the filtering for protocol and version inside the
  * callback itself but use whatever filter the user provided.
  * (Perhaps the user only want the stats for nis+ traffic for certain objects?)
  *

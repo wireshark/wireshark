@@ -54,7 +54,6 @@
 #include "epan/value_string.h"
 #include "epan/nstime.h"
 #include "epan/ftypes/ftypes.h"
-#include "register.h"
 #include "epan/to_str.h"
 #include "epan/dissectors/packet-diameter.h"
 

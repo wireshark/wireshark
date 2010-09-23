@@ -37,7 +37,6 @@
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
 #include "epan/value_string.h"
-#include "register.h"
 #include <epan/dissectors/packet-radius.h>
 #include "timestats.h"
 

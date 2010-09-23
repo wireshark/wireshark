@@ -6,17 +6,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -37,7 +37,6 @@
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
 #include <epan/dissectors/packet-dcerpc.h>
-#include "register.h"
 
 /* used to keep track of statistics for a specific procedure */
 typedef struct _rpc_procedure_t {
@@ -129,7 +128,7 @@ dcerpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 		rp->max.secs=delta.secs;
 		rp->max.nsecs=delta.nsecs;
 	}
-	
+
 	rp->tot.secs += delta.secs;
 	rp->tot.nsecs += delta.nsecs;
 	if(rp->tot.nsecs>1000000000){
@@ -189,7 +188,7 @@ dcerpcstat_init(const char *optarg, void* userdata _U_)
 	int pos=0;
         const char *filter=NULL;
         GString *error_string;
-    
+
 	/*
 	 * XXX - DCE RPC statistics are maintained only by major version,
 	 * not by major and minor version, so the minor version number is
@@ -269,7 +268,7 @@ dcerpcstat_init(const char *optarg, void* userdata _U_)
 				rs->procedures[i].proc=procs[j].name;
 			}
 		}
-		rs->procedures[i].num=0;	
+		rs->procedures[i].num=0;
 		rs->procedures[i].min.secs=0;
 		rs->procedures[i].min.nsecs=0;
 		rs->procedures[i].max.secs=0;

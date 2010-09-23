@@ -1,24 +1,24 @@
 /* tap-comparestat.c
  * Compare two capture files
  * Copyright 2008 Vincenzo Condoleo, Christophe Dirac, Reto Ruoss
- * supported by HSR (Hochschule Rapperswil) 
+ * supported by HSR (Hochschule Rapperswil)
  *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -51,7 +51,6 @@
 #include <epan/timestamp.h>
 #include <epan/stat_cmd_args.h>
 #include <epan/dissectors/packet-ip.h>
-#include "register.h"
 #include "timestats.h"
 
 
@@ -121,7 +120,7 @@ comparestat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	frame_info *fInfo;
 	vec_t cksum_vec[3];
 	guint16 computed_cksum=0;
-	
+
 	/* so this get filled, usually with the first frame */
 	if(cs->eth_dst.len==0) {
 		cs->eth_dst=pinfo->dl_dst;
@@ -173,7 +172,7 @@ call_foreach_count_ip_id(gpointer value, gpointer arg)
 	packet_info *pinfo=(packet_info*)ep_alloc(sizeof(packet_info));
 	pinfo->fd=(frame_data*)ep_alloc(sizeof(frame_data));
 	pinfo->fd->num = fInfo->num;
-	
+
 	fInfoTemp=se_tree_lookup32(cs->ip_id_tree, fInfo->id);
 	if(fInfoTemp==NULL){
 		/* Detect ongoing package loss */
@@ -270,7 +269,7 @@ call_foreach_new_order(gpointer value, gpointer arg)
 				fInfo->zebra_time=cs->zebra_time;
 				cs->zebra_time.nsecs++;
 			}
-			
+
 		}
 	} else {
 		if(TTL_method==FALSE){
@@ -285,9 +284,9 @@ call_foreach_new_order(gpointer value, gpointer arg)
 			} else {
 				fInfo->zebra_time.nsecs=fInfoTemp->zebra_time.nsecs+1;
 			}
-		}	
+		}
 	}
-	
+
 	/* count packets of file */
 	if(fmod(fInfo->zebra_time.nsecs, MERGED_FILES)){
 		cs->first_file_amount++;
@@ -299,7 +298,7 @@ call_foreach_new_order(gpointer value, gpointer arg)
 	if(!nstime_is_unset(&cs->current_time)){
 		fInfo->fp->predecessor_time.nsecs=cs->current_time.nsecs;
 	}
-	
+
 	cs->current_time.nsecs=fInfo->zebra_time.nsecs;
 
 	return FALSE;
@@ -403,7 +402,7 @@ call_foreach_print_ip_tree(gpointer value, gpointer user_data)
 		}
 		if(fInfo->fp->count > MERGED_FILES){
 			printf("Packet id :%i, count:%i Problem:", fInfo->id, fInfo->fp->count);
-			printf("More than two packets\n"); 
+			printf("More than two packets\n");
 			if(fInfo->fp->cksum == WRONG_CHKSUM){
 				printf("Checksum error over IP header\n");
 			}
@@ -427,7 +426,7 @@ call_foreach_print_ip_tree(gpointer value, gpointer user_data)
 			} else if((nstime_cmp(&fInfo->fp->predecessor_time, &fInfo->zebra_time)>0||nstime_cmp(&fInfo->fp->partner->fp->predecessor_time, &fInfo->fp->partner->zebra_time)>0) && fInfo->zebra_time.nsecs != MERGED_FILES && ON_method){
 				printf("Packet id :%i, count:%i Problem:", fInfo->id, fInfo->fp->count);
 				printf("Not correct order\n");
-			}	
+			}
 		}
 	}
 	return FALSE;
@@ -439,7 +438,7 @@ call_foreach_print_ip_tree(gpointer value, gpointer user_data)
  * stdout.
  * TShark will only call this callback once, which is when tshark has
  * finished reading all packets and exists.
- * If used with wireshark this may be called any time, perhaps once every 3 
+ * If used with wireshark this may be called any time, perhaps once every 3
  * seconds or so.
  * This function may even be called in parallell with (*reset) or (*draw)
  * so make sure there are no races. The data in the rpcstat_t can thus change
@@ -557,7 +556,7 @@ comparestat_init(const char *optarg, void* userdata _U_)
 	} else {
 		cs->filter=NULL;
 	}
-	
+
 	/* create a Hash to count the packets with the same ip.id */
 	cs->packet_tree=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "Packet_info_tree");
 

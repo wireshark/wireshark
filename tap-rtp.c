@@ -2,7 +2,7 @@
  * RTP TAP for tshark
  *
  * $Id$
- * 
+ *
  * Copyright 2008, Ericsson AB
  * By Balint Reczey <balint.reczey@ericsson.com>
  *
@@ -51,19 +51,18 @@
 #include <epan/rtp_pt.h>
 #include <epan/stat_cmd_args.h>
 #include <epan/addr_resolv.h>
-#include "register.h"
 #include "tap-rtp-common.h"
 
 /* The one and only global rtpstream_tapinfo_t structure for tshark and wireshark.
- */ 
-static rtpstream_tapinfo_t the_tapinfo_struct = 
-        {0, NULL, 0, TAP_ANALYSE, NULL, NULL, NULL, 0, FALSE}; 
+ */
+static rtpstream_tapinfo_t the_tapinfo_struct =
+        {0, NULL, 0, TAP_ANALYSE, NULL, NULL, NULL, 0, FALSE};
 
 static void
 rtp_streams_stat_draw(void *arg _U_)
 {
-    
-    
+
+
     GList *list;
     rtp_stream_info_t* strinfo;
     gchar *payload_type;
@@ -71,18 +70,18 @@ rtp_streams_stat_draw(void *arg _U_)
     gint32 lost;
     double perc;
     char *savelocale;
-    
+
     printf("========================= RTP Streams ========================\n");
     printf("%15s %5s %15s %5s %10s %16s %5s %12s %15s %15s %15s %s\n","Src IP addr", "Port",  "Dest IP addr", "Port", "SSRC", "Payload", "Pkts", "Lost", "Max Delta(ms)", "Max Jitter(ms)", "Mean Jitter(ms)", "Problems?");
-    
+
     /* save the current locale */
     savelocale = setlocale(LC_NUMERIC, NULL);
     /* switch to "C" locale to avoid problems with localized decimal separators
        in g_snprintf("%f") functions */
     setlocale(LC_NUMERIC, "C");
-    
+
     list = the_tapinfo_struct.strinfo_list;
-    
+
     list = g_list_first(list);
     while (list)
     {
@@ -100,7 +99,7 @@ rtp_streams_stat_draw(void *arg _U_)
     	    payload_type = g_strdup(val_to_str(strinfo->pt, rtp_payload_type_vals,
 	        "Unknown (%u)"));
         }
-    
+
         /* packet count, lost packets */
 	expected = (strinfo->rtp_stats.stop_seq_nr + strinfo->rtp_stats.cycles*65536)
             - strinfo->rtp_stats.start_seq_nr + 1;
@@ -110,7 +109,7 @@ rtp_streams_stat_draw(void *arg _U_)
         } else {
             perc = 0;
         }
-        
+
         printf("%15s %5u %15s %5u 0x%08X %16s %5u %5d (%.1f%%) %15.2f %15.2f %15.2f %s\n",
             get_addr_name(&(strinfo->src_addr)),
 	    strinfo->src_port,
@@ -124,7 +123,7 @@ rtp_streams_stat_draw(void *arg _U_)
 	    strinfo->rtp_stats.max_jitter,
 	    strinfo->rtp_stats.mean_jitter,
 	    (strinfo->problem)?"X":"");
-        
+
 	list = g_list_next(list);
 
 

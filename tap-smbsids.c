@@ -35,7 +35,6 @@
 #include <string.h>
 #include "epan/packet_info.h"
 #include <epan/dissectors/packet-smb-sidsnooping.h>
-#include "register.h"
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
 #include "epan/value_string.h"
@@ -48,7 +47,7 @@ smbsids_packet(void *pss _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U_, c
 	return 1;
 }
 
-static void 
+static void
 enum_sids(gpointer key _U_, gpointer value, gpointer userdata _U_)
 {
 	sid_name *sn=(sid_name *)value;

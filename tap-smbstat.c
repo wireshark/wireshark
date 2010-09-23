@@ -38,7 +38,6 @@
 #include <epan/stat_cmd_args.h>
 #include "epan/value_string.h"
 #include <epan/dissectors/packet-smb.h>
-#include "register.h"
 #include "timestats.h"
 
 /* used to keep track of the statistics for an entire program interface */

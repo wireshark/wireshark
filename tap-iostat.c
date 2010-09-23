@@ -38,7 +38,6 @@
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
 #include <epan/strutil.h>
-#include "register.h"
 
 
 typedef struct _io_stat_t {

@@ -40,7 +40,6 @@
 #include "epan/packet_info.h"
 #include "epan/tap.h"
 #include "epan/value_string.h"
-#include "register.h"
 #include "epan/stat_cmd_args.h"
 #include "epan/asn1.h"
 #include "epan/camel-persistentdata.h"
@@ -49,7 +48,7 @@ void register_tap_listener_camelcounter(void);
 
 /* used to keep track of the statistics for an entire program interface */
 struct camelcounter_t {
-  char *filter; 
+  char *filter;
   guint32 camel_msg[camel_MAX_NUM_OPR_CODES];
 };
 
@@ -62,14 +61,14 @@ static void camelcounter_reset(void *phs)
 
 static int camelcounter_packet(void *phs,
 			       packet_info *pinfo _U_,
-			       epan_dissect_t *edt _U_, 
+			       epan_dissect_t *edt _U_,
 			       const void *phi)
 {
   struct camelcounter_t * p_counter =(struct camelcounter_t *)phs;
   const struct camelsrt_info_t * pi=phi;
   if (pi->opcode != 255)
     p_counter->camel_msg[pi->opcode]++;
-  
+
   return 1;
 }
 
@@ -87,7 +86,7 @@ static void camelcounter_draw(void *phs)
     if(p_counter->camel_msg[i]!=0) {
       printf("%30s ", val_to_str(i,camel_opr_code_strings,"Unknown message "));
       printf("%6d\n", p_counter->camel_msg[i]);
-    } 
+    }
   } /* Message Type */
   printf("------------------------------------------\n");
 }
@@ -103,7 +102,7 @@ static void camelcounter_init(const char *optarg, void* userdata _U_)
   } else {
     p_camelcounter->filter=NULL;
   }
-  
+
   camelcounter_reset(p_camelcounter);
 
   error_string=register_tap_listener("CAMEL",

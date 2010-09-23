@@ -39,7 +39,6 @@
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
 #include "epan/value_string.h"
-#include "register.h"
 #include <epan/dissectors/packet-sctp.h>
 #include <epan/to_str.h>
 
@@ -105,7 +104,7 @@ sctpstat_reset(void *phs)
 }
 
 
-static sctp_ep_t* 
+static sctp_ep_t*
 alloc_sctp_ep(const struct _sctp_info *si)
 {
 	sctp_ep_t* ep;

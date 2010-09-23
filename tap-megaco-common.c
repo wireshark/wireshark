@@ -41,7 +41,6 @@
 #include <epan/tap.h>
 #include "epan/gcp.h"
 
-#include "../register.h"
 #include "../timestats.h"
 #include "../simple_dialog.h"
 #include "../file.h"
@@ -64,7 +63,7 @@ megacostat_is_duplicate_reply(const gcp_cmd_t* cmd)
 				if (cmd_msg->cmd->type == cmd->type)
 					return TRUE;
 			}
-				
+
 			return FALSE;
 		}
 		break;
@@ -73,7 +72,7 @@ megacostat_is_duplicate_reply(const gcp_cmd_t* cmd)
 		break;
 	}
 
-	
+
 }
 
 static gboolean
@@ -87,7 +86,7 @@ megacostat_had_request(const gcp_cmd_t* cmd)
 			/* cycle through commands to find a request in the transaction */
 			for (cmd_msg = cmd->trx->cmds; cmd_msg->cmd->msg->framenum != cmd->msg->framenum &&
 					cmd_msg != NULL; cmd_msg = cmd_msg->next) {
-				
+
 				switch (cmd_msg->cmd->type) {
 
         			GCP_CMD_REQ_CASE
@@ -98,7 +97,7 @@ megacostat_had_request(const gcp_cmd_t* cmd)
 					break;
 				}
 			}
-				
+
 			return FALSE;
 		}
 		break;
@@ -120,11 +119,11 @@ megacostat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 
         GCP_CMD_REQ_CASE
 		if(!mi->trx->initial) {
-			/* Track Context is probably disabled, we cannot 
+			/* Track Context is probably disabled, we cannot
 			 * measure service response time */
 			return 0;
 		}
-			
+
 		else if(mi->trx->initial->framenum != mi->msg->framenum){
 			/* Duplicate is ignored */
 			ms->req_dup_num++;
@@ -149,7 +148,7 @@ megacostat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 			nstime_delta(&delta, &pinfo->fd->abs_ts, &mi->trx->initial->time);
 
 			switch(mi->type) {
-			
+
 			case GCP_CMD_ADD_REPLY:
 				time_stat_update(&(ms->rtd[0]),&delta, pinfo);
 				break;

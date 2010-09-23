@@ -6,17 +6,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -41,7 +41,6 @@
 #include "epan/packet_info.h"
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
-#include "register.h"
 #include "epan/value_string.h"
 #include <epan/dissectors/packet-wsp.h>
 
@@ -62,10 +61,10 @@ typedef struct _wsp_stats_t {
 	guint32	num_pdus;
 	GHashTable	*hash;
 } wspstat_t;
-	
+
 static void
-wsp_reset_hash(gchar *key _U_ , wsp_status_code_t *data, gpointer ptr _U_ ) 
-{	
+wsp_reset_hash(gchar *key _U_ , wsp_status_code_t *data, gpointer ptr _U_ )
+{
 	data->packets = 0;
 }
 static void
@@ -105,7 +104,7 @@ wspstat_reset(void *psp)
  * ALL packets and not just the ones we are collecting stats for.
  *
  */
-static gint 
+static gint
 pdut2index(gint pdut)
 {
 	if (pdut<=0x09)		return pdut;
@@ -141,8 +140,8 @@ wspstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 		gint *key=g_malloc( sizeof(gint) );
 		wsp_status_code_t *sc;
 		*key=value->status_code ;
-		sc = g_hash_table_lookup( 
-				sp->hash, 
+		sc = g_hash_table_lookup(
+				sp->hash,
 				key);
 		if (!sc) {
 			sc = g_malloc( sizeof(wsp_status_code_t) );
@@ -158,7 +157,7 @@ wspstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 		retour=1;
 	}
 
-		
+
 
 	if (idx!=0) {
 		sp->pdu_stats[ idx ].packets++;
@@ -173,7 +172,7 @@ wspstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
  * stdout.
  * TShark will only call this callback once, which is when tshark has
  * finished reading all packets and exists.
- * If used with wireshark this may be called any time, perhaps once every 3 
+ * If used with wireshark this may be called any time, perhaps once every 3
  * seconds or so.
  * This function may even be called in parallell with (*reset) or (*draw)
  * so make sure there are no races. The data in the rpcstat_t can thus change
@@ -196,12 +195,12 @@ wspstat_draw(void *psp)
 		printf(" || ");
 		if (ii< (sp->num_pdus) )
 			printf("%-23s %9d\n", sp->pdu_stats[ii].type, sp->pdu_stats[ii].packets);
-		else 
+		else
 			printf("\n");
 		}
 	printf("\nStatus code in reply packets\n");
 	printf(		"Status Code    Packets  Description\n");
-	g_hash_table_foreach( sp->hash, (GHFunc) wsp_print_statuscode, 
+	g_hash_table_foreach( sp->hash, (GHFunc) wsp_print_statuscode,
 			"       0x%02X  %9d  %s\n" ) ;
 	printf("===================================================================\n");
 }
@@ -221,14 +220,14 @@ wspstat_init(const char *optarg, void* userdata _U_)
 	guint32 i;
 	GString	*error_string;
 	wsp_status_code_t *sc;
-	
+
 	if (!strncmp (optarg, "wsp,stat," , 9)){
 		filter=optarg+9;
 	} else {
 		filter=NULL;
 	}
-	
-		
+
+
 	sp = g_malloc( sizeof(wspstat_t) );
 	sp->hash = g_hash_table_new( g_int_hash, g_int_equal);
 	for (i=0 ; vals_status[i].strptr ; i++ )
@@ -257,7 +256,7 @@ wspstat_init(const char *optarg, void* userdata _U_)
 		sp->pdu_stats[i].type = match_strval( index2pdut( i ), vals_pdu_type) ;
 	}
 
-	error_string = register_tap_listener( 
+	error_string = register_tap_listener(
 			"wsp",
 			sp,
 			filter,
@@ -278,7 +277,7 @@ wspstat_init(const char *optarg, void* userdata _U_)
 		exit(1);
 	}
 }
-void 
+void
 register_tap_listener_wspstat(void)
 {
 	register_stat_cmd_arg("wsp,stat,", wspstat_init,NULL);

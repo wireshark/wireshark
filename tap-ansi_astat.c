@@ -45,7 +45,6 @@
 #include <epan/stat_cmd_args.h>
 #include <epan/dissectors/packet-bssap.h>
 #include <epan/dissectors/packet-ansi_a.h>
-#include "register.h"
 
 
 typedef struct _ansi_a_stat_t {

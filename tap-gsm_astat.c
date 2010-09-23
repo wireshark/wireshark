@@ -45,7 +45,6 @@
 #include <epan/stat_cmd_args.h>
 #include <epan/dissectors/packet-bssap.h>
 #include <epan/dissectors/packet-gsm_a_common.h>
-#include "register.h"
 
 
 typedef struct _gsm_a_stat_t {

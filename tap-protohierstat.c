@@ -40,7 +40,6 @@
 #include "epan/proto.h"
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
-#include "register.h"
 
 typedef struct _phs_t {
 	struct _phs_t *sibling;

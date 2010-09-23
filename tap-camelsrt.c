@@ -38,7 +38,6 @@
 #include "epan/packet_info.h"
 #include <epan/tap.h>
 #include "epan/value_string.h"
-#include "register.h"
 #include "epan/asn1.h"
 #include "epan/dissectors/packet-camel.h"
 #include "epan/camel-persistentdata.h"
@@ -72,8 +71,8 @@ static void camelsrt_reset(void *phs)
 }
 
 
-static int camelsrt_packet(void *phs, 
-			   packet_info *pinfo _U_, 
+static int camelsrt_packet(void *phs,
+			   packet_info *pinfo _U_,
 			   epan_dissect_t *edt _U_,
 			   const void *phi)
 {
@@ -83,16 +82,16 @@ static int camelsrt_packet(void *phs,
 
   for (i=0; i<NB_CAMELSRT_CATEGORY; i++) {
     if (pi->bool_msginfo[i] &&
-      	pi->msginfo[i].is_delta_time 
+      	pi->msginfo[i].is_delta_time
 	&& pi->msginfo[i].request_available
 	&& !pi->msginfo[i].is_duplicate ) {
-      
+
       time_stat_update(&(hs->stats[i]),
 		       &(pi->msginfo[i].delta_time),
 		       pinfo);
-	
+
       if (hs->count[i] < NUM_RAS_STATS) {
-	hs->delta_time[i][hs->count[i]++] 
+	hs->delta_time[i][hs->count[i]++]
 	  = pi->msginfo[i].delta_time;
       }
     }
@@ -117,7 +116,7 @@ static void camelsrt_draw(void *phs)
   printf("=================================================================================================\n");
   printf("|        Category         | Measure |  Min SRT  |  Max SRT  |  Avg SRT  | Min frame | Max frame |\n");
   printf("|-------------------------|---------|-----------|-----------|-----------|-----------|-----------|\n");
- 
+
   j=1;
   printf("|%24s |%8u |%8.2f s |%8.2f s |%8.2f s |%10u |%10u |\n",
 	 val_to_str(j,camelSRTtype_naming,"Unknown Message 0x%02x"),
@@ -125,27 +124,27 @@ static void camelsrt_draw(void *phs)
 	 nstime_to_sec(&(hs->stats[j].min)),
 	 nstime_to_sec(&(hs->stats[j].max)),
 	 get_average(&(hs->stats[j].tot),hs->stats[j].num)/1000.0,
-	 hs->stats[j].min_num, 
+	 hs->stats[j].min_num,
 	 hs->stats[j].max_num
 	 );
-  for(j=2; j<NB_CAMELSRT_CATEGORY; j++) { 
-    if(hs->stats[j].num==0){ 
+  for(j=2; j<NB_CAMELSRT_CATEGORY; j++) {
+    if(hs->stats[j].num==0){
       printf("|%24s |%8u |%8.2f ms|%8.2f ms|%8.2f ms|%10u |%10u |\n",
 	     val_to_str(j,camelSRTtype_naming,"Unknown Message 0x%02x"),
 	     0, 0.0, 0.0, 0.0, 0, 0);
       continue;
     }
-    
+
     printf("|%24s |%8u |%8.2f ms|%8.2f ms|%8.2f ms|%10u |%10u |\n",
 	   val_to_str(j,camelSRTtype_naming,"Unknown Message 0x%02x"),
 	   hs->stats[j].num,
 	   MIN(9999,nstime_to_msec(&(hs->stats[j].min))),
 	   MIN(9999,nstime_to_msec(&(hs->stats[j].max))),
 	   MIN(9999,get_average(&(hs->stats[j].tot),hs->stats[j].num)),
-	   hs->stats[j].min_num, 
+	   hs->stats[j].min_num,
 	   hs->stats[j].max_num
 	   );
-  } /* j category */ 
+  } /* j category */
 
   printf("=================================================================================================\n");
   /*
@@ -161,10 +160,10 @@ static void camelsrt_draw(void *phs)
   printf("\n");
   /* calculate the delay max to have a given number of messages (in percentage) */
   for(j=2;j<NB_CAMELSRT_CATEGORY;j++) {
-    
+
     rtd_temp = &(hs->stats[j]);
-    
-    if (hs->count[j]>0) { 
+
+    if (hs->count[j]>0) {
       /* Calculate the delay to answer to p% of the MS */
       for(z=0; z<NB_CRITERIA; z++) {
 	iteration=0;
@@ -175,9 +174,9 @@ static void camelsrt_draw(void *phs)
 	while( (delta > 0.001) && (iteration < 10000) ) {
 	  somme=0;
 	  iteration++;
-	  
+
 	  for(li=0;li<hs->count[j];li++) {
-	    x=hs->delta_time[j][li].secs*1000 
+	    x=hs->delta_time[j][li].secs*1000
 	      + (double)hs->delta_time[j][li].nsecs/1000000;
 	    if (x <= delay) somme++;
 	  }
@@ -197,12 +196,12 @@ static void camelsrt_draw(void *phs)
       printf("X%24s |", val_to_str(j, camelSRTtype_naming, "Unknown") );
       for(z=0; z<NB_CRITERIA; z++) printf("%8.2f |", MIN(9999,delay_criteria[z]));
       printf("\n");
-    } else { /* count */ 
+    } else { /* count */
       printf("X%24s |", val_to_str(j, camelSRTtype_naming, "Unknown") );
       for(z=0; z<NB_CRITERIA; z++) printf("%8.2f |", 0.0);
       printf("\n");
-    } /* count */ 
-  }/* j category */ 
+    } /* count */
+  }/* j category */
   printf("===========================");
   for(z=0; z<NB_CRITERIA; z++) printf("==========");
   printf("\n");
@@ -220,7 +219,7 @@ static void camelsrt_init(const char *optarg, void* userdata _U_)
     p_camelsrt->filter=NULL;
   }
   camelsrt_reset(p_camelsrt);
-  
+
   error_string=register_tap_listener("CAMEL",
 				     p_camelsrt,
 				     p_camelsrt->filter,
@@ -228,12 +227,12 @@ static void camelsrt_init(const char *optarg, void* userdata _U_)
 				     NULL,
 				     camelsrt_packet,
 				     camelsrt_draw);
-  
+
   if(error_string){
     /* error, we failed to attach to the tap. clean up */
     g_free(p_camelsrt->filter);
     g_free(p_camelsrt);
-    
+
     fprintf(stderr, "tshark: Couldn't register camel,srt tap: %s\n",
 	    error_string->str);
     g_string_free(error_string, TRUE);
@@ -245,7 +244,7 @@ static void camelsrt_init(const char *optarg, void* userdata _U_)
    * As the frame are proceeded in the chronological order, we do not need persistent stats
    * Whereas, with wireshark, it is not possible to have the correct display, if the stats are
    * not saved along the analyze
-   */ 
+   */
   gtcap_StatSRT=TRUE;
   gcamel_StatSRT=TRUE;
 }

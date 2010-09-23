@@ -40,7 +40,6 @@
 #include <epan/stat_cmd_args.h>
 #include <epan/nstime.h>
 #include <epan/dissectors/packet-sv.h>
-#include "register.h"
 
 static int
 sv_packet(void *prs _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *pri)
