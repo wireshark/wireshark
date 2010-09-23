@@ -6,7 +6,7 @@
 
 	<application id="16777231" name="Diameter e2e4 Application" uri="http://pda.etsi.org">
 
-	<!-- ETSI ES 283 026 V1.6.0 (2008-02) Specifies some eperimental resultcodes with vendor id ETSI 
+	<!-- ETSI ES 283 026 V1.6.0 (2008-02) Specifies some eperimental resultcodes with vendor id ETSI
 		6.3.2 Experimental-Result-Code AVP values defined in the present
 		document
 	This clause defines the specific values of the Experimental-Result-Code AVP (vendor-id is ETSI):
@@ -79,7 +79,7 @@
 		<avp name="Maximum-Allowed-Bandwidth-DL" code="309" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<!-- Removed from ETSI ES 283 034 V1.2.0 (2007-05) 
+		<!-- Removed from ETSI ES 283 034 V1.2.0 (2007-05)
 		<avp name="Maximum-Priority" code="310" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
 			<type type-name="Unsigned32"/>
 		</avp>
@@ -115,7 +115,7 @@
 				<enum name="RACS-CONTACT-POINT" code="2"/>
 				<enum name="ACCESS-NETWORK-TYPE" code="3"/>
 				<enum name="TERMINAL-TYPE" code="4"/>
-				<!-- The following values are reserved for future use and 
+				<!-- The following values are reserved for future use and
 				     are out of scope in ETSI ES 283 035 V1.2.1 (2007-06). -->
 				<enum name="LOGICAL-ACCESS-ID" code="5"/>
 				<enum name="PHYSICAL-ACCESS-ID" code="6"/>
@@ -141,7 +141,7 @@
     <avp name="Civic-Location" code="355" mandatory="must" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
       <type type-name="OctetString"/>
     </avp>
-    <avp name="Geospatial-Location " code="356" mandatory="must" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+    <avp name="Geospatial-Location" code="356" mandatory="must" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
       <type type-name="OctetString"/>
     </avp>
     <!--- ETSI ES 283 026 V1.6.0 (2008-02) -->
@@ -205,7 +205,7 @@
        <type type-name="UTF8String"/>
     </avp>
 		<!--- ETSI TS 183 033 V1.2.0 (2007-10) -->
-		<!-- The Line-Identifier AVP has a Vendor-Id header set to ETSI (13019). 
+		<!-- The Line-Identifier AVP has a Vendor-Id header set to ETSI (13019).
 		6.3.34 Line-Identifier AVP
 		The Line-Identifier AVP is of type OctetString. This AVP contains a fixed broadband access line identifier
 		 associated to the user.
@@ -214,7 +214,7 @@
 			<type type-name="OctetString"/>
 		</avp>
 		<!-- The following table describes the Diameter AVPs defined for the Cx interface protocol in support of
-			 HTTP Digest, their AVP Code values, types, possible flag values and whether or not the AVP may be 
+			 HTTP Digest, their AVP Code values, types, possible flag values and whether or not the AVP may be
 			 encrypted. The Vendor-Id header of all AVPs defined in the present document shall be set to ETSI (13019). -->
 
 		<avp name="ETSI-SIP-Authenticate" code="501" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
@@ -227,7 +227,7 @@
 				<gavp name="ETSI-Digest-Algorithm"/>
 				<gavp name="ETSI-Digest-QoP"/>
 				<gavp name="ETSI-Digest-HA1"/>
-				<gavp name="ETSI-Digest-Auth-Param"/>			
+				<gavp name="ETSI-Digest-Auth-Param"/>
 			</grouped>
 		</avp>
 		<avp name="ETSI-SIP-Authorization" code="502" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
