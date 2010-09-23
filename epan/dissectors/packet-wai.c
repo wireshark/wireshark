@@ -573,7 +573,7 @@ dissect_signature(tvbuff_t *tvb, guint offset, proto_tree *tree, const gchar *co
 
     length = tvb_get_ntohs(tvb, offset+1);
 
-    ss_item = proto_tree_add_item(tree, hf_wai_sign, tvb, 0, length+3, FALSE);
+    ss_item = proto_tree_add_item(tree, hf_wai_sign, tvb, offset, length+3, FALSE);
     proto_item_set_text(ss_item, "%s", (label==NULL)?"Signature":label);
     ss_tree = proto_item_add_subtree(ss_item, ett_wai_sign);
 
@@ -927,13 +927,13 @@ proto_register_wai(void)
 {
     static hf_register_info hf[] = {
         { &hf_wai_version, { "Version", "wai.version", FT_UINT16, BASE_DEC, NULL,
-            0x0, "Version of authentication inftastructure", HFILL }},
+            0x0, "Version of authentication infrastructure", HFILL }},
 
         { &hf_wai_type, { "Type", "wai.type", FT_UINT8, BASE_HEX, VALS(wai_type_names),
             0x0, "Protocol type", HFILL }},
 
-        { &hf_wai_subtype, { "Sub type", "wai.subtype", FT_UINT8, BASE_DEC, VALS(wai_subtype_names),
-            0x0, "Subtype", HFILL }},
+        { &hf_wai_subtype, { "Subtype", "wai.subtype", FT_UINT8, BASE_DEC, VALS(wai_subtype_names),
+            0x0, NULL, HFILL }},
 
         { &hf_wai_reserved, { "Reserved", "wai.reserved", FT_UINT16, BASE_HEX, NULL,
             0x0, NULL, HFILL }},
@@ -1076,7 +1076,7 @@ proto_register_wai(void)
         { &hf_wai_sign_alg, {"Signature Algorithm", "wai.sign.alg", FT_BYTES, BASE_NONE, NULL,
             0x0, NULL, HFILL }},
 
-        { &hf_wai_hash_alg_id, {"Hash Algorithm Idendifier", "wai.hash.alg.id", FT_UINT8, BASE_HEX, NULL,
+        { &hf_wai_hash_alg_id, {"Hash Algorithm Identifier", "wai.hash.alg.id", FT_UINT8, BASE_HEX, NULL,
             0x0, NULL, HFILL }},
 
         { &hf_wai_sign_alg_id, {"Signature Algorithm Identifier", "wai.sign.alg.id", FT_UINT8, BASE_HEX, NULL,
