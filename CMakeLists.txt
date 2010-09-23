@@ -184,12 +184,14 @@ else()
 	add_definitions( -D_U_=\"\" )
 endif()
 
-set(WIRESHARK_LD_FLAGS
-	-Wl,--as-needed
-	# -flto
-	# -fwhopr
-	# -fwhole-program
-)
+if (NOT APPLE)
+	set(WIRESHARK_LD_FLAGS
+		-Wl,--as-needed
+		# -flto
+		# -fwhopr
+		# -fwhole-program
+	)
+endif()
 
 include(CheckCLinkerFlag)
 set(C 0)
@@ -210,7 +212,11 @@ if(ENABLE_STATIC)
   set(LINK_MODE_MODULE STATIC)
 else()
   set(LINK_MODE_LIB SHARED)
-  set(LINK_MODE_MODULE MODULE)
+  if(APPLE)
+    set(LINK_MODE_MODULE SHARED)
+  else(APPLE)
+    set(LINK_MODE_MODULE MODULE)
+  endif(APPLE)
 endif()
 
 # The packagelist is doing some magic:  If we add XXX to the packagelist, we
@@ -830,7 +836,7 @@ ADD_CUSTOM_COMMAND(
 		${CMAKE_SOURCE_DIR}/doc/perlnoutf.pl
 		${CMAKE_SOURCE_DIR}/doc/make-authors-short.pl
 		< ${CMAKE_SOURCE_DIR}/AUTHORS
-		> AUTHORS-SHORT
+		> ${CMAKE_BINARY_DIR}/AUTHORS-SHORT
 	DEPENDS
 		${CMAKE_SOURCE_DIR}/doc/perlnoutf.pl
 		${CMAKE_SOURCE_DIR}/doc/make-authors-short.pl
@@ -843,16 +849,16 @@ ADD_CUSTOM_COMMAND(
 	COMMAND ${PERL}
 		${CMAKE_SOURCE_DIR}/doc/perlnoutf.pl
 		${CMAKE_SOURCE_DIR}/doc/make-authors-format.pl
-		< AUTHORS-SHORT
-		> AUTHORS-SHORT-FORMAT
+		< ${CMAKE_BINARY_DIR}/AUTHORS-SHORT
+		> ${CMAKE_BINARY_DIR}/AUTHORS-SHORT-FORMAT
 	COMMAND cat
 		${CMAKE_SOURCE_DIR}/doc/wireshark.pod.template
 		AUTHORS-SHORT-FORMAT
-		> wireshark.pod
+		> ${CMAKE_BINARY_DIR}/wireshark.pod
 	DEPENDS
 		${CMAKE_SOURCE_DIR}/doc/perlnoutf.pl
 		${CMAKE_SOURCE_DIR}/doc/make-authors-format.pl
-		AUTHORS-SHORT
+		${CMAKE_BINARY_DIR}/AUTHORS-SHORT
 		${CMAKE_SOURCE_DIR}/doc/wireshark.pod.template
 )
 
