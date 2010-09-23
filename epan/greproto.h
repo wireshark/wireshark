@@ -33,7 +33,8 @@
 
 #define GRE_NHRP	0x2001
 #define GRE_WCCP	0x883E
-#define GRE_ERSPAN	0x88BE
+#define GRE_ERSPAN_88BE	0x88BE
+#define GRE_ERSPAN_22EB	0x22EB
 
 /* ************************************************************************* */
 /*              Aruba GRE Encapulsation ID                                   */

@@ -4,6 +4,7 @@
  * $Id$
  *
  * Copyright 2005 Joerg Mayer (see AUTHORS file)
+ * Updates for newer versions by Jason Masker <jason at masker.net>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -32,8 +33,11 @@
  *	No real specs exist. Some general description can be found at:
  *	http://www.cisco.com/en/US/products/hw/routers/ps368/products_configuration_guide_chapter09186a008069952a.html
  *
+ *	Some information on ERSPAN type III (version 2) can be found at:
+ *	http://www.cisco.com/en/US/docs/switches/datacenter/nexus1000/sw/4_0_4_s_v_1_3/system_management/configuration/guide/n1000v_system_9span.html
+ *
  *	For ERSPAN packets, the "protocol type" field value in the GRE header
- *	is 0x88BE.
+ *	is 0x88BE or 0x22EB.
  *
  * 0000000: d4c3 b2a1 0200 0400 0000 0000 0000 0000 <-- pcap header
  * 0000010: ffff 0000
@@ -42,7 +46,7 @@
  * 0000020: 7a00 0000 7a00 0000
  * 0000020:                     0000 030a 0000 0000 <-- unknown
  * 0000030: 0000 0000
- * 0000030:           0000 88be <-- GRE header
+ * 0000030:           0000 88be <-- GRE header (version 1)
  * 0000030:                     1002 0001 0000 0380 <-- ERSPAN header (01: erspan-id)
  * 0000040: 00d0 b7a7 7480 0015 c721 75c0 0800 4500 <-- Ethernet packet
  * ...
@@ -62,13 +66,14 @@ static int proto_erspan = -1;
 
 static gint ett_erspan = -1;
 
-static int hf_erspan_unknown1 = -1;
+static int hf_erspan_version = -1;
 static int hf_erspan_vlan = -1;
 static int hf_erspan_priority = -1;
 static int hf_erspan_unknown2 = -1;
 static int hf_erspan_direction = -1;
 static int hf_erspan_unknown3 = -1;
 static int hf_erspan_spanid = -1;
+static int hf_erspan_timestamp = -1;
 static int hf_erspan_unknown4 = -1;
 
 #define PROTO_SHORT_NAME "ERSPAN"
@@ -85,12 +90,19 @@ static const value_string erspan_direction_vals[] = {
 static dissector_handle_t ethnofcs_handle;
 
 static void
+erspan_fmt_timestamp(gchar *result, guint32 timeval)
+{
+	g_snprintf(result, ITEM_LABEL_LENGTH, "%.4f", (((gfloat)timeval)/10000));
+}
+
+static void
 dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *erspan_tree = NULL;
 	tvbuff_t *eth_tvb;
 	guint32 offset = 0;
+	guint16 version = 0;
 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
         col_set_str(pinfo->cinfo, COL_INFO, PROTO_SHORT_NAME ":");
@@ -100,7 +112,8 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    FALSE);
 		erspan_tree = proto_item_add_subtree(ti, ett_erspan);
 
-		proto_tree_add_item(erspan_tree, hf_erspan_unknown1, tvb, offset, 2,
+		version = tvb_get_ntohs(tvb, offset) >> 12;
+		proto_tree_add_item(erspan_tree, hf_erspan_version, tvb, offset, 2,
 			FALSE);
 
 		proto_tree_add_item(erspan_tree, hf_erspan_vlan, tvb, offset, 2,
@@ -123,12 +136,24 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			FALSE);
 		offset += 2;
 
-		proto_tree_add_item(erspan_tree, hf_erspan_unknown4, tvb, offset, 4,
-			FALSE);
-		offset += 4;
+		if (version < 2) {
+			proto_tree_add_item(erspan_tree, hf_erspan_unknown4, tvb,
+				offset, 4, FALSE);
+			offset += 4;
+		} else if (version == 2) {
+			proto_tree_add_item(erspan_tree, hf_erspan_timestamp, tvb,
+				offset, 4, FALSE);
+			offset += 4;
+
+			proto_tree_add_item(erspan_tree, hf_erspan_unknown4, tvb,
+				offset, 12, FALSE);
+			offset += 12;
+		}
 	}
 	else {
 		offset += 8;
+		if (version == 2)
+			offset += 12;
 	}
 
         eth_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -140,8 +165,8 @@ proto_register_erspan(void)
 {
 	static hf_register_info hf[] = {
 
-		{ &hf_erspan_unknown1,
-		{ "Unknown1",	"erspan.unknown1", FT_UINT16, BASE_HEX, NULL,
+		{ &hf_erspan_version,
+		{ "Version",	"erspan.version", FT_UINT16, BASE_DEC, NULL,
 			0xf000, NULL, HFILL }},
 
 		{ &hf_erspan_vlan,
@@ -168,6 +193,10 @@ proto_register_erspan(void)
 		{ "SpanID",	"erspan.spanid", FT_UINT16, BASE_DEC, NULL,
 			0x03ff, NULL, HFILL }},
 
+		{ &hf_erspan_timestamp,
+		{ "Timestamp(s)",       "erspan.timestamp", FT_UINT32, BASE_CUSTOM, erspan_fmt_timestamp,
+			0, NULL, HFILL }},
+
 		{ &hf_erspan_unknown4,
 		{ "Unknown4",	"erspan.unknown4", FT_BYTES, BASE_NONE, NULL,
 			0, NULL, HFILL }},
@@ -191,7 +220,8 @@ proto_reg_handoff_erspan(void)
         ethnofcs_handle = find_dissector("eth_withoutfcs");
 
 	erspan_handle = create_dissector_handle(dissect_erspan, proto_erspan);
-        dissector_add("gre.proto", GRE_ERSPAN, erspan_handle);
+        dissector_add("gre.proto", GRE_ERSPAN_88BE, erspan_handle);
+        dissector_add("gre.proto", GRE_ERSPAN_22EB, erspan_handle);
 
 }
 
