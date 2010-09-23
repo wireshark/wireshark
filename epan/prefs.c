@@ -2037,12 +2037,17 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
       if (strncmp(col_l_elt->data, cust_format, cust_format_len) == 0) {
         cfmt->fmt      = g_strdup(cust_format);
         prefs_fmt      = g_strdup(col_l_elt->data);
-        cust_format_info = g_strsplit(&prefs_fmt[cust_format_len+1],":",2); /* add 1 for ':' */
+        cust_format_info = g_strsplit(&prefs_fmt[cust_format_len+1],":",3); /* add 1 for ':' */
         cfmt->custom_field = g_strdup(cust_format_info[0]);
         if (cfmt->custom_field && cust_format_info[1]) {
             cfmt->custom_occurrence = (int)strtol(cust_format_info[1],NULL,10);
         } else {
             cfmt->custom_occurrence = 0;
+        }
+        if (cfmt->custom_field && cust_format_info[2]) {
+            cfmt->resolved = (cust_format_info[2][0] == 'U') ? FALSE : TRUE;
+        } else {
+            cfmt->resolved = TRUE;
         }
         g_strfreev(cust_format_info);
       } else {
@@ -2050,9 +2055,9 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
         prefs_fmt      = g_strdup(cfmt->fmt);
         cfmt->custom_field = NULL;
         cfmt->custom_occurrence = 0;
+        cfmt->resolved  = TRUE;
       }
       cfmt->visible   = prefs_is_column_hidden (cols_hidden_list, prefs_fmt) ? FALSE : TRUE;
-      cfmt->resolved  = TRUE;
       g_free (prefs_fmt);
       col_l_elt      = col_l_elt->next;
       prefs.col_list = g_list_append(prefs.col_list, cfmt);
@@ -3077,7 +3082,8 @@ write_prefs(char **pf_path_return)
     cfmt = (fmt_data *) clp->data;
     col_l = g_list_append(col_l, g_strdup(cfmt->title));
     if ((strcmp(cfmt->fmt, cust_format) == 0) && (cfmt->custom_field)) {
-      prefs_fmt = g_strdup_printf("%s:%s:%d", cfmt->fmt, cfmt->custom_field, cfmt->custom_occurrence);
+      prefs_fmt = g_strdup_printf("%s:%s:%d:%c", cfmt->fmt, cfmt->custom_field, 
+				  cfmt->custom_occurrence, cfmt->resolved ? 'R' : 'U');
       col_l = g_list_append(col_l, prefs_fmt);
     } else {
       prefs_fmt = cfmt->fmt;

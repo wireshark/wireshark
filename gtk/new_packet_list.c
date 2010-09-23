@@ -450,6 +450,10 @@ new_packet_list_toggle_resolved (GtkWidget *w, gint col_id)
 	if (g_object_get_data(G_OBJECT(w), "skip-update") == NULL) {
 		set_column_resolved (col_id, get_column_resolved (col_id) ? FALSE : TRUE);
 
+		if (!prefs.gui_use_pref_save) {
+			prefs_main_write();
+		}
+
 		new_packet_list_recreate();
 	}
 }
@@ -1496,7 +1500,7 @@ new_packet_list_recent_write_all(FILE *rf)
 	for (col = 0; col < num_cols; col++) {
 		col_fmt = get_column_format(col);
 		if (col_fmt == COL_CUSTOM) {
-                        fprintf (rf, " %%Cus:%s,", get_column_custom_field(col));
+			fprintf (rf, " %%Cus:%s,", get_column_custom_field(col));
 		} else {
 			fprintf (rf, " %s,", col_format_to_string(col_fmt));
 		}
