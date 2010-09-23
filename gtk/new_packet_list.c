@@ -316,6 +316,9 @@ new_packet_list_column_clicked_cb (GtkTreeViewColumn *col, gpointer user_data _U
 	GtkSortType order = gtk_tree_view_column_get_sort_order (col);
 	gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(col), E_MPACKET_LIST_COL_KEY));
 
+	if (cfile.state == FILE_READ_IN_PROGRESS)
+		return;
+
 	if (!gtk_tree_view_column_get_sort_indicator(col)) {
 		new_packet_list_sort_column (col_id, col, GTK_SORT_ASCENDING);
 	} else if (order == GTK_SORT_ASCENDING) {

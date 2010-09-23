@@ -4636,6 +4636,23 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
                          !capture_in_progress);
     set_menu_sensitivity_old(main_menu_factory, "/File/Export",
                          capture_in_progress);
+
+#ifdef MENUS_USE_UIMANAGER
+    set_menu_sensitivity(ui_manager_packet_list_heading, "/PacketListHeadingPopup/SortAscending",
+                         !capture_in_progress);
+    set_menu_sensitivity(ui_manager_packet_list_heading, "/PacketListHeadingPopup/SortDescending",
+                         !capture_in_progress);
+    set_menu_sensitivity(ui_manager_packet_list_heading, "/PacketListHeadingPopup/NoSorting",
+                         !capture_in_progress);
+#else
+    set_menu_sensitivity_old(packet_list_heading_factory, "/Sort Ascending",
+                         !capture_in_progress);
+    set_menu_sensitivity_old(packet_list_heading_factory, "/Sort Descending",
+                         !capture_in_progress);
+    set_menu_sensitivity_old(packet_list_heading_factory, "/No Sorting",
+                         !capture_in_progress);
+#endif
+
 #ifdef HAVE_LIBPCAP
     set_menu_sensitivity_old(main_menu_factory, "/Capture/Options...",
                          !capture_in_progress);
@@ -5656,7 +5673,8 @@ set_menus_for_selected_tree_row(capture_file *cf)
                              properties);
         set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/DisableProtocol",
                              (id == -1) ? FALSE : proto_can_toggle_protocol(id));
-        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ExpandSubtrees", cf->finfo_selected->tree_type != -1);
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ExpandSubtrees",
+                             cf->finfo_selected->tree_type != -1);
         set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/WikiProtocolPage",
                              (id == -1) ? FALSE : TRUE);
         set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FilterFieldReference",
@@ -5680,7 +5698,8 @@ set_menus_for_selected_tree_row(capture_file *cf)
                              properties);
         set_menu_sensitivity_old(tree_view_menu_factory, "/Disable Protocol...",
                              (id == -1) ? FALSE : proto_can_toggle_protocol(id));
-        set_menu_sensitivity_old(tree_view_menu_factory, "/Expand Subtrees", cf->finfo_selected->tree_type != -1);
+        set_menu_sensitivity_old(tree_view_menu_factory, "/Expand Subtrees",
+                             cf->finfo_selected->tree_type != -1);
         set_menu_sensitivity_old(tree_view_menu_factory, "/Wiki Protocol Page",
                              (id == -1) ? FALSE : TRUE);
         set_menu_sensitivity_old(tree_view_menu_factory, "/Filter Field Reference",
@@ -5704,7 +5723,8 @@ set_menus_for_selected_tree_row(capture_file *cf)
                              proto_can_match_selected(cf->finfo_selected, cf->edt));
         set_menu_sensitivity_old(main_menu_factory, "/Analyze/Prepare a Filter",
                              proto_can_match_selected(cf->finfo_selected, cf->edt));
-        set_menu_sensitivity_old(main_menu_factory, "/View/Expand Subtrees", cf->finfo_selected->tree_type != -1);
+        set_menu_sensitivity_old(main_menu_factory, "/View/Expand Subtrees",
+                             cf->finfo_selected->tree_type != -1);
 
 #ifdef MENUS_USE_UIMANAGER
         prev_abbrev = g_object_get_data(G_OBJECT(ui_manager_tree_view_menu), "menu_abbrev");
