@@ -155,7 +155,6 @@ endif()
 add_definitions(
 	-DHAVE_CONFIG_H
 	-DPACKAGE=\"wireshark\"
-	-DNEW_PACKET_LIST
 )
 
 # Counterhack to work around some cache magic in CHECK_C_SOURCE_COMPILES
