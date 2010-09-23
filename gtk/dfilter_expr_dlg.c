@@ -193,7 +193,10 @@ field_select_row_cb(GtkTreeSelection *sel, gpointer tree)
          */
 	/* XXX: ToDo: Implement "range-string" filter ?   */
         if ((hfinfo->strings != NULL) & !(hfinfo->display & BASE_RANGE_STRING)) {
-            build_enum_values(value_list_scrolled_win, value_list, hfinfo->strings);
+            const value_string *vals = hfinfo->strings;
+            if (hfinfo->display & BASE_EXT_STRING)
+                vals = ((value_string_ext *) vals)->vals;
+            build_enum_values(value_list_scrolled_win, value_list, vals);
         } else
             gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(value_list))));
         break;
