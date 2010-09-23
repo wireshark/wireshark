@@ -1828,9 +1828,9 @@ proto_check_field_name(const gchar *field_name);
  @param size the size of the string buffer */
 const gchar *
 proto_custom_set(proto_tree* tree, const int field_id,
-	         gint occurrence,
-	         gchar *result,
-	         gchar *expr, const gsize size );
+                             gint occurrence,
+                             gchar *result,
+                             gchar *expr, const int size );
 
 #ifdef __cplusplus
 }

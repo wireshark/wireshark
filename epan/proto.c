@@ -3419,7 +3419,7 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 /* -------------------------- */
 const gchar *
 proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
-                 gchar *result, gchar *expr, const gsize size)
+                 gchar *result, gchar *expr, const int size)
 {
 	guint32		u_integer;
 	gint32		integer;
@@ -3430,8 +3430,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 	guint32		n_addr; /* network-order IPv4 address */
 
 	const true_false_string  *tfstring;
-	int		len, last, i;
-	gsize		offset = 0;
+	int		len, last, i, offset=0;
 	GPtrArray	*finfos;
 	field_info	*finfo = NULL;
 	header_field_info* hfinfo;
@@ -3488,17 +3487,17 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
                         case FT_UINT_BYTES:
                         case FT_BYTES:
                                 bytes = fvalue_get(&finfo->value);
-                                offset += g_strlcpy(result+offset, bytes_to_str(bytes, fvalue_length(&finfo->value)), size-offset);
+                                offset += (int)g_strlcpy(result+offset, bytes_to_str(bytes, fvalue_length(&finfo->value)), size-offset);
                                 break;
 
                         case FT_ABSOLUTE_TIME:
-                                offset += g_strlcpy(result+offset,
+                                offset += (int)g_strlcpy(result+offset,
                                         abs_time_to_str(fvalue_get(&finfo->value), hfinfo->display, TRUE),
                                         size-offset);
                                 break;
 
                         case FT_RELATIVE_TIME:
-                                offset += g_strlcpy(result+offset, rel_time_to_secs_str(fvalue_get(&finfo->value)), size-offset);
+                                offset += (int)g_strlcpy(result+offset, rel_time_to_secs_str(fvalue_get(&finfo->value)), size-offset);
                                 break;
 
                         case FT_BOOLEAN:
@@ -3507,7 +3506,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
                                 if (hfinfo->strings) {
                                         tfstring = (const struct true_false_string*) hfinfo->strings;
                                 }
-                                offset += g_strlcpy(result+offset, u_integer ? tfstring->true_string : tfstring->false_string, size-offset);
+                                offset += (int)g_strlcpy(result+offset, u_integer ? tfstring->true_string : tfstring->false_string, size-offset);
                                 break;
 
                         case FT_UINT8:
@@ -3518,11 +3517,11 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
                                 u_integer = fvalue_get_uinteger(&finfo->value);
                                 if (hfinfo->strings) {
                                         if (hfinfo->display & BASE_RANGE_STRING) {
-                                                offset += g_strlcpy(result+offset, rval_to_str(u_integer, hfinfo->strings, "%u"), size-offset);
+                                                offset += (int)g_strlcpy(result+offset, rval_to_str(u_integer, hfinfo->strings, "%u"), size-offset);
                                         } else if (hfinfo->display & BASE_EXT_STRING) {
-                                                offset += g_strlcpy(result+offset, val_to_str_ext(u_integer, (value_string_ext *) (hfinfo->strings), "%u"), size-offset);
+                                                offset += (int)g_strlcpy(result+offset, val_to_str_ext(u_integer, (value_string_ext *) (hfinfo->strings), "%u"), size-offset);
                                         } else {
-                                                offset += g_strlcpy(result+offset, val_to_str(u_integer, cVALS(hfinfo->strings), "%u"), size-offset);
+                                                offset += (int)g_strlcpy(result+offset, val_to_str(u_integer, cVALS(hfinfo->strings), "%u"), size-offset);
                                         }
                                 } else if (IS_BASE_DUAL(hfinfo->display)) {
                                         g_snprintf(result+offset, size-offset, hfinfo_uint_value_format(hfinfo), u_integer, u_integer);
@@ -3547,11 +3546,11 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
                                 integer = fvalue_get_sinteger(&finfo->value);
                                 if (hfinfo->strings) {
                                         if (hfinfo->display & BASE_RANGE_STRING) {
-                                                offset += g_strlcpy(result+offset, rval_to_str(integer, hfinfo->strings, "%d"), size-offset);
+                                                offset += (int)g_strlcpy(result+offset, rval_to_str(integer, hfinfo->strings, "%d"), size-offset);
                                         } else if (hfinfo->display & BASE_EXT_STRING) {
-                                                offset += g_strlcpy(result+offset, val_to_str_ext(integer, (value_string_ext *) (hfinfo->strings), "%d"), size-offset);
+                                                offset += (int)g_strlcpy(result+offset, val_to_str_ext(integer, (value_string_ext *) (hfinfo->strings), "%d"), size-offset);
                                         } else {
-                                                offset += g_strlcpy(result+offset, val_to_str(integer, cVALS(hfinfo->strings), "%d"), size-offset);
+                                                offset += (int)g_strlcpy(result+offset, val_to_str(integer, cVALS(hfinfo->strings), "%d"), size-offset);
                                         }
                                 } else if (IS_BASE_DUAL(hfinfo->display)) {
                                         g_snprintf(result+offset, size-offset, hfinfo_int_value_format(hfinfo), integer, integer);
@@ -3565,7 +3564,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
                         case FT_IPv4:
                                 ipv4 = fvalue_get(&finfo->value);
                                 n_addr = ipv4_get_net_order_addr(ipv4);
-                                offset += g_strlcpy(result+offset, ip_to_str((guint8 *)&n_addr), size-offset);
+                                offset += (int)g_strlcpy(result+offset, ip_to_str((guint8 *)&n_addr), size-offset);
                                 break;
 
                         case FT_IPv6:
@@ -3576,16 +3575,16 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
                                 break;
 
                         case FT_ETHER:
-                                offset += g_strlcpy(result+offset, bytes_to_str_punct(fvalue_get(&finfo->value), 6, ':'), size-offset);
+                                offset += (int)g_strlcpy(result+offset, bytes_to_str_punct(fvalue_get(&finfo->value), 6, ':'), size-offset);
                                 break;
 
                         case FT_GUID:
-                                offset += g_strlcpy(result+offset, guid_to_str((e_guid_t *)fvalue_get(&finfo->value)), size-offset);
+                                offset += (int)g_strlcpy(result+offset, guid_to_str((e_guid_t *)fvalue_get(&finfo->value)), size-offset);
                                 break;
 
                         case FT_OID:
                                 bytes = fvalue_get(&finfo->value);
-                                offset += g_strlcpy(result+offset, oid_resolved_from_encoded(bytes, fvalue_length(&finfo->value)), size-offset);
+                                offset += (int)g_strlcpy(result+offset, oid_resolved_from_encoded(bytes, fvalue_length(&finfo->value)), size-offset);
                                 break;
 
                         case FT_FLOAT:
@@ -3603,7 +3602,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
                         case FT_STRINGZ:
                         case FT_UINT_STRING:
                                 bytes = fvalue_get(&finfo->value);
-                                offset += g_strlcpy(result+offset, format_text(bytes, strlen(bytes)), size-offset);
+                                offset += (int)g_strlcpy(result+offset, format_text(bytes, strlen(bytes)), size-offset);
                                 break;
 
                         case FT_IPXNET: /*XXX really No column custom ?*/
