@@ -217,6 +217,11 @@ else()
   else(APPLE)
     set(LINK_MODE_MODULE MODULE)
   endif(APPLE)
+  if(APPLE)
+    set(LINK_MODE_MODULE SHARED)
+  else()
+    set(LINK_MODE_MODULE MODULE)
+  endif()
 endif()
 
 # The packagelist is doing some magic:  If we add XXX to the packagelist, we
@@ -831,7 +836,7 @@ if(BUILD_dumpcap)
 endif()
 
 ADD_CUSTOM_COMMAND(
-	OUTPUT	AUTHORS-SHORT
+	OUTPUT	${CMAKE_BINARY_DIR}/AUTHORS-SHORT
 	COMMAND ${PERL}
 		${CMAKE_SOURCE_DIR}/doc/perlnoutf.pl
 		${CMAKE_SOURCE_DIR}/doc/make-authors-short.pl
@@ -844,8 +849,8 @@ ADD_CUSTOM_COMMAND(
 )
 
 ADD_CUSTOM_COMMAND(
-	OUTPUT	AUTHORS-SHORT-FORMAT
-		wireshark.pod
+	OUTPUT	${CMAKE_BINARY_DIR}/AUTHORS-SHORT-FORMAT
+		${CMAKE_BINARY_DIR}/wireshark.pod
 	COMMAND ${PERL}
 		${CMAKE_SOURCE_DIR}/doc/perlnoutf.pl
 		${CMAKE_SOURCE_DIR}/doc/make-authors-format.pl
@@ -853,7 +858,7 @@ ADD_CUSTOM_COMMAND(
 		> ${CMAKE_BINARY_DIR}/AUTHORS-SHORT-FORMAT
 	COMMAND cat
 		${CMAKE_SOURCE_DIR}/doc/wireshark.pod.template
-		AUTHORS-SHORT-FORMAT
+		${CMAKE_BINARY_DIR}/AUTHORS-SHORT-FORMAT
 		> ${CMAKE_BINARY_DIR}/wireshark.pod
 	DEPENDS
 		${CMAKE_SOURCE_DIR}/doc/perlnoutf.pl

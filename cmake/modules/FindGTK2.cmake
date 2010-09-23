@@ -174,6 +174,7 @@ function(_GTK2_FIND_INCLUDE_DIR _var _hdr)
             /sw/lib
             /opt/local/include
             /opt/local/lib
+            /opt/local/lib/gtk-2.0/include
             $ENV{GTKMM_BASEPATH}/include
             $ENV{GTKMM_BASEPATH}/lib
             [HKEY_CURRENT_USER\\SOFTWARE\\gtkmm\\2.4;Path]/include
@@ -405,10 +406,12 @@ foreach(_GTK2_component ${GTK2_FIND_COMPONENTS})
         _GTK2_FIND_INCLUDE_DIR(GTK2_GDKCONFIG_INCLUDE_DIR gdkconfig.h)
         _GTK2_FIND_LIBRARY    (GTK2_GDK_LIBRARY gdk-x11 false true)
         _GTK2_FIND_LIBRARY    (GTK2_GDK_LIBRARY gdk-win32 false true)
+        _GTK2_FIND_LIBRARY    (GTK2_GDK_LIBRARY gdk-quartz false true)
 
         _GTK2_FIND_INCLUDE_DIR(GTK2_GTK_INCLUDE_DIR gtk/gtk.h)
         _GTK2_FIND_LIBRARY    (GTK2_GTK_LIBRARY gtk-x11 false true)
         _GTK2_FIND_LIBRARY    (GTK2_GTK_LIBRARY gtk-win32 false true)
+        _GTK2_FIND_LIBRARY    (GTK2_GTK_LIBRARY gtk-quartz false true)
 
         _GTK2_FIND_INCLUDE_DIR(GTK2_CAIRO_INCLUDE_DIR cairo.h)
         _GTK2_FIND_LIBRARY    (GTK2_CAIRO_LIBRARY cairo false false)
