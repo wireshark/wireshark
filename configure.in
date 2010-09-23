@@ -1525,7 +1525,7 @@ AC_SUBST(GEOIP_LIBS)
 dnl Python devel Check
 AC_ARG_WITH(python,
     AC_HELP_STRING( [--with-python@<:@=DIR@:>@],
-                    [use python interpretor (installed in DIR, if supplied). @<:@default=no@:>@ (EXPERIMENTAL)]),
+                    [use python interpretor (installed in DIR, if supplied). @<:@default=yes@:>@ (EXPERIMENTAL)]),
 [
 pythondir='${libdir}/wireshark/python/${VERSION}'
 if test "x$withval" = "xno"; then
