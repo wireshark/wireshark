@@ -369,7 +369,7 @@ static const value_string routing_header_type[] = {
 static int
 dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo) {
     struct ip6_rthdr rt;
-    guint len;
+    guint len, seg_left;
     proto_tree *rthdr_tree;
     proto_item *ti;
     guint8 buf[sizeof(struct ip6_rthdr0) + sizeof(struct e_in6_addr) * 23];
@@ -400,6 +400,8 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
 	proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_left, tvb,
 		  offset + offsetof(struct ip6_rthdr, ip6r_segleft), 1, FALSE);
 
+	seg_left = tvb_get_guint8(tvb, offset + offsetof(struct ip6_rthdr, ip6r_segleft));
+
 	if (rt.ip6r_type == IPv6_RT_HEADER_SOURCE_ROUTING && len <= sizeof(buf)) {
 	    struct e_in6_addr *a;
 	    int n;
@@ -415,7 +417,8 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
 			      offset + offsetof(struct ip6_rthdr0, ip6r0_addr)
 				     + n * sizeof(struct e_in6_addr),
 			      sizeof(struct e_in6_addr), FALSE);
-	      SET_ADDRESS(&pinfo->dst, AT_IPv6, 16, tvb_get_ptr(tvb,
+	      if (seg_left)
+		  SET_ADDRESS(&pinfo->dst, AT_IPv6, 16, tvb_get_ptr(tvb,
 			      offset + offsetof(struct ip6_rthdr0, ip6r0_addr)
 				     + n * sizeof(struct e_in6_addr), 16));
 	    }
