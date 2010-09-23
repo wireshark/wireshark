@@ -94,6 +94,8 @@ static int hf_nas_eps_emm_toi = -1;
 static int hf_nas_eps_emm_toc = -1;
 static int hf_nas_eps_emm_EPS_attach_result = -1;
 static int hf_nas_eps_emm_spare_half_octet = -1;
+static int hf_nas_eps_emm_add_upd_res = -1;
+static int hf_nas_eps_emm_add_upd_type = -1;
 static int hf_nas_eps_emm_res = -1;
 static int hf_nas_eps_emm_csfb_resp = -1;
 static int hf_nas_eps_emm_cause = -1;
@@ -613,6 +615,56 @@ nas_emm_elem_idx_t;
 
 /* TODO: Update to latest spec */
 /* 9.9.3    EPS Mobility Management (EMM) information elements
+ */
+/*
+ * 9.9.3.0A  Additional update result
+ */
+static const value_string nas_eps_emm_add_upd_res_vals[] = {
+	{ 0x0, "no additional information"},
+	{ 0x1, "CS Fallback not preferred"},
+	{ 0x2, "SMS only"},
+	{ 0x3, "reserved"},
+	{ 0, NULL }
+};
+static guint16
+de_emm_add_upd_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32 curr_offset, bit_offset;
+
+	curr_offset = offset;
+	bit_offset = (curr_offset<<3)+4;
+
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 2, FALSE);
+	bit_offset += 2;
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_add_upd_res, tvb, bit_offset, 2, FALSE);
+	curr_offset++;
+
+	return (curr_offset - offset);
+}
+/*
+ * 9.9.3.0B  Additional update type
+ */
+static const value_string nas_eps_emm_add_upd_type_vals[] = {
+	{ 0x0, "no additional information (shall be interpreted as request for combined attach or combined tracking area updating)"},
+	{ 0x1, "SMS only"},
+	{ 0, NULL }
+};
+static guint16
+de_emm_add_upd_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32 curr_offset, bit_offset;
+
+	curr_offset = offset;
+	bit_offset = (curr_offset<<3)+4;
+
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 3, FALSE);
+	bit_offset += 3;
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_add_upd_type, tvb, bit_offset, 1, FALSE);
+	curr_offset++;
+
+	return (curr_offset - offset);
+}
+/*
  * 9.9.3.1  Authentication failure parameter
  * See subclause 10.5.3.2.2 in 3GPP TS 24.008 [6].
  * (dissected in packet-gsm_a_dtap.c)
@@ -1101,7 +1153,6 @@ de_emm_nas_key_set_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 
 	curr_offset = offset;
 
-
 	/* Get the bit offset of the lover half of the octet bits 4 - 1 */
 	bit_offset = curr_offset<<3;
 	bit_offset+=4;
@@ -1112,8 +1163,9 @@ de_emm_nas_key_set_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	/* NAS key set identifier (octet 1) */
 	proto_tree_add_bits_item(tree, hf_nas_eps_emm_nas_key_set_id, tvb, bit_offset, 3, FALSE);
 	bit_offset+=3;
+	curr_offset++;
 
-	return(len);
+	return(curr_offset - offset);
 }
 
 /*
@@ -2224,8 +2276,8 @@ static const value_string nas_eps_esm_pdn_type_values[] = {
 
 guint16 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* 9.9.3	EPS Mobility Management (EMM) information elements */
-	NULL,						/* 9.9.3.0A Additional update result */
-	NULL,						/* 9.9.3.0B Additional update type */
+	de_emm_add_upd_res,			/* 9.9.3.0A Additional update result */
+	de_emm_add_upd_type,		/* 9.9.3.0B Additional update type */
 	NULL,						/* 9.9.3.1	Authentication failure parameter(dissected in packet-gsm_a_dtap.c) */
 	NULL,						/* 9.9.3.2	Authentication parameter AUTN(packet-gsm_a_dtap.c) */
 	NULL,						/* 9.9.3.3	Authentication parameter RAND */
@@ -2398,6 +2450,8 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	ELEM_OPT_TLV(0x34, GSM_A_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST, "");
 	/* 64	EPS network feature support	EPS network feature support 9.9.3.12A	O	TLV	3 */ 
 	ELEM_OPT_TLV(0x64, NAS_PDU_TYPE_EMM, DE_EMM_EPS_NET_FEATURE_SUP, "");
+	/* F-	Additional update result	Additional update result 9.9.3.0A	O	TV	1 */
+	ELEM_OPT_TV_SHORT( 0xF0 , NAS_PDU_TYPE_EMM, DE_EMM_ADD_UPD_RES, "" );
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -2499,7 +2553,7 @@ nas_emm_attach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* 40	Supported Codecs	Supported Codec List 9.9.2.10	O	TLV	5-n */
 	ELEM_OPT_TLV(0x40, GSM_A_PDU_TYPE_DTAP, DE_SUP_CODEC_LIST, " - Supported Codecs");
 	/* F-	Additional update type	Additional update type 9.9.3.0B	O	TV	1 */
-	/* ELEM_OPT_TV_SHORT( 0xF0 , xxxxxx, xxxxxx , "" ); */
+	ELEM_OPT_TV_SHORT( 0xF0 , NAS_PDU_TYPE_EMM, DE_EMM_ADD_UPD_TYPE, "" );
 	/* 5D	Voice domain preference and UE's usage setting	Voice domain preference and UE's usage setting 9.9.3.44	O	TLV	3 */
 	/* 	ELEM_OPT_TLV(0x5D, xxxxxx, xxxxxx, ""); */
 
@@ -3134,8 +3188,8 @@ nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	ELEM_OPT_TLV(0x34, GSM_A_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST, "");
 	/* 64	EPS network feature support	EPS network feature support 9.9.3.12A	O	TLV	3 */
 	ELEM_OPT_TLV(0x64, NAS_PDU_TYPE_EMM, DE_EMM_EPS_NET_FEATURE_SUP, "");
-	/* F-	Additional update type	Additional update type 9.9.3.0B	O	TV	1 */
-	/* ELEM_OPT_TV_SHORT( 0xF0 , xxxxxx, xxxxxx , "" ); */
+	/* F-	Additional update result	Additional update result 9.9.3.0A	O	TV	1 */
+	ELEM_OPT_TV_SHORT( 0xF0 , NAS_PDU_TYPE_EMM, DE_EMM_ADD_UPD_RES, "" );
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -3195,10 +3249,10 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	/* No more Mandatory elements */
 	if (curr_len==0)
 		return;
-	/* 	B-	NAS key set identifierSGSN	NAS key set identifier 9.9.3.21	O	TV	1 */
-	ELEM_OPT_TV_SHORT( 0xb0 , NAS_PDU_TYPE_EMM, DE_EMM_NAS_KEY_SET_ID , " - SGSN" );
+	/* 	B-	NAS key set identifier	Non-current native NAS key set identifier 9.9.3.21	O	TV	1 */
+	ELEM_OPT_TV_SHORT( 0xb0 , NAS_PDU_TYPE_EMM, DE_EMM_NAS_KEY_SET_ID , " - Non-current native NAS key set identifier" );
 	/* 8-	GPRS ciphering key sequence number	Ciphering key sequence number 9.9.3.4a	O	TV	1  */
-	ELEM_OPT_TV_SHORT(0x80, GSM_A_PDU_TYPE_COMMON, DE_CIPH_KEY_SEQ_NUM, "");
+	ELEM_OPT_TV_SHORT(0x80, GSM_A_PDU_TYPE_COMMON, DE_CIPH_KEY_SEQ_NUM, " - GPRS ciphering key sequence number");
 	/* 19	Old P-TMSI signature	P-TMSI signature 9.9.3.26	O	TV	4 */
 	ELEM_OPT_TV( 0x19 , GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG, " - Old P-TMSI Signature");
 	/* 50	Additional GUTI	EPS mobile identity 9.9.3.12	O	TLV	13 */
@@ -3228,7 +3282,7 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	/* 40	Supported Codecs	Supported Codec List 9.9.2.10	O	TLV	5-n */
 	ELEM_OPT_TLV(0x40, GSM_A_PDU_TYPE_DTAP, DE_SUP_CODEC_LIST, " - Supported Codecs");
 	/* F-	Additional update type	Additional update type 9.9.3.0B	O	TV	1 */
-	/* ELEM_OPT_TV_SHORT( 0xF0 , xxxxxx, xxxxxx , "" ); */
+	ELEM_OPT_TV_SHORT( 0xF0 , NAS_PDU_TYPE_EMM, DE_EMM_ADD_UPD_TYPE, "" );
 	/* 5D	Voice domain preference and UE's usage setting	Voice domain preference and UE's usage setting 9.9.3.44	O	TLV	3 */
 	/* 	ELEM_OPT_TLV(0x5D, xxxxxx, xxxxxx, ""); */
 
@@ -4461,6 +4515,16 @@ void proto_register_nas_eps(void) {
 		{ "Spare half octet","nas_eps.emm.EPS_attach_result",
 		FT_UINT8,BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_add_upd_res,
+		{ "AURV","nas_eps.emm.add_upd_res",
+		FT_UINT8, BASE_DEC, VALS(nas_eps_emm_add_upd_res_vals), 0x0,
+		"Additional update result value", HFILL }
+	},
+	{ &hf_nas_eps_emm_add_upd_type,
+		{ "AUTV","nas_eps.emm.add_upd_type",
+		FT_UINT8, BASE_DEC, VALS(nas_eps_emm_add_upd_type_vals), 0x0,
+		"Additional update type value", HFILL }
 	},
 	{ &hf_nas_eps_emm_res,
 		{ "RES","nas_eps.emm.res",
