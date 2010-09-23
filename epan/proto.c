@@ -3419,7 +3419,7 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 /* -------------------------- */
 const gchar *
 proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
-                 gchar *result, gchar *expr, const int size)
+                 gchar *result, gchar *expr, const gsize size)
 {
 	guint32		u_integer;
 	gint32		integer;
@@ -3430,7 +3430,8 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 	guint32		n_addr; /* network-order IPv4 address */
 
 	const true_false_string  *tfstring;
-	int		len, last, i, offset=0;
+	int		len, last, i;
+	gsize		offset = 0;
 	GPtrArray	*finfos;
 	field_info	*finfo = NULL;
 	header_field_info* hfinfo;
@@ -3481,7 +3482,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 
                         case FT_PROTOCOL:
                                 /* prevent multiple "yes" entries by setting result directly */
-                                g_strlcpy(result, "Yes", size); 
+                                g_strlcpy(result, "Yes", size);
                                 break;
 
                         case FT_UINT_BYTES:
@@ -3648,9 +3649,9 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
                                 g_strlcpy(expr, result, size);
                                 break;
                         }
-                } 
+                }
                 /*XXSLBXX*/
-                        
+
 		return hfinfo->abbrev;
 	}
 	return "";
@@ -7117,7 +7118,7 @@ proto_tree_add_float_bits_format_value(proto_tree *tree, const int hf_index,
 	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
 
 	DISSECTOR_ASSERT(hf_field->type == FT_FLOAT);
-	
+
 	CREATE_VALUE_STRING(dst,format,ap);
 
 	return proto_tree_add_bits_format_value(tree, hf_index, tvb, bit_offset, no_of_bits, &value, dst);
@@ -7166,7 +7167,7 @@ proto_tree_add_boolean_bits_format_value(proto_tree *tree, const int hf_index,
 	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
 
 	DISSECTOR_ASSERT(hf_field->type == FT_BOOLEAN);
-	
+
 	CREATE_VALUE_STRING(dst,format,ap);
 
 	return proto_tree_add_bits_format_value(tree, hf_index, tvb, bit_offset, no_of_bits, &value, dst);

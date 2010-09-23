@@ -321,7 +321,7 @@ typedef struct field_info {
 /** The protocol field value is in big endian */
 #define FI_BIG_ENDIAN           0x00000010
 /** Field value start from nth bit (values from 0x20 - 0x100) */
-#define FI_BITS_OFFSET(n)        ((n & 7) << 5) 
+#define FI_BITS_OFFSET(n)        ((n & 7) << 5)
 /** Field value takes n bits (values from 0x100 - 0x4000) */
 /* if 0, it means that field takes fi->length * 8 */
 #define FI_BITS_SIZE(n)         ((n & 63) << 8)
@@ -1828,9 +1828,9 @@ proto_check_field_name(const gchar *field_name);
  @param size the size of the string buffer */
 const gchar *
 proto_custom_set(proto_tree* tree, const int field_id,
-                             gint occurrence,
-                             gchar *result,
-                             gchar *expr, const int size );
+	         gint occurrence,
+	         gchar *result,
+	         gchar *expr, const gsize size );
 
 #ifdef __cplusplus
 }

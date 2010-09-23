@@ -91,7 +91,7 @@ epan_get_version(void);
 epan_dissect_t*
 epan_dissect_init(epan_dissect_t	*edt, const gboolean create_proto_tree, const gboolean proto_tree_visible);
 
-/** get a new single packet dissection 
+/** get a new single packet dissection
  * should be freed using epan_dissect_free() after packet dissection completed
  */
 epan_dissect_t*
@@ -125,7 +125,7 @@ epan_dissect_free(epan_dissect_t* edt);
 /** Sets custom column */
 const gchar *
 epan_custom_set(epan_dissect_t *edt, int id, gint occurrence,
-				gchar *result, gchar *expr, const int size);
+		gchar *result, gchar *expr, const gsize size);
 
 /**
  * Get compile-time information for libraries used by libwireshark.
