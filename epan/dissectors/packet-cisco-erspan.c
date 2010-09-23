@@ -75,7 +75,7 @@ static int hf_erspan_priority = -1;
 static int hf_erspan_unknown2 = -1;
 static int hf_erspan_direction = -1;
 static int hf_erspan_unknown3 = -1;
-static int hf_erspan_trunkated = -1;
+static int hf_erspan_truncated = -1;
 static int hf_erspan_spanid = -1;
 static int hf_erspan_timestamp = -1;
 static int hf_erspan_unknown4 = -1;
@@ -94,9 +94,15 @@ static const value_string erspan_direction_vals[] = {
 	{0, NULL},
 };
 
-static const value_string erspan_trunkated_vals[] = {
-	{0, "Not trunkated"},
+static const value_string erspan_truncated_vals[] = {
+	{0, "Not truncated"},
 	{1, "Trunkated"},
+	{0, NULL},
+};
+
+static const value_string erspan_version_vals[] = {
+	{1, "Type II"},
+	{2, "Type III"},
 	{0, NULL},
 };
 
@@ -112,6 +118,7 @@ static void
 dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
+	proto_item *unknown_version;
 	proto_tree *erspan_tree = NULL;
 	tvbuff_t *eth_tvb;
 	guint32 offset = 0;
@@ -126,9 +133,14 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		erspan_tree = proto_item_add_subtree(ti, ett_erspan);
 
 		version = tvb_get_ntohs(tvb, offset) >> 12;
-		/* FIXME: we only know how to handle versions 1 and 2. Check for this */
 		proto_tree_add_item(erspan_tree, hf_erspan_version, tvb, offset, 2,
 			FALSE);
+		if ((version != 1) && (version != 2 )) {
+			unknown_version = proto_tree_add_text(erspan_tree, tvb, 0, 0,
+				"Unknown version, please report");
+			PROTO_ITEM_SET_GENERATED(unknown_version);
+                	return;
+		}
 		proto_tree_add_item(erspan_tree, hf_erspan_vlan, tvb, offset, 2,
 			FALSE);
 		offset += 2;
@@ -143,7 +155,7 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		else /* version = 2 */
 			proto_tree_add_item(erspan_tree, hf_erspan_unknown3, tvb,
 				offset, 2, FALSE);
-		proto_tree_add_item(erspan_tree, hf_erspan_trunkated, tvb, offset, 2,
+		proto_tree_add_item(erspan_tree, hf_erspan_truncated, tvb, offset, 2,
 			FALSE);
 		proto_tree_add_item(erspan_tree, hf_erspan_spanid, tvb, offset, 2,
 			FALSE);
@@ -189,7 +201,7 @@ proto_register_erspan(void)
 	static hf_register_info hf[] = {
 
 		{ &hf_erspan_version,
-		{ "Version",	"erspan.version", FT_UINT16, BASE_DEC, NULL,
+		{ "Version",	"erspan.version", FT_UINT16, BASE_DEC, VALS(erspan_version_vals),
 			0xf000, NULL, HFILL }},
 
 		{ &hf_erspan_vlan,
@@ -212,8 +224,8 @@ proto_register_erspan(void)
 		{ "Unknown3",	"erspan.unknown3", FT_UINT16, BASE_DEC, NULL,
 			0x0800, NULL, HFILL }},
 
-		{ &hf_erspan_trunkated,
-		{ "Trunkated",	"erspan.trunkated", FT_UINT16, BASE_DEC, VALS(erspan_trunkated_vals),
+		{ &hf_erspan_truncated,
+		{ "Truncated",	"erspan.truncated", FT_UINT16, BASE_DEC, VALS(erspan_truncated_vals),
 			0x0400, "ERSPAN packet exceeded the MTU size", HFILL }},
 
 		{ &hf_erspan_spanid,
