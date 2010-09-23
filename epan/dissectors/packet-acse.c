@@ -1273,7 +1273,6 @@ dissect_acse_Release_response_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 
 
-
   return offset;
 }
 
@@ -1320,8 +1319,17 @@ static const value_string acse_ABRT_source_vals[] = {
 
 static int
 dissect_acse_ABRT_source(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
-                                                            0U, 1U, hf_index, NULL);
+#line 131 "acse.cnf"
+  int source = -1;
+
+    offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 1U, hf_index, &source);
+
+
+  if(source != -1)
+   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str(source, acse_ABRT_source_vals, "source(%d)"));
+  
+
 
   return offset;
 }
@@ -1368,8 +1376,14 @@ dissect_acse_ABRT_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_acse_ABRT_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+#line 126 "acse.cnf"
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Abort");
+
+    offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 4, TRUE, dissect_acse_ABRT_apdu_U);
+
+
+
 
   return offset;
 }
