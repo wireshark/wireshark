@@ -3525,17 +3525,17 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
                                         }
                                 } else if (IS_BASE_DUAL(hfinfo->display)) {
                                         g_snprintf(result+offset, size-offset, hfinfo_uint_value_format(hfinfo), u_integer, u_integer);
-                                        offset = strlen(result);
+                                        offset = (int)strlen(result);
                                 } else {
                                         g_snprintf(result+offset, size-offset, hfinfo_uint_value_format(hfinfo), u_integer);
-                                        offset = strlen(result);
+                                        offset = (int)strlen(result);
                                 }
                                 break;
 
                         case FT_INT64:
                         case FT_UINT64:
                                 g_snprintf(result+offset, size-offset, "%" G_GINT64_MODIFIER "u", fvalue_get_integer64(&finfo->value));
-                                offset = strlen(result);
+                                offset = (int)strlen(result);
                                 break;
 
                         /* XXX - make these just FT_INT? */
@@ -3554,10 +3554,10 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
                                         }
                                 } else if (IS_BASE_DUAL(hfinfo->display)) {
                                         g_snprintf(result+offset, size-offset, hfinfo_int_value_format(hfinfo), integer, integer);
-                                        offset = strlen(result);
+                                        offset = (int)strlen(result);
                                 } else {
                                         g_snprintf(result+offset, size-offset, hfinfo_int_value_format(hfinfo), integer);
-                                        offset = strlen(result);
+                                        offset = (int)strlen(result);
                                 }
                                 break;
 
@@ -3571,7 +3571,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
                                 ipv6 = fvalue_get(&finfo->value);
                                 SET_ADDRESS (&addr, AT_IPv6, sizeof(struct e_in6_addr), ipv6);
                                 address_to_str_buf(&addr, result+offset, size-offset);
-                                offset = strlen(result);
+                                offset = (int)strlen(result);
                                 break;
 
                         case FT_ETHER:
@@ -3589,12 +3589,12 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 
                         case FT_FLOAT:
                                 g_snprintf(result+offset, size-offset, "%." STRINGIFY(FLT_DIG) "f", fvalue_get_floating(&finfo->value));
-                                offset = strlen(result);
+                                offset = (int)strlen(result);
                                 break;
 
                         case FT_DOUBLE:
                                 g_snprintf(result+offset, size-offset, "%." STRINGIFY(DBL_DIG) "g", fvalue_get_floating(&finfo->value));
-                                offset = strlen(result);
+                                offset = (int)strlen(result);
                                 break;
 
                         case FT_EBCDIC:
