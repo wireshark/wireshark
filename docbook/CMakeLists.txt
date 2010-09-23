@@ -342,15 +342,33 @@ XML2PDF(
 # wsluarm
 ADD_CUSTOM_COMMAND(
 	OUTPUT
-	  wsluarm
+		wsluarm
 	COMMAND cmake -E make_directory wsluarm_src
 	COMMAND ${PERL_EXECUTABLE}
-	  ${CMAKE_CURRENT_SOURCE_DIR}/make-wsluarm.pl
-	  ${WSLUA_MODULES}
+		${CMAKE_CURRENT_SOURCE_DIR}/make-wsluarm.pl
+		${WSLUA_MODULES}
 	COMMAND
-	  touch wsluarm
+		touch wsluarm
 	DEPENDS
-	  ${CMAKE_CURRENT_SOURCE_DIR}/make-wsluarm.pl
-	  ${WSLUA_MODULES}
+		${CMAKE_CURRENT_SOURCE_DIR}/make-wsluarm.pl
+		${WSLUA_MODULES}
 )
+
+if(${DOC_DIR})
+	INSTALL(
+		DIRECTORY
+			wsug_html_chunked
+			wsug_html
+			wsdg_html_chunked
+			wsdg_html
+			.
+		DIRECTORY_PERMISSIONS
+			OWNER_EXECUTE OWNER_WRITE OWNER_READ
+			GROUP_EXECUTE GROUP_READ
+			WORLD_EXECUTE WORLD_READ
+		DESTINATION
+			${DOC_DIR}/guides
+		PATTERN "./*.pdf" 
+	)
+endif()
 
