@@ -33,11 +33,14 @@
  *	No real specs exist. Some general description can be found at:
  *	http://www.cisco.com/en/US/products/hw/routers/ps368/products_configuration_guide_chapter09186a008069952a.html
  *
- *	Some information on ERSPAN type III (version 2) can be found at:
+ *	Some information on ERSPAN type III can be found at:
  *	http://www.cisco.com/en/US/docs/switches/datacenter/nexus1000/sw/4_0_4_s_v_1_3/system_management/configuration/guide/n1000v_system_9span.html
  *
  *	For ERSPAN packets, the "protocol type" field value in the GRE header
- *	is 0x88BE or 0x22EB.
+ *	is 0x88BE (version 1) or 0x22EB (version 2).
+ *
+ *	ERSPAN type II is version 1
+ *	ERSPAN type III is version 2
  *
  * 0000000: d4c3 b2a1 0200 0400 0000 0000 0000 0000 <-- pcap header
  * 0000010: ffff 0000
@@ -72,18 +75,28 @@ static int hf_erspan_priority = -1;
 static int hf_erspan_unknown2 = -1;
 static int hf_erspan_direction = -1;
 static int hf_erspan_unknown3 = -1;
+static int hf_erspan_trunkated = -1;
 static int hf_erspan_spanid = -1;
 static int hf_erspan_timestamp = -1;
 static int hf_erspan_unknown4 = -1;
+static int hf_erspan_direction2 = -1;
+static int hf_erspan_unknown5 = -1;
+static int hf_erspan_unknown6 = -1;
 
 #define PROTO_SHORT_NAME "ERSPAN"
-#define PROTO_LONG_NAME "ER Switch Packet Analysis"
+#define PROTO_LONG_NAME "Encapsulated Remote Switch Packet ANalysis"
 
 #define ERSPAN_DIRECTION_INCOMING 0
 #define ERSPAN_DIRECTION_OUTGOING 1
 static const value_string erspan_direction_vals[] = {
 	{ERSPAN_DIRECTION_INCOMING, "Incoming"},
 	{ERSPAN_DIRECTION_OUTGOING, "Outgoing"},
+	{0, NULL},
+};
+
+static const value_string erspan_trunkated_vals[] = {
+	{0, "Not trunkated"},
+	{1, "Trunkated"},
 	{0, NULL},
 };
 
@@ -113,41 +126,51 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		erspan_tree = proto_item_add_subtree(ti, ett_erspan);
 
 		version = tvb_get_ntohs(tvb, offset) >> 12;
+		/* FIXME: we only know how to handle versions 1 and 2. Check for this */
 		proto_tree_add_item(erspan_tree, hf_erspan_version, tvb, offset, 2,
 			FALSE);
-
 		proto_tree_add_item(erspan_tree, hf_erspan_vlan, tvb, offset, 2,
 			FALSE);
 		offset += 2;
 
 		proto_tree_add_item(erspan_tree, hf_erspan_priority, tvb, offset, 2,
 			FALSE);
-
 		proto_tree_add_item(erspan_tree, hf_erspan_unknown2, tvb, offset, 2,
 			FALSE);
-
-		proto_tree_add_item(erspan_tree, hf_erspan_direction, tvb, offset, 2,
+		if (version == 1)
+			proto_tree_add_item(erspan_tree, hf_erspan_direction, tvb,
+				offset, 2, FALSE);
+		else /* version = 2 */
+			proto_tree_add_item(erspan_tree, hf_erspan_unknown3, tvb,
+				offset, 2, FALSE);
+		proto_tree_add_item(erspan_tree, hf_erspan_trunkated, tvb, offset, 2,
 			FALSE);
-
-		proto_tree_add_item(erspan_tree, hf_erspan_unknown3, tvb, offset, 2,
-			FALSE);
-
 		proto_tree_add_item(erspan_tree, hf_erspan_spanid, tvb, offset, 2,
 			FALSE);
 		offset += 2;
 
-		if (version < 2) {
+		if (version == 1) {
 			proto_tree_add_item(erspan_tree, hf_erspan_unknown4, tvb,
 				offset, 4, FALSE);
 			offset += 4;
-		} else if (version == 2) {
+		} else { /* version = 2 */
 			proto_tree_add_item(erspan_tree, hf_erspan_timestamp, tvb,
 				offset, 4, FALSE);
 			offset += 4;
 
 			proto_tree_add_item(erspan_tree, hf_erspan_unknown4, tvb,
-				offset, 12, FALSE);
-			offset += 12;
+				offset, 2, FALSE);
+			offset += 2;
+
+			proto_tree_add_item(erspan_tree, hf_erspan_direction2, tvb,
+				offset, 2, FALSE);
+			proto_tree_add_item(erspan_tree, hf_erspan_unknown5, tvb,
+				offset, 2, FALSE);
+			offset += 2;
+
+			proto_tree_add_item(erspan_tree, hf_erspan_unknown6, tvb,
+				offset, 8, FALSE);
+			offset += 8;
 		}
 	}
 	else {
@@ -187,18 +210,34 @@ proto_register_erspan(void)
 
 		{ &hf_erspan_unknown3,
 		{ "Unknown3",	"erspan.unknown3", FT_UINT16, BASE_DEC, NULL,
-			0x0400, NULL, HFILL }},
+			0x0800, NULL, HFILL }},
+
+		{ &hf_erspan_trunkated,
+		{ "Trunkated",	"erspan.trunkated", FT_UINT16, BASE_DEC, VALS(erspan_trunkated_vals),
+			0x0400, "ERSPAN packet exceeded the MTU size", HFILL }},
 
 		{ &hf_erspan_spanid,
 		{ "SpanID",	"erspan.spanid", FT_UINT16, BASE_DEC, NULL,
 			0x03ff, NULL, HFILL }},
 
 		{ &hf_erspan_timestamp,
-		{ "Timestamp(s)",       "erspan.timestamp", FT_UINT32, BASE_CUSTOM, erspan_fmt_timestamp,
+		{ "Timestamp",	"erspan.timestamp", FT_UINT32, BASE_CUSTOM, erspan_fmt_timestamp,
 			0, NULL, HFILL }},
 
 		{ &hf_erspan_unknown4,
 		{ "Unknown4",	"erspan.unknown4", FT_BYTES, BASE_NONE, NULL,
+			0, NULL, HFILL }},
+
+		{ &hf_erspan_direction2,
+		{ "Direction2",	"erspan.direction2", FT_UINT16, BASE_DEC, VALS(erspan_direction_vals),
+			0x0008, NULL, HFILL }},
+
+		{ &hf_erspan_unknown5,
+		{ "Unknown5",	"erspan.unknown5", FT_UINT16, BASE_HEX, NULL,
+			0xfff7, NULL, HFILL }},
+
+		{ &hf_erspan_unknown6,
+		{ "Unknown6",	"erspan.unknown6", FT_BYTES, BASE_NONE, NULL,
 			0, NULL, HFILL }},
 
         };
