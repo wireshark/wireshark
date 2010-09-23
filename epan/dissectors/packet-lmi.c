@@ -197,7 +197,7 @@ proto_register_lmi(void)
     static hf_register_info hf[] = {
 	{ &hf_lmi_call_ref,
 	  { "Call reference", "lmi.cmd", FT_UINT8, BASE_HEX, NULL, 0,
-	  	"Call Reference", HFILL }},
+	  	NULL, HFILL }},
 
 	{ &hf_lmi_msg_type,
 	  { "Message Type", "lmi.msg_type", FT_UINT8, BASE_HEX, VALS(msg_type_str), 0,

@@ -1403,7 +1403,7 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     /* Do this again on re-dissection to re-discover offset of actual PDU */
-    
+
     /* Needs to be at least as long as:
        - the signature string
        - fixed header bytes
@@ -1681,8 +1681,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                                 bitmap_ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_bitmap, tvb,
                                                                 offset, -1, FALSE);
                                 bitmap_tree = proto_item_add_subtree(bitmap_ti, ett_pdcp_rohc_report_bitmap);
-    
-    
+
+
                                 /* For each byte... */
                                 for ( ; tvb_length_remaining(tvb, offset); offset++) {
                                     guint bit_offset = 0;
@@ -1899,7 +1899,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     return;
                 }
 
-                return; 
+                return;
 
         }
     }
@@ -2068,7 +2068,7 @@ void proto_register_pdcp(void)
         { &hf_pdcp_lte_data_control,
             { "PDU Type",
               "pdcp-lte.pdu-type", FT_UINT8, BASE_HEX, VALS(pdu_type_vals), 0x80,
-              "PDU type", HFILL
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_user_plane_data,

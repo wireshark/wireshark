@@ -606,7 +606,7 @@ proto_register_vtp(void)
 
 		{ &hf_vtp_md,
 		{ "Management Domain", "vtp.md", FT_STRING, BASE_NONE, NULL, 0,
-			"Management domain", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_vtp_conf_rev_num,
 		{ "Configuration Revision Number", "vtp.conf_rev_num", FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -662,7 +662,7 @@ proto_register_vtp(void)
 
 		{ &hf_vtp_vlan_name,
 		{ "VLAN Name", "vtp.vlan_info.vlan_name", FT_STRING, BASE_NONE, NULL, 0,
-			"VLAN name", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_vtp_vlan_tlvtype,
 		{ "Type",	"vtp.vlan_info.tlv_type", FT_UINT8, BASE_HEX, VALS(vlan_tlv_type_vals), 0x0,

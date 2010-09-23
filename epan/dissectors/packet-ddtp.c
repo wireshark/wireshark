@@ -180,7 +180,7 @@ proto_register_ddtp(void)
 		"Host ID", HFILL }},
 	{ &hf_ddtp_msgtype,
 	    { "Message type", "ddtp.msgtype", FT_UINT32, BASE_DEC, VALS(vals_ddtp_msgtype), 0x0,
-		"Message Type", HFILL }},
+		NULL, HFILL }},
 	{ &hf_ddtp_opcode,
 	    { "Opcode", "ddtp.opcode", FT_UINT32, BASE_DEC, VALS(vals_ddtp_opcode), 0x0,
 		"Update query opcode", HFILL }},

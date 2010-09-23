@@ -813,7 +813,7 @@ proto_register_ajp13(void)
         HFILL }
     },
     { &hf_ajp13_port,
-      { "PORT",  "ajp13.port", FT_UINT16, BASE_DEC, NULL, 0x0, "Port",
+      { "PORT",  "ajp13.port", FT_UINT16, BASE_DEC, NULL, 0x0, NULL,
         HFILL }
     },
     { &hf_ajp13_sslp,

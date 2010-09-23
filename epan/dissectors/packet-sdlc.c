@@ -149,7 +149,7 @@ proto_register_sdlc(void)
 
 		{ &hf_sdlc_control,
 		  { "Control Field", "sdlc.control", FT_UINT16, BASE_HEX,
-		    NULL, 0x0, "Control field", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_sdlc_n_r,
 		    { "N(R)", "sdlc.control.n_r", FT_UINT8, BASE_DEC,

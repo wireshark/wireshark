@@ -3985,7 +3985,7 @@ dissect_spotlight(tvbuff_t *tvb, proto_tree *tree, gint offset)
                         tvb,
                         offset,
                         8,
-                        "Endianess: %s", 
+                        "Endianess: %s",
                         spotlight_endianess == SPOTLIGHT_BIG_ENDIAN ?
                         "Big Endian" : "Litte Endian");
     offset += 8;
@@ -4043,13 +4043,13 @@ dissect_spotlight(tvbuff_t *tvb, proto_tree *tree, gint offset)
         /* tree per query */
         sub_tree_query = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
         query_data64 = spotlight_ntoh64(tvb, offset + query_offset);
-        
+
         /* print the query line */
         proto_tree_add_text(sub_tree_query,
                             tvb,
                             offset + query_offset,
                             8,
-                            "Index: %" G_GINT64_MODIFIER "u, ?: 0x%08" G_GINT64_MODIFIER "x", 
+                            "Index: %" G_GINT64_MODIFIER "u, ?: 0x%08" G_GINT64_MODIFIER "x",
                             query_data64 >> 32,
                             query_data64 & 0xffffffff);
 
@@ -4172,10 +4172,10 @@ dissect_query_afp_spotlight(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
         break;
 
     case SPOTLIGHT_CMD_GET_THREE:
-        proto_tree_add_item(tree, hf_afp_spotlight_volflags, tvb, offset, 4,FALSE);        
+        proto_tree_add_item(tree, hf_afp_spotlight_volflags, tvb, offset, 4,FALSE);
     	offset += 4;
 
-        proto_tree_add_item(tree, hf_afp_spotlight_reqlen, tvb, offset, 4,FALSE);        
+        proto_tree_add_item(tree, hf_afp_spotlight_reqlen, tvb, offset, 4,FALSE);
     	offset += 4;
 
         offset = dissect_spotlight(tvb, tree, offset);
@@ -4375,12 +4375,12 @@ dissect_reply_afp_spotlight(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
         break;
 
     case SPOTLIGHT_CMD_GET_VOLID:
-        proto_tree_add_item(tree, hf_afp_spotlight_volflags, tvb, offset, 4,FALSE);        
+        proto_tree_add_item(tree, hf_afp_spotlight_volflags, tvb, offset, 4,FALSE);
     	offset += 4;
         break;
 
     case SPOTLIGHT_CMD_GET_THREE:
-        proto_tree_add_item(tree, hf_afp_spotlight_returncode, tvb, offset, 4,FALSE);        
+        proto_tree_add_item(tree, hf_afp_spotlight_returncode, tvb, offset, 4,FALSE);
     	offset += 4;
 
         offset = dissect_spotlight(tvb, tree, offset);
@@ -4424,7 +4424,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		request_val = se_alloc(sizeof(afp_request_val));
 		request_val->command = afp_command;
-        
+
         if (afp_command == AFP_SPOTLIGHTRPC)
             request_val->spotlight_req_command = tvb_get_ntohl(tvb, offset + 2 + 2 + 4);
         else
@@ -6224,27 +6224,27 @@ proto_register_afp(void)
         { &hf_afp_spotlight_returncode,
           { "Return code",               "afp.spotlight.return",
             FT_INT32, BASE_DEC, NULL, 0x0,
-            "Return code", HFILL }},
+            NULL, HFILL }},
 
         { &hf_afp_spotlight_volflags,
           { "Volume flags",               "afp.spotlight.volflags",
             FT_UINT32, BASE_HEX, NULL, 0x0,
-            "Volume flags", HFILL }},
+            NULL, HFILL }},
 
         { &hf_afp_spotlight_reqlen,
           { "Length",               "afp.spotlight.reqlen",
             FT_UINT32, BASE_DEC, NULL, 0x0,
-            "Length", HFILL }},
+            NULL, HFILL }},
 
         { &hf_afp_spotlight_toc_query_end,
           { "End marker",               "afp.spotlight.query_end",
             FT_UINT32, BASE_HEX, NULL, 0x0,
-            "End marker", HFILL }},
+            NULL, HFILL }},
 
         { &hf_afp_spotlight_mdstring,
           { "mdquery string",               "afp.spotlight.mds",
             FT_STRINGZ, BASE_NONE, NULL, 0x0,
-            "mdquery string", HFILL }},
+            NULL, HFILL }},
 
 		{ &hf_afp_unknown,
 		  { "Unknown parameter",         "afp.unknown",

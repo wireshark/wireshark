@@ -5714,7 +5714,7 @@ proto_register_smb2(void)
 
 	{ &hf_smb2_security_blob_len,
 		{ "Security Blob Length", "smb2.security_blob_len", FT_UINT16, BASE_DEC,
-		NULL, 0, "Security blob length", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_security_blob_offset,
 		{ "Security Blob Offset", "smb2.security_blob_offset", FT_UINT16, BASE_HEX,
@@ -5753,7 +5753,7 @@ proto_register_smb2(void)
 
 	{ &hf_smb2_infolevel,
 		{ "InfoLevel", "smb2.infolevel", FT_UINT8, BASE_HEX,
-		NULL, 0, "Infolevel", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_infolevel_file_info,
 		{ "InfoLevel", "smb2.file_info.infolevel", FT_UINT8, BASE_HEX,
@@ -5789,7 +5789,7 @@ proto_register_smb2(void)
 
 	{ &hf_smb2_security_blob,
 		{ "Security Blob", "smb2.security_blob", FT_BYTES, BASE_NONE,
-		NULL, 0, "Security blob", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_ioctl_out_data,
 		{ "Out Data", "smb2.ioctl.out", FT_NONE, BASE_NONE,
@@ -5801,11 +5801,11 @@ proto_register_smb2(void)
 
 	{ &hf_smb2_server_guid,
 	  { "Server Guid", "smb2.server_guid", FT_GUID, BASE_NONE,
-		NULL, 0, "Server GUID", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_client_guid,
 	  { "Client Guid", "smb2.client_guid", FT_GUID, BASE_NONE,
-		NULL, 0, "Client GUID", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_object_id,
 	  { "ObjectId", "smb2.object_id", FT_GUID, BASE_NONE,
@@ -6034,7 +6034,7 @@ proto_register_smb2(void)
 
 	{ &hf_smb2_close_flags,
 		{ "Close Flags", "smb2.close.flags", FT_UINT16, BASE_HEX,
-		NULL, 0, "close flags", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_notify_flags,
 		{ "Notify Flags", "smb2.notify.flags", FT_UINT16, BASE_HEX,
@@ -6194,7 +6194,7 @@ proto_register_smb2(void)
 
 	{ &hf_smb2_qfid_fid,
 		{ "Opaque File ID", "smb2.qfid_fid", FT_BYTES, BASE_NONE,
-		NULL, 0, "Opaque File ID", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_ses_flags_guest,
 		{ "Guest", "smb2.ses_flags.guest", FT_BOOLEAN, 16,
@@ -6238,7 +6238,7 @@ proto_register_smb2(void)
 
 	{ &hf_smb2_share_flags,
 		{ "Share flags", "smb2.share_flags", FT_UINT32, BASE_HEX,
-		NULL, 0, "share flags", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_share_flags_dfs,
 		{ "dfs", "smb2.share_flags.dfs", FT_BOOLEAN, 32,

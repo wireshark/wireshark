@@ -110,7 +110,7 @@ proto_register_docsis_dsdreq (void)
     {&hf_docsis_dsdreq_sfid,
      {"Service Flow ID", "docsis_dsdreq.sfid",
       FT_UINT32, BASE_DEC, NULL, 0x0,
-      "Service Flow Id", HFILL}
+      NULL, HFILL}
      },
   };
 

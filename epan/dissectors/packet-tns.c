@@ -1079,7 +1079,7 @@ void proto_register_tns(void)
 			NULL, 0x1000, NULL, HFILL }},
 		{ &hf_tns_ntp_flag_dtest, {
 			"Data test", "tns.ntp_flag.dtest", FT_BOOLEAN, 16,
-			NULL, 0x0800, "Data Test", HFILL }},
+			NULL, 0x0800, NULL, HFILL }},
 		{ &hf_tns_ntp_flag_cbio, {
 			"Callback IO supported", "tns.ntp_flag.cbio", FT_BOOLEAN, 16,
 			NULL, 0x0400, NULL, HFILL }},

@@ -181,7 +181,7 @@ proto_register_ypbind(void)
 
 		{ &hf_ypbind_resp_type, {
 			"Response Type", "ypbind.resp_type", FT_UINT32, BASE_DEC,
-			VALS(resp_type_vals), 0, "Response type", HFILL }},
+			VALS(resp_type_vals), 0, NULL, HFILL }},
 
 		{ &hf_ypbind_error, {
 			"Error", "ypbind.error", FT_UINT32, BASE_DEC,

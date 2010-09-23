@@ -736,7 +736,7 @@ proto_register_hclnfsd(void)
 
 		{ &hf_hclnfsd_printername, {
 			"Printer Name", "hclnfsd.printername", FT_STRING, BASE_NONE,
-			NULL, 0, "Printer name", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_hclnfsd_filename, {
 			"Filename", "hclnfsd.filename", FT_STRING, BASE_NONE,

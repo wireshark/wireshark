@@ -9189,7 +9189,7 @@ proto_register_bacapp(void)
 		},
 		{ &hf_bacapp_tag_PORT,
 			{ "Port",           "bacapp.Port",
-			FT_UINT16, BASE_DEC, NULL, 0, "Port", HFILL }
+			FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_bacapp_tag_initiatingObjectType,
 			{ "ObjectType",           "bacapp.objectType",

@@ -170,7 +170,7 @@ proto_register_lapb(void)
 
 	{ &hf_lapb_control,
 	  { "Control Field", "lapb.control", FT_UINT8, BASE_HEX, NULL, 0x0,
-	  	"Control field", HFILL }},
+	  	NULL, HFILL }},
 
 	{ &hf_lapb_n_r,
 	    { "N(R)", "lapb.control.n_r", FT_UINT8, BASE_DEC,

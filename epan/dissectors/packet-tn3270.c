@@ -5101,11 +5101,11 @@ proto_register_tn3270(void)
     { &hf_tn3270_command_code,
       { "Command Code",           "tn3270.command_code",
         FT_UINT8, BASE_HEX, VALS(vals_command_codes), 0x0,
-        "Command Code", HFILL }},
+        NULL, HFILL }},
     { &hf_tn3270_sf_length,
       { "Structured Field Length", "tn3270.sf_length",
         FT_UINT16, BASE_DEC, NULL, 0x0,
-        "Structured Field Length", HFILL }},
+        NULL, HFILL }},
     /* Write Control Characters */
     { &hf_tn3270_wcc_nop,
         { "WCC NOP",

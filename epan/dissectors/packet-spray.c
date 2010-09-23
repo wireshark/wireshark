@@ -109,11 +109,11 @@ proto_register_spray(void)
 
 		{ &hf_spray_counter, {
 			"counter", "spray.counter", FT_UINT32, BASE_DEC,
-			NULL, 0, "Counter", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_spray_clock, {
 			"clock", "spray.clock", FT_NONE, BASE_NONE,
-			NULL, 0, "Clock", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_spray_sec, {
 			"sec", "spray.sec", FT_UINT32, BASE_DEC,

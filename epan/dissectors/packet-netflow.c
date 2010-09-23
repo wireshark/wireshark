@@ -6092,7 +6092,7 @@ proto_register_netflow(void)
 		{&hf_cflow_unknown_field_type,
 		 {"Unknown Field Type", "cflow.unknown_field_type",
 		  FT_BYTES, BASE_NONE, NULL, 0x0,
-		  "Unknown Field Type", HFILL}
+		  NULL, HFILL}
 		 },
 		{&hf_cflow_template_ipfix_total_field_count,
 		 {"Total Field Count", "cflow.template_ipfix_total_field_count",

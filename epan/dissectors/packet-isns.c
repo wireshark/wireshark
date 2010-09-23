@@ -1702,7 +1702,7 @@ void proto_register_isns(void)
 	{ &hf_isns_virtual_fabric_id,
 	  { "Virtual Fabric ID","isns.virtual_fabric_id",
 	    FT_STRING, BASE_NONE, NULL, 0x0,
-	    "Virtual fabric ID", HFILL }},
+	    NULL, HFILL }},
 
 	{ &hf_isns_proxy_iscsi_name,
 	  { "Proxy iSCSI Name","isns.proxy_iscsi_name",

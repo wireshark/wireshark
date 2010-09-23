@@ -79,11 +79,11 @@ dissect_tapi_client_attach_rqst(tvbuff_t *tvb, int offset,
 		hf_tapi_unknown_long, NULL);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-			NDR_POINTER_REF, "unknown string", 
+			NDR_POINTER_REF, "unknown string",
 			 hf_tapi_unknown_string, 0);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-			NDR_POINTER_REF, "unknown string", 
+			NDR_POINTER_REF, "unknown string",
 			 hf_tapi_unknown_string, 0);
 
 	return offset;
@@ -204,7 +204,7 @@ void
 proto_register_dcerpc_tapi(void)
 {
 static hf_register_info hf[] = {
-	{ &hf_tapi_opnum, { 
+	{ &hf_tapi_opnum, {
 		"Operation", "tapi.opnum", FT_UINT16, BASE_DEC,
 		NULL, 0x0, NULL, HFILL }},
 	{ &hf_tapi_rc, {
@@ -212,7 +212,7 @@ static hf_register_info hf[] = {
 		VALS(NT_errors), 0x0, "TAPI return code", HFILL }},
 	{ &hf_tapi_hnd, {
 		"Context Handle", "tapi.hnd", FT_BYTES, BASE_NONE,
-		NULL, 0x0, "Context handle", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 	{ &hf_tapi_unknown_long, {
 		"Unknown long", "tapi.unknown.long", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "Unknown long. If you know what this is, contact wireshark developers.", HFILL }},

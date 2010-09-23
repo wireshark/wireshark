@@ -231,7 +231,7 @@ static const value_string h248_annexc_package_properties_vals[] = {
 	{ 0x4018, "ceetd" },
 	{ 0x4019, "QosClass" },
 	{ 0x401a, "AALtype" },
-	
+
 	{ 0x5001, "DLCI" },
 	{ 0x5002, "CID" },
 	{ 0x5003, "SID/Noiselevel" },
@@ -313,7 +313,7 @@ static const value_string h248_annexc_package_properties_vals[] = {
 	{ 0xC004, "OLCrej" },
 	{ 0xC005, "CLC" },
 	{ 0xC006, "CLCack" },
-	
+
 { 0, NULL }
 };
 
@@ -408,7 +408,7 @@ static const value_string h248_pkg_annexc_userrate_values[] = {
 	{0xd,"38.4 kbps (V.110)"},
 	{0xe,"48 kbps (X.1)"},
 	{0xf,"56 kbps"},
-	
+
 	{0x12,"57.6 kbps (V.14 extended)"},
 	{0x13,"28.8 kbps (V.110)"},
 	{0x14,"24 kbps (V.110)"},
@@ -423,7 +423,7 @@ static const value_string h248_pkg_annexc_userrate_values[] = {
 	{0x1d,"0.200 kbps (X.1)"},
 	{0x1e,"0.300 kbps (X.1)"},
 	{0x1f,"12 kbps (X.1)"},
-	
+
     {0,NULL}
 };
 
@@ -539,7 +539,7 @@ static const value_string h248_pkg_annexc_modem_values[] = {
 	{0x03,"National Use"},
 	{0x04,"National Use"},
 	{0x05,"National Use"},
-	
+
 	{0x11,"V.21"},
 	{0x12,"V.22"},
 	{0x13,"V.22bis"},
@@ -553,7 +553,7 @@ static const value_string h248_pkg_annexc_modem_values[] = {
 	{0x1B,"V.29"},
 	{0x1D,"V.32"},
 	{0x1E,"V.34"},
-	
+
 	{0x20,"National Use"},
 	{0x21,"National Use"},
 	{0x22,"National Use"},
@@ -570,7 +570,7 @@ static const value_string h248_pkg_annexc_modem_values[] = {
 	{0x2d,"National Use"},
 	{0x2e,"National Use"},
 	{0x2f,"National Use"},
-	
+
 	{0x30,"User Specified"},
 	{0x31,"User Specified"},
 	{0x32,"User Specified"},
@@ -587,7 +587,7 @@ static const value_string h248_pkg_annexc_modem_values[] = {
 	{0x3d,"User Specified"},
 	{0x3e,"User Specified"},
 	{0x3f,"User Specified"},
-	
+
     {0,NULL}
 };
 
@@ -745,7 +745,7 @@ static void dissect_h248_annexc_acodec(proto_tree* tree,
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 	dissect_ber_octet_string(implicit_p ? *((gboolean*)implicit_p) : FALSE, &asn1_ctx, tree, tvb, 0, hfid, &new_tvb);
-	
+
 	tree = proto_item_add_subtree(asn1_ctx.created_item,ett_codec);
 	len = tvb_length(new_tvb);
 	dissect_codec_mode(tree,new_tvb,0,len);
@@ -760,9 +760,9 @@ static void dissect_h248_annexc_BIR(proto_tree* tree,
 	tvbuff_t* new_tvb = NULL;
 	asn1_ctx_t asn1_ctx;
 
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);	
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 	dissect_ber_octet_string(implicit_p ? *((gboolean*)implicit_p) : FALSE, &asn1_ctx, tree, tvb, 0, hfid, &new_tvb);
-	
+
 	if ( new_tvb && h248_info->term && ! h248_info->term->bir ) {
 		h248_info->term->bir = se_strdup(tvb_bytes_to_str(new_tvb,0,tvb_length(new_tvb)));
 	}
@@ -821,16 +821,16 @@ static h248_pkg_param_t h248_annexc_package_properties[] = {
 	{ 0x100D, &hf_h248_pkg_annexc_jitterbuf, h248_param_ber_integer, NULL },
 	{ 0x100E, &hf_h248_pkg_annexc_propdelay, h248_param_ber_integer, NULL },
 	{ 0x100F, &hf_h248_pkg_annexc_rtp_payload, h248_param_ber_integer, NULL },
-	
+
 	{ 0x2001, &hf_h248_pkg_annexc_h222, h248_param_ber_octetstring, NULL },
 	{ 0x2002, &hf_h248_pkg_annexc_h223, h248_param_ber_octetstring, NULL },
 	{ 0x2003, &hf_h248_pkg_annexc_v76, h248_param_ber_octetstring, NULL },
 	{ 0x2004, &hf_h248_pkg_annexc_h2250, h248_param_ber_octetstring, NULL },
-	
+
 	{ 0x3001, &hf_h248_pkg_annexc_Mediatx, h248_param_ber_integer, NULL },
 	{ 0x3002, &hf_h248_pkg_annexc_BIR, dissect_h248_annexc_BIR, NULL },
 	{ 0x3003, &hf_h248_pkg_annexc_NSAP, dissect_h248_annexc_NSAP, NULL },
-	
+
 	{ 0x4001, &hf_h248_pkg_annexc_aesa, h248_param_ber_octetstring, NULL },
 	{ 0x4002, &hf_h248_pkg_annexc_vp, dissect_h248_annexc_vpvc, NULL },
 	{ 0x4003, &hf_h248_pkg_annexc_sc, h248_param_ber_integer, NULL },
@@ -862,27 +862,27 @@ static h248_pkg_param_t h248_annexc_package_properties[] = {
 	{ 0x5002, &hf_h248_pkg_annexc_cid, h248_param_ber_integer, NULL },
 	{ 0x5003, &hf_h248_pkg_annexc_sid, h248_param_ber_integer, NULL },
 	{ 0x5004, &hf_h248_pkg_annexc_ppt, h248_param_ber_integer, NULL },
-	
+
 	{ 0x6001, &hf_h248_pkg_annexc_ipv4, h248_param_ber_octetstring, NULL },
 	{ 0x6002, &hf_h248_pkg_annexc_ipv6, h248_param_ber_octetstring,NULL },
 	{ 0x6003, &hf_h248_pkg_annexc_port, h248_param_ber_integer, NULL },
 	{ 0x6004, &hf_h248_pkg_annexc_porttype, h248_param_ber_integer, NULL },
-	
+
 	{ 0x7001, &hf_h248_pkg_annexc_aesa, h248_param_ber_octetstring, NULL },
 	{ 0x7002, &hf_h248_pkg_annexc_alc, h248_param_ber_octetstring,NULL }, /* from ALCAP */
-	{ 0x7003, &hf_h248_pkg_annexc_sscs, h248_param_ber_octetstring, NULL }, 
-	{ 0x7004, &hf_h248_pkg_annexc_sut, h248_param_ber_octetstring, NULL }, 
-	{ 0x7005, &hf_h248_pkg_annexc_tci, h248_param_ber_boolean, NULL }, 
-	{ 0x7006, &hf_h248_pkg_annexc_timer_cu, h248_param_ber_octetstring, NULL }, 
-	{ 0x7007, &hf_h248_pkg_annexc_maxcpssdu, h248_param_ber_integer, NULL }, 
-	{ 0x7008, &hf_h248_pkg_annexc_cid, h248_param_ber_integer, NULL }, 
-	
+	{ 0x7003, &hf_h248_pkg_annexc_sscs, h248_param_ber_octetstring, NULL },
+	{ 0x7004, &hf_h248_pkg_annexc_sut, h248_param_ber_octetstring, NULL },
+	{ 0x7005, &hf_h248_pkg_annexc_tci, h248_param_ber_boolean, NULL },
+	{ 0x7006, &hf_h248_pkg_annexc_timer_cu, h248_param_ber_octetstring, NULL },
+	{ 0x7007, &hf_h248_pkg_annexc_maxcpssdu, h248_param_ber_integer, NULL },
+	{ 0x7008, &hf_h248_pkg_annexc_cid, h248_param_ber_integer, NULL },
+
 	{ 0x8001, &hf_h248_pkg_annexc_aal1st, h248_param_ber_integer, NULL },
 	{ 0x8002, &hf_h248_pkg_annexc_cbrr, h248_param_ber_integer, NULL },
-	{ 0x8003, &hf_h248_pkg_annexc_scri, h248_param_ber_integer, NULL }, 
-	{ 0x8004, &hf_h248_pkg_annexc_ecm, h248_param_ber_integer, NULL }, 
-	{ 0x8005, &hf_h248_pkg_annexc_sdbt, h248_param_ber_octetstring,NULL }, 
-	{ 0x8006, &hf_h248_pkg_annexc_pfci, h248_param_ber_integer, NULL }, 
+	{ 0x8003, &hf_h248_pkg_annexc_scri, h248_param_ber_integer, NULL },
+	{ 0x8004, &hf_h248_pkg_annexc_ecm, h248_param_ber_integer, NULL },
+	{ 0x8005, &hf_h248_pkg_annexc_sdbt, h248_param_ber_octetstring,NULL },
+	{ 0x8006, &hf_h248_pkg_annexc_pfci, h248_param_ber_integer, NULL },
 
 	{ 0x9001, &hf_h248_pkg_annexc_tmr, h248_param_ber_integer, NULL },
 	{ 0x9002, &hf_h248_pkg_annexc_tmrsr, h248_param_ber_integer, NULL },
@@ -919,7 +919,7 @@ static h248_pkg_param_t h248_annexc_package_properties[] = {
 	{ 0x9021, &hf_h248_pkg_annexc_echoci, h248_param_ber_integer, NULL },
 	{ 0x9022, &hf_h248_pkg_annexc_nci, h248_param_ber_integer, NULL },
 	{ 0x9023, &hf_h248_pkg_annexc_USI, dissect_h248_annexc_USI, NULL },
-	
+
 	{ 0xA001, &hf_h248_pkg_annexc_fmsdu, h248_param_ber_octetstring, NULL },
 	{ 0xA002, &hf_h248_pkg_annexc_bmsdu, h248_param_ber_octetstring, NULL },
 	{ 0xA003, &hf_h248_pkg_annexc_sscs, NULL, NULL },
@@ -939,14 +939,14 @@ static h248_pkg_param_t h248_annexc_package_properties[] = {
 	{ 0xB00d, &hf_h248_pkg_annexc_sdp_t, h248_param_ber_octetstring, &h248_c_implicit },
 	{ 0xB00e, &hf_h248_pkg_annexc_sdp_r, h248_param_ber_octetstring, &h248_c_implicit },
 	{ 0xB00f, &hf_h248_pkg_annexc_sdp_m, h248_param_ber_octetstring, &h248_c_implicit },
-	
+
 	{ 0xC001, &hf_h248_pkg_annexc_olc, h248_param_ber_octetstring, NULL },
 	{ 0xC002, &hf_h248_pkg_annexc_olcack, h248_param_ber_octetstring, NULL },
 	{ 0xC003, &hf_h248_pkg_annexc_olccnf, h248_param_ber_octetstring, NULL },
 	{ 0xC004, &hf_h248_pkg_annexc_olcrej, h248_param_ber_octetstring, NULL },
 	{ 0xC005, &hf_h248_pkg_annexc_clc, h248_param_ber_octetstring, NULL },
 	{ 0xC006, &hf_h248_pkg_annexc_clcack, h248_param_ber_octetstring, NULL },
-	
+
 	{ 0, NULL, NULL, NULL }
 };
 
@@ -1085,7 +1085,7 @@ void proto_register_h248_annex_c(void) {
 		{ "UPPC", "h248.pkg.annexc.uppc",
 			FT_UINT8, BASE_DEC, VALS(h248_pkg_annexc_uppc_values), 0x03,
 			"User Plane Connection Configuration", HFILL }},
-			
+
 		{ &hf_h248_pkg_annexc_pcr0,
 		{ "PCR0", "h248.pkg.annexc.pcr0",
 			FT_UINT24, BASE_DEC, NULL, 0,
@@ -1098,7 +1098,7 @@ void proto_register_h248_annex_c(void) {
 		{ "MBS0", "h248.pkg.annexc.mbs0",
 			FT_UINT24, BASE_DEC, NULL, 0,
 			"Maximum Burst Size for CLP=0", HFILL }},
-			
+
 		{ &hf_h248_pkg_annexc_pcr1,
 		{ "PCR1", "h248.pkg.annexc.pcr1",
 			FT_UINT24, BASE_DEC, NULL, 0,
@@ -1111,7 +1111,7 @@ void proto_register_h248_annex_c(void) {
 		{ "MBS1", "h248.pkg.annexc.mbs1",
 			FT_UINT24, BASE_DEC, NULL, 0,
 			"Maximum Burst Size for CLP=1", HFILL }},
-			
+
 		{ &hf_h248_pkg_annexc_bei,
 		{ "BEI", "h248.pkg.annexc.bei",
 			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
@@ -1124,7 +1124,7 @@ void proto_register_h248_annex_c(void) {
 		{ "FD", "h248.pkg.annexc.fd",
 			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"Frame Discard", HFILL }},
-			
+
 		{ &hf_h248_pkg_annexc_a2pcdv,
 		{ "A2PCDV", "h248.pkg.annexc.a2pcdv",
 			FT_UINT24, BASE_DEC, NULL, 0,
@@ -1145,7 +1145,7 @@ void proto_register_h248_annex_c(void) {
 		{ "ACLR", "h248.pkg.annexc.aclr",
 			FT_UINT8, BASE_DEC, NULL, 0,
 			"Acceptable Cell Loss Ratio (Q.2965.2 ATMF UNI 4.0)", HFILL }},
-			
+
 		{ &hf_h248_pkg_annexc_meetd,
 		{ "MEETD", "h248.pkg.annexc.meetd",
 			FT_UINT16, BASE_DEC, NULL, 0,
@@ -1162,7 +1162,7 @@ void proto_register_h248_annex_c(void) {
 		{ "AALtype", "h248.pkg.annexc.aaltype",
 			FT_UINT8, BASE_DEC, VALS(h248_pkg_annexc_AALtype_values), 0,
 			"AAL Type", HFILL }},
-			
+
 		{ &hf_h248_pkg_annexc_dlci,
 		{ "DLCI", "h248.pkg.annexc.dlci",
 			FT_UINT32, BASE_DEC, NULL, 0,
@@ -1179,7 +1179,7 @@ void proto_register_h248_annex_c(void) {
 		{ "PPT", "h248.pkg.annexc.ppt",
 			FT_UINT32, BASE_DEC, NULL, 0,
 			"Primary Payload Type", HFILL }},
-			
+
 		{ &hf_h248_pkg_annexc_ipv4,
 		{ "IPv4", "h248.pkg.annexc.ipv4",
 			FT_IPv4, BASE_NONE, NULL, 0,
@@ -1196,7 +1196,7 @@ void proto_register_h248_annex_c(void) {
 		{ "PortType", "h248.pkg.annexc.porttype",
 			FT_UINT32, BASE_DEC, VALS(h248_pkg_annexc_porttype_values), 0,
 			"Port Type", HFILL }},
-					
+
 		{ &hf_h248_pkg_annexc_alc,
 		{ "ALC", "h248.pkg.annexc.alc",
 			FT_BYTES, BASE_NONE, NULL, 0,
@@ -1255,7 +1255,7 @@ void proto_register_h248_annex_c(void) {
 		{ "Continuity Check", "h248.pkg.annexc.tmsr",
 			FT_UINT8, BASE_DEC, VALS(h248_pkg_annexc_contcheck_values), 0x0C,
 			NULL, HFILL }},
-		
+
 		{ &hf_h248_pkg_annexc_itc,
 		{ "ITC", "h248.pkg.annexc.itc",
 			FT_UINT8, BASE_DEC, VALS(h248_pkg_annexc_itc_values), 0x1f,
@@ -1280,7 +1280,7 @@ void proto_register_h248_annex_c(void) {
 		{ "UPPC", "h248.pkg.annexc.negotiation",
 			FT_UINT8, BASE_DEC, VALS(h248_pkg_annexc_negotiation_values), 0x40,
 			"Negotiation", HFILL }},
-		
+
 		{ &hf_h248_pkg_annexc_userrate,
 		{ "Userrate", "h248.pkg.annexc.userrate",
 			FT_UINT8, BASE_HEX, VALS(h248_pkg_annexc_userrate_values), 0x1f,
@@ -1321,7 +1321,7 @@ void proto_register_h248_annex_c(void) {
 		{ "llidnegot", "h248.pkg.annexc.llidnegot",
 			FT_UINT8, BASE_HEX, VALS(h248_pkg_annexc_llidnegot_values), 0xc0,
 			"Logical Link Identifier negotiation", HFILL }},
-			
+
 		{ &hf_h248_pkg_annexc_assign,
 		{ "llidnegot", "h248.pkg.annexc.assign",
 			FT_UINT8, BASE_HEX, VALS(h248_pkg_annexc_assign_values), 0xc0,
@@ -1379,18 +1379,18 @@ void proto_register_h248_annex_c(void) {
 		{ "NCI", "h248.pkg.annexc.nci",
 			FT_UINT8, BASE_HEX, NULL, 0xff,
 			"Nature of Connection Indicator", HFILL }},
-			
-			
+
+
 		{ &hf_h248_pkg_annexc_USI,
 		{ "USI", "h248.pkg.annexc.USI",
 			FT_BYTES, BASE_NONE, NULL, 0,
 			"User Service Information", HFILL }},
-			
+
 
 		{ &hf_h248_pkg_annexc_fmsdu,
 		{ "fmsdu", "h248.pkg.annexc.fmsdu",
 			FT_BYTES, BASE_NONE, NULL, 0,
-			"FMSDU", HFILL }},
+			NULL, HFILL }},
 		{ &hf_h248_pkg_annexc_bmsdu,
 		{ "bmsdu", "h248.pkg.annexc.bmsdu",
 			FT_BYTES, BASE_NONE, NULL, 0,
@@ -1399,8 +1399,8 @@ void proto_register_h248_annex_c(void) {
 		{ "sscs", "h248.pkg.annexc.sscs",
 			FT_BYTES, BASE_NONE, NULL, 0,
 			NULL, HFILL }},
-			
-			
+
+
 		{ &hf_h248_pkg_annexc_sdp_v,
 		{ "sdp_v", "h248.pkg.annexc.sdp_v",
 			FT_STRING, BASE_NONE, NULL, 0,
@@ -1461,7 +1461,7 @@ void proto_register_h248_annex_c(void) {
 		{ "sdp_m", "h248.pkg.annexc.sdp_m",
 			FT_STRING, BASE_NONE, NULL, 0,
 			"SDP M", HFILL }},
-			
+
 		{ &hf_h248_pkg_annexc_olc,
 		{ "OLC", "h248.pkg.annexc.olc",
 			FT_BYTES, BASE_NONE, NULL, 0,
@@ -1486,21 +1486,21 @@ void proto_register_h248_annex_c(void) {
 		{ "CLCack", "h248.pkg.annexc.clcack",
 			FT_BYTES, BASE_NONE, NULL, 0,
 			"Close Logical Channel Acknowledge", HFILL }},
-		
+
 	};
-	
+
 	static gint *ett[] = {
 		&ett_annexc,
 		&ett_vpvc,
 		&ett_codec
 	};
-	
+
 	proto_h248_pkg_annexc = proto_register_protocol(PNAME, PSNAME, PFNAME);
-	
+
 	proto_register_field_array(proto_h248_pkg_annexc, hf, array_length(hf));
-	
+
 	proto_register_subtree_array(ett, array_length(ett));
-	
+
 	h248_register_package(&h248_annexc_package);
-	
+
 }

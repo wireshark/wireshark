@@ -3239,7 +3239,7 @@ proto_register_afs(void)
 	{ &hf_afs_bos_cmd, { "Command", "afs.bos.cmd",
 		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_bos_key, { "Key", "afs.bos.key",
-		FT_BYTES, BASE_NONE, 0, 0, "key", HFILL }},
+		FT_BYTES, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_bos_user, { "User", "afs.bos.user",
 		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_bos_instance, { "Instance", "afs.bos.instance",

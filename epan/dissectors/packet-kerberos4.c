@@ -267,10 +267,10 @@ dissect_krb4_auth_msg_type(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t
 	proto_tree_add_item(tree, hf_krb4_m_type, tvb, offset, 1, FALSE);
 	if (check_col(pinfo->cinfo, COL_INFO))
 	  col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s",
-	   (version==TRANSARC_SPECIAL_VERSION)?"TRANSARC-":"", 
+	   (version==TRANSARC_SPECIAL_VERSION)?"TRANSARC-":"",
 	    val_to_str(auth_msg_type>>1, m_type_vals, "Unknown (0x%04x)"));
-	proto_item_append_text(item, " %s%s", 
-	   (version==TRANSARC_SPECIAL_VERSION)?"TRANSARC-":"", 
+	proto_item_append_text(item, " %s%s",
+	   (version==TRANSARC_SPECIAL_VERSION)?"TRANSARC-":"",
 	   val_to_str(auth_msg_type>>1, m_type_vals, "Unknown (0x%04x)"));
 
 	/* byte order */
@@ -288,12 +288,12 @@ dissect_krb4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_item *item;
 	guint8 version, opcode;
 	int offset=0;
-	
+
 	/* this should better have the value 4 or it might be a weirdo
 	 * Transarc AFS special unknown thing.
 	 */
 	version=tvb_get_guint8(tvb, offset);
-	if((version!=4)&&(version!=TRANSARC_SPECIAL_VERSION)){ 
+	if((version!=4)&&(version!=TRANSARC_SPECIAL_VERSION)){
 		return FALSE;
 	}
 
@@ -316,7 +316,7 @@ dissect_krb4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/* create a tree for krb4 */
 	item = proto_tree_add_item(parent_tree, proto_krb4, tvb, offset, -1, FALSE);
 	tree = proto_item_add_subtree(item, ett_krb4);
-	
+
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB4");
 	col_clear(pinfo->cinfo, COL_INFO);
 
@@ -423,7 +423,7 @@ proto_register_krb4(void)
     { &hf_krb4_ticket_blob,
       { "Ticket Blob", "krb4.ticket.blob",
         FT_BYTES, BASE_NONE, NULL, 0x00,
-        "Ticket blob", HFILL }},
+        NULL, HFILL }},
     { &hf_krb4_request_blob,
       { "Request Blob", "krb4.request.blob",
         FT_BYTES, BASE_NONE, NULL, 0x00,
@@ -431,7 +431,7 @@ proto_register_krb4(void)
     { &hf_krb4_encrypted_blob,
       { "Encrypted Blob", "krb4.encrypted_blob",
         FT_BYTES, BASE_NONE, NULL, 0x00,
-        "Encrypted blob", HFILL }},
+        NULL, HFILL }},
     { &hf_krb4_unknown_transarc_blob,
       { "Unknown Transarc Blob", "krb4.unknown_transarc_blob",
         FT_BYTES, BASE_NONE, NULL, 0x00,

@@ -3093,7 +3093,7 @@ proto_register_vnc(void)
 		{ &hf_vnc_color_groups,
 		  { "Color groups", "vnc.color_groups",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
-		    "Color groups", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_vnc_colormap_num_colors,

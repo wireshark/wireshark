@@ -36,7 +36,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
-#include "packet-fmp.h" 
+#include "packet-fmp.h"
 #include "packet-rpc.h"
 
 
@@ -121,22 +121,22 @@ dissect_fmp_genString(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 	switch (mode) {
 	case FMP_ASCII:
-		proto_tree_add_text(tree, tvb, offset, 4, 
+		proto_tree_add_text(tree, tvb, offset, 4,
 		                    "Encoding Mode: ASCII (%d)", mode);
 		break;
-	
+
 	case FMP_UTF8:
 		proto_tree_add_text(tree, tvb, offset, 4,
 		                    "Encoding Mode: UTF8 (%d)", mode);
 		break;
-	
+
 	case FMP_UNICODE1:
-		proto_tree_add_text(tree, tvb, offset, 4, 
+		proto_tree_add_text(tree, tvb, offset, 4,
 		                    "Encoding Mode: UNICODE (%d)", mode);
 		break;
 
 	default:
-		proto_tree_add_text(tree, tvb, offset, 4, 
+		proto_tree_add_text(tree, tvb, offset, 4,
 		                    "Encoding Mode: UNKNOWN (%d)", mode);
 		offset += 4;
 		return offset;
@@ -194,22 +194,22 @@ dissect_fmp_fileHandleSrc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_item *fileHandleItem;
 	proto_tree *fileHandleTree;
 	int length;
-	
+
 	length = get_fileHandleSrc_size(tvb, offset);
 
 	np = tvb_get_ntohl(tvb, offset);
 
-	fileHandleItem =  proto_tree_add_text(tree, tvb, offset, length, 
+	fileHandleItem =  proto_tree_add_text(tree, tvb, offset, length,
 	                                      "Source File Handle");
-	fileHandleTree = proto_item_add_subtree(fileHandleItem, 
+	fileHandleTree = proto_item_add_subtree(fileHandleItem,
 	                                        ett_fmp_fileHandle);
 
 	switch (np) {
 	case FMP_PATH:
-		proto_tree_add_text(fileHandleTree, tvb, offset, 4, 
+		proto_tree_add_text(fileHandleTree, tvb, offset, 4,
 		                    "Native Protocol: PATH (%d)", np);
 		offset += 4;
-	
+
 		offset = dissect_rpc_string(tvb, fileHandleTree,
                                            hf_fmp_mount_path, offset, NULL);
 		break;
@@ -219,12 +219,12 @@ dissect_fmp_fileHandleSrc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		                    "Native Protocol: NFS (%d)", np);
 		offset += 4;
 
-		offset = dissect_rpc_data(tvb, fileHandleTree, 
-		                          hf_fmp_nfsFHandle, offset); 	
+		offset = dissect_rpc_data(tvb, fileHandleTree,
+		                          hf_fmp_nfsFHandle, offset);
 		break;
 
 	case FMP_CIFS:
-		proto_tree_add_text(fileHandleTree, tvb, offset, 4, 
+		proto_tree_add_text(fileHandleTree, tvb, offset, 4,
 		                    "Native Protocol: CIFS (%d)", np);
 		offset += 4;
 
@@ -242,12 +242,12 @@ dissect_fmp_fileHandleSrc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		break;
 
 	case FMP_FMP:
-		proto_tree_add_text(fileHandleTree, tvb, offset, 4, 
+		proto_tree_add_text(fileHandleTree, tvb, offset, 4,
 		                    "Native Protocol: FMP (%d)", np);
 		offset += 4;
 
 		offset = dissect_rpc_string(tvb, fileHandleTree,
-		                            hf_fmp_fmpFHandle, offset, NULL);  
+		                            hf_fmp_fmpFHandle, offset, NULL);
 		break;
 
 	case FMP_FS_ONLY:
@@ -291,7 +291,7 @@ dissect_fmp_fileHandleSrc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree_add_text(fileHandleTree, tvb, offset, 2, "uid     : %d",
 		                    tvb_get_ntohs(tvb, offset));
 		offset += 2;
-	
+
 		proto_tree_add_text(fileHandleTree, tvb, offset, 2, "cifsPort: %d",
 		                    tvb_get_ntohs(tvb, offset));
 		offset += 2;
@@ -303,7 +303,7 @@ dissect_fmp_fileHandleSrc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 		offset = dissect_fmp_genString(tvb, offset, fileHandleTree);
 		break;
-	
+
 
 	default:
 		proto_tree_add_text(fileHandleTree, tvb, offset, 4,
@@ -373,7 +373,7 @@ dissect_fmp_extentList(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	numExtents = tvb_get_ntohl(tvb, offset);
-	totalLength = 4 + (20 * numExtents); 
+	totalLength = 4 + (20 * numExtents);
 
 	extListItem =  proto_tree_add_text(tree, tvb, offset, totalLength,
 	                                   "Extent List");
@@ -435,7 +435,7 @@ int
 dissect_plugInID(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	const guint8 *plugInID;
-	
+
 	if (!tree) {
 		return offset;
 	}
@@ -494,7 +494,7 @@ dissect_fmp_flushCmd(tvbuff_t *tvb, int offset,  proto_tree *tree)
 
 			/* clear the bit that we processed */
 			cmd &= ~bitValue;
-	
+
 			/* add a "bitwise inclusive OR" symbol between cmds */
 			if (cmd) {
 				g_strlcat(msg, " | ", MAX_MSG_SIZE);
@@ -524,21 +524,21 @@ dissect_InterpretVolMgtStuff(tvbuff_t *tvb, int offset, proto_tree *tree)
 		length = tvb_get_ntohl(tvb, offset);
 		proto_tree_add_text(tree, tvb, offset, 4, "Length of List  : %d", length);
 		offset += 4;
-		
+
 		for(j=0;j<length;j++){
 			proto_tree_add_text(tree, tvb, offset, 4, "sigOffset: 0x%x",
 	                			tvb_get_ntohl(tvb, offset));
 			offset += 4;
 			offset = dissect_rpc_string(tvb, tree, hf_fmp_dskSigEnt_val,
-	                            offset, NULL);   
-				
+	                            offset, NULL);
+
 		}
 	offset = dissect_rpc_uint32(tvb, tree, hf_fmp_volID, offset);
-	
+
 	}
 	return offset;
-	
-	
+
+
 }
 int
 dissect_fmp_capability(tvbuff_t *tvb, int offset, proto_tree *tree)
@@ -580,7 +580,7 @@ dissect_fmp_capability(tvbuff_t *tvb, int offset, proto_tree *tree)
                break;
 
 
-		
+
 
 	default:
 		proto_tree_add_text(tree, tvb, offset, 4,
@@ -633,7 +633,7 @@ dissect_fmp_heartBeatIntv(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		return offset;
 	}
 
-	proto_tree_add_text(tree, tvb, offset, 8, 
+	proto_tree_add_text(tree, tvb, offset, 8,
 	                    "Heart Beat Interval: %d.%d seconds",
 	                    tvb_get_ntohl(tvb, offset),
 	                    tvb_get_ntohl(tvb, offset+4));
@@ -666,7 +666,7 @@ dissect_fmp_status(tvbuff_t *tvb, int offset, proto_tree *tree, int *rval)
 		*rval = 1;
 		break;
 	case FMP_INVALIDARG:
-		
+
 		*rval = 1;
 		break;
 	case FMP_FSFULL:
@@ -711,7 +711,7 @@ dissect_fmp_status(tvbuff_t *tvb, int offset, proto_tree *tree, int *rval)
 		*rval = 1;
 		break;
 	}
-   
+
         offset = dissect_rpc_uint32(tvb, tree, hf_fmp_status , offset);
 	return offset;
 }
@@ -749,7 +749,7 @@ dissect_fmp_devSerial(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset += 4;
 
 	offset = dissect_rpc_string(tvb, tree, hf_fmp_devSignature,
-	                            offset, NULL);   
+	                            offset, NULL);
 	return offset;
 }
 
@@ -898,7 +898,7 @@ int dissect_fmp_Hiervolume(tvbuff_t *tvb, int offset, proto_tree * tree)
 		offset =  dissect_fmp_VolumeDescription(tvb, offset, tree);
 		vollength--;
 	}
-	
+
 	return offset;
 
 }
@@ -933,11 +933,11 @@ dissect_fmp_vmInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset += 4;
 
 		/*
-		 * Loop through and print all of the devInfo 
+		 * Loop through and print all of the devInfo
 		 * structures.
 		 */
 		while (phyVolList_len) {
-			offset = 
+			offset =
 				dissect_fmp_devSerial(tvb, offset, pinfo, tree);
 			volIndex = tvb_get_ntohl(tvb, offset);
 			proto_tree_add_text(tree, tvb, offset, 4, "0x%x",
@@ -954,7 +954,7 @@ dissect_fmp_vmInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset += 4;
 
 		offset = dissect_rpc_string(tvb, tree, hf_fmp_volHandle,
-		                            offset, NULL);   
+		                            offset, NULL);
 		break;
 
 	case FMP_CLIENT_BASED_DART:
@@ -964,7 +964,7 @@ dissect_fmp_vmInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset += 4;
 
 		offset = dissect_rpc_string(tvb,  tree, hf_fmp_volHandle,
-		                            offset, NULL); 
+		                            offset, NULL);
 		break;
 
 	case FMP_CLIENT_BASED_SIMPLE:
@@ -996,7 +996,7 @@ dissect_fmp_vmInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		           "Volume Mgmt Type: FMP_HIERARCHICAL_VOLUME: (%d)",
 		           vmType);
 		offset += 4;
-		
+
 		dissect_fmp_Hiervolume(tvb, offset, tree);
 		break;
 
@@ -1162,7 +1162,7 @@ dissect_FMP_SessionCreate_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                   proto_tree *tree)
 {
 	offset = dissect_rpc_string(tvb, tree, hf_fmp_hostID,
-                                    offset, NULL); 
+                                    offset, NULL);
 	offset = dissect_fmp_timeval(tvb, offset, pinfo, tree, hf_fmp_btime,
 	                             hf_fmp_time_sec, hf_fmp_time_nsec);
 	offset = dissect_rpc_uint32(tvb, tree, hf_fmp_notifyPort,
@@ -1179,7 +1179,7 @@ dissect_FMP_SessionCreate_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_fmp_status(tvb, offset,tree, &rval);
 	if (rval == 0) {
 		offset = dissect_rpc_data(tvb, tree,
-		                          hf_fmp_sessionHandle, offset); 
+		                          hf_fmp_sessionHandle, offset);
 		offset = dissect_rpc_string(tvb,  tree, hf_fmp_hostID,
 		                            offset, NULL);
 		offset = dissect_fmp_timeval(tvb, offset, pinfo, tree,
@@ -1196,7 +1196,7 @@ dissect_FMP_HeartBeat_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                               proto_tree *tree)
 {
 	offset = dissect_rpc_data(tvb, tree, hf_fmp_sessionHandle,
-	                          offset);  
+	                          offset);
 
 	return offset;
 }
@@ -1244,10 +1244,10 @@ dissect_FMP_Open_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
                          proto_tree *tree)
 {
 	offset = dissect_rpc_data(tvb, tree, hf_fmp_sessionHandle,
-                                  offset); 
+                                  offset);
 	offset = dissect_fmp_fileHandleSrc(tvb, offset, pinfo, tree);
 	return offset;
-} 
+}
 
 static int
 dissect_FMP_Open_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
@@ -1258,11 +1258,11 @@ dissect_FMP_Open_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_fmp_status(tvb, offset,tree, &rval);
 	if (rval == 0) {
 		offset = dissect_rpc_data(tvb, tree, hf_fmp_fmpFHandle,
-		                          offset); 
+		                          offset);
 		offset = dissect_rpc_uint32(tvb,  tree, hf_fmp_msgNum,
 		                            offset);
 		offset = dissect_rpc_uint64(tvb, tree, hf_fmp_fileSize,
-		                            offset);   
+		                            offset);
 
 		offset = dissect_rpc_uint32(tvb,  tree, hf_fmp_fsID,
 		                            offset);
@@ -1274,7 +1274,7 @@ static int
 dissect_FMP_Close_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                           proto_tree *tree)
 {
-	offset = dissect_rpc_data(tvb, tree, hf_fmp_fmpFHandle, offset);  
+	offset = dissect_rpc_data(tvb, tree, hf_fmp_fmpFHandle, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_fmp_msgNum, offset);
 	return offset;
 }
@@ -1298,7 +1298,7 @@ static int
 dissect_FMP_OpenGetMap_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	offset = dissect_rpc_data(tvb, tree, hf_fmp_sessionHandle,
-	                          offset);  
+	                          offset);
 
 	offset = dissect_fmp_fileHandleSrc(tvb, offset, pinfo, tree);
 	offset = dissect_rpc_uint32(tvb,  tree, hf_fmp_firstLogBlk,
@@ -1318,7 +1318,7 @@ dissect_FMP_OpenGetMap_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_fmp_status(tvb, offset,tree, &rval);
 	if (rval == 0) {
 		offset = dissect_rpc_data(tvb, tree, hf_fmp_fmpFHandle,
-		                          offset);   
+		                          offset);
 		offset = dissect_rpc_uint32(tvb,  tree, hf_fmp_msgNum,
 		                            offset);
 		offset = dissect_rpc_uint32(tvb,  tree, hf_fmp_cookie,
@@ -1338,7 +1338,7 @@ dissect_FMP_OpenAllocSpace_request(tvbuff_t *tvb, int offset,
                                    packet_info *pinfo, proto_tree *tree)
 {
 	offset = dissect_rpc_data(tvb , tree, hf_fmp_sessionHandle,
-	                          offset);  
+	                          offset);
 	offset = dissect_fmp_fileHandleSrc(tvb, offset, pinfo, tree);
 	offset = dissect_rpc_uint32(tvb,  tree, hf_fmp_firstLogBlk,
 	                            offset);
@@ -1357,7 +1357,7 @@ dissect_FMP_OpenAllocSpace_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_fmp_status(tvb, offset,tree, &rval);
 	if (rval == 0) {
 		offset = dissect_rpc_data(tvb, tree, hf_fmp_fmpFHandle,
-		                          offset);	
+		                          offset);
 		offset = dissect_rpc_uint32(tvb,  tree, hf_fmp_msgNum,
 		                            offset);
 		offset = dissect_rpc_uint32(tvb,  tree, hf_fmp_cookie,
@@ -1375,7 +1375,7 @@ static int
 dissect_FMP_GetMap_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                            proto_tree *tree)
 {
-	offset = dissect_rpc_data(tvb, tree, hf_fmp_fmpFHandle, offset);   
+	offset = dissect_rpc_data(tvb, tree, hf_fmp_fmpFHandle, offset);
 	offset = dissect_rpc_uint32(tvb,  tree, hf_fmp_msgNum, offset);
 	offset = dissect_rpc_uint32(tvb,  tree, hf_fmp_firstLogBlk,
 	                            offset);
@@ -1409,7 +1409,7 @@ static int
 dissect_FMP_AllocSpace_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                                proto_tree *tree)
 {
-	offset = dissect_rpc_data(tvb,  tree, hf_fmp_fmpFHandle, offset);  
+	offset = dissect_rpc_data(tvb,  tree, hf_fmp_fmpFHandle, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_fmp_msgNum, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_fmp_firstLogBlk,
 	                            offset);
@@ -1443,7 +1443,7 @@ static int
 dissect_FMP_Flush_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
                           proto_tree *tree)
 {
-	offset = dissect_rpc_data(tvb, tree, hf_fmp_fmpFHandle, offset);  
+	offset = dissect_rpc_data(tvb, tree, hf_fmp_fmpFHandle, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_fmp_msgNum, offset);
 	offset = dissect_fmp_flushCmd(tvb, offset, tree);
 	offset = dissect_rpc_uint64(tvb,tree, hf_fmp_eof, offset);
@@ -1459,7 +1459,7 @@ dissect_FMP_Flush_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	offset = dissect_fmp_status(tvb, offset,tree, &rval);
 	if (rval == 0) {
-		offset = dissect_rpc_uint32(tvb, tree, hf_fmp_msgNum, 
+		offset = dissect_rpc_uint32(tvb, tree, hf_fmp_msgNum,
 		                            offset);
 	}
 	return offset;
@@ -1469,7 +1469,7 @@ static int
 dissect_FMP_CancelReq_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                               proto_tree *tree)
 {
-	offset = dissect_rpc_data(tvb, tree, hf_fmp_fmpFHandle, offset);  
+	offset = dissect_rpc_data(tvb, tree, hf_fmp_fmpFHandle, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_fmp_msgNum, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_fmp_cookie, offset);
 	return offset;
@@ -1494,7 +1494,7 @@ dissect_FMP_PlugIn_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                            proto_tree *tree)
 {
 	offset = dissect_plugInID(tvb, offset, tree);
-	offset = dissect_rpc_data(tvb, tree, hf_fmp_plugInBuf, offset); 
+	offset = dissect_rpc_data(tvb, tree, hf_fmp_plugInBuf, offset);
 	return offset;
 }
 
@@ -1507,7 +1507,7 @@ dissect_FMP_PlugIn_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_fmp_status(tvb, offset,tree, &rval);
 	if (rval == 0) {
 		offset = dissect_rpc_data(tvb,  tree, hf_fmp_plugInBuf,
-		                          offset);  
+		                          offset);
 	}
 	return offset;
 }
@@ -1517,7 +1517,7 @@ dissect_FMP_SessionTerminate_request(tvbuff_t *tvb, int offset,
                                      packet_info *pinfo _U_, proto_tree *tree)
 {
 	offset = dissect_rpc_data(tvb,  tree, hf_fmp_sessionHandle,
-	                          offset);   
+	                          offset);
 	return offset;
 }
 
@@ -1536,7 +1536,7 @@ dissect_FMP_SessionCreateEx_request(tvbuff_t *tvb, int offset,packet_info *pinfo
 {
 
         offset = dissect_rpc_string(tvb, tree, hf_fmp_hostID,
-                                    offset, NULL);  
+                                    offset, NULL);
         offset = dissect_fmp_timeval(tvb, offset, pinfo ,tree, hf_fmp_btime,
                                      hf_fmp_time_sec, hf_fmp_time_nsec);
         offset = dissect_rpc_uint32(tvb, tree, hf_fmp_notifyPort,
@@ -1549,7 +1549,7 @@ dissect_FMP_SessionCreateEx_request(tvbuff_t *tvb, int offset,packet_info *pinfo
                                     offset);
 
         offset = dissect_rpc_string(tvb, tree, hf_fmp_os_name,
-                                    offset, NULL);   
+                                    offset, NULL);
 
         offset = dissect_rpc_uint32(tvb, tree, hf_fmp_os_patch,
                                     offset);
@@ -1572,9 +1572,9 @@ dissect_FMP_SessionCreateEx_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset = dissect_fmp_status(tvb, offset, tree, &rval);
         if (rval == 0) {
                 offset = dissect_rpc_data(tvb, tree,
-                                          hf_fmp_sessionHandle, offset); 
+                                          hf_fmp_sessionHandle, offset);
                 offset = dissect_rpc_string(tvb,  tree, hf_fmp_hostID,
-                                            offset, NULL);  
+                                            offset, NULL);
                 offset = dissect_fmp_timeval(tvb, offset, pinfo ,tree,
                                              hf_fmp_btime, hf_fmp_time_sec,
                                              hf_fmp_time_nsec);
@@ -1587,7 +1587,7 @@ dissect_FMP_SessionCreateEx_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                             offset);
 
                 offset = dissect_rpc_string(tvb, tree, hf_fmp_server_version_string,
-                                            offset, NULL);   
+                                            offset, NULL);
 
                 offset = dissect_rpc_uint32(tvb, tree, hf_fmp_os_patch,
                                             offset);
@@ -1603,7 +1603,7 @@ dissect_FMP_SessionCreateEx_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static int
-dissect_FMP_ReportClientError_request(tvbuff_t *tvb, int offset, 
+dissect_FMP_ReportClientError_request(tvbuff_t *tvb, int offset,
 					packet_info *pinfo _U_, proto_tree *tree)
 {
         offset = dissect_rpc_string(tvb, tree, hf_fmp_description,
@@ -1614,7 +1614,7 @@ dissect_FMP_ReportClientError_request(tvbuff_t *tvb, int offset,
 }
 
 static int
-dissect_FMP_ReportClientError_reply(tvbuff_t *tvb, int offset, 
+dissect_FMP_ReportClientError_reply(tvbuff_t *tvb, int offset,
 				packet_info *pinfo _U_, proto_tree *tree)
 {
      int rval;
@@ -1716,7 +1716,7 @@ dissect_FMP_FlushGetAttr_reply(tvbuff_t *tvb, int offset,
 
     offset = dissect_fmp_attrs(tvb, offset, tree);
 	}
-	
+
 	return offset;
 }
 
@@ -1771,7 +1771,7 @@ dissect_FMP_OpenGetMapEx_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 	offset = dissect_fmp_status(tvb, offset,tree, &rval);
 	if (rval == 0) {
 		offset = dissect_rpc_data(tvb, tree, hf_fmp_fmpFHandle,
-	                          offset);   
+	                          offset);
 		offset = dissect_rpc_uint32(tvb,  tree, hf_fmp_msgNum,
 		                      offset);
 		offset = dissect_rpc_uint32(tvb,  tree, hf_fmp_cookie,
@@ -1792,7 +1792,7 @@ dissect_FMP_OpenAllocSpaceEx_request(tvbuff_t *tvb, int offset,
                                    packet_info *pinfo, proto_tree *tree)
 {
 	offset = dissect_rpc_data(tvb , tree, hf_fmp_sessionHandle,
-	                          offset);  
+	                          offset);
 	offset = dissect_fmp_fileHandleSrc(tvb, offset, pinfo, tree);
 	offset = dissect_rpc_uint64(tvb, tree, hf_fmp_firstLogBlk64,  offset);
 	offset = dissect_rpc_uint32(tvb,  tree, hf_fmp_numBlksReq,
@@ -1811,7 +1811,7 @@ dissect_FMP_OpenAllocSpaceEx_reply(tvbuff_t *tvb, int offset, packet_info *pinfo
 	offset = dissect_fmp_status(tvb, offset,tree, &rval);
 	if (rval == 0) {
 		offset = dissect_rpc_data(tvb, tree, hf_fmp_fmpFHandle,
-		                          offset);	
+		                          offset);
 		offset = dissect_rpc_uint32(tvb,  tree, hf_fmp_msgNum,
 		                            offset);
 		offset = dissect_rpc_uint32(tvb,  tree, hf_fmp_cookie,
@@ -1829,7 +1829,7 @@ static int
 dissect_FMP_GetMapEx_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                            proto_tree *tree)
 {
-	offset = dissect_rpc_data(tvb, tree, hf_fmp_fmpFHandle, offset);   
+	offset = dissect_rpc_data(tvb, tree, hf_fmp_fmpFHandle, offset);
 	offset = dissect_rpc_uint32(tvb,  tree, hf_fmp_msgNum, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_fmp_firstLogBlk64,  offset);
 	offset = dissect_rpc_uint32(tvb,  tree, hf_fmp_numBlksReq,
@@ -1864,7 +1864,7 @@ static int
 dissect_FMP_AllocSpaceEx_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                                proto_tree *tree)
 {
-	offset = dissect_rpc_data(tvb,  tree, hf_fmp_fmpFHandle, offset);  
+	offset = dissect_rpc_data(tvb,  tree, hf_fmp_fmpFHandle, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_fmp_msgNum, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_fmp_firstLogBlk64,  offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_fmp_numBlksReq,
@@ -1898,7 +1898,7 @@ static int
 dissect_FMP_FlushEx_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
                           proto_tree *tree)
 {
-	offset = dissect_rpc_data(tvb, tree, hf_fmp_fmpFHandle, offset);  
+	offset = dissect_rpc_data(tvb, tree, hf_fmp_fmpFHandle, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_fmp_msgNum, offset);
 	offset = dissect_fmp_flushCmd(tvb, offset, tree);
 	offset = dissect_rpc_uint64(tvb,tree, hf_fmp_eof, offset);
@@ -1914,7 +1914,7 @@ dissect_FMP_FlushEx_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	offset = dissect_fmp_status(tvb, offset,tree, &rval);
 	if (rval == 0) {
-		offset = dissect_rpc_uint32(tvb, tree, hf_fmp_msgNum, 
+		offset = dissect_rpc_uint32(tvb, tree, hf_fmp_msgNum,
 		                            offset);
 	}
 	return offset;
@@ -1998,7 +1998,7 @@ static const vsff fmp3_proc[] = {
 { 24               ,       "FlushGetAttrEx",
   dissect_FMP_FlushGetAttrEx_request,      dissect_FMP_FlushGetAttrEx_reply },
 
-#endif 
+#endif
 
 { 25               ,       "GetVolumeInfo",
   dissect_FMP_GetVolumeInfo_request,      dissect_FMP_GetVolumeInfo_reply },
@@ -2093,11 +2093,11 @@ proto_register_fmp(void)
 
 		{ &hf_fmp_time_sec, {
 			"seconds", "fmp.btime.sec", FT_UINT32, BASE_DEC,
-			NULL, 0, "Seconds", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_fmp_time_nsec, {
 			"nanoseconds", "fmp.btime.nsec", FT_UINT32, BASE_DEC,
-			NULL, 0, "Nanoseconds", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_fmp_notifyPort, {
 			"Notify Port", "fmp.notifyPort", FT_UINT32, BASE_DEC,
@@ -2169,7 +2169,7 @@ proto_register_fmp(void)
 			BASE_DEC, NULL, 0, "FMP Extent List Length", HFILL }},
 
 		{ &hf_fmp_extent_state, {
-			"Extent State", "fmp.extentState", FT_UINT32,BASE_DEC, 
+			"Extent State", "fmp.extentState", FT_UINT32,BASE_DEC,
 			VALS(fmp_extentState_vals), 0, "FMP Extent State", HFILL }},
 
 		{ &hf_fmp_firstLogBlk, {
@@ -2183,7 +2183,7 @@ proto_register_fmp(void)
 		{ &hf_fmp_volID, {
 			"Volume ID inside DART", "fmp.volID", FT_UINT32, BASE_HEX,
 			NULL, 0, "FMP Volume ID inside DART", HFILL }},
-	
+
 		{ &hf_fmp_startOffset, {
 			"Start Offset", "fmp.startOffset", FT_UINT32, BASE_DEC,
 			NULL, 0, "FMP Start Offset", HFILL }},
@@ -2238,14 +2238,14 @@ proto_register_fmp(void)
                         NULL, 0, NULL, HFILL }},
                 { &hf_fmp_nfsv3Attr_uid, {
                         "uid", "fmp.nfsv3Attr_uid", FT_UINT32, BASE_DEC,
-                        NULL, 0, "UID", HFILL }},
+                        NULL, 0, NULL, HFILL }},
                 { &hf_fmp_nfsv3Attr_gid, {
                         "gid", "fmp.nfsv3Attr_gid", FT_UINT32, BASE_DEC,
-                        NULL, 0, "GID", HFILL }},
+                        NULL, 0, NULL, HFILL }},
                 /* for nfsv3Attr_size use hf_fmp_fileSize */
                 { &hf_fmp_nfsv3Attr_used, {
                         "Used", "fmp.nfsv3Attr_used", FT_UINT64, BASE_DEC,
-                        NULL, 0, "used", HFILL }},
+                        NULL, 0, NULL, HFILL }},
                 { &hf_fmp_nfsv3Attr_rdev, {
                         "rdev", "fmp.nfsv3Attr_rdev", FT_UINT64, BASE_DEC,
                         NULL, 0, NULL, HFILL }},
@@ -2257,7 +2257,7 @@ proto_register_fmp(void)
                         NULL, 0, "fileid", HFILL }},
                 { &hf_fmp_cmd, {
                         "Command", "fmp.cmd", FT_UINT32, BASE_DEC,
-                        NULL, 0, "command", HFILL }},
+                        NULL, 0, NULL, HFILL }},
 		{ &hf_fmp_topVolumeId, {
 			"Top Volume ID", "fmp.topVolumeId", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
@@ -2292,19 +2292,19 @@ proto_register_fmp(void)
 		&ett_HierVolumeDescription,
                 &ett_attrs
 	};
-	
+
 	module_t *fmp_module;
 	proto_fmp = proto_register_protocol("File Mapping Protocol", "FMP",
 	                                    "fmp");
-	
+
 	proto_register_field_array(proto_fmp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	fmp_module=prefs_register_protocol(proto_fmp, NULL);	
-	
+	fmp_module=prefs_register_protocol(proto_fmp, NULL);
+
         prefs_register_bool_preference(fmp_module, "fhandle_find_both_reqrep",
                                        "Fhandle filters finds both request/response",
-                                       "With this option display filters for fmp fhandle a RPC call, even if the actual fhandle is only present in one of the packets" 
+                                       "With this option display filters for fmp fhandle a RPC call, even if the actual fhandle is only present in one of the packets"
       , &fmp_fhandle_reqrep_matching);
 
 }

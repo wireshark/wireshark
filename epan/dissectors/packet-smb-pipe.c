@@ -3869,7 +3869,7 @@ proto_register_smb_pipe(void)
 			NULL, 0, "Total number of bytes remaining in the message at the head of the pipe", HFILL }},
 		{ &hf_pipe_peek_status,
 			{ "Pipe Status", "pipe.peek.status", FT_UINT16, BASE_DEC,
-			VALS(pipe_status), 0, "Pipe status", HFILL }},
+			VALS(pipe_status), 0, NULL, HFILL }},
 		{ &hf_pipe_getinfo_info_level,
 			{ "Information Level", "pipe.getinfo.info_level", FT_UINT16, BASE_DEC,
 			NULL, 0, "Information level of information to return", HFILL }},

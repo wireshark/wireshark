@@ -10136,7 +10136,7 @@ proto_register_ieee80211 (void)
 
     {&hf_fc_flags,
      {"Protocol Flags", "wlan.flags", FT_UINT8, BASE_HEX, NULL, 0,
-      "Protocol flags", HFILL }},
+      NULL, HFILL }},
 
     {&hf_fc_data_ds,
      {"DS status", "wlan.fc.ds", FT_UINT8, BASE_HEX, VALS (&tofrom_ds), (FLAG_FROM_DS|FLAG_TO_DS),
@@ -10502,7 +10502,7 @@ proto_register_ieee80211 (void)
     {&hf_mesh_flags,
       {"Mesh Flags", "wlan.mesh.flags",
        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-       "Mesh flags", HFILL }},
+       NULL, HFILL }},
 
     {&hf_mesh_seq,
       {"Mesh Seq", "wlan.mesh.seq", FT_UINT32, BASE_DEC, NULL, 0,
@@ -10510,7 +10510,7 @@ proto_register_ieee80211 (void)
 
     {&hf_mesh_ttl,
       {"Mesh TTL", "wlan.mesh.ttl", FT_UINT8, BASE_DEC, NULL, 0,
-       "Mesh TTL", HFILL }},
+       NULL, HFILL }},
 
     {&hf_mesh_ae1,
       {"Mesh A4", "wlan.mesh.a4", FT_ETHER, BASE_NONE, NULL, 0,
@@ -11663,7 +11663,7 @@ proto_register_ieee80211 (void)
 
     {&ff_mesh_mgt_dest_flags,
      {"Destination Flags", "wlan.preq.dest_flags",
-      FT_UINT8, BASE_HEX, NULL, 0, "Destination Flags", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&ff_mesh_mgt_dest_do_flags,
      {"Destination Flags", "wlan.preq.dest_flags.do",
@@ -11677,7 +11677,7 @@ proto_register_ieee80211 (void)
 
     {&ff_mesh_mgt_srccount,
      {"Source Count", "wlan.mesh.srccount",
-      FT_UINT8, BASE_DEC, NULL, 0, "Source Count", HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 #endif /* MESH_OVERRIDES */
 
     {&hf_ieee80211_ff_qos_action_code,
@@ -11710,7 +11710,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_ff_sta_address,
      {"STA Address", "wlan_mgt.fixed.sta_address",
-      FT_ETHER, BASE_NONE, NULL, 0, "STA address", HFILL }},
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_ff_target_ap_address,
      {"Target AP Address", "wlan_mgt.fixed.target_ap_address",

@@ -1965,7 +1965,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 dissect_ccpri_lte(tvb, offset, pinfo, tree);
                 return;
             }
-            
+
 
             /* Many DCT2000 protocols have at least one IPPrim variant. If the
                protocol name can be matched to a dissector, try to find the
@@ -2067,7 +2067,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                     (tvb_get_ptr(tvb, source_addr_offset, source_addr_length)));
 
                         proto_tree_add_item(ipprim_tree,
-                                            (source_addr_length == 4) ? 
+                                            (source_addr_length == 4) ?
                                                 hf_catapult_dct2000_ipprim_src_addr_v4 :
                                                 hf_catapult_dct2000_ipprim_src_addr_v6,
                                             tvb, source_addr_offset, source_addr_length, FALSE);
@@ -2110,14 +2110,14 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                     dest_addr_length,
                                     (tvb_get_ptr(tvb, dest_addr_offset, dest_addr_length)));
                         proto_tree_add_item(ipprim_tree,
-                                            (dest_addr_length == 4) ? 
+                                            (dest_addr_length == 4) ?
                                                 hf_catapult_dct2000_ipprim_dst_addr_v4 :
                                                 hf_catapult_dct2000_ipprim_dst_addr_v6,
                                             tvb, dest_addr_offset, dest_addr_length, FALSE);
 
                         /* Add hidden item for "side-less" addr */
                         addr_ti = proto_tree_add_item(ipprim_tree,
-                                                      (dest_addr_length == 4) ? 
+                                                      (dest_addr_length == 4) ?
                                                           hf_catapult_dct2000_ipprim_addr_v4 :
                                                           hf_catapult_dct2000_ipprim_addr_v6,
                                                       tvb, dest_addr_offset, dest_addr_length, FALSE);
@@ -2223,14 +2223,14 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                     dest_addr_length,
                                     (tvb_get_ptr(tvb, dest_addr_offset, dest_addr_length)));
                         proto_tree_add_item(sctpprim_tree,
-                                            (dest_addr_length == 4) ? 
+                                            (dest_addr_length == 4) ?
                                                 hf_catapult_dct2000_sctpprim_dst_addr_v4 :
                                                 hf_catapult_dct2000_sctpprim_dst_addr_v6,
                                             tvb, dest_addr_offset, dest_addr_length, FALSE);
 
                         /* Add hidden item for "side-less" addr */
                         addr_ti = proto_tree_add_item(sctpprim_tree,
-                                                      (dest_addr_length == 4) ? 
+                                                      (dest_addr_length == 4) ?
                                                           hf_catapult_dct2000_sctpprim_addr_v4 :
                                                           hf_catapult_dct2000_sctpprim_addr_v6,
                                                       tvb, dest_addr_offset, dest_addr_length, FALSE);
@@ -2380,13 +2380,13 @@ void proto_register_catapult_dct2000(void)
         { &hf_catapult_dct2000_comment,
             { "Comment",
               "dct2000.comment", FT_STRING, BASE_NONE, NULL, 0x0,
-              "Comment", HFILL
+              NULL, HFILL
             }
         },
         { &hf_catapult_dct2000_error_comment,
             { "Error comment",
               "dct2000.error-comment", FT_NONE, BASE_NONE, NULL, 0x0,
-              "Error Comment", HFILL
+              NULL, HFILL
             }
         },
         { &hf_catapult_dct2000_dissected_length,

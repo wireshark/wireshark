@@ -38,7 +38,7 @@
 #include <epan/prefs.h>
 
 void proto_reg_handoff_ieee8021ah(void);
-void dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo, 
+void dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
 			       proto_tree *tree, proto_tree *parent, int tree_index);
 
 /* GLOBALS ************************************************************/
@@ -87,23 +87,23 @@ capture_ieee8021ah(const guchar *pd, int offset, int len, packet_counts *ld)
     }
     encap_proto = pntohs( &pd[offset + IEEE8021AH_LEN - 2] );
     if (encap_proto <= IEEE_802_3_MAX_LEN) {
-	if ( pd[offset + IEEE8021AH_LEN] == 0xff 
+	if ( pd[offset + IEEE8021AH_LEN] == 0xff
 	     && pd[offset + IEEE8021AH_LEN + 1] == 0xff ) {
 	    capture_ipx(ld);
-	} 
+	}
 	else {
 	    capture_llc(pd, offset + IEEE8021AH_LEN,len,ld);
 	}
-    } 
+    }
     else {
 	capture_ethertype(encap_proto, pd, offset + IEEE8021AH_LEN, len, ld);
     }
 }
 
 /* Dissector *************************************************************/
-static 
+static
 void
-dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo, 
+dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
 		   proto_tree *tree)
 {
     proto_tree *ptree = NULL;
@@ -115,7 +115,7 @@ dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
     int proto_tree_index;
     tvbuff_t *volatile next_tvb = NULL;
 
-    /* set tree index */    
+    /* set tree index */
     proto_tree_index = proto_ieee8021ad;
 
     /* add info to column display */
@@ -125,7 +125,7 @@ dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
     tci = tvb_get_ntohs( tvb, 0 );
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_add_fstr(pinfo->cinfo, COL_INFO, 
+	col_add_fstr(pinfo->cinfo, COL_INFO,
 		     "PRI: %d  DROP: %d ID: %d",
 		     (tci >> 13), ((tci >> 12) & 1), (tci & 0xFFF));
     }
@@ -148,7 +148,7 @@ dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
 	    ieee8021ad_tag_tree = proto_item_add_subtree(tagtree, ett_ieee8021ad);
 
 	    /* add fields */
-	    proto_tree_add_uint(ieee8021ad_tag_tree, hf_ieee8021ad_priority, tvb, 
+	    proto_tree_add_uint(ieee8021ad_tag_tree, hf_ieee8021ad_priority, tvb,
 				0, 1, tci);
 	    proto_tree_add_uint(ieee8021ad_tag_tree, hf_ieee8021ad_cfi, tvb, 0, 1, tci);
 	    proto_tree_add_uint(ieee8021ad_tag_tree, hf_ieee8021ad_id, tvb, 0, 2, tci);
@@ -176,15 +176,15 @@ dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
 
 	if (tree) {
 	    /* add fields */
-	    proto_tree_add_uint(ieee8021ad_tree, hf_ieee8021ad_priority, tvb, 
+	    proto_tree_add_uint(ieee8021ad_tree, hf_ieee8021ad_priority, tvb,
 				0, 1, tci);
 	    proto_tree_add_uint(ieee8021ad_tree, hf_ieee8021ad_cfi, tvb, 0, 1, tci);
 	    proto_tree_add_uint(ieee8021ad_tree, hf_ieee8021ad_svid, tvb, 0, 2, tci);
-	    proto_tree_add_uint(ieee8021ad_tree, hf_ieee8021ad_priority, tvb, 
+	    proto_tree_add_uint(ieee8021ad_tree, hf_ieee8021ad_priority, tvb,
 				IEEE8021AD_LEN, 1, ctci);
 	    proto_tree_add_uint(ieee8021ad_tree, hf_ieee8021ad_cfi, tvb,
 				IEEE8021AD_LEN, 1, ctci);
-	    proto_tree_add_uint(ieee8021ad_tree, hf_ieee8021ad_cvid, tvb, IEEE8021AD_LEN, 
+	    proto_tree_add_uint(ieee8021ad_tree, hf_ieee8021ad_cvid, tvb, IEEE8021AD_LEN,
 				2, ctci);
 	}
 
@@ -200,7 +200,7 @@ dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
 	/* Something else (shouldn't really happen, but we'll support it anyways) */
 	if (tree) {
 	    /* add fields */
-	    proto_tree_add_uint(ieee8021ad_tree, hf_ieee8021ad_priority, tvb, 
+	    proto_tree_add_uint(ieee8021ad_tree, hf_ieee8021ad_priority, tvb,
 				0, 1, tci);
 	    proto_tree_add_uint(ieee8021ad_tree, hf_ieee8021ad_cfi, tvb, 0, 1, tci);
 	    proto_tree_add_uint(ieee8021ad_tree, hf_ieee8021ad_id, tvb, 0, 2, tci);
@@ -217,7 +217,7 @@ dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 void
-dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo, 
+dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
 			  proto_tree *tree, proto_tree *parent, int tree_index) {
     guint32 tci;
     guint16 encap_proto;
@@ -231,7 +231,7 @@ dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
     tci = tvb_get_ntohl( tvb, 0 );
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_add_fstr(pinfo->cinfo, COL_INFO, 
+	col_add_fstr(pinfo->cinfo, COL_INFO,
 		     "PRI: %d  Drop: %d  NCA: %d  Res1: %d  Res2: %d  I-SID: %d",
 		     (tci >> 29), ((tci >> 28) & 1), ((tci >> 27) & 1),
 		     ((tci >> 26) & 1), ((tci >> 24) & 3), tci & IEEE8021AH_ISIDMASK);
@@ -247,7 +247,7 @@ dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
 	ieee8021ah_tag_tree = proto_item_add_subtree(ptree, ett_ieee8021ah);
 
 	/* add fields */
-	proto_tree_add_uint(ieee8021ah_tag_tree, hf_ieee8021ah_priority, tvb, 
+	proto_tree_add_uint(ieee8021ah_tag_tree, hf_ieee8021ah_priority, tvb,
 			    0, 1, tci);
 	proto_tree_add_uint(ieee8021ah_tag_tree, hf_ieee8021ah_drop, tvb, 0, 1, tci);
 	proto_tree_add_uint(ieee8021ah_tag_tree, hf_ieee8021ah_nca, tvb, 0, 1, tci);
@@ -265,16 +265,16 @@ dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
 	dst_addr = tvb_get_ptr(tvb, 4, 6); /* safe to use this function? */
 	src_addr = tvb_get_ptr(tvb, 10, 6);
 
-	addr_item = proto_tree_add_ether(tree, hf_ieee8021ah_c_daddr, 
+	addr_item = proto_tree_add_ether(tree, hf_ieee8021ah_c_daddr,
 					 tvb, 4, 6, dst_addr);
 
-	addr_item = proto_tree_add_ether(tree, hf_ieee8021ah_c_saddr, 
+	addr_item = proto_tree_add_ether(tree, hf_ieee8021ah_c_saddr,
 					 tvb, 10, 6, src_addr);
 
 	/* add text to 802.1ad label */
 	if (parent) {
-	    proto_item_append_text(tree, ", I-SID: %d, C-Src: %s (%s), C-Dst: %s (%s)", 
-				   tci & IEEE8021AH_ISIDMASK, get_ether_name(src_addr), 
+	    proto_item_append_text(tree, ", I-SID: %d, C-Src: %s (%s), C-Dst: %s (%s)",
+				   tci & IEEE8021AH_ISIDMASK, get_ether_name(src_addr),
 				   ether_to_str(src_addr), get_ether_name(dst_addr),
 				   ether_to_str(dst_addr));
 	}
@@ -299,7 +299,7 @@ dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
 
 static
 void
-dissect_ieee8021ah(tvbuff_t *tvb, packet_info *pinfo, 
+dissect_ieee8021ah(tvbuff_t *tvb, packet_info *pinfo,
 		   proto_tree *tree)
 {
     proto_tree *ptree;
@@ -307,7 +307,7 @@ dissect_ieee8021ah(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *volatile ieee8021ah_tree;
     int proto_tree_index;
 
-    /* set tree index */    
+    /* set tree index */
     proto_tree_index = proto_ieee8021ah;
 
     /* add info to column display */
@@ -317,7 +317,7 @@ dissect_ieee8021ah(tvbuff_t *tvb, packet_info *pinfo,
     tci = tvb_get_ntohl( tvb, 0 );
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_add_fstr(pinfo->cinfo, COL_INFO, 
+	col_add_fstr(pinfo->cinfo, COL_INFO,
 		     "PRI: %d  Drop: %d  NCA: %d  Res1: %d  Res2: %d  I-SID: %d",
 		     (tci >> 29), ((tci >> 28) & 1), ((tci >> 27) & 1),
 		     ((tci >> 26) & 1), ((tci >> 24) & 3), (tci & 0x00FFFFFF));
@@ -345,7 +345,7 @@ proto_register_ieee8021ah(void)
 	    0, 0xE0000000, NULL, HFILL }},
 	{ &hf_ieee8021ah_drop, {
 	    "DROP", "ieee8021ah.drop", FT_UINT32, BASE_DEC,
-	    0, 0x10000000, "Drop", HFILL }},
+	    0, 0x10000000, NULL, HFILL }},
 	{ &hf_ieee8021ah_nca, {
 	    "NCA", "ieee8021ah.nca", FT_UINT32, BASE_DEC,
 	    0, 0x08000000, "No Customer Addresses", HFILL }},
@@ -415,7 +415,7 @@ proto_register_ieee8021ah(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* add a user preference to set the 802.1ah ethertype */
-    ieee8021ah_module = prefs_register_protocol(proto_ieee8021ah, 
+    ieee8021ah_module = prefs_register_protocol(proto_ieee8021ah,
 						proto_reg_handoff_ieee8021ah);
     prefs_register_uint_preference(ieee8021ah_module, "8021ah_ethertype",
 				   "802.1ah Ethertype (in hex)",
@@ -432,8 +432,8 @@ proto_reg_handoff_ieee8021ah(void)
 
     if (!prefs_initialized){
 	dissector_handle_t ieee8021ad_handle;
-	ieee8021ah_handle = create_dissector_handle(dissect_ieee8021ah, 
-						    proto_ieee8021ah);	
+	ieee8021ah_handle = create_dissector_handle(dissect_ieee8021ah,
+						    proto_ieee8021ah);
 	ieee8021ad_handle = create_dissector_handle(dissect_ieee8021ad,
 						    proto_ieee8021ad);
 	dissector_add("ethertype", ETHERTYPE_IEEE_802_1AD, ieee8021ad_handle);

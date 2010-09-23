@@ -151,7 +151,7 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int off
 
     type = tvb_get_guint8(tvb, offset);
     if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_add_str(pinfo->cinfo, COL_INFO, 
+	col_add_str(pinfo->cinfo, COL_INFO,
 		     val_to_str(type, igap_types, "Unknown Type: 0x%02x"));
     }
     proto_tree_add_uint(tree, hf_type, tvb, offset, 1, type);
@@ -168,7 +168,7 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int off
     proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, FALSE);
     offset += 4;
 
-    proto_tree_add_uint(tree, hf_version, tvb, offset, 1, 
+    proto_tree_add_uint(tree, hf_version, tvb, offset, 1,
 	tvb_get_guint8(tvb, offset));
     offset += 1;
 
@@ -310,7 +310,7 @@ proto_register_igap(void)
 
 	{ &hf_account,
 	  { "User Account", "igap.account", FT_STRING, BASE_NONE,
-	    NULL, 0, "User account", HFILL }
+	    NULL, 0, NULL, HFILL }
 	}
     };
 

@@ -377,7 +377,7 @@ proto_register_isl(void)
 		"Route descriptor to be used for source learning", HFILL }},
 	{ &hf_isl_fcs_not_incl,
 	{ "FCS Not Included",	"isl.fcs_not_incl", FT_BOOLEAN, 9,
-		NULL, 0x40, "FCS not included", HFILL }},
+		NULL, 0x40, NULL, HFILL }},
 	{ &hf_isl_esize,
 	{ "Esize",	"isl.esize", FT_UINT8, BASE_DEC, NULL,
 		0x3F, "Frame size for frames less than 64 bytes", HFILL }},

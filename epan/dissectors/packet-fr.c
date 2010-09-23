@@ -523,7 +523,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					   "Final address octet: 0x%02x",
 					   fr_octet);
 	  octet_tree = proto_item_add_subtree(octet_item, ett_fr_address);
-        } 
+        }
 
         /*
          * Last octet - contains lower DLCI or DL-CORE control, DLCI or
@@ -543,7 +543,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
         proto_tree_add_boolean(octet_tree, hf_fr_dc, tvb, offset, 1, fr_octet);
         proto_tree_add_boolean(octet_tree, hf_fr_ea, tvb, offset, 1, fr_octet);
-      
+
         offset++;
       }
     }
@@ -837,7 +837,7 @@ void proto_register_fr(void)
             NULL, 0x0, "Data-Link Connection Identifier", HFILL }},
 	{ &hf_fr_control, {
           "Control Field", "fr.control", FT_UINT8, BASE_HEX,
-          NULL, 0x0, "Control field", HFILL }},
+          NULL, 0x0, NULL, HFILL }},
 	{ &hf_fr_n_r, {
 	  "N(R)", "fr.control.n_r", FT_UINT16, BASE_DEC,
 	  NULL, XDLC_N_R_EXT_MASK, NULL, HFILL }},

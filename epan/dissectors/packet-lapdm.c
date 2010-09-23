@@ -320,7 +320,7 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 }
             }
 
-            /* Now reset fragmentation information in pinfo 
+            /* Now reset fragmentation information in pinfo
              */
             pinfo->fragmented = save_fragmented;
     }
@@ -362,7 +362,7 @@ proto_register_lapdm(void)
 
         { &hf_lapdm_control,
         { "Control Field", "lapdm.control_field", FT_UINT8, BASE_HEX, NULL, 0x0,
-        "Control field", HFILL }},
+        NULL, HFILL }},
 
         { &hf_lapdm_n_r,
         { "N(R)", "lapdm.control.n_r", FT_UINT8, BASE_DEC,
@@ -402,7 +402,7 @@ proto_register_lapdm(void)
 
         { &hf_lapdm_length,
         { "Length Field", "lapdm.length_field", FT_UINT8, BASE_HEX,
-        NULL, 0x0, "Length field", HFILL }},
+        NULL, 0x0, NULL, HFILL }},
 
         { &hf_lapdm_el,
         { "EL", "lapdm.el", FT_UINT8, BASE_DEC,

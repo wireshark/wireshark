@@ -1071,7 +1071,7 @@ guint dissect_rdt_transport_info_response_packet(tvbuff_t *tvb, packet_info *pin
     guint8      is_delayed;
     guint8      has_buffer_info;
     guint32     request_time_msec;
-    guint32     response_time_msec;    
+    guint32     response_time_msec;
     proto_tree  *flags_tree;
     proto_item  *ti;
 
@@ -1108,25 +1108,25 @@ guint dissect_rdt_transport_info_response_packet(tvbuff_t *tvb, packet_info *pin
         request_time_msec = tvb_get_ntohl(tvb, offset);
         proto_tree_add_item(tree, hf_rdt_tirp_request_time_msec, tvb, offset, 4, FALSE);
         offset += 4;
-        
+
         if (is_delayed)
         {
             response_time_msec = tvb_get_ntohl(tvb, offset);
             proto_tree_add_item(tree, hf_rdt_tirp_response_time_msec, tvb, offset, 4, FALSE);
-            offset += 4;            
+            offset += 4;
         }
     }
-    
+
     /* Buffer info */
     if (has_buffer_info)
     {
         guint16 n;
-        
+
         /* Read number of buffers */
         guint16 buffer_info_count = tvb_get_ntohs(tvb, offset);
         proto_tree_add_item(tree, hf_rdt_tirp_buffer_info_count, tvb, offset, 2, FALSE);
         offset += 2;
-        
+
         for (n=0; n < buffer_info_count; n++)
         {
             proto_tree  *buffer_info_tree;
@@ -1150,7 +1150,7 @@ guint dissect_rdt_transport_info_response_packet(tvbuff_t *tvb, packet_info *pin
             offset += 4;
         }
     }
-    
+
     /* Report what is left */
     offset += tvb_length_remaining(tvb, offset);
 
@@ -1549,7 +1549,7 @@ void proto_register_rdt(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "RDT RTT request flags", HFILL
+                NULL, HFILL
             }
         },
         {
@@ -1561,7 +1561,7 @@ void proto_register_rdt(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "RDT RTT response flags", HFILL
+                NULL, HFILL
             }
         },
         {

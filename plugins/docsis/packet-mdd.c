@@ -39,7 +39,7 @@
 #define UPSTREAM_ACTIVE_CHANNEL_LIST 7
 #define UPSTREAM_AMBIGUITY_RESOLUTION_CHANNEL_LIST 8
 #define UPSTREAM_FREQUENCY_RANGE 9
-#define SYMBOL_CLOCK_LOCKING_INDICATOR 10 
+#define SYMBOL_CLOCK_LOCKING_INDICATOR 10
 #define CM_STATUS_EVENT_CONTROL 11
 #define UPSTREAM_TRANSMIT_POWER_REPORTING 12
 #define DSG_DA_TO_DSID_ASSOCIATION_ENTRY 13
@@ -311,15 +311,15 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	guint8 type, length;
 	guint8 subtype, sublength;
 	int i;
-	
+
 	proto_item *tlv_item;
 	proto_tree *tlv_tree;
-	
+
 	proto_item *tlv_sub_item;
 	proto_tree *tlv_sub_tree;
 	proto_item *text_item;
-	
-	
+
+
 	len = tvb_reported_length_remaining (tvb, 0);
 
 	col_set_str(pinfo->cinfo, COL_INFO, "MDD Message:");
@@ -333,7 +333,7 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		proto_tree_add_item (mdd_tree, hf_docsis_mdd_number_of_fragments, tvb, 1, 1, FALSE);
 		proto_tree_add_item (mdd_tree, hf_docsis_mdd_fragment_sequence_number, tvb, 2, 1, FALSE);
 		proto_tree_add_item (mdd_tree, hf_docsis_mdd_current_channel_dcid, tvb, 3, 1, FALSE);
-		
+
 		/*TLVs...*/
 		pos = 4;
 		while (pos < len)
@@ -342,9 +342,9 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			length = tvb_get_guint8 (tvb, pos + 1);
 			tlv_item = proto_tree_add_text (mdd_tree, tvb, pos, length + 2,"%s", val_to_str(type, mdd_tlv_vals, "Unknown TLV (%u)"));
 			tlv_tree = proto_item_add_subtree (tlv_item, ett_tlv);
-			
+
 			switch(type) {
-			
+
 				case DOWNSTREAM_ACTIVE_CHANNEL_LIST:
 					subpos = pos + 2;
 					while (subpos < pos + length + 2) {
@@ -544,7 +544,7 @@ void proto_register_docsis_mdd (void)
 		{&hf_docsis_mdd,
 		{"Map Message", "docsis_mdd",
 		FT_BYTES, BASE_NONE, NULL, 0x0,
-		"MAP Message", HFILL}
+		NULL, HFILL}
 		},
 		{&hf_docsis_mdd_ccc,
 		{"Configuration Change Count", "docsis_mdd.ccc",
@@ -645,12 +645,12 @@ void proto_register_docsis_mdd (void)
 		{"RPC Center Frequency Spacing", "docsis_mdd.rpc_center_frequency_spacing",
 		FT_UINT8, BASE_DEC, VALS(rpc_center_frequency_spacing_vals), 0x0,
 		"Mdd RPC Center Frequency Spacing", HFILL}
-		}, 
+		},
 		{&hf_docsis_mdd_verbose_rcp_reporting,
 		{"Verbose RCP reporting", "docsis_mdd.verbose_rpc_reporting",
 		FT_UINT8, BASE_DEC, VALS(verbose_rpc_reporting_vals), 0x0,
 		"Mdd Verbose RPC Reporting", HFILL}
-		}, 
+		},
 		{&hf_docsis_mdd_ip_provisioning_mode,
 		{"IP Provisioning Mode", "docsis_mdd.ip_provisioning_mode",
 		FT_UINT8, BASE_DEC, VALS(ip_provisioning_mode_vals), 0x0,

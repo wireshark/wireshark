@@ -15,12 +15,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -68,7 +68,7 @@ get_ipdc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
         /* lower 10 bits only */
         guint raw_len = (tvb_get_ntohs(tvb,offset+2) & 0x03FF);
- 
+
         return raw_len + 4;
 }
 
@@ -211,7 +211,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* unsigned integers, or bytes */
 			case IPDC_UINT:
 			case IPDC_BYTE:
-				for (i = 0; i < len; i++) 
+				for (i = 0; i < len; i++)
 					tmp_tag += tvb_get_guint8(tvb,
 						offset + 2 + i) * (guint32)
 							pow(256, len - (i + 1));
@@ -286,7 +286,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					status = tvb_get_guint8(tvb,offset+2+i);
 
 					proto_tree_add_text(tag_tree, tvb,
-						offset + 2 + i, 1, 
+						offset + 2 + i, 1,
 						" %.2u: %.2x (%s)",
 						i + 1, status,
 						val_to_str(status,
@@ -318,7 +318,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						tvb_get_guint8(tvb,offset+3));
 				}
 			break;
-					
+
 			/* default */
 			default:
 				proto_tree_add_text(tag_tree, tvb, offset,
@@ -345,7 +345,7 @@ dissect_ipdc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_ipdc(void)
-{                 
+{
 
 	static hf_register_info hf[] = {
 		{ &hf_ipdc_nr,
@@ -356,7 +356,7 @@ proto_register_ipdc(void)
 
 		{ &hf_ipdc_ns,
 			{ "N(s)",	"ipdc.ns",
-			FT_UINT8, BASE_DEC, NULL, 0x0, 
+			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"Transmit sequence number", HFILL }
 		},
 
@@ -387,7 +387,7 @@ proto_register_ipdc(void)
 		{ &hf_ipdc_message_code,
 			{ "Message code",	"ipdc.message_code",
 			FT_UINT16, BASE_HEX, VALS(message_code_vals), 0x0,
-			"Message Code", HFILL }
+			NULL, HFILL }
 		},
 	};
 
@@ -425,7 +425,7 @@ proto_reg_handoff_ipdc(void)
 		dissector_delete("tcp.port", last_ipdc_port_pref,
 			ipdc_tcp_handle);
 	} else {
-		ipdc_tcp_handle = 
+		ipdc_tcp_handle =
 			create_dissector_handle(dissect_ipdc_tcp, proto_ipdc);
 		q931_handle = find_dissector("q931");
 	}

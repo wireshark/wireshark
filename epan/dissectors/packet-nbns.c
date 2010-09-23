@@ -257,7 +257,7 @@ add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
 			   guint ttl, gushort data_len)
 {
 	proto_tree *rr_tree;
-	
+
 	rr_tree = proto_item_add_subtree(trr, rr_type);
 	proto_tree_add_text(rr_tree, tvb, offset+1, namelen-1, "Name: %s", name);
 	offset += namelen;
@@ -376,7 +376,7 @@ get_nbns_name_type_class(tvbuff_t *tvb, int offset, int nbns_data_offset,
 	int type;
 	int class;
 
-	name_len = get_nbns_name(tvb, offset, nbns_data_offset, name_ret, 
+	name_len = get_nbns_name(tvb, offset, nbns_data_offset, name_ret,
 			*name_len_ret, name_type_ret);
 	offset += name_len;
 
@@ -628,7 +628,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
 	proto_item *trr;
 	char *name_str;
 	guint num_names;
-	char *nbname;	
+	char *nbname;
 	gushort name_flags;
 
 	data_start = data_offset = offset;
@@ -1716,13 +1716,13 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (length == 0)
 				goto continuation;
 
-			/* 
-			   * I added this IF test to catch issues when the dissector loses track of the stream normally 
-			   * because of missing frames in the capture and the first byte of the TCP data being check 
-			   * happens to be a 0.  I'm adding a second sanity test to try to reject false positives.  
-			   * I've haven't seen any real world CIFS/SMB traffic where the NBSS PDU length is greater then 
-			   * 65536 bytes. I could have added this with an OR argument to the previous IF test but I added it 
-			   * this way for clarity. - Frank Schorr */  
+			/*
+			   * I added this IF test to catch issues when the dissector loses track of the stream normally
+			   * because of missing frames in the capture and the first byte of the TCP data being check
+			   * happens to be a 0.  I'm adding a second sanity test to try to reject false positives.
+			   * I've haven't seen any real world CIFS/SMB traffic where the NBSS PDU length is greater then
+			   * 65536 bytes. I could have added this with an OR argument to the previous IF test but I added it
+			   * this way for clarity. - Frank Schorr */
 			if (length > 65536)
 				goto continuation;
 			break;
@@ -1908,7 +1908,7 @@ proto_register_nbt(void)
     { &hf_nbdgm_node_type,
       { "Node Type",		"nbdgm.node_type",
 	FT_UINT8, BASE_DEC, VALS(node_type_vals), 0x0,
-	"Node type", HFILL }},
+	NULL, HFILL }},
     { &hf_nbdgm_datagram_id,
       { "Datagram ID",		"nbdgm.dgram_id",
 	FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -1920,7 +1920,7 @@ proto_register_nbt(void)
     { &hf_nbdgm_src_port,
       { "Source Port",		"nbdgm.src.port",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"Source port", HFILL }}
+	NULL, HFILL }}
   };
 
   static hf_register_info hf_nbss[] = {

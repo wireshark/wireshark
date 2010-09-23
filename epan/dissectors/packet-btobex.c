@@ -496,7 +496,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if( complete )
     {
         guint8 code;
-        
+
         /* fully dissectable packet ready */
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "OBEX");
 
@@ -615,7 +615,7 @@ proto_register_btobex(void)
         {&hf_length,
             {"Packet Length", "btobex.pkt_len",
             FT_UINT16, BASE_DEC, NULL, 0,
-            "Packet Length", HFILL}
+            NULL, HFILL}
         },
         {&hf_version,
             {"Version", "btobex.version",
@@ -625,12 +625,12 @@ proto_register_btobex(void)
         {&hf_flags,
             {"Flags", "btobex.flags",
             FT_UINT8, BASE_HEX, NULL, 0x00,
-            "Flags", HFILL}
+            NULL, HFILL}
         },
         {&hf_constants,
             {"Constants", "btobex.constants",
             FT_UINT8, BASE_HEX, NULL, 0x00,
-            "Constants", HFILL}
+            NULL, HFILL}
         },
         {&hf_max_pkt_len,
             {"Max. Packet Length", "btobex.max_pkt_len",
@@ -650,7 +650,7 @@ proto_register_btobex(void)
         {&hf_hdr_id,
             {"Header Id", "btobex.hdr_id",
             FT_UINT8, BASE_HEX, VALS(header_id_vals), 0x00,
-            "Header Id", HFILL}
+            NULL, HFILL}
         },
         {&hf_hdr_length,
             {"Length", "btobex.pkt_hdr_len",
@@ -680,7 +680,7 @@ proto_register_btobex(void)
         {&hf_data,
             {"Obex Data", "btobex.data",
             FT_NONE, BASE_NONE, NULL, 0,
-            "Obex Data", HFILL}
+            NULL, HFILL}
         },
 
         /* for fragmentation */

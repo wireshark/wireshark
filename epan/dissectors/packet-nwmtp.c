@@ -99,7 +99,7 @@ static void dissect_nwmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		next_tvb = tvb_new_subset(tvb, offset + 12, len, len);
 		call_dissector(mtp_handle, next_tvb, pinfo, tree);
-		offset += len + 12; 
+		offset += len + 12;
 	}
 }
 
@@ -119,7 +119,7 @@ void proto_register_mwmtp(void)
 		{&hf_nwmtp_data_index,
 		 {"Link Index", "nwmtp.link_index",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "Link Index", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_nwmtp_user_context,
 		 {"User Context", "nwmtp.user_context",

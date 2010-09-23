@@ -442,12 +442,12 @@ proto_register_pagp(void)
     { &hf_pagp_local_device_id,
       { "Local Device ID",	"pagp.localdevid",
 	FT_ETHER,	BASE_NONE,	NULL,	0x0,
-      	"Local device ID", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_pagp_local_learn_cap,
       { "Local Learn Capability",	"pagp.localearncap",
 	FT_UINT8,	BASE_HEX,	VALS(learn_cap),	0x0,
-      	"Local learn capability", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_pagp_local_port_priority,
       { "Local Port Hot Standby Priority", 	"pagp.localportpri",
@@ -502,7 +502,7 @@ proto_register_pagp(void)
     { &hf_pagp_partner_count,
       { "Partner Count",		"pagp.partnercount",
 	FT_UINT16,	BASE_DEC,	NULL,	0x0,
-      	"Partner count", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_pagp_num_tlvs,
       { "Number of TLVs",		"pagp.numtlvs",
@@ -532,7 +532,7 @@ proto_register_pagp(void)
     { &hf_pagp_flush_local_device_id,
       { "Flush Local Device ID",	"pagp.flushlocaldevid",
 	FT_ETHER,	BASE_NONE,	NULL,	0x0,
-      	"Flush local device ID", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_pagp_flush_partner_device_id,
       { "Flush Partner Device ID",	"pagp.flushpartnerdevid",

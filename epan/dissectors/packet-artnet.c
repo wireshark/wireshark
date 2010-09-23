@@ -1821,13 +1821,13 @@ proto_register_artnet(void) {
       { "Port number",
         "artnet.poll_reply.port_nr",
         FT_UINT16, BASE_DEC, NULL, 0x0,
-        "Port Number", HFILL }},
+        NULL, HFILL }},
 
     { &hf_artnet_poll_reply_versinfo,
       { "Version Info",
         "artnet.poll_reply.versinfo",
         FT_UINT16, BASE_HEX, NULL, 0x0,
-        "Version info", HFILL }},
+        NULL, HFILL }},
 
     { &hf_artnet_poll_reply_subswitch,
       { "SubSwitch",
@@ -1839,7 +1839,7 @@ proto_register_artnet(void) {
       { "Oem",
         "artnet.poll_reply.oem",
         FT_UINT16, BASE_HEX, VALS(artnet_oem_code_vals), 0x0,
-        "OEM", HFILL }},
+        NULL, HFILL }},
 
     { &hf_artnet_poll_reply_ubea_version,
       { "UBEA Version",
@@ -2099,19 +2099,19 @@ proto_register_artnet(void) {
       { "DMX data",
         "artnet.output.data",
         FT_NONE, BASE_NONE, NULL, 0x0,
-        "DMX Data", HFILL }},
+        NULL, HFILL }},
 
     { &hf_artnet_output_data_filter,
       { "DMX data filter",
         "artnet.output.data_filter",
         FT_BYTES, BASE_NONE, NULL, 0x0,
-        "DMX Data Filter", HFILL }},
+        NULL, HFILL }},
 
     { &hf_artnet_output_dmx_data,
       { "DMX data",
         "artnet.output.dmx_data",
         FT_NONE, BASE_NONE, NULL, 0x0,
-        "DMX Data", HFILL }},
+        NULL, HFILL }},
 
     /* ArtAddress */
 

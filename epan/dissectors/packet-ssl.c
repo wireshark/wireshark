@@ -4018,12 +4018,12 @@ proto_register_ssl(void)
         { &hf_ssl_record,
           { "Record Layer", "ssl.record",
             FT_NONE, BASE_NONE, NULL, 0x0,
-            "Record layer", HFILL }
+            NULL, HFILL }
         },
         { &hf_ssl_record_content_type,
           { "Content Type", "ssl.record.content_type",
             FT_UINT8, BASE_DEC, VALS(ssl_31_content_type), 0x0,
-            "Content type", HFILL}
+            NULL, HFILL}
         },
         { &hf_ssl2_msg_type,
           { "Handshake Message Type", "ssl.handshake.type",
@@ -4074,7 +4074,7 @@ proto_register_ssl(void)
         { &hf_ssl_alert_message,
           { "Alert Message", "ssl.alert_message",
             FT_NONE, BASE_NONE, NULL, 0x0,
-            "Alert message", HFILL }
+            NULL, HFILL }
         },
         { &hf_ssl_alert_message_level,
           { "Level", "ssl.alert_message.level",
@@ -4134,7 +4134,7 @@ proto_register_ssl(void)
         { &hf_ssl_handshake_cipher_suite,
           { "Cipher Suite", "ssl.handshake.ciphersuite",
             FT_UINT16, BASE_HEX, VALS(ssl_31_ciphersuite), 0x0,
-            "Cipher suite", HFILL }
+            NULL, HFILL }
         },
         { &hf_ssl2_handshake_cipher_spec,
           { "Cipher Spec", "ssl.handshake.cipherspec",

@@ -1200,7 +1200,7 @@ void proto_register_sasp(void)
 		/*SASP DATA*/
 		{ &hf_sasp,
 	 	  { "SASP", "sasp", FT_NONE, BASE_NONE, NULL, 0x0,
-		    "SASP", HFILL } },
+		    NULL, HFILL } },
 
 		/*SASP Header */
 		{ &hf_sasp_type,

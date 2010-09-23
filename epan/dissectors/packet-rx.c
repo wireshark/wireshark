@@ -738,7 +738,7 @@ proto_register_rx(void)
 
 		{ &hf_rx_ticket, {
 			"ticket", "rx.ticket", FT_BYTES, BASE_NONE,
-			NULL, 0, "Ticket", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_ifmtu, {
 			"Interface MTU", "rx.if_mtu", FT_UINT32, BASE_DEC,

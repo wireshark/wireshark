@@ -305,12 +305,12 @@ dissect_rpcap_error (tvbuff_t *tvb, packet_info *pinfo,
   gint len;
 
   len = tvb_length_remaining (tvb, offset);
-  
+
   if (check_col (pinfo->cinfo, COL_INFO)) {
     col_append_fstr (pinfo->cinfo, COL_INFO, ": %s",
 		     tvb_format_text_wsp (tvb, offset, len));
   }
-  
+
   ti = proto_tree_add_item (parent_tree, hf_error, tvb, offset, len, FALSE);
   expert_add_info_format (pinfo, ti, PI_SEQUENCE, PI_NOTE,
 			  "Error: %s", tvb_format_text_wsp (tvb, offset, len));
@@ -424,7 +424,7 @@ dissect_rpcap_findalldevs_if (tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree_add_item (tree, hf_if_name, tvb, offset, namelen, FALSE);
     offset += namelen;
   }
-  
+
   if (desclen) {
     proto_tree_add_item (tree, hf_if_desc, tvb, offset, desclen, FALSE);
     offset += desclen;
@@ -433,7 +433,7 @@ dissect_rpcap_findalldevs_if (tvbuff_t *tvb, packet_info *pinfo _U_,
   for (i = 0; i < naddr; i++) {
     offset = dissect_rpcap_findalldevs_ifaddr (tvb, pinfo, tree, offset);
   }
-  
+
   proto_item_set_len (ti, offset - boffset);
 
   return offset;
@@ -447,7 +447,7 @@ dissect_rpcap_findalldevs_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *tree;
   proto_item *ti;
   guint16 i;
-  
+
   ti = proto_tree_add_item (parent_tree, hf_findalldevs_reply, tvb, offset, -1, FALSE);
   tree = proto_item_add_subtree (ti, ett_findalldevs_reply);
 
@@ -532,11 +532,11 @@ dissect_rpcap_auth_request (tvbuff_t *tvb, packet_info *pinfo _U_,
 
   proto_tree_add_item (tree, hf_dummy, tvb, offset, 2, FALSE);
   offset += 2;
-  
+
   slen1 = tvb_get_ntohs (tvb, offset);
   proto_tree_add_item (tree, hf_auth_slen1, tvb, offset, 2, FALSE);
   offset += 2;
-  
+
   slen2 = tvb_get_ntohs (tvb, offset);
   proto_tree_add_item (tree, hf_auth_slen2, tvb, offset, 2, FALSE);
   offset += 2;
@@ -545,18 +545,18 @@ dissect_rpcap_auth_request (tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_item_append_text (ti, " (none)");
   } else if (type == RPCAP_RMTAUTH_PWD) {
     guint8 *username, *password;
-    
+
     username = tvb_get_ephemeral_string (tvb, offset, slen1);
     proto_tree_add_item (tree, hf_auth_username, tvb, offset, slen1, FALSE);
     offset += slen1;
-    
+
     password = tvb_get_ephemeral_string (tvb, offset, slen2);
     proto_tree_add_item (tree, hf_auth_password, tvb, offset, slen2, FALSE);
     offset += slen2;
 
     proto_item_append_text (ti, " (%s/%s)", username, password);
   }
-    
+
   return offset;
 }
 
@@ -660,7 +660,7 @@ dissect_rpcap_startcap_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
 
   proto_tree_add_item (tree, hf_server_port, tvb, offset, 2, FALSE);
   offset += 2;
-  
+
   proto_tree_add_item (tree, hf_dummy, tvb, offset, 2, FALSE);
   offset += 2;
 
@@ -733,7 +733,7 @@ dissect_rpcap_sampling_request (tvbuff_t *tvb, packet_info *pinfo _U_,
   default:
     break;
   }
-  
+
   return offset;
 }
 
@@ -747,7 +747,7 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
   nstime_t ts;
   tvbuff_t *new_tvb;
   gint caplen, frame_no;
-  
+
   ti = proto_tree_add_item (parent_tree, hf_packet, tvb, offset, 20, FALSE);
   tree = proto_item_add_subtree (ti, ett_packet);
 
@@ -791,7 +791,7 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
     call_dissector (data_handle, new_tvb, pinfo, top_tree);
   }
   offset += caplen;
-  
+
   return offset;
 }
 
@@ -828,7 +828,7 @@ dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree)
   }
 
   proto_item_append_text (ti, ", %s", val_to_str (msg_type, message_type, "Unknown: %d"));
-  
+
   msg_value = tvb_get_ntohs (tvb, offset);
   if (msg_type == RPCAP_MSG_ERROR) {
     proto_tree_add_item (tree, hf_error_value, tvb, offset, 2, FALSE);
@@ -901,7 +901,7 @@ check_rpcap_heur (tvbuff_t *tvb, gboolean tcp)
   if (tvb_length (tvb) < 8)
     /* Too short */
     return FALSE;
-  
+
   version = tvb_get_guint8 (tvb, offset);
   if (version != 0)
     /* Incorrect version */
@@ -933,9 +933,9 @@ check_rpcap_heur (tvbuff_t *tvb, gboolean tcp)
   plen = tvb_get_ntohl (tvb, offset);
   offset += 4;
   len = (guint32) tvb_length_remaining (tvb, offset);
-  
+
   switch (msg_type) {
-    
+
   case RPCAP_MSG_FINDALLIF_REQ:
   case RPCAP_MSG_UPDATEFILTER_REPLY:
   case RPCAP_MSG_AUTH_REPLY:
@@ -948,7 +948,7 @@ check_rpcap_heur (tvbuff_t *tvb, gboolean tcp)
     if (plen != 0 || len != 0)
       return FALSE;
     break;
-    
+
   case RPCAP_MSG_OPEN_REPLY:
   case RPCAP_MSG_STARTCAP_REPLY:
   case RPCAP_MSG_SETSAMPLING_REQ:
@@ -956,19 +956,19 @@ check_rpcap_heur (tvbuff_t *tvb, gboolean tcp)
     if (plen != 8 || len != 8)
       return FALSE;
     break;
-    
+
   case RPCAP_MSG_STATS_REPLY:
     /* Always 16 bytes */
     if (plen != 16 || len != 16)
       return FALSE;
     break;
-    
+
   case RPCAP_MSG_PACKET:
     /* Must have the frame header */
     if (plen < 20)
       return FALSE;
     break;
-    
+
   case RPCAP_MSG_FINDALLIF_REPLY:
     /* May be empty */
     break;
@@ -1002,9 +1002,9 @@ dissect_rpcap_heur_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   if (check_rpcap_heur (tvb, TRUE)) {
     /* This is probably a rpcap tcp package */
-    tcp_dissect_pdus (tvb, pinfo, tree, rpcap_desegment, 8, 
+    tcp_dissect_pdus (tvb, pinfo, tree, rpcap_desegment, 8,
 		      get_rpcap_pdu_len, dissect_rpcap);
-    
+
     return TRUE;
   }
 
@@ -1018,7 +1018,7 @@ dissect_rpcap_heur_udp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_rpcap_heur (tvb, FALSE)) {
     /* This is probably a rpcap udp package */
     dissect_rpcap (tvb, pinfo, tree);
-    
+
     return TRUE;
   }
 
@@ -1051,7 +1051,7 @@ proto_register_rpcap (void)
     { &hf_error_value,
       { "Error value", "rpcap.error_value", FT_UINT16, BASE_DEC,
 	VALS(error_codes), 0x0, NULL, HFILL } },
-    
+
     /* Packet header */
     { &hf_packet,
       { "Packet", "rpcap.packet", FT_NONE, BASE_NONE,
@@ -1088,12 +1088,12 @@ proto_register_rpcap (void)
     { &hf_auth_password,
       { "Password", "rpcap.password", FT_STRING, BASE_NONE,
 	NULL, 0x0, NULL, HFILL } },
-    
+
     /* Open request */
     { &hf_open_request,
       { "Open request", "rpcap.open_request", FT_STRING, BASE_NONE,
 	NULL, 0x0, NULL, HFILL } },
-    
+
     /* Open reply */
     { &hf_open_reply,
       { "Open reply", "rpcap.open_reply", FT_NONE, BASE_NONE,
@@ -1140,7 +1140,7 @@ proto_register_rpcap (void)
     /* Start capture reply */
     { &hf_startcap_reply,
       { "Start capture reply", "rpcap.startcap_reply", FT_NONE, BASE_NONE,
-	NULL, 0x0, "Start Capture Reply", HFILL } },
+	NULL, 0x0, NULL, HFILL } },
     { &hf_bufsize,
       { "Buffer size", "rpcap.bufsize", FT_UINT32, BASE_DEC,
 	NULL, 0x0, NULL, HFILL } },
@@ -1295,10 +1295,10 @@ proto_register_rpcap (void)
 
   proto_rpcap = proto_register_protocol (PNAME, PSNAME, PFNAME);
   register_dissector (PFNAME, dissect_rpcap, proto_rpcap);
-	
+
   proto_register_field_array (proto_rpcap, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
-  
+
   /* Register our configuration options */
   rpcap_module = prefs_register_protocol (proto_rpcap, proto_reg_handoff_rpcap);
 
@@ -1329,7 +1329,7 @@ proto_reg_handoff_rpcap (void)
   if (!rpcap_prefs_initialized) {
     data_handle = find_dissector ("data");
     rpcap_prefs_initialized = TRUE;
-    
+
     heur_dissector_add ("tcp", dissect_rpcap_heur_tcp, proto_rpcap);
     heur_dissector_add ("udp", dissect_rpcap_heur_udp, proto_rpcap);
   }

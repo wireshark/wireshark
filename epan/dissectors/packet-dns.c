@@ -3619,7 +3619,7 @@ proto_register_dns(void)
     { &hf_dns_apl_coded_prefix,
       { "Prefix Length", "hf.dns.apl.coded.prefix",
         FT_UINT8, BASE_DEC, NULL, 0,
-        "Prefix Length", HFILL }},
+        NULL, HFILL }},
     { &hf_dns_apl_negation,
       { "Negation Flag", "dns.apl.negation",
         FT_BOOLEAN, 8, TFS(&tfs_dns_apl_negation), DNS_APL_NEGATION,
@@ -3631,7 +3631,7 @@ proto_register_dns(void)
     { &hf_dns_nsap_rdata,
       { "NSAP Data", "dns.nsap.rdata",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "NSAP Data", HFILL }}
+        NULL, HFILL }}
   };
   static gint *ett[] = {
     &ett_dns,

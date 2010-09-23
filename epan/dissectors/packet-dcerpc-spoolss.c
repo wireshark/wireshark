@@ -7209,7 +7209,7 @@ proto_register_dcerpc_spoolss(void)
 
 		{ &hf_outputfile,
 		  { "Output file", "spoolss.outputfile", FT_STRING, BASE_NONE,
-		    NULL, 0, "Output File", HFILL }},
+		    NULL, 0, NULL, HFILL }},
 
 		{ &hf_datatype,
 		  { "Datatype", "spoolss.Datatype", FT_STRING, BASE_NONE,

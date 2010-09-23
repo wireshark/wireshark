@@ -11519,7 +11519,7 @@ proto_register_nfs(void)
 
 		{ &hf_nfs_dtime, {
 			"time delta", "nfs.dtime", FT_RELATIVE_TIME, BASE_NONE,
-			NULL, 0, "Time Delta", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_dtime_sec, {
 			"seconds", "nfs.dtime.sec", FT_UINT32, BASE_DEC,
@@ -11575,7 +11575,7 @@ proto_register_nfs(void)
 
 		{ &hf_nfs_stateid4_hash, {
 			"StateID Hash", "nfs.stateid4.hash", FT_UINT16, BASE_HEX,
-			NULL, 0, "StateID Hash", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_acl4, {
 			"ACL", "nfs.acl", FT_NONE, BASE_NONE,

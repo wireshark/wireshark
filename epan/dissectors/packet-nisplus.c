@@ -1630,7 +1630,7 @@ proto_register_nis(void)
 
 		{ &hf_nisplus_table_col_name, {
 			"column name", "nisplus.table.col.name", FT_STRING, BASE_NONE,
-			NULL, 0, "Column Name", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nisplus_table_col_mask, {
 			"flags", "nisplus.table.col.flags", FT_NONE, BASE_NONE,
@@ -1705,7 +1705,7 @@ proto_register_nis(void)
 
 		{ &hf_nisplus_cookie, {
 			"cookie", "nisplus.cookie", FT_BYTES, BASE_NONE,
-			NULL, 0, "Cookie", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nisplus_fd_dirname, {
 			"dirname", "nisplus.fd.dirname", FT_STRING, BASE_NONE,
@@ -1721,7 +1721,7 @@ proto_register_nis(void)
 
 		{ &hf_nisplus_tag, {
 			"tag", "nisplus.tag", FT_NONE, BASE_NONE,
-			NULL, 0, "Tag", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nisplus_tag_type, {
 			"type", "nisplus.tag.type", FT_UINT32, BASE_DEC,
@@ -1765,11 +1765,11 @@ proto_register_nis(void)
 
 		{ &hf_nisplus_log_entries, {
 			"log entries", "nisplus.log.entries", FT_NONE, BASE_NONE,
-			NULL, 0, "Log Entries", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nisplus_log_entry, {
 			"log entry", "nisplus.log.entry", FT_NONE, BASE_NONE,
-			NULL, 0, "Log Entry", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nisplus_log_time, {
 			"time", "nisplus.log.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,

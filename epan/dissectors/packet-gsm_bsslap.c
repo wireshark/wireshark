@@ -7,17 +7,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -94,7 +94,7 @@ const value_string gsm_bsslap_elem_strings[] = {
 	{  0x00,								"Reserved" },
 	{  BSSLAP_PARAM_TIMING_ADVANCE,			"Timing Advance" },
 	{  BSSLAP_PARAM_RESERVED_01,			"Reserved" },			/* (note) */
-	{  BSSLAP_PARAM_CELL_IDENTITY,			"Cell Identity" },	
+	{  BSSLAP_PARAM_CELL_IDENTITY,			"Cell Identity" },
 	{  BSSLAP_PARAM_RESERVED_02,			"Reserved" },			/* (note) */
 	{  BSSLAP_PARAM_RESERVED_03,			"Reserved" },			/* (note) */
 	{  BSSLAP_PARAM_RESERVED_04,			"Reserved" },			/* (note) */
@@ -179,7 +179,7 @@ de_ta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add
 
 	return(curr_offset - offset);
 }
-/* 
+/*
  * 5.12 Measurement Report IE
  */
 #if 0
@@ -234,7 +234,7 @@ static guint16
 de_rrlp_flg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
-    
+
 	curr_offset = offset;
 	proto_tree_add_item(tree, hf_gsm_bsslap_rrlp_flg, tvb, curr_offset, 1, FALSE);
 	curr_offset++;
@@ -247,7 +247,7 @@ de_rrlp_ie(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
    guint32 curr_offset;
    tvbuff_t *rrlp_tvb;
    guint16 length;
-  
+
    length = tvb_get_ntohs(tvb, offset);
 
    curr_offset = offset + 2;
@@ -264,7 +264,7 @@ de_rrlp_ie(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 /*
  * 5.17 Cell Identity List IE
  */
-/* 
+/*
  * The Cell identification discriminator i is coded as follows:
  */
 const value_string gsm_a_bsslap_cell_id_disc_vals[] = {
@@ -286,7 +286,7 @@ de_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 	guint8	num_cells;
 	proto_item	*item = NULL;
 	proto_tree	*subtree = NULL;
-	
+
 	curr_offset = offset;
 	cell_id_disc = tvb_get_guint8(tvb,curr_offset);
 	num_cells = 0;
@@ -327,13 +327,13 @@ de_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 		/* lengt is "cell id" + discriminator */
 		proto_item_set_len(item, consumed+1);
 	}
-	
+
 
 	return(curr_offset - offset);
 }
 /*
  * 5.18 Enhanced Measurement Report IE
- * The Enhanced Measurement Results field is encoded as the contents of the 
+ * The Enhanced Measurement Results field is encoded as the contents of the
  * ENHANCED MEASUREMENT REPORT message in 3GPP TS 44.018 (excluding the fields:
  * "RR short PD", "Message type" and "Short layer 2 header")...
  */
@@ -377,7 +377,7 @@ de_ms_pow(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar 
 	return(curr_offset - offset);
 }
 
-/* 
+/*
  * 5.22 Delta Timer IE
  */
 static guint16
@@ -417,7 +417,7 @@ de_blap_enc_key(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
  * 5.26 Channel Mode IE
  * The Channel Mode information element is coded as defined in TS 44.018 (excluding IEI).
  */
-/* 
+/*
  * 5.27 MultiRate Configuration IE
  * The MultiRate Configuration information element is coded as defined in TS 44.018 (excluding IEI).
  */
@@ -457,7 +457,7 @@ de_pkt_ch_desc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
  * The TFI information element is coded as defined in TS 44.060 (excluding IEI).
  * 44.060:
  * UPLINK_TFI (5 bit field)
- * The Temporary Flow Identity field identifies an uplink Temporary Block Flow (TBF). 
+ * The Temporary Flow Identity field identifies an uplink Temporary Block Flow (TBF).
  * This field is encoded as a binary number. Range 0 to 31
  */
 static guint16
@@ -486,7 +486,7 @@ typedef enum
 	DE_BLAP_RES1,			/. Reserved ./
 	DE_BLAP_TA,				/. Timing Advance ./
 	DE_BLAP_RES3,			/. Reserved ./			/. (note) ./
-	DE_BLAP_RES4,			/. Cell Identity ./	
+	DE_BLAP_RES4,			/. Cell Identity ./
 	DE_BLAP_RES5,			/. Reserved ./			/. (note) ./
 	DE_BLAP_RES6,			/. Reserved ./			/. (note) ./
 	DE_BLAP_RES7,			/. Reserved ./			/. (note) ./
@@ -525,7 +525,7 @@ guint16 (*bsslap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gu
 	NULL,	/* Reserved */
 	de_ta,	/* Timing Advance */
 	NULL,	/* Reserved */			/* (note) */
-	NULL,	/* "Cell Identity */	
+	NULL,	/* "Cell Identity */
 	NULL,	/* "Reserved */			/* (note) */
 	NULL,	/* "Reserved */			/* (note) */
 	NULL,	/* "Reserved */			/* (note) */
@@ -747,7 +747,7 @@ dissect_gsm_bsslap_u_tdoa_req(tvbuff_t *tvb, proto_tree *tree, int offset)
 	ELEM_OPT_TV(BSSLAP_PARAM_DELTA_TIMER, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_DELTA_TIME, NULL);
 	/* 	Polling Repitition IE 5.28 (note) C (note 2) TV 2 */
 	ELEM_OPT_TV(BSSLAP_PARAM_POLLING_REPETITION, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_POLL_REP, NULL);
-	
+
 	return;
 }
 /* 4.2.12 U-TDOA Response  ETSI TS 148 071 V7.2.0 (2007-06) */
@@ -820,7 +820,7 @@ dissect_gsm_bsslap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Only message type IE */
 			break;
 		case BSSLAP_TA_RESPONSE:
-			dissect_gsm_bsslap_ta_res(tvb, sub_tree, offset); 
+			dissect_gsm_bsslap_ta_res(tvb, sub_tree, offset);
 			break;
 		case BSSLAP_REJECT:
 			dissect_gsm_bsslap_reject(tvb, sub_tree, offset);
@@ -828,7 +828,7 @@ dissect_gsm_bsslap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case BSSLAP_RESET:
 			dissect_gsm_bsslap_reset(tvb, sub_tree, offset);
 			break;
-		case BSSLAP_ABORT:			
+		case BSSLAP_ABORT:
 			dissect_gsm_bsslap_abort(tvb, sub_tree, offset);
 			break;
 		case BSSLAP_TA_LAYER3:
@@ -862,7 +862,7 @@ proto_reg_handoff_gsm_bsslap(void)
 
 void
 proto_register_gsm_bsslap(void)
-{                 
+{
 	guint		i;
 	guint		last_offset;
 
@@ -871,7 +871,7 @@ proto_register_gsm_bsslap(void)
 	static hf_register_info hf[] = {
 		{ &hf_gsm_bsslap_msg_type,
 			{ "Message Type IE",           "gsm_bsslap.msg_type",
-			FT_UINT8, BASE_DEC, VALS(gsm_a_bsslap_msg_strings), 0x0,          
+			FT_UINT8, BASE_DEC, VALS(gsm_a_bsslap_msg_strings), 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_gsm_a_bsslap_elem_id,
@@ -881,48 +881,48 @@ proto_register_gsm_bsslap(void)
 		},
 		{ &hf_gsm_bsslap_ta,
 			{ "Timing Advance",           "gsm_bsslap.ta",
-			FT_UINT8, BASE_HEX, NULL, 0x0,          
+			FT_UINT8, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }
 		},
-        { &hf_gsm_bsslap_timer_value, 
-			{"Timer Value", "gsm_bsslap.timerValue", 
-			FT_UINT8, BASE_DEC, NULL, 0x0, 
+        { &hf_gsm_bsslap_timer_value,
+			{"Timer Value", "gsm_bsslap.timerValue",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 
-        { &hf_gsm_bsslap_ms_pow, 
-			{"MS Power", "gsm_bsslap.MS_pow", 
-			FT_UINT8, BASE_DEC, NULL, 0x0, 
-			"MS power", HFILL }
+        { &hf_gsm_bsslap_ms_pow,
+			{"MS Power", "gsm_bsslap.MS_pow",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
 		},
 		{ &hf_gsm_bsslap_cause,
-			{"Cause", "gsm_bsslap.cause", 
-			FT_UINT8, BASE_DEC, VALS(gsm_bsslap_cause_vals), 0x0, 
+			{"Cause", "gsm_bsslap.cause",
+			FT_UINT8, BASE_DEC, VALS(gsm_bsslap_cause_vals), 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_gsm_bsslap_rrlp_flg,
-			{"RRLP Flag", "gsm_bsslap.rrlp_flg", 
-			FT_UINT8, BASE_DEC, TFS(&gsm_bsslap_rrlp_flg_vals), 0x01, 
+			{"RRLP Flag", "gsm_bsslap.rrlp_flg",
+			FT_UINT8, BASE_DEC, TFS(&gsm_bsslap_rrlp_flg_vals), 0x01,
 			"Cause", HFILL }
 		},
 		{ &hf_gsm_bsslap_tfi,
-			{"TFI", "gsm_bsslap.tfi", 
-			FT_UINT8, BASE_DEC, NULL, 0x1f, 
+			{"TFI", "gsm_bsslap.tfi",
+			FT_UINT8, BASE_DEC, NULL, 0x1f,
 			NULL, HFILL }
 		},
 		{ &hf_gsm_bsslap_poll_rep,
-			{"Number of polling repetitions", "gsm_bsslap.poll_rep", 
-			FT_UINT8, BASE_DEC, NULL, 0x3F, 
+			{"Number of polling repetitions", "gsm_bsslap.poll_rep",
+			FT_UINT8, BASE_DEC, NULL, 0x3F,
 			NULL, HFILL }
 		},
 		{ &hf_gsm_bsslap_lac,
-			{"Location Area Code", "gsm_bsslap.lac", 
-			FT_UINT8, BASE_DEC, NULL, 0x3f, 
+			{"Location Area Code", "gsm_bsslap.lac",
+			FT_UINT8, BASE_DEC, NULL, 0x3f,
 			NULL, HFILL }
 		},
 		{ &hf_gsm_bsslap_cell_id_disc,
-			{"Cell identification Discriminator", "gsm_bsslap.cell_id_disc", 
-			FT_UINT8, BASE_DEC, VALS(gsm_a_bsslap_cell_id_disc_vals), 0xf, 
+			{"Cell identification Discriminator", "gsm_bsslap.cell_id_disc",
+			FT_UINT8, BASE_DEC, VALS(gsm_a_bsslap_cell_id_disc_vals), 0xf,
 			NULL, HFILL }
 		},
 	};
@@ -951,7 +951,7 @@ proto_register_gsm_bsslap(void)
 
 
 /* Register the protocol name and description */
-	proto_gsm_bsslap = 
+	proto_gsm_bsslap =
 		proto_register_protocol("BSS LCS Assistance Protocol",
 		"BSSLAP", "bsslap");
 

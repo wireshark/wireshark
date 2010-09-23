@@ -4151,7 +4151,7 @@ proto_register_skinny(void)
     { &hf_skinny_annPlayMode,
       { "annPlayMode", "skinny.annPlayMode",
 	FT_UINT32, BASE_DEC, VALS(skinny_annPlayMode), 0x0,
-	"AnnPlayMode",
+	NULL,
 	HFILL }
     },
 
@@ -4418,7 +4418,7 @@ proto_register_skinny(void)
     "Whether the SCCP dissector should reassemble messages spanning multiple TCP segments."
     " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &skinny_desegment);
-    
+
   skinny_tap = register_tap("skinny");
 }
 

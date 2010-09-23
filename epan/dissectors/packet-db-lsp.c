@@ -181,7 +181,7 @@ proto_register_db_lsp (void)
     { &hf_type,
       { "Type", "db-lsp.type",
         FT_UINT8, BASE_DEC_HEX, VALS(type_vals), 0x0,
-        "Type", HFILL } },
+        NULL, HFILL } },
 
     { &hf_magic,
       { "Magic", "db-lsp.magic",
@@ -195,8 +195,8 @@ proto_register_db_lsp (void)
 
     { &hf_opvalue,
       { "OP Value", "db-lsp.op",
-        FT_UINT8, BASE_DEC_HEX, VALS(op_vals), 0x0, 
-        "OP Value", HFILL } },
+        FT_UINT8, BASE_DEC_HEX, VALS(op_vals), 0x0,
+        NULL, HFILL } },
 
     { &hf_value,
       { "Value", "db-lsp.value",
@@ -205,7 +205,7 @@ proto_register_db_lsp (void)
 
     { &hf_data,
       { "Data", "db-lsp.data",
-        FT_BYTES, BASE_NONE, NULL, 0x0, 
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL } },
 
     { &hf_text,

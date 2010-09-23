@@ -469,7 +469,7 @@ dissect_election_criterion(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
  */
 int
 dissect_smb_server_type_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			      proto_tree *parent_tree, guint8 *drep, 
+			      proto_tree *parent_tree, guint8 *drep,
 			      gboolean infoflag)
 {
 	proto_tree *tree = NULL;
@@ -643,9 +643,9 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		/* Windows version (See "OSVERSIONINFO Structure" on MSDN) */
 		os_major_ver = tvb_get_guint8(tvb, offset);
 		os_minor_ver = tvb_get_guint8(tvb, offset+1);
-		
+
 		SET_WINDOWS_VERSION_STRING(os_major_ver, os_minor_ver, windows_version);
-		
+
 		if(windows_version)
 		  proto_tree_add_text(tree, tvb, offset, 2, "Windows version: %s", windows_version);
 
@@ -788,14 +788,14 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		/* the subcommand follows ... one of three values */
 
 	        reset_cmd = tvb_get_guint8(tvb, offset);
-		reset_item = proto_tree_add_uint(tree, hf_mb_reset_command, tvb, 
+		reset_item = proto_tree_add_uint(tree, hf_mb_reset_command, tvb,
 						 offset, 1, reset_cmd);
 		sub_tree = proto_item_add_subtree(item, ett_browse_reset_cmd_flags);
-		proto_tree_add_boolean(sub_tree, hf_mb_reset_demote, tvb, 
+		proto_tree_add_boolean(sub_tree, hf_mb_reset_demote, tvb,
 				       offset, 1, reset_cmd);
-		proto_tree_add_boolean(sub_tree, hf_mb_reset_flush, tvb, 
+		proto_tree_add_boolean(sub_tree, hf_mb_reset_flush, tvb,
 				       offset, 1, reset_cmd);
-		proto_tree_add_boolean(sub_tree, hf_mb_reset_stop, tvb, 
+		proto_tree_add_boolean(sub_tree, hf_mb_reset_stop, tvb,
 				       offset, 1, reset_cmd);
 		offset += 1;
 		break;
@@ -950,8 +950,8 @@ proto_register_smb_browse(void)
 		    BASE_HEX, VALS(resetbrowserstate_command_names), 0,
 		    NULL, HFILL }},
 		{ &hf_mb_reset_demote,
-		  { "Demote LMB", "browser.reset_cmd.demote", FT_BOOLEAN, 
-		    8, TFS(&tfs_demote_to_backup), 0x01, NULL, HFILL}}, 
+		  { "Demote LMB", "browser.reset_cmd.demote", FT_BOOLEAN,
+		    8, TFS(&tfs_demote_to_backup), 0x01, NULL, HFILL}},
 		{ &hf_mb_reset_flush,
 		  { "Flush Browse List", "browser.reset_cmd.flush", FT_BOOLEAN,
 		    8, TFS(&tfs_flush_browse_list), 0x02, NULL, HFILL}},
@@ -1156,7 +1156,7 @@ proto_register_smb_browse(void)
 
 		{ &hf_backup_count,
 			{ "Backup List Requested Count", "browser.backup.count", FT_UINT8, BASE_DEC,
-			NULL, 0, "Backup list requested count", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_backup_token,
 			{ "Backup Request Token", "browser.backup.token", FT_UINT32, BASE_DEC,

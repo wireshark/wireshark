@@ -1,39 +1,39 @@
-/* packet-iwarp-ddp-rdmap.c 
+/* packet-iwarp-ddp-rdmap.c
  * Routines for Direct Data Placement (DDP) and
  * Remote Direct Memory Access Protocol (RDMAP) dissection
- * According to IETF RFC 5041 and RFC 5040 
- * Copyright 2008, Yves Geissbuehler <yves.geissbuehler@gmx.net> 
- * Copyright 2008, Philip Frey <frey.philip@gmail.com> 
- * 
- * $Id$ 
- * 
- * Wireshark - Network traffic analyzer 
- * By Gerald Combs <gerald@wireshark.org> 
- * Copyright 1998 Gerald Combs 
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License 
- * as published by the Free Software Foundation; either version 2 
- * of the License, or (at your option) any later version. 
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
- * GNU General Public License for more details. 
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
+ * According to IETF RFC 5041 and RFC 5040
+ * Copyright 2008, Yves Geissbuehler <yves.geissbuehler@gmx.net>
+ * Copyright 2008, Philip Frey <frey.philip@gmail.com>
+ *
+ * $Id$
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
 /* INCLUDES */
-#ifdef HAVE_CONFIG_H 
-# include "config.h" 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
 #endif
-#include <stdlib.h> 
-#include <glib.h> 
-#include <epan/packet.h> 
+#include <stdlib.h>
+#include <glib.h>
+#include <epan/packet.h>
 
 /* DEFINES */
 
@@ -133,7 +133,7 @@ static gint ett_iwarp_ddp_control_field = -1;
 static gint ett_iwarp_ddp_tagged_header = -1;
 static gint ett_iwarp_ddp_untagged_header = -1;
 
-/* 
+/*
  * RDMAP: initialize the protocol and registered fields
  */
 static gint hf_iwarp_rdma = -1;
@@ -253,12 +253,12 @@ static const value_string ddp_errcode_untagged_names[] = {
 		{ 0x04, "Invalid MO" },
 		{ 0x05, "DDP Message too long for available buffer" },
 		{ 0x06, "Invalid DDP version" },
-		{ 0, NULL } 
+		{ 0, NULL }
 };
 
 /* update packet list pane in the GUI */
 void
-ddp_rdma_packetlist(packet_info *pinfo, gboolean ddp_last_flag, 
+ddp_rdma_packetlist(packet_info *pinfo, gboolean ddp_last_flag,
 		guint8 rdma_msg_opcode)
 {
 	const gchar *ddp_fragment_state;
@@ -286,17 +286,17 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 	proto_tree *rdma_header_tree = NULL;
 	proto_tree *term_ctrl_field_tree = NULL;
 	proto_tree *header_ctrl_field_tree = NULL;
-	
+
 	proto_item *rdma_header_subitem = NULL;
 	proto_item *term_ctrl_field_subitem = NULL;
 	proto_item *header_ctrl_field_subitem = NULL;
 
 	guint8 layer, etype, hdrct;
-	
+
 	guint32 rdmardsz;
 
 	if (rdma_tree) {
-		
+
 		if (rdma_msg_opcode == RDMA_READ_REQUEST) {
 			rdma_header_subitem = proto_tree_add_item(rdma_tree,
 					hf_iwarp_rdma_rr_header, tvb, offset, -1, FALSE);
@@ -309,13 +309,13 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 			proto_tree_add_item(rdma_header_tree, hf_iwarp_rdma_sinkto, tvb,
 					offset, RDMA_SINKTO_LEN, FALSE);
 			offset += RDMA_SINKTO_LEN;
-			
+
 			rdmardsz = (guint32) tvb_get_ntohl(tvb, offset);
 			proto_tree_add_uint_format_value(rdma_header_tree,
 					hf_iwarp_rdma_rdmardsz, tvb, offset,
 					RDMA_RDMARDSZ_LEN, rdmardsz, "%u bytes",
 					rdmardsz);
-			
+
 			offset += RDMA_RDMARDSZ_LEN;
 			proto_tree_add_item(rdma_header_tree, hf_iwarp_rdma_srcstag, tvb,
 					offset, RDMA_SRCSTAG_LEN, FALSE);
@@ -405,9 +405,9 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 					offset, 1, FALSE);
 			header_ctrl_field_tree = proto_item_add_subtree(
 					header_ctrl_field_subitem, ett_iwarp_rdma);
-			
+
 			hdrct = tvb_get_guint8(tvb, offset) & IWARP_HDRCT;
-			
+
 			proto_tree_add_item(header_ctrl_field_tree,
 					hf_iwarp_rdma_term_hdrct_m, tvb, offset, 1, FALSE);
 			proto_tree_add_item(header_ctrl_field_tree,
@@ -419,14 +419,14 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 					offset, 2, FALSE);
 			offset += 2;
 
-			
+
 			if (hdrct & IWARP_HDRCT_D) {
 				/* DDP Segment Length (if any) */
 				proto_tree_add_item(rdma_header_tree,
 						hf_iwarp_rdma_term_ddp_seg_len, tvb,
 						offset, RDMA_DDP_SEGLEN_LEN, FALSE);
 				offset += RDMA_DDP_SEGLEN_LEN;
-				
+
 				/* Terminated DDP Header (if any), tagged or untagged */
 				if (etype == IWARP_ETYPE_DDP_TAGGED) {
 					proto_tree_add_item(rdma_header_tree,
@@ -450,7 +450,7 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 	}
 }
 
-/* 
+/*
  * Main dissection routine which dissects a DDP segment and interprets the
  * header field rsvdULP according to RDMAP.
  */
@@ -472,7 +472,7 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *rdma_ctrl_field_item = NULL;
 
 	tvbuff_t *next_tvb = NULL;
-	
+
 	gboolean is_tagged_buffer_model;
 	guint8 ddp_ctrl_field, rdma_ctrl_field, rdma_msg_opcode;
 	guint32 header_end;
@@ -484,30 +484,30 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	is_tagged_buffer_model = ddp_ctrl_field & DDP_TAGGED_FLAG;
 
 	ddp_rdma_packetlist(pinfo, ddp_ctrl_field & DDP_LAST_FLAG, rdma_msg_opcode);
-	
+
 	if (tree) {
-		
+
 		offset = 0;
-		
+
 		/* determine header length */
 		if (is_tagged_buffer_model) {
 			header_end = DDP_TAGGED_HEADER_LEN;
 		} else {
 			header_end = DDP_UNTAGGED_HEADER_LEN;
 		}
-		
+
 		if (rdma_msg_opcode == RDMA_READ_REQUEST
 				|| rdma_msg_opcode == RDMA_TERMINATE) {
 			header_end = -1;
 		}
-		
+
 		/* DDP/RDMA protocol tree */
 		ddp_rdma_item = proto_tree_add_item(tree, proto_iwarp_ddp_rdmap,
 				tvb, offset, header_end, FALSE);
 		ddp_rdma_tree = proto_item_add_subtree(ddp_rdma_item,
 				ett_iwarp_ddp_rdmap);
 
-		/* DDP protocol header subtree */	
+		/* DDP protocol header subtree */
 		ddp_item = proto_tree_add_item(ddp_rdma_tree, hf_iwarp_ddp, tvb,
 				offset, header_end, FALSE);
 		ddp_tree = proto_item_add_subtree(ddp_item, ett_iwarp_ddp);
@@ -518,7 +518,7 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				DDP_CONTROL_FIELD_LEN, FALSE);
 		ddp_ctrl_field_tree = proto_item_add_subtree(ddp_ctrl_field_item,
 				ett_iwarp_ddp);
-		
+
 		proto_tree_add_item(ddp_ctrl_field_tree, hf_iwarp_ddp_t_flag, tvb,
 				offset, DDP_CONTROL_FIELD_LEN, FALSE);
 		proto_tree_add_item(ddp_ctrl_field_tree, hf_iwarp_ddp_l_flag, tvb,
@@ -528,21 +528,21 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(ddp_ctrl_field_tree, hf_iwarp_ddp_dv, tvb, offset,
 				DDP_CONTROL_FIELD_LEN, FALSE);
 		offset += DDP_CONTROL_FIELD_LEN;
-		
-		
+
+
 		/* DDP header field RsvdULP */
 		if (!is_tagged_buffer_model) {
 			proto_tree_add_item(ddp_tree, hf_iwarp_ddp_rsvdulp, tvb,
 					offset, DDP_UNTAGGED_RSVDULP_LEN, FALSE);
 		}
-		
+
 		/* RDMA protocol header subtree */
 		if (is_tagged_buffer_model) {
 			header_end = RDMA_CONTROL_FIELD_LEN;
 		} else {
 			header_end = RDMA_CONTROL_FIELD_LEN + RDMA_RESERVED_FIELD_LEN;
 		}
-		
+
 		rdma_item = proto_tree_add_item(ddp_rdma_tree, hf_iwarp_rdma, tvb,
 					offset, header_end, FALSE);
 		rdma_tree = proto_item_add_subtree(rdma_item, ett_iwarp_rdma);
@@ -553,7 +553,7 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				RDMA_CONTROL_FIELD_LEN, FALSE);
 		rdma_ctrl_field_tree = proto_item_add_subtree(rdma_ctrl_field_item,
 				ett_iwarp_rdma);
-		
+
 		proto_tree_add_item(rdma_ctrl_field_tree, hf_iwarp_rdma_version, tvb,
 				offset, RDMA_CONTROL_FIELD_LEN, FALSE);
 		proto_tree_add_item(rdma_ctrl_field_tree, hf_iwarp_rdma_rsvd, tvb,
@@ -561,7 +561,7 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(rdma_ctrl_field_tree, hf_iwarp_rdma_opcode, tvb,
 				offset, RDMA_CONTROL_FIELD_LEN, FALSE);
 		offset += RDMA_CONTROL_FIELD_LEN;
-		
+
 		/* dissection of DDP rsvdULP[8:39] with respect to RDMAP */
 		if (rdma_msg_opcode == RDMA_READ_REQUEST
 				|| rdma_msg_opcode == RDMA_SEND
@@ -570,13 +570,13 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(rdma_tree, hf_iwarp_rdma_reserved,
 				 tvb, offset, RDMA_RESERVED_FIELD_LEN, FALSE);
 		}
-		
+
 		if (rdma_msg_opcode == RDMA_SEND_INVALIDATE
 				|| rdma_msg_opcode == RDMA_SEND_SE_INVALIDATE) {
 			proto_tree_add_item(rdma_tree, hf_iwarp_rdma_inval_stag,
 				tvb, offset, RDMA_INVAL_STAG_LEN, FALSE);
 		}
-		
+
 		if (!is_tagged_buffer_model) {
 			offset += RDMA_RESERVED_FIELD_LEN;
 		}
@@ -597,17 +597,17 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(ddp_buffer_model_tree, hf_iwarp_ddp_to, tvb,
 					offset, DDP_TO_LEN, FALSE);
 			offset += DDP_TO_LEN;
-			
+
 			if( rdma_msg_opcode == RDMA_READ_RESPONSE
 					|| rdma_msg_opcode == RDMA_WRITE) {
-				
+
 				/* display the payload */
 				next_tvb = tvb_new_subset_remaining(tvb, DDP_TAGGED_HEADER_LEN);
 				call_dissector(data_handle, next_tvb, pinfo, tree);
 			}
-			
+
 		} else {
-			
+
 			/* Untagged Buffer Model Case */
 			ddp_buffer_model_item = proto_tree_add_item(ddp_tree,
 					hf_iwarp_ddp_untagged_header, tvb, offset,
@@ -624,7 +624,7 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(ddp_buffer_model_tree, hf_iwarp_ddp_mo, tvb,
 					offset, DDP_MO_LEN, FALSE);
 			offset += DDP_MO_LEN;
-			
+
 			if (rdma_msg_opcode == RDMA_SEND
 					|| rdma_msg_opcode == RDMA_SEND_INVALIDATE
 					|| rdma_msg_opcode == RDMA_SEND_SE
@@ -659,7 +659,7 @@ proto_register_iwarp_ddp_rdmap(void)
 		{ &hf_iwarp_ddp_control_field, {
 				"DDP control field", "iwarp_ddp.control_field",
 				FT_NONE, BASE_NONE, NULL, 0x0,
-				"DDP Control Field", HFILL } },
+				NULL, HFILL } },
 		{ &hf_iwarp_ddp_tagged_header, {
 				"Tagged buffer model", "iwarp_ddp.tagged",
 				FT_NONE, BASE_NONE, NULL, 0x0,
@@ -852,17 +852,17 @@ proto_register_iwarp_ddp_rdmap(void)
 	static gint *ett[] = {
 
 		&ett_iwarp_ddp_rdmap,
-		
+
 		/* DDP */
 		&ett_iwarp_ddp,
 
 		&ett_iwarp_ddp_control_field,
 		&ett_iwarp_ddp_tagged_header,
 		&ett_iwarp_ddp_untagged_header,
-		
+
 		/* RDMAP */
 		&ett_iwarp_rdma,
-		
+
 		&ett_iwarp_rdma_control_field,
 		&ett_iwarp_rdma_rr_header,
 		&ett_iwarp_rdma_terminate_header,

@@ -217,7 +217,7 @@ proto_register_klm(void)
 
 		{ &hf_klm_servername, {
 			"server name", "klm.servername", FT_STRING, BASE_NONE,
-			NULL, 0, "Server name", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_klm_pid, {
 			"pid", "klm.pid", FT_UINT32, BASE_DEC,

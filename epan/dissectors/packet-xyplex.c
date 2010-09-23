@@ -177,12 +177,12 @@ proto_register_xyplex(void)
     { &hf_xyplex_server_port,
       { "Server Port",	      "xyplex.server_port",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
-      	"Server port", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_xyplex_return_port,
       { "Return Port",   "xyplex.return_port",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
-      	"Return port", HFILL }},
+      	NULL, HFILL }},
 
     { &hf_xyplex_reserved,
       { "Reserved field",  "xyplex.reserved",
@@ -192,7 +192,7 @@ proto_register_xyplex(void)
     { &hf_xyplex_reply,
       { "Registration Reply",  "xyplex.reply",
 	FT_UINT16, BASE_DEC, VALS(xyplex_reg_vals), 0x0,
-      	"Registration reply", HFILL }},
+      	NULL, HFILL }},
 
   };
   static gint *ett[] = {

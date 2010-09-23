@@ -179,7 +179,7 @@ proto_register_docsis_map (void)
     {&hf_docsis_map,
      {"Map Message", "docsis_map",
       FT_BYTES, BASE_NONE, NULL, 0x0,
-      "MAP Message", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_map_ucd_count,
      {"UCD Count", "docsis_map.ucdcount",

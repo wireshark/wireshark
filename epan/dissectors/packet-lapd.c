@@ -34,7 +34,7 @@
  * http://www.acacia-net.com/Clarinet/Protocol/q9213o84.htm
  * http://www.itu.int/rec/T-REC-Q.921/en
  * Base Station Controller - Base Transceiver Station (BSC - BTS) interface; Layer 2 specification
- * http://www.3gpp.org/ftp/Specs/html-info/48056.htm 
+ * http://www.3gpp.org/ftp/Specs/html-info/48056.htm
  */
 
 #ifdef HAVE_CONFIG_H
@@ -151,7 +151,7 @@ static const xdlc_cf_items lapd_cf_items_ext = {
 };
 
 
-/* LAPD frame detection state */ 
+/* LAPD frame detection state */
 enum lapd_bitstream_states {OUT_OF_SYNC, FLAGS, DATA};
 
 typedef struct lapd_byte_state {
@@ -210,7 +210,7 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint		offset = 0, last_packet_end_offset = 0, available;
 	guint8		*buff;
 	tvbuff_t	*new_tvb;
-	
+
 	enum lapd_bitstream_states state = OUT_OF_SYNC;
 	lapd_ppi_t		*lapd_ppi;
 	conversation_t		*conversation = NULL;
@@ -230,7 +230,7 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			bit_offset = prev_byte_state->bit_offset;
 			ones = prev_byte_state->ones;
 		}
-		
+
 	} else if (conversation) {
 		convo_data = (lapd_convo_data_t*)conversation_get_proto_data(conversation, proto_lapd);
 		if (NULL != convo_data) {
@@ -306,7 +306,7 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							bit_offset--;
 						}
 						break;
-					
+
 					case FLAGS:
 						if (full_byte == 0x7E) { /* we have a flag byte */
 							full_byte = 0x00;
@@ -318,7 +318,7 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							bit_offset = 0;
 						}
 						break;
-						
+
 					case DATA:
 						/* we got a new data byte */
 						new_byte(full_byte, data, &data_len);
@@ -343,14 +343,14 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				fill_lapd_byte_state(&lapd_ppi->start_byte_state, prev_byte_state->state,
 						prev_byte_state->full_byte, prev_byte_state->bit_offset,
 						prev_byte_state->ones);
-			else 
+			else
 				fill_lapd_byte_state(&lapd_ppi->start_byte_state, OUT_OF_SYNC, 0x00, 0, 0);
 
 			p_add_proto_data(pinfo->fd, proto_lapd, lapd_ppi);
-			
-					
+
+
 			/* Conversation info*/
-			
+
 			if (conversation) {
 				if (convo_data) { /* already have lapd convo data */
 					if (forward_stream)
@@ -502,14 +502,14 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (NULL != p_get_proto_data(pinfo->fd, proto_lapd)
 			&& ((lapd_ppi_t*)p_get_proto_data(pinfo->fd, proto_lapd))->has_crc) {
-		
+
 		/* check checksum */
 		checksum_offset = tvb_length(tvb) - 2;
 		checksum = tvb_get_guint8(tvb, checksum_offset); /* high byte */
 		checksum <<= 8;
 		checksum |= tvb_get_guint8(tvb, checksum_offset+1) & 0x00FF; /* low byte */
 		checksum_calculated = g_htons(crc16_ccitt_tvb(tvb, tvb_length(tvb) - 2));
-		
+
 		if (checksum == checksum_calculated) {
 			checksum_ti = proto_tree_add_uint_format(lapd_tree, hf_lapd_checksum, tvb, checksum_offset, 2, 0,"Checksum: 0x%04x [correct]", checksum);
 			checksum_tree = proto_item_add_subtree(checksum_ti, ett_lapd_checksum);
@@ -521,10 +521,10 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_boolean(checksum_tree, hf_lapd_checksum_good, tvb, checksum_offset, 2, FALSE);
 			proto_tree_add_boolean(checksum_tree, hf_lapd_checksum_bad, tvb, checksum_offset, 2, TRUE);
 		}
-		
+
 		next_tvb = tvb_new_subset(tvb, lapd_header_len, tvb_length_remaining(tvb,lapd_header_len) - 2, -1);
-		
-	} else 
+
+	} else
 		next_tvb = tvb_new_subset_remaining(tvb, lapd_header_len);
 
 	if (XDLC_IS_INFORMATION(control)) {
@@ -584,7 +584,7 @@ proto_register_lapd(void)
 
 	{ &hf_lapd_control,
 	  { "Control Field", "lapd.control", FT_UINT16, BASE_HEX, NULL, 0x0,
-	  	"Control field", HFILL }},
+	  	NULL, HFILL }},
 
 	{ &hf_lapd_n_r,
 	    { "N(R)", "lapd.control.n_r", FT_UINT16, BASE_DEC,
@@ -635,11 +635,11 @@ proto_register_lapd(void)
 		VALS(ftype_vals), XDLC_S_U_MASK, NULL, HFILL }},
 
 	{ &hf_lapd_checksum,
-	    { "Checksum", "lapd.checksum", FT_UINT16, BASE_HEX, 
+	    { "Checksum", "lapd.checksum", FT_UINT16, BASE_HEX,
 		NULL, 0x0, "Details at: http://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL }},
 
 	{ &hf_lapd_checksum_good,
-	    { "Good Checksum", "lapd.checksum_good", FT_BOOLEAN, BASE_NONE, 
+	    { "Good Checksum", "lapd.checksum_good", FT_BOOLEAN, BASE_NONE,
 		NULL, 0x0, "True: checksum matches packet content; False: doesn't match content or not checked", HFILL }},
 
 	{ &hf_lapd_checksum_bad,

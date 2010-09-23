@@ -485,7 +485,7 @@ proto_register_fix(void)
 
         { &hf_fix_field_value,
             { "Field Value",       "fix.field.value", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Field value", HFILL }},
+            NULL, HFILL }},
 
           { &hf_fix_checksum_good,
             { "Good Checksum",	   "fix.checksum_good", FT_BOOLEAN, BASE_NONE, NULL, 0x0,

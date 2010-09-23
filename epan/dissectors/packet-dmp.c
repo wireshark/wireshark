@@ -828,7 +828,7 @@ static const gchar *msg_type_to_str (void)
 {
   const gchar *msg_type;
   gboolean     have_msg = FALSE;
-  
+
   switch (dmp.msg_type) {
 
   case STANAG:
@@ -840,25 +840,25 @@ static const gchar *msg_type_to_str (void)
                 val_to_str (dmp.prec-4, precedence, "Unknown") :
                 val_to_str (dmp.prec, precedence, "Unknown"));
     break;
-    
+
   case IPM:
     /* Include importance */
     msg_type = ep_strdup_printf ("%s [%s]",
                 val_to_str (dmp.msg_type, type_vals, "Unknown"),
                 val_to_str (dmp.prec, importance, "Unknown"));
     break;
-    
+
   case REPORT:
     /* Include report types included */
     msg_type = ep_strdup_printf ("Report (%s%s%s)",
                 dmp.dr ? "DR" : "", (dmp.dr && dmp.ndr) ? " and " : "",
                 dmp.ndr ? "NDR" : "");
     break;
-    
+
   case NOTIF:
     msg_type = val_to_str (dmp.notif_type, notif_type, "Unknown");
     break;
-    
+
   case ACK:
     /* If we have msg_time we have a matching packet */
     have_msg = (dmp.id_val &&
@@ -868,12 +868,12 @@ static const gchar *msg_type_to_str (void)
                                        " (unknown:%d)") : "",
                 dmp.ack_reason ? " [negative]" : "");
     break;
-    
+
   default:
     msg_type = "Unknown";
     break;
   }
-  
+
   return msg_type;
 }
 
@@ -1135,11 +1135,11 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
     /* No analysis of error packets */
     return;
   }
-  
+
   dmp_key = se_alloc (sizeof (dmp_id_key));
 
-  if (!pinfo->fd->flags.visited && 
-      (dmp.msg_type == REPORT || dmp.msg_type == NOTIF)) 
+  if (!pinfo->fd->flags.visited &&
+      (dmp.msg_type == REPORT || dmp.msg_type == NOTIF))
   {
     /* Try to match corresponding message */
     dmp_key->id = (guint) dmp.subj_id;
@@ -1282,7 +1282,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
         en = proto_tree_add_uint (analysis_tree, hf_analysis_msg_num,
                                   tvb, 0, 0, dmp.id_val->msg_id);
         PROTO_ITEM_SET_GENERATED (en);
-        
+
         nstime_delta (&ns, &pinfo->fd->abs_ts, &dmp.id_val->rep_not_msg_time);
         en = proto_tree_add_time (analysis_tree, hf_analysis_rep_time,
                                   tvb, 0, 0, &ns);
@@ -1291,7 +1291,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
         en = proto_tree_add_item (analysis_tree, hf_analysis_msg_missing,
                                   tvb, 0, 0, FALSE);
         PROTO_ITEM_SET_GENERATED (en);
-        
+
         expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
                                 "Message missing");
       }
@@ -1300,7 +1300,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
         en = proto_tree_add_uint (analysis_tree, hf_analysis_msg_num,
                                   tvb, 0, 0, dmp.id_val->msg_id);
         PROTO_ITEM_SET_GENERATED (en);
-        
+
         nstime_delta (&ns, &pinfo->fd->abs_ts, &dmp.id_val->rep_not_msg_time);
         en = proto_tree_add_time (analysis_tree, hf_analysis_not_time,
                                   tvb, 0, 0, &ns);
@@ -1309,21 +1309,21 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
         en = proto_tree_add_item (analysis_tree, hf_analysis_msg_missing,
                                   tvb, 0, 0, FALSE);
         PROTO_ITEM_SET_GENERATED (en);
-        
+
         expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
                                 "Message missing");
       }
     }
-    
+
     if (dmp.id_val->msg_resend_count) {
       en = proto_tree_add_uint (analysis_tree, hf_analysis_retrans_no,
                                 tvb, 0, 0, dmp.id_val->msg_resend_count);
       PROTO_ITEM_SET_GENERATED (en);
-      
+
       expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
                               "Retransmission #%d",
                               dmp.id_val->msg_resend_count);
-      
+
       if (dmp.msg_type == REPORT) {
         en = proto_tree_add_uint (analysis_tree, hf_analysis_rep_resend_from,
                                   tvb, 0, 0, dmp.id_val->rep_id);
@@ -1335,17 +1335,17 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
                                   tvb, 0, 0, dmp.id_val->msg_id);
       }
       PROTO_ITEM_SET_GENERATED (en);
-      
+
       nstime_delta (&ns, &pinfo->fd->abs_ts, &dmp.id_val->prev_msg_time);
       en = proto_tree_add_time (analysis_tree, hf_analysis_retrans_time,
                                 tvb, 0, 0, &ns);
       PROTO_ITEM_SET_GENERATED (en);
-      
+
       nstime_delta (&ns, &pinfo->fd->abs_ts, &dmp.id_val->first_msg_time);
       eh = proto_tree_add_time (analysis_tree, hf_analysis_total_retrans_time,
                                 tvb, 0, 0, &ns);
       PROTO_ITEM_SET_GENERATED (eh);
-      
+
       if (dmp.id_val->first_msg_time.secs == dmp.id_val->prev_msg_time.secs &&
           dmp.id_val->first_msg_time.nsecs == dmp.id_val->prev_msg_time.nsecs) {
         /* Time values does not differ, hide the total time */
@@ -1365,17 +1365,17 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
                                   tvb, 0, 0, dmp.id_val->msg_id);
       }
       PROTO_ITEM_SET_GENERATED (en);
-      
+
       nstime_delta (&ns, &pinfo->fd->abs_ts, &dmp.id_val->msg_time);
       en = proto_tree_add_time (analysis_tree, hf_analysis_ack_time,
                                 tvb, 0, 0, &ns);
       PROTO_ITEM_SET_GENERATED (en);
-      
+
       nstime_delta (&ns, &pinfo->fd->abs_ts, &dmp.id_val->first_msg_time);
       eh = proto_tree_add_time (analysis_tree, hf_analysis_total_time,
                                 tvb, 0, 0, &ns);
       PROTO_ITEM_SET_GENERATED (eh);
-      
+
       if (dmp.id_val->first_msg_time.secs == dmp.id_val->msg_time.secs &&
           dmp.id_val->first_msg_time.nsecs == dmp.id_val->msg_time.nsecs) {
         /* Time values does not differ, hide the total time */
@@ -1389,19 +1389,19 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
       en = proto_tree_add_item (analysis_tree, hf_analysis_msg_missing,
                                 tvb, 0, 0, FALSE);
       PROTO_ITEM_SET_GENERATED (en);
-      
+
       expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
                               "Message missing");
     }
-    
+
     if (dmp.id_val->ack_resend_count) {
       en = proto_tree_add_uint (analysis_tree, hf_analysis_ack_dup_no,
                                 tvb, 0, 0, dmp.id_val->ack_resend_count);
       PROTO_ITEM_SET_GENERATED (en);
-      
+
       expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
                               "Dup ACK #%d", dmp.id_val->ack_resend_count);
-      
+
       en = proto_tree_add_uint (analysis_tree, hf_analysis_ack_resend_from,
                                 tvb, 0, 0, dmp.id_val->ack_id);
       PROTO_ITEM_SET_GENERATED (en);
@@ -3566,7 +3566,7 @@ void proto_register_dmp (void)
     */
     { &hf_dmp_id,
       { "DMP Identifier", "dmp.id", FT_UINT16, BASE_DEC,
-        NULL, 0x0, "DMP identifier", HFILL}},
+        NULL, 0x0, NULL, HFILL}},
 
     /*
     ** Envelope
@@ -3603,7 +3603,7 @@ void proto_register_dmp (void)
     /* Message identifier */
     { &hf_envelope_msg_id,
       { "Message Identifier", "dmp.msg_id", FT_UINT16, BASE_DEC,
-        NULL, 0x0, "Message identifier", HFILL}},
+        NULL, 0x0, NULL, HFILL}},
 
     /* Submission time */
     { &hf_envelope_subm_time,
@@ -4059,7 +4059,7 @@ void proto_register_dmp (void)
         VALS (notif_type), 0x03, NULL, HFILL } },
     { &hf_notif_rec_time,
       { "Receipt Time", "dmp.receipt_time", FT_UINT8, BASE_HEX,
-        NULL, 0x0, "Receipt time", HFILL } },
+        NULL, 0x0, NULL, HFILL } },
     { &hf_notif_rec_time_val,
       { "Receipt Time Value", "dmp.receipt_time_val", FT_UINT8,
         BASE_HEX, NULL, 0xFF, NULL, HFILL } },
@@ -4164,19 +4164,19 @@ void proto_register_dmp (void)
       { "Duplicate ACK #", "dmp.analysis.dup_ack_no", FT_UINT32, BASE_DEC,
         NULL, 0x0, "Duplicate Acknowledgement count", HFILL } },
     { &hf_analysis_msg_resend_from,
-      { "Retransmission of Message sent in", "dmp.analysis.msg_first_sent_in", 
+      { "Retransmission of Message sent in", "dmp.analysis.msg_first_sent_in",
         FT_FRAMENUM, BASE_NONE,
         NULL, 0x0, "This Message was first sent in this frame", HFILL } },
     { &hf_analysis_rep_resend_from,
-      { "Retransmission of Report sent in", "dmp.analysis.report_first_sent_in", 
+      { "Retransmission of Report sent in", "dmp.analysis.report_first_sent_in",
         FT_FRAMENUM, BASE_NONE,
         NULL, 0x0, "This Report was first sent in this frame", HFILL } },
     { &hf_analysis_not_resend_from,
-      { "Retransmission of Notification sent in", "dmp.analysis.notif_first_sent_in", 
+      { "Retransmission of Notification sent in", "dmp.analysis.notif_first_sent_in",
         FT_FRAMENUM, BASE_NONE,
         NULL, 0x0, "This Notification was first sent in this frame", HFILL } },
     { &hf_analysis_ack_resend_from,
-      { "Retransmission of Acknowledgement sent in", "dmp.analysis.ack_first_sent_in", 
+      { "Retransmission of Acknowledgement sent in", "dmp.analysis.ack_first_sent_in",
         FT_FRAMENUM, BASE_NONE,
         NULL, 0x0, "This Acknowledgement was first sent in this frame", HFILL } },
 
@@ -4292,7 +4292,7 @@ void proto_register_dmp (void)
 
   proto_dmp = proto_register_protocol (PNAME, PSNAME, PFNAME);
   register_dissector(PFNAME, dissect_dmp, proto_dmp);
-        
+
   proto_register_field_array (proto_dmp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
   register_init_routine (&dmp_init_routine);
@@ -4370,7 +4370,7 @@ void proto_reg_handoff_dmp (void)
 
   /* Save port number for later deletion */
   dmp_port_range = range_copy (global_dmp_port_range);
-    
+
   range_foreach (dmp_port_range, range_add_callback);
 }
 

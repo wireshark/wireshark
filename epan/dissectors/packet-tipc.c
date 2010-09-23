@@ -2287,7 +2287,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 			/* tipc data type user doesn't change format, reuse v2 function */
 			next_tvb = tvb_new_subset_remaining(tvb, offset);
-			call_tipc_v2_data_subdissectors(next_tvb, pinfo, name_type_p, user);				
+			call_tipc_v2_data_subdissectors(next_tvb, pinfo, name_type_p, user);
 		}
 	} /*if (hdr_size <= 5) */
 }
@@ -2732,7 +2732,7 @@ proto_register_tipc(void)
 		{ &hf_tipcv2_probe,
 			{ "Probe", "tipcv2.probe",
 				FT_UINT32, BASE_DEC, NULL, 0x00000001,
-				"probe", HFILL }
+				NULL, HFILL }
 		},
 		{ &hf_tipcv2_link_tolerance,
 			{ "Link Tolerance (ms)", "tipcv2.link_tolerance",

@@ -390,7 +390,7 @@ dissect_ndr_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 		item = proto_tree_add_text(parent_tree, tvb, offset, 0, "%s: ", hf_info->name);
 		tree = proto_item_add_subtree(item, ett_lsa_String);
 	}
-	
+
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, drep, hf_lsa_String_name_len, 0);
 
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, drep, hf_lsa_String_name_size, 0);
@@ -1753,7 +1753,7 @@ void dcerpc_smb_init(int proto_dcerpc)
 
 		{ &hf_nt_acct_ctrl,
 		  { "Acct Ctrl", "dcerpc.nt.acct_ctrl", FT_UINT32, BASE_HEX,
-		    NULL, 0x0, "Acct CTRL", HFILL }},
+		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_nt_acb_disabled,
 		  { "Account disabled", "dcerpc.nt.acb.disabled", FT_BOOLEAN, 32,
@@ -1840,11 +1840,11 @@ void dcerpc_smb_init(int proto_dcerpc)
 		  { "Attributes", "dcerpc.nt.attr",
 		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-		{ &hf_lsa_String_name_len, 
+		{ &hf_lsa_String_name_len,
 		  { "Name Len", "dcerpc.lsa_String.name_len",
 		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
-		{ &hf_lsa_String_name_size, 
+		{ &hf_lsa_String_name_size,
 		  { "Name Size", "dcerpc.lsa_String.name_size",
 		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	};

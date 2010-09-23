@@ -324,12 +324,12 @@ proto_register_arcnet (void)
     {&hf_arcnet_split_flag,
      {"Split Flag", "arcnet.split_flag",
       FT_UINT8, BASE_DEC, NULL, 0,
-      "Split flag", HFILL}
+      NULL, HFILL}
      },
     {&hf_arcnet_exception_flag,
      {"Exception Flag", "arcnet.exception_flag",
       FT_UINT8, BASE_HEX, NULL, 0,
-      "Exception flag", HFILL}
+      NULL, HFILL}
      },
     {&hf_arcnet_sequence,
      {"Sequence", "arcnet.sequence",

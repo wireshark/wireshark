@@ -1925,12 +1925,12 @@ proto_register_dtls(void)
     { &hf_dtls_record,
       { "Record Layer", "dtls.record",
         FT_NONE, BASE_NONE, NULL, 0x0,
-        "Record layer", HFILL }
+        NULL, HFILL }
     },
     { &hf_dtls_record_content_type,
       { "Content Type", "dtls.record.content_type",
         FT_UINT8, BASE_DEC, VALS(ssl_31_content_type), 0x0,
-        "Content type", HFILL}
+        NULL, HFILL}
     },
     { &hf_dtls_record_version,
       { "Version", "dtls.record.version",
@@ -2040,7 +2040,7 @@ proto_register_dtls(void)
     { &hf_dtls_handshake_cipher_suite,
       { "Cipher Suite", "dtls.handshake.ciphersuite",
         FT_UINT16, BASE_HEX, VALS(ssl_31_ciphersuite), 0x0,
-        "Cipher suite", HFILL }
+        NULL, HFILL }
     },
     { &hf_dtls_handshake_cookie_len,
       { "Cookie Length", "dtls.handshake.cookie_length",

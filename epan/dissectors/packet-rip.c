@@ -338,7 +338,7 @@ proto_register_rip(void)
 
 		{ &hf_rip_family,
 			{ "Address Family", "rip.family", FT_UINT16, BASE_DEC,
-			VALS(family_vals), 0, "Address family", HFILL }},
+			VALS(family_vals), 0, NULL, HFILL }},
 
 		{ &hf_rip_routing_domain,
 			{ "Routing Domain", "rip.routing_domain", FT_UINT16, BASE_DEC,

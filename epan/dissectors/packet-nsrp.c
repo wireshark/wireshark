@@ -25,15 +25,15 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* 
+/*
  *
  * NSRP update information can be found at www.juniper.net
  *
  *
- *           
+ *
  *    NSRP Packet Header is defined as follow:
- *                  
- *       1         2       3        4        5         6       7        8 
+ *
+ *       1         2       3        4        5         6       7        8
  *   +--------+--------+--------+--------+--------+--------+--------+--------+
  *   |Version | Type   |Clust ID|MSG Flag|     Length      |HA Port |Not Used|
  *   +--------+--------+--------+--------+--------+--------+--------+--------+
@@ -163,27 +163,27 @@ dissect_nsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree) {
 			ti = proto_tree_add_item(tree, proto_nsrp, tvb, 0, -1, FALSE);
 			nsrp_tree = proto_item_add_subtree(ti, ett_nsrp);
-			
-			
+
+
 			proto_tree_add_item(nsrp_tree, hf_nsrp_version, tvb, offset, 1, FALSE);
 			offset += 1;
 
 			msgtype = tvb_get_guint8(tvb, offset);
 			proto_tree_add_item(nsrp_tree, hf_nsrp_msg_type, tvb, offset, 1, FALSE);
 			offset += 1;
-		
+
 			proto_tree_add_item(nsrp_tree, hf_nsrp_clust_id, tvb, offset, 1, FALSE);
 			offset += 1;
-			
+
 			proto_tree_add_item(nsrp_tree, hf_nsrp_msg_flag, tvb, offset, 1, FALSE);
 			offset += 1;
 
 			proto_tree_add_item(nsrp_tree, hf_nsrp_len, tvb, offset, 2, FALSE);
 			offset += 2;
-		
+
 			proto_tree_add_item(nsrp_tree, hf_nsrp_ha_port, tvb, offset, 1, FALSE);
 			offset += 1;
-			
+
 			proto_tree_add_item(nsrp_tree, hf_nsrp_not_used, tvb, offset, 1, FALSE);
 			offset += 1;
 
@@ -193,13 +193,13 @@ dissect_nsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(nsrp_tree, hf_nsrp_src_unit, tvb, offset, 4, FALSE);
 			offset += 4;
 		}
-		
+
 /*
  *
  *
  *    NSRP HA Packet is defined as follow:
- * 
- *       1         2       3        4        5         6       7        8 
+ *
+ *       1         2       3        4        5         6       7        8
  *   +--------+--------+--------+--------+--------+--------+--------+--------+
  *   | Type   |WstGroup|HstGroup|MSG Flag|     Length      |Enc Flag|Not Used|
  *   +--------+--------+--------+--------+--------+--------+--------+--------+
@@ -212,7 +212,7 @@ dissect_nsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  */
 
 		if ( msgtype == 0x00 ) {
-			
+
 			proto_tree_add_item(nsrp_tree, hf_nsrp_msgtype, tvb, offset, 1, FALSE);
 			offset += 1;
 
@@ -224,10 +224,10 @@ dissect_nsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			proto_tree_add_item(nsrp_tree, hf_nsrp_msgflag, tvb, offset, 1, FALSE);
 			offset += 1;
-		
+
 			proto_tree_add_item(nsrp_tree, hf_nsrp_msglen, tvb, offset, 2, FALSE);
 			offset += 2;
-			
+
 			proto_tree_add_item(nsrp_tree, hf_nsrp_encflag, tvb, offset, 1, FALSE);
 			offset += 1;
 
@@ -236,39 +236,39 @@ dissect_nsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			proto_tree_add_item(nsrp_tree, hf_nsrp_total_size, tvb, offset, 4, FALSE);
 			offset += 4;
-		
+
 			proto_tree_add_item(nsrp_tree, hf_nsrp_ns, tvb, offset, 2, FALSE);
 			offset += 2;
-			
+
 			proto_tree_add_item(nsrp_tree, hf_nsrp_nr, tvb, offset, 2, FALSE);
 			offset += 2;
 
 			proto_tree_add_item(nsrp_tree, hf_nsrp_no_used, tvb, offset, 2, FALSE);
 			offset += 2;
-		
+
 			proto_tree_add_item(nsrp_tree, hf_nsrp_checksum, tvb, offset, 2, FALSE);
 			offset += 2;
-			
+
 			proto_tree_add_item(nsrp_tree, hf_nsrp_data, tvb, offset, -1, FALSE);
-			
+
     }
-    
+
 /*
- *  
+ *
  *    NSRP MNG Packet is defined as follow:
- * 
- *       1         2       3        4        5         6       7        8 
+ *
+ *       1         2       3        4        5         6       7        8
  *   +--------+--------+--------+--------+--------+--------+--------+--------+
  *   | Type   |WstGroup|HstGroup|MSG Flag|     Length      |AuthFlag|Not Used|
  *   +--------+--------+--------+--------+--------+--------+--------+--------+
  *   |Priority+ Dummy  +   Auth CheckSum +                Data               |
  *   +--------+--------+--------+--------+-----------------------------------+
- *  
+ *
  *
  */
 
 		if ( msgtype == 0x02 ) {
-			
+
 			proto_tree_add_item(nsrp_tree, hf_nsrp_msgtype, tvb, offset, 1, FALSE);
 			offset += 1;
 
@@ -280,10 +280,10 @@ dissect_nsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			proto_tree_add_item(nsrp_tree, hf_nsrp_msgflag, tvb, offset, 1, FALSE);
 			offset += 1;
-		
+
 			proto_tree_add_item(nsrp_tree, hf_nsrp_msglen, tvb, offset, 2, FALSE);
 			offset += 2;
-			
+
 			proto_tree_add_item(nsrp_tree, hf_nsrp_authflag, tvb, offset, 1, FALSE);
 			offset += 1;
 
@@ -292,24 +292,24 @@ dissect_nsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			proto_tree_add_item(nsrp_tree, hf_nsrp_priority, tvb, offset, 1, FALSE);
 			offset += 1;
-		
+
 			proto_tree_add_item(nsrp_tree, hf_nsrp_dummy, tvb, offset, 1, FALSE);
 			offset += 1;
-			
+
 			proto_tree_add_item(nsrp_tree, hf_nsrp_authchecksum, tvb, offset, 2, FALSE);
 			offset += 2;
 
 			proto_tree_add_item(nsrp_tree, hf_nsrp_data, tvb, offset, -1, FALSE);
-			
+
     }
-    
-        
-    
-    
-/*   
+
+
+
+
+/*
  *    NSRP DATA Packet is defined as follow:
- * 
- *       1         2       3        4        5         6       7        8 
+ *
+ *       1         2       3        4        5         6       7        8
  *   +--------+--------+--------+--------+--------+--------+--------+--------+
  *   | Type   |WstGroup|HstGroup|MSG Flag|     Length      | Ifnum  |Not Used|
  *   +--------+--------+--------+--------+--------+--------+--------+--------+
@@ -319,7 +319,7 @@ dissect_nsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *
  */
    if ( msgtype == 0x03 ) {
-			
+
 			proto_tree_add_item(nsrp_tree, hf_nsrp_msgtype, tvb, offset, 1, FALSE);
 			offset += 1;
 
@@ -331,10 +331,10 @@ dissect_nsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			proto_tree_add_item(nsrp_tree, hf_nsrp_msgflag, tvb, offset, 1, FALSE);
 			offset += 1;
-		
+
 			proto_tree_add_item(nsrp_tree, hf_nsrp_msglen, tvb, offset, 2, FALSE);
 			offset += 2;
-			
+
 			proto_tree_add_item(nsrp_tree, hf_nsrp_ifnum, tvb, offset, 1, FALSE);
 			offset += 1;
 
@@ -343,9 +343,9 @@ dissect_nsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			proto_tree_add_item(nsrp_tree, hf_nsrp_total_size, tvb, offset, 4, FALSE);
 			offset += 4;
-		
+
 			proto_tree_add_item(nsrp_tree, hf_nsrp_data, tvb, offset, -1, FALSE);
-			
+
     }
 
 }
@@ -389,7 +389,7 @@ proto_register_nsrp(void)
 		{ &hf_nsrp_not_used,
 	  { "Not used", "nsrp.notused",
 	    FT_UINT8, BASE_DEC, NULL, 0,
-	    "NOT USED", HFILL }
+	    NULL, HFILL }
 	},
 		{ &hf_nsrp_dst_unit,
 	  { "Destination", "nsrp.dst",
@@ -426,7 +426,7 @@ proto_register_nsrp(void)
 	    FT_UINT16, BASE_DEC, NULL, 0,
 	    "NSRP MESSAGE LENGTH", HFILL }
 	},
-		
+
 	{ &hf_nsrp_encflag,
 	  { "Enc Flag", "nsrp.encflag",
 	    FT_UINT8, BASE_DEC, VALS(nsrp_encflag_vals), 0,
@@ -435,7 +435,7 @@ proto_register_nsrp(void)
 		{ &hf_nsrp_notused,
 	  { "Not Used", "nsrp.notused",
 	    FT_UINT8, BASE_DEC, NULL, 0,
-	    "NOT USED", HFILL }
+	    NULL, HFILL }
 	},
 		{ &hf_nsrp_total_size,
 	  { "Total Size", "nsrp.totalsize",
@@ -455,7 +455,7 @@ proto_register_nsrp(void)
 		{ &hf_nsrp_no_used,
 	  { "Reserved", "nsrp.reserved",
 	    FT_UINT16, BASE_DEC, NULL, 0,
-	    "RESERVED", HFILL }
+	    NULL, HFILL }
 	},
 		{ &hf_nsrp_checksum,
 	  { "Checksum", "nsrp.checksum",

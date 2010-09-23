@@ -2022,7 +2022,7 @@ proto_register_atalk(void)
   static hf_register_info hf_atp[] = {
     { &hf_atp_ctrlinfo,
       { "Control info",         "atp.ctrlinfo", FT_UINT8,  BASE_HEX,
-                NULL, 0, "control info", HFILL }},
+                NULL, 0, NULL, HFILL }},
 
     { &hf_atp_function,
       { "Function",             "atp.function", FT_UINT8,  BASE_DEC,

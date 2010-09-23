@@ -8128,15 +8128,15 @@ proto_register_dcerpc_netlogon(void)
 
         { &hf_netlogon_dos_rc,
           { "DOS error code", "netlogon.dos.rc", FT_UINT32,
-            BASE_HEX, VALS(DOS_errors), 0x0, "DOS Error Code", HFILL}},
+            BASE_HEX, VALS(DOS_errors), 0x0, NULL, HFILL}},
 
         { &hf_netlogon_werr_rc,
           { "WERR error code", "netlogon.werr.rc", FT_UINT32,
-            BASE_HEX, VALS(WERR_errors), 0x0, "WERR Error Code", HFILL}},
+            BASE_HEX, VALS(WERR_errors), 0x0, NULL, HFILL}},
 
         { &hf_netlogon_param_ctrl, {
                 "Param Ctrl", "netlogon.param_ctrl", FT_UINT32, BASE_HEX,
-                NULL, 0x0, "Param ctrl", HFILL }},
+                NULL, 0x0, NULL, HFILL }},
 
         { &hf_netlogon_logon_id, {
                 "Logon ID", "netlogon.logon_id", FT_UINT64, BASE_DEC,
@@ -8220,7 +8220,7 @@ proto_register_dcerpc_netlogon(void)
 
         { &hf_netlogon_lsapolicy_referentid,
           { "Referent ID", "netlogon.lsapolicy.referentID", FT_UINT32, BASE_HEX,
-            NULL, 0x0, "Referent ID", HFILL }},
+            NULL, 0x0, NULL, HFILL }},
 
         { &hf_netlogon_lsapolicy_len,
           { "Length", "netlogon.lsapolicy.length", FT_UINT32, BASE_DEC,
@@ -8256,11 +8256,11 @@ proto_register_dcerpc_netlogon(void)
 
         { &hf_netlogon_trust_len,
           { "Length", "netlogon.trust.extention_length", FT_UINT32, BASE_DEC,
-            NULL, 0, "Length", HFILL }},
+            NULL, 0, NULL, HFILL }},
 
         { &hf_netlogon_trust_max,
           { "Max Count", "netlogon.trust.extention.maxcount", FT_UINT32, BASE_DEC,
-            NULL, 0, "Max Count", HFILL }},
+            NULL, 0, NULL, HFILL }},
 
         { &hf_netlogon_dummy_string2,
           { "Dummy String2", "netlogon.dummy_string", FT_STRING, BASE_NONE,
@@ -8392,11 +8392,11 @@ proto_register_dcerpc_netlogon(void)
 
         { &hf_netlogon_max_audit_event_count,
           { "Max Audit Event Count", "netlogon.max_audit_event_count", FT_UINT32, BASE_DEC,
-            NULL, 0x0, "Max audit event count", HFILL }},
+            NULL, 0x0, NULL, HFILL }},
 
         { &hf_netlogon_event_audit_option,
           { "Event Audit Option", "netlogon.event_audit_option", FT_UINT32, BASE_HEX,
-            NULL, 0x0, "Event audit option", HFILL }},
+            NULL, 0x0, NULL, HFILL }},
 
         { &hf_netlogon_sensitive_data_len,
           { "Length", "netlogon.sensitive_data_len", FT_UINT32, BASE_DEC,
@@ -8536,7 +8536,7 @@ proto_register_dcerpc_netlogon(void)
 
         { &hf_netlogon_os_version,
           { "OS version", "netlogon.os.version", FT_STRING, BASE_NONE,
-            NULL, 0, "OS Version", HFILL }},
+            NULL, 0, NULL, HFILL }},
 
         { &hf_netlogon_workstation_os,
           { "Wkst OS", "netlogon.wkst.os", FT_STRING, BASE_NONE,
@@ -8572,7 +8572,7 @@ proto_register_dcerpc_netlogon(void)
 
         { &hf_netlogon_ad_client_dns_name,
           { "Client DNS Name", "netlogon.client_dns_name", FT_STRING, BASE_NONE,
-            NULL, 0, "Client DNS Name", HFILL }},
+            NULL, 0, NULL, HFILL }},
 
         { &hf_netlogon_domain_name,
           { "Domain", "netlogon.domain", FT_STRING, BASE_NONE,
@@ -8708,11 +8708,11 @@ proto_register_dcerpc_netlogon(void)
 
         { &hf_netlogon_user_account_control,
           { "User Account Control", "netlogon.user_account_control", FT_UINT32, BASE_HEX,
-            NULL, 0x0, "User Account control", HFILL }},
+            NULL, 0x0, NULL, HFILL }},
 
         { &hf_netlogon_user_flags,
           { "User Flags", "netlogon.user_flags", FT_UINT32, BASE_HEX,
-            NULL, 0x0, "User flags", HFILL }},
+            NULL, 0x0, NULL, HFILL }},
 
         { &hf_netlogon_auth_flags,
           { "Auth Flags", "netlogon.auth_flags", FT_UINT32, BASE_HEX,
@@ -9196,7 +9196,7 @@ proto_register_dcerpc_netlogon(void)
 
         { &hf_netlogon_audit_retention_period,
           { "Audit Retention Period", "netlogon.audit_retention_period", FT_RELATIVE_TIME, BASE_NONE,
-            NULL, 0, "Audit retention period", HFILL }},
+            NULL, 0, NULL, HFILL }},
 
         { &hf_netlogon_timelimit,
           { "Time Limit", "netlogon.time_limit", FT_RELATIVE_TIME, BASE_NONE,

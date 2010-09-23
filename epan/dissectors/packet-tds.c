@@ -2063,7 +2063,7 @@ proto_register_tds(void)
         { &hf_tds7_packet_size,
           { "Packet Size", "tds7login.packet_size",
             FT_UINT32, BASE_DEC, NULL, 0x0,
-            "Packet size", HFILL }
+            NULL, HFILL }
         },
         { &hf_tds7_client_version,
           { "Client version", "tds7login.client_version",
@@ -2098,7 +2098,7 @@ proto_register_tds(void)
         { &hf_tds7_reserved_flags,
           { "Reserved Flags", "tds7login.reserved_flags",
             FT_UINT8, BASE_HEX, NULL, 0x0,
-            "reserved flags", HFILL }
+            NULL, HFILL }
         },
         { &hf_tds7_time_zone,
           { "Time Zone", "tds7login.time_zone",

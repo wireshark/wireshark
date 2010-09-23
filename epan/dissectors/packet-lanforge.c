@@ -248,7 +248,7 @@ void proto_register_lanforge(void)
           {
               "Timestamp Secs", "LANforge.ts-secs",
               FT_UINT32, BASE_DEC, NULL, 0x0,
-              "Timestamp secs", HFILL
+              NULL, HFILL
           }
         },
 

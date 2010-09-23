@@ -7730,7 +7730,7 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	   idea how to dissect it.  I'm guessing the third word
 	   contains connect support bits, which looks plausible
 	   from the values I've seen. */
-	
+
 	/* MaximalShareAccessRights and GuestMaximalShareAccessRights */
 	while (wleft != 0) {
 		/*
@@ -7748,7 +7748,7 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				"Guest Maximal Share Access Rights");
 		}
 		tr = proto_item_add_subtree(it, ett_smb_nt_access_mask);
-		
+
 		offset = dissect_smb_access_mask(tvb, tr, offset);
 		wleft -= 2;
 		count++;
@@ -17703,11 +17703,11 @@ proto_register_smb(void)
 
 	{ &hf_smb_security_blob_len,
 		{ "Security Blob Length", "smb.security_blob_len", FT_UINT16, BASE_DEC,
-		NULL, 0, "Security blob length", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_security_blob,
 		{ "Security Blob", "smb.security_blob", FT_BYTES, BASE_NONE,
-		NULL, 0, "Security blob", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_sm_mode16,
 		{ "Mode", "smb.sm.mode", FT_BOOLEAN, 16,
@@ -18311,7 +18311,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_resume_key_len,
 		{ "Resume Key Length", "smb.resume.key_len", FT_UINT16, BASE_DEC,
-		NULL, 0, "Resume Key length", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_resume_find_id,
 		{ "Find ID", "smb.resume.find_id", FT_UINT8, BASE_HEX,
@@ -18991,7 +18991,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_root_dir_handle,
 		{ "Root Directory Handle", "smb.root_dir_handle", FT_UINT32, BASE_HEX,
-		NULL, 0, "Root directory handle", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_target_name_len,
 		{ "Target name length", "smb.target_name_len", FT_UINT32, BASE_DEC,
@@ -19317,7 +19317,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_dfs_referral_number_of_expnames,
 		{ "Number of Expanded Names", "smb.dfs.referral.number_of_expnames", FT_UINT16, BASE_DEC,
-		NULL, 0, "Number of expanded names", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_dfs_referral_expnames_offset,
 		{ "Expanded Names Offset", "smb.dfs.referral.expnames_offset", FT_UINT16, BASE_DEC,
@@ -19357,7 +19357,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_file_index,
 		{ "File Index", "smb.file_index", FT_UINT32, BASE_DEC,
-		NULL, 0, "File index", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_short_file_name,
 		{ "Short File Name", "smb.short_file", FT_STRING, BASE_NONE,
@@ -19381,7 +19381,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_fs_sector,
 		{ "Bytes per Sector", "smb.fs_bytes_per_sector", FT_UINT32, BASE_DEC,
-		NULL, 0, "Bytes per sector", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_avail_units,
 		{ "Available Units", "smb.avail.units", FT_UINT32, BASE_DEC,
@@ -19389,7 +19389,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_volume_serial_num,
 		{ "Volume Serial Number", "smb.volume.serial", FT_UINT32, BASE_HEX,
-		NULL, 0, "Volume serial number", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_volume_label_len,
 		{ "Label Length", "smb.volume.label.len", FT_UINT32, BASE_DEC,

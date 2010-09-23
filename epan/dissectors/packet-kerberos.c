@@ -4831,7 +4831,7 @@ proto_register_kerberos(void)
                 NULL, 0, "Transited Contents string", HFILL }},
         { &hf_krb_keytype, {
                 "Key type", "kerberos.keytype", FT_UINT32, BASE_DEC,
-                VALS(krb5_encryption_types), 0, "Key Type", HFILL }},
+                VALS(krb5_encryption_types), 0, NULL, HFILL }},
         { &hf_krb_keyvalue, {
                 "Key value", "kerberos.keyvalue", FT_BYTES, BASE_NONE,
                 NULL, 0, "Key value (encryption key)", HFILL }},
@@ -4849,7 +4849,7 @@ proto_register_kerberos(void)
                 NULL, 0, "IF_RELEVANT Data", HFILL }},
         { &hf_krb_etype, {
                 "Encryption type", "kerberos.etype", FT_INT32, BASE_DEC,
-                VALS(krb5_encryption_types), 0, "Encryption Type", HFILL }},
+                VALS(krb5_encryption_types), 0, NULL, HFILL }},
         { &hf_krb_addr_type, {
                 "Addr-type", "kerberos.addr_type", FT_UINT32, BASE_DEC,
                 VALS(krb5_address_types), 0, "Address Type", HFILL }},
@@ -5347,7 +5347,7 @@ proto_register_kerberos(void)
                 VALS(NT_errors), 0, "NT Status code", HFILL }},
         { &hf_krb_smb_unknown, {
                 "Unknown", "kerberos.smb.unknown", FT_UINT32, BASE_HEX,
-                NULL, 0, "unknown", HFILL }},
+                NULL, 0, NULL, HFILL }},
         { &hf_krb_midl_blob_len, {
                 "Blob Length", "kerberos.midl_blob_len", FT_UINT64, BASE_DEC,
                 NULL, 0, "Length of NDR encoded data that follows", HFILL }},
