@@ -14,7 +14,7 @@ FIND_PROGRAM(HTML_VIEWER_EXECUTABLE
     mozilla
     htmlview
     open
-    ENV{HTML_VIEWER}
+    $ENV{HTML_VIEWER}
   PATHS
     ${CYGWIN_INSTALL_PATH}/bin
     /bin
