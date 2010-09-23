@@ -129,7 +129,7 @@ ess_dissect_attribute_flags (tvbuff_t *tvb, asn1_ctx_t *actx)
 
     if ((strcmp (u->oid, object_identifier_id) == 0) &&
         ((u->lacv / 8) < tvb_length (tvb)) &&
-        (value[u->lacv / 8] & (1 << (8 - (u->lacv % 8)))))
+        (value[u->lacv / 8] & (1 << (7 - (u->lacv % 8)))))
     {
        proto_tree_add_string_format (tree, hf_ess_Category_attribute, tvb,
                                      u->lacv / 8, 1, u->name,
