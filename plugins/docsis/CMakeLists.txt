@@ -88,7 +88,7 @@ add_library(docsis ${LINK_MODE_MODULE}
 )
 set_target_properties(docsis PROPERTIES PREFIX "")
 set_target_properties(docsis PROPERTIES SOVERSION ${CPACK_PACKAGE_VERSION})
-set_target_properties(docsis PROPERTIES LINK_FLAGS ${WS_LINK_FLAGS})
+set_target_properties(docsis PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 
 target_link_libraries(docsis epan)
 

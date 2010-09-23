@@ -99,7 +99,7 @@ add_library(wimax ${LINK_MODE_MODULE}
 )
 set_target_properties(wimax PROPERTIES PREFIX "")
 set_target_properties(wimax PROPERTIES SOVERSION ${CPACK_PACKAGE_VERSION})
-set_target_properties(wimax PROPERTIES LINK_FLAGS ${WS_LINK_FLAGS})
+set_target_properties(wimax PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 
 target_link_libraries(wimax epan)
 

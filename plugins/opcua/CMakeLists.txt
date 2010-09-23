@@ -67,7 +67,7 @@ add_library(opcua ${LINK_MODE_MODULE}
 )
 set_target_properties(opcua PROPERTIES PREFIX "")
 set_target_properties(opcua PROPERTIES SOVERSION ${CPACK_PACKAGE_VERSION})
-set_target_properties(opcua PROPERTIES LINK_FLAGS ${WS_LINK_FLAGS})
+set_target_properties(opcua PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 
 target_link_libraries(opcua epan)
 

@@ -58,7 +58,7 @@ add_library(wimaxasncp ${LINK_MODE_MODULE}
 )
 set_target_properties(wimaxasncp PROPERTIES PREFIX "")
 set_target_properties(wimaxasncp PROPERTIES SOVERSION ${CPACK_PACKAGE_VERSION})
-set_target_properties(wimaxasncp PROPERTIES LINK_FLAGS ${WS_LINK_FLAGS})
+set_target_properties(wimaxasncp PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 
 target_link_libraries(wimaxasncp epan)
 
