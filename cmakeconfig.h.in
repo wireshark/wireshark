@@ -111,6 +111,9 @@
 /* Define to use libz library */
 #cmakedefine HAVE_LIBZ 1
 
+/* Define to 1 if you have the `gzclearerr' function */
+#cmakedefine HAVE_GZCLEARERR 1
+
 /* Define to 1 if you have the <lua5.1/lauxlib.h> header file. */
 #cmakedefine HAVE_LUA5_1_LAUXLIB_H 1
 
