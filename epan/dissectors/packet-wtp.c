@@ -884,7 +884,7 @@ proto_register_wtp(void)
 	    { 	"U/P flag",
 		"wtp.header.UP",
 		FT_BOOLEAN, 8, TFS( &UP_truth ), 0x10,
-		"U/P Flag", HFILL
+		NULL, HFILL
 	    }
 	},
 	{ &hf_wtp_header_Inv_Reserved,

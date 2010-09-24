@@ -2437,7 +2437,7 @@ void proto_register_ieee802154(void)
 
         { &hf_ieee802154_aux_sec_reserved,
         { "Reserved", "wpan.aux_sec.reserved", FT_UINT8, BASE_HEX, NULL, IEEE802154_AUX_KEY_RESERVED_MASK,
-            "Reserved", HFILL }},
+            NULL, HFILL }},
 
         { &hf_ieee802154_aux_sec_frame_counter,
         { "Frame Counter", "wpan.aux_sec.frame_counter", FT_UINT32, BASE_DEC, NULL, 0x0,

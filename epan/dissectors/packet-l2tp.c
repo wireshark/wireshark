@@ -252,13 +252,13 @@ static const char *calltype_short_str[NUM_CONTROL_CALL_TYPES+1] = {
   "SRRQ    ",
   "SRRP    ",
   "ACK     ", /* 20 */
-  "FSQ     ", 
-  "FSR     ", 
-  "MSRQ    ", 
-  "MSRP    ", 
+  "FSQ     ",
+  "FSR     ",
+  "MSRQ    ",
+  "MSRP    ",
   "MSE     ", /* 25 */
-  "MSI     ", 
-  "MSEN    ", 
+  "MSI     ",
+  "MSEN    ",
 
 };
 
@@ -574,8 +574,8 @@ static const value_string pw_types_vals[] = {
 static dissector_handle_t ppp_hdlc_handle;
 static dissector_handle_t ppp_lcp_options_handle;
 
-static dissector_handle_t eth_withoutfcs_handle; 
-static dissector_handle_t chdlc_handle; 
+static dissector_handle_t eth_withoutfcs_handle;
+static dissector_handle_t chdlc_handle;
 static dissector_handle_t fr_handle;
 static dissector_handle_t ip_handle;
 static dissector_handle_t mpls_handle;
@@ -609,7 +609,7 @@ static void process_control_avps(tvbuff_t *tvb,
 	guint16 	error_code;
 	guint32 	bits;
 	guint16 	firmware_rev;
-	
+
 		while (idx < length) {    /* Process AVP's */
 			ver_len_hidden	= tvb_get_ntohs(tvb, idx);
 			avp_len		= AVP_LENGTH(ver_len_hidden);
@@ -637,7 +637,7 @@ static void process_control_avps(tvbuff_t *tvb,
 							  val_to_str_ext(avp_vendor_id, &sminmpec_values_ext, "Unknown (%u)"),
 							  avp_type);
 			}
-										
+
 
 			l2tp_avp_tree = proto_item_add_subtree(tf,  ett_l2tp_avp);
 
@@ -670,7 +670,7 @@ static void process_control_avps(tvbuff_t *tvb,
 									tvb, idx, 4, FALSE);
 
 				avp_vendor_id  = tvb_get_ntohl(tvb, idx);
-				
+
 				idx += 4;
 				avp_len -= 4;
 				continue;
@@ -713,7 +713,7 @@ static void process_control_avps(tvbuff_t *tvb,
 						avp_len -= 2;
 					}
 					break;
-					
+
 				case CISCO_LOCAL_SESSION_ID:
 					proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
 							    "Local Session ID: %u",
@@ -774,7 +774,7 @@ static void process_control_avps(tvbuff_t *tvb,
 							    "Interface MTU: %u",
 							    tvb_get_ntohs(tvb, idx));
 					break;
-					
+
 				default:
 					proto_tree_add_text(l2tp_avp_tree, tvb, idx,
 							    avp_len, "Vendor-Specific AVP");
@@ -837,7 +837,7 @@ static void process_control_avps(tvbuff_t *tvb,
 					break;
 				error_code = tvb_get_ntohs(tvb, idx);
 				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
-						    "Error code: %u - %s", error_code, 
+						    "Error code: %u - %s", error_code,
 						    val_to_str(error_code, error_code_vals, "Unknown (%u)"));
 				idx += 2;
 				avp_len -= 2;
@@ -1311,7 +1311,7 @@ static void process_control_avps(tvbuff_t *tvb,
 				guint32 l_int, h_int;
 				if (avp_len < 8)
 					break;
-				
+
 				h_int = tvb_get_ntohl(tvb, idx);
 				l_int = tvb_get_ntohl(tvb, idx+4);
 				if (!h_int && !l_int) {
@@ -1330,7 +1330,7 @@ static void process_control_avps(tvbuff_t *tvb,
 				guint32 l_int, h_int;
 				if (avp_len < 8)
 					break;
-				
+
 				h_int = tvb_get_ntohl(tvb, idx);
 				l_int = tvb_get_ntohl(tvb, idx+4);
 				if (!h_int && !l_int) {
@@ -1370,7 +1370,7 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree	*l2_specific = NULL;
 	proto_item	*ti = NULL;
 	tvbuff_t	*next_tvb;
-	
+
 	/* Get Session ID */
 	sid = tvb_get_ntohl(tvb, idx);
 	idx += 4;
@@ -1410,16 +1410,16 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						tvb, idx + l2tpv3_cookie, 4, FALSE);
 			l2_specific = proto_item_add_subtree(ti, ett_l2tp_l2_spec);
 
-			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_v, tvb, 
+			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_v, tvb,
 						idx + l2tpv3_cookie,1, FALSE);
-		
-			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb, 
+
+			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb,
 						idx + l2tpv3_cookie,1, FALSE);
-		
-			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_flow_id, tvb, 
+
+			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_flow_id, tvb,
 						idx + l2tpv3_cookie,1, FALSE);
-		
-			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb, 
+
+			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb,
 						idx + l2tpv3_cookie + 2,2, FALSE);
 		}
 		next_tvb = tvb_new_subset_remaining(tvb, idx + l2tpv3_cookie + 4);
@@ -1513,11 +1513,11 @@ process_l2tpv3_data_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree *l2tp_tree = NULL, *ctrl_tree;
 	proto_item *l2tp_item = NULL, *ti;
-	
+
 	int idx = 0;
 	int control;
 	int sid;
-	
+
 	control = tvb_get_ntohs(tvb, idx);
 	idx += 2; 			/* skip ahead */
 	idx += 2;			/* Skip the reserved */
@@ -1554,12 +1554,12 @@ process_l2tpv3_data_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree *l2tp_tree = NULL;
 	proto_item *l2tp_item = NULL, *ti;
-	
+
 	int idx = 0;
 	int sid;
 
 	sid = tvb_get_ntohl(tvb, idx);
-	
+
 	if (tree) {
 		l2tp_item = proto_tree_add_item(tree, proto_l2tp, tvb, 0, -1, FALSE);
 		l2tp_tree = proto_item_add_subtree(l2tp_item, ett_l2tp);
@@ -1583,7 +1583,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 {
 	proto_tree *l2tp_tree=NULL, *ctrl_tree;
 	proto_item *l2tp_item = NULL, *ti;
-	
+
 	int idx = baseIdx;
 	int tmp_idx;
 	guint16 length = 0;		/* Length field */
@@ -1591,7 +1591,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	guint16 avp_type;
 	guint16 msg_type;
 	guint16	control = 0;
-	
+
 	control = tvb_get_ntohs(tvb, idx);
 	idx += 2; 			/* skip ahead */
 	if (LENGTH_BIT(control)) { 	/* length field included ? */
@@ -1620,7 +1620,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 			avp_type = tvb_get_ntohs(tvb, tmp_idx);
 			tmp_idx += 2;
-				
+
 			if (avp_type == CONTROL_MESSAGE) {
 				/* We print message type */
 				msg_type = tvb_get_ntohs(tvb, tmp_idx);
@@ -1697,7 +1697,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 		}
 		idx += 2;
 	}
-	
+
 	if (tree && (LENGTH_BIT(control))&&(length==12)) {
 		proto_tree_add_text(l2tp_tree, tvb, 0, 0, "Zero Length Bit message");
 	}
@@ -1900,7 +1900,7 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			idx += offset_size;
 		}
 	}
-	
+
 	if (tree && (LENGTH_BIT(control))&&(length==12)) {
 		proto_tree_add_text(l2tp_tree, tvb, 0, 0, "Zero Length Bit message");
 	}
@@ -1950,8 +1950,8 @@ dissect_l2tp_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Call to process l2tp v3 data message */
 		process_l2tpv3_data_ip(tvb, pinfo, tree);
 	}
-	
-	return;	
+
+	return;
 }
 
 /* registration with the filtering engine */
@@ -1965,11 +1965,11 @@ proto_register_l2tp(void)
 
 		{ &hf_l2tp_length_bit,
 		{ "Length Bit", "l2tp.length_bit", FT_BOOLEAN, 16, TFS(&l2tp_length_bit_truth), 0x4000,
-			"Length bit", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_l2tp_seq_bit,
 		{ "Sequence Bit", "l2tp.seq_bit", FT_BOOLEAN, 16, TFS(&l2tp_seq_bit_truth), 0x0800,
-			"Sequence bit", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_l2tp_offset_bit,
 		{ "Offset bit", "l2tp.offset_bit", FT_BOOLEAN, 16, TFS(&l2tp_offset_bit_truth), 0x0200,
@@ -2071,7 +2071,7 @@ proto_register_l2tp(void)
 		{ "T-bit","lt2p.l2_spec_t", FT_BOOLEAN, 8, NULL, 0x08,
 			"Transport Type Bit", HFILL }},
 
-		{ &hf_l2tp_l2_spec_g, 
+		{ &hf_l2tp_l2_spec_g,
 		{ "G-bit","lt2p.l2_spec_g", FT_BOOLEAN, 8, NULL, 0x04,
 			"EFCI Bit", HFILL }},
 

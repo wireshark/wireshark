@@ -1409,7 +1409,7 @@ void proto_register_h223 (void)
 
         { &hf_h223_mux_vc,
           { "H.223 virtual circuit", "h223.mux.vc", FT_UINT16, BASE_DEC, NULL, 0x0,
-            "H.223 Virtual Circuit", HFILL }},
+            NULL, HFILL }},
 
         { &hf_h223_mux_extra,
           { "Extraneous data", "h223.mux.extra", FT_NONE, BASE_NONE, NULL, 0x0,

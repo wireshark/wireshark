@@ -5333,9 +5333,9 @@ proto_register_tn3270(void)
 
     /* 5.9 - Erase/Reset */
     { &hf_tn3270_erase_flags,
-        {  "tn3270.erase_flags", "tn3270.erase_flags",
+        {  "Erase Flags", "tn3270.erase_flags",
             FT_UINT8, BASE_HEX, NULL, 0x0,
-            "tn3270.erase_flags", HFILL }},
+            NULL, HFILL }},
     /* End - 5.9 - Erase/Reset */
 
     /* 5.10 - Load Color Table */
@@ -6083,7 +6083,7 @@ proto_register_tn3270(void)
     { &hf_tn3270_asia_sdp_sosi_soset,
         {  "Set ID of the Shift Out (SO) character set", "tn3270.asia_sdp_sosi_soset",
             FT_UINT8, BASE_HEX, NULL, 0x0,
-            "Set ID of the Shift Out (SO) character set", HFILL }},
+            NULL, HFILL }},
     { &hf_tn3270_asia_sdp_ic_func,
         { "SO/SI Creation supported",
             "tn3270.asia_sdp_ic_func", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
@@ -6502,7 +6502,7 @@ proto_register_tn3270(void)
     { &hf_tn3270_ua_buffsz,
         {  "Character buffer size (bytes)", "tn3270.ua_buffsz",
             FT_UINT16, BASE_DEC, NULL, 0x0,
-            "Character buffer size (bytes)", HFILL }},
+            NULL, HFILL }},
     { &hf_tn3270_ua_xmin,
         {  "Minimum number of X units in variable cell", "tn3270.ua_xmin",
             FT_UINT8, BASE_DEC, NULL, 0x0,

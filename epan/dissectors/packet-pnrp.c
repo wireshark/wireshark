@@ -1325,7 +1325,7 @@ void proto_register_pnrp(void)
 			{ "Solicit Type", "pnrp.segment.solicitType", FT_UINT8, BASE_DEC, VALS(solicitType), 0x0,
 				NULL, HFILL }},
 		{ &hf_pnrp_message_ipv6,
-			{ "IPv6 Address","pnrp.segment.ipv6Address",FT_IPv6, BASE_NONE, NULL, 0x0,"IPv6 Address",HFILL}}
+			{ "IPv6 Address","pnrp.segment.ipv6Address",FT_IPv6, BASE_NONE, NULL, 0x0,NULL,HFILL}}
 	};
 
 	/* Protocol subtree array */

@@ -2436,7 +2436,7 @@ void proto_register_pdcp(void)
         { &hf_pdcp_lte_rohc_feedback_feedback2,
             { "FEEDBACK-2",
               "pdcp-lte.rohc.feedback.feedback2", FT_NONE, BASE_NONE, NULL, 0x0,
-              "Feedback-2", HFILL
+              NULL, HFILL
             }
         },
 

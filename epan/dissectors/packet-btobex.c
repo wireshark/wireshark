@@ -605,12 +605,12 @@ proto_register_btobex(void)
         {&hf_response_code,
             {"Response Code", "btobex.resp_code",
             FT_UINT8, BASE_HEX, VALS(code_vals), BTOBEX_CODE_VALS_MASK,
-            "Response Code", HFILL}
+            NULL, HFILL}
         },
         {&hf_final_flag,
             {"Final Flag", "btobex.final_flag",
             FT_BOOLEAN, BASE_HEX, TFS(&true_false), 0x80,
-            "Final Flag", HFILL}
+            NULL, HFILL}
         },
         {&hf_length,
             {"Packet Length", "btobex.pkt_len",
@@ -640,12 +640,12 @@ proto_register_btobex(void)
         {&hf_set_path_flags_0,
             {"Go back one folder (../) first", "btobex.set_path_flags_0",
             FT_BOOLEAN, 8, TFS(&true_false), 0x01,
-            "Go back one folder (../) first", HFILL}
+            NULL, HFILL}
         },
         {&hf_set_path_flags_1,
             {"Do not create folder, if not existing", "btobex.set_path_flags_1",
             FT_BOOLEAN, 8, TFS(&true_false), 0x02,
-            "Do not create folder, if not existing", HFILL}
+            NULL, HFILL}
         },
         {&hf_hdr_id,
             {"Header Id", "btobex.hdr_id",

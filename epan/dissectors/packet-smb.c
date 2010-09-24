@@ -17815,7 +17815,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_server_cap_reserved,
 		{ "Reserved", "smb.server_cap.reserved", FT_BOOLEAN, 32,
-		TFS(&tfs_server_cap_reserved), SERVER_CAP_RESERVED, "RESERVED", HFILL }},
+		TFS(&tfs_server_cap_reserved), SERVER_CAP_RESERVED, NULL, HFILL }},
 
 	{ &hf_smb_server_cap_bulk_transfer,
 		{ "Bulk Transfer", "smb.server_cap.bulk_transfer", FT_BOOLEAN, 32,

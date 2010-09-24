@@ -1965,7 +1965,7 @@ proto_register_dtls(void)
     { & hf_dtls_alert_message,
       { "Alert Message", "dtls.alert_message",
         FT_NONE, BASE_NONE, NULL, 0x0,
-        "Alert message", HFILL }
+        NULL, HFILL }
     },
     { & hf_dtls_alert_message_level,
       { "Level", "dtls.alert_message.level",

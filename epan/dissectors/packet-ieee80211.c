@@ -12066,7 +12066,7 @@ proto_register_ieee80211 (void)
     {&txbf_tx_ssc,
      {"Transmit Staggered Sounding", "wlan_mgt.txbf.txss",
       FT_BOOLEAN, 32, TFS (&tfs_supported_not_supported), 0x00000004,
-      "Transmit staggered sounding", HFILL }},
+      NULL, HFILL }},
 
     {&txbf_rcv_ndp,
      {"Receive Null Data packet (NDP)", "wlan_mgt.txbf.rxndp",

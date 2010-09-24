@@ -1688,7 +1688,7 @@
 { &hf_x11_glx_render_DepthBoundsEXT_zmax, { "zmax", "x11.glx.render.DepthBoundsEXT.zmax", FT_DOUBLE, BASE_NONE, NULL, 0, NULL, HFILL }},
 { &hf_x11_glx_render_BlendEquationSeparateEXT_modeRGB, { "modeRGB", "x11.glx.render.BlendEquationSeparateEXT.modeRGB", FT_UINT32, BASE_HEX, VALS(mesa_enum), 0, NULL, HFILL }},
 { &hf_x11_glx_render_BlendEquationSeparateEXT_modeA, { "modeA", "x11.glx.render.BlendEquationSeparateEXT.modeA", FT_UINT32, BASE_HEX, VALS(mesa_enum), 0, NULL, HFILL }},
-{ &hf_x11_glx_render_op_name, { "render op", "x11.glx.render.op", FT_UINT16, BASE_DEC, VALS(glx_render_op_name), 0, "render op", HFILL }},
+{ &hf_x11_glx_render_op_name, { "render op", "x11.glx.render.op", FT_UINT16, BASE_DEC, VALS(glx_render_op_name), 0, NULL, HFILL }},
 
 { &hf_x11_bigreq_Enable_reply_maximum_request_length, { "maximum_request_length", "x11.bigreq.Enable.reply.maximum_request_length", FT_UINT32, BASE_HEX_DEC, NULL, 0, NULL, HFILL }},
 { &hf_x11_bigreq_extension_minor, { "extension-minor", "x11.extension-minor", FT_UINT8, BASE_DEC, VALS(bigreq_extension_minor), 0, "minor opcode", HFILL }},

@@ -902,7 +902,7 @@ proto_register_mount(void)
 			VALS(mount3_proc_vals), 0, NULL, HFILL }},
 		{ &hf_sgi_mount_procedure_v1, {
 			"SGI V1 procedure", "mount.procedure_sgi_v1", FT_UINT32, BASE_DEC,
-			VALS(sgi_mount1_proc_vals), 0, "SGI V1 Procedure", HFILL }},
+			VALS(sgi_mount1_proc_vals), 0, NULL, HFILL }},
 		{ &hf_mount_path, {
 			"Path", "mount.path", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},

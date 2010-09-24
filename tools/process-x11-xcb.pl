@@ -1388,7 +1388,7 @@ if (-e "$mesadir/gl_API.xml") {
     print $impl "    { 0, NULL }\n";
     print $impl "};\n";
 
-    print $reg "{ &hf_x11_glx_render_op_name, { \"render op\", \"x11.glx.render.op\", FT_UINT16, BASE_DEC, VALS(glx_render_op_name), 0, \"render op\", HFILL }},\n\n";
+    print $reg "{ &hf_x11_glx_render_op_name, { \"render op\", \"x11.glx.render.op\", FT_UINT16, BASE_DEC, VALS(glx_render_op_name), 0, NULL, HFILL }},\n\n";
 
 # Uses ett_x11_list_of_rectangle, since I am unable to see how the subtree type matters.
     print $impl <<eot

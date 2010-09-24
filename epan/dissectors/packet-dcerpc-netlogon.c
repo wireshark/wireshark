@@ -8790,7 +8790,7 @@ proto_register_dcerpc_netlogon(void)
           { "Not used 80000000", "ntlmssp.neg_flags.na8000000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_80000000, "Not used", HFILL }},
 
         { &hf_netlogon_neg_flags_40000000,
-          { "Authenticated RPC supported", "ntlmssp.neg_flags.na8000000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_40000000, "Authenticated RPC supported", HFILL }},
+          { "Authenticated RPC supported", "ntlmssp.neg_flags.na8000000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_40000000, NULL, HFILL }},
 
         { &hf_netlogon_neg_flags_20000000,
           { "Authenticated RPC via lsass supported", "ntlmssp.neg_flags.na8000000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_20000000, "rpc via lsass", HFILL }},
@@ -8823,7 +8823,7 @@ proto_register_dcerpc_netlogon(void)
           { "NO NT4 emulation", "ntlmssp.neg_flags.na100000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_100000, "No NT4 emu", HFILL }},
 
         { &hf_netlogon_neg_flags_80000,
-          { "Cross forest trust", "ntlmssp.neg_flags.na80000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_80000, "Cross forest trust", HFILL }},
+          { "Cross forest trust", "ntlmssp.neg_flags.na80000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_80000, NULL, HFILL }},
 
         { &hf_netlogon_neg_flags_40000,
           { "GetDomainInfo supported", "ntlmssp.neg_flags.na40000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_40000, "GetDomainInfo", HFILL }},
@@ -8838,34 +8838,34 @@ proto_register_dcerpc_netlogon(void)
           { "Transitive trusts", "ntlmssp.neg_flags.na8000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_8000, "Transitive trust", HFILL }},
 
         { &hf_netlogon_neg_flags_4000,
-          { "Strong key", "ntlmssp.neg_flags.na4000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_STRONGKEY, "Strong key", HFILL }},
+          { "Strong key", "ntlmssp.neg_flags.na4000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_STRONGKEY, NULL, HFILL }},
 
         { &hf_netlogon_neg_flags_2000,
-          { "Avoid replication Auth database", "ntlmssp.neg_flags.na2000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_2000, "Avoid replication auth database", HFILL }},
+          { "Avoid replication Auth database", "ntlmssp.neg_flags.na2000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_2000, NULL, HFILL }},
 
         { &hf_netlogon_neg_flags_1000,
-          { "Avoid replication account database", "ntlmssp.neg_flags.na1000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_1000, "Avoid replication account database", HFILL }},
+          { "Avoid replication account database", "ntlmssp.neg_flags.na1000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_1000, NULL, HFILL }},
 
         { &hf_netlogon_neg_flags_800,
-          { "Concurent RPC", "ntlmssp.neg_flags.na800", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_800, "Concurent RPC", HFILL }},
+          { "Concurent RPC", "ntlmssp.neg_flags.na800", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_800, NULL, HFILL }},
 
         { &hf_netlogon_neg_flags_400,
-          { "Generic pass-through", "ntlmssp.neg_flags.na400", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_400, "Generic pass-through", HFILL }},
+          { "Generic pass-through", "ntlmssp.neg_flags.na400", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_400, NULL, HFILL }},
 
         { &hf_netlogon_neg_flags_200,
-          { "SendToSam", "ntlmssp.neg_flags.na200", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_200, "SendToSam", HFILL }},
+          { "SendToSam", "ntlmssp.neg_flags.na200", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_200, NULL, HFILL }},
 
         { &hf_netlogon_neg_flags_100,
           { "Refusal of password change", "ntlmssp.neg_flags.na100", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_100, "PWD change refusal", HFILL }},
 
         { &hf_netlogon_neg_flags_80,
-          { "DatabaseRedo call", "ntlmssp.neg_flags.na80", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_80, "DatabaseRedo call", HFILL }},
+          { "DatabaseRedo call", "ntlmssp.neg_flags.na80", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_80, NULL, HFILL }},
 
         { &hf_netlogon_neg_flags_40,
-          { "Handle multiple SIDs", "ntlmssp.neg_flags.na40", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_40, "Handle multiple SIDs", HFILL }},
+          { "Handle multiple SIDs", "ntlmssp.neg_flags.na40", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_40, NULL, HFILL }},
 
         { &hf_netlogon_neg_flags_20,
-          { "Restarting full DC sync", "ntlmssp.neg_flags.na20", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_20, "Restarting full DC sync", HFILL }},
+          { "Restarting full DC sync", "ntlmssp.neg_flags.na20", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_20, NULL, HFILL }},
 
         { &hf_netlogon_neg_flags_10,
           { "BDC handling Changelogs", "ntlmssp.neg_flags.na10", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_10, "BDC Changelog", HFILL }},
@@ -8880,7 +8880,7 @@ proto_register_dcerpc_netlogon(void)
           { "NT3.5 BDC continious update", "ntlmssp.neg_flags.na2", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_2, "NT3.5", HFILL }},
 
         { &hf_netlogon_neg_flags_1,
-          { "Account lockout", "ntlmssp.neg_flags.na1", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_1, "Account lockout", HFILL }},
+          { "Account lockout", "ntlmssp.neg_flags.na1", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_1, NULL, HFILL }},
 
         { &hf_netlogon_dc_flags,
           { "Domain Controller Flags", "netlogon.dc.flags", FT_UINT32, BASE_HEX,

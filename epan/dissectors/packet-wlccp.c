@@ -3338,7 +3338,7 @@ proto_register_wlccp(void)
 		{ &hf_wlccp_ipv4_address,
 		  { "IPv4 Address", "wlccp.ipv4_address",
 		    FT_IPv4, BASE_NONE, NULL, 0,
-		    "IPv4 address", HFILL }
+		    NULL, HFILL }
 		},
 
 		{ &hf_wlccp_scm_hop_address,
@@ -3864,13 +3864,13 @@ proto_register_wlccp(void)
 		{ &hf_80211_cap_cf_pollable,
 		  { "CF Pollable flag", "wlccp.80211_cf_pollable_flag",
 		    FT_UINT16, BASE_DEC, NULL,
-		    F_80211_CFPOLL, "CF Pollable Flag", HFILL }
+		    F_80211_CFPOLL, NULL, HFILL }
 		},
 
 		{ &hf_80211_cap_cf_poll_req,
 		  { "CF Poll Request flag", "wlccp.80211_cf_poll_req_flag",
 		    FT_UINT16, BASE_DEC, NULL,
-		    F_80211_CFPOLL_REQ, "CF Poll Request Flag", HFILL }
+		    F_80211_CFPOLL_REQ, NULL, HFILL }
 		},
 
 		{ &hf_80211_cap_privacy,
@@ -3882,43 +3882,43 @@ proto_register_wlccp(void)
 		{ &hf_80211_short_preamble,
 		  { "Short Preamble flag", "wlccp.80211_short_preamble_flag",
 		    FT_UINT16, BASE_DEC, NULL,
-		    F_80211_SHORT_PREAMBLE, "Short Preamble Flag", HFILL }
+		    F_80211_SHORT_PREAMBLE, NULL, HFILL }
 		},
 
 		{ &hf_80211_pbcc,
 		  { "PBCC flag", "wlccp.80211_pbcc_flag",
 		    FT_UINT16, BASE_DEC, NULL,
-		    F_80211_PBCC, "PBCC Flag", HFILL }
+		    F_80211_PBCC, NULL, HFILL }
 		},
 
 		{ &hf_80211_chan_agility,
 		  { "Channel Agility flag", "wlccp.80211_chan_agility_flag",
 		    FT_UINT16, BASE_DEC, NULL,
-		    F_80211_CH_AGILITY, "Channel Agility Flag", HFILL }
+		    F_80211_CH_AGILITY, NULL, HFILL }
 		},
 
 		{ &hf_80211_spectrum_mgmt,
 		  { "Spectrum Management flag", "wlccp.80211_spectrum_mgmt_flag",
 		    FT_UINT16, BASE_DEC, NULL,
-		    F_80211_SPEC_MGMT, "Spectrum Management Flag", HFILL }
+		    F_80211_SPEC_MGMT, NULL, HFILL }
 		},
 
 		{ &hf_80211_qos,
 		  { "QOS flag", "wlccp.80211_qos_flag",
 		    FT_UINT16, BASE_DEC, NULL,
-		    F_80211_QOS, "QOS Flag", HFILL }
+		    F_80211_QOS, NULL, HFILL }
 		},
 
 		{ &hf_80211_short_time_slot,
 		  { "Short Time Slot flag", "wlccp.80211_short_time_slot_flag",
 		    FT_UINT16, BASE_DEC, NULL,
-		    F_80211_SHORT_TIME_SLOT, "Short Time Slot Flag", HFILL }
+		    F_80211_SHORT_TIME_SLOT, NULL, HFILL }
 		},
 
 		{ &hf_80211_apsd,
 		  { "APSD flag", "wlccp.80211_apsd_flag",
 		    FT_UINT16, BASE_DEC, NULL,
-		    F_80211_APSD, "APSD Flag", HFILL }
+		    F_80211_APSD, NULL, HFILL }
 		},
 
 		{ &hf_80211_reserved,

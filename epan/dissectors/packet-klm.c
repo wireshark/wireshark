@@ -241,7 +241,7 @@ proto_register_klm(void)
 
 		{ &hf_klm_block, {
 			"block", "klm.block", FT_BOOLEAN, BASE_NONE,
-			TFS(&tfs_block), 0x0, "Block", HFILL }},
+			TFS(&tfs_block), 0x0, NULL, HFILL }},
 
 	};
 

@@ -4002,7 +4002,7 @@ void proto_register_sip(void)
 		{ &hf_header_array[POS_P_SERVED_USER],
 		       { "P-Served-User",  	"sip.P-Served-User",
 		       FT_STRING, BASE_NONE,NULL,0x0,
-			"P-Served-User", HFILL }
+			NULL, HFILL }
 		},
 		{ &hf_header_array[POS_P_USER_DATABASE],
 		       { "P-User-Database",  	"sip.P-User-Database",

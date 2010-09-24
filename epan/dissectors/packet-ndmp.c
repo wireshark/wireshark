@@ -3929,11 +3929,11 @@ proto_register_ndmp(void)
 
 	{ &hf_ndmp_tape_flags_error, {
 		"Error", "ndmp.tape.flags.error", FT_BOOLEAN, 32,
-		TFS(&tfs_ndmp_tape_flags_error), 0x00000020, "error", HFILL, }},
+		TFS(&tfs_ndmp_tape_flags_error), 0x00000020, NULL, HFILL, }},
 
 	{ &hf_ndmp_tape_flags_unload, {
 		"Unload", "ndmp.tape.flags.unload", FT_BOOLEAN, 32,
-		TFS(&tfs_ndmp_tape_flags_unload), 0x00000040, "unload", HFILL, }},
+		TFS(&tfs_ndmp_tape_flags_unload), 0x00000040, NULL, HFILL, }},
 
 	{ &hf_ndmp_tape_file_num, {
 		"file_num", "ndmp.tape.status.file_num", FT_UINT32, BASE_DEC,

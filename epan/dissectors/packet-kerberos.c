@@ -4822,7 +4822,7 @@ proto_register_kerberos(void)
                 TFS(&tfs_set_notset), KRB_RM_RESERVED, "Record mark reserved bit", HFILL }},
         { &hf_krb_rm_reclen, {
                 "Record Length", "kerberos.rm.length", FT_UINT32, BASE_DEC,
-                NULL, KRB_RM_RECLEN, "Record length", HFILL }},
+                NULL, KRB_RM_RECLEN, NULL, HFILL }},
         { &hf_krb_transitedtype, {
                 "Type", "kerberos.transited.type", FT_UINT32, BASE_DEC,
                 VALS(krb5_transited_types), 0, "Transited Type", HFILL }},

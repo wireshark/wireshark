@@ -5165,7 +5165,7 @@ proto_register_afp(void)
 		{ &hf_afp_file_attribute_MultiUser,
 		  { "Multi user",         "afp.file_attribute.multi_user",
 		    FT_BOOLEAN, 16, NULL,  kFPMultiUserBit,
-		    "multi user", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_afp_file_attribute_System,
 		  { "System",         	 "afp.file_attribute.system",
@@ -5195,17 +5195,17 @@ proto_register_afp(void)
 		{ &hf_afp_file_attribute_RenameInhibit,
 		  { "Rename inhibit",         "afp.file_attribute.rename_inhibit",
 		    FT_BOOLEAN, 16, NULL,  kFPRenameInhibitBit,
-		    "rename inhibit", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_afp_file_attribute_DeleteInhibit,
 		  { "Delete inhibit",         "afp.file_attribute.delete_inhibit",
 		    FT_BOOLEAN, 16, NULL,  kFPDeleteInhibitBit,
-		    "delete inhibit", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_afp_file_attribute_CopyProtect,
 		  { "Copy protect",         "afp.file_attribute.copy_protect",
 		    FT_BOOLEAN, 16, NULL,  kFPCopyProtectBit,
-		    "copy protect", HFILL }},
+		    NULL, HFILL }},
 
 		{ &hf_afp_file_attribute_SetClear,
 		  { "Set",         "afp.file_attribute.set_clear",
