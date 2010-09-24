@@ -6214,7 +6214,7 @@ proto_register_afp(void)
         { &hf_afp_spotlight_volpath_client,
           { "Client's volume path",               "afp.spotlight.volpath_client",
             FT_STRING, BASE_NONE, NULL, 0x0,
-            "Client's volume path", HFILL }},
+            NULL, HFILL }},
 
         { &hf_afp_spotlight_volpath_server,
           { "Server's volume path",               "afp.spotlight.volpath_server",
