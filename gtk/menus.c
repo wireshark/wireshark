@@ -5083,6 +5083,8 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
                          !capture_in_progress);
     set_menu_sensitivity_old(main_menu_factory, "/File/Export",
                          capture_in_progress);
+    set_menu_sensitivity_old(main_menu_factory, "/File/File Set",
+                         !capture_in_progress);
 
 #ifdef MENUS_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_packet_list_heading, "/PacketListHeadingPopup/SortAscending",
