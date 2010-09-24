@@ -82,6 +82,7 @@ static int hf_erspan_unknown4 = -1;
 static int hf_erspan_direction2 = -1;
 static int hf_erspan_unknown5 = -1;
 static int hf_erspan_unknown6 = -1;
+static int hf_erspan_unknown7 = -1;
 
 #define PROTO_SHORT_NAME "ERSPAN"
 #define PROTO_LONG_NAME "Encapsulated Remote Switch Packet ANalysis"
@@ -161,11 +162,7 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			FALSE);
 		offset += 2;
 
-		if (version == 1) {
-			proto_tree_add_item(erspan_tree, hf_erspan_unknown4, tvb,
-				offset, 4, FALSE);
-			offset += 4;
-		} else { /* version = 2 */
+		if (version == 2) {
 			proto_tree_add_item(erspan_tree, hf_erspan_timestamp, tvb,
 				offset, 4, FALSE);
 			offset += 4;
@@ -181,9 +178,12 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += 2;
 
 			proto_tree_add_item(erspan_tree, hf_erspan_unknown6, tvb,
-				offset, 8, FALSE);
-			offset += 8;
+				offset, 4, FALSE);
+			offset += 4;
 		}
+		proto_tree_add_item(erspan_tree, hf_erspan_unknown7, tvb, offset, 4,
+			FALSE);
+		offset += 4;
 	}
 	else {
 		offset += 8;
@@ -250,6 +250,10 @@ proto_register_erspan(void)
 
 		{ &hf_erspan_unknown6,
 		{ "Unknown6",	"erspan.unknown6", FT_BYTES, BASE_NONE, NULL,
+			0, NULL, HFILL }},
+
+		{ &hf_erspan_unknown7,
+		{ "Unknown7",	"erspan.unknown7", FT_BYTES, BASE_NONE, NULL,
 			0, NULL, HFILL }},
 
         };
