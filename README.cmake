@@ -72,7 +72,7 @@ What works?
 ===========
 
 All the executables now build from clean source on:
-* 32bit openSUSE 11.2
+* 32bit openSUSE 11.3: (gnu)make and gcc
 * 64bit FedoraXXX
 * 32bit Ubuntu 9.04
 * 32bit Ubuntu 10.04
