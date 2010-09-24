@@ -210,11 +210,7 @@ if(ENABLE_STATIC)
   set(LINK_MODE_MODULE STATIC)
 else()
   set(LINK_MODE_LIB SHARED)
-  if(APPLE)
-    set(LINK_MODE_MODULE SHARED)
-  else()
-    set(LINK_MODE_MODULE MODULE)
-  endif()
+  set(LINK_MODE_MODULE SHARED)
 endif()
 
 # The packagelist is doing some magic:  If we add XXX to the packagelist, we

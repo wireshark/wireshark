@@ -57,7 +57,6 @@ add_library(cosnaming ${LINK_MODE_MODULE}
 	${COSNAMING_SRC}
 )
 set_target_properties(cosnaming PROPERTIES PREFIX "")
-set_target_properties(cosnaming PROPERTIES SOVERSION ${CPACK_PACKAGE_VERSION})
 set_target_properties(cosnaming PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 
 target_link_libraries(cosnaming epan)
@@ -72,7 +71,6 @@ add_library(coseventcomm ${LINK_MODE_MODULE}
 	${COSEVENTCOMM_SRC}
 )
 set_target_properties(coseventcomm PROPERTIES PREFIX "")
-set_target_properties(coseventcomm PROPERTIES SOVERSION ${CPACK_PACKAGE_VERSION})
 set_target_properties(coseventcomm PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 
 target_link_libraries(coseventcomm epan)
@@ -87,7 +85,6 @@ add_library(tango ${LINK_MODE_MODULE}
 	${TANGO_SRC}
 )
 set_target_properties(tango PROPERTIES PREFIX "")
-set_target_properties(tango PROPERTIES SOVERSION ${CPACK_PACKAGE_VERSION})
 set_target_properties(tango PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 
 target_link_libraries(tango epan)
@@ -102,7 +99,6 @@ add_library(parlay ${LINK_MODE_MODULE}
 	${PARLAY_SRC}
 )
 set_target_properties(parlay PROPERTIES PREFIX "")
-set_target_properties(parlay PROPERTIES SOVERSION ${CPACK_PACKAGE_VERSION})
 set_target_properties(parlay PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 
 target_link_libraries(parlay epan)

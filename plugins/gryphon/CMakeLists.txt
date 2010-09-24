@@ -53,7 +53,6 @@ add_library(gryphon ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
 )
 set_target_properties(gryphon PROPERTIES PREFIX "")
-set_target_properties(gryphon PROPERTIES SOVERSION ${CPACK_PACKAGE_VERSION})
 set_target_properties(gryphon PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 
 target_link_libraries(gryphon epan)

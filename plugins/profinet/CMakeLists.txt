@@ -65,7 +65,6 @@ add_library(profinet ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
 )
 set_target_properties(profinet PROPERTIES PREFIX "")
-set_target_properties(profinet PROPERTIES SOVERSION ${CPACK_PACKAGE_VERSION})
 set_target_properties(profinet PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 
 target_link_libraries(profinet epan)

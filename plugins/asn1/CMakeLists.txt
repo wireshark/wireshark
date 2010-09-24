@@ -58,7 +58,6 @@ add_library(asn1 ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
 )
 set_target_properties(asn1 PROPERTIES PREFIX "")
-set_target_properties(asn1 PROPERTIES SOVERSION ${CPACK_PACKAGE_VERSION})
 set_target_properties(asn1 PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 
 target_link_libraries(asn1 epan)

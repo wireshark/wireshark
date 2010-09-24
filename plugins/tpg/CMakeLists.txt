@@ -74,7 +74,6 @@ add_library(tpg ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
 )
 set_target_properties(tpg PROPERTIES PREFIX "")
-set_target_properties(tpg PROPERTIES SOVERSION ${CPACK_PACKAGE_VERSION})
 set_target_properties(tpg PROPERTIES LINK_FLAGS ${WS_LINK_FLAGS})
 
 target_link_libraries(tpg epan)

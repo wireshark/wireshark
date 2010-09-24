@@ -64,7 +64,6 @@ add_library(sercosiii ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
 )
 set_target_properties(sercosiii PROPERTIES PREFIX "")
-set_target_properties(sercosiii PROPERTIES SOVERSION ${CPACK_PACKAGE_VERSION})
 set_target_properties(sercosiii PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 
 target_link_libraries(sercosiii epan)
