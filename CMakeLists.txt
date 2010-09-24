@@ -210,7 +210,7 @@ if(ENABLE_STATIC)
   set(LINK_MODE_MODULE STATIC)
 else()
   set(LINK_MODE_LIB SHARED)
-  set(LINK_MODE_MODULE SHARED)
+  set(LINK_MODE_MODULE MODULE)
 endif()
 
 # The packagelist is doing some magic:  If we add XXX to the packagelist, we
