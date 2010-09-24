@@ -204,7 +204,7 @@ proto_register_docsis_map (void)
     {&hf_docsis_map_ack_time,
      {"ACK Time (minislots)", "docsis_map.acktime",
       FT_UINT32, BASE_DEC, NULL, 0x0,
-      "Ack Time (minislots)", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_map_rng_start,
      {"Ranging Backoff Start", "docsis_map.rng_start",
