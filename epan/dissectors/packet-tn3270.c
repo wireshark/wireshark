@@ -5650,7 +5650,7 @@ proto_register_tn3270(void)
    /* 5.40 - Save/Restore Format */
 
    { &hf_tn3270_type_1_text_outbound_data,
-        {  "tn3270.type_1_text_outbound_data", "tn3270.type_1_text_outbound_data",
+        {  "Type 1 text outbound data", "tn3270.type_1_text_outbound_data",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
