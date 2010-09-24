@@ -2077,7 +2077,7 @@ proto_register_mip6(void)
 
 	{ &hf_mip6_acoa_acoa,       { "Alternate care-of address", "mip6.acoa.acoa",
 	                              FT_IPv6, BASE_NONE, NULL, 0,
-	                              "Alternate Care-of address", HFILL }},
+	                              NULL, HFILL }},
 
 	{ &hf_mip6_ni_hni,          { "Home nonce index", "mip6.ni.hni",
 	                              FT_UINT16, BASE_DEC, NULL, 0,

@@ -4243,15 +4243,15 @@ proto_register_amqp(void)
         {&hf_amqp_method_connection_start_version_major, {
             "Version-Major", "amqp.method.arguments.version_major",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "version-major", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_connection_start_version_minor, {
             "Version-Minor", "amqp.method.arguments.version_minor",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "version-minor", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_connection_start_server_properties, {
             "Server-Properties", "amqp.method.arguments.server_properties",
             FT_NONE, BASE_NONE, NULL, 0,
-            "server-properties", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_connection_start_mechanisms, {
             "Mechanisms", "amqp.method.arguments.mechanisms",
             FT_BYTES, BASE_NONE, NULL, 0,
@@ -4263,7 +4263,7 @@ proto_register_amqp(void)
         {&hf_amqp_method_connection_start_ok_client_properties, {
             "Client-Properties", "amqp.method.arguments.client_properties",
             FT_NONE, BASE_NONE, NULL, 0,
-            "client-properties", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_connection_start_ok_mechanism, {
             "Mechanism", "amqp.method.arguments.mechanism",
             FT_STRING, BASE_NONE, NULL, 0,
@@ -4287,11 +4287,11 @@ proto_register_amqp(void)
         {&hf_amqp_method_connection_tune_channel_max, {
             "Channel-Max", "amqp.method.arguments.channel_max",
              FT_UINT16, BASE_DEC, NULL, 0,
-            "channel-max", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_connection_tune_frame_max, {
             "Frame-Max", "amqp.method.arguments.frame_max",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "frame-max", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_connection_tune_heartbeat, {
             "Heartbeat", "amqp.method.arguments.heartbeat",
              FT_UINT16, BASE_DEC, NULL, 0,
@@ -4299,11 +4299,11 @@ proto_register_amqp(void)
         {&hf_amqp_method_connection_tune_ok_channel_max, {
             "Channel-Max", "amqp.method.arguments.channel_max",
              FT_UINT16, BASE_DEC, NULL, 0,
-            "channel-max", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_connection_tune_ok_frame_max, {
             "Frame-Max", "amqp.method.arguments.frame_max",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "frame-max", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_connection_tune_ok_heartbeat, {
             "Heartbeat", "amqp.method.arguments.heartbeat",
              FT_UINT16, BASE_DEC, NULL, 0,
@@ -4311,7 +4311,7 @@ proto_register_amqp(void)
         {&hf_amqp_method_connection_open_virtual_host, {
             "Virtual-Host", "amqp.method.arguments.virtual_host",
             FT_STRING, BASE_NONE, NULL, 0,
-            "virtual-host", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_connection_open_capabilities, {
             "Capabilities", "amqp.method.arguments.capabilities",
             FT_STRING, BASE_NONE, NULL, 0,
@@ -4323,7 +4323,7 @@ proto_register_amqp(void)
         {&hf_amqp_method_connection_open_ok_known_hosts, {
             "Known-Hosts", "amqp.method.arguments.known_hosts",
             FT_STRING, BASE_NONE, NULL, 0,
-            "known-hosts", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_connection_redirect_host, {
             "Host", "amqp.method.arguments.host",
             FT_STRING, BASE_NONE, NULL, 0,
@@ -4331,31 +4331,31 @@ proto_register_amqp(void)
         {&hf_amqp_method_connection_redirect_known_hosts, {
             "Known-Hosts", "amqp.method.arguments.known_hosts",
             FT_STRING, BASE_NONE, NULL, 0,
-            "known-hosts", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_connection_close_reply_code, {
             "Reply-Code", "amqp.method.arguments.reply_code",
              FT_UINT16, BASE_DEC, NULL, 0,
-            "reply-code", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_connection_close_reply_text, {
             "Reply-Text", "amqp.method.arguments.reply_text",
             FT_STRING, BASE_NONE, NULL, 0,
-            "reply-text", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_connection_close_class_id, {
             "Class-Id", "amqp.method.arguments.class_id",
              FT_UINT16, BASE_DEC, NULL, 0,
-            "class-id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_connection_close_method_id, {
             "Method-Id", "amqp.method.arguments.method_id",
              FT_UINT16, BASE_DEC, NULL, 0,
-            "method-id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_channel_open_out_of_band, {
             "Out-Of-Band", "amqp.method.arguments.out_of_band",
             FT_STRING, BASE_NONE, NULL, 0,
-            "out-of-band", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_channel_open_ok_channel_id, {
             "Channel-Id", "amqp.method.arguments.channel_id",
             FT_BYTES, BASE_NONE, NULL, 0,
-            "channel-id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_channel_flow_active, {
             "Active", "amqp.method.arguments.active",
             FT_BOOLEAN, 8, NULL, 0x01,
@@ -4367,23 +4367,23 @@ proto_register_amqp(void)
         {&hf_amqp_method_channel_close_reply_code, {
             "Reply-Code", "amqp.method.arguments.reply_code",
              FT_UINT16, BASE_DEC, NULL, 0,
-            "reply-code", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_channel_close_reply_text, {
             "Reply-Text", "amqp.method.arguments.reply_text",
             FT_STRING, BASE_NONE, NULL, 0,
-            "reply-text", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_channel_close_class_id, {
             "Class-Id", "amqp.method.arguments.class_id",
              FT_UINT16, BASE_DEC, NULL, 0,
-            "class-id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_channel_close_method_id, {
             "Method-Id", "amqp.method.arguments.method_id",
              FT_UINT16, BASE_DEC, NULL, 0,
-            "method-id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_channel_resume_channel_id, {
             "Channel-Id", "amqp.method.arguments.channel_id",
             FT_BYTES, BASE_NONE, NULL, 0,
-            "channel-id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_access_request_realm, {
             "Realm", "amqp.method.arguments.realm",
             FT_STRING, BASE_NONE, NULL, 0,
@@ -4435,7 +4435,7 @@ proto_register_amqp(void)
         {&hf_amqp_method_exchange_declare_auto_delete, {
             "Auto-Delete", "amqp.method.arguments.auto_delete",
             FT_BOOLEAN, 8, NULL, 0x04,
-            "auto-delete", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_exchange_declare_internal, {
             "Internal", "amqp.method.arguments.internal",
             FT_BOOLEAN, 8, NULL, 0x08,
@@ -4459,7 +4459,7 @@ proto_register_amqp(void)
         {&hf_amqp_method_exchange_delete_if_unused, {
             "If-Unused", "amqp.method.arguments.if_unused",
             FT_BOOLEAN, 8, NULL, 0x01,
-            "if-unused", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_exchange_delete_nowait, {
             "Nowait", "amqp.method.arguments.nowait",
             FT_BOOLEAN, 8, NULL, 0x02,
@@ -4487,7 +4487,7 @@ proto_register_amqp(void)
         {&hf_amqp_method_queue_declare_auto_delete, {
             "Auto-Delete", "amqp.method.arguments.auto_delete",
             FT_BOOLEAN, 8, NULL, 0x08,
-            "auto-delete", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_queue_declare_nowait, {
             "Nowait", "amqp.method.arguments.nowait",
             FT_BOOLEAN, 8, NULL, 0x10,
@@ -4503,11 +4503,11 @@ proto_register_amqp(void)
         {&hf_amqp_method_queue_declare_ok_message_count, {
             "Message-Count", "amqp.method.arguments.message_count",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "message-count", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_queue_declare_ok_consumer_count, {
             "Consumer-Count", "amqp.method.arguments.consumer_count",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "consumer-count", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_queue_bind_ticket, {
             "Ticket", "amqp.method.arguments.ticket",
              FT_UINT16, BASE_DEC, NULL, 0,
@@ -4523,7 +4523,7 @@ proto_register_amqp(void)
         {&hf_amqp_method_queue_bind_routing_key, {
             "Routing-Key", "amqp.method.arguments.routing_key",
             FT_STRING, BASE_NONE, NULL, 0,
-            "routing-key", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_queue_bind_nowait, {
             "Nowait", "amqp.method.arguments.nowait",
             FT_BOOLEAN, 8, NULL, 0x01,
@@ -4547,7 +4547,7 @@ proto_register_amqp(void)
         {&hf_amqp_method_queue_unbind_routing_key, {
             "Routing-Key", "amqp.method.arguments.routing_key",
             FT_STRING, BASE_NONE, NULL, 0,
-            "routing-key", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_queue_unbind_arguments, {
             "Arguments", "amqp.method.arguments.arguments",
             FT_NONE, BASE_NONE, NULL, 0,
@@ -4567,7 +4567,7 @@ proto_register_amqp(void)
         {&hf_amqp_method_queue_purge_ok_message_count, {
             "Message-Count", "amqp.method.arguments.message_count",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "message-count", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_queue_delete_ticket, {
             "Ticket", "amqp.method.arguments.ticket",
              FT_UINT16, BASE_DEC, NULL, 0,
@@ -4579,11 +4579,11 @@ proto_register_amqp(void)
         {&hf_amqp_method_queue_delete_if_unused, {
             "If-Unused", "amqp.method.arguments.if_unused",
             FT_BOOLEAN, 8, NULL, 0x01,
-            "if-unused", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_queue_delete_if_empty, {
             "If-Empty", "amqp.method.arguments.if_empty",
             FT_BOOLEAN, 8, NULL, 0x02,
-            "if-empty", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_queue_delete_nowait, {
             "Nowait", "amqp.method.arguments.nowait",
             FT_BOOLEAN, 8, NULL, 0x04,
@@ -4591,15 +4591,15 @@ proto_register_amqp(void)
         {&hf_amqp_method_queue_delete_ok_message_count, {
             "Message-Count", "amqp.method.arguments.message_count",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "message-count", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_basic_qos_prefetch_size, {
             "Prefetch-Size", "amqp.method.arguments.prefetch_size",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "prefetch-size", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_basic_qos_prefetch_count, {
             "Prefetch-Count", "amqp.method.arguments.prefetch_count",
              FT_UINT16, BASE_DEC, NULL, 0,
-            "prefetch-count", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_basic_qos_global, {
             "Global", "amqp.method.arguments.global",
             FT_BOOLEAN, 8, NULL, 0x01,
@@ -4615,15 +4615,15 @@ proto_register_amqp(void)
         {&hf_amqp_method_basic_consume_consumer_tag, {
             "Consumer-Tag", "amqp.method.arguments.consumer_tag",
             FT_STRING, BASE_NONE, NULL, 0,
-            "consumer-tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_basic_consume_no_local, {
             "No-Local", "amqp.method.arguments.no_local",
             FT_BOOLEAN, 8, NULL, 0x01,
-            "no-local", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_basic_consume_no_ack, {
             "No-Ack", "amqp.method.arguments.no_ack",
             FT_BOOLEAN, 8, NULL, 0x02,
-            "no-ack", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_basic_consume_exclusive, {
             "Exclusive", "amqp.method.arguments.exclusive",
             FT_BOOLEAN, 8, NULL, 0x04,
@@ -4639,11 +4639,11 @@ proto_register_amqp(void)
         {&hf_amqp_method_basic_consume_ok_consumer_tag, {
             "Consumer-Tag", "amqp.method.arguments.consumer_tag",
             FT_STRING, BASE_NONE, NULL, 0,
-            "consumer-tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_basic_cancel_consumer_tag, {
             "Consumer-Tag", "amqp.method.arguments.consumer_tag",
             FT_STRING, BASE_NONE, NULL, 0,
-            "consumer-tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_basic_cancel_nowait, {
             "Nowait", "amqp.method.arguments.nowait",
             FT_BOOLEAN, 8, NULL, 0x01,
@@ -4651,7 +4651,7 @@ proto_register_amqp(void)
         {&hf_amqp_method_basic_cancel_ok_consumer_tag, {
             "Consumer-Tag", "amqp.method.arguments.consumer_tag",
             FT_STRING, BASE_NONE, NULL, 0,
-            "consumer-tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_basic_publish_ticket, {
             "Ticket", "amqp.method.arguments.ticket",
              FT_UINT16, BASE_DEC, NULL, 0,
@@ -4663,7 +4663,7 @@ proto_register_amqp(void)
         {&hf_amqp_method_basic_publish_routing_key, {
             "Routing-Key", "amqp.method.arguments.routing_key",
             FT_STRING, BASE_NONE, NULL, 0,
-            "routing-key", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_basic_publish_mandatory, {
             "Mandatory", "amqp.method.arguments.mandatory",
             FT_BOOLEAN, 8, NULL, 0x01,
@@ -4675,11 +4675,11 @@ proto_register_amqp(void)
         {&hf_amqp_method_basic_return_reply_code, {
             "Reply-Code", "amqp.method.arguments.reply_code",
              FT_UINT16, BASE_DEC, NULL, 0,
-            "reply-code", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_basic_return_reply_text, {
             "Reply-Text", "amqp.method.arguments.reply_text",
             FT_STRING, BASE_NONE, NULL, 0,
-            "reply-text", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_basic_return_exchange, {
             "Exchange", "amqp.method.arguments.exchange",
             FT_STRING, BASE_NONE, NULL, 0,
@@ -4687,15 +4687,15 @@ proto_register_amqp(void)
         {&hf_amqp_method_basic_return_routing_key, {
             "Routing-Key", "amqp.method.arguments.routing_key",
             FT_STRING, BASE_NONE, NULL, 0,
-            "routing-key", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_basic_deliver_consumer_tag, {
             "Consumer-Tag", "amqp.method.arguments.consumer_tag",
             FT_STRING, BASE_NONE, NULL, 0,
-            "consumer-tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_basic_deliver_delivery_tag, {
             "Delivery-Tag", "amqp.method.arguments.delivery_tag",
             FT_UINT64, BASE_DEC, NULL, 0,
-            "delivery-tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_basic_deliver_redelivered, {
             "Redelivered", "amqp.method.arguments.redelivered",
             FT_BOOLEAN, 8, NULL, 0x01,
@@ -4707,7 +4707,7 @@ proto_register_amqp(void)
         {&hf_amqp_method_basic_deliver_routing_key, {
             "Routing-Key", "amqp.method.arguments.routing_key",
             FT_STRING, BASE_NONE, NULL, 0,
-            "routing-key", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_basic_get_ticket, {
             "Ticket", "amqp.method.arguments.ticket",
              FT_UINT16, BASE_DEC, NULL, 0,
@@ -4719,11 +4719,11 @@ proto_register_amqp(void)
         {&hf_amqp_method_basic_get_no_ack, {
             "No-Ack", "amqp.method.arguments.no_ack",
             FT_BOOLEAN, 8, NULL, 0x01,
-            "no-ack", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_basic_get_ok_delivery_tag, {
             "Delivery-Tag", "amqp.method.arguments.delivery_tag",
             FT_UINT64, BASE_DEC, NULL, 0,
-            "delivery-tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_basic_get_ok_redelivered, {
             "Redelivered", "amqp.method.arguments.redelivered",
             FT_BOOLEAN, 8, NULL, 0x01,
@@ -4735,19 +4735,19 @@ proto_register_amqp(void)
         {&hf_amqp_method_basic_get_ok_routing_key, {
             "Routing-Key", "amqp.method.arguments.routing_key",
             FT_STRING, BASE_NONE, NULL, 0,
-            "routing-key", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_basic_get_ok_message_count, {
             "Message-Count", "amqp.method.arguments.message_count",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "message-count", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_basic_get_empty_cluster_id, {
             "Cluster-Id", "amqp.method.arguments.cluster_id",
             FT_STRING, BASE_NONE, NULL, 0,
-            "cluster-id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_basic_ack_delivery_tag, {
             "Delivery-Tag", "amqp.method.arguments.delivery_tag",
             FT_UINT64, BASE_DEC, NULL, 0,
-            "delivery-tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_basic_ack_multiple, {
             "Multiple", "amqp.method.arguments.multiple",
             FT_BOOLEAN, 8, NULL, 0x01,
@@ -4755,7 +4755,7 @@ proto_register_amqp(void)
         {&hf_amqp_method_basic_reject_delivery_tag, {
             "Delivery-Tag", "amqp.method.arguments.delivery_tag",
             FT_UINT64, BASE_DEC, NULL, 0,
-            "delivery-tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_basic_reject_requeue, {
             "Requeue", "amqp.method.arguments.requeue",
             FT_BOOLEAN, 8, NULL, 0x01,
@@ -4767,11 +4767,11 @@ proto_register_amqp(void)
         {&hf_amqp_method_file_qos_prefetch_size, {
             "Prefetch-Size", "amqp.method.arguments.prefetch_size",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "prefetch-size", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_file_qos_prefetch_count, {
             "Prefetch-Count", "amqp.method.arguments.prefetch_count",
              FT_UINT16, BASE_DEC, NULL, 0,
-            "prefetch-count", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_file_qos_global, {
             "Global", "amqp.method.arguments.global",
             FT_BOOLEAN, 8, NULL, 0x01,
@@ -4787,15 +4787,15 @@ proto_register_amqp(void)
         {&hf_amqp_method_file_consume_consumer_tag, {
             "Consumer-Tag", "amqp.method.arguments.consumer_tag",
             FT_STRING, BASE_NONE, NULL, 0,
-            "consumer-tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_file_consume_no_local, {
             "No-Local", "amqp.method.arguments.no_local",
             FT_BOOLEAN, 8, NULL, 0x01,
-            "no-local", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_file_consume_no_ack, {
             "No-Ack", "amqp.method.arguments.no_ack",
             FT_BOOLEAN, 8, NULL, 0x02,
-            "no-ack", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_file_consume_exclusive, {
             "Exclusive", "amqp.method.arguments.exclusive",
             FT_BOOLEAN, 8, NULL, 0x04,
@@ -4811,11 +4811,11 @@ proto_register_amqp(void)
         {&hf_amqp_method_file_consume_ok_consumer_tag, {
             "Consumer-Tag", "amqp.method.arguments.consumer_tag",
             FT_STRING, BASE_NONE, NULL, 0,
-            "consumer-tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_file_cancel_consumer_tag, {
             "Consumer-Tag", "amqp.method.arguments.consumer_tag",
             FT_STRING, BASE_NONE, NULL, 0,
-            "consumer-tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_file_cancel_nowait, {
             "Nowait", "amqp.method.arguments.nowait",
             FT_BOOLEAN, 8, NULL, 0x01,
@@ -4823,7 +4823,7 @@ proto_register_amqp(void)
         {&hf_amqp_method_file_cancel_ok_consumer_tag, {
             "Consumer-Tag", "amqp.method.arguments.consumer_tag",
             FT_STRING, BASE_NONE, NULL, 0,
-            "consumer-tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_file_open_identifier, {
             "Identifier", "amqp.method.arguments.identifier",
             FT_STRING, BASE_NONE, NULL, 0,
@@ -4831,11 +4831,11 @@ proto_register_amqp(void)
         {&hf_amqp_method_file_open_content_size, {
             "Content-Size", "amqp.method.arguments.content_size",
             FT_UINT64, BASE_DEC, NULL, 0,
-            "content-size", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_file_open_ok_staged_size, {
             "Staged-Size", "amqp.method.arguments.staged_size",
             FT_UINT64, BASE_DEC, NULL, 0,
-            "staged-size", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_file_publish_ticket, {
             "Ticket", "amqp.method.arguments.ticket",
              FT_UINT16, BASE_DEC, NULL, 0,
@@ -4847,7 +4847,7 @@ proto_register_amqp(void)
         {&hf_amqp_method_file_publish_routing_key, {
             "Routing-Key", "amqp.method.arguments.routing_key",
             FT_STRING, BASE_NONE, NULL, 0,
-            "routing-key", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_file_publish_mandatory, {
             "Mandatory", "amqp.method.arguments.mandatory",
             FT_BOOLEAN, 8, NULL, 0x01,
@@ -4863,11 +4863,11 @@ proto_register_amqp(void)
         {&hf_amqp_method_file_return_reply_code, {
             "Reply-Code", "amqp.method.arguments.reply_code",
              FT_UINT16, BASE_DEC, NULL, 0,
-            "reply-code", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_file_return_reply_text, {
             "Reply-Text", "amqp.method.arguments.reply_text",
             FT_STRING, BASE_NONE, NULL, 0,
-            "reply-text", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_file_return_exchange, {
             "Exchange", "amqp.method.arguments.exchange",
             FT_STRING, BASE_NONE, NULL, 0,
@@ -4875,15 +4875,15 @@ proto_register_amqp(void)
         {&hf_amqp_method_file_return_routing_key, {
             "Routing-Key", "amqp.method.arguments.routing_key",
             FT_STRING, BASE_NONE, NULL, 0,
-            "routing-key", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_file_deliver_consumer_tag, {
             "Consumer-Tag", "amqp.method.arguments.consumer_tag",
             FT_STRING, BASE_NONE, NULL, 0,
-            "consumer-tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_file_deliver_delivery_tag, {
             "Delivery-Tag", "amqp.method.arguments.delivery_tag",
             FT_UINT64, BASE_DEC, NULL, 0,
-            "delivery-tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_file_deliver_redelivered, {
             "Redelivered", "amqp.method.arguments.redelivered",
             FT_BOOLEAN, 8, NULL, 0x01,
@@ -4895,7 +4895,7 @@ proto_register_amqp(void)
         {&hf_amqp_method_file_deliver_routing_key, {
             "Routing-Key", "amqp.method.arguments.routing_key",
             FT_STRING, BASE_NONE, NULL, 0,
-            "routing-key", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_file_deliver_identifier, {
             "Identifier", "amqp.method.arguments.identifier",
             FT_STRING, BASE_NONE, NULL, 0,
@@ -4903,7 +4903,7 @@ proto_register_amqp(void)
         {&hf_amqp_method_file_ack_delivery_tag, {
             "Delivery-Tag", "amqp.method.arguments.delivery_tag",
             FT_UINT64, BASE_DEC, NULL, 0,
-            "delivery-tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_file_ack_multiple, {
             "Multiple", "amqp.method.arguments.multiple",
             FT_BOOLEAN, 8, NULL, 0x01,
@@ -4911,7 +4911,7 @@ proto_register_amqp(void)
         {&hf_amqp_method_file_reject_delivery_tag, {
             "Delivery-Tag", "amqp.method.arguments.delivery_tag",
             FT_UINT64, BASE_DEC, NULL, 0,
-            "delivery-tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_file_reject_requeue, {
             "Requeue", "amqp.method.arguments.requeue",
             FT_BOOLEAN, 8, NULL, 0x01,
@@ -4919,15 +4919,15 @@ proto_register_amqp(void)
         {&hf_amqp_method_stream_qos_prefetch_size, {
             "Prefetch-Size", "amqp.method.arguments.prefetch_size",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "prefetch-size", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_stream_qos_prefetch_count, {
             "Prefetch-Count", "amqp.method.arguments.prefetch_count",
              FT_UINT16, BASE_DEC, NULL, 0,
-            "prefetch-count", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_stream_qos_consume_rate, {
             "Consume-Rate", "amqp.method.arguments.consume_rate",
             FT_UINT32, BASE_DEC, NULL, 0,
-            "consume-rate", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_stream_qos_global, {
             "Global", "amqp.method.arguments.global",
             FT_BOOLEAN, 8, NULL, 0x01,
@@ -4943,11 +4943,11 @@ proto_register_amqp(void)
         {&hf_amqp_method_stream_consume_consumer_tag, {
             "Consumer-Tag", "amqp.method.arguments.consumer_tag",
             FT_STRING, BASE_NONE, NULL, 0,
-            "consumer-tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_stream_consume_no_local, {
             "No-Local", "amqp.method.arguments.no_local",
             FT_BOOLEAN, 8, NULL, 0x01,
-            "no-local", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_stream_consume_exclusive, {
             "Exclusive", "amqp.method.arguments.exclusive",
             FT_BOOLEAN, 8, NULL, 0x02,
@@ -4963,11 +4963,11 @@ proto_register_amqp(void)
         {&hf_amqp_method_stream_consume_ok_consumer_tag, {
             "Consumer-Tag", "amqp.method.arguments.consumer_tag",
             FT_STRING, BASE_NONE, NULL, 0,
-            "consumer-tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_stream_cancel_consumer_tag, {
             "Consumer-Tag", "amqp.method.arguments.consumer_tag",
             FT_STRING, BASE_NONE, NULL, 0,
-            "consumer-tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_stream_cancel_nowait, {
             "Nowait", "amqp.method.arguments.nowait",
             FT_BOOLEAN, 8, NULL, 0x01,
@@ -4975,7 +4975,7 @@ proto_register_amqp(void)
         {&hf_amqp_method_stream_cancel_ok_consumer_tag, {
             "Consumer-Tag", "amqp.method.arguments.consumer_tag",
             FT_STRING, BASE_NONE, NULL, 0,
-            "consumer-tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_stream_publish_ticket, {
             "Ticket", "amqp.method.arguments.ticket",
              FT_UINT16, BASE_DEC, NULL, 0,
@@ -4987,7 +4987,7 @@ proto_register_amqp(void)
         {&hf_amqp_method_stream_publish_routing_key, {
             "Routing-Key", "amqp.method.arguments.routing_key",
             FT_STRING, BASE_NONE, NULL, 0,
-            "routing-key", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_stream_publish_mandatory, {
             "Mandatory", "amqp.method.arguments.mandatory",
             FT_BOOLEAN, 8, NULL, 0x01,
@@ -4999,11 +4999,11 @@ proto_register_amqp(void)
         {&hf_amqp_method_stream_return_reply_code, {
             "Reply-Code", "amqp.method.arguments.reply_code",
              FT_UINT16, BASE_DEC, NULL, 0,
-            "reply-code", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_stream_return_reply_text, {
             "Reply-Text", "amqp.method.arguments.reply_text",
             FT_STRING, BASE_NONE, NULL, 0,
-            "reply-text", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_stream_return_exchange, {
             "Exchange", "amqp.method.arguments.exchange",
             FT_STRING, BASE_NONE, NULL, 0,
@@ -5011,15 +5011,15 @@ proto_register_amqp(void)
         {&hf_amqp_method_stream_return_routing_key, {
             "Routing-Key", "amqp.method.arguments.routing_key",
             FT_STRING, BASE_NONE, NULL, 0,
-            "routing-key", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_stream_deliver_consumer_tag, {
             "Consumer-Tag", "amqp.method.arguments.consumer_tag",
             FT_STRING, BASE_NONE, NULL, 0,
-            "consumer-tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_stream_deliver_delivery_tag, {
             "Delivery-Tag", "amqp.method.arguments.delivery_tag",
             FT_UINT64, BASE_DEC, NULL, 0,
-            "delivery-tag", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_stream_deliver_exchange, {
             "Exchange", "amqp.method.arguments.exchange",
             FT_STRING, BASE_NONE, NULL, 0,
@@ -5031,11 +5031,11 @@ proto_register_amqp(void)
         {&hf_amqp_method_dtx_start_dtx_identifier, {
             "Dtx-Identifier", "amqp.method.arguments.dtx_identifier",
             FT_STRING, BASE_NONE, NULL, 0,
-            "dtx-identifier", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_method_tunnel_request_meta_data, {
             "Meta-Data", "amqp.method.arguments.meta_data",
             FT_NONE, BASE_NONE, NULL, 0,
-            "meta-data", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_field, {
             "AMQP", "amqp.field",
             FT_NONE, BASE_NONE, NULL, 0,
@@ -5063,11 +5063,11 @@ proto_register_amqp(void)
         {&hf_amqp_header_basic_content_type, {
             "Content-Type", "amqp.method.properties.content_type",
             FT_STRING, BASE_NONE, NULL, 0,
-            "content-type", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_header_basic_content_encoding, {
             "Content-Encoding", "amqp.method.properties.content_encoding",
             FT_STRING, BASE_NONE, NULL, 0,
-            "content-encoding", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_header_basic_headers, {
             "Headers", "amqp.method.properties.headers",
             FT_NONE, BASE_NONE, NULL, 0,
@@ -5075,7 +5075,7 @@ proto_register_amqp(void)
         {&hf_amqp_header_basic_delivery_mode, {
             "Delivery-Mode", "amqp.method.properties.delivery_mode",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "delivery-mode", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_header_basic_priority, {
             "Priority", "amqp.method.properties.priority",
             FT_UINT8, BASE_DEC, NULL, 0,
@@ -5083,11 +5083,11 @@ proto_register_amqp(void)
         {&hf_amqp_header_basic_correlation_id, {
             "Correlation-Id", "amqp.method.properties.correlation_id",
             FT_STRING, BASE_NONE, NULL, 0,
-            "correlation-id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_header_basic_reply_to, {
             "Reply-To", "amqp.method.properties.reply_to",
             FT_STRING, BASE_NONE, NULL, 0,
-            "reply-to", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_header_basic_expiration, {
             "Expiration", "amqp.method.properties.expiration",
             FT_STRING, BASE_NONE, NULL, 0,
@@ -5095,7 +5095,7 @@ proto_register_amqp(void)
         {&hf_amqp_header_basic_message_id, {
             "Message-Id", "amqp.method.properties.message_id",
             FT_STRING, BASE_NONE, NULL, 0,
-            "message-id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_header_basic_timestamp, {
             "Timestamp", "amqp.method.properties.timestamp",
             FT_UINT64, BASE_DEC, NULL, 0,
@@ -5107,23 +5107,23 @@ proto_register_amqp(void)
         {&hf_amqp_header_basic_user_id, {
             "User-Id", "amqp.method.properties.user_id",
             FT_STRING, BASE_NONE, NULL, 0,
-            "user-id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_header_basic_app_id, {
             "App-Id", "amqp.method.properties.app_id",
             FT_STRING, BASE_NONE, NULL, 0,
-            "app-id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_header_basic_cluster_id, {
             "Cluster-Id", "amqp.method.properties.cluster_id",
             FT_STRING, BASE_NONE, NULL, 0,
-            "cluster-id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_header_file_content_type, {
             "Content-Type", "amqp.method.properties.content_type",
             FT_STRING, BASE_NONE, NULL, 0,
-            "content-type", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_header_file_content_encoding, {
             "Content-Encoding", "amqp.method.properties.content_encoding",
             FT_STRING, BASE_NONE, NULL, 0,
-            "content-encoding", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_header_file_headers, {
             "Headers", "amqp.method.properties.headers",
             FT_NONE, BASE_NONE, NULL, 0,
@@ -5135,11 +5135,11 @@ proto_register_amqp(void)
         {&hf_amqp_header_file_reply_to, {
             "Reply-To", "amqp.method.properties.reply_to",
             FT_STRING, BASE_NONE, NULL, 0,
-            "reply-to", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_header_file_message_id, {
             "Message-Id", "amqp.method.properties.message_id",
             FT_STRING, BASE_NONE, NULL, 0,
-            "message-id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_header_file_filename, {
             "Filename", "amqp.method.properties.filename",
             FT_STRING, BASE_NONE, NULL, 0,
@@ -5151,15 +5151,15 @@ proto_register_amqp(void)
         {&hf_amqp_header_file_cluster_id, {
             "Cluster-Id", "amqp.method.properties.cluster_id",
             FT_STRING, BASE_NONE, NULL, 0,
-            "cluster-id", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_header_stream_content_type, {
             "Content-Type", "amqp.method.properties.content_type",
             FT_STRING, BASE_NONE, NULL, 0,
-            "content-type", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_header_stream_content_encoding, {
             "Content-Encoding", "amqp.method.properties.content_encoding",
             FT_STRING, BASE_NONE, NULL, 0,
-            "content-encoding", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_header_stream_headers, {
             "Headers", "amqp.method.properties.headers",
             FT_NONE, BASE_NONE, NULL, 0,
@@ -5179,11 +5179,11 @@ proto_register_amqp(void)
         {&hf_amqp_header_tunnel_proxy_name, {
             "Proxy-Name", "amqp.method.properties.proxy_name",
             FT_STRING, BASE_NONE, NULL, 0,
-            "proxy-name", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_header_tunnel_data_name, {
             "Data-Name", "amqp.method.properties.data_name",
             FT_STRING, BASE_NONE, NULL, 0,
-            "data-name", HFILL}},
+            NULL, HFILL}},
         {&hf_amqp_header_tunnel_durable, {
             "Durable", "amqp.method.properties.durable",
             FT_UINT8, BASE_DEC, NULL, 0,

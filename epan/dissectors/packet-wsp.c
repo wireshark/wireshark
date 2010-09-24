@@ -7413,7 +7413,7 @@ proto_register_sir(void)
 			{	"Application-ID List",
 				"wap.sir.app_id_list",
 				FT_NONE, BASE_NONE, NULL, 0x00,
-				"Application-ID list", HFILL
+				NULL, HFILL
 			}
 		},
 		{ &hf_sir_wsp_contact_points_len,
