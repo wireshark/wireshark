@@ -98,6 +98,7 @@
 #include "gtk/proto_help.h"
 
 #define MENUS_USE_UIMANAGER 1
+/*#define MAIN_MENU_USE_UIMANAGER 1 */
 
 
 #ifdef NEW_PACKET_LIST
@@ -880,7 +881,83 @@ static GtkItemFactoryEntry menu_items[] =
                        0, "<StockItem>", WIRESHARK_STOCK_ABOUT}
 };
 
-#if 0
+#ifdef MENUS_USE_UIMANAGER
+/*Apply a filter */
+
+static void
+tree_view_menu_apply_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW);
+}
+
+static void
+tree_view_menu_apply_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW);
+}
+
+static void
+tree_view_menu_apply_and_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW);
+}
+
+static void
+tree_view_menu_apply_or_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW);
+}
+
+static void
+tree_view_menu_apply_and_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW);
+}
+
+static void
+tree_view_menu_apply_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	match_selected_ptree_cb( widget , user_data,MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW);
+}
+/* Prepare a filter */
+static void
+tree_view_menu_prepare_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_REPLACE);
+}
+
+static void
+tree_view_menu_prepare_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_NOT);
+}
+
+static void
+tree_view_menu_prepare_and_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_AND);
+}
+
+static void
+tree_view_menu_prepare_or_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_OR);
+}
+
+static void
+tree_view_menu_prepare_and_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_AND_NOT);
+}
+
+static void
+tree_view_menu_prepare_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
+{
+	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_OR_NOT);
+}
+#endif /*XXX*/
+
+#ifdef MAIN_MENU_USE_UIMANAGER 
 /* Prepare for use of GTKUImanager */
 GtkUIManager *ui_manager_main_menubar = NULL;
 
@@ -950,7 +1027,7 @@ wireless_toolbar_show_hide_cb(GtkAction *action, gpointer user_data)
 {
 	/* XXXX fixme SHOW_HIDE_AIRPCAP_TOOLBAR*/
 }
-#endif
+#endif /* HAVE_AIRPCAP */
 
 static void
 status_bar_show_hide_cb(GtkAction *action, gpointer user_data)
@@ -1000,6 +1077,222 @@ view_menu_en_for_MAC_cb(GtkAction *action, gpointer user_data)
 	state = gtk_toggle_action_get_active (GTK_TOGGLE_ACTION (action));
 }
 
+static void
+view_menu_en_for_network_cb(GtkAction *action, gpointer user_data)
+{
+	gboolean state;
+#if 0
+	name_resolution_cb( widget , user_data, RESOLV_NETWORK);
+#endif
+
+	state = gtk_toggle_action_get_active (GTK_TOGGLE_ACTION (action));
+}
+
+static void
+view_menu_en_for_transport_cb(GtkAction *action, gpointer user_data)
+{
+	gboolean state;
+#if 0
+	name_resolution_cb( widget , user_data, RESOLV_TRANSPORT);
+#endif
+
+	state = gtk_toggle_action_get_active (GTK_TOGGLE_ACTION (action));
+}
+
+static void
+view_menu_colorize_pkt_lst_cb(GtkAction *action, gpointer user_data)
+{
+	gboolean state;
+#if 0
+	colorize_cb( widget , user_data);
+#endif
+
+	state = gtk_toggle_action_get_active (GTK_TOGGLE_ACTION (action));
+}
+
+static void
+view_menu_colorize_auto_scroll_live_cb(GtkAction *action, gpointer user_data)
+{
+	gboolean state;
+#if 0
+	auto_scroll_live_cb( widget , user_data);
+#endif
+
+	state = gtk_toggle_action_get_active (GTK_TOGGLE_ACTION (action));
+}
+
+static void
+view_menu_color_conv_color1_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, 1*256);
+
+}
+
+static void
+view_menu_color_conv_color2_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, 2*256);
+
+}
+static void
+view_menu_color_conv_color3_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, 3*256);
+
+}
+static void
+view_menu_color_conv_color4_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, 4*256);
+
+}
+static void
+view_menu_color_conv_color5_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, 5*256);
+
+}
+static void
+view_menu_color_conv_color6_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, 6*256);
+
+}
+static void
+view_menu_color_conv_color7_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, 7*256);
+
+}
+static void
+view_menu_color_conv_color8_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, 8*256);
+
+}
+static void
+view_menu_color_conv_color9_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, 9*256);
+
+}
+static void
+view_menu_color_conv_color10_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, 10*256);
+
+}
+
+static void
+view_menu_color_conv_new_rule_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, 0);
+
+}
+
+static void
+view_menu_reset_coloring_cb(GtkWidget *widget, gpointer user_data)
+{
+	colorize_conversation_cb( widget , user_data, 255*256);
+
+}
+
+static void
+help_menu_cont_cb(GtkWidget *widget, gpointer user_data)
+{
+	/*topic_menu_cb( widget , user_data, HELP_CONTENT); note this is not correct!*/
+
+}
+
+static void
+help_menu_faq_cb(GtkWidget *widget, gpointer user_data)
+{
+        /*topic_menu_cb( widget , user_data, LOCALPAGE_MAN_WIRESHARK); note this is not correct!*/
+ 
+}
+
+static void
+help_menu_wireshark_cb(GtkWidget *widget, gpointer user_data)
+{
+        /*topic_menu_cb( widget , user_data, LOCALPAGE_MAN_WIRESHARK); note this is not correct!*/
+ 
+}
+
+static void
+help_menu_wireshark_flt_cb(GtkWidget *widget, gpointer user_data)
+{
+        /*topic_menu_cb( widget , user_data, LOCALPAGE_MAN_WIRESHARK_FILTER); note this is not correct!*/
+ 
+}
+
+static void
+help_menu_Tshark_cb(GtkWidget *widget, gpointer user_data)
+{
+        /*topic_menu_cb( widget , user_data, LOCALPAGE_MAN_TSHARK); note this is not correct!*/
+ 
+}
+
+static void
+help_menu_RawShark_cb(GtkWidget *widget, gpointer user_data)
+{
+        /*topic_menu_cb( widget , user_data, LOCALPAGE_MAN_RAWSHARK); note this is not correct!*/
+ 
+}
+
+static void
+help_menu_Dumpcap_cb(GtkWidget *widget, gpointer user_data)
+{
+        /*topic_menu_cb( widget , user_data, LOCALPAGE_MAN_DUMPCAP); note this is not correct!*/
+ 
+}
+
+static void
+help_menu_Mergecap_cb(GtkWidget *widget, gpointer user_data)
+{
+        /*topic_menu_cb( widget , user_data, LOCALPAGE_MAN_DUMPCAP); note this is not correct!*/
+}
+
+static void
+help_menu_Editcap_cb(GtkWidget *widget, gpointer user_data)
+{
+        /*topic_menu_cb( widget , user_data, LOCALPAGE_MAN_EDITCAP); note this is not correct!*/
+ 
+}
+
+static void
+help_menu_Text2pcap_cb(GtkWidget *widget, gpointer user_data)
+{
+        /*topic_menu_cb( widget , user_data, LOCALPAGE_MAN_TEXT2PCAP); note this is not correct!*/
+ 
+}
+
+static void
+help_menu_Website_cb(GtkWidget *widget, gpointer user_data)
+{
+        /*topic_menu_cb( widget , user_data, ONLINEPAGE_HOME); note this is not correct!*/
+ 
+}
+
+static void
+help_menu_Wiki_cb(GtkWidget *widget, gpointer user_data)
+{
+       /* topic_menu_cb( widget , user_data, ONLINEPAGE_WIKI); note this is not correct!*/
+ 
+}
+
+static void
+help_menu_Downloads_cb(GtkWidget *widget, gpointer user_data)
+{
+        /*topic_menu_cb( widget , user_data, ONLINEPAGE_DOWNLOAD); note this is not correct!*/
+ 
+}
+
+static void
+help_menu_SampleCaptures_cb(GtkWidget *widget, gpointer user_data)
+{
+        /*topic_menu_cb( widget , user_data, ONLINEPAGE_SAMPLE_FILES); note this is not correct!*/
+ 
+}
 
 static const char *ui_desc_menubar =
 "<ui>\n"
@@ -1033,7 +1326,7 @@ static const char *ui_desc_menubar =
 "          <menuitem name='AsPDML' action='/File/Export/File/PDML'/>\n"
 "          <separator/>\n"
 "        </menu>\n"
-#endif
+#endif /* _WIN32 */
 "      <menuitem name='SelectedPacketBytes' action='/File/Export/SelectedPacketBytes'/>\n"
 "        <menu name= 'Objects' action='/File/Export/Objects'>\n"
 "          <menuitem name='HTTP' action='/File/Export/Objects/HTTP'/>\n"
@@ -1113,7 +1406,129 @@ Not implemented!
 "      <menu name= 'NameResolutionMenu' action='/View/NameResolution'>\n"
 "         <menuitem name='ResolveName' action='/View/NameResolution/ResolveName'/>\n"
 "         <separator/>\n"
+"         <menuitem name='EnableforMACLayer' action='/View/NameResolution/EnableforMACLayer'/>\n"
+"         <menuitem name='EnableforNetworkLayer' action='/View/NameResolution/EnableforNetworkLayer'/>\n"
+"         <menuitem name='EnableforTransportLayer' action='/View/NameResolution/EnableforTransportLayer'/>\n"
 "      </menu>\n"
+"      <menuitem name='ColorizePacketList' action='/View/ColorizePacketList'/>\n"
+"      <menuitem name='AutoScrollinLiveCapture' action='/View/AutoScrollinLiveCapture'/>\n"
+"      <separator/>\n"
+"      <menuitem name='ZoomIn' action='/View/ZoomIn'/>\n"
+"      <menuitem name='ZoomOut' action='/View/ZoomOut'/>\n"
+"      <menuitem name='NormalSize' action='/View/NormalSize'/>\n"
+"      <separator/>\n"
+"      <menuitem name='ResizeAllColumns' action='/View/ResizeAllColumns'/>\n"
+"      <menuitem name='DisplayedColumns' action='/View/DisplayedColumns'/>\n"
+"      <separator/>\n"
+"      <menuitem name='ExpandSubtrees' action='/View/ExpandSubtrees'/>\n"
+"      <menuitem name='ExpandAll' action='/View/ExpandAll'/>\n"
+"      <menuitem name='CollapseAll' action='/View/CollapseAll'/>\n"
+"      <separator/>\n"
+"      <menu name= 'ColorizeConversation' action='/View/ColorizeConversation'>\n"
+"         <menuitem name='Color1' action='/View/ColorizeConversation/Color 1'/>\n"
+"         <menuitem name='Color2' action='/View/ColorizeConversation/Color 2'/>\n"
+"         <menuitem name='Color3' action='/View/ColorizeConversation/Color 3'/>\n"
+"         <menuitem name='Color4' action='/View/ColorizeConversation/Color 4'/>\n"
+"         <menuitem name='Color5' action='/View/ColorizeConversation/Color 5'/>\n"
+"         <menuitem name='Color6' action='/View/ColorizeConversation/Color 6'/>\n"
+"         <menuitem name='Color7' action='/View/ColorizeConversation/Color 7'/>\n"
+"         <menuitem name='Color8' action='/View/ColorizeConversation/Color 8'/>\n"
+"         <menuitem name='Color9' action='/View/ColorizeConversation/Color 9'/>\n"
+"         <menuitem name='Color10' action='/View/ColorizeConversation/Color 10'/>\n"
+"         <menuitem name='NewColoringRule' action='/View/ColorizeConversation/NewColoringRule'/>\n"
+"      </menu>\n"
+"      <separator/>\n"
+"      <menuitem name='ResetColoring1-10' action='/View/ResetColoring1-10'/>\n"
+"      <menuitem name='ColoringRules' action='/View/ColoringRules'/>\n"
+"      <separator/>\n"
+"      <menuitem name='ShowPacketinNewWindow' action='/View/ShowPacketinNewWindow'/>\n"
+"      <menuitem name='Reload' action='/View/Reload'/>\n"
+"    </menu>\n"
+"    <menu name= 'GoMenu' action='/Go'>\n"
+"      <menuitem name='Back' action='/Go/Back'/>\n"
+"      <menuitem name='Forward' action='/Go/Forward'/>\n"
+"      <menuitem name='GotoCorrespondingPacket' action='/Go/GotoCorrespondingPacket'/>\n"
+"      <separator/>\n"
+"      <menuitem name='PreviousPacket' action='/Go/PreviousPacket'/>\n"
+"      <menuitem name='NextPacket' action='/Go/NextPacket'/>\n"
+"      <menuitem name='FirstPacket' action='/Go/FirstPacket'/>\n"
+"      <menuitem name='LastPacket' action='/Go/LastPacket'/>\n"
+"    </menu>\n"
+#ifdef HAVE_LIBPCAP
+"    <menu name= 'CaptureMenu' action='/Capture'>\n"
+"      <menuitem name='Interfaces' action='/Capture/Interfaces'/>\n"
+"      <menuitem name='Options' action='/Capture/Options'/>\n"
+"      <menuitem name='Start' action='/Capture/Start'/>\n"
+"      <menuitem name='Stop' action='/Capture/Stop'/>\n"
+"      <menuitem name='Restart' action='/Capture/Restart'/>\n"
+"      <menuitem name='CaptureFilters' action='/Capture/CaptureFilters'/>\n"
+"    </menu>\n"
+#endif /* HAVE_LIBPCAP */
+"    <menu name= 'AnalyzeMenu' action='/Analyze'>\n"
+"      <menuitem name='DisplayFilters' action='/Analyze/DisplayFilters'/>\n"
+"      <separator/>\n"
+"      <menuitem name='ApplyasColumn' action='/Analyze/ApplyasColumn'/>\n"
+"      <menu name= 'ApplyAsFilter' action='/Analyze/ApplyasFilter'>\n"
+"        <menuitem name='Selected' action='/Analyze/ApplyasFilter/Selected'/>\n"
+"        <menuitem name='NotSelected' action='/Analyze/ApplyasFilter/NotSelected'/>\n"
+"        <menuitem name='AndSelected' action='/Analyze/ApplyasFilter/AndSelected'/>\n"
+"        <menuitem name='OrSelected' action='/Analyze/ApplyasFilter/OrSelected'/>\n"
+"        <menuitem name='AndNotSelected' action='/Analyze/ApplyasFilter/AndNotSelected'/>\n"
+"        <menuitem name='OrNotSelected' action='/Analyze/ApplyasFilter/OrNotSelected'/>\n"
+"      </menu>\n"
+"      <menu name= 'PrepareaFilter' action='/Analyze/PrepareaFilter'>\n"
+"        <menuitem name='Selected' action='/Analyze/PrepareaFilter/Selected'/>\n"
+"        <menuitem name='NotSelected' action='/Analyze/PrepareaFilter/NotSelected'/>\n"
+"        <menuitem name='AndSelected' action='/Analyze/PrepareaFilter/AndSelected'/>\n"
+"        <menuitem name='OrSelected' action='/Analyze/PrepareaFilter/OrSelected'/>\n"
+"        <menuitem name='AndNotSelected' action='/Analyze/PrepareaFilter/AndNotSelected'/>\n"
+"        <menuitem name='OrNotSelected' action='/Analyze/PrepareaFilter/OrNotSelected'/>\n"
+"      </menu>\n"
+"      <menuitem name='EnabledProtocols' action='/Analyze/EnabledProtocols'/>\n"
+"      <menuitem name='DecodeAs' action='/Analyze/DecodeAs'/>\n"
+"      <menuitem name='UserSpecifiedDecodes' action='/Analyze/UserSpecifiedDecodes'/>\n"
+"      <separator/>\n"
+"      <menuitem name='FollowTCPStream' action='/Analyze/FollowTCPStream'/>\n"
+"      <menuitem name='FollowUDPStream' action='/Analyze/FollowUDPStream'/>\n"
+"      <menuitem name='FollowSSLStream' action='/Analyze/FollowSSLStream'/>\n"
+"    </menu>\n"
+"    <menu name= 'StatisticsMenu' action='/Statistics'>\n"
+"      <menuitem name='Summary' action='/Statistics/Summary'/>\n"
+"      <menuitem name='ProtocolHierarchy' action='/Statistics/ProtocolHierarchy'/>\n"
+"      <menuitem name='Conversations' action='/Statistics/Conversations'/>\n"
+"      <menuitem name='Endpoints' action='/Statistics/Endpoints'/>\n"
+"    </menu>\n"
+"    <menu name= 'TelephonyMenu' action='/Telephony'>\n"
+"    </menu>\n"
+"    <menu name= 'ToolsMenu' action='/Tools'>\n"
+"      <menuitem name='FirewallACLRules' action='/Tools/FirewallACLRules'/>\n"
+"    </menu>\n"
+"    <menu name= 'WSinternalMenu' action='/WSinternal'>\n"
+"      <menuitem name='Dissectortables' action='/WSinternal/Dissectortables'/>\n"
+"    </menu>\n"
+"    <menu name= 'HelpMenu' action='/Help'>\n"
+"      <menuitem name='Contents' action='/Help/Contents'/>\n"
+"      <menuitem name='FAQs' action='/Help/FAQs'/>\n"
+"      <menu name= 'ManualPages' action='/Help/ManualPages'>\n"
+"        <menuitem name='Wireshark' action='/Help/ManualPages/Wireshark'/>\n"
+"        <menuitem name='WiresharkFilter' action='/Help/ManualPages/WiresharkFilter'/>\n"
+"        <separator/>\n"
+"        <menuitem name='TShark' action='/Help/ManualPages/TShark'/>\n"
+"        <menuitem name='RawShark' action='/Help/ManualPages/RawShark'/>\n"
+"        <menuitem name='Dumpcap' action='/Help/ManualPages/Dumpcap'/>\n"
+"        <menuitem name='Mergecap' action='/Help/ManualPages/Mergecap'/>\n"
+"        <menuitem name='Editcap' action='/Help/ManualPages/Editcap'/>\n"
+"        <menuitem name='Text2pcap' action='/Help/ManualPages/Text2pcap'/>\n"
+"      </menu>\n"
+"      <separator/>\n"
+"      <menuitem name='Website' action='/Help/Website'/>\n"
+"      <menuitem name='Wiki' action='/Help/Wiki'/>\n"
+"      <menuitem name='Downloads' action='/Help/Downloads'/>\n"
+"      <menuitem name='SampleCaptures' action='/Help/SampleCaptures'/>\n"
+"      <separator/>\n"
+"      <menuitem name='SupportedProtocols' action='/Help/SupportedProtocols'/>\n"
+"      <separator/>\n"
+"      <menuitem name='AboutWireshark' action='/Help/AboutWireshark'/>\n"
 "    </menu>\n"
 "  </menubar>\n"
 "</ui>\n";
@@ -1177,7 +1592,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 																					NULL,					NULL,			G_CALLBACK(export_psml_cmd_cb) },
   { "/File/Export/File/PDML",			NULL,		"as XML - \"P_DML\" (packet details) file...",	
 																					NULL,					NULL,			G_CALLBACK(export_pdml_cmd_cb) },
-#endif
+#endif /* _WIN32 */
   { "/File/Export/SelectedPacketBytes",	NULL,		"Selected Packet _Bytes...",	"<control>H",			NULL,			G_CALLBACK(savehex_cb) },
   { "/File/Export/Objects",				NULL,		"Objects",						NULL,					NULL,			NULL },
   { "/File/Export/Objects/HTTP",		NULL,		"_HTTP",						NULL,					NULL,			G_CALLBACK(eo_http_cb) },
@@ -1283,9 +1698,116 @@ Not implemeted.
    { "/View/TimeDisplayFormat",		NULL,					"_Time Display Format",					NULL,						NULL,			NULL },
 
   { "/View/NameResolution",			NULL,					"Name Resol_ution",						NULL,						NULL,			NULL },
-  { "/View/NameResolution/ResolveName",	NULL,				"_Resolve Name",						NULL,						NULL,			G_CALLBACK(view_menu_en_for_MAC_cb) },
+  { "/View/NameResolution/ResolveName",	NULL,				"_Resolve Name",						NULL,						NULL,			G_CALLBACK(resolve_name_cb) },
+   { "/View/ZoomIn",				GTK_STOCK_ZOOM_IN,		"_Zoom In",								"<control>plus",			NULL,			G_CALLBACK(view_zoom_in_cb) },
+   { "/View/ZoomOut",				GTK_STOCK_ZOOM_OUT,		"Zoom _Out",							"<control>minus",			NULL,			G_CALLBACK(view_zoom_out_cb) },
+   { "/View/NormalSize",			GTK_STOCK_ZOOM_100,		"_Normal Size",							"<control>equal",			NULL,			G_CALLBACK(view_zoom_100_cb) },
+#ifdef NEW_PACKET_LIST
+   { "/View/ResizeAllColumns",		WIRESHARK_STOCK_RESIZE_COLUMNS,	"Resize All Columns",			"<shift><control>R",		NULL,			G_CALLBACK(new_packet_list_resize_columns_cb) },
+   { "/View/DisplayedColumns",		NULL,	"Displayed Columns",			NULL,		NULL,			NULL },
+#else
+   Not implmented
+#endif /* NEW_PACKET_LIST */
+   { "/View/ExpandSubtrees",		NULL,					"Expand Subtrees",		NULL,					NULL,			G_CALLBACK(expand_tree_cb) },
+   { "/View/ExpandAll",				NULL,					"Expand All",			NULL,					NULL,			G_CALLBACK(expand_all_cb) },
+   { "/View/CollapseAll",			NULL,					"Collapse All",			NULL,					NULL,			G_CALLBACK(collapse_all_cb) },
+   { "/View/ColorizeConversation",	NULL,					"Colorize Conversation",NULL,					NULL,			NULL },
 
+   { "/View/ColorizeConversation/Color 1",	WIRESHARK_STOCK_COLOR1, "Color 1",					NULL, NULL, G_CALLBACK(view_menu_color_conv_color1_cb) },
+   { "/View/ColorizeConversation/Color 2",	WIRESHARK_STOCK_COLOR2, "Color 2",					NULL, NULL, G_CALLBACK(view_menu_color_conv_color2_cb) },
+   { "/View/ColorizeConversation/Color 3",	WIRESHARK_STOCK_COLOR3, "Color 3",					NULL, NULL, G_CALLBACK(view_menu_color_conv_color3_cb) },
+   { "/View/ColorizeConversation/Color 4",	WIRESHARK_STOCK_COLOR4, "Color 4",					NULL, NULL, G_CALLBACK(view_menu_color_conv_color4_cb) },
+   { "/View/ColorizeConversation/Color 5",	WIRESHARK_STOCK_COLOR5, "Color 5",					NULL, NULL, G_CALLBACK(view_menu_color_conv_color5_cb) },
+   { "/View/ColorizeConversation/Color 6",	WIRESHARK_STOCK_COLOR6, "Color 6",					NULL, NULL, G_CALLBACK(view_menu_color_conv_color6_cb) },
+   { "/View/ColorizeConversation/Color 7",	WIRESHARK_STOCK_COLOR7, "Color 7",					NULL, NULL, G_CALLBACK(view_menu_color_conv_color7_cb) },
+   { "/View/ColorizeConversation/Color 8",	WIRESHARK_STOCK_COLOR8, "Color 8",					NULL, NULL, G_CALLBACK(view_menu_color_conv_color8_cb) },
+   { "/View/ColorizeConversation/Color 9",	WIRESHARK_STOCK_COLOR9, "Color 9",					NULL, NULL, G_CALLBACK(view_menu_color_conv_color9_cb) },
+   { "/View/ColorizeConversation/Color 10",	WIRESHARK_STOCK_COLOR0, "Color 10",					NULL, NULL, G_CALLBACK(view_menu_color_conv_color10_cb) },
+   { "/View/ColorizeConversation/NewColoringRule",	NULL,			"New Coloring Rule...",		NULL, NULL, G_CALLBACK(view_menu_color_conv_new_rule_cb) },
+
+   { "/View/ResetColoring1-10",		NULL,					"Reset Coloring 1-10",				"<control>space",				NULL,				G_CALLBACK(view_menu_reset_coloring_cb) },
+   { "/View/ColoringRules",			GTK_STOCK_SELECT_COLOR,	"_Coloring Rules...",				NULL,							NULL,				G_CALLBACK(color_display_cb) },
+   { "/View/ShowPacketinNewWindow",	NULL,					"Show Packet in New _Window",		NULL,							NULL,				G_CALLBACK(new_window_cb) },
+   { "/View/Reload",				GTK_STOCK_REFRESH,		"_Reload",							"<control>R",					NULL,				G_CALLBACK(file_reload_cmd_cb) },
+
+
+   { "/Go/Back",					GTK_STOCK_GO_BACK,		"_Back",							"<alt>Left",					NULL,				G_CALLBACK(history_back_cb) },
+   { "/Go/Forward",					GTK_STOCK_JUMP_TO,		"_Forward",							"<control>G",					NULL,				G_CALLBACK(goto_frame_cb) },
+   { "/Go/GotoCorrespondingPacket",	NULL,					"Go to _Corresponding Packet",		NULL,							NULL,				G_CALLBACK(goto_framenum_cb) },
+
+   { "/Go/PreviousPacket",			GTK_STOCK_GO_UP,		"Previous Packet",					"<control>Up",					NULL,				G_CALLBACK(goto_previous_frame_cb) },
+   { "/Go/NextPacket",				GTK_STOCK_GO_DOWN,		"Next Packet",						"<control>Down",				NULL,				G_CALLBACK(goto_next_frame_cb) },
+   { "/Go/FirstPacket",				GTK_STOCK_GOTO_TOP,		"F_irst Packet",					"<control>Home",				NULL,				G_CALLBACK(goto_top_frame_cb) },
+   { "/Go/LastPacket",				GTK_STOCK_GOTO_BOTTOM,	"_Last Packet",						"<control>End",					NULL,				G_CALLBACK(goto_bottom_frame_cb) },
+
+#ifdef HAVE_LIBPCAP
+   { "/Capture/Interfaces",			WIRESHARK_STOCK_CAPTURE_INTERFACES,	"_Interfaces...",		"<control>I",					NULL,				G_CALLBACK(capture_if_cb) },
+   { "/Capture/Options",			WIRESHARK_STOCK_CAPTURE_OPTIONS,	"_Options...",			"<control>K",					NULL,				G_CALLBACK(capture_prep_cb) },
+   { "/Capture/Start",				WIRESHARK_STOCK_CAPTURE_START,		"_Start",				"<control>E",					NULL,				G_CALLBACK(capture_start_cb) },
+   { "/Capture/Stop",				WIRESHARK_STOCK_CAPTURE_STOP,		"S_top",				"<control>E",					NULL,				G_CALLBACK(capture_stop_cb) },
+   { "/Capture/Restart",			WIRESHARK_STOCK_CAPTURE_RESTART,	"_Restart",				"<control>R",					NULL,				G_CALLBACK(capture_restart_cb) },
+   { "/Capture/CaptureFilters",		WIRESHARK_STOCK_CAPTURE_FILTER,		"Capture _Filters...",	NULL,							NULL,				G_CALLBACK(cfilter_dialog_cb) },
+
+#endif /* HAVE_LIBPCAP */
+   { "/Analyze/DisplayFilters",		WIRESHARK_STOCK_DISPLAY_FILTER,		"_Display Filters...",	NULL,							NULL,				G_CALLBACK(dfilter_dialog_cb) },
+
+   { "/Analyze/DisplayFilterMacros",			NULL,					"Display Filter _Macros...",	NULL,					NULL,				G_CALLBACK(macros_dialog_cb) },
+   { "/Analyze/ApplyasColumn",					NULL,							"Apply as Column",		NULL,					NULL,				G_CALLBACK(apply_as_custom_column_cb) },
+   { "/Analyze/ApplyasFilter",					NULL,							"Apply as Filter",		NULL,					NULL,				NULL },
+
+   { "/Analyze/ApplyasFilter/Selected",			NULL, "_Selected" ,				NULL, NULL, G_CALLBACK(tree_view_menu_apply_selected_cb) },
+   { "/Analyze/ApplyasFilter/NotSelected",		NULL, "_Not Selected",			NULL, NULL, G_CALLBACK(tree_view_menu_apply_not_selected_cb) },
+   { "/Analyze/ApplyasFilter/AndSelected",		NULL, "... _and Selected",		NULL, NULL, G_CALLBACK(tree_view_menu_apply_and_selected_cb) },
+   { "/Analyze/ApplyasFilter/OrSelected",		NULL, "... _or Selected",		NULL, NULL, G_CALLBACK(tree_view_menu_apply_or_selected_cb) },
+   { "/Analyze/ApplyasFilter/AndNotSelected",	NULL, "... a_nd not Selected",	NULL, NULL, G_CALLBACK(tree_view_menu_apply_and_not_selected_cb) },
+   { "/Analyze/ApplyasFilter/OrNotSelected",	NULL, "... o_r not Selected",	NULL, NULL, G_CALLBACK(tree_view_menu_apply_or_not_selected_cb) },
+
+   { "/Analyze/PrepareaFilter",					NULL, "Prepare a Filter",		NULL, NULL, NULL },
+   { "/Analyze/PrepareaFilter/Selected",		NULL, "_Selected" ,				NULL, NULL, G_CALLBACK(tree_view_menu_prepare_selected_cb) },
+   { "/Analyze/PrepareaFilter/NotSelected",		NULL, "_Not Selected",			NULL, NULL, G_CALLBACK(tree_view_menu_prepare_not_selected_cb) },
+   { "/Analyze/PrepareaFilter/AndSelected",		NULL, "... _and Selected",		NULL, NULL, G_CALLBACK(tree_view_menu_prepare_and_selected_cb) },
+   { "/Analyze/PrepareaFilter/OrSelected",		NULL, "... _or Selected",		NULL, NULL, G_CALLBACK(tree_view_menu_prepare_or_selected_cb) },
+   { "/Analyze/PrepareaFilter/AndNotSelected",	NULL, "... a_nd not Selected",	NULL, NULL, G_CALLBACK(tree_view_menu_prepare_and_not_selected_cb) },
+   { "/Analyze/PrepareaFilter/OrNotSelected",	NULL, "... o_r not Selected",	NULL, NULL, G_CALLBACK(tree_view_menu_prepare_or_not_selected_cb) },
+
+   { "/Analyze/EnabledProtocols",	WIRESHARK_STOCK_CHECKBOX, "_Enabled Protocols...",	"<shift><control>E", NULL, G_CALLBACK(proto_cb) },
+   { "/Analyze/DecodeAs",	WIRESHARK_STOCK_DECODE_AS, "Decode _As...",			NULL, NULL, G_CALLBACK(decode_as_cb) },
+   { "/Analyze/UserSpecifiedDecodes",	WIRESHARK_STOCK_DECODE_AS, "_User Specified Decodes...",			NULL, NULL, G_CALLBACK(decode_show_cb) },
+
+   { "/Follow TCP Stream",							NULL,		"Follow TCP Stream",					NULL, NULL, G_CALLBACK(follow_tcp_stream_cb) },
+   { "/Follow UDP Stream",							NULL,		"Follow UDP Stream",					NULL, NULL, G_CALLBACK(follow_udp_stream_cb) },
+   { "/Follow SSL Stream",							NULL,		"Follow SSL Stream",					NULL, NULL, G_CALLBACK(follow_ssl_stream_cb) },
+
+ 
+   { "/Statistics/Summary",			GTK_STOCK_PROPERTIES,			"_Summary",				NULL,							NULL,				G_CALLBACK(summary_open_cb) },
+   { "/Statistics/ProtocolHierarchy",				NULL,			"_Protocol Hierarchy",	NULL,							NULL,				G_CALLBACK(proto_hier_stats_cb) },
+   { "/Statistics/Conversations",	WIRESHARK_STOCK_CONVERSATIONS,	"Conversations",		NULL,							NULL,				G_CALLBACK(init_conversation_notebook_cb) },
+   { "/Statistics/Endpoints",	WIRESHARK_STOCK_ENDPOINTS,			"Endpoints",			NULL,							NULL,				G_CALLBACK(init_hostlist_notebook_cb) },
+
+   { "/Tools/FirewallACLRules",		NULL,							"Firewall ACL Rules",	NULL,							NULL,				G_CALLBACK(firewall_rule_cb) },
+
+   { "/WSinternal/Dissectortables",	NULL,							"Dissector tables",		NULL,							NULL,				G_CALLBACK(dissector_tables_dlg_cb) },
+
+   { "/Help/Contents",				GTK_STOCK_HELP,					"_Contents",			"F1",							NULL,				G_CALLBACK(help_menu_cont_cb) },
+   { "/Help/FAQs",                  NULL,                           "FAQ's",                NULL,                           NULL,               G_CALLBACK(help_menu_faq_cb) },
+   { "/Help/ManualPages",           NULL,                           "ManualPages",          NULL,                           NULL,               NULL },
+   { "/Help/ManualPages/Wireshark", NULL,                           "Wireshark",            NULL,                           NULL,               G_CALLBACK(help_menu_wireshark_cb) },
+   { "/Help/ManualPages/WiresharkFilter", NULL,                     "Wireshark Filter",     NULL,                           NULL,               G_CALLBACK(help_menu_wireshark_flt_cb) },
+   { "/Help/ManualPages/TShark",	NULL,							"Wireshark",			NULL,							NULL,				G_CALLBACK(help_menu_Tshark_cb) },
+   { "/Help/ManualPages/RawShark",	NULL,							"RawShark",				NULL,							NULL,				G_CALLBACK(help_menu_RawShark_cb) },
+   { "/Help/ManualPages/Dumpcap",	NULL,							"Dumpcap",				NULL,							NULL,				G_CALLBACK(help_menu_Dumpcap_cb) },
+   { "/Help/ManualPages/Mergecap",	NULL,							"Mergecap",				NULL,							NULL,				G_CALLBACK(help_menu_Mergecap_cb) },
+   { "/Help/ManualPages/Editcap",	NULL,							"Editcap",				NULL,							NULL,				G_CALLBACK(help_menu_Editcap_cb) },
+   { "/Help/ManualPages/Text2pcap",	NULL,							"Text2pcap",			NULL,							NULL,				G_CALLBACK(help_menu_Text2pcap_cb) },
+
+   { "/Help/Website",				GTK_STOCK_HOME,					"Website",				NULL,							NULL,				G_CALLBACK(help_menu_Website_cb) },
+   { "/Help/Wiki",					WIRESHARK_STOCK_WIKI,			"Wiki",					NULL,							NULL,				G_CALLBACK(help_menu_Wiki_cb) },
+   { "/Help/Downloads",				NULL,							"Downloads",			NULL,							NULL,				G_CALLBACK(help_menu_Downloads_cb) },
+   { "/Help/SampleCaptures",		NULL,							"Sample Captures",		NULL,							NULL,				G_CALLBACK(help_menu_SampleCaptures_cb) },
+   { "/Help/SupportedProtocols",	NULL,					"_Supported Protocols (slow!)",	NULL,							NULL,				G_CALLBACK(supported_cb) },
+   { "/Help/AboutWireshark",		WIRESHARK_STOCK_ABOUT,			"_About Wireshark",		NULL,							NULL,				G_CALLBACK(about_wireshark_cb) },
 };
+
 static const GtkToggleActionEntry main_menu_bar_toggle_action_entries[] = 
 {
 	/* name, stock id, label, accel, tooltip, callback, is_active */
@@ -1293,15 +1815,22 @@ static const GtkToggleActionEntry main_menu_bar_toggle_action_entries[] =
 	{"/View/FilterToolbar", NULL, "_FilterToolbar", NULL, NULL,	G_CALLBACK(filter_toolbar_show_hide_cb), TRUE}, 
 #ifdef HAVE_AIRPCAP
 	{"/View/WirelessToolbar", NULL, "_WirelessToolbar", NULL, NULL,	G_CALLBACK(wireless_toolbar_show_hide_cb), TRUE}, 
-#endif
+#endif /* HAVE_AIRPCAP */
 	{"/View/Statusbar",		NULL, "_Statusbar", NULL, NULL,	G_CALLBACK(status_bar_show_hide_cb), TRUE}, 
 	{"/View/PacketList",	NULL, "Packet _List", NULL, NULL,	G_CALLBACK(packet_list_show_hide_cb), TRUE}, 
 	{"/View/PacketDetails",	NULL, "Packet _Details", NULL, NULL,	G_CALLBACK(packet_details_show_hide_cb), TRUE}, 
 	{"/View/PacketBytes",	NULL, "Packet _Bytes", NULL, NULL,	G_CALLBACK(packet_bytes_show_hide_cb), TRUE}, 
 	{"/View/TimeDisplayFormat/DisplaySecondsWithHoursAndMinutes",	NULL, "Display Seconds with hours and minutes", NULL, NULL,	G_CALLBACK(timestamp_seconds_time_cb), FALSE}, 
-	{"/View/NameResolution/EnableforMACLayer",						NULL, "Enable for _MAC Layer",					NULL, NULL, G_CALLBACK(view_menu_en_for_MAC_cb) },
-
+	{"/View/NameResolution/EnableforMACLayer",						NULL, "Enable for _MAC Layer",					NULL, NULL, G_CALLBACK(view_menu_en_for_MAC_cb), TRUE},
+	{"/View/NameResolution/EnableforNetworkLayer",					NULL, "Enable for _Network Layer",				NULL, NULL, G_CALLBACK(view_menu_en_for_network_cb), TRUE },
+	{"/View/NameResolution/EnableforTransportLayer",				NULL, "Enable for _Transport Layer",			NULL, NULL, G_CALLBACK(view_menu_en_for_transport_cb), TRUE },
+	{"/View/ColorizePacketList",									NULL, "Colorize Packet List",					NULL, NULL, G_CALLBACK(view_menu_colorize_pkt_lst_cb), TRUE },
+#ifdef HAVE_LIBPCAP
+	{"/View/AutoScrollinLiveCapture",								NULL, "Auto Scroll in Li_ve Capture",			NULL, NULL, G_CALLBACK(view_menu_colorize_auto_scroll_live_cb), TRUE },
+#endif
 };
+
+
 
 static const GtkRadioActionEntry main_menu_bar_radio_view_time_entries [] =
 {
@@ -1325,7 +1854,7 @@ static const GtkRadioActionEntry main_menu_bar_radio_view_time_fileformat_prec_e
 	{ "/View/TimeDisplayFormat/FileFormatPrecision-Microseconds",	NULL, "Microseconds:  0.123456",			NULL, NULL, TS_PREC_FIXED_USEC },
 	{ "/View/TimeDisplayFormat/FileFormatPrecision-Nanoseconds",	NULL, "Nanoseconds:   0.123456789",			NULL, NULL, TS_PREC_FIXED_NSEC },
 };
-#endif /* 0 Prepare for use of GTKUImanager*/
+#endif /* MAIN_MENU_USE_UIMANAGER */
 
 /* calculate the number of menu_items */
 static int nmenu_items = sizeof(menu_items) / sizeof(menu_items[0]);
@@ -2336,79 +2865,6 @@ packet_list_menu_copy_bytes_bin_strm_cb(GtkWidget *widget, gpointer user_data)
 }
 
 /* tree */
-/*Apply a filter */
-
-static void
-tree_view_menu_apply_selected_cb(GtkWidget *widget, gpointer user_data)
-{
-	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW);
-}
-
-static void
-tree_view_menu_apply_not_selected_cb(GtkWidget *widget, gpointer user_data)
-{
-	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW);
-}
-
-static void
-tree_view_menu_apply_and_selected_cb(GtkWidget *widget, gpointer user_data)
-{
-	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW);
-}
-
-static void
-tree_view_menu_apply_or_selected_cb(GtkWidget *widget, gpointer user_data)
-{
-	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW);
-}
-
-static void
-tree_view_menu_apply_and_not_selected_cb(GtkWidget *widget, gpointer user_data)
-{
-	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW);
-}
-
-static void
-tree_view_menu_apply_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
-{
-	match_selected_ptree_cb( widget , user_data,MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW);
-}
-/* Prepare a filter */
-static void
-tree_view_menu_prepare_selected_cb(GtkWidget *widget, gpointer user_data)
-{
-	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_REPLACE);
-}
-
-static void
-tree_view_menu_prepare_not_selected_cb(GtkWidget *widget, gpointer user_data)
-{
-	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_NOT);
-}
-
-static void
-tree_view_menu_prepare_and_selected_cb(GtkWidget *widget, gpointer user_data)
-{
-	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_AND);
-}
-
-static void
-tree_view_menu_prepare_or_selected_cb(GtkWidget *widget, gpointer user_data)
-{
-	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_OR);
-}
-
-static void
-tree_view_menu_prepare_and_not_selected_cb(GtkWidget *widget, gpointer user_data)
-{
-	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_AND_NOT);
-}
-
-static void
-tree_view_menu_prepare_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
-{
-	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_OR_NOT);
-}
 
 
 static void
@@ -2967,15 +3423,6 @@ static const GtkRadioActionEntry bytes_menu_radio_action_entries [] =
 	{ "/HexView",	NULL,		"Hex View",	NULL,	NULL,	  BYTES_HEX },
 	{ "/BitsView",	NULL,		"Bits View",	NULL,	NULL,	  BYTES_BITS },
 };
-#if 0
-static const char *ui_desc_conv_filter_popup =
-"<ui>\n"
-"  <popup name='ConversationFilterPopup' action='PopupAction'>\n"
-"    <menu name= 'ApplyAsFilter' action='/Apply as Filter'>\n"
-"    </menu>\n"
-"  </popup>\n"
-"</ui>\n";
-#endif
 #endif
 
 GtkWidget *
