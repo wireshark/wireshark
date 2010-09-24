@@ -30,6 +30,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/crypt/crypt-md5.h>
 #include "packet-data.h"
 
 /* proto_data cannot be static because it's referenced in the
@@ -40,9 +41,11 @@ int proto_data = -1;
 static int hf_data_data = -1;
 static int hf_data_text = -1;
 static int hf_data_len = -1;
+static int hf_data_md5_hash = -1;
 
 static gboolean new_pane = FALSE;
 static gboolean show_as_text = FALSE;
+static gboolean generate_md5_hash = FALSE;
 
 static gint ett_data = -1;
 
@@ -79,6 +82,23 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 				proto_tree_add_item(data_tree, hf_data_text, data_tvb, 0, bytes, FALSE);
 			}
 
+			if(generate_md5_hash) {
+				const guint8 *cp;
+				md5_state_t md_ctx;
+				md5_byte_t digest[16];
+				gchar *digest_string;
+
+				cp = tvb_get_ptr(tvb, 0, bytes);
+
+				md5_init(&md_ctx);
+				md5_append(&md_ctx, cp, bytes);
+				md5_finish(&md_ctx, digest);
+
+				digest_string = bytestring_to_str(digest, 16, '\0');
+				ti = proto_tree_add_string(data_tree, hf_data_md5_hash, tvb, 0, 0, digest_string);
+				PROTO_ITEM_SET_GENERATED(ti);
+			}
+
 			ti = proto_tree_add_int(data_tree, hf_data_len, data_tvb, 0, 0, bytes);
 			PROTO_ITEM_SET_GENERATED (ti);
 		}
@@ -93,6 +113,8 @@ proto_register_data(void)
 		  { "Data", "data.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 		{ &hf_data_text,
 		  { "Text", "data.text", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+		{ &hf_data_md5_hash,
+		  { "Payload MD5 hash", "data.md5_hash", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 		{ &hf_data_len,
 		  { "Length", "data.len", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL } }
 	};
@@ -125,6 +147,12 @@ proto_register_data(void)
 		"Show data as text",
 		"Show data as text in the Packet Details pane",
 		&show_as_text);
+	prefs_register_bool_preference(module_data,
+				       "md5_hash",
+				       "Generate MD5 hash",
+				       "Whether or not MD5 hashes should be generated and shown for each payload.",
+				       &generate_md5_hash);
+
 	/*
 	 * "Data" is used to dissect something whose normal dissector
 	 * is disabled, so it cannot itself be disabled.
