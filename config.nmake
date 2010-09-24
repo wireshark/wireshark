@@ -163,17 +163,42 @@ NASM=$(WIRESHARK_LIBS)\nasm-2.02\nasm.exe
 #
 # Optional: the Python interpreter is used as part of the buildsystem
 #
-# If you have the Python interpreter, set this to the directory in which
-# the Python package is stored
-#
-# If you don't have the Python interpreter, comment this line out, so that
-# PYTHON_DIR isn't defined.
-#
-# V2.4 to V2.6 should work
-#
-#PYTHON_VER=26
+# This will override the automatic detection below.
+#PYTHON_VER=27
 #PYTHON_DIR=C:\Python$(PYTHON_VER)
 
+#
+# If you don't have the native Python package installed, you can use
+# the Cygwin version (not recommended)
+#
+#PYTHON=env python
+
+# Find native Python automatically if PYTHON(_DIR) wasn't defined
+!IF !DEFINED(PYTHON) && !DEFINED(PYTHON_DIR)
+!IF EXIST(c:\Python27\python.exe)
+PYTHON_VER=27
+!ELSE IF EXIST(c:\Python26\python.exe)
+PYTHON_VER=26
+!ELSE IF EXIST(c:\Python25\python.exe)
+PYTHON_VER=25
+!ELSE IF EXIST(c:\Python24\python.exe)
+PYTHON_VER=24
+!ENDIF
+!ENDIF
+
+# Santity check: native vs Cygwin Python options
+!IF DEFINED(PYTHON) && DEFINED(PYTHON_DIR)
+!ERROR PYTHON and PYTHON_DIR cannot be specified at the same time
+!ENDIF
+
+!IF DEFINED(PYTHON_VER)
+PYTHON_DIR=C:\Python$(PYTHON_VER)
+!ENDIF
+
+!IF DEFINED(PYTHON_DIR)
+PYTHON="$(PYTHON_DIR)\python.exe"
+PATH=$(PYTHON_DIR);$(PATH)
+!ENDIF
 
 !if "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
 ##### Win32 Libraries #####
@@ -616,12 +641,6 @@ PERL=perl
 POD2MAN=$(SH) pod2man
 POD2HTML=$(SH) pod2html
 
-#
-# If you don't have the native Python package installed, you can use
-# the Cygwin version (not recommended)
-#
-#PYTHON=env python
-
 # command for lex/flexx (cygwin's flex recommended)
 LEX=flex
 
@@ -689,31 +708,6 @@ HHC_DIR=$(PROGRAM_FILES)/HTML Help Workshop
 UPX=$(WIRESHARK_LIBS)\upx303w\upx.exe
 
 ##### Flags, PATHs and Miscellaneous #####
-
-# Santity check: native vs Cygwin Python options
-!IF DEFINED(PYTHON) && DEFINED(PYTHON_DIR)
-!ERROR PYTHON and PYTHON_DIR cannot be specified at the same time
-!ENDIF
-
-# Find native Python automatically if PYTHON(_DIR) wasn't defined
-!IF !DEFINED(PYTHON) && !DEFINED(PYTHON_DIR)
-!IF EXIST(c:\Python26\python.exe)
-PYTHON_VER=26
-!ELSE IF EXIST(c:\Python25\python.exe)
-PYTHON_VER=25
-!ELSE IF EXIST(c:\Python24\python.exe)
-PYTHON_VER=24
-!ENDIF
-
-!IF DEFINED(PYTHON_VER)
-PYTHON_DIR=C:\Python$(PYTHON_VER)
-!ENDIF
-!ENDIF
-
-!IF DEFINED(PYTHON_DIR)
-PYTHON="$(PYTHON_DIR)\python.exe"
-PATH=$(PYTHON_DIR);$(PATH)
-!ENDIF
 
 # Santity check: Python embedding requires a valid PYTHON_DIR
 !IF DEFINED(PYTHON_EMBED) && !DEFINED(PYTHON_DIR)
