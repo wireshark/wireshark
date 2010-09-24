@@ -2044,7 +2044,7 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
         } else {
             cfmt->custom_occurrence = 0;
         }
-        if (cfmt->custom_field && cust_format_info[2]) {
+        if (cfmt->custom_field && cust_format_info[1] && cust_format_info[2]) {
             cfmt->resolved = (cust_format_info[2][0] == 'U') ? FALSE : TRUE;
         } else {
             cfmt->resolved = TRUE;
