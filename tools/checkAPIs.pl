@@ -951,6 +951,63 @@ sub findAPIinFile($$$)
         }
 }
 
+# Given the file contents and a file name, check all of the hf entries for
+# various problems (such as those checked for in proto.c).
+
+sub check_hf_entries($$)
+{
+        my ($fileContentsRef, $filename) = @_;
+
+	my @items;
+	@items = (${$fileContentsRef} =~ m{   
+				  \{
+				  \s*
+				  &\s*([A-Z0-9_\[\]-]+)		# &hf
+				  \s*,\s*
+				  \{\s*
+				  ("[A-Z0-9 '\./\(\)_:-]+")	# name
+				  \s*,\s*
+				  ("[A-Z0-9_\.-]+")		# abbrev
+				  \s*,\s*
+				  (FT_[A-Z0-9_]+)		# field type
+				  \s*,\s*
+				  ([A-Z0-9x|_]+)		# display
+				  \s*,\s*
+				  ([A-Z0-9&_\(\)' -]+)		# convert
+				  \s*,\s*
+				  ([A-Z0-9x_]+)			# bitmask
+				  \s*,\s*
+				  (["A-Z0-9 '\./\(\)_:-]+)	# blurb	(optional, so quotes are not required)
+				  \s*,\s*
+				  HFILL				# HFILL
+				}xgios);
+
+	#print "Found @items items\n";
+	while (@items) {
+		my ($hf, $name, $abbrev, $ft, $display, $convert, $bitmask, $blurb) = @items;
+		shift @items; shift @items; shift @items; shift @items; shift @items; shift @items; shift @items; shift @items;
+
+		#print "name=$name, abbrev=$abbrev, ft=$ft, display=$display, convert=$convert, bitmask=$bitmask, blurb=$blurb\n";
+
+		if ($name eq $abbrev) {
+			print STDERR "Warning: the abbreviation for field $name matches the field name in $filename\n";
+		}
+		if ($name eq $blurb) {
+			print STDERR "Warning: the blurb for field $name matches the field name in $filename\n";
+		}
+		if ($name =~ m/"\s+/) {
+			print STDERR "Warning: leading space in field $name ($abbrev) in $filename\n";
+		}
+		if ($name =~ m/\s+"/) {
+			print STDERR "Warning: trailing space in field $name ($abbrev) in $filename\n";
+		}
+		if ("\"".$hf ."\"" eq $name) {
+			print STDERR "Warning: name is hf variable name in field $name ($abbrev) in $filename\n";
+		}
+
+	}
+}
+
 # The below Regexp are based on those from:
 # http://aspn.activestate.com/ASPN/Cookbook/Rx/Recipe/59811
 # They are in the public domain.
@@ -996,6 +1053,7 @@ my @apiGroups = qw(prohibited deprecated);
 my @apiSummaryGroups = ();
 my $check_value_string_array_null_termination = 1; # default: enabled
 my $machine_readable_output = 0;                   # default: disabled
+my $check_hf = 0;				   # default: disabled
 my $debug_flag = 0;
 
 my $result = GetOptions(
@@ -1003,6 +1061,7 @@ my $result = GetOptions(
                         'summary-group=s' => \@apiSummaryGroups,
                         'check-value-string-array-null-termination!' => \$check_value_string_array_null_termination,
                         'Machine-readable' => \$machine_readable_output,
+			'hf' => \$check_hf,
                         'debug' => \$debug_flag
                        );
 if (!$result) {
@@ -1068,6 +1127,9 @@ while ($_ = $ARGV[0])
         {
                 print STDERR "Warning: ".$filename." does not have an SVN Id tag.\n";
         }
+
+	# optionally check the hf entries
+	check_hf_entries(\$fileContents, $filename) if $check_hf;
 
         # Remove all the C-comments and strings
         $fileContents =~ s {$commentAndStringRegex} []xog;
