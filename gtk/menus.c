@@ -1403,7 +1403,7 @@ Not implemented!
 "        <separator/>\n"
 "        <menuitem name='DisplaySecondsWithHoursAndMinutes' action='/View/TimeDisplayFormat/DisplaySecondsWithHoursAndMinutes'/>\n"
 "      </menu>\n"
-"      <menu name= 'NameResolutionMenu' action='/View/NameResolution'>\n"
+"      <menu name= 'NameResolution' action='/View/NameResolution'>\n"
 "         <menuitem name='ResolveName' action='/View/NameResolution/ResolveName'/>\n"
 "         <separator/>\n"
 "         <menuitem name='EnableforMACLayer' action='/View/NameResolution/EnableforMACLayer'/>\n"
@@ -1560,6 +1560,16 @@ static const GtkActionEntry main_menu_bar_entries[] = {
   { "/File",					NULL,							"_File",			NULL,					NULL,			NULL },
   { "/Edit",					NULL,							"_Edit",			NULL,					NULL,			NULL },
   { "/View",					NULL,							"_View",			NULL,					NULL,			NULL },
+  { "/Go",						NULL,							"_Go",				NULL,					NULL,			NULL },
+#ifdef HAVE_LIBPCAP
+  { "/Capture",					NULL,							"_Capture",			NULL,					NULL,			NULL },
+#endif
+  { "/Analyze",					NULL,							"_Analyze",			NULL,					NULL,			NULL },
+  { "/Statistics",				NULL,							"_Statistics",		NULL,					NULL,			NULL },
+  { "/Telephony",				NULL,							"Telephon_y",		NULL,					NULL,			NULL },
+  { "/Tools",					NULL,							"_Tools",			NULL,					NULL,			NULL },
+  { "/WSinternal",				NULL,							"WS internal",		NULL,					NULL,			NULL },
+  { "/Help",					NULL,							"_Help",			NULL,					NULL,			NULL },
 
   { "/File/Open",				GTK_STOCK_OPEN,					"_Open...",			"<control>O",			"Open a file",	G_CALLBACK(file_open_cmd_cb) },
   { "/File/OpenRecent",			NULL,							"Open _Recent",		NULL,					NULL,			NULL },
@@ -1774,9 +1784,9 @@ Not implemeted.
    { "/Analyze/DecodeAs",	WIRESHARK_STOCK_DECODE_AS, "Decode _As...",			NULL, NULL, G_CALLBACK(decode_as_cb) },
    { "/Analyze/UserSpecifiedDecodes",	WIRESHARK_STOCK_DECODE_AS, "_User Specified Decodes...",			NULL, NULL, G_CALLBACK(decode_show_cb) },
 
-   { "/Follow TCP Stream",							NULL,		"Follow TCP Stream",					NULL, NULL, G_CALLBACK(follow_tcp_stream_cb) },
-   { "/Follow UDP Stream",							NULL,		"Follow UDP Stream",					NULL, NULL, G_CALLBACK(follow_udp_stream_cb) },
-   { "/Follow SSL Stream",							NULL,		"Follow SSL Stream",					NULL, NULL, G_CALLBACK(follow_ssl_stream_cb) },
+   { "/Analyze/FollowTCPStream",							NULL,		"Follow TCP Stream",					NULL, NULL, G_CALLBACK(follow_tcp_stream_cb) },
+   { "/Analyze/FollowUDPStream",							NULL,		"Follow UDP Stream",					NULL, NULL, G_CALLBACK(follow_udp_stream_cb) },
+   { "/Analyze/FollowSSLStream",							NULL,		"Follow SSL Stream",					NULL, NULL, G_CALLBACK(follow_ssl_stream_cb) },
 
  
    { "/Statistics/Summary",			GTK_STOCK_PROPERTIES,			"_Summary",				NULL,							NULL,				G_CALLBACK(summary_open_cb) },
@@ -2456,6 +2466,8 @@ packet_list_menu_conversation_pn_cba_cb(GtkWidget *widget, gpointer user_data)
 {
 	conversation_cb( widget , user_data, CONV_CBA);
 }
+
+/* Ethernet */
 
 static void
 packet_list_menu_color_conv_ethernet_color1_cb(GtkWidget *widget, gpointer user_data)
@@ -3444,8 +3456,11 @@ main_menu_new(GtkAccelGroup ** table) {
     if (initialize)
         menus_init();
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+	menubar = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar");
+#else
     menubar = main_menu_factory->widget;
-
+#endif
 #ifdef HAVE_IGE_MAC_INTEGRATION
     if(prefs.gui_macosx_style) {
         ige_mac_menu_set_menu_bar(GTK_MENU_SHELL(menubar));
@@ -3581,6 +3596,9 @@ menus_init(void) {
 	GtkActionGroup *packet_list_heading_action_group, *packet_list_action_group,
 					*packet_list_details_action_group, *packet_list_byte_menu_action_group;
 	GError *error = NULL;
+#endif
+#ifdef MAIN_MENU_USE_UIMANAGER
+	GtkActionGroup	*main_menu_bar_action_group;
 #endif
 
     if (initialize) {
@@ -3749,9 +3767,49 @@ menus_init(void) {
 #endif /* MENUS_USE_UIMANAGER */
 
     /* main */
+#ifdef MAIN_MENU_USE_UIMANAGER
+	main_menu_bar_action_group = gtk_action_group_new ("MenuActionGroup"); 
+	gtk_action_group_add_actions (main_menu_bar_action_group,							/* the action group */
+								main_menu_bar_entries,					/* an array of action descriptions */
+								G_N_ELEMENTS(main_menu_bar_entries),	/* the number of entries */
+								NULL);									/* data to pass to the action callbacks */
+
+	gtk_action_group_add_toggle_actions(main_menu_bar_action_group,                              /* the action group */
+								main_menu_bar_toggle_action_entries,               /* an array of action descriptions */
+								G_N_ELEMENTS(main_menu_bar_toggle_action_entries), /* the number of entries */
+								NULL);                                             /* data to pass to the action callbacks */
+
+	gtk_action_group_add_radio_actions  (main_menu_bar_action_group,									/* the action group */
+                                main_menu_bar_radio_view_time_entries,			        /* an array of radio action descriptions  */
+                                G_N_ELEMENTS(main_menu_bar_radio_view_time_entries),    /* the number of entries */
+                                recent.gui_time_format,									/* the value of the action to activate initially, or -1 if no action should be activated  */
+                                G_CALLBACK(timestamp_format_new_cb),					/* the callback to connect to the changed signal  */
+                                NULL);													/* data to pass to the action callbacks  */
+
+	gtk_action_group_add_radio_actions  (main_menu_bar_action_group,									/* the action group */
+                                main_menu_bar_radio_view_time_fileformat_prec_entries,  /* an array of radio action descriptions  */
+                                G_N_ELEMENTS(main_menu_bar_radio_view_time_fileformat_prec_entries),    /* the number of entries */
+                                recent.gui_time_precision,								/* the value of the action to activate initially, or -1 if no action should be activated  */
+                                G_CALLBACK(timestamp_precision_new_cb),					/* the callback to connect to the changed signal  */
+                                NULL);													/* data to pass to the action callbacks  */
+
+
+
+	ui_manager_main_menubar = gtk_ui_manager_new ();
+	gtk_ui_manager_insert_action_group (ui_manager_main_menubar, main_menu_bar_action_group, 0);
+	gtk_ui_manager_add_ui_from_string (ui_manager_main_menubar,ui_desc_menubar, -1, &error); 
+	if (error != NULL) 
+    { 
+        fprintf (stderr, "Warning: building main menubar failed: %s\n", 
+                error->message); 
+        g_error_free (error); 
+        error = NULL; 
+    } 
+#else /* MAIN_MENU_USE_UIMANAGER */
+
     main_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", grp);
     gtk_item_factory_create_items_ac(main_menu_factory, nmenu_items, menu_items, NULL, 2);
-
+#endif /* MAIN_MENU_USE_UIMANAGER */
     menu_dissector_filter();
     merge_all_tap_menus(tap_menu_tree_root);
 
@@ -4274,7 +4332,8 @@ set_menu_object_data (const gchar *path, const gchar *key, gpointer data) {
  * of the current path.
  * They are only stored inside the labels of the submenu (no separate list). */
 
-#define MENU_RECENT_FILES_PATH "/File/Open Recent"
+#define MENU_RECENT_FILES_PATH_OLD "/File/Open Recent"
+#define MENU_RECENT_FILES_PATH "/Menubar/FileMenu/OpenRecent"
 #define MENU_RECENT_FILES_KEY "Recent File Name"
 
 
@@ -4306,7 +4365,11 @@ update_menu_recent_capture_file(GtkWidget *submenu_recent_files) {
                           update_menu_recent_capture_file1, &cnt);
 
     /* make parent menu item sensitive only, if we have any valid files in the list */
-    set_menu_sensitivity_old(main_menu_factory, MENU_RECENT_FILES_PATH, cnt);
+#ifdef MAIN_MENU_USE_UIMANAGER
+    set_menu_sensitivity(ui_manager_main_menubar, MENU_RECENT_FILES_PATH, cnt);
+#else
+    set_menu_sensitivity_old(main_menu_factory, MENU_RECENT_FILES_PATH_OLD, cnt);
+#endif
 }
 
 
@@ -4321,8 +4384,14 @@ remove_menu_recent_capture_filename(gchar *cf_name) {
     const gchar *menu_item_cf_name;
 
     /* get the submenu container item */
-    submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
-
+#ifdef MAIN_MENU_USE_UIMANAGER
+    submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
+	if(!submenu_recent_files){
+		g_warning("remove_menu_recent_capture_filename: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
+	}
+#else
+    submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH_OLD);
+#endif
     /* find the corresponding menu item to be removed */
     child_list = gtk_container_get_children(GTK_CONTAINER(submenu_recent_files));
     child_list_item = child_list;
@@ -4361,8 +4430,14 @@ remove_menu_recent_capture_file(GtkWidget *widget, gpointer unused _U_) {
     g_free(widget_cf_name);
 
     /* get the submenu container item */
-    submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
-
+#ifdef MAIN_MENU_USE_UIMANAGER
+    submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
+	if(!submenu_recent_files){
+		g_warning("remove_menu_recent_capture_file: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
+	}
+#else
+    submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH_OLD);
+#endif
     /* XXX: is this all we need to do, to free the menu item and its label?
        The reference count of widget will go to 0, so it'll be freed;
        will that free the label? */
@@ -4375,8 +4450,14 @@ static void
 clear_menu_recent_capture_file_cmd_cb(GtkWidget *w _U_, gpointer unused _U_) {
     GtkWidget *submenu_recent_files;
 
-
-    submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
+#ifdef MAIN_MENU_USE_UIMANAGER
+    submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
+	if(!submenu_recent_files){
+		g_warning("clear_menu_recent_capture_file_cmd_cb: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
+	}
+#else
+    submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH_OLD);
+#endif
 
     gtk_container_foreach(GTK_CONTAINER(submenu_recent_files),
                           remove_menu_recent_capture_file, NULL);
@@ -4393,8 +4474,14 @@ menu_open_filename(gchar *cf_name)
     GtkWidget *submenu_recent_files;
     int       err;
 
-    submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
-
+#ifdef MAIN_MENU_USE_UIMANAGER
+    submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
+	if(!submenu_recent_files){
+		g_warning("menu_open_filename: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
+	}
+#else
+    submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH_OLD);
+#endif
     /* open and read the capture file (this will close an existing file) */
     if (cf_open(&cfile, cf_name, FALSE, &err) == CF_OK) {
         cf_read(&cfile, FALSE);
@@ -4417,8 +4504,14 @@ menu_open_recent_file_cmd(GtkWidget *w)
     const gchar *cf_name;
     int         err;
 
-    submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
-
+#ifdef MAIN_MENU_USE_UIMANAGER
+    submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
+	if(!submenu_recent_files){
+		g_warning("menu_open_recent_file_cmd: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
+	}
+#else
+	submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH_OLD);
+#endif
     /* get capture filename from the menu item label */
     menu_item_child = (GTK_BIN(w))->child;
     cf_name = gtk_label_get_text(GTK_LABEL(menu_item_child));
@@ -4491,8 +4584,14 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 #endif
 
     /* get the submenu container item */
-    submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
-
+#ifdef MAIN_MENU_USE_UIMANAGER
+    submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
+	if(!submenu_recent_files){
+		g_warning("add_menu_recent_capture_file_absolute: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
+	}
+#else
+    submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH_OLD);
+#endif
     /* convert container to a GList */
     menu_item_list = gtk_container_get_children(GTK_CONTAINER(submenu_recent_files));
 
@@ -4582,9 +4681,11 @@ menu_recent_file_write_all(FILE *rf) {
     GList       *child;
     gchar       *cf_name;
 
-
-    submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
-
+#ifdef MAIN_MENU_USE_UIMANAGER
+	submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/EnableforMACLayer");
+#else
+    submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH_OLD);
+#endif
     /* we have to iterate backwards through the children's list,
      * so we get the latest item last in the file.
      * (don't use gtk_container_foreach() here, it will return the wrong iteration order) */
@@ -4705,7 +4806,26 @@ void
 menu_name_resolution_changed(void)
 {
     GtkWidget *menu = NULL;
+#ifdef MAIN_MENU_USE_UIMANAGER
+	menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/EnableforMACLayer");
+	if(!menu){
+		g_warning("menu_name_resolution_changed: No menu found, path= /Menubar/ViewMenu/NameResolution/EnableforMACLayer");
+	}
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), g_resolv_flags & RESOLV_MAC);
 
+	menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/EnableforNetworkLayer");
+	if(!menu){
+		g_warning("menu_name_resolution_changed: No menu found, path= /Menubar/ViewMenu/NameResolution/EnableforNetworkLayer");
+	}
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), g_resolv_flags & RESOLV_NETWORK);
+
+	menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/EnableforTransportLayer");
+	if(!menu){
+		g_warning("menu_name_resolution_changed: No menu found, path= /Menubar/ViewMenu/NameResolution/EnableforTransportLayer");
+	}
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), g_resolv_flags & RESOLV_TRANSPORT);
+
+#else
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Name Resolution/Enable for MAC Layer");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), g_resolv_flags & RESOLV_MAC);
 
@@ -4714,6 +4834,7 @@ menu_name_resolution_changed(void)
 
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Name Resolution/Enable for Transport Layer");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), g_resolv_flags & RESOLV_TRANSPORT);
+#endif /* MAIN_MENU_USE_UIMANAGER */
 }
 
 static void
@@ -4733,7 +4854,14 @@ menu_auto_scroll_live_changed(gboolean auto_scroll_live_in) {
 
 
     /* tell menu about it */
+#ifdef MAIN_MENU_USE_UIMANAGER
+	menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/AutoScrollinLiveCapture");
+	if(!menu){
+		g_warning("menu_auto_scroll_live_changed: No menu found, path= /Menubar/ViewMenu/AutoScrollinLiveCapture");
+	}
+#else
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Auto Scroll in Live Capture");
+#endif /* MAIN_MENU_USE_UIMANAGER */
     if( ((gboolean) GTK_CHECK_MENU_ITEM(menu)->active) != auto_scroll_live_in) {
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), auto_scroll_live_in);
     }
@@ -4761,7 +4889,14 @@ menu_colorize_changed(gboolean packet_list_colorize) {
 
 
     /* tell menu about it */
+#ifdef MAIN_MENU_USE_UIMANAGER
+	menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/ColorizePacketList");
+	if(!menu){
+		g_warning("menu_colorize_changed: No menu found, path= /Menubar/ViewMenu/ColorizePacketList");
+	}
+#else
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Colorize Packet List");
+#endif /* MAIN_MENU_USE_UIMANAGER */
     if( ((gboolean) GTK_CHECK_MENU_ITEM(menu)->active) != packet_list_colorize) {
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), packet_list_colorize);
     }
@@ -5045,15 +5180,40 @@ set_menus_for_capture_file(capture_file *cf)
 {
     if (cf == NULL) {
         /* We have no capture file */
+#ifdef MAIN_MENU_USE_UIMANAGER
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Merge", FALSE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Close", FALSE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Save", FALSE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/SaveAs", FALSE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Export", FALSE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/Reload", FALSE);
+#else
         set_menu_sensitivity_old(main_menu_factory, "/File/Merge...", FALSE);
         set_menu_sensitivity_old(main_menu_factory, "/File/Close", FALSE);
         set_menu_sensitivity_old(main_menu_factory, "/File/Save", FALSE);
         set_menu_sensitivity_old(main_menu_factory, "/File/Save As...", FALSE);
         set_menu_sensitivity_old(main_menu_factory, "/File/Export", FALSE);
         set_menu_sensitivity_old(main_menu_factory, "/View/Reload", FALSE);
+#endif /* MAIN_MENU_USE_UIMANAGER */
+
         set_toolbar_for_capture_file(FALSE);
         set_toolbar_for_unsaved_capture_file(FALSE);
     } else {
+#ifdef MAIN_MENU_USE_UIMANAGER
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Merge", TRUE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Close", TRUE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Save", !cf->user_saved);
+        /*
+         * "Save As..." works only if we can write the file out in at least
+         * one format (so we can save the whole file or just a subset) or
+         * if we have an unsaved capture (so writing the whole file out
+         * with a raw data copy makes sense).
+         */
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/SaveAs",
+                             cf_can_save_as(cf) || !cf->user_saved);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Export", TRUE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/Reload", TRUE);
+#else
         set_menu_sensitivity_old(main_menu_factory, "/File/Merge...", TRUE);
         set_menu_sensitivity_old(main_menu_factory, "/File/Close", TRUE);
         set_menu_sensitivity_old(main_menu_factory, "/File/Save", !cf->user_saved);
@@ -5067,6 +5227,7 @@ set_menus_for_capture_file(capture_file *cf)
                              cf_can_save_as(cf) || !cf->user_saved);
         set_menu_sensitivity_old(main_menu_factory, "/File/Export", TRUE);
         set_menu_sensitivity_old(main_menu_factory, "/View/Reload", TRUE);
+#endif /* MAIN_MENU_USE_UIMANAGER */
         set_toolbar_for_unsaved_capture_file(!cf->user_saved);
         set_toolbar_for_capture_file(TRUE);
     }
@@ -5077,6 +5238,17 @@ set_menus_for_capture_file(capture_file *cf)
 void
 set_menus_for_capture_in_progress(gboolean capture_in_progress)
 {
+#ifdef MAIN_MENU_USE_UIMANAGER
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Open",
+                         !capture_in_progress);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/OpenRecent",
+                         !capture_in_progress);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Export",
+                         capture_in_progress);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Set",
+                         !capture_in_progress);
+#else
+
     set_menu_sensitivity_old(main_menu_factory, "/File/Open...",
                          !capture_in_progress);
     set_menu_sensitivity_old(main_menu_factory, "/File/Open Recent",
@@ -5085,7 +5257,7 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
                          capture_in_progress);
     set_menu_sensitivity_old(main_menu_factory, "/File/File Set",
                          !capture_in_progress);
-
+#endif /* MAIN_MENU_USE_UIMANAGER */
 #ifdef MENUS_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_packet_list_heading, "/PacketListHeadingPopup/SortAscending",
                          !capture_in_progress);
@@ -5103,6 +5275,16 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
 #endif
 
 #ifdef HAVE_LIBPCAP
+#ifdef MAIN_MENU_USE_UIMANAGER
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Options",
+                         !capture_in_progress);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Start",
+                         !capture_in_progress);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Stop",
+                         capture_in_progress);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Restart",
+                         capture_in_progress);
+#else
     set_menu_sensitivity_old(main_menu_factory, "/Capture/Options...",
                          !capture_in_progress);
     set_menu_sensitivity_old(main_menu_factory, "/Capture/Start",
@@ -5111,6 +5293,7 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
                          capture_in_progress);
     set_menu_sensitivity_old(main_menu_factory, "/Capture/Restart",
                          capture_in_progress);
+#endif /* MAIN_MENU_USE_UIMANAGER */
     set_toolbar_for_capture_in_progress(capture_in_progress);
 
     set_capture_if_dialog_for_capture_in_progress(capture_in_progress);
@@ -5192,8 +5375,13 @@ walk_menu_tree_for_captured_packets(GList *node,
 void
 set_menus_for_captured_packets(gboolean have_captured_packets)
 {
+#ifdef MAIN_MENU_USE_UIMANAGER
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Print",
+                         have_captured_packets);
+#else
     set_menu_sensitivity_old(main_menu_factory, "/File/Print...",
                          have_captured_packets);
+#endif /* MAIN_MENU_USE_UIMANAGER */
 #ifdef MENUS_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/Print",
                          have_captured_packets);
@@ -5201,7 +5389,35 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
 #else
     set_menu_sensitivity_old(packet_list_menu_factory, "/Print...",
                          have_captured_packets);
-#endif
+#endif /* MENUS_USE_UIMANAGER */
+#ifdef MAIN_MENU_USE_UIMANAGER
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/FindPacket",
+                         have_captured_packets);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/FindNext",
+                         have_captured_packets);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/FindPrevious",
+                         have_captured_packets);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ZoomIn",
+                         have_captured_packets);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ZoomOut",
+                         have_captured_packets);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/NormalSize",
+                         have_captured_packets);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/GotoCorrespondingPacket",
+                         have_captured_packets);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/PreviousPacket",
+                         have_captured_packets);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/NextPacket",
+                         have_captured_packets);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/FirstPacket",
+                         have_captured_packets);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/LastPacket",
+                         have_captured_packets);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/Summary",
+                         have_captured_packets);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/ProtocolHierarchy",
+                         have_captured_packets);
+#else
     set_menu_sensitivity_old(main_menu_factory, "/Edit/Find Packet...",
                          have_captured_packets);
     set_menu_sensitivity_old(main_menu_factory, "/Edit/Find Next",
@@ -5228,7 +5444,7 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
                          have_captured_packets);
     set_menu_sensitivity_old(main_menu_factory, "/Statistics/Protocol Hierarchy",
                          have_captured_packets);
-
+#endif /* MAIN_MENU_USE_UIMANAGER */
     walk_menu_tree_for_captured_packets(tap_menu_tree_root,
                                         have_captured_packets);
     set_toolbar_for_captured_packets(have_captured_packets);
@@ -5335,8 +5551,13 @@ set_menus_for_selected_packet(capture_file *cf)
            than one time reference frame or the current frame isn't a
            time reference frame). (XXX - why check frame_selected?) */
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/MarkPacket",
+                         frame_selected);
+#else
     set_menu_sensitivity_old(main_menu_factory, "/Edit/Mark Packet (toggle)",
                          frame_selected);
+#endif /* MAIN_MENU_USE_UIMANAGER */
 #ifdef MENUS_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/MarkPacket",
                          frame_selected);
@@ -5344,6 +5565,20 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity_old(packet_list_menu_factory, "/Mark Packet (toggle)",
                          frame_selected);
 #endif
+#ifdef MAIN_MENU_USE_UIMANAGER
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/MarkAllDisplayedPackets",
+	                     cf->displayed_count > 0);
+    /* Unlike un-ignore, do not allow unmark of all frames when no frames are displayed  */
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/UnmarkAllPackets",
+                         have_marked);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/FindNextMark",
+                         another_is_marked);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/FindPreviousMark",
+                         another_is_marked);
+
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/IgnorePacket",
+                         frame_selected);
+#else
     set_menu_sensitivity_old(main_menu_factory, "/Edit/Mark All Displayed Packets (toggle)",
 	                     cf->displayed_count > 0);
     /* Unlike un-ignore, do not allow unmark of all frames when no frames are displayed  */
@@ -5356,13 +5591,24 @@ set_menus_for_selected_packet(capture_file *cf)
 
     set_menu_sensitivity_old(main_menu_factory, "/Edit/Ignore Packet (toggle)",
                          frame_selected);
+#endif /* MAIN_MENU_USE_UIMANAGER */
 #ifdef MENUS_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/IgnorePacket",
                          frame_selected);
 #else
     set_menu_sensitivity_old(packet_list_menu_factory, "/Ignore Packet (toggle)",
                          frame_selected);
-#endif
+#endif /* MENUS_USE_UIMANAGER */
+#ifdef MAIN_MENU_USE_UIMANAGER
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/IgnoreAllDisplayedPackets",
+	                     cf->displayed_count > 0 && cf->displayed_count != cf->count);
+    /* Allow un-ignore of all frames even with no frames currently displayed */
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Un-IgnoreAllPackets",
+                         cf->ignored_count > 0);
+
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/SetTimeReference",
+                         frame_selected);
+#else
     set_menu_sensitivity_old(main_menu_factory, "/Edit/Ignore All Displayed Packets (toggle)",
 	                     cf->displayed_count > 0 && cf->displayed_count != cf->count);
     /* Allow un-ignore of all frames even with no frames currently displayed */
@@ -5371,6 +5617,7 @@ set_menus_for_selected_packet(capture_file *cf)
 
     set_menu_sensitivity_old(main_menu_factory, "/Edit/Set Time Reference (toggle)",
                          frame_selected);
+#endif /* MAIN_MENU_USE_UIMANAGER */
 #ifdef NEW_PACKET_LIST
     set_menu_sensitivity_old(main_menu_factory, "/Edit/Un-Time Reference All Packets",
                          have_time_ref);
@@ -5381,7 +5628,18 @@ set_menus_for_selected_packet(capture_file *cf)
 #else
     set_menu_sensitivity_old(packet_list_menu_factory, "/Set Time Reference (toggle)",
                          frame_selected);
-#endif
+#endif /* MENUS_USE_UIMANAGER */
+#ifdef MAIN_MENU_USE_UIMANAGER
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/FindNextTimeReference",
+                         another_is_time_ref);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/FindPreviousTimeReference",
+                         another_is_time_ref);
+
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ResizeAllColumns",
+                         frame_selected);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/CollapseAll",
+                         frame_selected);
+#else
     set_menu_sensitivity_old(main_menu_factory, "/Edit/Find Next Time Reference",
                          another_is_time_ref);
     set_menu_sensitivity_old(main_menu_factory, "/Edit/Find Previous Time Reference",
@@ -5391,6 +5649,7 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected);
     set_menu_sensitivity_old(main_menu_factory, "/View/Collapse All",
                          frame_selected);
+#endif /* MAIN_MENU_USE_UIMANAGER */
 #ifdef MENUS_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/CollapseAll",
                          frame_selected);
@@ -5406,14 +5665,22 @@ set_menus_for_selected_packet(capture_file *cf)
 #else
     set_menu_sensitivity_old(tree_view_menu_factory, "/Expand All",
                          frame_selected);
-#endif
+#endif /* MENUS_USE_UIMANAGER */
+#ifdef MAIN_MENU_USE_UIMANAGER
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ColorizeConversation",
+                         frame_selected);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ResetColoring1-10",
+                         tmp_color_filters_used());
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ShowPacketinNewWindow",
+                         frame_selected);
+#else
     set_menu_sensitivity_old(main_menu_factory, "/View/Colorize Conversation",
                          frame_selected);
     set_menu_sensitivity_old(main_menu_factory, "/View/Reset Coloring 1-10",
                          tmp_color_filters_used());
     set_menu_sensitivity_old(main_menu_factory, "/View/Show Packet in New Window",
                          frame_selected);
-
+#endif /* MAIN_MENU_USE_UIMANAGER */
 #ifdef MENUS_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ShowPacketinNewWindow",
                          frame_selected);
@@ -5524,7 +5791,22 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected);
     set_menu_sensitivity_old(tree_view_menu_factory, "/Resolve Name",
                          frame_selected && (g_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
-#endif
+#endif /* MENUS_USE_UIMANAGER */
+#ifdef MAIN_MENU_USE_UIMANAGER
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/FollowTCPStream",
+                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/FollowUDPStream",
+                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/FollowSSLStream",
+                         frame_selected ? is_ssl : FALSE);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/DecodeAs",
+                         frame_selected && decode_as_ok());
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/ResolveName",
+                         frame_selected && (g_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ToolsMenu/FirewallACLRules",
+                         frame_selected);
+
+#else
     set_menu_sensitivity_old(main_menu_factory, "/Analyze/Follow TCP Stream",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
     set_menu_sensitivity_old(main_menu_factory, "/Analyze/Follow UDP Stream",
@@ -5537,7 +5819,7 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected && (g_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
     set_menu_sensitivity_old(main_menu_factory, "/Tools/Firewall ACL Rules",
                          frame_selected);
-
+#endif /* MAIN_MENU_USE_UIMANAGER */
     walk_menu_tree_for_selected_packet(tap_menu_tree_root, cf->current_frame,
                                        cf->edt);
 }
@@ -5593,8 +5875,13 @@ walk_menu_tree_for_selected_tree_row(GList *node, field_info *fi)
      * has a null name pointer.
      */
     if (node_data->name != NULL) {
+#ifdef MAIN_MENU_USE_UIMANAGER
+        set_menu_sensitivity(ui_manager_main_menubar, node_data->name,
+                             node_data->enabled);
+#else
         set_menu_sensitivity_old(main_menu_factory, node_data->name,
                              node_data->enabled);
+#endif /* MAIN_MENU_USE_UIMANAGER */
     }
     return node_data->enabled;
 }
