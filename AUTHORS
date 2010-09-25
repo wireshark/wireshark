@@ -2765,13 +2765,18 @@ Jens Bräuer		<jensb [AT] cs.tu-berlin.de> {
 }
 
 Sake Blok               <sake [AT] euronet.nl> {
-        Cisco proprietary MST format support
-        "Copy as Filter" functionality
-        Split time_delta in time delta captured and time delta displayed
-        NetScreen snoop output (ascii) support
-        TCP Conversation timestamps
-        enable/disable indiviual coloring rules
-        temporary coloring rules with hotkeys
+	Cisco proprietary MST format support
+	"Copy as Filter" functionality
+	Split time_delta in time delta captured and time delta displayed
+	NetScreen snoop output (ascii) support
+	TCP Conversation timestamps
+	enable/disable indiviual coloring rules
+	temporary coloring rules with hotkeys
+	Copy Fieldname / Copy Value
+	Ignore all packets functionality
+	Enable printing of all occurrences of fields
+	Follow TCP stream enhancements
+	Miscellaneous enhancements and fixes
 }
 
 Fulko Hew		<fulko.hew [AT] gmail.com> {
