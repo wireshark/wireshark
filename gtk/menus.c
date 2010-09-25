@@ -3457,7 +3457,7 @@ main_menu_new(GtkAccelGroup ** table) {
         menus_init();
 
 #ifdef MAIN_MENU_USE_UIMANAGER
-	menubar = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar");
+    menubar = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar");
 #else
     menubar = main_menu_factory->widget;
 #endif
@@ -3593,12 +3593,12 @@ void menu_dissector_filter(void) {
 static void
 menus_init(void) {
 #ifdef MENUS_USE_UIMANAGER
-	GtkActionGroup *packet_list_heading_action_group, *packet_list_action_group,
-					*packet_list_details_action_group, *packet_list_byte_menu_action_group;
-	GError *error = NULL;
+    GtkActionGroup *packet_list_heading_action_group, *packet_list_action_group,
+                    *packet_list_details_action_group, *packet_list_byte_menu_action_group;
+    GError *error = NULL;
 #endif
 #ifdef MAIN_MENU_USE_UIMANAGER
-	GtkActionGroup	*main_menu_bar_action_group;
+    GtkActionGroup    *main_menu_bar_action_group;
 #endif
 
     if (initialize) {
