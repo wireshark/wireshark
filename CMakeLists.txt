@@ -221,7 +221,7 @@ endif()
 # - set HAVE_XXX
 
 #The minimum package list
-set(PACKAGELIST GLIB2 PCAP M LEX YACC Perl SH PythonInterp HtmlViewer ${PACKAGELIST})
+set(PACKAGELIST GLIB2 GMODULE2 PCAP M LEX YACC Perl SH PythonInterp HtmlViewer ${PACKAGELIST})
 
 #Build the gui ?
 if(BUILD_wireshark)

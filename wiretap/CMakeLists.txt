@@ -94,6 +94,7 @@ add_yacc_files(WIRETAP_FILES
 
 set(wiretap_LIBS
 	${GLIB2_LIBRARIES}
+	${GMODULE2_LIBRARIES}
 	${ZLIB_LIBRARIES}
 	wsutil
 )
