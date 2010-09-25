@@ -326,6 +326,7 @@ column_prefs_show(GtkWidget *prefs_window) {
     gtk_widget_show(occurrence_lb);
 
     occurrence_te = gtk_entry_new();
+    gtk_entry_set_max_length (GTK_ENTRY(occurrence_te),4);
     g_object_set_data (G_OBJECT(occurrence_te), "occurrence", "");
 
     /* XXX: column_occurrence_changed_cb will be called for every character entered in the entry box.      */

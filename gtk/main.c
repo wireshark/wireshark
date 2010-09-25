@@ -603,23 +603,32 @@ get_filter_from_packet_list_row_and_column(gpointer data)
                  &cfile.cinfo);
         epan_dissect_fill_in_columns(&edt, TRUE, TRUE);
 
-        if (strlen(cfile.cinfo.col_expr.col_expr[column]) != 0 &&
-            strlen(cfile.cinfo.col_expr.col_expr_val[column]) != 0) {
-            /* leak a little but safer than ep_ here */
-            if (cfile.cinfo.col_fmt[column] == COL_CUSTOM) {
-                header_field_info *hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[column]);
-                if (hfi->parent == -1) {
-                    /* Protocol only */
-                    buf = se_strdup(cfile.cinfo.col_expr.col_expr[column]);
-                } else if (hfi->type == FT_STRING) {
-                    /* Custom string, add quotes */
-                    buf = se_strdup_printf("%s == \"%s\"", cfile.cinfo.col_expr.col_expr[column],
+        if (cfile.cinfo.col_custom_occurrence[column]) {
+            /* Only construct the filter when a single occurrence is displayed
+             * otherwise we might end up with a filter like "ip.proto==1,6".
+             *
+             * Or do we want to be able to filter on multiple occurrences so that 
+             * the filter might be calculated as "ip.proto==1 && ip.proto==6"
+             * instead?
+             */
+            if (strlen(cfile.cinfo.col_expr.col_expr[column]) != 0 &&
+                strlen(cfile.cinfo.col_expr.col_expr_val[column]) != 0) {
+                /* leak a little but safer than ep_ here */
+                if (cfile.cinfo.col_fmt[column] == COL_CUSTOM) {
+                    header_field_info *hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[column]);
+                    if (hfi->parent == -1) {
+                        /* Protocol only */
+                        buf = se_strdup(cfile.cinfo.col_expr.col_expr[column]);
+                    } else if (hfi->type == FT_STRING) {
+                        /* Custom string, add quotes */
+                        buf = se_strdup_printf("%s == \"%s\"", cfile.cinfo.col_expr.col_expr[column],
+                                               cfile.cinfo.col_expr.col_expr_val[column]);
+                    }
+                }
+                if (buf == NULL) {
+                    buf = se_strdup_printf("%s == %s", cfile.cinfo.col_expr.col_expr[column],
                                            cfile.cinfo.col_expr.col_expr_val[column]);
                 }
-            }
-	    if (buf == NULL) {
-                buf = se_strdup_printf("%s == %s", cfile.cinfo.col_expr.col_expr[column],
-                                       cfile.cinfo.col_expr.col_expr_val[column]);
             }
         }
 
