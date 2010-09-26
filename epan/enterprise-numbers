@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2010-09-18)
+(last updated 2010-09-26)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -31860,7 +31860,7 @@ Decimal
 7976
   Brotsman & Dreger, Inc.
     Edward Dreger
-      eddy+iana+spam&brotsman.com
+      eddy_iana_spam&brotsman.com
 7977
   VidSoft GmbH
     Sascha Kuemmel
@@ -62415,9 +62415,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     Kenn Humborg
       kenn&bluetree.ie
 15716
-  Hexago
-    Marc Blanchet
-      Marc.Blanchet&hexago.com
+  gogo6 (previous was 'Hexago')
+    Mikael Lind
+      support&gogo6.com
 15717
   Cegetel Net
     Stephane Clodic
@@ -145003,7 +145003,7 @@ Decentralization / Helenic Public Administra
 36354
   globo.com
     Nedimar Paulo Turatti
-      nedimar&corp.globo.com
+      suporte.producao&corp.globo.com
 36355
   BIRUNI Grid Computing Centre
     Muhammad Farhan Sjaugi
@@ -145659,7 +145659,7 @@ Decentralization / Helenic Public Administra
 36518
   RF Technology Pty Ltd
     John Dalton (per Frank Romanin)
-      john.dalton&rftechnology.com.au
+      john.rf.technology&gmail.com
 36519
   bsdn
     isa.wang
@@ -145792,6 +145792,242 @@ Decentralization / Helenic Public Administra
   RAADIUS LLC
     Richard Hilling
       richard.hilling&raadius.net
+36552
+  Cora Informatique
+    AUBRY Patrice
+      paubry&cora.fr
+36553
+  Altos Solutions
+    Tim Henke
+      thenke&altossolutions.com
+36554
+  Moocom Corporation
+    Takeshi KOMIYAMA
+      contact&moocom.co.jp
+36555
+  TimeTools Limited
+    Andrew Shinton
+      ashinton&timetools.co.uk
+36556
+  Triad Semiconductor, Inc.
+    Mike Burr
+      it&triadsemi.com
+36557
+  Positive Software sprl
+    Luc Claes
+      luc&posisoft.com
+36558
+  Actus Digital
+    Raphael Renous
+      raphir&actusdigital.com
+36559
+  Bitnet.hu Ltd.
+    Jozsef Czompo
+      czompo.jozsef&bitnet.hu
+36560
+  Entr'ouvert
+    Benjamin Dauvergne
+      bdauvergne&entrouvert.com
+36561
+  Nwork Co.,Ltd.
+    Tomoyasu Fujii
+      t_fujii&nwork.co.jp
+36562
+  Green Resource Inc.
+    Yu Xin
+      scaner&gmail.com
+36563
+  Remsdaq Limited
+    Les Mather
+      lm&remsdaq.com
+36564
+  Daniel Fernandes
+    Daniel Fernandes
+      danieldesenvolvedor&gmail.com
+36565
+  Washington State Patrol
+    Chris Molenda
+      chris.molenda&wsp.wa.gov
+36566
+  new frontiers software GmbH
+    Markus Müller
+      mueller&new-frontiers.de
+36567
+  Teva Pharmaceutical Industries Ltd.
+    Ashkenazy Ronen
+      Ronen.Ashkenazy&teva.co.il
+36568
+  Anixter
+    David Hopper
+      david.l.hopper&anixter.com
+36569
+  Gridstore
+    Antoni Sawicki
+      as&gridstore.com
+36570
+  Gemüsering Stuttgart GmbH
+    Stephan Maier
+      st.maier&gemuesering.de
+36571
+  Picoware Ltd
+    Martin Hayes
+      Martin.Hayes&picoware.com
+36572
+  NET4GAS, s.r.o.
+    Michal Mühlpachr
+      michal.muhlpachr&net4gas.cz
+36573
+  Harney
+    Gerard Harney
+      oid&harney.eu
+36574
+  SCI Group
+    Ashley Jacobs
+      ajacobs&scigrp.com
+36575
+  MerLar
+    Robert Merchant Larson, II
+      robert&merlar.com
+36576
+  APB PRODATA LTDA.
+    Mr. CARL BEQUET
+      cb&apb.com.br
+36577
+  Starscriber Corporation
+    Michael Johnson
+      mjohnson&starscriber.com
+36578
+  Kron Telekomunikasyon Hizmetleri A.S
+    Mete SANSAL
+      info&kron.com.tr
+36579
+  Erste Bank Hungary Nyrt.
+    Akos Solymos
+      akos.solymos&erstebank.hu
+36580
+  DVG Deutsche Vertriebsgesellschaft für Publikationen und Filme mbH 
+    Markus Nass
+      nass&dvg-ff.com
+36581
+  BSTECNOLOGIA
+    EDUARDO SAMPAIO
+      EDUARDO&BSTECNOLOGIA.NET.BR
+36582
+  Arduino (http://www.arduino.cc/)
+    Eric Gionet
+      lavco_eg&hotmail.com
+36583
+  Tom Aafloen
+    Tom Aafloen
+      iana&aafloen.com
+36584
+  vmkid.com
+    Nanger Lu
+      lujnan&gmail.com
+36585
+  Logan Technologies
+    David Ferris
+      eric.ferris&sympatico.ca
+36586
+  NET IDEA d.o.o.
+    Tomislav Bosanac
+      tomislav.bosanac&gmail.com
+36587
+  NFB Consulting Pty Limited
+    Nigel Brownett
+      nbrownett&nfbconsulting.com
+36588
+  Satellink, Inc
+    Lorie Goodrich
+      lorie.goodrich&satellink.com
+36589
+  Pier 1 Imports
+    Edward E. Iwanski
+      eeiwanski&pier1.com
+36590
+  Rb Datensysteme GmbH
+    Bastian Reich
+      reich&weblodge.de
+36591
+  Prefeitura Municipal de Fortaleza
+    Daniel Ruoso
+      daniel&ruoso.com
+36592
+  The CBORD Group, Inc.
+    Robert Carlson
+      rcc&cbord.com
+36593
+  Paul De Audney
+    Paul De Audney
+      pdeaudney&gmail.com
+36594
+  Telistar Solutions Pte Ltd
+    Jovi Yeong
+      jovi.yeong&telistarsolutions.com
+36595
+  Ena Tecnologia, S.L.
+    Miguel Angel Martin Mendez
+      miguel.martin&ena-tecnologia.com
+36596
+  Dachser GmbH & Co. KG
+    Fariborz Moradi
+      fariborz.moradi&dachser.com
+36597
+  PRDS
+    Dominique Laigle
+      dlaigle&gmail.com
+36598
+  SELEX Systems Integration Inc
+    Dustin Lewis
+      lewis&selex-si-us.com
+36599
+  Bremer Landesbank
+    Oliver Merdes
+      netze&bremerlandesbank.de
+36600
+  Nashire AG (startup)  (http://www.nashire.com)
+    Blapp Martin
+      mblapp&attic.ch
+36601
+  OTPasswd
+    Tomasz Fortuna
+      bla&thera.be
+36602
+  Observium
+    Adam Armstrong
+      adama&memetic.org
+36603
+  ITechnical
+    Heiko Nardmann
+      verwaltung&itechnical.de
+36604
+  Media Service Provider Ltd
+    Charlie Allom
+      hostmaster&mediaserviceprovider.com
+36605
+  Hannover Rückversicherung AG 
+    Hans-Juergen Kreutzer
+      hans-juergen.kreutzer&hannover-re.com
+36606
+  Littlehall Corporation
+    Mark Bannon
+      resources&littlehall.com
+36607
+  Johnny Abrahamsson
+    Johnny Abrahamsson
+      johnny.abrahamsson&gmail.com
+36608
+  whty
+    huangqichao
+      HQC&whty.com.cn
+36609
+  Universita' del Salento
+    Simone Molendini
+      simone.molendini&unisalento.it
+36610
+  August Moon LLC
+    Dennis Chang
+      support&augustmoonsoftware.com
 
 
 End of Document
