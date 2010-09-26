@@ -4235,8 +4235,9 @@ set_menu_sensitivity_old(GtkItemFactory *ifactory, const gchar *path, gint val)
     GtkWidget *menu_item;
     gchar *dup;
     gchar *dest;
-
-
+#ifdef MAIN_MENU_USE_UIMANAGER
+	g_warning("set_menu_sensitivity_old: Path %s",path);
+#endif
     /* the underscore character regularly confuses things, as it will prevent finding
      * the menu_item, so it has to be removed first */
     dup = g_strdup(path);
@@ -6440,7 +6441,29 @@ set_menus_for_selected_tree_row(capture_file *cf)
                              (id == -1) ? FALSE : TRUE);
         set_menu_sensitivity_old(tree_view_menu_factory, "/Filter Field Reference",
                              (id == -1) ? FALSE : TRUE);
-#endif
+#endif /* MENUS_USE_UIMANAGER */
+#ifdef MAIN_MENU_USE_UIMANAGER
+        set_menu_sensitivity(ui_manager_tree_view_menu,
+                             "/Menubar/MenuFile/Export/SelectedPacketBytes", TRUE);
+        set_menu_sensitivity(ui_manager_tree_view_menu,
+                             "/Menubar/MenuGo/GotoCorrespondingPacket", hfinfo->type == FT_FRAMENUM);
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/Menubar/MenuEdit/Copy/Description",
+                             proto_can_match_selected(cf->finfo_selected, cf->edt));
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/Menubar/MenuEdit/Copy/Fieldname",
+                             proto_can_match_selected(cf->finfo_selected, cf->edt));
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/Menubar/MenuEdit/Copy/Value",
+                             proto_can_match_selected(cf->finfo_selected, cf->edt));
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/Menubar/MenuEdit/Copy/AsFilter",
+                             proto_can_match_selected(cf->finfo_selected, cf->edt));
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/Menubar/MenuAnalyze/ApplyasColumn",
+                             hfinfo->type != FT_NONE);
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/Menubar/MenuAnalyze/ApplyAsFilter",
+                             proto_can_match_selected(cf->finfo_selected, cf->edt));
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/Menubar/MenuAnalyze/PrepareaFilter",
+                             proto_can_match_selected(cf->finfo_selected, cf->edt));
+        set_menu_sensitivity(ui_manager_tree_view_menu, "/Menubar/MenuView/ExpandSubtrees",
+                             cf->finfo_selected->tree_type != -1);
+#else
         set_menu_sensitivity_old(main_menu_factory,
                              "/File/Export/Selected Packet Bytes...", TRUE);
         set_menu_sensitivity_old(main_menu_factory,
@@ -6461,7 +6484,7 @@ set_menus_for_selected_tree_row(capture_file *cf)
                              proto_can_match_selected(cf->finfo_selected, cf->edt));
         set_menu_sensitivity_old(main_menu_factory, "/View/Expand Subtrees",
                              cf->finfo_selected->tree_type != -1);
-
+#endif
 #ifdef MENUS_USE_UIMANAGER
         prev_abbrev = g_object_get_data(G_OBJECT(ui_manager_tree_view_menu), "menu_abbrev");
 #else
@@ -6512,7 +6535,21 @@ set_menus_for_selected_tree_row(capture_file *cf)
                              FALSE);
         set_menu_sensitivity_old(tree_view_menu_factory, "/Filter Field Reference",
                              FALSE);
-#endif
+#endif /* MENUS_USE_UIMANAGER */
+#ifdef MAIN_MENU_USE_UIMANAGER
+        set_menu_sensitivity(ui_manager_main_menubar,
+                             "/Menubar/FileMenu/Export/SelectedPacketBytes", FALSE);
+        set_menu_sensitivity(ui_manager_main_menubar,
+                             "/Menubar/GoMenu/GotoCorrespondingPacket", FALSE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/Description", FALSE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/Fieldname", FALSE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/Value", FALSE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/AsFilter", FALSE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/ApplyasColumn", FALSE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/ApplyAsFilter", FALSE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/PrepareaFilter", FALSE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ExpandSubtrees", FALSE);
+#else
         set_menu_sensitivity_old(main_menu_factory,
                              "/File/Export/Selected Packet Bytes...", FALSE);
         set_menu_sensitivity_old(main_menu_factory,
@@ -6525,6 +6562,7 @@ set_menus_for_selected_tree_row(capture_file *cf)
         set_menu_sensitivity_old(main_menu_factory, "/Analyze/Apply as Filter", FALSE);
         set_menu_sensitivity_old(main_menu_factory, "/Analyze/Prepare a Filter", FALSE);
         set_menu_sensitivity_old(main_menu_factory, "/View/Expand Subtrees", FALSE);
+#endif /* MAIN_MENU_USE_UIMANAGER */
     }
 
     walk_menu_tree_for_selected_tree_row(tap_menu_tree_root, cf->finfo_selected);
@@ -6532,18 +6570,28 @@ set_menus_for_selected_tree_row(capture_file *cf)
 
 void set_menus_for_packet_history(gboolean back_history, gboolean forward_history) {
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/Back", back_history);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/Forward", forward_history);
+#else
     set_menu_sensitivity_old(main_menu_factory, "/Go/Back", back_history);
     set_menu_sensitivity_old(main_menu_factory, "/Go/Forward", forward_history);
-
+#endif /* MAIN_MENU_USE_UIMANAGER */
     set_toolbar_for_packet_history(back_history, forward_history);
 }
 
 
 void set_menus_for_file_set(gboolean file_set, gboolean previous_file, gboolean next_file) {
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Set/ListFiles", file_set);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Set/PreviousFile", previous_file);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Set/NextFile", next_file);
+#else
     set_menu_sensitivity_old(main_menu_factory, "/File/File Set/List Files", file_set);
     set_menu_sensitivity_old(main_menu_factory, "/File/File Set/Previous File", previous_file);
     set_menu_sensitivity_old(main_menu_factory, "/File/File Set/Next File", next_file);
+#endif /* MAIN_MENU_USE_UIMANAGER */
 }
 
 /*
