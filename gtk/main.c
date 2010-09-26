@@ -603,7 +603,9 @@ get_filter_from_packet_list_row_and_column(gpointer data)
                  &cfile.cinfo);
         epan_dissect_fill_in_columns(&edt, TRUE, TRUE);
 
-        if (cfile.cinfo.col_custom_occurrence[column]) {
+        if ((cfile.cinfo.col_custom_occurrence[column]) ||
+            (strchr (cfile.cinfo.col_expr.col_expr_val[column], ',') == NULL))
+        {
             /* Only construct the filter when a single occurrence is displayed
              * otherwise we might end up with a filter like "ip.proto==1,6".
              *
