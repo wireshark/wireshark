@@ -27,6 +27,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+/* Protocol reference:
+ * http://isotc.iso.org/livelink/livelink?func=ll&objId=8500308&objAction=Open&ei=nt-RTKe1IJKTjAeepLS8BQ&usg=AFQjCNEn8hlU_SfoAGkM-X48JL_BL8bptA&sig2=JOHNPrqgCMO4q0cWhAfkow
+ * (chapter: 8.1.4. WAI protocol)
+ */
+
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -37,7 +42,7 @@
 #include <epan/reassemble.h>
 
 #define WAI_SUB_PRE_AUTHENTICATION	0x01	/* pre-authentication start */
-#define WAI_SUB_STAKEY_REQ		0x02	/* STAKey request */
+#define WAI_SUB_STAKEY_REQ			0x02	/* STAKey request */
 #define WAI_SUB_AUTH_ACTIVATION		0x03	/* authentication activation */
 #define WAI_SUB_ACCESS_AUTH_REQ		0x04	/* access authentication request */
 #define WAI_SUB_ACCESS_AUTH_RESP	0x05	/* access authentication response */
