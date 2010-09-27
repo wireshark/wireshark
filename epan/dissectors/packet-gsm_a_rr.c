@@ -732,6 +732,7 @@ static int hf_gsm_a_rr_eutran_qrxlevmin = -1;
 static int hf_gsm_a_rr_eutran_pcid = -1;
 static int hf_gsm_a_rr_eutran_pcid_bitmap_group = -1;
 static int hf_gsm_a_rr_eutran_pcid_pattern_length = -1;
+static int hf_gsm_a_rr_eutran_pcid_pattern = -1;
 static int hf_gsm_a_rr_eutran_pcid_pattern_sense = -1;
 static int hf_gsm_a_rr_eutran_frequency_index = -1;
 static int hf_gsm_a_rr_psc = -1;
@@ -4605,7 +4606,7 @@ de_rr_3g_priority_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_priority_param_desc_default_utran_qrxlevmin, tvb, curr_bit_offset, 5, FALSE);
     curr_bit_offset += 5;
   }
-   /*Repeated UTRAN Priority Parameters*/
+  /* Repeated UTRAN Priority Parameters */
   while((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
   {
     while((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
@@ -4698,6 +4699,47 @@ de_rr_eutran_neighbour_cells(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 }
 
 static gint
+de_rr_eutran_pcid(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
+{
+  gint curr_bit_offset = bit_offset;
+  guint8 value;
+  gint pcid_pattern_length;
+  gint pcid_pattern;
+  proto_item *item;
+
+  while ((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
+  {
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_pcid, tvb, curr_bit_offset, 9, FALSE);
+    curr_bit_offset += 9;
+  }
+  
+  value = tvb_get_bits8(tvb,curr_bit_offset,1);
+  curr_bit_offset += 1;
+  if (value)
+  {
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_pcid_bitmap_group, tvb, curr_bit_offset, 6, FALSE);
+    curr_bit_offset += 6;
+  }
+  while ((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
+  {
+    pcid_pattern_length = tvb_get_bits8(tvb,curr_bit_offset,3) + 1;
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_pcid_pattern_length, tvb, curr_bit_offset, 3, FALSE);
+    curr_bit_offset += 3;
+    pcid_pattern = tvb_get_bits8(tvb,curr_bit_offset, pcid_pattern_length);
+
+    item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, 1, "%s = PCID_Pattern: %d", 
+                               decode_bits_in_field(curr_bit_offset,pcid_pattern_length, pcid_pattern), 
+                               pcid_pattern);
+
+    curr_bit_offset += pcid_pattern_length;
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_pcid_pattern_sense, tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset += 1;
+  }
+
+  return(curr_bit_offset - bit_offset);
+}
+
+static gint
 de_rr_eutran_not_allowed_cells(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
   proto_tree *subtree;
@@ -4708,33 +4750,8 @@ de_rr_eutran_not_allowed_cells(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
   item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_NOT_ALLOWED_CELLS].strptr);
   subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EUTRAN_NOT_ALLOWED_CELLS]);
   
-  while ((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
-  {
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_pcid, tvb, curr_bit_offset, 9, FALSE);
-    curr_bit_offset += 9;
-  }
-  
-  value = tvb_get_bits8(tvb,curr_bit_offset,1);
-  curr_bit_offset += 1;
-  if (value)
-  {
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_pcid_bitmap_group, tvb, curr_bit_offset, 6, FALSE);
-    curr_bit_offset += 6;
-  }
-  while ((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
-  {
-    gint pcid_pattern_length;
-    gint pcid_pattern;
-
-    pcid_pattern_length = tvb_get_bits8(tvb,curr_bit_offset,3) + 1;
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_pcid_pattern_length, tvb, curr_bit_offset, 3, FALSE);
-    curr_bit_offset += 3;
-    pcid_pattern = tvb_get_bits8(tvb,curr_bit_offset, pcid_pattern_length);
-    proto_tree_add_text(subtree, tvb, curr_bit_offset>>3, -1, "PCID_Pattern: 0x%x", pcid_pattern);
-    curr_bit_offset += pcid_pattern_length;
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_pcid_pattern_sense, tvb, curr_bit_offset, 1, FALSE);
-    curr_bit_offset += 1;
-  }
+  /* dissect PCID group */
+  curr_bit_offset += de_rr_eutran_pcid(tvb, subtree, curr_bit_offset);
 
   while ((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
   {
@@ -4760,32 +4777,8 @@ de_rr_eutran_pcid_to_ta_mapping(tvbuff_t *tvb, proto_tree *tree, gint bit_offset
   
   while ((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
   {
-    while ((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
-    {
-      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_pcid, tvb, curr_bit_offset, 9, FALSE);
-      curr_bit_offset += 9;
-    }
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
-    {
-      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_pcid_bitmap_group, tvb, curr_bit_offset, 6, FALSE);
-      curr_bit_offset += 6;
-    }
-    while ((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
-    {
-      gint pcid_pattern_length;
-      gint pcid_pattern;
-      
-      pcid_pattern_length = tvb_get_bits8(tvb,curr_bit_offset,3) + 1;
-      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_pcid_pattern_length, tvb, curr_bit_offset, 3, FALSE);
-      curr_bit_offset += 3;
-      pcid_pattern = tvb_get_bits8(tvb,curr_bit_offset, pcid_pattern_length);
-      proto_tree_add_text(subtree, tvb, curr_bit_offset>>3, -1, "PCID_Pattern: 0x%x", pcid_pattern);
-      curr_bit_offset += pcid_pattern_length;
-      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_pcid_pattern_sense, tvb, curr_bit_offset, 1, FALSE);
-      curr_bit_offset += 1;
-    }
+    /* dissect PCID group */
+    curr_bit_offset += de_rr_eutran_pcid(tvb, subtree, curr_bit_offset);
   }
 
   proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
@@ -4814,7 +4807,7 @@ de_rr_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
   curr_bit_offset += 1;
   if (value)
   {
-     /*E-UTRAN Measurement Parameters Description*/
+    /* E-UTRAN Measurement Parameters Description */
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_qsearch_c_eutran_initial, tvb, curr_bit_offset, 4, FALSE);
     curr_bit_offset += 4;
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_rep_quant, tvb, curr_bit_offset, 1, FALSE);
@@ -4897,7 +4890,7 @@ de_rr_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
   curr_bit_offset += 1;
   if (value)
   {
-    /*GPRS E-UTRAN Measurement Parameters Description*/
+    /* GPRS E-UTRAN Measurement Parameters Description */
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_qsearch_p_eutran, tvb, curr_bit_offset, 4, FALSE);
     curr_bit_offset += 4;
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_rep_quant, tvb, curr_bit_offset, 1, FALSE);
@@ -4937,19 +4930,19 @@ de_rr_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     }
   }
 
-  /*Repeated E-UTRAN Neighbour Cells*/
+  /* Repeated E-UTRAN Neighbour Cells */
   while((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
   {
     curr_bit_offset += de_rr_eutran_neighbour_cells(tvb, subtree, curr_bit_offset);
   }
 
-  /*Repeated E-UTRAN Not Allowed Cells*/
+  /* Repeated E-UTRAN Not Allowed Cells */
   while((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
   {
     curr_bit_offset += de_rr_eutran_not_allowed_cells(tvb, subtree, curr_bit_offset);
   }
 
-  /*Repeated E-UTRAN PCID to TA mapping*/
+  /* Repeated E-UTRAN PCID to TA mapping */
   while((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
   {
     curr_bit_offset += de_rr_eutran_pcid_to_ta_mapping(tvb, subtree, curr_bit_offset);
@@ -4973,7 +4966,7 @@ de_rr_priority_and_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_o
   subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_PRIORITY_AND_EUTRAN_PARAM_DESC]);
   value = tvb_get_bits8(tvb,curr_bit_offset,1);
   curr_bit_offset += 1;
-  /*Serving Cell Priority Parameters Description*/
+  /* Serving Cell Priority Parameters Description */
   if (value)
   {
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_serving_cell_priority_param_geran_priority, tvb, curr_bit_offset, 3, FALSE);
@@ -4989,14 +4982,14 @@ de_rr_priority_and_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_o
   }
   value = tvb_get_bits8(tvb,curr_bit_offset,1);
   curr_bit_offset += 1;
-  /*3G Priority Parameters Description*/
+  /* 3G Priority Parameters Description */
   if (value)
   {
     curr_bit_offset += de_rr_3g_priority_param_desc(tvb, subtree, curr_bit_offset);
   }
   value = tvb_get_bits8(tvb,curr_bit_offset,1);
   curr_bit_offset += 1;
-  /*E-UTRAN Parameters Description*/
+  /* E-UTRAN Parameters Description */
   if (value)
   {
     curr_bit_offset += de_rr_eutran_param_desc(tvb, subtree, curr_bit_offset);
@@ -5021,7 +5014,7 @@ de_rr_3g_csg_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 
   while((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
   {
-    /*CSG_PSC_SPLIT struct*/
+    /* CSG_PSC_SPLIT struct */
     while((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
     {
       proto_tree_add_bits_item(subtree, hf_gsm_a_rr_psc, tvb, curr_bit_offset, 9, FALSE);
@@ -5036,7 +5029,11 @@ de_rr_3g_csg_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
       proto_tree_add_bits_item(subtree, hf_gsm_a_rr_utran_psc_pattern_length, tvb, curr_bit_offset, 3, FALSE);
       curr_bit_offset += 3;
       psc_pattern = tvb_get_bits8(tvb,curr_bit_offset, psc_pattern_length);
-      proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "PSC_Pattern: 0x%x", psc_pattern);
+
+      item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, 1, "%s = PSC_Pattern: %d", 
+                                 decode_bits_in_field(curr_bit_offset,psc_pattern_length, psc_pattern), 
+                                 psc_pattern);
+
       curr_bit_offset += psc_pattern_length;
       proto_tree_add_bits_item(subtree, hf_gsm_a_rr_utran_psc_pattern_sense, tvb, curr_bit_offset, 1, FALSE);
       curr_bit_offset += 1;
@@ -5051,7 +5048,7 @@ de_rr_3g_csg_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 
   while((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
   {
-    /*CSG_FDD_UARFCN*/
+    /* CSG_FDD_UARFCN */
     value = tvb_get_bits8(tvb,bit_offset,1);
     bit_offset += 1;
     if (!value)
@@ -5085,32 +5082,8 @@ de_rr_eutran_csg_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 
   while ((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
   {
-    while ((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
-    {
-      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_pcid, tvb, curr_bit_offset, 9, FALSE);
-      curr_bit_offset += 9;
-    }
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
-    {
-      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_pcid_bitmap_group, tvb, curr_bit_offset, 6, FALSE);
-      curr_bit_offset += 6;
-    }
-    while ((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
-    {
-      gint pcid_pattern_length;
-      gint pcid_pattern;
-      
-      pcid_pattern_length = tvb_get_bits8(tvb,curr_bit_offset,3) + 1;
-      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_pcid_pattern_length, tvb, curr_bit_offset, 3, FALSE);
-      curr_bit_offset += 3;
-      pcid_pattern = tvb_get_bits8(tvb,curr_bit_offset, pcid_pattern_length);
-      proto_tree_add_text(subtree, tvb, curr_bit_offset>>3, -1, "PCID_Pattern: 0x%x", pcid_pattern);
-      curr_bit_offset += pcid_pattern_length;
-      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_pcid_pattern_sense, tvb, curr_bit_offset, 1, FALSE);
-      curr_bit_offset += 1;
-    }
+    /* dissect PCID group */
+    curr_bit_offset += de_rr_eutran_pcid(tvb, subtree, curr_bit_offset);
   }
 
   while ((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
@@ -11013,6 +10986,11 @@ proto_register_gsm_a_rr(void)
             { &hf_gsm_a_rr_eutran_pcid_pattern_length,
               { "PCID_Pattern_length", "gsm_a.rr.pcid_pattern_length",
 		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_pcid_psc_pattern_length), 0x00,
+		NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_eutran_pcid_pattern,
+              { "PCID_Pattern", "gsm_a.rr.pcid_pattern",
+		FT_UINT8, BASE_DEC, NULL, 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_pcid_pattern_sense,
