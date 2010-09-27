@@ -695,8 +695,8 @@ static void dissect_eigrp_ip_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	ti = proto_tree_add_item(tree, hf_eigrp_ip_ext_flags, tvb, offset, 1, FALSE);
 	eigrp_ip_ext_flags_tree = proto_item_add_subtree(ti, ett_eigrp_ip_ext_flags);
 
-	proto_tree_add_item(eigrp_ip_ext_flags_tree, hf_eigrp_ip_ext_flags_ext, tvb, 0, 1, FALSE);
-	proto_tree_add_item(eigrp_ip_ext_flags_tree, hf_eigrp_ip_ext_flags_default, tvb, 0, 1, FALSE);
+	proto_tree_add_item(eigrp_ip_ext_flags_tree, hf_eigrp_ip_ext_flags_ext, tvb, offset, 1, FALSE);
+	proto_tree_add_item(eigrp_ip_ext_flags_tree, hf_eigrp_ip_ext_flags_default, tvb, offset, 1, FALSE);
 	offset += 1;
 /* End Decode the IP external route Flags Field */
 
@@ -870,8 +870,8 @@ static void dissect_eigrp_at_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *ti
 	ti = proto_tree_add_item(tree, hf_eigrp_at_ext_flags, tvb, offset, 1, FALSE);
 	eigrp_at_ext_flags_tree = proto_item_add_subtree(ti, ett_eigrp_at_ext_flags);
 
-	proto_tree_add_item(eigrp_at_ext_flags_tree, hf_eigrp_at_ext_flags_ext, tvb, 0, 1, FALSE);
-	proto_tree_add_item(eigrp_at_ext_flags_tree, hf_eigrp_at_ext_flags_default, tvb, 0, 1, FALSE);
+	proto_tree_add_item(eigrp_at_ext_flags_tree, hf_eigrp_at_ext_flags_ext, tvb, offset, 1, FALSE);
+	proto_tree_add_item(eigrp_at_ext_flags_tree, hf_eigrp_at_ext_flags_default, tvb, offset, 1, FALSE);
 	offset += 1;
 /* End Decode the AppleTalk external route Flags Field */
 
@@ -977,8 +977,8 @@ static void dissect_eigrp_ip6_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	ti = proto_tree_add_item(tree, hf_eigrp_ip6_ext_flags, tvb, offset, 1, FALSE);
 	eigrp_ip6_ext_flags_tree = proto_item_add_subtree(ti, ett_eigrp_ip6_ext_flags);
 
-	proto_tree_add_item(eigrp_ip6_ext_flags_tree, hf_eigrp_ip6_ext_flags_ext, tvb, 0, 1, FALSE);
-	proto_tree_add_item(eigrp_ip6_ext_flags_tree, hf_eigrp_ip6_ext_flags_default, tvb, 0, 1, FALSE);
+	proto_tree_add_item(eigrp_ip6_ext_flags_tree, hf_eigrp_ip6_ext_flags_ext, tvb, offset, 1, FALSE);
+	proto_tree_add_item(eigrp_ip6_ext_flags_tree, hf_eigrp_ip6_ext_flags_default, tvb, offset, 1, FALSE);
 	offset += 1;
 /* End Decode the IPv6 external route Flags Field */
 
