@@ -331,9 +331,31 @@ window_get_geometry(GtkWidget *widget, window_geometry_t *geom)
 void
 window_set_geometry(GtkWidget *widget, window_geometry_t *geom)
 {
+	GdkScreen *default_screen;
+	GdkRectangle viewable_area;
+	gint monitor_num;
+
     /* as we now have the geometry from the recent file, set it */
     /* if the window was minimized, x and y are -32000 (at least on Win32) */
     if (geom->set_pos && geom->x != -32000 && geom->y != -32000) {
+		/* Per Wireshark bug #553, GTK has a problem on MS Windows where
+		 * the upper-left corner of the window may appear off screen when
+		 * when a single desktop spans multiple monitors of different
+		 * resolutions and positions relative to each other.
+		 *
+		 * If the requested (x,y) position isn't within the monitor's
+		 * viewable area, change it to the viewable area's (0,0). */
+
+		default_screen = gdk_screen_get_default();		
+		monitor_num = gdk_screen_get_monitor_at_point(default_screen, geom->x, geom->y);
+		gdk_screen_get_monitor_geometry(default_screen, monitor_num, &viewable_area);
+		
+		if(geom->x < viewable_area.x || geom->x > viewable_area.width)
+			geom->x = viewable_area.x;
+
+		if(geom->y < viewable_area.y || geom->y > viewable_area.height)
+			geom->y = viewable_area.y;
+
         gtk_window_move(GTK_WINDOW(widget),
                         geom->x,
                         geom->y);
