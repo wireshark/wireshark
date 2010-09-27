@@ -1,7 +1,7 @@
 /* packet-dcerpc-fileexp.c
  *
  * Routines for DCE DFS File Exporter dissection
- * Copyright 2002, Jaime Fournier <Jaime.Fournier@hush.com> 
+ * Copyright 2002, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz file/fsint/afs4int.idl
  *
@@ -314,7 +314,7 @@ The reason is because we reset col_info if st is non zero for many rpcs.
 This is because on error, many structures are filled with garbage.
 We end up not knowing if data is valid until we get the st var at the very end of the stubdata..
 We can not just jump to the end, because more often than not an extra buffer exists in payload
-after st. Thus we have to advance on each item until we read in ST, then we clear col_info. on error 
+after st. Thus we have to advance on each item until we read in ST, then we clear col_info. on error
 A good example is FetchStatus() on a file that returns ENOEXIST.
 inode, volume, etc all will be garbage.
 */
@@ -720,7 +720,7 @@ static int
 dissect_afsNetData (tvbuff_t * tvb, int offset,
 		    packet_info * pinfo, proto_tree * parent_tree, guint8 *drep)
 {
-/*  
+/*
 	afsNetAddr sockAddr;
         NameString_t principalName;
 */
@@ -747,7 +747,7 @@ dissect_afsNetData (tvbuff_t * tvb, int offset,
   offset += 4; /* buffer */
   offset = dissect_afsNameString_t ( tvb, offset, pinfo, tree, drep);
 
-   proto_item_set_len (item, offset - old_offset); 
+   proto_item_set_len (item, offset - old_offset);
   return offset;
 
 }
@@ -811,7 +811,7 @@ static int
 dissect_afsAcl (tvbuff_t * tvb, int offset,
 		packet_info * pinfo, proto_tree * parent_tree, guint8 *drep)
 {
-/* 
+/*
         unsigned32 afsACL_len;
         [length_is(afsACL_len)] byte afsACL_val[AFS_ACLMAX];
 */
@@ -872,7 +872,7 @@ dissect_afsAcl (tvbuff_t * tvb, int offset,
   if (offset <= old_offset)
     THROW(ReportedBoundsError);
 
-  proto_item_set_len(item, offset-old_offset); 
+  proto_item_set_len(item, offset-old_offset);
   return offset;
 }
 
@@ -998,13 +998,13 @@ dissect_afsstorestatus (tvbuff_t * tvb, int offset,
         unsigned32              owner;
         unsigned32              group;
         unsigned32              mode;
-        afsHyper                truncLength;     applied first 
+        afsHyper                truncLength;     applied first
         afsHyper                length;
         afsUUID                 typeUUID;
-        unsigned32              deviceType;      character or block 
+        unsigned32              deviceType;      character or block
         unsigned32              deviceNumber;
         unsigned32              cmask;
-        unsigned32              clientSpare1;    client-only attrs 
+        unsigned32              clientSpare1;    client-only attrs
         unsigned32              deviceNumberHighBits;
         unsigned32              spare1;
         unsigned32              spare2;
@@ -1607,11 +1607,11 @@ dissect_volsync (tvbuff_t * tvb, int offset,
 {
 /*
         afsHyper VolID;
-        afsHyper VV;             volume's version 
+        afsHyper VV;             volume's version
         unsigned32 VVAge;        age, in seconds, of the knowledge that the
-                                        given VolVers is current 
+                                        given VolVers is current
         unsigned32 VVPingAge; age, in seconds, of the last probe from
-                                   the callee (the secondary) to the primary 
+                                   the callee (the secondary) to the primary
         unsigned32 vv_spare1;
         unsigned32 vv_spare2;
 */
@@ -1681,7 +1681,7 @@ dissect_afsFlags (tvbuff_t * tvb, int offset,
 
 
 /*
-  unsigned32 flags 
+  unsigned32 flags
 */
 
   proto_item *item = NULL;
@@ -2118,7 +2118,7 @@ dissect_afsbundled_stat (tvbuff_t * tvb, int offset,
 */
 /* SKIPTOKEN/STAT?
         offset = dissect_fetchstatus(tvb, offset, pinfo, tree, drep);
-        offset = dissect_afstoken(tvb, offset, pinfo, tree, drep); 
+        offset = dissect_afstoken(tvb, offset, pinfo, tree, drep);
 */
 /* This is currently under construction as I figure out the reverse layout of the packet. */
 /*
@@ -3402,7 +3402,7 @@ static int
       return offset;
     }
 
-/* 
+/*
         [out]   afsFetchStatus  *OutOldDirStatusp,
         [out]   afsFetchStatus  *OutNewDirStatusp,
         [out]   afsFid          *OutOldFileFidp,
@@ -4219,7 +4219,7 @@ static int
         [out]           afsVolSync      *Syncp,
         [out]           pipe_t          *dirStream
 */
-  
+
   offset =
     dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsBulkStat,
 			 NDR_POINTER_REF, "BulkStat: ", -1);
@@ -4287,7 +4287,6 @@ void
 proto_register_fileexp (void)
 {
 
-
   static hf_register_info hf[] = {
     { &hf_error_st, {"AFS4Int Error Status Code", "fileexp.st", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_fileexp_flags, {"DFS Flags", "fileexp.flags", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
@@ -4299,265 +4298,158 @@ proto_register_fileexp (void)
     { &hf_fileexp_setcontext_rqst_clientsizesattrs, { "ClientSizeAttrs:", "fileexp.setcontext_clientsizesattrs", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
     { &hf_fileexp_setcontext_rqst_parm7, { "Parm7:", "fileexp.setcontext.parm7", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
     { &hf_fileexp_acl_len, {"Acl Length", "fileexp.acl_len", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    { &hf_fileexp_acltype, {"fileexp.acltype", "fileexp.acltype", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    { &hf_fileexp_minvvp_high, {"fileexp.minvvp_high", "fileexp.minvvp_high", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    { &hf_fileexp_minvvp_low, {"fileexp.minvvp_low", "fileexp.minvvp_low", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    { &hf_fileexp_volume_low, { "fileexp.volume_low", "fileexp.volume_low", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_volume_high, { "fileexp.volume_high", "fileexp.volume_high", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_vnode, { "fileexp.vnode", "fileexp.vnode", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_unique, { "fileexp.unique", "fileexp.unique", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_accesstime_msec, { "fileexp.accesstime_msec", "fileexp.accesstime_msec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_accesstime_sec, { "fileexp.accesstime_sec", "fileexp.accesstime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_aclexpirationtime, { "fileexp.aclexpirationtime", "fileexp.aclexpirationtime", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_agtypeunique, { "fileexp.agtypeunique", "fileexp.agtypeunique", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_anonymousaccess, { "fileexp.anonymousaccess", "fileexp.anonymousaccess", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_author, { "fileexp.author", "fileexp.author", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_blocksused, { "fileexp.blocksused", "fileexp.blocksused", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} },
-    { &hf_fileexp_calleraccess, { "fileexp.calleraccess", "fileexp.calleraccess", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_changetime_msec, { "fileexp.changetime_msec", "fileexp.changetime_msec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_changetime_sec, { "fileexp.changetime_sec", "fileexp.changetime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_clientspare1, { "fileexp.clientspare1", "fileexp.clientspare1", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_dataversion_high, { "fileexp.dataversion_high", "fileexp.dataversion_high", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_dataversion_low, { "fileexp.dataversion_low", "fileexp.dataversion_low", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_devicenumber, { "fileexp.devicenumber", "fileexp.devicenumber", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_devicenumberhighbits, { "fileexp.devicenumberhighbits", "fileexp.devicenumberhighbits", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_filetype, { "fileexp.filetype", "fileexp.filetype", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_group, { "fileexp.group", "fileexp.group", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_himaxspare, { "fileexp.himaxspare", "fileexp.himaxspare", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_interfaceversion, { "fileexp.interfaceversion", "fileexp.interfaceversion", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_length_high, { "fileexp.length_high", "fileexp.length_high", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_length_low, { "fileexp.length_low", "fileexp.length_low", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } , 
-    { &hf_fileexp_linkcount, { "fileexp.linkcount", "fileexp.linkcount", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_lomaxspare, { "fileexp.lomaxspare", "fileexp.lomaxspare", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_mode, { "fileexp.mode", "fileexp.mode", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_modtime_msec, { "fileexp.modtime_msec", "fileexp.modtime_msec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_modtime_sec, { "fileexp.modtime_sec", "fileexp.modtime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_objectuuid, { "fileexp.objectuuid", "fileexp.objectuuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL} } ,
-    { &hf_fileexp_owner, { "fileexp.owner", "fileexp.owner", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_parentunique, { "fileexp.parentunique", "fileexp.parentunique", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_parentvnode, { "fileexp.parentvnode", "fileexp.parentvnode", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_pathconfspare, { "fileexp.pathconfspare", "fileexp.pathconfspare", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_servermodtime_msec, { "fileexp.servermodtime_msec", "fileexp.servermodtime_msec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_servermodtime_sec, { "fileexp.servermodtime_sec", "fileexp.servermodtime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_spare4, { "fileexp.spare4", "fileexp.spare4", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_spare5, { "fileexp.spare5", "fileexp.spare5", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_spare6, { "fileexp.spare6", "fileexp.spare6", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_typeuuid, { "fileexp.typeuuid", "fileexp.typeuuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL} } ,
-    { &hf_fileexp_volid_hi, { "fileexp.volid_hi", "fileexp.volid_hi", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_volid_low, { "fileexp.volid_low", "fileexp.volid_low", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_vvage, { "fileexp.vvage", "fileexp.vvage", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_vv_hi, { "fileexp.vv_hi", "fileexp.vv_hi", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_vv_low, { "fileexp.vv_low", "fileexp.vv_low", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_vvpingage, { "fileexp.vvpingage", "fileexp.vvpingage", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_vvspare1, { "fileexp.vvspare1", "fileexp.vvspare1", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_vvspare2, { "fileexp.vvspare2", "fileexp.vvspare2", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_beginrange, { "fileexp.beginrange", "fileexp.beginrange", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_beginrangeext, { "fileexp.beginrangeext", "fileexp.beginrangeext", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_endrange, { "fileexp.endrange", "fileexp.endrange", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_endrangeext, { "fileexp.endrangeext", "fileexp.endrangeext", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_expirationtime, { "fileexp.expirationtime", "fileexp.expirationtime", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_tokenid_hi, { "fileexp.tokenid_hi", "fileexp.tokenid_hi", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_tokenid_low, { "fileexp.tokenid_low", "fileexp.tokenid_low", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_type_hi, { "fileexp.type_hi", "fileexp.type_hi", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_type_low, { "fileexp.type_low", "fileexp.type_low", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_tn_length, { "fileexp.tn_length", "fileexp.tn_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL} } , 
-    { &hf_fileexp_tn_tag, { "fileexp.tn_tag", "fileexp.tn_tag", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_accesstime_sec, { "fileexp.storestatus_accesstime_sec", "fileexp.storestatus_accesstime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_accesstime_usec, { "fileexp.storestatus_accesstime_usec", "fileexp.storestatus_accesstime_usec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_changetime_sec, { "fileexp.storestatus_changetime_sec", "fileexp.storestatus_changetime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_changetime_usec, { "fileexp.storestatus_changetime_usec", "fileexp.storestatus_changetime_usec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_clientspare1, { "fileexp.storestatus_clientspare1", "fileexp.storestatus_clientspare1", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_cmask, { "fileexp.storestatus_cmask", "fileexp.storestatus_cmask", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_devicenumber, { "fileexp.storestatus_devicenumber", "fileexp.storestatus_devicenumber", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_devicenumberhighbits, { "fileexp.storestatus_devicenumberhighbits", "fileexp.storestatus_devicenumberhighbits", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_devicetype, { "fileexp.storestatus_devicetype", "fileexp.storestatus_devicetype", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_group, { "fileexp.storestatus_group", "fileexp.storestatus_group", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_length_high, { "fileexp.storestatus_length_high", "fileexp.storestatus_length_high", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_length_low, { "fileexp.storestatus_length_low", "fileexp.storestatus_length_low", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_mask, { "fileexp.storestatus_mask", "fileexp.storestatus_mask", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_mode, { "fileexp.storestatus_mode", "fileexp.storestatus_mode", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_modtime_sec, { "fileexp.storestatus_modtime_sec", "fileexp.storestatus_modtime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_modtime_usec, { "fileexp.storestatus_modtime_usec", "fileexp.storestatus_modtime_usec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_owner, { "fileexp.storestatus_owner", "fileexp.storestatus_owner", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_spare1, { "fileexp.storestatus_spare1", "fileexp.storestatus_spare1", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_spare2, { "fileexp.storestatus_spare2", "fileexp.storestatus_spare2", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_spare3, { "fileexp.storestatus_spare3", "fileexp.storestatus_spare3", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_spare4, { "fileexp.storestatus_spare4", "fileexp.storestatus_spare4", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_spare5, { "fileexp.storestatus_spare5", "fileexp.storestatus_spare5", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_spare6, { "fileexp.storestatus_spare6", "fileexp.storestatus_spare6", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_trunc_high, { "fileexp.storestatus_trunc_high", "fileexp.storestatus_trunc_high", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_trunc_low, { "fileexp.storestatus_trunc_low", "fileexp.storestatus_trunc_low", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_storestatus_typeuuid, { "fileexp.storestatus_typeuuid", "fileexp.storestatus_typeuuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL} } ,
-    { &hf_fileexp_st, { "fileexp.st", "fileexp.st", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_uint, {"fileexp.uint", "fileexp.uint", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    { &hf_fileexp_l_end_pos, { "fileexp.l_end_pos", "fileexp.l_end_pos", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_l_end_pos_ext, { "fileexp.l_end_pos_ext", "fileexp.l_end_pos_ext", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_l_fstype, { "fileexp.l_fstype", "fileexp.l_fstype", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_l_pid, { "fileexp.l_pid", "fileexp.l_pid", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_l_start_pos, { "fileexp.l_start_pos", "fileexp.l_start_pos", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_l_start_pos_ext, { "fileexp.l_start_pos_ext", "fileexp.l_start_pos_ext", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_l_sysid, { "fileexp.l_sysid", "fileexp.l_sysid", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_l_type, { "fileexp.l_type", "fileexp.l_type", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    { &hf_fileexp_l_whence, { "fileexp.l_whence", "fileexp.l_whence", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
-    {&hf_afsconnparams_mask,
-     {"hf_afsconnparams_mask", "hf_afsconnparams_mask",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_afsconnparams_values,
-     {"hf_afsconnparams_values", "hf_afsconnparams_values",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_fileexp_afsFid_cell_high,
-     {"Cell High", "fileexp.afsFid.cell_high", FT_UINT32, BASE_HEX, NULL, 0x0,
-      "afsFid Cell High", HFILL}},
-    {&hf_fileexp_afsFid_cell_low,
-     {"Cell Low", "fileexp.afsFid.cell_low", FT_UINT32, BASE_HEX, NULL, 0x0,
-      "afsFid Cell Low", HFILL}},
-    {&hf_fileexp_afsFid_volume_high,
-     {"Volume High", "fileexp.afsFid.volume_high", FT_UINT32, BASE_HEX, NULL,
-      0x0, "afsFid Volume High", HFILL}},
-    {&hf_fileexp_afsFid_volume_low,
-     {"Volume Low", "fileexp.afsFid.volume_low", FT_UINT32, BASE_HEX, NULL,
-      0x0, "afsFid Volume Low", HFILL}},
-    {&hf_fileexp_afsFid_Vnode,
-     {"Vnode", "fileexp.afsFid.Vnode", FT_UINT32, BASE_HEX, NULL, 0x0,
-      "afsFid Vnode", HFILL}},
-    {&hf_fileexp_afsFid_Unique,
-     {"Unique", "fileexp.afsFid.Unique", FT_UINT32, BASE_HEX, NULL, 0x0,
-      "afsFid Unique", HFILL}},
-    {&hf_fileexp_afsNetAddr_type,
-     {"Type", "afsNetAddr.type", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_fileexp_afsNetAddr_data,
-     {"IP Data", "afsNetAddr.data", FT_UINT8, BASE_DEC, NULL, 0x0, NULL,
-      HFILL}},
-    {&hf_fileexp_position_high,
-     {"Position High", "fileexp.position_high", FT_UINT32, BASE_HEX, NULL,
-      0x0, NULL, HFILL}},
-    {&hf_fileexp_position_low,
-     {"Position Low", "fileexp.position_low", FT_UINT32, BASE_HEX, NULL, 0x0,
-      NULL, HFILL}},
-    {&hf_fileexp_afsreturndesc_tokenid_high,
-     {"Tokenid High", "fileexp.afsreturndesc_tokenid_high", FT_UINT32,
-      BASE_HEX, NULL, 0x0, NULL, HFILL}},
-    {&hf_fileexp_afsreturndesc_tokenid_low,
-     {"Tokenid low", "fileexp.afsreturndesc_tokenid_low", FT_UINT32, BASE_HEX,
-      NULL, 0x0, NULL, HFILL}},
-    {&hf_fileexp_afsreturndesc_type_high,
-     {"Type high", "fileexp.type_high", FT_UINT32, BASE_HEX, NULL, 0x0, NULL,
-      HFILL}},
-    {&hf_fileexp_afsreturndesc_type_low,
-     {"Type low", "fileexp.type_low", FT_UINT32, BASE_HEX, NULL, 0x0, NULL,
-      HFILL}},
-    {&hf_fileexp_offsetp_high,
-     {"offset high", "fileexp.offset_high", FT_UINT32, BASE_HEX, NULL, 0x0,
-      NULL, HFILL}},
-    {&hf_fileexp_offsetp_low,
-     {"offset high", "fileexp.offset_high", FT_UINT32, BASE_HEX, NULL, 0x0,
-      NULL, HFILL}},
-    {&hf_fileexp_nextoffsetp_high,
-     {"next offset high", "fileexp.nextoffset_high", FT_UINT32, BASE_HEX,
-      NULL, 0x0, NULL, HFILL}},
-    {&hf_fileexp_nextoffsetp_low,
-     {"next offset low", "fileexp.nextoffset_low", FT_UINT32, BASE_HEX, NULL,
-      0x0, NULL, HFILL}},
-    {&hf_fileexp_returntokenidp_high,
-     {"return token idp high", "fileexp.returntokenidp_high", FT_UINT32,
-      BASE_HEX, NULL, 0x0, NULL, HFILL}},
-    {&hf_fileexp_returntokenidp_low,
-     {"return token idp low", "fileexp.returntokenidp_low", FT_UINT32,
-      BASE_HEX, NULL, 0x0, NULL, HFILL}},
-    {&hf_fileexp_cellidp_high,
-     {"cellidp high", "fileexp.cellidp_high", FT_UINT32, BASE_HEX, NULL, 0x0,
-      NULL, HFILL}},
-    {&hf_fileexp_cellidp_low,
-     {"cellidp low", "fileexp.cellidp_low", FT_UINT32, BASE_HEX, NULL, 0x0,
-      NULL, HFILL}},
-    {&hf_afserrorstatus_st,
-     {"AFS Error Code", "fileexp.afserrortstatus_st", FT_UINT32, BASE_HEX,
-      NULL, 0x0, NULL, HFILL}},
-    {&hf_fileexp_length,
-     {"Length", "fileexp.length", FT_UINT32, BASE_HEX,
-      NULL, 0x0, NULL, HFILL}},
-    {&hf_fileexp_afsTaggedPath_tp_chars,
-     {"AFS Tagged Path", "fileexp.TaggedPath_tp_chars", FT_STRING, BASE_NONE,
-      NULL, 0x0, NULL, HFILL}},
-    {&hf_fileexp_afsTaggedPath_tp_tag,
-     {"AFS Tagged Path Name", "fileexp.TaggedPath_tp_tag", FT_UINT32,
-      BASE_HEX,
-      NULL, 0x0, NULL, HFILL}},
-    {&hf_fileexp_afsacl_uuid1,
-     {"AFS ACL UUID1", "fileexp.afsacl_uuid1", FT_GUID, BASE_NONE,
-      NULL, 0x0, "UUID", HFILL}},
-    {&hf_fileexp_bulkfetchstatus_size,
-     {"BulkFetchStatus Size", "fileexp.bulkfetchstatus_size", FT_UINT32,
-      BASE_HEX,
-      NULL, 0x0, NULL, HFILL}},
-    {&hf_fileexp_bulkfetchvv_numvols,
-     {"fileexp.bulkfetchvv_numvols", "fileexp.bulkfetchvv_numvols",
-      FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
-    {&hf_fileexp_bulkfetchvv_spare1,
-     {"fileexp.bulkfetchvv_spare1", "fileexp.bulkfetchvv_spare1",
-      FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
-    {&hf_fileexp_bulkfetchvv_spare2,
-     {"fileexp.bulkfetchvv_spare2", "fileexp.bulkfetchvv_spare2",
-      FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    { &hf_fileexp_acltype, {"Acl type", "fileexp.acltype", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    { &hf_fileexp_minvvp_high, {"minVVp high", "fileexp.minvvp_high", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    { &hf_fileexp_minvvp_low, {"minVVp low", "fileexp.minvvp_low", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    { &hf_fileexp_volume_low, { "Volume low", "fileexp.volume_low", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_volume_high, { "Volume high", "fileexp.volume_high", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_vnode, { "Vnode", "fileexp.vnode", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_unique, { "Unique", "fileexp.unique", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_accesstime_msec, { "Access time (msec)", "fileexp.accesstime_msec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_accesstime_sec, { "Access time (sec)", "fileexp.accesstime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_aclexpirationtime, { "Acl expiration time", "fileexp.aclexpirationtime", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_agtypeunique, { "agtypeunique", "fileexp.agtypeunique", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_anonymousaccess, { "Anonymous Access", "fileexp.anonymousaccess", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_author, { "Author", "fileexp.author", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_blocksused, { "Blocks used", "fileexp.blocksused", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} },
+    { &hf_fileexp_calleraccess, { "Caller access", "fileexp.calleraccess", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_changetime_msec, { "Change time (msec)", "fileexp.changetime_msec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_changetime_sec, { "Change time (sec)", "fileexp.changetime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_clientspare1, { "Client spare1", "fileexp.clientspare1", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_dataversion_high, { "Data version (high)", "fileexp.dataversion_high", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_dataversion_low, { "Data version (low)", "fileexp.dataversion_low", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_devicenumber, { "Device number", "fileexp.devicenumber", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_devicenumberhighbits, { "Device number high bits", "fileexp.devicenumberhighbits", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_filetype, { "File type", "fileexp.filetype", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_group, { "Group", "fileexp.group", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_himaxspare, { "Hi max spare", "fileexp.himaxspare", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_interfaceversion, { "Interface version", "fileexp.interfaceversion", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_length_high, { "Length high", "fileexp.length_high", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_length_low, { "Length low", "fileexp.length_low", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_linkcount, { "Link count", "fileexp.linkcount", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_lomaxspare, { "Lo max spare", "fileexp.lomaxspare", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_mode, { "Mode", "fileexp.mode", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_modtime_msec, { "Modify time (msec)", "fileexp.modtime_msec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_modtime_sec, { "Modify time (sec)", "fileexp.modtime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_objectuuid, { "Object uuid", "fileexp.objectuuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL} } ,
+    { &hf_fileexp_owner, { "Owner", "fileexp.owner", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_parentunique, { "Parent unique", "fileexp.parentunique", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_parentvnode, { "Parent vnode", "fileexp.parentvnode", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_pathconfspare, { "Path conf spare", "fileexp.pathconfspare", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_servermodtime_msec, { "Server modify time (msec)", "fileexp.servermodtime_msec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_servermodtime_sec, { "Server modify time (sec)", "fileexp.servermodtime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_spare4, { "Spare4", "fileexp.spare4", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_spare5, { "Spare5", "fileexp.spare5", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_spare6, { "Spare6", "fileexp.spare6", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_typeuuid, { "Type uuid", "fileexp.typeuuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL} } ,
+    { &hf_fileexp_volid_hi, { "Vol id hi", "fileexp.volid_hi", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_volid_low, { "Vol id low", "fileexp.volid_low", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_vvage, { "Vvage", "fileexp.vvage", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_vv_hi, { "Vv hi", "fileexp.vv_hi", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_vv_low, { "Vv low", "fileexp.vv_low", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_vvpingage, { "Vv pingage", "fileexp.vvpingage", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_vvspare1, { "Vv spare1", "fileexp.vvspare1", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_vvspare2, { "Vv spare2", "fileexp.vvspare2", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_beginrange, { "Begin range", "fileexp.beginrange", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_beginrangeext, { "Begin range ext", "fileexp.beginrangeext", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_endrange, { "End range", "fileexp.endrange", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_endrangeext, { "End range ext", "fileexp.endrangeext", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_expirationtime, { "Expiration time", "fileexp.expirationtime", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_tokenid_hi, { "Tokenid hi", "fileexp.tokenid_hi", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_tokenid_low, { "Tokenid low", "fileexp.tokenid_low", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_type_hi, { "Type hi", "fileexp.type_hi", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_type_low, { "Type low", "fileexp.type_low", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_tn_length, { "Tn length", "fileexp.tn_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_tn_tag, { "Tn tag", "fileexp.tn_tag", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_accesstime_sec, { "Store status access time (sec)", "fileexp.storestatus_accesstime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_accesstime_usec, { "Store status access time (usec)", "fileexp.storestatus_accesstime_usec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_changetime_sec, { "Store status change time (sec)", "fileexp.storestatus_changetime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_changetime_usec, { "Store status change time (usec)", "fileexp.storestatus_changetime_usec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_clientspare1, { "Store Status client spare1", "fileexp.storestatus_clientspare1", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_cmask, { "Store status cmask", "fileexp.storestatus_cmask", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_devicenumber, { "Store status device number", "fileexp.storestatus_devicenumber", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_devicenumberhighbits, { "Store status device number high bits", "fileexp.storestatus_devicenumberhighbits", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_devicetype, { "Store status device type", "fileexp.storestatus_devicetype", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_group, { "Store status group", "fileexp.storestatus_group", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_length_high, { "Store status length high", "fileexp.storestatus_length_high", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_length_low, { "Store status length low", "fileexp.storestatus_length_low", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_mask, { "Store status mask", "fileexp.storestatus_mask", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_mode, { "Store status mode", "fileexp.storestatus_mode", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_modtime_sec, { "Store status modify time (sec)", "fileexp.storestatus_modtime_sec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_modtime_usec, { "Store status modify time (usec)", "fileexp.storestatus_modtime_usec", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_owner, { "Store status owner", "fileexp.storestatus_owner", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_spare1, { "Store status spare1", "fileexp.storestatus_spare1", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_spare2, { "Store status spare2", "fileexp.storestatus_spare2", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_spare3, { "Store status spare3", "fileexp.storestatus_spare3", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_spare4, { "Store status spare4", "fileexp.storestatus_spare4", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_spare5, { "Store status spare5", "fileexp.storestatus_spare5", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_spare6, { "Store status spare6", "fileexp.storestatus_spare6", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_trunc_high, { "Store status trunc high", "fileexp.storestatus_trunc_high", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_trunc_low, { "Store status trunc low", "fileexp.storestatus_trunc_low", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_storestatus_typeuuid, { "Store status type uuid", "fileexp.storestatus_typeuuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL} } ,
+    { &hf_fileexp_st, { "st", "fileexp.st", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_uint, {"uint", "fileexp.uint", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    { &hf_fileexp_l_end_pos, { "l_end_pos", "fileexp.l_end_pos", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_l_end_pos_ext, { "l_end_pos_ext", "fileexp.l_end_pos_ext", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_l_fstype, { "l_fstype", "fileexp.l_fstype", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_l_pid, { "l_pid", "fileexp.l_pid", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_l_start_pos, { "l_start_pos", "fileexp.l_start_pos", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_l_start_pos_ext, { "l_start_pos_ext", "fileexp.l_start_pos_ext", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_l_sysid, { "l_sysid", "fileexp.l_sysid", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_l_type, { "l_type", "fileexp.l_type", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    { &hf_fileexp_l_whence, { "l_whence", "fileexp.l_whence", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
+    {&hf_afsconnparams_mask, {"afs conn params mask", "fileexp.afs_connparams_mask", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    {&hf_afsconnparams_values, {"afs conn params values", "fileexp.afs_connparams_values", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_afsFid_cell_high, {"Cell High", "fileexp.afsFid.cell_high", FT_UINT32, BASE_HEX, NULL, 0x0, "afsFid Cell High", HFILL}},
+    {&hf_fileexp_afsFid_cell_low, {"Cell Low", "fileexp.afsFid.cell_low", FT_UINT32, BASE_HEX, NULL, 0x0, "afsFid Cell Low", HFILL}},
+    {&hf_fileexp_afsFid_volume_high, {"Volume High", "fileexp.afsFid.volume_high", FT_UINT32, BASE_HEX, NULL, 0x0, "afsFid Volume High", HFILL}},
+    {&hf_fileexp_afsFid_volume_low, {"Volume Low", "fileexp.afsFid.volume_low", FT_UINT32, BASE_HEX, NULL, 0x0, "afsFid Volume Low", HFILL}},
+    {&hf_fileexp_afsFid_Vnode, {"Vnode", "fileexp.afsFid.Vnode", FT_UINT32, BASE_HEX, NULL, 0x0, "afsFid Vnode", HFILL}},
+    {&hf_fileexp_afsFid_Unique, {"Unique", "fileexp.afsFid.Unique", FT_UINT32, BASE_HEX, NULL, 0x0, "afsFid Unique", HFILL}},
+    {&hf_fileexp_afsNetAddr_type, {"Type", "afsNetAddr.type", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_afsNetAddr_data, {"IP Data", "afsNetAddr.data", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_position_high, {"Position High", "fileexp.position_high", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_position_low, {"Position Low", "fileexp.position_low", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_afsreturndesc_tokenid_high, {"Token id High", "fileexp.afsreturndesc_tokenid_high", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_afsreturndesc_tokenid_low, {"Token id low", "fileexp.afsreturndesc_tokenid_low", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_afsreturndesc_type_high, {"Type high", "fileexp.type_high", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_afsreturndesc_type_low, {"Type low", "fileexp.type_low", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_offsetp_high, {"offset high", "fileexp.offset_high", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_offsetp_low, {"offset high", "fileexp.offset_high", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_nextoffsetp_high, {"next offset high", "fileexp.nextoffset_high", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_nextoffsetp_low, {"next offset low", "fileexp.nextoffset_low", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_returntokenidp_high, {"return token idp high", "fileexp.returntokenidp_high", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_returntokenidp_low, {"return token idp low", "fileexp.returntokenidp_low", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_cellidp_high, {"cellidp high", "fileexp.cellidp_high", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_cellidp_low, {"cellidp low", "fileexp.cellidp_low", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_afserrorstatus_st, {"AFS Error Code", "fileexp.afserrortstatus_st", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_length, {"Length", "fileexp.length", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_afsTaggedPath_tp_chars, {"AFS Tagged Path", "fileexp.TaggedPath_tp_chars", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_afsTaggedPath_tp_tag, {"AFS Tagged Path Name", "fileexp.TaggedPath_tp_tag", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_afsacl_uuid1, {"AFS ACL UUID1", "fileexp.afsacl_uuid1", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL}},
+    {&hf_fileexp_bulkfetchstatus_size, {"BulkFetchStatus Size", "fileexp.bulkfetchstatus_size", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_bulkfetchvv_numvols, {"BulkFetchVv num vols", "fileexp.bulkfetchvv_numvols", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_bulkfetchvv_spare1, {"BulkFetchVv spare1", "fileexp.bulkfetchvv_spare1", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_bulkfetchvv_spare2, {"BulkFetchVv spare2", "fileexp.bulkfetchvv_spare2", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
     {&hf_fileexp_bulkkeepalive_numexecfids, {"BulkKeepAlive numexecfids", "fileexp.bulkkeepalive_numexecfids", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
-    {&hf_fileexp_bulkkeepalive_spare4,
-     {"BulkKeepAlive spare4", "fileexp.bulkfetchkeepalive_spare2",
-      FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
-    {&hf_fileexp_bulkkeepalive_spare2,
-     {"BulkKeepAlive spare2", "fileexp.bulkfetchkeepalive_spare2",
-      FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
-    {&hf_fileexp_bulkkeepalive_spare1,
-     {"BulkFetch KeepAlive spare1", "fileexp.bulkfetchkeepalive_spare1",
-      FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
-    {&hf_fileexp_afsacl_defaultcell_uuid,
-     {"Default Cell UUID",
-      "fileexp.defaultcell_uuid", FT_GUID, BASE_NONE, NULL, 0x0,
-      "UUID", HFILL}},
-    {&hf_fileexp_afsuuid_uuid,
-     {"AFS UUID",
-      "fileexp.uuid", FT_GUID, BASE_NONE, NULL, 0x0,
-      "UUID", HFILL}},
-    {&hf_fileexp_gettime_syncdispersion,
-     {"GetTime Syncdispersion",
-      "fileexp.gettime_syncdispersion", FT_UINT32, BASE_HEX, NULL, 0x0,
-      NULL, HFILL}},
-    {&hf_fileexp_gettime_syncdistance,
-     {"SyncDistance", "fileexp.gettime.syncdistance",
-      FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
-    {&hf_fileexp_gettime_usecondsp,
-     {"GetTime usecondsp", "fileexp.gettime_usecondsp",
-      FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
-    {&hf_fileexp_readdir_size,
-     {"Readdir Size", "fileexp.readdir.size", FT_UINT32,
-      BASE_HEX, NULL, 0x0, NULL, HFILL}},
-    {&hf_fileexp_afsNameString_t_principalName_size,
-     {"Principal Name Size",
-      "fileexp.principalName_size", FT_UINT32, BASE_HEX,
-      NULL, 0x0, NULL, HFILL}},
-    {&hf_fileexp_afsNameString_t_principalName_size2,
-     {"Principal Name Size2",
-      "fileexp.principalName_size2", FT_UINT32, BASE_HEX,
-      NULL, 0x0, NULL, HFILL}},
-    {&hf_fileexp_afsTaggedPath_tp_length,
-     {"Tagged Path Length",
-      "fileexp.afsTaggedPath_length", FT_UINT32, BASE_HEX, NULL, 0x0,
-      NULL, HFILL}},
-    {&hf_fileexp_fstype,
-     {"Filetype", "fileexp.fstype", FT_UINT32, BASE_HEX, NULL,
-      0x0, NULL, HFILL}},
-    {&hf_fileexp_gettime_secondsp,
-     {"GetTime secondsp", "fileexp.gettime_secondsp", FT_UINT32,
-      BASE_HEX, NULL,
-      0x0, NULL, HFILL}},
-    {&hf_fileexp_afsNameString_t_principalName_string,
-     {"Principal Name", "fileexp.NameString_principal", FT_STRING,
-      BASE_NONE, NULL,
-      0x0, NULL, HFILL}},
-    {&hf_fileexp_fetchdata_pipe_t_size,
-     {"FetchData Pipe_t size", "fileexp.fetchdata_pipe_t_size", FT_STRING,
-      BASE_NONE, NULL,
-      0x0, NULL, HFILL}},
+    {&hf_fileexp_bulkkeepalive_spare4, {"BulkKeepAlive spare4", "fileexp.bulkfetchkeepalive_spare2", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_bulkkeepalive_spare2, {"BulkKeepAlive spare2", "fileexp.bulkfetchkeepalive_spare2", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_bulkkeepalive_spare1, {"BulkFetch KeepAlive spare1", "fileexp.bulkfetchkeepalive_spare1", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_afsacl_defaultcell_uuid, {"Default Cell UUID", "fileexp.defaultcell_uuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL}},
+    {&hf_fileexp_afsuuid_uuid, {"AFS UUID", "fileexp.uuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL}},
+    {&hf_fileexp_gettime_syncdispersion, {"GetTime Syncdispersion", "fileexp.gettime_syncdispersion", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_gettime_syncdistance, {"SyncDistance", "fileexp.gettime.syncdistance", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_gettime_usecondsp, {"GetTime usecondsp", "fileexp.gettime_usecondsp", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_readdir_size, {"Readdir Size", "fileexp.readdir.size", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_afsNameString_t_principalName_size, {"Principal Name Size", "fileexp.principalName_size", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_afsNameString_t_principalName_size2, {"Principal Name Size2", "fileexp.principalName_size2", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_afsTaggedPath_tp_length, {"Tagged Path Length", "fileexp.afsTaggedPath_length", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_fstype, {"Filetype", "fileexp.fstype", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_gettime_secondsp, {"GetTime secondsp", "fileexp.gettime_secondsp", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_afsNameString_t_principalName_string, {"Principal Name", "fileexp.NameString_principal", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+    {&hf_fileexp_fetchdata_pipe_t_size, {"FetchData Pipe_t size", "fileexp.fetchdata_pipe_t_size", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
   };
+
   static gint *ett[] = {
     &ett_fileexp,
     &ett_fileexp_afsReturnDesc,
@@ -4584,6 +4476,7 @@ proto_register_fileexp (void)
     &ett_fileexp_returntokenidp,
     &ett_fileexp_afsbundled_stat,
   };
+
   proto_fileexp = proto_register_protocol ("DCE DFS File Exporter", "FILEEXP", "fileexp");
   proto_register_field_array (proto_fileexp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
@@ -4593,7 +4486,7 @@ void
 proto_reg_handoff_fileexp (void)
 {
   /*
-   * Register the protocol as dcerpc 
+   * Register the protocol as dcerpc
    */
   dcerpc_init_uuid (proto_fileexp, ett_fileexp, &uuid_fileexp, ver_fileexp,
 		    fileexp_dissectors, hf_fileexp_opnum);
