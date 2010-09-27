@@ -195,6 +195,12 @@ static gint ett_bssgp_tmsi_ptmsi = -1;
 #define BSSGP_PDU_DELETE_BSS_PFC               0x56
 #define BSSGP_PDU_DELETE_BSS_PFC_ACK           0x57
 #define BSSGP_PDU_DELETE_BSS_PFC_REQ           0x58
+#define BSSGP_PDU_PS_HANDOVER_REQUIRED         0x59
+#define BSSGP_PDU_PS_HANDOVER_REQUIRED_ACK     0x5a
+#define BSSGP_PDU_PS_HANDOVER_REQUIRED_NACK    0x5b
+#define BSSGP_PDU_PS_HANDOVER_REQUEST          0x5c
+#define BSSGP_PDU_PS_HANDOVER_REQUEST_ACK      0x5d
+#define BSSGP_PDU_PS_HANDOVER_REQUEST_NACK     0x5e
 #define BSSGP_PDU_PERFORM_LOCATION_REQUEST     0x60
 #define BSSGP_PDU_PERFORM_LOCATION_RESPONSE    0x61
 #define BSSGP_PDU_PERFORM_LOCATION_ABORT       0x62
@@ -248,6 +254,14 @@ static const value_string tab_bssgp_pdu_types[] = {
   { BSSGP_PDU_DELETE_BSS_PFC,               "DELETE-BSS-PFC" },
   { BSSGP_PDU_DELETE_BSS_PFC_ACK,           "DELETE-BSS-PFC-ACK" },
   { BSSGP_PDU_DELETE_BSS_PFC_REQ,           "DELETE-BSS-PFC-REQ" },
+  
+  { BSSGP_PDU_PS_HANDOVER_REQUIRED,          "PS-HANDOVER-REQUIRED" },
+  { BSSGP_PDU_PS_HANDOVER_REQUIRED_ACK,      "PS-HANDOVER-REQUIRED-ACK" },
+  { BSSGP_PDU_PS_HANDOVER_REQUIRED_NACK,     "PS-HANDOVER-REQUIRED-NACK" },
+  { BSSGP_PDU_PS_HANDOVER_REQUEST,           "PS-HANDOVER-REQUEST" },
+  { BSSGP_PDU_PS_HANDOVER_REQUEST_ACK,       "PS-HANDOVER-REQUEST-ACK" },
+  { BSSGP_PDU_PS_HANDOVER_REQUEST_NACK,      "PS-HANDOVER-REQUEST-NACK" },
+
   { BSSGP_PDU_PERFORM_LOCATION_REQUEST,     "PERFORM-LOCATION-REQUEST" },
   { BSSGP_PDU_PERFORM_LOCATION_RESPONSE,    "PERFORM-LOCATION-RESPONSE" },
   { BSSGP_PDU_PERFORM_LOCATION_ABORT,       "PERFORM-LOCATION-ABORT" },
@@ -338,7 +352,42 @@ static const value_string tab_bssgp_pdu_types[] = {
 #define BSSGP_IEI_RAN_INFORMATION_APPLICATION_ERROR_CONTAINER_UNIT            0x59
 #define BSSGP_IEI_RAN_INFORMATION_ACK_RIM_CONTAINER        0x5a
 #define BSSGP_IEI_RAN_INFORMATION_ERROR_RIM_CONTAINER      0x5b
+/*
+ETSI
+3GPP TS 48.018 version 6.16.0 Release 6 108 ETSI TS 148 018 V6.16.0 (2006-12)
+IEI coding
+(hexadecimal)
+IEI Types
 
+x5c TMGI
+x5d MBMS Session Identity
+x5e MBMS Session Duration
+x5f MBMS Service Area Identity List
+x60 MBMS Response
+x61 MBMS Routing Area List
+x62 MBMS Session Information
+x63 MBMS Stop Cause
+x64 Source BSS to Target BSS Transparent Container
+x65 Target BSS to Source BSS Transparent Container
+x66 NAS container for PS Handover
+x67 PFCs to be set-up list
+x68 List of set-up PFCs
+x69 Extended Feature Bitmap
+x6a Source RNC to Target RNC Transparent Container
+x6b Target RNC to Source RNC Transparent Container
+x6c RNC Identifier
+x6d Page Mode
+x6e Container ID
+x6f Global TFI
+x70 IMEI
+x71 Time to MBMS Data Transfer
+x72 MBMS Session Repetition Number
+x73 Inter RAT Handover Info
+x74 PS Handover Command
+x75 PS Handover Indications
+x76 SI/PSI Container
+x77 Active PFCs List
+*/
 static const value_string tab_nacc_cause[]={
   { 0x00,			"Other unspecified error" },
   { 0x01,			"Syntax error in the Application Container" },
@@ -5477,7 +5526,9 @@ decode_pdu_delete_bss_pfc_ack(build_info_t *bi) {
 
   decode_pdu_general(ies, 2, bi);
 }
-
+/*
+ * 10.4.26 DELETE-BSS-PFC-REQ
+ */
 static void
 decode_pdu_delete_bss_pfc_req(build_info_t *bi) {
   bssgp_ie_t ies[] = {
@@ -5496,6 +5547,48 @@ decode_pdu_delete_bss_pfc_req(build_info_t *bi) {
   decode_pdu_general(ies, 3, bi);
 }
 
+/*
+ * 10.4.27 PS-HANDOVER-REQUIRED
+ */
+#if 0 
+static void
+decode_pdu_ps_handover_required(build_info_t *bi) {
+  bssgp_ie_t ies[] = {
+    { BSSGP_IEI_TLLI, NULL,
+      BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 6 },
+
+    { BSSGP_IEI_CAUSE, NULL,
+      BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 3 },
+
+    { BSSGP_IEI_RIM_ROUTING_INFORMATION, "Source Cell Identifier",
+      BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
+
+	{ BSSGP_IEI_RIM_ROUTING_INFORMATION, "Target Cell Identifier",
+      BSSGP_IE_PRESENCE_C, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, 10 },
+/*
+Transparent Container
+(note 1)
+Source BSS to Target BSS
+Transparent Container/11.3.79
+C TLV 10-?
+Target RNC Identifier (note
+2)
+RNC Identifier/11.3.87 C TLV 10
+Source RNC to Target RNC
+Transparent Container
+(note 1)
+Source RNC to Target RNC
+Transparent Container/11.3.85
+C TLV 3-?
+Active PFCs List Active PFCs List/11.3.95c M TLV 3-?
+*/
+  };
+  bi->dl_data = FALSE;
+  bi->ul_data = TRUE;
+
+  decode_pdu_general(ies, 3, bi);
+}
+#endif
 static void
 decode_pdu_perform_location_request(build_info_t *bi) {
   bssgp_ie_t ies[] = {
@@ -5927,6 +6020,17 @@ decode_pdu(build_info_t *bi) {
   case BSSGP_PDU_DELETE_BSS_PFC_REQ:
     decode_pdu_delete_bss_pfc_req(bi);
     break;
+#if 0
+  case BSSGP_PDU_PS_HANDOVER_REQUIRED:
+	decode_pdu_ps_handover_required(bi);
+	break;
+  case BSSGP_PDU_PS_HANDOVER_REQUIRED_ACK:
+  case BSSGP_PDU_PS_HANDOVER_REQUIRED_NACK:
+  case BSSGP_PDU_PS_HANDOVER_REQUEST:
+  case BSSGP_PDU_PS_HANDOVER_REQUEST_ACK:
+  case BSSGP_PDU_PS_HANDOVER_REQUEST_NACK:
+	break;
+#endif
   case BSSGP_PDU_PERFORM_LOCATION_REQUEST:
     decode_pdu_perform_location_request(bi);
     break;
