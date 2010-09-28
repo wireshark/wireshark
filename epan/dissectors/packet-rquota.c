@@ -36,8 +36,11 @@
 
 static int proto_rquota = -1;
 static int hf_rquota_procedure_v1 = -1;
+static int hf_rquota_procedure_v2 = -1;
 static int hf_rquota_pathp = -1;
 static int hf_rquota_uid = -1;
+static int hf_rquota_type = -1;
+static int hf_rquota_id = -1;
 static int hf_rquota_status = -1;
 static int hf_rquota_rquota = -1;
 static int hf_rquota_bsize = -1;
@@ -156,9 +159,48 @@ static const value_string rquota1_proc_vals[] = {
 	{ RQUOTAPROC_NULL,		"NULL" },
 	{ RQUOTAPROC_GETQUOTA,		"GETQUOTA" },
 	{ RQUOTAPROC_GETACTIVEQUOTA,	"GETACTIVEQUOTA" },
+	{ RQUOTAPROC_SETQUOTA,		"SETQUOTA" },
+	{ RQUOTAPROC_SETACTIVEQUOTA,	"SETACTIVEQUOTA" },
 	{ 0,				NULL }
 };
 /* end of RQUOTA version 1 */
+
+
+static int
+dissect_getquota2_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+	offset = dissect_rpc_string(tvb, tree,
+			hf_rquota_pathp, offset, NULL);
+
+	offset = dissect_rpc_uint32(tvb, tree,
+			hf_rquota_type, offset);
+
+	offset = dissect_rpc_uint32(tvb, tree,
+			hf_rquota_id, offset);
+
+	return offset;
+}
+
+
+static const vsff rquota2_proc[] = {
+	{ RQUOTAPROC_NULL,		"NULL",
+		NULL,				NULL },
+	{ RQUOTAPROC_GETQUOTA,		"GETQUOTA",
+		dissect_getquota2_call,		dissect_getquota_result	},
+	{ RQUOTAPROC_GETACTIVEQUOTA,	"GETACTIVEQUOTA",
+		dissect_getquota2_call,		dissect_getquota_result	},
+	{ 0,				NULL,
+		NULL,				NULL }
+};
+static const value_string rquota2_proc_vals[] = {
+	{ RQUOTAPROC_NULL,		"NULL" },
+	{ RQUOTAPROC_GETQUOTA,		"GETQUOTA" },
+	{ RQUOTAPROC_GETACTIVEQUOTA,	"GETACTIVEQUOTA" },
+	{ RQUOTAPROC_SETQUOTA,		"SETQUOTA" },
+	{ RQUOTAPROC_SETACTIVEQUOTA,	"SETACTIVEQUOTA" },
+	{ 0,				NULL }
+};
+/* end of RQUOTA version 2 */
 
 void
 proto_register_rquota(void)
@@ -169,9 +211,18 @@ proto_register_rquota(void)
 		{ &hf_rquota_procedure_v1, {
 			"V1 Procedure", "rquota.procedure_v1", FT_UINT32, BASE_DEC,
 			VALS(rquota1_proc_vals), 0, NULL, HFILL }},
+		{ &hf_rquota_procedure_v2, {
+			"V2 Procedure", "rquota.procedure_v2", FT_UINT32, BASE_DEC,
+			VALS(rquota2_proc_vals), 0, NULL, HFILL }},
 		{ &hf_rquota_uid, {
 			"uid", "rquota.uid", FT_UINT32, BASE_DEC,
 			NULL, 0, "User ID", HFILL }},
+		{ &hf_rquota_type, {
+			"type", "rquota.type", FT_UINT32, BASE_DEC,
+			NULL, 0, "Type", HFILL }},
+		{ &hf_rquota_id, {
+			"id", "rquota.id", FT_UINT32, BASE_DEC,
+			NULL, 0, "ID", HFILL }},
 
 		{ &hf_rquota_pathp, {
 			"pathp", "rquota.pathp", FT_STRING, BASE_NONE,
@@ -247,6 +298,7 @@ proto_reg_handoff_rquota(void)
 	rpc_init_prog(proto_rquota, RQUOTA_PROGRAM, ett_rquota);
 	/* Register the procedure tables */
 	rpc_init_proc_table(RQUOTA_PROGRAM, 1, rquota1_proc, hf_rquota_procedure_v1);
+	rpc_init_proc_table(RQUOTA_PROGRAM, 2, rquota2_proc, hf_rquota_procedure_v2);
 }
 
 
