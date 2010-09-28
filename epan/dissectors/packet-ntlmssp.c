@@ -191,7 +191,7 @@ static int hf_ntlmssp_negotiate_domain = -1;
 static int hf_ntlmssp_ntlm_server_challenge = -1;
 static int hf_ntlmssp_ntlm_client_challenge = -1;
 static int hf_ntlmssp_reserved = -1;
-static int hf_ntlmssp_challenge_domain = -1;
+static int hf_ntlmssp_challenge_target_name = -1;
 static int hf_ntlmssp_auth_username = -1;
 static int hf_ntlmssp_auth_domain = -1;
 static int hf_ntlmssp_auth_hostname = -1;
@@ -204,6 +204,10 @@ static int hf_ntlmssp_string_offset = -1;
 static int hf_ntlmssp_blob_len = -1;
 static int hf_ntlmssp_blob_maxlen = -1;
 static int hf_ntlmssp_blob_offset = -1;
+static int hf_ntlmssp_version_major = -1;
+static int hf_ntlmssp_version_minor = -1;
+static int hf_ntlmssp_version_build_number = -1;
+static int hf_ntlmssp_version_ntlm_current_revision = -1;
 static int hf_ntlmssp_address_list = -1;
 static int hf_ntlmssp_address_list_len = -1;
 static int hf_ntlmssp_address_list_maxlen = -1;
@@ -217,6 +221,7 @@ static int hf_ntlmssp_address_list_terminator = -1;
 static int hf_ntlmssp_address_list_item_type = -1;
 static int hf_ntlmssp_address_list_item_len = -1;
 static int hf_ntlmssp_address_list_item_content = -1;
+static int hf_ntlmssp_message_integrity_code = -1;
 static int hf_ntlmssp_verf = -1;
 static int hf_ntlmssp_verf_vers = -1;
 static int hf_ntlmssp_verf_body = -1;
@@ -242,6 +247,7 @@ static gint ett_ntlmssp = -1;
 static gint ett_ntlmssp_negotiate_flags = -1;
 static gint ett_ntlmssp_string = -1;
 static gint ett_ntlmssp_blob = -1;
+static gint ett_ntlmssp_version = -1;
 static gint ett_ntlmssp_address_list = -1;
 static gint ett_ntlmssp_address_list_item = -1;
 static gint ett_ntlmssp_ntlmv2_response = -1;
@@ -1065,6 +1071,38 @@ dissect_ntlmssp_negotiate_flags (tvbuff_t *tvb, int offset,
   return (offset + 4);
 }
 
+/* Dissect "version" */
+
+/* From MS-NLMP:
+    0	Major Version Number  	1 byte
+    1	Minor Version Number 	1 byte
+    2	Build Number 	        short(LE)
+    3   (Reserved)              3 bytes
+    4	NTLM Current Revision   1 byte
+*/
+
+static int
+dissect_ntlmssp_version(tvbuff_t *tvb, int offset,
+                        proto_tree *ntlmssp_tree)
+{
+  if (ntlmssp_tree) {
+    proto_item *tf;
+    proto_tree *version_tree;
+    tf = proto_tree_add_text(ntlmssp_tree, tvb, offset, 8,
+                             "Version %u.%u (Build %u); NTLM Current Revision %u",
+                             tvb_get_guint8(tvb, offset),
+                             tvb_get_guint8(tvb, offset+1),
+                             tvb_get_letohs(tvb, offset+2),
+                             tvb_get_guint8(tvb, offset+7));
+    version_tree = proto_item_add_subtree (tf, ett_ntlmssp_version);
+    proto_tree_add_item(version_tree, hf_ntlmssp_version_major                , tvb, offset  , 1, ENC_NA);
+    proto_tree_add_item(version_tree, hf_ntlmssp_version_minor                , tvb, offset+1, 1, ENC_NA);
+    proto_tree_add_item(version_tree, hf_ntlmssp_version_build_number         , tvb, offset+2, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(version_tree, hf_ntlmssp_version_ntlm_current_revision, tvb, offset+7, 1, ENC_NA);
+  }
+  return offset+8;
+}
+
 /* Dissect a NTLM response. This is documented at
    http://ubiqx.org/cifs/SMB.html#SMB.8, para 2.8.5.3 */
 
@@ -1251,12 +1289,13 @@ static int
 dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree, ntlmssp_header_t *ntlmssph _U_)
 {
   guint32 negotiate_flags;
-  int start;
-  int workstation_end;
+  int domain_start;
   int domain_end;
+  int workstation_start;
+  int workstation_end;
 
   /* NTLMSSP Negotiate Flags */
-  negotiate_flags = tvb_get_letohl (tvb, offset);
+  negotiate_flags = tvb_get_letohl (tvb, offset); // should be saved with conversation or whatever ???
   offset = dissect_ntlmssp_negotiate_flags (tvb, offset, ntlmssp_tree,
 					    negotiate_flags);
 
@@ -1267,13 +1306,15 @@ dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree, 
    */
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, FALSE,
 				  hf_ntlmssp_negotiate_domain,
-				  &start, &workstation_end, NULL);
+				  &workstation_start, &workstation_end, NULL);
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, FALSE,
 				  hf_ntlmssp_negotiate_workstation,
-				  &start, &domain_end, NULL);
+				  &domain_start, &domain_end, NULL);
 
-  /* XXX - two blobs after this one, sometimes? */
-
+  /* If there are more bytes before the data block dissect a version field */
+  if (offset < MIN(workstation_start, domain_start)) {
+    offset = dissect_ntlmssp_version(tvb, offset, ntlmssp_tree);
+  }
   return MAX(workstation_end, domain_end);
 }
 
@@ -1410,7 +1451,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
 {
   guint32 negotiate_flags;
   int item_start, item_end;
-  int data_start, data_end;
+  int data_start, data_end; /* MIN and MAX seen */
   guint8 clientkey[NTLMSSP_KEY_LEN]; /* NTLMSSP cipher key for client */
   guint8 serverkey[NTLMSSP_KEY_LEN]; /* NTLMSSP cipher key for server*/
   ntlmssp_info *conv_ntlmssp_info = NULL;
@@ -1426,13 +1467,14 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
   if (negotiate_flags & NTLMSSP_NEGOTIATE_UNICODE)
     unicode_strings = TRUE;
 
-  /* Domain name */
+  /* Target name */
   /*
-   * XXX - the davenport document calls this the "Target Name",
+   * XXX - the davenport document (and MS-NLMP) calls this "Target Name",
    * presumably because non-domain targets are supported.
+   * XXX - Original name "domain" changed to "target_name" to match MS-NLMP
    */
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, unicode_strings,
-			 hf_ntlmssp_challenge_domain,
+			 hf_ntlmssp_challenge_target_name,
 			 &item_start, &item_end, NULL);
   data_start = item_start;
   data_end = item_end;
@@ -1452,7 +1494,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
    */
   conversation = find_or_create_conversation(pinfo);
 
-  tvb_memcpy(tvb, tmp, offset, 8);
+  tvb_memcpy(tvb, tmp, offset, 8); /* challenge */
   /* We can face more than one NTLM exchange over the same couple of IP and ports ...*/
   conv_ntlmssp_info = conversation_get_proto_data(conversation, proto_ntlmssp);
   if (!conv_ntlmssp_info || memcmp(tmp,conv_ntlmssp_info->server_challenge,8) != 0) {
@@ -1486,6 +1528,14 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
   }
   offset += 8;
 
+  /* If no more bytes (ie: no "reserved", ...) before start of data block, then return */
+  /* XXX: According to Davenport "This form is seen in older Win9x-based systems"      */
+  /*      Also: a capture exists with an HTTP CONNECT proxy-authentication             */
+  /*            wherein the challenge from the proxy has this form.                    */
+  if (offset >= data_start) {
+    return data_end;
+  }
+
   /* Reserved (function not completely known) */
   /*
    * XXX - SSP key?  The davenport document says
@@ -1515,7 +1565,14 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
    */
   if (offset < data_start) {
     offset = dissect_ntlmssp_address_list(tvb, offset, ntlmssp_tree, &item_end);
+    /* XXX: This code assumes that the address list in the data block */
+    /*      is always after the target name. Is this OK ?             */
     data_end = MAX(data_end, item_end);
+  }
+
+  /* If there are more bytes before the data block dissect a version field */
+  if (offset < data_start) {
+    offset = dissect_ntlmssp_version(tvb, offset, ntlmssp_tree);
   }
 
   return MAX(offset, data_end);
@@ -1592,6 +1649,13 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
    * area begins, and if the session key or the flags would be in the
    * middle of the data area, we assume the field in question is
    * missing.
+   *
+   * XXX - Reading Davenport and MS-NLMP: as I see it the possibilities are:
+   *       a. No session-key; no flags; no version ("Win9x")
+   *       b. Session-key & flags.
+   *       c. Session-key, flags & version.
+   *    In cases b and c the session key may be "null".
+   *
    */
 
   /* Lan Manager response */
@@ -1659,6 +1723,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
 				  &item_start, &item_end, &(ntlmssph->host_name));
   data_start = MIN(data_start, item_start);
   data_end = MAX(data_end, item_end);
+
   memset(sessionblob.contents, 0, MAX_BLOB_SIZE);
   sessionblob.length = 0;
   if (offset < data_start) {
@@ -1668,16 +1733,30 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
 				  &item_end, &sessionblob);
     data_end = MAX(data_end, item_end);
   }
+
+  if (offset < data_start) {
+    /* NTLMSSP Negotiate Flags */
+    negotiate_flags = tvb_get_letohl (tvb, offset);
+    offset = dissect_ntlmssp_negotiate_flags (tvb, offset, ntlmssp_tree,
+                                              negotiate_flags);
+  }
+
+  /* If there are more bytes before the data block dissect a version field */
+  if (offset < data_start) {
+    offset = dissect_ntlmssp_version(tvb, offset, ntlmssp_tree);
+  }
+
+  /* If there are still more bytes before the data block dissect an MIC (message integrity_code) field */
+  /*  (See MS-NLMP)                                                                    */
+  if (offset < data_start) {
+    proto_tree_add_item(ntlmssp_tree, hf_ntlmssp_message_integrity_code, tvb, offset, 16, ENC_NA);
+    offset += 16;
+  }
+
   if ( sessionblob.length > NTLMSSP_KEY_LEN ) {
     expert_add_info_format(pinfo, NULL, PI_WARN, PI_UNDECODED, "Session blob length too long: %u", sessionblob.length);
   } else if( sessionblob.length != 0 ) {
     memcpy(encryptedsessionkey,sessionblob.contents,sessionblob.length);
-    if (offset < data_start) {
-      /* NTLMSSP Negotiate Flags */
-      negotiate_flags = tvb_get_letohl (tvb, offset);
-      offset = dissect_ntlmssp_negotiate_flags (tvb, offset, ntlmssp_tree,
-                  negotiate_flags);
-    }
     /* Try to attach to an existing conversation if not then it's useless to try to do so
      * because we are missing important information (ie. server challenge)
      */
@@ -2590,8 +2669,8 @@ proto_register_ntlmssp(void)
       { "NTLM Server Challenge", "ntlmssp.ntlmserverchallenge", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_ntlmssp_reserved,
       { "Reserved", "ntlmssp.reserved", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_ntlmssp_challenge_domain,
-      { "Domain", "ntlmssp.challenge.domain", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_ntlmssp_challenge_target_name,
+      { "Target Name", "ntlmssp.challenge.target_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_ntlmssp_auth_domain,
       { "Domain name", "ntlmssp.auth.domain", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_ntlmssp_auth_username,
@@ -2616,6 +2695,14 @@ proto_register_ntlmssp(void)
       { "Maxlen", "ntlmssp.blob.maxlen", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_ntlmssp_blob_offset,
       { "Offset", "ntlmssp.blob.offset", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    { &hf_ntlmssp_version_major,
+      { "Major Version", "ntlmssp.version.major", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    { &hf_ntlmssp_version_minor,
+      { "Minor Version", "ntlmssp.version.minor", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    { &hf_ntlmssp_version_build_number,
+      { "Major Version", "ntlmssp.version.build_number", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    { &hf_ntlmssp_version_ntlm_current_revision,
+      { "NTLM Current Revision", "ntlmssp.version.ntlm_current_revision", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_ntlmssp_address_list,
       { "Address List", "ntlmssp.challenge.addresslist", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     { &hf_ntlmssp_address_list_len,
@@ -2642,6 +2729,8 @@ proto_register_ntlmssp(void)
       { "Forest DNS Name", "ntlmssp.challenge.addresslist.forestdns", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_ntlmssp_address_list_terminator,
       { "List Terminator", "ntlmssp.challenge.addresslist.terminator", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_ntlmssp_message_integrity_code,
+      { "MIC", "ntlmssp.authorization.mic", FT_BYTES, BASE_NONE, NULL, 0x0, "Message Integrity Code", HFILL}},
     { &hf_ntlmssp_verf,
       { "NTLMSSP Verifier", "ntlmssp.verf", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_ntlmssp_verf_vers,
@@ -2690,6 +2779,7 @@ proto_register_ntlmssp(void)
     &ett_ntlmssp_negotiate_flags,
     &ett_ntlmssp_string,
     &ett_ntlmssp_blob,
+    &ett_ntlmssp_version,
     &ett_ntlmssp_address_list,
     &ett_ntlmssp_address_list_item,
     &ett_ntlmssp_ntlmv2_response,
