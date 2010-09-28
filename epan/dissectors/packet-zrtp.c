@@ -35,6 +35,8 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/crc32.h>
+#include "packet-rtp.h"
+#include "packet-rtcp.h"
 
 /*
   RTP header
@@ -61,6 +63,7 @@ static int hf_zrtp_msg_version = -1;
 */
 static int hf_zrtp_msg_client_id = -1;
 static int hf_zrtp_msg_zid = -1;
+static int hf_zrtp_msg_sigcap = -1;
 static int hf_zrtp_msg_mitm = -1;
 static int hf_zrtp_msg_passive = -1;
 static int hf_zrtp_msg_hash_count = -1;
@@ -456,6 +459,27 @@ dissect_RelayACK(packet_info *pinfo) {
 
 static void
 dissect_Conf2ACK(packet_info *pinfo) {
+
+  /* Signals start of SRT(C)P streams */
+  struct srtp_info *dummy_srtp_info = se_alloc0(sizeof(struct srtp_info));
+
+  dummy_srtp_info->encryption_algorithm = SRTP_ENC_ALG_AES_CM;
+  dummy_srtp_info->auth_algorithm = SRTP_AUTH_ALG_HMAC_SHA1;
+  dummy_srtp_info->mki_len = 0;
+  dummy_srtp_info->auth_tag_len = 4;
+  
+  srtp_add_address(pinfo, &pinfo->net_src, pinfo->srcport, pinfo->destport,
+                   "ZRTP", PINFO_FD_NUM(pinfo), FALSE, NULL, dummy_srtp_info);
+
+  srtp_add_address(pinfo, &pinfo->net_dst, pinfo->destport, pinfo->srcport,
+                   "ZRTP", PINFO_FD_NUM(pinfo), FALSE, NULL, dummy_srtp_info);
+
+  srtcp_add_address(pinfo, &pinfo->net_src, pinfo->srcport+1, pinfo->destport+1,
+                    "ZRTP", PINFO_FD_NUM(pinfo), dummy_srtp_info);
+
+  srtcp_add_address(pinfo, &pinfo->net_dst, pinfo->destport+1, pinfo->srcport+1,
+                    "ZRTP", PINFO_FD_NUM(pinfo), dummy_srtp_info);
+
   col_set_str(pinfo->cinfo, COL_INFO, "Conf2ACK Packet");
 }
 
@@ -492,6 +516,8 @@ dissect_GoClear(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
 
   col_set_str(pinfo->cinfo, COL_INFO, "GoClear Packet");
 
+  /* Now we should clear the SRT(C)P session... */
+  
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hmac,tvb,data_offset+0,8,FALSE);
 }
 
@@ -657,6 +683,7 @@ dissect_Hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_client_id,tvb,msg_offset+16,16,FALSE);
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hash_image,tvb,msg_offset+32,32,FALSE);
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_zid,tvb,msg_offset+64,12,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_sigcap,tvb,data_offset+0,1,FALSE);
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_mitm,tvb,data_offset+0,1,FALSE);
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_passive,tvb,data_offset+0,1,FALSE);
 
@@ -855,6 +882,15 @@ proto_register_zrtp(void)
        "ZID", "zrtp.zid",
        FT_BYTES, BASE_NONE,
        NULL, 0x0,
+       NULL, HFILL
+     }
+    },
+
+    {&hf_zrtp_msg_sigcap,
+     {
+       "Sig.capable", "zrtp.sigcap",
+       FT_BOOLEAN, 8,
+       NULL, 0x40,
        NULL, HFILL
      }
     },
