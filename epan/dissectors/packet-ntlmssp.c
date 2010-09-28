@@ -1295,7 +1295,7 @@ dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree, 
   int workstation_end;
 
   /* NTLMSSP Negotiate Flags */
-  negotiate_flags = tvb_get_letohl (tvb, offset); // should be saved with conversation or whatever ???
+  negotiate_flags = tvb_get_letohl (tvb, offset);
   offset = dissect_ntlmssp_negotiate_flags (tvb, offset, ntlmssp_tree,
 					    negotiate_flags);
 
