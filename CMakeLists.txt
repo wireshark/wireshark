@@ -223,6 +223,9 @@ endif()
 #The minimum package list
 set(PACKAGELIST GLIB2 GMODULE2 PCAP M LEX YACC Perl SH PythonInterp HtmlViewer ${PACKAGELIST})
 
+set(GLIB2_FIND_REQUIRED)
+set(GLIB2_MIN_VERSION 2.4.0)
+
 #Build the gui ?
 if(BUILD_wireshark)
 	set(PACKAGELIST GTK2 ${PACKAGELIST})
@@ -397,6 +400,10 @@ add_subdirectory( tools/lemon )
 add_subdirectory( wiretap )
 add_subdirectory( wsutil )
 
+# Basedir where to install guides
+set(DOC_DIR "$ENV{docdir}")
+message(STATUS "docdir: ${DOC_DIR}")
+
 if(ENABLE_GUIDES)
 	add_subdirectory( docbook )
 endif()
@@ -426,10 +433,6 @@ if(WIN32)
 endif()
 
 configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h)
-
-# Basedir where to install guides
-set(DOC_DIR "$ENV{docdir}")
-message(STATUS "docdir: ${DOC_DIR}")
 
 include(FeatureSummary)
 #SET_FEATURE_INFO(NAME DESCRIPTION [URL [COMMENT] ]

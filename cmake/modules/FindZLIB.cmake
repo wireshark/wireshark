@@ -38,6 +38,8 @@ SET(ZLIB_LIBRARIES    "${ZLIB_LIBRARY}")
 INCLUDE(CheckFunctionExists)
 SET(CMAKE_REQUIRED_LIBRARIES ${ZLIB_LIBRARIES})
 CHECK_FUNCTION_EXISTS("gzclearerr" HAVE_GZCLEARERR)
+# reset
+SET(CMAKE_REQUIRED_LIBRARIES "")
 
 # handle the QUIETLY and REQUIRED arguments and set ZLIB_FOUND to TRUE if 
 # all listed variables are TRUE

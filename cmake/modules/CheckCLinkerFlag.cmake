@@ -12,12 +12,12 @@
 #
 # Redistribution and use is allowed according to the terms of the BSD license.
 
-INCLUDE(CheckCSourceCompiles)
+INCLUDE(CheckCSourceRuns)
 
 MACRO (CHECK_C_LINKER_FLAG _FLAG _RESULT)
    SET(CMAKE_REQUIRED_FLAGS "${_FLAG}")
    message(status "check linker flag - test linker flags: ${CMAKE_REQUIRED_FLAGS}")
-   CHECK_C_SOURCE_COMPILES("int main() { return 0;}" ${_RESULT})
-   SET(CMAKE_REQUIRED_FLAGS " ")
+   CHECK_C_SOURCE_RUNS("int main() { return 0;}" ${_RESULT})
+   SET(CMAKE_REQUIRED_FLAGS "")
 ENDMACRO (CHECK_C_LINKER_FLAG)
 
