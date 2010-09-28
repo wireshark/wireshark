@@ -133,7 +133,7 @@ print OUT <<"_SMINMPEC";
 
 static const gchar sminmpec_unknown[] = "(Unknown)";
 
-static const value_string sminmpec_values[] = {
+const value_string sminmpec_values[] = {
 $body    {    0, NULL}
 };
 
