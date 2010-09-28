@@ -2660,8 +2660,6 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
     guint32 srtcp_offset = 0;
     guint32 srtcp_index  = 0;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTCP");
-
     /* first see if this conversation is encrypted SRTP, and if so do not try to dissect the payload(s) */
     p_conv = find_conversation(pinfo->fd->num, &pinfo->net_src, &pinfo->net_dst,
                                pinfo->ptype,
@@ -2687,6 +2685,8 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
             }
         }
     }
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, (srtcp_info) ? "SRTCP" : "RTCP");
 
     /*
      * Check if there are at least 4 bytes left in the frame,
