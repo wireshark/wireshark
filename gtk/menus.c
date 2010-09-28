@@ -4072,7 +4072,7 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
 	GtkAction *action;
 #endif
 #else
-#endif MAIN_MENU_USE_UIMANAGER
+#endif
     GtkItemFactoryEntry *entry;
 
     GList       *child;
