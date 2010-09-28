@@ -2251,6 +2251,9 @@ static GtkItemFactoryEntry bytes_menu_items[] =
 
 static int initialize = TRUE;
 static GtkItemFactory *main_menu_factory = NULL;
+#ifdef MAIN_MENU_USE_UIMANAGER
+    GtkActionGroup    *main_menu_bar_action_group;
+#endif
 #ifdef MENUS_USE_UIMANAGER
 static GtkUIManager *ui_manager_packet_list_heading = NULL;
 static GtkUIManager *ui_manager_packet_list_menu = NULL;
@@ -3597,9 +3600,6 @@ menus_init(void) {
                     *packet_list_details_action_group, *packet_list_byte_menu_action_group;
     GError *error = NULL;
 #endif
-#ifdef MAIN_MENU_USE_UIMANAGER
-    GtkActionGroup    *main_menu_bar_action_group;
-#endif
 
     if (initialize) {
         initialize = FALSE;
@@ -4067,7 +4067,14 @@ register_stat_menu_item(
 }
 
 static guint merge_tap_menus_layered(GList *node, gint group) {
+#ifdef MAIN_MENU_USE_UIMANAGER
+#if 0
+	GtkAction *action;
+#endif
+#else
+#endif MAIN_MENU_USE_UIMANAGER
     GtkItemFactoryEntry *entry;
+
     GList       *child;
     guint       added = 0;
     menu_item_t *node_data = node->data;
@@ -4120,8 +4127,28 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
                 entry->item_type = "<StockItem>";
                 entry->extra_data = node_data->stock_id;
             }
+#ifdef MAIN_MENU_USE_UIMANAGER
+			g_warning("entry->path = %s",entry->path);
+#if 0
+			action = gtk_action_new(entry->path,
+                           const gchar *label,
+                           NULL,
+                           node_data->stock_id);
+			gtk_action_group_add_action_with_accel(main_menu_bar_action_group,
+                                                   action,
+                                                   NULL); /*the accelerator for the action, 
+																			   * in the format understood by gtk_accelerator_parse(), 
+																			   * or "" for no accelerator, or NULL to use the stock accelerator.
+																			   * [allow-none]
+																			   */
+			g_signal_connect (action, "activate",
+				  G_CALLBACK (node_data->callback),
+				  node_data->callback_data);
+#endif /* 0 */
+#else
             gtk_item_factory_create_item(main_menu_factory, entry, node_data->callback_data, /* callback_type */ 2);
             set_menu_sensitivity_old(main_menu_factory, node_data->name, FALSE); /* no capture file yet */
+#endif /* MAIN_MENU_USE_UIMANAGER */
             added++;
             g_free(entry);
         }
@@ -4139,10 +4166,13 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
             entry = g_malloc0(sizeof (GtkItemFactoryEntry));
             entry->path = node_data->name;
             entry->item_type = "<Branch>";
+#ifdef MAIN_MENU_USE_UIMANAGER
+#else
             gtk_item_factory_create_item(main_menu_factory, entry,
                 NULL, 2);
             set_menu_sensitivity_old(main_menu_factory, node_data->name,
                 FALSE);    /* no children yet */
+#endif /* MAIN_MENU_USE_UIMANAGER */
             added++;
             g_free(entry);
         }
@@ -4169,7 +4199,11 @@ void merge_all_tap_menus(GList *node) {
      * and then append a seperator
      */
     if (merge_tap_menus_layered(node, REGISTER_STAT_GROUP_GENERIC)) {
+#ifdef MAIN_MENU_USE_UIMANAGER
+		/* XXX fix me */
+#else
         gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);
+#endif /* MAIN_MENU_USE_UIMANAGER */
     }
     if (merge_tap_menus_layered(node, REGISTER_STAT_GROUP_CONVERSATION_LIST)) {
         /*gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);*/
@@ -4178,7 +4212,11 @@ void merge_all_tap_menus(GList *node) {
         /*gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);*/
     }
     if (merge_tap_menus_layered(node, REGISTER_STAT_GROUP_RESPONSE_TIME)) {
+#ifdef MAIN_MENU_USE_UIMANAGER
+		/* XXX fix me */
+#else
         gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);
+#endif /* MAIN_MENU_USE_UIMANAGER */
     }
     if (merge_tap_menus_layered(node, REGISTER_STAT_GROUP_TELEPHONY)) {
         /*gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);*/
@@ -5367,8 +5405,13 @@ walk_menu_tree_for_captured_packets(GList *node,
      * has a null name pointer.
      */
     if (node_data->name != NULL) {
+#ifdef MAIN_MENU_USE_UIMANAGER
+        set_menu_sensitivity(ui_manager_main_menubar, node_data->name,
+                              node_data->enabled);
+#else
         set_menu_sensitivity_old(main_menu_factory, node_data->name,
                              node_data->enabled);
+#endif
     }
     return node_data->enabled;
 }
@@ -5503,8 +5546,13 @@ walk_menu_tree_for_selected_packet(GList *node, frame_data *fd,
      * has a null name pointer.
      */
     if (node_data->name != NULL) {
+#ifdef MAIN_MENU_USE_UIMANAGER
+        set_menu_sensitivity(ui_manager_main_menubar, node_data->name,
+                              node_data->enabled);
+#else
         set_menu_sensitivity_old(main_menu_factory, node_data->name,
                              node_data->enabled);
+#endif /* MAIN_MENU_USE_UIMANAGER */
     }
     return node_data->enabled;
 }
@@ -5620,9 +5668,14 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected);
 #endif /* MAIN_MENU_USE_UIMANAGER */
 #ifdef NEW_PACKET_LIST
+#ifdef MAIN_MENU_USE_UIMANAGER
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu//Un-TimeReferenceAllPackets",
+                         have_time_ref);
+#else
     set_menu_sensitivity_old(main_menu_factory, "/Edit/Un-Time Reference All Packets",
                          have_time_ref);
-#endif
+#endif /* MAIN_MENU_USE_UIMANAGER */
+#endif /* NEW_PACKET_LIST */
 #ifdef MENUS_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/SetTimeReference",
                          frame_selected);
@@ -5657,9 +5710,14 @@ set_menus_for_selected_packet(capture_file *cf)
 #else
     set_menu_sensitivity_old(tree_view_menu_factory, "/Collapse All",
                          frame_selected);
-#endif
-    set_menu_sensitivity_old(main_menu_factory, "/View/Expand All",
+#endif /* MENUS_USE_UIMANAGER */
+#ifdef MAIN_MENU_USE_UIMANAGER
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu//ExpandAll",
                          frame_selected);
+#else
+     set_menu_sensitivity_old(main_menu_factory, "/View/Expand All",
+                          frame_selected);
+#endif /* MAIN_MENU_USE_UIMANAGER */
 #ifdef MENUS_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ExpandAll",
                          frame_selected);
