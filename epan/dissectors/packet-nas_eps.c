@@ -79,6 +79,10 @@ static int hf_nas_eps_emm_ebi15 = -1;
 static int hf_nas_eps_emm_dl_nas_cnt = -1;
 static int hf_nas_eps_emm_nounce_mme = -1;
 static int hf_nas_eps_emm_eps_att_type = -1;
+static int hf_nas_eps_emm_cs_lcs_type = -1;
+static int hf_nas_eps_emm_epc_lcs_type = -1;
+static int hf_nas_eps_emm_emc_bs_type = -1;
+static int hf_nas_eps_emm_ims_vops_type = -1;
 static int hf_nas_eps_emm_nas_key_set_id = -1;
 static int hf_nas_eps_tsc = -1;
 static int hf_nas_eps_emm_odd_even = -1;
@@ -962,16 +966,47 @@ de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 	
 	return(len);
 }
+
 /*
  * 9.9.3.12A	EPS network feature support
  */
+static const value_string nas_eps_emm_cs_lcs_vals[] = {
+	{ 0,	"no information about support of location services via CS domain is available"},
+	{ 1,	"location services via CS domain not supported"},
+	{ 2,	"location services via CS domain supported"},
+	{ 3,	"reserved"},
+	{ 0, NULL }
+};
+static const true_false_string nas_eps_emm_epc_lcs_value = {
+	"location services via EPC supported",
+	"location services via EPC not supported"
+};
+static const true_false_string nas_eps_emm_emc_bs_value = {
+	"emergency bearer services in S1 mode supported",
+	"emergency bearer services in S1 mode not supported"
+};
+static const true_false_string nas_eps_emm_ims_vops_value = {
+	"IMS voice over PS session in S1 mode supported",
+	"IMS voice over PS session in S1 mode not supported"
+};
+
 static guint16
 de_emm_eps_net_feature_sup(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
+	guint32	curr_offset, bit_offset;
 
 	curr_offset = offset;
-	proto_tree_add_text(tree, tvb, curr_offset, len, "Not dissected yet");
+	bit_offset = curr_offset << 3;
+	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 3, FALSE);
+	bit_offset += 3;
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_cs_lcs_type, tvb, bit_offset, 2, FALSE);
+	bit_offset += 2;
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_epc_lcs_type, tvb, bit_offset, 1, FALSE);
+	bit_offset += 1;
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_emc_bs_type, tvb, bit_offset, 1, FALSE);
+	bit_offset += 1;
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_ims_vops_type, tvb, bit_offset, 1, FALSE);
+	bit_offset += 1;
 
 	return len;
 }
@@ -4440,6 +4475,26 @@ void proto_register_nas_eps(void) {
 		{ "EPS attach type","nas_eps.emm.eps_att_type",
 		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_eps_att_type_vals), 0x0,
 		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_cs_lcs_type,
+		{ "CS-LCS","nas_eps.emm.cs_lcs",
+		FT_UINT8, BASE_DEC, VALS(nas_eps_emm_cs_lcs_vals), 0x0,
+		"Location services indicator in CS", HFILL }
+	},
+	{ &hf_nas_eps_emm_epc_lcs_type,
+		{ "EPC-LCS","nas_eps.emm.epc_lcs",
+		FT_BOOLEAN ,BASE_NONE, TFS(&nas_eps_emm_epc_lcs_value), 0x0,
+		"Location services indicator in EPC", HFILL }
+	},
+	{ &hf_nas_eps_emm_emc_bs_type,
+		{ "EMC BS","nas_eps.emm.emc_bs",
+		FT_BOOLEAN, BASE_NONE, TFS(&nas_eps_emm_emc_bs_value), 0x0,
+		"Emergency bearer services indicator", HFILL }
+	},
+	{ &hf_nas_eps_emm_ims_vops_type,
+		{ "IMS VoPS","nas_eps.emm.ims_vops",
+		FT_BOOLEAN, BASE_NONE, TFS(&nas_eps_emm_ims_vops_value), 0x0,
+		"IMS voice over PS session indicator", HFILL }
 	},
 	{ &hf_nas_eps_tsc,
 		{ "Type of security context flag (TSC)","nas_eps.emm.tsc",
