@@ -623,7 +623,7 @@ static void register_mibs() {
 		 * workaround for libsmi versions where this problem is fixed.
 		 * Currently there is no such version. :-(
 		 */
-		if (smiModule->conformance == 1)
+		if (smiModule->conformance == 1) {
 			if (!prefs.suppress_smi_errors) {
 				report_failure("Stopped processing module %s due to "
 					"error(s) to prevent potential crash in libsmi.\n"
@@ -632,7 +632,7 @@ static void register_mibs() {
 					 smiModule->name, smiModule->conformance);
 			}
 			continue;
-
+		}
 		for (smiNode = smiGetFirstNode(smiModule, SMI_NODEKIND_ANY);
 			 smiNode;
 			 smiNode = smiGetNextNode(smiNode, SMI_NODEKIND_ANY)) {
