@@ -960,6 +960,7 @@ tree_view_menu_prepare_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
 #ifdef MAIN_MENU_USE_UIMANAGER 
 /* Prepare for use of GTKUImanager */
 GtkUIManager *ui_manager_main_menubar = NULL;
+guint merge_id = 0;
 
 static void
 copy_description_cb(GtkWidget *widget, gpointer user_data)
@@ -1714,7 +1715,7 @@ Not implemeted.
    { "/View/NormalSize",			GTK_STOCK_ZOOM_100,		"_Normal Size",							"<control>equal",			NULL,			G_CALLBACK(view_zoom_100_cb) },
 #ifdef NEW_PACKET_LIST
    { "/View/ResizeAllColumns",		WIRESHARK_STOCK_RESIZE_COLUMNS,	"Resize All Columns",			"<shift><control>R",		NULL,			G_CALLBACK(new_packet_list_resize_columns_cb) },
-   { "/View/DisplayedColumns",		NULL,	"Displayed Columns",			NULL,		NULL,			NULL },
+   { "/View/DisplayedColumns",		NULL,					"Displayed Columns",			NULL,		NULL,			NULL },
 #else
    Not implmented
 #endif /* NEW_PACKET_LIST */
@@ -3015,7 +3016,7 @@ static const GtkActionEntry packet_list_heading_menu_popup_action_entries[] = {
   { "/Resize Column",					WIRESHARK_STOCK_RESIZE_COLUMNS,		"Resize Column",			NULL,	NULL,	G_CALLBACK(packet_list_heading_resize_col_cb) },
   { "/Rename Column Title",				GTK_STOCK_BOLD,						"Rename Column Title...",	NULL,	NULL,	G_CALLBACK(packet_list_heading_rename_col_cb) },
   { "/Displayed Columns",				NULL,								"Displayed Columns",		NULL,	NULL,	NULL },
-  { "/Displayed Columns/Display All",				NULL,								"Display All",		NULL,	NULL,	G_CALLBACK(packet_list_heading_activate_all_columns) },
+  { "/Displayed Columns/Display All",				NULL,					"Display All",				NULL,	NULL,	G_CALLBACK(packet_list_heading_activate_all_columns) },
   { "/Hide Column",						NULL,								"Hide Column",				NULL,	NULL,	G_CALLBACK(packet_list_heading_hide_col_cb) },
   { "/Remove Column",					GTK_STOCK_DELETE,					"Remove Column",			NULL,	NULL,	G_CALLBACK(packet_list_heading_remove_col_cb) },
 };
@@ -4068,11 +4069,10 @@ register_stat_menu_item(
 
 static guint merge_tap_menus_layered(GList *node, gint group) {
 #ifdef MAIN_MENU_USE_UIMANAGER
-#if 0
+	gchar *p;
 	GtkAction *action;
-#endif
 #else
-#endif
+#endif /* MAIN_MENU_USE_UIMANAGER */
     GtkItemFactoryEntry *entry;
 
     GList       *child;
@@ -4130,10 +4130,10 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
 #ifdef MAIN_MENU_USE_UIMANAGER
 			g_warning("entry->path = %s",entry->path);
 #if 0
-			action = gtk_action_new(entry->path,
-                           const gchar *label,
-                           NULL,
-                           node_data->stock_id);
+			action = gtk_action_new(entry->path,	/* name */
+                           const gchar *label,		/* label */
+                           NULL,					/* tooltip */
+                           node_data->stock_id);	/* stock_id */
 			gtk_action_group_add_action_with_accel(main_menu_bar_action_group,
                                                    action,
                                                    NULL); /*the accelerator for the action, 
@@ -4167,6 +4167,29 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
             entry->path = node_data->name;
             entry->item_type = "<Branch>";
 #ifdef MAIN_MENU_USE_UIMANAGER
+			p = strrchr(node_data->name,'/');
+			if(p){
+				p++;
+				action = gtk_action_new(entry->path,	/* name */
+							   p,						/* label */
+							   NULL,					/* tooltip */
+							   node_data->stock_id);	/* stock_id */
+				gtk_action_group_add_action_with_accel(main_menu_bar_action_group,
+													   action,
+													   NULL); /*the accelerator for the action, 
+															   * in the format understood by gtk_accelerator_parse(), 
+															   * or "" for no accelerator, or NULL to use the stock accelerator.
+															   * [allow-none]
+															   */
+				if(group==REGISTER_STAT_GROUP_RESPONSE_TIME){
+					gtk_ui_manager_add_ui (ui_manager_main_menubar, merge_id,
+						   "/Menubar/StatisticsMenu",			/* path */
+						   p,									/* name */
+						   entry->path,							/* action */
+						   GTK_UI_MANAGER_MENU,					/* type */
+						   FALSE);								/* "top" if TRUE, the UI element is added before its siblings */
+				}
+			}
 #else
             gtk_item_factory_create_item(main_menu_factory, entry,
                 NULL, 2);
@@ -4193,7 +4216,11 @@ void merge_all_tap_menus(GList *node) {
     sep_entry = g_malloc0(sizeof (GtkItemFactoryEntry));
     sep_entry->item_type = "<Separator>";
     sep_entry->path = "/Statistics/";
+#ifdef MAIN_MENU_USE_UIMANAGER
+	/* build the new menus */
+	merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
 
+#endif
     /*
      * merge only the menu items of the specific group,
      * and then append a seperator
@@ -4351,7 +4378,11 @@ set_menu_object_data (const gchar *path, const gchar *key, gpointer data) {
     GSList *menu_list = popup_menu_list;
     gchar *shortpath = strrchr(path, '/');
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+   set_menu_object_data_meat(ui_manager_main_menubar, path, key, data);
+#else
     set_menu_object_data_meat_old(main_menu_factory, path, key, data);
+#endif /* MAIN_MENU_USE_UIMANAGER */
     while (menu_list != NULL) {
 #ifdef MENUS_USE_UIMANAGER
         set_menu_object_data_meat(menu_list->data, shortpath, key, data);
@@ -4359,7 +4390,7 @@ set_menu_object_data (const gchar *path, const gchar *key, gpointer data) {
 #else
         set_menu_object_data_meat_old(menu_list->data, shortpath, key, data);
         set_menu_object_data_meat_old(menu_list->data, path, key, data);
-#endif
+#endif /* MENUS_USE_UIMANAGER */
         menu_list = g_slist_next(menu_list);
     }
 }
@@ -4967,17 +4998,30 @@ void
 menu_recent_read_finished(void) {
     GtkWidget *menu = NULL;
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+	/* XXX Fix me */
+    menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/MainToolbar");
+    if(!menu){
+        g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/MainToolbar");
+	}else{
+	    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.main_toolbar_show);
+	}
+
+#else
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Main Toolbar");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.main_toolbar_show);
 
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Filter Toolbar");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.filter_toolbar_show);
-
+#endif /* MAIN_MENU_USE_UIMANAGER*/
 #ifdef HAVE_AIRPCAP
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Wireless Toolbar");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.airpcap_toolbar_show);
 #endif
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+	/* Fix me? */
+#else
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Statusbar");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.statusbar_show);
 
@@ -4992,12 +5036,17 @@ menu_recent_read_finished(void) {
 
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Colorize Packet List");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.packet_list_colorize);
+#endif /* MAIN_MENU_USE_UIMANAGER*/
 
     menu_name_resolution_changed();
 
 #ifdef HAVE_LIBPCAP
+#ifdef MAIN_MENU_USE_UIMANAGER
+	/* Fix me? */
+#else
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Auto Scroll in Live Capture");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), auto_scroll_live);
+#endif /* MAIN_MENU_USE_UIMANAGER*/
 #endif
 
     main_widgets_rearrange();
@@ -5007,6 +5056,9 @@ menu_recent_read_finished(void) {
         recent.gui_time_format = timestamp_get_type();
     }
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+	/* XXX Fix me */
+#else
     switch(recent.gui_time_format) {
     case(TS_ABSOLUTE_WITH_DATE):
         menu = gtk_item_factory_get_widget(main_menu_factory,
@@ -5035,12 +5087,14 @@ menu_recent_read_finished(void) {
     default:
         g_assert_not_reached();
     }
-
     /* set_active will not trigger the callback when activating an active item! */
     recent.gui_time_format = -1;
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), FALSE);
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
-
+#endif /* MAIN_MENU_USE_UIMANAGER */
+#ifdef MAIN_MENU_USE_UIMANAGER
+	/* XXX Fix me */
+#else
     switch(recent.gui_time_precision) {
     case(TS_PREC_AUTO):
         menu = gtk_item_factory_get_widget(main_menu_factory,
@@ -5078,12 +5132,15 @@ menu_recent_read_finished(void) {
     recent.gui_time_precision = -1;
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), FALSE);
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
+#endif /* MAIN_MENU_USE_UIMANAGER */
 
     /* don't change the seconds format, if we had a command line value */
     if (timestamp_get_seconds_type() != TS_SECONDS_NOT_SET) {
         recent.gui_seconds_format = timestamp_get_seconds_type();
     }
-
+#ifdef MAIN_MENU_USE_UIMANAGER
+	/* XXX Fix me */
+#else
     menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Display Seconds with hours and minutes");
     switch (recent.gui_seconds_format) {
@@ -5102,6 +5159,7 @@ menu_recent_read_finished(void) {
     default:
         g_assert_not_reached();
     }
+#endif /* MAIN_MENU_USE_UIMANAGER */
 
     menu_colorize_changed(recent.packet_list_colorize);
 #ifdef MENUS_USE_UIMANAGER
@@ -5669,7 +5727,7 @@ set_menus_for_selected_packet(capture_file *cf)
 #endif /* MAIN_MENU_USE_UIMANAGER */
 #ifdef NEW_PACKET_LIST
 #ifdef MAIN_MENU_USE_UIMANAGER
-    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu//Un-TimeReferenceAllPackets",
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Un-TimeReferenceAllPackets",
                          have_time_ref);
 #else
     set_menu_sensitivity_old(main_menu_factory, "/Edit/Un-Time Reference All Packets",
@@ -5712,7 +5770,7 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected);
 #endif /* MENUS_USE_UIMANAGER */
 #ifdef MAIN_MENU_USE_UIMANAGER
-    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu//ExpandAll",
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ExpandAll",
                          frame_selected);
 #else
      set_menu_sensitivity_old(main_menu_factory, "/View/Expand All",
@@ -6309,8 +6367,14 @@ rebuild_visible_columns_menu (void)
     fmt_data  *cfmt;
     gchar     *title;
     gint       i, col_id, cur_fmt;
-
+#ifdef MAIN_MENU_USE_UIMANAGER
+	menu_columns[0] = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/DisplayedColumns");
+    if(! menu_columns[0]){
+        fprintf (stderr, "Warning: couldn't find menu_columns[0] path=/Menubar/ViewMenu/DisplayedColumns");
+    }
+#else
     menu_columns[0] = gtk_item_factory_get_widget(main_menu_factory, "/View/Displayed Columns");
+#endif /* MAIN_MENU_USE_UIMANAGER */
 #ifdef MENUS_USE_UIMANAGER
     menu_columns[1] = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/DisplayedColumns");
 #else
