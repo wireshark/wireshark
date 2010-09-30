@@ -2493,8 +2493,8 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
 				  packet_info *pinfo,
 				  dcerpc_auth_info *auth_info _U_)
 {
-  / * gssapi_decrypted_tvb=NULL * /
-  tvbuff_t *decr_tvb; / * Used to display decrypted buffer * /
+  /* gssapi_decrypted_tvb=NULL */
+  tvbuff_t *decr_tvb; /* Used to display decrypted buffer */
   guint8 *peer_block;
   conversation_t *conversation;
   guint32 encrypted_block_length;
@@ -2505,33 +2505,33 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
   encrypted_block_length = tvb_length_remaining (data_tvb, offset);
 
   fprintf(stderr,"Called dissect_ntlmssp_encrypted_payload\n");
-  / * Check to see if we already have state for this packet * /
+  /* Check to see if we already have state for this packet */
   packet_ntlmssp_info = p_get_proto_data(pinfo->fd, proto_ntlmssp);
   if (packet_ntlmssp_info == NULL) {
-    / * We don't have any packet state, so create one * /
+    /* We don't have any packet state, so create one */
     packet_ntlmssp_info = se_alloc0(sizeof(ntlmssp_packet_info));
     p_add_proto_data(pinfo->fd, proto_ntlmssp, packet_ntlmssp_info);
   }
 
   if (!packet_ntlmssp_info->payload_decrypted) {
-    / * Pull the challenge info from the conversation * /
+    /* Pull the challenge info from the conversation */
     conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 				     pinfo->ptype, pinfo->srcport,
 				     pinfo->destport, 0);
     if (conversation == NULL) {
-      / * There is no conversation, thus no encryption state * /
+      /* There is no conversation, thus no encryption state */
       return NULL;
 
     }
     conv_ntlmssp_info = conversation_get_proto_data(conversation,
 						    proto_ntlmssp);
     if (conv_ntlmssp_info == NULL) {
-    / * There is no NTLMSSP state tied to the conversation * /
+    /* There is no NTLMSSP state tied to the conversation */
     return NULL;
     }
-    / * Get the pair of RC4 state structures.  One is used for to decrypt the
+    /* Get the pair of RC4 state structures.  One is used for to decrypt the
        payload.  The other is used to re-encrypt the payload to represent
-       the peer * /
+       the peer */
     if (conv_ntlmssp_info->server_dest_port == pinfo->destport) {
       rc4_state = get_encrypted_state(pinfo, 1);
       rc4_state_peer = get_encrypted_state(pinfo, 0);
@@ -2541,30 +2541,30 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
     }
 
     if (rc4_state == NULL || rc4_state_peer == NULL) {
-      / * There is no encryption state, so we cannot decrypt * /
+      /* There is no encryption state, so we cannot decrypt */
       return NULL;
     }
 
-    / * Store the decrypted contents in the packet state struct
-       (of course at this point, they aren't decrypted yet) * /
+    /* Store the decrypted contents in the packet state struct
+       (of course at this point, they aren't decrypted yet) */
     packet_ntlmssp_info->decrypted_payload = tvb_memdup(data_tvb, offset,
                                                         encrypted_block_length);
     decrypted_payloads = g_slist_prepend(decrypted_payloads,
                                          packet_ntlmssp_info->decrypted_payload);
 
-    / * Do the decryption of the payload * /
+    /* Do the decryption of the payload */
     crypt_rc4(rc4_state, packet_ntlmssp_info->decrypted_payload,
 	      encrypted_block_length);
 
-    / * We setup a temporary buffer so we can re-encrypt the payload after
-       decryption.  This is to update the opposite peer's RC4 state * /
+    /* We setup a temporary buffer so we can re-encrypt the payload after
+       decryption.  This is to update the opposite peer's RC4 state */
     peer_block = ep_memdup(packet_ntlmssp_info->decrypted_payload, encrypted_block_length);
     crypt_rc4(rc4_state_peer, peer_block, encrypted_block_length);
 
     packet_ntlmssp_info->payload_decrypted = TRUE;
   }
 
-  / * Show the decrypted buffer in a new window * /
+  /* Show the decrypted buffer in a new window */
   decr_tvb = tvb_new_child_real_data(data_tvb, packet_ntlmssp_info->decrypted_payload,
 			       encrypted_block_length,
 			       encrypted_block_length);
