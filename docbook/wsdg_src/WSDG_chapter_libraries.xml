@@ -308,7 +308,13 @@ utilities."
   <section id="ChLibsPCRE">
 	<title>PCRE (optional)</title>
 	<para>
-	"Perl compatible regular expressions"
+	"Perl compatible regular expressions". PCRE provides the pattern matching
+	functionality required for the "matches" display filter operator.
+	</para>
+	<para>
+	You probably don't need this. GRegex, part of GLib 2.14 and later is a
+	wrapper around PCRE. Wireshark's configure script will use it instead of
+	PCRE if it is present.
 	</para>
 	
 	<section id="ChLibsUnixPCRE">
