@@ -827,6 +827,7 @@ get_sealing_rc4key(const guint8 exportedsessionkey[NTLMSSP_KEY_LEN] ,const int f
   The function returns the offset at the end of the string header,
   but the 'end' parameter returns the offset of the end of the string itself
   The 'start' parameter returns the offset of the beginning of the string
+  If there's no string, just use the offset of the end of the tvb as start/end.
 */
 static int
 dissect_ntlmssp_string (tvbuff_t *tvb, int offset,
@@ -844,7 +845,7 @@ dissect_ntlmssp_string (tvbuff_t *tvb, int offset,
   int result_length;
   guint16 bc;
 
-  *start = (string_offset > offset+8 ? string_offset : offset+8);
+  *start = (string_offset > offset+8 ? string_offset : tvb_reported_length(tvb));
   if (0 == string_length) {
     *end = *start;
     if (ntlmssp_tree)
@@ -1289,10 +1290,10 @@ static int
 dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree, ntlmssp_header_t *ntlmssph _U_)
 {
   guint32 negotiate_flags;
-  int domain_start;
-  int domain_end;
-  int workstation_start;
-  int workstation_end;
+  int data_start;
+  int data_end;
+  int item_start;
+  int item_end;
 
   /* NTLMSSP Negotiate Flags */
   negotiate_flags = tvb_get_letohl (tvb, offset);
@@ -1306,16 +1307,19 @@ dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree, 
    */
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, FALSE,
 				  hf_ntlmssp_negotiate_domain,
-				  &workstation_start, &workstation_end, NULL);
+				  &data_start, &data_end, NULL);
+
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, FALSE,
 				  hf_ntlmssp_negotiate_workstation,
-				  &domain_start, &domain_end, NULL);
+				  &item_start, &item_end, NULL);
+  data_start = MIN(data_start, item_start);
+  data_end   = MAX(data_end,   item_end);
 
   /* If there are more bytes before the data block dissect a version field */
-  if (offset < MIN(workstation_start, domain_start)) {
+  if (offset < data_start) {
     offset = dissect_ntlmssp_version(tvb, offset, ntlmssp_tree);
   }
-  return MAX(workstation_end, domain_end);
+  return data_end;
 }
 
 
@@ -1497,6 +1501,10 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
   tvb_memcpy(tvb, tmp, offset, 8); /* challenge */
   /* We can face more than one NTLM exchange over the same couple of IP and ports ...*/
   conv_ntlmssp_info = conversation_get_proto_data(conversation, proto_ntlmssp);
+  /* XXX: The following code is (re)executed every time a particular frame is dissected
+   *      (in whatever order). Thus it seems to me that "multiple exchanges" might not be
+   *      handled well depending on the order that frames are visited after the initial dissection.
+   */
   if (!conv_ntlmssp_info || memcmp(tmp,conv_ntlmssp_info->server_challenge,8) != 0) {
     conv_ntlmssp_info = se_alloc(sizeof(ntlmssp_info));
     /* Insert the flags into the conversation */
@@ -1530,8 +1538,8 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
 
   /* If no more bytes (ie: no "reserved", ...) before start of data block, then return */
   /* XXX: According to Davenport "This form is seen in older Win9x-based systems"      */
-  /*      Also: a capture exists with an HTTP CONNECT proxy-authentication             */
-  /*            wherein the challenge from the proxy has this form.                    */
+  /*      Also: I've seen a capture with an HTTP CONNECT proxy-authentication          */
+  /*            message wherein the challenge from the proxy has this form.            */
   if (offset >= data_start) {
     return data_end;
   }
@@ -1606,6 +1614,16 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
    * reprensent the choice of the client after having been informed of options of the
    * server in the CHALLENGE message.
    * In Connection mode then the CHALLENGE flags should (must ?) be used
+   * XXX: MS-NLMP says the flag field in the AUTHENTICATE message "contains the set of bit
+   *   flags (section 2.2.2.5) negotiated in the previous messages."
+   *   I read that to mean that the flags for in connection-mode AUTHENTICATE also represent
+   *   the choice of the client (for the flags which are negotiated).
+   * XXX: In the absence of CHALLENGE flags, as a last resort we'll use the flags
+   *      (if available) from this AUTHENTICATE message.
+   *      I've seen a capture which does an HTTP CONNECT which:
+   *      - has the NEGOTIATE & CHALLENGE messages in one TCP connection;
+   *      - has the AUTHENTICATE message in a second TCP connection;
+   *        (The authentication aparently succeeded).
    */
   conv_ntlmssp_info = p_get_proto_data(pinfo->fd, proto_ntlmssp);
   if (conv_ntlmssp_info == NULL) {
@@ -1614,6 +1632,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
      * it means this is the first time we've dissected this frame, so
      * we should give it flag info.
      */
+#if 0
     conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 				     pinfo->ptype, pinfo->srcport,
 				     pinfo->destport, 0);
@@ -1623,10 +1642,28 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
       	/*
       	 * We have flag info; attach it to the frame.
       	 */
+        /* XXX: The *conv_ntlmssp_info struct attached to the frame is the
+                same as the one attached to the conversation.
+                Is this what is indended ?  */
       	p_add_proto_data(pinfo->fd, proto_ntlmssp, conv_ntlmssp_info);
       }
     }
+#else /* XXX: Create conv_ntlmssp_info & etc if no previous CHALLENGE seen */
+      /*      so we'll have a place to store flags.                        */
+      /*      This is a bit brute-force but looks like it will be OK.      */
+    conversation = find_or_create_conversation(pinfo);
+    conv_ntlmssp_info = conversation_get_proto_data(conversation, proto_ntlmssp);
+    if (conv_ntlmssp_info == NULL) {
+      conv_ntlmssp_info = se_alloc0(sizeof(ntlmssp_info));
+      conversation_add_proto_data(conversation, proto_ntlmssp, conv_ntlmssp_info);
+    }
+    /* XXX: The *conv_ntlmssp_info struct attached to the frame is the
+            same as the one attached to the conversation. That is: *both* point to
+            the exact same struct in memory.  Is this what is indended ?  */
+    p_add_proto_data(pinfo->fd, proto_ntlmssp, conv_ntlmssp_info);
+#endif
   }
+
   if (conv_ntlmssp_info != NULL) {
     if (conv_ntlmssp_info->flags & NTLMSSP_NEGOTIATE_UNICODE)
       unicode_strings = TRUE;
@@ -1739,6 +1776,12 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
     negotiate_flags = tvb_get_letohl (tvb, offset);
     offset = dissect_ntlmssp_negotiate_flags (tvb, offset, ntlmssp_tree,
                                               negotiate_flags);
+    /* If no previous flags seen (ie: no previous CHALLENGE) use flags
+       from the AUTHENTICATE message).
+       Assumption: (flags == 0) means flags not previously seen  */
+    if ((conv_ntlmssp_info != NULL) && (conv_ntlmssp_info->flags == 0)) {
+      conv_ntlmssp_info->flags = negotiate_flags;
+    }
   }
 
   /* If there are more bytes before the data block dissect a version field */
@@ -2441,7 +2484,8 @@ wrap_dissect_ntlmssp_payload_only(tvbuff_t *tvb,tvbuff_t *auth_tvb _U_,
 	dissect_ntlmssp_payload_only(data_tvb, pinfo, NULL);
   return pinfo->gssapi_decrypted_tvb;
 }
-/*
+
+#if 0
 tvbuff_t *
 dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
 				  tvbuff_t *auth_tvb _U_,
@@ -2529,7 +2573,8 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
 
   return decr_tvb;
 }
-*/
+#endif
+
 static void
 free_payload(gpointer decrypted_payload, gpointer user_data _U_)
 {
@@ -2730,7 +2775,7 @@ proto_register_ntlmssp(void)
     { &hf_ntlmssp_address_list_terminator,
       { "List Terminator", "ntlmssp.challenge.addresslist.terminator", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_ntlmssp_message_integrity_code,
-      { "MIC", "ntlmssp.authorization.mic", FT_BYTES, BASE_NONE, NULL, 0x0, "Message Integrity Code", HFILL}},
+      { "MIC", "ntlmssp.authenticate.mic", FT_BYTES, BASE_NONE, NULL, 0x0, "Message Integrity Code", HFILL}},
     { &hf_ntlmssp_verf,
       { "NTLMSSP Verifier", "ntlmssp.verf", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_ntlmssp_verf_vers,
