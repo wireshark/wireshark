@@ -1116,3 +1116,8 @@ void col_add_fstr(column_info *cinfo _U_, const gint col _U_, const gchar *forma
                        ...)
 {}
 
+const char* proto_registrar_get_name(const int n _U_)
+{ return ""; }
+
+void proto_item_set_text(proto_item *ti _U_, const char *format _U_, ...)
+{ }
