@@ -1969,9 +1969,15 @@ show_fragment(fragment_data *fd, const int offset, const fragment_items *fit,
 	int hf;
 
 	if (first_frag) {
-		proto_item_prepend_text(fi, "%u ", count);
-		proto_item_append_text(fi, " (%u byte%s): ", tvb_length(tvb),
-			plurality(tvb_length(tvb), "", "s"));
+		gchar *name;
+		if (count == 1) {
+			name = g_strdup(proto_registrar_get_name(*(fit->hf_fragment)));
+		} else {
+			name = g_strdup(proto_registrar_get_name(*(fit->hf_fragments)));
+		}
+		proto_item_set_text(fi, "%u %s (%u byte%s): ", count, name, tvb_length(tvb),
+				    plurality(tvb_length(tvb), "", "s"));
+		g_free(name);
 	} else {
 		proto_item_append_text(fi, ", ");
 	}
