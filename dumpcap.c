@@ -278,11 +278,12 @@ static loop_data   global_ld;
 
 
 /*
- * Timeout, in milliseconds, for reads from the stream of captured packets.
+ * Timeout, in milliseconds, for reads from the stream of captured packets
+ * from a capture device.
  *
  * A bug in Mac OS X 10.6 and 10.6.1 causes calls to pcap_open_live(), in
  * 64-bit applications, with sub-second timeouts not to work.  The bug is
- * fixed in 10.6.2.
+ * fixed in 10.6.2 and re-broken in 10.6.3.
  */
 #if defined(__APPLE__) && defined(__LP64__)
 static gboolean need_timeout_workaround;
@@ -293,9 +294,18 @@ static gboolean need_timeout_workaround;
 #endif
 
 /*
- * Timeout, in microseconds, for threaded reads from a pipe.
+ * Timeout, in microseconds, for reads from the stream of captured packets
+ * from a pipe.  Pipes doesn't have the same problem that BPF devices do
+ * in OS X 10.6, 10.6.1, 10.6.3, and 10.6.4, so we always use a timeout
+ * of 250ms.
+ *
+ * XXX - why was it 100 for threaded capturing?
  */
-#define THREAD_READ_TIMEOUT   100
+#ifndef USE_THREADS
+#define PIPE_READ_TIMEOUT   250
+#else
+#define PIPE_READ_TIMEOUT   100
+#endif
 static const char *cap_pipe_err_str;
 
 static void
@@ -1569,7 +1579,7 @@ static void *cap_pipe_read(void *ld_ptr) {
 static int
 cap_pipe_select(int pipe_fd) {
   fd_set      rfds;
-  struct timeval timeout, *pto;
+  struct timeval timeout;
   int sel_ret;
 
   cap_pipe_err_str = "Unknown error";
@@ -1578,10 +1588,9 @@ cap_pipe_select(int pipe_fd) {
   FD_SET(pipe_fd, &rfds);
 
   timeout.tv_sec = 0;
-  timeout.tv_usec = CAP_READ_TIMEOUT * 1000;
-  pto = &timeout;
+  timeout.tv_usec = PIPE_READ_TIMEOUT * 1000;
 
-  sel_ret = select(pipe_fd+1, &rfds, NULL, NULL, pto);
+  sel_ret = select(pipe_fd+1, &rfds, NULL, NULL, &timeout);
   if (sel_ret < 0)
     cap_pipe_err_str = strerror(errno);
   return sel_ret;
@@ -1980,7 +1989,7 @@ cap_pipe_dispatch(loop_data *ld, guchar *data, char *errmsg, int errmsgl)
     ld->cap_pipe_bytes_read += b;
 #else /* USE_THREADS */
     g_get_current_time(&wait_time);
-    g_time_val_add(&wait_time, THREAD_READ_TIMEOUT);
+    g_time_val_add(&wait_time, PIPE_READ_TIMEOUT);
     q_status = g_async_queue_timed_pop(cap_pipe_done_q, &wait_time);
     if (ld->cap_pipe_err == PIPEOF) {
       result = PD_PIPE_EOF;
@@ -2029,7 +2038,7 @@ cap_pipe_dispatch(loop_data *ld, guchar *data, char *errmsg, int errmsgl)
     ld->cap_pipe_bytes_read += b;
 #else /* USE_THREADS */
     g_get_current_time(&wait_time);
-    g_time_val_add(&wait_time, THREAD_READ_TIMEOUT);
+    g_time_val_add(&wait_time, PIPE_READ_TIMEOUT);
     q_status = g_async_queue_timed_pop(cap_pipe_done_q, &wait_time);
     if (ld->cap_pipe_err == PIPEOF) {
       result = PD_PIPE_EOF;
