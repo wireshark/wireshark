@@ -69,7 +69,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-
 #include <epan/strutil.h>
 #include <epan/to_str.h>
 #include <epan/prefs.h>
@@ -78,8 +77,7 @@
 #include <epan/expert.h>
 #include <epan/uat.h>
 #include <epan/asn1.h>
-#include <epan/filesystem.h>
-#include <wsutil/file_util.h>
+
 #include "packet-ber.h"
 
 static gint proto_ber = -1;
