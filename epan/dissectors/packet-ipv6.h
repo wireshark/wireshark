@@ -527,6 +527,36 @@ struct nd_opt_map_info {	/* HMIPv6 MAP option */
 #define ND_OPT_MAP_FLAG_P	0x08
 #define ND_OPT_MAP_FLAG_V	0x04
 
+
+/* draft-6lowpan-nd types, pending IANA assignment */
+#define ND_OPT_ADDR_RESOLUTION 		31
+#define ND_OPT_6LOWPAN_CONTEXT 		32
+#define ND_OPT_AUTH_BORDER_ROUTER  	33
+
+struct nd_opt_addr_resolution { /* 6LoWPAN-ND Address Resolution Option WITHOUT registered address */
+	guint8			nd_opt_aro_type;
+	guint8			nd_opt_aro_len;
+	guint8			nd_opt_aro_status;
+	guint8			nd_opt_aro_reserved1;
+	guint16			nd_opt_aro_reserved2;
+	guint16			nd_opt_aro_lifetime;
+	guint8			nd_opt_aro_eui64[8];
+    /* Followed by 'registered address' if length is 4 */
+};
+
+
+struct nd_opt_6lowpan_context { /* 6LoWPAN-ND 6LoWPAN Context Option */
+	guint8			nd_opt_6co_type;
+	guint8			nd_opt_6co_len;
+	guint8			nd_opt_6co_context_length;
+	guint8			nd_opt_6co_CID;
+	guint16			nd_opt_6co_reserved;
+	guint16			nd_opt_6co_lifetime;
+    /* Followed by context, 8 or 16 bytes */
+};
+#define ND_OPT_6CO_CFLAG        0x10
+#define ND_OPT_6CO_CIDMASK      0x0F
+
 /*
  * icmp6 node information
  */
