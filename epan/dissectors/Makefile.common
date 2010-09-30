@@ -773,6 +773,7 @@ DISSECTOR_SRC = \
 	packet-rdt.c		\
 	packet-redback.c 	\
 	packet-redbackli.c 	\
+	packet-reload.c		\
 	packet-retix-bpdu.c 	\
 	packet-rfc2190.c 	\
 	packet-rgmp.c		\
