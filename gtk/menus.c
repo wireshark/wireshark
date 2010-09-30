@@ -98,8 +98,6 @@
 #include "gtk/proto_help.h"
 
 #define MENUS_USE_UIMANAGER 1
-/*#define MAIN_MENU_USE_UIMANAGER 1 */
-
 
 #ifdef NEW_PACKET_LIST
 #include "gtk/new_packet_list.h"
@@ -1013,47 +1011,56 @@ prefs_cb(GtkWidget *widget, gpointer user_data)
 static void
 main_toolbar_show_hide_cb(GtkAction *action, gpointer user_data)
 {
-	/* XXXX fixme show_hide_cb SHOW_HIDE_MAIN_TOOLBAR*/
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/MainToolbar");
+
+	show_hide_cb( widget, user_data, SHOW_HIDE_MAIN_TOOLBAR);
 }
 
 static void
 filter_toolbar_show_hide_cb(GtkAction * action, gpointer user_data)
 {
-	/* XXXX fixme SHOW_HIDE_FILTER_TOOLBAR */
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/FilterToolbar");
+	show_hide_cb( widget, user_data, SHOW_HIDE_FILTER_TOOLBAR);
 }
 
 #ifdef HAVE_AIRPCAP
 static void
 wireless_toolbar_show_hide_cb(GtkAction *action, gpointer user_data)
 {
-	/* XXXX fixme SHOW_HIDE_AIRPCAP_TOOLBAR*/
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/WirelessToolbar");
+	show_hide_cb( widget, user_data, SHOW_HIDE_AIRPCAP_TOOLBAR);
 }
 #endif /* HAVE_AIRPCAP */
 
 static void
 status_bar_show_hide_cb(GtkAction *action, gpointer user_data)
 {
-	/* XXXX fixme SHOW_HIDE_STATUSBAR*/
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/Statusbar");
+	show_hide_cb( widget, user_data, SHOW_HIDE_STATUSBAR);
 }
 static void
 packet_list_show_hide_cb(GtkAction *action, gpointer user_data)
 {
-	/* XXXX fixme SHOW_HIDE_PACKET_LIST*/
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/PacketList");
+	show_hide_cb( widget, user_data, SHOW_HIDE_PACKET_LIST);
 }
 static void
 packet_details_show_hide_cb(GtkAction *action, gpointer user_data)
 {
-	/* XXXX fixme SHOW_HIDE_TREE_VIEW*/
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TreeView");
+	show_hide_cb( widget, user_data, SHOW_HIDE_TREE_VIEW);
 }
 static void
 packet_bytes_show_hide_cb(GtkAction *action, gpointer user_data)
 {
-	/* XXXX fixme SHOW_HIDE_BYTE_VIEW*/
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/ByteView");
+	show_hide_cb( widget, user_data, SHOW_HIDE_BYTE_VIEW);
 }
 
 static void
 timestamp_format_new_cb (GtkRadioAction *action, GtkRadioAction *current, gpointer user_data)
 {
+	/* XXX Fix me */
 	gint value;
 
 	value = gtk_radio_action_get_current_value (action);
@@ -1070,45 +1077,30 @@ timestamp_precision_new_cb (GtkRadioAction *action, GtkRadioAction *current, gpo
 static void
 view_menu_en_for_MAC_cb(GtkAction *action, gpointer user_data)
 {
-	gboolean state;
-#if 0
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/EnableforMACLayer");
 	name_resolution_cb( widget , user_data, RESOLV_MAC);
-#endif
-
-	state = gtk_toggle_action_get_active (GTK_TOGGLE_ACTION (action));
 }
 
 static void
 view_menu_en_for_network_cb(GtkAction *action, gpointer user_data)
 {
-	gboolean state;
-#if 0
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/EnableforNetworkLayer");
 	name_resolution_cb( widget , user_data, RESOLV_NETWORK);
-#endif
-
-	state = gtk_toggle_action_get_active (GTK_TOGGLE_ACTION (action));
 }
 
 static void
 view_menu_en_for_transport_cb(GtkAction *action, gpointer user_data)
 {
-	gboolean state;
-#if 0
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/EnableforTransportLayer");
 	name_resolution_cb( widget , user_data, RESOLV_TRANSPORT);
-#endif
-
-	state = gtk_toggle_action_get_active (GTK_TOGGLE_ACTION (action));
 }
 
 static void
 view_menu_colorize_pkt_lst_cb(GtkAction *action, gpointer user_data)
 {
-	gboolean state;
-#if 0
-	colorize_cb( widget , user_data);
-#endif
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/ColorizePacketList");
 
-	state = gtk_toggle_action_get_active (GTK_TOGGLE_ACTION (action));
+	colorize_cb( widget , user_data);
 }
 
 static void
@@ -2305,7 +2297,7 @@ packet_list_heading_show_resolved_cb(GtkAction *action _U_, gpointer user_data _
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/ShowResolved");
 
-	new_packet_list_column_menu_cb( widget , NULL, COLUMN_SELECTED_TOGGLE_RESOLVED);
+	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_TOGGLE_RESOLVED);
 }
 
 static void
@@ -4999,13 +4991,18 @@ menu_recent_read_finished(void) {
     GtkWidget *menu = NULL;
 
 #ifdef MAIN_MENU_USE_UIMANAGER
-	/* XXX Fix me */
     menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/MainToolbar");
     if(!menu){
         g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/MainToolbar");
 	}else{
 	    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.main_toolbar_show);
 	}
+    menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/FilterToolbar");
+    if(!menu){
+        g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/FilterToolbar");
+	}else{
+	    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.filter_toolbar_show);
+	};
 
 #else
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Main Toolbar");
@@ -5015,12 +5012,56 @@ menu_recent_read_finished(void) {
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.filter_toolbar_show);
 #endif /* MAIN_MENU_USE_UIMANAGER*/
 #ifdef HAVE_AIRPCAP
+#ifdef MAIN_MENU_USE_UIMANAGER
+    menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/WirelessToolbar");
+    if(!menu){
+        g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/WirelessToolbar");
+	}else{
+	    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.airpcap_toolbar_show);
+	}
+#else
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Wireless Toolbar");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.airpcap_toolbar_show);
-#endif
+#endif /* MAIN_MENU_USE_UIMANAGER */
+#endif /* HAVE_AIRPCAP */
 
 #ifdef MAIN_MENU_USE_UIMANAGER
 	/* Fix me? */
+    menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/Statusbar");
+    if(!menu){
+        g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/Statusbar");
+	}else{
+	    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.statusbar_show);
+	}
+
+	menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/PacketList");
+    if(!menu){
+        g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/PacketList");
+	}else{
+	    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.packet_list_show);
+	}
+
+	menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/PacketDetails");
+    if(!menu){
+        g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/PacketDetails");
+	}else{
+	    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.tree_view_show);
+	}
+
+	menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/PacketBytes");
+    if(!menu){
+        g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/PacketBytes");
+	}else{
+	    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.byte_view_show);
+	}
+
+	menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/ColorizePacketList");
+    if(!menu){
+        g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/ColorizePacketList");
+	}else{
+	    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.packet_list_colorize);
+	}
+
 #else
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Statusbar");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.statusbar_show);
@@ -5042,7 +5083,12 @@ menu_recent_read_finished(void) {
 
 #ifdef HAVE_LIBPCAP
 #ifdef MAIN_MENU_USE_UIMANAGER
-	/* Fix me? */
+	menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/AutoScrollinLiveCapture");
+    if(!menu){
+        g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/AutoScrollinLiveCapture");
+	}else{
+	    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), auto_scroll_live);
+	}
 #else
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Auto Scroll in Live Capture");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), auto_scroll_live);
