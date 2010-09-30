@@ -845,7 +845,7 @@ dissect_ntlmssp_string (tvbuff_t *tvb, int offset,
   int result_length;
   guint16 bc;
 
-  *start = (string_offset > offset+8 ? string_offset : tvb_reported_length(tvb));
+  *start = (string_offset > offset+8 ? string_offset : (signed)tvb_reported_length(tvb));
   if (0 == string_length) {
     *end = *start;
     if (ntlmssp_tree)
