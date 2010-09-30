@@ -63,6 +63,14 @@ filter_activate_cb(GtkWidget *w _U_, gpointer data)
     main_filter_packets(&cfile, s, FALSE);
 }
 
+/* Enable both Clear and Apply button when filter is changed */
+static void
+filter_changed_cb(GtkWidget *w _U_, gpointer data)
+{
+    gtk_widget_set_sensitive (g_object_get_data (G_OBJECT(data), E_DFILTER_APPLY_KEY), TRUE);
+    gtk_widget_set_sensitive (g_object_get_data (G_OBJECT(data), E_DFILTER_CLEAR_KEY), TRUE);
+}
+
 /* redisplay with no display filter */
 static void
 filter_reset_cb(GtkWidget *w, gpointer data _U_)
@@ -126,6 +134,7 @@ GtkWidget *filter_toolbar_new(void)
     g_object_set_data(G_OBJECT(filter_te), E_DFILTER_CM_KEY, filter_cm);
     g_object_set_data(G_OBJECT(top_level), E_DFILTER_CM_KEY, filter_cm);
     g_signal_connect(filter_te, "activate", G_CALLBACK(filter_activate_cb), filter_te);
+    g_signal_connect(filter_te, "changed", G_CALLBACK(filter_changed_cb), filter_cm);
     g_signal_connect(filter_te, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
     g_object_set_data(G_OBJECT(filter_tb), E_FILT_AUTOCOMP_PTR_KEY, NULL);
     g_object_set_data(G_OBJECT(filter_te), E_FILT_FIELD_USE_STATUSBAR_KEY, "");
@@ -167,7 +176,9 @@ GtkWidget *filter_toolbar_new(void)
     /* Create the "Clear" button */
     filter_reset = gtk_tool_button_new_from_stock(WIRESHARK_STOCK_CLEAR_EXPRESSION);
     g_object_set_data(G_OBJECT(filter_reset), E_DFILTER_TE_KEY, filter_te);
+    g_object_set_data (G_OBJECT(filter_cm), E_DFILTER_CLEAR_KEY, filter_reset);
     g_signal_connect(filter_reset, "clicked", G_CALLBACK(filter_reset_cb), NULL);
+    gtk_widget_set_sensitive (GTK_WIDGET(filter_reset), FALSE);
     gtk_widget_show(GTK_WIDGET(filter_reset));
     gtk_toolbar_insert(GTK_TOOLBAR(filter_tb),
                        filter_reset,
@@ -180,7 +191,9 @@ GtkWidget *filter_toolbar_new(void)
     /* Create the "Apply" button */
     filter_apply = gtk_tool_button_new_from_stock(WIRESHARK_STOCK_APPLY_EXPRESSION);
     g_object_set_data(G_OBJECT(filter_apply), E_DFILTER_CM_KEY, filter_cm);
+    g_object_set_data (G_OBJECT(filter_cm), E_DFILTER_APPLY_KEY, filter_apply);
     g_signal_connect(filter_apply, "clicked", G_CALLBACK(filter_activate_cb), filter_te);
+    gtk_widget_set_sensitive (GTK_WIDGET(filter_apply), FALSE);
     gtk_widget_show(GTK_WIDGET(filter_apply));
 
     gtk_toolbar_insert(GTK_TOOLBAR(filter_tb),
@@ -341,6 +354,14 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
     s = g_strdup(dftext);
 
     cf_status = cf_filter_packets(cf, s, force);
+
+    if (cf_status == CF_OK) {
+        gtk_widget_set_sensitive (g_object_get_data (G_OBJECT(filter_cm), E_DFILTER_APPLY_KEY), FALSE);
+	if (!s || strlen (s) == 0) {
+	    gtk_widget_set_sensitive (g_object_get_data (G_OBJECT(filter_cm), E_DFILTER_CLEAR_KEY), FALSE);
+	}
+    }
+
     if (!s)
         return (cf_status == CF_OK);
 

@@ -27,6 +27,8 @@
 #define __MAIN_FILTER_TOOLBAR_H__
 
 #define E_DFILTER_CM_KEY          "display_filter_combo"
+#define E_DFILTER_APPLY_KEY       "display_filter_apply"
+#define E_DFILTER_CLEAR_KEY       "display_filter_clear"
 
 extern GtkWidget *filter_toolbar_new(void);
 
