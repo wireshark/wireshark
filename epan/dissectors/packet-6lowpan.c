@@ -27,9 +27,31 @@
 #include "config.h"
 #endif
 
+/* Need to get headers for AF_INET6 and inet_pton() */
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
+# include <netinet/in.h>
+#endif
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#endif
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>
+#endif
+#ifdef NEED_INET_V6DEFS_H
+# include "wsutil/inet_v6defs.h"
+#endif
+
+#include <stdio.h>
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>
 #include <epan/ipproto.h>
@@ -110,6 +132,8 @@
 #define LOWPAN_IPHC_FLAG_OFFSET_HLIM    8
 #define LOWPAN_IPHC_FLAG_OFFSET_SRC_MODE 4
 #define LOWPAN_IPHC_FLAG_OFFSET_DST_MODE 0
+#define LOWPAN_IPHC_FLAG_OFFSET_SCI      4
+#define LOWPAN_IPHC_FLAG_OFFSET_DCI      0
 
 /* IPHC Flow encoding values. */
 #define LOWPAN_IPHC_FLOW_CLASS_LABEL    0x0
@@ -384,6 +408,13 @@ static const guint8 lowpan_llprefix[8] = {
     0xfe, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
+/* 6LoWPAN context table preferences. */
+#define LOWPAN_CONTEXT_COUNT        16
+#define LOWPAN_CONTEXT_DEFAULT      0
+#define LOWPAN_CONTEXT_LINK_LOCAL   LOWPAN_CONTEXT_COUNT                    /* An internal context used for the link-local prefix. */
+static struct e_in6_addr    lowpan_context_table[LOWPAN_CONTEXT_COUNT+1];   /* The 17-th context stores the link-local prefix. */
+static gchar *              lowpan_context_prefs[LOWPAN_CONTEXT_COUNT];     /* Array of strings set by the preferences. */
+
 /* Helper macro to convert a bit offset/length into a byte count. */
 #define BITS_TO_BYTE_LEN(bitoff, bitlen)    ((bitlen)?(((bitlen) + ((bitoff)&0x07) + 7) >> 3):(0))
 
@@ -404,10 +435,11 @@ struct lowpan_nhdr {
     guint               length;
     guint               reported;
 };
-#define LOWPAN_NHDR_DATA(nhdr)	((guint8 *)(nhdr) + sizeof (struct lowpan_nhdr))
+#define LOWPAN_NHDR_DATA(nhdr)  ((guint8 *)(nhdr) + sizeof (struct lowpan_nhdr))
 
 /* Dissector prototypes */
 static void         proto_init_6lowpan          (void);
+static void         prefs_6lowpan_apply         (void);
 static gboolean     dissect_6lowpan_heur        (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void         dissect_6lowpan             (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static tvbuff_t *   dissect_6lowpan_ipv6        (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -423,7 +455,7 @@ static void         dissect_6lowpan_unknown     (tvbuff_t *tvb, packet_info *pin
 /* Helper functions. */
 static gboolean     lowpan_dlsrc_to_ifcid   (packet_info *pinfo, guint8 *ifcid);
 static gboolean     lowpan_dldst_to_ifcid   (packet_info *pinfo, guint8 *ifcid);
-static void         lowpan_addr16_to_ifcid  (guint16 addr, guint16 pan, guint8 *ifcid);
+static void         lowpan_addr16_to_ifcid  (guint16 addr, guint8 *ifcid);
 static tvbuff_t *   lowpan_reassemble_ipv6  (tvbuff_t *tvb, struct ip6_hdr * ipv6, struct lowpan_nhdr * nhdr_list);
 static guint8       lowpan_parse_nhc_proto  (tvbuff_t *tvb, gint offset);
 
@@ -435,27 +467,23 @@ static guint8       lowpan_parse_nhc_proto  (tvbuff_t *tvb, gint offset);
  *      per rfc 4944 section 6.
  *  PARAMETERS
  *      addr            ; 16-bit short address.
- *      pan             ; 16-bit PAN identifier.
  *      ifcid           ; interface identifier (output).
  *  RETURNS
  *      void            ;
  *---------------------------------------------------------------
  */
 static void
-lowpan_addr16_to_ifcid(guint16 addr, guint16 pan, guint8 *ifcid)
+lowpan_addr16_to_ifcid(guint16 addr, guint8 *ifcid)
 {
-    /* Build an EUI-64 from the short address and PAN identifier. */
-    ifcid[0] = (pan >> 8) & 0xff;
-    ifcid[1] = (pan >> 0) & 0xff;
+    /* Note: The PANID is no longer used in building the IID. */
+    ifcid[0] = 0x00; /* the U/L bit must be cleared. */
+    ifcid[1] = 0x00;
     ifcid[2] = 0x00;
     ifcid[3] = 0xff;
     ifcid[4] = 0xfe;
     ifcid[5] = 0x00;
     ifcid[6] = (addr >> 8) & 0xff;
     ifcid[7] = (addr >> 0) & 0xff;
-
-    /* Clear the universal/local bit. */
-    ifcid[0] &= ~(0x02);
 } /* lowpan_addr16_to_ifcid  */
 
 /*FUNCTION:------------------------------------------------------
@@ -495,7 +523,7 @@ lowpan_dlsrc_to_ifcid(packet_info *pinfo, guint8 *ifcid)
         return TRUE;
     }
     if (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
-        lowpan_addr16_to_ifcid(packet->src.addr16, packet->src_pan, ifcid);
+        lowpan_addr16_to_ifcid(packet->src.addr16, ifcid);
         return TRUE;
     }
 
@@ -540,7 +568,7 @@ lowpan_dldst_to_ifcid(packet_info *pinfo, guint8 *ifcid)
         return TRUE;
     }
     if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
-        lowpan_addr16_to_ifcid(packet->dst.addr16, packet->dst_pan, ifcid);
+        lowpan_addr16_to_ifcid(packet->dst.addr16, ifcid);
         return TRUE;
     }
 
@@ -1153,6 +1181,9 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     guint8              iphc_src_mode;
     guint8              iphc_dst_mode;
     guint8              iphc_ctx = 0;
+    /* Default contexts to use for address decompression. */
+    gint                iphc_sci = LOWPAN_CONTEXT_DEFAULT;
+    gint                iphc_dci = LOWPAN_CONTEXT_DEFAULT;
     /* IPv6 header */
     guint8              ipv6_class = 0;
     struct ip6_hdr      ipv6;
@@ -1198,11 +1229,20 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     /* Display the context identifier extension, if present. */
     if (iphc_flags & LOWPAN_IPHC_FLAG_CONTEXT_ID) {
         iphc_ctx = tvb_get_guint8(tvb, offset);
+        iphc_sci = (iphc_ctx & LOWPAN_IPHC_FLAG_SCI) >> LOWPAN_IPHC_FLAG_OFFSET_SCI;
+        iphc_dci = (iphc_ctx & LOWPAN_IPHC_FLAG_DCI) >> LOWPAN_IPHC_FLAG_OFFSET_DCI;
         if (tree) {
             proto_tree_add_uint(iphc_tree, hf_6lowpan_iphc_sci, tvb, offset, sizeof(guint8), iphc_ctx & LOWPAN_IPHC_FLAG_SCI);
             proto_tree_add_uint(iphc_tree, hf_6lowpan_iphc_dci, tvb, offset, sizeof(guint8), iphc_ctx & LOWPAN_IPHC_FLAG_DCI);
         }
         offset +=  sizeof(guint8);
+    }
+    /* Use link-local contexts if stateless. */
+    if (!(iphc_flags & LOWPAN_IPHC_FLAG_SRC_COMP)) {
+        iphc_sci = LOWPAN_CONTEXT_LINK_LOCAL;
+    }
+    if (!(iphc_flags & LOWPAN_IPHC_FLAG_DST_COMP)) {
+        iphc_dci = LOWPAN_CONTEXT_LINK_LOCAL;
     }
 
     /*=====================================================
@@ -1287,67 +1327,41 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
      * Parse and decompress the source address.
      *=====================================================
      */
-    addr_err = FALSE;
-    length = 0;
-    memset(&ipv6.ip6_src, 0, sizeof(ipv6.ip6_src));
-    /*-----------------------
-     * Stateless compression
-     *-----------------------
-     */
-    if (!(iphc_flags & LOWPAN_IPHC_FLAG_SRC_COMP)) {
-        /* Load the link-local prefix. */
-        ipv6.ip6_src.bytes[0] = 0xfe;
-        ipv6.ip6_src.bytes[1] = 0x80;
-        /* Full Address inline. */
-        if (iphc_src_mode == LOWPAN_IPHC_ADDR_FULL_INLINE) {
-            length = sizeof(ipv6.ip6_src);
-            tvb_memcpy(tvb, &ipv6.ip6_src.bytes[sizeof(ipv6.ip6_src) - length], offset, length);
-        }
-        /* Partial address inline. */
-        else if (iphc_src_mode == LOWPAN_IPHC_ADDR_64BIT_INLINE) {
-            length = sizeof(guint64);
-            tvb_memcpy(tvb, &ipv6.ip6_src.bytes[sizeof(ipv6.ip6_src) - length], offset, length);
-        }
-        else if (iphc_src_mode == LOWPAN_IPHC_ADDR_16BIT_INLINE) {
-            length = sizeof(guint16);
-            tvb_memcpy(tvb, &ipv6.ip6_src.bytes[sizeof(ipv6.ip6_src) - length], offset, length);
-        }
-        /* Try to recover the source interface identifier from the link layer. */
-        else {
-            lowpan_dlsrc_to_ifcid(pinfo, &ipv6.ip6_src.bytes[8]);
-        }
+    /* Copy the address from the context table. */
+    memcpy(&ipv6.ip6_src, &lowpan_context_table[iphc_sci], sizeof(ipv6.ip6_src));
+    /* (SAC=1 && SAM=00) -> the unspecified address (::). */
+    if ((iphc_flags & LOWPAN_IPHC_FLAG_SRC_COMP) && (iphc_src_mode == LOWPAN_IPHC_ADDR_SRC_UNSPEC)) {
+        length = 0;
+        memset(&ipv6.ip6_src, 0, sizeof(ipv6.ip6_src));
     }
-    /*-----------------------
-     * Stateful compression
-     *-----------------------
-     */
-    else {
-        /*
-         * TODO: Stateful address recovery.
-         * For now, just set the address to 0 and ignore the context bits.
-         */
-        addr_err = TRUE;
-        /* The unspecified address (::) */
-        if (iphc_src_mode == LOWPAN_IPHC_ADDR_SRC_UNSPEC) {
-        	length = 0;
-        	addr_err = FALSE;
-        }
-        else if (iphc_src_mode == LOWPAN_IPHC_ADDR_64BIT_INLINE) length = sizeof(guint64);
-        else if (iphc_src_mode == LOWPAN_IPHC_ADDR_16BIT_INLINE) length = sizeof(guint16);
-        else if (iphc_src_mode == LOWPAN_IPHC_ADDR_COMPRESSED) length = 0;
-        else {
-            /* Illegal source address compression mode. */
-            expert_add_info_format(pinfo, ti_sam, PI_MALFORMED, PI_ERROR, "Illegal source address mode");
-            return NULL;
-        }
+    /* The IID is derived from the link-layer source. */
+    else if (iphc_src_mode == LOWPAN_IPHC_ADDR_COMPRESSED) {
+        length = 0;
+        lowpan_dlsrc_to_ifcid(pinfo, &ipv6.ip6_src.bytes[8]);
+    }
+    /* Full Address inline. */
+    else if (iphc_src_mode == LOWPAN_IPHC_ADDR_FULL_INLINE) {
+        length = sizeof(ipv6.ip6_src);
+    }
+    /* 64-bits inline. */
+    else if (iphc_src_mode == LOWPAN_IPHC_ADDR_64BIT_INLINE) {
+        length = sizeof(guint64);
+    }
+    /* 16-bits inline. */
+    else if (iphc_src_mode == LOWPAN_IPHC_ADDR_16BIT_INLINE) {
+        length = sizeof(guint16);
+        /* Format becomes ff:fe00:xxxx */
+        ipv6.ip6_src.bytes[11] = 0xff;
+        ipv6.ip6_src.bytes[12] = 0xfe;
+        
+    }
+    if (length) {
+        tvb_memcpy(tvb, &ipv6.ip6_src.bytes[sizeof(ipv6.ip6_src) - length], offset, length);
     }
 
     /* Display the source IPv6 address. */
     if (tree) {
         ti = proto_tree_add_ipv6(tree, hf_6lowpan_source, tvb, offset, length, (guint8 *)&ipv6.ip6_src);
-    }
-    if (addr_err) {
-        expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, "Failed to recover source IPv6 address");
     }
     offset += length;
     /*
@@ -1357,49 +1371,18 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
      */
 
     /*=====================================================
-     * Parse and decompress the destination address.
+     * Parse and decompress a multicast address.
      *=====================================================
      */
-    addr_err = FALSE;
-    length = 0;
-    memset(&ipv6.ip6_dst, 0, sizeof(ipv6.ip6_dst));
-    /*---------------------------------
-     * Stateless unicast compression
-     *---------------------------------
-     */
-    if (!(iphc_flags & LOWPAN_IPHC_FLAG_DST_COMP) && !(iphc_flags & LOWPAN_IPHC_FLAG_MCAST_COMP)) {
-        /* Load the link-local prefix. */
-        ipv6.ip6_dst.bytes[0] = 0xfe;
-        ipv6.ip6_dst.bytes[1] = 0x80;
-        /* Full Address inline. */
+    /* Stateless multicast compression. */
+    if ((iphc_flags & LOWPAN_IPHC_FLAG_MCAST_COMP) && !(iphc_flags & LOWPAN_IPHC_FLAG_DST_COMP)) {
+        length = 0;
+        memset(&ipv6.ip6_dst, 0, sizeof(ipv6.ip6_dst));
         if (iphc_dst_mode == LOWPAN_IPHC_ADDR_FULL_INLINE) {
             length = sizeof(ipv6.ip6_dst);
             tvb_memcpy(tvb, &ipv6.ip6_dst.bytes[sizeof(ipv6.ip6_dst) - length], offset, length);
         }
-        /* Partial address inline. */
-        else if (iphc_dst_mode == LOWPAN_IPHC_ADDR_64BIT_INLINE) {
-            length = sizeof(guint64);
-            tvb_memcpy(tvb, &ipv6.ip6_dst.bytes[sizeof(ipv6.ip6_dst) - length], offset, length);
-        }
-        else if (iphc_dst_mode == LOWPAN_IPHC_ADDR_16BIT_INLINE) {
-            length = sizeof(guint16);
-            tvb_memcpy(tvb, &ipv6.ip6_dst.bytes[sizeof(ipv6.ip6_dst) - length], offset, length);
-        }
-        /* Try to recover the source interface identifier from the link layer. */
-        else {
-            lowpan_dldst_to_ifcid(pinfo, &ipv6.ip6_dst.bytes[8]);
-        }
-    }
-    /*---------------------------------
-     * Stateless multicast compression
-     *---------------------------------
-     */
-    else if (!(iphc_flags & LOWPAN_IPHC_FLAG_DST_COMP) && (iphc_flags & LOWPAN_IPHC_FLAG_MCAST_COMP)) {
-    	if (iphc_dst_mode == LOWPAN_IPHC_ADDR_FULL_INLINE) {
-    		length = sizeof(ipv6.ip6_dst);
-    		tvb_memcpy(tvb, &ipv6.ip6_dst.bytes[sizeof(ipv6.ip6_dst) - length], offset, length);
-    	}
-    	else if (iphc_dst_mode == LOWPAN_IPHC_MCAST_48BIT) {
+        else if (iphc_dst_mode == LOWPAN_IPHC_MCAST_48BIT) {
             ipv6.ip6_dst.bytes[0] = 0xff;
             ipv6.ip6_dst.bytes[1] = tvb_get_guint8(tvb, offset + (length++));
             ipv6.ip6_dst.bytes[11] = tvb_get_guint8(tvb, offset + (length++));
@@ -1426,28 +1409,12 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
             return NULL;
         }
     }
-    /*---------------------------------
-     * Stateful unicast compression
-     *---------------------------------
-     */
-    else if ((iphc_flags & LOWPAN_IPHC_FLAG_DST_COMP) && !(iphc_flags & LOWPAN_IPHC_FLAG_MCAST_COMP)) {
-        /* TODO: Stateful address recovery. */
-        addr_err = TRUE;
-        if (iphc_dst_mode == LOWPAN_IPHC_ADDR_64BIT_INLINE) length = sizeof(guint64);
-        else if (iphc_dst_mode == LOWPAN_IPHC_ADDR_16BIT_INLINE) length = sizeof(guint16);
-        else if (iphc_dst_mode == LOWPAN_IPHC_ADDR_COMPRESSED) length = 0;
-        else {
-            /* Illegal destination address compression mode. */
-            expert_add_info_format(pinfo, ti_dam, PI_MALFORMED, PI_ERROR, "Illegal destination address mode");
-            return NULL;
-        }
-    }
-    /*---------------------------------
-     * Stateful multicast compression
-     *---------------------------------
-     */
-    else {
+    /* Stateful multicast compression. */
+    else if ((iphc_flags & LOWPAN_IPHC_FLAG_MCAST_COMP) && (iphc_flags & LOWPAN_IPHC_FLAG_DST_COMP)) {
+        length = 0;
+        memset(&ipv6.ip6_dst, 0, sizeof(ipv6.ip6_dst));
         if (iphc_dst_mode == LOWPAN_IPHC_MCAST_STATEFUL_48BIT) {
+            /* RFC 3306 unicast-prefix based multicast address. */
             ipv6.ip6_dst.bytes[0] = 0xff;
             ipv6.ip6_dst.bytes[1] = tvb_get_guint8(tvb, offset + (length++));
             ipv6.ip6_dst.bytes[2] = tvb_get_guint8(tvb, offset + (length++));
@@ -1463,15 +1430,50 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
             expert_add_info_format(pinfo, ti_dam, PI_MALFORMED, PI_ERROR, "Illegal destination address mode");
             return NULL;
         }
+    }
 
+    /*=====================================================
+     * Parse and decompress a unicast destination address.
+     *=====================================================
+     */
+    else {
+        /* Copy the address from the context table. */
+        length = 0;
+        memcpy(&ipv6.ip6_dst, &lowpan_context_table[iphc_dci], sizeof(ipv6.ip6_dst));
+        /* (DAC=1 && DAM=00) -> reserved value. */
+        if ((iphc_flags & LOWPAN_IPHC_FLAG_DST_COMP) && (iphc_dst_mode == 0)) {
+            /* Illegal destination address compression mode. */
+            expert_add_info_format(pinfo, ti_dam, PI_MALFORMED, PI_ERROR, "Illegal destination address mode");
+            return NULL;
+        }
+        /* The IID is derived from the link-layer source. */
+        else if (iphc_dst_mode == LOWPAN_IPHC_ADDR_COMPRESSED) {
+            length = 0;
+            lowpan_dldst_to_ifcid(pinfo, &ipv6.ip6_dst.bytes[8]);
+        }
+        /* Full Address inline. */
+        else if (iphc_dst_mode == LOWPAN_IPHC_ADDR_FULL_INLINE) {
+            length = sizeof(ipv6.ip6_dst);
+        }
+        /* 64-bits inline. */
+        else if (iphc_dst_mode == LOWPAN_IPHC_ADDR_64BIT_INLINE) {
+            length = sizeof(guint64);
+        }
+        /* 16-bits inline. */
+        else if (iphc_dst_mode == LOWPAN_IPHC_ADDR_16BIT_INLINE) {
+            length = sizeof(guint16);
+            /* Format becomes ff:fe00:xxxx */
+            ipv6.ip6_dst.bytes[11] = 0xff;
+            ipv6.ip6_dst.bytes[12] = 0xfe;
+        }
+        if (length) {
+            tvb_memcpy(tvb, &ipv6.ip6_dst.bytes[sizeof(ipv6.ip6_dst) - length], offset, length);
+        }
     }
 
     /* Display the destination IPv6 address. */
     if (tree) {
         ti = proto_tree_add_ipv6(tree, hf_6lowpan_dest, tvb, offset, length, (guint8 *)&ipv6.ip6_dst);
-    }
-    if (addr_err) {
-        expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, "Failed to recover destination IPv6 address");
     }
     offset += length;
     /*
@@ -1755,7 +1757,8 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
          * this time.
          *
          * If we want to display the checksums, they will have to be recomputed
-         * after packet reassembly.
+         * after packet reassembly. Lots of work for not much gain, since we can
+         * just set the UDP checksum to 0 and Wireshark doesn't care.
          */
         if ((udp_flags & LOWPAN_NHC_UDP_CHECKSUM) && tvb_bytes_exist(tvb, offset, length)) {
             vec_t      cksum_vec[3];
@@ -1863,24 +1866,8 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8              mesh_header;
     proto_tree *        mesh_tree = NULL;
     proto_item *        ti = NULL;
-    guint16             src_pan = IEEE802154_BCAST_PAN;
-    guint16             dst_pan = IEEE802154_BCAST_PAN;
     const guint8 *      src_ifcid;
     const guint8 *      dst_ifcid;
-
-    /*
-     * If 16-bit addresses are used, we need to consult the MAC layer to
-     * retrieve the PAN identifiers used if we want to reconstruct the
-     * interface identifier.
-     */
-    if (pinfo->layer_names && pinfo->layer_names->str) {
-        /* Ensure the MAC layer is IEEE 802.15.4 */
-        if (strstr(pinfo->layer_names->str, "wpan") != NULL) {
-            ieee802154_packet * packet = (ieee802154_packet *)pinfo->private_data;
-            if (packet->src_addr_mode != IEEE802154_FCF_ADDR_NONE) src_pan = packet->src_pan;
-            if (packet->dst_addr_mode != IEEE802154_FCF_ADDR_NONE) dst_pan = packet->dst_pan;
-        }
-    }
 
     /* Create a tree for the mesh header. */
     if (tree) {
@@ -1931,7 +1918,7 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_uint(mesh_tree, hf_6lowpan_mesh_orig16, tvb, offset, sizeof(guint16), addr16);
         }
         ifcid = (guint8 *)ep_alloc(sizeof(guint64));
-        lowpan_addr16_to_ifcid(addr16, src_pan, ifcid);
+        lowpan_addr16_to_ifcid(addr16, ifcid);
         src_ifcid = ifcid;
         offset += sizeof(guint16);
     }
@@ -1954,7 +1941,7 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_uint(mesh_tree, hf_6lowpan_mesh_dest16, tvb, offset, sizeof(guint16), addr16);
         }
         ifcid = (guint8 *)ep_alloc(sizeof(guint64));
-        lowpan_addr16_to_ifcid(addr16, dst_pan, ifcid);
+        lowpan_addr16_to_ifcid(addr16, ifcid);
         dst_ifcid = ifcid;
         offset += sizeof(guint16);
     }
@@ -2381,6 +2368,10 @@ proto_register_6lowpan(void)
         &ett_6lowpan_fragments
     };
 
+    int         i;
+    module_t    *prefs_module;
+    static gchar init_context_str[] = "2002:db8::ff:fe00:0";
+
     proto_6lowpan = proto_register_protocol("IPv6 over IEEE 802.15.4", "6LoWPAN", "6lowpan");
     proto_register_field_array(proto_6lowpan, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -2390,6 +2381,49 @@ proto_register_6lowpan(void)
 
     /* Register the dissector init function */
     register_init_routine(proto_init_6lowpan);
+
+    /* Initialize the context table. */
+    memset(lowpan_context_table, 0, sizeof(lowpan_context_table));
+    memset(lowpan_context_prefs, 0, sizeof(lowpan_context_prefs));
+
+    /* Initialize the link-local prefix. */
+    lowpan_context_table[LOWPAN_CONTEXT_LINK_LOCAL].bytes[0] = 0xfe;
+    lowpan_context_table[LOWPAN_CONTEXT_LINK_LOCAL].bytes[1] = 0x80;
+
+    /* Initialize the default values of the context table. */
+    lowpan_context_prefs[LOWPAN_CONTEXT_DEFAULT] = init_context_str;
+    lowpan_context_table[LOWPAN_CONTEXT_DEFAULT].bytes[0] = 0x20;
+    lowpan_context_table[LOWPAN_CONTEXT_DEFAULT].bytes[1] = 0x02;
+    lowpan_context_table[LOWPAN_CONTEXT_DEFAULT].bytes[2] = 0x0d;
+    lowpan_context_table[LOWPAN_CONTEXT_DEFAULT].bytes[3] = 0xb8;
+    lowpan_context_table[LOWPAN_CONTEXT_DEFAULT].bytes[11] = 0xff;
+    lowpan_context_table[LOWPAN_CONTEXT_DEFAULT].bytes[12] = 0xfe;
+
+    /* Register preferences. */
+    prefs_module = prefs_register_protocol(proto_6lowpan, prefs_6lowpan_apply);
+    for (i = 0; i < LOWPAN_CONTEXT_COUNT; i++) {
+        GString *pref_name, *pref_title, *pref_desc;
+        pref_name = g_string_new("");
+        pref_title = g_string_new("");
+        pref_desc = g_string_new("");
+
+        /*
+         * Inspired by the IEEE 802.11 dissector - the preferences are expecting
+         * that each pref has a unique string passed in, and will crash if we
+         * try to reuse any for multiple preferences. Allocate them off the heap
+         * and leave them allocated. OMG, an intentional memory leak; I must be
+         * an evil developer. Good thing we have MMU's in this day and age.
+         */
+        g_string_printf(pref_name, "context%d", i);
+        g_string_printf(pref_title, "Context %d", i);
+        g_string_printf(pref_desc, "IPv6 prefix to use for stateful address decompression.");
+        prefs_register_string_preference(prefs_module, pref_name->str, pref_title->str,
+            pref_desc->str, (const char **) &lowpan_context_prefs[i]);
+        /* Don't free the ->str */
+        g_string_free(pref_name, FALSE);
+        g_string_free(pref_title, FALSE);
+        g_string_free(pref_desc, FALSE);
+    }
 } /* proto_register_6lowpan */
 
 /*FUNCTION:------------------------------------------------------
@@ -2409,6 +2443,31 @@ proto_init_6lowpan(void)
     fragment_table_init(&lowpan_fragment_table);
     reassembled_table_init(&lowpan_reassembled_table);
 } /* proto_init_6lowpan */
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      prefs_6lowpan_apply
+ *  DESCRIPTION
+ *      Prefs "apply" callback. Parses the context table for
+ *      IPv6 addresses/prefixes.
+ *  PARAMETERS
+ *      none            ;
+ *  RETURNS
+ *      void            ;
+ *---------------------------------------------------------------
+ */
+void
+prefs_6lowpan_apply(void)
+{
+    int     i;
+
+    for (i = 0; i < LOWPAN_CONTEXT_COUNT; i++) {
+        if (!(lowpan_context_prefs[i]) || (inet_pton(AF_INET6, lowpan_context_prefs[i], &lowpan_context_table[i]) != 1)) {
+            /* Missing, or invalid IPv6 address, clear the context. */
+            memset(&lowpan_context_table[i], 0, sizeof(struct e_in6_addr));
+        }
+    } /* for */
+} /* prefs_6lowpan_apply */
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
