@@ -870,28 +870,27 @@ void proto_register_rtse(void) {
 	NULL, 0x00, NULL, HFILL } },
     { &hf_rtse_fragments,
       { "RTSE fragments", "rtse.fragments", FT_NONE, BASE_NONE,
-	NULL, 0x00, "Message fragments", HFILL } },
+	NULL, 0x00, NULL, HFILL } },
     { &hf_rtse_fragment,
       { "RTSE fragment", "rtse.fragment", FT_FRAMENUM, BASE_NONE,
-	NULL, 0x00, "Message fragment", HFILL } },
+	NULL, 0x00, NULL, HFILL } },
     { &hf_rtse_fragment_overlap,
       { "RTSE fragment overlap", "rtse.fragment.overlap", FT_BOOLEAN,
-	BASE_NONE, NULL, 0x0, "Message fragment overlap", HFILL } },
+	BASE_NONE, NULL, 0x0, NULL, HFILL } },
     { &hf_rtse_fragment_overlap_conflicts,
       { "RTSE fragment overlapping with conflicting data",
-	"rtse.fragment.overlap.conflicts", FT_BOOLEAN, BASE_NONE, NULL,
-	0x0, "Message fragment overlapping with conflicting data", HFILL } },
+	"rtse.fragment.overlap.conflicts", FT_BOOLEAN, BASE_NONE,
+	NULL, 0x0, NULL, HFILL } },
     { &hf_rtse_fragment_multiple_tails,
       { "RTSE has multiple tail fragments",
 	"rtse.fragment.multiple_tails", FT_BOOLEAN, BASE_NONE,
-	NULL, 0x0, "Message has multiple tail fragments", HFILL } },
+	NULL, 0x0, NULL, HFILL } },
     { &hf_rtse_fragment_too_long_fragment,
       { "RTSE fragment too long", "rtse.fragment.too_long_fragment",
-	FT_BOOLEAN, BASE_NONE, NULL, 0x0, "Message fragment too long",
-	HFILL } },
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     { &hf_rtse_fragment_error,
       { "RTSE defragmentation error", "rtse.fragment.error", FT_FRAMENUM,
-	BASE_NONE, NULL, 0x00, "Message defragmentation error", HFILL } },
+	BASE_NONE, NULL, 0x00, NULL, HFILL } },
     { &hf_rtse_reassembled_in,
       { "Reassembled RTSE in frame", "rtse.reassembled.in", FT_FRAMENUM, BASE_NONE,
 	NULL, 0x00, "This RTSE packet is reassembled in this frame", HFILL } },
@@ -1000,7 +999,7 @@ void proto_register_rtse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-rtse-hfarr.c ---*/
-#line 352 "packet-rtse-template.c"
+#line 351 "packet-rtse-template.c"
   };
 
   /* List of subtrees */
@@ -1022,7 +1021,7 @@ void proto_register_rtse(void) {
     &ett_rtse_CallingSSuserReference,
 
 /*--- End of included file: packet-rtse-ettarr.c ---*/
-#line 361 "packet-rtse-template.c"
+#line 360 "packet-rtse-template.c"
   };
 
   module_t *rtse_module;
