@@ -295,14 +295,15 @@ static gboolean need_timeout_workaround;
 
 /*
  * Timeout, in microseconds, for reads from the stream of captured packets
- * from a pipe.  Pipes doesn't have the same problem that BPF devices do
+ * from a pipe.  Pipes don't have the same problem that BPF devices do
  * in OS X 10.6, 10.6.1, 10.6.3, and 10.6.4, so we always use a timeout
- * of 250ms.
+ * of 250ms, i.e. the same value as CAP_READ_TIMEOUT when not on one
+ * of the offending versions of Snow Leopard.
  *
- * XXX - why was it 100 for threaded capturing?
+ * XXX - why is it 100 for threaded capturing?
  */
 #ifndef USE_THREADS
-#define PIPE_READ_TIMEOUT   250
+#define PIPE_READ_TIMEOUT   250000
 #else
 #define PIPE_READ_TIMEOUT   100
 #endif
@@ -1587,8 +1588,8 @@ cap_pipe_select(int pipe_fd) {
   FD_ZERO(&rfds);
   FD_SET(pipe_fd, &rfds);
 
-  timeout.tv_sec = 0;
-  timeout.tv_usec = PIPE_READ_TIMEOUT * 1000;
+  timeout.tv_sec = PIPE_READ_TIMEOUT / 1000000;
+  timeout.tv_usec = PIPE_READ_TIMEOUT % 1000000;
 
   sel_ret = select(pipe_fd+1, &rfds, NULL, NULL, &timeout);
   if (sel_ret < 0)
