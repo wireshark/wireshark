@@ -1138,11 +1138,14 @@ reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, gint hf_id, tvbuff_t
 
   /* so we need to consume octet strings for the given length */
 
-  /* not sure we need this */
-  actx->pinfo->fragmented = TRUE;
-
   if(out_tvb)
     *out_tvb=NULL;
+
+  if (con_len == 0) /* Zero encodings (8.7.3) */
+    return offset;
+
+  /* not sure we need this */
+  actx->pinfo->fragmented = TRUE;
 
   while(!fd_head) {
 
