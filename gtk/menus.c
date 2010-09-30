@@ -1003,7 +1003,7 @@ find_previous_ref_time_cb(GtkWidget *widget, gpointer user_data)
 }
 
 static void
-prefs_cb(GtkWidget *widget, gpointer user_data)
+menus_prefs_cb(GtkWidget *widget, gpointer user_data)
 {
 	prefs_page_cb( widget , user_data, PREFS_PAGE_USER_INTERFACE);
 }
@@ -1695,7 +1695,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 Not implemeted.
 #endif /* NEW_PACKET_LIST */
    { "/Edit/ConfigurationProfiles",	NULL,					"_Configuration Profiles...",			"<shift><control>A",		NULL,			G_CALLBACK(profile_dialog_cb) },
-   { "/Edit/Preferences",			GTK_STOCK_PREFERENCES,	"_Preferences...",						"<shift><control>P",		NULL,			G_CALLBACK(prefs_cb) },
+   { "/Edit/Preferences",			GTK_STOCK_PREFERENCES,	"_Preferences...",						"<shift><control>P",		NULL,			G_CALLBACK(menus_prefs_cb) },
 
 
    { "/View/TimeDisplayFormat",		NULL,					"_Time Display Format",					NULL,						NULL,			NULL },
