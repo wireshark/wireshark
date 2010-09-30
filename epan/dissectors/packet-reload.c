@@ -573,7 +573,7 @@ static int dissect_opaque(tvbuff_t *tvb, packet_info *pinfo,proto_tree *tree, in
   }
   
   opaque_tree = proto_item_add_subtree(ti_anchor, ett_reload_opaque);
-  proto_tree_add_uint(opaque_tree, length_index, tvb, offset, length_size, (uint)length);
+  proto_tree_add_uint(opaque_tree, length_index, tvb, offset, length_size, (guint)length);
   proto_tree_add_item(opaque_tree, hf_reload_opaque_data, tvb, offset + length_size, length, FALSE);
 
   return (length_size + length); 
