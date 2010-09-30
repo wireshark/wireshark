@@ -1168,7 +1168,7 @@ static tvbuff_t *
 dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dgram_size)
 {
     gint                offset = 0;
-    gint                length;
+    gint                length = 0;
     proto_tree *        iphc_tree = NULL;
     proto_item *        ti = NULL;
     proto_item *        ti_sam = NULL;
