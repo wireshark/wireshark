@@ -104,6 +104,11 @@ extern void set_profile_name(const gchar *profilename);
 extern const char *get_profile_name(void);
 
 /*
+ * Check if current profile is default profile.
+ */
+extern gboolean is_default_profile(void);
+
+/*
  * Get the directory used to store configuration profile directories.
  */
 extern const char *get_profiles_dir(void);

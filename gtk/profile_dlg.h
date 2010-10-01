@@ -39,6 +39,34 @@
  */
 gboolean profile_show_popup_cb(GtkWidget *w _U_, GdkEvent *event, gpointer user_data _U_);
 
+/** User requested to create a new profile.
+ *
+ * @param w parent widget (unused)
+ * @param data pointer to user_data (unused)
+ */
+void profile_new_cb (GtkWidget *w _U_, gpointer data _U_);
+
+/** User requested to copy the current profile.
+ *
+ * @param w parent widget (unused)
+ * @param data pointer to user_data (unused)
+ */
+void profile_copy_cb (GtkWidget *w _U_, gpointer data _U_);
+
+/** User requested to delete the current profile.
+ *
+ * @param w parent widget (unused)
+ * @param data pointer to user_data (unused)
+ */
+void profile_delete_cb (GtkWidget *w _U_, gpointer data _U_);
+
+/** User requested to rename the current profile.
+ *
+ * @param w parent widget (unused)
+ * @param data pointer to user_data (unused)
+ */
+void profile_rename_cb (GtkWidget *w _U_, gpointer data _U_);
+
 /** User requested the "Configuration Profiles" dialog box by menu or toolbar.
  *
  * @param widget parent widget

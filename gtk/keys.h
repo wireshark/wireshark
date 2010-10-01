@@ -53,6 +53,7 @@
 #define PM_PACKET_LIST_KEY				"popup_menu_packet_list"
 #define PM_TREE_VIEW_KEY				"popup_menu_tree_view"
 #define PM_BYTES_VIEW_KEY				"popup_menu_bytes_view"
+#define PM_STATUSBAR_PROFILES_KEY		       	"popup_menu_statusbar_profiles"
 
 #define E_TB_MAIN_KEY					"toolbar_main"
 #define E_TB_FILTER_KEY					"toolbar_filter"

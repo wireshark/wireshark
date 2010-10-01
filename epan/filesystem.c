@@ -965,6 +965,12 @@ get_profile_name(void)
 	}
 }
 
+gboolean
+is_default_profile(void)
+{
+	return (!persconfprofile || strcmp(persconfprofile, DEFAULT_PROFILE) == 0) ? TRUE : FALSE;
+}
+
 void
 profile_store_persconffiles(gboolean store)
 {

@@ -39,6 +39,7 @@
 #include <wsutil/file_util.h>
 
 #include "gtk/main.h"
+#include "gtk/menus.h"
 #include "gtk/profile_dlg.h"
 #include "gtk/dlg_utils.h"
 #include "gtk/gui_utils.h"
@@ -59,6 +60,10 @@ static GList *edited_profiles = NULL;
 #define PROF_STAT_NEW      3
 #define PROF_STAT_CHANGED  4
 #define PROF_STAT_COPY     5
+
+#define PROF_OPERATION_NEW  1
+#define PROF_OPERATION_COPY 2
+#define PROF_OPERATION_EDIT 3
 
 typedef struct {
   char *name;           /* profile name */
@@ -242,7 +247,7 @@ fill_list(GtkWidget *main_w)
 }
 
 static gboolean
-profile_is_invalid_name(gchar *name)
+profile_is_invalid_name(const gchar *name)
 {
   gchar  *message = NULL;
 
@@ -918,6 +923,11 @@ profile_show_popup_cb (GtkWidget *w _U_, GdkEvent *event, gpointer user_data _U_
 
   menu = gtk_menu_new ();
 
+  if (bevent->button != 1) {
+    GtkWidget *top_menu = menus_get_profiles_menu ();
+    gtk_menu_item_set_submenu (GTK_MENU_ITEM(top_menu), menu);
+  }
+
   /* Add a menu item for the Default profile */
   menu_item = gtk_check_menu_item_new_with_label (DEFAULT_PROFILE);
   if (strcmp (profile_name, DEFAULT_PROFILE)==0) {
@@ -948,10 +958,224 @@ profile_show_popup_cb (GtkWidget *w _U_, GdkEvent *event, gpointer user_data _U_
     }
   }
 
+  if (bevent->button != 1) {
+    /* Second-click is handled in popup_menu_handler() */
+    return FALSE;
+  }
+
   gtk_menu_popup (GTK_MENU(menu), NULL, NULL, NULL, NULL,
 		  bevent->button, bevent->time);
 
   return TRUE;
+}
+
+static void
+profile_name_edit_ok (GtkWidget *w _U_, gpointer parent_w)
+{
+  gint operation = GPOINTER_TO_INT(g_object_get_data (G_OBJECT(w), "operation"));
+  GtkWidget *entry = g_object_get_data (G_OBJECT(w), "entry");
+  const gchar *new_name =  gtk_entry_get_text(GTK_ENTRY(entry));
+  const gchar *profile_name = get_profile_name();
+  char        *pf_dir_path, *pf_dir_path2, *pf_filename;
+
+  if (strlen(new_name) == 0 || profile_is_invalid_name(new_name)) {
+    return;
+  }
+
+  if (operation == PROF_OPERATION_EDIT && strcmp(new_name, profile_name) == 0) {
+    /* Rename without a change, do nothing */
+    window_destroy(GTK_WIDGET(parent_w));
+    return;
+  }
+
+  if (profile_exists (new_name)) {
+    simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+		  "The profile already exists:\n%s.", new_name);
+    return;
+  }
+
+  switch (operation) {
+  case PROF_OPERATION_NEW:
+    if (create_persconffile_profile(new_name, &pf_dir_path) == -1) {
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    "Can't create directory\n\"%s\":\n%s.",
+		    pf_dir_path, strerror(errno));
+      
+      g_free(pf_dir_path);
+    } else {
+      change_configuration_profile (new_name);
+    }
+    break;
+  case PROF_OPERATION_COPY:
+    if (create_persconffile_profile(new_name, &pf_dir_path) == -1) {
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    "Can't create directory\n\"%s\":\n%s.",
+		    pf_dir_path, strerror(errno));
+      
+      g_free(pf_dir_path);
+    } else {
+      if (copy_persconffile_profile(new_name, profile_name, &pf_filename,
+				    &pf_dir_path, &pf_dir_path2) == -1) {
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		      "Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
+		      pf_filename, pf_dir_path2, pf_dir_path, strerror(errno));
+	
+	g_free(pf_filename);
+	g_free(pf_dir_path);
+	g_free(pf_dir_path2);
+      } else {
+	change_configuration_profile (new_name);
+      }
+    }
+    break;
+  case PROF_OPERATION_EDIT:
+    if (rename_persconffile_profile(profile_name, new_name,
+				    &pf_dir_path, &pf_dir_path2) == -1) {
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    "Can't rename directory\n\"%s\" to\n\"%s\":\n%s.",
+		    pf_dir_path, pf_dir_path2, strerror(errno));
+      
+      g_free(pf_dir_path);
+      g_free(pf_dir_path2);
+    } else {
+      change_configuration_profile (new_name);
+    }
+    break;
+  default:
+      g_assert_not_reached();
+  }
+
+  window_destroy(GTK_WIDGET(parent_w));
+}
+
+static void
+profile_name_edit_cancel (GtkWidget *w _U_, gpointer parent_w)
+{
+  window_destroy(GTK_WIDGET(parent_w));
+}
+
+static void
+profile_name_edit_dlg (gint operation)
+{
+  GtkWidget   *win, *main_tb, *main_vb, *bbox, *cancel_bt, *ok_bt;
+  GtkWidget   *entry, *label;
+  gchar       *window_title, *new_name;
+  const gchar *profile_name;
+  GtkTooltips *tooltips;
+
+  tooltips = gtk_tooltips_new();
+  profile_name = get_profile_name();
+
+  switch (operation) {
+  case PROF_OPERATION_NEW:
+    window_title = g_strdup ("Create New Profile");
+    break;
+  case PROF_OPERATION_COPY:
+    window_title = g_strdup_printf ("Copy: %s", profile_name);
+    break;
+  case PROF_OPERATION_EDIT:
+    window_title = g_strdup_printf ("Rename: %s", profile_name);
+    break;
+  default:
+    g_assert_not_reached();
+  }
+
+  win = dlg_window_new(window_title);
+  g_free (window_title);
+
+  gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
+  gtk_window_resize(GTK_WINDOW(win), 400, 100);
+
+  main_vb = gtk_vbox_new(FALSE, 5);
+  gtk_container_add(GTK_CONTAINER(win), main_vb);
+  gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
+
+  main_tb = gtk_table_new(2, 2, FALSE);
+  gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
+  gtk_table_set_col_spacings(GTK_TABLE(main_tb), 10);
+
+  label = gtk_label_new(ep_strdup_printf("Profile name:"));
+  gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 1, 2);
+  gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
+
+  entry = gtk_entry_new();
+  gtk_table_attach_defaults(GTK_TABLE(main_tb), entry, 1, 2, 1, 2);
+  switch (operation) {
+  case PROF_OPERATION_NEW:
+    gtk_entry_set_text(GTK_ENTRY(entry), "New profile");
+    break;
+  case PROF_OPERATION_COPY:
+    new_name = g_strdup_printf ("%s (copy)", profile_name);
+    gtk_entry_set_text(GTK_ENTRY(entry), new_name);
+    g_free (new_name);
+    break;
+  case PROF_OPERATION_EDIT:
+    gtk_entry_set_text(GTK_ENTRY(entry), profile_name);
+    break;
+  default:
+    g_assert_not_reached();
+    break;
+  }
+#ifdef _WIN32
+  gtk_tooltips_set_tip (tooltips, entry, "A profile name cannot start or end with a period (.), and cannot contain any of the following characters:\n   \\ / : * ? \" < > |", NULL);
+#else
+  gtk_tooltips_set_tip (tooltips, entry, "A profile name cannot contain the '/' character", NULL);
+#endif
+
+  bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_OK, NULL);
+  gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
+
+  ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+  g_object_set_data (G_OBJECT(ok_bt), "entry", entry);
+  g_object_set_data (G_OBJECT(ok_bt), "operation", GINT_TO_POINTER(operation));
+  g_signal_connect(ok_bt, "clicked", G_CALLBACK(profile_name_edit_ok), win);
+
+  dlg_set_activate(entry, ok_bt);
+
+  cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+  g_signal_connect(cancel_bt, "clicked", G_CALLBACK(profile_name_edit_cancel), win);
+  window_set_cancel_button(win, cancel_bt, NULL);
+
+  gtk_widget_grab_default(ok_bt);
+  gtk_widget_show_all(win);
+}
+
+void
+profile_new_cb (GtkWidget *w _U_, gpointer data _U_)
+{
+  profile_name_edit_dlg (PROF_OPERATION_NEW);
+}
+
+void
+profile_copy_cb (GtkWidget *w _U_, gpointer data _U_)
+{
+  profile_name_edit_dlg (PROF_OPERATION_COPY);
+}
+
+void
+profile_delete_cb (GtkWidget *w _U_, gpointer data _U_)
+{
+  const gchar *name = get_profile_name();
+  char        *pf_dir_path;
+
+  if (profile_exists(name) && strcmp (name, DEFAULT_PROFILE) != 0) {
+    if (delete_persconffile_profile(name, &pf_dir_path) == -1) {
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    "Can't delete profile directory\n\"%s\":\n%s.",
+		    pf_dir_path, strerror(errno));
+      
+      g_free(pf_dir_path);
+    }
+
+    /* Change to the default profile */
+    change_configuration_profile (NULL);
+  }
+}
+
+void
+profile_rename_cb (GtkWidget *w _U_, gpointer data _U_)
+{
+  profile_name_edit_dlg (PROF_OPERATION_EDIT);
 }
 
 /* Create a profile dialog for editing display profiles; this is to be used

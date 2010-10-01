@@ -56,6 +56,8 @@
 #include "gtk/profile_dlg.h"
 #include "gtk/main_welcome.h"
 #include "gtk/expert_indicators.h"
+#include "gtk/keys.h"
+#include "gtk/menus.h"
 
 /*
  * The order below defines the priority of info bar contexts.
@@ -411,6 +413,8 @@ profile_bar_new(void)
     profile_bar = gtk_statusbar_new();
     gtk_container_add(GTK_CONTAINER(profile_bar_event), profile_bar);
     g_signal_connect(profile_bar_event, "button_press_event", G_CALLBACK(profile_show_popup_cb), NULL);
+    g_signal_connect(profile_bar_event, "button_press_event", G_CALLBACK(popup_menu_handler),
+		     g_object_get_data(G_OBJECT(popup_menu_object), PM_STATUSBAR_PROFILES_KEY));
     profile_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(profile_bar), "profile");
     gtk_tooltips_set_tip (tooltips, profile_bar_event,
                           "Click to change configuration profile", NULL);
@@ -478,8 +482,9 @@ profile_bar_update(void)
         }
 
         profile_str = g_strdup_printf (" Profile: %s", get_profile_name ());
-
         gtk_statusbar_push(GTK_STATUSBAR(profile_bar), profile_ctx, profile_str);
+
+        set_menus_for_profiles(is_default_profile());
     }
 }
 

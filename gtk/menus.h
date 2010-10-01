@@ -120,6 +120,9 @@ void menus_set_column_align_default (gboolean right_justify);
 /* Update the packet list heading menu to indicate if column can be resolved. */
 void menus_set_column_resolved (gboolean resolved, gboolean can_resolve);
 
+/* Fetch the statusbar profiles submenu */
+extern GtkWidget *menus_get_profiles_menu (void);
+
 /* Enable or disable menu items based on whether a tree row is selected
    and and on whether a "Match Selected" can be done. */
 void set_menus_for_selected_tree_row(capture_file *cf);
@@ -141,6 +144,9 @@ void set_menus_for_captured_packets(gboolean);
 
 /* Enable or disable menu items based on whether a packet is selected. */
 void set_menus_for_selected_packet(capture_file *cf);
+
+/* Enable or disable menu items based on configuration profile */
+void set_menus_for_profiles(gboolean default_profile);
 
 /*#define MAIN_MENU_USE_UIMANAGER 1 */
 

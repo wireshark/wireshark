@@ -44,7 +44,6 @@
 #include <epan/plugins.h>
 #include <epan/epan_dissect.h>
 #include <epan/column.h>
-#include "gtk/dissector_tables_dlg.h"
 
 #include "../print.h"
 #include "../ui_util.h"
@@ -96,6 +95,7 @@
 #include "gtk/gui_utils.h"
 #include "gtk/manual_addr_resolv.h"
 #include "gtk/proto_help.h"
+#include "gtk/dissector_tables_dlg.h"
 
 #define MENUS_USE_UIMANAGER 1
 
@@ -2279,6 +2279,7 @@ static GtkUIManager *ui_manager_packet_list_heading = NULL;
 static GtkUIManager *ui_manager_packet_list_menu = NULL;
 static GtkUIManager *ui_manager_tree_view_menu = NULL;
 static GtkUIManager *ui_manager_bytes_menu = NULL;
+static GtkUIManager *ui_manager_statusbar_profiles_menu = NULL;
 #else
 static GtkItemFactory *packet_list_heading_factory = NULL;
 static GtkItemFactory *packet_list_menu_factory = NULL;
@@ -3458,6 +3459,32 @@ static const GtkRadioActionEntry bytes_menu_radio_action_entries [] =
 	{ "/HexView",	NULL,		"Hex View",	NULL,	NULL,	  BYTES_HEX },
 	{ "/BitsView",	NULL,		"Bits View",	NULL,	NULL,	  BYTES_BITS },
 };
+
+static const char *ui_statusbar_profiles_menu_popup =
+"<ui>\n"
+"  <popup name='ProfilesMenuPopup' action='PopupAction'>\n"
+"     <menuitem name='Profiles' action='/Profiles'/>\n"
+"     <separator/>\n"
+"     <menuitem name='New' action='/New'/>\n"
+"     <menuitem name='Copy' action='/Copy'/>\n"
+"     <menuitem name='Delete' action='/Delete'/>\n"
+"     <menuitem name='Rename' action='/Rename'/>\n"
+"     <separator/>\n"
+"     <menu name='Change' action='/Change'>\n"
+"        <menuitem name='Default' action='/Change/Default'/>\n"
+"     </menu>\n"
+"  </popup>\n"
+"</ui>\n";
+static const GtkActionEntry statusbar_profiles_menu_action_entries [] =
+{
+	{ "/Profiles",	NULL,	"Configuration Profiles...",	NULL,	NULL,	  G_CALLBACK(profile_dialog_cb) },
+	{ "/New",	GTK_STOCK_NEW,	"New...",	NULL,	NULL,	  G_CALLBACK(profile_new_cb) },
+	{ "/Copy",	GTK_STOCK_COPY,	"Copy...",	NULL,	NULL,	  G_CALLBACK(profile_copy_cb) },
+	{ "/Delete",	GTK_STOCK_DELETE,	"Delete",	NULL,	NULL,	  G_CALLBACK(profile_delete_cb) },
+	{ "/Rename",	GTK_STOCK_EDIT,	"Rename...",	NULL,	NULL,	  G_CALLBACK(profile_rename_cb) },
+	{ "/Change",	NULL,		"Change",	NULL,	NULL,	NULL },
+	{ "/Change/Default",	NULL,	"Default",	NULL,	NULL,	  NULL },
+};
 #endif
 
 GtkWidget *
@@ -3617,7 +3644,8 @@ static void
 menus_init(void) {
 #ifdef MENUS_USE_UIMANAGER
     GtkActionGroup *packet_list_heading_action_group, *packet_list_action_group,
-                    *packet_list_details_action_group, *packet_list_byte_menu_action_group;
+        *packet_list_details_action_group, *packet_list_byte_menu_action_group,
+        *statusbar_profiles_action_group;
     GError *error = NULL;
 #endif
 
@@ -3748,7 +3776,7 @@ menus_init(void) {
      * for text widgets.
      */
 #ifdef MENUS_USE_UIMANAGER
-    packet_list_byte_menu_action_group = gtk_action_group_new ("PacketListDetailsMenuPopUpActionGroup");
+    packet_list_byte_menu_action_group = gtk_action_group_new ("PacketListByteMenuPopUpActionGroup");
 
 
     gtk_action_group_add_radio_actions  (packet_list_byte_menu_action_group,            /* the action group */
@@ -3830,6 +3858,35 @@ menus_init(void) {
     main_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", grp);
     gtk_item_factory_create_items_ac(main_menu_factory, nmenu_items, menu_items, NULL, 2);
 #endif /* MAIN_MENU_USE_UIMANAGER */
+
+#ifdef MENUS_USE_UIMANAGER
+    statusbar_profiles_action_group = gtk_action_group_new ("StatusBarProfilesPopUpMenuActionGroup");
+
+    gtk_action_group_add_actions (statusbar_profiles_action_group,            /* the action group */
+        statusbar_profiles_menu_action_entries,                        /* an array of action descriptions */
+        G_N_ELEMENTS(statusbar_profiles_menu_action_entries),        /* the number of entries */
+        popup_menu_object);                                                    /* data to pass to the action callbacks */
+
+    ui_manager_statusbar_profiles_menu = gtk_ui_manager_new ();
+    gtk_ui_manager_insert_action_group (ui_manager_statusbar_profiles_menu,
+        statusbar_profiles_action_group,
+        0); /* the position at which the group will be inserted.  */
+
+    gtk_ui_manager_add_ui_from_string (ui_manager_statusbar_profiles_menu,ui_statusbar_profiles_menu_popup, -1, &error);
+    if (error != NULL)
+    {
+        fprintf (stderr, "Warning: building Statusbar Profiles Pop-Up failed: %s\n",
+                error->message);
+        g_error_free (error);
+        error = NULL;
+    }
+
+    g_object_set_data(G_OBJECT(popup_menu_object), PM_STATUSBAR_PROFILES_KEY,
+                   gtk_ui_manager_get_widget(ui_manager_statusbar_profiles_menu, "/ProfilesMenuPopup"));
+
+    popup_menu_list = g_slist_append((GSList *)popup_menu_list, ui_manager_statusbar_profiles_menu);
+#endif /* MENUS_USE_UIMANAGER */
+
     menu_dissector_filter();
     merge_all_tap_menus(tap_menu_tree_root);
 
@@ -6864,6 +6921,23 @@ void set_menus_for_file_set(gboolean file_set, gboolean previous_file, gboolean 
     set_menu_sensitivity_old(main_menu_factory, "/File/File Set/Previous File", previous_file);
     set_menu_sensitivity_old(main_menu_factory, "/File/File Set/Next File", next_file);
 #endif /* MAIN_MENU_USE_UIMANAGER */
+}
+
+GtkWidget *menus_get_profiles_menu (void)
+{
+#ifdef MENUS_USE_UIMANAGER
+    return gtk_ui_manager_get_widget(ui_manager_statusbar_profiles_menu, "/ProfilesMenuPopup/Change");
+#else
+    return NULL;
+#endif /* MENUS_USE_UIMANAGER */
+}
+
+void set_menus_for_profiles(gboolean default_profile)
+{
+#ifdef MENUS_USE_UIMANAGER
+    set_menu_sensitivity(ui_manager_statusbar_profiles_menu, "/ProfilesMenuPopup/Delete", !default_profile);
+    set_menu_sensitivity(ui_manager_statusbar_profiles_menu, "/ProfilesMenuPopup/Rename", !default_profile);
+#endif /* MENUS_USE_UIMANAGER */
 }
 
 /*
