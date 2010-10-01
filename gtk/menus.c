@@ -3481,7 +3481,11 @@ static const GtkActionEntry statusbar_profiles_menu_action_entries [] =
 	{ "/New",	GTK_STOCK_NEW,	"New...",	NULL,	NULL,	  G_CALLBACK(profile_new_cb) },
 	{ "/Copy",	GTK_STOCK_COPY,	"Copy...",	NULL,	NULL,	  G_CALLBACK(profile_copy_cb) },
 	{ "/Delete",	GTK_STOCK_DELETE,	"Delete",	NULL,	NULL,	  G_CALLBACK(profile_delete_cb) },
+#if GLIB_CHECK_VERSION(2,6,0)
 	{ "/Rename",	GTK_STOCK_EDIT,	"Rename...",	NULL,	NULL,	  G_CALLBACK(profile_rename_cb) },
+#else
+	{ "/Rename",	NULL,	"Rename...",	NULL,	NULL,	  G_CALLBACK(profile_rename_cb) },
+#endif
 	{ "/Change",	NULL,		"Change",	NULL,	NULL,	NULL },
 	{ "/Change/Default",	NULL,	"Default",	NULL,	NULL,	  NULL },
 };
