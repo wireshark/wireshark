@@ -405,10 +405,13 @@ endforeach()
 
 add_subdirectory( codecs )
 add_subdirectory( epan )
-add_subdirectory( gtk )
 add_subdirectory( tools/lemon )
 add_subdirectory( wiretap )
 add_subdirectory( wsutil )
+
+if(BUILD_wireshark and GTK2_FOUND)
+	add_subdirectory( gtk )
+endif()
 
 # Basedir where to install guides
 set(DOC_DIR "$ENV{docdir}")
@@ -619,7 +622,7 @@ set(LIBEPAN_LIBS
 		${M_LIBRARIES}
 )
 
-if(BUILD_wireshark)
+if(BUILD_wireshark and GTK2_FOUND)
 	set(wireshark_LIBS
 		ui
 		${GTK2_LIBRARIES}
