@@ -221,79 +221,89 @@ endif()
 # - set HAVE_XXX
 
 #The minimum package list
-set(PACKAGELIST GLIB2 GMODULE2 PCAP M LEX YACC Perl SH PythonInterp HtmlViewer ${PACKAGELIST})
-
+set(PACKAGELIST GLIB2 GMODULE2 PCAP M LEX YACC Perl SH PythonInterp)
 set(GLIB2_FIND_REQUIRED)
 set(GLIB2_MIN_VERSION 2.4.0)
+set(PCAP_REQUIRED)
+set(M_REQUIRED)
+
+set(PACKAGELIST ${PACKAGELIST} HtmlViewer)
 
 #Build the gui ?
 if(BUILD_wireshark)
-	set(PACKAGELIST GTK2 ${PACKAGELIST})
+	set(PACKAGELIST ${PACKAGELIST} GTK2)
 	set(GTK2_OPTIONS COMPONENTS gtk)
 	set(GTK2_DEBUG false)
 endif()
 
 # SMI SNMP
 if(ENABLE_SMI)
-	set(PACKAGELIST SMI ${PACKAGELIST})
+	set(PACKAGELIST ${PACKAGELIST} SMI)
 endif()
 
 # GNU crypto
 if(ENABLE_GCRYPT)
-	set(PACKAGELIST GCRYPT ${PACKAGELIST})
+	set(PACKAGELIST ${PACKAGELIST} GCRYPT)
 endif()
 
 # GNU SSL/TLS support
 if(ENABLE_GNUTLS)
-	set(PACKAGELIST GNUTLS ${PACKAGELIST})
+	set(PACKAGELIST ${PACKAGELIST} GNUTLS)
 endif()
 
 # Regular expressions lib
 if(ENABLE_PCRE)
-	set(PACKAGELIST PCRE ${PACKAGELIST})
+	set(PACKAGELIST ${PACKAGELIST} PCRE)
 endif()
 
 # Kerberos
 if(ENABLE_KERBEROS)
-	set(PACKAGELIST KERBEROS ${PACKAGELIST})
+	set(PACKAGELIST ${PACKAGELIST} KERBEROS)
 endif()
 
 # Portable audio
 if(ENABLE_PORTAUDIO)
-	set(PACKAGELIST PORTAUDIO ${PACKAGELIST})
+	set(PACKAGELIST ${PACKAGELIST} PORTAUDIO)
 endif()
 
 
 # Prefer c-ares over adns
 if(ENABLE_CARES)        # C Asynchronouse resolver
-	set(PACKAGELIST CARES ${PACKAGELIST})
+	set(PACKAGELIST ${PACKAGELIST} CARES)
 elseif(ENABLE_ADNS)     # Gnu asynchronous DNS
-	set(PACKAGELIST ADNS ${PACKAGELIST})
+	set(PACKAGELIST ${PACKAGELIST} ADNS)
 endif()
 
 # Zlib compression
 if(ENABLE_ZLIB)
-	set(PACKAGELIST ZLIB ${PACKAGELIST})
+	set(PACKAGELIST ${PACKAGELIST} ZLIB)
 endif()
 
 # Lua 5.1 dissectors
 if(ENABLE_LUA)
-	set(PACKAGELIST LUA ${PACKAGELIST})
+	set(PACKAGELIST ${PACKAGELIST} LUA)
 endif()
 
 # GeoIP address resolving
 if(ENABLE_GEOIP)
-	set(PACKAGELIST GEOIP ${PACKAGELIST})
+	set(PACKAGELIST ${PACKAGELIST} GEOIP)
 endif()
 
 # Capabilities
 if(ENABLE_CAP)
-	set(PACKAGELIST CAP ${PACKAGELIST})
+	set(PACKAGELIST ${PACKAGELIST} CAP)
 endif()
 
 if(ENABLE_PYTHON)
-	set(PACKAGELIST PYTHON ${PACKAGELIST})
+	set(PACKAGELIST ${PACKAGELIST} PYTHON)
 endif()
+
+set(PACKAGELIST ${PACKAGELIST} YAPP)
+
+if(ENABLE_GUIDES)
+	set(PACKAGELIST ${PACKAGELIST} POD)
+endif()
+
 
 set(PROGLIST text2pcap mergecap capinfos editcap dumpcap)
 
@@ -301,8 +311,10 @@ set(PROGLIST text2pcap mergecap capinfos editcap dumpcap)
 foreach(PACKAGE ${PACKAGELIST})
 	if(${PACKAGE}_OPTIONS)
 		find_package(${PACKAGE} ${${PACKAGE}_OPTIONS})
-	else()
+	elseif(${PACKAGE}_REQUIRED)
 		find_package(${PACKAGE} REQUIRED)
+	else()
+		find_package(${PACKAGE})
 	endif()
 	message(${PACKAGE}_FOUND)
 	if (${PACKAGE}_FOUND)
@@ -312,8 +324,6 @@ foreach(PACKAGE ${PACKAGELIST})
 		message(STATUS "${PACKAGE} libs: ${${PACKAGE}_LIBRARIES}")
 	endif()
 endforeach()
-
-find_package(YAPP)
 
 #packaging
 include(CPackConfig.txt)
@@ -407,8 +417,6 @@ message(STATUS "docdir: ${DOC_DIR}")
 if(ENABLE_GUIDES)
 	add_subdirectory( docbook )
 endif()
-
-find_package(POD)
 
 #Platform specific
 if(UNIX)
