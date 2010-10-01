@@ -1051,6 +1051,11 @@ standard libpcap format.
 	      </listitem>
 	      <listitem>
 		<para>
+		  ESS Category Attributes (ess_category_attributes) (<xref linkend="ChEssCategoryAttributes"/>)
+		</para>
+	      </listitem>
+	      <listitem>
+		<para>
 		  GeoIP Database Paths (geoip_db_paths) (<xref linkend="ChGeoIPDbPaths"/>)
 		</para>
 	      </listitem>
@@ -1076,16 +1081,6 @@ standard libpcap format.
 	      </listitem>
 	      <listitem>
 		<para>
-		  SMI Modules (smi_modules) (<xref linkend="ChSNMPSMIModules"/>)
-		</para>
-	      </listitem>
-	      <listitem>
-		<para>
-		  SMI Paths (smi_paths) (<xref linkend="ChSNMPSMIPaths"/>)
-		</para>
-	      </listitem>
-	      <listitem>
-		<para>
 		  SNMP Enterprise Specific Trap Types (snmp_specific_traps) (<xref linkend="ChSNMPEnterpriseSpecificTrapTypes"/>)
 		</para>
 	      </listitem>
@@ -1097,6 +1092,11 @@ standard libpcap format.
 	      <listitem>
 		<para>
 		  User DLTs Table (user_dlts) (<xref linkend="ChUserDLTsSection"/>)
+		</para>
+	      </listitem>
+	      <listitem>
+		<para>
+		  IKEv2 decryption table (ikev2_decryption_table) (<xref linkend="ChIKEv2DecryptionSection"/>)
 		</para>
 	      </listitem>
 	    </itemizedlist>
@@ -1315,34 +1315,83 @@ standard libpcap format.
     </variablelist>
   </section>
 
-
-    <section id="ChK12ProtocolsSection"><title>Tektronix K12xx/15 RF5 protocols Table</title>
+      <section id="ChIKEv2DecryptionSection"><title>IKEv2 decryption table</title>
     <para>
-	The Tektronix K12xx/15 rf5 file format uses helper files (*.stk) to identify the various protocols that are
-	used by a certain interface. Wireshark doesn't read these stk files, it uses a table that helps it identify
-	which lowest layer protocol to use.
+          Wireshark can decrypt Encrypted Payloads of IKEv2 (Internet Key Exchange version 2) packets if necessary information is provided.
+          Note that you can decrypt only IKEv2 packets with this feature. If you want to decrypt IKEv1 packets or ESP packets,
+          use Log Filename setting under ISAKMP protocol preference or settings under ESP protocol preference respectively.
    </para>
    <para>
-         Stk file to protocol matching is handled by an <xref linkend="ChUserTable"/> with the following fields.
+         This table is handled by an <xref linkend="ChUserTable"/> with the following fields.
       </para>
       <variablelist>
-	  <varlistentry><term><command>Match string</command></term>
+	  <varlistentry><term><command>Initiator's SPI</command></term>
 	  <listitem>
 		<para>
-		   A partial match for an stk filename, the first match wins, so if you have a specific case and a
-		   general one the specific one must appear first in the list.
+			Initiator's SPI of the IKE_SA. This field takes hexadecimal string without "0x" prefix
+                        and the length must be 16 hex chars (represents 8 octets).
 		</para>
 	  </listitem>
 	  </varlistentry>
-	  <varlistentry><term><command>Protocol</command></term>
+	  <varlistentry><term><command>Responder's SPI</command></term>
 	  <listitem>
 		<para>
-			This is the name of the encapsulating protocol (the lowest layer in the packet data) it can be either
-			just the name of the protocol (e.g. mtp2, eth_witoutfcs, sscf-nni ) or the name of the encapsulation
-			protocol and the "application" protocol over it separated by a colon (e.g sscop:sscf-nni, sscop:alcap, sscop:nbap, ...)
+			Responder's SPI of the IKE_SA. This field takes hexadecimal string without "0x" prefix
+                        and the length must be 16 hex chars (represents 8 octets).
 		</para>
 	  </listitem>
 	  </varlistentry>
+	  <varlistentry><term><command>SK_ei</command></term>
+	  <listitem>
+		<para>
+			Key used to encrypt/decrypt IKEv2 packets from initiator to responder.
+                        This field takes hexadecimal string without "0x" prefix and its length
+                        must meet the requirement of the encryption algorithm selected.
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>SK_er</command></term>
+	  <listitem>
+		<para>
+			Key used to encrypt/decrypt IKEv2 packets from responder to initiator.
+                        This field takes hexadecimal string without "0x" prefix and its length
+                        must meet the requirement of the encryption algorithm selected.
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  	  <varlistentry><term><command>Encryption Algorithm</command></term>
+	  <listitem>
+		<para>
+			Encryption algorithm of the IKE_SA.
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>SK_ai</command></term>
+	  <listitem>
+		<para>
+			Key used to calculate Integrity Checksum Data for IKEv2 packets from responder to initiator.
+                        This field takes hexadecimal string without "0x" prefix and its length
+                        must meet the requirement of the integrity algorithm selected.
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>SK_ar</command></term>
+	  <listitem>
+		<para>
+			Key used to calculate Integrity Checksum Data for IKEv2 packets from initiator to responder.
+                        This field takes hexadecimal string without "0x" prefix and its length
+                        must meet the requirement of the integrity algorithm selected.
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Integrity Algorithm</command></term>
+	  <listitem>
+		<para>
+			Integrity algorithm of the IKE_SA.
+		</para>
+	  </listitem>
+	  </varlistentry>
+
       </variablelist>
   </section>
 
@@ -1588,6 +1637,36 @@ standard libpcap format.
     </variablelist>
   </section>
 
+    <section id="ChK12ProtocolsSection"><title>Tektronix K12xx/15 RF5 protocols Table</title>
+    <para>
+	The Tektronix K12xx/15 rf5 file format uses helper files (*.stk) to identify the various protocols that are
+	used by a certain interface. Wireshark doesn't read these stk files, it uses a table that helps it identify
+	which lowest layer protocol to use.
+   </para>
+   <para>
+         Stk file to protocol matching is handled by an <xref linkend="ChUserTable"/> with the following fields.
+      </para>
+      <variablelist>
+	  <varlistentry><term><command>Match string</command></term>
+	  <listitem>
+		<para>
+		   A partial match for an stk filename, the first match wins, so if you have a specific case and a
+		   general one the specific one must appear first in the list.
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Protocol</command></term>
+	  <listitem>
+		<para>
+			This is the name of the encapsulating protocol (the lowest layer in the packet data) it can be either
+			just the name of the protocol (e.g. mtp2, eth_witoutfcs, sscf-nni ) or the name of the encapsulation
+			protocol and the "application" protocol over it separated by a colon (e.g sscop:sscf-nni, sscop:alcap, sscop:nbap, ...)
+		</para>
+	  </listitem>
+	  </varlistentry>
+      </variablelist>
+  </section>
+
       <section id="ChUserDLTsSection"><title>User DLTs protocol table</title>
     <para>
           When a pcap file uses one of the user DLTs (147 to 162) wireshark uses this table to know which protocol(s) to use for each user DLT.
@@ -1641,87 +1720,6 @@ standard libpcap format.
 
       </variablelist>
   </section>
-
-      <section id="ChIKEv2DecryptionSection"><title>IKEv2 decryption table</title>
-    <para>
-          Wireshark can decrypt Encrypted Payloads of IKEv2 (Internet Key Exchange version 2) packets if necessary information is provided.
-          Note that you can decrypt only IKEv2 packets with this feature. If you want to decrypt IKEv1 packets or ESP packets,
-          use Log Filename setting under ISAKMP protocol preference or settings under ESP protocol preference respectively.
-   </para>
-   <para>
-         This table is handled by an <xref linkend="ChUserTable"/> with the following fields.
-      </para>
-      <variablelist>
-	  <varlistentry><term><command>Initiator's SPI</command></term>
-	  <listitem>
-		<para>
-			Initiator's SPI of the IKE_SA. This field takes hexadecimal string without "0x" prefix
-                        and the length must be 16 hex chars (represents 8 octets).
-		</para>
-	  </listitem>
-	  </varlistentry>
-	  <varlistentry><term><command>Responder's SPI</command></term>
-	  <listitem>
-		<para>
-			Responder's SPI of the IKE_SA. This field takes hexadecimal string without "0x" prefix
-                        and the length must be 16 hex chars (represents 8 octets).
-		</para>
-	  </listitem>
-	  </varlistentry>
-	  <varlistentry><term><command>SK_ei</command></term>
-	  <listitem>
-		<para>
-			Key used to encrypt/decrypt IKEv2 packets from initiator to responder.
-                        This field takes hexadecimal string without "0x" prefix and its length
-                        must meet the requirement of the encryption algorithm selected.
-		</para>
-	  </listitem>
-	  </varlistentry>
-	  <varlistentry><term><command>SK_er</command></term>
-	  <listitem>
-		<para>
-			Key used to encrypt/decrypt IKEv2 packets from responder to initiator.
-                        This field takes hexadecimal string without "0x" prefix and its length
-                        must meet the requirement of the encryption algorithm selected.
-		</para>
-	  </listitem>
-	  </varlistentry>
-	  	  <varlistentry><term><command>Encryption Algorithm</command></term>
-	  <listitem>
-		<para>
-			Encryption algorithm of the IKE_SA.
-		</para>
-	  </listitem>
-	  </varlistentry>
-	  <varlistentry><term><command>SK_ai</command></term>
-	  <listitem>
-		<para>
-			Key used to calculate Integrity Checksum Data for IKEv2 packets from responder to initiator.
-                        This field takes hexadecimal string without "0x" prefix and its length
-                        must meet the requirement of the integrity algorithm selected.
-		</para>
-	  </listitem>
-	  </varlistentry>
-	  <varlistentry><term><command>SK_ar</command></term>
-	  <listitem>
-		<para>
-			Key used to calculate Integrity Checksum Data for IKEv2 packets from initiator to responder.
-                        This field takes hexadecimal string without "0x" prefix and its length
-                        must meet the requirement of the integrity algorithm selected.
-		</para>
-	  </listitem>
-	  </varlistentry>
-	  <varlistentry><term><command>Integrity Algorithm</command></term>
-	  <listitem>
-		<para>
-			Integrity algorithm of the IKE_SA.
-		</para>
-	  </listitem>
-	  </varlistentry>
-
-      </variablelist>
-  </section>
-
 
 </chapter>
 <!-- End of WSUG Chapter Customizing -->
