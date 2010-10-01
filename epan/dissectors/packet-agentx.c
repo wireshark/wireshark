@@ -275,11 +275,11 @@ static const value_string resp_errors[] = {
 
 /* PDU Header flags */
 
-#define INSTANCE_REGISTRATION 	0
-#define NEW_INDEX 		0x1
-#define ANY_INDEX		0x2
-#define NON_DEFAULT_CONTEXT	0x4
-#define NETWORK_BYTE_ORDER	0x8
+#define INSTANCE_REGISTRATION 	0x01
+#define NEW_INDEX 		0x02
+#define ANY_INDEX		0x04
+#define NON_DEFAULT_CONTEXT	0x08
+#define NETWORK_BYTE_ORDER	0x10
 
 #define PDU_HDR_LEN	20
 #define PADDING(x) ((((x) + 3) >> 2) << 2)
