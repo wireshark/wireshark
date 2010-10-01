@@ -444,6 +444,55 @@ colorize_conversation_cb(GtkWidget * w _U_, gpointer data _U_, int action)
     }
 }
 
+void
+goto_conversation_frame(gboolean dir)
+{
+	gchar *filter;
+        dfilter_t *dfcode = NULL;
+        gboolean found_packet=FALSE;
+
+        filter = build_conversation_filter(CONV_TCP,FALSE);
+        if( filter == NULL )
+            filter = build_conversation_filter(CONV_UDP,FALSE);
+        if( filter == NULL )
+            filter = build_conversation_filter(CONV_IP,FALSE);
+        if( filter == NULL ) {
+	    simple_status("Unable to build conversation filter.");
+            g_free(filter);
+            return;
+        }
+
+        if (!dfilter_compile(filter, &dfcode)) {
+            /* The attempt failed; report an error. */
+            simple_status("Error compiling filter for this conversation.");
+            g_free(filter);
+            return;
+        }
+
+        found_packet = cf_find_packet_dfilter(&cfile, dfcode, dir);
+
+        if (!found_packet) {
+            /* We didn't find a packet */
+            simple_status("No previous/next packet in conversation.");
+        }
+
+        dfilter_free(dfcode);
+        g_free(filter);
+}
+
+void
+goto_next_frame_conversation_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    goto_conversation_frame(FALSE);
+}
+
+void
+goto_previous_frame_conversation_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    goto_conversation_frame(TRUE);
+}
+
+
 /*
  * Main menu.
  *
@@ -778,6 +827,10 @@ static GtkItemFactoryEntry menu_items[] =
                              GTK_MENU_FUNC(goto_top_frame_cb), 0, "<StockItem>", GTK_STOCK_GOTO_TOP,},
     {"/Go/_Last Packet", "<control>End",
                              GTK_MENU_FUNC(goto_bottom_frame_cb), 0, "<StockItem>", GTK_STOCK_GOTO_BOTTOM,},
+    {"/Go/Previous Packet In Conversation", "<control>bracketleft",
+                             GTK_MENU_FUNC(goto_previous_frame_conversation_cb), 0, NULL, NULL,},
+    {"/Go/Next Packet In Conversation", "<control>bracketright",
+                             GTK_MENU_FUNC(goto_next_frame_conversation_cb), 0, NULL, NULL,},
 #ifdef HAVE_LIBPCAP
     {"/_Capture", NULL, NULL, 0, "<Branch>", NULL,},
     {"/Capture/_Interfaces...", "<control>I",
@@ -1476,6 +1529,8 @@ Not implemented!
 "      <menuitem name='NextPacket' action='/Go/NextPacket'/>\n"
 "      <menuitem name='FirstPacket' action='/Go/FirstPacket'/>\n"
 "      <menuitem name='LastPacket' action='/Go/LastPacket'/>\n"
+"      <menuitem name='PreviousPacketInConversation' action='/Go/PreviousPacketInConversation'/>\n"
+"      <menuitem name='NextPacketInConversation' action='/Go/NextPacketInConversation'/>\n"
 "    </menu>\n"
 #ifdef HAVE_LIBPCAP
 "    <menu name= 'CaptureMenu' action='/Capture'>\n"
@@ -1772,6 +1827,8 @@ Not implemeted.
    { "/Go/NextPacket",				GTK_STOCK_GO_DOWN,		"Next Packet",						"<control>Down",				NULL,				G_CALLBACK(goto_next_frame_cb) },
    { "/Go/FirstPacket",				GTK_STOCK_GOTO_TOP,		"F_irst Packet",					"<control>Home",				NULL,				G_CALLBACK(goto_top_frame_cb) },
    { "/Go/LastPacket",				GTK_STOCK_GOTO_BOTTOM,	"_Last Packet",						"<control>End",					NULL,				G_CALLBACK(goto_bottom_frame_cb) },
+   { "/Go/PreviousPacketInConversation",			GTK_STOCK_GO_UP,		"Previous Packet In Conversation",					"<control>bracketleft",					NULL,				G_CALLBACK(goto_previous_frame_conversation_cb) },
+   { "/Go/NextPacketInConversation",				GTK_STOCK_GO_DOWN,		"Next Packet In Conversation",						"<control>bracketright",				NULL,				G_CALLBACK(goto_next_frame_conversation_cb) },
 
 #ifdef HAVE_LIBPCAP
    { "/Capture/Interfaces",			WIRESHARK_STOCK_CAPTURE_INTERFACES,	"_Interfaces...",		"<control>I",					NULL,				G_CALLBACK(capture_if_cb) },
@@ -5732,6 +5789,10 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
                          have_captured_packets);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/LastPacket",
                          have_captured_packets);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/PreviousPacketInConversation",
+                         have_captured_packets);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/NextPacketInConversation",
+                         have_captured_packets);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/Summary",
                          have_captured_packets);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/ProtocolHierarchy",
@@ -5758,6 +5819,10 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
     set_menu_sensitivity_old(main_menu_factory, "/Go/First Packet",
                          have_captured_packets);
     set_menu_sensitivity_old(main_menu_factory, "/Go/Last Packet",
+                         have_captured_packets);
+    set_menu_sensitivity_old(main_menu_factory, "/Go/Previous Packet In Conversation",
+                         have_captured_packets);
+    set_menu_sensitivity_old(main_menu_factory, "/Go/Next Packet In Conversation",
                          have_captured_packets);
     set_menu_sensitivity_old(main_menu_factory, "/Statistics/Summary",
                          have_captured_packets);
