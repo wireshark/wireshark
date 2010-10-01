@@ -1047,31 +1047,60 @@ packet_list_show_hide_cb(GtkAction *action, gpointer user_data)
 static void
 packet_details_show_hide_cb(GtkAction *action, gpointer user_data)
 {
-	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TreeView");
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/PacketDetails");
 	show_hide_cb( widget, user_data, SHOW_HIDE_TREE_VIEW);
 }
 static void
 packet_bytes_show_hide_cb(GtkAction *action, gpointer user_data)
 {
-	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/ByteView");
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/PacketBytes");
 	show_hide_cb( widget, user_data, SHOW_HIDE_BYTE_VIEW);
 }
 
 static void
-timestamp_format_new_cb (GtkRadioAction *action, GtkRadioAction *current, gpointer user_data)
+timestamp_format_new_cb (GtkRadioAction *action, GtkRadioAction *current _U_, gpointer user_data  _U_)
 {
-	/* XXX Fix me */
 	gint value;
 
 	value = gtk_radio_action_get_current_value (action);
+	g_warning("timestamp_format_new_cb, value %u, recent.gui_time_format %u",value, recent.gui_time_format);
+    if (recent.gui_time_format != value) {
+        timestamp_set_type(value);
+        recent.gui_time_format = value;
+#ifdef NEW_PACKET_LIST
+        /* This call adjusts column width */
+        cf_timestamp_auto_precision(&cfile);
+        new_packet_list_queue_draw();
+#else
+        cf_change_time_formats(&cfile);
+#endif
+    }
+
 }
 
 static void
-timestamp_precision_new_cb (GtkRadioAction *action, GtkRadioAction *current, gpointer user_data)
+timestamp_precision_new_cb (GtkRadioAction *action, GtkRadioAction *current _U_, gpointer user_data _U_)
 {
 	gint value;
 
 	value = gtk_radio_action_get_current_value (action);
+	g_warning("timestamp_precision_new_cb, value %u, recent.gui_time_precision %u",value, recent.gui_time_precision);
+    if (recent.gui_time_precision != value) {
+        /* the actual precision will be set in cf_change_time_formats() below */
+        if (value == TS_PREC_AUTO) {
+            timestamp_set_precision(TS_PREC_AUTO_SEC);
+        } else {
+            timestamp_set_precision(value);
+        }
+        recent.gui_time_precision  = value;
+#ifdef NEW_PACKET_LIST
+        /* This call adjusts column width */
+        cf_timestamp_auto_precision(&cfile);
+        new_packet_list_queue_draw();
+#else
+        cf_change_time_formats(&cfile);
+#endif
+    }
 }
 
 static void
@@ -1106,12 +1135,9 @@ view_menu_colorize_pkt_lst_cb(GtkAction *action, gpointer user_data)
 static void
 view_menu_colorize_auto_scroll_live_cb(GtkAction *action, gpointer user_data)
 {
-	gboolean state;
-#if 0
-	auto_scroll_live_cb( widget , user_data);
-#endif
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "//Menubar/ViewMenu/ColorizePacketList/AutoScrollinLiveCapture");
 
-	state = gtk_toggle_action_get_active (GTK_TOGGLE_ACTION (action));
+	menu_auto_scroll_live_changed(GTK_CHECK_MENU_ITEM(widget)->active);
 }
 
 static void
@@ -1193,8 +1219,8 @@ view_menu_reset_coloring_cb(GtkWidget *widget, gpointer user_data)
 static void
 help_menu_cont_cb(GtkWidget *widget, gpointer user_data)
 {
-	/*topic_menu_cb( widget , user_data, HELP_CONTENT); note this is not correct!*/
-
+        /*topic_menu_cb( widget , user_data, HELP_CONTENT); note this is not correct!*/
+	 
 }
 
 static void
@@ -5104,6 +5130,70 @@ menu_recent_read_finished(void) {
 
 #ifdef MAIN_MENU_USE_UIMANAGER
 	/* XXX Fix me */
+        timestamp_set_type(recent.gui_time_format);
+#ifdef NEW_PACKET_LIST
+        /* This call adjusts column width */
+        cf_timestamp_auto_precision(&cfile);
+        new_packet_list_queue_draw();
+#else
+        cf_change_time_formats(&cfile);
+#endif
+#if 0
+/* This should not be needed as we set the active radioItem when we crate the actiongroup */
+    switch(recent.gui_time_format) {
+    case(TS_ABSOLUTE_WITH_DATE):
+		menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/DateandTimeofDay");
+		if(!menu){
+			g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/TimeDisplayFormat/DateandTimeofDay");
+		}
+        break;
+    case(TS_ABSOLUTE):
+		menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/TimeofDay");
+		if(!menu){
+			g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/TimeDisplayFormat/TimeofDay");
+		}
+        break;
+    case(TS_RELATIVE):
+		g_warning("TS_RELATIVE");
+	    action = gtk_ui_manager_get_action(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/SecondsSinceBeginningofCapture");
+		gtk_action_activate(action);
+		if(gtk_action_is_sensitive(action))
+			g_warning("ACTION IS SENSIBLE");
+		if(!action)
+			g_warning("NO ACTION");
+
+
+        menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/SecondsSinceBeginningofCapture");
+		if(!menu){
+			g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/TimeDisplayFormat/SecondsSinceBeginningofCapture");
+		}
+        break;
+    case(TS_DELTA):
+        menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/SecondsSincePreviousCapturedPacket");
+		if(!menu){
+			g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/TimeDisplayFormat/SecondsSincePreviousCapturedPacket");
+		}
+        break;
+    case(TS_DELTA_DIS):
+        menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/SecondsSincePreviousDisplayedPacket");
+		if(!menu){
+			g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/TimeDisplayFormat/SecondsSincePreviousDisplayedPacket");
+		}
+        break;
+    case(TS_EPOCH):
+        menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/TimeDisplayFormat/SecondsSinceEpoch");
+		if(!menu){
+			g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/TimeDisplayFormat/SecondsSinceEpoch");
+		}
+        break;
+    default:
+        g_assert_not_reached();
+    }
+    /* set_active will not trigger the callback when activating an active item! */
+    recent.gui_time_format = -1;
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), FALSE);
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
+#endif /* 0 */
 #else
     switch(recent.gui_time_format) {
     case(TS_ABSOLUTE_WITH_DATE):
@@ -5139,7 +5229,20 @@ menu_recent_read_finished(void) {
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
 #endif /* MAIN_MENU_USE_UIMANAGER */
 #ifdef MAIN_MENU_USE_UIMANAGER
-	/* XXX Fix me */
+    /* the actual precision will be set in cf_change_time_formats() below */
+    if (recent.gui_time_precision == TS_PREC_AUTO) {
+        timestamp_set_precision(TS_PREC_AUTO_SEC);
+    } else {
+        timestamp_set_precision(recent.gui_time_precision);
+    }
+#ifdef NEW_PACKET_LIST
+    /* This call adjusts column width */
+    cf_timestamp_auto_precision(&cfile);
+    new_packet_list_queue_draw();
+#else
+    cf_change_time_formats(&cfile);
+#endif
+
 #else
     switch(recent.gui_time_precision) {
     case(TS_PREC_AUTO):
