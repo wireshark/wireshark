@@ -1135,10 +1135,13 @@ view_menu_colorize_pkt_lst_cb(GtkAction *action, gpointer user_data)
 static void
 view_menu_colorize_auto_scroll_live_cb(GtkAction *action, gpointer user_data)
 {
-	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/ColorizePacketList/AutoScrollinLiveCapture");
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/AutoScrollinLiveCapture");
 
-	if (widget)
+	if (!widget){
+		g_warning("view_menu_colorize_auto_scroll_live_cb: No widget found");
+	}else{
 		menu_auto_scroll_live_changed(GTK_CHECK_MENU_ITEM(widget)->active);
+	}
 }
 
 static void
@@ -4832,7 +4835,10 @@ menu_recent_file_write_all(FILE *rf) {
     gchar       *cf_name;
 
 #ifdef MAIN_MENU_USE_UIMANAGER
-    submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/EnableforMACLayer");
+    submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH_OLD);
+    if(!submenu_recent_files){
+        g_warning("add_menu_recent_capture_file_absolute: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
+	}
 #else
     submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH_OLD);
 #endif
@@ -6506,6 +6512,8 @@ add_protocol_prefs_menu (pref_t *pref, gpointer data)
 
 #ifdef MENUS_USE_UIMANAGER
     menu_preferences = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/ProtocolPreferences");
+	if(!menu_preferences)
+		g_warning("menu_preferences Not found path:TreeViewPopup/ProtocolPreferences");
 #else
     menu_preferences = gtk_item_factory_get_widget(tree_view_menu_factory, "/Protocol Preferences");
 #endif
