@@ -37,7 +37,7 @@ Wireshark with elevated privileges in order to be able to capture
 traffic. With version 0.99.7, all function calls that require elevated
 privileges have been moved out of the GUI to dumpcap.
 
-WIRESHARK CONTAINS NEARLY TWO MILLION LINES OF SOURCE CODE. DO NOT RUN
+WIRESHARK CONTAINS OVER TWO MILLION LINES OF SOURCE CODE. DO NOT RUN
 THEM AS ROOT.
 
 Warnings are displayed when Wireshark and TShark are run as root.
