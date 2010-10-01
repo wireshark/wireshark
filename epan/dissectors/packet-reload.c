@@ -538,7 +538,7 @@ static int dissect_opaque(tvbuff_t *tvb, packet_info *pinfo,proto_tree *tree, in
   proto_tree *opaque_tree;
   proto_item *ti_anchor;
   gint length_index = -1;
-  gint32 length;
+  gint32 length = -1;
 
   switch (length_size) {
   case 1:
