@@ -1059,7 +1059,7 @@ profile_name_edit_dlg (gint operation)
 {
   GtkWidget   *win, *main_tb, *main_vb, *bbox, *cancel_bt, *ok_bt;
   GtkWidget   *entry, *label;
-  gchar       *window_title, *new_name;
+  gchar       *window_title=NULL, *new_name;
   const gchar *profile_name;
   GtkTooltips *tooltips;
 
