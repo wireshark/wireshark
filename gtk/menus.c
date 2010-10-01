@@ -1135,9 +1135,10 @@ view_menu_colorize_pkt_lst_cb(GtkAction *action, gpointer user_data)
 static void
 view_menu_colorize_auto_scroll_live_cb(GtkAction *action, gpointer user_data)
 {
-	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "//Menubar/ViewMenu/ColorizePacketList/AutoScrollinLiveCapture");
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/ColorizePacketList/AutoScrollinLiveCapture");
 
-	menu_auto_scroll_live_changed(GTK_CHECK_MENU_ITEM(widget)->active);
+	if (widget)
+		menu_auto_scroll_live_changed(GTK_CHECK_MENU_ITEM(widget)->active);
 }
 
 static void
