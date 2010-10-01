@@ -157,6 +157,7 @@ static gint ett_zrtp_checksum = -1;
 #define ZRTP_ERR_90 0x90
 #define ZRTP_ERR_91 0x91
 #define ZRTP_ERR_A0 0xA0
+#define ZRTP_ERR_B0 0xB0
 #define ZRTP_ERR_100 0x100
 
 /*
@@ -255,6 +256,7 @@ const value_string zrtp_error_vals[] =
     { ZRTP_ERR_90, "Equal ZID's in Hello"},
     { ZRTP_ERR_91, "SSRC collision"},
     { ZRTP_ERR_A0, "Service unavailable"},
+    { ZRTP_ERR_B0, "Protocol timeout error"},
     { ZRTP_ERR_100, "GoClear packet received, but not allowed"},
     { 0, NULL}
   };
