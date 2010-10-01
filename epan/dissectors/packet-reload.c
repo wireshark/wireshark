@@ -1366,7 +1366,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   offset += MIN_HDR_LENGTH;
         
-  if ((offset + via_list_length) > msg_length) {
+  if (((guint)offset + via_list_length) > msg_length) {
     expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Truncated reload packet");
     return MIN_HDR_LENGTH;
   }
@@ -1381,7 +1381,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   offset += via_list_length;
 
-  if ((offset + destination_list_length) > msg_length) {
+  if (((guint)offset + destination_list_length) > msg_length) {
     expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Truncated reload packet");
     return offset;
   }
@@ -1396,7 +1396,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   offset += destination_list_length;
 
-  if ((offset + options_length) > msg_length) {
+  if (((guint)offset + options_length) > msg_length) {
     expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Truncated reload packet");
     return offset;
   }
