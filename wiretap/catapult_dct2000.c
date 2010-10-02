@@ -1345,7 +1345,7 @@ static void set_aal_info(union wtap_pseudo_header *pseudo_header,
     }
     else {
         pseudo_header->dct2000.inner_pseudo_header.atm.aal2_cid =
-            (int)aal_header_chars[11] - 48;
+            (int)aal_header_chars[11] - '0';
     }
 }
 
