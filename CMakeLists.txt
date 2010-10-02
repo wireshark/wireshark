@@ -300,9 +300,7 @@ endif()
 
 set(PACKAGELIST ${PACKAGELIST} YAPP)
 
-if(ENABLE_GUIDES)
-	set(PACKAGELIST ${PACKAGELIST} POD)
-endif()
+set(PACKAGELIST ${PACKAGELIST} POD)
 
 
 set(PROGLIST text2pcap mergecap capinfos editcap dumpcap)
@@ -409,7 +407,7 @@ add_subdirectory( tools/lemon )
 add_subdirectory( wiretap )
 add_subdirectory( wsutil )
 
-if(BUILD_wireshark and GTK2_FOUND)
+if(BUILD_wireshark AND GTK2_FOUND)
 	add_subdirectory( gtk )
 endif()
 
@@ -622,7 +620,7 @@ set(LIBEPAN_LIBS
 		${M_LIBRARIES}
 )
 
-if(BUILD_wireshark and GTK2_FOUND)
+if(BUILD_wireshark AND GTK2_FOUND)
 	set(wireshark_LIBS
 		ui
 		${GTK2_LIBRARIES}
