@@ -1508,7 +1508,11 @@ capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
     g_free(entry_text);
     return;
   }
-  pcap_activate(pd); /* Needed to set the proper DLT for this interface */
+  /* Activate the PD to set the proper DLT for this interface */
+  pcap_activate(pd);
+  /* change the DLT if the user selected a non-default DLT for the interface */
+  if (global_capture_opts.linktype != -1) 
+    pcap_set_datalink(pd, global_capture_opts.linktype);
 
   filter_cm = g_object_get_data(G_OBJECT(top_level), E_CFILTER_CM_KEY);
   filter_te = GTK_COMBO(filter_cm)->entry;
