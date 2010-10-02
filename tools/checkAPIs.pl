@@ -992,7 +992,7 @@ sub check_hf_entries($$)
 		if ($name eq $abbrev) {
 			print STDERR "Warning: the abbreviation for field $name matches the field name in $filename\n";
 		}
-		if ($name =~ m/$blurb/i) {
+		if (lc($name) eq lc($blurb)) {
 			print STDERR "Warning: the blurb for field $name ($abbrev) matches the field name in $filename\n";
 		}
 		if ($name =~ m/"\s+/) {
