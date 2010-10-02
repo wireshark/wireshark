@@ -2629,6 +2629,10 @@
 	      <para><emphasis>Dropped:</emphasis> the number of dropped packets (only displayed
 	      if Wireshark was unable to capture all packets)</para>
 	    </listitem>
+	    <listitem>
+	      <para><emphasis>Ignored:</emphasis> the number of ignored packets (only displayed
+	      if packets are ignored)</para>
+	    </listitem>
 	  </itemizedlist>
 	</para>
       </listitem>
