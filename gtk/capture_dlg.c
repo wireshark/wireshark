@@ -1508,6 +1508,7 @@ capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
     g_free(entry_text);
     return;
   }
+  pcap_activate(pd); /* Needed to set the proper DLT for this interface */
 
   filter_cm = g_object_get_data(G_OBJECT(top_level), E_CFILTER_CM_KEY);
   filter_te = GTK_COMBO(filter_cm)->entry;
