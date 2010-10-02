@@ -1999,7 +1999,9 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   g_object_set_data(G_OBJECT(top_level), E_CFILTER_CM_KEY, filter_cm);
   filter_te = GTK_COMBO(filter_cm)->entry;
   colorize_filter_te_as_empty(filter_te);
+#ifdef HAVE_PCAP_CREATE
   g_signal_connect(filter_te, "changed", G_CALLBACK(capture_filter_check_syntax_cb), NULL);
+#endif
 
   if (cfilter_list != NULL)
     gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), cfilter_list);
@@ -2670,7 +2672,9 @@ select_link_type_cb(GtkWidget *linktype_combo_box, gpointer data _U_)
     g_assert_not_reached();  /* Programming error: somehow managed to select an "unsupported" entry */
   }
   global_capture_opts.linktype = dlt;
+#ifdef HAVE_PCAP_CREATE
   capture_filter_check_syntax_cb(linktype_combo_box,data);
+#endif
 }
 
 #ifdef HAVE_PCAP_REMOTE
