@@ -63,6 +63,8 @@ static int     (*p_pcap_setfilter) (pcap_t *, struct bpf_program *);
 static char*   (*p_pcap_geterr) (pcap_t *);
 static int     (*p_pcap_compile) (pcap_t *, struct bpf_program *, const char *, int,
 			bpf_u_int32);
+static int     (*p_pcap_compile_nopcap) (int, int, struct bpf_program *, const char *, int,
+			bpf_u_int32);
 static int     (*p_pcap_lookupnet) (const char *, bpf_u_int32 *, bpf_u_int32 *,
 			char *);
 static pcap_t* (*p_pcap_open_live) (const char *, int, int, int, char *);
@@ -134,6 +136,7 @@ load_wpcap(void)
 		SYM(pcap_setfilter, FALSE),
 		SYM(pcap_geterr, FALSE),
 		SYM(pcap_compile, FALSE),
+                SYM(pcap_compile_nopcap, FALSE),
 		SYM(pcap_lookupnet, FALSE),
 #ifdef HAVE_PCAP_REMOTE
 		SYM(pcap_open, FALSE),
@@ -287,6 +290,14 @@ pcap_compile(pcap_t *a, struct bpf_program *b, const char *c, int d,
 {
 	g_assert(has_wpcap);
 	return p_pcap_compile(a, b, c, d, e);
+}
+
+int
+pcap_compile_nopcap(int a, int b, struct bpf_program *c, const char *d, int e,
+            bpf_u_int32 f)
+{
+	g_assert(has_wpcap);
+	return p_pcap_compile_nopcap(a, b, c, d, e, f);
 }
 
 int
