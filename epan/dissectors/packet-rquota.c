@@ -219,10 +219,10 @@ proto_register_rquota(void)
 			NULL, 0, "User ID", HFILL }},
 		{ &hf_rquota_type, {
 			"type", "rquota.type", FT_UINT32, BASE_DEC,
-			NULL, 0, "Type", HFILL }},
+			NULL, 0, NULL, HFILL }},
 		{ &hf_rquota_id, {
 			"id", "rquota.id", FT_UINT32, BASE_DEC,
-			NULL, 0, "ID", HFILL }},
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rquota_pathp, {
 			"pathp", "rquota.pathp", FT_STRING, BASE_NONE,
