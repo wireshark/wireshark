@@ -31,26 +31,50 @@ Wireshark Info
 
     <para>
 
+      The following vulnerabilities have been fixed. See the
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2010-10.html">security advisory</ulink> for details and a workaround.
+
+      <itemizedlist>
+
+        <listitem>
+          <para>
+            The Penetration Test Team of NCNIPC (China) discovered that the
+            ASN.1 BER dissector was susceptible to a stack overflow.
+            <!-- Fixed in trunk: r34111 -->
+            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.2: r????? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5230">Bug
+            5230</ulink>)
+          </para>
+          <para>Versions affected: All previous versions up to and including
+          1.2.11 and 1.4.1.</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
+          </para>
+        </listitem>
+
+      </itemizedlist>
+
+    </para>
+
+    <para>
+
     The following bugs have been fixed:
 
       <itemizedlist>
 
+<!--
         <listitem><para>
-          Update time display in background.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1275">Bug
-          1275</ulink>)
+          Wireshark can contribute to ennui in adolescent rats.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=0000">Bug
+          0000</ulink>)
         </para></listitem>
+-->
 
         <listitem><para>
-          Wireshark is unresponsive when capturing from named pipes on Windows.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1759">Bug
-          1759</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Tshark returns 0 even with an invalid interface or capture filter.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4735">Bug
-          4735</ulink>)
+          Wireshark may appear offscreen on multi-monitor Windows systems.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=553">Bug
+          553</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -61,112 +85,8 @@ Wireshark Info
 
     <section id="NewFeatures"><title>New and Updated Features</title>
     <para>
-      The following features are new (or have been significantly updated)
-      since version 1.2:
 
-      <itemizedlist>
-
-        <listitem>
-          <para>
-            The packet list internals have been rewritten and are now more
-            efficient.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Columns are easier to use. You can add a protocol field as a column
-            by right-clicking on its packet detail item, and you can adjust
-            some column preferences by right-clicking the column header.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Preliminary Python scripting support has been added.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Many memory leaks have been fixed.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Wireshark 1.4 does not support Windows 2000. Please use
-            Wireshark 1.2 or 1.0 on those systems.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Packets can now be ignored (excluded from dissection), similar to
-            the way they can be marked.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Manual IP address resolution is now supported.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Columns with seconds can now be displayed as hours, minutes and
-            seconds.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            You can now set the capture buffer size on UNIX and Linux if you have
-            libpcap 1.0.0 or greater.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            TShark no longer needs elevated privileges on UNIX or Linux to list
-            interfaces. Only dumpcap requires privileges now.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Wireshark and TShark can enable 802.11 monitor mode directly if you
-            have libpcap 1.0.0 or greater.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            You can play RTP streams directly from the RTP Analysis window.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Capinfos and editcap now respectively support time order checking
-            and forcing.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Wireshark now has a "jump to timestamp" command-line option.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            You can open JPEG files directly in Wireshark.
-          </para>
-        </listitem>
-
-      </itemizedlist>
+There are no new features in this release.
 
     </para>
     </section>
@@ -174,92 +94,7 @@ Wireshark Info
     <section id="NewProtocols"><title>New Protocol Support</title>
     <para>
 
-3GPP Nb Interface RTP Multiplex,
-Access Node Control Protocol,
-Apple Network-MIDI Session Protocol,
-ARUBA encapsulated remote mirroring,
-Assa Abloy R3,
-Asynchronous Transfer Mode,
-B.A.T.M.A.N. Advanced Protocol,
-Bluetooth AMP Packet,
-Bluetooth OBEX,
-Bundle Protocol,
-CIP Class Generic,
-CIP Connection Configuration Object,
-CIP Connection Manager,
-CIP Message Router,
-collectd network data,
-Control And Provisioning of Wireless Access Points,
-Controller Area Network,
-Device Level Ring,
-DOCSIS Bonded Initial Ranging Message,
-Dropbox LAN sync Discovery Protocol,
-Dropbox LAN sync Protocol,
-DTN TCP Convergence Layer Protocol,
-EtherCAT Switch Link,
-Fibre Channel Delimiters,
-File Replication Service DFS-R,
-Gateway Load Balancing Protocol,
-Gigamon Header,
-GigE Vision Control Protocol,
-Git Smart Protocol,
-GSM over IP ip.access CCM sub-protocol,
-GSM over IP protocol as used by ip.access,
-GSM Radiotap,
-HI2Operations,
-Host Identity Protocol,
-HP encapsulated remote mirroring,
-HP NIC Teaming Heartbeat,
-IEC61850 Sampled Values,
-IEEE 1722 Protocol,
-InfiniBand Link,
-Interlink Protocol,
-IPv6 over IEEE 802.15.4,
-ISO 10035-1 OSI Connectionless Association Control Service,
-ISO 9548-1 OSI Connectionless Session Protocol,
-ISO 9576-1 OSI Connectionless Presentation Protocol,
-ITU-T Q.708 ISPC Analysis,
-Juniper Packet Mirror,
-Licklider Transmission Protocol,
-MPLS PW ATM AAL5 CPCS-SDU mode encapsulation,
-MPLS PW ATM Cell Header,
-MPLS PW ATM Control Word,
-MPLS PW ATM N-to-One encapsulation, no CW,
-MPLS PW ATM N-to-One encapsulation, with CW,
-MPLS PW ATM One-to-One or AAL5 PDU encapsulation,
-Multiple Stream Reservation Protocol,
-NetPerfMeter Protocol,
-NetScaler Trace,
-NexusWare C7 MTP,
-NSN FLIP,
-OMRON FINS Protocol,
-packetbb Protocol,
-Peer Network Resolution Protocol,
-PKIX Attribute Certificate,
-Pseudowire Padding,
-Server/Application State Protocol,
-Solaris IPNET,
-TN3270 Protocol,
-TN5250 Protocol,
-TRILL,
-Twisted Banana,
-UMTS FP Hint,
-UMTS MAC,
-UMTS Metadata,
-UMTS RLC,
-USB HID,
-USB HUB,
-UTRAN Iuh interface HNBAP signalling,
-UTRAN Iuh interface RUA signalling,
-V5.2,
-Vendor Specific Control Protocol,
-Vendor Specific Network Protocol,
-VMware Lab Manager,
-VXI-11 Asynchronous Abort,
-VXI-11 Core Protocol,
-VXI-11 Interrupt,
-X.411 Message Access Service,
-ZigBee Cluster Library
+There are no new protocols in this release.
 
     </para>
     </section>
@@ -275,24 +110,7 @@ There are too many to list here.
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-Accellent 5Views,
-ASN.1 Basic Encoding Rules,
-Catapult DCT2000,
-Daintree SNA,
-Endace ERF,
-EyeSDN,
-Gammu DCT3 trace,
-IBM iSeries,
-JPEG/JFIF,
-libpcap,
-Lucent/Ascend access server trace,
-NetScaler,
-PacketLogger,
-pcapng,
-Shomiti/Finisar Surveyor,
-Sun snoop,
-Symbian OS btsnoop,
-Visual Networks
+There are no new or updated capture file formats in this release.
 
     </para>
     </section>
@@ -335,12 +153,6 @@ Visual Networks
   </section>
 
   <section id="KnownProblems"><title>Known Problems</title>
-
-    <para>
-      Wireshark may appear offscreen on multi-monitor Windows systems.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=553">Bug
-      553</ulink>)
-    </para>
 
     <para>
       Wireshark might make your system disassociate from a wireless network
@@ -402,7 +214,9 @@ Visual Networks
 
   <section id="GettingHelp"><title>Getting Help</title>
     <para>
-    Community support is available on the wireshark-users mailing list.
+    Community support is available on
+    <ulink url="http://ask.wireshark.org/">Wireshark's Q&amp;A site</ulink>
+    and on the wireshark-users mailing list.
     Subscription information and archives for all of Wireshark's mailing
     lists can be found on <ulink url="http://www.wireshark.org/lists/">the
     web site</ulink>.

@@ -2642,6 +2642,9 @@ do_file_switch_or_stop(capture_options *capture_opts,
     if (ringbuf_switch_file(&global_ld.pdh, &capture_opts->save_file,
                             &global_ld.save_file_fd, &global_ld.err)) {
       gboolean successful;
+#ifndef _WIN32
+      int ret;
+#endif
 
       /* File switch succeeded: reset the conditions */
       global_ld.bytes_written = 0;
@@ -2670,6 +2673,10 @@ do_file_switch_or_stop(capture_options *capture_opts,
         report_packet_count(global_ld.inpkts_to_sync_pipe);
       global_ld.inpkts_to_sync_pipe = 0;
       report_new_capture_file(capture_opts->save_file);
+
+#ifndef _WIN32
+      ret = fchown(global_ld.save_file_fd, capture_opts->owner, capture_opts->group);
+#endif
     } else {
       /* File switch failed: stop here */
       global_ld.go = FALSE;
