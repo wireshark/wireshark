@@ -263,7 +263,7 @@ capture_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
 
   if (pcap_compile_nopcap(128 /* use a dummy snaplength for syntax-checking */,
           global_capture_opts.linktype, &fcode, filter_text, 1 /* Do optimize */, 
-          (uint)255*256*256*256 /* use a dummy netmask for syntax-checking */) < 0) {
+          (guint)255*256*256*256 /* use a dummy netmask for syntax-checking */) < 0) {
     colorize_filter_te_as_invalid(filter_te);
   } else {
     colorize_filter_te_as_valid(filter_te);
