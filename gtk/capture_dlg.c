@@ -1478,6 +1478,67 @@ capture_remote_combo_add_recent(gchar *s)
 
 #ifdef HAVE_PCAP_CREATE
 static void
+capture_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
+{
+  GtkWidget *if_cb;
+  gchar *entry_text;
+  gchar *if_text;
+  const gchar *if_name;
+
+  pcap_t *pd;
+  struct bpf_program fcode;
+  char errbuf[PCAP_ERRBUF_SIZE];
+
+  GtkWidget *filter_cm, *filter_te;
+  const gchar *filter_text;
+
+  filter_cm = g_object_get_data(G_OBJECT(top_level), E_CFILTER_CM_KEY);
+  filter_te = GTK_COMBO(filter_cm)->entry;
+  filter_text = gtk_entry_get_text(GTK_ENTRY(filter_te));
+
+  if (strlen(filter_text) == 0) {
+    colorize_filter_te_as_empty(filter_te);
+    return;
+  }
+
+  if_cb = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
+  entry_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry)));
+  if_text = g_strstrip(entry_text);
+  if_name = get_if_name(if_text);
+  if (*if_name == '\0') {
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      "You didn't specify an interface on which to capture packets.");
+    g_free(entry_text);
+    return;
+  }
+
+  if (!(pd = pcap_create(if_name, errbuf))) {
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", errbuf);
+    g_free(entry_text);
+    return;
+  }
+  /* Activate the PD to set the proper DLT for this interface */
+  pcap_activate(pd);
+  /* change the DLT if the user selected a non-default DLT for the interface */
+  if (global_capture_opts.linktype != -1) 
+    pcap_set_datalink(pd, global_capture_opts.linktype);
+
+  if (pcap_compile(pd, &fcode, filter_text, 1 /* Do optimize */, 
+          (uint)255*256*256*256 /* use a dummy netmask for syntax-checking */) < 0) {
+    /* invalid filter */
+    colorize_filter_te_as_invalid(filter_te);
+  } else {
+    /* valid filter */
+    colorize_filter_te_as_valid(filter_te);
+  }
+
+  g_free(entry_text);
+  pcap_close(pd);
+}
+#endif
+
+#ifdef HAVE_PCAP_CREATE
+static void
 capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
 {
   GtkWidget *if_cb;
@@ -1937,6 +1998,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   g_object_set_data(G_OBJECT(top_level), E_CFILTER_FL_KEY, cfilter_list);
   g_object_set_data(G_OBJECT(top_level), E_CFILTER_CM_KEY, filter_cm);
   filter_te = GTK_COMBO(filter_cm)->entry;
+  colorize_filter_te_as_empty(filter_te);
+  g_signal_connect(filter_te, "changed", G_CALLBACK(capture_filter_check_syntax_cb), NULL);
 
   if (cfilter_list != NULL)
     gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), cfilter_list);
@@ -2607,6 +2670,7 @@ select_link_type_cb(GtkWidget *linktype_combo_box, gpointer data _U_)
     g_assert_not_reached();  /* Programming error: somehow managed to select an "unsupported" entry */
   }
   global_capture_opts.linktype = dlt;
+  capture_filter_check_syntax_cb(linktype_combo_box,data);
 }
 
 #ifdef HAVE_PCAP_REMOTE
