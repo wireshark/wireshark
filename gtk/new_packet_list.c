@@ -88,6 +88,7 @@ static void show_cell_data_func(GtkTreeViewColumn *col,
 				GtkTreeIter *iter,
 				gpointer data);
 static gint row_number_from_iter(GtkTreeIter *iter);
+static void scroll_to_current(void);
 
 void new_packet_list_set_sel_browse(gboolean val, gboolean force_set);
 
@@ -304,6 +305,8 @@ new_packet_list_sort_column (gint col_id, GtkTreeViewColumn *col, GtkSortType or
 	gtk_tree_view_column_set_sort_order (col, order);
 	g_object_set_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_PREV_COLUMN_KEY, col);
 	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(packetlist), col_id, order);
+
+	scroll_to_current ();
 }
 
 /*
@@ -326,6 +329,7 @@ new_packet_list_column_clicked_cb (GtkTreeViewColumn *col, gpointer user_data _U
 	} else {
 		gtk_tree_view_column_set_sort_indicator(col, FALSE);
 		gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(packetlist), 0, GTK_SORT_ASCENDING);
+		scroll_to_current ();
 	}
 }
 
@@ -475,6 +479,7 @@ new_packet_list_column_menu_cb (GtkWidget *w, gpointer user_data _U_, COLUMN_SEL
 	case COLUMN_SELECTED_SORT_NONE:
 		gtk_tree_view_column_set_sort_indicator(col, FALSE);
 		gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(packetlist), 0, GTK_SORT_ASCENDING);
+		scroll_to_current ();
 		break;
 	case COLUMN_SELECTED_TOGGLE_RESOLVED:
 		new_packet_list_toggle_resolved (w, col_id);
@@ -779,6 +784,26 @@ void
 new_packet_list_resize_columns_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
 	new_packet_list_resize_columns();
+}
+
+static void
+scroll_to_current(void)
+{
+	GtkTreeSelection *selection;
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	GtkWidget *focus = gtk_window_get_focus(GTK_WINDOW(top_level));
+
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
+	/* model is filled with the current model as a convenience. */
+	if (!gtk_tree_selection_get_selected(selection, &model, &iter))
+		return;
+
+	scroll_to_and_select_iter(model, selection, &iter);
+
+	/* Set the focus back where it was */
+	if (focus)
+		gtk_window_set_focus(GTK_WINDOW(top_level), focus);
 }
 
 void
