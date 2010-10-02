@@ -1016,7 +1016,6 @@ DISSECTOR_INCLUDES =	\
 	packet-camel.h	\
 	packet-chdlc.h	\
 	packet-cdt.h	\
-	packet-cfm.h	\
 	packet-charging_ase.h	\
 	packet-cimd.h	\
 	packet-cip.h	\
