@@ -199,7 +199,7 @@ static const char *ui_desc_proto_hier_stats_filter_popup =
 "  <popup name='ProtoHierStatsFilterPopup'>\n"
 "    <menu action='/Apply as Filter'>\n"
 "      <menuitem action='/Apply as Filter/Selected'/>\n"
-"      <menuitem action='/Apply as Filter/... not Selected'/>\n"
+"      <menuitem action='/Apply as Filter/Not Selected'/>\n"
 "      <menuitem action='/Apply as Filter/... and Selected'/>\n"
 "      <menuitem action='/Apply as Filter/... or Selected'/>\n"
 "      <menuitem action='/Apply as Filter/... and not Selected'/>\n"
@@ -207,7 +207,7 @@ static const char *ui_desc_proto_hier_stats_filter_popup =
 "    </menu>\n"
 "    <menu action='/Prepare a Filter'>\n"
 "      <menuitem action='/Prepare a Filter/Selected'/>\n"
-"      <menuitem action='/Prepare a Filter/... not Selected'/>\n"
+"      <menuitem action='/Prepare a Filter/Not Selected'/>\n"
 "      <menuitem action='/Prepare a Filter/... and Selected'/>\n"
 "      <menuitem action='/Prepare a Filter/... or Selected'/>\n"
 "      <menuitem action='/Prepare a Filter/... and not Selected'/>\n"
@@ -263,13 +263,13 @@ static const GtkActionEntry proto_hier_stats_popup_entries[] = {
   { "/Find Frame/Find Previous",				NULL, "Find Previous",					NULL, NULL,								NULL },
   { "/Colorize Procedure",						NULL, "Colorize Procedure",				NULL, NULL,								NULL },
   { "/Apply as Filter/Selected",				NULL, "Selected",						NULL, "Selected",						G_CALLBACK(apply_as_selected_cb) },
-  { "/Apply as Filter/... not Selected",		NULL, "... not Selected",				NULL, "... not Selected",				G_CALLBACK(apply_as_not_selected_cb) },
+  { "/Apply as Filter/Not Selected",		NULL, "Not Selected",				NULL, "Not Selected",				G_CALLBACK(apply_as_not_selected_cb) },
   { "/Apply as Filter/... and Selected",		NULL, "... and Selected",				NULL, "... and Selected",				G_CALLBACK(apply_as_and_selected_cb) },
   { "/Apply as Filter/... or Selected",			NULL, "... or Selected",				NULL, "... or Selected",				G_CALLBACK(apply_as_or_selected_cb) },
   { "/Apply as Filter/... and not Selected",	NULL, "... and not Selected",			NULL, "... and not Selected",			G_CALLBACK(apply_as_and_not_selected_cb) },
   { "/Apply as Filter/... or not Selected",		NULL, "... or not Selected",			NULL, "... or not Selected",			G_CALLBACK(apply_as_or_not_selected_cb) },
   { "/Prepare a Filter/Selected",				NULL, "Selected",						NULL, "selcted",						G_CALLBACK(prep_as_selected_cb) },
-  { "/Prepare a Filter/... not Selected",		NULL, "... not Selected",				NULL, "... not Selected",				G_CALLBACK(prep_as_not_selected_cb) },
+  { "/Prepare a Filter/Not Selected",		NULL, "Not Selected",				NULL, "Not Selected",				G_CALLBACK(prep_as_not_selected_cb) },
   { "/Prepare a Filter/... and Selected",		NULL, "... and Selected",				NULL, "... and Selected",				G_CALLBACK(prep_as_and_selected_cb) },
   { "/Prepare a Filter/... or Selected",		NULL, "... or Selected",				NULL, "... or Selected",				G_CALLBACK(prep_as_or_selected_cb) },
   { "/Prepare a Filter/... and not Selected",	NULL, "... and not Selected",			NULL, "... and not Selected",			G_CALLBACK(prep_as_and_not_selected_cb) },
