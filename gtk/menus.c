@@ -1185,6 +1185,18 @@ timestamp_precision_new_cb (GtkRadioAction *action, GtkRadioAction *current _U_,
     }
 }
 
+
+static void
+view_menu_seconds_time_cb(GtkAction *action, gpointer user_data)
+{
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/DisplaySecondsWithHoursAndMinutes");
+	if (!widget){
+		g_warning("view_menu_seconds_time_cb: No widget found");
+	}else{
+		timestamp_seconds_time_cb(widget, user_data, 0);
+	}
+}
+
 static void
 view_menu_en_for_MAC_cb(GtkAction *action, gpointer user_data)
 {
@@ -1942,7 +1954,7 @@ static const GtkToggleActionEntry main_menu_bar_toggle_action_entries[] =
 	{"/View/PacketList",	NULL, "Packet _List", NULL, NULL,	G_CALLBACK(packet_list_show_hide_cb), TRUE}, 
 	{"/View/PacketDetails",	NULL, "Packet _Details", NULL, NULL,	G_CALLBACK(packet_details_show_hide_cb), TRUE}, 
 	{"/View/PacketBytes",	NULL, "Packet _Bytes", NULL, NULL,	G_CALLBACK(packet_bytes_show_hide_cb), TRUE}, 
-	{"/View/TimeDisplayFormat/DisplaySecondsWithHoursAndMinutes",	NULL, "Display Seconds with hours and minutes", NULL, NULL,	G_CALLBACK(timestamp_seconds_time_cb), FALSE}, 
+	{"/View/TimeDisplayFormat/DisplaySecondsWithHoursAndMinutes",	NULL, "Display Seconds with hours and minutes", NULL, NULL,	G_CALLBACK(view_menu_seconds_time_cb), FALSE}, 
 	{"/View/NameResolution/EnableforMACLayer",						NULL, "Enable for _MAC Layer",					NULL, NULL, G_CALLBACK(view_menu_en_for_MAC_cb), TRUE},
 	{"/View/NameResolution/EnableforNetworkLayer",					NULL, "Enable for _Network Layer",				NULL, NULL, G_CALLBACK(view_menu_en_for_network_cb), TRUE },
 	{"/View/NameResolution/EnableforTransportLayer",				NULL, "Enable for _Transport Layer",			NULL, NULL, G_CALLBACK(view_menu_en_for_transport_cb), TRUE },
@@ -4925,7 +4937,7 @@ menu_recent_file_write_all(FILE *rf) {
     gchar       *cf_name;
 
 #ifdef MAIN_MENU_USE_UIMANAGER
-    submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH_OLD);
+    submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
     if(!submenu_recent_files){
         g_warning("add_menu_recent_capture_file_absolute: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
 	}
