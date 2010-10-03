@@ -342,6 +342,7 @@ static void printnbyte(const guint8* tab _U_,int nb _U_, const char* txt _U_,con
  */
 static GSList *decrypted_payloads;
 
+#if 0
 static int
 LEBE_Convert(int value)
 {
@@ -353,6 +354,7 @@ LEBE_Convert(int value)
   d=(value&0xFF000000) >> 24;
   return (a << 24) | (b << 16) | (c << 8) | d;
 }
+#endif
 
 /*
   Perform a DES encryption with a 16 bit key and 8bit data item.
