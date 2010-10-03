@@ -75,8 +75,8 @@ static int ntlmssp_tap = -1;
 static const value_string ntlmssp_message_types[] = {
   { NTLMSSP_NEGOTIATE, "NTLMSSP_NEGOTIATE" },
   { NTLMSSP_CHALLENGE, "NTLMSSP_CHALLENGE" },
-  { NTLMSSP_AUTH, "NTLMSSP_AUTH" },
-  { NTLMSSP_UNKNOWN, "NTLMSSP_UNKNOWN" },
+  { NTLMSSP_AUTH,      "NTLMSSP_AUTH" },
+  { NTLMSSP_UNKNOWN,   "NTLMSSP_UNKNOWN" },
   { 0, NULL }
 };
 
@@ -204,23 +204,47 @@ static int hf_ntlmssp_string_offset = -1;
 static int hf_ntlmssp_blob_len = -1;
 static int hf_ntlmssp_blob_maxlen = -1;
 static int hf_ntlmssp_blob_offset = -1;
+static int hf_ntlmssp_version = -1;
 static int hf_ntlmssp_version_major = -1;
 static int hf_ntlmssp_version_minor = -1;
 static int hf_ntlmssp_version_build_number = -1;
 static int hf_ntlmssp_version_ntlm_current_revision = -1;
-static int hf_ntlmssp_address_list = -1;
-static int hf_ntlmssp_address_list_len = -1;
-static int hf_ntlmssp_address_list_maxlen = -1;
-static int hf_ntlmssp_address_list_offset = -1;
-static int hf_ntlmssp_address_list_server_nb = -1;
-static int hf_ntlmssp_address_list_domain_nb = -1;
-static int hf_ntlmssp_address_list_server_dns = -1;
-static int hf_ntlmssp_address_list_domain_dns = -1;
-static int hf_ntlmssp_address_list_forest_dns = -1;
-static int hf_ntlmssp_address_list_terminator = -1;
-static int hf_ntlmssp_address_list_item_type = -1;
-static int hf_ntlmssp_address_list_item_len = -1;
-static int hf_ntlmssp_address_list_item_content = -1;
+
+static int hf_ntlmssp_challenge_target_info = -1;
+static int hf_ntlmssp_challenge_target_info_len = -1;
+static int hf_ntlmssp_challenge_target_info_maxlen = -1;
+static int hf_ntlmssp_challenge_target_info_offset = -1;
+
+static int hf_ntlmssp_challenge_target_info_item_type = -1;
+static int hf_ntlmssp_challenge_target_info_item_len = -1;
+
+static int hf_ntlmssp_challenge_target_info_end = -1;
+static int hf_ntlmssp_challenge_target_info_nb_computer_name = -1;
+static int hf_ntlmssp_challenge_target_info_nb_domain_name = -1;
+static int hf_ntlmssp_challenge_target_info_dns_computer_name = -1;
+static int hf_ntlmssp_challenge_target_info_dns_domain_name = -1;
+static int hf_ntlmssp_challenge_target_info_dns_tree_name = -1;
+static int hf_ntlmssp_challenge_target_info_flags = -1;
+static int hf_ntlmssp_challenge_target_info_timestamp = -1;
+static int hf_ntlmssp_challenge_target_info_restrictions = -1;
+static int hf_ntlmssp_challenge_target_info_target_name =-1;
+static int hf_ntlmssp_challenge_target_info_channel_bindings =-1;
+
+static int hf_ntlmssp_ntlmv2_response_item_type = -1;
+static int hf_ntlmssp_ntlmv2_response_item_len = -1;
+
+static int hf_ntlmssp_ntlmv2_response_end = -1;
+static int hf_ntlmssp_ntlmv2_response_nb_computer_name = -1;
+static int hf_ntlmssp_ntlmv2_response_nb_domain_name = -1;
+static int hf_ntlmssp_ntlmv2_response_dns_computer_name = -1;
+static int hf_ntlmssp_ntlmv2_response_dns_domain_name = -1;
+static int hf_ntlmssp_ntlmv2_response_dns_tree_name = -1;
+static int hf_ntlmssp_ntlmv2_response_flags = -1;
+static int hf_ntlmssp_ntlmv2_response_timestamp = -1;
+static int hf_ntlmssp_ntlmv2_response_restrictions = -1;
+static int hf_ntlmssp_ntlmv2_response_target_name =-1;
+static int hf_ntlmssp_ntlmv2_response_channel_bindings =-1;
+
 static int hf_ntlmssp_message_integrity_code = -1;
 static int hf_ntlmssp_verf = -1;
 static int hf_ntlmssp_verf_vers = -1;
@@ -230,6 +254,7 @@ static int hf_ntlmssp_verf_hmacmd5 = -1;
 static int hf_ntlmssp_verf_crc32 = -1;
 static int hf_ntlmssp_verf_sequence = -1;
 static int hf_ntlmssp_decrypted_payload = -1;
+
 static int hf_ntlmssp_ntlmv2_response = -1;
 static int hf_ntlmssp_ntlmv2_response_hmac = -1;
 static int hf_ntlmssp_ntlmv2_response_header = -1;
@@ -237,21 +262,16 @@ static int hf_ntlmssp_ntlmv2_response_reserved = -1;
 static int hf_ntlmssp_ntlmv2_response_time = -1;
 static int hf_ntlmssp_ntlmv2_response_chal = -1;
 static int hf_ntlmssp_ntlmv2_response_unknown = -1;
-static int hf_ntlmssp_ntlmv2_response_name = -1;
-static int hf_ntlmssp_ntlmv2_response_name_type = -1;
-static int hf_ntlmssp_ntlmv2_response_name_len = -1;
-static int hf_ntlmssp_ntlmv2_response_restriction = -1;
-static int hf_ntlmssp_ntlmv2_response_client_time = -1;
 
 static gint ett_ntlmssp = -1;
 static gint ett_ntlmssp_negotiate_flags = -1;
 static gint ett_ntlmssp_string = -1;
 static gint ett_ntlmssp_blob = -1;
 static gint ett_ntlmssp_version = -1;
-static gint ett_ntlmssp_address_list = -1;
-static gint ett_ntlmssp_address_list_item = -1;
+static gint ett_ntlmssp_challenge_target_info = -1;
+static gint ett_ntlmssp_challenge_target_info_item = -1;
 static gint ett_ntlmssp_ntlmv2_response = -1;
-static gint ett_ntlmssp_ntlmv2_response_name = -1;
+static gint ett_ntlmssp_ntlmv2_response_item = -1;
 
 /* Configuration variables */
 const char *gbl_nt_password = NULL;
@@ -299,7 +319,7 @@ static void printnbyte(const guint8* tab,int nb,const char* txt,const char* txt2
   }
   fprintf(stderr,"%s",txt2);
 }
-/*
+#if 0
  static void printnchar(const guint8* tab,int nb,char* txt,char* txt2)
 {
   int i=0;
@@ -310,7 +330,7 @@ static void printnbyte(const guint8* tab,int nb,const char* txt,const char* txt2
   }
   fprintf(stderr,"%s",txt2);
 }
-*/
+#endif
 #else
 static void printnbyte(const guint8* tab _U_,int nb _U_, const char* txt _U_,const char* txt2 _U_)
 {
@@ -491,7 +511,7 @@ get_md4pass_list(md4_pass** p_pass_list,const char* nt_password)
 	return nb_pass;
 }
 #endif
-/* Create an NTLMSSP version 2
+/* Create an NTLMSSP version 2 key
  */
 static void
 create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge , const guint8 *clientchallenge ,
@@ -1089,12 +1109,12 @@ dissect_ntlmssp_version(tvbuff_t *tvb, int offset,
   if (ntlmssp_tree) {
     proto_item *tf;
     proto_tree *version_tree;
-    tf = proto_tree_add_text(ntlmssp_tree, tvb, offset, 8,
-                             "Version %u.%u (Build %u); NTLM Current Revision %u",
-                             tvb_get_guint8(tvb, offset),
-                             tvb_get_guint8(tvb, offset+1),
-                             tvb_get_letohs(tvb, offset+2),
-                             tvb_get_guint8(tvb, offset+7));
+    tf = proto_tree_add_none_format(ntlmssp_tree, hf_ntlmssp_version, tvb, offset, 8,
+                                    "Version %u.%u (Build %u); NTLM Current Revision %u",
+                                    tvb_get_guint8(tvb, offset),
+                                    tvb_get_guint8(tvb, offset+1),
+                                    tvb_get_letohs(tvb, offset+2),
+                                    tvb_get_guint8(tvb, offset+7));
     version_tree = proto_item_add_subtree (tf, ett_ntlmssp_version);
     proto_tree_add_item(version_tree, hf_ntlmssp_version_major                , tvb, offset  , 1, ENC_NA);
     proto_tree_add_item(version_tree, hf_ntlmssp_version_minor                , tvb, offset+1, 1, ENC_NA);
@@ -1107,45 +1127,186 @@ dissect_ntlmssp_version(tvbuff_t *tvb, int offset,
 /* Dissect a NTLM response. This is documented at
    http://ubiqx.org/cifs/SMB.html#SMB.8, para 2.8.5.3 */
 
-/* Name types */
-
+/* Attribute types */
 /*
  * XXX - the davenport document says that a type of 5 has been seen,
  * "apparently containing the 'parent' DNS domain for servers in
  * subdomains".
+ * XXX: MS-NLMP info is newer than Davenport info;
+ *      The attribute type list and the attribute names below are
+ *      based upon MS-NLMP.
  */
 
-#define NTLM_NAME_END        0x0000
-#define NTLM_NAME_NB_HOST    0x0001
-#define NTLM_NAME_NB_DOMAIN  0x0002
-#define NTLM_NAME_DNS_HOST   0x0003
-#define NTLM_NAME_DNS_DOMAIN 0x0004
-#define NTLM_NAME_DNS_FOREST 0x0005
-#define NTLM_NAME_CLIENT_TIME 0x0007
-#define NTLM_NAME_RESTRICTION 0x0008
-
-
+#define NTLM_TARGET_INFO_END               0x0000
+#define NTLM_TARGET_INFO_NB_COMPUTER_NAME  0x0001
+#define NTLM_TARGET_INFO_NB_DOMAIN_NAME    0x0002
+#define NTLM_TARGET_INFO_DNS_COMPUTER_NAME 0x0003
+#define NTLM_TARGET_INFO_DNS_DOMAIN_NAME   0x0004
+#define NTLM_TARGET_INFO_DNS_TREE_NAME     0x0005
+#define NTLM_TARGET_INFO_FLAGS             0x0006
+#define NTLM_TARGET_INFO_TIMESTAMP         0x0007
+#define NTLM_TARGET_INFO_RESTRICTIONS      0x0008
+#define NTLM_TARGET_INFO_TARGET_NAME       0x0009
+#define NTLM_TARGET_INFO_CHANNEL_BINDINGS  0x000A
 
 static const value_string ntlm_name_types[] = {
-	{ NTLM_NAME_END, "End of list" },
-	{ NTLM_NAME_NB_HOST, "NetBIOS host name" },
-	{ NTLM_NAME_NB_DOMAIN, "NetBIOS domain name" },
-	{ NTLM_NAME_DNS_HOST, "DNS host name" },
-	{ NTLM_NAME_DNS_DOMAIN, "DNS domain name" },
-	{ NTLM_NAME_DNS_FOREST, "DNS forest name" },
-
-	{ NTLM_NAME_CLIENT_TIME, "Client Time" },
-	{ NTLM_NAME_RESTRICTION, "Encoding restriction" },
+	{ NTLM_TARGET_INFO_END,               "End of list" },
+	{ NTLM_TARGET_INFO_NB_COMPUTER_NAME,  "NetBIOS computer name" },
+	{ NTLM_TARGET_INFO_NB_DOMAIN_NAME,    "NetBIOS domain name" },
+	{ NTLM_TARGET_INFO_DNS_COMPUTER_NAME, "DNS computer name" },
+	{ NTLM_TARGET_INFO_DNS_DOMAIN_NAME,   "DNS domain name" },
+	{ NTLM_TARGET_INFO_DNS_TREE_NAME,     "DNS tree name" },
+	{ NTLM_TARGET_INFO_FLAGS,             "Flags" },
+	{ NTLM_TARGET_INFO_TIMESTAMP,         "Timestamp" },
+	{ NTLM_TARGET_INFO_RESTRICTIONS,      "Restrictions" },
+        { NTLM_TARGET_INFO_TARGET_NAME,       "Target Name"},
+        { NTLM_TARGET_INFO_CHANNEL_BINDINGS,  "Channel Bindings"},
 	{ 0, NULL }
 };
+
+/* The following *must* match the order of the list of attribute types   */
+/*  Assumption: values in the list are a sequence starting with 0 and    */
+/*  with no gaps allowing a direct access of the array by attribute type */
+static int *ntlmssp_hf_challenge_target_info_hf_ptr_array[] = {
+  &hf_ntlmssp_challenge_target_info_end,
+  &hf_ntlmssp_challenge_target_info_nb_computer_name,
+  &hf_ntlmssp_challenge_target_info_nb_domain_name,
+  &hf_ntlmssp_challenge_target_info_dns_computer_name,
+  &hf_ntlmssp_challenge_target_info_dns_domain_name,
+  &hf_ntlmssp_challenge_target_info_dns_tree_name,
+  &hf_ntlmssp_challenge_target_info_flags,
+  &hf_ntlmssp_challenge_target_info_timestamp,
+  &hf_ntlmssp_challenge_target_info_restrictions,
+  &hf_ntlmssp_challenge_target_info_target_name,
+  &hf_ntlmssp_challenge_target_info_channel_bindings
+};
+
+static int *ntlmssp_hf_ntlmv2_response_hf_ptr_array[] = {
+  &hf_ntlmssp_ntlmv2_response_end,
+  &hf_ntlmssp_ntlmv2_response_nb_computer_name,
+  &hf_ntlmssp_ntlmv2_response_nb_domain_name,
+  &hf_ntlmssp_ntlmv2_response_dns_computer_name,
+  &hf_ntlmssp_ntlmv2_response_dns_domain_name,
+  &hf_ntlmssp_ntlmv2_response_dns_tree_name,
+  &hf_ntlmssp_ntlmv2_response_flags,
+  &hf_ntlmssp_ntlmv2_response_timestamp,
+  &hf_ntlmssp_ntlmv2_response_restrictions,
+  &hf_ntlmssp_ntlmv2_response_target_name,
+  &hf_ntlmssp_ntlmv2_response_channel_bindings
+};
+
+typedef struct _tif {
+  gint  *ett;
+  int   *hf_item_type;
+  int   *hf_item_length;
+  int  **hf_attr_array_p;
+} tif_t;
+
+static tif_t ntlmssp_challenge_target_info_tif = {
+  &ett_ntlmssp_challenge_target_info_item,
+  &hf_ntlmssp_challenge_target_info_item_type,
+  &hf_ntlmssp_challenge_target_info_item_len,
+  ntlmssp_hf_challenge_target_info_hf_ptr_array
+};
+
+static tif_t ntlmssp_ntlmv2_response_tif = {
+  &ett_ntlmssp_ntlmv2_response_item,
+  &hf_ntlmssp_ntlmv2_response_item_type,
+  &hf_ntlmssp_ntlmv2_response_item_len,
+  ntlmssp_hf_ntlmv2_response_hf_ptr_array
+};
+
+static void
+dissect_ntlmssp_target_info_list(tvbuff_t *tvb, proto_tree *tree,
+                                 guint32 target_info_offset, guint16 target_info_length,
+                                 tif_t *tif_p)
+{
+  guint32 item_offset;
+  guint16 item_type;
+  guint16 item_length;
+
+
+  /* Now enumerate through the individual items in the list */
+  item_offset = target_info_offset;
+
+  while (item_offset < (target_info_offset + target_info_length)) {
+    proto_item *target_info_tf;
+    proto_tree *target_info_tree;
+    guint32     content_offset;
+    guint16     content_length;
+    guint32     type_offset;
+    guint32     len_offset;
+
+    int **hf_array_p = tif_p->hf_attr_array_p;
+
+    /* Content type */
+    type_offset = item_offset;
+    item_type = tvb_get_letohs(tvb, type_offset);
+
+    /* Content length */
+    len_offset = type_offset + 2;
+    content_length = tvb_get_letohs(tvb, len_offset);
+
+    /* Content value */
+    content_offset = len_offset + 2;
+    item_length    = content_length + 4;
+
+    target_info_tf = proto_tree_add_text(tree, tvb, item_offset, item_length, "Attribute: %s",
+                                  val_to_str(item_type, ntlm_name_types, "Unknown (%d)"));
+
+    target_info_tree = proto_item_add_subtree (target_info_tf, *tif_p->ett);
+    proto_tree_add_item (target_info_tree, *tif_p->hf_item_type,    tvb, type_offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item (target_info_tree, *tif_p->hf_item_length,  tvb, len_offset,  2, ENC_LITTLE_ENDIAN);
+
+    switch(item_type) {
+    case NTLM_TARGET_INFO_NB_COMPUTER_NAME:
+    case NTLM_TARGET_INFO_NB_DOMAIN_NAME:
+    case NTLM_TARGET_INFO_DNS_COMPUTER_NAME:
+    case NTLM_TARGET_INFO_DNS_DOMAIN_NAME:
+    case NTLM_TARGET_INFO_DNS_TREE_NAME:
+    case NTLM_TARGET_INFO_TARGET_NAME:
+      if (content_length > 0) {
+        const gchar *text;
+
+        text = tvb_get_ephemeral_faked_unicode(tvb, content_offset, content_length / 2, TRUE);
+        proto_tree_add_string(target_info_tree, *hf_array_p[item_type],
+                              tvb, content_offset, content_length, text);
+        proto_item_append_text(target_info_tf, ": %s", text);
+      }
+      break;
+
+    case NTLM_TARGET_INFO_FLAGS:
+      proto_tree_add_item(target_info_tree, *hf_array_p[item_type],
+                          tvb, content_offset, content_length, ENC_LITTLE_ENDIAN);
+      break;
+
+    case NTLM_TARGET_INFO_TIMESTAMP:
+      dissect_nt_64bit_time(tvb, target_info_tree, content_offset, *hf_array_p[item_type]);
+      break;
+
+    case NTLM_TARGET_INFO_RESTRICTIONS:
+    case NTLM_TARGET_INFO_CHANNEL_BINDINGS:
+      proto_tree_add_item(target_info_tree, *hf_array_p[item_type],
+                          tvb, content_offset, content_length, ENC_NA);
+      break;
+
+    default:
+      break;
+    }
+
+    item_offset += item_length;
+  }
+}
 
 int
 dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
 {
 	proto_item *ntlmv2_item = NULL;
 	proto_tree *ntlmv2_tree = NULL;
-  const guint8 *restriction_bytes;
+        int         orig_offset;
+
 	/* Dissect NTLMv2 bits&pieces */
+        orig_offset = offset;
 
 	if (tree) {
 		ntlmv2_item = proto_tree_add_item(
@@ -1188,101 +1349,21 @@ dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
 
 	offset += 4;
 
-	/* Variable length list of names */
-
-	while(1) {
-		guint16 name_type = tvb_get_letohs(tvb, offset);
-		guint16 name_len = tvb_get_letohs(tvb, offset + 2);
-		proto_tree *name_tree = NULL;
-		proto_item *name_item = NULL;
-		const char *name = NULL;
-
-		if (ntlmv2_tree) {
-			name_item = proto_tree_add_item(
-				ntlmv2_tree, hf_ntlmssp_ntlmv2_response_name,
-				tvb, offset, 0, TRUE);
-			name_tree = proto_item_add_subtree(
-				name_item, ett_ntlmssp_ntlmv2_response_name);
-		}
-
-		/* Dissect name header */
-
-		proto_tree_add_item(
-			name_tree, hf_ntlmssp_ntlmv2_response_name_type, tvb,
-			offset, 2, TRUE);
-
-		offset += 2;
-
-		proto_tree_add_item(
-			name_tree, hf_ntlmssp_ntlmv2_response_name_len, tvb,
-			offset, 2, TRUE);
-
-		offset += 2;
-
-		/* Dissect name */
-
-		switch(name_type){
-		case NTLM_NAME_END:
-			name = "NULL";
-			proto_item_append_text(
-				name_item, "%s",
-				val_to_str(name_type, ntlm_name_types,
-					   "Unknown"));
-			break;
-		case NTLM_NAME_CLIENT_TIME:
-			dissect_nt_64bit_time(
-				tvb, name_tree, offset,
-				hf_ntlmssp_ntlmv2_response_client_time);
-			proto_item_append_text(
-				name_item, "Client Time");
-			break;
-    case NTLM_NAME_RESTRICTION:
-			proto_item_append_text(
-				name_item, "%s",
-				val_to_str(name_type, ntlm_name_types,
-					   "Unknown"));
-      restriction_bytes = tvb_get_ptr(tvb, offset,name_len);
-      proto_tree_add_bytes (name_tree,hf_ntlmssp_ntlmv2_response_restriction,tvb,offset,name_len,restriction_bytes);
-  break;
-		case NTLM_NAME_NB_HOST:
-		case NTLM_NAME_NB_DOMAIN:
-		case NTLM_NAME_DNS_HOST:
-		case NTLM_NAME_DNS_DOMAIN:
-		case NTLM_NAME_DNS_FOREST:
-		default:
-			name = tvb_get_ephemeral_faked_unicode(
-				tvb, offset, name_len / 2, TRUE);
-			proto_tree_add_text(
-				name_tree, tvb, offset, name_len,
-				"Value: %s", name);
-			proto_item_append_text(
-				name_item, "%s, %s",
-				val_to_str(name_type, ntlm_name_types,
-					   "Unknown"), name);
-			break;
-		}
-
-
-		offset += name_len;
-
-		proto_item_set_len(name_item, name_len + 4);
-
-		if (name_type == 0) /* End of list */
-			break;
-	}
-
+	/* Variable length list of attributes */
 	/*
-	 * XXX - Windows puts 4 bytes of additional stuff here.
+	 * XXX - Windows puts one or more sets of 4 bytes of additional stuff (all zeros ?)
+         *        at the end of the attributes.
 	 * Samba's smbclient doesn't.
 	 * Both of them appear to be able to connect to W2K SMB
 	 * servers.
-	 * Should we display the rest of the response as an
-	 * "extra data" item?
+         * The additional stuff will be dissected as extra "end" attributes.
 	 *
-	 * XXX - we should also check whether we go past the length
-	 * of the response.
 	 */
-	return offset;
+        dissect_ntlmssp_target_info_list(tvb, ntlmv2_tree,
+                                         offset, len - (offset - orig_offset),
+                                         &ntlmssp_ntlmv2_response_tif);
+
+	return offset+len;
 }
 
 /* tapping into ntlmssph not yet implemented */
@@ -1324,127 +1405,45 @@ dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree, 
 
 
 static int
-dissect_ntlmssp_address_list (tvbuff_t *tvb, int offset,
-			      proto_tree *ntlmssp_tree,
-			      int *end)
+dissect_ntlmssp_challenge_target_info_blob (tvbuff_t *tvb, int offset,
+                                            proto_tree *ntlmssp_tree,
+                                            int *end)
 {
-  guint16 list_length = tvb_get_letohs(tvb, offset);
-  guint16 list_maxlen = tvb_get_letohs(tvb, offset+2);
-  guint32 list_offset = tvb_get_letohl(tvb, offset+4);
-  guint16 item_type, item_length;
-  guint32 item_offset;
+  guint16 challenge_target_info_length = tvb_get_letohs(tvb, offset);
+  guint16 challenge_target_info_maxlen = tvb_get_letohs(tvb, offset+2);
+  guint32 challenge_target_info_offset = tvb_get_letohl(tvb, offset+4);
   proto_item *tf = NULL;
-  proto_tree *tree = NULL;
-  proto_item *addr_tf = NULL;
-  proto_tree *addr_tree = NULL;
+  proto_tree *challenge_target_info_tree = NULL;
 
-  /* the address list is just a blob */
-  if (0 == list_length) {
-    *end = (list_offset > ((guint)offset)+8 ? list_offset : ((guint)offset)+8);
+  /* the target info list is just a blob */
+  if (0 == challenge_target_info_length) {
+    *end = (challenge_target_info_offset > ((guint)offset)+8 ? challenge_target_info_offset : ((guint)offset)+8);
     if (ntlmssp_tree)
 	    proto_tree_add_text(ntlmssp_tree, tvb, offset, 8,
-				"Address List: Empty");
+				"Target Info List: Empty");
     return offset+8;
   }
 
   if (ntlmssp_tree) {
-    tf = proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_address_list, tvb,
-			      list_offset, list_length, FALSE);
-    tree = proto_item_add_subtree(tf, ett_ntlmssp_address_list);
+    tf = proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_challenge_target_info, tvb,
+			      challenge_target_info_offset, challenge_target_info_length, FALSE);
+    challenge_target_info_tree = proto_item_add_subtree(tf, ett_ntlmssp_challenge_target_info);
   }
-  proto_tree_add_uint(tree, hf_ntlmssp_address_list_len,
-		      tvb, offset, 2, list_length);
+  proto_tree_add_uint(challenge_target_info_tree, hf_ntlmssp_challenge_target_info_len,
+		      tvb, offset, 2, challenge_target_info_length);
   offset += 2;
-  proto_tree_add_uint(tree, hf_ntlmssp_address_list_maxlen,
-		      tvb, offset, 2, list_maxlen);
+  proto_tree_add_uint(challenge_target_info_tree, hf_ntlmssp_challenge_target_info_maxlen,
+		      tvb, offset, 2, challenge_target_info_maxlen);
   offset += 2;
-  proto_tree_add_uint(tree, hf_ntlmssp_address_list_offset,
-		      tvb, offset, 4, list_offset);
+  proto_tree_add_uint(challenge_target_info_tree, hf_ntlmssp_challenge_target_info_offset,
+		      tvb, offset, 4, challenge_target_info_offset);
   offset += 4;
 
-  /* Now enumerate through the individual items in the list */
-  item_offset = list_offset;
+  dissect_ntlmssp_target_info_list(tvb, challenge_target_info_tree,
+                                   challenge_target_info_offset, challenge_target_info_length,
+                                   &ntlmssp_challenge_target_info_tif);
 
-  while (item_offset < (list_offset + list_length)) {
-    const char *text=NULL;
-    guint32 content_offset;
-    guint16 content_length;
-    guint32 type_offset;
-    guint32 len_offset;
-
-    /* Content type */
-    type_offset = item_offset;
-    item_type = tvb_get_letohs(tvb, type_offset);
-
-    /* Content length */
-    len_offset = type_offset + 2;
-    content_length = tvb_get_letohs(tvb, len_offset);
-
-    /* Content value */
-    content_offset = len_offset + 2;
-    item_length = content_length + 4;
-
-    /* Strings are always in Unicode regardless of the negotiated
-       string type. */
-    if (content_length > 0) {
-      guint16 bc;
-      int result_length;
-      int item_offset_int;
-
-      item_offset_int = content_offset;
-      bc = content_length;
-      text = get_unicode_or_ascii_string(tvb, &item_offset_int,
-					 TRUE, &result_length,
-					 FALSE, FALSE, &bc);
-    }
-
-    if (!text) text = ""; /* Make sure we don't blow up below */
-
-    switch(item_type) {
-    case NTLM_NAME_NB_HOST:
-      addr_tf = proto_tree_add_string(tree, hf_ntlmssp_address_list_server_nb,
-				      tvb, item_offset, item_length, text);
-      break;
-    case NTLM_NAME_NB_DOMAIN:
-      addr_tf = proto_tree_add_string(tree, hf_ntlmssp_address_list_domain_nb,
-				      tvb, item_offset, item_length, text);
-      break;
-    case NTLM_NAME_DNS_HOST:
-      addr_tf = proto_tree_add_string(tree, hf_ntlmssp_address_list_server_dns,
-				      tvb, item_offset, item_length, text);
-      break;
-    case NTLM_NAME_DNS_DOMAIN:
-      addr_tf = proto_tree_add_string(tree, hf_ntlmssp_address_list_domain_dns,
-				      tvb, item_offset, item_length, text);
-      break;
-    case NTLM_NAME_DNS_FOREST:
-      addr_tf = proto_tree_add_string(tree, hf_ntlmssp_address_list_forest_dns,
-				      tvb, item_offset, item_length, text);
-      break;
-    case NTLM_NAME_END:
-      addr_tf = proto_tree_add_item(tree, hf_ntlmssp_address_list_terminator,
-				    tvb, item_offset, item_length, TRUE);
-      break;
-    default:
-      addr_tf = proto_tree_add_text(tree, tvb, item_offset, item_length, "Unknown type:0x%04x", item_type);
-    }
-
-    /* Now show the actual bytes that made up the summary line */
-    addr_tree = proto_item_add_subtree (addr_tf,
-					ett_ntlmssp_address_list_item);
-    proto_tree_add_item (addr_tree, hf_ntlmssp_address_list_item_type,
-			 tvb, type_offset, 2, TRUE);
-    proto_tree_add_item (addr_tree, hf_ntlmssp_address_list_item_len,
-			 tvb, len_offset, 2, TRUE);
-    if (content_length > 0) {
-      proto_tree_add_string(addr_tree, hf_ntlmssp_address_list_item_content,
-			    tvb, content_offset, content_length, text);
-    }
-
-    item_offset += item_length;
-  }
-
-  *end = list_offset + list_length;
+  *end = challenge_target_info_offset + challenge_target_info_length;
   return offset;
 }
 
@@ -1572,7 +1571,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
    * address list).
    */
   if (offset < data_start) {
-    offset = dissect_ntlmssp_address_list(tvb, offset, ntlmssp_tree, &item_end);
+    offset = dissect_ntlmssp_challenge_target_info_blob(tvb, offset, ntlmssp_tree, &item_end);
     /* XXX: This code assumes that the address list in the data block */
     /*      is always after the target name. Is this OK ?             */
     data_end = MAX(data_end, item_end);
@@ -1632,25 +1631,9 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
      * it means this is the first time we've dissected this frame, so
      * we should give it flag info.
      */
-#if 0
-    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-				     pinfo->ptype, pinfo->srcport,
-				     pinfo->destport, 0);
-    if (conversation != NULL) {
-      conv_ntlmssp_info = conversation_get_proto_data(conversation, proto_ntlmssp);
-      if (conv_ntlmssp_info != NULL) {
-      	/*
-      	 * We have flag info; attach it to the frame.
-      	 */
-        /* XXX: The *conv_ntlmssp_info struct attached to the frame is the
-                same as the one attached to the conversation.
-                Is this what is indended ?  */
-      	p_add_proto_data(pinfo->fd, proto_ntlmssp, conv_ntlmssp_info);
-      }
-    }
-#else /* XXX: Create conv_ntlmssp_info & etc if no previous CHALLENGE seen */
-      /*      so we'll have a place to store flags.                        */
-      /*      This is a bit brute-force but looks like it will be OK.      */
+    /* XXX: Create conv_ntlmssp_info & etc if no previous CHALLENGE seen */
+    /*      so we'll have a place to store flags.                        */
+    /*      This is a bit brute-force but looks like it will be OK.      */
     conversation = find_or_create_conversation(pinfo);
     conv_ntlmssp_info = conversation_get_proto_data(conversation, proto_ntlmssp);
     if (conv_ntlmssp_info == NULL) {
@@ -1661,7 +1644,6 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
             same as the one attached to the conversation. That is: *both* point to
             the exact same struct in memory.  Is this what is indended ?  */
     p_add_proto_data(pinfo->fd, proto_ntlmssp, conv_ntlmssp_info);
-#endif
   }
 
   if (conv_ntlmssp_info != NULL) {
@@ -2666,6 +2648,8 @@ proto_register_ntlmssp(void)
       { "Target Type Server", "ntlmssp.targettypeserver", FT_BOOLEAN, 32, TFS (&tfs_set_notset), NTLMSSP_TARGET_TYPE_SERVER, NULL, HFILL }},
     { &hf_ntlmssp_negotiate_flags_40000,
       { "Target Type Share", "ntlmssp.targettypeshare", FT_BOOLEAN, 32, TFS (&tfs_set_notset), NTLMSSP_TARGET_TYPE_SHARE, NULL, HFILL }},
+
+/* Negotiate Flags */
     { &hf_ntlmssp_negotiate_flags_80000,
       { "Negotiate Extended Security", "ntlmssp.negotiatentlm2", FT_BOOLEAN, 32, TFS (&tfs_set_notset), NTLMSSP_NEGOTIATE_EXTENDED_SECURITY, NULL, HFILL }},
     { &hf_ntlmssp_negotiate_flags_100000,
@@ -2714,6 +2698,7 @@ proto_register_ntlmssp(void)
       { "NTLM Server Challenge", "ntlmssp.ntlmserverchallenge", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_ntlmssp_reserved,
       { "Reserved", "ntlmssp.reserved", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
     { &hf_ntlmssp_challenge_target_name,
       { "Target Name", "ntlmssp.challenge.target_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_ntlmssp_auth_domain,
@@ -2740,6 +2725,8 @@ proto_register_ntlmssp(void)
       { "Maxlen", "ntlmssp.blob.maxlen", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_ntlmssp_blob_offset,
       { "Offset", "ntlmssp.blob.offset", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    { &hf_ntlmssp_version,
+      { "Version", "ntlmssp.version", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     { &hf_ntlmssp_version_major,
       { "Major Version", "ntlmssp.version.major", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_ntlmssp_version_minor,
@@ -2748,32 +2735,73 @@ proto_register_ntlmssp(void)
       { "Major Version", "ntlmssp.version.build_number", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_ntlmssp_version_ntlm_current_revision,
       { "NTLM Current Revision", "ntlmssp.version.ntlm_current_revision", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    { &hf_ntlmssp_address_list,
-      { "Address List", "ntlmssp.challenge.addresslist", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-    { &hf_ntlmssp_address_list_len,
-      { "Length", "ntlmssp.challenge.addresslist.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    { &hf_ntlmssp_address_list_maxlen,
-      { "Maxlen", "ntlmssp.challenge.addresslist.maxlen", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    { &hf_ntlmssp_address_list_offset,
-      { "Offset", "ntlmssp.challenge.addresslist.offset", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    { &hf_ntlmssp_address_list_item_type,
-      { "Target item type", "ntlmssp.targetitemtype", FT_UINT16, BASE_HEX, VALS(ntlm_name_types), 0x0, NULL, HFILL }},
-    { &hf_ntlmssp_address_list_item_len,
-      { "Target item Length", "ntlmssp.challenge.addresslist.item.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    { &hf_ntlmssp_address_list_item_content,
-      { "Target item Content", "ntlmssp.challenge.addresslist.item.content", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-    { &hf_ntlmssp_address_list_server_nb,
-      { "Server NetBIOS Name", "ntlmssp.challenge.addresslist.servernb", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_ntlmssp_address_list_domain_nb,
-      { "Domain NetBIOS Name", "ntlmssp.challenge.addresslist.domainnb", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_ntlmssp_address_list_server_dns,
-      { "Server DNS Name", "ntlmssp.challenge.addresslist.serverdns", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_ntlmssp_address_list_domain_dns,
-      { "Domain DNS Name", "ntlmssp.challenge.addresslist.domaindns", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_ntlmssp_address_list_forest_dns,
-      { "Forest DNS Name", "ntlmssp.challenge.addresslist.forestdns", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_ntlmssp_address_list_terminator,
-      { "List Terminator", "ntlmssp.challenge.addresslist.terminator", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+/* Target Info */
+    { &hf_ntlmssp_challenge_target_info,
+      { "Target Info", "ntlmssp.challenge.target_info", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+    { &hf_ntlmssp_challenge_target_info_len,
+      { "Length", "ntlmssp.challenge.target_info.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    { &hf_ntlmssp_challenge_target_info_maxlen,
+      { "Maxlen", "ntlmssp.challenge.target_info.maxlen", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    { &hf_ntlmssp_challenge_target_info_offset,
+      { "Offset", "ntlmssp.challenge.target_info.offset", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+    { &hf_ntlmssp_challenge_target_info_item_type,
+      { "Target Info Item Type", "ntlmssp.challenge.target_info.item.type", FT_UINT16, BASE_HEX, VALS(ntlm_name_types), 0x0, NULL, HFILL }},
+    { &hf_ntlmssp_challenge_target_info_item_len,
+      { "Target Info Item Length", "ntlmssp.challenge.target_info.item.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+    { &hf_ntlmssp_challenge_target_info_end,
+      { "List End", "ntlmssp.challenge.target_info.end", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_ntlmssp_challenge_target_info_nb_computer_name,
+      { "NetBIOS Computer Name", "ntlmssp.challenge.target_info.nb_computer_name", FT_STRING, BASE_NONE, NULL, 0x0, "Server NetBIOS Computer Name", HFILL }},
+    { &hf_ntlmssp_challenge_target_info_nb_domain_name,
+      { "NetBIOS Domain Name", "ntlmssp.challenge.target_info.nb_domain_name", FT_STRING, BASE_NONE, NULL, 0x0, "Server NetBIOS Domain Name", HFILL }},
+    { &hf_ntlmssp_challenge_target_info_dns_computer_name,
+      { "DNS Computer Name", "ntlmssp.challenge.target_info.dns_computer_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_ntlmssp_challenge_target_info_dns_domain_name,
+      { "DNS Domain Name", "ntlmssp.challenge.target_info.dns_domain_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_ntlmssp_challenge_target_info_dns_tree_name,
+      { "DNS Tree Name", "ntlmssp.challenge.target_info.dns_tree_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_ntlmssp_challenge_target_info_flags,
+      { "Flags", "ntlmssp.challenge.target_info.flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_ntlmssp_challenge_target_info_timestamp,
+      { "Timestamp", "ntlmssp.challenge.target_info.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
+    { &hf_ntlmssp_challenge_target_info_restrictions,
+      { "Restrictions", "ntlmssp.challenge.target_info.restrictions", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+    { &hf_ntlmssp_challenge_target_info_target_name,
+      { "Target Name", "ntlmssp.challenge.target_info.target_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_ntlmssp_challenge_target_info_channel_bindings,
+      { "Channel Bindings", "ntlmssp.challenge.target_info.channel_bindings", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_ntlmssp_ntlmv2_response_item_type,
+      { "NTLMV2 Response Item Type", "ntlmssp.ntlmv2_response.item.type", FT_UINT16, BASE_HEX, VALS(ntlm_name_types), 0x0, NULL, HFILL }},
+    { &hf_ntlmssp_ntlmv2_response_item_len,
+      { "NTLMV2 Response Item Length", "ntlmssp.ntlmv2_response.item.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+    { &hf_ntlmssp_ntlmv2_response_end,
+      { "List End", "ntlmssp.ntlmv2_response.end", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_ntlmssp_ntlmv2_response_nb_computer_name,
+      { "NetBIOS Computer Name", "ntlmssp.ntlmv2_response.nb_computer_name", FT_STRING, BASE_NONE, NULL, 0x0, "Server NetBIOS Computer Name", HFILL }},
+    { &hf_ntlmssp_ntlmv2_response_nb_domain_name,
+      { "NetBIOS Domain Name", "ntlmssp.ntlmv2_response.nb_domain_name", FT_STRING, BASE_NONE, NULL, 0x0, "Server NetBIOS Domain Name", HFILL }},
+    { &hf_ntlmssp_ntlmv2_response_dns_computer_name,
+      { "DNS Computer Name", "ntlmssp.ntlmv2_response.dns_computer_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_ntlmssp_ntlmv2_response_dns_domain_name,
+      { "DNS Domain Name", "ntlmssp.ntlmv2_response.dns_domain_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_ntlmssp_ntlmv2_response_dns_tree_name,
+      { "DNS Tree Name", "ntlmssp.ntlmv2_response.dns_tree_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_ntlmssp_ntlmv2_response_flags,
+      { "Flags", "ntlmssp.ntlmv2_response.flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_ntlmssp_ntlmv2_response_timestamp,
+      { "Timestamp", "ntlmssp.ntlmv2_response.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
+    { &hf_ntlmssp_ntlmv2_response_restrictions,
+      { "Restrictions", "ntlmssp.ntlmv2_response.restrictions", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+    { &hf_ntlmssp_ntlmv2_response_target_name,
+      { "Target Name", "ntlmssp.ntlmv2_response.target_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_ntlmssp_ntlmv2_response_channel_bindings,
+      { "Channel Bindings", "ntlmssp.ntlmv2_response.channel_bindings", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
     { &hf_ntlmssp_message_integrity_code,
       { "MIC", "ntlmssp.authenticate.mic", FT_BYTES, BASE_NONE, NULL, 0x0, "Message Integrity Code", HFILL}},
     { &hf_ntlmssp_verf,
@@ -2792,30 +2820,21 @@ proto_register_ntlmssp(void)
       { "HMAC MD5", "ntlmssp.verf.hmacmd5", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_ntlmssp_verf_sequence,
       { "Sequence", "ntlmssp.verf.sequence", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
     { &hf_ntlmssp_ntlmv2_response,
-      { "NTLMv2 Response", "ntlmssp.ntlmv2response", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "NTLMv2 Response", "ntlmssp.ntlmv2_response", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_ntlmssp_ntlmv2_response_hmac,
-      { "HMAC", "ntlmssp.ntlmv2response.hmac", FT_BYTES, BASE_NONE,  NULL, 0x0, NULL, HFILL }},
+      { "HMAC", "ntlmssp.ntlmv2_response.hmac", FT_BYTES, BASE_NONE,  NULL, 0x0, NULL, HFILL }},
     { &hf_ntlmssp_ntlmv2_response_header,
-      { "Header", "ntlmssp.ntlmv2response.header", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "Header", "ntlmssp.ntlmv2_response.header", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_ntlmssp_ntlmv2_response_reserved,
-      { "Reserved", "ntlmssp.ntlmv2response.reserved", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "Reserved", "ntlmssp.ntlmv2_response.reserved", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_ntlmssp_ntlmv2_response_time,
-      { "Time", "ntlmssp.ntlmv2response.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
+      { "Time", "ntlmssp.ntlmv2_response.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
     { &hf_ntlmssp_ntlmv2_response_chal,
-      { "Client challenge", "ntlmssp.ntlmv2response.chal", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "Client challenge", "ntlmssp.ntlmv2_response.chal", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_ntlmssp_ntlmv2_response_unknown,
-      { "Unknown", "ntlmssp.ntlmv2response.unknown", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-    { &hf_ntlmssp_ntlmv2_response_name,
-      { "Attribute", "ntlmssp.ntlmv2response.name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_ntlmssp_ntlmv2_response_name_type,
-      { "Attribute type", "ntlmssp.ntlmv2response.name.type", FT_UINT32, BASE_DEC, VALS(ntlm_name_types), 0x0, NULL, HFILL }},
-    { &hf_ntlmssp_ntlmv2_response_name_len,
-      { "Value len", "ntlmssp.ntlmv2response.name.len", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-    { &hf_ntlmssp_ntlmv2_response_restriction,
-      { "Encoding restrictions", "ntlmssp.ntlmv2response.name.restrictions", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_ntlmssp_ntlmv2_response_client_time,
-      { "Client Time", "ntlmssp.ntlmv2response.client_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }}
+      { "Unknown", "ntlmssp.ntlmv2_response.unknown", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }}
   };
 
 
@@ -2825,10 +2844,10 @@ proto_register_ntlmssp(void)
     &ett_ntlmssp_string,
     &ett_ntlmssp_blob,
     &ett_ntlmssp_version,
-    &ett_ntlmssp_address_list,
-    &ett_ntlmssp_address_list_item,
+    &ett_ntlmssp_challenge_target_info,
+    &ett_ntlmssp_challenge_target_info_item,
     &ett_ntlmssp_ntlmv2_response,
-    &ett_ntlmssp_ntlmv2_response_name
+    &ett_ntlmssp_ntlmv2_response_item,
   };
   module_t *ntlmssp_module;
 
