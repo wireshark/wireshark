@@ -69,6 +69,9 @@ static int     (*p_pcap_lookupnet) (const char *, bpf_u_int32 *, bpf_u_int32 *,
 			char *);
 static pcap_t* (*p_pcap_open_live) (const char *, int, int, int, char *);
 static int     (*p_pcap_loop) (pcap_t *, int, pcap_handler, guchar *);
+#ifdef HAVE_PCAP_OPEN_DEAD
+static pcap_t* (*p_pcap_open_dead) (int, int);
+#endif
 static void    (*p_pcap_freecode) (struct bpf_program *);
 #ifdef HAVE_PCAP_FINDALLDEVS
 static int     (*p_pcap_findalldevs) (pcap_if_t **, char *);
@@ -113,6 +116,10 @@ static int	(*p_pcap_set_datalink)(pcap_t *, int);
 static int 	(*p_pcap_free_datalinks)(int *);
 #endif
 
+#ifdef HAVE_BPF_IMAGE
+static char     *(*p_bpf_image) (const struct bpf_insn *, int);
+#endif
+
 typedef struct {
 	const char	*name;
 	gpointer	*ptr;
@@ -144,6 +151,9 @@ load_wpcap(void)
 		SYM(pcap_createsrcstr, FALSE),
 #endif
 		SYM(pcap_open_live, FALSE),
+#ifdef HAVE_PCAP_OPEN_DEAD
+		SYM(pcap_open_dead, FALSE),
+#endif
 #ifdef HAVE_PCAP_SETSAMPLING
 		SYM(pcap_setsampling, TRUE),
 #endif
@@ -181,6 +191,9 @@ load_wpcap(void)
 #endif
 #ifdef HAVE_PCAP_FREE_DATALINKS
 		SYM(pcap_free_datalinks, TRUE),
+#endif
+#ifdef HAVE_BPF_IMAGE
+                SYM(bpf_image, FALSE),
 #endif
 		{ NULL, NULL, FALSE }
 	};
@@ -315,6 +328,28 @@ pcap_open_live(const char *a, int b, int c, int d, char *e)
     }
     return p_pcap_open_live(a, b, c, d, e);
 }
+
+#ifdef HAVE_PCAP_OPEN_DEAD
+pcap_t*
+pcap_open_dead(int a, int b)
+{
+    if (!has_wpcap) {
+	return NULL;
+    }
+    return p_pcap_open_dead(a, b);
+}
+#endif
+
+#ifdef HAVE_BPF_IMAGE
+static char *
+bpf_image(const struct bpf_insn *a, int b)
+{
+    if (!has_wpcap) {
+	return NULL;
+    }
+    return p_bpf_image(a, b);
+}
+#endif
 
 #ifdef HAVE_PCAP_REMOTE
 pcap_t*

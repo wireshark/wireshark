@@ -154,6 +154,9 @@
 #define E_CAP_SAMP_TIMER_SB_KEY         "cap_samp_timer_sb"
 #endif
 
+#define DUMMY_SNAPLENGTH                65535
+#define DUMMY_NETMASK                   0xFF000000
+
 /*
  * Keep a static pointer to the current "Capture Options" window, if
  * any, so that if somebody tries to do "Capture:Start" while there's
@@ -261,9 +264,9 @@ capture_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
     return;
   }
 
-  if (pcap_compile_nopcap(128 /* use a dummy snaplength for syntax-checking */,
+  if (pcap_compile_nopcap(DUMMY_SNAPLENGTH /* use a dummy snaplength for syntax-checking */,
           global_capture_opts.linktype, &fcode, filter_text, 1 /* Do optimize */, 
-          (guint)255*256*256*256 /* use a dummy netmask for syntax-checking */) < 0) {
+          DUMMY_NETMASK /* use a dummy netmask for syntax-checking */) < 0) {
     colorize_filter_te_as_invalid(filter_te);
   } else {
     colorize_filter_te_as_valid(filter_te);
@@ -1503,43 +1506,17 @@ capture_remote_combo_add_recent(gchar *s)
 
 #endif
 
-#ifdef HAVE_PCAP_CREATE
+#if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
 static void
 capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
 {
-  GtkWidget *if_cb;
-  gchar *entry_text;
-  gchar *if_text;
-  const gchar *if_name;
-
   pcap_t *pd;
   struct bpf_program fcode;
-  char errbuf[PCAP_ERRBUF_SIZE];
 
   GtkWidget *filter_cm, *filter_te;
   const gchar *filter_text;
 
-  if_cb = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
-  entry_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry)));
-  if_text = g_strstrip(entry_text);
-  if_name = get_if_name(if_text);
-  if (*if_name == '\0') {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-      "You didn't specify an interface on which to capture packets.");
-    g_free(entry_text);
-    return;
-  }
-
-  if (!(pd = pcap_create(if_name, errbuf))) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", errbuf);
-    g_free(entry_text);
-    return;
-  }
-  /* Activate the PD to set the proper DLT for this interface */
-  pcap_activate(pd);
-  /* change the DLT if the user selected a non-default DLT for the interface */
-  if (global_capture_opts.linktype != -1) 
-    pcap_set_datalink(pd, global_capture_opts.linktype);
+  pd = pcap_open_dead(global_capture_opts.linktype, DUMMY_SNAPLENGTH);
 
   filter_cm = g_object_get_data(G_OBJECT(top_level), E_CFILTER_CM_KEY);
   filter_te = GTK_COMBO(filter_cm)->entry;
@@ -1560,7 +1537,9 @@ capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
     gchar *bpf_code_markup;
 
     for (i = 0; i < n; ++insn, ++i) {
+/*
         g_string_append(bpf_code_dump, bpf_image(insn, i));
+*/
         g_string_append(bpf_code_dump, "\n");
     }
 
@@ -1573,11 +1552,9 @@ capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
     g_free(bpf_code_markup);
   }
 
-  g_free(entry_text);
   pcap_close(pd);
 }
 #endif
-
 
 /* show capture prepare (options) dialog */
 void
@@ -1597,7 +1574,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #endif
                 *pcap_ng_cb,
                 *filter_hb, *filter_bt, *filter_te, *filter_cm,
-#ifdef HAVE_PCAP_CREATE
+#if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
                 *compile_bt,
 #endif
                 *file_fr, *file_vb,
@@ -1980,7 +1957,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   /* let an eventually capture filters dialog know the text entry to fill in */
   g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
 
-#ifdef HAVE_PCAP_CREATE
+#if defined(HAVE_PCAP_OPEN_DEAD) && defined(HAVE_BPF_IMAGE)
   compile_bt = gtk_button_new_with_label("Compile BPF");
   g_signal_connect(compile_bt, "clicked", G_CALLBACK(capture_filter_compile_cb), NULL);
   gtk_tooltips_set_tip(tooltips, compile_bt,
@@ -3054,7 +3031,7 @@ capture_prep_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 
 /* user changed the interface entry */
 static void
-capture_prep_interface_changed_cb(GtkWidget *entry _U_, gpointer argp _U_)
+capture_prep_interface_changed_cb(GtkWidget *entry, gpointer argp)
 {
   set_if_capabilities(FALSE);
   capture_filter_check_syntax_cb(entry, argp);
