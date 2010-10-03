@@ -1067,14 +1067,22 @@ main_toolbar_show_hide_cb(GtkAction *action, gpointer user_data)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/MainToolbar");
 
-	show_hide_cb( widget, user_data, SHOW_HIDE_MAIN_TOOLBAR);
+	if (!widget){
+		g_warning("main_toolbar_show_hide_cb: No widget found");
+	}else{
+		show_hide_cb( widget, user_data, SHOW_HIDE_MAIN_TOOLBAR);
+	}
 }
 
 static void
 filter_toolbar_show_hide_cb(GtkAction * action, gpointer user_data)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/FilterToolbar");
-	show_hide_cb( widget, user_data, SHOW_HIDE_FILTER_TOOLBAR);
+	if (!widget){
+		g_warning("filter_toolbar_show_hide_cb: No widget found");
+	}else{
+		show_hide_cb( widget, user_data, SHOW_HIDE_FILTER_TOOLBAR);
+	}
 }
 
 #ifdef HAVE_AIRPCAP
@@ -1082,7 +1090,11 @@ static void
 wireless_toolbar_show_hide_cb(GtkAction *action, gpointer user_data)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/WirelessToolbar");
-	show_hide_cb( widget, user_data, SHOW_HIDE_AIRPCAP_TOOLBAR);
+	if (!widget){
+		g_warning("wireless_toolbar_show_hide_cb: No widget found");
+	}else{
+		show_hide_cb( widget, user_data, SHOW_HIDE_AIRPCAP_TOOLBAR);
+	}
 }
 #endif /* HAVE_AIRPCAP */
 
@@ -1090,25 +1102,41 @@ static void
 status_bar_show_hide_cb(GtkAction *action, gpointer user_data)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/Statusbar");
-	show_hide_cb( widget, user_data, SHOW_HIDE_STATUSBAR);
+	if (!widget){
+		g_warning("status_bar_show_hide_cb: No widget found");
+	}else{
+		show_hide_cb( widget, user_data, SHOW_HIDE_STATUSBAR);
+	}
 }
 static void
 packet_list_show_hide_cb(GtkAction *action, gpointer user_data)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/PacketList");
-	show_hide_cb( widget, user_data, SHOW_HIDE_PACKET_LIST);
+	if (!widget){
+		g_warning("packet_list_show_hide_cb: No widget found");
+	}else{
+		show_hide_cb( widget, user_data, SHOW_HIDE_PACKET_LIST);
+	}
 }
 static void
 packet_details_show_hide_cb(GtkAction *action, gpointer user_data)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/PacketDetails");
-	show_hide_cb( widget, user_data, SHOW_HIDE_TREE_VIEW);
+	if (!widget){
+		g_warning("packet_details_show_hide_cb: No widget found");
+	}else{
+		show_hide_cb( widget, user_data, SHOW_HIDE_TREE_VIEW);
+	}
 }
 static void
 packet_bytes_show_hide_cb(GtkAction *action, gpointer user_data)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/PacketBytes");
-	show_hide_cb( widget, user_data, SHOW_HIDE_BYTE_VIEW);
+	if (!widget){
+		g_warning("packet_bytes_show_hide_cb: No widget found");
+	}else{
+		show_hide_cb( widget, user_data, SHOW_HIDE_BYTE_VIEW);
+	}
 }
 
 static void
@@ -1161,29 +1189,45 @@ static void
 view_menu_en_for_MAC_cb(GtkAction *action, gpointer user_data)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/EnableforMACLayer");
-	name_resolution_cb( widget , user_data, RESOLV_MAC);
+	if (!widget){
+		g_warning("view_menu_en_for_MAC_cb: No widget found");
+	}else{
+		name_resolution_cb( widget , user_data, RESOLV_MAC);
+	}
 }
 
 static void
 view_menu_en_for_network_cb(GtkAction *action, gpointer user_data)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/EnableforNetworkLayer");
-	name_resolution_cb( widget , user_data, RESOLV_NETWORK);
+	if (!widget){
+		g_warning("view_menu_en_for_network_cb: No widget found");
+	}else{
+		name_resolution_cb( widget , user_data, RESOLV_NETWORK);
+	}
 }
 
 static void
 view_menu_en_for_transport_cb(GtkAction *action, gpointer user_data)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/EnableforTransportLayer");
-	name_resolution_cb( widget , user_data, RESOLV_TRANSPORT);
+	if (!widget){
+		g_warning("view_menu_en_for_transport_cb: No widget found");
+	}else{
+		name_resolution_cb( widget , user_data, RESOLV_TRANSPORT);
+	}
 }
 
 static void
 view_menu_colorize_pkt_lst_cb(GtkAction *action, gpointer user_data)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/ColorizePacketList");
+	if (!widget){
+		g_warning("view_menu_colorize_pkt_lst_cb: No widget found");
+	}else{
+		colorize_cb( widget , user_data);
+	}
 
-	colorize_cb( widget , user_data);
 }
 
 static void
@@ -1277,98 +1321,85 @@ view_menu_reset_coloring_cb(GtkWidget *widget, gpointer user_data)
 static void
 help_menu_cont_cb(GtkWidget *widget, gpointer user_data)
 {
-        /*topic_menu_cb( widget , user_data, HELP_CONTENT); note this is not correct!*/
-	 
+	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(HELP_CONTENT));
 }
 
 static void
 help_menu_faq_cb(GtkWidget *widget, gpointer user_data)
 {
-        /*topic_menu_cb( widget , user_data, LOCALPAGE_MAN_WIRESHARK); note this is not correct!*/
- 
+	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_FAQ));
 }
 
 static void
 help_menu_wireshark_cb(GtkWidget *widget, gpointer user_data)
 {
-        /*topic_menu_cb( widget , user_data, LOCALPAGE_MAN_WIRESHARK); note this is not correct!*/
- 
+ 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_WIRESHARK));
 }
 
 static void
 help_menu_wireshark_flt_cb(GtkWidget *widget, gpointer user_data)
 {
-        /*topic_menu_cb( widget , user_data, LOCALPAGE_MAN_WIRESHARK_FILTER); note this is not correct!*/
- 
+ 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_WIRESHARK_FILTER)); 
 }
 
 static void
 help_menu_Tshark_cb(GtkWidget *widget, gpointer user_data)
 {
-        /*topic_menu_cb( widget , user_data, LOCALPAGE_MAN_TSHARK); note this is not correct!*/
- 
+ 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_TSHARK)); 
 }
 
 static void
 help_menu_RawShark_cb(GtkWidget *widget, gpointer user_data)
 {
-        /*topic_menu_cb( widget , user_data, LOCALPAGE_MAN_RAWSHARK); note this is not correct!*/
- 
+ 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_RAWSHARK));  
 }
 
 static void
 help_menu_Dumpcap_cb(GtkWidget *widget, gpointer user_data)
 {
-        /*topic_menu_cb( widget , user_data, LOCALPAGE_MAN_DUMPCAP); note this is not correct!*/
- 
+ 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_DUMPCAP));   
 }
 
 static void
 help_menu_Mergecap_cb(GtkWidget *widget, gpointer user_data)
 {
-        /*topic_menu_cb( widget , user_data, LOCALPAGE_MAN_DUMPCAP); note this is not correct!*/
+ 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_MERGECAP));   
 }
 
 static void
 help_menu_Editcap_cb(GtkWidget *widget, gpointer user_data)
 {
-        /*topic_menu_cb( widget , user_data, LOCALPAGE_MAN_EDITCAP); note this is not correct!*/
- 
+ 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_EDITCAP));   
 }
 
 static void
 help_menu_Text2pcap_cb(GtkWidget *widget, gpointer user_data)
 {
-        /*topic_menu_cb( widget , user_data, LOCALPAGE_MAN_TEXT2PCAP); note this is not correct!*/
- 
+ 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_TEXT2PCAP));   
 }
 
 static void
 help_menu_Website_cb(GtkWidget *widget, gpointer user_data)
 {
-        /*topic_menu_cb( widget , user_data, ONLINEPAGE_HOME); note this is not correct!*/
- 
+ 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_HOME));   
 }
 
 static void
 help_menu_Wiki_cb(GtkWidget *widget, gpointer user_data)
 {
-       /* topic_menu_cb( widget , user_data, ONLINEPAGE_WIKI); note this is not correct!*/
- 
+ 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_WIKI));   
 }
 
 static void
 help_menu_Downloads_cb(GtkWidget *widget, gpointer user_data)
 {
-        /*topic_menu_cb( widget , user_data, ONLINEPAGE_DOWNLOAD); note this is not correct!*/
- 
+ 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_DOWNLOAD));   
 }
 
 static void
 help_menu_SampleCaptures_cb(GtkWidget *widget, gpointer user_data)
 {
-        /*topic_menu_cb( widget , user_data, ONLINEPAGE_SAMPLE_FILES); note this is not correct!*/
- 
+ 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_SAMPLE_FILES));   
 }
 
 static const char *ui_desc_menubar =
