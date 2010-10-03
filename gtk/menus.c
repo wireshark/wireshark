@@ -3114,6 +3114,7 @@ static const char *ui_desc_packet_list_menu_popup =
 "     <menuitem name='MarkPacket' action='/MarkPacket'/>\n"
 "     <menuitem name='IgnorePacket' action='/IgnorePacket'/>\n"
 "     <menuitem name='SetTimeReference' action='/Set Time Reference'/>\n"
+"     <separator/>\n"
 "     <menuitem name='ManuallyResolveAddress' action='/ManuallyResolveAddress'/>\n"
 "     <separator/>\n"
 "     <menu name= 'ApplyAsFilter' action='/Apply as Filter'>\n"
