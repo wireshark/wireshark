@@ -93,13 +93,13 @@ static GHashTable* hash_packet = NULL;
  *
  * See also
  *
- *	http://davenport.sourceforge.net/ntlm.html
+ *      http://davenport.sourceforge.net/ntlm.html
  *
  * although that document says that:
  *
- *	0x00010000 is "Target Type Domain";
- *	0x00020000 is "Target Type Server"
- *	0x00040000 is "Target Type Share";
+ *      0x00010000 is "Target Type Domain";
+ *      0x00020000 is "Target Type Server"
+ *      0x00040000 is "Target Type Share";
  *
  * and that 0x00100000, 0x00200000, and 0x00400000 are
  * "Request Init Response", "Request Accept Response", and
@@ -358,8 +358,8 @@ int LEBE_Convert(int value)
   Returns output in response, which is expected to be 24 bytes.
 */
 static int crypt_des_ecb_long(guint8 *response,
-					       const guint8 *key,
-					       const guint8 *data)
+                              const guint8 *key,
+                              const guint8 *data)
 {
   guint8 pw21[21]; /* 21 bytes place for the needed key */
 
@@ -380,8 +380,8 @@ static int crypt_des_ecb_long(guint8 *response,
   Returns output in response, which is expected to be 24 bytes.
 */
 static int ntlmssp_generate_challenge_response(guint8 *response,
-					       const guint8 *passhash,
-					       const guint8 *challenge)
+                                               const guint8 *passhash,
+                                               const guint8 *challenge)
 {
   guint8 pw21[21]; /* Password hash padded to 21 bytes */
 
@@ -465,57 +465,58 @@ static guint32
 get_md4pass_list(md4_pass** p_pass_list,const char* nt_password)
 {
 
-	guint32 nb_pass = 0;
-	enc_key_t *ek;
-	unsigned char nt_password_hash[NTLMSSP_KEY_LEN];
-	int password_len = 0;
-	char nt_password_unicode[256];
-	md4_pass* pass_list;
-	int i = 0;
-	if(!krb_decrypt){
-		pass_list=NULL;
-		return 0;
-	}
-	read_keytab_file_from_preferences();
+  guint32 nb_pass = 0;
+  enc_key_t *ek;
+  unsigned char nt_password_hash[NTLMSSP_KEY_LEN];
+  int password_len = 0;
+  char nt_password_unicode[256];
+  md4_pass* pass_list;
+  int i = 0;
+  if(!krb_decrypt){
+    pass_list=NULL;
+    return 0;
+  }
+  read_keytab_file_from_preferences();
 
-	for(ek=enc_key_list;ek;ek=ek->next){
-		if( ek->keylength == NTLMSSP_KEY_LEN ) {
-			nb_pass++;
-		}
-	}
-	memset(nt_password_hash,0,NTLMSSP_KEY_LEN);
-	if (nt_password[0] != '\0' && ( strlen(nt_password) < 129 )) {
-		nb_pass++;
-		password_len = strlen(nt_password);
-		str_to_unicode(nt_password,nt_password_unicode);
-		crypt_md4(nt_password_hash,nt_password_unicode,password_len*2);
-	}
-	if( nb_pass == 0 ) {
-		/* Unable to calculate the session key without a password	or if password is more than 128 char ......*/
-		return 0;
-	}
-	i = 0;
-	*p_pass_list = ep_alloc(nb_pass*sizeof(md4_pass));
-	pass_list=*p_pass_list;
+  for(ek=enc_key_list;ek;ek=ek->next){
+    if( ek->keylength == NTLMSSP_KEY_LEN ) {
+      nb_pass++;
+    }
+  }
+  memset(nt_password_hash,0,NTLMSSP_KEY_LEN);
+  if (nt_password[0] != '\0' && ( strlen(nt_password) < 129 )) {
+    nb_pass++;
+    password_len = strlen(nt_password);
+    str_to_unicode(nt_password,nt_password_unicode);
+    crypt_md4(nt_password_hash,nt_password_unicode,password_len*2);
+  }
+  if( nb_pass == 0 ) {
+    /* Unable to calculate the session key without a password or if password is more than 128 char ......*/
+    return 0;
+  }
+  i = 0;
+  *p_pass_list = ep_alloc(nb_pass*sizeof(md4_pass));
+  pass_list=*p_pass_list;
 
-	if( memcmp(nt_password_hash,gbl_zeros,NTLMSSP_KEY_LEN) != 0 ) {
-		memcpy(pass_list[i].md4,nt_password_hash,NTLMSSP_KEY_LEN);
-		i = 1;
-	}
-	for(ek=enc_key_list;ek;ek=ek->next){
-		if( ek->keylength == NTLMSSP_KEY_LEN ) {
-			memcpy(pass_list[i].md4,ek->keyvalue,NTLMSSP_KEY_LEN);
-			i++;
-		}
-	}
-	return nb_pass;
+  if( memcmp(nt_password_hash,gbl_zeros,NTLMSSP_KEY_LEN) != 0 ) {
+    memcpy(pass_list[i].md4,nt_password_hash,NTLMSSP_KEY_LEN);
+    i = 1;
+  }
+  for(ek=enc_key_list;ek;ek=ek->next){
+    if( ek->keylength == NTLMSSP_KEY_LEN ) {
+      memcpy(pass_list[i].md4,ek->keyvalue,NTLMSSP_KEY_LEN);
+      i++;
+    }
+  }
+  return nb_pass;
 }
 #endif
 /* Create an NTLMSSP version 2 key
  */
 static void
 create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge , const guint8 *clientchallenge ,
-		      guint8 *sessionkey ,const  guint8 *encryptedsessionkey , int flags , ntlmssp_blob ntlm_response, ntlmssp_blob lm_response _U_, ntlmssp_header_t *ntlmssph ) {
+                      guint8 *sessionkey ,const  guint8 *encryptedsessionkey , int flags ,
+                      ntlmssp_blob ntlm_response, ntlmssp_blob lm_response _U_, ntlmssp_header_t *ntlmssph ) {
   char domain_name_unicode[256];
   char user_uppercase[256];
   char buf[512];
@@ -546,17 +547,17 @@ create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge
   memset(user_uppercase,0,256);
   user_len = strlen(ntlmssph->acct_name);
   if( user_len < 129 ) {
-     memset(buf,0,512);
-     str_to_unicode(ntlmssph->acct_name,buf);
-     for (j = 0; j < (2*user_len); j++) {
-       if( buf[j] != '\0' ) {
-         user_uppercase[j] = toupper(buf[j]);
-       }
-     }
+    memset(buf,0,512);
+    str_to_unicode(ntlmssph->acct_name,buf);
+    for (j = 0; j < (2*user_len); j++) {
+      if( buf[j] != '\0' ) {
+        user_uppercase[j] = toupper(buf[j]);
+      }
+    }
   }
   else {
-     /* Unable to calculate the session not enought space in buffer, note this is unlikely to happen but ......*/
-     return;
+    /* Unable to calculate the session not enought space in buffer, note this is unlikely to happen but ......*/
+    return;
   }
   domain_len = strlen(ntlmssph->domain_name);
   if( domain_len < 129 ) {
@@ -623,7 +624,8 @@ create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge
  */
 static void
 create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, const guint8 *clientchallenge,
-		      guint8 *sessionkey,const  guint8 *encryptedsessionkey, int flags, const guint8 *ref_nt_challenge_response,const guint8 *ref_lm_challenge_response)
+                      guint8 *sessionkey,const  guint8 *encryptedsessionkey, int flags,
+                      const guint8 *ref_nt_challenge_response,const guint8 *ref_lm_challenge_response)
 {
   unsigned char lm_password_upper[NTLMSSP_KEY_LEN];
   unsigned char lm_password_hash[NTLMSSP_KEY_LEN];
@@ -674,7 +676,7 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
     crypt_des_ecb(lm_password_hash, lmhash_key, lm_password_upper, 1);
     crypt_des_ecb(lm_password_hash+8, lmhash_key, lm_password_upper+7, 1);
     ntlmssp_generate_challenge_response(lm_challenge_response,
-				      lm_password_hash, serverchallenge);
+                                        lm_password_hash, serverchallenge);
     memcpy(sessionbasekey,lm_password_hash,NTLMSSP_KEY_LEN);
   }
   else {
@@ -851,10 +853,10 @@ get_sealing_rc4key(const guint8 exportedsessionkey[NTLMSSP_KEY_LEN] ,const int f
 */
 static int
 dissect_ntlmssp_string (tvbuff_t *tvb, int offset,
-			proto_tree *ntlmssp_tree,
-			gboolean unicode_strings,
-			int string_hf, int *start, int *end,
-			const char **stringp)
+                        proto_tree *ntlmssp_tree,
+                        gboolean unicode_strings,
+                        int string_hf, int *start, int *end,
+                        const char **stringp)
 {
   proto_tree *tree = NULL;
   proto_item *tf = NULL;
@@ -869,8 +871,8 @@ dissect_ntlmssp_string (tvbuff_t *tvb, int offset,
   if (0 == string_length) {
     *end = *start;
     if (ntlmssp_tree)
-	    proto_tree_add_string(ntlmssp_tree, string_hf, tvb,
-				  offset, 8, "NULL");
+      proto_tree_add_string(ntlmssp_tree, string_hf, tvb,
+                            offset, 8, "NULL");
     if (stringp != NULL)
       *stringp = "";
     return offset+8;
@@ -878,8 +880,8 @@ dissect_ntlmssp_string (tvbuff_t *tvb, int offset,
 
   bc = result_length = string_length;
   string_text = get_unicode_or_ascii_string(tvb, &string_offset,
-					    unicode_strings, &result_length,
-					    FALSE, TRUE, &bc);
+                                            unicode_strings, &result_length,
+                                            FALSE, TRUE, &bc);
 
   if (stringp != NULL) {
     if (!string_text) string_text = ""; /* Make sure we don't blow up later */
@@ -889,17 +891,17 @@ dissect_ntlmssp_string (tvbuff_t *tvb, int offset,
 
   if (ntlmssp_tree) {
     tf = proto_tree_add_string(ntlmssp_tree, string_hf, tvb,
-			       string_offset, result_length, string_text);
+                               string_offset, result_length, string_text);
     tree = proto_item_add_subtree(tf, ett_ntlmssp_string);
   }
   proto_tree_add_uint(tree, hf_ntlmssp_string_len,
-		      tvb, offset, 2, string_length);
+                      tvb, offset, 2, string_length);
   offset += 2;
   proto_tree_add_uint(tree, hf_ntlmssp_string_maxlen,
-		      tvb, offset, 2, string_maxlen);
+                      tvb, offset, 2, string_maxlen);
   offset += 2;
   proto_tree_add_uint(tree, hf_ntlmssp_string_offset,
-		      tvb, offset, 4, string_offset);
+                      tvb, offset, 4, string_offset);
   offset += 4;
 
   *end = string_offset + string_length;
@@ -915,8 +917,8 @@ dissect_ntlmssp_string (tvbuff_t *tvb, int offset,
 */
 static int
 dissect_ntlmssp_blob (tvbuff_t *tvb, int offset,
-		      proto_tree *ntlmssp_tree,
-		      int blob_hf, int *end, ntlmssp_blob *result)
+                      proto_tree *ntlmssp_tree,
+                      int blob_hf, int *end, ntlmssp_blob *result)
 {
   proto_item *tf = NULL;
   proto_tree *tree = NULL;
@@ -927,23 +929,23 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, int offset,
     *end = (blob_offset > ((guint)offset)+8 ? blob_offset : ((guint)offset)+8);
     if (ntlmssp_tree)
 	    proto_tree_add_text(ntlmssp_tree, tvb, offset, 8, "%s: Empty",
-				proto_registrar_get_name(blob_hf));
+                                proto_registrar_get_name(blob_hf));
     return offset+8;
   }
 
   if (ntlmssp_tree) {
     tf = proto_tree_add_item (ntlmssp_tree, blob_hf, tvb,
-			      blob_offset, blob_length, FALSE);
+                              blob_offset, blob_length, FALSE);
     tree = proto_item_add_subtree(tf, ett_ntlmssp_blob);
   }
   proto_tree_add_uint(tree, hf_ntlmssp_blob_len,
-		      tvb, offset, 2, blob_length);
+                      tvb, offset, 2, blob_length);
   offset += 2;
   proto_tree_add_uint(tree, hf_ntlmssp_blob_maxlen,
-		      tvb, offset, 2, blob_maxlen);
+                      tvb, offset, 2, blob_maxlen);
   offset += 2;
   proto_tree_add_uint(tree, hf_ntlmssp_blob_offset,
-		      tvb, offset, 4, blob_offset);
+                      tvb, offset, 4, blob_offset);
   offset += 4;
 
   *end = blob_offset + blob_length;
@@ -957,8 +959,8 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, int offset,
       if (blob_hf == hf_ntlmssp_auth_lmresponse && !(memcmp(tvb->real_data+blob_offset+8,"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",NTLMSSP_KEY_LEN)))
       {
         proto_tree_add_item (ntlmssp_tree,
-		       hf_ntlmssp_ntlm_client_challenge,
-		       tvb, blob_offset, 8, FALSE);
+                             hf_ntlmssp_ntlm_client_challenge,
+                             tvb, blob_offset, 8, FALSE);
       }
     }
   }
@@ -971,7 +973,7 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, int offset,
     proto_tree_add_item (ntlmssp_tree,
 	    hf_ntlmssp_ntlm_client_challenge,
 	    tvb, blob_offset+32, 8, FALSE);
-	  dissect_ntlmv2_response(tvb, tree, blob_offset, blob_length);
+    dissect_ntlmv2_response(tvb, tree, blob_offset, blob_length);
   }
 
   return offset;
@@ -979,115 +981,115 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, int offset,
 
 static int
 dissect_ntlmssp_negotiate_flags (tvbuff_t *tvb, int offset,
-				 proto_tree *ntlmssp_tree,
-				 guint32 negotiate_flags)
+                                 proto_tree *ntlmssp_tree,
+                                 guint32 negotiate_flags)
 {
   proto_tree *negotiate_flags_tree = NULL;
   proto_item *tf = NULL;
 
   if (ntlmssp_tree) {
     tf = proto_tree_add_uint (ntlmssp_tree,
-			      hf_ntlmssp_negotiate_flags,
-			      tvb, offset, 4, negotiate_flags);
+                              hf_ntlmssp_negotiate_flags,
+                              tvb, offset, 4, negotiate_flags);
     negotiate_flags_tree = proto_item_add_subtree (tf, ett_ntlmssp_negotiate_flags);
   }
 
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_80000000,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_80000000,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_40000000,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_40000000,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_20000000,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_20000000,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_10000000,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_10000000,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_8000000,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_8000000,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_4000000,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_4000000,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_2000000,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_2000000,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_1000000,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_1000000,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_800000,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_800000,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_400000,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_400000,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_200000,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_200000,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_100000,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_100000,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_80000,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_80000,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_40000,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_40000,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_20000,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_20000,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_10000,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_10000,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_8000,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_8000,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_4000,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_4000,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_2000,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_2000,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_1000,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_1000,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_800,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_800,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_400,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_400,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_200,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_200,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_100,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_100,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_80,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_80,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_40,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_40,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_20,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_20,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_10,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_10,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_08,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_08,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_04,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_04,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_02,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_02,
+                          tvb, offset, 4, negotiate_flags);
   proto_tree_add_boolean (negotiate_flags_tree,
-			  hf_ntlmssp_negotiate_flags_01,
-			  tvb, offset, 4, negotiate_flags);
+                          hf_ntlmssp_negotiate_flags_01,
+                          tvb, offset, 4, negotiate_flags);
 
   return (offset + 4);
 }
@@ -1150,18 +1152,18 @@ dissect_ntlmssp_version(tvbuff_t *tvb, int offset,
 #define NTLM_TARGET_INFO_CHANNEL_BINDINGS  0x000A
 
 static const value_string ntlm_name_types[] = {
-	{ NTLM_TARGET_INFO_END,               "End of list" },
-	{ NTLM_TARGET_INFO_NB_COMPUTER_NAME,  "NetBIOS computer name" },
-	{ NTLM_TARGET_INFO_NB_DOMAIN_NAME,    "NetBIOS domain name" },
-	{ NTLM_TARGET_INFO_DNS_COMPUTER_NAME, "DNS computer name" },
-	{ NTLM_TARGET_INFO_DNS_DOMAIN_NAME,   "DNS domain name" },
-	{ NTLM_TARGET_INFO_DNS_TREE_NAME,     "DNS tree name" },
-	{ NTLM_TARGET_INFO_FLAGS,             "Flags" },
-	{ NTLM_TARGET_INFO_TIMESTAMP,         "Timestamp" },
-	{ NTLM_TARGET_INFO_RESTRICTIONS,      "Restrictions" },
-        { NTLM_TARGET_INFO_TARGET_NAME,       "Target Name"},
-        { NTLM_TARGET_INFO_CHANNEL_BINDINGS,  "Channel Bindings"},
-	{ 0, NULL }
+  { NTLM_TARGET_INFO_END,               "End of list" },
+  { NTLM_TARGET_INFO_NB_COMPUTER_NAME,  "NetBIOS computer name" },
+  { NTLM_TARGET_INFO_NB_DOMAIN_NAME,    "NetBIOS domain name" },
+  { NTLM_TARGET_INFO_DNS_COMPUTER_NAME, "DNS computer name" },
+  { NTLM_TARGET_INFO_DNS_DOMAIN_NAME,   "DNS domain name" },
+  { NTLM_TARGET_INFO_DNS_TREE_NAME,     "DNS tree name" },
+  { NTLM_TARGET_INFO_FLAGS,             "Flags" },
+  { NTLM_TARGET_INFO_TIMESTAMP,         "Timestamp" },
+  { NTLM_TARGET_INFO_RESTRICTIONS,      "Restrictions" },
+  { NTLM_TARGET_INFO_TARGET_NAME,       "Target Name"},
+  { NTLM_TARGET_INFO_CHANNEL_BINDINGS,  "Channel Bindings"},
+  { 0, NULL }
 };
 
 /* The following *must* match the order of the list of attribute types   */
@@ -1258,7 +1260,7 @@ dissect_ntlmssp_target_info_list(tvbuff_t *tvb, proto_tree *tree,
     proto_tree_add_item (target_info_tree, *tif_p->hf_item_type,    tvb, type_offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item (target_info_tree, *tif_p->hf_item_length,  tvb, len_offset,  2, ENC_LITTLE_ENDIAN);
 
-    switch(item_type) {
+    switch (item_type) {
     case NTLM_TARGET_INFO_NB_COMPUTER_NAME:
     case NTLM_TARGET_INFO_NB_DOMAIN_NAME:
     case NTLM_TARGET_INFO_DNS_COMPUTER_NAME:
@@ -1301,69 +1303,69 @@ dissect_ntlmssp_target_info_list(tvbuff_t *tvb, proto_tree *tree,
 int
 dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
 {
-	proto_item *ntlmv2_item = NULL;
-	proto_tree *ntlmv2_tree = NULL;
-        int         orig_offset;
+  proto_item *ntlmv2_item = NULL;
+  proto_tree *ntlmv2_tree = NULL;
+  int         orig_offset;
 
-	/* Dissect NTLMv2 bits&pieces */
-        orig_offset = offset;
+  /* Dissect NTLMv2 bits&pieces */
+  orig_offset = offset;
 
-	if (tree) {
-		ntlmv2_item = proto_tree_add_item(
-			tree, hf_ntlmssp_ntlmv2_response, tvb,
-			offset, len, TRUE);
-		ntlmv2_tree = proto_item_add_subtree(
-			ntlmv2_item, ett_ntlmssp_ntlmv2_response);
-	}
+  if (tree) {
+    ntlmv2_item = proto_tree_add_item(
+      tree, hf_ntlmssp_ntlmv2_response, tvb,
+      offset, len, TRUE);
+    ntlmv2_tree = proto_item_add_subtree(
+      ntlmv2_item, ett_ntlmssp_ntlmv2_response);
+  }
 
-	proto_tree_add_item(
-		ntlmv2_tree, hf_ntlmssp_ntlmv2_response_hmac, tvb,
-		offset, 16, TRUE);
+  proto_tree_add_item(
+    ntlmv2_tree, hf_ntlmssp_ntlmv2_response_hmac, tvb,
+    offset, 16, TRUE);
 
-	offset += 16;
+  offset += 16;
 
-	proto_tree_add_item(
-		ntlmv2_tree, hf_ntlmssp_ntlmv2_response_header, tvb,
-		offset, 4, TRUE);
+  proto_tree_add_item(
+    ntlmv2_tree, hf_ntlmssp_ntlmv2_response_header, tvb,
+    offset, 4, TRUE);
 
-	offset += 4;
+  offset += 4;
 
-	proto_tree_add_item(
-		ntlmv2_tree, hf_ntlmssp_ntlmv2_response_reserved, tvb,
-		offset, 4, TRUE);
+  proto_tree_add_item(
+    ntlmv2_tree, hf_ntlmssp_ntlmv2_response_reserved, tvb,
+    offset, 4, TRUE);
 
-	offset += 4;
+  offset += 4;
 
-	offset = dissect_nt_64bit_time(
-		tvb, ntlmv2_tree, offset, hf_ntlmssp_ntlmv2_response_time);
+  offset = dissect_nt_64bit_time(
+    tvb, ntlmv2_tree, offset, hf_ntlmssp_ntlmv2_response_time);
 
-	proto_tree_add_item(
-		ntlmv2_tree, hf_ntlmssp_ntlmv2_response_chal, tvb,
-		offset, 8, TRUE);
+  proto_tree_add_item(
+    ntlmv2_tree, hf_ntlmssp_ntlmv2_response_chal, tvb,
+    offset, 8, TRUE);
 
-	offset += 8;
+  offset += 8;
 
-	proto_tree_add_item(
-		ntlmv2_tree, hf_ntlmssp_ntlmv2_response_unknown, tvb,
-		offset, 4, TRUE);
+  proto_tree_add_item(
+    ntlmv2_tree, hf_ntlmssp_ntlmv2_response_unknown, tvb,
+    offset, 4, TRUE);
 
-	offset += 4;
+  offset += 4;
 
-	/* Variable length list of attributes */
-	/*
-	 * XXX - Windows puts one or more sets of 4 bytes of additional stuff (all zeros ?)
-         *        at the end of the attributes.
-	 * Samba's smbclient doesn't.
-	 * Both of them appear to be able to connect to W2K SMB
-	 * servers.
-         * The additional stuff will be dissected as extra "end" attributes.
-	 *
-	 */
-        dissect_ntlmssp_target_info_list(tvb, ntlmv2_tree,
-                                         offset, len - (offset - orig_offset),
-                                         &ntlmssp_ntlmv2_response_tif);
+  /* Variable length list of attributes */
+  /*
+   * XXX - Windows puts one or more sets of 4 bytes of additional stuff (all zeros ?)
+   *        at the end of the attributes.
+   * Samba's smbclient doesn't.
+   * Both of them appear to be able to connect to W2K SMB
+   * servers.
+   * The additional stuff will be dissected as extra "end" attributes.
+   *
+   */
+  dissect_ntlmssp_target_info_list(tvb, ntlmv2_tree,
+                                   offset, len - (offset - orig_offset),
+                                   &ntlmssp_ntlmv2_response_tif);
 
-	return offset+len;
+  return offset+len;
 }
 
 /* tapping into ntlmssph not yet implemented */
@@ -1379,7 +1381,7 @@ dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree, 
   /* NTLMSSP Negotiate Flags */
   negotiate_flags = tvb_get_letohl (tvb, offset);
   offset = dissect_ntlmssp_negotiate_flags (tvb, offset, ntlmssp_tree,
-					    negotiate_flags);
+                                            negotiate_flags);
 
   /*
    * XXX - the davenport document says that these might not be
@@ -1387,12 +1389,12 @@ dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree, 
    * isn't enough to contain them.
    */
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, FALSE,
-				  hf_ntlmssp_negotiate_domain,
-				  &data_start, &data_end, NULL);
+                                  hf_ntlmssp_negotiate_domain,
+                                  &data_start, &data_end, NULL);
 
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, FALSE,
-				  hf_ntlmssp_negotiate_workstation,
-				  &item_start, &item_end, NULL);
+                                  hf_ntlmssp_negotiate_workstation,
+                                  &item_start, &item_end, NULL);
   data_start = MIN(data_start, item_start);
   data_end   = MAX(data_end,   item_end);
 
@@ -1420,23 +1422,23 @@ dissect_ntlmssp_challenge_target_info_blob (tvbuff_t *tvb, int offset,
     *end = (challenge_target_info_offset > ((guint)offset)+8 ? challenge_target_info_offset : ((guint)offset)+8);
     if (ntlmssp_tree)
 	    proto_tree_add_text(ntlmssp_tree, tvb, offset, 8,
-				"Target Info List: Empty");
+                                "Target Info List: Empty");
     return offset+8;
   }
 
   if (ntlmssp_tree) {
     tf = proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_challenge_target_info, tvb,
-			      challenge_target_info_offset, challenge_target_info_length, FALSE);
+                              challenge_target_info_offset, challenge_target_info_length, FALSE);
     challenge_target_info_tree = proto_item_add_subtree(tf, ett_ntlmssp_challenge_target_info);
   }
   proto_tree_add_uint(challenge_target_info_tree, hf_ntlmssp_challenge_target_info_len,
-		      tvb, offset, 2, challenge_target_info_length);
+                      tvb, offset, 2, challenge_target_info_length);
   offset += 2;
   proto_tree_add_uint(challenge_target_info_tree, hf_ntlmssp_challenge_target_info_maxlen,
-		      tvb, offset, 2, challenge_target_info_maxlen);
+                      tvb, offset, 2, challenge_target_info_maxlen);
   offset += 2;
   proto_tree_add_uint(challenge_target_info_tree, hf_ntlmssp_challenge_target_info_offset,
-		      tvb, offset, 4, challenge_target_info_offset);
+                      tvb, offset, 4, challenge_target_info_offset);
   offset += 4;
 
   dissect_ntlmssp_target_info_list(tvb, challenge_target_info_tree,
@@ -1450,7 +1452,7 @@ dissect_ntlmssp_challenge_target_info_blob (tvbuff_t *tvb, int offset,
 /* tapping into ntlmssph not yet implemented */
 static int
 dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
-			   proto_tree *ntlmssp_tree, ntlmssp_header_t *ntlmssph _U_)
+                           proto_tree *ntlmssp_tree, ntlmssp_header_t *ntlmssph _U_)
 {
   guint32 negotiate_flags;
   int item_start, item_end;
@@ -1477,19 +1479,19 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
    * XXX - Original name "domain" changed to "target_name" to match MS-NLMP
    */
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, unicode_strings,
-			 hf_ntlmssp_challenge_target_name,
-			 &item_start, &item_end, NULL);
+                                  hf_ntlmssp_challenge_target_name,
+                                  &item_start, &item_end, NULL);
   data_start = item_start;
   data_end = item_end;
 
   /* NTLMSSP Negotiate Flags */
   offset = dissect_ntlmssp_negotiate_flags (tvb, offset, ntlmssp_tree,
-					    negotiate_flags);
+                                            negotiate_flags);
 
   /* NTLMSSP NT Lan Manager Challenge */
   proto_tree_add_item (ntlmssp_tree,
-		       hf_ntlmssp_ntlm_server_challenge,
-		       tvb, offset, 8, FALSE);
+                       hf_ntlmssp_ntlm_server_challenge,
+                       tvb, offset, 8, FALSE);
 
   /*
    * Store the flags and the RC4 state information with the conversation,
@@ -1557,7 +1559,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
    * It also says that that information may be omitted.
    */
   proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_reserved,
-		       tvb, offset, 8, FALSE);
+                       tvb, offset, 8, FALSE);
   offset += 8;
 
   /*
@@ -1587,7 +1589,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 static int
 dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
-		      proto_tree *ntlmssp_tree, ntlmssp_header_t *ntlmssph)
+                      proto_tree *ntlmssp_tree, ntlmssp_header_t *ntlmssph)
 {
   int item_start, item_end;
   int data_start, data_end = 0;
@@ -1680,19 +1682,19 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
   /* Lan Manager response */
   data_start = tvb_get_letohl(tvb, offset+4);
   offset = dissect_ntlmssp_blob(tvb, offset, ntlmssp_tree,
-				hf_ntlmssp_auth_lmresponse,
-				&item_end,
-				conv_ntlmssp_info == NULL ? NULL :
-				    &conv_ntlmssp_info->lm_response);
+                                hf_ntlmssp_auth_lmresponse,
+                                &item_end,
+                                conv_ntlmssp_info == NULL ? NULL :
+                                &conv_ntlmssp_info->lm_response);
   data_end = MAX(data_end, item_end);
 
   /* NTLM response */
   item_start = tvb_get_letohl(tvb, offset+4);
   offset = dissect_ntlmssp_blob(tvb, offset, ntlmssp_tree,
-				hf_ntlmssp_auth_ntresponse,
-				&item_end,
-				conv_ntlmssp_info == NULL ? NULL :
-				&conv_ntlmssp_info->ntlm_response);
+                                hf_ntlmssp_auth_ntresponse,
+                                &item_end,
+                                conv_ntlmssp_info == NULL ? NULL :
+                                &conv_ntlmssp_info->ntlm_response);
   if( conv_ntlmssp_info != NULL && conv_ntlmssp_info->ntlm_response.length > 24 ) {
     memcpy(conv_ntlmssp_info->client_challenge,conv_ntlmssp_info->ntlm_response.contents+32,8);
   }
@@ -1713,9 +1715,9 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
   /* domain name */
   item_start = tvb_get_letohl(tvb, offset+4);
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree,
-				  unicode_strings,
-				  hf_ntlmssp_auth_domain,
-				  &item_start, &item_end, &(ntlmssph->domain_name));
+                                  unicode_strings,
+                                  hf_ntlmssp_auth_domain,
+                                  &item_start, &item_end, &(ntlmssph->domain_name));
   /*ntlmssph->domain_name_len=item_end-item_start;*/
   data_start = MIN(data_start, item_start);
   data_end = MAX(data_end, item_end);
@@ -1723,23 +1725,23 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
   /* user name */
   item_start = tvb_get_letohl(tvb, offset+4);
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree,
-				  unicode_strings,
-				  hf_ntlmssp_auth_username,
-				  &item_start, &item_end, &(ntlmssph->acct_name));
+                                  unicode_strings,
+                                  hf_ntlmssp_auth_username,
+                                  &item_start, &item_end, &(ntlmssph->acct_name));
   /*ntlmssph->acct_name_len=item_end-item_start;*/
   data_start = MIN(data_start, item_start);
   data_end = MAX(data_end, item_end);
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_fstr(pinfo->cinfo, COL_INFO, ", User: %s\\%s",
-		    ntlmssph->domain_name, ntlmssph->acct_name);
+                    ntlmssph->domain_name, ntlmssph->acct_name);
 
   /* hostname */
   item_start = tvb_get_letohl(tvb, offset+4);
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree,
-				  unicode_strings,
-				  hf_ntlmssp_auth_hostname,
-				  &item_start, &item_end, &(ntlmssph->host_name));
+                                  unicode_strings,
+                                  hf_ntlmssp_auth_hostname,
+                                  &item_start, &item_end, &(ntlmssph->host_name));
   data_start = MIN(data_start, item_start);
   data_end = MAX(data_end, item_end);
 
@@ -1748,8 +1750,8 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
   if (offset < data_start) {
     /* Session Key */
     offset = dissect_ntlmssp_blob(tvb, offset, ntlmssp_tree,
-				  hf_ntlmssp_auth_sesskey,
-				  &item_end, &sessionblob);
+                                  hf_ntlmssp_auth_sesskey,
+                                  &item_end, &sessionblob);
     data_end = MAX(data_end, item_end);
   }
 
@@ -1819,8 +1821,8 @@ get_sign_key(packet_info *pinfo, int cryptpeer)
   ntlmssp_info *conv_ntlmssp_info;
 
   conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-				   pinfo->ptype, pinfo->srcport,
-				   pinfo->destport, 0);
+                                   pinfo->ptype, pinfo->srcport,
+                                   pinfo->destport, 0);
   if (conversation == NULL) {
     /* We don't have a conversation.  In this case, stop processing
        because we do not have enough info to decrypt the payload */
@@ -1829,7 +1831,7 @@ get_sign_key(packet_info *pinfo, int cryptpeer)
   else {
     /* We have a conversation, check for encryption state */
     conv_ntlmssp_info = conversation_get_proto_data(conversation,
-						    proto_ntlmssp);
+                                                    proto_ntlmssp);
     if (conv_ntlmssp_info == NULL) {
       /* No encryption state tied to the conversation.  Therefore, we
 	 cannot decrypt the payload */
@@ -1858,8 +1860,8 @@ get_encrypted_state(packet_info *pinfo, int cryptpeer)
   ntlmssp_info *conv_ntlmssp_info;
 
   conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-				   pinfo->ptype, pinfo->srcport,
-				   pinfo->destport, 0);
+                                   pinfo->ptype, pinfo->srcport,
+                                   pinfo->destport, 0);
   if (conversation == NULL) {
     /* We don't have a conversation.  In this case, stop processing
        because we do not have enough info to decrypt the payload */
@@ -1868,7 +1870,7 @@ get_encrypted_state(packet_info *pinfo, int cryptpeer)
   else {
     /* We have a conversation, check for encryption state */
     conv_ntlmssp_info = conversation_get_proto_data(conversation,
-						    proto_ntlmssp);
+                                                    proto_ntlmssp);
     if (conv_ntlmssp_info == NULL) {
       /* No encryption state tied to the conversation.  Therefore, we
 	 cannot decrypt the payload */
@@ -1888,17 +1890,18 @@ get_encrypted_state(packet_info *pinfo, int cryptpeer)
 }
 void
 decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
-		 packet_info *pinfo, proto_tree *tree _U_,gpointer key);
+                     packet_info *pinfo, proto_tree *tree _U_,gpointer key);
 static void
 decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
-		 packet_info *pinfo, proto_tree *tree,gpointer key);
-/*
+                 packet_info *pinfo, proto_tree *tree,gpointer key);
+#if 0
 tvbuff_t *
 dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
-				  tvbuff_t *auth_tvb _U_,
-				  int offset,
-				  packet_info *pinfo,
-				  dcerpc_auth_info *auth_info _U_)*/
+                                  tvbuff_t *auth_tvb _U_,
+                                  int offset,
+                                  packet_info *pinfo,
+                                  dcerpc_auth_info *auth_info _U_)
+#endif
 
 int
 dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
@@ -1927,11 +1930,11 @@ dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
   /* Setup a new tree for the NTLMSSP payload */
   if (tree) {
     tf = proto_tree_add_item (tree,
-			      hf_ntlmssp_verf,
-			      tvb, offset, -1, FALSE);
+                              hf_ntlmssp_verf,
+                              tvb, offset, -1, FALSE);
 
     ntlmssp_tree = proto_item_add_subtree (tf,
-					   ett_ntlmssp);
+                                           ett_ntlmssp);
   }
 
   /*
@@ -1949,12 +1952,12 @@ dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
   TRY {
     /* Version number */
     proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_verf_vers,
-			 tvb, offset, 4, TRUE);
+                         tvb, offset, 4, TRUE);
     offset += 4;
 
     /* Encrypted body */
     proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_verf_body,
-			 tvb, offset, ntlm_signature_size + ntlm_seq_size, TRUE);
+                         tvb, offset, ntlm_signature_size + ntlm_seq_size, TRUE);
     tvb_memcpy(tvb, key, offset, ntlm_signature_size + ntlm_seq_size);
     /* Try to decrypt */
     decrypt_data_payload (tvb, offset+(ntlm_signature_size + ntlm_seq_size), encrypted_block_length-(ntlm_signature_size + ntlm_seq_size), pinfo, ntlmssp_tree,key);
@@ -1972,7 +1975,7 @@ dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 }
 void
 decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
-		 packet_info *pinfo, proto_tree *tree _U_,gpointer key)
+                     packet_info *pinfo, proto_tree *tree _U_,gpointer key)
 {
   tvbuff_t *decr_tvb; /* Used to display decrypted buffer */
   guint8 *peer_block;
@@ -1993,15 +1996,15 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
   if (!packet_ntlmssp_info->payload_decrypted) {
     /* Pull the challenge info from the conversation */
     conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-				     pinfo->ptype, pinfo->srcport,
-				     pinfo->destport, 0);
+                                     pinfo->ptype, pinfo->srcport,
+                                     pinfo->destport, 0);
     if (conversation == NULL) {
       /* There is no conversation, thus no encryption state */
       return ;
     }
 
     conv_ntlmssp_info = conversation_get_proto_data(conversation,
-						    proto_ntlmssp);
+                                                    proto_ntlmssp);
     if (conv_ntlmssp_info == NULL) {
       /* There is no NTLMSSP state tied to the conversation */
 	    return ;
@@ -2071,8 +2074,8 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
 
  /* Show the decrypted buffer in a new window */
   decr_tvb = tvb_new_real_data(packet_ntlmssp_info->decrypted_payload,
-			       encrypted_block_length,
-			       encrypted_block_length);
+                               encrypted_block_length,
+                               encrypted_block_length);
 
   tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
   pinfo->gssapi_decrypted_tvb =  decr_tvb;
@@ -2094,11 +2097,11 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Setup a new tree for the NTLMSSP payload */
   if (tree) {
     tf = proto_tree_add_item (tree,
-			      proto_ntlmssp,
-			      tvb, offset, -1, FALSE);
+                              proto_ntlmssp,
+                              tvb, offset, -1, FALSE);
 
     ntlmssp_tree = proto_item_add_subtree (tf,
-					   ett_ntlmssp);
+                                           ett_ntlmssp);
   }
 
   /*
@@ -2116,20 +2119,20 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   TRY {
     /* NTLMSSP constant */
     proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth,
-			 tvb, offset, 8, FALSE);
+                         tvb, offset, 8, FALSE);
     offset += 8;
 
     /* NTLMSSP Message Type */
     proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_message_type,
-			 tvb, offset, 4, TRUE);
+                         tvb, offset, 4, TRUE);
     ntlmssph->type = tvb_get_letohl (tvb, offset);
     offset += 4;
 
     if (check_col(pinfo->cinfo, COL_INFO))
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-			    val_to_str(ntlmssph->type,
-				       ntlmssp_message_types,
-				       "Unknown message type"));
+                            val_to_str(ntlmssph->type,
+                                       ntlmssp_message_types,
+                                       "Unknown message type"));
 
     /* Call the appropriate dissector based on the Message Type */
     switch (ntlmssph->type) {
@@ -2149,7 +2152,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     default:
       /* Unrecognized message type */
       proto_tree_add_text (ntlmssp_tree, tvb, offset, -1,
-			   "Unrecognized NTLMSSP Message");
+                           "Unrecognized NTLMSSP Message");
       break;
     }
   } CATCH(BoundsError) {
@@ -2168,7 +2171,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  */
 static void
 decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
-		 packet_info *pinfo, proto_tree *tree,gpointer key)
+                 packet_info *pinfo, proto_tree *tree,gpointer key)
 {
   proto_tree *decr_tree = NULL;
   proto_item *tf = NULL;
@@ -2192,14 +2195,14 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
     return;
   }
   conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-		     pinfo->ptype, pinfo->srcport,
-		     pinfo->destport, 0);
+                                   pinfo->ptype, pinfo->srcport,
+                                   pinfo->destport, 0);
   if (conversation == NULL) {
     /* There is no conversation, thus no encryption state */
     return;
   }
   conv_ntlmssp_info = conversation_get_proto_data(conversation,
-						    proto_ntlmssp);
+                                                  proto_ntlmssp);
   if (conv_ntlmssp_info == NULL) {
   /* There is no NTLMSSP state tied to the conversation */
     return;
@@ -2293,16 +2296,16 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
   }
   /* Show the decrypted buffer in a new window */
   decr_tvb = tvb_new_child_real_data(tvb, packet_ntlmssp_info->verifier,
-			       encrypted_block_length,
-			       encrypted_block_length);
+                                     encrypted_block_length,
+                                     encrypted_block_length);
   add_new_data_source(pinfo, decr_tvb,
-		      "Decrypted NTLMSSP Verifier");
+                      "Decrypted NTLMSSP Verifier");
 
   /* Show the decrypted payload in the tree */
   tf = proto_tree_add_text(tree, decr_tvb, 0, -1,
-			   "Decrypted Verifier (%d byte%s)",
-			   encrypted_block_length,
-			   plurality(encrypted_block_length, "", "s"));
+                           "Decrypted Verifier (%d byte%s)",
+                           encrypted_block_length,
+                           plurality(encrypted_block_length, "", "s"));
   decr_tree = proto_item_add_subtree (tf, ett_ntlmssp);
 
   if(( conv_ntlmssp_info->flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY )) {
@@ -2314,7 +2317,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
 
     /* Incrementing sequence number of DCE conversation */
    proto_tree_add_item (decr_tree, hf_ntlmssp_verf_sequence,
-		         decr_tvb, decrypted_offset, 4, TRUE);
+                        decr_tvb, decrypted_offset, 4, TRUE);
     decrypted_offset += 4;
   }
   else {
@@ -2331,7 +2334,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
 
     /* Incrementing sequence number of DCE conversation */
    proto_tree_add_item (decr_tree, hf_ntlmssp_verf_sequence,
-		         decr_tvb, decrypted_offset, 4, TRUE);
+                        decr_tvb, decrypted_offset, 4, TRUE);
     decrypted_offset += 4;
   }
 }
@@ -2349,16 +2352,16 @@ dissect_ntlmssp_payload_only(tvbuff_t *tvb, packet_info *pinfo, _U_ proto_tree *
   /* signature + seq + real payload */
 
   /* Setup a new tree for the NTLMSSP payload */
-  /*
+#if 0
   if (tree) {
     tf = proto_tree_add_item (tree,
-			      hf_ntlmssp_verf,
-			      tvb, offset, -1, FALSE);
+                              hf_ntlmssp_verf,
+                              tvb, offset, -1, FALSE);
 
     ntlmssp_tree = proto_item_add_subtree (tf,
-					   ett_ntlmssp);
+                                           ett_ntlmssp);
   }
-  */
+#endif
   /*
    * Catch the ReportedBoundsError exception; the stuff we've been
    * handed doesn't necessarily run to the end of the packet, it's
@@ -2410,11 +2413,11 @@ dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Setup a new tree for the NTLMSSP payload */
   if (tree) {
     tf = proto_tree_add_item (tree,
-			      hf_ntlmssp_verf,
-			      tvb, offset, -1, FALSE);
+                              hf_ntlmssp_verf,
+                              tvb, offset, -1, FALSE);
 
     ntlmssp_tree = proto_item_add_subtree (tf,
-					   ett_ntlmssp);
+                                           ett_ntlmssp);
   }
 
   /*
@@ -2432,12 +2435,12 @@ dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   TRY {
     /* Version number */
     proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_verf_vers,
-			 tvb, offset, 4, TRUE);
+                         tvb, offset, 4, TRUE);
     offset += 4;
 
     /* Encrypted body */
     proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_verf_body,
-			 tvb, offset, encrypted_block_length, TRUE);
+                         tvb, offset, encrypted_block_length, TRUE);
 
     /* Try to decrypt */
     decrypt_verifier (tvb, offset, encrypted_block_length, pinfo, ntlmssp_tree,NULL);
@@ -2456,24 +2459,24 @@ dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static tvbuff_t *
 wrap_dissect_ntlmssp_payload_only(tvbuff_t *tvb,tvbuff_t *auth_tvb _U_,
- int offset, packet_info *pinfo,dcerpc_auth_info *auth_info _U_)
+                                  int offset, packet_info *pinfo,dcerpc_auth_info *auth_info _U_)
 {
-	tvbuff_t *data_tvb;
+  tvbuff_t *data_tvb;
 
-	data_tvb = tvb_new_subset(
-		tvb, offset, tvb_length_remaining(tvb, offset),
-		tvb_length_remaining(tvb, offset));
-	dissect_ntlmssp_payload_only(data_tvb, pinfo, NULL);
+  data_tvb = tvb_new_subset(
+    tvb, offset, tvb_length_remaining(tvb, offset),
+    tvb_length_remaining(tvb, offset));
+  dissect_ntlmssp_payload_only(data_tvb, pinfo, NULL);
   return pinfo->gssapi_decrypted_tvb;
 }
 
 #if 0
 tvbuff_t *
 dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
-				  tvbuff_t *auth_tvb _U_,
-				  int offset,
-				  packet_info *pinfo,
-				  dcerpc_auth_info *auth_info _U_)
+                                  tvbuff_t *auth_tvb _U_,
+                                  int offset,
+                                  packet_info *pinfo,
+                                  dcerpc_auth_info *auth_info _U_)
 {
   /* gssapi_decrypted_tvb=NULL */
   tvbuff_t *decr_tvb; /* Used to display decrypted buffer */
@@ -2498,15 +2501,15 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
   if (!packet_ntlmssp_info->payload_decrypted) {
     /* Pull the challenge info from the conversation */
     conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-				     pinfo->ptype, pinfo->srcport,
-				     pinfo->destport, 0);
+                                     pinfo->ptype, pinfo->srcport,
+                                     pinfo->destport, 0);
     if (conversation == NULL) {
       /* There is no conversation, thus no encryption state */
       return NULL;
 
     }
     conv_ntlmssp_info = conversation_get_proto_data(conversation,
-						    proto_ntlmssp);
+                                                    proto_ntlmssp);
     if (conv_ntlmssp_info == NULL) {
     /* There is no NTLMSSP state tied to the conversation */
     return NULL;
@@ -2548,8 +2551,8 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
 
   /* Show the decrypted buffer in a new window */
   decr_tvb = tvb_new_child_real_data(data_tvb, packet_ntlmssp_info->decrypted_payload,
-			       encrypted_block_length,
-			       encrypted_block_length);
+                                     encrypted_block_length,
+                                     encrypted_block_length);
 
   offset += encrypted_block_length;
 
@@ -2581,15 +2584,15 @@ gboolean g_header_equal(gconstpointer pointer1, gconstpointer pointer2) {
 static void
 ntlmssp_init_protocol(void)
 {
-	/*
-	 * Free the decrypted payloads, and then free the list of decrypted
-	 * payloads.
-	 */
-	if (decrypted_payloads != NULL) {
-		g_slist_foreach(decrypted_payloads, free_payload, NULL);
-		g_slist_free(decrypted_payloads);
-		decrypted_payloads = NULL;
-	}
+  /*
+   * Free the decrypted payloads, and then free the list of decrypted
+   * payloads.
+   */
+  if (decrypted_payloads != NULL) {
+    g_slist_foreach(decrypted_payloads, free_payload, NULL);
+    g_slist_free(decrypted_payloads);
+    decrypted_payloads = NULL;
+  }
 
   if(hash_packet == NULL) {
     hash_packet = g_hash_table_new(g_header_hash,g_header_equal);
@@ -2852,10 +2855,10 @@ proto_register_ntlmssp(void)
   module_t *ntlmssp_module;
 
   proto_ntlmssp = proto_register_protocol (
-					   "NTLM Secure Service Provider", /* name */
-					   "NTLMSSP",	/* short name */
-					   "ntlmssp"	/* abbrev */
-					   );
+    "NTLM Secure Service Provider", /* name */
+    "NTLMSSP",	/* short name */
+    "ntlmssp"	/* abbrev */
+    );
   proto_register_field_array (proto_ntlmssp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
   register_init_routine(&ntlmssp_init_protocol);
@@ -2863,9 +2866,9 @@ proto_register_ntlmssp(void)
   ntlmssp_module = prefs_register_protocol(proto_ntlmssp, NULL);
 
   prefs_register_string_preference(ntlmssp_module, "nt_password",
-				   "NT Password",
-				   "NT Password (used to decrypt payloads)",
-				   &gbl_nt_password);
+                                   "NT Password",
+                                   "NT Password (used to decrypt payloads)",
+                                   &gbl_nt_password);
 
   register_dissector("ntlmssp", dissect_ntlmssp, proto_ntlmssp);
   new_register_dissector("ntlmssp_payload", dissect_ntlmssp_payload, proto_ntlmssp);
@@ -2874,48 +2877,48 @@ proto_register_ntlmssp(void)
 }
 
 static int wrap_dissect_ntlmssp(tvbuff_t *tvb, int offset, packet_info *pinfo,
-				proto_tree *tree, guint8 *drep _U_)
+                                proto_tree *tree, guint8 *drep _U_)
 {
-	tvbuff_t *auth_tvb;
+  tvbuff_t *auth_tvb;
 
-	auth_tvb = tvb_new_subset(
-		tvb, offset, tvb_length_remaining(tvb, offset),
-		tvb_length_remaining(tvb, offset));
+  auth_tvb = tvb_new_subset(
+    tvb, offset, tvb_length_remaining(tvb, offset),
+    tvb_length_remaining(tvb, offset));
 
-	dissect_ntlmssp(auth_tvb, pinfo, tree);
+  dissect_ntlmssp(auth_tvb, pinfo, tree);
 
-	return tvb_length_remaining(tvb, offset);
+  return tvb_length_remaining(tvb, offset);
 }
 
 static int wrap_dissect_ntlmssp_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
-				     proto_tree *tree, guint8 *drep _U_)
+                                     proto_tree *tree, guint8 *drep _U_)
 {
-	tvbuff_t *auth_tvb;
+  tvbuff_t *auth_tvb;
 
-	auth_tvb = tvb_new_subset(
-		tvb, offset, tvb_length_remaining(tvb, offset),
-		tvb_length_remaining(tvb, offset));
-	return dissect_ntlmssp_verf(auth_tvb, pinfo, tree);
+  auth_tvb = tvb_new_subset(
+    tvb, offset, tvb_length_remaining(tvb, offset),
+    tvb_length_remaining(tvb, offset));
+  return dissect_ntlmssp_verf(auth_tvb, pinfo, tree);
 }
 
 static dcerpc_auth_subdissector_fns ntlmssp_sign_fns = {
-	wrap_dissect_ntlmssp, 			/* Bind */
-	wrap_dissect_ntlmssp,			/* Bind ACK */
-	wrap_dissect_ntlmssp,			/* AUTH3 */
-	wrap_dissect_ntlmssp_verf,		/* Request verifier */
-	wrap_dissect_ntlmssp_verf,		/* Response verifier */
-	NULL,			                /* Request data */
-	NULL			                /* Response data */
+  wrap_dissect_ntlmssp,                 /* Bind */
+  wrap_dissect_ntlmssp,                 /* Bind ACK */
+  wrap_dissect_ntlmssp,                 /* AUTH3 */
+  wrap_dissect_ntlmssp_verf,            /* Request verifier */
+  wrap_dissect_ntlmssp_verf,            /* Response verifier */
+  NULL,                                 /* Request data */
+  NULL                                  /* Response data */
 };
 
 static dcerpc_auth_subdissector_fns ntlmssp_seal_fns = {
-	wrap_dissect_ntlmssp, 			/* Bind */
-	wrap_dissect_ntlmssp,			/* Bind ACK */
-	wrap_dissect_ntlmssp,			/* AUTH3 */
-	wrap_dissect_ntlmssp_verf, 		/* Request verifier */
-	wrap_dissect_ntlmssp_verf,		/* Response verifier */
-	wrap_dissect_ntlmssp_payload_only,	/* Request data */
-	wrap_dissect_ntlmssp_payload_only	/* Response data */
+  wrap_dissect_ntlmssp,                 /* Bind */
+  wrap_dissect_ntlmssp,                 /* Bind ACK */
+  wrap_dissect_ntlmssp,                 /* AUTH3 */
+  wrap_dissect_ntlmssp_verf,            /* Request verifier */
+  wrap_dissect_ntlmssp_verf,            /* Response verifier */
+  wrap_dissect_ntlmssp_payload_only,    /* Request data */
+  wrap_dissect_ntlmssp_payload_only     /* Response data */
 };
 
 void
@@ -2928,8 +2931,8 @@ proto_reg_handoff_ntlmssp(void)
   ntlmssp_handle = find_dissector("ntlmssp");
   ntlmssp_wrap_handle = find_dissector("ntlmssp_verf");
   gssapi_init_oid("1.3.6.1.4.1.311.2.2.10", proto_ntlmssp, ett_ntlmssp,
-		  ntlmssp_handle, ntlmssp_wrap_handle,
-		  "NTLMSSP - Microsoft NTLM Security Support Provider");
+                  ntlmssp_handle, ntlmssp_wrap_handle,
+                  "NTLMSSP - Microsoft NTLM Security Support Provider");
 
   /* Register authenticated pipe dissector */
 
@@ -2942,20 +2945,20 @@ proto_reg_handoff_ntlmssp(void)
    * any other levels here?
    */
   register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_CONNECT,
-				    DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP,
-				    &ntlmssp_sign_fns);
+                                    DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP,
+                                    &ntlmssp_sign_fns);
 
   register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_PKT,
-				    DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP,
-				    &ntlmssp_sign_fns);
+                                    DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP,
+                                    &ntlmssp_sign_fns);
 
   register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_PKT_INTEGRITY,
-				    DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP,
-				    &ntlmssp_sign_fns);
+                                    DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP,
+                                    &ntlmssp_sign_fns);
 
   register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_PKT_PRIVACY,
-				    DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP,
-				    &ntlmssp_seal_fns);
+                                    DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP,
+                                    &ntlmssp_seal_fns);
   ntlmssp_tap = register_tap("ntlmssp");
 }
 
