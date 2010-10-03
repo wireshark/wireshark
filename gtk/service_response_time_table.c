@@ -38,6 +38,7 @@
 #include "gtk/service_response_time_table.h"
 #include "gtk/filter_utils.h"
 #include "gtk/gui_utils.h"
+#include "gtk/utf8_entities.h"
 
 #define NANOSECS_PER_SEC 1000000000
 
@@ -208,19 +209,19 @@ static const char *ui_desc_service_resp_t_filter_popup =
 "  <popup name='ServiceRespTFilterPopup'>\n"
 "    <menu action='/Apply as Filter'>\n"
 "      <menuitem action='/Apply as Filter/Selected'/>\n"
-"      <menuitem action='/Apply as Filter/... not Selected'/>\n"
-"      <menuitem action='/Apply as Filter/... and Selected'/>\n"
-"      <menuitem action='/Apply as Filter/... or Selected'/>\n"
-"      <menuitem action='/Apply as Filter/... and not Selected'/>\n"
-"      <menuitem action='/Apply as Filter/... or not Selected'/>\n"
+"      <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " not Selected'/>\n"
+"      <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected'/>\n"
+"      <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected'/>\n"
+"      <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected'/>\n"
+"      <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected'/>\n"
 "    </menu>\n"
 "    <menu action='/Prepare a Filter'>\n"
 "      <menuitem action='/Prepare a Filter/Selected'/>\n"
-"      <menuitem action='/Prepare a Filter/... not Selected'/>\n"
-"      <menuitem action='/Prepare a Filter/... and Selected'/>\n"
-"      <menuitem action='/Prepare a Filter/... or Selected'/>\n"
-"      <menuitem action='/Prepare a Filter/... and not Selected'/>\n"
-"      <menuitem action='/Prepare a Filter/... or not Selected'/>\n"
+"      <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " not Selected'/>\n"
+"      <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected'/>\n"
+"      <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected'/>\n"
+"      <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected'/>\n"
+"      <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected'/>\n"
 "    </menu>\n"
 "    <menu action='/Find Frame'>\n"
 "      <menu action='/Find Frame/Find Frame'>\n"
@@ -273,17 +274,17 @@ static const GtkActionEntry service_resp_t__popup_entries[] = {
   { "/Find Frame/Find Previous",				NULL, "Find Previous",			NULL, NULL,						NULL },
   { "/Colorize Procedure",						NULL, "Colorize Procedure",		NULL, NULL,						NULL },
   { "/Apply as Filter/Selected",				NULL, "Selected",				NULL, "Selected",				G_CALLBACK(apply_as_selected_cb) },
-  { "/Apply as Filter/... not Selected",		NULL, "... not Selected",		NULL, "... not Selected",		G_CALLBACK(apply_as_not_selected_cb) },
-  { "/Apply as Filter/... and Selected",		NULL, "... and Selected",		NULL, "... and Selected",		G_CALLBACK(apply_as_and_selected_cb) },
-  { "/Apply as Filter/... or Selected",			NULL, "... or Selected",		NULL, "... or Selected",		G_CALLBACK(apply_as_or_selected_cb) },
-  { "/Apply as Filter/... and not Selected",	NULL, "... and not Selected",	NULL, "... and not Selected",	G_CALLBACK(apply_as_and_not_selected_cb) },
-  { "/Apply as Filter/... or not Selected",		NULL, "... or not Selected",	NULL, "... or not Selected",	G_CALLBACK(apply_as_or_not_selected_cb) },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " not Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " not Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " not Selected",		G_CALLBACK(apply_as_not_selected_cb) },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",		G_CALLBACK(apply_as_and_selected_cb) },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected",			NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",		G_CALLBACK(apply_as_or_selected_cb) },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",	G_CALLBACK(apply_as_and_not_selected_cb) },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",	G_CALLBACK(apply_as_or_not_selected_cb) },
   { "/Prepare a Filter/Selected",				NULL, "Selected",				NULL, "selcted",				G_CALLBACK(prep_as_selected_cb) },
-  { "/Prepare a Filter/... not Selected",		NULL, "... not Selected",		NULL, "... not Selected",		G_CALLBACK(prep_as_not_selected_cb) },
-  { "/Prepare a Filter/... and Selected",		NULL, "... and Selected",		NULL, "... and Selected",		G_CALLBACK(prep_as_and_selected_cb) },
-  { "/Prepare a Filter/... or Selected",		NULL, "... or Selected",		NULL, "... or Selected",		G_CALLBACK(prep_as_or_selected_cb) },
-  { "/Prepare a Filter/... and not Selected",	NULL, "... and not Selected",	NULL, "... and not Selected",	G_CALLBACK(prep_as_and_not_selected_cb) },
-  { "/Prepare a Filter/... or not Selected",	NULL, "... or not Selected",	NULL, "... or not Selected",	G_CALLBACK(prep_as_or_not_selected_cb) },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " not Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " not Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " not Selected",		G_CALLBACK(prep_as_not_selected_cb) },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",		G_CALLBACK(prep_as_and_selected_cb) },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",		G_CALLBACK(prep_as_or_selected_cb) },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",	G_CALLBACK(prep_as_and_not_selected_cb) },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",	G_CALLBACK(prep_as_or_not_selected_cb) },
   { "/Find Frame/Selected",						NULL, "Selected",				NULL, "Selected",				G_CALLBACK(find_selected_cb) },
   { "/Find Frame/Not Selected",					NULL, "Not Selected",			NULL, "Not Selected",			G_CALLBACK(find_not_selected_cb) },
   { "/Find Previous/Selected",					NULL, "Selected",				NULL, "Selected",				G_CALLBACK(find_prev_selected_cb) },

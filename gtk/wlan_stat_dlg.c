@@ -51,6 +51,7 @@
 #include "gtk/recent.h"
 #include "gtk/help_dlg.h"
 #include "gtk/main.h"
+#include "gtk/utf8_entities.h"
 
 enum {
 	BSSID_COLUMN,
@@ -1235,29 +1236,29 @@ static const char *ui_desc_wlan_stat_filter_popup =
 "            <menuitem action='/Apply as Filter/Not Selected/BSSID and SSID'/>\n"
 "            <menuitem action='/Apply as Filter/Not Selected/BSSID or SSID'/>\n"
 "        </menu>\n"
-"        <menu name= 'ApplyAsFilterAndSelected' action='/Apply as Filter/... and Selected'>\n"
-"            <menuitem action='/Apply as Filter/... and Selected/BSSID'/>\n"
-"            <menuitem action='/Apply as Filter/... and Selected/SSID'/>\n"
-"            <menuitem action='/Apply as Filter/... and Selected/BSSID and SSID'/>\n"
-"            <menuitem action='/Apply as Filter/... and Selected/BSSID or SSID'/>\n"
+"        <menu name= 'ApplyAsFilterAndSelected' action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected'>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/BSSID'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/SSID'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/BSSID and SSID'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/BSSID or SSID'/>\n"
 "        </menu>\n"
-"        <menu name= 'ApplyAsFilterOrSelected' action='/Apply as Filter/... or Selected'>\n"
-"            <menuitem action='/Apply as Filter/... or Selected/BSSID'/>\n"
-"            <menuitem action='/Apply as Filter/... or Selected/SSID'/>\n"
-"            <menuitem action='/Apply as Filter/... or Selected/BSSID and SSID'/>\n"
-"            <menuitem action='/Apply as Filter/... or Selected/BSSID or SSID'/>\n"
+"        <menu name= 'ApplyAsFilterOrSelected' action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected'>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/BSSID'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/SSID'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/BSSID and SSID'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/BSSID or SSID'/>\n"
 "        </menu>\n"
-"        <menu name= 'ApplyAsFilterAndNotSelected' action='/Apply as Filter/... and not Selected'>\n"
-"            <menuitem action='/Apply as Filter/... and not Selected/BSSID'/>\n"
-"            <menuitem action='/Apply as Filter/... and not Selected/SSID'/>\n"
-"            <menuitem action='/Apply as Filter/... and not Selected/BSSID and SSID'/>\n"
-"            <menuitem action='/Apply as Filter/... and not Selected/BSSID or SSID'/>\n"
+"        <menu name= 'ApplyAsFilterAndNotSelected' action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected'>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/BSSID'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/SSID'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/BSSID and SSID'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/BSSID or SSID'/>\n"
 "        </menu>\n"
-"        <menu name= 'ApplyAsFilterOrNotSelected' action='/Apply as Filter/... or not Selected'>\n"
-"            <menuitem action='/Apply as Filter/... or not Selected/BSSID'/>\n"
-"            <menuitem action='/Apply as Filter/... or not Selected/SSID'/>\n"
-"            <menuitem action='/Apply as Filter/... or not Selected/BSSID and SSID'/>\n"
-"            <menuitem action='/Apply as Filter/... or not Selected/BSSID or SSID'/>\n"
+"        <menu name= 'ApplyAsFilterOrNotSelected' action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected'>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/BSSID'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/SSID'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/BSSID and SSID'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/BSSID or SSID'/>\n"
 "        </menu>\n"
 "    </menu>\n"
 "    <menu name= 'PrepareAFilter' action='/Prepare a Filter'>\n"
@@ -1273,29 +1274,29 @@ static const char *ui_desc_wlan_stat_filter_popup =
 "            <menuitem action='/Prepare a Filter/Not Selected/BSSID and SSID'/>\n"
 "            <menuitem action='/Prepare a Filter/Not Selected/BSSID or SSID'/>\n"
 "        </menu>\n"
-"        <menu name= 'PrepareAFilterAndSelected' action='/Prepare a Filter/... and Selected'>\n"
-"            <menuitem action='/Prepare a Filter/... and Selected/BSSID'/>\n"
-"            <menuitem action='/Prepare a Filter/... and Selected/SSID'/>\n"
-"            <menuitem action='/Prepare a Filter/... and Selected/BSSID and SSID'/>\n"
-"            <menuitem action='/Prepare a Filter/... and Selected/BSSID or SSID'/>\n"
+"        <menu name= 'PrepareAFilterAndSelected' action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected'>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/BSSID'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/SSID'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/BSSID and SSID'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/BSSID or SSID'/>\n"
 "        </menu>\n"
-"        <menu name= 'PrepareAFilterOrSelected' action='/Prepare a Filter/... or Selected'>\n"
-"            <menuitem action='/Prepare a Filter/... or Selected/BSSID'/>\n"
-"            <menuitem action='/Prepare a Filter/... or Selected/SSID'/>\n"
-"            <menuitem action='/Prepare a Filter/... or Selected/BSSID and SSID'/>\n"
-"            <menuitem action='/Prepare a Filter/... or Selected/BSSID or SSID'/>\n"
+"        <menu name= 'PrepareAFilterOrSelected' action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected'>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/BSSID'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/SSID'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/BSSID and SSID'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/BSSID or SSID'/>\n"
 "        </menu>\n"
-"        <menu name= 'PrepareAFilterAndNotSelected' action='/Prepare a Filter/... and not Selected'>\n"
-"            <menuitem action='/Prepare a Filter/... and not Selected/BSSID'/>\n"
-"            <menuitem action='/Prepare a Filter/... and not Selected/SSID'/>\n"
-"            <menuitem action='/Prepare a Filter/... and not Selected/BSSID and SSID'/>\n"
-"            <menuitem action='/Prepare a Filter/... and not Selected/BSSID or SSID'/>\n"
+"        <menu name= 'PrepareAFilterAndNotSelected' action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected'>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/BSSID'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/SSID'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/BSSID and SSID'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/BSSID or SSID'/>\n"
 "        </menu>\n"
-"        <menu name= 'PrepareAFilterOrNotSelected' action='/Prepare a Filter/... or not Selected'>\n"
-"            <menuitem action='/Prepare a Filter/... or not Selected/BSSID'/>\n"
-"            <menuitem action='/Prepare a Filter/... or not Selected/SSID'/>\n"
-"            <menuitem action='/Prepare a Filter/... or not Selected/BSSID and SSID'/>\n"
-"            <menuitem action='/Prepare a Filter/... or not Selected/BSSID or SSID'/>\n"
+"        <menu name= 'PrepareAFilterOrNotSelected' action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected'>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/BSSID'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/SSID'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/BSSID and SSID'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/BSSID or SSID'/>\n"
 "        </menu>\n"
 "    </menu>\n"
 "    <menu name= 'FindFrame' action='/Find Frame'>\n"
@@ -1358,10 +1359,10 @@ static const GtkActionEntry wlans_stat_popup_entries[] = {
   /* Apply as */
   { "/Apply as Filter/Selected",				NULL, "Selected" , NULL, NULL, NULL },
   { "/Apply as Filter/Not Selected",			NULL, "Not Selected", NULL, NULL, NULL },
-  { "/Apply as Filter/... and Selected",		NULL, "... and Selected", NULL, NULL, NULL },
-  { "/Apply as Filter/... or Selected",			NULL, "... or Selected", NULL, NULL, NULL },
-  { "/Apply as Filter/... and not Selected",	NULL, "... and not Selected", NULL, NULL, NULL },
-  { "/Apply as Filter/... or not Selected",		NULL, "... or not Selected", NULL, NULL, NULL },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected", NULL, NULL, NULL },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected",			NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected", NULL, NULL, NULL },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected", NULL, NULL, NULL },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected", NULL, NULL, NULL },
 
   /* Apply as Selected */
   { "/Apply as Filter/Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_select_filter_as_selected_BSSID_cb)},
@@ -1376,36 +1377,36 @@ static const GtkActionEntry wlans_stat_popup_entries[] = {
   { "/Apply as Filter/Not Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_select_filter_as_not_selected_BSSID_or_SSID_cb)},
 
   /* Apply as and Selected */
-  { "/Apply as Filter/... and Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_select_filter_and_selected_BSSID_cb)},
-  { "/Apply as Filter/... and Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_select_filter_and_selected_SSID_cb)},
-  { "/Apply as Filter/... and Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_select_filter_and_selected_BSSID_and_SSID_cb)},
-  { "/Apply as Filter/... and Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_select_filter_and_selected_BSSID_or_SSID_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_select_filter_and_selected_BSSID_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_select_filter_and_selected_SSID_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_select_filter_and_selected_BSSID_and_SSID_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_select_filter_and_selected_BSSID_or_SSID_cb)},
 
   /* Apply as or Selected */
-  { "/Apply as Filter/... or Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_select_filter_or_selected_BSSID_cb)},
-  { "/Apply as Filter/... or Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_select_filter_or_selected_SSID_cb)},
-  { "/Apply as Filter/... or Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_select_filter_or_selected_BSSID_and_SSID_cb)},
-  { "/Apply as Filter/... or Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_select_filter_or_selected_BSSID_or_SSID_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_select_filter_or_selected_BSSID_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_select_filter_or_selected_SSID_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_select_filter_or_selected_BSSID_and_SSID_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_select_filter_or_selected_BSSID_or_SSID_cb)},
 
   /* /Apply as Filter/... and not Selected */
-  { "/Apply as Filter/... and not Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_select_filter_and_not_selected_BSSID_cb)},
-  { "/Apply as Filter/... and not Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_select_filter_and_not_selected_SSID_cb)},
-  { "/Apply as Filter/... and not Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_select_filter_and_not_selected_BSSID_and_SSID_cb)},
-  { "/Apply as Filter/... and not Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_select_filter_and_not_selected_BSSID_or_SSID_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_select_filter_and_not_selected_BSSID_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_select_filter_and_not_selected_SSID_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_select_filter_and_not_selected_BSSID_and_SSID_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_select_filter_and_not_selected_BSSID_or_SSID_cb)},
 
   /* /Apply as Filter/... or not Selected */
-  { "/Apply as Filter/... or not Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_select_filter_or_not_selected_BSSID_cb)},
-  { "/Apply as Filter/... or not Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_select_filter_or_not_selected_SSID_cb)},
-  { "/Apply as Filter/... or not Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_select_filter_or_not_selected_BSSID_and_SSID_cb)},
-  { "/Apply as Filter/... or not Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_select_filter_or_not_selected_BSSID_or_SSID_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_select_filter_or_not_selected_BSSID_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_select_filter_or_not_selected_SSID_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_select_filter_or_not_selected_BSSID_and_SSID_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_select_filter_or_not_selected_BSSID_or_SSID_cb)},
 
   /* Prepare a */
   { "/Prepare a Filter/Selected",				NULL, "Selected" , NULL, NULL, NULL },
   { "/Prepare a Filter/Not Selected",			NULL, "Not Selected", NULL, NULL, NULL },
-  { "/Prepare a Filter/... and Selected",		NULL, "... and Selected", NULL, NULL, NULL },
-  { "/Prepare a Filter/... or Selected",		NULL, "... or Selected", NULL, NULL, NULL },
-  { "/Prepare a Filter/... and not Selected",	NULL, "... and not Selected", NULL, NULL, NULL },
-  { "/Prepare a Filter/... or not Selected",	NULL, "... or not Selected", NULL, NULL, NULL },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected", NULL, NULL, NULL },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected", NULL, NULL, NULL },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected", NULL, NULL, NULL },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected", NULL, NULL, NULL },
 
   /* Prepare a Selected */
   { "/Prepare a Filter/Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_prepare_filter_as_selected_BSSID_cb)},
@@ -1420,28 +1421,28 @@ static const GtkActionEntry wlans_stat_popup_entries[] = {
   { "/Prepare a Filter/Not Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_as_not_selected_BSSID_or_SSID_cb)},
 
   /* Prepare a and Selected */
-  { "/Prepare a Filter/... and Selected/BSSID",				NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_prepare_filter_and_selected_BSSID_cb)},
-  { "/Prepare a Filter/... and Selected/SSID",				NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_prepare_filter_and_selected_SSID_cb)},
-  { "/Prepare a Filter/... and Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_prepare_filter_and_selected_BSSID_and_SSID_cb)},
-  { "/Prepare a Filter/... and Selected/BSSID or SSID",		NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_and_selected_BSSID_or_SSID_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/BSSID",				NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_prepare_filter_and_selected_BSSID_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/SSID",				NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_prepare_filter_and_selected_SSID_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_prepare_filter_and_selected_BSSID_and_SSID_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/BSSID or SSID",		NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_and_selected_BSSID_or_SSID_cb)},
 
   /* Prepare a or Selected */
-  { "/Prepare a Filter/... or Selected/BSSID",				NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_prepare_filter_or_selected_BSSID_cb)},
-  { "/Prepare a Filter/... or Selected/SSID",				NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_prepare_filter_or_selected_SSID_cb)},
-  { "/Prepare a Filter/... or Selected/BSSID and SSID",		NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_prepare_filter_or_selected_BSSID_and_SSID_cb)},
-  { "/Prepare a Filter/... or Selected/BSSID or SSID",		NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_or_selected_BSSID_or_SSID_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/BSSID",				NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_prepare_filter_or_selected_BSSID_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/SSID",				NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_prepare_filter_or_selected_SSID_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/BSSID and SSID",		NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_prepare_filter_or_selected_BSSID_and_SSID_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/BSSID or SSID",		NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_or_selected_BSSID_or_SSID_cb)},
 
   /* /Prepare a Filter/... and not Selected */
-  { "/Prepare a Filter/... and not Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_prepare_filter_and_not_selected_BSSID_cb)},
-  { "/Prepare a Filter/... and not Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_prepare_filter_and_not_selected_SSID_cb)},
-  { "/Prepare a Filter/... and not Selected/BSSID and SSID",NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_prepare_filter_and_not_selected_BSSID_and_SSID_cb)},
-  { "/Prepare a Filter/... and not Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_and_not_selected_BSSID_or_SSID_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_prepare_filter_and_not_selected_BSSID_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_prepare_filter_and_not_selected_SSID_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/BSSID and SSID",NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_prepare_filter_and_not_selected_BSSID_and_SSID_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_and_not_selected_BSSID_or_SSID_cb)},
 
   /* /Prepare a Filter/... or not Selected */
-  { "/Prepare a Filter/... or not Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_prepare_filter_or_not_selected_BSSID_cb)},
-  { "/Prepare a Filter/... or not Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_prepare_filter_or_not_selected_SSID_cb)},
-  { "/Prepare a Filter/... or not Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_prepare_filter_or_not_selected_BSSID_and_SSID_cb)},
-  { "/Prepare a Filter/... or not Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_or_not_selected_BSSID_or_SSID_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/BSSID",			NULL, "BSSID",			NULL, "BSSID",				G_CALLBACK(wlan_prepare_filter_or_not_selected_BSSID_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/SSID",			NULL, "SSID",			NULL, "SSID",				G_CALLBACK(wlan_prepare_filter_or_not_selected_SSID_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/BSSID and SSID",	NULL, "BSSID and SSID",	NULL, "BSSID and SSID",		G_CALLBACK(wlan_prepare_filter_or_not_selected_BSSID_and_SSID_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/BSSID or SSID",	NULL, "BSSID or SSID",	NULL, "BSSID or SSID",		G_CALLBACK(wlan_prepare_filter_or_not_selected_BSSID_or_SSID_cb)},
 
   /* Find Frame*/
   { "/Find Frame/Find Frame",					NULL, "Find Frame",		NULL, NULL, NULL },
@@ -1621,18 +1622,18 @@ static const char *ui_desc_wlan_details_filter_popup =
 "    <menu name= 'ApplyAsFilter' action='/Apply as Filter'>\n"
 "        <menuitem action='/Apply as Filter/Selected'/>\n"
 "        <menuitem action='/Apply as Filter/Not Selected'/>\n"
-"        <menuitem action='/Apply as Filter/... and Selected'/>\n"
-"        <menuitem action='/Apply as Filter/... or Selected'/>\n"
-"        <menuitem action='/Apply as Filter/... and not Selected'/>\n"
-"        <menuitem action='/Apply as Filter/... or not Selected'/>\n"
+"        <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected'/>\n"
+"        <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected'/>\n"
+"        <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected'/>\n"
+"        <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected'/>\n"
 "    </menu>\n"
 "    <menu name= 'PrepareAFilter' action='/Prepare a Filter'>\n"
 "        <menuitem action='/Prepare a Filter/Selected'/>\n"
 "        <menuitem action='/Prepare a Filter/Not Selected'/>\n"
-"        <menuitem action='/Prepare a Filter/... and Selected'/>\n"
-"        <menuitem action='/Prepare a Filter/... or Selected'/>\n"
-"        <menuitem action='/Prepare a Filter/... and not Selected'/>\n"
-"        <menuitem action='/Prepare a Filter/... or not Selected'/>\n"
+"        <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected'/>\n"
+"        <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected'/>\n"
+"        <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected'/>\n"
+"        <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected'/>\n"
 "    </menu>\n"
 "    <menu name= 'FindFrame' action='/Find Frame'>\n"
 "        <menuitem action='/Find Frame/Find Frame'/>\n"
@@ -1672,17 +1673,17 @@ static const GtkActionEntry wlan_details_list_popup_entries[] = {
     /* Apply as */
   { "/Apply as Filter/Selected",				NULL, "Selected" ,				NULL, NULL, G_CALLBACK(wlan_details_apply_selected_cb) },
   { "/Apply as Filter/Not Selected",			NULL, "Not Selected",			NULL, NULL, G_CALLBACK(wlan_details_apply_not_selected_cb) },
-  { "/Apply as Filter/... and Selected",		NULL, "... and Selected",		NULL, NULL, G_CALLBACK(wlan_details_apply_and_selected_cb) },
-  { "/Apply as Filter/... or Selected",			NULL, "... or Selected",		NULL, NULL, G_CALLBACK(wlan_details_apply_or_selected_cb) },
-  { "/Apply as Filter/... and not Selected",	NULL, "... and not Selected",	NULL, NULL, G_CALLBACK(wlan_details_apply_and_not_selected_cb) },
-  { "/Apply as Filter/... or not Selected",		NULL, "... or not Selected",	NULL, NULL, G_CALLBACK(wlan_details_apply_or_not_selected_cb) },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",		NULL, NULL, G_CALLBACK(wlan_details_apply_and_selected_cb) },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected",			NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",		NULL, NULL, G_CALLBACK(wlan_details_apply_or_selected_cb) },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",	NULL, NULL, G_CALLBACK(wlan_details_apply_and_not_selected_cb) },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",	NULL, NULL, G_CALLBACK(wlan_details_apply_or_not_selected_cb) },
 
   { "/Prepare a Filter/Selected",				NULL, "Selected" ,				NULL, NULL, G_CALLBACK(wlan_details_prepare_selected_cb) },
   { "/Prepare a Filter/Not Selected",			NULL, "Not Selected",			NULL, NULL, G_CALLBACK(wlan_details_prepare_not_selected_cb) },
-  { "/Prepare a Filter/... and Selected",		NULL, "... and Selected",		NULL, NULL, G_CALLBACK(wlan_details_prepare_and_selected_cb) },
-  { "/Prepare a Filter/... or Selected",		NULL, "... or Selected",		NULL, NULL, G_CALLBACK(wlan_details_prepare_or_selected_cb) },
-  { "/Prepare a Filter/... and not Selected",	NULL, "... and not Selected",	NULL, NULL, G_CALLBACK(wlan_details_prepare_and_not_selected_cb) },
-  { "/Prepare a Filter/... or not Selected",	NULL, "... or not Selected",	NULL, NULL, G_CALLBACK(wlan_details_prepare_or_not_selected_cb) },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",		NULL, NULL, G_CALLBACK(wlan_details_prepare_and_selected_cb) },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",		NULL, NULL, G_CALLBACK(wlan_details_prepare_or_selected_cb) },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",	NULL, NULL, G_CALLBACK(wlan_details_prepare_and_not_selected_cb) },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",	NULL, NULL, G_CALLBACK(wlan_details_prepare_or_not_selected_cb) },
 
   /* Find Frame*/
   { "/Find Frame/Find Frame",					NULL, "Find Frame",				NULL, NULL, G_CALLBACK(wlan_details_find_frame_cb) },

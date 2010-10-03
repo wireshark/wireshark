@@ -1535,49 +1535,49 @@ static const char *ui_desc_conv_filter_popup =
 "            <menuitem action='/Apply as Filter/Not Selected/Any_from_B'/>\n"
 "            <menuitem action='/Apply as Filter/Not Selected/Any_to_B'/>\n"
 "        </menu>\n"
-"        <menu name= 'ApplyAsFilterAndSelected' action='/Apply as Filter/... and Selected'>\n"
-"            <menuitem action='/Apply as Filter/... and Selected/A_to_from_B'/>\n"
-"            <menuitem action='/Apply as Filter/... and Selected/A_to_B'/>\n"
-"            <menuitem action='/Apply as Filter/... and Selected/A_from_B'/>\n"
-"            <menuitem action='/Apply as Filter/... and Selected/A_to_from_Any'/>\n"
-"            <menuitem action='/Apply as Filter/... and Selected/A_to_Any'/>\n"
-"            <menuitem action='/Apply as Filter/... and Selected/A_from_Any'/>\n"
-"            <menuitem action='/Apply as Filter/... and Selected/Any_tofrom_B'/>\n"
-"            <menuitem action='/Apply as Filter/... and Selected/Any_from_B'/>\n"
-"            <menuitem action='/Apply as Filter/... and Selected/Any_to_B'/>\n"
+"        <menu name= 'ApplyAsFilterAndSelected' action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected'>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_from_B'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_B'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_from_B'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_from_Any'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_Any'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_from_Any'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/Any_tofrom_B'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/Any_from_B'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/Any_to_B'/>\n"
 "        </menu>\n"
-"        <menu name= 'ApplyAsFilterOrSelected' action='/Apply as Filter/... or Selected'>\n"
-"            <menuitem action='/Apply as Filter/... or Selected/A_to_from_B'/>\n"
-"            <menuitem action='/Apply as Filter/... or Selected/A_to_B'/>\n"
-"            <menuitem action='/Apply as Filter/... or Selected/A_from_B'/>\n"
-"            <menuitem action='/Apply as Filter/... or Selected/A_to_from_Any'/>\n"
-"            <menuitem action='/Apply as Filter/... or Selected/A_to_Any'/>\n"
-"            <menuitem action='/Apply as Filter/... or Selected/A_from_Any'/>\n"
-"            <menuitem action='/Apply as Filter/... or Selected/Any_tofrom_B'/>\n"
-"            <menuitem action='/Apply as Filter/... or Selected/Any_from_B'/>\n"
-"            <menuitem action='/Apply as Filter/... or Selected/Any_to_B'/>\n"
+"        <menu name= 'ApplyAsFilterOrSelected' action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected'>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_from_B'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_B'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_from_B'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_from_Any'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_Any'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_from_Any'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/Any_tofrom_B'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/Any_from_B'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/Any_to_B'/>\n"
 "        </menu>\n"
-"        <menu name= 'ApplyAsFilterAndNotSelected' action='/Apply as Filter/... and not Selected'>\n"
-"            <menuitem action='/Apply as Filter/... and not Selected/A_to_from_B'/>\n"
-"            <menuitem action='/Apply as Filter/... and not Selected/A_to_B'/>\n"
-"            <menuitem action='/Apply as Filter/... and not Selected/A_from_B'/>\n"
-"            <menuitem action='/Apply as Filter/... and not Selected/A_to_from_Any'/>\n"
-"            <menuitem action='/Apply as Filter/... and not Selected/A_to_Any'/>\n"
-"            <menuitem action='/Apply as Filter/... and not Selected/A_from_Any'/>\n"
-"            <menuitem action='/Apply as Filter/... and not Selected/Any_tofrom_B'/>\n"
-"            <menuitem action='/Apply as Filter/... and not Selected/Any_from_B'/>\n"
-"            <menuitem action='/Apply as Filter/... and not Selected/Any_to_B'/>\n"
+"        <menu name= 'ApplyAsFilterAndNotSelected' action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected'>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_from_B'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_B'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_from_B'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_from_Any'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_Any'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_from_Any'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/Any_tofrom_B'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/Any_from_B'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/Any_to_B'/>\n"
 "        </menu>\n"
-"        <menu name= 'ApplyAsFilterOrNotSelected' action='/Apply as Filter/... or not Selected'>\n"
-"            <menuitem action='/Apply as Filter/... or not Selected/A_to_from_B'/>\n"
-"            <menuitem action='/Apply as Filter/... or not Selected/A_to_B'/>\n"
-"            <menuitem action='/Apply as Filter/... or not Selected/A_from_B'/>\n"
-"            <menuitem action='/Apply as Filter/... or not Selected/A_to_from_Any'/>\n"
-"            <menuitem action='/Apply as Filter/... or not Selected/A_to_Any'/>\n"
-"            <menuitem action='/Apply as Filter/... or not Selected/A_from_Any'/>\n"
-"            <menuitem action='/Apply as Filter/... or not Selected/Any_tofrom_B'/>\n"
-"            <menuitem action='/Apply as Filter/... or not Selected/Any_from_B'/>\n"
-"            <menuitem action='/Apply as Filter/... or not Selected/Any_to_B'/>\n"
+"        <menu name= 'ApplyAsFilterOrNotSelected' action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected'>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_from_B'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_B'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_from_B'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_from_Any'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_Any'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_from_Any'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/Any_tofrom_B'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/Any_from_B'/>\n"
+"            <menuitem action='/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/Any_to_B'/>\n"
 "        </menu>\n"
 "    </menu>\n"
 "    <menu name= 'PrepareAFilter' action='/Prepare a Filter'>\n"
@@ -1603,49 +1603,49 @@ static const char *ui_desc_conv_filter_popup =
 "            <menuitem action='/Prepare a Filter/Not Selected/Any_from_B'/>\n"
 "            <menuitem action='/Prepare a Filter/Not Selected/Any_to_B'/>\n"
 "        </menu>\n"
-"        <menu name= 'PrepareAFilterAndSelected' action='/Prepare a Filter/... and Selected'>\n"
-"            <menuitem action='/Prepare a Filter/... and Selected/A_to_from_B'/>\n"
-"            <menuitem action='/Prepare a Filter/... and Selected/A_to_B'/>\n"
-"            <menuitem action='/Prepare a Filter/... and Selected/A_from_B'/>\n"
-"            <menuitem action='/Prepare a Filter/... and Selected/A_to_from_Any'/>\n"
-"            <menuitem action='/Prepare a Filter/... and Selected/A_to_Any'/>\n"
-"            <menuitem action='/Prepare a Filter/... and Selected/A_from_Any'/>\n"
-"            <menuitem action='/Prepare a Filter/... and Selected/Any_tofrom_B'/>\n"
-"            <menuitem action='/Prepare a Filter/... and Selected/Any_from_B'/>\n"
-"            <menuitem action='/Prepare a Filter/... and Selected/Any_to_B'/>\n"
+"        <menu name= 'PrepareAFilterAndSelected' action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected'>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_from_B'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_B'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_from_B'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_from_Any'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_Any'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_from_Any'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/Any_tofrom_B'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/Any_from_B'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/Any_to_B'/>\n"
 "        </menu>\n"
-"        <menu name= 'PrepareAFilterOrSelected' action='/Prepare a Filter/... or Selected'>\n"
-"            <menuitem action='/Prepare a Filter/... or Selected/A_to_from_B'/>\n"
-"            <menuitem action='/Prepare a Filter/... or Selected/A_to_B'/>\n"
-"            <menuitem action='/Prepare a Filter/... or Selected/A_from_B'/>\n"
-"            <menuitem action='/Prepare a Filter/... or Selected/A_to_from_Any'/>\n"
-"            <menuitem action='/Prepare a Filter/... or Selected/A_to_Any'/>\n"
-"            <menuitem action='/Prepare a Filter/... or Selected/A_from_Any'/>\n"
-"            <menuitem action='/Prepare a Filter/... or Selected/Any_tofrom_B'/>\n"
-"            <menuitem action='/Prepare a Filter/... or Selected/Any_from_B'/>\n"
-"            <menuitem action='/Prepare a Filter/... or Selected/Any_to_B'/>\n"
+"        <menu name= 'PrepareAFilterOrSelected' action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected'>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_from_B'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_B'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_from_B'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_from_Any'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_Any'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_from_Any'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/Any_tofrom_B'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/Any_from_B'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/Any_to_B'/>\n"
 "        </menu>\n"
-"        <menu name= 'PrepareAFilterAndNotSelected' action='/Prepare a Filter/... and not Selected'>\n"
-"            <menuitem action='/Prepare a Filter/... and not Selected/A_to_from_B'/>\n"
-"            <menuitem action='/Prepare a Filter/... and not Selected/A_to_B'/>\n"
-"            <menuitem action='/Prepare a Filter/... and not Selected/A_from_B'/>\n"
-"            <menuitem action='/Prepare a Filter/... and not Selected/A_to_from_Any'/>\n"
-"            <menuitem action='/Prepare a Filter/... and not Selected/A_to_Any'/>\n"
-"            <menuitem action='/Prepare a Filter/... and not Selected/A_from_Any'/>\n"
-"            <menuitem action='/Prepare a Filter/... and not Selected/Any_tofrom_B'/>\n"
-"            <menuitem action='/Prepare a Filter/... and not Selected/Any_from_B'/>\n"
-"            <menuitem action='/Prepare a Filter/... and not Selected/Any_to_B'/>\n"
+"        <menu name= 'PrepareAFilterAndNotSelected' action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected'>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_from_B'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_B'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_from_B'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_from_Any'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_Any'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_from_Any'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/Any_tofrom_B'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/Any_from_B'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/Any_to_B'/>\n"
 "        </menu>\n"
-"        <menu name= 'PrepareAFilterOrNotSelected' action='/Prepare a Filter/... or not Selected'>\n"
-"            <menuitem action='/Prepare a Filter/... or not Selected/A_to_from_B'/>\n"
-"            <menuitem action='/Prepare a Filter/... or not Selected/A_to_B'/>\n"
-"            <menuitem action='/Prepare a Filter/... or not Selected/A_from_B'/>\n"
-"            <menuitem action='/Prepare a Filter/... or not Selected/A_to_from_Any'/>\n"
-"            <menuitem action='/Prepare a Filter/... or not Selected/A_to_Any'/>\n"
-"            <menuitem action='/Prepare a Filter/... or not Selected/A_from_Any'/>\n"
-"            <menuitem action='/Prepare a Filter/... or not Selected/Any_tofrom_B'/>\n"
-"            <menuitem action='/Prepare a Filter/... or not Selected/Any_from_B'/>\n"
-"            <menuitem action='/Prepare a Filter/... or not Selected/Any_to_B'/>\n"
+"        <menu name= 'PrepareAFilterOrNotSelected' action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected'>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_from_B'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_B'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_from_B'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_from_Any'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_Any'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_from_Any'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/Any_tofrom_B'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/Any_from_B'/>\n"
+"            <menuitem action='/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/Any_to_B'/>\n"
 "        </menu>\n"
 "    </menu>\n"
 "    <menu name= 'FindPacket' action='/Find Packet'>\n"
@@ -1728,10 +1728,10 @@ static const GtkActionEntry conv_filter_menu_entries[] = {
   /* Apply as */ 
   { "/Apply as Filter/Selected",				NULL, "Selected" , NULL, NULL, NULL },
   { "/Apply as Filter/Not Selected",			NULL, "Not Selected", NULL, NULL, NULL },
-  { "/Apply as Filter/... and Selected",		NULL, "... and Selected", NULL, NULL, NULL },
-  { "/Apply as Filter/... or Selected",			NULL, "... or Selected", NULL, NULL, NULL },
-  { "/Apply as Filter/... and not Selected",	NULL, "... and not Selected", NULL, NULL, NULL },
-  { "/Apply as Filter/... or not Selected",		NULL, "... or not Selected", NULL, NULL, NULL },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected", NULL, NULL, NULL },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected",			NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected", NULL, NULL, NULL },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected", NULL, NULL, NULL },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected", NULL, NULL, NULL },
 
   /* Apply as Selected */ 
   { "/Apply as Filter/Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_apply_as_selected_AtofromB_cb)},
@@ -1756,56 +1756,56 @@ static const GtkActionEntry conv_filter_menu_entries[] = {
   { "/Apply as Filter/Not Selected/Any_from_B",		NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_apply_as_not_selected_AnyfromB_cb)},
 
   /* Apply as ... and Selected */ 
-  { "/Apply as Filter/... and Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_apply_and_selected_AtofromB_cb)},
-  { "/Apply as Filter/... and Selected/A_to_B",			NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_apply_and_selected_AtoB_cb)},
-  { "/Apply as Filter/... and Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_apply_and_selected_AfromB_cb)},
-  { "/Apply as Filter/... and Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_apply_and_selected_AtofromAny_cb)},
-  { "/Apply as Filter/... and Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_and_selected_AtoAny_cb)},
-  { "/Apply as Filter/... and Selected/A_from_Any",		NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_and_selected_AfromAny_cb)},
-  { "/Apply as Filter/... and Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_apply_and_selected_AnytofromB_cb)},
-  { "/Apply as Filter/... and Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_apply_and_selected_AnytoB_cb)},
-  { "/Apply as Filter/... and Selected/Any_from_B",		NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_apply_and_selected_AnyfromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_apply_and_selected_AtofromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_B",			NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_apply_and_selected_AtoB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_apply_and_selected_AfromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_apply_and_selected_AtofromAny_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_and_selected_AtoAny_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_from_Any",		NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_and_selected_AfromAny_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_apply_and_selected_AnytofromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_apply_and_selected_AnytoB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/Any_from_B",		NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_apply_and_selected_AnyfromB_cb)},
 
   /* Apply as ... or Selected */ 
-  { "/Apply as Filter/... or Selected/A_to_from_B",		NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_apply_or_selected_AtofromB_cb)},
-  { "/Apply as Filter/... or Selected/A_to_B",			NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_apply_or_selected_AtoB_cb)},
-  { "/Apply as Filter/... or Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_apply_or_selected_AfromB_cb)},
-  { "/Apply as Filter/... or Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_apply_or_selected_AtofromAny_cb)},
-  { "/Apply as Filter/... or Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_or_selected_AtoAny_cb)},
-  { "/Apply as Filter/... or Selected/A_from_Any",		NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_or_selected_AfromAny_cb)},
-  { "/Apply as Filter/... or Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_apply_or_selected_AnytofromB_cb)},
-  { "/Apply as Filter/... or Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_apply_or_selected_AnytoB_cb)},
-  { "/Apply as Filter/... or Selected/Any_from_B",		NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_apply_or_selected_AnyfromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_from_B",		NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_apply_or_selected_AtofromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_B",			NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_apply_or_selected_AtoB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_apply_or_selected_AfromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_apply_or_selected_AtofromAny_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_or_selected_AtoAny_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_from_Any",		NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_or_selected_AfromAny_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_apply_or_selected_AnytofromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_apply_or_selected_AnytoB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/Any_from_B",		NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_apply_or_selected_AnyfromB_cb)},
 
   /* Apply as ... and not Selected */ 
-  { "/Apply as Filter/... and not Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_apply_and_not_selected_AtofromB_cb)},
-  { "/Apply as Filter/... and not Selected/A_to_B",			NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_apply_and_not_selected_AtoB_cb)},
-  { "/Apply as Filter/... and not Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_apply_and_not_selected_AfromB_cb)},
-  { "/Apply as Filter/... and not Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_apply_and_not_selected_AtofromAny_cb)},
-  { "/Apply as Filter/... and not Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_and_not_selected_AtoAny_cb)},
-  { "/Apply as Filter/... and not Selected/A_from_Any",		NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_and_not_selected_AfromAny_cb)},
-  { "/Apply as Filter/... and not Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_apply_and_not_selected_AnytofromB_cb)},
-  { "/Apply as Filter/... and not Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_apply_and_not_selected_AnytoB_cb)},
-  { "/Apply as Filter/... and not Selected/Any_from_B",		NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_apply_and_not_selected_AnyfromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_apply_and_not_selected_AtofromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_B",			NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_apply_and_not_selected_AtoB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_apply_and_not_selected_AfromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_apply_and_not_selected_AtofromAny_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_and_not_selected_AtoAny_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_from_Any",		NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_and_not_selected_AfromAny_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_apply_and_not_selected_AnytofromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_apply_and_not_selected_AnytoB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/Any_from_B",		NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_apply_and_not_selected_AnyfromB_cb)},
 
   /* Apply as ... or not Selected */ 
-  { "/Apply as Filter/... or not Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_apply_or_not_selected_AtofromB_cb)},
-  { "/Apply as Filter/... or not Selected/A_to_B",			NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_apply_or_not_selected_AtoB_cb)},
-  { "/Apply as Filter/... or not Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_apply_or_not_selected_AfromB_cb)},
-  { "/Apply as Filter/... or not Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_apply_or_not_selected_AtofromAny_cb)},
-  { "/Apply as Filter/... or not Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_or_not_selected_AtoAny_cb)},
-  { "/Apply as Filter/... or not Selected/A_from_Any",		NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_or_not_selected_AfromAny_cb)},
-  { "/Apply as Filter/... or not Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_apply_or_not_selected_AnytofromB_cb)},
-  { "/Apply as Filter/... or not Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_apply_or_not_selected_AnytoB_cb)},
-  { "/Apply as Filter/... or not Selected/Any_from_B",		NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_apply_or_not_selected_AnyfromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_apply_or_not_selected_AtofromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_B",			NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_apply_or_not_selected_AtoB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_apply_or_not_selected_AfromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_apply_or_not_selected_AtofromAny_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_or_not_selected_AtoAny_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_from_Any",		NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_apply_or_not_selected_AfromAny_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_apply_or_not_selected_AnytofromB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_apply_or_not_selected_AnytoB_cb)},
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/Any_from_B",		NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_apply_or_not_selected_AnyfromB_cb)},
 
   /* Prepare a */ 
   { "/Prepare a Filter/Selected",				NULL, "Selected", NULL, NULL, NULL },
   { "/Prepare a Filter/Not Selected",			NULL, "Not Selected", NULL, NULL, NULL },
-  { "/Prepare a Filter/... and Selected",		NULL, "... and Selected", NULL, NULL, NULL },
-  { "/Prepare a Filter/... or Selected",		NULL, "... or Selected", NULL, NULL, NULL },
-  { "/Prepare a Filter/... and not Selected",	NULL, "... and not Selected", NULL, NULL, NULL },
-  { "/Prepare a Filter/... or not Selected",	NULL, "... or not Selected", NULL, NULL, NULL },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected", NULL, NULL, NULL },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected", NULL, NULL, NULL },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected", NULL, NULL, NULL },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected", NULL, NULL, NULL },
 
   /* Prepare as Selected */ 
   { "/Prepare a Filter/Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_prepare_as_selected_AtofromB_cb)},
@@ -1830,48 +1830,48 @@ static const GtkActionEntry conv_filter_menu_entries[] = {
   { "/Prepare a Filter/Not Selected/Any_from_B",	NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_as_not_selected_AnyfromB_cb)},
 
   /* Prepare a ... and Selected */ 
-  { "/Prepare a Filter/... and Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_prepare_and_selected_AtofromB_cb)},
-  { "/Prepare a Filter/... and Selected/A_to_B",		NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_and_selected_AtoB_cb)},
-  { "/Prepare a Filter/... and Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_prepare_and_selected_AfromB_cb)},
-  { "/Prepare a Filter/... and Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_prepare_and_selected_AtofromAny_cb)},
-  { "/Prepare a Filter/... and Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_and_selected_AtoAny_cb)},
-  { "/Prepare a Filter/... and Selected/A_from_Any",	NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_and_selected_AfromAny_cb)},
-  { "/Prepare a Filter/... and Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_prepare_and_selected_AnytofromB_cb)},
-  { "/Prepare a Filter/... and Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_prepare_and_selected_AnytoB_cb)},
-  { "/Prepare a Filter/... and Selected/Any_from_B",	NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_and_selected_AnyfromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_prepare_and_selected_AtofromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_B",		NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_and_selected_AtoB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_prepare_and_selected_AfromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_prepare_and_selected_AtofromAny_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_and_selected_AtoAny_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/A_from_Any",	NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_and_selected_AfromAny_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_prepare_and_selected_AnytofromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_prepare_and_selected_AnytoB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected/Any_from_B",	NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_and_selected_AnyfromB_cb)},
 
   /* Prepare a ... or Selected */ 
-  { "/Prepare a Filter/... or Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_prepare_or_selected_AtofromB_cb)},
-  { "/Prepare a Filter/... or Selected/A_to_B",			NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_or_selected_AtoB_cb)},
-  { "/Prepare a Filter/... or Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_prepare_or_selected_AfromB_cb)},
-  { "/Prepare a Filter/... or Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_prepare_or_selected_AtofromAny_cb)},
-  { "/Prepare a Filter/... or Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_or_selected_AtoAny_cb)},
-  { "/Prepare a Filter/... or Selected/A_from_Any",		NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_or_selected_AfromAny_cb)},
-  { "/Prepare a Filter/... or Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_prepare_or_selected_AnytofromB_cb)},
-  { "/Prepare a Filter/... or Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_prepare_or_selected_AnytoB_cb)},
-  { "/Prepare a Filter/... or Selected/Any_from_B",		NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_or_selected_AnyfromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_prepare_or_selected_AtofromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_B",			NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_or_selected_AtoB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_prepare_or_selected_AfromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_prepare_or_selected_AtofromAny_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_or_selected_AtoAny_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/A_from_Any",		NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_or_selected_AfromAny_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_prepare_or_selected_AnytofromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_prepare_or_selected_AnytoB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected/Any_from_B",		NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_or_selected_AnyfromB_cb)},
 
   /* Prepare a ... and not Selected */ 
-  { "/Prepare a Filter/... and not Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_prepare_and_not_selected_AtofromB_cb)},
-  { "/Prepare a Filter/... and not Selected/A_to_B",		NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_and_not_selected_AtoB_cb)},
-  { "/Prepare a Filter/... and not Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_prepare_and_not_selected_AfromB_cb)},
-  { "/Prepare a Filter/... and not Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_prepare_and_not_selected_AtofromAny_cb)},
-  { "/Prepare a Filter/... and not Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_and_not_selected_AtoAny_cb)},
-  { "/Prepare a Filter/... and not Selected/A_from_Any",	NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_and_not_selected_AfromAny_cb)},
-  { "/Prepare a Filter/... and not Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_prepare_and_not_selected_AnytofromB_cb)},
-  { "/Prepare a Filter/... and not Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_prepare_and_not_selected_AnytoB_cb)},
-  { "/Prepare a Filter/... and not Selected/Any_from_B",	NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_and_not_selected_AnyfromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_prepare_and_not_selected_AtofromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_B",		NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_and_not_selected_AtoB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_prepare_and_not_selected_AfromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_prepare_and_not_selected_AtofromAny_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_and_not_selected_AtoAny_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/A_from_Any",	NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_and_not_selected_AfromAny_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_prepare_and_not_selected_AnytofromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_prepare_and_not_selected_AnytoB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected/Any_from_B",	NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_and_not_selected_AnyfromB_cb)},
 
   /* Prepare a ... or not Selected */ 
-  { "/Prepare a Filter/... or not Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_prepare_or_not_selected_AtofromB_cb)},
-  { "/Prepare a Filter/... or not Selected/A_to_B",			NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_or_not_selected_AtoB_cb)},
-  { "/Prepare a Filter/... or not Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_prepare_or_not_selected_AfromB_cb)},
-  { "/Prepare a Filter/... or not Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_prepare_or_not_selected_AtofromAny_cb)},
-  { "/Prepare a Filter/... or not Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_or_not_selected_AtoAny_cb)},
-  { "/Prepare a Filter/... or not Selected/A_from_Any",		NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_or_not_selected_AfromAny_cb)},
-  { "/Prepare a Filter/... or not Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_prepare_or_not_selected_AnytofromB_cb)},
-  { "/Prepare a Filter/... or not Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_prepare_or_not_selected_AnytoB_cb)},
-  { "/Prepare a Filter/... or not Selected/Any_from_B",		NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_or_not_selected_AnyfromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_from_B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " B",  G_CALLBACK(conv_prepare_or_not_selected_AtofromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_B",			NULL, "A " UTF8_RIGHTWARDS_ARROW  " B",	NULL, "A " UTF8_RIGHTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_or_not_selected_AtoB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_from_B",		NULL, "A " UTF8_LEFTWARDS_ARROW  " B",	NULL, "A " UTF8_LEFTWARDS_ARROW  " B",  G_CALLBACK(conv_prepare_or_not_selected_AfromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_from_Any",	NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",NULL, "A " UTF8_LEFT_RIGHT_ARROW " Any",G_CALLBACK(conv_prepare_or_not_selected_AtofromAny_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_to_Any",		NULL, "A " UTF8_RIGHTWARDS_ARROW " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_or_not_selected_AtoAny_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/A_from_Any",		NULL, "A " UTF8_LEFTWARDS_ARROW  " Any",NULL, "A " UTF8_LEFTWARDS_ARROW " Any", G_CALLBACK(conv_prepare_or_not_selected_AfromAny_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/Any_tofrom_B",	NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B",NULL, "Any " UTF8_LEFT_RIGHT_ARROW " B", G_CALLBACK(conv_prepare_or_not_selected_AnytofromB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/Any_to_B",		NULL, "Any " UTF8_RIGHTWARDS_ARROW " B",NULL, "Any " UTF8_RIGHTWARDS_ARROW " B", G_CALLBACK(conv_prepare_or_not_selected_AnytoB_cb)},
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected/Any_from_B",		NULL, "Any " UTF8_LEFTWARDS_ARROW " B", NULL, "Any " UTF8_LEFTWARDS_ARROW " B",  G_CALLBACK(conv_prepare_or_not_selected_AnyfromB_cb)},
 
   /* Find packet*/ 
   { "/Find Packet/Find Packet",					NULL, "Find Packet", NULL, NULL, NULL },
