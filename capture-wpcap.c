@@ -341,7 +341,7 @@ pcap_open_dead(int a, int b)
 #endif
 
 #ifdef HAVE_BPF_IMAGE
-static char *
+char *
 bpf_image(const struct bpf_insn *a, int b)
 {
     if (!has_wpcap) {
