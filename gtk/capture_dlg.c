@@ -264,8 +264,9 @@ capture_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
     return;
   }
 
+  /* pcap_compile_nopcap will not alter the filter string, so the (char *) cast is "safe" */
   if (pcap_compile_nopcap(DUMMY_SNAPLENGTH /* use a dummy snaplength for syntax-checking */,
-          global_capture_opts.linktype, &fcode, filter_text, 1 /* Do optimize */, 
+          global_capture_opts.linktype, &fcode, (char *)filter_text, 1 /* Do optimize */, 
           DUMMY_NETMASK /* use a dummy netmask for syntax-checking */) < 0) {
     colorize_filter_te_as_invalid(filter_te);
   } else {
@@ -1522,10 +1523,11 @@ capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
   filter_te = GTK_COMBO(filter_cm)->entry;
   filter_text = gtk_entry_get_text(GTK_ENTRY(filter_te));
 
+  /* pcap_compile will not alter the filter string, so the (char *) cast is "safe" */
 #ifdef PCAP_NETMASK_UNKNOWN
-  if (pcap_compile(pd, &fcode, filter_text, 1 /* Do optimize */, PCAP_NETMASK_UNKNOWN) < 0) {
+  if (pcap_compile(pd, &fcode, (char *)filter_text, 1 /* Do optimize */, PCAP_NETMASK_UNKNOWN) < 0) {
 #else
-  if (pcap_compile(pd, &fcode, filter_text, 1 /* Do optimize */, 0) < 0) {
+  if (pcap_compile(pd, &fcode, (char *)filter_text, 1 /* Do optimize */, 0) < 0) {
 #endif
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", pcap_geterr(pd));
   } else {
@@ -1537,9 +1539,7 @@ capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
     gchar *bpf_code_markup;
 
     for (i = 0; i < n; ++insn, ++i) {
-/*
         g_string_append(bpf_code_dump, bpf_image(insn, i));
-*/
         g_string_append(bpf_code_dump, "\n");
     }
 
