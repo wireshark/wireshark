@@ -130,7 +130,7 @@ case "$1" in
 	if [ -z "$2" -o -z "$3" -o -z "$4" ] ; then
 		usage
 	fi
-	DEST_PATH=`cygpath --dos "$2"`
+	DEST_PATH=`cygpath "$2"`
 	PACKAGE_PATH=$4
 	PACKAGE=`basename "$PACKAGE_PATH"`
 	if [ ! -e $DEST_PATH/$PACKAGE ] ; then
@@ -141,7 +141,7 @@ case "$1" in
 	if [ -z "$2" -o -z "$3" -o -z "$4" ] ; then
 		usage
 	fi
-	DEST_PATH=`cygpath --dos "$2"`
+	DEST_PATH=`cygpath "$2"`
 	DEST_SUBDIR=$3
 	PACKAGE_PATH=$4
 	PACKAGE=`basename "$PACKAGE_PATH"`
@@ -176,14 +176,14 @@ case "$1" in
 	if [ -z "$2" ] ; then
 		usage
 	fi
-	DEST_PATH=`cygpath --dos "$2"`
+	DEST_PATH=`cygpath "$2"`
 	echo "$DOWNLOAD_TAG" > $DEST_PATH/$TAG_FILE
 	;;
 --checktag)
 	if [ -z "$2" ] ; then
 		usage
 	fi
-	DEST_PATH=`cygpath --dos "$2"`
+	DEST_PATH=`cygpath "$2"`
 	WIN_PATH=`cygpath --windows "$2"`
 	LAST_TAG=`cat $DEST_PATH/$TAG_FILE 2> /dev/null`
 	if [ "$DOWNLOAD_TAG" != "$LAST_TAG" ] ; then

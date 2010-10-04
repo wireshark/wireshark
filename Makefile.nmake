@@ -853,46 +853,49 @@ process_libs:
 # WHEN UPDATING LIBRARY VERSIONS, KEEP ALSO ONE FORMER VERSION SO
 # UPDATING REMOVES THE FORMER USER DIRS
 clean_setup:
-    rm -r -f $(WIRESHARK_LIBS)/adns-1.0-win32-05ws
-    rm -r -f $(WIRESHARK_LIBS)/c-ares-1.5.3ws
-    rm -r -f $(WIRESHARK_LIBS)/c-ares-1.6.0ws
-    rm -r -f $(WIRESHARK_LIBS)/c-ares-1.7.0-win??ws
-    rm -r -f $(WIRESHARK_LIBS)/c-ares-1.7.1-win??ws
-    rm -r -f $(WIRESHARK_LIBS)/gettext-0.14.5
-    rm -r -f $(WIRESHARK_LIBS)/gettext-runtime-0.17
-    rm -r -f $(WIRESHARK_LIBS)/gettext-runtime-0.17-1
-    rm -r -f $(WIRESHARK_LIBS)/gettext-0.17-1            # win64
-    rm -r -f $(WIRESHARK_LIBS)/glib
-    rm -r -f $(WIRESHARK_LIBS)/gnutls-2.8.1-1
-    rm -r -f $(WIRESHARK_LIBS)/gnutls-2.8.5-*-win??ws
-    rm -r -f $(WIRESHARK_LIBS)/gtk2
-    rm -r -f $(WIRESHARK_LIBS)/gtk+
-    rm -r -f $(WIRESHARK_LIBS)/gtk-wimp
-    rm -r -f $(WIRESHARK_LIBS)/kfw-2.5
-    rm -r -f $(WIRESHARK_LIBS)/kfw-3.2.2-ws1
-    rm -r -f $(WIRESHARK_LIBS)/kfw-3.2.2-i386-ws-vc6
-    rm -r -f $(WIRESHARK_LIBS)/libiconv-1.9.1.bin.woe32
-    rm -r -f $(WIRESHARK_LIBS)/lua5.1
-    rm -r -f $(WIRESHARK_LIBS)/lua5.1.4
-    rm -r -f $(WIRESHARK_LIBS)/libsmi-0.4.5
-    rm -r -f $(WIRESHARK_LIBS)/libsmi-0.4.8
-    rm -r -f $(WIRESHARK_LIBS)/nasm-2.00
-    rm -r -f $(WIRESHARK_LIBS)/nasm-2.02
-    rm -r -f $(WIRESHARK_LIBS)/pcre-6.4
-    rm -r -f $(WIRESHARK_LIBS)/pcre-7.0
-    rm -r -f $(WIRESHARK_LIBS)/portaudio_v19
-    rm -r -f $(WIRESHARK_LIBS)/portaudio_v19_2
-    rm -r -f $(WIRESHARK_LIBS)/user-guide
-    rm -r -f $(WIRESHARK_LIBS)/WpdPack
-    rm -r -f $(WIRESHARK_LIBS)/AirPcap_Devpack_1_0_0_594
-    rm -r -f $(WIRESHARK_LIBS)/AirPcap_Devpack_4_0_0_1480
-    rm -r -f $(WIRESHARK_LIBS)/AirPcap_Devpack_4_1_0_1622
-    rm -r -f $(WIRESHARK_LIBS)/zlib123
-    rm -r -f $(WIRESHARK_LIBS)/zlib123-dll
-    rm -r -f $(WIRESHARK_LIBS)/upx301w
-    rm -r -f $(WIRESHARK_LIBS)/upx303w
-    rm -r -f $(WIRESHARK_LIBS)/GeoIP-1.4.5ws
-    rm -r -f $(WIRESHARK_LIBS)/GeoIP-1.4.6-win??ws
+	set ORIGDIR=%CD%
+	cd $(WIRESHARK_LIBS)
+    rm -r -f adns-1.0-win32-05ws
+    rm -r -f c-ares-1.5.3ws
+    rm -r -f c-ares-1.6.0ws
+    rm -r -f c-ares-1.7.0-win??ws
+    rm -r -f c-ares-1.7.1-win??ws
+    rm -r -f gettext-0.14.5
+    rm -r -f gettext-runtime-0.17
+    rm -r -f gettext-runtime-0.17-1
+    rm -r -f gettext-0.17-1            # win64
+    rm -r -f glib
+    rm -r -f gnutls-2.8.1-1
+    rm -r -f gnutls-2.8.5-*-win??ws
+    rm -r -f gtk2
+    rm -r -f gtk+
+    rm -r -f gtk-wimp
+    rm -r -f kfw-2.5
+    rm -r -f kfw-3.2.2-ws1
+    rm -r -f kfw-3.2.2-i386-ws-vc6
+    rm -r -f libiconv-1.9.1.bin.woe32
+    rm -r -f lua5.1
+    rm -r -f lua5.1.4
+    rm -r -f libsmi-0.4.5
+    rm -r -f libsmi-0.4.8
+    rm -r -f nasm-2.00
+    rm -r -f nasm-2.02
+    rm -r -f pcre-6.4
+    rm -r -f pcre-7.0
+    rm -r -f portaudio_v19
+    rm -r -f portaudio_v19_2
+    rm -r -f user-guide
+    rm -r -f WpdPack
+    rm -r -f AirPcap_Devpack_1_0_0_594
+    rm -r -f AirPcap_Devpack_4_0_0_1480
+    rm -r -f AirPcap_Devpack_4_1_0_1622
+    rm -r -f zlib123
+    rm -r -f zlib123-dll
+    rm -r -f upx301w
+    rm -r -f upx303w
+    rm -r -f GeoIP-1.4.5ws
+    rm -r -f GeoIP-1.4.6-win??ws
+    cd $(ORIGDIR)
 
 ################################################################################
 # Prepare the debug trees for running Wireshark/Tshark from there.
