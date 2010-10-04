@@ -1019,49 +1019,6 @@ Index: file.h
 	directories, such as <filename>Makefile.am</filename>.
 	</para>
 	</section>
-	<section id="ChSrcPatchCvs">
-	<title>CVS diff (obsolete)</title>
-	<para>
-	One other thing to note - "cvs diff" produces output that at least some
-	versions of "patch" can't handle; you'd get something such as
-	<programlisting>
-<![CDATA[
-Index: missing/dlnames.c
-===================================================================
-RCS file: /tcpdump/master/tcpdump/missing/dlnames.c,v
-retrieving revision 1.5
-diff -c -r1.5 dlnames.c
-*** missing/dlnames.c   18 Nov 2003 23:09:43 -0000      1.5
---- missing/dlnames.c   31 Aug 2004 21:45:16 -0000
-***************
-]]>
-	</programlisting>
-	from "cvs diff -c", and something similar from "cvs diff -u", and "patch",
-	unfortunately, would use the "diff -c" or "diff -u" line and try to patch
-	"dlnames.c" in the directory you're in, rather than in the "missing"
-	subdirectory.
-	</para>
-	<para>
-	For "cvs diff -c" or "cvs diff -u" diffs, there's a Python script
-	"cvsdiff-fix.py" in the "tools" directory in the Wireshark source tree; it
-	will fix up those lines in "cvs diff" output.  It reads its standard input
-	by default, or can be given a file name on the command line, and writes to
-	the standard output, so if you're typing at a command interpreter that
-	does piping, you could do something such as
-	</para>
-	<para>
-    <userinput>python tools/cvsdiff.py patchfile | patch -p0 -</userinput>
-	</para>
-	<para>
-	to use "patchfile".  (You might be able to leave the "python" out of the
-	command line on many UN*Xes.)
-	</para>
-	<para>
-	"svn diff" doesn't produce a "diff -c" or "diff -u" line, so its output
-	doesn't have that problem.  Regular "diff -c" or "diff -u" output also
-	shouldn't have that problem.
-	</para>
-	</section>
   </section>
 
   <section id="ChSrcAdd">
