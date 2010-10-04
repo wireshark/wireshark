@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2010-10-01)
+(last updated 2010-10-04)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -82,8 +82,9 @@ Keyword         Decimal    Description                     References
                   0/tcp    Reserved
                   0/udp    Reserved
 #                          Jon Postel <postel&isi.edu>
-spr-itunes        0/tcp    Shirt Pocket netTunes
-spl-itunes        0/tcp    Shirt Pocket launchTunes
+# Excluded by ./tools/make-services.pl
+# spr-itunes        0/tcp    Shirt Pocket netTunes
+# spl-itunes        0/tcp    Shirt Pocket launchTunes
 #                          David Nanian <dnanian&shirt-pocket.com> 28 September 2007
 tcpmux            1/tcp    TCP Port Service Multiplexer
 tcpmux            1/udp    TCP Port Service Multiplexer
@@ -5125,8 +5126,9 @@ dls		2047/udp
 dls-monitor	2048/tcp
 dls-monitor	2048/udp
 #                         <== NOTE Conflict on 2049 !
-shilp		2049/tcp
-shilp		2049/udp
+# Excluded by ./tools/make-services.pl
+# shilp		2049/tcp
+# shilp		2049/udp
 nfs             2049/tcp   Network File System - Sun Microsystems
 nfs             2049/udp   Network File System - Sun Microsystems
 #                          Brent Callaghan <brent&terra.eng.sun.com>
@@ -15910,7 +15912,11 @@ biimenu         18000/udp  Beckman Instruments, Inc.
 radpdf          18104/tcp  RAD PDF Service
 #                          Christopher Truxaw <ctruxaw&ctdeveloping.com> 13 April 2010
 #               18104/udp  Reserved
-#               18105-18180 Unassigned
+#               18105-18135 Unassigned
+racf            18136/tcp  z/OS Resource Access Control Facility
+#                          Bruce Wells <brwells&us.ibm.com> 04 October 2010  
+#               18136/udp  Reserved
+#               18137-18180 Unassigned
 opsec-cvp       18181/tcp  OPSEC CVP 
 opsec-cvp       18181/udp  OPSEC CVP 
 opsec-ufp       18182/tcp  OPSEC UFP
@@ -16985,5 +16991,4 @@ References
 
 
 []
-
 

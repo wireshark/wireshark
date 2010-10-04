@@ -22,10 +22,16 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 use strict;
+use English;
 
 my $svc_file = "services";
 my $in = shift;
 my $min_size = 8000000; # Size was 833397 on 2010-10-04
+my @exclude_pats = qw(
+	^spr-itunes
+	^spl-itunes
+	^shilp
+);
 
 $in = "http://www.iana.org/assignments/port-numbers" unless(defined $in);
 
@@ -52,7 +58,31 @@ if($in =~ m/^http:/i) {
 
 	if ($result->code eq 200) {
 		warn "done fetching $in\n";
-		$body = $result->content;
+		my @in_lines = split /\n/, $result->content;
+		my $prefix = "";
+		my $exclude_match;
+		my $line;
+		my $pat;
+		foreach $line (@in_lines) {
+			chomp($line);
+			$exclude_match = 0;
+			foreach $pat (@exclude_pats) {
+				if ($line =~ $pat) {
+					$exclude_match = 1;
+					last;
+				}
+			}
+			if ($exclude_match) {
+				if ($prefix eq "") {
+					$body .= "# Excluded by $PROGRAM_NAME\n";
+				}
+				$prefix = "# ";
+			} else {
+				$prefix = "";
+			}
+			
+			$body .= $prefix . $line . "\n";
+		}
 	} elsif ($result->code eq 304) {
 		warn "$svc_file was up-to-date\n";
 		exit 0;
