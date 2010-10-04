@@ -853,8 +853,8 @@ process_libs:
 # WHEN UPDATING LIBRARY VERSIONS, KEEP ALSO ONE FORMER VERSION SO
 # UPDATING REMOVES THE FORMER USER DIRS
 clean_setup:
-	set ORIGDIR=%CD%
-	cd $(WIRESHARK_LIBS)
+    set ORIGDIR=%CD%
+    cd $(WIRESHARK_LIBS)
     rm -r -f adns-1.0-win32-05ws
     rm -r -f c-ares-1.5.3ws
     rm -r -f c-ares-1.6.0ws
