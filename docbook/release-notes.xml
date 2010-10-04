@@ -281,14 +281,16 @@ Wireshark Info
 
   <section id="GettingHelp"><title>Getting Help</title>
     <para>
-    Community support is available on the wireshark-users mailing list.
+    Community support is available on
+    <ulink url="http://ask.wireshark.org/">Wireshark's Q&amp;A site</ulink>
+    and on the wireshark-users mailing list.
     Subscription information and archives for all of Wireshark's mailing
     lists can be found on <ulink url="http://www.wireshark.org/lists/">the
     web site</ulink>.
     </para>
     <para>
-    Commercial support is available from
-    <ulink url="http://www.cacetech.com/products/sharknet.html">CACE Technologies</ulink>.
+    Commercial support, training, and development services are available
+    from <ulink url="http://www.cacetech.com/">CACE Technologies</ulink>.
     </para>
     <para>
     Training is available from
