@@ -95,7 +95,6 @@ EXTRA_DIST = \
 	asn2wrs.py					\
 	checkhf.pl					\
 	checkAPIs.pl					\
-	cvsdiff-fix.py					\
 	dfilter-test.py 				\
 	extract_asn1_from_spec.pl			\
 	fuzz-test.sh					\
