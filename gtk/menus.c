@@ -142,12 +142,16 @@ static void set_menu_sensitivity (GtkUIManager *ui_manager, const gchar *, gint)
 #endif
 static void set_menu_sensitivity_old (GtkItemFactory *, const gchar *, gint);
 static void show_hide_cb(GtkWidget *w, gpointer data, gint action);
+#ifndef MAIN_MENU_USE_UIMANAGER
 static void timestamp_format_cb(GtkWidget *w, gpointer d, gint action);
 static void timestamp_precision_cb(GtkWidget *w, gpointer d, gint action);
+#endif
 static void timestamp_seconds_time_cb(GtkWidget *w, gpointer d, gint action);
 static void name_resolution_cb(GtkWidget *w, gpointer d, gint action);
 #ifdef HAVE_LIBPCAP
+#ifndef MAIN_MENU_USE_UIMANAGER
 static void auto_scroll_live_cb(GtkWidget *w, gpointer d);
+#endif
 #endif
 static void colorize_cb(GtkWidget *w, gpointer d);
 
@@ -493,7 +497,7 @@ goto_previous_frame_conversation_cb(GtkWidget *w _U_, gpointer d _U_)
     goto_conversation_frame(TRUE);
 }
 
-
+#ifndef MAIN_MENU_USE_UIMANAGER 
 /*
  * Main menu.
  *
@@ -932,6 +936,7 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Help/_About Wireshark", NULL, GTK_MENU_FUNC(about_wireshark_cb),
                        0, "<StockItem>", WIRESHARK_STOCK_ABOUT}
 };
+#endif
 
 #ifdef MENUS_USE_UIMANAGER
 /*Apply a filter */
@@ -1988,10 +1993,11 @@ static const GtkRadioActionEntry main_menu_bar_radio_view_time_fileformat_prec_e
 	{ "/View/TimeDisplayFormat/FileFormatPrecision-Microseconds",	NULL, "Microseconds:  0.123456",			NULL, NULL, TS_PREC_FIXED_USEC },
 	{ "/View/TimeDisplayFormat/FileFormatPrecision-Nanoseconds",	NULL, "Nanoseconds:   0.123456789",			NULL, NULL, TS_PREC_FIXED_NSEC },
 };
-#endif /* MAIN_MENU_USE_UIMANAGER */
-
+#else
 /* calculate the number of menu_items */
 static int nmenu_items = sizeof(menu_items) / sizeof(menu_items[0]);
+#endif /* MAIN_MENU_USE_UIMANAGER */
+
 #ifndef MENUS_USE_UIMANAGER
 /* packet list heading popup */
 static GtkItemFactoryEntry packet_list_heading_items[] =
@@ -2374,9 +2380,10 @@ static GtkItemFactoryEntry bytes_menu_items[] =
 #endif
 
 static int initialize = TRUE;
-static GtkItemFactory *main_menu_factory = NULL;
 #ifdef MAIN_MENU_USE_UIMANAGER
     GtkActionGroup    *main_menu_bar_action_group;
+#else
+static GtkItemFactory *main_menu_factory = NULL;
 #endif
 #ifdef MENUS_USE_UIMANAGER
 static GtkUIManager *ui_manager_packet_list_heading = NULL;
@@ -4549,6 +4556,7 @@ set_menu_object_data_meat(GtkUIManager *ui_manager, const gchar *path, const gch
 }
 #endif
 
+#ifndef MAIN_MENU_USE_UIMANAGER
 static void
 set_menu_object_data_meat_old(GtkItemFactory *ifactory, const gchar *path, const gchar *key, gpointer data)
 {
@@ -4557,6 +4565,7 @@ set_menu_object_data_meat_old(GtkItemFactory *ifactory, const gchar *path, const
     if ((menu = gtk_item_factory_get_widget(ifactory, path)) != NULL)
         g_object_set_data(G_OBJECT(menu), key, data);
 }
+#endif
 
 void
 set_menu_object_data (const gchar *path, const gchar *key, gpointer data) {
@@ -5002,7 +5011,7 @@ show_hide_cb(GtkWidget *w, gpointer data _U_, gint action)
     main_widgets_show_or_hide();
 }
 
-
+#ifndef MAIN_MENU_USE_UIMANAGER
 static void
 timestamp_format_cb(GtkWidget *w _U_, gpointer d _U_, gint action)
 {
@@ -5040,6 +5049,7 @@ timestamp_precision_cb(GtkWidget *w _U_, gpointer d _U_, gint action)
 #endif
     }
 }
+#endif
 
 static void
 timestamp_seconds_time_cb(GtkWidget *w, gpointer d _U_, gint action _U_)
@@ -5133,11 +5143,14 @@ menu_auto_scroll_live_changed(gboolean auto_scroll_live_in) {
     }
 }
 
+#ifndef MAIN_MENU_USE_UIMANAGER
 static void
 auto_scroll_live_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     menu_auto_scroll_live_changed(GTK_CHECK_MENU_ITEM(w)->active);
 }
+#endif
+
 #endif
 
 
