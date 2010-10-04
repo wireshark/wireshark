@@ -7463,8 +7463,9 @@ dissect_IODWriteReq(tvbuff_t *tvb, int offset,
             offset = dissect_IODWriteReq(tvb, offset, pinfo, tree, drep, ar);
         }
     } else {
+        tvbuff_t *tvb_new = tvb_new_subset(tvb, offset, u32RecDataLen, u32RecDataLen);
         /* RecordDataWrite */
-        offset = dissect_RecordDataWrite(tvb, offset, pinfo, tree, drep, u16Index, u32RecDataLen);
+        offset += dissect_RecordDataWrite(tvb_new, 0, pinfo, tree, drep, u16Index, u32RecDataLen);
 
         /* Padding */
         switch(offset % 4) {
