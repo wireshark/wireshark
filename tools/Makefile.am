@@ -106,6 +106,7 @@ EXTRA_DIST = \
 	make-dissector-reg				\
 	make-dissector-reg.py				\
 	make-sminmpec.pl 				\
+	make-services.pl 				\
 	make-tapreg-dotc				\
 	make-tap-reg.py					\
 	msnchat						\

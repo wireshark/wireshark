@@ -510,7 +510,7 @@ distclean-local: clean-local
 		$(ZLIB_DIR)\include\zlib.h $(ZLIB_DIR)\include\zconf.h \
 		$(ZLIB_DIR)\lib\zdll.lib
 !ENDIF
-	rm -f config.h $(BUILT_SOURCES)
+	rm -f config.h $(BUILT_SOURCES) services
 
 distclean: distclean-local
 	cd wiretap
@@ -694,6 +694,8 @@ doxygen-run:
 
 doxygen: doxygen.cfg doxygen-run
 
+services: tools\make-services.pl
+	$(PERL) tools/make-services.pl
 
 ################################################################################
 # Prepare build environment by downloading and installing required libraries

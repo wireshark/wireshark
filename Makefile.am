@@ -506,6 +506,9 @@ tshark-tap-register.c: $(TSHARK_TAP_SRC) $(srcdir)/tools/make-tapreg-dotc
 ps.c: print.ps $(srcdir)/tools/rdps.py
 	$(PYTHON) $(srcdir)/tools/rdps.py $(srcdir)/print.ps ps.c
 
+services: tools/make-services.pl
+	$(PERL) $(srcdir)/tools/make-services.pl
+
 #
 # XXX - "svnversion.h" is distributed in the release tarball; should
 # we be deleting it with "make clean", or should we only do that with
@@ -534,7 +537,8 @@ MAINTAINERCLEANFILES =		\
 	depcomp			\
 	install-sh		\
 	ltmain.sh		\
-	missing
+	missing			\
+	services
 
 EXTRA_DIST = \
 	INSTALL.configure	\
