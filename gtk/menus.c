@@ -5366,7 +5366,7 @@ menu_recent_read_finished(void) {
 		}
         break;
     case(TS_EPOCH):
-        menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/TimeDisplayFormat/SecondsSinceEpoch");
+        menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/SecondsSinceEpoch");
 		if(!menu){
 			g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/TimeDisplayFormat/SecondsSinceEpoch");
 		}
@@ -5473,10 +5473,16 @@ menu_recent_read_finished(void) {
         recent.gui_seconds_format = timestamp_get_seconds_type();
     }
 #ifdef MAIN_MENU_USE_UIMANAGER
-	/* XXX Fix me */
+    menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/DisplaySecondsWithHoursAndMinutes");
+	if(!menu){
+		g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/TimeDisplayFormat/DisplaySecondsWithHoursAndMinutes");
+	}
+
 #else
     menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Display Seconds with hours and minutes");
+#endif /* MAIN_MENU_USE_UIMANAGER */
+
     switch (recent.gui_seconds_format) {
     case TS_SECONDS_DEFAULT:
         recent.gui_seconds_format = -1;
@@ -5493,7 +5499,6 @@ menu_recent_read_finished(void) {
     default:
         g_assert_not_reached();
     }
-#endif /* MAIN_MENU_USE_UIMANAGER */
 
     menu_colorize_changed(recent.packet_list_colorize);
 #ifdef MENUS_USE_UIMANAGER
