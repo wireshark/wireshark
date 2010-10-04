@@ -1063,7 +1063,7 @@ menus_prefs_cb(GtkWidget *widget, gpointer user_data)
 }
 
 static void
-main_toolbar_show_hide_cb(GtkAction *action, gpointer user_data)
+main_toolbar_show_hide_cb(GtkAction *action _U_, gpointer user_data)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/MainToolbar");
 
@@ -1075,7 +1075,7 @@ main_toolbar_show_hide_cb(GtkAction *action, gpointer user_data)
 }
 
 static void
-filter_toolbar_show_hide_cb(GtkAction * action, gpointer user_data)
+filter_toolbar_show_hide_cb(GtkAction * action _U_, gpointer user_data)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/FilterToolbar");
 	if (!widget){
@@ -1087,7 +1087,7 @@ filter_toolbar_show_hide_cb(GtkAction * action, gpointer user_data)
 
 #ifdef HAVE_AIRPCAP
 static void
-wireless_toolbar_show_hide_cb(GtkAction *action, gpointer user_data)
+wireless_toolbar_show_hide_cb(GtkAction *action _U_, gpointer user_data)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/WirelessToolbar");
 	if (!widget){
@@ -1099,7 +1099,7 @@ wireless_toolbar_show_hide_cb(GtkAction *action, gpointer user_data)
 #endif /* HAVE_AIRPCAP */
 
 static void
-status_bar_show_hide_cb(GtkAction *action, gpointer user_data)
+status_bar_show_hide_cb(GtkAction *action _U_, gpointer user_data)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/Statusbar");
 	if (!widget){
@@ -1109,7 +1109,7 @@ status_bar_show_hide_cb(GtkAction *action, gpointer user_data)
 	}
 }
 static void
-packet_list_show_hide_cb(GtkAction *action, gpointer user_data)
+packet_list_show_hide_cb(GtkAction *action _U_, gpointer user_data)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/PacketList");
 	if (!widget){
@@ -1119,7 +1119,7 @@ packet_list_show_hide_cb(GtkAction *action, gpointer user_data)
 	}
 }
 static void
-packet_details_show_hide_cb(GtkAction *action, gpointer user_data)
+packet_details_show_hide_cb(GtkAction *action _U_, gpointer user_data)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/PacketDetails");
 	if (!widget){
@@ -1129,7 +1129,7 @@ packet_details_show_hide_cb(GtkAction *action, gpointer user_data)
 	}
 }
 static void
-packet_bytes_show_hide_cb(GtkAction *action, gpointer user_data)
+packet_bytes_show_hide_cb(GtkAction *action _U_, gpointer user_data)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/PacketBytes");
 	if (!widget){
@@ -1187,7 +1187,7 @@ timestamp_precision_new_cb (GtkRadioAction *action, GtkRadioAction *current _U_,
 
 
 static void
-view_menu_seconds_time_cb(GtkAction *action, gpointer user_data)
+view_menu_seconds_time_cb(GtkAction *action _U_, gpointer user_data)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/DisplaySecondsWithHoursAndMinutes");
 	if (!widget){
@@ -1198,7 +1198,7 @@ view_menu_seconds_time_cb(GtkAction *action, gpointer user_data)
 }
 
 static void
-view_menu_en_for_MAC_cb(GtkAction *action, gpointer user_data)
+view_menu_en_for_MAC_cb(GtkAction *action _U_, gpointer user_data)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/EnableforMACLayer");
 	if (!widget){
@@ -1209,7 +1209,7 @@ view_menu_en_for_MAC_cb(GtkAction *action, gpointer user_data)
 }
 
 static void
-view_menu_en_for_network_cb(GtkAction *action, gpointer user_data)
+view_menu_en_for_network_cb(GtkAction *action _U_, gpointer user_data)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/EnableforNetworkLayer");
 	if (!widget){
@@ -1220,7 +1220,7 @@ view_menu_en_for_network_cb(GtkAction *action, gpointer user_data)
 }
 
 static void
-view_menu_en_for_transport_cb(GtkAction *action, gpointer user_data)
+view_menu_en_for_transport_cb(GtkAction *action _U_, gpointer user_data)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/EnableforTransportLayer");
 	if (!widget){
@@ -1231,7 +1231,7 @@ view_menu_en_for_transport_cb(GtkAction *action, gpointer user_data)
 }
 
 static void
-view_menu_colorize_pkt_lst_cb(GtkAction *action, gpointer user_data)
+view_menu_colorize_pkt_lst_cb(GtkAction *action _U_, gpointer user_data)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/ColorizePacketList");
 	if (!widget){
@@ -1243,7 +1243,7 @@ view_menu_colorize_pkt_lst_cb(GtkAction *action, gpointer user_data)
 }
 
 static void
-view_menu_colorize_auto_scroll_live_cb(GtkAction *action, gpointer user_data)
+view_menu_colorize_auto_scroll_live_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/AutoScrollinLiveCapture");
 
@@ -1331,85 +1331,85 @@ view_menu_reset_coloring_cb(GtkWidget *widget, gpointer user_data)
 }
 
 static void
-help_menu_cont_cb(GtkWidget *widget, gpointer user_data)
+help_menu_cont_cb(GtkWidget *widget, gpointer user_data _U_)
 {
 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(HELP_CONTENT));
 }
 
 static void
-help_menu_faq_cb(GtkWidget *widget, gpointer user_data)
+help_menu_faq_cb(GtkWidget *widget, gpointer user_data _U_)
 {
 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_FAQ));
 }
 
 static void
-help_menu_wireshark_cb(GtkWidget *widget, gpointer user_data)
+help_menu_wireshark_cb(GtkWidget *widget, gpointer user_data _U_)
 {
  	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_WIRESHARK));
 }
 
 static void
-help_menu_wireshark_flt_cb(GtkWidget *widget, gpointer user_data)
+help_menu_wireshark_flt_cb(GtkWidget *widget, gpointer user_data _U_)
 {
  	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_WIRESHARK_FILTER)); 
 }
 
 static void
-help_menu_Tshark_cb(GtkWidget *widget, gpointer user_data)
+help_menu_Tshark_cb(GtkWidget *widget, gpointer user_data _U_)
 {
  	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_TSHARK)); 
 }
 
 static void
-help_menu_RawShark_cb(GtkWidget *widget, gpointer user_data)
+help_menu_RawShark_cb(GtkWidget *widget, gpointer user_data _U_)
 {
  	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_RAWSHARK));  
 }
 
 static void
-help_menu_Dumpcap_cb(GtkWidget *widget, gpointer user_data)
+help_menu_Dumpcap_cb(GtkWidget *widget, gpointer user_data _U_)
 {
  	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_DUMPCAP));   
 }
 
 static void
-help_menu_Mergecap_cb(GtkWidget *widget, gpointer user_data)
+help_menu_Mergecap_cb(GtkWidget *widget, gpointer user_data _U_)
 {
  	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_MERGECAP));   
 }
 
 static void
-help_menu_Editcap_cb(GtkWidget *widget, gpointer user_data)
+help_menu_Editcap_cb(GtkWidget *widget, gpointer user_data _U_)
 {
  	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_EDITCAP));   
 }
 
 static void
-help_menu_Text2pcap_cb(GtkWidget *widget, gpointer user_data)
+help_menu_Text2pcap_cb(GtkWidget *widget, gpointer user_data _U_)
 {
  	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_TEXT2PCAP));   
 }
 
 static void
-help_menu_Website_cb(GtkWidget *widget, gpointer user_data)
+help_menu_Website_cb(GtkWidget *widget, gpointer user_data _U_)
 {
  	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_HOME));   
 }
 
 static void
-help_menu_Wiki_cb(GtkWidget *widget, gpointer user_data)
+help_menu_Wiki_cb(GtkWidget *widget, gpointer user_data _U_)
 {
  	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_WIKI));   
 }
 
 static void
-help_menu_Downloads_cb(GtkWidget *widget, gpointer user_data)
+help_menu_Downloads_cb(GtkWidget *widget, gpointer user_data _U_)
 {
  	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_DOWNLOAD));   
 }
 
 static void
-help_menu_SampleCaptures_cb(GtkWidget *widget, gpointer user_data)
+help_menu_SampleCaptures_cb(GtkWidget *widget, gpointer user_data _U_)
 {
  	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_SAMPLE_FILES));   
 }
