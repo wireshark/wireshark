@@ -510,7 +510,7 @@ distclean-local: clean-local
 		$(ZLIB_DIR)\include\zlib.h $(ZLIB_DIR)\include\zconf.h \
 		$(ZLIB_DIR)\lib\zdll.lib
 !ENDIF
-	rm -f config.h $(BUILT_SOURCES) services
+	rm -f config.h $(BUILT_SOURCES)
 
 distclean: distclean-local
 	cd wiretap

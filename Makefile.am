@@ -537,8 +537,7 @@ MAINTAINERCLEANFILES =		\
 	depcomp			\
 	install-sh		\
 	ltmain.sh		\
-	missing			\
-	services
+	missing	
 
 EXTRA_DIST = \
 	INSTALL.configure	\
