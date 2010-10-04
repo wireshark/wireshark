@@ -140,7 +140,9 @@ static void menus_init(void);
 #ifdef MENUS_USE_UIMANAGER
 static void set_menu_sensitivity (GtkUIManager *ui_manager, const gchar *, gint);
 #endif
+#ifndef MAIN_MENU_USE_UIMANAGER
 static void set_menu_sensitivity_old (GtkItemFactory *, const gchar *, gint);
+#endif /* MAIN_MENU_USE_UIMANAGER */
 static void show_hide_cb(GtkWidget *w, gpointer data, gint action);
 #ifndef MAIN_MENU_USE_UIMANAGER
 static void timestamp_format_cb(GtkWidget *w, gpointer d, gint action);
@@ -4485,6 +4487,8 @@ set_menu_sensitivity(GtkUIManager *ui_manager, const gchar *path, gint val)
 /*
  * Enable/disable menu sensitivity.
  */
+
+#ifndef MAIN_MENU_USE_UIMANAGER
 static void
 set_menu_sensitivity_old(GtkItemFactory *ifactory, const gchar *path, gint val)
 {
@@ -4492,9 +4496,6 @@ set_menu_sensitivity_old(GtkItemFactory *ifactory, const gchar *path, gint val)
     GtkWidget *menu_item;
     gchar *dup;
     gchar *dest;
-#ifdef MAIN_MENU_USE_UIMANAGER
-	g_warning("set_menu_sensitivity_old: Path %s",path);
-#endif
     /* the underscore character regularly confuses things, as it will prevent finding
      * the menu_item, so it has to be removed first */
     dup = g_strdup(path);
@@ -4544,6 +4545,7 @@ set_menu_sensitivity_old(GtkItemFactory *ifactory, const gchar *path, gint val)
     g_free(dup);
 }
 
+#endif /* MAIN_MENU_USE_UIMANAGER */
 
 #ifdef MENUS_USE_UIMANAGER
 static void
