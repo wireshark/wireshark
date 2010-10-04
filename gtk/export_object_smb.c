@@ -205,8 +205,10 @@ void insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_e
 			 * to allocate memory failed.
 			 */
 			entry->payload_data=NULL;
-		} else
+		} else {
 			entry->payload_data = g_try_malloc((gsize)calculated_size);
+			entry->payload_len=calculated_size;
+		}
 		if (!entry->payload_data) {
 			/* Memory error */
 			file->is_out_of_memory=TRUE;
@@ -363,7 +365,7 @@ eo_smb_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
 			entry->hostname = g_strdup(eo_info->hostname);
 			if (g_str_has_prefix(eo_info->filename,"\\")) {
 				aux_string_v = g_strsplit(eo_info->filename, "\\", -1);
-				entry->filename = g_strdup(aux_string_v[1]);
+				entry->filename = g_strdup(aux_string_v[g_strv_length(aux_string_v)-1]);
 				g_strfreev(aux_string_v); 
 			} else {
 				entry->filename = g_strdup(eo_info->filename);
