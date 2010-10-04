@@ -1961,7 +1961,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   compile_bt = gtk_button_new_with_label("Compile BPF");
   g_signal_connect(compile_bt, "clicked", G_CALLBACK(capture_filter_compile_cb), NULL);
   gtk_tooltips_set_tip(tooltips, compile_bt,
-    "Compile the capture filter expression and show the BPF code.",
+    "Compile the capture filter expression and show the BPF (Berkeley Packet Filter) code.",
     NULL);
   gtk_box_pack_start(GTK_BOX(filter_hb), compile_bt, FALSE, FALSE, 3);
 #endif
