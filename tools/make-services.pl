@@ -26,7 +26,7 @@ use English;
 
 my $svc_file = "services";
 my $in = shift;
-my $min_size = 8000000; # Size was 833397 on 2010-10-04
+my $min_size = 800000; # Size was 833397 on 2010-10-04
 my @exclude_pats = qw(
 	^spr-itunes
 	^spl-itunes
