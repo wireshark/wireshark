@@ -3197,7 +3197,7 @@ ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associa
             service->port = atoi(port);
         }
         ssl_debug_printf("ssl_init addr '%u.%u.%u.%u' port '%d' filename '%s' password(only for p12 file) '%s'\n",
-                         ip[0], ip[1], ip[2], ip[3], service->port, filename, cert_passwd);
+                         ip[0], ip[1], ip[2], ip[3], service->port, filename, cert_passwd ? cert_passwd : "(null)");
 
         /* try to load pen or p12 file*/
         fp = ws_fopen(filename, "rb");
