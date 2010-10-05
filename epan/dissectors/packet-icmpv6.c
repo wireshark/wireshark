@@ -2058,6 +2058,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             int flagoff, targetoff;
             guint32 na_flags;
             struct e_in6_addr na_target;
+            emem_strbuf_t *flags_strbuf = ep_strbuf_new_label("");
 
             flagoff = offset + ND_NA_FLAGS_RESERVED_OFFSET;
             na_flags = tvb_get_ntohl(tvb, flagoff);
@@ -2080,12 +2081,22 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 "Target: %s (%s)",
                                 get_hostname6(&na_target),
                                 ip6_to_str(&na_target));
+            if (na_flags & ND_NA_FLAG_ROUTER) {
+                ep_strbuf_append(flags_strbuf, "rtr, ");
+            }
+            if (na_flags & ND_NA_FLAG_SOLICITED) {
+                ep_strbuf_append(flags_strbuf, "sol, ");
+            }
+            if (na_flags & ND_NA_FLAG_OVERRIDE) {
+                ep_strbuf_append(flags_strbuf, "ovr, ");
+            }
+            if (flags_strbuf->len > 2) {
+                ep_strbuf_truncate(flags_strbuf, flags_strbuf->len - 2);
+            } else {
+                ep_strbuf_printf(flags_strbuf, "none");
+            }
             col_append_fstr(pinfo->cinfo, COL_INFO,
-                            " %s (%srtr, %ssol)",
-                            ip6_to_str(&na_target),
-                            na_flags & ND_NA_FLAG_ROUTER ? "" : "not ",
-                            na_flags & ND_NA_FLAG_SOLICITED ? "" : "not "
-                            );
+                            " %s (%s)", ip6_to_str(&na_target), flags_strbuf->str);
 
             dissect_icmpv6ndopt(tvb, offset + sizeof(struct nd_neighbor_advert), pinfo, icmp6_tree);
             break;
