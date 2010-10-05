@@ -76,7 +76,7 @@ static gboolean ip_summary_in_tree = TRUE;
 static gboolean ip_check_checksum = TRUE;
 
 /* Assume TSO and correct zero-length IP packets */
-static gboolean ip_tso_supported = FALSE;
+static gboolean ip_tso_supported = TRUE;
 
 #ifdef HAVE_GEOIP
 /* Look up addresses in GeoIP */
