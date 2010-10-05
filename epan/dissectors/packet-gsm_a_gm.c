@@ -4249,8 +4249,8 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 					pf_length=0;
 				}
 				proto_item_append_text(tf, "%s (%u)", str, pack_component_type);
-				count++;
 			}
+			count++;
 		}
 	}
 
