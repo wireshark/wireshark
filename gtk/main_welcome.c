@@ -811,7 +811,7 @@ welcome_new(void)
 #ifdef HAVE_LIBPCAP
     item_hb = welcome_button(WIRESHARK_STOCK_CAPTURE_INTERFACES,
         "Interface List",
-        "Live list of the capture interfaces (counts incoming packets)",
+        "Live list of the capture interfaces\n(counts incoming packets)",
         "Same as Capture/Interfaces menu or toolbar item",
         welcome_button_callback_helper, capture_if_cb);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
@@ -865,7 +865,7 @@ welcome_new(void)
 
     item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
         "Network Media",
-        "Specific information for capturing on: Ethernet, WLAN, ...",
+        "Specific information for capturing on:\nEthernet, WLAN, ...",
         topic_online_url(ONLINEPAGE_NETWORK_MEDIA),
         topic_menu_cb, GINT_TO_POINTER(ONLINEPAGE_NETWORK_MEDIA));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
