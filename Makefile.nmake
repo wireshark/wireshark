@@ -853,7 +853,6 @@ process_libs:
 # WHEN UPDATING LIBRARY VERSIONS, KEEP ALSO ONE FORMER VERSION SO
 # UPDATING REMOVES THE FORMER USER DIRS
 clean_setup:
-    set ORIGDIR=%CD%
     cd $(WIRESHARK_LIBS)
     rm -r -f adns-1.0-win32-05ws
     rm -r -f c-ares-1.5.3ws
@@ -895,7 +894,7 @@ clean_setup:
     rm -r -f upx303w
     rm -r -f GeoIP-1.4.5ws
     rm -r -f GeoIP-1.4.6-win??ws
-    cd "$(ORIGDIR)"
+    cd $(MAKEDIR)
 
 ################################################################################
 # Prepare the debug trees for running Wireshark/Tshark from there.
