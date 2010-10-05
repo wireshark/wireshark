@@ -86,6 +86,7 @@ static int hf_map_first = -1;
 static int hf_map_last = -1;
 static int hf_map_unused = -1;
 static int hf_pdu_type = -1;
+static int hf_pdu_type_value = -1;
 static int hf_no_pdus = -1;
 static int hf_seq_no = -1;
 static int hf_unused8 = -1;
@@ -877,7 +878,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item (field_tree, hf_map_unused, tvb, offset, 1, FALSE);
     break;
   }
-  proto_tree_add_item (field_tree, hf_pdu_type, tvb, offset, 1, FALSE);
+  proto_tree_add_item (field_tree, hf_pdu_type_value, tvb, offset, 1, FALSE);
   offset += 1;
 
   switch (pdu_type) {
@@ -1367,6 +1368,9 @@ void proto_register_p_mul (void)
         NULL, 0xC0, NULL, HFILL } },
     { &hf_pdu_type,
       { "PDU Type", "p_mul.pdu_type", FT_UINT8, BASE_DEC,
+        VALS (pdu_vals), 0x3F, NULL, HFILL } },
+    { &hf_pdu_type_value,
+      { "PDU Type", "p_mul.pdu_type_value", FT_UINT8, BASE_DEC,
         VALS (pdu_vals), 0x3F, NULL, HFILL } },
     { &hf_no_pdus,
       { "Total Number of PDUs", "p_mul.no_pdus", FT_UINT16, BASE_DEC,
