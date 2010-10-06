@@ -940,6 +940,9 @@ typedef enum
 	DE_TP_UE_TEST_LOOP_MODE,			/* Close UE Test Loop Mode */
 	DE_TP_UE_POSITIONING_TECHNOLOGY,			/* UE Positioning Technology */
 	DE_TP_RLC_SDU_COUNTER_VALUE,			/* RLC SDU Counter Value */
+	DE_TP_EPC_UE_TEST_LOOP_MODE,	/* UE Test Loop Mode */
+	DE_TP_EPC_UE_TL_A_LB_SETUP,		/* UE Test Loop Mode A LB Setup */
+	DE_TP_EPC_UE_TL_B_LB_SETUP,		/* UE Test Loop Mode B LB Setup */
 	DE_NONE							/* NONE */
 }
 dtap_elem_idx_t;

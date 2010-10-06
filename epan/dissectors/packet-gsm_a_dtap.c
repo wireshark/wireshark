@@ -218,6 +218,14 @@ const value_string gsm_a_dtap_msg_tp_strings[] = {
 	{ 0x48, "Reset UE Positioning Stored Information" },
 	{ 0x49, "UE Test Loop Mode 3 RLC SDU Counter Request" },
 	{ 0x4A, "UE Test Loop Mode 3 RLC SDU Counter Response" },
+	{ 0x80, "Close UE Test Loop" },
+	{ 0x81, "Close UE Test Loop Complete" },
+	{ 0x82, "Open UE Test Loop" },
+	{ 0x83, "Open UE Test Loop Complete" },
+	{ 0x84, "Activate Test Mode" },
+	{ 0x85, "Activate Test Mode Complete" },
+	{ 0x86, "Deactivate Test Mode" },
+	{ 0x87, "Deactivate Test Mode Complete" },
 	{ 0, NULL }
 };
 
@@ -285,13 +293,7 @@ const value_string gsm_dtap_elem_strings[] = {
 	/* Short Message Service Information Elements [5] 8.1.4 */
 	{ 0x00,	"CP-User Data" },
 	{ 0x00,	"CP-Cause" },
-	/* Short Message Service Information Elements [5] 8.2 */
-	{ 0x00,	"RP-Message Reference" },
-	{ 0x00,	"RP-Origination Address" },
-	{ 0x00,	"RP-Destination Address" },
-	{ 0x00,	"RP-User Data" },
-	{ 0x00,	"RP-Cause" },
-	/* Tests procedures information elements 3GPP TS 44.014 6.4.0 and 3GPP TS 34.109 6.4.0 */
+	/* Tests procedures information elements 3GPP TS 44.014 6.4.0, 3GPP TS 34.109 6.4.0 and 3GPP TS 36.509 9.1.0*/
 	{ 0x00, "Close TCH Loop Cmd Sub-channel"},
 	{ 0x00, "Open Loop Cmd Ack"},
 	{ 0x00, "Close Multi-slot Loop Cmd Loop type"},
@@ -303,6 +305,9 @@ const value_string gsm_dtap_elem_strings[] = {
 	{ 0x00, "Close UE Test Loop Mode"},
 	{ 0x00, "UE Positioning Technology"},
 	{ 0x00, "RLC SDU Counter Value"},
+	{ 0x00, "UE Test Loop Mode"},
+	{ 0x00, "UE Test Loop Mode A LB Setup"},
+	{ 0x00, "UE Test Loop Mode B LB Setup"},
 	{ 0, NULL }
 };
 
@@ -341,7 +346,7 @@ const value_string protocol_discriminator_vals[] = {
 	{0xc,		"Location services specified in 3GPP TS 44.071"},
 	{0xd,		"Unknown"},
 	{0xe,		"Reserved for extension of the PD to one octet length "},
-	{0xf,		"reserved for tests procedures described in 3GPP TS 44.014 and 3GPP TS 34.109"},
+	{0xf,		"Tests procedures described in 3GPP TS 44.014, 3GPP TS 34.109 and 3GPP TS 36.509"},
 	{ 0,	NULL }
 };
 
@@ -463,6 +468,11 @@ static int hf_gsm_a_dtap_autn_mac	= -1;
 static int hf_gsm_a_dtap_auts_sqn_ms_xor_ak	 = -1;
 static int hf_gsm_a_dtap_auts_mac_s	= -1;
 
+static int hf_gsm_a_dtap_epc_ue_tl_mode = -1;
+static int hf_gsm_a_dtap_epc_ue_tl_a_ul_sdu_size = -1;
+static int hf_gsm_a_dtap_epc_ue_tl_a_drb = -1;
+static int hf_gsm_a_dtap_epc_ue_tl_b_ip_pdu_delay = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_dtap_msg = -1;
 static gint ett_dtap_oct_1 = -1;
@@ -483,6 +493,7 @@ static gint ett_bc_oct_6e = -1;
 static gint ett_bc_oct_6f = -1;
 static gint ett_bc_oct_6g = -1;
 static gint ett_bc_oct_7 = -1;
+static gint ett_epc_ue_tl_a_lb_setup = -1;
 
 static char a_bigbuf[1024];
 
@@ -497,6 +508,7 @@ static proto_tree *g_tree;
  * this should be set on a per message basis, if possible
  */
 static gint is_uplink;
+static guint8 epc_test_loop_mode;
 
 #define	NUM_GSM_DTAP_ELEM (sizeof(gsm_dtap_elem_strings)/sizeof(value_string))
 gint ett_gsm_dtap_elem[NUM_GSM_DTAP_ELEM];
@@ -3975,6 +3987,75 @@ de_tp_rlc_sdu_counter_value(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	return(curr_offset - offset);
 }
 
+static const value_string epc_ue_test_loop_mode_vals[] = {
+	{ 0,	"A"},
+	{ 1,	"B"},
+	{ 2,	"reserved"},
+	{ 3,	"reserved"},
+	{ 0, NULL }
+};
+static guint16
+de_tp_epc_ue_test_loop_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+	guint32 bit_offset;
+
+	curr_offset = offset;
+	bit_offset = curr_offset<<3;
+
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 6, FALSE);
+	bit_offset += 6;
+	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_epc_ue_tl_mode, tvb, bit_offset, 2, FALSE);
+	bit_offset += 2;
+	/* Store test loop mode to know how to dissect Close UE Test Loop message */
+	epc_test_loop_mode = tvb_get_guint8(tvb, curr_offset) & 0x03;
+	curr_offset++;
+
+	return(curr_offset - offset);
+}
+
+static guint16
+de_tp_epc_ue_tl_a_lb_setup(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+	guint32 count, nb_lb;
+	proto_item *item = NULL;
+	proto_tree *lb_setup_tree = NULL;
+
+	curr_offset = offset;
+
+	count = 0;
+	nb_lb = len / 3;
+
+	proto_tree_add_text(tree, tvb, curr_offset, len, "Number of LB entities: %d", nb_lb);
+	while ((count < nb_lb) && (count < 8)){
+		item = proto_tree_add_text(tree, tvb, curr_offset, 3, "LB entity %d", count);
+		lb_setup_tree = proto_item_add_subtree(item, ett_epc_ue_tl_a_lb_setup);
+		proto_tree_add_bits_item(lb_setup_tree, hf_gsm_a_dtap_epc_ue_tl_a_ul_sdu_size, tvb, curr_offset<<3, 16, ENC_NA);
+		curr_offset += 2;
+		proto_tree_add_bits_item(lb_setup_tree, hf_gsm_a_dtap_epc_ue_tl_a_drb, tvb, (curr_offset<<3)+3, 5, ENC_NA);
+		curr_offset++;
+		count++;
+	}
+
+	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+	return(len);
+}
+
+static guint16
+de_tp_epc_ue_tl_b_lb_setup(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_epc_ue_tl_b_ip_pdu_delay, tvb, curr_offset<<3, 8, ENC_NA);
+	curr_offset++;
+
+	return(curr_offset - offset);
+}
+
 guint16 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* Mobility Management Information Elements 10.5.3 */
 	de_auth_param_rand,	/* Authentication Parameter RAND */
@@ -4049,6 +4130,9 @@ guint16 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	de_tp_ue_test_loop_mode,			/* Close UE Test Loop Mode */
 	de_tp_ue_positioning_technology,	/* UE Positioning Technology */
 	de_tp_rlc_sdu_counter_value,		/* RLC SDU Counter Value */
+	de_tp_epc_ue_test_loop_mode,		/* UE Test Loop Mode */
+	de_tp_epc_ue_tl_a_lb_setup,			/* UE Test Loop Mode A LB Setup */
+	de_tp_epc_ue_tl_b_lb_setup,			/* UE Test Loop Mode B LB Setup */
 	NULL,	/* NONE */
 };
 
@@ -5742,6 +5826,42 @@ dtap_tp_ue_test_loop_mode_3_rlc_sdu_counter_response(tvbuff_t *tvb, proto_tree *
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
+static void
+dtap_tp_epc_close_ue_test_loop(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32 curr_offset;
+	guint32 consumed;
+	guint curr_len;
+
+	curr_len = len;
+	curr_offset = offset;
+
+	ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_UE_TEST_LOOP_MODE);
+	
+	if (epc_test_loop_mode == 0) {
+		ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_UE_TL_A_LB_SETUP, NULL);
+	} else if (epc_test_loop_mode == 1) {
+		ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_UE_TL_B_LB_SETUP);
+	}
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+static void
+dtap_tp_epc_activate_test_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32 curr_offset;
+	guint32 consumed;
+	guint curr_len;
+
+	curr_len = len;
+	curr_offset = offset;
+
+	ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_UE_TEST_LOOP_MODE);
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
 #define	NUM_GSM_DTAP_MSG_MM (sizeof(gsm_a_dtap_msg_mm_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_mm[NUM_GSM_DTAP_MSG_MM];
 static void (*dtap_msg_mm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
@@ -5857,6 +5977,14 @@ static void (*dtap_msg_tp_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 	dtap_tp_reset_ue_positioning_ue_stored_information,	/* RESET UE POSITIONING STORED INFORMATION */
 	NULL,	/* UE Test Loop Mode 3 RLC SDU Counter Request */
 	dtap_tp_ue_test_loop_mode_3_rlc_sdu_counter_response,	/* UE Test Loop Mode 3 RLC SDU Counter Response */
+	dtap_tp_epc_close_ue_test_loop, /* CLOSE UE TEST LOOP */
+	NULL, /* CLOSE UE TEST LOOP COMPLETE */
+	NULL, /* OPEN UE TEST LOOP */
+	NULL, /* OPEN UE TEST LOOP COMPLETE */
+	dtap_tp_epc_activate_test_mode, /* ACTIVATE TEST MODE */
+	NULL, /* ACTIVATE TEST MODE COMPLETE */
+	NULL, /* DEACTIVATE TEST MODE */
+	NULL, /* DEACTIVATE TEST MODE COMPLETE */
 	NULL,	/* NONE */
 };
 
@@ -6550,10 +6678,30 @@ proto_register_gsm_a_dtap(void)
 		FT_BYTES, FT_NONE, NULL, 0x00,
 		NULL, HFILL }
 	},
+	{ &hf_gsm_a_dtap_epc_ue_tl_mode,
+		{ "UE test loop mode","gsm_a.dtap.epc.ue_tl_mode",
+		FT_UINT8,BASE_DEC, VALS(epc_ue_test_loop_mode_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_epc_ue_tl_a_ul_sdu_size,
+		{ "Uplink PDCP SDU size in bits","gsm_a.dtap.epc.ue_tl_a_ul_sdu_size",
+		FT_UINT16,BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_epc_ue_tl_a_drb,
+		{ "Data Radio Bearer identity number","gsm_a.dtap.epc.ue_tl_a_drb",
+		FT_UINT8,BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_epc_ue_tl_b_ip_pdu_delay,
+		{ "IP PDU delay in seconds","gsm_a.dtap.epc.ue_tl_b_ip_pdu_delay",
+		FT_UINT8,BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
 	};
 
 	/* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    19
+#define NUM_INDIVIDUAL_ELEMS    20
 	gint *ett[NUM_INDIVIDUAL_ELEMS +
 		  NUM_GSM_DTAP_MSG_MM + NUM_GSM_DTAP_MSG_CC +
 		  NUM_GSM_DTAP_MSG_SMS + NUM_GSM_DTAP_MSG_SS + NUM_GSM_DTAP_MSG_TP +
@@ -6578,6 +6726,7 @@ proto_register_gsm_a_dtap(void)
 	ett[16] = &ett_bc_oct_6f;
 	ett[17] = &ett_bc_oct_6g;
 	ett[18] = &ett_bc_oct_7;
+	ett[19] = &ett_epc_ue_tl_a_lb_setup;
 
 	last_offset = NUM_INDIVIDUAL_ELEMS;
 

@@ -4290,7 +4290,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				/* Integrity protected and ciphered = 2, Integrity protected and ciphered with new EPS security context = 4 */
 				pd = tvb_get_guint8(tvb,offset)&0x0f;
 				/* If pd is in plaintext this message probably isn't ciphered */
-				if((pd!=7)&&(pd!=2)){
+				if((pd!=7)&&(pd!=2)&&(pd!=15)){
 					proto_tree_add_text(nas_eps_tree, tvb, offset, len-6,"Ciphered message");
 					return;
 				}
@@ -4322,6 +4322,16 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 */
 			dissect_nas_eps_emm_msg(tvb, pinfo, nas_eps_tree, offset, TRUE);
 			break;
+		case 15:
+			/* Special conformance testing functions for User Equipment messages. 
+			 * Ref 3GPP TS 24.007 version 8.0.0 Release 8, Table 11.2: Protocol discriminator values 
+			 */
+			if (gsm_a_dtap_handle){
+				tvbuff_t *new_tvb = tvb_new_subset(tvb, offset, -1, -1);
+				gsm_a_dtap_pinfo = pinfo;
+				call_dissector(gsm_a_dtap_handle, new_tvb, gsm_a_dtap_pinfo, nas_eps_tree);
+				break; 
+			} /* else fall through default */
 		default:
 			proto_tree_add_text(nas_eps_tree, tvb, offset, -1, "Not a NAS EPS PD %u(%s)",pd,val_to_str(pd, protocol_discriminator_vals,"unknown"));
 			break;
