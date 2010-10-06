@@ -331,24 +331,24 @@ proto_register_remunk (void)
 {
     static hf_register_info hf_remunk_rqi_array[] = {
         { &hf_remunk_opnum,
-          { "Operation", "remunk_opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+          { "Operation", "remunk.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_remunk_refs,
-          { "Refs", "remunk_refs", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+          { "Refs", "remunk.refs", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_remunk_iids,
-          { "IIDs", "remunk_iids", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+          { "IIDs", "remunk.iids", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_remunk_qiresult,
-          { "QIResult", "remunk_qiresult", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+          { "QIResult", "remunk.qiresult", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_remunk_flags,
-          { "Flags", "remunk_flags",  FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+          { "Flags", "remunk.flags",  FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_remunk_public_refs,
-          { "PublicRefs", "remunk_public_refs",  FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+          { "PublicRefs", "remunk.public_refs",  FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_remunk_reminterfaceref,
-          { "RemInterfaceRef", "remunk_reminterfaceref",  FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+          { "RemInterfaceRef", "remunk.reminterfaceref",  FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_remunk_interface_refs,
-          { "InterfaceRefs", "remunk_int_refs",  FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+          { "InterfaceRefs", "remunk.int_refs",  FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_remunk_private_refs,
-          { "PrivateRefs", "remunk_private_refs",  FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }}
+          { "PrivateRefs", "remunk.private_refs",  FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }}
     };
 
     static gint *ett_remunk_array[] = {

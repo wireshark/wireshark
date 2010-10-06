@@ -5232,7 +5232,7 @@ proto_register_tn3270(void)
         FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
     { &hf_tn3270_aid,
-      { "Attention Identification", "hf_tn3270_aid",
+      { "Attention Identification", "tn3270.aid",
         FT_UINT8, BASE_HEX, VALS(vals_attention_identification_bytes), 0x0,
         NULL, HFILL }},
 
@@ -5285,7 +5285,7 @@ proto_register_tn3270(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
     { &hf_tn3270_partition_rv,
-        {  "The y, or row, origin of the viewport relative to the top edge of the usable area", "hf_tn3270_partition_rv",
+        {  "The y, or row, origin of the viewport relative to the top edge of the usable area", "tn3270.partition_rv",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
     { &hf_tn3270_partition_cv,
@@ -5326,7 +5326,7 @@ proto_register_tn3270(void)
             NULL, HFILL }},
 
     { &hf_tn3270_partition_command,
-        {  "Partition Command", "hf_tn3270_partition_command",
+        {  "Partition Command", "tn3270.partition_command",
             FT_UINT8, BASE_HEX, VALS(vals_command_codes), 0x0,
             NULL, HFILL }},
     /* End - 5.7 - Create Partition */

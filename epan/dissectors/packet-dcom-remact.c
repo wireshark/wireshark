@@ -215,29 +215,29 @@ proto_register_remact (void)
 {
 	static hf_register_info hf_remact[] = {
 		{ &hf_remact_opnum,
-		  { "Operation", "remact_opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		  { "Operation", "remact.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_remact_requested_protseqs,
-		  { "RequestedProtSeqs", "remact_req_prot_seqs", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		  { "RequestedProtSeqs", "remact.req_prot_seqs", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_remact_protseqs,
-		  { "ProtSeqs", "remact_prot_seqs", FT_UINT16, BASE_DEC, VALS(dcom_protseq_vals), 0x0, NULL, HFILL }},
+		  { "ProtSeqs", "remact.prot_seqs", FT_UINT16, BASE_DEC, VALS(dcom_protseq_vals), 0x0, NULL, HFILL }},
 		{ &hf_remact_interfaces,
-		  { "Interfaces", "remact_interfaces", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		  { "Interfaces", "remact.interfaces", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_remact_mode,
-		  { "Mode", "remact_mode", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		  { "Mode", "remact.mode", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_remact_client_impl_level,
-		  { "ClientImplLevel", "remact_client_impl_level", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		  { "ClientImplLevel", "remact.client_impl_level", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_remact_object_name,
-		  { "ObjectName", "remact_object_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		  { "ObjectName", "remact.object_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_remact_object_storage,
-		  { "ObjectStorage", "remact_object_storage", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		  { "ObjectStorage", "remact.object_storage", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_remact_interface_data,
-		  { "InterfaceData", "remact_interface_data", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		  { "InterfaceData", "remact.interface_data", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_remact_oxid_bindings,
-		  { "OxidBindings", "hf_remact_oxid_bindings", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		  { "OxidBindings", "remact.oxid_bindings", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_remact_authn_hint,
-		  { "AuthnHint", "remact_authn_hint", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		  { "AuthnHint", "remact.authn_hint", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {

@@ -65,7 +65,7 @@ static int
 dissect_oxid_simple_ping_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep,
 						hf_oxid_setid, NULL);
 
 	return offset;
@@ -79,11 +79,11 @@ dissect_oxid_simple_ping_resp(tvbuff_t *tvb, int offset,
 	guint32 u32HResult;
 
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 						&u32HResult);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 	}
 
@@ -98,11 +98,11 @@ dissect_oxid_server_alive_resp(tvbuff_t *tvb, int offset,
 	guint32 u32HResult;
 
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 						&u32HResult);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 	}
 
@@ -120,29 +120,29 @@ dissect_oxid_complex_ping_rqst(tvbuff_t *tvb, int offset,
 	guint32	u32Pointer;
 	guint32	u32ArraySize;
 
-	offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep,
 						hf_oxid_setid, NULL);
 
-	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
 						hf_oxid_seqnum, &u16SeqNum);
-	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
 						hf_oxid_addtoset, &u16AddToSet);
-	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
 						hf_oxid_delfromset, &u16DelFromSet);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " AddToSet=%u DelFromSet=%u", 
+		col_append_fstr(pinfo->cinfo, COL_INFO, " AddToSet=%u DelFromSet=%u",
 			u16AddToSet, u16DelFromSet);
 	}
 
 	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
 						&u32Pointer);
 	if (u32Pointer) {
-		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
 							&u32ArraySize);
 
 		while (u16AddToSet--) {
-			offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep, 
+			offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep,
 							hf_oxid_oid, NULL);
 		}
 	}
@@ -150,11 +150,11 @@ dissect_oxid_complex_ping_rqst(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
 						&u32Pointer);
     if (u32Pointer) {
-		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
 							&u32ArraySize);
 
 		while (u16DelFromSet--) {
-			offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep, 
+			offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep,
 							hf_oxid_oid, NULL);
 		}
 	}
@@ -171,16 +171,16 @@ dissect_oxid_complex_ping_resp(tvbuff_t *tvb, int offset,
 	guint32 u32HResult;
 
 
-	offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep,
 						hf_oxid_setid, NULL);
 	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
 						hf_oxid_ping_backoff_factor, &u16PingBackoffFactor);
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 						&u32HResult);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 	}
 
@@ -197,18 +197,18 @@ dissect_oxid_resolve_oxid2_rqst(tvbuff_t *tvb, int offset,
 	guint32	u32ItemIdx;
 
 
-	offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep,
 						hf_oxid_oxid, NULL);
 
-	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
                         hf_oxid_requested_protseqs, &u16ProtSeqs);
 
-	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
 						&u32ArraySize);
 
 	u32ItemIdx = 1;
 	while (u32ArraySize--) {
-		offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
 							hf_oxid_protseqs, &u16ProtSeqs);
 		u32ItemIdx++;
 	}
@@ -230,30 +230,30 @@ dissect_oxid_resolve_oxid2_resp(tvbuff_t *tvb, int offset,
 	guint32	u32HResult;
 
 
-	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
 						&u32Pointer);
 	if (u32Pointer) {
-		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
 							&u32ArraySize);
 
-		offset = dissect_dcom_DUALSTRINGARRAY(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_DUALSTRINGARRAY(tvb, offset, pinfo, tree, drep,
 							hf_oxid_bindings, NULL);
-		
-		offset = dissect_dcom_UUID(tvb, offset, pinfo, tree, drep, 
+
+		offset = dissect_dcom_UUID(tvb, offset, pinfo, tree, drep,
 							hf_oxid_ipid, &ipid);
 
-		offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
 							hf_oxid_authn_hint, &u32AuthnHint);
 
 		offset = dissect_dcom_COMVERSION(tvb, offset, pinfo, tree, drep,
 					&u16VersionMajor, &u16VersionMinor);
 	}
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 						&u32HResult);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 	}
 
@@ -262,7 +262,7 @@ dissect_oxid_resolve_oxid2_resp(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_oxid_server_alive2_resp(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+dissect_oxid_server_alive2_resp(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				proto_tree *tree, guint8 *drep) {
     guint16	u16VersionMajor;
     guint16 u16VersionMinor;
@@ -302,38 +302,38 @@ proto_register_oxid (void)
 		  { "Operation", "oxid.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_oxid_setid,
-		{ "SetId", "oxid_setid",  FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		  { "SetId", "oxid.setid",  FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_oxid_seqnum,
-		{ "SeqNum", "oxid_seqnum",  FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		  { "SeqNum", "oxid.seqnum",  FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_oxid_addtoset,
-		{ "AddToSet", "oxid_addtoset",  FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		  { "AddToSet", "oxid.addtoset",  FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_oxid_delfromset,
-		{ "DelFromSet", "oxid_delfromset",  FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		  { "DelFromSet", "oxid.delfromset",  FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_oxid_oid,
-		{ "OID", "oxid_oid",  FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		  { "OID", "oxid.oid",  FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_oxid_ping_backoff_factor,
-		{ "PingBackoffFactor", "oxid_ping_backoff_factor", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		  { "PingBackoffFactor", "oxid.ping_backoff_factor", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_oxid_oxid,
-		{ "OXID", "oxid_oxid",  FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		  { "OXID", "oxid.oxid", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_oxid_requested_protseqs,
-		{ "RequestedProtSeq", "oxid_requested_protseqs",  FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		  { "RequestedProtSeq", "oxid.requested_protseqs",  FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_oxid_protseqs,
-		{ "ProtSeq", "oxid_protseqs",  FT_UINT16, BASE_DEC, VALS(dcom_protseq_vals), 0x0, NULL, HFILL }},
+		  { "ProtSeq", "oxid.protseqs",  FT_UINT16, BASE_DEC, VALS(dcom_protseq_vals), 0x0, NULL, HFILL }},
 
 		{ &hf_oxid_bindings,
-		{ "OxidBindings", "oxid_bindings", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_oxid_ipid,
-        { "IPID", "oxid_ipid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		  { "OxidBindings", "oxid.bindings", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_oxid_ipid,
+		  { "IPID", "oxid.ipid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_oxid_authn_hint,
-		{ "AuthnHint", "oxid_authn_hint", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		  { "AuthnHint", "oxid.authn_hint", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_oxid_ds_array,
 		  { "Address", "dcom.oxid.address", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_oxid_Unknown1,
-		  { "unknown 8 bytes 1", "oxid5.unknown1", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		  { "unknown 8 bytes 1", "oxid.unknown1", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_oxid_Unknown2,
-                  { "unknown 8 bytes 2", "oxid5.unknown2", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }}
+                  { "unknown 8 bytes 2", "oxid.unknown2", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }}
 	};
 	static gint *ett[] = {
 		&ett_oxid
