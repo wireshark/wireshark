@@ -46,55 +46,21 @@ dissect_rgy_acct_user_flags_t
 
 static int proto_rs_pgo = -1;
 static int hf_rs_pgo_opnum = -1;
-static int hf_rgy_name_domain = -1;
-static int hf_rgy_sec_rgy_name_max_len = -1;
-static int hf_rgy_sec_rgy_name_t_size = -1;
-static int hf_rgy_sec_rgy_name_t = -1;
-static int hf_rgy_get_rqst_name_domain = -1;
-static int hf_rgy_get_rqst_var = -1;
-static int hf_rgy_get_rqst_var2 = -1;
-static int hf_rgy_get_rqst_key_size = -1;
-static int hf_rgy_get_rqst_key_t = -1;
-static int hf_rgy_key_transfer_rqst_var1 = -1;
-static int hf_rgy_key_transfer_rqst_var2 = -1;
-static int hf_rgy_key_transfer_rqst_var3 = -1;
-static int hf_rgy_is_member_rqst_var1 = -1;
-static int hf_rgy_is_member_rqst_var2 = -1;
-static int hf_rgy_is_member_rqst_var3 = -1;
-static int hf_rgy_is_member_rqst_var4 = -1;
-static int hf_rgy_is_member_rqst_key1 = -1;
-static int hf_rgy_is_member_rqst_key2 = -1;
-static int hf_rgy_is_member_rqst_key1_size = -1;
-static int hf_rgy_is_member_rqst_key2_size = -1;
 static int hf_rs_var1 = -1;
 static int hf_rs_pgo_query_result_t = -1;
-static int hf_sec_rgy_pgo_item_t = -1;
-static int hf_rs_pgo_id_key_t = -1;
 static int hf_rs_pgo_query_t = -1;
 static int hf_rs_pgo_query_key_t = -1;
 static int hf_error_status_t = -1;
 static int hf_sec_rgy_pgo_flags_t = -1;
-static int hf_sec_passwd_version_t = -1;
-static int hf_rgy_acct_user_flags_t = -1;
 static int hf_rs_sec_rgy_pgo_item_t_quota = -1;
 static int hf_rs_sec_rgy_pgo_item_t_unix_num = -1;
 static int hf_rs_timeval = -1;
 static int hf_rs_uuid1 = -1;
-static int hf_sec_attr_component_name_t_handle = -1;
-static int hf_sec_attr_component_name_t_valid = -1;
-static int hf_sec_passwd_type_t = -1;
-static int hf_sec_rgy_acct_admin_flags = -1;
-static int hf_sec_rgy_acct_auth_flags_t = -1;
-static int hf_sec_rgy_acct_key_t = -1;
 static int hf_sec_rgy_domain_t = -1;
 static int hf_sec_rgy_name_t_principalName_string = -1;
 static int hf_sec_rgy_name_t_size = -1;
 static int hf_sec_rgy_pname_t_principalName_string = -1;
 static int hf_sec_rgy_pname_t_size = -1;
-static int hf_sec_rgy_unix_sid_t_group = -1;
-static int hf_sec_rgy_unix_sid_t_org = -1;
-static int hf_sec_rgy_unix_sid_t_person = -1;
-static int hf_sec_timeval_sec_t = -1;
 static int hf_rs_pgo_unix_num_key_t = -1;
 
 static gint ett_rs_cache_data_t = -1;
@@ -1680,163 +1646,54 @@ proto_register_rs_pgo (void)
      {"Operation", "rs_pgo.opnum", FT_UINT16, BASE_DEC, NULL, 0x0,
       NULL, HFILL}},
     {&hf_error_status_t,
-     {"hf_error_status_t", "hf_error_status_t", FT_UINT32, BASE_DEC, NULL,
-      0x0, NULL, HFILL}},
-    {&hf_rgy_acct_user_flags_t,
-     {"hf_rgy_acct_user_flags_t", "hf_rgy_acct_user_flags_t", FT_UINT32,
-      BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_rgy_get_rqst_key_size,
-     {"hf_rgy_get_rqst_key_size", "hf_rgy_get_rqst_key_size", FT_UINT32,
-      BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_rgy_get_rqst_key_t,
-     {"hf_rgy_get_rqst_key_t", "hf_rgy_get_rqst_key_t", FT_UINT32, BASE_DEC,
-      NULL, 0x0, NULL, HFILL}},
-    {&hf_rgy_get_rqst_name_domain,
-     {"hf_rgy_get_rqst_name_domain", "hf_rgy_get_rqst_name_domain",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_rgy_get_rqst_var,
-     {"hf_rgy_get_rqst_var", "hf_rgy_get_rqst_var", FT_UINT32, BASE_DEC,
-      NULL, 0x0, NULL, HFILL}},
-    {&hf_rgy_get_rqst_var2,
-     {"hf_rgy_get_rqst_var2", "hf_rgy_get_rqst_var2", FT_UINT32, BASE_DEC,
-      NULL, 0x0, NULL, HFILL}},
-    {&hf_rgy_is_member_rqst_key1,
-     {"hf_rgy_is_member_rqst_key1", "hf_rgy_is_member_rqst_key1", FT_UINT32,
-      BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_rgy_is_member_rqst_key1_size,
-     {"hf_rgy_is_member_rqst_key1_size", "hf_rgy_is_member_rqst_key1_size",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_rgy_is_member_rqst_key2,
-     {"hf_rgy_is_member_rqst_key2", "hf_rgy_is_member_rqst_key2", FT_UINT32,
-      BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_rgy_is_member_rqst_key2_size,
-     {"hf_rgy_is_member_rqst_key2_size", "hf_rgy_is_member_rqst_key2_size",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_rgy_is_member_rqst_var1,
-     {"hf_rgy_is_member_rqst_var1", "hf_rgy_is_member_rqst_var1", FT_UINT32,
-      BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_rgy_is_member_rqst_var2,
-     {"hf_rgy_is_member_rqst_var2", "hf_rgy_is_member_rqst_var2", FT_UINT32,
-      BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_rgy_is_member_rqst_var3,
-     {"hf_rgy_is_member_rqst_var3", "hf_rgy_is_member_rqst_var3", FT_UINT32,
-      BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_rgy_is_member_rqst_var4,
-     {"hf_rgy_is_member_rqst_var4", "hf_rgy_is_member_rqst_var4", FT_UINT32,
-      BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_rgy_key_transfer_rqst_var1,
-     {"hf_rgy_key_transfer_rqst_var1", "hf_rgy_key_transfer_rqst_var1",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_rgy_key_transfer_rqst_var2,
-     {"hf_rgy_key_transfer_rqst_var2", "hf_rgy_key_transfer_rqst_var2",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_rgy_key_transfer_rqst_var3,
-     {"hf_rgy_key_transfer_rqst_var3", "hf_rgy_key_transfer_rqst_var3",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_rgy_name_domain,
-     {"hf_rgy_name_domain", "hf_rgy_name_domain", FT_UINT32, BASE_DEC, NULL,
-      0x0, NULL, HFILL}},
-    {&hf_rgy_sec_rgy_name_max_len,
-     {"hf_rgy_sec_rgy_name_max_len", "hf_rgy_sec_rgy_name_max_len",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_rgy_sec_rgy_name_t,
-     {"hf_rgy_sec_rgy_name_t", "hf_rgy_sec_rgy_name_t", FT_UINT32, BASE_DEC,
-      NULL, 0x0, NULL, HFILL}},
-    {&hf_rgy_sec_rgy_name_t_size,
-     {"hf_rgy_sec_rgy_name_t_size", "hf_rgy_sec_rgy_name_t_size", FT_UINT32,
-      BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_rs_pgo_id_key_t,
-     {"hf_rs_pgo_id_key_t", "hf_rs_pgo_id_key_t", FT_UINT32, BASE_DEC, NULL,
+     {"Error status", "rs_pgo.error_status", FT_UINT32, BASE_DEC, NULL,
       0x0, NULL, HFILL}},
     {&hf_rs_pgo_query_key_t,
-     {"hf_rs_pgo_query_key_t", "hf_rs_pgo_query_key_t", FT_UINT32, BASE_DEC,
+     {"Query key", "rs_pgo.query_key", FT_UINT32, BASE_DEC,
       NULL, 0x0, NULL, HFILL}},
     {&hf_rs_pgo_query_result_t,
-     {"hf_rs_pgo_query_result_t", "hf_rs_pgo_query_result_t", FT_UINT32,
+     {"Query result", "rs_pgo.query_result", FT_UINT32,
       BASE_DEC, NULL, 0x0, NULL, HFILL}},
     {&hf_rs_pgo_query_t,
-     {"hf_rs_pgo_query_t", "hf_rs_pgo_query_t", FT_UINT32, BASE_DEC, NULL,
+     {"Query", "rs_pgo.query", FT_UINT32, BASE_DEC, NULL,
       0x0, NULL, HFILL}},
     {&hf_rs_sec_rgy_pgo_item_t_quota,
-     {"hf_rs_sec_rgy_pgo_item_t_quota", "hf_rs_sec_rgy_pgo_item_t_quota",
+     {"Quota", "rs_pgo.quota",
       FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     {&hf_rs_sec_rgy_pgo_item_t_unix_num,
-     {"hf_rs_sec_rgy_pgo_item_t_unix_num",
-      "hf_rs_sec_rgy_pgo_item_t_unix_num", FT_UINT32, BASE_DEC, NULL, 0x0, NULL,
+     {"Unix num",
+      "rs_pgo.unix_num", FT_UINT32, BASE_DEC, NULL, 0x0, NULL,
       HFILL}},
     {&hf_rs_timeval,
-     {"hf_rs_timeval", "hf_rs_timeval", FT_RELATIVE_TIME, BASE_NONE, NULL,
+     {"Timeval", "rs_pgo.timeval", FT_RELATIVE_TIME, BASE_NONE, NULL,
       0x0, NULL, HFILL}},
     {&hf_rs_uuid1,
-     {"hf_rs_uuid1", "hf_rs_uuid1", FT_GUID, BASE_NONE, NULL, 0x0, "UUID",
-      HFILL}},
+     {"Uuid1", "rs_pgo.uuid1", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_rs_var1,
-     {"hf_rs_var1", "hf_rs_var1", FT_UINT32, BASE_DEC, NULL, 0x0, NULL,
+     {"Var1", "rs_pgo.var1", FT_UINT32, BASE_DEC, NULL, 0x0, NULL,
       HFILL}},
-    {&hf_sec_attr_component_name_t_handle,
-     {"hf_sec_attr_component_name_t_handle",
-      "hf_sec_attr_component_name_t_handle", FT_UINT32, BASE_DEC, NULL, 0x0,
-      NULL, HFILL}},
-    {&hf_sec_attr_component_name_t_valid,
-     {"hf_sec_attr_component_name_t_valid",
-      "hf_sec_attr_component_name_t_valid", FT_UINT32, BASE_DEC, NULL, 0x0,
-      NULL, HFILL}},
-    {&hf_sec_passwd_type_t,
-     {"hf_sec_passwd_type_t", "hf_sec_passwd_type_t", FT_UINT32, BASE_DEC,
-      NULL, 0x0, NULL, HFILL}},
-    {&hf_sec_passwd_version_t,
-     {"hf_sec_passwd_version_t", "hf_sec_passwd_version_t", FT_UINT32,
-      BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_sec_rgy_acct_admin_flags,
-     {"hf_sec_rgy_acct_admin_flags", "hf_sec_rgy_acct_admin_flags",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_sec_rgy_acct_auth_flags_t,
-     {"hf_sec_rgy_acct_auth_flags_t", "hf_sec_rgy_acct_auth_flags_t",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_sec_rgy_acct_key_t,
-     {"hf_sec_rgy_acct_key_t", "hf_sec_rgy_acct_key_t", FT_UINT32, BASE_DEC,
-      NULL, 0x0, NULL, HFILL}},
     {&hf_sec_rgy_domain_t,
-     {"hf_sec_rgy_domain_t", "hf_sec_rgy_domain_t", FT_UINT32, BASE_DEC,
+     {"Domain", "rs_pgo.domain", FT_UINT32, BASE_DEC,
       NULL, 0x0, NULL, HFILL}},
     {&hf_sec_rgy_name_t_principalName_string,
-     {"hf_sec_rgy_name_t_principalName_string",
-      "hf_sec_rgy_name_t_principalName_string", FT_STRING, BASE_NONE, NULL,
+     {"Name principalName", "rs_pgo.name_principalName", FT_STRING, BASE_NONE, NULL,
       0x0, NULL, HFILL}},
     {&hf_sec_rgy_name_t_size,
-     {"hf_sec_rgy_name_t_size", "hf_sec_rgy_name_t_size", FT_UINT32,
+     {"Name_t size", "rs_pgo.name_t_size", FT_UINT32,
       BASE_DEC, NULL, 0x0, NULL, HFILL}},
     {&hf_sec_rgy_pgo_flags_t,
-     {"hf_sec_rgy_pgo_flags_t", "hf_sec_rgy_pgo_flags_t", FT_UINT32,
+     {"Flags", "rs_pgo.flags", FT_UINT32,
       BASE_HEX, NULL, 0x0, NULL, HFILL}},
-    {&hf_sec_rgy_pgo_item_t,
-     {"hf_sec_rgy_pgo_item_t", "hf_sec_rgy_pgo_item_t", FT_UINT32, BASE_DEC,
-      NULL, 0x0, NULL, HFILL}},
     {&hf_sec_rgy_pname_t_size,
-     {"hf_sec_rgy_pname_t_size",
-      "hf_sec_rgy_pname_t_size", FT_UINT32, BASE_DEC, NULL,
+     {"Pname_t size", "rs_pgo.pname_t_size", FT_UINT32, BASE_DEC, NULL,
       0x0, NULL, HFILL}},
     {&hf_sec_rgy_pname_t_principalName_string,
-     {"hf_sec_rgy_pname_t_principalName_string",
-      "hf_sec_rgy_pname_t_principalName_string", FT_STRING, BASE_NONE, NULL,
-      0x0, NULL, HFILL}},
-    {&hf_sec_rgy_unix_sid_t_group,
-     {"hf_sec_rgy_unix_sid_t_group", "hf_sec_rgy_unix_sid_t_group",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_sec_rgy_unix_sid_t_org,
-     {"hf_sec_rgy_unix_sid_t_org", "hf_sec_rgy_unix_sid_t_org", FT_UINT32,
-      BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_sec_rgy_unix_sid_t_person,
-     {"hf_sec_rgy_unix_sid_t_person", "hf_sec_rgy_unix_sid_t_person",
-      FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_sec_timeval_sec_t,
-     {"hf_sec_timeval_sec_t", "hf_sec_timeval_sec_t", FT_UINT32, BASE_DEC,
-      NULL, 0x0, NULL, HFILL}},
+     {"Pname principalName", "rs_pgo.pname_principalName", FT_STRING,
+      BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_rs_pgo_unix_num_key_t,
-     {"hf_rs_pgo_unix_num_key_t", "hf_rs_pgo_unix_num_key_t", FT_UINT32,
+     {"Unix num key", "rs_pgo.unix_num_key_t", FT_UINT32,
       BASE_DEC,
-      NULL, 0x0, NULL, HFILL}},
-
+      NULL, 0x0, NULL, HFILL}}
   };
 
   static gint *ett[] = {
