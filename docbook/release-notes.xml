@@ -204,12 +204,6 @@ Wireshark Info
   <section id="KnownProblems"><title>Known Problems</title>
 
     <para>
-      Wireshark may appear offscreen on multi-monitor Windows systems.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=553">Bug
-      553</ulink>)
-    </para>
-
-    <para>
       Wireshark might make your system disassociate from a wireless network
       on OS X 10.4.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1315">Bug
