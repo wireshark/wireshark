@@ -200,6 +200,12 @@ struct style_rtt {
 	int flags;
 };
 
+struct style_wscale {
+	int win_width;
+	int win_height;
+	int flags;
+};
+
 /* style flags */
 #define SEQ_ORIGIN			0x1
 /* show absolute sequence numbers (not differences from isn) */
@@ -283,6 +289,7 @@ struct graph {
 #define GRAPH_TSEQ_TCPTRACE	1
 #define GRAPH_THROUGHPUT	2
 #define GRAPH_RTT			3
+#define GRAPH_WSCALE		4
 	int type;
 #define GRAPH_DESTROYED				(1 << 0)
 #define GRAPH_INIT_ON_TYPE_CHANGE	(1 << 1)
@@ -333,10 +340,12 @@ struct graph {
 		struct style_tseq_tcptrace tseq_tcptrace;
 		struct style_tput tput;
 		struct style_rtt rtt;
+		struct style_wscale wscale;
 	} s;
 	/* This allows keyboard to set the radio button */
 	struct {
 		GtkToggleButton *graph_rtt, *graph_tput, *graph_tseqstevens, *graph_tseqttrace;
+		GtkToggleButton *graph_wscale;
 	} gt;
 };
 
@@ -477,6 +486,9 @@ static void rtt_put_unack_on_list (struct unack ** , struct unack * );
 static void rtt_delete_unack_from_list (struct unack ** , struct unack * );
 static void rtt_make_elmtlist (struct graph * );
 static void rtt_toggle_seq_origin (struct graph * );
+static void wscale_initialize(struct graph *);
+static void wscale_read_config(struct graph *);
+static void wscale_make_elmtlist(struct graph *);
 #if defined(_WIN32) && !defined(__MINGW32__)
 static int rint (double );	/* compiler template for Windows */
 #endif
@@ -515,6 +527,7 @@ static char helptext[] =
 	"   '2'				display Throughput Graph\n"
 	"   '3'				display Time/Sequence Graph (Stevens)\n"
 	"   '4'				display Time/Sequence Graph (tcptrace)\n"
+	"   '5'				display Window Scaling Graph\n"
 	"\n"
 	"   <Space bar>	toggles crosshairs on/off\n"
 	"\n"
@@ -1455,6 +1468,7 @@ static GtkWidget *control_panel_create_graph_type_group (struct graph *g)
 	GtkWidget *graph_tseqttrace, *graph_tseqstevens;
 	GtkWidget *graph_tput, *graph_rtt, *graph_sep, *graph_init, *graph_box;
 	GtkWidget *graph_frame;
+	GtkWidget *graph_wscale;
 
 	graph_tput = gtk_radio_button_new_with_label (NULL, "Throughput");
 	graph_tseqttrace = gtk_radio_button_new_with_label (
@@ -1466,6 +1480,10 @@ static GtkWidget *control_panel_create_graph_type_group (struct graph *g)
 	graph_rtt = gtk_radio_button_new_with_label (
 					gtk_radio_button_get_group (GTK_RADIO_BUTTON (graph_tput)),
 					"Round-trip Time");
+	graph_wscale = gtk_radio_button_new_with_label (
+			gtk_radio_button_get_group (GTK_RADIO_BUTTON (graph_tput)),
+			"Window Scaling");
+
 	switch (g->type) {
 	case GRAPH_TSEQ_STEVENS:
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(graph_tseqstevens),TRUE);
@@ -1479,10 +1497,14 @@ static GtkWidget *control_panel_create_graph_type_group (struct graph *g)
 	case GRAPH_RTT:
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (graph_rtt), TRUE);
 		break;
+	case GRAPH_WSCALE:
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (graph_wscale), TRUE);
+		break;
 	}
 	graph_init = gtk_check_button_new_with_label ("Init on change");
 	graph_sep = gtk_hseparator_new ();
 	graph_box = gtk_vbox_new (FALSE, 0);
+	gtk_box_pack_start (GTK_BOX (graph_box), graph_wscale, TRUE, TRUE, 0); 
 	gtk_box_pack_start (GTK_BOX (graph_box), graph_rtt, TRUE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (graph_box), graph_tput, TRUE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (graph_box), graph_tseqstevens, TRUE, TRUE, 0);
@@ -1497,7 +1519,9 @@ static GtkWidget *control_panel_create_graph_type_group (struct graph *g)
 	g_object_set_data(G_OBJECT(graph_tseqttrace), "new-graph-type", GINT_TO_POINTER(1));
 	g_object_set_data(G_OBJECT(graph_tput), "new-graph-type", GINT_TO_POINTER(2));
 	g_object_set_data(G_OBJECT(graph_rtt), "new-graph-type", GINT_TO_POINTER(3));
+	g_object_set_data(G_OBJECT(graph_wscale), "new-graph-type", GINT_TO_POINTER(GRAPH_WSCALE));
 
+	g->gt.graph_wscale = (GtkToggleButton *)graph_wscale;
 	g->gt.graph_rtt = (GtkToggleButton * )graph_rtt;
 	g->gt.graph_tput = (GtkToggleButton * )graph_tput;
 	g->gt.graph_tseqstevens = (GtkToggleButton * )graph_tseqstevens;
@@ -1507,6 +1531,7 @@ static GtkWidget *control_panel_create_graph_type_group (struct graph *g)
         g_signal_connect(graph_tseqstevens, "toggled", G_CALLBACK(callback_graph_type), g);
         g_signal_connect(graph_tput, "toggled", G_CALLBACK(callback_graph_type), g);
         g_signal_connect(graph_rtt, "toggled", G_CALLBACK(callback_graph_type), g);
+        g_signal_connect(graph_wscale, "toggled", G_CALLBACK(callback_graph_type), g);
         g_signal_connect(graph_init, "toggled", G_CALLBACK(callback_graph_init_on_typechg), g);
 
 	return graph_frame;
@@ -1636,6 +1661,9 @@ static void graph_type_dependent_initialize (struct graph *g)
 		break;
 	case GRAPH_RTT:
 		rtt_initialize (g);
+		break;
+	case GRAPH_WSCALE:
+		wscale_initialize (g);
 		break;
 	default:
 		break;
@@ -1907,6 +1935,9 @@ static void graph_element_lists_make (struct graph *g)
 		break;
 	case GRAPH_RTT:
 		rtt_make_elmtlist (g);
+		break;
+	case GRAPH_WSCALE:
+		wscale_make_elmtlist (g);
 		break;
 	default:
 		printf ("graph_element_lists_make: unknown graph type: %d\n", g->type);
@@ -2957,6 +2988,11 @@ static void do_select_segment (struct graph *g)
 	graph_select_segment (g, pointer_x, pointer_y);
 }
 
+static void do_wscale_graph (struct graph *g)
+{
+	gtk_toggle_button_set_active (g->gt.graph_wscale, TRUE);
+}
+
 static void do_rtt_graph (struct graph *g)
 {
         gtk_toggle_button_set_active (g->gt.graph_rtt, TRUE); 
@@ -3194,6 +3230,9 @@ static gboolean key_press_event (GtkWidget *widget, GdkEventKey *event, gpointer
 		break;
 	case '4':
 		do_ts_graph_tcptrace (g);
+		break;
+	case '5':
+		do_wscale_graph(g);
 		break;
 	case GDK_Left:
 		do_key_motion_left (g, step);
@@ -4124,6 +4163,136 @@ static void rtt_toggle_seq_origin (struct graph *g)
 		g->x_axis->min = 0;
 }
 
+/* WSCALE Graph */
+
+static void wscale_read_config(struct graph* g)
+{
+	debug(DBS_FENTRY) puts ("wscale_read_config()");
+
+	g->s.wscale.win_width = 4;
+	g->s.wscale.win_height = 4;
+	g->s.wscale.flags = 0;
+
+	g->title = (const char ** )g_malloc (2 * sizeof (char *));
+	g->title[0] = "Window Scaling Graph";
+	g->title[1] = NULL;
+	g->y_axis->label = (const char ** )g_malloc (3 * sizeof (char * ));
+	g->y_axis->label[0] = "[bytes]";
+	g->y_axis->label[1] = "Windowsize";
+	g->y_axis->label[2] = NULL;
+	g->x_axis->label = (const char ** )g_malloc (2 * sizeof (char * ));
+	g->x_axis->label[0] = "Time [s]";
+	g->x_axis->label[1] = NULL;
+}
+
+/* 
+    (1) Find maximum and minimum values for Window-Size(scaled) and seconds
+    (2) call function to define window related values
+*/
+static void wscale_initialize(struct graph* g)
+{
+
+	struct segment* segm = NULL;
+	guint32 wsize_max = 0;
+	guint32	wsize_min = 0;
+	gdouble sec_max = 0.0;
+	gdouble sec_min = 0.0;
+	
+	wscale_read_config (g);
+
+	debug(DBS_FENTRY) puts ("wscale_initialize()");
+
+	for (segm = g->segments; segm; segm = segm->next)
+	{
+		if (compare_headers(&g->current->ip_src, &g->current->ip_dst,
+					g->current->th_sport, g->current->th_dport,
+					&segm->ip_src, &segm->ip_dst,
+					segm->th_sport, segm->th_dport,
+					COMPARE_CURR_DIR))
+		{
+			gdouble sec = segm->rel_secs + ( segm->rel_usecs / 1000000.0 );
+			guint16 flags = segm->th_flags;
+			guint32 wsize = segm->th_win;
+
+			/* only data segments */
+			if ( (flags & (TH_SYN|TH_FIN|TH_RST)) == 0 )
+				if ( wsize > wsize_max )
+					wsize_max = wsize;
+
+			if ( sec_max < sec )
+				sec_max = sec;
+
+			if ( sec_min > sec ) 
+				sec_min = sec;
+		} 
+
+	}
+
+	g->bounds.x0 = sec_min;
+	g->bounds.y0 = wsize_min;
+	g->bounds.width = sec_max;
+	g->bounds.height = wsize_max;
+	g->zoom.x = g->geom.width / g->bounds.width;
+	g->zoom.y = g->geom.height / g->bounds.height;
+
+}
+
+/*
+   (1) Fill & allocate memory for segments times elements,
+*/
+static void wscale_make_elmtlist(struct graph* g)
+{
+	struct segment* segm = NULL;
+	struct element* elements = NULL;
+	struct element* e = NULL;
+
+	debug(DBS_FENTRY) puts ("wscale_make_elmtlist()");
+
+	/* Allocate memory for elements if not already done */
+	if (g->elists->elements == NULL)
+	{
+		int n = 1 + get_num_dsegs(g);
+		e = elements = (struct element*)g_malloc(n*sizeof(struct element));
+	} 
+	else 
+		e = elements = g->elists->elements;
+	
+
+	for ( segm = g->segments; segm; segm = segm->next )
+	{
+		if (compare_headers(&g->current->ip_src, &g->current->ip_dst,
+					g->current->th_sport, g->current->th_dport,
+					&segm->ip_src, &segm->ip_dst,
+					segm->th_sport, segm->th_dport,
+					COMPARE_CURR_DIR))
+		{
+			gdouble sec = segm->rel_secs + (segm->rel_usecs / 1000000.0);
+			guint16 flags = segm->th_flags;
+			guint32 wsize = segm->th_win;
+
+			/* only data or ack segments */
+			if ( (flags & (TH_SYN|TH_FIN|TH_RST)) == 0 )
+			{
+				e->type = ELMT_ARC;
+				e->parent = segm;
+				e->gc = g->fg_gc;
+				e->p.arc.dim.width = g->s.wscale.win_width;
+				e->p.arc.dim.height = g->s.wscale.win_height;
+				e->p.arc.dim.x = g->zoom.x * sec - g->s.wscale.win_width / 2.0;
+				e->p.arc.dim.y = g->zoom.y * wsize - g->s.wscale.win_height / 2.0;
+				e->p.arc.filled = TRUE;
+				e->p.arc.angle1 = 0;
+				e->p.arc.angle2 = 0x5A00;
+				e++;
+			} 
+		}
+	}
+	/* finished populating element list */
+	e->type = ELMT_NONE;
+	g->elists->elements = elements;
+}
+
+
 #if defined(_WIN32) && !defined(__MINGW32__)
 /* replacement of Unix rint() for Windows */
 static int rint (double x)
@@ -4158,4 +4327,6 @@ register_tap_listener_tcp_graph(void)
         tcp_graph_cb, tcp_graph_selected_packet_enabled, NULL, GINT_TO_POINTER(2));
     register_stat_menu_item("TCP Stream Graph/Round Trip Time Graph", REGISTER_STAT_GROUP_UNSORTED,
         tcp_graph_cb, tcp_graph_selected_packet_enabled, NULL, GINT_TO_POINTER(3));
+    register_stat_menu_item("TCP Stream Graph/Window Scaling Graph", REGISTER_STAT_GROUP_UNSORTED,
+	tcp_graph_cb, tcp_graph_selected_packet_enabled, NULL, GINT_TO_POINTER(GRAPH_WSCALE));
 }
