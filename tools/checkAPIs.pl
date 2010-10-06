@@ -1002,7 +1002,10 @@ sub check_hf_entries($$)
 			print STDERR "Warning: trailing space in field $name ($abbrev) in $filename\n";
 		}
 		if ("\"".$hf ."\"" eq $name) {
-			print STDERR "Warning: name is hf variable name in field $name ($abbrev) in $filename\n";
+			print STDERR "Warning: name is the hf_variable_name in field $name ($abbrev) in $filename\n";
+		}
+		if ("\"".$hf ."\"" eq $abbrev) {
+			print STDERR "Warning: abbreviation is the hf_variable_name in field $name ($abbrev) in $filename\n";
 		}
 
 	}
@@ -1053,7 +1056,7 @@ my @apiGroups = qw(prohibited deprecated);
 my @apiSummaryGroups = ();
 my $check_value_string_array_null_termination = 1; # default: enabled
 my $machine_readable_output = 0;                   # default: disabled
-my $check_hf = 0;				   # default: disabled
+my $check_hf = 1;				   # default: enabled
 my $debug_flag = 0;
 
 my $result = GetOptions(
@@ -1061,7 +1064,7 @@ my $result = GetOptions(
                         'summary-group=s' => \@apiSummaryGroups,
                         'check-value-string-array-null-termination!' => \$check_value_string_array_null_termination,
                         'Machine-readable' => \$machine_readable_output,
-			'hf' => \$check_hf,
+			'nohf' => \$check_hf,
                         'debug' => \$debug_flag
                        );
 if (!$result) {
