@@ -135,6 +135,7 @@
 #include "gtk/main_airpcap_toolbar.h"
 #include "gtk/main_filter_toolbar.h"
 #include "gtk/menus.h"
+#include "gtk/macros_dlg.h"
 #include "gtk/main_packet_list.h"
 #include "gtk/main_statusbar.h"
 #include "gtk/main_statusbar_private.h"
@@ -2786,6 +2787,7 @@ main(int argc, char *argv[])
      changed either from one of the preferences file or from the command
      line that their preferences have changed. */
   prefs_apply_all();
+  macros_post_update();
 
   /* disabled protocols as per configuration file */
   if (gdp_path == NULL && dp_path == NULL) {
@@ -2803,6 +2805,8 @@ main(int argc, char *argv[])
   g_free(rc_file);
 
   font_init();
+
+  macros_init();
 
   stock_icons_init();
 

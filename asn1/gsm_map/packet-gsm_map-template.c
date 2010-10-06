@@ -1264,7 +1264,10 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
     offset=dissect_gsm_map_ms_CancelLocationRes(FALSE, tvb, offset, actx, tree, -1);
     break;
   case  4: /*provideRoamingNumber*/
-    offset=dissect_gsm_map_ch_ProvideRoamingNumberRes(FALSE, tvb, offset, actx, tree, -1);
+    offset=dissect_mc_message(tvb, offset, actx, tree,
+			      FALSE, dissect_gsm_map_ISDN_AddressString, hf_gsm_map_msisdn,
+			      FALSE, dissect_gsm_map_ch_ProvideRoamingNumberRes, -1,
+			      TRUE , NULL, -1);/*undefined*/
     break;
   case  5: /*noteSubscriberDataModified*/
     offset=dissect_gsm_map_ms_NoteSubscriberDataModifiedRes(FALSE, tvb, offset, actx, tree, -1);

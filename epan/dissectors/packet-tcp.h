@@ -155,6 +155,7 @@ typedef struct _tcp_flow_t {
 	gint16	win_scale;		/* -1 is we dont know */
 	gint16  scps_capable;   /* flow advertised scps capabilities */
 	guint16 maxsizeacked;   /* 0 if not yet known */
+	gboolean valid_bif;     /* if lost pkts, disable BiF until ACK is recvd */
 
 /* This tcp flow/session contains only one single PDU and should
  * be reassembled until the final FIN segment.

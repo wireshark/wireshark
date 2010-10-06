@@ -17673,7 +17673,10 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
     offset=dissect_gsm_map_ms_CancelLocationRes(FALSE, tvb, offset, actx, tree, -1);
     break;
   case  4: /*provideRoamingNumber*/
-    offset=dissect_gsm_map_ch_ProvideRoamingNumberRes(FALSE, tvb, offset, actx, tree, -1);
+    offset=dissect_mc_message(tvb, offset, actx, tree,
+			      FALSE, dissect_gsm_map_ISDN_AddressString, hf_gsm_map_msisdn,
+			      FALSE, dissect_gsm_map_ch_ProvideRoamingNumberRes, -1,
+			      TRUE , NULL, -1);/*undefined*/
     break;
   case  5: /*noteSubscriberDataModified*/
     offset=dissect_gsm_map_ms_NoteSubscriberDataModifiedRes(FALSE, tvb, offset, actx, tree, -1);
@@ -24371,7 +24374,7 @@ void proto_register_gsm_map(void) {
         "LCS_QoS", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2438 "packet-gsm_map-template.c"
+#line 2441 "packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -24974,7 +24977,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2466 "packet-gsm_map-template.c"
+#line 2469 "packet-gsm_map-template.c"
   };
 
   /* Register protocol */
@@ -25050,7 +25053,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 2484 "packet-gsm_map-template.c"
+#line 2487 "packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );

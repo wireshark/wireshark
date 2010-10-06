@@ -35,7 +35,7 @@
 #include "dfilter.h"
 #include "dfilter-macro.h"
 #include <epan/emem.h>
-#include <epan/uat.h>
+#include <epan/uat-int.h>
 #include <epan/report_err.h>
 #include <epan/proto.h>
 #include <wsutil/file_util.h>
@@ -410,6 +410,10 @@ static void macro_update(void* mp, const gchar** error) {
 		}
 	}
 
+	/* Invalidate the display filter in case it's in use */
+	if (dfilter_macro_uat && dfilter_macro_uat->post_update_cb)
+	  dfilter_macro_uat->post_update_cb();
+
 	parts = g_ptr_array_new();
 	args_pos = g_array_new(FALSE,FALSE,sizeof(int));
 
@@ -609,7 +613,7 @@ void dfilter_macro_init(void) {
 				    macro_copy,
 				    macro_update,
 				    macro_free,
-                                    NULL,
+				    NULL, /* Note: This is set in macros_init () */
 				    uat_fields);
 
 	fvt_cache = g_hash_table_new(g_str_hash,g_str_equal);

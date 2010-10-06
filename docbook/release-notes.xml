@@ -77,6 +77,36 @@ Wireshark Info
           553</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          Wireshark crashes if active display filter macro is renamed.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5002">Bug
+          5002</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Incorrect dissection of MAP V2 PRN_ACK.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5076">Bug
+          5076</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          TCP bytes_in_flight becomes inflated with lost packets.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5132">Bug
+          5132</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          GTP header is exported in PDML with an incorrect size.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5162">Bug
+          5162</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Packet list hidden columns will not be parsed correctly from preferences file.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5163">Bug
+          5163</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
