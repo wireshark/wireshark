@@ -6383,18 +6383,27 @@ set_menus_for_selected_tree_row(capture_file *cf)
 }
 
 void set_menus_for_packet_history(gboolean back_history, gboolean forward_history) {
-
-    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/Back", back_history);
-    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/Forward", forward_history);
-    set_toolbar_for_packet_history(back_history, forward_history);
+#ifdef MAIN_MENU_USE_UIMANAGER
+     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/Back", back_history);
+     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/Forward", forward_history);
+#else
+    set_menu_sensitivity_old(main_menu_factory, "/Go/Back", back_history);
+    set_menu_sensitivity_old(main_menu_factory, "/Go/Forward", forward_history);
+#endif /* MAIN_MENU_USE_UIMANAGER */
+	set_toolbar_for_packet_history(back_history, forward_history);
 }
 
 
 void set_menus_for_file_set(gboolean file_set, gboolean previous_file, gboolean next_file) {
-
-    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Set/ListFiles", file_set);
-    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Set/PreviousFile", previous_file);
-    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Set/NextFile", next_file);
+#ifdef MAIN_MENU_USE_UIMANAGER
+     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Set/ListFiles", file_set);
+     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Set/PreviousFile", previous_file);
+     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Set/NextFile", next_file);
+#else
+    set_menu_sensitivity_old(main_menu_factory, "/File/File Set/List Files", file_set);
+    set_menu_sensitivity_old(main_menu_factory, "/File/File Set/Previous File", previous_file);
+    set_menu_sensitivity_old(main_menu_factory, "/File/File Set/Next File", next_file);
+#endif /* MAIN_MENU_USE_UIMANAGER */
 }
 
 GtkWidget *menus_get_profiles_menu (void)
