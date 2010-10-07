@@ -34,6 +34,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-ipx.h"
+#include "packet-sll.h"
 #include <epan/addr_resolv.h>
 #include <epan/etypes.h>
 #include <epan/ppptypes.h>
@@ -1524,6 +1525,7 @@ proto_reg_handoff_ipx(void)
 	dissector_add("ppp.protocol", PPP_IPX, ipx_handle);
 	dissector_add("llc.dsap", SAP_NETWARE1, ipx_handle);
 	dissector_add("llc.dsap", SAP_NETWARE2, ipx_handle);
+	dissector_add("sll.ltype", LINUX_SLL_P_802_3, ipx_handle);
 	dissector_add("null.type", BSD_AF_IPX, ipx_handle);
 	dissector_add("gre.proto", ETHERTYPE_IPX, ipx_handle);
 	dissector_add("arcnet.protocol_id", ARCNET_PROTO_IPX, ipx_handle);

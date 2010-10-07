@@ -2563,10 +2563,17 @@ mgcp_calls_init_tap(void)
 
 	if(have_MGCP_tap_listener==FALSE)
 	{
-		/* don't register tap listener, if we have it already */
-		/* we send an empty filter, to force a non null "tree" in the mgcp dissector */
-		error_string = register_tap_listener("mgcp", &(the_tapinfo_struct.mgcp_dummy), g_strdup(""),
-			0,
+		/*
+		 * Don't register the tap listener if we have it already.
+		 * We set TL_REQUIRES_PROTO_TREE to force a non-null "tree"
+		 * in the MGCP dissector; otherwise, the dissector
+		 * doesn't fill in the info passed to the tap's packet
+		 * routine.
+		 */
+		error_string = register_tap_listener("mgcp",
+			&(the_tapinfo_struct.mgcp_dummy),
+			NULL,
+			TL_REQUIRES_PROTO_TREE,
 			voip_calls_dlg_reset,
 			MGCPcalls_packet,
 			voip_calls_dlg_draw
@@ -3720,10 +3727,17 @@ skinny_calls_init_tap(void)
 	
 	if(have_skinny_tap_listener==FALSE)
 	{
-		/* don't register tap listener, if we have it already */
-		/* we send an empty filter, to force a non null "tree" in the SKINNY dissector */
-		error_string = register_tap_listener("skinny", &(the_tapinfo_struct.skinny_dummy), g_strdup(""),
-			0,
+		/*
+		 * Don't register the tap listener if we have it already.
+		 * We set TL_REQUIRES_PROTO_TREE to force a non-null "tree"
+		 * in the SKINNY dissector; otherwise, the dissector
+		 * doesn't fill in the info passed to the tap's packet
+		 * routine.
+		 */
+		error_string = register_tap_listener("skinny", 
+			&(the_tapinfo_struct.skinny_dummy), 
+			NULL,
+			TL_REQUIRES_PROTO_TREE,
 			voip_calls_dlg_reset,
 			skinny_calls_packet,
 			voip_calls_dlg_draw
@@ -3900,10 +3914,20 @@ iax2_calls_init_tap(void)
 	
 	if(have_iax2_tap_listener==FALSE)
 	{
-		/* don't register tap listener, if we have it already */
-		/* we send an empty filter, to force a non null "tree" in the IAX2 dissector */
-		error_string = register_tap_listener("IAX2", &(the_tapinfo_struct.iax2_dummy), g_strdup(""),
-			0,
+		/*
+		 * Don't register the tap listener if we have it already.
+		 * We set TL_REQUIRES_PROTO_TREE to force a non-null "tree"
+		 * in the IAX2 dissector; otherwise, the dissector
+		 * doesn't fill in the info passed to the tap's packet
+		 * routine.
+		 * XXX - that appears to be true of the MGCP and SKINNY
+		 * dissectors, but, unless I've missed something, it doesn't
+		 * appear to be true of the IAX2 dissector.
+		 */
+		error_string = register_tap_listener("IAX2", 
+			&(the_tapinfo_struct.iax2_dummy), 
+			NULL,
+			TL_REQUIRES_PROTO_TREE,
 			voip_calls_dlg_reset,
 			iax2_calls_packet,
 			voip_calls_dlg_draw

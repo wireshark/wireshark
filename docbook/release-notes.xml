@@ -96,6 +96,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Wireshark fails to start on Windows XP 64bit.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5160">Bug
+          5160</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           GTP header is exported in PDML with an incorrect size.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5162">Bug
           5162</ulink>)
@@ -105,6 +111,30 @@ Wireshark Info
           Packet list hidden columns will not be parsed correctly from preferences file.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5163">Bug
           5163</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark does not display the t.38 graph.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5165">Bug
+          5165</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark don't show mgcp calls in "Telephony → VoIP calls".
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5167">Bug
+          5167</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          GTPv2: IMSI is decoded improperly.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5179">Bug
+          5179</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          [NAS EPS] EPS Quality of Service IE decoding is wrong.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5186">Bug
+          5186</ulink>)
         </para></listitem>
 
       </itemizedlist>

@@ -43,6 +43,7 @@
 #include "packet-ipx.h"
 #include "packet-netbios.h"
 #include "packet-vines.h"
+#include "packet-sll.h"
 #include <epan/sna-utils.h>
 
 #include "packet-llc.h"
@@ -954,6 +955,7 @@ proto_reg_handoff_llc(void)
 
 	llc_handle = find_dissector("llc");
 	dissector_add("wtap_encap", WTAP_ENCAP_ATM_RFC1483, llc_handle);
+	dissector_add("sll.ltype", LINUX_SLL_P_802_2, llc_handle);
 	/* RFC 2043 */
 	dissector_add("ppp.protocol", PPP_LLC, llc_handle);
 	/* RFC 2353 */

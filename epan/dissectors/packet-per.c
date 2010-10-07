@@ -592,10 +592,10 @@ DEBUG_ENTRY("dissect_per_sequence_of");
 
 	hfi = proto_registrar_get_nth(hf_index);
 	if (IS_FT_UINT(hfi->type)) {
-		item = proto_tree_add_uint(parent_tree, hf_index, tvb, offset>>3, 0, length);
+		item = proto_tree_add_uint(parent_tree, hf_index, tvb, old_offset>>3, 0, length);
 		proto_item_append_text(item, (length==1)?" item":" items");
 	} else {
-		item=proto_tree_add_item(parent_tree, hf_index, tvb, offset>>3, 0, FALSE);
+		item=proto_tree_add_item(parent_tree, hf_index, tvb, old_offset>>3, 0, FALSE);
 	}
 	tree=proto_item_add_subtree(item, ett_index);
 

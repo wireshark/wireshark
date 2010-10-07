@@ -93,7 +93,7 @@ struct segment {
 
 	guint32 th_seq;
 	guint32 th_ack;
-	guint8  th_flags;
+	guint16 th_flags;
 	guint32 th_win;   /* make it 32 bits so we can handle some scaling */
 	guint32 th_seglen;
 	guint16 th_sport;
