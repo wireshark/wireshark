@@ -77,6 +77,13 @@ typedef enum mac_lte_dl_retx {
     dl_retx_unknown
 } mac_lte_dl_retx;
 
+typedef enum mac_lte_crc_status {
+    crc_fail = 0,
+    crc_success = 1,
+    crc_high_code_rate = 2,
+    crc_pdsch_lost = 3
+} mac_lte_crc_status;
+
 /* Context info attached to each LTE MAC frame */
 typedef struct mac_lte_info
 {
@@ -94,7 +101,7 @@ typedef struct mac_lte_info
     gboolean        isPredefinedData;
     guint16         length;
     guint8          reTxCount;   /* UL */
-    guint8          crcStatusValid;
+    mac_lte_crc_status   crcStatusValid;
 
     mac_lte_dl_retx dl_retx;
 
@@ -116,8 +123,8 @@ typedef struct mac_lte_info
             guint8 aggregation_level;
             guint8 mcs_index;
             guint8 redundancy_version_index;
-            guint8 resource_block_length; 
-            guint8 crc_status;
+            guint8 resource_block_length;
+            mac_lte_crc_status crc_status;
         } dl_info;
     } detailed_phy_info;
     
@@ -135,7 +142,7 @@ typedef struct mac_lte_tap_info {
     guint8   rntiType;
     guint8   isPredefinedData;
     guint8   crcStatusValid;
-    guint8   crcStatus;
+    mac_lte_crc_status   crcStatus;
     guint8   direction;
 
     guint8   isPHYRetx;

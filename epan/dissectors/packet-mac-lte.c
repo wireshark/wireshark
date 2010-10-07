@@ -230,8 +230,10 @@ static const value_string bch_transport_channel_vals[] =
 
 static const value_string crc_status_vals[] =
 {
-    { 0,  "Failed"},
-    { 1,  "OK"},
+    { crc_success,        "OK"},
+    { crc_fail,           "Failed"},
+    { crc_high_code_rate, "High Code Rate"},
+    { crc_pdsch_lost,     "PDSCH Lost"},
     { 0, NULL }
 };
 
@@ -508,6 +510,7 @@ static const value_string predefined_frame_vals[] =
     { 1,      "Predefined frame present - will not dissect"},
     { 0, NULL }
 };
+
 
 
 /**************************************************************************/
@@ -3017,13 +3020,19 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_crc_status,
                                  tvb, 0, 0, p_mac_lte_info->detailed_phy_info.dl_info.crc_status);
         PROTO_ITEM_SET_GENERATED(ti);
-        if (p_mac_lte_info->detailed_phy_info.dl_info.crc_status != TRUE) {
+        if (p_mac_lte_info->detailed_phy_info.dl_info.crc_status != crc_success) {
             expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                                   "%s Frame has CRC error",
-                                   (p_mac_lte_info->direction == DIRECTION_UPLINK) ? "UL" : "DL");
+                                   "%s Frame has CRC error problem (%s)",
+                                   (p_mac_lte_info->direction == DIRECTION_UPLINK) ? "UL" : "DL",
+                                   val_to_str_const(p_mac_lte_info->detailed_phy_info.dl_info.crc_status,
+                                                    crc_status_vals,
+                                                    "Unknown"));
             write_pdu_label_and_info(pdu_ti, NULL, pinfo,
-                                     "%s: <CRC FAILURE> UEId=%u %s=%u ",
+                                     "%s: <CRC %s> UEId=%u %s=%u ",
                                      (p_mac_lte_info->direction == DIRECTION_UPLINK) ? "UL" : "DL",
+                                     val_to_str_const(p_mac_lte_info->detailed_phy_info.dl_info.crc_status,
+                                                    crc_status_vals,
+                                                    "Unknown"),
                                      p_mac_lte_info->ueid,
                                      val_to_str_const(p_mac_lte_info->rntiType, rnti_type_vals,
                                                       "Unknown RNTI type"),
@@ -3066,7 +3075,8 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* IF CRC status failed, just do decode as raw bytes */
     if (!global_mac_lte_dissect_crc_failures &&
-        (p_mac_lte_info->crcStatusValid && !p_mac_lte_info->detailed_phy_info.dl_info.crc_status)) {
+        (p_mac_lte_info->crcStatusValid &&
+         (p_mac_lte_info->detailed_phy_info.dl_info.crc_status != crc_success))) {
 
         proto_tree_add_item(mac_lte_tree, hf_mac_lte_raw_pdu, tvb, offset, -1, FALSE);
         write_pdu_label_and_info(pdu_ti, NULL, pinfo, "Raw data (%u bytes)", tvb_length_remaining(tvb, offset));
@@ -3497,7 +3507,7 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_raw_pdu,
             { "Raw data",
               "mac-lte.raw-data", FT_BYTES, BASE_NONE, 0, 0x0,
-              "Raw bytes of PDU (e.g. if CRC failed)", HFILL
+              "Raw bytes of PDU (e.g. if CRC error)", HFILL
             }
         },
         { &hf_mac_lte_padding_data,
