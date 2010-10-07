@@ -959,7 +959,7 @@ sub check_hf_entries($$)
         my ($fileContentsRef, $filename) = @_;
 
 	my @items;
-	@items = (${$fileContentsRef} =~ m{   
+	@items = (${$fileContentsRef} =~ m{
 				  \{
 				  \s*
 				  &\s*([A-Z0-9_\[\]-]+)		# &hf
@@ -971,7 +971,7 @@ sub check_hf_entries($$)
 				  \s*,\s*
 				  (FT_[A-Z0-9_]+)		# field type
 				  \s*,\s*
-				  ([A-Z0-9x|_]+)		# display
+				  ([A-Z0-9x\|_]+)		# display
 				  \s*,\s*
 				  ([A-Z0-9&_\(\)' -]+)		# convert
 				  \s*,\s*
