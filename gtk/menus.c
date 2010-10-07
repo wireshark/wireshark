@@ -98,8 +98,6 @@
 #include "gtk/dissector_tables_dlg.h"
 #include "gtk/utf8_entities.h"
 
-#define MENUS_USE_UIMANAGER 1
-
 #ifdef NEW_PACKET_LIST
 #include "gtk/new_packet_list.h"
 #else
@@ -137,9 +135,7 @@ static void merge_all_tap_menus(GList *node);
 static void clear_menu_recent_capture_file_cmd_cb(GtkWidget *w, gpointer unused _U_);
 
 static void menus_init(void);
-#ifdef MENUS_USE_UIMANAGER
 static void set_menu_sensitivity (GtkUIManager *ui_manager, const gchar *, gint);
-#endif
 #ifndef MAIN_MENU_USE_UIMANAGER
 static void set_menu_sensitivity_old (GtkItemFactory *, const gchar *, gint);
 #endif /* MAIN_MENU_USE_UIMANAGER */
@@ -940,7 +936,6 @@ static GtkItemFactoryEntry menu_items[] =
 };
 #endif
 
-#ifdef MENUS_USE_UIMANAGER
 /*Apply a filter */
 
 static void
@@ -1014,7 +1009,6 @@ tree_view_menu_prepare_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
 	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_OR_NOT);
 }
-#endif /*XXX*/
 
 #ifdef MAIN_MENU_USE_UIMANAGER 
 /* Prepare for use of GTKUImanager */
@@ -2000,410 +1994,20 @@ static const GtkRadioActionEntry main_menu_bar_radio_view_time_fileformat_prec_e
 static int nmenu_items = sizeof(menu_items) / sizeof(menu_items[0]);
 #endif /* MAIN_MENU_USE_UIMANAGER */
 
-#ifndef MENUS_USE_UIMANAGER
-/* packet list heading popup */
-static GtkItemFactoryEntry packet_list_heading_items[] =
-{
-#ifdef NEW_PACKET_LIST
-    {"/Sort Ascending", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_SORT_ASCENDING, "<StockItem>", GTK_STOCK_SORT_ASCENDING,},
-    {"/Sort Descending", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_SORT_DESCENDING, "<StockItem>", GTK_STOCK_SORT_DESCENDING,},
-    {"/No Sorting", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_SORT_NONE, NULL, NULL,},
-
-    {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-
-    {"/Show Resolved", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_TOGGLE_RESOLVED, "<CheckItem>", NULL,},
-
-    {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-
-    {"/Align Left", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_ALIGN_LEFT, "<StockItem>", GTK_STOCK_JUSTIFY_LEFT,},
-    {"/Align Center", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_ALIGN_CENTER, "<StockItem>", GTK_STOCK_JUSTIFY_CENTER,},
-    {"/Align Right", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_ALIGN_RIGHT, "<StockItem>", GTK_STOCK_JUSTIFY_RIGHT,},
-
-    {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-
-    {"/Column Preferences...", NULL, GTK_MENU_FUNC(prefs_page_cb), PREFS_PAGE_COLUMNS, "<StockItem>", GTK_STOCK_PREFERENCES,},
-    {"/Resize Column", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_RESIZE, "<StockItem>", WIRESHARK_STOCK_RESIZE_COLUMNS,},
-    {"/Rename Column Title...", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_RENAME, "<StockItem>", GTK_STOCK_BOLD,},
-
-    {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-
-    {"/Displayed Columns", NULL, NULL, 0, NULL, NULL,},
-    {"/Hide Column", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_HIDE, NULL, NULL,},
-    {"/Remove Column", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_REMOVE, "<StockItem>", GTK_STOCK_DELETE,}
-#else
-    {"/Sort Ascending", NULL, GTK_MENU_FUNC(packet_list_column_menu_cb), COLUMN_SELECTED_SORT_ASCENDING, "<StockItem>", GTK_STOCK_SORT_ASCENDING,},
-    {"/Sort Descending", NULL, GTK_MENU_FUNC(packet_list_column_menu_cb), COLUMN_SELECTED_SORT_DESCENDING, "<StockItem>", GTK_STOCK_SORT_DESCENDING,},
-    {"/No Sorting", NULL, GTK_MENU_FUNC(packet_list_column_menu_cb), COLUMN_SELECTED_SORT_NONE, NULL, NULL,},
-
-     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-
-     {"/Align Left", NULL, GTK_MENU_FUNC(packet_list_column_menu_cb), COLUMN_SELECTED_ALIGN_LEFT, "<StockItem>", GTK_STOCK_JUSTIFY_LEFT,},
-     {"/Align Center", NULL, GTK_MENU_FUNC(packet_list_column_menu_cb), COLUMN_SELECTED_ALIGN_CENTER, "<StockItem>", GTK_STOCK_JUSTIFY_CENTER,},
-     {"/Align Right", NULL, GTK_MENU_FUNC(packet_list_column_menu_cb), COLUMN_SELECTED_ALIGN_RIGHT, "<StockItem>", GTK_STOCK_JUSTIFY_RIGHT,},
-
-    {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-
-    {"/Column Preferences...", NULL, GTK_MENU_FUNC(prefs_page_cb), PREFS_PAGE_COLUMNS, "<StockItem>", GTK_STOCK_PREFERENCES,},
-    {"/Resize Column", NULL, GTK_MENU_FUNC(packet_list_column_menu_cb), COLUMN_SELECTED_RESIZE, "<StockItem>", WIRESHARK_STOCK_RESIZE_COLUMNS,},
-    {"/Rename Column Title...", NULL, GTK_MENU_FUNC(packet_list_column_menu_cb), COLUMN_SELECTED_RENAME, "<StockItem>", GTK_STOCK_BOLD,},
-
-    {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-
-    {"/Remove Column", NULL, GTK_MENU_FUNC(packet_list_column_menu_cb), COLUMN_SELECTED_REMOVE, "<StockItem>", GTK_STOCK_DELETE,}
-#endif
-};
-
-/* packet list popup */
-static GtkItemFactoryEntry packet_list_menu_items[] =
-{
-#ifdef NEW_PACKET_LIST
-    {"/Mark Packet (toggle)", NULL, GTK_MENU_FUNC(new_packet_list_mark_frame_cb), 0, NULL, NULL,},
-    {"/Ignore Packet (toggle)", NULL, GTK_MENU_FUNC(new_packet_list_ignore_frame_cb), 0, NULL, NULL,},
-#else
-    {"/Mark Packet (toggle)", NULL, GTK_MENU_FUNC(packet_list_mark_frame_cb), 0, NULL, NULL,},
-    {"/Ignore Packet (toggle)", NULL, GTK_MENU_FUNC(packet_list_ignore_frame_cb), 0, NULL, NULL,},
-#endif /* NEW_PACKET_LIST */
-    {"/Set Time Reference (toggle)", NULL, GTK_MENU_FUNC(reftime_frame_cb), REFTIME_TOGGLE, "<StockItem>", WIRESHARK_STOCK_TIME,},
-
-    {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Manually Resolve Address", NULL, GTK_MENU_FUNC(manual_addr_resolv_dlg), 0, NULL, NULL,},
-    {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-
-    {"/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/Apply as Filter/_Selected", NULL, GTK_MENU_FUNC(match_selected_plist_cb),
-                       MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
-    {"/Apply as Filter/_Not Selected", NULL, GTK_MENU_FUNC(match_selected_plist_cb),
-                       MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
-    {"/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " _and Selected", NULL, GTK_MENU_FUNC(match_selected_plist_cb),
-                       MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
-    {"/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " _or Selected", NULL, GTK_MENU_FUNC(match_selected_plist_cb),
-                       MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
-    {"/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " a_nd not Selected", NULL, GTK_MENU_FUNC(match_selected_plist_cb),
-                       MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
-    {"/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " o_r not Selected", NULL, GTK_MENU_FUNC(match_selected_plist_cb),
-                       MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
-    {"/Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/Prepare a Filter/_Selected", NULL, GTK_MENU_FUNC(match_selected_plist_cb),
-                       MATCH_SELECTED_REPLACE, NULL, NULL,},
-    {"/Prepare a Filter/_Not Selected", NULL, GTK_MENU_FUNC(match_selected_plist_cb),
-                       MATCH_SELECTED_NOT, NULL, NULL,},
-    {"/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " _and Selected", NULL, GTK_MENU_FUNC(match_selected_plist_cb),
-                       MATCH_SELECTED_AND, NULL, NULL,},
-    {"/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " _or Selected", NULL, GTK_MENU_FUNC(match_selected_plist_cb),
-                       MATCH_SELECTED_OR, NULL, NULL,},
-    {"/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " a_nd not Selected", NULL, GTK_MENU_FUNC(match_selected_plist_cb),
-                       MATCH_SELECTED_AND_NOT, NULL, NULL,},
-    {"/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " o_r not Selected", NULL, GTK_MENU_FUNC(match_selected_plist_cb),
-                       MATCH_SELECTED_OR_NOT, NULL, NULL,},
-    {"/Conversation Filter", NULL, NULL, 0, "<Branch>",NULL,},
-    {"/Conversation Filter/Ethernet", NULL, GTK_MENU_FUNC(conversation_cb),
-                       CONV_ETHER, NULL, NULL,},
-    {"/Conversation Filter/IP", NULL, GTK_MENU_FUNC(conversation_cb),
-                       CONV_IP, NULL, NULL,},
-    {"/Conversation Filter/TCP", NULL, GTK_MENU_FUNC(conversation_cb),
-                       CONV_TCP, NULL, NULL,},
-    {"/Conversation Filter/UDP", NULL, GTK_MENU_FUNC(conversation_cb),
-                       CONV_UDP, NULL, NULL,},
-    {"/Conversation Filter/PN-CBA Server", NULL, GTK_MENU_FUNC(conversation_cb),
-                       CONV_CBA, NULL, NULL,},
-
-    {"/Colorize Conversation", NULL, NULL, 0, "<Branch>",NULL,},
-    {"/Colorize Conversation/Ethernet", NULL, NULL, 0, "<Branch>",NULL,},
-    {"/Colorize Conversation/Ethernet/Color 1", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_ETHER+1*256, "<StockItem>", WIRESHARK_STOCK_COLOR1,},
-    {"/Colorize Conversation/Ethernet/Color 2", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_ETHER+2*256, "<StockItem>", WIRESHARK_STOCK_COLOR2,},
-    {"/Colorize Conversation/Ethernet/Color 3", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_ETHER+3*256, "<StockItem>", WIRESHARK_STOCK_COLOR3,},
-    {"/Colorize Conversation/Ethernet/Color 4", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_ETHER+4*256, "<StockItem>", WIRESHARK_STOCK_COLOR4,},
-    {"/Colorize Conversation/Ethernet/Color 5", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_ETHER+5*256, "<StockItem>", WIRESHARK_STOCK_COLOR5,},
-    {"/Colorize Conversation/Ethernet/Color 6", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_ETHER+6*256, "<StockItem>", WIRESHARK_STOCK_COLOR6,},
-    {"/Colorize Conversation/Ethernet/Color 7", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_ETHER+7*256, "<StockItem>", WIRESHARK_STOCK_COLOR7,},
-    {"/Colorize Conversation/Ethernet/Color 8", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_ETHER+8*256, "<StockItem>", WIRESHARK_STOCK_COLOR8,},
-    {"/Colorize Conversation/Ethernet/Color 9", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_ETHER+9*256, "<StockItem>", WIRESHARK_STOCK_COLOR9,},
-    {"/Colorize Conversation/Ethernet/Color 10", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_ETHER+10*256, "<StockItem>", WIRESHARK_STOCK_COLOR0,},
-    {"/Colorize Conversation/Ethernet/<separator>", NULL,
-                       NULL, 0, "<Separator>",NULL,},
-    {"/Colorize Conversation/Ethernet/New Coloring Rule...", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_ETHER, "<StockItem>", GTK_STOCK_SELECT_COLOR,},
-    {"/Colorize Conversation/IP", NULL, NULL, 0, "<Branch>",NULL,},
-    {"/Colorize Conversation/IP/Color 1", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_IP+1*256, "<StockItem>", WIRESHARK_STOCK_COLOR1,},
-    {"/Colorize Conversation/IP/Color 2", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_IP+2*256, "<StockItem>", WIRESHARK_STOCK_COLOR2,},
-    {"/Colorize Conversation/IP/Color 3", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_IP+3*256, "<StockItem>", WIRESHARK_STOCK_COLOR3,},
-    {"/Colorize Conversation/IP/Color 4", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_IP+4*256, "<StockItem>", WIRESHARK_STOCK_COLOR4,},
-    {"/Colorize Conversation/IP/Color 5", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_IP+5*256, "<StockItem>", WIRESHARK_STOCK_COLOR5,},
-    {"/Colorize Conversation/IP/Color 6", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_IP+6*256, "<StockItem>", WIRESHARK_STOCK_COLOR6,},
-    {"/Colorize Conversation/IP/Color 7", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_IP+7*256, "<StockItem>", WIRESHARK_STOCK_COLOR7,},
-    {"/Colorize Conversation/IP/Color 8", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_IP+8*256, "<StockItem>", WIRESHARK_STOCK_COLOR8,},
-    {"/Colorize Conversation/IP/Color 9", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_IP+9*256, "<StockItem>", WIRESHARK_STOCK_COLOR9,},
-    {"/Colorize Conversation/IP/Color 10", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_IP+10*256, "<StockItem>", WIRESHARK_STOCK_COLOR0,},
-    {"/Colorize Conversation/IP/<separator>", NULL,
-                       NULL, 0, "<Separator>",NULL,},
-    {"/Colorize Conversation/IP/New Coloring Rule...", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_IP, "<StockItem>", GTK_STOCK_SELECT_COLOR,},
-    {"/Colorize Conversation/TCP", NULL, NULL, 0, "<Branch>",NULL,},
-    {"/Colorize Conversation/TCP/Color 1", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_TCP+1*256, "<StockItem>", WIRESHARK_STOCK_COLOR1,},
-    {"/Colorize Conversation/TCP/Color 2", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_TCP+2*256, "<StockItem>", WIRESHARK_STOCK_COLOR2,},
-    {"/Colorize Conversation/TCP/Color 3", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_TCP+3*256, "<StockItem>", WIRESHARK_STOCK_COLOR3,},
-    {"/Colorize Conversation/TCP/Color 4", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_TCP+4*256, "<StockItem>", WIRESHARK_STOCK_COLOR4,},
-    {"/Colorize Conversation/TCP/Color 5", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_TCP+5*256, "<StockItem>", WIRESHARK_STOCK_COLOR5,},
-    {"/Colorize Conversation/TCP/Color 6", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_TCP+6*256, "<StockItem>", WIRESHARK_STOCK_COLOR6,},
-    {"/Colorize Conversation/TCP/Color 7", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_TCP+7*256, "<StockItem>", WIRESHARK_STOCK_COLOR7,},
-    {"/Colorize Conversation/TCP/Color 8", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_TCP+8*256, "<StockItem>", WIRESHARK_STOCK_COLOR8,},
-    {"/Colorize Conversation/TCP/Color 9", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_TCP+9*256, "<StockItem>", WIRESHARK_STOCK_COLOR9,},
-    {"/Colorize Conversation/TCP/Color 10", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_TCP+10*256, "<StockItem>", WIRESHARK_STOCK_COLOR0,},
-    {"/Colorize Conversation/TCP/<separator>", NULL,
-                       NULL, 0, "<Separator>",NULL,},
-    {"/Colorize Conversation/TCP/New Coloring Rule...", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_TCP, "<StockItem>", GTK_STOCK_SELECT_COLOR,},
-    {"/Colorize Conversation/UDP", NULL, NULL, 0, "<Branch>",NULL,},
-    {"/Colorize Conversation/UDP/Color 1", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_UDP+1*256, "<StockItem>", WIRESHARK_STOCK_COLOR1,},
-    {"/Colorize Conversation/UDP/Color 2", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_UDP+2*256, "<StockItem>", WIRESHARK_STOCK_COLOR2,},
-    {"/Colorize Conversation/UDP/Color 3", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_UDP+3*256, "<StockItem>", WIRESHARK_STOCK_COLOR3,},
-    {"/Colorize Conversation/UDP/Color 4", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_UDP+4*256, "<StockItem>", WIRESHARK_STOCK_COLOR4,},
-    {"/Colorize Conversation/UDP/Color 5", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_UDP+5*256, "<StockItem>", WIRESHARK_STOCK_COLOR5,},
-    {"/Colorize Conversation/UDP/Color 6", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_UDP+6*256, "<StockItem>", WIRESHARK_STOCK_COLOR6,},
-    {"/Colorize Conversation/UDP/Color 7", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_UDP+7*256, "<StockItem>", WIRESHARK_STOCK_COLOR7,},
-    {"/Colorize Conversation/UDP/Color 8", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_UDP+8*256, "<StockItem>", WIRESHARK_STOCK_COLOR8,},
-    {"/Colorize Conversation/UDP/Color 9", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_UDP+9*256, "<StockItem>", WIRESHARK_STOCK_COLOR9,},
-    {"/Colorize Conversation/UDP/Color 10", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_UDP+10*256, "<StockItem>", WIRESHARK_STOCK_COLOR0,},
-    {"/Colorize Conversation/UDP/<separator>", NULL,
-                       NULL, 0, "<Separator>",NULL,},
-    {"/Colorize Conversation/UDP/New Coloring Rule...", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_UDP, "<StockItem>", GTK_STOCK_SELECT_COLOR,},
-    {"/Colorize Conversation/PN-CBA Server", NULL, NULL, 0, "<Branch>",NULL,},
-    {"/Colorize Conversation/PN-CBA Server/Color 1", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_CBA+1*256, "<StockItem>", WIRESHARK_STOCK_COLOR1,},
-    {"/Colorize Conversation/PN-CBA Server/Color 2", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_CBA+2*256, "<StockItem>", WIRESHARK_STOCK_COLOR2,},
-    {"/Colorize Conversation/PN-CBA Server/Color 3", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_CBA+3*256, "<StockItem>", WIRESHARK_STOCK_COLOR3,},
-    {"/Colorize Conversation/PN-CBA Server/Color 4", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_CBA+4*256, "<StockItem>", WIRESHARK_STOCK_COLOR4,},
-    {"/Colorize Conversation/PN-CBA Server/Color 5", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_CBA+5*256, "<StockItem>", WIRESHARK_STOCK_COLOR5,},
-    {"/Colorize Conversation/PN-CBA Server/Color 6", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_CBA+6*256, "<StockItem>", WIRESHARK_STOCK_COLOR6,},
-    {"/Colorize Conversation/PN-CBA Server/Color 7", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_CBA+7*256, "<StockItem>", WIRESHARK_STOCK_COLOR7,},
-    {"/Colorize Conversation/PN-CBA Server/Color 8", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_CBA+8*256, "<StockItem>", WIRESHARK_STOCK_COLOR8,},
-    {"/Colorize Conversation/PN-CBA Server/Color 9", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_CBA+9*256, "<StockItem>", WIRESHARK_STOCK_COLOR9,},
-    {"/Colorize Conversation/PN-CBA Server/Color 10", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_CBA+10*256, "<StockItem>", WIRESHARK_STOCK_COLOR0,},
-    {"/Colorize Conversation/PN-CBA Server/<separator>", NULL,
-                       NULL, 0, "<Separator>",NULL,},
-    {"/Colorize Conversation/PN-CBA Server/New Coloring Rule...", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), CONV_CBA, "<StockItem>", GTK_STOCK_SELECT_COLOR,},
-
-    {"/SCTP", NULL, NULL, 0, "<Branch>",NULL,},
-    {"/SCTP/Analyse this Association", NULL, GTK_MENU_FUNC(sctp_analyse_start),
-                       0, NULL,NULL,},
-    {"/SCTP/Prepare Filter for this Association", NULL, (sctp_set_assoc_filter),
-                       0, NULL,NULL,},
-
-    {"/Follow TCP Stream", NULL, (follow_tcp_stream_cb),
-                       0, NULL, NULL,},
-    {"/Follow UDP Stream", NULL, (follow_udp_stream_cb),
-                       0, NULL, NULL,},
-    {"/Follow SSL Stream", NULL, (follow_ssl_stream_cb),
-                       0, NULL, NULL,},
-
-    {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Copy", NULL, NULL, 0, "<Branch>", NULL,},
-#ifdef NEW_PACKET_LIST
-    {"/Copy/Summary (Text)", NULL, GTK_MENU_FUNC(new_packet_list_copy_summary_cb), CS_TEXT, NULL, NULL,},
-    {"/Copy/Summary (CSV)", NULL, GTK_MENU_FUNC(new_packet_list_copy_summary_cb), CS_CSV, NULL, NULL,},
-    {"/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-#else
-    {"/Copy/Summary (Text)", NULL, GTK_MENU_FUNC(packet_list_copy_summary_cb), CS_TEXT, NULL, NULL,},
-    {"/Copy/Summary (CSV)", NULL, GTK_MENU_FUNC(packet_list_copy_summary_cb), CS_CSV, NULL, NULL,},
-    {"/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-#endif /* NEW_PACKET_LIST */
-    {"/Copy/As Filter", NULL, GTK_MENU_FUNC(match_selected_plist_cb),
-                       MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY, NULL, NULL,},
-    {"/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Copy/Bytes (Offset Hex Text)", NULL, GTK_MENU_FUNC(copy_hex_cb), CD_ALLINFO, NULL, NULL,},
-    {"/Copy/Bytes (Offset Hex)", NULL, GTK_MENU_FUNC(copy_hex_cb), CD_HEXCOLUMNS, NULL, NULL,},
-    {"/Copy/Bytes (Printable Text Only)", NULL, GTK_MENU_FUNC(copy_hex_cb), CD_TEXTONLY, NULL, NULL,},
-    {"/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Copy/Bytes (Hex Stream)", NULL, GTK_MENU_FUNC(copy_hex_cb), CD_HEX, NULL, NULL,},
-    {"/Copy/Bytes (Binary Stream)", NULL, GTK_MENU_FUNC(copy_hex_cb), CD_BINARY, NULL, NULL,},
-
-    {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-
-    {"/Decode As...", NULL, GTK_MENU_FUNC(decode_as_cb), 0, "<StockItem>", WIRESHARK_STOCK_DECODE_AS,},
-    {"/Print...", NULL, GTK_MENU_FUNC(file_print_selected_cmd_cb), 0, "<StockItem>", GTK_STOCK_PRINT,},
-    {"/Show Packet in New Window", NULL, GTK_MENU_FUNC(new_window_cb),
-                       0, NULL, NULL}
-};
-
-static GtkItemFactoryEntry tree_view_menu_items[] =
-{
-
-    {"/Expand Subtrees", NULL, GTK_MENU_FUNC(expand_tree_cb), 0, NULL, NULL,},
-    {"/Expand All", NULL, GTK_MENU_FUNC(expand_all_cb), 0, NULL, NULL,},
-    {"/Collapse All", NULL, GTK_MENU_FUNC(collapse_all_cb), 0, NULL, NULL,},
-
-    {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-
-    {"/Apply as Column", NULL, GTK_MENU_FUNC(apply_as_custom_column_cb), 0, NULL, NULL},
-
-    {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-
-    {"/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/Apply as Filter/_Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
-                       MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
-    {"/Apply as Filter/_Not Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
-                       MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
-    {"/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " _and Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
-                       MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
-    {"/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " _or Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
-                       MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
-    {"/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " a_nd not Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
-                       MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
-    {"/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " o_r not Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
-                       MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
-
-    {"/Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/Prepare a Filter/_Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
-                       MATCH_SELECTED_REPLACE, NULL, NULL,},
-    {"/Prepare a Filter/_Not Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
-                       MATCH_SELECTED_NOT, NULL, NULL,},
-    {"/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " _and Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
-                       MATCH_SELECTED_AND, NULL, NULL,},
-    {"/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " _or Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
-                       MATCH_SELECTED_OR, NULL, NULL,},
-    {"/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " a_nd not Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
-                       MATCH_SELECTED_AND_NOT, NULL, NULL,},
-    {"/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " o_r not Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
-                       MATCH_SELECTED_OR_NOT, NULL, NULL,},
-
-    {"/Colorize with Filter", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/Colorize with Filter/Color 1", NULL, GTK_MENU_FUNC(colorize_selected_ptree_cb), 1, "<StockItem>", WIRESHARK_STOCK_COLOR1,},
-    {"/Colorize with Filter/Color 2", NULL, GTK_MENU_FUNC(colorize_selected_ptree_cb), 2, "<StockItem>", WIRESHARK_STOCK_COLOR2,},
-    {"/Colorize with Filter/Color 3", NULL, GTK_MENU_FUNC(colorize_selected_ptree_cb), 3, "<StockItem>", WIRESHARK_STOCK_COLOR3,},
-    {"/Colorize with Filter/Color 4", NULL, GTK_MENU_FUNC(colorize_selected_ptree_cb), 4, "<StockItem>", WIRESHARK_STOCK_COLOR4,},
-    {"/Colorize with Filter/Color 5", NULL, GTK_MENU_FUNC(colorize_selected_ptree_cb), 5, "<StockItem>", WIRESHARK_STOCK_COLOR5,},
-    {"/Colorize with Filter/Color 6", NULL, GTK_MENU_FUNC(colorize_selected_ptree_cb), 6, "<StockItem>", WIRESHARK_STOCK_COLOR6,},
-    {"/Colorize with Filter/Color 7", NULL, GTK_MENU_FUNC(colorize_selected_ptree_cb), 7, "<StockItem>", WIRESHARK_STOCK_COLOR7,},
-    {"/Colorize with Filter/Color 8", NULL, GTK_MENU_FUNC(colorize_selected_ptree_cb), 8, "<StockItem>", WIRESHARK_STOCK_COLOR8,},
-    {"/Colorize with Filter/Color 9", NULL, GTK_MENU_FUNC(colorize_selected_ptree_cb), 9, "<StockItem>", WIRESHARK_STOCK_COLOR9,},
-    {"/Colorize with Filter/Color 10", NULL, GTK_MENU_FUNC(colorize_selected_ptree_cb), 10, "<StockItem>", WIRESHARK_STOCK_COLOR0,},
-    {"/Colorize with Filter/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Colorize with Filter/New Coloring Rule...", NULL, GTK_MENU_FUNC(colorize_selected_ptree_cb), 0, "<StockItem>", GTK_STOCK_SELECT_COLOR,},
-
-    {"/Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_tcp_stream_cb),
-                       0, NULL, NULL,},
-    {"/Follow UDP Stream", NULL, GTK_MENU_FUNC(follow_udp_stream_cb),
-                       0, NULL, NULL,},
-    {"/Follow SSL Stream", NULL, GTK_MENU_FUNC(follow_ssl_stream_cb),
-                       0, NULL, NULL,},
-
-    {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-
-    {"/Copy", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/Copy/Description", NULL, GTK_MENU_FUNC(copy_selected_plist_cb), COPY_SELECTED_DESCRIPTION, NULL, NULL,},
-    {"/Copy/Fieldname", NULL, GTK_MENU_FUNC(copy_selected_plist_cb), COPY_SELECTED_FIELDNAME, NULL, NULL,},
-    {"/Copy/Value", NULL, GTK_MENU_FUNC(copy_selected_plist_cb), COPY_SELECTED_VALUE, NULL, NULL,},
-    {"/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Copy/As Filter", NULL, GTK_MENU_FUNC(match_selected_ptree_cb), MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY, NULL, NULL,},
-    {"/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Copy/Bytes (Offset Hex Text)", NULL, GTK_MENU_FUNC(copy_hex_cb), CD_ALLINFO | CD_FLAGS_SELECTEDONLY, NULL, NULL,},
-    {"/Copy/Bytes (Offset Hex)", NULL, GTK_MENU_FUNC(copy_hex_cb), CD_HEXCOLUMNS | CD_FLAGS_SELECTEDONLY, NULL, NULL,},
-    {"/Copy/Bytes (Printable Text Only)", NULL, GTK_MENU_FUNC(copy_hex_cb), CD_TEXTONLY | CD_FLAGS_SELECTEDONLY, NULL, NULL,},
-    {"/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Copy/Bytes (Hex Stream)", NULL, GTK_MENU_FUNC(copy_hex_cb), CD_HEX | CD_FLAGS_SELECTEDONLY, NULL, NULL,},
-    {"/Copy/Bytes (Binary Stream)", NULL, GTK_MENU_FUNC(copy_hex_cb), CD_BINARY | CD_FLAGS_SELECTEDONLY, NULL, NULL,},
-
-    {"/Export Selected Packet Bytes...", NULL, GTK_MENU_FUNC(savehex_cb),
-                       0, NULL, NULL,},
-
-    {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-
-    {"/Wiki Protocol Page", NULL, GTK_MENU_FUNC(selected_ptree_info_cb),
-                       0, "<StockItem>", WIRESHARK_STOCK_WIKI,},
-    {"/Filter Field Reference", NULL, GTK_MENU_FUNC(selected_ptree_ref_cb),
-                       0, "<StockItem>", WIRESHARK_STOCK_INTERNET,},
-#if GLIB_CHECK_VERSION(2,14,0) /* GRegex */
-    {"/Protocol Help", NULL, NULL, 0, "<Branch>", NULL,},
-#endif /* GLIB_CHECK_VERSION(2,14,0) */
-    {"/Protocol Preferences", NULL, NULL, 0, NULL, NULL,},
-    {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Decode As...", NULL, GTK_MENU_FUNC(decode_as_cb), 0, "<StockItem>", WIRESHARK_STOCK_DECODE_AS,},
-    {"/Disable Protocol...", NULL, GTK_MENU_FUNC(proto_disable_cb), 0, "<StockItem>", WIRESHARK_STOCK_CHECKBOX,},
-    {"/_Resolve Name", NULL, GTK_MENU_FUNC(resolve_name_cb), 0, NULL, NULL,},
-    {"/_Go to Corresponding Packet", NULL, GTK_MENU_FUNC(goto_framenum_cb), 0, NULL, NULL,}
-};
-
-static GtkItemFactoryEntry bytes_menu_items[] =
-{
-    {"/Hex View", NULL, GTK_MENU_FUNC(select_bytes_view), BYTES_HEX, "<RadioItem>", NULL,},
-    {"/Bits View", NULL, GTK_MENU_FUNC(select_bytes_view), BYTES_BITS, "/Hex View", NULL,}
-};
-#endif
-
 static int initialize = TRUE;
 #ifdef MAIN_MENU_USE_UIMANAGER
     GtkActionGroup    *main_menu_bar_action_group;
 #else
 static GtkItemFactory *main_menu_factory = NULL;
 #endif
-#ifdef MENUS_USE_UIMANAGER
 static GtkUIManager *ui_manager_packet_list_heading = NULL;
 static GtkUIManager *ui_manager_packet_list_menu = NULL;
 static GtkUIManager *ui_manager_tree_view_menu = NULL;
 static GtkUIManager *ui_manager_bytes_menu = NULL;
 static GtkUIManager *ui_manager_statusbar_profiles_menu = NULL;
-#else
-static GtkItemFactory *packet_list_heading_factory = NULL;
-static GtkItemFactory *packet_list_menu_factory = NULL;
-static GtkItemFactory *tree_view_menu_factory = NULL;
-static GtkItemFactory *bytes_menu_factory = NULL;
-#endif
 static GSList *popup_menu_list = NULL;
 
 static GtkAccelGroup *grp;
-
-#ifdef MENUS_USE_UIMANAGER
 
 static void
 select_bytes_view_cb (GtkRadioAction *action, GtkRadioAction *current _U_, gpointer user_data _U_)
@@ -3603,7 +3207,6 @@ static const GtkActionEntry statusbar_profiles_menu_action_entries [] =
 	{ "/Change",	NULL,		"Change",	NULL,	NULL,	NULL },
 	{ "/Change/Default",	NULL,	"Default",	NULL,	NULL,	  NULL },
 };
-#endif
 
 GtkWidget *
 main_menu_new(GtkAccelGroup ** table) {
@@ -3760,12 +3363,10 @@ void menu_dissector_filter(void) {
 
 static void
 menus_init(void) {
-#ifdef MENUS_USE_UIMANAGER
     GtkActionGroup *packet_list_heading_action_group, *packet_list_action_group,
         *packet_list_details_action_group, *packet_list_byte_menu_action_group,
         *statusbar_profiles_action_group;
     GError *error = NULL;
-#endif
 
     if (initialize) {
         initialize = FALSE;
@@ -3773,7 +3374,6 @@ menus_init(void) {
     popup_menu_object = gtk_menu_new();
 
     /* packet list heading pop-up menu */
-#ifdef MENUS_USE_UIMANAGER
     packet_list_heading_action_group = gtk_action_group_new ("PacketListHeadingPopUpMenuActionGroup");
 
     gtk_action_group_add_actions (packet_list_heading_action_group,            /* the action group */
@@ -3805,17 +3405,7 @@ menus_init(void) {
 
     popup_menu_list = g_slist_append((GSList *)popup_menu_list, ui_manager_packet_list_heading);
 
-#else
-    packet_list_heading_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
-    gtk_item_factory_create_items_ac(packet_list_heading_factory, sizeof(packet_list_heading_items)/sizeof(packet_list_heading_items[0]), packet_list_heading_items, popup_menu_object, 2);
-    g_object_set_data(G_OBJECT(popup_menu_object), PM_PACKET_LIST_COL_KEY,
-                    packet_list_heading_factory->widget);
-    popup_menu_list = g_slist_append((GSList *)popup_menu_list, packet_list_heading_factory);
-
-#endif /* MENUS_USE_UIMANAGER */
-
     /* packet list pop-up menu */
-#ifdef MENUS_USE_UIMANAGER
     packet_list_action_group = gtk_action_group_new ("PacketListPopUpMenuActionGroup");
 
     gtk_action_group_add_actions (packet_list_action_group,                    /* the action group */
@@ -3843,16 +3433,8 @@ menus_init(void) {
 
     popup_menu_list = g_slist_append((GSList *)popup_menu_list, ui_manager_packet_list_menu);
 
-#else
-    packet_list_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
-    gtk_item_factory_create_items_ac(packet_list_menu_factory, sizeof(packet_list_menu_items)/sizeof(packet_list_menu_items[0]), packet_list_menu_items, popup_menu_object, 2);
-    g_object_set_data(G_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY,
-                    packet_list_menu_factory->widget);
-    popup_menu_list = g_slist_append((GSList *)popup_menu_list, packet_list_menu_factory);
-#endif /* MENUS_USE_UIMANAGER */
 
     /* packet detail pop-up menu */
-#ifdef MENUS_USE_UIMANAGER
     packet_list_details_action_group = gtk_action_group_new ("PacketListDetailsMenuPopUpActionGroup");
 
     gtk_action_group_add_actions (packet_list_details_action_group,            /* the action group */
@@ -3879,21 +3461,12 @@ menus_init(void) {
                      gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup"));
 
     popup_menu_list = g_slist_append((GSList *)popup_menu_list, ui_manager_tree_view_menu);
-#else
-
-    tree_view_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
-    gtk_item_factory_create_items_ac(tree_view_menu_factory, sizeof(tree_view_menu_items)/sizeof(tree_view_menu_items[0]), tree_view_menu_items, popup_menu_object, 2);
-    g_object_set_data(G_OBJECT(popup_menu_object), PM_TREE_VIEW_KEY,
-                    tree_view_menu_factory->widget);
-    popup_menu_list = g_slist_append((GSList *)popup_menu_list, tree_view_menu_factory);
-#endif /* MENUS_USE_UIMANAGER */
 
     /*
      * Hex dump pop-up menu.
      * We provide our own empty menu to suppress the default pop-up menu
      * for text widgets.
      */
-#ifdef MENUS_USE_UIMANAGER
     packet_list_byte_menu_action_group = gtk_action_group_new ("PacketListByteMenuPopUpActionGroup");
 
 
@@ -3923,14 +3496,6 @@ menus_init(void) {
                     gtk_ui_manager_get_widget(ui_manager_bytes_menu, "/BytesMenuPopup"));
 
     popup_menu_list = g_slist_append((GSList *)popup_menu_list, ui_manager_bytes_menu);
-
-#else
-    bytes_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
-    gtk_item_factory_create_items_ac(bytes_menu_factory, sizeof(bytes_menu_items)/sizeof(bytes_menu_items[0]), bytes_menu_items, popup_menu_object, 2);
-    g_object_set_data(G_OBJECT(popup_menu_object), PM_BYTES_VIEW_KEY,
-                    bytes_menu_factory->widget);
-    popup_menu_list = g_slist_append((GSList *)popup_menu_list, bytes_menu_factory);
-#endif /* MENUS_USE_UIMANAGER */
 
     /* main */
 #ifdef MAIN_MENU_USE_UIMANAGER
@@ -3977,7 +3542,6 @@ menus_init(void) {
     gtk_item_factory_create_items_ac(main_menu_factory, nmenu_items, menu_items, NULL, 2);
 #endif /* MAIN_MENU_USE_UIMANAGER */
 
-#ifdef MENUS_USE_UIMANAGER
     statusbar_profiles_action_group = gtk_action_group_new ("StatusBarProfilesPopUpMenuActionGroup");
 
     gtk_action_group_add_actions (statusbar_profiles_action_group,            /* the action group */
@@ -4003,7 +3567,6 @@ menus_init(void) {
                    gtk_ui_manager_get_widget(ui_manager_statusbar_profiles_menu, "/ProfilesMenuPopup"));
 
     popup_menu_list = g_slist_append((GSList *)popup_menu_list, ui_manager_statusbar_profiles_menu);
-#endif /* MENUS_USE_UIMANAGER */
 
     menu_dissector_filter();
     merge_all_tap_menus(tap_menu_tree_root);
@@ -4028,12 +3591,7 @@ menus_init(void) {
     clear_menu_recent_capture_file_cmd_cb(NULL, NULL);
 
     /* Protocol help links */
-#ifdef MENUS_USE_UIMANAGER
     proto_help_menu_init(gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup"));
-
-#else
-    proto_help_menu_init(tree_view_menu_factory->widget);
-#endif
     }
 }
 
@@ -4322,8 +3880,8 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
                 entry->extra_data = node_data->stock_id;
             }
 #ifdef MAIN_MENU_USE_UIMANAGER
-			g_warning("entry->path = %s",entry->path);
 #if 0
+			g_warning("entry->path = %s",entry->path);
 			action = gtk_action_new(entry->path,	/* name */
                            const gchar *label,		/* label */
                            NULL,					/* tooltip */
@@ -4460,7 +4018,6 @@ void merge_all_tap_menus(GList *node) {
     g_free (sep_entry);
 }
 
-#ifdef MENUS_USE_UIMANAGER
 /*
  * Enable/disable menu sensitivity.
  */
@@ -4482,7 +4039,6 @@ set_menu_sensitivity(GtkUIManager *ui_manager, const gchar *path, gint val)
     g_object_set (G_OBJECT (action), "sensitive", val, NULL);
 #endif
 }
-#endif /* MENUS_USE_UIMANAGER */
 
 /*
  * Enable/disable menu sensitivity.
@@ -4547,7 +4103,6 @@ set_menu_sensitivity_old(GtkItemFactory *ifactory, const gchar *path, gint val)
 
 #endif /* MAIN_MENU_USE_UIMANAGER */
 
-#ifdef MENUS_USE_UIMANAGER
 static void
 set_menu_object_data_meat(GtkUIManager *ui_manager, const gchar *path, const gchar *key, gpointer data)
 {
@@ -4556,7 +4111,6 @@ set_menu_object_data_meat(GtkUIManager *ui_manager, const gchar *path, const gch
     if ((menu =  gtk_ui_manager_get_widget(ui_manager, path)) != NULL)
         g_object_set_data(G_OBJECT(menu), key, data);
 }
-#endif
 
 #ifndef MAIN_MENU_USE_UIMANAGER
 static void
@@ -4580,13 +4134,8 @@ set_menu_object_data (const gchar *path, const gchar *key, gpointer data) {
     set_menu_object_data_meat_old(main_menu_factory, path, key, data);
 #endif /* MAIN_MENU_USE_UIMANAGER */
     while (menu_list != NULL) {
-#ifdef MENUS_USE_UIMANAGER
         set_menu_object_data_meat(menu_list->data, shortpath, key, data);
         set_menu_object_data_meat(menu_list->data, path, key, data);
-#else
-        set_menu_object_data_meat_old(menu_list->data, shortpath, key, data);
-        set_menu_object_data_meat_old(menu_list->data, path, key, data);
-#endif /* MENUS_USE_UIMANAGER */
         menu_list = g_slist_next(menu_list);
     }
 }
@@ -5501,21 +5050,6 @@ menu_recent_read_finished(void) {
     }
 
     menu_colorize_changed(recent.packet_list_colorize);
-#ifdef MENUS_USE_UIMANAGER
-    /* We set active at creation of the menu */
-#else
-    switch (recent.gui_bytes_view) {
-    case BYTES_HEX:
-        menu = gtk_item_factory_get_widget(bytes_menu_factory, "/Hex View");
-        break;
-    case BYTES_BITS:
-        menu = gtk_item_factory_get_widget(bytes_menu_factory, "/Bits View");
-        break;
-    default:
-        g_assert_not_reached();
-    }
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
-#endif
 }
 
 
@@ -5694,21 +5228,12 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
     set_menu_sensitivity_old(main_menu_factory, "/File/File Set",
                          !capture_in_progress);
 #endif /* MAIN_MENU_USE_UIMANAGER */
-#ifdef MENUS_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_packet_list_heading, "/PacketListHeadingPopup/SortAscending",
                          !capture_in_progress);
     set_menu_sensitivity(ui_manager_packet_list_heading, "/PacketListHeadingPopup/SortDescending",
                          !capture_in_progress);
     set_menu_sensitivity(ui_manager_packet_list_heading, "/PacketListHeadingPopup/NoSorting",
                          !capture_in_progress);
-#else
-    set_menu_sensitivity_old(packet_list_heading_factory, "/Sort Ascending",
-                         !capture_in_progress);
-    set_menu_sensitivity_old(packet_list_heading_factory, "/Sort Descending",
-                         !capture_in_progress);
-    set_menu_sensitivity_old(packet_list_heading_factory, "/No Sorting",
-                         !capture_in_progress);
-#endif
 
 #ifdef HAVE_LIBPCAP
 #ifdef MAIN_MENU_USE_UIMANAGER
@@ -5823,14 +5348,9 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
     set_menu_sensitivity_old(main_menu_factory, "/File/Print...",
                          have_captured_packets);
 #endif /* MAIN_MENU_USE_UIMANAGER */
-#ifdef MENUS_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/Print",
                          have_captured_packets);
 
-#else
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Print...",
-                         have_captured_packets);
-#endif /* MENUS_USE_UIMANAGER */
 #ifdef MAIN_MENU_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/FindPacket",
                          have_captured_packets);
@@ -6012,13 +5532,8 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity_old(main_menu_factory, "/Edit/Mark Packet (toggle)",
                          frame_selected);
 #endif /* MAIN_MENU_USE_UIMANAGER */
-#ifdef MENUS_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/MarkPacket",
                          frame_selected);
-#else
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Mark Packet (toggle)",
-                         frame_selected);
-#endif
 #ifdef MAIN_MENU_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/MarkAllDisplayedPackets",
                          cf->displayed_count > 0);
@@ -6046,13 +5561,8 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity_old(main_menu_factory, "/Edit/Ignore Packet (toggle)",
                          frame_selected);
 #endif /* MAIN_MENU_USE_UIMANAGER */
-#ifdef MENUS_USE_UIMANAGER
-    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/IgnorePacket",
+   set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/IgnorePacket",
                          frame_selected);
-#else
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Ignore Packet (toggle)",
-                         frame_selected);
-#endif /* MENUS_USE_UIMANAGER */
 #ifdef MAIN_MENU_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/IgnoreAllDisplayedPackets",
                          cf->displayed_count > 0 && cf->displayed_count != cf->count);
@@ -6081,13 +5591,8 @@ set_menus_for_selected_packet(capture_file *cf)
                          have_time_ref);
 #endif /* MAIN_MENU_USE_UIMANAGER */
 #endif /* NEW_PACKET_LIST */
-#ifdef MENUS_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/SetTimeReference",
                          frame_selected);
-#else
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Set Time Reference (toggle)",
-                         frame_selected);
-#endif /* MENUS_USE_UIMANAGER */
 #ifdef MAIN_MENU_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/FindNextTimeReference",
                          another_is_time_ref);
@@ -6109,13 +5614,8 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity_old(main_menu_factory, "/View/Collapse All",
                          frame_selected);
 #endif /* MAIN_MENU_USE_UIMANAGER */
-#ifdef MENUS_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/CollapseAll",
                          frame_selected);
-#else
-    set_menu_sensitivity_old(tree_view_menu_factory, "/Collapse All",
-                         frame_selected);
-#endif /* MENUS_USE_UIMANAGER */
 #ifdef MAIN_MENU_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ExpandAll",
                          frame_selected);
@@ -6123,13 +5623,8 @@ set_menus_for_selected_packet(capture_file *cf)
      set_menu_sensitivity_old(main_menu_factory, "/View/Expand All",
                           frame_selected);
 #endif /* MAIN_MENU_USE_UIMANAGER */
-#ifdef MENUS_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ExpandAll",
                          frame_selected);
-#else
-    set_menu_sensitivity_old(tree_view_menu_factory, "/Expand All",
-                         frame_selected);
-#endif /* MENUS_USE_UIMANAGER */
 #ifdef MAIN_MENU_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ColorizeConversation",
                          frame_selected);
@@ -6145,7 +5640,6 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity_old(main_menu_factory, "/View/Show Packet in New Window",
                          frame_selected);
 #endif /* MAIN_MENU_USE_UIMANAGER */
-#ifdef MENUS_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ShowPacketinNewWindow",
                          frame_selected);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ManuallyResolveAddress",
@@ -6200,62 +5694,6 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected);
     set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ResolveName",
                          frame_selected && (g_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
-#else
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Show Packet in New Window",
-                         frame_selected);
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Manually Resolve Address",
-                         frame_selected ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
-    set_menu_sensitivity_old(packet_list_menu_factory, "/SCTP",
-                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_SCTP) : FALSE);
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Follow TCP Stream",
-                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
-    set_menu_sensitivity_old(tree_view_menu_factory, "/Follow TCP Stream",
-                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Follow UDP Stream",
-                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
-    set_menu_sensitivity_old(tree_view_menu_factory, "/Follow UDP Stream",
-                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Follow SSL Stream",
-                         frame_selected ? is_ssl : FALSE);
-    set_menu_sensitivity_old(tree_view_menu_factory, "/Follow SSL Stream",
-                         frame_selected ? is_ssl : FALSE);
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Conversation Filter",
-                         frame_selected);
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Conversation Filter/Ethernet",
-                         frame_selected ? (cf->edt->pi.dl_src.type == AT_ETHER) : FALSE);
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Conversation Filter/IP",
-                         frame_selected ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Conversation Filter/TCP",
-                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Conversation Filter/UDP",
-                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Conversation Filter/PN-CBA Server",
-                         frame_selected ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Colorize Conversation",
-                         frame_selected);
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Colorize Conversation/Ethernet",
-                         frame_selected ? (cf->edt->pi.dl_src.type == AT_ETHER) : FALSE);
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Colorize Conversation/IP",
-                         frame_selected ? ((cf->edt->pi.ethertype == ETHERTYPE_IP)||(cf->edt->pi.ethertype == ETHERTYPE_IPv6)) : FALSE);
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Colorize Conversation/TCP",
-                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Colorize Conversation/UDP",
-                         frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Colorize Conversation/PN-CBA Server",
-                         frame_selected ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Decode As...",
-                         frame_selected && decode_as_ok());
-    set_menu_sensitivity_old(tree_view_menu_factory, "/Decode As...",
-                         frame_selected && decode_as_ok());
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Copy",
-                         frame_selected);
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Apply as Filter",
-                         frame_selected);
-    set_menu_sensitivity_old(packet_list_menu_factory, "/Prepare a Filter",
-                         frame_selected);
-    set_menu_sensitivity_old(tree_view_menu_factory, "/Resolve Name",
-                         frame_selected && (g_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
-#endif /* MENUS_USE_UIMANAGER */
 #ifdef MAIN_MENU_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/FollowTCPStream",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
@@ -6391,13 +5829,8 @@ menu_prefs_change_enum (GtkWidget *w, gpointer data)
 void
 menu_prefs_reset(void)
 {
-#ifdef MENUS_USE_UIMANAGER
         g_free (g_object_get_data(G_OBJECT(ui_manager_tree_view_menu), "menu_abbrev"));
         g_object_set_data(G_OBJECT(ui_manager_tree_view_menu), "menu_abbrev", NULL);
-#else
-        g_free (g_object_get_data(G_OBJECT(tree_view_menu_factory), "menu_abbrev"));
-        g_object_set_data(G_OBJECT(tree_view_menu_factory), "menu_abbrev", NULL);
-#endif
 }
 
 static void
@@ -6640,13 +6073,9 @@ add_protocol_prefs_menu (pref_t *pref, gpointer data)
         return 0;
     }
 
-#ifdef MENUS_USE_UIMANAGER
     menu_preferences = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/ProtocolPreferences");
 	if(!menu_preferences)
 		g_warning("menu_preferences Not found path:TreeViewPopup/ProtocolPreferences");
-#else
-    menu_preferences = gtk_item_factory_get_widget(tree_view_menu_factory, "/Protocol Preferences");
-#endif
     sub_menu = gtk_menu_item_get_submenu (GTK_MENU_ITEM(menu_preferences));
     gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
     gtk_widget_show (menu_item);
@@ -6661,11 +6090,7 @@ rebuild_protocol_prefs_menu (module_t *prefs_module_p, gboolean preferences)
     GtkWidget *sub_menu;
     gchar *label;
 
-#ifdef MENUS_USE_UIMANAGER
     menu_preferences = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/ProtocolPreferences");
-#else
-    menu_preferences = gtk_item_factory_get_widget(tree_view_menu_factory, "/Protocol Preferences");
-#endif
     if (preferences) {
         sub_menu = gtk_menu_new();
         gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_preferences), sub_menu);
@@ -6699,14 +6124,6 @@ menu_visible_column_toggle (GtkWidget *w _U_, gpointer data)
     new_packet_list_toggle_visible_column (GPOINTER_TO_INT(data));
 }
 
-#ifndef MENUS_USE_UIMANAGER
-static void
-menu_activate_all_columns (GtkWidget *w _U_, gpointer data _U_)
-{
-    new_packet_list_set_all_columns_visible ();
-}
-#endif
-
 void
 rebuild_visible_columns_menu (void)
 {
@@ -6724,11 +6141,7 @@ rebuild_visible_columns_menu (void)
 #else
     menu_columns[0] = gtk_item_factory_get_widget(main_menu_factory, "/View/Displayed Columns");
 #endif /* MAIN_MENU_USE_UIMANAGER */
-#ifdef MENUS_USE_UIMANAGER
     menu_columns[1] = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/DisplayedColumns");
-#else
-    menu_columns[1] = gtk_item_factory_get_widget(packet_list_heading_factory, "/Displayed Columns");
-#endif
     /* Debug */
     if(! menu_columns[1]){
         fprintf (stderr, "Warning: couldn't find menu_columns[1] path=/PacketListHeadingPopup/DisplayedColumns");
@@ -6764,11 +6177,7 @@ rebuild_visible_columns_menu (void)
 
         menu_item = gtk_menu_item_new_with_label ("Display All");
         gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
-#ifdef MENUS_USE_UIMANAGER
         g_signal_connect(menu_item, "activate", G_CALLBACK(packet_list_heading_activate_all_columns), NULL);
-#else
-        g_signal_connect(menu_item, "activate", G_CALLBACK(menu_activate_all_columns), NULL);
-#endif
         gtk_widget_show (menu_item);
     }
 }
@@ -6779,7 +6188,6 @@ menus_set_column_resolved (gboolean resolved, gboolean can_resolve)
 {
     GtkWidget *menu;
 
-#ifdef MENUS_USE_UIMANAGER
     menu = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/ShowResolved");
     if(!menu){
         fprintf (stderr, "Warning: couldn't find menu path=/PacketListHeadingPopup/ShowResolved");
@@ -6788,14 +6196,6 @@ menus_set_column_resolved (gboolean resolved, gboolean can_resolve)
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), resolved && can_resolve);
     set_menu_sensitivity(ui_manager_packet_list_heading, "/PacketListHeadingPopup/ShowResolved", can_resolve);
     g_object_set_data(G_OBJECT(menu), "skip-update", NULL);
-#else
-    menu = gtk_item_factory_get_widget(packet_list_heading_factory, "/Show Resolved");
-    g_object_set_data(G_OBJECT(menu), "skip-update", (void *)1);
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), resolved && can_resolve);
-    set_menu_sensitivity_old(packet_list_heading_factory, "/Show Resolved", can_resolve);
-    g_object_set_data(G_OBJECT(menu), "skip-update", NULL);
-
-#endif
 }
 
 void
@@ -6807,14 +6207,10 @@ menus_set_column_align_default (gboolean right_justify)
     size_t       menu_item_len;
 
     /* get the submenu container item */
-#ifdef MENUS_USE_UIMANAGER
     submenu = gtk_ui_manager_get_widget (ui_manager_packet_list_heading, "/PacketListHeadingPopup");
     if(!submenu){
         fprintf (stderr, "Warning: couldn't find submenu path=/PacketListHeadingPopup");
     }
-#else
-    submenu = packet_list_heading_factory->widget;
-#endif
 
     /* find the corresponding menu items to update */
     child_list = gtk_container_get_children(GTK_CONTAINER(submenu));
@@ -6862,7 +6258,6 @@ set_menus_for_selected_tree_row(capture_file *cf)
             id = hfinfo->parent;
         }
         properties = prefs_is_registered_protocol(abbrev);
-#ifdef MENUS_USE_UIMANAGER
         set_menu_sensitivity(ui_manager_tree_view_menu,
                              "/TreeViewPopup/GotoCorrespondingPacket", hfinfo->type == FT_FRAMENUM);
         set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Copy",
@@ -6887,32 +6282,6 @@ set_menus_for_selected_tree_row(capture_file *cf)
                              (id == -1) ? FALSE : TRUE);
         set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FilterFieldReference",
                              (id == -1) ? FALSE : TRUE);
-#else
-        set_menu_sensitivity_old(tree_view_menu_factory,
-                             "/Go to Corresponding Packet", hfinfo->type == FT_FRAMENUM);
-        set_menu_sensitivity_old(tree_view_menu_factory, "/Copy",
-                             TRUE);
-        set_menu_sensitivity_old(tree_view_menu_factory, "/Copy/As Filter",
-                             proto_can_match_selected(cf->finfo_selected, cf->edt));
-        set_menu_sensitivity_old(tree_view_menu_factory, "/Apply as Column",
-                             hfinfo->type != FT_NONE);
-        set_menu_sensitivity_old(tree_view_menu_factory, "/Apply as Filter",
-                             proto_can_match_selected(cf->finfo_selected, cf->edt));
-        set_menu_sensitivity_old(tree_view_menu_factory, "/Prepare a Filter",
-                             proto_can_match_selected(cf->finfo_selected, cf->edt));
-        set_menu_sensitivity_old(tree_view_menu_factory, "/Colorize with Filter",
-                             proto_can_match_selected(cf->finfo_selected, cf->edt));
-        set_menu_sensitivity_old(tree_view_menu_factory, "/Protocol Preferences",
-                             properties);
-        set_menu_sensitivity_old(tree_view_menu_factory, "/Disable Protocol...",
-                             (id == -1) ? FALSE : proto_can_toggle_protocol(id));
-        set_menu_sensitivity_old(tree_view_menu_factory, "/Expand Subtrees",
-                             cf->finfo_selected->tree_type != -1);
-        set_menu_sensitivity_old(tree_view_menu_factory, "/Wiki Protocol Page",
-                             (id == -1) ? FALSE : TRUE);
-        set_menu_sensitivity_old(tree_view_menu_factory, "/Filter Field Reference",
-                             (id == -1) ? FALSE : TRUE);
-#endif /* MENUS_USE_UIMANAGER */
 #ifdef MAIN_MENU_USE_UIMANAGER
         set_menu_sensitivity(ui_manager_tree_view_menu,
                              "/Menubar/MenuFile/Export/SelectedPacketBytes", TRUE);
@@ -6956,25 +6325,16 @@ set_menus_for_selected_tree_row(capture_file *cf)
         set_menu_sensitivity_old(main_menu_factory, "/View/Expand Subtrees",
                              cf->finfo_selected->tree_type != -1);
 #endif
-#ifdef MENUS_USE_UIMANAGER
         prev_abbrev = g_object_get_data(G_OBJECT(ui_manager_tree_view_menu), "menu_abbrev");
-#else
-        prev_abbrev = g_object_get_data(G_OBJECT(tree_view_menu_factory), "menu_abbrev");
-#endif
         if (!prev_abbrev || (strcmp (prev_abbrev, abbrev) != 0)) {
             /* No previous protocol or protocol changed - update Protocol Preferences menu */
             module_t *prefs_module_p = prefs_find_module(abbrev);
             rebuild_protocol_prefs_menu (prefs_module_p, properties);
 
-#ifdef MENUS_USE_UIMANAGER
             g_object_set_data(G_OBJECT(ui_manager_tree_view_menu), "menu_abbrev", g_strdup(abbrev));
-#else
-            g_object_set_data(G_OBJECT(tree_view_menu_factory), "menu_abbrev", g_strdup(abbrev));
-#endif
             g_free (prev_abbrev);
         }
     } else {
-#ifdef MENUS_USE_UIMANAGER
         set_menu_sensitivity(ui_manager_tree_view_menu,
                              "/TreeViewPopup/GotoCorrespondingPacket", FALSE);
         set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Copy", FALSE);
@@ -6990,23 +6350,6 @@ set_menus_for_selected_tree_row(capture_file *cf)
                              FALSE);
         set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FilterFieldReference",
                              FALSE);
-#else
-        set_menu_sensitivity_old(tree_view_menu_factory,
-                             "/Go to Corresponding Packet", FALSE);
-        set_menu_sensitivity_old(tree_view_menu_factory, "/Copy", FALSE);
-        set_menu_sensitivity_old(tree_view_menu_factory, "/Apply as Column", FALSE);
-        set_menu_sensitivity_old(tree_view_menu_factory, "/Apply as Filter", FALSE);
-        set_menu_sensitivity_old(tree_view_menu_factory, "/Prepare a Filter", FALSE);
-        set_menu_sensitivity_old(tree_view_menu_factory, "/Colorize with Filter", FALSE);
-        set_menu_sensitivity_old(tree_view_menu_factory, "/Protocol Preferences",
-                             FALSE);
-        set_menu_sensitivity_old(tree_view_menu_factory, "/Disable Protocol...", FALSE);
-        set_menu_sensitivity_old(tree_view_menu_factory, "/Expand Subtrees", FALSE);
-        set_menu_sensitivity_old(tree_view_menu_factory, "/Wiki Protocol Page",
-                             FALSE);
-        set_menu_sensitivity_old(tree_view_menu_factory, "/Filter Field Reference",
-                             FALSE);
-#endif /* MENUS_USE_UIMANAGER */
 #ifdef MAIN_MENU_USE_UIMANAGER
         set_menu_sensitivity(ui_manager_main_menubar,
                              "/Menubar/FileMenu/Export/SelectedPacketBytes", FALSE);
@@ -7041,45 +6384,28 @@ set_menus_for_selected_tree_row(capture_file *cf)
 
 void set_menus_for_packet_history(gboolean back_history, gboolean forward_history) {
 
-#ifdef MAIN_MENU_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/Back", back_history);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/Forward", forward_history);
-#else
-    set_menu_sensitivity_old(main_menu_factory, "/Go/Back", back_history);
-    set_menu_sensitivity_old(main_menu_factory, "/Go/Forward", forward_history);
-#endif /* MAIN_MENU_USE_UIMANAGER */
     set_toolbar_for_packet_history(back_history, forward_history);
 }
 
 
 void set_menus_for_file_set(gboolean file_set, gboolean previous_file, gboolean next_file) {
 
-#ifdef MAIN_MENU_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Set/ListFiles", file_set);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Set/PreviousFile", previous_file);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Set/NextFile", next_file);
-#else
-    set_menu_sensitivity_old(main_menu_factory, "/File/File Set/List Files", file_set);
-    set_menu_sensitivity_old(main_menu_factory, "/File/File Set/Previous File", previous_file);
-    set_menu_sensitivity_old(main_menu_factory, "/File/File Set/Next File", next_file);
-#endif /* MAIN_MENU_USE_UIMANAGER */
 }
 
 GtkWidget *menus_get_profiles_menu (void)
 {
-#ifdef MENUS_USE_UIMANAGER
     return gtk_ui_manager_get_widget(ui_manager_statusbar_profiles_menu, "/ProfilesMenuPopup/Change");
-#else
-    return NULL;
-#endif /* MENUS_USE_UIMANAGER */
 }
 
 void set_menus_for_profiles(gboolean default_profile)
 {
-#ifdef MENUS_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_statusbar_profiles_menu, "/ProfilesMenuPopup/Delete", !default_profile);
     set_menu_sensitivity(ui_manager_statusbar_profiles_menu, "/ProfilesMenuPopup/Rename", !default_profile);
-#endif /* MENUS_USE_UIMANAGER */
 }
 
 /*
