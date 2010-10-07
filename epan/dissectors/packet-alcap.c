@@ -44,28 +44,28 @@
 #include <epan/dissectors/packet-isup.h>
 #include <epan/expert.h>
 
-#define	ALCAP_MSG_HEADER_LEN	6
-#define	ALCAP_PARM_HEADER_LEN	3
-#define	FIELD_NSAP_ADDRESS_LEN	20
+#define ALCAP_MSG_HEADER_LEN     6
+#define ALCAP_PARM_HEADER_LEN    3
+#define FIELD_NSAP_ADDRESS_LEN  20
 
-#define	ALCAP_SI		12
+#define ALCAP_SI                12
 
 static const value_string msg_type_strings[] = {
-{ 1,	"Block confirm (BLC)" },
-{ 2,	"Block request (BLO)" },
-{ 3,	"Confusion (CFN)" },
-{ 4,	"Establish confirm (ECF)" },
-{ 5,	"Establish request (ERQ)" },
-{ 6,	"Release confirm (RLC)" },
-{ 7,	"Release request (REL)" },
-{ 8,	"Reset confirm (RSC)" },
-{ 9,	"Reset request (RES)" },
-{ 10,	"Unblock confirm (UBC)" },
-{ 11,	"Unblock request (UBL)" },
-{ 12,   "Modify Ack (MOA)" },
-{ 13,   "Modify Reject (MOR)" },
-{ 14,   "Modify Request (MOD)" },
-{ 0, NULL }
+    {  1,   "Block confirm (BLC)" },
+    {  2,   "Block request (BLO)" },
+    {  3,   "Confusion (CFN)" },
+    {  4,   "Establish confirm (ECF)" },
+    {  5,   "Establish request (ERQ)" },
+    {  6,   "Release confirm (RLC)" },
+    {  7,   "Release request (REL)" },
+    {  8,   "Reset confirm (RSC)" },
+    {  9,   "Reset request (RES)" },
+    { 10,   "Unblock confirm (UBC)" },
+    { 11,   "Unblock request (UBL)" },
+    { 12,   "Modify Ack (MOA)" },
+    { 13,   "Modify Reject (MOR)" },
+    { 14,   "Modify Request (MOD)" },
+    { 0, NULL }
 };
 
 static const value_string send_notification[] = {
@@ -83,41 +83,41 @@ static const value_string instruction_indicator[] = {
 };
 
 static const value_string msg_parm_strings[] = {
-    { 1,	"Cause (CAU)" },
-    { 2,	"Connection element identifier (CEID)" },
-    { 3,	"Destination E.164 service endpoint address (DESEA)" },
-    { 4,	"Destination NSAP service endpoint address (DNSEA)" },
-    { 5,	"Link characteristics (ALC)" },
-    { 6,	"Originating signalling association identifier (OSAID)" },
-    { 7,	"Served user generated reference (SUGR)" },
-    { 8,	"Served user transport (SUT)" },
-    { 9,	"Service specific information (audio) (SSIA)" },
-    { 10,	"Service specific information (multirate) (SSIM)" },
-    { 11,	"Service specific information (SAR-assured) (SSISA)" },
-    { 12,	"Service specific information (SAR-unassured) (SSISU)" },
-    { 13,	"Test connection identifier (TCI)" },
-    { 14,   "Modify Support for Link Characteristics (MSLC)" },
-    { 15,   "Modify Support for Service Specific Information (MSSSI)" },
-    { 16,   "Path Type (PT)" },
-    { 17,   "Preferred Link Characteristics (PLC)" },
-    { 18,   "Preferred Service Specific Information - Audio Extended (PSSIAE)" },
-    { 19,   "Preferred Service Specific Information - Multirate Extended (PSSIME)" },
-    { 20,   "Served User Correlation ID (SUCI)" },
-    { 21,   "Origination NSAP Service Endpoint Address (ONSEA)" },
-    { 22,   "Service Specific Information - Audio Extended (SSIAE)" },
-    { 23,   "Service Specific Information - Multirate Extended (SSIME)" },
-    { 24,   "Automatic Congestion Control (ACC)" },
-    { 25,   "Connection Priority (CP)" },
-    { 26,   "Hop Counter (HC)" },
-    { 27,   "Origination E.164 Service Endpoint Address (OESEA)" },
-    { 28,   "Preferred Transfer Capability - FBW (PFBW)" },
-    { 29,   "Preferred Transfer Capability - VBWS (PVBWS)" },
-    { 30,   "Preferred Transfer Capability - VBWT (PVBWT)" },
-    { 31,   "TAR Controlled Connection (TCC)" },
-    { 32,   "Transfer Capability (FBW)" },
-    { 33,   "Transfer Capability (VBWS)" },
-    { 34,   "Transfer Capability (VBWT)" },
-    { 35,   "Transfer Capability Support (TCS)" },
+    {  1,  "Cause (CAU)" },
+    {  2,  "Connection element identifier (CEID)" },
+    {  3,  "Destination E.164 service endpoint address (DESEA)" },
+    {  4,  "Destination NSAP service endpoint address (DNSEA)" },
+    {  5,  "Link characteristics (ALC)" },
+    {  6,  "Originating signalling association identifier (OSAID)" },
+    {  7,  "Served user generated reference (SUGR)" },
+    {  8,  "Served user transport (SUT)" },
+    {  9,  "Service specific information (audio) (SSIA)" },
+    { 10,  "Service specific information (multirate) (SSIM)" },
+    { 11,  "Service specific information (SAR-assured) (SSISA)" },
+    { 12,  "Service specific information (SAR-unassured) (SSISU)" },
+    { 13,  "Test connection identifier (TCI)" },
+    { 14,  "Modify Support for Link Characteristics (MSLC)" },
+    { 15,  "Modify Support for Service Specific Information (MSSSI)" },
+    { 16,  "Path Type (PT)" },
+    { 17,  "Preferred Link Characteristics (PLC)" },
+    { 18,  "Preferred Service Specific Information - Audio Extended (PSSIAE)" },
+    { 19,  "Preferred Service Specific Information - Multirate Extended (PSSIME)" },
+    { 20,  "Served User Correlation ID (SUCI)" },
+    { 21,  "Origination NSAP Service Endpoint Address (ONSEA)" },
+    { 22,  "Service Specific Information - Audio Extended (SSIAE)" },
+    { 23,  "Service Specific Information - Multirate Extended (SSIME)" },
+    { 24,  "Automatic Congestion Control (ACC)" },
+    { 25,  "Connection Priority (CP)" },
+    { 26,  "Hop Counter (HC)" },
+    { 27,  "Origination E.164 Service Endpoint Address (OESEA)" },
+    { 28,  "Preferred Transfer Capability - FBW (PFBW)" },
+    { 29,  "Preferred Transfer Capability - VBWS (PVBWS)" },
+    { 30,  "Preferred Transfer Capability - VBWT (PVBWT)" },
+    { 31,  "TAR Controlled Connection (TCC)" },
+    { 32,  "Transfer Capability (FBW)" },
+    { 33,  "Transfer Capability (VBWS)" },
+    { 34,  "Transfer Capability (VBWT)" },
+    { 35,  "Transfer Capability Support (TCS)" },
     { 0, NULL },
 };
 
@@ -405,9 +405,9 @@ static int hf_alcap_leg_release_cause = -1;
 
 static gboolean keep_persistent_info = TRUE;
 
-emem_tree_t* legs_by_dsaid = NULL;
-emem_tree_t* legs_by_osaid = NULL;
-emem_tree_t* legs_by_bearer = NULL;
+static emem_tree_t* legs_by_dsaid = NULL;
+static emem_tree_t* legs_by_osaid = NULL;
+static emem_tree_t* legs_by_bearer = NULL;
 
 static const gchar* dissect_fields_unknown(packet_info* pinfo _U_, tvbuff_t *tvb, proto_tree *tree, int offset, int len, alcap_message_info_t* msg_info _U_) {
     proto_item* pi = proto_tree_add_item(tree,hf_alcap_unknown,tvb,offset,len,FALSE);
@@ -422,54 +422,54 @@ static const gchar* dissect_fields_cau(packet_info* pinfo, tvbuff_t *tvb, proto_
      * 7.4.16 Cause Value
      * 7.4.17 Diagnostics
      */
-    
+
     guint coding;
     const gchar* ret_str;
     proto_item* pi;
-    
+
     if (len < 2) {
         proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     msg_info->release_cause = tvb_get_guint8(tvb, offset+1) & 0x7f;
-    
+
     coding = tvb_get_guint8(tvb, offset) & 0x3;
-    
+
     proto_tree_add_item(tree, hf_alcap_cau_coding, tvb, offset, 1, FALSE);
-    
+
     if (coding == 0) {
         pi = proto_tree_add_item(tree, hf_alcap_cau_value_itu, tvb, offset+1, 1, FALSE);
-        
+
         if ( msg_info->release_cause && msg_info->release_cause != 31 )
             expert_add_info_format(pinfo, pi, PI_RESPONSE_CODE, PI_WARN, "Abnormal Release");
-        
+
         ret_str = val_to_str(msg_info->release_cause, cause_values_itu, "Unknown(%u)");
     } else {
         proto_tree_add_item(tree, hf_alcap_cau_value_non_itu, tvb, offset+1 , 1, FALSE);
         ret_str = ep_strdup_printf("%u", msg_info->release_cause);
     }
-    
+
     if (!tree) return ret_str;
-    
+
     offset += 2;
-    
+
     if (len > 2)  {
         int diag_len = tvb_get_guint8(tvb,offset);
-        
+
         pi = proto_tree_add_item(tree,hf_alcap_cau_diag, tvb, offset,len-2,FALSE);
         tree = proto_item_add_subtree(pi,ett_cau_diag);
-        
+
         proto_tree_add_item(tree, hf_alcap_cau_diag_len, tvb, offset, 1, FALSE);
-        
+
         if (diag_len) {
             switch (msg_info->release_cause) {
                 case 97:
                 case 99:
                 case 110: {
                     proto_tree_add_item(tree, hf_alcap_cau_diag_msg, tvb, ++offset, 1, FALSE);
-                    
+
                     while(diag_len >= 2) {
                         proto_tree_add_item(tree, hf_alcap_cau_diag_param_id, tvb, ++offset, 1, FALSE);
                         proto_tree_add_item(tree, hf_alcap_cau_diag_field_num, tvb, ++offset, 1, FALSE);
@@ -495,31 +495,31 @@ static const gchar* dissect_fields_ceid(packet_info* pinfo _U_, tvbuff_t *tvb, p
      * 7.4.4 Channel Identifier
      */
     proto_item* pi;
-    
+
     if (len != 5) {
         proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
-    }        
-    
+    }
+
     pi = proto_tree_add_item(tree,hf_alcap_ceid_pathid,tvb,offset,4,FALSE);
-    
+
     msg_info->pathid = tvb_get_ntohl(tvb,offset);
     msg_info->cid = tvb_get_guint8(tvb,offset+4);
-    
+
     if (msg_info->pathid == 0) {
         proto_item_append_text(pi," (All Paths in association)");
         return "Path: 0 (All Paths)";
     }
-    
+
     pi = proto_tree_add_item(tree,hf_alcap_ceid_cid,tvb,offset+4,1,FALSE);
-    
+
     if (msg_info->cid == 0) {
-        proto_item_append_text(pi," (All CIDs in the Path)");        
+        proto_item_append_text(pi," (All CIDs in the Path)");
         return ep_strdup_printf("Path: %u CID: 0 (Every CID)",msg_info->pathid);
     } else {
         return ep_strdup_printf("Path: %u CID: %u",msg_info->pathid,msg_info->cid);
-    }    
+    }
 }
 
 static const gchar* dissect_fields_desea(packet_info* pinfo _U_, tvbuff_t *tvb, proto_tree *tree, int offset, int len, alcap_message_info_t* msg_info _U_) {
@@ -535,17 +535,17 @@ static const gchar* dissect_fields_desea(packet_info* pinfo _U_, tvbuff_t *tvb, 
         proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
-    }        
-    
+    }
+
     e164 = ep_alloc(sizeof(e164_info_t));
-    
+
     e164->e164_number_type = CALLED_PARTY_NUMBER;
     e164->nature_of_address = tvb_get_guint8(tvb,offset) & 0x7f;
     e164->E164_number_str = (gchar*)tvb_get_ephemeral_string(tvb,offset+1,len);
     e164->E164_number_length = len-1;
-    
+
     dissect_e164_number(tvb, tree, offset-1, len, *e164);
-    
+
     return NULL;
 }
 
@@ -557,22 +557,22 @@ static const gchar* dissect_fields_oesea(packet_info* pinfo _U_, tvbuff_t *tvb, 
      * 7.4.14 E.164 Address
      */
     e164_info_t* e164;
-    
+
     if (len < 2) {
         proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
-    }        
-    
+    }
+
     e164 = ep_alloc(sizeof(e164_info_t));
-    
+
     e164->e164_number_type = CALLING_PARTY_NUMBER;
     e164->nature_of_address = tvb_get_guint8(tvb,offset) & 0x7f;
     e164->E164_number_str = (gchar*)tvb_get_ephemeral_string(tvb,offset+1,len);
     e164->E164_number_length = len-1;
-    
+
     dissect_e164_number(tvb, tree, offset-1, len, *e164);
-        
+
     return NULL;
 }
 
@@ -582,18 +582,18 @@ static const gchar* dissect_fields_dnsea(packet_info* pinfo _U_, tvbuff_t *tvb, 
      *
      * 7.4.15 NSAP Address
      */
-    
+
     if (len < 1) {
         proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
-    }        
-    
+    }
+
     msg_info->dest_nsap = tvb_bytes_to_str(tvb,offset,20);
 
     proto_tree_add_item(tree, hf_alcap_dnsea, tvb, offset, 20, FALSE);
     dissect_nsap(tvb, offset,20, tree);
-    
+
     return NULL;
 }
 
@@ -603,18 +603,18 @@ static const gchar* dissect_fields_onsea(packet_info* pinfo _U_, tvbuff_t *tvb, 
      *
      * 7.4.15 NSAP Address
      */
-    
+
     if (len < 1) {
         proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     msg_info->orig_nsap = tvb_bytes_to_str(tvb,offset,20);
-    
+
     proto_tree_add_item(tree, hf_alcap_onsea, tvb, offset, 20, FALSE);
     dissect_nsap(tvb, offset,20, tree);
-    
+
     return NULL;
 }
 
@@ -627,13 +627,13 @@ static const gchar* dissect_fields_alc(packet_info* pinfo _U_, tvbuff_t *tvb, pr
      * 7.4.12 CPS-SDU Size -> Maximum CPS-SDU Size
      * 7.4.12 CPS-SDU Size -> Average CPS-SDU Size
      */
-    
+
     if (len != 12) {
         proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     proto_tree_add_item(tree, hf_alcap_alc_max_br_fw, tvb, offset+0, 2, FALSE);
     proto_tree_add_item(tree, hf_alcap_alc_max_br_bw, tvb, offset+2, 2, FALSE);
     proto_tree_add_item(tree, hf_alcap_alc_avg_br_fw, tvb, offset+4, 2, FALSE);
@@ -642,7 +642,7 @@ static const gchar* dissect_fields_alc(packet_info* pinfo _U_, tvbuff_t *tvb, pr
     proto_tree_add_item(tree, hf_alcap_alc_max_sdu_bw, tvb, offset+9, 1, FALSE);
     proto_tree_add_item(tree, hf_alcap_alc_avg_sdu_fw, tvb, offset+10, 1, FALSE);
     proto_tree_add_item(tree, hf_alcap_alc_avg_sdu_bw, tvb, offset+11, 1, FALSE);
-    
+
     return NULL;
 }
 
@@ -655,13 +655,13 @@ static const gchar* dissect_fields_plc(packet_info* pinfo _U_, tvbuff_t *tvb, pr
      * 7.4.12 CPS-SDU Size -> Maximum CPS-SDU Size
      * 7.4.12 CPS-SDU Size -> Average CPS-SDU Size
      */
-    
+
     if (len != 12) {
         proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     proto_tree_add_item(tree, hf_alcap_plc_max_br_fw, tvb, offset+0, 2, FALSE);
     proto_tree_add_item(tree, hf_alcap_plc_max_br_bw, tvb, offset+2, 2, FALSE);
     proto_tree_add_item(tree, hf_alcap_plc_avg_br_fw, tvb, offset+4, 2, FALSE);
@@ -670,7 +670,7 @@ static const gchar* dissect_fields_plc(packet_info* pinfo _U_, tvbuff_t *tvb, pr
     proto_tree_add_item(tree, hf_alcap_plc_max_sdu_bw, tvb, offset+9, 1, FALSE);
     proto_tree_add_item(tree, hf_alcap_plc_avg_sdu_fw, tvb, offset+10, 1, FALSE);
     proto_tree_add_item(tree, hf_alcap_plc_avg_sdu_bw, tvb, offset+11, 1, FALSE);
-    
+
     return NULL;
 }
 
@@ -685,11 +685,11 @@ static const gchar* dissect_fields_osaid(packet_info* pinfo _U_, tvbuff_t *tvb, 
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     msg_info->osaid = tvb_get_ntohl(tvb,offset);
-    
+
     proto_tree_add_item(tree, hf_alcap_osaid, tvb, offset, 4, FALSE);
-    
+
     return NULL;
 }
 
@@ -704,11 +704,11 @@ static const gchar* dissect_fields_sugr(packet_info* pinfo _U_, tvbuff_t *tvb, p
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     msg_info->sugr = tvb_get_ntohl(tvb,offset);
-    
+
     proto_tree_add_item(tree, hf_alcap_sugr, tvb, offset, 4, FALSE);
-    
+
     return NULL;
 }
 
@@ -723,9 +723,9 @@ static const gchar* dissect_fields_suci(packet_info* pinfo _U_, tvbuff_t *tvb, p
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     proto_tree_add_item(tree, hf_alcap_suci, tvb, offset, len, FALSE);
-    
+
     return NULL;
 }
 
@@ -740,11 +740,11 @@ static const gchar* dissect_fields_ssia(packet_info* pinfo _U_, tvbuff_t *tvb, p
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     proto_tree_add_item(tree, hf_alcap_ssia_pr_type, tvb, offset+0,1,FALSE);
-    
+
     proto_tree_add_item(tree, hf_alcap_ssia_pr_id, tvb, offset+2,1,FALSE);
-    
+
     proto_tree_add_item(tree, hf_alcap_ssia_frm, tvb, offset+3,1,FALSE);
     proto_tree_add_item(tree, hf_alcap_ssia_cmd, tvb, offset+3,1,FALSE);
     proto_tree_add_item(tree, hf_alcap_ssia_mfr2, tvb, offset+3,1,FALSE);
@@ -753,11 +753,11 @@ static const gchar* dissect_fields_ssia(packet_info* pinfo _U_, tvbuff_t *tvb, p
     proto_tree_add_item(tree, hf_alcap_ssia_cas, tvb, offset+3,1,FALSE);
     proto_tree_add_item(tree, hf_alcap_ssia_fax, tvb, offset+3,1,FALSE);
     proto_tree_add_item(tree, hf_alcap_ssia_pcm, tvb, offset+3,1,FALSE);
-    
+
     proto_tree_add_item(tree, hf_alcap_ssia_max_len, tvb, offset+4,2,FALSE);
-    
+
     proto_tree_add_item(tree, hf_alcap_ssia_oui, tvb, offset+5,3,FALSE);
-    
+
     return NULL;
 }
 
@@ -772,11 +772,11 @@ static const gchar* dissect_fields_ssim(packet_info* pinfo _U_, tvbuff_t *tvb, p
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     proto_tree_add_item(tree,hf_alcap_ssim_frm,tvb,offset,1,FALSE);
     proto_tree_add_item(tree,hf_alcap_ssim_mult,tvb,offset,1,FALSE);
     proto_tree_add_item(tree,hf_alcap_ssim_max,tvb,offset+1,2,FALSE);
-    
+
     return NULL;
 }
 
@@ -800,7 +800,7 @@ static const gchar* dissect_fields_ssisa(packet_info* pinfo _U_, tvbuff_t *tvb, 
     proto_tree_add_item(tree,hf_alcap_ssisa_max_sscop_uu_bw,tvb,offset+12,2,FALSE);
 
     proto_tree_add_text(tree,tvb,offset,14,"Not yet decoded: Q.2630.1 7.4.8");
-    
+
     return NULL;
 }
 
@@ -815,12 +815,12 @@ static const gchar* dissect_fields_ssisu(packet_info* pinfo _U_, tvbuff_t *tvb, 
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     proto_tree_add_item(tree,hf_alcap_ssisu_max_sssar_fw,tvb,offset,3,FALSE);
     proto_tree_add_item(tree,hf_alcap_ssisu_max_sssar_bw,tvb,offset+3,3,FALSE);
     proto_tree_add_item(tree,hf_alcap_ssisu_ted,tvb,offset+6,1,FALSE);
     proto_tree_add_text(tree,tvb,offset,7,"Not yet decoded: Q.2630.1 7.4.9");
-    
+
     return NULL;
 }
 
@@ -839,7 +839,7 @@ static const gchar* dissect_fields_none(packet_info* pinfo _U_, tvbuff_t *tvb, p
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     return NULL;
 }
 
@@ -855,14 +855,14 @@ static const gchar* dissect_fields_ssiae(packet_info* pinfo _U_, tvbuff_t *tvb, 
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     proto_tree_add_item(tree, hf_alcap_ssiae_pr_type, tvb, offset,1,FALSE);
     proto_tree_add_item(tree, hf_alcap_ssiae_lb, tvb, offset,1,FALSE);
     proto_tree_add_item(tree, hf_alcap_ssiae_rc, tvb, offset,1,FALSE);
     proto_tree_add_item(tree, hf_alcap_ssiae_syn, tvb, offset,1,FALSE);
-    
+
     proto_tree_add_item(tree, hf_alcap_ssiae_pr_id, tvb, offset+1,1,FALSE);
-    
+
     proto_tree_add_item(tree, hf_alcap_ssiae_frm, tvb, offset+3,1,FALSE);
     proto_tree_add_item(tree, hf_alcap_ssiae_cmd, tvb, offset+3,1,FALSE);
     proto_tree_add_item(tree, hf_alcap_ssiae_mfr2, tvb, offset+3,1,FALSE);
@@ -871,11 +871,11 @@ static const gchar* dissect_fields_ssiae(packet_info* pinfo _U_, tvbuff_t *tvb, 
     proto_tree_add_item(tree, hf_alcap_ssiae_cas, tvb, offset+3,1,FALSE);
     proto_tree_add_item(tree, hf_alcap_ssiae_fax, tvb, offset+3,1,FALSE);
     proto_tree_add_item(tree, hf_alcap_ssiae_pcm, tvb, offset+3,1,FALSE);
-    
+
     proto_tree_add_item(tree, hf_alcap_ssiae_max_len, tvb, offset+4,2,FALSE);
-    
+
     proto_tree_add_item(tree, hf_alcap_ssiae_oui, tvb, offset+5,3,FALSE);
-    
+
     return NULL;
 }
 
@@ -891,14 +891,14 @@ static const gchar* dissect_fields_pssiae(packet_info* pinfo _U_, tvbuff_t *tvb,
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     proto_tree_add_item(tree, hf_alcap_pssiae_pr_type, tvb, offset,1,FALSE);
     proto_tree_add_item(tree, hf_alcap_pssiae_lb, tvb, offset,1,FALSE);
     proto_tree_add_item(tree, hf_alcap_pssiae_rc, tvb, offset,1,FALSE);
     proto_tree_add_item(tree, hf_alcap_pssiae_syn, tvb, offset,1,FALSE);
-    
+
     proto_tree_add_item(tree, hf_alcap_pssiae_pr_id, tvb, offset+1,1,FALSE);
-    
+
     proto_tree_add_item(tree, hf_alcap_pssiae_frm, tvb, offset+3,1,FALSE);
     proto_tree_add_item(tree, hf_alcap_pssiae_cmd, tvb, offset+3,1,FALSE);
     proto_tree_add_item(tree, hf_alcap_pssiae_mfr2, tvb, offset+3,1,FALSE);
@@ -907,11 +907,11 @@ static const gchar* dissect_fields_pssiae(packet_info* pinfo _U_, tvbuff_t *tvb,
     proto_tree_add_item(tree, hf_alcap_pssiae_cas, tvb, offset+3,1,FALSE);
     proto_tree_add_item(tree, hf_alcap_pssiae_fax, tvb, offset+3,1,FALSE);
     proto_tree_add_item(tree, hf_alcap_pssiae_pcm, tvb, offset+3,1,FALSE);
-    
+
     proto_tree_add_item(tree, hf_alcap_pssiae_max_len, tvb, offset+4,2,FALSE);
-    
+
     proto_tree_add_item(tree, hf_alcap_pssiae_oui, tvb, offset+5,3,FALSE);
-    
+
     return NULL;
 }
 
@@ -926,12 +926,12 @@ static const gchar* dissect_fields_ssime(packet_info* pinfo _U_, tvbuff_t *tvb, 
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     proto_tree_add_item(tree,hf_alcap_ssime_frm,tvb,offset,1,FALSE);
     proto_tree_add_item(tree,hf_alcap_ssime_lb,tvb,offset,1,FALSE);
     proto_tree_add_item(tree,hf_alcap_ssime_mult,tvb,offset,1,FALSE);
     proto_tree_add_item(tree,hf_alcap_ssime_max,tvb,offset+1,2,FALSE);
-    
+
     return NULL;
 }
 
@@ -946,12 +946,12 @@ static const gchar* dissect_fields_pssime(packet_info* pinfo _U_, tvbuff_t *tvb,
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     proto_tree_add_item(tree,hf_alcap_pssime_frm,tvb,offset,1,FALSE);
     proto_tree_add_item(tree,hf_alcap_pssime_lb,tvb,offset,1,FALSE);
     proto_tree_add_item(tree,hf_alcap_pssime_mult,tvb,offset,1,FALSE);
     proto_tree_add_item(tree,hf_alcap_pssime_max,tvb,offset+1,2,FALSE);
-    
+
     return NULL;
 }
 
@@ -966,7 +966,7 @@ static const gchar* dissect_fields_acc(packet_info* pinfo _U_, tvbuff_t *tvb, pr
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     proto_tree_add_item(tree,hf_alcap_acc_level,tvb,offset,len,FALSE);
     return NULL;
 }
@@ -983,7 +983,7 @@ static const gchar* dissect_fields_cp(packet_info* pinfo _U_, tvbuff_t *tvb, pro
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     proto_tree_add_item(tree,hf_alcap_cp,tvb,offset,len,FALSE);
     return NULL;
 }
@@ -999,7 +999,7 @@ static const gchar* dissect_fields_pt(packet_info* pinfo _U_, tvbuff_t *tvb, pro
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     proto_tree_add_item(tree,hf_alcap_pt,tvb,offset,len,FALSE);
     return NULL;
 }
@@ -1016,7 +1016,7 @@ static const gchar* dissect_fields_hc(packet_info* pinfo _U_, tvbuff_t *tvb, pro
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     proto_tree_add_item(tree,hf_alcap_hc,tvb,offset,len,FALSE);
     return NULL;
 }
@@ -1035,14 +1035,14 @@ static const gchar* dissect_fields_fbw(packet_info* pinfo _U_, tvbuff_t *tvb, pr
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     proto_tree_add_item(tree,hf_alcap_fbw_br_fw,tvb,offset,3,FALSE);
     proto_tree_add_item(tree,hf_alcap_fbw_br_bw,tvb,offset+3,3,FALSE);
     proto_tree_add_item(tree,hf_alcap_fbw_bucket_fw,tvb,offset+6,2,FALSE);
     proto_tree_add_item(tree,hf_alcap_fbw_bucket_bw,tvb,offset+8,2,FALSE);
     proto_tree_add_item(tree,hf_alcap_fbw_size_fw,tvb,offset+10,1,FALSE);
     proto_tree_add_item(tree,hf_alcap_fbw_size_bw,tvb,offset+11,1,FALSE);
-    
+
     return NULL;
 }
 
@@ -1059,14 +1059,14 @@ static const gchar* dissect_fields_pfbw(packet_info* pinfo _U_, tvbuff_t *tvb, p
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     proto_tree_add_item(tree,hf_alcap_pfbw_br_fw,tvb,offset,3,FALSE);
     proto_tree_add_item(tree,hf_alcap_pfbw_br_bw,tvb,offset+3,3,FALSE);
     proto_tree_add_item(tree,hf_alcap_pfbw_bucket_fw,tvb,offset+6,2,FALSE);
     proto_tree_add_item(tree,hf_alcap_pfbw_bucket_bw,tvb,offset+8,2,FALSE);
     proto_tree_add_item(tree,hf_alcap_pfbw_size_fw,tvb,offset+10,1,FALSE);
     proto_tree_add_item(tree,hf_alcap_pfbw_size_bw,tvb,offset+11,1,FALSE);
-    
+
     return NULL;
 }
 
@@ -1084,7 +1084,7 @@ static const gchar* dissect_fields_vbws(packet_info* pinfo _U_, tvbuff_t *tvb, p
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     proto_tree_add_item(tree,hf_alcap_vbws_br_fw,tvb,offset,3,FALSE);
     proto_tree_add_item(tree,hf_alcap_vbws_br_bw,tvb,offset+3,3,FALSE);
     proto_tree_add_item(tree,hf_alcap_vbws_bucket_fw,tvb,offset+6,2,FALSE);
@@ -1093,7 +1093,7 @@ static const gchar* dissect_fields_vbws(packet_info* pinfo _U_, tvbuff_t *tvb, p
     proto_tree_add_item(tree,hf_alcap_vbws_size_bw,tvb,offset+11,1,FALSE);
     proto_tree_add_item(tree,hf_alcap_vbws_size_bw,tvb,offset+11,1,FALSE);
     proto_tree_add_item(tree,hf_alcap_vbws_stt,tvb,offset+12,1,FALSE);
-    
+
     return NULL;
 }
 
@@ -1111,7 +1111,7 @@ static const gchar* dissect_fields_pvbws(packet_info* pinfo _U_, tvbuff_t *tvb, 
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     proto_tree_add_item(tree,hf_alcap_pvbws_br_fw,tvb,offset,3,FALSE);
     proto_tree_add_item(tree,hf_alcap_pvbws_br_bw,tvb,offset+3,3,FALSE);
     proto_tree_add_item(tree,hf_alcap_pvbws_bucket_fw,tvb,offset+6,2,FALSE);
@@ -1120,7 +1120,7 @@ static const gchar* dissect_fields_pvbws(packet_info* pinfo _U_, tvbuff_t *tvb, 
     proto_tree_add_item(tree,hf_alcap_pvbws_size_bw,tvb,offset+11,1,FALSE);
     proto_tree_add_item(tree,hf_alcap_pvbws_size_bw,tvb,offset+11,1,FALSE);
     proto_tree_add_item(tree,hf_alcap_pvbws_stt,tvb,offset+12,1,FALSE);
-    
+
     return NULL;
 }
 
@@ -1135,28 +1135,28 @@ static const gchar* dissect_fields_pvbwt(packet_info* pinfo _U_, tvbuff_t *tvb, 
      * 7.4.27 CPS Token Bucket Size -> CPS token bucket size associated with Sustainable CPS bit rate
      * 7.4.28 Maximum allowed CPS packet size
      */
-    
+
     if (len != 22) {
         proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     proto_tree_add_item(tree,hf_alcap_pvbwt_peak_br_fw,tvb,offset,3,FALSE);
     proto_tree_add_item(tree,hf_alcap_pvbwt_peak_br_bw,tvb,offset+3,3,FALSE);
-    
+
     proto_tree_add_item(tree,hf_alcap_pvbwt_peak_bucket_fw,tvb,offset+6,2,FALSE);
     proto_tree_add_item(tree,hf_alcap_pvbwt_peak_bucket_bw,tvb,offset+8,2,FALSE);
-    
+
     proto_tree_add_item(tree,hf_alcap_pvbwt_sust_br_fw,tvb,offset+10,3,FALSE);
     proto_tree_add_item(tree,hf_alcap_pvbwt_sust_br_bw,tvb,offset+13,3,FALSE);
-    
+
     proto_tree_add_item(tree,hf_alcap_pvbwt_sust_bucket_fw,tvb,offset+16,2,FALSE);
     proto_tree_add_item(tree,hf_alcap_pvbwt_sust_bucket_bw,tvb,offset+18,2,FALSE);
-    
+
     proto_tree_add_item(tree,hf_alcap_pvbwt_size_fw,tvb,offset+20,1,FALSE);
     proto_tree_add_item(tree,hf_alcap_pvbwt_size_bw,tvb,offset+21,1,FALSE);
-    
+
     return NULL;
 }
 
@@ -1175,22 +1175,22 @@ static const gchar* dissect_fields_vbwt(packet_info* pinfo _U_, tvbuff_t *tvb, p
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     proto_tree_add_item(tree,hf_alcap_vbwt_peak_br_fw,tvb,offset,3,FALSE);
     proto_tree_add_item(tree,hf_alcap_vbwt_peak_br_bw,tvb,offset+3,3,FALSE);
-    
+
     proto_tree_add_item(tree,hf_alcap_vbwt_peak_bucket_fw,tvb,offset+6,2,FALSE);
     proto_tree_add_item(tree,hf_alcap_vbwt_peak_bucket_bw,tvb,offset+8,2,FALSE);
-    
+
     proto_tree_add_item(tree,hf_alcap_vbwt_sust_br_fw,tvb,offset+10,3,FALSE);
     proto_tree_add_item(tree,hf_alcap_vbwt_sust_br_bw,tvb,offset+13,3,FALSE);
-    
+
     proto_tree_add_item(tree,hf_alcap_vbwt_sust_bucket_fw,tvb,offset+16,2,FALSE);
     proto_tree_add_item(tree,hf_alcap_vbwt_sust_bucket_bw,tvb,offset+18,2,FALSE);
-    
+
     proto_tree_add_item(tree,hf_alcap_vbwt_size_fw,tvb,offset+20,1,FALSE);
     proto_tree_add_item(tree,hf_alcap_vbwt_size_bw,tvb,offset+21,1,FALSE);
-    
+
     return NULL;
 }
 
@@ -1201,18 +1201,18 @@ static const gchar* dissect_fields_sut(packet_info* pinfo _U_, tvbuff_t *tvb, pr
      * 7.4.18 Served User Transport
      */
     guint sut_len;
-    
+
     if (len < 2) {
         proto_item* bad_length = proto_tree_add_text(tree, tvb, offset, len,"[Wrong length for parameter fields]");
         proto_item_set_expert_flags(bad_length, PI_MALFORMED, PI_WARN);
         return NULL;
     }
-    
+
     sut_len = tvb_get_guint8(tvb,offset);
-    
+
     proto_tree_add_item(tree, hf_alcap_sut_len, tvb, offset, 1, FALSE);
     proto_tree_add_item(tree, hf_alcap_sut, tvb, offset, sut_len, FALSE);
-    
+
     return NULL;
 }
 
@@ -1291,71 +1291,71 @@ static const alcap_msg_type_info_t msg_types[] = {
 
 static void alcap_leg_tree(proto_tree* tree, tvbuff_t* tvb, const alcap_leg_info_t* leg) {
     proto_item* pi = proto_tree_add_text(tree,tvb,0,0,"[ALCAP Leg Info]");
-    
+
     tree = proto_item_add_subtree(pi,ett_leg);
-    
+
     if (leg->dsaid) {
         pi = proto_tree_add_uint(tree,hf_alcap_leg_dsaid,tvb,0,0,leg->dsaid);
         PROTO_ITEM_SET_GENERATED(pi);
     }
-    
+
     if (leg->osaid) {
         pi = proto_tree_add_uint(tree,hf_alcap_leg_osaid,tvb,0,0,leg->osaid);
         PROTO_ITEM_SET_GENERATED(pi);
     }
-    
+
     if (leg->pathid) {
         pi = proto_tree_add_uint(tree,hf_alcap_leg_pathid,tvb,0,0,leg->pathid);
         PROTO_ITEM_SET_GENERATED(pi);
     }
-    
+
     if (leg->cid) {
         pi = proto_tree_add_uint(tree,hf_alcap_leg_cid,tvb,0,0,leg->cid);
         PROTO_ITEM_SET_GENERATED(pi);
     }
-    
+
     if (leg->sugr) {
         pi = proto_tree_add_uint(tree,hf_alcap_leg_sugr,tvb,0,0,leg->sugr);
         PROTO_ITEM_SET_GENERATED(pi);
     }
-    
+
     if (leg->orig_nsap) {
         pi = proto_tree_add_string(tree,hf_alcap_leg_onsea,tvb,0,0,leg->orig_nsap);
         PROTO_ITEM_SET_GENERATED(pi);
     }
-    
+
     if (leg->dest_nsap) {
         pi = proto_tree_add_string(tree,hf_alcap_leg_dnsea,tvb,0,0,leg->dest_nsap);
         PROTO_ITEM_SET_GENERATED(pi);
     }
-    
+
     if(leg->release_cause) {
         pi = proto_tree_add_uint(tree,hf_alcap_leg_release_cause,tvb,0,0,leg->release_cause);
         PROTO_ITEM_SET_GENERATED(pi);
         if (leg->release_cause && leg->release_cause != 31)
             proto_item_set_expert_flags(pi, PI_RESPONSE_CODE, PI_WARN);
     }
-    
+
     if(leg->msgs) {
         alcap_msg_data_t* msg = leg->msgs;
         proto_item* pi_local = proto_tree_add_text(tree,tvb,0,0,"[Messages in this leg]");
         proto_tree* tree_local = proto_item_add_subtree(pi_local,ett_leg);
-        
-        
+
+
         do {
             pi_local = proto_tree_add_uint(tree_local,hf_alcap_leg_frame,tvb,0,0,msg->framenum);
             proto_item_set_text(pi_local,"%s in frame %u", val_to_str(msg->msg_type,msg_type_strings,"Unknown message"),msg->framenum);
             PROTO_ITEM_SET_GENERATED(pi_local);
         } while (( msg = msg->next));
-        
+
     }
-    
+
 }
 
 
 extern void alcap_tree_from_bearer_key(proto_tree* tree, tvbuff_t* tvb, const  gchar* key) {
     alcap_leg_info_t* leg = se_tree_lookup_string(legs_by_bearer,key,0);
-    
+
     if (leg) {
         alcap_leg_tree(tree,tvb,leg);
     }
@@ -1371,9 +1371,9 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_item* pi;
     proto_tree* compat_tree;
     const alcap_msg_type_info_t* msg_type;
-    
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, alcap_proto_name_short);
-    
+
     if (tree) {
         proto_item *alcap_item = proto_tree_add_item(tree, proto_alcap, tvb, 0, -1, FALSE);
         alcap_tree = proto_item_add_subtree(alcap_item, ett_alcap);
@@ -1381,52 +1381,52 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     proto_tree_add_item(alcap_tree,hf_alcap_dsaid,tvb,0,4,FALSE);
     pi = proto_tree_add_item(alcap_tree,hf_alcap_msg_id,tvb,4,1,FALSE);
-    
+
     msg_info->dsaid = tvb_get_ntohl(tvb, 0);
     msg_info->msg_type = tvb_get_guint8(tvb, 4);
 
     msg_type = GET_MSG_TYPE(msg_info->msg_type);
-    
+
     expert_add_info_format(pinfo, pi, PI_RESPONSE_CODE, msg_type->severity, " ");
-    
+
     col_set_str(pinfo->cinfo, COL_INFO, msg_type->abbr);
-    
+
     pi = proto_tree_add_item(alcap_tree,hf_alcap_compat,tvb,5,1,FALSE);
     compat_tree = proto_item_add_subtree(pi,ett_compat);
     proto_tree_add_item(compat_tree,hf_alcap_compat_pass_on_sni,tvb,5,1,FALSE);
     proto_tree_add_item(compat_tree,hf_alcap_compat_pass_on_ii,tvb,5,1,FALSE);
     proto_tree_add_item(compat_tree,hf_alcap_compat_general_sni,tvb,5,1,FALSE);
     proto_tree_add_item(compat_tree,hf_alcap_compat_general_ii,tvb,5,1,FALSE);
-    
+
     len -= ALCAP_MSG_HEADER_LEN;
     offset = ALCAP_MSG_HEADER_LEN;
-    
+
     while(len > 0) {
         guint param_id = tvb_get_guint8(tvb,offset);
         guint param_len = tvb_get_guint8(tvb,offset+2);
         const alcap_param_info_t* param_info = GET_PARAM_INFO(param_id);
         proto_tree* param_tree;
         const gchar* colinfo_str = NULL;
-        
+
         pi = proto_tree_add_item(alcap_tree,hf_alcap_param_id,tvb,offset,1,FALSE);
         param_tree = proto_item_add_subtree(pi,param_info->ett);
-        
-        pi = proto_tree_add_item(param_tree,hf_alcap_compat,tvb,offset+1,1,FALSE);        
+
+        pi = proto_tree_add_item(param_tree,hf_alcap_compat,tvb,offset+1,1,FALSE);
         compat_tree = proto_item_add_subtree(pi,ett_compat);
         proto_tree_add_item(compat_tree,hf_alcap_compat_pass_on_sni,tvb,offset+1,1,FALSE);
         proto_tree_add_item(compat_tree,hf_alcap_compat_pass_on_ii,tvb,offset+1,1,FALSE);
         proto_tree_add_item(compat_tree,hf_alcap_compat_general_sni,tvb,offset+1,1,FALSE);
         proto_tree_add_item(compat_tree,hf_alcap_compat_general_ii,tvb,offset+1,1,FALSE);
-        
+
         proto_tree_add_item(param_tree,hf_alcap_param_len,tvb,offset+2,1,FALSE);
-        
+
         if ( alcap_tree || param_info->run_wo_tree )
             colinfo_str = param_info->dissect_fields(pinfo,tvb,param_tree,offset+3,param_len,msg_info);
-        
+
         if (colinfo_str && check_col(pinfo->cinfo, COL_INFO)) {
             col_append_fstr(pinfo->cinfo, COL_INFO, " %s",colinfo_str);
         }
-        
+
         len -= 3 + param_len;
         offset += 3 + param_len;
     }
@@ -1435,9 +1435,9 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         alcap_leg_info_t* leg = NULL;
         switch (msg_info->msg_type) {
             case 5: /* ERQ */
-                if( ! ( leg = se_tree_lookup32(legs_by_osaid,msg_info->osaid) )) { 
+                if( ! ( leg = se_tree_lookup32(legs_by_osaid,msg_info->osaid) )) {
                     leg = se_alloc(sizeof(alcap_leg_info_t));
-                    
+
                     leg->dsaid = 0;
                     leg->osaid = msg_info->osaid;
                     leg->pathid = msg_info->pathid;
@@ -1448,10 +1448,10 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
                     if (msg_info->orig_nsap) {
                         gchar* key = se_strdup_printf("%s:%.8X",msg_info->orig_nsap,leg->sugr);
-			ascii_strdown_inplace(key);
+                        ascii_strdown_inplace(key);
 
                         leg->orig_nsap = se_strdup(msg_info->orig_nsap);
-                        
+
                         if (!se_tree_lookup_string(legs_by_bearer,key,0)) {
                             se_tree_insert_string(legs_by_bearer,key,leg,0);
                         }
@@ -1459,7 +1459,7 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
                     if (msg_info->dest_nsap) {
                         gchar* key = se_strdup_printf("%s:%.8X",msg_info->dest_nsap,leg->sugr);
-			ascii_strdown_inplace(key);
+                        ascii_strdown_inplace(key);
 
                         leg->dest_nsap = se_strdup(msg_info->dest_nsap);
 
@@ -1467,15 +1467,15 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                             se_tree_insert_string(legs_by_bearer,key,leg,0);
                         }
                     }
-                    
+
                     leg->msgs = NULL;
                     leg->release_cause = 0;
-                    
+
                     se_tree_insert32(legs_by_osaid,leg->osaid,leg);
                 }
                 break;
             case 4: /* ECF */
-                if(( leg = se_tree_lookup32(legs_by_osaid,msg_info->dsaid) )) { 
+                if(( leg = se_tree_lookup32(legs_by_osaid,msg_info->dsaid) )) {
                     leg->dsaid = msg_info->osaid;
                     se_tree_insert32(legs_by_dsaid,leg->dsaid,leg);
                 }
@@ -1485,16 +1485,16 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             case 13: /* MOR */
             case 14: /* MOD */
                 if( ( leg = se_tree_lookup32(legs_by_osaid,msg_info->dsaid) )
-                    || ( leg = se_tree_lookup32(legs_by_dsaid,msg_info->dsaid) ) ) { 
-                    
+                    || ( leg = se_tree_lookup32(legs_by_dsaid,msg_info->dsaid) ) ) {
+
                     if(msg_info->release_cause)
                         leg->release_cause =  msg_info->release_cause;
-                    
+
                 }
                 break;
             case 7: /* REL */
                 leg = se_tree_lookup32(legs_by_osaid,msg_info->dsaid);
-                
+
                 if(leg) {
                     leg->release_cause =  msg_info->release_cause;
                 } else if (( leg = se_tree_lookup32(legs_by_dsaid,msg_info->dsaid) )) {
@@ -1504,24 +1504,24 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             default:
                 break;
         }
-        
+
         if (leg && ( (! leg->msgs) || leg->msgs->last->framenum < pinfo->fd->num ) ) {
             alcap_msg_data_t* msg = se_alloc(sizeof(alcap_msg_data_t));
             msg->msg_type = msg_info->msg_type;
             msg->framenum = pinfo->fd->num;
             msg->next = NULL;
             msg->last = NULL;
-            
+
             if (leg->msgs) {
                 leg->msgs->last->next = msg;
             } else {
                 leg->msgs = msg;
             }
-            
+
             leg->msgs->last = msg;
-            
+
         }
-        
+
         if (tree && leg) alcap_leg_tree(alcap_tree,tvb,leg);
     }
 }
@@ -1530,7 +1530,7 @@ void
 proto_register_alcap(void)
 {
     module_t *alcap_module;
-    
+
     static hf_register_info hf[] = {
     { &hf_alcap_dsaid, { "DSAID", "alcap.dsaid", FT_UINT32, BASE_HEX, NULL, 0, "Destination Service Association ID", HFILL }},
     { &hf_alcap_msg_id, { "Message Type", "alcap.msg_type", FT_UINT8, BASE_DEC, VALS(msg_type_strings), 0, NULL, HFILL }},
@@ -1539,12 +1539,12 @@ proto_register_alcap(void)
     { &hf_alcap_compat_pass_on_ii, { "Pass-On II", "alcap.compat.pass.ii", FT_UINT8, BASE_DEC, VALS(instruction_indicator), 0x30, "Instruction Indicator", HFILL }},
     { &hf_alcap_compat_general_sni, { "General SNI", "alcap.compat.general.sni", FT_UINT8, BASE_DEC, VALS(send_notification), 0x04, "Send Notificaation Indicator", HFILL }},
     { &hf_alcap_compat_general_ii, { "General II", "alcap.compat.general.ii", FT_UINT8, BASE_DEC, VALS(instruction_indicator), 0x03, "Instruction Indicator", HFILL }},
-        
+
     { &hf_alcap_unknown, { "Unknown Field Data", "alcap.unknown.field", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-        
+
     { &hf_alcap_param_id, { "Parameter", "alcap.param", FT_UINT8, BASE_DEC, VALS(msg_parm_strings), 0, "Parameter Id", HFILL }},
     { &hf_alcap_param_len, { "Length", "alcap.param.len", FT_UINT8, BASE_DEC, NULL, 0, "Parameter Length", HFILL }},
-        
+
     { &hf_alcap_cau_coding, { "Cause Coding", "alcap.cau.coding", FT_UINT8, BASE_DEC, VALS(cause_coding_vals), 0x03, NULL, HFILL }},
     { &hf_alcap_cau_value_itu, { "Cause Value (ITU)", "alcap.cau.value", FT_UINT8, BASE_DEC, VALS(cause_values_itu), 0x7f, NULL, HFILL }},
     { &hf_alcap_cau_value_non_itu, { "Cause Value (Other)", "alcap.cau.value", FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL }},
@@ -1553,12 +1553,12 @@ proto_register_alcap(void)
     { &hf_alcap_cau_diag_msg, { "Message Identifier", "alcap.cau.diag.msg", FT_UINT8, BASE_DEC, VALS(msg_type_strings), 0, NULL, HFILL }},
     { &hf_alcap_cau_diag_param_id, { "Parameter Identifier", "alcap.cau.diag.param", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_cau_diag_field_num, { "Field Number", "alcap.cau.diag.field_num", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-        
+
     { &hf_alcap_ceid_pathid, { "Path ID", "alcap.ceid.pathid", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_ceid_cid, { "CID", "alcap.ceid.cid", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-        
+
     { &hf_alcap_dnsea, { "Address", "alcap.dnsea.addr", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-        
+
     { &hf_alcap_alc_max_br_fw, { "Maximum Forward Bit Rate", "alcap.alc.bitrate.max.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_alc_max_br_bw, { "Maximum Backwards Bit Rate", "alcap.alc.bitrate.max.bw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_alc_avg_br_fw, { "Average Forward Bit Rate", "alcap.alc.bitrate.avg.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -1567,14 +1567,14 @@ proto_register_alcap(void)
     { &hf_alcap_alc_max_sdu_bw, { "Maximum Backwards CPS SDU Size", "alcap.alc.sdusize.max.bw", FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL }},
     { &hf_alcap_alc_avg_sdu_fw, { "Average Forward CPS SDU Size", "alcap.alc.sdusize.avg.fw", FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL }},
     { &hf_alcap_alc_avg_sdu_bw, { "Average Backwards CPS SDU Size", "alcap.alc.sdusize.avg.bw", FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL }},
-        
+
     { &hf_alcap_osaid, { "OSAID", "alcap.osaid", FT_UINT32, BASE_HEX, NULL, 0, "Originating Service Association ID", HFILL }},
-        
+
     { &hf_alcap_sugr, { "SUGR", "alcap.sugr", FT_BYTES, BASE_NONE, NULL, 0, "Served User Generated Reference", HFILL }},
-        
+
     { &hf_alcap_sut_len, { "SUT Length", "alcap.sut.sut_len", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
     { &hf_alcap_sut, { "SUT", "alcap.sut.transport", FT_BYTES, BASE_NONE, NULL, 0, "Served User Transport", HFILL }},
-        
+
     { &hf_alcap_ssia_pr_type, { "Profile Type", "alcap.ssia.profile.type", FT_UINT8, BASE_DEC, VALS(audio_profile_type), 0xc0, "I.366.2 Profile Type", HFILL }},
     { &hf_alcap_ssia_pr_id, { "Profile Id", "alcap.ssia.profile.id", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_ssia_frm, { "Frame Mode", "alcap.ssia.frm", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80, NULL, HFILL }},
@@ -1587,24 +1587,24 @@ proto_register_alcap(void)
     { &hf_alcap_ssia_pcm, { "PCM Mode", "alcap.ssia.pcm", FT_UINT8, BASE_DEC, VALS(alaw_ulaw), 0x01, NULL, HFILL }},
     { &hf_alcap_ssia_max_len, { "Max Len of FM Data", "alcap.ssia.max_fmdata_len", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_ssia_oui, { "OUI", "alcap.ssia.oui", FT_BYTES, BASE_NONE, NULL, 0, "Organizational Unique Identifier", HFILL }},
-        
+
     { &hf_alcap_ssim_frm, { "Frame Mode", "alcap.ssim.frm", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80, NULL, HFILL }},
     { &hf_alcap_ssim_mult, { "Multiplier", "alcap.ssim.mult", FT_UINT8, BASE_DEC, NULL, 0x1f, NULL, HFILL }},
     { &hf_alcap_ssim_max, { "Max Len", "alcap.ssim.max", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-        
+
     { &hf_alcap_ssisa_max_sssar_fw, { "Maximum Len of SSSAR-SDU Forward", "alcap.ssisa.sssar.max_len.fw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_ssisa_max_sssar_bw, { "Maximum Len of SSSAR-SDU Backwards", "alcap.ssisa.sssar.max_len.fw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_ssisa_max_sscop_sdu_fw, { "Maximum Len of SSSAR-SDU Forward", "alcap.ssisa.sscop.max_sdu_len.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_ssisa_max_sscop_sdu_bw, { "Maximum Len of SSSAR-SDU Backwards", "alcap.ssisa.sscop.max_sdu_len.bw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_ssisa_max_sscop_uu_fw, { "Maximum Len of SSSAR-SDU Forward", "alcap.ssisa.sscop.max_uu_len.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_ssisa_max_sscop_uu_bw, { "Maximum Len of SSSAR-SDU Backwards", "alcap.ssisa.sscop.max_uu_len.bw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-        
+
     { &hf_alcap_ssisu_max_sssar_fw, { "Maximum Len of SSSAR-SDU Forward", "alcap.ssisu.sssar.max_len.fw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_ssisu_max_sssar_bw, { "Maximum Len of SSSAR-SDU Backwards", "alcap.ssisu.sssar.max_len.fw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_ssisu_ted, { "Transmission Error Detection", "alcap.ssisu.ted", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80, NULL, HFILL }},
-        
+
     { &hf_alcap_pt, { "QoS Codepoint", "alcap.pt.codepoint", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        
+
     { &hf_alcap_plc_max_br_fw, { "Maximum Forward Bit Rate", "alcap.plc.bitrate.max.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_plc_max_br_bw, { "Maximum Backwards Bit Rate", "alcap.plc.bitrate.max.bw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_plc_avg_br_fw, { "Average Forward Bit Rate", "alcap.plc.bitrate.avg.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -1613,7 +1613,7 @@ proto_register_alcap(void)
     { &hf_alcap_plc_max_sdu_bw, { "Maximum Backwards CPS SDU Size", "alcap.plc.sdusize.max.bw", FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL }},
     { &hf_alcap_plc_avg_sdu_fw, { "Maximum Forward CPS SDU Size", "alcap.plc.sdusize.max.fw", FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL }},
     { &hf_alcap_plc_avg_sdu_bw, { "Maximum Backwards CPS SDU Size", "alcap.plc.sdusize.max.bw", FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL }},
-        
+
     { &hf_alcap_pssiae_pr_type, { "Profile Type", "alcap.pssiae.profile.type", FT_UINT8, BASE_DEC, VALS(audio_profile_type), 0xc0, "I.366.2 Profile Type", HFILL }},
     { &hf_alcap_pssiae_pr_id, { "Profile Id", "alcap.pssiae.profile.id", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_pssiae_lb, { "Loopback", "alcap.pssiae.lb", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0xc0, NULL, HFILL }},
@@ -1629,16 +1629,16 @@ proto_register_alcap(void)
     { &hf_alcap_pssiae_pcm, { "PCM Mode", "alcap.pssiae.pcm", FT_UINT8, BASE_DEC, VALS(alaw_ulaw), 0x01, NULL, HFILL }},
     { &hf_alcap_pssiae_max_len, { "Max Len of FM Data", "alcap.pssiae.max_fmdata_len", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_pssiae_oui, { "OUI", "alcap.pssiae.oui", FT_BYTES, BASE_NONE, NULL, 0, "Organizational Unique Identifier", HFILL }},
-        
+
     { &hf_alcap_pssime_frm, { "Frame Mode", "alcap.pssime.frm", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80, NULL, HFILL }},
     { &hf_alcap_pssime_lb, { "Loopback", "alcap.pssime.lb", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x40, NULL, HFILL }},
     { &hf_alcap_pssime_mult, { "Multiplier", "alcap.pssime.mult", FT_UINT8, BASE_DEC, NULL, 0x1f, NULL, HFILL }},
     { &hf_alcap_pssime_max, { "Max Len", "alcap.pssime.max", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-        
+
     { &hf_alcap_suci, { "SUCI", "alcap.suci", FT_UINT8, BASE_HEX, NULL, 0, "Served User Correlation Id", HFILL }},
-        
+
     { &hf_alcap_onsea, { "Address", "alcap.onsea.addr", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-        
+
     { &hf_alcap_ssiae_pr_type, { "Profile Type", "alcap.ssiae.profile.type", FT_UINT8, BASE_DEC, VALS(audio_profile_type), 0xc0, "I.366.2 Profile Type", HFILL }},
     { &hf_alcap_ssiae_lb, { "Loopback", "alcap.ssiae.lb", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0xc0, NULL, HFILL }},
     { &hf_alcap_ssiae_rc, { "Rate Control", "alcap.ssiae.rc", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0xc0, NULL, HFILL }},
@@ -1654,25 +1654,25 @@ proto_register_alcap(void)
     { &hf_alcap_ssiae_pcm, { "PCM Mode", "alcap.ssiae.pcm", FT_UINT8, BASE_DEC, VALS(alaw_ulaw), 0x01, NULL, HFILL }},
     { &hf_alcap_ssiae_max_len, { "Max Len of FM Data", "alcap.ssiae.max_fmdata_len", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_ssiae_oui, { "OUI", "alcap.ssiae.oui", FT_BYTES, BASE_NONE, NULL, 0, "Organizational Unique Identifier", HFILL }},
-        
+
     { &hf_alcap_ssime_frm, { "Frame Mode", "alcap.ssime.frm", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80, NULL, HFILL }},
     { &hf_alcap_ssime_lb, { "Loopback", "alcap.ssime.lb", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x40, NULL, HFILL }},
     { &hf_alcap_ssime_mult, { "Multiplier", "alcap.ssime.mult", FT_UINT8, BASE_DEC, NULL, 0x1f, NULL, HFILL }},
     { &hf_alcap_ssime_max, { "Max Len", "alcap.ssime.max", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-        
+
     { &hf_alcap_acc_level, { "Congestion Level", "alcap.acc.level", FT_UINT8, BASE_DEC, VALS(congestion_level), 0, NULL, HFILL }},
-        
+
     { &hf_alcap_cp, { "Level", "alcap.cp.level", FT_UINT8, BASE_DEC, VALS(connection_priority), 0x07, NULL, HFILL }},
-        
+
     { &hf_alcap_hc, { "Codepoint", "alcap.hc.codepoint", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-        
+
     { &hf_alcap_pfbw_br_fw, { "CPS Forward Bitrate", "alcap.pfbw.bitrate.fw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_pfbw_br_bw, { "CPS Backwards Bitrate", "alcap.pfbw.bitrate.bw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_pfbw_bucket_fw, { "Forward CPS Bucket Size", "alcap.pfbw.bucket_size.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_pfbw_bucket_bw, { "Backwards CPS Bucket Size", "alcap.pfbw.bucket_size.bw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_pfbw_size_fw, { "Forward CPS Packet Size", "alcap.pfbw.max_size.fw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_pfbw_size_bw, { "Backwards CPS Packet Size", "alcap.pfbw.max_size.bw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-        
+
     { &hf_alcap_pvbws_br_fw, { "Peak CPS Forward Bitrate", "alcap.pvbws.bitrate.fw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_pvbws_br_bw, { "Peak CPS Backwards Bitrate", "alcap.pvbws.bitrate.bw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_pvbws_bucket_fw, { "Peak Forward CPS Bucket Size", "alcap.pvbws.bucket_size.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -1680,7 +1680,7 @@ proto_register_alcap(void)
     { &hf_alcap_pvbws_size_fw, { "Forward CPS Packet Size", "alcap.pvbws.max_size.fw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_pvbws_size_bw, { "Backwards CPS Packet Size", "alcap.pvbws.max_size.bw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_pvbws_stt, { "Source Traffic Type", "alcap.pvbws.stt", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-        
+
     { &hf_alcap_pvbwt_peak_br_fw, { "Peak CPS Forward Bitrate", "alcap.pvbwt.bitrate.fw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_pvbwt_peak_br_bw, { "Peak CPS Backwards Bitrate", "alcap.pvbwt.bitrate.bw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_pvbwt_peak_bucket_fw, { "Peak Forward CPS Bucket Size", "alcap.pvbwt.bucket_size.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -1691,14 +1691,14 @@ proto_register_alcap(void)
     { &hf_alcap_pvbwt_sust_bucket_bw, { "Sustainable Backwards CPS Bucket Size", "alcap.pvbwt.bucket_size.bw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_pvbwt_size_fw, { "Forward CPS Packet Size", "alcap.pvbwt.max_size.fw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_pvbwt_size_bw, { "Backwards CPS Packet Size", "alcap.pvbwt.max_size.bw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-        
+
     { &hf_alcap_fbw_br_fw, { "CPS Forward Bitrate", "alcap.fbw.bitrate.fw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_fbw_br_bw, { "CPS Backwards Bitrate", "alcap.fbw.bitrate.bw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_fbw_bucket_fw, { "Forward CPS Bucket Size", "alcap.fbw.bucket_size.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_fbw_bucket_bw, { "Backwards CPS Bucket Size", "alcap.fbw.bucket_size.bw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_fbw_size_fw, { "Forward CPS Packet Size", "alcap.fbw.max_size.fw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_fbw_size_bw, { "Backwards CPS Packet Size", "alcap.fbw.max_size.bw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-        
+
     { &hf_alcap_vbws_br_fw, { "CPS Forward Bitrate", "alcap.vbws.bitrate.fw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_vbws_br_bw, { "CPS Backwards Bitrate", "alcap.vbws.bitrate.bw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_vbws_bucket_fw, { "Forward CPS Bucket Size", "alcap.vbws.bucket_size.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -1706,7 +1706,7 @@ proto_register_alcap(void)
     { &hf_alcap_vbws_size_fw, { "Forward CPS Packet Size", "alcap.vbws.max_size.fw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_vbws_size_bw, { "Backwards CPS Packet Size", "alcap.vbws.max_size.bw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_vbws_stt, { "Source Traffic Type", "alcap.vbws.stt", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-        
+
     { &hf_alcap_vbwt_peak_br_fw, { "Peak CPS Forward Bitrate", "alcap.vbwt.bitrate.fw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_vbwt_peak_br_bw, { "Peak CPS Backwards Bitrate", "alcap.vbwt.bitrate.bw", FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_vbwt_peak_bucket_fw, { "Peak Forward CPS Bucket Size", "alcap.vbwt.bucket_size.fw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -1717,7 +1717,7 @@ proto_register_alcap(void)
     { &hf_alcap_vbwt_sust_bucket_bw, { "Sustainable Backwards CPS Bucket Size", "alcap.vbwt.bucket_size.bw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_vbwt_size_fw, { "Forward CPS Packet Size", "alcap.vbwt.max_size.fw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
     { &hf_alcap_vbwt_size_bw, { "Backwards CPS Packet Size", "alcap.vbwt.max_size.bw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-        
+
     { &hf_alcap_leg_osaid, { "Leg's ERQ OSA id",    "alcap.leg.osaid", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
     { &hf_alcap_leg_dsaid, { "Leg's ECF OSA id",    "alcap.leg.dsaid", FT_UINT32, BASE_HEX, NULL, 0,NULL, HFILL } },
     { &hf_alcap_leg_pathid, { "Leg's path id",    "alcap.leg.pathid", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
@@ -1727,9 +1727,9 @@ proto_register_alcap(void)
     { &hf_alcap_leg_onsea, { "Leg's originating NSAP",    "alcap.leg.onsea", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_alcap_leg_frame, { "a message of this leg",    "alcap.leg.msg", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_alcap_leg_release_cause, { "Leg's cause value in REL",    "alcap.leg.cause", FT_UINT8, BASE_DEC, VALS(cause_values_itu), 0, NULL, HFILL }},
-        
+
     };
-    
+
     gint* ett[] = {
         &ett_alcap,
         &ett_leg,
@@ -1772,21 +1772,21 @@ proto_register_alcap(void)
         &param_infos[34].ett,
         &param_infos[35].ett,
     };
-    
+
     proto_alcap = proto_register_protocol(alcap_proto_name, alcap_proto_name_short, "alcap");
-    
+
     register_dissector("alcap", dissect_alcap, proto_alcap);
 
     proto_register_field_array(proto_alcap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     alcap_module = prefs_register_protocol(proto_alcap, NULL);
-    
+
     prefs_register_bool_preference(alcap_module, "leg_info",
                                    "Keep Leg Information",
                                    "Whether persistent call leg information is to be kept",
                                    &keep_persistent_info);
-    
+
     legs_by_dsaid = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "legs_by_dsaid");
     legs_by_osaid = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "legs_by_osaid");
     legs_by_bearer = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "legs_by_bearer");
