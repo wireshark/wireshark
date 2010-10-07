@@ -2900,7 +2900,7 @@ static gint ett_tn5250_qr_mask = -1;
 static gint ett_tn5250_wea_prim_attr = -1;
 static gint ett_cc = -1;
 
-tn5250_conv_info_t *tn5250_info_items;
+static tn5250_conv_info_t *tn5250_info_items;
 
 static guint32 dissect_tn5250_orders_and_data(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset);
 
