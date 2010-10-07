@@ -78,6 +78,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Incorrect behavior using sorting in the packet list.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2225">Bug
+          2225</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Wireshark crashes if active display filter macro is renamed.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5002">Bug
           5002</ulink>)
@@ -144,6 +150,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Wireshark mistakenly writes "not all data available" for IPv4 checksum.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5194">Bug
+          5194</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           GSM: Cell Channel Description, range 1024 format.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5214">Bug
           5214</ulink>)
@@ -177,6 +189,12 @@ Wireshark Info
           IPv6 RH0: dest addr is to be used i.s.o. last RH address when 0 segments remain.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5252">Bug
           5252</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          EIGRP dissection error in Flags field in external route TLVs.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5261">Bug
+          5261</ulink>)
         </para></listitem>
 
       </itemizedlist>

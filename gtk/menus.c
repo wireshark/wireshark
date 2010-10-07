@@ -2659,6 +2659,16 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
                          !capture_in_progress);
     set_menu_sensitivity(main_menu_factory, "/File/Export",
                          capture_in_progress);
+    set_menu_sensitivity(main_menu_factory, "/File/File Set",
+                         !capture_in_progress);
+
+    set_menu_sensitivity(packet_list_heading_factory, "/Sort Ascending",
+                         !capture_in_progress);
+    set_menu_sensitivity(packet_list_heading_factory, "/Sort Descending",
+                         !capture_in_progress);
+    set_menu_sensitivity(packet_list_heading_factory, "/No Sorting",
+                         !capture_in_progress);
+
 #ifdef HAVE_LIBPCAP
     set_menu_sensitivity(main_menu_factory, "/Capture/Options...",
                          !capture_in_progress);
