@@ -977,7 +977,7 @@ sub check_hf_entries($$)
 				  \s*,\s*
 				  ([A-Z0-9x_]+)			# bitmask
 				  \s*,\s*
-				  (["A-Z0-9 '\./\(\)_:-]+)	# blurb	(optional, so quotes are not required)
+				  ([NULL|"[A-Z0-9 '\./\(\)\?_:-]+"])	# blurb	(NULL or a string)
 				  \s*,\s*
 				  HFILL				# HFILL
 				}xgios);
@@ -996,10 +996,19 @@ sub check_hf_entries($$)
 			print STDERR "Warning: the blurb for field $name ($abbrev) matches the field name in $filename\n";
 		}
 		if ($name =~ m/"\s+/) {
-			print STDERR "Warning: leading space in field $name ($abbrev) in $filename\n";
+			print STDERR "Warning: the name for field $name ($abbrev) has leading space in $filename\n";
 		}
 		if ($name =~ m/\s+"/) {
-			print STDERR "Warning: trailing space in field $name ($abbrev) in $filename\n";
+			print STDERR "Warning: the name for field $name ($abbrev) has trailing space in $filename\n";
+		}
+		if ($blurb =~ m/"\s+/) {
+			print STDERR "Warning: the blurb for field $name ($abbrev) has leading space in $filename\n";
+		}
+		if ($blurb =~ m/\s+"/) {
+			print STDERR "Warning: the blurb for field $name ($abbrev) has trailing space in $filename\n";
+		}
+		if ($abbrev =~ m/\s+/) {
+			print STDERR "Warning: the abbreviation for field $name ($abbrev) has white space in $filename\n";
 		}
 		if ("\"".$hf ."\"" eq $name) {
 			print STDERR "Warning: name is the hf_variable_name in field $name ($abbrev) in $filename\n";
