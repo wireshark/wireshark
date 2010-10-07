@@ -1522,11 +1522,11 @@ static gint ett_tn3270_dc_dir_flags=-1;
 static gint ett_tn3270_ccc=-1;
 static gint ett_tn3270_msr_state_mask=-1;
 
-tn3270_conv_info_t *tn3270_info_items;
+static tn3270_conv_info_t *tn3270_info_items;
 
-guint8 ROWS, COLS, MAXROWS, MAXCOLS;
+static guint8 ROWS, COLS, MAXROWS, MAXCOLS;
 
-gint dissect_orders_and_data(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset);
+static gint dissect_orders_and_data(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset);
 
 typedef struct hf_items {
   int hf;
@@ -4741,7 +4741,7 @@ dissect_field_attribute_pairs(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offse
   return (offset - start);
 }
 
-gint
+static gint
 dissect_orders_and_data(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
 {
   gint start = offset;
