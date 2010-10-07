@@ -325,7 +325,7 @@ static int hf_replyopenprinter_unk1 = -1;
 #define DCERPC_REG_FULL_RESOURCE_DESCRIPTOR   9
 #define DCERPC_REG_RESOURCE_REQUIREMENTS_LIST 10
 
-const value_string reg_datatypes[] = {
+static const value_string reg_datatypes[] = {
         { DCERPC_REG_NONE, "REG_NONE" },
         { DCERPC_REG_SZ, "REG_SZ" },
         { DCERPC_REG_EXPAND_SZ, "REG_EXPAND_SZ" },

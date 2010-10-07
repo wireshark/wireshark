@@ -71,35 +71,35 @@
 #define CSM_ENCAPS_TYPE_INDICATION_RESPONSE  0x05
 
 
-const value_string opcode_vals[] = {
+static const value_string opcode_vals[] = {
 	{ OPCODE_NOOP,           "No Operation" },
 	{ OPCODE_CONTROL_PACKET, "Control Packet" },
 	{ OPCODE_RELIABLE_DATA,  "Reliable Data Transfer" },
 	{ 0,       NULL }
 };
 
-const value_string function_code_vals[] = {
+static const value_string function_code_vals[] = {
 	{0x0000, " "},
 	{ 0,       NULL }
 };
 
 
-const value_string class_type_vals[] = {
+static const value_string class_type_vals[] = {
 	{ 0,      NULL }
 };
 
 
 
-const value_string exclusive_to_host_vals[] = {
+static const value_string exclusive_to_host_vals[] = {
 	{ 0,      NULL }
 };
 
-const value_string exclusive_to_host_ct_vals[] = {
+static const value_string exclusive_to_host_ct_vals[] = {
 	{ 0,      NULL }
 };
 
 
-const value_string error_vals[] = {
+static const value_string error_vals[] = {
 	{ 0,      NULL }
 };
 
