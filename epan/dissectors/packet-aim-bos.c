@@ -57,7 +57,7 @@
 #define AIM_PRIVACY_TLV_MAX_VISIB_LIST_SIZE		0x001
 #define AIM_PRIVACY_TLV_MAX_INVISIB_LIST_SIZE	0x002
 
-static const aim_tlv privacy_tlvs[] = {
+static const aim_tlv aim_privacy_tlvs[] = {
 	{ AIM_PRIVACY_TLV_MAX_VISIB_LIST_SIZE, "Max visible list size", dissect_aim_tlv_value_uint16 },
 	{ AIM_PRIVACY_TLV_MAX_INVISIB_LIST_SIZE, "Max invisible list size", dissect_aim_tlv_value_uint16 },
 	{ 0, NULL, NULL },
@@ -81,7 +81,7 @@ static int dissect_aim_bos_set_group_perm(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static int dissect_aim_bos_rights(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bos_tree) 
 {
-	return dissect_aim_tlv_sequence(tvb, pinfo, 0, bos_tree, privacy_tlvs);
+	return dissect_aim_tlv_sequence(tvb, pinfo, 0, bos_tree, aim_privacy_tlvs);
 }
 
 static int dissect_aim_bos_buddyname(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bos_tree) 

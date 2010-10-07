@@ -56,7 +56,7 @@ static int dissect_aim_snac_signon_logon(tvbuff_t *tvb, packet_info *pinfo,
 {
 	int offset = 0;
 	while (tvb_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv(tvb, pinfo, offset, tree, client_tlvs);
+		offset = dissect_aim_tlv(tvb, pinfo, offset, tree, aim_client_tlvs);
 	}
 	return offset;
 }
@@ -67,7 +67,7 @@ static int dissect_aim_snac_signon_logon_reply(tvbuff_t *tvb,
 {
 	int offset = 0;
 	while (tvb_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv(tvb, pinfo, offset, tree, client_tlvs);
+		offset = dissect_aim_tlv(tvb, pinfo, offset, tree, aim_client_tlvs);
 	}
 	return offset;
 }
@@ -125,14 +125,14 @@ static int dissect_aim_tlv_value_registration(proto_item *ti _U_, guint16 value_
 
 #define REG_TLV_REGISTRATION_INFO 	0x0001
 
-static const aim_tlv registration_tlvs[] = {
+static const aim_tlv aim_registration_tlvs[] = {
 	{ REG_TLV_REGISTRATION_INFO, "Registration Info", dissect_aim_tlv_value_registration },
 	{ 0, NULL, NULL },
 };
 
 static int dissect_aim_snac_register (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	return dissect_aim_tlv(tvb, pinfo, 0, tree, registration_tlvs);
+	return dissect_aim_tlv(tvb, pinfo, 0, tree, aim_registration_tlvs);
 }
 
 static const aim_subtype aim_fnac_family_signon[] = {

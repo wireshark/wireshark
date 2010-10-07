@@ -171,7 +171,7 @@ static const value_string aim_snac_errors[] = {
 #define AIM_CLIENT_TLV_LOCAL_PERSONAL_SOUND    0x013e
 #define AIM_CLIENT_TLV_FIRST_MESSAGE_SENT      0x0145
 
-const aim_tlv client_tlvs[] = {
+const aim_tlv aim_client_tlvs[] = {
 	{ AIM_CLIENT_TLV_SCREEN_NAME, "Screen name", dissect_aim_tlv_value_string },
 	{ AIM_CLIENT_TLV_NEW_ROASTED_PASSWORD, "Roasted password array", dissect_aim_tlv_value_bytes  },
 	{ AIM_CLIENT_TLV_OLD_ROASTED_PASSWORD, "Old roasted password array", dissect_aim_tlv_value_bytes  },
@@ -252,7 +252,7 @@ static int dissect_aim_tlv_value_client_short_capabilities(proto_item *ti, guint
 #define AIM_ONLINEBUDDY_AWAYTIME       0x0027
 #define AIM_ONLINEBUDDY_GEOCOUNTRY     0x002a
 
-const aim_tlv onlinebuddy_tlvs[] = {
+const aim_tlv aim_onlinebuddy_tlvs[] = {
 	{ AIM_ONLINEBUDDY_USERCLASS, "User class", dissect_aim_tlv_value_userclass },
 	{ AIM_ONLINEBUDDY_ONSINCE, "Online since", dissect_aim_tlv_value_uint32 },
 	{ AIM_ONLINEBUDDY_IDLETIME, "Idle time (sec)", dissect_aim_tlv_value_uint16 },
@@ -311,7 +311,7 @@ static GList *families = NULL;
 
 #define AIM_MOTD_TLV_MOTD					   0x000B
 
-const aim_tlv motd_tlvs[] = {
+const aim_tlv aim_motd_tlvs[] = {
 	{ AIM_MOTD_TLV_MOTD, "Message of the day message", dissect_aim_tlv_value_string },
 	{ 0, NULL, NULL }
 };
@@ -342,7 +342,7 @@ const aim_tlv motd_tlvs[] = {
 
 #define FNAC_TLV_FAMILY_VERSION  0x0001
 
-static const aim_tlv fnac_tlvs[] = {
+static const aim_tlv aim_fnac_tlvs[] = {
 	{ FNAC_TLV_FAMILY_VERSION, "SNAC Family Version", dissect_aim_tlv_value_uint16 },
 	{ 0, NULL, NULL }
 };
@@ -613,7 +613,7 @@ dissect_aim_newconn(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	if (tvb_length_remaining(tvb, offset) > 0) {
 		proto_tree_add_item(tree, hf_aim_version, tvb, offset, 4, FALSE);
 		offset+=4;
-		offset = dissect_aim_tlv_sequence(tvb, pinfo, offset, tree, client_tlvs);
+		offset = dissect_aim_tlv_sequence(tvb, pinfo, offset, tree, aim_client_tlvs);
 	}
 
 	if (tvb_length_remaining(tvb, offset) > 0)
@@ -632,7 +632,7 @@ dissect_aim_snac_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aim_tree)
 
 	proto_tree_add_item (aim_tree, hf_aim_snac_error, tvb, 0, 2, FALSE);
 
-	return dissect_aim_tlv_sequence(tvb, pinfo, 2, aim_tree, client_tlvs);
+	return dissect_aim_tlv_sequence(tvb, pinfo, 2, aim_tree, aim_client_tlvs);
 }
 
 int
@@ -658,7 +658,7 @@ dissect_aim_userinfo(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree_add_item(tree, hf_aim_userinfo_warninglevel, tvb, offset, 2, FALSE);
 	offset += 2;
 
-	return dissect_aim_tlv_list(tvb, pinfo, offset, tree, onlinebuddy_tlvs);
+	return dissect_aim_tlv_list(tvb, pinfo, offset, tree, aim_onlinebuddy_tlvs);
 }
 
 static int
@@ -741,7 +741,7 @@ dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		oldoffset = offset;
 
 		while(offset < oldoffset + len) {
-			offset = dissect_aim_tlv(tvb, pinfo, offset, aim_tree, fnac_tlvs);
+			offset = dissect_aim_tlv(tvb, pinfo, offset, aim_tree, aim_fnac_tlvs);
 		}
 	}
 
@@ -814,7 +814,7 @@ dissect_aim_close_conn(tvbuff_t *tvb, packet_info *pinfo, int offset,
 {
 	col_set_str(pinfo->cinfo, COL_INFO, "Close Connection");
 
-	offset = dissect_aim_tlv_sequence(tvb, pinfo, offset, tree, client_tlvs);
+	offset = dissect_aim_tlv_sequence(tvb, pinfo, offset, tree, aim_client_tlvs);
 }
 
 static void

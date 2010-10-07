@@ -1,4 +1,4 @@
-/* packet-tcp.h
+/* packet-aim.h
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
  * $Id$
@@ -89,8 +89,8 @@ int dissect_aim_userclass(tvbuff_t *tvb, int offset, int len, proto_item *ti, gu
 int dissect_aim_tlv_value_userclass(proto_item *ti, guint16, tvbuff_t *, packet_info *);
 int dissect_aim_tlv_value_messageblock (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *);
 
-extern const aim_tlv client_tlvs[];
-extern const aim_tlv onlinebuddy_tlvs[];
-extern const aim_tlv motd_tlvs[];
+extern const aim_tlv aim_client_tlvs[];
+extern const aim_tlv aim_onlinebuddy_tlvs[];
+extern const aim_tlv aim_motd_tlvs[];
 
 #endif

@@ -55,7 +55,7 @@ static int dissect_aim_userlookup_search(tvbuff_t *tvb, packet_info *pinfo _U_, 
 
 static int dissect_aim_userlookup_result(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lookup_tree)
 {
-	return dissect_aim_tlv_sequence(tvb, pinfo, 0, lookup_tree, client_tlvs);
+	return dissect_aim_tlv_sequence(tvb, pinfo, 0, lookup_tree, aim_client_tlvs);
 }
 
 static const aim_subtype aim_fnac_family_userlookup[] = {

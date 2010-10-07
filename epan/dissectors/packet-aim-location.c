@@ -44,7 +44,7 @@
 #define AIM_LOCATION_RIGHTS_TLV_MAX_PROFILE_LENGTH 	0x0001
 #define AIM_LOCATION_RIGHTS_TLV_MAX_CAPABILITIES 	0x0002
 
-static const aim_tlv location_rights_tlvs[] = {
+static const aim_tlv aim_location_rights_tlvs[] = {
   { AIM_LOCATION_RIGHTS_TLV_MAX_PROFILE_LENGTH, "Max Profile Length", dissect_aim_tlv_value_uint16 },
   { AIM_LOCATION_RIGHTS_TLV_MAX_CAPABILITIES, "Max capabilities", dissect_aim_tlv_value_uint16 },
   { 0, NULL, NULL }
@@ -61,7 +61,7 @@ static const aim_tlv location_rights_tlvs[] = {
 #define AIM_LOCATE_TAG_TLV_HTML_INFO_TYPE		0x000D
 #define AIM_LOCATE_TAG_TLV_HTML_INFO_DATA		0x000E
 
-static const aim_tlv locate_tags_tlvs[] = {
+static const aim_tlv aim_locate_tags_tlvs[] = {
 	{ AIM_LOCATE_TAG_TLV_SIG_TYPE, "Signature MIME Type", dissect_aim_tlv_value_string },
 	{ AIM_LOCATE_TAG_TLV_SIG_DATA, "Signature Data", dissect_aim_tlv_value_string },
 	{ AIM_LOCATE_TAG_TLV_UNAVAILABLE_TYPE, "Away Message MIME Type", dissect_aim_tlv_value_string },
@@ -98,12 +98,12 @@ static gint ett_aim_location    = -1;
 
 static int dissect_aim_location_rightsinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *loc_tree)
 {
-	return dissect_aim_tlv_sequence(tvb, pinfo, 0, loc_tree, location_rights_tlvs);
+	return dissect_aim_tlv_sequence(tvb, pinfo, 0, loc_tree, aim_location_rights_tlvs);
 }
 
 static int dissect_aim_location_setuserinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *loc_tree)
 {
-	return dissect_aim_tlv_sequence(tvb, pinfo, 0, loc_tree, locate_tags_tlvs);
+	return dissect_aim_tlv_sequence(tvb, pinfo, 0, loc_tree, aim_locate_tags_tlvs);
 }
 
 static int dissect_aim_location_watcher_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *loc_tree)
@@ -164,9 +164,9 @@ static int dissect_aim_snac_location_user_information(tvbuff_t *tvb,
 	proto_tree_add_item(tree, hf_aim_userinfo_warninglevel, tvb, offset, 2, FALSE);
 	offset += 2;
 
-	offset = dissect_aim_tlv_list(tvb, pinfo, offset, tree, onlinebuddy_tlvs);
+	offset = dissect_aim_tlv_list(tvb, pinfo, offset, tree, aim_onlinebuddy_tlvs);
 
-	return dissect_aim_tlv_sequence(tvb, pinfo, offset, tree, locate_tags_tlvs);
+	return dissect_aim_tlv_sequence(tvb, pinfo, offset, tree, aim_locate_tags_tlvs);
 }
 
 static const aim_subtype aim_fnac_family_location[] = {

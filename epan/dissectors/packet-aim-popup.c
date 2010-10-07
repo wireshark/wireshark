@@ -47,7 +47,7 @@
 #define AIM_POPUP_TLV_WINDOW_HEIGHT		0x004
 #define AIM_POPUP_TLV_AUTOHIDE_DELAY	0x005
 
-const aim_tlv popup_tlvs[] = {
+static const aim_tlv aim_popup_tlvs[] = {
 	{ AIM_POPUP_TLV_MESSAGE_TEXT, "Message text (html)", dissect_aim_tlv_value_string },
 	{ AIM_POPUP_TLV_URL_STRING, "URL string", dissect_aim_tlv_value_string },
 	{ AIM_POPUP_TLV_WINDOW_WIDTH, "Window Width (pixels)", dissect_aim_tlv_value_uint16 },
@@ -64,7 +64,7 @@ static gint ett_aim_popup    = -1;
 
 static int dissect_aim_popup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *popup_tree)
 {
-	return dissect_aim_tlv(tvb, pinfo, 0, popup_tree, popup_tlvs);
+	return dissect_aim_tlv(tvb, pinfo, 0, popup_tree, aim_popup_tlvs);
 }
 
 static const aim_subtype aim_fnac_family_popup[] = {

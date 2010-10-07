@@ -46,7 +46,7 @@ static int ett_aim_invitation = -1;
 
 static int dissect_aim_invitation_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *invite_tree)
 {
-	return dissect_aim_tlv_sequence(tvb, pinfo, 0, invite_tree, onlinebuddy_tlvs);
+	return dissect_aim_tlv_sequence(tvb, pinfo, 0, invite_tree, aim_onlinebuddy_tlvs);
 }
 
 static const aim_subtype aim_fnac_family_invitation[] = {

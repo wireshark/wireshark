@@ -46,7 +46,7 @@ static int dissect_aim_directory_user_repl(tvbuff_t *tvb, packet_info *pinfo, pr
 {
 	int offset = 0;
 	while (tvb_length_remaining(tvb, offset) > 0) {
-		offset = dissect_aim_tlv(tvb, pinfo, offset, tree, client_tlvs);
+		offset = dissect_aim_tlv(tvb, pinfo, offset, tree, aim_client_tlvs);
 	}
 	return offset;
 }

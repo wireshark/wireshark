@@ -270,7 +270,7 @@ static int dissect_aim_generic_service_req(tvbuff_t *tvb, packet_info *pinfo _U_
 
 static int dissect_aim_generic_redirect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gen_tree)
 {
-	return dissect_aim_tlv_sequence(tvb, pinfo, 0, gen_tree, client_tlvs);
+	return dissect_aim_tlv_sequence(tvb, pinfo, 0, gen_tree, aim_client_tlvs);
 }
 
 static int dissect_aim_generic_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
@@ -309,7 +309,7 @@ static int dissect_aim_generic_motd(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	proto_tree_add_item(gen_tree, hf_generic_motd_motdtype, tvb, offset, 
 						2, tvb_get_ntohs(tvb, offset));
 	offset+=2;
-	return dissect_aim_tlv_sequence(tvb, pinfo, offset, gen_tree, motd_tlvs);
+	return dissect_aim_tlv_sequence(tvb, pinfo, offset, gen_tree, aim_motd_tlvs);
 }
 
 static int dissect_aim_generic_rateinfoack(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
@@ -362,7 +362,7 @@ static int dissect_aim_generic_migration_req(tvbuff_t *tvb, packet_info *pinfo, 
 		offset += 2;
 	}
 
-	return dissect_aim_tlv_sequence(tvb, pinfo, offset, gen_tree, client_tlvs);
+	return dissect_aim_tlv_sequence(tvb, pinfo, offset, gen_tree, aim_client_tlvs);
 }
 
 static int dissect_aim_generic_setprivflags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
@@ -382,7 +382,7 @@ static int dissect_aim_generic_selfinfo_repl(tvbuff_t *tvb, packet_info *pinfo, 
 	int offset = dissect_aim_buddyname(tvb, pinfo, 0, gen_tree);
 	proto_tree_add_item(gen_tree, hf_generic_selfinfo_warninglevel, tvb, offset, 2, FALSE);
 	offset += 2;
-	return dissect_aim_tlv_list(tvb, pinfo, offset, gen_tree, onlinebuddy_tlvs);
+	return dissect_aim_tlv_list(tvb, pinfo, offset, gen_tree, aim_onlinebuddy_tlvs);
 }
 
 static int dissect_aim_generic_evil(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gen_tree)
@@ -403,7 +403,7 @@ static int dissect_aim_generic_setidle(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 
 static int dissect_aim_generic_ext_status_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gen_tree)
 {
-	return dissect_aim_tlv_sequence(tvb, pinfo, 0, gen_tree, onlinebuddy_tlvs);
+	return dissect_aim_tlv_sequence(tvb, pinfo, 0, gen_tree, aim_onlinebuddy_tlvs);
 }
 
 static int dissect_aim_generic_clientver_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)

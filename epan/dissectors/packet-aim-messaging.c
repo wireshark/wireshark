@@ -51,7 +51,7 @@
 #define INCOMING_CH1_BUDDY_REQ         0x0009
 #define INCOMING_CH1_TYPING            0x000b
 
-static const aim_tlv messaging_incoming_ch1_tlvs[] = {
+static const aim_tlv aim_messaging_incoming_ch1_tlvs[] = {
   { INCOMING_CH1_MESSAGE_BLOCK, "Message Block", dissect_aim_tlv_value_messageblock },
   { INCOMING_CH1_SERVER_ACK_REQ, "Server Ack Requested", dissect_aim_tlv_value_bytes },
   { INCOMING_CH1_MESSAGE_AUTH_RESP, "Message is Auto Response", dissect_aim_tlv_value_bytes },
@@ -77,7 +77,7 @@ static const value_string icbm_channel_types[] = {
 #define INCOMING_CH2_SERVER_ACK_REQ    	   0x0003
 #define INCOMING_CH2_RENDEZVOUS_DATA       0x0005
 
-static const aim_tlv messaging_incoming_ch2_tlvs[] = {
+static const aim_tlv aim_messaging_incoming_ch2_tlvs[] = {
   { INCOMING_CH2_SERVER_ACK_REQ, "Server Ack Requested", dissect_aim_tlv_value_bytes },
   { INCOMING_CH2_RENDEZVOUS_DATA, "Rendez Vous Data", dissect_aim_tlv_value_rendezvous },
   { 0, NULL, NULL },
@@ -110,7 +110,7 @@ static const aim_tlv messaging_incoming_ch2_tlvs[] = {
 #define RENDEZVOUS_TLV_EXTENDED_DATA			0x2711
 #define RENDEZVOUS_TLV_ICHAT_INVITEES_DATA		0x277E
 
-static const aim_tlv rendezvous_tlvs[] = {
+static const aim_tlv aim_rendezvous_tlvs[] = {
 	{ RENDEZVOUS_TLV_CHANNEL, "Rendezvous ICBM Channel", dissect_aim_tlv_value_uint16 },
 	{ RENDEZVOUS_TLV_IP_ADDR, "Rendezvous IP", dissect_aim_tlv_value_ipv4 },
 	{ RENDEZVOUS_TLV_INT_IP, "Internal IP", dissect_aim_tlv_value_ipv4 },
@@ -312,14 +312,14 @@ dissect_aim_tlv_value_rendezvous(proto_item *ti, guint16 valueid _U_, tvbuff_t *
 	offset = dissect_aim_capability(entry, tvb, offset);
 
 	return dissect_aim_tlv_sequence(tvb, pinfo, offset, entry,
-							rendezvous_tlvs);
+							aim_rendezvous_tlvs);
 }
 
 static int
 dissect_aim_msg_outgoing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree)
 {
 	int offset = 0;
-	const aim_tlv *ch_tlvs = NULL;
+	const aim_tlv *aim_ch_tlvs = NULL;
 	guint16 channel_id;
 	guchar buddyname[MAX_BUDDYNAME_LENGTH+1];
 	int buddyname_length;
@@ -343,12 +343,12 @@ dissect_aim_msg_outgoing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree
 	offset = dissect_aim_buddyname(tvb, pinfo, offset, msg_tree);
 
 	switch(channel_id) {
-	case ICBM_CHANNEL_IM: ch_tlvs = messaging_incoming_ch1_tlvs; break;
-	case ICBM_CHANNEL_RENDEZVOUS: ch_tlvs = messaging_incoming_ch2_tlvs; break;
+	case ICBM_CHANNEL_IM: aim_ch_tlvs = aim_messaging_incoming_ch1_tlvs; break;
+	case ICBM_CHANNEL_RENDEZVOUS: aim_ch_tlvs = aim_messaging_incoming_ch2_tlvs; break;
 	default: return offset;
 	}
 
-	return dissect_aim_tlv_sequence(tvb, pinfo, offset, msg_tree, ch_tlvs);
+	return dissect_aim_tlv_sequence(tvb, pinfo, offset, msg_tree, aim_ch_tlvs);
 }
 
 
@@ -356,7 +356,7 @@ static int
 dissect_aim_msg_incoming(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree)
 {
 	int offset = 0;
-	const aim_tlv *ch_tlvs;
+	const aim_tlv *aim_ch_tlvs;
 	guint16 channel_id;
 
 	/* ICBM Cookie */
@@ -372,12 +372,12 @@ dissect_aim_msg_incoming(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree
 	offset = dissect_aim_userinfo(tvb, pinfo, offset, msg_tree);
 
 	switch(channel_id) {
-	case ICBM_CHANNEL_IM: ch_tlvs = messaging_incoming_ch1_tlvs; break;
-	case ICBM_CHANNEL_RENDEZVOUS: ch_tlvs = messaging_incoming_ch2_tlvs; break;
+	case ICBM_CHANNEL_IM: aim_ch_tlvs = aim_messaging_incoming_ch1_tlvs; break;
+	case ICBM_CHANNEL_RENDEZVOUS: aim_ch_tlvs = aim_messaging_incoming_ch2_tlvs; break;
 	default: return offset;
 	}
 
-	return dissect_aim_tlv_sequence(tvb, pinfo, offset, msg_tree, ch_tlvs);
+	return dissect_aim_tlv_sequence(tvb, pinfo, offset, msg_tree, aim_ch_tlvs);
 }
 
 static int

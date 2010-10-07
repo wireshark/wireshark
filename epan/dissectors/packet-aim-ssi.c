@@ -62,7 +62,7 @@ static const value_string aim_fnac_family_ssi_types[] = {
 
 #define SSI_RIGHTSINFO_TLV_MAX_ITEMS	0x0004
 
-static const aim_tlv ssi_rightsinfo_tlvs[] = {
+static const aim_tlv aim_ssi_rightsinfo_tlvs[] = {
 	{ SSI_RIGHTSINFO_TLV_MAX_ITEMS, "Maximums For Items", dissect_aim_tlv_value_bytes },
 	{ 0, NULL, NULL },
 };
@@ -146,7 +146,7 @@ static int dissect_ssi_item(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, p
 	/* For now, we just dump the TLV contents as-is, since there is not a
 	   TLV dissection utility that works based on total chain length */
 	while(endoffset < offset+tlv_len) {
-		endoffset = dissect_aim_tlv(tvb, pinfo, endoffset, ssi_entry, client_tlvs);
+		endoffset = dissect_aim_tlv(tvb, pinfo, endoffset, ssi_entry, aim_client_tlvs);
 	}
 	return endoffset;
 }
@@ -175,7 +175,7 @@ static int dissect_ssi_ssi_items(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 static int dissect_aim_ssi_rightsinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ssi_tree)
 {
-	return dissect_aim_tlv_sequence(tvb, pinfo, 0, ssi_tree, ssi_rightsinfo_tlvs);
+	return dissect_aim_tlv_sequence(tvb, pinfo, 0, ssi_tree, aim_ssi_rightsinfo_tlvs);
 }
 
 static int dissect_aim_ssi_was_added(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ssi_tree)

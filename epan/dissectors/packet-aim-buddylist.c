@@ -44,7 +44,7 @@
 #define AIM_BUDDYLIST_TLV_MAX_WATCHER_ENTRIES 		0x0002
 #define AIM_BUDDYLIST_TLV_MAX_ONLINE_NOTIFICATIONS 	0x0003
 
-const aim_tlv buddylist_tlvs[] = {
+static const aim_tlv aim_buddylist_tlvs[] = {
 	{ AIM_BUDDYLIST_TLV_MAX_CONTACT_ENTRIES, "Max number of contact list entries", dissect_aim_tlv_value_uint16 },
 	{ AIM_BUDDYLIST_TLV_MAX_WATCHER_ENTRIES, "Max number of watcher list entries", dissect_aim_tlv_value_uint16 },
 	{ AIM_BUDDYLIST_TLV_MAX_ONLINE_NOTIFICATIONS, "Max online notifications", dissect_aim_tlv_value_uint16 },
@@ -70,7 +70,7 @@ static int dissect_aim_buddylist_buddylist(tvbuff_t *tvb, packet_info *pinfo, pr
 
 static int dissect_aim_buddylist_rights_repl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *buddy_tree) 
 {
-	return dissect_aim_tlv_sequence(tvb, pinfo, 0, buddy_tree, buddylist_tlvs);
+	return dissect_aim_tlv_sequence(tvb, pinfo, 0, buddy_tree, aim_buddylist_tlvs);
 }
 
 static int dissect_aim_buddylist_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *buddy_tree)
@@ -95,7 +95,7 @@ static int dissect_aim_buddylist_oncoming(tvbuff_t *tvb, packet_info *pinfo, pro
 						2, FALSE);
 	offset += 2;
 
-	offset = dissect_aim_tlv_list(tvb, pinfo, offset, buddy_tree, onlinebuddy_tlvs);
+	offset = dissect_aim_tlv_list(tvb, pinfo, offset, buddy_tree, aim_onlinebuddy_tlvs);
 
 	return offset;
 }
@@ -118,7 +118,7 @@ static int dissect_aim_buddylist_offgoing(tvbuff_t *tvb, packet_info *pinfo, pro
 						2, FALSE);
 	offset += 2;
 
-	return dissect_aim_tlv_list(tvb, pinfo, offset, buddy_tree, onlinebuddy_tlvs);
+	return dissect_aim_tlv_list(tvb, pinfo, offset, buddy_tree, aim_onlinebuddy_tlvs);
 }
 
 static const aim_subtype aim_fnac_family_buddylist[] = {
