@@ -42,15 +42,15 @@
 #define LWRES_LWPACKETFLAG_RESPONSE     0x0001U /* if set, pkt is a response */
 #define LWRES_LWPACKETVERSION_0         0
 
-#define LW_LENGTH_OFFSET 		0 
-#define LW_VERSION_OFFSET		4 
+#define LW_LENGTH_OFFSET 		0
+#define LW_VERSION_OFFSET		4
 #define LW_PKTFLASG_OFFSET		6
-#define LW_SERIAL_OFFSET		8 
-#define LW_OPCODE_OFFSET		12 
-#define LW_RESULT_OFFSET		16 
-#define LW_RECVLEN_OFFSET		20 
-#define LW_AUTHTYPE_OFFSET		24 
-#define LW_AUTHLEN_OFFSET		26 
+#define LW_SERIAL_OFFSET		8
+#define LW_OPCODE_OFFSET		12
+#define LW_RESULT_OFFSET		16
+#define LW_RECVLEN_OFFSET		20
+#define LW_AUTHTYPE_OFFSET		24
+#define LW_AUTHLEN_OFFSET		26
 
 #define LWRES_OPCODE_NOOP               0x00000000U
 #define LWRES_OPCODE_GETADDRSBYNAME     0x00010001U
@@ -94,7 +94,7 @@ static const value_string t_types[] = {
 	{ T_SRV,	"T_SRV" },
 	{ 0, 		NULL },
 };
-	
+
 
 
 
@@ -257,8 +257,8 @@ static void dissect_getnamebyaddr_response(tvbuff_t* tvb, proto_tree* lwres_tree
 {
 	guint32 i, offset;
 	guint16 naliases,realnamelen,aliaslen;
-	gchar *aliasname; 
-	
+	gchar *aliasname;
+
 
 	proto_item* nba_resp_item;
 	proto_tree* nba_resp_tree;
@@ -293,7 +293,7 @@ static void dissect_getnamebyaddr_response(tvbuff_t* tvb, proto_tree* lwres_tree
 						hf_adn_namelen,
 						tvb,
 						LWRES_LWPACKET_LENGTH + 6,
-						2, 
+						2,
 						FALSE);
 
 	proto_tree_add_item(nba_resp_tree,
@@ -340,7 +340,7 @@ static void dissect_getaddrsbyname_request(tvbuff_t* tvb, proto_tree* lwres_tree
 
 	proto_item* adn_request_item;
 	proto_tree* adn_request_tree;
-	
+
 	namelen  = tvb_get_ntohs(tvb, LWRES_LWPACKET_LENGTH + 8);
 
 	if(lwres_tree)
@@ -381,7 +381,7 @@ static void dissect_getaddrsbyname_request(tvbuff_t* tvb, proto_tree* lwres_tree
 				LWRES_LWPACKET_LENGTH+10,
 				namelen,
 			        FALSE);
-	
+
 }
 
 
@@ -400,7 +400,7 @@ static void dissect_getaddrsbyname_response(tvbuff_t* tvb, proto_tree* lwres_tre
 	proto_item* addr_item;
 	proto_tree* addr_tree;
 
-	
+
 
 	if(lwres_tree)
 	{
@@ -413,17 +413,17 @@ static void dissect_getaddrsbyname_response(tvbuff_t* tvb, proto_tree* lwres_tre
 	naddrs   = tvb_get_ntohs(tvb, LWRES_LWPACKET_LENGTH + 6);
 	realnamelen = tvb_get_ntohs(tvb, LWRES_LWPACKET_LENGTH + 8);
 
-	
+
 	proto_tree_add_item(adn_resp_tree,
 						hf_adn_flags,
-						tvb, 
+						tvb,
 						LWRES_LWPACKET_LENGTH,
 						4,
 						FALSE);
 
 	proto_tree_add_item(adn_resp_tree,
 						hf_adn_naliases,
-						tvb, 
+						tvb,
 						LWRES_LWPACKET_LENGTH + 4,
 						2,
 						FALSE);
@@ -439,9 +439,9 @@ static void dissect_getaddrsbyname_response(tvbuff_t* tvb, proto_tree* lwres_tre
 						hf_adn_namelen,
 						tvb,
 						LWRES_LWPACKET_LENGTH + 8,
-						2, 
+						2,
 						FALSE);
-	
+
 	proto_tree_add_item(adn_resp_tree,
 						hf_adn_realname,
 						tvb,
@@ -487,14 +487,14 @@ static void dissect_getaddrsbyname_response(tvbuff_t* tvb, proto_tree* lwres_tre
 			length = tvb_get_ntohs(tvb, offset + 4);
 			addr = (gchar*)tvb_get_ptr(tvb, offset + 6, 4);
 			slen = (int)strlen((char*)ip_to_str((guint8*)addr));
-		
+
 			addr_item = proto_tree_add_text(adn_resp_tree,tvb, offset, 4+2+4, "Address %s",ip_to_str((guint8*)addr));
 			addr_tree = proto_item_add_subtree(addr_item, ett_adn_addr);
 
-			proto_tree_add_uint(addr_tree, 
+			proto_tree_add_uint(addr_tree,
 								hf_adn_family,
-								tvb, 
-								offset, 
+								tvb,
+								offset,
 								4,
 								family);
 
@@ -536,12 +536,12 @@ static void dissect_a_records(tvbuff_t* tvb, proto_tree* tree,guint32 nrec,int o
 
 		a_rec_tree = proto_item_add_subtree(a_rec_item, ett_a_rec);
 	}
-	else 
+	else
 		return;
 
 	for(i=0; i<nrec; i++)
 	{
-	
+
 		curr = offset + ((sizeof(guint32)+sizeof(guint16)) * i);
 
 		len  = tvb_get_ntohs(tvb,curr);
@@ -554,7 +554,7 @@ static void dissect_a_records(tvbuff_t* tvb, proto_tree* tree,guint32 nrec,int o
 			proto_item_set_text(addr_item,"Address %s",ip_to_str((guint8*)addr));
 		}
 		else return;
-		
+
 		proto_tree_add_uint(addr_tree,
 					hf_a_rec_len,
 					tvb,
@@ -562,13 +562,13 @@ static void dissect_a_records(tvbuff_t* tvb, proto_tree* tree,guint32 nrec,int o
 					sizeof(guint16),
 					len);
 
-		proto_tree_add_text(addr_tree, 
+		proto_tree_add_text(addr_tree,
 						tvb,
-						curr + 2, 
-						4, 
+						curr + 2,
+						4,
 						"Addr: %s",
 				                ip_to_str((guint8*)addr));
-		
+
 	}
 
 }
@@ -611,7 +611,7 @@ static void dissect_srv_records(tvbuff_t* tvb, proto_tree* tree,guint32 nrec,int
 						priority,
 						weight,
 						port,
-						dname); 
+						dname);
 		}
 		else return;
 
@@ -644,21 +644,21 @@ static void dissect_srv_records(tvbuff_t* tvb, proto_tree* tree,guint32 nrec,int
 							"DNAME: %s", dname);
 
 		curr+=((sizeof(short)*4) + dlen);
-							
+
 	}
 
 }
 
 static void dissect_mx_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, int offset)
 {
-	
+
 	guint i, curr;
 	guint len, priority, dlen, namelen;
 	const guchar *dname;
 
 	proto_item* mx_rec_item, *rec_item;
 	proto_tree* mx_rec_tree, *rec_tree;
-	
+
 
 	if(tree)
 	{
@@ -667,7 +667,7 @@ static void dissect_mx_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, in
 	}
 	else
 		return;
-	
+
 	curr = offset;
 	for(i=0; i < nrec; i++)
 	{
@@ -681,17 +681,17 @@ static void dissect_mx_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, in
 						priority,dname);
 			rec_tree = proto_item_add_subtree(rec_item, ett_mx_rec_item);
 		}
-		else 
+		else
 			return;
 
-		
+
 		proto_tree_add_uint(rec_tree,
 							hf_srv_prio,
 							tvb,
 							curr + 2,
 							2,
 							priority);
-	
+
 		proto_tree_add_text(rec_tree,
 							tvb,
 							curr + 4,
@@ -699,10 +699,10 @@ static void dissect_mx_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, in
 							"name: %s", dname);
 
 		curr+=((sizeof(short)*2) + dlen);
-	
+
 
 	}
-	
+
 }
 
 static void dissect_ns_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, int offset)
@@ -713,7 +713,7 @@ static void dissect_ns_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, in
 
 	proto_item* ns_rec_item, *rec_item;
 	proto_tree* ns_rec_tree, *rec_tree;
-	
+
 	if(tree)
 	{
 		ns_rec_item = proto_tree_add_text(tree, tvb, offset, offset, "NS record (%d)", nrec);
@@ -742,9 +742,9 @@ static void dissect_ns_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, in
 							dlen,
 							"Name: %s", dname);
 		curr+=(sizeof(short) + dlen);
-							
+
 	}
-	
+
 
 }
 
@@ -759,11 +759,11 @@ static void dissect_rdata_request(tvbuff_t* tvb, proto_tree* lwres_tree)
 
 	if(lwres_tree)
 	{
-		rdata_request_item = 
+		rdata_request_item =
 			proto_tree_add_text(lwres_tree,tvb,LWRES_LWPACKET_LENGTH,10+namelen+1,"RDATA request parameters");
 		rdata_request_tree = proto_item_add_subtree(rdata_request_item, ett_rdata_req);
 	}
-	else 
+	else
 		return;
 
 	proto_tree_add_item(rdata_request_tree,
@@ -912,7 +912,7 @@ static void dissect_noop(tvbuff_t* tvb, proto_tree* lwres_tree)
 
 	datalen = tvb_get_ntohs(tvb, LWRES_LWPACKET_LENGTH);
 	data = (char*)tvb_get_ptr(tvb, LWRES_LWPACKET_LENGTH, datalen);
-	
+
 	if(lwres_tree)
 	{
 		noop_item = proto_tree_add_text(lwres_tree, tvb, LWRES_LWPACKET_LENGTH, 10, "Noop record");
@@ -948,9 +948,9 @@ static void dissect_getnamebyaddr(tvbuff_t* tvb, proto_tree* lwres_tree, int typ
 
 static void dissect_getrdatabyname(tvbuff_t* tvb, proto_tree* lwres_tree, int type)
 {
-	if(type == 1) 
+	if(type == 1)
 		dissect_rdata_request(tvb, lwres_tree);
-	else		
+	else
 		dissect_rdata_response(tvb, lwres_tree);
 }
 
@@ -1021,7 +1021,7 @@ dissect_lwres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				LW_VERSION_OFFSET,
 				sizeof(guint16),
 				version);
-		
+
 
 
 
@@ -1126,7 +1126,7 @@ proto_register_lwres(void)
       { "Result", "lwres.result", FT_UINT32, BASE_DEC, VALS(result_values), 0x0,
         "lwres result", HFILL }},
 
-    { &hf_recvlen, 
+    { &hf_recvlen,
       { "Received length", "lwres.recvlen", FT_UINT32, BASE_DEC, NULL, 0x0,
         "lwres recvlen", HFILL }},
 
@@ -1135,10 +1135,10 @@ proto_register_lwres(void)
         "lwres authtype", HFILL }},
 
     { &hf_authlen,
-      { "Auth. length", "lwres.authlen" , FT_UINT16, BASE_DEC, NULL, 0x0,
+      { "Auth. length", "lwres.authlen", FT_UINT16, BASE_DEC, NULL, 0x0,
         "lwres authlen", HFILL }},
 
-    { &hf_rflags, 
+    { &hf_rflags,
       { "Flags", "lwres.rflags", FT_UINT32, BASE_HEX, NULL, 0x0,
 	"lwres rflags", HFILL }},
     { &hf_rdclass,
@@ -1147,27 +1147,27 @@ proto_register_lwres(void)
 
     { &hf_rdtype,
       { "Type", "lwres.type", FT_UINT16, BASE_DEC, VALS(t_types), 0x0,
-	"lwres type" , HFILL }},
+	"lwres type", HFILL }},
 
     { &hf_namelen,
       { "Name length", "lwres.namelen", FT_UINT16, BASE_DEC, NULL, 0x0,
   	"lwres namelen", HFILL }},
 
     { &hf_req_name,
-      { "Domain name" , "lwres.reqdname" , FT_STRING, BASE_NONE, NULL, 0x0,
+      { "Domain name", "lwres.reqdname", FT_STRING, BASE_NONE, NULL, 0x0,
 	"lwres reqdname", HFILL }},
 
     { &hf_ttl,
-      { "Time To Live", "lwres.ttl", FT_UINT32, BASE_DEC, NULL, 0x0, 
+      { "Time To Live", "lwres.ttl", FT_UINT32, BASE_DEC, NULL, 0x0,
 	"lwres ttl", HFILL }},
 
     { &hf_nrdatas,
       { "Number of rdata records", "lwres.nrdatas", FT_UINT16, BASE_DEC, NULL, 0x0,
-	"lwres nrdatas" , HFILL }},
-   
+	"lwres nrdatas", HFILL }},
+
     { &hf_nsigs,
       { "Number of signature records", "lwres.nsigs", FT_UINT16, BASE_DEC, NULL, 0x0,
- 	"lwres nsigs" , HFILL }},
+ 	"lwres nsigs", HFILL }},
 
     { &hf_realnamelen,
       { "Real name length", "lwres.realnamelen", FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -1211,23 +1211,23 @@ proto_register_lwres(void)
 
 	{ &hf_adn_name,
         { "Name", "lwres.adn.name", FT_STRING, BASE_NONE, NULL, 0x0,
-	  "lwres adn name", HFILL }}, 
+	  "lwres adn name", HFILL }},
 
 	 { &hf_adn_naliases,
         { "Number of aliases", "lwres.adn.naliases", FT_UINT16, BASE_DEC, NULL, 0x0,
-	  "lwres adn naliases", HFILL }}, 
+	  "lwres adn naliases", HFILL }},
 
 	  { &hf_adn_naddrs,
         { "Number of addresses", "lwres.adn.naddrs", FT_UINT16, BASE_DEC, NULL, 0x0,
-	  "lwres adn naddrs", HFILL }}, 
+	  "lwres adn naddrs", HFILL }},
 
 	  	{ &hf_adn_realname,
         { "Real name", "lwres.adn.realname", FT_STRING, BASE_NONE, NULL, 0x0,
-	  "lwres adn realname", HFILL }}, 
+	  "lwres adn realname", HFILL }},
 
 	  	{ &hf_adn_aliasname,
         { "Alias name", "lwres.adn.aliasname", FT_STRING, BASE_NONE, NULL, 0x0,
-	  "lwres adn aliasname", HFILL }}, 
+	  "lwres adn aliasname", HFILL }},
 
 	{ &hf_adn_family,
 	{ "Address family", "lwres.adn.addr.family", FT_UINT32, BASE_DEC, NULL, 0x0,

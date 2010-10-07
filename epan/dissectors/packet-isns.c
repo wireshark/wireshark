@@ -1416,71 +1416,71 @@ void proto_register_isns(void)
 	{ &hf_isns_version,
 	  { "iSNSP Version","isns.PVer",
 	    FT_UINT16, BASE_DEC, NULL, 0,
-	    "iSNS Protocol Version" ,HFILL}
+	    "iSNS Protocol Version", HFILL}
 	},
 	{ &hf_isns_function_id,
 	  { "Function ID","isns.functionid",
 	    FT_UINT16, BASE_DEC,VALS(isns_function_ids),0,
-	    "iSNS Function ID" ,HFILL}
+	    "iSNS Function ID", HFILL}
 	},
 	{ &hf_isns_pdu_length,
 	  { "PDU Length","isns.pdulength",
 	    FT_UINT16, BASE_DEC,NULL,0,
-	    "iSNS PDU Length" ,HFILL}
+	    "iSNS PDU Length", HFILL}
 	},
 
 	{ &hf_isns_flags,
 	  { "Flags","isns.flags",
 	    FT_UINT16, BASE_HEX,NULL,0,
-	    "iSNS Flags" ,HFILL}
+	    "iSNS Flags", HFILL}
 	},
 	{ &hf_isns_client,
 	  { "Client","isns.flags.client",
 	    FT_BOOLEAN, 16, TFS(&tfs_isns_flag_client), ISNS_FLAGS_CLIENT,
-	    "iSNS Client" ,HFILL}
+	    "iSNS Client", HFILL}
 	},
 	{ &hf_isns_server,
 	  { "Server","isns.flags.server",
 	    FT_BOOLEAN, 16, TFS(&tfs_isns_flag_server), ISNS_FLAGS_SERVER,
-	    "iSNS Server" ,HFILL}
+	    "iSNS Server", HFILL}
 	},
 	{ &hf_isns_auth,
 	  { "Auth","isns.flags.authentication_block",
 	    FT_BOOLEAN, 16, TFS(&tfs_isns_flag_auth), ISNS_FLAGS_AUTH,
-	    "is iSNS Authentication Block present?" ,HFILL}
+	    "is iSNS Authentication Block present?", HFILL}
 	},
 	{ &hf_isns_replace,
 	  { "Replace","isns.flags.replace",
 	    FT_BOOLEAN, 16, TFS(&tfs_isns_flag_replace), ISNS_FLAGS_REPLACE,
-	    "iSNS Replace" ,HFILL}
+	    "iSNS Replace", HFILL}
 	},
 	{ &hf_isns_last_pdu,
 	  { "Last PDU","isns.flags.lastpdu",
 	    FT_BOOLEAN, 16, TFS(&tfs_isns_flag_last_pdu), ISNS_FLAGS_LAST_PDU,
-	    "iSNS Last PDU" ,HFILL}
+	    "iSNS Last PDU", HFILL}
 	},
 	{ &hf_isns_first_pdu,
 	  { "First PDU","isns.flags.firstpdu",
 	    FT_BOOLEAN, 16, TFS(&tfs_isns_flag_first_pdu), ISNS_FLAGS_FIRST_PDU,
-	    "iSNS First PDU",HFILL }
+	    "iSNS First PDU", HFILL }
 	},
 
 
 	{ &hf_isns_transaction_id,
 	  { "Transaction ID","isns.transactionid",
 	    FT_UINT16, BASE_DEC,NULL,0,
-	    "iSNS transaction ID" ,HFILL}
+	    "iSNS transaction ID", HFILL}
 	},
 	{ &hf_isns_sequence_id,
 	  { "Sequence ID","isns.sequenceid",
 	    FT_UINT16, BASE_DEC,NULL,0,
-	    "iSNS sequence ID" ,HFILL}
+	    "iSNS sequence ID", HFILL}
 	},
 
 	{ &hf_isns_entity_protocol,
 	  { "Entity Protocol","isns.entity_protocol",
 	    FT_UINT32, BASE_DEC,VALS(isns_entity_protocol),0,
-	    "iSNS Entity Protocol" ,HFILL}
+	    "iSNS Entity Protocol", HFILL}
 	},
 	/* The Payload stuff */
 
@@ -1523,7 +1523,7 @@ void proto_register_isns(void)
 	{ &hf_isns_port_type,
 	  { "Port Type","isns.port.port_type",
 	    FT_BOOLEAN, 16, TFS(&tfs_isns_port_type), 0x01, /* bit 15 (or bit 1 of a 16bit word) */
-	    NULL,HFILL }
+	    NULL, HFILL }
 	},
 
 	{ &hf_isns_psb,
@@ -1534,37 +1534,37 @@ void proto_register_isns(void)
 	{ &hf_isns_psb_tunnel_mode,
 	  { "Tunnel Mode","isns.psb.tunnel",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_psb_tunnel_mode),     0x0040, /* bit 25 */
-	    "Tunnel Mode Preferred",HFILL }
+	    "Tunnel Mode Preferred", HFILL }
 	},
 	{ &hf_isns_psb_transport_mode,
 	  { "Transport Mode","isns.psb.transport",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_psb_transport_mode),  0x0020, /* bit 26 */
-	    NULL,HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_isns_psb_pfs,
 	  { "PFS","isns.psb.pfs",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_psb_pfs),        0x0010, /* bit 27 */
-	    NULL,HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_isns_psb_aggressive_mode,
 	  { "Aggressive Mode","isns.psb.aggressive_mode",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_psb_aggressive_mode), 0x0008, /* bit 28 */
-	    NULL,HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_isns_psb_main_mode,
 	  { "Main Mode","isns.psb.main_mode",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_psb_main_mode),  0x0004, /* bit 29 */
-	    NULL,HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_isns_psb_ike_ipsec,
 	  { "IKE/IPSec","isns.psb.ike_ipsec",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_psb_ike_ipsec),  0x0002, /* bit 30 */
-	    NULL,HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_isns_psb_bitmap,
 	  { "Bitmap","isns.psb.bitmap",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_psb_bitmap),     0x0001, /* bit 31 */
-	    NULL,HFILL }
+	    NULL, HFILL }
 	},
 
 
@@ -1577,90 +1577,90 @@ void proto_register_isns(void)
 	{ &hf_isns_scn_bitmap_initiator_and_self_information_only,
 	  { "Initiator And Self Information Only","isns.scn_bitmap.initiator_and_self_information_only",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_initiator_and_self_information_only),     0x0080, /* bit 24 */
-	    NULL,HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_isns_scn_bitmap_target_and_self_information_only,
 	  { "Target And Self Information Only","isns.scn_bitmap.target_and_self_information_only",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_target_and_self_information_only),     0x0040, /* bit 25 */
-	    NULL,HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_isns_scn_bitmap_management_registration_scn,
 	  { "Management Registration/SCN","isns.scn_bitmap.management_registration_scn",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_management_registration_scn),     0x0020, /* bit 26 */
-	    NULL,HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_isns_scn_bitmap_object_removed,
 	  { "Object Removed","isns.scn_bitmap.object_removed",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_object_removed),     0x0010, /* bit 27 */
-	    NULL,HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_isns_scn_bitmap_object_added,
 	  { "Object Added","isns.scn_bitmap.object_added",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_object_added),     0x0008, /* bit 28 */
-	    NULL,HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_isns_scn_bitmap_object_updated,
 	  { "Object Updated","isns.scn_bitmap.object_updated",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_object_updated),     0x0004, /* bit 29 */
-	    NULL,HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_isns_scn_bitmap_dd_dds_member_removed,
 	  { "DD/DDS Member Removed (Mgmt Reg/SCN only)","isns.scn_bitmap.dd_dds_member_removed",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_dd_dds_member_removed),     0x0002, /* bit 30 */
-	    NULL,HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_isns_scn_bitmap_dd_dds_member_added,
 	  { "DD/DDS Member Added (Mgmt Reg/SCN only)","isns.scn_bitmap.dd_dds_member_added",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_dd_dds_member_added),     0x0001, /* bit 31 */
-	    NULL,HFILL }
+	    NULL, HFILL }
 	},
 
 
 	{ &hf_isns_isnt_control,
 	  { "Control","isns.isnt.control",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_isnt_control),  0x0004, /* bit 29 */
-	    NULL,HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_isns_isnt_initiator,
 	  { "Initiator","isns.isnt.initiator",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_isnt_initiator),  0x0002, /* bit 30 */
-	    NULL,HFILL }
+	    NULL, HFILL }
 	},
 	{ &hf_isns_isnt_target,
 	  { "Target","isns.isnt.target",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_isnt_target),     0x0001, /* bit 31 */
-	    NULL,HFILL }
+	    NULL, HFILL }
 	},
 
 
 	{ &hf_isns_resp_errorcode,
 	  { "ErrorCode","isns.errorcode",
 	    FT_UINT32, BASE_DEC,VALS(isns_errorcode),0,
-	    "iSNS Response Error Code" ,HFILL}
+	    "iSNS Response Error Code", HFILL}
 	},
 
 	{ &hf_isns_attr_tag,
 	  { "Attribute Tag","isns.attr.tag",
 	    FT_UINT32, BASE_DEC,VALS(isns_attribute_tags),0,
-	    "iSNS Attribute Tag" ,HFILL}
+	    "iSNS Attribute Tag", HFILL}
 	},
 
 	{ &hf_isns_attr_len,
 	  { "Attribute Length","isns.attr.len",
 	    FT_UINT32, BASE_DEC,NULL,0,
-	    "iSNS Attribute Length" ,HFILL}
+	    "iSNS Attribute Length", HFILL}
 	},
 
 	{ &hf_isns_delimiter,
 	  { "Delimiter","isns.delimiter",
 	    FT_NONE, BASE_NONE, NULL,0,
-	    "iSNS Delimiter" ,HFILL}
+	    "iSNS Delimiter", HFILL}
 	},
 
 	{ &hf_isns_not_decoded_yet,
 	  { "Not Decoded Yet","isns.not_decoded_yet",
 	    FT_NONE, BASE_NONE, NULL,0,
-	    "This tag is not yet decoded by wireshark" ,HFILL}
+	    "This tag is not yet decoded by Wireshark", HFILL}
 	},
 
 	{ &hf_isns_heartbeat_ipv6_addr,
@@ -1947,7 +1947,7 @@ void proto_register_isns(void)
 	{ &hf_isns_payload,
           { "Payload", "isns.payload",
             FT_BYTES, BASE_NONE, NULL, 0,
-            NULL ,HFILL}
+            NULL, HFILL}
 	}
     };
 
