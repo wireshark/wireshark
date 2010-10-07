@@ -3929,6 +3929,9 @@ class SeqType (SqType):
       ext = 'ASN1_EXTENSION_ROOT'
     else:
       ext = 'ASN1_NO_EXTENSIONS'
+    empty_ext_flag = '0'
+    if (len(self.elt_list)==0) and hasattr(self, 'ext_list') and (len(self.ext_list)==0) and (not hasattr(self, 'elt_list2') or (len(self.elt_list2)==0)):
+      empty_ext_flag = ext
     for e in (self.elt_list):
       f = fname + '/' + e.val.name
       table += self.out_item(f, e.val, e.optional, ext, ectx)
@@ -3943,7 +3946,7 @@ class SeqType (SqType):
     if (ectx.Ber()):
       table += "  { NULL, 0, 0, 0, NULL }\n};\n"
     else:
-      table += "  { NULL, 0, 0, NULL }\n};\n"
+      table += "  { NULL, %s, 0, NULL }\n};\n" % (empty_ext_flag)
     return table
 
 #--- SeqOfType -----------------------------------------------------------
@@ -4423,6 +4426,9 @@ class ChoiceType (Type):
       ext = 'ASN1_EXTENSION_ROOT'
     else:
       ext = 'ASN1_NO_EXTENSIONS'
+    empty_ext_flag = '0'
+    if (len(self.elt_list)==0) and hasattr(self, 'ext_list') and (len(self.ext_list)==0):
+      empty_ext_flag = ext
     for e in (self.elt_list):
       if (tagval): val = e.GetTag(ectx)[1]
       else: val = str(cnt)
@@ -4437,7 +4443,7 @@ class ChoiceType (Type):
     if (ectx.Ber()):
       table += "  { 0, NULL, 0, 0, 0, NULL }\n};\n"
     else:
-      table += "  { 0, NULL, 0, NULL }\n};\n"
+      table += "  { 0, NULL, %s, NULL }\n};\n" % (empty_ext_flag)
     return table
 
   def eth_type_default_body(self, ectx, tname):

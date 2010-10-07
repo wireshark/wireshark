@@ -5979,7 +5979,7 @@ dissect_h245_NoPTAudioTelephonyEventCapability(tvbuff_t *tvb _U_, int offset _U_
 
 
 static const per_sequence_t NoPTAudioToneCapability_sequence[] = {
-  { NULL, 0, 0, NULL }
+  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
 };
 
 static int
@@ -7031,7 +7031,7 @@ dissect_h245_DepFECData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 
 static const per_sequence_t T_mode_rfc2733sameport_sequence[] = {
-  { NULL, 0, 0, NULL }
+  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
 };
 
 static int
@@ -10220,7 +10220,7 @@ dissect_h245_MaintenanceLoopRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 
 static const per_sequence_t CommunicationModeRequest_sequence[] = {
-  { NULL, 0, 0, NULL }
+  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
 };
 
 static int
@@ -12327,7 +12327,7 @@ dissect_h245_ResponseMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 
 static const per_sequence_t MaintenanceLoopOffCommand_sequence[] = {
-  { NULL, 0, 0, NULL }
+  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
 };
 
 static int
@@ -13390,7 +13390,7 @@ dissect_h245_FunctionNotUnderstood(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 
 static const per_sequence_t MasterSlaveDeterminationRelease_sequence[] = {
-  { NULL, 0, 0, NULL }
+  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
 };
 
 static int
@@ -13489,7 +13489,7 @@ dissect_h245_RequestMultiplexEntryRelease(tvbuff_t *tvb _U_, int offset _U_, asn
 
 
 static const per_sequence_t RequestModeRelease_sequence[] = {
-  { NULL, 0, 0, NULL }
+  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
 };
 
 static int
@@ -14252,7 +14252,7 @@ dissect_h245_FunctionNotSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 
 static const per_sequence_t T_crcDesired_sequence[] = {
-  { NULL, 0, 0, NULL }
+  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
 };
 
 static int
@@ -14303,7 +14303,7 @@ dissect_h245_MultilinkIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 
 static const per_sequence_t LogicalChannelRateRelease_sequence[] = {
-  { NULL, 0, 0, NULL }
+  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
 };
 
 static int
