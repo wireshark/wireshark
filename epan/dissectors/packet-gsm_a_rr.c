@@ -5,7 +5,7 @@
  * In association with Telos Technology Inc.
  *
  * Added Dissection of Radio Resource Management Information Elements
- * and othere enhancements and fixes.
+ * and other enhancements and fixes.
  * Copyright 2005 - 2006, Anders Broman [AT] ericsson.com
  *
  * Title		3GPP			Other
@@ -882,7 +882,7 @@ static void dissect_channel_list_n_range(tvbuff_t *tvb, proto_tree *tree, guint3
     for (i=1; i<=imax; i++) {
         wi = octet & ~(0xff<<bits);	 /* mask "bits" low bits to start wi from existing octet */
         wbits = bits;
-        if (wsize>wbits) {	         /* need to extract more bits from the next octet */
+        while (wsize>wbits) {	     /* need to extract more bits from the next octet */
             octet = tvb_get_guint8(tvb, curr_offset++);
             wi = (wi << 8) + octet;
             bits = 8;

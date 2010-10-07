@@ -107,6 +107,8 @@ dissect_interlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 2;
 		proto_tree_add_item(ilh_tree, hf_interlink_seq, tvb, offset, 2, TRUE);
 		offset += 2;
+	} else {
+		offset += 10;
 	}
 
 	if (ilh_tree) {
@@ -147,6 +149,8 @@ dissect_interlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 1;
 		proto_tree_add_item(ilb_tree, hf_interlink_block_length, tvb, offset, 2, TRUE);
 		offset += 2;
+	} else {
+		offset += 4;
 	}
 
 	/* Generate a new tvb for the rest. */

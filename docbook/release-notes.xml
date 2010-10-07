@@ -126,6 +126,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Wireshark 1.4.0 &amp; VoIP calls "Prepare Filter" problem.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5172">Bug
+          5172</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           GTPv2: IMSI is decoded improperly.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5179">Bug
           5179</ulink>)
@@ -135,6 +141,42 @@ Wireshark Info
           [NAS EPS] EPS Quality of Service IE decoding is wrong.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5186">Bug
           5186</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          GSM: Cell Channel Description, range 1024 format.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5214">Bug
+          5214</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wrong SDP interpretation on VoIP call flow chart.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5220">Bug
+          5220</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          The CLDAP attribute value on a CLDAP reply is no longer being decoded.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5239">Bug
+          5239</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          [NAS EPS] Traffic Flow Template IE dissection bugs.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5243">Bug
+          5243</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          [NAS EPS] Use Request Type IE defined in 3GPP 24.008.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5246">Bug
+          5246</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          IPv6 RH0: dest addr is to be used i.s.o. last RH address when 0 segments remain.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5252">Bug
+          5252</ulink>)
         </para></listitem>
 
       </itemizedlist>

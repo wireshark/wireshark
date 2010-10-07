@@ -2161,7 +2161,7 @@ dissect_ldap_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
   guint32	i, len;
   int           old_offset = offset;
 
-  attr_type=NULL;
+  /* attr_type, should be set before calling this function */
 
   /* extract the value of the octetstring */
   offset = dissect_ber_octet_string(FALSE, actx, NULL, tvb, offset, hf_index, &next_tvb);
