@@ -510,23 +510,22 @@ static int dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_item *ti;
             if (data_tree)
             {
-                tvbuff_t *next_tvb;
                 ti = proto_tree_add_item(data_tree, hf_fp_tb, tvb,
                                          offset + (bit_offset/8),
                                          ((bit_offset % 8) + p_fp_info->chan_tf_size[chan] + 7) / 8,
                                          FALSE);
                 proto_item_set_text(ti, "TB (chan %u, tb %u, %u bits)",
                                     chan+1, n+1, p_fp_info->chan_tf_size[chan]);
-                if (preferences_call_mac_dissectors && data_handle &&
-                    p_fp_info->chan_tf_size[chan] > 0) {
-
-                        next_tvb = tvb_new_subset(tvb, offset + bit_offset/8,
-                                ((bit_offset % 8) + p_fp_info->chan_tf_size[chan] + 7) / 8, -1);
-                        /* TODO: maybe this decision can be based only on info available in fp_info */
-                        call_dissector(*data_handle, next_tvb, pinfo, top_level_tree);
-                        dissected = TRUE;
-                }
             }
+			if (preferences_call_mac_dissectors && data_handle &&
+				p_fp_info->chan_tf_size[chan] > 0) {
+                tvbuff_t *next_tvb;
+					next_tvb = tvb_new_subset(tvb, offset + bit_offset/8,
+							((bit_offset % 8) + p_fp_info->chan_tf_size[chan] + 7) / 8, -1);
+					/* TODO: maybe this decision can be based only on info available in fp_info */
+					call_dissector(*data_handle, next_tvb, pinfo, top_level_tree);
+					dissected = TRUE;
+			}
             num_tbs++;
 
             /* Advance bit offset */
@@ -590,20 +589,20 @@ static int dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
         /* Data bytes! */
         if (data_tree) {
-            tvbuff_t *next_tvb;
             pinfo->fd->subnum = pdu; /* set subframe number to current TB */
             pdu_ti = proto_tree_add_item(data_tree, hf_fp_mac_d_pdu, tvb,
                                          offset + (bit_offset/8),
                                          ((bit_offset % 8) + length + 7) / 8,
                                          FALSE);
             proto_item_set_text(pdu_ti, "MAC-d PDU (PDU %u)", pdu+1);
-            if (preferences_call_mac_dissectors) {
-                next_tvb = tvb_new_subset(tvb, offset + bit_offset/8,
-                    ((bit_offset % 8) + length + 7)/8, -1);
-                call_dissector(mac_fdd_hsdsch_handle, next_tvb, pinfo, top_level_tree);
-                dissected = TRUE;
-            }
         }
+		if (preferences_call_mac_dissectors) {
+            tvbuff_t *next_tvb;
+			next_tvb = tvb_new_subset(tvb, offset + bit_offset/8,
+				((bit_offset % 8) + length + 7)/8, -1);
+			call_dissector(mac_fdd_hsdsch_handle, next_tvb, pinfo, top_level_tree);
+			dissected = TRUE;
+		}
 
         /* Advance bit offset */
         bit_offset += length;
