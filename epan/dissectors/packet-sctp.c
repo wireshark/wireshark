@@ -2669,6 +2669,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
   guint16 stream_id, stream_seq_num = 0;
   guint32 tsn;
   proto_item* tsn_item = NULL;
+  gboolean call_subdissector = FALSE;
 
   if (chunk_length <= DATA_CHUNK_HEADER_LENGTH) {
     proto_item_append_text(chunk_item, ", bogus chunk length %u < %u)",
@@ -2728,13 +2729,12 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
 
   sctp_tsn(pinfo,  chunk_tvb, tsn_item, ha, tsn);
 
-
   payload_tvb = tvb_new_subset(chunk_tvb, DATA_CHUNK_PAYLOAD_OFFSET, chunk_length - DATA_CHUNK_HEADER_LENGTH, chunk_length - DATA_CHUNK_HEADER_LENGTH);
 
   /* Is this a fragment? */
   if (b_bit && e_bit) {
     /* No - just call the subdissector. */
-    return dissect_payload(payload_tvb, pinfo, tree, payload_proto_id);
+    call_subdissector = TRUE;
   } else {
     /* Yes. */
     pinfo->fragmented = TRUE;
@@ -2746,34 +2746,50 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
        *  almost certainly not understand the data.
        */
       if (b_bit)
-      {
-        volatile gboolean retval = FALSE;
-
-        /*
-         * If this particular fragment happens to get a ReportedBoundsError
-         * exception (which in fact we expect it to since it's a fragment),
-         * don't stop dissecting chunks within this frame.
-         *
-         * If it gets a BoundsError, we can stop, as there's nothing more to
-         * see, so we just re-throw it.
-         */
-        TRY {
-          retval = dissect_payload(payload_tvb, pinfo, tree, payload_proto_id);
-        }
-        CATCH(BoundsError) {
-          RETHROW;
-        }
-        CATCH(ReportedBoundsError) {
-          show_reported_bounds_error(payload_tvb, pinfo, tree);
-        }
-        ENDTRY;
-
-        return retval;
-      }
-
-      /* else */
-      return FALSE;
+	call_subdissector = TRUE;
+      else
+	return FALSE;
     }
+
+  }
+
+  if (call_subdissector) {
+    /* This isn't a fragment or reassembly is off and it's the first fragment */
+
+    void *pd_save;
+    volatile gboolean retval = FALSE;
+
+    /*
+     *  If this chunk (which might be a fragment) happens to get a
+     *  ReportedBoundsError exception, don't stop dissecting chunks within this
+     *  frame.
+     *
+     *  If it gets a BoundsError, we can stop, as there's nothing more to
+     *  see, so we just re-throw it.
+     */
+    pd_save = pinfo->private_data;
+    TRY {
+      retval = dissect_payload(payload_tvb, pinfo, tree, payload_proto_id);
+    }
+    CATCH(BoundsError) {
+      RETHROW;
+    }
+    CATCH(ReportedBoundsError) {
+      /*  Restore the private_data structure in case one of the
+       *  called dissectors modified it (and, due to the exception,
+       *  was unable to restore it).
+       */
+      pinfo->private_data = pd_save;
+      show_reported_bounds_error(payload_tvb, pinfo, tree);
+    }
+    ENDTRY;
+
+    return retval;
+
+  } else {
+
+    /* The logic above should ensure this... */
+    DISSECTOR_ASSERT(use_reassembly);
 
     /* if unordered set stream_seq_num to 0 for easier handling */
     if (u_bit)
@@ -2782,6 +2798,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
     /* start reassembly */
     return dissect_fragmented_payload(payload_tvb, pinfo, tree, chunk_tree, tsn, payload_proto_id, stream_id, stream_seq_num, b_bit, e_bit);
   }
+
 }
 
 #define INIT_CHUNK_INITIATE_TAG_LENGTH               4
