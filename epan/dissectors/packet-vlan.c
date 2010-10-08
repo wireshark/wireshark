@@ -139,16 +139,13 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        Ethernet VLAN packets). A non-0xffff value means that there's an
        802.2 layer inside the VLAN layer */
     is_802_2 = TRUE;
-    TRY {
-	    if (tvb_get_ntohs(tvb, 4) == 0xffff) {
-	      is_802_2 = FALSE;
-	    }
-    }
-    CATCH2(BoundsError, ReportedBoundsError) {
-	    ; /* do nothing */
 
+    /* Don't throw an exception for this check (even a ReportedBoundsError) */
+    if (tvb_length_remaining(tvb, 4) >= 2) {
+	if (tvb_get_ntohs(tvb, 4) == 0xffff) {
+	    is_802_2 = FALSE;
+	}
     }
-    ENDTRY;
 
     dissect_802_3(encap_proto, is_802_2, tvb, 4, pinfo, tree, vlan_tree,
 		  hf_vlan_len, hf_vlan_trailer, 0);
