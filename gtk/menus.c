@@ -4189,12 +4189,20 @@ update_menu_recent_capture_file1(GtkWidget *widget, gpointer cnt) {
 static void
 update_menu_recent_capture_file(GtkWidget *submenu_recent_files) {
     guint cnt = 0;
+    GtkWidget    *menu_item;
 
 
     main_welcome_reset_recent_capture_files();
 
     gtk_container_foreach(GTK_CONTAINER(submenu_recent_files),
                           update_menu_recent_capture_file1, &cnt);
+
+	if(cnt==0){
+		/* Empty list */
+		menu_item = gtk_menu_item_new_with_label("No recently used files");
+		gtk_menu_shell_append (GTK_MENU_SHELL(submenu_recent_files), menu_item);
+		gtk_widget_show (menu_item);
+	}
 
     /* make parent menu item sensitive only, if we have any valid files in the list */
 #ifdef MAIN_MENU_USE_UIMANAGER
