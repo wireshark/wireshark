@@ -78,15 +78,15 @@ Wireshark Info
 -->
 
         <listitem><para>
-          The RTSP dissector could crash.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5081">Bug
-          5081</ulink>)
+          ERROR:capture.c:141:capture_start: assertion failed: (capture_opts->state == CAPTURE_STOPPED).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5126">Bug
+          5126</ulink>)
         </para></listitem>
 
         <listitem><para>
-          TShark could crash when generating PostScript&#174;.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5148">Bug
-          5148</ulink>)
+          GTP header is exported in PDML with an incorrect size.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5162">Bug
+          5162</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -114,14 +114,10 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
     <para>
 
-BOOTP/DHCP,
-H.264,
-IP,
-RTSP,
-SCTP,
-SDP,
-SMB,
-SMB2
+ASN.1 BER,
+GTP,
+IPv4,
+RPC
 
     </para>
     </section>
@@ -226,7 +222,9 @@ There are no new or updated capture file formats in this release.
 
   <section id="GettingHelp"><title>Getting Help</title>
     <para>
-    Community support is available on the wireshark-users mailing list.
+    Community support is available on
+    <ulink url="http://ask.wireshark.org/">Wireshark's Q&amp;A site</ulink>
+    and on the wireshark-users mailing list.
     Subscription information and archives for all of Wireshark's mailing
     lists can be found on <ulink url="http://www.wireshark.org/lists/">the
     web site</ulink>.
@@ -234,6 +232,10 @@ There are no new or updated capture file formats in this release.
     <para>
     Commercial support, training, and development services are available
     from <ulink url="http://www.cacetech.com/">CACE Technologies</ulink>.
+    </para>
+    <para>
+    Training is available from
+    <ulink url="http://www.wiresharktraining.com/">Wireshark University</ulink>.
     </para>
   </section>
 
