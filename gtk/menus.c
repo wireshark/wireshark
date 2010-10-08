@@ -495,447 +495,6 @@ goto_previous_frame_conversation_cb(GtkWidget *w _U_, gpointer d _U_)
     goto_conversation_frame(TRUE);
 }
 
-#ifndef MAIN_MENU_USE_UIMANAGER 
-/*
- * Main menu.
- *
- * Please do not use keystrokes that are used as "universal" shortcuts in
- * various desktop environments:
- *
- *   Windows:
- *	http://support.microsoft.com/kb/126449
- *
- *   GNOME:
- *	http://library.gnome.org/users/user-guide/nightly/keyboard-skills.html.en
- *
- *   KDE:
- *	http://developer.kde.org/documentation/standards/kde/style/keys/shortcuts.html
- *
- * In particular, do not use the following <control> sequences for anything
- * other than their standard purposes:
- *
- *	<control>O	File->Open
- *	<control>S	File->Save
- *	<control>P	File->Print
- *	<control>W	File->Close
- *	<control>Q	File->Quit
- *	<control>Z	Edit->Undo (which we don't currently have)
- *	<control>X	Edit->Cut (which we don't currently have)
- *	<control>C	Edit->Copy (which we don't currently have)
- *	<control>V	Edit->Paste (which we don't currently have)
- *	<control>A	Edit->Select All (which we don't currently have)
- *
- * Note that some if not all of the Edit keys above already perform those
- * functions in text boxes, such as the Filter box.  Do no, under any
- * circumstances, make a change that keeps them from doing so.
- */
-static GtkItemFactoryEntry menu_items[] =
-{
-    {"/_File", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/File/_Open...", "<control>O", GTK_MENU_FUNC(file_open_cmd_cb),
-                             0, "<StockItem>", GTK_STOCK_OPEN,},
-    {"/File/Open _Recent", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/File/_Merge...", NULL, GTK_MENU_FUNC(file_merge_cmd_cb), 0, NULL, NULL,},
-    {"/File/_Close", "<control>W", GTK_MENU_FUNC(file_close_cmd_cb),
-                             0, "<StockItem>", GTK_STOCK_CLOSE,},
-    {"/File/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/File/_Save", "<control>S", GTK_MENU_FUNC(file_save_cmd_cb),
-                             0, "<StockItem>", GTK_STOCK_SAVE,},
-    {"/File/Save _As...", "<shift><control>S", GTK_MENU_FUNC(file_save_as_cmd_cb),
-                             0, "<StockItem>", GTK_STOCK_SAVE_AS,},
-    {"/File/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/File/File Set", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/File/File Set/List Files", NULL, GTK_MENU_FUNC(fileset_cb), 0, "<StockItem>", WIRESHARK_STOCK_FILE_SET_LIST,},
-    {"/File/File Set/Next File", NULL, GTK_MENU_FUNC(fileset_next_cb), 0, "<StockItem>", WIRESHARK_STOCK_FILE_SET_NEXT,},
-    {"/File/File Set/Previous File", NULL, GTK_MENU_FUNC(fileset_previous_cb), 0, "<StockItem>", WIRESHARK_STOCK_FILE_SET_PREVIOUS,},
-    {"/File/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/File/_Export", NULL, NULL, 0, "<Branch>", NULL,},
-#if _WIN32
-    {"/File/Export/File...", NULL, GTK_MENU_FUNC(export_text_cmd_cb),
-                         0, NULL, NULL,},
-#else
-    {"/File/Export/as \"Plain _Text\" file...", NULL, GTK_MENU_FUNC(export_text_cmd_cb),
-                             0, NULL, NULL,},
-    {"/File/Export/as \"_PostScript\" file...", NULL, GTK_MENU_FUNC(export_ps_cmd_cb),
-                             0, NULL, NULL,},
-    {"/File/Export/as \"_CSV\" (Comma Separated Values packet summary) file...",
-                             NULL, GTK_MENU_FUNC(export_csv_cmd_cb), 0, NULL, NULL,},
-    {"/File/Export/as \"C _Arrays\" (packet bytes) file...", NULL, GTK_MENU_FUNC(export_carrays_cmd_cb),
-                             0, NULL, NULL,},
-    {"/File/Export/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/File/Export/as XML - \"P_SML\" (packet summary) file...", NULL, GTK_MENU_FUNC(export_psml_cmd_cb),
-                             0, NULL, NULL,},
-    {"/File/Export/as XML - \"P_DML\" (packet details) file...", NULL, GTK_MENU_FUNC(export_pdml_cmd_cb),
-                             0, NULL, NULL,},
-    {"/File/Export/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-#endif
-    {"/File/Export/Selected Packet _Bytes...", "<control>H", GTK_MENU_FUNC(savehex_cb),
-                             0, NULL, NULL,},
-    {"/File/Export/_Objects/_HTTP", NULL, GTK_MENU_FUNC(eo_http_cb), 0, NULL, NULL,},
-    {"/File/Export/_Objects/_DICOM", NULL, GTK_MENU_FUNC(eo_dicom_cb), 0, NULL, NULL,},
-    {"/File/Export/_Objects/_SMB", NULL, GTK_MENU_FUNC(eo_smb_cb), 0, NULL, NULL,},
-    {"/File/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/File/_Print...", "<control>P", GTK_MENU_FUNC(file_print_cmd_cb),
-                             0, "<StockItem>", GTK_STOCK_PRINT,},
-    {"/File/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/File/_Quit", "<control>Q", GTK_MENU_FUNC(file_quit_cmd_cb),
-                             0, "<StockItem>", GTK_STOCK_QUIT,},
-    {"/_Edit", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/Edit/Copy", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/Edit/Copy/Description", "<shift><control>D", GTK_MENU_FUNC(copy_selected_plist_cb), COPY_SELECTED_DESCRIPTION, NULL, NULL,},
-    {"/Edit/Copy/Fieldname", "<shift><control>F", GTK_MENU_FUNC(copy_selected_plist_cb), COPY_SELECTED_FIELDNAME, NULL, NULL,},
-    {"/Edit/Copy/Value", "<shift><control>V", GTK_MENU_FUNC(copy_selected_plist_cb), COPY_SELECTED_VALUE, NULL, NULL,},
-    {"/Edit/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Edit/Copy/As Filter", "<shift><control>C", GTK_MENU_FUNC(match_selected_ptree_cb),
-                       MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY, NULL, NULL,},
-#if 0
-    /*
-     * Un-#if this when we actually implement Cut/Copy/Paste for the
-     * packet list and packet detail windows.
-     *
-     * Note: when we implement Cut/Copy/Paste in those windows, we
-     * will almost certainly want to allow multiple packets to be
-     * selected in the packet list pane and multiple packet detail
-     * items to be selected in the packet detail pane, so that
-     * the user can, for example, copy the summaries of multiple
-     * packets to the clipboard from the packet list pane and multiple
-     * packet detail items - perhaps *all* packet detail items - from
-     * the packet detail pane.  Given that, we'll also want to
-     * implement Select All.
-     *
-     * If multiple packets are selected, we would probably display nothing
-     * in the packet detail pane, just as we do if no packet is selected,
-     * and any menu items etc. that would pertain only to a single packet
-     * would be disabled.
-     *
-     * If multiple packet detail items are selected, we would probably
-     * disable all items that pertain only to a single packet detail
-     * item, such as some items in the status bar.
-     *
-     * XXX - the actions for these will be different depending on what
-     * widget we're in; ^C should copy from the filter text widget if
-     * we're in that widget, the packet list if we're in that widget
-     * (presumably copying the summaries of selected packets to the
-     * clipboard, e.g. the text copy would be the text of the columns),
-     * the packet detail if we're in that widget (presumably copying
-     * the contents of selected protocol tree items to the clipboard,
-     * e.g. the text copy would be the text displayed for those items),
-     * etc..
-     *
-     * Given that those menu items should also affect text widgets
-     * such as the filter box, we would again want Select All, and,
-     * at least for the filter box, we would also want Undo and Redo.
-     * We would only want Cut, Paste, Undo, and Redo for the packet
-     * list and packet detail panes if we support modifying them.
-     */
-    {"/Edit/_Undo", "<control>Z", NULL,
-                             0, "<StockItem>", GTK_STOCK_UNDO,},
-    {"/Edit/_Redo", "<shift><control>Z", NULL,
-                             0, "<StockItem>", GTK_STOCK_REDO,},
-    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Edit/Cu_t", "<control>X", NULL,
-                             0, "<StockItem>", GTK_STOCK_CUT,},
-    {"/Edit/_Copy", "<control>C", NULL,
-                             0, "<StockItem>", GTK_STOCK_COPY,},
-    {"/Edit/_Paste", "<control>V", NULL,
-                             0, "<StockItem>", GTK_STOCK_PASTE,},
-    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Edit/Select _All", "<control>A", NULL, 0,
-#ifdef GTK_STOCK_SELECT_ALL	/* first appeared in 2.10 */
-                             "<StockItem>", GTK_STOCK_SELECT_ALL,
-#else
-                             NULL, NULL,
-#endif /* GTK_STOCK_SELECT_ALL */
-    },
-#endif /* 0 */
-    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Edit/_Find Packet...",                             "<control>F", GTK_MENU_FUNC(find_frame_cb), 0, "<StockItem>", GTK_STOCK_FIND,},
-    {"/Edit/Find Ne_xt",                                  "<control>N", GTK_MENU_FUNC(find_next_cb), 0, NULL, NULL,},
-    {"/Edit/Find Pre_vious",                              "<control>B", GTK_MENU_FUNC(find_previous_cb), 0, NULL, NULL,},
-    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-#ifdef NEW_PACKET_LIST
-    {"/Edit/_Mark Packet (toggle)",                       "<control>M", GTK_MENU_FUNC(new_packet_list_mark_frame_cb),0, NULL, NULL,},
-    {"/Edit/Mark All Displayed Packets (toggle)",  "<shift><control>M", GTK_MENU_FUNC(new_packet_list_mark_all_displayed_frames_cb), 0, NULL, NULL,},
-    {"/Edit/Unmark All Packets",                     "<alt><control>M", GTK_MENU_FUNC(new_packet_list_unmark_all_frames_cb), 0, NULL, NULL,},
-    {"/Edit/Find Next Mark",                       "<shift><control>N", GTK_MENU_FUNC(find_next_mark_cb), 0, NULL, NULL,},
-    {"/Edit/Find Previous Mark",                   "<shift><control>B", GTK_MENU_FUNC(find_prev_mark_cb), 0, NULL, NULL,},
-    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Edit/_Ignore Packet (toggle)",                     "<control>D", GTK_MENU_FUNC(new_packet_list_ignore_frame_cb), 0, NULL, NULL,},
-    /*
-     * XXX - this next one overrides /Edit/Copy/Description
-     */
-    {"/Edit/Ignore All Displayed Packets (toggle)","<shift><control>D", GTK_MENU_FUNC(new_packet_list_ignore_all_displayed_frames_cb), 0, NULL, NULL,},
-    {"/Edit/U_n-Ignore All Packets",                 "<alt><control>D", GTK_MENU_FUNC(new_packet_list_unignore_all_frames_cb), 0, NULL, NULL,},
-    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Edit/Set Time Reference (toggle)",                 "<control>T", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_TOGGLE, "<StockItem>", WIRESHARK_STOCK_TIME,},
-    {"/Edit/Un-Time Reference All Packets",          "<alt><control>T", GTK_MENU_FUNC(new_packet_list_untime_reference_all_frames_cb), 0, NULL, NULL,},
-    {"/Edit/Find Next Time Reference",               "<alt><control>N", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_NEXT, NULL, NULL,},
-    {"/Edit/Find Previous Time Reference",           "<alt><control>B", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_PREV, NULL, NULL,},
-#else /* NEW_PACKET_LIST */
-    /*
-     * XXX - this should be changed to match the list used with the new
-     * packet list, assuming we don't just drop the old packet list
-     * code first.
-     */
-    {"/Edit/_Mark Packet (toggle)", "<control>M", GTK_MENU_FUNC(packet_list_mark_frame_cb),
-                       0, NULL, NULL,},
-    {"/Edit/Find Next Mark", "<shift><control>N", GTK_MENU_FUNC(find_next_mark_cb),
-                       0, NULL, NULL,},
-    {"/Edit/Find Previous Mark", "<shift><control>B", GTK_MENU_FUNC(find_prev_mark_cb),
-                       0, NULL, NULL,},
-    {"/Edit/Mark _All Displayed Packets (toggle)", "<shift><control>M", GTK_MENU_FUNC(packet_list_mark_all_frames_cb), 0, NULL, NULL,},
-    {"/Edit/_Unmark All Packets", "<alt><control>M", GTK_MENU_FUNC(packet_list_unmark_all_frames_cb), 0, NULL, NULL,},
-    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Edit/_Ignore Packet (toggle)", "<control>D", GTK_MENU_FUNC(packet_list_ignore_frame_cb),
-                       0, NULL, NULL,},
-    {"/Edit/Ignore All Displayed Packets (toggle)", "<shift><control>D", GTK_MENU_FUNC(packet_list_ignore_all_frames_cb),
-                       0, NULL, NULL,},
-    {"/Edit/U_n-Ignore All Packets", "<alt><control>D", GTK_MENU_FUNC(packet_list_unignore_all_frames_cb),
-                       0, NULL, NULL,},
-    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Edit/Set Time Reference (toggle)", "<control>T", GTK_MENU_FUNC(reftime_frame_cb),
-                        REFTIME_TOGGLE, "<StockItem>", WIRESHARK_STOCK_TIME,},
-    {"/Edit/Find Next Time Reference", "<alt><shift><control>N", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_NEXT, NULL, NULL,},
-    {"/Edit/Find Previous Time Reference", "<alt><shift><control>B", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_PREV, NULL, NULL,},
-#endif /* NEW_PACKET_LIST */
-    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Edit/_Configuration Profiles...", "<shift><control>A", GTK_MENU_FUNC(profile_dialog_cb), 0, NULL, NULL,},
-    {"/Edit/_Preferences...", "<shift><control>P", GTK_MENU_FUNC(prefs_page_cb),
-                             PREFS_PAGE_USER_INTERFACE, "<StockItem>", GTK_STOCK_PREFERENCES,},
-    {"/_View", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/View/_Main Toolbar", NULL, GTK_MENU_FUNC(show_hide_cb), SHOW_HIDE_MAIN_TOOLBAR, "<CheckItem>", NULL,},
-    {"/View/_Filter Toolbar", NULL, GTK_MENU_FUNC(show_hide_cb), SHOW_HIDE_FILTER_TOOLBAR, "<CheckItem>", NULL,},
-#ifdef HAVE_AIRPCAP
-    {"/View/_Wireless Toolbar", NULL, GTK_MENU_FUNC(show_hide_cb), SHOW_HIDE_AIRPCAP_TOOLBAR, "<CheckItem>", NULL,},
-#endif
-    {"/View/_Statusbar", NULL, GTK_MENU_FUNC(show_hide_cb), SHOW_HIDE_STATUSBAR, "<CheckItem>", NULL,},
-    {"/View/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/View/Packet _List", NULL, GTK_MENU_FUNC(show_hide_cb), SHOW_HIDE_PACKET_LIST, "<CheckItem>", NULL,},
-    {"/View/Packet _Details", NULL, GTK_MENU_FUNC(show_hide_cb), SHOW_HIDE_TREE_VIEW, "<CheckItem>", NULL,},
-    {"/View/Packet _Bytes", NULL, GTK_MENU_FUNC(show_hide_cb), SHOW_HIDE_BYTE_VIEW, "<CheckItem>", NULL,},
-    {"/View/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/View/_Time Display Format", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", "<alt><control>1", GTK_MENU_FUNC(timestamp_format_cb),
-                        TS_ABSOLUTE_WITH_DATE, "<RadioItem>", NULL,},
-    {"/View/Time Display Format/Time of Day:   01:02:03.123456", "<alt><control>2", GTK_MENU_FUNC(timestamp_format_cb),
-                        TS_ABSOLUTE, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
-    {"/View/Time Display Format/Seconds Since Epoch (1970-01-01):   1234567890.123456", "<alt><control>3", GTK_MENU_FUNC(timestamp_format_cb),
-                        TS_EPOCH, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
-    {"/View/Time Display Format/Seconds Since Beginning of Capture:   123.123456", "<alt><control>4", GTK_MENU_FUNC(timestamp_format_cb),
-                        TS_RELATIVE, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
-    {"/View/Time Display Format/Seconds Since Previous Captured Packet:   1.123456", "<alt><control>5", GTK_MENU_FUNC(timestamp_format_cb),
-                        TS_DELTA, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
-    {"/View/Time Display Format/Seconds Since Previous Displayed Packet:   1.123456", "<alt><control>6", GTK_MENU_FUNC(timestamp_format_cb),
-                        TS_DELTA_DIS, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
-    {"/View/Time Display Format/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/View/Time Display Format/Automatic (File Format Precision)", NULL, GTK_MENU_FUNC(timestamp_precision_cb),
-                        TS_PREC_AUTO, "<RadioItem>", NULL,},
-    {"/View/Time Display Format/Seconds:   0", NULL, GTK_MENU_FUNC(timestamp_precision_cb),
-                        TS_PREC_FIXED_SEC, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
-    {"/View/Time Display Format/Deciseconds:   0.1", NULL, GTK_MENU_FUNC(timestamp_precision_cb),
-                        TS_PREC_FIXED_DSEC, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
-    {"/View/Time Display Format/Centiseconds:   0.12", NULL, GTK_MENU_FUNC(timestamp_precision_cb),
-                        TS_PREC_FIXED_CSEC, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
-    {"/View/Time Display Format/Milliseconds:   0.123", NULL, GTK_MENU_FUNC(timestamp_precision_cb),
-                        TS_PREC_FIXED_MSEC, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
-    {"/View/Time Display Format/Microseconds:   0.123456", NULL, GTK_MENU_FUNC(timestamp_precision_cb),
-                        TS_PREC_FIXED_USEC, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
-    {"/View/Time Display Format/Nanoseconds:   0.123456789", NULL, GTK_MENU_FUNC(timestamp_precision_cb),
-                        TS_PREC_FIXED_NSEC, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
-    {"/View/Time Display Format/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/View/Time Display Format/Display Seconds with hours and minutes", "<alt><control>0", GTK_MENU_FUNC(timestamp_seconds_time_cb), 0, "<CheckItem>", NULL,},
-    {"/View/Name Resol_ution", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/View/Name Resolution/_Resolve Name", NULL, GTK_MENU_FUNC(resolve_name_cb), 0, NULL, NULL,},
-    {"/View/Name Resolution/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/View/Name Resolution/Enable for _MAC Layer", NULL, GTK_MENU_FUNC(name_resolution_cb), RESOLV_MAC, "<CheckItem>", NULL,},
-    {"/View/Name Resolution/Enable for _Network Layer", NULL, GTK_MENU_FUNC(name_resolution_cb), RESOLV_NETWORK, "<CheckItem>", NULL,},
-    {"/View/Name Resolution/Enable for _Transport Layer", NULL, GTK_MENU_FUNC(name_resolution_cb), RESOLV_TRANSPORT, "<CheckItem>", NULL,},
-    {"/View/Colorize Packet List", NULL, colorize_cb, 0, "<CheckItem>", NULL,},
-#ifdef HAVE_LIBPCAP
-    {"/View/Auto Scroll in Li_ve Capture", NULL, GTK_MENU_FUNC(auto_scroll_live_cb), 0, "<CheckItem>", NULL,},
-#endif
-    {"/View/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/View/_Zoom In", "<control>plus", GTK_MENU_FUNC(view_zoom_in_cb),
-                             0, "<StockItem>", GTK_STOCK_ZOOM_IN,},
-    {"/View/Zoom _Out", "<control>minus", GTK_MENU_FUNC(view_zoom_out_cb),
-                             0, "<StockItem>", GTK_STOCK_ZOOM_OUT,},
-    {"/View/_Normal Size", "<control>equal", GTK_MENU_FUNC(view_zoom_100_cb),
-                             0, "<StockItem>", GTK_STOCK_ZOOM_100,},
-#ifdef NEW_PACKET_LIST
-    {"/View/Resize All Columns", "<shift><control>R", GTK_MENU_FUNC(new_packet_list_resize_columns_cb),
-                       0, "<StockItem>", WIRESHARK_STOCK_RESIZE_COLUMNS,},
-    {"/View/Displayed Columns", NULL, NULL, 0, NULL, NULL,},
-#else
-    {"/View/Resize All Columns", "<shift><control>R", GTK_MENU_FUNC(packet_list_resize_columns_cb),
-                       0, "<StockItem>", WIRESHARK_STOCK_RESIZE_COLUMNS,},
-#endif /* NEW_PACKET_LIST */
-    {"/View/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/View/E_xpand Subtrees", "<shift>Right", GTK_MENU_FUNC(expand_tree_cb), 0, NULL, NULL,},
-    {"/View/_Expand All", "<control>Right", GTK_MENU_FUNC(expand_all_cb),
-                       0, NULL, NULL,},
-    {"/View/Collapse _All", "<control>Left", GTK_MENU_FUNC(collapse_all_cb),
-                       0, NULL, NULL,},
-    {"/View/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/View/Colorize Conversation", NULL, NULL, 0, "<Branch>",NULL,},
-    {"/View/Colorize Conversation/Color 1", "<control>1",
-                       GTK_MENU_FUNC(colorize_conversation_cb), 1*256, "<StockItem>", WIRESHARK_STOCK_COLOR1,},
-    {"/View/Colorize Conversation/Color 2", "<control>2",
-                       GTK_MENU_FUNC(colorize_conversation_cb), 2*256, "<StockItem>", WIRESHARK_STOCK_COLOR2,},
-    {"/View/Colorize Conversation/Color 3", "<control>3",
-                       GTK_MENU_FUNC(colorize_conversation_cb), 3*256, "<StockItem>", WIRESHARK_STOCK_COLOR3,},
-    {"/View/Colorize Conversation/Color 4", "<control>4",
-                       GTK_MENU_FUNC(colorize_conversation_cb), 4*256, "<StockItem>", WIRESHARK_STOCK_COLOR4,},
-    {"/View/Colorize Conversation/Color 5", "<control>5",
-                       GTK_MENU_FUNC(colorize_conversation_cb), 5*256, "<StockItem>", WIRESHARK_STOCK_COLOR5,},
-    {"/View/Colorize Conversation/Color 6", "<control>6",
-                       GTK_MENU_FUNC(colorize_conversation_cb), 6*256, "<StockItem>", WIRESHARK_STOCK_COLOR6,},
-    {"/View/Colorize Conversation/Color 7", "<control>7",
-                       GTK_MENU_FUNC(colorize_conversation_cb), 7*256, "<StockItem>", WIRESHARK_STOCK_COLOR7,},
-    {"/View/Colorize Conversation/Color 8", "<control>8",
-                       GTK_MENU_FUNC(colorize_conversation_cb), 8*256, "<StockItem>", WIRESHARK_STOCK_COLOR8,},
-    {"/View/Colorize Conversation/Color 9", "<control>9",
-                       GTK_MENU_FUNC(colorize_conversation_cb), 9*256, "<StockItem>", WIRESHARK_STOCK_COLOR9,},
-    {"/View/Colorize Conversation/Color 10", "<control>0",
-                       GTK_MENU_FUNC(colorize_conversation_cb), 10*256, "<StockItem>", WIRESHARK_STOCK_COLOR0,},
-    {"/View/Colorize Conversation/<separator>", NULL,
-                       NULL, 0, "<Separator>",NULL,},
-    {"/View/Colorize Conversation/New Coloring Rule...", NULL,
-                       GTK_MENU_FUNC(colorize_conversation_cb), 0, "<StockItem>", GTK_STOCK_SELECT_COLOR,},
-    {"/View/Reset Coloring 1-10", "<control>space",
-                       GTK_MENU_FUNC(colorize_conversation_cb), 255*256, NULL, NULL,},
-    {"/View/_Coloring Rules...", NULL, color_display_cb,
-                       0, "<StockItem>", GTK_STOCK_SELECT_COLOR,},
-    {"/View/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-
-
-    {"/View/Show Packet in New _Window", NULL,
-                       GTK_MENU_FUNC(new_window_cb), 0, NULL, NULL,},
-    {"/View/_Reload", "<control>R", GTK_MENU_FUNC(file_reload_cmd_cb),
-                             0, "<StockItem>", GTK_STOCK_REFRESH,},
-    {"/_Go", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/Go/_Back", "<alt>Left",
-                             GTK_MENU_FUNC(history_back_cb), 0, "<StockItem>", GTK_STOCK_GO_BACK,},
-    {"/Go/_Forward", "<alt>Right",
-                             GTK_MENU_FUNC(history_forward_cb), 0, "<StockItem>", GTK_STOCK_GO_FORWARD,},
-    {"/Go/_Go to Packet...", "<control>G",
-                             GTK_MENU_FUNC(goto_frame_cb), 0, "<StockItem>", GTK_STOCK_JUMP_TO,},
-    {"/Go/Go to _Corresponding Packet", NULL, GTK_MENU_FUNC(goto_framenum_cb),
-                       0, NULL, NULL,},
-    {"/Go/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Go/Previous Packet", "<control>Up",
-                             GTK_MENU_FUNC(goto_previous_frame_cb), 0, "<StockItem>", GTK_STOCK_GO_UP,},
-    {"/Go/Next Packet", "<control>Down",
-                             GTK_MENU_FUNC(goto_next_frame_cb), 0, "<StockItem>", GTK_STOCK_GO_DOWN,},
-    {"/Go/F_irst Packet", "<control>Home",
-                             GTK_MENU_FUNC(goto_top_frame_cb), 0, "<StockItem>", GTK_STOCK_GOTO_TOP,},
-    {"/Go/_Last Packet", "<control>End",
-                             GTK_MENU_FUNC(goto_bottom_frame_cb), 0, "<StockItem>", GTK_STOCK_GOTO_BOTTOM,},
-    {"/Go/Previous Packet In Conversation", "<control>bracketleft",
-                             GTK_MENU_FUNC(goto_previous_frame_conversation_cb), 0, NULL, NULL,},
-    {"/Go/Next Packet In Conversation", "<control>bracketright",
-                             GTK_MENU_FUNC(goto_next_frame_conversation_cb), 0, NULL, NULL,},
-#ifdef HAVE_LIBPCAP
-    {"/_Capture", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/Capture/_Interfaces...", "<control>I",
-                             GTK_MENU_FUNC(capture_if_cb), 0, "<StockItem>", WIRESHARK_STOCK_CAPTURE_INTERFACES,},
-    {"/Capture/_Options...", "<control>K",
-                             GTK_MENU_FUNC(capture_prep_cb), 0, "<StockItem>", WIRESHARK_STOCK_CAPTURE_OPTIONS,},
-    {"/Capture/_Start", "<control>E",
-                             GTK_MENU_FUNC(capture_start_cb), 0, "<StockItem>", WIRESHARK_STOCK_CAPTURE_START,},
-    {"/Capture/S_top", "<control>E", GTK_MENU_FUNC(capture_stop_cb),
-                             0, "<StockItem>", WIRESHARK_STOCK_CAPTURE_STOP,},
-    {"/Capture/_Restart", "<control>R", GTK_MENU_FUNC(capture_restart_cb),
-                             0, "<StockItem>", WIRESHARK_STOCK_CAPTURE_RESTART,},
-    {"/Capture/Capture _Filters...", NULL, GTK_MENU_FUNC(cfilter_dialog_cb),
-                       0, "<StockItem>", WIRESHARK_STOCK_CAPTURE_FILTER,},
-#endif /* HAVE_LIBPCAP */
-    {"/_Analyze", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/Analyze/_Display Filters...", NULL, GTK_MENU_FUNC(dfilter_dialog_cb),
-                       0, "<StockItem>", WIRESHARK_STOCK_DISPLAY_FILTER,},
-    {"/Analyze/Display Filter _Macros...", NULL, GTK_MENU_FUNC(macros_dialog_cb), 0, NULL, NULL,},
-    {"/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Analyze/Apply as Column", NULL, GTK_MENU_FUNC(apply_as_custom_column_cb), 0, NULL, NULL},
-    {"/Analyze/Appl_y as Filter", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/Analyze/Apply as Filter/_Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
-                       MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
-    {"/Analyze/Apply as Filter/_Not Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
-                       MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
-    {"/Analyze/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " _and Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
-                       MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
-    {"/Analyze/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " _or Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
-                       MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
-    {"/Analyze/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " a_nd not Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
-                       MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
-    {"/Analyze/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " o_r not Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
-                       MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
-    {"/Analyze/_Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/Analyze/Prepare a Filter/_Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
-                       MATCH_SELECTED_REPLACE, NULL, NULL,},
-    {"/Analyze/Prepare a Filter/_Not Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
-                       MATCH_SELECTED_NOT, NULL, NULL,},
-    {"/Analyze/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " _and Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
-                       MATCH_SELECTED_AND, NULL, NULL,},
-    {"/Analyze/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " _or Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
-                       MATCH_SELECTED_OR, NULL, NULL,},
-    {"/Analyze/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " a_nd not Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
-                       MATCH_SELECTED_AND_NOT, NULL, NULL,},
-    {"/Analyze/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " o_r not Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
-                       MATCH_SELECTED_OR_NOT, NULL, NULL,},
-    {"/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Analyze/_Enabled Protocols...", "<shift><control>E", GTK_MENU_FUNC(proto_cb),
-                       0, "<StockItem>", WIRESHARK_STOCK_CHECKBOX,},
-    {"/Analyze/Decode _As...", NULL, GTK_MENU_FUNC(decode_as_cb),
-                       0, "<StockItem>", WIRESHARK_STOCK_DECODE_AS,},
-    {"/Analyze/_User Specified Decodes...", NULL,
-                       GTK_MENU_FUNC(decode_show_cb), 0, "<StockItem>", WIRESHARK_STOCK_DECODE_AS,},
-    {"/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Analyze/_Follow TCP Stream", NULL,
-                       GTK_MENU_FUNC(follow_tcp_stream_cb), 0, NULL, NULL,},
-    {"/Analyze/_Follow UDP Stream", NULL,
-                       GTK_MENU_FUNC(follow_udp_stream_cb), 0, NULL, NULL,},
-    {"/Analyze/_Follow SSL Stream", NULL,
-                       GTK_MENU_FUNC(follow_ssl_stream_cb), 0, NULL, NULL,},
-    {"/_Statistics", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/Statistics/_Summary", NULL, GTK_MENU_FUNC(summary_open_cb), 0, "<StockItem>", GTK_STOCK_PROPERTIES,},
-    {"/Statistics/_Protocol Hierarchy", NULL,
-                       GTK_MENU_FUNC(proto_hier_stats_cb), 0, NULL, NULL,},
-    {"/Statistics/Conversations", NULL,
-                       GTK_MENU_FUNC(init_conversation_notebook_cb), 0, "<StockItem>", WIRESHARK_STOCK_CONVERSATIONS,},
-    {"/Statistics/Endpoints", NULL,
-                       GTK_MENU_FUNC(init_hostlist_notebook_cb), 0, "<StockItem>", WIRESHARK_STOCK_ENDPOINTS,},
-    {"/Telephon_y", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/_Tools", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/Tools/Firewall ACL Rules", NULL,
-                       firewall_rule_cb, 0, NULL, NULL,},
-    {"/WS internal", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/WS internal/Dissector tables", NULL, GTK_MENU_FUNC(dissector_tables_dlg_cb),
-                         0, NULL, NULL,},
-    {"/_Help", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/Help/_Contents", "F1", GTK_MENU_FUNC(topic_menu_cb), HELP_CONTENT, "<StockItem>", GTK_STOCK_HELP,},
-    {"/Help/FAQ's", NULL, GTK_MENU_FUNC(topic_menu_cb), ONLINEPAGE_FAQ, NULL, NULL,},
-    {"/Help/Manual Pages", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/Help/Manual Pages/Wireshark", NULL, GTK_MENU_FUNC(topic_menu_cb), LOCALPAGE_MAN_WIRESHARK, NULL, NULL,},
-    {"/Help/Manual Pages/Wireshark Filter", NULL, GTK_MENU_FUNC(topic_menu_cb), LOCALPAGE_MAN_WIRESHARK_FILTER, NULL, NULL,},
-    {"/Help/Manual Pages/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Help/Manual Pages/TShark", NULL, GTK_MENU_FUNC(topic_menu_cb), LOCALPAGE_MAN_TSHARK, NULL, NULL,},
-    {"/Help/Manual Pages/RawShark", NULL, GTK_MENU_FUNC(topic_menu_cb), LOCALPAGE_MAN_RAWSHARK, NULL, NULL,},
-    {"/Help/Manual Pages/Dumpcap", NULL, GTK_MENU_FUNC(topic_menu_cb), LOCALPAGE_MAN_DUMPCAP, NULL, NULL,},
-    {"/Help/Manual Pages/Mergecap", NULL, GTK_MENU_FUNC(topic_menu_cb), LOCALPAGE_MAN_MERGECAP, NULL, NULL,},
-    {"/Help/Manual Pages/Editcap", NULL, GTK_MENU_FUNC(topic_menu_cb), LOCALPAGE_MAN_EDITCAP, NULL, NULL,},
-    {"/Help/Manual Pages/Text2pcap", NULL, GTK_MENU_FUNC(topic_menu_cb), LOCALPAGE_MAN_TEXT2PCAP, NULL, NULL,},
-    {"/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Help/Website", NULL, GTK_MENU_FUNC(topic_menu_cb), ONLINEPAGE_HOME, "<StockItem>", GTK_STOCK_HOME,},
-    {"/Help/Wiki", NULL, GTK_MENU_FUNC(topic_menu_cb), ONLINEPAGE_WIKI, "<StockItem>", WIRESHARK_STOCK_WIKI,},
-    {"/Help/Downloads", NULL, GTK_MENU_FUNC(topic_menu_cb), ONLINEPAGE_DOWNLOAD, NULL, NULL,},
-    {"/Help/Sample Captures", NULL, GTK_MENU_FUNC(topic_menu_cb), ONLINEPAGE_SAMPLE_FILES, NULL, NULL,},
-    {"/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Help/_Supported Protocols (slow!)", NULL, GTK_MENU_FUNC(supported_cb), 0, NULL, NULL,},
-    {"/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Help/_About Wireshark", NULL, GTK_MENU_FUNC(about_wireshark_cb),
-                       0, "<StockItem>", WIRESHARK_STOCK_ABOUT}
-};
-#endif
-
 /*Apply a filter */
 
 static void
@@ -2023,7 +1582,446 @@ static const GtkRadioActionEntry main_menu_bar_radio_view_time_fileformat_prec_e
 	{ "/View/TimeDisplayFormat/FileFormatPrecision-Microseconds",	NULL, "Microseconds:  0.123456",			NULL, NULL, TS_PREC_FIXED_USEC },
 	{ "/View/TimeDisplayFormat/FileFormatPrecision-Nanoseconds",	NULL, "Nanoseconds:   0.123456789",			NULL, NULL, TS_PREC_FIXED_NSEC },
 };
+#else /* MAIN_MENU_USE_UIMANAGER */
+/*
+ * Main menu.
+ *
+ * Please do not use keystrokes that are used as "universal" shortcuts in
+ * various desktop environments:
+ *
+ *   Windows:
+ *	http://support.microsoft.com/kb/126449
+ *
+ *   GNOME:
+ *	http://library.gnome.org/users/user-guide/nightly/keyboard-skills.html.en
+ *
+ *   KDE:
+ *	http://developer.kde.org/documentation/standards/kde/style/keys/shortcuts.html
+ *
+ * In particular, do not use the following <control> sequences for anything
+ * other than their standard purposes:
+ *
+ *	<control>O	File->Open
+ *	<control>S	File->Save
+ *	<control>P	File->Print
+ *	<control>W	File->Close
+ *	<control>Q	File->Quit
+ *	<control>Z	Edit->Undo (which we don't currently have)
+ *	<control>X	Edit->Cut (which we don't currently have)
+ *	<control>C	Edit->Copy (which we don't currently have)
+ *	<control>V	Edit->Paste (which we don't currently have)
+ *	<control>A	Edit->Select All (which we don't currently have)
+ *
+ * Note that some if not all of the Edit keys above already perform those
+ * functions in text boxes, such as the Filter box.  Do no, under any
+ * circumstances, make a change that keeps them from doing so.
+ */
+static GtkItemFactoryEntry menu_items[] =
+{
+    {"/_File", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/File/_Open...", "<control>O", GTK_MENU_FUNC(file_open_cmd_cb),
+                             0, "<StockItem>", GTK_STOCK_OPEN,},
+    {"/File/Open _Recent", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/File/_Merge...", NULL, GTK_MENU_FUNC(file_merge_cmd_cb), 0, NULL, NULL,},
+    {"/File/_Close", "<control>W", GTK_MENU_FUNC(file_close_cmd_cb),
+                             0, "<StockItem>", GTK_STOCK_CLOSE,},
+    {"/File/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/File/_Save", "<control>S", GTK_MENU_FUNC(file_save_cmd_cb),
+                             0, "<StockItem>", GTK_STOCK_SAVE,},
+    {"/File/Save _As...", "<shift><control>S", GTK_MENU_FUNC(file_save_as_cmd_cb),
+                             0, "<StockItem>", GTK_STOCK_SAVE_AS,},
+    {"/File/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/File/File Set", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/File/File Set/List Files", NULL, GTK_MENU_FUNC(fileset_cb), 0, "<StockItem>", WIRESHARK_STOCK_FILE_SET_LIST,},
+    {"/File/File Set/Next File", NULL, GTK_MENU_FUNC(fileset_next_cb), 0, "<StockItem>", WIRESHARK_STOCK_FILE_SET_NEXT,},
+    {"/File/File Set/Previous File", NULL, GTK_MENU_FUNC(fileset_previous_cb), 0, "<StockItem>", WIRESHARK_STOCK_FILE_SET_PREVIOUS,},
+    {"/File/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/File/_Export", NULL, NULL, 0, "<Branch>", NULL,},
+#if _WIN32
+    {"/File/Export/File...", NULL, GTK_MENU_FUNC(export_text_cmd_cb),
+                         0, NULL, NULL,},
 #else
+    {"/File/Export/as \"Plain _Text\" file...", NULL, GTK_MENU_FUNC(export_text_cmd_cb),
+                             0, NULL, NULL,},
+    {"/File/Export/as \"_PostScript\" file...", NULL, GTK_MENU_FUNC(export_ps_cmd_cb),
+                             0, NULL, NULL,},
+    {"/File/Export/as \"_CSV\" (Comma Separated Values packet summary) file...",
+                             NULL, GTK_MENU_FUNC(export_csv_cmd_cb), 0, NULL, NULL,},
+    {"/File/Export/as \"C _Arrays\" (packet bytes) file...", NULL, GTK_MENU_FUNC(export_carrays_cmd_cb),
+                             0, NULL, NULL,},
+    {"/File/Export/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/File/Export/as XML - \"P_SML\" (packet summary) file...", NULL, GTK_MENU_FUNC(export_psml_cmd_cb),
+                             0, NULL, NULL,},
+    {"/File/Export/as XML - \"P_DML\" (packet details) file...", NULL, GTK_MENU_FUNC(export_pdml_cmd_cb),
+                             0, NULL, NULL,},
+    {"/File/Export/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+#endif
+    {"/File/Export/Selected Packet _Bytes...", "<control>H", GTK_MENU_FUNC(savehex_cb),
+                             0, NULL, NULL,},
+    {"/File/Export/_Objects/_HTTP", NULL, GTK_MENU_FUNC(eo_http_cb), 0, NULL, NULL,},
+    {"/File/Export/_Objects/_DICOM", NULL, GTK_MENU_FUNC(eo_dicom_cb), 0, NULL, NULL,},
+    {"/File/Export/_Objects/_SMB", NULL, GTK_MENU_FUNC(eo_smb_cb), 0, NULL, NULL,},
+    {"/File/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/File/_Print...", "<control>P", GTK_MENU_FUNC(file_print_cmd_cb),
+                             0, "<StockItem>", GTK_STOCK_PRINT,},
+    {"/File/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/File/_Quit", "<control>Q", GTK_MENU_FUNC(file_quit_cmd_cb),
+                             0, "<StockItem>", GTK_STOCK_QUIT,},
+    {"/_Edit", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Edit/Copy", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Edit/Copy/Description", "<shift><control>D", GTK_MENU_FUNC(copy_selected_plist_cb), COPY_SELECTED_DESCRIPTION, NULL, NULL,},
+    {"/Edit/Copy/Fieldname", "<shift><control>F", GTK_MENU_FUNC(copy_selected_plist_cb), COPY_SELECTED_FIELDNAME, NULL, NULL,},
+    {"/Edit/Copy/Value", "<shift><control>V", GTK_MENU_FUNC(copy_selected_plist_cb), COPY_SELECTED_VALUE, NULL, NULL,},
+    {"/Edit/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Edit/Copy/As Filter", "<shift><control>C", GTK_MENU_FUNC(match_selected_ptree_cb),
+                       MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY, NULL, NULL,},
+#if 0
+    /*
+     * Un-#if this when we actually implement Cut/Copy/Paste for the
+     * packet list and packet detail windows.
+     *
+     * Note: when we implement Cut/Copy/Paste in those windows, we
+     * will almost certainly want to allow multiple packets to be
+     * selected in the packet list pane and multiple packet detail
+     * items to be selected in the packet detail pane, so that
+     * the user can, for example, copy the summaries of multiple
+     * packets to the clipboard from the packet list pane and multiple
+     * packet detail items - perhaps *all* packet detail items - from
+     * the packet detail pane.  Given that, we'll also want to
+     * implement Select All.
+     *
+     * If multiple packets are selected, we would probably display nothing
+     * in the packet detail pane, just as we do if no packet is selected,
+     * and any menu items etc. that would pertain only to a single packet
+     * would be disabled.
+     *
+     * If multiple packet detail items are selected, we would probably
+     * disable all items that pertain only to a single packet detail
+     * item, such as some items in the status bar.
+     *
+     * XXX - the actions for these will be different depending on what
+     * widget we're in; ^C should copy from the filter text widget if
+     * we're in that widget, the packet list if we're in that widget
+     * (presumably copying the summaries of selected packets to the
+     * clipboard, e.g. the text copy would be the text of the columns),
+     * the packet detail if we're in that widget (presumably copying
+     * the contents of selected protocol tree items to the clipboard,
+     * e.g. the text copy would be the text displayed for those items),
+     * etc..
+     *
+     * Given that those menu items should also affect text widgets
+     * such as the filter box, we would again want Select All, and,
+     * at least for the filter box, we would also want Undo and Redo.
+     * We would only want Cut, Paste, Undo, and Redo for the packet
+     * list and packet detail panes if we support modifying them.
+     */
+    {"/Edit/_Undo", "<control>Z", NULL,
+                             0, "<StockItem>", GTK_STOCK_UNDO,},
+    {"/Edit/_Redo", "<shift><control>Z", NULL,
+                             0, "<StockItem>", GTK_STOCK_REDO,},
+    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Edit/Cu_t", "<control>X", NULL,
+                             0, "<StockItem>", GTK_STOCK_CUT,},
+    {"/Edit/_Copy", "<control>C", NULL,
+                             0, "<StockItem>", GTK_STOCK_COPY,},
+    {"/Edit/_Paste", "<control>V", NULL,
+                             0, "<StockItem>", GTK_STOCK_PASTE,},
+    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Edit/Select _All", "<control>A", NULL, 0,
+#ifdef GTK_STOCK_SELECT_ALL	/* first appeared in 2.10 */
+                             "<StockItem>", GTK_STOCK_SELECT_ALL,
+#else
+                             NULL, NULL,
+#endif /* GTK_STOCK_SELECT_ALL */
+    },
+#endif /* 0 */
+    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Edit/_Find Packet...",                             "<control>F", GTK_MENU_FUNC(find_frame_cb), 0, "<StockItem>", GTK_STOCK_FIND,},
+    {"/Edit/Find Ne_xt",                                  "<control>N", GTK_MENU_FUNC(find_next_cb), 0, NULL, NULL,},
+    {"/Edit/Find Pre_vious",                              "<control>B", GTK_MENU_FUNC(find_previous_cb), 0, NULL, NULL,},
+    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+#ifdef NEW_PACKET_LIST
+    {"/Edit/_Mark Packet (toggle)",                       "<control>M", GTK_MENU_FUNC(new_packet_list_mark_frame_cb),0, NULL, NULL,},
+    {"/Edit/Mark All Displayed Packets (toggle)",  "<shift><control>M", GTK_MENU_FUNC(new_packet_list_mark_all_displayed_frames_cb), 0, NULL, NULL,},
+    {"/Edit/Unmark All Packets",                     "<alt><control>M", GTK_MENU_FUNC(new_packet_list_unmark_all_frames_cb), 0, NULL, NULL,},
+    {"/Edit/Find Next Mark",                       "<shift><control>N", GTK_MENU_FUNC(find_next_mark_cb), 0, NULL, NULL,},
+    {"/Edit/Find Previous Mark",                   "<shift><control>B", GTK_MENU_FUNC(find_prev_mark_cb), 0, NULL, NULL,},
+    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Edit/_Ignore Packet (toggle)",                     "<control>D", GTK_MENU_FUNC(new_packet_list_ignore_frame_cb), 0, NULL, NULL,},
+    /*
+     * XXX - this next one overrides /Edit/Copy/Description
+     */
+    {"/Edit/Ignore All Displayed Packets (toggle)","<shift><control>D", GTK_MENU_FUNC(new_packet_list_ignore_all_displayed_frames_cb), 0, NULL, NULL,},
+    {"/Edit/U_n-Ignore All Packets",                 "<alt><control>D", GTK_MENU_FUNC(new_packet_list_unignore_all_frames_cb), 0, NULL, NULL,},
+    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Edit/Set Time Reference (toggle)",                 "<control>T", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_TOGGLE, "<StockItem>", WIRESHARK_STOCK_TIME,},
+    {"/Edit/Un-Time Reference All Packets",          "<alt><control>T", GTK_MENU_FUNC(new_packet_list_untime_reference_all_frames_cb), 0, NULL, NULL,},
+    {"/Edit/Find Next Time Reference",               "<alt><control>N", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_NEXT, NULL, NULL,},
+    {"/Edit/Find Previous Time Reference",           "<alt><control>B", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_PREV, NULL, NULL,},
+#else /* NEW_PACKET_LIST */
+    /*
+     * XXX - this should be changed to match the list used with the new
+     * packet list, assuming we don't just drop the old packet list
+     * code first.
+     */
+    {"/Edit/_Mark Packet (toggle)", "<control>M", GTK_MENU_FUNC(packet_list_mark_frame_cb),
+                       0, NULL, NULL,},
+    {"/Edit/Find Next Mark", "<shift><control>N", GTK_MENU_FUNC(find_next_mark_cb),
+                       0, NULL, NULL,},
+    {"/Edit/Find Previous Mark", "<shift><control>B", GTK_MENU_FUNC(find_prev_mark_cb),
+                       0, NULL, NULL,},
+    {"/Edit/Mark _All Displayed Packets (toggle)", "<shift><control>M", GTK_MENU_FUNC(packet_list_mark_all_frames_cb), 0, NULL, NULL,},
+    {"/Edit/_Unmark All Packets", "<alt><control>M", GTK_MENU_FUNC(packet_list_unmark_all_frames_cb), 0, NULL, NULL,},
+    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Edit/_Ignore Packet (toggle)", "<control>D", GTK_MENU_FUNC(packet_list_ignore_frame_cb),
+                       0, NULL, NULL,},
+    {"/Edit/Ignore All Displayed Packets (toggle)", "<shift><control>D", GTK_MENU_FUNC(packet_list_ignore_all_frames_cb),
+                       0, NULL, NULL,},
+    {"/Edit/U_n-Ignore All Packets", "<alt><control>D", GTK_MENU_FUNC(packet_list_unignore_all_frames_cb),
+                       0, NULL, NULL,},
+    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Edit/Set Time Reference (toggle)", "<control>T", GTK_MENU_FUNC(reftime_frame_cb),
+                        REFTIME_TOGGLE, "<StockItem>", WIRESHARK_STOCK_TIME,},
+    {"/Edit/Find Next Time Reference", "<alt><shift><control>N", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_NEXT, NULL, NULL,},
+    {"/Edit/Find Previous Time Reference", "<alt><shift><control>B", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_PREV, NULL, NULL,},
+#endif /* NEW_PACKET_LIST */
+    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Edit/_Configuration Profiles...", "<shift><control>A", GTK_MENU_FUNC(profile_dialog_cb), 0, NULL, NULL,},
+    {"/Edit/_Preferences...", "<shift><control>P", GTK_MENU_FUNC(prefs_page_cb),
+                             PREFS_PAGE_USER_INTERFACE, "<StockItem>", GTK_STOCK_PREFERENCES,},
+    {"/_View", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/View/_Main Toolbar", NULL, GTK_MENU_FUNC(show_hide_cb), SHOW_HIDE_MAIN_TOOLBAR, "<CheckItem>", NULL,},
+    {"/View/_Filter Toolbar", NULL, GTK_MENU_FUNC(show_hide_cb), SHOW_HIDE_FILTER_TOOLBAR, "<CheckItem>", NULL,},
+#ifdef HAVE_AIRPCAP
+    {"/View/_Wireless Toolbar", NULL, GTK_MENU_FUNC(show_hide_cb), SHOW_HIDE_AIRPCAP_TOOLBAR, "<CheckItem>", NULL,},
+#endif
+    {"/View/_Statusbar", NULL, GTK_MENU_FUNC(show_hide_cb), SHOW_HIDE_STATUSBAR, "<CheckItem>", NULL,},
+    {"/View/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/View/Packet _List", NULL, GTK_MENU_FUNC(show_hide_cb), SHOW_HIDE_PACKET_LIST, "<CheckItem>", NULL,},
+    {"/View/Packet _Details", NULL, GTK_MENU_FUNC(show_hide_cb), SHOW_HIDE_TREE_VIEW, "<CheckItem>", NULL,},
+    {"/View/Packet _Bytes", NULL, GTK_MENU_FUNC(show_hide_cb), SHOW_HIDE_BYTE_VIEW, "<CheckItem>", NULL,},
+    {"/View/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/View/_Time Display Format", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", "<alt><control>1", GTK_MENU_FUNC(timestamp_format_cb),
+                        TS_ABSOLUTE_WITH_DATE, "<RadioItem>", NULL,},
+    {"/View/Time Display Format/Time of Day:   01:02:03.123456", "<alt><control>2", GTK_MENU_FUNC(timestamp_format_cb),
+                        TS_ABSOLUTE, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
+    {"/View/Time Display Format/Seconds Since Epoch (1970-01-01):   1234567890.123456", "<alt><control>3", GTK_MENU_FUNC(timestamp_format_cb),
+                        TS_EPOCH, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
+    {"/View/Time Display Format/Seconds Since Beginning of Capture:   123.123456", "<alt><control>4", GTK_MENU_FUNC(timestamp_format_cb),
+                        TS_RELATIVE, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
+    {"/View/Time Display Format/Seconds Since Previous Captured Packet:   1.123456", "<alt><control>5", GTK_MENU_FUNC(timestamp_format_cb),
+                        TS_DELTA, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
+    {"/View/Time Display Format/Seconds Since Previous Displayed Packet:   1.123456", "<alt><control>6", GTK_MENU_FUNC(timestamp_format_cb),
+                        TS_DELTA_DIS, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
+    {"/View/Time Display Format/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/View/Time Display Format/Automatic (File Format Precision)", NULL, GTK_MENU_FUNC(timestamp_precision_cb),
+                        TS_PREC_AUTO, "<RadioItem>", NULL,},
+    {"/View/Time Display Format/Seconds:   0", NULL, GTK_MENU_FUNC(timestamp_precision_cb),
+                        TS_PREC_FIXED_SEC, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
+    {"/View/Time Display Format/Deciseconds:   0.1", NULL, GTK_MENU_FUNC(timestamp_precision_cb),
+                        TS_PREC_FIXED_DSEC, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
+    {"/View/Time Display Format/Centiseconds:   0.12", NULL, GTK_MENU_FUNC(timestamp_precision_cb),
+                        TS_PREC_FIXED_CSEC, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
+    {"/View/Time Display Format/Milliseconds:   0.123", NULL, GTK_MENU_FUNC(timestamp_precision_cb),
+                        TS_PREC_FIXED_MSEC, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
+    {"/View/Time Display Format/Microseconds:   0.123456", NULL, GTK_MENU_FUNC(timestamp_precision_cb),
+                        TS_PREC_FIXED_USEC, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
+    {"/View/Time Display Format/Nanoseconds:   0.123456789", NULL, GTK_MENU_FUNC(timestamp_precision_cb),
+                        TS_PREC_FIXED_NSEC, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
+    {"/View/Time Display Format/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/View/Time Display Format/Display Seconds with hours and minutes", "<alt><control>0", GTK_MENU_FUNC(timestamp_seconds_time_cb), 0, "<CheckItem>", NULL,},
+    {"/View/Name Resol_ution", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/View/Name Resolution/_Resolve Name", NULL, GTK_MENU_FUNC(resolve_name_cb), 0, NULL, NULL,},
+    {"/View/Name Resolution/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/View/Name Resolution/Enable for _MAC Layer", NULL, GTK_MENU_FUNC(name_resolution_cb), RESOLV_MAC, "<CheckItem>", NULL,},
+    {"/View/Name Resolution/Enable for _Network Layer", NULL, GTK_MENU_FUNC(name_resolution_cb), RESOLV_NETWORK, "<CheckItem>", NULL,},
+    {"/View/Name Resolution/Enable for _Transport Layer", NULL, GTK_MENU_FUNC(name_resolution_cb), RESOLV_TRANSPORT, "<CheckItem>", NULL,},
+    {"/View/Colorize Packet List", NULL, colorize_cb, 0, "<CheckItem>", NULL,},
+#ifdef HAVE_LIBPCAP
+    {"/View/Auto Scroll in Li_ve Capture", NULL, GTK_MENU_FUNC(auto_scroll_live_cb), 0, "<CheckItem>", NULL,},
+#endif
+    {"/View/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/View/_Zoom In", "<control>plus", GTK_MENU_FUNC(view_zoom_in_cb),
+                             0, "<StockItem>", GTK_STOCK_ZOOM_IN,},
+    {"/View/Zoom _Out", "<control>minus", GTK_MENU_FUNC(view_zoom_out_cb),
+                             0, "<StockItem>", GTK_STOCK_ZOOM_OUT,},
+    {"/View/_Normal Size", "<control>equal", GTK_MENU_FUNC(view_zoom_100_cb),
+                             0, "<StockItem>", GTK_STOCK_ZOOM_100,},
+#ifdef NEW_PACKET_LIST
+    {"/View/Resize All Columns", "<shift><control>R", GTK_MENU_FUNC(new_packet_list_resize_columns_cb),
+                       0, "<StockItem>", WIRESHARK_STOCK_RESIZE_COLUMNS,},
+    {"/View/Displayed Columns", NULL, NULL, 0, NULL, NULL,},
+#else
+    {"/View/Resize All Columns", "<shift><control>R", GTK_MENU_FUNC(packet_list_resize_columns_cb),
+                       0, "<StockItem>", WIRESHARK_STOCK_RESIZE_COLUMNS,},
+#endif /* NEW_PACKET_LIST */
+    {"/View/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/View/E_xpand Subtrees", "<shift>Right", GTK_MENU_FUNC(expand_tree_cb), 0, NULL, NULL,},
+    {"/View/_Expand All", "<control>Right", GTK_MENU_FUNC(expand_all_cb),
+                       0, NULL, NULL,},
+    {"/View/Collapse _All", "<control>Left", GTK_MENU_FUNC(collapse_all_cb),
+                       0, NULL, NULL,},
+    {"/View/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/View/Colorize Conversation", NULL, NULL, 0, "<Branch>",NULL,},
+    {"/View/Colorize Conversation/Color 1", "<control>1",
+                       GTK_MENU_FUNC(colorize_conversation_cb), 1*256, "<StockItem>", WIRESHARK_STOCK_COLOR1,},
+    {"/View/Colorize Conversation/Color 2", "<control>2",
+                       GTK_MENU_FUNC(colorize_conversation_cb), 2*256, "<StockItem>", WIRESHARK_STOCK_COLOR2,},
+    {"/View/Colorize Conversation/Color 3", "<control>3",
+                       GTK_MENU_FUNC(colorize_conversation_cb), 3*256, "<StockItem>", WIRESHARK_STOCK_COLOR3,},
+    {"/View/Colorize Conversation/Color 4", "<control>4",
+                       GTK_MENU_FUNC(colorize_conversation_cb), 4*256, "<StockItem>", WIRESHARK_STOCK_COLOR4,},
+    {"/View/Colorize Conversation/Color 5", "<control>5",
+                       GTK_MENU_FUNC(colorize_conversation_cb), 5*256, "<StockItem>", WIRESHARK_STOCK_COLOR5,},
+    {"/View/Colorize Conversation/Color 6", "<control>6",
+                       GTK_MENU_FUNC(colorize_conversation_cb), 6*256, "<StockItem>", WIRESHARK_STOCK_COLOR6,},
+    {"/View/Colorize Conversation/Color 7", "<control>7",
+                       GTK_MENU_FUNC(colorize_conversation_cb), 7*256, "<StockItem>", WIRESHARK_STOCK_COLOR7,},
+    {"/View/Colorize Conversation/Color 8", "<control>8",
+                       GTK_MENU_FUNC(colorize_conversation_cb), 8*256, "<StockItem>", WIRESHARK_STOCK_COLOR8,},
+    {"/View/Colorize Conversation/Color 9", "<control>9",
+                       GTK_MENU_FUNC(colorize_conversation_cb), 9*256, "<StockItem>", WIRESHARK_STOCK_COLOR9,},
+    {"/View/Colorize Conversation/Color 10", "<control>0",
+                       GTK_MENU_FUNC(colorize_conversation_cb), 10*256, "<StockItem>", WIRESHARK_STOCK_COLOR0,},
+    {"/View/Colorize Conversation/<separator>", NULL,
+                       NULL, 0, "<Separator>",NULL,},
+    {"/View/Colorize Conversation/New Coloring Rule...", NULL,
+                       GTK_MENU_FUNC(colorize_conversation_cb), 0, "<StockItem>", GTK_STOCK_SELECT_COLOR,},
+    {"/View/Reset Coloring 1-10", "<control>space",
+                       GTK_MENU_FUNC(colorize_conversation_cb), 255*256, NULL, NULL,},
+    {"/View/_Coloring Rules...", NULL, color_display_cb,
+                       0, "<StockItem>", GTK_STOCK_SELECT_COLOR,},
+    {"/View/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+
+
+    {"/View/Show Packet in New _Window", NULL,
+                       GTK_MENU_FUNC(new_window_cb), 0, NULL, NULL,},
+    {"/View/_Reload", "<control>R", GTK_MENU_FUNC(file_reload_cmd_cb),
+                             0, "<StockItem>", GTK_STOCK_REFRESH,},
+    {"/_Go", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Go/_Back", "<alt>Left",
+                             GTK_MENU_FUNC(history_back_cb), 0, "<StockItem>", GTK_STOCK_GO_BACK,},
+    {"/Go/_Forward", "<alt>Right",
+                             GTK_MENU_FUNC(history_forward_cb), 0, "<StockItem>", GTK_STOCK_GO_FORWARD,},
+    {"/Go/_Go to Packet...", "<control>G",
+                             GTK_MENU_FUNC(goto_frame_cb), 0, "<StockItem>", GTK_STOCK_JUMP_TO,},
+    {"/Go/Go to _Corresponding Packet", NULL, GTK_MENU_FUNC(goto_framenum_cb),
+                       0, NULL, NULL,},
+    {"/Go/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Go/Previous Packet", "<control>Up",
+                             GTK_MENU_FUNC(goto_previous_frame_cb), 0, "<StockItem>", GTK_STOCK_GO_UP,},
+    {"/Go/Next Packet", "<control>Down",
+                             GTK_MENU_FUNC(goto_next_frame_cb), 0, "<StockItem>", GTK_STOCK_GO_DOWN,},
+    {"/Go/F_irst Packet", "<control>Home",
+                             GTK_MENU_FUNC(goto_top_frame_cb), 0, "<StockItem>", GTK_STOCK_GOTO_TOP,},
+    {"/Go/_Last Packet", "<control>End",
+                             GTK_MENU_FUNC(goto_bottom_frame_cb), 0, "<StockItem>", GTK_STOCK_GOTO_BOTTOM,},
+    {"/Go/Previous Packet In Conversation", "<control>bracketleft",
+                             GTK_MENU_FUNC(goto_previous_frame_conversation_cb), 0, NULL, NULL,},
+    {"/Go/Next Packet In Conversation", "<control>bracketright",
+                             GTK_MENU_FUNC(goto_next_frame_conversation_cb), 0, NULL, NULL,},
+#ifdef HAVE_LIBPCAP
+    {"/_Capture", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Capture/_Interfaces...", "<control>I",
+                             GTK_MENU_FUNC(capture_if_cb), 0, "<StockItem>", WIRESHARK_STOCK_CAPTURE_INTERFACES,},
+    {"/Capture/_Options...", "<control>K",
+                             GTK_MENU_FUNC(capture_prep_cb), 0, "<StockItem>", WIRESHARK_STOCK_CAPTURE_OPTIONS,},
+    {"/Capture/_Start", "<control>E",
+                             GTK_MENU_FUNC(capture_start_cb), 0, "<StockItem>", WIRESHARK_STOCK_CAPTURE_START,},
+    {"/Capture/S_top", "<control>E", GTK_MENU_FUNC(capture_stop_cb),
+                             0, "<StockItem>", WIRESHARK_STOCK_CAPTURE_STOP,},
+    {"/Capture/_Restart", "<control>R", GTK_MENU_FUNC(capture_restart_cb),
+                             0, "<StockItem>", WIRESHARK_STOCK_CAPTURE_RESTART,},
+    {"/Capture/Capture _Filters...", NULL, GTK_MENU_FUNC(cfilter_dialog_cb),
+                       0, "<StockItem>", WIRESHARK_STOCK_CAPTURE_FILTER,},
+#endif /* HAVE_LIBPCAP */
+    {"/_Analyze", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Analyze/_Display Filters...", NULL, GTK_MENU_FUNC(dfilter_dialog_cb),
+                       0, "<StockItem>", WIRESHARK_STOCK_DISPLAY_FILTER,},
+    {"/Analyze/Display Filter _Macros...", NULL, GTK_MENU_FUNC(macros_dialog_cb), 0, NULL, NULL,},
+    {"/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Analyze/Apply as Column", NULL, GTK_MENU_FUNC(apply_as_custom_column_cb), 0, NULL, NULL},
+    {"/Analyze/Appl_y as Filter", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Analyze/Apply as Filter/_Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
+                       MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
+    {"/Analyze/Apply as Filter/_Not Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
+                       MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
+    {"/Analyze/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " _and Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
+                       MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
+    {"/Analyze/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " _or Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
+                       MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
+    {"/Analyze/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " a_nd not Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
+                       MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
+    {"/Analyze/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " o_r not Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
+                       MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
+    {"/Analyze/_Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Analyze/Prepare a Filter/_Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
+                       MATCH_SELECTED_REPLACE, NULL, NULL,},
+    {"/Analyze/Prepare a Filter/_Not Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
+                       MATCH_SELECTED_NOT, NULL, NULL,},
+    {"/Analyze/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " _and Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
+                       MATCH_SELECTED_AND, NULL, NULL,},
+    {"/Analyze/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " _or Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
+                       MATCH_SELECTED_OR, NULL, NULL,},
+    {"/Analyze/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " a_nd not Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
+                       MATCH_SELECTED_AND_NOT, NULL, NULL,},
+    {"/Analyze/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " o_r not Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
+                       MATCH_SELECTED_OR_NOT, NULL, NULL,},
+    {"/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Analyze/_Enabled Protocols...", "<shift><control>E", GTK_MENU_FUNC(proto_cb),
+                       0, "<StockItem>", WIRESHARK_STOCK_CHECKBOX,},
+    {"/Analyze/Decode _As...", NULL, GTK_MENU_FUNC(decode_as_cb),
+                       0, "<StockItem>", WIRESHARK_STOCK_DECODE_AS,},
+    {"/Analyze/_User Specified Decodes...", NULL,
+                       GTK_MENU_FUNC(decode_show_cb), 0, "<StockItem>", WIRESHARK_STOCK_DECODE_AS,},
+    {"/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Analyze/_Follow TCP Stream", NULL,
+                       GTK_MENU_FUNC(follow_tcp_stream_cb), 0, NULL, NULL,},
+    {"/Analyze/_Follow UDP Stream", NULL,
+                       GTK_MENU_FUNC(follow_udp_stream_cb), 0, NULL, NULL,},
+    {"/Analyze/_Follow SSL Stream", NULL,
+                       GTK_MENU_FUNC(follow_ssl_stream_cb), 0, NULL, NULL,},
+    {"/_Statistics", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Statistics/_Summary", NULL, GTK_MENU_FUNC(summary_open_cb), 0, "<StockItem>", GTK_STOCK_PROPERTIES,},
+    {"/Statistics/_Protocol Hierarchy", NULL,
+                       GTK_MENU_FUNC(proto_hier_stats_cb), 0, NULL, NULL,},
+    {"/Statistics/Conversations", NULL,
+                       GTK_MENU_FUNC(init_conversation_notebook_cb), 0, "<StockItem>", WIRESHARK_STOCK_CONVERSATIONS,},
+    {"/Statistics/Endpoints", NULL,
+                       GTK_MENU_FUNC(init_hostlist_notebook_cb), 0, "<StockItem>", WIRESHARK_STOCK_ENDPOINTS,},
+    {"/Telephon_y", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/_Tools", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Tools/Firewall ACL Rules", NULL,
+                       firewall_rule_cb, 0, NULL, NULL,},
+    {"/WS internal", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/WS internal/Dissector tables", NULL, GTK_MENU_FUNC(dissector_tables_dlg_cb),
+                         0, NULL, NULL,},
+    {"/_Help", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Help/_Contents", "F1", GTK_MENU_FUNC(topic_menu_cb), HELP_CONTENT, "<StockItem>", GTK_STOCK_HELP,},
+    {"/Help/FAQ's", NULL, GTK_MENU_FUNC(topic_menu_cb), ONLINEPAGE_FAQ, NULL, NULL,},
+    {"/Help/Manual Pages", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Help/Manual Pages/Wireshark", NULL, GTK_MENU_FUNC(topic_menu_cb), LOCALPAGE_MAN_WIRESHARK, NULL, NULL,},
+    {"/Help/Manual Pages/Wireshark Filter", NULL, GTK_MENU_FUNC(topic_menu_cb), LOCALPAGE_MAN_WIRESHARK_FILTER, NULL, NULL,},
+    {"/Help/Manual Pages/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Help/Manual Pages/TShark", NULL, GTK_MENU_FUNC(topic_menu_cb), LOCALPAGE_MAN_TSHARK, NULL, NULL,},
+    {"/Help/Manual Pages/RawShark", NULL, GTK_MENU_FUNC(topic_menu_cb), LOCALPAGE_MAN_RAWSHARK, NULL, NULL,},
+    {"/Help/Manual Pages/Dumpcap", NULL, GTK_MENU_FUNC(topic_menu_cb), LOCALPAGE_MAN_DUMPCAP, NULL, NULL,},
+    {"/Help/Manual Pages/Mergecap", NULL, GTK_MENU_FUNC(topic_menu_cb), LOCALPAGE_MAN_MERGECAP, NULL, NULL,},
+    {"/Help/Manual Pages/Editcap", NULL, GTK_MENU_FUNC(topic_menu_cb), LOCALPAGE_MAN_EDITCAP, NULL, NULL,},
+    {"/Help/Manual Pages/Text2pcap", NULL, GTK_MENU_FUNC(topic_menu_cb), LOCALPAGE_MAN_TEXT2PCAP, NULL, NULL,},
+    {"/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Help/Website", NULL, GTK_MENU_FUNC(topic_menu_cb), ONLINEPAGE_HOME, "<StockItem>", GTK_STOCK_HOME,},
+    {"/Help/Wiki", NULL, GTK_MENU_FUNC(topic_menu_cb), ONLINEPAGE_WIKI, "<StockItem>", WIRESHARK_STOCK_WIKI,},
+    {"/Help/Downloads", NULL, GTK_MENU_FUNC(topic_menu_cb), ONLINEPAGE_DOWNLOAD, NULL, NULL,},
+    {"/Help/Sample Captures", NULL, GTK_MENU_FUNC(topic_menu_cb), ONLINEPAGE_SAMPLE_FILES, NULL, NULL,},
+    {"/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Help/_Supported Protocols (slow!)", NULL, GTK_MENU_FUNC(supported_cb), 0, NULL, NULL,},
+    {"/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+    {"/Help/_About Wireshark", NULL, GTK_MENU_FUNC(about_wireshark_cb),
+                       0, "<StockItem>", WIRESHARK_STOCK_ABOUT}
+};
+
 /* calculate the number of menu_items */
 static int nmenu_items = sizeof(menu_items) / sizeof(menu_items[0]);
 #endif /* MAIN_MENU_USE_UIMANAGER */
