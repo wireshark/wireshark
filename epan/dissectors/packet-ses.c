@@ -128,7 +128,7 @@ static const value_string token_setting_vals[] = {
 	{ 0x03, "reserved" },
 	{ 0, NULL }
 };
-	
+
 static int hf_release_token_setting = -1;
 static int hf_major_activity_token_setting = -1;
 static int hf_synchronize_minor_token_setting = -1;
@@ -490,9 +490,9 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			tf = proto_tree_add_uint(param_tree,
 			    hf_connect_protocol_options_flags, tvb, offset, 1,
 			    flags);
-			flags_tree = proto_item_add_subtree(tf, 
+			flags_tree = proto_item_add_subtree(tf,
 			    ett_connect_protocol_options_flags);
-			proto_tree_add_boolean(flags_tree, 
+			proto_tree_add_boolean(flags_tree,
 			    hf_able_to_receive_extended_concatenated_SPDU,
 			    tvb, offset, 1, flags);
 		}
@@ -520,7 +520,7 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			    hf_data_separation_function_unit, tvb, offset, 2,
 			    flags);
 			proto_tree_add_boolean(flags_tree,
-			    hf_symmetric_synchronize_function_unit, 
+			    hf_symmetric_synchronize_function_unit,
 			    tvb, offset, 2, flags);
 			proto_tree_add_boolean(flags_tree,
 			    hf_typed_data_function_unit, tvb, offset, 2, flags);
@@ -529,21 +529,21 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			proto_tree_add_boolean(flags_tree,
 			    hf_capability_function_unit, tvb, offset, 2, flags);
 			proto_tree_add_boolean(flags_tree,
-			    hf_negotiated_release_function_unit, 
+			    hf_negotiated_release_function_unit,
 			    tvb, offset, 2, flags);
 			proto_tree_add_boolean(flags_tree,
-			    hf_activity_management_function_unit, 
+			    hf_activity_management_function_unit,
 			    tvb, offset, 2, flags);
 			proto_tree_add_boolean(flags_tree,
 			    hf_resynchronize_function_unit, tvb, offset, 2,
 			    flags);
 			proto_tree_add_boolean(flags_tree,
-			    hf_major_resynchronize_function_unit, 
+			    hf_major_resynchronize_function_unit,
 			    tvb, offset, 2, flags);
 			proto_tree_add_boolean(flags_tree,
-			    hf_minor_resynchronize_function_unit, 
+			    hf_minor_resynchronize_function_unit,
 			    tvb, offset, 2, flags);
-			proto_tree_add_boolean(flags_tree, 
+			proto_tree_add_boolean(flags_tree,
 			    hf_expedited_data_resynchronize_function_unit,
 			    tvb, offset, 2, flags);
 			proto_tree_add_boolean(flags_tree,
@@ -641,7 +641,7 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		  if(!(flags & BEGINNING_SPDU)) {
 		    /* X.225 7.11.2 also states:
 		     * "All DATA TRANSFER SPDUs, except the last DATA TRANSFER SPDU in a sequence greater than one, must have user information"
-		     * So if BEGINNING_SPDU and END_SPDU are set in the enclosure item, then this is presumably a sequence of one and 
+		     * So if BEGINNING_SPDU and END_SPDU are set in the enclosure item, then this is presumably a sequence of one and
 		     * consequently there must be user information.
 		     *
 		     * So, there is only no user information if *only* END_SPDU is set.
@@ -702,16 +702,16 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 /*
 	0:	Rejection by called SS-user; reason not specified.
 	1:	Rejection by called SS-user due to temporary congestion.
-	2:	Rejection by called SS-user. Subsequent octets may be used for user data 
-up to a length of 512 octets if Protocol Version 1 has been selected, and up 
-to a length such that the total length (including SI and LI)  of the SPDU 
+	2:	Rejection by called SS-user. Subsequent octets may be used for user data
+up to a length of 512 octets if Protocol Version 1 has been selected, and up
+to a length such that the total length (including SI and LI)  of the SPDU
 does not exceed 65 539 octets if Protocol Version 2 has been selected.
 	128 + 1:	Session Selector unknown.
 	128 + 2:	SS-user not attached to SSAP.
 	128 + 3:	SPM congestion at connect time.
 	128 + 4:	Proposed protocol versions not supported.
 	128 + 5:	Rejection by the SPM; reason not specified.
-	128 + 6:	Rejection by the SPM; implementation restriction stated in the 
+	128 + 6:	Rejection by the SPM; implementation restriction stated in the
 PICS.    */
 		if (param_len < 1)
 		{
@@ -855,7 +855,7 @@ dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
 		proto_tree_add_text(param_tree, tvb, offset, len_len,
 		    "Parameter length: %u", param_len);
 		offset += len_len;
-		    
+
 		if (param_str != NULL)
 		{
 			switch(param_type)
@@ -934,7 +934,7 @@ dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
 		proto_tree_add_text(param_tree, tvb, offset, len_len,
 		    "Parameter length: %u", param_len);
 		offset += len_len;
-		    
+
 		if (param_str != NULL)
 		{
 			switch(param_type)
@@ -1002,8 +1002,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	session.rtse_reassemble = FALSE;
 
 	if(connectionless) {
-	  	if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_str(pinfo->cinfo, COL_INFO,
+		col_add_str(pinfo->cinfo, COL_INFO,
 			    val_to_str(type, ses_vals, "Unknown SPDU type (0x%02x)"));
 		if (tree) {
 			ti = proto_tree_add_item(tree, proto_clses, tvb, offset,
@@ -1015,8 +1014,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		has_user_information = TRUE;
 	}
 	else if (tokens) {
-	  	if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_str(pinfo->cinfo, COL_INFO,
+		col_add_str(pinfo->cinfo, COL_INFO,
 			    val_to_str(type, ses_category0_vals, "Unknown SPDU type (0x%02x)"));
 		if (tree) {
 			ti = proto_tree_add_item(tree, proto_ses, tvb, offset,
@@ -1026,8 +1024,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			    offset, 1, type);
 		}
 	} else {
-	  	if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_str(pinfo->cinfo, COL_INFO,
+		col_add_str(pinfo->cinfo, COL_INFO,
 			    val_to_str(type, ses_vals, "Unknown SPDU type (0x%02x)"));
 		if (tree) {
 			ti = proto_tree_add_item(tree, proto_ses, tvb, offset,
@@ -1077,7 +1074,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	    pinfo, &session))
 		has_user_information = FALSE;
 	offset += parameters_len;
-	
+
 	proto_item_set_end(ti, tvb, offset);
 
 	/* Dissect user information, if present */
@@ -1861,9 +1858,9 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			}
 	}
 
-	/* some Siemens SIMATIC protocols also use COTP, and shouldn't be 
+	/* some Siemens SIMATIC protocols also use COTP, and shouldn't be
 	 * misinterpreted as SES.
-	 * the starter in this case is fixed to 0x32 (SES_MINOR_SYNC_ACK for SES), 
+	 * the starter in this case is fixed to 0x32 (SES_MINOR_SYNC_ACK for SES),
 	 * so if the parameter type is unknown, it's probably SIMATIC */
 	if(type == 0x32 && tvb_length(tvb) >= 3) {
 		type = tvb_get_guint8(tvb, offset+2);
@@ -1895,7 +1892,7 @@ proto_reg_handoff_ses(void)
 	/* define sub dissector */
 	pres_handle = find_dissector("pres");
 
-	/* add our session dissector to cotp dissector list 
+	/* add our session dissector to cotp dissector list
 	 * and cotp_is dissector list*/
 	heur_dissector_add("cotp", dissect_ses_heur, proto_ses);
 	heur_dissector_add("cotp_is", dissect_ses_heur, proto_ses);

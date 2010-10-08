@@ -104,13 +104,9 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   tci = tvb_get_ntohs( tvb, 0 );
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "PRI: %u  CFI: %u  ID: %u",
-      (tci >> 13), ((tci >> 12) & 1), (tci & 0xFFF));
-  }
-  if ( check_col(pinfo->cinfo, COL_8021Q_VLAN_ID)) {
-      col_add_fstr(pinfo->cinfo, COL_8021Q_VLAN_ID, "%u", (tci & 0xFFF));
-  }
+  col_add_fstr(pinfo->cinfo, COL_INFO, "PRI: %u  CFI: %u  ID: %u",
+	      (tci >> 13), ((tci >> 12) & 1), (tci & 0xFFF));
+  col_add_fstr(pinfo->cinfo, COL_8021Q_VLAN_ID, "%u", (tci & 0xFFF));
 
   vlan_tree = NULL;
 
@@ -118,7 +114,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_item(tree, proto_vlan, tvb, 0, 4, FALSE);
 
     if (vlan_summary_in_tree) {
-        proto_item_append_text(ti, ", PRI: %u, CFI: %u, ID: %u", 
+        proto_item_append_text(ti, ", PRI: %u, CFI: %u, ID: %u",
                 (tci >> 13), ((tci >> 12) & 1), (tci & 0xFFF));
     }
 

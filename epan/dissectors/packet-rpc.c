@@ -1972,11 +1972,9 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				"Program: %s (%u)", progname, prog);
 		}
 
-		if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-			/* Set the protocol name to the underlying
-			   program name. */
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, progname);
-		}
+		/* Set the protocol name to the underlying
+		   program name. */
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, progname);
 
 		vers = tvb_get_ntohl(tvb, offset+8);
 		if (rpc_tree) {
@@ -2063,22 +2061,17 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 		/* Print the program version, procedure name, and message type (call or reply). */
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			if (first_pdu)
-				col_clear(pinfo->cinfo, COL_INFO);
-			else
-				col_append_str(pinfo->cinfo, COL_INFO, "  ; ");
-			/* Special case for NFSv4 - if the type is COMPOUND, do not print the procedure name */
-			if (vers==4 && prog==NFS_PROGRAM && !strcmp(procname, "COMPOUND")) 
-				col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s",
-					vers,
+		if (first_pdu)
+			col_clear(pinfo->cinfo, COL_INFO);
+		else
+			col_append_str(pinfo->cinfo, COL_INFO, "  ; ");
+		/* Special case for NFSv4 - if the type is COMPOUND, do not print the procedure name */
+		if (vers==4 && prog==NFS_PROGRAM && !strcmp(procname, "COMPOUND"))
+			col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s", vers,
 					msg_type_name);
-			else
-				col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s %s",
-					vers,
-					procname,
-					msg_type_name);
-		}
+		else
+			col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s %s",
+					vers, procname, msg_type_name);
 
 		/* Keep track of the address whence the call came, and the
 		   port to which the call is being sent, so that we can
@@ -2157,19 +2150,16 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (pinfo->fd->num != rpc_call->req_num) {
 				/* No, so it's a duplicate request.
 				   Mark it as such. */
-				if (check_col(pinfo->cinfo, COL_INFO)) {
-					col_prepend_fstr(pinfo->cinfo, COL_INFO,
-						"[RPC retransmission of #%d]", rpc_call->req_num);
-				}
-				proto_tree_add_item(rpc_tree,
-					hf_rpc_dup, tvb, 0,0, TRUE);
-				proto_tree_add_uint(rpc_tree,
-					hf_rpc_call_dup, tvb, 0,0, rpc_call->req_num);
+				col_prepend_fstr(pinfo->cinfo, COL_INFO,
+						 "[RPC retransmission of #%d]",
+						 rpc_call->req_num);
+				proto_tree_add_item(rpc_tree, hf_rpc_dup, tvb,
+						    0, 0, TRUE);
+				proto_tree_add_uint(rpc_tree, hf_rpc_call_dup,
+						    tvb, 0,0, rpc_call->req_num);
 			}
 			if(rpc_call->rep_num){
-				if (check_col(pinfo->cinfo, COL_INFO)) {
-					col_append_fstr(pinfo->cinfo, COL_INFO," (Reply In %d)", rpc_call->rep_num);
-				}
+				col_append_fstr(pinfo->cinfo, COL_INFO," (Reply In %d)", rpc_call->rep_num);
 			}
 		} else {
 			/* Prepare the value data.
@@ -2268,30 +2258,23 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			ett = rpc_prog->ett;
 			progname = rpc_prog->progname;
 
-			if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-				/* Set the protocol name to the underlying
-				   program name. */
-				col_set_str(pinfo->cinfo, COL_PROTOCOL, progname);
-			}
+			/* Set the protocol name to the underlying
+			   program name. */
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, progname);
 		}
 
 		/* Print the program version, procedure name, and message type (call or reply). */
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			if (first_pdu)
-				col_clear(pinfo->cinfo, COL_INFO);
-			else
-				col_append_str(pinfo->cinfo, COL_INFO, "  ; ");
-			/* Special case for NFSv4 - if the type is COMPOUND, do not print the procedure name */
-			if (vers==4 && prog==NFS_PROGRAM && !strcmp(procname, "COMPOUND")) 
-				col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s",
-					vers,
-					msg_type_name);
-			else
-				col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s %s",
-					vers,
-					procname,
-					msg_type_name);
-		}
+		if (first_pdu)
+			col_clear(pinfo->cinfo, COL_INFO);
+		else
+			col_append_str(pinfo->cinfo, COL_INFO, "  ; ");
+		/* Special case for NFSv4 - if the type is COMPOUND, do not print the procedure name */
+		if (vers==4 && prog==NFS_PROGRAM && !strcmp(procname, "COMPOUND"))
+			col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s",
+					vers, msg_type_name);
+		else
+			col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s %s",
+					vers, procname, msg_type_name);
 
 		if (rpc_tree) {
 			proto_item *tmp_item;
@@ -2330,9 +2313,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				&ns);
 			PROTO_ITEM_SET_GENERATED(tmp_item);
 
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_append_fstr(pinfo->cinfo, COL_INFO," (Call In %d)", rpc_call->req_num);
-			}
+			col_append_fstr(pinfo->cinfo, COL_INFO," (Call In %d)", rpc_call->req_num);
 		}
 
 
@@ -2349,10 +2330,8 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 				/* No, so it's a duplicate reply.
 				   Mark it as such. */
-				if (check_col(pinfo->cinfo, COL_INFO)) {
-					col_prepend_fstr(pinfo->cinfo, COL_INFO,
+				col_prepend_fstr(pinfo->cinfo, COL_INFO,
 						"[RPC duplicate of #%d]", rpc_call->rep_num);
-				}
 				tmp_item=proto_tree_add_item(rpc_tree,
 					hf_rpc_dup, tvb, 0,0, TRUE);
 				PROTO_ITEM_SET_GENERATED(tmp_item);
@@ -2624,13 +2603,11 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * an RPC auth level message, then process the args.
 		 */
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPC");
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_clear(pinfo->cinfo, COL_INFO);
-			col_append_fstr(pinfo->cinfo, COL_INFO,
-			    "%s %s XID 0x%x",
-			    val_to_str(gss_proc, rpc_authgssapi_proc, "Unknown (%d)"),
-			    msg_type_name, xid);
-		}
+		col_clear(pinfo->cinfo, COL_INFO);
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+				"%s %s XID 0x%x",
+				val_to_str(gss_proc, rpc_authgssapi_proc, "Unknown (%d)"),
+				msg_type_name, xid);
 
 		switch (gss_proc) {
 
