@@ -1489,7 +1489,7 @@ static const char *ui_desc_menubar =
 "        <menuitem name='FindPreviousTimeReference' action='/Edit/FindPreviousTimeReference'/>\n"
 "        <separator/>\n"
 #else /* NEW_PACKET_LIST */
-Not implemented!
+#error "You must use the new packet list if you are using GTKUIManager for menus"
 #endif
 "        <menuitem name='ConfigurationProfiles' action='/Edit/ConfigurationProfiles'/>\n"
 "        <menuitem name='Preferences' action='/Edit/Preferences'/>\n"
@@ -1657,6 +1657,40 @@ Not implemented!
 "</ui>\n";
 
 
+/*
+ * Main menu.
+ *
+ * Please do not use keystrokes that are used as "universal" shortcuts in
+ * various desktop environments:
+ *
+ *   Windows:
+ *	http://support.microsoft.com/kb/126449
+ *
+ *   GNOME:
+ *	http://library.gnome.org/users/user-guide/nightly/keyboard-skills.html.en
+ *
+ *   KDE:
+ *	http://developer.kde.org/documentation/standards/kde/style/keys/shortcuts.html
+ *
+ * In particular, do not use the following <control> sequences for anything
+ * other than their standard purposes:
+ *
+ *	<control>O	File->Open
+ *	<control>S	File->Save
+ *	<control>P	File->Print
+ *	<control>W	File->Close
+ *	<control>Q	File->Quit
+ *	<control>Z	Edit->Undo (which we don't currently have)
+ *	<control>X	Edit->Cut (which we don't currently have)
+ *	<control>C	Edit->Copy (which we don't currently have)
+ *	<control>V	Edit->Paste (which we don't currently have)
+ *	<control>A	Edit->Select All (which we don't currently have)
+ *
+ * Note that some if not all of the Edit keys above already perform those
+ * functions in text boxes, such as the Filter box.  Do no, under any
+ * circumstances, make a change that keeps them from doing so.
+ */
+
 /* 
  * GtkActionEntry
  * typedef struct {
@@ -1822,7 +1856,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Edit/FindPreviousTimeReference",	NULL,				"Find Previous Time Reference",			"<alt><control>B",			NULL,			G_CALLBACK(find_previous_ref_time_cb) },
 
 #else /* NEW_PACKET_LIST */
-Not implemeted.
+#error "You must use the new packet list if you are using GTKUIManager for menus"
 #endif /* NEW_PACKET_LIST */
    { "/Edit/ConfigurationProfiles",	NULL,					"_Configuration Profiles...",			"<shift><control>A",		NULL,			G_CALLBACK(profile_dialog_cb) },
    { "/Edit/Preferences",			GTK_STOCK_PREFERENCES,	"_Preferences...",						"<shift><control>P",		NULL,			G_CALLBACK(menus_prefs_cb) },
@@ -1839,7 +1873,7 @@ Not implemeted.
    { "/View/ResizeAllColumns",		WIRESHARK_STOCK_RESIZE_COLUMNS,	"Resize All Columns",			"<shift><control>R",		NULL,			G_CALLBACK(new_packet_list_resize_columns_cb) },
    { "/View/DisplayedColumns",		NULL,					"Displayed Columns",			NULL,		NULL,			NULL },
 #else
-   Not implmented
+#error "You must use the new packet list if you are using GTKUIManager for menus"
 #endif /* NEW_PACKET_LIST */
    { "/View/ExpandSubtrees",		NULL,					"Expand Subtrees",		NULL,					NULL,			G_CALLBACK(expand_tree_cb) },
    { "/View/ExpandAll",				NULL,					"Expand All",			NULL,					NULL,			G_CALLBACK(expand_all_cb) },
