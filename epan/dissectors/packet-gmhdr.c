@@ -111,10 +111,10 @@ dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gmhdr_tree, gui
         }
         ti = proto_tree_add_item(gmhdr_tree, hf_gmhdr_srcport,      tvb, offset, fl, FALSE);
         srcport_tree = proto_item_add_subtree(ti, ett_srcport);
-        proto_tree_add_item(srcport_tree, hf_gmhdr_srcport_plfm, tvb, offset, fl, FALSE);         
-        proto_tree_add_item(srcport_tree, hf_gmhdr_srcport_gid,  tvb, offset, fl, FALSE);         
-        proto_tree_add_item(srcport_tree, hf_gmhdr_srcport_bid,  tvb, offset, fl, FALSE);         
-        ti = proto_tree_add_item(srcport_tree, hf_gmhdr_srcport_pid,  tvb, offset, fl, FALSE);         
+        proto_tree_add_item(srcport_tree, hf_gmhdr_srcport_plfm, tvb, offset, fl, FALSE);
+        proto_tree_add_item(srcport_tree, hf_gmhdr_srcport_gid,  tvb, offset, fl, FALSE);
+        proto_tree_add_item(srcport_tree, hf_gmhdr_srcport_bid,  tvb, offset, fl, FALSE);
+        ti = proto_tree_add_item(srcport_tree, hf_gmhdr_srcport_pid,  tvb, offset, fl, FALSE);
         /* If not GV-2404, we need different formula here */
         pid = ((tv & GMHDR_SRCPORT_PID_MASK) >> GMHDR_SRCPORT_PID_SHFT) - 24;
         if (pid >= 1 && pid <= 4) {
@@ -129,7 +129,7 @@ dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gmhdr_tree, gui
         }
         proto_tree_add_item(gmhdr_tree, hf_gmhdr_pktsize, tvb, offset, fl, FALSE);
         break;
-      case GMHDR_FTYPE_TIMESTAMP_LOCAL: 
+      case GMHDR_FTYPE_TIMESTAMP_LOCAL:
       case GMHDR_FTYPE_TIMESTAMP_NTP:
       case GMHDR_FTYPE_TIMESTAMP_GPS:
       case GMHDR_FTYPE_TIMESTAMP_1588:
@@ -138,7 +138,7 @@ dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gmhdr_tree, gui
           break;
         }
         ti = proto_tree_add_item(gmhdr_tree, hf_gmhdr_timestamp, tvb, offset, fl, FALSE);
-        proto_item_append_text(ti, "; Source: %s", val_to_str(tl>>8, gmhdr_ftype_timestamp, "Unknown")); 
+        proto_item_append_text(ti, "; Source: %s", val_to_str(tl>>8, gmhdr_ftype_timestamp, "Unknown"));
         break;
       default:
         ti = proto_tree_add_item(gmhdr_tree, hf_gmhdr_generic, tvb, offset, fl, FALSE);
@@ -189,15 +189,13 @@ dissect_gmhdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        Ethernet GMHDR packets). A non-0xffff value means that there's an
        802.2 layer inside the GMHDR layer */
     is_802_2 = TRUE;
-    TRY {
+
+    /* Don't throw an exception for this check (even a ReportedBoundsError) */
+    if (tvb_length_remaining(tvb, offset) >= 2) {
       if (tvb_get_ntohs(tvb, offset) == 0xffff) {
         is_802_2 = FALSE;
       }
     }
-    CATCH2(BoundsError, ReportedBoundsError) {
-      ; /* do nothing */
-    }
-    ENDTRY;
 
     dissect_802_3(encap_proto, is_802_2, tvb, offset, pinfo, tree, gmhdr_tree,
                   hf_gmhdr_len, hf_gmhdr_trailer, 0);
@@ -215,8 +213,8 @@ dissect_gmtrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
   proto_tree *gmhdr_tree = NULL;
   guint offset;
   guint16 cksum, comp_cksum;
-  
-  /* See if this packet has a Gigamon trailer, if yes, then decode it */ 
+
+  /* See if this packet has a Gigamon trailer, if yes, then decode it */
   /* (Don't throw any exceptions while checking for the trailer).     */
   tvblen = tvb_length(tvb); /* end+1 */
   if (tvblen < 5)
