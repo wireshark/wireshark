@@ -215,8 +215,7 @@ static const value_string mysql_charset_vals[] = {
 
 /* collation codes may change over time, recreate with the following SQL
 
-SELECT CONCAT('  {', ID, ',"', CHARACTER_SET_NAME,
-              ' COLLATE ', COLLATION_NAME, '"},')
+SELECT CONCAT('  {', ID, ',"', CHARACTER_SET_NAME, ' COLLATE ', COLLATION_NAME, '"},')
 FROM INFORMATION_SCHEMA.COLLATIONS
 ORDER BY ID
 INTO OUTFILE '/tmp/mysql-collations';
@@ -450,6 +449,7 @@ static int hf_mysql_fld_auto_increment = -1;
 static int hf_mysql_fld_timestamp = -1;
 static int hf_mysql_fld_set = -1;
 static int hf_mysql_fld_decimals = -1;
+static int hf_mysql_fld_default = -1;
 static int hf_mysql_row_length = -1;
 static int hf_mysql_row_text = -1;
 
@@ -494,6 +494,7 @@ typedef enum mysql_state
 	RESPONSE_OK,
 	RESPONSE_MESSAGE,
 	RESPONSE_TABULAR,
+	RESPONSE_SHOW_FIELDS,
 	FIELD_PACKET,
 	ROW_PACKET,
 	RESPONSE_PREPARE,
@@ -508,6 +509,7 @@ static const value_string state_vals[] = {
 	{RESPONSE_OK,      "response OK"},
 	{RESPONSE_MESSAGE, "response message"},
 	{RESPONSE_TABULAR, "tabular response"},
+	{RESPONSE_SHOW_FIELDS, "response to SHOW FIELDS"},
 	{FIELD_PACKET,     "field packet"},
 	{ROW_PACKET,       "row packet"},
 	{RESPONSE_PREPARE, "response to PREPARE"},
@@ -991,7 +993,7 @@ void proto_register_mysql(void)
 
 		{ &hf_mysql_fld_type,
 		{ "Type", "mysql.field.type",
-		FT_STRING, BASE_NONE, NULL, 0x0,
+		FT_UINT8, BASE_DEC, VALS(type_constants), 0x0,
 		"Field: type", HFILL }},
 
 		{ &hf_mysql_fld_flags,
@@ -1063,6 +1065,11 @@ void proto_register_mysql(void)
 		{ "Decimals", "mysql.field.decimals",
 		FT_UINT8, BASE_DEC, NULL, 0x0,
 		"Field: decimals", HFILL }},
+
+		{ &hf_mysql_fld_default,
+		{ "Default", "mysql.field.default",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"Field: default", HFILL }},
 
 		{ &hf_mysql_row_length,
 		{ "length", "mysql.row.length",
@@ -1170,11 +1177,22 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		mysql_frame_data_p = se_alloc(sizeof(struct mysql_frame_data));
 		mysql_frame_data_p->state = conn_data->state;
 		p_add_proto_data(pinfo->fd, proto_mysql, mysql_frame_data_p);
+
 	} else {
 		/*  We have seen this frame before.  Set the connection state
 		 *  to whatever state it had the first time we saw this frame
 		 *  (e.g., based on whatever frames came before it).
 		 *  The state may change as we dissect this packet.
+		 *  XXX: I think the logic of the above else if test is as follows:
+		 *       During the first (sequential) dissection pass thru the capture
+		 *       file the conversation connection state as of the beginning of each frame
+		 *       is saved in the connection_state for that frame.
+		 *       Any state changes *within* a mysql "message" (ie: query/response/etc)
+		 *       while processing mysql PDUS (aka "packets") in that message must be preserved.
+		 *       It appears that FIELD_PACKET & ROW_PACKET are the only two
+		 *       state changes which can occur within a mysql message which affect
+		 *       subsequent processing within the message.
+		 *       Question: Does this logic work OK for a reassembled message ?
 		 */
 		 conn_data->state= mysql_frame_data_p->state;
 	}
@@ -1543,7 +1561,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 		proto_tree_add_text(req_tree, tvb, offset, strlen, "Table name: %s",
 				    tvb_get_ephemeral_string(tvb, offset, strlen));
 		offset+= strlen;
-		conn_data->state= RESPONSE_TABULAR;
+		conn_data->state= RESPONSE_SHOW_FIELDS;
 		break;
 
 	case MYSQL_PROCESS_KILL:
@@ -1753,6 +1771,7 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			break;
 
 		case FIELD_PACKET:
+		case RESPONSE_SHOW_FIELDS:
 			offset= mysql_dissect_field_packet(tvb, offset, tree, conn_data);
 			break;
 
@@ -2018,14 +2037,12 @@ mysql_dissect_field_packet(tvbuff_t *tvb, int offset, proto_tree *tree, mysql_co
 	offset += 2; /* charset */
 	proto_tree_add_item(tree, hf_mysql_fld_length, tvb, offset, 4, TRUE);
 	offset += 4; /* length */
-	proto_tree_add_string(tree, hf_mysql_fld_type, tvb, offset, -1,
-			      val_to_str(tvb_get_guint8(tvb, offset), type_constants, "Unknown (%u)"));
+	proto_tree_add_item(tree, hf_mysql_fld_type, tvb, offset, 1, FALSE);
 	offset++; /* type */
 
 	flags = tvb_get_letohs(tvb, offset);
-	offset += 2; /* flags */
 	tf = proto_tree_add_uint_format(tree, hf_mysql_fld_flags, tvb, offset,
-					2, flags, "Field flags: 0x%016X", flags);
+					2, flags, "Field flags: 0x%04X", flags);
 	flags_tree = proto_item_add_subtree(tf, ett_field_flags);
 	proto_tree_add_boolean(flags_tree, hf_mysql_fld_not_null, tvb, offset, 2, flags);
 	proto_tree_add_boolean(flags_tree, hf_mysql_fld_primary_key, tvb, offset, 2, flags);
@@ -2039,12 +2056,17 @@ mysql_dissect_field_packet(tvbuff_t *tvb, int offset, proto_tree *tree, mysql_co
 	proto_tree_add_boolean(flags_tree, hf_mysql_fld_auto_increment, tvb, offset, 2, flags);
 	proto_tree_add_boolean(flags_tree, hf_mysql_fld_timestamp, tvb, offset, 2, flags);
 	proto_tree_add_boolean(flags_tree, hf_mysql_fld_set, tvb, offset, 2, flags);
+	offset += 2; /* flags */
 
 	proto_tree_add_item(tree, hf_mysql_fld_decimals, tvb, offset, 1, FALSE);
 	offset++; /* decimals */
 
 	offset += 2; /* filler */
 
+	/* default (Only use for show fields) */
+	if (tree && tvb_reported_length_remaining(tvb, offset) > 0) {
+		offset = mysql_field_add_lestring(tvb, offset, tree, hf_mysql_fld_default);
+	}
 	return offset;
 }
 

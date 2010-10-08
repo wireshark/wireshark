@@ -84,6 +84,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Cooked-capture dissector should omit the source address field if empty.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2519">Bug
+          2519</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Wireshark crashes if active display filter macro is renamed.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5002">Bug
           5002</ulink>)
@@ -186,6 +192,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          NTLMSSP_AUTH domain and username truncated to first letter with IE8/Windows7 (generating the NTLM packet).
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5251">Bug
+          5251</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           IPv6 RH0: dest addr is to be used i.s.o. last RH address when 0 segments remain.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5252">Bug
           5252</ulink>)
@@ -195,6 +207,30 @@ Wireshark Info
           EIGRP dissection error in Flags field in external route TLVs.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5261">Bug
           5261</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          MRP packet is not correctly parsed in PROFINET multiple write record request.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5267">Bug
+          5267</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          MySQL Enhancement: support of Show Fields and bug fix.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5271">Bug
+          5271</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          [NAS EPS] Fix TFT decoding when having several Packet Filters defined.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5274">Bug
+          5274</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Crash if using ssl.debug.file with no password for ssl.keys_list.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5277">Bug
+          5277</ulink>)
         </para></listitem>
 
       </itemizedlist>
