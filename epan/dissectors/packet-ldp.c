@@ -270,7 +270,7 @@ static guint32 global_ldp_udp_port = UDP_PORT_LDP;
 #define TLV_FRAME_RELAY_SESSION_PARMS 0x0502
 #define TLV_FT_SESSION             0x0503
 #define TLV_FT_ACK                 0x0504
-#define TLV_FT_CORK                0x0505    
+#define TLV_FT_CORK                0x0505
 #define TLV_LABEL_REQUEST_MESSAGE_ID 0x0600  /* RFC5036 */
 #define TLV_MTU                    0x0601    /* RFC3988 */
 #define TLV_ER                     0x0800
@@ -337,7 +337,7 @@ static const value_string tlv_type_names[] = {
   { TLV_FT_ACK,                    "FT ACK TLV"},
   { TLV_FT_CORK,                   "FT Cork TLV"},
   { TLV_LABEL_REQUEST_MESSAGE_ID,  "Label Request Message ID TLV"},
-  { TLV_MTU,                       "MTU TLV"},		
+  { TLV_MTU,                       "MTU TLV"},
   { TLV_LSPID,                     "LSP ID TLV"},
   { TLV_ER,                        "Explicit route TLV"},
   { TLV_ER_HOP_IPV4,               "ER hop IPv4 prefix TLV"},
@@ -760,7 +760,7 @@ default_str_handler(const guint8 * bytes _U_)
 {
 	return "<Support for this Address Family not implemented>";
 }
-	
+
 /* Dissect FEC TLV */
 
 static void
@@ -1031,11 +1031,11 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
                               break;
                             case FEC_VC_INTERFACEPARAM_FRAGIND:
                               /* draft-ietf-pwe3-fragmentation-05.txt */
-                              proto_item_append_text(ti,": Fragmentation");      
+                              proto_item_append_text(ti,": Fragmentation");
                               break;
                             case FEC_VC_INTERFACEPARAM_FCSRETENT:
                               /* draft-ietf-pwe3-fcs-retention-02.txt */
-                              proto_item_append_text(ti,": FCS retention, FCS Length %u Bytes", tvb_get_ntohs(tvb,offset+2));      
+                              proto_item_append_text(ti,": FCS retention, FCS Length %u Bytes", tvb_get_ntohs(tvb,offset+2));
                               proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_fcslen, tvb, offset+2, 2, FALSE);
                               break;
                             case FEC_VC_INTERFACEPARAM_TDMOPTION:
@@ -2226,7 +2226,7 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
                 case TLV_FT_CORK:
                         if( length != 0 ) /* Length must be 0 bytes */
                                 proto_tree_add_text(tlv_tree, tvb, offset + 4, length,
-                                    "Error processing FT Cork TLV: length is %d, should be 0",      
+                                    "Error processing FT Cork TLV: length is %d, should be 0",
                                     length);
                         break;
 
@@ -2518,6 +2518,7 @@ dissect_ldp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 plen;
 	int length;
 	tvbuff_t *volatile next_tvb;
+	void *pd_save;
 
 	while (tvb_reported_length_remaining(tvb, offset) != 0) {
 		length_remaining = tvb_length_remaining(tvb, offset);
@@ -2633,6 +2634,7 @@ dissect_ldp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * If it gets a BoundsError, we can stop, as there's nothing
 		 * more to see, so we just re-throw it.
 		 */
+		pd_save = pinfo->private_data;
 		TRY {
 			dissect_ldp_pdu(next_tvb, pinfo, tree);
 		}
@@ -2640,6 +2642,12 @@ dissect_ldp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			RETHROW;
 		}
 		CATCH(ReportedBoundsError) {
+			/*  Restore the private_data structure in case one of the
+			 *  called dissectors modified it (and, due to the exception,
+			 *  was unable to restore it).
+			 */
+			pinfo->private_data = pd_save;
+
 			show_reported_bounds_error(tvb, pinfo, tree);
 		}
 		ENDTRY;

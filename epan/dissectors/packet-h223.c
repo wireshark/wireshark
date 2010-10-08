@@ -176,7 +176,8 @@ static GHashTable *circuit_chain_hashtable = NULL;
 static guint circuit_chain_count = 1;
 
 /* Hash Functions */
-static gint circuit_chain_equal(gconstpointer v, gconstpointer w)
+static gint
+circuit_chain_equal(gconstpointer v, gconstpointer w)
 {
     const circuit_chain_key *v1 = (const circuit_chain_key *)v;
     const circuit_chain_key *v2 = (const circuit_chain_key *)w;
@@ -186,15 +187,16 @@ static gint circuit_chain_equal(gconstpointer v, gconstpointer w)
     return result;
 }
 
-static guint circuit_chain_hash (gconstpointer v)
+static guint
+circuit_chain_hash (gconstpointer v)
 {
     const circuit_chain_key *key = (const circuit_chain_key *)v;
     guint hash_val = ((guint32)(unsigned long)(key->call))^(((guint32)key->vc) << 16);
     return hash_val;
 }
 
-static guint32 circuit_chain_lookup(const h223_call_info* call_info,
-                                    guint32 child_vc)
+static guint32
+circuit_chain_lookup(const h223_call_info* call_info, guint32 child_vc)
 {
     circuit_chain_key key, *new_key;
     guint32 circuit_id;
@@ -210,7 +212,8 @@ static guint32 circuit_chain_lookup(const h223_call_info* call_info,
     return circuit_id;
 }
 
-static void circuit_chain_init(void)
+static void
+circuit_chain_init(void)
 {
     if (circuit_chain_hashtable)
         g_hash_table_destroy(circuit_chain_hashtable);
@@ -275,7 +278,8 @@ typedef struct {
     h223_call_info          *call_info;
 } h223_vc_info;
 
-static void add_h223_mux_element(h223_call_direction_data *direct, guint8 mc, h223_mux_element *me, guint32 framenum)
+static void
+add_h223_mux_element(h223_call_direction_data *direct, guint8 mc, h223_mux_element *me, guint32 framenum)
 {
     h223_mux_element_listitem *li;
     h223_mux_element_listitem **old_li_ptr;
@@ -307,7 +311,8 @@ static void add_h223_mux_element(h223_call_direction_data *direct, guint8 mc, h2
     li->me = me;
 }
 
-static h223_mux_element* find_h223_mux_element(h223_call_direction_data* direct, guint8 mc, guint32 framenum, guint32 pkt_offset)
+static h223_mux_element*
+find_h223_mux_element(h223_call_direction_data* direct, guint8 mc, guint32 framenum, guint32 pkt_offset)
 {
     h223_mux_element_listitem* li;
 
@@ -326,7 +331,8 @@ static h223_mux_element* find_h223_mux_element(h223_call_direction_data* direct,
     }
 }
 
-static void add_h223_lc_params(h223_vc_info* vc_info, int direction, h223_lc_params *lc_params, guint32 framenum )
+static void
+add_h223_lc_params(h223_vc_info* vc_info, int direction, h223_lc_params *lc_params, guint32 framenum )
 {
     h223_lc_params_listitem *li = se_alloc(sizeof(h223_lc_params_listitem));
     h223_lc_params_listitem **old_li_ptr = &(vc_info->lc_params[direction ? 0 : 1]);
@@ -353,7 +359,8 @@ static void add_h223_lc_params(h223_vc_info* vc_info, int direction, h223_lc_par
     li->lc_params = lc_params;
 }
 
-static h223_lc_params* find_h223_lc_params(h223_vc_info* vc_info, int direction, guint32 framenum)
+static h223_lc_params*
+find_h223_lc_params(h223_vc_info* vc_info, int direction, guint32 framenum)
 {
     h223_lc_params_listitem* li = vc_info->lc_params[direction? 0 : 1];
     while( li && li->next && li->next->first_frame <= framenum )
@@ -364,7 +371,8 @@ static h223_lc_params* find_h223_lc_params(h223_vc_info* vc_info, int direction,
         return NULL;
 }
 
-static void init_direction_data(h223_call_direction_data *direct)
+static void
+init_direction_data(h223_call_direction_data *direct)
 {
     int i;
     h223_mux_element *mc0_element;
@@ -381,7 +389,8 @@ static void init_direction_data(h223_call_direction_data *direct)
     mc0_element->next = NULL;
 }
 
-static h223_vc_info* h223_vc_info_new( h223_call_info* call_info )
+static h223_vc_info*
+h223_vc_info_new( h223_call_info* call_info )
 {
     h223_vc_info *vc_info = se_alloc(sizeof(h223_vc_info));
     vc_info->lc_params[0] = vc_info->lc_params[1] = NULL;
@@ -389,7 +398,8 @@ static h223_vc_info* h223_vc_info_new( h223_call_info* call_info )
     return vc_info;
 }
 
-static void init_logical_channel( guint32 start_frame, h223_call_info* call_info, int vc, int direction, h223_lc_params* params )
+static void
+init_logical_channel( guint32 start_frame, h223_call_info* call_info, int vc, int direction, h223_lc_params* params )
 {
     guint32 circuit_id = circuit_chain_lookup(call_info, vc);
     circuit_t *subcircuit;
@@ -410,7 +420,8 @@ static void init_logical_channel( guint32 start_frame, h223_call_info* call_info
 }
 
 /* create a brand-new h223_call_info structure */
-static h223_call_info *create_call_info( guint32 start_frame )
+static h223_call_info *
+create_call_info( guint32 start_frame )
 {
     h223_call_info *datax;
     h223_lc_params *vc0_params;
@@ -435,7 +446,8 @@ static h223_call_info *create_call_info( guint32 start_frame )
 }
 
 /* find or create call_info struct for calls over circuits (eg, IAX) */
-static h223_call_info *find_or_create_call_info_circ(packet_info * pinfo)
+static h223_call_info *
+find_or_create_call_info_circ(packet_info * pinfo)
 {
     h223_call_info *datax;
     circuit_t *circ = NULL;
@@ -465,7 +477,8 @@ static h223_call_info *find_or_create_call_info_circ(packet_info * pinfo)
 }
 
 /* find or create call_info struct for calls over conversations (eg, RTP) */
-static h223_call_info *find_or_create_call_info_conv(packet_info * pinfo)
+static h223_call_info *
+find_or_create_call_info_conv(packet_info * pinfo)
 {
     h223_call_info *datax;
     conversation_t *conv;
@@ -541,7 +554,8 @@ static h223_call_info *find_or_create_call_info_conv(packet_info * pinfo)
     return datax;
 }
 
-static h223_call_info *find_or_create_call_info ( packet_info * pinfo )
+static h223_call_info *
+find_or_create_call_info ( packet_info * pinfo )
 {
     h223_call_info *datax;
 
@@ -552,7 +566,8 @@ static h223_call_info *find_or_create_call_info ( packet_info * pinfo )
 }
 
 /* called from the h245 dissector to handle a MultiplexEntrySend message */
-static void h223_set_mc( packet_info* pinfo, guint8 mc, h223_mux_element* me )
+static void
+h223_set_mc( packet_info* pinfo, guint8 mc, h223_mux_element* me )
 {
     circuit_t *circ = find_circuit( pinfo->ctype, pinfo->circuit_id, pinfo->fd->num );
     h223_vc_info* vc_info;
@@ -566,7 +581,8 @@ static void h223_set_mc( packet_info* pinfo, guint8 mc, h223_mux_element* me )
 }
 
 /* called from the h245 dissector to handle an OpenLogicalChannelAck message */
-static void h223_add_lc( packet_info* pinfo, guint16 lc, h223_lc_params* params )
+static void
+h223_add_lc( packet_info* pinfo, guint16 lc, h223_lc_params* params )
 {
     circuit_t *circ = find_circuit( pinfo->ctype, pinfo->circuit_id, pinfo->fd->num );
     h223_vc_info* vc_info;
@@ -613,11 +629,10 @@ static guint8 h223_al2_crc8bit( tvbuff_t *tvb ) {
     return crc;
 }
 
-static void dissect_mux_al_pdu( tvbuff_t *tvb,
-                                packet_info *pinfo,
-                                proto_tree *vc_tree,
-/*                                circuit_t* vc_circuit, */
-                                h223_lc_params* lc_params )
+static void
+dissect_mux_al_pdu( tvbuff_t *tvb, packet_info *pinfo, proto_tree *vc_tree,
+/*                  circuit_t* vc_circuit, */
+		    h223_lc_params* lc_params )
 {
     proto_tree *al_tree = NULL;
     proto_item *al_item, *hidden_item;
@@ -719,12 +734,11 @@ static void dissect_mux_al_pdu( tvbuff_t *tvb,
  * end_of_mux_sdu true if this is a segmentable VC and this is the last
  *              fragment in an SDU
  */
-static void dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb,
-                                    packet_info *pinfo,
-                                    guint32 pkt_offset,
-                                    proto_tree *pdu_tree,
-                                    h223_call_info* call_info,
-                                    guint16 vc, gboolean end_of_mux_sdu)
+static void
+dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb, packet_info *pinfo,
+			 guint32 pkt_offset, proto_tree *pdu_tree,
+			 h223_call_info* call_info, guint16 vc,
+			 gboolean end_of_mux_sdu)
 {
     /* update the circuit details before passing to a subdissector */
     guint32 orig_circuit = pinfo->circuit_id;
@@ -805,7 +819,8 @@ static void dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb,
     ENDTRY;
 }
 
-static guint32 mux_element_sublist_size( h223_mux_element* me )
+static guint32
+mux_element_sublist_size( h223_mux_element* me )
 {
     h223_mux_element *current_me = me;
     guint32 length = 0;
@@ -836,9 +851,12 @@ static guint32 mux_element_sublist_size( h223_mux_element* me )
  * offset       offset within tvb to start work
  * endOfMuxSdu  true if the end-of-sdu flag was set
  */
-static guint32 dissect_mux_payload_by_me_list( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
-                                               proto_tree *pdu_tree,
-                                               h223_call_info* call_info, h223_mux_element* me, guint32 offset, gboolean endOfMuxSdu )
+static guint32
+dissect_mux_payload_by_me_list( tvbuff_t *tvb, packet_info *pinfo,
+				guint32 pkt_offset, proto_tree *pdu_tree,
+				h223_call_info* call_info,
+				h223_mux_element *me, guint32 offset,
+				gboolean endOfMuxSdu )
 {
     guint32 len = tvb_reported_length(tvb);
     guint32 frag_len;
@@ -886,9 +904,10 @@ static guint32 dissect_mux_payload_by_me_list( tvbuff_t *tvb, packet_info *pinfo
  * mc           multiplex code for this PDU
  * endOfMuxSdu  true if the end-of-sdu flag was set
  */
-static void dissect_mux_payload( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
-                                 proto_tree *pdu_tree,
-                                 h223_call_info* call_info, guint8 mc, gboolean endOfMuxSdu )
+static void
+dissect_mux_payload( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
+		     proto_tree *pdu_tree, h223_call_info *call_info,
+		     guint8 mc, gboolean endOfMuxSdu )
 {
     guint32 len = tvb_reported_length(tvb);
 
@@ -920,10 +939,9 @@ static void dissect_mux_payload( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_
  * call_info    h223 info structure for this h223 call
  * pdu_no       index of this pdu within the call
  */
-static void dissect_mux_pdu( tvbuff_t *tvb, packet_info * pinfo,
-                             guint32 pkt_offset,
-                             proto_tree *h223_tree,
-                             h223_call_info *call_info)
+static void
+dissect_mux_pdu( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
+		 proto_tree *h223_tree, h223_call_info *call_info)
 {
     guint32 offset = 0;
     /* actual (as opposed to reported) payload len */
@@ -1075,7 +1093,8 @@ static void dissect_mux_pdu( tvbuff_t *tvb, packet_info * pinfo,
  */
 
 /* attempt to parse the header of a mux pdu */
-static gboolean attempt_mux_level0_header_parse(guint32 nbytes, guint32 hdr, guint32 *minlen)
+static gboolean
+attempt_mux_level0_header_parse(guint32 nbytes, guint32 hdr, guint32 *minlen)
 {
     /* level 0 isn't byte-aligned, so is a complete pain to implement */
     DISSECTOR_ASSERT_NOT_REACHED();
@@ -1085,7 +1104,8 @@ static gboolean attempt_mux_level0_header_parse(guint32 nbytes, guint32 hdr, gui
     return FALSE;
 }
 
-static gboolean attempt_mux_level1_header_parse(guint32 nbytes, guint32 hdr, guint32 *minlen)
+static gboolean
+attempt_mux_level1_header_parse(guint32 nbytes, guint32 hdr, guint32 *minlen)
 {
     /* this is untested */
     DISSECTOR_ASSERT_NOT_REACHED();
@@ -1103,7 +1123,8 @@ static gboolean attempt_mux_level1_header_parse(guint32 nbytes, guint32 hdr, gui
     return TRUE;
 }
 
-static gboolean attempt_mux_level2_3_header_parse(guint32 nbytes, guint32 hdr, guint32 *minlen)
+static gboolean
+attempt_mux_level2_3_header_parse(guint32 nbytes, guint32 hdr, guint32 *minlen)
 {
     gint32 errors;
 
@@ -1135,7 +1156,8 @@ static gboolean (* const attempt_mux_header_parse[])(guint32 nbytes, guint32 hea
     attempt_mux_level2_3_header_parse
 };
 
-static gboolean h223_mux_check_hdlc(int h223_level, guint32 nbytes, guint32 tail_buf)
+static gboolean
+h223_mux_check_hdlc(int h223_level, guint32 nbytes, guint32 tail_buf)
 {
     guint32 masked;
 
@@ -1165,9 +1187,10 @@ static gboolean h223_mux_check_hdlc(int h223_level, guint32 nbytes, guint32 tail
  * extra bytes needed, or zero if we don't know yet
  */
 
-static gint dissect_mux_pdu_fragment( tvbuff_t *tvb, guint32 start_offset, packet_info * pinfo,
-                                      proto_tree *h223_tree,
-                                      h223_call_info *call_info)
+static gint
+dissect_mux_pdu_fragment( tvbuff_t *tvb, guint32 start_offset,
+			  packet_info *pinfo, proto_tree *h223_tree,
+			  h223_call_info *call_info)
 {
     tvbuff_t *volatile next_tvb;
     volatile guint32 offset = start_offset;
@@ -1176,6 +1199,7 @@ static gint dissect_mux_pdu_fragment( tvbuff_t *tvb, guint32 start_offset, packe
     gboolean header_parsed = FALSE;
     guint32 header_buf = 0, tail_buf = 0;
     guint32 pdu_minlen = 0;
+    void *pd_save;
 
 
 #ifdef DEBUG_H223_FRAGMENTATION
@@ -1236,15 +1260,22 @@ static gint dissect_mux_pdu_fragment( tvbuff_t *tvb, guint32 start_offset, packe
     /* we catch boundserrors on the pdu so that errors on an
      * individual pdu don't screw up the whole of the rest of the
      * stream */
+    pd_save = pinfo->private_data;
     TRY {
         dissect_mux_pdu( next_tvb, pinfo, start_offset, h223_tree, call_info);
     }
 
     CATCH2(BoundsError,ReportedBoundsError) {
-        col_append_str(pinfo->cinfo, COL_INFO,
-                           "[Malformed Packet]");
+	/*  Restore the private_data structure in case one of the
+	 *  called dissectors modified it (and, due to the exception,
+	 *  was unable to restore it).
+	 */
+	pinfo->private_data = pd_save;
+
+        col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
         proto_tree_add_protocol_format(h223_tree, proto_malformed,
-                                       tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
+                                       tvb, 0, 0, "[Malformed Packet: %s]",
+				       pinfo->current_proto);
     }
 
     ENDTRY;
@@ -1262,7 +1293,8 @@ static gint dissect_mux_pdu_fragment( tvbuff_t *tvb, guint32 start_offset, packe
  * Updates desegment_offset and desegment_len if the end of the data didn't
  * line up with the end of a pdu.
  */
-static void dissect_h223 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static void
+dissect_h223 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *h223_tree = NULL;
     proto_item *h223_item = NULL;
@@ -1325,7 +1357,8 @@ static void dissect_h223 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
  * This dissector swaps the ordering of the bits in each byte before using the
  * normal entry point.
  */
-static void dissect_h223_bitswapped (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static void
+dissect_h223_bitswapped (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     tvbuff_t *reversed_tvb;
     guint8 *datax;
@@ -1355,7 +1388,8 @@ static void dissect_h223_bitswapped (tvbuff_t * tvb, packet_info * pinfo, proto_
 
 /******************************************************************************/
 
-static void h223_init_protocol (void)
+static void
+h223_init_protocol (void)
 {
     circuit_chain_init();
 }
