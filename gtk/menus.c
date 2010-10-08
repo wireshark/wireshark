@@ -137,7 +137,7 @@ static void clear_menu_recent_capture_file_cmd_cb(GtkWidget *w, gpointer unused 
 static void menus_init(void);
 static void set_menu_sensitivity (GtkUIManager *ui_manager, const gchar *, gint);
 #ifndef MAIN_MENU_USE_UIMANAGER
-static void set_menu_sensitivity_old (GtkItemFactory *, const gchar *, gint);
+static void set_menu_sensitivity_old (const gchar *, gint);
 #endif /* MAIN_MENU_USE_UIMANAGER */
 static void show_hide_cb(GtkWidget *w, gpointer data, gint action);
 #ifndef MAIN_MENU_USE_UIMANAGER
@@ -3607,9 +3607,9 @@ menus_init(void) {
 #if 0
         /* Un-#if this when we actually implement Cut/Copy/Paste.
            Then make sure you enable them when they can be done. */
-        set_menu_sensitivity_old(main_menu_factory, "/Edit/Cut", FALSE);
-        set_menu_sensitivity_old(main_menu_factory, "/Edit/Copy", FALSE);
-        set_menu_sensitivity_old(main_menu_factory, "/Edit/Paste", FALSE);
+        set_menu_sensitivity_old("/Edit/Cut", FALSE);
+        set_menu_sensitivity_old("/Edit/Copy", FALSE);
+        set_menu_sensitivity_old("/Edit/Paste", FALSE);
 #endif
 
         set_menus_for_captured_packets(FALSE);
@@ -3930,7 +3930,7 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
 #endif /* 0 */
 #else
             gtk_item_factory_create_item(main_menu_factory, entry, node_data->callback_data, /* callback_type */ 2);
-            set_menu_sensitivity_old(main_menu_factory, node_data->name, FALSE); /* no capture file yet */
+            set_menu_sensitivity_old(node_data->name, FALSE); /* no capture file yet */
 #endif /* MAIN_MENU_USE_UIMANAGER */
             added++;
             g_free(entry);
@@ -3976,7 +3976,7 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
 #else
             gtk_item_factory_create_item(main_menu_factory, entry,
                 NULL, 2);
-            set_menu_sensitivity_old(main_menu_factory, node_data->name,
+            set_menu_sensitivity_old(node_data->name,
                 FALSE);    /* no children yet */
 #endif /* MAIN_MENU_USE_UIMANAGER */
             added++;
@@ -4071,15 +4071,13 @@ set_menu_sensitivity(GtkUIManager *ui_manager, const gchar *path, gint val)
 #endif
 }
 
-/*
- * Enable/disable menu sensitivity.
- */
-
 #ifndef MAIN_MENU_USE_UIMANAGER
+/*
+ * Enable/disable menu sensitivity for the old menubar code.
+ */
 static void
-set_menu_sensitivity_old(GtkItemFactory *ifactory, const gchar *path, gint val)
+set_menu_sensitivity_old(const gchar *path, gint val)
 {
-    GSList *menu_list;
     GtkWidget *menu_item;
     gchar *dup;
     gchar *dest;
@@ -4096,37 +4094,25 @@ set_menu_sensitivity_old(GtkItemFactory *ifactory, const gchar *path, gint val)
     }
     *dest = '\0';
 
-    if (ifactory == NULL) {
-        /*
-         * Do it for all pop-up menus.
-         */
-        for (menu_list = popup_menu_list; menu_list != NULL;
-             menu_list = g_slist_next(menu_list))
-            set_menu_sensitivity_old(menu_list->data, dup, val);
-    } else {
-        /*
-         * Do it for that particular menu.
-         */
-        if ((menu_item = gtk_item_factory_get_widget(ifactory, dup)) != NULL) {
-            if (GTK_IS_MENU(menu_item)) {
-                /*
-                 * "dup" refers to a submenu; "gtk_item_factory_get_widget()"
-                 * gets the menu, not the item that, when selected, pops up
-                 * the submenu.
-                 *
-                 * We have to change the latter item's sensitivity, so that
-                 * it shows up normally if sensitive and grayed-out if
-                 * insensitive.
-                 */
-                menu_item = gtk_menu_get_attach_widget(GTK_MENU(menu_item));
-            }
-            gtk_widget_set_sensitive(menu_item, val);
-        } else{
-#ifndef NEW_PACKET_LIST
-            /* be sure this menu item *is* existing */
-            g_assert_not_reached();
-#endif
+    if ((menu_item = gtk_item_factory_get_widget(main_menu_factory, dup)) != NULL) {
+        if (GTK_IS_MENU(menu_item)) {
+            /*
+             * "dup" refers to a submenu; "gtk_item_factory_get_widget()"
+             * gets the menu, not the item that, when selected, pops up
+             * the submenu.
+             *
+             * We have to change the latter item's sensitivity, so that
+             * it shows up normally if sensitive and grayed-out if
+             * insensitive.
+             */
+            menu_item = gtk_menu_get_attach_widget(GTK_MENU(menu_item));
         }
+        gtk_widget_set_sensitive(menu_item, val);
+    } else{
+#ifndef NEW_PACKET_LIST
+        /* be sure this menu item *is* existing */
+        g_assert_not_reached();
+#endif
     }
 
     g_free(dup);
@@ -4214,7 +4200,7 @@ update_menu_recent_capture_file(GtkWidget *submenu_recent_files) {
 #ifdef MAIN_MENU_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_main_menubar, MENU_RECENT_FILES_PATH, cnt);
 #else
-    set_menu_sensitivity_old(main_menu_factory, MENU_RECENT_FILES_PATH_OLD, cnt);
+    set_menu_sensitivity_old(MENU_RECENT_FILES_PATH_OLD, cnt);
 #endif
 }
 
@@ -5189,12 +5175,12 @@ set_menus_for_capture_file(capture_file *cf)
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Export", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/Reload", FALSE);
 #else
-        set_menu_sensitivity_old(main_menu_factory, "/File/Merge...", FALSE);
-        set_menu_sensitivity_old(main_menu_factory, "/File/Close", FALSE);
-        set_menu_sensitivity_old(main_menu_factory, "/File/Save", FALSE);
-        set_menu_sensitivity_old(main_menu_factory, "/File/Save As...", FALSE);
-        set_menu_sensitivity_old(main_menu_factory, "/File/Export", FALSE);
-        set_menu_sensitivity_old(main_menu_factory, "/View/Reload", FALSE);
+        set_menu_sensitivity_old("/File/Merge...", FALSE);
+        set_menu_sensitivity_old("/File/Close", FALSE);
+        set_menu_sensitivity_old("/File/Save", FALSE);
+        set_menu_sensitivity_old("/File/Save As...", FALSE);
+        set_menu_sensitivity_old("/File/Export", FALSE);
+        set_menu_sensitivity_old("/View/Reload", FALSE);
 #endif /* MAIN_MENU_USE_UIMANAGER */
 
         set_toolbar_for_capture_file(FALSE);
@@ -5215,19 +5201,19 @@ set_menus_for_capture_file(capture_file *cf)
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Export", TRUE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/Reload", TRUE);
 #else
-        set_menu_sensitivity_old(main_menu_factory, "/File/Merge...", TRUE);
-        set_menu_sensitivity_old(main_menu_factory, "/File/Close", TRUE);
-        set_menu_sensitivity_old(main_menu_factory, "/File/Save", !cf->user_saved);
+        set_menu_sensitivity_old("/File/Merge...", TRUE);
+        set_menu_sensitivity_old("/File/Close", TRUE);
+        set_menu_sensitivity_old("/File/Save", !cf->user_saved);
         /*
          * "Save As..." works only if we can write the file out in at least
          * one format (so we can save the whole file or just a subset) or
          * if we have an unsaved capture (so writing the whole file out
          * with a raw data copy makes sense).
          */
-        set_menu_sensitivity_old(main_menu_factory, "/File/Save As...",
+        set_menu_sensitivity_old("/File/Save As...",
                              cf_can_save_as(cf) || !cf->user_saved);
-        set_menu_sensitivity_old(main_menu_factory, "/File/Export", TRUE);
-        set_menu_sensitivity_old(main_menu_factory, "/View/Reload", TRUE);
+        set_menu_sensitivity_old("/File/Export", TRUE);
+        set_menu_sensitivity_old("/View/Reload", TRUE);
 #endif /* MAIN_MENU_USE_UIMANAGER */
         set_toolbar_for_unsaved_capture_file(!cf->user_saved);
         set_toolbar_for_capture_file(TRUE);
@@ -5250,13 +5236,13 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
                          !capture_in_progress);
 #else
 
-    set_menu_sensitivity_old(main_menu_factory, "/File/Open...",
+    set_menu_sensitivity_old("/File/Open...",
                          !capture_in_progress);
-    set_menu_sensitivity_old(main_menu_factory, "/File/Open Recent",
+    set_menu_sensitivity_old("/File/Open Recent",
                          !capture_in_progress);
-    set_menu_sensitivity_old(main_menu_factory, "/File/Export",
+    set_menu_sensitivity_old("/File/Export",
                          capture_in_progress);
-    set_menu_sensitivity_old(main_menu_factory, "/File/File Set",
+    set_menu_sensitivity_old("/File/File Set",
                          !capture_in_progress);
 #endif /* MAIN_MENU_USE_UIMANAGER */
     set_menu_sensitivity(ui_manager_packet_list_heading, "/PacketListHeadingPopup/SortAscending",
@@ -5277,13 +5263,13 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Restart",
                          capture_in_progress);
 #else
-    set_menu_sensitivity_old(main_menu_factory, "/Capture/Options...",
+    set_menu_sensitivity_old("/Capture/Options...",
                          !capture_in_progress);
-    set_menu_sensitivity_old(main_menu_factory, "/Capture/Start",
+    set_menu_sensitivity_old("/Capture/Start",
                          !capture_in_progress);
-    set_menu_sensitivity_old(main_menu_factory, "/Capture/Stop",
+    set_menu_sensitivity_old("/Capture/Stop",
                          capture_in_progress);
-    set_menu_sensitivity_old(main_menu_factory, "/Capture/Restart",
+    set_menu_sensitivity_old("/Capture/Restart",
                          capture_in_progress);
 #endif /* MAIN_MENU_USE_UIMANAGER */
     set_toolbar_for_capture_in_progress(capture_in_progress);
@@ -5362,7 +5348,7 @@ walk_menu_tree_for_captured_packets(GList *node,
         set_menu_sensitivity(ui_manager_main_menubar, node_data->name,
                               node_data->enabled);
 #else
-        set_menu_sensitivity_old(main_menu_factory, node_data->name,
+        set_menu_sensitivity_old(node_data->name,
                              node_data->enabled);
 #endif
     }
@@ -5376,7 +5362,7 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Print",
                          have_captured_packets);
 #else
-    set_menu_sensitivity_old(main_menu_factory, "/File/Print...",
+    set_menu_sensitivity_old("/File/Print...",
                          have_captured_packets);
 #endif /* MAIN_MENU_USE_UIMANAGER */
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/Print",
@@ -5414,35 +5400,35 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/ProtocolHierarchy",
                          have_captured_packets);
 #else
-    set_menu_sensitivity_old(main_menu_factory, "/Edit/Find Packet...",
+    set_menu_sensitivity_old("/Edit/Find Packet...",
                          have_captured_packets);
-    set_menu_sensitivity_old(main_menu_factory, "/Edit/Find Next",
+    set_menu_sensitivity_old("/Edit/Find Next",
                          have_captured_packets);
-    set_menu_sensitivity_old(main_menu_factory, "/Edit/Find Previous",
+    set_menu_sensitivity_old("/Edit/Find Previous",
                          have_captured_packets);
-    set_menu_sensitivity_old(main_menu_factory, "/View/Zoom In",
+    set_menu_sensitivity_old("/View/Zoom In",
                          have_captured_packets);
-    set_menu_sensitivity_old(main_menu_factory, "/View/Zoom Out",
+    set_menu_sensitivity_old("/View/Zoom Out",
                          have_captured_packets);
-    set_menu_sensitivity_old(main_menu_factory, "/View/Normal Size",
+    set_menu_sensitivity_old("/View/Normal Size",
                          have_captured_packets);
-    set_menu_sensitivity_old(main_menu_factory, "/Go/Go to Packet...",
+    set_menu_sensitivity_old("/Go/Go to Packet...",
                          have_captured_packets);
-    set_menu_sensitivity_old(main_menu_factory, "/Go/Previous Packet",
+    set_menu_sensitivity_old("/Go/Previous Packet",
                          have_captured_packets);
-    set_menu_sensitivity_old(main_menu_factory, "/Go/Next Packet",
+    set_menu_sensitivity_old("/Go/Next Packet",
                          have_captured_packets);
-    set_menu_sensitivity_old(main_menu_factory, "/Go/First Packet",
+    set_menu_sensitivity_old("/Go/First Packet",
                          have_captured_packets);
-    set_menu_sensitivity_old(main_menu_factory, "/Go/Last Packet",
+    set_menu_sensitivity_old("/Go/Last Packet",
                          have_captured_packets);
-    set_menu_sensitivity_old(main_menu_factory, "/Go/Previous Packet In Conversation",
+    set_menu_sensitivity_old("/Go/Previous Packet In Conversation",
                          have_captured_packets);
-    set_menu_sensitivity_old(main_menu_factory, "/Go/Next Packet In Conversation",
+    set_menu_sensitivity_old("/Go/Next Packet In Conversation",
                          have_captured_packets);
-    set_menu_sensitivity_old(main_menu_factory, "/Statistics/Summary",
+    set_menu_sensitivity_old("/Statistics/Summary",
                          have_captured_packets);
-    set_menu_sensitivity_old(main_menu_factory, "/Statistics/Protocol Hierarchy",
+    set_menu_sensitivity_old("/Statistics/Protocol Hierarchy",
                          have_captured_packets);
 #endif /* MAIN_MENU_USE_UIMANAGER */
     walk_menu_tree_for_captured_packets(tap_menu_tree_root,
@@ -5506,7 +5492,7 @@ walk_menu_tree_for_selected_packet(GList *node, frame_data *fd,
         set_menu_sensitivity(ui_manager_main_menubar, node_data->name,
                               node_data->enabled);
 #else
-        set_menu_sensitivity_old(main_menu_factory, node_data->name,
+        set_menu_sensitivity_old(node_data->name,
                              node_data->enabled);
 #endif /* MAIN_MENU_USE_UIMANAGER */
     }
@@ -5560,7 +5546,7 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/MarkPacket",
                          frame_selected);
 #else
-    set_menu_sensitivity_old(main_menu_factory, "/Edit/Mark Packet (toggle)",
+    set_menu_sensitivity_old("/Edit/Mark Packet (toggle)",
                          frame_selected);
 #endif /* MAIN_MENU_USE_UIMANAGER */
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/MarkPacket",
@@ -5579,17 +5565,17 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/IgnorePacket",
                          frame_selected);
 #else
-    set_menu_sensitivity_old(main_menu_factory, "/Edit/Mark All Displayed Packets (toggle)",
+    set_menu_sensitivity_old("/Edit/Mark All Displayed Packets (toggle)",
                          cf->displayed_count > 0);
     /* Unlike un-ignore, do not allow unmark of all frames when no frames are displayed  */
-    set_menu_sensitivity_old(main_menu_factory, "/Edit/Unmark All Packets",
+    set_menu_sensitivity_old("/Edit/Unmark All Packets",
                          have_marked);
-    set_menu_sensitivity_old(main_menu_factory, "/Edit/Find Next Mark",
+    set_menu_sensitivity_old("/Edit/Find Next Mark",
                          another_is_marked);
-    set_menu_sensitivity_old(main_menu_factory, "/Edit/Find Previous Mark",
+    set_menu_sensitivity_old("/Edit/Find Previous Mark",
                          another_is_marked);
 
-    set_menu_sensitivity_old(main_menu_factory, "/Edit/Ignore Packet (toggle)",
+    set_menu_sensitivity_old("/Edit/Ignore Packet (toggle)",
                          frame_selected);
 #endif /* MAIN_MENU_USE_UIMANAGER */
    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/IgnorePacket",
@@ -5604,13 +5590,13 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/SetTimeReference",
                          frame_selected);
 #else
-    set_menu_sensitivity_old(main_menu_factory, "/Edit/Ignore All Displayed Packets (toggle)",
+    set_menu_sensitivity_old("/Edit/Ignore All Displayed Packets (toggle)",
                          cf->displayed_count > 0 && cf->displayed_count != cf->count);
     /* Allow un-ignore of all frames even with no frames currently displayed */
-    set_menu_sensitivity_old(main_menu_factory, "/Edit/Un-Ignore All Packets",
+    set_menu_sensitivity_old("/Edit/Un-Ignore All Packets",
                          cf->ignored_count > 0);
 
-    set_menu_sensitivity_old(main_menu_factory, "/Edit/Set Time Reference (toggle)",
+    set_menu_sensitivity_old("/Edit/Set Time Reference (toggle)",
                          frame_selected);
 #endif /* MAIN_MENU_USE_UIMANAGER */
 #ifdef NEW_PACKET_LIST
@@ -5618,7 +5604,7 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Un-TimeReferenceAllPackets",
                          have_time_ref);
 #else
-    set_menu_sensitivity_old(main_menu_factory, "/Edit/Un-Time Reference All Packets",
+    set_menu_sensitivity_old("/Edit/Un-Time Reference All Packets",
                          have_time_ref);
 #endif /* MAIN_MENU_USE_UIMANAGER */
 #endif /* NEW_PACKET_LIST */
@@ -5635,14 +5621,14 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/CollapseAll",
                          frame_selected);
 #else
-    set_menu_sensitivity_old(main_menu_factory, "/Edit/Find Next Time Reference",
+    set_menu_sensitivity_old("/Edit/Find Next Time Reference",
                          another_is_time_ref);
-    set_menu_sensitivity_old(main_menu_factory, "/Edit/Find Previous Time Reference",
+    set_menu_sensitivity_old("/Edit/Find Previous Time Reference",
                          another_is_time_ref);
 
-    set_menu_sensitivity_old(main_menu_factory, "/View/Resize All Columns",
+    set_menu_sensitivity_old("/View/Resize All Columns",
                          frame_selected);
-    set_menu_sensitivity_old(main_menu_factory, "/View/Collapse All",
+    set_menu_sensitivity_old("/View/Collapse All",
                          frame_selected);
 #endif /* MAIN_MENU_USE_UIMANAGER */
     set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/CollapseAll",
@@ -5651,7 +5637,7 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ExpandAll",
                          frame_selected);
 #else
-     set_menu_sensitivity_old(main_menu_factory, "/View/Expand All",
+     set_menu_sensitivity_old("/View/Expand All",
                           frame_selected);
 #endif /* MAIN_MENU_USE_UIMANAGER */
     set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ExpandAll",
@@ -5664,11 +5650,11 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ShowPacketinNewWindow",
                          frame_selected);
 #else
-    set_menu_sensitivity_old(main_menu_factory, "/View/Colorize Conversation",
+    set_menu_sensitivity_old("/View/Colorize Conversation",
                          frame_selected);
-    set_menu_sensitivity_old(main_menu_factory, "/View/Reset Coloring 1-10",
+    set_menu_sensitivity_old("/View/Reset Coloring 1-10",
                          tmp_color_filters_used());
-    set_menu_sensitivity_old(main_menu_factory, "/View/Show Packet in New Window",
+    set_menu_sensitivity_old("/View/Show Packet in New Window",
                          frame_selected);
 #endif /* MAIN_MENU_USE_UIMANAGER */
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ShowPacketinNewWindow",
@@ -5740,17 +5726,17 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected);
 
 #else
-    set_menu_sensitivity_old(main_menu_factory, "/Analyze/Follow TCP Stream",
+    set_menu_sensitivity_old("/Analyze/Follow TCP Stream",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
-    set_menu_sensitivity_old(main_menu_factory, "/Analyze/Follow UDP Stream",
+    set_menu_sensitivity_old("/Analyze/Follow UDP Stream",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
-    set_menu_sensitivity_old(main_menu_factory, "/Analyze/Follow SSL Stream",
+    set_menu_sensitivity_old("/Analyze/Follow SSL Stream",
                          frame_selected ? is_ssl : FALSE);
-    set_menu_sensitivity_old(main_menu_factory, "/Analyze/Decode As...",
+    set_menu_sensitivity_old("/Analyze/Decode As...",
                          frame_selected && decode_as_ok());
-    set_menu_sensitivity_old(main_menu_factory, "/View/Name Resolution/Resolve Name",
+    set_menu_sensitivity_old("/View/Name Resolution/Resolve Name",
                          frame_selected && (g_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
-    set_menu_sensitivity_old(main_menu_factory, "/Tools/Firewall ACL Rules",
+    set_menu_sensitivity_old("/Tools/Firewall ACL Rules",
                          frame_selected);
 #endif /* MAIN_MENU_USE_UIMANAGER */
     walk_menu_tree_for_selected_packet(tap_menu_tree_root, cf->current_frame,
@@ -5812,7 +5798,7 @@ walk_menu_tree_for_selected_tree_row(GList *node, field_info *fi)
         set_menu_sensitivity(ui_manager_main_menubar, node_data->name,
                              node_data->enabled);
 #else
-        set_menu_sensitivity_old(main_menu_factory, node_data->name,
+        set_menu_sensitivity_old(node_data->name,
                              node_data->enabled);
 #endif /* MAIN_MENU_USE_UIMANAGER */
     }
@@ -6335,25 +6321,25 @@ set_menus_for_selected_tree_row(capture_file *cf)
         set_menu_sensitivity(ui_manager_tree_view_menu, "/Menubar/MenuView/ExpandSubtrees",
                              cf->finfo_selected->tree_type != -1);
 #else
-        set_menu_sensitivity_old(main_menu_factory,
+        set_menu_sensitivity_old(
                              "/File/Export/Selected Packet Bytes...", TRUE);
-        set_menu_sensitivity_old(main_menu_factory,
+        set_menu_sensitivity_old(
                              "/Go/Go to Corresponding Packet", hfinfo->type == FT_FRAMENUM);
-        set_menu_sensitivity_old(main_menu_factory, "/Edit/Copy/Description",
+        set_menu_sensitivity_old("/Edit/Copy/Description",
                              proto_can_match_selected(cf->finfo_selected, cf->edt));
-        set_menu_sensitivity_old(main_menu_factory, "/Edit/Copy/Fieldname",
+        set_menu_sensitivity_old("/Edit/Copy/Fieldname",
                              proto_can_match_selected(cf->finfo_selected, cf->edt));
-        set_menu_sensitivity_old(main_menu_factory, "/Edit/Copy/Value",
+        set_menu_sensitivity_old("/Edit/Copy/Value",
                              proto_can_match_selected(cf->finfo_selected, cf->edt));
-        set_menu_sensitivity_old(main_menu_factory, "/Edit/Copy/As Filter",
+        set_menu_sensitivity_old("/Edit/Copy/As Filter",
                              proto_can_match_selected(cf->finfo_selected, cf->edt));
-        set_menu_sensitivity_old(main_menu_factory, "/Analyze/Apply as Column",
+        set_menu_sensitivity_old("/Analyze/Apply as Column",
                              hfinfo->type != FT_NONE);
-        set_menu_sensitivity_old(main_menu_factory, "/Analyze/Apply as Filter",
+        set_menu_sensitivity_old("/Analyze/Apply as Filter",
                              proto_can_match_selected(cf->finfo_selected, cf->edt));
-        set_menu_sensitivity_old(main_menu_factory, "/Analyze/Prepare a Filter",
+        set_menu_sensitivity_old("/Analyze/Prepare a Filter",
                              proto_can_match_selected(cf->finfo_selected, cf->edt));
-        set_menu_sensitivity_old(main_menu_factory, "/View/Expand Subtrees",
+        set_menu_sensitivity_old("/View/Expand Subtrees",
                              cf->finfo_selected->tree_type != -1);
 #endif
         prev_abbrev = g_object_get_data(G_OBJECT(ui_manager_tree_view_menu), "menu_abbrev");
@@ -6395,18 +6381,16 @@ set_menus_for_selected_tree_row(capture_file *cf)
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/PrepareaFilter", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ExpandSubtrees", FALSE);
 #else
-        set_menu_sensitivity_old(main_menu_factory,
-                             "/File/Export/Selected Packet Bytes...", FALSE);
-        set_menu_sensitivity_old(main_menu_factory,
-                             "/Go/Go to Corresponding Packet", FALSE);
-        set_menu_sensitivity_old(main_menu_factory, "/Edit/Copy/Description", FALSE);
-        set_menu_sensitivity_old(main_menu_factory, "/Edit/Copy/Fieldname", FALSE);
-        set_menu_sensitivity_old(main_menu_factory, "/Edit/Copy/Value", FALSE);
-        set_menu_sensitivity_old(main_menu_factory, "/Edit/Copy/As Filter", FALSE);
-        set_menu_sensitivity_old(main_menu_factory, "/Analyze/Apply as Column", FALSE);
-        set_menu_sensitivity_old(main_menu_factory, "/Analyze/Apply as Filter", FALSE);
-        set_menu_sensitivity_old(main_menu_factory, "/Analyze/Prepare a Filter", FALSE);
-        set_menu_sensitivity_old(main_menu_factory, "/View/Expand Subtrees", FALSE);
+        set_menu_sensitivity_old("/File/Export/Selected Packet Bytes...", FALSE);
+        set_menu_sensitivity_old("/Go/Go to Corresponding Packet", FALSE);
+        set_menu_sensitivity_old("/Edit/Copy/Description", FALSE);
+        set_menu_sensitivity_old("/Edit/Copy/Fieldname", FALSE);
+        set_menu_sensitivity_old("/Edit/Copy/Value", FALSE);
+        set_menu_sensitivity_old("/Edit/Copy/As Filter", FALSE);
+        set_menu_sensitivity_old("/Analyze/Apply as Column", FALSE);
+        set_menu_sensitivity_old("/Analyze/Apply as Filter", FALSE);
+        set_menu_sensitivity_old("/Analyze/Prepare a Filter", FALSE);
+        set_menu_sensitivity_old("/View/Expand Subtrees", FALSE);
 #endif /* MAIN_MENU_USE_UIMANAGER */
     }
 
@@ -6415,11 +6399,11 @@ set_menus_for_selected_tree_row(capture_file *cf)
 
 void set_menus_for_packet_history(gboolean back_history, gboolean forward_history) {
 #ifdef MAIN_MENU_USE_UIMANAGER
-     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/Back", back_history);
-     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/Forward", forward_history);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/Back", back_history);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/Forward", forward_history);
 #else
-    set_menu_sensitivity_old(main_menu_factory, "/Go/Back", back_history);
-    set_menu_sensitivity_old(main_menu_factory, "/Go/Forward", forward_history);
+    set_menu_sensitivity_old("/Go/Back", back_history);
+    set_menu_sensitivity_old("/Go/Forward", forward_history);
 #endif /* MAIN_MENU_USE_UIMANAGER */
     set_toolbar_for_packet_history(back_history, forward_history);
 }
@@ -6427,13 +6411,13 @@ void set_menus_for_packet_history(gboolean back_history, gboolean forward_histor
 
 void set_menus_for_file_set(gboolean file_set, gboolean previous_file, gboolean next_file) {
 #ifdef MAIN_MENU_USE_UIMANAGER
-     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Set/ListFiles", file_set);
-     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Set/PreviousFile", previous_file);
-     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Set/NextFile", next_file);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Set/ListFiles", file_set);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Set/PreviousFile", previous_file);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Set/NextFile", next_file);
 #else
-    set_menu_sensitivity_old(main_menu_factory, "/File/File Set/List Files", file_set);
-    set_menu_sensitivity_old(main_menu_factory, "/File/File Set/Previous File", previous_file);
-    set_menu_sensitivity_old(main_menu_factory, "/File/File Set/Next File", next_file);
+    set_menu_sensitivity_old("/File/File Set/List Files", file_set);
+    set_menu_sensitivity_old("/File/File Set/Previous File", previous_file);
+    set_menu_sensitivity_old("/File/File Set/Next File", next_file);
 #endif /* MAIN_MENU_USE_UIMANAGER */
 }
 
