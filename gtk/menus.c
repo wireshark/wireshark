@@ -776,12 +776,12 @@ view_menu_colorize_pkt_lst_cb(GtkAction *action _U_, gpointer user_data)
 }
 
 static void
-view_menu_colorize_auto_scroll_live_cb(GtkAction *action _U_, gpointer user_data _U_)
+view_menu_auto_scroll_live_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/AutoScrollinLiveCapture");
 
 	if (!widget){
-		g_warning("view_menu_colorize_auto_scroll_live_cb: No widget found");
+		g_warning("view_menu_auto_scroll_live_cb: No widget found");
 	}else{
 		menu_auto_scroll_live_changed(GTK_CHECK_MENU_ITEM(widget)->active);
 	}
@@ -1527,7 +1527,7 @@ static const GtkToggleActionEntry main_menu_bar_toggle_action_entries[] =
 	{"/View/NameResolution/EnableforTransportLayer",				NULL, "Enable for _Transport Layer",			NULL, NULL, G_CALLBACK(view_menu_en_for_transport_cb), TRUE },
 	{"/View/ColorizePacketList",									NULL, "Colorize Packet List",					NULL, NULL, G_CALLBACK(view_menu_colorize_pkt_lst_cb), TRUE },
 #ifdef HAVE_LIBPCAP
-	{"/View/AutoScrollinLiveCapture",								NULL, "Auto Scroll in Li_ve Capture",			NULL, NULL, G_CALLBACK(view_menu_colorize_auto_scroll_live_cb), TRUE },
+	{"/View/AutoScrollinLiveCapture",								NULL, "Auto Scroll in Li_ve Capture",			NULL, NULL, G_CALLBACK(view_menu_auto_scroll_live_cb), TRUE },
 #endif
 };
 
