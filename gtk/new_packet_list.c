@@ -623,7 +623,11 @@ create_view_and_model(void)
 			if (hfi != NULL) {
 				if (hfi->parent != -1) {
 					/* Prefix with protocol name */
-					tooltip_text = g_strdup_printf("%s\n%s (%s)", proto_get_protocol_name(hfi->parent), hfi->name, hfi->abbrev);
+					if (cfile.cinfo.col_custom_occurrence[i] != 0) {
+						tooltip_text = g_strdup_printf("%s\n%s (%s#%d)", proto_get_protocol_name(hfi->parent), hfi->name, hfi->abbrev, cfile.cinfo.col_custom_occurrence[i]);
+					} else {
+						tooltip_text = g_strdup_printf("%s\n%s (%s)", proto_get_protocol_name(hfi->parent), hfi->name, hfi->abbrev);
+					}
 				} else {
 					tooltip_text = g_strdup_printf("%s (%s)", hfi->name, hfi->abbrev);
 				}
