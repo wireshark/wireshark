@@ -154,33 +154,6 @@ static void auto_scroll_live_cb(GtkWidget *w, gpointer d);
 static void colorize_cb(GtkWidget *w, gpointer d);
 
 
-/* This is the GtkItemFactoryEntry structure used to generate new menus.
-       Item 1: The menu path. The letter after the underscore indicates an
-               accelerator key once the menu is open.
-       Item 2: The accelerator key for the entry
-       Item 3: The callback function.
-       Item 4: The callback action.  This changes the parameters with
-               which the function is called.  The default is 0.
-       Item 5: The item type, used to define what kind of an item it is.
-               Here are the possible values:
-
-               NULL               -> "<Item>"
-               ""                 -> "<Item>"
-               "<Title>"          -> create a title item
-               "<Item>"           -> create a simple item
-               "<ImageItem>"      -> create an item holding an image (gtk2)
-               "<StockItem>"      -> create an item holding a stock image (gtk2)
-               "<CheckItem>"      -> create a check item
-               "<ToggleItem>"     -> create a toggle item
-               "<RadioItem>"      -> create a radio item
-               <path>             -> path of a radio item to link against
-               "<Separator>"      -> create a separator
-               "<Tearoff>"        -> create a tearoff separator (gtk2)
-               "<Branch>"         -> create an item to hold sub items (optional)
-               "<LastBranch>"     -> create a right justified branch
-       Item 6: extra data needed for ImageItem and StockItem (gtk2)
-    */
-
 /*  As a general GUI guideline, we try to follow the Gnome Human Interface Guidelines, which can be found at:
     http://developer.gnome.org/projects/gup/hig/1.0/index.html
 
@@ -1616,6 +1589,33 @@ static const GtkRadioActionEntry main_menu_bar_radio_view_time_fileformat_prec_e
  * functions in text boxes, such as the Filter box.  Do no, under any
  * circumstances, make a change that keeps them from doing so.
  */
+
+/* This is the GtkItemFactoryEntry structure used to generate new menus.
+       Item 1: The menu path. The letter after the underscore indicates an
+               accelerator key once the menu is open.
+       Item 2: The accelerator key for the entry
+       Item 3: The callback function.
+       Item 4: The callback action.  This changes the parameters with
+               which the function is called.  The default is 0.
+       Item 5: The item type, used to define what kind of an item it is.
+               Here are the possible values:
+
+               NULL               -> "<Item>"
+               ""                 -> "<Item>"
+               "<Title>"          -> create a title item
+               "<Item>"           -> create a simple item
+               "<ImageItem>"      -> create an item holding an image
+               "<StockItem>"      -> create an item holding a stock image
+               "<CheckItem>"      -> create a check item
+               "<ToggleItem>"     -> create a toggle item
+               "<RadioItem>"      -> create a radio item
+               <path>             -> path of a radio item to link against
+               "<Separator>"      -> create a separator
+               "<Tearoff>"        -> create a tearoff separator
+               "<Branch>"         -> create an item to hold sub items (optional)
+               "<LastBranch>"     -> create a right justified branch
+       Item 6: extra data needed for ImageItem and StockItem
+    */
 static GtkItemFactoryEntry menu_items[] =
 {
     {"/_File", NULL, NULL, 0, "<Branch>", NULL,},
