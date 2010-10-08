@@ -170,46 +170,46 @@ static dissector_handle_t pres_handle = NULL;
 
 const value_string ses_vals[] =
 {
-  {SES_CONNECTION_REQUEST,			"CONNECT (CN) SPDU" },				/* 13 */
-  {SES_CONNECTION_ACCEPT,			"ACCEPT (AC) SPDU" },				/* 14 */
-  {SES_EXCEPTION_REPORT,			"EXCEPTION REPORT (ER) SPDU"   },	/*  0 */
-  {SES_DATA_TRANSFER,				"DATA TRANSFER (DT) SPDU" },		/*  1 */
-  {SES_PLEASE_TOKENS,				"PLEASE TOKENS (PT) SPDU"   },		/*  2 */
-  {SES_EXPEDITED,					"EXPEDITED (EX) SPDU"   },			/*  5 */
-  {SES_PREPARE,						"PREPARE (PR) SPDU"   },			/*  7 */
-  {SES_NOT_FINISHED,				"NOT FINISHED (NF) SPDU"   },		/*  8 */
-  {SES_FINISH,						"FINISH (FN) SPDU"   },				/*  9 */
-  {SES_DISCONNECT,					"DISCONNECT (DN) SPDU"   },			/* 10 */
-  {SES_REFUSE,						"REFUSE (RF) SPDU"   },				/* 12 */
-  {SES_CONNECTION_DATA_OVERFLOW,	"CONNECT DATA OVERFLOW (CDO) SPDU"},/* 15 */
-  {SES_OVERFLOW_ACCEPT,				"OVERFLOW ACCEPT (OA) SPDU"   },	/* 16 */
-  {SES_GIVE_TOKENS_CONFIRM,			"GIVE TOKENS CONFIRM (GTC) SPDU"},	/* 21 */
-  {SES_GIVE_TOKENS_ACK,				"GIVE TOKENS ACK (GTA) SPDU"   },	/* 22 */
-  {SES_ABORT,						"ABORT (AB) SPDU"   },				/* 25 */
-  {SES_ABORT_ACCEPT,				"ABORT ACCEPT (AA) SPDU"   },		/* 26 */
-  {SES_ACTIVITY_RESUME,				"ACTIVITY RESUME (AR) SPDU"   },	/* 29 */
-  {SES_TYPED_DATA,					"TYPED DATA (TD) SPDU"   },			/* 33 */
-  {SES_RESYNCHRONIZE_ACK,			"RESYNCHRONIZE ACK (RA) SPDU"   },	/* 34 */
-  {SES_MAJOR_SYNC_POINT,			"MAJOR SYNC POINT (MAP) SPDU"   },	/* 41 */
-  {SES_MAJOR_SYNC_ACK,				"MAJOR SYNC ACK (MAA) SPDU"   },	/* 42 */
-  {SES_ACTIVITY_START,				"ACTIVITY START (AS) SPDU"   },		/* 45 */
-  {SES_EXCEPTION_DATA,				"EXCEPTION DATA (ED) SPDU"   },		/* 48 */
-  {SES_MINOR_SYNC_POINT,			"MINOR SYNC POINT (MIP) SPDU"   },	/* 49 */
-  {SES_MINOR_SYNC_ACK,				"MINOR SYNC ACK (MIA) SPDU"   },	/* 50 */
-  {SES_RESYNCHRONIZE,				"RESYNCHRONIZE (RS) SPDU"   },		/* 53 */
-  {SES_ACTIVITY_DISCARD,			"ACTIVITY DISCARD (AD) SPDU"   },	/* 57 */
-  {SES_ACTIVITY_DISCARD_ACK,		"ACTIVITY DISCARD ACK (ADA) SPDU" },/* 58 */
-  {SES_CAPABILITY,					"CAPABILITY DATA (CD) SPDU"   },	/* 61 */
-  {SES_CAPABILITY_DATA_ACK,			"CAPABILITY DATA ACK (CDA) SPDU" }, /* 62 */
-  {CLSES_UNIT_DATA,					"UNIT DATA (UD) SPDU" },			/* 64 */
-  {0,             NULL           }
+  {SES_CONNECTION_REQUEST,		"CONNECT (CN) SPDU" },			/* 13 */
+  {SES_CONNECTION_ACCEPT,		"ACCEPT (AC) SPDU" },			/* 14 */
+  {SES_EXCEPTION_REPORT,		"EXCEPTION REPORT (ER) SPDU"   },	/*  0 */
+  {SES_DATA_TRANSFER,			"DATA TRANSFER (DT) SPDU" },		/*  1 */
+  {SES_PLEASE_TOKENS,			"PLEASE TOKENS (PT) SPDU"   },		/*  2 */
+  {SES_EXPEDITED,			"EXPEDITED (EX) SPDU"   },		/*  5 */
+  {SES_PREPARE,				"PREPARE (PR) SPDU"   },		/*  7 */
+  {SES_NOT_FINISHED,			"NOT FINISHED (NF) SPDU"   },		/*  8 */
+  {SES_FINISH,				"FINISH (FN) SPDU"   },			/*  9 */
+  {SES_DISCONNECT,			"DISCONNECT (DN) SPDU"   },		/* 10 */
+  {SES_REFUSE,				"REFUSE (RF) SPDU"   },			/* 12 */
+  {SES_CONNECTION_DATA_OVERFLOW,	"CONNECT DATA OVERFLOW (CDO) SPDU"},	/* 15 */
+  {SES_OVERFLOW_ACCEPT,			"OVERFLOW ACCEPT (OA) SPDU"   },	/* 16 */
+  {SES_GIVE_TOKENS_CONFIRM,		"GIVE TOKENS CONFIRM (GTC) SPDU"},	/* 21 */
+  {SES_GIVE_TOKENS_ACK,			"GIVE TOKENS ACK (GTA) SPDU"   },	/* 22 */
+  {SES_ABORT,				"ABORT (AB) SPDU"   },			/* 25 */
+  {SES_ABORT_ACCEPT,			"ABORT ACCEPT (AA) SPDU"   },		/* 26 */
+  {SES_ACTIVITY_RESUME,			"ACTIVITY RESUME (AR) SPDU"   },	/* 29 */
+  {SES_TYPED_DATA,			"TYPED DATA (TD) SPDU"   },		/* 33 */
+  {SES_RESYNCHRONIZE_ACK,		"RESYNCHRONIZE ACK (RA) SPDU"   },	/* 34 */
+  {SES_MAJOR_SYNC_POINT,		"MAJOR SYNC POINT (MAP) SPDU"   },	/* 41 */
+  {SES_MAJOR_SYNC_ACK,			"MAJOR SYNC ACK (MAA) SPDU"   },	/* 42 */
+  {SES_ACTIVITY_START,			"ACTIVITY START (AS) SPDU"   },		/* 45 */
+  {SES_EXCEPTION_DATA,			"EXCEPTION DATA (ED) SPDU"   },		/* 48 */
+  {SES_MINOR_SYNC_POINT,		"MINOR SYNC POINT (MIP) SPDU"   },	/* 49 */
+  {SES_MINOR_SYNC_ACK,			"MINOR SYNC ACK (MIA) SPDU"   },	/* 50 */
+  {SES_RESYNCHRONIZE,			"RESYNCHRONIZE (RS) SPDU"   },		/* 53 */
+  {SES_ACTIVITY_DISCARD,		"ACTIVITY DISCARD (AD) SPDU"   },	/* 57 */
+  {SES_ACTIVITY_DISCARD_ACK,		"ACTIVITY DISCARD ACK (ADA) SPDU" },	/* 58 */
+  {SES_CAPABILITY,			"CAPABILITY DATA (CD) SPDU"   },	/* 61 */
+  {SES_CAPABILITY_DATA_ACK,		"CAPABILITY DATA ACK (CDA) SPDU" },	/* 62 */
+  {CLSES_UNIT_DATA,			"UNIT DATA (UD) SPDU" },		/* 64 */
+  {0,					NULL }
 };
 
 static const value_string ses_category0_vals[] =
 {
-  {SES_PLEASE_TOKENS,    "Please tokens PDU"   },
-  {SES_GIVE_TOKENS,    "Give tokens PDU"   },
-  {0,             NULL           }
+  {SES_PLEASE_TOKENS,	"Please tokens PDU" },
+  {SES_GIVE_TOKENS,	"Give tokens PDU" },
+  {0,			NULL }
 };
 
 
@@ -279,8 +279,9 @@ static dissector_handle_t data_handle;
 
 static void
 call_pres_dissector(tvbuff_t *tvb, int offset, guint16 param_len,
-    packet_info *pinfo, proto_tree *tree, proto_tree *param_tree,
-    struct SESSION_DATA_STRUCTURE *session)
+		    packet_info *pinfo, proto_tree *tree,
+		    proto_tree *param_tree,
+		    struct SESSION_DATA_STRUCTURE *session)
 {
 	void *saved_private_data;
 
@@ -300,19 +301,20 @@ call_pres_dissector(tvbuff_t *tvb, int offset, guint16 param_len,
 		tvbuff_t *next_tvb;
 
 		next_tvb = tvb_new_subset(tvb, offset, param_len, param_len);
+		/*   save type of session pdu. We'll need it in the presentation dissector  */
+		saved_private_data = pinfo->private_data;
+		pinfo->private_data = session;
 		TRY
 		{
-			/*   save type of session pdu. We'll need it in the presentation dissector  */
-			saved_private_data = pinfo->private_data;
-			pinfo->private_data = session;
 			call_dissector(pres_handle, next_tvb, pinfo, tree);
-			pinfo->private_data = saved_private_data;
 		}
 		CATCH_ALL
 		{
 			show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
 		}
 		ENDTRY;
+		/* Restore private_data even if there was an exception */
+		pinfo->private_data = saved_private_data;
 	}
 }
 
@@ -336,8 +338,8 @@ get_item_len(tvbuff_t *tvb, int offset, int *len_len)
 
 static gboolean
 dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
-    proto_tree *param_tree, packet_info *pinfo, guint8 param_type,
-    guint16 param_len, struct SESSION_DATA_STRUCTURE *session)
+	          proto_tree *param_tree, packet_info *pinfo, guint8 param_type,
+	          guint16 param_len, struct SESSION_DATA_STRUCTURE *session)
 {
 	gboolean has_user_information = TRUE;
 	guint16       flags;
@@ -810,8 +812,8 @@ PICS.    */
 
 static gboolean
 dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
-    proto_tree *pg_tree, packet_info *pinfo, guint16 pg_len,
-    struct SESSION_DATA_STRUCTURE *session)
+		        proto_tree *pg_tree, packet_info *pinfo, guint16 pg_len,
+		        struct SESSION_DATA_STRUCTURE *session)
 {
 	gboolean has_user_information = TRUE;
 	proto_item *ti;
@@ -889,8 +891,8 @@ dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
  */
 static gboolean
 dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
-    proto_tree *ses_tree, packet_info *pinfo,
-    struct SESSION_DATA_STRUCTURE *session)
+	           proto_tree *ses_tree, packet_info *pinfo,
+	           struct SESSION_DATA_STRUCTURE *session)
 {
 	gboolean has_user_information = TRUE;
 	proto_item *ti;
@@ -900,7 +902,7 @@ dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
 	int len_len;
 	guint16 param_len;
 
-	while(len != 0)
+	while (len != 0)
 	{
 		param_type = tvb_get_guint8(tvb, offset);
 		ti = proto_tree_add_text(ses_tree, tvb, offset, -1, "%s",
@@ -977,7 +979,7 @@ dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
  */
 static int
 dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
-    gboolean tokens, gboolean connectionless)
+	     gboolean tokens, gboolean connectionless)
 {
 	gboolean has_user_information = FALSE;
 	guint8 type;
