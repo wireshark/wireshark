@@ -90,6 +90,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          MySQL dissector doesn't dissect MySQL stream.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2691">Bug
+          2691</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Wireshark crashes if active display filter macro is renamed.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5002">Bug
           5002</ulink>)

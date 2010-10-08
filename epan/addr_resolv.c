@@ -868,7 +868,7 @@ host_lookup6(const struct e_in6_addr *addr, const gboolean resolve, gboolean *fo
   async_dns_queue_msg_t *caqm;
 #endif /* HAVE_C_ARES */
   struct hostent *hostp;
-#endif
+#endif /* INET6 */
 
   *found = TRUE;
 

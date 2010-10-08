@@ -134,8 +134,8 @@ static const value_string icmpv6_type_str[] = {
     { ICMP6_PACKET_TOO_BIG,        "Too big" },
     { ICMP6_TIME_EXCEEDED,         "Time exceeded" },
     { ICMP6_PARAM_PROB,            "Parameter problem" },
-    { ICMP6_ECHO_REQUEST,          "Echo request" },
-    { ICMP6_ECHO_REPLY,            "Echo reply" },
+    { ICMP6_ECHO_REQUEST,          "Echo (ping) request" },
+    { ICMP6_ECHO_REPLY,            "Echo (ping) reply" },
     { ICMP6_MEMBERSHIP_QUERY,      "Multicast listener query" },
     { ICMP6_MEMBERSHIP_REPORT,     "Multicast listener report" },
     { ICMP6_MEMBERSHIP_REDUCTION,  "Multicast listener done" },
@@ -411,12 +411,18 @@ again:
     case ND_OPT_TARGET_LINKADDR:
     {
         int len_local, p;
+        gchar *llstr;
 
         p = offset + sizeof(*opt);
         len_local = (opt->nd_opt_len << 3) - sizeof(*opt);
+        llstr = tvb_bytes_to_str_punct(tvb, p, len_local, ':');
         proto_tree_add_text(icmp6opt_tree, tvb,
                             offset + sizeof(*opt), len_local, "Link-layer address: %s",
-                            bytestring_to_str(tvb_get_ptr(tvb, p, len_local), len_local, ':'));
+                            llstr);
+        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        " %s %s",
+                        opt->nd_opt_type == ND_OPT_SOURCE_LINKADDR ? "from" : "is at",
+                        llstr);
         break;
     }
     case ND_OPT_PREFIX_INFORMATION:
@@ -695,12 +701,8 @@ again:
 
         proto_tree_add_text(icmp6opt_tree, tvb,
                             offset + offsetof(struct nd_opt_map_info, nd_opt_map_address), 16,
-#ifdef INET6
                             "Address of MAP: %s (%s)",
                             get_hostname6(&map->nd_opt_map_address),
-#else
-                            "Address of MAP: %s",
-#endif
                             ip6_to_str(&map->nd_opt_map_address));
         break;
     }
@@ -921,7 +923,7 @@ again:
         len_local = (opt->fmip6_opt_len << 3) - sizeof(*opt);
         proto_tree_add_text(icmp6opt_tree, tvb,
                             offset + sizeof(*opt), len_local, "Link-layer address: %s",
-                            bytestring_to_str(tvb_get_ptr(tvb, p, len_local), len_local, ':'));
+                            tvb_bytes_to_str_punct(tvb, p, len_local, ':'));
         break;
     }
     } /* switch (opt->fmip6_opt_type) */
@@ -1457,13 +1459,8 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, guint16 count, proto_tree *tree )
 
         tvb_get_ipv6(tvb, localOffset, &addr);
         tf = proto_tree_add_text( tree, tvb, offset, recordSize,
-#ifdef INET6
                                   "%s: %s (%s)", val_to_str(recordType, mldrv2ModesNames,"Unknown mode"),
                                   get_hostname6(&addr), ip6_to_str(&addr)
-#else
-                                  "%s: %s", val_to_str(recordType, mldrv2ModesNames,"Unknown mode"),
-                                  ip6_to_str(&addr)
-#endif
             );
         sub_tree = proto_item_add_subtree(tf, ett_multicastRR);
 
@@ -1477,11 +1474,7 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, guint16 count, proto_tree *tree )
         for( ; sourceNb; sourceNb--, localOffset += 16 ) {
             tvb_get_ipv6(tvb, localOffset, &addr);
             proto_tree_add_text( sub_tree, tvb, localOffset, 16,
-#ifdef INET6
                                  "Source Address: %s (%s)", get_hostname6(&addr), ip6_to_str(&addr)
-#else
-                                 "Source Address: %s", ip6_to_str(&addr)
-#endif
                 );
         }
     }
@@ -1763,7 +1756,10 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 "ID: 0x%04x", (guint16)g_ntohs(dp->icmp6_id));
             proto_tree_add_text(icmp6_tree, tvb,
                                 offset + ICMP6_SEQ_OFFSET, 2,
-                                "Sequence: 0x%04x", (guint16)g_ntohs(dp->icmp6_seq));
+                                "Sequence: %u", (guint16)g_ntohs(dp->icmp6_seq));
+            col_append_fstr(pinfo->cinfo, COL_INFO,
+                            " id=0x%04x, seq=%u",
+                            g_ntohs(dp->icmp6_id), g_ntohs(dp->icmp6_seq));
 
             if (pinfo->destport == 0x0dd8 && dp->icmp6_type == ICMP6_ECHO_REQUEST) {
                 /* RFC 4380 
@@ -1919,13 +1915,11 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 tvb_get_ntohl (tvb, offset+4));
             proto_tree_add_text(icmp6_tree, tvb,
                                 offset + offsetof(struct nd_neighbor_solicit, nd_ns_target), 16,
-#ifdef INET6
                                 "Target: %s (%s)",
                                 get_hostname6(&ns->nd_ns_target),
-#else
-                                "Target: %s",
-#endif
                                 ip6_to_str(&ns->nd_ns_target));
+            col_append_fstr(pinfo->cinfo, COL_INFO,
+                            " for %s", ip6_to_str(&ns->nd_ns_target));
 
             dissect_icmpv6ndopt(tvb, offset + sizeof(*ns), pinfo, icmp6_tree);
             break;
@@ -1936,6 +1930,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             int flagoff, targetoff;
             guint32 na_flags;
             struct e_in6_addr na_target;
+            emem_strbuf_t *flags_strbuf = ep_strbuf_new_label("");
 
             flagoff = offset + ND_NA_FLAGS_RESERVED_OFFSET;
             na_flags = tvb_get_ntohl(tvb, flagoff);
@@ -1955,13 +1950,25 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             targetoff = offset + offsetof(struct nd_neighbor_advert, nd_na_target);
             tvb_memcpy(tvb, (guint8 *)&na_target, targetoff, sizeof na_target);
             proto_tree_add_text(icmp6_tree, tvb, targetoff, 16,
-#ifdef INET6
                                 "Target: %s (%s)",
                                 get_hostname6(&na_target),
-#else
-                                "Target: %s",
-#endif
                                 ip6_to_str(&na_target));
+            if (na_flags & ND_NA_FLAG_ROUTER) {
+                ep_strbuf_append(flags_strbuf, "rtr, ");
+            }
+            if (na_flags & ND_NA_FLAG_SOLICITED) {
+                ep_strbuf_append(flags_strbuf, "sol, ");
+            }
+            if (na_flags & ND_NA_FLAG_OVERRIDE) {
+                ep_strbuf_append(flags_strbuf, "ovr, ");
+            }
+            if (flags_strbuf->len > 2) {
+                ep_strbuf_truncate(flags_strbuf, flags_strbuf->len - 2);
+            } else {
+                ep_strbuf_printf(flags_strbuf, "none");
+            }
+            col_append_fstr(pinfo->cinfo, COL_INFO,
+                            " %s (%s)", ip6_to_str(&na_target), flags_strbuf->str);
 
             dissect_icmpv6ndopt(tvb, offset + sizeof(struct nd_neighbor_advert), pinfo, icmp6_tree);
             break;
@@ -1976,22 +1983,14 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 tvb_get_ntohs (tvb, offset+4));
             proto_tree_add_text(icmp6_tree, tvb,
                                 offset + offsetof(struct nd_redirect, nd_rd_target), 16,
-#ifdef INET6
                                 "Target: %s (%s)",
                                 get_hostname6(&rd->nd_rd_target),
-#else
-                                "Target: %s",
-#endif
                                 ip6_to_str(&rd->nd_rd_target));
 
             proto_tree_add_text(icmp6_tree, tvb,
                                 offset + offsetof(struct nd_redirect, nd_rd_dst), 16,
-#ifdef INET6
                                 "Destination: %s (%s)",
                                 get_hostname6(&rd->nd_rd_dst),
-#else
-                                "Destination: %s",
-#endif
                                 ip6_to_str(&rd->nd_rd_dst));
 
             dissect_icmpv6ndopt(tvb, offset + sizeof(*rd), pinfo, icmp6_tree);
