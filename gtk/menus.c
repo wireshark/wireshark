@@ -349,7 +349,7 @@ build_conversation_filter(int action, gboolean show_dialog)
     return buf;
 }
 
-void
+static void
 conversation_cb(GtkWidget * w, gpointer data _U_, int action)
 {
     gchar       *filter;
@@ -369,7 +369,7 @@ conversation_cb(GtkWidget * w, gpointer data _U_, int action)
     }
 }
 
-void
+static void
 colorize_conversation_cb(GtkWidget * w _U_, gpointer data _U_, int action)
 {
     gchar        *filter = NULL;
@@ -420,7 +420,7 @@ colorize_conversation_cb(GtkWidget * w _U_, gpointer data _U_, int action)
     }
 }
 
-void
+static void
 goto_conversation_frame(gboolean dir)
 {
 	gchar *filter;
@@ -456,13 +456,13 @@ goto_conversation_frame(gboolean dir)
         g_free(filter);
 }
 
-void
+static void
 goto_next_frame_conversation_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     goto_conversation_frame(FALSE);
 }
 
-void
+static void
 goto_previous_frame_conversation_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     goto_conversation_frame(TRUE);
