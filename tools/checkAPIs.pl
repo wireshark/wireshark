@@ -975,9 +975,9 @@ sub check_hf_entries($$)
 				  \s*,\s*
 				  ([A-Z0-9&_\(\)' -]+)		# convert
 				  \s*,\s*
-				  ([A-Z0-9x_]+)			# bitmask
+				  ([A-Z0-9_]+)			# bitmask
 				  \s*,\s*
-				  ([NULL|"[A-Z0-9 '\./\(\)\?_:-]+"])	# blurb	(NULL or a string)
+				  (NULL|"[A-Z0-9 '\./\(\)\?_:-]+")	# blurb	(NULL or a string)
 				  \s*,\s*
 				  HFILL				# HFILL
 				}xgios);
