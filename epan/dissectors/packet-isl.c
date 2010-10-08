@@ -149,6 +149,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
   tvbuff_t *volatile next_tvb;
   tvbuff_t *volatile trailer_tvb = NULL;
   const char *saved_proto;
+  void *pd_save;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISL");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -236,9 +237,8 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
        field (which is, admittedly, an OUI). */
     proto_tree_add_item(fh_tree, hf_isl_hsa, payload_tvb, 3, 3, FALSE);
   }
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "VLAN ID: %u",
-		 tvb_get_ntohs(tvb, 20) >> 1);
+  col_add_fstr(pinfo->cinfo, COL_INFO, "VLAN ID: %u",
+	       tvb_get_ntohs(tvb, 20) >> 1);
   if (tree) {
     proto_tree_add_item(fh_tree, hf_isl_vlan_id, payload_tvb, 6, 2, FALSE);
     proto_tree_add_item(fh_tree, hf_isl_bpdu, payload_tvb, 6, 2, FALSE);
@@ -272,6 +272,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
         before an exception was thrown, we can still put in an item
         for the trailer. */
       saved_proto = pinfo->current_proto;
+      pd_save = pinfo->private_data;
       TRY {
         /* Frames encapsulated in ISL include an FCS. */
         call_dissector(eth_withfcs_handle, next_tvb, pinfo, tree);
@@ -289,6 +290,13 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
            Show the exception, and then drive on to show the trailer,
            restoring the protocol value that was in effect before we
            called the subdissector. */
+
+	/*  Restore the private_data structure in case one of the
+	 *  called dissectors modified it (and, due to the exception,
+	 *  was unable to restore it).
+	 */
+	pinfo->private_data = pd_save;
+
         show_exception(next_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
         pinfo->current_proto = saved_proto;
       }

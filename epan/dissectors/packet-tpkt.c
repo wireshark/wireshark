@@ -203,7 +203,7 @@ int parseReservedText ( guint8* pTpktData )
  */
 void
 dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    dissector_handle_t subdissector_handle)
+		  dissector_handle_t subdissector_handle)
 {
     proto_item *ti = NULL;
     proto_tree *tpkt_tree = NULL;
@@ -217,6 +217,8 @@ dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tvbuff_t *volatile next_tvb;
     const char *saved_proto;
     guint8 string[4];
+    void *pd_save;
+
     /*
      * If we're reassembling segmented TPKT PDUs, empty the COL_INFO
      * column, so subdissectors can append information
@@ -227,7 +229,7 @@ dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * which case we'd have to zero the buffer out explicitly
      * anyway.
      */
-    if (tpkt_desegment && check_col(pinfo->cinfo, COL_INFO))
+    if (tpkt_desegment)
         col_add_str(pinfo->cinfo, COL_INFO, "");
 
     while (tvb_reported_length_remaining(tvb, offset) != 0) {
@@ -287,8 +289,7 @@ dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * information without getting TPKT stuff in the middle;
          * why the second?
          */
-        if (!tpkt_desegment && !pinfo->fragmented
-            && check_col(pinfo->cinfo, COL_INFO)) {
+        if (!tpkt_desegment && !pinfo->fragmented) {
             col_add_fstr(pinfo->cinfo, COL_INFO,
                 "TPKT Data length = %u", data_len);
         }
@@ -333,7 +334,7 @@ dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * If it gets a BoundsError, we can stop, as there's nothing
          * more to see, so we just re-throw it.
          */
-
+	pd_save = pinfo->private_data;
         TRY {
             call_dissector(subdissector_handle, next_tvb, pinfo,
                 tree);
@@ -342,6 +343,12 @@ dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             RETHROW;
         }
         CATCH(ReportedBoundsError) {
+	    /*  Restore the private_data structure in case one of the
+	     *  called dissectors modified it (and, due to the exception,
+	     *  was unable to restore it).
+	     */
+	    pinfo->private_data = pd_save;
+
             show_reported_bounds_error(tvb, pinfo, tree);
         }
         ENDTRY;
@@ -358,7 +365,7 @@ dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  */
 void
 dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    gboolean desegment, dissector_handle_t subdissector_handle)
+		   gboolean desegment, dissector_handle_t subdissector_handle)
 {
 	proto_item *ti = NULL;
 	proto_tree *tpkt_tree = NULL;
@@ -368,6 +375,7 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	volatile int length;
 	tvbuff_t *volatile next_tvb;
 	const char *saved_proto;
+	void *pd_save;
 
 	/*
 	 * If we're reassembling segmented TPKT PDUs, empty the COL_INFO
@@ -379,7 +387,7 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 * which case we'd have to zero the buffer out explicitly
 	 * anyway.
 	 */
-	if (desegment && check_col(pinfo->cinfo, COL_INFO))
+	if (desegment)
 		col_set_str(pinfo->cinfo, COL_INFO, "");
 
 	while (tvb_reported_length_remaining(tvb, offset) != 0) {
@@ -475,8 +483,7 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * information without getting TPKT stuff in the middle;
 		 * why the second?
 		 */
-		if (!desegment && !pinfo->fragmented
-		    && check_col(pinfo->cinfo, COL_INFO)) {
+		if (!desegment && !pinfo->fragmented) {
 			col_add_fstr(pinfo->cinfo, COL_INFO,
 			    "TPKT Data length = %u", data_len);
 		}
@@ -541,6 +548,7 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * If it gets a BoundsError, we can stop, as there's nothing
 		 * more to see, so we just re-throw it.
 		 */
+		pd_save = pinfo->private_data;
 		TRY {
 			call_dissector(subdissector_handle, next_tvb, pinfo,
 			    tree);
@@ -549,6 +557,12 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			RETHROW;
 		}
 		CATCH(ReportedBoundsError) {
+			/*  Restore the private_data structure in case one of the
+			 *  called dissectors modified it (and, due to the exception,
+			 *  was unable to restore it).
+			 */
+			pinfo->private_data = pd_save;
+
 			show_reported_bounds_error(tvb, pinfo, tree);
 		}
 		ENDTRY;
@@ -644,7 +658,7 @@ proto_register_tpkt(void)
 	proto_register_field_array(proto_tpkt, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("tpkt", dissect_tpkt, proto_tpkt);
-	
+
 	tpkt_module = prefs_register_protocol(proto_tpkt, NULL);
 	prefs_register_bool_preference(tpkt_module, "desegment",
 	    "Reassemble TPKT messages spanning multiple TCP segments",
@@ -665,10 +679,10 @@ proto_reg_handoff_tpkt(void)
 	x224_handle = find_dissector("x224");
 	tpkt_x224_handle = create_dissector_handle(dissect_tpkt_x224, proto_tpkt);
 	dissector_add("tcp.port", TCP_PORT_TPKT_X224, tpkt_x224_handle);
-	
+
 	/*
 	tpkt_ascii_handle = create_dissector_handle(dissect_ascii_tpkt, proto_tpkt);
 	dissector_add("tcp.port", TCP_PORT_TPKT, tpkt_ascii_handle);
 	*/
-	
+
 }

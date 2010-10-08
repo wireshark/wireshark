@@ -252,9 +252,9 @@ nbns_type_name (int type)
 
 static proto_tree *
 add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
-			   const char *name, int namelen,
-			   const char *type_name, const char *class_description,
-			   guint ttl, gushort data_len)
+	       const char *name, int namelen,
+	       const char *type_name, const char *class_description,
+	       guint ttl, gushort data_len)
 {
 	proto_tree *rr_tree;
 
@@ -274,7 +274,7 @@ add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
 
 static int
 get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
-    char *name_ret, int name_ret_len, int *name_type_ret)
+	      char *name_ret, int name_ret_len, int *name_type_ret)
 {
 	int name_len;
 	const guchar *name;
@@ -369,8 +369,8 @@ bad:
 
 static int
 get_nbns_name_type_class(tvbuff_t *tvb, int offset, int nbns_data_offset,
-    char *name_ret, int *name_len_ret, int *name_type_ret, int *type_ret,
-    int *class_ret)
+			 char *name_ret, int *name_len_ret, int *name_type_ret,
+			 int *type_ret, int *class_ret)
 {
 	int name_len;
 	int type;
@@ -394,7 +394,7 @@ get_nbns_name_type_class(tvbuff_t *tvb, int offset, int nbns_data_offset,
 
 static void
 add_name_and_type(proto_tree *tree, tvbuff_t *tvb, int offset, int len,
-    const char *tag, const char *name, int name_type)
+		  const char *tag, const char *name, int name_type)
 {
 	if (name_type != -1) {
 		proto_tree_add_text(tree, tvb, offset, len, "%s: %s (%s)",
@@ -409,7 +409,7 @@ add_name_and_type(proto_tree *tree, tvbuff_t *tvb, int offset, int len,
 
 static int
 dissect_nbns_query(tvbuff_t *tvb, int offset, int nbns_data_offset,
-    column_info *cinfo, proto_tree *nbns_tree)
+		   column_info *cinfo, proto_tree *nbns_tree)
 {
 	int len;
 	char *name;
@@ -474,7 +474,7 @@ nbns_add_nbns_flags(column_info *cinfo, proto_tree *nbns_tree, tvbuff_t *tvb, in
 		g_strlcat(buf, ", ", MAX_BUF_SIZE);
 		g_strlcat(buf, val_to_str(flags & F_RCODE, rcode_vals, "Unknown error"), MAX_BUF_SIZE);
 		buf[MAX_BUF_SIZE-1] = '\0';
-		if ((flags & F_RCODE) && check_col(cinfo, COL_INFO))
+		if ((flags & F_RCODE))
 			col_append_fstr(cinfo, COL_INFO, ", %s",
 					val_to_str(flags & F_RCODE, rcode_vals,
 						   "Unknown error"));
@@ -544,7 +544,7 @@ nbns_add_nb_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset, gushort flags)
 
 static void
 nbns_add_name_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset,
-    gushort flags)
+		    gushort flags)
 {
 	char *buf;
 	proto_item *field_tree;
@@ -608,7 +608,7 @@ nbns_add_name_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset,
 
 static int
 dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
-    column_info *cinfo, proto_tree *nbns_tree, int opcode)
+		    column_info *cinfo, proto_tree *nbns_tree, int opcode)
 {
 	int len;
 	char *name;
@@ -981,7 +981,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
 
 static int
 dissect_query_records(tvbuff_t *tvb, int cur_off, int nbns_data_offset,
-    int count, column_info *cinfo, proto_tree *nbns_tree)
+		      int count, column_info *cinfo, proto_tree *nbns_tree)
 {
 	int start_off, add_off;
 	proto_tree *qatree = NULL;
@@ -1007,8 +1007,8 @@ dissect_query_records(tvbuff_t *tvb, int cur_off, int nbns_data_offset,
 
 static int
 dissect_answer_records(tvbuff_t *tvb, int cur_off, int nbns_data_offset,
-    int count, column_info *cinfo, proto_tree *nbns_tree, int opcode,
-    const char *name)
+		       int count, column_info *cinfo, proto_tree *nbns_tree,
+		       int opcode, const char *name)
 {
 	int start_off, add_off;
 	proto_tree *qatree = NULL;
@@ -1246,11 +1246,9 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		message_index = 0;
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_str(pinfo->cinfo, COL_INFO,
+	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(header.msg_type, nbds_msgtype_vals,
-		      "Unknown message type (0x%02X)"));
-	}
+			       "Unknown message type (0x%02X)"));
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_nbdgm, tvb, offset, -1,
@@ -1400,7 +1398,7 @@ static const value_string error_codes[] = {
  */
 static int
 dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree, int is_cifs)
+		    proto_tree *tree, int is_cifs)
 {
 	proto_tree	*nbss_tree = NULL;
 	proto_item	*ti = NULL;
@@ -1416,6 +1414,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	gint		reported_len;
 	tvbuff_t	*next_tvb;
 	const char	*saved_proto;
+	void		*pd_save;
 
 	name=ep_alloc(MAX_NAME_LEN);
 
@@ -1533,8 +1532,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				"Called name", name, name_type);
 	  offset += len;
 
-	  if (check_col(pinfo->cinfo, COL_INFO))
-		  col_append_fstr(pinfo->cinfo, COL_INFO, ", to %s ", name);
+	  col_append_fstr(pinfo->cinfo, COL_INFO, ", to %s ", name);
 
 	  len = get_nbns_name(tvb, offset, offset, name, MAX_NAME_LEN, &name_type);
 
@@ -1542,8 +1540,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    add_name_and_type(nbss_tree, tvb, offset, len,
 				"Calling name", name, name_type);
 
-	  if (check_col(pinfo->cinfo, COL_INFO))
-		  col_append_fstr(pinfo->cinfo, COL_INFO, "from %s", name);
+	  col_append_fstr(pinfo->cinfo, COL_INFO, "from %s", name);
 
 	  break;
 
@@ -1554,10 +1551,9 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				val_to_str(tvb_get_guint8(tvb, offset),
 					   error_codes, "Unknown (%x)"));
 
-	  if (check_col(pinfo->cinfo, COL_INFO))
-		  col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-				  val_to_str(tvb_get_guint8(tvb, offset),
-					     error_codes, "Unknown (%x)"));
+	  col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+			  val_to_str(tvb_get_guint8(tvb, offset),
+				     error_codes, "Unknown (%x)"));
 
 	  break;
 
@@ -1603,6 +1599,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	   * more to see, so we just re-throw it.
 	   */
 	  saved_proto = pinfo->current_proto;
+	  pd_save = pinfo->private_data;
 	  TRY {
 	    dissect_netbios_payload(next_tvb, pinfo, tree);
 	  }
@@ -1610,6 +1607,11 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    RETHROW;
 	  }
 	  CATCH(ReportedBoundsError) {
+	    /*  Restore the private_data structure in case one of the
+	     *  called dissectors modified it (and, due to the exception,
+	     *  was unable to restore it).
+	     */
+	    pinfo->private_data = pd_save;
 	    show_reported_bounds_error(tvb, pinfo, tree);
 	    pinfo->current_proto = saved_proto;
 	  }
@@ -1790,10 +1792,8 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_str(pinfo->cinfo, COL_INFO,
+	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(msg_type, message_types, "Unknown (%02x)"));
-	}
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		len = dissect_nbss_packet(tvb, offset, pinfo, tree, is_cifs);

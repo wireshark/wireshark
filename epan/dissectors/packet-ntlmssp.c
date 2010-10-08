@@ -1746,9 +1746,8 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
   data_start = MIN(data_start, item_start);
   data_end = MAX(data_end, item_end);
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", User: %s\\%s",
-                    ntlmssph->domain_name, ntlmssph->acct_name);
+  col_append_fstr(pinfo->cinfo, COL_INFO, ", User: %s\\%s",
+                  ntlmssph->domain_name, ntlmssph->acct_name);
 
   /* hostname */
   item_start = tvb_get_letohl(tvb, offset+4);
@@ -1935,6 +1934,8 @@ dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
   guint32 ntlm_magic_size = 4;
   guint32 ntlm_signature_size = 8;
   guint32 ntlm_seq_size = 4;
+  void *pd_save;
+
   length = tvb_length (tvb);
   /* signature + seq + real payload */
   encrypted_block_length = length - ntlm_magic_size;
@@ -1967,6 +1968,7 @@ dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
    * in the packet after our blob to see, so we just re-throw the
    * exception.
    */
+  pd_save = pinfo->private_data;
   TRY {
     /* Version number */
     proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_verf_vers,
@@ -1986,6 +1988,11 @@ dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
   } CATCH(BoundsError) {
     RETHROW;
   } CATCH(ReportedBoundsError) {
+    /*  Restore the private_data structure in case one of the
+     *  called dissectors modified it (and, due to the exception,
+     *  was unable to restore it).
+     */
+    pinfo->private_data = pd_save;
     show_reported_bounds_error(tvb, pinfo, tree);
   } ENDTRY;
 
@@ -2107,6 +2114,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *volatile ntlmssp_tree = NULL;
   proto_item *tf = NULL;
   ntlmssp_header_t *ntlmssph;
+  void *pd_save;
 
   ntlmssph=ep_alloc(sizeof(ntlmssp_header_t));
   ntlmssph->type=0;
@@ -2136,6 +2144,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * in the packet after our blob to see, so we just re-throw the
    * exception.
    */
+  pd_save = pinfo->private_data;
   TRY {
     /* NTLMSSP constant */
     proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_auth,
@@ -2148,11 +2157,10 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ntlmssph->type = tvb_get_letohl (tvb, offset);
     offset += 4;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-                      val_to_str(ntlmssph->type,
-                                 ntlmssp_message_types,
-                                 "Unknown message type"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+                    val_to_str(ntlmssph->type,
+                               ntlmssp_message_types,
+                               "Unknown message type"));
 
     /* Call the appropriate dissector based on the Message Type */
     switch (ntlmssph->type) {
@@ -2178,6 +2186,11 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   } CATCH(BoundsError) {
     RETHROW;
   } CATCH(ReportedBoundsError) {
+    /*  Restore the private_data structure in case one of the
+     *  called dissectors modified it (and, due to the exception,
+     *  was unable to restore it).
+     */
+    pinfo->private_data = pd_save;
     show_reported_bounds_error(tvb, pinfo, tree);
   } ENDTRY;
 
@@ -2365,6 +2378,8 @@ dissect_ntlmssp_payload_only(tvbuff_t *tvb, packet_info *pinfo, _U_ proto_tree *
   volatile int offset = 0;
   proto_tree *volatile ntlmssp_tree = NULL;
   guint32 encrypted_block_length;
+  void *pd_save;
+
   /* the magic ntlm is the identifier of a NTLMSSP packet that's 00 00 00 01
    */
   encrypted_block_length = tvb_length (tvb);
@@ -2393,6 +2408,7 @@ dissect_ntlmssp_payload_only(tvbuff_t *tvb, packet_info *pinfo, _U_ proto_tree *
    * in the packet after our blob to see, so we just re-throw the
    * exception.
    */
+  pd_save = pinfo->private_data;
   TRY {
     /* Version number */
 
@@ -2403,6 +2419,11 @@ dissect_ntlmssp_payload_only(tvbuff_t *tvb, packet_info *pinfo, _U_ proto_tree *
   } CATCH(BoundsError) {
     RETHROW;
   } CATCH(ReportedBoundsError) {
+    /*  Restore the private_data structure in case one of the
+     *  called dissectors modified it (and, due to the exception,
+     *  was unable to restore it).
+     */
+    pinfo->private_data = pd_save;
     show_reported_bounds_error(tvb, pinfo, tree);
   } ENDTRY;
 
@@ -2420,6 +2441,7 @@ dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *tf = NULL;
   guint32 verifier_length;
   guint32 encrypted_block_length;
+  void *pd_save;
 
   verifier_length = tvb_length (tvb);
   encrypted_block_length = verifier_length - 4;
@@ -2452,6 +2474,7 @@ dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * in the packet after our blob to see, so we just re-throw the
    * exception.
    */
+  pd_save = pinfo->private_data;
   TRY {
     /* Version number */
     proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_verf_vers,
@@ -2471,6 +2494,11 @@ dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   } CATCH(BoundsError) {
     RETHROW;
   } CATCH(ReportedBoundsError) {
+    /*  Restore the private_data structure in case one of the
+     *  called dissectors modified it (and, due to the exception,
+     *  was unable to restore it).
+     */
+    pinfo->private_data = pd_save;
     show_reported_bounds_error(tvb, pinfo, tree);
   } ENDTRY;
 

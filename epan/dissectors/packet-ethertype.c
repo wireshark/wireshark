@@ -203,8 +203,8 @@ capture_ethertype(guint16 etype, const guchar *pd, int offset, int len,
 
 void
 ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
-		packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
-		int etype_id, int trailer_id, int fcs_len)
+	  packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
+	  int etype_id, int trailer_id, int fcs_len)
 {
 	const char		*description;
 	tvbuff_t		*volatile next_tvb;
@@ -212,6 +212,7 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 	gint			captured_length, reported_length;
 	volatile gboolean	dissector_found = FALSE;
 	const char		*volatile saved_proto;
+	void			*pd_save;
 
 	/* Add the Ethernet type to the protocol tree */
 	if (tree) {
@@ -252,6 +253,7 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 	   was reduced by some dissector before an exception was thrown,
 	   we can still put in an item for the trailer. */
 	saved_proto = pinfo->current_proto;
+	pd_save = pinfo->private_data;
 	TRY {
 		dissector_found = dissector_try_port(ethertype_dissector_table,
 		    etype, next_tvb, pinfo, tree);
@@ -286,6 +288,12 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 		   found and restoring the protocol value that was in effect
 		   before we called the subdissector. */
 		show_exception(next_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+
+		/*  Restore the private_data structure in case one of the
+		 *  called dissectors modified it (and, due to the exception,
+		 *  was unable to restore it).
+		 */
+		pinfo->private_data = pd_save;
 		dissector_found = TRUE;
 		pinfo->current_proto = saved_proto;
 	}
@@ -297,27 +305,22 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 		call_dissector(data_handle,next_tvb, pinfo, tree);
 
 		/* Label protocol */
-		if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-			col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x",
-			    etype);
-		}
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			description = match_strval(etype, etype_vals);
-			if (description) {
-				col_add_str(pinfo->cinfo, COL_INFO,
-				    description);
-			}
+		col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x", etype);
+
+		description = match_strval(etype, etype_vals);
+		if (description) {
+			col_add_str(pinfo->cinfo, COL_INFO, description);
 		}
 	}
 
 	add_dix_trailer(pinfo, tree, fh_tree, trailer_id, tvb, next_tvb, offset_after_etype,
-	    length_before, fcs_len);
+			length_before, fcs_len);
 }
 
 static void
 add_dix_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree, int trailer_id,
-    tvbuff_t *tvb, tvbuff_t *next_tvb, int offset_after_etype,
-    guint length_before, gint fcs_len)
+		tvbuff_t *tvb, tvbuff_t *next_tvb, int offset_after_etype,
+		guint length_before, gint fcs_len)
 {
 	guint		length;
 	tvbuff_t	*trailer_tvb;

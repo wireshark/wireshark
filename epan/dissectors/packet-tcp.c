@@ -1523,10 +1523,10 @@ static gboolean tcp_desegment = TRUE;
 
 static void
 desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
-        guint32 seq, guint32 nxtseq,
-        guint32 sport, guint32 dport,
-        proto_tree *tree, proto_tree *tcp_tree,
-        struct tcp_analysis *tcpd)
+              guint32 seq, guint32 nxtseq,
+              guint32 sport, guint32 dport,
+              proto_tree *tree, proto_tree *tcp_tree,
+              struct tcp_analysis *tcpd)
 {
     struct tcpinfo *tcpinfo = pinfo->private_data;
     fragment_data *ipfd_head;
@@ -1956,9 +1956,9 @@ again:
  */
 void
 tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-         gboolean proto_desegment, guint fixed_len,
-         guint (*get_pdu_len)(packet_info *, tvbuff_t *, int),
-         dissector_t dissect_pdu)
+		 gboolean proto_desegment, guint fixed_len,
+		 guint (*get_pdu_len)(packet_info *, tvbuff_t *, int),
+		 dissector_t dissect_pdu)
 {
     volatile int offset = 0;
     int offset_before;
@@ -1967,6 +1967,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint length;
     tvbuff_t *next_tvb;
     proto_item *item=NULL;
+    void *pd_save;
 
     while (tvb_reported_length_remaining(tvb, offset) != 0) {
         /*
@@ -2093,6 +2094,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * If it gets a BoundsError, we can stop, as there's nothing more to
          * see, so we just re-throw it.
          */
+	pd_save = pinfo->private_data;
         TRY {
             (*dissect_pdu)(next_tvb, pinfo, tree);
         }
@@ -2100,6 +2102,11 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             RETHROW;
         }
         CATCH(ReportedBoundsError) {
+	    /*  Restore the private_data structure in case one of the
+	     *  called dissectors modified it (and, due to the exception,
+	     *  was unable to restore it).
+	     */
+	    pinfo->private_data = pd_save;
             show_reported_bounds_error(tvb, pinfo, tree);
         }
         ENDTRY;

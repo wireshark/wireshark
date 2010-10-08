@@ -271,9 +271,9 @@ get_docsis_packet_length(tvbuff_t * tvb, gint offset)
 
 static void
 mp2t_depi_docsis_fragmentation_handle(tvbuff_t *tvb, guint offset,
-					 packet_info *pinfo, proto_tree *tree,
-					 guint frag_offset, guint frag_len,
-					 gboolean fragment_last)
+				      packet_info *pinfo, proto_tree *tree,
+				      guint frag_offset, guint frag_len,
+				      gboolean fragment_last)
 {
     fragment_data *frag_msg = NULL;
     tvbuff_t *new_tvb = NULL;
@@ -1006,6 +1006,7 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 				if (tvb_get_ntoh24(tvb, offset) == 0x000001) {
 					tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, payload_len, payload_len);
 					const char *saved_proto = pinfo->current_proto;
+					void *pd_save = pinfo->private_data;
 
 					TRY {
 						call_dissector(pes_handle, next_tvb, pinfo, mp2t_tree);
@@ -1019,6 +1020,11 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 					 media stream up into chunks of MP2T_PACKET_SIZE.
 					*/
 					CATCH2(BoundsError, ReportedBoundsError) {
+						/*  Restore the private_data structure in case one of the
+						 *  called dissectors modified it (and, due to the exception,
+						 *  was unable to restore it).
+						 */
+						pinfo->private_data = pd_save;
 						show_exception(next_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
 						pinfo->current_proto = saved_proto;
 					}

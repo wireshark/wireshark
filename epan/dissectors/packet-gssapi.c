@@ -120,7 +120,8 @@ static dissector_handle_t spnego_krb5_wrap_handle;
 
 static GHashTable *gssapi_oids;
 
-static gint gssapi_oid_equal(gconstpointer k1, gconstpointer k2)
+static gint
+gssapi_oid_equal(gconstpointer k1, gconstpointer k2)
 {
 	const char *key1 = (const char *)k1;
 	const char *key2 = (const char *)k2;
@@ -174,7 +175,7 @@ gssapi_lookup_oid_str(const char *oid_key)
 
 static int
 dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    gboolean is_verifier)
+		    gboolean is_verifier)
 {
 	proto_item *volatile item;
 	proto_tree *volatile subtree;
@@ -195,6 +196,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	gssapi_frag_info_t *fi;
 	tvbuff_t *volatile gss_tvb=NULL;
 	asn1_ctx_t asn1_ctx;
+	void *pd_save;
 
 	start_offset=0;
 	offset=0;
@@ -239,6 +241,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 * in the packet after our blob to see, so we just re-throw the
 	 * exception.
 	 */
+	pd_save = pinfo->private_data;
 	TRY {
 		gss_tvb=tvb;
 
@@ -498,6 +501,11 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	} CATCH(BoundsError) {
 		RETHROW;
 	} CATCH(ReportedBoundsError) {
+		/*  Restore the private_data structure in case one of the
+		 *  called dissectors modified it (and, due to the exception,
+		 *  was unable to restore it).
+		 */
+		pinfo->private_data = pd_save;
 		show_reported_bounds_error(gss_tvb, pinfo, tree);
 	} ENDTRY;
 
@@ -579,9 +587,9 @@ proto_register_gssapi(void)
 	register_init_routine(gssapi_reassembly_init);
 }
 
-static int wrap_dissect_gssapi(tvbuff_t *tvb, int offset,
-			       packet_info *pinfo,
-			       proto_tree *tree, guint8 *drep _U_)
+static int
+wrap_dissect_gssapi(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		    proto_tree *tree, guint8 *drep _U_)
 {
 	tvbuff_t *auth_tvb;
 
@@ -592,9 +600,9 @@ static int wrap_dissect_gssapi(tvbuff_t *tvb, int offset,
 	return tvb_length_remaining(tvb, offset);
 }
 
-int wrap_dissect_gssapi_verf(tvbuff_t *tvb, int offset,
-				    packet_info *pinfo,
-				    proto_tree *tree, guint8 *drep _U_)
+int
+wrap_dissect_gssapi_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			 proto_tree *tree, guint8 *drep _U_)
 {
 	tvbuff_t *auth_tvb;
 
@@ -604,11 +612,9 @@ int wrap_dissect_gssapi_verf(tvbuff_t *tvb, int offset,
 }
 
 tvbuff_t *
-wrap_dissect_gssapi_payload(tvbuff_t *data_tvb,
-			tvbuff_t *auth_tvb,
-			int offset _U_,
-			packet_info *pinfo,
-			dcerpc_auth_info *auth_info _U_)
+wrap_dissect_gssapi_payload(tvbuff_t *data_tvb, tvbuff_t *auth_tvb,
+			    int offset _U_, packet_info *pinfo,
+			    dcerpc_auth_info *auth_info _U_)
 {
 	tvbuff_t *result;
 

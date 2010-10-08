@@ -687,7 +687,7 @@ void proto_reg_handoff_sflow_245(void);
 /* dissect a sampled header - layer 2 protocols */
 static gint
 dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
-        proto_tree *tree, volatile gint offset) {
+				 proto_tree *tree, volatile gint offset) {
     guint32 version, header_proto, frame_length, stripped;
     volatile guint32 header_length;
     tvbuff_t *next_tvb;
@@ -697,12 +697,13 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
      * Thanks to Guy Harris for the tip. */
     gboolean save_writable;
     gboolean save_in_error_pkt;
-    volatile address save_dl_src;
-    volatile address save_dl_dst;
-    volatile address save_net_src;
-    volatile address save_net_dst;
-    volatile address save_src;
-    volatile address save_dst;
+    address save_dl_src;
+    address save_dl_dst;
+    address save_net_src;
+    address save_net_dst;
+    address save_src;
+    address save_dst;
+    void *pd_save;
 
     version = tvb_get_ntohl(tvb, 0);
     header_proto = tvb_get_ntohl(tvb, offset);
@@ -766,6 +767,7 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
     save_net_dst = pinfo->net_dst;
     save_src = pinfo->src;
     save_dst = pinfo->dst;
+    pd_save = pinfo->private_data;
 
     TRY
     {
@@ -825,7 +827,11 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     CATCH2(BoundsError, ReportedBoundsError) {
-        ; /* do nothing */
+	/*  Restore the private_data structure in case one of the
+	 *  called dissectors modified it (and, due to the exception,
+	 *  was unable to restore it).
+	 */
+	pinfo->private_data = pd_save;
     }
     ENDTRY;
 
@@ -2682,8 +2688,7 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     guint i = 0;
 
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "sFlow");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "sFlow");
 
 
     /* create display subtree for the protocol */
@@ -2692,8 +2697,7 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     sflow_245_tree = proto_item_add_subtree(ti, ett_sflow_245);
 
     version = tvb_get_ntohl(tvb, offset);
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "V%u", version);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "V%u", version);
     proto_tree_add_item(sflow_245_tree, hf_sflow_version, tvb, offset, 4, FALSE);
     offset += 4;
 
@@ -2702,15 +2706,13 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     switch (agent_addr_type) {
         case ADDR_TYPE_IPV4:
             tvb_memcpy(tvb, agent_address.v4, offset, 4);
-            if (check_col(pinfo->cinfo, COL_INFO))
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", agent %s", ip_to_str(agent_address.v4));
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", agent %s", ip_to_str(agent_address.v4));
             proto_tree_add_item(sflow_245_tree, hf_sflow_agent_address_v4, tvb, offset, 4, FALSE);
             offset += 4;
             break;
         case ADDR_TYPE_IPV6:
             tvb_memcpy(tvb, agent_address.v6, offset, 16);
-            if (check_col(pinfo->cinfo, COL_INFO))
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", agent %s",
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", agent %s",
                     ip6_to_str((struct e_in6_addr *) agent_address.v6));
             proto_tree_add_item(sflow_245_tree, hf_sflow_agent_address_v6, tvb, offset, 16, FALSE);
             offset += 16;
@@ -2722,21 +2724,18 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     if (version == 5) {
         sub_agent_id = tvb_get_ntohl(tvb, offset);
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", sub-agent ID %u", sub_agent_id);
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", sub-agent ID %u", sub_agent_id);
         proto_tree_add_uint(sflow_245_tree, hf_sflow_5_sub_agent_id, tvb, offset, 4, sub_agent_id);
         offset += 4;
     }
     seqnum = tvb_get_ntohl(tvb, offset);
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", seq %u", seqnum);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", seq %u", seqnum);
     proto_tree_add_uint(sflow_245_tree, hf_sflow_245_seqnum, tvb, offset, 4, seqnum);
     offset += 4;
     proto_tree_add_item(sflow_245_tree, hf_sflow_245_sysuptime, tvb, offset, 4, FALSE);
     offset += 4;
     numsamples = tvb_get_ntohl(tvb, offset);
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", %u samples", numsamples);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", %u samples", numsamples);
     proto_tree_add_uint(sflow_245_tree, hf_sflow_245_numsamples, tvb, offset, 4, numsamples);
     offset += 4;
 

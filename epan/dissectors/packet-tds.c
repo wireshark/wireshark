@@ -1728,6 +1728,7 @@ dissect_tds_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t *volatile next_tvb;
     proto_item *tds_item = NULL;
     proto_tree *tds_tree = NULL;
+    void *pd_save;
 
     while (tvb_reported_length_remaining(tvb, offset) != 0) {
         length_remaining = tvb_ensure_length_remaining(tvb, offset);
@@ -1815,11 +1816,9 @@ dissect_tds_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * Set the packet description based on its TDS packet
              * type.
              */
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_add_str(pinfo->cinfo, COL_INFO,
-                            val_to_str(type, packet_type_names,
-                                       "Unknown Packet Type: %u"));
-            }
+	    col_add_str(pinfo->cinfo, COL_INFO,
+			val_to_str(type, packet_type_names,
+				   "Unknown Packet Type: %u"));
             first_time = FALSE;
         }
 
@@ -1856,6 +1855,7 @@ dissect_tds_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * If it gets a BoundsError, we can stop, as there's nothing
          * more to see, so we just re-throw it.
          */
+	pd_save = pinfo->private_data;
         TRY {
             dissect_netlib_buffer(next_tvb, pinfo, tree);
         }
@@ -1863,6 +1863,12 @@ dissect_tds_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             RETHROW;
         }
         CATCH(ReportedBoundsError) {
+	    /*  Restore the private_data structure in case one of the
+	     *  called dissectors modified it (and, due to the exception,
+	     *  was unable to restore it).
+	     */
+	    pinfo->private_data = pd_save;
+
             show_reported_bounds_error(tvb, pinfo, tree);
         }
         ENDTRY;

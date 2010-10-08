@@ -1,5 +1,5 @@
 /* packet-cwids.c
- * Routines for dissecting wireless ids packets sent from a Cisco 
+ * Routines for dissecting wireless ids packets sent from a Cisco
  * access point to the WLSE (or whatever)
  *
  * $Id$
@@ -78,6 +78,7 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	volatile int offset = 0;
 	guint16 capturelen;
 	guint remain;
+	void *pd_save;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CWIDS");
 	col_set_str(pinfo->cinfo, COL_INFO, "Cwids: ");
@@ -88,7 +89,7 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	while((remain = tvb_length_remaining(tvb, offset)) > 0) {
 		ti = proto_tree_add_item(tree, proto_cwids, tvb, offset, 28, FALSE);
 		cwids_tree = proto_item_add_subtree(ti, ett_cwids);
-	
+
 		proto_tree_add_item(cwids_tree, hf_cwids_version, tvb, offset, 2, FALSE);
 		offset += 2;
 		proto_tree_add_item(cwids_tree, hf_cwids_unknown1, tvb, offset, 7, FALSE);
@@ -104,9 +105,10 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 2;
 		proto_tree_add_item(cwids_tree, hf_cwids_unknown3, tvb, offset, 8, FALSE);
 		offset += 8;
-	
+
 		wlan_tvb = tvb_new_subset(tvb, offset, capturelen, capturelen);
 		/* Continue after ieee80211 dissection errors */
+		pd_save = pinfo->private_data;
 		TRY {
 			call_dissector(ieee80211_handle, wlan_tvb, pinfo, tree);
 		} CATCH2(BoundsError, ReportedBoundsError) {
@@ -114,6 +116,12 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			expert_add_info_format(pinfo, NULL,
 				PI_MALFORMED, PI_ERROR,
 				"Malformed or short IEEE80211 subpacket");
+
+			/*  Restore the private_data structure in case one of the
+			 *  called dissectors modified it (and, due to the exception,
+			 *  was unable to restore it).
+			 */
+			pinfo->private_data = pd_save;
 
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_str(pinfo->cinfo, COL_INFO,
@@ -124,7 +132,7 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	wlan_tvb = tvb_new_subset(tvb, offset, capturelen, capturelen);
 #if 0
 			/* FIXME: Why does this throw an exception? */
-			proto_tree_add_text(cwids_tree, wlan_tvb, offset, capturelen, 
+			proto_tree_add_text(cwids_tree, wlan_tvb, offset, capturelen,
 				"[Malformed or short IEEE80211 subpacket]");
 #endif
 	;

@@ -404,7 +404,7 @@ static gint bgp_asn_len = 0;
  */
 static int
 decode_prefix4(proto_tree *tree, int hf_addr, tvbuff_t *tvb, gint offset,
-    guint16 tlen, const char *tag)
+	       guint16 tlen, const char *tag)
 {
     proto_item *ti;
     proto_tree *prefix_tree;
@@ -446,7 +446,7 @@ decode_prefix4(proto_tree *tree, int hf_addr, tvbuff_t *tvb, gint offset,
  */
 static int
 decode_prefix6(proto_tree *tree, int hf_addr, tvbuff_t *tvb, gint offset,
-    guint16 tlen, const char *tag)
+	       guint16 tlen, const char *tag)
 {
     proto_item        *ti;
     proto_tree        *prefix_tree;
@@ -658,7 +658,8 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, emem_strbu
  */
 static int
 decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
-    guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, const char *tag)
+		 guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset,
+		 const char *tag)
 {
     int                 start_offset = offset;
     proto_item          *ti;
@@ -2720,7 +2721,7 @@ dissect_bgp_capability(tvbuff_t *tvb, proto_tree *tree)
 
 static void
 dissect_bgp_pdu(tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree *tree,
-    gboolean first)
+		gboolean first)
 {
     guint16       bgp_len;       /* Message length             */
     guint8        bgp_type;      /* Message type               */
@@ -2733,12 +2734,10 @@ dissect_bgp_pdu(tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree *tree,
     bgp_type = tvb_get_guint8(tvb, BGP_MARKER_SIZE + 2);
     typ = val_to_str(bgp_type, bgptypevals, "Unknown message type (0x%02x)");
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-	if (first)
-	    col_add_str(pinfo->cinfo, COL_INFO, typ);
-	else
-	    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", typ);
-    }
+    if (first)
+	col_add_str(pinfo->cinfo, COL_INFO, typ);
+    else
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", typ);
 
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_bgp, tvb, 0, -1, FALSE);
@@ -2837,6 +2836,7 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint         length;
     volatile gboolean first = TRUE;  /* TRUE for the first BGP message in packet */
     tvbuff_t *volatile next_tvb;
+    void *pd_save;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BGP");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -2982,6 +2982,7 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * If it gets a BoundsError, we can stop, as there's nothing more to
 	 * see, so we just re-throw it.
 	 */
+	pd_save = pinfo->private_data;
 	TRY {
 	    dissect_bgp_pdu(next_tvb, pinfo, tree, first);
 	}
@@ -2989,6 +2990,12 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    RETHROW;
 	}
 	CATCH(ReportedBoundsError) {
+	    /*  Restore the private_data structure in case one of the
+	     *  called dissectors modified it (and, due to the exception,
+	     *  was unable to restore it).
+	     */
+	    pinfo->private_data = pd_save;
+
 	    show_reported_bounds_error(tvb, pinfo, tree);
 	}
 	ENDTRY;
