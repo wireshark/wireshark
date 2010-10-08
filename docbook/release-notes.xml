@@ -42,7 +42,7 @@ Wireshark Info
             ASN.1 BER dissector was susceptible to a stack overflow.
             <!-- Fixed in trunk: r34111 -->
             <!-- Fixed in trunk-1.4: r34414 -->
-            <!-- Fixed in trunk-1.2: r????? -->
+            <!-- Fixed in trunk-1.2: r34441 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5230">Bug
             5230</ulink>)
           </para>
@@ -264,7 +264,31 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
     <para>
 
-There are too many to list here.
+ASN.1 BER,
+ASN.1 PER,
+EIGRP,
+GSM A RR,
+GSM Management,
+GSM MAP,
+GTP,
+GTPv2,
+ICMPv6,
+Interlink,
+IPv4,
+IPv6,
+IPX,
+LDAP,
+LLC,
+MySQL,
+NAS EPS,
+NTLMSSP,
+PN-IO,
+PPP,
+RPC,
+SDP,
+SLL,
+SSL,
+TCP
 
     </para>
     </section>
