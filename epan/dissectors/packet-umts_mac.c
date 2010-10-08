@@ -509,7 +509,7 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	fp_info *fpinf;
 	umts_mac_info *macinf;
 	guint16 pos;
-	guint8 bitoffs = 4;
+	guint8 bitoffs;
 	tvbuff_t *next_tvb;
 	proto_item *ti = NULL;
 
@@ -522,6 +522,7 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	fpinf = p_get_proto_data(pinfo->fd, proto_fp);
 	macinf = p_get_proto_data(pinfo->fd, proto_umts_mac);
 	pos = fpinf->cur_tb;
+	bitoffs = fpinf->hsdsch_entity == ehs ? 0 : 4;
 
 	if (!macinf) {
 		proto_tree_add_text(hsdsch_tree, tvb, 0, -1,

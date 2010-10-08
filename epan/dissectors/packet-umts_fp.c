@@ -639,6 +639,7 @@ static int dissect_macd_pdu_data_type_2(tvbuff_t *tvb, packet_info *pinfo, proto
     proto_item *pdus_ti = NULL;
     proto_tree *data_tree = NULL;
     int first_offset = offset;
+    gboolean dissected = FALSE;
 
     /* Add data subtree */
     if (tree)
@@ -659,6 +660,11 @@ static int dissect_macd_pdu_data_type_2(tvbuff_t *tvb, packet_info *pinfo, proto
             pdu_ti = proto_tree_add_item(data_tree, hf_fp_mac_d_pdu, tvb,
                                          offset, length, FALSE);
             proto_item_set_text(pdu_ti, "MAC-d PDU (PDU %u)", pdu+1);
+            if (preferences_call_mac_dissectors) {
+                tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, length, -1);
+                call_dissector(mac_fdd_hsdsch_handle, next_tvb, pinfo, top_level_tree);
+                dissected = TRUE;
+            }
         }
 
         /* Advance offset */
@@ -669,8 +675,10 @@ static int dissect_macd_pdu_data_type_2(tvbuff_t *tvb, packet_info *pinfo, proto
     proto_item_set_len(pdus_ti, offset-first_offset);
 
     /* Show summary in info column */
-    col_append_fstr(pinfo->cinfo, COL_INFO, "   %u PDUs of %u bits",
-                    number_of_pdus, length*8);
+    if (!dissected) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, "   %u PDUs of %u bits",
+                        number_of_pdus, length*8);
+    }
 
     return offset;
 }

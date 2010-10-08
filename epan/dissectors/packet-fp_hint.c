@@ -55,6 +55,7 @@ static int hf_fph_ctmux = -1;
 static int hf_fph_ciphered = -1;
 static int hf_fph_deciphered = -1;
 static int hf_fph_macdflowid = -1;
+static int hf_fph_macehs = -1;
 static int hf_fph_rb = -1;
 static int hf_fph_ddi_entry = -1;
 static int hf_fph_ddi_size = -1;
@@ -358,13 +359,18 @@ static void assign_fph_fach(tvbuff_t *tvb, packet_info *pinfo, guint16 offset, f
 
 static void assign_fph_hsdsch(tvbuff_t *tvb, packet_info *pinfo, guint16 offset, fp_info *fpi, proto_tree *tree)
 {
-	guint8 rbcnt, macdflow_id;
+	guint8 rbcnt, hsdsch_info;
 
+	hsdsch_info = tvb_get_guint8(tvb, offset);
+	fpi->hsdsch_entity = hsdsch_info & 0x08 ? ehs : hs;
 	fpi->channel = CHANNEL_HSDSCH;
-	macdflow_id = tvb_get_guint8(tvb, offset);
 
-	if (tree)
-		proto_tree_add_uint(tree, hf_fph_macdflowid, tvb, offset, 1, macdflow_id);
+	if (tree) {
+		proto_tree_add_bits_item(tree, hf_fph_macehs, tvb,
+			offset*8+4, 1, TRUE);
+		proto_tree_add_bits_item(tree, hf_fph_macdflowid, tvb,
+			offset*8+5, 3, TRUE);
+	}
 
 	offset++;
 	rbcnt = tvb_get_guint8(tvb, offset); offset++;
@@ -432,8 +438,8 @@ static void attach_info(tvbuff_t *tvb, packet_info *pinfo, guint16 offset, guint
 
 	fpi->is_uplink = pinfo->p2p_dir == P2P_DIR_RECV;
 	/* TODO make this configurable */
-	fpi->release = 6;
-	fpi->release_year = 2006;
+	fpi->release = 7;
+	fpi->release_year = 2008;
 	fpi->release_month = 9;
 	fpi->dch_crc_present = 1;
 
@@ -537,6 +543,7 @@ proto_register_fp_hint(void)
 		{ &hf_fph_chcnt, { "Number of Channels", "fp_hint.num_chan", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 		{ &hf_fph_dchid, { "DCH ID", "fp_hint.dchid", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 		{ &hf_fph_macdflowid, { "MACd Flow ID", "fp_hint.macdflowid", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_fph_macehs, { "MAC-ehs indicator", "fp_hint.mac_ehs", FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL } },
 		/* traffic format details */
 		{ &hf_fph_tf, { "Traffic Format", "fp_hint.tf", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
 		{ &hf_fph_tf_n, { "N", "fp_hint.tf.n", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },

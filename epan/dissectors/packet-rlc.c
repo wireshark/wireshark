@@ -118,6 +118,7 @@ static const true_false_string rlc_p_val = {
 static const value_string rlc_he_vals[] = {
 	{ 0, "The succeeding octet contains data" },
 	{ 1, "The succeeding octet contains a length indicator and E bit" },
+	{ 2, "The succeeding octet contains data and the last octet of the PDU is the last octet of an SDU" },
 	{ 0, NULL }
 };
 
@@ -677,23 +678,26 @@ static tvbuff_t *get_reassembled_data(enum rlc_mode mode, tvbuff_t *tvb, packet_
 	if (!rlc_frag_equal(&lookup, sdu->reassembled_in)) return NULL;
 #endif
 
-	frag = sdu->frags;
-	while (frag->next) {
-		if (frag->next->seq - frag->seq > 1) {
-			proto_item *pi = proto_tree_add_text(tree, tvb, 0, 0,
-				"Error: Incomplete sequence");
-			PROTO_ITEM_SET_GENERATED(pi);
-			tree_add_fragment_list_incomplete(sdu, tvb, tree);
-			return NULL;
+	if (tree) {
+		frag = sdu->frags;
+		while (frag->next) {
+			if (frag->next->seq - frag->seq > 1) {
+				proto_item *pi = proto_tree_add_text(tree, tvb, 0, 0,
+					"Error: Incomplete sequence");
+				PROTO_ITEM_SET_GENERATED(pi);
+				tree_add_fragment_list_incomplete(sdu, tvb, tree);
+				return NULL;
+			}
+			frag = frag->next;
 		}
-		frag = frag->next;
 	}
 	sdu->tvb = tvb_new_real_data(sdu->data, sdu->len, sdu->len);
 	tvb_set_child_real_data_tvbuff(tvb, sdu->tvb);
 	add_new_data_source(pinfo, sdu->tvb, "Reassembled RLC Message");
 
 	/* reassembly happened here, so create the fragment list */
-	tree_add_fragment_list(sdu, sdu->tvb, tree);
+	if (tree)
+		tree_add_fragment_list(sdu, sdu->tvb, tree);
 
 	return sdu->tvb;
 }
@@ -1095,7 +1099,8 @@ static void dissect_rlc_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 }
 
 static void rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, proto_tree *tree,
-	proto_tree *top_level, enum channel_type channel, guint16 seq, struct rlc_li *li, guint16 num_li)
+	proto_tree *top_level, enum channel_type channel, guint16 seq, struct rlc_li *li, guint16 num_li,
+	gboolean final)
 {
 	guint8 i;
 	gboolean piggyback = FALSE, dissected = FALSE;
@@ -1134,7 +1139,15 @@ static void rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, pr
 				ti = proto_tree_add_item(tree, hf_rlc_data, tvb, offs, -1, FALSE);
 			}
 			add_fragment(RLC_AM, tvb, pinfo, tree, offs, seq, i,
-				tvb_length_remaining(tvb,offs), FALSE);
+				tvb_length_remaining(tvb,offs), final);
+			if (final) {
+				next_tvb = get_reassembled_data(RLC_AM, tvb, pinfo, NULL, seq, i);
+			}
+		}
+		if (next_tvb) {
+			dissected = TRUE;
+			rlc_call_subdissector(channel, next_tvb, pinfo, top_level);
+			next_tvb = NULL;
 		}
 	}
 	if (dissected == FALSE && check_col(pinfo->cinfo, COL_INFO))
@@ -1178,7 +1191,7 @@ static void dissect_rlc_am(enum channel_type channel, tvbuff_t *tvb, packet_info
 	}
 
 	/* header extension may only be 00 or 01 */
-	if (ext > 1) {
+	if (ext > 2) {
 		proto_item *malformed;
 		malformed = proto_tree_add_protocol_format(tree,
 			proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
@@ -1216,7 +1229,8 @@ static void dissect_rlc_am(enum channel_type channel, tvbuff_t *tvb, packet_info
 		proto_tree_add_uint(tree, hf_rlc_duplicate_of, tvb, 0, 0, orig_num);
 		return;
 	}
-	rlc_am_reassemble(tvb, offs, pinfo, tree, top_level, channel, seq, li, num_li);
+	rlc_am_reassemble(tvb, offs, pinfo, tree, top_level, channel, seq, li, num_li,
+		ext == 2);
 }
 
 /* dissect entry functions */
