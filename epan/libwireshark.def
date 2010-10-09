@@ -923,7 +923,11 @@ se_strdup_vprintf
 se_strndup
 se_tree_create
 se_tree_create_non_persistent
+set_column_custom_field
+set_column_custom_occurrence
+set_column_format
 set_column_resolved
+set_column_title
 set_column_visible
 set_actual_length
 set_profile_name

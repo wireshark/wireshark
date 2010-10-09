@@ -67,8 +67,17 @@
 #include "gtk/prefs_column.h"
 #include "gtk/prefs_dlg.h"
 #include "gtk/dlg_utils.h"
+#include "gtk/filter_dlg.h"
 
 #define COLUMN_WIDTH_MIN 40
+
+#define COL_EDIT_COLUMN          "column"
+#define COL_EDIT_FORMAT_CMB      "format_cmb"
+#define COL_EDIT_TITLE_TE        "title_te"
+#define COL_EDIT_FIELD_LB        "field_lb"
+#define COL_EDIT_FIELD_TE        "field_te"
+#define COL_EDIT_OCCURRENCE_LB   "occurrence_lb"
+#define COL_EDIT_OCCURRENCE_TE   "occurrente_te"
 
 static PacketList *packetlist;
 static gboolean last_at_end = FALSE;
@@ -214,26 +223,60 @@ resolve_column (gint col)
 static void
 col_title_change_ok (GtkWidget *w, gpointer parent_w)
 {
-	GtkTreeViewColumn *col = g_object_get_data (G_OBJECT(w), "column");
-	gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(col), E_MPACKET_LIST_COL_KEY));
-	GtkWidget *entry = g_object_get_data (G_OBJECT(w), "entry");
-	const gchar *title = gtk_entry_get_text(GTK_ENTRY(entry));
-	gchar *escaped_title = ws_strdup_escape_underscore(title);
-	gint col_width;
+	GtkTreeViewColumn *col;
+	const gchar  *title, *name, *occurrence_text;
+	gint          col_id, cur_fmt, occurrence, col_width;
+	gchar        *escaped_title;
+	gboolean      recreate = FALSE;
 
+	col = g_object_get_data (G_OBJECT(w), COL_EDIT_COLUMN);
+	col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(col), E_MPACKET_LIST_COL_KEY));
+
+	title = gtk_entry_get_text(GTK_ENTRY(g_object_get_data (G_OBJECT(w), COL_EDIT_TITLE_TE)));
+	name = gtk_entry_get_text(GTK_ENTRY(g_object_get_data (G_OBJECT(w), COL_EDIT_FIELD_TE)));
+	cur_fmt =  gtk_combo_box_get_active(GTK_COMBO_BOX(g_object_get_data (G_OBJECT(w), COL_EDIT_FORMAT_CMB)));
+	occurrence_text = gtk_entry_get_text(GTK_ENTRY(g_object_get_data (G_OBJECT(w), COL_EDIT_OCCURRENCE_TE)));
+	occurrence = (gint)strtol(occurrence_text, NULL, 10);
+
+	escaped_title = ws_strdup_escape_underscore(title);
 	gtk_tree_view_column_set_title(col, escaped_title);
 	g_free(escaped_title);
-	column_prefs_rename(col_id, title);
+
+	if (strcmp (title, get_column_title(col_id)) != 0) {
+		set_column_title (col_id, title);
+	}
+
+	if (cur_fmt != get_column_format(col_id)) {
+		set_column_format (col_id, cur_fmt);
+		recreate = TRUE;
+	}
+
+	if (cur_fmt == COL_CUSTOM) {
+		if (strcmp (name, get_column_custom_field(col_id)) != 0) {
+			set_column_custom_field (col_id, name);
+			recreate = TRUE;
+		}
+
+		if (occurrence != get_column_custom_occurrence(col_id)) {
+			set_column_custom_occurrence (col_id, occurrence);
+			recreate = TRUE;
+		}
+	}
 
 	col_width = get_default_col_size (packetlist->view, title);
 	gtk_tree_view_column_set_min_width(col, col_width);
-	new_packet_list_resize_column (col_id);
 
 	if (!prefs.gui_use_pref_save) {
 		prefs_main_write();
 	}
 
 	rebuild_visible_columns_menu ();
+
+	if (recreate) {
+		new_packet_list_recreate();
+	}
+
+	new_packet_list_resize_column (col_id);
 	window_destroy(GTK_WIDGET(parent_w));
 }
 
@@ -244,45 +287,140 @@ col_title_change_cancel (GtkWidget *w _U_, gpointer parent_w)
 }
 
 static void
-col_title_edit_dlg (GtkTreeViewColumn *col)
+col_details_format_changed_cb(GtkWidget *w, gpointer data _U_)
+{
+	GtkWidget *field_lb, *field_te, *occurrence_lb, *occurrence_te;
+	gint       cur_fmt;
+
+	field_lb = g_object_get_data (G_OBJECT(w), COL_EDIT_FIELD_LB);
+	field_te = g_object_get_data (G_OBJECT(w), COL_EDIT_FIELD_TE);
+	occurrence_lb = g_object_get_data (G_OBJECT(w), COL_EDIT_OCCURRENCE_LB);
+	occurrence_te = g_object_get_data (G_OBJECT(w), COL_EDIT_OCCURRENCE_TE);
+
+	cur_fmt = gtk_combo_box_get_active(GTK_COMBO_BOX(w));
+
+	if (cur_fmt == COL_CUSTOM) {
+		/* Changing to custom */
+		gtk_widget_set_sensitive(field_lb, TRUE);
+		gtk_widget_set_sensitive(field_te, TRUE);
+		gtk_widget_set_sensitive(occurrence_lb, TRUE);
+		gtk_widget_set_sensitive(occurrence_te, TRUE);
+	} else {
+		/* Changing to non-custom */
+		gtk_widget_set_sensitive(field_lb, FALSE);
+		gtk_widget_set_sensitive(field_te, FALSE);
+		gtk_widget_set_sensitive(occurrence_lb, FALSE);
+		gtk_widget_set_sensitive(occurrence_te, FALSE);
+	}
+}
+
+static void
+col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 {
 	const gchar *title = gtk_tree_view_column_get_title(col);
 	gchar *unescaped_title = ws_strdup_unescape_underscore(title);
 
+	GtkWidget *label, *field_lb, *occurrence_lb;
+	GtkWidget *title_te, *format_cmb, *field_te, *occurrence_te;
 	GtkWidget *win, *main_tb, *main_vb, *bbox, *cancel_bt, *ok_bt;
-	GtkWidget *entry, *label;
+	char       custom_occurrence_str[8];
+	gint       cur_fmt, i;
 
-	win = dlg_window_new("Column Title");
+	GtkTooltips   *tooltips = gtk_tooltips_new();
+
+	win = dlg_window_new("Edit Column Details");
 
 	gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
 	gtk_window_resize(GTK_WINDOW(win), 400, 100);
 
-	main_vb = gtk_vbox_new(FALSE, 5);
+	main_vb = gtk_vbox_new(FALSE, 6);
 	gtk_container_add(GTK_CONTAINER(win), main_vb);
 	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
 
-	main_tb = gtk_table_new(2, 2, FALSE);
+	main_tb = gtk_table_new(2, 4, FALSE);
 	gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
 	gtk_table_set_col_spacings(GTK_TABLE(main_tb), 10);
 
 	label = gtk_label_new(ep_strdup_printf("Title:"));
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 0, 1);
+	gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
+	gtk_tooltips_set_tip (tooltips, label, "Packet list column title.", NULL);
+
+	title_te = gtk_entry_new();
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), title_te, 1, 2, 0, 1);
+	gtk_entry_set_text(GTK_ENTRY(title_te), unescaped_title);
+	g_free(unescaped_title);
+	gtk_tooltips_set_tip (tooltips, title_te, "Packet list column title.", NULL);
+
+	label = gtk_label_new(ep_strdup_printf("Field type:"));
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 1, 2);
 	gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
+	gtk_tooltips_set_tip (tooltips, label,
+			      "Select which packet information to present in the column.", NULL);
+ 
+	format_cmb = gtk_combo_box_new_text();
+	for (i = 0; i < NUM_COL_FMTS; i++) {
+	  gtk_combo_box_append_text(GTK_COMBO_BOX(format_cmb), col_format_desc(i));
+	}
+	g_signal_connect(format_cmb, "changed", G_CALLBACK(col_details_format_changed_cb), NULL);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), format_cmb, 1, 2, 1, 2);
+	gtk_tooltips_set_tip (tooltips, format_cmb,
+			      "Select which packet information to present in the column.", NULL);
 
-	entry = gtk_entry_new();
-	gtk_table_attach_defaults(GTK_TABLE(main_tb), entry, 1, 2, 1, 2);
-	gtk_entry_set_text(GTK_ENTRY(entry), unescaped_title);
-	g_free(unescaped_title);
+	field_lb = gtk_label_new(ep_strdup_printf("Field name:"));
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), field_lb, 0, 1, 2, 3);
+	gtk_misc_set_alignment(GTK_MISC(field_lb), 1.0f, 0.5f);
+	gtk_tooltips_set_tip (tooltips, field_lb,
+			      "Field name used when field type is \"Custom\". "
+			      "This string has the same syntax as a display filter string.", NULL);
+	field_te = gtk_entry_new();
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), field_te, 1, 2, 2, 3);
+	g_object_set_data (G_OBJECT(field_te), E_FILT_FIELD_NAME_ONLY_KEY, "");
+	g_signal_connect(field_te, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
+	gtk_tooltips_set_tip (tooltips, field_te,
+			      "Field name used when field type is \"Custom\". "
+			      "This string has the same syntax as a display filter string.", NULL);
+
+	occurrence_lb = gtk_label_new(ep_strdup_printf("Occurrence:"));
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), occurrence_lb, 0, 1, 3, 4);
+	gtk_misc_set_alignment(GTK_MISC(occurrence_lb), 1.0f, 0.5f);
+	gtk_tooltips_set_tip (tooltips, occurrence_lb,
+			      "Field occurence to use. "
+			      "0=all (default), 1=first, 2=second, ..., -1=last.", NULL);
+
+	occurrence_te = gtk_entry_new();
+	gtk_entry_set_max_length (GTK_ENTRY(occurrence_te), 4);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), occurrence_te, 1, 2, 3, 4);
+	gtk_tooltips_set_tip (tooltips, occurrence_te,
+			      "Field occurence to use. "
+			      "0=all (default), 1=first, 2=second, ..., -1=last.", NULL);
 
 	bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_OK, NULL);
 	gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 
 	ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
-	g_object_set_data (G_OBJECT(ok_bt), "column", col);
-	g_object_set_data (G_OBJECT(ok_bt), "entry", entry);
+	g_object_set_data (G_OBJECT(ok_bt), COL_EDIT_COLUMN, col);
+	g_object_set_data (G_OBJECT(ok_bt), COL_EDIT_FORMAT_CMB, format_cmb);
+	g_object_set_data (G_OBJECT(ok_bt), COL_EDIT_TITLE_TE, title_te);
+	g_object_set_data (G_OBJECT(ok_bt), COL_EDIT_FIELD_TE, field_te);
+	g_object_set_data (G_OBJECT(ok_bt), COL_EDIT_OCCURRENCE_TE, occurrence_te);
+	g_object_set_data (G_OBJECT(format_cmb), COL_EDIT_FIELD_LB, field_lb);
+	g_object_set_data (G_OBJECT(format_cmb), COL_EDIT_FIELD_TE, field_te);
+	g_object_set_data (G_OBJECT(format_cmb), COL_EDIT_OCCURRENCE_LB, occurrence_lb);
+	g_object_set_data (G_OBJECT(format_cmb), COL_EDIT_OCCURRENCE_TE, occurrence_te);
 	g_signal_connect(ok_bt, "clicked", G_CALLBACK(col_title_change_ok), win);
 
-	dlg_set_activate(entry, ok_bt);
+	cur_fmt = get_column_format (col_id);
+        gtk_combo_box_set_active(GTK_COMBO_BOX(format_cmb), cur_fmt);
+	if (cur_fmt == COL_CUSTOM) {
+		gtk_entry_set_text(GTK_ENTRY(field_te), get_column_custom_field(col_id));
+		g_snprintf(custom_occurrence_str, sizeof(custom_occurrence_str), "%d", get_column_custom_occurrence(col_id));
+		gtk_entry_set_text(GTK_ENTRY(occurrence_te), custom_occurrence_str);
+	}
+
+	dlg_set_activate(title_te, ok_bt);
+	dlg_set_activate(field_te, ok_bt);
+	dlg_set_activate(occurrence_te, ok_bt);
 
 	cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
 	g_signal_connect(cancel_bt, "clicked", G_CALLBACK(col_title_change_cancel), win);
@@ -499,8 +637,8 @@ new_packet_list_column_menu_cb (GtkWidget *w, gpointer user_data _U_, COLUMN_SEL
 	case COLUMN_SELECTED_RESIZE:
 		new_packet_list_resize_column (col_id);
 		break;
-	case COLUMN_SELECTED_RENAME:
-		col_title_edit_dlg (col);
+	case COLUMN_SELECTED_CHANGE:
+		col_details_edit_dlg (col_id, col);
 		break;
 	case COLUMN_SELECTED_HIDE:
 		new_packet_list_set_visible_column (col_id, col, FALSE);

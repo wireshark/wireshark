@@ -2108,9 +2108,9 @@ packet_list_heading_resize_col_cb(GtkWidget *widget, gpointer user_data)
 }
 
 static void
-packet_list_heading_rename_col_cb(GtkWidget *widget, gpointer user_data)
+packet_list_heading_change_col_cb(GtkWidget *widget, gpointer user_data)
 {
-	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_RENAME);
+	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_CHANGE);
 }
 
 static void
@@ -2763,8 +2763,8 @@ static const char *ui_desc_packet_list_heading_menu_popup =
 "     <menuitem name='AlignRight' action='/Align Right'/>\n"
 "     <separator/>\n"
 "     <menuitem name='ColumnPreferences' action='/Column Preferences'/>\n"
+"     <menuitem name='EditColumnDetails' action='/Edit Column Details'/>\n"
 "     <menuitem name='ResizeColumn' action='/Resize Column'/>\n"
-"     <menuitem name='RenameColumnTitle' action='/Rename Column Title'/>\n"
 "     <separator/>\n"
 "     <menu name='DisplayedColumns' action='/Displayed Columns'>\n"
 "       <menuitem name='Display All' action='/Displayed Columns/Display All'/>\n"
@@ -2782,8 +2782,8 @@ static const GtkActionEntry packet_list_heading_menu_popup_action_entries[] = {
   { "/Align Center",					GTK_STOCK_JUSTIFY_CENTER,			"Align Center",				NULL,	NULL,	G_CALLBACK(packet_list_heading_align_center_cb) },
   { "/Align Right",						GTK_STOCK_JUSTIFY_RIGHT,			"Align Right",				NULL,	NULL,	G_CALLBACK(packet_list_heading_align_right_cb) },
   { "/Column Preferences",				GTK_STOCK_PREFERENCES,				"Column Preferences...",	NULL,	NULL,	G_CALLBACK(packet_list_heading_col_pref_cb) },
+  { "/Edit Column Details",				NULL,						"Edit Column Details...",	NULL,	NULL,	G_CALLBACK(packet_list_heading_change_col_cb) },
   { "/Resize Column",					WIRESHARK_STOCK_RESIZE_COLUMNS,		"Resize Column",			NULL,	NULL,	G_CALLBACK(packet_list_heading_resize_col_cb) },
-  { "/Rename Column Title",				GTK_STOCK_BOLD,						"Rename Column Title...",	NULL,	NULL,	G_CALLBACK(packet_list_heading_rename_col_cb) },
   { "/Displayed Columns",				NULL,								"Displayed Columns",		NULL,	NULL,	NULL },
   { "/Displayed Columns/Display All",				NULL,					"Display All",				NULL,	NULL,	G_CALLBACK(packet_list_heading_activate_all_columns) },
   { "/Hide Column",						NULL,								"Hide Column",				NULL,	NULL,	G_CALLBACK(packet_list_heading_hide_col_cb) },
