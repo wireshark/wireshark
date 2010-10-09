@@ -1504,11 +1504,11 @@ static GtkWidget *control_panel_create_graph_type_group (struct graph *g)
 	graph_init = gtk_check_button_new_with_label ("Init on change");
 	graph_sep = gtk_hseparator_new ();
 	graph_box = gtk_vbox_new (FALSE, 0);
-	gtk_box_pack_start (GTK_BOX (graph_box), graph_wscale, TRUE, TRUE, 0); 
 	gtk_box_pack_start (GTK_BOX (graph_box), graph_rtt, TRUE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (graph_box), graph_tput, TRUE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (graph_box), graph_tseqstevens, TRUE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (graph_box), graph_tseqttrace, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (graph_box), graph_wscale, TRUE, TRUE, 0); 
 	gtk_box_pack_start (GTK_BOX (graph_box), graph_sep, TRUE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (graph_box), graph_init, TRUE, TRUE, 0);
 	graph_frame = gtk_frame_new ("Graph type:");
