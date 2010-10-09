@@ -328,7 +328,7 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 
 	GtkTooltips   *tooltips = gtk_tooltips_new();
 
-	win = dlg_window_new("Edit Column Details");
+	win = dlg_window_new("Wireshark: Edit Column Details");
 
 	gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
 	gtk_window_resize(GTK_WINDOW(win), 400, 100);
