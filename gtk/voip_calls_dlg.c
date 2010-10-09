@@ -882,7 +882,7 @@ void
 register_tap_listener_voip_calls_dlg(void)
 {
 	register_stat_cmd_arg("voip,calls", voip_calls_init_tap, NULL);
-	register_stat_menu_item_stock("_VoIP Calls...",
+	register_stat_menu_item_stock("_VoIP Calls",
 		REGISTER_STAT_GROUP_TELEPHONY, WIRESHARK_STOCK_TELEPHONE,
 		voip_calls_launch, NULL, NULL, NULL);
 }
