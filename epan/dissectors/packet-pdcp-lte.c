@@ -257,7 +257,7 @@ static const value_string ip_protocol_vals[] = {
 };
 
 
-dissector_handle_t ip_handle = 0;
+static dissector_handle_t ip_handle;
 
 
 /* Preference variables */
@@ -1365,7 +1365,6 @@ static dissector_handle_t lookup_rrc_dissector_handle(struct pdcp_lte_info  *p_p
 
 
 /* Forwad declarations */
-void proto_reg_handoff_pdcp_lte(void);
 static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Heuristic dissection */
@@ -1732,7 +1731,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /* If not compressed with ROHC, show as user-plane data */
     if (!p_pdcp_info->rohc_compression) {
 
-        if (global_pdcp_dissect_user_plane_as_ip && (ip_handle != 0)) {
+        if (global_pdcp_dissect_user_plane_as_ip) {
             tvbuff_t *payload_tvb = tvb_new_subset_remaining(tvb, offset);
             call_dissector_only(ip_handle, payload_tvb, pinfo, pdcp_tree);
         }
@@ -2570,13 +2569,12 @@ void proto_register_pdcp(void)
 
 void proto_reg_handoff_pdcp_lte(void)
 {
-    static dissector_handle_t pdcp_lte_handle;
-    if (!pdcp_lte_handle) {
-        pdcp_lte_handle = find_dissector("pdcp-lte");
+    dissector_handle_t pdcp_lte_handle;
 
-        /* Add as a heuristic UDP dissector */
-        heur_dissector_add("udp", dissect_pdcp_lte_heur, proto_pdcp_lte);
-    }
+    pdcp_lte_handle = find_dissector("pdcp-lte");
+    /* Add as a heuristic UDP dissector */
+    heur_dissector_add("udp", dissect_pdcp_lte_heur, proto_pdcp_lte);
+
     ip_handle = find_dissector("ip");
 }
 
