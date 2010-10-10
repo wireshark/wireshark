@@ -2116,10 +2116,10 @@ packet_list_heading_resize_col_cb(GtkAction *action _U_, gpointer user_data)
 }
 
 static void
-packet_list_heading_rename_col_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_heading_change_col_cb(GtkAction *action _U_, gpointer user_data)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/RenameColumnTitle");
-	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_RENAME);
+	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_CHANGE);
 }
 
 static void
@@ -4137,13 +4137,13 @@ set_menu_object_data_meat(GtkUIManager *ui_manager, const gchar *path, const gch
 {
     GtkWidget *menu = NULL;
 
-	if ((menu =  gtk_ui_manager_get_widget(ui_manager, path)) != NULL){
+    if ((menu =  gtk_ui_manager_get_widget(ui_manager, path)) != NULL){
         g_object_set_data(G_OBJECT(menu), key, data);
-	}else{
+    }else{
 #if 0
-		g_warning("set_menu_object_data_meat: no menu, path: %s",path);
+        g_warning("set_menu_object_data_meat: no menu, path: %s",path);
 #endif
-	}
+    }
 }
 
 #ifndef MAIN_MENU_USE_UIMANAGER
@@ -4154,7 +4154,7 @@ set_menu_object_data_meat_old(const gchar *path, const gchar *key, gpointer data
 
     if ((menu = gtk_item_factory_get_widget(main_menu_factory, path)) != NULL){
         g_object_set_data(G_OBJECT(menu), key, data);
-	}
+    }
 }
 
 
@@ -4166,20 +4166,18 @@ set_menu_object_data_old (const gchar *path, const gchar *key, gpointer data) {
 #endif
 void
 set_menu_object_data (const gchar *path, const gchar *key, gpointer data) {
-    GSList *menu_list = popup_menu_list;
-    gchar *shortpath = strrchr(path, '/');
 
-	if (strncmp (path,"/Menubar",8) == 0){
-		set_menu_object_data_meat(ui_manager_main_menubar, path, key, data);
-	}else if (strncmp (path,"/PacketListMenuPopup",20) == 0){
-		set_menu_object_data_meat(ui_manager_packet_list_menu, path, key, data);
-	}else if (strncmp (path,"/TreeViewPopup",14) == 0){
-		set_menu_object_data_meat(ui_manager_tree_view_menu, path, key, data);
-	}else if (strncmp (path,"/BytesMenuPopup",15) == 0){
-		set_menu_object_data_meat(ui_manager_bytes_menu, path, key, data);
-	}else if (strncmp (path,"/ProfilesMenuPopup",18) == 0){
-		set_menu_object_data_meat(ui_manager_statusbar_profiles_menu, path, key, data);
-	}
+    if (strncmp (path,"/Menubar",8) == 0){
+        set_menu_object_data_meat(ui_manager_main_menubar, path, key, data);
+    }else if (strncmp (path,"/PacketListMenuPopup",20) == 0){
+        set_menu_object_data_meat(ui_manager_packet_list_menu, path, key, data);
+    }else if (strncmp (path,"/TreeViewPopup",14) == 0){
+        set_menu_object_data_meat(ui_manager_tree_view_menu, path, key, data);
+    }else if (strncmp (path,"/BytesMenuPopup",15) == 0){
+        set_menu_object_data_meat(ui_manager_bytes_menu, path, key, data);
+    }else if (strncmp (path,"/ProfilesMenuPopup",18) == 0){
+        set_menu_object_data_meat(ui_manager_statusbar_profiles_menu, path, key, data);
+    }
 }
 
 
@@ -4220,12 +4218,12 @@ update_menu_recent_capture_file(GtkWidget *submenu_recent_files) {
     gtk_container_foreach(GTK_CONTAINER(submenu_recent_files),
                           update_menu_recent_capture_file1, &cnt);
 
-	if(cnt==0){
-		/* Empty list */
-		menu_item = gtk_menu_item_new_with_label("No recently used files");
-		gtk_menu_shell_append (GTK_MENU_SHELL(submenu_recent_files), menu_item);
-		gtk_widget_show (menu_item);
-	}
+    if(cnt==0){
+        /* Empty list */
+        menu_item = gtk_menu_item_new_with_label("No recently used files");
+        gtk_menu_shell_append (GTK_MENU_SHELL(submenu_recent_files), menu_item);
+        gtk_widget_show (menu_item);
+    }
 
     /* make parent menu item sensitive only, if we have any valid files in the list */
 #ifdef MAIN_MENU_USE_UIMANAGER
