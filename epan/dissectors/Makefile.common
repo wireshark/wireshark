@@ -1179,7 +1179,6 @@ DISSECTOR_INCLUDES =	\
 	packet-ntp.h	\
 	packet-null.h	\
 	packet-ocsp.h	\
-	packet-opsi.h	\
 	packet-osi-options.h	\
 	packet-osi.h	\
 	packet-p7.h \
