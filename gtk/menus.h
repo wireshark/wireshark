@@ -29,7 +29,9 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/* Add a new recent capture filename to the "Recent Files" submenu
+/*#define MAIN_MENU_USE_UIMANAGER 1 */
+
+	/* Add a new recent capture filename to the "Recent Files" submenu
    (duplicates will be ignored) */
 extern void add_menu_recent_capture_file(gchar *cf_name);
 
@@ -86,6 +88,9 @@ extern GtkWidget *main_menu_new(GtkAccelGroup **accel);
  * @param data the data to set
  */
 extern void set_menu_object_data(const gchar *path, const gchar *key, gpointer data);
+#ifndef MAIN_MENU_USE_UIMANAGER
+extern void set_menu_object_data_old(const gchar *path, const gchar *key, gpointer data);
+#endif /* MAIN_MENU_USE_UIMANAGER */
 
 /** The popup menu handler.
  *
@@ -148,8 +153,6 @@ void set_menus_for_selected_packet(capture_file *cf);
 /* Enable or disable menu items based on configuration profile */
 void set_menus_for_profiles(gboolean default_profile);
 
-/*#define MAIN_MENU_USE_UIMANAGER 1 */
-
 #ifdef MAIN_MENU_USE_UIMANAGER
 #define MENU_BAR_PATH_FILE_OPEN							"/Menubar/FileMenu/Open"
 #define MENU_BAR_PATH_EDIT_COPY_AS_FLT					"/Menubar/EditMenu/Copy/AsFilter"
@@ -171,12 +174,6 @@ void set_menus_for_profiles(gboolean default_profile);
 #define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_AND_NOT_SEL	"/Menubar/AnalyzeMenu/PrepareaFilter/AndNotSelected"
 #define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_OR_NOT_SEL		"/Menubar/AnalyzeMenu/PrepareaFilter/OrNotSelected"
 
-#define PACKET_LIST_POPUP_PATH_CONV_FLT_ETH				"/PacketListMenuPopup/ConversationFilter/Ethernet" 
-#define PACKET_LIST_POPUP_PATH_CONV_FLT_IP				"/PacketListMenuPopup/ConversationFilter/IP"
-#define PACKET_LIST_POPUP_PATH_CONV_FLT_TCP				"/PacketListMenuPopup/ConversationFilter/TCP"
-#define PACKET_LIST_POPUP_PATH_CONV_FLT_UDP				"/PacketListMenuPopup/ConversationFilter/UDP"
-#define PACKET_LIST_POPUP_PATH_CONV_FLT_PN_CBA_SERV		"/PacketListMenuPopup/ConversationFilter/PN-CBA"
-
 #else
 #define MENU_BAR_PATH_FILE_OPEN							"/File/Open..."
 #define MENU_BAR_PATH_EDIT_COPY_AS_FLT					"/Edit/Copy/As Filter"
@@ -197,14 +194,18 @@ void set_menus_for_profiles(gboolean default_profile);
 #define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_OR_SEL			"/Analyze/Prepare a Filter/... or Selected"
 #define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_AND_NOT_SEL	"/Analyze/Prepare a Filter/... and not Selected"
 #define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_OR_NOT_SEL		"/Analyze/Prepare a Filter/... or not Selected"
-
-#define PACKET_LIST_POPUP_PATH_CONV_FLT_ETH				"/Conversation Filter/Ethernet"
-#define PACKET_LIST_POPUP_PATH_CONV_FLT_IP				"/Conversation Filter/IP"
-#define PACKET_LIST_POPUP_PATH_CONV_FLT_TCP				"/Conversation Filter/TCP"
-#define PACKET_LIST_POPUP_PATH_CONV_FLT_UDP				"/Conversation Filter/UDP"
-#define PACKET_LIST_POPUP_PATH_CONV_FLT_PN_CBA_SERV		"/Conversation Filter/PN-CBA Server"
-
 #endif /* MAIN_MENU_USE_UIMANAGER */
+
+#define PACKET_LIST_POPUP_PATH_ANALYZE_FOLLOW_TCP_STREAM	"/PacketListMenuPopup/FollowTCPStream"
+#define PACKET_LIST_POPUP_PATH_ANALYZE_FOLLOW_UDP_STREAM	"/PacketListMenuPopup/FollowUDPStream"
+#define PACKET_LIST_POPUP_PATH_ANALYZE_FOLLOW_SSL_STREAM	"/PacketListMenuPopup/FollowSSLStream"
+#define PACKET_LIST_POPUP_PATH_CONV_FLT_ETH					"/PacketListMenuPopup/ConversationFilter/Ethernet" 
+#define PACKET_LIST_POPUP_PATH_CONV_FLT_IP					"/PacketListMenuPopup/ConversationFilter/IP"
+#define PACKET_LIST_POPUP_PATH_CONV_FLT_TCP					"/PacketListMenuPopup/ConversationFilter/TCP"
+#define PACKET_LIST_POPUP_PATH_CONV_FLT_UDP					"/PacketListMenuPopup/ConversationFilter/UDP"
+#define PACKET_LIST_POPUP_PATH_CONV_FLT_PN_CBA_SERV			"/PacketListMenuPopup/ConversationFilter/PN-CBA"
+
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

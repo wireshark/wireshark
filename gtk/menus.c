@@ -542,9 +542,8 @@ tree_view_menu_prepare_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
 	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_OR_NOT);
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER 
 /* Prepare for use of GTKUImanager */
-GtkUIManager *ui_manager_main_menubar = NULL;
+#ifdef MAIN_MENU_USE_UIMANAGER 
 guint merge_id = 0;
 
 static void
@@ -788,163 +787,163 @@ view_menu_auto_scroll_live_cb(GtkAction *action _U_, gpointer user_data _U_)
 }
 
 static void
-view_menu_color_conv_color1_cb(GtkWidget *widget, gpointer user_data)
+view_menu_color_conv_color1_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, 1*256);
+	colorize_conversation_cb( NULL /* widget _U_*/ , user_data, 1*256);
 
 }
 
 static void
-view_menu_color_conv_color2_cb(GtkWidget *widget, gpointer user_data)
+view_menu_color_conv_color2_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, 2*256);
+	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 2*256);
 
 }
 static void
-view_menu_color_conv_color3_cb(GtkWidget *widget, gpointer user_data)
+view_menu_color_conv_color3_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, 3*256);
+	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 3*256);
 
 }
 static void
-view_menu_color_conv_color4_cb(GtkWidget *widget, gpointer user_data)
+view_menu_color_conv_color4_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, 4*256);
+	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 4*256);
 
 }
 static void
-view_menu_color_conv_color5_cb(GtkWidget *widget, gpointer user_data)
+view_menu_color_conv_color5_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, 5*256);
+	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 5*256);
 
 }
 static void
-view_menu_color_conv_color6_cb(GtkWidget *widget, gpointer user_data)
+view_menu_color_conv_color6_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, 6*256);
+	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 6*256);
 
 }
 static void
-view_menu_color_conv_color7_cb(GtkWidget *widget, gpointer user_data)
+view_menu_color_conv_color7_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, 7*256);
+	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 7*256);
 
 }
 static void
-view_menu_color_conv_color8_cb(GtkWidget *widget, gpointer user_data)
+view_menu_color_conv_color8_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, 8*256);
+	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 8*256);
 
 }
 static void
-view_menu_color_conv_color9_cb(GtkWidget *widget, gpointer user_data)
+view_menu_color_conv_color9_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, 9*256);
+	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 9*256);
 
 }
 static void
-view_menu_color_conv_color10_cb(GtkWidget *widget, gpointer user_data)
+view_menu_color_conv_color10_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, 10*256);
-
-}
-
-static void
-view_menu_color_conv_new_rule_cb(GtkWidget *widget, gpointer user_data)
-{
-	colorize_conversation_cb( widget , user_data, 0);
+	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 10*256);
 
 }
 
 static void
-view_menu_reset_coloring_cb(GtkWidget *widget, gpointer user_data)
+view_menu_color_conv_new_rule_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, 255*256);
+	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 0);
 
 }
 
 static void
-help_menu_cont_cb(GtkWidget *widget, gpointer user_data _U_)
+view_menu_reset_coloring_cb(GtkAction *action _U_, gpointer user_data)
 {
-	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(HELP_CONTENT));
+	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 255*256);
+
 }
 
 static void
-help_menu_faq_cb(GtkWidget *widget, gpointer user_data _U_)
+help_menu_cont_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
-	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_FAQ));
+	topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(HELP_CONTENT));
 }
 
 static void
-help_menu_wireshark_cb(GtkWidget *widget, gpointer user_data _U_)
+help_menu_faq_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
- 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_WIRESHARK));
+	topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_FAQ));
 }
 
 static void
-help_menu_wireshark_flt_cb(GtkWidget *widget, gpointer user_data _U_)
+help_menu_wireshark_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
- 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_WIRESHARK_FILTER)); 
+ 	topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_WIRESHARK));
 }
 
 static void
-help_menu_Tshark_cb(GtkWidget *widget, gpointer user_data _U_)
+help_menu_wireshark_flt_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
- 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_TSHARK)); 
+ 	topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_WIRESHARK_FILTER)); 
 }
 
 static void
-help_menu_RawShark_cb(GtkWidget *widget, gpointer user_data _U_)
+help_menu_Tshark_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
- 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_RAWSHARK));  
+ 	topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_TSHARK)); 
 }
 
 static void
-help_menu_Dumpcap_cb(GtkWidget *widget, gpointer user_data _U_)
+help_menu_RawShark_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
- 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_DUMPCAP));   
+ 	topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_RAWSHARK));  
 }
 
 static void
-help_menu_Mergecap_cb(GtkWidget *widget, gpointer user_data _U_)
+help_menu_Dumpcap_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
- 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_MERGECAP));   
+ 	topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_DUMPCAP));   
 }
 
 static void
-help_menu_Editcap_cb(GtkWidget *widget, gpointer user_data _U_)
+help_menu_Mergecap_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
- 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_EDITCAP));   
+ 	topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_MERGECAP));   
 }
 
 static void
-help_menu_Text2pcap_cb(GtkWidget *widget, gpointer user_data _U_)
+help_menu_Editcap_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
- 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_TEXT2PCAP));   
+ 	topic_menu_cb(NULL/* widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_EDITCAP));   
 }
 
 static void
-help_menu_Website_cb(GtkWidget *widget, gpointer user_data _U_)
+help_menu_Text2pcap_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
- 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_HOME));   
+ 	topic_menu_cb(NULL/* widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_TEXT2PCAP));   
 }
 
 static void
-help_menu_Wiki_cb(GtkWidget *widget, gpointer user_data _U_)
+help_menu_Website_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
- 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_WIKI));   
+ 	topic_menu_cb(NULL/* widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_HOME));   
 }
 
 static void
-help_menu_Downloads_cb(GtkWidget *widget, gpointer user_data _U_)
+help_menu_Wiki_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
- 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_DOWNLOAD));   
+ 	topic_menu_cb(NULL/* widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_WIKI));   
 }
 
 static void
-help_menu_SampleCaptures_cb(GtkWidget *widget, gpointer user_data _U_)
+help_menu_Downloads_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
- 	topic_menu_cb(widget/* _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_SAMPLE_FILES));   
+ 	topic_menu_cb(NULL/* widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_DOWNLOAD)); 
+}
+
+static void
+help_menu_SampleCaptures_cb(GtkAction *action _U_, gpointer user_data _U_)
+{
+ 	topic_menu_cb( NULL/* widget_U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_SAMPLE_FILES));   
 }
 
 static const char *ui_desc_menubar =
@@ -2032,6 +2031,7 @@ static int initialize = TRUE;
 #else
 static GtkItemFactory *main_menu_factory = NULL;
 #endif
+static GtkUIManager *ui_manager_main_menubar = NULL;
 static GtkUIManager *ui_manager_packet_list_heading = NULL;
 static GtkUIManager *ui_manager_packet_list_menu = NULL;
 static GtkUIManager *ui_manager_tree_view_menu = NULL;
@@ -2052,20 +2052,23 @@ select_bytes_view_cb (GtkRadioAction *action, GtkRadioAction *current _U_, gpoin
 }
 
 static void
-sort_ascending_cb(GtkWidget *widget, gpointer user_data)
+sort_ascending_cb(GtkAction *action _U_, gpointer user_data)
 {
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/SortAscending");
 	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_SORT_ASCENDING);
 }
 
 static void
-sort_descending_cb(GtkWidget *widget, gpointer user_data)
+sort_descending_cb(GtkAction *action _U_, gpointer user_data)
 {
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/SortDescending");
 	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_SORT_DESCENDING);
 }
 
 static void
-no_sorting_cb(GtkWidget *widget, gpointer user_data)
+no_sorting_cb(GtkAction *action _U_, gpointer user_data)
 {
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/NoSorting");
 	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_SORT_NONE);
 }
 
@@ -2078,574 +2081,582 @@ packet_list_heading_show_resolved_cb(GtkAction *action _U_, gpointer user_data _
 }
 
 static void
-packet_list_heading_align_left_cb(GtkWidget *widget, gpointer user_data)
+packet_list_heading_align_left_cb(GtkAction *action _U_, gpointer user_data)
 {
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/AlignLeft");
 	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_ALIGN_LEFT);
 }
 
 static void
-packet_list_heading_align_center_cb(GtkWidget *widget, gpointer user_data)
+packet_list_heading_align_center_cb(GtkAction *action _U_, gpointer user_data)
 {
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/AlignCenter");
 	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_ALIGN_CENTER);
 }
 
 static void
-packet_list_heading_align_right_cb(GtkWidget *widget, gpointer user_data)
+packet_list_heading_align_right_cb(GtkAction *action _U_, gpointer user_data)
 {
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/AlignRight");
 	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_ALIGN_RIGHT);
 }
 
 static void
-packet_list_heading_col_pref_cb(GtkWidget *widget, gpointer user_data)
+packet_list_heading_col_pref_cb(GtkAction *action _U_, gpointer user_data)
 {
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/ColumnPreferences");
 	prefs_page_cb( widget , user_data, PREFS_PAGE_COLUMNS);
 }
 
 static void
-packet_list_heading_resize_col_cb(GtkWidget *widget, gpointer user_data)
+packet_list_heading_resize_col_cb(GtkAction *action _U_, gpointer user_data)
 {
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/ResizeColumn");
 	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_RESIZE);
 }
 
 static void
-packet_list_heading_change_col_cb(GtkWidget *widget, gpointer user_data)
+packet_list_heading_rename_col_cb(GtkAction *action _U_, gpointer user_data)
 {
-	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_CHANGE);
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/RenameColumnTitle");
+	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_RENAME);
 }
 
 static void
-packet_list_heading_activate_all_columns(GtkWidget *widget _U_, gpointer user_data _U_)
+packet_list_heading_activate_all_columns_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 	new_packet_list_set_all_columns_visible ();
 }
 
 static void
-packet_list_heading_hide_col_cb(GtkWidget *widget, gpointer user_data)
+packet_list_heading_hide_col_cb(GtkAction *action _U_, gpointer user_data)
 {
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/RenameColumnTitle");
 	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_HIDE);
 }
 
 static void
-packet_list_heading_remove_col_cb(GtkWidget *widget, gpointer user_data)
+packet_list_heading_remove_col_cb(GtkAction *action _U_, gpointer user_data)
 {
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_packet_list_heading, "/PacketListHeadingPopup/RemoveColumn");
 	new_packet_list_column_menu_cb( widget , user_data, COLUMN_SELECTED_REMOVE);
 }
 
 static void
-packet_list_menu_set_ref_time_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_set_ref_time_cb(GtkAction *action _U_, gpointer user_data)
 {
-	reftime_frame_cb( widget , user_data, REFTIME_TOGGLE);
+	reftime_frame_cb( NULL /* widget _U_ */ , user_data, REFTIME_TOGGLE);
 }
 
 
 static void
-packet_list_menu_apply_selected_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_apply_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
-	match_selected_plist_cb( widget , user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW);
+	match_selected_plist_cb( NULL /* widget _U_ */, user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW);
 }
 
 static void
-packet_list_menu_apply_not_selected_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_apply_not_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
-	match_selected_plist_cb( widget , user_data, MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW);
+	match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW);
 }
 
 static void
-packet_list_menu_apply_and_selected_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_apply_and_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
-	match_selected_plist_cb( widget , user_data, MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW);
+	match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW);
 }
 
 static void
-packet_list_menu_apply_or_selected_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_apply_or_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
-	match_selected_plist_cb( widget , user_data, MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW);
+	match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW);
 }
 
 static void
-packet_list_menu_apply_and_not_selected_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_apply_and_not_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
-	match_selected_plist_cb( widget , user_data, MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW);
+	match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW);
 }
 
 static void
-packet_list_menu_apply_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_apply_or_not_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
-	match_selected_plist_cb( widget , user_data,MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW);
+	match_selected_plist_cb(  NULL /* widget _U_ */ , user_data,MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW);
 }
 /* Prepare a filter */
 static void
-packet_list_menu_prepare_selected_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_prepare_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
-	match_selected_plist_cb( widget , user_data, MATCH_SELECTED_REPLACE);
+	match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_REPLACE);
 }
 
 static void
-packet_list_menu_prepare_not_selected_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_prepare_not_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
-	match_selected_plist_cb( widget , user_data, MATCH_SELECTED_NOT);
+	match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_NOT);
 }
 
 static void
-packet_list_menu_prepare_and_selected_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_prepare_and_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
-	match_selected_plist_cb( widget , user_data, MATCH_SELECTED_AND);
+	match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_AND);
 }
 
 static void
-packet_list_menu_prepare_or_selected_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_prepare_or_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
-	match_selected_plist_cb( widget , user_data, MATCH_SELECTED_OR);
+	match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_OR);
 }
 
 static void
-packet_list_menu_prepare_and_not_selected_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_prepare_and_not_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
-	match_selected_plist_cb( widget , user_data, MATCH_SELECTED_AND_NOT);
+	match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_AND_NOT);
 }
 
 static void
-packet_list_menu_prepare_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_prepare_or_not_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
-	match_selected_plist_cb( widget , user_data, MATCH_SELECTED_OR_NOT);
+	match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_OR_NOT);
 }
 
 static void
-packet_list_menu_conversation_ethernet_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_conversation_ethernet_cb(GtkAction *action _U_, gpointer user_data)
 {
-	conversation_cb( widget , user_data, CONV_ETHER);
+	conversation_cb(  NULL /* widget _U_ */ , user_data, CONV_ETHER);
 }
 
 static void
-packet_list_menu_conversation_ip_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_conversation_ip_cb(GtkAction *action _U_, gpointer user_data)
 {
-	conversation_cb( widget , user_data, CONV_IP);
+	conversation_cb(  NULL /* widget _U_ */ , user_data, CONV_IP);
 }
 
 static void
-packet_list_menu_conversation_tcp_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_conversation_tcp_cb(GtkAction *action _U_, gpointer user_data)
 {
-	conversation_cb( widget , user_data, CONV_TCP);
+	conversation_cb(  NULL /* widget _U_ */ , user_data, CONV_TCP);
 }
 
 static void
-packet_list_menu_conversation_udp_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_conversation_udp_cb(GtkAction *action _U_, gpointer user_data)
 {
-	conversation_cb( widget , user_data, CONV_UDP);
+	conversation_cb(  NULL /* widget _U_ */ , user_data, CONV_UDP);
 }
 
 static void
-packet_list_menu_conversation_pn_cba_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_conversation_pn_cba_cb(GtkAction *action _U_, gpointer user_data)
 {
-	conversation_cb( widget , user_data, CONV_CBA);
+	conversation_cb(  NULL /* widget _U_ */ , user_data, CONV_CBA);
 }
 
 /* Ethernet */
 
 static void
-packet_list_menu_color_conv_ethernet_color1_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_ethernet_color1_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_ETHER+1*256);
+	colorize_conversation_cb( NULL /* widget _U_ */, user_data, CONV_ETHER+1*256);
 
 }
 
 static void
-packet_list_menu_color_conv_ethernet_color2_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_ethernet_color2_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_ETHER+1*256);
+	colorize_conversation_cb( NULL/* widget _U_ */ , user_data, CONV_ETHER+1*256);
 
 }
 static void
-packet_list_menu_color_conv_ethernet_color3_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_ethernet_color3_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_ETHER+3*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER+3*256);
 
 }
 static void
-packet_list_menu_color_conv_ethernet_color4_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_ethernet_color4_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_ETHER+4*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER+4*256);
 
 }
 static void
-packet_list_menu_color_conv_ethernet_color5_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_ethernet_color5_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_ETHER+5*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER+5*256);
 
 }
 static void
-packet_list_menu_color_conv_ethernet_color6_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_ethernet_color6_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_ETHER+6*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER+6*256);
 
 }
 static void
-packet_list_menu_color_conv_ethernet_color7_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_ethernet_color7_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_ETHER+7*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER+7*256);
 
 }
 static void
-packet_list_menu_color_conv_ethernet_color8_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_ethernet_color8_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_ETHER+8*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER+8*256);
 
 }
 static void
-packet_list_menu_color_conv_ethernet_color9_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_ethernet_color9_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_ETHER+9*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER+9*256);
 
 }
 static void
-packet_list_menu_color_conv_ethernet_color10_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_ethernet_color10_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_ETHER+10*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER+10*256);
 
 }
 
 static void
-packet_list_menu_color_conv_ethernet_new_rule_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_ethernet_new_rule_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_ETHER);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER);
 
 }
 
 /* IP */
 
 static void
-packet_list_menu_color_conv_ip_color1_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_ip_color1_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_IP+1*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+1*256);
 
 }
 
 static void
-packet_list_menu_color_conv_ip_color2_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_ip_color2_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_IP+1*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+1*256);
 
 }
 static void
-packet_list_menu_color_conv_ip_color3_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_ip_color3_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_IP+3*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+3*256);
 
 }
 static void
-packet_list_menu_color_conv_ip_color4_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_ip_color4_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_IP+4*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+4*256);
 
 }
 static void
-packet_list_menu_color_conv_ip_color5_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_ip_color5_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_IP+5*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+5*256);
 
 }
 static void
-packet_list_menu_color_conv_ip_color6_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_ip_color6_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_IP+6*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+6*256);
 
 }
 static void
-packet_list_menu_color_conv_ip_color7_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_ip_color7_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_IP+7*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+7*256);
 
 }
 static void
-packet_list_menu_color_conv_ip_color8_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_ip_color8_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_IP+8*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+8*256);
 
 }
 static void
-packet_list_menu_color_conv_ip_color9_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_ip_color9_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_IP+9*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+9*256);
 
 }
 static void
-packet_list_menu_color_conv_ip_color10_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_ip_color10_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_IP+10*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+10*256);
 
 }
 
 static void
-packet_list_menu_color_conv_ip_new_rule_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_ip_new_rule_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_TCP);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP);
 
 }
 
 /* TCP */
 static void
-packet_list_menu_color_conv_tcp_color1_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_tcp_color1_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_TCP+1*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+1*256);
 
 }
 
 static void
-packet_list_menu_color_conv_tcp_color2_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_tcp_color2_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_TCP+1*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+1*256);
 
 }
 static void
-packet_list_menu_color_conv_tcp_color3_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_tcp_color3_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_TCP+3*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+3*256);
 
 }
 static void
-packet_list_menu_color_conv_tcp_color4_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_tcp_color4_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_TCP+4*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+4*256);
 
 }
 static void
-packet_list_menu_color_conv_tcp_color5_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_tcp_color5_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_TCP+5*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+5*256);
 
 }
 static void
-packet_list_menu_color_conv_tcp_color6_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_tcp_color6_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_TCP+6*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+6*256);
 
 }
 static void
-packet_list_menu_color_conv_tcp_color7_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_tcp_color7_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_TCP+7*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+7*256);
 
 }
 static void
-packet_list_menu_color_conv_tcp_color8_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_tcp_color8_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_TCP+8*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+8*256);
 
 }
 static void
-packet_list_menu_color_conv_tcp_color9_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_tcp_color9_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_TCP+9*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+9*256);
 
 }
 static void
-packet_list_menu_color_conv_tcp_color10_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_tcp_color10_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_TCP+10*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+10*256);
 
 }
 
 static void
-packet_list_menu_color_conv_tcp_new_rule_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_tcp_new_rule_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_TCP);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP);
 
 }
 
 /* UDP */
 static void
-packet_list_menu_color_conv_udp_color1_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_udp_color1_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_UDP+1*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+1*256);
 
 }
 
 static void
-packet_list_menu_color_conv_udp_color2_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_udp_color2_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_UDP+1*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+1*256);
 
 }
 static void
-packet_list_menu_color_conv_udp_color3_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_udp_color3_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_UDP+3*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+3*256);
 
 }
 static void
-packet_list_menu_color_conv_udp_color4_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_udp_color4_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_UDP+4*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+4*256);
 
 }
 static void
-packet_list_menu_color_conv_udp_color5_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_udp_color5_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_UDP+5*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+5*256);
 
 }
 static void
-packet_list_menu_color_conv_udp_color6_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_udp_color6_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_UDP+6*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+6*256);
 
 }
 static void
-packet_list_menu_color_conv_udp_color7_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_udp_color7_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_UDP+7*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+7*256);
 
 }
 static void
-packet_list_menu_color_conv_udp_color8_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_udp_color8_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_UDP+8*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+8*256);
 
 }
 static void
-packet_list_menu_color_conv_udp_color9_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_udp_color9_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_UDP+9*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+9*256);
 
 }
 static void
-packet_list_menu_color_conv_udp_color10_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_udp_color10_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_UDP+10*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+10*256);
 
 }
 
 static void
-packet_list_menu_color_conv_udp_new_rule_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_udp_new_rule_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_UDP);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP);
 
 }
 
 /* CONV_CBA */
 
 static void
-packet_list_menu_color_conv_cba_color1_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_cba_color1_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_CBA+1*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+1*256);
 
 }
 
 static void
-packet_list_menu_color_conv_cba_color2_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_cba_color2_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_CBA+1*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+1*256);
 
 }
 static void
-packet_list_menu_color_conv_cba_color3_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_cba_color3_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_CBA+3*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+3*256);
 
 }
 static void
-packet_list_menu_color_conv_cba_color4_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_cba_color4_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_CBA+4*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+4*256);
 
 }
 static void
-packet_list_menu_color_conv_cba_color5_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_cba_color5_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_CBA+5*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+5*256);
 
 }
 static void
-packet_list_menu_color_conv_cba_color6_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_cba_color6_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_CBA+6*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+6*256);
 
 }
 static void
-packet_list_menu_color_conv_cba_color7_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_cba_color7_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_CBA+7*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+7*256);
 
 }
 static void
-packet_list_menu_color_conv_cba_color8_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_cba_color8_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_CBA+8*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+8*256);
 
 }
 static void
-packet_list_menu_color_conv_cba_color9_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_cba_color9_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_CBA+9*256);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+9*256);
 
 }
 static void
-packet_list_menu_color_conv_cba_color10_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_cba_color10_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_conversation_cb( widget , user_data, CONV_CBA+10*256);
-
-}
-
-static void
-packet_list_menu_color_conv_cba_new_rule_cb(GtkWidget *widget, gpointer user_data)
-{
-	colorize_conversation_cb( widget , user_data, CONV_CBA);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+10*256);
 
 }
 
 static void
-packet_list_menu_copy_sum_txt(GtkWidget *widget, gpointer user_data)
+packet_list_menu_color_conv_cba_new_rule_cb(GtkAction *action _U_, gpointer user_data)
 {
-	copy_hex_cb( widget , user_data, CS_TEXT);
+	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA);
 
 }
 
 static void
-packet_list_menu_copy_sum_csv(GtkWidget *widget, gpointer user_data)
+packet_list_menu_copy_sum_txt(GtkAction *action _U_, gpointer user_data)
 {
-	copy_hex_cb( widget , user_data, CS_CSV);
+	copy_hex_cb( NULL /* widget _U_ */ , user_data, CS_TEXT);
 
 }
 
 static void
-packet_list_menu_copy_as_flt(GtkWidget *widget, gpointer user_data)
+packet_list_menu_copy_sum_csv(GtkAction *action _U_, gpointer user_data)
 {
-	copy_hex_cb( widget , user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
+	copy_hex_cb( NULL /* widget _U_ */ , user_data, CS_CSV);
 
 }
 
 static void
-packet_list_menu_copy_bytes_oht_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_copy_as_flt(GtkAction *action _U_, gpointer user_data)
 {
-	copy_hex_cb( widget , user_data,  CD_ALLINFO | CD_FLAGS_SELECTEDONLY);
+	copy_hex_cb( NULL /* widget _U_ */ , user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
 
 }
 
 static void
-packet_list_menu_copy_bytes_oh_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_copy_bytes_oht_cb(GtkAction *action _U_, gpointer user_data)
 {
-	copy_hex_cb( widget , user_data, CD_HEXCOLUMNS | CD_FLAGS_SELECTEDONLY);
+	copy_hex_cb( NULL /* widget _U_ */ , user_data,  CD_ALLINFO | CD_FLAGS_SELECTEDONLY);
 
 }
 
 static void
-packet_list_menu_copy_bytes_text_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_copy_bytes_oh_cb(GtkAction *action _U_, gpointer user_data)
 {
-	copy_hex_cb( widget , user_data, CD_TEXTONLY | CD_FLAGS_SELECTEDONLY);
+	copy_hex_cb( NULL /* widget _U_ */ , user_data, CD_HEXCOLUMNS | CD_FLAGS_SELECTEDONLY);
 
 }
 
 static void
-packet_list_menu_copy_bytes_hex_strm_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_copy_bytes_text_cb(GtkAction *action _U_, gpointer user_data)
 {
-	copy_hex_cb( widget , user_data,  CD_HEX | CD_FLAGS_SELECTEDONLY);
+	copy_hex_cb( NULL /* widget _U_ */ , user_data, CD_TEXTONLY | CD_FLAGS_SELECTEDONLY);
 
 }
 
 static void
-packet_list_menu_copy_bytes_bin_strm_cb(GtkWidget *widget, gpointer user_data)
+packet_list_menu_copy_bytes_hex_strm_cb(GtkAction *action _U_, gpointer user_data)
 {
-	copy_hex_cb( widget , user_data, CD_BINARY | CD_FLAGS_SELECTEDONLY);
+	copy_hex_cb( NULL /* widget _U_ */ , user_data,  CD_HEX | CD_FLAGS_SELECTEDONLY);
+
+}
+
+static void
+packet_list_menu_copy_bytes_bin_strm_cb(GtkAction *action _U_, gpointer user_data)
+{
+	copy_hex_cb( NULL /* widget _U_ */ , user_data, CD_BINARY | CD_FLAGS_SELECTEDONLY);
 
 }
 
@@ -2653,98 +2664,99 @@ packet_list_menu_copy_bytes_bin_strm_cb(GtkWidget *widget, gpointer user_data)
 
 
 static void
-tree_view_menu_color_with_flt_color1_cb(GtkWidget *widget, gpointer user_data)
+tree_view_menu_color_with_flt_color1_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_selected_ptree_cb( widget , user_data, 1);
+	colorize_selected_ptree_cb( NULL /* widget _U_ */ , user_data, 1);
 
 }
 
 static void
-tree_view_menu_color_with_flt_color2_cb(GtkWidget *widget, gpointer user_data)
+tree_view_menu_color_with_flt_color2_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_selected_ptree_cb( widget , user_data, 2);
+	colorize_selected_ptree_cb( NULL /* widget _U_ */ , user_data, 2);
 
 }
 static void
-tree_view_menu_color_with_flt_color3_cb(GtkWidget *widget, gpointer user_data)
+tree_view_menu_color_with_flt_color3_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_selected_ptree_cb( widget , user_data, 3);
+	colorize_selected_ptree_cb( NULL /* widget _U_ */ , user_data, 3);
 
 }
 static void
-tree_view_menu_color_with_flt_color4_cb(GtkWidget *widget, gpointer user_data)
+tree_view_menu_color_with_flt_color4_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_selected_ptree_cb( widget , user_data, 4);
+	colorize_selected_ptree_cb( NULL /* widget _U_ */ , user_data, 4);
 
 }
 static void
-tree_view_menu_color_with_flt_color5_cb(GtkWidget *widget, gpointer user_data)
+tree_view_menu_color_with_flt_color5_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_selected_ptree_cb( widget , user_data, 5);
+	colorize_selected_ptree_cb( NULL /* widget _U_ */ , user_data, 5);
 
 }
 static void
-tree_view_menu_color_with_flt_color6_cb(GtkWidget *widget, gpointer user_data)
+tree_view_menu_color_with_flt_color6_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_selected_ptree_cb( widget , user_data, 6);
+	colorize_selected_ptree_cb( NULL /* widget _U_ */ , user_data, 6);
 
 }
 static void
-tree_view_menu_color_with_flt_color7_cb(GtkWidget *widget, gpointer user_data)
+tree_view_menu_color_with_flt_color7_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_selected_ptree_cb( widget , user_data, 7);
+	colorize_selected_ptree_cb( NULL /* widget _U_ */ , user_data, 7);
 
 }
 static void
-tree_view_menu_color_with_flt_color8_cb(GtkWidget *widget, gpointer user_data)
+tree_view_menu_color_with_flt_color8_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_selected_ptree_cb( widget , user_data, 8);
+	colorize_selected_ptree_cb( NULL /* widget _U_ */ , user_data, 8);
 
 }
 static void
-tree_view_menu_color_with_flt_color9_cb(GtkWidget *widget, gpointer user_data)
+tree_view_menu_color_with_flt_color9_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_selected_ptree_cb( widget , user_data, 9);
+	colorize_selected_ptree_cb( NULL /* widget _U_ */ , user_data, 9);
 
 }
 static void
-tree_view_menu_color_with_flt_color10_cb(GtkWidget *widget, gpointer user_data)
+tree_view_menu_color_with_flt_color10_cb(GtkAction *action _U_, gpointer user_data)
 {
-	colorize_selected_ptree_cb( widget , user_data, 10);
-
-}
-
-static void
-tree_view_menu_color_with_flt_new_rule_cb(GtkWidget *widget, gpointer user_data)
-{
-	colorize_selected_ptree_cb( widget , user_data, 0);
+	colorize_selected_ptree_cb( NULL /* widget _U_ */ , user_data, 10);
 
 }
 
 static void
-tree_view_menu_copy_desc(GtkWidget *widget, gpointer user_data)
+tree_view_menu_color_with_flt_new_rule_cb(GtkAction *action _U_, gpointer user_data)
 {
-	copy_selected_plist_cb( widget , user_data, COPY_SELECTED_DESCRIPTION);
+	colorize_selected_ptree_cb( NULL /* widget _U_ */ , user_data, 0);
 
 }
 
 static void
-tree_view_menu_copy_field(GtkWidget *widget, gpointer user_data)
+tree_view_menu_copy_desc(GtkAction *action _U_, gpointer user_data)
 {
-	copy_selected_plist_cb( widget , user_data, COPY_SELECTED_FIELDNAME);
+	copy_selected_plist_cb( NULL /* widget _U_ */ , user_data, COPY_SELECTED_DESCRIPTION);
 
 }
 
 static void
-tree_view_menu_copy_value(GtkWidget *widget, gpointer user_data)
+tree_view_menu_copy_field(GtkAction *action _U_, gpointer user_data)
 {
-	copy_selected_plist_cb( widget , user_data, COPY_SELECTED_VALUE);
+	copy_selected_plist_cb( NULL /* widget _U_ */ , user_data, COPY_SELECTED_FIELDNAME);
 
 }
 
 static void
-tree_view_menu_copy_as_flt(GtkWidget *widget, gpointer user_data)
+tree_view_menu_copy_value(GtkAction *action _U_, gpointer user_data)
 {
+	copy_selected_plist_cb( NULL /* widget _U_ */ , user_data, COPY_SELECTED_VALUE);
+
+}
+
+static void
+tree_view_menu_copy_as_flt(GtkAction *action _U_, gpointer user_data)
+{
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/Copy/AsFilter");
 	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
 
 }
@@ -2785,7 +2797,7 @@ static const GtkActionEntry packet_list_heading_menu_popup_action_entries[] = {
   { "/Edit Column Details",				NULL,						"Edit Column Details...",	NULL,	NULL,	G_CALLBACK(packet_list_heading_change_col_cb) },
   { "/Resize Column",					WIRESHARK_STOCK_RESIZE_COLUMNS,		"Resize Column",			NULL,	NULL,	G_CALLBACK(packet_list_heading_resize_col_cb) },
   { "/Displayed Columns",				NULL,								"Displayed Columns",		NULL,	NULL,	NULL },
-  { "/Displayed Columns/Display All",				NULL,					"Display All",				NULL,	NULL,	G_CALLBACK(packet_list_heading_activate_all_columns) },
+  { "/Displayed Columns/Display All",				NULL,					"Display All",				NULL,	NULL,	G_CALLBACK(packet_list_heading_activate_all_columns_cb) },
   { "/Hide Column",						NULL,								"Hide Column",				NULL,	NULL,	G_CALLBACK(packet_list_heading_hide_col_cb) },
   { "/Remove Column",					GTK_STOCK_DELETE,					"Remove Column",			NULL,	NULL,	G_CALLBACK(packet_list_heading_remove_col_cb) },
 };
@@ -4125,8 +4137,13 @@ set_menu_object_data_meat(GtkUIManager *ui_manager, const gchar *path, const gch
 {
     GtkWidget *menu = NULL;
 
-    if ((menu =  gtk_ui_manager_get_widget(ui_manager, path)) != NULL)
+	if ((menu =  gtk_ui_manager_get_widget(ui_manager, path)) != NULL){
         g_object_set_data(G_OBJECT(menu), key, data);
+	}else{
+#if 0
+		g_warning("set_menu_object_data_meat: no menu, path: %s",path);
+#endif
+	}
 }
 
 #ifndef MAIN_MENU_USE_UIMANAGER
@@ -4135,26 +4152,34 @@ set_menu_object_data_meat_old(const gchar *path, const gchar *key, gpointer data
 {
     GtkWidget *menu = NULL;
 
-    if ((menu = gtk_item_factory_get_widget(main_menu_factory, path)) != NULL)
+    if ((menu = gtk_item_factory_get_widget(main_menu_factory, path)) != NULL){
         g_object_set_data(G_OBJECT(menu), key, data);
+	}
+}
+
+
+void
+set_menu_object_data_old (const gchar *path, const gchar *key, gpointer data) {
+
+    set_menu_object_data_meat_old(path, key, data);
 }
 #endif
-
 void
 set_menu_object_data (const gchar *path, const gchar *key, gpointer data) {
     GSList *menu_list = popup_menu_list;
     gchar *shortpath = strrchr(path, '/');
 
-#ifdef MAIN_MENU_USE_UIMANAGER
-    set_menu_object_data_meat(ui_manager_main_menubar, path, key, data);
-#else
-    set_menu_object_data_meat_old(path, key, data);
-#endif /* MAIN_MENU_USE_UIMANAGER */
-    while (menu_list != NULL) {
-        set_menu_object_data_meat(menu_list->data, shortpath, key, data);
-        set_menu_object_data_meat(menu_list->data, path, key, data);
-        menu_list = g_slist_next(menu_list);
-    }
+	if (strncmp (path,"/Menubar",8) == 0){
+		set_menu_object_data_meat(ui_manager_main_menubar, path, key, data);
+	}else if (strncmp (path,"/PacketListMenuPopup",20) == 0){
+		set_menu_object_data_meat(ui_manager_packet_list_menu, path, key, data);
+	}else if (strncmp (path,"/TreeViewPopup",14) == 0){
+		set_menu_object_data_meat(ui_manager_tree_view_menu, path, key, data);
+	}else if (strncmp (path,"/BytesMenuPopup",15) == 0){
+		set_menu_object_data_meat(ui_manager_bytes_menu, path, key, data);
+	}else if (strncmp (path,"/ProfilesMenuPopup",18) == 0){
+		set_menu_object_data_meat(ui_manager_statusbar_profiles_menu, path, key, data);
+	}
 }
 
 
@@ -4182,8 +4207,6 @@ update_menu_recent_capture_file1(GtkWidget *widget, gpointer cnt) {
         main_welcome_add_recent_capture_files(widget_cf_name);
     }
 }
-
-
 
 /* update the menu */
 static void
@@ -6197,7 +6220,7 @@ rebuild_visible_columns_menu (void)
 
         menu_item = gtk_menu_item_new_with_label ("Display All");
         gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
-        g_signal_connect(menu_item, "activate", G_CALLBACK(packet_list_heading_activate_all_columns), NULL);
+        g_signal_connect(menu_item, "activate", G_CALLBACK(packet_list_heading_activate_all_columns_cb), NULL);
         gtk_widget_show (menu_item);
     }
 }
