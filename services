@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2010-10-04)
+(last updated 2010-10-07)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -812,7 +812,7 @@ manet           269/udp    MANET Protocols
 #                          [RFC5498]
 #               270/tcp    Reserved
 gist            270/udp    Q-mode encapsulation for GIST messages                
-#                          [RFC-ietf-nsis-ntlp-20.txt]
+#                          [RFC5971]
 #               271-279    Unassigned
 http-mgmt       280/tcp    http-mgmt
 http-mgmt       280/udp    http-mgmt
@@ -13244,7 +13244,15 @@ dtspcd          6112/udp   dtspcd
 dayliteserver   6113/tcp   Daylite Server
 #                          Brent Gulanowski <bgulanowski&marketcircle.com> 26 August 2009
 #               6113/udp   Reserved
-#               6114-6116  Unassigned
+wrspice         6114/tcp   WRspice IPC Service
+#                          Stephen R. Whiteley <stevew&wrcad.com> 07 October 2010
+#               6114/udp   Reserved
+xic             6115/tcp   Xic IPC Service
+#                          Stephen R. Whiteley <stevew&wrcad.com> 07 October 2010
+#               6115/udp   Reserved
+xtlserv         6116/tcp   XicTools License Manager Service
+#                          Stephen R. Whiteley <stevew&wrcad.com> 07 October 2010
+#               6116/udp   Reserved
 daylitetouch    6117/tcp   Daylite Touch Sync
 #                          Brent Gulanowski <bgulanowski&marketcircle.com> 26 August 2009
 #               6117/udp   Reserved
@@ -15799,7 +15807,26 @@ bex-xr          15660/udp  Backup Express Restore Server
 ptp             15740/tcp  Picture Transfer Protocol
 ptp             15740/udp  Picture Transfer Protocol
 #                          Petronel Bigioi <petronel&fotonation.com> November 2004
-#               15741-16019 Unassigned
+#               15741-15997 Unassigned
+#               15998/tcp  Reserved
+2ping           15998/udp  2ping Bi-Directional Ping Service
+#                          Ryan Finnie <ryan&finnie.org> 06 October 2010
+programmar      15999/tcp  ProGrammar Enterprise
+#                          Norman Wilson <nwilson&programmar.com> 06 October 2010
+#               15999/udp  Reserved
+fmsas           16000/tcp  Administration Server Access 
+#                          Mark Davidson <mark_davidson&filemaker.com> 06 October 2010
+#               16000/udp  Reserved
+fmsascon        16001/tcp  Administration Server Connector
+#                          Mark Davidson <mark_davidson&filemaker.com> 06 October 2010
+#               16001/udp  Reserved
+gsms            16002/tcp  GoodSync Mediation Service
+#                          Vadim Maslov <vm&siber.com> 06 October 2010
+#               16002/udp  Reserved
+#               16003/tcp  Reserved
+alfin           16003/udp  Automation and Control by REGULACE.ORG
+#                          Ing. Tomas Halabala <tomas.halabala&regulace.org> 06 October 2010
+#               16004-16019 Unassigned
 jwpc            16020/tcp  Filemaker Java Web Publishing Core
 #                          Robert Parks <robert_parks&filemaker.com> 12 May 2010
 #               16020/udp  Reserved
@@ -16940,10 +16967,6 @@ References
 [RFC5677]  T. Melia, Ed., G. Bajko, S. Das, N. Golmie, J. Zuniga, "IEEE 802.21 
            Mobility Services Framework Design (MSFD)", RFC 5677, December 2009.
 
-[RFC-ietf-nsis-ntlp-20.txt]
-           H. Schulzrinne, R. Hancock, "GIST: General Internet Signalling Transport", 
-           RFC XXXX, Month Year. 
-
 [RFC5734]  S. Hollenbeck, "Extensible Provisioning Protocol (EPP) Transport over TCP", 
            RFC 5734, August 2009.
 
@@ -16980,6 +17003,9 @@ References
 
 [RFC5953]  W. Hardaker, "Transport Layer Security (TLS) Transport Model for the Simple 
            Network Management Protocol (SNMP)", RFC 5953, August 2010.
+
+[RFC5971]  H. Schulzrinne, R. Hancock, "GIST: General Internet Signalling Transport", 
+           RFC 5971, October 2010.
 
 [RFC-ietf-syslog-dtls-06.txt]
            J. Salowey, T. Petch, T. Gerhards, H. Feng, "Datagram Transport Layer Security 
