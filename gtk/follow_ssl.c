@@ -138,7 +138,7 @@ packet_is_ssl(epan_dissect_t* edt);
    a dissection routine on belongs (this might be the most recently
    selected packet, or it might be the last packet in the file). */
 void
-follow_ssl_stream_cb(GtkWidget * w, gpointer data _U_)
+follow_ssl_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 {
     GtkWidget	*filter_te, *filter_cm;
     gchar	*follow_filter;
