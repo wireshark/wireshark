@@ -56,6 +56,7 @@
 #include "../tempfile.h"
 #include <wsutil/file_util.h>
 
+#include "gtkglobals.h"
 #include "gtk/color_utils.h"
 #include "gtk/follow_tcp.h"
 #include "gtk/dlg_utils.h"
@@ -89,8 +90,9 @@ follow_tcp_redraw_all(void)
    a dissection routine on belongs (this might be the most recently
    selected packet, or it might be the last packet in the file). */
 void
-follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
+follow_tcp_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 {
+	GtkWidget *filter_cm;
 	GtkWidget	*filter_te;
 	int		tmp_fd;
 	gchar		*follow_filter;
@@ -165,7 +167,8 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 	}
 
 	/* Set the display filter entry accordingly */
-	filter_te = g_object_get_data(G_OBJECT(w), E_DFILTER_TE_KEY);
+	filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
+	filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
 
 	/* needed in follow_filter_out_stream(), is there a better way? */
 	follow_info->filter_te = filter_te;

@@ -112,6 +112,22 @@
 #include <igemacintegration/gtkosxapplication.h>
 #endif
 
+static int initialize = TRUE;
+#ifdef MAIN_MENU_USE_UIMANAGER
+    GtkActionGroup    *main_menu_bar_action_group;
+#else
+static GtkItemFactory *main_menu_factory = NULL;
+#endif /* MAIN_MENU_USE_UIMANAGER */
+static GtkUIManager *ui_manager_main_menubar = NULL;
+static GtkUIManager *ui_manager_packet_list_heading = NULL;
+static GtkUIManager *ui_manager_packet_list_menu = NULL;
+static GtkUIManager *ui_manager_tree_view_menu = NULL;
+static GtkUIManager *ui_manager_bytes_menu = NULL;
+static GtkUIManager *ui_manager_statusbar_profiles_menu = NULL;
+static GSList *popup_menu_list = NULL;
+
+static GtkAccelGroup *grp;
+
 typedef struct _menu_item {
     char    *name;
     gint    group;
@@ -456,6 +472,19 @@ goto_conversation_frame(gboolean dir)
         g_free(filter);
 }
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+static void
+goto_next_frame_conversation_cb(GtkAction *action _U_, gpointer user_data)
+{
+    goto_conversation_frame(FALSE);
+}
+
+static void
+goto_previous_frame_conversation_cb(GtkAction *action _U_, gpointer user_data)
+{
+    goto_conversation_frame(TRUE);
+}
+#else
 static void
 goto_next_frame_conversation_cb(GtkWidget *w _U_, gpointer d _U_)
 {
@@ -467,78 +496,93 @@ goto_previous_frame_conversation_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     goto_conversation_frame(TRUE);
 }
+#endif /* MAIN_MENU_USE_UIMANAGER */
+
+
 
 /*Apply a filter */
 
 static void
-tree_view_menu_apply_selected_cb(GtkWidget *widget, gpointer user_data)
+tree_view_menu_apply_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/ApplyAsFilter/Selected");
 	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW);
 }
 
 static void
-tree_view_menu_apply_not_selected_cb(GtkWidget *widget, gpointer user_data)
+tree_view_menu_apply_not_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/ApplyAsFilter/NotSelected");
 	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW);
 }
 
 static void
-tree_view_menu_apply_and_selected_cb(GtkWidget *widget, gpointer user_data)
+tree_view_menu_apply_and_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/ApplyAsFilter/AndSelected");
 	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW);
 }
 
 static void
-tree_view_menu_apply_or_selected_cb(GtkWidget *widget, gpointer user_data)
+tree_view_menu_apply_or_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/ApplyAsFilter/OrSelected");
 	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW);
 }
 
 static void
-tree_view_menu_apply_and_not_selected_cb(GtkWidget *widget, gpointer user_data)
+tree_view_menu_apply_and_not_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/ApplyAsFilter/AndNotSelected");
 	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW);
 }
 
 static void
-tree_view_menu_apply_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
+tree_view_menu_apply_or_not_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/ApplyAsFilter/OrNotSelected");
 	match_selected_ptree_cb( widget , user_data,MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW);
 }
 /* Prepare a filter */
 static void
-tree_view_menu_prepare_selected_cb(GtkWidget *widget, gpointer user_data)
+tree_view_menu_prepare_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/PrepareaFilter/Selected");
 	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_REPLACE);
 }
 
 static void
-tree_view_menu_prepare_not_selected_cb(GtkWidget *widget, gpointer user_data)
+tree_view_menu_prepare_not_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/PrepareaFilter/NotSelected");
 	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_NOT);
 }
 
 static void
-tree_view_menu_prepare_and_selected_cb(GtkWidget *widget, gpointer user_data)
+tree_view_menu_prepare_and_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/PrepareaFilter/AndSelected");
 	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_AND);
 }
 
 static void
-tree_view_menu_prepare_or_selected_cb(GtkWidget *widget, gpointer user_data)
+tree_view_menu_prepare_or_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/PrepareaFilter/OrSelected");
 	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_OR);
 }
 
 static void
-tree_view_menu_prepare_and_not_selected_cb(GtkWidget *widget, gpointer user_data)
+tree_view_menu_prepare_and_not_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/PrepareaFilter/AndNotSelected");
 	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_AND_NOT);
 }
 
 static void
-tree_view_menu_prepare_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
+tree_view_menu_prepare_or_not_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/PrepareaFilter/OrNotSelected");
 	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_OR_NOT);
 }
 
@@ -547,51 +591,51 @@ tree_view_menu_prepare_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
 guint merge_id = 0;
 
 static void
-copy_description_cb(GtkWidget *widget, gpointer user_data)
+copy_description_cb(GtkAction *action _U_, gpointer user_data)
 {
-	copy_selected_plist_cb( widget , user_data, COPY_SELECTED_DESCRIPTION);
+	copy_selected_plist_cb( NULL /* widget _U_ */ , user_data, COPY_SELECTED_DESCRIPTION);
 }
 
 static void
-copy_fieldname_cb(GtkWidget *widget, gpointer user_data)
+copy_fieldname_cb(GtkAction *action _U_, gpointer user_data)
 {
-	copy_selected_plist_cb( widget , user_data, COPY_SELECTED_FIELDNAME);
+	copy_selected_plist_cb( NULL /* widget _U_ */ , user_data, COPY_SELECTED_FIELDNAME);
 }
 
 static void
-copy_value_cb(GtkWidget *widget, gpointer user_data)
+copy_value_cb(GtkAction *action _U_, gpointer user_data)
 {
-	copy_selected_plist_cb( widget , user_data, COPY_SELECTED_VALUE);
+	copy_selected_plist_cb( NULL /* widget _U_ */ , user_data, COPY_SELECTED_VALUE);
 }
 
 static void
-copy_as_filter_cb(GtkWidget *widget, gpointer user_data)
+copy_as_filter_cb(GtkAction *action _U_, gpointer user_data)
 {
-	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
+	match_selected_ptree_cb( NULL /* widget _U_ */ , user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
 }
 
 static void
-set_reftime_cb(GtkWidget *widget, gpointer user_data)
+set_reftime_cb(GtkAction *action _U_, gpointer user_data)
 {
-	reftime_frame_cb( widget , user_data, REFTIME_TOGGLE);
+	reftime_frame_cb( NULL /* widget _U_ */ , user_data, REFTIME_TOGGLE);
 }
 
 static void
-find_next_ref_time_cb(GtkWidget *widget, gpointer user_data)
+find_next_ref_time_cb(GtkAction *action _U_, gpointer user_data)
 {
-	reftime_frame_cb( widget , user_data, REFTIME_FIND_NEXT);
+	reftime_frame_cb( NULL /* widget _U_ */ , user_data, REFTIME_FIND_NEXT);
 }
 
 static void
-find_previous_ref_time_cb(GtkWidget *widget, gpointer user_data)
+find_previous_ref_time_cb(GtkAction *action _U_, gpointer user_data)
 {
-	reftime_frame_cb( widget , user_data, REFTIME_FIND_PREV);
+	reftime_frame_cb( NULL /* widget _U_ */ , user_data, REFTIME_FIND_PREV);
 }
 
 static void
-menus_prefs_cb(GtkWidget *widget, gpointer user_data)
+menus_prefs_cb(GtkAction *action _U_, gpointer user_data)
 {
-	prefs_page_cb( widget , user_data, PREFS_PAGE_USER_INTERFACE);
+	prefs_page_cb( NULL /* widget _U_ */ , user_data, PREFS_PAGE_USER_INTERFACE);
 }
 
 static void
@@ -2025,21 +2069,6 @@ static GtkItemFactoryEntry menu_items[] =
 static int nmenu_items = sizeof(menu_items) / sizeof(menu_items[0]);
 #endif /* MAIN_MENU_USE_UIMANAGER */
 
-static int initialize = TRUE;
-#ifdef MAIN_MENU_USE_UIMANAGER
-    GtkActionGroup    *main_menu_bar_action_group;
-#else
-static GtkItemFactory *main_menu_factory = NULL;
-#endif
-static GtkUIManager *ui_manager_main_menubar = NULL;
-static GtkUIManager *ui_manager_packet_list_heading = NULL;
-static GtkUIManager *ui_manager_packet_list_menu = NULL;
-static GtkUIManager *ui_manager_tree_view_menu = NULL;
-static GtkUIManager *ui_manager_bytes_menu = NULL;
-static GtkUIManager *ui_manager_statusbar_profiles_menu = NULL;
-static GSList *popup_menu_list = NULL;
-
-static GtkAccelGroup *grp;
 
 static void
 select_bytes_view_cb (GtkRadioAction *action, GtkRadioAction *current _U_, gpointer user_data _U_)

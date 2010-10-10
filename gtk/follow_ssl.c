@@ -51,6 +51,7 @@
 #include <../simple_dialog.h>
 #include <../util.h>
 
+#include "gtkglobals.h"
 #include <gtk/color_utils.h>
 #include <gtk/main.h>
 #include <gtk/dlg_utils.h>
@@ -139,7 +140,7 @@ packet_is_ssl(epan_dissect_t* edt);
 void
 follow_ssl_stream_cb(GtkWidget * w, gpointer data _U_)
 {
-    GtkWidget	*filter_te;
+    GtkWidget	*filter_te, *filter_cm;
     gchar	*follow_filter;
     const gchar	*previous_filter;
     int		filter_out_filter_len, previous_filter_len;
@@ -177,7 +178,8 @@ follow_ssl_stream_cb(GtkWidget * w, gpointer data _U_)
     }
 
     /* Set the display filter entry accordingly */
-    filter_te = g_object_get_data(G_OBJECT(w), E_DFILTER_TE_KEY);
+	filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
+	filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
 
     /* needed in follow_filter_out_stream(), is there a better way? */
     follow_info->filter_te = filter_te;

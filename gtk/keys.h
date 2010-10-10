@@ -28,6 +28,7 @@
 /** @file
  * Various keys for g_object_set_data().
  */
+#define E_DFILTER_CM_KEY				"display_filter_combo"
 
 #define E_DFILTER_TE_KEY				"display_filter_entry"
 #define E_RFILTER_TE_KEY				"read_filter_te"
