@@ -37,11 +37,11 @@ extern const value_string vals_wsp_reason_codes[];
 
 /*
  * the following allows TAP code access to the messages
- * without having to duplicate it. With MSVC and a 
+ * without having to duplicate it. With MSVC and a
  * libwireshark.dll, we need a special declaration.
  */
-WS_VAR_IMPORT const value_string vals_pdu_type[];
-WS_VAR_IMPORT const value_string vals_status[];
+WS_VAR_IMPORT const value_string wsp_vals_pdu_type[];
+WS_VAR_IMPORT const value_string wsp_vals_status[];
 /*
  * exported functionality
  */
@@ -54,7 +54,7 @@ guint32 add_content_type (proto_tree *tree, tvbuff_t *tvb,
 /* statistics */
 typedef struct _wsp_info_value_t	/* see README.tapping and tap-wspstat.c */
 {
-	gint status_code;		
+	gint status_code;
 	guint8 pdut;
 } wsp_info_value_t;
 #endif /* packet-wsp.h */

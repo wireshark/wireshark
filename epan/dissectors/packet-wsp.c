@@ -353,7 +353,7 @@ static dissector_handle_t media_handle;
 /* Handle for WBXML-encoded UAPROF dissector */
 static dissector_handle_t wbxml_uaprof_handle;
 
-const value_string vals_pdu_type[] = {
+const value_string wsp_vals_pdu_type[] = {
 	{ 0x00, "Reserved" },
 	{ 0x01, "Connect" },
 	{ 0x02, "ConnectReply" },
@@ -421,7 +421,7 @@ const value_string vals_pdu_type[] = {
 };
 
 /* The WSP status codes are inherited from the HTTP status codes */
-const value_string vals_status[] = {
+const value_string wsp_vals_status[] = {
 	/* 0x00 - 0x0F Reserved */
 
 	{ 0x10, "100 Continue" },
@@ -2343,7 +2343,7 @@ wkh_allow(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo
 			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
 			ti = proto_tree_add_string(tree, hf_hdr_allow,
 					tvb, hdr_start, offset - hdr_start,
-					val_to_str(val_id & 0x7F, vals_pdu_type,
+					val_to_str(val_id & 0x7F, wsp_vals_pdu_type,
 						"<Unknown WSP method 0x%02X>"));
 			ok = TRUE;
 		}
@@ -2370,7 +2370,7 @@ wkh_public(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinf
 			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
 			ti = proto_tree_add_string(tree, hf_hdr_public,
 					tvb, hdr_start, offset - hdr_start,
-					val_to_str(val_id & 0x7F, vals_pdu_type,
+					val_to_str(val_id & 0x7F, wsp_vals_pdu_type,
 						"<Unknown WSP method 0x%02X>"));
 			ok = TRUE;
 		}
@@ -4986,7 +4986,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
 		col_append_fstr(pinfo->cinfo, COL_INFO, "WSP %s (0x%02x)",
-				val_to_str (pdut, vals_pdu_type, "Unknown PDU type (0x%02x)"),
+				val_to_str (pdut, wsp_vals_pdu_type, "Unknown PDU type (0x%02x)"),
 				pdut);
 	};
 
@@ -5010,7 +5010,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				tvb, 0, -1, bo_little_endian);
 		wsp_tree = proto_item_add_subtree(proto_ti, ett_wsp);
 		proto_item_append_text(proto_ti, ", Method: %s (0x%02x)",
-				val_to_str (pdut, vals_pdu_type, "Unknown (0x%02x)"),
+				val_to_str (pdut, wsp_vals_pdu_type, "Unknown (0x%02x)"),
 				pdut);
 
 		/* Add common items: only TID and PDU Type */
@@ -5230,7 +5230,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				guint8 reply_status = tvb_get_guint8(tvb, offset);
 				const char *reply_status_str;
 
-				reply_status_str = val_to_str (reply_status, vals_status, "(Unknown response status)");
+				reply_status_str = val_to_str (reply_status, wsp_vals_status, "(Unknown response status)");
 				if (tree) {
 					ti = proto_tree_add_item (wsp_tree, hf_wsp_header_status,
 							tvb, offset, 1, bo_little_endian);
@@ -6035,7 +6035,7 @@ proto_register_wsp(void)
 		{ &hf_wsp_header_pdu_type,
 			{ 	"PDU Type",
 				"wsp.pdu_type",
-				 FT_UINT8, BASE_HEX, VALS( vals_pdu_type ), 0x00,
+				 FT_UINT8, BASE_HEX, VALS( wsp_vals_pdu_type ), 0x00,
 				NULL, HFILL
 			}
 		},
@@ -6105,7 +6105,7 @@ proto_register_wsp(void)
 		{ &hf_wsp_header_status,
 			{ 	"Status",
 				"wsp.reply.status",
-				 FT_UINT8, BASE_HEX, VALS( vals_status ), 0x00,
+				 FT_UINT8, BASE_HEX, VALS( wsp_vals_status ), 0x00,
 				"Reply Status", HFILL
 			}
 		},

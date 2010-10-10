@@ -230,14 +230,14 @@ wspstat_init(const char *optarg, void* userdata _U_)
 
 	sp = g_malloc( sizeof(wspstat_t) );
 	sp->hash = g_hash_table_new( g_int_hash, g_int_equal);
-	for (i=0 ; vals_status[i].strptr ; i++ )
+	for (i=0 ; wsp_vals_status[i].strptr ; i++ )
 	{
 		gint *key;
 		sc=g_malloc( sizeof(wsp_status_code_t) );
 		key=g_malloc( sizeof(gint) );
 		sc->packets=0;
-		sc->name=vals_status[i].strptr;
-		*key=vals_status[i].value;
+		sc->name=wsp_vals_status[i].strptr;
+		*key=wsp_vals_status[i].value;
 		g_hash_table_insert(
 				sp->hash,
 				key,
@@ -253,7 +253,7 @@ wspstat_init(const char *optarg, void* userdata _U_)
 	for (i=0;i<sp->num_pdus; i++)
 	{
 		sp->pdu_stats[i].packets=0;
-		sp->pdu_stats[i].type = match_strval( index2pdut( i ), vals_pdu_type) ;
+		sp->pdu_stats[i].type = match_strval( index2pdut( i ), wsp_vals_pdu_type) ;
 	}
 
 	error_string = register_tap_listener(
