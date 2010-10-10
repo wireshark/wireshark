@@ -392,7 +392,7 @@ static dissector_handle_t data_handle;
 
 static gint tds_protocol_type = TDS_PROTOCOL_NOT_SPECIFIED;
 
-const enum_val_t tds_protocol_type_options[] = {
+static const enum_val_t tds_protocol_type_options[] = {
     {"not_specified", "Not Specified", TDS_PROTOCOL_NOT_SPECIFIED},
     {"tds4", "TDS 4", TDS_PROTOCOL_4},  /* TDS 4.2 and TDS 4.6 */
     {"tds5", "TDS 5", TDS_PROTOCOL_5},
@@ -416,7 +416,7 @@ const enum_val_t tds_protocol_type_options[] = {
 
 static gboolean tds_little_endian = TRUE;
 
-const enum_val_t tds_endian_type_options[] = {
+static const enum_val_t tds_endian_type_options[] = {
     {"little_endian", "Little Endian", TRUE},
     {"big_endian"   , "Big Endian"   , FALSE},
     {NULL, NULL, -1}
@@ -612,7 +612,8 @@ tds_tvb_get_xxtohl(tvbuff_t *tvb, gint offset, gboolean tds_little_endian_flag) 
 }
 
 
-static int tds_token_is_fixed_size(guint8 token)
+static int
+tds_token_is_fixed_size(guint8 token)
 {
     switch (token) {
         case TDS_DONE_TOKEN:
@@ -629,7 +630,8 @@ static int tds_token_is_fixed_size(guint8 token)
 }
 
 
-static int tds_get_fixed_token_size(guint8 token)
+static int
+tds_get_fixed_token_size(guint8 token)
 {
     switch(token) {
         case TDS_DONE_TOKEN:
@@ -921,7 +923,8 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 }
 
-static int get_size_by_coltype(int servertype)
+static int
+get_size_by_coltype(int servertype)
 {
     switch(servertype)
     {

@@ -274,7 +274,7 @@ gint ett_zbee_zdp_rtg = -1;
 gint ett_zbee_zdp_cache = -1;
 
 /* Data dissector handle. */
-dissector_handle_t  data_handle;
+static dissector_handle_t  data_handle;
 
 /**************************************
  * Value Strings

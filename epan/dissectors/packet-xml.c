@@ -35,10 +35,7 @@
 #include <dirent.h>
 #endif
 
-#include <ctype.h>
-#include <stdlib.h>
 #include <string.h>
-#include <stdarg.h>
 #include <errno.h>
 
 #include <glib.h>
@@ -101,8 +98,8 @@ static gboolean pref_heuristic_unicode = FALSE;
 #define XML_SCOPED_NAME -1001
 
 
-GArray* hf_arr;
-GArray* ett_arr;
+static GArray* hf_arr;
+static GArray* ett_arr;
 
 static const gchar* default_media_types[] = {
 	"text/xml",
@@ -155,7 +152,7 @@ static const gchar* default_media_types[] = {
 	"application/x-wms-logconnectstats",
 	"application/x-wms-logplaystats",
 	"application/x-wms-sendevent",
-	"application/rss+xml",   
+	"application/rss+xml",
 	"image/svg+xml",
 };
 
@@ -185,7 +182,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	static GPtrArray* stack = NULL;
 	xml_frame_t* current_frame;
 	char* colinfo_str;
-	
+
 	if (stack != NULL)
 		g_ptr_array_free(stack,TRUE);
 
@@ -269,7 +266,7 @@ xml_frame_t *xml_get_attrib(xml_frame_t *frame, const gchar *name) {
 
 	xml_frame_t *xml_item = frame->first_child;
 	while (xml_item) {
-		if ((xml_item->type == XML_FRAME_ATTRIB) && 
+		if ((xml_item->type == XML_FRAME_ATTRIB) &&
 			xml_item->name_orig_case && !strcmp(xml_item->name_orig_case, name)) {
         	attr = xml_item;
 			break;
@@ -579,7 +576,7 @@ static void after_attrib(void* tvbparse_data, const void* wanted_data _U_, tvbpa
 	proto_item_set_text(pi, "%s", tvb_format_text(tok->tvb,tok->offset,tok->len));
 
 	current_frame->last_item = pi;
-	
+
 	new_frame = ep_alloc(sizeof(xml_frame_t));
 	new_frame->type = XML_FRAME_ATTRIB;
 	new_frame->name = name;
@@ -882,7 +879,7 @@ static gchar* fully_qualified_name(GPtrArray* hier, gchar* name, gchar* proto_na
 	GString* s = g_string_new(proto_name);
 	gchar* str;
 	g_string_append(s,".");
-	
+
 	for (i = 1; i < hier->len; i++) {
 		g_string_append_printf(s, "%s.",(gchar*)g_ptr_array_index(hier,i));
 	}
@@ -1317,7 +1314,7 @@ static void apply_prefs(void) {
 			pref_heuristic_media_save = FALSE;
 		}
 	}
-	
+
 	if (pref_heuristic_tcp_save != pref_heuristic_tcp ) {
 		if (pref_heuristic_tcp) {
 			heur_dissector_add("tcp", dissect_xml_heur, xml_ns.hf_tag);
@@ -1327,7 +1324,7 @@ static void apply_prefs(void) {
 			pref_heuristic_tcp_save = FALSE;
 		}
 	}
-	
+
 	if (pref_heuristic_udp_save != pref_heuristic_udp ) {
 		if (pref_heuristic_udp) {
 			heur_dissector_add("udp", dissect_xml_heur, xml_ns.hf_tag);
@@ -1341,7 +1338,7 @@ static void apply_prefs(void) {
 	range_foreach(xml_tcp_range, range_delete_xml_tcp_callback);
 	g_free(xml_tcp_range);
 	xml_tcp_range = range_copy(global_xml_tcp_range);
-	range_foreach(xml_tcp_range, range_add_xml_tcp_callback);	
+	range_foreach(xml_tcp_range, range_add_xml_tcp_callback);
 }
 
 void

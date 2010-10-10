@@ -679,7 +679,7 @@ static enum_val_t nfs_fhandle_types[] = {
 	{ NULL, NULL, 0 }
 };
 /* decode all nfs filehandles as this type */
-gint default_nfs_fhandle_type=FHT_UNKNOWN;
+static gint default_nfs_fhandle_type=FHT_UNKNOWN;
 
 /* For dissector helpers which take a "levels" argument to indicate how
  * many expansions up they should populate the expansion items with
@@ -779,7 +779,7 @@ static int nfsv4_operation_tiers[] = {
 
 /* file name snooping */
 gboolean nfs_file_name_snooping = FALSE;
-gboolean nfs_file_name_full_snooping = FALSE;
+static gboolean nfs_file_name_full_snooping = FALSE;
 typedef struct nfs_name_snoop {
 	int fh_length;
 	unsigned char *fh;
@@ -804,8 +804,8 @@ static GHashTable *nfs_name_snoop_matched = NULL;
 static emem_tree_t *nfs_name_snoop_known = NULL;
 static emem_tree_t *nfs_file_handles = NULL;
 
-gboolean nfs_display_v4_tag = TRUE;
-gboolean display_major_nfsv4_ops = TRUE;
+static gboolean nfs_display_v4_tag = TRUE;
+static gboolean display_major_nfsv4_ops = TRUE;
 
 static int dissect_nfs_stateid4(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *hash);
 
@@ -1206,7 +1206,7 @@ static const value_string names_fhtype[] =
 };
 
 
-const true_false_string tfs_endianness = { "Little Endian", "Big Endian" };
+static const true_false_string tfs_endianness = { "Little Endian", "Big Endian" };
 
 /* SVR4: checked with ReliantUNIX (5.43, 5.44, 5.45), OpenSolaris (build 101a) */
 
@@ -1662,7 +1662,7 @@ dissect_fhandle_data_NETAPP(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *t
 	}
 }
 
-const value_string netapp_file_flag_vals[] =  {
+static const value_string netapp_file_flag_vals[] =  {
 	{ 0x0000,	"Not set"},
 	{ 0x0001,	"Set"},
 	{ 0,		NULL}
@@ -2607,7 +2607,7 @@ dissect_nfs2_remove_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
 
 
 /* RFC 1094, Page 15 */
-const value_string nfs2_ftype[] =
+static const value_string nfs2_ftype[] =
 {
 	{	0,	"Non-File" },
 	{	1,	"Regular File" },
@@ -8068,7 +8068,7 @@ static const value_string names_nfsv4_operation[] = {
 	{	0,	NULL }
 };
 
-gint *nfsv4_operation_ett[] =
+static gint *nfsv4_operation_ett[] =
 {
 	 &ett_nfs_access4 ,
 	 &ett_nfs_access_supp4,
@@ -10163,7 +10163,7 @@ static const value_string layoutreturn_names[] = {
 	{ 0, NULL }
 };
 
-const value_string nfs_fh_obj_id[] = {
+static const value_string nfs_fh_obj_id[] = {
 	{ 1, "NF4REG"},
 	{ 2, "NF4DIR"},
 	{ 3, "NF4BLK"},
@@ -10230,7 +10230,7 @@ static const value_string names_nfs_cb_operation[] = {
         {       0,      NULL }
 };
 
-gint *nfs_cb_operation_ett[] =
+static gint *nfs_cb_operation_ett[] =
 {
          &ett_nfs_cb_getattr,
          &ett_nfs_cb_recall,

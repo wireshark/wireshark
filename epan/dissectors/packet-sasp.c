@@ -312,8 +312,8 @@ static const value_string set_mem_state_reply_response_code[] = {
 };
 
 
-proto_item *memdatacomp = NULL;
-proto_tree *memdatacomp_tree = NULL;
+static proto_item *memdatacomp = NULL;
+static proto_tree *memdatacomp_tree = NULL;
 
 
 

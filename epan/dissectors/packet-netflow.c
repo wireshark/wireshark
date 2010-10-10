@@ -1131,18 +1131,21 @@ typedef struct _ntptime_t {
 	long  ntp_frac_sec; /* n/(2**32)  */
 } ntptime_t;
 
-void nstime_to_ntptime(nstime_t *nst, ntptime_t *ntpt) {
+static void
+nstime_to_ntptime(nstime_t *nst, ntptime_t *ntpt) {
 	ntpt->ntp_sec      = nst->secs + NTP_BASETIME;
 	ntpt->ntp_frac_sec = (long) ((nst->nsecs*FLOAT_DENOM)/1000000000.0);
 }
 
-void ntptime_to_nstime(ntptime_t *ntpt, nstime_t *nst) {
+static void
+ntptime_to_nstime(ntptime_t *ntpt, nstime_t *nst) {
 	nst->secs  = ntpt->ntp_sec - NTP_BASETIME;
 	nst->nsecs = (int)((ntpt->ntp_frac_sec*1000000000.0)/FLOAT_DENOM);
 }
 #endif
 
-void ntptime_buf_to_nstime(const guint8 *ntptime_buf, nstime_t *nstime) {
+static void
+ntptime_buf_to_nstime(const guint8 *ntptime_buf, nstime_t *nstime) {
 	nstime->secs  = pntohl(&ntptime_buf[0])  - NTP_BASETIME;
 	nstime->nsecs = (int)((pntohl(&ntptime_buf[4])*1000000000.0)/FLOAT_DENOM);
 }

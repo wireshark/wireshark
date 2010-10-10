@@ -129,9 +129,9 @@ static gint ett_eap = -1;
  */
 static int radius_tap = -1;
 
-radius_vendor_info_t no_vendor = {"Unknown Vendor",0,NULL,-1,1,1,FALSE};
+static radius_vendor_info_t no_vendor = {"Unknown Vendor",0,NULL,-1,1,1,FALSE};
 
-radius_attr_info_t no_dictionary_entry = {"Unknown-Attribute",0,FALSE,FALSE,radius_octets, NULL, NULL, -1, -1, -1, -1, -1, NULL };
+static radius_attr_info_t no_dictionary_entry = {"Unknown-Attribute",0,FALSE,FALSE,radius_octets, NULL, NULL, -1, -1, -1, -1, -1, NULL };
 
 static dissector_handle_t eap_handle;
 
@@ -182,8 +182,8 @@ static const value_string radius_vals[] =
 	{RADIUS_DISCONNECT_REQUEST_ACK,		"Disconnect-ACK"},	/* 41 RFC3575 */
 	{RADIUS_DISCONNECT_REQUEST_NAK,		"Disconnect-NAK"},	/* 42 RFC3575 */
 	{RADIUS_CHANGE_FILTER_REQUEST,		"CoA-Request"},		/* 43 */
-	{RADIUS_CHANGE_FILTER_REQUEST_ACK,	"CoA-ACK"},		/* 44 */ 
-	{RADIUS_CHANGE_FILTER_REQUEST_NAK,	"CoA-NAK"},		/* 45 */ 
+	{RADIUS_CHANGE_FILTER_REQUEST_ACK,	"CoA-ACK"},		/* 44 */
+	{RADIUS_CHANGE_FILTER_REQUEST_NAK,	"CoA-NAK"},		/* 45 */
 /*
 50       IP-Address-Allocate          [RFC3575]
 51       IP-Address-Release           [RFC3575]
@@ -227,7 +227,7 @@ static gint radius_vsa_equal(gconstpointer k1, gconstpointer k2)
 	const radius_vsa_buffer_key* key1 = (const radius_vsa_buffer_key*) k1;
 	const radius_vsa_buffer_key* key2 = (const radius_vsa_buffer_key*) k2;
 
-	return (((key1->vendor_id == key2->vendor_id) && 
+	return (((key1->vendor_id == key2->vendor_id) &&
 		(key1->vsa_type == key2->vsa_type)
 		) ? TRUE : FALSE);
 }
@@ -237,7 +237,7 @@ static guint radius_vsa_hash(gconstpointer k)
 	const radius_vsa_buffer_key* key = (const radius_vsa_buffer_key*) k;
 
 	return key->vendor_id + key->vsa_type;
-} 
+}
 
 /* Compare 2 keys */
 static gint radius_call_equal(gconstpointer k1, gconstpointer k2)
@@ -635,7 +635,7 @@ void radius_ipv6prefix(radius_attr_info_t* a, proto_tree* tree, packet_info *pin
 		proto_item_append_text(avp_item, "[wrong length for IPv6 prefix]");
 		return;
 	}
- 
+
 	/* first byte is reserved == 0x00 */
 	if (tvb_get_guint8(tvb, offset)) {
 		proto_item_append_text(avp_item, "[invalid reserved byte for IPv6 prefix]");
@@ -1079,7 +1079,7 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
 							add_avp_to_tree(avp_tree, avp_item, pinfo, vsa_tvb, dictionary_entry, vsa_buffer->len, 0);
 							g_hash_table_remove(vsa_buffer_table, &(vsa_buffer->key));
 							g_free(vsa_buffer);
-					
+
 						} else {
 							add_avp_to_tree(avp_tree, avp_item, pinfo, tvb, dictionary_entry, avp_vsa_len, offset);
 						}
@@ -1310,7 +1310,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint avplength;
 	e_radiushdr rh;
 	radius_info_t *rad_info;
-	
+
 
 	conversation_t* conversation;
 	radius_call_info_key radius_call_key;
@@ -1318,13 +1318,13 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	radius_call_t *radius_call = NULL;
 	nstime_t delta;
 	static address null_address = { AT_NONE, 0, NULL };
-	
+
 
 	/* does this look like radius ? */
 	if(!is_radius(tvb)){
 		return 0;
 	}
-	
+
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RADIUS");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -1786,7 +1786,7 @@ extern void radius_register_avp_dissector(guint32 vendor_id, guint32 attribute_i
 			/* XXX: Default "standard" values: Should be parameters ?  */
 			vendor->type_octets   = 1;
 			vendor->length_octets = 1;
-			vendor->has_flags     = FALSE; 
+			vendor->has_flags     = FALSE;
 
 			g_hash_table_insert(dict->vendors_by_id,GUINT_TO_POINTER(vendor->code),vendor);
 			g_hash_table_insert(dict->vendors_by_name,(gpointer)(vendor->name),vendor);
@@ -1897,7 +1897,7 @@ static void register_radius_fields(const char* unused _U_) {
 		 { "Ascend Data Filter", "radius.ascenddatafilter", FT_BYTES, BASE_NONE, NULL, 0x0,
 			 NULL, HFILL }}
 	 };
-	 
+
 	 gint *base_ett[] = {
 		 &ett_radius,
 		 &ett_radius_avp,
@@ -1905,32 +1905,32 @@ static void register_radius_fields(const char* unused _U_) {
 		 &(no_dictionary_entry.ett),
 		 &(no_vendor.ett),
 	 };
-	 
+
 	 hfett_t ri;
 	 char* dir = NULL;
 	 gchar* dict_err_str = NULL;
-	 
+
 	 ri.hf = g_array_new(FALSE,TRUE,sizeof(hf_register_info));
 	 ri.ett = g_array_new(FALSE,TRUE,sizeof(gint *));
 	 ri.vend_vs = g_array_new(TRUE,TRUE,sizeof(value_string));
-	 
+
 	 g_array_append_vals(ri.hf, base_hf, array_length(base_hf));
 	 g_array_append_vals(ri.ett, base_ett, array_length(base_ett));
-	 
+
 	 dir = get_persconffile_path("radius", FALSE, FALSE);
-	 
+
 	 if (test_for_directory(dir) != EISDIR) {
 		 /* Although dir isn't a directory it may still use memory */
 		 g_free(dir);
-		 
+
 		 dir = get_datafile_path("radius");
-		 
+
 		 if (test_for_directory(dir) != EISDIR) {
 			 g_free(dir);
 			 dir = NULL;
 		 }
 	 }
-	 
+
 	if (dir) {
 		 radius_load_dictionary(dict,dir,"dictionary",&dict_err_str);
 
@@ -1938,7 +1938,7 @@ static void register_radius_fields(const char* unused _U_) {
 				g_warning("radius: %s",dict_err_str);
 				g_free(dict_err_str);
 		 }
-		 
+
 		 g_hash_table_foreach(dict->attrs_by_id,register_attrs,&ri);
 		 g_hash_table_foreach(dict->vendors_by_id,register_vendors,&ri);
 	}
@@ -1985,7 +1985,7 @@ proto_register_radius(void)
 				       "Time to live for a radius request used for matching it with a response", 10, &request_ttl);
 	radius_tap = register_tap("radius");
 	proto_register_prefix("radius",register_radius_fields);
-	
+
 	dict = g_malloc(sizeof(radius_dictionary_t));
 	dict->attrs_by_id     = g_hash_table_new(g_direct_hash,g_direct_equal);
 	dict->attrs_by_name   = g_hash_table_new(g_str_hash,g_str_equal);

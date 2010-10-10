@@ -173,9 +173,9 @@ static int ett_ie_meas_res_no = -1;
 static int ett_ie_message_id = -1;
 static int ett_ie_sys_info_type = -1;
 
-proto_tree *top_tree;
-dissector_handle_t gsm_a_ccch_handle;
-dissector_handle_t gsm_a_dtap_handle;
+static proto_tree *top_tree;
+static dissector_handle_t gsm_a_ccch_handle;
+static dissector_handle_t gsm_a_dtap_handle;
 
 static gboolean is_si2q = FALSE;
 
@@ -245,7 +245,7 @@ static const value_string rsl_msg_disc_vals[] = {
 #define RSL_MSG_CHAN_ACTIV_N_ACK	35
 #define RSL_MSG_CONN_FAIL			36
 #define RSL_MSG_DEACTIVATE_SACCH	37
- 
+
 #define RSL_MSG_ENCR_CMD				38	/* 8.4.6 */
 #define RSL_MSG_HANDODET				39	/* 8.4.7 */
 #define RSL_MSG_MEAS_RES				40	/* 8.4.8 */
@@ -401,7 +401,7 @@ static const value_string rsl_msg_type_vals[] = {
 #define RSL_IE_TFO_STATUS				59
 #define RSL_IE_LLP_APDU					60
 #define RSL_IE_TFO_TRANSP_CONT			61
-	
+
 static const value_string rsl_ie_type_vals[] = {
 	{  0x01,	"Channel Number" },				/*  9.3.1 */
 	{  0x02,	"Link Identifier" },			/*  9.3.2 */
@@ -657,7 +657,7 @@ dissect_rsl_ie_act_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	/* The R bit indicates if the procedure is an initial activation or a reactivation. */
 	proto_tree_add_item(ie_tree, hf_rsl_rbit, tvb, offset, 1, FALSE);
 
-	/* The A-bits indicate the type of activation, which defines the access procedure 
+	/* The A-bits indicate the type of activation, which defines the access procedure
 	 * and the operation of the data link layer
 	 */
 	octet = (tvb_get_guint8(tvb,offset) & 0x06)>>1;
@@ -741,9 +741,9 @@ dissect_rsl_ie_bs_power(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	/* FPC_EPC mode */
 	proto_tree_add_item(ie_tree, hf_rsl_bs_fpc_epc_mode, tvb, offset, 1, FALSE);
 
-	/* The Power Level field (octet 2) indicates the number of 2 dB steps by 
-	 * which the power shall be reduced from its nominal value, Pn, 
-	 * set by the network operator to adjust the coverage. 
+	/* The Power Level field (octet 2) indicates the number of 2 dB steps by
+	 * which the power shall be reduced from its nominal value, Pn,
+	 * set by the network operator to adjust the coverage.
 	 * Thus the Power Level values correspond to the following powers (relative to Pn):
 	 */
 	proto_tree_add_item(ie_tree, hf_rsl_bs_power, tvb, offset, 1, FALSE);
@@ -891,7 +891,7 @@ dissect_rsl_ie_ch_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	ie_offset = offset;
 
 	/* The DTX bits of octet 3 indicate whether DTX is applied
-	 * DTXd indicates use of DTX in the downlink direction (BTS to MS) and 
+	 * DTXd indicates use of DTX in the downlink direction (BTS to MS) and
 	 * DTXu indicates use of DTX in the uplink direction (MS to BTS).
 	 */
 	proto_tree_add_item(ie_tree, hf_rsl_cm_dtxd, tvb, offset, 1, FALSE);
@@ -900,7 +900,7 @@ dissect_rsl_ie_ch_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	/* The "Speech or data indicator" field (octet 4) */
 	proto_tree_add_item(ie_tree, hf_rsl_speech_or_data, tvb, offset, 1, FALSE);
 	octet = tvb_get_guint8(tvb,offset);
-	offset++; 
+	offset++;
 	/* Channel rate and type */
 	proto_tree_add_item(ie_tree, hf_rsl_ch_rate_and_type, tvb, offset, 1, FALSE);
 	offset++;
@@ -1050,7 +1050,7 @@ dissect_rsl_ie_ho_ref(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, i
 	/* Element identifier */
 	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
 	offset++;
-	
+
 	/* Hand-over reference */
 	proto_tree_add_item(ie_tree, hf_rsl_ho_ref, tvb, offset, 1, FALSE);
 	offset++;
@@ -1237,7 +1237,7 @@ dissect_rsl_ie_paging_grp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
 	offset++;
 
-	/* The Paging Group field (octet 2) contains the binary representation of the paging 
+	/* The Paging Group field (octet 2) contains the binary representation of the paging
 	 * group as defined in 3GPP TS 45.002.
 	 */
 	proto_tree_add_item(ie_tree, hf_rsl_paging_grp, tvb, offset, 1, FALSE);
@@ -1269,7 +1269,7 @@ dissect_rsl_ie_paging_load(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
 	offset++;
 
-	/* 
+	/*
 	 * Paging Buffer Space.
 	 */
 	proto_tree_add_item(ie_tree, hf_rsl_paging_load, tvb, offset, 2, FALSE);
@@ -1620,7 +1620,7 @@ dissect_rsl_ie_staring_time(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	return offset;
 }
 
-/* 
+/*
  * 9.3.24 Timing Advance
  */
 static int
@@ -1701,7 +1701,7 @@ dissect_rsl_ie_uplik_meas(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	 */
 	proto_tree_add_item(ie_tree, hf_rsl_rxlev_sub_up, tvb, offset, 1, FALSE);
 	offset++;
-	/* Octet 5 
+	/* Octet 5
 	 * 8	7	 6	5	4		  3	2	1
 	 * Reserved | RXQUAL.FULL.up | RXQUAL.SUB.up
 	 */
@@ -1726,7 +1726,7 @@ static const value_string rsl_class_vals[] = {
 	{  0x07,	"Interworking" },
 	{ 0,			NULL }
 };
-	
+
  /*
   * 9.3.26 Cause
   */
@@ -1758,7 +1758,7 @@ dissect_rsl_ie_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, in
 	proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, FALSE);
 	offset++;
 	ie_offset = offset;
-	
+
 	/* Cause Value */
 	octet = tvb_get_guint8(tvb,offset);
 	proto_tree_add_item(tree, hf_rsl_extension_bit, tvb, offset, 1, FALSE);
@@ -1766,7 +1766,7 @@ dissect_rsl_ie_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, in
 	if ((octet & 0x80) == 80)
 	/* Cause Extension*/
 		offset++;
-	
+
 	/* Diagnostic(s) if any */
 	return ie_offset+length;
 }
@@ -1967,7 +1967,7 @@ dissect_rsl_ie_smscb_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
 	proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, FALSE);
 	offset++;
-	/*	
+	/*
 	 * SMSCB frame
 	 */
 	proto_tree_add_text(ie_tree, tvb,offset,length,"SMSCB frame");
@@ -2001,14 +2001,14 @@ dissect_rsl_ie_ms_timing_offset(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
 	offset++;
 
-	/* Timing Offset 
-	 * The meaning of the MS Timing Offset is as defined in 3GPP TS 45.010. 
+	/* Timing Offset
+	 * The meaning of the MS Timing Offset is as defined in 3GPP TS 45.010.
 	 * The value of MS Timing Offset is the binary value of the 8-bit Timing Offset field (octet 2) - 63.
 	 * The range of MS Timing Offset is therefore -63 to 192.
 	 */
 	proto_tree_add_item(ie_tree, hf_rsl_timing_offset, tvb, offset, 1, FALSE);
 	offset++;
-	
+
 	return offset;
 }
 
@@ -2080,7 +2080,7 @@ dissect_rsl_ie_full_bcch_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, FALSE);
  	offset++;
 
-	/* 
+	/*
 	 * Octets 3-25 contain the complete L3 message as defined in 3GPP TS 44.018.
 	 */
 
@@ -2128,10 +2128,10 @@ dissect_rsl_ie_ch_needed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	/* Channel */
 	proto_tree_add_item(ie_tree, hf_rsl_ch_needed, tvb, offset, 1, FALSE);
 	offset++;
-	
+
 	return offset;
 }
-/* 
+/*
  * 9.3.41 CB Command type
  */
 static int
@@ -2158,7 +2158,7 @@ dissect_rsl_ie_cb_cmd_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	/* Channel */
 	proto_tree_add_item(ie_tree, hf_rsl_ch_needed, tvb, offset, 1, FALSE);
 	offset++;
-	
+
 	return offset;
 }
 
@@ -2192,7 +2192,7 @@ dissect_rsl_ie_smscb_mess(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	offset++;
 	ie_offset = offset;
 
-	/* 
+	/*
 	 * SMSCB Message
 	 */
 
@@ -2284,7 +2284,7 @@ dissect_rsl_ie_smscb_ch_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	/* Channel Ind */
 	proto_tree_add_item(ie_tree, hf_rsl_ch_ind, tvb, offset, 1, FALSE);
 	offset++;
-	
+
 	return offset;
 }
 
@@ -2318,7 +2318,7 @@ dissect_rsl_ie_grp_call_ref(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 	proto_tree_add_text(ie_tree, tvb,offset,length,"Descriptive group or broadcast call reference");
 
-	/* The octets 3 to 7 are coded in the same way as the octets 2 to 6 
+	/* The octets 3 to 7 are coded in the same way as the octets 2 to 6
 	 * in the Descriptive group or broadcast call reference
 	 * information element as defined in 3GPP TS 24.008.
 	 */
@@ -2362,7 +2362,7 @@ dissect_rsl_ie_ch_desc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	 * information element as defined in 3GPP TS 44.018, n-2 is equal to the length of the radio interface
 	 * Group channel description information element
 	 */
-	
+
 	offset = offset + length;
 
 	return offset;
@@ -2397,7 +2397,7 @@ dissect_rsl_ie_nch_drx(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	/* Octet 3 bits 3, 4 and 5 are bits 1, 2 and 3 of the radio interface
 	 * eMLPP priority as defined in 3GPP TS 44.018.
 	 */
-	/* Octet 3 bits 1 and 2 are bits 1 and 2 of the radio interface NLN 
+	/* Octet 3 bits 1 and 2 are bits 1 and 2 of the radio interface NLN
 	 * as defined in 3GPP TS 44.018.
 	 */
 
@@ -2448,7 +2448,7 @@ dissect_rsl_ie_cmd_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		proto_tree_add_item(ie_tree, hf_rsl_command, tvb, offset, 1, FALSE);
 		offset++;
 	}
-	
+
 	return offset;
 }
 /*
@@ -2487,9 +2487,9 @@ dissect_rsl_ie_emlpp_prio(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	offset++;
 
 	/* The call priority field (bit 3 to 1 of octet 2) is coded in the same way
-	 * as the call priority field (bit 3 to 1 of octet 5) in the 
+	 * as the call priority field (bit 3 to 1 of octet 5) in the
 	 * Descriptive group or broadcast call reference information element
-	 * as defined in 3GPP TS 24.008. 
+	 * as defined in 3GPP TS 24.008.
 	 */
 	proto_tree_add_item(ie_tree, hf_rsl_emlpp_prio, tvb, offset, 1, FALSE);
 	offset++;
@@ -2521,7 +2521,7 @@ dissect_rsl_ie_uic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int 
 	offset++;
 
 	/* Octet 3 bits 1 to 6 contain the radio interface octet 2 bits 3 to 8 of the
-	 * UIC information element as defined in 3GPP TS 44.018. 
+	 * UIC information element as defined in 3GPP TS 44.018.
 	 */
 	proto_tree_add_text(ie_tree, tvb,offset,1,"UIC");
 	offset++;
@@ -2680,7 +2680,7 @@ dissect_rsl_ie_sup_codec_types(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	 * and bit 8 is set to 0, or if bit 6 of the Codec List field (octet 4) indicates
 	 * that UMTS AMR is supported, or if bit 7 of the Codec List field (octet 4)
 	 * indicates that UMTS AMR 2 is supported, or if bit 1, 3, 4 or 5 of the Codec List
-	 * extension 1 field (octet 5) indicates that AMR WB is supported, the following 
+	 * extension 1 field (octet 5) indicates that AMR WB is supported, the following
 	 * two octets (after the Codec List field and its extensions) is present
 	 */
 
@@ -2768,14 +2768,14 @@ dissect_rsl_ie_rtd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int 
 	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
 	offset++;
 
-	/* The RTD field is the binary representation of the value of the 
+	/* The RTD field is the binary representation of the value of the
 	 * round trip delay in 20 ms increments.
 	 */
 	rtd = (tvb_get_guint8(tvb,offset)>>1)*20;
 	rtd_item = proto_tree_add_uint(tree, hf_rsl_rtd, tvb,offset,1,rtd);
 	proto_item_append_text(rtd_item," ms");
 
-	/* The Delay IND field indicates if the delay corresponds to a BTS 
+	/* The Delay IND field indicates if the delay corresponds to a BTS
 	 * to transcoder delay or to a BTS to remote BTS delay.
 	 */
 	proto_tree_add_item(ie_tree, hf_rsl_delay_ind, tvb, offset, 1, FALSE);
@@ -2863,7 +2863,7 @@ dissect_rsl_ie_llp_apdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 /*
  * 9.3.59 TFO transparent container
  * This is a variable length element that conveys a message associated with TFO protocol,
- * as defined in 3GPP TS 28.062. This element can be sent from the BSC to the BTS or 
+ * as defined in 3GPP TS 28.062. This element can be sent from the BSC to the BTS or
  * from the BTS to the BSC. The BTS shall retrieve the information it is able to understand,
  * and forward transparently the complete information to the BSC or to the TRAU.
  */
@@ -3015,7 +3015,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		if(tvb_length_remaining(tvb,offset) > 0)
 			offset = dissect_rsl_ie_staring_time(tvb, pinfo, tree, offset, FALSE);
 		break;
-	/* 8.5.2 CCCH LOAD INDICATION 18*/	
+	/* 8.5.2 CCCH LOAD INDICATION 18*/
 	case RSL_MSG_CCCH_LOAD_IND:
 		/* 	Channel number (note)	9.3.1	M TV 2 */
 		offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
@@ -3170,7 +3170,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 			offset = dissect_rsl_ie_ho_ref(tvb, pinfo, tree, offset, FALSE);
 		/* BS Power					9.3.4	O 3) TV 2		*/
 		if(tvb_length_remaining(tvb,offset) > 0)
-			offset = dissect_rsl_ie_bs_power(tvb, pinfo, tree, offset, FALSE); 
+			offset = dissect_rsl_ie_bs_power(tvb, pinfo, tree, offset, FALSE);
 		/* MS Power					9.3.13	O 3) TV 2		*/
 		if(tvb_length_remaining(tvb,offset) > 0)
 			offset = dissect_rsl_ie_ms_pow(tvb, pinfo, tree, offset, FALSE);
@@ -3238,7 +3238,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* Link Identifier			9.3.2	M TV 2			*/
 		offset = dissect_rsl_ie_link_id(tvb, pinfo, tree, offset, TRUE);
 		/* L3 Info (CIPH MOD CMD)	9.3.11	M TLV 6			*/
-		offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, TRUE); 
+		offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, TRUE);
 		break;
 	/* 8.4.7 HANDOVER DETECTION */
 	case RSL_MSG_HANDODET:			/*	39	 8.4.7 */
@@ -3263,10 +3263,10 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 			offset = dissect_rsl_ie_l1_inf(tvb, pinfo, tree, offset, FALSE);
 		/* L3 Info (MEAS REP, EXT MEAS REP or ENH MEAS REP) 9.3.11 O 1) TLV 21 */
 		if(tvb_length_remaining(tvb,offset) > 0)
-			offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, FALSE); 
+			offset = dissect_rsl_ie_L3_inf(tvb, pinfo, tree, offset, FALSE);
 		/* MS Timing Offset			9.3.37 O 2) TV 2		*/
 		if(tvb_length_remaining(tvb,offset) > 0)
-			offset = dissect_rsl_ie_ms_timing_offset(tvb, pinfo, tree, offset, FALSE); 
+			offset = dissect_rsl_ie_ms_timing_offset(tvb, pinfo, tree, offset, FALSE);
 		break;
 	/* 8.4.9 MODE MODIFY */
 	case RSL_MSG_MODE_MODIFY_REQ:	/*	41	8.4.9 */
@@ -3276,7 +3276,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		offset = dissect_rsl_ie_ch_mode(tvb, pinfo, tree, offset, TRUE);
 		/* Encryption information	9.3.7 O 1) TLV >=3 */
 		if(tvb_length_remaining(tvb,offset) > 0)
-			offset = dissect_rsl_ie_enc_inf(tvb, pinfo, tree, offset, FALSE); 
+			offset = dissect_rsl_ie_enc_inf(tvb, pinfo, tree, offset, FALSE);
 		/* Main channel reference	9.3.45 O 2) TV 2 */
 		if(tvb_length_remaining(tvb,offset) > 0)
 			offset = dissect_rsl_ie_main_ch_ref(tvb, pinfo, tree, offset, FALSE);
@@ -3469,7 +3469,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		offset = dissect_rsl_ie_multirate_cntrl(tvb, pinfo, tree, offset, TRUE);
 		/* Supported Codec Type		9.3.54 O 1) TLV >=5 */
 		if(tvb_length_remaining(tvb,offset) > 0)
-			offset = dissect_rsl_ie_sup_codec_types(tvb, pinfo, tree, offset, FALSE);			
+			offset = dissect_rsl_ie_sup_codec_types(tvb, pinfo, tree, offset, FALSE);
 		/* TFO transparent container 9.3.59 O 4) TLV >=3 */
 		if(tvb_length_remaining(tvb,offset) > 0)
 			offset = dissect_rsl_ie_tfo_transp_cont(tvb, pinfo, tree, offset, FALSE);

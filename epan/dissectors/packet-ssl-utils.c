@@ -2439,7 +2439,8 @@ ssl_load_key(FILE* fp)
     return private_key;
 }
 
-const char *BAGTYPE(gnutls_pkcs12_bag_type_t x) {
+static const char *
+BAGTYPE(gnutls_pkcs12_bag_type_t x) {
     switch (x) {
         case GNUTLS_BAG_EMPTY:               return "Empty";
         case GNUTLS_BAG_PKCS8_ENCRYPTED_KEY: return "PKCS#8 Encrypted key";

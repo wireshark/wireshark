@@ -934,7 +934,7 @@ static const int *data_type_fields[] = {
     NULL
 };
 
-const int *cyclic_non_fatal_1_fields[] = {
+static const int *cyclic_non_fatal_1_fields[] = {
     &hf_omron_cyclic_1,
     &hf_omron_cyclic_2,
     &hf_omron_cyclic_3,
@@ -945,7 +945,7 @@ const int *cyclic_non_fatal_1_fields[] = {
     NULL
 };
 
-const int *cyclic_non_fatal_2_fields[] = {
+static const int *cyclic_non_fatal_2_fields[] = {
     &hf_omron_cyclic_8,
     &hf_omron_cyclic_9,
     &hf_omron_cyclic_10,
@@ -957,7 +957,7 @@ const int *cyclic_non_fatal_2_fields[] = {
     NULL
 };
 
-const int *cyclic_non_fatal_3_fields[] = {
+static const int *cyclic_non_fatal_3_fields[] = {
     &hf_omron_cyclic_16,
     &hf_omron_cyclic_17,
     &hf_omron_cyclic_18,
@@ -969,7 +969,7 @@ const int *cyclic_non_fatal_3_fields[] = {
     NULL
 };
 
-const int *cyclic_non_fatal_4_fields[] = {
+static const int *cyclic_non_fatal_4_fields[] = {
     &hf_omron_cyclic_24,
     &hf_omron_cyclic_25,
     &hf_omron_cyclic_26,
@@ -981,7 +981,7 @@ const int *cyclic_non_fatal_4_fields[] = {
     NULL
 };
 
-const int *cyclic_non_fatal_5_fields[] = {
+static const int *cyclic_non_fatal_5_fields[] = {
     &hf_omron_cyclic_32,
     &hf_omron_cyclic_33,
     &hf_omron_cyclic_34,
@@ -993,7 +993,7 @@ const int *cyclic_non_fatal_5_fields[] = {
     NULL
 };
 
-const int *cyclic_non_fatal_6_fields[] = {
+static const int *cyclic_non_fatal_6_fields[] = {
     &hf_omron_cyclic_40,
     &hf_omron_cyclic_41,
     &hf_omron_cyclic_42,
@@ -1005,7 +1005,7 @@ const int *cyclic_non_fatal_6_fields[] = {
     NULL
 };
 
-const int *cyclic_non_fatal_7_fields[] = {
+static const int *cyclic_non_fatal_7_fields[] = {
     &hf_omron_cyclic_48,
     &hf_omron_cyclic_49,
     &hf_omron_cyclic_50,
@@ -1017,7 +1017,7 @@ const int *cyclic_non_fatal_7_fields[] = {
     NULL
 };
 
-const int *cyclic_non_fatal_8_fields[] = {
+static const int *cyclic_non_fatal_8_fields[] = {
     &hf_omron_cyclic_56,
     &hf_omron_cyclic_57,
     &hf_omron_cyclic_58,

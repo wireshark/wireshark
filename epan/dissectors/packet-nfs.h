@@ -206,7 +206,6 @@ extern proto_tree* display_access_items(tvbuff_t* tvb, int offset, packet_info* 
 extern int dissect_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree* tree,
 	int version, GString *optext);
 
-extern gint default_nfs_fhandle_type;
 extern gint hf_nfs_nfsstat;
 
 #endif /* packet-nfs.h */

@@ -108,7 +108,8 @@ is_tpkt(tvbuff_t *tvb, int min_len)
 	 */
 	return pkt_len;
 }
-guint16 is_asciitpkt(tvbuff_t *tvb)
+guint16
+is_asciitpkt(tvbuff_t *tvb)
 {
     guint16 count;
         /*
@@ -136,7 +137,8 @@ guint16 is_asciitpkt(tvbuff_t *tvb)
 
 
 }
-int parseLengthText ( guint8* pTpktData )
+static int
+parseLengthText ( guint8* pTpktData )
 {
     int value = 0;
     const guint8 * pData = pTpktData;
@@ -156,7 +158,8 @@ int parseLengthText ( guint8* pTpktData )
         }
     return value;
 }
-int parseVersionText ( guint8* pTpktData )
+static int
+parseVersionText ( guint8* pTpktData )
 {
     int value = 0;
     guint8 * pData = pTpktData;
@@ -177,7 +180,8 @@ int parseVersionText ( guint8* pTpktData )
 
     return value;
 }
-int parseReservedText ( guint8* pTpktData )
+static int
+parseReservedText ( guint8* pTpktData )
 {
     int value = 0;
     guint8 * pData = pTpktData;
@@ -210,7 +214,7 @@ dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     volatile int offset = 0;
     int length_remaining;
     int data_len;
-    int mgcp_packet_len = 0;
+    volatile int mgcp_packet_len = 0;
     int mgcp_version = 0;
     int mgcp_reserved = 0;
     volatile int length;
@@ -593,16 +597,18 @@ dissect_tpkt_x224(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	dissect_tpkt_encap(tvb, pinfo, tree, tpkt_desegment, x224_handle);
 }
+
 /*
  * Dissect ASCII TPKT, which wraps a ASCII TPKT header around an OSI TP
  * PDU.
-
+ */
+#if 0
 static void
 dissect_ascii_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         dissect_asciitpkt(tvb, pinfo, tree, osi_tp_handle);
 }
- */
+#endif
 
 void
 proto_register_tpkt(void)

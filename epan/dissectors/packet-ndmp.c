@@ -322,7 +322,7 @@ typedef struct _ndmp_conv_data_t {
 	ndmp_task_data_t *task;
 	conversation_t *conversation;
 } ndmp_conv_data_t;
-ndmp_conv_data_t *ndmp_conv_data=NULL;
+static ndmp_conv_data_t *ndmp_conv_data=NULL;
 static proto_tree *top_tree;
 
 static itl_nexus_t *
