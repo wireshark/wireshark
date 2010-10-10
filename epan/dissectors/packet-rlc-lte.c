@@ -284,9 +284,9 @@ static const value_string header_only_vals[] =
 /**********************************************************************************/
 /* These are for keeping track of UM/AM extension headers, and the lengths found  */
 /* in them                                                                        */
-guint8  s_number_of_extensions = 0;
+static guint8  s_number_of_extensions = 0;
 #define MAX_RLC_SDUS 64
-guint16 s_lengths[MAX_RLC_SDUS];
+static guint16 s_lengths[MAX_RLC_SDUS];
 
 
 /*********************************************************************/
@@ -368,8 +368,7 @@ static GHashTable *rlc_lte_frame_repeated_nack_report_hash = NULL;
 
 /********************************************************/
 /* Forward declarations & functions                     */
-void proto_reg_handoff_rlc_lte(void);
-void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 
 /* Write the given formatted text to:
@@ -381,7 +380,7 @@ static void write_pdu_label_and_info(proto_item *pdu_ti, proto_item *sub_ti,
 {
     #define MAX_INFO_BUFFER 256
     static char info_buffer[MAX_INFO_BUFFER];
-    
+
     va_list ap;
 
     va_start(ap, format);
@@ -938,7 +937,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
                     p_report_in_frame->sequenceExpected = expectedSequenceNumber;
                     p_report_in_frame->previousFrameNum = p_channel_status->previousFrameNum;
                     p_report_in_frame->previousSegmentIncomplete = p_channel_status->previousSegmentIncomplete;
-        
+
                     /* Update channel status to remember *this* frame */
                     p_channel_status->previousFrameNum = pinfo->fd->num;
                     p_channel_status->previousSequenceNumber = sequenceNumber;
@@ -1108,7 +1107,7 @@ static void addChannelRepeatedNACKInfo(rlc_channel_repeated_nack_report_in_frame
 
     /* Append count to sequence analysis root */
     proto_item_append_text(seqnum_ti, " - %u SNs repeated from previous Status PDU",
-                           p->noOfNACKsRepeated);         
+                           p->noOfNACKsRepeated);
 }
 
 
@@ -1815,7 +1814,7 @@ static gboolean dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     /* Do this again on re-dissection to re-discover offset of actual PDU */
-    
+
     /* Needs to be at least as long as:
        - the signature string
        - fixed header bytes
@@ -1900,7 +1899,7 @@ static gboolean dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
 /* Main dissection function. */
 /*****************************/
 
-void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree             *rlc_lte_tree;
     proto_tree             *context_tree;
@@ -2450,7 +2449,7 @@ void proto_register_rlc_lte(void)
         {"rlc-only",    "Only-RLC-frames", SEQUENCE_ANALYSIS_RLC_ONLY},
         {NULL, NULL, -1}
     };
-    
+
     module_t *rlc_lte_module;
 
     /* Register protocol. */
@@ -2513,11 +2512,9 @@ void proto_register_rlc_lte(void)
 void
 proto_reg_handoff_rlc_lte(void)
 {
-    static dissector_handle_t rlc_lte_handle;
-    if (!rlc_lte_handle) {
-        rlc_lte_handle = find_dissector("rlc-lte");
+    dissector_handle_t rlc_lte_handle;
 
-        /* Add as a heuristic UDP dissector */
-        heur_dissector_add("udp", dissect_rlc_lte_heur, proto_rlc_lte);
-    }
+    rlc_lte_handle = find_dissector("rlc-lte");
+    /* Add as a heuristic UDP dissector */
+    heur_dissector_add("udp", dissect_rlc_lte_heur, proto_rlc_lte);
 }

@@ -138,13 +138,13 @@ struct _lct_ptr
 		{ &base_structure.flags_header,	\
 			{ "Flags", base_protocol ".lct.flags", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},	\
 		{ &base_structure.flags_sct_present,	\
-			{ "Sender Current Time present flag", base_protocol ".lct.flags.sct_present", FT_BOOLEAN, BASE_NONE, TFS(&boolean_set_notset), 0x0, NULL, HFILL }},	\
+			{ "Sender Current Time present flag", base_protocol ".lct.flags.sct_present", FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0, NULL, HFILL }},	\
 		{ &base_structure.flags_ert_present,	\
-			{ "Expected Residual Time present flag", base_protocol ".lct.flags.ert_present", FT_BOOLEAN, BASE_NONE, TFS(&boolean_set_notset), 0x0, NULL, HFILL }},	\
+			{ "Expected Residual Time present flag", base_protocol ".lct.flags.ert_present", FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0, NULL, HFILL }},	\
 		{ &base_structure.flags_close_session,	\
-			{ "Close Session flag", base_protocol ".lct.flags.close_session", FT_BOOLEAN, BASE_NONE, TFS(&boolean_set_notset), 0x0, NULL, HFILL }},	\
+			{ "Close Session flag", base_protocol ".lct.flags.close_session", FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0, NULL, HFILL }},	\
 		{ &base_structure.flags_close_object,	\
-			{ "Close Object flag", base_protocol ".lct.flags.close_object", FT_BOOLEAN, BASE_NONE, TFS(&boolean_set_notset), 0x0, NULL, HFILL }},	\
+			{ "Close Object flag", base_protocol ".lct.flags.close_object", FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0, NULL, HFILL }},	\
 		{ &base_structure.hlen,	\
 			{ "Header length", base_protocol ".lct.hlen", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},	\
 		{ &base_structure.codepoint,	\
