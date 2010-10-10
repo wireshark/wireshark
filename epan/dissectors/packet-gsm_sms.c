@@ -193,13 +193,13 @@ static const value_string gsm_sms_coding_group_bits_vals[] = {
     { 0, NULL },
 };
 
-guint16 g_sm_id;
-guint16 g_frags;
-guint16 g_frag;
+static guint16   g_sm_id;
+static guint16   g_frags;
+static guint16   g_frag;
 
-guint16 g_port_src;
-guint16 g_port_dst;
-static gboolean	   g_is_wsp;
+static guint16   g_port_src;
+static guint16   g_port_dst;
+static gboolean	 g_is_wsp;
 
 static dissector_table_t gsm_sms_dissector_tbl;
 /* Short Message reassembly */
@@ -2529,7 +2529,7 @@ dis_field_ud_iei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 /* 9.2.3.24 */
 #define NUM_FILL_BITS_MASKS 6
 #define SMS_MAX_MESSAGE_SIZE 160
-char    messagebuf[SMS_MAX_MESSAGE_SIZE+1];
+static char    messagebuf[SMS_MAX_MESSAGE_SIZE+1];
 static void
 dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gboolean udhi, guint8 udl,
     gboolean seven_bit, gboolean eight_bit, gboolean ucs2, gboolean compressed)

@@ -490,7 +490,7 @@ static gint ett_asdu = -1;
     that starts 'offset' bytes in 'tvb'.
     The time and date is put in struct 'cp56t'
    ==================================================================== */
-void get_CP56Time( td_CP56Time *cp56t, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+static void get_CP56Time( td_CP56Time *cp56t, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
 {
   guint16 ms;
   ms = tvb_get_letohs( tvb , *offset );
@@ -535,7 +535,7 @@ void get_CP56Time( td_CP56Time *cp56t, tvbuff_t *tvb, guint8 *offset, proto_tree
     Information object address (Identifier)
     ASDU -> Inform Object #1 -> Information object address
    ==================================================================== */
-void get_InfoObjectAddress( guint32 *asdu_info_obj_addr, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+static void get_InfoObjectAddress( guint32 *asdu_info_obj_addr, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
 {
   /* --------  Information object address */
   *asdu_info_obj_addr = tvb_get_letoh24(tvb, *offset);
@@ -554,7 +554,7 @@ void get_InfoObjectAddress( guint32 *asdu_info_obj_addr, tvbuff_t *tvb, guint8 *
 /* ====================================================================
     SIQ: Single-point information (IEV 371-02-07) w quality descriptor
    ==================================================================== */
-void get_SIQ( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+static void get_SIQ( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
 {
   guint8 siq;
   siq = tvb_get_guint8(tvb, *offset);
@@ -582,7 +582,7 @@ void get_SIQ( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *ie
 /* ====================================================================
     DIQ: Double-point information (IEV 371-02-08) w quality descriptor
    ==================================================================== */
-void get_DIQ( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+static void get_DIQ( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
 {
 
   guint8 diq;
@@ -629,7 +629,7 @@ void get_DIQ( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *ie
 /* ====================================================================
     QDS: Quality descriptor (separate octet)
    ==================================================================== */
-void get_QDS( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+static void get_QDS( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
 {
   guint8 qds;
   /* --------  QDS quality description */
@@ -657,25 +657,29 @@ void get_QDS( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *ie
     QDP: Quality descriptor for events of protection equipment
 	(separate octet)
    ==================================================================== */
-void get_QDP( td_ValueInfo *value _U_, tvbuff_t *tvb _U_, guint8 *offset _U_, proto_tree *iec104_header_tree _U_ )
+#if 0
+static void get_QDP( td_ValueInfo *value _U_, tvbuff_t *tvb _U_, guint8 *offset _U_, proto_tree *iec104_header_tree _U_ )
 {
 	/* todo */
 
 }
+#endif
 
 /* ====================================================================
     VTI: Value with transient state indication
    ==================================================================== */
-void get_VTI( td_ValueInfo *value _U_, tvbuff_t *tvb _U_, guint8 *offset _U_, proto_tree *iec104_header_tree _U_ )
+#if 0
+static void get_VTI( td_ValueInfo *value _U_, tvbuff_t *tvb _U_, guint8 *offset _U_, proto_tree *iec104_header_tree _U_ )
 {
 	/* todo */
 
 }
+#endif
 
 /* ====================================================================
     NVA: Normalized value
    ==================================================================== */
-void get_NVA( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+static void get_NVA( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
 {
   /* Normalized value F16[1..16]<-1..+1-2^-15> */
 	value->MV.NVA = tvb_get_letohs(tvb, *offset);
@@ -690,7 +694,7 @@ void get_NVA( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *ie
 
 }
 
-void get_NVAspt( td_SpInfo *spt, tvbuff_t *tvb, guint8 *offset,
+static void get_NVAspt( td_SpInfo *spt, tvbuff_t *tvb, guint8 *offset,
             proto_tree *iec104_header_tree )
 {
   /* Normalized value F16[1..16]<-1..+1-2^-15> */
@@ -709,7 +713,7 @@ void get_NVAspt( td_SpInfo *spt, tvbuff_t *tvb, guint8 *offset,
 /* ====================================================================
     SVA: Scaled value
    ==================================================================== */
-void get_SVA( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+static void get_SVA( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
 {
   /* Scaled value I16[1..16]<-2^15..+2^15-1> */
 	value->MV.SVA = tvb_get_letohs(tvb, *offset);
@@ -722,7 +726,7 @@ void get_SVA( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *ie
 
 }
 
-void get_SVAspt( td_SpInfo *spt, tvbuff_t *tvb, guint8 *offset,
+static void get_SVAspt( td_SpInfo *spt, tvbuff_t *tvb, guint8 *offset,
             proto_tree *iec104_header_tree )
 {
   /* Scaled value I16[1..16]<-2^15..+2^15-1> */
@@ -739,7 +743,7 @@ void get_SVAspt( td_SpInfo *spt, tvbuff_t *tvb, guint8 *offset,
 /* ====================================================================
     "FLT": Short floating point number
    ==================================================================== */
-void get_FLT( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+static void get_FLT( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
 {
   	/* --------  IEEE 754 float value */
 	value->MV.FLT = tvb_get_letohieee_float(tvb, *offset);
@@ -754,7 +758,7 @@ void get_FLT( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *ie
 
 }
 
-void get_FLTspt( td_SpInfo *spt, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+static void get_FLTspt( td_SpInfo *spt, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
 {
   	/* --------  IEEE 754 float value */
 	spt->SP.FLT = tvb_get_letohieee_float(tvb, *offset);
@@ -778,16 +782,18 @@ void get_FLTspt( td_SpInfo *spt, tvbuff_t *tvb, guint8 *offset, proto_tree *iec1
 /* ====================================================================
     todo -- SEP: Single event of protection equipment
    ==================================================================== */
-void get_SEP( td_ValueInfo *value _U_, tvbuff_t *tvb _U_, guint8 *offset _U_, proto_tree *iec104_header_tree _U_ )
+#if 0
+static void get_SEP( td_ValueInfo *value _U_, tvbuff_t *tvb _U_, guint8 *offset _U_, proto_tree *iec104_header_tree _U_ )
 {
 	/* todo */
 
 }
+#endif
 
 /* ====================================================================
     QOC: Qualifier Of Command
    ==================================================================== */
-void get_QOC( td_CmdInfo *value, guint8 data )
+static void get_QOC( td_CmdInfo *value, guint8 data )
 {
 	value->ZeroP   = FALSE;  /* No pulse                        */
 	value->ShortP  = FALSE;  /* Short Pulse                     */
@@ -824,7 +830,7 @@ void get_QOC( td_CmdInfo *value, guint8 data )
 /* ====================================================================
     QOS: Qualifier Of Set-point command
    ==================================================================== */
-void get_QOS( td_SpInfo *spt, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+static void get_QOS( td_SpInfo *spt, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
 {
 	guint8 qos;
   /* --------  QOS quality description */
@@ -847,7 +853,7 @@ void get_QOS( td_SpInfo *spt, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_
 /* ====================================================================
     SCO: Single Command (IEV 371-03-02)
    ==================================================================== */
-void get_SCO( td_CmdInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+static void get_SCO( td_CmdInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
 {
   guint8 data;
   /* On/Off */
@@ -883,7 +889,7 @@ void get_SCO( td_CmdInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec1
 /* ====================================================================
     DCO: Double Command (IEV 371-03-03)
    ==================================================================== */
-void get_DCO( td_CmdInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+static void get_DCO( td_CmdInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
 {
   guint8 data;
   /* On/Off */

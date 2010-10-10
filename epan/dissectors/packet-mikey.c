@@ -39,8 +39,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-
 #include <glib.h>
 
 #include <epan/emem.h>
@@ -53,8 +51,6 @@
 #ifdef HAVE_LIBGCRYPT
 #include <gcrypt.h>
 #endif /* HAVE_LIBGCRYPT */
-
-#include "packet-mikey.h"
 
 #define PORT_MIKEY 2269
 static guint global_mikey_tcp_port = PORT_MIKEY;
@@ -1242,7 +1238,7 @@ dissect_payload(enum payload_t payload, mikey_t *mikey, tvbuff_t *tvb, packet_in
 }
 
 /* MIKEY dissector */
-int
+static int
 dissect_mikey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti = NULL;

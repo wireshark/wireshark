@@ -53,7 +53,7 @@
 #define BSSMAP_LE_RESET                                 48
 #define BSSMAP_LE_RESET_ACKNOWLEDGE                     49
 
-const value_string gsm_bssmap_le_msg_strings[] = {
+static const value_string gsm_bssmap_le_msg_strings[] = {
 	{ 0, "Reserved" },
 	{ 1, "Reserved" },
 	{ 2, "Reserved" },

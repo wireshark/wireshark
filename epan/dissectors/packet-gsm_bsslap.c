@@ -145,7 +145,7 @@ const value_string gsm_bsslap_elem_strings[] = {
 #define BSSLAP_U_TDOA_RES	18
 
 /* Table 5.1.1: Message Type codes */
-const value_string gsm_a_bsslap_msg_strings[] = {
+static const value_string gsm_a_bsslap_msg_strings[] = {
 	{  0x00,				"Reserved" },
 	{  BSSLAP_TA_REQUEST,	"TA REQUEST" },
 	{  BSSLAP_TA_RESPONSE,	"TA RESPONSE" },
@@ -267,7 +267,7 @@ de_rrlp_ie(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 /*
  * The Cell identification discriminator i is coded as follows:
  */
-const value_string gsm_a_bsslap_cell_id_disc_vals[] = {
+static const value_string gsm_a_bsslap_cell_id_disc_vals[] = {
 	{  0x0,				"The whole Cell Global Identification, CGI, is used to identify the 2G cells" },
 	{  0x1,				"Location Area Code, LAC, and Cell Identify, CI, are used to identify the 2G cells" },
 	{  0x2,				"3G Cell identification container 1" },

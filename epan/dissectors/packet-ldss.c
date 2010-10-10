@@ -13,12 +13,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -42,7 +42,6 @@
 
 #include <glib.h>
 
-#include <stdlib.h>
 #include <math.h>
 #include <string.h>
 #include <epan/packet.h>
@@ -60,7 +59,7 @@
 #define MESSAGE_ID_WILLSEND	1
 
 
-const value_string ldss_message_id_value[] = {
+static const value_string ldss_message_id_value[] = {
 	{ MESSAGE_ID_NEEDFILE,	"Need file"	},
 	{ MESSAGE_ID_WILLSEND,	"Will send"	},
 	{ 0,			NULL		}
@@ -75,7 +74,7 @@ const value_string ldss_message_id_value[] = {
 #define INFERRED_NONE		5
 
 /* Displayed in the info column */
-const value_string ldss_inferred_info[] = {
+static const value_string ldss_inferred_info[] = {
 	{ INFERRED_PEERSHUTDOWN, 	" - peer shutting down"	},
 	{ INFERRED_SEARCH,		" - search"		},
 	{ INFERRED_OFFER,		" - offer"		},
@@ -86,7 +85,7 @@ const value_string ldss_inferred_info[] = {
 };
 
 /* Displayed in the tree as a generated item */
-const value_string ldss_inferred_value[] = {
+static const value_string ldss_inferred_value[] = {
 	{ INFERRED_PEERSHUTDOWN, 	"Peer shutdown"	},
 	{ INFERRED_SEARCH,		"File search"	},
 	{ INFERRED_OFFER,		"File offer"	},
@@ -103,7 +102,7 @@ const value_string ldss_inferred_value[] = {
 #define DIGEST_TYPE_SHA256	3
 
 
-const value_string ldss_digest_type_value[] = {
+static const value_string ldss_digest_type_value[] = {
 	{ DIGEST_TYPE_UNKNOWN,	"Unknown"	},
 	{ DIGEST_TYPE_MD5,	"MD5"		},
 	{ DIGEST_TYPE_SHA1,	"SHA1"		},
@@ -116,7 +115,7 @@ const value_string ldss_digest_type_value[] = {
 #define COMPRESSION_GZIP	1
 
 
-const value_string ldss_compression_value[] = {
+static const value_string ldss_compression_value[] = {
 	{ COMPRESSION_NONE,		"None"		},
 	{ COMPRESSION_GZIP,		"gzip"		},
 	{ 0,			NULL		}
@@ -283,7 +282,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*ti, *ldss_tree;
 
 	const gchar *packet_type, *packet_detail;
-    
+
 	messageID   = tvb_get_ntohs  (tvb,  0);
 	digest_type = tvb_get_guint8 (tvb,  2);
 	compression = tvb_get_guint8 (tvb,  3);
@@ -294,7 +293,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	targetTime  = tvb_get_ntohl  (tvb, 56);
 	port        = tvb_get_ntohs  (tvb, 64);
 	rate	    = tvb_get_ntohs  (tvb, 66);
-    
+
 	packet_type = val_to_str(messageID, ldss_message_id_value, "unknown");
 
 	if (messageID == MESSAGE_ID_WILLSEND) {
@@ -330,7 +329,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			     packet_type,
 			     packet_detail);
 	}
-			
+
 	/* If we have a non-null tree (ie we are building the proto_tree
 	 * instead of just filling out the columns), then give more detail. */
 	if (tree) {
@@ -500,7 +499,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			transfer_info->req->file = se_alloc0(sizeof(ldss_file_t));
 			highest_num_seen = pinfo->fd->num;
 		}
-	 
+
 		if (tree) {
 			ti = proto_tree_add_item(tree, proto_ldss,
 						 tvb, 0, tvb_reported_length(tvb), FALSE);
@@ -537,7 +536,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * There are too many locals to pass to a function - the signature
 			 * looked pretty ugly when I tried! */
 			is_digest_line = FALSE;
-			
+
 			if (strncmp(line,"md5:",4)==0) {
 				is_digest_line = TRUE;
 				digest_type_len = 4;
@@ -595,7 +594,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					PROTO_ITEM_SET_GENERATED(ti);
 				}
 			}
-			
+
 			if (is_digest_line) {
 				/* Sample digest-type/digest line:
 				 * md5:0123456789ABCDEF\n */
@@ -757,7 +756,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* Link the transfer back to the initiating broadcast. Response time is
-	 * calculated as the time from broadcast to completed transfer. */	
+	 * calculated as the time from broadcast to completed transfer. */
 	ti = proto_tree_add_uint(ldss_tree, hf_ldss_initiated_by,
 				 tvb, 0, 0, transfer_info->broadcast->num);
 	PROTO_ITEM_SET_GENERATED(ti);
@@ -824,7 +823,7 @@ ldss_init_protocol(void)
 	highest_num_seen = 0;
 }
 
-void 
+void
 proto_register_ldss (void) {
 	static hf_register_info hf[] =	{
 		{   &hf_ldss_message_id,
@@ -872,70 +871,70 @@ proto_register_ldss (void) {
 		{   &hf_ldss_size,
 		    {	"Size",
 			"ldss.size",
-			FT_UINT64, BASE_DEC, NULL, 0x0,		 
+			FT_UINT64, BASE_DEC, NULL, 0x0,
 			"Size of complete file", HFILL
 		    }
 		},
 		{   &hf_ldss_offset,
 		    {	"Offset",
 			"ldss.offset",
-			FT_UINT64, BASE_DEC, NULL, 0x0,		 
+			FT_UINT64, BASE_DEC, NULL, 0x0,
 			"Size of currently available portion of file", HFILL
 		    }
 		},
 		{   &hf_ldss_target_time,
 		    {	"Target time (relative)",
 			"ldss.target_time",
-			FT_UINT32, BASE_DEC, NULL, 0x0,		 
+			FT_UINT32, BASE_DEC, NULL, 0x0,
 			"Time until file will be needed/available", HFILL
 		    }
 		},
 		{   &hf_ldss_reserved_1,
 		    {	"Reserved",
 			"ldss.reserved_1",
-			FT_UINT32, BASE_HEX, NULL, 0x0,		 
+			FT_UINT32, BASE_HEX, NULL, 0x0,
 			"Unused field - should be 0x00000000", HFILL
 		    }
 		},
 		{   &hf_ldss_port,
 		    {	"Port",
 			"ldss.port",
-			FT_UINT16, BASE_DEC, NULL, 0x0,		 
+			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"TCP port for push (Need file) or pull (Will send)", HFILL
 		    }
 		},
 		{   &hf_ldss_rate,
 		    {	"Rate (B/s)",
 			"ldss.rate",
-			FT_UINT16, BASE_DEC, NULL, 0x0,		 
+			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Estimated current download rate", HFILL
 		    }
 		},
 		{   &hf_ldss_priority,
 		    {	"Priority",
 			"ldss.priority",
-			FT_UINT16, BASE_DEC, NULL, 0x0,		 
+			FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL
 		    }
 		},
 		{   &hf_ldss_property_count,
 		    {	"Property Count",
 			"ldss.property_count",
-			FT_UINT16, BASE_DEC, NULL, 0x0,		 
+			FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL
 		    }
 		},
 		{   &hf_ldss_properties,
 		    {	"Properties",
 			"ldss.properties",
-			FT_BYTES, BASE_NONE, NULL, 0x0,		
+			FT_BYTES, BASE_NONE, NULL, 0x0,
 			NULL, HFILL
 		    }
 		},
 		{   &hf_ldss_file_data,
 		    {	"File data",
 			"ldss.file_data",
-			FT_BYTES, BASE_NONE, NULL, 0x0,		
+			FT_BYTES, BASE_NONE, NULL, 0x0,
 			NULL, HFILL
 		    }
 		},

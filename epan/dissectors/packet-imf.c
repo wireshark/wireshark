@@ -28,9 +28,7 @@
 #include "config.h"
 #endif
 
-#include <stdlib.h>
 #include <ctype.h>
-#include <time.h>
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
@@ -150,7 +148,7 @@ static void dissect_imf_address(tvbuff_t *tvb, int offset, int length, proto_ite
 static void dissect_imf_address_list(tvbuff_t *tvb, int offset, int length, proto_item *item);
 static void dissect_imf_mailbox_list(tvbuff_t *tvb, int offset, int length, proto_item *item);
 
-struct imf_field imf_fields[] = {
+static struct imf_field imf_fields[] = {
   {"unknown-extension", &hf_imf_extension_type, NO_SUBDISSECTION, FALSE}, /* unknown extension */
   {"date", &hf_imf_date, NO_SUBDISSECTION, FALSE}, /* date-time */
   {"from", &hf_imf_from, dissect_imf_mailbox_list , TRUE}, /* mailbox_list */

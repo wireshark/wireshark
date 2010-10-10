@@ -352,7 +352,7 @@ static gint ett_krb_PAC_MIDL_BLOB = -1;
 static gint ett_krb_PAC_DREP = -1;
 static gint ett_krb_PAC_UPN_DNS_INFO = -1;
 
-guint32 krb5_errorcode;
+static guint32 krb5_errorcode;
 
 
 static dissector_handle_t krb4_handle=NULL;
@@ -1951,11 +1951,10 @@ dissect_krb5_pvno(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx 
  *                     name-string[1]   SEQUENCE OF GeneralString
  * }
  */
-guint32 name_type;
+static guint32 name_type;
 static int
 dissect_krb5_name_type(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-
     offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_name_type, &name_type);
     if(tree){
         proto_item_append_text(tree, " (%s):",
@@ -2325,7 +2324,7 @@ dissect_krb5_PW_SALT(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *ac
  *                        -- might be encoded AP-REQ
  * }
  */
-guint32 krb_PA_DATA_type;
+static guint32 krb_PA_DATA_type;
 static int
 dissect_krb5_PA_DATA_type(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {

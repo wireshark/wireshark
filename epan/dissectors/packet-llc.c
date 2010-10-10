@@ -227,7 +227,7 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 	{ 0,	NULL }
 };
 
-const value_string format_vals[] = {
+static const value_string format_vals[] = {
 	{ 0x81,        "LLC basic format" },
 	{ 0,           NULL }
 };
@@ -237,7 +237,7 @@ const value_string format_vals[] = {
  */
 #define	TYPES_MASK	0x1F
 
-const value_string type_vals[] = {
+static const value_string type_vals[] = {
 	{ 1,           "Type 1 LLC (Class I LLC)" },
 	{ 2,           "Type 2 LLC" },
 	{ 3,           "Type 1 and Type 2 LLCs (Class II LLC)" },

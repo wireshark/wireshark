@@ -31,8 +31,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-
 #include <gmodule.h>
 #include <glib.h>
 
@@ -457,7 +455,7 @@ static const value_string operational_mau_type_values[] = {
 #define MAX_MAC_LEN	6
 
 
-const value_string profinet_port2_status_vals[] = {
+static const value_string profinet_port2_status_vals[] = {
 	{ 0,	"OFF" },
 	{ 1,	"SYNCDATA_LOADED" },
 	{ 2,	"RTCLASS2_UP" },
@@ -466,7 +464,7 @@ const value_string profinet_port2_status_vals[] = {
 	{ 0,	NULL }
 };
 
-const value_string profinet_port3_status_vals[] = {
+static const value_string profinet_port3_status_vals[] = {
 	{ 0,	"OFF" },
 	{ 1,	"IRDATA_LOADED" },
 	{ 2,	"RTCLASS3_UP" },
@@ -476,7 +474,7 @@ const value_string profinet_port3_status_vals[] = {
 	{ 0,	NULL }
 };
 
-const value_string profinet_mrrt_port_status_vals[] = {
+static const value_string profinet_mrrt_port_status_vals[] = {
 	{ 0,	"OFF" },
 	{ 1,	"MRRT_CONFIGURED" },
 	{ 2,	"MRRT_UP" },

@@ -35,7 +35,7 @@
 #include "packet-sscop.h"
 #include "wiretap/erf.h"
 
-int proto_meta = -1;
+static int proto_meta = -1;
 extern int proto_sscop;
 extern int proto_malformed;
 

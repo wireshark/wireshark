@@ -30,9 +30,6 @@
 #include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <ctype.h>
-#include <time.h>
 #include <glib.h>
 #include <epan/filesystem.h>
 #include <epan/packet.h>
@@ -94,6 +91,7 @@ typedef struct {
     guint16   length;
 } CNTL_Header;
 
+#if 0
 typedef enum {
     RESULT_CODE = 1,
     MWAR_ADDR_PAYLOAD,
@@ -126,6 +124,7 @@ typedef enum {
     ADD_MOBILE_PAYLOAD,
     DELETE_MOBILE_PAYLOAD
 } control_tags;
+#endif
 
 typedef enum
   {
@@ -162,12 +161,12 @@ typedef enum
     KEY_UPDATE_RES,
     PRIMARY_DISCOVERY_REQ,
     PRIMARY_DISCOVERY_RES,
-	DATA_TRANSFER,
-	DATA_TRANSFER_RES,
-	RESET_REQ_CLEAR_CONFIG
+    DATA_TRANSFER,
+    DATA_TRANSFER_RES,
+    RESET_REQ_CLEAR_CONFIG
   }CNTLMsgType;
 
-const value_string control_msg_vals[] = {
+static const value_string control_msg_vals[] = {
     {DISCOVERY_REQUEST, "DISCOVERY_REQUEST"},
     {DISCOVERY_REPLY, "DISCOVERY_REPLY"},
     {JOIN_REQUEST, "JOIN_REQUEST"},
@@ -207,7 +206,8 @@ const value_string control_msg_vals[] = {
 
     { 0, NULL}
 };
-const value_string control_tag_vals[] = {
+#if 0
+static const value_string control_tag_vals[] = {
 
     {RESULT_CODE, "RESULT_CODE"},
     {MWAR_ADDR_PAYLOAD, "MWAR_ADDR_PAYLOAD"},
@@ -241,6 +241,7 @@ const value_string control_tag_vals[] = {
     {DELETE_MOBILE_PAYLOAD, "DELETE_MOBILE_PAYLOAD"},
     {0, NULL}
 };
+#endif
 
 static const true_false_string lwapp_flags_type = {
     "LWAPP Control Packet" ,
@@ -249,10 +250,10 @@ static const true_false_string lwapp_flags_type = {
 
 static const true_false_string lwapp_set_truth = {
     "Not Set",
-    "Set" 
+    "Set"
 };
 
-/* 
+/*
  * dissect lwapp control packets.  This is not fully implemented,
  * but it's a good start.
  */
@@ -275,7 +276,7 @@ static void dissect_control(tvbuff_t *tvb, packet_info *pinfo,
     /* Copy our header */
     tvb_memcpy(tvb, (guint8*) &header, offset, sizeof(header));
 
-    /* 
+    /*
      * Fix the length (network byte ordering), and set our version &
      * slot id
      */
@@ -293,16 +294,16 @@ static void dissect_control(tvbuff_t *tvb, packet_info *pinfo,
 	ti = proto_tree_add_item(tree, proto_lwapp_control, tvb, offset,
 				 -1, FALSE);
 	control_tree = proto_item_add_subtree(ti, ett_lwapp_control);
-        
-	proto_tree_add_uint(control_tree, hf_lwapp_control_type, 
+
+	proto_tree_add_uint(control_tree, hf_lwapp_control_type,
                                tvb, offset, 1, header.type);
         offset++;
 
-	proto_tree_add_uint(control_tree, hf_lwapp_control_seq_no, 
+	proto_tree_add_uint(control_tree, hf_lwapp_control_seq_no,
                                tvb, offset, 1, header.seqNo);
         offset++;
 
-	proto_tree_add_uint(control_tree, hf_lwapp_control_length, 
+	proto_tree_add_uint(control_tree, hf_lwapp_control_length,
                                tvb, offset, 2, header.length);
         offset += 2;
 
@@ -347,7 +348,7 @@ static void dissect_lwapp_l3(tvbuff_t *tvb, packet_info *pinfo,
 
 
 /*
- * This dissector dissects the lwapp protocol itself.  It assumes an 
+ * This dissector dissects the lwapp protocol itself.  It assumes an
  * lwapp payload in the data, and doesn't care whether the data was
  * from a UDP packet, or a Layer 2 one.
  */
@@ -377,7 +378,7 @@ static void dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
     if (pinfo->destport == 12223 ) {
         tvb_memcpy(tvb, dest_mac, offset, 6);
         have_destmac = 1;
-        
+
         /* Copy our header */
         tvb_memcpy(tvb, (guint8*) &header, offset + 6, sizeof(header));
     } else {
@@ -387,7 +388,7 @@ static void dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
     }
 
 
-    /* 
+    /*
      * Fix the length (network byte ordering), and set our version &
      * slot id
      */
@@ -418,32 +419,32 @@ static void dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
             offset += 6;
         }
 
-	proto_tree_add_uint(lwapp_tree, hf_lwapp_version, 
+	proto_tree_add_uint(lwapp_tree, hf_lwapp_version,
                                tvb, offset, 1, version);
-	proto_tree_add_uint(lwapp_tree, hf_lwapp_slotid, 
+	proto_tree_add_uint(lwapp_tree, hf_lwapp_slotid,
                                tvb, offset, 1, slotId);
 
 	flags_tree = proto_item_add_subtree(lwapp_tree, ett_lwapp_flags);
-	proto_tree_add_boolean(flags_tree, hf_lwapp_flags_type, 
+	proto_tree_add_boolean(flags_tree, hf_lwapp_flags_type,
                                tvb, offset, 1, header.flags);
-	proto_tree_add_boolean(flags_tree, hf_lwapp_flags_fragment, 
+	proto_tree_add_boolean(flags_tree, hf_lwapp_flags_fragment,
                                tvb, offset, 1, header.flags);
-	proto_tree_add_boolean(flags_tree, hf_lwapp_flags_fragment_type, 
+	proto_tree_add_boolean(flags_tree, hf_lwapp_flags_fragment_type,
                                tvb, offset, 1, header.flags);
         offset++;
 
-	proto_tree_add_uint(lwapp_tree, hf_lwapp_fragment_id, 
+	proto_tree_add_uint(lwapp_tree, hf_lwapp_fragment_id,
                                tvb, offset, 1, header.fragmentId);
         offset++;
 
-	proto_tree_add_uint(lwapp_tree, hf_lwapp_length, 
+	proto_tree_add_uint(lwapp_tree, hf_lwapp_length,
                                tvb, offset, 2, header.length);
         offset += 2;
 
-	proto_tree_add_uint(lwapp_tree, hf_lwapp_rssi, 
+	proto_tree_add_uint(lwapp_tree, hf_lwapp_rssi,
                                tvb, offset, 1, header.rssi);
         offset++;
-	proto_tree_add_uint(lwapp_tree, hf_lwapp_snr, 
+	proto_tree_add_uint(lwapp_tree, hf_lwapp_snr,
                                tvb, offset, 1, header.snr);
         offset++;
 
@@ -473,7 +474,7 @@ proto_register_lwapp(void)
           { "slotId","lwapp.slotId", FT_UINT24, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
         { &hf_lwapp_flags_type,
-          { "Type", "lwapp.flags.type", FT_BOOLEAN, 8, 
+          { "Type", "lwapp.flags.type", FT_BOOLEAN, 8,
             TFS(&lwapp_flags_type), LWAPP_FLAGS_T, NULL, HFILL }},
         { &hf_lwapp_flags_fragment,
           { "Fragment", "lwapp.flags.fragment", FT_BOOLEAN, 8,
@@ -519,13 +520,13 @@ proto_register_lwapp(void)
     };
     module_t *lwapp_module;
 
-    proto_lwapp = proto_register_protocol ("LWAPP Encapsulated Packet", 
+    proto_lwapp = proto_register_protocol ("LWAPP Encapsulated Packet",
                                          "LWAPP", "lwapp");
 
-    proto_lwapp_l3 = proto_register_protocol ("LWAPP Layer 3 Packet", 
+    proto_lwapp_l3 = proto_register_protocol ("LWAPP Layer 3 Packet",
                                          "LWAPP-L3", "lwapp-l3");
 
-    proto_lwapp_control = proto_register_protocol ("LWAPP Control Message", 
+    proto_lwapp_control = proto_register_protocol ("LWAPP Control Message",
                                          "LWAPP-CNTL", "lwapp-cntl");
     proto_register_field_array(proto_lwapp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -559,19 +560,19 @@ proto_reg_handoff_lwapp(void)
     lwapp_handle = create_dissector_handle(dissect_lwapp, proto_lwapp);
 
     /*
-     * Ok, the following deserves some comments.  We have four 
+     * Ok, the following deserves some comments.  We have four
      * different ways lwapp can appear on the wire.  Mostly, this is
      * because lwapp is such a new protocol.
-     * 
+     *
      * First, lwapp can join on multiple udp ports, as encapsulated
      * packets on top of UDP.  In this case, there is a full raw
-     * ethernet frame inside of the UDP packet.  This method is 
-     * becoming obscelete, but we still wanted to dissect the 
+     * ethernet frame inside of the UDP packet.  This method is
+     * becoming obscelete, but we still wanted to dissect the
      * packets.
      *
      * Next, lwapp can be over UDP, but packged for L3 tunneling.  This
      * is the new-style.  In this case, LWAP headers are just transmitted
-     * via UDP.  
+     * via UDP.
      *
      * The last method is lwapp directly over layer 2.  For this, we
      * dissect two different ethertypes (until IANA gives us one)

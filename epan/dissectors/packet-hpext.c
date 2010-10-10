@@ -45,7 +45,7 @@ static int hf_hpext_sxsap = -1;
 
 static gint ett_hpext = -1;
 
-const value_string xsap_vals[] = {
+static const value_string xsap_vals[] = {
 	{ HPEXT_DXSAP,  "RBOOT Destination Service Access Point" },
 	{ HPEXT_SXSAP,  "RBOOT Source Service Access Point" },
 	{ HPEXT_HPSW,   "HP Switch Protocol" },

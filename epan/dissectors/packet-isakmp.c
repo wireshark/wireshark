@@ -44,7 +44,6 @@
 #endif
 
 #include <stdio.h>
-#include <string.h>
 
 #include <glib.h>
 
@@ -1609,7 +1608,7 @@ static const value_string vs_ikev2_auth_algs[] = {
   {0, NULL}
 };
 
-ikev2_encr_alg_spec_t* ikev2_decrypt_find_encr_spec(guint num) {
+static ikev2_encr_alg_spec_t* ikev2_decrypt_find_encr_spec(guint num) {
   ikev2_encr_alg_spec_t *e;
 
   for (e = ikev2_encr_algs; e->number != 0; e++) {
@@ -1620,7 +1619,7 @@ ikev2_encr_alg_spec_t* ikev2_decrypt_find_encr_spec(guint num) {
   return NULL;
 }
 
-ikev2_auth_alg_spec_t* ikev2_decrypt_find_auth_spec(guint num) {
+static ikev2_auth_alg_spec_t* ikev2_decrypt_find_auth_spec(guint num) {
   ikev2_auth_alg_spec_t *a;
 
   for (a = ikev2_auth_algs; a->number != 0; a++) {
@@ -2446,7 +2445,7 @@ static const byte_string vendor_id[] = {
    Returns the associated string ptr, and sets "*idx" to the index in
    that table, on a match, and returns NULL, and sets "*idx" to -1,
    on failure. */
-const gchar*
+static const gchar*
 match_strbyte_idx(const guint8 *val, const gint val_len, const byte_string *vs, gint *idx) {
   gint i = 0;
 
@@ -2464,7 +2463,7 @@ match_strbyte_idx(const guint8 *val, const gint val_len, const byte_string *vs, 
   return NULL;
 }
 /* Like match_strbyte_idx(), but doesn't return the index. */
-const gchar*
+static const gchar*
 match_strbyte(const guint8 *val,const gint val_len, const byte_string *vs) {
     gint ignore_me;
     return match_strbyte_idx(val, val_len, vs, &ignore_me);
@@ -2473,7 +2472,7 @@ match_strbyte(const guint8 *val,const gint val_len, const byte_string *vs) {
 /* Tries to match val against each element in the value_string array vs.
    Returns the associated string ptr on a match.
    Formats val with fmt, and returns the resulting string, on failure. */
-const gchar*
+static const gchar*
 byte_to_str(const guint8 *val,const gint val_len, const byte_string *vs, const char *fmt) {
   const gchar *ret;
 

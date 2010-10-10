@@ -111,8 +111,8 @@ typedef enum {
   JAPAN_PC_STRUCTURE_3_4_4_5 = 3
 } JAPAN_PC_Structure_Type;
 
-gint itu_pc_structure = ITU_PC_STRUCTURE_NONE;
-gint japan_pc_structure = JAPAN_PC_STRUCTURE_NONE;
+static gint itu_pc_structure = ITU_PC_STRUCTURE_NONE;
+static gint japan_pc_structure = JAPAN_PC_STRUCTURE_NONE;
 
 #include <packet-mtp3.h>
 gint mtp3_standard = ITU_STANDARD;

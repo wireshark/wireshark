@@ -643,7 +643,7 @@ static dissector_table_t ip_dissector_table;
 
 /* Initialize the protocol and registered header fields */
 static int proto_mip6 = -1;
-int proto_nemo = -1;
+static int proto_nemo = -1;
 static int hf_mip6_proto = -1;
 static int hf_mip6_hlen = -1;
 static int hf_mip6_mhtype = -1;

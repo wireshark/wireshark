@@ -538,7 +538,7 @@ iscsi_min(int a, int b) {
    dissector for the address/port that TargetAddress points to.
    (it starts to be common to use redirectors to point to non-3260 ports)
 */
-void
+static void
 iscsi_dissect_TargetAddress(packet_info *pinfo, proto_tree *tree _U_,char *val)
 {
 	address *addr = NULL;

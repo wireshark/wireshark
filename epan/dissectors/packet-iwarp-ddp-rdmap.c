@@ -257,7 +257,7 @@ static const value_string ddp_errcode_untagged_names[] = {
 };
 
 /* update packet list pane in the GUI */
-void
+static void
 ddp_rdma_packetlist(packet_info *pinfo, gboolean ddp_last_flag,
 		guint8 rdma_msg_opcode)
 {
@@ -279,7 +279,7 @@ ddp_rdma_packetlist(packet_info *pinfo, gboolean ddp_last_flag,
 }
 
 /* dissects RDMA Read Request and Terminate message header */
-void
+static void
 dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 		guint8 rdma_msg_opcode)
 {
@@ -454,7 +454,7 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
  * Main dissection routine which dissects a DDP segment and interprets the
  * header field rsvdULP according to RDMAP.
  */
-void
+static void
 dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree *ddp_rdma_tree = NULL;

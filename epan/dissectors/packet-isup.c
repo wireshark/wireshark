@@ -42,8 +42,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -741,7 +739,7 @@ const value_string isup_calling_partys_category_value[] = {
 #define CVR_RSP_IND_FAILURE		0
 #define CVR_RSP_IND_SUCCESS		1
 
-const value_string isup_cvr_rsp_ind_value[ ] = {
+static const value_string isup_cvr_rsp_ind_value[ ] = {
 	{ CVR_RSP_IND_FAILURE, "CVR Response Fail" },
 	{ CVR_RSP_IND_SUCCESS, "CVR Response Success" },
 	{ 0,					NULL }
@@ -752,7 +750,7 @@ const value_string isup_cvr_rsp_ind_value[ ] = {
 #define CVR_CG_IND_DOUBLE_SEIZE_EVEN 2
 #define CVR_CG_IND_DOUBLE_SEIZE_ALL  3
 
-const value_string isup_cvr_cg_double_seize_value[ ] = {
+static const value_string isup_cvr_cg_double_seize_value[ ] = {
 	{ CVR_CG_IND_DOUBLE_SEIZE_NONE, "Double Seize control NONE" },
 	{ CVR_CG_IND_DOUBLE_SEIZE_ODD, "Double Seize control odd circuits"},
 	{ CVR_CG_IND_DOUBLE_SEIZE_EVEN, "Double Seize control even circuits"},
@@ -765,7 +763,7 @@ const value_string isup_cvr_cg_double_seize_value[ ] = {
 #define CVR_CG_IND_CAR_IND_DIGITAL		2
 #define CVR_CG_IND_CAR_IND_ANALOG_DIG	3
 
-const value_string isup_cvr_cg_car_ind_value[ ] = {
+static const value_string isup_cvr_cg_car_ind_value[ ] = {
 { CVR_CG_IND_CAR_IND_UNKNOWN   , "Carrier Type Unknown" },
 { CVR_CG_IND_CAR_IND_ANALOG    ,   "Carrier Type Analog" },
 { CVR_CG_IND_CAR_IND_DIGITAL   ,   "Carrier Type Digital"},
@@ -778,7 +776,7 @@ const value_string isup_cvr_cg_car_ind_value[ ] = {
 #define CVR_CG_IND_ALARM_CAR_IND_HARDWARE	2
 #define CVR_CG_IND_ALARM_CAR_IND_SPARE		3
 
-const value_string isup_cvr_alarm_car_ind_value[ ] = {
+static const value_string isup_cvr_alarm_car_ind_value[ ] = {
 	{ CVR_CG_IND_ALARM_CAR_IND_UNKNOWN    ,	"Alarm Carrier Ind Default"},
 	{ CVR_CG_IND_ALARM_CAR_IND_SOFTWARE   , "Alarm Carrier Ind Software"},
 	{ CVR_CG_IND_ALARM_CAR_IND_HARDWARE   , "Alarm Carrier Ind Hardware"},
@@ -791,7 +789,7 @@ const value_string isup_cvr_alarm_car_ind_value[ ] = {
 #define CVR_CG_IND_CONT_CHK_STAT	 2
 #define CVR_CG_IND_CONT_CHK_PER_CALL 3
 
-const value_string isup_cvr_cont_chk_ind_value[ ] = {
+static const value_string isup_cvr_cont_chk_ind_value[ ] = {
 
 	{ CVR_CG_IND_CONT_CHK_UNKNOWN  , "Continuity Check Unknown"},
 	{ CVR_CG_IND_CONT_CHK_NONE     , "Continuity Check NONE"},
@@ -1784,9 +1782,9 @@ isup_apm_defragment_init(void)
 }
 
 /* Info for the tap that must be passed between procedures */
-gchar *tap_called_number = NULL;
-gchar *tap_calling_number = NULL;
-guint8 tap_cause_value = 0;
+static gchar *tap_called_number = NULL;
+static gchar *tap_calling_number = NULL;
+static guint8 tap_cause_value = 0;
 
 /* ------------------------------------------------------------------
   Mapping number to ASCII-character
@@ -5188,7 +5186,7 @@ dissect_isup_generic_digits_parameter(tvbuff_t *parameter_tvb, proto_tree *param
 /* ------------------------------------------------------------------
   Dissector Parameter Charge number
  */
-void
+static void
 dissect_isup_charge_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_item *address_digits_item;
