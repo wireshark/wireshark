@@ -62,10 +62,10 @@ typedef struct {
     guint8      sequence;
 } frag_info;
 
-frag_info           frags[100];
-char    mv_resolve_name_string[128];
+static frag_info           frags[100];
+static char    mv_resolve_name_string[128];
 
-const fragment_items nds_frag_items = {
+static const fragment_items nds_frag_items = {
     &ett_nds_segment,
     &ett_nds_segments,
     &hf_nds_segments,
@@ -6758,7 +6758,7 @@ dissect_ncp_89_6_request(tvbuff_t *tvb, proto_tree *volatile ncp_tree, guint32 o
 }
 
 
-void
+static void
 dissect_ncp_123_11_reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree, ncp_req_hash_value *request_value)
 {
     int string_len, loffset;
@@ -6779,7 +6779,7 @@ dissect_ncp_123_11_reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree, ncp_req_h
     proto_tree_add_item(ncp_tree, hf_ncp_copyright, tvb, loffset+1, string_len, TRUE);
 }
 
-void
+static void
 dissect_ncp_123_17_reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree)
 {
     proto_tree              *atree;
@@ -6835,7 +6835,7 @@ dissect_ncp_123_17_reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree)
     }
 }
 
-void
+static void
 dissect_ncp_23_26_reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree)
 {
     /* For an IP-only server, the 4-byte IP address is placed into the 4-byte NetworkAddress
@@ -6855,7 +6855,7 @@ dissect_ncp_23_26_reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree)
     proto_tree_add_item(ncp_tree, hf_ncp_connection_type, tvb, 20, 1, TRUE);
 }
 
-void
+static void
 dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
                       const ncp_record *ncp_rec, ncp_req_hash_value *request_value)
 {
@@ -7191,7 +7191,7 @@ dissect_ncp_8x20reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree,
     }
 }
 
-void
+static void
 dissect_ncp_123_62_reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree)
 {
     char value_format[2]="\0";

@@ -30,12 +30,12 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* XXX: 
+/* XXX:
    ToDo: Find and fix possible memory leak(s):
 
    Example:
 
-   A 40M capture file with mostly NCP frames results 
+   A 40M capture file with mostly NCP frames results
    in a 400K-800K memory usage increase each time the file is reloaded.
 
    (If the NCP dissection is disabled, there is minimal memory usage
@@ -115,8 +115,8 @@ gint ett_nds_segment = -1;
 static gint ett_ncp_system_flags = -1;
 
 static struct novell_tap ncp_tap;
-struct ncp_common_header     header;
-struct ncp_common_header    *ncp_hdr;
+static struct ncp_common_header     header;
+static struct ncp_common_header    *ncp_hdr;
 
 /* Tables for reassembly of fragments. */
 GHashTable *nds_fragment_table = NULL;

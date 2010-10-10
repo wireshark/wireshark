@@ -5756,10 +5756,10 @@ static int ptvc_struct_int_storage;
 
 	if global_highest_var > -1:
 		print "#define NUM_REPEAT_VARS\t%d" % (global_highest_var + 1)
-		print "guint repeat_vars[NUM_REPEAT_VARS];",
+		print "static guint repeat_vars[NUM_REPEAT_VARS];",
 	else:
 		print "#define NUM_REPEAT_VARS\t0"
-		print "guint *repeat_vars = NULL;",
+		print "static guint *repeat_vars = NULL;",
 
 	print """
 #define NO_VAR		NUM_REPEAT_VARS
