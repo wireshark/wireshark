@@ -1,4 +1,4 @@
-Wireshark 1.4.0 Release Notes
+Wireshark 1.4.1 Release Notes
 
    ------------------------------------------------------------------
 
@@ -12,113 +12,113 @@ What's New
 
   Bug Fixes
 
+   The following vulnerabilities have been fixed. See the security
+   advisory for details and a workaround.
+
+     o The Penetration Test Team of NCNIPC (China) discovered that
+       the ASN.1 BER dissector was susceptible to a stack overflow.
+       (Bug 5230)
+
+       Versions affected: All previous versions up to and including
+       1.2.11 and 1.4.1.
+
+       CVE-2010-????
+
    The following bugs have been fixed:
 
-     o Update time display in background. (Bug 1275)
+     o Wireshark may appear offscreen on multi-monitor Windows
+       systems. (Bug 553)
 
-     o Wireshark is unresponsive when capturing from named pipes on
-       Windows. (Bug 1759)
+     o Incorrect behavior using sorting in the packet list. (Bug
+       2225)
 
-     o Tshark returns 0 even with an invalid interface or capture
-       filter. (Bug 4735)
+     o Cooked-capture dissector should omit the source address field
+       if empty. (Bug 2519)
+
+     o MySQL dissector doesn't dissect MySQL stream. (Bug 2691)
+
+     o Wireshark crashes if active display filter macro is renamed.
+       (Bug 5002)
+
+     o Incorrect dissection of MAP V2 PRN_ACK. (Bug 5076)
+
+     o TCP bytes_in_flight becomes inflated with lost packets. (Bug
+       5132)
+
+     o Wireshark fails to start on Windows XP 64bit. (Bug 5160)
+
+     o GTP header is exported in PDML with an incorrect size. (Bug
+       5162)
+
+     o Packet list hidden columns will not be parsed correctly from
+       preferences file. (Bug 5163)
+
+     o Wireshark does not display the t.38 graph. (Bug 5165)
+
+     o Wireshark don't show mgcp calls in "Telephony → VoIP calls".
+       (Bug 5167)
+
+     o Wireshark 1.4.0 & VoIP calls "Prepare Filter" problem. (Bug
+       5172)
+
+     o GTPv2: IMSI is decoded improperly. (Bug 5179)
+
+     o [NAS EPS] EPS Quality of Service IE decoding is wrong. (Bug
+       5186)
+
+     o Wireshark mistakenly writes "not all data available" for IPv4
+       checksum. (Bug 5194)
+
+     o GSM: Cell Channel Description, range 1024 format. (Bug 5214)
+
+     o Wrong SDP interpretation on VoIP call flow chart. (Bug 5220)
+
+     o The CLDAP attribute value on a CLDAP reply is no longer being
+       decoded. (Bug 5239)
+
+     o [NAS EPS] Traffic Flow Template IE dissection bugs. (Bug 5243)
+
+     o [NAS EPS] Use Request Type IE defined in 3GPP 24.008. (Bug
+       5246)
+
+     o NTLMSSP_AUTH domain and username truncated to first letter
+       with IE8/Windows7 (generating the NTLM packet). (Bug 5251)
+
+     o IPv6 RH0: dest addr is to be used i.s.o. last RH address when
+       0 segments remain. (Bug 5252)
+
+     o EIGRP dissection error in Flags field in external route TLVs.
+       (Bug 5261)
+
+     o MRP packet is not correctly parsed in PROFINET multiple write
+       record request. (Bug 5267)
+
+     o MySQL Enhancement: support of Show Fields and bug fix. (Bug
+       5271)
+
+     o [NAS EPS] Fix TFT decoding when having several Packet Filters
+       defined. (Bug 5274)
+
+     o Crash if using ssl.debug.file with no password for
+       ssl.keys_list. (Bug 5277)
 
   New and Updated Features
 
-   The following features are new (or have been significantly
-   updated) since version 1.2:
-
-     o The packet list internals have been rewritten and are now more
-       efficient.
-
-     o Columns are easier to use. You can add a protocol field as a
-       column by right-clicking on its packet detail item, and you
-       can adjust some column preferences by right-clicking the
-       column header.
-
-     o Preliminary Python scripting support has been added.
-
-     o Many memory leaks have been fixed.
-
-     o Wireshark 1.4 does not support Windows 2000. Please use
-       Wireshark 1.2 or 1.0 on those systems.
-
-     o Packets can now be ignored (excluded from dissection), similar
-       to the way they can be marked.
-
-     o Manual IP address resolution is now supported.
-
-     o Columns with seconds can now be displayed as hours, minutes
-       and seconds.
-
-     o You can now set the capture buffer size on UNIX and Linux if
-       you have libpcap 1.0.0 or greater.
-
-     o TShark no longer needs elevated privileges on UNIX or Linux to
-       list interfaces. Only dumpcap requires privileges now.
-
-     o Wireshark and TShark can enable 802.11 monitor mode directly
-       if you have libpcap 1.0.0 or greater.
-
-     o You can play RTP streams directly from the RTP Analysis
-       window.
-
-     o Capinfos and editcap now respectively support time order
-       checking and forcing.
-
-     o Wireshark now has a "jump to timestamp" command-line option.
-
-     o You can open JPEG files directly in Wireshark.
+   There are no new features in this release.
 
   New Protocol Support
 
-   3GPP Nb Interface RTP Multiplex, Access Node Control Protocol,
-   Apple Network-MIDI Session Protocol, ARUBA encapsulated remote
-   mirroring, Assa Abloy R3, Asynchronous Transfer Mode, B.A.T.M.A.N.
-   Advanced Protocol, Bluetooth AMP Packet, Bluetooth OBEX, Bundle
-   Protocol, CIP Class Generic, CIP Connection Configuration Object,
-   CIP Connection Manager, CIP Message Router, collectd network data,
-   Control And Provisioning of Wireless Access Points, Controller
-   Area Network, Device Level Ring, DOCSIS Bonded Initial Ranging
-   Message, Dropbox LAN sync Discovery Protocol, Dropbox LAN sync
-   Protocol, DTN TCP Convergence Layer Protocol, EtherCAT Switch
-   Link, Fibre Channel Delimiters, File Replication Service DFS-R,
-   Gateway Load Balancing Protocol, Gigamon Header, GigE Vision
-   Control Protocol, Git Smart Protocol, GSM over IP ip.access CCM
-   sub-protocol, GSM over IP protocol as used by ip.access, GSM
-   Radiotap, HI2Operations, Host Identity Protocol, HP encapsulated
-   remote mirroring, HP NIC Teaming Heartbeat, IEC61850 Sampled
-   Values, IEEE 1722 Protocol, InfiniBand Link, Interlink Protocol,
-   IPv6 over IEEE 802.15.4, ISO 10035-1 OSI Connectionless
-   Association Control Service, ISO 9548-1 OSI Connectionless Session
-   Protocol, ISO 9576-1 OSI Connectionless Presentation Protocol,
-   ITU-T Q.708 ISPC Analysis, Juniper Packet Mirror, Licklider
-   Transmission Protocol, MPLS PW ATM AAL5 CPCS-SDU mode
-   encapsulation, MPLS PW ATM Cell Header, MPLS PW ATM Control Word,
-   MPLS PW ATM N-to-One encapsulation, no CW, MPLS PW ATM N-to-One
-   encapsulation, with CW, MPLS PW ATM One-to-One or AAL5 PDU
-   encapsulation, Multiple Stream Reservation Protocol, NetPerfMeter
-   Protocol, NetScaler Trace, NexusWare C7 MTP, NSN FLIP, OMRON FINS
-   Protocol, packetbb Protocol, Peer Network Resolution Protocol,
-   PKIX Attribute Certificate, Pseudowire Padding, Server/Application
-   State Protocol, Solaris IPNET, TN3270 Protocol, TN5250 Protocol,
-   TRILL, Twisted Banana, UMTS FP Hint, UMTS MAC, UMTS Metadata, UMTS
-   RLC, USB HID, USB HUB, UTRAN Iuh interface HNBAP signalling, UTRAN
-   Iuh interface RUA signalling, V5.2, Vendor Specific Control
-   Protocol, Vendor Specific Network Protocol, VMware Lab Manager,
-   VXI-11 Asynchronous Abort, VXI-11 Core Protocol, VXI-11 Interrupt,
-   X.411 Message Access Service, ZigBee Cluster Library
+   There are no new protocols in this release.
 
   Updated Protocol Support
 
-   There are too many to list here.
+   ASN.1 BER, ASN.1 PER, EIGRP, GSM A RR, GSM Management, GSM MAP,
+   GTP, GTPv2, ICMPv6, Interlink, IPv4, IPv6, IPX, LDAP, LLC, MySQL,
+   NAS EPS, NTLMSSP, PN-IO, PPP, RPC, SDP, SLL, SSL, TCP
 
   New and Updated Capture File Support
 
-   Accellent 5Views, ASN.1 Basic Encoding Rules, Catapult DCT2000,
-   Daintree SNA, Endace ERF, EyeSDN, Gammu DCT3 trace, IBM iSeries,
-   JPEG/JFIF, libpcap, Lucent/Ascend access server trace, NetScaler,
-   PacketLogger, pcapng, Shomiti/Finisar Surveyor, Sun snoop, Symbian
-   OS btsnoop, Visual Networks
+   There are no new or updated capture file formats in this release.
 
 Getting Wireshark
 
@@ -141,9 +141,6 @@ File Locations
    About->Folders to find the default locations on your system.
 
 Known Problems
-
-   Wireshark may appear offscreen on multi-monitor Windows systems.
-   (Bug 553)
 
    Wireshark might make your system disassociate from a wireless
    network on OS X 10.4. (Bug 1315)
@@ -170,9 +167,10 @@ Known Problems
 
 Getting Help
 
-   Community support is available on the wireshark-users mailing
-   list. Subscription information and archives for all of Wireshark's
-   mailing lists can be found on the web site.
+   Community support is available on Wireshark's Q&A site and on the
+   wireshark-users mailing list. Subscription information and
+   archives for all of Wireshark's mailing lists can be found on the
+   web site.
 
    Commercial support is available from CACE Technologies.
 
