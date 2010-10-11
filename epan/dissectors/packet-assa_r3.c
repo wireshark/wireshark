@@ -1994,7 +1994,7 @@ typedef struct
 }
 configMap_t;
 
-configMap_t configMap [] = 
+static configMap_t configMap [] =
 {
   { CONFIGITEM_SERIAL_NUMBER,               CONFIGTYPE_STRING },
   { CONFIGITEM_CRYPT_KEY,                   CONFIGTYPE_STRING },

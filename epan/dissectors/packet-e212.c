@@ -283,7 +283,7 @@ const value_string E212_codes[] = {
 /*
  * Annex to ITU Operational Bulletin No. 958 - 15.VI.2010
  * including amendments up to ITU Operational Bulletin No. 960 - 15.VII.2010
- * 
+ *
  * According to Recommendation ITU-T E.212 (05/2008)
  *
  * The value parts of the list below are equal to:
@@ -291,11 +291,11 @@ const value_string E212_codes[] = {
  *   1000 * MCC + MNC,       in case of 3 digits long MNCs
  * with this encoding, we are sure that even in cases of mixed length
  * MNCs under the same MCC, it is impossible for 2 MNCs to get mapped to
- * the same entry. Aliasing to the same entry in the list below occurs 
+ * the same entry. Aliasing to the same entry in the list below occurs
  * only in case of an invalid combination of MNCs, i.e. in the same MCC a
  * 2 digits long MNC is a prefix of a 3 digits long MNC
  */
-const value_string mcc_mnc_codes[] = {
+static const value_string mcc_mnc_codes[] = {
 	{  202010, "Cosmote" },
 	{  202050, "Vodafone - Panafon" },
 	{  202090, "Info Quest S.A." },
@@ -1698,7 +1698,7 @@ static int hf_E212_msin						= -1;
  * MCC/MNC dissection - little endian MNC encoding
  *
  * MNC of length 2:
- * 
+ *
  *	 8   7   6   5   4   3   2   1
  * +---+---+---+---+---+---+---+---+
  * |  MCC digit 2  |  MCC digit 1  |  octet x
@@ -1723,7 +1723,7 @@ static int hf_E212_msin						= -1;
  * MCC/MNC dissection - big endian MNC encoding
  *
  * MNC of length 2:
- * 
+ *
  *	 8   7   6   5   4   3   2   1
  * +---+---+---+---+---+---+---+---+
  * |  MCC digit 2  |  MCC digit 1  |  octet x
@@ -1747,7 +1747,7 @@ static int hf_E212_msin						= -1;
 int
 dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean little_endian){
 
-	int			start_offset;	
+	int			start_offset;
 	guint8		octet;
 	guint16		mcc, mnc;
 	guint8		mcc1, mcc2, mcc3, mnc1, mnc2, mnc3;
@@ -1801,17 +1801,17 @@ dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
 /*
  * When we want to decode the MCC/MNC pair in an address that is encoded according to E.212
- * the main problem is that we do not know whether we are dealing with a length 2 or length 3 
- * MNC. Initially, it was possible to find the length of the MNC by checking the MCC code. 
+ * the main problem is that we do not know whether we are dealing with a length 2 or length 3
+ * MNC. Initially, it was possible to find the length of the MNC by checking the MCC code.
  * Originally each country employed a pure 2 digit or 3 digit MNC scheme. However, it is possible
  * to find countries now that employ both lengths for the MNC (e.g. Canada, India).
  * Since in these cases we can be sure that an MNC cannot possible be a prefix for another MNC, we
- * initially assume that the MNC is 2 digits long. If the MCC/MNC combination gives a match in our 
+ * initially assume that the MNC is 2 digits long. If the MCC/MNC combination gives a match in our
  * mcc_mnc_codes list then we can be sure that we deal with an MNC that is 2 digits long. Otherwise,
  * assume that the MNC is 3 digits long.
- * 
+ *
  * MNC of length 2:
- * 
+ *
  *     8   7   6   5   4   3   2   1
  *   +---+---+---+---+---+---+---+---+
  *   |  MCC digit 2  |  MCC digit 1  |  octet x
@@ -1822,7 +1822,7 @@ dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
  *   +---------------+---------------+
  *
  * MNC of length 3:
- * 
+ *
  *     8   7   6   5   4   3   2   1
  *   +---+---+---+---+---+---+---+---+
  *   |  MCC digit 2  |  MCC digit 1  |  octet x
@@ -1914,12 +1914,12 @@ proto_register_e212(void)
 	static hf_register_info hf[] = {
 	{ &hf_E212_mcc,
 		{ "Mobile Country Code (MCC)","e212.mcc",
-		FT_UINT16, BASE_DEC, VALS(E212_codes), 0x0,          
+		FT_UINT16, BASE_DEC, VALS(E212_codes), 0x0,
 		"Mobile Country Code MCC", HFILL }
 	},
 	{ &hf_E212_mnc,
 		{ "Mobile network code (MNC)","e212.mnc",
-		FT_UINT16, BASE_DEC, NULL, 0x0,          
+		FT_UINT16, BASE_DEC, NULL, 0x0,
 		"Mobile network code", HFILL }
 	},
 	{ &hf_E212_msin,

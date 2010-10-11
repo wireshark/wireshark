@@ -7,17 +7,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -98,7 +98,7 @@ typedef struct _fcfcs_conv_data {
     guint32 opcode;
 } fcfcs_conv_data_t;
 
-GHashTable *fcfcs_req_hash = NULL;
+static GHashTable *fcfcs_req_hash = NULL;
 
 static dissector_handle_t data_handle;
 
@@ -117,12 +117,12 @@ fcfcs_equal(gconstpointer v, gconstpointer w)
 static guint
 fcfcs_hash (gconstpointer v)
 {
-	const fcfcs_conv_key_t *key = v;
-	guint val;
+    const fcfcs_conv_key_t *key = v;
+    guint val;
 
-	val = key->conv_idx;
+    val = key->conv_idx;
 
-	return val;
+    return val;
 }
 
 /*
@@ -131,10 +131,10 @@ fcfcs_hash (gconstpointer v)
 static void
 fcfcs_init_protocol(void)
 {
-	if (fcfcs_req_hash)
-            g_hash_table_destroy (fcfcs_req_hash);
+    if (fcfcs_req_hash)
+        g_hash_table_destroy (fcfcs_req_hash);
 
-	fcfcs_req_hash = g_hash_table_new(fcfcs_hash, fcfcs_equal);
+    fcfcs_req_hash = g_hash_table_new(fcfcs_hash, fcfcs_equal);
 }
 
 /* Code to actually dissect the packets */
@@ -143,7 +143,7 @@ dissect_fcfcs_giel (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
 {
     int offset = 16;            /* past the ct header */
     int numelem, i;
-    
+
     if (!isreq && tree) {
         numelem = tvb_get_ntohl (tvb, offset);
 
@@ -259,7 +259,7 @@ dissect_fcfcs_gmal (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
             numelem = tvb_get_ntohl (tvb, offset);
             proto_tree_add_text (tree, tvb, offset, 4,
                                  "Number of Mgmt. Addresses: 0x%d", numelem);
-            
+
             offset += 4;
             for (i = 0; i < numelem; i++) {
                 proto_tree_add_text (tree, tvb, offset, 1, "Name Length: %d",
@@ -779,13 +779,13 @@ dissect_fcfcs_rjt (tvbuff_t *tvb, proto_tree *tree)
                              0);
         proto_tree_add_item (tree, hf_fcs_vendor, tvb, offset+15, 1, 0);
     }
-    
+
 }
 
 static void
 dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    
+
 /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 0;
     proto_item *ti;
@@ -800,7 +800,7 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC-FCS");
-    
+
     if (tree) {
         ti = proto_tree_add_protocol_format (tree, proto_fcfcs, tvb, 0,
                                              tvb_reported_length (tvb),
@@ -824,25 +824,25 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                              pinfo->ptype, pinfo->oxid,
                                              pinfo->rxid, NO_PORT2);
         }
-    
+
         ckey.conv_idx = conversation->index;
-        
+
         cdata = (fcfcs_conv_data_t *)g_hash_table_lookup (fcfcs_req_hash,
                                                             &ckey);
         if (cdata) {
             /* Since we never free the memory used by an exchange, this maybe a
              * case of another request using the same exchange as a previous
-             * req. 
+             * req.
              */
             cdata->opcode = opcode;
         }
         else {
             req_key = se_alloc (sizeof(fcfcs_conv_key_t));
             req_key->conv_idx = conversation->index;
-            
+
             cdata = se_alloc (sizeof(fcfcs_conv_data_t));
             cdata->opcode = opcode;
-            
+
             g_hash_table_insert (fcfcs_req_hash, req_key, cdata);
         }
         if (check_col (pinfo->cinfo, COL_INFO)) {
@@ -881,7 +881,7 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 else
                     failed_opcode = cdata->opcode;
             }
-            
+
             if (check_col (pinfo->cinfo, COL_INFO)) {
                 if (opcode != FCCT_MSG_RJT) {
                     col_add_fstr (pinfo->cinfo, COL_INFO, "MSG_ACC (%s)",
@@ -895,7 +895,7 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                               "0x%x"));
                 }
             }
-                
+
             if (tree) {
                 if ((cdata == NULL) && (opcode != FCCT_MSG_RJT)) {
                     /* No record of what this accept is for. Can't decode */
@@ -907,7 +907,7 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
-    
+
     if (tree) {
         proto_tree_add_item (fcfcs_tree, hf_fcs_opcode, tvb, offset+8, 2, 0);
         proto_tree_add_item (fcfcs_tree, hf_fcs_maxres_size, tvb, offset+10,
@@ -1007,15 +1007,10 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Register the protocol with Wireshark */
 
-/* this format is require because a script is used to build the C function
-   that calls all the protocol registration.
-*/
-
 void
 proto_register_fcfcs (void)
-{                 
+{
 
-/* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_fcs_opcode,
           {"Opcode", "fcs.opcode", FT_UINT16, BASE_HEX,
@@ -1112,32 +1107,25 @@ proto_register_fcfcs (void)
            NULL, HFILL}},
     };
 
-    /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_fcfcs,
     };
 
-    /* Register the protocol name and description */
     proto_fcfcs = proto_register_protocol("FC Fabric Configuration Server",
                                           "FC-FCS", "fcs");
 
-    /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_fcfcs, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     register_init_routine (&fcfcs_init_protocol);
 }
 
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
 void
 proto_reg_handoff_fcfcs (void)
 {
     dissector_handle_t fcs_handle;
 
     fcs_handle = create_dissector_handle (dissect_fcfcs, proto_fcfcs);
-    
+
     dissector_add("fcct.server", FCCT_GSRVR_FCS, fcs_handle);
 
     data_handle = find_dissector ("data");

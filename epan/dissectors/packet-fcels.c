@@ -12,12 +12,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -57,177 +57,177 @@
 #define FC_ELS_REQ  1
 
 /* Initialize the protocol and registered fields */
-static int proto_fcels               = -1;
-static int hf_fcels_opcode           = -1;
-static int hf_fcels_rjtcode          = -1;
-static int hf_fcels_rjtdetcode       = -1;
-static int hf_fcels_vnduniq          = -1;
-static int hf_fcels_b2b              = -1;
-static int hf_fcels_cmnfeatures      = -1;
-static int hf_fcels_bbscnum          = -1;
-static int hf_fcels_rcvsize          = -1;
-static int hf_fcels_maxconseq        = -1;
-static int hf_fcels_reloffset        = -1;
-static int hf_fcels_edtov            = -1;
-static int hf_fcels_npname           = -1;
-static int hf_fcels_fnname           = -1;
-static int hf_fcels_cls1param        = -1;
-static int hf_fcels_cls2param        = -1;
-static int hf_fcels_cls3param        = -1;
-static int hf_fcels_cls4param        = -1;
-static int hf_fcels_vendorvers       = -1;
-static int hf_fcels_svcavail         = -1;
-static int hf_fcels_clsflags         = -1;
-static int hf_fcels_clsrcvsize       = -1;
-static int hf_fcels_conseq           = -1;
-static int hf_fcels_e2e              = -1;
-static int hf_fcels_openseq          = -1;
-static int hf_fcels_nportid          = -1;
-static int hf_fcels_oxid             = -1;
-static int hf_fcels_rxid             = -1;
-static int hf_fcels_recovqual        = -1;
-static int hf_fcels_fabricaddr       = -1;
-static int hf_fcels_fabricpname      = -1;
-static int hf_fcels_failedrcvr       = -1;
-static int hf_fcels_flacompliance    = -1;
-static int hf_fcels_loopstate        = -1;
-static int hf_fcels_publicloop_bmap  = -1;
-static int hf_fcels_pvtloop_bmap     = -1;
-static int hf_fcels_alpa_map         = -1;
-static int hf_fcels_scrregn          = -1;
-static int hf_fcels_farp_matchcodept = -1;
-static int hf_fcels_farp_respaction  = -1;
-static int hf_fcels_resportid        = -1;
-static int hf_fcels_respname         = -1;
-static int hf_fcels_respnname        = -1;
-static int hf_fcels_reqipaddr        = -1;
-static int hf_fcels_respipaddr       = -1;
-static int hf_fcels_hardaddr         = -1;
-static int hf_fcels_rps_flag         = -1;
-static int hf_fcels_rps_portnum      = -1;
-static int hf_fcels_rps_portstatus   = -1;
-static int hf_fcels_rnft_fc4type     = -1;
-static int hf_fcels_rscn_evqual      = -1;
-static int hf_fcels_rscn_addrfmt     = -1;
-static int hf_fcels_rscn_domain      = -1;
-static int hf_fcels_rscn_area        = -1;
-static int hf_fcels_rscn_port        = -1;
-static int hf_fcels_rec_fc4 = -1;
-static int hf_fcels_estat = -1;
-static int hf_fcels_estat_resp = -1;
-static int hf_fcels_estat_seq_init = -1;
-static int hf_fcels_estat_compl = -1;
-static int hf_fcels_nodeidfmt = -1;
-static int hf_fcels_spidlen = -1;
-static int hf_fcels_vendoruniq = -1;
-static int hf_fcels_vendorsp = -1;
-static int hf_fcels_asstype = -1;
-static int hf_fcels_physport = -1;
-static int hf_fcels_attnodes = -1;
-static int hf_fcels_nodemgmt = -1;
-static int hf_fcels_ipvers = -1;
-static int hf_fcels_tcpport = -1;
-static int hf_fcels_ip = -1;
-static int hf_fcels_cbind_liveness = -1;
-static int hf_fcels_cbind_addr_mode = -1;
-static int hf_fcels_cbind_ifcp_version = -1;
-static int hf_fcels_cbind_userinfo = -1;
-static int hf_fcels_cbind_snpname = -1;
-static int hf_fcels_cbind_dnpname = -1;
-static int hf_fcels_cbind_status = -1;
-static int hf_fcels_chandle = -1;
-static int hf_fcels_unbind_status = -1;
-static int hf_fcels_cmn_cios = -1;
-static int hf_fcels_cmn_rro = -1;
-static int hf_fcels_cmn_vvv = -1;
-static int hf_fcels_cmn_b2b = -1;
-static int hf_fcels_cmn_e_d_tov = -1;
-static int hf_fcels_cmn_simplex = -1;
-static int hf_fcels_cmn_multicast = -1;
-static int hf_fcels_cmn_broadcast = -1;
-static int hf_fcels_cmn_security = -1;
-static int hf_fcels_cmn_clk = -1;
-static int hf_fcels_cmn_dhd = -1;
-static int hf_fcels_cmn_seqcnt = -1;
-static int hf_fcels_cmn_payload = -1;
-static int hf_fcels_cls_cns = -1;
-static int hf_fcels_cls_sdr = -1;
-static int hf_fcels_cls_prio = -1;
-static int hf_fcels_cls_nzctl = -1;
-static int hf_fcels_initctl = -1;
-static int hf_fcels_initctl_initial_pa = -1;
-static int hf_fcels_initctl_ack0 = -1;
-static int hf_fcels_initctl_ackgaa = -1;
-static int hf_fcels_initctl_sync = -1;
-static int hf_fcels_rcptctl = -1;
-static int hf_fcels_rcptctl_ack0 = -1;
-static int hf_fcels_rcptctl_interlock = -1;
-static int hf_fcels_rcptctl_policy = -1;
-static int hf_fcels_rcptctl_category = -1;
-static int hf_fcels_rcptctl_sync = -1;
-static int hf_fcels_fcpflags = -1;
-static int hf_fcels_fcpflags_trireq = -1;
-static int hf_fcels_fcpflags_trirep = -1;
-static int hf_fcels_fcpflags_retry = -1;
-static int hf_fcels_fcpflags_ccomp = -1;
-static int hf_fcels_fcpflags_datao = -1;
-static int hf_fcels_fcpflags_initiator = -1;
-static int hf_fcels_fcpflags_target = -1;
-static int hf_fcels_fcpflags_rdxr = -1;
-static int hf_fcels_fcpflags_wrxr = -1;
-static int hf_fcels_prliloflags = -1;
-static int hf_fcels_tprloflags_opav = -1;
-static int hf_fcels_tprloflags_rpav = -1;
-static int hf_fcels_tprloflags_npv = -1;
-static int hf_fcels_tprloflags_gprlo = -1;
-static int hf_fcels_speedflags = -1;
-static int hf_fcels_speedflags_1gb = -1;
-static int hf_fcels_speedflags_2gb = -1;
-static int hf_fcels_speedflags_4gb = -1;
-static int hf_fcels_speedflags_10gb = -1;
-static int hf_fcels_prliloflags_opav = -1;
-static int hf_fcels_prliloflags_ipe = -1;
-static int hf_fcels_prliloflags_eip = -1;
+static int proto_fcels                  = -1;
+static int hf_fcels_opcode              = -1;
+static int hf_fcels_rjtcode             = -1;
+static int hf_fcels_rjtdetcode          = -1;
+static int hf_fcels_vnduniq             = -1;
+static int hf_fcels_b2b                 = -1;
+static int hf_fcels_cmnfeatures         = -1;
+static int hf_fcels_bbscnum             = -1;
+static int hf_fcels_rcvsize             = -1;
+static int hf_fcels_maxconseq           = -1;
+static int hf_fcels_reloffset           = -1;
+static int hf_fcels_edtov               = -1;
+static int hf_fcels_npname              = -1;
+static int hf_fcels_fnname              = -1;
+static int hf_fcels_cls1param           = -1;
+static int hf_fcels_cls2param           = -1;
+static int hf_fcels_cls3param           = -1;
+static int hf_fcels_cls4param           = -1;
+static int hf_fcels_vendorvers          = -1;
+static int hf_fcels_svcavail            = -1;
+static int hf_fcels_clsflags            = -1;
+static int hf_fcels_clsrcvsize          = -1;
+static int hf_fcels_conseq              = -1;
+static int hf_fcels_e2e                 = -1;
+static int hf_fcels_openseq             = -1;
+static int hf_fcels_nportid             = -1;
+static int hf_fcels_oxid                = -1;
+static int hf_fcels_rxid                = -1;
+static int hf_fcels_recovqual           = -1;
+static int hf_fcels_fabricaddr          = -1;
+static int hf_fcels_fabricpname         = -1;
+static int hf_fcels_failedrcvr          = -1;
+static int hf_fcels_flacompliance       = -1;
+static int hf_fcels_loopstate           = -1;
+static int hf_fcels_publicloop_bmap     = -1;
+static int hf_fcels_pvtloop_bmap        = -1;
+static int hf_fcels_alpa_map            = -1;
+static int hf_fcels_scrregn             = -1;
+static int hf_fcels_farp_matchcodept    = -1;
+static int hf_fcels_farp_respaction     = -1;
+static int hf_fcels_resportid           = -1;
+static int hf_fcels_respname            = -1;
+static int hf_fcels_respnname           = -1;
+static int hf_fcels_reqipaddr           = -1;
+static int hf_fcels_respipaddr          = -1;
+static int hf_fcels_hardaddr            = -1;
+static int hf_fcels_rps_flag            = -1;
+static int hf_fcels_rps_portnum         = -1;
+static int hf_fcels_rps_portstatus      = -1;
+static int hf_fcels_rnft_fc4type        = -1;
+static int hf_fcels_rscn_evqual         = -1;
+static int hf_fcels_rscn_addrfmt        = -1;
+static int hf_fcels_rscn_domain         = -1;
+static int hf_fcels_rscn_area           = -1;
+static int hf_fcels_rscn_port           = -1;
+static int hf_fcels_rec_fc4             = -1;
+static int hf_fcels_estat               = -1;
+static int hf_fcels_estat_resp          = -1;
+static int hf_fcels_estat_seq_init      = -1;
+static int hf_fcels_estat_compl         = -1;
+static int hf_fcels_nodeidfmt           = -1;
+static int hf_fcels_spidlen             = -1;
+static int hf_fcels_vendoruniq          = -1;
+static int hf_fcels_vendorsp            = -1;
+static int hf_fcels_asstype             = -1;
+static int hf_fcels_physport            = -1;
+static int hf_fcels_attnodes            = -1;
+static int hf_fcels_nodemgmt            = -1;
+static int hf_fcels_ipvers              = -1;
+static int hf_fcels_tcpport             = -1;
+static int hf_fcels_ip                  = -1;
+static int hf_fcels_cbind_liveness      = -1;
+static int hf_fcels_cbind_addr_mode     = -1;
+static int hf_fcels_cbind_ifcp_version  = -1;
+static int hf_fcels_cbind_userinfo      = -1;
+static int hf_fcels_cbind_snpname       = -1;
+static int hf_fcels_cbind_dnpname       = -1;
+static int hf_fcels_cbind_status        = -1;
+static int hf_fcels_chandle             = -1;
+static int hf_fcels_unbind_status       = -1;
+static int hf_fcels_cmn_cios            = -1;
+static int hf_fcels_cmn_rro             = -1;
+static int hf_fcels_cmn_vvv             = -1;
+static int hf_fcels_cmn_b2b             = -1;
+static int hf_fcels_cmn_e_d_tov         = -1;
+static int hf_fcels_cmn_simplex         = -1;
+static int hf_fcels_cmn_multicast       = -1;
+static int hf_fcels_cmn_broadcast       = -1;
+static int hf_fcels_cmn_security        = -1;
+static int hf_fcels_cmn_clk             = -1;
+static int hf_fcels_cmn_dhd             = -1;
+static int hf_fcels_cmn_seqcnt          = -1;
+static int hf_fcels_cmn_payload         = -1;
+static int hf_fcels_cls_cns             = -1;
+static int hf_fcels_cls_sdr             = -1;
+static int hf_fcels_cls_prio            = -1;
+static int hf_fcels_cls_nzctl           = -1;
+static int hf_fcels_initctl             = -1;
+static int hf_fcels_initctl_initial_pa  = -1;
+static int hf_fcels_initctl_ack0        = -1;
+static int hf_fcels_initctl_ackgaa      = -1;
+static int hf_fcels_initctl_sync        = -1;
+static int hf_fcels_rcptctl             = -1;
+static int hf_fcels_rcptctl_ack0        = -1;
+static int hf_fcels_rcptctl_interlock   = -1;
+static int hf_fcels_rcptctl_policy      = -1;
+static int hf_fcels_rcptctl_category    = -1;
+static int hf_fcels_rcptctl_sync        = -1;
+static int hf_fcels_fcpflags            = -1;
+static int hf_fcels_fcpflags_trireq     = -1;
+static int hf_fcels_fcpflags_trirep     = -1;
+static int hf_fcels_fcpflags_retry      = -1;
+static int hf_fcels_fcpflags_ccomp      = -1;
+static int hf_fcels_fcpflags_datao      = -1;
+static int hf_fcels_fcpflags_initiator  = -1;
+static int hf_fcels_fcpflags_target     = -1;
+static int hf_fcels_fcpflags_rdxr       = -1;
+static int hf_fcels_fcpflags_wrxr       = -1;
+static int hf_fcels_prliloflags         = -1;
+static int hf_fcels_tprloflags_opav     = -1;
+static int hf_fcels_tprloflags_rpav     = -1;
+static int hf_fcels_tprloflags_npv      = -1;
+static int hf_fcels_tprloflags_gprlo    = -1;
+static int hf_fcels_speedflags          = -1;
+static int hf_fcels_speedflags_1gb      = -1;
+static int hf_fcels_speedflags_2gb      = -1;
+static int hf_fcels_speedflags_4gb      = -1;
+static int hf_fcels_speedflags_10gb     = -1;
+static int hf_fcels_prliloflags_opav    = -1;
+static int hf_fcels_prliloflags_ipe     = -1;
+static int hf_fcels_prliloflags_eip     = -1;
 
-static gint ett_fcels = -1;
-static gint ett_fcels_lsrjt = -1;
-static gint ett_fcels_acc = -1;
-static gint ett_fcels_logi = -1;
-static gint ett_fcels_logi_cmnsvc = -1;
-static gint ett_fcels_logi_clssvc = -1;
-static gint ett_fcels_logo = -1;
-static gint ett_fcels_abtx = -1;
-static gint ett_fcels_rsi = -1;
-static gint ett_fcels_rrq = -1;
-static gint ett_fcels_rec = -1;
-static gint ett_fcels_prli = -1;
-static gint ett_fcels_prli_svcpg = -1;
-static gint ett_fcels_adisc = -1;
-static gint ett_fcels_farp = -1;
-static gint ett_fcels_rps = -1;
-static gint ett_fcels_rpl = -1;
-static gint ett_fcels_rplpb = -1;
-static gint ett_fcels_fan = -1;
-static gint ett_fcels_rscn = -1;
-static gint ett_fcels_rscn_rec = -1;
-static gint ett_fcels_estat = -1;
-static gint ett_fcels_scr = -1;
-static gint ett_fcels_rnft = -1;
-static gint ett_fcels_rnft_fc4 = -1;
-static gint ett_fcels_lsts = -1;
-static gint ett_fcels_rnid = -1;
-static gint ett_fcels_rlir = -1;
-static gint ett_fcels_lirr = -1;
-static gint ett_fcels_srl = -1;
-static gint ett_fcels_rpsc = -1;
-static gint ett_fcels_cbind = -1;
-static gint ett_fcels_cmnfeatures = -1;
-static gint ett_fcels_clsflags = -1;
-static gint ett_fcels_initctl = -1;
-static gint ett_fcels_rcptctl = -1;
-static gint ett_fcels_fcpflags = -1;
-static gint ett_fcels_prliloflags = -1;
-static gint ett_fcels_speedflags = -1;
+static gint ett_fcels                   = -1;
+static gint ett_fcels_lsrjt             = -1;
+static gint ett_fcels_acc               = -1;
+static gint ett_fcels_logi              = -1;
+static gint ett_fcels_logi_cmnsvc       = -1;
+static gint ett_fcels_logi_clssvc       = -1;
+static gint ett_fcels_logo              = -1;
+static gint ett_fcels_abtx              = -1;
+static gint ett_fcels_rsi               = -1;
+static gint ett_fcels_rrq               = -1;
+static gint ett_fcels_rec               = -1;
+static gint ett_fcels_prli              = -1;
+static gint ett_fcels_prli_svcpg        = -1;
+static gint ett_fcels_adisc             = -1;
+static gint ett_fcels_farp              = -1;
+static gint ett_fcels_rps               = -1;
+static gint ett_fcels_rpl               = -1;
+static gint ett_fcels_rplpb             = -1;
+static gint ett_fcels_fan               = -1;
+static gint ett_fcels_rscn              = -1;
+static gint ett_fcels_rscn_rec          = -1;
+static gint ett_fcels_estat             = -1;
+static gint ett_fcels_scr               = -1;
+static gint ett_fcels_rnft              = -1;
+static gint ett_fcels_rnft_fc4          = -1;
+static gint ett_fcels_lsts              = -1;
+static gint ett_fcels_rnid              = -1;
+static gint ett_fcels_rlir              = -1;
+static gint ett_fcels_lirr              = -1;
+static gint ett_fcels_srl               = -1;
+static gint ett_fcels_rpsc              = -1;
+static gint ett_fcels_cbind             = -1;
+static gint ett_fcels_cmnfeatures       = -1;
+static gint ett_fcels_clsflags          = -1;
+static gint ett_fcels_initctl           = -1;
+static gint ett_fcels_rcptctl           = -1;
+static gint ett_fcels_fcpflags          = -1;
+static gint ett_fcels_prliloflags       = -1;
+static gint ett_fcels_speedflags        = -1;
 
 static const int *hf_fcels_estat_fields[] = {
     &hf_fcels_estat_resp,
@@ -301,7 +301,7 @@ typedef struct _fcels_conv_data {
     guint32 opcode;
 } fcels_conv_data_t;
 
-GHashTable *fcels_req_hash = NULL;
+static GHashTable *fcels_req_hash = NULL;
 
 static dissector_handle_t data_handle, fcsp_handle;
 
@@ -320,12 +320,12 @@ fcels_equal(gconstpointer v, gconstpointer w)
 static guint
 fcels_hash (gconstpointer v)
 {
-	const fcels_conv_key_t *key = v;
-	guint val;
+    const fcels_conv_key_t *key = v;
+    guint val;
 
-	val = key->conv_idx;
+    val = key->conv_idx;
 
-	return val;
+    return val;
 }
 
 /*
@@ -334,633 +334,633 @@ fcels_hash (gconstpointer v)
 static void
 fcels_init_protocol(void)
 {
-	if (fcels_req_hash)
-            g_hash_table_destroy(fcels_req_hash);
+    if (fcels_req_hash)
+        g_hash_table_destroy(fcels_req_hash);
 
-	fcels_req_hash = g_hash_table_new(fcels_hash, fcels_equal);
+    fcels_req_hash = g_hash_table_new(fcels_hash, fcels_equal);
 }
 
 
 static const true_false_string tfs_fc_fcels_cmn_cios = {
-	"Cont. Incr. Offset Supported",
-	"Cont. incr. offset NOT supported"
+    "Cont. Incr. Offset Supported",
+    "Cont. incr. offset NOT supported"
 };
 static const true_false_string tfs_fc_fcels_cmn_rro = {
-	"RRO Supported",
-	"Rro NOT supported"
+    "RRO Supported",
+    "Rro NOT supported"
 };
 static const true_false_string tfs_fc_fcels_cmn_vvv = {
-	"Valid Vendor Version",
-	"Vendor version NOT valid"
+    "Valid Vendor Version",
+    "Vendor version NOT valid"
 };
 static const true_false_string tfs_fc_fcels_cmn_b2b = {
-	"Alt B2B Credit Mgmt",
-	"Normal B2B Credit Mgmt"
+    "Alt B2B Credit Mgmt",
+    "Normal B2B Credit Mgmt"
 };
 static const true_false_string tfs_fc_fcels_cmn_e_d_tov = {
-	"E_D_TOV Resolution in ns",
-	"E_D_TOV Resolution in ms"
+    "E_D_TOV Resolution in ns",
+    "E_D_TOV Resolution in ms"
 };
 static const true_false_string tfs_fc_fcels_cmn_simplex = {
-	"Simplex Dedicated Conn Supported",
-	"Simplex dedicated conn NOT supported"
+    "Simplex Dedicated Conn Supported",
+    "Simplex dedicated conn NOT supported"
 };
 static const true_false_string tfs_fc_fcels_cmn_multicast = {
-	"Multicast supported",
-	"Multicast NOT supported"
+    "Multicast supported",
+    "Multicast NOT supported"
 };
 static const true_false_string tfs_fc_fcels_cmn_broadcast = {
-	"Broadcast Supported",
-	"Broadcast NOT supported"
+    "Broadcast Supported",
+    "Broadcast NOT supported"
 };
 static const true_false_string tfs_fc_fcels_cmn_security = {
-	"SECURITY Bit is SET",
-	"Security bit is NOT set"
+    "SECURITY Bit is SET",
+    "Security bit is NOT set"
 };
 static const true_false_string tfs_fc_fcels_cmn_clk = {
-	"Clk Sync Prim Capable",
-	"NOT clk sync prim capable"
+    "Clk Sync Prim Capable",
+    "NOT clk sync prim capable"
 };
 static const true_false_string tfs_fc_fcels_cmn_dhd = {
-	"DHD Capable",
-	"NOT dhd capable"
+    "DHD Capable",
+    "NOT dhd capable"
 };
 static const true_false_string tfs_fc_fcels_cmn_seqcnt = {
-	"Cont. Incr SEQCNT rules",
-	"Normal SEQCNT rules"
+    "Cont. Incr SEQCNT rules",
+    "Normal SEQCNT rules"
 };
 static const true_false_string tfs_fc_fcels_cmn_payload = {
-	"Payload Len=256 bytes",
-	"Payload Len=116 bytes"
+    "Payload Len=256 bytes",
+    "Payload Len=116 bytes"
 };
 
 static void
 dissect_cmnsvc (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags, guint8 opcode)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
-    
-	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hf_fcels_cmnfeatures, 
-				tvb, offset, 2, flags);
-		tree=proto_item_add_subtree(item, ett_fcels_cmnfeatures);
-	}
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
 
-	proto_tree_add_boolean(tree, hf_fcels_cmn_cios, tvb, offset, 2, flags);
-	if (flags&0x8000){
-		proto_item_append_text(item, "  Cont. Incr. Offset Supported");
-	}
-	flags&=(~( 0x8000 ));
-
-	proto_tree_add_boolean(tree, hf_fcels_cmn_rro, tvb, offset, 2, flags);
-	if (flags&0x4000){
-		proto_item_append_text(item, "  RRO Supported");
-	}
-	flags&=(~( 0x4000 ));
-
-	proto_tree_add_boolean(tree, hf_fcels_cmn_vvv, tvb, offset, 2, flags);
-	if (flags&0x2000){
-		proto_item_append_text(item, "  Valid Vendor Version");
-	}
-	flags&=(~( 0x2000 ));
-
-	proto_tree_add_boolean(tree, hf_fcels_cmn_b2b, tvb, offset, 2, flags);
-	if (flags&0x0800){
-		proto_item_append_text(item, "  Alt B2B Credit Mgmt");
-	} else {
-		proto_item_append_text(item, "  Normal B2B Credit Mgmt");
-	}
-	flags&=(~( 0x0800 ));
-
-    if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
-	proto_tree_add_boolean(tree, hf_fcels_cmn_e_d_tov, tvb, offset, 2, flags);
-	if (flags&0x0400){
-		proto_item_append_text(item, "  E_D_TOV Resolution in ns");
-	} else {
-		proto_item_append_text(item, "  E_D_TOV Resolution in ms");
-	}
-	flags&=(~( 0x0400 ));
-
-	proto_tree_add_boolean(tree, hf_fcels_cmn_simplex, tvb, offset, 2, flags);
-	if (flags&0x0040){
-		proto_item_append_text(item, "  Simplex Dedicated Conn Supported");
-	}
-	flags&=(~( 0x0040 ));
+    if(parent_tree){
+        item=proto_tree_add_uint(parent_tree, hf_fcels_cmnfeatures,
+                                 tvb, offset, 2, flags);
+        tree=proto_item_add_subtree(item, ett_fcels_cmnfeatures);
     }
 
-	proto_tree_add_boolean(tree, hf_fcels_cmn_multicast, tvb, offset, 2, flags);
-	if (flags&0x0200){
-		proto_item_append_text(item, "  Multicast Supported");
-	}
-	flags&=(~( 0x0200 ));
+    proto_tree_add_boolean(tree, hf_fcels_cmn_cios, tvb, offset, 2, flags);
+    if (flags&0x8000){
+        proto_item_append_text(item, "  Cont. Incr. Offset Supported");
+    }
+    flags&=(~( 0x8000 ));
 
-	proto_tree_add_boolean(tree, hf_fcels_cmn_broadcast, tvb, offset, 2, flags);
-	if (flags&0x0100){
-		proto_item_append_text(item, "  Broadcast Supported");
-	}
-	flags&=(~( 0x0100 ));
-    
-	proto_tree_add_boolean(tree, hf_fcels_cmn_security, tvb, offset, 2, flags);
-	if (flags&0x0020){
-		proto_item_append_text(item, "  Security Bit");
-	}
-	flags&=(~( 0x0020 ));
+    proto_tree_add_boolean(tree, hf_fcels_cmn_rro, tvb, offset, 2, flags);
+    if (flags&0x4000){
+        proto_item_append_text(item, "  RRO Supported");
+    }
+    flags&=(~( 0x4000 ));
 
-	proto_tree_add_boolean(tree, hf_fcels_cmn_clk, tvb, offset, 2, flags);
-	if (flags&0x0010){
-		proto_item_append_text(item, "  Clk Sync Prim Capable");
-	}
-	flags&=(~( 0x0010 ));
-    
-	proto_tree_add_boolean(tree, hf_fcels_cmn_dhd, tvb, offset, 2, flags);
-	if (flags&0x0004){
-		proto_item_append_text(item, "  DHD Capable");
-	}
-	flags&=(~( 0x0004 ));
-    
+    proto_tree_add_boolean(tree, hf_fcels_cmn_vvv, tvb, offset, 2, flags);
+    if (flags&0x2000){
+        proto_item_append_text(item, "  Valid Vendor Version");
+    }
+    flags&=(~( 0x2000 ));
+
+    proto_tree_add_boolean(tree, hf_fcels_cmn_b2b, tvb, offset, 2, flags);
+    if (flags&0x0800){
+        proto_item_append_text(item, "  Alt B2B Credit Mgmt");
+    } else {
+        proto_item_append_text(item, "  Normal B2B Credit Mgmt");
+    }
+    flags&=(~( 0x0800 ));
+
     if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
-	proto_tree_add_boolean(tree, hf_fcels_cmn_seqcnt, tvb, offset, 2, flags);
-	if (flags&0x0002){
-		proto_item_append_text(item, "  Cont. Incr SEQCNT rules");
-	} else {
-		proto_item_append_text(item, "  Normal SEQCNT rules");
-	}
-	flags&=(~( 0x0002 ));
+        proto_tree_add_boolean(tree, hf_fcels_cmn_e_d_tov, tvb, offset, 2, flags);
+        if (flags&0x0400){
+            proto_item_append_text(item, "  E_D_TOV Resolution in ns");
+        } else {
+            proto_item_append_text(item, "  E_D_TOV Resolution in ms");
+        }
+        flags&=(~( 0x0400 ));
+
+        proto_tree_add_boolean(tree, hf_fcels_cmn_simplex, tvb, offset, 2, flags);
+        if (flags&0x0040){
+            proto_item_append_text(item, "  Simplex Dedicated Conn Supported");
+        }
+        flags&=(~( 0x0040 ));
     }
 
-	proto_tree_add_boolean(tree, hf_fcels_cmn_payload, tvb, offset, 2, flags);
-	if (flags&0x0001){
-		proto_item_append_text(item, "  Payload Len=256 bytes");
-	} else {
-		proto_item_append_text(item, "  Payload Len=116 bytes");
-	}
-	flags&=(~( 0x0001 ));
+    proto_tree_add_boolean(tree, hf_fcels_cmn_multicast, tvb, offset, 2, flags);
+    if (flags&0x0200){
+        proto_item_append_text(item, "  Multicast Supported");
+    }
+    flags&=(~( 0x0200 ));
+
+    proto_tree_add_boolean(tree, hf_fcels_cmn_broadcast, tvb, offset, 2, flags);
+    if (flags&0x0100){
+        proto_item_append_text(item, "  Broadcast Supported");
+    }
+    flags&=(~( 0x0100 ));
+
+    proto_tree_add_boolean(tree, hf_fcels_cmn_security, tvb, offset, 2, flags);
+    if (flags&0x0020){
+        proto_item_append_text(item, "  Security Bit");
+    }
+    flags&=(~( 0x0020 ));
+
+    proto_tree_add_boolean(tree, hf_fcels_cmn_clk, tvb, offset, 2, flags);
+    if (flags&0x0010){
+        proto_item_append_text(item, "  Clk Sync Prim Capable");
+    }
+    flags&=(~( 0x0010 ));
+
+    proto_tree_add_boolean(tree, hf_fcels_cmn_dhd, tvb, offset, 2, flags);
+    if (flags&0x0004){
+        proto_item_append_text(item, "  DHD Capable");
+    }
+    flags&=(~( 0x0004 ));
+
+    if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
+        proto_tree_add_boolean(tree, hf_fcels_cmn_seqcnt, tvb, offset, 2, flags);
+        if (flags&0x0002){
+            proto_item_append_text(item, "  Cont. Incr SEQCNT rules");
+        } else {
+            proto_item_append_text(item, "  Normal SEQCNT rules");
+        }
+        flags&=(~( 0x0002 ));
+    }
+
+    proto_tree_add_boolean(tree, hf_fcels_cmn_payload, tvb, offset, 2, flags);
+    if (flags&0x0001){
+        proto_item_append_text(item, "  Payload Len=256 bytes");
+    } else {
+        proto_item_append_text(item, "  Payload Len=116 bytes");
+    }
+    flags&=(~( 0x0001 ));
 }
 
 
 static const true_false_string tfs_fc_fcels_cls_cns = {
-	"Class IS Supported",
-	"Class NOT supported"
+    "Class IS Supported",
+    "Class NOT supported"
 };
 static const true_false_string tfs_fc_fcels_cls_sdr = {
-	"Seq Delivery Requested",
-	"Out of Order Delivery Requested"
+    "Seq Delivery Requested",
+    "Out of Order Delivery Requested"
 };
 static const true_false_string tfs_fc_fcels_cls_prio = {
-	"Priority/preemption Supported",
-	"Priority/preemption NOT supported"
+    "Priority/preemption Supported",
+    "Priority/preemption NOT supported"
 };
 static const true_false_string tfs_fc_fcels_cls_nzctl = {
-	"Non-zero CS_CTL Tolerated",
-	"Non-zero CS_CTL Maybe Tolerated"
+    "Non-zero CS_CTL Tolerated",
+    "Non-zero CS_CTL Maybe Tolerated"
 };
 
 /* The next 3 routines decode only Class 2 & Class 3 relevant bits */
 static void
 dissect_clssvc_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags, guint8 opcode)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
-    
-	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hf_fcels_clsflags, 
-				tvb, offset, 2, flags);
-		tree=proto_item_add_subtree(item, ett_fcels_clsflags);
-	}
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
 
-	proto_tree_add_boolean(tree, hf_fcels_cls_cns, tvb, offset, 2, flags);
-	if (!(flags&0x8000)){
-		proto_item_append_text(item, "  Class Not Supported");
-		return;
-	}
-	flags&=(~( 0x8000 ));
+    if(parent_tree){
+        item=proto_tree_add_uint(parent_tree, hf_fcels_clsflags,
+                                 tvb, offset, 2, flags);
+        tree=proto_item_add_subtree(item, ett_fcels_clsflags);
+    }
 
-	if ((opcode == FC_ELS_FLOGI) || (opcode == FC_ELS_FDISC)) {
-		proto_tree_add_boolean(tree, hf_fcels_cls_sdr, tvb, offset, 2, flags);
-		if (flags&0x0800){
-			proto_item_append_text(item, "  Seq Delivery Requested");
-		} else {
-			proto_item_append_text(item, "  Out of Order Delivery Requested");
-		}
-		flags&=(~( 0x0800 ));
-	}
+    proto_tree_add_boolean(tree, hf_fcels_cls_cns, tvb, offset, 2, flags);
+    if (!(flags&0x8000)){
+        proto_item_append_text(item, "  Class Not Supported");
+        return;
+    }
+    flags&=(~( 0x8000 ));
 
-	proto_tree_add_boolean(tree, hf_fcels_cls_prio, tvb, offset, 2, flags);
-	if (flags&0x0080){
-		proto_item_append_text(item, "  Priority/preemption Supported");
-	}
-	flags&=(~( 0x0080 ));
+    if ((opcode == FC_ELS_FLOGI) || (opcode == FC_ELS_FDISC)) {
+        proto_tree_add_boolean(tree, hf_fcels_cls_sdr, tvb, offset, 2, flags);
+        if (flags&0x0800){
+            proto_item_append_text(item, "  Seq Delivery Requested");
+        } else {
+            proto_item_append_text(item, "  Out of Order Delivery Requested");
+        }
+        flags&=(~( 0x0800 ));
+    }
 
-	if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
-		proto_tree_add_boolean(tree, hf_fcels_cls_nzctl, tvb, offset, 2, flags);
-		if (flags & 0x0040) {
-			proto_item_append_text(item, "  Non-zero CS_CTL Tolerated");
-		} else {
-			proto_item_append_text(item, "  Non-zero CS_CTL Maybe Tolerated");
-		}
-		flags&=(~( 0x0040 ));
-	}
+    proto_tree_add_boolean(tree, hf_fcels_cls_prio, tvb, offset, 2, flags);
+    if (flags&0x0080){
+        proto_item_append_text(item, "  Priority/preemption Supported");
+    }
+    flags&=(~( 0x0080 ));
+
+    if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
+        proto_tree_add_boolean(tree, hf_fcels_cls_nzctl, tvb, offset, 2, flags);
+        if (flags & 0x0040) {
+            proto_item_append_text(item, "  Non-zero CS_CTL Tolerated");
+        } else {
+            proto_item_append_text(item, "  Non-zero CS_CTL Maybe Tolerated");
+        }
+        flags&=(~( 0x0040 ));
+    }
 }
 
 
 static const true_false_string tfs_fc_fcels_fcpflags_trireq = {
-	"Task Retry Ident REQUESTED",
-	"Task retry ident NOT requested"
+    "Task Retry Ident REQUESTED",
+    "Task retry ident NOT requested"
 };
 static const true_false_string tfs_fc_fcels_fcpflags_trirep = {
-	"Task Retry Ident ACCEPTED",
-	"Task retry ident NOT accepted"
+    "Task Retry Ident ACCEPTED",
+    "Task retry ident NOT accepted"
 };
 static const true_false_string tfs_fc_fcels_fcpflags_retry = {
-	"Retry Possible",
-	"Retry NOT possible"
+    "Retry Possible",
+    "Retry NOT possible"
 };
 static const true_false_string tfs_fc_fcels_fcpflags_ccomp = {
-	"Confirmed Comp",
-	"Comp NOT confirmed"
+    "Confirmed Comp",
+    "Comp NOT confirmed"
 };
 static const true_false_string tfs_fc_fcels_fcpflags_datao = {
-	"Data Overlay",
-	"NO data overlay"
+    "Data Overlay",
+    "NO data overlay"
 };
 static const true_false_string tfs_fc_fcels_fcpflags_initiator = {
-	"Initiator",
-	"NOT an initiator"
+    "Initiator",
+    "NOT an initiator"
 };
 static const true_false_string tfs_fc_fcels_fcpflags_target = {
-	"Target",
-	"NOT a target"
+    "Target",
+    "NOT a target"
 };
 static const true_false_string tfs_fc_fcels_fcpflags_rdxr = {
-	"Rd Xfer_Rdy Dis",
-	"NO rd xfer_rdy dis"
+    "Rd Xfer_Rdy Dis",
+    "NO rd xfer_rdy dis"
 };
 static const true_false_string tfs_fc_fcels_fcpflags_wrxr = {
-	"Wr Xfer_Rdy Dis",
-	"NO wr xfer_rdy dis"
+    "Wr Xfer_Rdy Dis",
+    "NO wr xfer_rdy dis"
 };
 
 static void
 dissect_fcp_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 flags, guint8 isreq)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
-    
-	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hf_fcels_fcpflags, 
-				tvb, offset, 4, flags);
-		tree=proto_item_add_subtree(item, ett_fcels_fcpflags);
-	}
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
 
-	if (isreq) {
-		proto_tree_add_boolean(tree, hf_fcels_fcpflags_trireq, tvb, offset, 4, flags);
-		if (flags&0x2000){
-			proto_item_append_text(item, "  Task Retry Ident Req");
-		}
-	} else {
-		proto_tree_add_boolean(tree, hf_fcels_fcpflags_trirep, tvb, offset, 4, flags);
-		if (flags&0x2000){
-			proto_item_append_text(item, "  Task Retry Ident Acc");
-		}
-	}
-	flags&=(~( 0x2000 ));
+    if(parent_tree){
+        item=proto_tree_add_uint(parent_tree, hf_fcels_fcpflags,
+                                 tvb, offset, 4, flags);
+        tree=proto_item_add_subtree(item, ett_fcels_fcpflags);
+    }
 
-	proto_tree_add_boolean(tree, hf_fcels_fcpflags_retry, tvb, offset, 4, flags);
-	if (flags&0x1000){
-		proto_item_append_text(item, "  Retry Possible");
-	}
-	flags&=(~( 0x1000 ));
+    if (isreq) {
+        proto_tree_add_boolean(tree, hf_fcels_fcpflags_trireq, tvb, offset, 4, flags);
+        if (flags&0x2000){
+            proto_item_append_text(item, "  Task Retry Ident Req");
+        }
+    } else {
+        proto_tree_add_boolean(tree, hf_fcels_fcpflags_trirep, tvb, offset, 4, flags);
+        if (flags&0x2000){
+            proto_item_append_text(item, "  Task Retry Ident Acc");
+        }
+    }
+    flags&=(~( 0x2000 ));
 
-	proto_tree_add_boolean(tree, hf_fcels_fcpflags_ccomp, tvb, offset, 4, flags);
-	if (flags&0x0080){
-		proto_item_append_text(item, "  Confirmed Comp");
-	}
-	flags&=(~( 0x0080 ));
+    proto_tree_add_boolean(tree, hf_fcels_fcpflags_retry, tvb, offset, 4, flags);
+    if (flags&0x1000){
+        proto_item_append_text(item, "  Retry Possible");
+    }
+    flags&=(~( 0x1000 ));
 
-	proto_tree_add_boolean(tree, hf_fcels_fcpflags_datao, tvb, offset, 4, flags);
-	if (flags&0x0040){
-		proto_item_append_text(item, "  Data Overlay");
-	}
-	flags&=(~( 0x0040 ));
+    proto_tree_add_boolean(tree, hf_fcels_fcpflags_ccomp, tvb, offset, 4, flags);
+    if (flags&0x0080){
+        proto_item_append_text(item, "  Confirmed Comp");
+    }
+    flags&=(~( 0x0080 ));
 
-	proto_tree_add_boolean(tree, hf_fcels_fcpflags_initiator, tvb, offset, 4, flags);
-	if (flags&0x0020){
-		proto_item_append_text(item, "  Initiator");
-	}
-	flags&=(~( 0x0020 ));
+    proto_tree_add_boolean(tree, hf_fcels_fcpflags_datao, tvb, offset, 4, flags);
+    if (flags&0x0040){
+        proto_item_append_text(item, "  Data Overlay");
+    }
+    flags&=(~( 0x0040 ));
 
-	proto_tree_add_boolean(tree, hf_fcels_fcpflags_target, tvb, offset, 4, flags);
-	if (flags&0x0010){
-		proto_item_append_text(item, "  Target");
-	}
-	flags&=(~( 0x0010 ));
+    proto_tree_add_boolean(tree, hf_fcels_fcpflags_initiator, tvb, offset, 4, flags);
+    if (flags&0x0020){
+        proto_item_append_text(item, "  Initiator");
+    }
+    flags&=(~( 0x0020 ));
 
-	proto_tree_add_boolean(tree, hf_fcels_fcpflags_rdxr, tvb, offset, 4, flags);
-	if (flags&0x0002){
-		proto_item_append_text(item, "  Rd Xfer_Rdy Dis");
-	}
-	flags&=(~( 0x0002 ));
+    proto_tree_add_boolean(tree, hf_fcels_fcpflags_target, tvb, offset, 4, flags);
+    if (flags&0x0010){
+        proto_item_append_text(item, "  Target");
+    }
+    flags&=(~( 0x0010 ));
 
-	proto_tree_add_boolean(tree, hf_fcels_fcpflags_wrxr, tvb, offset, 4, flags);
-	if (flags&0x0001){
-		proto_item_append_text(item, "  Wr Xfer_Rdy Dis");
-	}
-	flags&=(~( 0x0001 ));
+    proto_tree_add_boolean(tree, hf_fcels_fcpflags_rdxr, tvb, offset, 4, flags);
+    if (flags&0x0002){
+        proto_item_append_text(item, "  Rd Xfer_Rdy Dis");
+    }
+    flags&=(~( 0x0002 ));
+
+    proto_tree_add_boolean(tree, hf_fcels_fcpflags_wrxr, tvb, offset, 4, flags);
+    if (flags&0x0001){
+        proto_item_append_text(item, "  Wr Xfer_Rdy Dis");
+    }
+    flags&=(~( 0x0001 ));
 }
 
 
 static const true_false_string tfs_fc_fcels_speedflags_1gb = {
-	"1Gbit/second supported",
-	"1Gbit/second NOT supported"
+    "1Gbit/second supported",
+    "1Gbit/second NOT supported"
 };
 static const true_false_string tfs_fc_fcels_speedflags_2gb = {
-	"2Gbit/second supported",
-	"2Gbit/second NOT supported"
+    "2Gbit/second supported",
+    "2Gbit/second NOT supported"
 };
 static const true_false_string tfs_fc_fcels_speedflags_4gb = {
-	"4Gbit/second supported",
-	"4Gbit/second NOT supported"
+    "4Gbit/second supported",
+    "4Gbit/second NOT supported"
 };
 static const true_false_string tfs_fc_fcels_speedflags_10gb = {
-	"10Gbit/second supported",
-	"10Gbit/second NOT supported"
+    "10Gbit/second supported",
+    "10Gbit/second NOT supported"
 };
 
 static void
 dissect_speed_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 flags, int port)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
-    
-	if(parent_tree){
-		item=proto_tree_add_uint_format(parent_tree, hf_fcels_speedflags, 
-				tvb, offset, 2, flags,
-				"Port Speed Capabilities (Port %u): 0x%04x",
-				port, flags);
-		tree=proto_item_add_subtree(item, ett_fcels_speedflags);
-	}
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
 
-	proto_tree_add_boolean(tree, hf_fcels_speedflags_1gb, tvb, offset, 2, flags);
-	if (flags&0x8000){
-		proto_item_append_text(item, "  1Gb");
-	}
-	flags&=(~( 0x8000 ));
+    if(parent_tree){
+        item=proto_tree_add_uint_format(parent_tree, hf_fcels_speedflags,
+                                        tvb, offset, 2, flags,
+                                        "Port Speed Capabilities (Port %u): 0x%04x",
+                                        port, flags);
+        tree=proto_item_add_subtree(item, ett_fcels_speedflags);
+    }
 
-	proto_tree_add_boolean(tree, hf_fcels_speedflags_2gb, tvb, offset, 2, flags);
-	if (flags&0x4000){
-		proto_item_append_text(item, "  2Gb");
-	}
-	flags&=(~( 0x4000 ));
+    proto_tree_add_boolean(tree, hf_fcels_speedflags_1gb, tvb, offset, 2, flags);
+    if (flags&0x8000){
+        proto_item_append_text(item, "  1Gb");
+    }
+    flags&=(~( 0x8000 ));
 
-	proto_tree_add_boolean(tree, hf_fcels_speedflags_4gb, tvb, offset, 2, flags);
-	if (flags&0x2000){
-		proto_item_append_text(item, "  4Gb");
-	}
-	flags&=(~( 0x2000 ));
+    proto_tree_add_boolean(tree, hf_fcels_speedflags_2gb, tvb, offset, 2, flags);
+    if (flags&0x4000){
+        proto_item_append_text(item, "  2Gb");
+    }
+    flags&=(~( 0x4000 ));
 
-	proto_tree_add_boolean(tree, hf_fcels_speedflags_10gb, tvb, offset, 2, flags);
-	if (flags&0x1000){
-		proto_item_append_text(item, "  10Gb");
-	}
-	flags&=(~( 0x1000 ));
+    proto_tree_add_boolean(tree, hf_fcels_speedflags_4gb, tvb, offset, 2, flags);
+    if (flags&0x2000){
+        proto_item_append_text(item, "  4Gb");
+    }
+    flags&=(~( 0x2000 ));
+
+    proto_tree_add_boolean(tree, hf_fcels_speedflags_10gb, tvb, offset, 2, flags);
+    if (flags&0x1000){
+        proto_item_append_text(item, "  10Gb");
+    }
+    flags&=(~( 0x1000 ));
 }
 
 static const true_false_string tfs_fc_fcels_tprloflags_opav = {
-	"3rd Party Orig PA Valid",
-	"3rd party orig pa is NOT valid"
+    "3rd Party Orig PA Valid",
+    "3rd party orig pa is NOT valid"
 };
 static const true_false_string tfs_fc_fcels_tprloflags_rpav = {
-	"Resp PA Valid",
-	"Resp pa is NOT valid"
+    "Resp PA Valid",
+    "Resp pa is NOT valid"
 };
 static const true_false_string tfs_fc_fcels_tprloflags_npv = {
-	"3rd Party N_Port Valid",
-	"3rd party n_port is NOT valid"
+    "3rd Party N_Port Valid",
+    "3rd party n_port is NOT valid"
 };
 static const true_false_string tfs_fc_fcels_tprloflags_gprlo = {
-	"Global PRLO",
-	"NO global prlo"
+    "Global PRLO",
+    "NO global prlo"
 };
 static const true_false_string tfs_fc_fcels_prliloflags_opav = {
-	"Orig PA Valid",
-	"Orig pa is NOT valid"
+    "Orig PA Valid",
+    "Orig pa is NOT valid"
 };
 static const true_false_string tfs_fc_fcels_prliloflags_ipe = {
-	"Image Pair Estd",
-	"Image pair NOT estd"
+    "Image Pair Estd",
+    "Image pair NOT estd"
 };
 static const true_false_string tfs_fc_fcels_prliloflags_eip = {
-	"Est Image Pair & Exchg Svc Param",
-	"Exchange Svc Param Only"
+    "Est Image Pair & Exchg Svc Param",
+    "Exchange Svc Param Only"
 };
 
 static void
 dissect_prlilo_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, int flags, guint8 opcode)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
-    
-	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hf_fcels_prliloflags, 
-				tvb, offset, 1, flags);
-		tree=proto_item_add_subtree(item, ett_fcels_prliloflags);
-	}
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
 
-        if (opcode == FC_ELS_TPRLO) {
-		proto_tree_add_boolean(tree, hf_fcels_tprloflags_opav, tvb, offset, 1, flags);
-		if (flags&0x80){
-			proto_item_append_text(item, "  3rd Party Orig PA Valid");
-		}
-		flags&=(~( 0x80 ));
-	
-		proto_tree_add_boolean(tree, hf_fcels_tprloflags_rpav, tvb, offset, 1, flags);
-		if (flags&0x40){
-			proto_item_append_text(item, "  Resp PA Valid");
-		}
-		flags&=(~( 0x40 ));
+    if(parent_tree){
+        item=proto_tree_add_uint(parent_tree, hf_fcels_prliloflags,
+                                 tvb, offset, 1, flags);
+        tree=proto_item_add_subtree(item, ett_fcels_prliloflags);
+    }
 
-		proto_tree_add_boolean(tree, hf_fcels_tprloflags_npv, tvb, offset, 1, flags);
-		if (flags&0x20){
-			proto_item_append_text(item, "  3rd Party N_Port Valid");
-		}
-		flags&=(~( 0x20 ));
+    if (opcode == FC_ELS_TPRLO) {
+        proto_tree_add_boolean(tree, hf_fcels_tprloflags_opav, tvb, offset, 1, flags);
+        if (flags&0x80){
+            proto_item_append_text(item, "  3rd Party Orig PA Valid");
+        }
+        flags&=(~( 0x80 ));
 
-		proto_tree_add_boolean(tree, hf_fcels_tprloflags_gprlo, tvb, offset, 1, flags);
-		if (flags&0x10){
-			proto_item_append_text(item, "  Global PRLO");
-		}
-		flags&=(~( 0x10 ));
-	} else { /* opcode != TPRLO */
-		proto_tree_add_boolean(tree, hf_fcels_prliloflags_opav, tvb, offset, 1, flags);
-		if (flags&0x80){
-			proto_item_append_text(item, "  Orig PA Valid");
-		}
-		flags&=(~( 0x80 ));
+        proto_tree_add_boolean(tree, hf_fcels_tprloflags_rpav, tvb, offset, 1, flags);
+        if (flags&0x40){
+            proto_item_append_text(item, "  Resp PA Valid");
+        }
+        flags&=(~( 0x40 ));
 
-		proto_tree_add_boolean(tree, hf_fcels_tprloflags_rpav, tvb, offset, 1, flags);
-		if (flags&0x40){
-			proto_item_append_text(item, "  Resp PA Valid");
-		}
-		flags&=(~( 0x40 ));
+        proto_tree_add_boolean(tree, hf_fcels_tprloflags_npv, tvb, offset, 1, flags);
+        if (flags&0x20){
+            proto_item_append_text(item, "  3rd Party N_Port Valid");
+        }
+        flags&=(~( 0x20 ));
 
-		if (opcode == FC_ELS_PRLI) {
-			proto_tree_add_boolean(tree, hf_fcels_prliloflags_ipe, tvb, offset, 1, flags);
-			if (flags&0x20){
-				proto_item_append_text(item, "  Image Pair Estd");
-			} else {
-				proto_item_append_text(item, "  Image Pair NOT Estd");
-			}
-			flags&=(~( 0x20 ));
-		} else {
-			proto_tree_add_boolean(tree, hf_fcels_prliloflags_eip, tvb, offset, 1, flags);
-			if (flags&0x20){
-				proto_item_append_text(item, "  Est Image Pair & Exchg Svc Param");
-			} else {
-				proto_item_append_text(item, "  Exchange Svc Param Only");
-			}
-			flags&=(~( 0x20 ));
-		}
-	}
+        proto_tree_add_boolean(tree, hf_fcels_tprloflags_gprlo, tvb, offset, 1, flags);
+        if (flags&0x10){
+            proto_item_append_text(item, "  Global PRLO");
+        }
+        flags&=(~( 0x10 ));
+    } else { /* opcode != TPRLO */
+        proto_tree_add_boolean(tree, hf_fcels_prliloflags_opav, tvb, offset, 1, flags);
+        if (flags&0x80){
+            proto_item_append_text(item, "  Orig PA Valid");
+        }
+        flags&=(~( 0x80 ));
+
+        proto_tree_add_boolean(tree, hf_fcels_tprloflags_rpav, tvb, offset, 1, flags);
+        if (flags&0x40){
+            proto_item_append_text(item, "  Resp PA Valid");
+        }
+        flags&=(~( 0x40 ));
+
+        if (opcode == FC_ELS_PRLI) {
+            proto_tree_add_boolean(tree, hf_fcels_prliloflags_ipe, tvb, offset, 1, flags);
+            if (flags&0x20){
+                proto_item_append_text(item, "  Image Pair Estd");
+            } else {
+                proto_item_append_text(item, "  Image Pair NOT Estd");
+            }
+            flags&=(~( 0x20 ));
+        } else {
+            proto_tree_add_boolean(tree, hf_fcels_prliloflags_eip, tvb, offset, 1, flags);
+            if (flags&0x20){
+                proto_item_append_text(item, "  Est Image Pair & Exchg Svc Param");
+            } else {
+                proto_item_append_text(item, "  Exchange Svc Param Only");
+            }
+            flags&=(~( 0x20 ));
+        }
+    }
 }
 
 static const value_string initial_pa_vals[] = {
-	{ 0, "Initial P_A Not Supported" },
-	{ 1, "Initial P_A Supported" },
-	{ 3, "Initial P_A Required & Supported" },
-	{ 0, NULL }
+    { 0, "Initial P_A Not Supported" },
+    { 1, "Initial P_A Supported" },
+    { 3, "Initial P_A Required & Supported" },
+    { 0, NULL }
 };
 static const true_false_string tfs_fc_fcels_initctl_ack0 = {
-	"ACK0 Capable",
-	"NOT Ack0 capable"
+    "ACK0 Capable",
+    "NOT Ack0 capable"
 };
 static const true_false_string tfs_fc_fcels_initctl_ackgaa = {
-	"ACK Generation Assistance Avail",
-	"NO ack generation assistance"
+    "ACK Generation Assistance Avail",
+    "NO ack generation assistance"
 };
 static const true_false_string tfs_fc_fcels_initctl_sync = {
-	"Clock Sync ELS Supported",
-	"NO clock sync els support"
+    "Clock Sync ELS Supported",
+    "NO clock sync els support"
 };
 
 static void
 dissect_initctl_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags, guint8 opcode)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
-    
-	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hf_fcels_initctl, 
-				tvb, offset, 2, flags);
-		tree=proto_item_add_subtree(item, ett_fcels_initctl);
-	}
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
 
-	if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
-		proto_tree_add_uint(tree, hf_fcels_initctl_initial_pa, 
-				tvb, offset, 2, flags);
-		proto_item_append_text(item, "  %s", 
-			val_to_str((flags&0x3000)>>12, initial_pa_vals,
-				"0x%02x") 
-			);
-		flags&=(~( 0x3000 ));
+    if(parent_tree){
+        item=proto_tree_add_uint(parent_tree, hf_fcels_initctl,
+                                 tvb, offset, 2, flags);
+        tree=proto_item_add_subtree(item, ett_fcels_initctl);
+    }
 
-		proto_tree_add_boolean(tree, hf_fcels_initctl_ack0, tvb, offset, 2, flags);
-		if (flags&0x0800){
-			proto_item_append_text(item, "  ACK0 Capable");
-		}
-		flags&=(~( 0x0800 ));
+    if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
+        proto_tree_add_uint(tree, hf_fcels_initctl_initial_pa,
+                            tvb, offset, 2, flags);
+        proto_item_append_text(item, "  %s",
+                               val_to_str((flags&0x3000)>>12, initial_pa_vals,
+                                          "0x%02x")
+            );
+        flags&=(~( 0x3000 ));
 
-		proto_tree_add_boolean(tree, hf_fcels_initctl_ackgaa, tvb, offset, 2, flags);
-		if (flags&0x0200){
-			proto_item_append_text(item, "  ACK Generation Assistance Avail");
-		}
-		flags&=(~( 0x0200 ));
+        proto_tree_add_boolean(tree, hf_fcels_initctl_ack0, tvb, offset, 2, flags);
+        if (flags&0x0800){
+            proto_item_append_text(item, "  ACK0 Capable");
+        }
+        flags&=(~( 0x0800 ));
 
-	}
+        proto_tree_add_boolean(tree, hf_fcels_initctl_ackgaa, tvb, offset, 2, flags);
+        if (flags&0x0200){
+            proto_item_append_text(item, "  ACK Generation Assistance Avail");
+        }
+        flags&=(~( 0x0200 ));
+
+    }
 
 
-	proto_tree_add_boolean(tree, hf_fcels_initctl_sync, tvb, offset, 2, flags);
-	if (flags&0x0010){
-		proto_item_append_text(item, "  Clock Sync ELS Supported");
-	}
-	flags&=(~( 0x0010 ));
+    proto_tree_add_boolean(tree, hf_fcels_initctl_sync, tvb, offset, 2, flags);
+    if (flags&0x0010){
+        proto_item_append_text(item, "  Clock Sync ELS Supported");
+    }
+    flags&=(~( 0x0010 ));
 }
 
 
 static const true_false_string tfs_fc_fcels_rcptctl_ack0 = {
-	"ACK0 Supported",
-	"Ack0 NOT supported"
+    "ACK0 Supported",
+    "Ack0 NOT supported"
 };
 static const true_false_string tfs_fc_fcels_rcptctl_interlock = {
-	"X_ID Interlock Reqd",
-	"X_id interlock NOT reqd"
+    "X_ID Interlock Reqd",
+    "X_id interlock NOT reqd"
 };
 static const value_string rcptctl_policy_vals[] = {
-	{ 0, "Error Policy: Discard Policy only" },
-	{ 1, "Error Policy: Reserved" },
-	{ 2, "Error Policy: Both discard and process policies supported" },
-	{ 3, "Error Policy: Reserved" },
-	{ 0, NULL }
+    { 0, "Error Policy: Discard Policy only" },
+    { 1, "Error Policy: Reserved" },
+    { 2, "Error Policy: Both discard and process policies supported" },
+    { 3, "Error Policy: Reserved" },
+    { 0, NULL }
 };
 static const value_string rcptctl_category_vals[] = {
-	{ 0, "1 Category/Seq" },
-	{ 1, "2 Categories/Seq" },
-	{ 3, "More than 2 Categories/Seq" },
-	{ 0, NULL }
+    { 0, "1 Category/Seq" },
+    { 1, "2 Categories/Seq" },
+    { 3, "More than 2 Categories/Seq" },
+    { 0, NULL }
 };
 static const true_false_string tfs_fc_fcels_rcptctl_sync = {
-	"Clock Sync ELS Supported",
-	"NO clock sync els support"
+    "Clock Sync ELS Supported",
+    "NO clock sync els support"
 };
 
 static void
 dissect_rcptctl_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags, guint8 opcode)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
-    
-	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hf_fcels_rcptctl, 
-				tvb, offset, 2, flags);
-		tree=proto_item_add_subtree(item, ett_fcels_rcptctl);
-	}
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
 
-	if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
-		proto_tree_add_boolean(tree, hf_fcels_rcptctl_ack0, tvb, offset, 2, flags);
-		if (flags&0x8000){
-			proto_item_append_text(item, "  ACK0 Supported");
-		} else {
-			proto_item_append_text(item, "  ACK0 NOT Supported");
-		}
-		flags&=(~( 0x8000 ));
+    if(parent_tree){
+        item=proto_tree_add_uint(parent_tree, hf_fcels_rcptctl,
+                                 tvb, offset, 2, flags);
+        tree=proto_item_add_subtree(item, ett_fcels_rcptctl);
+    }
 
-		proto_tree_add_boolean(tree, hf_fcels_rcptctl_interlock, tvb, offset, 2, flags);
-		if (flags&0x2000){
-			proto_item_append_text(item, "  X_ID Interlock Reqd");
-		}
-		flags&=(~( 0x2000 ));
+    if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
+        proto_tree_add_boolean(tree, hf_fcels_rcptctl_ack0, tvb, offset, 2, flags);
+        if (flags&0x8000){
+            proto_item_append_text(item, "  ACK0 Supported");
+        } else {
+            proto_item_append_text(item, "  ACK0 NOT Supported");
+        }
+        flags&=(~( 0x8000 ));
 
-		proto_tree_add_uint(tree, hf_fcels_rcptctl_policy, 
-				tvb, offset, 2, flags);
-		proto_item_append_text(item, "  %s", 
-			val_to_str((flags&0x1800)>>11, rcptctl_policy_vals,
-				"0x%02x") 
-			);
-		flags&=(~( 0x1800 ));
+        proto_tree_add_boolean(tree, hf_fcels_rcptctl_interlock, tvb, offset, 2, flags);
+        if (flags&0x2000){
+            proto_item_append_text(item, "  X_ID Interlock Reqd");
+        }
+        flags&=(~( 0x2000 ));
 
-		proto_tree_add_uint(tree, hf_fcels_rcptctl_category, 
-				tvb, offset, 2, flags);
-		proto_item_append_text(item, "  %s", 
-			val_to_str((flags&0x0030)>>4, rcptctl_category_vals,
-				"0x%02x") 
-			);
-		flags&=(~( 0x0030 ));
-	}
+        proto_tree_add_uint(tree, hf_fcels_rcptctl_policy,
+                            tvb, offset, 2, flags);
+        proto_item_append_text(item, "  %s",
+                               val_to_str((flags&0x1800)>>11, rcptctl_policy_vals,
+                                          "0x%02x")
+            );
+        flags&=(~( 0x1800 ));
 
-	proto_tree_add_boolean(tree, hf_fcels_rcptctl_sync, tvb, offset, 2, flags);
-	if (flags&0x0008){
-		proto_item_append_text(item, "  Clock Sync ELS Supported");
-	}
-	flags&=(~( 0x0008 ));
+        proto_tree_add_uint(tree, hf_fcels_rcptctl_category,
+                            tvb, offset, 2, flags);
+        proto_item_append_text(item, "  %s",
+                               val_to_str((flags&0x0030)>>4, rcptctl_category_vals,
+                                          "0x%02x")
+            );
+        flags&=(~( 0x0030 ));
+    }
+
+    proto_tree_add_boolean(tree, hf_fcels_rcptctl_sync, tvb, offset, 2, flags);
+    if (flags&0x0008){
+        proto_item_append_text(item, "  Clock Sync ELS Supported");
+    }
+    flags&=(~( 0x0008 ));
 }
 
 /* Maximum length of possible string from, construct_*_string
@@ -982,19 +982,19 @@ dissect_fcels_logi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (tree) {
         logi_tree = proto_item_add_subtree (ti, ett_fcels_logi);
         proto_tree_add_item (logi_tree, hf_fcels_opcode, tvb, offset, 1, FALSE);
-        
+
         subti = proto_tree_add_text (logi_tree, tvb, offset+4, 16,
                                      "Common Svc Parameters");
         cmnsvc_tree = proto_item_add_subtree (subti, ett_fcels_logi_cmnsvc);
         proto_tree_add_item (cmnsvc_tree, hf_fcels_b2b, tvb, offset+6, 2, FALSE);
         flag = tvb_get_ntohs (tvb, offset+8);
-        
+
         if (flag & 0x0001) {
             svcvld = 1;
         }
 
         dissect_cmnsvc (cmnsvc_tree, tvb, offset+8, flag, opcode);
-        
+
         proto_tree_add_item (cmnsvc_tree, hf_fcels_bbscnum, tvb, offset+10, 1, FALSE);
         proto_tree_add_item (cmnsvc_tree, hf_fcels_rcvsize, tvb, offset+10, 2, FALSE);
         proto_tree_add_item (cmnsvc_tree, hf_fcels_maxconseq, tvb, offset+12, 2, FALSE);
@@ -1070,7 +1070,7 @@ dissect_fcels_logout (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             /* Accept has no payload */
             return;
         }
-        
+
         proto_tree_add_string (logo_tree, hf_fcels_nportid, tvb, offset, 3,
                                fc_to_str (tvb_get_ptr (tvb, offset, 3)));
         proto_tree_add_string (logo_tree, hf_fcels_npname, tvb, offset+3, 6,
@@ -1236,7 +1236,7 @@ dissect_fcels_farp (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 {
     int offset = 4;
     proto_tree *farp_tree;
-    
+
     if (tree) {
         farp_tree = proto_item_add_subtree (ti, ett_fcels_farp);
 
@@ -1388,10 +1388,10 @@ dissect_fcels_rpl (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         }
         else {
             /* Reply consists of a header and a number of port blocks */
-            proto_tree_add_text (rpl_tree, tvb, offset+2, 2, 
+            proto_tree_add_text (rpl_tree, tvb, offset+2, 2,
                                  "Payload Length: %u",
                                  tvb_get_ntohs (tvb, offset+2));
-            proto_tree_add_text (rpl_tree, tvb, offset+5, 3, 
+            proto_tree_add_text (rpl_tree, tvb, offset+5, 3,
                                  "List Length: %u",
                                  tvb_get_ntoh24 (tvb, offset+5));
             proto_tree_add_text (rpl_tree, tvb, offset+9, 3,
@@ -1464,7 +1464,7 @@ dissect_fcels_rscn (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         proto_tree_add_text (rscn_tree, tvb, offset+1, 2,
                              "Payload Len: %u", plen);
         numrec = (plen - 4)/4;
-        
+
         offset = 4;
         for (i = 0; i < numrec; i++) {
             subti = proto_tree_add_text (rscn_tree, tvb, offset, 4,
@@ -1975,7 +1975,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* decoding of this is done by each individual opcode handler */
     opcode = tvb_get_guint8 (tvb, 0);
-    
+
     if (tree) {
         ti = proto_tree_add_protocol_format (tree, proto_fcels, tvb, 0,
                                              tvb_length (tvb), "FC ELS");
@@ -2009,31 +2009,31 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         conversation = find_conversation (pinfo->fd->num, &pinfo->dst, &pinfo->src,
                                           pinfo->ptype, pinfo->oxid,
                                           pinfo->rxid, options);
-            
+
         if (!conversation) {
             conversation = conversation_new (pinfo->fd->num, &pinfo->dst, &pinfo->src,
                                              pinfo->ptype, pinfo->oxid,
                                              pinfo->rxid, options);
         }
-    
+
         ckey.conv_idx = conversation->index;
-        
+
         cdata = (fcels_conv_data_t *)g_hash_table_lookup (fcels_req_hash,
                                                           &ckey);
         if (cdata) {
             /* Since we never free the memory used by an exchange, this maybe a
              * case of another request using the same exchange as a previous
-             * req. 
+             * req.
              */
             cdata->opcode = opcode;
         }
         else {
             req_key = se_alloc (sizeof(fcels_conv_key_t));
             req_key->conv_idx = conversation->index;
-            
+
             cdata = se_alloc (sizeof(fcels_conv_data_t));
             cdata->opcode = opcode;
-            
+
             g_hash_table_insert (fcels_req_hash, req_key, cdata);
         }
     }
@@ -2085,12 +2085,12 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 failed_opcode = 0;
             }
         }
-        
+
         if (conversation) {
             ckey.conv_idx = conversation->index;
-            
+
             cdata = (fcels_conv_data_t *)g_hash_table_lookup (fcels_req_hash, &ckey);
-            
+
             if (cdata != NULL) {
                 if ((options & NO_ADDR2) && (cdata->opcode != FC_ELS_FLOGI)) {
                     /* only FLOGI can have this special check */
@@ -2109,7 +2109,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 else
                     failed_opcode = cdata->opcode;
             }
-            
+
             if (tree) {
                 if ((cdata == NULL) && (opcode != FC_ELS_LSRJT)) {
                     /* No record of what this accept is for. Can't decode */
@@ -2136,7 +2136,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                           val_to_str (opcode, fc_els_proto_val, "0x%x"));
         }
     }
-    
+
     switch (opcode) {
     case FC_ELS_LSRJT:
         dissect_fcels_lsrjt (tvb, pinfo, tree, isreq, ti);
@@ -2241,9 +2241,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_fcels (void)
-{                 
-
-/* Setup list of header fields  See Section 1.6.1 for details*/
+{
     static hf_register_info hf[] = {
         { &hf_fcels_opcode,
           {"Cmd Code", "fcels.opcode", FT_UINT8, BASE_HEX,
@@ -2357,7 +2355,7 @@ proto_register_fcels (void)
           {"Match Address Code Points", "fcels.matchcp", FT_UINT8, BASE_DEC,
            NULL, 0x0, NULL, HFILL}},
         { &hf_fcels_farp_respaction,
-          {"Responder Action", "fcels.respaction", FT_UINT8, BASE_HEX, 
+          {"Responder Action", "fcels.respaction", FT_UINT8, BASE_HEX,
            VALS (fc_els_farp_respaction_val), 0x0, NULL, HFILL}},
         { &hf_fcels_resportid,
           {"Responding Port ID", "fcels.resportid", FT_STRING, BASE_NONE,
@@ -2434,7 +2432,7 @@ proto_register_fcels (void)
           {"Vendor Specific", "fcels.rnid.vendorsp", FT_UINT16, BASE_HEX, NULL,
            0x0, NULL, HFILL}},
         { &hf_fcels_asstype,
-          {"Associated Type", "fcels.rnid.asstype", FT_UINT32, BASE_HEX, 
+          {"Associated Type", "fcels.rnid.asstype", FT_UINT32, BASE_HEX,
            VALS (fc_els_rnid_asstype_val), 0x0, NULL, HFILL}},
         { &hf_fcels_physport,
           {"Physical Port Number", "fcels.rnid.physport", FT_UINT32, BASE_HEX,
@@ -2482,55 +2480,55 @@ proto_register_fcels (void)
           {"Status", "fcels.unbind.status", FT_UINT16, BASE_DEC,
            VALS(unbind_status_vals), 0x0, "Unbind status", HFILL}},
         { &hf_fcels_cmn_cios,
-          {"Cont. Incr. Offset Supported", "fcels.cmn.cios", FT_BOOLEAN, 16, 
+          {"Cont. Incr. Offset Supported", "fcels.cmn.cios", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_cmn_cios), 0x8000, NULL, HFILL}},
         { &hf_fcels_cmn_rro,
-          {"RRO Supported", "fcels.cmn.rro", FT_BOOLEAN, 16, 
+          {"RRO Supported", "fcels.cmn.rro", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_cmn_rro), 0x4000, NULL, HFILL}},
         { &hf_fcels_cmn_vvv,
-          {"Valid Vendor Version", "fcels.cmn.vvv", FT_BOOLEAN, 16, 
+          {"Valid Vendor Version", "fcels.cmn.vvv", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_cmn_vvv), 0x2000, NULL, HFILL}},
         { &hf_fcels_cmn_b2b,
-          {"B2B Credit Mgmt", "fcels.cmn.bbb", FT_BOOLEAN, 16, 
+          {"B2B Credit Mgmt", "fcels.cmn.bbb", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_cmn_b2b), 0x0800, NULL, HFILL}},
         { &hf_fcels_cmn_e_d_tov,
-          {"E_D_TOV", "fcels.cmn.e_d_tov", FT_BOOLEAN, 16, 
+          {"E_D_TOV", "fcels.cmn.e_d_tov", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_cmn_e_d_tov), 0x0400, NULL, HFILL}},
         { &hf_fcels_cmn_simplex,
-          {"Simplex", "fcels.cmn.simplex", FT_BOOLEAN, 16, 
+          {"Simplex", "fcels.cmn.simplex", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_cmn_simplex), 0x0040, NULL, HFILL}},
         { &hf_fcels_cmn_multicast,
-          {"Multicast", "fcels.cmn.multicast", FT_BOOLEAN, 16, 
+          {"Multicast", "fcels.cmn.multicast", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_cmn_multicast), 0x0200, NULL, HFILL}},
         { &hf_fcels_cmn_broadcast,
-          {"Broadcast", "fcels.cmn.broadcast", FT_BOOLEAN, 16, 
+          {"Broadcast", "fcels.cmn.broadcast", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_cmn_broadcast), 0x0100, NULL, HFILL}},
         { &hf_fcels_cmn_security,
-          {"Security", "fcels.cmn.security", FT_BOOLEAN, 16, 
+          {"Security", "fcels.cmn.security", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_cmn_security), 0x0020, NULL, HFILL}},
         { &hf_fcels_cmn_clk,
-          {"Clk Sync", "fcels.cmn.clk", FT_BOOLEAN, 16, 
+          {"Clk Sync", "fcels.cmn.clk", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_cmn_clk), 0x0010, NULL, HFILL}},
         { &hf_fcels_cmn_dhd,
-          {"DHD Capable", "fcels.cmn.dhd", FT_BOOLEAN, 16, 
+          {"DHD Capable", "fcels.cmn.dhd", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_cmn_dhd), 0x0004, NULL, HFILL}},
         { &hf_fcels_cmn_seqcnt,
-          {"SEQCNT", "fcels.cmn.seqcnt", FT_BOOLEAN, 16, 
+          {"SEQCNT", "fcels.cmn.seqcnt", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_cmn_seqcnt), 0x0002, NULL, HFILL}},
         { &hf_fcels_cmn_payload,
-          {"Payload Len", "fcels.cmn.payload", FT_BOOLEAN, 16, 
+          {"Payload Len", "fcels.cmn.payload", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_cmn_payload), 0x0001, NULL, HFILL}},
         { &hf_fcels_cls_cns,
-          {"Class Supported", "fcels.cls.cns", FT_BOOLEAN, 16, 
+          {"Class Supported", "fcels.cls.cns", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_cls_cns), 0x8000, NULL, HFILL}},
         { &hf_fcels_cls_sdr,
-          {"Delivery Mode", "fcels.cls.sdr", FT_BOOLEAN, 16, 
+          {"Delivery Mode", "fcels.cls.sdr", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_cls_sdr), 0x0800, NULL, HFILL}},
         { &hf_fcels_cls_prio,
-          {"Priority", "fcels.cls.prio", FT_BOOLEAN, 16, 
+          {"Priority", "fcels.cls.prio", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_cls_prio), 0x0080, NULL, HFILL}},
         { &hf_fcels_cls_nzctl,
-          {"Non-zero CS_CTL", "fcels.cls.nzctl", FT_BOOLEAN, 16, 
+          {"Non-zero CS_CTL", "fcels.cls.nzctl", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_cls_nzctl), 0x0040, NULL, HFILL}},
         { &hf_fcels_initctl,
           {"Initiator Ctl", "fcels.logi.initctl", FT_UINT16, BASE_HEX,
@@ -2548,13 +2546,13 @@ proto_register_fcels (void)
           {"Clock Sync", "fcels.logi.initctl.sync", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_initctl_sync), 0x0010, NULL, HFILL}},
         { &hf_fcels_rcptctl,
-          {"Recipient Ctl", "fcels.logi.rcptctl", FT_UINT16, BASE_HEX, 
+          {"Recipient Ctl", "fcels.logi.rcptctl", FT_UINT16, BASE_HEX,
            NULL, 0x0, NULL, HFILL}},
         { &hf_fcels_rcptctl_ack0,
-          {"ACK0", "fcels.logi.rcptctl.ack", FT_BOOLEAN, 16, 
+          {"ACK0", "fcels.logi.rcptctl.ack", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_rcptctl_ack0), 0x8000, NULL, HFILL}},
         { &hf_fcels_rcptctl_interlock,
-          {"X_ID Interlock", "fcels.logi.rcptctl.interlock", FT_BOOLEAN, 16, 
+          {"X_ID Interlock", "fcels.logi.rcptctl.interlock", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_rcptctl_interlock), 0x2000, NULL, HFILL}},
         { &hf_fcels_rcptctl_policy,
           {"Policy", "fcels.logi.rcptctl.policy", FT_UINT16, BASE_HEX,
@@ -2669,19 +2667,17 @@ proto_register_fcels (void)
         &ett_fcels_srl,
         &ett_fcels_rpsc,
         &ett_fcels_cbind,
-	&ett_fcels_cmnfeatures,
-	&ett_fcels_clsflags,
-	&ett_fcels_initctl,
-	&ett_fcels_rcptctl,
-	&ett_fcels_fcpflags,
-	&ett_fcels_prliloflags,
-	&ett_fcels_speedflags,
+        &ett_fcels_cmnfeatures,
+        &ett_fcels_clsflags,
+        &ett_fcels_initctl,
+        &ett_fcels_rcptctl,
+        &ett_fcels_fcpflags,
+        &ett_fcels_prliloflags,
+        &ett_fcels_speedflags,
     };
 
-    /* Register the protocol name and description */
     proto_fcels = proto_register_protocol("FC Extended Link Svc", "FC ELS", "fcels");
 
-    /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_fcels, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     register_init_routine (&fcels_init_protocol);

@@ -80,7 +80,7 @@ static gint ett_ctdb = -1;
 static gint ett_ctdb_key = -1;
 
 /* this tree keeps track of caller/reqid for ctdb transactions */
-emem_tree_t *ctdb_transactions=NULL;
+static emem_tree_t *ctdb_transactions=NULL;
 typedef struct _ctdb_trans_t {
 	guint32 key_hash;
 	guint32 request_in;
@@ -89,7 +89,7 @@ typedef struct _ctdb_trans_t {
 } ctdb_trans_t;
 
 /* this tree keeps track of CONTROL request/responses */
-emem_tree_t *ctdb_controls=NULL;
+static emem_tree_t *ctdb_controls=NULL;
 typedef struct _ctdb_control_t {
 	guint32 opcode;
 	guint32 request_in;

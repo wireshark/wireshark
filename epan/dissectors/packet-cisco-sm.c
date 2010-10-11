@@ -12,12 +12,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -27,7 +27,7 @@
  * This is basically a glue dissector for the Cisco SM protocol.  It sits
  * between the RUDP and MTP3 layers in conversations on port 7000 between
  * SLTs and MGCs.  A link to an overview of the technology :
- * 
+ *
  * http://www.cisco.com/en/US/products/sw/netmgtsw/ps4883/products_installation_and_configuration_guide_chapter09186a008010950a.html
  *
  * Link showing debugs of the protocol:
@@ -59,14 +59,14 @@
 #define MESSAGE_TYPE_Q_RESET_RESPONSE	9
 #define MESSAGE_TYPE_PDU				0x8000
 
-const value_string sm_message_type_value[] = {
- 	{ MESSAGE_TYPE_START,				"Start Message" },
-	{ MESSAGE_TYPE_STOP,				"Stop Message" },
-	{ MESSAGE_TYPE_ACTIVE,				"Active Message" },
-	{ MESSAGE_TYPE_STANDBY,				"Standby Message" },
-	{ MESSAGE_TYPE_Q_HOLD_INVOKE,  		"Q_HOLD Invoke Message" }, 
-	{ MESSAGE_TYPE_Q_HOLD_RESPONSE,  	"Q_HOLD Response Message" }, 
-	{ MESSAGE_TYPE_Q_RESUME_INVOKE,  	"Q_RESUME Invoke Message" }, 
+static const value_string sm_message_type_value[] = {
+	{ MESSAGE_TYPE_START,			"Start Message" },
+	{ MESSAGE_TYPE_STOP,			"Stop Message" },
+	{ MESSAGE_TYPE_ACTIVE,			"Active Message" },
+	{ MESSAGE_TYPE_STANDBY,			"Standby Message" },
+	{ MESSAGE_TYPE_Q_HOLD_INVOKE,  		"Q_HOLD Invoke Message" },
+	{ MESSAGE_TYPE_Q_HOLD_RESPONSE,  	"Q_HOLD Response Message" },
+	{ MESSAGE_TYPE_Q_RESUME_INVOKE,  	"Q_RESUME Invoke Message" },
 	{ MESSAGE_TYPE_Q_RESUME_RESPONSE,	"Q_RESUME Response Message" },
 	{ MESSAGE_TYPE_Q_RESET_INVOKE,    	"Q_RESET Invoke Message" },
 	{ MESSAGE_TYPE_Q_RESET_RESPONSE,  	"Q_RESET Response Message" },
@@ -74,7 +74,7 @@ const value_string sm_message_type_value[] = {
   	{ 0,                                  	NULL }
 };
 
-const value_string sm_message_type_value_info[] = {
+static const value_string sm_message_type_value_info[] = {
         { MESSAGE_TYPE_START,                   "Start" },
         { MESSAGE_TYPE_STOP,                    "Stop" },
         { MESSAGE_TYPE_ACTIVE,                  "Active" },
@@ -93,14 +93,14 @@ const value_string sm_message_type_value_info[] = {
 #define PDU_MTP3_TO_SLT			0x10
 #define PDU_MTP3_FROM_SLT		0x11
 
-#define PDU_SET_STATE			0x44	
-#define PDU_RETURN_STATE		0x45	
+#define PDU_SET_STATE			0x44
+#define PDU_RETURN_STATE		0x45
 
-const value_string sm_pdu_type_value[] = {
-	{ PDU_MTP3_TO_SLT,			"mtp3 to SLT"},
+static const value_string sm_pdu_type_value[] = {
+	{ PDU_MTP3_TO_SLT,		"mtp3 to SLT"},
 	{ PDU_MTP3_FROM_SLT, 		"mtp3 from SLT"},
-	{ PDU_SET_STATE, 			"set session state"},
-	{ PDU_RETURN_STATE,			"return session state"},
+	{ PDU_SET_STATE, 		"set session state"},
+	{ PDU_RETURN_STATE,		"return session state"},
         { 0,                    NULL }
 };
 
@@ -151,7 +151,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SM");
 
-	if (check_col(pinfo->cinfo, COL_INFO)) 
+	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Cisco SM Packet (%s)",
 			val_to_str(sm_message_type, sm_message_type_value_info,"reserved"));
 
@@ -186,11 +186,11 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case SM_PROTOCOL_X101:
 			if (!tree)
 				return;
-			/* XXX Reveres enginered so this may not be correct!!! 
-			 * EISUP - used between Cisco HSI and Cisco PGW devices, 
-			 * uses RUDP with default port number 8003. 
-			 * Protocol stack is RUDP->Cisco SM->SDP. 
-			 * This implementation is PROPRIETARY 
+			/* XXX Reveres enginered so this may not be correct!!!
+			 * EISUP - used between Cisco HSI and Cisco PGW devices,
+			 * uses RUDP with default port number 8003.
+			 * Protocol stack is RUDP->Cisco SM->SDP.
+			 * This implementation is PROPRIETARY
 			 */
 			proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
 			length = tvb_get_ntohs(tvb,offset);
@@ -285,70 +285,62 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 void
-proto_reg_handoff_sm(void)
-{
-	sdp_handle  = find_dissector("sdp");
-	mtp3_handle = find_dissector("mtp3");
-	data_handle = find_dissector("data");
-}
-
-void
 proto_register_sm(void)
-{                 
+{
 	static hf_register_info hf[] = {
 		{ &hf_sm_sm_msg_type,
 			{ "SM Message Type",           "sm.sm_msg_type",
-			FT_UINT32, BASE_HEX, NULL, 0x0,          
+			FT_UINT32, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_sm_protocol,
 			{ "Protocol Type",           "sm.protocol",
-			FT_UINT16, BASE_HEX, NULL, 0x0,          
+			FT_UINT16, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_sm_msg_id,
 			{ "Message ID",           "sm.msgid",
-			FT_UINT16, BASE_HEX, NULL, 0x0,          
+			FT_UINT16, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_sm_msg_type,
 			{ "Message Type",           "sm.msg_type",
-			FT_UINT16, BASE_HEX, NULL, 0x0,          
+			FT_UINT16, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_sm_channel,
 			{ "Channel ID",           "sm.channel",
-			FT_UINT16, BASE_HEX, NULL, 0x0,          
+			FT_UINT16, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_sm_bearer,
 			{ "Bearer ID",           "sm.bearer",
-			FT_UINT16, BASE_HEX, NULL, 0x0,          
+			FT_UINT16, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_sm_len,
 			{ "Length",           "sm.len",
-			FT_UINT16, BASE_DEC, NULL, 0x0,          
+			FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_sm_ip_addr,
 			{ "IPv4 address","sm.ip_addr",
-			FT_IPv4,BASE_NONE,  NULL, 0x0,          
+			FT_IPv4,BASE_NONE,  NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_sm_context,
 			{ "Context","sm.context",
-			FT_UINT32, BASE_DEC, NULL, 0x0,          
+			FT_UINT32, BASE_DEC, NULL, 0x0,
 			"Context(guesswork!)", HFILL }
 		},
 		{ &hf_sm_eisup_msg_id,
 			{ "Message id","sm.eisup_message_id",
-			FT_UINT8, BASE_DEC, NULL, 0x0,          
+			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"Message id(guesswork!)", HFILL }
 		},
 		{ &hf_sm_tag,
 			{ "Tag","sm.tag",
-			FT_UINT16, BASE_DEC, NULL, 0x0,          
+			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Tag(guesswork!)", HFILL }
 		},
 	};
@@ -368,3 +360,12 @@ proto_register_sm(void)
 	proto_register_field_array(proto_sm, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
+
+void
+proto_reg_handoff_sm(void)
+{
+	sdp_handle  = find_dissector("sdp");
+	mtp3_handle = find_dissector("mtp3");
+	data_handle = find_dissector("data");
+}
+

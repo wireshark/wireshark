@@ -79,7 +79,7 @@ static dissector_handle_t llc_handle;
 static dissector_handle_t rrlp_handle;
 static dissector_handle_t data_handle;
 
-module_t *bssgp_module;
+static module_t *bssgp_module;
 
 /* Initialize the protocol and registered fields */
 static int hf_bssgp_iei_nacc_cause = -1;

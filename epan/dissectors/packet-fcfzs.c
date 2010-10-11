@@ -97,7 +97,7 @@ typedef struct _fcfzs_conv_data {
     guint32 opcode;
 } fcfzs_conv_data_t;
 
-GHashTable *fcfzs_req_hash = NULL;
+static GHashTable *fcfzs_req_hash = NULL;
 
 static dissector_handle_t data_handle;
 
@@ -107,21 +107,21 @@ static dissector_handle_t data_handle;
 static gint
 fcfzs_equal(gconstpointer v, gconstpointer w)
 {
-  const fcfzs_conv_key_t *v1 = v;
-  const fcfzs_conv_key_t *v2 = w;
+    const fcfzs_conv_key_t *v1 = v;
+    const fcfzs_conv_key_t *v2 = w;
 
-  return (v1->conv_idx == v2->conv_idx);
+    return (v1->conv_idx == v2->conv_idx);
 }
 
 static guint
 fcfzs_hash (gconstpointer v)
 {
-	const fcfzs_conv_key_t *key = v;
-	guint val;
+    const fcfzs_conv_key_t *key = v;
+    guint val;
 
-	val = key->conv_idx;
+    val = key->conv_idx;
 
-	return val;
+    return val;
 }
 
 /*
@@ -130,10 +130,10 @@ fcfzs_hash (gconstpointer v)
 static void
 fcfzs_init_protocol(void)
 {
-	if (fcfzs_req_hash)
-            g_hash_table_destroy (fcfzs_req_hash);
+    if (fcfzs_req_hash)
+        g_hash_table_destroy (fcfzs_req_hash);
 
-	fcfzs_req_hash = g_hash_table_new (fcfzs_hash, fcfzs_equal);
+    fcfzs_req_hash = g_hash_table_new (fcfzs_hash, fcfzs_equal);
 }
 
 /* Code to actually dissect the packets */
@@ -247,94 +247,94 @@ dissect_fcfzs_zoneset (tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 
 static const true_false_string tfs_fc_fcfzs_gzc_flags_hard_zones = {
-	"Hard Zones Supported",
-	"Hard zones NOT supported"
+    "Hard Zones Supported",
+    "Hard zones NOT supported"
 };
 static const true_false_string tfs_fc_fcfzs_gzc_flags_soft_zones = {
-	"Soft Zones Supported",
-	"Soft zones NOT supported"
+    "Soft Zones Supported",
+    "Soft zones NOT supported"
 };
 static const true_false_string tfs_fc_fcfzs_gzc_flags_zoneset_db = {
-	"Zone Set Database is Available",
-	"Zone set database is NOT available"
+    "Zone Set Database is Available",
+    "Zone set database is NOT available"
 };
 
 static void
 dissect_fcfzs_gzc (tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint8 isreq)
 {
-	if (!isreq) {
-		guint8 flags;
-		proto_item *item=NULL;
-		proto_tree *tree=NULL;
+    if (!isreq) {
+        guint8 flags;
+        proto_item *item=NULL;
+        proto_tree *tree=NULL;
 
-		flags = tvb_get_guint8 (tvb, offset);
-		if(parent_tree){
-			item=proto_tree_add_uint(parent_tree, hf_fcfzs_gzc_flags, tvb, offset, 1, flags);
-			tree=proto_item_add_subtree(item, ett_fcfzs_gzc_flags);
-		}
+        flags = tvb_get_guint8 (tvb, offset);
+        if(parent_tree){
+            item=proto_tree_add_uint(parent_tree, hf_fcfzs_gzc_flags, tvb, offset, 1, flags);
+            tree=proto_item_add_subtree(item, ett_fcfzs_gzc_flags);
+        }
 
-		proto_tree_add_boolean(tree, hf_fcfzs_gzc_flags_hard_zones, tvb, offset, 1, flags);
-		if (flags&0x80){
-			proto_item_append_text(item, "  Hard Zones");
-		}
-		flags&=(~( 0x80 ));
+        proto_tree_add_boolean(tree, hf_fcfzs_gzc_flags_hard_zones, tvb, offset, 1, flags);
+        if (flags&0x80){
+            proto_item_append_text(item, "  Hard Zones");
+        }
+        flags&=(~( 0x80 ));
 
-		proto_tree_add_boolean(tree, hf_fcfzs_gzc_flags_soft_zones, tvb, offset, 1, flags);
-		if (flags&0x40){
-			proto_item_append_text(item, "  Soft Zones");
-		}
-		flags&=(~( 0x40 ));
+        proto_tree_add_boolean(tree, hf_fcfzs_gzc_flags_soft_zones, tvb, offset, 1, flags);
+        if (flags&0x40){
+            proto_item_append_text(item, "  Soft Zones");
+        }
+        flags&=(~( 0x40 ));
 
-		proto_tree_add_boolean(tree, hf_fcfzs_gzc_flags_zoneset_db, tvb, offset, 1, flags);
-		if (flags&0x01){
-			proto_item_append_text(item, "  ZoneSet Database Available");
-		}
-		flags&=(~( 0x01 ));
+        proto_tree_add_boolean(tree, hf_fcfzs_gzc_flags_zoneset_db, tvb, offset, 1, flags);
+        if (flags&0x01){
+            proto_item_append_text(item, "  ZoneSet Database Available");
+        }
+        flags&=(~( 0x01 ));
 
-		proto_tree_add_item (tree, hf_fcfzs_gzc_vendor, tvb, offset+4, 4, 0);
-	}
+        proto_tree_add_item (tree, hf_fcfzs_gzc_vendor, tvb, offset+4, 4, 0);
+    }
 }
 
 static const true_false_string tfs_fc_fcfzs_soft_zone_set_enforced = {
-	"Soft Zone Set is ENFORCED",
-	"Soft zone set is NOT enforced"
+    "Soft Zone Set is ENFORCED",
+    "Soft zone set is NOT enforced"
 };
 static const true_false_string tfs_fc_fcfzs_hard_zone_set_enforced = {
-	"Hard Zone Set is ENFORCED",
-	"Hard zone set is NOT enforced"
+    "Hard Zone Set is ENFORCED",
+    "Hard zone set is NOT enforced"
 };
 
 static void
 dissect_fcfzs_gest (tvbuff_t *tvb, proto_tree *parent_tree, guint8 isreq)
 {
-	int offset = 16;            /* past the fc_ct header */
+    int offset = 16;            /* past the fc_ct header */
 
-	if (!isreq) {
-		guint8 flags;
-		proto_item *item=NULL;
-		proto_tree *tree=NULL;
+    if (!isreq) {
+        guint8 flags;
+        proto_item *item=NULL;
+        proto_tree *tree=NULL;
 
-		flags = tvb_get_guint8 (tvb, offset);
-		if(parent_tree){
-			item=proto_tree_add_uint(parent_tree, hf_fcfzs_zone_state, tvb, offset, 1, flags);
-			tree=proto_item_add_subtree(item, ett_fcfzs_zone_state);
-		}
+        flags = tvb_get_guint8 (tvb, offset);
+        if(parent_tree){
+            item=proto_tree_add_uint(parent_tree, hf_fcfzs_zone_state, tvb, offset, 1, flags);
+            tree=proto_item_add_subtree(item, ett_fcfzs_zone_state);
+        }
 
-		proto_tree_add_boolean(tree, hf_fcfzs_soft_zone_set_enforced, tvb, offset, 1, flags);
-		if (flags&0x80){
-			proto_item_append_text(item, "  Soft Zone Set Enforced");
-		}
-		flags&=(~( 0x80 ));
+        proto_tree_add_boolean(tree, hf_fcfzs_soft_zone_set_enforced, tvb, offset, 1, flags);
+        if (flags&0x80){
+            proto_item_append_text(item, "  Soft Zone Set Enforced");
+        }
+        flags&=(~( 0x80 ));
 
-		proto_tree_add_boolean(tree, hf_fcfzs_hard_zone_set_enforced, tvb, offset, 1, flags);
-		if (flags&0x40){
-			proto_item_append_text(item, "  Hard Zone Set Enforced");
-		}
-		flags&=(~( 0x40 ));
+        proto_tree_add_boolean(tree, hf_fcfzs_hard_zone_set_enforced, tvb, offset, 1, flags);
+        if (flags&0x40){
+            proto_item_append_text(item, "  Hard Zone Set Enforced");
+        }
+        flags&=(~( 0x40 ));
 
 
-		proto_tree_add_item (parent_tree, hf_fcfzs_gest_vendor, tvb, offset+4, 4, 0);
-	}
+        proto_tree_add_item (parent_tree, hf_fcfzs_gest_vendor, tvb, offset+4, 4, 0);
+    }
 }
 
 static void
@@ -819,15 +819,10 @@ dissect_fcfzs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Register the protocol with Wireshark */
 
-/* this format is require because a script is used to build the C function
-   that calls all the protocol registration.
-*/
-
 void
 proto_register_fcfzs(void)
 {
 
-/* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_fcfzs_opcode,
           {"Opcode", "fcfzs.opcode", FT_UINT16, BASE_HEX,
@@ -912,27 +907,20 @@ proto_register_fcfzs(void)
            TFS(&tfs_fc_fcfzs_hard_zone_set_enforced), 0x40, NULL, HFILL}},
     };
 
-    /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_fcfzs,
         &ett_fcfzs_gzc_flags,
         &ett_fcfzs_zone_state,
     };
 
-    /* Register the protocol name and description */
     proto_fcfzs = proto_register_protocol("Fibre Channel Fabric Zone Server", "FC FZS", "fcfzs");
 
-    /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_fcfzs, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     register_init_routine (&fcfzs_init_protocol);
 
 }
 
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
 void
 proto_reg_handoff_fcfzs (void)
 {

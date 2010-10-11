@@ -63,132 +63,132 @@
 #define ZONENAME_LEN(x, y)  (tvb_get_guint8(x, y)+4)
 
 /* Initialize the protocol and registered fields */
-static int proto_fcswils               = -1;
-static int hf_swils_opcode             = -1;
-static int hf_swils_elp_rev            = -1;
-static int hf_swils_elp_flags          = -1;
-static int hf_swils_elp_r_a_tov        = -1;
-static int hf_swils_elp_e_d_tov        = -1;
-static int hf_swils_elp_req_epn        = -1;
-static int hf_swils_elp_req_esn        = -1;
-static int hf_swils_elp_clsf_svcp      = -1;
-static int hf_swils_elp_clsf_rcvsz     = -1;
-static int hf_swils_elp_clsf_conseq    = -1;
-static int hf_swils_elp_clsf_e2e       = -1;
-static int hf_swils_elp_clsf_openseq   = -1;
-static int hf_swils_elp_cls1_svcp      = -1;
-static int hf_swils_elp_cls1_rcvsz     = -1;
-static int hf_swils_elp_cls2_svcp      = -1;
-static int hf_swils_elp_cls2_rcvsz     = -1;
-static int hf_swils_elp_cls3_svcp      = -1;
-static int hf_swils_elp_cls3_rcvsz     = -1;
-static int hf_swils_elp_isl_fc_mode    = -1;
-static int hf_swils_elp_fcplen         = -1;
-static int hf_swils_elp_b2bcredit      = -1;
-static int hf_swils_elp_compat1        = -1;
-static int hf_swils_elp_compat2        = -1;
-static int hf_swils_elp_compat3        = -1;
-static int hf_swils_elp_compat4        = -1;
-static int hf_swils_efp_rec_type       = -1;
-static int hf_swils_efp_dom_id         = -1;
-static int hf_swils_efp_switch_name    = -1;
-static int hf_swils_efp_mcast_grpno    = -1;
-static int hf_swils_efp_alias_token    = -1;
-static int hf_swils_efp_record_len     = -1;
-static int hf_swils_efp_payload_len    = -1;
-static int hf_swils_efp_pswitch_pri    = -1;
-static int hf_swils_efp_pswitch_name   = -1;
-static int hf_swils_dia_switch_name    = -1;
-static int hf_swils_rdi_payload_len    = -1;
-static int hf_swils_rdi_req_sname      = -1;
-static int hf_swils_fspfh_cmd          = -1;
-static int hf_swils_fspfh_rev          = -1;
-static int hf_swils_fspfh_ar_num       = -1;
-static int hf_swils_fspfh_auth_type    = -1;
-static int hf_swils_fspfh_dom_id       = -1;
-static int hf_swils_fspfh_auth         = -1;
-static int hf_swils_hlo_options        = -1;
-static int hf_swils_hlo_hloint         = -1;
-static int hf_swils_hlo_deadint        = -1;
-static int hf_swils_hlo_rcv_domid      = -1;
-static int hf_swils_hlo_orig_pidx      = -1;
-static int hf_swils_ldrec_linkid       = -1;
-static int hf_swils_ldrec_out_pidx     = -1;
-static int hf_swils_ldrec_nbr_pidx     = -1;
-static int hf_swils_ldrec_link_type    = -1;
-static int hf_swils_ldrec_link_cost    = -1;
-static int hf_swils_lsrh_lsr_type      = -1;
-static int hf_swils_lsrh_lsid          = -1;
-static int hf_swils_lsrh_adv_domid     = -1;
-static int hf_swils_lsrh_ls_incid      = -1;
-static int hf_swils_esc_pdesc_vendorid = -1;
-static int hf_swils_esc_swvendorid     = -1;
-static int hf_swils_esc_protocolid     = -1;
-static int hf_swils_rscn_evtype        = -1;
-static int hf_swils_rscn_addrfmt       = -1;
-static int hf_swils_rscn_detectfn      = -1;
-static int hf_swils_rscn_affectedport  = -1;
-static int hf_swils_rscn_portstate     = -1;
-static int hf_swils_rscn_portid        = -1;
-static int hf_swils_rscn_pwwn          = -1;
-static int hf_swils_rscn_nwwn          = -1;
-static int hf_swils_zone_activezonenm  = -1;
-static int hf_swils_zone_objname       = -1;
-static int hf_swils_zone_objtype       = -1;
-static int hf_swils_zone_mbrtype       = -1;
-static int hf_swils_zone_protocol      = -1;
-static int hf_swils_zone_mbrid         = -1;
-static int hf_swils_zone_status        = -1;
-static int hf_swils_zone_reason        = -1;
-static int hf_swils_aca_domainid       = -1;
-static int hf_swils_sfc_opcode         = -1;
-static int hf_swils_sfc_zonenm         = -1;
-static int hf_swils_rjt                = -1;
-static int hf_swils_rjtdet             = -1;
-static int hf_swils_rjtvendor          = -1;
-static int hf_swils_zone_mbrid_lun     = -1;
-static int hf_swils_ess_rev = -1;
-static int hf_swils_ess_len = -1;
-static int hf_swils_ess_numobj = -1;
+static int proto_fcswils                  = -1;
+static int hf_swils_opcode                = -1;
+static int hf_swils_elp_rev               = -1;
+static int hf_swils_elp_flags             = -1;
+static int hf_swils_elp_r_a_tov           = -1;
+static int hf_swils_elp_e_d_tov           = -1;
+static int hf_swils_elp_req_epn           = -1;
+static int hf_swils_elp_req_esn           = -1;
+static int hf_swils_elp_clsf_svcp         = -1;
+static int hf_swils_elp_clsf_rcvsz        = -1;
+static int hf_swils_elp_clsf_conseq       = -1;
+static int hf_swils_elp_clsf_e2e          = -1;
+static int hf_swils_elp_clsf_openseq      = -1;
+static int hf_swils_elp_cls1_svcp         = -1;
+static int hf_swils_elp_cls1_rcvsz        = -1;
+static int hf_swils_elp_cls2_svcp         = -1;
+static int hf_swils_elp_cls2_rcvsz        = -1;
+static int hf_swils_elp_cls3_svcp         = -1;
+static int hf_swils_elp_cls3_rcvsz        = -1;
+static int hf_swils_elp_isl_fc_mode       = -1;
+static int hf_swils_elp_fcplen            = -1;
+static int hf_swils_elp_b2bcredit         = -1;
+static int hf_swils_elp_compat1           = -1;
+static int hf_swils_elp_compat2           = -1;
+static int hf_swils_elp_compat3           = -1;
+static int hf_swils_elp_compat4           = -1;
+static int hf_swils_efp_rec_type          = -1;
+static int hf_swils_efp_dom_id            = -1;
+static int hf_swils_efp_switch_name       = -1;
+static int hf_swils_efp_mcast_grpno       = -1;
+static int hf_swils_efp_alias_token       = -1;
+static int hf_swils_efp_record_len        = -1;
+static int hf_swils_efp_payload_len       = -1;
+static int hf_swils_efp_pswitch_pri       = -1;
+static int hf_swils_efp_pswitch_name      = -1;
+static int hf_swils_dia_switch_name       = -1;
+static int hf_swils_rdi_payload_len       = -1;
+static int hf_swils_rdi_req_sname         = -1;
+static int hf_swils_fspfh_cmd             = -1;
+static int hf_swils_fspfh_rev             = -1;
+static int hf_swils_fspfh_ar_num          = -1;
+static int hf_swils_fspfh_auth_type       = -1;
+static int hf_swils_fspfh_dom_id          = -1;
+static int hf_swils_fspfh_auth            = -1;
+static int hf_swils_hlo_options           = -1;
+static int hf_swils_hlo_hloint            = -1;
+static int hf_swils_hlo_deadint           = -1;
+static int hf_swils_hlo_rcv_domid         = -1;
+static int hf_swils_hlo_orig_pidx         = -1;
+static int hf_swils_ldrec_linkid          = -1;
+static int hf_swils_ldrec_out_pidx        = -1;
+static int hf_swils_ldrec_nbr_pidx        = -1;
+static int hf_swils_ldrec_link_type       = -1;
+static int hf_swils_ldrec_link_cost       = -1;
+static int hf_swils_lsrh_lsr_type         = -1;
+static int hf_swils_lsrh_lsid             = -1;
+static int hf_swils_lsrh_adv_domid        = -1;
+static int hf_swils_lsrh_ls_incid         = -1;
+static int hf_swils_esc_pdesc_vendorid    = -1;
+static int hf_swils_esc_swvendorid        = -1;
+static int hf_swils_esc_protocolid        = -1;
+static int hf_swils_rscn_evtype           = -1;
+static int hf_swils_rscn_addrfmt          = -1;
+static int hf_swils_rscn_detectfn         = -1;
+static int hf_swils_rscn_affectedport     = -1;
+static int hf_swils_rscn_portstate        = -1;
+static int hf_swils_rscn_portid           = -1;
+static int hf_swils_rscn_pwwn             = -1;
+static int hf_swils_rscn_nwwn             = -1;
+static int hf_swils_zone_activezonenm     = -1;
+static int hf_swils_zone_objname          = -1;
+static int hf_swils_zone_objtype          = -1;
+static int hf_swils_zone_mbrtype          = -1;
+static int hf_swils_zone_protocol         = -1;
+static int hf_swils_zone_mbrid            = -1;
+static int hf_swils_zone_status           = -1;
+static int hf_swils_zone_reason           = -1;
+static int hf_swils_aca_domainid          = -1;
+static int hf_swils_sfc_opcode            = -1;
+static int hf_swils_sfc_zonenm            = -1;
+static int hf_swils_rjt                   = -1;
+static int hf_swils_rjtdet                = -1;
+static int hf_swils_rjtvendor             = -1;
+static int hf_swils_zone_mbrid_lun        = -1;
+static int hf_swils_ess_rev               = -1;
+static int hf_swils_ess_len               = -1;
+static int hf_swils_ess_numobj            = -1;
 static int hf_swils_interconnect_list_len = -1;
-static int hf_swils_ess_vendorname = -1;
-static int hf_swils_ess_modelname = -1;
-static int hf_swils_ess_relcode = -1;
-static int hf_swils_ess_vendorspecific = -1;
-static int hf_swils_ess_cap_type = -1;
-static int hf_swils_ess_cap_subtype = -1;
-static int hf_swils_ess_cap_numentries = -1;
-static int hf_swils_ess_cap_svc = -1;
-static int hf_swils_ess_dns_obj0h = -1;
-static int hf_swils_ess_dns_obj1h = -1;
-static int hf_swils_ess_dns_obj2h = -1;
-static int hf_swils_ess_dns_obj3h = -1;
-static int hf_swils_ess_dns_zlacc = -1;
-static int hf_swils_ess_dns_vendor = -1;
-static int hf_swils_ess_fctlr_rscn = -1;
-static int hf_swils_ess_fctlr_vendor = -1;
-static int hf_swils_ess_fcs_basic = -1;
-static int hf_swils_ess_fcs_platform = -1;
-static int hf_swils_ess_fcs_topology = -1;
-static int hf_swils_ess_fcs_enhanced = -1;
-static int hf_swils_ess_fzs_enh_supp = -1;
-static int hf_swils_ess_fzs_enh_ena = -1;
-static int hf_swils_ess_fzs_mr = -1;
-static int hf_swils_ess_fzs_zsdb_supp = -1;
-static int hf_swils_ess_fzs_zsdb_ena = -1;
-static int hf_swils_ess_fzs_adc_supp = -1;
-static int hf_swils_ess_fzs_hardzone = -1;
-static int hf_swils_mrra_rev = -1;
-static int hf_swils_mrra_size = -1;
-static int hf_swils_mrra_vendorid = -1;
-static int hf_swils_mrra_reply = -1;
-static int hf_swils_mrra_reply_size = -1;
-static int hf_swils_mrra_waittime = -1;
-static int hf_swils_ess_cap_t10 = -1;
-static int hf_swils_ess_cap_vendorobj = -1;
-static int hf_swils_ess_fzs_defzone = -1;
-static int hf_swils_ess_cap_len = -1;
-static int hf_swils_mrra_vendorinfo = -1;
+static int hf_swils_ess_vendorname        = -1;
+static int hf_swils_ess_modelname         = -1;
+static int hf_swils_ess_relcode           = -1;
+static int hf_swils_ess_vendorspecific    = -1;
+static int hf_swils_ess_cap_type          = -1;
+static int hf_swils_ess_cap_subtype       = -1;
+static int hf_swils_ess_cap_numentries    = -1;
+static int hf_swils_ess_cap_svc           = -1;
+static int hf_swils_ess_dns_obj0h         = -1;
+static int hf_swils_ess_dns_obj1h         = -1;
+static int hf_swils_ess_dns_obj2h         = -1;
+static int hf_swils_ess_dns_obj3h         = -1;
+static int hf_swils_ess_dns_zlacc         = -1;
+static int hf_swils_ess_dns_vendor        = -1;
+static int hf_swils_ess_fctlr_rscn        = -1;
+static int hf_swils_ess_fctlr_vendor      = -1;
+static int hf_swils_ess_fcs_basic         = -1;
+static int hf_swils_ess_fcs_platform      = -1;
+static int hf_swils_ess_fcs_topology      = -1;
+static int hf_swils_ess_fcs_enhanced      = -1;
+static int hf_swils_ess_fzs_enh_supp      = -1;
+static int hf_swils_ess_fzs_enh_ena       = -1;
+static int hf_swils_ess_fzs_mr            = -1;
+static int hf_swils_ess_fzs_zsdb_supp     = -1;
+static int hf_swils_ess_fzs_zsdb_ena      = -1;
+static int hf_swils_ess_fzs_adc_supp      = -1;
+static int hf_swils_ess_fzs_hardzone      = -1;
+static int hf_swils_mrra_rev              = -1;
+static int hf_swils_mrra_size             = -1;
+static int hf_swils_mrra_vendorid         = -1;
+static int hf_swils_mrra_reply            = -1;
+static int hf_swils_mrra_reply_size       = -1;
+static int hf_swils_mrra_waittime         = -1;
+static int hf_swils_ess_cap_t10           = -1;
+static int hf_swils_ess_cap_vendorobj     = -1;
+static int hf_swils_ess_fzs_defzone       = -1;
+static int hf_swils_ess_cap_len           = -1;
+static int hf_swils_mrra_vendorinfo       = -1;
 
 
 /* Initialize the subtree pointers */
@@ -428,7 +428,7 @@ typedef struct _fcswils_conv_data {
     guint32 opcode;
 } fcswils_conv_data_t;
 
-GHashTable *fcswils_req_hash = NULL;
+static GHashTable *fcswils_req_hash = NULL;
 
 /* list of commands for each commandset */
 typedef void (*fcswils_dissector_t)(tvbuff_t *tvb, proto_tree *tree, guint8 isreq);
@@ -1919,14 +1919,9 @@ dissect_fcswils (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Register the protocol with Wireshark */
 
-/* this format is require because a script is used to build the C function
-   that calls all the protocol registration.
-*/
-
 void
 proto_register_fcswils (void)
 {
-/* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_swils_opcode,
           {"Cmd Code", "swils.opcode",
@@ -2152,11 +2147,11 @@ proto_register_fcswils (void)
            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_swils_zone_status,
           {"Zone Command Status", "swils.zone.status",
-           FT_UINT8, BASE_HEX, VALS (fc_swils_mr_rsp_val), 0x0, 
+           FT_UINT8, BASE_HEX, VALS (fc_swils_mr_rsp_val), 0x0,
            "Applies to MR, ACA, RCA, SFC, UFC", HFILL}},
         { &hf_swils_zone_reason,
           {"Zone Command Reason Code", "swils.zone.reason",
-           FT_UINT8, BASE_HEX, VALS (fc_swils_mr_reason_val), 0x0, 
+           FT_UINT8, BASE_HEX, VALS (fc_swils_mr_reason_val), 0x0,
            "Applies to MR, ACA, RCA, SFC, UFC", HFILL}},
         { &hf_swils_aca_domainid,
           {"Known Domain ID", "swils.aca.domainid",
@@ -2307,7 +2302,6 @@ proto_register_fcswils (void)
            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     };
 
-    /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_fcswils,
         &ett_fcswils_swacc,
@@ -2343,19 +2337,13 @@ proto_register_fcswils (void)
         &ett_fcswils_capinfo
     };
 
-    /* Register the protocol name and description */
     proto_fcswils = proto_register_protocol("Fibre Channel SW_ILS", "FC-SWILS", "swils");
 
-    /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_fcswils, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     register_init_routine(&fcswils_init_protocol);
 }
 
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
 void
 proto_reg_handoff_fcswils (void)
 {

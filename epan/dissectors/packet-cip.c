@@ -73,9 +73,11 @@ typedef struct cip_req_info {
    void *pData;
 } cip_req_info_t;
 
-dissector_handle_t cip_handle;
-dissector_handle_t cip_class_generic_handle,cip_class_cm_handle,cip_class_mr_handle;
-dissector_handle_t cip_class_cco_handle;
+static dissector_handle_t cip_handle;
+static dissector_handle_t cip_class_generic_handle;
+static dissector_handle_t cip_class_cm_handle;
+static dissector_handle_t cip_class_mr_handle;
+static dissector_handle_t cip_class_cco_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_cip               = -1;

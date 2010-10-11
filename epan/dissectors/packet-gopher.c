@@ -56,28 +56,28 @@ static int hf_gopher_unknown = -1;
 static gint ett_gopher = -1;
 static gint ett_dir_item = -1;
 
-dissector_handle_t gopher_handle;
+static dissector_handle_t gopher_handle;
 
 /* RFC 1436 section 3.8 */
 static const value_string item_types[] = {
-	{ '+',	"Redundant server" },
-	{ '0',	"Text file" },
-	{ '1',	"Menu" },
-	{ '2',	"CSO phone book entity" },
-	{ '3',	"Error" },
-	{ '4',	"BinHexed Macintosh file" },
-	{ '5',	"DOS binary file" },
-	{ '6',	"Uuencoded file" },
-	{ '7',	"Index server" },
-	{ '8',	"Telnet session" },
-	{ '9',	"Binary file" },
-	{ 'g',	"GIF file" },
-	{ 'h',	"HTML file" },				/* Not in RFC 1436 */
-	{ 'i',	"Informational message"},	/* Not in RFC 1436 */
-	{ 'I',	"Image file" },
-	{ 's',	"Audio file" },				/* Not in RFC 1436 */
-	{ 'T',	"Tn3270 session" },
-	{ 0, NULL }
+    { '+',  "Redundant server" },
+    { '0',  "Text file" },
+    { '1',  "Menu" },
+    { '2',  "CSO phone book entity" },
+    { '3',  "Error" },
+    { '4',  "BinHexed Macintosh file" },
+    { '5',  "DOS binary file" },
+    { '6',  "Uuencoded file" },
+    { '7',  "Index server" },
+    { '8',  "Telnet session" },
+    { '9',  "Binary file" },
+    { 'g',  "GIF file" },
+    { 'h',  "HTML file" },              /* Not in RFC 1436 */
+    { 'i',  "Informational message"},   /* Not in RFC 1436 */
+    { 'I',  "Image file" },
+    { 's',  "Audio file" },             /* Not in RFC 1436 */
+    { 'T',  "Tn3270 session" },
+    { 0, NULL }
 };
 
 #define TCP_DEFAULT_RANGE "70"
@@ -88,10 +88,10 @@ static range_t *gopher_tcp_range = NULL;
 /* Returns TRUE if the packet is from a client */
 static gboolean
 is_client(packet_info *pinfo) {
-	if (value_is_in_range(gopher_tcp_range, pinfo->destport)) {
-		return TRUE;
-	}
-	return FALSE;
+    if (value_is_in_range(gopher_tcp_range, pinfo->destport)) {
+        return TRUE;
+    }
+    return FALSE;
 }
 
 /* Name + Tab + Selector + Tab + Host + Tab + Port */
@@ -99,34 +99,34 @@ is_client(packet_info *pinfo) {
 #define MIN_DIR_LINE_LEN (0 + 1 + 0 + 1 + 1 + 1 + 1)
 static gboolean
 find_dir_tokens(tvbuff_t *tvb, gint name_start, gint *sel_start, gint *host_start, gint *port_start, gint *line_len, gint *next_offset) {
-	gint remain;
+    gint remain;
 
-	if (tvb_length_remaining(tvb, name_start) < MIN_DIR_LINE_LEN)
-		return FALSE;
+    if (tvb_length_remaining(tvb, name_start) < MIN_DIR_LINE_LEN)
+        return FALSE;
 
-	if (! (sel_start && host_start && port_start && line_len && next_offset) )
-		return FALSE;
+    if (! (sel_start && host_start && port_start && line_len && next_offset) )
+        return FALSE;
 
-	*line_len = tvb_find_line_end(tvb, name_start, MAX_DIR_LINE_LEN, next_offset, FALSE);
-	if (*line_len < MIN_DIR_LINE_LEN)
-		return FALSE;
+    *line_len = tvb_find_line_end(tvb, name_start, MAX_DIR_LINE_LEN, next_offset, FALSE);
+    if (*line_len < MIN_DIR_LINE_LEN)
+        return FALSE;
 
-	remain = *line_len;	
-	*sel_start = tvb_find_guint8(tvb, name_start, remain, '\t') + 1;
-	if (*sel_start < name_start + 1)
-		return FALSE;
+    remain = *line_len;
+    *sel_start = tvb_find_guint8(tvb, name_start, remain, '\t') + 1;
+    if (*sel_start < name_start + 1)
+        return FALSE;
 
-	remain -= *sel_start - name_start;	
-	*host_start = tvb_find_guint8(tvb, *sel_start, remain, '\t') + 1;
-	if (*host_start < *sel_start + 1)
-		return FALSE;
+    remain -= *sel_start - name_start;
+    *host_start = tvb_find_guint8(tvb, *sel_start, remain, '\t') + 1;
+    if (*host_start < *sel_start + 1)
+        return FALSE;
 
-	remain -= *host_start - *sel_start;	
-	*port_start = tvb_find_guint8(tvb, *host_start, remain, '\t') + 1;
-	if (*port_start < *host_start + 1)
-		return FALSE;
+    remain -= *host_start - *sel_start;
+    *port_start = tvb_find_guint8(tvb, *host_start, remain, '\t') + 1;
+    if (*port_start < *host_start + 1)
+        return FALSE;
 
-	return TRUE;
+    return TRUE;
 }
 
 /* Dissect the packets */
@@ -134,71 +134,71 @@ find_dir_tokens(tvbuff_t *tvb, gint name_start, gint *sel_start, gint *host_star
 static int
 dissect_gopher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_item *ti;
-	proto_tree *gopher_tree, *dir_tree = NULL;
-	gboolean client = is_client(pinfo);
-	gint line_len;
-	gchar *request = "[Invalid request]";
-	gboolean is_dir = FALSE;
-	gint offset = 0, next_offset;
-	gint sel_start, host_start, port_start;
-	gchar *name;
-	
+    proto_tree *gopher_tree, *dir_tree = NULL;
+    gboolean client = is_client(pinfo);
+    gint line_len;
+    gchar *request = "[Invalid request]";
+    gboolean is_dir = FALSE;
+    gint offset = 0, next_offset;
+    gint sel_start, host_start, port_start;
+    gchar *name;
+
     /* Fill in our protocol and info columns */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Gopher");
 
-	if (client) {
-		line_len = tvb_find_line_end(tvb, 0, -1, NULL, FALSE);
-		if (line_len == 0) {
-			request = "[Directory list]";
-		} else if (line_len > 0) {
-			request = tvb_get_ephemeral_string(tvb, 0, line_len);
-		}
-	    col_add_fstr(pinfo->cinfo, COL_INFO, "Request: %s", request);
-	} else {
-	    col_add_fstr(pinfo->cinfo, COL_INFO, "Response");
-	}
+    if (client) {
+        line_len = tvb_find_line_end(tvb, 0, -1, NULL, FALSE);
+        if (line_len == 0) {
+            request = "[Directory list]";
+        } else if (line_len > 0) {
+            request = tvb_get_ephemeral_string(tvb, 0, line_len);
+        }
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Request: %s", request);
+    } else {
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Response");
+    }
 
     if (tree) {
         /* Create display subtree for the protocol */
         ti = proto_tree_add_item(tree, proto_gopher, tvb, 0, -1, FALSE);
-		gopher_tree = proto_item_add_subtree(ti, ett_gopher);
-		
-		if (client) {
-			proto_item_append_text(ti, " request: %s", request);
-			proto_tree_add_string(gopher_tree, hf_gopher_request, tvb,
-								  0, -1, request);
-		} else {
-			proto_item_append_text(ti, " response: ");
+        gopher_tree = proto_item_add_subtree(ti, ett_gopher);
 
-			while (find_dir_tokens(tvb, offset + 1, &sel_start, &host_start, &port_start, &line_len, &next_offset)) {
-				if (!is_dir) { /* First time */
-					proto_item_append_text(ti, "[Directory list]");
-				    col_append_fstr(pinfo->cinfo, COL_INFO, ": [Directory list]");
-				}
+        if (client) {
+            proto_item_append_text(ti, " request: %s", request);
+            proto_tree_add_string(gopher_tree, hf_gopher_request, tvb,
+                                  0, -1, request);
+        } else {
+            proto_item_append_text(ti, " response: ");
 
-				name = tvb_get_string(tvb, offset + 1, sel_start - offset - 2);
-				ti = proto_tree_add_string(gopher_tree, hf_gopher_dir_item, tvb,
-								offset, line_len + 1, name);
-				dir_tree = proto_item_add_subtree(ti, ett_dir_item);
-				proto_tree_add_item(dir_tree, hf_gopher_di_type, tvb, offset, 1, FALSE);
-				proto_tree_add_item(dir_tree, hf_gopher_di_name, tvb, offset + 1,
-									sel_start - offset - 2, FALSE);
-				proto_tree_add_item(dir_tree, hf_gopher_di_selector, tvb, sel_start,
-									host_start - sel_start - 1, FALSE);
-				proto_tree_add_item(dir_tree, hf_gopher_di_host, tvb, host_start,
-									port_start - host_start - 1, FALSE);
-				proto_tree_add_item(dir_tree, hf_gopher_di_port, tvb, port_start,
-									line_len - (port_start - offset - 1), FALSE);
-				is_dir = TRUE;
-				offset = next_offset;
-			}
+            while (find_dir_tokens(tvb, offset + 1, &sel_start, &host_start, &port_start, &line_len, &next_offset)) {
+                if (!is_dir) { /* First time */
+                    proto_item_append_text(ti, "[Directory list]");
+                    col_append_fstr(pinfo->cinfo, COL_INFO, ": [Directory list]");
+                }
 
-			if (!is_dir) {
-				proto_item_append_text(ti, "[Unknown]");
-				proto_tree_add_item(gopher_tree, hf_gopher_unknown, tvb, 0, -1, FALSE);
-			}
-		}
-		
+                name = tvb_get_string(tvb, offset + 1, sel_start - offset - 2);
+                ti = proto_tree_add_string(gopher_tree, hf_gopher_dir_item, tvb,
+                                offset, line_len + 1, name);
+                dir_tree = proto_item_add_subtree(ti, ett_dir_item);
+                proto_tree_add_item(dir_tree, hf_gopher_di_type, tvb, offset, 1, FALSE);
+                proto_tree_add_item(dir_tree, hf_gopher_di_name, tvb, offset + 1,
+                                    sel_start - offset - 2, FALSE);
+                proto_tree_add_item(dir_tree, hf_gopher_di_selector, tvb, sel_start,
+                                    host_start - sel_start - 1, FALSE);
+                proto_tree_add_item(dir_tree, hf_gopher_di_host, tvb, host_start,
+                                    port_start - host_start - 1, FALSE);
+                proto_tree_add_item(dir_tree, hf_gopher_di_port, tvb, port_start,
+                                    line_len - (port_start - offset - 1), FALSE);
+                is_dir = TRUE;
+                offset = next_offset;
+            }
+
+            if (!is_dir) {
+                proto_item_append_text(ti, "[Unknown]");
+                proto_tree_add_item(gopher_tree, hf_gopher_unknown, tvb, 0, -1, FALSE);
+            }
+        }
+
     }
 
     /* Return the amount of data this dissector was able to dissect */
@@ -293,18 +293,18 @@ proto_register_gopher(void)
     /* Initialize dissector preferences */
     gopher_module = prefs_register_protocol(proto_gopher, gopher_prefs_apply);
 
-	range_convert_str(&global_gopher_tcp_range, TCP_DEFAULT_RANGE, 65535);
-	gopher_tcp_range = range_empty();
-	prefs_register_range_preference(gopher_module, "tcp.port", "TCP Ports",
-									"TCP Ports range",
-									&global_gopher_tcp_range, 65535);
+    range_convert_str(&global_gopher_tcp_range, TCP_DEFAULT_RANGE, 65535);
+    gopher_tcp_range = range_empty();
+    prefs_register_range_preference(gopher_module, "tcp.port", "TCP Ports",
+                                    "TCP Ports range",
+                                    &global_gopher_tcp_range, 65535);
 }
 
 void
 proto_reg_handoff_gopher(void)
 {
     gopher_handle = new_create_dissector_handle(dissect_gopher, proto_gopher);
-	gopher_prefs_apply();
+    gopher_prefs_apply();
 }
 
 /*
@@ -312,12 +312,12 @@ proto_reg_handoff_gopher(void)
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
- * indent-tabs-mode: t
+ * tab-width: 8
+ * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 noexpandtab
- * :indentSize=4:tabSize=4:noTabs=false:
+ * vi: set shiftwidth=4 tabstop=8 expandtab
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
 
 

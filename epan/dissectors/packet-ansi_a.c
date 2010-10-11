@@ -55,7 +55,7 @@
 /*
  * IOS 4, probably most common
  */
-gint global_a_variant = A_VARIANT_IOS401;
+static gint global_a_variant = A_VARIANT_IOS401;
 
 
 /* PROTOTYPES/FORWARDS */

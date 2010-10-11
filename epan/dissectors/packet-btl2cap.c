@@ -16,12 +16,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -131,8 +131,8 @@ static gint ett_btl2cap_control = -1;
 
 
 /* Initialize dissector table */
-dissector_table_t l2cap_psm_dissector_table;
-dissector_table_t l2cap_cid_dissector_table;
+static dissector_table_t l2cap_psm_dissector_table;
+static dissector_table_t l2cap_cid_dissector_table;
 
 /* This table maps cid values to psm values.
  * The same table is used both for SCID and DCID.
@@ -307,7 +307,7 @@ static const value_string option_fcs_vals[] = {
 	{ 0, NULL }
 };
 
-static int 
+static int
 dissect_comrej(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint16 reason;
@@ -426,7 +426,7 @@ dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
 		option_type   = tvb_get_guint8(tvb, offset);
 		option_length = tvb_get_guint8(tvb, offset+1);
 
-		ti_option = proto_tree_add_none_format(tree, 
+		ti_option = proto_tree_add_none_format(tree,
 				hf_btl2cap_option, tvb,
 				offset, option_length + 2,
 				"Option: ");
@@ -477,7 +477,7 @@ dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
 				break;
 
 			case 0x04: /* Retransmission and Flow Control*/
-				if(config_data) 
+				if(config_data)
 				{
 					config_data->mode = tvb_get_guint8(tvb, offset);
 					config_data->txwindow = tvb_get_guint8(tvb, offset+1);
@@ -614,7 +614,7 @@ dissect_inforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 
 			break;
 		case 0x0002: /* Extended Features */
-			ti_features = proto_tree_add_none_format(tree, 
+			ti_features = proto_tree_add_none_format(tree,
 					hf_btl2cap_info_extfeatures, tvb,
 					offset, 4,
 					"Features: ");
@@ -713,7 +713,7 @@ dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 	return offset;
 }
 
-static int 
+static int
 dissect_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	guint16 scid, dcid;
@@ -793,7 +793,8 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 	return offset;
 }
 
-static void dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *btl2cap_tree, guint16 psm, guint16 length, int offset)
+static void
+dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *btl2cap_tree, guint16 psm, guint16 length, int offset)
 {
 	tvbuff_t *next_tvb;
 	next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), length);
@@ -829,7 +830,8 @@ typedef struct _sdu_reassembly_t
 	int cur_off;	/* counter used by reassembly */
 } sdu_reassembly_t;
 
-static void dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *btl2cap_tree, psm_data_t *psm_data, guint16 length, int offset, config_data_t *config_data)
+static void
+dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *btl2cap_tree, psm_data_t *psm_data, guint16 length, int offset, config_data_t *config_data)
 {
 	tvbuff_t *next_tvb = NULL;
 	guint16 control, segment;
@@ -881,7 +883,7 @@ static void dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* Detect malformed data */
 		if (sdulen < length) {
 			sdulen = length;
-			expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_WARN, 
+			expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_WARN,
 					"SDU length less than length of first packet");
 		}
 
@@ -954,7 +956,8 @@ static void dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 2;
 }
 
-static void dissect_s_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, proto_tree *btl2cap_tree, guint16 psm _U_, guint16 length _U_, int offset, config_data_t *config_data _U_)
+static void
+dissect_s_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, proto_tree *btl2cap_tree, guint16 psm _U_, guint16 length _U_, int offset, config_data_t *config_data _U_)
 {
 	proto_item* ti_control;
 	proto_tree* ti_control_subtree;
@@ -990,10 +993,11 @@ static void dissect_s_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
 
 /* Code to actually dissect the packets
  * This dissector will only be called ontop of BTHCI ACL
- * and this dissector _REQUIRES_ that 
+ * and this dissector _REQUIRES_ that
  * pinfo->private_data points to a valid bthci_acl_data_t structure
  */
-static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset=0;
 	proto_item *ti=NULL;
@@ -1038,10 +1042,10 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			guint8 cmd_code;
 			guint16 cmd_length;
 
-			ti_command=proto_tree_add_none_format(btl2cap_tree, 
+			ti_command=proto_tree_add_none_format(btl2cap_tree,
 					hf_btl2cap_command, tvb,
 					offset, length,
-					"Command: ");      
+					"Command: ");
 			btl2cap_cmd_tree=proto_item_add_subtree(ti_command, ett_btl2cap_cmd);
 
 			cmd_code=tvb_get_guint8(tvb, offset);
@@ -1094,10 +1098,10 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			case 0x07: /* Disconnect Response */
-				offset=dissect_disconnrequestresponse(tvb, offset, pinfo, btl2cap_cmd_tree);   
+				offset=dissect_disconnrequestresponse(tvb, offset, pinfo, btl2cap_cmd_tree);
 				proto_item_append_text(ti_command, "Disconnect Response");
 				col_append_str(pinfo->cinfo, COL_INFO, "Disconnect Response");
-				break;    
+				break;
 
 			case 0x08: /* Echo Request */
 				proto_item_append_text(ti_command, "Echo Request");
@@ -1177,7 +1181,7 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), length);
 
 		/* call next dissector */
-		if(!dissector_try_port(l2cap_psm_dissector_table, (guint32) psm, 
+		if(!dissector_try_port(l2cap_psm_dissector_table, (guint32) psm,
 					next_tvb, pinfo, tree)){
 			/* unknown protocol. declare as data */
 			proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, TRUE);
@@ -1250,63 +1254,63 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Register the protocol with Wireshark */
 void
 proto_register_btl2cap(void)
-{                 
+{
 
 	/* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
 		{ &hf_btl2cap_length,
 			{ "Length",           "btl2cap.length",
-				FT_UINT16, BASE_DEC, NULL, 0x0,          
+				FT_UINT16, BASE_DEC, NULL, 0x0,
 				"L2CAP Payload Length", HFILL }
 		},
 		{ &hf_btl2cap_cid,
 			{ "CID",           "btl2cap.cid",
-				FT_UINT16, BASE_HEX, NULL, 0x0,          
+				FT_UINT16, BASE_HEX, NULL, 0x0,
 				"L2CAP Channel Identifier", HFILL }
 		},
 		{ &hf_btl2cap_payload,
 			{ "Payload",           "btl2cap.payload",
-				FT_BYTES, BASE_NONE, NULL, 0x0,          
+				FT_BYTES, BASE_NONE, NULL, 0x0,
 				"L2CAP Payload", HFILL }
 		},
 		{ &hf_btl2cap_command,
 			{ "Command",           "btl2cap.command",
-				FT_NONE, BASE_NONE, NULL, 0x0,          
+				FT_NONE, BASE_NONE, NULL, 0x0,
 				"L2CAP Command", HFILL }
 		},
 		{ &hf_btl2cap_cmd_code,
 			{ "Command Code",           "btl2cap.cmd_code",
-				FT_UINT8, BASE_HEX, VALS(command_code_vals), 0x0,          
+				FT_UINT8, BASE_HEX, VALS(command_code_vals), 0x0,
 				"L2CAP Command Code", HFILL }
 		},
 		{ &hf_btl2cap_cmd_ident,
 			{ "Command Identifier",           "btl2cap.cmd_ident",
-				FT_UINT8, BASE_HEX, NULL, 0x0,          
+				FT_UINT8, BASE_HEX, NULL, 0x0,
 				"L2CAP Command Identifier", HFILL }
 		},
 		{ &hf_btl2cap_cmd_length,
 			{ "Command Length",           "btl2cap.cmd_length",
-				FT_UINT8, BASE_DEC, NULL, 0x0,          
+				FT_UINT8, BASE_DEC, NULL, 0x0,
 				"L2CAP Command Length", HFILL }
 		},
 		{ &hf_btl2cap_cmd_data,
 			{ "Command Data",           "btl2cap.cmd_data",
-				FT_NONE, BASE_NONE, NULL, 0x0,          
+				FT_NONE, BASE_NONE, NULL, 0x0,
 				"L2CAP Command Data", HFILL }
 		},
 		{ &hf_btl2cap_psm,
 			{ "PSM",           "btl2cap.psm",
-				FT_UINT16, BASE_HEX, VALS(psm_vals), 0x0,          
+				FT_UINT16, BASE_HEX, VALS(psm_vals), 0x0,
 				"Protocol/Service Multiplexer", HFILL }
 		},
 		{ &hf_btl2cap_scid,
 			{ "Source CID",           "btl2cap.scid",
-				FT_UINT16, BASE_HEX, NULL, 0x0,          
+				FT_UINT16, BASE_HEX, NULL, 0x0,
 				"Source Channel Identifier", HFILL }
 		},
 		{ &hf_btl2cap_dcid,
 			{ "Destination CID",           "btl2cap.dcid",
-				FT_UINT16, BASE_HEX, NULL, 0x0,          
+				FT_UINT16, BASE_HEX, NULL, 0x0,
 				"Destination Channel Identifier", HFILL }
 		},
 		{ &hf_btl2cap_icid,
@@ -1326,7 +1330,7 @@ proto_register_btl2cap(void)
 		},
 		{ &hf_btl2cap_result,
 			{ "Result",           "btl2cap.result",
-				FT_UINT16, BASE_HEX, VALS(result_vals), 0x0,          
+				FT_UINT16, BASE_HEX, VALS(result_vals), 0x0,
 				NULL, HFILL }
 		},
 		{ &hf_btl2cap_move_result,
@@ -1341,22 +1345,22 @@ proto_register_btl2cap(void)
 		},
 		{ &hf_btl2cap_status,
 			{ "Status",           "btl2cap.status",
-				FT_UINT16, BASE_HEX, VALS(status_vals), 0x0,          
+				FT_UINT16, BASE_HEX, VALS(status_vals), 0x0,
 				NULL, HFILL }
 		},
 		{ &hf_btl2cap_rej_reason,
 			{ "Reason",           "btl2cap.rej_reason",
-				FT_UINT16, BASE_HEX, VALS(reason_vals), 0x0,          
+				FT_UINT16, BASE_HEX, VALS(reason_vals), 0x0,
 				NULL, HFILL }
 		},
 		{ &hf_btl2cap_sig_mtu,
 			{ "Maximum Signalling MTU",           "btl2cap.sig_mtu",
-				FT_UINT16, BASE_DEC, NULL, 0x0,          
+				FT_UINT16, BASE_DEC, NULL, 0x0,
 				NULL, HFILL }
 		},
 		{ &hf_btl2cap_info_mtu,
 			{ "Remote Entity MTU",           "btl2cap.info_mtu",
-				FT_UINT16, BASE_DEC, NULL, 0x0,          
+				FT_UINT16, BASE_DEC, NULL, 0x0,
 				"Remote entity acceptable connectionless MTU", HFILL }
 		},
 		{ &hf_btl2cap_info_flowcontrol,
@@ -1441,12 +1445,12 @@ proto_register_btl2cap(void)
 		},
 		{ &hf_btl2cap_info_type,
 			{ "Information Type",           "btl2cap.info_type",
-				FT_UINT16, BASE_HEX, VALS(info_type_vals), 0x0,          
+				FT_UINT16, BASE_HEX, VALS(info_type_vals), 0x0,
 				"Type of implementation-specific information", HFILL }
 		},
 		{ &hf_btl2cap_info_result,
 			{ "Result",           "btl2cap.info_result",
-				FT_UINT16, BASE_HEX, VALS(info_result_vals), 0x0,          
+				FT_UINT16, BASE_HEX, VALS(info_result_vals), 0x0,
 				"Information about the success of the request", HFILL }
 		},
 		{ &hf_btl2cap_info_extfeatures,
@@ -1456,7 +1460,7 @@ proto_register_btl2cap(void)
 		},
 		{ &hf_btl2cap_continuation_flag,
 			{ "Continuation Flag",           "btl2cap.continuation",
-				FT_BOOLEAN, 16, NULL, 0x0001,          
+				FT_BOOLEAN, 16, NULL, 0x0001,
 				NULL, HFILL }
 		},
 		{ &hf_btl2cap_configuration_result,
@@ -1466,22 +1470,22 @@ proto_register_btl2cap(void)
 		},
 		{ &hf_btl2cap_option_type,
 			{ "Type",           "btl2cap.option_type",
-				FT_UINT8, BASE_HEX, VALS(option_type_vals), 0x0,          
+				FT_UINT8, BASE_HEX, VALS(option_type_vals), 0x0,
 				"Type of option", HFILL }
 		},
 		{ &hf_btl2cap_option_length,
 			{ "Length",           "btl2cap.option_length",
-				FT_UINT8, BASE_DEC, NULL, 0x0,          
+				FT_UINT8, BASE_DEC, NULL, 0x0,
 				"Number of octets in option payload", HFILL }
 		},
 		{ &hf_btl2cap_option_mtu,
 			{ "MTU",           "btl2cap.option_mtu",
-				FT_UINT16, BASE_DEC, NULL, 0x0,          
+				FT_UINT16, BASE_DEC, NULL, 0x0,
 				"Maximum Transmission Unit", HFILL }
 		},
 		{ &hf_btl2cap_option_flushTO,
 			{ "Flush Timeout (ms)",           "btl2cap.option_flushto",
-				FT_UINT16, BASE_DEC, NULL, 0x0,          
+				FT_UINT16, BASE_DEC, NULL, 0x0,
 				"Flush Timeout in milliseconds", HFILL }
 		},
 		{ &hf_btl2cap_option_flush_to_us,
@@ -1511,37 +1515,37 @@ proto_register_btl2cap(void)
 		},
 		{ &hf_btl2cap_option_flags,
 			{ "Flags",           "btl2cap.option_flags",
-				FT_UINT8, BASE_HEX, NULL, 0x0,          
+				FT_UINT8, BASE_HEX, NULL, 0x0,
 				"Flags - must be set to 0 (Reserved for future use)", HFILL }
 		},
 		{ &hf_btl2cap_option_service_type,
 			{ "Service Type",           "btl2cap.option_servicetype",
-				FT_UINT8, BASE_HEX, VALS(option_servicetype_vals), 0x0,     
+				FT_UINT8, BASE_HEX, VALS(option_servicetype_vals), 0x0,
 				"Level of service required", HFILL }
 		},
 		{ &hf_btl2cap_option_tokenrate,
 			{ "Token Rate (bytes/s)",           "btl2cap.option_tokenrate",
-				FT_UINT32, BASE_DEC, NULL, 0x0,          
+				FT_UINT32, BASE_DEC, NULL, 0x0,
 				"Rate at which traffic credits are granted (bytes/s)", HFILL }
 		},
 		{ &hf_btl2cap_option_tokenbucketsize,
 			{ "Token Bucket Size (bytes)",           "btl2cap.option_tokenbsize",
-				FT_UINT32, BASE_DEC, NULL, 0x0,          
+				FT_UINT32, BASE_DEC, NULL, 0x0,
 				"Size of the token bucket (bytes)", HFILL }
 		},
 		{ &hf_btl2cap_option_peakbandwidth,
 			{ "Peak Bandwidth (bytes/s)",           "btl2cap.option_peakbandwidth",
-				FT_UINT32, BASE_DEC, NULL, 0x0,          
+				FT_UINT32, BASE_DEC, NULL, 0x0,
 				"Limit how fast packets may be sent (bytes/s)", HFILL }
 		},
 		{ &hf_btl2cap_option_latency,
 			{ "Latency (microseconds)",           "btl2cap.option_latency",
-				FT_UINT32, BASE_DEC, NULL, 0x0,          
+				FT_UINT32, BASE_DEC, NULL, 0x0,
 				"Maximal acceptable delay (microseconds)", HFILL }
 		},
 		{ &hf_btl2cap_option_delayvariation,
 			{ "Delay Variation (microseconds)",           "btl2cap.option_delayvar",
-				FT_UINT32, BASE_DEC, NULL, 0x0,          
+				FT_UINT32, BASE_DEC, NULL, 0x0,
 				"Difference between maximum and minimum delay (microseconds)", HFILL }
 		},
 		{ &hf_btl2cap_option_retransmissionmode,
@@ -1586,7 +1590,7 @@ proto_register_btl2cap(void)
 		},
 		{ &hf_btl2cap_option,
 			{ "Configuration Parameter Option",           "btl2cap.conf_param_option",
-				FT_NONE, BASE_NONE, NULL, 0x0,          
+				FT_NONE, BASE_NONE, NULL, 0x0,
 				NULL, HFILL }
 		},
 		{ &hf_btl2cap_control_sar,
@@ -1670,13 +1674,6 @@ proto_register_btl2cap(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	cid_to_psm_table=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "btl2cap scid to psm");
-
-}
-
-
-void 
-proto_reg_handoff_btl2cap(void)
-{
 
 }
 

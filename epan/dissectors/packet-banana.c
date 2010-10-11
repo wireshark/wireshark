@@ -55,7 +55,7 @@ static int hf_banana_pb = -1;
 static gint ett_banana = -1;
 static gint ett_list = -1;
 
-dissector_handle_t banana_handle;
+static dissector_handle_t banana_handle;
 
 #define BE_LIST         0x80
 #define BE_INT          0x81
