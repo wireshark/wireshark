@@ -4580,7 +4580,10 @@ menu_open_recent_file_cmd_cb(GtkWidget *widget, gpointer data _U_) {
 static void
 add_menu_recent_capture_file_absolute(gchar *cf_name) {
     GtkWidget *submenu_recent_files;
-    GList *menu_item_list_old, *recent_files_list;
+    GList *menu_item_list_old;
+#ifdef MAIN_MENU_USE_UIMANAGER
+	GList *recent_files_list;
+#endif
     GList *li;
     gchar *widget_cf_name;
     gchar *normalized_cf_name;
