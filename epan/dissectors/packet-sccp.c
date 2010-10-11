@@ -1226,25 +1226,25 @@ static int
 dissect_sccp_3byte_pc(tvbuff_t *tvb, proto_tree *call_tree, guint offset,
 		      gboolean called)
 {
-  int *hf_pc;
+  int hf_pc;
 
   if (decode_mtp3_standard == ANSI_STANDARD)
   {
     if (called)
-      hf_pc = &hf_sccp_called_ansi_pc;
+      hf_pc = hf_sccp_called_ansi_pc;
     else
-      hf_pc = &hf_sccp_calling_ansi_pc;
+      hf_pc = hf_sccp_calling_ansi_pc;
   } else /* CHINESE_ITU_STANDARD */ {
     if (called)
-      hf_pc = &hf_sccp_called_chinese_pc;
+      hf_pc = hf_sccp_called_chinese_pc;
     else
-      hf_pc = &hf_sccp_calling_chinese_pc;
+      hf_pc = hf_sccp_calling_chinese_pc;
   }
 
   /* create and fill the PC tree */
   dissect_mtp3_3byte_pc(tvb, offset, call_tree,
 			called ? ett_sccp_called_pc : ett_sccp_calling_pc,
-			*hf_pc,
+			hf_pc,
 			called ? hf_sccp_called_pc_network : hf_sccp_calling_pc_network,
 			called ? hf_sccp_called_pc_cluster : hf_sccp_calling_pc_cluster,
 			called ? hf_sccp_called_pc_member  : hf_sccp_calling_pc_member,
