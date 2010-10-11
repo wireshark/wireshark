@@ -112,6 +112,10 @@ typedef struct _protocol protocol_t;
  * throws a DissectorError exception, with the assertion failure
  * message as a parameter, so that it can show up in the protocol tree.
  *
+ * NOTE: this should only be used to detect bugs in the dissector (e.g., logic
+ * conditions that shouldn't happen).  It should NOT be used for showing
+ * that a packet is malformed.  For that, use expert_infos instead.
+ *
  * @param expression expression to test in the assertion
  */
 #define DISSECTOR_ASSERT(expression)  \
@@ -127,6 +131,11 @@ typedef struct _protocol protocol_t;
 
 /** Same as DISSECTOR_ASSERT(), but will throw DissectorError exception
  * unconditionally, much like GLIB's g_assert_not_reached works.
+ *
+ * NOTE: this should only be used to detect bugs in the dissector (e.g., logic
+ * conditions that shouldn't happen).  It should NOT be used for showing
+ * that a packet is malformed.  For that, use expert_infos instead.
+ *
  */
 #define DISSECTOR_ASSERT_NOT_REACHED()  \
   (REPORT_DISSECTOR_BUG( \
