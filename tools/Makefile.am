@@ -96,6 +96,7 @@ EXTRA_DIST = \
 	lex.py						\
 	make-dissector-reg				\
 	make-dissector-reg.py				\
+	make-services.pl				\
 	make-tap-reg.py					\
 	msnchat						\
 	native-nmake.cmd			\

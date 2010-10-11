@@ -2,7 +2,7 @@
 # create the services file from
 # http://www.iana.org/assignments/enterprise-numbers
 #
-# $Id: make-services.pl 34374 2010-10-04 20:52:02Z gerald $
+# $Id$
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
