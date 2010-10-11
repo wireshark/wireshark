@@ -149,6 +149,11 @@ GtkWidget *popup_menu_object;
 
 static void merge_all_tap_menus(GList *node);
 static void clear_menu_recent_capture_file_cmd_cb(GtkWidget *w, gpointer unused _U_);
+#ifdef MAIN_MENU_USE_UIMANAGER
+#if 0
+static void add_recent_items (guint merge_id, GtkUIManager *ui_manager);
+#endif
+#endif /* MAIN_MENU_USE_UIMANAGER */
 
 static void menus_init(void);
 static void set_menu_sensitivity (GtkUIManager *ui_manager, const gchar *, gint);
@@ -366,7 +371,7 @@ build_conversation_filter(int action, gboolean show_dialog)
 }
 
 static void
-conversation_cb(GtkWidget * w, gpointer data _U_, int action)
+conversation_cb(GtkAction *a _U_, gpointer data _U_, int action)
 {
     gchar       *filter;
     GtkWidget   *filter_te;
@@ -377,7 +382,8 @@ conversation_cb(GtkWidget * w, gpointer data _U_, int action)
 
         /* Run the display filter so it goes in effect - even if it's the
         same as the previous display filter. */
-        filter_te = g_object_get_data(G_OBJECT(w), E_DFILTER_TE_KEY);
+        filter_te = gtk_bin_get_child(GTK_BIN(g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY)));
+
         gtk_entry_set_text(GTK_ENTRY(filter_te), filter);
         main_filter_packets(&cfile, filter, TRUE);
 
@@ -995,7 +1001,9 @@ static const char *ui_desc_menubar =
 "  <menubar name ='Menubar'>\n"
 "    <menu name= 'FileMenu' action='/File'>\n"
 "      <menuitem name='Open' action='/File/Open'/>\n"
-"      <menuitem name='OpenRecent' action='/File/OpenRecent'/>\n"
+"      <menu name='OpenRecent' action='/File/OpenRecent'>\n"
+"         <placeholder name='RecentFiles'/>\n"
+"      </menu>\n"
 "      <menuitem name='Merge' action='/File/Merge'/>\n"
 "      <menuitem name='Close' action='/File/Close'/>\n"
 "      <separator/>\n"
@@ -2251,33 +2259,33 @@ packet_list_menu_prepare_or_not_selected_cb(GtkAction *action _U_, gpointer user
 }
 
 static void
-packet_list_menu_conversation_ethernet_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_conversation_ethernet_cb(GtkAction *action, gpointer user_data)
 {
-	conversation_cb(  NULL /* widget _U_ */ , user_data, CONV_ETHER);
+	conversation_cb(  action, user_data, CONV_ETHER);
 }
 
 static void
 packet_list_menu_conversation_ip_cb(GtkAction *action _U_, gpointer user_data)
 {
-	conversation_cb(  NULL /* widget _U_ */ , user_data, CONV_IP);
+	conversation_cb( action, user_data, CONV_IP);
 }
 
 static void
 packet_list_menu_conversation_tcp_cb(GtkAction *action _U_, gpointer user_data)
 {
-	conversation_cb(  NULL /* widget _U_ */ , user_data, CONV_TCP);
+	conversation_cb(  action, user_data, CONV_TCP);
 }
 
 static void
 packet_list_menu_conversation_udp_cb(GtkAction *action _U_, gpointer user_data)
 {
-	conversation_cb(  NULL /* widget _U_ */ , user_data, CONV_UDP);
+	conversation_cb(  action, user_data, CONV_UDP);
 }
 
 static void
 packet_list_menu_conversation_pn_cba_cb(GtkAction *action _U_, gpointer user_data)
 {
-	conversation_cb(  NULL /* widget _U_ */ , user_data, CONV_CBA);
+	conversation_cb(  action, user_data, CONV_CBA);
 }
 
 /* Ethernet */
@@ -3391,7 +3399,7 @@ void menu_dissector_filter_cb(  GtkWidget *widget _U_,
     GtkWidget               *filter_te;
     const char              *buf;
 
-    filter_te = g_object_get_data(G_OBJECT(popup_menu_object), E_DFILTER_TE_KEY);
+    filter_te = gtk_bin_get_child(GTK_BIN(g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY)));
 
     /* XXX - this gets the packet_info of the last dissected packet, */
     /* which is not necessarily the last selected packet */
@@ -3440,6 +3448,10 @@ menus_init(void) {
         *packet_list_details_action_group, *packet_list_byte_menu_action_group,
         *statusbar_profiles_action_group;
     GError *error = NULL;
+#ifdef MAIN_MENU_USE_UIMANAGER
+	guint merge_id;
+#endif /* MAIN_MENU_USE_UIMANAGER */
+
 
     if (initialize) {
         initialize = FALSE;
@@ -3450,8 +3462,8 @@ menus_init(void) {
         packet_list_heading_action_group = gtk_action_group_new ("PacketListHeadingPopUpMenuActionGroup");
 
         gtk_action_group_add_actions (packet_list_heading_action_group,            /* the action group */
-            packet_list_heading_menu_popup_action_entries,                        /* an array of action descriptions */
-            G_N_ELEMENTS(packet_list_heading_menu_popup_action_entries),        /* the number of entries */
+            packet_list_heading_menu_popup_action_entries,                         /* an array of action descriptions */
+            G_N_ELEMENTS(packet_list_heading_menu_popup_action_entries),           /* the number of entries */
             popup_menu_object);                                                    /* data to pass to the action callbacks */
 
         gtk_action_group_add_toggle_actions(packet_list_heading_action_group,          /* the action group */
@@ -3482,8 +3494,8 @@ menus_init(void) {
         packet_list_action_group = gtk_action_group_new ("PacketListPopUpMenuActionGroup");
 
         gtk_action_group_add_actions (packet_list_action_group,                    /* the action group */
-            packet_list_menu_popup_action_entries,                                /* an array of action descriptions */
-            G_N_ELEMENTS(packet_list_menu_popup_action_entries),                /* the number of entries */
+            packet_list_menu_popup_action_entries,                                 /* an array of action descriptions */
+            G_N_ELEMENTS(packet_list_menu_popup_action_entries),                   /* the number of entries */
             popup_menu_object);                                                    /* data to pass to the action callbacks */
 
         ui_manager_packet_list_menu = gtk_ui_manager_new ();
@@ -3511,8 +3523,8 @@ menus_init(void) {
         packet_list_details_action_group = gtk_action_group_new ("PacketListDetailsMenuPopUpActionGroup");
 
         gtk_action_group_add_actions (packet_list_details_action_group,            /* the action group */
-            tree_view_menu_popup_action_entries,                                /* an array of action descriptions */
-            G_N_ELEMENTS(tree_view_menu_popup_action_entries),                    /* the number of entries */
+            tree_view_menu_popup_action_entries,                                   /* an array of action descriptions */
+            G_N_ELEMENTS(tree_view_menu_popup_action_entries),                     /* the number of entries */
             popup_menu_object);                                                    /* data to pass to the action callbacks */
 
         ui_manager_tree_view_menu = gtk_ui_manager_new ();
@@ -3545,10 +3557,10 @@ menus_init(void) {
 
         gtk_action_group_add_radio_actions  (packet_list_byte_menu_action_group,            /* the action group */
                                     bytes_menu_radio_action_entries,                        /* an array of radio action descriptions  */
-                                    G_N_ELEMENTS(bytes_menu_radio_action_entries),            /* the number of entries */
-                                    recent.gui_bytes_view,                                    /* the value of the action to activate initially, or -1 if no action should be activated  */
-                                    G_CALLBACK(select_bytes_view_cb),                        /* the callback to connect to the changed signal  */
-                                    popup_menu_object);                                        /* data to pass to the action callbacks  */
+                                    G_N_ELEMENTS(bytes_menu_radio_action_entries),          /* the number of entries */
+                                    recent.gui_bytes_view,                                  /* the value of the action to activate initially, or -1 if no action should be activated  */
+                                    G_CALLBACK(select_bytes_view_cb),                       /* the callback to connect to the changed signal  */
+                                    popup_menu_object);                                     /* data to pass to the action callbacks  */
 
         ui_manager_bytes_menu = gtk_ui_manager_new ();
 
@@ -3573,28 +3585,28 @@ menus_init(void) {
         /* main */
 #ifdef MAIN_MENU_USE_UIMANAGER
         main_menu_bar_action_group = gtk_action_group_new ("MenuActionGroup"); 
-        gtk_action_group_add_actions (main_menu_bar_action_group,                            /* the action group */
-                                    main_menu_bar_entries,                    /* an array of action descriptions */
-                                    G_N_ELEMENTS(main_menu_bar_entries),    /* the number of entries */
-                                    NULL);                                    /* data to pass to the action callbacks */
+        gtk_action_group_add_actions (main_menu_bar_action_group,                       /* the action group */
+                                    main_menu_bar_entries,                              /* an array of action descriptions */
+                                    G_N_ELEMENTS(main_menu_bar_entries),                /* the number of entries */
+                                    NULL);                                              /* data to pass to the action callbacks */
 
-        gtk_action_group_add_toggle_actions(main_menu_bar_action_group,                              /* the action group */
-                                    main_menu_bar_toggle_action_entries,               /* an array of action descriptions */
-                                    G_N_ELEMENTS(main_menu_bar_toggle_action_entries), /* the number of entries */
-                                    NULL);                                             /* data to pass to the action callbacks */
+        gtk_action_group_add_toggle_actions(main_menu_bar_action_group,                 /* the action group */
+                                    main_menu_bar_toggle_action_entries,                /* an array of action descriptions */
+                                    G_N_ELEMENTS(main_menu_bar_toggle_action_entries),  /* the number of entries */
+                                    NULL);                                              /* data to pass to the action callbacks */
+
+        gtk_action_group_add_radio_actions  (main_menu_bar_action_group,                 /* the action group */
+                                    main_menu_bar_radio_view_time_entries,               /* an array of radio action descriptions  */
+                                    G_N_ELEMENTS(main_menu_bar_radio_view_time_entries), /* the number of entries */
+                                    recent.gui_time_format,                              /* the value of the action to activate initially, or -1 if no action should be activated  */
+                                    G_CALLBACK(timestamp_format_new_cb),                 /* the callback to connect to the changed signal  */
+                                    NULL);                                               /* data to pass to the action callbacks  */
 
         gtk_action_group_add_radio_actions  (main_menu_bar_action_group,                                    /* the action group */
-                                    main_menu_bar_radio_view_time_entries,                    /* an array of radio action descriptions  */
-                                    G_N_ELEMENTS(main_menu_bar_radio_view_time_entries),    /* the number of entries */
-                                    recent.gui_time_format,                                    /* the value of the action to activate initially, or -1 if no action should be activated  */
-                                    G_CALLBACK(timestamp_format_new_cb),                    /* the callback to connect to the changed signal  */
-                                    NULL);                                                    /* data to pass to the action callbacks  */
-
-        gtk_action_group_add_radio_actions  (main_menu_bar_action_group,                                    /* the action group */
-                                    main_menu_bar_radio_view_time_fileformat_prec_entries,  /* an array of radio action descriptions  */
+                                    main_menu_bar_radio_view_time_fileformat_prec_entries,                  /* an array of radio action descriptions  */
                                     G_N_ELEMENTS(main_menu_bar_radio_view_time_fileformat_prec_entries),    /* the number of entries */
                                     recent.gui_time_precision,                                /* the value of the action to activate initially, or -1 if no action should be activated  */
-                                    G_CALLBACK(timestamp_precision_new_cb),                    /* the callback to connect to the changed signal  */
+                                    G_CALLBACK(timestamp_precision_new_cb),                   /* the callback to connect to the changed signal  */
                                     NULL);                                                    /* data to pass to the action callbacks  */
 
 
@@ -3609,6 +3621,15 @@ menus_init(void) {
             g_error_free (error); 
             error = NULL; 
         } 
+
+	  /* Add the recent files items to the menu
+	   * use place holders and
+	   * gtk_ui_manager_add_ui().
+	   */
+	  merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
+#if 0
+	  add_recent_items (merge_id, ui_manager_main_menubar);
+#endif
 #else /* MAIN_MENU_USE_UIMANAGER */
         main_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", grp);
         gtk_item_factory_create_items_ac(main_menu_factory, nmenu_items, menu_items, NULL, 2);
@@ -3659,9 +3680,10 @@ menus_init(void) {
         set_menus_for_capture_in_progress(FALSE);
         set_menus_for_file_set(/* dialog */TRUE, /* previous file */ FALSE, /* next_file */ FALSE);
 
+#ifndef MAIN_MENU_USE_UIMANAGER
         /* Init with an empty recent files list */
         clear_menu_recent_capture_file_cmd_cb(NULL, NULL);
-
+#endif /* MAIN_MENU_USE_UIMANAGER */
         /* Protocol help links */
         proto_help_menu_init(gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup"));
     }
@@ -4334,7 +4356,107 @@ remove_menu_recent_capture_file(GtkWidget *widget, gpointer unused _U_) {
     gtk_container_remove(GTK_CONTAINER(submenu_recent_files), widget);
 }
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+#if 0
+static void
+add_recent_items (guint merge_id, GtkUIManager *ui_manager)
+{
+    GtkActionGroup *action_group;
+    GtkAction *action;
+    GtkWidget *submenu_recent_files;
+    //GtkRecentManager *manager;
+    GList *items, *l;
+    //guint i;
+    //static guint changed_id = 0;
 
+    action_group = gtk_action_group_new ("recent-files-group");
+
+    submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
+    if(!submenu_recent_files){
+        g_warning("add_recent_items: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
+    }
+    items = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
+
+    //manager = gtk_recent_manager_get_default ();
+
+    //items = gtk_recent_manager_get_items (manager);
+    //items = g_list_sort (items, (GCompareFunc) sort_mru_func);
+
+    gtk_ui_manager_insert_action_group (ui_manager, action_group, 0);
+    g_object_set_data (G_OBJECT (ui_manager),
+                     "recent-files-merge-id", GUINT_TO_POINTER (merge_id));
+
+    ///* no items */
+    if (!items){
+
+      action = g_object_new (GTK_TYPE_ACTION,
+      			 "name", "recent-info-empty",
+			     "label", "No recently used files",
+			     "sensitive", FALSE,
+			     NULL);
+      gtk_action_group_add_action (action_group, action);
+      g_object_unref (action);
+
+      gtk_ui_manager_add_ui (ui_manager, merge_id,
+  			     "/Menubar/FileMenu/OpenRecent/RecentFiles",
+			     "recent-info-empty",
+			     "recent-info-empty",
+			     GTK_UI_MANAGER_MENUITEM,
+			     FALSE);
+      
+      return;
+    }
+
+  //for (i = 0, l = items;
+  //     i < 4 && l != NULL;
+  //     i +=1, l = l->next)
+  //  {
+  //    GtkRecentInfo *info = l->data;
+  //    gchar *name = g_strdup_printf ("recent-info-%d-%lu",
+  //    				     i,
+		//		     (gulong) time (NULL));
+  //    gchar *action_name = g_strdup (name);
+  //    GtkAction *action;
+
+  //    action = g_object_new (GTK_TYPE_ACTION,
+  //    			     "name", action_name,
+		//	     "label", gtk_recent_info_get_display_name (info),
+		//	     "stock_id", NULL,
+		//	     NULL);
+  //    g_object_set_data_full (G_OBJECT (action), "gtk-recent-info",
+  //                            gtk_recent_info_ref (info),
+		//	      (GDestroyNotify) gtk_recent_info_unref);
+  //    g_signal_connect (action, "activate",
+  //                      G_CALLBACK (recent_activate_cb), NULL);
+  //    gtk_action_group_add_action (action_group, action);
+  //    g_object_unref (action);
+
+  //    gtk_ui_manager_add_ui (ui_manager, merge_id,
+  //			     "/MenuBar/FileMenu/RecentFiles",
+		//	     name,
+		//	     action_name,
+		//	     GTK_UI_MANAGER_MENUITEM,
+		//	     FALSE);
+  //    
+  //    g_print ("* adding action `%s'\n", action_name);
+
+  //    g_free (action_name);
+  //    g_free (name);
+  //  }
+  //
+  //g_list_foreach (items, (GFunc) gtk_recent_info_unref, NULL);
+  //g_list_free (items);
+
+  ///* don't connect twice to the same signal */
+  //if (!changed_id)
+  //  {
+  //    changed_id = g_signal_connect (manager, "changed",
+  //                                   G_CALLBACK (recent_manager_changed_cb),
+		//		     ui_manager);
+  //  }
+}
+#endif
+#endif /* MAIN_MENU_USE_UIMANAGER */
 /* callback, if the user pushed the <Clear> menu item */
 static void
 clear_menu_recent_capture_file_cmd_cb(GtkWidget *w _U_, gpointer unused _U_) {
@@ -4458,7 +4580,7 @@ menu_open_recent_file_cmd_cb(GtkWidget *widget, gpointer data _U_) {
 static void
 add_menu_recent_capture_file_absolute(gchar *cf_name) {
     GtkWidget *submenu_recent_files;
-    GList *menu_item_list;
+    GList *menu_item_list_old, *recent_files_list;
     GList *li;
     gchar *widget_cf_name;
     gchar *normalized_cf_name;
@@ -4479,16 +4601,17 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
     if(!submenu_recent_files){
         g_warning("add_menu_recent_capture_file_absolute: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
     }
+	recent_files_list = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
 #else
     submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH_OLD);
 #endif
     /* convert container to a GList */
-    menu_item_list = gtk_container_get_children(GTK_CONTAINER(submenu_recent_files));
+    menu_item_list_old = gtk_container_get_children(GTK_CONTAINER(submenu_recent_files));
 
     /* iterate through list items of menu_item_list,
      * removing special items, a maybe duplicate entry and every item above count_max */
     cnt = 1;
-    for (li = g_list_first(menu_item_list); li; li = li->next, cnt++) {
+    for (li = g_list_first(menu_item_list_old); li; li = li->next, cnt++) {
         /* get capture filename */
         menu_item = GTK_WIDGET(li->data);
         widget_cf_name = g_object_get_data(G_OBJECT(menu_item), MENU_RECENT_FILES_KEY);
@@ -4510,8 +4633,11 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
         }
     }
 
-    g_list_free(menu_item_list);
-
+    g_list_free(menu_item_list_old);
+#if 0
+	recent_files_list = g_list_prepend(recent_files_list, normalized_cf_name);
+	g_object_set_data(G_OBJECT(submenu_recent_files), "recent-files-list", recent_files_list);
+#endif
     /* add new item at latest position */
     menu_item = gtk_menu_item_new_with_label(normalized_cf_name);
     g_object_set_data(G_OBJECT(menu_item), MENU_RECENT_FILES_KEY, normalized_cf_name);
@@ -4574,7 +4700,7 @@ menu_recent_file_write_all(FILE *rf) {
 #ifdef MAIN_MENU_USE_UIMANAGER
     submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
     if(!submenu_recent_files){
-        g_warning("add_menu_recent_capture_file_absolute: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
+        g_warning("menu_recent_file_write_all: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
     }
 #else
     submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH_OLD);
