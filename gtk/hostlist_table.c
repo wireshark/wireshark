@@ -1428,17 +1428,17 @@ ct_nb_switch_page_cb(GtkNotebook *nb, GtkNotebookPage *pg _U_, guint page, gpoin
 static void
 ct_nb_map_switch_page_cb(GtkNotebook *nb, GtkNotebookPage *pg _U_, guint page, gpointer data)
 {
-    GtkWidget *copy_bt = (GtkWidget *) data;
+    GtkWidget *map_bt = (GtkWidget *) data;
     void ** pages = g_object_get_data(G_OBJECT(nb), NB_PAGES_KEY);
 
     page++;
 
-    if (pages && page > 0 && (int) page <= GPOINTER_TO_INT(pages[0]) && copy_bt) {
-        g_object_set_data(G_OBJECT(copy_bt), HOST_PTR_KEY, pages[page]);
+    if (pages && page > 0 && (int) page <= GPOINTER_TO_INT(pages[0]) && map_bt) {
+        g_object_set_data(G_OBJECT(map_bt), HOST_PTR_KEY, pages[page]);
         if(strstr( ((hostlist_table *)pages[page])->name, "IPv4") != NULL) {
-            gtk_widget_set_sensitive(copy_bt, TRUE);
+            gtk_widget_set_sensitive(map_bt, TRUE);
         } else {
-            gtk_widget_set_sensitive(copy_bt, FALSE);
+            gtk_widget_set_sensitive(map_bt, FALSE);
         }
     }
 }
