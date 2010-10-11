@@ -1,5 +1,22 @@
 ------------------------------------------------------------------------
-r33674 | gerald | 2010-07-29 11:15:10 -0700 (Thu, 29 Jul 2010) | 2 lines
+r34004 | gerald | 2010-08-29 15:02:03 -0700 (Sun, 29 Aug 2010) | 2 lines
+Changed paths:
+   M /trunk-1.2/ChangeLog
+   M /trunk-1.2/NEWS
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/version.conf
+
+Build 1.2.11.
+
+------------------------------------------------------------------------
+r34007 | gerald | 2010-08-29 18:16:20 -0700 (Sun, 29 Aug 2010) | 2 lines
+Changed paths:
+   M /trunk-1.2/docbook/release-notes.xml
+
+Fix the advisory link.
+
+------------------------------------------------------------------------
+r34022 | gerald | 2010-08-30 10:57:37 -0700 (Mon, 30 Aug 2010) | 2 lines
 Changed paths:
    M /trunk-1.2/config.nmake
    M /trunk-1.2/configure.in
@@ -7,406 +24,160 @@ Changed paths:
    M /trunk-1.2/docbook/release-notes.xml
    M /trunk-1.2/version.conf
 
-1.2.10 -> 1.2.11.
+1.2.11 -> 1.2.12.
 
 ------------------------------------------------------------------------
-r33687 | gerald | 2010-08-01 09:04:45 -0700 (Sun, 01 Aug 2010) | 1 line
+r34066 | gerald | 2010-09-05 10:05:08 -0700 (Sun, 05 Sep 2010) | 1 line
 Changed paths:
    M /trunk-1.2/epan/enterprise-numbers
    M /trunk-1.2/manuf
 
-[Automatic manuf and enterprise-numbers update for 2010-08-01]
+[Automatic manuf and enterprise-numbers update for 2010-09-05]
 ------------------------------------------------------------------------
-r33697 | morriss | 2010-08-03 06:49:19 -0700 (Tue, 03 Aug 2010) | 8 lines
-Changed paths:
-   M /trunk-1.2/epan/dissectors/packet-sctp.c
-
-Put back some check_col()'s that were mistakenly removed in rev 30867.
-(check_col() is still needed back in the 1.2 trunk.)
-
-This fixes the crash reported in
-https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5072 .
-
-(This bug has been there since 1.2.4.)
-
-------------------------------------------------------------------------
-r33704 | morriss | 2010-08-03 14:28:22 -0700 (Tue, 03 Aug 2010) | 11 lines
-Changed paths:
-   M /trunk-1.2/epan/column-utils.c
-   M /trunk-1.2/epan/dissectors/packet-sctp.c
-
-Revert rev 33697: it's not necessary (check_col() is NOT necessary in the 1.2
-trunk after all).
-
-Instead, put back the check_col() calls in col_append_fstr() and
-col_append_sep_fstr().
-
-This fixes (the right way) the crash reported in
-https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5072 .
-
-(This bug has only been there since 1.2.10.)
-
-------------------------------------------------------------------------
-r33705 | etxrab | 2010-08-04 02:27:49 -0700 (Wed, 04 Aug 2010) | 2 lines
-Changed paths:
-   M /trunk-1.2/epan/reassemble.c
-   M /trunk-1.2/epan/reassemble.h
-
-(Trivial)Copy over Revision 29205 reassemble.h: update two comments; reassemble.c: correct a typo.
-(Makes comparison easier)
-------------------------------------------------------------------------
-r33706 | etxrab | 2010-08-04 02:30:46 -0700 (Wed, 04 Aug 2010) | 2 lines
-Changed paths:
-   M /trunk-1.2/epan/reassemble.c
-
-(Trivial)Copy over Revision 29397 White space changes
-(Makes comparison easier)
-------------------------------------------------------------------------
-r33712 | etxrab | 2010-08-04 14:34:28 -0700 (Wed, 04 Aug 2010) | 2 lines
-Changed paths:
-   M /trunk-1.2/epan/proto.c
-
-(Trivial)Copy over Revision 28992 Added some casts for true_false_string's.
-(Makes comparison easier)
-------------------------------------------------------------------------
-r33715 | etxrab | 2010-08-05 09:37:41 -0700 (Thu, 05 Aug 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/dissectors/packet-dcerpc-eventlog.c
-   M /trunk-1.2/epan/frame_data.h
-   M /trunk-1.2/epan/libwireshark.def
-   M /trunk-1.2/epan/packet.c
-   M /trunk-1.2/epan/packet.h
-   M /trunk-1.2/gtk/main_proto_draw.c
-   M /trunk-1.2/print.c
-
-Copy over 29066 optimizes the data source name processing.
-------------------------------------------------------------------------
-r33716 | etxrab | 2010-08-05 09:44:50 -0700 (Thu, 05 Aug 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/packet.c
-   M /trunk-1.2/epan/packet.h
-   M /trunk-1.2/epan/reassemble.c
-   M /trunk-1.2/epan/reassemble_test.c
-   M /trunk-1.2/epan/wslua/wslua_dumper.c
-   M /trunk-1.2/print.c
-
-Copy over 29427 introduces packet_add_new_data_source()
-------------------------------------------------------------------------
-r33717 | etxrab | 2010-08-05 09:47:57 -0700 (Thu, 05 Aug 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/reassemble.c
-
-Copy over 29940 Use the slice allocator if GLIB >= 2,10,0
-------------------------------------------------------------------------
-r33732 | gerald | 2010-08-08 09:04:46 -0700 (Sun, 08 Aug 2010) | 1 line
+r34104 | gerald | 2010-09-12 10:05:01 -0700 (Sun, 12 Sep 2010) | 1 line
 Changed paths:
    M /trunk-1.2/epan/enterprise-numbers
    M /trunk-1.2/manuf
 
-[Automatic manuf and enterprise-numbers update for 2010-08-08]
+[Automatic manuf and enterprise-numbers update for 2010-09-12]
 ------------------------------------------------------------------------
-r33738 | guy | 2010-08-08 14:08:40 -0700 (Sun, 08 Aug 2010) | 8 lines
-Changed paths:
-   M /trunk-1.2/packaging/macosx/Read_me_first.rtf
-
-Pick up change from the trunk:
-
-r33736 | guy | 2010-08-08 14:04:42 -0700 (Sun, 08 Aug 2010) | 4 lines
-
-Don't speak of XQuartz - at least one person thought we meant that you
-had to install XQuartz from Mac OS X Forge, rather than just installing
-the X11 that comes with OS X.
-
-------------------------------------------------------------------------
-r33756 | guy | 2010-08-10 01:13:49 -0700 (Tue, 10 Aug 2010) | 10 lines
-Changed paths:
-   M /trunk-1.2/epan/dissectors/packet-smb.c
-   M /trunk-1.2/epan/dissectors/packet-smb.h
-   M /trunk-1.2/epan/dissectors/packet-smb2.c
-
-Pick up change from the trunk:
-
-r33753 | guy | 2010-08-10 00:04:20 -0700 (Tue, 10 Aug 2010) | 6 lines
-
-Dissect SMB_FILE_ATTRIBUTES, when used as file attributes rather than
-search attributes, as a 16-bit quantity, with only the bits specified by
-section 2.2.1.2.4 of [MS-CIFS].  Use dissect_file_ext_attr() in all
-cases where we're dissecting SMB_EXT_FILE_ATTR, as specified by section
-2.2.1.2.3 of [MS-CIFS].
-
-------------------------------------------------------------------------
-r33804 | gerald | 2010-08-15 09:04:44 -0700 (Sun, 15 Aug 2010) | 1 line
+r34157 | gerald | 2010-09-19 10:05:10 -0700 (Sun, 19 Sep 2010) | 1 line
 Changed paths:
    M /trunk-1.2/epan/enterprise-numbers
    M /trunk-1.2/manuf
 
-[Automatic manuf and enterprise-numbers update for 2010-08-15]
+[Automatic manuf and enterprise-numbers update for 2010-09-19]
 ------------------------------------------------------------------------
-r33848 | morriss | 2010-08-18 19:59:06 -0700 (Wed, 18 Aug 2010) | 10 lines
-Changed paths:
-   M /trunk-1.2/epan/dissectors/packet-bootp.c
-
-Pick up change from trunk:
-
-r33846 | morriss | 2010-08-18 22:17:01 -0400 (Wed, 18 Aug 2010) | 6 lines
-
-Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5114 (infinite loop in
-bootp dissector when dissecting packetcable MTA capabilities).
-
-Limit the tlv_len to G_MAXUINT16 to prevent an integer overflow from causing us to
-increment the working offset by 0 (thus causing us to loop).
-
-------------------------------------------------------------------------
-r33883 | gerald | 2010-08-22 09:04:42 -0700 (Sun, 22 Aug 2010) | 1 line
+r34255 | gerald | 2010-09-26 10:05:06 -0700 (Sun, 26 Sep 2010) | 1 line
 Changed paths:
    M /trunk-1.2/epan/enterprise-numbers
    M /trunk-1.2/manuf
 
-[Automatic manuf and enterprise-numbers update for 2010-08-22]
+[Automatic manuf and enterprise-numbers update for 2010-09-26]
 ------------------------------------------------------------------------
-r33935 | gerald | 2010-08-26 10:35:28 -0700 (Thu, 26 Aug 2010) | 48 lines
+r34348 | gerald | 2010-10-03 10:04:57 -0700 (Sun, 03 Oct 2010) | 1 line
 Changed paths:
-   M /trunk-1.2/airpcap_loader.c
-   M /trunk-1.2/capture-wpcap.c
-   M /trunk-1.2/capture_wpcap_packet.c
-   M /trunk-1.2/doc/README.capture
-   M /trunk-1.2/dumpcap.c
-   M /trunk-1.2/epan/filesystem.c
-   M /trunk-1.2/gtk/main.c
-   M /trunk-1.2/nio-ie5.c
-   M /trunk-1.2/wsutil/file_util.c
-   M /trunk-1.2/wsutil/file_util.h
-   M /trunk-1.2/wsutil/libwsutil.def
-   M /trunk-1.2/wsutil/unicode-utils.h
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
 
-Copy over revisions by hand:
-
+[Automatic manuf and enterprise-numbers update for 2010-10-03]
 ------------------------------------------------------------------------
-r33916 | gerald | 2010-08-24 16:39:29 -0700 (Tue, 24 Aug 2010) | 5 lines
+r34390 | gerald | 2010-10-05 16:53:04 -0700 (Tue, 05 Oct 2010) | 2 lines
 Changed paths:
-   M /trunk/dumpcap.c
-   M /trunk/gtk/main.c
+   A /trunk-1.2/tools/make-services.pl
 
-Partial fix for bug 5133. On Windows, call SetDllDirectory at startup if
-it's present in Wireshark and dumpcap. This takes care of the airpcap.dll
-PoC but we need to load wpcap.dll from a full path. We might want to
-call SetDllDirectory from our other executables as well.
+Copy over make-services.pl from the trunk.
+
 ------------------------------------------------------------------------
-r33917 | gerald | 2010-08-24 17:20:50 -0700 (Tue, 24 Aug 2010) | 2 lines
+r34440 | gerald | 2010-10-08 14:36:53 -0700 (Fri, 08 Oct 2010) | 48 lines
 Changed paths:
-   M /trunk/dumpcap.c
-
-Fix !Windows compilation.
-------------------------------------------------------------------------
-r33924 | gerald | 2010-08-25 13:30:59 -0700 (Wed, 25 Aug 2010) | 6 lines
-Changed paths:
-   M /trunk/airpcap_loader.c
-   M /trunk/capture-wpcap.c
-   M /trunk/capture_wpcap_packet.c
-   M /trunk/config.nmake
-   M /trunk/doc/README.capture
-   M /trunk/epan/filesystem.c
-   M /trunk/epan/wspython/wspy_libws.py
-   M /trunk/gtk/main.c
-   M /trunk/nio-ie5.c
-   M /trunk/wsutil/file_util.c
-   M /trunk/wsutil/file_util.h
-   M /trunk/wsutil/libwsutil.def
-
-Add ws_load_library and ws_module_open, which respectively call
-LoadLibrary and g_module_open only for the program directory and system
-directory on Windows. Use them to replace a bunch of LoadLibrary and
-g_module_open calls. Use the extension ".dll" for all the DLLs that we
-load. Add comments about DLL loading in Python.
-------------------------------------------------------------------------
-r33925 | gerald | 2010-08-25 15:41:26 -0700 (Wed, 25 Aug 2010) | 2 lines
-Changed paths:
-   M /trunk/wsutil/file_util.h
-
-Move Windows-specific material inside an appropriate #ifdef.
-------------------------------------------------------------------------
-
-
-------------------------------------------------------------------------
-r33956 | gerald | 2010-08-27 11:53:11 -0700 (Fri, 27 Aug 2010) | 6 lines
-Changed paths:
-   M /trunk-1.2/dumpcap.c
-   M /trunk-1.2/gtk/main.c
-   M /trunk-1.2/wsutil/file_util.c
-   M /trunk-1.2/wsutil/file_util.h
-   M /trunk-1.2/wsutil/libwsutil.def
-
-Forward-port r33953.
-
-Move the SetDllDirectory calls to ws_init_dll_search_path. If
-SetDllDirectory fails, pass the Wireshark program path to
-SetCurrentDirectory.
-
-------------------------------------------------------------------------
-r33972 | gerald | 2010-08-27 14:55:24 -0700 (Fri, 27 Aug 2010) | 2 lines
-Changed paths:
+   M /trunk-1.2/capture.c
    M /trunk-1.2/docbook/release-notes.xml
-
-Update the security fix section.
-
-------------------------------------------------------------------------
-r33973 | gerald | 2010-08-27 16:40:31 -0700 (Fri, 27 Aug 2010) | 75 lines
-Changed paths:
-   M /trunk-1.2/config.guess
-   M /trunk-1.2/config.sub
-   M /trunk-1.2/docbook/release-notes.xml
-   M /trunk-1.2/epan/dissectors/packet-h264.c
+   M /trunk-1.2/epan/dissectors/packet-gtp.c
    M /trunk-1.2/epan/dissectors/packet-ip.c
-   M /trunk-1.2/epan/dissectors/packet-rtsp.c
-   M /trunk-1.2/epan/dissectors/packet-sdp.c
-   M /trunk-1.2/epan/ftypes/ftype-tvbuff.c
+   M /trunk-1.2/epan/dissectors/packet-rpc.c
+   M /trunk-1.2/print.c
 
 Copy over revisions from the trunk:
 
 ------------------------------------------------------------------------
-r33725 | wmeier | 2010-08-06 07:34:14 -0700 (Fri, 06 Aug 2010) | 3 lines
+r34031 | stig | 2010-08-31 03:24:08 -0700 (Tue, 31 Aug 2010) | 4 lines
 Changed paths:
-   M /trunk/epan/dissectors/packet-rtsp.c
+   M /trunk/epan/dissectors/packet-gtp.c
 
-From John Sullivan: Fix for 'Uninitialised pointer in packet-rtsp.c causes crash'
-See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5081
+Update the header length after dissecting the header.
+
+This fixes bug 5162.
 ------------------------------------------------------------------------
-r33735 | stig | 2010-08-08 12:04:35 -0700 (Sun, 08 Aug 2010) | 4 lines
+r33906 | etxrab | 2010-08-23 23:15:40 -0700 (Mon, 23 Aug 2010) | 3 lines
 Changed paths:
-   M /trunk/epan/ftypes/ftype-tvbuff.c
+   M /trunk/capture.c
 
-Protect tvb_* functions in a TRY-CATCH block.
-
-This fixes bug 5087.
+From Gregor Beck:
+ERROR:capture.c:141:capture_start: assertion failed: (capture_opts->state == CAPTURE_STOPPED)
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5126
 ------------------------------------------------------------------------
-r33764 | etxrab | 2010-08-11 04:33:40 -0700 (Wed, 11 Aug 2010) | 1 line
-Changed paths:
-   M /trunk/epan/dissectors/packet-sdp.c
-
-Add a komment about the format of the MSRP path parameter.
-------------------------------------------------------------------------
-r33774 | stig | 2010-08-11 14:27:35 -0700 (Wed, 11 Aug 2010) | 2 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-sdp.c
-
-Added check for valid tvb before calling tvb_length().
-------------------------------------------------------------------------
-r33776 | etxrab | 2010-08-11 14:39:22 -0700 (Wed, 11 Aug 2010) | 2 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-sdp.c
-
-Add a warning message if H264 profile-level-id parameter wasn't
-posible to parse.
-------------------------------------------------------------------------
-r33777 | etxrab | 2010-08-11 14:52:35 -0700 (Wed, 11 Aug 2010) | 1 line
-Changed paths:
-   M /trunk/epan/dissectors/packet-sdp.c
-
-Update the comment.
-------------------------------------------------------------------------
-r33775 | stig | 2010-08-11 14:37:04 -0700 (Wed, 11 Aug 2010) | 2 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-h264.c
-
-Call tvb_get_bits32() if leading_zero_bits > 16.
-------------------------------------------------------------------------
-r33778 | etxrab | 2010-08-11 14:56:19 -0700 (Wed, 11 Aug 2010) | 1 line
-Changed paths:
-   M /trunk/epan/dissectors/packet-h264.c
-
-Do DISSECTOR_ASSERT_NOT_REACHED(); if golmb coded data is > 32 bits.
-------------------------------------------------------------------------
-r33780 | stig | 2010-08-11 23:26:21 -0700 (Wed, 11 Aug 2010) | 4 lines
+r34080 | stig | 2010-09-08 06:38:47 -0700 (Wed, 08 Sep 2010) | 3 lines
 Changed paths:
    M /trunk/epan/dissectors/packet-ip.c
 
-From Chris Maynard via bug 5105:
-IP should not compute the header checksum if within an error packet
-such as ICMP.
+Revert revision 33780, because the checksum is only calculated
+from the header and not the content.
 ------------------------------------------------------------------------
-r33894 | jake | 2010-08-23 11:16:22 -0700 (Mon, 23 Aug 2010) | 2 lines
+r34408 | morriss | 2010-10-07 14:10:51 -0700 (Thu, 07 Oct 2010) | 4 lines
 Changed paths:
-   M /trunk/config.guess
-   M /trunk/config.sub
+   M /trunk/epan/dissectors/packet-rpc.c
 
-On request from Albert Chin:
-Update libtoolize files
+Restore pinfo->private_data after an exception was thrown by a subdissector.
+This is necessary in case a subdissector had changed it but was unable to
+restore it (due to the exception).
 ------------------------------------------------------------------------
 
 
-Update the release notes.
+Copy over by hand:
 
 ------------------------------------------------------------------------
-r33974 | gerald | 2010-08-27 16:48:55 -0700 (Fri, 27 Aug 2010) | 17 lines
-Changed paths:
-   M /trunk-1.2/config.nmake
-   M /trunk-1.2/packaging/nsis/Makefile.nmake
-
-Copy over r33921 and 33922 by hand:
-
-------------------------------------------------------------------------
-r33921 | morriss | 2010-08-25 08:27:14 -0700 (Wed, 25 Aug 2010) | 1 line
-Changed paths:
-   M /trunk/config.nmake
-
-Change PCAP_VERSION to 4.1.2.  Hopefully this will cause the U3/PortableApps builds to pick up WinPcap again.
-------------------------------------------------------------------------
-r33922 | morriss | 2010-08-25 08:28:26 -0700 (Wed, 25 Aug 2010) | 1 line
-Changed paths:
-   M /trunk/packaging/nsis/Makefile.nmake
-
-Use PCAP_VERSION (from config.nmake) instead of hard coding the WinPcap version.
-------------------------------------------------------------------------
-
-
-------------------------------------------------------------------------
-r33975 | gerald | 2010-08-27 16:54:04 -0700 (Fri, 27 Aug 2010) | 21 lines
-Changed paths:
-   M /trunk-1.2/debian/control
-   M /trunk-1.2/docbook/release-notes.xml
-   M /trunk-1.2/print.c
-
-Copy over revisions from the trunk:
-
-------------------------------------------------------------------------
-r33941 | stig | 2010-08-26 13:22:28 -0700 (Thu, 26 Aug 2010) | 4 lines
+r34039 | stig | 2010-09-01 13:54:41 -0700 (Wed, 01 Sep 2010) | 2 lines
 Changed paths:
    M /trunk/print.c
 
-Check input string in ps_clean_string().
-
-This fixes bug 5148.
+Ensure we always print the heading when dumping PSML and CSV.
 ------------------------------------------------------------------------
-r33947 | jake | 2010-08-26 23:07:32 -0700 (Thu, 26 Aug 2010) | 2 lines
-Changed paths:
-   M /trunk/debian/control
-
-Make wireshark-dev depend on the right automake.
-------------------------------------------------------------------------
-
 
 Update the release notes.
 
 ------------------------------------------------------------------------
-r33976 | gerald | 2010-08-27 20:09:44 -0700 (Fri, 27 Aug 2010) | 2 lines
-Changed paths:
-   M /trunk-1.2/tools/win32-setup.sh
-   M /trunk-1.2/tools/win64-setup.sh
-
-WpdPack 4.1.1 -> 4.1.2
-
-------------------------------------------------------------------------
-r33979 | gerald | 2010-08-28 10:21:44 -0700 (Sat, 28 Aug 2010) | 2 lines
+r34441 | gerald | 2010-10-08 14:53:37 -0700 (Fri, 08 Oct 2010) | 16 lines
 Changed paths:
    M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/epan/dissectors/packet-ber.c
 
-Add a CVE ID.
+Copy over r34111.
 
 ------------------------------------------------------------------------
-r33997 | gerald | 2010-08-29 09:04:41 -0700 (Sun, 29 Aug 2010) | 1 line
+r34111 | gerald | 2010-09-13 11:49:55 -0700 (Mon, 13 Sep 2010) | 6 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ber.c
+
+Attempt to fix the stack overflow reported at
+http://seclists.org/bugtraq/2010/Sep/87 .
+
+Unfortunately no one from the NCNIPC pen test team has contacted us or
+provided a sample capture so the fix hasn't been verified.
+------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r34452 | gerald | 2010-10-10 09:39:43 -0700 (Sun, 10 Oct 2010) | 1 line
 Changed paths:
    M /trunk-1.2/epan/enterprise-numbers
    M /trunk-1.2/manuf
+   M /trunk-1.2/services
 
-[Automatic manuf and enterprise-numbers update for 2010-08-29]
+[Automatic manuf, services and enterprise-numbers update for 2010-10-10]
+------------------------------------------------------------------------
+r34471 | gerald | 2010-10-11 09:45:58 -0700 (Mon, 11 Oct 2010) | 11 lines
+Changed paths:
+   M /trunk-1.2/gtk/main.c
+
+Copy over r34468 from the trunk:
+
+------------------------------------------------------------------------
+r34468 | stig | 2010-10-11 01:28:38 -0700 (Mon, 11 Oct 2010) | 3 lines
+Changed paths:
+   M /trunk/gtk/main.c
+
+Don't add a border around the main window, this looks bad in the new
+Ubuntu release.
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r34472 | gerald | 2010-10-11 09:50:56 -0700 (Mon, 11 Oct 2010) | 2 lines
+Changed paths:
+   M /trunk-1.2/tools/Makefile.am
+   M /trunk-1.2/tools/make-services.pl
+
+Add the Id tag to make-services.pl. Add it to the distribution.
+
 ------------------------------------------------------------------------

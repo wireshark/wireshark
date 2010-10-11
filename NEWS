@@ -1,4 +1,4 @@
-Wireshark 1.2.11 Release Notes
+Wireshark 1.2.12 Release Notes
 
    ------------------------------------------------------------------
 
@@ -15,24 +15,22 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o Wireshark is vulnerable to DLL hijacking as described in
-       Microsoft Security Advisory 2269637. This problem is fully
-       fixed on Windows XP SP1 and later. It is partially fixed on
-       Windows 2000 and XP without services packs. We expect to
-       address those platforms in future releases. If you are running
-       Wireshark on Windows 2000 or XP we recommend that you only
-       open capture files within Wireshark. (Bug 5133)
+     o The Penetration Test Team of NCNIPC (China) discovered that
+       the ASN.1 BER dissector was susceptible to a stack overflow.
+       (Bug 5230)
 
-       Versions affected: All previous Windows versions up to and
-       including 1.0.15 and 1.2.10.
+       Versions affected: All previous versions up to and including
+       1.2.11 and 1.4.1.
 
-       CVE-2010-3133
+       CVE-2010-????
 
    The following bugs have been fixed:
 
-     o The RTSP dissector could crash. (Bug 5081)
+     o ERROR:capture.c:141:capture_start: assertion failed:
+       (capture_opts->state == CAPTURE_STOPPED). (Bug 5126)
 
-     o TShark could crash when generating PostScript®. (Bug 5148)
+     o GTP header is exported in PDML with an incorrect size. (Bug
+       5162)
 
   New and Updated Features
 
@@ -44,7 +42,7 @@ What's New
 
   Updated Protocol Support
 
-   BOOTP/DHCP, H.264, IP, RTSP, SCTP, SDP, SMB, SMB2
+   ASN.1 BER, GTP, IPv4, RPC
 
   Updated Capture File Support
 
@@ -95,12 +93,15 @@ Known Problems
 
 Getting Help
 
-   Community support is available on the wireshark-users mailing
-   list. Subscription information and archives for all of Wireshark's
-   mailing lists can be found on the web site.
+   Community support is available on Wireshark's Q&A site and on the
+   wireshark-users mailing list. Subscription information and
+   archives for all of Wireshark's mailing lists can be found on the
+   web site.
 
    Commercial support, training, and development services are
    available from CACE Technologies.
+
+   Training is available from Wireshark University.
 
 Frequently Asked Questions
 
