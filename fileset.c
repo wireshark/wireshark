@@ -62,12 +62,12 @@
 
 
 typedef struct _fileset {
-  GList   *entries;
-  char    *dirname;
+    GList   *entries;
+    char    *dirname;
 } fileset;
 
 /* this is the fileset's global data */
-fileset set = { NULL, NULL};
+static fileset set = { NULL, NULL};
 
 
 /* is this a probable file of a file set (does the naming pattern match)? */
@@ -263,8 +263,8 @@ fileset_add_dir(const char *fname)
     if(fileset_filename_match_pattern(fname)) {
         /* yes, go through the files in the directory and check if the file in question is part of the current file set */
         if ((dir = ws_dir_open(dirname->str, 0, NULL)) != NULL) {
-	        while ((file = ws_dir_read_name(dir)) != NULL) {
-	            name = ws_dir_get_name(file);
+            while ((file = ws_dir_read_name(dir)) != NULL) {
+                name = ws_dir_get_name(file);
                 if(fileset_filename_match_pattern(name) && fileset_is_file_in_set(name, get_basename(fname))) {
                     fileset_add_file(dirname->str, name, strcmp(name, get_basename(fname))== 0 /* current */);
                 }

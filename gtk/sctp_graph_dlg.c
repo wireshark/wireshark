@@ -66,14 +66,14 @@
 #define SUB_32(a, b)	a-b
 #define POINT_SIZE	3
 
-GtkWidget * sack_bt;
+static GtkWidget * sack_bt;
 
-/* 
+/*
  * Global variables that help in redrawing graph
  * for SACK and NRSACK
  */
-guint8 gIsSackChunkPresent = 0;
-guint8 gIsNRSackChunkPresent = 0;
+static guint8 gIsSackChunkPresent   = 0;
+static guint8 gIsNRSackChunkPresent = 0;
 
 struct chunk_header {
 	guint8  type;
@@ -140,7 +140,8 @@ static GtkWidget *zoomout_bt;
 static int rint (double );	/* compiler template for Windows */
 #endif
 
-static void draw_sack_graph(struct sctp_udata *u_data)
+static void
+draw_sack_graph(struct sctp_udata *u_data)
 {
 	tsn_t	*sack;
 	GList *list=NULL, *tlist;
@@ -162,7 +163,7 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 
 	green_gc = gdk_gc_new(u_data->io->draw_area->window);
 	gdk_gc_set_rgb_fg_color(green_gc, &green_color);
-	
+
 	cyan_gc = gdk_gc_new(u_data->io->draw_area->window);
 	gdk_gc_set_rgb_fg_color(cyan_gc, &cyan_color);
 
@@ -253,7 +254,7 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 							diff=sack->secs*1000000+sack->usecs-u_data->io->min_x;
 						xvalue = (guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff);
 						yvalue = (guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-POINT_SIZE -u_data->io->offset-((SUB_32(tsnumber,min_tsn))*u_data->io->y_interval));
-						if (xvalue >= LEFT_BORDER+u_data->io->offset && 
+						if (xvalue >= LEFT_BORDER+u_data->io->offset &&
 						    xvalue <= u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset &&
 						    yvalue >= TOP_BORDER-u_data->io->offset-POINT_SIZE &&
 						    yvalue <= u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)
@@ -278,7 +279,7 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 									diff=sack->secs*1000000+sack->usecs-u_data->io->min_x;
 								xvalue = (guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff);
 								yvalue = (guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-POINT_SIZE -u_data->io->offset-((SUB_32(dup,min_tsn))*u_data->io->y_interval));
-								if (xvalue >= LEFT_BORDER+u_data->io->offset && 
+								if (xvalue >= LEFT_BORDER+u_data->io->offset &&
 								    xvalue <= u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset &&
 								    yvalue >= TOP_BORDER-u_data->io->offset-POINT_SIZE &&
 								    yvalue <= u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)
@@ -299,14 +300,15 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 	g_object_unref(G_OBJECT(green_gc));
 }
 
-/* 
+/*
  * This function plots the NR_SACK gap ack and
  * nr gap acks.
- * Red dot - Cumulative TSN ack 
- * Green dot - Gap ack 
+ * Red dot - Cumulative TSN ack
+ * Green dot - Gap ack
  * Blue circle - NR Gap ack
  */
-static void draw_nr_sack_graph(struct sctp_udata *u_data)
+static void
+draw_nr_sack_graph(struct sctp_udata *u_data)
 {
 	tsn_t *sack;
 	GList *list=NULL, *tlist;
@@ -322,8 +324,8 @@ static void draw_nr_sack_graph(struct sctp_udata *u_data)
 	struct gaps *nr_gap;
 	guint32 max_num, diff;
 	/* This holds the sum of gap acks and nr gap acks */
-	guint16 total_gaps = 0; 
-	
+	guint16 total_gaps = 0;
+
 	red_gc = gdk_gc_new(u_data->io->draw_area->window);
 	gdk_gc_set_rgb_fg_color(red_gc, &red_color);
 	blue_gc = gdk_gc_new(u_data->io->draw_area->window);
@@ -366,8 +368,8 @@ static void draw_nr_sack_graph(struct sctp_udata *u_data)
 		tlist = g_list_first(sack->tsns);
 		while (tlist)
 		{
-			type = ((struct chunk_header *)tlist->data)->type; 
-			/* 
+			type = ((struct chunk_header *)tlist->data)->type;
+			/*
 			 * The tlist->data is memcpy ied to the appropriate structure
 			 * They entire raw tvb bytes are copied on to one of the *_chunk_header
 			 * structures in sctp_stat.c
@@ -405,7 +407,7 @@ static void draw_nr_sack_graph(struct sctp_udata *u_data)
 								    yvalue <= u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)
 								{
 									/* Check if this is an GAP ACK or NR GAP ACK */
-									if ( i >= numberOf_gaps) 
+									if ( i >= numberOf_gaps)
 									{
 										/* This is a nr gap ack */
 										gdk_draw_arc(u_data->io->pixmap,blue_gc,FALSE,
@@ -440,7 +442,7 @@ static void draw_nr_sack_graph(struct sctp_udata *u_data)
 					}
 					else
 						max_num=tsnumber;
-					
+
 					if (tsnumber>=min_tsn)
 					{
 						if (u_data->io->uoff)
@@ -449,7 +451,7 @@ static void draw_nr_sack_graph(struct sctp_udata *u_data)
 							diff=sack->secs*1000000+sack->usecs-u_data->io->min_x;
 						xvalue = (guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff);
 						yvalue = (guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-POINT_SIZE -u_data->io->offset-((SUB_32(tsnumber,min_tsn))*u_data->io->y_interval));
-						if (xvalue >= LEFT_BORDER+u_data->io->offset && 
+						if (xvalue >= LEFT_BORDER+u_data->io->offset &&
 						    xvalue <= u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset &&
 						    yvalue >= TOP_BORDER-u_data->io->offset-POINT_SIZE &&
 						    yvalue <= u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)
@@ -469,7 +471,8 @@ static void draw_nr_sack_graph(struct sctp_udata *u_data)
 	g_object_unref(G_OBJECT(green_gc));
 }
 
-static void draw_tsn_graph(struct sctp_udata *u_data)
+static void
+draw_tsn_graph(struct sctp_udata *u_data)
 {
 	tsn_t *tsn;
 	GList *list=NULL, *tlist;
@@ -524,7 +527,7 @@ static void draw_tsn_graph(struct sctp_udata *u_data)
 						diff=tsn->secs*1000000+tsn->usecs-u_data->io->min_x;
 					xvalue = (guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff);
 					yvalue = (guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-POINT_SIZE-u_data->io->offset-((SUB_32(tsnumber,min_tsn))*u_data->io->y_interval));
-					if (xvalue >= LEFT_BORDER+u_data->io->offset && 
+					if (xvalue >= LEFT_BORDER+u_data->io->offset &&
 					    xvalue <= u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset &&
 					    yvalue >= TOP_BORDER-u_data->io->offset-POINT_SIZE &&
 					    yvalue <= u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)
@@ -540,7 +543,8 @@ static void draw_tsn_graph(struct sctp_udata *u_data)
 }
 
 
-static void sctp_graph_draw(struct sctp_udata *u_data)
+static void
+sctp_graph_draw(struct sctp_udata *u_data)
 {
 	int length, lwidth;
 	guint32  distance=5, i, e, sec, w, start, a, b, j;
@@ -669,7 +673,7 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 
 	if (w==0)
 		w=1;
-	
+
 	if (w==4 || w==3 || w==2)
 	{
 		w=5;
@@ -681,9 +685,9 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 		a=distance/5;
 		b=0;
 	}
-	
 
-	if (!u_data->io->uoff)	
+
+	if (!u_data->io->uoff)
 	{
 		if (a>=1000000)
 		{
@@ -706,7 +710,7 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 		if (start%2!=0)
 			start--;
 		b = 0;
-		
+
 	}
 
 	for (i=start, j=b; i<=u_data->io->max_x; i+=a, j++)
@@ -769,7 +773,7 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 			                layout);
 			write_label = FALSE;
 		}
-		
+
 	}
 
 	g_strlcpy(label_string, "sec", sizeof(label_string));
@@ -845,7 +849,8 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
  * If an association has both SAKC and NR_SACK PDU's
  * a warning is popped
  */
-void updateLabels(void)
+static void
+updateLabels(void)
 {
 	if (gIsSackChunkPresent && gIsNRSackChunkPresent)
 	{
@@ -859,7 +864,8 @@ void updateLabels(void)
 		gtk_button_set_label( (GtkButton*) sack_bt, "Show Only NR Sack");
 }
 
-static void sctp_graph_redraw(struct sctp_udata *u_data)
+static void
+sctp_graph_redraw(struct sctp_udata *u_data)
 {
 sctp_graph_t *ios;
 
@@ -869,8 +875,8 @@ sctp_graph_t *ios;
 	switch (u_data->io->graph_type)
 	{
 		case 0:
-			/* Show both TSN and SACK information 
-			 * Reset the global sack variable 
+			/* Show both TSN and SACK information
+			 * Reset the global sack variable
 			 * for sack and nr sack cases
 			 */
 			gIsSackChunkPresent = 0;
@@ -884,8 +890,8 @@ sctp_graph_t *ios;
 			draw_tsn_graph(u_data);
 			break;
 		case 2:
-			/* Show only SACK information 
-			 * Reset the global sack variable 
+			/* Show only SACK information
+			 * Reset the global sack variable
 			 * for sack and nr sack cases
 			 */
 			gIsSackChunkPresent = 0;
@@ -914,7 +920,8 @@ sctp_graph_t *ios;
 }
 
 
-static void on_sack_bt(GtkWidget *widget _U_, struct sctp_udata *u_data)
+static void
+on_sack_bt(GtkWidget *widget _U_, struct sctp_udata *u_data)
 {
 
 	u_data = (struct sctp_udata *) u_data;
@@ -922,14 +929,16 @@ static void on_sack_bt(GtkWidget *widget _U_, struct sctp_udata *u_data)
 	sctp_graph_redraw(u_data);
 }
 
-static void on_tsn_bt(GtkWidget *widget _U_, struct sctp_udata *u_data)
+static void
+on_tsn_bt(GtkWidget *widget _U_, struct sctp_udata *u_data)
 {
 
 	u_data->io->graph_type=1;
 	sctp_graph_redraw(u_data);
 }
 
-static void on_both_bt(GtkWidget *widget _U_, struct sctp_udata *u_data)
+static void
+on_both_bt(GtkWidget *widget _U_, struct sctp_udata *u_data)
 {
 
 	u_data->io->graph_type=0;
@@ -1060,7 +1069,7 @@ zoomin_bt_fcn (struct sctp_udata *u_data)
 	u_data->io->rectangle_present=FALSE;
 	gtk_widget_set_sensitive(zoomout_bt, TRUE);
 	sctp_graph_redraw(u_data);
-	
+
 }
 
 
@@ -1220,14 +1229,14 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 		}
 		if (u_data->io->uoff)
 		{
-			if (x2_tmp - x1_tmp <= 1500)			
+			if (x2_tmp - x1_tmp <= 1500)
 				u_data->io->uoff = FALSE;
 			u_data->io->x1_tmp_sec=(guint32)x1_tmp;
 			u_data->io->x1_tmp_usec=0;
 			u_data->io->x2_tmp_sec=(guint32)x2_tmp;
 			u_data->io->x2_tmp_usec=0;
 		}
-		else 
+		else
 		{
 			u_data->io->x1_tmp_sec=(guint32)x1_tmp/1000000;
 			u_data->io->x1_tmp_usec=x1_tmp%1000000;
@@ -1254,7 +1263,7 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 		if (u_data->io->rectangle_present==TRUE)
 		{
 			u_data->io->rectangle_present=FALSE;
-			if (event->x >= u_data->io->rect_x_min && event->x <= u_data->io->rect_x_max && 
+			if (event->x >= u_data->io->rect_x_min && event->x <= u_data->io->rect_x_max &&
 			     event->y >= u_data->io->rect_y_min && event->y <= u_data->io->rect_y_max)
 				zoomin_bt_fcn(u_data);
 			else
@@ -1371,7 +1380,8 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 }
 
 
-static void init_sctp_graph_window(struct sctp_udata *u_data)
+static void
+init_sctp_graph_window(struct sctp_udata *u_data)
 {
 	GtkWidget *vbox;
 	GtkWidget *hbox;
@@ -1439,7 +1449,8 @@ static void init_sctp_graph_window(struct sctp_udata *u_data)
 	gtk_widget_show(u_data->io->window);
 }
 
-static void sctp_graph_set_title(struct sctp_udata *u_data)
+static void
+sctp_graph_set_title(struct sctp_udata *u_data)
 {
 	char *title;
 
@@ -1515,7 +1526,8 @@ quit(GtkObject *object _U_, gpointer user_data)
 }
 
 
-static void create_draw_area(GtkWidget *box, struct sctp_udata *u_data)
+static void
+create_draw_area(GtkWidget *box, struct sctp_udata *u_data)
 {
 
 	u_data->io->draw_area=gtk_drawing_area_new();
@@ -1534,7 +1546,8 @@ static void create_draw_area(GtkWidget *box, struct sctp_udata *u_data)
 
 
 
-void create_graph(guint16 dir, struct sctp_analyse* userdata)
+void
+create_graph(guint16 dir, struct sctp_analyse* userdata)
 {
 	struct sctp_udata *u_data;
 
@@ -1556,7 +1569,8 @@ void create_graph(guint16 dir, struct sctp_analyse* userdata)
 
 #if defined(_WIN32) && !defined(__MINGW32__)
 /* replacement of Unix rint() for Windows */
-static int rint (double x)
+static int
+rint (double x)
 {
 	char *buf;
 	int i,dec,sig;

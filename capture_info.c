@@ -71,7 +71,7 @@ typedef struct _info_data {
 } info_data_t;
 
 
-info_data_t info_data;
+static info_data_t info_data;
 
 
 /* open the info */
@@ -103,99 +103,99 @@ static const char *
 cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
                       int file_type)
 {
-  const char *errmsg;
-  static char errmsg_errno[1024+1];
+    const char *errmsg;
+    static char errmsg_errno[1024+1];
 
-  if (err < 0) {
-    /* Wiretap error. */
-    switch (err) {
+    if (err < 0) {
+        /* Wiretap error. */
+        switch (err) {
 
-    case WTAP_ERR_NOT_REGULAR_FILE:
-      errmsg = "The file \"%s\" is a \"special file\" or socket or other non-regular file.";
-      break;
+        case WTAP_ERR_NOT_REGULAR_FILE:
+            errmsg = "The file \"%s\" is a \"special file\" or socket or other non-regular file.";
+            break;
 
-    case WTAP_ERR_FILE_UNKNOWN_FORMAT:
-      /* Seen only when opening a capture file for reading. */
-      errmsg = "The file \"%s\" isn't a capture file in a format TShark understands.";
-      break;
+        case WTAP_ERR_FILE_UNKNOWN_FORMAT:
+            /* Seen only when opening a capture file for reading. */
+            errmsg = "The file \"%s\" isn't a capture file in a format TShark understands.";
+            break;
 
-    case WTAP_ERR_UNSUPPORTED:
-      /* Seen only when opening a capture file for reading. */
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-               "The file \"%%s\" isn't a capture file in a format TShark understands.\n"
-               "(%s)", err_info);
-      g_free(err_info);
-      errmsg = errmsg_errno;
-      break;
+        case WTAP_ERR_UNSUPPORTED:
+            /* Seen only when opening a capture file for reading. */
+            g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+                       "The file \"%%s\" isn't a capture file in a format TShark understands.\n"
+                       "(%s)", err_info);
+            g_free(err_info);
+            errmsg = errmsg_errno;
+            break;
 
-    case WTAP_ERR_CANT_WRITE_TO_PIPE:
-      /* Seen only when opening a capture file for writing. */
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-	       "The file \"%%s\" is a pipe, and %s capture files can't be "
-	       "written to a pipe.", wtap_file_type_string(file_type));
-      errmsg = errmsg_errno;
-      break;
+        case WTAP_ERR_CANT_WRITE_TO_PIPE:
+            /* Seen only when opening a capture file for writing. */
+            g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+                       "The file \"%%s\" is a pipe, and %s capture files can't be "
+                       "written to a pipe.", wtap_file_type_string(file_type));
+            errmsg = errmsg_errno;
+            break;
 
-    case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
-      /* Seen only when opening a capture file for writing. */
-      errmsg = "TShark doesn't support writing capture files in that format.";
-      break;
+        case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
+            /* Seen only when opening a capture file for writing. */
+            errmsg = "TShark doesn't support writing capture files in that format.";
+            break;
 
-    case WTAP_ERR_UNSUPPORTED_ENCAP:
-      if (for_writing)
-        errmsg = "TShark can't save this capture in that format.";
-      else {
-        g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                 "The file \"%%s\" is a capture for a network type that TShark doesn't support.\n"
-                 "(%s)", err_info);
-        g_free(err_info);
-        errmsg = errmsg_errno;
-      }
-      break;
+        case WTAP_ERR_UNSUPPORTED_ENCAP:
+            if (for_writing)
+                errmsg = "TShark can't save this capture in that format.";
+            else {
+                g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+                           "The file \"%%s\" is a capture for a network type that TShark doesn't support.\n"
+                           "(%s)", err_info);
+                g_free(err_info);
+                errmsg = errmsg_errno;
+            }
+            break;
 
-    case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
-      if (for_writing)
-        errmsg = "TShark can't save this capture in that format.";
-      else
-        errmsg = "The file \"%s\" is a capture for a network type that TShark doesn't support.";
-      break;
+        case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
+            if (for_writing)
+                errmsg = "TShark can't save this capture in that format.";
+            else
+                errmsg = "The file \"%s\" is a capture for a network type that TShark doesn't support.";
+            break;
 
-    case WTAP_ERR_BAD_RECORD:
-      /* Seen only when opening a capture file for reading. */
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-               "The file \"%%s\" appears to be damaged or corrupt.\n"
-               "(%s)", err_info);
-      g_free(err_info);
-      errmsg = errmsg_errno;
-      break;
+        case WTAP_ERR_BAD_RECORD:
+            /* Seen only when opening a capture file for reading. */
+            g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+                       "The file \"%%s\" appears to be damaged or corrupt.\n"
+                       "(%s)", err_info);
+            g_free(err_info);
+            errmsg = errmsg_errno;
+            break;
 
-    case WTAP_ERR_CANT_OPEN:
-      if (for_writing)
-        errmsg = "The file \"%s\" could not be created for some unknown reason.";
-      else
-        errmsg = "The file \"%s\" could not be opened for some unknown reason.";
-      break;
+        case WTAP_ERR_CANT_OPEN:
+            if (for_writing)
+                errmsg = "The file \"%s\" could not be created for some unknown reason.";
+            else
+                errmsg = "The file \"%s\" could not be opened for some unknown reason.";
+            break;
 
-    case WTAP_ERR_SHORT_READ:
-      errmsg = "The file \"%s\" appears to have been cut short"
-               " in the middle of a packet or other data.";
-      break;
+        case WTAP_ERR_SHORT_READ:
+            errmsg = "The file \"%s\" appears to have been cut short"
+                " in the middle of a packet or other data.";
+            break;
 
-    case WTAP_ERR_SHORT_WRITE:
-      errmsg = "A full header couldn't be written to the file \"%s\".";
-      break;
+        case WTAP_ERR_SHORT_WRITE:
+            errmsg = "A full header couldn't be written to the file \"%s\".";
+            break;
 
-    default:
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-	       "The file \"%%s\" could not be %s: %s.",
-	       for_writing ? "created" : "opened",
-	       wtap_strerror(err));
-      errmsg = errmsg_errno;
-      break;
-    }
-  } else
-    errmsg = file_open_error_message(err, for_writing);
-  return errmsg;
+        default:
+            g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+                       "The file \"%%s\" could not be %s: %s.",
+                       for_writing ? "created" : "opened",
+                       wtap_strerror(err));
+            errmsg = errmsg_errno;
+            break;
+        }
+    } else
+        errmsg = file_open_error_message(err, for_writing);
+    return errmsg;
 }
 
 /* new file arrived */
@@ -266,84 +266,84 @@ void capture_info_close(void)
 static void
 capture_info_packet(packet_counts *counts, gint wtap_linktype, const guchar *pd, guint32 caplen, union wtap_pseudo_header *pseudo_header)
 {
-  counts->total++;
-  switch (wtap_linktype) {
+    counts->total++;
+    switch (wtap_linktype) {
     case WTAP_ENCAP_ETHERNET:
-      capture_eth(pd, 0, caplen, counts);
-      break;
+        capture_eth(pd, 0, caplen, counts);
+        break;
     case WTAP_ENCAP_FDDI:
     case WTAP_ENCAP_FDDI_BITSWAPPED:
-      capture_fddi(pd, caplen, counts);
-      break;
+        capture_fddi(pd, caplen, counts);
+        break;
     case WTAP_ENCAP_PRISM_HEADER:
-      capture_prism(pd, 0, caplen, counts);
-      break;
+        capture_prism(pd, 0, caplen, counts);
+        break;
     case WTAP_ENCAP_TOKEN_RING:
-      capture_tr(pd, 0, caplen, counts);
-      break;
+        capture_tr(pd, 0, caplen, counts);
+        break;
     case WTAP_ENCAP_NULL:
-      capture_null(pd, caplen, counts);
-      break;
+        capture_null(pd, caplen, counts);
+        break;
     case WTAP_ENCAP_PPP:
-      capture_ppp_hdlc(pd, 0, caplen, counts);
-      break;
+        capture_ppp_hdlc(pd, 0, caplen, counts);
+        break;
     case WTAP_ENCAP_RAW_IP:
-      capture_raw(pd, caplen, counts);
-      break;
+        capture_raw(pd, caplen, counts);
+        break;
     case WTAP_ENCAP_SLL:
-      capture_sll(pd, caplen, counts);
-      break;
+        capture_sll(pd, caplen, counts);
+        break;
     case WTAP_ENCAP_LINUX_ATM_CLIP:
-      capture_clip(pd, caplen, counts);
-      break;
+        capture_clip(pd, caplen, counts);
+        break;
     case WTAP_ENCAP_IEEE_802_11:
     case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
-      capture_ieee80211(pd, 0, caplen, counts);
-      break;
+        capture_ieee80211(pd, 0, caplen, counts);
+        break;
     case WTAP_ENCAP_IEEE_802_11_WLAN_RADIOTAP:
-      capture_radiotap(pd, 0, caplen, counts);
-      break;
+        capture_radiotap(pd, 0, caplen, counts);
+        break;
     case WTAP_ENCAP_IEEE_802_11_WLAN_AVS:
-      capture_wlancap(pd, 0, caplen, counts);
-      break;
+        capture_wlancap(pd, 0, caplen, counts);
+        break;
     case WTAP_ENCAP_CHDLC:
-      capture_chdlc(pd, 0, caplen, counts);
-      break;
+        capture_chdlc(pd, 0, caplen, counts);
+        break;
     case WTAP_ENCAP_LOCALTALK:
-      capture_llap(counts);
-      break;
+        capture_llap(counts);
+        break;
     case WTAP_ENCAP_ATM_PDUS:
-      capture_atm(pseudo_header, pd, caplen, counts);
-      break;
+        capture_atm(pseudo_header, pd, caplen, counts);
+        break;
     case WTAP_ENCAP_IP_OVER_FC:
-      capture_ipfc(pd, caplen, counts);
-      break;
+        capture_ipfc(pd, caplen, counts);
+        break;
     case WTAP_ENCAP_ARCNET:
-      capture_arcnet(pd, caplen, counts, FALSE, TRUE);
-      break;
+        capture_arcnet(pd, caplen, counts, FALSE, TRUE);
+        break;
     case WTAP_ENCAP_ARCNET_LINUX:
-      capture_arcnet(pd, caplen, counts, TRUE, FALSE);
-      break;
+        capture_arcnet(pd, caplen, counts, TRUE, FALSE);
+        break;
     case WTAP_ENCAP_APPLE_IP_OVER_IEEE1394:
-      capture_ap1394(pd, 0, caplen, counts);
-      break;
+        capture_ap1394(pd, 0, caplen, counts);
+        break;
     case WTAP_ENCAP_FRELAY:
     case WTAP_ENCAP_FRELAY_WITH_PHDR:
-      capture_fr(pd, 0, caplen, counts);
-      break;
+        capture_fr(pd, 0, caplen, counts);
+        break;
     case WTAP_ENCAP_ENC:
-      capture_enc(pd, caplen, counts);
-      break;
+        capture_enc(pd, caplen, counts);
+        break;
     case WTAP_ENCAP_PPI:
-      capture_ppi(pd, caplen, counts);
-      break;
+        capture_ppi(pd, caplen, counts);
+        break;
     case WTAP_ENCAP_I2C:
-      capture_i2c(pseudo_header, counts);
-      break;
-    /* XXX - some ATM drivers on FreeBSD might prepend a 4-byte ATM
-       pseudo-header to DLT_ATM_RFC1483, with LLC header following;
-       we might have to implement that at some point. */
-  }
+        capture_i2c(pseudo_header, counts);
+        break;
+        /* XXX - some ATM drivers on FreeBSD might prepend a 4-byte ATM
+           pseudo-header to DLT_ATM_RFC1483, with LLC header following;
+           we might have to implement that at some point. */
+    }
 }
 
 

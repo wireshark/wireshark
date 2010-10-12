@@ -62,12 +62,12 @@ static GSList *color_filter_deleted_list = NULL;
 static GSList *color_filter_valid_list = NULL;
 
 /* Color Filters can en-/disabled. */
-gboolean filters_enabled = TRUE;
+static gboolean filters_enabled = TRUE;
 
 /* Remember if there are temporary coloring filters set to
  * add sensitivity to the "Reset Coloring 1-10" menu item
  */
-gboolean tmp_colors_set = FALSE;
+static gboolean tmp_colors_set = FALSE;
 
 /* Create a new filter */
 color_filter_t *
@@ -266,11 +266,11 @@ color_filter_clone(color_filter_t *colorf)
 static void
 color_filter_list_clone_cb(gpointer filter_arg, gpointer cfl_arg)
 {
-    GSList **cfl = (GSList **)cfl_arg;
-    color_filter_t *new_colorf;
+	GSList **cfl = (GSList **)cfl_arg;
+	color_filter_t *new_colorf;
 
-    new_colorf = color_filter_clone((color_filter_t *)filter_arg);
-    *cfl = g_slist_append(*cfl, new_colorf);
+	new_colorf = color_filter_clone((color_filter_t *)filter_arg);
+	*cfl = g_slist_append(*cfl, new_colorf);
 }
 
 /* clone the specified list */
@@ -334,7 +334,7 @@ color_filters_clone_cb(gpointer filter_arg, gpointer user_data)
 void
 color_filters_clone(gpointer user_data)
 {
-    g_slist_foreach(color_filter_list, color_filters_clone_cb, user_data);
+	g_slist_foreach(color_filter_list, color_filters_clone_cb, user_data);
 }
 
 
@@ -448,30 +448,30 @@ color_filters_colorize_packet(epan_dissect_t *edt)
 color_filters_colorize_packet(gint row, epan_dissect_t *edt)
 #endif
 {
-    GSList *curr;
-    color_filter_t *colorf;
+	GSList *curr;
+	color_filter_t *colorf;
 
-    /* If we have color filters, "search" for the matching one. */
-    if (color_filters_used()) {
-        curr = color_filter_list;
+	/* If we have color filters, "search" for the matching one. */
+	if (color_filters_used()) {
+		curr = color_filter_list;
 
-        while(curr != NULL) {
-            colorf = (color_filter_t *)curr->data;
-            if ( (!colorf->disabled) &&
-                 (colorf->c_colorfilter != NULL) &&
-                 dfilter_apply_edt(colorf->c_colorfilter, edt)) {
-                    /* this is the filter to use, apply it to the packet list */
+		while(curr != NULL) {
+			colorf = (color_filter_t *)curr->data;
+			if ( (!colorf->disabled) &&
+			     (colorf->c_colorfilter != NULL) &&
+			     dfilter_apply_edt(colorf->c_colorfilter, edt)) {
+				/* this is the filter to use, apply it to the packet list */
 #ifndef NEW_PACKET_LIST
-		    /* We'll do this in the column cell function instead. */
-                    packet_list_set_colors(row, &(colorf->fg_color), &(colorf->bg_color));
+				/* We'll do this in the column cell function instead. */
+				packet_list_set_colors(row, &(colorf->fg_color), &(colorf->bg_color));
 #endif
-                    return colorf;
-            }
-            curr = g_slist_next(curr);
-        }
-    }
+				return colorf;
+			}
+			curr = g_slist_next(curr);
+		}
+	}
 
-    return NULL;
+	return NULL;
 }
 
 /* read filters from the given file */
@@ -711,8 +711,8 @@ color_filters_import(gchar *path, gpointer user_data)
 
 struct write_filter_data
 {
-  FILE * f;
-  gboolean only_selected;
+	FILE * f;
+	gboolean only_selected;
 };
 
 /* save a single filter */

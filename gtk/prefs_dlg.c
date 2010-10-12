@@ -811,7 +811,7 @@ create_preference_option_menu(GtkWidget *main_tb, int table_position,
   menu_idx = 0;
   for (enum_valp = enumvals, idx = 0; enum_valp->name != NULL;
        enum_valp++, idx++) {
-	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), enum_valp->description);
+    gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), enum_valp->description);
     if (enum_valp->value == current_val)
       menu_idx = idx;
   }
@@ -846,9 +846,9 @@ fetch_preference_option_menu_val(GtkWidget *combo_box, const enum_val_t *enumval
    */
     int i;
 
-	i = gtk_combo_box_get_active (GTK_COMBO_BOX(combo_box));
+    i = gtk_combo_box_get_active (GTK_COMBO_BOX(combo_box));
 
-	return enumvals[i].value;
+    return enumvals[i].value;
 }
 
 GtkWidget *
@@ -1712,7 +1712,7 @@ tree_expand_row(GtkTreeModel *model, GtkTreeView *tree_view, GtkTreeIter *iter)
 /* select a node in the tree view */
 /* XXX - this is almost 100% copied from byte_view_select() in proto_draw.c,
  *       find a way to combine both to have a generic function for this */
-void
+static void
 tree_select_node(GtkWidget *tree, prefs_tree_iter *iter)
 {
   GtkTreeIter  local_iter = *iter;

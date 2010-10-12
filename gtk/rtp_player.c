@@ -100,7 +100,7 @@
 
 static gboolean initialized = FALSE;
 
-voip_calls_tapinfo_t *voip_calls = NULL;
+static voip_calls_tapinfo_t *voip_calls = NULL;
 
 /* Hash table with all the RTP streams */
 static GHashTable*  rtp_streams_hash = NULL;
@@ -159,9 +159,9 @@ typedef struct _sample_t {
 #define MAX_NUM_COL_CONV 10
 
 #if PORTAUDIO_API_1
-PortAudioStream *pa_stream;
+static PortAudioStream *pa_stream;
 #else /* PORTAUDIO_API_1 */
-PaStream *pa_stream;
+static PaStream *pa_stream;
 #endif /* PORTAUDIO_API_1 */
 
 /* defines a RTP stream */

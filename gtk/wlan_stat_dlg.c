@@ -280,7 +280,7 @@ alloc_wlan_details_ep (address *addr)
 	return d_ep;
 }
 
-wlan_details_ep_t *
+static wlan_details_ep_t *
 get_details_ep (wlan_ep_t *te, address *addr)
 {
 	wlan_details_ep_t *tmp, *d_te = NULL;
