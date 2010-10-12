@@ -30,6 +30,9 @@
  *  @ingroup dialog_group
  */
 
+extern gint  color_dlg_num_of_filters;  /* number of filters being displayed */
+extern gint  color_dlg_row_selected;    /* row in color_filters that is selected */
+
 /** User requested the "Colorize Display" dialog box by menu or toolbar.
  *
  * @param widget parent widget (unused)

@@ -30,9 +30,6 @@
  *  @ingroup dialog_group
  */
 
-extern gint	  num_of_filters;  /* number of filters being displayed */
-extern gint	  row_selected;	   /* row in color_filters that is selected */
-
 /* new color filter edit dialog */
 extern void
 edit_color_filter_dialog(GtkWidget *color_filters,

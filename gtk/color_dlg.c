@@ -51,9 +51,9 @@
 #include "gtk/gtkglobals.h"
 #include "gtk/help_dlg.h"
 #include "gtk/color_edit_dlg.h"
-#ifdef NEW_PACKET_LIST 
-#include "gtk/new_packet_list.h" 
-#endif /* NEW_PACKET_LIST */ 
+#ifdef NEW_PACKET_LIST
+#include "gtk/new_packet_list.h"
+#endif /* NEW_PACKET_LIST */
 
 
 #define BUTTON_SIZE_X -1
@@ -83,9 +83,10 @@ static void color_export_cb(GtkButton *button, gpointer user_data );
 
 
 static GtkWidget *colorize_win;
-gint      num_of_filters;  /* number of filters being displayed */
-gint      row_selected;    /* row in color_filters that is selected */
-gboolean  row_is_moving = FALSE;
+gint      color_dlg_num_of_filters;  /* number of filters being displayed */
+gint      color_dlg_row_selected;    /* row in color_filters that is selected */
+
+static gboolean  row_is_moving = FALSE;
 
 /* This is a list of all current color filters in the dialog
  * (copied from color_filters.c and edited with the dialog).
@@ -211,8 +212,8 @@ colorize_dialog_new (char *filter)
 
 
 
-  num_of_filters = 0;
-  row_selected = -1; /* no row selected */
+  color_dlg_num_of_filters = 0;
+  color_dlg_row_selected = -1; /* no row selected */
   tooltips = gtk_tooltips_new ();
 
   /* Resizing of the dialog window is now reasonably done.
@@ -307,12 +308,12 @@ colorize_dialog_new (char *filter)
 
   /* the list store contains : filter name, filter string, foreground
    * color, background color, pointer to color filter */
-  store = gtk_list_store_new(6, 
-                                 G_TYPE_STRING, 
+  store = gtk_list_store_new(6,
                                  G_TYPE_STRING,
-                                 G_TYPE_STRING, 
-                                 G_TYPE_STRING, 
-                                 G_TYPE_BOOLEAN, 
+                                 G_TYPE_STRING,
+                                 G_TYPE_STRING,
+                                 G_TYPE_STRING,
+                                 G_TYPE_BOOLEAN,
                                  G_TYPE_POINTER);
   color_filters = tree_view_new(GTK_TREE_MODEL(store));
   g_object_unref(store);
@@ -461,7 +462,7 @@ static void move_this_row (GtkWidget   *color_filters,
 
   g_assert(amount == +1 || amount == -1);
   g_assert(amount == +1 || filter_number > 0);
-  g_assert(amount == -1 || filter_number < num_of_filters - 1);
+  g_assert(amount == -1 || filter_number < color_dlg_num_of_filters - 1);
 
   row_is_moving = TRUE;
   model = gtk_tree_view_get_model(GTK_TREE_VIEW(color_filters));
@@ -476,12 +477,12 @@ static void move_this_row (GtkWidget   *color_filters,
   else
     gtk_list_store_insert_after(GTK_LIST_STORE(model), &iter1, &iter2);
 
-  gtk_list_store_set(GTK_LIST_STORE(model), &iter1, 
-          0, name, 
+  gtk_list_store_set(GTK_LIST_STORE(model), &iter1,
+          0, name,
           1, string,
-          2, fg_str, 
-          3, bg_str, 
-          4, disabled, 
+          2, fg_str,
+          3, bg_str,
+          4, disabled,
           5, colorf, -1);
 
   g_free(name);
@@ -515,7 +516,7 @@ color_filter_up_cb(GtkButton *button, gpointer user_data _U_)
   amount = -1;
   color_filters = (GtkWidget *)g_object_get_data(G_OBJECT(button), COLOR_FILTERS_CL);
 
-  for (filter_number = 0; filter_number < num_of_filters; filter_number++)
+  for (filter_number = 0; filter_number < color_dlg_num_of_filters; filter_number++)
   {
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(color_filters));
     gtk_tree_model_iter_nth_child(model, &iter, NULL, filter_number);
@@ -540,7 +541,7 @@ color_filter_down_cb(GtkButton *button, gpointer user_data _U_)
   amount = +1;
   color_filters = (GtkWidget *)g_object_get_data(G_OBJECT(button), COLOR_FILTERS_CL);
 
-  for (filter_number = num_of_filters - 1; filter_number >= 0; filter_number--)
+  for (filter_number = color_dlg_num_of_filters - 1; filter_number >= 0; filter_number--)
   {
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(color_filters));
     gtk_tree_model_iter_nth_child(model, &iter, NULL, filter_number);
@@ -553,42 +554,42 @@ color_filter_down_cb(GtkButton *button, gpointer user_data _U_)
 
 struct remember_data
 {
-    gint count;               /* count of selected filters */
-    gboolean first_selected;  /* true if the first filter in the list is selected */
-    gboolean last_selected;   /* true if the last filter in the list is selected */
-    gboolean all_enabled;     /* true if all selected coloring rules are enabled */
-    gboolean all_disabled;    /* true if all selected coloring rules are disabled */
-    gpointer color_filters;
+  gint count;               /* count of selected filters */
+  gboolean first_selected;  /* true if the first filter in the list is selected */
+  gboolean last_selected;   /* true if the last filter in the list is selected */
+  gboolean all_enabled;     /* true if all selected coloring rules are enabled */
+  gboolean all_disabled;    /* true if all selected coloring rules are disabled */
+  gpointer color_filters;
 };
 /* called for each selected row in the tree.
-*/
+ */
 static void remember_this_row (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer arg)
 {
-    gint         *path_index;
-    color_filter_t *colorf;
-    struct remember_data *data = arg;
+  gint         *path_index;
+  color_filter_t *colorf;
+  struct remember_data *data = arg;
 
-    gtk_tree_model_get(model, iter, 5, &colorf, -1);
-    colorf->selected = TRUE;
+  gtk_tree_model_get(model, iter, 5, &colorf, -1);
+  colorf->selected = TRUE;
 
-    data->all_enabled  &= (!colorf->disabled);
-    data->all_disabled &= colorf->disabled;
+  data->all_enabled  &= (!colorf->disabled);
+  data->all_disabled &= colorf->disabled;
 
-    path_index = gtk_tree_path_get_indices(path);   /* not to be freed */
-    if (path_index == NULL)       /* can return NULL according to API doc.*/
-    {
-      return;
-    }
-    row_selected = path_index[0];
+  path_index = gtk_tree_path_get_indices(path);   /* not to be freed */
+  if (path_index == NULL)       /* can return NULL according to API doc.*/
+  {
+    return;
+  }
+  color_dlg_row_selected = path_index[0];
 
-    if (row_selected == 0)
-      data->first_selected = TRUE;
-    if (row_selected == num_of_filters - 1)
-      data->last_selected = TRUE;
+  if (color_dlg_row_selected == 0)
+    data->first_selected = TRUE;
+  if (color_dlg_row_selected == color_dlg_num_of_filters - 1)
+    data->last_selected = TRUE;
 
-    data->count++;
+  data->count++;
 
-    gtk_tree_view_scroll_to_cell(data->color_filters, path, NULL, FALSE, 0.0f, 0.0f);
+  gtk_tree_view_scroll_to_cell(data->color_filters, path, NULL, FALSE, 0.0f, 0.0f);
 }
 
 /* clear the selection flag of this filter */
@@ -604,71 +605,71 @@ clear_select_flag(gpointer filter_arg, gpointer arg _U_)
 static void
 remember_selected_row(GtkTreeSelection *sel, gpointer color_filters)
 {
-    GtkWidget    *button;
-    struct remember_data data;
+  GtkWidget    *button;
+  struct remember_data data;
 
-    data.first_selected = data.last_selected = FALSE;
-    data.all_enabled = data.all_disabled = TRUE;
-    data.count = 0;
-    data.color_filters = color_filters;
+  data.first_selected = data.last_selected = FALSE;
+  data.all_enabled = data.all_disabled = TRUE;
+  data.count = 0;
+  data.color_filters = color_filters;
 
-    g_slist_foreach(color_filter_edit_list, clear_select_flag, NULL);
-    gtk_tree_selection_selected_foreach(sel,remember_this_row, &data);
+  g_slist_foreach(color_filter_edit_list, clear_select_flag, NULL);
+  gtk_tree_selection_selected_foreach(sel,remember_this_row, &data);
 
-    if (data.count > 0)
-    {
-      /*
-       * One or more rows are selected, so we can operate on them.
-      */
+  if (data.count > 0)
+  {
+    /*
+     * One or more rows are selected, so we can operate on them.
+     */
 
-      /* We can only edit if there is exactly one filter selected */
-      button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_EDIT_LB);
-      gtk_widget_set_sensitive (button, data.count == 1);
+    /* We can only edit if there is exactly one filter selected */
+    button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_EDIT_LB);
+    gtk_widget_set_sensitive (button, data.count == 1);
 
-      /* We can enable any number of filters */
-      button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_ENABLE_LB);
-      gtk_widget_set_sensitive (button, !data.all_enabled);
+    /* We can enable any number of filters */
+    button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_ENABLE_LB);
+    gtk_widget_set_sensitive (button, !data.all_enabled);
 
-      /* We can disable any number of filters */
-      button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_DISABLE_LB);
-      gtk_widget_set_sensitive (button, !data.all_disabled);
+    /* We can disable any number of filters */
+    button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_DISABLE_LB);
+    gtk_widget_set_sensitive (button, !data.all_disabled);
 
-      /* We can delete any number of filters */
-      button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_DELETE_LB);
-      gtk_widget_set_sensitive (button, TRUE);
+    /* We can delete any number of filters */
+    button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_DELETE_LB);
+    gtk_widget_set_sensitive (button, TRUE);
 
-      /*
-       * We can move them up *if* one of them isn't the top row,
-       * and move them down *if* one of them isn't the bottom row.
-      */
+    /*
+     * We can move them up *if* one of them isn't the top row,
+     * and move them down *if* one of them isn't the bottom row.
+     */
+    button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_UP_LB);
+    gtk_widget_set_sensitive(button, !data.first_selected);
+    button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_DOWN_LB);
+    gtk_widget_set_sensitive(button, !data.last_selected);
+  }
+  else
+  {
+    color_dlg_row_selected = -1;
+
+    /*
+     * No row is selected, so we can't do operations that affect the
+     * selected row.
+     */
+    if (!row_is_moving) {
       button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_UP_LB);
-      gtk_widget_set_sensitive(button, !data.first_selected);
+      gtk_widget_set_sensitive (button, FALSE);
       button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_DOWN_LB);
-      gtk_widget_set_sensitive(button, !data.last_selected);
-    }
-    else
-    {
-      row_selected = -1;
-
-      /*
-       * No row is selected, so we can't do operations that affect the
-       * selected row.
-       */
-      if (!row_is_moving) {
-        button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_UP_LB);
-        gtk_widget_set_sensitive (button, FALSE);
-        button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_DOWN_LB);
-        gtk_widget_set_sensitive (button, FALSE);
-      }
-      button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_EDIT_LB);
-      gtk_widget_set_sensitive (button, FALSE);
-      button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_ENABLE_LB);
-      gtk_widget_set_sensitive (button, FALSE);
-      button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_DISABLE_LB);
-      gtk_widget_set_sensitive (button, FALSE);
-      button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_DELETE_LB);
       gtk_widget_set_sensitive (button, FALSE);
     }
+    button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_EDIT_LB);
+    gtk_widget_set_sensitive (button, FALSE);
+    button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_ENABLE_LB);
+    gtk_widget_set_sensitive (button, FALSE);
+    button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_DISABLE_LB);
+    gtk_widget_set_sensitive (button, FALSE);
+    button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_DELETE_LB);
+    gtk_widget_set_sensitive (button, FALSE);
+  }
 }
 
 
@@ -732,15 +733,15 @@ add_filter_to_list(gpointer filter_arg, gpointer list_arg)
             colorf->fg_color.red, colorf->fg_color.green, colorf->fg_color.blue);
     g_snprintf(bg_str, sizeof(bg_str), "#%04X%04X%04X",
             colorf->bg_color.red, colorf->bg_color.green, colorf->bg_color.blue);
-    gtk_list_store_set(store, &iter, 
+    gtk_list_store_set(store, &iter,
                 0, colorf->filter_name,
-        1, colorf->filter_text, 
-                2, fg_str, 
+        1, colorf->filter_text,
+                2, fg_str,
                 3, bg_str,
-                4, colorf->disabled, 
+                4, colorf->disabled,
                 5, colorf, -1);
     color_filter_edit_list = g_slist_append(color_filter_edit_list, colorf);
-    num_of_filters++;
+    color_dlg_num_of_filters++;
   } else {
     /* But keep the temporary ones too, so they can be added again
      * when the user is done editing */
@@ -778,17 +779,17 @@ create_new_color_filter(GtkButton *button, const char *filter)
   gtk_tree_selection_unselect_all (sel);
 
   /* Use the default background and foreground colors as the colors. */
-#ifdef NEW_PACKET_LIST 
-  style = gtk_widget_get_style(new_packet_list_get_widget()); 
-#else 
-   style = gtk_widget_get_style(packet_list); 
-#endif /* NEW_PACKET_LIST */ 
+#ifdef NEW_PACKET_LIST
+  style = gtk_widget_get_style(new_packet_list_get_widget());
+#else
+   style = gtk_widget_get_style(packet_list);
+#endif /* NEW_PACKET_LIST */
   gdkcolor_to_color_t(&bg_color, &style->base[GTK_STATE_NORMAL]);
   gdkcolor_to_color_t(&fg_color, &style->text[GTK_STATE_NORMAL]);
 
   colorf = color_filter_new("name", filter, &bg_color, &fg_color, FALSE);
   add_filter_to_list(colorf, color_filters);
-  select_row(color_filters, num_of_filters-1);
+  select_row(color_filters, color_dlg_num_of_filters-1);
 
   /* open the edit dialog */
   edit_color_filter_dialog(color_filters, TRUE /* is a new filter */);
@@ -812,7 +813,7 @@ color_edit_cb(GtkButton *button, gpointer user_data _U_)
   GtkWidget *color_filters;
 
   color_filters = (GtkWidget *)g_object_get_data(G_OBJECT(button), COLOR_FILTERS_CL);
-  g_assert(row_selected != -1);
+  g_assert(color_dlg_row_selected != -1);
   edit_color_filter_dialog(color_filters, FALSE /* is not a new filter */);
 }
 
@@ -846,7 +847,7 @@ color_disable_cb(GtkWidget *widget, gboolean action_disable)
 
   color_filters = (GtkWidget *)g_object_get_data(G_OBJECT(widget), COLOR_FILTERS_CL);
 
-  for (filter_number = 0; filter_number < num_of_filters; filter_number++)
+  for (filter_number = 0; filter_number < color_dlg_num_of_filters; filter_number++)
   {
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(color_filters));
     gtk_tree_model_iter_nth_child(model, &iter, NULL, filter_number);
@@ -854,7 +855,7 @@ color_disable_cb(GtkWidget *widget, gboolean action_disable)
     sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(color_filters));
     if (gtk_tree_selection_iter_is_selected(sel, &iter)) {
       colorf->disabled = action_disable;
-      gtk_list_store_set(GTK_LIST_STORE(model), &iter, 
+      gtk_list_store_set(GTK_LIST_STORE(model), &iter,
                   4, action_disable, -1);
     }
   }
@@ -881,7 +882,7 @@ color_delete_single(gint row, GtkWidget *color_filters)
   /* Remove this color filter from the CList displaying the
      color filters. */
   gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
-  num_of_filters--;
+  color_dlg_num_of_filters--;
 
   /* Destroy any "Edit color filter" dialog boxes editing it. */
   if (colorf->edit_dialog != NULL)
@@ -957,9 +958,9 @@ color_clear_cmd(GtkWidget *widget)
 
   color_filters = (GtkWidget *)g_object_get_data(G_OBJECT(widget), COLOR_FILTERS_CL);
 
-  while (num_of_filters > 0)
+  while (color_dlg_num_of_filters > 0)
   {
-    color_delete_single (num_of_filters-1, color_filters);
+    color_delete_single (color_dlg_num_of_filters-1, color_filters);
   }
 
   /* try to read the global filters */
