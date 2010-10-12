@@ -281,22 +281,6 @@ GtkWidget *filter_toolbar_new(void)
                          filter_te);
 #endif /* MAIN_MENU_USE_UIMANAGER */
 	
-    set_menu_object_data(PACKET_LIST_POPUP_PATH_ANALYZE_FOLLOW_TCP_STREAM, E_DFILTER_TE_KEY,
-                         filter_te);
-    set_menu_object_data(PACKET_LIST_POPUP_PATH_ANALYZE_FOLLOW_UDP_STREAM, E_DFILTER_TE_KEY,
-                         filter_te);
-    set_menu_object_data(PACKET_LIST_POPUP_PATH_ANALYZE_FOLLOW_SSL_STREAM, E_DFILTER_TE_KEY,
-                         filter_te);
-    set_menu_object_data(PACKET_LIST_POPUP_PATH_CONV_FLT_ETH, E_DFILTER_TE_KEY,
-                         filter_te);
-    set_menu_object_data(PACKET_LIST_POPUP_PATH_CONV_FLT_IP, E_DFILTER_TE_KEY,
-                         filter_te);
-    set_menu_object_data(PACKET_LIST_POPUP_PATH_CONV_FLT_TCP, E_DFILTER_TE_KEY,
-                         filter_te);
-    set_menu_object_data(PACKET_LIST_POPUP_PATH_CONV_FLT_UDP, E_DFILTER_TE_KEY,
-                         filter_te);
-    set_menu_object_data(PACKET_LIST_POPUP_PATH_CONV_FLT_PN_CBA_SERV, E_DFILTER_TE_KEY,
-                         filter_te);
     set_toolbar_object_data(E_DFILTER_TE_KEY, filter_te);
     g_object_set_data(G_OBJECT(popup_menu_object), E_DFILTER_TE_KEY, filter_te);
 
