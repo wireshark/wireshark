@@ -32,9 +32,6 @@
 #ifndef __MCAST_STREAM_DLG_H__
 #define __MCAST_STREAM_DLG_H__
 
-#include <gtk/gtk.h>
-
-
 /** @file
  *  @ingroup dialog_group
  *  "Mcast Stream Analysis" dialog box.

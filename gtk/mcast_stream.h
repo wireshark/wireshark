@@ -32,40 +32,23 @@
 #ifndef __MCAST_STREAM_H__
 #define __MCAST_STREAM_H__
 
-#include <glib.h>
-#include <stdio.h>
-#include <epan/address.h>
-
-
-/**
- * @todo - don't define stuff that potential name conflicts
- */
-#define MCAST_INTERFACE        2
-#define FILTER           3
-#define TRIGGER          4
-#define TIMER            5
-#define REFRESHTIMER     6
-#define EMPTYSPEED       7
-#define BUFFERALARM      8
-#define CUMULEMPTYSPEED  9
-
 #define MAX_SPEED 200000
 
 /* typedefs for sliding window and buffer size */
 typedef struct buffer{
-    struct timeval *buff;   /* packet times */
-    gint32 first;              /* pointer to the first element */
-    gint32 last;               /* pointer to the last element */
-    gint32 burstsize;          /* current burst */
-    gint32 topburstsize;       /* maximum burst in the refresh interval*/
-    gint32 count;              /* packet counter */
-    gint32 burststatus;        /* burst status */
-    gint32 numbursts;          /* number of bursts */
-    gint32 buffusage;          /* buffer usage */
-    gint32 buffstatus;         /* buffer status */
-    gint32 numbuffalarms;      /* number of alarms triggered by buffer underruns */
-    gint32 topbuffusage;       /* top buffer usage in refresh interval */
-    float  maxbw;              /* maximum bandwidth usage */
+	struct timeval *buff;   /* packet times */
+	gint32 first;              /* pointer to the first element */
+	gint32 last;               /* pointer to the last element */
+	gint32 burstsize;          /* current burst */
+	gint32 topburstsize;       /* maximum burst in the refresh interval*/
+	gint32 count;              /* packet counter */
+	gint32 burststatus;        /* burst status */
+	gint32 numbursts;          /* number of bursts */
+	gint32 buffusage;          /* buffer usage */
+	gint32 buffstatus;         /* buffer status */
+	gint32 numbuffalarms;      /* number of alarms triggered by buffer underruns */
+	gint32 topbuffusage;       /* top buffer usage in refresh interval */
+	float  maxbw;              /* maximum bandwidth usage */
 } t_buffer;
 
 
@@ -89,7 +72,7 @@ typedef struct _mcast_stream_info {
 	guint32 stop_rel_sec;      /* stop stream rel seconds */
 	guint32 stop_rel_usec;     /* stop stream rel microseconds */
 	guint16 vlan_id;
-	
+
 	/*for the sliding window */
 	t_buffer element;
 
@@ -107,6 +90,13 @@ typedef struct _mcaststream_tapinfo {
 	guint32 launch_count;   /* number of times the tap has been run */
 	gboolean is_registered; /* if the tap listener is currently registered or not */
 } mcaststream_tapinfo_t;
+
+
+extern gint32  mcast_stream_trigger;
+extern gint32  mcast_stream_bufferalarm;
+extern guint16 mcast_stream_burstint;
+extern gint32  mcast_stream_emptyspeed;
+extern gint32  mcast_stream_cumulemptyspeed;
 
 /****************************************************************************/
 /* INTERFACE */

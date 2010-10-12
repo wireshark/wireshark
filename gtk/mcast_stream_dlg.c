@@ -61,12 +61,6 @@
 #define E_MCAST_ENTRY_4     "stream_speed"
 #define E_MCAST_ENTRY_5     "total_speed"
 
-extern guint16 burstint;
-extern guint32 trigger;
-extern guint32 bufferalarm;
-extern gint32 emptyspeed;
-extern gint32 cumulemptyspeed;
-
 static const gchar FWD_LABEL_TEXT[] = "Select a stream with left mouse button";
 static const gchar PAR_LABEL_TEXT[] = "\nBurst int: ms   Burst alarm: pps    Buffer alarm: KB    Stream empty speed: Mbps    Total empty speed: Mbps\n";
 
@@ -89,20 +83,20 @@ static guint32 streams_nb = 0;     /* number of displayed streams */
 
 enum
 {
-   MC_COL_SRC_ADDR,
-   MC_COL_SRC_PORT,
-   MC_COL_DST_ADDR,
-   MC_COL_DST_PORT,
-   MC_COL_PACKETS,
-   MC_COL_PPS,
-   MC_COL_AVG_BW,
-   MC_COL_MAX_BW,
-   MC_COL_MAX_BURST,
-   MC_COL_BURST_ALARM,
-   MC_COL_MAX_BUFFER,
-   MC_COL_BUFFER_ALARM,
-   MC_COL_DATA,
-   NUM_COLS /* The number of columns */
+	MC_COL_SRC_ADDR,
+	MC_COL_SRC_PORT,
+	MC_COL_DST_ADDR,
+	MC_COL_DST_PORT,
+	MC_COL_PACKETS,
+	MC_COL_PPS,
+	MC_COL_AVG_BW,
+	MC_COL_MAX_BW,
+	MC_COL_MAX_BURST,
+	MC_COL_BURST_ALARM,
+	MC_COL_MAX_BUFFER,
+	MC_COL_BUFFER_ALARM,
+	MC_COL_DATA,
+	NUM_COLS /* The number of columns */
 };
 
 /****************************************************************************/
@@ -201,7 +195,8 @@ mcaststream_on_select_row(GtkTreeSelection *selection, gpointer data _U_)
 /****************************************************************************/
 /* INTERFACE                                                                */
 /****************************************************************************/
-static void mcast_params_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
+static void
+mcast_params_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 {
 	/* Note that we no longer have a mcast params dialog box. */
 	mcast_params_dlg = NULL;
@@ -223,7 +218,7 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The burst interval should be between 1 and 1000 ms.");
 		return;
 	}
-	burstint = fnumber;
+	mcast_stream_burstint = fnumber;
 
 	fnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_MCAST_ENTRY_2);
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
@@ -232,7 +227,7 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The burst alarm threshold you entered isn't valid.");
 		return;
 	}
-	trigger = fnumber;
+	mcast_stream_trigger = fnumber;
 
 	fnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_MCAST_ENTRY_3);
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
@@ -241,7 +236,7 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The buffer alarm threshold you entered isn't valid.");
 		return;
 	}
-	bufferalarm = fnumber;
+	mcast_stream_bufferalarm = fnumber;
 
 	fnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_MCAST_ENTRY_4);
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
@@ -250,7 +245,7 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The stream empty speed should be between 1 and 10000000");
 		return;
 	}
-	emptyspeed = fnumber;
+	mcast_stream_emptyspeed = fnumber;
 
 	fnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_MCAST_ENTRY_5);
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
@@ -259,7 +254,7 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The total empty speed should be between 1 and 10000000");
 		return;
 	}
-	cumulemptyspeed = fnumber;
+	mcast_stream_cumulemptyspeed = fnumber;
 
 	window_destroy(GTK_WIDGET(parent_w));
 
@@ -304,31 +299,31 @@ mcast_on_params(GtkButton *button _U_, gpointer data _U_)
 	label = gtk_label_new("  Burst measurement interval (ms)  ");
 	gtk_table_attach_defaults(GTK_TABLE(table), label, 0, 1, 0, 1);
 	entry1 = gtk_entry_new();
-	g_snprintf(label_text, sizeof(label_text), "%u", burstint);
+	g_snprintf(label_text, sizeof(label_text), "%u", mcast_stream_burstint);
 	gtk_entry_set_text(GTK_ENTRY(entry1), label_text);
 	gtk_table_attach_defaults(GTK_TABLE(table), entry1, 1, 2, 0, 1);
 	label = gtk_label_new("  Burst alarm threshold (packets)   ");
 	gtk_table_attach_defaults(GTK_TABLE(table), label, 0, 1, 1, 2);
 	entry2 = gtk_entry_new();
-	g_snprintf(label_text, sizeof(label_text), "%u", trigger);
+	g_snprintf(label_text, sizeof(label_text), "%u", mcast_stream_trigger);
 	gtk_entry_set_text(GTK_ENTRY(entry2), label_text);
 	gtk_table_attach_defaults(GTK_TABLE(table), entry2, 1, 2, 1, 2);
 	label = gtk_label_new("  Buffer alarm threshold (bytes)     ");
 	gtk_table_attach_defaults(GTK_TABLE(table), label, 0, 1, 2, 3);
 	entry3 = gtk_entry_new();
-	g_snprintf(label_text, sizeof(label_text), "%u", bufferalarm);
+	g_snprintf(label_text, sizeof(label_text), "%u", mcast_stream_bufferalarm);
 	gtk_entry_set_text(GTK_ENTRY(entry3), label_text);
 	gtk_table_attach_defaults(GTK_TABLE(table), entry3, 1, 2, 2, 3);
 	label = gtk_label_new("  Stream empty speed (kbit/s)      ");
 	gtk_table_attach_defaults(GTK_TABLE(table), label, 0, 1, 3, 4);
 	entry4 = gtk_entry_new();
-	g_snprintf(label_text, sizeof(label_text), "%u", emptyspeed);
+	g_snprintf(label_text, sizeof(label_text), "%u", mcast_stream_emptyspeed);
 	gtk_entry_set_text(GTK_ENTRY(entry4), label_text);
 	gtk_table_attach_defaults(GTK_TABLE(table), entry4, 1, 2, 3, 4);
 	label = gtk_label_new("  Total empty speed (kbit/s)       ");
 	gtk_table_attach_defaults(GTK_TABLE(table), label, 0, 1, 4, 5);
 	entry5 = gtk_entry_new();
-	g_snprintf(label_text, sizeof(label_text), "%u", cumulemptyspeed);
+	g_snprintf(label_text, sizeof(label_text), "%u", mcast_stream_cumulemptyspeed);
 	gtk_entry_set_text(GTK_ENTRY(entry5), label_text);
 	gtk_table_attach_defaults(GTK_TABLE(table), entry5, 1, 2, 4, 5);
 
@@ -385,7 +380,7 @@ add_to_list_store(mcast_stream_info_t* strinfo)
 	data[5] = g_strdup_printf("%u /s", strinfo->apackets);
 	data[6] = g_strdup_printf("%2.1f Mbps", strinfo->average_bw);
 	data[7] = g_strdup_printf("%2.1f Mbps", strinfo->element.maxbw);
-	data[8] = g_strdup_printf("%u / %dms", strinfo->element.topburstsize, burstint);
+	data[8] = g_strdup_printf("%u / %dms", strinfo->element.topburstsize, mcast_stream_burstint);
 	data[9] = g_strdup_printf("%u", strinfo->element.numbursts);
 	data[10] = g_strdup_printf("%.1f KB", (float)strinfo->element.topbuffusage/1000);
 	data[11] = g_strdup_printf("%u", strinfo->element.numbuffalarms);
@@ -421,12 +416,12 @@ add_to_list_store(mcast_stream_info_t* strinfo)
 		"Detected %d Multicast streams,   Average Bw: %.1f Mbps   Max Bw: %.1f Mbps   Max burst: %d / %dms   Max buffer: %.1f KB",
 		++streams_nb,
 		mcaststream_get_info()->allstreams->average_bw, mcaststream_get_info()->allstreams->element.maxbw,
-		mcaststream_get_info()->allstreams->element.topburstsize, burstint,
+		mcaststream_get_info()->allstreams->element.topburstsize, mcast_stream_burstint,
 		(float)(mcaststream_get_info()->allstreams->element.topbuffusage)/1000);
 	gtk_label_set_text(GTK_LABEL(top_label), label_text);
 
 	g_snprintf(label_text, sizeof(label_text), "\nBurst int: %u ms   Burst alarm: %u pps   Buffer alarm: %u Bytes   Stream empty speed: %u Kbps   Total empty speed: %u Kbps\n",
-		burstint, trigger, bufferalarm, emptyspeed, cumulemptyspeed);
+		mcast_stream_burstint, mcast_stream_trigger, mcast_stream_bufferalarm, mcast_stream_emptyspeed, mcast_stream_cumulemptyspeed);
 	gtk_label_set_text(GTK_LABEL(label_par), label_text);
 }
 
@@ -644,84 +639,84 @@ create_list_view(void)
 static void
 mcaststream_dlg_create(void)
 {
-    GtkWidget *mcaststream_dlg_w;
-    GtkWidget *main_vb;
-    GtkWidget *scrolledwindow;
-    GtkWidget *hbuttonbox;
-    /*GtkWidget *bt_unselect;*/
-    GtkWidget *bt_params;
-    GtkWidget *bt_close;
-    GtkTooltips *tooltips = gtk_tooltips_new();
+	GtkWidget *mcaststream_dlg_w;
+	GtkWidget *main_vb;
+	GtkWidget *scrolledwindow;
+	GtkWidget *hbuttonbox;
+	/*GtkWidget *bt_unselect;*/
+	GtkWidget *bt_params;
+	GtkWidget *bt_close;
+	GtkTooltips *tooltips = gtk_tooltips_new();
 
-    const gchar *title_name_ptr;
-    gchar *win_name;
+	const gchar *title_name_ptr;
+	gchar *win_name;
 
-    title_name_ptr = cf_get_display_name(&cfile);
-    win_name = g_strdup_printf("%s - UDP Multicast Streams", title_name_ptr);
-    mcaststream_dlg_w = dlg_window_new(win_name);    
+	title_name_ptr = cf_get_display_name(&cfile);
+	win_name = g_strdup_printf("%s - UDP Multicast Streams", title_name_ptr);
+	mcaststream_dlg_w = dlg_window_new(win_name);    
 
-    gtk_window_set_default_size(GTK_WINDOW(mcaststream_dlg_w), 620, 400);
+	gtk_window_set_default_size(GTK_WINDOW(mcaststream_dlg_w), 620, 400);
 
-    main_vb = gtk_vbox_new (FALSE, 0);
-    gtk_container_add(GTK_CONTAINER(mcaststream_dlg_w), main_vb);
-    gtk_container_set_border_width (GTK_CONTAINER (main_vb), 12);
+	main_vb = gtk_vbox_new (FALSE, 0);
+	gtk_container_add(GTK_CONTAINER(mcaststream_dlg_w), main_vb);
+	gtk_container_set_border_width (GTK_CONTAINER (main_vb), 12);
 
-    top_label = gtk_label_new ("Detected 0 Multicast streams");
-    gtk_box_pack_start (GTK_BOX (main_vb), top_label, FALSE, FALSE, 8);
+	top_label = gtk_label_new ("Detected 0 Multicast streams");
+	gtk_box_pack_start (GTK_BOX (main_vb), top_label, FALSE, FALSE, 8);
 
-    scrolledwindow = scrolled_window_new (NULL, NULL);
-    gtk_box_pack_start (GTK_BOX (main_vb), scrolledwindow, TRUE, TRUE, 0);
+	scrolledwindow = scrolled_window_new (NULL, NULL);
+	gtk_box_pack_start (GTK_BOX (main_vb), scrolledwindow, TRUE, TRUE, 0);
 
-    create_list_view();
-    gtk_container_add(GTK_CONTAINER(scrolledwindow), list_w);
+	create_list_view();
+	gtk_container_add(GTK_CONTAINER(scrolledwindow), list_w);
 
-    gtk_widget_show(mcaststream_dlg_w);
+	gtk_widget_show(mcaststream_dlg_w);
 
-    label_fwd = gtk_label_new (FWD_LABEL_TEXT);
-    gtk_box_pack_start (GTK_BOX (main_vb), label_fwd, FALSE, FALSE, 0);
+	label_fwd = gtk_label_new (FWD_LABEL_TEXT);
+	gtk_box_pack_start (GTK_BOX (main_vb), label_fwd, FALSE, FALSE, 0);
 
-    label_par = gtk_label_new (PAR_LABEL_TEXT);
-    gtk_box_pack_start (GTK_BOX (main_vb), label_par, FALSE, FALSE, 0);
+	label_par = gtk_label_new (PAR_LABEL_TEXT);
+	gtk_box_pack_start (GTK_BOX (main_vb), label_par, FALSE, FALSE, 0);
 
-    /* button row */
-    hbuttonbox = gtk_hbutton_box_new ();
-    gtk_box_pack_start (GTK_BOX (main_vb), hbuttonbox, FALSE, FALSE, 0);
-    gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_END);
-    gtk_box_set_spacing (GTK_BOX (hbuttonbox), 0);
+	/* button row */
+	hbuttonbox = gtk_hbutton_box_new ();
+	gtk_box_pack_start (GTK_BOX (main_vb), hbuttonbox, FALSE, FALSE, 0);
+	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_END);
+	gtk_box_set_spacing (GTK_BOX (hbuttonbox), 0);
 
-    /*bt_unselect = gtk_button_new_with_label ("Unselect");
-    gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_unselect);
-    gtk_tooltips_set_tip (tooltips, bt_unselect, "Undo stream selection", NULL);*/
+	/*bt_unselect = gtk_button_new_with_label ("Unselect");
+	  gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_unselect);
+	  gtk_tooltips_set_tip (tooltips, bt_unselect, "Undo stream selection", NULL);*/
 
-    bt_params = gtk_button_new_with_label ("Set parameters");
-    gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_params);
-    gtk_tooltips_set_tip (tooltips, bt_params, "Set buffer, limit and speed parameters", NULL);
+	bt_params = gtk_button_new_with_label ("Set parameters");
+	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_params);
+	gtk_tooltips_set_tip (tooltips, bt_params, "Set buffer, limit and speed parameters", NULL);
 
-    bt_filter = gtk_button_new_with_label ("Prepare Filter");
-    gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_filter);
-    gtk_tooltips_set_tip (tooltips, bt_filter, "Prepare a display filter of the selected stream", NULL);
+	bt_filter = gtk_button_new_with_label ("Prepare Filter");
+	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_filter);
+	gtk_tooltips_set_tip (tooltips, bt_filter, "Prepare a display filter of the selected stream", NULL);
 
-    bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
-    gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
-    gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);
-    GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
+	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
+	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
+	gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);
+	GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
 
-    /*g_signal_connect(bt_unselect, "clicked", G_CALLBACK(mcaststream_on_unselect), NULL);*/
-    g_signal_connect(bt_params, "clicked", G_CALLBACK(mcast_on_params), NULL);
-    g_signal_connect(bt_filter, "clicked", G_CALLBACK(mcaststream_on_filter), NULL);
-    window_set_cancel_button(mcaststream_dlg_w, bt_close, window_cancel_button_cb);
+	/*g_signal_connect(bt_unselect, "clicked", G_CALLBACK(mcaststream_on_unselect), NULL);*/
+	g_signal_connect(bt_params, "clicked", G_CALLBACK(mcast_on_params), NULL);
+	g_signal_connect(bt_filter, "clicked", G_CALLBACK(mcaststream_on_filter), NULL);
+	window_set_cancel_button(mcaststream_dlg_w, bt_close, window_cancel_button_cb);
 
-    g_signal_connect(mcaststream_dlg_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
-    g_signal_connect(mcaststream_dlg_w, "destroy", G_CALLBACK(mcaststream_on_destroy), NULL);
+	g_signal_connect(mcaststream_dlg_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(mcaststream_dlg_w, "destroy", G_CALLBACK(mcaststream_on_destroy), NULL);
 
-    gtk_widget_show_all(mcaststream_dlg_w);
-    window_present(mcaststream_dlg_w);
+	gtk_widget_show_all(mcaststream_dlg_w);
+	window_present(mcaststream_dlg_w);
 
-    mcaststream_on_unselect(NULL, NULL);
+	mcaststream_on_unselect(NULL, NULL);
 
-    mcast_stream_dlg = mcaststream_dlg_w;
+	mcast_stream_dlg = mcaststream_dlg_w;
 
-    g_free(win_name);
+	g_free(win_name);
 
 }
 
@@ -733,7 +728,8 @@ mcaststream_dlg_create(void)
 /****************************************************************************/
 /* update the contents of the dialog box clist */
 /* list: pointer to list of mcast_stream_info_t* */
-void mcaststream_dlg_update(GList *list)
+void
+mcaststream_dlg_update(GList *list)
 {
 	if (mcast_stream_dlg != NULL) {
 		gtk_list_store_clear(list_store);
@@ -756,7 +752,8 @@ void mcaststream_dlg_update(GList *list)
 /****************************************************************************/
 /* update the contents of the dialog box clist */
 /* list: pointer to list of mcast_stream_info_t* */
-void mcaststream_dlg_show(GList *list)
+void
+mcaststream_dlg_show(GList *list)
 {
 	if (mcast_stream_dlg != NULL) {
 		/* There's already a dialog box; reactivate it. */
@@ -776,7 +773,8 @@ void mcaststream_dlg_show(GList *list)
 
 /****************************************************************************/
 /* entry point when called via the GTK menu */
-static void mcaststream_launch(GtkWidget *w _U_, gpointer data _U_)
+static void
+mcaststream_launch(GtkWidget *w _U_, gpointer data _U_)
 {
 	/* Register the tap listener */
 	register_tap_listener_mcast_stream();

@@ -40,6 +40,8 @@
 # include <sys/types.h>
 #endif
 
+#include <glib.h>
+
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
@@ -47,6 +49,7 @@
 #include <gtk/gtk.h>
 
 #include <epan/epan.h>
+#include <epan/address.h>
 #include <epan/packet.h>
 #include <epan/tap.h>
 #include <epan/strutil.h>
@@ -62,19 +65,17 @@
 #include <winsock2.h>
 #endif
 
-gint32 trigger=50; /* limit for triggering the burst alarm (in packets per second) */
-gint32 bufferalarm = 10000; /* limit for triggernig the buffer alarm (in bytes) */
-guint16 burstint = 100; /* burts interval in ms */
-gint32 emptyspeed = 5000; /* outgoing speed for single stream (kbps)*/
-gint32 cumulemptyspeed = 100000; /* outgoiong speed for all streams (kbps)*/
-
-t_buffer **bufflist;
+gint32  mcast_stream_trigger         =     50; /* limit for triggering the burst alarm (in packets per second) */
+gint32  mcast_stream_bufferalarm     =  10000; /* limit for triggernig the buffer alarm (in bytes) */
+guint16 mcast_stream_burstint        =    100; /* burst interval in ms */
+gint32  mcast_stream_emptyspeed      =   5000; /* outgoing speed for single stream (kbps)*/
+gint32  mcast_stream_cumulemptyspeed = 100000; /* outgoiong speed for all streams (kbps)*/
 
 /* sliding window and buffer usage */
-gint32 buffsize = (int)((double)MAX_SPEED * 100 / 1000) * 2;
-guint16 comparetimes(struct timeval *t1, struct timeval *t2, guint16 burstint);
-static void buffusagecalc(mcast_stream_info_t *strinfo, packet_info *pinfo, double emptyspeed);
-static void slidingwindow(mcast_stream_info_t *strinfo, packet_info *pinfo);
+static gint32  buffsize = (int)((double)MAX_SPEED * 100 / 1000) * 2;
+static guint16 comparetimes(struct timeval *t1, struct timeval *t2, guint16 burstint_lcl);
+static void    buffusagecalc(mcast_stream_info_t *strinfo, packet_info *pinfo, double emptyspeed_lcl);
+static void    slidingwindow(mcast_stream_info_t *strinfo, packet_info *pinfo);
 
 
 /****************************************************************************/
@@ -85,7 +86,8 @@ static mcaststream_tapinfo_t the_tapinfo_struct =
 
 /****************************************************************************/
 /* GCompareFunc style comparison function for _mcast_stream_info */
-static gint mcast_stream_info_cmp(gconstpointer aa, gconstpointer bb)
+static gint
+mcast_stream_info_cmp(gconstpointer aa, gconstpointer bb)
 {
 	const struct _mcast_stream_info* a = aa;
 	const struct _mcast_stream_info* b = bb;
@@ -107,7 +109,8 @@ static gint mcast_stream_info_cmp(gconstpointer aa, gconstpointer bb)
 
 /****************************************************************************/
 /* when there is a [re]reading of packet's */
-void mcaststream_reset(mcaststream_tapinfo_t *tapinfo)
+void
+mcaststream_reset(mcaststream_tapinfo_t *tapinfo)
 {
 	GList* list;
 
@@ -136,14 +139,16 @@ void mcaststream_reset(mcaststream_tapinfo_t *tapinfo)
 	return;
 }
 
-static void mcaststream_reset_cb(void *arg)
+static void
+mcaststream_reset_cb(void *arg)
 {
 	mcaststream_reset(arg);
 }
 
 /****************************************************************************/
 /* redraw the output */
-static void mcaststream_draw(void *arg _U_)
+static void
+mcaststream_draw(void *arg _U_)
 {
 /* XXX: see mcaststream_on_update in mcast_streams_dlg.c for comments
 	g_signal_emit_by_name(top_level, "signal_mcaststream_update");
@@ -156,7 +161,8 @@ static void mcaststream_draw(void *arg _U_)
 
 /****************************************************************************/
 /* whenever a udp packet is seen by the tap listener */
-static int mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg2 _U_)
+static int
+mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *arg2 _U_)
 {
 	mcaststream_tapinfo_t *tapinfo = arg;
         mcast_stream_info_t tmp_strinfo;
@@ -282,10 +288,10 @@ static int mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt
 
 	/* sliding window and buffercalc for this group*/
 	slidingwindow(strinfo, pinfo);
-	buffusagecalc(strinfo, pinfo, emptyspeed*1000);
+	buffusagecalc(strinfo, pinfo, mcast_stream_emptyspeed*1000);
 	/* sliding window and buffercalc for all groups */
 	slidingwindow(tapinfo->allstreams, pinfo);
-	buffusagecalc(tapinfo->allstreams, pinfo, cumulemptyspeed*1000);
+	buffusagecalc(tapinfo->allstreams, pinfo, mcast_stream_cumulemptyspeed*1000);
 	/* end of sliding window */
 
 	return 1;  /* refresh output */
@@ -294,7 +300,8 @@ static int mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt
 
 /****************************************************************************/
 /* scan for Mcast streams */
-void mcaststream_scan(void)
+void
+mcaststream_scan(void)
 {
 	gboolean was_registered = the_tapinfo_struct.is_registered;
 	if (!the_tapinfo_struct.is_registered)
@@ -308,7 +315,8 @@ void mcaststream_scan(void)
 
 
 /****************************************************************************/
-const mcaststream_tapinfo_t* mcaststream_get_info(void)
+const mcaststream_tapinfo_t *
+mcaststream_get_info(void)
 {
 	return &the_tapinfo_struct;
 }
@@ -357,101 +365,105 @@ register_tap_listener_mcast_stream(void)
 /* sliding window and buffer calculations */
 
 /* compare two times */
-guint16 comparetimes(struct timeval *t1, struct timeval *t2, guint16 burstint_lcl){
-    if(((t2->tv_sec - t1->tv_sec)*1000 + (t2->tv_usec - t1->tv_usec)/1000) > burstint_lcl){
-        return 1;
-    } else{
-        return 0;
-    }
+static guint16
+comparetimes(struct timeval *t1, struct timeval *t2, guint16 burstint_lcl)
+{
+	if(((t2->tv_sec - t1->tv_sec)*1000 + (t2->tv_usec - t1->tv_usec)/1000) > burstint_lcl){
+		return 1;
+	} else{
+		return 0;
+	}
 }
 
 /* calculate buffer usage */
-void buffusagecalc(mcast_stream_info_t *strinfo, packet_info *pinfo, double emptyspeed_lcl)
+static void
+buffusagecalc(mcast_stream_info_t *strinfo, packet_info *pinfo, double emptyspeed_lcl)
 {
-    gint32 sec=0, usec=0, cur, prev;
-    struct timeval *buffer;
-    double timeelapsed;
+	gint32 sec=0, usec=0, cur, prev;
+	struct timeval *buffer;
+	double timeelapsed;
 
-    buffer = strinfo->element.buff;
-    cur = strinfo->element.last;
-    if(cur == 0){
-        cur = buffsize - 1;
-        prev = cur - 1;
-    } else if(cur == 1){
-        prev = buffsize - 1;
-        cur = 0;
-    } else{
-        cur=cur-1;
-        prev=cur-1;
-    }
+	buffer = strinfo->element.buff;
+	cur = strinfo->element.last;
+	if(cur == 0){
+		cur = buffsize - 1;
+		prev = cur - 1;
+	} else if(cur == 1){
+		prev = buffsize - 1;
+		cur = 0;
+	} else{
+		cur=cur-1;
+		prev=cur-1;
+	}
 
-    sec = buffer[cur].tv_sec - buffer[prev].tv_sec;
-    usec = buffer[cur].tv_usec - buffer[prev].tv_usec;
-    timeelapsed = (double)usec/1000000 + (double)sec;
+	sec = buffer[cur].tv_sec - buffer[prev].tv_sec;
+	usec = buffer[cur].tv_usec - buffer[prev].tv_usec;
+	timeelapsed = (double)usec/1000000 + (double)sec;
 
-    /* bytes added to buffer */
-    strinfo->element.buffusage+=pinfo->fd->pkt_len;
+	/* bytes added to buffer */
+	strinfo->element.buffusage+=pinfo->fd->pkt_len;
 
-    /* bytes cleared from buffer */
-    strinfo->element.buffusage-= (guint32) (timeelapsed * emptyspeed_lcl / 8);
+	/* bytes cleared from buffer */
+	strinfo->element.buffusage-= (guint32) (timeelapsed * emptyspeed_lcl / 8);
 
-    if(strinfo->element.buffusage < 0) strinfo->element.buffusage=0;
-    if(strinfo->element.buffusage > strinfo->element.topbuffusage)
-				strinfo->element.topbuffusage = strinfo->element.buffusage;
-    /* check for buffer losses */
-    if((strinfo->element.buffusage >= bufferalarm) && (strinfo->element.buffstatus == 0)){
-        strinfo->element.buffstatus = 1;
-        strinfo->element.numbuffalarms++;
-    } else if(strinfo->element.buffusage < bufferalarm){
-        strinfo->element.buffstatus = 0;
-    }
+	if(strinfo->element.buffusage < 0) strinfo->element.buffusage=0;
+	if(strinfo->element.buffusage > strinfo->element.topbuffusage)
+		strinfo->element.topbuffusage = strinfo->element.buffusage;
+	/* check for buffer losses */
+	if((strinfo->element.buffusage >= mcast_stream_bufferalarm) && (strinfo->element.buffstatus == 0)){
+		strinfo->element.buffstatus = 1;
+		strinfo->element.numbuffalarms++;
+	} else if(strinfo->element.buffusage < mcast_stream_bufferalarm){
+		strinfo->element.buffstatus = 0;
+	}
 
-    return;
+	return;
 }
 
 /* sliding window calculation */
-void slidingwindow(mcast_stream_info_t *strinfo, packet_info *pinfo)
+static void
+slidingwindow(mcast_stream_info_t *strinfo, packet_info *pinfo)
 {
-    struct timeval *buffer;
-    gint32 diff;
+	struct timeval *buffer;
+	gint32 diff;
 
-    buffer = strinfo->element.buff;
+	buffer = strinfo->element.buff;
 
-    diff = strinfo->element.last - strinfo->element.first;
-    if(diff < 0) diff+=buffsize;
+	diff = strinfo->element.last - strinfo->element.first;
+	if(diff < 0) diff+=buffsize;
 
-    /* check if buffer is full */
-    if(diff >= (buffsize - 2)){
-        fprintf(stderr, "Warning: capture buffer full\n");
-        strinfo->element.first++;
-        if(strinfo->element.first >= buffsize) strinfo->element.first = strinfo->element.first % buffsize;
-    }
+	/* check if buffer is full */
+	if(diff >= (buffsize - 2)){
+		fprintf(stderr, "Warning: capture buffer full\n");
+		strinfo->element.first++;
+		if(strinfo->element.first >= buffsize) strinfo->element.first = strinfo->element.first % buffsize;
+	}
 
-    /* burst count */
-    buffer[strinfo->element.last].tv_sec = (guint32) pinfo->fd->rel_ts.secs;
-    buffer[strinfo->element.last].tv_usec = pinfo->fd->rel_ts.nsecs/1000;
-    while(comparetimes((struct timeval *)&(buffer[strinfo->element.first]),
-						(struct timeval *)&(buffer[strinfo->element.last]), burstint)){
-        strinfo->element.first++;
-        if(strinfo->element.first >= buffsize) strinfo->element.first = strinfo->element.first % buffsize;
-        diff--;
-    }
-    strinfo->element.burstsize = diff;
-    if(strinfo->element.burstsize > strinfo->element.topburstsize) {
-	strinfo->element.topburstsize = strinfo->element.burstsize;
-	strinfo->element.maxbw = (float)(strinfo->element.topburstsize) * 1000 / burstint * pinfo->fd->pkt_len * 8 / 1000000;
-    }
+	/* burst count */
+	buffer[strinfo->element.last].tv_sec = (guint32) pinfo->fd->rel_ts.secs;
+	buffer[strinfo->element.last].tv_usec = pinfo->fd->rel_ts.nsecs/1000;
+	while(comparetimes((struct timeval *)&(buffer[strinfo->element.first]),
+			   (struct timeval *)&(buffer[strinfo->element.last]), mcast_stream_burstint)){
+		strinfo->element.first++;
+		if(strinfo->element.first >= buffsize) strinfo->element.first = strinfo->element.first % buffsize;
+		diff--;
+	}
+	strinfo->element.burstsize = diff;
+	if(strinfo->element.burstsize > strinfo->element.topburstsize) {
+		strinfo->element.topburstsize = strinfo->element.burstsize;
+		strinfo->element.maxbw = (float)(strinfo->element.topburstsize) * 1000 / mcast_stream_burstint * pinfo->fd->pkt_len * 8 / 1000000;
+	}
 
-    strinfo->element.last++;
-    if(strinfo->element.last >= buffsize) strinfo->element.last = strinfo->element.last % buffsize;
-    /* trigger check */
-    if((strinfo->element.burstsize >= trigger) && (strinfo->element.burststatus == 0)){
-        strinfo->element.burststatus = 1;
-        strinfo->element.numbursts++;
-    } else if(strinfo->element.burstsize < trigger){
-        strinfo->element.burststatus = 0;
-    }
+	strinfo->element.last++;
+	if(strinfo->element.last >= buffsize) strinfo->element.last = strinfo->element.last % buffsize;
+	/* trigger check */
+	if((strinfo->element.burstsize >= mcast_stream_trigger) && (strinfo->element.burststatus == 0)){
+		strinfo->element.burststatus = 1;
+		strinfo->element.numbursts++;
+	} else if(strinfo->element.burstsize < mcast_stream_trigger){
+		strinfo->element.burststatus = 0;
+	}
 
-    strinfo->element.count++;
+	strinfo->element.count++;
 }
 
