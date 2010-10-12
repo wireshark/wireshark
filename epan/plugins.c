@@ -139,7 +139,7 @@ plugins_scan_dir(const char *dirname)
     WS_DIRENT     *file;            /* current file */
     const char    *name;
     gchar          filename[FILENAME_LEN];   /* current file name */
-    GModule       *handle;          /* handle returned by dlopen */
+    GModule       *handle;          /* handle returned by g_module_open */
     gchar         *version;
     gpointer       gp;
     void         (*register_protoinfo)(void);

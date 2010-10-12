@@ -31,7 +31,7 @@
 #include "packet.h"
 
 typedef struct _plugin {
-    GModule	*handle;          /* handle returned by dlopen */
+    GModule	*handle;          /* handle returned by g_module_open */
     gchar       *name;            /* plugin name */
     gchar       *version;         /* plugin version */
     void (*register_protoinfo)(void); /* routine to call to register protocol information */

@@ -873,7 +873,7 @@ get_runtime_pcap_version(GString *str)
 	 * not and, if we have it and we have "pcap_lib_version()",
 	 * what version we have.
 	 */
-	GModule *handle;		/* handle returned by dlopen */
+	GModule *handle;		/* handle returned by ws_module_open */
 	static gchar *packetVer;
 	gchar *blankp;
 
