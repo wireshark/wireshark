@@ -542,7 +542,7 @@ file_open_cmd(GtkWidget *w)
   /* resolve buttons */
   m_resolv_cb = gtk_check_button_new_with_mnemonic("Enable _MAC name resolution");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(m_resolv_cb),
-	g_resolv_flags & RESOLV_MAC);
+	gbl_resolv_flags & RESOLV_MAC);
   gtk_box_pack_start(GTK_BOX(main_vb), m_resolv_cb, FALSE, FALSE, 0);
   g_object_set_data(G_OBJECT(file_open_w),
                   E_FILE_M_RESOLVE_KEY, m_resolv_cb);
@@ -550,13 +550,13 @@ file_open_cmd(GtkWidget *w)
 
   n_resolv_cb = gtk_check_button_new_with_mnemonic("Enable _network name resolution");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(n_resolv_cb),
-	g_resolv_flags & RESOLV_NETWORK);
+	gbl_resolv_flags & RESOLV_NETWORK);
   gtk_box_pack_start(GTK_BOX(main_vb), n_resolv_cb, FALSE, FALSE, 0);
   gtk_widget_show(n_resolv_cb);
   g_object_set_data(G_OBJECT(file_open_w), E_FILE_N_RESOLVE_KEY, n_resolv_cb);
   t_resolv_cb = gtk_check_button_new_with_mnemonic("Enable _transport name resolution");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(t_resolv_cb),
-	g_resolv_flags & RESOLV_TRANSPORT);
+	gbl_resolv_flags & RESOLV_TRANSPORT);
   gtk_box_pack_start(GTK_BOX(main_vb), t_resolv_cb, FALSE, FALSE, 0);
   gtk_widget_show(t_resolv_cb);
   g_object_set_data(G_OBJECT(file_open_w), E_FILE_T_RESOLVE_KEY, t_resolv_cb);
@@ -673,22 +673,22 @@ file_open_ok_cb(GtkWidget *w, gpointer fs) {
   cfile.rfcode = rfcode;
 
   /* Set the global resolving variable */
-  g_resolv_flags = prefs.name_resolve;
+  gbl_resolv_flags = prefs.name_resolve;
   m_resolv_cb = g_object_get_data(G_OBJECT(w), E_FILE_M_RESOLVE_KEY);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (m_resolv_cb)))
-    g_resolv_flags |= RESOLV_MAC;
+    gbl_resolv_flags |= RESOLV_MAC;
   else
-    g_resolv_flags &= ~RESOLV_MAC;
+    gbl_resolv_flags &= ~RESOLV_MAC;
   n_resolv_cb = g_object_get_data(G_OBJECT(w), E_FILE_N_RESOLVE_KEY);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (n_resolv_cb)))
-    g_resolv_flags |= RESOLV_NETWORK;
+    gbl_resolv_flags |= RESOLV_NETWORK;
   else
-    g_resolv_flags &= ~RESOLV_NETWORK;
+    gbl_resolv_flags &= ~RESOLV_NETWORK;
   t_resolv_cb = g_object_get_data(G_OBJECT(w), E_FILE_T_RESOLVE_KEY);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (t_resolv_cb)))
-    g_resolv_flags |= RESOLV_TRANSPORT;
+    gbl_resolv_flags |= RESOLV_TRANSPORT;
   else
-    g_resolv_flags &= ~RESOLV_TRANSPORT;
+    gbl_resolv_flags &= ~RESOLV_TRANSPORT;
 
   /* We've crossed the Rubicon; get rid of the file selection box. */
   window_destroy(GTK_WIDGET (fs));
@@ -1144,7 +1144,7 @@ set_file_type_list(GtkWidget *combo_box, int default_file_type)
   guint idx;
   gint  item_to_select;
 
-  /* Default to the first supported file type (which should be libpcap) 
+  /* Default to the first supported file type (which should be libpcap)
      if this file's current type isn't supported  */
   item_to_select = 0;
 

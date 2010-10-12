@@ -113,7 +113,7 @@ static nstime_t first_ts;
 static nstime_t prev_dis_ts;
 static nstime_t prev_cap_ts;
 
-static gboolean print_packet_info;	/* TRUE if we're to print packet information */
+static gboolean print_packet_info;      /* TRUE if we're to print packet information */
 
 static gboolean perform_two_pass_analysis;
 
@@ -121,14 +121,14 @@ static gboolean perform_two_pass_analysis;
  * The way the packet decode is to be written.
  */
 typedef enum {
-	WRITE_TEXT,	/* summary or detail text */
-	WRITE_XML,	/* PDML or PSML */
-	WRITE_FIELDS	/* User defined list of fields */
-	/* Add CSV and the like here */
+  WRITE_TEXT,   /* summary or detail text */
+  WRITE_XML,    /* PDML or PSML */
+  WRITE_FIELDS  /* User defined list of fields */
+  /* Add CSV and the like here */
 } output_action_e;
 
 static output_action_e output_action;
-static gboolean do_dissection;	/* TRUE if we have to dissect each packet */
+static gboolean do_dissection;  /* TRUE if we have to dissect each packet */
 static gboolean verbose;
 static gboolean print_hex;
 static gboolean line_buffered;
@@ -148,8 +148,8 @@ static gboolean print_packet_counts;
 static capture_options global_capture_opts;
 
 #ifdef SIGINFO
-static gboolean infodelay;	/* if TRUE, don't print capture info in SIGINFO handler */
-static gboolean infoprint;	/* if TRUE, print capture info after clearing infodelay */
+static gboolean infodelay;      /* if TRUE, don't print capture info in SIGINFO handler */
+static gboolean infoprint;      /* if TRUE, print capture info after clearing infodelay */
 #endif /* SIGINFO */
 
 static gboolean capture(void);
@@ -187,18 +187,18 @@ capture_file cfile;
 void
 cf_mark_frame(capture_file *cf _U_, frame_data *frame _U_)
 {
-    g_assert_not_reached();
+  g_assert_not_reached();
 }
 
 static void list_capture_types(void) {
-    int i;
+  int i;
 
-    fprintf(stderr, "editcap: The available capture file types for \"F\":\n");
-    for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
-      if (wtap_dump_can_open(i))
-        fprintf(stderr, "    %s - %s\n",
-          wtap_file_type_short_string(i), wtap_file_type_string(i));
-    }
+  fprintf(stderr, "editcap: The available capture file types for \"F\":\n");
+  for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
+    if (wtap_dump_can_open(i))
+      fprintf(stderr, "    %s - %s\n",
+              wtap_file_type_short_string(i), wtap_file_type_string(i));
+  }
 }
 
 static void
@@ -214,7 +214,7 @@ print_usage(gboolean print_ver)
         "See http://www.wireshark.org for more information.\n"
         "\n"
         "%s",
-	wireshark_svnversion, get_copyright_info());
+         wireshark_svnversion, get_copyright_info());
   } else {
     output = stderr;
   }
@@ -625,7 +625,7 @@ add_decode_as(const gchar *cl_param)
         cmdarg_err("Unknown protocol -- \"%s\"", dissector_str);
       } else {
         cmdarg_err("Protocol \"%s\" isn't valid for layer type \"%s\"",
-		dissector_str, table_name);
+                   dissector_str, table_name);
       }
     }
   }
@@ -769,8 +769,8 @@ main(int argc, char *argv[])
   gboolean             arg_error = FALSE;
 
 #ifdef _WIN32
-  WSADATA		wsaData;
-#endif	/* _WIN32 */
+  WSADATA              wsaData;
+#endif  /* _WIN32 */
 
   char                *gpf_path, *pf_path;
   char                *gdp_path, *dp_path;
@@ -843,21 +843,21 @@ main(int argc, char *argv[])
   optind_initial = optind;
 
   while ((opt = getopt(argc, argv, optstring)) != -1) {
-	  switch (opt) {
-		  case 'C':        /* Configuration Profile */
-		 	  if (profile_exists (optarg)) {
-				  set_profile_name (optarg);
-			  } else {
-				  cmdarg_err("Configuration Profile \"%s\" does not exist", optarg);
-				  return 1;
-			  }
-			  break;
-		  case 'X':
-			  ex_opt_add(optarg);
-			  break;
-		  default:
-			  break;
-	  }
+    switch (opt) {
+    case 'C':        /* Configuration Profile */
+      if (profile_exists (optarg)) {
+        set_profile_name (optarg);
+      } else {
+        cmdarg_err("Configuration Profile \"%s\" does not exist", optarg);
+        return 1;
+      }
+      break;
+    case 'X':
+      ex_opt_add(optarg);
+      break;
+    default:
+      break;
+    }
   }
 
   optind = optind_initial;
@@ -868,28 +868,28 @@ main(int argc, char *argv[])
 /** Send All g_log messages to our own handler **/
 
   log_flags =
-		    G_LOG_LEVEL_ERROR|
-		    G_LOG_LEVEL_CRITICAL|
-		    G_LOG_LEVEL_WARNING|
-		    G_LOG_LEVEL_MESSAGE|
-		    G_LOG_LEVEL_INFO|
-		    G_LOG_LEVEL_DEBUG|
-		    G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION;
+                    G_LOG_LEVEL_ERROR|
+                    G_LOG_LEVEL_CRITICAL|
+                    G_LOG_LEVEL_WARNING|
+                    G_LOG_LEVEL_MESSAGE|
+                    G_LOG_LEVEL_INFO|
+                    G_LOG_LEVEL_DEBUG|
+                    G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION;
 
   g_log_set_handler(NULL,
-		    log_flags,
-		    tshark_log_handler, NULL /* user_data */);
+                    log_flags,
+                    tshark_log_handler, NULL /* user_data */);
   g_log_set_handler(LOG_DOMAIN_MAIN,
-		    log_flags,
-		    tshark_log_handler, NULL /* user_data */);
+                    log_flags,
+                    tshark_log_handler, NULL /* user_data */);
 
 #ifdef HAVE_LIBPCAP
   g_log_set_handler(LOG_DOMAIN_CAPTURE,
-		    log_flags,
-		    tshark_log_handler, NULL /* user_data */);
+                    log_flags,
+                    tshark_log_handler, NULL /* user_data */);
   g_log_set_handler(LOG_DOMAIN_CAPTURE_CHILD,
-		    log_flags,
-		    tshark_log_handler, NULL /* user_data */);
+                    log_flags,
+                    tshark_log_handler, NULL /* user_data */);
 #endif
 
   initialize_funnel_ops();
@@ -934,7 +934,7 @@ main(int argc, char *argv[])
      If none of our build or other processes uses "-G" with no arguments,
      we can just process it with the other arguments. */
   if (argc >= 2 && strcmp(argv[1], "-G") == 0) {
-	  proto_initialize_all_prefixes();
+    proto_initialize_all_prefixes();
 
     if (argc == 2)
       proto_registrar_dump_fields(1);
@@ -998,7 +998,7 @@ main(int argc, char *argv[])
   }
 
   /* Set the name resolution code's flags from the preferences. */
-  g_resolv_flags = prefs_p->name_resolve;
+  gbl_resolv_flags = prefs_p->name_resolve;
 
   /* Read the disabled protocols file. */
   read_disabled_protos_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
@@ -1067,7 +1067,7 @@ main(int argc, char *argv[])
         break;
       case 'C':
         /* Configuration profile settings were already processed just ignore them this time*/
-	break;
+        break;
       case 'd':        /* Decode as rule */
         if (!add_decode_as(optarg))
           return 1;
@@ -1154,12 +1154,12 @@ main(int argc, char *argv[])
         break;
 #endif
       case 'n':        /* No name resolution */
-        g_resolv_flags = RESOLV_NONE;
+        gbl_resolv_flags = RESOLV_NONE;
         break;
       case 'N':        /* Select what types of addresses/port #s to resolve */
-        if (g_resolv_flags == RESOLV_ALL)
-          g_resolv_flags = RESOLV_NONE;
-        badopt = string_to_name_resolve(optarg, &g_resolv_flags);
+        if (gbl_resolv_flags == RESOLV_ALL)
+          gbl_resolv_flags = RESOLV_NONE;
+        badopt = string_to_name_resolve(optarg, &gbl_resolv_flags);
         if (badopt != '\0') {
           cmdarg_err("-N specifies unknown resolving option '%c';",
                      badopt);
@@ -1270,17 +1270,17 @@ main(int argc, char *argv[])
       }
       case 'V':        /* Verbose */
         verbose = TRUE;
-	/*  The user asked for a verbose output, so let's ensure they get it,
-	 *  even if they're writing to a file.
-	 */
-	print_packet_info = TRUE;
+        /*  The user asked for a verbose output, so let's ensure they get it,
+         *  even if they're writing to a file.
+         */
+        print_packet_info = TRUE;
         break;
       case 'x':        /* Print packet data in hex (and ASCII) */
         print_hex = TRUE;
-	/*  The user asked for hex output, so let's ensure they get it,
-	 *  even if they're writing to a file.
-	 */
-	print_packet_info = TRUE;
+        /*  The user asked for hex output, so let's ensure they get it,
+         *  even if they're writing to a file.
+         */
+        print_packet_info = TRUE;
         break;
       case 'X':
         break;
@@ -1470,7 +1470,7 @@ main(int argc, char *argv[])
           /* Multiple-file mode doesn't work under certain conditions:
              a) it doesn't work if you're writing to the standard output;
              b) it doesn't work if you're writing to a pipe;
-	  */
+          */
           if (strcmp(global_capture_opts.save_file, "-") == 0) {
             cmdarg_err("Multiple capture files requested, but "
               "the capture is being written to the standard output.");
@@ -1482,7 +1482,7 @@ main(int argc, char *argv[])
             return 1;
           }
           if (!global_capture_opts.has_autostop_filesize &&
-	      !global_capture_opts.has_file_duration) {
+              !global_capture_opts.has_file_duration) {
             cmdarg_err("Multiple capture files requested, but "
               "no maximum capture file size or duration was specified.");
             return 1;
@@ -1800,7 +1800,7 @@ typedef struct pipe_input_tag {
     pipe_input_cb_t     input_cb;
     guint               pipe_input_id;
 #ifdef _WIN32
-    GStaticMutex		callback_running;
+    GStaticMutex        callback_running;
 #endif
 } pipe_input_t;
 
@@ -1824,47 +1824,47 @@ pipe_timer_cb(gpointer data)
 
   /* try to read data from the pipe only 5 times, to avoid blocking */
   while(iterations < 5) {
-	  /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: new iteration");*/
+    /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: new iteration");*/
 
-	  /* Oddly enough although Named pipes don't work on win9x,
-		 PeekNamedPipe does !!! */
-	  handle = (HANDLE) _get_osfhandle (pipe_input->source);
-	  result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
+    /* Oddly enough although Named pipes don't work on win9x,
+       PeekNamedPipe does !!! */
+    handle = (HANDLE) _get_osfhandle (pipe_input->source);
+    result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
 
-	  /* Get the child process exit status */
-	  result1 = GetExitCodeProcess((HANDLE)*(pipe_input->child_process),
-								   &childstatus);
+    /* Get the child process exit status */
+    result1 = GetExitCodeProcess((HANDLE)*(pipe_input->child_process),
+                                 &childstatus);
 
-	  /* If the Peek returned an error, or there are bytes to be read
-		 or the childwatcher thread has terminated then call the normal
-		 callback */
-	  if (!result || avail > 0 || childstatus != STILL_ACTIVE) {
+    /* If the Peek returned an error, or there are bytes to be read
+       or the childwatcher thread has terminated then call the normal
+       callback */
+    if (!result || avail > 0 || childstatus != STILL_ACTIVE) {
 
-		/*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: data avail");*/
+      /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: data avail");*/
 
-		/* And call the real handler */
-		if (!pipe_input->input_cb(pipe_input->source, pipe_input->user_data)) {
-			g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: input pipe closed, iterations: %u", iterations);
-			/* pipe closed, return false so that the timer is stopped */
-			g_static_mutex_unlock (&pipe_input->callback_running);
-			return FALSE;
-		}
-	  }
-	  else {
-		/*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: no data avail");*/
-		/* No data, stop now */
-		break;
-	  }
+      /* And call the real handler */
+      if (!pipe_input->input_cb(pipe_input->source, pipe_input->user_data)) {
+        g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: input pipe closed, iterations: %u", iterations);
+        /* pipe closed, return false so that the timer is stopped */
+        g_static_mutex_unlock (&pipe_input->callback_running);
+        return FALSE;
+      }
+    }
+    else {
+      /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: no data avail");*/
+      /* No data, stop now */
+      break;
+    }
 
-	  iterations++;
+    iterations++;
   }
 
-	/*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: finished with iterations: %u, new timer", iterations);*/
+  /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: finished with iterations: %u, new timer", iterations);*/
 
-	g_static_mutex_unlock (&pipe_input->callback_running);
+  g_static_mutex_unlock (&pipe_input->callback_running);
 
-	/* we didn't stopped the timer, so let it run */
-	return TRUE;
+  /* we didn't stopped the timer, so let it run */
+  return TRUE;
 }
 #endif
 
@@ -1873,20 +1873,20 @@ void
 pipe_input_set_handler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb)
 {
 
-    pipe_input.source			= source;
-    pipe_input.child_process		= child_process;
-    pipe_input.user_data		= user_data;
-    pipe_input.input_cb			= input_cb;
+  pipe_input.source         = source;
+  pipe_input.child_process  = child_process;
+  pipe_input.user_data      = user_data;
+  pipe_input.input_cb       = input_cb;
 
 #ifdef _WIN32
-    g_static_mutex_init(&pipe_input.callback_running);
-    /* Tricky to use pipes in win9x, as no concept of wait.  NT can
-       do this but that doesn't cover all win32 platforms.  GTK can do
-       this but doesn't seem to work over processes.  Attempt to do
-       something similar here, start a timer and check for data on every
-       timeout. */
-	/*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_input_set_handler: new");*/
-    pipe_input.pipe_input_id = g_timeout_add(200, pipe_timer_cb, &pipe_input);
+  g_static_mutex_init(&pipe_input.callback_running);
+  /* Tricky to use pipes in win9x, as no concept of wait.  NT can
+     do this but that doesn't cover all win32 platforms.  GTK can do
+     this but doesn't seem to work over processes.  Attempt to do
+     something similar here, start a timer and check for data on every
+     timeout. */
+  /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_input_set_handler: new");*/
+  pipe_input.pipe_input_id = g_timeout_add(200, pipe_timer_cb, &pipe_input);
 #endif
 }
 
@@ -2016,8 +2016,8 @@ capture(void)
 #endif
       /* Call the real handler */
       if (!pipe_input.input_cb(pipe_input.source, pipe_input.user_data)) {
-	g_log(NULL, G_LOG_LEVEL_DEBUG, "input pipe closed");
-	return FALSE;
+        g_log(NULL, G_LOG_LEVEL_DEBUG, "input pipe closed");
+        return FALSE;
       }
 #ifdef USE_TSHARK_SELECT
     }
@@ -2038,8 +2038,8 @@ void main_window_update(void)
 void
 capture_input_error_message(capture_options *capture_opts _U_, char *error_msg, char *secondary_error_msg)
 {
-	cmdarg_err("%s", error_msg);
-	cmdarg_err_cont("%s", secondary_error_msg);
+  cmdarg_err("%s", error_msg);
+  cmdarg_err_cont("%s", secondary_error_msg);
 }
 
 
@@ -2047,30 +2047,30 @@ capture_input_error_message(capture_options *capture_opts _U_, char *error_msg, 
 void
 capture_input_cfilter_error_message(capture_options *capture_opts, char *error_message)
 {
-    dfilter_t   *rfcode = NULL;
+  dfilter_t   *rfcode = NULL;
 
 
-    if (dfilter_compile(capture_opts->cfilter, &rfcode) && rfcode != NULL) {
-      cmdarg_err(
-        "Invalid capture filter: \"%s\"!\n"
-        "\n"
-        "That string looks like a valid display filter; however, it isn't a valid\n"
-        "capture filter (%s).\n"
-        "\n"
-        "Note that display filters and capture filters don't have the same syntax,\n"
-        "so you can't use most display filter expressions as capture filters.\n"
-        "\n"
-        "See the User's Guide for a description of the capture filter syntax.",
-        capture_opts->cfilter, error_message);
-      dfilter_free(rfcode);
-    } else {
-      cmdarg_err(
-        "Invalid capture filter: \"%s\"!\n"
-        "\n"
-        "That string isn't a valid capture filter (%s).\n"
-        "See the User's Guide for a description of the capture filter syntax.",
-        capture_opts->cfilter, error_message);
-    }
+  if (dfilter_compile(capture_opts->cfilter, &rfcode) && rfcode != NULL) {
+    cmdarg_err(
+      "Invalid capture filter: \"%s\"!\n"
+      "\n"
+      "That string looks like a valid display filter; however, it isn't a valid\n"
+      "capture filter (%s).\n"
+      "\n"
+      "Note that display filters and capture filters don't have the same syntax,\n"
+      "so you can't use most display filter expressions as capture filters.\n"
+      "\n"
+      "See the User's Guide for a description of the capture filter syntax.",
+      capture_opts->cfilter, error_message);
+    dfilter_free(rfcode);
+  } else {
+    cmdarg_err(
+      "Invalid capture filter: \"%s\"!\n"
+      "\n"
+      "That string isn't a valid capture filter (%s).\n"
+      "See the User's Guide for a description of the capture filter syntax.",
+      capture_opts->cfilter, error_message);
+  }
 }
 
 
@@ -2355,7 +2355,7 @@ process_packet_first_pass(capture_file *cf,
      run a read filter, or we're going to process taps, set up to
      do a dissection and do so. */
   if (do_dissection) {
-    if (g_resolv_flags)
+    if (gbl_resolv_flags)
       /* Grab any resolved addresses */
       host_name_lookup_process(NULL);
 
@@ -2412,7 +2412,7 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
      run a read filter, or we're going to process taps, set up to
      do a dissection and do so. */
   if (do_dissection) {
-    if (g_resolv_flags)
+    if (gbl_resolv_flags)
       /* Grab any resolved addresses */
       host_name_lookup_process(NULL);
 
@@ -2783,7 +2783,7 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
      run a read filter, or we're going to process taps, set up to
      do a dissection and do so. */
   if (do_dissection) {
-    if (print_packet_info && g_resolv_flags)
+    if (print_packet_info && gbl_resolv_flags)
       /* Grab any resolved addresses */
       host_name_lookup_process(NULL);
 

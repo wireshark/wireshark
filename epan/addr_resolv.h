@@ -47,7 +47,7 @@ extern "C" {
 /*
  * Flag controlling what names to resolve.
  */
-WS_VAR_IMPORT guint32 g_resolv_flags;
+WS_VAR_IMPORT guint32 gbl_resolv_flags;
 
 /* 32 types are sufficient (as are 640k of RAM) */
 /* FIXME: Maybe MANUF/m, IP/i, IP6/6, IPX/x, UDP+TCP/t etc would be

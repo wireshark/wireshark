@@ -76,7 +76,7 @@ man_addr_resolv_ok (GtkWidget *w _U_, gpointer data _U_)
 
   if (strlen (addr) && strlen (name)) {
     if (!add_ip_name_from_string (addr, name)) {
-      GtkWidget *dialog = simple_dialog (ESD_TYPE_ERROR, ESD_BTN_OK, 
+      GtkWidget *dialog = simple_dialog (ESD_TYPE_ERROR, ESD_BTN_OK,
 					 "Illegal IP address: \"%s\".", addr);
       simple_dialog_set_cb (dialog, man_addr_ill_addr_cb, NULL);
       return;
@@ -87,9 +87,9 @@ man_addr_resolv_ok (GtkWidget *w _U_, gpointer data _U_)
 
   resolv_cb = g_object_get_data (G_OBJECT(man_addr_resolv_dlg), "resolv");
   active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(resolv_cb));
-  if (!(g_resolv_flags & RESOLV_NETWORK) && active) {
+  if (!(gbl_resolv_flags & RESOLV_NETWORK) && active) {
     /* Name resolution for Network Layer activated */
-    g_resolv_flags |= RESOLV_NETWORK;
+    gbl_resolv_flags |= RESOLV_NETWORK;
     menu_name_resolution_changed ();
     redissect = TRUE;
   }
@@ -153,9 +153,9 @@ manual_addr_resolv_dlg (GtkWidget *w _U_, gpointer data)
   gtk_container_add (GTK_CONTAINER(vbox), sep);
 
   resolv_cb = gtk_check_button_new_with_mnemonic ("Enable network name resolution");
-  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(resolv_cb), g_resolv_flags & RESOLV_NETWORK);
-  gtk_widget_set_sensitive (resolv_cb, !(g_resolv_flags & RESOLV_NETWORK));
-    
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(resolv_cb), gbl_resolv_flags & RESOLV_NETWORK);
+  gtk_widget_set_sensitive (resolv_cb, !(gbl_resolv_flags & RESOLV_NETWORK));
+
   gtk_tooltips_set_tip (tooltips, resolv_cb, "Perform network layer name resolution.", NULL);
   g_object_set_data (G_OBJECT(man_addr_resolv_dlg), "resolv", resolv_cb);
   gtk_container_add (GTK_CONTAINER(vbox), resolv_cb);

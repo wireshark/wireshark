@@ -107,7 +107,7 @@ nameres_prefs_show(void)
 	 * without a subsequent editing of the preferences recording the
 	 * temporary settings as permanent preferences.
 	 */
-	prefs.name_resolve = g_resolv_flags;
+	prefs.name_resolve = gbl_resolv_flags;
 
 	/* Main vertical box */
 	main_vb = gtk_vbox_new(FALSE, 7);
@@ -299,7 +299,7 @@ nameres_prefs_apply(GtkWidget *w _U_)
 	 * XXX - force a regeneration of the protocol list if this has
 	 * changed?
 	 */
-	g_resolv_flags = prefs.name_resolve;
+	gbl_resolv_flags = prefs.name_resolve;
 	menu_name_resolution_changed();
 }
 

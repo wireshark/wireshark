@@ -609,7 +609,7 @@ get_filter_from_packet_list_row_and_column(gpointer data)
             /* Only construct the filter when a single occurrence is displayed
              * otherwise we might end up with a filter like "ip.proto==1,6".
              *
-             * Or do we want to be able to filter on multiple occurrences so that 
+             * Or do we want to be able to filter on multiple occurrences so that
              * the filter might be calculated as "ip.proto==1 && ip.proto==6"
              * instead?
              */
@@ -935,10 +935,10 @@ void expand_tree_cb(GtkWidget *widget _U_, gpointer data _U_) {
 
 void resolve_name_cb(GtkWidget *widget _U_, gpointer data _U_) {
   if (cfile.edt->tree) {
-    guint32 tmp = g_resolv_flags;
-    g_resolv_flags = RESOLV_ALL;
+    guint32 tmp = gbl_resolv_flags;
+    gbl_resolv_flags = RESOLV_ALL;
     proto_tree_draw(cfile.edt->tree, tree_view_gbl);
-    g_resolv_flags = tmp;
+    gbl_resolv_flags = tmp;
   }
 }
 
@@ -2569,12 +2569,12 @@ main(int argc, char *argv[])
         prefs_p->gui_font_name = g_strdup(optarg);
         break;
       case 'n':        /* No name resolution */
-        g_resolv_flags = RESOLV_NONE;
+        gbl_resolv_flags = RESOLV_NONE;
         break;
       case 'N':        /* Select what types of addresses/port #s to resolve */
-        if (g_resolv_flags == RESOLV_ALL)
-          g_resolv_flags = RESOLV_NONE;
-        badopt = string_to_name_resolve(optarg, &g_resolv_flags);
+        if (gbl_resolv_flags == RESOLV_ALL)
+          gbl_resolv_flags = RESOLV_NONE;
+        badopt = string_to_name_resolve(optarg, &gbl_resolv_flags);
         if (badopt != '\0') {
           cmdarg_err("-N specifies unknown resolving option '%c'; valid options are 'm', 'n', and 't'",
 			badopt);
@@ -3723,7 +3723,7 @@ prefs_to_capture_opts(void)
 #endif /* HAVE_LIBPCAP */
 
   /* Set the name resolution code's flags from the preferences. */
-    g_resolv_flags = prefs.name_resolve;
+    gbl_resolv_flags = prefs.name_resolve;
 }
 
 

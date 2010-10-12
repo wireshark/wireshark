@@ -266,7 +266,7 @@ capture_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
 
   /* pcap_compile_nopcap will not alter the filter string, so the (char *) cast is "safe" */
   if (pcap_compile_nopcap(DUMMY_SNAPLENGTH /* use a dummy snaplength for syntax-checking */,
-          global_capture_opts.linktype, &fcode, (char *)filter_text, 1 /* Do optimize */, 
+          global_capture_opts.linktype, &fcode, (char *)filter_text, 1 /* Do optimize */,
           DUMMY_NETMASK /* use a dummy netmask for syntax-checking */) < 0) {
     colorize_filter_te_as_invalid(filter_te);
   } else {
@@ -2310,7 +2310,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   m_resolv_cb = gtk_check_button_new_with_mnemonic(
                 "Enable _MAC name resolution");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(m_resolv_cb),
-                g_resolv_flags & RESOLV_MAC);
+                gbl_resolv_flags & RESOLV_MAC);
   gtk_tooltips_set_tip(tooltips, m_resolv_cb,
     "Perform MAC layer name resolution while capturing.", NULL);
   gtk_container_add(GTK_CONTAINER(resolv_vb), m_resolv_cb);
@@ -2318,7 +2318,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   n_resolv_cb = gtk_check_button_new_with_mnemonic(
                 "Enable _network name resolution");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(n_resolv_cb),
-                g_resolv_flags & RESOLV_NETWORK);
+                gbl_resolv_flags & RESOLV_NETWORK);
   gtk_tooltips_set_tip(tooltips, n_resolv_cb,
     "Perform network layer name resolution while capturing.", NULL);
   gtk_container_add(GTK_CONTAINER(resolv_vb), n_resolv_cb);
@@ -2326,7 +2326,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   t_resolv_cb = gtk_check_button_new_with_mnemonic(
                 "Enable _transport name resolution");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(t_resolv_cb),
-                g_resolv_flags & RESOLV_TRANSPORT);
+                gbl_resolv_flags & RESOLV_TRANSPORT);
   gtk_tooltips_set_tip(tooltips, t_resolv_cb,
     "Perform transport layer name resolution while capturing.", NULL);
   gtk_container_add(GTK_CONTAINER(resolv_vb), t_resolv_cb);
@@ -2892,17 +2892,17 @@ capture_dlg_prep(gpointer parent_w) {
       !gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hide_info_cb));
 
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(m_resolv_cb)))
-    g_resolv_flags |= RESOLV_MAC;
+    gbl_resolv_flags |= RESOLV_MAC;
   else
-    g_resolv_flags &= ~RESOLV_MAC;
+    gbl_resolv_flags &= ~RESOLV_MAC;
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(n_resolv_cb)))
-    g_resolv_flags |= RESOLV_NETWORK;
+    gbl_resolv_flags |= RESOLV_NETWORK;
   else
-    g_resolv_flags &= ~RESOLV_NETWORK;
+    gbl_resolv_flags &= ~RESOLV_NETWORK;
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(t_resolv_cb)))
-    g_resolv_flags |= RESOLV_TRANSPORT;
+    gbl_resolv_flags |= RESOLV_TRANSPORT;
   else
-    g_resolv_flags &= ~RESOLV_TRANSPORT;
+    gbl_resolv_flags &= ~RESOLV_TRANSPORT;
 
   global_capture_opts.has_ring_num_files =
     gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ringbuffer_nbf_cb));

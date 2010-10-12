@@ -285,7 +285,7 @@ const char *ipprotostr(const int proto) {
      * XXX - have another flag for resolving network-layer
      * protocol names?
      */
-    if (g_resolv_flags != 0) {
+    if (gbl_resolv_flags != 0) {
         static char buf[128];
         struct protoent *pe;
 

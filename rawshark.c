@@ -541,7 +541,7 @@ main(int argc, char *argv[])
     }
 
     /* Set the name resolution code's flags from the preferences. */
-    g_resolv_flags = prefs_p->name_resolve;
+    gbl_resolv_flags = prefs_p->name_resolve;
 
     /* Read the disabled protocols file. */
     read_disabled_protos_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
@@ -617,12 +617,12 @@ main(int argc, char *argv[])
                 line_buffered = TRUE;
                 break;
             case 'n':        /* No name resolution */
-                g_resolv_flags = RESOLV_NONE;
+                gbl_resolv_flags = RESOLV_NONE;
                 break;
             case 'N':        /* Select what types of addresses/port #s to resolve */
-                if (g_resolv_flags == RESOLV_ALL)
-                    g_resolv_flags = RESOLV_NONE;
-                badopt = string_to_name_resolve(optarg, &g_resolv_flags);
+                if (gbl_resolv_flags == RESOLV_ALL)
+                    gbl_resolv_flags = RESOLV_NONE;
+                badopt = string_to_name_resolve(optarg, &gbl_resolv_flags);
                 if (badopt != '\0') {
                     cmdarg_err("-N specifies unknown resolving option '%c'; valid options are 'm', 'n', and 't'",
                                badopt);

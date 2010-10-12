@@ -488,8 +488,8 @@ fvalue_get_uinteger
 fvalue_string_repr_len
 fvalue_t_free_list              DATA
 fvalue_to_string_repr
-g_resolv_flags                  DATA
 GatekeeperRejectReason_vals     DATA
+gbl_resolv_flags                DATA
 gcamel_StatSRT                  DATA
 geoip_db_get_paths
 geoip_db_lookup_ipv4

@@ -1167,11 +1167,11 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 
             /* Fill in our resolution values */
             cur_ctrl = GetDlgItem(of_hwnd, EWFD_MAC_NR_CB);
-            SendMessage(cur_ctrl, BM_SETCHECK, g_resolv_flags & RESOLV_MAC, 0);
+            SendMessage(cur_ctrl, BM_SETCHECK, gbl_resolv_flags & RESOLV_MAC, 0);
             cur_ctrl = GetDlgItem(of_hwnd, EWFD_NET_NR_CB);
-            SendMessage(cur_ctrl, BM_SETCHECK, g_resolv_flags & RESOLV_NETWORK, 0);
+            SendMessage(cur_ctrl, BM_SETCHECK, gbl_resolv_flags & RESOLV_NETWORK, 0);
             cur_ctrl = GetDlgItem(of_hwnd, EWFD_TRANS_NR_CB);
-            SendMessage(cur_ctrl, BM_SETCHECK, g_resolv_flags & RESOLV_TRANSPORT, 0);
+            SendMessage(cur_ctrl, BM_SETCHECK, gbl_resolv_flags & RESOLV_TRANSPORT, 0);
 
             preview_set_filename(of_hwnd, NULL);
             break;
@@ -1183,16 +1183,16 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                     dfilter_open_str = filter_tb_get(cur_ctrl);
 
                     /* Fetch our resolution values */
-                    g_resolv_flags = prefs.name_resolve & RESOLV_CONCURRENT;
+                    gbl_resolv_flags = prefs.name_resolve & RESOLV_CONCURRENT;
                     cur_ctrl = GetDlgItem(of_hwnd, EWFD_MAC_NR_CB);
                     if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
-                        g_resolv_flags |= RESOLV_MAC;
+                        gbl_resolv_flags |= RESOLV_MAC;
                     cur_ctrl = GetDlgItem(of_hwnd, EWFD_NET_NR_CB);
                     if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
-                        g_resolv_flags |= RESOLV_NETWORK;
+                        gbl_resolv_flags |= RESOLV_NETWORK;
                     cur_ctrl = GetDlgItem(of_hwnd, EWFD_TRANS_NR_CB);
                     if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
-                        g_resolv_flags |= RESOLV_TRANSPORT;
+                        gbl_resolv_flags |= RESOLV_TRANSPORT;
                     break;
                 case CDN_SELCHANGE:
                     /* This _almost_ works correctly. We need to handle directory
