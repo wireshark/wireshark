@@ -8,7 +8,7 @@
  * Copyright 1998 Gerald Combs
  *
  * Jeff Foster,    2001/03/12,  added support for displaying named
- *				data sources as tabbed hex windows
+ *                              data sources as tabbed hex windows
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -93,7 +93,7 @@
 
 static GtkWidget *
 add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
-	     proto_tree *tree, GtkWidget *tree_view);
+             proto_tree *tree, GtkWidget *tree_view);
 
 static void
 proto_tree_draw_node(proto_node *node, gpointer data);
@@ -102,15 +102,15 @@ proto_tree_draw_node(proto_node *node, gpointer data);
 GtkWidget *
 get_notebook_bv_ptr(GtkWidget *nb_ptr)
 {
-  int num;
-  GtkWidget *bv_page;
+    int num;
+    GtkWidget *bv_page;
 
-  num = gtk_notebook_get_current_page(GTK_NOTEBOOK(nb_ptr));
-  bv_page = gtk_notebook_get_nth_page(GTK_NOTEBOOK(nb_ptr), num);
-  if (bv_page)
-      return GTK_BIN(bv_page)->child;
-  else
-      return NULL;
+    num = gtk_notebook_get_current_page(GTK_NOTEBOOK(nb_ptr));
+    bv_page = gtk_notebook_get_nth_page(GTK_NOTEBOOK(nb_ptr), num);
+    if (bv_page)
+        return GTK_BIN(bv_page)->child;
+    else
+        return NULL;
 }
 
 /*
@@ -120,16 +120,16 @@ get_notebook_bv_ptr(GtkWidget *nb_ptr)
 const guint8 *
 get_byte_view_data_and_length(GtkWidget *byte_view, guint *data_len)
 {
-  tvbuff_t *byte_view_tvb;
-  const guint8 *data_ptr;
+    tvbuff_t *byte_view_tvb;
+    const guint8 *data_ptr;
 
-  byte_view_tvb = g_object_get_data(G_OBJECT(byte_view), E_BYTE_VIEW_TVBUFF_KEY);
-  if (byte_view_tvb == NULL)
-    return NULL;
+    byte_view_tvb = g_object_get_data(G_OBJECT(byte_view), E_BYTE_VIEW_TVBUFF_KEY);
+    if (byte_view_tvb == NULL)
+        return NULL;
 
-  data_ptr = tvb_get_ptr(byte_view_tvb, 0, -1);
-  *data_len = tvb_length(byte_view_tvb);
-  return data_ptr;
+    data_ptr = tvb_get_ptr(byte_view_tvb, 0, -1);
+    *data_len = tvb_length(byte_view_tvb);
+    return data_ptr;
 }
 
 /*
@@ -139,37 +139,37 @@ get_byte_view_data_and_length(GtkWidget *byte_view, guint *data_len)
 void
 set_notebook_page(GtkWidget *nb_ptr, tvbuff_t *tvb)
 {
-  int num;
-  GtkWidget *bv_page, *bv;
-  tvbuff_t *bv_tvb;
+    int num;
+    GtkWidget *bv_page, *bv;
+    tvbuff_t *bv_tvb;
 
-  for (num = 0;
-       (bv_page = gtk_notebook_get_nth_page(GTK_NOTEBOOK(nb_ptr), num)) != NULL;
-       num++) {
-    bv = GTK_BIN(bv_page)->child;
-    bv_tvb = g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_TVBUFF_KEY);
-    if (bv_tvb == tvb) {
-      /* Found it. */
-      gtk_notebook_set_current_page(GTK_NOTEBOOK(nb_ptr), num);
-      break;
+    for (num = 0;
+         (bv_page = gtk_notebook_get_nth_page(GTK_NOTEBOOK(nb_ptr), num)) != NULL;
+         num++) {
+        bv = GTK_BIN(bv_page)->child;
+        bv_tvb = g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_TVBUFF_KEY);
+        if (bv_tvb == tvb) {
+            /* Found it. */
+            gtk_notebook_set_current_page(GTK_NOTEBOOK(nb_ptr), num);
+            break;
+        }
     }
-  }
 }
 
 /* Redraw a given byte view window. */
 void
 redraw_packet_bytes(GtkWidget *nb, frame_data *fd, field_info *finfo)
 {
-  GtkWidget *bv;
-  const guint8 *data;
-  guint len;
+    GtkWidget *bv;
+    const guint8 *data;
+    guint len;
 
-  bv = get_notebook_bv_ptr(nb);
-  if (bv != NULL) {
-    data = get_byte_view_data_and_length(bv, &len);
-    if (data != NULL)
-      packet_hex_print(bv, data, fd, finfo, len);
-  }
+    bv = get_notebook_bv_ptr(nb);
+    if (bv != NULL) {
+        data = get_byte_view_data_and_length(bv, &len);
+        if (data != NULL)
+            packet_hex_print(bv, data, fd, finfo, len);
+    }
 }
 
 /* Redraw all byte view windows. */
@@ -196,7 +196,7 @@ static void
 expand_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
             GtkTreePath *path _U_, gpointer user_data _U_)
 {
-    field_info	 *finfo;
+    field_info   *finfo;
     GtkTreeModel *model;
 
     model = gtk_tree_view_get_model(tree_view);
@@ -216,9 +216,9 @@ expand_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
 
 static void
 collapse_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
-	      GtkTreePath *path _U_, gpointer user_data _U_)
+              GtkTreePath *path _U_, gpointer user_data _U_)
 {
-    field_info	 *finfo;
+    field_info   *finfo;
     GtkTreeModel *model;
 
     model = gtk_tree_view_get_model(tree_view);
@@ -236,24 +236,24 @@ collapse_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
     }
 }
 
-#define MAX_OFFSET_LEN	8	/* max length of hex offset of bytes */
-#define BYTES_PER_LINE	16	/* max byte values in a line */
-#define BITS_PER_LINE	8	/* max bit values in a line */
-#define BYTE_VIEW_SEP	8	/* insert a space every BYTE_VIEW_SEP bytes */
-#define HEX_DUMP_LEN	(BYTES_PER_LINE*3 + 1)
-				/* max number of characters hex dump takes -
-				   2 digits plus trailing blank
-				   plus separator between first and
-				   second 8 digits */
-#define DATA_DUMP_LEN	(HEX_DUMP_LEN + 2 + BYTES_PER_LINE)
-				/* number of characters those bytes take;
-				   3 characters per byte of hex dump,
-				   2 blanks separating hex from ASCII,
-				   1 character per byte of ASCII dump */
-#define MAX_LINE_LEN	(MAX_OFFSET_LEN + 2 + DATA_DUMP_LEN)
-				/* number of characters per line;
-				   offset, 2 blanks separating offset
-				   from data dump, data dump */
+#define MAX_OFFSET_LEN   8      /* max length of hex offset of bytes */
+#define BYTES_PER_LINE  16      /* max byte values in a line */
+#define BITS_PER_LINE    8      /* max bit values in a line */
+#define BYTE_VIEW_SEP    8      /* insert a space every BYTE_VIEW_SEP bytes */
+#define HEX_DUMP_LEN    (BYTES_PER_LINE*3 + 1)
+/* max number of characters hex dump takes -
+   2 digits plus trailing blank
+   plus separator between first and
+   second 8 digits */
+#define DATA_DUMP_LEN   (HEX_DUMP_LEN + 2 + BYTES_PER_LINE)
+/* number of characters those bytes take;
+   3 characters per byte of hex dump,
+   2 blanks separating hex from ASCII,
+   1 character per byte of ASCII dump */
+#define MAX_LINE_LEN    (MAX_OFFSET_LEN + 2 + DATA_DUMP_LEN)
+/* number of characters per line;
+   offset, 2 blanks separating offset
+   from data dump, data dump */
 #define MAX_LINES       100
 #define MAX_LINES_LEN   (MAX_LINES*MAX_LINE_LEN)
 
@@ -262,12 +262,12 @@ collapse_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
 static int
 byte_num(int offset, int start_point)
 {
-	return (offset - start_point) / 3;
+    return (offset - start_point) / 3;
 }
 static int
 bit_num(int offset, int start_point)
 {
-	return (offset - start_point) / 9;
+    return (offset - start_point) / 9;
 }
 
 struct field_lookup_info {
@@ -277,7 +277,7 @@ struct field_lookup_info {
 
 static gboolean
 lookup_finfo(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
-	     gpointer data)
+             gpointer data)
 {
     field_info *fi;
     struct field_lookup_info *fli = (struct field_lookup_info *)data;
@@ -293,16 +293,16 @@ lookup_finfo(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
 GtkTreePath
 *tree_find_by_field_info(GtkTreeView *tree_view, field_info *finfo)
 {
-  GtkTreeModel *model;
-  struct field_lookup_info fli;
+    GtkTreeModel *model;
+    struct field_lookup_info fli;
 
-  g_assert(finfo != NULL);
+    g_assert(finfo != NULL);
 
-  model = gtk_tree_view_get_model(tree_view);
-  fli.fi = finfo;
-  gtk_tree_model_foreach(model, lookup_finfo, &fli);
+    model = gtk_tree_view_get_model(tree_view);
+    fli.fi = finfo;
+    gtk_tree_model_foreach(model, lookup_finfo, &fli);
 
-  return gtk_tree_model_get_path(model, &fli.iter);
+    return gtk_tree_model_get_path(model, &fli.iter);
 }
 
 static int
@@ -476,8 +476,8 @@ bit_view_get_byte(guint ndigits, int row, int column)
 /* If the user selected a certain byte in the byte view, try to find
  * the item in the GUI proto_tree that corresponds to that byte, and:
  *
- *	if we succeed, select it, and return TRUE;
- *	if we fail, return FALSE. */
+ *    if we succeed, select it, and return TRUE;
+ *    if we fail, return FALSE. */
 gboolean
 byte_view_select(GtkWidget *widget, GdkEventButton *event)
 {
@@ -518,10 +518,10 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
     switch (recent.gui_bytes_view) {
     case BYTES_HEX:
         byte = hex_view_get_byte(ndigits, row, column);
-	break;
+        break;
     case BYTES_BITS:
         byte = bit_view_get_byte(ndigits, row, column);
-	break;
+        break;
     default:
         g_assert_not_reached();
     }
@@ -539,13 +539,13 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
 /* This highlights the field in the proto tree that is at position byte */
 gboolean
 highlight_field(tvbuff_t *tvb, gint byte, GtkTreeView *tree_view,
-		proto_tree *tree)
+                proto_tree *tree)
 {
     GtkTreeModel *model;
     GtkTreePath  *first_path, *path;
     GtkTreeIter   parent;
     struct field_lookup_info fli;
-    field_info	 *finfo;
+    field_info   *finfo;
 
     /* Find the finfo that corresponds to our byte. */
     finfo = proto_find_field_from_offset(tree, byte, tvb);
@@ -590,53 +590,53 @@ highlight_field(tvbuff_t *tvb, gint byte, GtkTreeView *tree_view,
 static gboolean
 byte_view_button_press_cb(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
-	GdkEventButton *event_button = NULL;
+    GdkEventButton *event_button = NULL;
 
-	if(widget == NULL || event == NULL || data == NULL) {
-		return FALSE;
-	}
+    if(widget == NULL || event == NULL || data == NULL) {
+        return FALSE;
+    }
 
-	if(event->type == GDK_BUTTON_PRESS) {
-		event_button = (GdkEventButton *) event;
+    if(event->type == GDK_BUTTON_PRESS) {
+        event_button = (GdkEventButton *) event;
 
         /* To qoute the "Gdk Event Structures" doc:
          * "Normally button 1 is the left mouse button, 2 is the middle button, and 3 is the right button" */
-		switch(event_button->button) {
+        switch(event_button->button) {
 
-		case 1:
-			return byte_view_select(widget, event_button);
-		case 3:
-			return popup_menu_handler(widget, event, data);
-		default:
-			return FALSE;
-		}
-	}
+        case 1:
+            return byte_view_select(widget, event_button);
+        case 3:
+            return popup_menu_handler(widget, event, data);
+        default:
+            return FALSE;
+        }
+    }
 
-	return FALSE;
+    return FALSE;
 }
 
 GtkWidget *
 byte_view_new(void)
 {
-  GtkWidget *byte_nb;
+    GtkWidget *byte_nb;
 
-  byte_nb = gtk_notebook_new();
-  gtk_notebook_set_tab_pos(GTK_NOTEBOOK(byte_nb), GTK_POS_BOTTOM);
+    byte_nb = gtk_notebook_new();
+    gtk_notebook_set_tab_pos(GTK_NOTEBOOK(byte_nb), GTK_POS_BOTTOM);
 
-  /* this will only have an effect, if no tabs are shown */
-  gtk_notebook_set_show_border(GTK_NOTEBOOK(byte_nb), FALSE);
+    /* this will only have an effect, if no tabs are shown */
+    gtk_notebook_set_show_border(GTK_NOTEBOOK(byte_nb), FALSE);
 
-  /* set the tabs scrollable, if they don't fit into the pane */
-  gtk_notebook_set_scrollable(GTK_NOTEBOOK(byte_nb), TRUE);
+    /* set the tabs scrollable, if they don't fit into the pane */
+    gtk_notebook_set_scrollable(GTK_NOTEBOOK(byte_nb), TRUE);
 
-  /* enable a popup menu containing the tab labels, will be helpful if tabs don't fit into the pane */
-  gtk_notebook_popup_enable(GTK_NOTEBOOK(byte_nb));
+    /* enable a popup menu containing the tab labels, will be helpful if tabs don't fit into the pane */
+    gtk_notebook_popup_enable(GTK_NOTEBOOK(byte_nb));
 
-  /* Add a placeholder byte view so that there's at least something
-     displayed in the byte view notebook. */
-  add_byte_tab(byte_nb, "", NULL, NULL, NULL);
+    /* Add a placeholder byte view so that there's at least something
+       displayed in the byte view notebook. */
+    add_byte_tab(byte_nb, "", NULL, NULL, NULL);
 
-  return byte_nb;
+    return byte_nb;
 }
 
 static void
@@ -657,61 +657,61 @@ static GtkWidget *
 add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
              proto_tree *tree, GtkWidget *tree_view)
 {
-  GtkWidget *byte_view, *byte_scrollw, *label;
-  GtkTextBuffer *buf;
-  GtkStyle      *style;
+    GtkWidget *byte_view, *byte_scrollw, *label;
+    GtkTextBuffer *buf;
+    GtkStyle      *style;
 
-  /* Byte view.  Create a scrolled window for the text. */
-  byte_scrollw = scrolled_window_new(NULL, NULL);
-  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(byte_scrollw),
-                                   GTK_SHADOW_IN);
-  /* Add scrolled pane to tabbed window */
-  label = gtk_label_new(name);
-  gtk_notebook_append_page(GTK_NOTEBOOK(byte_nb), byte_scrollw, label);
+    /* Byte view.  Create a scrolled window for the text. */
+    byte_scrollw = scrolled_window_new(NULL, NULL);
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(byte_scrollw),
+                                        GTK_SHADOW_IN);
+    /* Add scrolled pane to tabbed window */
+    label = gtk_label_new(name);
+    gtk_notebook_append_page(GTK_NOTEBOOK(byte_nb), byte_scrollw, label);
 
-  gtk_widget_show(byte_scrollw);
+    gtk_widget_show(byte_scrollw);
 
-  byte_view = gtk_text_view_new();
-  gtk_text_view_set_editable(GTK_TEXT_VIEW(byte_view), FALSE);
-  gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(byte_view), FALSE);
-  buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(byte_view));
+    byte_view = gtk_text_view_new();
+    gtk_text_view_set_editable(GTK_TEXT_VIEW(byte_view), FALSE);
+    gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(byte_view), FALSE);
+    buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(byte_view));
 
 #ifdef NEW_PACKET_LIST
-  style = gtk_widget_get_style(GTK_WIDGET(top_level));
+    style = gtk_widget_get_style(GTK_WIDGET(top_level));
 #else
-  style = gtk_widget_get_style(GTK_WIDGET(packet_list));
- #endif
-  gtk_text_buffer_create_tag(buf, "plain", "font-desc", user_font_get_regular(), NULL);
-  gtk_text_buffer_create_tag(buf, "reverse",
-                             "font-desc", user_font_get_regular(),
-                             "foreground-gdk", &style->text[GTK_STATE_SELECTED],
-                             "background-gdk", &style->base[GTK_STATE_SELECTED],
-                             NULL);
+    style = gtk_widget_get_style(GTK_WIDGET(packet_list));
+#endif
+    gtk_text_buffer_create_tag(buf, "plain", "font-desc", user_font_get_regular(), NULL);
+    gtk_text_buffer_create_tag(buf, "reverse",
+                               "font-desc", user_font_get_regular(),
+                               "foreground-gdk", &style->text[GTK_STATE_SELECTED],
+                               "background-gdk", &style->base[GTK_STATE_SELECTED],
+                               NULL);
 
-  gtk_text_buffer_create_tag(buf, "bold", "font-desc", user_font_get_bold(), NULL);
-  g_object_set_data(G_OBJECT(byte_view), E_BYTE_VIEW_TVBUFF_KEY, tvb);
-  gtk_container_add(GTK_CONTAINER(byte_scrollw), byte_view);
+    gtk_text_buffer_create_tag(buf, "bold", "font-desc", user_font_get_bold(), NULL);
+    g_object_set_data(G_OBJECT(byte_view), E_BYTE_VIEW_TVBUFF_KEY, tvb);
+    gtk_container_add(GTK_CONTAINER(byte_scrollw), byte_view);
 
-  g_signal_connect(byte_view, "show", G_CALLBACK(byte_view_realize_cb), NULL);
-  g_signal_connect(byte_view, "button_press_event", G_CALLBACK(byte_view_button_press_cb),
-		   g_object_get_data(G_OBJECT(popup_menu_object), PM_BYTES_VIEW_KEY));
+    g_signal_connect(byte_view, "show", G_CALLBACK(byte_view_realize_cb), NULL);
+    g_signal_connect(byte_view, "button_press_event", G_CALLBACK(byte_view_button_press_cb),
+                     g_object_get_data(G_OBJECT(popup_menu_object), PM_BYTES_VIEW_KEY));
 
-  g_object_set_data(G_OBJECT(byte_view), E_BYTE_VIEW_TREE_PTR, tree);
-  g_object_set_data(G_OBJECT(byte_view), E_BYTE_VIEW_TREE_VIEW_PTR, tree_view);
+    g_object_set_data(G_OBJECT(byte_view), E_BYTE_VIEW_TREE_PTR, tree);
+    g_object_set_data(G_OBJECT(byte_view), E_BYTE_VIEW_TREE_VIEW_PTR, tree_view);
 
-  gtk_widget_show(byte_view); /* triggers byte_view_realize_cb which calls packet_hex_print */
+    gtk_widget_show(byte_view); /* triggers byte_view_realize_cb which calls packet_hex_print */
 
-  /* no tabs if this is the first page */
-  if (!(gtk_notebook_page_num(GTK_NOTEBOOK(byte_nb), byte_scrollw)))
+    /* no tabs if this is the first page */
+    if (!(gtk_notebook_page_num(GTK_NOTEBOOK(byte_nb), byte_scrollw)))
         gtk_notebook_set_show_tabs(GTK_NOTEBOOK(byte_nb), FALSE);
-  else
+    else
         gtk_notebook_set_show_tabs(GTK_NOTEBOOK(byte_nb), TRUE);
 
-  /* set this page */
-  gtk_notebook_set_current_page(GTK_NOTEBOOK(byte_nb),
-    gtk_notebook_page_num(GTK_NOTEBOOK(byte_nb), byte_nb));
+    /* set this page */
+    gtk_notebook_set_current_page(GTK_NOTEBOOK(byte_nb),
+                                  gtk_notebook_page_num(GTK_NOTEBOOK(byte_nb), byte_nb));
 
-  return byte_view;
+    return byte_view;
 }
 
 void
@@ -724,29 +724,29 @@ void
 add_byte_views(epan_dissect_t *edt, GtkWidget *tree_view,
                GtkWidget *byte_nb_ptr)
 {
-	GSList *src_le;
-	data_source *src;
+    GSList *src_le;
+    data_source *src;
 
-	/*
-	 * Get rid of all the old notebook tabs.
-	 */
-	while (gtk_notebook_get_nth_page(GTK_NOTEBOOK(byte_nb_ptr), 0) != NULL)
-		gtk_notebook_remove_page(GTK_NOTEBOOK(byte_nb_ptr), 0);
+    /*
+     * Get rid of all the old notebook tabs.
+     */
+    while (gtk_notebook_get_nth_page(GTK_NOTEBOOK(byte_nb_ptr), 0) != NULL)
+        gtk_notebook_remove_page(GTK_NOTEBOOK(byte_nb_ptr), 0);
 
-	/*
-	 * Add to the specified byte view notebook tabs for hex dumps
-	 * of all the data sources for the specified frame.
-	 */
-	for (src_le = edt->pi.data_src; src_le != NULL; src_le = src_le->next) {
-		src = src_le->data;
-		add_byte_tab(byte_nb_ptr, get_data_source_name(src), src->tvb, edt->tree,
-                             tree_view);
-	}
+    /*
+     * Add to the specified byte view notebook tabs for hex dumps
+     * of all the data sources for the specified frame.
+     */
+    for (src_le = edt->pi.data_src; src_le != NULL; src_le = src_le->next) {
+        src = src_le->data;
+        add_byte_tab(byte_nb_ptr, get_data_source_name(src), src->tvb, edt->tree,
+                     tree_view);
+    }
 
-	/*
-	 * Initially select the first byte view.
-	 */
-	gtk_notebook_set_current_page(GTK_NOTEBOOK(byte_nb_ptr), 0);
+    /*
+     * Initially select the first byte view.
+     */
+    gtk_notebook_set_current_page(GTK_NOTEBOOK(byte_nb_ptr), 0);
 }
 
 
@@ -756,7 +756,7 @@ static GtkWidget *savehex_dlg=NULL;
 static void
 savehex_dlg_destroy_cb(GtkWidget *w _U_, gpointer user_data _U_)
 {
-        savehex_dlg = NULL;
+    savehex_dlg = NULL;
 }
 
 
@@ -864,9 +864,9 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, copy_data_type data_type)
 
     bv = get_notebook_bv_ptr(byte_nb_ptr_gbl);
     if (bv == NULL) {
-	    /* shouldn't happen */
-	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window!");
-	    return;
+        /* shouldn't happen */
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window!");
+        return;
     }
 
     data_p = get_byte_view_data_and_length(bv, &len);
@@ -882,7 +882,7 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, copy_data_type data_type)
         start = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY));
         end = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY));
 
-	if(start >= 0 && end > start && (end - start <= (int)len)) {
+        if(start >= 0 && end > start && (end - start <= (int)len)) {
             len = end - start;
             data_p += start;
         }
@@ -903,7 +903,7 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, copy_data_type data_type)
         break;
     default:
         /* Incrementally write to text buffer in various formats */
-	    while (len > 0){
+        while (len > 0){
             switch(data_type) {
             case (CD_TEXTONLY):
                 bytes_consumed = copy_hex_bytes_text_only(copy_buffer, data_p, len);
@@ -927,129 +927,129 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, copy_data_type data_type)
         copy_to_clipboard(copy_buffer);
     }
 
-	g_string_free(copy_buffer, TRUE);
+    g_string_free(copy_buffer, TRUE);
 }
 
 /* save the current highlighted hex data */
 static gboolean
 savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 {
-        GtkWidget *bv;
-	int fd, start, end;
-	guint len;
-	const guint8 *data_p = NULL;
-	char *file;
+    GtkWidget *bv;
+    int fd, start, end;
+    guint len;
+    const guint8 *data_p = NULL;
+    char *file;
 
-	file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(savehex_dlg));
+    file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(savehex_dlg));
 
 #if 0 /* Not req'd: GtkFileChooserWidget currently being used won't return with a Null filename */
-	if (!file ||! *file) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Please enter a filename!");
-		g_free(file);
-		return TRUE;
-	}
+    if (!file ||! *file) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Please enter a filename!");
+        g_free(file);
+        return TRUE;
+    }
 #endif
-	if (test_for_directory(file) == EISDIR) {
-		/* It's a directory - set the file selection box to display that
-		   directory, and leave the selection box displayed. */
-		set_last_open_dir(file);
-		g_free(file);
-		file_selection_set_current_folder(savehex_dlg, get_last_open_dir());
-		gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(savehex_dlg), "");
-		return FALSE; /* do gtk_dialog_run again */
-	}
+    if (test_for_directory(file) == EISDIR) {
+        /* It's a directory - set the file selection box to display that
+           directory, and leave the selection box displayed. */
+        set_last_open_dir(file);
+        g_free(file);
+        file_selection_set_current_folder(savehex_dlg, get_last_open_dir());
+        gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(savehex_dlg), "");
+        return FALSE; /* do gtk_dialog_run again */
+    }
 
-	/* XXX: Must check if file name exists first */
+    /* XXX: Must check if file name exists first */
 
-	bv = get_notebook_bv_ptr(byte_nb_ptr_gbl);
-	if (bv == NULL) {
-		/* shouldn't happen */
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window!");
-		g_free(file);
-		return TRUE;
-	}
-	/*
-	 * Retrieve the info we need
-	 */
-	start = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY));
-	end = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY));
-	data_p = get_byte_view_data_and_length(bv, &len);
+    bv = get_notebook_bv_ptr(byte_nb_ptr_gbl);
+    if (bv == NULL) {
+        /* shouldn't happen */
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window!");
+        g_free(file);
+        return TRUE;
+    }
+    /*
+     * Retrieve the info we need
+     */
+    start = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY));
+    end = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY));
+    data_p = get_byte_view_data_and_length(bv, &len);
 
-	if (data_p == NULL || start == -1 || start > end) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "No data selected to save!");
-		g_free(file);
-		return TRUE;
-	}
+    if (data_p == NULL || start == -1 || start > end) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      "No data selected to save!");
+        g_free(file);
+        return TRUE;
+    }
 
-	fd = ws_open(file, O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
-	if (fd == -1) {
-		open_failure_alert_box(file, errno, TRUE);
-		g_free(file);
-		return TRUE;
-	}
-	if (ws_write(fd, data_p + start, end - start) < 0) {
-		write_failure_alert_box(file, errno);
-		ws_close(fd);
-		g_free(file);
-		return TRUE;
-	}
-	if (ws_close(fd) < 0) {
-		write_failure_alert_box(file, errno);
-		g_free(file);
-		return TRUE;
-	}
+    fd = ws_open(file, O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
+    if (fd == -1) {
+        open_failure_alert_box(file, errno, TRUE);
+        g_free(file);
+        return TRUE;
+    }
+    if (ws_write(fd, data_p + start, end - start) < 0) {
+        write_failure_alert_box(file, errno);
+        ws_close(fd);
+        g_free(file);
+        return TRUE;
+    }
+    if (ws_close(fd) < 0) {
+        write_failure_alert_box(file, errno);
+        g_free(file);
+        return TRUE;
+    }
 
-	/* Get rid of the dialog box */
-	g_free(file);
+    /* Get rid of the dialog box */
+    g_free(file);
 #if 0 /* being handled by caller  (for now) */
-	window_destroy(GTK_WIDGET(savehex_dlg));
+    window_destroy(GTK_WIDGET(savehex_dlg));
 #endif
-	return TRUE;
+    return TRUE;
 }
 
 /* Launch the dialog box to put up the file selection box etc */
 void
 savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 {
-	int start, end;
-	guint len;
-	const guint8 *data_p = NULL;
-        gchar *label;
-        GtkWidget   *bv;
-	GtkWidget   *dlg_lb;
+    int start, end;
+    guint len;
+    const guint8 *data_p = NULL;
+    gchar *label;
+    GtkWidget   *bv;
+    GtkWidget   *dlg_lb;
 
 #if _WIN32
-	win32_export_raw_file(GDK_WINDOW_HWND(top_level->window));
-	return;
+    win32_export_raw_file(GDK_WINDOW_HWND(top_level->window));
+    return;
 #endif
 
     /* don't show up the dialog, if no data has to be saved */
-	bv = get_notebook_bv_ptr(byte_nb_ptr_gbl);
-	if (bv == NULL) {
-		/* shouldn't happen */
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window!");
-		return;
-	}
-	start = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY));
-	end = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY));
-	data_p = get_byte_view_data_and_length(bv, &len);
+    bv = get_notebook_bv_ptr(byte_nb_ptr_gbl);
+    if (bv == NULL) {
+        /* shouldn't happen */
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window!");
+        return;
+    }
+    start = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY));
+    end = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY));
+    data_p = get_byte_view_data_and_length(bv, &len);
 
-	if (data_p == NULL || start == -1 || start > end) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No data selected to save!");
-		return;
-	}
+    if (data_p == NULL || start == -1 || start > end) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No data selected to save!");
+        return;
+    }
 
 #if 0  /* XXX: GtkFileChooserDialog/gtk_dialog_run currently being used is effectively modal so this is not req'd */
     /* if the window is already open, bring it to front */
-	if(savehex_dlg){
-		reactivate_window(savehex_dlg);
-		return;
-	}
+    if(savehex_dlg){
+        reactivate_window(savehex_dlg);
+        return;
+    }
 #endif
-	/*
-	 * Build the dialog box we need.
-	 */
+    /*
+     * Build the dialog box we need.
+     */
     savehex_dlg = file_selection_new("Wireshark: Export Selected Packet Bytes", FILE_SELECTION_SAVE);
 #if GTK_CHECK_VERSION(2,8,0)
     gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(savehex_dlg), TRUE);
@@ -1096,170 +1096,170 @@ savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 static GtkTextMark *
 packet_hex_apply_reverse_tag(GtkTextBuffer *buf, int bstart, int bend, guint32 mask, int mask_le, int use_digits, int create_mark)
 {
-	GtkTextIter i_start, i_stop, iter;
+    GtkTextIter i_start, i_stop, iter;
 
-	GtkTextTag    *revstyle_tag;
-	const char    *revstyle;
+    GtkTextTag    *revstyle_tag;
+    const char    *revstyle;
 
-	int per_line = 0;
-	int per_one = 0;
-	int bits_per_one = 0;
-	int hex_offset, ascii_offset;
+    int per_line = 0;
+    int per_one = 0;
+    int bits_per_one = 0;
+    int hex_offset, ascii_offset;
 
-	int start_line, start_line_pos;
-	int stop_line, stop_line_pos;
+    int start_line, start_line_pos;
+    int stop_line, stop_line_pos;
 
-	if (bstart == -1 || bend == -1)
-		return NULL;
+    if (bstart == -1 || bend == -1)
+        return NULL;
 
-	/* Display with inverse video ? */
-	if (prefs.gui_hex_dump_highlight_style)
-		revstyle = "reverse";
-	else
-		revstyle = "bold";
+    /* Display with inverse video ? */
+    if (prefs.gui_hex_dump_highlight_style)
+        revstyle = "reverse";
+    else
+        revstyle = "bold";
 
-	revstyle_tag = gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(buf), revstyle);
+    revstyle_tag = gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(buf), revstyle);
 
-	switch (recent.gui_bytes_view) {
-	case BYTES_HEX:
-		per_line = BYTES_PER_LINE;
-		per_one  = 2+1;	/* "ff " */
-		bits_per_one = 4;
-		break;
-	case BYTES_BITS:
-		per_line = BITS_PER_LINE;
-		per_one  = 8+1;	/* "10101010 " */
-		bits_per_one = 1;
-		break;
-	default:
-		g_assert_not_reached();
-	}
+    switch (recent.gui_bytes_view) {
+    case BYTES_HEX:
+        per_line = BYTES_PER_LINE;
+        per_one  = 2+1;  /* "ff " */
+        bits_per_one = 4;
+        break;
+    case BYTES_BITS:
+        per_line = BITS_PER_LINE;
+        per_one  = 8+1;  /* "10101010 " */
+        bits_per_one = 1;
+        break;
+    default:
+        g_assert_not_reached();
+    }
 
-	start_line = bstart / per_line;
-	start_line_pos = bstart % per_line;
+    start_line = bstart / per_line;
+    start_line_pos = bstart % per_line;
 
-	stop_line = bend / per_line;
-	stop_line_pos = bend % per_line;
+    stop_line = bend / per_line;
+    stop_line_pos = bend % per_line;
 
 #define hex_fix(pos)   hex_offset + (pos * per_one) + (pos / BYTE_VIEW_SEP) - (pos == per_line)
 #define ascii_fix(pos) ascii_offset + pos + (pos / BYTE_VIEW_SEP) - (pos == per_line)
 
-	hex_offset = use_digits + 2;
-	ascii_offset = hex_fix(per_line) + 2;
+    hex_offset = use_digits + 2;
+    ascii_offset = hex_fix(per_line) + 2;
 
-	gtk_text_buffer_get_iter_at_line_index(buf, &iter, start_line, hex_fix(start_line_pos));
+    gtk_text_buffer_get_iter_at_line_index(buf, &iter, start_line, hex_fix(start_line_pos));
 
-	/* stig: it should be done only for bitview... */
-	if (mask == 0x00 || recent.gui_bytes_view != BYTES_BITS) {
-		while (start_line <= stop_line) {
-			int line_pos_end = (start_line == stop_line) ? stop_line_pos : per_line;
-			int first_block_adjust = (recent.gui_bytes_view == BYTES_HEX) ? (line_pos_end == per_line/2) : 0;
+    /* stig: it should be done only for bitview... */
+    if (mask == 0x00 || recent.gui_bytes_view != BYTES_BITS) {
+        while (start_line <= stop_line) {
+            int line_pos_end = (start_line == stop_line) ? stop_line_pos : per_line;
+            int first_block_adjust = (recent.gui_bytes_view == BYTES_HEX) ? (line_pos_end == per_line/2) : 0;
 
-			if (start_line_pos == line_pos_end) break;
+            if (start_line_pos == line_pos_end) break;
 
-			/* bits/hex */
-			gtk_text_buffer_get_iter_at_line_index(buf, &i_start, start_line, hex_fix(start_line_pos));
-			gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, hex_fix(line_pos_end)-1-first_block_adjust);
-			gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
+            /* bits/hex */
+            gtk_text_buffer_get_iter_at_line_index(buf, &i_start, start_line, hex_fix(start_line_pos));
+            gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, hex_fix(line_pos_end)-1-first_block_adjust);
+            gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
 
-			/* ascii */
-			gtk_text_buffer_get_iter_at_line_index(buf, &i_start, start_line, ascii_fix(start_line_pos));
-			gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, ascii_fix(line_pos_end)-first_block_adjust);
-			gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
+            /* ascii */
+            gtk_text_buffer_get_iter_at_line_index(buf, &i_start, start_line, ascii_fix(start_line_pos));
+            gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, ascii_fix(line_pos_end)-first_block_adjust);
+            gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
 
-			start_line_pos = 0;
-			start_line++;
-		}
+            start_line_pos = 0;
+            start_line++;
+        }
 
-	} else if (mask_le) { /* LSB of mask first (little-endian) */
-		while (start_line <= stop_line) {
-			int line_pos_end = (start_line == stop_line) ? stop_line_pos : per_line;
-			int line_pos = start_line_pos;
+    } else if (mask_le) { /* LSB of mask first (little-endian) */
+        while (start_line <= stop_line) {
+            int line_pos_end = (start_line == stop_line) ? stop_line_pos : per_line;
+            int line_pos = start_line_pos;
 
-			while (line_pos < line_pos_end) {
-				int lop = 8 / bits_per_one;
-				int mask_per_one = (1 << bits_per_one) - 1;
-				int ascii_on = 0;
+            while (line_pos < line_pos_end) {
+                int lop = 8 / bits_per_one;
+                int mask_per_one = (1 << bits_per_one) - 1;
+                int ascii_on = 0;
 
-				while (lop--) {
-					if ((mask & mask_per_one)) {
-						/* bits/hex */
-						gtk_text_buffer_get_iter_at_line_index(buf, &i_start, start_line, hex_fix(line_pos)+lop);
-						gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, hex_fix(line_pos)+lop+1);
-						gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
+                while (lop--) {
+                    if ((mask & mask_per_one)) {
+                        /* bits/hex */
+                        gtk_text_buffer_get_iter_at_line_index(buf, &i_start, start_line, hex_fix(line_pos)+lop);
+                        gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, hex_fix(line_pos)+lop+1);
+                        gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
 
-						ascii_on = 1;
-					}
-					mask >>= bits_per_one;
-				}
+                        ascii_on = 1;
+                    }
+                    mask >>= bits_per_one;
+                }
 
-				/* at least one bit of ascii was one -> turn ascii on */
-				if (ascii_on) {
-					/* ascii */
-					gtk_text_buffer_get_iter_at_line_index(buf, &i_start, start_line, ascii_fix(line_pos));
-					gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, ascii_fix(line_pos)+1);
-					gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
-				}
+                /* at least one bit of ascii was one -> turn ascii on */
+                if (ascii_on) {
+                    /* ascii */
+                    gtk_text_buffer_get_iter_at_line_index(buf, &i_start, start_line, ascii_fix(line_pos));
+                    gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, ascii_fix(line_pos)+1);
+                    gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
+                }
 
-				if (!mask)
-					goto xend;
+                if (!mask)
+                    goto xend;
 
-				line_pos++;
-			}
+                line_pos++;
+            }
 
-			start_line_pos = 0;
-			start_line++;
-		}
-	} else { /* mask starting from end (big-endian) */
-		while (start_line <= stop_line) {
-			int line_pos_start = (start_line == stop_line) ? start_line_pos : 0;
-			int line_pos = stop_line_pos-1;
+            start_line_pos = 0;
+            start_line++;
+        }
+    } else { /* mask starting from end (big-endian) */
+        while (start_line <= stop_line) {
+            int line_pos_start = (start_line == stop_line) ? start_line_pos : 0;
+            int line_pos = stop_line_pos-1;
 
-			while (line_pos >= line_pos_start) {
-				int lop = 8 / bits_per_one;
-				int mask_per_one = (1 << bits_per_one) - 1;
-				int ascii_on = 0;
+            while (line_pos >= line_pos_start) {
+                int lop = 8 / bits_per_one;
+                int mask_per_one = (1 << bits_per_one) - 1;
+                int ascii_on = 0;
 
-				while (lop--) {
-					if ((mask & mask_per_one)) {
-						/* bits/hex */
-						gtk_text_buffer_get_iter_at_line_index(buf, &i_start, stop_line, hex_fix(line_pos)+lop);
-						gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, stop_line, hex_fix(line_pos)+lop+1);
-						gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
+                while (lop--) {
+                    if ((mask & mask_per_one)) {
+                        /* bits/hex */
+                        gtk_text_buffer_get_iter_at_line_index(buf, &i_start, stop_line, hex_fix(line_pos)+lop);
+                        gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, stop_line, hex_fix(line_pos)+lop+1);
+                        gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
 
-						ascii_on = 1;
-					}
-					mask >>= bits_per_one;
-				}
+                        ascii_on = 1;
+                    }
+                    mask >>= bits_per_one;
+                }
 
-				/* at least one bit of ascii was one -> turn ascii on */
-				if (ascii_on) {
-					/* ascii */
-					gtk_text_buffer_get_iter_at_line_index(buf, &i_start, stop_line, ascii_fix(line_pos));
-					gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, stop_line, ascii_fix(line_pos)+1);
-					gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
-				}
+                /* at least one bit of ascii was one -> turn ascii on */
+                if (ascii_on) {
+                    /* ascii */
+                    gtk_text_buffer_get_iter_at_line_index(buf, &i_start, stop_line, ascii_fix(line_pos));
+                    gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, stop_line, ascii_fix(line_pos)+1);
+                    gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
+                }
 
-				if (!mask)
-					goto xend;
+                if (!mask)
+                    goto xend;
 
-				line_pos--;
-			}
+                line_pos--;
+            }
 
-			stop_line_pos = per_line;
-			stop_line--;
-		}
-	}
+            stop_line_pos = per_line;
+            stop_line--;
+        }
+    }
 xend:
-	return (create_mark) ? gtk_text_buffer_create_mark(buf, NULL, &iter, TRUE) : NULL;
+    return (create_mark) ? gtk_text_buffer_create_mark(buf, NULL, &iter, TRUE) : NULL;
 #undef hex_fix
 #undef ascii_fix
 }
 
 /* Update the progress bar this many times when reading a file. */
-#define N_PROGBAR_UPDATES	100
-/* The minimum packet length required to check if a progres bar is needed or not */
-#define MIN_PACKET_LENGTH	1024
+#define N_PROGBAR_UPDATES        100
+/* The minimum packet length required to check if a progress bar is needed or not */
+#define MIN_PACKET_LENGTH       1024
 
 /*
  * XXX - at least in GTK+ 2.x, this is not fast - in one capture with a
@@ -1277,345 +1277,345 @@ xend:
 static void
 packet_hex_print_common(GtkTextBuffer *buf, GtkWidget *bv, const guint8 *pd, int len, int encoding)
 {
-  int            i = 0, j, k = 0, b, cur;
-  guchar         line[MAX_LINES_LEN + 1];
-  static guchar  hexchars[16] = {
-      '0', '1', '2', '3', '4', '5', '6', '7',
-      '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
-  static const guint8 bitmask[8] = {
-      0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01 };
-  guchar         c = '\0';
-  unsigned int   use_digits;
-  GtkTextIter    iter;
+    int            i = 0, j, k = 0, b, cur;
+    guchar         line[MAX_LINES_LEN + 1];
+    static guchar  hexchars[16] = {
+        '0', '1', '2', '3', '4', '5', '6', '7',
+        '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+    static const guint8 bitmask[8] = {
+        0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01 };
+    guchar         c = '\0';
+    unsigned int   use_digits;
+    GtkTextIter    iter;
 
-  progdlg_t  *progbar = NULL;
-  float       progbar_val;
-  gboolean    progbar_stop_flag;
-  GTimeVal    progbar_start_time;
-  gchar       progbar_status_str[100];
-  int         progbar_nextstep;
-  int         progbar_quantum;
+    progdlg_t  *progbar = NULL;
+    float       progbar_val;
+    gboolean    progbar_stop_flag;
+    GTimeVal    progbar_start_time;
+    gchar       progbar_status_str[100];
+    int         progbar_nextstep;
+    int         progbar_quantum;
 
-  gtk_text_buffer_set_text(buf, "", 0);
-  gtk_text_buffer_get_start_iter(buf, &iter);
+    gtk_text_buffer_set_text(buf, "", 0);
+    gtk_text_buffer_get_start_iter(buf, &iter);
 
-  /*
-   * How many of the leading digits of the offset will we supply?
-   * We always supply at least 4 digits, but if the maximum offset
-   * won't fit in 4 digits, we use as many digits as will be needed.
-   */
-  if (((len - 1) & 0xF0000000) != 0)
-    use_digits = 8;	/* need all 8 digits */
-  else if (((len - 1) & 0x0F000000) != 0)
-    use_digits = 7;	/* need 7 digits */
-  else if (((len - 1) & 0x00F00000) != 0)
-    use_digits = 6;	/* need 6 digits */
-  else if (((len - 1) & 0x000F0000) != 0)
-    use_digits = 5;	/* need 5 digits */
-  else
-    use_digits = 4;	/* we'll supply 4 digits */
+    /*
+     * How many of the leading digits of the offset will we supply?
+     * We always supply at least 4 digits, but if the maximum offset
+     * won't fit in 4 digits, we use as many digits as will be needed.
+     */
+    if (((len - 1) & 0xF0000000) != 0)
+        use_digits = 8; /* need all 8 digits */
+    else if (((len - 1) & 0x0F000000) != 0)
+        use_digits = 7; /* need 7 digits */
+    else if (((len - 1) & 0x00F00000) != 0)
+        use_digits = 6; /* need 6 digits */
+    else if (((len - 1) & 0x000F0000) != 0)
+        use_digits = 5; /* need 5 digits */
+    else
+        use_digits = 4; /* we'll supply 4 digits */
 
-  /* Record the number of digits in this text view. */
-  g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_NDIGITS_KEY, GUINT_TO_POINTER(use_digits));
+    /* Record the number of digits in this text view. */
+    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_NDIGITS_KEY, GUINT_TO_POINTER(use_digits));
 
-  /* Update the progress bar when it gets to this value. */
-  if (len > MIN_PACKET_LENGTH){
-	  progbar_nextstep = 0;
-  }else{
-	  /* If length =< MIN_PACKET_LENGTH
-	   * there is no need to calculate the progress
-	   */
-	  progbar_nextstep = len+1;
-  }
-
-  /* When we reach the value that triggers a progress bar update,
-     bump that value by this amount. */
-  progbar_quantum = len/N_PROGBAR_UPDATES;
-  /* Progress so far. */
-  progbar_val = 0.0f;
-
-  progbar_stop_flag = FALSE;
-  g_get_current_time(&progbar_start_time);
-
-  cur = 0;
-  while (i < len) {
-    /* Create the progress bar if necessary.
-       We check on every iteration of the loop, so that it takes no
-       longer than the standard time to create it (otherwise, for a
-       large packet, we might take considerably longer than that standard
-       time in order to get to the next progress bar step). */
-    if ((progbar == NULL) && (len > MIN_PACKET_LENGTH))
-      progbar = delayed_create_progress_dlg("Processing", "Packet Details",
-                                            TRUE,
-                                            &progbar_stop_flag,
-                                            &progbar_start_time,
-                                            progbar_val);
-
-    /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
-       when we update it, we have to run the GTK+ main loop to get it
-       to repaint what's pending, and doing so may involve an "ioctl()"
-       to see if there's any pending input from an X server, and doing
-       that for every packet can be costly, especially on a big file. */
-    if (i >= progbar_nextstep) {
-
-      if (progbar != NULL) {
-        /* let's not divide by zero. I should never be started
-         * with count == 0, so let's assert that
+    /* Update the progress bar when it gets to this value. */
+    if (len > MIN_PACKET_LENGTH){
+        progbar_nextstep = 0;
+    }else{
+        /* If length =< MIN_PACKET_LENGTH
+         * there is no need to calculate the progress
          */
-        g_assert(len > 0);
-        progbar_val = (gfloat) i / len;
-        g_snprintf(progbar_status_str, sizeof(progbar_status_str),
-                   "%4u of %u bytes", i, len);
-        update_progress_dlg(progbar, progbar_val, progbar_status_str);
-      }
-
-      progbar_nextstep += progbar_quantum;
+        progbar_nextstep = len+1;
     }
 
-    if (progbar_stop_flag) {
-      /* Well, the user decided to abort the operation.  Just stop,
-         and arrange to return TRUE to our caller, so they know it
-         was stopped explicitly. */
-      break;
-    }
+    /* When we reach the value that triggers a progress bar update,
+       bump that value by this amount. */
+    progbar_quantum = len/N_PROGBAR_UPDATES;
+    /* Progress so far. */
+    progbar_val = 0.0f;
 
-    /* Print the line number */
-    j = use_digits;
-    do {
-      j--;
-      c = (i >> (j*4)) & 0xF;
-      line[cur++] = hexchars[c];
-    } while (j != 0);
-    line[cur++] = ' ';
-    line[cur++] = ' ';
+    progbar_stop_flag = FALSE;
+    g_get_current_time(&progbar_start_time);
 
-    j   = i;
-    switch (recent.gui_bytes_view) {
-    case BYTES_HEX:
-      k = i + BYTES_PER_LINE;
-      break;
-    case BYTES_BITS:
-      k = i + BITS_PER_LINE;
-      break;
-    default:
-      g_assert_not_reached();
-    }
-    /* Print the hex bit */
-    while (i < k) {
-      if (i < len) {
-	switch (recent.gui_bytes_view) {
-	case BYTES_HEX:
-	  line[cur++] = hexchars[(pd[i] & 0xf0) >> 4];
-	  line[cur++] = hexchars[pd[i] & 0x0f];
-	  break;
-	case BYTES_BITS:
-	  for (b = 0; b < 8; b++) {
-	    line[cur++] = (pd[i] & bitmask[b]) ? '1' : '0';
-	  }
-	  break;
-	default:
-	  g_assert_not_reached();
-	}
-      } else {
-	switch (recent.gui_bytes_view) {
-	case BYTES_HEX:
-	  line[cur++] = ' '; line[cur++] = ' ';
-	  break;
-	case BYTES_BITS:
-	  for (b = 0; b < 8; b++) {
-	    line[cur++] = ' ';
-	  }
-	  break;
-	default:
-	  g_assert_not_reached();
-	}
-      }
-      i++;
-      /* Inter byte space if not at end of line */
-      if (i < k) {
+    cur = 0;
+    while (i < len) {
+        /* Create the progress bar if necessary.
+           We check on every iteration of the loop, so that it takes no
+           longer than the standard time to create it (otherwise, for a
+           large packet, we might take considerably longer than that standard
+           time in order to get to the next progress bar step). */
+        if ((progbar == NULL) && (len > MIN_PACKET_LENGTH))
+            progbar = delayed_create_progress_dlg("Processing", "Packet Details",
+                                                  TRUE,
+                                                  &progbar_stop_flag,
+                                                  &progbar_start_time,
+                                                  progbar_val);
+
+        /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
+           when we update it, we have to run the GTK+ main loop to get it
+           to repaint what's pending, and doing so may involve an "ioctl()"
+           to see if there's any pending input from an X server, and doing
+           that for every packet can be costly, especially on a big file. */
+        if (i >= progbar_nextstep) {
+
+            if (progbar != NULL) {
+                /* let's not divide by zero. I should never be started
+                 * with count == 0, so let's assert that
+                 */
+                g_assert(len > 0);
+                progbar_val = (gfloat) i / len;
+                g_snprintf(progbar_status_str, sizeof(progbar_status_str),
+                           "%4u of %u bytes", i, len);
+                update_progress_dlg(progbar, progbar_val, progbar_status_str);
+            }
+
+            progbar_nextstep += progbar_quantum;
+        }
+
+        if (progbar_stop_flag) {
+            /* Well, the user decided to abort the operation.  Just stop,
+               and arrange to return TRUE to our caller, so they know it
+               was stopped explicitly. */
+            break;
+        }
+
+        /* Print the line number */
+        j = use_digits;
+        do {
+            j--;
+            c = (i >> (j*4)) & 0xF;
+            line[cur++] = hexchars[c];
+        } while (j != 0);
         line[cur++] = ' ';
-        /* insert a space every BYTE_VIEW_SEP bytes */
-        if( ( i % BYTE_VIEW_SEP ) == 0 ) {
-          line[cur++] = ' ';
-        }
-      }
-    }
-
-    /* Print some space at the end of the line */
-    line[cur++] = ' '; line[cur++] = ' '; line[cur++] = ' ';
-
-    /* Print the ASCII bit */
-    i = j;
-
-    while (i < k) {
-      if (i < len) {
-        if (encoding == PACKET_CHAR_ENC_CHAR_ASCII) {
-          c = pd[i];
-        }
-        else if (encoding == PACKET_CHAR_ENC_CHAR_EBCDIC) {
-          c = EBCDIC_to_ASCII1(pd[i]);
-        }
-        else {
-          g_assert_not_reached();
-        }
-        line[cur++] = isprint(c) ? c : '.';
-      } else {
         line[cur++] = ' ';
-      }
-      i++;
-      if (i < k) {
-        /* insert a space every BYTE_VIEW_SEP bytes */
-        if( ( i % BYTE_VIEW_SEP ) == 0 ) {
-          line[cur++] = ' ';
+
+        j   = i;
+        switch (recent.gui_bytes_view) {
+        case BYTES_HEX:
+            k = i + BYTES_PER_LINE;
+            break;
+        case BYTES_BITS:
+            k = i + BITS_PER_LINE;
+            break;
+        default:
+            g_assert_not_reached();
         }
-      }
-    }
-    line[cur++] = '\n';
-    if (cur >= (MAX_LINES_LEN - MAX_LINE_LEN)) {
-        gtk_text_buffer_insert(buf, &iter, line, cur);
-        cur = 0;
-    }
-  }
+        /* Print the hex bit */
+        while (i < k) {
+            if (i < len) {
+                switch (recent.gui_bytes_view) {
+                case BYTES_HEX:
+                    line[cur++] = hexchars[(pd[i] & 0xf0) >> 4];
+                    line[cur++] = hexchars[pd[i] & 0x0f];
+                    break;
+                case BYTES_BITS:
+                    for (b = 0; b < 8; b++) {
+                        line[cur++] = (pd[i] & bitmask[b]) ? '1' : '0';
+                    }
+                    break;
+                default:
+                    g_assert_not_reached();
+                }
+            } else {
+                switch (recent.gui_bytes_view) {
+                case BYTES_HEX:
+                    line[cur++] = ' '; line[cur++] = ' ';
+                    break;
+                case BYTES_BITS:
+                    for (b = 0; b < 8; b++) {
+                        line[cur++] = ' ';
+                    }
+                    break;
+                default:
+                    g_assert_not_reached();
+                }
+            }
+            i++;
+            /* Inter byte space if not at end of line */
+            if (i < k) {
+                line[cur++] = ' ';
+                /* insert a space every BYTE_VIEW_SEP bytes */
+                if( ( i % BYTE_VIEW_SEP ) == 0 ) {
+                    line[cur++] = ' ';
+                }
+            }
+        }
 
-  /* We're done printing the packets; destroy the progress bar if
-     it was created. */
-  if (progbar != NULL)
-    destroy_progress_dlg(progbar);
+        /* Print some space at the end of the line */
+        line[cur++] = ' '; line[cur++] = ' '; line[cur++] = ' ';
 
-  if (cur) {
+        /* Print the ASCII bit */
+        i = j;
+
+        while (i < k) {
+            if (i < len) {
+                if (encoding == PACKET_CHAR_ENC_CHAR_ASCII) {
+                    c = pd[i];
+                }
+                else if (encoding == PACKET_CHAR_ENC_CHAR_EBCDIC) {
+                    c = EBCDIC_to_ASCII1(pd[i]);
+                }
+                else {
+                    g_assert_not_reached();
+                }
+                line[cur++] = isprint(c) ? c : '.';
+            } else {
+                line[cur++] = ' ';
+            }
+            i++;
+            if (i < k) {
+                /* insert a space every BYTE_VIEW_SEP bytes */
+                if( ( i % BYTE_VIEW_SEP ) == 0 ) {
+                    line[cur++] = ' ';
+                }
+            }
+        }
+        line[cur++] = '\n';
+        if (cur >= (MAX_LINES_LEN - MAX_LINE_LEN)) {
+            gtk_text_buffer_insert(buf, &iter, line, cur);
+            cur = 0;
+        }
+    }
+
+    /* We're done printing the packets; destroy the progress bar if
+       it was created. */
+    if (progbar != NULL)
+        destroy_progress_dlg(progbar);
+
+    if (cur) {
         gtk_text_buffer_insert(buf, &iter, line, cur);
-  }
+    }
 }
 
 static void
 packet_hex_update(GtkWidget *bv, const guint8 *pd, int len, int bstart,
-			int bend, guint32 bmask, int bmask_le,
-			int astart, int aend, int encoding)
+                  int bend, guint32 bmask, int bmask_le,
+                  int astart, int aend, int encoding)
 {
-	GtkTextView   *bv_text_view = GTK_TEXT_VIEW(bv);
-	GtkTextBuffer *buf = gtk_text_view_get_buffer(bv_text_view);
-	GtkTextMark   *mark;
-	int ndigits;
+    GtkTextView   *bv_text_view = GTK_TEXT_VIEW(bv);
+    GtkTextBuffer *buf = gtk_text_view_get_buffer(bv_text_view);
+    GtkTextMark   *mark;
+    int ndigits;
 
-	GtkTextIter start, end;
+    GtkTextIter start, end;
 
-	g_object_ref(buf);
+    g_object_ref(buf);
 
 #if 0
-	/* XXX: Setting the text_view buffer to NULL is apparently 
-	 *      not a good idea; If a progress_bar is displayed below
-	 *      in delayed_create_progress_dlg() there will then be
-	 *      a crash internally in the gtk library.
-	 *      (It appears that gtk_text_view_set_buffer
-	 *       queues a callback to be run when this
-	 *       thread is next idle. Unfortunately the call to
-	 *       gtk_main_iteration() in delayed_create_progress_dlg()
-	 *       causes the internal callback to be run which then 
-	 *       crashes (because the textview has no buffer ?))
-	 */  
-	gtk_text_view_set_buffer(bv_text_view, NULL); 
+    /* XXX: Setting the text_view buffer to NULL is apparently
+     *      not a good idea; If a progress_bar is displayed below
+     *      in delayed_create_progress_dlg() there will then be
+     *      a crash internally in the gtk library.
+     *      (It appears that gtk_text_view_set_buffer
+     *       queues a callback to be run when this
+     *       thread is next idle. Unfortunately the call to
+     *       gtk_main_iteration() in delayed_create_progress_dlg()
+     *       causes the internal callback to be run which then
+     *       crashes (because the textview has no buffer ?))
+     */
+    gtk_text_view_set_buffer(bv_text_view, NULL);
 #endif
 
-	/* attach a dummy buffer in place of the real buffer.
-	 * (XXX: Presumably this is done so there's no attempt
-	 *       to display the real buffer until it has been
-	 *       completely generated).
-	 */
-	gtk_text_view_set_buffer(bv_text_view, gtk_text_buffer_new(NULL));
+    /* attach a dummy buffer in place of the real buffer.
+     * (XXX: Presumably this is done so there's no attempt
+     *       to display the real buffer until it has been
+     *       completely generated).
+     */
+    gtk_text_view_set_buffer(bv_text_view, gtk_text_buffer_new(NULL));
 
-	packet_hex_print_common(buf, bv, pd, len, encoding);
+    packet_hex_print_common(buf, bv, pd, len, encoding);
 
-	/* mark everything with "plain" tag */
-	gtk_text_buffer_get_start_iter(buf, &start);
-	gtk_text_buffer_get_end_iter(buf, &end);
-	gtk_text_buffer_apply_tag_by_name(buf, "plain", &start, &end);
+    /* mark everything with "plain" tag */
+    gtk_text_buffer_get_start_iter(buf, &start);
+    gtk_text_buffer_get_end_iter(buf, &end);
+    gtk_text_buffer_apply_tag_by_name(buf, "plain", &start, &end);
 
-	ndigits = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_NDIGITS_KEY));
+    ndigits = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_NDIGITS_KEY));
 
-	/* mark reverse tags */
-	mark = packet_hex_apply_reverse_tag(buf, bstart, bend, bmask, bmask_le, ndigits, 1);
-	packet_hex_apply_reverse_tag(buf, astart, aend, 0x00, 0, ndigits, 0);
+    /* mark reverse tags */
+    mark = packet_hex_apply_reverse_tag(buf, bstart, bend, bmask, bmask_le, ndigits, 1);
+    packet_hex_apply_reverse_tag(buf, astart, aend, 0x00, 0, ndigits, 0);
 
-	gtk_text_view_set_buffer(bv_text_view, buf);
+    gtk_text_view_set_buffer(bv_text_view, buf);
 
-	/* scroll text into position */
-	if (mark) {
-		gtk_text_view_scroll_to_mark(bv_text_view, mark, 0.0, TRUE, 1.0, 0.0);
-		gtk_text_buffer_delete_mark(buf, mark);
-	}
-	g_object_unref(buf);
+    /* scroll text into position */
+    if (mark) {
+        gtk_text_view_scroll_to_mark(bv_text_view, mark, 0.0, TRUE, 1.0, 0.0);
+        gtk_text_buffer_delete_mark(buf, mark);
+    }
+    g_object_unref(buf);
 }
 
 void
 packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
-		 field_info *finfo, guint len)
+                 field_info *finfo, guint len)
 {
-  /* do the initial printing and save the information needed 	*/
-  /* to redraw the display if preferences change.		*/
+    /* do the initial printing and save the information needed  */
+    /* to redraw the display if preferences change.             */
 
-  int bstart = -1, bend = -1, blen = -1;
-  guint32 bmask = 0x00; int bmask_le = 0;
-  int astart = -1, aend = -1, alen = -1;
+    int bstart = -1, bend = -1, blen = -1;
+    guint32 bmask = 0x00; int bmask_le = 0;
+    int astart = -1, aend = -1, alen = -1;
 
-  if (finfo != NULL) {
-    bstart = finfo->start;
-    blen = finfo->length;
-    /* bmask = finfo->hfinfo->bitmask << finfo->hfinfo->bitshift; */ 	/* (value & mask) >> shift */
-    bmask = finfo->hfinfo->bitmask;
-    astart = finfo->appendix_start;
-    alen = finfo->appendix_length;
+    if (finfo != NULL) {
+        bstart = finfo->start;
+        blen = finfo->length;
+        /* bmask = finfo->hfinfo->bitmask << finfo->hfinfo->bitshift; */ /* (value & mask) >> shift */
+        bmask = finfo->hfinfo->bitmask;
+        astart = finfo->appendix_start;
+        alen = finfo->appendix_length;
 
-    if (FI_GET_FLAG(finfo, FI_LITTLE_ENDIAN))
-      bmask_le = 1;
-    else if (FI_GET_FLAG(finfo, FI_BIG_ENDIAN))
-      bmask_le = 0;
-    else { /* unknown endianess - disable mask
-      bmask_le = (G_BYTE_ORDER == G_LITTLE_ENDIAN);
-      */
-      bmask = 0x00;
+        if (FI_GET_FLAG(finfo, FI_LITTLE_ENDIAN))
+            bmask_le = 1;
+        else if (FI_GET_FLAG(finfo, FI_BIG_ENDIAN))
+            bmask_le = 0;
+        else { /* unknown endianess - disable mask
+                  bmask_le = (G_BYTE_ORDER == G_LITTLE_ENDIAN);
+               */
+            bmask = 0x00;
+        }
+
+        if (bmask == 0x00) {
+            int bito = FI_GET_BITS_OFFSET(finfo);
+            int bitc = FI_GET_BITS_SIZE(finfo);
+            int bitt = bito + bitc;
+
+            /* construct mask using bito & bitc */
+            /* XXX, mask has only 32 bit, later we can store bito&bitc, and use them (which should be faster) */
+            if (bitt > 0 && bitt < 32) {
+
+                bmask = ((1 << bitc) - 1) << (8-(bitt & 0x7)); /* always? */
+                bmask_le = 0; /* ? */
+            }
+        }
     }
 
-    if (bmask == 0x00) {
-      int bito = FI_GET_BITS_OFFSET(finfo);
-      int bitc = FI_GET_BITS_SIZE(finfo);
-      int bitt = bito + bitc;
-
-      /* construct mask using bito & bitc */
-      /* XXX, mask has only 32 bit, later we can store bito&bitc, and use them (which should be faster) */
-      if (bitt > 0 && bitt < 32) {
-        
-        bmask = ((1 << bitc) - 1) << (8-(bitt & 0x7)); /* always? */
-	bmask_le = 0; /* ? */
-     }
+    if (bstart >= 0 && blen > 0) {
+        bend = bstart + blen;
     }
-  }
+    if (astart >= 0 && alen > 0) {
+        aend = astart + alen;
+    }
 
-  if (bstart >= 0 && blen > 0) {
-    bend = bstart + blen;
-  }
-  if (astart >= 0 && alen > 0) {
-    aend = astart + alen;
-  }
+    if (bend == -1 && aend != -1) {
+        bstart = astart;
+        bmask = 0x00;
+        bend = aend;
+        astart = aend = -1;
+    }
 
-  if (bend == -1 && aend != -1) {
-    bstart = astart;
-    bmask = 0x00;
-    bend = aend;
-    astart = aend = -1;
-  }
+    /* save the information needed to redraw the text */
+    /* should we save the fd & finfo pointers instead ?? */
+    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY, GINT_TO_POINTER(bstart));
+    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY, GINT_TO_POINTER(bend));
+    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASK_KEY, GINT_TO_POINTER(bmask));
+    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASKLE_KEY, GINT_TO_POINTER(bmask_le));
+    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_START_KEY, GINT_TO_POINTER(astart));
+    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_END_KEY, GINT_TO_POINTER(aend));
+    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_ENCODE_KEY,
+                      GUINT_TO_POINTER((guint)fd->flags.encoding));
 
-  /* save the information needed to redraw the text */
-  /* should we save the fd & finfo pointers instead ?? */
-  g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY, GINT_TO_POINTER(bstart));
-  g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY, GINT_TO_POINTER(bend));
-  g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASK_KEY, GINT_TO_POINTER(bmask));
-  g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_MASKLE_KEY, GINT_TO_POINTER(bmask_le));
-  g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_START_KEY, GINT_TO_POINTER(astart));
-  g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_END_KEY, GINT_TO_POINTER(aend));
-  g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_ENCODE_KEY,
-                  GUINT_TO_POINTER((guint)fd->flags.encoding));
-
-  packet_hex_update(bv, pd, len, bstart, bend, bmask, bmask_le, astart, aend, fd->flags.encoding);
+    packet_hex_update(bv, pd, len, bstart, bend, bmask, bmask_le, astart, aend, fd->flags.encoding);
 }
 
 /*
@@ -1625,22 +1625,22 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
 void
 packet_hex_reprint(GtkWidget *bv)
 {
-  int start, end, mask, mask_le, encoding;
-  int astart, aend;
-  const guint8 *data;
-  guint len = 0;
+    int start, end, mask, mask_le, encoding;
+    int astart, aend;
+    const guint8 *data;
+    guint len = 0;
 
-  start = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY));
-  end = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY));
-  mask = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_MASK_KEY));
-  mask_le = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_MASKLE_KEY));
-  astart = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_APP_START_KEY));
-  aend = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_APP_END_KEY));
-  data = get_byte_view_data_and_length(bv, &len);
-  g_assert(data != NULL);
-  encoding = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_ENCODE_KEY));
+    start = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY));
+    end = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY));
+    mask = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_MASK_KEY));
+    mask_le = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_MASKLE_KEY));
+    astart = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_APP_START_KEY));
+    aend = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_APP_END_KEY));
+    data = get_byte_view_data_and_length(bv, &len);
+    g_assert(data != NULL);
+    encoding = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_ENCODE_KEY));
 
-  packet_hex_update(bv, data, len, start, end, mask, mask_le, astart, aend, encoding);
+    packet_hex_update(bv, data, len, start, end, mask, mask_le, astart, aend, encoding);
 }
 
 /* List of all protocol tree widgets, so we can globally set the selection
@@ -1653,18 +1653,18 @@ static void forget_ptree_widget(GtkWidget *ptreew, gpointer data);
 static void
 remember_ptree_widget(GtkWidget *ptreew)
 {
-  ptree_widgets = g_list_append(ptree_widgets, ptreew);
+    ptree_widgets = g_list_append(ptree_widgets, ptreew);
 
-  /* Catch the "destroy" event on the widget, so that we remove it from
-     the list when it's destroyed. */
-  g_signal_connect(ptreew, "destroy", G_CALLBACK(forget_ptree_widget), NULL);
+    /* Catch the "destroy" event on the widget, so that we remove it from
+       the list when it's destroyed. */
+    g_signal_connect(ptreew, "destroy", G_CALLBACK(forget_ptree_widget), NULL);
 }
 
 /* Remove a protocol tree widget from the list of protocol tree widgets. */
 static void
 forget_ptree_widget(GtkWidget *ptreew, gpointer data _U_)
 {
-  ptree_widgets = g_list_remove(ptree_widgets, ptreew);
+    ptree_widgets = g_list_remove(ptree_widgets, ptreew);
 }
 
 /* Set the selection mode of a given packet tree window. */
@@ -1688,21 +1688,21 @@ set_ptree_sel_browse(GtkWidget *tree, gboolean val)
 static void
 set_ptree_sel_browse_cb(gpointer data, gpointer user_data)
 {
-	set_ptree_sel_browse((GtkWidget *)data, *(gboolean *)user_data);
+    set_ptree_sel_browse((GtkWidget *)data, *(gboolean *)user_data);
 }
 
 /* Set the selection mode of all packet tree windows. */
 void
 set_ptree_sel_browse_all(gboolean val)
 {
-	g_list_foreach(ptree_widgets, set_ptree_sel_browse_cb, &val);
+    g_list_foreach(ptree_widgets, set_ptree_sel_browse_cb, &val);
 }
 
 static void
 set_ptree_font_cb(gpointer data, gpointer user_data)
 {
-	gtk_widget_modify_font((GtkWidget *)data,
-                               (PangoFontDescription *)user_data);
+    gtk_widget_modify_font((GtkWidget *)data,
+                           (PangoFontDescription *)user_data);
 }
 
 void
@@ -1716,13 +1716,14 @@ set_ptree_font_all(PangoFontDescription *font)
  * Each expert_color_* level below should match the light gradient
  * colors in image/expert_indicators.svg.
  */
-gboolean colors_ok = FALSE;
-GdkColor	expert_color_chat	= { 0, 0x8080, 0xb7b7, 0xf7f7 };	/* light blue */
-GdkColor	expert_color_note	= { 0, 0xa0a0, 0xffff, 0xffff };	/* bright turquoise */
-GdkColor	expert_color_warn	= { 0, 0xf7f7, 0xf2f2, 0x5353 };	/* yellow */
-GdkColor	expert_color_error	= { 0, 0xffff, 0x5c5c, 0x5c5c };	/* pale red */
-GdkColor	expert_color_foreground	= { 0, 0x0000, 0x0000, 0x0000 };	/* black */
-GdkColor	hidden_proto_item	= { 0, 0x4444, 0x4444, 0x4444 };	/* gray */
+static gboolean colors_ok = FALSE;
+
+GdkColor        expert_color_chat       = { 0, 0x8080, 0xb7b7, 0xf7f7 };        /* light blue */
+GdkColor        expert_color_note       = { 0, 0xa0a0, 0xffff, 0xffff };        /* bright turquoise */
+GdkColor        expert_color_warn       = { 0, 0xf7f7, 0xf2f2, 0x5353 };        /* yellow */
+GdkColor        expert_color_error      = { 0, 0xffff, 0x5c5c, 0x5c5c };        /* pale red */
+GdkColor        expert_color_foreground = { 0, 0x0000, 0x0000, 0x0000 };        /* black */
+GdkColor        hidden_proto_item       = { 0, 0x4444, 0x4444, 0x4444 };        /* gray */
 
 gchar *expert_color_chat_str;
 gchar *expert_color_note_str;
@@ -1732,31 +1733,31 @@ gchar *expert_color_foreground_str;
 
 void proto_draw_colors_init(void)
 {
-	if(colors_ok) {
-		return;
-	}
+    if(colors_ok) {
+        return;
+    }
 
-	get_color(&expert_color_chat);
-	get_color(&expert_color_note);
-	get_color(&expert_color_warn);
-	get_color(&expert_color_error);
-	get_color(&expert_color_foreground);
-	expert_color_chat_str = gdk_color_to_string(&expert_color_chat);
-	expert_color_note_str = gdk_color_to_string(&expert_color_note);
-	expert_color_warn_str = gdk_color_to_string(&expert_color_warn);
-	expert_color_error_str = gdk_color_to_string(&expert_color_error);
-	expert_color_foreground_str = gdk_color_to_string(&expert_color_foreground);
+    get_color(&expert_color_chat);
+    get_color(&expert_color_note);
+    get_color(&expert_color_warn);
+    get_color(&expert_color_error);
+    get_color(&expert_color_foreground);
+    expert_color_chat_str = gdk_color_to_string(&expert_color_chat);
+    expert_color_note_str = gdk_color_to_string(&expert_color_note);
+    expert_color_warn_str = gdk_color_to_string(&expert_color_warn);
+    expert_color_error_str = gdk_color_to_string(&expert_color_error);
+    expert_color_foreground_str = gdk_color_to_string(&expert_color_foreground);
 
-	get_color(&hidden_proto_item);
+    get_color(&hidden_proto_item);
 
-	colors_ok = TRUE;
+    colors_ok = TRUE;
 }
 
 
 static void
 tree_cell_renderer(GtkTreeViewColumn *tree_column _U_, GtkCellRenderer *cell,
-		   GtkTreeModel *tree_model, GtkTreeIter *iter,
-		   gpointer data _U_)
+                   GtkTreeModel *tree_model, GtkTreeIter *iter,
+                   gpointer data _U_)
 {
     field_info   *fi;
 
@@ -1817,13 +1818,13 @@ tree_cell_renderer(GtkTreeViewColumn *tree_column _U_, GtkCellRenderer *cell,
             /*g_object_set (cell, "weight", PANGO_WEIGHT_BOLD, NULL);
             g_object_set (cell, "weight-set", TRUE, NULL);*/
         }
-        
+
         if((fi->hfinfo->type == FT_FRAMENUM) ||
            (FI_GET_FLAG(fi, FI_URL) && IS_FT_STRING(fi->hfinfo->type))) {
             render_as_url(cell);
         }
     }
-    
+
     if(FI_GET_FLAG(fi, PI_SEVERITY_MASK)) {
         switch(FI_GET_FLAG(fi, PI_SEVERITY_MASK)) {
         case(PI_CHAT):
@@ -1853,69 +1854,69 @@ tree_cell_renderer(GtkTreeViewColumn *tree_column _U_, GtkCellRenderer *cell,
 GtkWidget *
 main_tree_view_new(e_prefs *prefs_p, GtkWidget **tree_view_p)
 {
-  GtkWidget *tv_scrollw, *tree_view;
-  GtkTreeStore *store;
-  GtkCellRenderer *renderer;
-  GtkTreeViewColumn *column;
-  gint col_offset;
+    GtkWidget *tv_scrollw, *tree_view;
+    GtkTreeStore *store;
+    GtkCellRenderer *renderer;
+    GtkTreeViewColumn *column;
+    gint col_offset;
 
-  /* Tree view */
-  tv_scrollw = scrolled_window_new(NULL, NULL);
-  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(tv_scrollw),
-                                   GTK_SHADOW_IN);
+    /* Tree view */
+    tv_scrollw = scrolled_window_new(NULL, NULL);
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(tv_scrollw),
+                                        GTK_SHADOW_IN);
 
-  store = gtk_tree_store_new(2, G_TYPE_STRING, G_TYPE_POINTER);
-  tree_view = tree_view_new(GTK_TREE_MODEL(store));
-  g_object_unref(G_OBJECT(store));
-  gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(tree_view), FALSE);
-  renderer = gtk_cell_renderer_text_new();
-  g_object_set (renderer, "ypad", 0, NULL);
-  col_offset = gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(tree_view),
-                                                           -1, "Name", renderer,
-                                                           "text", 0, NULL);
-  column = gtk_tree_view_get_column(GTK_TREE_VIEW(tree_view),
-                                    col_offset - 1);
-  gtk_tree_view_column_set_cell_data_func(column, renderer, tree_cell_renderer,
-					  NULL, NULL);
+    store = gtk_tree_store_new(2, G_TYPE_STRING, G_TYPE_POINTER);
+    tree_view = tree_view_new(GTK_TREE_MODEL(store));
+    g_object_unref(G_OBJECT(store));
+    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(tree_view), FALSE);
+    renderer = gtk_cell_renderer_text_new();
+    g_object_set (renderer, "ypad", 0, NULL);
+    col_offset = gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(tree_view),
+                                                             -1, "Name", renderer,
+                                                             "text", 0, NULL);
+    column = gtk_tree_view_get_column(GTK_TREE_VIEW(tree_view),
+                                      col_offset - 1);
+    gtk_tree_view_column_set_cell_data_func(column, renderer, tree_cell_renderer,
+                                            NULL, NULL);
 
-  gtk_tree_view_column_set_sizing(GTK_TREE_VIEW_COLUMN(column),
-                                  GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-  g_signal_connect(tree_view, "row-expanded", G_CALLBACK(expand_tree), NULL);
-  g_signal_connect(tree_view, "row-collapsed", G_CALLBACK(collapse_tree), NULL);
-  gtk_container_add( GTK_CONTAINER(tv_scrollw), tree_view );
-  set_ptree_sel_browse(tree_view, prefs_p->gui_ptree_sel_browse);
-  gtk_widget_modify_font(tree_view, user_font_get_regular());
-  remember_ptree_widget(tree_view);
+    gtk_tree_view_column_set_sizing(GTK_TREE_VIEW_COLUMN(column),
+                                    GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+    g_signal_connect(tree_view, "row-expanded", G_CALLBACK(expand_tree), NULL);
+    g_signal_connect(tree_view, "row-collapsed", G_CALLBACK(collapse_tree), NULL);
+    gtk_container_add( GTK_CONTAINER(tv_scrollw), tree_view );
+    set_ptree_sel_browse(tree_view, prefs_p->gui_ptree_sel_browse);
+    gtk_widget_modify_font(tree_view, user_font_get_regular());
+    remember_ptree_widget(tree_view);
 
-  *tree_view_p = tree_view;
+    *tree_view_p = tree_view;
 
-  return tv_scrollw;
+    return tv_scrollw;
 }
 
 void
 expand_all_tree(proto_tree *protocol_tree _U_, GtkWidget *tree_view)
 {
-  int i;
-  for(i=0; i < num_tree_types; i++) {
-    tree_is_expanded[i] = TRUE;
-  }
-  gtk_tree_view_expand_all(GTK_TREE_VIEW(tree_view));
+    int i;
+    for(i=0; i < num_tree_types; i++) {
+        tree_is_expanded[i] = TRUE;
+    }
+    gtk_tree_view_expand_all(GTK_TREE_VIEW(tree_view));
 }
 
 void
 collapse_all_tree(proto_tree *protocol_tree _U_, GtkWidget *tree_view)
 {
-  int i;
-  for(i=0; i < num_tree_types; i++) {
-    tree_is_expanded[i] = FALSE;
-  }
-  gtk_tree_view_collapse_all(GTK_TREE_VIEW(tree_view));
+    int i;
+    for(i=0; i < num_tree_types; i++) {
+        tree_is_expanded[i] = FALSE;
+    }
+    gtk_tree_view_collapse_all(GTK_TREE_VIEW(tree_view));
 }
 
 
 struct proto_tree_draw_info {
     GtkTreeView  *tree_view;
-    GtkTreeIter	 *iter;
+    GtkTreeIter  *iter;
 };
 
 void
@@ -1947,34 +1948,34 @@ tree_view_follow_link(field_info   *fi)
 gboolean
 tree_view_select(GtkWidget *widget, GdkEventButton *event)
 {
-        GtkTreeSelection    *sel;
-        GtkTreePath         *path;
+    GtkTreeSelection    *sel;
+    GtkTreePath         *path;
 
-        if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(widget),
-                                          (gint) (((GdkEventButton *)event)->x),
-                                          (gint) (((GdkEventButton *)event)->y),
-                                          &path, NULL, NULL, NULL))
-        {
-            sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(widget));
+    if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(widget),
+                                      (gint) (((GdkEventButton *)event)->x),
+                                      (gint) (((GdkEventButton *)event)->y),
+                                      &path, NULL, NULL, NULL))
+    {
+        sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(widget));
 
-            /* if that's a doubleclick, try to follow the link */
-            if(event->type == GDK_2BUTTON_PRESS) {
-                GtkTreeModel *model;
-                GtkTreeIter iter;
-                field_info   *fi;
+        /* if that's a doubleclick, try to follow the link */
+        if(event->type == GDK_2BUTTON_PRESS) {
+            GtkTreeModel *model;
+            GtkTreeIter iter;
+            field_info   *fi;
 
-                if(gtk_tree_selection_get_selected (sel, &model, &iter)) {
-                    gtk_tree_model_get(model, &iter, 1, &fi, -1);
-                    tree_view_follow_link(fi);
-                }
+            if(gtk_tree_selection_get_selected (sel, &model, &iter)) {
+                gtk_tree_model_get(model, &iter, 1, &fi, -1);
+                tree_view_follow_link(fi);
             }
-            else if (((GdkEventButton *)event)->button != 1) {
-                /* if button == 1 gtk_tree_selection_select_path is already (or will be) called by the widget */
-                gtk_tree_selection_select_path(sel, path);
-            }
-        } else {
-            return FALSE;
         }
+        else if (((GdkEventButton *)event)->button != 1) {
+            /* if button == 1 gtk_tree_selection_select_path is already (or will be) called by the widget */
+            gtk_tree_selection_select_path(sel, path);
+        }
+    } else {
+        return FALSE;
+    }
     return TRUE;
 }
 
@@ -1983,7 +1984,7 @@ void
 proto_tree_draw(proto_tree *protocol_tree, GtkWidget *tree_view)
 {
     GtkTreeStore *store;
-    struct proto_tree_draw_info	info;
+    struct proto_tree_draw_info info;
 
     info.tree_view = GTK_TREE_VIEW(tree_view);
     info.iter = NULL;
@@ -2005,8 +2006,8 @@ proto_tree_draw(proto_tree *protocol_tree, GtkWidget *tree_view)
 static void
 proto_tree_draw_node(proto_node *node, gpointer data)
 {
-    struct proto_tree_draw_info	info;
-    struct proto_tree_draw_info	*parent_info = (struct proto_tree_draw_info*) data;
+    struct proto_tree_draw_info  info;
+    struct proto_tree_draw_info *parent_info = (struct proto_tree_draw_info*) data;
 
     field_info   *fi = PNODE_FINFO(node);
     gchar         label_str[ITEM_LABEL_LENGTH];
@@ -2082,24 +2083,24 @@ proto_tree_draw_node(proto_node *node, gpointer data)
 void
 clear_tree_and_hex_views(void)
 {
-  /* Clear the hex dump by getting rid of all the byte views. */
-  while (gtk_notebook_get_nth_page(GTK_NOTEBOOK(byte_nb_ptr_gbl), 0) != NULL)
-    gtk_notebook_remove_page(GTK_NOTEBOOK(byte_nb_ptr_gbl), 0);
+    /* Clear the hex dump by getting rid of all the byte views. */
+    while (gtk_notebook_get_nth_page(GTK_NOTEBOOK(byte_nb_ptr_gbl), 0) != NULL)
+        gtk_notebook_remove_page(GTK_NOTEBOOK(byte_nb_ptr_gbl), 0);
 
-  /* Add a placeholder byte view so that there's at least something
-     displayed in the byte view notebook. */
-  add_byte_tab(byte_nb_ptr_gbl, "", NULL, NULL, tree_view_gbl);
+    /* Add a placeholder byte view so that there's at least something
+       displayed in the byte view notebook. */
+    add_byte_tab(byte_nb_ptr_gbl, "", NULL, NULL, tree_view_gbl);
 
-  /* Clear the protocol tree by removing all nodes in the ctree.
-     This is how it's done in testgtk.c in GTK+ */
-  gtk_tree_store_clear(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(tree_view_gbl))));
+    /* Clear the protocol tree by removing all nodes in the ctree.
+       This is how it's done in testgtk.c in GTK+ */
+    gtk_tree_store_clear(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(tree_view_gbl))));
 }
 
 void
 select_bytes_view (GtkWidget *w _U_, gpointer data _U_, gint view)
 {
-  if (recent.gui_bytes_view != view) {
-    recent.gui_bytes_view = view;
-    redraw_packet_bytes_all();
-  }
+    if (recent.gui_bytes_view != view) {
+        recent.gui_bytes_view = view;
+        redraw_packet_bytes_all();
+    }
 }

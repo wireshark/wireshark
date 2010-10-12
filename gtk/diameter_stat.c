@@ -61,7 +61,7 @@ typedef struct _diameterstat_t {
 	srt_stat_table diameter_srt_table;
 } diameterstat_t;
 
-GHashTable* cmd_str_hash;
+static GHashTable* cmd_str_hash;
 
 static void
 diameterstat_set_title(diameterstat_t *diameter)

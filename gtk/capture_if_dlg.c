@@ -252,7 +252,7 @@ update_all(gpointer data)
     return TRUE;
 }
 
-gboolean g_capture_in_progress = FALSE;
+static gboolean gbl_capture_in_progress = FALSE;
 
 /* a live capture has started or stopped */
 void
@@ -261,7 +261,7 @@ set_capture_if_dialog_for_capture_in_progress(gboolean capture_in_progress)
     GList *curr;
     int ifs;
 
-    g_capture_in_progress = capture_in_progress;
+    gbl_capture_in_progress = capture_in_progress;
 
     if(cap_if_w) {
         gtk_widget_set_sensitive(stop_bt, capture_in_progress);
@@ -887,7 +887,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show_all(cap_if_w);
   window_present(cap_if_w);
 
-  set_capture_if_dialog_for_capture_in_progress(g_capture_in_progress);
+  set_capture_if_dialog_for_capture_in_progress(gbl_capture_in_progress);
 
     /* update the interface list every 1000ms */
   timer_id = g_timeout_add(1000, update_all, sc);

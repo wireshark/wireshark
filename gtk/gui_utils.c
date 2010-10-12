@@ -383,7 +383,7 @@ window_set_geometry(GtkWidget *widget, window_geometry_t *geom)
 
 /* the geometry hashtable for all known window classes,
  * the window name is the key, and the geometry struct is the value */
-GHashTable *window_geom_hash = NULL;
+static GHashTable *window_geom_hash = NULL;
 
 
 /* save the window and it's current geometry into the geometry hashtable */

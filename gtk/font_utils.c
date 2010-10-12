@@ -55,7 +55,7 @@
 #endif
 
 
-PangoFontDescription *m_r_font, *m_b_font;
+static PangoFontDescription *m_r_font, *m_b_font;
 
 
 /* Get the regular user font.
@@ -79,11 +79,11 @@ PangoFontDescription *user_font_get_bold(void)
 static void
 set_fonts(PangoFontDescription *regular, PangoFontDescription *bold)
 {
-	/* Yes, assert. The code that loads the font should check
-	 * for NULL and provide its own error message. */
-	g_assert(m_r_font && m_b_font);
-	m_r_font = regular;
-	m_b_font = bold;
+    /* Yes, assert. The code that loads the font should check
+     * for NULL and provide its own error message. */
+    g_assert(m_r_font && m_b_font);
+    m_r_font = regular;
+    m_b_font = bold;
 }
 
 void
@@ -100,14 +100,14 @@ view_zoom_in_cb(GtkWidget *w _U_, gpointer d _U_)
 
     case FA_FONT_NOT_RESIZEABLE:
         /* "font_apply()" popped up an alert box. */
-        recent.gui_zoom_level = save_gui_zoom_level;	/* undo zoom */
+        recent.gui_zoom_level = save_gui_zoom_level;    /* undo zoom */
         break;
 
     case FA_FONT_NOT_AVAILABLE:
         /* We assume this means that the specified size isn't available. */
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
             "Your current font isn't available in the next larger size.\n");
-        recent.gui_zoom_level = save_gui_zoom_level;	/* undo zoom */
+        recent.gui_zoom_level = save_gui_zoom_level;    /* undo zoom */
         break;
     }
 }
@@ -126,14 +126,14 @@ view_zoom_out_cb(GtkWidget *w _U_, gpointer d _U_)
 
     case FA_FONT_NOT_RESIZEABLE:
         /* "font_apply()" popped up an alert box. */
-        recent.gui_zoom_level = save_gui_zoom_level;	/* undo zoom */
+        recent.gui_zoom_level = save_gui_zoom_level;    /* undo zoom */
         break;
 
     case FA_FONT_NOT_AVAILABLE:
         /* We assume this means that the specified size isn't available. */
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
             "Your current font isn't available in the next smaller size.\n");
-        recent.gui_zoom_level = save_gui_zoom_level;	/* undo zoom */
+        recent.gui_zoom_level = save_gui_zoom_level;    /* undo zoom */
         break;
     }
 }
@@ -152,7 +152,7 @@ view_zoom_100_cb(GtkWidget *w _U_, gpointer d _U_)
 
     case FA_FONT_NOT_RESIZEABLE:
         /* "font_apply()" popped up an alert box. */
-        recent.gui_zoom_level = save_gui_zoom_level;	/* undo zoom */
+        recent.gui_zoom_level = save_gui_zoom_level;    /* undo zoom */
         break;
 
     case FA_FONT_NOT_AVAILABLE:
@@ -160,7 +160,7 @@ view_zoom_100_cb(GtkWidget *w _U_, gpointer d _U_)
            XXX - this "shouldn't happen". */
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
             "Your current font couldn't be reloaded at the size you selected.\n");
-        recent.gui_zoom_level = save_gui_zoom_level;	/* undo zoom */
+        recent.gui_zoom_level = save_gui_zoom_level;    /* undo zoom */
         break;
     }
 }
@@ -170,33 +170,33 @@ view_zoom_100_cb(GtkWidget *w _U_, gpointer d _U_)
 gboolean
 user_font_test(gchar *font_name)
 {
-	PangoFontDescription *new_r_font, *new_b_font;
+    PangoFontDescription *new_r_font, *new_b_font;
 
-	new_r_font = pango_font_description_from_string(font_name);
-	if (new_r_font == NULL) {
-		/* Oops, that font didn't work.
-		   Tell the user, but don't tear down the font selection
-		   dialog, so that they can try again. */
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		   "The font you selected can't be loaded.");
+    new_r_font = pango_font_description_from_string(font_name);
+    if (new_r_font == NULL) {
+        /* Oops, that font didn't work.
+           Tell the user, but don't tear down the font selection
+           dialog, so that they can try again. */
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      "The font you selected can't be loaded.");
 
-		return FALSE;
-	}
+        return FALSE;
+    }
 
-	new_b_font = pango_font_description_copy(new_r_font);
-	pango_font_description_set_weight(new_b_font, PANGO_WEIGHT_BOLD);
-	if (new_b_font == NULL) {
-		/* Oops, that font didn't work.
-		   Tell the user, but don't tear down the font selection
-		   dialog, so that they can try again. */
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		   "The font you selected doesn't have a boldface version.");
+    new_b_font = pango_font_description_copy(new_r_font);
+    pango_font_description_set_weight(new_b_font, PANGO_WEIGHT_BOLD);
+    if (new_b_font == NULL) {
+        /* Oops, that font didn't work.
+           Tell the user, but don't tear down the font selection
+           dialog, so that they can try again. */
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      "The font you selected doesn't have a boldface version.");
 
-		pango_font_description_free(new_r_font);
-		return FALSE;
-	}
+        pango_font_description_free(new_r_font);
+        return FALSE;
+    }
 
-	return TRUE;
+    return TRUE;
 }
 
 
@@ -246,11 +246,11 @@ user_font_apply(void) {
     /* convert font name to reflect the zoom level */
     gui_font_name = font_zoom(prefs.gui_font_name);
     if (gui_font_name == NULL) {
-    	/*
-    	 * This means the font name isn't an XLFD font name.
-    	 * We just report that for now as a font not available in
-    	 * multiple sizes.
-    	 */
+        /*
+         * This means the font name isn't an XLFD font name.
+         * We just report that for now as a font not available in
+         * multiple sizes.
+         */
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
             "Your current font isn't available in any other sizes.\n");
         return FA_FONT_NOT_RESIZEABLE;
@@ -319,26 +319,26 @@ set_app_font_gtk2(const char *fontname)
     settings = gtk_settings_get_default();
 
     if (fontname == NULL) {
-	g_object_set(G_OBJECT(settings), "gtk-font-name", appfontname, NULL);
+        g_object_set(G_OBJECT(settings), "gtk-font-name", appfontname, NULL);
     } else {
-	GtkWidget *w;
-	PangoFontDescription *pfd;
-	PangoContext *pc;
-	PangoFont *pfont;
+        GtkWidget *w;
+        PangoFontDescription *pfd;
+        PangoContext *pc;
+        PangoFont *pfont;
 
-	w = gtk_label_new(NULL);
-	pfd = pango_font_description_from_string(fontname);
-	pc = gtk_widget_get_pango_context(w);
-	pfont = pango_context_load_font(pc, pfd);
+        w = gtk_label_new(NULL);
+        pfd = pango_font_description_from_string(fontname);
+        pc = gtk_widget_get_pango_context(w);
+        pfont = pango_context_load_font(pc, pfd);
 
-	if (pfont != NULL) {
-	    g_strlcpy(appfontname, fontname, 128);
-	    appfontname[127] = '\0';
-	    g_object_set(G_OBJECT(settings), "gtk-font-name", appfontname, NULL);
-	}
+        if (pfont != NULL) {
+            g_strlcpy(appfontname, fontname, 128);
+            appfontname[127] = '\0';
+            g_object_set(G_OBJECT(settings), "gtk-font-name", appfontname, NULL);
+        }
 
-	gtk_widget_destroy(w);
-	pango_font_description_free(pfd);
+        gtk_widget_destroy(w);
+        pango_font_description_free(pfd);
     }
 }
 
@@ -351,14 +351,14 @@ static char *default_windows_menu_fontspec_gtk2(void)
     ncm.cbSize = sizeof ncm;
 
     if (SystemParametersInfo(SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0)) {
-	HDC screen = GetDC(0);
-	double y_scale = 72.0 / GetDeviceCaps(screen, LOGPIXELSY);
-	int point_size = (int) (ncm.lfMenuFont.lfHeight * y_scale);
+        HDC screen = GetDC(0);
+        double y_scale = 72.0 / GetDeviceCaps(screen, LOGPIXELSY);
+        int point_size = (int) (ncm.lfMenuFont.lfHeight * y_scale);
 
-	if (point_size < 0) point_size = -point_size;
-	fontspec = g_strdup_printf("%s %d", ncm.lfMenuFont.lfFaceName,
-				   point_size);
-	ReleaseDC(0, screen);
+        if (point_size < 0) point_size = -point_size;
+        fontspec = g_strdup_printf("%s %d", ncm.lfMenuFont.lfFaceName,
+                                   point_size);
+        ReleaseDC(0, screen);
     }
 
     return fontspec;
@@ -371,25 +371,25 @@ static void try_to_get_windows_font_gtk2(void)
     fontspec = default_windows_menu_fontspec_gtk2();
 
     if (fontspec != NULL) {
-	int match = 0;
-	PangoFontDescription *pfd;
-	PangoFont *pfont;
-	PangoContext *pc;
-	GtkWidget *w;
+        int match = 0;
+        PangoFontDescription *pfd;
+        PangoFont *pfont;
+        PangoContext *pc;
+        GtkWidget *w;
 
-	pfd = pango_font_description_from_string(fontspec);
+        pfd = pango_font_description_from_string(fontspec);
 
-	w = gtk_label_new(NULL);
-	pc = gtk_widget_get_pango_context(w);
-	pfont = pango_context_load_font(pc, pfd);
-	match = (pfont != NULL);
+        w = gtk_label_new(NULL);
+        pc = gtk_widget_get_pango_context(w);
+        pfont = pango_context_load_font(pc, pfd);
+        match = (pfont != NULL);
 
-	pango_font_description_free(pfd);
-	g_object_unref(G_OBJECT(pc));
-	gtk_widget_destroy(w);
+        pango_font_description_free(pfd);
+        g_object_unref(G_OBJECT(pc));
+        gtk_widget_destroy(w);
 
-	if (match) set_app_font_gtk2(fontspec);
-	g_free(fontspec);
+        if (match) set_app_font_gtk2(fontspec);
+        g_free(fontspec);
     }
 }
 #endif /* _WIN32 */
@@ -398,42 +398,42 @@ static void try_to_get_windows_font_gtk2(void)
 void font_init(void)
 {
 #ifdef _WIN32
-  /* try to load the application font for GTK2 */
-  try_to_get_windows_font_gtk2();
+    /* try to load the application font for GTK2 */
+    try_to_get_windows_font_gtk2();
 #endif
 
-  /* Try to load the regular and boldface fixed-width fonts */
-  m_r_font = pango_font_description_from_string(prefs.gui_font_name);
-  m_b_font = pango_font_description_copy(m_r_font);
-  pango_font_description_set_weight(m_b_font, PANGO_WEIGHT_BOLD);
-  if (m_r_font == NULL || m_b_font == NULL) {
-    /* XXX - pop this up as a dialog box? no */
-    if (m_r_font == NULL) {
-	fprintf(stderr, "wireshark: Warning: font %s not found - defaulting to Monospace 9\n",
-		prefs.gui_font_name);
-    } else {
-      pango_font_description_free(m_r_font);
-    }
-    if (m_b_font == NULL) {
-        fprintf(stderr, "wireshark: Warning: bold font %s not found - defaulting"
-                        " to Monospace 9\n", prefs.gui_font_name);
-    } else {
-      pango_font_description_free(m_b_font);
-    }
-    if ((m_r_font = pango_font_description_from_string("Monospace 9")) == NULL)
-    {
-      fprintf(stderr, "wireshark: Error: font Monospace 9 not found\n");
-      exit(1);
-    }
-    if ((m_b_font = pango_font_description_copy(m_r_font)) == NULL) {
-      fprintf(stderr, "wireshark: Error: font Monospace 9 bold not found\n");
-      exit(1);
-    }
-    g_free(prefs.gui_font_name);
+    /* Try to load the regular and boldface fixed-width fonts */
+    m_r_font = pango_font_description_from_string(prefs.gui_font_name);
+    m_b_font = pango_font_description_copy(m_r_font);
     pango_font_description_set_weight(m_b_font, PANGO_WEIGHT_BOLD);
-    prefs.gui_font_name = g_strdup("Monospace 9");
-  }
+    if (m_r_font == NULL || m_b_font == NULL) {
+        /* XXX - pop this up as a dialog box? no */
+        if (m_r_font == NULL) {
+            fprintf(stderr, "wireshark: Warning: font %s not found - defaulting to Monospace 9\n",
+                    prefs.gui_font_name);
+        } else {
+            pango_font_description_free(m_r_font);
+        }
+        if (m_b_font == NULL) {
+            fprintf(stderr, "wireshark: Warning: bold font %s not found - defaulting"
+                    " to Monospace 9\n", prefs.gui_font_name);
+        } else {
+            pango_font_description_free(m_b_font);
+        }
+        if ((m_r_font = pango_font_description_from_string("Monospace 9")) == NULL)
+        {
+            fprintf(stderr, "wireshark: Error: font Monospace 9 not found\n");
+            exit(1);
+        }
+        if ((m_b_font = pango_font_description_copy(m_r_font)) == NULL) {
+            fprintf(stderr, "wireshark: Error: font Monospace 9 bold not found\n");
+            exit(1);
+        }
+        g_free(prefs.gui_font_name);
+        pango_font_description_set_weight(m_b_font, PANGO_WEIGHT_BOLD);
+        prefs.gui_font_name = g_strdup("Monospace 9");
+    }
 
-  /* Call this for the side-effects that set_fonts() produces */
-  set_fonts(m_r_font, m_b_font);
+    /* Call this for the side-effects that set_fonts() produces */
+    set_fonts(m_r_font, m_b_font);
 }

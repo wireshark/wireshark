@@ -59,13 +59,13 @@ static GtkWidget *fs_w;
 
 
 /* various widget related global data */
-int           row;
-GtkWidget     *fs_tb;
-GtkWidget     *fs_sw;
-GtkTooltips   *tooltips;
-GtkWidget     *fs_dir_lb;
-GtkWidget     *fs_first_rb;
-GtkWidget     *fs_tb_vb;
+static int            row;
+static GtkWidget     *fs_tb;
+static GtkWidget     *fs_sw;
+static GtkTooltips   *tooltips;
+static GtkWidget     *fs_dir_lb;
+static GtkWidget     *fs_first_rb;
+static GtkWidget     *fs_tb_vb;
 
 
 

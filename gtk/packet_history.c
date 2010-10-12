@@ -37,9 +37,9 @@
 #include "gtk/packet_history.h"
 
 
-GList *history_current = NULL;
-GList *history_list = NULL;
-gboolean ignore_jump = FALSE;
+static GList *history_current = NULL;
+static GList *history_list = NULL;
+static gboolean ignore_jump = FALSE;
 
 
 #if 0
@@ -123,7 +123,7 @@ void packet_history_add(gint row) {
 
 
 void packet_history_clear(void) {
-    
+
     /* clear "old" list */
     clear_list(history_list);
     history_current = NULL;

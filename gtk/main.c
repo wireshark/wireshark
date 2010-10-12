@@ -215,9 +215,10 @@ int    airpcap_dll_ret_val = -1;
 #endif
 
 GString *comp_info_str, *runtime_info_str;
-gboolean have_capture_file = FALSE; /* XXX - is there an equivalent in cfile? */
 
-guint  tap_update_timer_id;
+static gboolean have_capture_file = FALSE; /* XXX - is there an equivalent in cfile? */
+
+static guint  tap_update_timer_id;
 
 #ifdef _WIN32
 static gboolean has_console;	/* TRUE if app has console */
@@ -1421,7 +1422,7 @@ resolv_update_cb(gpointer data _U_)
 
 
 /* Set main_window_name and it's icon title to the capture filename */
-void
+static void
 set_display_filename(capture_file *cf)
 {
   gchar *window_name;
@@ -1435,7 +1436,7 @@ set_display_filename(capture_file *cf)
   }
 }
 
-GtkWidget           *close_dlg = NULL;
+static GtkWidget           *close_dlg = NULL;
 
 static void
 priv_warning_dialog_cb(gpointer dialog, gint btn _U_, gpointer data _U_)

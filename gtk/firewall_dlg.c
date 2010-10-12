@@ -145,7 +145,7 @@ typedef struct _fw_product_t {
     gboolean does_inbound;
 } fw_product;
 
-fw_product products[] = {
+static fw_product products[] = {
     { "Cisco IOS (standard)", "!", NULL, sf_ios_std_ipv4, NULL, NULL, FALSE },
     { "Cisco IOS (extended)", "!",
         NULL, sf_ios_ext_ipv4, sf_ios_ext_port, sf_ios_ext_ipv4_port, TRUE },

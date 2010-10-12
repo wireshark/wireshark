@@ -51,7 +51,7 @@
 #define SMB_EO_CONTAINS_READSANDWRITES	0x03
 #define LEGAL_FILENAME_CHARS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVXYZ1234567890_."
 
-const value_string smb_eo_contains_string[]={
+static const value_string smb_eo_contains_string[]={
 	{SMB_EO_CONTAINS_NOTHING,     		""},
 	{SMB_EO_CONTAINS_READS,     		"R"},
 	{SMB_EO_CONTAINS_WRITES,     		"W"},
@@ -86,7 +86,8 @@ static GSList	*GSL_active_files;
 static GTree	*btree_visited_packet;
 
 /* The comparison function for the btree_visited_packet */
-gint btree_visited_packet_cmpkey(gconstpointer keya, gconstpointer keyb, gpointer user_data) {
+static gint
+btree_visited_packet_cmpkey(gconstpointer keya, gconstpointer keyb, gpointer user_data) {
 	gint nop_value;
 	guint32 *a = (guint32 *)keya;
 	guint32 *b = (guint32 *)keyb;
@@ -117,7 +118,8 @@ typedef struct _free_chunk {
 			the last offset captured. In most cases, the real
 			file length would be different.
 */
-void insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_eo_t *eo_info)
+static void
+insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_eo_t *eo_info)
 {
         guint           nfreechunks = g_slist_length(file->free_chunk_list);
 	guint		i;
@@ -251,7 +253,8 @@ void insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_e
 }
 
 /* We use this function to obtain the index in the GSL of a given file */
-int find_incoming_file(GSList *GSL_active_files,active_file *incoming_file)
+static int
+find_incoming_file(GSList *GSL_active_files,active_file *incoming_file)
 {
 	int 	i,row,last;
 	active_file	*in_list_file;
