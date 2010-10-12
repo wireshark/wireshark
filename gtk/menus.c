@@ -4364,10 +4364,14 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
     GtkActionGroup *action_group;
     GtkAction *action;
     GtkWidget *submenu_recent_files;
-    //GtkRecentManager *manager;
+#if 0
+    GtkRecentManager *manager;
+#endif
     GList *items, *l;
-    //guint i;
-    //static guint changed_id = 0;
+#if 0
+    guint i;
+    static guint changed_id = 0;
+#endif
 
     action_group = gtk_action_group_new ("recent-files-group");
 
@@ -4377,16 +4381,18 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
     }
     items = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
 
-    //manager = gtk_recent_manager_get_default ();
+#if 0
+    manager = gtk_recent_manager_get_default ();
 
-    //items = gtk_recent_manager_get_items (manager);
-    //items = g_list_sort (items, (GCompareFunc) sort_mru_func);
+    items = gtk_recent_manager_get_items (manager);
+    items = g_list_sort (items, (GCompareFunc) sort_mru_func);
+#endif
 
     gtk_ui_manager_insert_action_group (ui_manager, action_group, 0);
     g_object_set_data (G_OBJECT (ui_manager),
                      "recent-files-merge-id", GUINT_TO_POINTER (merge_id));
 
-    ///* no items */
+    /* no items */
     if (!items){
 
       action = g_object_new (GTK_TYPE_ACTION,
@@ -4407,53 +4413,55 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
       return;
     }
 
-  //for (i = 0, l = items;
-  //     i < 4 && l != NULL;
-  //     i +=1, l = l->next)
-  //  {
-  //    GtkRecentInfo *info = l->data;
-  //    gchar *name = g_strdup_printf ("recent-info-%d-%lu",
-  //    				     i,
-		//		     (gulong) time (NULL));
-  //    gchar *action_name = g_strdup (name);
-  //    GtkAction *action;
+#if 0
+  for (i = 0, l = items;
+       i < 4 && l != NULL;
+       i +=1, l = l->next)
+    {
+      GtkRecentInfo *info = l->data;
+      gchar *name = g_strdup_printf ("recent-info-%d-%lu",
+      				     i,
+				     (gulong) time (NULL));
+      gchar *action_name = g_strdup (name);
+      GtkAction *action;
 
-  //    action = g_object_new (GTK_TYPE_ACTION,
-  //    			     "name", action_name,
-		//	     "label", gtk_recent_info_get_display_name (info),
-		//	     "stock_id", NULL,
-		//	     NULL);
-  //    g_object_set_data_full (G_OBJECT (action), "gtk-recent-info",
-  //                            gtk_recent_info_ref (info),
-		//	      (GDestroyNotify) gtk_recent_info_unref);
-  //    g_signal_connect (action, "activate",
-  //                      G_CALLBACK (recent_activate_cb), NULL);
-  //    gtk_action_group_add_action (action_group, action);
-  //    g_object_unref (action);
+      action = g_object_new (GTK_TYPE_ACTION,
+      			     "name", action_name,
+			     "label", gtk_recent_info_get_display_name (info),
+			     "stock_id", NULL,
+			     NULL);
+      g_object_set_data_full (G_OBJECT (action), "gtk-recent-info",
+                              gtk_recent_info_ref (info),
+			      (GDestroyNotify) gtk_recent_info_unref);
+      g_signal_connect (action, "activate",
+                        G_CALLBACK (recent_activate_cb), NULL);
+      gtk_action_group_add_action (action_group, action);
+      g_object_unref (action);
 
-  //    gtk_ui_manager_add_ui (ui_manager, merge_id,
-  //			     "/MenuBar/FileMenu/RecentFiles",
-		//	     name,
-		//	     action_name,
-		//	     GTK_UI_MANAGER_MENUITEM,
-		//	     FALSE);
-  //    
-  //    g_print ("* adding action `%s'\n", action_name);
+      gtk_ui_manager_add_ui (ui_manager, merge_id,
+  			     "/MenuBar/FileMenu/RecentFiles",
+			     name,
+			     action_name,
+			     GTK_UI_MANAGER_MENUITEM,
+			     FALSE);
+      
+      g_print ("* adding action `%s'\n", action_name);
 
-  //    g_free (action_name);
-  //    g_free (name);
-  //  }
-  //
-  //g_list_foreach (items, (GFunc) gtk_recent_info_unref, NULL);
-  //g_list_free (items);
+      g_free (action_name);
+      g_free (name);
+    }
+  
+  g_list_foreach (items, (GFunc) gtk_recent_info_unref, NULL);
+  g_list_free (items);
 
-  ///* don't connect twice to the same signal */
-  //if (!changed_id)
-  //  {
-  //    changed_id = g_signal_connect (manager, "changed",
-  //                                   G_CALLBACK (recent_manager_changed_cb),
-		//		     ui_manager);
-  //  }
+  /* don't connect twice to the same signal */
+  if (!changed_id)
+    {
+      changed_id = g_signal_connect (manager, "changed",
+                                     G_CALLBACK (recent_manager_changed_cb),
+				     ui_manager);
+    }
+#endif
 }
 #endif
 #endif /* MAIN_MENU_USE_UIMANAGER */
