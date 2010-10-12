@@ -150,9 +150,7 @@ GtkWidget *popup_menu_object;
 static void merge_all_tap_menus(GList *node);
 static void clear_menu_recent_capture_file_cmd_cb(GtkWidget *w, gpointer unused _U_);
 #ifdef MAIN_MENU_USE_UIMANAGER
-#if 0
 static void add_recent_items (guint merge_id, GtkUIManager *ui_manager);
-#endif
 #endif /* MAIN_MENU_USE_UIMANAGER */
 
 static void menus_init(void);
@@ -3627,9 +3625,7 @@ menus_init(void) {
 	   * gtk_ui_manager_add_ui().
 	   */
 	  merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
-#if 0
 	  add_recent_items (merge_id, ui_manager_main_menubar);
-#endif
 #else /* MAIN_MENU_USE_UIMANAGER */
         main_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", grp);
         gtk_item_factory_create_items_ac(main_menu_factory, nmenu_items, menu_items, NULL, 2);
@@ -4357,21 +4353,27 @@ remove_menu_recent_capture_file(GtkWidget *widget, gpointer unused _U_) {
 }
 
 #ifdef MAIN_MENU_USE_UIMANAGER
+void
+recent_activate_cb (GtkAction *action,
+		    gpointer   user_data)
+{
 #if 0
+  recent_item_activated_cb (NULL,
+                            g_object_get_data (G_OBJECT (action), "gtk-recent-info"),
+			    user_data);
+#endif
+}
+
 static void
 add_recent_items (guint merge_id, GtkUIManager *ui_manager)
 {
     GtkActionGroup *action_group;
     GtkAction *action;
     GtkWidget *submenu_recent_files;
-#if 0
-    GtkRecentManager *manager;
-#endif
     GList *items, *l;
-#if 0
-    guint i;
-    static guint changed_id = 0;
-#endif
+	gchar *name;
+	gchar *action_name;
+	guint i;
 
     action_group = gtk_action_group_new ("recent-files-group");
 
@@ -4380,13 +4382,6 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
         g_warning("add_recent_items: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
     }
     items = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
-
-#if 0
-    manager = gtk_recent_manager_get_default ();
-
-    items = gtk_recent_manager_get_items (manager);
-    items = g_list_sort (items, (GCompareFunc) sort_mru_func);
-#endif
 
     gtk_ui_manager_insert_action_group (ui_manager, action_group, 0);
     g_object_set_data (G_OBJECT (ui_manager),
@@ -4412,58 +4407,40 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
       
       return;
     }
+	g_warning("Got items");
 
-#if 0
   for (i = 0, l = items;
-       i < 4 && l != NULL;
+       i < prefs.gui_recent_files_count_max && l != NULL;
        i +=1, l = l->next)
     {
-      GtkRecentInfo *info = l->data;
-      gchar *name = g_strdup_printf ("recent-info-%d-%lu",
-      				     i,
-				     (gulong) time (NULL));
-      gchar *action_name = g_strdup (name);
-      GtkAction *action;
+	 gchar *item_name = l->data;
+      name = g_strdup_printf ("recent-info-%u", i);
+      action_name = g_strdup (name);
 
       action = g_object_new (GTK_TYPE_ACTION,
-      			     "name", action_name,
-			     "label", gtk_recent_info_get_display_name (info),
-			     "stock_id", NULL,
+      			 "name", action_name,
+			     "label", item_name,
+			     "stock_id", GTK_STOCK_FILE,
 			     NULL);
-      g_object_set_data_full (G_OBJECT (action), "gtk-recent-info",
-                              gtk_recent_info_ref (info),
-			      (GDestroyNotify) gtk_recent_info_unref);
+      g_object_set_data (G_OBJECT (action), "gtk-recent-info", item_name);
       g_signal_connect (action, "activate",
                         G_CALLBACK (recent_activate_cb), NULL);
       gtk_action_group_add_action (action_group, action);
       g_object_unref (action);
 
       gtk_ui_manager_add_ui (ui_manager, merge_id,
-  			     "/MenuBar/FileMenu/RecentFiles",
+  			     "/Menubar/FileMenu/OpenRecent/RecentFiles",
 			     name,
 			     action_name,
 			     GTK_UI_MANAGER_MENUITEM,
 			     FALSE);
       
-      g_print ("* adding action `%s'\n", action_name);
 
       g_free (action_name);
       g_free (name);
     }
   
-  g_list_foreach (items, (GFunc) gtk_recent_info_unref, NULL);
-  g_list_free (items);
-
-  /* don't connect twice to the same signal */
-  if (!changed_id)
-    {
-      changed_id = g_signal_connect (manager, "changed",
-                                     G_CALLBACK (recent_manager_changed_cb),
-				     ui_manager);
-    }
-#endif
 }
-#endif
 #endif /* MAIN_MENU_USE_UIMANAGER */
 /* callback, if the user pushed the <Clear> menu item */
 static void
@@ -4584,6 +4561,43 @@ menu_open_recent_file_cmd_cb(GtkWidget *widget, gpointer data _U_) {
     }
 }
 
+static void
+recent_changed_cb (GtkUIManager *ui_manager,
+			   gpointer          user_data _U_)
+{
+  guint merge_id;
+  GList *action_groups, *l;
+
+
+  merge_id = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT (ui_manager),
+  						  "recent-files-merge-id"));
+  
+  /* remove the UIs */
+  gtk_ui_manager_remove_ui (ui_manager, merge_id);
+
+  /* remove the action group; gtk_ui_manager_remove_action_group()
+   * should really take the action group's name instead of its 
+   * pointer.
+   */
+  action_groups = gtk_ui_manager_get_action_groups (ui_manager);
+  for (l = action_groups; l != NULL; l = l->next)
+    {
+      GtkActionGroup *group = l->data;
+
+      if (strcmp (gtk_action_group_get_name (group), "recent-files-group") == 0)
+        {
+	  /* this unrefs the action group and all of its actions */
+	  gtk_ui_manager_remove_action_group (ui_manager, group);
+	  break;
+	}
+    }
+
+  /* generate a new merge id and re-add everything */
+  merge_id = gtk_ui_manager_new_merge_id (ui_manager);
+  add_recent_items (merge_id, ui_manager);
+}
+
+
 /* add the capture filename (with an absolute path) to the "Recent Files" menu */
 static void
 add_menu_recent_capture_file_absolute(gchar *cf_name) {
@@ -4611,8 +4625,30 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
     submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
     if(!submenu_recent_files){
         g_warning("add_menu_recent_capture_file_absolute: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
+		return;
     }
 	recent_files_list = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
+    cnt = 1;
+    for (li = g_list_first(recent_files_list); li; li = li->next, cnt++) {
+		widget_cf_name = li->data;
+        if (
+#ifdef _WIN32
+            /* do a case insensitive compare on win32 */
+            g_ascii_strncasecmp(widget_cf_name, normalized_cf_name, 1000) == 0 ||
+#else   /* _WIN32 */
+            /* do a case sensitive compare on unix */
+            strncmp(widget_cf_name, normalized_cf_name, 1000) == 0 ||
+#endif
+            cnt >= prefs.gui_recent_files_count_max) {
+            recent_files_list = g_list_remove(recent_files_list,widget_cf_name);
+            cnt--;
+        }
+    }
+	recent_files_list = g_list_prepend(recent_files_list, normalized_cf_name);
+	g_object_set_data(G_OBJECT(submenu_recent_files), "recent-files-list", recent_files_list);
+	g_warning("Rebuilding gui");
+	recent_changed_cb( ui_manager_main_menubar, NULL);
+	return;
 #else
     submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH_OLD);
 #endif
@@ -4645,11 +4681,8 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
     }
 
     g_list_free(menu_item_list_old);
-#if 0
-	recent_files_list = g_list_prepend(recent_files_list, normalized_cf_name);
-	g_object_set_data(G_OBJECT(submenu_recent_files), "recent-files-list", recent_files_list);
-#endif
-    /* add new item at latest position */
+
+	/* add new item at latest position */
     menu_item = gtk_menu_item_new_with_label(normalized_cf_name);
     g_object_set_data(G_OBJECT(menu_item), MENU_RECENT_FILES_KEY, normalized_cf_name);
     gtk_menu_shell_prepend (GTK_MENU_SHELL(submenu_recent_files), menu_item);
@@ -4707,12 +4740,28 @@ menu_recent_file_write_all(FILE *rf) {
     GList       *children;
     GList       *child;
     gchar       *cf_name;
-
 #ifdef MAIN_MENU_USE_UIMANAGER
+	GList       *recent_files_list, *list;
+
     submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
     if(!submenu_recent_files){
         g_warning("menu_recent_file_write_all: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
     }
+	recent_files_list = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
+	list =  g_list_last(recent_files_list);
+	while(list != NULL) {
+		cf_name = list->data;
+		if (cf_name) {
+			if(u3_active())
+				fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", u3_contract_device_path(cf_name));
+			else
+				fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", cf_name);
+		}
+		list = g_list_previous(list);
+	}
+	g_list_free(recent_files_list);
+	return;
+
 #else
     submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH_OLD);
 #endif
