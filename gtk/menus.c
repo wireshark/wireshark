@@ -4353,9 +4353,62 @@ remove_menu_recent_capture_file(GtkWidget *widget, gpointer unused _U_) {
 }
 
 #ifdef MAIN_MENU_USE_UIMANAGER
-void
-recent_activate_cb (GtkAction *action,
-		    gpointer   user_data)
+static void
+recent_changed_cb (GtkUIManager *ui_manager,
+			   gpointer          user_data _U_)
+{
+  guint merge_id;
+  GList *action_groups, *l;
+
+
+  merge_id = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT (ui_manager),
+  						  "recent-files-merge-id"));
+  
+  /* remove the UI */
+  gtk_ui_manager_remove_ui (ui_manager, merge_id);
+
+  /* remove the action group; gtk_ui_manager_remove_action_group()
+   * should really take the action group's name instead of its 
+   * pointer.
+   */
+  action_groups = gtk_ui_manager_get_action_groups (ui_manager);
+  for (l = action_groups; l != NULL; l = l->next)
+    {
+      GtkActionGroup *group = l->data;
+
+      if (strcmp (gtk_action_group_get_name (group), "recent-files-group") == 0){
+		  /* this unrefs the action group and all of its actions */
+	      gtk_ui_manager_remove_action_group (ui_manager, group);
+	      break;
+	  }
+  }
+
+  /* generate a new merge id and re-add everything */
+  merge_id = gtk_ui_manager_new_merge_id (ui_manager);
+  add_recent_items (merge_id, ui_manager);
+}
+
+static void
+recent_clear_cb(GtkAction *action, gpointer   user_data)
+{
+	GtkWidget *submenu_recent_files;
+	GList *recent_files_list;
+
+	/* Get the list of recent files, free the list and store the empty list with the widget */
+	submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
+	recent_files_list = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
+	/* Free the name strings ?? */
+	g_list_free(recent_files_list);
+	recent_files_list = NULL;
+	g_object_set_data(G_OBJECT(submenu_recent_files), "recent-files-list", recent_files_list);
+	/* Calling recent_changed_cb will rebuild the GUI call add_recent_items which will in turn call 
+	 * main_welcome_reset_recent_capture_files
+	 */
+	recent_changed_cb(ui_manager_main_menubar, NULL);
+}
+
+static void
+recent_activate_cb (GtkAction *action, gpointer   user_data)
 {
 #if 0
   recent_item_activated_cb (NULL,
@@ -4374,6 +4427,9 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
 	gchar *name;
 	gchar *action_name;
 	guint i;
+
+	/* Reset the recent files list in the welcome screen */
+	main_welcome_reset_recent_capture_files();
 
     action_group = gtk_action_group_new ("recent-files-group");
 
@@ -4407,7 +4463,6 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
       
       return;
     }
-	g_warning("Got items");
 
   for (i = 0, l = items;
        i < prefs.gui_recent_files_count_max && l != NULL;
@@ -4420,7 +4475,7 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
       action = g_object_new (GTK_TYPE_ACTION,
       			 "name", action_name,
 			     "label", item_name,
-			     "stock_id", GTK_STOCK_FILE,
+			     "stock_id", WIRESHARK_STOCK_FILE,
 			     NULL);
       g_object_set_data (G_OBJECT (action), "gtk-recent-info", item_name);
       g_signal_connect (action, "activate",
@@ -4434,11 +4489,40 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
 			     action_name,
 			     GTK_UI_MANAGER_MENUITEM,
 			     FALSE);
-      
+
+	  /* Add the file name to the recent files list on the Welcome screen */
+	  main_welcome_add_recent_capture_files(item_name);
 
       g_free (action_name);
       g_free (name);
     }
+    /* Add a Separator */
+    gtk_ui_manager_add_ui (ui_manager, merge_id,
+		     "/Menubar/FileMenu/OpenRecent/RecentFiles",
+		     "separator-recent-info",
+		     "separator-recent-info",
+		     GTK_UI_MANAGER_SEPARATOR,
+		     FALSE);
+
+	/* Add a clear Icon */
+    action = g_object_new (GTK_TYPE_ACTION,
+  			 "name", "clear-recent-info",
+             "label", "Clear the recent files list",
+			 "stock_id", GTK_STOCK_CLEAR,
+		     NULL);
+
+	g_signal_connect (action, "activate",
+                        G_CALLBACK (recent_clear_cb), NULL);
+
+    gtk_action_group_add_action (action_group, action);
+    g_object_unref (action);
+
+    gtk_ui_manager_add_ui (ui_manager, merge_id,
+		     "/Menubar/FileMenu/OpenRecent/RecentFiles",
+		     "clear-recent-info",
+		     "clear-recent-info",
+		     GTK_UI_MANAGER_MENUITEM,
+		     FALSE);
   
 }
 #endif /* MAIN_MENU_USE_UIMANAGER */
@@ -4561,43 +4645,6 @@ menu_open_recent_file_cmd_cb(GtkWidget *widget, gpointer data _U_) {
     }
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
-static void
-recent_changed_cb (GtkUIManager *ui_manager,
-			   gpointer          user_data _U_)
-{
-  guint merge_id;
-  GList *action_groups, *l;
-
-
-  merge_id = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT (ui_manager),
-  						  "recent-files-merge-id"));
-  
-  /* remove the UIs */
-  gtk_ui_manager_remove_ui (ui_manager, merge_id);
-
-  /* remove the action group; gtk_ui_manager_remove_action_group()
-   * should really take the action group's name instead of its 
-   * pointer.
-   */
-  action_groups = gtk_ui_manager_get_action_groups (ui_manager);
-  for (l = action_groups; l != NULL; l = l->next)
-    {
-      GtkActionGroup *group = l->data;
-
-      if (strcmp (gtk_action_group_get_name (group), "recent-files-group") == 0)
-        {
-	  /* this unrefs the action group and all of its actions */
-	  gtk_ui_manager_remove_action_group (ui_manager, group);
-	  break;
-	}
-    }
-
-  /* generate a new merge id and re-add everything */
-  merge_id = gtk_ui_manager_new_merge_id (ui_manager);
-  add_recent_items (merge_id, ui_manager);
-}
-#endif /* MAIN_MENU_USE_UIMANAGER */
 
 /* add the capture filename (with an absolute path) to the "Recent Files" menu */
 static void
@@ -4647,7 +4694,6 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
     }
 	recent_files_list = g_list_prepend(recent_files_list, normalized_cf_name);
 	g_object_set_data(G_OBJECT(submenu_recent_files), "recent-files-list", recent_files_list);
-	g_warning("Rebuilding gui");
 	recent_changed_cb( ui_manager_main_menubar, NULL);
 	return;
 #else
