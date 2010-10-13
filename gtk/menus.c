@@ -4561,6 +4561,7 @@ menu_open_recent_file_cmd_cb(GtkWidget *widget, gpointer data _U_) {
     }
 }
 
+#ifdef MAIN_MENU_USE_UIMANAGER
 static void
 recent_changed_cb (GtkUIManager *ui_manager,
 			   gpointer          user_data _U_)
@@ -4596,7 +4597,7 @@ recent_changed_cb (GtkUIManager *ui_manager,
   merge_id = gtk_ui_manager_new_merge_id (ui_manager);
   add_recent_items (merge_id, ui_manager);
 }
-
+#endif /* MAIN_MENU_USE_UIMANAGER */
 
 /* add the capture filename (with an absolute path) to the "Recent Files" menu */
 static void
