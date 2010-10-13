@@ -30,6 +30,8 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+#include <epan/value_string.h>
+
 #include "packet-q708.h"
 
 static int proto_q708 = -1;
@@ -44,7 +46,7 @@ static int hf_q708_ispc_operator_name = -1;
  *
  * Mapping of SANC to Geographical Area or Signalling Network
  */
-const value_string q708_sanc_areas[] = {
+static const value_string q708_sanc_areas[] = {
 	{  512, "Liechtenstein (Principality of)" },
 	{  513, "Italy" },
 	{  514, "Netherlands (Kingdom of the)" },
@@ -971,7 +973,7 @@ const value_string q708_sanc_areas[] = {
  *
  * Mapping of ISPC to Unique name of the signalling point
  */
-const value_string q708_ispc_point_name[] = {
+static const value_string q708_ispc_point_name[] = {
 	{  4096, "LTN ISC Vaduz" },
 	{  4097, "LTN ISC Eschen" },
 	{  4099, "Mobilikom GMSC Mauren" },
@@ -6365,7 +6367,7 @@ const value_string q708_ispc_point_name[] = {
  *
  * Mapping of ISPC to Name of the signalling point operator
  */
-const value_string q708_ispc_operator_name[] = {
+static const value_string q708_ispc_operator_name[] = {
 	{  4096, "LTN Liechtenstein TeleNet AG" },
 	{  4097, "LTN Liechtenstein TeleNet AG" },
 	{  4099, "Mobilkom (Liechtenstein) AG" },
@@ -11752,9 +11754,9 @@ const value_string q708_ispc_operator_name[] = {
 	{  0, NULL }
 };
 
-static value_string_ext q708_ispc_point_name_ext = VALUE_STRING_EXT_INIT(q708_ispc_point_name);
-static value_string_ext q708_ispc_operator_name_ext = VALUE_STRING_EXT_INIT(q708_ispc_operator_name);
-static value_string_ext q708_sanc_areas_ext = VALUE_STRING_EXT_INIT(q708_sanc_areas);
+value_string_ext q708_ispc_point_name_ext = VALUE_STRING_EXT_INIT(q708_ispc_point_name);
+value_string_ext q708_ispc_operator_name_ext = VALUE_STRING_EXT_INIT(q708_ispc_operator_name);
+value_string_ext q708_sanc_areas_ext = VALUE_STRING_EXT_INIT(q708_sanc_areas);
 
 /*
  * International signalling point codes (i.e. PCs with ni = 0) are allocated by the ITU,
@@ -11771,12 +11773,12 @@ analyze_q708_ispc(tvbuff_t *tvb, proto_tree *tree, int offset, int length, guint
 
 	proto_tree_add_uint_format_value(tree, hf_q708_sanc, tvb, offset, length, sanc,
 		"%s (%u-%03u)",
-		val_to_str(sanc, q708_sanc_areas, "Unknown"),
+		val_to_str_ext_const(sanc, &q708_sanc_areas_ext, "Unknown"),
 		sanc >> 8, sanc & 0xff);
 	proto_tree_add_string(tree, hf_q708_ispc_name, tvb, offset, length,
-		val_to_str_ext(ispc, &q708_ispc_point_name_ext, "Unknown"));
+		val_to_str_ext_const(ispc, &q708_ispc_point_name_ext, "Unknown"));
 	proto_tree_add_string(tree, hf_q708_ispc_operator_name, tvb, offset, length,
-		val_to_str_ext(ispc, &q708_ispc_operator_name_ext, "Unknown"));
+		val_to_str_ext_const(ispc, &q708_ispc_operator_name_ext, "Unknown"));
 }
 
 void
