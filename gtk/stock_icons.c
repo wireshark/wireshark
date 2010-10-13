@@ -76,7 +76,7 @@
 #include "../image/toolbar/voip_flow_24.xpm"
 #include "../image/toolbar/telephone_16.xpm"
 #include "../image/toolbar/analyze_24.xpm"
-
+#include "../image/WiresharkDoc_24.xpm"
 
 typedef struct stock_pixmap_tag{
     const char *    name;
@@ -157,7 +157,8 @@ void stock_icons_init(void) {
         { WIRESHARK_STOCK_VOIP_FLOW,             "Flow",                   0, 0, NULL },
         { WIRESHARK_STOCK_TELEPHONE,             "Telephone",              0, 0, NULL },
         { WIRESHARK_STOCK_PREPARE_FILTER,        "Prepare Filter",         0, 0, NULL },
-        { WIRESHARK_STOCK_ANALYZE,               "Analyze",                0, 0, NULL }
+        { WIRESHARK_STOCK_ANALYZE,               "Analyze",                0, 0, NULL },
+		{ WIRESHARK_STOCK_FILE,                  "File",                   0, 0, NULL }
     };
 
     static const stock_pixmap_t pixmaps[] = {
@@ -213,6 +214,7 @@ void stock_icons_init(void) {
         { WIRESHARK_STOCK_TELEPHONE,             telephone_16_xpm},
         { WIRESHARK_STOCK_PREPARE_FILTER,        display_filter_24_xpm},
         { WIRESHARK_STOCK_ANALYZE,               analyze_24_xpm},
+		{ WIRESHARK_STOCK_FILE,                  WiresharkDoc_24_xpm},
         { NULL, NULL }
     };
 

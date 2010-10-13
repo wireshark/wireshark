@@ -677,6 +677,7 @@ EXTRA_DIST = \
 	image/stock_dialog_stop_48.xpm	\
 	image/stock_dialog_warning_48.xpm	\
 	image/text2pcap.rc.in	\
+	image/WiresharkDoc_24.xpm	\
 	image/toolbar/analyze_24.xpm \
 	image/toolbar/audio_player_24.xpm	\
 	image/toolbar/autoscroll_24.xpm	\
