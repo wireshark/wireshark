@@ -65,8 +65,8 @@ proto_register_dtsprovider (void)
 	    { "Operation", "dtsprovider.opnum", FT_UINT16, BASE_DEC,
 	      NULL, 0x0, NULL, HFILL }},
 	  { &hf_dtsprovider_status,
-	    { "Status", "dtsprovider.status", FT_UINT32, BASE_DEC,
-	      VALS(dce_error_vals), 0x0, "Return code, status of executed command", HFILL }}
+	    { "Status", "dtsprovider.status", FT_UINT32, BASE_DEC|BASE_EXT_STRING,
+	      &dce_error_vals_ext, 0x0, "Return code, status of executed command", HFILL }}
 	};
 
 	static gint *ett[] = {

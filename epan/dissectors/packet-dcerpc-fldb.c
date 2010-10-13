@@ -223,14 +223,14 @@ static const guint8 *st_str;
 
 #define MACRO_ST_CLEAR(name) \
   offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_error_st, &st); \
- st_str = val_to_str (st, dce_error_vals, "%u"); \
- if (st){ \
-if (check_col (pinfo->cinfo, COL_INFO)) \
-    col_add_fstr (pinfo->cinfo, COL_INFO, "%s st:%s ", name, st_str); \
-  }else{ \
-if (check_col (pinfo->cinfo, COL_INFO)) \
-    col_append_fstr (pinfo->cinfo, COL_INFO, " st:%s ", st_str); \
-}
+  st_str = val_to_str_ext (st, &dce_error_vals_ext, "%u");              \
+  if (st){                                                              \
+    if (check_col (pinfo->cinfo, COL_INFO))                             \
+      col_add_fstr (pinfo->cinfo, COL_INFO, "%s st:%s ", name, st_str); \
+  } else{                                                                \
+    if (check_col (pinfo->cinfo, COL_INFO))                             \
+      col_append_fstr (pinfo->cinfo, COL_INFO, " st:%s ", st_str);      \
+  }
 
 static int
 dissect_afsnetaddr (tvbuff_t * tvb, int offset,

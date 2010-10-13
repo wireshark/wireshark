@@ -27,6 +27,6 @@
 #ifndef __PACKET_DCERPC__DCE122_H__
 #define __PACKET_DCERPC__DCE122_H__
 
-extern const value_string dce_error_vals[];
+extern value_string_ext dce_error_vals_ext;
 
 #endif

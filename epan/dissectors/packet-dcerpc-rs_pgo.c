@@ -157,7 +157,7 @@ dissect_error_status_t (tvbuff_t * tvb, int offset,
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_error_status_t,
 			&st);
-  st_str = val_to_str (st, dce_error_vals, "%u");
+  st_str = val_to_str_ext (st, &dce_error_vals_ext, "%u");
 
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " st:%s ", st_str);
@@ -977,7 +977,7 @@ dissect_rs_pgo_query_result_t (tvbuff_t * tvb, int offset,
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_rs_pgo_query_result_t, &st);
-  status = val_to_str (st, dce_error_vals, "%u");
+  status = val_to_str_ext (st, &dce_error_vals_ext, "%u");
 
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " status:%s ", status);
