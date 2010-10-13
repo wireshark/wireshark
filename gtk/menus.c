@@ -4500,7 +4500,7 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
     gtk_ui_manager_add_ui (ui_manager, merge_id,
 		     "/Menubar/FileMenu/OpenRecent/RecentFiles",
 		     "separator-recent-info",
-		     "separator-recent-info",
+		     NULL,
 		     GTK_UI_MANAGER_SEPARATOR,
 		     FALSE);
 
@@ -4554,15 +4554,30 @@ menu_open_filename(gchar *cf_name)
 {
     GtkWidget *submenu_recent_files;
     int       err;
-
 #ifdef MAIN_MENU_USE_UIMANAGER
+	GList *recent_files_list;
+
+
     submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
     if(!submenu_recent_files){
         g_warning("menu_open_filename: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
     }
+	recent_files_list = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
+	/* Remove the item from the list, we will reinsert it at the top if it still exists */
+    /* XXX: ask user to remove item, it's maybe only a temporary problem */
+	recent_files_list = g_list_remove(recent_files_list, cf_name);
+    /* open and read the capture file (this will close an existing file) */
+    if (cf_open(&cfile, cf_name, FALSE, &err) == CF_OK) {
+        cf_read(&cfile, FALSE);
+		recent_files_list = g_list_prepend(recent_files_list, cf_name);
+    }
+	g_object_set_data(G_OBJECT(submenu_recent_files), "recent-files-list", recent_files_list);
+	/* Calling recent_changed_cb will rebuild the GUI call add_recent_items which will in turn call 
+	 * main_welcome_reset_recent_capture_files
+	 */
+	recent_changed_cb(ui_manager_main_menubar, NULL);
 #else
     submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH_OLD);
-#endif
     /* open and read the capture file (this will close an existing file) */
     if (cf_open(&cfile, cf_name, FALSE, &err) == CF_OK) {
         cf_read(&cfile, FALSE);
@@ -4573,6 +4588,7 @@ menu_open_filename(gchar *cf_name)
     }
 
     update_menu_recent_capture_file(submenu_recent_files);
+#endif /* MAIN_MENU_USE_UIMANAGER */
 }
 
 
