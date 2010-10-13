@@ -2787,7 +2787,6 @@ main(int argc, char *argv[])
      changed either from one of the preferences file or from the command
      line that their preferences have changed. */
   prefs_apply_all();
-  macros_post_update();
 
   /* disabled protocols as per configuration file */
   if (gdp_path == NULL && dp_path == NULL) {
@@ -3731,6 +3730,7 @@ void change_configuration_profile (const gchar *profile_name)
 
    prefs_to_capture_opts();
    prefs_apply_all();
+   macros_post_update();
 
    /* Update window view and redraw the toolbar */
    update_main_window_name();
