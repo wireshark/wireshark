@@ -478,13 +478,13 @@ goto_conversation_frame(gboolean dir)
 
 #ifdef MAIN_MENU_USE_UIMANAGER
 static void
-goto_next_frame_conversation_cb(GtkAction *action _U_, gpointer user_data)
+goto_next_frame_conversation_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
     goto_conversation_frame(FALSE);
 }
 
 static void
-goto_previous_frame_conversation_cb(GtkAction *action _U_, gpointer user_data)
+goto_previous_frame_conversation_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
     goto_conversation_frame(TRUE);
 }
@@ -4282,6 +4282,7 @@ update_menu_recent_capture_file(GtkWidget *submenu_recent_files) {
 
 
 
+#ifndef MAIN_MENU_USE_UIMANAGER
 /* remove the capture filename from the "Recent Files" menu */
 static void
 remove_menu_recent_capture_filename(gchar *cf_name) {
@@ -4325,7 +4326,7 @@ remove_menu_recent_capture_filename(gchar *cf_name) {
 
     update_menu_recent_capture_file(submenu_recent_files);
 }
-
+#endif
 
 /* remove the capture filename from the "Recent Files" menu */
 static void
@@ -4389,7 +4390,7 @@ recent_changed_cb (GtkUIManager *ui_manager,
 }
 
 static void
-recent_clear_cb(GtkAction *action, gpointer   user_data)
+recent_clear_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 	GtkWidget *submenu_recent_files;
 	GList *recent_files_list;
@@ -4408,7 +4409,7 @@ recent_clear_cb(GtkAction *action, gpointer   user_data)
 }
 
 static void
-recent_activate_cb (GtkAction *action, gpointer   user_data)
+recent_activate_cb (GtkAction *action _U_, gpointer user_data _U_)
 {
 #if 0
   recent_item_activated_cb (NULL,
