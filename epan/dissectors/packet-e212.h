@@ -28,7 +28,7 @@
 
 #include <epan/value_string.h>
 
-extern const value_string E212_codes[];
+extern value_string_ext E212_codes_ext;
 
 int dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean little_endian);
 int dissect_e212_mcc_mnc_in_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);

@@ -6140,7 +6140,7 @@ proto_register_bssgp(void)
     },
     { &hf_bssgp_mcc,
       { "MCC", "bssgp.mcc",
-	FT_UINT8, BASE_DEC, VALS(E212_codes), 0x0,
+	FT_UINT8, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0,
 	NULL, HFILL }
     },
     { &hf_bssgp_mnc,
