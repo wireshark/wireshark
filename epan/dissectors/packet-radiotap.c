@@ -1126,7 +1126,13 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 		case IEEE80211_RADIOTAP_RATE:
 			rate = tvb_get_guint8(tvb, offset);
-			if (rate & 0x80) {
+			/*
+			 * XXX On FreeBSD rate & 0x80 means we have an MCS. On
+			 * Linux and AirPcap it does not. If the check below
+			 * doesn't work we may have to add a rate interpretation
+			 * preference.
+			 */
+			if (rate >= 0x80 && rate <= 0x8f) {
 				/* XXX adjust by CW and short GI like other sniffers? */
 				rate = ieee80211_htrates[rate & 0xf];
 			}
