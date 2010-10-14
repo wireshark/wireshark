@@ -195,7 +195,7 @@ field_select_row_cb(GtkTreeSelection *sel, gpointer tree)
         if ((hfinfo->strings != NULL) & !(hfinfo->display & BASE_RANGE_STRING)) {
             const value_string *vals = hfinfo->strings;
             if (hfinfo->display & BASE_EXT_STRING)
-                vals = ((value_string_ext *) vals)->vals;
+                vals = VALUE_STRING_EXT_VS_P((value_string_ext *) vals);
             build_enum_values(value_list_scrolled_win, value_list, vals);
         } else
             gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(value_list))));

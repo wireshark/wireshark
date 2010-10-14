@@ -130,8 +130,9 @@ struct _diam_avp_t {
 	void* type_data;
 };
 
-#define VND_AVP_VS(v) ((value_string*)(void*)((v)->vs_avps->data))
-#define VND_CMD_VS(v) ((value_string*)(void*)((v)->vs_cmds->data))
+#define VND_AVP_VS(v)      ((value_string*)(void*)((v)->vs_avps->data))
+#define VND_AVP_VS_LEN(v)  ((v)->vs_avps->len)
+#define VND_CMD_VS(v)      ((value_string*)(void*)((v)->vs_cmds->data))
 
 typedef struct _diam_dictionary_t {
 	emem_tree_t* avps;
@@ -182,9 +183,8 @@ typedef struct _proto_avp_t {
 static const char* simple_avp(diam_ctx_t*, diam_avp_t*, tvbuff_t*);
 
 static const value_string no_vs[] = {{0, NULL} };
-static GArray no_garr = { (void*)no_vs, 1 };
-static value_string_ext no_vs_avps_ext = { (value_string_match_t) match_strval_ext_init, 0, (void*)no_vs};
-static diam_vnd_t unknown_vendor = { 0xffffffff, &no_garr, &no_vs_avps_ext,  &no_garr };
+static GArray no_garr = { (void*)no_vs, 0 };
+static diam_vnd_t unknown_vendor = { 0xffffffff, &no_garr, NULL,  &no_garr };
 static diam_vnd_t no_vnd = { 0, NULL, NULL, NULL };
 static diam_avp_t unknown_avp = {0, &unknown_vendor, simple_avp, simple_avp, -1, -1, NULL };
 static GArray* all_cmds;
@@ -344,28 +344,24 @@ dissect_diameter_eap_payload(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 static int
 dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset)
 {
-	guint32 code = tvb_get_ntohl(tvb,offset);
-	guint32 len = tvb_get_ntohl(tvb,offset+4);
-	guint32 vendor_flag = len & 0x80000000;
+	guint32 code           = tvb_get_ntohl(tvb,offset);
+	guint32 len            = tvb_get_ntohl(tvb,offset+4);
+	guint32 vendor_flag    = len & 0x80000000;
 	guint32 flags_bits_idx = (len & 0xE0000000) >> 29;
-	guint32 flags_bits = (len & 0xFF000000) >> 24;
-	guint32 vendorid = vendor_flag ? tvb_get_ntohl(tvb,offset+8) : 0 ;
-	emem_tree_key_t k[] = {
+	guint32 flags_bits     = (len & 0xFF000000) >> 24;
+	guint32 vendorid       = vendor_flag ? tvb_get_ntohl(tvb,offset+8) : 0 ;
+	emem_tree_key_t k[]    = {
 		{1,&code},
 		{1,&vendorid},
 		{0,NULL}
 	};
-	diam_avp_t* a = emem_tree_lookup32_array(dictionary.avps,k);
+	diam_avp_t* a          = emem_tree_lookup32_array(dictionary.avps,k);
 	proto_item *pi, *avp_item;
 	proto_tree *avp_tree, *save_tree;
 	tvbuff_t* subtvb;
-	const diam_vnd_t* vendor;
-	value_string* vendor_avp_vs;
+	diam_vnd_t* vendor;
 	const char* code_str;
 	const char* avp_str;
-#if 0
-	gint i = 0;
-#endif
 	len &= 0x00ffffff;
 
 	if (!a) {
@@ -378,24 +374,23 @@ dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset)
 			vendor = &no_vnd;
 		}
 	} else {
-		vendor = a->vendor;
+		vendor = (diam_vnd_t *)a->vendor;
 	}
 
-	if(vendor->vs_avps_ext->vals == NULL){
+	if(vendor->vs_avps_ext == NULL) {
 		g_array_sort(vendor->vs_avps, compare_avps);
-		/* Get dictionary of AVPs matching found vendor */
-		vendor_avp_vs = VND_AVP_VS(vendor);
-		vendor->vs_avps_ext->vals = vendor_avp_vs;
+		vendor->vs_avps_ext = value_string_ext_new(VND_AVP_VS(vendor), VND_AVP_VS_LEN(vendor)+1, 
+                                                           "diameter_vendor");
 #if 0
-		Debug code
-		while(vendor_avp_vs[i].strptr!=NULL){
-			g_warning("%u %s",vendor_avp_vs[i].value,vendor_avp_vs[i].strptr);
-			i++;
+		{ /* Debug code */
+			value_string* vendor_avp_vs=VALUE_STRING_EXT_VS_P(vendor->vs_avps_ext);
+			gint i = 0;
+			while(vendor_avp_vs[i].strptr!=NULL){
+				g_warning("%u %s",vendor_avp_vs[i].value,vendor_avp_vs[i].strptr);
+				i++;
+			}
 		}
 #endif
-	}else{
-		/* Get dictionary of AVPs matching found vendor */
-		vendor_avp_vs = VND_AVP_VS(vendor);
 	}
 
 	/* Add root of tree for this AVP */
@@ -403,7 +398,7 @@ dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset)
 	avp_tree = proto_item_add_subtree(avp_item,a->ett);
 
 	pi = proto_tree_add_item(avp_tree,hf_diameter_avp_code,tvb,offset,4,FALSE);
-	code_str = val_to_str_ext(code, vendor->vs_avps_ext, "Unknown");
+	code_str = val_to_str_ext_const(code, vendor->vs_avps_ext, "Unknown");
 	proto_item_append_text(pi," %s", code_str);
 
 	/* Code */
@@ -1230,9 +1225,6 @@ dictionary_load(void)
 
 	no_vnd.vs_cmds = g_array_new(TRUE,TRUE,sizeof(value_string));
 	no_vnd.vs_avps = g_array_new(TRUE,TRUE,sizeof(value_string));
-	no_vnd.vs_avps_ext = g_malloc0(sizeof(value_string_ext));
-	no_vnd.vs_avps_ext->match = (value_string_match_t) match_strval_ext_init;
-	no_vnd.vs_avps_ext->length = 0;
 
 	all_cmds = g_array_new(TRUE,TRUE,sizeof(value_string));
 
@@ -1296,9 +1288,13 @@ dictionary_load(void)
 			vnd->code = v->code;
 			vnd->vs_cmds = g_array_new(TRUE,TRUE,sizeof(value_string));
 			vnd->vs_avps = g_array_new(TRUE,TRUE,sizeof(value_string));
+#if 0
 			vnd->vs_avps_ext = g_malloc0(sizeof(value_string_ext));
 			vnd->vs_avps_ext->match = (value_string_match_t) match_strval_ext_init;
+			vnd->vs_avps_ext->offset= 0;
 			vnd->vs_avps_ext->length= 0;
+#endif
+			vnd->vs_avps_ext = NULL;
 			pe_tree_insert32(dictionary.vnds,vnd->code,vnd);
 			g_hash_table_insert(vendors,v->name,vnd);
 		}
@@ -1331,7 +1327,6 @@ dictionary_load(void)
 		if ((vnd = g_hash_table_lookup(vendors,vend))) {
 			value_string vndvs = {a->code,a->name};
 			g_array_append_val(vnd->vs_avps,vndvs);
-			vnd->vs_avps_ext->length++;
 		} else {
 			fprintf(stderr,"Diameter Dictionary: No Vendor: %s",vend);
 			vnd = &unknown_vendor;

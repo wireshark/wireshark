@@ -631,7 +631,7 @@ match_strrval
 match_strrval_idx
 match_strval
 match_strval_ext
-match_strval_ext_init
+_match_strval_ext_init
 match_strval_idx
 md5_append
 md5_finish

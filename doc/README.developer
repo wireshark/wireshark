@@ -1807,6 +1807,7 @@ integral fields.
 
 strings
 -------
+-- value_string
 Some integer fields, of type FT_UINT*, need labels to represent the true
 value of a field.  You could think of those fields as having an
 enumerated data type, rather than an integral data type.
@@ -1833,23 +1834,37 @@ indicate the end of the array).  The 'strings' field would be set to
 If the field has a numeric rather than an enumerated type, the 'strings'
 field would be set to NULL.
 
+-- Extended value strings
 You can also use an extended version of the value_string for faster lookups.
 It requires a value_string as input.
-It will use the value as a pointer to the string if all values from 0 to max
-are present in the array; otherwise if the values are in assending order
-a binary search will be used. The init macro will perform a check on the value string
+If all of a contiguous range of values from min to max are present in the array
+the value will be used as as a direct index into a value_string array.
+
+If the values in the array are not contiguous (ie: there are "gaps"), but are in assending order
+a binary search will be used.
+
+Note: "gaps" in a value_string array can be filled with "empty" entries eg: {value, "Unknown"} so that
+direct access to the array is is possible.
+
+The init macro (see below) will perform a check on the value string
 the first time it is used to determine which search algorithm fits and fall back to a linear search
 if the value_string does not meet the criteria above.
 
-Use this macro to initialise the extended value_string:
+Use this macro to initialise the extended value_string at comile time:
 
 static value_string_ext valstringname_ext = VALUE_STRING_EXT_INIT(valstringname);
 
-For FT_(U)INT* fields that need a 'valstringname_ext' struct, the 'strings' field
+Extended value strings can be created at runtime by calling
+   value_string_ext_new(<ptr to value_string array>,
+                        <total number of entries in the value_string_array>, /* include {0, NULL} entry */
+                        <value_string_name>);
+
+For hf[] array FT_(U)INT* fields that need a 'valstringname_ext' struct, the 'strings' field
 would be set to '&valstringname_ext)'. Furthermore, 'display' field must be
 ORed with 'BASE_EXT_STRING' (e.g. BASE_DEC|BASE_EXT_STRING).
 
 
+-- Ranges
 If the field has a numeric type that might logically fit in ranges of values
 one can use a range_string struct.
 
@@ -1875,6 +1890,7 @@ For FT_(U)INT* fields that need a 'range_string' struct, the 'strings' field
 would be set to 'RVALS(rvalstringname)'. Furthermore, 'display' field must be
 ORed with 'BASE_RANGE_STRING' (e.g. BASE_DEC|BASE_RANGE_STRING).
 
+-- Booleans
 FT_BOOLEANs have a default map of 0 = "False", 1 (or anything else) = "True".
 Sometimes it is useful to change the labels for boolean values (e.g.,
 to "Yes"/"No", "Fast"/"Slow", etc.).  For these mappings, a struct called

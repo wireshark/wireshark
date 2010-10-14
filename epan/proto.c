@@ -6007,7 +6007,7 @@ proto_registrar_dump_values(void)
 				hfinfo->type == FT_INT64)) {
 
 				if ((hfinfo->display & BASE_EXT_STRING)) {
-					vals = ((value_string_ext *) hfinfo->strings)->vals;
+					vals = VALUE_STRING_EXT_VS_P((value_string_ext *) hfinfo->strings);
 				} else if ((hfinfo->display & BASE_RANGE_STRING) == 0) {
 					vals = hfinfo->strings;
 				} else {
