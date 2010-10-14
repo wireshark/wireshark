@@ -1155,7 +1155,7 @@
       <enum name="RCP" code="7"/>
       <enum name="SCP" code="8"/>
     </avp>
-    <avp name="Management-Transport-Protection" code="133" mandatory="must" may-encrypt="no" protected="may" vendor-bit="mustnot">
+    <avp name="Management-Transport-Protection" code="134" mandatory="must" may-encrypt="no" protected="may" vendor-bit="mustnot">
       <type type-name="Enumerated"/>
       <enum name="No-Protection" code="1"/>
       <enum name="Integrity-Protection" code="2"/>
@@ -4238,7 +4238,7 @@ Note: The AVP codes from 1506 to 1599 are reserved for TS 29.273
 			<enum name="SM Service Request" code="1"/>
 		</avp>
 		<avp name="Originating-SCCP-Address" code="2008" vendor-bit="must" vendor-id="TGPP"> 
-			<type type-name="Address"/>
+			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="Originator-Interface" code="2009" vendor-bit="must" vendor-id="TGPP"> 
 			<grouped>
@@ -4249,7 +4249,7 @@ Note: The AVP codes from 1506 to 1599 are reserved for TS 29.273
 			</grouped>
 		</avp>
 		<avp name="Recipient-SCCP-Address" code="2010" vendor-bit="must" vendor-id="TGPP"> 
-			<type type-name="Address"/>
+			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="Reply-Path-Requested" code="2011" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
@@ -4276,10 +4276,10 @@ Note: The AVP codes from 1506 to 1599 are reserved for TS 29.273
 			<enum name="SMS-SC" code="4"/>
 		</avp>
 		<avp name="SMSC-Address" code="2017" vendor-bit="must" vendor-id="TGPP"> 
-			<type type-name="Address"/>
+			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="Client-Address" code="2018" vendor-bit="must" vendor-id="TGPP"> 
-			<type type-name="Address"/>
+			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="Number-of-Messages-Sent" code="2019" vendor-bit="must" vendor-id="TGPP"> 
 			<type type-name="Unsigned32"/>
@@ -4652,7 +4652,7 @@ Note: The AVP codes from 2204 to 2299 are reserved for TS 29.215
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="MBMS-GW-Address" code="2307" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Address"/>
+			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="IMSI-Unauthenticated-Flag" code="2308" vendor-bit="must" vendor-id="TGPP"> 
 			<type type-name="Enumerated"/>
