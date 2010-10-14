@@ -1082,7 +1082,7 @@ preview_set_filename(HWND of_hwnd, gchar *preview_file) {
 }
 
 
-char *
+static char *
 filter_tb_get(HWND hwnd) {
     TCHAR     *strval = NULL;
     gint       len;
@@ -1108,7 +1108,7 @@ filter_tb_get(HWND hwnd) {
 /* XXX - The only reason for the "filter_text" parameter is to be able to feed
  * in the "real" filter string in the case of a CBN_SELCHANGE notification message.
  */
-void
+static void
 filter_tb_syntax_check(HWND hwnd, TCHAR *filter_text) {
     TCHAR     *strval = NULL;
     gint       len;
