@@ -5972,7 +5972,7 @@ proto_registrar_dump_values(void)
 
 				if ((hfinfo->display & BASE_EXT_STRING)) {
 					vals = ((value_string_ext *) hfinfo->strings)->vals;
-				} if ((hfinfo->display & BASE_RANGE_STRING) == 0) {
+				} else if ((hfinfo->display & BASE_RANGE_STRING) == 0) {
 					vals = hfinfo->strings;
 				} else {
 					range = hfinfo->strings;
