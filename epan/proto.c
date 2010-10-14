@@ -3430,10 +3430,11 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 	guint32		n_addr; /* network-order IPv4 address */
 
 	const true_false_string  *tfstring;
-	int		len, last, i, offset_r=0, offset_e=0;
+	int		len, prev_len=0, last, i, offset_r=0, offset_e=0;
 	GPtrArray	*finfos;
 	field_info	*finfo = NULL;
 	header_field_info* hfinfo;
+	const gchar     *abbrev = NULL;
 
 	g_assert(field_id >= 0);
 
@@ -3443,29 +3444,49 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 	if (!hfinfo)
 		return "";
 
+	if (occurrence < 0) {
+		/* Search other direction */
+		while (hfinfo->same_name_prev) {
+			hfinfo = hfinfo->same_name_prev;
+		}
+	}
+
 	while (hfinfo) {
 		finfos = proto_get_finfo_ptr_array(tree, hfinfo->id);
 
 		if (!finfos || !(len = g_ptr_array_len(finfos))) {
-			hfinfo = hfinfo->same_name_next;
+			if (occurrence < 0) {
+				hfinfo = hfinfo->same_name_next;
+			} else {
+				hfinfo = hfinfo->same_name_prev;
+			}
 			continue;
 		}
 
                 /* Are there enough occurrences of the field? */
-                if ((occurrence > len) || (occurrence < -len) )
-                        return "";
+                if ((occurrence-prev_len > len) || (occurrence+prev_len < -len)) {
+                        if (occurrence < 0) {
+                                hfinfo = hfinfo->same_name_next;
+                        } else {
+                                hfinfo = hfinfo->same_name_prev;
+                        }
+                        prev_len += len;
+                        continue;
+                }
 
-                /* calculate single index or set outer bounderies */
+                /* Calculate single index or set outer bounderies */
                 if (occurrence < 0) {
-                        i = occurrence + len;
+                        i = occurrence + len + prev_len;
                         last = i;
                 } else if (occurrence > 0) {
-                        i = occurrence - 1;
+                        i = occurrence - 1 - prev_len;
                         last = i;
                 } else {
                         i = 0;
                         last = len - 1;
                 }
+
+                prev_len += len; /* Count handled occurrences */
 
                 while (i <= last) {
                         finfo = g_ptr_array_index(finfos, i);
@@ -3479,7 +3500,11 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
                         switch(hfinfo->type) {
 
                         case FT_NONE: /* Nothing to add */
-                                result[0] = '\0';
+                                if (offset_r == 0) {
+                                        result[0] = '\0';
+                                } else if (result[offset_r-1] == ',') {
+                                        result[offset_r-1] = '\0';
+                                }
                                 break;
 
                         case FT_PROTOCOL:
@@ -3652,9 +3677,20 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
                         break;
                 }
 
-		return hfinfo->abbrev;
-	}
-	return "";
+                if (!abbrev) {
+                        /* Store abbrev for return value */
+                        abbrev = hfinfo->abbrev;
+                }
+
+                if (occurrence == 0) {
+                        /* Fetch next hfinfo with same name (abbrev) */
+                        hfinfo = hfinfo->same_name_prev;
+                } else {
+                        hfinfo = NULL;
+                }
+        }
+
+        return abbrev ? abbrev : "";
 }
 
 
