@@ -858,6 +858,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-radius.c
 	dissectors/packet-radius_packetcable.c
 	dissectors/packet-radiotap.c
+	dissectors/packet-radiotap-iter.c
 	dissectors/packet-raw.c
 	dissectors/packet-rdm.c
 	dissectors/packet-rdt.c
