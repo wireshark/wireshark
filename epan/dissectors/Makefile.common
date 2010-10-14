@@ -768,6 +768,7 @@ DISSECTOR_SRC = \
 	packet-radius.c		\
 	packet-radius_packetcable.c	\
 	packet-radiotap.c	\
+	packet-radiotap-iter.c	\
 	packet-raw.c		\
 	packet-rdm.c		\
 	packet-rdt.c		\
@@ -1207,6 +1208,8 @@ DISSECTOR_INCLUDES =	\
 	packet-q932.h	\
 	packet-qsig.h	\
 	packet-radiotap.h	\
+	packet-radiotap-iter.h	\
+	packet-radiotap-defs.h	\
 	packet-radius.h	\
 	packet-ranap.h	\
 	packet-raw.h	\

@@ -30,14 +30,25 @@
 #endif
 
 #include <glib.h>
+#include <errno.h>
 
 #include <epan/packet.h>
 #include <epan/crc32.h>
 #include <epan/frequency-utils.h>
 #include <epan/tap.h>
 #include <epan/prefs.h>
+#include <epan/addr_resolv.h>
 #include "packet-ieee80211.h"
 #include "packet-radiotap.h"
+#include "packet-radiotap-iter.h"
+#include "packet-radiotap-defs.h"
+
+/* not officially defined (yet) */
+#define IEEE80211_RADIOTAP_F_SHORTGI	0x80
+#define IEEE80211_RADIOTAP_XCHANNEL	18
+#define IEEE80211_CHAN_HT20		0x10000	/* HT 20 channel */
+#define IEEE80211_CHAN_HT40U		0x20000	/* HT 40 channel w/ ext above */
+#define IEEE80211_CHAN_HT40D		0x40000	/* HT 40 channel w/ ext below */
 
 /* Official specifcation:
  *
@@ -47,70 +58,6 @@
  * http://madwifi-project.org/wiki/DevDocs/RadiotapHeader
  * NetBSD's ieee80211_radiotap.h file
  */
-
-struct ieee80211_radiotap_header {
-	guint8 it_version;	/* Version 0. Only increases
-				 * for drastic changes,
-				 * introduction of compatible
-				 * new fields does not count.
-				 */
-	guint8 it_pad;
-	guint16 it_len;		/* length of the whole
-				 * header in bytes, including
-				 * it_version, it_pad,
-				 * it_len, and data fields.
-				 */
-#define MAX_PRESENT 1
-	guint32 it_present[MAX_PRESENT];	/* A bitmap telling which
-						 * fields are present. Set bit 31
-						 * (0x80000000) to extend the
-						 * bitmap by another 32 bits.
-						 * Additional extensions are made
-						 * by setting bit 31.
-						 */
-};
-
-#define RADIOTAP_MIN_HEADER_LEN	8	/* minimum header length */
-#define RADIOTAP_VERSION_OFFSET	0	/* offset of version field */
-#define RADIOTAP_LENGTH_OFFSET	2	/* offset of length field */
-#define RADIOTAP_PRESENT_OFFSET	4	/* offset of "present" field */
-
-enum ieee80211_radiotap_type {
-	IEEE80211_RADIOTAP_TSFT = 0,
-	IEEE80211_RADIOTAP_FLAGS = 1,
-	IEEE80211_RADIOTAP_RATE = 2,
-	IEEE80211_RADIOTAP_CHANNEL = 3,
-	IEEE80211_RADIOTAP_FHSS = 4,
-	IEEE80211_RADIOTAP_DBM_ANTSIGNAL = 5,
-	IEEE80211_RADIOTAP_DBM_ANTNOISE = 6,
-	IEEE80211_RADIOTAP_LOCK_QUALITY = 7,
-	IEEE80211_RADIOTAP_TX_ATTENUATION = 8,
-	IEEE80211_RADIOTAP_DB_TX_ATTENUATION = 9,
-	IEEE80211_RADIOTAP_DBM_TX_POWER = 10,
-	IEEE80211_RADIOTAP_ANTENNA = 11,
-	IEEE80211_RADIOTAP_DB_ANTSIGNAL = 12,
-	IEEE80211_RADIOTAP_DB_ANTNOISE = 13,
-	IEEE80211_RADIOTAP_RX_FLAGS = 14,	/* could also be FCS */
-	IEEE80211_RADIOTAP_XCHANNEL = 18,
-	IEEE80211_RADIOTAP_EXT = 31
-};
-
-/* Channel flags. */
-#define	IEEE80211_CHAN_TURBO	0x00010	/* Turbo channel */
-#define	IEEE80211_CHAN_CCK	0x00020	/* CCK channel */
-#define	IEEE80211_CHAN_OFDM	0x00040	/* OFDM channel */
-#define	IEEE80211_CHAN_2GHZ	0x00080	/* 2 GHz spectrum channel. */
-#define	IEEE80211_CHAN_5GHZ	0x00100	/* 5 GHz spectrum channel */
-#define	IEEE80211_CHAN_PASSIVE	0x00200	/* Only passive scan allowed */
-#define	IEEE80211_CHAN_DYN	0x00400	/* Dynamic CCK-OFDM channel */
-#define	IEEE80211_CHAN_GFSK	0x00800	/* GFSK channel (FHSS PHY) */
-#define	IEEE80211_CHAN_GSM	0x01000	/* 900 MHz spectrum channel */
-#define	IEEE80211_CHAN_STURBO	0x02000	/* 11a static turbo channel only */
-#define	IEEE80211_CHAN_HALF	0x04000	/* Half rate channel */
-#define	IEEE80211_CHAN_QUARTER	0x08000	/* Quarter rate channel */
-#define	IEEE80211_CHAN_HT20	0x10000	/* HT 20 channel */
-#define	IEEE80211_CHAN_HT40U	0x20000	/* HT 40 channel w/ ext above */
-#define	IEEE80211_CHAN_HT40D	0x40000	/* HT 40 channel w/ ext below */
 
 /*
  * Useful combinations of channel characteristics.
@@ -131,31 +78,6 @@ enum ieee80211_radiotap_type {
 	(IEEE80211_CHAN_G | IEEE80211_CHAN_TURBO)
 #define	IEEE80211_CHAN_108PUREG \
 	(IEEE80211_CHAN_PUREG | IEEE80211_CHAN_TURBO)
-
-/* For IEEE80211_RADIOTAP_FLAGS */
-#define	IEEE80211_RADIOTAP_F_CFP	0x01	/* sent/received
-						 * during CFP
-						 */
-#define	IEEE80211_RADIOTAP_F_SHORTPRE	0x02	/* sent/received
-						 * with short
-						 * preamble
-						 */
-#define	IEEE80211_RADIOTAP_F_WEP	0x04	/* sent/received
-						 * with WEP encryption
-						 */
-#define	IEEE80211_RADIOTAP_F_FRAG	0x08	/* sent/received
-						 * with fragmentation
-						 */
-#define	IEEE80211_RADIOTAP_F_FCS	0x10	/* frame includes FCS */
-#define	IEEE80211_RADIOTAP_F_DATAPAD	0x20	/* frame has padding between
-						 * 802.11 header and payload
-						 * (to 32-bit boundary)
-						 */
-#define	IEEE80211_RADIOTAP_F_BADFCS	0x40	/* does not pass FCS check */
-#define	IEEE80211_RADIOTAP_F_SHORTGI	0x80	/* HT short GI */
-
-/* For IEEE80211_RADIOTAP_RX_FLAGS */
-#define IEEE80211_RADIOTAP_F_RX_BADPLCP		0x0002	/* bad PLCP */
 
 /* XXX need max array size */
 static const int ieee80211_htrates[16] = {
@@ -234,6 +156,11 @@ static int hf_radiotap_db_antnoise = -1;
 static int hf_radiotap_tx_attenuation = -1;
 static int hf_radiotap_db_tx_attenuation = -1;
 static int hf_radiotap_txpower = -1;
+static int hf_radiotap_vendor_ns = -1;
+static int hf_radiotap_ven_oui = -1;
+static int hf_radiotap_ven_subns = -1;
+static int hf_radiotap_ven_skip = -1;
+static int hf_radiotap_ven_data = -1;
 
 /* "Present" flags */
 static int hf_radiotap_present_tsft = -1;
@@ -253,6 +180,8 @@ static int hf_radiotap_present_db_antnoise = -1;
 static int hf_radiotap_present_hdrfcs = -1;
 static int hf_radiotap_present_rxflags = -1;
 static int hf_radiotap_present_xchannel = -1;
+static int hf_radiotap_present_rtap_ns = -1;
+static int hf_radiotap_present_vendor_ns = -1;
 static int hf_radiotap_present_ext = -1;
 
 /* "present.flags" flags */
@@ -276,6 +205,7 @@ static gint ett_radiotap_flags = -1;
 static gint ett_radiotap_rxflags = -1;
 static gint ett_radiotap_channel_flags = -1;
 static gint ett_radiotap_xchannel_flags = -1;
+static gint ett_radiotap_vendor = -1;
 
 static dissector_handle_t ieee80211_handle;
 static dissector_handle_t ieee80211_datapad_handle;
@@ -308,24 +238,21 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
  *    dissectors, such as tcpdump(8), expect the padding.
  */
 
-/*
- * Returns the amount required to align "offset" with "width"
- */
-#define ALIGN_OFFSET(offset, width) \
-    ( (((offset) + ((width) - 1)) & (~((width) - 1))) - offset )
-
 void
 capture_radiotap(const guchar * pd, int offset, int len, packet_counts * ld)
 {
 	guint16 it_len;
-	guint32 present;
+	guint32 present, xpresent;
 	guint8 rflags;
+	struct ieee80211_radiotap_header *hdr;
 
-	if (!BYTES_ARE_IN_FRAME(offset, len, RADIOTAP_MIN_HEADER_LEN)) {
+	if (!BYTES_ARE_IN_FRAME(offset, len,
+				sizeof(struct ieee80211_radiotap_header))) {
 		ld->other++;
 		return;
 	}
-	it_len = pletohs(&pd[RADIOTAP_LENGTH_OFFSET]);
+	hdr = (void *)pd;
+	it_len = pletohs(&hdr->it_len);
 	if (!BYTES_ARE_IN_FRAME(offset, len, it_len)) {
 		ld->other++;
 		return;
@@ -337,28 +264,48 @@ capture_radiotap(const guchar * pd, int offset, int len, packet_counts * ld)
 		return;
 	}
 
-	if (it_len < RADIOTAP_MIN_HEADER_LEN) {
+	if (it_len < sizeof(struct ieee80211_radiotap_header)) {
 		/* Header length is shorter than fixed-length portion of header */
 		ld->other++;
 		return;
 	}
 
-	present = pletohl(&pd[RADIOTAP_PRESENT_OFFSET]);
-	offset += RADIOTAP_MIN_HEADER_LEN;
-	it_len -= RADIOTAP_MIN_HEADER_LEN;
+	present = pletohl(&hdr->it_present);
+	offset += sizeof(struct ieee80211_radiotap_header);
+	it_len -= sizeof(struct ieee80211_radiotap_header);
+
+	/* skip over other present bitmaps */
+	xpresent = present;
+	while (xpresent & BIT(IEEE80211_RADIOTAP_EXT)) {
+		if (!BYTES_ARE_IN_FRAME(offset, 4, it_len)) {
+			ld->other++;
+			return;
+		}
+		xpresent = pletohl(pd + offset);
+		offset += 4;
+		it_len -= 4;
+	}
 
 	rflags = 0;
 
 	/*
-	 * IEEE80211_RADIOTAP_TSFT is the lowest-order bit.
+	 * IEEE80211_RADIOTAP_TSFT is the lowest-order bit,
+	 * just skip over it.
 	 */
 	if (present & BIT(IEEE80211_RADIOTAP_TSFT)) {
+		/* align it properly */
+		if (offset & 7) {
+			int pad = 8 - (offset & 7);
+			offset += pad;
+			it_len -= pad;
+		}
+
 		if (it_len < 8) {
 			/* No room in header for this field. */
 			ld->other++;
 			return;
 		}
-		/* That field is present, and it's 8 bits long. */
+		/* That field is present, and it's 8 bytes long. */
 		offset += 8;
 		it_len -= 8;
 	}
@@ -429,128 +376,123 @@ void proto_register_radiotap(void)
 		  HFILL}},
 		{&hf_radiotap_present,
 		 {"Present flags", "radiotap.present",
-		  FT_UINT32, BASE_HEX, NULL, 0x0,
+		  FT_NONE, BASE_NONE, NULL, 0x0,
 		  "Bitmask indicating which fields are present", HFILL}},
 
-#define RADIOTAP_MASK_TSFT                  0x00000001
-#define RADIOTAP_MASK_FLAGS                 0x00000002
-#define RADIOTAP_MASK_RATE                  0x00000004
-#define RADIOTAP_MASK_CHANNEL               0x00000008
-#define RADIOTAP_MASK_FHSS                  0x00000010
-#define RADIOTAP_MASK_DBM_ANTSIGNAL         0x00000020
-#define RADIOTAP_MASK_DBM_ANTNOISE          0x00000040
-#define RADIOTAP_MASK_LOCK_QUALITY          0x00000080
-#define RADIOTAP_MASK_TX_ATTENUATION        0x00000100
-#define RADIOTAP_MASK_DB_TX_ATTENUATION     0x00000200
-#define RADIOTAP_MASK_DBM_TX_ATTENUATION    0x00000400
-#define RADIOTAP_MASK_ANTENNA               0x00000800
-#define RADIOTAP_MASK_DB_ANTSIGNAL          0x00001000
-#define RADIOTAP_MASK_DB_ANTNOISE           0x00002000
-#define RADIOTAP_MASK_RX_FLAGS              0x00004000
-#define RADIOTAP_MASK_XCHANNEL              0x00040000
-#define RADIOTAP_MASK_EXT                   0x80000000
+#define RADIOTAP_MASK(name)	BIT(IEEE80211_RADIOTAP_ ##name)
 
 		/* Boolean 'present' flags */
 		{&hf_radiotap_present_tsft,
 		 {"TSFT", "radiotap.present.tsft",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_TSFT,
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(TSFT),
 		  "Specifies if the Time Synchronization Function Timer field is present",
 		  HFILL}},
 
 		{&hf_radiotap_present_flags,
 		 {"Flags", "radiotap.present.flags",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_FLAGS,
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(FLAGS),
 		  "Specifies if the channel flags field is present", HFILL}},
 
 		{&hf_radiotap_present_rate,
 		 {"Rate", "radiotap.present.rate",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_RATE,
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(RATE),
 		  "Specifies if the transmit/receive rate field is present",
 		  HFILL}},
 
 		{&hf_radiotap_present_channel,
 		 {"Channel", "radiotap.present.channel",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_CHANNEL,
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(CHANNEL),
 		  "Specifies if the transmit/receive frequency field is present",
 		  HFILL}},
 
 		{&hf_radiotap_present_fhss,
 		 {"FHSS", "radiotap.present.fhss",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_FHSS,
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(FHSS),
 		  "Specifies if the hop set and pattern is present for frequency hopping radios",
 		  HFILL}},
 
 		{&hf_radiotap_present_dbm_antsignal,
 		 {"DBM Antenna Signal", "radiotap.present.dbm_antsignal",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_DBM_ANTSIGNAL,
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DBM_ANTSIGNAL),
 		  "Specifies if the antenna signal strength in dBm is present",
 		  HFILL}},
 
 		{&hf_radiotap_present_dbm_antnoise,
 		 {"DBM Antenna Noise", "radiotap.present.dbm_antnoise",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_DBM_ANTNOISE,
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DBM_ANTNOISE),
 		  "Specifies if the RF noise power at antenna field is present",
 		  HFILL}},
 
 		{&hf_radiotap_present_lock_quality,
 		 {"Lock Quality", "radiotap.present.lock_quality",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_LOCK_QUALITY,
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(LOCK_QUALITY),
 		  "Specifies if the signal quality field is present", HFILL}},
 
 		{&hf_radiotap_present_tx_attenuation,
 		 {"TX Attenuation", "radiotap.present.tx_attenuation",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_TX_ATTENUATION,
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(TX_ATTENUATION),
 		  "Specifies if the transmit power from max power field is present",
 		  HFILL}},
 
 		{&hf_radiotap_present_db_tx_attenuation,
 		 {"DB TX Attenuation", "radiotap.present.db_tx_attenuation",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_DB_TX_ATTENUATION,
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DB_TX_ATTENUATION),
 		  "Specifies if the transmit power from max power (in dB) field is present",
 		  HFILL}},
 
 		{&hf_radiotap_present_dbm_tx_attenuation,
 		 {"DBM TX Attenuation", "radiotap.present.dbm_tx_attenuation",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_DBM_TX_ATTENUATION,
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DB_TX_ATTENUATION),
 		  "Specifies if the transmit power from max power (in dBm) field is present",
 		  HFILL}},
 
 		{&hf_radiotap_present_antenna,
 		 {"Antenna", "radiotap.present.antenna",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_ANTENNA,
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(ANTENNA),
 		  "Specifies if the antenna number field is present", HFILL}},
 
 		{&hf_radiotap_present_db_antsignal,
 		 {"DB Antenna Signal", "radiotap.present.db_antsignal",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_DB_ANTSIGNAL,
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DB_ANTSIGNAL),
 		  "Specifies if the RF signal power at antenna in dB field is present",
 		  HFILL}},
 
 		{&hf_radiotap_present_db_antnoise,
 		 {"DB Antenna Noise", "radiotap.present.db_antnoise",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_DB_ANTNOISE,
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DB_ANTNOISE),
 		  "Specifies if the RF signal power at antenna in dBm field is present",
 		  HFILL}},
 
 		{&hf_radiotap_present_rxflags,
 		 {"RX flags", "radiotap.present.rxflags",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_RX_FLAGS,
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(RX_FLAGS),
 		  "Specifies if the RX flags field is present", HFILL}},
 
 		{&hf_radiotap_present_hdrfcs,
 		 {"FCS in header", "radiotap.present.fcs",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_RX_FLAGS,
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(RX_FLAGS),
 		  "Specifies if the FCS field is present", HFILL}},
 
 		{&hf_radiotap_present_xchannel,
 		 {"Channel+", "radiotap.present.xchannel",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_XCHANNEL,
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(XCHANNEL),
 		  "Specifies if the extended channel info field is present",
+		  HFILL}},
+
+		{&hf_radiotap_present_rtap_ns,
+		 {"Radiotap NS next", "radiotap.present.rtap_ns",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(RADIOTAP_NAMESPACE),
+		  "Specifies a reset to the radiotap namespace", HFILL}},
+
+		{&hf_radiotap_present_vendor_ns,
+		 {"Vendor NS next", "radiotap.present.vendor_ns",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(VENDOR_NAMESPACE),
+		  "Specifies that the next bitmap is in a vendor namespace",
 		  HFILL}},
 
 		{&hf_radiotap_present_ext,
 		 {"Ext", "radiotap.present.ext",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_EXT,
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(EXT),
 		  "Specifies if there are any extensions to the header present",
 		  HFILL}},
 
@@ -837,6 +779,31 @@ void proto_register_radiotap(void)
 		  FT_INT32, BASE_DEC, NULL, 0x0,
 		  "Transmit power in decibels per one milliwatt (dBm)", HFILL}},
 
+		{&hf_radiotap_vendor_ns,
+		 {"Vendor namespace", "radiotap.vendor_namespace",
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
+		  "Vendor namespace", HFILL}},
+
+		{&hf_radiotap_ven_oui,
+		 {"Vendor OUI", "radiotap.vendor_oui",
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
+		  "Vendor OUI", HFILL}},
+
+		{&hf_radiotap_ven_subns,
+		 {"Vendor sub namespace", "radiotap.vendor_subns",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "Vendor-specified sub namespace", HFILL}},
+
+		{&hf_radiotap_ven_skip,
+		 {"Vendor data length", "radiotap.vendor_data_len",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "Length of vendor-specified data", HFILL}},
+
+		{&hf_radiotap_ven_data,
+		 {"Vendor data", "radiotap.vendor_data",
+		  FT_NONE, BASE_NONE, NULL, 0x0,
+		  "Vendor-specified data", HFILL}},
+
 		/* Special variables */
 		{&hf_radiotap_fcs_bad,
 		 {"Bad FCS", "radiotap.fcs_bad",
@@ -851,7 +818,8 @@ void proto_register_radiotap(void)
 		&ett_radiotap_flags,
 		&ett_radiotap_rxflags,
 		&ett_radiotap_channel_flags,
-		&ett_radiotap_xchannel_flags
+		&ett_radiotap_xchannel_flags,
+		&ett_radiotap_vendor,
 	};
 	module_t *radiotap_module;
 
@@ -879,34 +847,45 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	proto_tree *radiotap_tree = NULL;
 	proto_tree *pt, *present_tree = NULL;
 	proto_tree *ft;
-	proto_item *ti = NULL, *hidden_item;
-	int align_offset, offset;
+	proto_item *ti = NULL;
+	proto_item *hidden_item;
+	int offset;
 	tvbuff_t *next_tvb;
-	guint32 version;
-	guint length, length_remaining;
+	guint8 version;
+	guint length;
 	guint32 rate, freq, flags;
-	gint8 dbm;
-	guint8 db, rflags;
-	guint32 present, next_present;
-	int bit;
+	gint8 dbm, db;
+	guint8 rflags = 0;
 	/* backward compat with bit 14 == fcs in header */
 	proto_item *hdr_fcs_ti = NULL;
 	int hdr_fcs_offset = 0;
 	guint32 sent_fcs = 0;
 	guint32 calc_fcs;
-
+	gint err;
+	struct ieee80211_radiotap_iterator iter;
+	void *data;
 	struct _radiotap_info *radiotap_info;
-	static struct _radiotap_info rtp_info_arr[1];
+	static struct _radiotap_info rtp_info_arr;
 
-	radiotap_info = &rtp_info_arr[0];
+	/* our non-standard overrides */
+	static struct radiotap_override overrides[] = {
+		{IEEE80211_RADIOTAP_XCHANNEL, 4, 8},	/* xchannel */
+
+		/* keep last */
+		{14, 4, 4},	/* FCS in header */
+	};
+	guint n_overrides = array_length(overrides);
+
+	if (!radiotap_bit14_fcs)
+		n_overrides--;
+
+	radiotap_info = &rtp_info_arr;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WLAN");
 	col_clear(pinfo->cinfo, COL_INFO);
-	offset = 0;
 
-	version = tvb_get_guint8(tvb, offset);
-	length = tvb_get_letohs(tvb, offset + 2);
-	present = tvb_get_letohl(tvb, offset + 4);
+	version = tvb_get_guint8(tvb, 0);
+	length = tvb_get_letohs(tvb, 2);
 
 	radiotap_info->radiotap_length = length;
 
@@ -921,103 +900,181 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 						    version, length);
 		radiotap_tree = proto_item_add_subtree(ti, ett_radiotap);
 		proto_tree_add_uint(radiotap_tree, hf_radiotap_version,
-				    tvb, offset, 1, version);
+				    tvb, 0, 1, version);
 		proto_tree_add_item(radiotap_tree, hf_radiotap_pad,
-				    tvb, offset + 1, 1, FALSE);
-		ti = proto_tree_add_uint(radiotap_tree, hf_radiotap_length,
-					 tvb, offset + 2, 2, length);
+				    tvb, 1, 1, FALSE);
+		proto_tree_add_uint(radiotap_tree, hf_radiotap_length,
+				    tvb, 2, 2, length);
 	}
-	length_remaining = length;
 
-	/*
-	 * FIXME: This only works if there is exactly 1 it_present
-	 *        field in the header
-	 */
-	if (length_remaining < RADIOTAP_MIN_HEADER_LEN) {
-		/*
-		 * Radiotap header is shorter than the fixed-length portion
-		 * plus one "present" bitset.
-		 */
-		if (tree)
-			proto_item_append_text(ti,
-					       " (bogus - minimum length is 8)");
+	data = ep_tvb_memdup(tvb, 0, length);
+	if (!data)
 		return;
-	}
-	/* Subtree for the "present flags" bitfield. */
-	if (tree) {
-		pt = proto_tree_add_uint(radiotap_tree, hf_radiotap_present,
-					 tvb, offset + 4, 4, present);
-		present_tree = proto_item_add_subtree(pt, ett_radiotap_present);
 
-		proto_tree_add_item(present_tree, hf_radiotap_present_tsft,
-				    tvb, offset + 4, 4, TRUE);
-		proto_tree_add_item(present_tree, hf_radiotap_present_flags,
-				    tvb, offset + 4, 4, TRUE);
-		proto_tree_add_item(present_tree, hf_radiotap_present_rate,
-				    tvb, offset + 4, 4, TRUE);
-		proto_tree_add_item(present_tree, hf_radiotap_present_channel,
-				    tvb, offset + 4, 4, TRUE);
-		proto_tree_add_item(present_tree, hf_radiotap_present_fhss,
-				    tvb, offset + 4, 4, TRUE);
-		proto_tree_add_item(present_tree,
-				    hf_radiotap_present_dbm_antsignal, tvb,
-				    offset + 4, 4, TRUE);
-		proto_tree_add_item(present_tree,
-				    hf_radiotap_present_dbm_antnoise, tvb,
-				    offset + 4, 4, TRUE);
-		proto_tree_add_item(present_tree,
-				    hf_radiotap_present_lock_quality, tvb,
-				    offset + 4, 4, TRUE);
-		proto_tree_add_item(present_tree,
-				    hf_radiotap_present_tx_attenuation, tvb,
-				    offset + 4, 4, TRUE);
-		proto_tree_add_item(present_tree,
-				    hf_radiotap_present_db_tx_attenuation, tvb,
-				    offset + 4, 4, TRUE);
-		proto_tree_add_item(present_tree,
-				    hf_radiotap_present_dbm_tx_attenuation, tvb,
-				    offset + 4, 4, TRUE);
-		proto_tree_add_item(present_tree, hf_radiotap_present_antenna,
-				    tvb, offset + 4, 4, TRUE);
-		proto_tree_add_item(present_tree,
-				    hf_radiotap_present_db_antsignal, tvb,
-				    offset + 4, 4, TRUE);
-		proto_tree_add_item(present_tree,
-				    hf_radiotap_present_db_antnoise, tvb,
-				    offset + 4, 4, TRUE);
-		if (radiotap_bit14_fcs) {
+	if (ieee80211_radiotap_iterator_init(&iter, data, length, NULL)) {
+		if (tree)
+			proto_item_append_text(ti, " (invalid)");
+		/* maybe the length was correct anyway ... */
+		goto hand_off_to_80211;
+	}
+
+	iter.overrides = overrides;
+	iter.n_overrides = n_overrides;
+
+	/* Add the "present flags" bitmaps. */
+	if (tree) {
+		guchar *bmap_start = (guchar *) data + 4;
+		guint n_bitmaps = (guint)(iter.this_arg - bmap_start) / 4;
+		guint i;
+		gboolean rtap_ns, rtap_ns_next = TRUE;
+		guint rtap_ns_offset, rtap_ns_offset_next = 0;
+
+		pt = proto_tree_add_item(radiotap_tree, hf_radiotap_present,
+					 tvb, 4, n_bitmaps * 4,
+					 FALSE /* ?? */ );
+
+		for (i = 0; i < n_bitmaps; i++) {
+			guint32 bmap = pletohl(bmap_start + 4 * i);
+
+			rtap_ns_offset = rtap_ns_offset_next;
+			rtap_ns_offset_next += 32;
+
+			present_tree =
+			    proto_item_add_subtree(pt, ett_radiotap_present);
+
+			offset = 4 * i;
+
+			rtap_ns = rtap_ns_next;
+
+			/* Evaluate what kind of namespaces will come next */
+			if (bmap & BIT(IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE)) {
+				rtap_ns_next = TRUE;
+				rtap_ns_offset_next = 0;
+			}
+			if (bmap & BIT(IEEE80211_RADIOTAP_VENDOR_NAMESPACE))
+				rtap_ns_next = FALSE;
+			if ((bmap & (BIT(IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE) |
+				     BIT(IEEE80211_RADIOTAP_VENDOR_NAMESPACE)))
+				== (BIT(IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE) |
+				    BIT(IEEE80211_RADIOTAP_VENDOR_NAMESPACE)))
+				goto malformed;
+
+			if (!rtap_ns)
+				goto always_bits;
+
+			/* Currently, we don't know anything about bits >= 32 */
+			if (rtap_ns_offset)
+				goto always_bits;
+
 			proto_tree_add_item(present_tree,
-					    hf_radiotap_present_hdrfcs, tvb,
+					    hf_radiotap_present_tsft, tvb,
 					    offset + 4, 4, TRUE);
-		} else {
 			proto_tree_add_item(present_tree,
-					    hf_radiotap_present_rxflags, tvb,
+					    hf_radiotap_present_flags, tvb,
+					    offset + 4, 4, TRUE);
+			proto_tree_add_item(present_tree,
+					    hf_radiotap_present_rate, tvb,
+					    offset + 4, 4, TRUE);
+			proto_tree_add_item(present_tree,
+					    hf_radiotap_present_channel, tvb,
+					    offset + 4, 4, TRUE);
+			proto_tree_add_item(present_tree,
+					    hf_radiotap_present_fhss, tvb,
+					    offset + 4, 4, TRUE);
+			proto_tree_add_item(present_tree,
+					    hf_radiotap_present_dbm_antsignal,
+					    tvb, offset + 4, 4, TRUE);
+			proto_tree_add_item(present_tree,
+					    hf_radiotap_present_dbm_antnoise,
+					    tvb, offset + 4, 4, TRUE);
+			proto_tree_add_item(present_tree,
+					    hf_radiotap_present_lock_quality,
+					    tvb, offset + 4, 4, TRUE);
+			proto_tree_add_item(present_tree,
+					    hf_radiotap_present_tx_attenuation,
+					    tvb, offset + 4, 4, TRUE);
+			proto_tree_add_item(present_tree,
+					    hf_radiotap_present_db_tx_attenuation,
+					    tvb, offset + 4, 4, TRUE);
+			proto_tree_add_item(present_tree,
+					    hf_radiotap_present_dbm_tx_attenuation,
+					    tvb, offset + 4, 4, TRUE);
+			proto_tree_add_item(present_tree,
+					    hf_radiotap_present_antenna, tvb,
+					    offset + 4, 4, TRUE);
+			proto_tree_add_item(present_tree,
+					    hf_radiotap_present_db_antsignal,
+					    tvb, offset + 4, 4, TRUE);
+			proto_tree_add_item(present_tree,
+					    hf_radiotap_present_db_antnoise,
+					    tvb, offset + 4, 4, TRUE);
+			if (radiotap_bit14_fcs) {
+				proto_tree_add_item(present_tree,
+						    hf_radiotap_present_hdrfcs,
+						    tvb, offset + 4, 4, TRUE);
+			} else {
+				proto_tree_add_item(present_tree,
+						    hf_radiotap_present_rxflags,
+						    tvb, offset + 4, 4, TRUE);
+			}
+			proto_tree_add_item(present_tree,
+					    hf_radiotap_present_xchannel, tvb,
+					    offset + 4, 4, TRUE);
+
+ always_bits:
+			proto_tree_add_item(present_tree,
+					    hf_radiotap_present_rtap_ns, tvb,
+					    offset + 4, 4, TRUE);
+			proto_tree_add_item(present_tree,
+					    hf_radiotap_present_vendor_ns, tvb,
+					    offset + 4, 4, TRUE);
+			proto_tree_add_item(present_tree,
+					    hf_radiotap_present_ext, tvb,
 					    offset + 4, 4, TRUE);
 		}
-		proto_tree_add_item(present_tree, hf_radiotap_present_xchannel,
-				    tvb, offset + 4, 4, TRUE);
-		proto_tree_add_item(present_tree, hf_radiotap_present_ext,
-				    tvb, offset + 4, 4, TRUE);
 	}
-	offset += RADIOTAP_MIN_HEADER_LEN;
-	length_remaining -= RADIOTAP_MIN_HEADER_LEN;
 
-	rflags = 0;
-	for (; present; present = next_present) {
-		/* clear the least significant bit that is set */
-		next_present = present & (present - 1);
+	while (!(err = ieee80211_radiotap_iterator_next(&iter))) {
+		offset = (int)((guchar *) iter.this_arg - (guchar *) data);
 
-		/* extract the least significant bit that is set */
-		bit = BITNO_32(present ^ next_present);
+		if (iter.this_arg_index == IEEE80211_RADIOTAP_VENDOR_NAMESPACE
+		    && tree) {
+			proto_tree *vt, *ven_tree = NULL;
+			const guint8 *data_ptr;
+			const gchar *manuf_name;
+			guint8 subns;
 
-		switch (bit) {
+			data_ptr = tvb_get_ptr(tvb, offset, 4);
+			manuf_name = get_manuf_name(data_ptr);
+			subns = data_ptr[3];
 
+			vt = proto_tree_add_bytes_format(radiotap_tree,
+							 hf_radiotap_vendor_ns,
+							 tvb, offset,
+							 iter.this_arg_size,
+							 data_ptr,
+							 "Vendor namespace: %s-%d",
+							 manuf_name, subns);
+			ven_tree =
+			    proto_item_add_subtree(vt, ett_radiotap_vendor);
+			proto_tree_add_bytes_format(ven_tree,
+						    hf_radiotap_ven_oui, tvb,
+						    offset, 3, data_ptr,
+						    "Vendor: %s", manuf_name);
+			proto_tree_add_item(ven_tree, hf_radiotap_ven_subns,
+					    tvb, offset + 3, 1, FALSE);
+			proto_tree_add_item(ven_tree, hf_radiotap_ven_skip, tvb,
+					    offset + 4, 2, TRUE);
+			proto_tree_add_item(ven_tree, hf_radiotap_ven_data, tvb,
+					    offset + 6, iter.this_arg_size - 6,
+					    TRUE);
+		}
+
+		if (!iter.is_radiotap_ns)
+			continue;
+
+		switch (iter.this_arg_index) {
 		case IEEE80211_RADIOTAP_TSFT:
-			align_offset = ALIGN_OFFSET(offset, 8);
-			offset += align_offset;
-			length_remaining -= align_offset;
-			if (length_remaining < 8)
-				break;
 			radiotap_info->tsft = tvb_get_letoh64(tvb, offset);
 			if (tree) {
 				proto_tree_add_uint64(radiotap_tree,
@@ -1025,15 +1082,11 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 						      offset, 8,
 						      radiotap_info->tsft);
 			}
-			offset += 8;
-			length_remaining -= 8;
 			break;
 
 		case IEEE80211_RADIOTAP_FLAGS: {
 			proto_tree *flags_tree;
 
-			if (length_remaining < 1)
-				break;
 			rflags = tvb_get_guint8(tvb, offset);
 			if (tree) {
 				ft = proto_tree_add_item(radiotap_tree,
@@ -1068,14 +1121,10 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 						    hf_radiotap_flags_shortgi,
 						    tvb, offset, 1, FALSE);
 			}
-			offset++;
-			length_remaining--;
 			break;
 		}
 
 		case IEEE80211_RADIOTAP_RATE:
-			if (length_remaining < 1)
-				break;
 			rate = tvb_get_guint8(tvb, offset);
 			if (rate & 0x80) {
 				/* XXX adjust by CW and short GI like other sniffers? */
@@ -1091,8 +1140,6 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 							    "Data Rate: %.1f Mb/s",
 							    (float)rate / 2);
 			}
-			offset++;
-			length_remaining--;
 			radiotap_info->rate = rate;
 			break;
 
@@ -1101,11 +1148,6 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			proto_tree *flags_tree;
 			gchar *chan_str;
 
-			align_offset = ALIGN_OFFSET(offset, 2);
-			offset += align_offset;
-			length_remaining -= align_offset;
-			if (length_remaining < 2)
-				break;
 			if (tree) {
 				freq = tvb_get_letohs(tvb, offset);
 				flags = tvb_get_letohs(tvb, offset + 2);
@@ -1164,30 +1206,19 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				radiotap_info->freq = freq;
 				radiotap_info->flags = flags;
 			}
-			offset += 4 /* Channel + flags */ ;
-			length_remaining -= 4;
 			break;
 		}
 
 		case IEEE80211_RADIOTAP_FHSS:
-			align_offset = ALIGN_OFFSET(offset, 2);
-			offset += align_offset;
-			length_remaining -= align_offset;
-			if (length_remaining < 2)
-				break;
 			proto_tree_add_item(radiotap_tree,
 					    hf_radiotap_fhss_hopset, tvb,
 					    offset, 1, FALSE);
 			proto_tree_add_item(radiotap_tree,
 					    hf_radiotap_fhss_pattern, tvb,
 					    offset, 1, FALSE);
-			offset += 2;
-			length_remaining -= 2;
 			break;
 
 		case IEEE80211_RADIOTAP_DBM_ANTSIGNAL:
-			if (length_remaining < 1)
-				break;
 			dbm = (gint8) tvb_get_guint8(tvb, offset);
 			col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", dbm);
 			if (tree) {
@@ -1197,14 +1228,10 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 							  "SSI Signal: %d dBm",
 							  dbm);
 			}
-			offset++;
-			length_remaining--;
 			radiotap_info->dbm_antsignal = dbm;
 			break;
 
 		case IEEE80211_RADIOTAP_DBM_ANTNOISE:
-			if (length_remaining < 1)
-				break;
 			dbm = (gint8) tvb_get_guint8(tvb, offset);
 			if (tree) {
 				proto_tree_add_int_format(radiotap_tree,
@@ -1213,17 +1240,10 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 							  "SSI Noise: %d dBm",
 							  dbm);
 			}
-			offset++;
-			length_remaining--;
 			radiotap_info->dbm_antnoise = dbm;
 			break;
 
 		case IEEE80211_RADIOTAP_LOCK_QUALITY:
-			align_offset = ALIGN_OFFSET(offset, 2);
-			offset += align_offset;
-			length_remaining -= align_offset;
-			if (length_remaining < 2)
-				break;
 			if (tree) {
 				proto_tree_add_uint(radiotap_tree,
 						    hf_radiotap_quality, tvb,
@@ -1231,52 +1251,30 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 						    tvb_get_letohs(tvb,
 								   offset));
 			}
-			offset += 2;
-			length_remaining -= 2;
 			break;
 
 		case IEEE80211_RADIOTAP_TX_ATTENUATION:
-			align_offset = ALIGN_OFFSET(offset, 2);
-			offset += align_offset;
-			length_remaining -= align_offset;
-			if (length_remaining < 2)
-				break;
 			proto_tree_add_item(radiotap_tree,
 					    hf_radiotap_tx_attenuation, tvb,
 					    offset, 2, FALSE);
-			offset += 2;
-			length_remaining -= 2;
 			break;
 
 		case IEEE80211_RADIOTAP_DB_TX_ATTENUATION:
-			align_offset = ALIGN_OFFSET(offset, 2);
-			offset += align_offset;
-			length_remaining -= align_offset;
-			if (length_remaining < 2)
-				break;
 			proto_tree_add_item(radiotap_tree,
 					    hf_radiotap_db_tx_attenuation, tvb,
 					    offset, 2, FALSE);
-			offset += 2;
-			length_remaining -= 2;
 			break;
 
 		case IEEE80211_RADIOTAP_DBM_TX_POWER:
-			if (length_remaining < 1)
-				break;
 			if (tree) {
 				proto_tree_add_int(radiotap_tree,
 						   hf_radiotap_txpower, tvb,
 						   offset, 1,
 						   tvb_get_guint8(tvb, offset));
 			}
-			offset++;
-			length_remaining--;
 			break;
 
 		case IEEE80211_RADIOTAP_ANTENNA:
-			if (length_remaining < 1)
-				break;
 			if (tree) {
 				proto_tree_add_uint(radiotap_tree,
 						    hf_radiotap_antenna, tvb,
@@ -1284,13 +1282,9 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 						    tvb_get_guint8(tvb,
 								   offset));
 			}
-			offset++;
-			length_remaining--;
 			break;
 
 		case IEEE80211_RADIOTAP_DB_ANTSIGNAL:
-			if (length_remaining < 1)
-				break;
 			db = tvb_get_guint8(tvb, offset);
 			col_add_fstr(pinfo->cinfo, COL_RSSI, "%u dB", db);
 			if (tree) {
@@ -1300,13 +1294,9 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 							   "SSI Signal: %u dB",
 							   db);
 			}
-			offset++;
-			length_remaining--;
 			break;
 
 		case IEEE80211_RADIOTAP_DB_ANTNOISE:
-			if (length_remaining < 1)
-				break;
 			db = tvb_get_guint8(tvb, offset);
 			if (tree) {
 				proto_tree_add_uint_format(radiotap_tree,
@@ -1315,19 +1305,12 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 							   "SSI Noise: %u dB",
 							   db);
 			}
-			offset++;
-			length_remaining--;
 			break;
 
 		case IEEE80211_RADIOTAP_RX_FLAGS: {
 			proto_tree *flags_tree;
 
 			if (radiotap_bit14_fcs) {
-				align_offset = ALIGN_OFFSET(offset, 4);
-				offset += align_offset;
-				length_remaining -= align_offset;
-				if (length_remaining < 4)
-					break;
 				if (tree) {
 					sent_fcs = tvb_get_ntohl(tvb, offset);
 					hdr_fcs_ti = proto_tree_add_uint(radiotap_tree,
@@ -1335,16 +1318,9 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 									 offset, 4, sent_fcs);
 					hdr_fcs_offset = offset;
 				}
-				offset += 4;
-				length_remaining -= 4;
 			} else {
 				proto_item *it;
 
-				align_offset = ALIGN_OFFSET(offset, 2);
-				offset += align_offset;
-				length_remaining -= align_offset;
-				if (length_remaining < 2)
-					break;
 				if (tree) {
 					flags = tvb_get_letohs(tvb, offset);
 					it = proto_tree_add_uint(radiotap_tree,
@@ -1357,8 +1333,6 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 							       hf_radiotap_rxflags_badplcp,
 							       tvb, offset, 1, flags);
 				}
-				offset += 2;
-				length_remaining -= 2;
 			}
 			break;
 		}
@@ -1367,11 +1341,6 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			proto_item *it;
 			proto_tree *flags_tree;
 
-			align_offset = ALIGN_OFFSET(offset, 4);
-			offset += align_offset;
-			length_remaining -= align_offset;
-			if (length_remaining < 8)
-				break;
 			if (tree) {
 				int channel;
 				guint8 maxpower;
@@ -1443,19 +1412,14 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 						    tvb, offset + 7, 1, maxpower);
 #endif
 			}
-			offset += 8 /* flags + freq + ieee + maxregpower */ ;
-			length_remaining -= 8;
 			break;
 		}
-
-		default:
-			/*
-			 * This indicates a field whose size we do not
-			 * know, so we cannot proceed.
-			 */
-			next_present = 0;
-			continue;
 		}
+	}
+
+	if (err != -ENOENT && tree) {
+ malformed:
+		proto_item_append_text(ti, " (malformed)");
 	}
 
 	/* This handles the case of an FCS exiting at the end of the frame. */
@@ -1464,6 +1428,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	else
 		pinfo->pseudo_header->ieee_802_11.fcs_len = 0;
 
+ hand_off_to_80211:
 	/* Grab the rest of the frame. */
 	next_tvb = tvb_new_subset_remaining(tvb, length);
 
