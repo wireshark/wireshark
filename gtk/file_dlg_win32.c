@@ -138,8 +138,8 @@ static print_args_t   print_args;
  *       being opened/saved/etc.).
  */
 static HWND           g_sf_hwnd = NULL;
-char *dfilter_open_str = NULL;
-char *dfilter_merge_str = NULL;
+static char *dfilter_open_str = NULL;
+static char *dfilter_merge_str = NULL;
 
 gboolean
 win32_open_file (HWND h_wnd) {
