@@ -32,6 +32,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 static int proto_pptp = -1;
 static int hf_pptp_length = -1;
@@ -92,22 +93,38 @@ static dissector_handle_t data_handle;
 
 #define MAGIC_COOKIE		0x1A2B3C4D
 
+#define CNTRL_REQ 	0x01
+#define CNTRL_REPLY	0x02
+#define STOP_REQ	0x03
+#define STOP_REPLY	0x04
+#define ECHO_REQ	0x05
+#define ECHO_REPLY	0x06
+#define OUT_REQ		0x07
+#define OUT_REPLY	0x08
+#define IN_REQ		0x09
+#define IN_REPLY 	0x0A
+#define IN_CONNECTED	0x0B
+#define CLEAR_REQ	0x0C
+#define DISC_NOTIFY	0x0D
+#define ERROR_NOTIFY	0x0E
+#define SET_LINK	0x0F
+
 static const value_string control_message_type_vals[] = {
-  { 1,	"Start-Control-Connection-Request" },
-  { 2,	"Start-Control-Connection-Reply" },
-  { 3,	"Stop-Control-Connection-Request" },
-  { 4,	"Stop-Control-Connection-Reply" },
-  { 5,	"Echo-Request" },
-  { 6,	"Echo-Reply" },
-  { 7,	"Outgoing-Call-Request" },
-  { 8,	"Outgoing-Call-Reply" },
-  { 9,	"Incoming-Call-Request" },
-  { 10,	"Incoming-Call-Reply" },
-  { 11,	"Incoming-Call-Connected" },
-  { 12,	"Call-Clear-Request" },
-  { 13,	"Call-Disconnect-Notify" },
-  { 14,	"WAN-Error-Notify" },
-  { 15,	"Set-Link-Info" },
+  { CNTRL_REQ,		"Start-Control-Connection-Request" },
+  { CNTRL_REPLY,	"Start-Control-Connection-Reply" },
+  { STOP_REQ,		"Stop-Control-Connection-Request" },
+  { STOP_REPLY,		"Stop-Control-Connection-Reply" },
+  { ECHO_REQ,		"Echo-Request" },
+  { ECHO_REPLY,		"Echo-Reply" },
+  { OUT_REQ,		"Outgoing-Call-Request" },
+  { OUT_REPLY,		"Outgoing-Call-Reply" },
+  { IN_REQ,		"Incoming-Call-Request" },
+  { IN_REPLY,		"Incoming-Call-Reply" },
+  { IN_CONNECTED,	"Incoming-Call-Connected" },
+  { CLEAR_REQ,		"Call-Clear-Request" },
+  { DISC_NOTIFY,	"Call-Disconnect-Notify" },
+  { ERROR_NOTIFY,	"WAN-Error-Notify" },
+  { SET_LINK,	"Set-Link-Info" },
   { 0,	NULL },
 };
 static const value_string msgtype_vals[] = {
@@ -579,8 +596,10 @@ dissect_pptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tvb_get_ntohl(tvb, offset) == MAGIC_COOKIE)
       proto_item_append_text(item," (correct)");
-    else
+    else{
       proto_item_append_text(item," (incorrect)");
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "Incorrect Magic Cookie");
+    }
 
     offset += 4;
 
@@ -591,49 +610,49 @@ dissect_pptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 2;
 
     switch(control_message_type){
-	case 0x01: /* Start-Control-Connection-Request */
+	case CNTRL_REQ: /* Start-Control-Connection-Request */
 		dissect_cntrl_req(tvb, offset, pinfo, pptp_tree);
 	break;
-	case 0x02: /* Start-Control-Connection-Reply */
+	case CNTRL_REPLY: /* Start-Control-Connection-Reply */
 		dissect_cntrl_reply(tvb, offset, pinfo, pptp_tree);
 	break;
-	case 0x03: /* Stop-Control-Connection-Request */
+	case STOP_REQ: /* Stop-Control-Connection-Request */
 		dissect_stop_req(tvb, offset, pinfo, pptp_tree);
 	break;
-	case 0x04: /* Stop-Control-Connection-Reply */
+	case STOP_REPLY: /* Stop-Control-Connection-Reply */
 		dissect_stop_reply(tvb, offset, pinfo, pptp_tree);
 	break;
-	case 0x05: /* Echo-Request */
+	case ECHO_REQ: /* Echo-Request */
 		dissect_echo_req(tvb, offset, pinfo, pptp_tree);
 	break;
-	case 0x06: /* Echo-Reply */
+	case ECHO_REPLY: /* Echo-Reply */
 		dissect_echo_reply(tvb, offset, pinfo, pptp_tree);
 	break;
-	case 0x07: /* Outgoing-Call-Request */
+	case OUT_REQ: /* Outgoing-Call-Request */
 		dissect_out_req(tvb, offset, pinfo, pptp_tree);
 	break;
-	case 0x08: /* Outgoing-Call-Reply */
+	case OUT_REPLY: /* Outgoing-Call-Reply */
 		dissect_out_reply(tvb, offset, pinfo, pptp_tree);
 	break;
-	case 0x09: /* Incoming-Call-Request */
+	case IN_REQ: /* Incoming-Call-Request */
 		dissect_in_req(tvb, offset, pinfo, pptp_tree);
 	break;
-	case 0x0A: /* Incoming-Call-Reply */
+	case IN_REPLY: /* Incoming-Call-Reply */
 		dissect_in_reply(tvb, offset, pinfo, pptp_tree);
 	break;
-	case 0x0B: /* Incoming-Call-Connected */
+	case IN_CONNECTED: /* Incoming-Call-Connected */
 		dissect_in_connected(tvb, offset, pinfo, pptp_tree);
 	break;
-	case 0x0C: /* Call-Clear-Request */
+	case CLEAR_REQ: /* Call-Clear-Request */
 		dissect_clear_req(tvb, offset, pinfo, pptp_tree);
 	break;
-	case 0x0D: /* Call-Disconnect-Notify */
+	case DISC_NOTIFY: /* Call-Disconnect-Notify */
 		dissect_disc_notify(tvb, offset, pinfo, pptp_tree);
 	break;
-	case 0x0E: /* WAN-Error-Notify */
+	case ERROR_NOTIFY: /* WAN-Error-Notify */
 		dissect_error_notify(tvb, offset, pinfo, pptp_tree);
 	break;
-	case 0x0F: /* Set-Link-Info */
+	case SET_LINK: /* Set-Link-Info */
 		dissect_set_link(tvb, offset, pinfo, pptp_tree);
 	break;
 	default: /* Unknown Type... */
