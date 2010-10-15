@@ -7204,7 +7204,6 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0xf821):   /* APIData */
     case(0xf830):   /* LogData */
     case(0xf831):   /* PDevData */
-    case(0xf840):   /* I&M0FilterData */
         offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
         break;
 
@@ -7272,6 +7271,7 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0xf00c):   /* Diagnosis, Maintenance, Qualified and Status for one API */
 
     case(0xf80c):   /* Diagnosis, Maintenance, Qualified and Status for one device */
+    case(0xf840):   /* I&M0FilterData */
     case(0xf841):   /* PDRealData */
     case(0xf842):   /* PDExpectedData */
         offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
