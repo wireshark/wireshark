@@ -13,6 +13,7 @@ S<[ B<-l> ]>
 S<[ B<-n> ]>
 S<[ B<-N> E<lt>name resolving flagsE<gt> ]>
 S<[ B<-o> E<lt>preference settingE<gt> ] ...>
+S<[ B<-p> ]>
 S<[ B<-r> E<lt>pipeE<gt>|- ]>
 S<[ B<-R> E<lt>read (display) filterE<gt> ]>
 S<[ B<-s> ]>
@@ -34,8 +35,9 @@ One or more B<-F> flags should be specified in order for the output to be
 useful. The other flags listed above follow the same conventions as
 B<Wireshark> and B<TShark>.
 
-B<Rawshark> expects input records with the following format. Note that this
-matches the pcap_pkthdr struct and packet data used in libpcap.
+B<Rawshark> expects input records with the following format by default. This
+matches the format of the packet header and packet data in a libpcap-formatted
+file on disk.
 
     struct rawshark_rec_s {
         uint32_t ts_sec;      /* Time stamp (seconds) */
@@ -44,6 +46,20 @@ matches the pcap_pkthdr struct and packet data used in libpcap.
         uint32_t len;         /* "On the wire" length of the packet */
         uint8_t data[caplen]; /* Packet data */
     };
+
+If B<-p> is supplied B<rawshark> expects the following format. This matches the
+pcap_pkthdr struct and packet data used in libpcap. Note that the time stamp
+value will match the previous format on some systems but not others.
+
+    struct rawshark_rec_s {
+        struct timeval ts;    /* Time stamp */
+        uint32_t caplen;      /* Length of the packet buffer */
+        uint32_t len;         /* "On the wire" length of the packet */
+        uint8_t *data;        /* Packet data */
+    };
+
+In either case, the endianness (byte ordering) of each integer must match the
+system on which B<rawshark> is running.
 
 =head1 OUTPUT
 
@@ -155,6 +171,13 @@ from a preference file.  The argument to the option is a string of the
 form I<prefname>B<:>I<value>, where I<prefname> is the name of the
 preference (which is the same name that would appear in the preference
 file), and I<value> is the value to which it should be set.
+
+=item -p
+
+Assume that packet data is preceded by a pcap_pkthdr struct as defined in
+pcap.h. On some systems the size of the timestamp data will be different from
+the data written to disk. On other systems they are identical and this flag has
+no effect.
 
 =item -r  E<lt>pipeE<gt>|-
 

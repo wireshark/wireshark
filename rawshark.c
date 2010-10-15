@@ -140,6 +140,8 @@ typedef enum {
 static gboolean line_buffered;
 static print_format_e print_format = PR_FMT_TEXT;
 
+static gboolean want_pcap_pkthdr;
+
 cf_status_t raw_cf_open(capture_file *cf, const char *fname);
 static int load_cap_file(capture_file *cf);
 static gboolean process_packet(capture_file *cf, gint64 offset,
@@ -202,25 +204,26 @@ print_usage(gboolean print_ver)
 
     fprintf(output, "\n");
     fprintf(output, "Processing:\n");
-    fprintf(output, "  -R <read filter>         packet filter in Wireshark display filter syntax\n");
-    fprintf(output, "  -F <field>               field to display\n");
-    fprintf(output, "  -s                       skip PCAP header on input\n");
-    fprintf(output, "  -n                       disable all name resolution (def: all enabled)\n");
-    fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mntC\"\n");
     fprintf(output, "  -d <encap:dlt>|<proto:protoname>\n");
     fprintf(output, "                           packet encapsulation or protocol\n");
+    fprintf(output, "  -F <field>               field to display\n");
+    fprintf(output, "  -n                       disable all name resolution (def: all enabled)\n");
+    fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mntC\"\n");
+    fprintf(output, "  -p                       use the system's packet header format (which may have 64-bit timestamps)\n");
+    fprintf(output, "  -R <read filter>         packet filter in Wireshark display filter syntax\n");
+    fprintf(output, "  -s                       skip PCAP header on input\n");
 
     /*fprintf(output, "\n");*/
     fprintf(output, "Output:\n");
+    fprintf(output, "  -l                       flush output after each packet\n");
     fprintf(output, "  -S                       format string for fields (%%D - name, %%S - stringval, %%N numval)\n");
     fprintf(output, "  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)\n");
-    fprintf(output, "  -l                       flush output after each packet\n");
 
     fprintf(output, "\n");
     fprintf(output, "Miscellaneous:\n");
     fprintf(output, "  -h                       display this help and exit\n");
-    fprintf(output, "  -v                       display version info and exit\n");
     fprintf(output, "  -o <name>:<value> ...    override preference setting\n");
+    fprintf(output, "  -v                       display version info and exit\n");
 }
 
 static void
@@ -446,7 +449,7 @@ main(int argc, char *argv[])
     guint                fc;
     gboolean             skip_pcap_header = FALSE;
 
-#define OPTSTRING_INIT "d:F:hlnN:o:r:R:sS:t:v"
+#define OPTSTRING_INIT "d:F:hlnN:o:pr:R:sS:t:v"
 
     static const char    optstring[] = OPTSTRING_INIT;
 
@@ -646,6 +649,9 @@ main(int argc, char *argv[])
                         exit(1);
                         break;
                 }
+                break;
+            case 'p':        /* Expect pcap_pkthdr packet headers, which may have 64-bit timestamps */
+                want_pcap_pkthdr = TRUE;
                 break;
             case 'r':        /* Read capture file xxx */
                 pipe_name = g_strdup(optarg);
@@ -876,11 +882,17 @@ main(int argc, char *argv[])
  */
 static gboolean
 raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, const gchar **err_info, gint64 *data_offset) {
-    struct pcaprec_hdr hdr;
+    struct pcap_pkthdr mem_hdr;
+    struct pcaprec_hdr disk_hdr;
     int bytes_read = 0;
-    int bytes_needed = sizeof(struct pcaprec_hdr);
-    guchar *ptr = (guchar*)&hdr;
+    int bytes_needed = sizeof(disk_hdr);
+    guchar *ptr = (guchar*) &disk_hdr;
     static gchar err_str[100];
+
+    if (want_pcap_pkthdr) {
+        bytes_needed = sizeof(mem_hdr);
+        ptr = (guchar*) &mem_hdr;
+    }
 
     /* Copied from capture_loop.c */
     while (bytes_needed > 0) {
@@ -898,10 +910,18 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, const gchar **err
         ptr += bytes_read;
     }
 
-    phdr->ts.secs = hdr.ts_sec;
-    phdr->ts.nsecs = hdr.ts_usec * 1000;
-    phdr->caplen = bytes_needed = hdr.incl_len;
-    phdr->len = hdr.orig_len;
+    if (want_pcap_pkthdr) {
+        phdr->ts.secs = mem_hdr.ts.tv_sec;
+        phdr->ts.nsecs = mem_hdr.ts.tv_usec * 1000;
+        phdr->caplen = bytes_needed = mem_hdr.caplen;
+        phdr->len = mem_hdr.len;
+    } else {
+        phdr->ts.secs = disk_hdr.ts_sec;
+        phdr->ts.nsecs = disk_hdr.ts_usec * 1000;
+        phdr->caplen = bytes_needed = disk_hdr.incl_len;
+        phdr->len = disk_hdr.orig_len;
+    }
+
     phdr->pkt_encap = encap;
 
 #if 0
