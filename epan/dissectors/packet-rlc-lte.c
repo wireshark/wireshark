@@ -157,6 +157,7 @@ static int hf_rlc_lte_sequence_analysis_repeated = -1;
 static int hf_rlc_lte_sequence_analysis_skipped = -1;
 
 static int hf_rlc_lte_sequence_analysis_repeated_nack = -1;
+static int hf_rlc_lte_sequence_analysis_repeated_nack_original_frame = -1;
 
 /* Subtrees. */
 static int ett_rlc_lte = -1;
@@ -353,6 +354,7 @@ typedef struct
 {
     guint16         noOfNACKs;
     guint16         NACKs[MAX_NACKs];
+    guint32         frameNum;
 } rlc_channel_repeated_nack_status;
 
 static GHashTable *rlc_lte_repeated_nack_channel_hash = NULL;
@@ -360,6 +362,7 @@ static GHashTable *rlc_lte_repeated_nack_channel_hash = NULL;
 typedef struct {
     guint16         noOfNACKsRepeated;
     guint16         repeatedNACKs[MAX_NACKs];
+    guint32         previousFrameNum;
 } rlc_channel_repeated_nack_report_in_frame;
 
 static GHashTable *rlc_lte_frame_repeated_nack_report_hash = NULL;
@@ -1105,6 +1108,11 @@ static void addChannelRepeatedNACKInfo(rlc_channel_repeated_nack_report_in_frame
                                p_rlc_lte_info->ueid);
     }
 
+    /* Link back to previous status report */
+    ti = proto_tree_add_uint(seqnum_tree, hf_rlc_lte_sequence_analysis_repeated_nack_original_frame,
+                             tvb, 0, 0, p->previousFrameNum);
+    PROTO_ITEM_SET_GENERATED(ti);
+
     /* Append count to sequence analysis root */
     proto_item_append_text(seqnum_ti, " - %u SNs repeated from previous Status PDU",
                            p->noOfNACKsRepeated);
@@ -1198,6 +1206,8 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
         }
         p_report_in_frame->noOfNACKsRepeated = noOfNACKsRepeated;
 
+        p_report_in_frame->previousFrameNum = p_channel_status->frameNum;
+
         /* Associate with this frame number */
         g_hash_table_insert(rlc_lte_frame_repeated_nack_report_hash, &pinfo->fd->num, p_report_in_frame);
 
@@ -1205,6 +1215,9 @@ static void checkChannelRepeatedNACKInfo(packet_info *pinfo,
         addChannelRepeatedNACKInfo(p_report_in_frame, p_rlc_lte_info,
                                    pinfo, tree, tvb);
     }
+
+    /* Save frame number for next comparison */
+    p_channel_status->frameNum = pinfo->fd->num;
 }
 
 
@@ -2421,6 +2434,12 @@ void proto_register_rlc_lte(void)
         { &hf_rlc_lte_sequence_analysis_repeated_nack,
             { "Repeated NACK",
               "rlc-lte.sequence-analysis.repeated-nack", FT_UINT16, BASE_DEC, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_rlc_lte_sequence_analysis_repeated_nack_original_frame,
+            { "Frame with previous status PDU",
+              "rlc-lte.sequence-analysis.repeated-nack.original-frame",  FT_FRAMENUM, BASE_NONE, 0, 0x0,
               NULL, HFILL
             }
         },
