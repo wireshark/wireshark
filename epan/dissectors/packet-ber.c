@@ -549,7 +549,7 @@ printf("dissect_ber_tagged_type(%s) entered\n",name);
 }
 
 static int
-try_dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree, gint nest_level)
+try_dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, volatile int offset, proto_tree *tree, gint nest_level)
 {
 	int start_offset;
 	gint8 class;
@@ -561,7 +561,8 @@ try_dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 	proto_tree *next_tree=NULL;
 	guint8 c;
 	guint32 i;
-	gboolean is_printable, is_decoded_as;
+	gboolean is_printable;
+	volatile gboolean is_decoded_as;
 	proto_item *pi, *cause;
 	asn1_ctx_t asn1_ctx;
 
@@ -617,7 +618,7 @@ try_dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 		case BER_UNI_TAG_OCTETSTRING:
 			is_decoded_as = FALSE;
 			if (decode_octetstring_as_ber && len >= 2) {
-				int ber_offset = 0;
+				volatile int ber_offset = 0;
 				guint32 ber_len = 0;
 				TRY {
 					ber_offset = get_ber_identifier(tvb, offset, NULL, &pc, NULL);
@@ -710,7 +711,7 @@ try_dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 
 	    is_decoded_as = FALSE;
 	    if (decode_primitive_as_ber && len >= 2) {
-	      int ber_offset = 0;
+	      volatile int ber_offset = 0;
 	      guint32 ber_len = 0;
 	      TRY {
 		ber_offset = get_ber_identifier(tvb, offset, NULL, &pc, NULL);
