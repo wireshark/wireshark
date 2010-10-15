@@ -136,10 +136,13 @@ static int
 dissect_PNMRP_LinkUp(tvbuff_t *tvb, int offset, 
 	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
+    guint8 mac[6];
     guint16 port_role;
     guint16 interval;
     guint16 blocked;
 
+    /* MRP_SA */
+    offset = dissect_pn_mac(tvb, offset, pinfo, tree, hf_pn_mrp_sa, mac);
 
     /* MRP_PortRole */
     offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_port_role, &port_role);
@@ -165,10 +168,13 @@ static int
 dissect_PNMRP_LinkDown(tvbuff_t *tvb, int offset, 
 	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
+    guint8 mac[6];
     guint16 port_role;
     guint16 interval;
     guint16 blocked;
 
+    /* MRP_SA */
+    offset = dissect_pn_mac(tvb, offset, pinfo, tree, hf_pn_mrp_sa, mac);
 
     /* MRP_PortRole */
     offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_port_role, &port_role);
