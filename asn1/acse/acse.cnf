@@ -90,6 +90,16 @@ PDV-list/presentation-data-values/octet-aligned		pDVList_octet_aligned
 #.FN_BODY EXTERNALt/_untag/encoding/octet-aligned
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree ? top_tree : tree);
 
+#.FN_BODY AARQ-apdu
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "A-Associate-Request");
+
+  %(DEFAULT_BODY)s
+
+#.FN_BODY AARE-apdu
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "A-Associate-Response");
+
+  %(DEFAULT_BODY)s
+
 #.FN_BODY RLRQ-apdu
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Release-Request");
 
