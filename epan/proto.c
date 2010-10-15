@@ -3441,7 +3441,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gchar *result,
 		finfos = proto_get_finfo_ptr_array(tree, hfinfo->id);
 
 		if (!finfos || !(len = g_ptr_array_len(finfos))) {
-			hfinfo = hfinfo->same_name_next;
+			hfinfo = hfinfo->same_name_prev;
 			continue;
 		}
 		/* get the last one  */
