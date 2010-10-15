@@ -973,6 +973,9 @@ static void show_extra_phy_parameters(packet_info *pinfo, tvbuff_t *tvb, proto_t
     proto_tree *phy_tree;
     proto_item *ti;
 
+    /* Clear the info column */
+    col_clear(pinfo->cinfo, COL_INFO);
+
     if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
         if (p_mac_lte_info->detailed_phy_info.ul_info.present) {
 
@@ -1007,7 +1010,9 @@ static void show_extra_phy_parameters(packet_info *pinfo, tvbuff_t *tvb, proto_t
 
             write_pdu_label_and_info(phy_ti, NULL,
                                      (global_mac_lte_layer_to_show == ShowPHYLayer) ? pinfo : NULL,
-                                     "%s Tbs_Index=%u RB_len=%u RB_start=%u",
+                                     "UL: UEId=%u RNTI=%u %s Tbs_Index=%u RB_len=%u RB_start=%u",
+                                     p_mac_lte_info->ueid,
+                                     p_mac_lte_info->rnti,
                                      val_to_str_const(p_mac_lte_info->detailed_phy_info.ul_info.modulation_type,
                                                       modulation_type_vals, "Unknown"),
                                      p_mac_lte_info->detailed_phy_info.ul_info.tbs_index,
@@ -1071,8 +1076,10 @@ static void show_extra_phy_parameters(packet_info *pinfo, tvbuff_t *tvb, proto_t
 
             write_pdu_label_and_info(phy_ti, NULL,
                                      (global_mac_lte_layer_to_show == ShowPHYLayer) ? pinfo : NULL,
-                                     "DCI_Format=%s Res_Alloc=%u Aggr_Level=%s MCS=%u RV=%u "
+                                     "DL: UEId=%u RNTI=%u DCI_Format=%s Res_Alloc=%u Aggr_Level=%s MCS=%u RV=%u "
                                      "Res_Block_len=%u CRC_status=%s",
+                                     p_mac_lte_info->ueid,
+                                     p_mac_lte_info->rnti,
                                      val_to_str_const(p_mac_lte_info->detailed_phy_info.dl_info.dci_format,
                                                       dci_format_vals, "Unknown"),
                                      p_mac_lte_info->detailed_phy_info.dl_info.resource_allocation_type,
