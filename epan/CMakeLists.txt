@@ -395,6 +395,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-clip.c
 	dissectors/packet-clnp.c
 	dissectors/packet-cmpp.c
+	dissectors/packet-coap.c
 	dissectors/packet-collectd.c
 	dissectors/packet-componentstatus.c
 	dissectors/packet-cops.c

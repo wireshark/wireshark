@@ -2422,6 +2422,7 @@ Takeshi Nakashima	<T.Nakashima [AT] jp.yokogawa.com> {
 
 Shoichi Sakane		<sakane [AT] tanu.org> {
 	IKEv2 support
+	COAP protocol support
 }
 
 Michael Richardson 	<Michael.Richardson [AT] protiviti.com> {
