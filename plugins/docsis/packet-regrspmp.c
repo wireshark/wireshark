@@ -34,7 +34,6 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_docsis_regrspmp = -1;
-static int hf_docsis_regrspmp = -1;
 
 static int hf_docsis_regrspmp_sid = -1;
 
@@ -94,11 +93,6 @@ proto_register_docsis_regrspmp (void)
 
 	/* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
-		{&hf_docsis_regrspmp,
-		{"REG-RSP-MP Message", "docsis_regrspmp",
-		FT_BYTES, BASE_NONE, NULL, 0x0,
-		NULL, HFILL}
-		},
 		{&hf_docsis_regrspmp_sid,
 		{"Sid", "docsis_regrspmp.sid",
 		FT_UINT16, BASE_DEC, NULL, 0x0,

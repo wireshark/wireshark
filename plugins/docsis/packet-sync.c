@@ -32,7 +32,6 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_docsis_sync = -1;
-static int hf_docsis_sync = -1;
 static int hf_docsis_sync_cmts_timestamp = -1;
 
 
@@ -72,11 +71,6 @@ proto_register_docsis_sync (void)
 {
 	/* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
-		{&hf_docsis_sync,
-		{"SYNC Message", "docsis_sync",
-		FT_BYTES, BASE_NONE, NULL, 0x0,
-		NULL, HFILL}
-		},
 		{&hf_docsis_sync_cmts_timestamp,
 		{"CMTS Timestamp", "docsis_sync.cmts_timestamp",
 		FT_UINT32, BASE_DEC, NULL, 0x0,

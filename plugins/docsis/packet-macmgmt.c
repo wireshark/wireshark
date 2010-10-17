@@ -64,7 +64,6 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_docsis_mgmt = -1;
-static int hf_docsis_mgt_hdr = -1;
 static int hf_docsis_mgt_dst_addr = -1;
 static int hf_docsis_mgt_src_addr = -1;
 static int hf_docsis_mgt_msg_len = -1;
@@ -196,11 +195,6 @@ proto_register_docsis_mgmt (void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
-    {&hf_docsis_mgt_hdr,
-     {"Mac Management Header", "docsis_mgmt",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL}
-     },
     {&hf_docsis_mgt_dst_addr,
      {"Destination Address", "docsis_mgmt.dst",
       FT_ETHER, BASE_NONE, NULL, 0x0,

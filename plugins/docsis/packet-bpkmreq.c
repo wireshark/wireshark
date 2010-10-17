@@ -31,7 +31,6 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_docsis_bpkmreq = -1;
-static int hf_docsis_bpkmreq = -1;
 static int hf_docsis_bpkmreq_code = -1;
 static int hf_docsis_bpkmreq_length = -1;
 static int hf_docsis_bpkmreq_ident = -1;
@@ -115,11 +114,6 @@ proto_register_docsis_bpkmreq (void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
-    {&hf_docsis_bpkmreq,
-     {"BPKM Request Message", "docsis_bpkmreq",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL}
-     },
     {&hf_docsis_bpkmreq_code,
      {"BPKM Code", "docsis_bpkmreq.code",
       FT_UINT8, BASE_DEC, VALS (code_field_vals), 0x0,

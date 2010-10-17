@@ -31,7 +31,6 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_docsis_bintrngreq = -1;
-static int hf_docsis_bintrngreq = -1;
 static int hf_docsis_bintrngreq_down_chid = -1;
 static int hf_docsis_bintrngreq_mddsgid = -1;
 static int hf_docsis_bintrngreq_capflags = -1;
@@ -93,11 +92,6 @@ proto_register_docsis_bintrngreq (void)
 {
   /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
-    {&hf_docsis_bintrngreq,
-     {"RNG-REQ Message", "docsis_bintrngreq",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      "Ranging Request Message", HFILL}
-    },
     {&hf_docsis_bintrngreq_capflags,
      {"Capability Flags", "docsis_bintrngreq.capflags",
       FT_UINT8, BASE_HEX, NULL, 0x0,

@@ -31,7 +31,6 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_docsis_uccreq = -1;
-static int hf_docsis_uccreq = -1;
 static int hf_docsis_uccreq_upchid = -1;
 static dissector_handle_t docsis_tlv_handle;
 
@@ -89,11 +88,6 @@ proto_register_docsis_uccreq (void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
-    {&hf_docsis_uccreq,
-     {"Upstream Channel Change Request", "docsis_uccreq",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL}
-     },
     {&hf_docsis_uccreq_upchid,
      {"Upstream Channel Id", "docsis_uccreq.upchid",
       FT_UINT8, BASE_DEC, NULL, 0x0,

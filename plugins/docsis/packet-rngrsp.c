@@ -39,7 +39,6 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_docsis_rngrsp = -1;
-static int hf_docsis_rngrsp = -1;
 static int hf_docsis_rngrsp_upstream_chid = -1;
 static int hf_docsis_rngrsp_sid = -1;
 static int hf_docsis_rngrsp_timing_adj = -1;
@@ -199,11 +198,6 @@ proto_register_docsis_rngrsp (void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
-    {&hf_docsis_rngrsp,
-     {"RNG-RSP Message", "docsis_rngrsp",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      "Ranging Response Message", HFILL}
-     },
     {&hf_docsis_rngrsp_sid,
      {"Service Identifier", "docsis_rngrsp.sid",
       FT_UINT16, BASE_DEC, NULL, 0x0,

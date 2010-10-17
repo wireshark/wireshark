@@ -33,7 +33,6 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_docsis_regreqmp = -1;
-static int hf_docsis_regreqmp = -1;
 
 static int hf_docsis_regreqmp_sid = -1;
 
@@ -87,11 +86,6 @@ proto_register_docsis_regreqmp (void)
 {
 	/* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
-		{&hf_docsis_regreqmp,
-		{"REG-REQ-MP Message", "docsis_regreqmp",
-		FT_BYTES, BASE_NONE, NULL, 0x0,
-		NULL, HFILL}
-		},
 		{&hf_docsis_regreqmp_sid,
 		{"Sid", "docsis_regreqmp.sid",
 		FT_UINT16, BASE_DEC, NULL, 0x0,

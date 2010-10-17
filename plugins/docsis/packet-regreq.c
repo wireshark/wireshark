@@ -31,7 +31,6 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_docsis_regreq = -1;
-static int hf_docsis_regreq = -1;
 static int hf_docsis_regreq_sid = -1;
 
 
@@ -89,11 +88,6 @@ proto_register_docsis_regreq (void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
-    {&hf_docsis_regreq,
-     {"Registration Request", "docsis_regreq",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL}
-     },
     {&hf_docsis_regreq_sid,
      {"Service Identifier", "docsis_regreq.sid",
       FT_UINT16, BASE_DEC, NULL, 0x0,

@@ -65,7 +65,6 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_docsis_bpkmattr = -1;
-static int hf_docsis_bpkmattr = -1;
 static int hf_docsis_bpkmattr_serial_num = -1;
 static int hf_docsis_bpkmattr_manf_id = -1;
 static int hf_docsis_bpkmattr_mac_addr = -1;
@@ -389,11 +388,6 @@ proto_register_docsis_bpkmattr (void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
-    {&hf_docsis_bpkmattr,
-     {"BPKM Attributes", "docsis_bpkmattr",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL}
-     },
     {&hf_docsis_bpkmattr_serial_num,
      {"1 Serial Number", "docsis_bpkmattr.serialnum",
       FT_STRING, BASE_NONE, NULL, 0x0,

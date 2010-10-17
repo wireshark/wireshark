@@ -32,7 +32,6 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_docsis_intrngreq = -1;
-static int hf_docsis_intrngreq = -1;
 static int hf_docsis_intrngreq_down_chid = -1;
 static int hf_docsis_intrngreq_sid = -1;
 static int hf_docsis_intrngreq_up_chid = -1;
@@ -88,11 +87,6 @@ proto_register_docsis_intrngreq (void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
-    {&hf_docsis_intrngreq,
-     {"RNG-REQ Message", "docsis_intrngreq",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      "Ranging Request Message", HFILL}
-     },
     {&hf_docsis_intrngreq_sid,
      {"Service Identifier", "docsis_intrngreq.sid",
       FT_UINT16, BASE_DEC, NULL, 0x0,

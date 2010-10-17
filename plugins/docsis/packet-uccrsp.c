@@ -31,7 +31,6 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_docsis_uccrsp = -1;
-static int hf_docsis_uccrsp = -1;
 static int hf_docsis_uccrsp_upchid = -1;
 
 
@@ -82,11 +81,6 @@ proto_register_docsis_uccrsp (void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
-    {&hf_docsis_uccrsp,
-     {"Upstream Channel Change Request", "docsis_uccrsp",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL}
-     },
     {&hf_docsis_uccrsp_upchid,
      {"Upstream Channel Id", "docsis_uccrsp.upchid",
       FT_UINT8, BASE_DEC, NULL, 0x0,

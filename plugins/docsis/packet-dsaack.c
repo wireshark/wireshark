@@ -31,7 +31,6 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_docsis_dsaack = -1;
-static int hf_docsis_dsaack = -1;
 static int hf_docsis_dsaack_tranid = -1;
 static int hf_docsis_dsaack_response = -1;
 static dissector_handle_t docsis_tlv_handle;
@@ -93,11 +92,6 @@ proto_register_docsis_dsaack (void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
-    {&hf_docsis_dsaack,
-     {"Dynamic Service Add Ack", "docsis_dsaack",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      "Dynamic Service Add Request", HFILL}
-     },
     {&hf_docsis_dsaack_tranid,
      {"Transaction Id", "docsis_dsaack.tranid",
       FT_UINT16, BASE_DEC, NULL, 0x0,

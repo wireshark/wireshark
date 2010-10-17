@@ -42,7 +42,6 @@ static dissector_handle_t docsis_vsif_handle;
 
 
 static int proto_docsis_tlv = -1;
-static int hf_docsis_tlv = -1;
 static int hf_docsis_tlv_down_freq = -1;
 static int hf_docsis_tlv_upstream_chid = -1;
 static int hf_docsis_tlv_net_access = -1;
@@ -2091,11 +2090,6 @@ proto_register_docsis_tlv (void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
-    {&hf_docsis_tlv,
-     {"TLV Data", "docsis_tlv",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL}
-     },
     {&hf_docsis_tlv_down_freq,
      {"1 Downstream Frequency", "docsis_tlv.downfreq",
       FT_UINT32, BASE_DEC, NULL, 0x0,

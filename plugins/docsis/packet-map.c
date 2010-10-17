@@ -48,7 +48,6 @@ static int proto_docsis_map = -1;
 static int hf_docsis_map_upstream_chid = -1;
 static int hf_docsis_map_ucd_count = -1;
 static int hf_docsis_map_numie = -1;
-static int hf_docsis_map = -1;
 static int hf_docsis_map_alloc_start = -1;
 static int hf_docsis_map_ack_time = -1;
 static int hf_docsis_map_rng_start = -1;
@@ -176,11 +175,6 @@ proto_register_docsis_map (void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
-    {&hf_docsis_map,
-     {"Map Message", "docsis_map",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL}
-     },
     {&hf_docsis_map_ucd_count,
      {"UCD Count", "docsis_map.ucdcount",
       FT_UINT8, BASE_DEC, NULL, 0x0,

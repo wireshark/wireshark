@@ -31,7 +31,6 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_docsis_regack = -1;
-static int hf_docsis_regack = -1;
 static int hf_docsis_regack_sid = -1;
 static int hf_docsis_regack_response = -1;
 static dissector_handle_t docsis_tlv_handle;
@@ -93,11 +92,6 @@ proto_register_docsis_regack (void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
-    {&hf_docsis_regack,
-     {"Registration Request", "docsis_regack",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL}
-     },
     {&hf_docsis_regack_sid,
      {"Service Identifier", "docsis_regack.sid",
       FT_UINT16, BASE_DEC, NULL, 0x0,

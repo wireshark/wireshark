@@ -60,7 +60,6 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_docsis_vsif = -1;
-static int hf_docsis_vsif = -1;
 static int hf_docsis_vsif_vendorid = -1;
 static int hf_docsis_vsif_vendor_unknown = -1;
 static int hf_docsis_vsif_cisco_numphones = -1;
@@ -229,11 +228,6 @@ proto_register_docsis_vsif (void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
-    {&hf_docsis_vsif,
-     {"VSIF Encodings", "docsis_vsif",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      "Vendor Specific Encodings", HFILL}
-     },
     {&hf_docsis_vsif_vendorid,
      {"Vendor Id", "docsis_vsif.vendorid",
       FT_UINT24, BASE_HEX, VALS(vendorid_vals), 0x0,

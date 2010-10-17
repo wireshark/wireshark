@@ -31,7 +31,6 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_docsis_dsdreq = -1;
-static int hf_docsis_dsdreq = -1;
 static int hf_docsis_dsdreq_tranid = -1;
 static int hf_docsis_dsdreq_rsvd = -1;
 static int hf_docsis_dsdreq_sfid = -1;
@@ -92,11 +91,6 @@ proto_register_docsis_dsdreq (void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
-    {&hf_docsis_dsdreq,
-     {"Dynamic Service Delete Request", "docsis_dsdreq",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL}
-     },
     {&hf_docsis_dsdreq_tranid,
      {"Transaction Id", "docsis_dsdreq.tranid",
       FT_UINT16, BASE_DEC, NULL, 0x0,

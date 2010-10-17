@@ -237,7 +237,6 @@ static const value_string upstream_transmit_power_reporting_vals[] = {
 
 /* Initialize the protocol and registered fields */
 static int proto_docsis_mdd = -1;
-static int hf_docsis_mdd = -1;
 static int hf_docsis_mdd_ccc = -1;
 static int hf_docsis_mdd_number_of_fragments = -1;
 static int hf_docsis_mdd_fragment_sequence_number = -1;
@@ -541,11 +540,6 @@ void proto_register_docsis_mdd (void)
 {
 	/* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
-		{&hf_docsis_mdd,
-		{"Map Message", "docsis_mdd",
-		FT_BYTES, BASE_NONE, NULL, 0x0,
-		NULL, HFILL}
-		},
 		{&hf_docsis_mdd_ccc,
 		{"Configuration Change Count", "docsis_mdd.ccc",
 		FT_UINT8, BASE_DEC, NULL, 0x0,

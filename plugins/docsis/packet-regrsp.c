@@ -31,7 +31,6 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_docsis_regrsp = -1;
-static int hf_docsis_regrsp = -1;
 static int hf_docsis_regrsp_sid = -1;
 static int hf_docsis_regrsp_response = -1;
 static dissector_handle_t docsis_tlv_handle;
@@ -91,11 +90,6 @@ proto_register_docsis_regrsp (void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
-    {&hf_docsis_regrsp,
-     {"Registration Response", "docsis_regrsp",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      "Registration Request", HFILL}
-     },
     {&hf_docsis_regrsp_sid,
      {"Service Identifier", "docsis_regrsp.sid",
       FT_UINT16, BASE_DEC, NULL, 0x0,

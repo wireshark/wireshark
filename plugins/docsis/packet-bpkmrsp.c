@@ -31,7 +31,6 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_docsis_bpkmrsp = -1;
-static int hf_docsis_bpkmrsp = -1;
 static int hf_docsis_bpkmrsp_code = -1;
 static int hf_docsis_bpkmrsp_length = -1;
 static int hf_docsis_bpkmrsp_ident = -1;
@@ -113,11 +112,6 @@ proto_register_docsis_bpkmrsp (void)
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
-    {&hf_docsis_bpkmrsp,
-     {"BPKM Response Message", "docsis_bpkmrsp",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL}
-     },
     {&hf_docsis_bpkmrsp_code,
      {"BPKM Code", "docsis_bpkmrsp.code",
       FT_UINT8, BASE_DEC, VALS (code_field_vals), 0x0,
