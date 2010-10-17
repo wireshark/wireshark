@@ -55,10 +55,6 @@ static int hf_eth_type      = -1;
 static guint32    tte_pref_ct_marker    = 0xFFFFFFFF;
 static guint32    tte_pref_ct_mask      = 0x0;
 
-#if 0
-static dissector_table_t ethertype_dissector_table;
-#endif
-
 /* Initialize the subtree pointers */
 static gint ett_tte = -1;
 static gint ett_tte_macdest = -1;
@@ -132,12 +128,6 @@ dissect_tte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_fence(pinfo->cinfo, COL_PROTOCOL);
 
     /* call std Ethernet dissector */
-
-#if 0
-    dissector_try_port(ethertype_dissector_table,
-        tvb_get_ntohs(tvb, TTE_MAC_LENGTH * 2), tvb_next, pinfo, tree);
-
-#endif
     ethertype (tvb_get_ntohs(tvb, TTE_MAC_LENGTH * 2), tvb
         , 14, pinfo, tree, NULL, hf_eth_type, 0, 0 );
 
@@ -151,22 +141,6 @@ proto_register_tte(void)
     module_t *tte_module;
 
     static hf_register_info hf[] = {
-
-        { &hf_eth_dst,
-          { "Destination",      "eth.dst",
-            FT_ETHER, BASE_NONE, NULL, 0x0,
-            "Destination Hardware Address", HFILL }
-        },
-        { &hf_eth_src,
-          { "Source",           "eth.src",
-            FT_ETHER, BASE_NONE, NULL, 0x0,
-            "Source Hardware Address", HFILL }
-        },
-        { &hf_eth_type,
-          { "Type",             "eth.type",
-            FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
-            NULL, HFILL }
-        },
         { &hf_tte_dst_cf,
           { "Constant Field",   "tte.cf",
             FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -214,8 +188,7 @@ proto_reg_handoff_tte(void)
 {
     heur_dissector_add("eth", dissect_tte, proto_tte);
 
-#if 0
-    /* find the ethertype dissector table */
-    ethertype_dissector_table = find_dissector_table("ethertype");
-#endif
+    hf_eth_dst  = proto_registrar_get_byname ("eth.dst")->id;
+    hf_eth_src  = proto_registrar_get_byname ("eth.src")->id;
+    hf_eth_type = proto_registrar_get_byname ("eth.type")->id;
 }
