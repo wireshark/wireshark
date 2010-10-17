@@ -1384,8 +1384,14 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 	timeval.secs = val;
 	if (IS_FT_UINT(hfi->type)) {
 		it = proto_tree_add_uint(tree, hf_index, tvb, val_start, val_length, val);
+		if (val > max) {
+			expert_add_info_format(actx->pinfo, it, PI_MALFORMED, PI_ERROR, "Constrained integer value %u is out of [%u..%u] range", val, min, max);
+		}
 	} else if (IS_FT_INT(hfi->type)) {
 		it = proto_tree_add_int(tree, hf_index, tvb, val_start, val_length, val);
+		if ((gint32)val > (gint32)max) {
+			expert_add_info_format(actx->pinfo, it, PI_MALFORMED, PI_ERROR, "Constrained integer value %d is out of [%d..%d] range", (gint32)val, (gint32)min, (gint32)max);
+		}
 	} else if (IS_FT_TIME(hfi->type)) {
 		it = proto_tree_add_time(tree, hf_index, tvb, val_start, val_length, &timeval);
 	} else {
@@ -1585,8 +1591,16 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 
 	if (IS_FT_UINT(hfi->type)) {
 		it = proto_tree_add_uint64(tree, hf_index, tvb, val_start, val_length, val);
+		if (val > max) {
+			expert_add_info_format(actx->pinfo, it, PI_MALFORMED, PI_ERROR, "Constrained integer value %" G_GINT64_MODIFIER
+				"u is out of [%" G_GINT64_MODIFIER "u..%" G_GINT64_MODIFIER "u] range", val, min, max);
+		}
 	} else if (IS_FT_INT(hfi->type)) {
 		it = proto_tree_add_int64(tree, hf_index, tvb, val_start, val_length, val);
+		if ((gint64)val > (gint64)max) {
+			expert_add_info_format(actx->pinfo, it, PI_MALFORMED, PI_ERROR, "Constrained integer value %" G_GINT64_MODIFIER
+				"d is out of [%" G_GINT64_MODIFIER "d..%" G_GINT64_MODIFIER "d] range", (gint64)val, (gint64)min, (gint64)max);
+		}
 	} else if (IS_FT_TIME(hfi->type)) {
 		timeval.secs = (guint32)val;
 		it = proto_tree_add_time(tree, hf_index, tvb, val_start, val_length, &timeval);
