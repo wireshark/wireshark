@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2010-10-07)
+(last updated 2010-10-15)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -11809,7 +11809,16 @@ npqes-test      4703/tcp   Network Performance Quality Evaluation System Test Se
 assuria-ins     4704/tcp   Assuria Insider
 #                          Nick Connor <nickc&assuria.com> 30 June 2010
 #               4704/udp   Reserved
-#               4705-4727  Unassigned
+#               4705-4724  Unassigned
+truckstar       4725/tcp   TruckStar Service
+truckstar       4725/udp   TruckStar Service
+#                          Brian Toothill <brian.toothill&touchstar.co.uk> 15 October 2010
+#               4726/tcp   Reserved
+a26-fap-fgw     4726/udp   A26 (FAP-FGW)
+#                          David Ott <dott&qualcomm.com> 15 October 2010
+fcis            4727/tcp   F-Link Client Information Service
+fcis-disc       4727/udp   F-Link Client Information Service Discovery
+#                          Makoto Zukawa <zukawa&jp.fujitsu.com> 15 October 2010 
 capmux		4728/tcp   CA Port Multiplexer
 capmux		4728/udp   CA Port Multiplexer
 #			   Nigel Groves <nigel.groves&ca.com> June 2006
@@ -12040,6 +12049,7 @@ dbsyncarbiter   4953/tcp   Synchronization Arbiter
 #                          Dave Neudoerffer <dave.neudoerffer&sybase.com> 18 November 2009
 #               4953/udp   Reserved
 #               4954-4968  Unassigned
+###UNAUTHORIZED USE: port 4967 by Rockwell FTA#######
 ccss-qmm        4969/tcp   CCSS QMessageMonitor
 ccss-qmm        4969/udp   CCSS QMessageMonitor
 ccss-qsm        4970/tcp   CCSS QSystemMonitor
@@ -13527,9 +13537,9 @@ netconf-tls     6513/tcp   NETCONF over TLS
 syslog-tls      6514/tcp   Syslog over TLS
 #                          [RFC5425]
 syslog-tls      6514/udp   syslog over DTLS
-#                          [RFC-ietf-syslog-dtls-06.txt]
+#                          [RFC6012]
 syslog-tls      6514/dccp  syslog over DTLS
-#                          [RFC-ietf-syslog-dtls-06.txt]
+#                          [RFC6012]
 elipse-rec      6515/tcp   Elipse RPC Protocol
 elipse-rec      6515/udp   Elipse RPC Protocol
 #			   Flávio Englert <flavio&elipse.com.br> 17 September 2007
@@ -15937,7 +15947,8 @@ biimenu         18000/udp  Beckman Instruments, Inc.
 #                          R. L. Meyering <RLMEYERING&BIIVAX.DP.BECKMAN.COM>
 #               18001-18103 Unassigned
 radpdf          18104/tcp  RAD PDF Service
-#                          Christopher Truxaw <ctruxaw&ctdeveloping.com> 13 April 2010
+#                          Old contact: Christopher Truxaw <ctruxaw&ctdeveloping.com> 13 April 2010
+#                          Current contact: Christopher Truxaw <ctruxaw&redsoftware.com> 15 October 2010
 #               18104/udp  Reserved
 #               18105-18135 Unassigned
 racf            18136/tcp  z/OS Resource Access Control Facility
@@ -16382,7 +16393,8 @@ imagepump       27345/udp  ImagePump
 #               27346-27441 Unassigned
 jesmsjc		27442/tcp  Job controller service
 jesmsjc		27442/udp  Job controller service
-#			   Peter Coates <peter.coates&sun.com> April 2006
+#			   Old contact: Peter Coates <peter.coates&sun.com> April 2006
+#                          Current contact: Chris Newman <chris.newman&oracle.com> 15 October 2010
 #               27443-27503 Unassigned
 kopek-httphead  27504/tcp  Kopek HTTP Head Port
 kopek-httphead  27504/udp  Kopek HTTP Head Port
@@ -16527,7 +16539,11 @@ filenet-obrok	32777/udp   FileNet BPM CORBA
 mlsn            32801/tcp   Multiple Listing Service Network
 mlsn            32801/udp   Multiple Listing Service Network
 #                           Corey Leong <cleong&gr8c.org> 27 January 2010
-#               32802-32895 Unassigned
+#               32802-32810 Unassigned
+retp            32811/tcp   Real Estate Transport Protocol
+#                           Corey Leong <cleong&gr8c.org> 11 October 2010
+#               32811/udp   Reserved
+#               32812-32895 Unassigned
 idmgratm        32896/tcp   Attachmate ID Manager
 idmgratm        32896/udp   Attachmate ID Manager
 #                           George Gianelos <GeorgeGi&Attachmate.com> March 2003
@@ -17007,9 +17023,8 @@ References
 [RFC5971]  H. Schulzrinne, R. Hancock, "GIST: General Internet Signalling Transport", 
            RFC 5971, October 2010.
 
-[RFC-ietf-syslog-dtls-06.txt]
-           J. Salowey, T. Petch, T. Gerhards, H. Feng, "Datagram Transport Layer Security 
-           (DTLS) Transport Mapping for Syslog", RFC XXXX, Month Year. 
+[RFC6012]  J. Salowey, T. Petch, T. Gerhards, H. Feng, "Datagram Transport Layer Security 
+           (DTLS) Transport Mapping for Syslog", RFC 6012, October 2010.
 
 [RFC-moriarty-post-inch-rid-transport-03.txt]
             K. Moriarty and B. Trammell, "Transport of Real-time Inter-network Defense 
