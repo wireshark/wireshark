@@ -95,10 +95,6 @@ static int hf_cip_genstat = -1;
 static int hf_cip_fwo_comp = -1;
 static int hf_cip_fwo_mrev = -1;
 
-static int hf_cip_cm_sc            = -1;
-static int hf_cip_cm_rr            = -1;
-static int hf_cip_cm_fwo_comp      = -1;
-static int hf_cip_cm_fwo_mrev      = -1;
 static int hf_cip_cm_fwo_con_size  = -1;
 static int hf_cip_cm_fwo_fixed_var = -1;
 static int hf_cip_cm_fwo_prio      = -1;
@@ -129,12 +125,6 @@ static int hf_cip_conpoint8           = -1;
 static int hf_cip_conpoint16          = -1;
 static int hf_cip_conpoint32          = -1;
 static int hf_cip_symbol              = -1;
-
-static int hf_cip_mr_sc = -1;
-static int hf_cip_mr_rr = -1;
-
-static int hf_cip_cco_sc = -1;
-static int hf_cip_cco_rr = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_cip               = -1;
@@ -2933,26 +2923,6 @@ proto_register_cip(void)
    };
 
    static hf_register_info hf_cm[] = {
-      { &hf_cip_cm_rr,
-         { "Request/Response", "cip.rr",
-         FT_UINT8, BASE_HEX, VALS(cip_sc_rr), 0x80,
-         "Request or Response message", HFILL }
-      },
-      { &hf_cip_cm_sc,
-         { "Service", "cip.sc",
-         FT_UINT8, BASE_HEX, VALS(cip_sc_vals), 0x7F,
-         "Service Code", HFILL }
-      },
-      { &hf_cip_cm_fwo_comp,
-         { "Compatibility", "cip.cm.fwo.cmp",
-         FT_UINT8, BASE_HEX, VALS(cip_com_bit_vals), 0x80,
-         "Fwd Open: Compatibility bit", HFILL }
-      },
-      { &hf_cip_cm_fwo_mrev,
-         { "Major Revision", "cip.cm.fwo.major",
-         FT_UINT8, BASE_DEC, NULL, 0x7F,
-         "Fwd Open: Major Revision", HFILL }
-      },
       { &hf_cip_cm_fwo_con_size,
          { "Connection Size", "cip.cm.fwo.consize",
          FT_UINT16, BASE_DEC, NULL, 0x01FF,
@@ -2992,32 +2962,6 @@ proto_register_cip(void)
          { "Class", "cip.cm.fwo.transport",
          FT_UINT8, BASE_DEC, VALS(cip_con_class_vals), 0x0F,
          "Fwd Open: Transport Class", HFILL }
-      }
-   };
-
-   static hf_register_info hf_mr[] = {
-      { &hf_cip_mr_rr,
-         { "Request/Response", "cip.rr",
-         FT_UINT8, BASE_HEX, VALS(cip_sc_rr), 0x80,
-         "Request or Response message", HFILL }
-      },
-      { &hf_cip_mr_sc,
-         { "Service", "cip.sc",
-         FT_UINT8, BASE_HEX, VALS(cip_sc_vals), 0x7F,
-         "Service Code", HFILL }
-      }
-   };
-
-   static hf_register_info hf_cco[] = {
-      { &hf_cip_cco_rr,
-         { "Request/Response", "cip.rr",
-         FT_UINT8, BASE_HEX, VALS(cip_sc_rr), 0x80,
-         "Request or Response message", HFILL }
-      },
-      { &hf_cip_cco_sc,
-         { "Service", "cip.sc",
-         FT_UINT8, BASE_HEX, VALS(cip_sc_vals), 0x7F,
-         "Service Code", HFILL }
       }
    };
 
@@ -3076,7 +3020,6 @@ proto_register_cip(void)
    /* Register the protocol name and description */
    proto_cip_class_mr = proto_register_protocol("CIP Message Router",
        "CIPMR", "cipmr");
-   proto_register_field_array(proto_cip_class_mr, hf_mr, array_length(hf_mr));
    proto_register_subtree_array(ett_mr, array_length(ett_mr));
 
    proto_cip_class_cm = proto_register_protocol("CIP Connection Manager",
@@ -3086,7 +3029,6 @@ proto_register_cip(void)
 
    proto_cip_class_cco = proto_register_protocol("CIP Connection Configuration Object",
        "CIPCCO", "cipcco");
-   proto_register_field_array(proto_cip_class_cco, hf_cco, array_length(hf_cco));
    proto_register_subtree_array(ett_cco, array_length(ett_cco));
 
    register_init_routine(&cip_init_protocol);
