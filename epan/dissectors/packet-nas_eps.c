@@ -332,6 +332,9 @@ calc_bitrate_ext(guint8 value){
     else if (value > 0xba && value <= 0xfa) {
         return_value = 128 + (value-0xba)*2;
     }
+	else {
+		return_value = 256;
+	}
 
     return return_value;
 }
@@ -1877,6 +1880,9 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 {
 	guint32	curr_offset;
 	guint8 octet;
+	guint32 dl_total = 0;
+	guint32 ul_total = 0;
+	guint32 bitrate = 0;
 
 	curr_offset = offset;
 	/* APN-AMBR for downlink	octet 3 */
@@ -1885,8 +1891,10 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 		proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_dl, tvb, curr_offset, 1, octet,
 				       "Reserved");
 	}else{
+		bitrate = calc_bitrate(octet);
+		dl_total += bitrate;
 		proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_dl, tvb, curr_offset, 1, octet,
-				       "APN-AMBR for downlink : %u kbps", calc_bitrate(octet));
+				       "APN-AMBR for downlink : %u kbps", bitrate);
 	}
 	curr_offset++;
 
@@ -1896,8 +1904,10 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 		proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_ul, tvb, curr_offset, 1, octet,
 				       "Reserved");
 	}else{
+		bitrate = calc_bitrate(octet);
+		ul_total += bitrate;
 		proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_ul, tvb, curr_offset, 1, octet,
-				       "APN-AMBR for uplink : %u kbps", calc_bitrate(octet));
+				       "APN-AMBR for uplink : %u kbps", bitrate);
 	}
 	curr_offset++;
 	if ((curr_offset - offset) >= len)
@@ -1908,10 +1918,24 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 		proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_dl_ext, tvb, curr_offset, 1, octet,
 				       "Use the value indicated by the APN-AMBR for downlink");
 	}else{
+		bitrate = calc_bitrate_ext(octet);
+		dl_total += (octet > 0x4a) ? bitrate*1000 : bitrate;
 		proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_dl_ext, tvb, curr_offset, 1, octet,
 				       "APN-AMBR for downlink (extended) : %u %s",
-					   calc_bitrate_ext(octet),
+					   bitrate,
 					   (octet > 0x4a) ? "Mbps" : "kbps");
+	}
+	if (len < 5) {
+		/* APN-AMBR for downlink (extended-2) is not present; display total now */
+		if (octet != 0) {
+			/* Ignore value indicated by the APN-AMBR for downlink */
+			dl_total = (octet > 0x4a) ? bitrate*1000 : bitrate;
+		}
+		if (dl_total >= 1000) {
+			proto_tree_add_text(tree, tvb, curr_offset, 1,"Total APN-AMBR for downlink : %.3f Mbps", (gfloat)dl_total / 1000);
+			} else {
+			proto_tree_add_text(tree, tvb, curr_offset, 1,"Total APN-AMBR for downlink : %u kbps", dl_total);
+		}
 	}
 	curr_offset++;
 	if ((curr_offset - offset) >= len)
@@ -1922,10 +1946,24 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 		proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_ul_ext, tvb, curr_offset, 1, octet,
 				       "Use the value indicated by the APN-AMBR for uplink");
 	}else{
+		bitrate = calc_bitrate_ext(octet);
+		ul_total += (octet > 0x4a) ? bitrate*1000 : bitrate;
 		proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_ul_ext, tvb, curr_offset, 1, octet,
 				       "APN-AMBR for uplink (extended) : %u %s",
-					   calc_bitrate_ext(octet),
+					   bitrate,
 					   (octet > 0x4a) ? "Mbps" : "kbps");
+	}
+	if (len < 6) {
+		/* APN-AMBR for uplink (extended-2) is not present; display total now */
+		if (octet != 0) {
+			/* Ignore value indicated by the APN-AMBR for uplink */
+			ul_total = (octet > 0x4a) ? bitrate*1000 : bitrate;
+		}
+		if (ul_total >= 1000) {
+			proto_tree_add_text(tree, tvb, curr_offset, 1,"Total APN-AMBR for uplink : %.3f Mbps", (gfloat)ul_total / 1000);
+			} else {
+			proto_tree_add_text(tree, tvb, curr_offset, 1,"Total APN-AMBR for uplink : %u kbps", ul_total);
+		}
 	}
 	curr_offset++;
 	if ((curr_offset - offset) >= len)
@@ -1936,10 +1974,12 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 		proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_dl_ext2, tvb, curr_offset, 1, octet,
 				       "Use the value indicated by the APN-AMBR for downlink and APN-AMBR for downlink (extended)");
 	}else{
+		dl_total += octet*256*1000;
 		proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_dl_ext2, tvb, curr_offset, 1, octet,
-				       "APN-AMBR for downlink (extended) : %u Mbs",
+				       "APN-AMBR for downlink (extended-2) : %u Mbps",
 					   (octet* 256));
 	}
+	proto_tree_add_text(tree, tvb, curr_offset, 1,"Total APN-AMBR for downlink : %.3f Mbps", (gfloat)dl_total / 1000);
 	curr_offset++;
 	if ((curr_offset - offset) >= len)
 		return(len);
@@ -1949,10 +1989,12 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 		proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_ul_ext2, tvb, curr_offset, 1, octet,
 				       "Use the value indicated by the APN-AMBR for uplink and APN-AMBR for downlink (extended)");
 	}else{
+		ul_total += octet*256*1000;
 		proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_ul_ext2, tvb, curr_offset, 1, octet,
-				       "APN-AMBR for uplink (extended) : %u Mbs",
+				       "APN-AMBR for uplink (extended-2) : %u Mbps",
 					   (octet* 256));
 	}
+	proto_tree_add_text(tree, tvb, curr_offset, 1,"Total APN-AMBR for uplink : %.3f Mbps", (gfloat)ul_total / 1000);
 	curr_offset++;
 
 	return(len);
