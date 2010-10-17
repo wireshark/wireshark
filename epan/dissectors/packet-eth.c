@@ -38,6 +38,7 @@
 #include "packet-llc.h"
 #include <epan/crc32.h>
 #include <epan/tap.h>
+#include <epan/expert.h>
 
 /* Assume all packets have an FCS */
 static gboolean eth_assume_fcs = FALSE;
@@ -333,6 +334,10 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     addr_item=proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src_addr);
     if(addr_item){
         addr_tree = proto_item_add_subtree(addr_item, ett_addr);
+        if (tvb_get_guint8(tvb, 6) & 0x01) {
+            expert_add_info_format(pinfo, addr_item, PI_PROTOCOL, PI_WARN,
+                "Source MAC must not be a group address: IEEE 802.3-2002, Section 3.2.3(b)");
+        }
     }
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 6, 6, src_addr);
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, FALSE);
