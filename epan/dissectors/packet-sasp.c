@@ -63,7 +63,6 @@ static guint32 dissect_grp_wt_entry_datacomp(tvbuff_t *tvb,proto_tree *tree,guin
 /* Initialize the protocol and registered fields */
 
 static int proto_sasp = -1;
-static int hf_sasp = -1;
 static int hf_sasp_type = -1;
 static int hf_sasp_length = -1;
 static int hf_sasp_vrsn = -1;
@@ -1196,11 +1195,6 @@ void proto_register_sasp(void)
 {
 
 	static hf_register_info hf[] = {
-
-		/*SASP DATA*/
-		{ &hf_sasp,
-	 	  { "SASP", "sasp", FT_NONE, BASE_NONE, NULL, 0x0,
-		    NULL, HFILL } },
 
 		/*SASP Header */
 		{ &hf_sasp_type,
