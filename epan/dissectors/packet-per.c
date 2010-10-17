@@ -118,6 +118,33 @@ static const true_false_string tfs_optional_field_bit = {
 
 #define BYTE_ALIGN_OFFSET(offset) if(offset&0x07){offset=(offset&0xfffffff8)+8;}
 
+static void per_check_value(guint32 value, guint32 min_len, guint32 max_len, asn1_ctx_t *actx, proto_item *item, gboolean is_signed)
+{
+	if ((is_signed == FALSE) && (value > max_len)) {
+		expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, "Size constraint: value too big: %u (%u .. %u)", value, min_len, max_len);
+	} else if ((is_signed == TRUE) && ((gint32)value > (gint32)max_len)) {
+		expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, "Size constraint: value too big: %d (%d .. %d)", (gint32)value, (gint32)min_len, (gint32)max_len);
+	}
+}
+
+static void per_check_value64(guint64 value, guint64 min_len, guint64 max_len, asn1_ctx_t *actx, proto_item *item, gboolean is_signed)
+{
+	if ((is_signed == FALSE) && (value > max_len)) {
+		expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, "Size constraint: value too big: %" G_GINT64_MODIFIER "u (%" G_GINT64_MODIFIER "u .. %" G_GINT64_MODIFIER "u)", value, min_len, max_len);
+	} else if ((is_signed == TRUE) && ((gint64)value > (gint64)max_len)) {
+		expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, "Size constraint: value too big: %" G_GINT64_MODIFIER "d (%" G_GINT64_MODIFIER "d .. %" G_GINT64_MODIFIER "d)", (gint64)value, (gint64)min_len, (gint64)max_len);
+	}
+}
+
+static void per_check_items(guint32 cnt, int min_len, int max_len, asn1_ctx_t *actx, proto_item *item)
+{
+	if (min_len != NO_BOUND && cnt < (guint32)min_len) {
+		expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, "Size constraint: too few items: %d (%d .. %d)", cnt, min_len, max_len);
+	} else if (max_len != NO_BOUND && cnt > (guint32)max_len) {
+		expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, "Size constraint: too many items: %d (%d .. %d)", cnt, min_len, max_len);
+	}
+}
+
 static tvbuff_t *new_octet_aligned_subset(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, guint32 length)
 {
   tvbuff_t *sub_tvb = NULL;
@@ -933,6 +960,7 @@ call_sohelper:
 		item=proto_tree_add_item(parent_tree, hf_index, tvb, offset>>3, 0, FALSE);
 	}
 	tree=proto_item_add_subtree(item, ett_index);
+	per_check_items(length, min_len, max_len, actx, item);
 
 	old_offset = offset;
 	offset=dissect_per_sequence_of_helper(tvb, offset, actx, tree, seq->func, *seq->p_id, length);
@@ -1384,14 +1412,10 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 	timeval.secs = val;
 	if (IS_FT_UINT(hfi->type)) {
 		it = proto_tree_add_uint(tree, hf_index, tvb, val_start, val_length, val);
-		if (val > max) {
-			expert_add_info_format(actx->pinfo, it, PI_MALFORMED, PI_ERROR, "Constrained integer value %u is out of [%u..%u] range", val, min, max);
-		}
+		per_check_value(val, min, max, actx, it, FALSE);
 	} else if (IS_FT_INT(hfi->type)) {
 		it = proto_tree_add_int(tree, hf_index, tvb, val_start, val_length, val);
-		if ((gint32)val > (gint32)max) {
-			expert_add_info_format(actx->pinfo, it, PI_MALFORMED, PI_ERROR, "Constrained integer value %d is out of [%d..%d] range", (gint32)val, (gint32)min, (gint32)max);
-		}
+		per_check_value(val, min, max, actx, it, TRUE);
 	} else if (IS_FT_TIME(hfi->type)) {
 		it = proto_tree_add_time(tree, hf_index, tvb, val_start, val_length, &timeval);
 	} else {
@@ -1591,16 +1615,10 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 
 	if (IS_FT_UINT(hfi->type)) {
 		it = proto_tree_add_uint64(tree, hf_index, tvb, val_start, val_length, val);
-		if (val > max) {
-			expert_add_info_format(actx->pinfo, it, PI_MALFORMED, PI_ERROR, "Constrained integer value %" G_GINT64_MODIFIER
-				"u is out of [%" G_GINT64_MODIFIER "u..%" G_GINT64_MODIFIER "u] range", val, min, max);
-		}
+		per_check_value64(val, min, max, actx, it, FALSE);
 	} else if (IS_FT_INT(hfi->type)) {
 		it = proto_tree_add_int64(tree, hf_index, tvb, val_start, val_length, val);
-		if ((gint64)val > (gint64)max) {
-			expert_add_info_format(actx->pinfo, it, PI_MALFORMED, PI_ERROR, "Constrained integer value %" G_GINT64_MODIFIER
-				"d is out of [%" G_GINT64_MODIFIER "d..%" G_GINT64_MODIFIER "d] range", (gint64)val, (gint64)min, (gint64)max);
-		}
+		per_check_value64(val, min, max, actx, it, TRUE);
 	} else if (IS_FT_TIME(hfi->type)) {
 		timeval.secs = (guint32)val;
 		it = proto_tree_add_time(tree, hf_index, tvb, val_start, val_length, &timeval);
