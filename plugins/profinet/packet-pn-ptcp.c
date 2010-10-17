@@ -43,7 +43,6 @@
 
 static int proto_pn_ptcp = -1;
 
-static int hf_pn_ptcp = -1;
 static int hf_pn_ptcp_header = -1;
 static int hf_pn_ptcp_block = -1;
 static int hf_pn_ptcp_block_tlvheader = -1;
@@ -832,8 +831,6 @@ void
 proto_register_pn_ptcp (void)
 {
 	static hf_register_info hf[] = {
-	{ &hf_pn_ptcp,
-		{ "PROFINET PTCP", "pn_ptcp", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	{ &hf_pn_ptcp_header,
         { "Header", "pn_ptcp.header", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	{ &hf_pn_ptcp_block,

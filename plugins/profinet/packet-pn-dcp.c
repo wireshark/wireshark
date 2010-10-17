@@ -46,8 +46,6 @@
 
 static int proto_pn_dcp = -1;
 
-static int hf_pn_dcp = -1;
-
 static int hf_pn_dcp_service_id = -1;
 static int hf_pn_dcp_service_type = -1;
 static int hf_pn_dcp_xid = -1;
@@ -948,8 +946,6 @@ void
 proto_register_pn_dcp (void)
 {
     static hf_register_info hf[] = {
-    { &hf_pn_dcp,
-        { "PROFINET DCP", "pn_dcp", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_dcp_service_id,
         { "ServiceID", "pn_dcp.service_id", FT_UINT8, BASE_DEC, VALS(pn_dcp_service_id), 0x0, NULL, HFILL }},
     { &hf_pn_dcp_service_type,
