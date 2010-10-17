@@ -57,6 +57,13 @@ static int hf_tte_pcf_tc = -1;
 /* Initialize the subtree pointers */
 static gint ett_tte_pcf = -1;
 
+static const value_string pcf_type_str_vals[] = 
+    { {2, "integration frame"}
+    , {4, "coldstart frame"}
+    , {8, "coldstart ack frame"}
+    , {0, NULL}
+    };
+
 
 /* Code to actually dissect the packets */
 static void
@@ -85,8 +92,7 @@ dissect_tte_pcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PCF");
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO,
+    col_add_fstr(pinfo->cinfo, COL_INFO,
             "Sync Domain: 0x%02X  Sync Priority: 0x%02X",
             sync_domain, sync_priority);
 
@@ -174,7 +180,7 @@ proto_register_tte_pcf(void)
         },
         { &hf_tte_pcf_type,
             { "Type", "tte.pcf.type",
-            FT_UINT8, BASE_HEX, NULL, 0x0F,
+            FT_UINT8, BASE_HEX, VALS(pcf_type_str_vals), 0x0F,
             NULL, HFILL }
         },
         { &hf_tte_pcf_res1,
