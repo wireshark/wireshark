@@ -64,7 +64,6 @@ static int ett_ecat_mailbox_soe = -1;
 static int ett_ecat_mailbox_fraghead = -1;
 static int ett_ecat_mailbox_header = -1;
 
-static int hf_ecat_mailbox = -1;
 static int hf_ecat_mailboxlength = -1;
 static int hf_ecat_mailboxaddress = -1;
 static int hf_ecat_mailbox_eoe = -1;
@@ -1375,11 +1374,6 @@ void proto_register_ecat_mailbox(void)
 
    static hf_register_info hf[] =
    {
-      { &hf_ecat_mailbox,
-      { "Mbx:", "ecat_mailbox",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
-      },
       { &hf_ecat_mailboxlength,
       { "Length", "ecat_mailbox.length",
       FT_UINT16, BASE_DEC, NULL, 0x0,
