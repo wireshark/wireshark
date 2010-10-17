@@ -3523,21 +3523,21 @@ proto_register_gsm_sms(void)
              * Short Message fragment reassembly
              */
             {	&hf_gsm_sms_ud_fragments,
-                {	"Short Message fragments", "gsm-sms-ud.fragments",
+                {	"Short Message fragments", "gsm_sms.fragments",
                         FT_NONE, BASE_NONE, NULL, 0x00,
                         "GSM Short Message fragments",
                         HFILL
                 }
             },
             {	&hf_gsm_sms_ud_fragment,
-                {	"Short Message fragment", "gsm-sms-ud.fragment",
+                {	"Short Message fragment", "gsm_sms.fragment",
                         FT_FRAMENUM, BASE_NONE, NULL, 0x00,
                         "GSM Short Message fragment",
                         HFILL
                 }
             },
             {	&hf_gsm_sms_ud_fragment_overlap,
-                {	"Short Message fragment overlap", "gsm-sms-ud.fragment.overlap",
+                {	"Short Message fragment overlap", "gsm_sms.fragment.overlap",
                         FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                         "GSM Short Message fragment overlaps with other fragment(s)",
                         HFILL
@@ -3545,7 +3545,7 @@ proto_register_gsm_sms(void)
             },
             {	&hf_gsm_sms_ud_fragment_overlap_conflicts,
                 {	"Short Message fragment overlapping with conflicting data",
-                        "gsm-sms-ud.fragment.overlap.conflicts",
+                        "gsm_sms.fragment.overlap.conflicts",
                         FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                         "GSM Short Message fragment overlaps with conflicting data",
                         HFILL
@@ -3553,7 +3553,7 @@ proto_register_gsm_sms(void)
             },
             {	&hf_gsm_sms_ud_fragment_multiple_tails,
                 {	"Short Message has multiple tail fragments",
-                        "gsm-sms-ud.fragment.multiple_tails",
+                        "gsm_sms.fragment.multiple_tails",
                         FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                         "GSM Short Message fragment has multiple tail fragments",
                         HFILL
@@ -3561,14 +3561,14 @@ proto_register_gsm_sms(void)
             },
             {	&hf_gsm_sms_ud_fragment_too_long_fragment,
                 {	"Short Message fragment too long",
-                        "gsm-sms-ud.fragment.too_long_fragment",
+                        "gsm_sms.fragment.too_long_fragment",
                         FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                         "GSM Short Message fragment data goes beyond the packet end",
                         HFILL
                 }
             },
             {	&hf_gsm_sms_ud_fragment_error,
-                {	"Short Message defragmentation error", "gsm-sms-ud.fragment.error",
+                {	"Short Message defragmentation error", "gsm_sms.fragment.error",
                         FT_FRAMENUM, BASE_NONE, NULL, 0x00,
                         "GSM Short Message defragmentation error due to illegal fragments",
                         HFILL
@@ -3576,14 +3576,14 @@ proto_register_gsm_sms(void)
             },
             {	&hf_gsm_sms_ud_reassembled_in,
                 {	"Reassembled in",
-                        "gsm-sms-ud.reassembled.in",
+                        "gsm_sms.reassembled.in",
                         FT_FRAMENUM, BASE_NONE, NULL, 0x00,
                         "GSM Short Message has been reassembled in this packet.", HFILL
                 }
             },
             {	&hf_gsm_sms_ud_reassembled_length,
                 {	"Reassembled Short Message length",
-                        "gsm-sms-ud.reassembled.length",
+                        "gsm_sms.reassembled.length",
                         FT_UINT32, BASE_DEC, NULL, 0x00,
                         "The total length of the reassembled payload", HFILL
                 }
