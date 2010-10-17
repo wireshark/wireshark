@@ -10103,7 +10103,7 @@ proto_register_ieee80211 (void)
       "RF noise power at the antenna, normalized to the range 0-1000", HFILL }},
 
     {&hf_dbm_antnoise,
-     {"SSI Noise (dBm)", "radiotap.dbm_antnoise", FT_INT32, BASE_DEC, NULL, 0x0,
+     {"SSI Noise (dBm)", "wlan.dbm_antnoise", FT_INT32, BASE_DEC, NULL, 0x0,
       "RF noise power at the antenna from a fixed, arbitrary value in decibels per one milliwatt", HFILL }},
 
     {&hf_rawrssi_antnoise,
