@@ -45,7 +45,6 @@ void   proto_reg_handoff_xcsl(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_xcsl = -1;
-static int hf_xcsl = -1;
 static int hf_xcsl_protocol_version = -1;
 static int hf_xcsl_transaction_id = -1;
 static int hf_xcsl_command = -1;
@@ -296,13 +295,6 @@ static gboolean dissect_xcsl_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_t
 void proto_register_xcsl(void) {
 
    static hf_register_info hf[] = {
-
-      { &hf_xcsl,
-        { "XCSL", "xcsl",
-           FT_NONE, BASE_NONE, NULL, 0x0,
-          "Call Specification Language (Xcsl)", HFILL
-        }
-      },
 
       { &hf_xcsl_protocol_version,
         { "Protocol Version", "xcsl.protocol_version",
