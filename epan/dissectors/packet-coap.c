@@ -38,7 +38,6 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
-static dissector_handle_t coap_handle;
 static dissector_table_t media_type_dissector_table;
 
 static int proto_coap = -1;
@@ -400,6 +399,7 @@ void
 proto_reg_handoff_coap(void)
 {
 	static gboolean coap_prefs_initialized = FALSE;  
+	static dissector_handle_t coap_handle;
 	static guint    coap_port_number;
 
 	if (!coap_prefs_initialized) {
