@@ -510,7 +510,7 @@ proto_register_btamp(void)
                 "L2CAP Command Data", HFILL }
         },
         { &hf_btamp_rej_reason,
-            { "Reason",           "btl2cap.rej_reason",
+            { "Reason",           "btamp.rej_reason",
                 FT_UINT16, BASE_HEX, VALS(reason_vals), 0x0,
                 NULL, HFILL }
         },
