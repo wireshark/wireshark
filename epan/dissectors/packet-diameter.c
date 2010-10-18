@@ -64,10 +64,8 @@
 #include "packet-ntp.h"
 #include "packet-diameter.h"
 
-#define SCTP_PORT_DIAMETER	3868
-
 /* Diameter Header Flags */
-/*                                      RPETrrrrCCCCCCCCCCCCCCCCCCCCCCCC  */
+/* RPETrrrrCCCCCCCCCCCCCCCCCCCCCCCC  */
 #define DIAM_FLAGS_R 0x80
 #define DIAM_FLAGS_P 0x40
 #define DIAM_FLAGS_E 0x20
@@ -272,10 +270,11 @@ static int diameter_tap = -1;
 /* For conversations */
 
 
-static guint gbl_diameterSctpPort=SCTP_PORT_DIAMETER;
-
 static dissector_handle_t diameter_tcp_handle;
+static dissector_handle_t diameter_sctp_handle;
 static range_t *global_diameter_tcp_port_range;
+static range_t *global_diameter_sctp_port_range;
+/* This is used for TCP and SCTP */
 #define DEFAULT_DIAMETER_PORT_RANGE "3868"
 
 /* desegmentation of Diameter over TCP */
@@ -327,7 +326,8 @@ dissect_diameter_vedor_id(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree 
 }
 
 static int
-dissect_diameter_eap_payload(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+dissect_diameter_eap_payload(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
+{
 	gboolean save_writable;
 
 	/* Ensure the packet is displayed as Diameter, not EAP */
@@ -379,7 +379,7 @@ dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset)
 
 	if(vendor->vs_avps_ext == NULL) {
 		g_array_sort(vendor->vs_avps, compare_avps);
-		vendor->vs_avps_ext = value_string_ext_new(VND_AVP_VS(vendor), VND_AVP_VS_LEN(vendor)+1, 
+		vendor->vs_avps_ext = value_string_ext_new(VND_AVP_VS(vendor), VND_AVP_VS_LEN(vendor)+1,
                                                            "diameter_vendor");
 #if 0
 		{ /* Debug code */
@@ -929,7 +929,7 @@ dissect_diameter_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, gbl_diameter_desegment, 4,
 			 get_diameter_pdu_len, dissect_diameter_common);
-} /* dissect_diameter_tcp */
+}
 
 
 static char*
@@ -1091,7 +1091,7 @@ build_proto_avp(const avp_type_t* type _U_, guint32 code,
 
 static diam_avp_t*
 build_simple_avp(const avp_type_t* type, guint32 code, const diam_vnd_t* vendor,
-		const char* name, const value_string* vs, void* data _U_)
+		 const char* name, const value_string* vs, void* data _U_)
 {
 	diam_avp_t* a;
 
@@ -1383,19 +1383,30 @@ dictionary_load(void)
 }
 
 static void
-range_delete_callback(guint32 port)
+tcp_range_delete_callback(guint32 port)
 {
 	dissector_delete("tcp.port", port, diameter_tcp_handle);
 }
 
 static void
-range_add_callback(guint32 port)
+tcp_range_add_callback(guint32 port)
 {
 	dissector_add("tcp.port", port, diameter_tcp_handle);
 }
 
-/* registration with the filtering engine */
+static void
+sctp_range_delete_callback(guint32 port)
+{
+	dissector_delete("sctp.port", port, diameter_sctp_handle);
+}
 
+static void
+sctp_range_add_callback(guint32 port)
+{
+	dissector_add("sctp.port", port, diameter_sctp_handle);
+}
+
+/* registration with the filtering engine */
 void proto_reg_handoff_diameter(void);
 
 void
@@ -1545,6 +1556,7 @@ proto_register_diameter(void)
 
 	/* Set default TCP ports */
 	range_convert_str(&global_diameter_tcp_port_range, DEFAULT_DIAMETER_PORT_RANGE, MAX_UDP_PORT);
+	range_convert_str(&global_diameter_sctp_port_range, DEFAULT_DIAMETER_PORT_RANGE, MAX_SCTP_PORT);
 
 	/* Register configuration options for ports */
 	diameter_module = prefs_register_protocol(proto_diameter,
@@ -1555,11 +1567,11 @@ proto_register_diameter(void)
 					DEFAULT_DIAMETER_PORT_RANGE ")",
 					&global_diameter_tcp_port_range, MAX_UDP_PORT);
 
-	prefs_register_uint_preference(diameter_module, "sctp.port",
-				       "Diameter SCTP Port",
-				       "Set the SCTP port for Diameter messages",
-				       10,
-				       &gbl_diameterSctpPort);
+	prefs_register_range_preference(diameter_module, "sctp.ports",
+					"Diameter SCTP Ports",
+					"SCTP ports to be decoded as Diameter (default: "
+					DEFAULT_DIAMETER_PORT_RANGE ")",
+					&global_diameter_sctp_port_range, MAX_SCTP_PORT);
 
 	/* Desegmentation */
 	prefs_register_bool_preference(diameter_module, "desegment",
@@ -1574,6 +1586,7 @@ proto_register_diameter(void)
 	prefs_register_obsolete_preference(diameter_module, "version");
 	prefs_register_obsolete_preference(diameter_module, "udp.port");
 	prefs_register_obsolete_preference(diameter_module, "tcp.port");
+	prefs_register_obsolete_preference(diameter_module, "sctp.port");
 	prefs_register_obsolete_preference(diameter_module, "command_in_header");
 	prefs_register_obsolete_preference(diameter_module, "dictionary.name");
 	prefs_register_obsolete_preference(diameter_module, "dictionary.use");
@@ -1589,12 +1602,11 @@ void
 proto_reg_handoff_diameter(void)
 {
 	static gboolean Initialized=FALSE;
-	static guint SctpPort;
-	static dissector_handle_t diameter_handle;
 	static range_t *diameter_tcp_port_range;
+	static range_t *diameter_sctp_port_range;
 
 	if (!Initialized) {
-		diameter_handle = find_dissector("diameter");
+		diameter_sctp_handle = find_dissector("diameter");
 		diameter_tcp_handle = create_dissector_handle(dissect_diameter_tcp,
 							      proto_diameter);
 		data_handle = find_dissector("data");
@@ -1612,16 +1624,16 @@ proto_reg_handoff_diameter(void)
 
 		Initialized=TRUE;
 	} else {
-		range_foreach(diameter_tcp_port_range, range_delete_callback);
+		range_foreach(diameter_tcp_port_range, tcp_range_delete_callback);
+		range_foreach(diameter_sctp_port_range, sctp_range_delete_callback);
 		g_free(diameter_tcp_port_range);
-		dissector_delete("sctp.port", SctpPort, diameter_handle);
+		g_free(diameter_sctp_port_range);
 	}
 
 	/* set port for future deletes */
 	diameter_tcp_port_range = range_copy(global_diameter_tcp_port_range);
-	range_foreach(diameter_tcp_port_range, range_add_callback);
-
-	SctpPort=gbl_diameterSctpPort;
-	dissector_add("sctp.port", gbl_diameterSctpPort, diameter_handle);
+	diameter_sctp_port_range = range_copy(global_diameter_sctp_port_range);
+	range_foreach(diameter_tcp_port_range, tcp_range_add_callback);
+	range_foreach(diameter_sctp_port_range, sctp_range_add_callback);
 }
 
