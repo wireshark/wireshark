@@ -31,6 +31,9 @@ MAX_PASSES=0
 # Perform a two pass analysis on the capture file?
 TWO_PASS=
 
+# Specific config profile ?
+CONFIG_PROFILE=
+
 # These may be set to your liking
 # Stop the child process if it's running longer than x seconds
 MAX_CPU_TIME=900
@@ -54,9 +57,10 @@ ERR_PROB=0.02
 
 
 # To do: add options for file names and limits
-while getopts ":b:d:e:Pp:" OPTCHAR ; do
+while getopts ":b:d:e:C:Pp:" OPTCHAR ; do
     case $OPTCHAR in
         b) BIN_DIR=$OPTARG ;;
+        C) CONFIG_PROFILE="-C $OPTARG " ;;
         d) TMP_DIR=$OPTARG ;;
         e) ERR_PROB=$OPTARG ;;
         p) MAX_PASSES=$OPTARG ;;
@@ -86,7 +90,7 @@ ulimit -c unlimited
 # V Print a view of the details of the packet rather than a one-line summary of the packet
 # x Cause TShark to print a hex and ASCII dump of the packet data after printing the summary or details
 # r Read packet data from the following infile
-TSHARK_ARGS="${TWO_PASS}-nVxr"
+TSHARK_ARGS="${CONFIG_PROFILE}${TWO_PASS}-nVxr"
 
 NOTFOUND=0
 for i in "$TSHARK" "$EDITCAP" "$CAPINFOS" "$DATE" "$TMP_DIR" ; do
