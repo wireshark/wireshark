@@ -1,3 +1,7 @@
+/*
+ * $Id$
+ */
+
 #ifndef __RADIOTAP_ITER_H
 #define __RADIOTAP_ITER_H
 

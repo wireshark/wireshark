@@ -1,6 +1,8 @@
 /*-
  * Copyright (c) 2003, 2004 David Young.  All rights reserved.
  *
+ * $Id$
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
