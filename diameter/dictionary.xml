@@ -824,7 +824,10 @@
 			<type type-name="Integer32"/>
 		</avp>
 <!-- 54        Unassigned -->
-		<avp name="Event-Timestamp" code="55" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+    <avp name="Unassigned" code="54" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Event-Timestamp" code="55" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="Time"/>
 		</avp>
     <avp name="Egress-VLANID" code="56" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
@@ -1011,7 +1014,10 @@
       <type type-name="UTF8String"/>
     </avp>
 <!--  93	(unassigned) -->
-		<avp name="Originating-Line-Info" code="94" mandatory="may" may-encrypt="yes" protected="may" vendor-bit="mustnot">
+    <avp name="Unassigned" code="93" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Originating-Line-Info" code="94" mandatory="may" may-encrypt="yes" protected="may" vendor-bit="mustnot">
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="NAS-IPv6-Address" code="95" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
@@ -1189,6 +1195,10 @@
       <type type-name="OctetString"/>
     </avp>
     <!--
+    <avp name="Unassigned" code="144" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+    
 144-191   Unassigned
 192-223   Experimental Use                         [RFC3575]
 224-240   Implementation Specific                  [RFC3575]
@@ -1219,7 +1229,7 @@
 			<enum name="3GPP Zh" code="16777221"/>
 			<enum name="3GPP Gq" code="16777222"/>
 			<enum name="3GPP Gmb" code="16777223"/>
-			<enum name="3GPP Gx(Obsolete)" code="16777224"/>
+			<enum name="3GPP Gx" code="16777224"/>
 			<enum name="3GPP Gx over Gy" code="16777225"/>
 			<enum name="3GPP MM10" code="16777226"/>
 			<enum name="Ericsson MSI" code="16777227"/>
@@ -1289,7 +1299,7 @@
 			<enum name="3GPP Zh" code="16777221"/>
 			<enum name="3GPP Gq" code="16777222"/>
 			<enum name="3GPP Gmb" code="16777223"/>
-			<enum name="3GPP Gx(Obsolete)" code="16777224"/>
+			<enum name="3GPP Gx" code="16777224"/>
 			<enum name="3GPP Gx over Gy" code="16777225"/>
 			<enum name="3GPP MM10" code="16777226"/>
 			<enum name="Ericsson MSI" code="16777227"/>
@@ -1809,6 +1819,8 @@
 		</avp>
 <!--
 486 - 494 in mobileipv6.xml
+-->
+<!--
 495 TMOD-1 [RFC5624] 
 496 Token-Rate [RFC5624] 
 497 Bucket-Depth [RFC5624] 
@@ -1818,12 +1830,11 @@
 501 TMOD-2 [RFC5624] 
 502 Bandwidth [RFC5624] 
 503 PHB-Class [RFC5624] 
+-->
+<!--
 504 - 507 in mobileipv6.xml
- 503 PHB-Class [RFC5624] 
- 504 PMIP6-DHCP-Server-Address [RFC5779] 
- 505 PMIP6-IPv4-Home-Address [RFC5779] 
- 506 Mobile-Node-Identifier [RFC5779] 
- 507 Service-Configuration [RFC5779] 
+-->
+<!--
 508 QoS-Resources [RFC5777] 
 509 Filter-Rule [RFC5777] 
 510 Filter-Rule-Precedence [RFC5777] 
@@ -1971,8 +1982,10 @@ Note: The AVP codes from 320 to 399 are reserved for TS 29.234
 			<enum name="3G GBA" code="0"/>
 			<enum name="2G GBA" code="1"/>
 		</avp>
-<!--
-411 UE-Id OctectString
+    <avp name="UE-Id" code="411" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <!--
 412 UE-Id-Type Enumerated
 413 UICC-App-Label OctectString
 414 UICC-ME Enumerated
@@ -4814,7 +4827,7 @@ http://www.3gcn.org/TGPP2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
 	</application>
 	<application id="16777216" name="3GPP Cx" uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588">
 	</application>
-	<application id="16777224" name="3GPP Gx(Obsolete)" uri="http://www.3gpp.org/ftp/Specs/html-info/29210.htm">
+	<application id="16777224" name="3GPP Gx" uri="http://www.3gpp.org/ftp/Specs/html-info/29210.htm">
 	</application>
 	<application id="16777238" name="3GPP Gx" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">
 	</application>
