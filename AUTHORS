@@ -3152,6 +3152,10 @@ Alexander Koeppe	<format_c [AT] online.de> {
 	TCP Graph - Window Scaling
 }
 
+Holger Grandy 		<Holger.Grandy [AT] bmw-carit.de> {
+	ETCH dissector
+}
+
 
 and by:
 

@@ -437,6 +437,7 @@ DISSECTOR_SRC = \
 	packet-erf.c		\
 	packet-esio.c		\
 	packet-esis.c		\
+	packet-etch.c		\
 	packet-eth.c		\
 	packet-etherip.c	\
 	packet-ethertype.c	\
