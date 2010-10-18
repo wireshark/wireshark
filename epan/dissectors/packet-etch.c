@@ -175,7 +175,8 @@ void proto_reg_handoff_etch(void);
 /*
  * get the length of a given typecode in bytes, -1 if to be derived from message
  */
-static gint32 get_byte_length(guint8 typecode)
+static gint32
+get_byte_length(guint8 typecode)
 {
   switch (typecode) {
   case ETCH_TC_NULL:
@@ -242,7 +243,8 @@ static gint32 get_byte_length(guint8 typecode)
 /*
  * add a etch symbol to our symbol cache
  */
-static void add_symbol(int hash, const gchar *symbol)
+static void
+add_symbol(int hash, const gchar *symbol)
 {
   if (gbl_symbols_count < ETCH_MAX_SYMBOLS - 1) {
     gbl_symbols[gbl_symbols_count].value  = hash;
@@ -254,7 +256,8 @@ static void add_symbol(int hash, const gchar *symbol)
 /*
  * add all etch symbols from file to our symbol cache
  */
-static void add_symbols_of_file(const char *filename)
+static void
+add_symbols_of_file(const char *filename)
 {
   FILE *pFile;
   pFile = ws_fopen(filename, "r");
@@ -293,7 +296,8 @@ static void add_symbols_of_file(const char *filename)
 /*
  * add all etch symbol from directory to our symbol cache
  */
-static void read_hashed_symbols_from_dir(const char *dirname)
+static void
+read_hashed_symbols_from_dir(const char *dirname)
 {
   WS_DIR     *dir;
   WS_DIRENT  *file;
@@ -344,7 +348,8 @@ static void read_hashed_symbols_from_dir(const char *dirname)
 /*
  * read a type flag from tvb and add it to tree
  */
-static guint8 read_type(unsigned int *offset, tvbuff_t * tvb, proto_tree * etch_tree)
+static guint8
+read_type(unsigned int *offset, tvbuff_t * tvb, proto_tree * etch_tree)
 {
 
   guint32 type_code;
@@ -360,8 +365,8 @@ static guint8 read_type(unsigned int *offset, tvbuff_t * tvb, proto_tree * etch_
 /*
  * read a array type flag and add it to tree
  */
-static void read_array_type(unsigned int *offset, tvbuff_t * tvb,
-                           proto_tree * etch_tree)
+static void
+read_array_type(unsigned int *offset, tvbuff_t * tvb, proto_tree * etch_tree)
 {
   guint32 type_code;
 
@@ -380,8 +385,8 @@ static void read_array_type(unsigned int *offset, tvbuff_t * tvb,
 /*
  * read the length of an array and add it to tree
  */
-guint32 read_length(unsigned int *offset, tvbuff_t * tvb,
-                proto_tree * etch_tree)
+static guint32
+read_length(unsigned int *offset, tvbuff_t * tvb, proto_tree * etch_tree)
 {
   guint32 length;
   int length_of_array_length_type;
@@ -423,7 +428,8 @@ guint32 read_length(unsigned int *offset, tvbuff_t * tvb,
 /*
  * read an array from tvb and add it to tree
  */
-static void read_array(unsigned int *offset, tvbuff_t * tvb, proto_tree * etch_tree)
+static void
+read_array(unsigned int *offset, tvbuff_t * tvb, proto_tree * etch_tree)
 {
   int length;
 
@@ -451,7 +457,8 @@ static void read_array(unsigned int *offset, tvbuff_t * tvb, proto_tree * etch_t
 /*
  * read a sequence of bytes and add them to tree
  */
-static void read_bytes(unsigned int *offset, tvbuff_t * tvb, proto_tree * etch_tree)
+static void
+read_bytes(unsigned int *offset, tvbuff_t * tvb, proto_tree * etch_tree)
 {
   int length;
   read_type(offset, tvb, etch_tree);
@@ -464,8 +471,8 @@ static void read_bytes(unsigned int *offset, tvbuff_t * tvb, proto_tree * etch_t
 /*
  * read a string and add it to tree
  */
-static void read_string(unsigned int *offset, tvbuff_t * tvb,
-                proto_tree * etch_tree)
+static void
+read_string(unsigned int *offset, tvbuff_t * tvb, proto_tree * etch_tree)
 {
   int byteLength;
   read_type(offset, tvb, etch_tree);
@@ -480,8 +487,9 @@ static void read_string(unsigned int *offset, tvbuff_t * tvb,
 /*
  * read a number and add it to tree
  */
-static void read_number(unsigned int *offset, tvbuff_t * tvb,
-                       proto_tree * etch_tree, int asWhat, guint8 type_code)
+static void
+read_number(unsigned int *offset, tvbuff_t * tvb, proto_tree * etch_tree,
+            int asWhat, guint8 type_code)
 {
   int byteLength;
 
@@ -514,8 +522,9 @@ static void read_number(unsigned int *offset, tvbuff_t * tvb,
 /*
  * read a value and add it to tree
  */
-static int read_value(unsigned int *offset, tvbuff_t * tvb, proto_tree * etch_tree,
-                      int asWhat)
+static int
+read_value(unsigned int *offset, tvbuff_t * tvb, proto_tree * etch_tree,
+           int asWhat)
 {
   guint8 type_code;
 
@@ -558,8 +567,9 @@ static int read_value(unsigned int *offset, tvbuff_t * tvb, proto_tree * etch_tr
 /*
  * read a struct and add it to tree
  */
-static void read_struct(unsigned int *offset, tvbuff_t * tvb,
-                        proto_tree * etch_tree, int add_type_field)
+static void
+read_struct(unsigned int *offset, tvbuff_t * tvb, proto_tree * etch_tree,
+            int add_type_field)
 {
   proto_item *ti;
   proto_tree *new_tree;
@@ -590,8 +600,8 @@ static void read_struct(unsigned int *offset, tvbuff_t * tvb,
 /*
  * read a key value pair and add it to tree
  */
-static void read_key_value(unsigned int *offset, tvbuff_t * tvb,
-                          proto_tree * etch_tree)
+static void
+read_key_value(unsigned int *offset, tvbuff_t * tvb, proto_tree * etch_tree)
 {
   proto_tree *new_tree;
   proto_tree *new_tree_bck;
@@ -627,7 +637,8 @@ static void read_key_value(unsigned int *offset, tvbuff_t * tvb,
 /*
  * Preparse the message for the info column
  */
-static emem_strbuf_t* get_column_info(tvbuff_t * tvb)
+static emem_strbuf_t*
+get_column_info(tvbuff_t * tvb)
 {
   int byte_length;
   guint8 type_code;
@@ -661,8 +672,8 @@ static emem_strbuf_t* get_column_info(tvbuff_t * tvb)
 /*
  * main dissector function for an etch message
  */
-static void dissect_etch_message(tvbuff_t * tvb, packet_info * pinfo,
-                                 proto_tree * tree)
+static void
+dissect_etch_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
   /* We've a full PDU: 8 bytes + pdu_packetlen bytes  */
   emem_strbuf_t* colInfo = NULL;
@@ -708,8 +719,8 @@ static void dissect_etch_message(tvbuff_t * tvb, packet_info * pinfo,
 /*
  * determine PDU length of protocol etch
  */
-static guint get_etch_message_len(packet_info * pinfo _U_, tvbuff_t * tvb,
-                                  int offset)
+static guint
+get_etch_message_len(packet_info * pinfo _U_, tvbuff_t * tvb, int offset)
 {
   /* length is at offset 4. we add magic bytes length + length size */
   return tvb_get_ntohl(tvb, offset + 4) + 8;
@@ -719,8 +730,8 @@ static guint get_etch_message_len(packet_info * pinfo _U_, tvbuff_t * tvb,
 /*
  * main dissector function for the etch protocol
  */
-static int dissect_etch(tvbuff_t * tvb, packet_info * pinfo,
-                             proto_tree * tree)
+static int
+dissect_etch(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
   if (tvb_length(tvb) < 4) {
     /* Too small for an etch packet. */
@@ -743,7 +754,9 @@ static int dissect_etch(tvbuff_t * tvb, packet_info * pinfo,
   return 1;
 }
 
-static void etch_dissector_init(void) {
+static void
+etch_dissector_init(void)
+{
   gbl_pdu_counter   = 0;
   gbl_old_frame_num = 0xFFFFFFFF;
 }
@@ -907,9 +920,9 @@ void proto_register_etch(void)
                                         proto_reg_handoff_etch);
 
   prefs_register_string_preference(etch_module, "file",
-                                 "Apache Etch symbol folder",
-                                 "Place the hash/symbol files (generated by the Apache Etch compiler) ending with .ewh here",
-                                 &gbl_keytab_folder);
+                                   "Apache Etch symbol folder",
+                                   "Place the hash/symbol files (generated by the Apache Etch compiler) ending with .ewh here",
+                                   &gbl_keytab_folder);
   prefs_register_uint_preference(etch_module, "tcp.port",
                                  "etch TCP Port",
                                  "Etch TCP port",
@@ -941,8 +954,11 @@ void proto_reg_handoff_etch(void)
 
   old_etch_port = gbl_etch_port;
 
-  /* read config folder files, if filename has changed */
-  if(g_strcmp0(gbl_keytab_folder, gbl_current_keytab_folder) != 0){
+  /* read config folder files, if filename has changed
+   * (while protecting strcmp() from NULLs)
+   */
+  if(gbl_keytab_folder == NULL || gbl_current_keytab_folder == NULL ||
+     strcmp(gbl_keytab_folder, gbl_current_keytab_folder) != 0) {
     read_hashed_symbols_from_dir(gbl_keytab_folder);
   }
 }
