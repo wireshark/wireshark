@@ -53,7 +53,11 @@ extern void menu_recent_file_write_all(FILE *rf);
  *
  * @param widget parent widget
  */
+#ifdef MAIN_MENU_USE_UIMANAGER
+extern void menu_open_recent_file_cmd(GtkAction *action);
+#else
 extern void menu_open_recent_file_cmd(GtkWidget *widget);
+#endif
 
 /** The recent file read has finished, update the menu corresponding. */
 extern void menu_recent_read_finished(void);

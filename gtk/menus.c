@@ -150,6 +150,7 @@ GtkWidget *popup_menu_object;
 static void merge_all_tap_menus(GList *node);
 static void clear_menu_recent_capture_file_cmd_cb(GtkWidget *w, gpointer unused _U_);
 #ifdef MAIN_MENU_USE_UIMANAGER
+static void menu_open_recent_file_cmd_cb(GtkAction *action, gpointer data _U_ );
 static void add_recent_items (guint merge_id, GtkUIManager *ui_manager);
 #endif /* MAIN_MENU_USE_UIMANAGER */
 
@@ -4356,7 +4357,7 @@ remove_menu_recent_capture_file(GtkWidget *widget, gpointer unused _U_) {
 #ifdef MAIN_MENU_USE_UIMANAGER
 /* Add a file name to the top of the list, if its allrady present remove it first */
 static GList *
-remove_present_file_name(GList *recent_files_list, gchar *cf_name){
+remove_present_file_name(GList *recent_files_list, const gchar *cf_name){
 GList *li;
 gchar *widget_cf_name;
 
@@ -4368,7 +4369,7 @@ gchar *widget_cf_name;
 			g_ascii_strncasecmp(widget_cf_name, cf_name, 1000) == 0){
 #else   /* _WIN32 */
             /* do a case sensitive compare on unix */
-			strncmp(widget_cf_name, normalized_cf_name, 1000) == 0 ){
+			strncmp(widget_cf_name, widget_cf_name, 1000) == 0 ){
 #endif
             recent_files_list = g_list_remove(recent_files_list,widget_cf_name);
         }
@@ -4432,17 +4433,6 @@ recent_clear_cb(GtkAction *action _U_, gpointer user_data _U_)
 }
 
 static void
-recent_activate_cb (GtkAction *action _U_, gpointer user_data _U_)
-{
-
-#if 0
-  recent_item_activated_cb (NULL,
-                            g_object_get_data (G_OBJECT (action), "gtk-recent-info"),
-			    user_data);
-#endif
-}
-
-static void
 add_recent_items (guint merge_id, GtkUIManager *ui_manager)
 {
     GtkActionGroup *action_group;
@@ -4503,7 +4493,7 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
 			     "stock_id", WIRESHARK_STOCK_FILE,
 			     NULL);
       g_signal_connect (action, "activate",
-                        G_CALLBACK (recent_activate_cb), NULL);
+                        G_CALLBACK (menu_open_recent_file_cmd_cb), NULL);
       gtk_action_group_add_action (action_group, action);
       g_object_unref (action);
 
@@ -4614,7 +4604,33 @@ menu_open_filename(gchar *cf_name)
 #endif /* MAIN_MENU_USE_UIMANAGER */
 }
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+void
+menu_open_recent_file_cmd(GtkAction *action)
+{
+	GtkWidget *submenu_recent_files;
+	GList *recent_files_list;
+	const gchar *cf_name;
+    int         err;
 
+	cf_name = gtk_action_get_label(action);
+
+    /* open and read the capture file (this will close an existing file) */
+    if (cf_open(&cfile, cf_name, FALSE, &err) == CF_OK) {
+        cf_read(&cfile, FALSE);
+	} else{
+		submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
+		recent_files_list = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
+
+		recent_files_list = remove_present_file_name(recent_files_list, cf_name);
+		g_object_set_data(G_OBJECT(submenu_recent_files), "recent-files-list", recent_files_list);
+		/* Calling recent_changed_cb will rebuild the GUI call add_recent_items which will in turn call 
+		 * main_welcome_reset_recent_capture_files
+		 */
+		recent_changed_cb(ui_manager_main_menubar, NULL);
+	}
+}
+#else
 /* callback, if the user pushed a recent file submenu item */
 void
 menu_open_recent_file_cmd(GtkWidget *w)
@@ -4624,15 +4640,10 @@ menu_open_recent_file_cmd(GtkWidget *w)
     const gchar *cf_name;
     int         err;
 
-#ifdef MAIN_MENU_USE_UIMANAGER
-    submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
-    if(!submenu_recent_files){
-        g_warning("menu_open_recent_file_cmd: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
-    }
-#else
+
     submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH_OLD);
-#endif
-    /* get capture filename from the menu item label */
+
+	/* get capture filename from the menu item label */
     menu_item_child = (GTK_BIN(w))->child;
     cf_name = gtk_label_get_text(GTK_LABEL(menu_item_child));
 
@@ -4647,6 +4658,7 @@ menu_open_recent_file_cmd(GtkWidget *w)
 
     update_menu_recent_capture_file(submenu_recent_files);
 }
+#endif /* MAIN_MENU_USE_UIMANAGER */
 
 static void menu_open_recent_file_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
 {
@@ -4665,7 +4677,25 @@ static void menu_open_recent_file_answered_cb(gpointer dialog _U_, gint btn, gpo
         g_assert_not_reached();
     }
 }
+#ifdef MAIN_MENU_USE_UIMANAGER
+static void
+menu_open_recent_file_cmd_cb(GtkAction *action, gpointer data _U_) {
+    gpointer  dialog;
 
+
+    if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
+        /* user didn't saved his current file, ask him */
+        dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO_CANCEL,
+                               "%sSave capture file before opening a new one?%s\n\n"
+                               "If you open a new capture file without saving, your current capture data will be discarded.",
+                               simple_dialog_primary_start(), simple_dialog_primary_end());
+        simple_dialog_set_cb(dialog, menu_open_recent_file_answered_cb, action);
+    } else {
+        /* unchanged file */
+        menu_open_recent_file_cmd(action);
+    }
+}
+#else
 static void
 menu_open_recent_file_cmd_cb(GtkWidget *widget, gpointer data _U_) {
     gpointer  dialog;
@@ -4683,6 +4713,7 @@ menu_open_recent_file_cmd_cb(GtkWidget *widget, gpointer data _U_) {
         menu_open_recent_file_cmd(widget);
     }
 }
+#endif /* MAIN_MENU_USE_UIMANAGER */
 
 #ifdef MAIN_MENU_USE_UIMANAGER
 static void
