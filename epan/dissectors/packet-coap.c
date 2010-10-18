@@ -30,13 +30,8 @@
 
 #include <glib.h>
 
-#include <epan/proto.h>
 #include <epan/packet.h>
-#include <epan/ipproto.h>
-#include <epan/asn1.h>
-#include <epan/reassemble.h>
 #include <epan/prefs.h>
-#include <epan/expert.h>
 
 static dissector_table_t media_type_dissector_table;
 
