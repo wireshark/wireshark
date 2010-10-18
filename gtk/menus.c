@@ -1445,8 +1445,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 
    { "/View/TimeDisplayFormat",		NULL,					"_Time Display Format",					NULL,						NULL,			NULL },
 
-  { "/View/NameResolution",			NULL,					"Name Resol_ution",						NULL,						NULL,			NULL },
-  { "/View/NameResolution/ResolveName",	NULL,				"_Resolve Name",						NULL,						NULL,			G_CALLBACK(resolve_name_cb) },
+   { "/View/NameResolution",			NULL,					"Name Resol_ution",						NULL,						NULL,			NULL },
    { "/View/ZoomIn",				GTK_STOCK_ZOOM_IN,		"_Zoom In",								"<control>plus",			NULL,			G_CALLBACK(view_zoom_in_cb) },
    { "/View/ZoomOut",				GTK_STOCK_ZOOM_OUT,		"Zoom _Out",							"<control>minus",			NULL,			G_CALLBACK(view_zoom_out_cb) },
    { "/View/NormalSize",			GTK_STOCK_ZOOM_100,		"_Normal Size",							"<control>equal",			NULL,			G_CALLBACK(view_zoom_100_cb) },
@@ -1571,6 +1570,7 @@ static const GtkToggleActionEntry main_menu_bar_toggle_action_entries[] =
 	{"/View/PacketDetails",	NULL, "Packet _Details", NULL, NULL,	G_CALLBACK(packet_details_show_hide_cb), TRUE}, 
 	{"/View/PacketBytes",	NULL, "Packet _Bytes", NULL, NULL,	G_CALLBACK(packet_bytes_show_hide_cb), TRUE}, 
 	{"/View/TimeDisplayFormat/DisplaySecondsWithHoursAndMinutes",	NULL, "Display Seconds with hours and minutes", NULL, NULL,	G_CALLBACK(view_menu_seconds_time_cb), FALSE}, 
+	{"/View/NameResolution/ResolveName",							NULL, "_Resolve Name",							NULL, NULL,	G_CALLBACK(resolve_name_cb), FALSE},
 	{"/View/NameResolution/EnableforMACLayer",						NULL, "Enable for _MAC Layer",					NULL, NULL, G_CALLBACK(view_menu_en_for_MAC_cb), TRUE},
 	{"/View/NameResolution/EnableforNetworkLayer",					NULL, "Enable for _Network Layer",				NULL, NULL, G_CALLBACK(view_menu_en_for_network_cb), TRUE },
 	{"/View/NameResolution/EnableforTransportLayer",				NULL, "Enable for _Transport Layer",			NULL, NULL, G_CALLBACK(view_menu_en_for_transport_cb), TRUE },
@@ -4354,6 +4354,29 @@ remove_menu_recent_capture_file(GtkWidget *widget, gpointer unused _U_) {
 }
 
 #ifdef MAIN_MENU_USE_UIMANAGER
+/* Add a file name to the top of the list, if its allrady present remove it first */
+static GList *
+remove_present_file_name(GList *recent_files_list, gchar *cf_name){
+GList *li;
+gchar *widget_cf_name;
+
+    for (li = g_list_first(recent_files_list); li; li = li->next) {
+		widget_cf_name = li->data;
+        if (
+#ifdef _WIN32
+            /* do a case insensitive compare on win32 */
+			g_ascii_strncasecmp(widget_cf_name, cf_name, 1000) == 0){
+#else   /* _WIN32 */
+            /* do a case sensitive compare on unix */
+			strncmp(widget_cf_name, normalized_cf_name, 1000) == 0 ){
+#endif
+            recent_files_list = g_list_remove(recent_files_list,widget_cf_name);
+        }
+    }
+
+	return recent_files_list;
+}
+		
 static void
 recent_changed_cb (GtkUIManager *ui_manager,
 			   gpointer          user_data _U_)
@@ -4411,6 +4434,7 @@ recent_clear_cb(GtkAction *action _U_, gpointer user_data _U_)
 static void
 recent_activate_cb (GtkAction *action _U_, gpointer user_data _U_)
 {
+
 #if 0
   recent_item_activated_cb (NULL,
                             g_object_get_data (G_OBJECT (action), "gtk-recent-info"),
@@ -4469,7 +4493,7 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
        i < prefs.gui_recent_files_count_max && l != NULL;
        i +=1, l = l->next)
     {
-	 gchar *item_name = l->data;
+	  gchar *item_name = l->data;
       name = g_strdup_printf ("recent-info-%u", i);
       action_name = g_strdup (name);
 
@@ -4478,7 +4502,6 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
 			     "label", item_name,
 			     "stock_id", WIRESHARK_STOCK_FILE,
 			     NULL);
-      g_object_set_data (G_OBJECT (action), "gtk-recent-info", item_name);
       g_signal_connect (action, "activate",
                         G_CALLBACK (recent_activate_cb), NULL);
       gtk_action_group_add_action (action_group, action);
@@ -4564,19 +4587,18 @@ menu_open_filename(gchar *cf_name)
         g_warning("menu_open_filename: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
     }
 	recent_files_list = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
-	/* Remove the item from the list, we will reinsert it at the top if it still exists */
     /* XXX: ask user to remove item, it's maybe only a temporary problem */
-	recent_files_list = g_list_remove(recent_files_list, cf_name);
     /* open and read the capture file (this will close an existing file) */
     if (cf_open(&cfile, cf_name, FALSE, &err) == CF_OK) {
         cf_read(&cfile, FALSE);
-		recent_files_list = g_list_prepend(recent_files_list, cf_name);
-    }
-	g_object_set_data(G_OBJECT(submenu_recent_files), "recent-files-list", recent_files_list);
-	/* Calling recent_changed_cb will rebuild the GUI call add_recent_items which will in turn call 
-	 * main_welcome_reset_recent_capture_files
-	 */
-	recent_changed_cb(ui_manager_main_menubar, NULL);
+	}else{
+		recent_files_list = remove_present_file_name(recent_files_list, cf_name);
+		g_object_set_data(G_OBJECT(submenu_recent_files), "recent-files-list", recent_files_list);
+		/* Calling recent_changed_cb will rebuild the GUI call add_recent_items which will in turn call 
+		 * main_welcome_reset_recent_capture_files
+		 */
+		recent_changed_cb(ui_manager_main_menubar, NULL);
+	}
 #else
     submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH_OLD);
     /* open and read the capture file (this will close an existing file) */
@@ -4662,22 +4684,15 @@ menu_open_recent_file_cmd_cb(GtkWidget *widget, gpointer data _U_) {
     }
 }
 
-
-/* add the capture filename (with an absolute path) to the "Recent Files" menu */
+#ifdef MAIN_MENU_USE_UIMANAGER
 static void
 add_menu_recent_capture_file_absolute(gchar *cf_name) {
     GtkWidget *submenu_recent_files;
-    GList *menu_item_list_old;
-#ifdef MAIN_MENU_USE_UIMANAGER
-	GList *recent_files_list;
-#endif
     GList *li;
     gchar *widget_cf_name;
     gchar *normalized_cf_name;
-    GtkWidget *menu_item;
     guint cnt;
-
-
+    GList *recent_files_list;
 
     normalized_cf_name = g_strdup(cf_name);
 #ifdef _WIN32
@@ -4686,7 +4701,6 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 #endif
 
     /* get the submenu container item */
-#ifdef MAIN_MENU_USE_UIMANAGER
     submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
     if(!submenu_recent_files){
         g_warning("add_menu_recent_capture_file_absolute: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
@@ -4712,10 +4726,27 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 	recent_files_list = g_list_prepend(recent_files_list, normalized_cf_name);
 	g_object_set_data(G_OBJECT(submenu_recent_files), "recent-files-list", recent_files_list);
 	recent_changed_cb( ui_manager_main_menubar, NULL);
-	return;
-#else
-    submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH_OLD);
+}
+
+#else /* MAIN_MENU_USE_UIMANAGER */
+
+/* add the capture filename (with an absolute path) to the "Recent Files" menu */
+static void
+add_menu_recent_capture_file_absolute(gchar *cf_name) {
+    GtkWidget *submenu_recent_files;
+    GList *menu_item_list_old;
+    GList *li;
+    gchar *widget_cf_name;
+    gchar *normalized_cf_name;
+    GtkWidget *menu_item;
+    guint cnt;
+
+    normalized_cf_name = g_strdup(cf_name);
+#ifdef _WIN32
+    /* replace all slashes by backslashes */
+    g_strdelimit(normalized_cf_name, "/", '\\');
 #endif
+    submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH_OLD);
     /* convert container to a GList */
     menu_item_list_old = gtk_container_get_children(GTK_CONTAINER(submenu_recent_files));
 
@@ -4729,7 +4760,8 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 
         /* if this element string is one of our special items (seperator, ...) or
          * already in the list or
-         * this element is above maximum count (too old), remove it */
+         * this element is above maximum count (too old), remove it
+		 */
         if (!widget_cf_name ||
 #ifdef _WIN32
             /* do a case insensitive compare on win32 */
@@ -4768,7 +4800,7 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 
     update_menu_recent_capture_file(submenu_recent_files);
 }
-
+#endif /* MAIN_MENU_USE_UIMANAGER */
 
 /* add the capture filename to the "Recent Files" menu */
 /* (will change nothing, if this filename is already in the menu) */
