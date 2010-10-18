@@ -973,8 +973,10 @@ static void show_extra_phy_parameters(packet_info *pinfo, tvbuff_t *tvb, proto_t
     proto_tree *phy_tree;
     proto_item *ti;
 
-    /* Clear the info column */
-    col_clear(pinfo->cinfo, COL_INFO);
+    if (global_mac_lte_layer_to_show == ShowPHYLayer) {
+        /* Clear the info column */
+        col_clear(pinfo->cinfo, COL_INFO);
+    }
 
     if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
         if (p_mac_lte_info->detailed_phy_info.ul_info.present) {
@@ -3024,9 +3026,12 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (p_mac_lte_info->crcStatusValid) {
+        /* Set status */
         ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_crc_status,
                                  tvb, 0, 0, p_mac_lte_info->detailed_phy_info.dl_info.crc_status);
         PROTO_ITEM_SET_GENERATED(ti);
+
+        /* Report non-success */
         if (p_mac_lte_info->detailed_phy_info.dl_info.crc_status != crc_success) {
             expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
                                    "%s Frame has CRC error problem (%s)",
