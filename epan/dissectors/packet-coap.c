@@ -202,7 +202,7 @@ dissect_coap_options(tvbuff_t *tvb, proto_tree *coap_tree, proto_tree *parent_tr
 			subtree = proto_item_add_subtree(item, ett_coap_ctype);
 			opt_ctype = tvb_get_guint8(tvb, offset);
 			coap_content_type = val_to_str(opt_ctype, vals_code, "Unknown %d");
-			proto_tree_add_item(subtree, hf_coap_opt_ctype, tvb, offset, opt_length, FALSE);
+			proto_tree_add_item(subtree, hf_coap_opt_ctype, tvb, offset, 1, FALSE);
 			break;
 		case COAP_OPT_MAX_AGE:
 			subtree = proto_item_add_subtree(item, ett_coap_max_age);
@@ -223,7 +223,9 @@ dissect_coap_options(tvbuff_t *tvb, proto_tree *coap_tree, proto_tree *parent_tr
 				proto_tree_add_text(subtree, tvb, 0, 0, "Invalid length: %d", opt_length);
 				break;
 			}
-			proto_tree_add_item(subtree, hf_coap_opt_max_age, tvb, offset, opt_length, FALSE);
+			if (opt_length >= 1 && opt_length <= 4) {
+			  proto_tree_add_item(subtree, hf_coap_opt_max_age, tvb, offset, opt_length, FALSE);
+			}
 			break;
 		case COAP_OPT_ETAG:
 			subtree = proto_item_add_subtree(item, ett_coap_etag);
@@ -297,7 +299,7 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		offset = dissect_coap_options(tvb, coap_tree, parent_tree, offset, &opt_code);
 		if (coap_length < offset) {
 			/* error */
-			proto_tree_add_text(coap_tree, tvb, 0, 0, "invalid length: coap_length(%d) < offset(%d)", coap_length, offset);
+			proto_tree_add_text(coap_tree, tvb, 0, 0, "Invalid length: coap_length(%d) < offset(%d)", coap_length, offset);
 			return;
 		}
 	}
