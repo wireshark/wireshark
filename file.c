@@ -473,24 +473,46 @@ static void outofmemory_cb(gpointer dialog _U_, gint btn _U_, gpointer data _U_)
     main_window_exit();
 }
 
-static float calc_progbar_val(capture_file *cf, gint64 size, gint64 file_pos){
-
+static float
+calc_progbar_val(capture_file *cf, gint64 size, gint64 file_pos, gchar *status_str, gsize status_size)
+{
   float   progbar_val;
 
   progbar_val = (gfloat) file_pos / (gfloat) size;
   if (progbar_val > 1.0) {
-    /* The file probably grew while we were reading it.
-       Update file size, and try again. */
+
+    /*  The file probably grew while we were reading it.
+     *  Update file size, and try again.
+     */
     size = wtap_file_size(cf->wth, NULL);
+
+    /*  Another possibility is that we're reading a compressed file and we've
+     *  read more (uncompressed) data from the file than exists in the
+     *  (compressed) file.  So check how much data we've actually read.
+     *
+     *  This is inside this "if val > 1.0" check to avoid the lseek() when
+     *  reading uncompressed files.  Testing has (thus far) shown no progress
+     *  bar weirdness resulting from switching from the data offset (when
+     *  reading the first part of the file) to the real file position.
+     */
+    file_pos = wtap_read_so_far(cf->wth, NULL);
+
     if (size >= 0)
       progbar_val = (gfloat) file_pos / (gfloat) size;
-    /* If it's still > 1, either "wtap_file_size()" failed (in which
-       case there's not much we can do about it), or the file
-       *shrank* (in which case there's not much we can do about
-       it); just clip the progress value at 1.0. */
+
+    /*  If it's still > 1, either "wtap_file_size()" failed (in which
+     *  case there's not much we can do about it), or the file
+     *  *shrank* (in which case there's not much we can do about
+     *  it); just clip the progress value at 1.0.
+     */
     if (progbar_val > 1.0f)
       progbar_val = 1.0f;
   }
+
+  g_snprintf(status_str, status_size,
+	     "%" G_GINT64_MODIFIER "dKB of %" G_GINT64_MODIFIER "dKB",
+	     file_pos / 1024, size / 1024);
+
   return progbar_val;
 }
 
@@ -574,7 +596,7 @@ cf_read(capture_file *cf, gboolean from_save)
        * Check wether it should be created or not every MIN_NUMBER_OF_PACKET
        */
       if ((progbar == NULL) && !(count % MIN_NUMBER_OF_PACKET)){
-        progbar_val = calc_progbar_val( cf, size, data_offset);
+        progbar_val = calc_progbar_val(cf, size, data_offset, status_str, sizeof(status_str));
         if (from_save == FALSE)
           progbar = delayed_create_progress_dlg("Loading", name_ptr,
                                                 TRUE, &stop_flag, &start_time, progbar_val);
@@ -590,7 +612,7 @@ cf_read(capture_file *cf, gboolean from_save)
          that for every packet can be costly, especially on a big file. */
       if (data_offset >= progbar_nextstep) {
         if (progbar != NULL) {
-          progbar_val = calc_progbar_val( cf, size, data_offset);
+          progbar_val = calc_progbar_val(cf, size, data_offset, status_str, sizeof(status_str));
           /* update the packet lists content on the first run or frequently on very large files */
           /* (on smaller files the display update takes longer than reading the file) */
 #ifdef HAVE_LIBPCAP
@@ -611,9 +633,6 @@ cf_read(capture_file *cf, gboolean from_save)
             }
           }
 #endif /* HAVE_LIBPCAP */
-          g_snprintf(status_str, sizeof(status_str),
-                     "%" G_GINT64_MODIFIER "dKB of %" G_GINT64_MODIFIER "dKB",
-                     data_offset / 1024, size / 1024);
           update_progress_dlg(progbar, progbar_val, status_str);
         }
         progbar_nextstep += progbar_quantum;
