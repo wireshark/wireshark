@@ -474,7 +474,7 @@ static void outofmemory_cb(gpointer dialog _U_, gint btn _U_, gpointer data _U_)
 }
 
 static float
-calc_progbar_val(capture_file *cf, gint64 size, gint64 file_pos, gchar *status_str, gsize status_size)
+calc_progbar_val(capture_file *cf, gint64 size, gint64 file_pos, gchar *status_str, gulong status_size)
 {
   float   progbar_val;
 
