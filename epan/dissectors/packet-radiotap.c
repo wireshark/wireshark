@@ -782,12 +782,12 @@ void proto_register_radiotap(void)
 		{&hf_radiotap_vendor_ns,
 		 {"Vendor namespace", "radiotap.vendor_namespace",
 		  FT_BYTES, BASE_NONE, NULL, 0x0,
-		  "Vendor namespace", HFILL}},
+		  NULL, HFILL}},
 
 		{&hf_radiotap_ven_oui,
 		 {"Vendor OUI", "radiotap.vendor_oui",
 		  FT_BYTES, BASE_NONE, NULL, 0x0,
-		  "Vendor OUI", HFILL}},
+		  NULL, HFILL}},
 
 		{&hf_radiotap_ven_subns,
 		 {"Vendor sub namespace", "radiotap.vendor_subns",
