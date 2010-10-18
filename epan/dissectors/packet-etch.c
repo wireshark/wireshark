@@ -262,7 +262,9 @@ static void add_symbols_of_file(const char *filename)
   if (pFile != NULL) {
     char line[256];
     while (fgets(line, sizeof line, pFile) != NULL) {
-      int length, pos, hash;
+      int    hash;
+      size_t length, pos;
+
       length = strlen(line);
 
       /* Must at least have a hash, else skip line */
