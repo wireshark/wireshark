@@ -36,6 +36,7 @@
 #include <epan/greproto.h>
 #include <epan/ipproto.h>
 #include <epan/llcsaps.h>
+#include <epan/expert.h>
 
 /*
  * See RFC 1701 "Generic Routing Encapsulation (GRE)", RFC 1702
@@ -48,10 +49,33 @@
 
 static int proto_gre = -1;
 static int hf_gre_proto = -1;
+static int hf_gre_flags_and_version = -1;
+static int hf_gre_flags_checksum = -1;
+static int hf_gre_flags_routing = -1;
+static int hf_gre_flags_key = -1;
+static int hf_gre_flags_sequence_number = -1;
+static int hf_gre_flags_strict_source_route = -1;
+static int hf_gre_flags_recursion_control = -1;
+static int hf_gre_flags_ack = -1;
+static int hf_gre_flags_reserved_ppp = -1;
+static int hf_gre_flags_reserved = -1;
+static int hf_gre_flags_version = -1;
+static int hf_gre_checksum = -1;
+static int hf_gre_offset = -1;
 static int hf_gre_key = -1;
+static int hf_gre_key_payload_length = -1;
+static int hf_gre_key_call_id = -1;
+static int hf_gre_sequence_number = -1;
+static int hf_gre_ack_number = -1;
+static int hf_gre_routing = -1;
+static int hf_gre_routing_address_family = -1;
+static int hf_gre_routing_sre_length = -1;
+static int hf_gre_routing_sre_offset = -1;
+static int hf_gre_routing_information = -1;
 
 /* Ref 3GPP2 A.S0012-C v2.0 and A.S0008-A v1.0 */
-static int hf_gre_3ggp2_attrib_id =-1;
+static int hf_gre_3ggp2_attrib = -1;
+static int hf_gre_3ggp2_attrib_id = -1;
 static int hf_gre_3ggp2_attrib_length = -1;
 static int hf_gre_3ggp2_sdi = -1;
 static int hf_gre_3ggp2_fci = -1;
@@ -59,8 +83,16 @@ static int hf_gre_3ggp2_di = -1;
 static int hf_gre_3ggp2_flow_disc = -1;
 static int hf_gre_3ggp2_seg = -1;
 
+static int hf_gre_wccp_redirect_header = -1;
+static int hf_gre_wccp_dynamic_service = -1;
+static int hf_gre_wccp_alternative_bucket_used = -1;
+static int hf_gre_wccp_service_id = -1;
+static int hf_gre_wccp_alternative_bucket = -1;
+static int hf_gre_wccp_primary_bucket = -1;
+
 static gint ett_gre = -1;
 static gint ett_gre_flags = -1;
+static gint ett_gre_routing = -1;
 static gint ett_gre_wccp2_redirect_header = -1;
 static gint ett_3gpp2_attribs = -1;
 static gint ett_3gpp2_attr = -1;
@@ -69,20 +101,23 @@ static dissector_table_t gre_dissector_table;
 static dissector_handle_t data_handle;
 
 /* bit positions for flags in header */
-#define GH_B_C		0x8000
-#define GH_B_R		0x4000
-#define GH_B_K		0x2000
-#define GH_B_S		0x1000
-#define GH_B_s		0x0800
-#define GH_B_RECUR	0x0700
-#define GH_P_A		0x0080	/* only in special PPTPized GRE header */
-#define GH_P_FLAGS	0x0078	/* only in special PPTPized GRE header */
-#define GH_R_FLAGS	0x00F8
-#define GH_B_VER	0x0007
+#define GRE_CHECKSUM		0x8000
+#define GRE_ROUTING		0x4000
+#define GRE_KEY			0x2000
+#define GRE_SEQUENCE		0x1000
+#define GRE_STRICTSOURCE	0x0800
+#define GRE_RECURSION		0x0700
+#define GRE_ACK			0x0080	/* only in special PPTPized GRE header */
+#define GRE_RESERVED_PPP	0x0078	/* only in special PPTPized GRE header */
+#define GRE_RESERVED		0x00F8
+#define GRE_VERSION		0x0007
 
-static void add_flags_and_ver(proto_tree *, guint16, tvbuff_t *, int, int);
-static void dissect_gre_wccp2_redirect_header(tvbuff_t *, int, proto_tree *);
 
+const value_string gre_version[] = {
+	{ 0, "GRE" },		 /* [RFC2784] */
+	{ 1, "Enhanced GRE" },	 /* [RFC2637] */ 
+	{ 0, NULL}
+};
 const value_string gre_typevals[] = {
 	{ ETHERTYPE_PPP,       "PPP" },
 	{ ETHERTYPE_IP,        "IP" },
@@ -163,6 +198,16 @@ static const true_false_string gre_3ggp2_di_val = {
   "TEMPORARY"
 };
 
+static const true_false_string gre_wccp_dynamic_service_val = {
+  "Dynamic service",
+  "Well-known service"
+};
+
+static const true_false_string gre_wccp_alternative_bucket_used_val = {
+  "Alternative bucket used",
+  "Primary bucket used",
+};
+
 static int
 dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
@@ -172,9 +217,7 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
   guint8 value;
   int start_offset = offset;
 
-  proto_item* ti = 
-      proto_tree_add_text(tree, tvb, offset, 0, "3GPP2 Attributes");
-
+  proto_item* ti = proto_tree_add_item(tree, hf_gre_3ggp2_attrib, tvb, offset, 0, FALSE);
   proto_tree* atree = proto_item_add_subtree(ti, ett_3gpp2_attribs);
 
   while(last_attrib != TRUE)
@@ -182,7 +225,7 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
      guint8 attrib_id = tvb_get_guint8(tvb, offset);
      guint8 attrib_length = tvb_get_guint8(tvb, offset + 1);
 
-	 attr_item = proto_tree_add_text(atree, tvb, offset, attrib_length + 1, "%s",
+	 attr_item = proto_tree_add_text(atree, tvb, offset, attrib_length + 1 + 1, "%s",
 		 val_to_str((attrib_id&0x7f), gre_3ggp2_attrib_id_vals, "%u (Unknown)"));
 	 attr_tree = proto_item_add_subtree(attr_item, ett_3gpp2_attr);
 
@@ -239,47 +282,55 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static void
+dissect_gre_wccp2_redirect_header(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+  proto_item *	ti;
+  proto_tree *	rh_tree;
+
+  ti = proto_tree_add_item(tree, hf_gre_wccp_redirect_header, tvb, offset, 4, FALSE);
+  rh_tree = proto_item_add_subtree(ti, ett_gre_wccp2_redirect_header);
+
+  proto_tree_add_item(rh_tree, hf_gre_wccp_dynamic_service, tvb, offset, 1, FALSE);
+
+  proto_tree_add_item(rh_tree, hf_gre_wccp_alternative_bucket_used, tvb, offset, 1, FALSE);
+
+  proto_tree_add_item(rh_tree, hf_gre_wccp_service_id, tvb, offset +1, 1, FALSE);
+
+  proto_tree_add_item(rh_tree, hf_gre_wccp_alternative_bucket, tvb, offset +2, 1, FALSE);
+
+  proto_tree_add_item(rh_tree, hf_gre_wccp_primary_bucket, tvb, offset +3, 1, FALSE);
+}
+
+static void
 dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+
   int		offset = 0;
   guint16	flags_and_ver;
   guint16	type;
   gboolean	is_ppp = FALSE;
   gboolean	is_wccp2 = FALSE;
-  guint 	len = 4;
-  proto_item 	*ti;
-  proto_tree 	*gre_tree = NULL;
+  proto_item 	*ti, *it_flags;
+  proto_tree 	*gre_tree, *fv_tree = NULL;
   guint16	sre_af;
   guint8	sre_length;
   tvbuff_t	*next_tvb;
 
   flags_and_ver = tvb_get_ntohs(tvb, offset);
-  type = tvb_get_ntohs(tvb, offset + sizeof(flags_and_ver));
+  type = tvb_get_ntohs(tvb, offset + 2);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "GRE");
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Encapsulated %s",
-		 val_to_str(type, gre_typevals, "0x%04X (unknown)"));
-  }
+  col_add_fstr(pinfo->cinfo, COL_INFO, "Encapsulated %s", val_to_str(type, gre_typevals, "0x%04X (unknown)"));
 
-  if (flags_and_ver & GH_B_C || flags_and_ver & GH_B_R)
-    len += 4;
-  if (flags_and_ver & GH_B_K)
-    len += 4;
-  if (flags_and_ver & GH_B_S)
-    len += 4;
   switch (type) {
 
   case ETHERTYPE_PPP:
-    if (flags_and_ver & GH_P_A)
-      len += 4;
+    if (flags_and_ver & GRE_ACK)
     is_ppp = TRUE;
     break;
   case ETHERTYPE_3GPP2: 
   case ETHERTYPE_CDMA2000_A10_UBS:
-    if (flags_and_ver & GH_P_A)
-      len += 4;
    is_ppp = TRUE;
    break;
 
@@ -287,278 +338,326 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* WCCP2 puts an extra 4 octets into the header, but uses the same
        encapsulation type; if it looks as if the first octet of the packet
        isn't the beginning of an IPv4 header, assume it's WCCP2. */
-    if ((tvb_get_guint8(tvb, offset + sizeof(flags_and_ver) + sizeof(type)) & 0xF0) != 0x40) {
-      len += 4;
+    if ((tvb_get_guint8(tvb, offset + 2 + 2) & 0xF0) != 0x40) {
       is_wccp2 = TRUE;
     }
     break;
   }
 
   if (tree) {
-    ti = proto_tree_add_protocol_format(tree, proto_gre, tvb, offset, len,
-      "Generic Routing Encapsulation (%s)",
+    ti = proto_tree_add_protocol_format(tree, proto_gre, tvb, offset, -1, "Generic Routing Encapsulation (%s)",
       val_to_str(type, gre_typevals, "0x%04X - unknown"));
     gre_tree = proto_item_add_subtree(ti, ett_gre);
-    add_flags_and_ver(gre_tree, flags_and_ver, tvb, offset, is_ppp);
-  }
-  offset += sizeof(flags_and_ver);
 
-  if (tree) {
-    proto_tree_add_uint(gre_tree, hf_gre_proto, tvb, offset, sizeof(type), type);
-  }
-  offset += sizeof(type);
 
-  if (flags_and_ver & GH_B_C || flags_and_ver & GH_B_R) {
-    if (tree) {
+    it_flags = proto_tree_add_item(gre_tree, hf_gre_flags_and_version, tvb, offset, 2, FALSE);
+    fv_tree = proto_item_add_subtree(it_flags, ett_gre_flags);
+
+    proto_tree_add_item(fv_tree, hf_gre_flags_checksum, tvb, offset, 2, FALSE);
+
+    proto_tree_add_item(fv_tree, hf_gre_flags_routing, tvb, offset, 2, FALSE);
+
+    proto_tree_add_item(fv_tree, hf_gre_flags_key, tvb, offset, 2, FALSE);
+
+    proto_tree_add_item(fv_tree, hf_gre_flags_sequence_number, tvb, offset, 2, FALSE);
+
+    proto_tree_add_item(fv_tree, hf_gre_flags_strict_source_route, tvb, offset, 2, FALSE);
+
+    proto_tree_add_item(fv_tree, hf_gre_flags_recursion_control, tvb, offset, 2, FALSE);
+
+    /* RFC2637 Section 4.1 : Enhanced GRE Header */
+    if (is_ppp) {
+      proto_tree_add_item(fv_tree, hf_gre_flags_ack, tvb, offset, 2, FALSE);
+
+      proto_tree_add_item(fv_tree, hf_gre_flags_reserved_ppp, tvb, offset, 2, FALSE);
+    }
+    else {
+      proto_tree_add_item(fv_tree, hf_gre_flags_reserved, tvb, offset, 2, FALSE);
+    }
+
+    proto_tree_add_item(fv_tree, hf_gre_flags_version, tvb, offset, 2, FALSE);
+    
+    offset += 2;
+    
+    proto_tree_add_item(gre_tree, hf_gre_proto, tvb, offset, 2, FALSE);
+    offset += 2;
+
+    if (flags_and_ver & GRE_CHECKSUM || flags_and_ver & GRE_ROUTING) {
       guint length, reported_length;
+      proto_item *it_checksum;
       vec_t cksum_vec[1];
       guint16 cksum, computed_cksum;
 
+      it_checksum = proto_tree_add_item(gre_tree, hf_gre_checksum, tvb, offset, 2, FALSE);
+	/* Checksum check !... */
       cksum = tvb_get_ntohs(tvb, offset);
       length = tvb_length(tvb);
       reported_length = tvb_reported_length(tvb);
-      if ((flags_and_ver & GH_B_C) && !pinfo->fragmented
-		&& length >= reported_length) {
 	/* The Checksum Present bit is set, and the packet isn't part of a
 	   fragmented datagram and isn't truncated, so we can checksum it. */
-
+      if ((flags_and_ver & GRE_CHECKSUM) && !pinfo->fragmented && length >= reported_length) {
 	cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, reported_length);
 	cksum_vec[0].len = reported_length;
 	computed_cksum = in_cksum(cksum_vec, 1);
 	if (computed_cksum == 0) {
-	  proto_tree_add_text(gre_tree, tvb, offset, 2,
-			"Checksum: 0x%04x [correct]", cksum);
+	  proto_item_append_text(it_checksum," [correct]");
 	} else {
-	  proto_tree_add_text(gre_tree, tvb, offset, 2,
-			"Checksum: 0x%04x [incorrect, should be 0x%04x]",
-			cksum, in_cksum_shouldbe(cksum, computed_cksum));
+	  proto_item_append_text(it_checksum," [incorrect, shoubl be 0x%04x]",in_cksum_shouldbe(cksum, computed_cksum));
+	   expert_add_info_format(pinfo, it_checksum, PI_MALFORMED, PI_WARN, "Incorrect GRE Checksum");
 	}
-      } else {
-	proto_tree_add_text(gre_tree, tvb, offset, 2,
-			  "Checksum: 0x%04x", cksum);
-      }
-    }
-    offset += 2;
-  }
+      } 
 
-  if (flags_and_ver & GH_B_C || flags_and_ver & GH_B_R) {
-    if (tree) {
-      proto_tree_add_text(gre_tree, tvb, offset, 2,
-			  "Offset: %u", tvb_get_ntohs(tvb, offset));
-    }
-    offset += 2;
-  }
 
-  if (flags_and_ver & GH_B_K) {
-    if (is_ppp && type!=ETHERTYPE_CDMA2000_A10_UBS) {
-      if (tree) {
-	proto_tree_add_text(gre_tree, tvb, offset, 2,
-			    "Payload length: %u", tvb_get_ntohs(tvb, offset));
-      }
       offset += 2;
-      if (tree) {
-	proto_tree_add_text(gre_tree, tvb, offset, 2,
-			    "Call ID: %u", tvb_get_ntohs(tvb, offset));
-      }
+
+      proto_tree_add_item(gre_tree, hf_gre_offset, tvb, offset, 2, FALSE);
       offset += 2;
     }
-    else {
-      if (tree)
+
+    if (flags_and_ver & GRE_KEY) {
+         /* RFC2637 Section 4.1 : Enhanced GRE Header */
+      if (is_ppp && type!=ETHERTYPE_CDMA2000_A10_UBS) {
+
+	proto_tree_add_item(gre_tree, hf_gre_key_payload_length, tvb, offset, 2, FALSE);
+        offset += 2;
+
+	proto_tree_add_item(gre_tree, hf_gre_key_call_id, tvb, offset, 2, FALSE);
+        offset += 2;
+      }
+      else {
 	proto_tree_add_item(gre_tree, hf_gre_key, tvb, offset, 4, FALSE);
+        offset += 4;
+      }
+    }
+    if (flags_and_ver & GRE_SEQUENCE) {
+
+      proto_tree_add_item(gre_tree, hf_gre_sequence_number , tvb, offset, 4, FALSE);
       offset += 4;
     }
-  }
+    if (is_ppp && (flags_and_ver & GRE_ACK)) {
 
-  if (flags_and_ver & GH_B_S) {
-    if (tree) {
-      proto_tree_add_text(gre_tree, tvb, offset, 4,
-			  "Sequence number: %u", tvb_get_ntohl(tvb, offset));
-    }
-    offset += 4;
-  }
-
-  if (is_ppp && flags_and_ver & GH_P_A) {
-    if (tree) {
-      proto_tree_add_text(gre_tree, tvb, offset, 4,
-			  "Acknowledgement number: %u", tvb_get_ntohl(tvb, offset));
-    }
-    offset += 4;
-  }
-
-  if (flags_and_ver & GH_B_R) {
-    for (;;) {
-      sre_af = tvb_get_ntohs(tvb, offset);
-      if (tree) {
-        proto_tree_add_text(gre_tree, tvb, offset, sizeof(guint16),
-  			  "Address family: %u", sre_af);
-      }
-      offset += sizeof(guint16);
-      if (tree) {
-        proto_tree_add_text(gre_tree, tvb, offset, 1,
-			  "SRE offset: %u", tvb_get_guint8(tvb, offset));
-      }
-      offset += sizeof(guint8);
-      sre_length = tvb_get_guint8(tvb, offset);
-      if (tree) {
-        proto_tree_add_text(gre_tree, tvb, offset, sizeof(guint8),
-			  "SRE length: %u", sre_length);
-      }
-      offset += sizeof(guint8);
-      if (sre_af == 0 && sre_length == 0)
-	break;
-      offset += sre_length;
-    }
-  }
-
-  if (type == GRE_WCCP) {
-    if (is_wccp2) {
-      if (tree)
-        dissect_gre_wccp2_redirect_header(tvb, offset, gre_tree);
+      proto_tree_add_item(gre_tree, hf_gre_ack_number , tvb, offset, 4, FALSE);
       offset += 4;
     }
-  }
+    if (flags_and_ver & GRE_ROUTING) {
+        proto_item *it_routing;
+        proto_tree *r_tree;
+      for (;;) {
 
-  if(type == ETHERTYPE_3GPP2) {
+        it_routing = proto_tree_add_item(gre_tree, hf_gre_routing, tvb, offset, -1, FALSE);
+        r_tree = proto_item_add_subtree(ti, ett_gre_routing);
+
+        sre_af = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item(gre_tree, hf_gre_routing_address_family , tvb, offset, 2, FALSE);
+        offset += 2;
+
+        proto_tree_add_item(gre_tree, hf_gre_routing_sre_offset , tvb, offset, 1, FALSE);
+        offset += 1;
+
+        sre_length = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(gre_tree, hf_gre_routing_sre_length , tvb, offset, 1, FALSE);
+        offset += 1;
+	
+	proto_item_set_len(it_routing, 2 + 1 +1 + sre_length);
+        if (sre_af == 0 && sre_length == 0)
+	  break;
+
+        proto_tree_add_item(gre_tree, hf_gre_routing_information , tvb, offset, sre_length, FALSE);
+       	offset += sre_length;
+      }
+    }
+
+    if (type == GRE_WCCP && is_wccp2) {
+      dissect_gre_wccp2_redirect_header(tvb, offset, gre_tree);
+      offset += 4;
+    }
+    if(type == ETHERTYPE_3GPP2) {
      offset = dissect_gre_3gpp2_attribs(tvb, offset, gre_tree);
-  }
-  
+    }
 
-  /* If the S bit is not set, this packet might not have a payload, so
-     check whether there's any data left, first.
+    proto_item_set_len(ti, offset);
 
-     XXX - the S bit isn't in RFC 2784, which deprecates that bit
-     and some other bits in RFC 1701 and says that they should be
-     zero for RFC 2784-compliant GRE; as such, the absence of the
-     S bit doesn't necessarily mean there's no payload.  */
-  if (!(flags_and_ver & GH_B_S)) {
-    if (tvb_reported_length_remaining(tvb, offset) <= 0)
-      return;	/* no payload */
+    /* If the S bit is not set, this packet might not have a payload, so
+       check whether there's any data left, first.
+
+       XXX - the S bit isn't in RFC 2784, which deprecates that bit
+       and some other bits in RFC 1701 and says that they should be
+       zero for RFC 2784-compliant GRE; as such, the absence of the
+       S bit doesn't necessarily mean there's no payload.  */
+    if (!(flags_and_ver & GRE_SEQUENCE)) {
+      if (tvb_reported_length_remaining(tvb, offset) <= 0)
+        return;	/* no payload */
+    }
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
+    if (!dissector_try_port(gre_dissector_table, type, next_tvb, pinfo, tree))
+      call_dissector(data_handle,next_tvb, pinfo, gre_tree);
   }
-  next_tvb = tvb_new_subset_remaining(tvb, offset);
-  if (!dissector_try_port(gre_dissector_table, type, next_tvb, pinfo, tree))
-    call_dissector(data_handle,next_tvb, pinfo, gre_tree);
 }
 
-static void
-add_flags_and_ver(proto_tree *tree, guint16 flags_and_ver, tvbuff_t *tvb,
-    int offset, int is_ppp)
-{
-  proto_item *	ti;
-  proto_tree *	fv_tree;
-  int		nbits = sizeof(flags_and_ver) * 8;
-
-  ti = proto_tree_add_text(tree, tvb, offset, 2,
-			   "Flags and version: %#04x", flags_and_ver);
-  fv_tree = proto_item_add_subtree(ti, ett_gre_flags);
-
-  proto_tree_add_text(fv_tree, tvb, offset, sizeof(flags_and_ver), "%s",
-		      decode_boolean_bitfield(flags_and_ver, GH_B_C, nbits,
-					      "Checksum", "No checksum"));
-  proto_tree_add_text(fv_tree, tvb, offset, sizeof(flags_and_ver), "%s",
-		      decode_boolean_bitfield(flags_and_ver, GH_B_R, nbits,
-					      "Routing", "No routing"));
-  proto_tree_add_text(fv_tree, tvb, offset, sizeof(flags_and_ver), "%s",
-		      decode_boolean_bitfield(flags_and_ver, GH_B_K, nbits,
-					      "Key", "No key"));
-  proto_tree_add_text(fv_tree, tvb, offset, sizeof(flags_and_ver), "%s",
-		      decode_boolean_bitfield(flags_and_ver, GH_B_S, nbits,
-					      "Sequence number", "No sequence number"));
-  proto_tree_add_text(fv_tree, tvb, offset, sizeof(flags_and_ver), "%s",
-		      decode_boolean_bitfield(flags_and_ver, GH_B_s, nbits,
-					      "Strict source route", "No strict source route"));
-  proto_tree_add_text(fv_tree, tvb, offset, sizeof(flags_and_ver), "%s",
-		      decode_numeric_bitfield(flags_and_ver, GH_B_RECUR, nbits,
-					      "Recursion control: %u"));
-  if (is_ppp) {
-    proto_tree_add_text(fv_tree, tvb, offset, sizeof(flags_and_ver), "%s",
-			decode_boolean_bitfield(flags_and_ver, GH_P_A, nbits,
-						"Acknowledgment number", "No acknowledgment number"));
-    proto_tree_add_text(fv_tree, tvb, offset, sizeof(flags_and_ver), "%s",
-			decode_numeric_bitfield(flags_and_ver, GH_P_FLAGS, nbits,
-						"Flags: %u"));
-  }
-  else {
-    proto_tree_add_text(fv_tree, tvb, offset, sizeof(flags_and_ver), "%s",
-			decode_numeric_bitfield(flags_and_ver, GH_R_FLAGS, nbits,
-						"Flags: %u"));
-  }
-
-  proto_tree_add_text(fv_tree, tvb, offset, sizeof(flags_and_ver), "%s",
-		      decode_numeric_bitfield(flags_and_ver, GH_B_VER, nbits,
-					      "Version: %u"));
- }
-
-static void
-dissect_gre_wccp2_redirect_header(tvbuff_t *tvb, int offset, proto_tree *tree)
-{
-  proto_item *	ti;
-  proto_tree *	rh_tree;
-  guint8	rh_flags;
-
-  ti = proto_tree_add_text(tree, tvb, offset, 4, "Redirect header");
-  rh_tree = proto_item_add_subtree(ti, ett_gre_wccp2_redirect_header);
-
-  rh_flags = tvb_get_guint8(tvb, offset);
-  proto_tree_add_text(rh_tree, tvb, offset, 1, "%s",
-		      decode_boolean_bitfield(rh_flags, 0x80, 8,
-				      "Dynamic service", "Well-known service"));
-  proto_tree_add_text(rh_tree, tvb, offset, 1, "%s",
-		      decode_boolean_bitfield(rh_flags, 0x40, 8,
-			      "Alternative bucket used", "Alternative bucket not used"));
-
-  proto_tree_add_text(rh_tree, tvb, offset + 1, 1, "Service ID: %s",
-      val_to_str(tvb_get_guint8(tvb, offset + 1), service_id_vals, "Unknown (0x%02X)"));
-  if (rh_flags & 0x40)
-    proto_tree_add_text(rh_tree, tvb, offset + 2, 1, "Alternative bucket index: %u",
-			tvb_get_guint8(tvb, offset + 2));
-  proto_tree_add_text(rh_tree, tvb, offset + 3, 1, "Primary bucket index: %u",
-			tvb_get_guint8(tvb, offset + 3));
-}
 
 void
 proto_register_gre(void)
 {
-	static hf_register_info hf[] = {
-		{ &hf_gre_proto,
-		  { "Protocol Type", "gre.proto", FT_UINT16, BASE_HEX, VALS(gre_typevals), 0x0,
-			"The protocol that is GRE encapsulated", HFILL }
-		},
-		{ &hf_gre_key,
-		  { "GRE Key", "gre.key", FT_UINT32, BASE_HEX, NULL, 0x0,
-			NULL, HFILL }
-		},
-		{ &hf_gre_3ggp2_attrib_id,
-		  { "Type", "gre.ggp2_attrib_id", FT_UINT8, BASE_HEX, VALS(gre_3ggp2_attrib_id_vals), 0x7f,
-			NULL, HFILL }
-		},
-		{ &hf_gre_3ggp2_attrib_length,
-		  { "Length", "gre.ggp2_attrib_length", FT_UINT8, BASE_HEX, NULL, 0x0,
-			NULL, HFILL }
-		},
-		{ &hf_gre_3ggp2_sdi,
-		  { "SDI/DOS", "gre.3ggp2_sdi", FT_BOOLEAN, 16, TFS(&gre_3ggp2_sdi_val), 0x8000,
-			"Short Data Indicator(SDI)/Data Over Signaling (DOS)", HFILL }
-		},
-		{ &hf_gre_3ggp2_fci,
-		  { "Flow Control Indicator", "gre.3ggp2_fci", FT_BOOLEAN, 16, TFS(&gre_3ggp2_fci_val), 0x8000,
-			NULL, HFILL }
-		},
-		{ &hf_gre_3ggp2_di,
-		  { "Duration Indicator", "gre.3ggp2_di", FT_BOOLEAN, 16, TFS(&gre_3ggp2_di_val), 0x4000,
-			NULL, HFILL }
-		},
-		{ &hf_gre_3ggp2_flow_disc,
-		  { "Flow ID", "gre.ggp2_flow_disc", FT_BYTES, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }
-		},
-		{ &hf_gre_3ggp2_seg,
-		  { "Type", "gre.ggp2_3ggp2_seg", FT_UINT16, BASE_HEX, VALS(gre_3ggp2_seg_vals), 0xc000,
-			NULL, HFILL }
-		},
+    static hf_register_info hf[] = {
+    { &hf_gre_proto,
+      { "Protocol Type", "gre.proto", 
+	FT_UINT16, BASE_HEX, VALS(gre_typevals), 0x0,
+        "The protocol that is GRE encapsulated", HFILL }},
+    { &hf_gre_flags_and_version,
+      { "Flags and Version", "gre.flags_and_version",
+	FT_UINT16,	BASE_HEX,	NULL,	0x0,
+      	"The GRE flags are encoded in the first two octets", HFILL }},
+    { &hf_gre_flags_checksum,
+      { "Checksum Bit", "gre.flags.checksum",
+	FT_BOOLEAN,	16,	TFS(&tfs_yes_no),	GRE_CHECKSUM,
+      	"Indicates if the Checksum field is present", HFILL }},
+    { &hf_gre_flags_routing,
+      { "Routing Bit", "gre.flags.routing",
+	FT_BOOLEAN,	16,	TFS(&tfs_yes_no),	GRE_ROUTING,
+      	"Indicates if the Routing and Checksum/Offset field are present", HFILL }},
+    { &hf_gre_flags_key,
+      { "Key Bit", "gre.flags.key",
+	FT_BOOLEAN,	16,	TFS(&tfs_yes_no),	GRE_KEY,
+      	"Indicates if the Key field is present", HFILL }},
+    { &hf_gre_flags_sequence_number,
+      { "Sequence Number Bit", "gre.flags.sequence_number",
+	FT_BOOLEAN,	16,	TFS(&tfs_yes_no),	GRE_SEQUENCE,
+      	"Indicates if the Sequence Number field is present", HFILL }},
+    { &hf_gre_flags_strict_source_route,
+      { "Strict Source Route Bit", "gre.flags.strict_source_route",
+	FT_BOOLEAN,	16,	TFS(&tfs_yes_no),	GRE_STRICTSOURCE,
+      	NULL, HFILL }},
+    { &hf_gre_flags_recursion_control,
+      { "Recursion control", "gre.flags.recursion_control",
+	FT_UINT16,	BASE_DEC,	NULL,	GRE_RECURSION,
+      	NULL, HFILL }},
+    { &hf_gre_flags_ack,
+      { "Acknowledgment", "gre.flags.ack",
+	FT_BOOLEAN,	16,	TFS(&tfs_yes_no),	GRE_ACK,
+      	"Indicates if the packet packet contains Acknowledgment Number to be used for acknowledging previously transmitted data", HFILL }},
+    { &hf_gre_flags_reserved,
+      { "Flags (Reserved)", "gre.flags.reserved",
+	FT_UINT16,	BASE_DEC,	NULL,	GRE_RESERVED,
+      	NULL, HFILL }},
+    { &hf_gre_flags_reserved_ppp,
+      { "Flags (Reserved)", "gre.flags.reserved",
+	FT_UINT16,	BASE_DEC,	NULL,	GRE_RESERVED_PPP,
+      	NULL, HFILL }},
+    { &hf_gre_flags_version,
+      { "Version", "gre.flags.version",
+	FT_UINT16,	BASE_DEC,	VALS(gre_version),	GRE_VERSION,
+      	NULL, HFILL }},
+    { &hf_gre_checksum,
+      { "Checksum", "gre.checksum", 
+	FT_UINT16, BASE_HEX, NULL, 0x0,
+	"The Checksum field contains the IP (one's complement) checksum of the GRE header and the payload packet", HFILL }},
+    { &hf_gre_offset,
+      { "Offset", "gre.offset", 
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"The offset field indicates the octet offset from the start of the Routing field to the first octet of the active Source Route Entry to be examined", HFILL }},
+    { &hf_gre_key,
+      { "Key", "gre.key", 
+	FT_UINT32, BASE_HEX, NULL, 0x0,
+	"The Key field contains a four octet number which was inserted by the encapsulator", HFILL }},
+    { &hf_gre_key_payload_length,
+      { "Payload Length", "gre.key.payload_length", 
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"Size of the payload, not including the GRE header", HFILL }},
+    { &hf_gre_key_call_id,
+      { "Call ID", "gre.key.call_id", 
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"Contains the Peer's Call ID for the session to which this packet belongs.", HFILL }},
+    { &hf_gre_sequence_number,
+      { "Sequence Number", "gre.sequence_number", 
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"The Sequence Number field contains an unsigned 32 bit integer which is inserted by the encapsulator", HFILL }},
+    { &hf_gre_ack_number,
+      { "Acknowledgment Number", "gre.ack_number", 
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"Contains the sequence number of the highest numbered GRE packet received by the sending peer for this user session", HFILL }},
+    { &hf_gre_routing,
+      { "Routing", "gre.routing", 
+	FT_NONE, BASE_NONE, NULL, 0x0,
+	"The Routing field is a list of Source Route Entries (SREs)", HFILL }},
+    { &hf_gre_routing_address_family,
+      { "Address Family", "gre.routing.adress_family", 
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"The Address Family field contains a two octet value which indicates the syntax and semantics of the Routing Information field", HFILL }},
+    { &hf_gre_routing_sre_offset,
+      { "SRE Offset", "gre.routing.sre_offset", 
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+	"The Address Family field contains a two octet value which indicates the syntax and semantics of the Routing Information field", HFILL }},
+    { &hf_gre_routing_sre_length,
+      { "SRE Length", "gre.routing.src_length", 
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+	"The SRE Length field contains the number of octets in the SRE", HFILL }},
+    { &hf_gre_routing_information,
+      { "Routing Information", "gre.routing.information", 
+	FT_BYTES, BASE_NONE, NULL, 0x0,
+	"The Routing Information field contains data which may be used in routing this packet", HFILL }},
+    { &hf_gre_3ggp2_attrib,
+      { "3GGP2 Attributes", "gre.ggp2_attrib",
+	FT_NONE, BASE_NONE, NULL, 0x0,
+	NULL, HFILL }},
+    { &hf_gre_3ggp2_attrib_id,
+      { "Type", "gre.ggp2_attrib_id",
+	FT_UINT8, BASE_HEX, VALS(gre_3ggp2_attrib_id_vals), 0x7f,
+	NULL, HFILL }},
+    { &hf_gre_3ggp2_attrib_length,
+      { "Length", "gre.ggp2_attrib_length",
+	FT_UINT8, BASE_HEX, NULL, 0x0,
+	NULL, HFILL }},
+    { &hf_gre_3ggp2_sdi,
+      { "SDI/DOS", "gre.3ggp2_sdi", 
+	FT_BOOLEAN, 16, TFS(&gre_3ggp2_sdi_val), 0x8000,
+	"Short Data Indicator(SDI)/Data Over Signaling (DOS)", HFILL }},
+    { &hf_gre_3ggp2_fci,
+      { "Flow Control Indicator", "gre.3ggp2_fci", 
+	FT_BOOLEAN, 16, TFS(&gre_3ggp2_fci_val), 0x8000,
+	NULL, HFILL }},
+    { &hf_gre_3ggp2_di,
+      { "Duration Indicator", "gre.3ggp2_di", 
+	FT_BOOLEAN, 16, TFS(&gre_3ggp2_di_val), 0x4000,
+	NULL, HFILL }},
+    { &hf_gre_3ggp2_flow_disc,
+      { "Flow ID", "gre.ggp2_flow_disc", 
+	FT_BYTES, BASE_NONE, NULL, 0x0,
+	NULL, HFILL }},
+    { &hf_gre_3ggp2_seg,
+      { "Type", "gre.ggp2_3ggp2_seg",
+	FT_UINT16, BASE_HEX, VALS(gre_3ggp2_seg_vals), 0xc000,
+	NULL, HFILL }},
+
+    { &hf_gre_wccp_redirect_header,
+      { "Redirect Header", "gre.wccp.redirect_header", 
+	FT_NONE, BASE_NONE, NULL, 0x0,
+	NULL, HFILL }},
+    { &hf_gre_wccp_dynamic_service,
+      { "Dynamic Service", "gre.wccp.dynamic_service", 
+	FT_BOOLEAN, 8, TFS(&gre_wccp_dynamic_service_val), 0x80,
+	NULL, HFILL }},
+    { &hf_gre_wccp_alternative_bucket_used,
+      { "Alternative bucket used", "gre.wccp.alternative_bucket_used", 
+	FT_BOOLEAN, 8, TFS(&gre_wccp_alternative_bucket_used_val), 0x40,
+	NULL, HFILL }},
+    { &hf_gre_wccp_service_id,
+      { "Service ID", "gre.wccp.service_id", 
+	FT_UINT8, BASE_DEC, VALS(&service_id_vals), 0x00,
+	"Service Group identifier", HFILL }},
+    { &hf_gre_wccp_alternative_bucket,
+      { "Alternative Bucket", "gre.wccp.alternative_bucket", 
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+	"Alternative bucket index used to redirect the packet.", HFILL }},
+    { &hf_gre_wccp_primary_bucket,
+      { "Primary Bucket", "gre.wccp.primary_bucket", 
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+	"Primary bucket index used to redirect the packet.", HFILL  }},
+
 	};
 	static gint *ett[] = {
 		&ett_gre,
 		&ett_gre_flags,
+		&ett_gre_routing,
 		&ett_gre_wccp2_redirect_header,
 		&ett_3gpp2_attribs,
 		&ett_3gpp2_attr,
