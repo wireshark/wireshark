@@ -365,6 +365,7 @@ proto_register_coap(void)
 
 	static gint *ett[] = {
 		&ett_coap,
+		&ett_coap_noop,
 		&ett_coap_ctype,
 		&ett_coap_max_age,
 		&ett_coap_uri_scheme,
