@@ -43,16 +43,12 @@ static int hf_coap_opt_count		= -1;
 static int hf_coap_code			= -1;
 static int hf_coap_tid			= -1;
 static int hf_coap_opt_type		= -1;
-static int hf_coap_opt_delta		= -1;
-static int hf_coap_opt_length		= -1;
 static int hf_coap_opt_ctype		= -1;
 static int hf_coap_opt_max_age		= -1;
-static int hf_coap_opt_uri_scheme	= -1;
 static int hf_coap_opt_etag		= -1;
 static int hf_coap_opt_uri_authority	= -1;
 static int hf_coap_opt_location		= -1;
 static int hf_coap_opt_uri_path		= -1;
-static int hf_coap_payload		= -1;
 
 static gint ett_coap			= -1;
 static gint ett_coap_noop		= -1;
@@ -351,16 +347,12 @@ proto_register_coap(void)
 	    { &hf_coap_code, { "Code", "coap.code", FT_UINT8, BASE_DEC, VALS(&vals_code), 0x0, "COAP Method or Response Code", HFILL }},
 	    { &hf_coap_tid, { "Transaction ID", "coap.tid", FT_UINT16, BASE_DEC, NULL, 0x0, "COAP Transaction ID", HFILL }},
 	    { &hf_coap_opt_type, { "Option Type", "coap.opt.opt_type", FT_UINT8, BASE_DEC, VALS(&vals_opt_type), 0x0, "COAP Option Type", HFILL }},
-	    { &hf_coap_opt_delta, { "Option Delta", "coap.opt.delta", FT_UINT8, BASE_DEC, NULL, 0x0, "COAP Option Delta", HFILL }},
-	    { &hf_coap_opt_length, { "Option Length", "coap.opt.length", FT_UINT16, BASE_DEC, NULL, 0x0, "COAP Option Length", HFILL }},
 	    { &hf_coap_opt_ctype, { "Content-type", "coap.opt.ctype", FT_UINT8, BASE_DEC, VALS(&vals_ctype), 0x0, "COAP Media Type", HFILL }},
 	    { &hf_coap_opt_max_age, { "Max-age", "coap.opt.maxage", FT_UINT32, BASE_DEC, NULL, 0x0, "COAP Max-age", HFILL }},
-	    { &hf_coap_opt_uri_scheme, { "Uri-Scheme", "coap.opt.uri_scheme", FT_STRING, BASE_NONE, NULL, 0x0, "COAP Max-age", HFILL }},
 	    { &hf_coap_opt_etag, { "Etag", "coap.opt.etag", FT_BYTES, BASE_NONE, NULL, 0x0, "COAP Etag", HFILL }},
 	    { &hf_coap_opt_uri_authority, { "Uri-Authority", "coap.opt.uri_auth", FT_STRING, BASE_NONE, NULL, 0x0, "COAP Uri-Authority", HFILL }},
 	    { &hf_coap_opt_location, { "Location", "coap.opt.location", FT_STRING, BASE_NONE, NULL, 0x0, "COAP Location", HFILL }},
 	    { &hf_coap_opt_uri_path, { "Uri-Path", "coap.opt.uri_path", FT_STRING, BASE_NONE, NULL, 0x0, "COAP Uri-Path", HFILL }},
-	    { &hf_coap_payload, { "Payload", "coap.opt.payload", FT_BYTES, BASE_NONE, NULL, 0x0, "COAP Payload", HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -396,7 +388,7 @@ proto_register_coap(void)
 void
 proto_reg_handoff_coap(void)
 {
-	static gboolean coap_prefs_initialized = FALSE;  
+	static gboolean coap_prefs_initialized = FALSE;
 	static dissector_handle_t coap_handle;
 	static guint    coap_port_number;
 
