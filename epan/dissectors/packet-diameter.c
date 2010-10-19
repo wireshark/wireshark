@@ -1296,12 +1296,6 @@ dictionary_load(void)
 			vnd->code = v->code;
 			vnd->vs_cmds = g_array_new(TRUE,TRUE,sizeof(value_string));
 			vnd->vs_avps = g_array_new(TRUE,TRUE,sizeof(value_string));
-#if 0
-			vnd->vs_avps_ext = g_malloc0(sizeof(value_string_ext));
-			vnd->vs_avps_ext->match = (value_string_match_t) match_strval_ext_init;
-			vnd->vs_avps_ext->offset= 0;
-			vnd->vs_avps_ext->length= 0;
-#endif
 			vnd->vs_avps_ext = NULL;
 			pe_tree_insert32(dictionary.vnds,vnd->code,vnd);
 			g_hash_table_insert(vendors,v->name,vnd);
