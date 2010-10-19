@@ -2939,7 +2939,7 @@ Alexis La Goutte	<alexis.lagoutte [AT] gmail.com> {
 	CAPWAP dissector
 	Miscellaneous ISAKMP enhancements
 	Packet TCP Mood Option (RFC5841) support
-	PPTP dissector enhancements (Rework)
+	PPTP, GRE dissector enhancements (Rework)
 }
 
 Varun Notibala		<nbvarun [AT] gmail.com> {
