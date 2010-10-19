@@ -738,22 +738,28 @@ static void filter_clicked(GtkWindow *win _U_, mac_lte_stat_t* hs)
         static char buffer[MAX_FILTER_LEN];
         int offset = 0;
 
+        /* Get the UE details */
+        gtk_tree_model_get(model, &iter, TABLE_COLUMN, &ep, -1);
+
+        /* Create the filter expression */
+
+        /* Errors */
         if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb))) {
                 offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
                                      "dct2000.error-comment or (");
         }
 
-        /* Get the UE details */
-        gtk_tree_model_get(model, &iter, TABLE_COLUMN, &ep, -1);
-
-        /* Create the filter expression */
+        /* Filter expression */
         if (hs->filter) {
-            offset += g_snprintf(buffer, MAX_FILTER_LEN, "%s and ", hs->filter);
+            offset += g_snprintf(buffer+offset, MAX_FILTER_LEN, "%s and ", hs->filter);
         }
+
+        /* Selected UE */
         offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
                              "mac-lte.rnti == %u and mac-lte.ueid == %u",
                              ep->stats.rnti, ep->stats.ueid);
 
+        /* Close parenthesis */
         if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb))) {
                 offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
                                      ")");
