@@ -777,8 +777,8 @@ static void dissect_zcl_read_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, pr
             /* Create subtree for attribute status field */
             ti = proto_tree_add_text(tree, tvb, *offset, 0, "Status Record");
             sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_attr[i]);
-            i++;
         }
+        i++;
 
         /* Dissect the attribute identifier */
         dissect_zcl_attr_id(tvb, sub_tree, offset);
@@ -824,8 +824,9 @@ static void dissect_zcl_write_attr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
             /* Create subtree for attribute status field */
             ti = proto_tree_add_text(tree, tvb, *offset, 0, "Attribute Field");
             sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_attr[i]);
-            i++;
         }
+        i++;
+
         /* Dissect the attribute identifier */
         dissect_zcl_attr_id(tvb, sub_tree, offset);
 
@@ -865,8 +866,8 @@ static void dissect_zcl_write_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, p
             /* Create subtree for attribute status field */
             ti = proto_tree_add_text(tree, tvb, *offset, 0, "Status Record");
             sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_attr[i]);
-            i++;
         }
+        i++;
 
         /* Dissect the status */
         if ( dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_status) !=
@@ -911,8 +912,9 @@ static void dissect_zcl_read_report_config_resp(tvbuff_t *tvb, packet_info *pinf
             /* Create subtree for attribute status field */
             ti = proto_tree_add_text(tree, tvb, *offset, 3, "Reporting Configuration Record");
             sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_attr[i]);
-            i++;
         }
+        i++;
+
         /* Dissect the status */
         attr_status = dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_status);
 
@@ -978,8 +980,8 @@ static void dissect_zcl_config_report(tvbuff_t *tvb, packet_info *pinfo _U_, pro
             /* Create subtree for attribute status field */
             ti = proto_tree_add_text(tree, tvb, *offset, 3, "Reporting Configuration Record");
             sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_attr[i]);
-            i++;
         }
+        i++;
 
         /* Dissect the direction and any reported configuration */
         if ( dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_dir)
@@ -1044,8 +1046,8 @@ static void dissect_zcl_config_report_resp(tvbuff_t *tvb, packet_info *pinfo _U_
             /* Create subtree for attribute status field */
             ti = proto_tree_add_text(tree, tvb, *offset, 3, "Attribute Status Record");
             sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_attr[i]);
-            i++;
         }
+        i++;
 
         /* Dissect the status */
         if ( dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_status) !=
@@ -1091,8 +1093,8 @@ static void dissect_zcl_read_report_config(tvbuff_t *tvb, packet_info *pinfo _U_
             /* Create subtree for attribute status field */
             ti = proto_tree_add_text(tree, tvb, *offset, 3, "Attribute Status Record");
             sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_attr[i]);
-            i++;
         }
+        i++;
 
         /* Dissect the direction */
         dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_dir);
@@ -1195,14 +1197,14 @@ static void dissect_zcl_discover_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_
             /* Create subtree for attribute status field */
             ti = proto_tree_add_text(tree, tvb, *offset, 3, "Attribute Status Record");
             sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_attr[i]);
-            i++;
-
-            /* Dissect the attribute identifier */
-            dissect_zcl_attr_id(tvb, sub_tree, offset);
-
-            /* Dissect the number of maximum attribute identifiers */
-            dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_data_type);
         }
+        i++;
+
+        /* Dissect the attribute identifier */
+        dissect_zcl_attr_id(tvb, sub_tree, offset);
+
+        /* Dissect the number of maximum attribute identifiers */
+        dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_data_type);
     }
 
     return;
