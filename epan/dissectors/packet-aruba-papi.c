@@ -44,8 +44,6 @@
 #define UDP_PORT_PAPI 8211
 
 
-void proto_reg_handoff_papi(void);
-
 /* Initialize the protocol and registered fields */
 static int proto_papi = -1;
 static int hf_papi_hdr_id = -1;
@@ -205,10 +203,10 @@ dissect_papi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		{
 			offset = dissect_papi_debug(tvb, offset, papi_tree);
 		}
-	}
 
-    	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-	call_dissector(data_handle,next_tvb, pinfo, tree);
+                next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+                call_dissector(data_handle,next_tvb, pinfo, tree);
+	}
 
 	return(TRUE);
 }
@@ -332,8 +330,7 @@ proto_register_papi(void)
 	proto_register_field_array(proto_papi, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	papi_module = prefs_register_protocol(proto_papi,
-					      proto_reg_handoff_papi);
+	papi_module = prefs_register_protocol(proto_papi, NULL);
 
 	prefs_register_bool_preference(papi_module, "experimental_decode",
 				       "Do experimental decode",
