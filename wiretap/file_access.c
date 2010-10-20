@@ -170,7 +170,7 @@ static wtap_open_routine_t* open_routines = NULL;
 static GArray* open_routines_arr = NULL;
 
 
-/* initialize the open routines array if it has not being initialized yet */
+/* initialize the open routines array if it has not been initialized yet */
 static void init_open_routines(void) {
 
 	if (open_routines_arr) return;
