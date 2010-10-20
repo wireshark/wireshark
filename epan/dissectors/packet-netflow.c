@@ -114,6 +114,20 @@
 #include <epan/expert.h>
 #include <epan/dissectors/packet-ntp.h>
 
+
+#if 0
+#define ipfix_debug0(str) g_warning(str)
+#define ipfix_debug1(str,p1) g_warning(str,p1)
+#define ipfix_debug2(str,p1,p2) g_warning(str,p1,p2)
+#define ipfix_debug3(str,p1,p2,p3) g_warning(str,p1,p2,p3)
+#else
+#define ipfix_debug0(str)
+#define ipfix_debug1(str,p1)
+#define ipfix_debug2(str,p1,p2)
+#define ipfix_debug3(str,p1,p2,p3)
+#endif
+
+
 /* 4739 is IPFIX.
    2055 and 9996 are common defaults for Netflow
  */
@@ -1165,8 +1179,11 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	nstime_t        ts;
 	dissect_pdu_t  *pduptr;
 
+	ipfix_debug0("dissect_netflow: start");
 
 	ver = tvb_get_ntohs(tvb, offset);
+	
+	ipfix_debug1("dissect_netflow: found version %d", ver);
 
 	switch (ver) {
 	case 1:
@@ -1200,12 +1217,14 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CFLOW");
 	col_clear(pinfo->cinfo, COL_INFO);
+	ipfix_debug0("dissect_netflow: column cleared");
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_netflow, tvb,
 					 offset, -1, ENC_NA);
 		netflow_tree = proto_item_add_subtree(ti, ett_netflow);
 	}
+	ipfix_debug0("dissect_netflow: tree added");
 
 	hdrinfo.vspec = ver;
 	hdrinfo.src_id = 0;
@@ -6341,6 +6360,7 @@ proto_reg_handoff_netflow(void)
 	if (!netflow_prefs_initialized) {
 		netflow_handle = new_create_dissector_handle(dissect_netflow, proto_netflow);
 		netflow_prefs_initialized = TRUE;
+		dissector_add("wtap_encap", WTAP_ENCAP_RAW_IPFIX, netflow_handle);
 	} else {
 		range_foreach(netflow_ports, netflow_delete_callback);
 		g_free(netflow_ports);
@@ -6353,6 +6373,7 @@ proto_reg_handoff_netflow(void)
 
 	range_foreach(netflow_ports, netflow_add_callback);
 	range_foreach(ipfix_ports, ipfix_add_callback);
+
 }
 
 /*

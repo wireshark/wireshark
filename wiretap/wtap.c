@@ -477,6 +477,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_IEEE802_15_4_NOFCS */
 	{ "IEEE 802.15.4 Wireless PAN with FCS not present", "wpan-nofcs" },
+
+	/* WTAP_ENCAP_RAW_IPFIX */
+	{ "IPFIX", "ipfix" }
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);

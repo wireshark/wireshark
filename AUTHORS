@@ -3156,6 +3156,10 @@ Holger Grandy 		<Holger.Grandy [AT] bmw-carit.de> {
 	ETCH dissector
 }
 
+Hadriel Kaplan		<hadrielk [AT] yahoo.com> {
+	IPFIX wiretap support
+}
+
 
 and by:
 

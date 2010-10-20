@@ -44,6 +44,7 @@ set(WIRETAP_FILES
 	file_wrappers.c
 	hcidump.c
 	i4btrace.c
+	ipfix.c
 	iptrace.c
 	iseries.c
 	jpeg_jfif.c

@@ -83,6 +83,7 @@
 #include "daintree-sna.h"
 #include "netscaler.h"
 #include "jpeg_jfif.h"
+#include "ipfix.h"
 
 
 /* The open_file_* routines should return:
@@ -145,6 +146,7 @@ static wtap_open_routine_t open_routines_base[] = {
 	 */
 	netscreen_open,
 	erf_open,
+	ipfix_open,
 	k12text_open,
 	etherpeek_open,
 	pppdump_open,
@@ -598,7 +600,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	/* WTAP_FILE_BTSNOOP */
 	{ "Symbian OS btsnoop", "btsnoop", "*.log", ".log", FALSE,
 	  btsnoop_dump_can_write_encap, btsnoop_dump_open_h4 },
-        
+
 	/* WTAP_FILE_X2E_XORAYA */
 	{ NULL, NULL, NULL, NULL, FALSE, NULL, NULL },
 
@@ -625,6 +627,9 @@ static const struct file_type_info dump_open_table_base[] = {
 	/* WTAP_FILE_JPEG_JFIF */
 	{ "JPEG/JFIF", "jpeg", "*.jpg;*.jpeg;*.jfif", ".jpg", FALSE, NULL, NULL },
 
+	/* WTAP_FILE_IPFIX */
+	{ "IPFIX File Format", "ipfix", "*.pfx;*.ipfix", NULL, FALSE,
+	  NULL, NULL }
 };
 
 gint wtap_num_file_types = sizeof(dump_open_table_base) / sizeof(struct file_type_info);
@@ -1024,9 +1029,8 @@ static FILE_T wtap_dump_file_fdopen(wtap_dumper *wdh _U_, int fd)
 #endif
 
 /* internally writing raw bytes (compressed or not) */
-gboolean
-wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize,
-    int *err)
+gboolean wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize,
+		     int *err)
 {
 	size_t nwritten;
 #ifdef HAVE_LIBZ

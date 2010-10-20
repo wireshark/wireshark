@@ -50,6 +50,7 @@ NONGENERATED_C_FILES = \
 	file_wrappers.c		\
 	hcidump.c		\
 	i4btrace.c		\
+	ipfix.c			\
 	iptrace.c		\
 	iseries.c		\
 	jpeg_jfif.c		\
@@ -100,6 +101,7 @@ NONGENERATED_HEADER_FILES = \
 	hcidump.h		\
 	i4btrace.h		\
 	i4b_trace.h		\
+	ipfix.h			\
 	iptrace.h		\
 	iseries.h		\
 	jpeg_jfif.h		\
