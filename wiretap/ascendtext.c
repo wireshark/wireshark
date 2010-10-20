@@ -107,6 +107,7 @@ static gint64 ascend_seek(wtap *wth, int *err)
     excessive_read_count--;
 
     if (!excessive_read_count) {
+      *err = 0;
       return -1;
     }
 
