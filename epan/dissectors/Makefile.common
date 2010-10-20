@@ -246,6 +246,7 @@ DISSECTOR_SRC = \
 	packet-artnet.c		\
 	packet-aruba-adp.c	\
 	packet-aruba-erm.c	\
+	packet-aruba-papi.c	\
 	packet-asap.c		\
 	packet-ascend.c		\
 	packet-asf.c		\
