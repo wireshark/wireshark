@@ -32,25 +32,27 @@ Wireshark Info
     <para>
 
       The following vulnerabilities have been fixed. See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2010-12.html">security advisory</ulink> for details and a workaround.
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2010-14.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
 
         <listitem>
           <para>
-            The Penetration Test Team of NCNIPC (China) discovered that the
-            ASN.1 BER dissector was susceptible to a stack overflow.
-            <!-- Fixed in trunk: r34111 -->
-            <!-- Fixed in trunk-1.4: r34414 -->
-            <!-- Fixed in trunk-1.2: r34441 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5230">Bug
-            5230</ulink>)
+            Nephi Johnson of BreakingPoint discovered that the LDSS dissector
+            could overflow a buffer.
+            <!-- Fixed in trunk: r34581 -->
+            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.2: r????? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5318">Bug
+            5318</ulink>)
           </para>
           <para>Versions affected: All previous versions up to and including
-          1.2.11 and 1.4.1.</para>
+          1.2.12 and 1.4.1.</para>
+<!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
           </para>
+-->
         </listitem>
 
       </itemizedlist>
@@ -71,173 +73,6 @@ Wireshark Info
         </para></listitem>
 -->
 
-        <listitem><para>
-          Wireshark may appear offscreen on multi-monitor Windows systems.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=553">Bug
-          553</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Incorrect behavior using sorting in the packet list.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2225">Bug
-          2225</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Cooked-capture dissector should omit the source address field if empty.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2519">Bug
-          2519</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          MySQL dissector doesn't dissect MySQL stream.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2691">Bug
-          2691</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark crashes if active display filter macro is renamed.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5002">Bug
-          5002</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Incorrect dissection of MAP V2 PRN_ACK.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5076">Bug
-          5076</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          TCP bytes_in_flight becomes inflated with lost packets.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5132">Bug
-          5132</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark fails to start on Windows XP 64bit.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5160">Bug
-          5160</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          GTP header is exported in PDML with an incorrect size.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5162">Bug
-          5162</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Packet list hidden columns will not be parsed correctly from preferences file.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5163">Bug
-          5163</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark does not display the t.38 graph.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5165">Bug
-          5165</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark don't show mgcp calls in "Telephony → VoIP calls".
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5167">Bug
-          5167</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark 1.4.0 &amp; VoIP calls "Prepare Filter" problem.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5172">Bug
-          5172</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          GTPv2: IMSI is decoded improperly.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5179">Bug
-          5179</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          [NAS EPS] EPS Quality of Service IE decoding is wrong.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5186">Bug
-          5186</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark mistakenly writes "not all data available" for IPv4 checksum.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5194">Bug
-          5194</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          GSM: Cell Channel Description, range 1024 format.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5214">Bug
-          5214</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wrong SDP interpretation on VoIP call flow chart.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5220">Bug
-          5220</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          The CLDAP attribute value on a CLDAP reply is no longer being decoded.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5239">Bug
-          5239</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          [NAS EPS] Traffic Flow Template IE dissection bugs.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5243">Bug
-          5243</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          [NAS EPS] Use Request Type IE defined in 3GPP 24.008.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5246">Bug
-          5246</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          NTLMSSP_AUTH domain and username truncated to first letter with IE8/Windows7 (generating the NTLM packet).
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5251">Bug
-          5251</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          IPv6 RH0: dest addr is to be used i.s.o. last RH address when 0 segments remain.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5252">Bug
-          5252</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          EIGRP dissection error in Flags field in external route TLVs.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5261">Bug
-          5261</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          MRP packet is not correctly parsed in PROFINET multiple write record request.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5267">Bug
-          5267</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          MySQL Enhancement: support of Show Fields and bug fix.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5271">Bug
-          5271</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          [NAS EPS] Fix TFT decoding when having several Packet Filters defined.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5274">Bug
-          5274</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Crash if using ssl.debug.file with no password for ssl.keys_list.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5277">Bug
-          5277</ulink>)
-        </para></listitem>
 
       </itemizedlist>
 
@@ -264,31 +99,7 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
     <para>
 
-ASN.1 BER,
-ASN.1 PER,
-EIGRP,
-GSM A RR,
-GSM Management,
-GSM MAP,
-GTP,
-GTPv2,
-ICMPv6,
-Interlink,
-IPv4,
-IPv6,
-IPX,
-LDAP,
-LLC,
-MySQL,
-NAS EPS,
-NTLMSSP,
-PN-IO,
-PPP,
-RPC,
-SDP,
-SLL,
-SSL,
-TCP
+LDSS,
 
     </para>
     </section>
