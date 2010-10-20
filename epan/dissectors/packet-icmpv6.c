@@ -502,554 +502,553 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
     guint32 no_of_pars;
     guint32 i;
 
-again:
-    if ((int)tvb_reported_length(tvb) <= offset)
-        return; /* No more options left */
+    while ((int)tvb_reported_length(tvb) > offset) {
+	/* there are more options */
 
-    opt = &nd_opt_hdr;
-    tvb_memcpy(tvb, (guint8 *)opt, offset, sizeof *opt);
-    len = opt->nd_opt_len << 3;
+	opt = &nd_opt_hdr;
+	tvb_memcpy(tvb, (guint8 *)opt, offset, sizeof *opt);
+	len = opt->nd_opt_len << 3;
 
-    /* !!! specify length */
-    ti = proto_tree_add_item(tree, hf_icmpv6_option, tvb, offset, len, FALSE);
-    icmp6opt_tree = proto_item_add_subtree(ti, ett_icmpv6opt);
+	/* !!! specify length */
+	ti = proto_tree_add_item(tree, hf_icmpv6_option, tvb, offset, len, FALSE);
+	icmp6opt_tree = proto_item_add_subtree(ti, ett_icmpv6opt);
 
-    if (len == 0) {
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + offsetof(struct nd_opt_hdr, nd_opt_len), 1,
-                            "Invalid option length: %u",
-                            opt->nd_opt_len);
-        return; /* we must not try to decode this */
+	if (len == 0) {
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct nd_opt_hdr, nd_opt_len), 1,
+				"Invalid option length: %u",
+				opt->nd_opt_len);
+	    return; /* we must not try to decode this */
+	}
+
+	typename = val_to_str(opt->nd_opt_type, option_vals, "Unknown");
+
+	/* Add option name to option root label */
+	proto_item_append_text(ti, " (%s)", typename);
+
+	/* Option type */
+	proto_tree_add_item(icmp6opt_tree, hf_icmpv6_option_type, tvb,
+			    offset + offsetof(struct nd_opt_hdr, nd_opt_type), 1, FALSE);
+	/* Option length */
+	proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_option_length, tvb,
+			    offset + offsetof(struct nd_opt_hdr, nd_opt_len), 1,
+			    opt->nd_opt_len << 3);
+
+	/* decode... */
+	switch (opt->nd_opt_type) {
+	case ND_OPT_SOURCE_LINKADDR:
+	case ND_OPT_TARGET_LINKADDR:
+	{
+	    int len_local, p;
+	    gchar *llstr;
+
+	    p = offset + sizeof(*opt);
+	    len_local = (opt->nd_opt_len << 3) - sizeof(*opt);
+	    llstr = tvb_bytes_to_str_punct(tvb, p, len_local, ':');
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + sizeof(*opt), len_local, "Link-layer address: %s",
+				llstr);
+	    col_append_fstr(pinfo->cinfo, COL_INFO,
+			    " %s %s",
+			    opt->nd_opt_type == ND_OPT_SOURCE_LINKADDR ? "from" : "is at",
+			    llstr);
+	    break;
+	}
+	case ND_OPT_PREFIX_INFORMATION:
+	{
+		    /* RFC 4861 */
+	    struct nd_opt_prefix_info nd_opt_prefix_info, *pi;
+	    int flagoff;
+
+	    pi = &nd_opt_prefix_info;
+	    tvb_memcpy(tvb, (guint8 *)pi, offset, sizeof *pi);
+		    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_prefix_len, tvb, offset + 2, 1, FALSE);
+
+	    flagoff = offset + 3;
+	    tf = proto_tree_add_text(icmp6opt_tree, tvb, flagoff, 1, "Flags: 0x%02x",
+				     tvb_get_guint8(tvb, flagoff));
+	    field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
+		    proto_tree_add_item(field_tree, hf_icmpv6_opt_flag_l, tvb, offset + 3, 1, FALSE);
+		    proto_tree_add_item(field_tree, hf_icmpv6_opt_flag_a, tvb, offset + 3, 1, FALSE);
+		    proto_tree_add_item(field_tree, hf_icmpv6_opt_flag_reserved, tvb, offset + 3, 1, FALSE);
+    #if 0
+		    /* This bits are not in the RFC, removed the code Anders Broman 2010-06-02
+			    if no one complains for a while delete it. */
+	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+				decode_boolean_bitfield(pi->nd_opt_pi_flags_reserved,
+							ND_OPT_PI_FLAG_ROUTER, 8,
+							"Router Address", "Not router address"));
+	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+				decode_boolean_bitfield(pi->nd_opt_pi_flags_reserved,
+							ND_OPT_PI_FLAG_SITEPREF, 8,
+							"Site prefix", "Not site prefix"));
+    #endif
+	    if (pntohl(&pi->nd_opt_pi_valid_time) == 0xffffffff)
+		proto_tree_add_text(icmp6opt_tree, tvb,
+				    offset+4,
+				    4, "Valid lifetime: infinity");
+	    else
+		proto_tree_add_text(icmp6opt_tree, tvb,
+				    offset+4,
+				    4, "Valid lifetime: %u",
+				    pntohl(&pi->nd_opt_pi_valid_time));
+	    if (pntohl(&pi->nd_opt_pi_preferred_time) == 0xffffffff)
+		proto_tree_add_text(icmp6opt_tree, tvb,
+				    offset+8,
+				    4, "Preferred lifetime: infinity");
+	    else
+		proto_tree_add_text(icmp6opt_tree, tvb,
+				    offset+8,
+				    4, "Preferred lifetime: %u",
+				    pntohl(&pi->nd_opt_pi_preferred_time));
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + 12,
+				4, "Reserved");
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + 16,
+				16, "Prefix: %s", ip6_to_str(&pi->nd_opt_pi_prefix));
+	    break;
+	}
+	case ND_OPT_REDIRECTED_HEADER:
+	    tvb_memcpy(tvb, (guint8 *)&nd_redirect_res, offset + 2, 6);
+	    if (memcmp(nd_redirect_res, nd_redirect_reserved, 6) == 0)
+		proto_tree_add_text(icmp6opt_tree, tvb,
+				    offset + 2, 6, "Reserved: 0 (correct)");
+	    else
+		proto_tree_add_text(icmp6opt_tree, tvb,
+				    offset +2, 6, "Reserved: MUST be 0 (incorrect!)");
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + 8, (opt->nd_opt_len << 3) - 8, "Redirected packet");
+	    dissect_contained_icmpv6(tvb, offset + 8, pinfo, icmp6opt_tree);
+	    break;
+	case ND_OPT_MTU:
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct nd_opt_mtu, nd_opt_mtu_mtu), 4,
+				"MTU: %u", tvb_get_ntohl(tvb, offset + offsetof(struct nd_opt_mtu, nd_opt_mtu_mtu)));
+	    break;
+	case ND_OPT_ADVINTERVAL:
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct nd_opt_adv_int, nd_opt_adv_int_advint), 4,
+				"Advertisement Interval: %u",
+				tvb_get_ntohl(tvb, offset + offsetof(struct nd_opt_adv_int, nd_opt_adv_int_advint)));
+	    break;
+	case ND_OPT_HOMEAGENT_INFO: /* 8 */
+	{
+	    struct nd_opt_ha_info pibuf, *pi;
+
+	    pi = &pibuf;
+	    tvb_memcpy(tvb, (guint8 *)pi, offset, sizeof *pi);
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct nd_opt_ha_info, nd_opt_ha_info_ha_pref),
+				2, "Home Agent Preference: %d",
+				(gint16)pntohs(&pi->nd_opt_ha_info_ha_pref));
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct nd_opt_ha_info, nd_opt_ha_info_ha_life),
+				2, "Home Agent Lifetime: %u",
+				pntohs(&pi->nd_opt_ha_info_ha_life));
+	    break;
+	}
+	case ND_OPT_CGA: /* 11 */ {
+	    guint16 ext_data_len;
+	    /* RFC 3971 5.1.  CGA Option */
+	    /* Pad Length */
+	    opt_offset = offset +2;
+	    padd_length = tvb_get_guint8(tvb,opt_offset);
+	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_cga_pad_len, tvb, opt_offset, 1, FALSE);
+	    opt_offset++;
+	    /* Reserved 8 bits */
+	    proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,1,"Reserved");
+	    opt_offset++;
+	    /* CGA Parameters A variable-length field containing the CGA Parameters data
+	     * structure described in Section 4 of
+	     * "Cryptographically Generated Addresses (CGA)", RFC3972.
+	     */
+	    par_len = len-4-padd_length;
+	    cga_item = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_cga, tvb, opt_offset, par_len, FALSE);
+	    par_len += opt_offset;
+	    cga_tree = proto_item_add_subtree(cga_item, ett_cga_param_name);
+	    proto_tree_add_item(cga_tree,hf_icmpv6_opt_cga_modifier,tvb, opt_offset,16,FALSE);
+	    opt_offset += 16;
+	    proto_tree_add_item(cga_tree,hf_icmpv6_opt_cga_subnet_prefix,tvb,opt_offset,8,FALSE);
+	    opt_offset += 8;
+	    proto_tree_add_item(cga_tree,hf_icmpv6_opt_cga_count,tvb,opt_offset,1,FALSE);
+	    opt_offset++;
+	    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	    opt_offset = dissect_x509af_SubjectPublicKeyInfo(FALSE, tvb, opt_offset, &asn1_ctx, cga_tree, -1);
+	    /* Process RFC 4581*/
+	    while (opt_offset < par_len) {
+		proto_tree_add_item(cga_tree,hf_icmpv6_opt_cga_ext_type,tvb,opt_offset,2,FALSE);
+		opt_offset += 2;
+		ext_data_len = tvb_get_ntohs(tvb,opt_offset);
+		proto_tree_add_item(cga_tree,hf_icmpv6_opt_cga_ext_length,tvb,opt_offset,2,FALSE);
+		opt_offset += 2;
+		proto_tree_add_text(cga_tree,tvb,opt_offset,ext_data_len,"Ext Data");
+		opt_offset += ext_data_len;
+	    }
+
+	    /* Padding */
+	    proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,padd_length,"Padding");
+	    break;
+	}
+	case ND_OPT_RSA: /* 12 */
+	    /*5.2.  RSA Signature Option */
+	    opt_offset = offset +2;
+	    /* Reserved, A 16-bit field reserved for future use. */
+	    proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,2,"Reserved");
+	    opt_offset = opt_offset + 2;
+	    /* Key Hash
+	     * A 128-bit field containing the most significant (leftmost) 128
+	     * bits of a SHA-1 [14] hash of the public key used for constructing
+	     * the signature.
+	     */
+	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_rsa_key_hash, tvb, opt_offset, 16, FALSE);
+	    opt_offset = opt_offset + 16;
+	    /* Digital Signature */
+	    par_len = len - 20;
+	    proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,par_len,"Digital Signature + Padding");
+	    /* Padding */
+	    /* TODO: Calculate padding length and exlude from the signature */
+	    break;
+	case ND_OPT_TIMESTAMP: /* 13 */
+	    opt_offset = offset +2;
+	    /* Reserved A 48-bit field reserved for future use. */
+	    proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,6,"Reserved");
+	    opt_offset = opt_offset + 6;
+	    /* Timestamp
+	     * A 64-bit unsigned integer field containing a timestamp.  The value
+	     * indicates the number of seconds since January 1, 1970, 00:00 UTC,
+	     * by using a fixed point format.  In this format, the integer number
+	     * of seconds is contained in the first 48 bits of the field, and the
+	     * remaining 16 bits indicate the number of 1/64K fractions of a
+	     * second.
+	     */
+	    proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,6,"Timestamp(number of seconds since January 1, 1970, 00:00 UTC)");
+	    opt_offset = opt_offset + 6;
+	    proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,2,"Timestamp(1/64K fractions of a second)");
+	    break;
+	case ND_OPT_NONCE:
+	    /* 5.3.2.  Nonce Option */
+	    opt_offset = offset +2;
+	    proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,len-2,"Nonce");
+	    /* Nonce */
+	    break;
+	case ND_OPT_TRUST_ANCHOR:
+	    opt_offset = offset +2;
+	    /* Name Type */
+	    name_type = tvb_get_guint8(tvb,opt_offset);
+	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_name_type, tvb, opt_offset, 1, FALSE);
+	    opt_offset++;
+	    /* Pad Length */
+	    padd_length = tvb_get_guint8(tvb,opt_offset);
+	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_cga_pad_len, tvb, opt_offset, 1, FALSE);
+	    opt_offset++;
+	    par_len = len - 4 - padd_length;
+	    switch (name_type){
+	    case 1:
+		/* DER Encoded X.501 Name */
+		name_item =proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_name_x501, tvb, opt_offset, par_len, FALSE);
+		name_tree = proto_item_add_subtree(name_item, ett_icmpv6opt_name);
+		asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+		dissect_x509if_Name(FALSE, tvb, opt_offset, &asn1_ctx, name_tree, hf_icmpv6_x509if_Name);
+		break;
+	    case 2:
+		/* FQDN */
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_name_fqdn, tvb, opt_offset, par_len, FALSE);
+		break;
+	    default:
+		proto_tree_add_text(icmp6opt_tree, tvb,opt_offset, par_len,"Unknown name type");
+		break;
+	    }
+	    opt_offset = opt_offset + par_len;
+	    /* Padding */
+	    proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,padd_length,"Padding");
+	    opt_offset = opt_offset + padd_length;
+	    break;
+	case ND_OPT_CERTIFICATE:
+	    opt_offset = offset +2;
+	    /* Cert Type */
+	    cert_type = tvb_get_guint8(tvb,opt_offset);
+	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_cert_type, tvb, opt_offset, 1, FALSE);
+	    opt_offset++;
+	    /* Reserved */
+	    proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,1,"Reserved");
+	    opt_offset++;
+	    /* Certificate */
+
+	    if(cert_type == 1){
+		asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+		opt_offset = dissect_x509af_Certificate(FALSE, tvb, opt_offset, &asn1_ctx, icmp6opt_tree, hf_icmpv6_x509af_Certificate);
+		par_len = len - (opt_offset - offset);
+		/* Padding */
+		proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,par_len,"Padding");
+	    }else{
+		par_len = len - 4;
+		proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,par_len,"Unknown Certificate + padding");
+	    }
+	    break;
+	case ND_OPT_MAP:
+	{
+	    struct nd_opt_map_info mapbuf, *map;
+	    int flagoff;
+
+	    map = &mapbuf;
+	    tvb_memcpy(tvb, (guint8 *)map, offset, sizeof *map);
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct nd_opt_map_info, nd_opt_map_dist_and_pref),
+				1, "Distance: %u", (map->nd_opt_map_dist_and_pref >> 4));
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct nd_opt_map_info, nd_opt_map_dist_and_pref),
+				1, "Preference: %u", (map->nd_opt_map_dist_and_pref & 0x0F));
+	    flagoff = offset + offsetof(struct nd_opt_map_info,
+					nd_opt_map_flags);
+	    tf = proto_tree_add_text(icmp6opt_tree, tvb, flagoff, 1,
+				     "Flags: 0x%02x",
+				     tvb_get_guint8(tvb, offset + offsetof(struct nd_opt_map_info,
+									   nd_opt_map_flags)));
+	    field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
+	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+				decode_boolean_bitfield(map->nd_opt_map_flags,
+							ND_OPT_MAP_FLAG_R, 8, "R", "No R"));
+	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+				decode_boolean_bitfield(map->nd_opt_map_flags,
+							ND_OPT_MAP_FLAG_M, 8, "M", "No M"));
+	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+				decode_boolean_bitfield(map->nd_opt_map_flags,
+							ND_OPT_MAP_FLAG_I, 8, "I", "No I"));
+	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+				decode_boolean_bitfield(map->nd_opt_map_flags,
+							ND_OPT_MAP_FLAG_T, 8, "T", "No T"));
+	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+				decode_boolean_bitfield(map->nd_opt_map_flags,
+							ND_OPT_MAP_FLAG_P, 8, "P", "No P"));
+	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+				decode_boolean_bitfield(map->nd_opt_map_flags,
+							ND_OPT_MAP_FLAG_V, 8, "V", "No V"));
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct nd_opt_map_info, nd_opt_map_lifetime),
+				4, "Lifetime: %u", pntohl(&map->nd_opt_map_lifetime));
+
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct nd_opt_map_info, nd_opt_map_address), 16,
+				"Address of MAP: %s (%s)",
+				get_hostname6(&map->nd_opt_map_address),
+				ip6_to_str(&map->nd_opt_map_address));
+	    break;
+	}
+	case ND_OPT_ROUTE_INFO:
+	{
+	    struct nd_opt_route_info ribuf, *ri;
+	    struct e_in6_addr in6;
+	    int l;
+	    guint32 lifetime_local;
+
+	    ri = &ribuf;
+	    tvb_memcpy(tvb, (guint8 *)ri, offset, sizeof *ri);
+	    memset(&in6, 0, sizeof(in6));
+	    switch (ri->nd_opt_rti_len) {
+	    case 1:
+		l = 0;
+		break;
+	    case 2:
+		tvb_memcpy(tvb, (guint8 *)&in6, offset + sizeof(*ri), l = 8);
+		break;
+	    case 3:
+		tvb_memcpy(tvb, (guint8 *)&in6, offset + sizeof(*ri), l = 16);
+		break;
+	    default:
+		l = -1;
+		break;
+	    }
+	    if (l >= 0) {
+		proto_tree_add_text(icmp6opt_tree, tvb,
+				    offset + offsetof(struct nd_opt_route_info, nd_opt_rti_prefixlen),
+				    1, "Prefix length: %u", ri->nd_opt_rti_prefixlen);
+		tf = proto_tree_add_text(icmp6opt_tree, tvb,
+					 offset + offsetof(struct nd_opt_route_info, nd_opt_rti_flags),
+					 1, "Flags: 0x%02x", ri->nd_opt_rti_flags);
+		field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
+		proto_tree_add_text(field_tree, tvb,
+				    offset + offsetof(struct nd_opt_route_info, nd_opt_rti_flags),
+				    1, "%s",
+				    decode_enumerated_bitfield(ri->nd_opt_rti_flags,
+							       ND_RA_FLAG_RTPREF_MASK, 8, names_router_pref,
+							       "Router preference: %s"));
+		lifetime_local = pntohl(&ri->nd_opt_rti_lifetime);
+		if (lifetime_local == 0xffffffff)
+		    proto_tree_add_text(icmp6opt_tree, tvb,
+					offset + offsetof(struct nd_opt_route_info, nd_opt_rti_lifetime),
+					sizeof(ri->nd_opt_rti_lifetime), "Lifetime: infinity");
+		else
+		    proto_tree_add_text(icmp6opt_tree, tvb,
+					offset + offsetof(struct nd_opt_route_info, nd_opt_rti_lifetime),
+					sizeof(ri->nd_opt_rti_lifetime), "Lifetime: %u", lifetime_local);
+		proto_tree_add_text(icmp6opt_tree, tvb,
+				    offset + sizeof(*ri), l, "Prefix: %s", ip6_to_str(&in6));
+	    } else {
+		proto_tree_add_text(icmp6opt_tree, tvb,
+				    offset + offsetof(struct nd_opt_hdr, nd_opt_len), 1,
+				    "Invalid option length: %u", opt->nd_opt_len);
+	    }
+	    break;
+	}
+	case FMIP6_OPT_NEIGHBOR_ADV_ACK:
+	{
+	    struct fmip6_opt_neighbor_advertisement_ack fmip6_opt_neighbor_advertisement_ack, *opt_naack;
+	    struct e_in6_addr in6;
+
+	    opt_naack = &fmip6_opt_neighbor_advertisement_ack;
+	    tvb_memcpy(tvb, (guint8 *)opt_naack, offset, sizeof *opt_naack);
+
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct fmip6_opt_neighbor_advertisement_ack, fmip6_opt_optcode),
+				1, "Option-Code: %u",
+				opt_naack->fmip6_opt_optcode);
+
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct fmip6_opt_neighbor_advertisement_ack, fmip6_opt_status),
+				1, "Status: %s",
+				val_to_str(opt_naack->fmip6_opt_status, names_fmip6_naack_opt_status, "Unknown"));
+
+	    if (opt_naack->fmip6_opt_len == 3){
+		tvb_memcpy(tvb, (guint8 *)&in6, offset + sizeof(*opt_naack), 16);
+		proto_tree_add_text(icmp6opt_tree, tvb,
+				    offset + sizeof(*opt_naack),
+				    16, "New Care-of Address: %s",
+				    ip6_to_str(&in6));
+	    }
+
+	    break;
+	}
+	case ND_OPT_RECURSIVE_DNS_SERVER:
+
+	    opt_offset = offset + 2;
+	    proto_tree_add_text(icmp6opt_tree, tvb, opt_offset ,2 ,"Reserved");
+	    opt_offset = opt_offset + 2;
+	    /* A value of all one bits (0xffffffff) represents infinity.  A value of
+	     * zero means that the RDNSS address MUST no longer be used.
+	     */
+	    lifetime = tvb_get_ntohl(tvb, opt_offset);
+	    if (lifetime == 0xffffffff){
+		proto_tree_add_text(icmp6opt_tree, tvb, opt_offset ,4 ,"Lifetime: infinity");
+	    }else{
+		if(lifetime==0){
+		    proto_tree_add_text(icmp6opt_tree, tvb, opt_offset ,4 ,"Lifetime: RDNSS address MUST no longer be used");
+		}else{
+		    proto_tree_add_text(icmp6opt_tree, tvb, opt_offset ,4 ,"Lifetime: %u", lifetime);
+		}
+	    }
+	    opt_offset = opt_offset+4;
+	    /* Addresses of IPv6 Recursive DNS Servers */
+	    no_of_pars = opt->nd_opt_len - 1;
+	    no_of_pars = no_of_pars >> 2;
+
+	    for (i = 0; i <= no_of_pars; i++) {
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_recursive_dns_serv, tvb, opt_offset, 16, FALSE);
+		opt_offset = opt_offset+16;
+	    }
+	    break;
+	case ND_OPT_6LOWPAN_CONTEXT:
+	{
+	    /* 6lowpan-ND */
+	    struct nd_opt_6lowpan_context nd_opt_6lowpan_context, *sco;
+	    struct e_in6_addr in6;
+	    int flagoff;
+
+	    sco = &nd_opt_6lowpan_context;
+	    tvb_memcpy(tvb, (guint8 *)sco, offset, sizeof *sco);
+	    /* Length */
+	    proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_opt_6co_context_length, tvb,
+				    offset + offsetof(struct nd_opt_6lowpan_context, nd_opt_6co_context_length),
+				    1, sco->nd_opt_6co_context_length);
+
+	    /* Lifetime */
+	    proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_opt_6co_lifetime, tvb,
+				    offset + offsetof(struct nd_opt_6lowpan_context, nd_opt_6co_lifetime),
+				    2, pntohs(&sco->nd_opt_6co_lifetime));
+
+	    /* CID & Flags */
+	    flagoff = offset + offsetof(struct nd_opt_6lowpan_context,nd_opt_6co_CID);
+	    tf = proto_tree_add_text(icmp6opt_tree, tvb, flagoff, 1,
+				    "Flags & CID: 0x%02x", tvb_get_guint8(tvb, offset +
+				    offsetof(struct nd_opt_6lowpan_context, nd_opt_6co_CID)));
+	    field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
+	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+				decode_boolean_bitfield(sco->nd_opt_6co_CID,
+							ND_OPT_6CO_CFLAG, 8, "Valid for Compression", "Not Valid for Compression"));
+
+	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+				decode_numeric_bitfield(sco->nd_opt_6co_CID,
+							ND_OPT_6CO_CIDMASK, 8, "CID of %d"));
+
+	    /* Context */
+	    if(sco->nd_opt_6co_context_length > 64){
+		tvb_memcpy(tvb, (guint8 *)&in6, offset + sizeof *sco, 16);
+	    } else {
+		tvb_memcpy(tvb, (guint8 *)&in6, offset + sizeof *sco, 8);
+		in6.bytes[8] = 0;
+		in6.bytes[9] = 0;
+		in6.bytes[10] = 0;
+		in6.bytes[11] = 0;
+		in6.bytes[12] = 0;
+		in6.bytes[13] = 0;
+		in6.bytes[14] = 0;
+		in6.bytes[15] = 0;
+	    }
+
+	    proto_tree_add_text(icmp6opt_tree, tvb, offset + sizeof *sco,
+				    16, "Context: %s", ip6_to_str(&in6));
+	}
+	break;
+	case ND_OPT_ADDR_RESOLUTION:
+	{
+	    /* 6lowpan-ND */
+	    struct nd_opt_addr_resolution nd_opt_addr_resolution, *aro;
+
+	    aro = &nd_opt_addr_resolution;
+	    tvb_memcpy(tvb, (guint8 *)aro, offset, sizeof *aro);
+	    /* Status */
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct nd_opt_addr_resolution, nd_opt_aro_status),
+				1, "Status: %s",
+				val_to_str(aro->nd_opt_aro_status, names_6lowpannd_aro_status_str, "Unknown"));
+
+	    /* Lifetime */
+	    proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_opt_aro_lifetime, tvb,
+				    offset + offsetof(struct nd_opt_addr_resolution, nd_opt_aro_lifetime),
+				    2, pntohs(&aro->nd_opt_aro_lifetime));
+
+	    /* EUI-64 */
+	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_eui64, tvb, offset + offsetof(struct nd_opt_addr_resolution, nd_opt_aro_eui64), 8, FALSE);
+
+	    /* Registered Address (if present only) */
+	    if(aro->nd_opt_aro_len == 4)
+	    {
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_addr_reg, tvb, offset + sizeof *aro, 16, FALSE);
+	    }
+
+	}
+	break;
+	case ND_OPT_AUTH_BORDER_ROUTER:
+	{
+	    /* Version at offset 2, Address at offset 8 */
+	    guint8 version[2];
+	    tvb_memcpy(tvb, version, offset+2, 2);
+
+	    proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_opt_abro_version, tvb,
+				    offset + 2, 2, pntohs(version));
+
+	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_abro_addr, tvb,
+				offset + 8, 16, FALSE);
+
+	}
+	    break;
+	} /* switch (opt->nd_opt_type) */
+
+	offset += (opt->nd_opt_len << 3);
+
+	/* Set length of option tree */
+	proto_item_set_len(ti, opt->nd_opt_len << 3);
     }
-
-    typename = val_to_str(opt->nd_opt_type, option_vals, "Unknown");
-
-    /* Add option name to option root label */
-    proto_item_append_text(ti, " (%s)", typename);
-
-    /* Option type */
-    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_option_type, tvb,
-                        offset + offsetof(struct nd_opt_hdr, nd_opt_type), 1, FALSE);
-    /* Option length */
-    proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_option_length, tvb,
-                        offset + offsetof(struct nd_opt_hdr, nd_opt_len), 1,
-                        opt->nd_opt_len << 3);
-
-    /* decode... */
-    switch (opt->nd_opt_type) {
-    case ND_OPT_SOURCE_LINKADDR:
-    case ND_OPT_TARGET_LINKADDR:
-    {
-        int len_local, p;
-        gchar *llstr;
-
-        p = offset + sizeof(*opt);
-        len_local = (opt->nd_opt_len << 3) - sizeof(*opt);
-        llstr = tvb_bytes_to_str_punct(tvb, p, len_local, ':');
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + sizeof(*opt), len_local, "Link-layer address: %s",
-                            llstr);
-        col_append_fstr(pinfo->cinfo, COL_INFO,
-                        " %s %s",
-                        opt->nd_opt_type == ND_OPT_SOURCE_LINKADDR ? "from" : "is at",
-                        llstr);
-        break;
-    }
-    case ND_OPT_PREFIX_INFORMATION:
-    {
-		/* RFC 4861 */
-        struct nd_opt_prefix_info nd_opt_prefix_info, *pi;
-        int flagoff;
-
-        pi = &nd_opt_prefix_info;
-        tvb_memcpy(tvb, (guint8 *)pi, offset, sizeof *pi);
-		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_prefix_len, tvb, offset + 2, 1, FALSE);
-
-        flagoff = offset + 3;
-        tf = proto_tree_add_text(icmp6opt_tree, tvb, flagoff, 1, "Flags: 0x%02x",
-                                 tvb_get_guint8(tvb, flagoff));
-        field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
-		proto_tree_add_item(field_tree, hf_icmpv6_opt_flag_l, tvb, offset + 3, 1, FALSE);
-		proto_tree_add_item(field_tree, hf_icmpv6_opt_flag_a, tvb, offset + 3, 1, FALSE);
-		proto_tree_add_item(field_tree, hf_icmpv6_opt_flag_reserved, tvb, offset + 3, 1, FALSE);
-#if 0
-		/* This bits are not in the RFC, removed the code Anders Broman 2010-06-02
-			if no one complains for a while delete it. */
-        proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-                            decode_boolean_bitfield(pi->nd_opt_pi_flags_reserved,
-                                                    ND_OPT_PI_FLAG_ROUTER, 8,
-                                                    "Router Address", "Not router address"));
-        proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-                            decode_boolean_bitfield(pi->nd_opt_pi_flags_reserved,
-                                                    ND_OPT_PI_FLAG_SITEPREF, 8,
-                                                    "Site prefix", "Not site prefix"));
-#endif
-        if (pntohl(&pi->nd_opt_pi_valid_time) == 0xffffffff)
-            proto_tree_add_text(icmp6opt_tree, tvb,
-                                offset+4,
-                                4, "Valid lifetime: infinity");
-        else
-            proto_tree_add_text(icmp6opt_tree, tvb,
-                                offset+4,
-                                4, "Valid lifetime: %u",
-                                pntohl(&pi->nd_opt_pi_valid_time));
-        if (pntohl(&pi->nd_opt_pi_preferred_time) == 0xffffffff)
-            proto_tree_add_text(icmp6opt_tree, tvb,
-                                offset+8,
-                                4, "Preferred lifetime: infinity");
-        else
-            proto_tree_add_text(icmp6opt_tree, tvb,
-                                offset+8,
-                                4, "Preferred lifetime: %u",
-                                pntohl(&pi->nd_opt_pi_preferred_time));
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + 12,
-                            4, "Reserved");
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + 16,
-                            16, "Prefix: %s", ip6_to_str(&pi->nd_opt_pi_prefix));
-        break;
-    }
-    case ND_OPT_REDIRECTED_HEADER:
-        tvb_memcpy(tvb, (guint8 *)&nd_redirect_res, offset + 2, 6);
-        if (memcmp(nd_redirect_res, nd_redirect_reserved, 6) == 0)
-            proto_tree_add_text(icmp6opt_tree, tvb,
-                                offset + 2, 6, "Reserved: 0 (correct)");
-        else
-            proto_tree_add_text(icmp6opt_tree, tvb,
-                                offset +2, 6, "Reserved: MUST be 0 (incorrect!)");
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + 8, (opt->nd_opt_len << 3) - 8, "Redirected packet");
-        dissect_contained_icmpv6(tvb, offset + 8, pinfo, icmp6opt_tree);
-        break;
-    case ND_OPT_MTU:
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + offsetof(struct nd_opt_mtu, nd_opt_mtu_mtu), 4,
-                            "MTU: %u", tvb_get_ntohl(tvb, offset + offsetof(struct nd_opt_mtu, nd_opt_mtu_mtu)));
-        break;
-    case ND_OPT_ADVINTERVAL:
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + offsetof(struct nd_opt_adv_int, nd_opt_adv_int_advint), 4,
-                            "Advertisement Interval: %u",
-                            tvb_get_ntohl(tvb, offset + offsetof(struct nd_opt_adv_int, nd_opt_adv_int_advint)));
-        break;
-    case ND_OPT_HOMEAGENT_INFO: /* 8 */
-    {
-        struct nd_opt_ha_info pibuf, *pi;
-
-        pi = &pibuf;
-        tvb_memcpy(tvb, (guint8 *)pi, offset, sizeof *pi);
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + offsetof(struct nd_opt_ha_info, nd_opt_ha_info_ha_pref),
-                            2, "Home Agent Preference: %d",
-                            (gint16)pntohs(&pi->nd_opt_ha_info_ha_pref));
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + offsetof(struct nd_opt_ha_info, nd_opt_ha_info_ha_life),
-                            2, "Home Agent Lifetime: %u",
-                            pntohs(&pi->nd_opt_ha_info_ha_life));
-        break;
-    }
-    case ND_OPT_CGA: /* 11 */ {
-        guint16 ext_data_len;
-        /* RFC 3971 5.1.  CGA Option */
-        /* Pad Length */
-        opt_offset = offset +2;
-        padd_length = tvb_get_guint8(tvb,opt_offset);
-        proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_cga_pad_len, tvb, opt_offset, 1, FALSE);
-        opt_offset++;
-        /* Reserved 8 bits */
-        proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,1,"Reserved");
-        opt_offset++;
-        /* CGA Parameters A variable-length field containing the CGA Parameters data
-         * structure described in Section 4 of
-         * "Cryptographically Generated Addresses (CGA)", RFC3972.
-         */
-        par_len = len-4-padd_length;
-        cga_item = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_cga, tvb, opt_offset, par_len, FALSE);
-        par_len += opt_offset;
-        cga_tree = proto_item_add_subtree(cga_item, ett_cga_param_name);
-        proto_tree_add_item(cga_tree,hf_icmpv6_opt_cga_modifier,tvb, opt_offset,16,FALSE);
-        opt_offset += 16;
-        proto_tree_add_item(cga_tree,hf_icmpv6_opt_cga_subnet_prefix,tvb,opt_offset,8,FALSE);
-        opt_offset += 8;
-        proto_tree_add_item(cga_tree,hf_icmpv6_opt_cga_count,tvb,opt_offset,1,FALSE);
-        opt_offset++;
-        asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-        opt_offset = dissect_x509af_SubjectPublicKeyInfo(FALSE, tvb, opt_offset, &asn1_ctx, cga_tree, -1);
-        /* Process RFC 4581*/
-        while (opt_offset < par_len) {
-            proto_tree_add_item(cga_tree,hf_icmpv6_opt_cga_ext_type,tvb,opt_offset,2,FALSE);
-            opt_offset += 2;
-            ext_data_len = tvb_get_ntohs(tvb,opt_offset);
-            proto_tree_add_item(cga_tree,hf_icmpv6_opt_cga_ext_length,tvb,opt_offset,2,FALSE);
-            opt_offset += 2;
-            proto_tree_add_text(cga_tree,tvb,opt_offset,ext_data_len,"Ext Data");
-            opt_offset += ext_data_len;
-        }
-
-        /* Padding */
-        proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,padd_length,"Padding");
-        break;
-    }
-    case ND_OPT_RSA: /* 12 */
-        /*5.2.  RSA Signature Option */
-        opt_offset = offset +2;
-        /* Reserved, A 16-bit field reserved for future use. */
-        proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,2,"Reserved");
-        opt_offset = opt_offset + 2;
-        /* Key Hash
-         * A 128-bit field containing the most significant (leftmost) 128
-         * bits of a SHA-1 [14] hash of the public key used for constructing
-         * the signature.
-         */
-        proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_rsa_key_hash, tvb, opt_offset, 16, FALSE);
-        opt_offset = opt_offset + 16;
-        /* Digital Signature */
-        par_len = len - 20;
-        proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,par_len,"Digital Signature + Padding");
-        /* Padding */
-        /* TODO: Calculate padding length and exlude from the signature */
-        break;
-    case ND_OPT_TIMESTAMP: /* 13 */
-        opt_offset = offset +2;
-        /* Reserved A 48-bit field reserved for future use. */
-        proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,6,"Reserved");
-        opt_offset = opt_offset + 6;
-        /* Timestamp
-         * A 64-bit unsigned integer field containing a timestamp.  The value
-         * indicates the number of seconds since January 1, 1970, 00:00 UTC,
-         * by using a fixed point format.  In this format, the integer number
-         * of seconds is contained in the first 48 bits of the field, and the
-         * remaining 16 bits indicate the number of 1/64K fractions of a
-         * second.
-         */
-        proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,6,"Timestamp(number of seconds since January 1, 1970, 00:00 UTC)");
-        opt_offset = opt_offset + 6;
-        proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,2,"Timestamp(1/64K fractions of a second)");
-        break;
-    case ND_OPT_NONCE:
-        /* 5.3.2.  Nonce Option */
-        opt_offset = offset +2;
-        proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,len-2,"Nonce");
-        /* Nonce */
-        break;
-    case ND_OPT_TRUST_ANCHOR:
-        opt_offset = offset +2;
-        /* Name Type */
-        name_type = tvb_get_guint8(tvb,opt_offset);
-        proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_name_type, tvb, opt_offset, 1, FALSE);
-        opt_offset++;
-        /* Pad Length */
-        padd_length = tvb_get_guint8(tvb,opt_offset);
-        proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_cga_pad_len, tvb, opt_offset, 1, FALSE);
-        opt_offset++;
-        par_len = len - 4 - padd_length;
-        switch (name_type){
-        case 1:
-            /* DER Encoded X.501 Name */
-            name_item =proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_name_x501, tvb, opt_offset, par_len, FALSE);
-            name_tree = proto_item_add_subtree(name_item, ett_icmpv6opt_name);
-            asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-            dissect_x509if_Name(FALSE, tvb, opt_offset, &asn1_ctx, name_tree, hf_icmpv6_x509if_Name);
-            break;
-        case 2:
-            /* FQDN */
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_name_fqdn, tvb, opt_offset, par_len, FALSE);
-            break;
-        default:
-            proto_tree_add_text(icmp6opt_tree, tvb,opt_offset, par_len,"Unknown name type");
-            break;
-        }
-        opt_offset = opt_offset + par_len;
-        /* Padding */
-        proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,padd_length,"Padding");
-        opt_offset = opt_offset + padd_length;
-        break;
-    case ND_OPT_CERTIFICATE:
-        opt_offset = offset +2;
-        /* Cert Type */
-        cert_type = tvb_get_guint8(tvb,opt_offset);
-        proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_cert_type, tvb, opt_offset, 1, FALSE);
-        opt_offset++;
-        /* Reserved */
-        proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,1,"Reserved");
-        opt_offset++;
-        /* Certificate */
-
-        if(cert_type == 1){
-            asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-            opt_offset = dissect_x509af_Certificate(FALSE, tvb, opt_offset, &asn1_ctx, icmp6opt_tree, hf_icmpv6_x509af_Certificate);
-            par_len = len - (opt_offset - offset);
-            /* Padding */
-            proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,par_len,"Padding");
-        }else{
-            par_len = len - 4;
-            proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,par_len,"Unknown Certificate + padding");
-        }
-        break;
-    case ND_OPT_MAP:
-    {
-        struct nd_opt_map_info mapbuf, *map;
-        int flagoff;
-
-        map = &mapbuf;
-        tvb_memcpy(tvb, (guint8 *)map, offset, sizeof *map);
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + offsetof(struct nd_opt_map_info, nd_opt_map_dist_and_pref),
-                            1, "Distance: %u", (map->nd_opt_map_dist_and_pref >> 4));
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + offsetof(struct nd_opt_map_info, nd_opt_map_dist_and_pref),
-                            1, "Preference: %u", (map->nd_opt_map_dist_and_pref & 0x0F));
-        flagoff = offset + offsetof(struct nd_opt_map_info,
-                                    nd_opt_map_flags);
-        tf = proto_tree_add_text(icmp6opt_tree, tvb, flagoff, 1,
-                                 "Flags: 0x%02x",
-                                 tvb_get_guint8(tvb, offset + offsetof(struct nd_opt_map_info,
-                                                                       nd_opt_map_flags)));
-        field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
-        proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-                            decode_boolean_bitfield(map->nd_opt_map_flags,
-                                                    ND_OPT_MAP_FLAG_R, 8, "R", "No R"));
-        proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-                            decode_boolean_bitfield(map->nd_opt_map_flags,
-                                                    ND_OPT_MAP_FLAG_M, 8, "M", "No M"));
-        proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-                            decode_boolean_bitfield(map->nd_opt_map_flags,
-                                                    ND_OPT_MAP_FLAG_I, 8, "I", "No I"));
-        proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-                            decode_boolean_bitfield(map->nd_opt_map_flags,
-                                                    ND_OPT_MAP_FLAG_T, 8, "T", "No T"));
-        proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-                            decode_boolean_bitfield(map->nd_opt_map_flags,
-                                                    ND_OPT_MAP_FLAG_P, 8, "P", "No P"));
-        proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-                            decode_boolean_bitfield(map->nd_opt_map_flags,
-                                                    ND_OPT_MAP_FLAG_V, 8, "V", "No V"));
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + offsetof(struct nd_opt_map_info, nd_opt_map_lifetime),
-                            4, "Lifetime: %u", pntohl(&map->nd_opt_map_lifetime));
-
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + offsetof(struct nd_opt_map_info, nd_opt_map_address), 16,
-                            "Address of MAP: %s (%s)",
-                            get_hostname6(&map->nd_opt_map_address),
-                            ip6_to_str(&map->nd_opt_map_address));
-        break;
-    }
-    case ND_OPT_ROUTE_INFO:
-    {
-        struct nd_opt_route_info ribuf, *ri;
-        struct e_in6_addr in6;
-        int l;
-        guint32 lifetime_local;
-
-        ri = &ribuf;
-        tvb_memcpy(tvb, (guint8 *)ri, offset, sizeof *ri);
-        memset(&in6, 0, sizeof(in6));
-        switch (ri->nd_opt_rti_len) {
-        case 1:
-            l = 0;
-            break;
-        case 2:
-            tvb_memcpy(tvb, (guint8 *)&in6, offset + sizeof(*ri), l = 8);
-            break;
-        case 3:
-            tvb_memcpy(tvb, (guint8 *)&in6, offset + sizeof(*ri), l = 16);
-            break;
-        default:
-            l = -1;
-            break;
-        }
-        if (l >= 0) {
-            proto_tree_add_text(icmp6opt_tree, tvb,
-                                offset + offsetof(struct nd_opt_route_info, nd_opt_rti_prefixlen),
-                                1, "Prefix length: %u", ri->nd_opt_rti_prefixlen);
-            tf = proto_tree_add_text(icmp6opt_tree, tvb,
-                                     offset + offsetof(struct nd_opt_route_info, nd_opt_rti_flags),
-                                     1, "Flags: 0x%02x", ri->nd_opt_rti_flags);
-            field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
-            proto_tree_add_text(field_tree, tvb,
-                                offset + offsetof(struct nd_opt_route_info, nd_opt_rti_flags),
-                                1, "%s",
-                                decode_enumerated_bitfield(ri->nd_opt_rti_flags,
-                                                           ND_RA_FLAG_RTPREF_MASK, 8, names_router_pref,
-                                                           "Router preference: %s"));
-            lifetime_local = pntohl(&ri->nd_opt_rti_lifetime);
-            if (lifetime_local == 0xffffffff)
-                proto_tree_add_text(icmp6opt_tree, tvb,
-                                    offset + offsetof(struct nd_opt_route_info, nd_opt_rti_lifetime),
-                                    sizeof(ri->nd_opt_rti_lifetime), "Lifetime: infinity");
-            else
-                proto_tree_add_text(icmp6opt_tree, tvb,
-                                    offset + offsetof(struct nd_opt_route_info, nd_opt_rti_lifetime),
-                                    sizeof(ri->nd_opt_rti_lifetime), "Lifetime: %u", lifetime_local);
-            proto_tree_add_text(icmp6opt_tree, tvb,
-                                offset + sizeof(*ri), l, "Prefix: %s", ip6_to_str(&in6));
-        } else {
-            proto_tree_add_text(icmp6opt_tree, tvb,
-                                offset + offsetof(struct nd_opt_hdr, nd_opt_len), 1,
-                                "Invalid option length: %u", opt->nd_opt_len);
-        }
-        break;
-    }
-    case FMIP6_OPT_NEIGHBOR_ADV_ACK:
-    {
-        struct fmip6_opt_neighbor_advertisement_ack fmip6_opt_neighbor_advertisement_ack, *opt_naack;
-        struct e_in6_addr in6;
-
-        opt_naack = &fmip6_opt_neighbor_advertisement_ack;
-        tvb_memcpy(tvb, (guint8 *)opt_naack, offset, sizeof *opt_naack);
-
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + offsetof(struct fmip6_opt_neighbor_advertisement_ack, fmip6_opt_optcode),
-                            1, "Option-Code: %u",
-                            opt_naack->fmip6_opt_optcode);
-
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + offsetof(struct fmip6_opt_neighbor_advertisement_ack, fmip6_opt_status),
-                            1, "Status: %s",
-                            val_to_str(opt_naack->fmip6_opt_status, names_fmip6_naack_opt_status, "Unknown"));
-
-        if (opt_naack->fmip6_opt_len == 3){
-            tvb_memcpy(tvb, (guint8 *)&in6, offset + sizeof(*opt_naack), 16);
-            proto_tree_add_text(icmp6opt_tree, tvb,
-                                offset + sizeof(*opt_naack),
-                                16, "New Care-of Address: %s",
-                                ip6_to_str(&in6));
-        }
-
-        break;
-    }
-    case ND_OPT_RECURSIVE_DNS_SERVER:
-
-        opt_offset = offset + 2;
-        proto_tree_add_text(icmp6opt_tree, tvb, opt_offset ,2 ,"Reserved");
-        opt_offset = opt_offset + 2;
-        /* A value of all one bits (0xffffffff) represents infinity.  A value of
-         * zero means that the RDNSS address MUST no longer be used.
-         */
-        lifetime = tvb_get_ntohl(tvb, opt_offset);
-        if (lifetime == 0xffffffff){
-            proto_tree_add_text(icmp6opt_tree, tvb, opt_offset ,4 ,"Lifetime: infinity");
-        }else{
-            if(lifetime==0){
-                proto_tree_add_text(icmp6opt_tree, tvb, opt_offset ,4 ,"Lifetime: RDNSS address MUST no longer be used");
-            }else{
-                proto_tree_add_text(icmp6opt_tree, tvb, opt_offset ,4 ,"Lifetime: %u", lifetime);
-            }
-        }
-        opt_offset = opt_offset+4;
-        /* Addresses of IPv6 Recursive DNS Servers */
-        no_of_pars = opt->nd_opt_len - 1;
-        no_of_pars = no_of_pars >> 2;
-
-        for (i = 0; i <= no_of_pars; i++) {
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_recursive_dns_serv, tvb, opt_offset, 16, FALSE);
-            opt_offset = opt_offset+16;
-        }
-        break;
-    case ND_OPT_6LOWPAN_CONTEXT:
-    {
-        /* 6lowpan-ND */
-        struct nd_opt_6lowpan_context nd_opt_6lowpan_context, *sco;
-        struct e_in6_addr in6;
-        int flagoff;
-
-        sco = &nd_opt_6lowpan_context;
-        tvb_memcpy(tvb, (guint8 *)sco, offset, sizeof *sco);
-        /* Length */
-        proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_opt_6co_context_length, tvb,
-                                offset + offsetof(struct nd_opt_6lowpan_context, nd_opt_6co_context_length),
-                                1, sco->nd_opt_6co_context_length);
-
-        /* Lifetime */
-        proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_opt_6co_lifetime, tvb,
-                                offset + offsetof(struct nd_opt_6lowpan_context, nd_opt_6co_lifetime),
-                                2, pntohs(&sco->nd_opt_6co_lifetime));
-
-        /* CID & Flags */
-        flagoff = offset + offsetof(struct nd_opt_6lowpan_context,nd_opt_6co_CID);
-        tf = proto_tree_add_text(icmp6opt_tree, tvb, flagoff, 1,
-                                "Flags & CID: 0x%02x", tvb_get_guint8(tvb, offset +
-                                offsetof(struct nd_opt_6lowpan_context, nd_opt_6co_CID)));
-        field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
-        proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-                            decode_boolean_bitfield(sco->nd_opt_6co_CID,
-                                                    ND_OPT_6CO_CFLAG, 8, "Valid for Compression", "Not Valid for Compression"));
-
-        proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-                            decode_numeric_bitfield(sco->nd_opt_6co_CID,
-                                                    ND_OPT_6CO_CIDMASK, 8, "CID of %d"));
-
-        /* Context */
-        if(sco->nd_opt_6co_context_length > 64){
-            tvb_memcpy(tvb, (guint8 *)&in6, offset + sizeof *sco, 16);
-        } else {
-            tvb_memcpy(tvb, (guint8 *)&in6, offset + sizeof *sco, 8);
-            in6.bytes[8] = 0;
-            in6.bytes[9] = 0;
-            in6.bytes[10] = 0;
-            in6.bytes[11] = 0;
-            in6.bytes[12] = 0;
-            in6.bytes[13] = 0;
-            in6.bytes[14] = 0;
-            in6.bytes[15] = 0;
-        }
-
-        proto_tree_add_text(icmp6opt_tree, tvb, offset + sizeof *sco,
-                                16, "Context: %s", ip6_to_str(&in6));
-    }
-    break;
-    case ND_OPT_ADDR_RESOLUTION:
-    {
-        /* 6lowpan-ND */
-        struct nd_opt_addr_resolution nd_opt_addr_resolution, *aro;
-
-        aro = &nd_opt_addr_resolution;
-        tvb_memcpy(tvb, (guint8 *)aro, offset, sizeof *aro);
-        /* Status */
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + offsetof(struct nd_opt_addr_resolution, nd_opt_aro_status),
-                            1, "Status: %s",
-                            val_to_str(aro->nd_opt_aro_status, names_6lowpannd_aro_status_str, "Unknown"));
-
-        /* Lifetime */
-        proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_opt_aro_lifetime, tvb,
-                                offset + offsetof(struct nd_opt_addr_resolution, nd_opt_aro_lifetime),
-                                2, pntohs(&aro->nd_opt_aro_lifetime));
-
-        /* EUI-64 */
-        proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_eui64, tvb, offset + offsetof(struct nd_opt_addr_resolution, nd_opt_aro_eui64), 8, FALSE);
-
-        /* Registered Address (if present only) */
-        if(aro->nd_opt_aro_len == 4)
-        {
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_addr_reg, tvb, offset + sizeof *aro, 16, FALSE);
-        }
-
-    }
-    break;
-    case ND_OPT_AUTH_BORDER_ROUTER:
-    {
-        /* Version at offset 2, Address at offset 8 */
-        guint8 version[2];
-        tvb_memcpy(tvb, version, offset+2, 2);
-
-        proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_opt_abro_version, tvb,
-                                offset + 2, 2, pntohs(version));
-
-        proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_abro_addr, tvb,
-                            offset + 8, 16, FALSE);
-
-    }
-        break;
-    } /* switch (opt->nd_opt_type) */
-
-    offset += (opt->nd_opt_len << 3);
-
-    /* Set length of option tree */
-    proto_item_set_len(ti, opt->nd_opt_len << 3);
-    goto again;
 }
 
 static void
@@ -1064,97 +1063,96 @@ dissect_icmpv6fmip6opt(tvbuff_t *tvb, int offset, proto_tree *tree)
     if (!tree)
         return;
 
-again:
-    if ((int)tvb_reported_length(tvb) <= offset)
-        return; /* No more options left */
+    while ((int)tvb_reported_length(tvb) > offset) {
+        /* there are more options */
 
-    opt = &fmip6_opt_hdr;
-    tvb_memcpy(tvb, (guint8 *)opt, offset, sizeof *opt);
-    len = opt->fmip6_opt_len << 3;
+	opt = &fmip6_opt_hdr;
+	tvb_memcpy(tvb, (guint8 *)opt, offset, sizeof *opt);
+	len = opt->fmip6_opt_len << 3;
 
-    /* !!! specify length */
-    ti = proto_tree_add_text(tree, tvb, offset, len, "ICMPv6 options");
-    icmp6opt_tree = proto_item_add_subtree(ti, ett_icmpv6opt);
+	/* !!! specify length */
+	ti = proto_tree_add_text(tree, tvb, offset, len, "ICMPv6 options");
+	icmp6opt_tree = proto_item_add_subtree(ti, ett_icmpv6opt);
 
-    if (len == 0) {
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + offsetof(struct fmip6_opt_hdr, fmip6_opt_len), 1,
-                            "Invalid option length: %u",
-                            opt->fmip6_opt_len);
-        return; /* we must not try to decode this */
+	if (len == 0) {
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct fmip6_opt_hdr, fmip6_opt_len), 1,
+				"Invalid option length: %u",
+				opt->fmip6_opt_len);
+	    return; /* we must not try to decode this */
+	}
+
+	typename = val_to_str (opt->fmip6_opt_type, fmip6_opt_type_str, "Unknown");
+
+	proto_tree_add_text(icmp6opt_tree, tvb,
+			    offset + offsetof(struct fmip6_opt_hdr, fmip6_opt_type), 1,
+			    "Type: %u (%s)", opt->fmip6_opt_type, typename);
+	proto_tree_add_text(icmp6opt_tree, tvb,
+			    offset + offsetof(struct fmip6_opt_hdr, fmip6_opt_len), 1,
+			    "Length: %u bytes (%u)", opt->fmip6_opt_len << 3, opt->fmip6_opt_len);
+
+	/* decode... */
+	switch (opt->fmip6_opt_type) {
+	case FMIP6_OPT_IP_ADDRESS:
+	{
+	    struct fmip6_opt_ip_address fmip6_opt_ip_address, *opt_ip;
+
+	    opt_ip = &fmip6_opt_ip_address;
+	    tvb_memcpy(tvb, (guint8 *)opt_ip, offset, sizeof *opt_ip);
+
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct fmip6_opt_hdr, fmip6_opt_optcode), 1, "Option-Code: %s",
+				val_to_str(opt->fmip6_opt_optcode, names_fmip6_ip_addr_opt_code, "Unknown"));
+
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct fmip6_opt_ip_address, fmip6_opt_prefix_len),
+				1, "Prefix length: %u", opt_ip->fmip6_opt_prefix_len);
+
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct fmip6_opt_ip_address, fmip6_opt_ip6_address),
+				16, "IPv6 Address: %s",
+				ip6_to_str(&opt_ip->fmip6_opt_ip6_address));
+	    break;
+	}
+	case FMIP6_OPT_NEW_ROUTER_PREFIX_INFO:
+	{
+	    struct fmip6_opt_new_router_prefix_info fmip6_opt_new_router_prefix_info, *opt_nr;
+
+	    opt_nr = &fmip6_opt_new_router_prefix_info;
+	    tvb_memcpy(tvb, (guint8 *)opt_nr, offset, sizeof *opt_nr);
+
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct fmip6_opt_hdr, fmip6_opt_optcode), 1, "Option-Code: %u",
+				opt->fmip6_opt_optcode);
+
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct fmip6_opt_new_router_prefix_info, fmip6_opt_prefix_len),
+				1, "Prefix length: %u", opt_nr->fmip6_opt_prefix_len);
+
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct fmip6_opt_new_router_prefix_info, fmip6_opt_prefix),
+				16, "Prefix: %s",
+				ip6_to_str(&opt_nr->fmip6_opt_prefix));
+	    break;
+	}
+	case FMIP6_OPT_LINK_LAYER_ADDRESS:
+	{
+	    int len_local, p;
+
+	    p = offset + sizeof(*opt);
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct fmip6_opt_hdr, fmip6_opt_optcode), 1, "Option-Code: %s",
+				val_to_str(opt->fmip6_opt_optcode, names_fmip6_lla_opt_code, "Unknown"));
+	    len_local = (opt->fmip6_opt_len << 3) - sizeof(*opt);
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + sizeof(*opt), len_local, "Link-layer address: %s",
+				tvb_bytes_to_str_punct(tvb, p, len_local, ':'));
+	    break;
+	}
+	} /* switch (opt->fmip6_opt_type) */
+
+	offset += (opt->fmip6_opt_len << 3);
     }
-
-    typename = val_to_str (opt->fmip6_opt_type, fmip6_opt_type_str, "Unknown");
-
-    proto_tree_add_text(icmp6opt_tree, tvb,
-                        offset + offsetof(struct fmip6_opt_hdr, fmip6_opt_type), 1,
-                        "Type: %u (%s)", opt->fmip6_opt_type, typename);
-    proto_tree_add_text(icmp6opt_tree, tvb,
-                        offset + offsetof(struct fmip6_opt_hdr, fmip6_opt_len), 1,
-                        "Length: %u bytes (%u)", opt->fmip6_opt_len << 3, opt->fmip6_opt_len);
-
-    /* decode... */
-    switch (opt->fmip6_opt_type) {
-    case FMIP6_OPT_IP_ADDRESS:
-    {
-        struct fmip6_opt_ip_address fmip6_opt_ip_address, *opt_ip;
-
-        opt_ip = &fmip6_opt_ip_address;
-        tvb_memcpy(tvb, (guint8 *)opt_ip, offset, sizeof *opt_ip);
-
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + offsetof(struct fmip6_opt_hdr, fmip6_opt_optcode), 1, "Option-Code: %s",
-                            val_to_str(opt->fmip6_opt_optcode, names_fmip6_ip_addr_opt_code, "Unknown"));
-
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + offsetof(struct fmip6_opt_ip_address, fmip6_opt_prefix_len),
-                            1, "Prefix length: %u", opt_ip->fmip6_opt_prefix_len);
-
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + offsetof(struct fmip6_opt_ip_address, fmip6_opt_ip6_address),
-                            16, "IPv6 Address: %s",
-                            ip6_to_str(&opt_ip->fmip6_opt_ip6_address));
-        break;
-    }
-    case FMIP6_OPT_NEW_ROUTER_PREFIX_INFO:
-    {
-        struct fmip6_opt_new_router_prefix_info fmip6_opt_new_router_prefix_info, *opt_nr;
-
-        opt_nr = &fmip6_opt_new_router_prefix_info;
-        tvb_memcpy(tvb, (guint8 *)opt_nr, offset, sizeof *opt_nr);
-
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + offsetof(struct fmip6_opt_hdr, fmip6_opt_optcode), 1, "Option-Code: %u",
-                            opt->fmip6_opt_optcode);
-
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + offsetof(struct fmip6_opt_new_router_prefix_info, fmip6_opt_prefix_len),
-                            1, "Prefix length: %u", opt_nr->fmip6_opt_prefix_len);
-
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + offsetof(struct fmip6_opt_new_router_prefix_info, fmip6_opt_prefix),
-                            16, "Prefix: %s",
-                            ip6_to_str(&opt_nr->fmip6_opt_prefix));
-        break;
-    }
-    case FMIP6_OPT_LINK_LAYER_ADDRESS:
-    {
-        int len_local, p;
-
-        p = offset + sizeof(*opt);
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + offsetof(struct fmip6_opt_hdr, fmip6_opt_optcode), 1, "Option-Code: %s",
-                            val_to_str(opt->fmip6_opt_optcode, names_fmip6_lla_opt_code, "Unknown"));
-        len_local = (opt->fmip6_opt_len << 3) - sizeof(*opt);
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + sizeof(*opt), len_local, "Link-layer address: %s",
-                            tvb_bytes_to_str_punct(tvb, p, len_local, ':'));
-        break;
-    }
-    } /* switch (opt->fmip6_opt_type) */
-
-    offset += (opt->fmip6_opt_len << 3);
-    goto again;
 }
 
 /* RPL: draft-ietf-roll-rpl-12.txt: Routing over Low-Power and Lossy Networks. */
@@ -1172,246 +1170,245 @@ dissect_icmpv6rplopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
     if (!tree)
         return;
 
-again:
-    if ((int)tvb_reported_length(tvb) <= offset)
-        return; /* No more options left */
+    while ((int)tvb_reported_length(tvb) > offset) {
+	/* there are more options */
 
-    /* Make a subtree for the option. */
-    ti = proto_tree_add_item(tree, hf_icmpv6_option, tvb, offset, 1, FALSE);
-    icmp6opt_tree = proto_item_add_subtree(ti, ett_icmpv6opt);
+	/* Make a subtree for the option. */
+	ti = proto_tree_add_item(tree, hf_icmpv6_option, tvb, offset, 1, FALSE);
+	icmp6opt_tree = proto_item_add_subtree(ti, ett_icmpv6opt);
 
-    /* Get the option type. */
-    type = tvb_get_guint8(tvb, offset);
-    type_name = val_to_str(type, names_rpl_option, "Unknown");
-    proto_item_append_text(ti, " (%s)", type_name);
-    proto_tree_add_text(icmp6opt_tree, tvb, offset, 1, "Type: %u (%s)", type, type_name);
+	/* Get the option type. */
+	type = tvb_get_guint8(tvb, offset);
+	type_name = val_to_str(type, names_rpl_option, "Unknown");
+	proto_item_append_text(ti, " (%s)", type_name);
+	proto_tree_add_text(icmp6opt_tree, tvb, offset, 1, "Type: %u (%s)", type, type_name);
 
-    /* The Pad1 option is a special case, and contains no data. */
-    if (type == RPL_OPT_PAD1) {
-        offset++;
-        goto again;
+	/* The Pad1 option is a special case, and contains no data. */
+	if (type == RPL_OPT_PAD1) {
+	    offset++;
+	    continue;
+	}
+	optlen = tvb_get_guint8(tvb, offset + 1);
+	proto_item_set_len(ti, optlen + 2);
+	proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_option_length, tvb, offset + 1, 1, optlen);
+
+	/* Display the option contents. */
+	offset += 2;
+	optoffset = offset;
+	switch(type) {
+	    case RPL_OPT_PADN:
+		/* n-byte padding */
+		proto_tree_add_text(icmp6opt_tree, tvb, offset, optlen, "Padding length is %d", optlen+2);
+		break;
+
+	    case RPL_OPT_METRIC:
+		/* DAG metric container */
+		/* See draft-ietf-roll-routing-metrics for formatting. */
+		break;
+
+	    case RPL_OPT_ROUTING: {
+		guint8              route_len;
+		struct e_in6_addr   route;
+
+		/* Route length */
+		route_len = tvb_get_guint8(tvb, optoffset);
+		ti_plen = proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_rpl_opt_route_length, tvb, optoffset, 1, route_len);
+		optoffset++;
+
+		if (route_len > (sizeof(route) << 3)) {
+		    /* Illegal prefix length! Must prevent evil buffer overflows >:@ */
+		    route_len = sizeof(route) << 3;
+		    expert_add_info_format(pinfo, ti_plen, PI_MALFORMED, PI_ERROR, "Route length invalid, greather than 128 bits");
+		}
+
+		/* Flags - only preference is used anymore. */
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_route_pref, tvb, optoffset, 1, FALSE);
+		optoffset++;
+
+		/* Prefix lifetime. */
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_route_lifetime, tvb, optoffset, 4, FALSE);
+		optoffset += 4;
+
+		/* Prefix */
+		memset(&route, 0, sizeof(route));
+		tvb_memcpy(tvb, &route, optoffset, (route_len + 7) >> 3);         /* Round up to the nearest octet. */
+		if (route_len & 0x7)
+		    route.bytes[route_len >> 3] &= 0xff << (route_len & 0x7);    /* Clear unused bits in the last octet. */
+		proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_rpl_opt_route, tvb, optoffset, ((route_len + 7) >> 3), route.bytes);
+		optoffset += ((route_len + 7) >> 3);
+
+		break;
+	    }
+
+	    case RPL_OPT_CONFIG: {
+		/* flags */
+		guint8 flags = tvb_get_guint8(tvb, optoffset);
+		proto_tree_add_boolean(icmp6opt_tree, hf_icmpv6_rpl_opt_config_auth, tvb, optoffset, 1, flags & RPL_OPT_CONFIG_FLAG_AUTH);
+		proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_rpl_opt_config_pcs, tvb, optoffset, 1, flags & RPL_OPT_CONFIG_FLAG_PCS);
+		optoffset += 1;
+		/* DAG configuration */
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_doublings, tvb, optoffset, 1, FALSE);
+		optoffset++;
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_min_interval, tvb, optoffset, 1, FALSE);
+		optoffset++;
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_redundancy, tvb, optoffset, 1, FALSE);
+		optoffset++;
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_rank_incr, tvb, optoffset, 2, FALSE);
+		optoffset += 2;
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_hop_rank_inc, tvb, optoffset, 2, FALSE);
+		optoffset += 2;
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_ocp, tvb, optoffset, 2, FALSE);
+		optoffset += 2;
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_rsv, tvb, optoffset, 1, FALSE);
+		optoffset++;
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_def_lifetime, tvb, optoffset, 1, FALSE);
+		optoffset++;
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_lifetime_unit, tvb, optoffset, 2, FALSE);
+		optoffset += 2;
+		break;
+	    }
+
+	    case RPL_OPT_TARGET: {
+		guint8              target_len;
+		struct e_in6_addr   target;
+
+		/* Target */
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_target_reserved, tvb, optoffset, 1, FALSE);
+		optoffset++;
+
+		/* Prefix length */
+		target_len = tvb_get_guint8(tvb, optoffset);
+		ti_plen = proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_rpl_opt_target_length, tvb, optoffset, 1, target_len);
+		optoffset++;
+		if (target_len > (sizeof(target) << 3)) {
+		    /* Illegal prefix length! Must prevent evil buffer overflows >:@ */
+		    target_len = sizeof(target) << 3;
+		    expert_add_info_format(pinfo, ti_plen, PI_MALFORMED, PI_ERROR, "Target length invalid, greather than 128 bits");
+		}
+
+		/* Prefix */
+		memset(&target, 0, sizeof(target));
+		tvb_memcpy(tvb, &target, optoffset, (target_len + 7) >> 3);         /* Round up to the nearest octet. */
+		if (target_len & 0x7)
+		    target.bytes[target_len >> 3] &= 0xff << (target_len & 0x7);    /* Clear unused bits in the last octet. */
+		proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_rpl_opt_target, tvb, optoffset, ((target_len + 7) >> 3), target.bytes);
+		optoffset += ((target_len + 7) >> 3);
+		break;
+	    }
+
+	    case RPL_OPT_TRANSIT: {
+
+		/* flags */
+		guint8 flags = tvb_get_guint8(tvb, optoffset);
+		proto_tree_add_boolean(icmp6opt_tree, hf_icmpv6_rpl_opt_transit_e, tvb, optoffset, 1, flags & RPL_OPT_TRANSIT_E);
+		proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_rpl_opt_transit_flags, tvb, optoffset, 1, flags & RPL_OPT_TRANSIT_FLAGS);
+		optoffset++;
+
+		/* Path Control */
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_transit_pathctl, tvb, optoffset, 1, FALSE);
+		optoffset++;
+
+		/* Path Sequence */
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_transit_pathseq, tvb, optoffset, 1, FALSE);
+		optoffset++;
+
+		/* Path Lifetime */
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_transit_pathlifetime, tvb, optoffset, 1, FALSE);
+		optoffset++;
+
+		/* Option contains parent */
+		if(optlen > 4)
+		{
+		   proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_transit_parent, tvb, optoffset, 16, FALSE);
+		   optoffset += 16;
+		}
+
+		break;
+	    }
+
+	    case RPL_OPT_SOLICITED: {
+		guint8 flags;
+
+		/* Instance ID */
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_solicited_instance, tvb, optoffset, 1, FALSE);
+		optoffset++;
+
+		/* flags */
+		flags = tvb_get_guint8(tvb, optoffset);
+		proto_tree_add_boolean(icmp6opt_tree, hf_icmpv6_rpl_opt_solicited_flag_v, tvb, optoffset, 1, flags & RPL_OPT_SOLICITED_V);
+		proto_tree_add_boolean(icmp6opt_tree, hf_icmpv6_rpl_opt_solicited_flag_i, tvb, optoffset, 1, flags & RPL_OPT_SOLICITED_I);
+		proto_tree_add_boolean(icmp6opt_tree, hf_icmpv6_rpl_opt_solicited_flag_d, tvb, optoffset, 1, flags & RPL_OPT_SOLICITED_D);
+		optoffset++;
+
+		/* DODAG ID */
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_solicited_dodagid, tvb, optoffset, 16, FALSE);
+		optoffset += 16;
+
+		/* Version Number */
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_solicited_version, tvb, optoffset, 1, FALSE);
+		optoffset++;
+
+		break;
+	    }
+
+	    case RPL_OPT_PREFIX: {
+		/* Destination prefix option. */
+		guint8              prefix_len;
+		struct e_in6_addr   prefix;
+
+		/* Prefix length */
+		prefix_len = tvb_get_guint8(tvb, optoffset);
+		ti_plen = proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_length, tvb, optoffset, 1, prefix_len);
+		optoffset++;
+		if (prefix_len > (sizeof(prefix) << 3)) {
+		    /* Illegal prefix length! Must prevent evil buffer overflows >:@ */
+		    prefix_len = sizeof(prefix) << 3;
+		    expert_add_info_format(pinfo, ti_plen, PI_MALFORMED, PI_ERROR, "Prefix length invalid, greather than 128 bits");
+		}
+
+		/* Flags. */
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_flag_l, tvb, optoffset, 1, FALSE);
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_flag_a, tvb, optoffset, 1, FALSE);
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_flag_r, tvb, optoffset, 1, FALSE);
+		optoffset++;
+
+		/* Valid lifetime. */
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_vlifetime, tvb, optoffset, 4, FALSE);
+		optoffset += 4;
+
+		/* Preferrred Lifetime */
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_plifetime, tvb, optoffset, 4, FALSE);
+		optoffset += 4;
+
+		/* 4 reserved bytes. */
+		optoffset += 4;
+
+		/* Prefix */
+		memset(&prefix, 0, sizeof(prefix));
+		tvb_memcpy(tvb, &prefix, optoffset, (prefix_len + 7) >> 3);         /* Round up to the nearest octet. */
+		if (prefix_len & 0x7)
+		    prefix.bytes[prefix_len >> 3] &= 0xff << (prefix_len & 0x7);    /* Clear unused bits in the last octet. */
+		proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix, tvb, optoffset, ((prefix_len + 7) >> 3), prefix.bytes);
+		optoffset += ((prefix_len + 7) >> 3); /* Round up to the nearest 8 bytes. */
+		break;
+	    }
+
+	    case RPL_OPT_TARGETDESC: {
+
+		/* Descriptor */
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_targetdesc, tvb, optoffset, 4, FALSE);
+		optoffset += 4;
+		break;
+
+	    }
+
+	    default:
+		break;
+	} /* switch */
+
+	/* Get the next option. */
+	offset += optlen;
     }
-    optlen = tvb_get_guint8(tvb, offset + 1);
-    proto_item_set_len(ti, optlen + 2);
-    proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_option_length, tvb, offset + 1, 1, optlen);
-
-    /* Display the option contents. */
-    offset += 2;
-    optoffset = offset;
-    switch(type) {
-        case RPL_OPT_PADN:
-            /* n-byte padding */
-            proto_tree_add_text(icmp6opt_tree, tvb, offset, optlen, "Padding length is %d", optlen+2);
-            break;
-
-        case RPL_OPT_METRIC:
-            /* DAG metric container */
-            /* See draft-ietf-roll-routing-metrics for formatting. */
-            break;
-
-        case RPL_OPT_ROUTING: {
-            guint8              route_len;
-            struct e_in6_addr   route;
-
-            /* Route length */
-            route_len = tvb_get_guint8(tvb, optoffset);
-            ti_plen = proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_rpl_opt_route_length, tvb, optoffset, 1, route_len);
-            optoffset++;
-
-            if (route_len > (sizeof(route) << 3)) {
-                /* Illegal prefix length! Must prevent evil buffer overflows >:@ */
-                route_len = sizeof(route) << 3;
-                expert_add_info_format(pinfo, ti_plen, PI_MALFORMED, PI_ERROR, "Route length invalid, greather than 128 bits");
-            }
-
-            /* Flags - only preference is used anymore. */
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_route_pref, tvb, optoffset, 1, FALSE);
-            optoffset++;
-
-            /* Prefix lifetime. */
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_route_lifetime, tvb, optoffset, 4, FALSE);
-            optoffset += 4;
-
-            /* Prefix */
-            memset(&route, 0, sizeof(route));
-            tvb_memcpy(tvb, &route, optoffset, (route_len + 7) >> 3);         /* Round up to the nearest octet. */
-            if (route_len & 0x7)
-                route.bytes[route_len >> 3] &= 0xff << (route_len & 0x7);    /* Clear unused bits in the last octet. */
-            proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_rpl_opt_route, tvb, optoffset, ((route_len + 7) >> 3), route.bytes);
-            optoffset += ((route_len + 7) >> 3);
-
-            break;
-        }
-
-        case RPL_OPT_CONFIG: {
-            /* flags */
-            guint8 flags = tvb_get_guint8(tvb, optoffset);
-            proto_tree_add_boolean(icmp6opt_tree, hf_icmpv6_rpl_opt_config_auth, tvb, optoffset, 1, flags & RPL_OPT_CONFIG_FLAG_AUTH);
-            proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_rpl_opt_config_pcs, tvb, optoffset, 1, flags & RPL_OPT_CONFIG_FLAG_PCS);
-            optoffset += 1;
-            /* DAG configuration */
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_doublings, tvb, optoffset, 1, FALSE);
-            optoffset++;
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_min_interval, tvb, optoffset, 1, FALSE);
-            optoffset++;
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_redundancy, tvb, optoffset, 1, FALSE);
-            optoffset++;
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_rank_incr, tvb, optoffset, 2, FALSE);
-            optoffset += 2;
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_hop_rank_inc, tvb, optoffset, 2, FALSE);
-            optoffset += 2;
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_ocp, tvb, optoffset, 2, FALSE);
-            optoffset += 2;
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_rsv, tvb, optoffset, 1, FALSE);
-            optoffset++;
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_def_lifetime, tvb, optoffset, 1, FALSE);
-            optoffset++;
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_lifetime_unit, tvb, optoffset, 2, FALSE);
-            optoffset += 2;
-            break;
-        }
-
-        case RPL_OPT_TARGET: {
-            guint8              target_len;
-            struct e_in6_addr   target;
-
-            /* Target */
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_target_reserved, tvb, optoffset, 1, FALSE);
-            optoffset++;
-
-            /* Prefix length */
-            target_len = tvb_get_guint8(tvb, optoffset);
-            ti_plen = proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_rpl_opt_target_length, tvb, optoffset, 1, target_len);
-            optoffset++;
-            if (target_len > (sizeof(target) << 3)) {
-                /* Illegal prefix length! Must prevent evil buffer overflows >:@ */
-                target_len = sizeof(target) << 3;
-                expert_add_info_format(pinfo, ti_plen, PI_MALFORMED, PI_ERROR, "Target length invalid, greather than 128 bits");
-            }
-
-            /* Prefix */
-            memset(&target, 0, sizeof(target));
-            tvb_memcpy(tvb, &target, optoffset, (target_len + 7) >> 3);         /* Round up to the nearest octet. */
-            if (target_len & 0x7)
-                target.bytes[target_len >> 3] &= 0xff << (target_len & 0x7);    /* Clear unused bits in the last octet. */
-            proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_rpl_opt_target, tvb, optoffset, ((target_len + 7) >> 3), target.bytes);
-            optoffset += ((target_len + 7) >> 3);
-            break;
-        }
-
-        case RPL_OPT_TRANSIT: {
-
-            /* flags */
-            guint8 flags = tvb_get_guint8(tvb, optoffset);
-            proto_tree_add_boolean(icmp6opt_tree, hf_icmpv6_rpl_opt_transit_e, tvb, optoffset, 1, flags & RPL_OPT_TRANSIT_E);
-            proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_rpl_opt_transit_flags, tvb, optoffset, 1, flags & RPL_OPT_TRANSIT_FLAGS);
-            optoffset++;
-
-            /* Path Control */
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_transit_pathctl, tvb, optoffset, 1, FALSE);
-            optoffset++;
-
-            /* Path Sequence */
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_transit_pathseq, tvb, optoffset, 1, FALSE);
-            optoffset++;
-
-            /* Path Lifetime */
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_transit_pathlifetime, tvb, optoffset, 1, FALSE);
-            optoffset++;
-
-            /* Option contains parent */
-            if(optlen > 4)
-            {
-               proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_transit_parent, tvb, optoffset, 16, FALSE);
-               optoffset += 16;
-            }
-
-            break;
-        }
-
-        case RPL_OPT_SOLICITED: {
-            guint8 flags;
-
-            /* Instance ID */
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_solicited_instance, tvb, optoffset, 1, FALSE);
-            optoffset++;
-
-            /* flags */
-            flags = tvb_get_guint8(tvb, optoffset);
-            proto_tree_add_boolean(icmp6opt_tree, hf_icmpv6_rpl_opt_solicited_flag_v, tvb, optoffset, 1, flags & RPL_OPT_SOLICITED_V);
-            proto_tree_add_boolean(icmp6opt_tree, hf_icmpv6_rpl_opt_solicited_flag_i, tvb, optoffset, 1, flags & RPL_OPT_SOLICITED_I);
-            proto_tree_add_boolean(icmp6opt_tree, hf_icmpv6_rpl_opt_solicited_flag_d, tvb, optoffset, 1, flags & RPL_OPT_SOLICITED_D);
-            optoffset++;
-
-            /* DODAG ID */
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_solicited_dodagid, tvb, optoffset, 16, FALSE);
-            optoffset += 16;
-
-            /* Version Number */
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_solicited_version, tvb, optoffset, 1, FALSE);
-            optoffset++;
-
-            break;
-        }
-
-        case RPL_OPT_PREFIX: {
-            /* Destination prefix option. */
-            guint8              prefix_len;
-            struct e_in6_addr   prefix;
-
-            /* Prefix length */
-            prefix_len = tvb_get_guint8(tvb, optoffset);
-            ti_plen = proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_length, tvb, optoffset, 1, prefix_len);
-            optoffset++;
-            if (prefix_len > (sizeof(prefix) << 3)) {
-                /* Illegal prefix length! Must prevent evil buffer overflows >:@ */
-                prefix_len = sizeof(prefix) << 3;
-                expert_add_info_format(pinfo, ti_plen, PI_MALFORMED, PI_ERROR, "Prefix length invalid, greather than 128 bits");
-            }
-
-            /* Flags. */
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_flag_l, tvb, optoffset, 1, FALSE);
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_flag_a, tvb, optoffset, 1, FALSE);
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_flag_r, tvb, optoffset, 1, FALSE);
-            optoffset++;
-
-            /* Valid lifetime. */
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_vlifetime, tvb, optoffset, 4, FALSE);
-            optoffset += 4;
-
-            /* Preferrred Lifetime */
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_plifetime, tvb, optoffset, 4, FALSE);
-            optoffset += 4;
-
-            /* 4 reserved bytes. */
-            optoffset += 4;
-
-            /* Prefix */
-            memset(&prefix, 0, sizeof(prefix));
-            tvb_memcpy(tvb, &prefix, optoffset, (prefix_len + 7) >> 3);         /* Round up to the nearest octet. */
-            if (prefix_len & 0x7)
-                prefix.bytes[prefix_len >> 3] &= 0xff << (prefix_len & 0x7);    /* Clear unused bits in the last octet. */
-            proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix, tvb, optoffset, ((prefix_len + 7) >> 3), prefix.bytes);
-            optoffset += ((prefix_len + 7) >> 3); /* Round up to the nearest 8 bytes. */
-            break;
-        }
-
-        case RPL_OPT_TARGETDESC: {
-
-            /* Descriptor */
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_targetdesc, tvb, optoffset, 4, FALSE);
-            optoffset += 4;
-            break;
-
-        }
-
-        default:
-            break;
-    } /* switch */
-
-    /* Get the next option. */
-    offset += optlen;
-    goto again;
 }
 
 /*
