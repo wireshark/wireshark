@@ -180,7 +180,7 @@ static value_string_ext *gbl_symbols_vs_ext = NULL;
 
 static void
 gbl_symbols_new(void) {
-  g_assert(gbl_symbols_array == NULL);
+  DISSECTOR_ASSERT(gbl_symbols_array == NULL);
   gbl_symbols_array = g_array_new(TRUE, TRUE, sizeof(value_string));
 }
 
@@ -204,7 +204,7 @@ gbl_symbols_free(void) {
 static void
 gbl_symbols_array_append(int hash, gchar *symbol) {
   value_string vs = {hash, symbol};
-  g_assert(gbl_symbols_array != NULL);
+  DISSECTOR_ASSERT(gbl_symbols_array != NULL);
   g_array_append_val(gbl_symbols_array, vs);
 }
 
@@ -224,8 +224,8 @@ gbl_symbols_compare_vs(gconstpointer  a, gconstpointer  b)
 
 static void
 gbl_symbols_vs_ext_new(void) {
-  g_assert(gbl_symbols_vs_ext == NULL);
-  g_assert(gbl_symbols_array != NULL);
+  DISSECTOR_ASSERT(gbl_symbols_vs_ext == NULL);
+  DISSECTOR_ASSERT(gbl_symbols_array != NULL);
   g_array_sort(gbl_symbols_array, gbl_symbols_compare_vs);
   gbl_symbols_vs_ext = value_string_ext_new((value_string *)gbl_symbols_array->data,
                                             gbl_symbols_array->len+1,
