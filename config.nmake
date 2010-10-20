@@ -7,7 +7,7 @@
 # Only "win32" and "win64" are valid (for now).
 # This can be defined in the system environment.
 !IFNDEF WIRESHARK_TARGET_PLATFORM
-WIRESHARK_TARGET_PLATFORM=win32
+WIRESHARK_TARGET_PLATFORM=win64
 !ENDIF
 
 ##### Versions #####
@@ -229,6 +229,7 @@ EXPAT_DLL=libexpat-1.dll
 INTL_DLL=intl.dll
 # This macro is used by the setup target.
 GTK_PKG=2.16.6-20100912
+#GTK_PKG=2.22.0-20101016
 
 #
 # Mandatory: Version numbers of GTK and pango.
@@ -237,6 +238,7 @@ GTK_PKG=2.16.6-20100912
 # These macros are used by the nsis installer script and by the setup target.
 #
 GTK_INST_VERSION=2.16
+#GTK_INST_VERSION=2.22
 
 #
 # Optional: WinPcap developer's pack to capture network traffic.
@@ -437,6 +439,7 @@ INTL_DLL=libintl-8.dll
 
 # These macros are used by the setup target.
 GTK_PKG=2.16.6-20100912
+#GTK_PKG=2.22.0-20101016
 
 #
 # Mandatory: Version numbers of GTK and pango.
@@ -445,6 +448,7 @@ GTK_PKG=2.16.6-20100912
 # These macros are used by the nsis installer script and by the setup target.
 #
 GTK_INST_VERSION=2.16
+#GTK_INST_VERSION=2.22
 
 #
 # Optional: WinPcap developer's pack to capture network traffic.
@@ -968,6 +972,7 @@ GTHREAD_LIBS=$(GTK_DIR)\lib\gthread-$(GLIB_VERSION).lib
 
 # GTK+
 GTK_CFLAGS=$(GLIB_CFLAGS) /I$(GTK_DIR)\include\gtk-2.0 \
+	/I$(GTK_DIR)\include\gdk-pixbuf-2.0 \
 	/I$(GTK_DIR)\lib\gtk-2.0\include \
 	/I$(GTK_DIR)\include\atk-1.0 \
 	/I$(GTK_DIR)\include\cairo \
@@ -978,8 +983,8 @@ GTK_LIBS=$(GTK_DIR)\lib\gtk-win32-2.0.lib \
 	$(GTK_DIR)\lib\pango-1.0.lib \
 	$(GLIB_LIBS)
 
-
-!IF "$(GTK_INST_VERSION)" == "2.18" || "$(GTK_INST_VERSION)" == "2.16" || "$(GTK_INST_VERSION)" == "2.14"
+# 2.18 was no good(Theming problem)
+!IF "$(GTK_INST_VERSION)" == "2.22" || "$(GTK_INST_VERSION)" == "2.16" || "$(GTK_INST_VERSION)" == "2.14"
 GTK_LIB_DIR=2.10.0
 
 !IFDEF PNG_DLL
