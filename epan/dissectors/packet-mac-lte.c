@@ -42,7 +42,6 @@
 
 
 /* TODO:
-   - TDD mode?
    - add a preference so that padding can be verified against an expected pattern?
 */
 
@@ -544,9 +543,11 @@ enum layer_to_show {
     ShowPHYLayer, ShowMACLayer, ShowRLCLayer
 };
 
+/* Which layer's details to show in Info column */
 static gint     global_mac_lte_layer_to_show = (gint)ShowRLCLayer;
-static guint8   s_number_of_rlc_pdus_shown = 0;
 
+/* When showing RLC info, count PDUs so can append info column properly */
+static guint8   s_number_of_rlc_pdus_shown = 0;
 
 /***********************************************************************/
 /* How to dissect lcid 3-10 (presume drb logical channels)             */
@@ -742,7 +743,6 @@ static const value_string sr_event_vals[] =
     { 0,               NULL}
 };
 
-
 typedef enum SRStatus {
     None,
     SR_Outstanding,
@@ -809,7 +809,6 @@ static gboolean global_mac_lte_heur = FALSE;
 
 static void call_with_catch_all(dissector_handle_t handle, tvbuff_t* tvb, packet_info *pinfo, proto_tree *tree)
 {
-
     /* Call it (catch exceptions so that stats will be updated) */
     TRY {
         call_dissector_only(handle, tvb, pinfo, tree);
@@ -838,17 +837,6 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
         return FALSE;
     }
 
-    /* If redissecting, use previous info struct (if available) */
-    p_mac_lte_info = p_get_proto_data(pinfo->fd, proto_mac_lte);
-    if (p_mac_lte_info == NULL) {
-        /* Allocate new info struct for this frame */
-        p_mac_lte_info = se_alloc0(sizeof(struct mac_lte_info));
-        infoAlreadySet = FALSE;
-    }
-    else {
-        infoAlreadySet = TRUE;
-    }
-
     /* Do this again on re-dissection to re-discover offset of actual PDU */
 
     /* Needs to be at least as long as:
@@ -865,6 +853,18 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
         return FALSE;
     }
     offset += (gint)strlen(MAC_LTE_START_STRING);
+
+    /* If redissecting, use previous info struct (if available) */
+    p_mac_lte_info = p_get_proto_data(pinfo->fd, proto_mac_lte);
+    if (p_mac_lte_info == NULL) {
+        /* Allocate new info struct for this frame */
+        p_mac_lte_info = se_alloc0(sizeof(struct mac_lte_info));
+        infoAlreadySet = FALSE;
+    }
+    else {
+        infoAlreadySet = TRUE;
+    }
+
 
     /* Read fixed fields */
     p_mac_lte_info->radioType = tvb_get_guint8(tvb, offset++);
@@ -933,6 +933,7 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     /* Create tvb that starts at actual MAC PDU */
     mac_tvb = tvb_new_subset(tvb, offset, -1, tvb_reported_length(tvb)-offset);
     dissect_mac_lte(mac_tvb, pinfo, tree);
+
     return TRUE;
 }
 
