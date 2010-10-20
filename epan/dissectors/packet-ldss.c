@@ -606,6 +606,8 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						tvb_get_ptr(tvb, offset+digest_type_len, linelen-digest_type_len),
 						digest_bytes, FALSE);
 
+					if(digest_bytes->len >= DIGEST_LEN)
+						digest_bytes->len = (DIGEST_LEN-1);
 					/* Ensure the digest is zero-padded */
 					transfer_info->file->digest = se_alloc0(DIGEST_LEN);
 					memcpy(transfer_info->file->digest, digest_bytes->data, digest_bytes->len);
