@@ -4544,40 +4544,47 @@ de_rr_3g_add_meas_param_desc2(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 
 /* Additions in Rel-8 */
 static const true_false_string priority_utran_start = {
-    "This is not the first instance of the message",
-    "This is the first instance of the message"
+  "This is the first instance of the message",
+  "This is not the first instance of the message"
 };
 
 static const true_false_string priority_utran_stop = {
-    "This is not the last instance of the message",
-    "This is the last instance of the message"
+  "This is the last instance of the message",
+  "This is not the last instance of the message"
 };
 
 static const true_false_string eutran_ccn_active = {
-    "The broadcast E-UTRAN_CCN_ACTIVE parameter shall apply if applicable. Otherwise, CCN towards E-UTRAN cells is disabled in the cell",
-    "CCN towards E-UTRAN cells is enabled in the cell"
+  "CCN towards E-UTRAN cells is enabled in the cell",
+  "The broadcast E-UTRAN_CCN_ACTIVE parameter shall apply if applicable. Otherwise, CCN towards E-UTRAN cells is disabled in the cell"
 };
+
 static const value_string gsm_a_rr_pcid_psc_pattern_length[] = {
-    { 0, "1"},
-    { 1, "2"},
-    { 2, "3"},
-    { 3, "4"},
-    { 4, "5"},
-    { 5, "6"},
-    { 6, "7"},
-    { 7, "8"},
-    { 0, NULL }
+  { 0, "1"},
+  { 1, "2"},
+  { 2, "3"},
+  { 3, "4"},
+  { 4, "5"},
+  { 5, "6"},
+  { 6, "7"},
+  { 7, "8"},
+  { 0, NULL }
 };
+
 static const value_string gsm_a_rr_eutran_measurement_bandwidth[] = {
-    { 0, "NRB = 6"},
-    { 1, "NRB = 15"},
-    { 2, "NRB = 25"},
-    { 3, "NRB = 50"},
-    { 4, "NRB = 75"},
-    { 5, "NRB = 100"},
-    { 6, "Reserved for future use"},
-    { 7, "Reserved for future use"},
-    { 0, NULL }
+  { 0, "NRB = 6"},
+  { 1, "NRB = 15"},
+  { 2, "NRB = 25"},
+  { 3, "NRB = 50"},
+  { 4, "NRB = 75"},
+  { 5, "NRB = 100"},
+  { 6, "Reserved for future use"},
+  { 7, "Reserved for future use"},
+  { 0, NULL }
+};
+
+static const true_false_string gsm_a_rr_pcid_pattern_sense = {
+  "The group of identified cells are the one not belonging to the PCID_BITMAP_GROUP",
+  "The group of identified cells are the one identified by the PCID_BITMAP_GROUP"
 };
 
 static gint
@@ -4656,41 +4663,41 @@ de_rr_eutran_neighbour_cells(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
   item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_NEIGHBOUR_CELLS].strptr);
   subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EUTRAN_NEIGHBOUR_CELLS]);
   
-  value = tvb_get_bits8(tvb,curr_bit_offset,1);
-  curr_bit_offset += 1;
-  if (value)
+  while ((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
   {
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_earfcn, tvb, curr_bit_offset, 16, FALSE);
     curr_bit_offset += 16;
     
-    while ((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
+    value = tvb_get_bits8(tvb,curr_bit_offset,1);
+    curr_bit_offset += 1;
+    if (value)
     {
       proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_measurement_bandwidth, tvb, curr_bit_offset, 3, FALSE);
       curr_bit_offset += 3;
     }
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
-    {
-      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_priority, tvb, curr_bit_offset, 3, FALSE);
-      curr_bit_offset += 3;
-    }
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_thresh_eutran_high, tvb, curr_bit_offset, 5, FALSE);
+  }
+  value = tvb_get_bits8(tvb,curr_bit_offset,1);
+  curr_bit_offset += 1;
+  if (value)
+  {
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_priority, tvb, curr_bit_offset, 3, FALSE);
+    curr_bit_offset += 3;
+  }
+  proto_tree_add_bits_item(subtree, hf_gsm_a_rr_thresh_eutran_high, tvb, curr_bit_offset, 5, FALSE);
+  curr_bit_offset += 5;
+  value = tvb_get_bits8(tvb,curr_bit_offset,1);
+  curr_bit_offset += 1;
+  if (value)
+  {
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_thresh_eutran_low, tvb, curr_bit_offset, 5, FALSE);
     curr_bit_offset += 5;
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
-    {
-      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_thresh_eutran_low, tvb, curr_bit_offset, 5, FALSE);
-      curr_bit_offset += 5;
-    }
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
-    {
-      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_qrxlevmin, tvb, curr_bit_offset, 5, FALSE);
-      curr_bit_offset += 5;
-    }
+  }
+  value = tvb_get_bits8(tvb,curr_bit_offset,1);
+  curr_bit_offset += 1;
+  if (value)
+  {
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_qrxlevmin, tvb, curr_bit_offset, 5, FALSE);
+    curr_bit_offset += 5;
   }
   
   proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
@@ -4703,8 +4710,6 @@ de_rr_eutran_pcid(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 {
   gint curr_bit_offset = bit_offset;
   guint8 value;
-  gint pcid_pattern_length;
-  gint pcid_pattern;
   proto_item *item;
 
   while ((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
@@ -4717,11 +4722,33 @@ de_rr_eutran_pcid(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
   curr_bit_offset += 1;
   if (value)
   {
-    proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_pcid_bitmap_group, tvb, curr_bit_offset, 6, FALSE);
+    gint i;
+    guint8 bitmap = tvb_get_bits8(tvb,curr_bit_offset,6);
+    item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_pcid_bitmap_group, tvb, curr_bit_offset, 6, FALSE);
+    if (bitmap > 0)
+    {
+      proto_item_append_text(item, ": Cells IDs addressed by the bitmap:");
+    }
+    for (i = 0; i < 6; i++)
+    {
+      if ((1 << i) & bitmap)
+      {
+        if ( i != 0)
+        {
+          proto_item_append_text(item, ",");
+        }
+        proto_item_append_text(item, " %d to %d",i*84, (i+1)*84 - 1);
+      }
+    }
     curr_bit_offset += 6;
   }
   while ((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
   {
+    gint pcid_pattern_length;
+    gint pcid_pattern;
+    gint pattern_lower_bound, pattern_upper_bound;
+    gint i;
+
     pcid_pattern_length = tvb_get_bits8(tvb,curr_bit_offset,3) + 1;
     proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_pcid_pattern_length, tvb, curr_bit_offset, 3, FALSE);
     curr_bit_offset += 3;
@@ -4730,6 +4757,14 @@ de_rr_eutran_pcid(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, 1, "%s = PCID_Pattern: %d", 
                                decode_bits_in_field(curr_bit_offset,pcid_pattern_length, pcid_pattern), 
                                pcid_pattern);
+
+    pattern_lower_bound = pcid_pattern << (9 - pcid_pattern_length);
+    pattern_upper_bound = pattern_lower_bound;
+    for (i = 0; i < (9-pcid_pattern_length); i++)
+    {
+      pattern_upper_bound |= 1 << i;
+    }
+    proto_item_append_text(item, ": Cells IDs addressed by the pattern: %d to %d", pattern_lower_bound, pattern_upper_bound);
 
     curr_bit_offset += pcid_pattern_length;
     proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_pcid_pattern_sense, tvb, curr_bit_offset, 1, FALSE);
@@ -4975,9 +5010,9 @@ de_rr_priority_and_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_o
     curr_bit_offset += 4;
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_serving_cell_priority_param_threash_gsm_low, tvb, curr_bit_offset, 4, FALSE);
     curr_bit_offset += 4;
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_serving_cell_priority_param_h_prio, tvb, curr_bit_offset, 4, FALSE);
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_serving_cell_priority_param_h_prio, tvb, curr_bit_offset, 2, FALSE);
     curr_bit_offset += 2;
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_serving_cell_priority_param_t_reselection, tvb, curr_bit_offset, 4, FALSE);
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_serving_cell_priority_param_t_reselection, tvb, curr_bit_offset, 2, FALSE);
     curr_bit_offset += 2;
   }
   value = tvb_get_bits8(tvb,curr_bit_offset,1);
@@ -10919,27 +10954,27 @@ proto_register_gsm_a_rr(void)
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_serving_cell_priority_param_geran_priority,
-              { "E-UTRAN_MULTIRAT_REPORTING", "gsm_a.rr.serving_cell_priority_param_geran_priority",
+              { "GERAN_PRIORITY", "gsm_a.rr.serving_cell_priority_param_geran_priority",
 		FT_UINT8, BASE_DEC, NULL, 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_serving_cell_priority_param_threash_prio_search,
-              { "E-UTRAN_MULTIRAT_REPORTING", "gsm_a.rr.serving_cell_priority_param_threash_prio_search",
+              { "THRESH_Priority_Search", "gsm_a.rr.serving_cell_priority_param_threash_prio_search",
 		FT_UINT8, BASE_DEC, NULL, 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_serving_cell_priority_param_threash_gsm_low,
-              { "E-UTRAN_MULTIRAT_REPORTING", "gsm_a.rr.serving_cell_priority_param_threash_gsm_low",
+              { "THRESH_GSM_low", "gsm_a.rr.serving_cell_priority_param_threash_gsm_low",
 		FT_UINT8, BASE_DEC, NULL, 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_serving_cell_priority_param_h_prio,
-              { "E-UTRAN_MULTIRAT_REPORTING", "gsm_a.rr.serving_cell_priority_param_h_prio",
+              { "H_PRIO", "gsm_a.rr.serving_cell_priority_param_h_prio",
 		FT_UINT8, BASE_DEC, NULL, 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_serving_cell_priority_param_t_reselection,
-              { "E-UTRAN_MULTIRAT_REPORTING", "gsm_a.rr.serving_cell_priority_param_t_reselection",
+              { "T_Reselection", "gsm_a.rr.serving_cell_priority_param_t_reselection",
 		FT_UINT8, BASE_DEC, NULL, 0x00,
 		NULL, HFILL }
             },
@@ -10995,7 +11030,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_eutran_pcid_pattern_sense,
               { "PCID_pattern_sense", "gsm_a.rr.pcid_pattern_sense",
-		FT_BOOLEAN, BASE_DEC, NULL, 0x00,
+		FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_pcid_pattern_sense), 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_frequency_index,
