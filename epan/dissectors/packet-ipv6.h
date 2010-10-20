@@ -282,6 +282,8 @@ struct icmp6_hdr {
 #define ICMP6_MCAST_ROUTER_SOLICIT		152 /* Multicast Router Solicitation                    [RFC4286] */
 #define ICMP6_MCAST_ROUTER_TERM			153 /* Multicast Router Termination                     [RFC4286] */
 #define ICMP6_FMIPV6_MESSAGES			154 /* FMIPv6 Messages       [RFC-ietf-mipshop-rfc5268bis-01.txt] */
+#define ICMP6_RPL_CONTROL		155 /* RPL control messages  [draft-ietf-roll-rpl-12.txt] */
+                                            /* (Pending IANA Assignment) */
 
 #define ICMP6_DST_UNREACH_NOROUTE		0	/* no route to destination */
 #define ICMP6_DST_UNREACH_ADMIN	 		1	/* administratively prohibited */
@@ -433,7 +435,7 @@ struct nd_opt_hdr {		/* Neighbor discovery option header */
 #define ND_OPT_CERTIFICATE			16
 
 /*
-17      IP Address Option                       [RFC4068]  
+17      IP Address Option                       [RFC4068]
 18      New Router Prefix Information Option    [RFC4068]
 19      Link-layer Address Option               [RFC4068]
 20      Neighbor Advertisement Acknowledgment   [RFC4068]
@@ -769,7 +771,7 @@ struct fmip6_opt_new_router_prefix_info {
 	guint8 fmip6_opt_len;               /* size of this option in 8 octets including opt_hdr */
 	guint8 fmip6_opt_optcode;           /* Opt-Code see the definition below */
 	guint8 fmip6_opt_prefix_len;        /* Prefix length for the address */
-	guint32 fmip6_opt_reserved;         /* Reserved */	
+	guint32 fmip6_opt_reserved;         /* Reserved */
 	struct e_in6_addr fmip6_opt_prefix; /* Could be either IPaddr or Prefix, if prefix left should be zero cleared */
 };
 
@@ -811,6 +813,54 @@ struct fmip6_opt_neighbor_advertisement_ack {
 #define FMIP6_OPT_NEIGHBOR_ADV_ACK_LEN_NO_COA		1	/* No CoA included */
 #define FMIP6_OPT_NEIGHBOR_ADV_ACK_LEN_COA		3	/* CoA included */
 
+/* RPL: draft-ietf-roll-rpl-12.txt: Routing over Low-Power and Lossy Networks. */
+/* Pending IANA Assignment */
+/* RPL ICMPv6 Codes */
+#define ICMP6_RPL_DIS       0   /* DODAG Information Solicitation */
+#define ICMP6_RPL_DIO       1   /* DODAG Information Object */
+#define ICMP6_RPL_DAO       2   /* Destination Advertisement Object */
+#define ICMP6_RPL_DAOACK    3   /* Destination Advertisement Object Ack */
+
+/* RPL Option Types */
+/* Pending IANA Assignment */
+#define RPL_OPT_PAD1        0   /* 1-byte padding */
+#define RPL_OPT_PADN        1   /* n-byte padding */
+#define RPL_OPT_METRIC      2   /* DAG metric container */
+#define RPL_OPT_ROUTING     3   /* Routing Information */
+#define RPL_OPT_CONFIG      4   /* DAG configuration */
+#define RPL_OPT_TARGET      5   /* RPL Target */
+#define RPL_OPT_TRANSIT     6   /* Transit */
+#define RPL_OPT_SOLICITED   7   /* Solicited Information */
+#define RPL_OPT_PREFIX      8   /* Destination prefix */
+#define RPL_OPT_TARGETDESC  9   /* RPL Target Descriptor */
+
+/* RPL DIO Flags */
+#define RPL_DIO_FLAG_GROUNDED           0x80
+#define RPL_DIO_FLAG_ZERO               0x40
+#define RPL_DIO_FLAG_MOP                0x38
+#define RPL_DIO_FLAG_PREFERENCE         0x07
+
+/* RPL DAO Flags */
+#define RPL_DAO_FLAG_K                  0x80
+#define RPL_DAO_FLAG_D                  0x40
+#define RPL_DAO_FLAG_RESERVED           0x3F
+
+/* RPL DAO ACK Flags */
+#define RPL_DAOACK_FLAG_D               0x80
+#define RPL_DAOACK_FLAG_RESERVED        0x7F
+
+/* RPL Option Bitfields */
+#define RPL_OPT_PREFIX_L                0x80
+#define RPL_OPT_PREFIX_A                0x40
+#define RPL_OPT_PREFIX_R                0x20
+#define RPL_OPT_ROUTE_PREFERENCE        0x18
+#define RPL_OPT_CONFIG_FLAG_AUTH        0x08
+#define RPL_OPT_CONFIG_FLAG_PCS         0x07
+#define RPL_OPT_TRANSIT_E               0x80
+#define RPL_OPT_TRANSIT_FLAGS           0x7F
+#define RPL_OPT_SOLICITED_V             0x80
+#define RPL_OPT_SOLICITED_I             0x40
+#define RPL_OPT_SOLICITED_D             0x20
 
 void capture_ipv6(const guchar *, int, int, packet_counts *);
 

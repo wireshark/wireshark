@@ -3123,6 +3123,11 @@ Tom Hughes		<tom [AT] compton.nu> {
 
 Owen Kirby		<osk [AT] exegin.com> {
 	SCoP dissector
+	RPL support in ICMPv6 (with Colin O'Flynn)
+}
+
+Colin O'Flynn		<coflynn [AT] newae.com> {
+	RPL support in ICMPv6 (with Owen Kirby)
 }
 
 Juha Siltanen		<juha.siltanen [AT] nsn.com> {

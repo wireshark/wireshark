@@ -14,6 +14,8 @@
  *
  * FMIPv6 support added by Martin Andre <andre@clarinet.u-strasbg.fr>
  *
+ * RPL support added by Colin O'Flynn & Owen Kirby.
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -43,6 +45,7 @@
 #include <epan/ipproto.h>
 #include <epan/asn1.h>
 #include <epan/strutil.h>
+#include <epan/expert.h>
 
 #include "packet-ber.h"
 #include "packet-ipv6.h"
@@ -70,6 +73,10 @@
  *
  * and
  *
+ *      draft-ieft-roll-rpl-12.txt
+ *
+ * and
+ *
  *      rfc4068.txt
  */
 
@@ -84,6 +91,69 @@ static int hf_icmpv6_ra_cur_hop_limit = -1;
 static int hf_icmpv6_ra_router_lifetime = -1;
 static int hf_icmpv6_ra_reachable_time = -1;
 static int hf_icmpv6_ra_retrans_timer = -1;
+
+/* RPL: draft-ietf-roll-rpl-12.txt: Routing over Low-Power and Lossy Networks. */
+static int hf_icmpv6_dis_reserved = -1;
+static int hf_icmpv6_dio_grounded = -1;
+static int hf_icmpv6_dio_preference = -1;
+static int hf_icmpv6_dio_rank = -1;
+static int hf_icmpv6_dio_instance = -1;
+static int hf_icmpv6_dio_version = -1;
+static int hf_icmpv6_dio_zero = -1;
+static int hf_icmpv6_dio_trigger_seqnum = -1;
+static int hf_icmpv6_dio_dagid = -1;
+static int hf_icmpv6_dio_mop = -1;
+static int hf_icmpv6_dao_instance = -1;
+static int hf_icmpv6_dao_seqnum = -1;
+static int hf_icmpv6_dao_reserved = -1;
+static int hf_icmpv6_dao_flag_k = -1;
+static int hf_icmpv6_dao_flag_d = -1;
+static int hf_icmpv6_dao_flag_rsv = -1;
+static int hf_icmpv6_dao_dodagid = -1;
+static int hf_icmpv6_daoack_instance = -1;
+static int hf_icmpv6_daoack_seqnum = -1;
+static int hf_icmpv6_daoack_status = -1;
+static int hf_icmpv6_daoack_flag_d = -1;
+static int hf_icmpv6_daoack_flag_rsv = -1;
+static int hf_icmpv6_daoack_dodagid = -1;
+static int hf_icmpv6_rpl_opt_route = -1;
+static int hf_icmpv6_rpl_opt_route_pref = -1;
+static int hf_icmpv6_rpl_opt_route_lifetime = -1;
+static int hf_icmpv6_rpl_opt_route_length = -1;
+static int hf_icmpv6_rpl_opt_config_auth = -1;
+static int hf_icmpv6_rpl_opt_config_pcs = -1;
+static int hf_icmpv6_rpl_opt_config_doublings = -1;
+static int hf_icmpv6_rpl_opt_config_min_interval = -1;
+static int hf_icmpv6_rpl_opt_config_redundancy = -1;
+static int hf_icmpv6_rpl_opt_config_rank_incr = -1;
+static int hf_icmpv6_rpl_opt_config_hop_rank_inc = -1;
+static int hf_icmpv6_rpl_opt_config_ocp = -1;
+static int hf_icmpv6_rpl_opt_config_rsv = -1;
+static int hf_icmpv6_rpl_opt_config_def_lifetime = -1;
+static int hf_icmpv6_rpl_opt_config_lifetime_unit = -1;
+static int hf_icmpv6_rpl_opt_target = -1;
+static int hf_icmpv6_rpl_opt_target_length = -1;
+static int hf_icmpv6_rpl_opt_target_reserved = -1;
+static int hf_icmpv6_rpl_opt_transit_pathseq = -1;
+static int hf_icmpv6_rpl_opt_transit_pathctl = -1;
+static int hf_icmpv6_rpl_opt_transit_pathlifetime = -1;
+static int hf_icmpv6_rpl_opt_transit_parent = -1;
+static int hf_icmpv6_rpl_opt_transit_e = -1;
+static int hf_icmpv6_rpl_opt_transit_flags = -1;
+static int hf_icmpv6_rpl_opt_solicited_instance = -1;
+static int hf_icmpv6_rpl_opt_solicited_flag_v = -1;
+static int hf_icmpv6_rpl_opt_solicited_flag_i = -1;
+static int hf_icmpv6_rpl_opt_solicited_flag_d = -1;
+static int hf_icmpv6_rpl_opt_solicited_dodagid = -1;
+static int hf_icmpv6_rpl_opt_solicited_version = -1;
+static int hf_icmpv6_rpl_opt_prefix = -1;
+static int hf_icmpv6_rpl_opt_prefix_flag_l = -1;
+static int hf_icmpv6_rpl_opt_prefix_flag_a = -1;
+static int hf_icmpv6_rpl_opt_prefix_flag_r = -1;
+static int hf_icmpv6_rpl_opt_prefix_vlifetime = -1;
+static int hf_icmpv6_rpl_opt_prefix_plifetime = -1;
+static int hf_icmpv6_rpl_opt_prefix_length = -1;
+static int hf_icmpv6_rpl_opt_targetdesc = -1;
 
 static int hf_icmpv6_option = -1;
 static int hf_icmpv6_option_type = -1;
@@ -132,6 +202,7 @@ static gint ett_nodeinfo_nodedns = -1;
 static gint ett_multicastRR = -1;
 static gint ett_icmpv6opt_name = -1;
 static gint ett_cga_param_name = -1;
+static gint ett_dao_rr_stack = -1;
 
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t data_handle;
@@ -171,6 +242,7 @@ static const value_string icmpv6_type_str[] = {
     { ICMP6_MCAST_ROUTER_SOLICIT,  "Multicast Router Solicitation" },
     { ICMP6_MCAST_ROUTER_TERM,     "Multicast Router Termination" },
     { ICMP6_FMIPV6_MESSAGES,       "FMIPv6 Messages" },
+    { ICMP6_RPL_CONTROL,           "RPL Control Message" },
     { 200,                         "Private experimentation" },
     { 201,                         "Private experimentation" },
     { 255,                         "Reserved for expansion of ICMPv6 informational messages" },
@@ -299,6 +371,30 @@ static const value_string names_6lowpannd_aro_status_str[] = {
     { 0, NULL }
 };
 
+/* RPL: draft-ietf-roll-rpl-12.txt: Routing over Low-Power and Lossy Networks. */
+static const value_string names_rpl_code[] = {
+    { ICMP6_RPL_DIS,    "DODAG Information Solicitation" },
+    { ICMP6_RPL_DIO,    "DODAG Information Object" },
+    { ICMP6_RPL_DAO,    "Destination Advertisement Object" },
+    { ICMP6_RPL_DAOACK, "Destination Advertisement Object Acknowledgement" },
+    { 0, NULL }
+};
+
+/* RPL: draft-ietf-roll-rpl-12.txt: Routing over Low-Power and Lossy Networks. */
+static const value_string names_rpl_option[] = {
+    { RPL_OPT_PAD1,     "1-byte padding" },
+    { RPL_OPT_PADN,     "n-byte padding" },
+    { RPL_OPT_METRIC,   "Metric container" },
+    { RPL_OPT_ROUTING,  "Routing"},
+    { RPL_OPT_CONFIG,   "DODAG configuration" },
+    { RPL_OPT_TARGET,   "RPL Target" },
+    { RPL_OPT_TRANSIT,  "Transit Information" },
+    { RPL_OPT_SOLICITED,"Solicited Information"},
+    { RPL_OPT_PREFIX,   "Prefix Information"},
+    { RPL_OPT_TARGETDESC, "RPL Target Descriptor"},
+    { 0, NULL }
+};
+
 /* http://www.iana.org/assignments/icmpv6-parameters */
 static const value_string option_vals[] = {
     { ND_OPT_SOURCE_LINKADDR,           "Source link-layer address" },
@@ -370,6 +466,7 @@ dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
        that are the payload of error packets differently from
        "real" packets. */
     save_in_error_pkt = pinfo->in_error_pkt;
+    pinfo->in_error_pkt = TRUE;
     pinfo->in_error_pkt = TRUE;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -583,7 +680,7 @@ again:
         while (opt_offset < par_len) {
             proto_tree_add_item(cga_tree,hf_icmpv6_opt_cga_ext_type,tvb,opt_offset,2,FALSE);
             opt_offset += 2;
-            ext_data_len = tvb_get_ntohs(tvb,opt_offset); 
+            ext_data_len = tvb_get_ntohs(tvb,opt_offset);
             proto_tree_add_item(cga_tree,hf_icmpv6_opt_cga_ext_length,tvb,opt_offset,2,FALSE);
             opt_offset += 2;
             proto_tree_add_text(cga_tree,tvb,opt_offset,ext_data_len,"Ext Data");
@@ -834,7 +931,7 @@ again:
         lifetime = tvb_get_ntohl(tvb, opt_offset);
         if (lifetime == 0xffffffff){
             proto_tree_add_text(icmp6opt_tree, tvb, opt_offset ,4 ,"Lifetime: infinity");
-        }else{ 
+        }else{
             if(lifetime==0){
                 proto_tree_add_text(icmp6opt_tree, tvb, opt_offset ,4 ,"Lifetime: RDNSS address MUST no longer be used");
             }else{
@@ -846,7 +943,7 @@ again:
         no_of_pars = opt->nd_opt_len - 1;
         no_of_pars = no_of_pars >> 2;
 
-        for (i = 0; i <= no_of_pars; i++) {                     
+        for (i = 0; i <= no_of_pars; i++) {
             proto_tree_add_item(icmp6opt_tree, hf_icmpv6_recursive_dns_serv, tvb, opt_offset, 16, FALSE);
             opt_offset = opt_offset+16;
         }
@@ -857,8 +954,8 @@ again:
         struct nd_opt_6lowpan_context nd_opt_6lowpan_context, *sco;
         struct e_in6_addr in6;
         int flagoff;
-        
-        sco = &nd_opt_6lowpan_context;       
+
+        sco = &nd_opt_6lowpan_context;
         tvb_memcpy(tvb, (guint8 *)sco, offset, sizeof *sco);
         /* Length */
         proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_opt_6co_context_length, tvb,
@@ -873,7 +970,7 @@ again:
         /* CID & Flags */
         flagoff = offset + offsetof(struct nd_opt_6lowpan_context,nd_opt_6co_CID);
         tf = proto_tree_add_text(icmp6opt_tree, tvb, flagoff, 1,
-                                "Flags & CID: 0x%02x", tvb_get_guint8(tvb, offset + 
+                                "Flags & CID: 0x%02x", tvb_get_guint8(tvb, offset +
                                 offsetof(struct nd_opt_6lowpan_context, nd_opt_6co_CID)));
         field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
         proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
@@ -884,7 +981,7 @@ again:
                             decode_numeric_bitfield(sco->nd_opt_6co_CID,
                                                     ND_OPT_6CO_CIDMASK, 8, "CID of %d"));
 
-        /* Context */        
+        /* Context */
         if(sco->nd_opt_6co_context_length > 64){
             tvb_memcpy(tvb, (guint8 *)&in6, offset + sizeof *sco, 16);
         } else {
@@ -898,10 +995,10 @@ again:
             in6.bytes[14] = 0;
             in6.bytes[15] = 0;
         }
-     
+
         proto_tree_add_text(icmp6opt_tree, tvb, offset + sizeof *sco,
-                                16, "Context: %s", ip6_to_str(&in6));  
-    }        
+                                16, "Context: %s", ip6_to_str(&in6));
+    }
     break;
     case ND_OPT_ADDR_RESOLUTION:
     {
@@ -923,27 +1020,27 @@ again:
 
         /* EUI-64 */
         proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_eui64, tvb, offset + offsetof(struct nd_opt_addr_resolution, nd_opt_aro_eui64), 8, FALSE);
-        
+
         /* Registered Address (if present only) */
         if(aro->nd_opt_aro_len == 4)
         {
-            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_addr_reg, tvb, offset + sizeof *aro, 16, FALSE);    
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_addr_reg, tvb, offset + sizeof *aro, 16, FALSE);
         }
-    
+
     }
     break;
     case ND_OPT_AUTH_BORDER_ROUTER:
     {
         /* Version at offset 2, Address at offset 8 */
-        guint8 version[2];     
+        guint8 version[2];
         tvb_memcpy(tvb, version, offset+2, 2);
-  
+
         proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_opt_abro_version, tvb,
                                 offset + 2, 2, pntohs(version));
-  
-        proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_abro_addr, tvb, 
-                            offset + 8, 16, FALSE);    
-                            
+
+        proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_abro_addr, tvb,
+                            offset + 8, 16, FALSE);
+
     }
         break;
     } /* switch (opt->nd_opt_type) */
@@ -1057,6 +1154,263 @@ again:
     } /* switch (opt->fmip6_opt_type) */
 
     offset += (opt->fmip6_opt_len << 3);
+    goto again;
+}
+
+/* RPL: draft-ietf-roll-rpl-12.txt: Routing over Low-Power and Lossy Networks. */
+static void
+dissect_icmpv6rplopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+    proto_tree *icmp6opt_tree;
+    proto_item *ti;
+    guint8      type;
+    guint16     optlen;
+    int         optoffset;
+    const char *type_name;
+    proto_item *ti_plen = NULL;
+
+    if (!tree)
+        return;
+
+again:
+    if ((int)tvb_reported_length(tvb) <= offset)
+        return; /* No more options left */
+
+    /* Make a subtree for the option. */
+    ti = proto_tree_add_item(tree, hf_icmpv6_option, tvb, offset, 1, FALSE);
+    icmp6opt_tree = proto_item_add_subtree(ti, ett_icmpv6opt);
+
+    /* Get the option type. */
+    type = tvb_get_guint8(tvb, offset);
+    type_name = val_to_str(type, names_rpl_option, "Unknown");
+    proto_item_append_text(ti, " (%s)", type_name);
+    proto_tree_add_text(icmp6opt_tree, tvb, offset, 1, "Type: %u (%s)", type, type_name);
+
+    /* The Pad1 option is a special case, and contains no data. */
+    if (type == RPL_OPT_PAD1) {
+        offset++;
+        goto again;
+    }
+    optlen = tvb_get_guint8(tvb, offset + 1);
+    proto_item_set_len(ti, optlen + 2);
+    proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_option_length, tvb, offset + 1, 1, optlen);
+
+    /* Display the option contents. */
+    offset += 2;
+    optoffset = offset;
+    switch(type) {
+        case RPL_OPT_PADN:
+            /* n-byte padding */
+            proto_tree_add_text(icmp6opt_tree, tvb, offset, optlen, "Padding length is %d", optlen+2);
+            break;
+
+        case RPL_OPT_METRIC:
+            /* DAG metric container */
+            /* See draft-ietf-roll-routing-metrics for formatting. */
+            break;
+
+        case RPL_OPT_ROUTING: {
+            guint8              route_len;
+            struct e_in6_addr   route;
+
+            /* Route length */
+            route_len = tvb_get_guint8(tvb, optoffset);
+            ti_plen = proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_rpl_opt_route_length, tvb, optoffset, 1, route_len);
+            optoffset++;
+
+            if (route_len > (sizeof(route) << 3)) {
+                /* Illegal prefix length! Must prevent evil buffer overflows >:@ */
+                route_len = sizeof(route) << 3;
+                expert_add_info_format(pinfo, ti_plen, PI_MALFORMED, PI_ERROR, "Route length invalid, greather than 128 bits");
+            }
+
+            /* Flags - only preference is used anymore. */
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_route_pref, tvb, optoffset, 1, FALSE);
+            optoffset++;
+
+            /* Prefix lifetime. */
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_route_lifetime, tvb, optoffset, 4, FALSE);
+            optoffset += 4;
+
+            /* Prefix */
+            memset(&route, 0, sizeof(route));
+            tvb_memcpy(tvb, &route, optoffset, (route_len + 7) >> 3);         /* Round up to the nearest octet. */
+            if (route_len & 0x7)
+                route.bytes[route_len >> 3] &= 0xff << (route_len & 0x7);    /* Clear unused bits in the last octet. */
+            proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_rpl_opt_route, tvb, optoffset, ((route_len + 7) >> 3), route.bytes);
+            optoffset += ((route_len + 7) >> 3);
+
+            break;
+        }
+
+        case RPL_OPT_CONFIG: {
+            /* flags */
+            guint8 flags = tvb_get_guint8(tvb, optoffset);
+            proto_tree_add_boolean(icmp6opt_tree, hf_icmpv6_rpl_opt_config_auth, tvb, optoffset, 1, flags & RPL_OPT_CONFIG_FLAG_AUTH);
+            proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_rpl_opt_config_pcs, tvb, optoffset, 1, flags & RPL_OPT_CONFIG_FLAG_PCS);
+            optoffset += 1;
+            /* DAG configuration */
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_doublings, tvb, optoffset, 1, FALSE);
+            optoffset++;
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_min_interval, tvb, optoffset, 1, FALSE);
+            optoffset++;
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_redundancy, tvb, optoffset, 1, FALSE);
+            optoffset++;
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_rank_incr, tvb, optoffset, 2, FALSE);
+            optoffset += 2;
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_hop_rank_inc, tvb, optoffset, 2, FALSE);
+            optoffset += 2;
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_ocp, tvb, optoffset, 2, FALSE);
+            optoffset += 2;
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_rsv, tvb, optoffset, 1, FALSE);
+            optoffset++;
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_def_lifetime, tvb, optoffset, 1, FALSE);
+            optoffset++;
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_lifetime_unit, tvb, optoffset, 2, FALSE);
+            optoffset += 2;
+            break;
+        }
+
+        case RPL_OPT_TARGET: {
+            guint8              target_len;
+            struct e_in6_addr   target;
+
+            /* Target */
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_target_reserved, tvb, optoffset, 1, FALSE);
+            optoffset++;
+
+            /* Prefix length */
+            target_len = tvb_get_guint8(tvb, optoffset);
+            ti_plen = proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_rpl_opt_target_length, tvb, optoffset, 1, target_len);
+            optoffset++;
+            if (target_len > (sizeof(target) << 3)) {
+                /* Illegal prefix length! Must prevent evil buffer overflows >:@ */
+                target_len = sizeof(target) << 3;
+                expert_add_info_format(pinfo, ti_plen, PI_MALFORMED, PI_ERROR, "Target length invalid, greather than 128 bits");
+            }
+
+            /* Prefix */
+            memset(&target, 0, sizeof(target));
+            tvb_memcpy(tvb, &target, optoffset, (target_len + 7) >> 3);         /* Round up to the nearest octet. */
+            if (target_len & 0x7)
+                target.bytes[target_len >> 3] &= 0xff << (target_len & 0x7);    /* Clear unused bits in the last octet. */
+            proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_rpl_opt_target, tvb, optoffset, ((target_len + 7) >> 3), target.bytes);
+            optoffset += ((target_len + 7) >> 3);
+            break;
+        }
+
+        case RPL_OPT_TRANSIT: {
+
+            /* flags */
+            guint8 flags = tvb_get_guint8(tvb, optoffset);
+            proto_tree_add_boolean(icmp6opt_tree, hf_icmpv6_rpl_opt_transit_e, tvb, optoffset, 1, flags & RPL_OPT_TRANSIT_E);
+            proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_rpl_opt_transit_flags, tvb, optoffset, 1, flags & RPL_OPT_TRANSIT_FLAGS);
+            optoffset++;
+
+            /* Path Control */
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_transit_pathctl, tvb, optoffset, 1, FALSE);
+            optoffset++;
+
+            /* Path Sequence */
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_transit_pathseq, tvb, optoffset, 1, FALSE);
+            optoffset++;
+
+            /* Path Lifetime */
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_transit_pathlifetime, tvb, optoffset, 1, FALSE);
+            optoffset++;
+
+            /* Option contains parent */
+            if(optlen > 4)
+            {
+               proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_transit_parent, tvb, optoffset, 16, FALSE);
+               optoffset += 16;
+            }
+
+            break;
+        }
+
+        case RPL_OPT_SOLICITED: {
+            guint8 flags;
+
+            /* Instance ID */
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_solicited_instance, tvb, optoffset, 1, FALSE);
+            optoffset++;
+
+            /* flags */
+            flags = tvb_get_guint8(tvb, optoffset);
+            proto_tree_add_boolean(icmp6opt_tree, hf_icmpv6_rpl_opt_solicited_flag_v, tvb, optoffset, 1, flags & RPL_OPT_SOLICITED_V);
+            proto_tree_add_boolean(icmp6opt_tree, hf_icmpv6_rpl_opt_solicited_flag_i, tvb, optoffset, 1, flags & RPL_OPT_SOLICITED_I);
+            proto_tree_add_boolean(icmp6opt_tree, hf_icmpv6_rpl_opt_solicited_flag_d, tvb, optoffset, 1, flags & RPL_OPT_SOLICITED_D);
+            optoffset++;
+
+            /* DODAG ID */
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_solicited_dodagid, tvb, optoffset, 16, FALSE);
+            optoffset += 16;
+
+            /* Version Number */
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_solicited_version, tvb, optoffset, 1, FALSE);
+            optoffset++;
+
+            break;
+        }
+
+        case RPL_OPT_PREFIX: {
+            /* Destination prefix option. */
+            guint8              prefix_len;
+            struct e_in6_addr   prefix;
+
+            /* Prefix length */
+            prefix_len = tvb_get_guint8(tvb, optoffset);
+            ti_plen = proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_length, tvb, optoffset, 1, prefix_len);
+            optoffset++;
+            if (prefix_len > (sizeof(prefix) << 3)) {
+                /* Illegal prefix length! Must prevent evil buffer overflows >:@ */
+                prefix_len = sizeof(prefix) << 3;
+                expert_add_info_format(pinfo, ti_plen, PI_MALFORMED, PI_ERROR, "Prefix length invalid, greather than 128 bits");
+            }
+
+            /* Flags. */
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_flag_l, tvb, optoffset, 1, FALSE);
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_flag_a, tvb, optoffset, 1, FALSE);
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_flag_r, tvb, optoffset, 1, FALSE);
+            optoffset++;
+
+            /* Valid lifetime. */
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_vlifetime, tvb, optoffset, 4, FALSE);
+            optoffset += 4;
+
+            /* Preferrred Lifetime */
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_plifetime, tvb, optoffset, 4, FALSE);
+            optoffset += 4;
+
+            /* 4 reserved bytes. */
+            optoffset += 4;
+
+            /* Prefix */
+            memset(&prefix, 0, sizeof(prefix));
+            tvb_memcpy(tvb, &prefix, optoffset, (prefix_len + 7) >> 3);         /* Round up to the nearest octet. */
+            if (prefix_len & 0x7)
+                prefix.bytes[prefix_len >> 3] &= 0xff << (prefix_len & 0x7);    /* Clear unused bits in the last octet. */
+            proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix, tvb, optoffset, ((prefix_len + 7) >> 3), prefix.bytes);
+            optoffset += ((prefix_len + 7) >> 3); /* Round up to the nearest 8 bytes. */
+            break;
+        }
+
+        case RPL_OPT_TARGETDESC: {
+
+            /* Descriptor */
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_targetdesc, tvb, optoffset, 4, FALSE);
+            optoffset += 4;
+            break;
+
+        }
+
+        default:
+            break;
+    } /* switch */
+
+    /* Get the next option. */
+    offset += optlen;
     goto again;
 }
 
@@ -1756,6 +2110,9 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         } /* switch (dp->icmp6_data8[0]) */
         break;
+    case ICMP6_RPL_CONTROL:
+        codename = colcodename = val_to_str (dp->icmp6_code, names_rpl_code, "Unknown");
+        break;
     default:
         codename = colcodename = "Unknown";
         break;
@@ -1763,15 +2120,15 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
         char typebuf[256], codebuf[256];
-        
-        
+
+
         if (pinfo->destport == 0x0dd8 && dp->icmp6_type == ICMP6_ECHO_REQUEST) {
-            /* RFC 4380 
-             * 5.2.9. Direct IPv6 Connectivity Test 
+            /* RFC 4380
+             * 5.2.9. Direct IPv6 Connectivity Test
              */
-            col_set_str(pinfo->cinfo, COL_PROTOCOL, "Teredo");    
+            col_set_str(pinfo->cinfo, COL_PROTOCOL, "Teredo");
             col_set_str(pinfo->cinfo, COL_INFO, "Direct IPv6 Connectivity Test");
-        } else {   
+        } else {
             if (coltypename && strcmp(coltypename, "Unknown") == 0) {
                 g_snprintf(typebuf, sizeof(typebuf), "Unknown (0x%02x)",
                            dp->icmp6_type);
@@ -1890,8 +2247,8 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             g_ntohs(dp->icmp6_id), g_ntohs(dp->icmp6_seq));
 
             if (pinfo->destport == 0x0dd8 && dp->icmp6_type == ICMP6_ECHO_REQUEST) {
-                /* RFC 4380 
-                 * 5.2.9. Direct IPv6 Connectivity Test 
+                /* RFC 4380
+                 * 5.2.9. Direct IPv6 Connectivity Test
                  */
                 proto_tree_add_text(icmp6_tree, tvb, offset + ICMP6_SEQ_OFFSET + 2, 4,
                                     "Nonce: 0x%08x", tvb_get_ntohl(tvb, offset + ICMP6_SEQ_OFFSET + 2));
@@ -2314,6 +2671,114 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             dissect_icmpv6ndopt(tvb, offset, pinfo, icmp6_tree);
             break;
+        case ICMP6_RPL_CONTROL:
+            /* RPL: draft-ietf-roll-rpl-12.txt: Routing over Low-Power and Lossy Networks. */
+            offset += 4; /* Skip the type, code and checksum. */
+            if (dp->icmp6_code == ICMP6_RPL_DIS) {
+
+                /* Reserved */
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_dis_reserved, tvb, offset, 2, FALSE);
+                offset += 2;
+
+            }
+            else if (dp->icmp6_code == ICMP6_RPL_DIO) {
+                /* DODAG Information Object */
+                guint8  flags;
+
+                /* RPLInstanceID */
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_dio_instance, tvb, offset, 1, FALSE);
+                offset += 1;
+
+                /* RPLInstanceID */
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_dio_version, tvb, offset, 1, FALSE);
+                offset += 1;
+
+                /* Rank */
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_dio_rank, tvb, offset, 2, FALSE);
+                offset += 2;
+
+                /* flags */
+                flags = tvb_get_guint8(tvb, offset);
+                proto_tree_add_boolean(icmp6_tree, hf_icmpv6_dio_grounded, tvb, offset, 1, flags & RPL_DIO_FLAG_GROUNDED);
+                proto_tree_add_boolean(icmp6_tree, hf_icmpv6_dio_zero, tvb, offset, 1, flags & RPL_DIO_FLAG_ZERO);
+                proto_tree_add_uint(icmp6_tree, hf_icmpv6_dio_mop, tvb, offset, 1, flags & RPL_DIO_FLAG_MOP);
+                proto_tree_add_uint(icmp6_tree, hf_icmpv6_dio_preference, tvb, offset, 1, flags & RPL_DIO_FLAG_PREFERENCE);
+                offset += 1;
+
+                /* Destination Advertisement Trigger Sequence Number (DTSN) */
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_dio_trigger_seqnum, tvb, offset, 1, FALSE);
+                offset += 1;
+                offset += 2;
+
+                /* DODAGID */
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_dio_dagid, tvb, offset, 16, FALSE);
+                offset += 16;
+            }
+            else if (dp->icmp6_code == ICMP6_RPL_DAO) {
+                /* Destination Advertisement Object */
+                struct e_in6_addr   addr6;
+                guint8 flags;
+
+                /* DAO Instance */
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_dao_instance, tvb, offset, 1, FALSE);
+                offset += 1;
+
+                /* flags */
+                flags = tvb_get_guint8(tvb, offset);
+                proto_tree_add_boolean(icmp6_tree, hf_icmpv6_dao_flag_k, tvb, offset, 1, flags & RPL_DAO_FLAG_K);
+                proto_tree_add_boolean(icmp6_tree, hf_icmpv6_dao_flag_d, tvb, offset, 1, flags & RPL_DAO_FLAG_D);
+                proto_tree_add_uint(icmp6_tree, hf_icmpv6_dao_flag_rsv, tvb, offset, 1, flags & RPL_DAO_FLAG_RESERVED);
+                offset += 1;
+
+                /* DAO Reserved */
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_dao_reserved, tvb, offset, 1, FALSE);
+                offset += 1;
+
+                /* DAO Reserved */
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_dao_seqnum, tvb, offset, 1, FALSE);
+                offset += 1;
+
+                if(flags & RPL_DAO_FLAG_D)
+                {
+                    tvb_memcpy(tvb, addr6.bytes, offset, 16);
+                    proto_tree_add_ipv6(icmp6_tree, hf_icmpv6_dao_dodagid, tvb, offset, 16, addr6.bytes);
+                    offset += 16;
+                }
+            }
+            else if (dp->icmp6_code == ICMP6_RPL_DAOACK) {
+                /* Destination Advertisement Object */
+                struct e_in6_addr   addr6;
+                guint8 flags;
+
+                /* DAO Instance */
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_daoack_instance, tvb, offset, 1, FALSE);
+                offset += 1;
+
+                /* flags */
+                flags = tvb_get_guint8(tvb, offset);
+                proto_tree_add_boolean(icmp6_tree, hf_icmpv6_daoack_flag_d, tvb, offset, 1, flags & RPL_DAOACK_FLAG_D);
+                proto_tree_add_uint(icmp6_tree, hf_icmpv6_daoack_flag_rsv, tvb, offset, 1, flags & RPL_DAOACK_FLAG_RESERVED);
+                offset += 1;
+
+                /* DAO Sequence */
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_daoack_seqnum, tvb, offset, 1, FALSE);
+                offset += 1;
+
+                /* DAO Status */
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_daoack_status, tvb, offset, 1, FALSE);
+                offset += 1;
+
+                if(flags & RPL_DAOACK_FLAG_D)
+                {
+                    tvb_memcpy(tvb, addr6.bytes, offset, 16);
+                    proto_tree_add_ipv6(icmp6_tree, hf_icmpv6_daoack_dodagid, tvb, offset, 16, addr6.bytes);
+                    offset += 16;
+                }
+                return;
+            }
+            /* Options */
+            dissect_icmpv6rplopt(tvb, offset, pinfo, icmp6_tree);
+            break;
         default:
             next_tvb = tvb_new_subset(tvb, offset + sizeof(*dp), -1, -1);
             call_dissector(data_handle,next_tvb, pinfo, tree);
@@ -2451,7 +2916,192 @@ proto_register_icmpv6(void)
             NULL, HFILL }},
 		{ &hf_icmpv6_opt_flag_reserved,
           { "Reserved", "icmpv6.opt_prefix.flag.reserved", FT_UINT8, BASE_DEC, NULL, 0x3f,
-            NULL, HFILL }}
+            NULL, HFILL }},
+        /* RPL: draft-ietf-roll-rpl-12.txt: Routing over Low-Power and Lossy Networks. */
+        { &hf_icmpv6_dis_reserved,
+           { "Grounded",          "icmpv6.rpl.dis.reserved", FT_UINT16, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_dio_grounded,
+           { "Grounded",          "icmpv6.rpl.dio.grounded", FT_BOOLEAN, 8, NULL, RPL_DIO_FLAG_GROUNDED,
+             NULL, HFILL }},
+        { &hf_icmpv6_dio_zero,
+           { "Zero",              "icmpv6.rpl.dio.zero", FT_BOOLEAN, 8, NULL, RPL_DIO_FLAG_ZERO,
+             NULL, HFILL }},
+        { &hf_icmpv6_dio_mop,
+           { "MOP",               "icmpv6.rpl.dio.mop", FT_UINT8, BASE_HEX, NULL, RPL_DIO_FLAG_MOP,
+             NULL, HFILL }},
+        { &hf_icmpv6_dio_preference,
+           { "DAG Preference",    "icmpv6.rpl.dio.preference", FT_UINT8, BASE_DEC, NULL, RPL_DIO_FLAG_PREFERENCE,
+             NULL, HFILL }},
+        { &hf_icmpv6_dio_rank,
+           { "Rank",              "icmpv6.rpl.dio.rank", FT_UINT16, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_dio_instance,
+           { "RPLInstanceID",     "icmpv6.rpl.dio.instance", FT_UINT8, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_dio_version,
+           { "version",           "icmpv6.rpl.dio.version", FT_UINT8, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_dio_trigger_seqnum,
+           { "DTSN",              "icmpv6.rpl.dio.dtsn", FT_UINT8, BASE_DEC, NULL, 0x0,
+             "Destination advertisement trigger sequence number", HFILL }},
+        { &hf_icmpv6_dao_instance,
+           { "DAO Instance",      "icmpv6.rpl.dao.instance", FT_UINT8, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_dio_dagid,
+           { "DODAGID",           "icmpv6.rpl.dio.dagid", FT_IPv6, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_dao_seqnum,
+           { "DAO Sequence",      "icmpv6.rpl.dao.sequence", FT_UINT8, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_dao_reserved,
+           { "Reserved",          "icmpv6.rpl.dao.reserved", FT_UINT8, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_dao_flag_k,
+           { "DAO-ACK Request",   "icmpv6.rpl.dao.flag_k", FT_BOOLEAN, 8, NULL, RPL_DAO_FLAG_K,
+             NULL, HFILL }},
+        { &hf_icmpv6_dao_flag_d,
+           { "DODAGID Present",   "icmpv6.rpl.dao.flag_d", FT_BOOLEAN, 8, NULL, RPL_DAO_FLAG_D,
+             NULL, HFILL }},
+        { &hf_icmpv6_dao_flag_rsv,
+           { "Reserved",          "icmpv6.rpl.dao.flag_rsv", FT_UINT8, BASE_DEC, NULL, RPL_DAO_FLAG_RESERVED,
+             NULL, HFILL }},
+        { &hf_icmpv6_dao_dodagid,
+           { "DODAGID",           "icmpv6.rpl.dao.dodagid", FT_IPv6, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_daoack_instance,
+           { "Instance",          "icmpv6.rpl.daoack.instance", FT_UINT8, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_daoack_seqnum,
+           { "DAO-ACK Sequence",  "icmpv6.rpl.daoack.sequence", FT_UINT8, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_daoack_status,
+           { "Status",            "icmpv6.rpl.daoack.status", FT_UINT8, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_daoack_flag_d,
+           { "DODAGID Present",   "icmpv6.rpl.daoack.flag_d", FT_BOOLEAN, 8, NULL, RPL_DAOACK_FLAG_D,
+             NULL, HFILL }},
+        { &hf_icmpv6_daoack_flag_rsv,
+           { "Reserved",          "icmpv6.rpl.daoack.flag_rsv", FT_UINT8, BASE_DEC, NULL, RPL_DAOACK_FLAG_RESERVED,
+             NULL, HFILL }},
+        { &hf_icmpv6_daoack_dodagid,
+           { "DODAGID",           "icmpv6.rpl.daoack.dodagid", FT_IPv6, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_route,
+           { "Route",             "icmpv6.rpl.opt.route", FT_IPv6, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_route_pref,
+           { "Routing Preference","icmpv6.rpl.opt.route.pref", FT_UINT8, BASE_DEC, NULL, RPL_OPT_ROUTE_PREFERENCE,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_route_lifetime,
+           { "Route Lifetime",    "icmpv6.rpl.opt.route.lifetime", FT_UINT32, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_route_length,
+           { "Route Length",      "icmpv6.rpl.opt.route.length", FT_UINT8, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_prefix_flag_a,
+           { "Auto Address Config","icmpv6.rpl.opt.config.A", FT_BOOLEAN, 8, NULL, RPL_OPT_PREFIX_A,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_prefix_flag_r,
+           { "Router Address",     "icmpv6.rpl.opt.config.R", FT_BOOLEAN, 8, NULL, RPL_OPT_PREFIX_R,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_config_auth,
+           { "Authentication Enabled","icmpv6.rpl.opt.config.auth", FT_BOOLEAN, 8, NULL, RPL_OPT_CONFIG_FLAG_AUTH,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_config_pcs,
+           { "Path Control Size",  "icmpv6.rpl.opt.config.pcs", FT_UINT8, BASE_DEC, NULL, RPL_OPT_CONFIG_FLAG_PCS,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_config_doublings,
+           { "DIOIntervalDoublings","icmpv6.rpl.opt.config.interval_double", FT_UINT8, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_config_min_interval,
+           { "DIOIntervalMin",     "icmpv6.rpl.opt.config.interval_min", FT_UINT16, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_config_redundancy,
+           { "DIORedundancyConstant", "icmpv6.rpl.opt.config.redundancy", FT_UINT8, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_config_rank_incr,
+           { "MaxRankInc",         "icmpv6.rpl.opt.config.max_rank_inc", FT_UINT16, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_config_hop_rank_inc,
+           { "MinHopRankInc",      "icmpv6.rpl.opt.config.min_hop_rank_inc", FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_config_ocp,
+           { "Objective Code Point","icmpv6.rpl.opt.config.ocp", FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_config_rsv,
+           { "Reserved",           "icmpv6.rpl.opt.config.rsv", FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_config_def_lifetime,
+           { "Default Lifetime",   "icmpv6.rpl.opt.config.def_lifetime", FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_config_lifetime_unit,
+           { "Lifetime Unit",      "icmpv6.rpl.opt.config.lifetime_unit", FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_target,
+           { "Target",             "icmpv6.rpl.opt.target", FT_IPv6, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_target_length,
+           { "Target Length",      "icmpv6.rpl.opt.target.length", FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_target_reserved,
+           { "Reserved",           "icmpv6.rpl.opt.target.reserved", FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }},
+         { &hf_icmpv6_rpl_opt_transit_e,
+           { "External",           "icmpv6.rpl.opt.transit.e", FT_BOOLEAN, 8, NULL, RPL_OPT_TRANSIT_E,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_transit_flags,
+           { "Flags",              "icmpv6.rpl.opt.transit.flags", FT_UINT8, BASE_DEC, NULL, RPL_OPT_TRANSIT_FLAGS,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_transit_pathseq,
+           { "Path Sequence",      "icmpv6.rpl.opt.transit.pathseq", FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_transit_pathctl,
+           { "Path Control",       "icmpv6.rpl.opt.transit.pathctl", FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_transit_pathlifetime,
+           { "Path Lifetime",      "icmpv6.rpl.opt.transit.pathlifetime", FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_transit_parent,
+           { "Parent Address",     "icmpv6.rpl.opt.transit.parent", FT_IPv6, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_solicited_instance,
+           { "Instance",           "icmpv6.rpl.opt.solicited.instance", FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_solicited_flag_v,
+           { "Version predicate",  "icmpv6.rpl.opt.solicited.versionflag", FT_BOOLEAN, 8, NULL, RPL_OPT_SOLICITED_V,
+              NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_solicited_flag_i,
+           { "InstanceID predicate","icmpv6.rpl.opt.solicited.instanceflag", FT_BOOLEAN, 8, NULL, RPL_OPT_SOLICITED_I,
+              NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_solicited_flag_d,
+           { "DODAGID predicate",  "icmpv6.rpl.opt.solicited.dodagidflag", FT_BOOLEAN, 8, NULL, RPL_OPT_SOLICITED_D,
+              NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_solicited_dodagid,
+           { "DODAGID",            "icmpv6.rpl.opt.solicited.dodagid", FT_IPv6, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_solicited_version,
+           { "Version",            "icmpv6.rpl.opt.solicited.version", FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_prefix_vlifetime,
+           { "Valid Lifetime",    "icmpv6.rpl.opt.prefix.valid_lifetime", FT_UINT32, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_prefix_plifetime,
+           { "Preferred Lifetime", "icmpv6.rpl.opt.prefix.preferred_lifetime", FT_UINT32, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_prefix_length,
+           { "Prefix Length",      "icmpv6.rpl.opt.prefix.length", FT_UINT8, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_prefix,
+           { "Destination Prefix", "icmpv6.rpl.opt.prefix", FT_IPv6, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_prefix_flag_l,
+           { "On Link",            "icmpv6.rpl.opt.prefix.L", FT_BOOLEAN, 8, NULL, RPL_OPT_PREFIX_L,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_targetdesc,
+           { "Descriptor",         "icmpv6.rpl.opt.targetdesc.descriptor", FT_UINT32, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }},
+
     };
 
     static gint *ett[] = {
@@ -2467,7 +3117,8 @@ proto_register_icmpv6(void)
         &ett_nodeinfo_nodedns,
         &ett_multicastRR,
         &ett_icmpv6opt_name,
-        &ett_cga_param_name
+        &ett_cga_param_name,
+        &ett_dao_rr_stack
     };
 
     proto_icmpv6 = proto_register_protocol("Internet Control Message Protocol v6",
