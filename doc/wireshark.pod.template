@@ -2663,6 +2663,13 @@ deciding if a file really is in the ERF format.  Setting this environment
 variable a number higher than the default (20) would make false positives
 less likely.
 
+=item IPFIX_RECORDS_TO_CHECK
+
+This environment variable controls the number of IPFIX records checked when
+deciding if a file really is in the IPFIX format.  Setting this environment
+variable a number higher than the default (20) would make false positives
+less likely.
+
 =item WIRESHARK_ABORT_ON_DISSECTOR_BUG
 
 If this environment variable is set, B<Wireshark> will call abort(3)
