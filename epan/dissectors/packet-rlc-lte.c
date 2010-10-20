@@ -2360,13 +2360,13 @@ void proto_register_rlc_lte(void)
         { &hf_rlc_lte_am_so_start,
             { "SO Start",
               "rlc-lte.am.so-start", FT_UINT16, BASE_DEC, 0, 0x0,
-              NULL, HFILL
+              "Segment Offset Start byte index", HFILL
             }
         },
         { &hf_rlc_lte_am_so_end,
             { "SO End",
               "rlc-lte.am.so-end", FT_UINT16, BASE_DEC, 0, 0x0,
-              NULL, HFILL
+              "Segment Offset End byte index", HFILL
             }
         },
 
