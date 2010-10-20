@@ -87,6 +87,8 @@
 #define ipfix_debug3(str,p1,p2,p3)
 #endif
 
+#define RECORDS_FOR_IPFIX_CHECK 20
+
 static gboolean
 ipfix_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
@@ -123,10 +125,10 @@ typedef struct ipfix_set_header_s {
  * 0 on EOF, any other value for "real" errors (EOF is ok, since return
  * value is still FALSE)
  */
- static gboolean
+static gboolean
 ipfix_read_message_header(ipfix_message_header_t *pfx_hdr, FILE_T fh, int *err, gchar **err_info)
 {
-    wtap_file_read_expected_bytes(pfx_hdr, IPFIX_MSG_HDR_SIZE, fh, err);
+    wtap_file_read_expected_bytes(pfx_hdr, IPFIX_MSG_HDR_SIZE, fh, err);  /* macro which does a return if read fails */
 
     /* fix endianess, because IPFIX files are always big-endian */
     pfx_hdr->version = g_ntohs(pfx_hdr->version);
@@ -139,6 +141,7 @@ ipfix_read_message_header(ipfix_message_header_t *pfx_hdr, FILE_T fh, int *err, 
     if (pfx_hdr->version != IPFIX_VERSION) {
         /* Not an ipfix file. */
         *err = WTAP_ERR_BAD_RECORD;
+        *err_info = g_strdup_printf("ipfix: wrong version %d", pfx_hdr->version);
         return FALSE;
     }
 
@@ -188,10 +191,16 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
     for (i = 0; i < records_for_ipfix_check; i++) {
         /* read first message header to check version */
         if (!ipfix_read_message_header(&msg_hdr, wth->fh, err, err_info)) {
-            ipfix_debug2("ipfix_open: couldn't read message header #%d with err code #%d",
-                         i, *err);
-            if (*err == WTAP_ERR_BAD_RECORD) return 0;
-            if (*err != 0) return -1; /* real failure */
+            ipfix_debug3("ipfix_open: couldn't read message header #%d with err code #%d (%s)",
+                         i, *err, *err_info);
+            if (*err == WTAP_ERR_BAD_RECORD) {
+                *err = 0;            /* not actually an error in this case */
+                g_free(*err_info);
+                *err_info = NULL;
+                return 0;
+            }
+            if (*err != 0)
+                return -1; /* real failure */
             /* else it's EOF */
             if (i < 1) {
                 /* we haven't seen enough to prove this is a ipfix file */

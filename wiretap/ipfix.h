@@ -23,8 +23,6 @@
 #ifndef __W_IPFIX_H__
 #define __W_IPFIX_H__
 
-#define RECORDS_FOR_IPFIX_CHECK 20
-
 int ipfix_open(wtap *wth, int *err, gchar **err_info);
 
 #endif
