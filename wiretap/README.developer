@@ -60,7 +60,10 @@ will read.  If the capture records consist of:
 
 then data_offset should point to the pseudo-header.  The first
 sequential read pass will process and store the capture record header
-data, but it will not store the pseudo-header.
+data, but it will not store the pseudo-header.  Note that the 
+seek_and_read routine should work with the "random_fh" file handle
+of the passed in wtap struct, instead of the "fh" file habndle used
+in the normal read routine.
 
 To add the ability to write a new capture file format, you have to:
 
@@ -84,3 +87,6 @@ To add the ability to write a new capture file format, you have to:
 
 	put pointers to the "can_write_encap" and "dump_open" routines
 	in the "dump_open_table_base[]" entry for that file type.
+
+In the wiretap directory, add your source file to CMakelists.txt and
+your source and header file to Makefile.common.
