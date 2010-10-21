@@ -241,7 +241,7 @@ WSLUA_METHOD Dumper_close(lua_State* L) {
     }
 
 	/* this way if we close a dumper any attempt to use it (for everything but GC) will yield an error */
-	dp = NULL;
+	*dp = NULL;
 
     return 0;
 }
