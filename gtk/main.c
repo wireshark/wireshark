@@ -1854,6 +1854,20 @@ main_capture_callback(gint event, capture_options *capture_opts, gpointer user_d
 #endif
 
 static void
+get_gtk_compiled_info(GString *str)
+{
+  g_string_append(str, "with ");
+  g_string_append_printf(str,
+#ifdef GTK_MAJOR_VERSION
+                    "GTK+ %d.%d.%d", GTK_MAJOR_VERSION, GTK_MINOR_VERSION,
+                    GTK_MICRO_VERSION);
+#else
+                    "GTK+ (version unknown)");
+#endif
+  g_string_append(str, ", ");
+}
+
+static void
 get_gui_compiled_info(GString *str)
 {
   epan_get_compiled_version_info(str);
@@ -2201,17 +2215,7 @@ main(int argc, char *argv[])
   /* Assemble the compile-time version information string */
   comp_info_str = g_string_new("Compiled ");
 
-  g_string_append(comp_info_str, "with ");
-  g_string_append_printf(comp_info_str,
-#ifdef GTK_MAJOR_VERSION
-                    "GTK+ %d.%d.%d", GTK_MAJOR_VERSION, GTK_MINOR_VERSION,
-                    GTK_MICRO_VERSION);
-#else
-                    "GTK+ (version unknown)");
-#endif
-  g_string_append(comp_info_str, ", ");
-
-  get_compiled_version_info(comp_info_str, get_gui_compiled_info);
+  get_compiled_version_info(comp_info_str, get_gtk_compiled_info, get_gui_compiled_info);
 
   /* Assemble the run-time version information string */
   runtime_info_str = g_string_new("Running ");

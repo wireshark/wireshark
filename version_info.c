@@ -117,12 +117,16 @@ end_string(GString *str)
  * don't use Portaudio in TShark.
  */
 void
-get_compiled_version_info(GString *str, void (*additional_info)(GString *))
+get_compiled_version_info(GString *str, void (*prepend_info)(GString *), 
+			  void (*append_info)(GString *))
 {
 	if (sizeof(str) == 4)
 		g_string_append(str, "(32-bit) ");
 	else
 		g_string_append(str, "(64-bit) ");
+
+	if (prepend_info)
+		(*prepend_info)(str);
 
         /* GLIB */
 	g_string_append(str, "with ");
@@ -163,8 +167,8 @@ get_compiled_version_info(GString *str, void (*additional_info)(GString *))
 #endif /* HAVE_LIBCAP */
 
 	/* Additional application-dependent information */
-	if (additional_info)
-		(*additional_info)(str);
+	if (append_info)
+		(*append_info)(str);
 	g_string_append(str, ".");
 
 #if !defined(HAVE_LIBPCRE) && !GLIB_CHECK_VERSION(2,14,0)
