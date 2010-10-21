@@ -32,16 +32,14 @@
 
 #include "wslua.h"
 
-/*
- *  A Listener, is called once for every packet that matches a certain filter or has a certain tap.
- *  It can read the tree, the packet's Tvb eventually the tapped data but it cannot
- *  add elements to the tree.
- */
 WSLUA_CLASS_DEFINE(Listener,NOP,NOP);
+/*
+    A Listener, is called once for every packet that matches a certain filter or has a certain tap.
+    It can read the tree, the packet's Tvb eventually the tapped data but it cannot
+    add elements to the tree.
+ */
 
-static int
-tap_packet_cb_error_handler(lua_State* L)
-{
+static int tap_packet_cb_error_handler(lua_State* L) {
     const gchar* error =  lua_tostring(L,1);
     static gchar* last_error = NULL;
     static int repeated = 0;
@@ -81,9 +79,7 @@ tap_packet_cb_error_handler(lua_State* L)
 }
 
 
-static int
-lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data)
-{
+static int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data) {
     Listener tap = tapdata;
     int retval = 0;
 
@@ -134,17 +130,13 @@ lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const voi
     return retval;
 }
 
-static int
-tap_reset_cb_error_handler(lua_State* L)
-{
+static int tap_reset_cb_error_handler(lua_State* L) {
     const gchar* error =  lua_tostring(L,1);
     report_failure("Lua: Error During execution of Listener init Callback:\n %s",error);
     return 1;
 }
 
-static void
-lua_tap_reset(void *tapdata)
-{
+static void lua_tap_reset(void *tapdata) {
     Listener tap = tapdata;
 
     if (tap->init_ref == LUA_NOREF) return;
@@ -167,9 +159,7 @@ lua_tap_reset(void *tapdata)
     }
 }
 
-static void
-lua_tap_draw(void *tapdata)
-{
+static void lua_tap_draw(void *tapdata) {
     Listener tap = tapdata;
     const gchar* error;
     if (tap->draw_ref == LUA_NOREF) return;
@@ -194,12 +184,10 @@ lua_tap_draw(void *tapdata)
     }
 }
 
-/* Creates a new Listener listener */
+WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
+    /* Creates a new Listener listener */
 #define WSLUA_OPTARG_Listener_new_TAP 1 /* The name of this tap */
 #define WSLUA_OPTARG_Listener_new_FILTER 2 /* A filter that when matches the tap.packet function gets called (use nil to be called for every packet) */
-WSLUA_CONSTRUCTOR
-Listener_new(lua_State* L)
-{
 
     const gchar* tap_type = luaL_optstring(L,WSLUA_OPTARG_Listener_new_TAP,"frame");
     const gchar* filter = luaL_optstring(L,WSLUA_OPTARG_Listener_new_FILTER,NULL);
@@ -238,10 +226,8 @@ Listener_new(lua_State* L)
     WSLUA_RETURN(1); /* The newly created Listener listener object */
 }
 
-/* Removes a tap listener */
-WSLUA_METHOD
-Listener_remove(lua_State* L)
-{
+WSLUA_METHOD Listener_remove(lua_State* L) {
+    /* Removes a tap listener */
     Listener tap = checkListener(L,1);
 
     if (!tap) return 0;
@@ -251,9 +237,7 @@ Listener_remove(lua_State* L)
     return 0;
 }
 
-WSLUA_METAMETHOD
-Listener_tostring(lua_State* L)
-{
+WSLUA_METAMETHOD Listener_tostring(lua_State* L) {
     Listener tap = checkListener(L,1);
     gchar* str;
 
@@ -266,22 +250,20 @@ Listener_tostring(lua_State* L)
 }
 
 
-static int
-Listener_newindex(lua_State* L)
-{
+static int Listener_newindex(lua_State* L) {
     /* WSLUA_ATTRIBUTE Listener_packet WO A function that will be called once every packet matches the Listener listener filter.
-     *
-     *  function tap.packet(pinfo,tvb,userdata) ... end
-     */
+
+        function tap.packet(pinfo,tvb,userdata) ... end
+    */
     /* WSLUA_ATTRIBUTE Listener_draw WO A function that will be called once every few seconds to redraw the gui objects
-     *          in tshark this funtion is called oly at the very end of the capture file.
-     *
-     *  function tap.draw(userdata) ... end
-     */
+                in tshark this funtion is called oly at the very end of the capture file.
+
+        function tap.draw(userdata) ... end
+    */
     /* WSLUA_ATTRIBUTE Listener_reset WO A function that will be called at the end of the capture run.
-     *
-     *  function tap.reset(userdata) ... end
-     */
+
+        function tap.reset(userdata) ... end
+    */
     Listener tap = shiftListener(L,1);
     const gchar* idx = lua_shiftstring(L,1);
     int* refp = NULL;
@@ -323,9 +305,7 @@ static const luaL_reg Listener_meta[] = {
     { NULL, NULL }
 };
 
-int
-Listener_register(lua_State* L)
-{
+int Listener_register(lua_State* L) {
     wslua_set_tap_enums(L);
     WSLUA_REGISTER_CLASS(Listener);
     return 1;

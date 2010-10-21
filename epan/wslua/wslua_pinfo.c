@@ -49,9 +49,7 @@ CLEAR_OUTSTANDING(Pinfo,expired, TRUE)
 CLEAR_OUTSTANDING(Column,expired, TRUE)
 CLEAR_OUTSTANDING(Columns,expired, TRUE)
 
-Pinfo*
-push_Pinfo(lua_State* L, packet_info* ws_pinfo)
-{
+Pinfo* push_Pinfo(lua_State* L, packet_info* ws_pinfo) {
     Pinfo pinfo = NULL;
     if (ws_pinfo) {
         pinfo = g_malloc(sizeof(struct _wslua_pinfo));
@@ -59,7 +57,6 @@ push_Pinfo(lua_State* L, packet_info* ws_pinfo)
         pinfo->expired = FALSE;
         g_ptr_array_add(outstanding_Pinfo,pinfo);
     }
-
     return pushPinfo(L,pinfo);
 }
 
@@ -68,12 +65,10 @@ push_Pinfo(lua_State* L, packet_info* ws_pinfo)
 
 WSLUA_CLASS_DEFINE(Address,NOP,NOP); /* Represents an address */
 
-/* Creates an Address Object representing an IP address. */
-#define WSLUA_ARG_Address_ip_HOSTNAME 1 /* The address or name of the IP host. */
-WSLUA_CONSTRUCTOR
-Address_ip(lua_State* L)
-{
+WSLUA_CONSTRUCTOR Address_ip(lua_State* L) {
+	/* Creates an Address Object representing an IP address. */
 
+#define WSLUA_ARG_Address_ip_HOSTNAME 1 /* The address or name of the IP host. */
     Address addr = g_malloc(sizeof(address));
     guint32* ip_addr = g_malloc(sizeof(guint32));
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_Address_ip_HOSTNAME);
@@ -89,9 +84,7 @@ Address_ip(lua_State* L)
 
 #if 0
 /* TODO */
-static int
-Address_ipv6(lua_State* L)
-{
+static int Address_ipv6(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
     SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4));
@@ -99,9 +92,7 @@ Address_ipv6(lua_State* L)
     pushAddress(L,addr);
     return 1;
 }
-static int
-Address_ss7(lua_State* L)
-{
+static int Address_ss7(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
     SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4));
@@ -109,9 +100,7 @@ Address_ss7(lua_State* L)
     pushAddress(L,addr);
     return 1;
 }
-static int
-Address_eth(lua_State* L)
-{
+static int Address_eth(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
     SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4));
@@ -119,9 +108,7 @@ Address_eth(lua_State* L)
     pushAddress(L,addr);
     return 1;
 }
-static int
-Address_sna(lua_State* L)
-{
+static int Address_sna(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
     SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4));
@@ -129,9 +116,7 @@ Address_sna(lua_State* L)
     pushAddress(L,addr);
     return 1;
 }
-static int
-Address_atalk(lua_State* L)
-{
+static int Address_atalk(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
     SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4));
@@ -139,9 +124,7 @@ Address_atalk(lua_State* L)
     pushAddress(L,addr);
     return 1;
 }
-static int
-Address_vines(lua_State* L)
-{
+static int Address_vines(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
     SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4));
@@ -149,9 +132,7 @@ Address_vines(lua_State* L)
     pushAddress(L,addr);
     return 1;
 }
-static int
-Address_osi(lua_State* L)
-{
+static int Address_osi(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
     SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4));
@@ -159,9 +140,7 @@ Address_osi(lua_State* L)
     pushAddress(L,addr);
     return 1;
 }
-static int
-Address_arcnet(lua_State* L)
-{
+static int Address_arcnet(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
     SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4));
@@ -169,9 +148,7 @@ Address_arcnet(lua_State* L)
     pushAddress(L,addr);
     return 1;
 }
-static int
-Address_fc(lua_State* L)
-{
+static int Address_fc(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
     SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4));
@@ -179,9 +156,7 @@ Address_fc(lua_State* L)
     pushAddress(L,addr);
     return 1;
 }
-static int
-Address_string(lua_State* L)
-{
+static int Address_string(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
     SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4));
@@ -189,9 +164,7 @@ Address_string(lua_State* L)
     pushAddress(L,addr);
     return 1;
 }
-static int
-Address_eui64(lua_State* L)
-{
+static int Address_eui64(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
     SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4));
@@ -199,9 +172,7 @@ Address_eui64(lua_State* L)
     pushAddress(L,addr);
     return 1;
 }
-static int
-Address_uri(lua_State* L)
-{
+static int Address_uri(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
     SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4));
@@ -209,9 +180,7 @@ Address_uri(lua_State* L)
     pushAddress(L,addr);
     return 1;
 }
-static int
-Address_tipc(lua_State* L)
-{
+static int Address_tipc(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
     SET_ADDRESS(addr, AT_NONE, 4, g_malloc(4));
@@ -242,9 +211,7 @@ WSLUA_METHODS Address_methods[] = {
     {0,0}
 };
 
-WSLUA_METAMETHOD
-Address__tostring(lua_State* L)
-{
+WSLUA_METAMETHOD Address__tostring(lua_State* L) {
     Address addr = checkAddress(L,1);
 
     lua_pushstring(L,get_addr_name(addr));
@@ -252,9 +219,7 @@ Address__tostring(lua_State* L)
     WSLUA_RETURN(1); /* The string representing the address. */
 }
 
-static int
-Address__gc(lua_State* L)
-{
+static int Address__gc(lua_State* L) {
     Address addr = checkAddress(L,1);
 
     if (addr) {
@@ -265,10 +230,7 @@ Address__gc(lua_State* L)
     return 0;
 }
 
-/* Compares two Addresses */
-WSLUA_METAMETHOD
-Address__eq(lua_State* L)
-{
+WSLUA_METAMETHOD Address__eq(lua_State* L) { /* Compares two Addresses */
     Address addr1 = checkAddress(L,1);
     Address addr2 = checkAddress(L,2);
     gboolean result = FALSE;
@@ -281,10 +243,7 @@ Address__eq(lua_State* L)
     return 1;
 }
 
-/* Compares two Addresses */
-WSLUA_METAMETHOD
-Address__le(lua_State* L)
-{
+WSLUA_METAMETHOD Address__le(lua_State* L) { /* Compares two Addresses */
     Address addr1 = checkAddress(L,1);
     Address addr2 = checkAddress(L,2);
     gboolean result = FALSE;
@@ -297,10 +256,7 @@ Address__le(lua_State* L)
     return 1;
 }
 
-/* Compares two Addresses */
-WSLUA_METAMETHOD
-Address__lt(lua_State* L)
-{
+WSLUA_METAMETHOD Address__lt(lua_State* L) { /* Compares two Addresses */
     Address addr1 = checkAddress(L,1);
     Address addr2 = checkAddress(L,2);
     gboolean result = FALSE;
@@ -380,9 +336,7 @@ static const struct col_names_t colnames[] = {
     {NULL,0}
 };
 
-static gint
-col_name_to_id(const gchar* name)
-{
+static gint col_name_to_id(const gchar* name) {
     const struct col_names_t* cn;
     for(cn = colnames; cn->name; cn++) {
         if (g_str_equal(cn->name,name)) {
@@ -393,9 +347,7 @@ col_name_to_id(const gchar* name)
     return 0;
 }
 
-static const gchar*
-col_id_to_name(gint id)
-{
+static const gchar*  col_id_to_name(gint id) {
     const struct col_names_t* cn;
     for(cn = colnames; cn->name; cn++) {
         if ( cn->id == id ) {
@@ -406,9 +358,7 @@ col_id_to_name(gint id)
 }
 
 
-WSLUA_METAMETHOD
-Column__tostring(lua_State *L)
-{
+WSLUA_METAMETHOD Column__tostring(lua_State *L) {
     Column c = checkColumn(L,1);
     const gchar* name;
 
@@ -423,9 +373,7 @@ Column__tostring(lua_State *L)
     WSLUA_RETURN(1); /* A string representing the column */
 }
 
-static int
-Column__gc(lua_State* L)
-{
+static int Column__gc(lua_State* L) {
     Column col = checkColumn(L,1);
 
     if (!col) return 0;
@@ -439,10 +387,8 @@ Column__gc(lua_State* L)
 
 }
 
-/* Clears a Column */
-WSLUA_METHOD
-Column_clear(lua_State *L)
-{
+WSLUA_METHOD Column_clear(lua_State *L) {
+	/* Clears a Column */
     Column c = checkColumn(L,1);
 
     if (!(c && c->cinfo)) return 0;
@@ -452,11 +398,9 @@ Column_clear(lua_State *L)
     return 0;
 }
 
-/* Sets the text of a Column */
+WSLUA_METHOD Column_set(lua_State *L) {
+	/* Sets the text of a Column */
 #define WSLUA_ARG_Column_set_TEXT 2 /* The text to which to set the Column */
-WSLUA_METHOD
-Column_set(lua_State *L)
-{
     Column c = checkColumn(L,1);
     const gchar* s = luaL_checkstring(L,WSLUA_ARG_Column_set_TEXT);
 
@@ -470,11 +414,9 @@ Column_set(lua_State *L)
     return 0;
 }
 
-/* Appends text to a Column */
+WSLUA_METHOD Column_append(lua_State *L) {
+	/* Appends text to a Column */
 #define WSLUA_ARG_Column_append_TEXT 2 /* The text to append to the Column */
-WSLUA_METHOD
-Column_append(lua_State *L)
-{
     Column c = checkColumn(L,1);
     const gchar* s = luaL_checkstring(L,WSLUA_ARG_Column_append_TEXT);
 
@@ -488,11 +430,9 @@ Column_append(lua_State *L)
     return 0;
 }
 
-/* Prepends text to a Column */
+WSLUA_METHOD Column_preppend(lua_State *L) {
+	/* Prepends text to a Column */
 #define WSLUA_ARG_Column_prepend_TEXT 2 /* The text to prepend to the Column */
-WSLUA_METHOD
-Column_preppend(lua_State *L)
-{
     Column c = checkColumn(L,1);
     const gchar* s = luaL_checkstring(L,WSLUA_ARG_Column_prepend_TEXT);
 
@@ -523,8 +463,7 @@ WSLUA_META Column_meta[] = {
 };
 
 
-int
-Column_register(lua_State *L) {
+int Column_register(lua_State *L) {
     WSLUA_REGISTER_CLASS(Column);
     return 1;
 }
@@ -534,22 +473,19 @@ Column_register(lua_State *L) {
 
 
 
-/* The Columns of the packet list. */
 WSLUA_CLASS_DEFINE(Columns,NOP,NOP);
+/* The Columns of the packet list. */
 
-WSLUA_METAMETHOD
-Columns__tostring(lua_State *L)
-{
+WSLUA_METAMETHOD Columns__tostring(lua_State *L) {
     lua_pushstring(L,"Columns");
-    WSLUA_RETURN(1); /* The string "Columns", no real use, just for debugging purposes. */
+    WSLUA_RETURN(1);
+    /* The string "Columns", no real use, just for debugging purposes. */
 }
 
-/* Sets the text of a specific column */
+WSLUA_METAMETHOD Columns__newindex(lua_State *L) {
+	/* Sets the text of a specific column */
 #define WSLUA_ARG_Columns__newindex_COLUMN 2 /* The name of the column to set */
 #define WSLUA_ARG_Columns__newindex_TEXT 3 /* The text for the column */
-WSLUA_METAMETHOD
-Columns__newindex(lua_State *L)
-{
     Columns cols = checkColumns(L,1);
     const struct col_names_t* cn;
     const char* colname;
@@ -571,14 +507,12 @@ Columns__newindex(lua_State *L)
         }
     }
 
-    WSLUA_ARG_ERROR(Columns__newindex,COLUMN,"the column name must be a valid column");
+	WSLUA_ARG_ERROR(Columns__newindex,COLUMN,"the column name must be a valid column");
 
     return 0;
 }
 
-WSLUA_METAMETHOD
-Columns_index(lua_State *L)
-{
+WSLUA_METAMETHOD Columns_index(lua_State *L) {
     Columns cols = checkColumns(L,1);
     const struct col_names_t* cn;
     const char* colname = luaL_checkstring(L,2);
@@ -616,9 +550,7 @@ Columns_index(lua_State *L)
     return 0;
 }
 
-static int
-Columns_gc(lua_State* L)
-{
+static int Columns_gc(lua_State* L) {
     Columns cols = checkColumns(L,1);
 
     if (!cols) return 0;
@@ -642,23 +574,16 @@ static const luaL_reg Columns_meta[] = {
 };
 
 
-int
-Columns_register(lua_State *L)
-{
+int Columns_register(lua_State *L) {
     WSLUA_REGISTER_META(Columns);
     return 1;
 }
 
 
-/* Packet information */
 WSLUA_CLASS_DEFINE(Pinfo,FAIL_ON_NULL("expired pinfo"),NOP);
+/* Packet information */
 
-static int
-Pinfo_tostring(lua_State *L)
-{
-    lua_pushstring(L,"a Pinfo");
-    return 1;
-}
+static int Pinfo_tostring(lua_State *L) { lua_pushstring(L,"a Pinfo"); return 1; }
 
 #define PINFO_GET_NUMBER(name,val) static int name(lua_State *L) {  \
     Pinfo pinfo = checkPinfo(L,1); \
@@ -734,9 +659,7 @@ PINFO_GET_ADDRESS(Pinfo_dst,dst)
 
 PINFO_GET_LIGHTUSERDATA(Pinfo_private_data, pinfo->ws_pinfo->private_data)
 
-static int
-Pinfo_visited(lua_State *L)
-{
+static int Pinfo_visited(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
     if (!pinfo) return 0;
     if (pinfo->expired) {
@@ -748,9 +671,7 @@ Pinfo_visited(lua_State *L)
 }
 
 
-static int
-Pinfo_match(lua_State *L)
-{
+static int Pinfo_match(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
 
     if (!pinfo) return 0;
@@ -768,9 +689,7 @@ Pinfo_match(lua_State *L)
     return 1;
 }
 
-static int
-Pinfo_columns(lua_State *L)
-{
+static int Pinfo_columns(lua_State *L) {
     Columns cols = NULL;
     Pinfo pinfo = checkPinfo(L,1);
     const gchar* colname = luaL_optstring(L,2,NULL);
@@ -812,16 +731,12 @@ typedef enum {
     PARAM_PORT_TYPE
 } pinfo_param_type_t;
 
-static int
-pushnil_param(lua_State* L, packet_info* pinfo _U_, pinfo_param_type_t pt _U_ )
-{
+static int pushnil_param(lua_State* L, packet_info* pinfo _U_, pinfo_param_type_t pt _U_ ) {
     lua_pushnil(L);
     return 1;
 }
 
-static int
-Pinfo_set_addr(lua_State* L, packet_info* pinfo, pinfo_param_type_t pt)
-{
+static int Pinfo_set_addr(lua_State* L, packet_info* pinfo, pinfo_param_type_t pt) {
     const address* from = checkAddress(L,1);
     address* to;
 
@@ -863,9 +778,7 @@ Pinfo_set_addr(lua_State* L, packet_info* pinfo, pinfo_param_type_t pt)
     return 0;
 }
 
-static int
-Pinfo_set_int(lua_State* L, packet_info* pinfo, pinfo_param_type_t pt)
-{
+static int Pinfo_set_int(lua_State* L, packet_info* pinfo, pinfo_param_type_t pt) {
     gint64 v = luaL_checkint(L,1);
 
     if (!pinfo) {
@@ -903,9 +816,7 @@ typedef struct _pinfo_method_t {
     pinfo_param_type_t param;
 } pinfo_method_t;
 
-static int
-Pinfo_hi(lua_State *L)
-{
+static int Pinfo_hi(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
     Address addr = g_malloc(sizeof(address));
 
@@ -925,9 +836,7 @@ Pinfo_hi(lua_State *L)
     return 1;
 }
 
-static int
-Pinfo_lo(lua_State *L)
-{
+static int Pinfo_lo(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
     Address addr = g_malloc(sizeof(address));
 
@@ -1038,16 +947,12 @@ static const pinfo_method_t Pinfo_methods[] = {
 };
 
 
-static int
-pushnil(lua_State* L)
-{
+static int pushnil(lua_State* L) {
     lua_pushnil(L);
     return 1;
 }
 
-static int
-Pinfo_index(lua_State* L)
-{
+static int Pinfo_index(lua_State* L) {
     Pinfo pinfo = checkPinfo(L,1);
     const gchar* name = luaL_checkstring(L,2);
     lua_CFunction method = pushnil;
@@ -1073,9 +978,7 @@ Pinfo_index(lua_State* L)
     return method(L);
 }
 
-static int
-Pinfo_setindex(lua_State* L)
-{
+static int Pinfo_setindex(lua_State* L) {
     Pinfo pinfo = checkPinfo(L,1);
     const gchar* name = luaL_checkstring(L,2);
     int (*method)(lua_State*, packet_info* pinfo, pinfo_param_type_t) = pushnil_param;
@@ -1103,9 +1006,7 @@ Pinfo_setindex(lua_State* L)
     return method(L,pinfo->ws_pinfo,param_type);
 }
 
-static int
-Pinfo_gc(lua_State* L)
-{
+static int Pinfo_gc(lua_State* L) {
     Pinfo pinfo = checkPinfo(L,1);
 
     if (!pinfo) return 0;
@@ -1127,9 +1028,7 @@ static const luaL_reg Pinfo_meta[] = {
     { NULL, NULL }
 };
 
-int
-Pinfo_register(lua_State* L)
-{
+int Pinfo_register(lua_State* L) {
     WSLUA_REGISTER_META(Pinfo);
     outstanding_Pinfo = g_ptr_array_new();
     outstanding_Column = g_ptr_array_new();
