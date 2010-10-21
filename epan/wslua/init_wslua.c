@@ -47,7 +47,8 @@ wslua_plugin *wslua_plugin_list = NULL;
 
 dissector_handle_t lua_data_handle;
 
-static void lua_frame_end(void)
+static void
+lua_frame_end(void)
 {
     clear_outstanding_Tvb();
     clear_outstanding_Pinfo();
@@ -56,12 +57,15 @@ static void lua_frame_end(void)
     clear_outstanding_TreeItem();
 }
 
-static int wslua_not_register_menu(lua_State* LS) {
+static int
+wslua_not_register_menu(lua_State* LS) {
     luaL_error(LS,"too late to register a menu");
     return 0;
 }
 
-int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
+int
+dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
+{
     int consumed_bytes = tvb->length;
     lua_pinfo = pinfo;
     lua_tvb = tvb;
@@ -101,7 +105,7 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
         } else {
 
             /* if the Lua dissector reported the consumed bytes, pass it to our caller */
-            if (lua_isnumber(L, -1)) { 
+            if (lua_isnumber(L, -1)) {
                 /* we got the consumed bytes or the missing bytes as a negative number */
                 consumed_bytes = (int) lua_tonumber(L, -1);
                 lua_pop(L, 1);
@@ -125,7 +129,9 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 
 }
 
-static void iter_table_and_call(lua_State* LS, int env, const gchar* table_name, lua_CFunction error_handler) {
+static void
+iter_table_and_call(lua_State* LS, int env, const gchar* table_name, lua_CFunction error_handler)
+{
     lua_settop(LS,0);
 
     lua_pushcfunction(LS,error_handler);
@@ -162,14 +168,18 @@ static void iter_table_and_call(lua_State* LS, int env, const gchar* table_name,
 }
 
 
-static int init_error_handler(lua_State* LS) {
+static int
+init_error_handler(lua_State* LS)
+{
     const gchar* error =  lua_tostring(LS,1);
     report_failure("Lua: Error During execution of Initialization:\n %s",error);
     return 0;
 }
 
 
-static void wslua_init_routine(void) {
+static void
+wslua_init_routine(void)
+{
     static gboolean initialized = FALSE;
 
     if ( ! initialized ) {
@@ -184,7 +194,8 @@ static void wslua_init_routine(void) {
 }
 
 
-static const char *getF(lua_State *LS _U_, void *ud, size_t *size)
+static const char *
+getF(lua_State *LS _U_, void *ud, size_t *size)
 {
     FILE *f=(FILE *)ud;
     static char buff[512];
@@ -193,13 +204,16 @@ static const char *getF(lua_State *LS _U_, void *ud, size_t *size)
     return (*size>0) ? buff : NULL;
 }
 
-static int lua_main_error_handler(lua_State* LS) {
+static int
+lua_main_error_handler(lua_State* LS)
+{
     const gchar* error =  lua_tostring(LS,1);
     report_failure("Lua: Error during loading:\n %s",error);
     return 0;
 }
 
-static void wslua_add_plugin(gchar *name, gchar *version)
+static void
+wslua_add_plugin(gchar *name, gchar *version)
 {
     wslua_plugin *new_plug, *lua_plug;
 
@@ -220,7 +234,9 @@ static void wslua_add_plugin(gchar *name, gchar *version)
     new_plug->next = NULL;
 }
 
-static gboolean lua_load_script(const gchar* filename) {
+static gboolean
+lua_load_script(const gchar* filename)
+{
     FILE* file;
     int error;
 
@@ -255,19 +271,22 @@ static gboolean lua_load_script(const gchar* filename) {
     return FALSE;
 }
 
-static void basic_logger(const gchar *log_domain _U_,
-                          GLogLevelFlags log_level _U_,
-                          const gchar *message,
-                          gpointer user_data _U_) {
-    fputs(message,stderr);
+static void
+basic_logger(const gchar *log_domain _U_, GLogLevelFlags log_level _U_,
+	     const gchar *message, gpointer user_data _U_)
+{
+    fputs(message, stderr);
 }
 
-static int wslua_panic(lua_State* LS) {
-    g_error("LUA PANIC: %s",lua_tostring(LS,-1));
+static int
+wslua_panic(lua_State* LS)
+{
+    g_error("LUA PANIC: %s", lua_tostring(LS,-1));
     return 0;
 }
 
-static void lua_load_plugins (const char *dirname)
+static void
+lua_load_plugins (const char *dirname)
 {
     WS_DIR        *dir;             /* scanned directory */
     WS_DIRENT     *file;            /* current file */
@@ -314,7 +333,9 @@ static void lua_load_plugins (const char *dirname)
     }
 }
 
-int wslua_init(lua_State* LS) {
+int
+wslua_init(lua_State* LS)
+{
     gchar* filename;
     const funnel_ops_t* ops = funnel_get_funnel_ops();
     gboolean run_anyway = FALSE;
@@ -349,7 +370,7 @@ int wslua_init(lua_State* LS) {
 
     /* set running_superuser variable to it's propper value */
     WSLUA_REG_GLOBAL_BOOL(L,"running_superuser",started_with_special_privs());
-    
+
     /* special constant used by PDU reassembly handling */
     /* see dissect_lua() for notes */
     WSLUA_REG_GLOBAL_NUMBER(L,"DESEGMENT_ONE_MORE_SEGMENT",DESEGMENT_ONE_MORE_SEGMENT);
@@ -432,5 +453,9 @@ int wslua_init(lua_State* LS) {
     return 0;
 }
 
-lua_State* wslua_state() { return L; }
+lua_State*
+wslua_state()
+{
+    return L;
+}
 

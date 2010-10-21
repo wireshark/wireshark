@@ -31,10 +31,10 @@
 #include "wslua.h"
 #include <math.h>
 
-WSLUA_CLASS_DEFINE(PseudoHeader,NOP,NOP);
 /*
  * A pseudoheader to be used to save captured frames.
  */
+WSLUA_CLASS_DEFINE(PseudoHeader,NOP,NOP);
 
 enum lua_pseudoheader_type {
     PHDR_NONE,

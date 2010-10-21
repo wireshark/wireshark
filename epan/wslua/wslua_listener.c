@@ -32,14 +32,16 @@
 
 #include "wslua.h"
 
-WSLUA_CLASS_DEFINE(Listener,NOP,NOP);
 /*
-    A Listener, is called once for every packet that matches a certain filter or has a certain tap.
-    It can read the tree, the packet's Tvb eventually the tapped data but it cannot
-    add elements to the tree. 
+ *  A Listener, is called once for every packet that matches a certain filter or has a certain tap.
+ *  It can read the tree, the packet's Tvb eventually the tapped data but it cannot
+ *  add elements to the tree.
  */
+WSLUA_CLASS_DEFINE(Listener,NOP,NOP);
 
-static int tap_packet_cb_error_handler(lua_State* L) {
+static int
+tap_packet_cb_error_handler(lua_State* L)
+{
     const gchar* error =  lua_tostring(L,1);
     static gchar* last_error = NULL;
     static int repeated = 0;
@@ -48,10 +50,10 @@ static int tap_packet_cb_error_handler(lua_State* L) {
 
     ep_strdup_printf("Lua: on packet %i Error During execution of Listener Packet Callback",lua_pinfo->fd->num) :
     ep_strdup_printf("Lua: Error During execution of Listener Packet Callback") ;
-    
-    /* show the error the 1st, 3rd, 5th, 9th, 17th, 33th... time it appears to avoid window flooding */ 
+
+    /* show the error the 1st, 3rd, 5th, 9th, 17th, 33th... time it appears to avoid window flooding */
     /* XXX the last series of identical errors won't be shown (the user however gets at least one message) */
-    
+
     if (! last_error) {
         report_failure("%s:\n%s",where,error);
         last_error = g_strdup(error);
@@ -59,7 +61,7 @@ static int tap_packet_cb_error_handler(lua_State* L) {
         next = 2;
         return 0;
     }
-    
+
     if (g_str_equal(last_error,error) ) {
         repeated++;
         if ( repeated == next ) {
@@ -74,38 +76,40 @@ static int tap_packet_cb_error_handler(lua_State* L) {
         next = 2;
         report_failure("%s:\n %s",where,error);
     }
-    
-    return 0;    
+
+    return 0;
 }
 
 
-static int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data) {
+static int
+lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data)
+{
     Listener tap = tapdata;
     int retval = 0;
-    
+
     if (tap->packet_ref == LUA_NOREF) return 0;
 
     lua_settop(tap->L,0);
-    
+
     lua_pushcfunction(tap->L,tap_packet_cb_error_handler);
     lua_rawgeti(tap->L, LUA_REGISTRYINDEX, tap->packet_ref);
-    
+
     push_Pinfo(tap->L, pinfo);
     push_Tvb(tap->L, edt->tvb);
-    
+
     if (tap->extractor) {
         tap->extractor(tap->L,data);
     } else {
         lua_pushnil(tap->L);
     }
-    
-    lua_pinfo = pinfo; 
+
+    lua_pinfo = pinfo;
     lua_tvb = edt->tvb;
     lua_tree = g_malloc(sizeof(struct _wslua_treeitem));
     lua_tree->tree = edt->tree;
     lua_tree->item = NULL;
     lua_tree->expired = FALSE;
-    
+
     switch ( lua_pcall(tap->L,3,1,1) ) {
         case 0:
             retval = luaL_optint(tap->L,-1,1);
@@ -119,31 +123,35 @@ static int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt
             g_assert_not_reached();
             break;
     }
-    
+
     clear_outstanding_Pinfo();
     clear_outstanding_Tvb();
-    
-    lua_pinfo = NULL; 
+
+    lua_pinfo = NULL;
     lua_tvb = NULL;
     lua_tree = NULL;
-    
+
     return retval;
 }
 
-static int tap_reset_cb_error_handler(lua_State* L) {
+static int
+tap_reset_cb_error_handler(lua_State* L)
+{
     const gchar* error =  lua_tostring(L,1);
     report_failure("Lua: Error During execution of Listener init Callback:\n %s",error);
     return 1;
 }
 
-static void lua_tap_reset(void *tapdata) {
+static void
+lua_tap_reset(void *tapdata)
+{
     Listener tap = tapdata;
-    
+
     if (tap->init_ref == LUA_NOREF) return;
-    
+
     lua_pushcfunction(tap->L,tap_reset_cb_error_handler);
     lua_rawgeti(tap->L, LUA_REGISTRYINDEX, tap->init_ref);
-    
+
     switch ( lua_pcall(tap->L,0,0,1) ) {
         case 0:
             break;
@@ -159,14 +167,16 @@ static void lua_tap_reset(void *tapdata) {
     }
 }
 
-static void lua_tap_draw(void *tapdata) {
+static void
+lua_tap_draw(void *tapdata)
+{
     Listener tap = tapdata;
     const gchar* error;
     if (tap->draw_ref == LUA_NOREF) return;
-    
+
     lua_pushcfunction(tap->L,tap_reset_cb_error_handler);
     lua_rawgeti(tap->L, LUA_REGISTRYINDEX, tap->draw_ref);
-    
+
     switch ( lua_pcall(tap->L,0,0,1) ) {
         case 0:
             /* OK */
@@ -184,10 +194,12 @@ static void lua_tap_draw(void *tapdata) {
     }
 }
 
-WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
-    /* Creates a new Listener listener */
+/* Creates a new Listener listener */
 #define WSLUA_OPTARG_Listener_new_TAP 1 /* The name of this tap */
 #define WSLUA_OPTARG_Listener_new_FILTER 2 /* A filter that when matches the tap.packet function gets called (use nil to be called for every packet) */
+WSLUA_CONSTRUCTOR
+Listener_new(lua_State* L)
+{
 
     const gchar* tap_type = luaL_optstring(L,WSLUA_OPTARG_Listener_new_TAP,"frame");
     const gchar* filter = luaL_optstring(L,WSLUA_OPTARG_Listener_new_FILTER,NULL);
@@ -195,7 +207,7 @@ WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
     GString* error;
 
     tap = g_malloc(sizeof(struct _wslua_tap));
-    
+
     tap->name = g_strdup(tap_type);
     tap->filter = filter ? g_strdup(filter) : NULL;
     tap->extractor = wslua_get_tap_extractor(tap_type);
@@ -203,7 +215,7 @@ WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
     tap->packet_ref = LUA_NOREF;
     tap->draw_ref = LUA_NOREF;
     tap->init_ref = LUA_NOREF;
-    
+
     /*
      * XXX - do all Lua taps require the protocol tree?  If not, it might
      * be useful to have a way to indicate whether any do.
@@ -221,55 +233,61 @@ WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
         luaL_error(L,"Error while registering tap:\n%s",error->str);
         g_string_free(error,TRUE); /* XXX LEAK? */
     }
-    
+
     pushListener(L,tap);
     WSLUA_RETURN(1); /* The newly created Listener listener object */
 }
 
-WSLUA_METHOD Listener_remove(lua_State* L) {
-    /* Removes a tap listener */
+/* Removes a tap listener */
+WSLUA_METHOD
+Listener_remove(lua_State* L)
+{
     Listener tap = checkListener(L,1);
-    
+
     if (!tap) return 0;
-    
+
     remove_tap_listener(tap);
-    
+
     return 0;
 }
 
-WSLUA_METAMETHOD Listener_tostring(lua_State* L) {
+WSLUA_METAMETHOD
+Listener_tostring(lua_State* L)
+{
     Listener tap = checkListener(L,1);
     gchar* str;
-    
+
     if (!tap) return 0;
-    
+
     str = ep_strdup_printf("Listener(%s) filter: %s",tap->name, tap->filter ? tap->filter : "NONE");
     lua_pushstring(L,str);
-    
+
     return 1;
 }
 
 
-static int Listener_newindex(lua_State* L) { 
+static int
+Listener_newindex(lua_State* L)
+{
     /* WSLUA_ATTRIBUTE Listener_packet WO A function that will be called once every packet matches the Listener listener filter.
-    
-        function tap.packet(pinfo,tvb,userdata) ... end
-    */
+     *
+     *  function tap.packet(pinfo,tvb,userdata) ... end
+     */
     /* WSLUA_ATTRIBUTE Listener_draw WO A function that will be called once every few seconds to redraw the gui objects
-                in tshark this funtion is called oly at the very end of the capture file.
-    
-        function tap.draw(userdata) ... end
-    */
+     *          in tshark this funtion is called oly at the very end of the capture file.
+     *
+     *  function tap.draw(userdata) ... end
+     */
     /* WSLUA_ATTRIBUTE Listener_reset WO A function that will be called at the end of the capture run.
-    
-        function tap.reset(userdata) ... end
-    */
+     *
+     *  function tap.reset(userdata) ... end
+     */
     Listener tap = shiftListener(L,1);
     const gchar* idx = lua_shiftstring(L,1);
     int* refp = NULL;
-    
+
     if (!idx) return 0;
-    
+
     if (g_str_equal(idx,"packet")) {
         refp = &(tap->packet_ref);
     } else if (g_str_equal(idx,"draw")) {
@@ -280,12 +298,12 @@ static int Listener_newindex(lua_State* L) {
         luaL_error(L,"No such attribute `%s' for a tap",idx);
         return 0;
     }
-    
+
     if (! lua_isfunction(L,1)) {
         luaL_error(L,"Listener's attribute `%s' must be a function");
         return 0;
     }
-    
+
     lua_pushvalue(L, 1);
     *refp = luaL_ref(L, LUA_REGISTRYINDEX);
 
@@ -305,7 +323,9 @@ static const luaL_reg Listener_meta[] = {
     { NULL, NULL }
 };
 
-int Listener_register(lua_State* L) {
+int
+Listener_register(lua_State* L)
+{
     wslua_set_tap_enums(L);
     WSLUA_REGISTER_CLASS(Listener);
     return 1;
