@@ -437,7 +437,7 @@ static int bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb,
 static void dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb,
        int voff, int len);
 static void dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb,
-       int voff, int len);
+       int voff, int len, gboolean opt125);
 static int dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb,
     int optoff, int optend);
 static int dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb,
@@ -1173,7 +1173,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			(tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_CM_CAP20,
 				(int)strlen(PACKETCABLE_CM_CAP20)) == 0 ))
 		{
-			dissect_docsis_cm_cap(v_tree, tvb, optoff, optlen);
+			dissect_docsis_cm_cap(v_tree, tvb, optoff, optlen, FALSE);
 		} else
 			if (tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_CM_CAP30,
 				(int)strlen(PACKETCABLE_CM_CAP30)) == 0 )
@@ -3088,6 +3088,7 @@ dissect_vendor_cl_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 		 			subopt, o125_cl_opt[subopt].text,
 					tvb_bytes_to_str(tvb, suboptoff, subopt_len),
 					subopt_len, plurality(subopt_len, "", "s"));
+					dissect_docsis_cm_cap(v_tree, tvb, optoff, subopt_len+2, TRUE);
 			}
 			break;
 
@@ -3265,67 +3266,6 @@ static const value_string pkt_mdc_mib_orgs[] = {
 	{ 0x3039,	"Reserved" },
 	{ 0,		NULL }
 };
-
-/* DOCSIS Cable Modem device capabilities (option 60). */
-#define DOCS_CM_TLV_OFF 12
-
-#define DOCS_CM_CONCAT_SUP	0x3031  /* "01" */
-#define DOCS_CM_DOCSIS_VER	0x3032  /* "02" */
-#define DOCS_CM_FRAG_SUP	0x3033  /* "03" */
-#define DOCS_CM_PHS_SUP		0x3034  /* "04" */
-#define DOCS_CM_IGMP_SUP	0x3035  /* "05" */
-#define DOCS_CM_PRIV_SUP	0x3036  /* "06" */
-#define DOCS_CM_DSAID_SUP	0x3037  /* "07" */
-#define DOCS_CM_USID_SUP	0x3038  /* "08" */
-#define DOCS_CM_FILT_SUP	0x3039  /* "09" */
-#define DOCS_CM_TET_MI		0x3041  /* "0A" */
-#define DOCS_CM_TET_MI_LC	0x3061  /* "0a" */
-#define DOCS_CM_TET		0x3042  /* "0B" */
-#define DOCS_CM_TET_LC		0x3062  /* "0b" */
-#define DOCS_CM_DCC_SUP		0x3043  /* "0C" */
-#define DOCS_CM_DCC_SUP_LC	0x3063  /* "0c" */
-#define DOCS_CM_IPFILT_SUP	0x3044  /* "0D" */
-#define DOCS_CM_IPFILT_SUP_LC	0x3064  /* "0d" */
-#define DOCS_CM_LLCFILT_SUP	0x3045  /* "0E" */
-#define DOCS_CM_LLCFILT_SUP_LC	0x3065  /* "0e" */
-
-static const value_string docs_cm_type_vals[] = {
-	{ DOCS_CM_CONCAT_SUP,	"Concatenation Support" },
-	{ DOCS_CM_DOCSIS_VER,	"DOCSIS Version" },
-	{ DOCS_CM_FRAG_SUP,	"Fragmentation Support" },
-	{ DOCS_CM_PHS_SUP,	"PHS Support" },
-	{ DOCS_CM_IGMP_SUP,	"IGMP Support" },
-	{ DOCS_CM_PRIV_SUP,	"Privacy Support" },
-	{ DOCS_CM_DSAID_SUP,	"Downstream SAID Support" },
-	{ DOCS_CM_USID_SUP,	"Upstream SID Support" },
-	{ DOCS_CM_FILT_SUP,	"Optional Filtering Support" },
-	{ DOCS_CM_TET_MI,	"Transmit Equalizer Taps per Modulation Interval" },
-	{ DOCS_CM_TET_MI_LC,	"Transmit Equalizer Taps per Modulation Interval" },
-	{ DOCS_CM_TET,		"Number of Transmit Equalizer Taps" },
-	{ DOCS_CM_TET_LC,	"Number of Transmit Equalizer Taps" },
-	{ DOCS_CM_DCC_SUP,	"DCC Support" },
-	{ DOCS_CM_DCC_SUP_LC,	"DCC Support" },
-	{ DOCS_CM_IPFILT_SUP,	"IP Filters Support" },
-	{ DOCS_CM_IPFILT_SUP_LC,	"IP Filters Support" },
-	{ DOCS_CM_LLCFILT_SUP,	"LLC Filters Support" },
-	{ DOCS_CM_LLCFILT_SUP_LC,	"LLC Filters Support" },
-	{ 0, NULL }
-};
-
-static const value_string docs_cm_version_vals[] = {
-	{ 0x3030,	"DOCSIS 1.0" },
-	{ 0x3031,	"DOCSIS 1.1" },
-	{ 0x3032,	"DOCSIS 2.0" },
-	{ 0x3033,	"DOCSIS 3.0" },
-	{ 0,		NULL }
-};
-
-static const value_string docs_cm_privacy_vals[] = {
-	{ 0x3030,	"BPI Support" },
-	{ 0x3031,	"BPI Plus Support" },
-	{ 0,		NULL }
-};
-
 
 static const value_string pkt_mdc_supp_flow_vals[] = {
 	{ 1 << 0, "Secure Flow (Full Secure Provisioning Flow)" },
@@ -3575,123 +3515,491 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 	}
 }
 
+/* DOCSIS Cable Modem device capabilities (option 60/option 125). */
+#define DOCS_CM_TLV_OFF 12
+
+#define DOCS_CM_CONCAT_SUP		0x01
+#define DOCS_CM_DOCSIS_VER		0x02
+#define DOCS_CM_FRAG_SUP		0x03
+#define DOCS_CM_PHS_SUP			0x04
+#define DOCS_CM_IGMP_SUP		0x05
+#define DOCS_CM_PRIV_SUP		0x06
+#define DOCS_CM_DSAID_SUP		0x07
+#define DOCS_CM_USID_SUP		0x08
+#define DOCS_CM_FILT_SUP		0x09
+#define DOCS_CM_TET_MI			0x0a
+#define DOCS_CM_TET			0x0b
+#define DOCS_CM_DCC_SUP			0x0c
+#define DOCS_CM_IPFILT_SUP		0x0d
+#define DOCS_CM_LLCFILT_SUP		0x0e
+#define DOCS_CM_EXPUNI_SPACE		0x0f
+#define DOCS_CM_RNGHLDOFF_SUP		0x10
+#define DOCS_CM_L2VPN_SUP		0x11
+#define DOCS_CM_L2VPN_HOST_SUP		0x12
+#define DOCS_CM_DUTFILT_SUP		0x13
+#define DOCS_CM_USFREQRNG_SUP		0x14
+#define DOCS_CM_USSYMRATE_SUP		0x15
+#define DOCS_CM_SACM2_SUP		0x16
+#define DOCS_CM_SACM2HOP_SUP		0x17
+#define DOCS_CM_MULTTXCHAN_SUP		0x18
+#define DOCS_CM_512USTXCHAN_SUP		0x19
+#define DOCS_CM_256USTXCHAN_SUP		0x1a
+#define DOCS_CM_TOTALSIDCLU_SUP		0x1b
+#define DOCS_CM_SIDCLUPERSF_SUP		0x1c
+#define DOCS_CM_MULTRXCHAN_SUP		0x1d
+#define DOCS_CM_TOTALDSID_SUP		0x1e
+#define DOCS_CM_RESEQDSID_SUP		0x1f
+#define DOCS_CM_MULTDSID_SUP		0x20
+#define DOCS_CM_MULTDSIDFW_SUP		0x21
+#define DOCS_CM_FCTF_SUP		0x22
+#define DOCS_CM_DPV_SUP			0x23
+#define DOCS_CM_UGSPERUSFLOW_SUP	0x24
+#define DOCS_CM_MAPUCDRECEIPT_SUP	0x25
+#define DOCS_CM_USDROPCLASSIF_SUP	0x26
+#define DOCS_CM_IPV6_SUP		0x27
+
+static const value_string docs_cm_type_vals[] = {
+	{ DOCS_CM_CONCAT_SUP,	"Concatenation Support" },
+	{ DOCS_CM_DOCSIS_VER,	"DOCSIS Version" },
+	{ DOCS_CM_FRAG_SUP,	"Fragmentation Support" },
+	{ DOCS_CM_PHS_SUP,	"PHS Support" },
+	{ DOCS_CM_IGMP_SUP,	"IGMP Support" },
+	{ DOCS_CM_PRIV_SUP,	"Privacy Support" },
+	{ DOCS_CM_DSAID_SUP,	"Downstream SAID Support" },
+	{ DOCS_CM_USID_SUP,	"Upstream SID Support" },
+	{ DOCS_CM_FILT_SUP,	"Optional Filtering Support" },
+	{ DOCS_CM_TET_MI,	"Transmit Equalizer Taps per Modulation Interval" },
+	{ DOCS_CM_TET,		"Number of Transmit Equalizer Taps" },
+	{ DOCS_CM_DCC_SUP,	"DCC Support" },
+	{ DOCS_CM_IPFILT_SUP,	"IP Filters Support" },
+	{ DOCS_CM_LLCFILT_SUP,	"LLC Filters Support" },
+	{ DOCS_CM_EXPUNI_SPACE,	"Expanded Unicast SID Space" },
+	{ DOCS_CM_RNGHLDOFF_SUP, "Ranging Hold-Off Support" },
+	{ DOCS_CM_L2VPN_SUP,	"L2VPN Capability" },
+	{ DOCS_CM_L2VPN_HOST_SUP, "eSAFE Host Capability" },
+	{ DOCS_CM_DUTFILT_SUP,	"DUT Filtering" },
+	{ DOCS_CM_USFREQRNG_SUP, "Upstream Frequency Range Support" },
+	{ DOCS_CM_USSYMRATE_SUP, "Upstream Symbol Rate Support" },
+	{ DOCS_CM_SACM2_SUP,	"Selectable Active Code Mode 2 Support" },
+	{ DOCS_CM_SACM2HOP_SUP,	"Code Hopping SAC Mode 2 is supported" },
+	{ DOCS_CM_MULTTXCHAN_SUP, "Multiple Transmit Channel Support" },
+	{ DOCS_CM_512USTXCHAN_SUP, "5.12 Msps Upstream Transmit Channel Support" },
+	{ DOCS_CM_256USTXCHAN_SUP, "2.56 Msps Upstream Transmit Channel Support" },
+	{ DOCS_CM_TOTALSIDCLU_SUP, "Total SID Cluster Support" },
+	{ DOCS_CM_SIDCLUPERSF_SUP, "SID Clusters per Service Flow Support" },
+	{ DOCS_CM_MULTRXCHAN_SUP, "Multiple Receive Channel Support" },
+	{ DOCS_CM_TOTALDSID_SUP, "Total Downstream Service ID (DSID) Support" },
+	{ DOCS_CM_RESEQDSID_SUP, "Resequencing Downstream Service ID (DSID) Support" },
+	{ DOCS_CM_MULTDSID_SUP, "Multicast Downstream Service ID (DSID) Support" },
+	{ DOCS_CM_MULTDSIDFW_SUP, "Multicast DSID Forwarding" },
+	{ DOCS_CM_FCTF_SUP,	"Frame Control Type Forwarding Capability" },
+	{ DOCS_CM_DPV_SUP,	"DPV Capability" },
+	{ DOCS_CM_UGSPERUSFLOW_SUP, "Unsolicited Grant Service/Upstream Service Flow Support" },
+	{ DOCS_CM_MAPUCDRECEIPT_SUP, "MAP and UCD Receipt Support" },
+	{ DOCS_CM_USDROPCLASSIF_SUP, "Upstream Drop Classifier Support" },
+	{ DOCS_CM_IPV6_SUP,	"IPv6 Support" },
+	{ 0, NULL }
+};
+
+static const value_string docs_cm_supported_vals[] = {
+	{ 0x00,	"Not Support" },
+	{ 0x01,	"Supported" },
+	{ 0,		NULL }
+};
+
+static const value_string docs_cm_version_vals[] = {
+	{ 0x00,	"DOCSIS 1.0" },
+	{ 0x01,	"DOCSIS 1.1" },
+	{ 0x02,	"DOCSIS 2.0" },
+	{ 0x03,	"DOCSIS 3.0" },
+	{ 0,		NULL }
+};
+
+static const value_string docs_cm_privacy_vals[] = {
+	{ 0x00,	"BPI Support" },
+	{ 0x01,	"BPI Plus Support" },
+	{ 0,		NULL }
+};
+
+static const value_string docs_cm_ranging_hold_off_vals[] = {
+	{ 1 << 0, "CM" },
+	{ 1 << 1, "ePS or eRouter" },
+	{ 1 << 2, "EMTA or EDVA" },
+	{ 1 << 3, "DSG/eSTB" },
+	{ 0, NULL }
+};
+
+static const value_string docs_cm_l2vpn_vals[] = {
+	{ 0x00,	"CM not compliant with DOCSIS L2VPN Section 7 (default)" },
+	{ 0x01,	"CM compliant with DOCSIS L2VPN Section 7" },
+	{ 0,		NULL }
+};
+
+static const value_string docs_cm_filt_vals[] = {
+	{ 0x00,	"None" },
+	{ 0x01,	"802.1p Filtering" },
+	{ 0x01,	"802.1Q Filtering" },
+	{ 0,		NULL }
+};
+
+static const value_string docs_cm_usfreqrng_vals[] = {
+	{ 0x00,	"Standard Upstream Frequency Range" },
+	{ 0x01,	"Standard Upstream Frequency Range and Extended Upstream Frequency Range" },
+	{ 0,		NULL }
+};
+
+static const value_string docs_cm_map_ucd_receipt_vals[] = {
+	{ 0x00,	"CM cannot support the receipt of MAPs and UCDs on downstreams other than the Primary Downstream Channel" },
+	{ 0x01,	"CM can support the receipt of MAPs and UCDs on downstreams other than the Primary Downstream Channel" },
+	{ 0,		NULL }
+};
+
+static const value_string docs_cm_map_dpv_support_vals[] = {
+	{ 0x00,	"U1 supported as a Start Reference Point for DPV per Path" },
+	{ 0x01,	"U1 supported as a Start Reference Point for DPV per Path" },
+	{ 0,		NULL }
+};
+
+static const value_string docs_cm_map_multDsidForward_support_vals[] = {
+	{ 0x00,	"No support for multicast DSID forwarding" },
+	{ 0x01,	"Support for GMAC explicit multicast DSID forwarding" },
+	{ 0x02,	"Support for GMAC promiscuous multicast DSID forwarding" },
+	{ 0,		NULL }
+};
+
+static const value_string docs_cm_map_fctfc_support_vals[] = {
+	{ 0x00,	"Isolation Packet PDU MAC Header (FC_Type of 10) is not forwarded" },
+	{ 0x01,	"Isolation Packet PDU MAC Header (FC_Type of 10) is forwarded" },
+	{ 0,		NULL }
+};
+
+static const value_string docs_cm_map_l2vpn_esafe_index_support_vals[] = {
+	{ 0x01,	"ePs or eRouter" },
+	{ 0x10,	"eMTA" },
+	{ 0x11,	"eSTB-IP" },
+	{ 0x12,	"eSTB-DSG" },
+	{ 0x13,	"eTEA" },
+	{ 0,		NULL }
+};
+
+static const value_string docs_cm_ussymrate_vals[] = {
+	{ 1 << 0, "160  ksps symbol rate supported" },
+	{ 1 << 1, "320  ksps symbol rate supported" },
+	{ 1 << 2, "640  ksps symbol rate supported" },
+	{ 1 << 3, "1280 ksps symbol rate supported" },
+	{ 1 << 4, "2560 ksps symbol rate supported" },
+	{ 1 << 5, "5120 ksps symbol rate supported" },
+	{ 0, NULL }
+};
+
 static void
-dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
+display_uint_with_range_checking(proto_item *ti, guint8 val_byte, guint16 val_uint16, int min_value, int max_value)
 {
-	unsigned long raw_val;
-	int off = DOCS_CM_TLV_OFF + voff;
-	guint tlv_len, i;
-	guint8 asc_val[4] = "  ";
-	proto_item *ti;
+  guint16 value;
 
-	tvb_memcpy (tvb, asc_val, off, 2);
-	if (sscanf((gchar*)asc_val, "%x", &tlv_len) != 1 || tlv_len < 1) {
-		proto_tree_add_text(v_tree, tvb, off, len - off,
-				    "Bogus length: %s", asc_val);
-		return;
-	} else {
-		proto_tree_add_uint_format_value(v_tree, hf_bootp_docsis_cmcap_len, tvb, off, 2,
-				tlv_len, "%d", tlv_len);
-		off += 2;
-
-		while (off - voff < len) {
-			/* Type */
-			raw_val = tvb_get_ntohs (tvb, off);
-
-			/* Length */
-			tvb_memcpy(tvb, asc_val, off + 2, 2);
-			if (sscanf((gchar*)asc_val, "%x", &tlv_len) != 1 || tlv_len > 0xff) {
-				proto_tree_add_text(v_tree, tvb, off, len - off,
-							"[Bogus length: %s]", asc_val);
-				return;
-			} else {
-				/* Value(s) */
-				ti = proto_tree_add_text(v_tree, tvb, off,
-				    (tlv_len * 2) + 4,
-				    "0x%s: %s = ",
-				    tvb_format_text(tvb, off, 2),
-				    val_to_str(raw_val, docs_cm_type_vals, "unknown"));
-				switch (raw_val) {
-
-				case DOCS_CM_CONCAT_SUP:
-				case DOCS_CM_FRAG_SUP:
-				case DOCS_CM_PHS_SUP:
-				case DOCS_CM_IGMP_SUP:
-				case DOCS_CM_DCC_SUP:
-				case DOCS_CM_DCC_SUP_LC:
-					for (i = 0; i < tlv_len; i++) {
-						raw_val = tvb_get_ntohs(tvb, off + 4 + (i * 2) );
-						proto_item_append_text(ti,
-								       "%s%s (%s)",
-								       plurality(i + 1, "", ", "),
-								       val_to_str(raw_val, pkt_mdc_boolean_vals, "unknown"),
-								       tvb_format_text(tvb, off + 4 + (i * 2), 2) );
-					}
-					break;
-
-				case DOCS_CM_DOCSIS_VER:
-					raw_val = tvb_get_ntohs(tvb, off + 4);
-					proto_item_append_text(ti,
-							       "%s (%s)",
-							       val_to_str(raw_val, docs_cm_version_vals, "Reserved"),
-							       tvb_format_text(tvb, off + 4, 2) );
-					break;
-
-				case DOCS_CM_PRIV_SUP:
-					raw_val = tvb_get_ntohs(tvb, off + 4);
-					proto_item_append_text(ti,
-							       "%s (%s)",
-							       val_to_str(raw_val, docs_cm_privacy_vals, "Reserved"),
-							       tvb_format_text(tvb, off + 4, 2) );
-					break;
-
-				case DOCS_CM_DSAID_SUP:
-				case DOCS_CM_USID_SUP:
-				case DOCS_CM_TET_MI:
-				case DOCS_CM_TET_MI_LC:
-				case DOCS_CM_TET:
-				case DOCS_CM_TET_LC:
-					tvb_memcpy (tvb, asc_val, off + 4, 2);
-					raw_val = strtoul((gchar*)asc_val, NULL, 16);
-					proto_item_append_text(ti,
-							       "%lu", raw_val);
-					break;
-
-				case DOCS_CM_IPFILT_SUP:
-				case DOCS_CM_IPFILT_SUP_LC:
-				case DOCS_CM_LLCFILT_SUP:
-				case DOCS_CM_LLCFILT_SUP_LC:
-					tvb_memcpy (tvb, asc_val, off + 4, 4);
-					raw_val = strtoul((gchar*)asc_val, NULL, 16);
-					proto_item_append_text(ti,
-							       "%lu", raw_val);
-					break;
-
-				case DOCS_CM_FILT_SUP:
-					tvb_memcpy (tvb, asc_val, off + 4, 2);
-					raw_val = strtoul((gchar*)asc_val, NULL, 16);
-					if (raw_val & 0x01)
-						proto_item_append_text(ti,
-								       "802.1p filtering");
-					if (raw_val & 0x02) {
-						if (raw_val & 0x01)
-							proto_item_append_text(ti, ", ");
-						proto_item_append_text(ti,
-								       "802.1Q filtering");
-					}
-					if (!(raw_val & 0x03))
-						proto_item_append_text(ti,
-								       "None");
-					proto_item_append_text(ti,
-							       " (0x%02lx)", raw_val);
-					break;
-				}
-			}
-			off += (tlv_len * 2) + 4;
-		}
-	}
+  if (0 != val_byte)
+  {
+    value = val_byte;
+  }
+  else
+  {
+    value = val_uint16;
+  }
+  proto_item_append_text(ti, "%i", value);
+  if ((value < min_value) ||
+      (value > max_value))
+  {
+    proto_item_append_text(ti, " (Value Out-of-Range [%i..%i])", min_value, max_value);
+  }
 }
 
+static void get_opt125_tlv(tvbuff_t *tvb, guint off, guint8 *tlvtype, guint8 *tlvlen, guint8 **value)
+{
+  /* Type */
+  *tlvtype = tvb_get_guint8(tvb, off);
+  /* Length */
+  *tlvlen  = tvb_get_guint8(tvb, off+1);
+  /* Value */
+  *value = ep_tvb_memdup(tvb, off + 2, *tlvlen);
+}
+
+static void get_opt60_tlv(tvbuff_t *tvb, guint off, guint8 *tlvtype, guint8 *tlvlen, guint8 **value)
+{
+  guint  i;
+  guint8  *val_asc;
+  val_asc = (guint8 *)ep_alloc0(4);
+  /* Type */
+  tvb_memcpy(tvb, val_asc, off, 2);
+  *tlvtype = strtoul((gchar*)val_asc, NULL, 16);
+  /* Length */
+  tvb_memcpy(tvb, val_asc, off + 2, 2);
+  *tlvlen = strtoul((gchar*)val_asc, NULL, 16);
+  /* Value */
+  *value = (guint8 *)ep_alloc0(*tlvlen);
+  for (i=0; i<*tlvlen; i++)
+  {
+    memset(val_asc, 0, sizeof (val_asc));
+    tvb_memcpy(tvb, val_asc, off + ((i*2) + 4), 2);
+    (*value)[i] = strtoul((gchar*)val_asc, NULL, 16);
+  }
+}
+
+static void
+dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboolean opt125)
+{
+        guint8 *asc_val;
+        guint i;
+        proto_item *ti;
+        proto_tree *subtree;
+        char bit_fld[64];
+        guint8 tlv_type;
+        guint8 tlv_len;
+        guint8 val_byte = 0;
+        guint16 val_uint16 = 0;
+        guint8 *val_other = NULL;
+        guint off = voff;
+
+        asc_val = ep_alloc0(4);
+
+        if (opt125)
+        {
+          /* Option 125 is formatted as uint8's */
+          /* Type */
+          tlv_type = tvb_get_guint8(tvb, off);
+          /* Length */
+          tlv_len  = tvb_get_guint8(tvb, off+1);
+          proto_tree_add_uint_format_value(v_tree, hf_bootp_docsis_cmcap_len, tvb, off+1, 1,
+            tlv_len, "%d", tlv_len);
+        }
+        else
+        {
+         /* Option 60 is formatted as an ascii string. 
+            Since the capabilities are the same for both options 
+            I am converting the Option 60 values from ascii to 
+            uint8s to allow the same parser to work for both */
+          off += DOCS_CM_TLV_OFF;
+          tvb_memcpy (tvb, asc_val, off, 2);
+          tlv_len = (guint8)strtoul((gchar*)asc_val, NULL, 16);
+          proto_tree_add_uint_format_value(v_tree, hf_bootp_docsis_cmcap_len, tvb, off+2, 2,
+            tlv_len, "%d", tlv_len);
+        }
+
+        off+=2;
+
+        while (off - ((guint) voff) < ((guint) len))
+        {
+          tlv_type = 0;
+          tlv_len = 0;
+          val_byte = 0;
+          val_uint16 = 0;
+          
+          if (opt125)
+          {
+            get_opt125_tlv(tvb, off, &tlv_type, &tlv_len, &val_other);
+            ti = proto_tree_add_text(v_tree, tvb, off,
+                                     tlv_len + 2,
+                                     "0x%02x: %s = ",
+                                     tlv_type,
+                                     val_to_str(tlv_type, docs_cm_type_vals, "unknown"));
+          }
+          else
+          {
+           /* Option 60 is formatted as an ascii string.  Since the capabilities 
+              are the same for both options I am converting the Option 60 values 
+              from ascii to uint8s to allow the same parser to work for both */
+            get_opt60_tlv(tvb, off, &tlv_type, &tlv_len, &val_other);
+            ti = proto_tree_add_text(v_tree, tvb, off,
+                                     (tlv_len * 2) + 4,
+                                     "0x%02x: %s = ",
+                                     tlv_type,
+                                     val_to_str(tlv_type, docs_cm_type_vals, "unknown"));
+          }
+         
+          if (tlv_len == 1) 
+          {
+            /* The value refers to a byte. */
+            val_byte = val_other[0];
+          } 
+          else
+          {  
+            if (tlv_len == 2) 
+            {
+              /* The value refers to a uint16. */
+              val_uint16 = (val_other[0] << 8) + val_other[1];
+            }
+          }
+
+	  switch (tlv_type) 
+	  {
+	    case DOCS_CM_CONCAT_SUP:
+	    case DOCS_CM_FRAG_SUP:
+	    case DOCS_CM_PHS_SUP:
+	    case DOCS_CM_IGMP_SUP:
+	    case DOCS_CM_DCC_SUP:
+	    case DOCS_CM_EXPUNI_SPACE:
+	    case DOCS_CM_DUTFILT_SUP:
+	    case DOCS_CM_SACM2_SUP:
+	    case DOCS_CM_SACM2HOP_SUP:
+	    case DOCS_CM_IPV6_SUP:
+		proto_item_append_text(ti,
+		    "%s",
+		    val_to_str(val_byte, docs_cm_supported_vals, "Reserved"));
+		break;
+	    case DOCS_CM_DOCSIS_VER:
+		proto_item_append_text(ti,
+		    "%s",
+		    val_to_str(val_byte, docs_cm_version_vals, "Reserved"));
+		break;
+	    case DOCS_CM_PRIV_SUP:
+		proto_item_append_text(ti,
+		    "%s",
+		    val_to_str(val_byte, docs_cm_privacy_vals, "Reserved"));
+		break;
+	    case DOCS_CM_FILT_SUP:
+		proto_item_append_text(ti,
+		    "%s",
+		    val_to_str(val_byte, docs_cm_filt_vals, "Reserved"));
+		break;
+	    case DOCS_CM_L2VPN_SUP:
+		proto_item_append_text(ti,
+		    "%s",
+		    val_to_str(val_byte, docs_cm_l2vpn_vals, "Reserved"));
+		break;
+	    case DOCS_CM_L2VPN_HOST_SUP:
+		proto_item_append_text(ti,
+		    "eSAFE ifIndex %s (%i)/eSAFE MAC %2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x",
+		    val_to_str(val_other[0], docs_cm_map_l2vpn_esafe_index_support_vals, "Reserved"),
+		    val_other[0],
+		    val_other[1],
+		    val_other[2],
+		    val_other[3],
+		    val_other[4],
+		    val_other[5],
+		    val_other[6]);
+		break;
+	     case DOCS_CM_USFREQRNG_SUP:
+		proto_item_append_text(ti,
+		    "%s",
+		    val_to_str(val_byte, docs_cm_usfreqrng_vals, "Reserved"));
+		break;
+	     case DOCS_CM_MAPUCDRECEIPT_SUP:
+		proto_item_append_text(ti,
+		    "%s",
+		    val_to_str(val_byte, docs_cm_map_ucd_receipt_vals, "Reserved"));
+		break;
+	     case DOCS_CM_DPV_SUP:
+		proto_item_append_text(ti,
+		    "%s",
+		    val_to_str(val_byte, docs_cm_map_dpv_support_vals, "Reserved"));
+		break;
+	     case DOCS_CM_DSAID_SUP:
+	     case DOCS_CM_MULTTXCHAN_SUP:
+	     case DOCS_CM_512USTXCHAN_SUP:
+	     case DOCS_CM_256USTXCHAN_SUP:
+	     case DOCS_CM_TOTALSIDCLU_SUP:
+	     case DOCS_CM_MULTRXCHAN_SUP:
+	     case DOCS_CM_UGSPERUSFLOW_SUP:
+		display_uint_with_range_checking(ti, val_byte, val_uint16, 0, 255);
+		break;
+	     case DOCS_CM_USID_SUP:
+		display_uint_with_range_checking(ti, val_byte, val_uint16,1, 255);
+		break;
+	     case DOCS_CM_RESEQDSID_SUP:
+	     case DOCS_CM_MULTDSID_SUP:
+		display_uint_with_range_checking(ti, val_byte, val_uint16, 16, 255);
+		break;
+	     case DOCS_CM_SIDCLUPERSF_SUP:
+		display_uint_with_range_checking(ti, val_byte, val_uint16, 2, 8);
+		break;
+	     case DOCS_CM_TOTALDSID_SUP:
+		display_uint_with_range_checking(ti, val_byte, val_uint16, 3, 255);
+		break;
+	     case DOCS_CM_TET:
+		display_uint_with_range_checking(ti, val_byte, val_uint16, 8, 64);
+		break;
+	     case DOCS_CM_TET_MI:
+		if ((val_byte == 1) ||
+		    (val_byte == 2) ||
+		    (val_byte == 4))
+		{
+		  proto_item_append_text(ti,
+			" %i",
+			val_byte);
+		}
+		else
+		{
+		  proto_item_append_text(ti,
+			 " (Invalid Value %i : Should be [1,2,4]",
+			 val_byte);
+		}
+		break;
+	    case DOCS_CM_IPFILT_SUP:
+	    case DOCS_CM_USDROPCLASSIF_SUP:
+		display_uint_with_range_checking(ti, val_byte, val_uint16, 64, 65535);
+		break;
+	    case DOCS_CM_LLCFILT_SUP:
+		display_uint_with_range_checking(ti, val_byte, val_uint16, 10, 65535);
+		break;
+	    case DOCS_CM_RNGHLDOFF_SUP:
+		proto_item_append_text(ti,
+			"Ranging ID ");
+		proto_item_append_text(ti,
+			"(0x%04x)", (val_other[0] << sizeof(guint8)) + val_other[1]);
+		proto_item_append_text(ti,
+			" Component Bit Mask ");
+		proto_item_append_text(ti,
+			"(0x%04x)", (val_other[2] << sizeof(guint8)) + val_other[3]);
+		break;
+	    case DOCS_CM_USSYMRATE_SUP:
+		proto_item_append_text(ti,
+			"0x%02x", val_byte);
+		break;
+	    case DOCS_CM_FCTF_SUP:
+		proto_item_append_text(ti,
+			"%s",
+			val_to_str(val_byte, docs_cm_map_fctfc_support_vals, "Reserved"));
+		break;
+	    case DOCS_CM_MULTDSIDFW_SUP:
+		proto_item_append_text(ti,
+			"%s",
+			val_to_str(val_byte, docs_cm_map_multDsidForward_support_vals, "Reserved"));
+		break;
+	  }
+
+     subtree = proto_item_add_subtree(ti, ett_bootp_option);
+     if (tlv_type == DOCS_CM_RNGHLDOFF_SUP) 
+     {
+       for (i = 0 ; i < 4; i++) 
+       {
+         decode_bitfield_value(bit_fld, 
+                               (val_other[2] << sizeof(guint8)) + val_other[3],
+                               docs_cm_ranging_hold_off_vals[i].value, 
+                               16);
+         proto_tree_add_text(subtree, tvb, off + 1, 4, "%s%s",
+                               bit_fld, docs_cm_ranging_hold_off_vals[i].strptr);
+       }
+     }
+     if (tlv_type == DOCS_CM_USSYMRATE_SUP)
+     {
+       for (i = 0 ; i < 6; i++) 
+       {
+         decode_bitfield_value(bit_fld, val_byte,docs_cm_ussymrate_vals[i].value, 16);
+         proto_tree_add_text(subtree, tvb, off + 1, 4, "%s%s",
+                             bit_fld, docs_cm_ussymrate_vals[i].strptr);
+                            
+       }
+     }
+     if (opt125)
+     {
+       off += (tlv_len) + 2;
+     }
+     else
+     {
+       off += (tlv_len *2) + 4;
+     }
+  
+   }
+}
 
 /* Definitions specific to PKT-SP-PROV-I05-021127 begin with "PKT_CCC_I05".
    Definitions specific to IETF draft 5 and RFC 3495 begin with "PKT_CCC_IETF".
