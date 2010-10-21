@@ -982,6 +982,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-tds.c
 	dissectors/packet-teamspeak2.c
 	dissectors/packet-teimanagement.c
+	dissectors/packet-teklink.c
 	dissectors/packet-telnet.c
 	dissectors/packet-teredo.c
 	dissectors/packet-text-media.c

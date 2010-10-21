@@ -896,6 +896,7 @@ DISSECTOR_SRC = \
 	packet-teredo.c		\
 	packet-text-media.c	\
 	packet-telkonet.c	\
+	packet-teklink.c	\
 	packet-tftp.c		\
 	packet-time.c		\
 	packet-tipc.c		\
