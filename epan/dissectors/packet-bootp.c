@@ -3730,17 +3730,17 @@ static void get_opt60_tlv(tvbuff_t *tvb, guint off, guint8 *tlvtype, guint8 *tlv
   val_asc = (guint8 *)ep_alloc0(4);
   /* Type */
   tvb_memcpy(tvb, val_asc, off, 2);
-  *tlvtype = strtoul((gchar*)val_asc, NULL, 16);
+  *tlvtype = (guint8)strtoul((gchar*)val_asc, NULL, 16);
   /* Length */
   tvb_memcpy(tvb, val_asc, off + 2, 2);
-  *tlvlen = strtoul((gchar*)val_asc, NULL, 16);
+  *tlvlen = (guint8)strtoul((gchar*)val_asc, NULL, 16);
   /* Value */
   *value = (guint8 *)ep_alloc0(*tlvlen);
   for (i=0; i<*tlvlen; i++)
   {
     memset(val_asc, 0, sizeof (val_asc));
     tvb_memcpy(tvb, val_asc, off + ((i*2) + 4), 2);
-    (*value)[i] = strtoul((gchar*)val_asc, NULL, 16);
+    (*value)[i] = (guint8)strtoul((gchar*)val_asc, NULL, 16);
   }
 }
 
@@ -3773,9 +3773,9 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
         }
         else
         {
-         /* Option 60 is formatted as an ascii string. 
-            Since the capabilities are the same for both options 
-            I am converting the Option 60 values from ascii to 
+         /* Option 60 is formatted as an ascii string.
+            Since the capabilities are the same for both options
+            I am converting the Option 60 values from ascii to
             uint8s to allow the same parser to work for both */
           off += DOCS_CM_TLV_OFF;
           tvb_memcpy (tvb, asc_val, off, 2);
@@ -3792,7 +3792,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
           tlv_len = 0;
           val_byte = 0;
           val_uint16 = 0;
-          
+
           if (opt125)
           {
             get_opt125_tlv(tvb, off, &tlv_type, &tlv_len, &val_other);
@@ -3804,8 +3804,8 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
           }
           else
           {
-           /* Option 60 is formatted as an ascii string.  Since the capabilities 
-              are the same for both options I am converting the Option 60 values 
+           /* Option 60 is formatted as an ascii string.  Since the capabilities
+              are the same for both options I am converting the Option 60 values
               from ascii to uint8s to allow the same parser to work for both */
             get_opt60_tlv(tvb, off, &tlv_type, &tlv_len, &val_other);
             ti = proto_tree_add_text(v_tree, tvb, off,
@@ -3814,22 +3814,22 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
                                      tlv_type,
                                      val_to_str(tlv_type, docs_cm_type_vals, "unknown"));
           }
-         
-          if (tlv_len == 1) 
+
+          if (tlv_len == 1)
           {
             /* The value refers to a byte. */
             val_byte = val_other[0];
-          } 
+          }
           else
-          {  
-            if (tlv_len == 2) 
+          {
+            if (tlv_len == 2)
             {
               /* The value refers to a uint16. */
               val_uint16 = (val_other[0] << 8) + val_other[1];
             }
           }
 
-	  switch (tlv_type) 
+	  switch (tlv_type)
 	  {
 	    case DOCS_CM_CONCAT_SUP:
 	    case DOCS_CM_FRAG_SUP:
@@ -3967,13 +3967,13 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 	  }
 
      subtree = proto_item_add_subtree(ti, ett_bootp_option);
-     if (tlv_type == DOCS_CM_RNGHLDOFF_SUP) 
+     if (tlv_type == DOCS_CM_RNGHLDOFF_SUP)
      {
-       for (i = 0 ; i < 4; i++) 
+       for (i = 0 ; i < 4; i++)
        {
-         decode_bitfield_value(bit_fld, 
+         decode_bitfield_value(bit_fld,
                                (val_other[2] << sizeof(guint8)) + val_other[3],
-                               docs_cm_ranging_hold_off_vals[i].value, 
+                               docs_cm_ranging_hold_off_vals[i].value,
                                16);
          proto_tree_add_text(subtree, tvb, off + 1, 4, "%s%s",
                                bit_fld, docs_cm_ranging_hold_off_vals[i].strptr);
@@ -3981,12 +3981,12 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
      }
      if (tlv_type == DOCS_CM_USSYMRATE_SUP)
      {
-       for (i = 0 ; i < 6; i++) 
+       for (i = 0 ; i < 6; i++)
        {
          decode_bitfield_value(bit_fld, val_byte,docs_cm_ussymrate_vals[i].value, 16);
          proto_tree_add_text(subtree, tvb, off + 1, 4, "%s%s",
                              bit_fld, docs_cm_ussymrate_vals[i].strptr);
-                            
+
        }
      }
      if (opt125)
@@ -3997,7 +3997,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
      {
        off += (tlv_len *2) + 4;
      }
-  
+
    }
 }
 
