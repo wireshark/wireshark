@@ -1,13 +1,11 @@
 /* packet-coap.c
  * Routines for COAP packet disassembly
- * Shoichi Sakane <sakane@tanu.org>
- *
- * $Id$
- *
- * draft-core-coap-02.txt
  * draft-ietf-core-coap-02.txt
  * draft-ietf-core-block-00.txt
  * draft-ietf-core-observe-00.txt
+ * Shoichi Sakane <sakane@tanu.org>
+ *
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -46,7 +44,6 @@ static int hf_coap_ttype		= -1;
 static int hf_coap_opt_count		= -1;
 static int hf_coap_code			= -1;
 static int hf_coap_tid			= -1;
-static int hf_coap_opt_type		= -1;
 static int hf_coap_opt_ctype		= -1;
 static int hf_coap_opt_etag		= -1;
 static int hf_coap_opt_uri_authority	= -1;
@@ -413,18 +410,17 @@ void
 proto_register_coap(void)
 {
 	static hf_register_info hf[] = {
-	    { &hf_coap_version, { "Version", "coap.version", FT_UINT8, BASE_DEC, NULL, 0xc0, "COAP Version", HFILL }},
-	    { &hf_coap_ttype, { "Type", "coap.type", FT_UINT8, BASE_DEC, VALS(&vals_ttype), 0x30, "COAP Transaction Type", HFILL }},
-	    { &hf_coap_opt_count, { "Option Count", "coap.optcount", FT_UINT8, BASE_DEC, NULL, 0x0f, "COAP Option Count", HFILL }},
-	    { &hf_coap_code, { "Code", "coap.code", FT_UINT8, BASE_DEC, VALS(&vals_code), 0x0, "COAP Method or Response Code", HFILL }},
-	    { &hf_coap_tid, { "Transaction ID", "coap.tid", FT_UINT16, BASE_DEC, NULL, 0x0, "COAP Transaction ID", HFILL }},
-	    { &hf_coap_opt_type, { "Option Type", "coap.opt.opt_type", FT_UINT8, BASE_DEC, VALS(&vals_opt_type), 0x0, "COAP Option Type", HFILL }},
-	    { &hf_coap_opt_ctype, { "Content-type", "coap.opt.ctype", FT_UINT8, BASE_DEC, VALS(&vals_ctype), 0x0, "COAP Media Type", HFILL }},
-	    { &hf_coap_opt_etag, { "Etag", "coap.opt.etag", FT_BYTES, BASE_NONE, NULL, 0x0, "COAP Etag", HFILL }},
-	    { &hf_coap_opt_uri_authority, { "Uri-Authority", "coap.opt.uri_auth", FT_STRING, BASE_NONE, NULL, 0x0, "COAP Uri-Authority", HFILL }},
-	    { &hf_coap_opt_location, { "Location", "coap.opt.location", FT_STRING, BASE_NONE, NULL, 0x0, "COAP Location", HFILL }},
-	    { &hf_coap_opt_uri_path, { "Uri-Path", "coap.opt.uri_path", FT_STRING, BASE_NONE, NULL, 0x0, "COAP Uri-Path", HFILL }},
-	    { &hf_coap_opt_opaque_bytes, { "Opaque Bytes", "coap.opt.opaquebytes", FT_BYTES, BASE_NONE, NULL, 0x0, "COAP Opaque Bytes", HFILL }},
+		{ &hf_coap_version, { "Version", "coap.version", FT_UINT8, BASE_DEC, NULL, 0xc0, "COAP Version", HFILL }},
+		{ &hf_coap_ttype, { "Type", "coap.type", FT_UINT8, BASE_DEC, VALS(&vals_ttype), 0x30, "COAP Transaction Type", HFILL }},
+		{ &hf_coap_opt_count, { "Option Count", "coap.optcount", FT_UINT8, BASE_DEC, NULL, 0x0f, "COAP Option Count", HFILL }},
+		{ &hf_coap_code, { "Code", "coap.code", FT_UINT8, BASE_DEC, VALS(&vals_code), 0x0, "COAP Method or Response Code", HFILL }},
+		{ &hf_coap_tid, { "Transaction ID", "coap.tid", FT_UINT16, BASE_DEC, NULL, 0x0, "COAP Transaction ID", HFILL }},
+		{ &hf_coap_opt_ctype, { "Content-type", "coap.opt.ctype", FT_UINT8, BASE_DEC, VALS(&vals_ctype), 0x0, "COAP Media Type", HFILL }},
+		{ &hf_coap_opt_etag, { "Etag", "coap.opt.etag", FT_BYTES, BASE_NONE, NULL, 0x0, "COAP Etag", HFILL }},
+		{ &hf_coap_opt_uri_authority, { "Uri-Authority", "coap.opt.uri_auth", FT_STRING, BASE_NONE, NULL, 0x0, "COAP Uri-Authority", HFILL }},
+		{ &hf_coap_opt_location, { "Location", "coap.opt.location", FT_STRING, BASE_NONE, NULL, 0x0, "COAP Location", HFILL }},
+		{ &hf_coap_opt_uri_path, { "Uri-Path", "coap.opt.uri_path", FT_STRING, BASE_NONE, NULL, 0x0, "COAP Uri-Path", HFILL }},
+		{ &hf_coap_opt_opaque_bytes, { "Opaque Bytes", "coap.opt.opaquebytes", FT_BYTES, BASE_NONE, NULL, 0x0, "COAP Opaque Bytes", HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -455,9 +451,9 @@ proto_register_coap(void)
 	coap_module = prefs_register_protocol (proto_coap, proto_reg_handoff_coap);
 
 	prefs_register_uint_preference (coap_module, "udp_port",
-					"COAP port number",
-					"Port number used for COAP traffic",
-					10, &global_coap_port_number);
+				        "COAP port number",
+				        "Port number used for COAP traffic",
+				        10, &global_coap_port_number);
 }
 
 void
@@ -465,7 +461,7 @@ proto_reg_handoff_coap(void)
 {
 	static gboolean coap_prefs_initialized = FALSE;
 	static dissector_handle_t coap_handle;
-	static guint    coap_port_number;
+	static guint coap_port_number;
 
 	if (!coap_prefs_initialized) {
 		coap_handle = find_dissector("coap");
