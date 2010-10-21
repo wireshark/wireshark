@@ -35,6 +35,10 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
+#if 0
+#include <math.h>	/* for exp2() to calculate a block size */
+#endif
+
 static dissector_table_t media_type_dissector_table;
 
 static int proto_coap = -1;
@@ -44,25 +48,23 @@ static int hf_coap_ttype		= -1;
 static int hf_coap_opt_count		= -1;
 static int hf_coap_code			= -1;
 static int hf_coap_tid			= -1;
+static int hf_coap_opt_delta		= -1;
+static int hf_coap_opt_length4		= -1;
+static int hf_coap_opt_length12		= -1;
 static int hf_coap_opt_ctype		= -1;
 static int hf_coap_opt_etag		= -1;
+static int hf_coap_opt_max_age		= -1;
 static int hf_coap_opt_uri_authority	= -1;
 static int hf_coap_opt_location		= -1;
 static int hf_coap_opt_uri_path		= -1;
+static int hf_coap_opt_subscr_lifetime	= -1;
 static int hf_coap_opt_opaque_bytes	= -1;
+static int hf_coap_opt_block_number	= -1;
+static int hf_coap_opt_block_mflag	= -1;
+static int hf_coap_opt_block_size	= -1;
 
 static gint ett_coap			= -1;
-static gint ett_coap_noop		= -1;
-static gint ett_coap_ctype		= -1;
-static gint ett_coap_max_age		= -1;
-static gint ett_coap_uri_scheme		= -1;
-static gint ett_coap_etag		= -1;
-static gint ett_coap_uri_authority	= -1;
-static gint ett_coap_location		= -1;
-static gint ett_coap_uri_path		= -1;
-static gint ett_coap_subscr_lifetime	= -1;
-static gint ett_coap_opaque_bytes	= -1;
-static gint ett_coap_block		= -1;
+static gint ett_coap_option		= -1;
 static gint ett_coap_payload		= -1;
 
 /* TODO: COAP port number will be assigned by IANA after the draft become a RFC */
@@ -165,44 +167,60 @@ static const value_string vals_ctype[] = {
 
 void proto_reg_handoff_coap(void);
 
+static void
+dissect_coap_opt(tvbuff_t *tvb, proto_tree *subtree, gint offset, gint opt_length, int hfindex)
+{
+	proto_tree_add_item(subtree, hfindex, tvb, offset, opt_length, FALSE);
+}
+
+static void
+dissect_coap_opt_ctype(tvbuff_t *tvb, proto_tree *subtree, gint offset, gint opt_length)
+{
+	guint32 opt_ctype = 0;
+
+	opt_ctype = tvb_get_guint8(tvb, offset);
+	coap_content_type = val_to_str(opt_ctype, vals_ctype, "Unknown %d");
+	proto_tree_add_item(subtree, hf_coap_opt_ctype, tvb, offset, opt_length, FALSE);
+}
+
 /* the value of opt_length should be checked out of this function */
 static void
-dissect_coap_opt_time(tvbuff_t *tvb, proto_tree *subtree, int offset, gint opt_length, char *str)
+dissect_coap_opt_time(tvbuff_t *tvb, proto_tree *subtree, gint offset, gint opt_length, int hfindex)
 {
-	guint time = 0;
+	guint32 time = 0;
 
 	switch (opt_length) {
 	case 0:
 		time = 0;
 		break;
 	case 1:
-		time = (guint)tvb_get_guint8(tvb, offset);
+		time = (guint32)tvb_get_guint8(tvb, offset);
 		break;
 	case 2:
-		time = (guint)tvb_get_ntohs(tvb, offset);
+		time = (guint32)tvb_get_ntohs(tvb, offset);
 		break;
 	case 3:
-		time = (guint)tvb_get_ntoh24(tvb, offset);
+		time = (guint32)tvb_get_ntoh24(tvb, offset);
 		break;
 	case 4:
-		time = (guint)tvb_get_ntohl(tvb, offset);
+		time = (guint32)tvb_get_ntohl(tvb, offset);
 		break;
 	default:
 		proto_tree_add_text(subtree, tvb, 0, 0, "Invalid length: %d", opt_length);
 		break;
 	}
-	proto_tree_add_text(subtree, tvb, offset, opt_length, "%s: %d (s)", str, time);
+	proto_tree_add_int_format(subtree, hfindex, tvb, offset, opt_length, time, "%d (s)", time);
 
 	return;
 }
 
 static void
-dissect_coap_opt_block(tvbuff_t *tvb, proto_tree *subtree, int offset, gint opt_length)
+dissect_coap_opt_block(tvbuff_t *tvb, proto_tree *subtree, gint offset, gint opt_length)
 {
 	guint block_number = 0;
-	guint more_flag = 0;
-	guint block_size = 0;
+	guint encoded_block_size = 0;
 	guint8 val = 0;
+	proto_item *item;
 
 	switch (opt_length) {
 	case 1:
@@ -220,11 +238,15 @@ dissect_coap_opt_block(tvbuff_t *tvb, proto_tree *subtree, int offset, gint opt_
 	}
 
 	val = tvb_get_guint8(tvb, offset + opt_length - 1) & 0x0f;
-	more_flag = (val & 0x08) >> 3;
-	block_size = val & 0x07;
-	block_size = 2^(block_size + 4);
+	encoded_block_size = val & 0x07;
 
-	proto_tree_add_text(subtree, tvb, offset, opt_length, "Block Number:%d, More Flag:%d, Block Size:%d", block_number, more_flag, block_size);
+	proto_tree_add_int(subtree, hf_coap_opt_block_number, tvb, offset, opt_length, block_number);
+	proto_tree_add_item(subtree, hf_coap_opt_block_mflag, tvb, offset + opt_length - 1, 1, FALSE);
+	item = proto_tree_add_item(subtree, hf_coap_opt_block_size, tvb, offset + opt_length - 1, 1, FALSE);
+#if 0
+	proto_item_append_text(item, ", results %.0f = exp2(%d + 4)", exp2(encoded_block_size + 4), encoded_block_size);
+#endif
+
 }
 
 /*
@@ -232,14 +254,13 @@ dissect_coap_opt_block(tvbuff_t *tvb, proto_tree *subtree, int offset, gint opt_
  * return the total length of the option including the header (e.g. delta and length).
  */
 static int
-dissect_coap_options(tvbuff_t *tvb, proto_tree *coap_tree, proto_tree *parent_tree _U_, int offset, guint8 opt_count, guint8 *opt_code)
+dissect_coap_options(tvbuff_t *tvb, proto_tree *coap_tree, gint offset, guint8 opt_count, guint8 *opt_code)
 {
 	guint8 opt_delta;
-	guint32 opt_ctype = 0;
 	gint opt_length;
 	proto_tree *subtree = NULL;
 	proto_item *item = NULL;
-	int opt_hlen = 0;
+	gint opt_hlen = 0;
 
 	opt_delta = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
 	*opt_code += opt_delta;
@@ -251,57 +272,51 @@ dissect_coap_options(tvbuff_t *tvb, proto_tree *coap_tree, proto_tree *parent_tr
 	}
 
 	item = proto_tree_add_text(coap_tree, tvb, offset, opt_hlen + opt_length,
-			           "Option #%u (Length: %u) %s", opt_count, opt_length,
-				   val_to_str(*opt_code, vals_opt_type, "Unknown Option Type %u"));
+			           "Option #%u: %s (Type: %u)",
+				   opt_count, val_to_str(*opt_code, vals_opt_type, "Unknown Option"), *opt_code);
+
+	subtree = proto_item_add_subtree(item, ett_coap_option);
+	proto_tree_add_item(subtree, hf_coap_opt_delta, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, opt_hlen == 1 ? hf_coap_opt_length4 : hf_coap_opt_length12, tvb, offset, opt_hlen, FALSE);
 	offset += opt_hlen;
 
 	/* if opt_code is a multiple of 14, that means the option is a noop option */
 	if (*opt_code % 14 == 0) {
-		subtree = proto_item_add_subtree(item, ett_coap_noop);
 		proto_tree_add_text(subtree, tvb, 0, 0, "No-Op option");
 	} else {
 		switch (*opt_code) {
 		case COAP_OPT_CONTENT_TYPE:
-			subtree = proto_item_add_subtree(item, ett_coap_ctype);
-			opt_ctype = tvb_get_guint8(tvb, offset);
-			coap_content_type = val_to_str(opt_ctype, vals_ctype, "Unknown %d");
-			proto_tree_add_item(subtree, hf_coap_opt_ctype, tvb, offset, 1, FALSE);
+			dissect_coap_opt_ctype(tvb, subtree, offset, opt_length);
 			break;
 		case COAP_OPT_MAX_AGE:
-			subtree = proto_item_add_subtree(item, ett_coap_max_age);
-			dissect_coap_opt_time(tvb, subtree, offset, opt_length, "Max-age");
+			dissect_coap_opt_time(tvb, subtree, offset, opt_length, hf_coap_opt_max_age);
 			break;
 		case COAP_OPT_SUBSCR_LIFETIME:
-			subtree = proto_item_add_subtree(item, ett_coap_subscr_lifetime);
-			dissect_coap_opt_time(tvb, subtree, offset, opt_length, "Subscription Lifetime");
+			dissect_coap_opt_time(tvb, subtree, offset, opt_length, hf_coap_opt_subscr_lifetime);
 			break;
 		case COAP_OPT_ETAG:
-			subtree = proto_item_add_subtree(item, ett_coap_etag);
-			proto_tree_add_item(subtree, hf_coap_opt_etag, tvb, offset, opt_length, FALSE);
+			dissect_coap_opt(tvb, subtree, offset, opt_length, hf_coap_opt_etag);
 			break;
 		case COAP_OPT_URI_AUTHORITY:
-			subtree = proto_item_add_subtree(item, ett_coap_uri_authority);
-			proto_tree_add_item(subtree, hf_coap_opt_uri_authority, tvb, offset, opt_length, FALSE);
+			dissect_coap_opt(tvb, subtree, offset, opt_length, hf_coap_opt_uri_authority);
 			break;
 		case COAP_OPT_LOCATION:
-			subtree = proto_item_add_subtree(item, ett_coap_location);
-			proto_tree_add_item(subtree, hf_coap_opt_location, tvb, offset, opt_length, FALSE);
+			dissect_coap_opt(tvb, subtree, offset, opt_length, hf_coap_opt_location);
 			break;
 		case COAP_OPT_URI_PATH:
-			subtree = proto_item_add_subtree(item, ett_coap_uri_path);
-			proto_tree_add_item(subtree, hf_coap_opt_uri_path, tvb, offset, opt_length, FALSE);
+			dissect_coap_opt(tvb, subtree, offset, opt_length, hf_coap_opt_uri_path);
 			break;
 		case COAP_OPT_OPAQUE_BYTES:
-			/* TODO: implement it after a draft will be published */
+			dissect_coap_opt(tvb, subtree, offset, opt_length, hf_coap_opt_opaque_bytes);
 			break;
 		case COAP_OPT_BLOCK:
-			subtree = proto_item_add_subtree(item, ett_coap_block);
 			dissect_coap_opt_block(tvb, subtree, offset, opt_length);
 			break;
 		default:
 			proto_tree_add_text(subtree, tvb, 0, 0, "Unkown Option Type");
 		}
 	}
+
 	return offset + opt_length;
 }
 
@@ -361,7 +376,7 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	/* dissect the options */
 	for (i = 1; i <= opt_count; i++) {
-		offset = dissect_coap_options(tvb, coap_tree, parent_tree, offset, i, &opt_code);
+		offset = dissect_coap_options(tvb, coap_tree, offset, i, &opt_code);
 		if (coap_length < offset) {
 			/* error */
 			proto_tree_add_text(coap_tree, tvb, 0, 0, "Invalid length: coap_length(%d) < offset(%d)", coap_length, offset);
@@ -390,8 +405,8 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			ctype_str_default = " (default)";
 		}
 		/*
-		 * TODO: should the content type be canonicalized,
-		 * currently assuming it be small ?
+		 * TODO: should the content type be canonicalized ?
+		 * currently assuming it be small.
 		 */
 
 		payload_item = proto_tree_add_text(coap_tree, tvb, offset, -1, "Payload Content-Type: %s%s, Length: %u, offset: %u",
@@ -415,27 +430,25 @@ proto_register_coap(void)
 		{ &hf_coap_opt_count, { "Option Count", "coap.optcount", FT_UINT8, BASE_DEC, NULL, 0x0f, "COAP Option Count", HFILL }},
 		{ &hf_coap_code, { "Code", "coap.code", FT_UINT8, BASE_DEC, VALS(&vals_code), 0x0, "COAP Method or Response Code", HFILL }},
 		{ &hf_coap_tid, { "Transaction ID", "coap.tid", FT_UINT16, BASE_DEC, NULL, 0x0, "COAP Transaction ID", HFILL }},
-		{ &hf_coap_opt_ctype, { "Content-type", "coap.opt.ctype", FT_UINT8, BASE_DEC, VALS(&vals_ctype), 0x0, "COAP Media Type", HFILL }},
+		{ &hf_coap_opt_delta, { "Delta", "coap.opt.delta", FT_UINT8, BASE_DEC, NULL, 0xf0, "COAP Option Delta", HFILL }},
+		{ &hf_coap_opt_length4, { "Length", "coap.opt.length4", FT_UINT8, BASE_DEC, NULL, 0x0f, "COAP Option Length", HFILL }},
+		{ &hf_coap_opt_length12, { "Length", "coap.opt.length12", FT_UINT16, BASE_DEC, NULL, 0x0fff, "COAP Option Length", HFILL }},
+		{ &hf_coap_opt_ctype, { "Content-type", "coap.opt.ctype", FT_UINT8, BASE_DEC, VALS(&vals_ctype), 0x0, "COAP Content Type", HFILL }},
+		{ &hf_coap_opt_max_age, { "Max-age", "coap.opt.max_age", FT_INT32, BASE_DEC, NULL, 0x0, "COAP Max-age", HFILL }},
 		{ &hf_coap_opt_etag, { "Etag", "coap.opt.etag", FT_BYTES, BASE_NONE, NULL, 0x0, "COAP Etag", HFILL }},
 		{ &hf_coap_opt_uri_authority, { "Uri-Authority", "coap.opt.uri_auth", FT_STRING, BASE_NONE, NULL, 0x0, "COAP Uri-Authority", HFILL }},
 		{ &hf_coap_opt_location, { "Location", "coap.opt.location", FT_STRING, BASE_NONE, NULL, 0x0, "COAP Location", HFILL }},
 		{ &hf_coap_opt_uri_path, { "Uri-Path", "coap.opt.uri_path", FT_STRING, BASE_NONE, NULL, 0x0, "COAP Uri-Path", HFILL }},
+		{ &hf_coap_opt_subscr_lifetime, { "Subscription Lifetime", "coap.opt.subscr_lifetime", FT_INT32, BASE_DEC, NULL, 0x0, "COAP Subscription Lifetime", HFILL }},
 		{ &hf_coap_opt_opaque_bytes, { "Opaque Bytes", "coap.opt.opaquebytes", FT_BYTES, BASE_NONE, NULL, 0x0, "COAP Opaque Bytes", HFILL }},
+		{ &hf_coap_opt_block_number, { "Block Number", "coap.opt.block_number", FT_INT32, BASE_DEC, NULL, 0x0, "COAP Block Number", HFILL }},
+		{ &hf_coap_opt_block_mflag, { "More Flag", "coap.opt.block_mflag", FT_UINT8, BASE_DEC, NULL, 0x08, "COAP Block More Flag", HFILL }},
+		{ &hf_coap_opt_block_size, { "Block Size", "coap.opt.block_size", FT_UINT8, BASE_DEC, NULL, 0x07, "COAP Block Size", HFILL }},
 	};
 
 	static gint *ett[] = {
 		&ett_coap,
-		&ett_coap_noop,
-		&ett_coap_ctype,
-		&ett_coap_max_age,
-		&ett_coap_uri_scheme,
-		&ett_coap_etag,
-		&ett_coap_uri_authority,
-		&ett_coap_location,
-		&ett_coap_uri_path,
-		&ett_coap_subscr_lifetime,
-		&ett_coap_opaque_bytes,
-		&ett_coap_block,
+		&ett_coap_option,
 		&ett_coap_payload,
 	};
 
