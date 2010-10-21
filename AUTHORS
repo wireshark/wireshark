@@ -2940,7 +2940,7 @@ Alexis La Goutte	<alexis.lagoutte [AT] gmail.com> {
 	PAPI dissector
 	Miscellaneous ISAKMP enhancements
 	Packet TCP Mood Option (RFC5841) support
-	PPTP, GRE dissector enhancements (Rework)
+	PPTP, GRE, PPP PAP dissector enhancements (Rework)
 }
 
 Varun Notibala		<nbvarun [AT] gmail.com> {

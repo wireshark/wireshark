@@ -189,6 +189,18 @@ static gint ett_pap_peer_id	= -1;
 static gint ett_pap_password	= -1;
 static gint ett_pap_message	= -1;
 
+static gint hf_pap_code		= -1;
+static gint hf_pap_identifier	= -1;
+static gint hf_pap_length	= -1;
+static gint hf_pap_data		= -1;
+static gint hf_pap_peer_id	= -1;
+static gint hf_pap_peer_id_length = -1;
+static gint hf_pap_password	= -1;
+static gint hf_pap_password_length = -1;
+static gint hf_pap_message	= -1;
+static gint hf_pap_message_length = -1;
+static gint hf_pap_stuff	= -1;
+
 static int proto_chap		= -1;		/* CHAP vars */
 static gint ett_chap		= -1;
 static gint ett_chap_data	= -1;
@@ -200,6 +212,7 @@ static gint ett_chap_message	= -1;
 static gint hf_chap_code	= -1;
 static gint hf_chap_identifier	= -1;
 static gint hf_chap_length	= -1;
+static gint hf_chap_data	= -1;
 static gint hf_chap_value_size	= -1;
 static gint hf_chap_value	= -1;
 static gint hf_chap_name	= -1;
@@ -4345,7 +4358,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
  * it directly for USB captures, some captures like the following will not be
  * dissected correctly:
  * http://wiki.wireshark.org/SampleCaptures#head-886e340c31ca977f321c921f81cbec4c21bb7738
- * 
+ *
  * NOTE: I don't know if these heuristics are sufficient.  Time will tell ...
  */
 static void
@@ -4358,12 +4371,12 @@ dissect_ppp_usb( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
   const guchar buf2[4] = {0x7e, 0xff, 0x7d, 0x23};
   tvbuff_t *next_tvb;
 
-  if ((tvb_memeql(tvb, 0, buf2, sizeof(buf2)) == 0) || 
+  if ((tvb_memeql(tvb, 0, buf2, sizeof(buf2)) == 0) ||
     (tvb_memeql(tvb, 0, buf1, sizeof(buf1)) == 0)) {
     dissect_ppp_raw_hdlc(tvb, pinfo, tree);
   }
   else if ((tvb_memeql(tvb, 0, &buf1[1], sizeof(buf1) - 1) == 0) ||
-    (tvb_memeql(tvb, 0, &buf2[1], sizeof(buf2) - 1) == 0)) { 
+    (tvb_memeql(tvb, 0, &buf2[1], sizeof(buf2) - 1) == 0)) {
     /* It's missing the 0x7e framing character.  What TODO?
      * Should we try faking it by sticking 0x7e in front?  Or try telling
      * dissect_ppp_raw_hdlc() NOT to look for the 0x7e frame deliminator?
@@ -4423,24 +4436,16 @@ proto_reg_handoff_ppp_raw_hdlc(void)
  */
 static void
 dissect_pap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
-  proto_item *ti;
-  proto_tree *fh_tree = NULL;
-  proto_item *tf;
-  proto_tree *field_tree;
-  proto_item *tm;
-  proto_tree *message_tree;
-  proto_item *tp;
-  proto_tree *peer_id_tree;
-  proto_item *tpw;
-  proto_tree *passwd_tree;
+  proto_item *ti, *data_ti;
+  proto_tree *fh_tree, *data_tree = NULL;
 
   guint8 code;
-  guint8 id, peer_id_length, password_length, msg_length;
-  int length, offset;
+  gchar *peer_id, *password, *message;
+  guint8 id, peer_id_length, password_length, message_length;
+  int offset=0;
 
   code = tvb_get_guint8(tvb, 0);
   id = tvb_get_guint8(tvb, 1);
-  length = tvb_get_ntohs(tvb, 2);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP PAP");
 
@@ -4449,73 +4454,68 @@ dissect_pap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
                 val_to_str(code, pap_vals, "Unknown"));
 
   if(tree) {
-    ti = proto_tree_add_item(tree, proto_pap, tvb, 0, length, FALSE);
+    ti = proto_tree_add_item(tree, proto_pap, tvb, 0, -1, FALSE);
     fh_tree = proto_item_add_subtree(ti, ett_pap);
-    proto_tree_add_text(fh_tree, tvb, 0, 1, "Code: %s (0x%02x)",
-                        val_to_str(code, pap_vals, "Unknown"), code);
-    proto_tree_add_text(fh_tree, tvb, 1, 1, "Identifier: 0x%02x",
-                        id);
-    proto_tree_add_text(fh_tree, tvb, 2, 2, "Length: %u",
-                        length);
-  }
-  offset = 4;
-  length -= 4;
+    /* Code */
+    proto_tree_add_item(fh_tree, hf_pap_code, tvb, offset, 1, FALSE);
+    offset += 1;
 
-  switch (code) {
-  case CONFREQ:
-    if(tree) {
-      if (length > 0) {
-        tf = proto_tree_add_text(fh_tree, tvb, offset, length,
-                                 "Data (%d byte%s)", length, plurality(length, "", "s"));
-        field_tree = proto_item_add_subtree(tf, ett_pap_data);
-        peer_id_length = tvb_get_guint8(tvb, offset);
-        tp = proto_tree_add_text(field_tree, tvb, offset,      1,
-                                 "Peer ID length: %d byte%s", peer_id_length, plurality(peer_id_length, "", "s"));
-        if (--length > 0) {
-          peer_id_tree = proto_item_add_subtree(tp, ett_pap_peer_id);
-          proto_tree_add_text(peer_id_tree, tvb, ++offset, ppp_min(peer_id_length, length),
-                              "Peer-ID (%d byte%s)", peer_id_length, plurality(peer_id_length, "", "s"));
-          offset+=peer_id_length;
-          length-=peer_id_length;
-          if (length > 0) {
-            password_length = tvb_get_guint8(tvb, offset);
-            if (--length > 0) {
-              tpw = proto_tree_add_text(field_tree, tvb, offset,      1,
-                                        "Password length: %d byte%s", password_length, plurality(password_length, "", "s"));
-              passwd_tree = proto_item_add_subtree(tpw, ett_pap_password);
-              proto_tree_add_text(passwd_tree, tvb, ++offset, ppp_min(password_length, length),
-                                  "Password (%d byte%s)", password_length, plurality(password_length, "", "s"));
-            }
-          }
-        }
-      }
-    }
-    break;
+    /* Identifier */
+    proto_tree_add_item(fh_tree, hf_pap_identifier, tvb, offset, 1, FALSE);
+    offset += 1;
 
-  case CONFACK:
-  case CONFNAK:
-    if(tree) {
-      if (length > 0) {
-        tf = proto_tree_add_text(fh_tree, tvb, offset, length,
-                                 "Data (%d byte%s)", length, plurality(length, "", "s"));
-        field_tree = proto_item_add_subtree(tf, ett_pap_data);
-        msg_length = tvb_get_guint8(tvb, offset);
-        tm = proto_tree_add_text(field_tree, tvb, offset,      1,
-                                 "Message length: %d byte%s", msg_length, plurality(msg_length, "", "s"));
-        if (--length > 0) {
-          message_tree = proto_item_add_subtree(tm, ett_pap_message);
-          proto_tree_add_text(message_tree, tvb, ++offset, ppp_min(msg_length, length),
-                              "Message (%d byte%s)", msg_length, plurality(msg_length, "", "s"));
-        }
-      }
-    }
-    break;
-  default:
-    if (length > 0)
-      proto_tree_add_text(fh_tree, tvb, offset, length, "Stuff (%d byte%s)",
-                          length, plurality(length, "", "s"));
-    break;
+    /* Length */
+    proto_tree_add_item(fh_tree, hf_pap_length, tvb, offset, 2, FALSE);
+    offset += 2;
+
+
+    data_ti = proto_tree_add_item(fh_tree, hf_pap_data, tvb, offset, -1, FALSE);
+    data_tree = proto_item_add_subtree(data_ti, ett_pap_data);
+
+    switch(code){
+	case CONFREQ:
+	   proto_tree_add_item(data_tree, hf_pap_peer_id_length, tvb, offset, 1, FALSE);
+	   peer_id_length = tvb_get_guint8(tvb, offset);
+	   offset +=1;
+
+	   proto_tree_add_item(data_tree, hf_pap_peer_id, tvb, offset, peer_id_length, FALSE);
+	   peer_id = tvb_format_text(tvb, offset, peer_id_length);
+	   offset += peer_id_length;
+
+	   proto_tree_add_item(data_tree, hf_pap_password_length, tvb, offset, 1, FALSE);
+	   password_length = tvb_get_guint8(tvb, offset);
+	   offset +=1;
+
+	   proto_tree_add_item(data_tree, hf_pap_password, tvb, offset, password_length, FALSE);
+	   password = tvb_format_text(tvb, offset, password_length);
+	   offset += password_length;
+
+
+           if(check_col(pinfo->cinfo, COL_INFO)){
+             col_append_fstr(pinfo->cinfo, COL_INFO, " (Peer-ID='%s', Password='%s')", peer_id, password);
+	   }
+	break;
+	case CONFACK:
+	case CONFNAK:
+	   proto_tree_add_item(data_tree, hf_pap_message_length, tvb, offset, 1, FALSE);
+	   message_length = tvb_get_guint8(tvb, offset);
+	   offset +=1;
+
+	   proto_tree_add_item(data_tree, hf_pap_message, tvb, offset, message_length, FALSE);
+	   message = tvb_format_text(tvb, offset, message_length);
+	   offset += message_length;
+
+
+           if(check_col(pinfo->cinfo, COL_INFO)){
+             col_append_fstr(pinfo->cinfo, COL_INFO, " (Message='%s')", message);
+	   }
+	break;
+        default:
+           proto_tree_add_item(data_tree, hf_pap_stuff, tvb, offset, -1, FALSE);
+        break;
+	}
   }
+
 }
 
 /*
@@ -4582,9 +4582,8 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
         guint name_offset=0, name_size = 0;
 
         /* Create data subtree */
-        tf = proto_tree_add_text(fh_tree, tvb, offset, length,
-                                 "Data (%d byte%s)", length,
-                                 plurality(length, "", "s"));
+        tf = proto_tree_add_item(fh_tree, hf_chap_data, tvb, offset, length, FALSE);
+
         field_tree = proto_item_add_subtree(tf, ett_chap_data);
         length--;
 
@@ -5205,8 +5204,57 @@ proto_register_pap(void)
     &ett_pap_message,
   };
 
+  static hf_register_info hf[] = {
+    { &hf_pap_code,
+      { "Code", "pap.code",
+	FT_UINT8, BASE_DEC, VALS(pap_vals), 0x0,
+        "The Code field is one octet and identifies the type of PAP packet", HFILL }},
+    { &hf_pap_identifier,
+      { "Identifier", "pap.identifier",
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+        "The Identifier field is one octet and aids in matching requests and replies.", HFILL }},
+    { &hf_pap_length,
+      { "Length", "pap.length",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+        "The Length field is two octets and indicates the length of the PAP packet", HFILL }},
+    { &hf_pap_data,
+      { "Data", "pap.data",
+	FT_NONE, BASE_NONE, NULL, 0x0,
+        "The format of the Data field is determined by the Code field", HFILL }},
+    { &hf_pap_peer_id_length,
+      { "Peer-ID-Length", "pap.peer_id.length",
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+        "The Peer-ID-Length field is one octet and indicates the length of the Peer-ID field", HFILL }},
+    { &hf_pap_peer_id,
+      { "Peer-ID", "pap.peer_id",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+        "The Peer-ID field is zero or more octets and indicates the name of the peer to be authenticated", HFILL }},
+    { &hf_pap_password_length,
+      { "Password-Length", "pap.password.length",
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+        "The Password-Length field is one octet and indicates the length of the Password field", HFILL }},
+    { &hf_pap_password,
+      { "Password", "pap.password",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+        "The Password field is zero or more octets and indicates the password to be used for authentication", HFILL }},
+    { &hf_pap_message_length,
+      { "Message-Length", "pap.message.length",
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+        "The Message-Length field is one octet and indicates the length of the Message field", HFILL }},
+    { &hf_pap_message,
+      { "Message", "pap.message",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+        "The Message field is zero or more octets, and its contents are implementation dependent.", HFILL }},
+    { &hf_pap_stuff,
+      { "stuff", "pap.stuff",
+	FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }}
+	};
+
+
   proto_pap = proto_register_protocol("PPP Password Authentication Protocol", "PPP PAP",
                                       "pap");
+  proto_register_field_array(proto_pap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
 
@@ -5268,6 +5316,15 @@ proto_register_chap(void)
           FT_UINT16, BASE_DEC,
           NULL, 0x0,
           "CHAP length", HFILL
+        }
+      },
+      {
+        &hf_chap_data,
+        {
+          "Data", "chap.data",
+          FT_NONE, BASE_NONE,
+          NULL, 0x0,
+          "CHAP Data", HFILL
         }
       },
       {
