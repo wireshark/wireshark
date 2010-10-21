@@ -176,7 +176,7 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
 
     ipfix_debug0("ipfix_open: opening file");
 
-    /* number of records to scan before deciding if this really is ERF */
+    /* number of records to scan before deciding if this really is IPFIX */
     if ((s = getenv("IPFIX_RECORDS_TO_CHECK")) != NULL) {
         if ((n = atoi(s)) > 0 && n < 101) {
             records_for_ipfix_check = n;
