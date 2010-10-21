@@ -423,7 +423,8 @@ rpc_init_prog(int proto, guint32 prog, int ett)
 
 /*	return the hf_field associated with a previously registered program.
 */
-int rpc_prog_hf(guint32 prog, guint32 vers)
+int
+rpc_prog_hf(guint32 prog, guint32 vers)
 {
 	rpc_prog_info_key       rpc_prog_key;
 	rpc_prog_info_value     *rpc_prog;
@@ -438,7 +439,8 @@ int rpc_prog_hf(guint32 prog, guint32 vers)
 /*	return the name associated with a previously registered program. This
 	should probably eventually be expanded to use the rpc YP/NIS map
 	so that it can give names for programs not handled by wireshark */
-const char *rpc_prog_name(guint32 prog)
+const char *
+rpc_prog_name(guint32 prog)
 {
 	const char *progname = NULL;
 	rpc_prog_info_key       rpc_prog_key;
@@ -482,7 +484,7 @@ rpc_roundup(unsigned int a)
 
 int
 dissect_rpc_bool(tvbuff_t *tvb, proto_tree *tree,
-int hfindex, int offset)
+		 int hfindex, int offset)
 {
 	if (tree)
 		proto_tree_add_item(tree, hfindex, tvb, offset, 4, FALSE);
@@ -492,7 +494,7 @@ int hfindex, int offset)
 
 int
 dissect_rpc_uint32(tvbuff_t *tvb, proto_tree *tree,
-int hfindex, int offset)
+		   int hfindex, int offset)
 {
 	if (tree)
 		proto_tree_add_item(tree, hfindex, tvb, offset, 4, FALSE);
@@ -502,7 +504,7 @@ int hfindex, int offset)
 
 int
 dissect_rpc_uint64(tvbuff_t *tvb, proto_tree *tree,
-int hfindex, int offset)
+		   int hfindex, int offset)
 {
 	header_field_info	*hfinfo;
 
@@ -882,7 +884,7 @@ dissect_rpc_authgss_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 
 static int
 dissect_rpc_authdes_desblock(tvbuff_t *tvb, proto_tree *tree,
-int hfindex, int offset)
+			     int hfindex, int offset)
 {
 	guint32 value_low;
 	guint32 value_high;
@@ -1639,12 +1641,11 @@ dissect_rpc_continuation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *  and version values.
  */
 
-static void  make_fake_rpc_prog_if_needed (rpc_prog_info_key *prpc_prog_key,
-														 guint prog_ver)
+static void 
+make_fake_rpc_prog_if_needed (rpc_prog_info_key *prpc_prog_key, guint prog_ver)
 {
 
-rpc_prog_info_value *rpc_prog = NULL;
-
+	rpc_prog_info_value *rpc_prog = NULL;
 
 	/* sanity check: no one uses versions > 10 */
 	if(prog_ver>10){
@@ -3241,63 +3242,63 @@ static int
 find_rpc_over_tcp_reply_start(tvbuff_t *tvb, int offset)
 {
 
-/*
- * Looking for partial header sequence.  From beginning of
- * stream-style header, including "record mark", full ONC-RPC
- * looks like:
- *    BE int32    record mark (rfc 1831 sec. 10)
- *    ?  int32    XID (rfc 1831 sec. 8)
- *    BE int32    msg_type (ibid sec. 8, call = 0, reply = 1)
- *
- * -------------------------------------------------------------
- * Then reply-specific fields are
- *    BE int32    reply_stat (ibid, accept = 0, deny = 1)
- *
- * Then, assuming accepted,
- *   opaque_auth
- *    BE int32    auth_flavor (ibid, none = 0)
- *    BE int32    ? auth_len (ibid, none = 0)
- *
- *    BE int32    accept_stat (ibid, success = 0, errs are 1..5 in rpc v2)
- *
- * -------------------------------------------------------------
- * Or, call-specific fields are
- *    BE int32    rpc_vers (rfc 1831 sec 8, always == 2)
- *    BE int32    prog (NFS == 000186A3)
- *    BE int32    prog_ver (NFS v2/3 == 2 or 3)
- *    BE int32    proc_id (NFS, <= 256 ???)
- *   opaque_auth
- *    ...
- */
+	/*
+	 * Looking for partial header sequence.  From beginning of
+	 * stream-style header, including "record mark", full ONC-RPC
+	 * looks like:
+	 *    BE int32    record mark (rfc 1831 sec. 10)
+	 *    ?  int32    XID (rfc 1831 sec. 8)
+	 *    BE int32    msg_type (ibid sec. 8, call = 0, reply = 1)
+	 *
+	 * -------------------------------------------------------------
+	 * Then reply-specific fields are
+	 *    BE int32    reply_stat (ibid, accept = 0, deny = 1)
+	 *
+	 * Then, assuming accepted,
+	 *   opaque_auth
+	 *    BE int32    auth_flavor (ibid, none = 0)
+	 *    BE int32    ? auth_len (ibid, none = 0)
+	 *
+	 *    BE int32    accept_stat (ibid, success = 0, errs are 1..5 in rpc v2)
+	 *
+	 * -------------------------------------------------------------
+	 * Or, call-specific fields are
+	 *    BE int32    rpc_vers (rfc 1831 sec 8, always == 2)
+	 *    BE int32    prog (NFS == 000186A3)
+	 *    BE int32    prog_ver (NFS v2/3 == 2 or 3)
+	 *    BE int32    proc_id (NFS, <= 256 ???)
+	 *   opaque_auth
+	 *    ...
+	 */
 
-/* Initially, we search only for something matching the template
- * of a successful reply with no auth verifier.
- * Our first qualification test is search for a string of zero bytes,
- * corresponding the four guint32 values
- *    reply_stat
- *    auth_flavor
- *    auth_len
- *    accept_stat
- *
- * If this string of zeros matches, then we go back and check the
- * preceding msg_type and record_mark fields.
- */
+	/* Initially, we search only for something matching the template
+	 * of a successful reply with no auth verifier.
+	 * Our first qualification test is search for a string of zero bytes,
+	 * corresponding the four guint32 values
+	 *    reply_stat
+	 *    auth_flavor
+	 *    auth_len
+	 *    accept_stat
+	 *
+	 * If this string of zeros matches, then we go back and check the
+	 * preceding msg_type and record_mark fields.
+	 */
 
-const gint     cbZeroTail = 4 * 4;     /* four guint32s of zeros */
-const gint     ibPatternStart = 3 * 4;    /* offset of zero fill from reply start */
-const guint8 * pbWholeBuf;    /* all of tvb, from offset onwards */
-const int      NoMatch = -1;
+	const gint     cbZeroTail = 4 * 4;     /* four guint32s of zeros */
+	const gint     ibPatternStart = 3 * 4;    /* offset of zero fill from reply start */
+	const guint8 * pbWholeBuf;    /* all of tvb, from offset onwards */
+	const int      NoMatch = -1;
 
-gint     ibSearchStart;       /* offset of search start, in case of false hits. */
+	gint     ibSearchStart;       /* offset of search start, in case of false hits. */
 
-const    guint8 * pbBuf;
+	const    guint8 * pbBuf;
 
-gint     cbInBuf;       /* bytes in tvb, from offset onwards */
+	gint     cbInBuf;       /* bytes in tvb, from offset onwards */
 
-guint32  ulMsgType;
-guint32  ulRecMark;
+	guint32  ulMsgType;
+	guint32  ulRecMark;
 
-int      i;
+	int      i;
 
 
 	cbInBuf = tvb_reported_length_remaining(tvb, offset);
@@ -3376,9 +3377,9 @@ int      i;
 
 static int
 find_and_dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
-							  proto_tree *tree, rec_dissector_t dissector,
-							  gboolean is_heur,
-							  int proto, int ett, gboolean defragment)
+			      proto_tree *tree, rec_dissector_t dissector,
+			      gboolean is_heur,
+			      int proto, int ett, gboolean defragment)
 {
 
 	int   offReply;
@@ -3392,16 +3393,16 @@ find_and_dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	len = dissect_rpc_fragment(tvb, offReply,
-							   pinfo, tree,
-							   dissector, is_heur, proto, ett,
-							   defragment,
-							   TRUE /* force first-pdu state */);
+				   pinfo, tree,
+				   dissector, is_heur, proto, ett,
+				   defragment,
+				   TRUE /* force first-pdu state */);
 
 	/* misses are reported as-is */
 	if (len == 0)
-		{
+	{
 		return (0);
-		}
+	}
 
 	/* returning a non-zero length, correct it to reflect the extra offset
 	 * we found necessary
@@ -3478,6 +3479,14 @@ dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 */
 			break;
 		}
+
+		/*  Set a fence so whatever the subdissector put in the
+		 *  Info column stays there.  This is useful when the
+		 *  subdissector clears the column (which it might have to do
+		 *  if it runs over some other protocol too) and there are
+		 *  multiple PDUs in one frame.
+		 */
+		col_set_fence(pinfo->cinfo, COL_INFO);
 
 		/* PDU tracking
 		  If the length indicates that the PDU continues beyond
