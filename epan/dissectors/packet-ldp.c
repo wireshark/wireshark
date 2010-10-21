@@ -218,6 +218,60 @@ static int hf_ldp_tlv_diffserv_phbid_dscp = -1;
 static int hf_ldp_tlv_diffserv_phbid_code = -1;
 static int hf_ldp_tlv_diffserv_phbid_bit14 = -1;
 static int hf_ldp_tlv_diffserv_phbid_bit15 = -1;
+static int hf_ldp_tlv_fec_gen_agi_type = -1;
+static int hf_ldp_tlv_fec_gen_agi_length = -1;
+static int hf_ldp_tlv_fec_gen_agi_value = -1;
+static int hf_ldp_tlv_fec_gen_saii_type = -1;
+static int hf_ldp_tlv_fec_gen_saii_length = -1;
+static int hf_ldp_tlv_fec_gen_saii_value = -1;
+static int hf_ldp_tlv_fec_gen_taii_type = -1;
+static int hf_ldp_tlv_fec_gen_taii_length = -1;
+static int hf_ldp_tlv_fec_gen_taii_value = -1;
+static int hf_ldp_tlv_fec_gen_aai_globalid = -1;
+static int hf_ldp_tlv_fec_gen_aai_prefix = -1;
+static int hf_ldp_tlv_fec_gen_aai_ac_id = -1;
+static int hf_ldp_tlv_pw_status_data = -1;
+static int hf_ldp_tlv_pw_not_forwarding = -1;
+static int hf_ldp_tlv_pw_lac_ingress_recv_fault = -1;
+static int hf_ldp_tlv_pw_lac_egress_recv_fault = -1;
+static int hf_ldp_tlv_pw_psn_pw_ingress_recv_fault = -1;
+static int hf_ldp_tlv_pw_psn_pw_egress_recv_fault = -1;
+static int hf_ldp_tlv_pw_grouping_value = -1;
+static int hf_ldp_tlv_intparam_length = -1;
+static int hf_ldp_tlv_intparam_mtu = -1;
+static int hf_ldp_tlv_intparam_tdmbps = -1;
+static int hf_ldp_tlv_intparam_id = -1;
+static int hf_ldp_tlv_intparam_maxcatmcells = -1;
+static int hf_ldp_tlv_intparam_desc = -1;
+static int hf_ldp_tlv_intparam_cepbytes = -1;
+static int hf_ldp_tlv_intparam_cepopt_ais = -1;
+static int hf_ldp_tlv_intparam_cepopt_une = -1;
+static int hf_ldp_tlv_intparam_cepopt_rtp = -1;
+static int hf_ldp_tlv_intparam_cepopt_ebm = -1;
+static int hf_ldp_tlv_intparam_cepopt_mah = -1;
+static int hf_ldp_tlv_intparam_cepopt_res = -1;
+static int hf_ldp_tlv_intparam_cepopt_ceptype = -1;
+static int hf_ldp_tlv_intparam_cepopt_t3 = -1;
+static int hf_ldp_tlv_intparam_cepopt_e3 = -1;
+static int hf_ldp_tlv_intparam_vlanid = -1;
+static int hf_ldp_tlv_intparam_dlcilen = -1;
+static int hf_ldp_tlv_intparam_fcslen = -1;
+static int hf_ldp_tlv_intparam_tdmopt_r = -1;
+static int hf_ldp_tlv_intparam_tdmopt_d = -1;
+static int hf_ldp_tlv_intparam_tdmopt_f = -1;
+static int hf_ldp_tlv_intparam_tdmopt_res1 = -1;
+static int hf_ldp_tlv_intparam_tdmopt_pt = -1;
+static int hf_ldp_tlv_intparam_tdmopt_res2 = -1;
+static int hf_ldp_tlv_intparam_tdmopt_freq = -1;
+static int hf_ldp_tlv_intparam_tdmopt_ssrc = -1;
+static int hf_ldp_tlv_intparam_vccv_cctype_cw = -1;
+static int hf_ldp_tlv_intparam_vccv_cctype_mplsra = -1;
+static int hf_ldp_tlv_intparam_vccv_cctype_ttl1 = -1;
+static int hf_ldp_tlv_intparam_vccv_cvtype_icmpping = -1;
+static int hf_ldp_tlv_intparam_vccv_cvtype_lspping = -1;
+static int hf_ldp_tlv_intparam_vccv_cvtype_bfd = -1;
+
+
 static int ett_ldp = -1;
 static int ett_ldp_header = -1;
 static int ett_ldp_ldpid = -1;
@@ -231,6 +285,10 @@ static int ett_ldp_fec_vc_interfaceparam_cepopt = -1;
 static int ett_ldp_fec_vc_interfaceparam_vccvtype = -1;
 static int ett_ldp_diffserv_map = -1;
 static int ett_ldp_diffserv_map_phbid = -1;
+static int ett_ldp_gen_agi = -1;
+static int ett_ldp_gen_saii = -1;
+static int ett_ldp_gen_taii = -1;
+static int ett_ldp_gen_aai_type2 = -1;
 
 static int tcp_port = 0;
 static int udp_port = 0;
@@ -311,6 +369,9 @@ static guint32 global_ldp_udp_port = UDP_PORT_LDP;
 #define TLV_VENDOR_PRIVATE_END     0x3EFF
 #define TLV_EXPERIMENTAL_START     0x3F00
 #define TLV_EXPERIMENTAL_END       0x3FFF
+#define TLV_PW_STATUS              0x096A
+#define TLV_PW_INTERFACE_PARAMETERS 0x096B
+#define TLV_PW_GROUPING            0x096C
 
 static const value_string tlv_type_names[] = {
   { TLV_FEC,                       "Forwarding Equivalence Classes TLV" },
@@ -379,9 +440,9 @@ static const value_string tlv_type_names[] = {
   { 0x0967,                       "Local Connection ID TLV"},              /*[RFC3476]*/
   { 0x0968,                       "Diversity TLV"},                        /*[RFC3476]*/
   { 0x0969,                       "Contract ID TLV"},                      /*[RFC3476]*/
-  { 0x096A,                       "PW Status TLV"},                        /*[RFC4447]*/
-  { 0x096B,                       "PW Interface Parameters TLV"},          /*[RFC4447]*/
-  { 0x096C,                       "Group ID TLV"},                         /*[RFC4447]*/
+  { TLV_PW_STATUS,                "PW Status TLV"},                        /*[RFC4447]*/
+  { TLV_PW_INTERFACE_PARAMETERS,  "PW Interface Parameters TLV"},          /*[RFC4447]*/
+  { TLV_PW_GROUPING,              "Group ID TLV"},                         /*[RFC4447]*/
   { 0x096E,                       "Bandwidth TLV"},                        /*[draft-ietf-pwe3-dynamic-ms-pw](TEMPORARY - Expires 2008-11-21)*/
   { 0x0970,                       "UNI Service Level TLV"},                /*[RFC3476]*/
   { TLV_DIFFSERV,                 "Diff-Serv TLV"},
@@ -450,6 +511,7 @@ static const value_string tlv_unknown_vals[] = {
 #define	HOST_FEC	3
 #define CRLSP_FEC       4
 #define VC_FEC          0x80	/* draft-martini-l2circuit-trans-mpls */
+#define GEN_FEC         0x81
 
 static const value_string fec_types[] = {
   {WILDCARD_FEC, "Wildcard FEC"},
@@ -457,6 +519,7 @@ static const value_string fec_types[] = {
   {HOST_FEC, "Host Address FEC"},
   {CRLSP_FEC, "CR LSP FEC"},
   {VC_FEC, "Virtual Circuit FEC"},
+  {GEN_FEC, "Generalized PWid FEC"},
   {0, NULL}
 };
 
@@ -746,8 +809,15 @@ static const value_string tlv_status_data[] = {
   {0x04000008,"Modify Request Not Supported"},
   {0x20000001,"Illegal C-Bit"},
   {0x20000002,"Wrong C-Bit"},
+  {0x00000028, "PW status"},
   {0, NULL}
 };
+
+#define PW_NOT_FORWARDING               0x1
+#define PW_LAC_INGRESS_RECV_FAULT       0x2
+#define PW_LAC_EGRESS_TRANS_FAULT       0x4
+#define PW_PSN_PW_INGRESS_RECV_FAULT    0x8
+#define PW_PSN_PW_EGRESS_TRANS_FAULT    0x10
 
 /* Define storage class for a string handler function
  * with a const guint8 * argument, and returning a const gchar *
@@ -761,18 +831,59 @@ default_str_handler(const guint8 * bytes _U_)
 	return "<Support for this Address Family not implemented>";
 }
 
+static void 
+dissect_subtlv_interface_parameters(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, int *interface_parameters_hf[]);
+
+static void 
+dissect_genpwid_fec_aai_type2_parameter(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem);
+
 /* Dissect FEC TLV */
 
 static void
 dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
-	proto_tree *ti=NULL, *val_tree=NULL, *fec_tree=NULL, *vcintparam_tree=NULL;
-        proto_tree *cepopt_tree=NULL, *vccvtype_tree=NULL;
+	proto_tree *ti=NULL, *val_tree=NULL, *fec_tree=NULL;
+	proto_tree *agi_tree=NULL, *saii_tree=NULL, *taii_tree=NULL;
 	guint16	family, ix=1, ax;
 	guint8	addr_size=0, *addr, implemented, prefix_len_octets, prefix_len, host_len, vc_len;
-	guint8  intparam_len;
+	guint8  intparam_len, aai_type = 0;
 	string_handler_func *str_handler = default_str_handler;
 	const char *str;
+
+	guint8 gen_fec_id_len = 0;
+	static int* interface_params_header_fields[] = { &hf_ldp_tlv_fec_vc_intparam_length ,
+					 &hf_ldp_tlv_fec_vc_intparam_mtu ,
+					 &hf_ldp_tlv_fec_vc_intparam_tdmbps ,
+					 &hf_ldp_tlv_fec_vc_intparam_id ,
+					 &hf_ldp_tlv_fec_vc_intparam_maxcatmcells ,
+					 &hf_ldp_tlv_fec_vc_intparam_desc ,
+					 &hf_ldp_tlv_fec_vc_intparam_cepbytes ,
+					 &hf_ldp_tlv_fec_vc_intparam_cepopt_ais ,
+					 &hf_ldp_tlv_fec_vc_intparam_cepopt_une ,
+					 &hf_ldp_tlv_fec_vc_intparam_cepopt_rtp ,
+					 &hf_ldp_tlv_fec_vc_intparam_cepopt_ebm ,
+					 &hf_ldp_tlv_fec_vc_intparam_cepopt_mah ,
+					 &hf_ldp_tlv_fec_vc_intparam_cepopt_res ,
+					 &hf_ldp_tlv_fec_vc_intparam_cepopt_ceptype ,
+					 &hf_ldp_tlv_fec_vc_intparam_cepopt_t3 ,
+					 &hf_ldp_tlv_fec_vc_intparam_cepopt_e3 ,
+					 &hf_ldp_tlv_fec_vc_intparam_vlanid ,
+					 &hf_ldp_tlv_fec_vc_intparam_dlcilen ,
+					 &hf_ldp_tlv_fec_vc_intparam_fcslen ,
+					 &hf_ldp_tlv_fec_vc_intparam_tdmopt_r ,
+					 &hf_ldp_tlv_fec_vc_intparam_tdmopt_d ,
+					 &hf_ldp_tlv_fec_vc_intparam_tdmopt_f ,
+					 &hf_ldp_tlv_fec_vc_intparam_tdmopt_res1 ,
+					 &hf_ldp_tlv_fec_vc_intparam_tdmopt_pt ,
+					 &hf_ldp_tlv_fec_vc_intparam_tdmopt_res2 ,
+					 &hf_ldp_tlv_fec_vc_intparam_tdmopt_freq ,
+					 &hf_ldp_tlv_fec_vc_intparam_tdmopt_ssrc ,
+					 &hf_ldp_tlv_fec_vc_intparam_vccv_cctype_cw ,
+					 &hf_ldp_tlv_fec_vc_intparam_vccv_cctype_mplsra ,
+					 &hf_ldp_tlv_fec_vc_intparam_vccv_cctype_ttl1 ,
+					 &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_icmpping ,
+					 &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_lspping ,
+					 &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd};
 
 	if (tree) {
 		ti=proto_tree_add_text(tree, tvb, offset, rem, "FEC Elements");
@@ -968,120 +1079,176 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 			  offset += 4;
 
 			  while ( (vc_len > 1) && (rem > 1) ) {	/* enough to include id and length */
-			    intparam_len = tvb_get_guint8(tvb, offset+1);
-			    ti = proto_tree_add_text(fec_tree, tvb, offset, intparam_len, "Interface Parameter");
-			    vcintparam_tree = proto_item_add_subtree(ti, ett_ldp_fec_vc_interfaceparam);
-			    if(vcintparam_tree == NULL) return;
-			    proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_id,tvb,offset,1,FALSE);
-			    proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_length,tvb, offset+1, 1, FALSE);
-                            if (intparam_len < 2){ /* At least Type and Len, protect against len = 0 */
-                              proto_tree_add_text(vcintparam_tree, tvb, offset +1, 1, "malformed interface parameter");
-                              return;
-                            }
+				intparam_len = tvb_get_guint8(tvb, offset+1);
+				if (intparam_len < 2){ /* At least Type and Len, protect against len = 0 */
+					proto_tree_add_text(fec_tree, tvb, offset +1, 1, "Malformed interface parameter");
+					return;
+				}
 
-			    if ( (vc_len -intparam_len) <0 && (rem -intparam_len) <0 ) { /* error condition */
-			      proto_tree_add_text(vcintparam_tree, tvb, offset +2, MIN(vc_len,rem), "malformed data");
- 			      return;
-			    }
-			    switch (tvb_get_guint8(tvb, offset)) {
-			    case FEC_VC_INTERFACEPARAM_MTU:
-			      proto_item_append_text(ti,": MTU %u", tvb_get_ntohs(tvb,offset+2));
-			      proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_mtu,tvb, offset+2, 2, FALSE);
-			      break;
-			    case FEC_VC_INTERFACEPARAM_TDMBPS:
-                              /* draft-ietf-pwe3-control-protocol-06.txt */
-			      proto_item_append_text(ti,": BPS %u", tvb_get_ntohl(tvb,offset+2));
-			      proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_tdmbps,tvb, offset+2, 4, FALSE);
-			      break;
-			    case FEC_VC_INTERFACEPARAM_MAXCATMCELLS:
-			      proto_item_append_text(ti,": Max ATM Concat Cells %u", tvb_get_ntohs(tvb,offset+2));
-			      proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_maxcatmcells,tvb, offset+2, 2, FALSE);
-			      break;
-			    case FEC_VC_INTERFACEPARAM_DESCRIPTION:
-			      proto_item_append_text(ti,": Description");
-			      proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_desc,tvb, offset+2, (intparam_len -2), FALSE);
-			      break;
-			    case FEC_VC_INTERFACEPARAM_CEPBYTES:
-			      proto_item_append_text(ti,": CEP/TDM Payload Bytes %u", tvb_get_ntohs(tvb,offset+2));
-			      proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_cepbytes,tvb, offset+2, 2, FALSE);
-			      break;
-                            case FEC_VC_INTERFACEPARAM_CEPOPTIONS:
-                              /* draft-ietf-pwe3-sonet-05.txt */
-                              proto_item_append_text(ti,": CEP Options");
-                              ti = proto_tree_add_text(vcintparam_tree, tvb, offset + 2, 2, "CEP Options");
-                              cepopt_tree = proto_item_add_subtree(ti, ett_ldp_fec_vc_interfaceparam_cepopt);
-                              if(cepopt_tree == NULL) return;
-                              proto_tree_add_item(cepopt_tree, hf_ldp_tlv_fec_vc_intparam_cepopt_ais, tvb, offset + 2, 2, FALSE);
-                              proto_tree_add_item(cepopt_tree, hf_ldp_tlv_fec_vc_intparam_cepopt_une, tvb, offset + 2, 2, FALSE);
-                              proto_tree_add_item(cepopt_tree, hf_ldp_tlv_fec_vc_intparam_cepopt_rtp, tvb, offset + 2, 2, FALSE);
-                              proto_tree_add_item(cepopt_tree, hf_ldp_tlv_fec_vc_intparam_cepopt_ebm, tvb, offset + 2, 2, FALSE);
-                              proto_tree_add_item(cepopt_tree, hf_ldp_tlv_fec_vc_intparam_cepopt_mah, tvb, offset + 2, 2, FALSE);
-                              proto_tree_add_item(cepopt_tree, hf_ldp_tlv_fec_vc_intparam_cepopt_res, tvb, offset + 2, 2, FALSE);
-                              proto_tree_add_item(cepopt_tree, hf_ldp_tlv_fec_vc_intparam_cepopt_ceptype, tvb, offset + 2, 2, FALSE);
-                              proto_tree_add_item(cepopt_tree, hf_ldp_tlv_fec_vc_intparam_cepopt_t3, tvb, offset + 2, 2, FALSE);
-                              proto_tree_add_item(cepopt_tree, hf_ldp_tlv_fec_vc_intparam_cepopt_e3, tvb, offset + 2, 2, FALSE);
-                              break;
-			    case FEC_VC_INTERFACEPARAM_VLANID:
-                              proto_item_append_text(ti,": VLAN Id %u", tvb_get_ntohs(tvb,offset+2));
-			      proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_vlanid, tvb, offset+2, 2, FALSE);
-			      break;
-                            case FEC_VC_INTERFACEPARAM_FRDLCILEN:
-                              proto_item_append_text(ti,": DLCI Length %u", tvb_get_ntohs(tvb,offset+2));
-                              proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_dlcilen, tvb, offset+2, 2, FALSE);
-                              break;
-                            case FEC_VC_INTERFACEPARAM_FRAGIND:
-                              /* draft-ietf-pwe3-fragmentation-05.txt */
-                              proto_item_append_text(ti,": Fragmentation");
-                              break;
-                            case FEC_VC_INTERFACEPARAM_FCSRETENT:
-                              /* draft-ietf-pwe3-fcs-retention-02.txt */
-                              proto_item_append_text(ti,": FCS retention, FCS Length %u Bytes", tvb_get_ntohs(tvb,offset+2));
-                              proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_fcslen, tvb, offset+2, 2, FALSE);
-                              break;
-                            case FEC_VC_INTERFACEPARAM_TDMOPTION:
-                              /* draft-vainshtein-pwe3-tdm-control-protocol-extensions */
-                              proto_item_append_text(ti,": TDM Options");
-                              proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_tdmopt_r, tvb, offset+2, 2, FALSE);
-                              proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_tdmopt_d, tvb, offset+2, 2, FALSE);
-                              proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_tdmopt_f, tvb, offset+2, 2, FALSE);
-                              proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_tdmopt_res1, tvb, offset+2, 2, FALSE);
-                              if (intparam_len >= 8){
-                                proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_tdmopt_pt, tvb, offset+4, 1, FALSE);
-                                proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_tdmopt_res2, tvb, offset+5, 1, FALSE);
-                                proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_tdmopt_freq, tvb, offset+6, 2, FALSE);
-                              }
-                              if (intparam_len >= 12){
-                                proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_tdmopt_ssrc, tvb, offset+8, 4, FALSE);
-                              }
-                              break;
-                            case FEC_VC_INTERFACEPARAM_VCCV:
-                              /* draft-ietf-pwe3-vccv-03.txt */
-                              proto_item_append_text(ti,": VCCV");
-                              ti = proto_tree_add_text(vcintparam_tree, tvb, offset + 2, 1, "CC Type");
-                              vccvtype_tree = proto_item_add_subtree(ti, ett_ldp_fec_vc_interfaceparam_vccvtype);
-                              if(vccvtype_tree == NULL) return;
-                              proto_tree_add_item(vccvtype_tree, hf_ldp_tlv_fec_vc_intparam_vccv_cctype_cw, tvb, offset+2, 1, FALSE);
-                              proto_tree_add_item(vccvtype_tree, hf_ldp_tlv_fec_vc_intparam_vccv_cctype_mplsra, tvb, offset+2, 1, FALSE);
-                              proto_tree_add_item(vccvtype_tree, hf_ldp_tlv_fec_vc_intparam_vccv_cctype_ttl1, tvb, offset+2, 1, FALSE);
-                              ti = proto_tree_add_text(vcintparam_tree, tvb, offset + 3, 1, "CV Type");
-                              vccvtype_tree = proto_item_add_subtree(ti, ett_ldp_fec_vc_interfaceparam_vccvtype);
-                              if(vccvtype_tree == NULL) return;
-                              proto_tree_add_item(vccvtype_tree, hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_icmpping, tvb, offset+3, 1, FALSE);
-                              proto_tree_add_item(vccvtype_tree, hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_lspping, tvb, offset+3, 1, FALSE);
-                              proto_tree_add_item(vccvtype_tree, hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd, tvb, offset+3, 1, FALSE);
-                              break;
-			    default: /* unknown */
-			      proto_item_append_text(ti," unknown");
-			      proto_tree_add_text(vcintparam_tree,tvb, offset+2, (intparam_len -2), "Unknown data");
+				if ( (vc_len -intparam_len) <0 && (rem -intparam_len) <0 ) { /* error condition */
+					proto_tree_add_text(fec_tree, tvb, offset +2, MIN(vc_len,rem), "Malformed data");
+					return;
+				}
+				dissect_subtlv_interface_parameters(tvb, offset, fec_tree, intparam_len, interface_params_header_fields);
 
-                              break;
-			    }
-			    rem -= intparam_len;
-			    vc_len -= intparam_len;
-			    offset += intparam_len;
+				rem -= intparam_len;
+				vc_len -= intparam_len;
+				offset += intparam_len;
 			  }
 			  break;
+			case GEN_FEC:
+			{
+				/* Ref: RFC 4447 */
+				if( rem < 4 ){/*not enough bytes for a minimal VC_FEC*/
+				proto_tree_add_text(val_tree, tvb, offset, rem, "Error in FEC Element %u", ix);
+				return;
+				}
+				vc_len = tvb_get_guint8 (tvb, offset+3);
 
+				/* Add the FEC to the tree */
+				ti = proto_tree_add_text(val_tree, tvb, offset, 8+vc_len, "FEC Element %u", ix);
+				fec_tree = proto_item_add_subtree(ti, ett_ldp_fec);
+				if(fec_tree == NULL) return;
+				proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_wc, tvb, offset, 1, FALSE);
+				proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_vc_controlword, tvb, offset+1, 1, FALSE);
+				proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_vc_vctype, tvb, offset+1, 2, FALSE);
+				proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_vc_infolength, tvb, offset+3,1,FALSE);
+				rem -= 4;
+				offset += 4;
+
+				if ( (vc_len > 1) && ( rem > 1 ) ) { /* there is enough room for AGI */
+					gen_fec_id_len = tvb_get_guint8 (tvb, offset+1);
+					/* Add AGI to the tree */
+					ti = proto_tree_add_text(fec_tree, tvb, offset, 2 + gen_fec_id_len, "AGI");
+					agi_tree = proto_item_add_subtree(ti, ett_ldp_gen_agi);
+					if(agi_tree == NULL) return;
+					proto_tree_add_item(agi_tree, hf_ldp_tlv_fec_gen_agi_type,tvb, offset, 1, FALSE);
+					proto_tree_add_item(agi_tree, hf_ldp_tlv_fec_gen_agi_length,tvb, offset + 1, 1, FALSE);
+					if( gen_fec_id_len > 0)
+					{
+						proto_tree_add_item(agi_tree, hf_ldp_tlv_fec_gen_agi_value, tvb, offset+2, gen_fec_id_len , FALSE );
+					}
+					rem -= 2 + gen_fec_id_len;
+					vc_len -= 2 + gen_fec_id_len;
+					offset += 2 + gen_fec_id_len;
+
+				} else {
+					proto_tree_add_text(fec_tree ,tvb,offset , 2 +vc_len, "Generalized FEC: AGI size format error");
+					return;
+				}
+
+				if ( (vc_len > 1) && ( rem > 1 ) ) { /* there is enough room for SAII */
+					gen_fec_id_len = tvb_get_guint8 (tvb, offset+1);
+					/* Add SAII to the tree */
+					aai_type = tvb_get_guint8(tvb, offset);
+					if( aai_type == 2 && gen_fec_id_len != 12)
+					{
+						/* According to RFC 5003, for Type 2 AAI, the length should be 12 bytes */
+						proto_tree_add_text(fec_tree,tvb,offset , 2 + gen_fec_id_len, "Generalized FEC: SAII size format error");
+					}
+					else
+					{
+						ti = proto_tree_add_text(fec_tree, tvb, offset, 2 + gen_fec_id_len, "SAII");
+						saii_tree = proto_item_add_subtree(ti, ett_ldp_gen_saii);
+						if(saii_tree == NULL) return;
+						proto_tree_add_item(saii_tree, hf_ldp_tlv_fec_gen_saii_type,tvb, offset, 1, FALSE);
+						proto_tree_add_item(saii_tree, hf_ldp_tlv_fec_gen_saii_length,tvb, offset + 1, 1, FALSE);
+						if( gen_fec_id_len > 0)
+						{
+							/* Get the AAI Type. */
+							/* If it is  Type 2 (RFC 5003), then the length is 12 bytes, */
+							/* and the following fields exist. */
+
+							/*   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 */
+							/*   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+							/*   |  AII Type=02  |	Length	 |		Global ID			  | */
+							/*   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+							/*   |	   Global ID (contd.)	  |		Prefix				 | */
+							/*   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+							/*   |	   Prefix (contd.)		 |		AC ID				  | */
+							/*   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+							/*   |	  AC ID					| */
+							/*   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+
+							if( aai_type == 2)
+							{
+								dissect_genpwid_fec_aai_type2_parameter(tvb, offset +2, saii_tree, gen_fec_id_len);
+							}
+							else
+							{
+								proto_tree_add_item(saii_tree, 
+									hf_ldp_tlv_fec_gen_saii_value, 
+									tvb, 
+									offset+2, 
+									gen_fec_id_len , 
+									FALSE );
+							}
+						}
+					}
+					rem -= 2 + gen_fec_id_len;
+					vc_len -= 2 + gen_fec_id_len;
+					offset += 2 + gen_fec_id_len;
+					
+				} else {
+					proto_tree_add_text(fec_tree,tvb,offset , 2 + vc_len, "Generalized FEC: SAII size format error");
+					return;
+				}
+
+				if ( (vc_len > 1) && ( rem > 1 ) ) { /* there is enough room for TAII */
+					gen_fec_id_len = tvb_get_guint8 (tvb, offset+1);
+					/* Add TAII to the tree */
+					aai_type = tvb_get_guint8(tvb, offset);
+					if( aai_type == 2 && gen_fec_id_len != 12)
+					{
+						/* According to RFC 5003, for Type 2 AAI, the length should be 12 bytes */
+						proto_tree_add_text(fec_tree,tvb,offset , 2 + gen_fec_id_len, "Generalized FEC: TAII size format error");
+					}
+					else
+					{
+						ti = proto_tree_add_text(fec_tree, tvb, offset, 2 + gen_fec_id_len, "TAII");
+						taii_tree = proto_item_add_subtree(ti, ett_ldp_gen_taii);
+						if(taii_tree == NULL) return;
+						proto_tree_add_item(taii_tree, hf_ldp_tlv_fec_gen_taii_type,tvb, offset, 1, FALSE);
+						proto_tree_add_item(taii_tree, hf_ldp_tlv_fec_gen_taii_length,tvb, offset + 1, 1, FALSE);
+						if( gen_fec_id_len > 0)
+						{
+							/* Get the AAI Type. */
+							/* If it is  Type 2 (RFC 5003), then the length is 12 bytes, */
+							/* and the following fields exist. */
+
+							/*   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 */
+							/*   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+							/*   |  AII Type=02  |	Length	 |		Global ID			  | */
+							/*   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+							/*   |	   Global ID (contd.)	  |		Prefix				 | */
+							/*   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+							/*   |	   Prefix (contd.)		 |		AC ID				  | */
+							/*   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+							/*   |	  AC ID					| */
+							/*   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+
+							if( aai_type == 2)
+							{
+								dissect_genpwid_fec_aai_type2_parameter(tvb, offset +2, taii_tree, gen_fec_id_len);
+							}
+							else
+							{
+								proto_tree_add_item(taii_tree, hf_ldp_tlv_fec_gen_taii_value, tvb, offset+2, gen_fec_id_len , FALSE);
+							}
+						}
+					}
+					rem -= 2 + gen_fec_id_len;
+					vc_len -= 2 + gen_fec_id_len;
+					offset += 2 + gen_fec_id_len;
+
+				
+				} else {
+					proto_tree_add_text(fec_tree,tvb,offset , 2 +vc_len, "Generalized FEC: TAII size format error");
+					return;
+				}
+
+				break;
+			}
 			default:  /* Unknown */
 			/* XXX - do all FEC's have a length that's a multiple of 4? */
 			/* Hmmm, don't think so. Will check. RJS. */
@@ -2018,6 +2185,12 @@ dissect_tlv_er(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 }
 
 
+static void
+dissect_tlv_pw_status(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem);
+
+static void
+dissect_tlv_pw_grouping(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem _U_);
+
 /* Dissect a TLV and return the number of bytes consumed ... */
 
 static int
@@ -2039,7 +2212,7 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 	}
 	type = tvb_get_ntohs(tvb, offset) & 0x3FFF;
 
-	length = tvb_get_ntohs(tvb, offset + 2),
+	length = tvb_get_ntohs(tvb, offset + 2);
 	rem -= 4; /*do not count header*/
 	length = MIN(length, rem);  /* Don't go haywire if a problem ... */
 
@@ -2307,6 +2480,75 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 			}
 			break;
 
+        case TLV_PW_STATUS:
+            {
+                /* Ref: RFC 4447  and 4446*/
+                dissect_tlv_pw_status(tvb, offset +4, tlv_tree, length);
+                break;
+            }
+        case TLV_PW_INTERFACE_PARAMETERS:
+            {
+                /* Ref: RFC 4447 */
+                static int *interface_params_header_fields[] = { &hf_ldp_tlv_intparam_length ,
+                     &hf_ldp_tlv_intparam_mtu ,
+                     &hf_ldp_tlv_intparam_tdmbps ,
+                     &hf_ldp_tlv_intparam_id ,
+                     &hf_ldp_tlv_intparam_maxcatmcells ,
+                     &hf_ldp_tlv_intparam_desc ,
+                     &hf_ldp_tlv_intparam_cepbytes ,
+                     &hf_ldp_tlv_intparam_cepopt_ais ,
+                     &hf_ldp_tlv_intparam_cepopt_une ,
+                     &hf_ldp_tlv_intparam_cepopt_rtp ,
+                     &hf_ldp_tlv_intparam_cepopt_ebm ,
+                     &hf_ldp_tlv_intparam_cepopt_mah ,
+                     &hf_ldp_tlv_intparam_cepopt_res ,
+                     &hf_ldp_tlv_intparam_cepopt_ceptype ,
+                     &hf_ldp_tlv_intparam_cepopt_t3 ,
+                     &hf_ldp_tlv_intparam_cepopt_e3 ,
+                     &hf_ldp_tlv_intparam_vlanid ,
+                     &hf_ldp_tlv_intparam_dlcilen ,
+                     &hf_ldp_tlv_intparam_fcslen ,
+                     &hf_ldp_tlv_intparam_tdmopt_r ,
+                     &hf_ldp_tlv_intparam_tdmopt_d ,
+                     &hf_ldp_tlv_intparam_tdmopt_f ,
+                     &hf_ldp_tlv_intparam_tdmopt_res1 ,
+                     &hf_ldp_tlv_intparam_tdmopt_pt ,
+                     &hf_ldp_tlv_intparam_tdmopt_res2 ,
+                     &hf_ldp_tlv_intparam_tdmopt_freq ,
+                     &hf_ldp_tlv_intparam_tdmopt_ssrc ,
+                     &hf_ldp_tlv_intparam_vccv_cctype_cw ,
+                     &hf_ldp_tlv_intparam_vccv_cctype_mplsra ,
+                     &hf_ldp_tlv_intparam_vccv_cctype_ttl1 ,
+                     &hf_ldp_tlv_intparam_vccv_cvtype_icmpping ,
+                     &hf_ldp_tlv_intparam_vccv_cvtype_lspping ,
+                     &hf_ldp_tlv_intparam_vccv_cvtype_bfd };
+                int vc_len = length;
+                offset += 4;
+                while ( (vc_len > 1) && (rem > 1) ) {	/* enough to include id and length */
+                    int intparam_len = tvb_get_guint8(tvb, offset+1);
+                    if (intparam_len < 2){ /* At least Type and Len, protect against len = 0 */
+                        proto_tree_add_text(tlv_tree, tvb, offset +1, 1, "Malformed interface parameter");
+                        break;
+                    }
+
+                    if ( (vc_len -intparam_len) <0 && (rem -intparam_len) <0 ) { /* error condition */
+                        proto_tree_add_text(tlv_tree, tvb, offset +2, MIN(vc_len,rem), "Malformed data");
+                        break;
+                    }
+                    dissect_subtlv_interface_parameters(tvb, offset, tlv_tree, intparam_len, interface_params_header_fields);
+
+                    rem -= intparam_len;
+                    vc_len -= intparam_len;
+                    offset += intparam_len;
+                }
+                break;
+            }
+        case TLV_PW_GROUPING:
+            {
+                /* Ref: RFC 4447 */
+                dissect_tlv_pw_grouping(tvb, offset +4, tlv_tree, length);
+                break;
+            }
 		default:
 			proto_tree_add_item(tlv_tree, hf_ldp_tlv_value, tvb, offset + 4, length, FALSE);
 			break;
@@ -2507,6 +2749,206 @@ dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * XXX - return minimum of this and the length of the PDU?
 	 */
 	return tvb_length(tvb);
+}
+
+static void
+dissect_tlv_pw_status(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+{
+    proto_tree *ti = NULL, *val_tree = NULL;
+    guint32	data;
+
+    if(tree) {
+        if(rem != 4){
+            proto_tree_add_text(tree, tvb, offset, rem,
+                "Error processing PW Status TLV: length is %d, should be 4",
+                rem);
+            return;
+        }
+
+        data=tvb_get_ntohl(tvb, offset);
+        ti = proto_tree_add_uint_format(tree, hf_ldp_tlv_pw_status_data, tvb, offset , rem,
+            data, "PW Status: 0x%08x ", data);
+
+        val_tree=proto_item_add_subtree(ti, ett_ldp_tlv_val);
+        if(val_tree == NULL) return;
+        /* Display the bits 0-4 if they are set or not set */
+        proto_tree_add_boolean(val_tree, hf_ldp_tlv_pw_not_forwarding, tvb, offset , 4, data);
+        proto_tree_add_boolean(val_tree, hf_ldp_tlv_pw_lac_ingress_recv_fault, tvb, offset , 4, data);
+        proto_tree_add_boolean(val_tree, hf_ldp_tlv_pw_lac_egress_recv_fault, tvb, offset , 4, data);
+        proto_tree_add_boolean(val_tree, hf_ldp_tlv_pw_psn_pw_ingress_recv_fault, tvb, offset , 4, data);
+        proto_tree_add_boolean(val_tree, hf_ldp_tlv_pw_psn_pw_egress_recv_fault, tvb, offset , 4, data);
+    }
+}
+
+static void
+dissect_tlv_pw_grouping(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem _U_)
+{
+    proto_tree_add_item(tree,hf_ldp_tlv_pw_grouping_value,tvb,offset,4,FALSE);
+}
+
+static void 
+dissect_subtlv_interface_parameters(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, int *interface_parameters_hf[])
+{
+/*
+    int interface_parameters_hf[] = {0 -  hf_ldp_tlv_fec_vc_intparam_length ,
+                     1 - hf_ldp_tlv_fec_vc_intparam_mtu ,
+                     2 - hf_ldp_tlv_fec_vc_intparam_tdmbps ,
+                     3 - hf_ldp_tlv_fec_vc_intparam_id ,
+                     4 - hf_ldp_tlv_fec_vc_intparam_maxcatmcells ,
+                     5 - hf_ldp_tlv_fec_vc_intparam_desc ,
+                     6 - hf_ldp_tlv_fec_vc_intparam_cepbytes ,
+                     7 - hf_ldp_tlv_fec_vc_intparam_cepopt_ais ,
+                     8 - hf_ldp_tlv_fec_vc_intparam_cepopt_une ,
+                     9 - hf_ldp_tlv_fec_vc_intparam_cepopt_rtp ,
+                     10 - hf_ldp_tlv_fec_vc_intparam_cepopt_ebm ,
+                     11 - hf_ldp_tlv_fec_vc_intparam_cepopt_mah ,
+                     12 - hf_ldp_tlv_fec_vc_intparam_cepopt_res ,
+                     13 - hf_ldp_tlv_fec_vc_intparam_cepopt_ceptype ,
+                     14 - hf_ldp_tlv_fec_vc_intparam_cepopt_t3 ,
+                     15 - hf_ldp_tlv_fec_vc_intparam_cepopt_e3 ,
+                     16 - hf_ldp_tlv_fec_vc_intparam_vlanid ,
+                     17 - hf_ldp_tlv_fec_vc_intparam_dlcilen ,
+                     18 - hf_ldp_tlv_fec_vc_intparam_fcslen ,
+                     19 - hf_ldp_tlv_fec_vc_intparam_tdmopt_r ,
+                     20 - hf_ldp_tlv_fec_vc_intparam_tdmopt_d ,
+                     21 - hf_ldp_tlv_fec_vc_intparam_tdmopt_f ,
+                     22 - hf_ldp_tlv_fec_vc_intparam_tdmopt_res1 ,
+                     23 - hf_ldp_tlv_fec_vc_intparam_tdmopt_pt ,
+                     24 - hf_ldp_tlv_fec_vc_intparam_tdmopt_res2 ,
+                     25 - hf_ldp_tlv_fec_vc_intparam_tdmopt_freq ,
+                     26 - hf_ldp_tlv_fec_vc_intparam_tdmopt_ssrc ,
+                     27 - hf_ldp_tlv_fec_vc_intparam_vccv_cctype_cw ,
+                     28 - hf_ldp_tlv_fec_vc_intparam_vccv_cctype_mplsra ,
+                     29 - hf_ldp_tlv_fec_vc_intparam_vccv_cctype_ttl1 ,
+                     30 - hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_icmpping ,
+                     31 - hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_lspping ,
+                     32 - hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd};
+
+*/
+    proto_tree *ti = proto_tree_add_text(tree, tvb, offset, rem, "Interface Parameter");
+    proto_tree *cepopt_tree=NULL, *vccvtype_tree=NULL;
+    proto_tree *vcintparam_tree = proto_item_add_subtree(ti, ett_ldp_fec_vc_interfaceparam);
+
+    guint8  intparam_len = rem;
+    if(vcintparam_tree == NULL) return;
+    proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[3],tvb,offset,1,FALSE);
+    proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[0],tvb, offset+1, 1, FALSE);
+
+    switch (tvb_get_guint8(tvb, offset)) {
+                case FEC_VC_INTERFACEPARAM_MTU:
+                    proto_item_append_text(ti,": MTU %u", tvb_get_ntohs(tvb,offset+2));
+                    proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[1],tvb, offset+2, 2, FALSE);
+                    break;
+                case FEC_VC_INTERFACEPARAM_TDMBPS:
+                    /* draft-ietf-pwe3-control-protocol-06.txt */
+                    proto_item_append_text(ti,": BPS %u", tvb_get_ntohl(tvb,offset+2));
+                    proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[2],tvb, offset+2, 4, FALSE);
+                    break;
+                case FEC_VC_INTERFACEPARAM_MAXCATMCELLS:
+                    proto_item_append_text(ti,": Max ATM Concat Cells %u", tvb_get_ntohs(tvb,offset+2));
+                    proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[4],tvb, offset+2, 2, FALSE);
+                    break;
+                case FEC_VC_INTERFACEPARAM_DESCRIPTION:
+                    proto_item_append_text(ti,": Description");
+                    proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[5],tvb, offset+2, (intparam_len -2), FALSE);
+                    break;
+                case FEC_VC_INTERFACEPARAM_CEPBYTES:
+                    proto_item_append_text(ti,": CEP/TDM Payload Bytes %u", tvb_get_ntohs(tvb,offset+2));
+                    proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[6],tvb, offset+2, 2, FALSE);
+                    break;
+                case FEC_VC_INTERFACEPARAM_CEPOPTIONS:
+                    /* draft-ietf-pwe3-sonet-05.txt */
+                    proto_item_append_text(ti,": CEP Options");
+                    ti = proto_tree_add_text(vcintparam_tree, tvb, offset + 2, 2, "CEP Options");
+                    cepopt_tree = proto_item_add_subtree(ti, ett_ldp_fec_vc_interfaceparam_cepopt);
+                    if(cepopt_tree == NULL) return;
+                    proto_tree_add_item(cepopt_tree, *interface_parameters_hf[7], tvb, offset + 2, 2, FALSE);
+                    proto_tree_add_item(cepopt_tree, *interface_parameters_hf[8], tvb, offset + 2, 2, FALSE);
+                    proto_tree_add_item(cepopt_tree, *interface_parameters_hf[9], tvb, offset + 2, 2, FALSE);
+                    proto_tree_add_item(cepopt_tree, *interface_parameters_hf[10], tvb, offset + 2, 2, FALSE);
+                    proto_tree_add_item(cepopt_tree, *interface_parameters_hf[11], tvb, offset + 2, 2, FALSE);
+                    proto_tree_add_item(cepopt_tree, *interface_parameters_hf[12], tvb, offset + 2, 2, FALSE);
+                    proto_tree_add_item(cepopt_tree, *interface_parameters_hf[13], tvb, offset + 2, 2, FALSE);
+                    proto_tree_add_item(cepopt_tree, *interface_parameters_hf[14], tvb, offset + 2, 2, FALSE);
+                    proto_tree_add_item(cepopt_tree, *interface_parameters_hf[15], tvb, offset + 2, 2, FALSE);
+                    break;
+                case FEC_VC_INTERFACEPARAM_VLANID:
+                    proto_item_append_text(ti,": VLAN Id %u", tvb_get_ntohs(tvb,offset+2));
+                    proto_tree_add_item(vcintparam_tree, *interface_parameters_hf[16], tvb, offset+2, 2, FALSE);
+                    break;
+                case FEC_VC_INTERFACEPARAM_FRDLCILEN:
+                    proto_item_append_text(ti,": DLCI Length %u", tvb_get_ntohs(tvb,offset+2));
+                    proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[17], tvb, offset+2, 2, FALSE);
+                    break;
+                case FEC_VC_INTERFACEPARAM_FRAGIND:
+                    /* draft-ietf-pwe3-fragmentation-05.txt */
+                    proto_item_append_text(ti,": Fragmentation");      
+                    break;
+                case FEC_VC_INTERFACEPARAM_FCSRETENT:
+                    /* draft-ietf-pwe3-fcs-retention-02.txt */
+                    proto_item_append_text(ti,": FCS retention, FCS Length %u Bytes", tvb_get_ntohs(tvb,offset+2));      
+                    proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[18], tvb, offset+2, 2, FALSE);
+                    break;
+                case FEC_VC_INTERFACEPARAM_TDMOPTION:
+                    /* draft-vainshtein-pwe3-tdm-control-protocol-extensions */
+                    proto_item_append_text(ti,": TDM Options");
+                    proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[19], tvb, offset+2, 2, FALSE);
+                    proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[20], tvb, offset+2, 2, FALSE);
+                    proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[21], tvb, offset+2, 2, FALSE);
+                    proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[22], tvb, offset+2, 2, FALSE);
+                    if (intparam_len >= 8){
+                        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[23], tvb, offset+4, 1, FALSE);
+                        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[24], tvb, offset+5, 1, FALSE);
+                        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[25], tvb, offset+6, 2, FALSE);
+                    }
+                    if (intparam_len >= 12){
+                        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[26], tvb, offset+8, 4, FALSE);
+                    }
+                    break;
+                case FEC_VC_INTERFACEPARAM_VCCV:
+                    /* draft-ietf-pwe3-vccv-03.txt */
+                    proto_item_append_text(ti,": VCCV");
+                    ti = proto_tree_add_text(vcintparam_tree, tvb, offset + 2, 1, "CC Type");
+                    vccvtype_tree = proto_item_add_subtree(ti, ett_ldp_fec_vc_interfaceparam_vccvtype);
+                    if(vccvtype_tree == NULL) return;
+                    proto_tree_add_item(vccvtype_tree, *interface_parameters_hf[27], tvb, offset+2, 1, FALSE);
+                    proto_tree_add_item(vccvtype_tree, *interface_parameters_hf[28], tvb, offset+2, 1, FALSE);
+                    proto_tree_add_item(vccvtype_tree, *interface_parameters_hf[29], tvb, offset+2, 1, FALSE);
+                    ti = proto_tree_add_text(vcintparam_tree, tvb, offset + 3, 1, "CV Type");
+                    vccvtype_tree = proto_item_add_subtree(ti, ett_ldp_fec_vc_interfaceparam_vccvtype);
+                    if(vccvtype_tree == NULL) return;
+                    proto_tree_add_item(vccvtype_tree, *interface_parameters_hf[30], tvb, offset+3, 1, FALSE);
+                    proto_tree_add_item(vccvtype_tree, *interface_parameters_hf[31], tvb, offset+3, 1, FALSE);
+                    proto_tree_add_item(vccvtype_tree, *interface_parameters_hf[32], tvb, offset+3, 1, FALSE);
+                    break;
+                default: /* unknown */
+                    proto_item_append_text(ti," unknown");
+                    proto_tree_add_text(vcintparam_tree,tvb, offset+2, (intparam_len -2), "Unknown data");
+
+                    break;
+    }
+}
+
+static void 
+dissect_genpwid_fec_aai_type2_parameter(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+{
+    proto_tree *ti = proto_tree_add_text(tree, tvb, offset, rem, "AAI");
+    proto_tree *aai_param_tree = proto_item_add_subtree(ti, ett_ldp_gen_aai_type2);
+    /* check if the remaining length is 12 bytes or not... */
+    if( rem != 12)
+    {
+        proto_tree_add_text(tree, tvb, offset, rem ,"Error processing AAI Parameter: length is %d, should be 12 bytes for Type 2.",
+                rem);
+
+        return;
+        
+    }
+
+    proto_tree_add_item(aai_param_tree,hf_ldp_tlv_fec_gen_aai_globalid,tvb,offset,4,FALSE);
+    proto_tree_add_item(aai_param_tree,hf_ldp_tlv_fec_gen_aai_prefix,tvb, offset+4, 4, FALSE);
+    proto_tree_add_item(aai_param_tree,hf_ldp_tlv_fec_gen_aai_ac_id,tvb, offset+4, 4, FALSE);
+
+
 }
 
 static int
@@ -3171,8 +3613,187 @@ proto_register_ldp(void)
 
     { &hf_ldp_tlv_diffserv_phbid_bit15,
       { PHBID_BIT15_DESCRIPTION, "ldp.msg.tlv.diffserv.phbid.bit15", FT_UINT16, BASE_DEC,
-	VALS(phbid_bit15_vals), PHBID_BIT15_MASK, NULL, HFILL}}
+	VALS(phbid_bit15_vals), PHBID_BIT15_MASK, NULL, HFILL}},
 
+    { &hf_ldp_tlv_fec_gen_agi_type,
+      { "AGI Type", "ldp.msg.tlv.fec.gen.agi.type", FT_UINT8, BASE_DEC,
+	NULL, 0x0, "Attachment Group Identifier Type", HFILL}},
+
+    { &hf_ldp_tlv_fec_gen_agi_length,
+      { "AGI Length", "ldp.msg.tlv.fec.gen.agi.length", FT_UINT8, BASE_DEC,
+	NULL, 0x0, "Attachment Group Identifier Length", HFILL}},
+
+    { &hf_ldp_tlv_fec_gen_agi_value,
+      { "AGI Value", "ldp.msg.tlv.fec.gen.agi.value", FT_BYTES, BASE_NONE,
+	NULL, 0x0, "Attachment Group Identifier Value", HFILL}},
+
+    { &hf_ldp_tlv_fec_gen_saii_type,
+      { "SAII Type", "ldp.msg.tlv.fec.gen.saii.type", FT_UINT8, BASE_DEC,
+	NULL, 0x0, "Source Attachment Individual Identifier Type", HFILL}},
+
+    { &hf_ldp_tlv_fec_gen_saii_length,
+      { "SAII Length", "ldp.msg.tlv.fec.gen.saii.length", FT_UINT8, BASE_DEC,
+	NULL, 0x0, "Source Attachment Individual Identifier Length", HFILL}},
+
+    { &hf_ldp_tlv_fec_gen_saii_value,
+      { "SAII Value", "ldp.msg.tlv.fec.gen.saii.value", FT_BYTES, BASE_NONE,
+	NULL, 0x0, "Source Attachment Individual Identifier Value", HFILL}},
+
+    { &hf_ldp_tlv_fec_gen_taii_type,
+      { "TAII Type", "ldp.msg.tlv.fec.gen.taii.type", FT_UINT8, BASE_DEC,
+	NULL, 0x0, "Target Attachment Individual Identifier Type", HFILL}},
+
+    { &hf_ldp_tlv_fec_gen_taii_length,
+      { "TAII length", "ldp.msg.tlv.fec.gen.taii.length", FT_UINT8, BASE_DEC,
+	NULL, 0x0, "Target Attachment Individual Identifier Length", HFILL}},
+
+    { &hf_ldp_tlv_fec_gen_taii_value,
+      { "TAII Value", "ldp.msg.tlv.fec.gen.taii.value", FT_BYTES, BASE_NONE,
+	NULL, 0x0, "Target Attachment Individual Identifier Value", HFILL}},
+
+    { &hf_ldp_tlv_fec_gen_aai_globalid,
+      { "Global Id", "ldp.msg.tlv.fec.gen.aii.globalid", FT_UINT32, BASE_DEC,
+	NULL, 0x0, "Attachment Individual Identifier Global Id", HFILL}},
+
+    { &hf_ldp_tlv_fec_gen_aai_prefix,
+      { "Prefix", "ldp.msg.tlv.fec.gen.aii.prefix", FT_UINT32, BASE_DEC,
+	NULL, 0x0, "Attachment Individual Identifier Prefix", HFILL}},
+
+    { &hf_ldp_tlv_fec_gen_aai_ac_id,
+      { "Prefix", "ldp.msg.tlv.fec.gen.aii.acid", FT_UINT32, BASE_DEC,
+	NULL, 0x0, "Attachment Individual Identifier AC Id", HFILL}},
+
+    { &hf_ldp_tlv_pw_status_data,
+      { "Status Code", "ldp.msg.tlv.pwstatus.code", FT_UINT32, BASE_HEX, 
+      NULL, 0, "Status Code", HFILL }},
+
+    { &hf_ldp_tlv_pw_not_forwarding,
+    { "Pseudowire Not Forwarding", "ldp.msg.tlv.pwstatus.code.pwnotforward", 
+    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PW_NOT_FORWARDING,
+    "", HFILL }},
+
+    { &hf_ldp_tlv_pw_lac_ingress_recv_fault,
+    { "Local Attachment Circuit (ingress) Receive Fault", "ldp.msg.tlv.pwstatus.code.pwlacingressrecvfault", 
+    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PW_LAC_INGRESS_RECV_FAULT,
+    "", HFILL }},
+
+    { &hf_ldp_tlv_pw_lac_egress_recv_fault,
+    { "Local Attachment Circuit (egress) Transmit Fault",			"ldp.msg.tlv.pwstatus.code.pwlacegresstransfault", 
+    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PW_LAC_EGRESS_TRANS_FAULT,
+    "", HFILL }},
+
+    { &hf_ldp_tlv_pw_psn_pw_ingress_recv_fault,
+    { "Local PSN-facing PW (ingress) Receive Fault",			"ldp.msg.tlv.pwstatus.code.pwpsnpwingressrecvfault", 
+    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PW_PSN_PW_INGRESS_RECV_FAULT,
+    "", HFILL }},
+
+    { &hf_ldp_tlv_pw_psn_pw_egress_recv_fault,
+    { "Local PSN-facing PW (egress) Transmit Fault",			"ldp.msg.tlv.pwstatus.code.pwpsnpwegresstransfault", 
+    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PW_PSN_PW_EGRESS_TRANS_FAULT,
+    "", HFILL }},
+
+    {&hf_ldp_tlv_pw_grouping_value,
+     {"Value", "ldp.msg.tlv.pwgrouping.value", FT_UINT32, BASE_DEC, NULL, 0x0, "PW Grouping Value", HFILL }},
+
+    {&hf_ldp_tlv_intparam_length,
+     {"Length", "ldp.msg.tlv.intparam.length", FT_UINT8, BASE_DEC, NULL, 0x0, "VC FEC Interface Paramater Length", HFILL }},
+
+    {&hf_ldp_tlv_intparam_mtu,
+     {"MTU", "ldp.msg.tlv.intparam.mtu", FT_UINT16, BASE_DEC, NULL, 0x0, "VC FEC Interface Paramater MTU", HFILL }},
+
+    {&hf_ldp_tlv_intparam_tdmbps,
+     {"BPS", "ldp.msg.tlv.intparam.tdmbps", FT_UINT32, BASE_DEC, NULL, 0x0, "VC FEC Interface Parameter CEP/TDM bit-rate", HFILL }},
+
+    {&hf_ldp_tlv_intparam_id,
+     {"ID", "ldp.msg.tlv.intparam.id", FT_UINT8, BASE_HEX, VALS(fec_vc_interfaceparm), 0x0, "VC FEC Interface Paramater ID", HFILL }},
+
+    {&hf_ldp_tlv_intparam_maxcatmcells,
+     {"Number of Cells", "ldp.msg.tlv.intparam.maxatm", FT_UINT16, BASE_DEC, NULL, 0x0, "VC FEC Interface Param Max ATM Concat Cells", HFILL }},
+
+    { &hf_ldp_tlv_intparam_desc,
+      { "Description", "ldp.msg.tlv.intparam.desc", FT_STRING, BASE_NONE, NULL, 0, "VC FEC Interface Description", HFILL }},
+
+    { &hf_ldp_tlv_intparam_cepbytes,
+     {"Payload Bytes", "ldp.msg.tlv.intparam.cepbytes", FT_UINT16, BASE_DEC, NULL, 0x0, "VC FEC Interface Param CEP/TDM Payload Bytes", HFILL }},
+
+    { &hf_ldp_tlv_intparam_cepopt_ais,
+     {"AIS", "ldp.msg.tlv.intparam.cepopt_ais", FT_BOOLEAN, 16, NULL, 0x8000, "VC FEC Interface Param CEP Option AIS", HFILL }},
+
+    { &hf_ldp_tlv_intparam_cepopt_une,
+     {"UNE", "ldp.msg.tlv.intparam.cepopt_une", FT_BOOLEAN, 16, NULL, 0x4000, "VC FEC Interface Param CEP Option Unequipped", HFILL }},
+
+    { &hf_ldp_tlv_intparam_cepopt_rtp,
+     {"RTP", "ldp.msg.tlv.intparam.cepopt_rtp", FT_BOOLEAN, 16, NULL, 0x2000, "VC FEC Interface Param CEP Option RTP Header", HFILL }},
+
+    { &hf_ldp_tlv_intparam_cepopt_ebm,
+     {"EBM", "ldp.msg.tlv.intparam.cepopt_ebm", FT_BOOLEAN, 16, NULL, 0x1000, "VC FEC Interface Param CEP Option EBM Header", HFILL }},
+
+    { &hf_ldp_tlv_intparam_cepopt_mah,
+     {"MAH", "ldp.msg.tlv.intparam.cepopt_mah", FT_BOOLEAN, 16, NULL, 0x0800, "VC FEC Interface Param CEP Option MPLS Adaptation header", HFILL }},
+
+    { &hf_ldp_tlv_intparam_cepopt_res,
+     {"Reserved", "ldp.msg.tlv.intparam.cepopt_res", FT_UINT16, BASE_HEX, NULL , 0x07E0, "VC FEC Interface Param CEP Option Reserved", HFILL }},
+
+    { &hf_ldp_tlv_intparam_cepopt_ceptype,
+     {"CEP Type", "ldp.msg.tlv.intparam.cepopt_ceptype", FT_UINT16, BASE_HEX, VALS(fec_vc_ceptype_vals), 0x001C, "VC FEC Interface Param CEP Option CEP Type", HFILL }},
+
+    { &hf_ldp_tlv_intparam_cepopt_t3,
+     {"Async T3", "ldp.msg.tlv.intparam.cepopt_t3", FT_BOOLEAN, 16, NULL, 0x0002, "VC FEC Interface Param CEP Option Async T3", HFILL }},
+
+    { &hf_ldp_tlv_intparam_cepopt_e3,
+     {"Async E3", "ldp.msg.tlv.intparam.cepopt_e3", FT_BOOLEAN, 16, NULL, 0x0001, "VC FEC Interface Param CEP Option Async E3", HFILL }},
+
+    { &hf_ldp_tlv_intparam_vlanid,
+      { "VLAN Id", "ldp.msg.tlv.intparam.vlanid", FT_UINT16, BASE_DEC, NULL, 0x0, "VC FEC Interface Param VLAN Id", HFILL }},
+
+    {&hf_ldp_tlv_intparam_dlcilen,
+     {"DLCI Length", "ldp.msg.tlv.intparam.dlcilen", FT_UINT16, BASE_DEC, NULL, 0x0, "VC FEC Interface Parameter Frame-Relay DLCI Length", HFILL }},
+
+    {&hf_ldp_tlv_intparam_fcslen,
+     {"FCS Length", "ldp.msg.tlv.intparam.fcslen", FT_UINT16, BASE_DEC, NULL, 0x0, "VC FEC Interface Paramater FCS Length", HFILL }},
+
+    {&hf_ldp_tlv_intparam_tdmopt_r,
+     {"R Bit", "ldp.msg.tlv.intparam.tdmopt_r", FT_BOOLEAN, 16, TFS(&fec_vc_tdmopt_r), 0x8000, "VC FEC Interface Param TDM Options RTP Header", HFILL }},
+
+    {&hf_ldp_tlv_intparam_tdmopt_d,
+     {"D Bit", "ldp.msg.tlv.intparam.tdmopt_d", FT_BOOLEAN, 16, TFS(&fec_vc_tdmopt_d), 0x4000, "VC FEC Interface Param TDM Options Dynamic Timestamp", HFILL }},
+
+    {&hf_ldp_tlv_intparam_tdmopt_f,
+     {"F Bit", "ldp.msg.tlv.intparam.tdmopt_f", FT_BOOLEAN, 16, TFS(&fec_vc_tdmopt_f), 0x2000, "VC FEC Interface Param TDM Options Flavor bit", HFILL }},
+
+    {&hf_ldp_tlv_intparam_tdmopt_res1,
+     {"RSVD-1", "ldp.msg.tlv.intparam.tdmopt_res1", FT_UINT16, BASE_HEX, NULL, 0x1FFF, "VC FEC Interface Param TDM Options Reserved", HFILL }},
+
+    {&hf_ldp_tlv_intparam_tdmopt_pt,
+     {"PT", "ldp.msg.tlv.intparam.tdmopt_pt", FT_UINT8, BASE_DEC, NULL, 0x7F, "VC FEC Interface Param TDM Options Payload Type", HFILL }},
+
+    {&hf_ldp_tlv_intparam_tdmopt_res2,
+     {"RSVD-2", "ldp.msg.tlv.intparam.tdmopt_res2", FT_UINT8, BASE_HEX, NULL, 0x00, "VC FEC Interface Param TDM Options Reserved", HFILL }},
+
+    {&hf_ldp_tlv_intparam_tdmopt_freq,
+     {"FREQ", "ldp.msg.tlv.intparam.tdmopt_freq", FT_UINT16, BASE_DEC, NULL, 0x00, "VC FEC Interface Param TDM Options Frequency", HFILL }},
+
+    {&hf_ldp_tlv_intparam_tdmopt_ssrc,
+     {"SSRC", "ldp.msg.tlv.intparam.tdmopt_ssrc", FT_UINT32, BASE_HEX, NULL, 0x00, "VC FEC Interface Param TDM Options SSRC", HFILL }},
+
+    {&hf_ldp_tlv_intparam_vccv_cctype_cw,
+     {"PWE3 Control Word", "ldp.msg.tlv.intparam.vccv.cctype_cw", FT_BOOLEAN, 8, NULL, 0x01, "VC FEC Interface Param VCCV CC Type PWE3 CW", HFILL }},
+
+    {&hf_ldp_tlv_intparam_vccv_cctype_mplsra,
+     {"MPLS Router Alert", "ldp.msg.tlv.intparam.vccv.cctype_mplsra", FT_BOOLEAN, 8, NULL, 0x02, "VC FEC Interface Param VCCV CC Type MPLS Router Alert", HFILL }},
+
+    {&hf_ldp_tlv_intparam_vccv_cctype_ttl1,
+     {"MPLS Inner Label TTL = 1", "ldp.msg.tlv.intparam.vccv.cctype_ttl1", FT_BOOLEAN, 8, NULL, 0x04, "VC FEC Interface Param VCCV CC Type Inner Label TTL 1", HFILL }},
+
+    {&hf_ldp_tlv_intparam_vccv_cvtype_icmpping,
+     {"ICMP Ping", "ldp.msg.tlv.intparam.vccv.cvtype_icmpping", FT_BOOLEAN, 8, NULL, 0x01, "VC FEC Interface Param VCCV CV Type ICMP Ping", HFILL }},
+
+    {&hf_ldp_tlv_intparam_vccv_cvtype_lspping,
+     {"LSP Ping", "ldp.msg.tlv.intparam.vccv.cvtype_lspping", FT_BOOLEAN, 8, NULL, 0x02, "VC FEC Interface Param VCCV CV Type LSP Ping", HFILL }},
+      
+
+    {&hf_ldp_tlv_intparam_vccv_cvtype_bfd,
+     {"BFD", "ldp.msg.tlv.intparam.vccv.cvtype_bfd", FT_BOOLEAN, 8, NULL, 0x04, "VC FEC Interface Param VCCV CV Type BFD", HFILL }}
   };
 
   static gint *ett[] = {
@@ -3188,7 +3809,11 @@ proto_register_ldp(void)
     &ett_ldp_fec_vc_interfaceparam_cepopt,
     &ett_ldp_fec_vc_interfaceparam_vccvtype,
     &ett_ldp_diffserv_map,
-    &ett_ldp_diffserv_map_phbid
+    &ett_ldp_diffserv_map_phbid,
+    &ett_ldp_gen_agi,
+    &ett_ldp_gen_saii,
+    &ett_ldp_gen_taii,
+    &ett_ldp_gen_aai_type2
   };
   module_t *ldp_module;
 
