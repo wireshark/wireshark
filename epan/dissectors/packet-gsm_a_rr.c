@@ -347,7 +347,9 @@ const value_string gsm_rr_rest_octets_elem_strings[] = {
     { 0, "GPRS 3G Measurement Parameters Description" },
     { 0, "3G Additional Measurement Parameters Description 2" },
     { 0, "Priority and E-UTRAN Parameters Description" },
+    { 0, "Serving Cell Priority Parameters Description" },
     { 0, "3G Priority Parameters Description" },
+    { 0, "UTRAN Priority Parameters" },
     { 0, "E-UTRAN Parameters Description" },
     { 0, "E-UTRAN Neighbour Cells" },
     { 0, "E-UTRAN Not Allowed Cells" },
@@ -719,8 +721,8 @@ static int hf_gsm_a_rr_eutran_tdd_measurement_report_offset = -1;
 static int hf_gsm_a_rr_reporting_granularity = -1;
 static int hf_gsm_a_rr_qsearch_p_eutran = -1;
 static int hf_gsm_a_rr_serving_cell_priority_param_geran_priority = -1;
-static int hf_gsm_a_rr_serving_cell_priority_param_threash_prio_search = -1;
-static int hf_gsm_a_rr_serving_cell_priority_param_threash_gsm_low = -1;
+static int hf_gsm_a_rr_serving_cell_priority_param_thresh_prio_search = -1;
+static int hf_gsm_a_rr_serving_cell_priority_param_thresh_gsm_low = -1;
 static int hf_gsm_a_rr_serving_cell_priority_param_h_prio = -1;
 static int hf_gsm_a_rr_serving_cell_priority_param_t_reselection = -1;
 static int hf_gsm_a_rr_eutran_earfcn = -1;
@@ -777,7 +779,9 @@ typedef enum
     DE_RR_REST_OCTETS_GPRS_3G_MEAS_PARAM_DESC,
     DE_RR_REST_OCTETS_3G_ADD_MEAS_PARAM_DESC2,
     DE_RR_REST_OCTETS_PRIORITY_AND_EUTRAN_PARAM_DESC,
+    DE_RR_REST_OCTETS_SERVING_CELL_PRIORITY_PARAM_DESC,
     DE_RR_REST_OCTETS_3G_PRIORITY_PARAM_DESC,
+    DE_RR_REST_OCTETS_UTRAN_PRIO_PARAM,
     DE_RR_REST_OCTETS_EUTRAN_PARAM_DESC,
     DE_RR_REST_OCTETS_EUTRAN_NEIGHBOUR_CELLS,
     DE_RR_REST_OCTETS_EUTRAN_NOT_ALLOWED_CELLS,
@@ -4582,6 +4586,190 @@ static const value_string gsm_a_rr_eutran_measurement_bandwidth[] = {
   { 0, NULL }
 };
 
+static const value_string gsm_a_rr_serving_cell_thresh_gsm_low[] = {
+  { 0, "0 dB"},
+  { 1, "2 dB"},
+  { 2, "4 dB"},
+  { 3, "6 dB"},
+  { 4, "8 dB"},
+  { 5, "10 dB"},
+  { 6, "12 dB"},
+  { 7, "14 dB"},
+  { 8, "16 dB"},
+  { 9, "18 dB"},
+  {10, "20 dB"},
+  {11, "22 dB"},
+  {12, "24 dB"},
+  {13, "26 dB"},
+  {14, "28 dB"},
+  {15, "Always allowed"},
+  { 0, NULL }
+};
+
+static const value_string gsm_a_rr_serving_cell_thresh_priority_search[] = {
+  { 0, "-98 dBm"},
+  { 1, "-95 dBm"},
+  { 2, "-92 dBm"},
+  { 3, "-89 dBm"},
+  { 4, "-86 dBm"},
+  { 5, "-83 dBm"},
+  { 6, "-80 dBm"},
+  { 7, "-77 dBm"},
+  { 8, "-74 dBm"},
+  { 9, "-71 dBm"},
+  {10, "-68 dBm"},
+  {11, "-65 dBm"},
+  {12, "-62 dBm"},
+  {13, "-59 dBm"},
+  {14, "-56 dBm"},
+  {15, "Always search"},
+  { 0, NULL }
+};
+
+static const value_string gsm_a_rr_utran_qrxlevmin[] = {
+  { 0, "-119 dBm"},
+  { 1, "-117 dBm"},
+  { 2, "-115 dBm"},
+  { 3, "-113 dBm"},
+  { 4, "-111 dBm"},
+  { 5, "-109 dBm"},
+  { 6, "-107 dBm"},
+  { 7, "-105 dBm"},
+  { 8, "-103 dBm"},
+  { 9, "-101 dBm"},
+  {10, "-99 dBm"},
+  {11, "-97 dBm"},
+  {12, "-95 dBm"},
+  {13, "-93 dBm"},
+  {14, "-91 dBm"},
+  {15, "-89 dBm"},
+  {16, "-87 dBm"},
+  {17, "-85 dBm"},
+  {18, "-83 dBm"},
+  {19, "-81 dBm"},
+  {20, "-79 dBm"},
+  {21, "-77 dBm"},
+  {22, "-75 dBm"},
+  {23, "-73 dBm"},
+  {24, "-71 dBm"},
+  {25, "-69 dBm"},
+  {26, "-67 dBm"},
+  {27, "-65 dBm"},
+  {28, "-63 dBm"},
+  {29, "-61 dBm"},
+  {30, "-59 dBm"},
+  {31, "-57 dBm"},
+  { 0, NULL }
+};
+
+static const value_string gsm_a_rr_thresh_utran_eutran_high_low[] = {
+  { 0, "0 dB"},
+  { 1, "2 dB"},
+  { 2, "4 dB"},
+  { 3, "6 dB"},
+  { 4, "8 dB"},
+  { 5, "10 dB"},
+  { 6, "12 dB"},
+  { 7, "14 dB"},
+  { 8, "16 dB"},
+  { 9, "18 dB"},
+  {10, "20 dB"},
+  {11, "22 dB"},
+  {12, "24 dB"},
+  {13, "26 dB"},
+  {14, "28 dB"},
+  {15, "30 dB"},
+  {16, "32 dB"},
+  {17, "34 dB"},
+  {18, "36 dB"},
+  {19, "38 dB"},
+  {20, "40 dB"},
+  {21, "42 dB"},
+  {22, "44 dB"},
+  {23, "46 dB"},
+  {24, "48 dB"},
+  {25, "50 dB"},
+  {26, "52 dB"},
+  {27, "54 dB"},
+  {28, "56 dB"},
+  {29, "58 dB"},
+  {30, "60 dB"},
+  {31, "62 dB"},
+  { 0, NULL }
+};
+
+static const value_string gsm_a_rr_eutran_qrxlevmin[] = {
+  { 0, "-140 dBm"},
+  { 1, "-138 dBm"},
+  { 2, "-136 dBm"},
+  { 3, "-134 dBm"},
+  { 4, "-132 dBm"},
+  { 5, "-130 dBm"},
+  { 6, "-128 dBm"},
+  { 7, "-126 dBm"},
+  { 8, "-124 dBm"},
+  { 9, "-122 dBm"},
+  {10, "-120 dBm"},
+  {11, "-118 dBm"},
+  {12, "-116 dBm"},
+  {13, "-114 dBm"},
+  {14, "-112 dBm"},
+  {15, "-110 dBm"},
+  {16, "-108 dBm"},
+  {17, "-106 dBm"},
+  {18, "-104 dBm"},
+  {19, "-102 dBm"},
+  {20, "-100 dBm"},
+  {21, "-98 dBm"},
+  {22, "-96 dBm"},
+  {23, "-94 dBm"},
+  {24, "-92 dBm"},
+  {25, "-90 dBm"},
+  {26, "-88 dBm"},
+  {27, "-86 dBm"},
+  {28, "-84 dBm"},
+  {29, "-82 dBm"},
+  {30, "-80 dBm"},
+  {31, "-78 dBm"},
+  { 0, NULL }
+};
+
+static const value_string gsm_a_rr_serving_cell_priority_param_h_prio[] = {
+  { 0, "disabled"},
+  { 1, "5 dB"},
+  { 2, "4 dB"},
+  { 3, "3 dB"},
+  { 0, NULL }
+};
+
+static const value_string gsm_a_rr_serving_cell_priority_param_t_reselection[] = {
+  { 0, "5 s"},
+  { 1, "10 s"},
+  { 2, "15 s"},
+  { 3, "20 s"},
+  { 0, NULL }
+};
+
+static const value_string gsm_a_rr_qsearch_c_eutran_initial[] = {
+  { 0, "search if signal is below -98 dBm"},
+  { 1, "search if signal is below -94 dBm"},
+  { 2, "search if signal is below -90 dBm"},
+  { 3, "search if signal is below -86 dBm"},
+  { 4, "search if signal is below -82 dBm"},
+  { 5, "search if signal is below -78 dBm"},
+  { 6, "search if signal is below -74 dBm"},
+  { 7, "always search"},
+  { 8, "search is signal is above -78 dBm"},
+  { 9, "search is signal is above -74 dBm"},
+  {10, "search is signal is above -70 dBm"},
+  {11, "search is signal is above -66 dBm"},
+  {12, "search is signal is above -62 dBm"},
+  {13, "search is signal is above -58 dBm"},
+  {14, "search is signal is above -54 dBm"},
+  {15, "never search"},
+  { 0, NULL }
+};
+
 static const true_false_string gsm_a_rr_pcid_pattern_sense = {
   "The group of identified cells are the one not belonging to the PCID_BITMAP_GROUP",
   "The group of identified cells are the one identified by the PCID_BITMAP_GROUP"
@@ -4616,35 +4804,43 @@ de_rr_3g_priority_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
   /* Repeated UTRAN Priority Parameters */
   while((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
   {
+    proto_tree *subtree_rep_utran_prio;
+    proto_item *item_rep_utran_prio;
+    gint rep_utran_prio_bit_offset = curr_bit_offset;
+	
+    item_rep_utran_prio = proto_tree_add_text(subtree, tvb, curr_bit_offset>>3, 1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_PRIO_PARAM].strptr);
+    subtree_rep_utran_prio = proto_item_add_subtree(item_rep_utran_prio, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_UTRAN_PRIO_PARAM]);
+
     while((value = tvb_get_bits8(tvb,curr_bit_offset++,1)) == 1)
     {
-      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_utran_frequency_index, tvb, curr_bit_offset, 5, FALSE);
+      proto_tree_add_bits_item(subtree_rep_utran_prio, hf_gsm_a_rr_utran_frequency_index, tvb, curr_bit_offset, 5, FALSE);
       curr_bit_offset += 5;
     }
     value = tvb_get_bits8(tvb,curr_bit_offset,1);
     curr_bit_offset += 1;
     if (value)
     {
-      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_utran_priority, tvb, curr_bit_offset, 3, FALSE);
+      proto_tree_add_bits_item(subtree_rep_utran_prio, hf_gsm_a_rr_utran_priority, tvb, curr_bit_offset, 3, FALSE);
       curr_bit_offset += 3;
     }
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_thresh_utran_high, tvb, curr_bit_offset, 5, FALSE);
+    proto_tree_add_bits_item(subtree_rep_utran_prio, hf_gsm_a_rr_thresh_utran_high, tvb, curr_bit_offset, 5, FALSE);
     curr_bit_offset += 5;
     
     value = tvb_get_bits8(tvb,curr_bit_offset,1);
     curr_bit_offset += 1;
     if (value)
     {
-      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_thresh_utran_low, tvb, curr_bit_offset, 5, FALSE);
+      proto_tree_add_bits_item(subtree_rep_utran_prio, hf_gsm_a_rr_thresh_utran_low, tvb, curr_bit_offset, 5, FALSE);
       curr_bit_offset += 5;
     }
     value = tvb_get_bits8(tvb,curr_bit_offset,1);
     curr_bit_offset += 1;
     if (value)
     {
-      proto_tree_add_bits_item(subtree, hf_gsm_a_rr_utran_qrxlevmin, tvb, curr_bit_offset, 5, FALSE);
+      proto_tree_add_bits_item(subtree_rep_utran_prio, hf_gsm_a_rr_utran_qrxlevmin, tvb, curr_bit_offset, 5, FALSE);
       curr_bit_offset += 5;
     }
+	proto_item_set_len(item_rep_utran_prio,((curr_bit_offset-rep_utran_prio_bit_offset)>>3)+1);
   }
   
   proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
@@ -5001,19 +5197,28 @@ de_rr_priority_and_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_o
   subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_PRIORITY_AND_EUTRAN_PARAM_DESC]);
   value = tvb_get_bits8(tvb,curr_bit_offset,1);
   curr_bit_offset += 1;
+
   /* Serving Cell Priority Parameters Description */
   if (value)
   {
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_serving_cell_priority_param_geran_priority, tvb, curr_bit_offset, 3, FALSE);
+    proto_tree *subtree_serv;
+    proto_item *item_serv;
+    gint serv_bit_offset = curr_bit_offset;
+	  
+    item_serv = proto_tree_add_text(subtree, tvb, curr_bit_offset>>3, ((curr_bit_offset+15)>>3)-(curr_bit_offset>>3) + 1 , "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_SERVING_CELL_PRIORITY_PARAM_DESC].strptr);
+    subtree_serv = proto_item_add_subtree(item_serv, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_SERVING_CELL_PRIORITY_PARAM_DESC]);
+
+    proto_tree_add_bits_item(subtree_serv, hf_gsm_a_rr_serving_cell_priority_param_geran_priority, tvb, curr_bit_offset, 3, FALSE);
     curr_bit_offset += 3;
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_serving_cell_priority_param_threash_prio_search, tvb, curr_bit_offset, 4, FALSE);
+    proto_tree_add_bits_item(subtree_serv, hf_gsm_a_rr_serving_cell_priority_param_thresh_prio_search, tvb, curr_bit_offset, 4, FALSE);
     curr_bit_offset += 4;
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_serving_cell_priority_param_threash_gsm_low, tvb, curr_bit_offset, 4, FALSE);
+    proto_tree_add_bits_item(subtree_serv, hf_gsm_a_rr_serving_cell_priority_param_thresh_gsm_low, tvb, curr_bit_offset, 4, FALSE);
     curr_bit_offset += 4;
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_serving_cell_priority_param_h_prio, tvb, curr_bit_offset, 2, FALSE);
+    proto_tree_add_bits_item(subtree_serv, hf_gsm_a_rr_serving_cell_priority_param_h_prio, tvb, curr_bit_offset, 2, FALSE);
     curr_bit_offset += 2;
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_serving_cell_priority_param_t_reselection, tvb, curr_bit_offset, 2, FALSE);
+    proto_tree_add_bits_item(subtree_serv, hf_gsm_a_rr_serving_cell_priority_param_t_reselection, tvb, curr_bit_offset, 2, FALSE);
     curr_bit_offset += 2;
+    proto_item_set_len(item_serv,((curr_bit_offset-serv_bit_offset)>>3)+1);
   }
   value = tvb_get_bits8(tvb,curr_bit_offset,1);
   curr_bit_offset += 1;
@@ -10855,7 +11060,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_3g_priority_param_desc_default_utran_qrxlevmin,
               { "DEFAULT_UTRAN_QRXLEVMIN", "gsm_a.rr.3g_priority.default_utran_qrxlevmin",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
+		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_utran_qrxlevmin), 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_utran_frequency_index,
@@ -10870,12 +11075,12 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_thresh_utran_high,
               { "THRESH_UTRAN_high", "gsm_a.rr.3g_priority.thres_utran_high",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
+		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_thresh_utran_eutran_high_low), 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_thresh_utran_low,
               { "THRESH_UTRAN_low", "gsm_a.rr.3g_priority.thres_utran_low",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
+		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_thresh_utran_eutran_high_low), 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_utran_qrxlevmin,
@@ -10900,7 +11105,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_qsearch_c_eutran_initial,
               { "Qsearch_C_E-UTRAN_Initial", "gsm_a.rr.qsearch_c_eutran_initial",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
+		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_qsearch_c_eutran_initial), 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_rep_quant,
@@ -10958,24 +11163,24 @@ proto_register_gsm_a_rr(void)
 		FT_UINT8, BASE_DEC, NULL, 0x00,
 		NULL, HFILL }
             },
-            { &hf_gsm_a_rr_serving_cell_priority_param_threash_prio_search,
-              { "THRESH_Priority_Search", "gsm_a.rr.serving_cell_priority_param_threash_prio_search",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
+            { &hf_gsm_a_rr_serving_cell_priority_param_thresh_prio_search,
+              { "THRESH_Priority_Search", "gsm_a.rr.serving_cell_priority_param_thresh_prio_search",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_serving_cell_thresh_priority_search), 0x00,
 		NULL, HFILL }
             },
-            { &hf_gsm_a_rr_serving_cell_priority_param_threash_gsm_low,
-              { "THRESH_GSM_low", "gsm_a.rr.serving_cell_priority_param_threash_gsm_low",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
+            { &hf_gsm_a_rr_serving_cell_priority_param_thresh_gsm_low,
+              { "THRESH_GSM_low", "gsm_a.rr.serving_cell_priority_param_thresh_gsm_low",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_serving_cell_thresh_gsm_low), 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_serving_cell_priority_param_h_prio,
               { "H_PRIO", "gsm_a.rr.serving_cell_priority_param_h_prio",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
+		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_serving_cell_priority_param_h_prio), 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_serving_cell_priority_param_t_reselection,
               { "T_Reselection", "gsm_a.rr.serving_cell_priority_param_t_reselection",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
+		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_serving_cell_priority_param_t_reselection), 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_earfcn,
@@ -10995,17 +11200,17 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_thresh_eutran_high,
               { "THRESH_EUTRAN_high", "gsm_a.rr.thresh_eutran_high",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
+		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_thresh_utran_eutran_high_low), 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_thresh_eutran_low,
               { "THRESH_EUTRAN_low", "gsm_a.rr.thresh_eutran_low",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
+		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_thresh_utran_eutran_high_low), 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_qrxlevmin,
               { "E-UTRAN_QRXLEVMIN", "gsm_a.rr.eutran_qrxlevmin",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
+		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_eutran_qrxlevmin), 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_pcid,
