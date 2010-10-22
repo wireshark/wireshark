@@ -1488,9 +1488,8 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	guint8 revision, num_auth;
 	guint32 sa_field, rid=0;
 	guint64 authority=0;   
-	emem_strbuf_t *sa_str, *sid_in_dec_str, *sid_in_hex_str;
-	const char *wkwn_sid = NULL, *mapped_name = NULL;
-	char *sid2name_str = NULL;
+	emem_strbuf_t *sa_str, *sid_in_dec_str, *sid_in_hex_str = NULL;
+	const char *mapped_name = NULL;
 	gboolean domain_sid = FALSE, logon_session = FALSE;
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
@@ -1523,13 +1522,13 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	}
 
 	sid_in_dec_str = ep_strbuf_new_label("");
-	ep_strbuf_append_printf (sid_in_dec_str, "S-%u-%u", revision, authority);
+	ep_strbuf_append_printf (sid_in_dec_str, "S-%u-%" G_GINT64_MODIFIER "u", revision, authority);
 	
 	/*  If sid_display_hex is set, sid_in_dec_str is still needed for   
 	    looking up well-known SIDs*/
 	if (sid_display_hex)	{
 		sid_in_hex_str = ep_strbuf_new_label("");
-		ep_strbuf_append_printf (sid_in_hex_str, "S-%x-%x", revision, authority);
+		ep_strbuf_append_printf (sid_in_hex_str, "S-%x-%" G_GINT64_MODIFIER "x", revision, authority);
 	}
 
 	sa_offset = offset;
@@ -1611,7 +1610,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	proto_tree_add_item(subtree, hf_nt_sid_num_auth, tvb, na_offset, 1, TRUE);
 	proto_tree_add_uint64_format_value( subtree,
 		(sid_display_hex ? hf_nt_sid_auth_hex : hf_nt_sid_auth_dec),
-		tvb, na_offset+1, 6, authority, "%u", authority);
+		tvb, na_offset+1, 6, authority, "%" G_GINT64_MODIFIER "u", authority);
 	
 	/* Add subauthorities */		
 	item = proto_tree_add_string_format (
