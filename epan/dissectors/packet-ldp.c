@@ -949,7 +949,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
                 offset+=addr_size;
                 rem-=addr_size;
                 proto_tree_add_text(fec_tree, tvb, offset-1, 1,
-                                    "Invalid prefix %u length for family %s", 
+                                    "Invalid prefix %u length for family %s",
                                     prefix_len, val_to_str(family, afn_vals, "Unknown Family"));
                 break;
             }
@@ -1409,7 +1409,7 @@ dissect_tlv_status(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
     proto_tree_add_item(val_tree, hf_ldp_tlv_status_fbit, tvb, offset, 1, FALSE);
 
     data=tvb_get_ntohl(tvb, offset)&0x3FFFFFFF;
-    proto_tree_add_uint_format(val_tree, hf_ldp_tlv_status_data, tvb, offset, 4, 
+    proto_tree_add_uint_format(val_tree, hf_ldp_tlv_status_data, tvb, offset, 4,
                                data, "Status Data: %s (0x%X)", val_to_str(data, tlv_status_data, "Unknown Status Data"), data);
 
     proto_tree_add_item(val_tree, hf_ldp_tlv_status_msg_id, tvb, offset+4, 4, FALSE);
@@ -3741,7 +3741,7 @@ proto_register_ldp(void)
 
         { &hf_ldp_tlv_pw_status_data,
           { "Status Code", "ldp.msg.tlv.pwstatus.code", FT_UINT32, BASE_HEX,
-            NULL, 0, "Status Code", HFILL }},
+            NULL, 0, NULL, HFILL }},
 
         { &hf_ldp_tlv_pw_not_forwarding,
           { "Pseudowire Not Forwarding", "ldp.msg.tlv.pwstatus.code.pwnotforward", FT_BOOLEAN, 32,
