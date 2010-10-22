@@ -203,6 +203,16 @@ extern const value_string ms_country_codes[];
 
 int dissect_nt_64bit_time(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date);
 
+
+/*
+ *  SIDs and RIDs
+ */
+
+typedef struct _sid_strings {
+	char* sid;
+	char* name;
+} sid_strings;
+
 /* Dissect a NT SID.  Label it with 'name' and return a string version
  * of the SID in the 'sid_str' parameter which has a packet lifetime
  * scope and should NOT be freed by the caller. hf_sid can be -1 if
@@ -293,9 +303,6 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 void
 proto_do_register_windows_common(int proto_smb);
-
-const char *
-get_well_known_rid_name(guint32);
 
 int
 dissect_nt_security_information(tvbuff_t *tvb, int offset, proto_tree *parent_tree);

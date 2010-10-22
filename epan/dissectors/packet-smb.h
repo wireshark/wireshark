@@ -403,6 +403,8 @@ extern int dissect_smb_access_mask(tvbuff_t *tvb, proto_tree *parent_tree, int o
 extern const value_string oa_open_vals[];
 extern const value_string impersonation_level_vals[];
 
+extern gboolean sid_display_hex;
+
 extern int dissect_security_information_mask(tvbuff_t *tvb, proto_tree *parent_tree, int offset);
 
 extern int dissect_qfsi_FS_VOLUME_INFO(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int offset, guint16 *bcp, int unicode);

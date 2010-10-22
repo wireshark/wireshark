@@ -27,6 +27,7 @@
 #endif
 
 #include <glib.h>
+#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/emem.h>
@@ -55,6 +56,11 @@ static int hf_nt_sec_desc_type_self_relative = -1;
 static int hf_nt_sid = -1;
 static int hf_nt_sid_revision = -1;
 static int hf_nt_sid_num_auth = -1;
+static int hf_nt_sid_auth_dec = -1;
+static int hf_nt_sid_auth_hex = -1;
+static int hf_nt_sid_subauth = -1;
+static int hf_nt_sid_rid_dec = -1;
+static int hf_nt_sid_rid_hex = -1;
 static int hf_nt_acl_revision = -1;
 static int hf_nt_acl_size = -1;
 static int hf_nt_acl_num_aces = -1;
@@ -1232,6 +1238,9 @@ const value_string ms_country_codes[] = {
 	{0,	NULL}
 };
 
+//module_t* module;
+//pref_t* sid_display_hex;
+
 #ifndef TIME_T_MIN
 #define TIME_T_MIN ((time_t) ((time_t)0 < (time_t) -1 ? (time_t) 0 \
 		    : ~ (time_t) 0 << (sizeof (time_t) * CHAR_BIT - 1)))
@@ -1343,160 +1352,296 @@ dissect_nt_64bit_time(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date)
 }
 
 
-static const value_string well_known_rids[] = {
-	{  9,	"Logon"},
+/* Well-known SIDs defined in http://support.microsoft.com/kb/243330 */
+
+static const sid_strings well_known_sids[] = {  
+	{"S-1-0",          "Null Authority"},
+	{"S-1-0-0",        "Nobody"},
+	{"S-1-1",          "World Authority"},
+	{"S-1-1-0",        "Everyone"},
+	{"S-1-2",          "Local Authority"},
+	{"S-1-2-0",        "Local"},
+	{"S-1-2-1",        "Console Logon"},
+	{"S-1-3",          "Creator Authority"},
+	{"S-1-3-0",        "Creator Owner"},
+	{"S-1-3-1",        "Creator Group"},
+	{"S-1-3-2",        "Creator Owner Server"},
+	{"S-1-3-3",        "Creator Group Server"},
+	{"S-1-3-4",        "Owner Rights"},
+	{"S-1-4",          "Non-unique Authority"},
+
+	{"S-1-5",          "NT Authority"},
+	{"S-1-5-1",        "Dialup"},
+	{"S-1-5-2",        "Network"},
+	{"S-1-5-3",        "Batch"},
+	{"S-1-5-4",        "Interactive"},
+	/* S-1-5-5-X-Y has 6 fields so we'll special case this one */
+	{"S-1-5-5",        "Logon Session"},
+	{"S-1-5-6",        "Service"},
+	{"S-1-5-7",        "Anonymous"},
+	{"S-1-5-8",        "Proxy"},
+	{"S-1-5-9",        "Enterprise Domain Controllers"},
+	{"S-1-5-10",       "Principal Self"},
+	{"S-1-5-11",       "Authenticated Users"},
+	{"S-1-5-12",       "Reserved"},
+	{"S-1-5-13",       "Terminal Server Users"},
+	{"S-1-5-14",       "Remote Interactive Logon"},
+	{"S-1-5-15",       "All users in this organization"},
+	{"S-1-5-17",       "Default IIS user account"},
+	{"S-1-5-18",       "Local System"},
+	{"S-1-5-19",       "Local Service"},
+	{"S-1-5-20",       "Network Service"},
+	/* 
+	 * S-1-5-21-<domain>-<RID> are defined in 'wkwn_S_1_5_21_rids' 
+	 *
+	 * S-1-5-32-<RID>: Builtin local group SIDs  */
+	{"S-1-5-32-544",   "Administrators"},
+	{"S-1-5-32-545",   "Users"},
+	{"S-1-5-32-546",   "Guests"},
+	{"S-1-5-32-547",   "Power Users"},
+	{"S-1-5-32-548",   "Account Operators"},
+	{"S-1-5-32-549",   "Server Operators"},
+	{"S-1-5-32-550",   "Print Operators"},
+	{"S-1-5-32-551",   "Backup Operators"},
+	{"S-1-5-32-552",   "Replicators"},
+	{"S-1-5-32-554",   "Pre-Windows 2000 Compatible Access"},
+	{"S-1-5-32-555",   "Remote Desktop Users"},
+	{"S-1-5-32-556",   "Network Configuration Operators"},
+	{"S-1-5-32-557",   "Incoming Forest Trust Builders"},
+	{"S-1-5-32-558",   "Performance Monitor Users"},
+	{"S-1-5-32-559",   "Performance Log Users"},
+	{"S-1-5-32-560",   "Windows Authorization Access Group"},
+	{"S-1-5-32-561",   "Terminal Server License Servers"},
+	{"S-1-5-32-562",   "Distributed COM Users"},
+	{"S-1-5-32-569",   "Cryptographic Operators"},
+	{"S-1-5-32-573",   "Event Log Readers"},
+	{"S-1-5-32-574",   "Certificate Service DCOM Access"},
+
+	{"S-1-5-64-10",    "NTLM Authentication"},
+	{"S-1-5-64-14",    "SChannel Authentication"},
+	{"S-1-5-64-21",    "Digest Authentication"},
+	{"S-1-5-80",       "NT Service"},
+	{"S-1-16-0",       "Untrusted Mandatory Level"},
+	{"S-1-16-4096",    "Low Mandatory Level"},
+	{"S-1-16-8192",    "Medium Mandatory Level"},
+	{"S-1-16-8448",    "Medium Plus Mandatory Level"},
+	{"S-1-16-12288",   "High Mandatory Level"},
+	{"S-1-16-16384",   "System Mandatory Level"},
+	{"S-1-16-20480",   "Protected Process Mandatory Level"},
+	{"S-1-16-28672",   "Secure Process Mandatory Level"},
+	{NULL, NULL}
+}; 
+
+const char*
+match_wkwn_sids(const char* sid) {  
+	int i = 0;
+	while (*well_known_sids[i].name) {
+		if (strcmp(well_known_sids[i].sid, sid)==0) {
+			return(well_known_sids[i].name);
+		}
+		i++;
+	}
+	return NULL;
+}
+
+/* For SIDs in the form 'S-1-5-21-X-Y-Z-<RID>', '21-X-Y-Z' is referred to
+   as the "domain SID" (NT domain) or "machine SID" (local machine). 
+   The following are well-known RIDs which are appended to domain/machine SIDs 
+   as defined in http://support.microsoft.com/kb/243330. */
+
+static const value_string wkwn_S_1_5_21_rids[] = {  
 	{500,	"Administrator"},
 	{501,	"Guest"},
-	{512,	"Domain Administrators"},
+	{502,	"KRBTGT"},
+	{512,	"Domain Admins"},
 	{513,	"Domain Users"},
+	{514,	"Domain Guests"},
+	{515,	"Domain Computers"},
 	{516,	"Domain Controllers"},
-	{517,	"Cert Administrators"},
+	{517,	"Cert Publishers"},
 	{518,	"Schema Administrators"},
-	{519,	"Enterprise Administrators"},
+	{519,	"Enterprise Admins"},
+	{520,	"Group Policy Creator Owners"},
+	{553,	"RAS and IAS Servers"},
+	{571,   "Allowed RODC Password Replication Group"},
+	{572,   "Denied RODC Password Replication Group"},
 	{0,NULL}
 };
 const char *
-get_well_known_rid_name(guint32 rid)
+get_wkwn_S_1_5_21_rids(guint32 rid)
 {
-	return match_strval(rid, well_known_rids);
+	return match_strval(rid, wkwn_S_1_5_21_rids);
 }
 
-/* Dissect a NT SID.  Label it with 'name' and return a string version
+/* Dissect an NT SID.  Label it with 'name' and return a string version
  * of the SID in the 'sid_str' parameter which has a packet lifetime
  * scope and should NOT be freed by the caller. hf_sid can be -1 if
  * the caller doesnt care what name is used and then "nt.sid" will be
  * the default instead. If the caller wants a more appropriate hf
  * field, it will just pass a FT_STRING hf field here
  */
-
 int
 dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	       const char *name, char **sid_str, int hf_sid)
 {
+	int offset_sid_start = offset, rev_offset, sa_offset, na_offset, rid_offset=0, i;
+	guint8 revision, num_auth;
+	guint32 sa_field, rid=0;
+	guint64 authority=0;   
+	emem_strbuf_t *sa_str, *sid_in_dec_str, *sid_in_hex_str;
+	const char *wkwn_sid = NULL, *mapped_name = NULL;
+	char *sid2name_str = NULL;
+	gboolean domain_sid = FALSE, logon_session = FALSE;
 	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-	int old_offset = offset, sa_offset;
-	gboolean rid_present;
-	guint rid=0;
-	int rid_offset=0;
-	guint8 revision;
-	int rev_offset;
-	guint8 num_auth;
-	int na_offset;
-        guint auth = 0;   /* FIXME: What if it is larger than 32-bits */
-	int i;
-#define MAX_STR_LEN 256
-	emem_strbuf_t *str;
-	char *sid_string;
-	char *sid_name_str_p;
+	proto_tree *subtree = NULL;
 
+	/* Revision of SID */
+	revision = tvb_get_guint8(tvb, offset);
+	rev_offset = offset;
+	offset++;
 
-	if(sid_str){
+	/* Number of subauthority fields */
+	num_auth = tvb_get_guint8(tvb, offset);
+	na_offset = offset;
+	offset++;
+
+	/* if no tree, just return the offset of the end_of_SID+1 */
+	if (!parent_tree) 
+		return(offset+=(6+(num_auth*4))); 
+	
+	if(sid_str)
 		*sid_str=NULL;
-	}
 
-	sid_string=ep_alloc(MAX_STR_LEN);
 	if(hf_sid==-1){
 		hf_sid=hf_nt_sid;
 	}
 
-	/* revision of sid */
-	revision = tvb_get_guint8(tvb, offset);
-	rev_offset = offset;
-	offset += 1;
-
-	switch(revision){
-	case 1:
-	case 2:  /* Not sure what the different revision numbers mean */
-	  /* number of authorities*/
-	  num_auth = tvb_get_guint8(tvb, offset);
-          na_offset = offset;
-	  offset += 1;
-
-	  /* XXX perhaps we should have these thing searchable?
-	     a new FT_xxx thingie? SMB is quite common!*/
-	  /* identifier authorities */
-
-	  for(i=0;i<6;i++){
-	    auth = (auth << 8) + tvb_get_guint8(tvb, offset);
-
-	    offset++;
-	  }
-
-          sa_offset = offset;
-
-          str = ep_strbuf_new_label("");
-
-	  /* sub authorities, leave RID to last */
-	  for(i=0; i < (num_auth > 4?(num_auth - 1):num_auth); i++){
-	    /*
-	     * XXX should not be letohl but native byteorder according to
-	     * Samba header files.
-	     *
-	     * However, considering that there were never any NT ports
-	     * to big-endian platforms (PowerPC and MIPS ran little-endian,
-	     * and IA-64 runs little-endian, as does x86-64), we can (?)
-	     * assume that non le byte encodings will be "uncommon"?
-	     */
-
-             ep_strbuf_append_printf(str,
-                (i>0 ? "-%u" : "%u"), tvb_get_letohl(tvb, offset));
-             offset+=4;
-	  }
-
-
-	  if (num_auth > 4) {
-	    rid = tvb_get_letohl(tvb, offset);
-            rid_present=TRUE;
-            rid_offset=offset;
-	    offset+=4;
-            g_snprintf(sid_string, MAX_STR_LEN, "S-1-%u-%s-%u", auth, str->str, rid);
-	  } else {
-            rid_present=FALSE;
-            g_snprintf(sid_string, MAX_STR_LEN, "S-1-%u-%s", auth, str->str);
-          }
-
-          sid_name_str_p=NULL;
-          if(sid_name_snooping){
-            sid_name_str_p=find_sid_name(sid_string);
-          }
-
-          if(parent_tree){
-            if(sid_name_str_p){
-              item = proto_tree_add_string_format(parent_tree, hf_sid, tvb, old_offset, offset-old_offset, sid_string, "%s: %s (%s)", name, sid_string, sid_name_str_p);
-            } else {
-              item = proto_tree_add_string_format(parent_tree, hf_sid, tvb, old_offset, offset-old_offset, sid_string, "%s: %s", name, sid_string);
-            }
-            tree = proto_item_add_subtree(item, ett_nt_sid);
-          }
-
-          proto_tree_add_item(tree, hf_nt_sid_revision, tvb, rev_offset, 1, TRUE);
-          proto_tree_add_item(tree, hf_nt_sid_num_auth, tvb, na_offset, 1, TRUE);
-          proto_tree_add_text(tree, tvb, na_offset+1, 6, "Authority: %u", auth);
-          proto_tree_add_text(tree, tvb, sa_offset, num_auth * 4, "Sub-authorities: %s", str->str);
-
-          if(rid_present){
-            const char *rid_name;
-            proto_item *it;
-
-            it=proto_tree_add_text(tree, tvb, rid_offset, 4, "RID: %u", rid);
-            rid_name=get_well_known_rid_name(rid);
-            if(it && rid_name){
-              proto_item_append_text(it, " (%s)",rid_name);
-            }
-          }
-
-          if(sid_str){
-            if(sid_name_str_p){
-              *sid_str = ep_strdup_printf("%s (%s)", sid_string, sid_name_str_p);
-            } else {
-              *sid_str = ep_strdup(sid_string);
-            }
-          }
+	/* Identifier Authority */
+	for(i=0; i<6; i++){
+		authority = (authority << 8) + tvb_get_guint8(tvb, offset);
+		offset++;
 	}
 
-	if(sid_str && !(*sid_str)){
-		*sid_str=ep_strdup("corrupted sid");
+	sid_in_dec_str = ep_strbuf_new_label("");
+	ep_strbuf_append_printf (sid_in_dec_str, "S-%u-%u", revision, authority);
+	
+	/*  If sid_display_hex is set, sid_in_dec_str is still needed for   
+	    looking up well-known SIDs*/
+	if (sid_display_hex)	{
+		sid_in_hex_str = ep_strbuf_new_label("");
+		ep_strbuf_append_printf (sid_in_hex_str, "S-%x-%x", revision, authority);
+	}
+
+	sa_offset = offset;
+	sa_str = ep_strbuf_new_label("");		
+
+	/* Build the sub-authorities and full SID strings */
+	for(i=1; i<num_auth+1; i++) {
+	   /* 
+		* XXX should not be letohl but native byteorder according to
+		* Samba header files.		
+		*
+		* However, considering that there were never any NT ports
+		* to big-endian platforms (PowerPC and MIPS ran little-endian,
+		* and IA-64 runs little-endian, as does x86-64), we can (?)
+		* assume that non le byte encodings will be "uncommon"? 
+		*/
+		sa_field = tvb_get_letohl(tvb, offset);
+		ep_strbuf_append_printf(sid_in_dec_str, "-%u", sa_field);
+		
+		if (sid_display_hex)	
+			ep_strbuf_append_printf(sid_in_hex_str, "-%x", sa_field);
+		
+		if (i==1) {
+			if (strcmp(sid_in_dec_str->str, "S-1-5-21")==0) {
+				domain_sid = TRUE;
+			} else if (strcmp(sid_in_dec_str->str, "S-1-5-5")==0) {
+				logon_session = TRUE;
+			}
+		}
+		
+		if (i < 5 || (i==5 && !domain_sid)) {
+			ep_strbuf_append_printf( sa_str,	
+				(i==1 ? (sid_display_hex ? "%x" : "%u") : (sid_display_hex ? "-%x" : "-%u")),
+				sa_field);
+		} else {
+			/* The only sort of RIDs that are recognized are those belonging to domain
+			   SIDs (21-w-x-y-z). 
+			   Although RIDs are a type of subauthority, they are not appended to subauth 
+			   so that the domain SIDs can searched for independently of them. */
+			rid = sa_field;
+			rid_offset = offset;
+		} 
+		offset+=4;
+	}
+
+	/* Do the lookups */
+	if (domain_sid && rid) {
+		mapped_name = get_wkwn_S_1_5_21_rids(rid);
+	} else {	
+		if (!(domain_sid)) {
+			if (logon_session) {
+				mapped_name = match_wkwn_sids("S-1-5-5");
+			} else {
+				mapped_name = match_wkwn_sids(sid_in_dec_str->str);
+			}
+			if (!(mapped_name) && sid_name_snooping) {
+				mapped_name = find_sid_name(sid_in_dec_str->str);
+			}
+		}
+	}
+	
+	/* It's tree time 	
+	   Display the entire SID string */		
+	if (sid_display_hex) { 
+		item = proto_tree_add_string_format(
+			parent_tree, hf_sid, tvb, offset_sid_start, (offset - offset_sid_start), 
+			sid_in_hex_str->str, "%s: %s", name, sid_in_hex_str->str);
+	} else {
+		item = proto_tree_add_string_format(
+			parent_tree, hf_sid, tvb, offset_sid_start, (offset - offset_sid_start), 
+			sid_in_dec_str->str, "%s: %s", name, sid_in_dec_str->str);
+	}
+	if (mapped_name) {
+		proto_item_append_text(item, " (%s)", mapped_name);
+	}
+	/* Add revision, num_auth, and authority */
+	subtree = proto_item_add_subtree(item, ett_nt_sid);
+	proto_tree_add_item(subtree, hf_nt_sid_revision, tvb, rev_offset, 1, TRUE);
+	proto_tree_add_item(subtree, hf_nt_sid_num_auth, tvb, na_offset, 1, TRUE);
+	proto_tree_add_uint64_format_value( subtree,
+		(sid_display_hex ? hf_nt_sid_auth_hex : hf_nt_sid_auth_dec),
+		tvb, na_offset+1, 6, authority, "%u", authority);
+	
+	/* Add subauthorities */		
+	item = proto_tree_add_string_format (
+		subtree, hf_nt_sid_subauth, tvb, sa_offset,
+		(rid ? (num_auth-1)*4 : num_auth*4), 
+		sa_str->str, "Subauthorities: %s", sa_str->str
+	);
+
+	/* RID */
+	if (rid) {
+		item = proto_tree_add_item (subtree, 
+			(sid_display_hex ? hf_nt_sid_rid_hex : hf_nt_sid_rid_dec),
+			tvb, rid_offset, 4, TRUE);
+		if (mapped_name) {
+			proto_item_append_text(item, "  (%s)", mapped_name);
+		}
+	}
+	
+	/* If requested, return SID string with mapped name */
+	if(sid_str){
+		if(mapped_name){
+			*sid_str = ep_strdup_printf("%s (%s)",
+				(sid_display_hex ? sid_in_hex_str->str : sid_in_dec_str->str), mapped_name);
+		} else {
+			*sid_str = ep_strdup(
+				sid_display_hex ? sid_in_hex_str->str : sid_in_dec_str->str);
+		}
+		if(!(*sid_str)){
+			*sid_str=ep_strdup("corrupted SID");
+		}
 	}
 
 	return offset;
@@ -2059,7 +2204,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 
 		/* SID */
-		offset = dissect_nt_sid(tvb, offset, tree, "ACE", &sid_str, -1);
+		offset = dissect_nt_sid(tvb, offset, tree, "SID", &sid_str, -1);
 
 		if (item)
 			proto_item_append_text(
@@ -2554,11 +2699,31 @@ proto_do_register_windows_common(int proto_smb)
 		  { "Num Auth", "nt.sid.num_auth", FT_UINT8, BASE_DEC,
 		    NULL, 0, "Number of authorities for this SID", HFILL }},
 
+		{ &hf_nt_sid_auth_dec,
+		{ "Authority", "nt.sid.auth", FT_UINT64, BASE_DEC,
+		    NULL, 0, "Identifier Authority", HFILL }},
+
+		{ &hf_nt_sid_auth_hex,
+		{ "Authority", "nt.sid.auth", FT_UINT64, BASE_HEX,
+		    NULL, 0, "Identifier Authority", HFILL }},
+
+		{ &hf_nt_sid_subauth,
+		{ "Subauthorities: ", "nt.sid.subauth", FT_STRING, BASE_NONE,
+		  NULL, 0, "Subauthorities fields", HFILL }},
+
+		{ &hf_nt_sid_rid_dec,
+		  { "RID", "nt.sid.rid", FT_UINT32, BASE_DEC,
+		  NULL, 0, "Relative IDentifier: identifies a user or group", HFILL }},
+
+		{ &hf_nt_sid_rid_hex,
+		  { "RID", "nt.sid.rid", FT_UINT32, BASE_HEX,
+		  NULL, 0, "Relative IDentifier: identifies a user or group", HFILL }},
+
+		/* ACLs */
+
 		{ &hf_nt_acl_revision,
 		  { "Revision", "nt.acl.revision", FT_UINT16, BASE_DEC,
 		    VALS(acl_revision_vals), 0, "Version of NT ACL structure", HFILL }},
-
-		/* ACLs */
 
 		{ &hf_nt_acl_size,
 		  { "Size", "nt.acl.size", FT_UINT16, BASE_DEC,

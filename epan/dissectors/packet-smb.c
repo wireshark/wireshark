@@ -887,7 +887,7 @@ static int dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	offset += len;			\
 	*bcp -= len;
 
-
+sid_display_hex = FALSE;  
 gboolean sid_name_snooping = FALSE;
 
 /* Compare funtion to maintain the GSL_fid_info ordered
@@ -19952,6 +19952,12 @@ proto_register_smb(void)
 		"Snoop SID to Name mappings",
 		"Whether the dissector should snoop SMB and related CIFS protocols to discover and display Names associated with SIDs",
 		&sid_name_snooping);
+
+	/* For display of SIDs and RIDs in Hex option */
+	prefs_register_bool_preference(smb_module, "sid_display_hex",
+		"Display SIDs in Hex",
+		"Whether the dissector should display SIDs and RIDs in hexadecimal rather than decimal",
+		&sid_display_hex);
 
 	register_init_routine(smb_trans_reassembly_init);
 	smb_tap = register_tap("smb");
