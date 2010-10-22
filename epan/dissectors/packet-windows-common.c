@@ -1238,8 +1238,8 @@ const value_string ms_country_codes[] = {
 	{0,	NULL}
 };
 
-//module_t* module;
-//pref_t* sid_display_hex;
+ /*module_t* module;*/
+ /*pref_t* sid_display_hex;*/
 
 #ifndef TIME_T_MIN
 #define TIME_T_MIN ((time_t) ((time_t)0 < (time_t) -1 ? (time_t) 0 \
