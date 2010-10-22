@@ -3166,8 +3166,13 @@ Hadriel Kaplan		<hadrielk [AT] yahoo.com> {
 	IPFIX wiretap support
 }
 
-Srinivasa Pradeep	<sippyemail-wireshark [AT] yahoo.com>
+Srinivasa Pradeep	<sippyemail-wireshark [AT] yahoo.com> {
 	LDP dissector: Add/Update PseudoWire TLV support
+}
+
+Lori Tribble		<ljtconsulting [AT] gmail.com> {
+	Support for vendor-specific subdissectors for
+         BACnet Private Transfer Messages
 }
 
 

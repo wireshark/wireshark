@@ -3139,7 +3139,7 @@ BACnetPropertyIdentifier [] = {
 	{342,"bit-mask"},		/* addenda 135-2008w */
 	{343,"bit-text"},
 	{344,"is-utc"},
-  	{0, NULL}
+	{0, NULL}
 /* Enumerated values 0-511 are reserved for definition by ASHRAE.
    Enumerated values 512-4194303 may be used by others subject to
    the procedures and constraints described in Clause 23. */
@@ -3980,6 +3980,9 @@ static guint32 object_type = 4096;
 static guint8 bacapp_flags = 0;
 static guint8 bacapp_seq = 0;
 
+/* Defined to allow vendor identifier registration of private transfer dissectors */
+static dissector_table_t bacapp_dissector_table;
+
 static const fragment_items msg_frag_items = {
 	/* Fragment subtrees */
 	&ett_msg_fragment,
@@ -4125,7 +4128,7 @@ fUnsigned64 (tvbuff_t *tvb, guint offset, guint32 lvt, guint64 *val)
 	return valid;
 }
 
-/* BACnet Signed Value uses 2's compliment notation, but with a twist:
+/* BACnet Signed Value uses 2's complement notation, but with a twist:
    All signed integers shall be encoded in the smallest number of octets
    possible.  That is, the first octet of any multi-octet encoded value
    shall not be X'00' if the most significant bit (bit 7) of the second
@@ -4137,7 +4140,7 @@ fSigned64 (tvbuff_t *tvb, guint offset, guint32 lvt, gint64 *val)
 	gboolean valid = FALSE;
 	gint64 value = 0;
 	guint8 data;
-        guint32 i;
+	guint32 i;
 
 	/* we can only handle 7 bytes for a 64-bit value due to signed-ness */
 	if (lvt && (lvt <= 7)) {
@@ -5321,14 +5324,14 @@ static guint
 fApplicationTypesEnumerated (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset,
 	const gchar *label, const value_string *vs)
 {
-  return fApplicationTypesEnumeratedSplit(tvb, pinfo, tree, offset, label, vs, 0);
+	return fApplicationTypesEnumeratedSplit(tvb, pinfo, tree, offset, label, vs, 0);
 }
 
 static guint
 fApplicationTypes (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset,
 	const gchar *label)
 {
-  return fApplicationTypesEnumeratedSplit(tvb, pinfo, tree, offset, label, NULL, 0);
+	return fApplicationTypesEnumeratedSplit(tvb, pinfo, tree, offset, label, NULL, 0);
 }
 
 static guint
@@ -5895,6 +5898,27 @@ fConfirmedPrivateTransferRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	guint32 lvt;
 	proto_tree *subtree = tree;
 	proto_item *tt;
+	tvbuff_t *next_tvb;
+	guint vendor_identifier = 0;
+	guint service_number = 0;
+
+	lastoffset = offset;
+	len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+	fUnsigned32(tvb, offset+len, lvt, &vendor_identifier);
+	if (col_get_writable(pinfo->cinfo))
+		col_append_fstr(pinfo->cinfo, COL_INFO, "V=%u ", vendor_identifier);
+	offset = fVendorIdentifier (tvb, pinfo, subtree, offset);
+
+	next_tvb = tvb_new_subset_remaining(tvb,offset);
+	if (dissector_try_port(bacapp_dissector_table,
+	    vendor_identifier, next_tvb, pinfo, tree))
+	{
+		/* we parsed it so skip over length and we are done */
+		offset += tvb_length(next_tvb);
+		return offset;
+	}
+
+	/* Not handled by vendor dissector */
 
 	/* exit loop if nothing happens inside */
 	while (tvb_reported_length_remaining(tvb, offset)) {
@@ -5914,10 +5938,11 @@ fConfirmedPrivateTransferRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		}
 		switch (tag_no) {
 
-		case 0: /* vendorID */
-			offset = fVendorIdentifier (tvb, pinfo, subtree, offset);
-			break;
+			/* vendorID is now parsed above */
 		case 1: /* serviceNumber */
+			fUnsigned32(tvb, offset+len, lvt, &service_number);
+			if (col_get_writable(pinfo->cinfo))
+				col_append_fstr(pinfo->cinfo, COL_INFO, "SN=%u ",	service_number);
 			offset = fUnsignedTag (tvb, subtree, offset, "service Number: ");
 			break;
 		case 2: /*serviceParameters */
@@ -5935,6 +5960,7 @@ fConfirmedPrivateTransferRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		}
 		if (offset == lastoffset) break;     /* nothing happened, exit loop */
 	}
+
 	return offset;
 }
 
@@ -8501,18 +8527,28 @@ fConfirmedPrivateTransferError(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	proto_tree *subtree = tree;
 	proto_item *tt;
 
+	guint vendor_identifier = 0;
+	guint service_number = 0;
+	guint8 tag_len = 0;
+
 	while (tvb_reported_length_remaining(tvb, offset)) {
 		/* exit loop if nothing happens inside */
 		lastoffset = offset;
-		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		tag_len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		switch (tag_no) {
 		case 0:	/* errorType */
 			offset = fContextTaggedError(tvb, pinfo, subtree, offset);
 			break;
 		case 1:	/* vendorID */
+			fUnsigned32(tvb, offset+tag_len, lvt, &vendor_identifier);
+			if (col_get_writable(pinfo->cinfo))
+				col_append_fstr(pinfo->cinfo, COL_INFO, "V=%u ",	vendor_identifier);
 			offset = fVendorIdentifier (tvb, pinfo, subtree, offset);
 			break;
 		case 2:	/* serviceNumber */
+			fUnsigned32(tvb, offset+tag_len, lvt, &service_number);
+			if (col_get_writable(pinfo->cinfo))
+				col_append_fstr(pinfo->cinfo, COL_INFO, "SN=%u ",	service_number);
 			offset = fUnsignedTag (tvb, subtree, offset, "service Number: ");
 			break;
 		case 3: /* errorParameters */
@@ -8795,7 +8831,6 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				bacapp_prop_win_size = tvb_get_guint8(tvb, offset + 4);
 				bacapp_service = tvb_get_guint8(tvb, offset + 5);
 				data_offset = 6;
-
 			}
 			else
 			{
@@ -9243,6 +9278,10 @@ proto_register_bacapp(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("bacapp", dissect_bacapp, proto_bacapp);
 	register_init_routine (&bacapp_init_routine);
+
+	bacapp_dissector_table = register_dissector_table("bacapp.vendor_identifier",
+							  "BACapp Vendor Identifier",
+							  FT_UINT8, BASE_HEX);
 
 }
 
