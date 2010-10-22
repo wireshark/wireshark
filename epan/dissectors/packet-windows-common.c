@@ -1435,7 +1435,7 @@ static const sid_strings well_known_sids[] = {
 const char*
 match_wkwn_sids(const char* sid) {  
 	int i = 0;
-	while (*well_known_sids[i].name) {
+	while (well_known_sids[i].name) {
 		if (strcmp(well_known_sids[i].sid, sid)==0) {
 			return(well_known_sids[i].name);
 		}
