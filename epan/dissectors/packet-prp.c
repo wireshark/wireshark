@@ -211,11 +211,11 @@ dissect_prp_redundancy_control_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, pr
         return;
     }
 
-    if(0x8000 == tvb_get_ntohs(tvb, 12)) /* taged frame */
+    if(ETHERTYPE_VLAN == tvb_get_ntohs(tvb, 12)) /* tagged frame */
     {
         offset = 18;
     }
-    else /* untaged */
+    else /* untagged */
     {
         offset = 14;
     }
