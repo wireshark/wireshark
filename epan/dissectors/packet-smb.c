@@ -887,7 +887,7 @@ static int dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	offset += len;			\
 	*bcp -= len;
 
-sid_display_hex = FALSE;  
+gboolean sid_display_hex = FALSE;  
 gboolean sid_name_snooping = FALSE;
 
 /* Compare funtion to maintain the GSL_fid_info ordered
