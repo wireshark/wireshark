@@ -162,7 +162,7 @@ while (<>) {
 			$skip{$element} = 1;
 		}
 		next;
-	} elsif ($brace == 1 && /^\s*?&\s*?(hf_\w*)\W+/) {
+	} elsif ($brace == 1 && /^\s*&\s*(hf_\w*)\W+/) {
 		$element = $1;
 		$type = "t_array";
 	} elsif (/^\s*\{\s*?&\s*?(hf_\w*)\W+/) {
@@ -174,15 +174,13 @@ while (<>) {
 		next if ($skip{$element});
 		$type = "t_usage";
 	} else {
-		# current line is not relevant
+		# Line with only a {
+		if (/^\s+\{\s*$/) {
+			$brace = 1;
+		} else {
+			$brace = 0;
+		}
 		next;
-	}
-	# Line with only a {
-	if (/^\s+\{\s*$/) {
-		$brace = 1;
-		next;
-	} else {
-		$brace = 0;
 	}
 
 	# Get current state
