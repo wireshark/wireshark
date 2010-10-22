@@ -2729,7 +2729,7 @@ clicks as well, launching the configured browser with this URL as parameter.
 
 1.7 Utility routines.
 
-1.7.1 match_strval and val_to_str.
+1.7.1 match_strval, match_strval_ext, val_to_str and val_to_str_ext.
 
 A dissector may need to convert a value to a string, using a
 'value_string' structure, by hand, rather than by declaring a field with
@@ -2763,6 +2763,17 @@ to generate a string, and will return a pointer to that string.
 You can use it in a call to generate a COL_INFO line for a frame such as
 
 	col_add_fstr(COL_INFO, ", %s", val_to_str(val, table, "Unknown %d"));
+
+The match_strval_ext and val_to_str_ext functions are "extended" versions
+of match_strval and val_to_str. They should be used for large value-string
+arrays which contain many entries. They implement value to string conversions
+which will do either a direct access or a binary search of the
+value string array if possible. See "Extended Value Strings" under
+section  1.6 "Constructing the protocol tree" for more information.
+
+See epan/value_string.h for detailed information on the various value_string
+functions.
+
 
 1.7.2 match_strrval and rval_to_str.
 
