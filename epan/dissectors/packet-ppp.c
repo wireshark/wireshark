@@ -49,7 +49,6 @@
 #include "packet-usb.h"
 #include "packet-sll.h"
 
-#define ppp_min(a, b)  (((a)<(b)) ? (a) : (b))
 
 static int proto_ppp = -1;
 static int hf_ppp_direction = -1;
@@ -89,13 +88,9 @@ static gint ett_vsncp = -1;
 static gint ett_vsncp_options = -1;
 
 static int proto_vsnp = -1;
-static gint hf_vsnp = -1;
-static gint hf_vsnp_header = -1;
-static gint hf_vsnp_type = -1;
-static gint hf_vsnp_data = -1;
+static gint hf_vsnp_pdnid = -1;
 
 static gint ett_vsnp =-1;
-static gint ett_vsnp_pdnid = -1;
 
 static int proto_osicp = -1;
 
@@ -185,9 +180,6 @@ static gint ett_cdpcp_options 	= -1;
 static int proto_pap		= -1;		/* PAP vars */
 static gint ett_pap		= -1;
 static gint ett_pap_data	= -1;
-static gint ett_pap_peer_id	= -1;
-static gint ett_pap_password	= -1;
-static gint ett_pap_message	= -1;
 
 static gint hf_pap_code		= -1;
 static gint hf_pap_identifier	= -1;
@@ -204,9 +196,6 @@ static gint hf_pap_stuff	= -1;
 static int proto_chap		= -1;		/* CHAP vars */
 static gint ett_chap		= -1;
 static gint ett_chap_data	= -1;
-static gint ett_chap_value	= -1;
-static gint ett_chap_name	= -1;
-static gint ett_chap_message	= -1;
 
 
 static gint hf_chap_code	= -1;
@@ -3344,7 +3333,6 @@ dissect_vsncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_vsnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  guint8 PDNID;
   proto_item *vsnp_item = NULL;
   proto_tree *vsnp_tree = NULL;
   guint32 offset = 0;
@@ -3354,14 +3342,15 @@ dissect_vsnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSNP");
 
-  PDNID = tvb_get_guint8(tvb, 0); /* Get the PDNID byte */
+
   offset = 0;
 
   if (tree) /* we are being asked for details */
   {
     vsnp_item = proto_tree_add_item(tree, proto_vsnp, tvb, 0, -1, FALSE);
     vsnp_tree = proto_item_add_subtree(vsnp_item, ett_vsnp);
-    proto_tree_add_text(vsnp_tree, tvb, offset, 1, "PDN ID: 0x%02x", PDNID);
+
+    proto_tree_add_item(vsnp_tree, hf_vsnp_pdnid, tvb, offset, 1, FALSE);
   }
   next_tvb = tvb_new_subset(tvb, 1, -1, -1);
 
@@ -4441,17 +4430,15 @@ dissect_pap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
 
   guint8 code;
   gchar *peer_id, *password, *message;
-  guint8 id, peer_id_length, password_length, message_length;
+  guint8 peer_id_length, password_length, message_length;
   int offset=0;
 
   code = tvb_get_guint8(tvb, 0);
-  id = tvb_get_guint8(tvb, 1);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP PAP");
 
   if(check_col(pinfo->cinfo, COL_INFO))
-    col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str(code, pap_vals, "Unknown"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(code, pap_vals, "Unknown"));
 
   if(tree) {
     ti = proto_tree_add_item(tree, proto_pap, tvb, 0, -1, FALSE);
@@ -4490,10 +4477,7 @@ dissect_pap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
 	   password = tvb_format_text(tvb, offset, password_length);
 	   offset += password_length;
 
-
-           if(check_col(pinfo->cinfo, COL_INFO)){
-             col_append_fstr(pinfo->cinfo, COL_INFO, " (Peer-ID='%s', Password='%s')", peer_id, password);
-	   }
+           col_append_fstr(pinfo->cinfo, COL_INFO, " (Peer-ID='%s', Password='%s')", peer_id, password);
 	break;
 	case CONFACK:
 	case CONFNAK:
@@ -4505,10 +4489,7 @@ dissect_pap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
 	   message = tvb_format_text(tvb, offset, message_length);
 	   offset += message_length;
 
-
-           if(check_col(pinfo->cinfo, COL_INFO)){
-             col_append_fstr(pinfo->cinfo, COL_INFO, " (Message='%s')", message);
-	   }
+           col_append_fstr(pinfo->cinfo, COL_INFO, " (Message='%s')", message);
 	break;
         default:
            proto_tree_add_item(data_tree, hf_pap_stuff, tvb, offset, -1, FALSE);
@@ -4892,22 +4873,14 @@ proto_register_vsnp(void)
 {
   static gint *ett[] = {
     &ett_vsnp,
-    &ett_vsnp_pdnid,
   };
 
   static hf_register_info hf[] = {
-    { &hf_vsnp,
-      { "Data", "vsnp.data", FT_NONE, BASE_NONE, NULL, 0x0,
-        "VSNP PDU", HFILL }},
-    { &hf_vsnp_header,
-      { "Header", "vsnp.header", FT_NONE, BASE_NONE, NULL, 0x0,
-        "VSNP Header", HFILL }},
-    { &hf_vsnp_type,
-      { "PDN ID", "vsnp.pdnid", FT_UINT8, BASE_DEC, NULL, 0x0,
-        NULL, HFILL }},
-    { &hf_vsnp_data,
-      { "Data", "vsnp.data", FT_STRING, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }}
+    { &hf_vsnp_pdnid,
+      { "PDN ID", "vsnp.pdnid", 
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      NULL, HFILL }
+    }
   };
 
   proto_vsnp = proto_register_protocol("Vendor Specific Network Protocol", "PPP VSNP",
@@ -5199,9 +5172,6 @@ proto_register_pap(void)
   static gint *ett[] = {
     &ett_pap,
     &ett_pap_data,
-    &ett_pap_peer_id,
-    &ett_pap_password,
-    &ett_pap_message,
   };
 
   static hf_register_info hf[] = {
@@ -5284,85 +5254,50 @@ proto_register_chap(void)
   static gint *ett[] = {
     &ett_chap,
     &ett_chap_data,
-    &ett_chap_value,
-    &ett_chap_name,
-    &ett_chap_message,
   };
 
   static hf_register_info hf[] =
     {
-      {
-        &hf_chap_code,
-        {
-          "Code", "chap.code",
-          FT_UINT8, BASE_DEC,
-          VALS(chap_vals), 0x0,
-          "CHAP code", HFILL
+        { &hf_chap_code,
+           { "Code", "chap.code",
+           FT_UINT8, BASE_DEC, VALS(chap_vals), 0x0,
+           "CHAP code", HFILL }
+        },
+        { &hf_chap_identifier,
+          { "Identifier", "chap.identifier",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "CHAP identifier", HFILL }
+        },
+        { &hf_chap_length,
+          { "Length", "chap.length",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "CHAP length", HFILL  }
+        },
+        { &hf_chap_data,
+          { "Data", "chap.data",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          "CHAP Data", HFILL }
+        },
+         { &hf_chap_value_size,
+          { "Value Size", "chap.value_size",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "CHAP value size", HFILL }
+        },
+        { &hf_chap_value,
+          { "Value", "chap.value",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          "CHAP value data", HFILL }
+        },
+        { &hf_chap_name,
+          { "Name", "chap.name",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "CHAP name", HFILL }
+        },
+        { &hf_chap_message,
+          { "Message", "chap.message",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          "CHAP message", HFILL }
         }
-      },
-      {
-        &hf_chap_identifier,
-        {
-          "Identifier", "chap.identifier",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "CHAP identifier", HFILL
-        }
-      },
-      {
-        &hf_chap_length,
-        {
-          "Length", "chap.length",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x0,
-          "CHAP length", HFILL
-        }
-      },
-      {
-        &hf_chap_data,
-        {
-          "Data", "chap.data",
-          FT_NONE, BASE_NONE,
-          NULL, 0x0,
-          "CHAP Data", HFILL
-        }
-      },
-      {
-        &hf_chap_value_size,
-        {
-          "Value Size", "chap.value_size",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "CHAP value size", HFILL
-        }
-      },
-      {
-        &hf_chap_value,
-        {
-          "Value", "chap.value",
-          FT_BYTES, BASE_NONE,
-          NULL, 0x0,
-          "CHAP value data", HFILL
-        }
-      },
-      {
-        &hf_chap_name,
-        {
-          "Name", "chap.name",
-          FT_STRING, BASE_NONE,
-          NULL, 0x0,
-          "CHAP name", HFILL
-        }
-      },
-      {
-        &hf_chap_message,
-        {
-          "Message", "chap.message",
-          FT_STRING, BASE_NONE,
-          NULL, 0x0,
-          "CHAP message", HFILL
-        }
-      }
     };
 
 
@@ -5553,78 +5488,46 @@ proto_register_iphc_crtp(void)
 {
   static hf_register_info hf[] =
     {
-      {
-        &hf_iphc_crtp_cid16,
-        {
-          "Context Id", "crtp.cid",
-          FT_UINT16, BASE_DEC,
-          NULL, 0x0,
-          "The context identifier of the compressed packet.", HFILL
-        }
-      },
-      {
-        &hf_iphc_crtp_cid8,
-        {
-          "Context Id", "crtp.cid",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "The context identifier of the compressed packet.", HFILL
-        }
-      },
-      {
-        &hf_iphc_crtp_gen,
-        {
-          "Generation", "crtp.gen",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x3f,
-          "The generation of the compressed packet.", HFILL
-        }
-      },
-      {
-        &hf_iphc_crtp_seq,
-        {
-          "Sequence", "crtp.seq",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0f,
-          "The sequence of the compressed packet.", HFILL
-        }
-      },
-      {
-        &hf_iphc_crtp_fh_flags,
-        {
-          "Flags", "crtp.flags",
-          FT_UINT8, BASE_HEX,
-          iphc_crtp_fh_flags, 0xc0,
-          "The flags of the full header packet.", HFILL
-        }
-      },
-      {
-        &hf_iphc_crtp_cs_flags,
-        {
-          "Flags", "crtp.flags",
-          FT_UINT8, BASE_DEC,
-          iphc_crtp_cs_flags, 0x0,
-          "The flags of the context state packet.", HFILL
-        }
-      },
-      {
-        &hf_iphc_crtp_cs_cnt,
-        {
-          "Count", "crtp.cnt",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
-          "The count of the context state packet.", HFILL
-        }
-      },
-      {
-        &hf_iphc_crtp_cs_invalid,
-        {
-          "Invalid", "crtp.invalid",
-          FT_BOOLEAN, 8,
-          NULL, 0x80,
-          "The invalid bit of the context state packet.", HFILL
-        }
-      },
+        { &hf_iphc_crtp_cid16,
+          { "Context Id", "crtp.cid",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "The context identifier of the compressed packet.", HFILL }
+        },
+        { &hf_iphc_crtp_cid8,
+          { "Context Id", "crtp.cid",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "The context identifier of the compressed packet.", HFILL }
+        },
+        { &hf_iphc_crtp_gen,
+          { "Generation", "crtp.gen",
+          FT_UINT8, BASE_DEC, NULL, 0x3f,
+          "The generation of the compressed packet.", HFILL }
+        },
+        { &hf_iphc_crtp_seq,
+          { "Sequence", "crtp.seq",
+          FT_UINT8, BASE_DEC, NULL, 0x0f,
+          "The sequence of the compressed packet.", HFILL }
+        },
+        { &hf_iphc_crtp_fh_flags,
+          { "Flags", "crtp.flags",
+          FT_UINT8, BASE_HEX, iphc_crtp_fh_flags, 0xc0,
+          "The flags of the full header packet.", HFILL }
+        },
+        { &hf_iphc_crtp_cs_flags,
+          { "Flags", "crtp.flags",
+          FT_UINT8, BASE_DEC, iphc_crtp_cs_flags, 0x0,
+          "The flags of the context state packet.", HFILL }
+        },
+        { &hf_iphc_crtp_cs_cnt,
+          { "Count", "crtp.cnt",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "The count of the context state packet.", HFILL }
+        },
+        { &hf_iphc_crtp_cs_invalid,
+          { "Invalid", "crtp.invalid",
+          FT_BOOLEAN, 8, NULL, 0x80,
+          "The invalid bit of the context state packet.", HFILL }
+        },
     };
 
   static gint *ett[] = {
