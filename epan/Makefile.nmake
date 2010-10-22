@@ -112,7 +112,7 @@ clean-local:
 		libwireshark.lib libwireshark.dll *.manifest libwireshark.exp \
 		*.pdb doxygen.cfg html/*.* \
 		exntest.obj exntest.exe reassemble_test.obj reassemble_test.exe tvbtest.obj tvbtest.exe
-	if exist html rmdir html
+	if exist html rm -rf html
 
 clean:  clean-local
 	cd crc
