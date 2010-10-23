@@ -593,7 +593,7 @@ cf_read(capture_file *cf, gboolean from_save)
     if (size >= 0) {
       count++;
       /* Create the progress bar if necessary.
-       * Check wether it should be created or not every MIN_NUMBER_OF_PACKET
+       * Check whether it should be created or not every MIN_NUMBER_OF_PACKET
        */
       if ((progbar == NULL) && !(count % MIN_NUMBER_OF_PACKET)){
         progbar_val = calc_progbar_val(cf, size, data_offset, status_str, sizeof(status_str));
