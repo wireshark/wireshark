@@ -256,8 +256,8 @@ static const value_string zbee_nwk_stack_profiles[] = {
  *-------------------------------------
  */
 static ieee802154_addr_t zbee_nwk_addr = { 0, NULL, NULL };
-       GHashTable *zbee_table_nwk_keyring = NULL;
-static GHashTable *zbee_table_link_keyring = NULL;
+GHashTable *zbee_table_nwk_keyring = NULL;
+GHashTable *zbee_table_link_keyring = NULL;
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
