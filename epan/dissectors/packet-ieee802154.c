@@ -90,6 +90,11 @@
 #include "packet-ieee802154.h"
 #include "packet-frame.h"   /* For Exception Handling */
 
+
+/* Forward declarations */
+static gboolean ieee802154_short_addr_invalidate(guint16, guint16, guint);
+static gboolean ieee802154_long_addr_invalidate(guint64, guint);
+
 /* Dissection Options for dissect_ieee802154_common */
 #define DISSECT_IEEE802154_OPTION_CC24xx    0x00000001  /* FCS field contains a TI CC24xx style FCS. */
 #define DISSECT_IEEE802154_OPTION_LINUX     0x00000002  /* Addressing fields are padded DLT_IEEE802_15_4_LINUX, not implemented. */
@@ -2301,7 +2306,8 @@ ieee802154_map_rec *ieee802154_addr_update(ieee802154_addr_t *ieee802154_addr,
  *      FALSE               - Couldn't find it
  *---------------------------------------------------------------
  */
-gboolean ieee802154_short_addr_invalidate(guint16 short_addr, guint16 pan, guint fnum)
+static gboolean 
+ieee802154_short_addr_invalidate(guint16 short_addr, guint16 pan, guint fnum)
 {
     ieee802154_short_addr   addr16;
     ieee802154_map_rec   *map_rec;
@@ -2334,7 +2340,8 @@ gboolean ieee802154_short_addr_invalidate(guint16 short_addr, guint16 pan, guint
  *      FALSE               - If record wasn't updated
  *---------------------------------------------------------------
  */
-gboolean ieee802154_long_addr_invalidate(guint64 long_addr, guint fnum)
+static gboolean 
+ieee802154_long_addr_invalidate(guint64 long_addr, guint fnum)
 {
     ieee802154_map_rec   *map_rec;
 

@@ -243,7 +243,5 @@ extern ieee802154_map_rec *ieee802154_addr_update(ieee802154_addr_t *, guint16, 
 extern guint    ieee802154_short_addr_hash(gconstpointer);
 extern gboolean ieee802154_short_addr_equal(gconstpointer, gconstpointer);
 
-static gboolean ieee802154_short_addr_invalidate(guint16, guint16, guint);
-static gboolean ieee802154_long_addr_invalidate(guint64, guint);
 
 #endif /* PACKET_IEEE802154_H */
