@@ -2,7 +2,7 @@
  *
  * Wifi Simple Config aka Wifi Protected Setup
  *
- * Written by Jens Braeuer using WiFi-Alliance Spec 1.0h and 
+ * Written by Jens Braeuer using WiFi-Alliance Spec 1.0h and
  * parts of a patch by JP Jiang and Philippe Teuwen. November 2007
  *
  * Spec:
@@ -76,201 +76,201 @@ static const value_string eapwps_opcode_vals[] = {
 #define MASK_WSC_FLAG_MF   0x01 /* WPS Flag more frag */
 #define MASK_WSC_FLAG_LF   0x02 /* WPS flag length field */
 
-#define WPS_TLV_TYPE_AP_CHANNEL 0x1001 
-#define WPS_TLV_TYPE_ASSOCIATION_STATE 0x1002 
-#define WPS_TLV_TYPE_AUTHENTICATION_TYPE 0x1003 
-#define WPS_TLV_TYPE_AUTHENTICATION_TYPE_FLAGS 0x1004 
-#define WPS_TLV_TYPE_AUTHENTICATOR 0x1005 
-#define WPS_TLV_TYPE_CONFIG_METHODS 0x1008 
-#define WPS_TLV_TYPE_CONFIGURATION_ERROR 0x1009 
-#define WPS_TLV_TYPE_CONFIRMATION_URL4 0x100a 
-#define WPS_TLV_TYPE_CONFIRMATION_URL6 0x100b 
-#define WPS_TLV_TYPE_CONNECTION_TYPE 0x100c 
-#define WPS_TLV_TYPE_CONNECTION_TYPE_FLAGS 0x100d 
-#define WPS_TLV_TYPE_CREDENTIAL 0x100e 
-#define WPS_TLV_TYPE_DEVICE_NAME 0x1011 
-#define WPS_TLV_TYPE_DEVICE_PASSWORD_ID 0x1012 
-#define WPS_TLV_TYPE_E_HASH1 0X1014 
-#define WPS_TLV_TYPE_E_HASH2 0x1015 
-#define WPS_TLV_TYPE_E_SNONCE1 0x1016 
-#define WPS_TLV_TYPE_E_SNONCE2 0x1017 
-#define WPS_TLV_TYPE_ENCRYPTED_SETTINGS 0x1018 
-#define WPS_TLV_TYPE_ENCRYPTION_TYPE 0x100f 
-#define WPS_TLV_TYPE_ENCRYPTION_TYPE_FLAGS 0x1010 
-#define WPS_TLV_TYPE_ENROLLEE_NONCE 0x101a 
-#define WPS_TLV_TYPE_FEATURE_ID 0x101b 
-#define WPS_TLV_TYPE_IDENTITY 0x101c 
-#define WPS_TLV_TYPE_IDENTITY_PROOF 0x101d 
-#define WPS_TLV_TYPE_KEY_WRAP_AUTHENTICATOR 0x101e 
-#define WPS_TLV_TYPE_KEY_IDENTIFIER 0x101f 
-#define WPS_TLV_TYPE_MAC_ADDRESS 0x1020 
-#define WPS_TLV_TYPE_MANUFACTURER 0x1021 
-#define WPS_TLV_TYPE_MESSAGE_TYPE 0x1022 
-#define WPS_TLV_TYPE_MODEL_NAME 0x1023 
-#define WPS_TLV_TYPE_MODEL_NUMBER 0x1024 
-#define WPS_TLV_TYPE_NETWORK_INDEX 0x1026 
-#define WPS_TLV_TYPE_NETWORK_KEY 0x1027 
-#define WPS_TLV_TYPE_NETWORK_KEY_INDEX 0x1028 
-#define WPS_TLV_TYPE_NEW_DEVICE_NAME 0x1029 
-#define WPS_TLV_TYPE_NEW_PASSWORD 0x102a 
-#define WPS_TLV_TYPE_OOB_DEVICE_PASSWORD 0x102c 
-#define WPS_TLV_TYPE_OS_VERSION 0x102d 
-#define WPS_TLV_TYPE_POWER_LEVEL 0x102f 
-#define WPS_TLV_TYPE_PSK_CURRENT 0x1030 
-#define WPS_TLV_TYPE_PSK_MAX 0x1031 
-#define WPS_TLV_TYPE_PUBLIC_KEY 0x1032 
-#define WPS_TLV_TYPE_RADIO_ENABLED 0x1033 
-#define WPS_TLV_TYPE_REBOOT 0x1034 
-#define WPS_TLV_TYPE_REGISTRAR_CURRENT 0x1035 
-#define WPS_TLV_TYPE_REGISTRAR_ESTABLISHED 0x1036 
-#define WPS_TLV_TYPE_REGISTRAR_LIST 0x1037 
-#define WPS_TLV_TYPE_REGISTRAR_MAX 0x1038 
-#define WPS_TLV_TYPE_REGISTRAR_NONCE 0x1039 
-#define WPS_TLV_TYPE_REQUEST_TYPE 0x103a 
-#define WPS_TLV_TYPE_RESPONSE_TYPE 0x103b 
-#define WPS_TLV_TYPE_RF_BANDS 0x103c 
-#define WPS_TLV_TYPE_R_HASH1 0x103d 
-#define WPS_TLV_TYPE_R_HASH2 0x103e 
-#define WPS_TLV_TYPE_R_SNONCE1 0x103f 
-#define WPS_TLV_TYPE_R_SNONCE2 0x1040 
-#define WPS_TLV_TYPE_SELECTED_REGISTRAR 0x1041 
-#define WPS_TLV_TYPE_SERIAL_NUMBER 0x1042 
-#define WPS_TLV_TYPE_WIFI_PROTECTED_SETUP_STATE 0x1044 
-#define WPS_TLV_TYPE_SSID 0x1045 
-#define WPS_TLV_TYPE_TOTAL_NETWORKS 0x1046 
-#define WPS_TLV_TYPE_UUID_E 0x1047 
-#define WPS_TLV_TYPE_UUID_R 0x1048 
-#define WPS_TLV_TYPE_VENDOR_EXTENSION 0x1049 
-#define WPS_TLV_TYPE_VERSION 0x104a 
-#define WPS_TLV_TYPE_X509_CERTIFICATE_REQUEST 0x104b 
-#define WPS_TLV_TYPE_X509_CERTIFICATE 0x104c 
-#define WPS_TLV_TYPE_EAP_IDENTITY 0x104d 
-#define WPS_TLV_TYPE_MESSAGE_COUNTER 0x104e 
-#define WPS_TLV_TYPE_PUBLIC_KEY_HASH 0x104f 
-#define WPS_TLV_TYPE_REKEY_KEY 0x1050 
-#define WPS_TLV_TYPE_KEY_LIFETIME 0x1051 
-#define WPS_TLV_TYPE_PERMITTED_CONFIG_METHODS 0x1052 
-#define WPS_TLV_TYPE_SELECTED_REGISTRAR_CONFIG_METHODS 0x1053 
-#define WPS_TLV_TYPE_PRIMARY_DEVICE_TYPE 0x1054 
-#define WPS_TLV_TYPE_SECONDARY_DEVICE_TYPE_LIST 0x1055 
-#define WPS_TLV_TYPE_PORTABLE_DEVICE 0x1056 
-#define WPS_TLV_TYPE_AP_SETUP_LOCKED 0x1057 
-#define WPS_TLV_TYPE_APPLICATION_EXTENSION 0x1058 
-#define WPS_TLV_TYPE_EAP_TYPE 0x1059 
-#define WPS_TLV_TYPE_INITIALIZATION_VECTOR 0x1060 
-#define WPS_TLV_TYPE_KEY_PROVIDED_AUTOMATICALLY 0x1061 
-#define WPS_TLV_TYPE_8021X_ENABLED 0x1062 
-#define WPS_TLV_TYPE_APPSESSIONKEY 0x1063 
-#define WPS_TLV_TYPE_WEPTRANSMITKEY 0x1064 
-#define WPS_TLV_TYPE_REQUESTED_DEV_TYPE 0x106a
+#define WPS_TLV_TYPE_AP_CHANNEL                         0x1001
+#define WPS_TLV_TYPE_ASSOCIATION_STATE                  0x1002
+#define WPS_TLV_TYPE_AUTHENTICATION_TYPE                0x1003
+#define WPS_TLV_TYPE_AUTHENTICATION_TYPE_FLAGS          0x1004
+#define WPS_TLV_TYPE_AUTHENTICATOR                      0x1005
+#define WPS_TLV_TYPE_CONFIG_METHODS                     0x1008
+#define WPS_TLV_TYPE_CONFIGURATION_ERROR                0x1009
+#define WPS_TLV_TYPE_CONFIRMATION_URL4                  0x100a
+#define WPS_TLV_TYPE_CONFIRMATION_URL6                  0x100b
+#define WPS_TLV_TYPE_CONNECTION_TYPE                    0x100c
+#define WPS_TLV_TYPE_CONNECTION_TYPE_FLAGS              0x100d
+#define WPS_TLV_TYPE_CREDENTIAL                         0x100e
+#define WPS_TLV_TYPE_DEVICE_NAME                        0x1011
+#define WPS_TLV_TYPE_DEVICE_PASSWORD_ID                 0x1012
+#define WPS_TLV_TYPE_E_HASH1                            0X1014
+#define WPS_TLV_TYPE_E_HASH2                            0x1015
+#define WPS_TLV_TYPE_E_SNONCE1                          0x1016
+#define WPS_TLV_TYPE_E_SNONCE2                          0x1017
+#define WPS_TLV_TYPE_ENCRYPTED_SETTINGS                 0x1018
+#define WPS_TLV_TYPE_ENCRYPTION_TYPE                    0x100f
+#define WPS_TLV_TYPE_ENCRYPTION_TYPE_FLAGS              0x1010
+#define WPS_TLV_TYPE_ENROLLEE_NONCE                     0x101a
+#define WPS_TLV_TYPE_FEATURE_ID                         0x101b
+#define WPS_TLV_TYPE_IDENTITY                           0x101c
+#define WPS_TLV_TYPE_IDENTITY_PROOF                     0x101d
+#define WPS_TLV_TYPE_KEY_WRAP_AUTHENTICATOR             0x101e
+#define WPS_TLV_TYPE_KEY_IDENTIFIER                     0x101f
+#define WPS_TLV_TYPE_MAC_ADDRESS                        0x1020
+#define WPS_TLV_TYPE_MANUFACTURER                       0x1021
+#define WPS_TLV_TYPE_MESSAGE_TYPE                       0x1022
+#define WPS_TLV_TYPE_MODEL_NAME                         0x1023
+#define WPS_TLV_TYPE_MODEL_NUMBER                       0x1024
+#define WPS_TLV_TYPE_NETWORK_INDEX                      0x1026
+#define WPS_TLV_TYPE_NETWORK_KEY                        0x1027
+#define WPS_TLV_TYPE_NETWORK_KEY_INDEX                  0x1028
+#define WPS_TLV_TYPE_NEW_DEVICE_NAME                    0x1029
+#define WPS_TLV_TYPE_NEW_PASSWORD                       0x102a
+#define WPS_TLV_TYPE_OOB_DEVICE_PASSWORD                0x102c
+#define WPS_TLV_TYPE_OS_VERSION                         0x102d
+#define WPS_TLV_TYPE_POWER_LEVEL                        0x102f
+#define WPS_TLV_TYPE_PSK_CURRENT                        0x1030
+#define WPS_TLV_TYPE_PSK_MAX                            0x1031
+#define WPS_TLV_TYPE_PUBLIC_KEY                         0x1032
+#define WPS_TLV_TYPE_RADIO_ENABLED                      0x1033
+#define WPS_TLV_TYPE_REBOOT                             0x1034
+#define WPS_TLV_TYPE_REGISTRAR_CURRENT                  0x1035
+#define WPS_TLV_TYPE_REGISTRAR_ESTABLISHED              0x1036
+#define WPS_TLV_TYPE_REGISTRAR_LIST                     0x1037
+#define WPS_TLV_TYPE_REGISTRAR_MAX                      0x1038
+#define WPS_TLV_TYPE_REGISTRAR_NONCE                    0x1039
+#define WPS_TLV_TYPE_REQUEST_TYPE                       0x103a
+#define WPS_TLV_TYPE_RESPONSE_TYPE                      0x103b
+#define WPS_TLV_TYPE_RF_BANDS                           0x103c
+#define WPS_TLV_TYPE_R_HASH1                            0x103d
+#define WPS_TLV_TYPE_R_HASH2                            0x103e
+#define WPS_TLV_TYPE_R_SNONCE1                          0x103f
+#define WPS_TLV_TYPE_R_SNONCE2                          0x1040
+#define WPS_TLV_TYPE_SELECTED_REGISTRAR                 0x1041
+#define WPS_TLV_TYPE_SERIAL_NUMBER                      0x1042
+#define WPS_TLV_TYPE_WIFI_PROTECTED_SETUP_STATE         0x1044
+#define WPS_TLV_TYPE_SSID                               0x1045
+#define WPS_TLV_TYPE_TOTAL_NETWORKS                     0x1046
+#define WPS_TLV_TYPE_UUID_E                             0x1047
+#define WPS_TLV_TYPE_UUID_R                             0x1048
+#define WPS_TLV_TYPE_VENDOR_EXTENSION                   0x1049
+#define WPS_TLV_TYPE_VERSION                            0x104a
+#define WPS_TLV_TYPE_X509_CERTIFICATE_REQUEST           0x104b
+#define WPS_TLV_TYPE_X509_CERTIFICATE                   0x104c
+#define WPS_TLV_TYPE_EAP_IDENTITY                       0x104d
+#define WPS_TLV_TYPE_MESSAGE_COUNTER                    0x104e
+#define WPS_TLV_TYPE_PUBLIC_KEY_HASH                    0x104f
+#define WPS_TLV_TYPE_REKEY_KEY                          0x1050
+#define WPS_TLV_TYPE_KEY_LIFETIME                       0x1051
+#define WPS_TLV_TYPE_PERMITTED_CONFIG_METHODS           0x1052
+#define WPS_TLV_TYPE_SELECTED_REGISTRAR_CONFIG_METHODS  0x1053
+#define WPS_TLV_TYPE_PRIMARY_DEVICE_TYPE                0x1054
+#define WPS_TLV_TYPE_SECONDARY_DEVICE_TYPE_LIST         0x1055
+#define WPS_TLV_TYPE_PORTABLE_DEVICE                    0x1056
+#define WPS_TLV_TYPE_AP_SETUP_LOCKED                    0x1057
+#define WPS_TLV_TYPE_APPLICATION_EXTENSION              0x1058
+#define WPS_TLV_TYPE_EAP_TYPE                           0x1059
+#define WPS_TLV_TYPE_INITIALIZATION_VECTOR              0x1060
+#define WPS_TLV_TYPE_KEY_PROVIDED_AUTOMATICALLY         0x1061
+#define WPS_TLV_TYPE_8021X_ENABLED                      0x1062
+#define WPS_TLV_TYPE_APPSESSIONKEY                      0x1063
+#define WPS_TLV_TYPE_WEPTRANSMITKEY                     0x1064
+#define WPS_TLV_TYPE_REQUESTED_DEV_TYPE                 0x106a
 
 
 static const value_string eapwps_tlv_types[] = {
-  { WPS_TLV_TYPE_AP_CHANNEL, "AP Channel" },
-  { WPS_TLV_TYPE_ASSOCIATION_STATE, "Association State" },
-  { WPS_TLV_TYPE_AUTHENTICATION_TYPE, "Authentication Type" },
-  { WPS_TLV_TYPE_AUTHENTICATION_TYPE_FLAGS, "Authentication Type Flags" },
-  { WPS_TLV_TYPE_AUTHENTICATOR, "Authenticator" },
-  { WPS_TLV_TYPE_CONFIG_METHODS, "Config Methods" },
-  { WPS_TLV_TYPE_CONFIGURATION_ERROR, "Configuration Error" },
-  { WPS_TLV_TYPE_CONFIRMATION_URL4, "Confirmation URL4" },
-  { WPS_TLV_TYPE_CONFIRMATION_URL6, "Confirmation URL6" },
-  { WPS_TLV_TYPE_CONNECTION_TYPE, "Connection Type" },
-  { WPS_TLV_TYPE_CONNECTION_TYPE_FLAGS, "Connection Type Flags" },
-  { WPS_TLV_TYPE_CREDENTIAL, "Credential" },
-  { WPS_TLV_TYPE_DEVICE_NAME, "Device Name" },
-  { WPS_TLV_TYPE_DEVICE_PASSWORD_ID, "Device Password ID" },
-  { WPS_TLV_TYPE_E_HASH1, "E Hash1" },
-  { WPS_TLV_TYPE_E_HASH2, "E Hash2" },
-  { WPS_TLV_TYPE_E_SNONCE1, "E SNonce1" },
-  { WPS_TLV_TYPE_E_SNONCE2, "E SNonce2" },
-  { WPS_TLV_TYPE_ENCRYPTED_SETTINGS, "Encrypted Settings" },
-  { WPS_TLV_TYPE_ENCRYPTION_TYPE, "Encryption Type" },
-  { WPS_TLV_TYPE_ENCRYPTION_TYPE_FLAGS, "Encryption Type Flags" },
-  { WPS_TLV_TYPE_ENROLLEE_NONCE, "Enrollee Nonce" },
-  { WPS_TLV_TYPE_FEATURE_ID, "Feature Id" },
-  { WPS_TLV_TYPE_IDENTITY, "Identity" },
-  { WPS_TLV_TYPE_IDENTITY_PROOF, "Identity Proof" },
-  { WPS_TLV_TYPE_KEY_WRAP_AUTHENTICATOR, "Key Wrap Authenticator" },
-  { WPS_TLV_TYPE_KEY_IDENTIFIER, "Key Identifier" },
-  { WPS_TLV_TYPE_MAC_ADDRESS, "MAC Address" },
-  { WPS_TLV_TYPE_MANUFACTURER, "Manufacturer" },
-  { WPS_TLV_TYPE_MESSAGE_TYPE, "Message Type" },
-  { WPS_TLV_TYPE_MODEL_NAME, "Model Name" },
-  { WPS_TLV_TYPE_MODEL_NUMBER, "Model Number" },
-  { WPS_TLV_TYPE_NETWORK_INDEX, "Network Index" },
-  { WPS_TLV_TYPE_NETWORK_KEY, "Network Key" },
-  { WPS_TLV_TYPE_NETWORK_KEY_INDEX, "Network Key Index" },
-  { WPS_TLV_TYPE_NEW_DEVICE_NAME, "New Device Name" },
-  { WPS_TLV_TYPE_NEW_PASSWORD, "New Password" },
-  { WPS_TLV_TYPE_OOB_DEVICE_PASSWORD, "OOB Device Password" },
-  { WPS_TLV_TYPE_OS_VERSION, "OS Version" },
-  { WPS_TLV_TYPE_POWER_LEVEL, "Power Level" },
-  { WPS_TLV_TYPE_PSK_CURRENT, "PSK Current" },
-  { WPS_TLV_TYPE_PSK_MAX, "PSK Max" },
-  { WPS_TLV_TYPE_PUBLIC_KEY, "Public Key" },
-  { WPS_TLV_TYPE_RADIO_ENABLED, "Radio Enabled" },
-  { WPS_TLV_TYPE_REBOOT, "Reboot" },
-  { WPS_TLV_TYPE_REGISTRAR_CURRENT, "Registrar Current" },
-  { WPS_TLV_TYPE_REGISTRAR_ESTABLISHED, "Registrar Established" },
-  { WPS_TLV_TYPE_REGISTRAR_LIST, "Registrar List" },
-  { WPS_TLV_TYPE_REGISTRAR_MAX, "registrar_max" },
-  { WPS_TLV_TYPE_REGISTRAR_NONCE, "Registrar Nonce" },
-  { WPS_TLV_TYPE_REQUEST_TYPE, "Request Type" },
-  { WPS_TLV_TYPE_RESPONSE_TYPE, "Response Type" },
-  { WPS_TLV_TYPE_RF_BANDS, "RF Bands" },
-  { WPS_TLV_TYPE_R_HASH1, "R Hash1" },
-  { WPS_TLV_TYPE_R_HASH2, "R Hash2" },
-  { WPS_TLV_TYPE_R_SNONCE1, "R Snonce1" },
-  { WPS_TLV_TYPE_R_SNONCE2, "R Snonce2" },
-  { WPS_TLV_TYPE_SELECTED_REGISTRAR, "Selected Registrar" },
-  { WPS_TLV_TYPE_SERIAL_NUMBER, "Serial Number" },
-  { WPS_TLV_TYPE_WIFI_PROTECTED_SETUP_STATE, "Wifi Protected Setup State" },
-  { WPS_TLV_TYPE_SSID, "SSID" },
-  { WPS_TLV_TYPE_TOTAL_NETWORKS, "Total Networks" },
-  { WPS_TLV_TYPE_UUID_E, "UUID E" },
-  { WPS_TLV_TYPE_UUID_R, "UUID R" },
-  { WPS_TLV_TYPE_VENDOR_EXTENSION, "Vendor Extension" },
-  { WPS_TLV_TYPE_VERSION, "Version" },
-  { WPS_TLV_TYPE_X509_CERTIFICATE_REQUEST, "X509 Certificate Request" },
-  { WPS_TLV_TYPE_X509_CERTIFICATE, "X509 Certificate" },
-  { WPS_TLV_TYPE_EAP_IDENTITY, "EAP Identity" },
-  { WPS_TLV_TYPE_MESSAGE_COUNTER, "Message Counter" },
-  { WPS_TLV_TYPE_PUBLIC_KEY_HASH, "Public Key Hash" },
-  { WPS_TLV_TYPE_REKEY_KEY, "Rekey Key" },
-  { WPS_TLV_TYPE_KEY_LIFETIME, "Key Lifetime" },
-  { WPS_TLV_TYPE_PERMITTED_CONFIG_METHODS, "Permitted Config Methods" },
+  { WPS_TLV_TYPE_AP_CHANNEL,                        "AP Channel" },
+  { WPS_TLV_TYPE_ASSOCIATION_STATE,                 "Association State" },
+  { WPS_TLV_TYPE_AUTHENTICATION_TYPE,               "Authentication Type" },
+  { WPS_TLV_TYPE_AUTHENTICATION_TYPE_FLAGS,         "Authentication Type Flags" },
+  { WPS_TLV_TYPE_AUTHENTICATOR,                     "Authenticator" },
+  { WPS_TLV_TYPE_CONFIG_METHODS,                    "Config Methods" },
+  { WPS_TLV_TYPE_CONFIGURATION_ERROR,               "Configuration Error" },
+  { WPS_TLV_TYPE_CONFIRMATION_URL4,                 "Confirmation URL4" },
+  { WPS_TLV_TYPE_CONFIRMATION_URL6,                 "Confirmation URL6" },
+  { WPS_TLV_TYPE_CONNECTION_TYPE,                   "Connection Type" },
+  { WPS_TLV_TYPE_CONNECTION_TYPE_FLAGS,             "Connection Type Flags" },
+  { WPS_TLV_TYPE_CREDENTIAL,                        "Credential" },
+  { WPS_TLV_TYPE_DEVICE_NAME,                       "Device Name" },
+  { WPS_TLV_TYPE_DEVICE_PASSWORD_ID,                "Device Password ID" },
+  { WPS_TLV_TYPE_E_HASH1,                           "E Hash1" },
+  { WPS_TLV_TYPE_E_HASH2,                           "E Hash2" },
+  { WPS_TLV_TYPE_E_SNONCE1,                         "E SNonce1" },
+  { WPS_TLV_TYPE_E_SNONCE2,                         "E SNonce2" },
+  { WPS_TLV_TYPE_ENCRYPTED_SETTINGS,                "Encrypted Settings" },
+  { WPS_TLV_TYPE_ENCRYPTION_TYPE,                   "Encryption Type" },
+  { WPS_TLV_TYPE_ENCRYPTION_TYPE_FLAGS,             "Encryption Type Flags" },
+  { WPS_TLV_TYPE_ENROLLEE_NONCE,                    "Enrollee Nonce" },
+  { WPS_TLV_TYPE_FEATURE_ID,                        "Feature Id" },
+  { WPS_TLV_TYPE_IDENTITY,                          "Identity" },
+  { WPS_TLV_TYPE_IDENTITY_PROOF,                    "Identity Proof" },
+  { WPS_TLV_TYPE_KEY_WRAP_AUTHENTICATOR,            "Key Wrap Authenticator" },
+  { WPS_TLV_TYPE_KEY_IDENTIFIER,                    "Key Identifier" },
+  { WPS_TLV_TYPE_MAC_ADDRESS,                       "MAC Address" },
+  { WPS_TLV_TYPE_MANUFACTURER,                      "Manufacturer" },
+  { WPS_TLV_TYPE_MESSAGE_TYPE,                      "Message Type" },
+  { WPS_TLV_TYPE_MODEL_NAME,                        "Model Name" },
+  { WPS_TLV_TYPE_MODEL_NUMBER,                      "Model Number" },
+  { WPS_TLV_TYPE_NETWORK_INDEX,                     "Network Index" },
+  { WPS_TLV_TYPE_NETWORK_KEY,                       "Network Key" },
+  { WPS_TLV_TYPE_NETWORK_KEY_INDEX,                 "Network Key Index" },
+  { WPS_TLV_TYPE_NEW_DEVICE_NAME,                   "New Device Name" },
+  { WPS_TLV_TYPE_NEW_PASSWORD,                      "New Password" },
+  { WPS_TLV_TYPE_OOB_DEVICE_PASSWORD,               "OOB Device Password" },
+  { WPS_TLV_TYPE_OS_VERSION,                        "OS Version" },
+  { WPS_TLV_TYPE_POWER_LEVEL,                       "Power Level" },
+  { WPS_TLV_TYPE_PSK_CURRENT,                       "PSK Current" },
+  { WPS_TLV_TYPE_PSK_MAX,                           "PSK Max" },
+  { WPS_TLV_TYPE_PUBLIC_KEY,                        "Public Key" },
+  { WPS_TLV_TYPE_RADIO_ENABLED,                     "Radio Enabled" },
+  { WPS_TLV_TYPE_REBOOT,                            "Reboot" },
+  { WPS_TLV_TYPE_REGISTRAR_CURRENT,                 "Registrar Current" },
+  { WPS_TLV_TYPE_REGISTRAR_ESTABLISHED,             "Registrar Established" },
+  { WPS_TLV_TYPE_REGISTRAR_LIST,                    "Registrar List" },
+  { WPS_TLV_TYPE_REGISTRAR_MAX,                     "registrar_max" },
+  { WPS_TLV_TYPE_REGISTRAR_NONCE,                   "Registrar Nonce" },
+  { WPS_TLV_TYPE_REQUEST_TYPE,                      "Request Type" },
+  { WPS_TLV_TYPE_RESPONSE_TYPE,                     "Response Type" },
+  { WPS_TLV_TYPE_RF_BANDS,                          "RF Bands" },
+  { WPS_TLV_TYPE_R_HASH1,                           "R Hash1" },
+  { WPS_TLV_TYPE_R_HASH2,                           "R Hash2" },
+  { WPS_TLV_TYPE_R_SNONCE1,                         "R Snonce1" },
+  { WPS_TLV_TYPE_R_SNONCE2,                         "R Snonce2" },
+  { WPS_TLV_TYPE_SELECTED_REGISTRAR,                "Selected Registrar" },
+  { WPS_TLV_TYPE_SERIAL_NUMBER,                     "Serial Number" },
+  { WPS_TLV_TYPE_WIFI_PROTECTED_SETUP_STATE,        "Wifi Protected Setup State" },
+  { WPS_TLV_TYPE_SSID,                              "SSID" },
+  { WPS_TLV_TYPE_TOTAL_NETWORKS,                    "Total Networks" },
+  { WPS_TLV_TYPE_UUID_E,                            "UUID E" },
+  { WPS_TLV_TYPE_UUID_R,                            "UUID R" },
+  { WPS_TLV_TYPE_VENDOR_EXTENSION,                  "Vendor Extension" },
+  { WPS_TLV_TYPE_VERSION,                           "Version" },
+  { WPS_TLV_TYPE_X509_CERTIFICATE_REQUEST,          "X509 Certificate Request" },
+  { WPS_TLV_TYPE_X509_CERTIFICATE,                  "X509 Certificate" },
+  { WPS_TLV_TYPE_EAP_IDENTITY,                      "EAP Identity" },
+  { WPS_TLV_TYPE_MESSAGE_COUNTER,                   "Message Counter" },
+  { WPS_TLV_TYPE_PUBLIC_KEY_HASH,                   "Public Key Hash" },
+  { WPS_TLV_TYPE_REKEY_KEY,                         "Rekey Key" },
+  { WPS_TLV_TYPE_KEY_LIFETIME,                      "Key Lifetime" },
+  { WPS_TLV_TYPE_PERMITTED_CONFIG_METHODS,          "Permitted Config Methods" },
   { WPS_TLV_TYPE_SELECTED_REGISTRAR_CONFIG_METHODS, "Selected Registrar Config Methods" },
-  { WPS_TLV_TYPE_PRIMARY_DEVICE_TYPE, "Primary Device Type" },
-  { WPS_TLV_TYPE_SECONDARY_DEVICE_TYPE_LIST, "Secondary Device Type List" },
-  { WPS_TLV_TYPE_PORTABLE_DEVICE, "Portable Device" },
-  { WPS_TLV_TYPE_AP_SETUP_LOCKED, "Ap Setup Locked" },
-  { WPS_TLV_TYPE_APPLICATION_EXTENSION, "Application Extension" },
-  { WPS_TLV_TYPE_EAP_TYPE, "EAP Type" },
-  { WPS_TLV_TYPE_INITIALIZATION_VECTOR, "Initialization Vector" },
-  { WPS_TLV_TYPE_KEY_PROVIDED_AUTOMATICALLY, "Key Provided Automatically" },
-  { WPS_TLV_TYPE_8021X_ENABLED, "8021x Enabled" },
-  { WPS_TLV_TYPE_APPSESSIONKEY, "AppSessionKey" },
-  { WPS_TLV_TYPE_WEPTRANSMITKEY, "WEPTransmitKey" },
-  { WPS_TLV_TYPE_REQUESTED_DEV_TYPE, "Requested Device Type" },
+  { WPS_TLV_TYPE_PRIMARY_DEVICE_TYPE,               "Primary Device Type" },
+  { WPS_TLV_TYPE_SECONDARY_DEVICE_TYPE_LIST,        "Secondary Device Type List" },
+  { WPS_TLV_TYPE_PORTABLE_DEVICE,                   "Portable Device" },
+  { WPS_TLV_TYPE_AP_SETUP_LOCKED,                   "Ap Setup Locked" },
+  { WPS_TLV_TYPE_APPLICATION_EXTENSION,             "Application Extension" },
+  { WPS_TLV_TYPE_EAP_TYPE,                          "EAP Type" },
+  { WPS_TLV_TYPE_INITIALIZATION_VECTOR,             "Initialization Vector" },
+  { WPS_TLV_TYPE_KEY_PROVIDED_AUTOMATICALLY,        "Key Provided Automatically" },
+  { WPS_TLV_TYPE_8021X_ENABLED,                     "8021x Enabled" },
+  { WPS_TLV_TYPE_APPSESSIONKEY,                     "AppSessionKey" },
+  { WPS_TLV_TYPE_WEPTRANSMITKEY,                    "WEPTransmitKey" },
+  { WPS_TLV_TYPE_REQUESTED_DEV_TYPE,                "Requested Device Type" },
   { 0, NULL }
 };
 
 
 /* WFA Vendor Extension */
 
-#define WPS_WFA_EXT_VERSION2 0x00
-#define WPS_WFA_EXT_AUTHORIZEDMACS 0x01
+#define WPS_WFA_EXT_VERSION2              0x00
+#define WPS_WFA_EXT_AUTHORIZEDMACS        0x01
 #define WPS_WFA_EXT_NETWORK_KEY_SHAREABLE 0x02
-#define WPS_WFA_EXT_REQUEST_TO_ENROLL 0x03
-#define WPS_WFA_EXT_SETTINGS_DELAY_TIME 0x04
+#define WPS_WFA_EXT_REQUEST_TO_ENROLL     0x03
+#define WPS_WFA_EXT_SETTINGS_DELAY_TIME   0x04
 
 static const value_string eapwps_wfa_ext_types[] = {
-  { WPS_WFA_EXT_VERSION2, "Version2" },
-  { WPS_WFA_EXT_AUTHORIZEDMACS, "AuthorizedMACs" },
+  { WPS_WFA_EXT_VERSION2,              "Version2" },
+  { WPS_WFA_EXT_AUTHORIZEDMACS,        "AuthorizedMACs" },
   { WPS_WFA_EXT_NETWORK_KEY_SHAREABLE, "Network Key Shareable" },
-  { WPS_WFA_EXT_REQUEST_TO_ENROLL, "Request to Enroll" },
-  { WPS_WFA_EXT_SETTINGS_DELAY_TIME, "Settings Delay Time" },
+  { WPS_WFA_EXT_REQUEST_TO_ENROLL,     "Request to Enroll" },
+  { WPS_WFA_EXT_SETTINGS_DELAY_TIME,   "Settings Delay Time" },
   { 0, NULL }
 };
 
@@ -504,48 +504,48 @@ static const value_string eapwps_tlv_association_state_vals[] = {
   { 0, NULL }
 };
 
-#define EAPWPS_AUTHTYPE_OPEN 0x1
-#define EAPWPS_AUTHTYPE_WPAPSK 0x2
-#define EAPWPS_AUTHTYPE_SHARED 0x4
-#define EAPWPS_AUTHTYPE_WPA 0x8
-#define EAPWPS_AUTHTYPE_WPA2 0x10
+#define EAPWPS_AUTHTYPE_OPEN    0x1
+#define EAPWPS_AUTHTYPE_WPAPSK  0x2
+#define EAPWPS_AUTHTYPE_SHARED  0x4
+#define EAPWPS_AUTHTYPE_WPA     0x8
+#define EAPWPS_AUTHTYPE_WPA2    0x10
 #define EAPWPS_AUTHTYPE_WPA2PSK 0x20
 
 static const value_string eapwps_tlv_authentication_type_vals[] = {
-  { EAPWPS_AUTHTYPE_OPEN, "Open" },
+  { EAPWPS_AUTHTYPE_OPEN,    "Open" },
   { EAPWPS_AUTHTYPE_WPA2PSK, "WPA PSK" },
-  { EAPWPS_AUTHTYPE_SHARED, "Shared" },
-  { EAPWPS_AUTHTYPE_WPA, "WPA" },
-  { EAPWPS_AUTHTYPE_WPA2, "WPA2" },
+  { EAPWPS_AUTHTYPE_SHARED,  "Shared" },
+  { EAPWPS_AUTHTYPE_WPA,     "WPA" },
+  { EAPWPS_AUTHTYPE_WPA2,    "WPA2" },
   { EAPWPS_AUTHTYPE_WPA2PSK, "WPA2 PSK" },
   { 0, NULL }
 };
 
-#define EAPWPS_CONFMETH_USBA 0x1
-#define EAPWPS_CONFMETH_ETHERNET 0x2
-#define EAPWPS_CONFMETH_LABEL 0x4
-#define EAPWPS_CONFMETH_DISPLAY 0x8
-#define EAPWPS_CONFMETH_VIRT_DISPLAY 0x2000
-#define EAPWPS_CONFMETH_PHY_DISPLAY 0x4000
-#define EAPWPS_CONFMETH_NFCEXT 0x10
-#define EAPWPS_CONFMETH_NFCINT 0x20
-#define EAPWPS_CONFMETH_NFCINF 0x40
-#define EAPWPS_CONFMETH_PUSHBUTTON 0x80
-#define EAPWPS_CONFMETH_VIRT_PUSHBUTTON 0x200
-#define EAPWPS_CONFMETH_PHY_PUSHBUTTON 0x400
-#define EAPWPS_CONFMETH_KEYPAD 0x100
+#define EAPWPS_CONFMETH_USBA             0x1
+#define EAPWPS_CONFMETH_ETHERNET         0x2
+#define EAPWPS_CONFMETH_LABEL            0x4
+#define EAPWPS_CONFMETH_DISPLAY          0x8
+#define EAPWPS_CONFMETH_VIRT_DISPLAY     0x2000
+#define EAPWPS_CONFMETH_PHY_DISPLAY      0x4000
+#define EAPWPS_CONFMETH_NFCEXT           0x10
+#define EAPWPS_CONFMETH_NFCINT           0x20
+#define EAPWPS_CONFMETH_NFCINF           0x40
+#define EAPWPS_CONFMETH_PUSHBUTTON       0x80
+#define EAPWPS_CONFMETH_VIRT_PUSHBUTTON  0x200
+#define EAPWPS_CONFMETH_PHY_PUSHBUTTON   0x400
+#define EAPWPS_CONFMETH_KEYPAD           0x100
 
 static const value_string eapwps_tlv_configuration_error_vals[] = {
-  { 0, "No Error" },
-  { 1, "OOB Interface Read Error" },
-  { 2, "Decryption CRC Failure" },
-  { 3, "2.4 channel not supported" },
-  { 4, "5.0 channel not supported" },
-  { 5, "Signal too weak" },
-  { 6, "Network auth failure" },
-  { 7, "Network association failure" },
-  { 8, "No DHCP response" },
-  { 9, "failed DHCP config" },
+  {  0, "No Error" },
+  {  1, "OOB Interface Read Error" },
+  {  2, "Decryption CRC Failure" },
+  {  3, "2.4 channel not supported" },
+  {  4, "5.0 channel not supported" },
+  {  5, "Signal too weak" },
+  {  6, "Network auth failure" },
+  {  7, "Network association failure" },
+  {  8, "No DHCP response" },
+  {  9, "failed DHCP config" },
   { 10, "IP address conflict" },
   { 11, "Couldn't connect to Registrar" },
   { 12, "Multiple PBC sessions detected" },
@@ -585,15 +585,15 @@ static const value_string eapwps_tlv_device_password_id_vals[] = {
 };
 
 #define EAPWPS_ENCTYPE_NONE 0x1
-#define EAPWPS_ENCTYPE_WEP 0x2
+#define EAPWPS_ENCTYPE_WEP  0x2
 #define EAPWPS_ENCTYPE_TKIP 0x4
-#define EAPWPS_ENCTYPE_AES 0x8
+#define EAPWPS_ENCTYPE_AES  0x8
 
 static const value_string eapwps_tlv_encryption_type_vals[] = {
   { EAPWPS_ENCTYPE_NONE, "none" },
-  { EAPWPS_ENCTYPE_WEP, "WEP" },
+  { EAPWPS_ENCTYPE_WEP,  "WEP" },
   { EAPWPS_ENCTYPE_TKIP, "TKIP" },
-  { EAPWPS_ENCTYPE_AES, "AES" },
+  { EAPWPS_ENCTYPE_AES,  "AES" },
   { 0, NULL }
 };
 
@@ -640,7 +640,7 @@ static const value_string eapwps_tlv_rf_bands_vals[] = {
 };
 
 static const value_string eapwps_tlv_wifi_protected_setup_state[] = {
-  { 0x00, "Reserved" }, 
+  { 0x00, "Reserved" },
   { 0x01, "Not configured" },
   { 0x02, "Configured" },
   { 0, NULL }
@@ -649,27 +649,27 @@ static const value_string eapwps_tlv_wifi_protected_setup_state[] = {
 /*  ********************************************************************** */
 /*  pinfo may be NULL ! */
 /*  ********************************************************************** */
-static void 
-dissect_wps_config_methods(proto_tree *root, tvbuff_t* tvb, int offset, 
+static void
+dissect_wps_config_methods(proto_tree *root, tvbuff_t* tvb, int offset,
                            gint _U_ size, packet_info _U_ *pinfo)
 {
-  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_usba,       tvb, offset+4, 2, FALSE);
-  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_ethernet,   tvb, offset+4, 2, FALSE);
-  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_label,      tvb, offset+4, 2, FALSE);
-  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_display,    tvb, offset+4, 2, FALSE);
+  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_usba,            tvb, offset+4, 2, FALSE);
+  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_ethernet,        tvb, offset+4, 2, FALSE);
+  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_label,           tvb, offset+4, 2, FALSE);
+  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_display,         tvb, offset+4, 2, FALSE);
   proto_tree_add_item(root, hf_eapwps_tlv_config_methods_virt_display,    tvb, offset+4, 2, FALSE);
-  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_phy_display,    tvb, offset+4, 2, FALSE);
-  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_nfcext,     tvb, offset+4, 2, FALSE);
-  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_nfcint,     tvb, offset+4, 2, FALSE);
-  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_nfcinf,     tvb, offset+4, 2, FALSE);
-  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_pushbutton, tvb, offset+4, 2, FALSE);
+  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_phy_display,     tvb, offset+4, 2, FALSE);
+  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_nfcext,          tvb, offset+4, 2, FALSE);
+  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_nfcint,          tvb, offset+4, 2, FALSE);
+  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_nfcinf,          tvb, offset+4, 2, FALSE);
+  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_pushbutton,      tvb, offset+4, 2, FALSE);
   proto_tree_add_item(root, hf_eapwps_tlv_config_methods_virt_pushbutton, tvb, offset+4, 2, FALSE);
-  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_phy_pushbutton, tvb, offset+4, 2, FALSE);
-  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_keypad,     tvb, offset+4, 2, FALSE);
+  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_phy_pushbutton,  tvb, offset+4, 2, FALSE);
+  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_keypad,          tvb, offset+4, 2, FALSE);
 }
 
 static void add_wps_wfa_ext(guint8 id, proto_tree *tree, tvbuff_t *tvb,
-			    int offset, gint size)
+                            int offset, gint size)
 {
   proto_item *item;
   proto_tree *elem;
@@ -679,7 +679,7 @@ static void add_wps_wfa_ext(guint8 id, proto_tree *tree, tvbuff_t *tvb,
                              val_to_str(id, eapwps_wfa_ext_types,
                                         "Unknown (%u)"));
   elem = proto_item_add_subtree(item, ett_wps_wfa_ext);
-  proto_tree_add_item(elem, hf_eapwps_wfa_ext_id, tvb, offset - 2, 1, FALSE);
+  proto_tree_add_item(elem, hf_eapwps_wfa_ext_id,  tvb, offset - 2, 1, FALSE);
   proto_tree_add_item(elem, hf_eapwps_wfa_ext_len, tvb, offset - 1, 1, FALSE);
 
   switch (id) {
@@ -717,7 +717,7 @@ static void add_wps_wfa_ext(guint8 id, proto_tree *tree, tvbuff_t *tvb,
 }
 
 static void dissect_wps_wfa_ext(proto_tree *tree, tvbuff_t *tvb,
-				int offset, gint size)
+                                int offset, gint size)
 {
   int pos = offset;
   int end = offset + size;
@@ -735,7 +735,7 @@ static void dissect_wps_wfa_ext(proto_tree *tree, tvbuff_t *tvb,
 }
 
 static void dissect_wps_vendor_ext(proto_tree *tree, tvbuff_t *tvb,
-				   int offset, gint size)
+                                   int offset, gint size)
 {
   guint32 vendor_id;
 
@@ -755,13 +755,13 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
                 gint size, packet_info* pinfo)
 {
   static const char* fmt_warn_too_long = "Value to long (max. %d)";
-  static const char* fmt_length_warn = "Value length not %d"; 
+  static const char* fmt_length_warn = "Value length not %d";
 
   guint16 tlv_len = 0;
   guint16 tlv_type = 0;
 
   proto_item* tlv_item = NULL; /* the root item */
-  proto_tree* tlv_root = NULL; 
+  proto_tree* tlv_root = NULL;
   proto_item* tmp_item = NULL;
 
   int hfindex = -1;
@@ -770,24 +770,24 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
 
     /* incomplete tlv-entry case */
     if (size < 4) {
-      if (tmp_item != NULL && pinfo) 
+      if (tmp_item != NULL && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, "Packet to short");
       break;
     }
-      
+
     tlv_item = NULL;
     tlv_root = NULL;
     tmp_item = NULL;
 
-    tlv_type = tvb_get_ntohs(tvb, offset);                                    
-    tlv_len = tvb_get_ntohs(tvb, offset+2); 
+    tlv_type = tvb_get_ntohs(tvb, offset);
+    tlv_len = tvb_get_ntohs(tvb, offset+2);
 
     /* TOP Node for each TLV-item */
     tlv_item = proto_tree_add_text(eap_tree, tvb, offset, tlv_len+4, "Unknown Type (0x%04x)", tlv_type);
     tlv_root = proto_item_add_subtree(tlv_item, ett_wps_tlv);
 
     /* analog to Tagged parameters in 802.11 */
-    proto_tree_add_item(tlv_root, hf_eapwps_tlv_type, tvb, offset,   2, FALSE); 
+    proto_tree_add_item(tlv_root, hf_eapwps_tlv_type, tvb, offset,   2, FALSE);
     proto_tree_add_item(tlv_root, hf_eapwps_tlv_len,  tvb, offset+2, 2, FALSE);
 
     switch(tlv_type) {
@@ -833,19 +833,19 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods, tvb, offset+4, 2, FALSE);
       hfindex = hf_eapwps_tlv_config_methods;
 
-      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_usba,       tvb, offset+4, 2, FALSE);
-      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_ethernet,   tvb, offset+4, 2, FALSE);
-      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_label,      tvb, offset+4, 2, FALSE);
-      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_display,    tvb, offset+4, 2, FALSE);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_usba,            tvb, offset+4, 2, FALSE);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_ethernet,        tvb, offset+4, 2, FALSE);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_label,           tvb, offset+4, 2, FALSE);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_display,         tvb, offset+4, 2, FALSE);
       proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_virt_display,    tvb, offset+4, 2, FALSE);
-      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_phy_display,    tvb, offset+4, 2, FALSE);
-      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_nfcext,     tvb, offset+4, 2, FALSE);
-      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_nfcint,     tvb, offset+4, 2, FALSE);
-      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_nfcinf,     tvb, offset+4, 2, FALSE);
-      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_pushbutton, tvb, offset+4, 2, FALSE);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_phy_display,     tvb, offset+4, 2, FALSE);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_nfcext,          tvb, offset+4, 2, FALSE);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_nfcint,          tvb, offset+4, 2, FALSE);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_nfcinf,          tvb, offset+4, 2, FALSE);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_pushbutton,      tvb, offset+4, 2, FALSE);
       proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_virt_pushbutton, tvb, offset+4, 2, FALSE);
-      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_phy_pushbutton, tvb, offset+4, 2, FALSE);
-      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_keypad,     tvb, offset+4, 2, FALSE);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_phy_pushbutton,  tvb, offset+4, 2, FALSE);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_keypad,          tvb, offset+4, 2, FALSE);
 
       break;
 
@@ -858,7 +858,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
     case WPS_TLV_TYPE_CONFIRMATION_URL4: /* max len is 64 */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_confirmation_url4, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_confirmation_url4;
-      if (tlv_len > 64 && pinfo) 
+      if (tlv_len > 64 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
@@ -866,7 +866,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
     case WPS_TLV_TYPE_CONFIRMATION_URL6: /* max len is 76 */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_confirmation_url6, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_confirmation_url6;
-      if (tlv_len > 76 && pinfo) 
+      if (tlv_len > 76 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
@@ -895,7 +895,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
     case WPS_TLV_TYPE_DEVICE_NAME: /* len <= 32, check !  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_device_name, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_device_name;
-      if (tlv_len > 32 && pinfo) 
+      if (tlv_len > 32 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
@@ -910,7 +910,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* assert tlv_len == 32  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_e_hash1, tvb, offset+4, 32, FALSE);
       hfindex = hf_eapwps_tlv_e_hash1;
-      if (tlv_len != 32 && pinfo) 
+      if (tlv_len != 32 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_length_warn, 32);
 
       break;
@@ -919,7 +919,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* assert tlv_len == 32  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_e_hash2, tvb, offset+4, 32, FALSE);
       hfindex = hf_eapwps_tlv_e_hash2;
-      if (tlv_len != 32 && pinfo) 
+      if (tlv_len != 32 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_length_warn, 32);
 
       break;
@@ -928,7 +928,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* assert tlv_len == 16  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_e_snonce1, tvb, offset+4, 16, FALSE);
       hfindex = hf_eapwps_tlv_e_snonce1;
-      if (tlv_len != 16 && pinfo) 
+      if (tlv_len != 16 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_length_warn, 16);
 
       break;
@@ -936,7 +936,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
     case WPS_TLV_TYPE_E_SNONCE2:
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_e_snonce2, tvb, offset+4, 16, FALSE);
       hfindex = hf_eapwps_tlv_e_snonce2;
-      if (tlv_len != 16 && pinfo) 
+      if (tlv_len != 16 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_length_warn, 16);
 
       break;
@@ -968,7 +968,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* assert tlv_len == 16  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_enrollee_nonce, tvb, offset+4, 16, FALSE);
       hfindex = hf_eapwps_tlv_enrollee_nonce;
-      if (tlv_len != 16 && pinfo) 
+      if (tlv_len != 16 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_length_warn, 16);
 
       break;
@@ -983,7 +983,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check that tlv_len <= 80  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_identity, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_identity;
-      if (tlv_len > 80 && pinfo) 
+      if (tlv_len > 80 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
@@ -1016,7 +1016,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 64 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_manufacturer, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_manufacturer;
-      if (tlv_len > 64 && pinfo) 
+      if (tlv_len > 64 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
@@ -1034,7 +1034,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 32 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_model_name, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_model_name;
-      if (tlv_len > 32 && pinfo) 
+      if (tlv_len > 32 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
@@ -1043,7 +1043,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 32 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_model_number, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_model_number;
-      if (tlv_len > 32 && pinfo) 
+      if (tlv_len > 32 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
@@ -1058,7 +1058,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 64 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_network_key, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_network_key;
-      if (tlv_len > 64 && pinfo) 
+      if (tlv_len > 64 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
@@ -1073,7 +1073,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 32 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_new_device_name, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_new_device_name;
-      if (tlv_len > 32 && pinfo) 
+      if (tlv_len > 32 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
@@ -1082,7 +1082,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 64 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_new_password, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_new_password;
-      if (tlv_len > 64 && pinfo) 
+      if (tlv_len > 64 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
@@ -1091,7 +1091,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 56 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_oob_device_password, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_oob_device_password;
-      if (tlv_len > 56 && pinfo) 
+      if (tlv_len > 56 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
@@ -1124,7 +1124,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len == 192 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_public_key, tvb, offset+4, 192, FALSE);
       hfindex = hf_eapwps_tlv_public_key;
-      if (tlv_len != 192 && pinfo) 
+      if (tlv_len != 192 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_length_warn, 192);
 
       break;
@@ -1226,7 +1226,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 32 bytes  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_serial_number, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_serial_number;
-      if (tlv_len > 32 && pinfo) 
+      if (tlv_len > 32 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
@@ -1241,7 +1241,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 32 bytes  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_ssid, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_ssid;
-      if (tlv_len > 32 && pinfo) 
+      if (tlv_len > 32 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
@@ -1255,7 +1255,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
     case WPS_TLV_TYPE_UUID_E:
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_uuid_e, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_uuid_e;
-      if (tlv_len > 16 && pinfo) 
+      if (tlv_len > 16 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
@@ -1263,7 +1263,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
     case WPS_TLV_TYPE_UUID_R:
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_uuid_r, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_uuid_r;
-      if (tlv_len > 16 && pinfo) 
+      if (tlv_len > 16 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
@@ -1296,7 +1296,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 64 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_eap_identity, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_eap_identity;
-      if (tlv_len > 64 && pinfo) 
+      if (tlv_len > 64 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
@@ -1356,7 +1356,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 128 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_secondary_device_type_list, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_secondary_device_type_list;
-      if (tlv_len > 128 && pinfo) 
+      if (tlv_len > 128 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
@@ -1377,7 +1377,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 512 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_application_extension, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_application_extension;
-      if (tlv_len > 512 && pinfo) 
+      if (tlv_len > 512 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
@@ -1386,7 +1386,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 8 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_eap_type, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_eap_type;
-      if (tlv_len > 8 && pinfo) 
+      if (tlv_len > 8 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
@@ -1413,7 +1413,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 128 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_appsessionkey, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_appsessionkey;
-      if (tlv_len > 128 && pinfo) 
+      if (tlv_len > 128 && pinfo)
         expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
@@ -1426,8 +1426,8 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
 
     case WPS_TLV_TYPE_REQUESTED_DEV_TYPE:
       tmp_item = proto_tree_add_item(tlv_root,
-				     hf_eapwps_tlv_requested_dev_type, tvb,
-				     offset + 4, 8, FALSE);
+                                     hf_eapwps_tlv_requested_dev_type, tvb,
+                                     offset + 4, 8, FALSE);
       hfindex = hf_eapwps_tlv_requested_dev_type;
       break;
 
@@ -1438,27 +1438,27 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
     }
 
     if (tmp_item != NULL && tlv_item != NULL) {
-      /* make the tree look nicer :-) 
-         tmp_item -> a proto_item specific to the _value_ 
-         tlv_item ->  root-item grouping 
-                      - "Data Element Type" 
-                      - "Date Element Length" 
+      /* make the tree look nicer :-)
+         tmp_item -> a proto_item specific to the _value_
+         tlv_item ->  root-item grouping
+                      - "Data Element Type"
+                      - "Date Element Length"
                       - tmp_item */
       guint32 value = -1;
       void* valuep = NULL;
       header_field_info* hf_info = NULL;
       char* fmt = NULL;
 
-      proto_item_set_text(tlv_item, "%s", 
+      proto_item_set_text(tlv_item, "%s",
                           val_to_str(tlv_type, eapwps_tlv_types, "Unknown (0x%04x)"));
 
-      /* Rendered strings for value. Thanks to Stig Bjorlykke */ 
+      /* Rendered strings for value. Thanks to Stig Bjorlykke */
       hf_info = proto_registrar_get_nth(hfindex);
       if (hf_info != NULL) {
         switch(hf_info->type) {
         case FT_UINT8:
           fmt = hf_info->strings ? ": %s (0x%02x)": ": 0x%02x";
-          value = tvb_get_guint8 (tvb, offset+4); 
+          value = tvb_get_guint8 (tvb, offset+4);
           break;
         case FT_UINT16:
           fmt = hf_info->strings ? ": %s (0x%04x)": ": 0x%04x";
@@ -1498,7 +1498,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
     if (tlv_type == WPS_TLV_TYPE_VENDOR_EXTENSION)
       dissect_wps_vendor_ext(tlv_root, tvb, offset + 4, tlv_len);
 
-    offset += tlv_len + 2 + 2; 
+    offset += tlv_len + 2 + 2;
     size   -= tlv_len + 2 + 2;
   }
 }
@@ -1513,11 +1513,11 @@ dissect_exteap_wps(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
   proto_tree* pt;
   guint8 flags;
 
-  pi = proto_tree_add_item(eap_tree, hf_eapwps_opcode,     tvb, offset, 1, FALSE); 
+  pi = proto_tree_add_item(eap_tree, hf_eapwps_opcode,     tvb, offset, 1, FALSE);
   offset += 1; size -= 1;
 
   pi = proto_item_get_parent(pi);
-  if (pi != NULL) 
+  if (pi != NULL)
     proto_item_append_text(pi, " (Wifi Alliance, WifiProtectedSetup)");
   if (pinfo != NULL && check_col(pinfo->cinfo, COL_INFO))
     col_append_fstr(pinfo->cinfo, COL_INFO, ", WPS");
@@ -1525,16 +1525,16 @@ dissect_exteap_wps(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
 
   /* Flag field, if msg-len flag set, add approriate field  */
   flags = tvb_get_guint8(tvb,offset);
-  pi = proto_tree_add_item(eap_tree, hf_eapwps_flags,      tvb, offset, 1, FALSE); 
+  pi = proto_tree_add_item(eap_tree, hf_eapwps_flags,      tvb, offset, 1, FALSE);
   pt = proto_item_add_subtree(pi, ett_eap_wps_flags);
 
-  proto_tree_add_item(pt, hf_eapwps_flag_mf,    tvb, offset, 1, FALSE); 
+  proto_tree_add_item(pt, hf_eapwps_flag_mf,    tvb, offset, 1, FALSE);
   proto_tree_add_item(pt, hf_eapwps_flag_lf,    tvb, offset, 1, FALSE);
   offset += 1; size -= 1;
-  
+
   if (flags & MASK_WSC_FLAG_LF) {
     /* length field is present in first eap-packet when msg is fragmented  */
-    proto_tree_add_item(eap_tree, hf_eapwps_msglen, tvb, offset, 2, FALSE);   
+    proto_tree_add_item(eap_tree, hf_eapwps_msglen, tvb, offset, 2, FALSE);
     offset += 2; size -= 2;
   }
 
@@ -1585,60 +1585,60 @@ proto_register_wps(void)
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
-    { &hf_eapwps_tlv_ap_channel, 
-      { "AP Channel", "wps.ap_channel", 
-        FT_UINT16, BASE_DEC, NULL, 0x0, 
+    { &hf_eapwps_tlv_ap_channel,
+      { "AP Channel", "wps.ap_channel",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
-    { &hf_eapwps_tlv_association_state, 
-      { "Association State", "wps.association_state", 
-        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_association_state_vals), 0x0, 
-        NULL, HFILL }},
-
-    { &hf_eapwps_tlv_authentication_type, 
-      { "Authentication Type", "wps.authentication_type", 
-        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_authentication_type_vals), 0x0, 
+    { &hf_eapwps_tlv_association_state,
+      { "Association State", "wps.association_state",
+        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_association_state_vals), 0x0,
         NULL, HFILL }},
 
-    { &hf_eapwps_tlv_authentication_type_flags, 
-      { "Authentication Type Flags", "wps.authentication_type_flags", 
+    { &hf_eapwps_tlv_authentication_type,
+      { "Authentication Type", "wps.authentication_type",
+        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_authentication_type_vals), 0x0,
+        NULL, HFILL }},
+
+    { &hf_eapwps_tlv_authentication_type_flags,
+      { "Authentication Type Flags", "wps.authentication_type_flags",
         FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_authentication_type_flags_open, 
-      { "Open", "wps.authentication_type.open", 
+    { &hf_eapwps_tlv_authentication_type_flags_open,
+      { "Open", "wps.authentication_type.open",
         FT_UINT16, BASE_HEX, NULL, EAPWPS_AUTHTYPE_OPEN, NULL, HFILL }},
-    { &hf_eapwps_tlv_authentication_type_flags_wpapsk, 
-      { "WPA PSK", "wps.authentication_type.wpapsk", 
+    { &hf_eapwps_tlv_authentication_type_flags_wpapsk,
+      { "WPA PSK", "wps.authentication_type.wpapsk",
         FT_UINT16, BASE_HEX, NULL, EAPWPS_AUTHTYPE_WPAPSK, NULL, HFILL }},
-    { &hf_eapwps_tlv_authentication_type_flags_shared, 
-      { "Shared", "wps.authentication_type.shared", 
+    { &hf_eapwps_tlv_authentication_type_flags_shared,
+      { "Shared", "wps.authentication_type.shared",
         FT_UINT16, BASE_HEX, NULL, EAPWPS_AUTHTYPE_SHARED, NULL, HFILL }},
-    { &hf_eapwps_tlv_authentication_type_flags_wpa, 
-      { "WPA", "wps.authentication_type.wpa", 
+    { &hf_eapwps_tlv_authentication_type_flags_wpa,
+      { "WPA", "wps.authentication_type.wpa",
         FT_UINT16, BASE_HEX, NULL, EAPWPS_AUTHTYPE_WPA, NULL, HFILL }},
-    { &hf_eapwps_tlv_authentication_type_flags_wpa2, 
-      { "WPA2", "wps.authentication_type.wpa2", 
+    { &hf_eapwps_tlv_authentication_type_flags_wpa2,
+      { "WPA2", "wps.authentication_type.wpa2",
         FT_UINT16, BASE_HEX, NULL, EAPWPS_AUTHTYPE_WPA2, NULL, HFILL }},
-    { &hf_eapwps_tlv_authentication_type_flags_wpa2psk, 
-      { "WPA2PSK", "wps.authentication_type.wpa2psk", 
+    { &hf_eapwps_tlv_authentication_type_flags_wpa2psk,
+      { "WPA2PSK", "wps.authentication_type.wpa2psk",
         FT_UINT16, BASE_HEX, NULL, EAPWPS_AUTHTYPE_WPA2PSK, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_authenticator, 
-      { "Authenticator", "wps.authenticator", 
+    { &hf_eapwps_tlv_authenticator,
+      { "Authenticator", "wps.authenticator",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_config_methods, 
-      { "Configuration Methods", "wps.config_methods", 
+    { &hf_eapwps_tlv_config_methods,
+      { "Configuration Methods", "wps.config_methods",
         FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_config_methods_usba, 
-      { "USB", "wps.config_methods.usba", 
+    { &hf_eapwps_tlv_config_methods_usba,
+      { "USB", "wps.config_methods.usba",
         FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_USBA, NULL, HFILL }},
-    { &hf_eapwps_tlv_config_methods_ethernet, 
-      { "Ethernet", "wps.config_methods.ethernet", 
+    { &hf_eapwps_tlv_config_methods_ethernet,
+      { "Ethernet", "wps.config_methods.ethernet",
         FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_ETHERNET, NULL, HFILL }},
-    { &hf_eapwps_tlv_config_methods_label, 
-      { "Label", "wps.config_methods.label", 
+    { &hf_eapwps_tlv_config_methods_label,
+      { "Label", "wps.config_methods.label",
         FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_LABEL, NULL, HFILL }},
-    { &hf_eapwps_tlv_config_methods_display, 
-      { "Display", "wps.config_methods.display", 
+    { &hf_eapwps_tlv_config_methods_display,
+      { "Display", "wps.config_methods.display",
         FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_DISPLAY, NULL, HFILL }},
     { &hf_eapwps_tlv_config_methods_virt_display,
       { "Virtual Display", "wps.config_methods.virt_display",
@@ -1646,17 +1646,17 @@ proto_register_wps(void)
     { &hf_eapwps_tlv_config_methods_phy_display,
       { "Physical Display", "wps.config_methods.phy_display",
         FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_PHY_DISPLAY, NULL, HFILL }},
-    { &hf_eapwps_tlv_config_methods_nfcext, 
-      { "External NFC", "wps.config_methods.nfcext", 
+    { &hf_eapwps_tlv_config_methods_nfcext,
+      { "External NFC", "wps.config_methods.nfcext",
         FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_NFCEXT, NULL, HFILL }},
-    { &hf_eapwps_tlv_config_methods_nfcint, 
-      { "Internal NFC", "wps.config_methods.nfcint", 
+    { &hf_eapwps_tlv_config_methods_nfcint,
+      { "Internal NFC", "wps.config_methods.nfcint",
         FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_NFCINT, NULL, HFILL }},
-    { &hf_eapwps_tlv_config_methods_nfcinf, 
-      { "NFC Interface", "wps.config_methods.nfcinf", 
+    { &hf_eapwps_tlv_config_methods_nfcinf,
+      { "NFC Interface", "wps.config_methods.nfcinf",
         FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_NFCINF, NULL, HFILL }},
-    { &hf_eapwps_tlv_config_methods_pushbutton, 
-      { "Push Button", "wps.config_methods.pushbutton", 
+    { &hf_eapwps_tlv_config_methods_pushbutton,
+      { "Push Button", "wps.config_methods.pushbutton",
         FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_PUSHBUTTON, NULL, HFILL }},
     { &hf_eapwps_tlv_config_methods_virt_pushbutton,
       { "Virtual Push Button", "wps.config_methods.virt_pushbutton",
@@ -1664,325 +1664,325 @@ proto_register_wps(void)
     { &hf_eapwps_tlv_config_methods_phy_pushbutton,
       { "Physical Push Button", "wps.config_methods.phy_pushbutton",
         FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_PHY_PUSHBUTTON, NULL, HFILL }},
-    { &hf_eapwps_tlv_config_methods_keypad, 
-      { "Keypad", "wps.config_methods.keypad", 
+    { &hf_eapwps_tlv_config_methods_keypad,
+      { "Keypad", "wps.config_methods.keypad",
         FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_KEYPAD, NULL, HFILL }},
 
 
-    { &hf_eapwps_tlv_configuration_error, 
-      { "Configuration Error", "wps.configuration_error", 
+    { &hf_eapwps_tlv_configuration_error,
+      { "Configuration Error", "wps.configuration_error",
         FT_UINT16, BASE_HEX, VALS(eapwps_tlv_configuration_error_vals), 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_confirmation_url4, 
-      { "Confirmation URL4", "wps.confirmation_url4", 
+    { &hf_eapwps_tlv_confirmation_url4,
+      { "Confirmation URL4", "wps.confirmation_url4",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_confirmation_url6, 
-      { "Confirmation URL6", "wps.confirmation_url6", 
+    { &hf_eapwps_tlv_confirmation_url6,
+      { "Confirmation URL6", "wps.confirmation_url6",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_connection_type, 
-      { "Connection Type", "wps.connection_type", 
+    { &hf_eapwps_tlv_connection_type,
+      { "Connection Type", "wps.connection_type",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_connection_type_flags, 
-      { "Connection Types", "wps.connection_type_flags", 
+    { &hf_eapwps_tlv_connection_type_flags,
+      { "Connection Types", "wps.connection_type_flags",
         FT_UINT8, BASE_HEX, VALS(eapwps_tlv_connection_type_vals), 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_connection_type_flags_ess, 
-      { "ESS", "wps.connection_type_flags.ess", 
+    { &hf_eapwps_tlv_connection_type_flags_ess,
+      { "ESS", "wps.connection_type_flags.ess",
         FT_UINT8, BASE_HEX, NULL, EAPWPS_CONNTYPE_ESS, NULL, HFILL }},
-    { &hf_eapwps_tlv_connection_type_flags_ibss, 
-      { "IBSS", "wps.connection_type_flags.ibss", 
+    { &hf_eapwps_tlv_connection_type_flags_ibss,
+      { "IBSS", "wps.connection_type_flags.ibss",
         FT_UINT8, BASE_HEX, NULL, EAPWPS_CONNTYPE_IBSS, NULL, HFILL }},
 
     { &hf_eapwps_tlv_credential,  /* Encrypted  */
-      { "Credential", "wps.credential", 
+      { "Credential", "wps.credential",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_device_name, 
-      { "Device Name", "wps.device_name", 
+    { &hf_eapwps_tlv_device_name,
+      { "Device Name", "wps.device_name",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_device_password_id, 
-      { "Device Password ID", "wps.device_password_id", 
+    { &hf_eapwps_tlv_device_password_id,
+      { "Device Password ID", "wps.device_password_id",
         FT_UINT16, BASE_HEX, VALS(eapwps_tlv_device_password_id_vals), 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_e_hash1, 
-      { "Enrollee Hash 1", "wps.e_hash1", 
+    { &hf_eapwps_tlv_e_hash1,
+      { "Enrollee Hash 1", "wps.e_hash1",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_e_hash2, 
-      { "Enrollee Hash 2", "wps.e_hash2", 
+    { &hf_eapwps_tlv_e_hash2,
+      { "Enrollee Hash 2", "wps.e_hash2",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_e_snonce1, 
-      { "Enrollee SNounce 1", "wps.e_snonce1", 
+    { &hf_eapwps_tlv_e_snonce1,
+      { "Enrollee SNounce 1", "wps.e_snonce1",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_e_snonce2, 
-      { "Enrollee SNounce 2", "wps.e_snonce2", 
+    { &hf_eapwps_tlv_e_snonce2,
+      { "Enrollee SNounce 2", "wps.e_snonce2",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_encrypted_settings, /* Encrypted !  */
-      { "Encrypted Settings", "wps.encrypted_settings", 
+      { "Encrypted Settings", "wps.encrypted_settings",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_encryption_type, 
-      { "Encryption Type", "wps.encryption_type", 
+    { &hf_eapwps_tlv_encryption_type,
+      { "Encryption Type", "wps.encryption_type",
         FT_UINT16, BASE_HEX, VALS(eapwps_tlv_encryption_type_vals), 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_encryption_type_flags, 
-      { "Encryption Type Flags", "wps.encryption_type_flags", 
+    { &hf_eapwps_tlv_encryption_type_flags,
+      { "Encryption Type Flags", "wps.encryption_type_flags",
         FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_encryption_type_flags_none, 
-      { "None", "wps.encryption_type_flags.none", 
+    { &hf_eapwps_tlv_encryption_type_flags_none,
+      { "None", "wps.encryption_type_flags.none",
         FT_UINT16, BASE_HEX, NULL, EAPWPS_ENCTYPE_NONE, NULL, HFILL }},
-    { &hf_eapwps_tlv_encryption_type_flags_wep, 
-      { "WEP", "wps.encryption_type_flags.wep", 
+    { &hf_eapwps_tlv_encryption_type_flags_wep,
+      { "WEP", "wps.encryption_type_flags.wep",
         FT_UINT16, BASE_HEX, NULL, EAPWPS_ENCTYPE_WEP, NULL, HFILL }},
-    { &hf_eapwps_tlv_encryption_type_flags_tkip, 
-      { "TKIP", "wps.encryption_type_flags.tkip", 
+    { &hf_eapwps_tlv_encryption_type_flags_tkip,
+      { "TKIP", "wps.encryption_type_flags.tkip",
         FT_UINT16, BASE_HEX, NULL, EAPWPS_ENCTYPE_TKIP, NULL, HFILL }},
-    { &hf_eapwps_tlv_encryption_type_flags_aes, 
-      { "AES", "wps.encryption_type_flags.aes", 
+    { &hf_eapwps_tlv_encryption_type_flags_aes,
+      { "AES", "wps.encryption_type_flags.aes",
         FT_UINT16, BASE_HEX, NULL, EAPWPS_ENCTYPE_AES, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_enrollee_nonce, 
-      { "Enrollee Nonce", "wps.enrollee_nonce", 
+    { &hf_eapwps_tlv_enrollee_nonce,
+      { "Enrollee Nonce", "wps.enrollee_nonce",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_feature_id, 
-      { "Feature ID", "wps.feature_id", 
+    { &hf_eapwps_tlv_feature_id,
+      { "Feature ID", "wps.feature_id",
         FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_identity, 
-      { "Identity", "wps.identity", 
+    { &hf_eapwps_tlv_identity,
+      { "Identity", "wps.identity",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_identity_proof, /* Encrypted !  */
-      { "Identity Proof", "wps.identity_proof", 
+      { "Identity Proof", "wps.identity_proof",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_key_wrap_authenticator, 
-      { "Key Wrap Authenticator", "wps.key_wrap_authenticator", 
+    { &hf_eapwps_tlv_key_wrap_authenticator,
+      { "Key Wrap Authenticator", "wps.key_wrap_authenticator",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_key_identifier, 
-      { "Key Identifier", "wps.key_identifier", 
+    { &hf_eapwps_tlv_key_identifier,
+      { "Key Identifier", "wps.key_identifier",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_mac_address, 
-      { "MAC", "wps.mac_address", 
+    { &hf_eapwps_tlv_mac_address,
+      { "MAC", "wps.mac_address",
         FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_manufacturer, 
-      { "Manufacturer", "wps.manufacturer", 
+    { &hf_eapwps_tlv_manufacturer,
+      { "Manufacturer", "wps.manufacturer",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_message_type, 
-      { "Message Type", "wps.message_type", 
+    { &hf_eapwps_tlv_message_type,
+      { "Message Type", "wps.message_type",
         FT_UINT8, BASE_HEX, VALS(eapwps_tlv_message_type_vals), 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_model_name, 
-      { "Model Name", "wps.model_name", 
+    { &hf_eapwps_tlv_model_name,
+      { "Model Name", "wps.model_name",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_model_number, 
-      { "Model Number", "wps.model_number", 
+    { &hf_eapwps_tlv_model_number,
+      { "Model Number", "wps.model_number",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_network_index, 
-      { "Network Index", "wps.network_index", 
+    { &hf_eapwps_tlv_network_index,
+      { "Network Index", "wps.network_index",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_network_key, 
-      { "Network Key", "wps.network_key", 
+    { &hf_eapwps_tlv_network_key,
+      { "Network Key", "wps.network_key",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_network_key_index, 
-      { "Network Key Index", "wps.network_key_index", 
+    { &hf_eapwps_tlv_network_key_index,
+      { "Network Key Index", "wps.network_key_index",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_new_device_name, 
-      { "New Device Name", "wps.new_device_name", 
+    { &hf_eapwps_tlv_new_device_name,
+      { "New Device Name", "wps.new_device_name",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_new_password, 
-      { "New Password", "wps.new_password", 
+    { &hf_eapwps_tlv_new_password,
+      { "New Password", "wps.new_password",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_oob_device_password, 
-      { "OOB Device Password", "wps.oob_device_password", 
+    { &hf_eapwps_tlv_oob_device_password,
+      { "OOB Device Password", "wps.oob_device_password",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_os_version, 
-      { "OS Version", "wps.os_version", 
+    { &hf_eapwps_tlv_os_version,
+      { "OS Version", "wps.os_version",
         FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_power_level, 
-      { "Power Level", "wps.power_level", 
+    { &hf_eapwps_tlv_power_level,
+      { "Power Level", "wps.power_level",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_psk_current, 
-      { "PSK Current", "wps.psk_current", 
+    { &hf_eapwps_tlv_psk_current,
+      { "PSK Current", "wps.psk_current",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_psk_max, 
-      { "PSK Max", "wps.psk_max", 
+    { &hf_eapwps_tlv_psk_max,
+      { "PSK Max", "wps.psk_max",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_public_key, 
-      { "Public Key", "wps.public_key", 
+    { &hf_eapwps_tlv_public_key,
+      { "Public Key", "wps.public_key",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_radio_enabled, /* Add info  */
-      { "Radio Enabled", "wps.radio_enabled", 
+      { "Radio Enabled", "wps.radio_enabled",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_reboot, /* Add info  */
-      { "Reboot", "wps.reboot", 
+      { "Reboot", "wps.reboot",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_registrar_current, 
-      { "Registrar current", "wps.registrar_current", 
+    { &hf_eapwps_tlv_registrar_current,
+      { "Registrar current", "wps.registrar_current",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_registrar_established, /* Add info  */
-      { "Registrar established", "wps.registrar_established", 
+      { "Registrar established", "wps.registrar_established",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_registrar_list, 
-      { "Registrar list", "wps.registrar_list", 
+    { &hf_eapwps_tlv_registrar_list,
+      { "Registrar list", "wps.registrar_list",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_registrar_max, 
-      { "Registrar max", "wps.registrar_max", 
+    { &hf_eapwps_tlv_registrar_max,
+      { "Registrar max", "wps.registrar_max",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_registrar_nonce, 
-      { "Registrar Nonce", "wps.registrar_nonce", 
+    { &hf_eapwps_tlv_registrar_nonce,
+      { "Registrar Nonce", "wps.registrar_nonce",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_request_type, 
-      { "Request Type", "wps.request_type", 
+    { &hf_eapwps_tlv_request_type,
+      { "Request Type", "wps.request_type",
         FT_UINT8, BASE_HEX, VALS(eapwps_tlv_request_type_vals), 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_response_type, 
-      { "Response Type", "wps.response_type", 
+    { &hf_eapwps_tlv_response_type,
+      { "Response Type", "wps.response_type",
         FT_UINT8, BASE_HEX, VALS(eapwps_tlv_response_type_vals), 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_rf_bands, 
-      { "RF Bands", "wps.rf_bands", 
+    { &hf_eapwps_tlv_rf_bands,
+      { "RF Bands", "wps.rf_bands",
         FT_UINT8, BASE_HEX, VALS(eapwps_tlv_rf_bands_vals), 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_r_hash1, 
-      { "Registrar Hash 1", "wps.r_hash1", 
+    { &hf_eapwps_tlv_r_hash1,
+      { "Registrar Hash 1", "wps.r_hash1",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_r_hash2, 
-      { "Registrar Hash 2", "wps.r_hash2", 
+    { &hf_eapwps_tlv_r_hash2,
+      { "Registrar Hash 2", "wps.r_hash2",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_r_snonce1, 
-      { "Registrar Snonce1", "wps.r_snonce1", 
+    { &hf_eapwps_tlv_r_snonce1,
+      { "Registrar Snonce1", "wps.r_snonce1",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_r_snonce2, 
-      { "Registrar Snonce 2", "wps.r_snonce2", 
+    { &hf_eapwps_tlv_r_snonce2,
+      { "Registrar Snonce 2", "wps.r_snonce2",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_selected_registrar, 
-      { "Selected Registrar", "wps.selected_registrar", 
+    { &hf_eapwps_tlv_selected_registrar,
+      { "Selected Registrar", "wps.selected_registrar",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_serial_number, 
-      { "Serial Number", "wps.serial_number", 
+    { &hf_eapwps_tlv_serial_number,
+      { "Serial Number", "wps.serial_number",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_wifi_protected_setup_state, 
-      { "Wifi Protected Setup State", "wps.wifi_protected_setup_state", 
+    { &hf_eapwps_tlv_wifi_protected_setup_state,
+      { "Wifi Protected Setup State", "wps.wifi_protected_setup_state",
         FT_UINT8, BASE_HEX, VALS(eapwps_tlv_wifi_protected_setup_state), 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_ssid, 
-      { "SSID", "wps.ssid", 
+    { &hf_eapwps_tlv_ssid,
+      { "SSID", "wps.ssid",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_total_networks, 
-      { "Total Networks", "wps.total_networks", 
+    { &hf_eapwps_tlv_total_networks,
+      { "Total Networks", "wps.total_networks",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_uuid_e, 
-      { "UUID Enrollee", "wps.uuid_e", 
+    { &hf_eapwps_tlv_uuid_e,
+      { "UUID Enrollee", "wps.uuid_e",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_uuid_r, 
-      { "UUID Registrar", "wps.uuid_r", 
-        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-
-    { &hf_eapwps_tlv_vendor_extension, 
-      { "Vendor Extension", "wps.vendor_extension", 
+    { &hf_eapwps_tlv_uuid_r,
+      { "UUID Registrar", "wps.uuid_r",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_version, 
-      { "Version", "wps.version", 
+    { &hf_eapwps_tlv_vendor_extension,
+      { "Vendor Extension", "wps.vendor_extension",
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_version,
+      { "Version", "wps.version",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_x509_certificate_request, 
-      { "X509 Certificate Request", "wps.x509_certificate_request", 
+    { &hf_eapwps_tlv_x509_certificate_request,
+      { "X509 Certificate Request", "wps.x509_certificate_request",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_x509_certificate, 
-      { "X509 Certificate", "wps.x509_certificate", 
-        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-
-    { &hf_eapwps_tlv_eap_identity, 
-      { "EAP Identity", "wps.eap_identity", 
+    { &hf_eapwps_tlv_x509_certificate,
+      { "X509 Certificate", "wps.x509_certificate",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_message_counter, 
-      { "Message Counter", "wps.message_counter", 
+    { &hf_eapwps_tlv_eap_identity,
+      { "EAP Identity", "wps.eap_identity",
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_message_counter,
+      { "Message Counter", "wps.message_counter",
         FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_public_key_hash, 
-      { "Public Key Hash", "wps.public_key_hash", 
+    { &hf_eapwps_tlv_public_key_hash,
+      { "Public Key Hash", "wps.public_key_hash",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_rekey_key, 
-      { "Rekey Key", "wps.rekey_key", 
+    { &hf_eapwps_tlv_rekey_key,
+      { "Rekey Key", "wps.rekey_key",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_key_lifetime, 
-      { "Key Lifetime", "wps.key_lifetime", 
+    { &hf_eapwps_tlv_key_lifetime,
+      { "Key Lifetime", "wps.key_lifetime",
         FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_permitted_config_methods, 
-      { "Permitted COnfig Methods", "wps.permitted_config_methods", 
+    { &hf_eapwps_tlv_permitted_config_methods,
+      { "Permitted COnfig Methods", "wps.permitted_config_methods",
         FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_selected_registrar_config_methods, 
-      { "Selected Registrar Config Methods", "wps.selected_registrar_config_methods", 
+    { &hf_eapwps_tlv_selected_registrar_config_methods,
+      { "Selected Registrar Config Methods", "wps.selected_registrar_config_methods",
         FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_primary_device_type, 
-      { "Primary Device Type", "wps.primary_device_type", 
+    { &hf_eapwps_tlv_primary_device_type,
+      { "Primary Device Type", "wps.primary_device_type",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_primary_device_type_category, 
-      { "Category", "wps.primary_device_type.category", 
+    { &hf_eapwps_tlv_primary_device_type_category,
+      { "Category", "wps.primary_device_type.category",
         FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_primary_device_type_oui, 
-      { "OUI", "wps.primary_device_type.oui", 
+    { &hf_eapwps_tlv_primary_device_type_oui,
+      { "OUI", "wps.primary_device_type.oui",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_primary_device_type_subcategory, 
-      { "Subcategory", "wps.primary_device_type.subcategory", 
+    { &hf_eapwps_tlv_primary_device_type_subcategory,
+      { "Subcategory", "wps.primary_device_type.subcategory",
         FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_secondary_device_type_list, 
-      { "Secondary Device Type List", "wps.secondary_device_type_list", 
+    { &hf_eapwps_tlv_secondary_device_type_list,
+      { "Secondary Device Type List", "wps.secondary_device_type_list",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_portable_device, /* Add info  */
-      { "Portable Device", "wps.portable_device", 
+      { "Portable Device", "wps.portable_device",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_ap_setup_locked, /* Add info  */
-      { "AP Setup Locked", "wps.ap_setup_locked", 
+      { "AP Setup Locked", "wps.ap_setup_locked",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_application_extension, 
-      { "Application Extension", "wps.application_extension", 
+    { &hf_eapwps_tlv_application_extension,
+      { "Application Extension", "wps.application_extension",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_eap_type, 
-      { "EAP Type", "wps.eap_type", 
+    { &hf_eapwps_tlv_eap_type,
+      { "EAP Type", "wps.eap_type",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_initialization_vector, 
-      { "Initialization Vector", "wps.initialization_vector", 
+    { &hf_eapwps_tlv_initialization_vector,
+      { "Initialization Vector", "wps.initialization_vector",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_key_provided_automatically, /* Add info  */
-      { "Key Provided Automatically", "wps.key_provided_automatically", 
+      { "Key Provided Automatically", "wps.key_provided_automatically",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_8021x_enabled, /* Add info  */
-      { "8021x Enabled", "wps.8021x_enabled", 
+      { "8021x Enabled", "wps.8021x_enabled",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-    { &hf_eapwps_tlv_appsessionkey, 
-      { "AppSessionKey", "wps.appsessionkey", 
+    { &hf_eapwps_tlv_appsessionkey,
+      { "AppSessionKey", "wps.appsessionkey",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_weptransmitkey, 
-      { "WEP Transmit Key", "wps.weptransmitkey", 
+    { &hf_eapwps_tlv_weptransmitkey,
+      { "WEP Transmit Key", "wps.weptransmitkey",
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_requested_dev_type,
