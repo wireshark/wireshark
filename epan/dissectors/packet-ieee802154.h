@@ -27,6 +27,9 @@
 #ifndef PACKET_IEEE802154_H
 #define PACKET_IEEE802154_H
 
+/* Protocol Abbreviation */
+#define IEEE802154_PROTOABBREV_WPAN     "wpan"
+
 /*  Packet Overhead from MAC header + footer (excluding addressing) */
 #define IEEE802154_MAX_FRAME_LEN            127
 #define IEEE802154_FCS_LEN                  2
@@ -48,7 +51,7 @@
 #define IEEE802154_CMD_ASRSP_PAN_FULL       0x01
 #define IEEE802154_CMD_ASRSP_PAN_DENIED     0x02
 
-/*  Bit Masks for Capability Information Feild
+/*  Bit Masks for Capability Information Field
     Included in Association Req. command    */
 #define IEEE802154_CMD_CINFO_ALT_PAN_COORD  0x01
 #define IEEE802154_CMD_CINFO_DEVICE_TYPE    0x02
@@ -99,7 +102,7 @@
 #define IEEE802154_FCF_SEC_EN               0x0008
 #define IEEE802154_FCF_FRAME_PND            0x0010
 #define IEEE802154_FCF_ACK_REQ              0x0020
-#define IEEE802154_FCF_INTRA_PAN            0x0040
+#define IEEE802154_FCF_INTRA_PAN            0x0040  /* known as PAN ID Compression in IEEE 802.15.4-2006 */
 #define IEEE802154_FCF_DADDR_MASK           0x0C00  /* destination addressing mask */
 #define IEEE802154_FCF_VERSION              0x3000
 #define IEEE802154_FCF_SADDR_MASK           0xC000  /* source addressing mask */
@@ -164,7 +167,7 @@ typedef enum {
 /* Macro to check for payload encryption. */
 #define IEEE802154_IS_ENCRYPTED(_level_) ((_level_) & 0x4)
 
-/*  Structure containing information regarding all necessary packet feilds. */
+/*  Structure containing information regarding all necessary packet fields. */
 typedef struct {
     /* Frame control field. */
     gint32      version;
@@ -180,15 +183,11 @@ typedef struct {
 
     /* Addressing Info. */
     guint16     dst_pan;
-    union {
-        guint16 addr16;
-        guint64 addr64;
-    } dst;
     guint16     src_pan;
-    union {
-        guint16 addr16;
-        guint64 addr64;
-    } src;
+    guint16     dst16;
+    guint64     dst64;
+    guint16     src16;
+    guint64     src64;
 
     /* Security Info. */
     ieee802154_security_level   security_level;
@@ -202,11 +201,49 @@ typedef struct {
 
     /* Command ID (only if frame_type == 0x3) */
     guint8      command_id;
+    GHashTable *short_table;
 } ieee802154_packet;
 
+typedef struct {
+    guint       proto;
+    GHashTable *long_table;
+    GHashTable *short_table;
+} ieee802154_addr_t;
+
+/* Key used by the short address hash table. */
+typedef struct {
+    guint16     pan;
+    guint16     addr;
+} ieee802154_short_addr;
+
+/* A mapping record for a frame, pointed to by hash table */
+typedef struct {
+    int         proto; /* protocol that created this record */
+    guint       start_fnum;
+    guint       end_fnum;
+    guint64     addr64;
+    /*guint32   frame_counter;   TODO for frame counter sequence checks. */
+} ieee802154_map_rec;
+
+#define IEEE802154_USER_MAPPING 0
+
+typedef struct {
+    guint16             src_pan;
+    guint16             src16;
+    ieee802154_map_rec *map_rec;
+} ieee802154_hints_t;
 
 /* Some Helper Function Definitions. */
-extern gchar    *print_eui64(guint64);
-extern gchar    *print_eui64_oui(guint64);
+extern gchar       *print_eui64(guint64);
+extern gchar       *print_eui64_oui(guint64);
+extern proto_item  *proto_tree_add_eui64(proto_tree *, int, tvbuff_t *, gint, gint, gint64);
+
+/* Short to Extended Address Prototypes */
+extern ieee802154_map_rec *ieee802154_addr_update(ieee802154_addr_t *, guint16, guint16, guint64, int, guint);
+extern guint    ieee802154_short_addr_hash(gconstpointer);
+extern gboolean ieee802154_short_addr_equal(gconstpointer, gconstpointer);
+
+static gboolean ieee802154_short_addr_invalidate(guint16, guint16, guint);
+static gboolean ieee802154_long_addr_invalidate(guint64, guint);
 
 #endif /* PACKET_IEEE802154_H */

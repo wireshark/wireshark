@@ -27,39 +27,11 @@
 #ifndef PACKET_ZBEE_APS_H
 #define PACKET_ZBEE_APS_H
 
-/*  Structure to contain the APS frame information */
-typedef struct{
-    gboolean    indirect_mode;  /* ZigBee 2004 and Earlier  */
-    gboolean    ack_mode;       /* ZigBee 2007 and Later    */
-    gboolean    security;
-    gboolean    ack_req;
-    gboolean    ext_header;     /* ZigBee 2007 and Later    */
-    guint8      type;
-    guint8      delivery;
-
-    guint8      dst;
-    guint16     group;          /* ZigBee 2006 and Later    */
-    guint16     cluster;
-    guint16     profile;
-    guint8      src;
-    guint8      counter;
-
-    /* Fragmentation Fields. */
-    guint8      fragmentation;  /* ZigBee 2007 and Later    */
-    guint8      block_number;   /* ZigBee 2007 and Later    */
-    guint8      ack_bitfield;   /* ZigBee 2007 and Later    */
-
-    /* Some helpers for the upper layers. */
-    gboolean    profile_present;
-    gboolean    dst_present;
-    gboolean    src_present;
-} zbee_aps_packet;
-
 /* ZigBee APS */
 #define ZBEE_APS_FCF_FRAME_TYPE     0x03
 #define ZBEE_APS_FCF_DELIVERY_MODE  0x0c
 #define ZBEE_APS_FCF_INDIRECT_MODE  0x10    /* ZigBee 2004 and earlier.  */
-#define ZBEE_APS_FCF_ACK_MODE       0x10    /* ZigBee 2007 and later.    */
+#define ZBEE_APS_FCF_ACK_FORMAT     0x10    /* ZigBee 2007 and later.    */
 #define ZBEE_APS_FCF_SECURITY       0x20
 #define ZBEE_APS_FCF_ACK_REQ        0x40
 #define ZBEE_APS_FCF_EXT_HEADER     0x80
@@ -233,5 +205,33 @@ typedef struct{
 #define ZBEE_ZCL_CID_MESSAGE                        0x0703
 #define ZBEE_ZCL_CID_SMART_ENERGY_TUNNELING         0x0704
 #define ZBEE_ZCL_CID_PRE_PAYMENT                    0x0705
+
+/*  Structure to contain the APS frame information */
+typedef struct{
+    gboolean    indirect_mode;  /* ZigBee 2004 and Earlier  */
+    guint8      type;
+    guint8      delivery;
+    gboolean    ack_format;       /* ZigBee 2007 and Later    */
+    gboolean    security;
+    gboolean    ack_req;
+    gboolean    ext_header;     /* ZigBee 2007 and Later    */
+
+    guint8      dst;
+    guint16     group;          /* ZigBee 2006 and Later    */
+    guint16     cluster;
+    guint16     profile;
+    guint8      src;
+    guint8      counter;
+
+    /* Fragmentation Fields. */
+    guint8      fragmentation;  /* ZigBee 2007 and Later    */
+    guint8      block_number;   /* ZigBee 2007 and Later    */
+    guint8      ack_bitfield;   /* ZigBee 2007 and Later    */
+
+    /* Some helpers for the upper layers. */
+    gboolean    profile_present;
+    gboolean    dst_present;
+    gboolean    src_present;
+} zbee_aps_packet;
 
 #endif /* PACKET_ZBEE_APS_H*/

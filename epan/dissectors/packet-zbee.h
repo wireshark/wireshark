@@ -27,7 +27,7 @@
 #define PACKET_ZBEE_H
 
 /* IEEE 802.15.4 definitions. */
-#include <epan/dissectors/packet-ieee802154.h>
+#include "packet-ieee802154.h"
 
 /* The ZigBee Broadcast Address */
 #define ZBEE_BCAST_ALL                  0xffff
@@ -576,10 +576,12 @@
 #define ZBEE_MFG_KAGA           "Kaga Electronics"
 #define ZBEE_MFG_4_NOKS         "4-noks s.r.l."
 
+/* Protocol Abbreviations */
+#define ZBEE_PROTOABBREV_NWK    "zbee.nwk"
+#define ZBEE_PROTOABBREV_APS    "zbee.aps"
+#define ZBEE_PROTOABBREV_APF    "zbee.apf"
+
 /* Helper Functions */
-extern proto_item *proto_tree_add_eui64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-                gint length, gint64 value);
 extern guint zbee_get_bit_field(guint input, guint mask);
 
 #endif /* PACKET_ZBEE_H */
-
