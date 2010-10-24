@@ -41,6 +41,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/sminmpec.h>
 
 #include "packet-wps.h"
 
@@ -161,6 +162,7 @@ static const value_string eapwps_opcode_vals[] = {
 #define WPS_TLV_TYPE_8021X_ENABLED 0x1062 
 #define WPS_TLV_TYPE_APPSESSIONKEY 0x1063 
 #define WPS_TLV_TYPE_WEPTRANSMITKEY 0x1064 
+#define WPS_TLV_TYPE_REQUESTED_DEV_TYPE 0x106a
 
 
 static const value_string eapwps_tlv_types[] = {
@@ -250,8 +252,28 @@ static const value_string eapwps_tlv_types[] = {
   { WPS_TLV_TYPE_8021X_ENABLED, "8021x Enabled" },
   { WPS_TLV_TYPE_APPSESSIONKEY, "AppSessionKey" },
   { WPS_TLV_TYPE_WEPTRANSMITKEY, "WEPTransmitKey" },
+  { WPS_TLV_TYPE_REQUESTED_DEV_TYPE, "Requested Device Type" },
   { 0, NULL }
 };
+
+
+/* WFA Vendor Extension */
+
+#define WPS_WFA_EXT_VERSION2 0x00
+#define WPS_WFA_EXT_AUTHORIZEDMACS 0x01
+#define WPS_WFA_EXT_NETWORK_KEY_SHAREABLE 0x02
+#define WPS_WFA_EXT_REQUEST_TO_ENROLL 0x03
+#define WPS_WFA_EXT_SETTINGS_DELAY_TIME 0x04
+
+static const value_string eapwps_wfa_ext_types[] = {
+  { WPS_WFA_EXT_VERSION2, "Version2" },
+  { WPS_WFA_EXT_AUTHORIZEDMACS, "AuthorizedMACs" },
+  { WPS_WFA_EXT_NETWORK_KEY_SHAREABLE, "Network Key Shareable" },
+  { WPS_WFA_EXT_REQUEST_TO_ENROLL, "Request to Enroll" },
+  { WPS_WFA_EXT_SETTINGS_DELAY_TIME, "Settings Delay Time" },
+  { 0, NULL }
+};
+
 
 static int proto_wps = -1;
 
@@ -274,10 +296,14 @@ static int hf_eapwps_tlv_config_methods_usba = -1;
 static int hf_eapwps_tlv_config_methods_ethernet = -1;
 static int hf_eapwps_tlv_config_methods_label = -1;
 static int hf_eapwps_tlv_config_methods_display = -1;
+static int hf_eapwps_tlv_config_methods_phy_display = -1;
+static int hf_eapwps_tlv_config_methods_virt_display = -1;
 static int hf_eapwps_tlv_config_methods_nfcext = -1;
 static int hf_eapwps_tlv_config_methods_nfcint = -1;
 static int hf_eapwps_tlv_config_methods_nfcinf = -1;
 static int hf_eapwps_tlv_config_methods_pushbutton = -1;
+static int hf_eapwps_tlv_config_methods_phy_pushbutton = -1;
+static int hf_eapwps_tlv_config_methods_virt_pushbutton = -1;
 static int hf_eapwps_tlv_config_methods_keypad = -1;
 static int hf_eapwps_tlv_configuration_error = -1;
 static int hf_eapwps_tlv_confirmation_url4 = -1;
@@ -368,6 +394,17 @@ static int hf_eapwps_tlv_key_provided_automatically = -1;
 static int hf_eapwps_tlv_8021x_enabled = -1;
 static int hf_eapwps_tlv_appsessionkey = -1;
 static int hf_eapwps_tlv_weptransmitkey = -1;
+static int hf_eapwps_tlv_requested_dev_type = -1;
+
+static int hf_eapwps_vendor_id = -1;
+static int hf_eapwps_wfa_ext_id = -1;
+static int hf_eapwps_wfa_ext_len = -1;
+
+static int hf_eapwps_wfa_ext_version2 = -1;
+static int hf_eapwps_wfa_ext_authorizedmacs = -1;
+static int hf_eapwps_wfa_ext_network_key_shareable = -1;
+static int hf_eapwps_wfa_ext_request_to_enroll = -1;
+static int hf_eapwps_wfa_ext_settings_delay_time = -1;
 
 static gint ett_wps_tlv = -1;
 static gint ett_eap_wps_ap_channel = -1;
@@ -456,6 +493,7 @@ static gint ett_eap_wps_key_provided_automatically = -1;
 static gint ett_eap_wps_8021x_enabled = -1;
 static gint ett_eap_wps_appsessionkey = -1;
 static gint ett_eap_wps_weptransmitkey = -1;
+static gint ett_wps_wfa_ext = -1;
 
 static const value_string eapwps_tlv_association_state_vals[] = {
   { 0, "Not associated" },
@@ -487,10 +525,14 @@ static const value_string eapwps_tlv_authentication_type_vals[] = {
 #define EAPWPS_CONFMETH_ETHERNET 0x2
 #define EAPWPS_CONFMETH_LABEL 0x4
 #define EAPWPS_CONFMETH_DISPLAY 0x8
+#define EAPWPS_CONFMETH_VIRT_DISPLAY 0x2000
+#define EAPWPS_CONFMETH_PHY_DISPLAY 0x4000
 #define EAPWPS_CONFMETH_NFCEXT 0x10
 #define EAPWPS_CONFMETH_NFCINT 0x20
 #define EAPWPS_CONFMETH_NFCINF 0x40
 #define EAPWPS_CONFMETH_PUSHBUTTON 0x80
+#define EAPWPS_CONFMETH_VIRT_PUSHBUTTON 0x200
+#define EAPWPS_CONFMETH_PHY_PUSHBUTTON 0x400
 #define EAPWPS_CONFMETH_KEYPAD 0x100
 
 static const value_string eapwps_tlv_configuration_error_vals[] = {
@@ -615,11 +657,94 @@ dissect_wps_config_methods(proto_tree *root, tvbuff_t* tvb, int offset,
   proto_tree_add_item(root, hf_eapwps_tlv_config_methods_ethernet,   tvb, offset+4, 2, FALSE);
   proto_tree_add_item(root, hf_eapwps_tlv_config_methods_label,      tvb, offset+4, 2, FALSE);
   proto_tree_add_item(root, hf_eapwps_tlv_config_methods_display,    tvb, offset+4, 2, FALSE);
+  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_virt_display,    tvb, offset+4, 2, FALSE);
+  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_phy_display,    tvb, offset+4, 2, FALSE);
   proto_tree_add_item(root, hf_eapwps_tlv_config_methods_nfcext,     tvb, offset+4, 2, FALSE);
   proto_tree_add_item(root, hf_eapwps_tlv_config_methods_nfcint,     tvb, offset+4, 2, FALSE);
   proto_tree_add_item(root, hf_eapwps_tlv_config_methods_nfcinf,     tvb, offset+4, 2, FALSE);
   proto_tree_add_item(root, hf_eapwps_tlv_config_methods_pushbutton, tvb, offset+4, 2, FALSE);
+  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_virt_pushbutton, tvb, offset+4, 2, FALSE);
+  proto_tree_add_item(root, hf_eapwps_tlv_config_methods_phy_pushbutton, tvb, offset+4, 2, FALSE);
   proto_tree_add_item(root, hf_eapwps_tlv_config_methods_keypad,     tvb, offset+4, 2, FALSE);
+}
+
+static void add_wps_wfa_ext(guint8 id, proto_tree *tree, tvbuff_t *tvb,
+			    int offset, gint size)
+{
+  proto_item *item;
+  proto_tree *elem;
+  guint8 val8;
+
+  item = proto_tree_add_text(tree, tvb, offset - 2, 2 + size, "%s",
+                             val_to_str(id, eapwps_wfa_ext_types,
+                                        "Unknown (%u)"));
+  elem = proto_item_add_subtree(item, ett_wps_wfa_ext);
+  proto_tree_add_item(elem, hf_eapwps_wfa_ext_id, tvb, offset - 2, 1, FALSE);
+  proto_tree_add_item(elem, hf_eapwps_wfa_ext_len, tvb, offset - 1, 1, FALSE);
+
+  switch (id) {
+  case WPS_WFA_EXT_VERSION2:
+    val8 = tvb_get_guint8(tvb, offset);
+    proto_item_append_text(item, ": %d.%d", val8 >> 4, val8 & 0x0f);
+    proto_tree_add_item(elem, hf_eapwps_wfa_ext_version2, tvb,
+                        offset, 1, FALSE);
+    break;
+  case WPS_WFA_EXT_AUTHORIZEDMACS:
+    proto_tree_add_item(elem, hf_eapwps_wfa_ext_authorizedmacs,
+                        tvb, offset, size, FALSE);
+    break;
+  case WPS_WFA_EXT_NETWORK_KEY_SHAREABLE:
+    val8 = tvb_get_guint8(tvb, offset);
+    proto_item_append_text(item, ": %s", val8 ? "TRUE" : "FALSE");
+    proto_tree_add_item(elem, hf_eapwps_wfa_ext_network_key_shareable,
+                        tvb, offset, 1, FALSE);
+    break;
+  case WPS_WFA_EXT_REQUEST_TO_ENROLL:
+    val8 = tvb_get_guint8(tvb, offset);
+    proto_item_append_text(item, ": %s", val8 ? "TRUE" : "FALSE");
+    proto_tree_add_item(elem, hf_eapwps_wfa_ext_request_to_enroll,
+                        tvb, offset, 1, FALSE);
+    break;
+  case WPS_WFA_EXT_SETTINGS_DELAY_TIME:
+    val8 = tvb_get_guint8(tvb, offset);
+    proto_item_append_text(item, ": %d second(s)", val8);
+    proto_tree_add_item(elem, hf_eapwps_wfa_ext_settings_delay_time,
+                        tvb, offset, 1, FALSE);
+    break;
+  default:
+    break;
+  }
+}
+
+static void dissect_wps_wfa_ext(proto_tree *tree, tvbuff_t *tvb,
+				int offset, gint size)
+{
+  int pos = offset;
+  int end = offset + size;
+  guint8 id, len;
+
+  while (pos + 2 < end) {
+    id = tvb_get_guint8(tvb, pos);
+    len = tvb_get_guint8(tvb, pos + 1);
+    if (pos + 2 + len > end)
+      break;
+    pos += 2;
+    add_wps_wfa_ext(id, tree, tvb, pos, len);
+    pos += len;
+  }
+}
+
+static void dissect_wps_vendor_ext(proto_tree *tree, tvbuff_t *tvb,
+				   int offset, gint size)
+{
+  guint32 vendor_id;
+
+  if (size < 3)
+    return;
+  vendor_id = tvb_get_ntoh24(tvb, offset);
+  proto_tree_add_item(tree, hf_eapwps_vendor_id, tvb, offset, 3, FALSE);
+  if (vendor_id == VENDOR_WIFI_ALLIANCE)
+    dissect_wps_wfa_ext(tree, tvb, offset + 3, size - 3);
 }
 
 /* ********************************************************************** */
@@ -712,10 +837,14 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_ethernet,   tvb, offset+4, 2, FALSE);
       proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_label,      tvb, offset+4, 2, FALSE);
       proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_display,    tvb, offset+4, 2, FALSE);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_virt_display,    tvb, offset+4, 2, FALSE);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_phy_display,    tvb, offset+4, 2, FALSE);
       proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_nfcext,     tvb, offset+4, 2, FALSE);
       proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_nfcint,     tvb, offset+4, 2, FALSE);
       proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_nfcinf,     tvb, offset+4, 2, FALSE);
       proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_pushbutton, tvb, offset+4, 2, FALSE);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_virt_pushbutton, tvb, offset+4, 2, FALSE);
+      proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_phy_pushbutton, tvb, offset+4, 2, FALSE);
       proto_tree_add_item(tlv_root, hf_eapwps_tlv_config_methods_keypad,     tvb, offset+4, 2, FALSE);
 
       break;
@@ -1294,6 +1423,14 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       hfindex = hf_eapwps_tlv_weptransmitkey;
 
       break;
+
+    case WPS_TLV_TYPE_REQUESTED_DEV_TYPE:
+      tmp_item = proto_tree_add_item(tlv_root,
+				     hf_eapwps_tlv_requested_dev_type, tvb,
+				     offset + 4, 8, FALSE);
+      hfindex = hf_eapwps_tlv_requested_dev_type;
+      break;
+
     default:
       /* do something usefull ?  */
       tmp_item = NULL;
@@ -1357,6 +1494,9 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       }
 
     }
+
+    if (tlv_type == WPS_TLV_TYPE_VENDOR_EXTENSION)
+      dissect_wps_vendor_ext(tlv_root, tvb, offset + 4, tlv_len);
 
     offset += tlv_len + 2 + 2; 
     size   -= tlv_len + 2 + 2;
@@ -1500,6 +1640,12 @@ proto_register_wps(void)
     { &hf_eapwps_tlv_config_methods_display, 
       { "Display", "wps.config_methods.display", 
         FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_DISPLAY, NULL, HFILL }},
+    { &hf_eapwps_tlv_config_methods_virt_display,
+      { "Virtual Display", "wps.config_methods.virt_display",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_VIRT_DISPLAY, NULL, HFILL }},
+    { &hf_eapwps_tlv_config_methods_phy_display,
+      { "Physical Display", "wps.config_methods.phy_display",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_PHY_DISPLAY, NULL, HFILL }},
     { &hf_eapwps_tlv_config_methods_nfcext, 
       { "External NFC", "wps.config_methods.nfcext", 
         FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_NFCEXT, NULL, HFILL }},
@@ -1512,6 +1658,12 @@ proto_register_wps(void)
     { &hf_eapwps_tlv_config_methods_pushbutton, 
       { "Push Button", "wps.config_methods.pushbutton", 
         FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_PUSHBUTTON, NULL, HFILL }},
+    { &hf_eapwps_tlv_config_methods_virt_pushbutton,
+      { "Virtual Push Button", "wps.config_methods.virt_pushbutton",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_VIRT_PUSHBUTTON, NULL, HFILL }},
+    { &hf_eapwps_tlv_config_methods_phy_pushbutton,
+      { "Physical Push Button", "wps.config_methods.phy_pushbutton",
+        FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_PHY_PUSHBUTTON, NULL, HFILL }},
     { &hf_eapwps_tlv_config_methods_keypad, 
       { "Keypad", "wps.config_methods.keypad", 
         FT_UINT16, BASE_HEX, NULL, EAPWPS_CONFMETH_KEYPAD, NULL, HFILL }},
@@ -1832,6 +1984,42 @@ proto_register_wps(void)
     { &hf_eapwps_tlv_weptransmitkey, 
       { "WEP Transmit Key", "wps.weptransmitkey", 
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_requested_dev_type,
+      { "Requested Device Type", "wps.requested_dev_type",
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_eapwps_vendor_id,
+      { "Vendor ID", "wps.vendor_id",
+        FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_eapwps_wfa_ext_id,
+      { "WFA Extension Subelement ID", "wps.ext.id",
+        FT_UINT8, BASE_DEC, VALS(eapwps_wfa_ext_types), 0x0, NULL, HFILL }},
+
+    { &hf_eapwps_wfa_ext_len,
+      { "WFA Extension Subelement Length", "wps.ext.len",
+        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_eapwps_wfa_ext_version2,
+      { "Version2", "wps.ext.version2",
+        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_eapwps_wfa_ext_authorizedmacs,
+      { "AuthorizedMACs", "wps.ext.authorizedmacs",
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_eapwps_wfa_ext_network_key_shareable,
+      { "Network Key Shareable", "wps.ext.network_key_shareable",
+        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_eapwps_wfa_ext_request_to_enroll,
+      { "Request to Enroll", "wps.ext.request_to_enroll",
+        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_eapwps_wfa_ext_settings_delay_time,
+      { "Settings Delay Time", "wps.ext.settings_delay_time",
+        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_eap_wps_attr,
@@ -1924,6 +2112,7 @@ proto_register_wps(void)
     &ett_eap_wps_8021x_enabled,
     &ett_eap_wps_appsessionkey,
     &ett_eap_wps_weptransmitkey,
+    &ett_wps_wfa_ext,
   };
 
   proto_wps = proto_register_protocol("Wifi Protected Setup",
@@ -1932,3 +2121,16 @@ proto_register_wps(void)
   proto_register_subtree_array(ett, array_length(ett));
 
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
