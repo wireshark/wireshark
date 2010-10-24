@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2010-10-15)
+(last updated 2010-10-23)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -14107,8 +14107,8 @@ Decimal
       bud&silverbacktech.com
 3526
   ITC GmbH
-    Marc Gumbold
-      mgumbold&itc-detmold.de
+    Joerg Stangl
+      jstangl&itc-germany.com
 3527
   IntraSoft, Inc.
     John Cheeseman
@@ -25058,7 +25058,7 @@ Decimal
     Dwight Leard
       DwightL&drael.com
 6275
-  HOB GmbH & Co. KG
+  HOB GmbH & Co. KG - HOB Germany
     Richard Wunderlich
       richard.wunderlich&hob.de
 6276
@@ -95183,8 +95183,8 @@ Bahia
       pep&cargol.net
 23904
   Arbitron Inc.
-    Ron Smith
-      ronald.smith&arbitron.com
+    Shardul Rao
+      shardul.rao&arbitron.com
 23905
   VOCAL Technologies, Ltd.
     Tim Powell
@@ -98027,8 +98027,8 @@ Bahia
       richter&jakota.de
 24615
   b.comp GmbH
-    Andreas Gruen
-      ag&b-comp.de
+    Thorsten Knabe
+      info&b-comp.de
 24616
   CROSSPOiNT
     Jesus Ruiz
@@ -103217,8 +103217,8 @@ Association)
       MGoatly&livesoftwaresolutions.com
 25911
   ELCA Informatique SA
-    Stephane Gilgen
-      stephane.gilgen&elca.ch
+    Erwin BORDET
+      sd.iana&elca.ch
 25912
   PT Teleakses Solusindo (Tel-Access)
     Emil Chandrawisesa
@@ -118070,7 +118070,7 @@ Decentralization / Helenic Public Administra
     Seimei Matsumura
       matsu&bios.co.jp
 29622
-  Mobicom-Kavkaz CJSC
+  Megafon OJSC
     Yury Mikhienko
       Yury.Mikhienko&megafonkavkaz.ru
 29623
@@ -137832,7 +137832,7 @@ Decentralization / Helenic Public Administra
     Vitaly Tsaregorodtsev
       iana&vitalativ.com
 34562
-  Fuhst Mehrens
+  FUHST MEHRENS
     Jonas Fuhst
       h.mehrens&fuhst.com
 34563
@@ -139357,8 +139357,8 @@ Decentralization / Helenic Public Administra
       johan-iana&cambrium.nl
 34943
   Sumisho Computer Systems Corporation
-    Tetsuya Aoki
-      aoki&jpta.scs.co.jp
+    Kazuhiro Sato
+      k.satou&jpta.scs.co.jp
 34944
   Amplus Communication PTE LTD
     Ryan F. Mejia
@@ -140337,8 +140337,8 @@ Decentralization / Helenic Public Administra
       chenli&ucrown.com
 35188
   Eventide
-    Jason Beck
-      jbeck&eventide.com
+    Richard Factor
+      Rfactor&eventide.com
 35189
   Thermo Electron LED GmbH
     Volker Henkel
@@ -146496,6 +146496,130 @@ Decentralization / Helenic Public Administra
   Benchmark Systems, LLC
     Eric R Ross
       eric.ross.9186291637&gmail.com
+36728
+  Ellerines
+    Neil Liebenberg
+      neil.liebenberg&ellerines.co.za
+36729
+  EAS Schaltanlagen GmbH
+    Andreas Hirn
+      snmp&eas-schaltanlagen.de
+36730
+  TAGSYS RFID
+    Cyril Catalanotto
+      cyril.catalanotto&tagsysrfid.com
+36731
+  Agorabox
+    Marc Schlinger
+      marc.schlinger&agorabox.org
+36732
+  PDR Network
+    Douglas Kunz
+      douglas.kunz&pdr.net
+36733
+  ForgeRock
+    Ludovic Poitou
+      ludovic.poitou&forgerock.com
+36734
+  Leibniz Center for Marine Tropical Ecology (ZMT)
+    Christoph Lutz
+      christoph.lutz&zmt-bremen.de
+36735
+  Regione Emilia Romagna
+    Bucciarelli Fabio
+      FBucciarelli&Regione.Emilia-Romagna.it
+36736
+  Balance of Nature
+    Cedric Ebisch
+      cedric&balanceofnature.com
+36737
+  Pošta Crne Gore
+    Stevan Ljumovic
+      stevan.ljumovic&postacg.me
+36738
+  BLINQ Networks Inc.
+    Tracey Bogue
+      tracey.bogue&blinqnetworks.com
+36739
+  Christophe Garault
+    Christophe Garault
+      christophe&garault.com
+36740
+  Sinicnet Technology Co., Ltd.
+    Zhenye Liu
+      liuzhenye&sinicnet.com.cn
+36741
+  CV Rekatama Elektronika Persada
+    David Suryadinata
+      david&innovativeelectronics.com
+36742
+  Provincial Government of the Western Cape
+    Deidre Marais
+      Dmmarais&pgwc.gov.za
+36743
+  GESTICUMPRE
+    Abílio Fernandes
+      abiliofernandes&gesticumpre.pt
+36744
+  mcclishingramcatering service
+    Loretta Moton Coleman
+      cole506&bellsouth.net
+36745
+  ninjo-workstation, EuMetSys c/o Ernst Basler + Partner GmbH
+    Thomas Schonhof
+      info&ebp.de
+36746
+  Papendorf Software Engineering GmbH
+    Falk Kohlhase
+      info&papendorf-se.de
+36747
+  Vertica A/S
+    Peter Loft
+      plj&vertica.dk
+36748
+  Leine & Linde AB
+    Joel Zachrisson
+      j.zachrisson&leinelinde.se
+36749
+  European Media Laboratory GmbH
+    Markus Klehr
+      markus.klehr&eml-d.de
+36750
+  JaCoTec
+    Marco Jakobs
+      mj&jacotec.de
+36751
+  RPC Scandinavia
+    René Paw Christensen
+      spam1&rpc-scandinavia.dk
+36752
+  Datasinc
+    Igor Pereira Peixoto
+      igor&datasinc.com.br
+36753
+  Engineering with IT
+    Dave Moats
+      dave&engwit.com
+36754
+  BZK GROUP Sp. z o.o.
+    Paweł Jankowski
+      pawel.jankowski&bzkgroup.pl
+36755
+  stocker-schmid.ch
+    Arthur Stocker
+      arthur.stocker&gmail.com
+36756
+  Fossmart Pvt Limited
+    Janaka Wickramasinghe
+      janaka&fossmart.net
+36757
+  GuanFang Technologies Co., Ltd
+    Pines You
+      pinesyou&163.com
+36758
+  FORTRUST LLC
+    Bryon Miller
+      noc&fortrustllc.com
 
 
 End of Document
