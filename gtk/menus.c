@@ -131,6 +131,7 @@ static GtkAccelGroup *grp;
 typedef struct _menu_item {
     char    *name;
     gint    group;
+	const char	*label;
     const char *stock_id;
     gboolean enabled;
     GtkItemFactoryCallback callback;
@@ -148,7 +149,6 @@ GtkWidget *popup_menu_object;
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
 
 static void merge_all_tap_menus(GList *node);
-static void clear_menu_recent_capture_file_cmd_cb(GtkWidget *w, gpointer unused _U_);
 #ifdef MAIN_MENU_USE_UIMANAGER
 static void menu_open_recent_file_cmd_cb(GtkAction *action, gpointer data _U_ );
 static void add_recent_items (guint merge_id, GtkUIManager *ui_manager);
@@ -157,6 +157,7 @@ static void add_recent_items (guint merge_id, GtkUIManager *ui_manager);
 static void menus_init(void);
 static void set_menu_sensitivity (GtkUIManager *ui_manager, const gchar *, gint);
 #ifndef MAIN_MENU_USE_UIMANAGER
+static void clear_menu_recent_capture_file_cmd_cb(GtkWidget *w, gpointer unused _U_);
 static void set_menu_sensitivity_old (const gchar *, gint);
 #endif /* MAIN_MENU_USE_UIMANAGER */
 static void show_hide_cb(GtkWidget *w, gpointer data, gint action);
@@ -593,7 +594,6 @@ tree_view_menu_prepare_or_not_selected_cb(GtkAction *action _U_, gpointer user_d
 
 /* Prepare for use of GTKUImanager */
 #ifdef MAIN_MENU_USE_UIMANAGER 
-guint merge_id = 0;
 
 static void
 copy_description_cb(GtkAction *action _U_, gpointer user_data)
@@ -3699,6 +3699,7 @@ static gint tap_menu_item_add_compare(gconstpointer a, gconstpointer b)
 static GList * tap_menu_item_add(
     char *name,
     gint group,
+	const char *label,
     const char *stock_id,
     GtkItemFactoryCallback callback,
     gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data),
@@ -3713,6 +3714,7 @@ static GList * tap_menu_item_add(
     child = g_malloc(sizeof (menu_item_t));
     child->name             = name;
     child->group            = group;
+	child->label			= label;
     child->stock_id         = stock_id;
     child->callback         = callback;
     child->selected_packet_enabled = selected_packet_enabled;
@@ -3751,6 +3753,7 @@ static GList * tap_menu_item_add(
  * TRUE if the tap will work now (which might depend on whether a tree row
  * is selected and, if one is, on the tree row) and FALSE if not.
  */
+
 void
 register_stat_menu_item_stock(
     const char *name,
@@ -3774,7 +3777,22 @@ register_stat_menu_item_stock(
      * The menu path must be relative.
      */
     g_assert(*name != '/');
-
+#ifdef MAIN_MENU_USE_UIMANAGER
+    switch(group) {
+    case(REGISTER_STAT_GROUP_GENERIC): toolspath = "/Statistics/"; break;
+    case(REGISTER_STAT_GROUP_CONVERSATION_LIST): toolspath = "/Statistics/ConversationList/"; break;
+    case(REGISTER_STAT_GROUP_ENDPOINT_LIST): toolspath = "/Statistics/EndpointList/"; break;
+    case(REGISTER_STAT_GROUP_RESPONSE_TIME): toolspath = "/Statistics/ServiceResponseTime/"; break;
+    case(REGISTER_STAT_GROUP_UNSORTED): toolspath = "/Statistics/"; break;
+    case(REGISTER_ANALYZE_GROUP_UNSORTED): toolspath = "/Analyze/"; break;
+    case(REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER): toolspath = "Analyze/ConversationFilter/"; break;
+    case(REGISTER_STAT_GROUP_TELEPHONY): toolspath = "/Telephony/"; break;
+    case(REGISTER_TOOLS_GROUP_UNSORTED): toolspath = "/Tools/"; break;
+    default:
+        g_assert(!"no such menu group");
+        toolspath = NULL;
+    }
+#else
     switch(group) {
     case(REGISTER_STAT_GROUP_GENERIC): toolspath = "/Statistics/"; break;
     case(REGISTER_STAT_GROUP_CONVERSATION_LIST): toolspath = "/Statistics/_Conversation List/"; break;
@@ -3789,7 +3807,7 @@ register_stat_menu_item_stock(
         g_assert(!"no such menu group");
         toolspath = NULL;
     }
-
+#endif
     /* add the (empty) root node, if not already done */
     if(tap_menu_tree_root == NULL) {
         child = g_malloc0(sizeof (menu_item_t));
@@ -3830,7 +3848,7 @@ register_stat_menu_item_stock(
              * add it to the Tools menu tree.
              */
             childnode = tap_menu_item_add(
-                menupath, group, "", NULL, NULL ,NULL, NULL, curnode);
+                menupath, group, name, "", NULL, NULL ,NULL, NULL, curnode);
         } else {
             /*
              * Yes.  We don't need this "menupath" any longer.
@@ -3858,7 +3876,7 @@ register_stat_menu_item_stock(
      * the main menu.
      */
     tap_menu_item_add(
-        menupath, group, stock_id, callback,
+        menupath, group, name, stock_id, callback,
         selected_packet_enabled, selected_tree_row_enabled,
         callback_data, curnode);
 }
@@ -3910,12 +3928,177 @@ register_stat_menu_item(
         callback_data);
 }
 
-static guint merge_tap_menus_layered(GList *node, gint group) {
 #ifdef MAIN_MENU_USE_UIMANAGER
-	gchar *p;
+static guint merge_tap_menus_layered(GList *node, gint group) {
+    GtkItemFactoryEntry *entry;
+	//gchar *p;
 	GtkAction *action;
+	guint merge_id;
+	GtkActionGroup *action_group;
+    GList       *child;
+    guint       added = 0;
+    menu_item_t *node_data = node->data;
+	gchar		*action_grp_name;
+
+    /*
+     * Is this a leaf node or an interior node?
+     */
+    if (node_data->children == NULL) {
+        /*
+         * It's a leaf node.
+         */
+
+        /*
+         * The root node doesn't correspond to a menu tree item; it
+         * has a null name pointer.
+         */
+        if (node_data->name != NULL && group == node_data->group) {
+            entry = g_malloc0(sizeof (GtkItemFactoryEntry));
+            entry->path = node_data->name;
+            entry->callback = node_data->callback;
+            switch(group) {
+            case(REGISTER_STAT_GROUP_UNSORTED):
+                break;
+            case(REGISTER_STAT_GROUP_GENERIC):
+                break;
+            case(REGISTER_STAT_GROUP_CONVERSATION_LIST):
+                entry->item_type = "<StockItem>";
+                entry->extra_data = WIRESHARK_STOCK_CONVERSATIONS;
+                break;
+            case(REGISTER_STAT_GROUP_ENDPOINT_LIST):
+                entry->item_type = "<StockItem>";
+                entry->extra_data = WIRESHARK_STOCK_ENDPOINTS;
+                break;
+            case(REGISTER_STAT_GROUP_RESPONSE_TIME):
+                entry->item_type = "<StockItem>";
+                entry->extra_data = WIRESHARK_STOCK_TIME;
+                break;
+            case(REGISTER_STAT_GROUP_TELEPHONY):
+                break;
+            case(REGISTER_ANALYZE_GROUP_UNSORTED):
+                break;
+            case(REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER):
+                break;
+            case(REGISTER_TOOLS_GROUP_UNSORTED):
+                break;
+            default:
+                g_assert_not_reached();
+            }
+            if(node_data->stock_id!= NULL) {
+                entry->item_type = "<StockItem>";
+                entry->extra_data = node_data->stock_id;
+            }
+            //gtk_item_factory_create_item(main_menu_factory, entry, node_data->callback_data, /* callback_type */ 2);
+            //set_menu_sensitivity_old(main_menu_factory, node_data->name, FALSE); /* no capture file yet */
+            //added++;
+            g_free(entry);
+        }
+    } else {
+        /*
+         * It's an interior node; call
+         * "merge_tap_menus_layered()" on all its children
+         */
+
+        /*
+         * The root node doesn't correspond to a menu tree item; it
+         * has a null name pointer.
+         */
+        if (node_data->name != NULL && group == node_data->group) {
+			gchar *dup;
+			gchar *dest;
+
+			/* the underscore character regularly confuses things, as it will prevent finding
+			 * the menu_item, so it has to be removed first
+			 */
+			dup = g_strdup(node_data->name);
+			dest = dup;
+			while(*node_data->name) {
+				if (*node_data->name != '_') {
+					*dest = *node_data->name;
+					dest++;
+				}
+				node_data->name++;
+			}
+			*dest = '\0';
+
+            entry = g_malloc0(sizeof (GtkItemFactoryEntry));
+            entry->path = node_data->name;
+            entry->item_type = "<Branch>";
+			/* use the node_data->name(path) with the slashes replaced by "-" as the action group name */
+			action_grp_name = g_strdup(dup+1);
+			g_strdelimit(action_grp_name, "/", '-');
+
+			g_warning("<Branch> %s",action_grp_name);
+
+
+			action_group = gtk_action_group_new (action_grp_name);
+            switch(group) {
+            case(REGISTER_STAT_GROUP_UNSORTED):
+				merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
+				gtk_ui_manager_insert_action_group (ui_manager_main_menubar, action_group, 0);
+				g_object_set_data (G_OBJECT (ui_manager_main_menubar),
+					"Menubar-StatisticsMenu-merge-id", GUINT_TO_POINTER (merge_id));
+
+				action = gtk_action_new(node_data->name,				/* name */
+                           strrchr(node_data->name,'/'),				/* label */
+                           NULL,										/* tooltip */
+                           node_data->stock_id);						/* stock_id */
+
+				gtk_action_group_add_action (action_group, action);
+				g_object_unref (action);
+
+                gtk_ui_manager_add_ui (ui_manager_main_menubar, merge_id,
+                           "/Menubar/StatisticsMenu",            /* path */
+                           strrchr(node_data->name,'/'),         /* name */
+                           node_data->name,                      /* action */
+                           GTK_UI_MANAGER_MENU,                  /* type */
+                           FALSE);                               /* "top" if TRUE, the UI element is added before its siblings */
+
+
+				g_warning("<Stat unsorted> %s",action_grp_name);
+				g_warning("label %s",node_data->label);
+                break;
+            case(REGISTER_STAT_GROUP_GENERIC):
+                break;
+                break;
+            case(REGISTER_STAT_GROUP_ENDPOINT_LIST):
+                break;
+            case(REGISTER_STAT_GROUP_RESPONSE_TIME):
+                break;
+            case(REGISTER_STAT_GROUP_TELEPHONY):
+                break;
+            case(REGISTER_ANALYZE_GROUP_UNSORTED):
+                break;
+            case(REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER):
+                break;
+            case(REGISTER_TOOLS_GROUP_UNSORTED):
+				g_warning("<Tools> %s",action_grp_name);
+				g_warning("label %s",node_data->label);
+                break;
+            default:
+                g_assert_not_reached();
+            }
+
+
+			//gtk_item_factory_create_item(main_menu_factory, entry,
+   //             NULL, 2);
+   //         set_menu_sensitivity_old(main_menu_factory, node_data->name,
+   //             FALSE);    /* no children yet */
+   //         added++;
+   //         g_free(entry);
+        }
+
+        for (child = node_data->children; child != NULL; child =
+            child->next) {
+            added += merge_tap_menus_layered(child, group);
+        }
+    }
+
+    return added;
+}
+
 #else
-#endif /* MAIN_MENU_USE_UIMANAGER */
+static guint merge_tap_menus_layered(GList *node, gint group) {
     GtkItemFactoryEntry *entry;
 
     GList       *child;
@@ -3970,28 +4153,8 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
                 entry->item_type = "<StockItem>";
                 entry->extra_data = node_data->stock_id;
             }
-#ifdef MAIN_MENU_USE_UIMANAGER
-#if 0
-            g_warning("entry->path = %s",entry->path);
-            action = gtk_action_new(entry->path,    /* name */
-                           const gchar *label,      /* label */
-                           NULL,                    /* tooltip */
-                           node_data->stock_id);    /* stock_id */
-            gtk_action_group_add_action_with_accel(main_menu_bar_action_group,
-                                                   action,
-                                                   NULL); /*the accelerator for the action, 
-                                                           * in the format understood by gtk_accelerator_parse(), 
-                                                           * or "" for no accelerator, or NULL to use the stock accelerator.
-                                                           * [allow-none]
-                                                           */
-            g_signal_connect (action, "activate",
-                  G_CALLBACK (node_data->callback),
-                  node_data->callback_data);
-#endif /* 0 */
-#else
             gtk_item_factory_create_item(main_menu_factory, entry, node_data->callback_data, /* callback_type */ 2);
             set_menu_sensitivity_old(node_data->name, FALSE); /* no capture file yet */
-#endif /* MAIN_MENU_USE_UIMANAGER */
             added++;
             g_free(entry);
         }
@@ -4009,7 +4172,44 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
             entry = g_malloc0(sizeof (GtkItemFactoryEntry));
             entry->path = node_data->name;
             entry->item_type = "<Branch>";
-#ifdef MAIN_MENU_USE_UIMANAGER
+
+			gtk_item_factory_create_item(main_menu_factory, entry,
+                NULL, 2);
+            set_menu_sensitivity_old(node_data->name, FALSE);    /* no children yet */
+            added++;
+            g_free(entry);
+        }
+
+        for (child = node_data->children; child != NULL; child =
+            child->next) {
+            added += merge_tap_menus_layered(child, group);
+        }
+    }
+
+    return added;
+}
+#endif /* MAIN_MENU_USE_UIMANAGER */
+
+
+#if 0
+            g_warning("entry->path = %s",entry->path);
+            action = gtk_action_new(entry->path,    /* name */
+                           const gchar *label,      /* label */
+                           NULL,                    /* tooltip */
+                           node_data->stock_id);    /* stock_id */
+            gtk_action_group_add_action_with_accel(main_menu_bar_action_group,
+                                                   action,
+                                                   NULL); /*the accelerator for the action, 
+                                                           * in the format understood by gtk_accelerator_parse(), 
+                                                           * or "" for no accelerator, or NULL to use the stock accelerator.
+                                                           * [allow-none]
+                                                           */
+            g_signal_connect (action, "activate",
+                  G_CALLBACK (node_data->callback),
+                  node_data->callback_data);
+
+test code
+			g_warning("Group: %s", node_data->name);
             p = strrchr(node_data->name,'/');
             if(p){
                 p++;
@@ -4033,35 +4233,20 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
                            FALSE);                               /* "top" if TRUE, the UI element is added before its siblings */
                 }
             }
-#else
-            gtk_item_factory_create_item(main_menu_factory, entry,
-                NULL, 2);
-            set_menu_sensitivity_old(node_data->name,
-                FALSE);    /* no children yet */
-#endif /* MAIN_MENU_USE_UIMANAGER */
-            added++;
-            g_free(entry);
-        }
-
-        for (child = node_data->children; child != NULL; child =
-            child->next) {
-            added += merge_tap_menus_layered(child, group);
-        }
-    }
-
-    return added;
-}
 
 
-void merge_all_tap_menus(GList *node) {
+#endif /* 0 */
+
+static void merge_all_tap_menus(GList *node) {
     GtkItemFactoryEntry *sep_entry;
+	//guint merge_id = 0;
 
     sep_entry = g_malloc0(sizeof (GtkItemFactoryEntry));
     sep_entry->item_type = "<Separator>";
     sep_entry->path = "/Statistics/";
 #ifdef MAIN_MENU_USE_UIMANAGER
     /* build the new menus */
-    merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
+    //merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
 
 #endif
     /*
@@ -4119,8 +4304,8 @@ set_menu_sensitivity(GtkUIManager *ui_manager, const gchar *path, gint val)
 
     action = gtk_ui_manager_get_action(ui_manager, path);
     if(!action){
-        fprintf (stderr, "Warning: couldn't find action path= %s\n",
-                path);
+        //fprintf (stderr, "Warning: couldn't find action path= %s\n",
+        //        path);
         return;
     }
 #if GLIB_CHECK_VERSION(2,6,0)
@@ -4240,7 +4425,7 @@ set_menu_object_data (const gchar *path, const gchar *key, gpointer data) {
 #define MENU_RECENT_FILES_KEY "Recent File Name"
 
 
-
+#ifndef MAIN_MENU_USE_UIMANAGER
 static void
 update_menu_recent_capture_file1(GtkWidget *widget, gpointer cnt) {
     gchar *widget_cf_name;
@@ -4274,14 +4459,10 @@ update_menu_recent_capture_file(GtkWidget *submenu_recent_files) {
     }
 
     /* make parent menu item sensitive only, if we have any valid files in the list */
-#ifdef MAIN_MENU_USE_UIMANAGER
-    set_menu_sensitivity(ui_manager_main_menubar, MENU_RECENT_FILES_PATH, cnt);
-#else
     set_menu_sensitivity_old(MENU_RECENT_FILES_PATH_OLD, cnt);
-#endif
 }
 
-
+#endif /* MAIN_MENU_USE_UIMANAGER */
 
 #ifndef MAIN_MENU_USE_UIMANAGER
 /* remove the capture filename from the "Recent Files" menu */
@@ -4369,7 +4550,7 @@ gchar *widget_cf_name;
 			g_ascii_strncasecmp(widget_cf_name, cf_name, 1000) == 0){
 #else   /* _WIN32 */
             /* do a case sensitive compare on unix */
-			strncmp(widget_cf_name, widget_cf_name, 1000) == 0 ){
+			strncmp(widget_cf_name, cf_name, 1000) == 0 ){
 #endif
             recent_files_list = g_list_remove(recent_files_list,widget_cf_name);
         }
@@ -4540,26 +4721,21 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
   
 }
 #endif /* MAIN_MENU_USE_UIMANAGER */
+
+#ifndef MAIN_MENU_USE_UIMANAGER
 /* callback, if the user pushed the <Clear> menu item */
 static void
 clear_menu_recent_capture_file_cmd_cb(GtkWidget *w _U_, gpointer unused _U_) {
     GtkWidget *submenu_recent_files;
 
-#ifdef MAIN_MENU_USE_UIMANAGER
-    submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
-    if(!submenu_recent_files){
-        g_warning("clear_menu_recent_capture_file_cmd_cb: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
-    }
-#else
     submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH_OLD);
-#endif
 
     gtk_container_foreach(GTK_CONTAINER(submenu_recent_files),
                           remove_menu_recent_capture_file, NULL);
 
     update_menu_recent_capture_file(submenu_recent_files);
 }
-
+#endif /* MAIN_MENU_USE_UIMANAGER */
 
 /* Open a file by it's name
    (Beware: will not ask to close existing capture file!) */
