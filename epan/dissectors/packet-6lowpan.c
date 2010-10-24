@@ -516,14 +516,14 @@ lowpan_dlsrc_to_ifcid(packet_info *pinfo, guint8 *ifcid)
     /* Derive the IID from the IEEE 802.15.4 packet structure. */
     if (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) {
         guint64     addr;
-        addr = pntoh64(&packet->src64);
+        addr = pntoh64(&packet->src.addr64);
         memcpy(ifcid, &addr, LOWPAN_IFC_ID_LEN);
         /* RFC2464: Invert the U/L bit when using an EUI64 address. */
         ifcid[0] ^= 0x02;
         return TRUE;
     }
     if (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
-        lowpan_addr16_to_ifcid(packet->src16, ifcid);
+        lowpan_addr16_to_ifcid(packet->src.addr16, ifcid);
         return TRUE;
     }
 
@@ -561,14 +561,14 @@ lowpan_dldst_to_ifcid(packet_info *pinfo, guint8 *ifcid)
     /* Derive the IID from the IEEE 802.15.4 packet structure. */
     if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT) {
         guint64     addr;
-        addr = pntoh64(&packet->dst64);
+        addr = pntoh64(&packet->dst.addr64);
         memcpy(ifcid, &addr, LOWPAN_IFC_ID_LEN);
         /* RFC2464: Invert the U/L bit when using an EUI64 address. */
         ifcid[0] ^= 0x02;
         return TRUE;
     }
     if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
-        lowpan_addr16_to_ifcid(packet->dst16, ifcid);
+        lowpan_addr16_to_ifcid(packet->dst.addr16, ifcid);
         return TRUE;
     }
 

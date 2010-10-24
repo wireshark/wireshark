@@ -21,7 +21,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 #ifndef PACKET_ZBEE_NWK_H
 #define PACKET_ZBEE_NWK_H
@@ -122,11 +122,10 @@
 #define ZBEE_NWK_STATUS_BAD_FRAME_COUNTER   0x11
 #define ZBEE_NWK_STATUS_BAD_KEY_SEQNO       0x12
 
-#define ZBEE_SEC_CONST_KEYSIZE              16
-
 typedef struct{
     gboolean    security;
     gboolean    discovery;
+    gboolean    is_bcast;
     gboolean    multicast;          /* ZigBee 2006 and Later */
     gboolean    route;              /* ZigBee 2006 and Later */
     gboolean    ext_dst;            /* ZigBee 2006 and Later */
@@ -148,33 +147,6 @@ typedef struct{
     guint8      payload_offset;
     guint8      payload_len;
 } zbee_nwk_packet;
-
-/* Key used for link key hash table. */
-typedef struct {
-    guint64     lt_addr64; /* lesser than address */
-    guint64     gt_addr64; /* greater than address */
-} table_link_key_t;
-
-/* Values in the key rings. */
-typedef struct {
-    guint       frame_num;
-    gchar      *label;
-    guint8      key[ZBEE_SEC_CONST_KEYSIZE];
-} key_record_t;
-
-typedef struct {
-    gint                    src_pan;        /* source pan */
-    gint                    ieee_src;       /* short source address from mac */
-    ieee802154_map_rec     *map_rec;    /* extended src from nwk */
-    key_record_t           *nwk;            /* Network key found for this packet */
-    key_record_t           *link;           /* Link key found for this packet */
-} zbee_nwk_hints_t;
-
-extern GHashTable *zbee_table_nwk_keyring;
-extern GHashTable *zbee_table_link_keyring;
-
-/* Key Types */
-#define ZBEE_USER_KEY 0x01
 
 /* Beacon Definitions. */
 #define ZBEE_NWK_BEACON_PROCOL_ID              0x00
