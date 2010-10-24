@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2010-10-15)
+(last updated 2010-10-21)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -9441,9 +9441,10 @@ esimport        3564/udp   Electromed SIM port
 m2pa            3565/tcp   M2PA
 m2pa            3565/sctp  M2PA
 #                          [RFC4165]
-quest-launcher  3566/tcp   Quest Agent Manager
-quest-launcher  3566/udp   Quest Agent Manager
-#                          Eyal Kalderon <eyal.kalderon&quest.com> April 2002
+quest-data-hub  3566/tcp   Quest Data Hub
+#                          Old contact: Eyal Kalderon <eyal.kalderon&quest.com> April 2002
+#                          Current contact: Greg Cottman <Greg.Cottman&quest.com> 18 October 2010
+#               3566/udp   Reserved (Removed 2010-10-18)
 oap		3567/tcp   Object Access Protocol
 oap		3567/udp   Object Access Protocol
 #                          Bryant Eastham <protocols&pewla.us.pewg.panasonic.com> August 2002
@@ -11999,9 +12000,10 @@ lyskom          4894/udp   LysKOM Protocol A
 radmin-port     4899/tcp   RAdmin Port
 radmin-port     4899/udp   RAdmin Port
 #                          Dmitri Znosko <support&radmin.com> March 2003
-hfcs		4900/tcp   Hyper File Client/Server Database Engine
-hfcs		4900/udp   Hyper File Client/Server Database Engine
-#			   Jerome AERTS <jae&pcsoft.fr> March 2006
+hfcs		4900/tcp   HyperFileSQL Client/Server Database Engine
+hfcs		4900/udp   HyperFileSQL Client/Server Database Engine
+#			   Old contact: Jerome AERTS <jae&pcsoft.fr> March 2006
+#                          Current contact: Jerome AERTS <info&pcsoft.fr> 21 October 2010
 flr_agent       4901/tcp   FileLocator Remote Search Agent
 #                          David Vest <dave&mythicsoft.com> 19 November 2008
 #               4901/udp   Reserved
@@ -12309,9 +12311,15 @@ oms-nonsecure   5102/tcp   Oracle OMS non-secure
 oms-nonsecure   5102/udp   Oracle OMS non-secure
 #                          Todd Guay <todd.guay&oracle.com> August 2005
 actifio-c2c     5103/tcp   Actifio C2C
-#                          Ravi Kollipara <ravi.kollipara&actifio.com> 
+#                          Ravi Kollipara <ravi.kollipara&actifio.com> 18 June 2010
 #               5103/udp   Reserved
-#               5104-5110  Unassigned
+#               5104/tcp   Reserved
+tinymessage     5104/udp   TinyMessage
+#                          Josip Medved <jmedved&jmedved.com> 20 October 2010
+#               5105/tcp   Reserved
+hughes-ap       5105/udp   Hughes Association Protocol
+#                          Varun Santosh <varun.santosh&hughes.com> 20 October 2010
+#               5106-5110  Unassigned
 taep-as-svc     5111/tcp   TAEP AS service
 taep-as-svc     5111/udp   TAEP AS service
 #                          Liu Changchun <blzhang&infospark.cn> 05 November 2008
@@ -16051,7 +16059,10 @@ sxuptp          19540/udp  SXUPTP
 jcp             19541/tcp  JCP Client
 jcp             19541/udp  JCP Client
 #                          Yuji Sasaki <sasaki&silex.jp>
-#               19542-19998 Unassigned
+#               19542-19997 Unassigned
+iec-104-sec     19998/tcp  IEC 60870-5-104 process control - secure
+#                          Grant Gilchrist <grant&enernex.com> 18 October 2010
+#               19998/udp  Reserved
 dnp-sec         19999/tcp  Distributed Network Protocol - Secure
 dnp-sec         19999/udp  Distributed Network Protocol - Secure
 #                          Grant Gilchrist <grant&enernex.com> 04 August 2008
