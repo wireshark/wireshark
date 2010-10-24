@@ -3931,7 +3931,9 @@ register_stat_menu_item(
 #ifdef MAIN_MENU_USE_UIMANAGER
 static guint merge_tap_menus_layered(GList *node, gint group) {
     GtkItemFactoryEntry *entry;
-	//gchar *p;
+#if 0
+	gchar *p;
+#endif
 	GtkAction *action;
 	guint merge_id;
 	GtkActionGroup *action_group;
@@ -3988,10 +3990,12 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
                 entry->item_type = "<StockItem>";
                 entry->extra_data = node_data->stock_id;
             }
-            //gtk_item_factory_create_item(main_menu_factory, entry, node_data->callback_data, /* callback_type */ 2);
-            //set_menu_sensitivity_old(main_menu_factory, node_data->name, FALSE); /* no capture file yet */
-            //added++;
+#if 0
+            gtk_item_factory_create_item(main_menu_factory, entry, node_data->callback_data, /* callback_type */ 2);
+            set_menu_sensitivity_old(main_menu_factory, node_data->name, FALSE); /* no capture file yet */
+            added++;
             g_free(entry);
+#endif
         }
     } else {
         /*
@@ -4079,13 +4083,14 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
                 g_assert_not_reached();
             }
 
-
-			//gtk_item_factory_create_item(main_menu_factory, entry,
-   //             NULL, 2);
-   //         set_menu_sensitivity_old(main_menu_factory, node_data->name,
-   //             FALSE);    /* no children yet */
-   //         added++;
-   //         g_free(entry);
+#if 0
+			gtk_item_factory_create_item(main_menu_factory, entry,
+                NULL, 2);
+            set_menu_sensitivity_old(main_menu_factory, node_data->name,
+                FALSE);    /* no children yet */
+            added++;
+            g_free(entry);
+#endif
         }
 
         for (child = node_data->children; child != NULL; child =
@@ -4239,15 +4244,15 @@ test code
 
 static void merge_all_tap_menus(GList *node) {
     GtkItemFactoryEntry *sep_entry;
-	//guint merge_id = 0;
 
     sep_entry = g_malloc0(sizeof (GtkItemFactoryEntry));
     sep_entry->item_type = "<Separator>";
     sep_entry->path = "/Statistics/";
 #ifdef MAIN_MENU_USE_UIMANAGER
     /* build the new menus */
-    //merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
-
+#if 0
+    merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
+#endif
 #endif
     /*
      * merge only the menu items of the specific group,
@@ -4304,8 +4309,10 @@ set_menu_sensitivity(GtkUIManager *ui_manager, const gchar *path, gint val)
 
     action = gtk_ui_manager_get_action(ui_manager, path);
     if(!action){
-        //fprintf (stderr, "Warning: couldn't find action path= %s\n",
-        //        path);
+#if 0
+        fprintf (stderr, "Warning: couldn't find action path= %s\n",
+                path);
+#endif
         return;
     }
 #if GLIB_CHECK_VERSION(2,6,0)
