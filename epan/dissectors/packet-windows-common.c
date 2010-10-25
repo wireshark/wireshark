@@ -1354,7 +1354,7 @@ dissect_nt_64bit_time(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date)
 
 /* Well-known SIDs defined in http://support.microsoft.com/kb/243330 */
 
-static const sid_strings well_known_sids[] = {  
+static const sid_strings well_known_sids[] = {
 	{"S-1-0",          "Null Authority"},
 	{"S-1-0-0",        "Nobody"},
 	{"S-1-1",          "World Authority"},
@@ -1391,8 +1391,8 @@ static const sid_strings well_known_sids[] = {
 	{"S-1-5-18",       "Local System"},
 	{"S-1-5-19",       "Local Service"},
 	{"S-1-5-20",       "Network Service"},
-	/* 
-	 * S-1-5-21-<domain>-<RID> are defined in 'wkwn_S_1_5_21_rids' 
+	/*
+	 * S-1-5-21-<domain>-<RID> are defined in 'wkwn_S_1_5_21_rids'
 	 *
 	 * S-1-5-32-<RID>: Builtin local group SIDs  */
 	{"S-1-5-32-544",   "Administrators"},
@@ -1430,10 +1430,10 @@ static const sid_strings well_known_sids[] = {
 	{"S-1-16-20480",   "Protected Process Mandatory Level"},
 	{"S-1-16-28672",   "Secure Process Mandatory Level"},
 	{NULL, NULL}
-}; 
+};
 
 const char*
-match_wkwn_sids(const char* sid) {  
+match_wkwn_sids(const char* sid) {
 	int i = 0;
 	while (well_known_sids[i].name) {
 		if (strcmp(well_known_sids[i].sid, sid)==0) {
@@ -1445,11 +1445,11 @@ match_wkwn_sids(const char* sid) {
 }
 
 /* For SIDs in the form 'S-1-5-21-X-Y-Z-<RID>', '21-X-Y-Z' is referred to
-   as the "domain SID" (NT domain) or "machine SID" (local machine). 
-   The following are well-known RIDs which are appended to domain/machine SIDs 
+   as the "domain SID" (NT domain) or "machine SID" (local machine).
+   The following are well-known RIDs which are appended to domain/machine SIDs
    as defined in http://support.microsoft.com/kb/243330. */
 
-static const value_string wkwn_S_1_5_21_rids[] = {  
+static const value_string wkwn_S_1_5_21_rids[] = {
 	{500,	"Administrator"},
 	{501,	"Guest"},
 	{502,	"KRBTGT"},
@@ -1487,7 +1487,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	int offset_sid_start = offset, rev_offset, sa_offset, na_offset, rid_offset=0, i;
 	guint8 revision, num_auth;
 	guint32 sa_field, rid=0;
-	guint64 authority=0;   
+	guint64 authority=0;
 	emem_strbuf_t *sa_str, *sid_in_dec_str, *sid_in_hex_str = NULL;
 	const char *mapped_name = NULL;
 	gboolean domain_sid = FALSE, logon_session = FALSE;
@@ -1505,9 +1505,9 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	offset++;
 
 	/* if no tree, just return the offset of the end_of_SID+1 */
-	if (!parent_tree) 
-		return(offset+=(6+(num_auth*4))); 
-	
+	if (!parent_tree)
+		return(offset+=(6+(num_auth*4)));
+
 	if(sid_str)
 		*sid_str=NULL;
 
@@ -1523,8 +1523,8 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 
 	sid_in_dec_str = ep_strbuf_new_label("");
 	ep_strbuf_append_printf (sid_in_dec_str, "S-%u-%" G_GINT64_MODIFIER "u", revision, authority);
-	
-	/*  If sid_display_hex is set, sid_in_dec_str is still needed for   
+
+	/*  If sid_display_hex is set, sid_in_dec_str is still needed for
 	    looking up well-known SIDs*/
 	if (sid_display_hex)	{
 		sid_in_hex_str = ep_strbuf_new_label("");
@@ -1532,25 +1532,25 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	}
 
 	sa_offset = offset;
-	sa_str = ep_strbuf_new_label("");		
+	sa_str = ep_strbuf_new_label("");
 
 	/* Build the sub-authorities and full SID strings */
 	for(i=1; i<num_auth+1; i++) {
-	   /* 
+	   /*
 		* XXX should not be letohl but native byteorder according to
-		* Samba header files.		
+		* Samba header files.
 		*
 		* However, considering that there were never any NT ports
 		* to big-endian platforms (PowerPC and MIPS ran little-endian,
 		* and IA-64 runs little-endian, as does x86-64), we can (?)
-		* assume that non le byte encodings will be "uncommon"? 
+		* assume that non le byte encodings will be "uncommon"?
 		*/
 		sa_field = tvb_get_letohl(tvb, offset);
 		ep_strbuf_append_printf(sid_in_dec_str, "-%u", sa_field);
-		
-		if (sid_display_hex)	
+
+		if (sid_display_hex)
 			ep_strbuf_append_printf(sid_in_hex_str, "-%x", sa_field);
-		
+
 		if (i==1) {
 			if (strcmp(sid_in_dec_str->str, "S-1-5-21")==0) {
 				domain_sid = TRUE;
@@ -1558,26 +1558,26 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 				logon_session = TRUE;
 			}
 		}
-		
+
 		if (i < 5 || (i==5 && !domain_sid)) {
-			ep_strbuf_append_printf( sa_str,	
+			ep_strbuf_append_printf( sa_str,
 				(i==1 ? (sid_display_hex ? "%x" : "%u") : (sid_display_hex ? "-%x" : "-%u")),
 				sa_field);
 		} else {
 			/* The only sort of RIDs that are recognized are those belonging to domain
-			   SIDs (21-w-x-y-z). 
-			   Although RIDs are a type of subauthority, they are not appended to subauth 
+			   SIDs (21-w-x-y-z).
+			   Although RIDs are a type of subauthority, they are not appended to subauth
 			   so that the domain SIDs can searched for independently of them. */
 			rid = sa_field;
 			rid_offset = offset;
-		} 
+		}
 		offset+=4;
 	}
 
 	/* Do the lookups */
 	if (domain_sid && rid) {
 		mapped_name = get_wkwn_S_1_5_21_rids(rid);
-	} else {	
+	} else {
 		if (!(domain_sid)) {
 			if (logon_session) {
 				mapped_name = match_wkwn_sids("S-1-5-5");
@@ -1589,16 +1589,16 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 			}
 		}
 	}
-	
-	/* It's tree time 	
-	   Display the entire SID string */		
-	if (sid_display_hex) { 
+
+	/* It's tree time
+	   Display the entire SID string */
+	if (sid_display_hex) {
 		item = proto_tree_add_string_format(
-			parent_tree, hf_sid, tvb, offset_sid_start, (offset - offset_sid_start), 
+			parent_tree, hf_sid, tvb, offset_sid_start, (offset - offset_sid_start),
 			sid_in_hex_str->str, "%s: %s", name, sid_in_hex_str->str);
 	} else {
 		item = proto_tree_add_string_format(
-			parent_tree, hf_sid, tvb, offset_sid_start, (offset - offset_sid_start), 
+			parent_tree, hf_sid, tvb, offset_sid_start, (offset - offset_sid_start),
 			sid_in_dec_str->str, "%s: %s", name, sid_in_dec_str->str);
 	}
 	if (mapped_name) {
@@ -1611,24 +1611,24 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	proto_tree_add_uint64_format_value( subtree,
 		(sid_display_hex ? hf_nt_sid_auth_hex : hf_nt_sid_auth_dec),
 		tvb, na_offset+1, 6, authority, "%" G_GINT64_MODIFIER "u", authority);
-	
-	/* Add subauthorities */		
+
+	/* Add subauthorities */
 	item = proto_tree_add_string_format (
 		subtree, hf_nt_sid_subauth, tvb, sa_offset,
-		(rid ? (num_auth-1)*4 : num_auth*4), 
+		(rid ? (num_auth-1)*4 : num_auth*4),
 		sa_str->str, "Subauthorities: %s", sa_str->str
 	);
 
 	/* RID */
 	if (rid) {
-		item = proto_tree_add_item (subtree, 
+		item = proto_tree_add_item (subtree,
 			(sid_display_hex ? hf_nt_sid_rid_hex : hf_nt_sid_rid_dec),
 			tvb, rid_offset, 4, TRUE);
 		if (mapped_name) {
 			proto_item_append_text(item, "  (%s)", mapped_name);
 		}
 	}
-	
+
 	/* If requested, return SID string with mapped name */
 	if(sid_str){
 		if(mapped_name){
@@ -1687,7 +1687,7 @@ static int hf_access_specific_0 = -1;
 
 /* Map generic permissions to specific permissions */
 
-static void map_generic_access(guint32 *access_mask, 
+static void map_generic_access(guint32 *access_mask,
 			       struct generic_mapping *mapping)
 {
 	if (*access_mask & GENERIC_READ_ACCESS) {
@@ -1814,19 +1814,19 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		item, ett_nt_access_mask_standard);
 
 	proto_tree_add_boolean(
-		standard_tree, hf_access_standard_synchronise, tvb, 
+		standard_tree, hf_access_standard_synchronise, tvb,
 		offset - 4, 4, access);
 
 	proto_tree_add_boolean(
-		standard_tree, hf_access_standard_write_owner, tvb, 
+		standard_tree, hf_access_standard_write_owner, tvb,
 		offset - 4, 4, access);
 
 	proto_tree_add_boolean(
-		standard_tree, hf_access_standard_write_dac, tvb, 
+		standard_tree, hf_access_standard_write_dac, tvb,
 		offset - 4, 4, access);
 
 	proto_tree_add_boolean(
-		standard_tree, hf_access_standard_read_control, tvb, 
+		standard_tree, hf_access_standard_read_control, tvb,
 		offset - 4, 4, access);
 
 	proto_tree_add_boolean(
@@ -1862,16 +1862,16 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 		if (ami->generic_mapping)
 			map_generic_access(&access, ami->generic_mapping);
-		
+
 		if (ami->standard_mapping)
 			map_standard_access(&access, ami->standard_mapping);
 
 		if (access != mapped_access) {
 			ami->specific_rights_fn(
-				tvb, offset - 4, specific_mapped, 
+				tvb, offset - 4, specific_mapped,
 				mapped_access);
 		}
-		
+
 		return offset;
 	}
 
@@ -2066,13 +2066,13 @@ dissect_nt_ace_object(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 		proto_tree_add_item(tree, hf_nt_ace_guid, tvb, offset, 16, TRUE);
 		offset+=16;
 	}
-	
+
 	/* is there an inherited GUID ? */
 	if(flags&0x00000002){
 		proto_tree_add_item(tree, hf_nt_ace_inherited_guid, tvb, offset, 16, TRUE);
 		offset+=16;
 	}
-	
+
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
 }
@@ -2155,7 +2155,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	type = tvb_get_guint8(tvb, offset);
 	proto_tree_add_uint(tree, hf_nt_ace_type, tvb, offset, 1, type);
 	offset += 1;
-          
+
 	/* flags */
 	offset = dissect_nt_v2_ace_flags(tvb, offset, tree, &flags);
 
@@ -2172,7 +2172,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	proto_tree_add_uint(tree, hf_nt_ace_size, tvb, offset, 2, size);
 	offset += 2;
-	
+
 	/* some ACE types we not yet handle store other things than access mask
 	 * and SID in here.
 	 * sometimes things that are not related at all to access control.
@@ -2190,7 +2190,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	case ACE_TYPE_SYSTEM_ALARM_OBJECT:
 		/* access mask */
 		offset = dissect_nt_access_mask(
-			tvb, offset, pinfo, tree, drep, 
+			tvb, offset, pinfo, tree, drep,
 			hf_nt_access_mask, ami, &perms);
 
 		/* these aces contain an extra object */
@@ -2454,7 +2454,7 @@ dissect_nt_security_information(tvbuff_t *tvb, int offset, proto_tree *parent_tr
 int
 dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    proto_tree *parent_tree, guint8 *drep,
-		    gboolean len_supplied, int len, 
+		    gboolean len_supplied, int len,
 		    struct access_mask_info *ami)
 {
 	proto_item *item = NULL;
@@ -2561,7 +2561,7 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       */
 	      THROW(ReportedBoundsError);
 	    }
-	    offset = dissect_nt_acl(tvb, item_offset, pinfo, tree, 
+	    offset = dissect_nt_acl(tvb, item_offset, pinfo, tree,
 				    drep, "System (SACL)", ami);
 	    if (offset > end_offset)
 	      end_offset = offset;
@@ -2576,7 +2576,7 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       */
 	      THROW(ReportedBoundsError);
 	    }
-	    offset = dissect_nt_acl(tvb, item_offset, pinfo, tree, 
+	    offset = dissect_nt_acl(tvb, item_offset, pinfo, tree,
 				    drep, "User (DACL)", ami);
 	    if (offset > end_offset)
 	      end_offset = offset;
@@ -2707,7 +2707,7 @@ proto_do_register_windows_common(int proto_smb)
 		    NULL, 0, "Identifier Authority", HFILL }},
 
 		{ &hf_nt_sid_subauth,
-		{ "Subauthorities: ", "nt.sid.subauth", FT_STRING, BASE_NONE,
+		{ "Subauthorities:", "nt.sid.subauth", FT_STRING, BASE_NONE,
 		  NULL, 0, "Subauthorities fields", HFILL }},
 
 		{ &hf_nt_sid_rid_dec,
