@@ -952,6 +952,7 @@ DISSECTOR_SRC = \
 	packet-wcp.c		\
 	packet-wfleet-hdlc.c	\
 	packet-who.c		\
+	packet-wifi-p2p.c	\
 	packet-windows-common.c	\
 	packet-winsrepl.c	\
 	packet-wlccp.c		\
@@ -1295,6 +1296,7 @@ DISSECTOR_INCLUDES =	\
 	packet-vlan.h	\
 	packet-wap.h	\
 	packet-wccp.h	\
+	packet-wifi-p2p.h	\
 	packet-windows-common.h	\
 	packet-wlancertextn.h	\
 	packet-wps.h	\

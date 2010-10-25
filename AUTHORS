@@ -1256,6 +1256,8 @@ Jouni Malinen           <jkmaline[AT]cc.hut.fi> {
 	EAP-MD5, EAP-SIM, EAP-PEAP, and EAP-MSCHAPv2 support
 	802.11g element support
 	802.11i enhancements
+	New WSC 2.0 attributes and values support
+	Wi-Fi Alliance P2P dissector
 }
 
 Paul E. Erkkila         <pee[AT]erkkila.org> {

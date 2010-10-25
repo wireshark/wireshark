@@ -1042,6 +1042,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-wcp.c
 	dissectors/packet-wfleet-hdlc.c
 	dissectors/packet-who.c
+	dissectors/packet-wifi-p2p.c
 	dissectors/packet-windows-common.c
 	dissectors/packet-winsrepl.c
 	dissectors/packet-wlccp.c

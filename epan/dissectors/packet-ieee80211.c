@@ -88,6 +88,7 @@
 #include "isprint.h"
 
 #include "packet-wps.h"
+#include "packet-wifi-p2p.h"
 
 #ifndef roundup2
 #define roundup2(x, y)  (((x)+((y)-1))&(~((y)-1)))  /* if y is powers of two */
@@ -648,6 +649,10 @@ static const value_string tag_num_vals[] = {
 #define RSN_OUI     (const guint8 *) "\x00\x0F\xAC"
 #define WME_OUI     (const guint8 *) "\x00\x50\xF2"
 #define PRE_11N_OUI (const guint8 *) "\x00\x90\x4c" /* 802.11n pre 1 oui */
+#define WFA_OUI     (const guint8 *) "\x50\x6f\x9a"
+
+/* WFA vendor specific subtypes */
+#define WFA_SUBTYPE_P2P 9
 
 #define PMKID_LEN 16
 
@@ -2668,13 +2673,14 @@ dissect_advertisement_protocol(packet_info *pinfo, proto_tree *tree,
 static void
 dissect_anqp(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean request)
 {
-  guint16 len;
+  guint16 id, len;
 
   proto_tree_add_text(tree, tvb, offset, 4,
                       request ? "Access Network Query Protocol Request" :
                       "Access Network Query Protocol Response");
   proto_tree_add_item(tree, hf_ieee80211_ff_anqp_info_id,
                       tvb, offset, 2, TRUE);
+  id = tvb_get_letohs(tvb, offset);
   offset += 2;
   proto_tree_add_item(tree, hf_ieee80211_ff_anqp_info_length,
                       tvb, offset, 2, TRUE);
@@ -2682,6 +2688,31 @@ dissect_anqp(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean request)
   offset += 2;
   proto_tree_add_item(tree, hf_ieee80211_ff_anqp_info,
                       tvb, offset, len, FALSE);
+  if (id == 56797) {
+    /* ANQP vendor-specific list */
+    guint32 oui;
+    guint8 subtype;
+    const guint8 *tag_data_ptr;
+
+    oui = tvb_get_ntoh24(tvb, offset);
+    tag_data_ptr = tvb_get_ptr(tvb, offset, 3);
+    proto_tree_add_bytes_format(tree, tag_oui, tvb, offset, 3,
+                                tag_data_ptr, "Vendor: %s",
+                                get_manuf_name(tag_data_ptr));
+    offset += 3;
+
+    switch (oui) {
+    case OUI_WFA:
+      subtype = tvb_get_guint8(tvb, offset);
+      if (subtype == WFA_SUBTYPE_P2P) {
+        proto_tree_add_text(tree, tvb, offset, 1, "Subtype %u: P2P ANQP",
+                            subtype);
+        dissect_wifi_p2p_anqp(g_pinfo, tree, tvb, offset + 1, request);
+      } else {
+        proto_tree_add_text(tree, tvb, offset, 1, "Subtype %u", subtype);
+      }
+    }
+  }
 }
 
 static guint
@@ -3557,6 +3588,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                 guint32 oui;
                 const guint8 *tag_data_ptr;
                 guint8 code;
+                guint8 subtype;
 
                 offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
                 code = tvb_get_guint8(tvb, offset);
@@ -3572,6 +3604,15 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                       offset += 3;
                       switch (oui)
                       {
+                      case OUI_WFA:
+                        subtype = tvb_get_guint8(tvb, offset);
+                        proto_tree_add_text(action_tree, tvb, offset, 1,
+                                            "Subtype %u", subtype);
+                        offset++;
+                        if (subtype == WFA_SUBTYPE_P2P)
+                          offset = dissect_wifi_p2p_public_action(action_tree,
+                                                                  tvb, offset);
+                        break;
                       default:
                         /* Don't know how to handle this vendor */
                         break;
@@ -3789,6 +3830,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                 guint start = offset;
                 guint32 oui;
                 const guint8 *tag_data_ptr;
+                guint8 subtype;
 
                 offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
                 oui = tvb_get_ntoh24(tvb, offset);
@@ -3800,6 +3842,15 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                   {
                     case OUI_MARVELL:
                       offset = dissect_vendor_action_marvell (action_tree, tvb, offset);
+                      break;
+                    case OUI_WFA:
+                      subtype = tvb_get_guint8(tvb, offset);
+                      proto_tree_add_text(action_tree, tvb, offset, 1,
+                                          "Subtype %u", subtype);
+                      offset++;
+                      if (subtype == WFA_SUBTYPE_P2P)
+                        offset = dissect_wifi_p2p_action(action_tree, tvb,
+                                                         offset);
                       break;
                     default:
                       /* Don't know how to handle this vendor */
@@ -4172,6 +4223,22 @@ dissect_vendor_ie_wpawme(proto_item * item, proto_tree * tree, tvbuff_t * tag_tv
   } else if (tag_off + 6 <= tag_len && !tvb_memeql(tag_tvb, tag_off, WPA_OUI"\x04", 4)) {
     dissect_wps_tlvs(item, tag_tvb, tag_off+4, tag_len-4, NULL);
     proto_item_append_text(item, ": WPS");
+  }
+}
+
+static void
+dissect_vendor_ie_wfa(packet_info *pinfo, proto_item *item, tvbuff_t *tag_tvb)
+{
+  gint tag_len = tvb_length(tag_tvb);
+
+  if (tag_len < 4)
+    return;
+
+  switch (tvb_get_guint8(tag_tvb, 3)) {
+  case WFA_SUBTYPE_P2P:
+    dissect_wifi_p2p_ie(pinfo, item, tag_tvb, 4, tag_len - 4);
+    proto_item_append_text(item, ": P2P");
+    break;
   }
 }
 
@@ -5854,6 +5921,9 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
           break;
         case OUI_MARVELL:
           dissect_vendor_ie_marvell(ti, tree, tvb, offset + 5, tag_len - 3);
+          break;
+        case OUI_WFA:
+          dissect_vendor_ie_wfa(pinfo, ti, tag_tvb);
           break;
         default:
           proto_tree_add_string (tree, tag_interpretation, tvb, offset + 5,

@@ -71,6 +71,7 @@
 #define	OUI_APPLE_ATALK		0x080007	/* Appletalk */
 #define	OUI_HP				0x080009	/* Hewlett-Packard */
 #define	OUI_HP_2			0x00805F	/* Hewlett-Packard */
+#define OUI_WFA			0x506F9A	/* Wi-Fi Alliance */
 #define	OUI_3GPP2			0xCF0002	/* 3GPP2 */
 
 /* 
