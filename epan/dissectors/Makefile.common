@@ -196,6 +196,8 @@ DISSECTOR_SRC = \
 	packet-6lowpan.c	\
 	packet-9p.c		\
 	packet-aarp.c		\
+	packet-adwin.c		\
+	packet-adwin-config.c	\
 	packet-acap.c		\
 	packet-acn.c		\
 	packet-actrace.c	\

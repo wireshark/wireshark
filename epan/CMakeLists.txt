@@ -288,6 +288,8 @@ set(DISSECTOR_SRC
 	dissectors/packet-acap.c
 	dissectors/packet-acn.c
 	dissectors/packet-actrace.c
+	dissectors/packet-adwin.c
+	dissectors/packet-adwin-config.c
 	dissectors/packet-afp.c
 	dissectors/packet-afs.c
 	dissectors/packet-agentx.c
