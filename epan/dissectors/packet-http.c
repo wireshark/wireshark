@@ -107,6 +107,7 @@ static int hf_http_x_forwarded_for = -1;
 
 static gint ett_http = -1;
 static gint ett_http_ntlmssp = -1;
+static gint ett_http_kerberos = -1;
 static gint ett_http_request = -1;
 static gint ett_http_chunked_response = -1;
 static gint ett_http_chunk_data = -1;
@@ -217,7 +218,7 @@ static gboolean http_decompress_body = FALSE;
  * tcp and ssl ports
  */
 
-#define TCP_DEFAULT_RANGE "80,3128,3132,8080,8088,11371,1900"
+#define TCP_DEFAULT_RANGE "80,3128,3132,5985,8080,8088,11371,1900"
 #define SSL_DEFAULT_RANGE "443"
 
 static range_t *global_http_tcp_range = NULL;
@@ -266,6 +267,8 @@ static gboolean check_auth_ntlmssp(proto_item *hdr_item, tvbuff_t *tvb,
 				   packet_info *pinfo, gchar *value);
 static gboolean check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb,
 				 gchar *value);
+static gboolean check_auth_kerberos(proto_item *hdr_item, tvbuff_t *tvb,
+				   packet_info *pinfo, const gchar *value);
 
 static dissector_table_t port_subdissector_table;
 static dissector_table_t media_type_subdissector_table;
@@ -537,6 +540,19 @@ dissect_http_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	else
 		call_dissector(gssapi_handle, ntlmssp_tvb, pinfo, tree);
 }
+
+static void
+dissect_http_kerberos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		     const char *line)
+{
+	tvbuff_t *kerberos_tvb;
+
+	kerberos_tvb = base64_to_tvb(tvb, line + 9); /* skip 'Kerberos ' which is 9 chars */
+	add_new_data_source(pinfo, kerberos_tvb, "Kerberos Data");
+	call_dissector(gssapi_handle, kerberos_tvb, pinfo, tree);
+
+}
+
 
 static http_conv_t *
 get_http_conversation_data(packet_info *pinfo)
@@ -2026,11 +2042,15 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 		case HDR_AUTHORIZATION:
 			if (check_auth_ntlmssp(hdr_item, tvb, pinfo, value))
 				break;	/* dissected NTLMSSP */
-			check_auth_basic(hdr_item, tvb, value);
+			if (check_auth_basic(hdr_item, tvb, value))
+				break; /* dissected basic auth */
+			check_auth_kerberos(hdr_item, tvb, pinfo, value);
 			break;
 
 		case HDR_AUTHENTICATE:
-			check_auth_ntlmssp(hdr_item, tvb, pinfo, value);
+			if (check_auth_ntlmssp(hdr_item, tvb, pinfo, value))
+				break; /* dissected NTLMSSP */
+			check_auth_kerberos(hdr_item, tvb, pinfo, value);
 			break;
 
 		case HDR_CONTENT_TYPE:
@@ -2211,6 +2231,24 @@ check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value)
 
 			return TRUE;
 		}
+	}
+	return FALSE;
+}
+
+static gboolean
+check_auth_kerberos(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo,
+    const gchar *value)
+{
+	proto_tree *hdr_tree;
+
+	if (strncmp(value, "Kerberos ", 9) == 0) {
+		if (hdr_item != NULL) {
+			hdr_tree = proto_item_add_subtree(hdr_item, ett_http_kerberos);
+		} else
+			hdr_tree = NULL;
+
+		dissect_http_kerberos(tvb, pinfo, hdr_tree, value);
+		return TRUE;
 	}
 	return FALSE;
 }
@@ -2446,6 +2484,7 @@ proto_register_http(void)
 	static gint *ett[] = {
 		&ett_http,
 		&ett_http_ntlmssp,
+		&ett_http_kerberos,
 		&ett_http_request,
 		&ett_http_chunked_response,
 		&ett_http_chunk_data,
