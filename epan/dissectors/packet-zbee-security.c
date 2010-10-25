@@ -471,7 +471,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     if (mic_len) {
         /* Display the MIC. */
         if (tree) {
-            ti = proto_tree_add_bytes(sec_tree, hf_zbee_sec_mic, tvb, tvb_length(tvb)-mic_len, mic_len, ep_tvb_memdup(tvb, tvb_length(tvb)-mic_len, mic_len));
+			ti = proto_tree_add_item(sec_tree, hf_zbee_sec_mic, tvb, tvb_length(tvb)-mic_len, mic_len, ENC_BIG_ENDIAN);
         }
     }
 
