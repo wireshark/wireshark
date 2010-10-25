@@ -413,7 +413,10 @@ dissect_adwin_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if(pinfo->ipproto == IP_PROTO_TCP &&
 	   !(pinfo->srcport == ADWIN_CONFIGURATION_PORT
 	     || pinfo->destport == ADWIN_CONFIGURATION_PORT))
-		return(FALSE);
+		return(0);
+
+	if (pinfo->ipproto != IP_PROTO_UDP && pinfo->ipproto != IP_PROTO_TCP)
+		return (0);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ADwin Config");
 	col_clear(pinfo->cinfo, COL_INFO);
