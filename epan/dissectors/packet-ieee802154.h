@@ -246,7 +246,9 @@ extern proto_item  *proto_tree_add_eui64(proto_tree *, int, tvbuff_t *, gint, gi
 /* Short to Extended Address Prototypes */
 extern ieee802154_map_rec *ieee802154_addr_update(ieee802154_addr_t *, guint16, guint16, guint64, int, guint);
 extern guint    ieee802154_short_addr_hash(gconstpointer);
+extern guint    ieee802154_long_addr_hash(gconstpointer key);
 extern gboolean ieee802154_short_addr_equal(gconstpointer, gconstpointer);
+extern gboolean ieee802154_long_addr_equal(gconstpointer a, gconstpointer b);
 
 extern gboolean ieee802154_short_addr_invalidate(guint16, guint16, guint);
 extern gboolean ieee802154_long_addr_invalidate(guint64, guint);

@@ -1904,8 +1904,6 @@ proto_init_zbee_nwk(void)
 
     /* (Re)create the hash tables. */
     zbee_nwk_addr.short_table = g_hash_table_new(ieee802154_short_addr_hash, ieee802154_short_addr_equal);
-#if GLIB_CHECK_VERSION(2,22,0)
-    zbee_nwk_addr.long_table = g_hash_table_new(g_int64_hash, g_int64_equal);
-#endif
+    zbee_nwk_addr.long_table = g_hash_table_new(ieee802154_long_addr_hash, ieee802154_long_addr_equal);
     zbee_table_nwk_keyring  = g_hash_table_new_full(g_int_hash, g_int_equal, NULL, free_keyring_val);
 } /* proto_init_zbee_nwk */
