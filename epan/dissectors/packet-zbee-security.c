@@ -133,7 +133,7 @@ static const value_string byte_order_vals[] = {
 /* UAT Key Entry */
 typedef struct _uat_key_record_t {
     gchar    *string;
-    gboolean  byte_order;
+    guint8    byte_order;
     gchar    *label;
     guint8    key[ZBEE_SEC_CONST_KEYSIZE];
 } uat_key_record_t;
