@@ -30,13 +30,13 @@
 /*  Structure containing the fields stored in the Aux Header */
 typedef struct{
     /*  The fields of the Aux Header */
-    guint8      control;
-    guint32     counter;
-    guint64     src;
+    guint8      control; /* needed to decrypt */
+    guint32     counter; /* needed to decrypt */
+    guint64     src64;   /* needed to decrypt */
     guint8      key_seqno;
 
     guint8      level;
-    guint8      key;
+    guint8      key_id;  /* needed to decrypt */
     gboolean    nonce;
 } zbee_security_packet;
 
@@ -64,7 +64,6 @@ typedef struct{
 /* ZigBee Security Constants. */
 #define ZBEE_SEC_CONST_L            2
 #define ZBEE_SEC_CONST_NONCE_LEN    (ZBEE_SEC_CONST_BLOCKSIZE-ZBEE_SEC_CONST_L-1)
-#define ZBEE_SEC_CONST_KEYSIZE      16
 #define ZBEE_SEC_CONST_BLOCKSIZE    16
 
 /* CCM* Flags */
@@ -72,11 +71,14 @@ typedef struct{
 #define ZBEE_SEC_CCM_FLAG_M(m)          ((((m-2)/2) & 0x7)<<3)  /* 3-bit encoding of (M-2)/2 shifted 3 bits. */
 #define ZBEE_SEC_CCM_FLAG_ADATA(l_a)    ((l_a>0)?0x40:0x00)     /* Adata flag. */
 
+/* Program Constants */
+#define ZBEE_SEC_PC_KEY             0
+
 /* Init routine for the Security dissectors. */
 extern void     zbee_security_register  (module_t *module, int proto);
 extern void     zbee_security_handoff   (void);
 
 /* Security Dissector Routine. */
-extern tvbuff_t *dissect_zbee_secure(tvbuff_t *, packet_info *, proto_tree *, guint, guint64);
+extern tvbuff_t *dissect_zbee_secure(tvbuff_t *, packet_info *, proto_tree *, guint);
 
 #endif /* PACKET_ZBEE_SECURITY_H */
