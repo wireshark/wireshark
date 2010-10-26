@@ -216,6 +216,11 @@ typedef struct {
     guint16     addr;
 } ieee802154_short_addr;
 
+/* Key used by the long address hash table. */
+typedef struct {
+    guint64     addr;
+} ieee802154_long_addr;
+
 /* A mapping record for a frame, pointed to by hash table */
 typedef struct {
     int         proto; /* protocol that created this record */

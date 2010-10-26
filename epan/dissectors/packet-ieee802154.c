@@ -2226,6 +2226,18 @@ gboolean ieee802154_short_addr_equal(gconstpointer a, gconstpointer b)
            (((ieee802154_short_addr *)a)->addr == ((ieee802154_short_addr *)b)->addr);
 }
 
+/* Key hash function. */
+guint ieee802154_long_addr_hash(gconstpointer key)
+{
+    return (((ieee802154_long_addr *)key)->addr) & 0xFFFFFFFF;
+}
+
+/* Key equal function. */
+gboolean ieee802154_long_addr_equal(gconstpointer a, gconstpointer b)
+{
+    return (((ieee802154_long_addr *)a)->addr == ((ieee802154_long_addr *)b)->addr);
+}
+
 /*FUNCTION:------------------------------------------------------
  *  NAME
  *      ieee802154_addr_update
@@ -2821,9 +2833,7 @@ proto_init_ieee802154(void)
 
     /* Create the hash tables. */
     ieee802154_addr.short_table = g_hash_table_new(ieee802154_short_addr_hash, ieee802154_short_addr_equal);
-#if GLIB_CHECK_VERSION(2,22,0)
-    ieee802154_addr.long_table = g_hash_table_new(g_int64_hash, g_int64_equal);
-#endif
+    ieee802154_addr.long_table = g_hash_table_new(ieee802154_long_addr_hash, ieee802154_long_addr_equal);
     /* Re-load the hash table from the static address UAT. */
     for (i=0; (i<num_static_addrs) && (static_addrs); i++) {
         ieee802154_addr_update(&ieee802154_addr,(guint16)static_addrs[i].addr16, (guint16)static_addrs[i].pan,
