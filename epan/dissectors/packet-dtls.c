@@ -1018,6 +1018,10 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
           if (frag_hand) {
             /* Fragmented handshake message */
             pinfo->fragmented = TRUE;
+
+	    /* Don't pass the reassembly code data that doesn't exist */
+	    tvb_ensure_bytes_exist(tvb, fragment_offset, fragment_length);
+
             frag_msg = fragment_add(tvb, offset+12, pinfo, message_seq,
                                     dtls_fragment_table,
                                     fragment_offset, fragment_length, TRUE);
@@ -1499,10 +1503,9 @@ dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
 }
 
 
-static void dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb,
-                                                  proto_tree *tree,
-                                                  guint32 offset,
-                                                  SslDecryptSession* ssl)
+static void
+dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb, proto_tree *tree,
+				      guint32 offset, SslDecryptSession* ssl)
 {
   /*
    * struct {
@@ -1789,8 +1792,7 @@ dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
 }
 
 static void
-dissect_dtls_hnd_finished(tvbuff_t *tvb,
-                          proto_tree *tree, guint32 offset,
+dissect_dtls_hnd_finished(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
                           guint* conv_version)
 {
   /*
@@ -1865,8 +1867,7 @@ dtls_is_valid_handshake_type(guint8 type)
 }
 
 static gint
-dtls_is_authoritative_version_message(guint8 content_type,
-                                      guint8 next_byte)
+dtls_is_authoritative_version_message(guint8 content_type, guint8 next_byte)
 {
   if (content_type == SSL_ID_HANDSHAKE
       && dtls_is_valid_handshake_type(next_byte))
