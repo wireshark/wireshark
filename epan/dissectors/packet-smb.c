@@ -887,12 +887,13 @@ static int dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	offset += len;			\
 	*bcp -= len;
 
-gboolean sid_display_hex = FALSE;  
+gboolean sid_display_hex = FALSE;
 gboolean sid_name_snooping = FALSE;
 
 /* Compare funtion to maintain the GSL_fid_info ordered
    Order criteria: packet where the fid was opened */
-gint fid_cmp(smb_fid_info_t *fida, smb_fid_info_t *fidb)
+static gint
+fid_cmp(smb_fid_info_t *fida, smb_fid_info_t *fidb)
 {
         return (fida->opened_in - fidb->opened_in);
 }
@@ -8732,9 +8733,8 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	si = (smb_info_t *)pinfo->private_data;
 	DISSECTOR_ASSERT(si);
 	sip = si->sip;
-	DISSECTOR_ASSERT(sip);
-	if (sip->extra_info_type == SMB_EI_NTI) {
-	  nti=sip->extra_info;
+	if (sip && sip->extra_info_type == SMB_EI_NTI) {
+		nti=sip->extra_info;
 	}
 
 	if(parent_tree){
