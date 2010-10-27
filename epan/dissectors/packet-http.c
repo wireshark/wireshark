@@ -1228,6 +1228,13 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			handle = dissector_get_string_handle(
 			    media_type_subdissector_table,
 			    headers.content_type);
+			if (handle == NULL &&
+			    !strncmp(headers.content_type, "multipart/", sizeof("multipart/")-1)) {
+				/* Try to decode the unknown multipart subtype anyway */
+				handle = dissector_get_string_handle(
+				    media_type_subdissector_table,
+				    "multipart/");
+			}
 		}
 		if (handle != NULL) {
 			/*
