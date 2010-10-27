@@ -732,12 +732,11 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree) {
         ti = proto_tree_add_uint(aps_tree, hf_zbee_aps_profile, tvb, offset,2,
                 packet.profile);
-        offset +=2;
         /* Update the protocol root and info column later, after the source endpoint
          * so that the source and destination will be back-to-back in the text.
          */
 	}
-    offset += sizeof(guint16);
+    offset +=2;
 
     /* The source endpoint is present for all cases except indirect /w indirect_mode == FALSE */
     if ((packet.delivery != ZBEE_APS_FCF_INDIRECT) || (!packet.indirect_mode)) {
