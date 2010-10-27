@@ -1483,7 +1483,7 @@ read_prefs_file(const char *pf_path, FILE *pf,
                 break;
 
               case PREFS_SET_SYNTAX_ERR:
-                g_warning ("%s line %d: Syntax error %s", pf_path, pline, hint);
+                g_warning ("%s line %d: Syntax error in preference %s %s", pf_path, pline, cur_var->str, hint);
                 break;
 
               case PREFS_SET_NO_SUCH_PREF:
@@ -1543,7 +1543,7 @@ read_prefs_file(const char *pf_path, FILE *pf,
         break;
 
       case PREFS_SET_SYNTAX_ERR:
-        g_warning ("%s line %d: Syntax error %s", pf_path, pline, hint);
+	g_warning ("%s line %d: Syntax error in preference %s %s", pf_path, pline, cur_var->str, hint);
         break;
 
       case PREFS_SET_NO_SUCH_PREF:
@@ -3082,7 +3082,7 @@ write_prefs(char **pf_path_return)
     cfmt = (fmt_data *) clp->data;
     col_l = g_list_append(col_l, g_strdup(cfmt->title));
     if ((strcmp(cfmt->fmt, cust_format) == 0) && (cfmt->custom_field)) {
-      prefs_fmt = g_strdup_printf("%s:%s:%d:%c", cfmt->fmt, cfmt->custom_field, 
+      prefs_fmt = g_strdup_printf("%s:%s:%d:%c", cfmt->fmt, cfmt->custom_field,
 				  cfmt->custom_occurrence, cfmt->resolved ? 'R' : 'U');
       col_l = g_list_append(col_l, prefs_fmt);
     } else {
