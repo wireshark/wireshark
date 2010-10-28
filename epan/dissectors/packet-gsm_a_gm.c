@@ -4090,7 +4090,6 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 				proto_tree_add_text(tf_tree,tvb, curr_offset, 1,"Not enough data");
 				return(len);
 			}
-			proto_tree_add_item(tf_tree, hf_gsm_a_tft_pkt_flt_dir, tvb, curr_offset, 1, FALSE);
 			proto_tree_add_item(tf_tree, hf_gsm_a_tft_pkt_flt_id, tvb, curr_offset, 1, FALSE);
 			curr_offset++;
 			curr_len--;
