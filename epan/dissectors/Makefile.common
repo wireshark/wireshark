@@ -656,6 +656,7 @@ DISSECTOR_SRC = \
 	packet-mip6.c		\
 	packet-ms-mms.c		\
 	packet-mmse.c		\
+	packet-mongo.c		\
 	packet-mount.c		\
 	packet-mp2t.c		\
 	packet-mp4ves.c		\

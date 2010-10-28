@@ -2940,6 +2940,7 @@ Alexis La Goutte	<alexis.lagoutte [AT] gmail.com> {
 	Aruba ERM dissector
 	CAPWAP dissector
 	PAPI dissector
+	MONGO dissector
 	Miscellaneous ISAKMP enhancements
 	Packet TCP Mood Option (RFC5841) support
 	PPTP, GRE, PPP PAP dissector enhancements (Rework)

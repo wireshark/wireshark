@@ -746,6 +746,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-mip6.c
 	dissectors/packet-ms-mms.c
 	dissectors/packet-mmse.c
+	dissectors/packet-mongo.c
 	dissectors/packet-mount.c
 	dissectors/packet-mp2t.c
 	dissectors/packet-mp4ves.c
