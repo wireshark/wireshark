@@ -77,6 +77,7 @@ static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
 extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 {
   int i, n, records_for_erf_check = RECORDS_FOR_ERF_CHECK;
+  int valid_prev = 0;
   char *s;
   erf_timestamp_t prevts,ts; 
   erf_header_t header;
@@ -170,7 +171,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
     }
     
     /* Check to see if timestamp increment is > 1 week */
-    if ( (i) && (ts > prevts) && (((ts-prevts)>>32) > 3600*24*7) ) {
+    if ( (valid_prev) && (ts > prevts) && (((ts-prevts)>>32) > 3600*24*7) ) {
       return 0;
     }
     
@@ -236,8 +237,10 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
       if (i < MIN_RECORDS_FOR_ERF_CHECK) {
 	return 0;
       }
-
     }
+
+    valid_prev = 1;
+
   } /* records_for_erf_check */
 
   if (file_seek(wth->fh, 0L, SEEK_SET, err) == -1) {	/* rewind */
@@ -278,13 +281,14 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
       return FALSE;
     }
     wth->data_offset += bytes_read;
-  } while ( erf_header.type == ERF_TYPE_PAD );
 
-  buffer_assure_space(wth->frame_buffer, packet_size);
-
-  wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
+    buffer_assure_space(wth->frame_buffer, packet_size);
+    
+    wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
 				(gint32)(packet_size), wth->fh, err );
-  wth->data_offset += packet_size;
+    wth->data_offset += packet_size;
+
+  } while ( erf_header.type == ERF_TYPE_PAD );
 
   return TRUE;
 }
