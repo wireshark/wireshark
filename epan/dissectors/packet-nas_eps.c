@@ -1314,7 +1314,7 @@ static const true_false_string  nas_eps_emm_1xsrvcc_cap_flg = {
 };
 
 static guint16
-de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -1361,6 +1361,10 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 	curr_offset++;
 
 
+	/* Following octets are optional */
+	if ((curr_offset - offset) >= len)
+		return (len);
+
 	/* UMTS encryption algorithms supported (octet 5)
 	 * UMTS encryption algorithm UEA0 supported (octet 5, bit 8)
 	 */
@@ -1381,6 +1385,9 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 	/* UMTS encryption algorithm 128-UEA0 supported (octet 5, bit 7) */
 	proto_tree_add_item(tree, hf_nas_eps_emm_uea7, tvb, curr_offset, 1, FALSE);
 	curr_offset++;
+
+	if ((curr_offset - offset) >= len)
+		return (len);
 
 	/* UCS2 support (UCS2) (octet 6, bit 8)
 	 * This information field indicates the likely treatment of UCS2 encoded character strings
@@ -1403,6 +1410,9 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 	/* UMTS integrity algorithm UIA1 supported (octet 6, bit 1) */
 	proto_tree_add_item(tree, hf_nas_eps_emm_uia7, tvb, curr_offset, 1, FALSE);
 	curr_offset++;
+
+	if ((curr_offset - offset) >= len)
+		return (len);
 
 	/* Bits 8 to 3 and bit 1 of octet 7 are spare and shall be coded as zero. */
 	/* 1xSRVCC capability (octet 7, bit 2) */
@@ -3896,8 +3906,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	len = tvb_length(tvb);
 
 	/* make entry in the Protocol column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_append_str(pinfo->cinfo, COL_PROTOCOL, "/NAS-EPS");
+	col_append_str(pinfo->cinfo, COL_PROTOCOL, "/NAS-EPS");
 
 	item = proto_tree_add_item(tree, proto_nas_eps, tvb, 0, -1, FALSE);
 	nas_eps_tree = proto_item_add_subtree(item, ett_nas_eps);
