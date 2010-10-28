@@ -610,19 +610,19 @@ dissect_mtp3mg_fcm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	} else /* ANSI_STANDARD and CHINESE_ITU_STANDARD */ {
 
-	    int *hf_apc_string;
+	    int hf_apc_string;
 
 	    if (mtp3_standard == ANSI_STANDARD) {
 
-		hf_apc_string = &hf_mtp3mg_tfc_ansi_apc;
+		hf_apc_string = hf_mtp3mg_tfc_ansi_apc;
 
 	    } else /* CHINESE_ITU_STANDARD */ {
 
-		hf_apc_string = &hf_mtp3mg_tfc_chinese_apc;
+		hf_apc_string = hf_mtp3mg_tfc_chinese_apc;
 	    }
 
 	    dissect_mtp3_3byte_pc(tvb, 0, tree, ett_mtp3mg_fcm_apc,
-				  *hf_apc_string, hf_mtp3mg_tfc_apc_network,
+				  hf_apc_string, hf_mtp3mg_tfc_apc_network,
 				  hf_mtp3mg_tfc_apc_cluster,
 				  hf_mtp3mg_tfc_apc_member, 0, 0);
 
@@ -921,14 +921,14 @@ dissect_mtp3mg_ufc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (mtp3_standard == ANSI_STANDARD
 	    || mtp3_standard == CHINESE_ITU_STANDARD)
 	{
-	    int *hf_apc;
+	    int hf_apc;
 
 	    if (mtp3_standard == ANSI_STANDARD)
-		hf_apc = &hf_mtp3mg_upu_ansi_apc;
+		hf_apc = hf_mtp3mg_upu_ansi_apc;
 	    else /* CHINESE_ITU_STANDARD */
-		hf_apc = &hf_mtp3mg_upu_chinese_apc;
+		hf_apc = hf_mtp3mg_upu_chinese_apc;
 
-	    dissect_mtp3_3byte_pc(tvb, 0, tree, ett_mtp3mg_upu_apc, *hf_apc,
+	    dissect_mtp3_3byte_pc(tvb, 0, tree, ett_mtp3mg_upu_apc, hf_apc,
 				  hf_mtp3mg_rsm_apc_network,
 				  hf_mtp3mg_rsm_apc_cluster,
 				  hf_mtp3mg_rsm_apc_member, 0, 0);

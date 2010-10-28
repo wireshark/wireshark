@@ -490,8 +490,8 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
   proto_item *hidden_item;
   proto_tree *label_tree;
   proto_tree *pc_subtree;
-  int *hf_dpc_string;
-  int *hf_opc_string;
+  int hf_dpc_string;
+  int hf_opc_string;
 
 
   switch (mtp3_standard) {
@@ -535,11 +535,11 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
   case CHINESE_ITU_STANDARD:
     if (mtp3_standard == ANSI_STANDARD)
     {
-      hf_dpc_string = &hf_mtp3_ansi_dpc;
-      hf_opc_string = &hf_mtp3_ansi_opc;
+      hf_dpc_string = hf_mtp3_ansi_dpc;
+      hf_opc_string = hf_mtp3_ansi_opc;
     } else /* CHINESE_ITU_STANDARD */ {
-      hf_dpc_string = &hf_mtp3_chinese_dpc;
-      hf_opc_string = &hf_mtp3_chinese_opc;
+      hf_dpc_string = hf_mtp3_chinese_dpc;
+      hf_opc_string = hf_mtp3_chinese_opc;
     }
 
     /* Create the Routing Label Tree */
@@ -548,13 +548,13 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
 
 
     /* create and fill the DPC tree */
-    dissect_mtp3_3byte_pc(tvb, ANSI_DPC_OFFSET, label_tree, ett_mtp3_label_dpc, *hf_dpc_string, hf_mtp3_dpc_network,
+    dissect_mtp3_3byte_pc(tvb, ANSI_DPC_OFFSET, label_tree, ett_mtp3_label_dpc, hf_dpc_string, hf_mtp3_dpc_network,
 			  hf_mtp3_dpc_cluster, hf_mtp3_dpc_member, hf_mtp3_24bit_dpc, hf_mtp3_24bit_pc);
     /* Store dpc for mtp3_addr below */
     dpc = tvb_get_letoh24(tvb, ANSI_DPC_OFFSET);
 
     /* create and fill the OPC tree */
-    dissect_mtp3_3byte_pc(tvb, ANSI_OPC_OFFSET, label_tree, ett_mtp3_label_opc, *hf_opc_string, hf_mtp3_opc_network,
+    dissect_mtp3_3byte_pc(tvb, ANSI_OPC_OFFSET, label_tree, ett_mtp3_label_opc, hf_opc_string, hf_mtp3_opc_network,
 			  hf_mtp3_opc_cluster, hf_mtp3_opc_member, hf_mtp3_24bit_opc, hf_mtp3_24bit_pc);
     /* Store opc for mtp3_addr below */
     opc = tvb_get_letoh24(tvb, ANSI_OPC_OFFSET);
