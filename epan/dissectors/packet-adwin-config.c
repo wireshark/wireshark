@@ -92,12 +92,12 @@ static const string_string processor_type_mapping[] = {
 /* add little endian number (incorrect byte-order) value to a tree */
 #define ADWIN_ADD_LE(tree, field, offset, length)                       \
         proto_tree_add_item(tree, hf_adwin_config_##field, tvb, offset, \
-                            length, TRUE);
+                            length, ENC_LITTLE_ENDIAN);
 
 /* add big endian number (correct byte-order) value to a tree */
 #define ADWIN_ADD_BE(tree, field, offset, length)                       \
         proto_tree_add_item(tree, hf_adwin_config_##field, tvb, offset, \
-                            length, FALSE);
+                            length, ENC_BIG_ENDIAN);
 
 /* Initialize the protocol and registered fields */
 static int proto_adwin_config                     = -1;
@@ -164,7 +164,7 @@ dissect_UDPStatus(tvbuff_t *tvb, proto_tree *adwin_tree)
 	if (! adwin_tree)
 		return;
 
-	dt = proto_tree_add_item(adwin_tree, proto_adwin_config, tvb, 0, -1, TRUE);
+	dt = proto_tree_add_item(adwin_tree, proto_adwin_config, tvb, 0, -1, ENC_LITTLE_ENDIAN);
 	debug_tree = proto_item_add_subtree(dt, ett_adwin_config_debug);
 	proto_item_set_text(dt, "ADwin Debug information");
 
@@ -464,7 +464,7 @@ dissect_adwin_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_adwin_config, tvb, 0, -1, TRUE);
+		ti = proto_tree_add_item(tree, proto_adwin_config, tvb, 0, -1, ENC_LITTLE_ENDIAN);
 		adwin_config_tree = proto_item_add_subtree(ti, ett_adwin_config);
 	} else {
 		adwin_config_tree = NULL;
