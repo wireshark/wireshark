@@ -173,6 +173,11 @@ NASM=$(WIRESHARK_LIBS)\nasm-2.02\nasm.exe
 #
 #PYTHON=env python
 
+# Santity check: native vs Cygwin Python options
+!IF DEFINED(PYTHON) && DEFINED(PYTHON_DIR)
+!ERROR PYTHON and PYTHON_DIR cannot be specified at the same time
+!ENDIF
+
 # Find native Python automatically if PYTHON(_DIR) wasn't defined
 !IF !DEFINED(PYTHON) && !DEFINED(PYTHON_DIR)
 !IF EXIST(c:\Python27\python.exe)
@@ -184,15 +189,10 @@ PYTHON_VER=25
 !ELSE IF EXIST(c:\Python24\python.exe)
 PYTHON_VER=24
 !ENDIF
-!ENDIF
-
-# Santity check: native vs Cygwin Python options
-!IF DEFINED(PYTHON) && DEFINED(PYTHON_DIR)
-!ERROR PYTHON and PYTHON_DIR cannot be specified at the same time
-!ENDIF
 
 !IF DEFINED(PYTHON_VER)
 PYTHON_DIR=C:\Python$(PYTHON_VER)
+!ENDIF
 !ENDIF
 
 !IF DEFINED(PYTHON_DIR)
