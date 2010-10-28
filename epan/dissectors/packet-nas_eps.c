@@ -1254,7 +1254,7 @@ de_emm_trac_area_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 static const value_string nas_eps_emm_tai_tol_vals[] = {
 	{ 0,	"list of TACs belonging to one PLMN, with non-consecutive TAC values"},
 	{ 1,	"list of TACs belonging to one PLMN, with consecutive TAC values"},
-	{ 2,	"list of TAIs belonging to different PLMNsl"},
+	{ 2,	"list of TAIs belonging to different PLMNs"},
 	{ 0, NULL }
 };
 
@@ -1729,6 +1729,8 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 				       "APN-AMBR for uplink : %u kbps", calc_bitrate(octet));
 	}
 	curr_offset++;
+	if ((curr_offset - offset) >= len)
+		return(len);
 	/* APN-AMBR for downlink (extended)	octet 5 */
 	octet = tvb_get_guint8(tvb,curr_offset);
 	if(octet==0){
@@ -1741,6 +1743,8 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 					   (octet > 0x4a) ? "Mbps" : "kbps");
 	}
 	curr_offset++;
+	if ((curr_offset - offset) >= len)
+		return(len);
 	/* APN-AMBR for uplink (extended)	octet 6 */
 	octet = tvb_get_guint8(tvb,curr_offset);
 	if(octet==0){
@@ -1753,6 +1757,8 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 					   (octet > 0x4a) ? "Mbps" : "kbps");
 	}
 	curr_offset++;
+	if ((curr_offset - offset) >= len)
+		return(len);
 	/* APN-AMBR for downlink (extended-2)	octet 7 */
 	octet = tvb_get_guint8(tvb,curr_offset);
 	if((octet==0)||(octet==0xff)){
@@ -1764,6 +1770,8 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 					   (octet* 256));
 	}
 	curr_offset++;
+	if ((curr_offset - offset) >= len)
+		return(len);
 	/* APN-AMBR for uplink (extended-2)	octet 8 */
 	octet = tvb_get_guint8(tvb,curr_offset);
 	if((octet==0)||(octet==0xff)){
@@ -1810,7 +1818,8 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 	/* QCI octet 3 */
 	proto_tree_add_item(tree, hf_nas_eps_qci, tvb, curr_offset, 1, FALSE);
 	curr_offset++;
-
+	if ((curr_offset - offset) >= len)
+		return(len);
 	/* Maximum bit rate for uplink octet 4 */
 	octet = tvb_get_guint8(tvb,curr_offset);
 	if(octet==0){
@@ -1821,6 +1830,8 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 				       "Maximum bit rate for uplink : %u kbps", calc_bitrate(octet));
 	}
 	curr_offset++;
+	if ((curr_offset - offset) >= len)
+		return(len);
 	/* Maximum bit rate for downlink octet 5 */
 	octet = tvb_get_guint8(tvb,curr_offset);
 	if(octet==0){
@@ -1831,18 +1842,24 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 				       "Maximum bit rate for downlink : %u kbps", calc_bitrate(octet));
 	}
 	curr_offset++;
+	if ((curr_offset - offset) >= len)
+		return(len);
 	/* Guaranteed bit rate for uplink octet 6 */
 	octet = tvb_get_guint8(tvb,curr_offset);
 	proto_tree_add_uint_format(tree, hf_nas_eps_gbr_ul, tvb, curr_offset, 1, octet,
 			       "Guaranteed bit rate for uplink : %u kbps", calc_bitrate(octet));
 
 	curr_offset++;
+	if ((curr_offset - offset) >= len)
+		return(len);
 	/* Guaranteed bit rate for downlink octet 7 */
 	octet = tvb_get_guint8(tvb,curr_offset);
 	proto_tree_add_uint_format(tree, hf_nas_eps_gbr_ul, tvb, curr_offset, 1, octet,
 			       "Guaranteed bit rate for downlink : %u kbps", calc_bitrate(octet));
 
 	curr_offset++;
+	if ((curr_offset - offset) >= len)
+		return(len);
 	/* Maximum bit rate for uplink (extended) octet 8 */
 	octet = tvb_get_guint8(tvb,curr_offset);
 	if(octet==0){
@@ -1855,7 +1872,8 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 					   (octet > 0x4a) ? "Mbps" : "kbps");
 	}
 	curr_offset++;
-
+	if ((curr_offset - offset) >= len)
+		return(len);
 	/* Maximum bit rate for downlink (extended) octet 9 */
 	octet = tvb_get_guint8(tvb,curr_offset);
 	if(octet==0){
@@ -1868,6 +1886,8 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 					   (octet > 0x4a) ? "Mbps" : "kbps");
 	}
 	curr_offset++;
+	if ((curr_offset - offset) >= len)
+		return(len);
 	/* Guaranteed bit rate for uplink (extended) octet 10 */
 	octet = tvb_get_guint8(tvb,curr_offset);
 	if(octet==0){
@@ -1880,6 +1900,8 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 					   (octet > 0x4a) ? "Mbps" : "kbps");
 	}
 	curr_offset++;
+	if ((curr_offset - offset) >= len)
+		return(len);
 	/* Guaranteed bit rate for downlink (extended) octet 11 */
 	octet = tvb_get_guint8(tvb,curr_offset);
 	if(octet==0){
@@ -2252,15 +2274,15 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	/* 	EPS attach result	EPS attach result 9.9.3.10	M	V	1/2 */
+	/* 	Spare half octet	Spare half octet 9.9.2.7	M	V	1/2 */
 	bit_offset = curr_offset<<3;
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
+	/* 	EPS attach result	EPS attach result 9.9.3.10	M	V	1/2 */
 	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, FALSE);
 	bit_offset++;
 	proto_tree_add_bits_item(tree, hf_nas_eps_emm_EPS_attach_result, tvb, bit_offset, 3, FALSE);
 	bit_offset+=3;
-	/* 	Spare half octet	Spare half octet 9.9.2.7	M	V	1/2 */
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
-	bit_offset+=4;
 	/* Fix up the lengths */
 	curr_len--;
 	curr_offset++;
@@ -2965,15 +2987,15 @@ nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	curr_offset = offset;
 	curr_len = len;
 
-	/* 	EPS update result	EPS update result 9.9.3.13	M	V	1/2 */
+	/* 	Spare half octet	Spare half octet 9.9.2.7	M	V	1/2 */
 	bit_offset = curr_offset<<3;
+	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
+	/* 	EPS update result	EPS update result 9.9.3.13	M	V	1/2 */
 	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, FALSE);
 	bit_offset++;
 	proto_tree_add_bits_item(tree, hf_nas_eps_eps_update_result_value, tvb, bit_offset, 3, FALSE);
 	bit_offset+=3;
-	/* 	Spare half octet	Spare half octet 9.9.2.7	M	V	1/2 */
-	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
-	bit_offset+=4;
 	/* Fix up the lengths */
 	curr_len--;
 	curr_offset++;
@@ -3170,12 +3192,12 @@ nas_esm_act_ded_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, guint32 offs
 	curr_offset = offset;
 	curr_len = len;
 
-	/* Linked EPS bearer identity	Linked EPS bearer identity 9.9.4.6	M	V	1/2 */
-	bit_offset = curr_offset<<3;
-	proto_tree_add_bits_item(tree, hf_nas_eps_esm_linked_bearer_id, tvb, bit_offset, 4, FALSE);
-	bit_offset+=4;
 	/* Spare half octet	Spare half octet 9.9.2.7	M	V	1/2 */
+	bit_offset = curr_offset<<3;
 	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
+	/* Linked EPS bearer identity	Linked EPS bearer identity 9.9.4.6	M	V	1/2 */
+	proto_tree_add_bits_item(tree, hf_nas_eps_esm_linked_bearer_id, tvb, bit_offset, 4, FALSE);
 	bit_offset+=4;
 	/* Fix the lengths */
 	curr_len--;
@@ -3317,12 +3339,12 @@ nas_esm_bearer_res_all_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	curr_offset = offset;
 	curr_len = len;
 
-	/* 	Linked EPS bearer identity	Linked EPS bearer identity 9.9.4.6	M	V	1/2 */
-	bit_offset = curr_offset<<3;
-	proto_tree_add_bits_item(tree, hf_nas_eps_esm_linked_bearer_id, tvb, bit_offset, 4, FALSE);
-	bit_offset+=4;
 	/* 	Spare half octet	Spare half octet 9.9.2.9	M	V	1/2 */
+	bit_offset = curr_offset<<3;
 	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
+	/* 	Linked EPS bearer identity	Linked EPS bearer identity 9.9.4.6	M	V	1/2 */
+	proto_tree_add_bits_item(tree, hf_nas_eps_esm_linked_bearer_id, tvb, bit_offset, 4, FALSE);
 	bit_offset+=4;
 	/* Fix the lengths */
 	curr_len--;
@@ -3370,12 +3392,12 @@ nas_esm_bearer_res_mod_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	curr_offset = offset;
 	curr_len = len;
 
-	/* EPS bearer identity for packet filter	Linked EPS bearer identity 9.9.4.6	M	V	1/2 */
-	bit_offset = curr_offset<<3;
-	proto_tree_add_bits_item(tree, hf_nas_eps_esm_linked_bearer_id, tvb, bit_offset, 4, FALSE);
-	bit_offset+=4;
 	/* 	Spare half octet	Spare half octet 9.9.2.9	M	V	1/2 */
+	bit_offset = curr_offset<<3;
 	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
+	/* EPS bearer identity for packet filter	Linked EPS bearer identity 9.9.4.6	M	V	1/2 */
+	proto_tree_add_bits_item(tree, hf_nas_eps_esm_linked_bearer_id, tvb, bit_offset, 4, FALSE);
 	bit_offset+=4;
 	/* Fix the lengths */
 	curr_len--;
@@ -3655,12 +3677,12 @@ nas_esm_pdn_disc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	/* EPS bearer identity for packet filter	Linked EPS bearer identity 9.9.4.6	M	V	1/2 */
-	bit_offset = curr_offset<<3;
-	proto_tree_add_bits_item(tree, hf_nas_eps_esm_linked_bearer_id, tvb, bit_offset, 4, FALSE);
-	bit_offset+=4;
 	/* 	Spare half octet	Spare half octet 9.9.2.9	M	V	1/2 */
+	bit_offset = curr_offset<<3;
 	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
+	bit_offset+=4;
+	/* EPS bearer identity for packet filter	Linked EPS bearer identity 9.9.4.6	M	V	1/2 */
+	proto_tree_add_bits_item(tree, hf_nas_eps_esm_linked_bearer_id, tvb, bit_offset, 4, FALSE);
 	bit_offset+=4;
 	/* Fix the lengths */
 	curr_len--;
@@ -4236,7 +4258,7 @@ void proto_register_nas_eps(void) {
 		NULL, HFILL }
 	},
 	{ &hf_nas_eps_emm_EPS_attach_result,
-		{ "Type of identity","nas_eps.emm.EPS_attach_result",
+		{ "Attach result","nas_eps.emm.EPS_attach_result",
 		FT_UINT8,BASE_DEC, VALS(nas_eps_emm_EPS_attach_result_values), 0x0,
 		NULL, HFILL }
 	},
