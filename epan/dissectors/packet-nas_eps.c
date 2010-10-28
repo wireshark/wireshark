@@ -3189,6 +3189,9 @@ nas_esm_act_ded_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, guint32 offs
 	guint32	consumed;
 	guint	curr_len;
 
+	if(len==0)
+		return;
+
 	curr_offset = offset;
 	curr_len = len;
 
