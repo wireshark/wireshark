@@ -1989,7 +1989,7 @@ UAT_VS_DEF(snmp_users,auth_model,snmp_ue_assoc_t,0,"MD5")
 UAT_VS_DEF(snmp_users,priv_proto,snmp_ue_assoc_t,0,"DES")
 
 static void *
-snmp_specific_trap_copy_cb(void *dest, const void *orig, unsigned len _U_)
+snmp_specific_trap_copy_cb(void *dest, const void *orig, size_t len _U_)
 {
 	snmp_st_assoc_t *u = dest;
 	const snmp_st_assoc_t *o = orig;
