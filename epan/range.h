@@ -58,7 +58,7 @@ typedef enum {
     CVT_NO_ERROR,
     CVT_SYNTAX_ERROR,
     CVT_NUMBER_TOO_BIG
-} convert_ret_t;	
+} convert_ret_t;
 
 extern range_t *range_empty(void);
 
@@ -69,10 +69,10 @@ extern range_t *range_empty(void);
  * low and high values with the number of ranges being range->nranges.
  * After having called this function, the function value_is_in_range()
  * determines whether a given number is within the range or not.<BR>
- * In case of a single number, we make a range where low is equal to high. 
+ * In case of a single number, we make a range where low is equal to high.
  * We take care on wrongly entered ranges; opposite order will be taken
  * care of.
- * 
+ *
  * The following syntax is accepted :
  *
  *   1-20,30-40     Range from 1 to 20, and packets 30 to 40
@@ -83,10 +83,13 @@ extern range_t *range_empty(void);
  * @param range the range
  * @param es points to the string to be converted.
  * @param max_value' specifies the maximum value in a range.
- * @return 
+ * @return
  */
 extern convert_ret_t range_convert_str(range_t **range, const gchar *es,
     guint32 max_value);
+
+extern convert_ret_t range_convert_str_work(range_t **range, const gchar *es,
+    guint32 max_value, gboolean err_on_max);
 
 /** This function returns TRUE if a given value is within one of the ranges
  * stored in the ranges array.
@@ -110,8 +113,8 @@ extern gboolean ranges_are_equal(range_t *a, range_t *b);
  */
 extern void range_foreach(range_t *range, void (*callback)(guint32 val));
 
-/** 
- * This function converts a range_t to a (ep_alloc()-allocated) string. 
+/**
+ * This function converts a range_t to a (ep_alloc()-allocated) string.
  */
 extern char *range_convert_range(range_t *range);
 

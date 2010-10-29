@@ -67,12 +67,12 @@ range_t *range_empty(void)
  * of ranges specified, and fills the array range->ranges containing
  * low and high values with the number of ranges being range->nranges.
  * After having called this function, the function value_is_in_range()
- * determines whether a given number is within the range or not. 
+ * determines whether a given number is within the range or not.
  *
- * In case of a single number, we make a range where low is equal to high. 
+ * In case of a single number, we make a range where low is equal to high.
  * We take care on wrongly entered ranges; opposite order will be taken
  * care of.
- * 
+ *
  * The following syntax is accepted :
  *
  *   1-20,30-40     Range from 1 to 20, and packets 30 to 40
@@ -82,9 +82,22 @@ range_t *range_empty(void)
  *   -              All values
  */
 
-convert_ret_t range_convert_str(range_t **rangep, const gchar *es,
-				guint32 max_value)
+convert_ret_t
+range_convert_str(range_t **rangep, const gchar *es, guint32 max_value)
 {
+   return range_convert_str_work(rangep, es, max_value, TRUE);
+}
+
+/*  This version of range_convert_str() allows the caller to specify whether
+ *  values in excess of the range's specified maximum should cause an error or
+ *  be silently lowered.
+ *  XXX - both the function and the variable could probably use better names.
+ */
+convert_ret_t
+range_convert_str_work(range_t **rangep, const gchar *es, guint32 max_value,
+		       gboolean err_on_max)
+{
+
    range_t       *range;
    guint         nranges;
    const gchar   *p;
@@ -142,11 +155,18 @@ convert_ret_t range_convert_str(range_t **rangep, const gchar *es,
 	    g_free(range);
 	    return CVT_SYNTAX_ERROR;
 	 }
-	 if (errno == ERANGE || val > G_MAXUINT32) {
-	    /* That was valid, but it's too big. */
-	    g_free(range);
-	    return CVT_NUMBER_TOO_BIG;
-	 } 
+	 if (errno == ERANGE || val > max_value) {
+	    /* That was valid, but it's too big.  Return an error if requested
+	     * (e.g., except when reading from the preferences file).
+	     */
+	    if (err_on_max) {
+	        g_free(range);
+	        return CVT_NUMBER_TOO_BIG;
+	    } else {
+		/* Silently use the range's maximum value */
+	        val = max_value;
+	    }
+	 }
 	 p = endp;
 	 range->ranges[range->nranges].low = val;
 
@@ -181,11 +201,18 @@ convert_ret_t range_convert_str(range_t **rangep, const gchar *es,
 	       g_free(range);
 	       return CVT_SYNTAX_ERROR;
 	    }
-	    if (errno == ERANGE || val > G_MAXUINT32) {
-	       /* That was valid, but it's too big. */
-	       g_free(range);
-	       return CVT_NUMBER_TOO_BIG;
-	    } 
+	    if (errno == ERANGE || val > max_value) {
+		/* That was valid, but it's too big.  Return an error if requested
+		 * (e.g., except when reading from the preferences file).
+		 */
+		if (err_on_max) {
+		    g_free(range);
+		    return CVT_NUMBER_TOO_BIG;
+		} else {
+		    /* Silently use the range's maximum value */
+		    val = max_value;
+		}
+	    }
 	    p = endp;
 	    range->ranges[range->nranges].high = val;
 
@@ -203,7 +230,7 @@ convert_ret_t range_convert_str(range_t **rangep, const gchar *es,
 	  */
 	 range->ranges[range->nranges].high = range->ranges[range->nranges].low;
       } else {
-	 /* Invalid character. */ 
+	 /* Invalid character. */
 	 g_free(range);
 	 return CVT_SYNTAX_ERROR;
       }
@@ -241,7 +268,8 @@ convert_ret_t range_convert_str(range_t **rangep, const gchar *es,
 /* This function returns TRUE if a given value is within one of the ranges
  * stored in the ranges array.
  */
-gboolean value_is_in_range(range_t *range, guint32 val)
+gboolean
+value_is_in_range(range_t *range, guint32 val)
 {
    guint i;
 
@@ -256,7 +284,8 @@ gboolean value_is_in_range(range_t *range, guint32 val)
 
 /* This function returns TRUE if the two given range_t's are equal.
  */
-gboolean ranges_are_equal(range_t *a, range_t *b)
+gboolean
+ranges_are_equal(range_t *a, range_t *b)
 {
    guint i;
 
@@ -312,7 +341,8 @@ range_convert_range(range_t *range)
 }
 
 /* Create a copy of a range. */
-range_t *range_copy(range_t *src)
+range_t *
+range_copy(range_t *src)
 {
    range_t *dst;
    size_t range_size;
@@ -325,7 +355,8 @@ range_t *range_copy(range_t *src)
 
 #if 0
 /* This is a debug function to check the range functionality */
-static void value_is_in_range_check(range_t *range, guint32 val)
+static void
+value_is_in_range_check(range_t *range, guint32 val)
 {
 
   /* Print the result for a given value */

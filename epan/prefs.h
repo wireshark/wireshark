@@ -301,7 +301,7 @@ extern const char *prefs_get_title_by_name(const char *name);
  */
 extern module_t *prefs_find_module(const char *name);
 
-/** Given a module name, and a preference name return a pointer to the given 
+/** Given a module name, and a preference name return a pointer to the given
  * module's given preference or NULL if it's not found.
  *
  * @param module The preference module name.  Usually the same as the protocol

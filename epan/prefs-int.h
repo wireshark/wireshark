@@ -115,11 +115,11 @@ struct preference {
 /**
  * Given a string of the form "<pref name>:<pref value>", as might appear
  * as an argument to a "-o" option, parse it and set the preference in
- * question.  
+ * question.
  * @return an indication of whether it succeeded or failed
  * in some fashion.
  */
-typedef prefs_set_pref_e (*pref_set_pair_cb) (gchar *key, gchar *value, void *private_data);
+typedef prefs_set_pref_e (*pref_set_pair_cb) (gchar *key, gchar *value, void *private_data, gboolean return_range_errors);
 
 /** read the preferences file (or similiar) and call the callback
  * function to set each key/value pair found

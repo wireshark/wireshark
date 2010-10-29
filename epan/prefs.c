@@ -59,7 +59,7 @@ static module_t *find_subtree(module_t *parent, const char *tilte);
 static module_t *prefs_register_module_or_subtree(module_t *parent,
     const char *name, const char *title, const char *description, gboolean is_subtree,
     void (*apply_cb)(void));
-static prefs_set_pref_e set_pref(gchar*, gchar*, void *);
+static prefs_set_pref_e set_pref(gchar*, gchar*, void *, gboolean);
 static gchar *put_string_list(GList *);
 static void   free_col_info(e_prefs *);
 
@@ -1477,7 +1477,11 @@ read_prefs_file(const char *pf_path, FILE *pf,
         if (isalnum(got_c)) {
           if (cur_var->len > 0) {
             if (got_val) {
-              switch (pref_set_pair_fct(cur_var->str, cur_val->str, private_data)) {
+	      /*  Convert the string to a range.  Since we're reading the
+	       *  preferences file, silently lower values in excess of the
+	       *  range's maximum.
+	       */
+              switch (pref_set_pair_fct(cur_var->str, cur_val->str, private_data, FALSE)) {
 
               case PREFS_SET_OK:
                 break;
@@ -1537,7 +1541,11 @@ read_prefs_file(const char *pf_path, FILE *pf,
   }
   if (cur_var->len > 0) {
     if (got_val) {
-      switch (pref_set_pair_fct(cur_var->str, cur_val->str, private_data)) {
+      /*  Convert the string to a range.  Since we're reading the
+       *  preferences file, silently lower values in excess of the
+       *  range's maximum.
+       */
+      switch (pref_set_pair_fct(cur_var->str, cur_val->str, private_data, FALSE)) {
 
       case PREFS_SET_OK:
         break;
@@ -1663,7 +1671,7 @@ prefs_set_pref(char *prefarg)
 		return PREFS_SET_SYNTAX_ERR;
 	}
 	if (strcmp(prefarg, "uat")) {
-		ret = set_pref(prefarg, p, NULL);
+		ret = set_pref(prefarg, p, NULL, TRUE);
 	} else {
 		ret = prefs_set_uat_pref(p) ? PREFS_SET_OK : PREFS_SET_SYNTAX_ERR;
 	}
@@ -1944,7 +1952,8 @@ try_convert_to_custom_column(gpointer *el_data)
 }
 
 static prefs_set_pref_e
-set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
+set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
+	 gboolean return_range_errors)
 {
   GList    *col_l, *col_l_elt;
   gint      llen;
@@ -2695,10 +2704,8 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
     {
       range_t *newrange;
 
-      if (range_convert_str(&newrange, value, pref->info.max_value) !=
-          CVT_NO_ERROR) {
-        /* XXX - distinguish between CVT_SYNTAX_ERROR and
-           CVT_NUMBER_TOO_BIG */
+      if (range_convert_str_work(&newrange, value, pref->info.max_value,
+				 return_range_errors) != CVT_NO_ERROR) {
         return PREFS_SET_SYNTAX_ERR;	/* number was bad */
       }
 
