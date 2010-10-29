@@ -2833,9 +2833,12 @@ nas_emm_sec_mode_comp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	curr_offset = offset;
 	curr_len = len;
 
+	if (curr_len == 0)
+		return;
+
 	/* 23	IMEISV	Mobile identity 9.9.2.3	O	TLV	11 */
-	ELEM_OPT_TLV(0x23, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_MOB_ID, "IMEISV");
- 
+	ELEM_OPT_TLV(0x23, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_MOB_ID, " - IMEISV");
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 /*
@@ -3763,8 +3766,8 @@ void get_nas_emm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, in
 	return;
 }
 
-/* 
- * EPS session management messages. 
+/*
+ * EPS session management messages.
  * A plain NAS message is pased to this function
  */
 static void
@@ -3981,7 +3984,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}else{
 		/* SERVICE REQUEST (12)  is not a plain NAS message treat separately */
 		if (security_header_type == 12){
-			nas_emm_service_req(tvb, tree, offset, len-offset);
+			nas_emm_service_req(tvb, nas_eps_tree, offset, len-offset);
 			return;
 		}
 		/* Message authentication code */
@@ -3989,6 +3992,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		msg_auth_code = tvb_get_ntohl(tvb, offset);
 		offset+=4;
 		if ((security_header_type==2)||(security_header_type==4)){
+			/* Possible ciphered message */
 			if(msg_auth_code!=0){
 				/* Sequence number	Sequence number 9.6	M	V	1 */
 				proto_tree_add_item(nas_eps_tree, hf_nas_eps_seq_no, tvb, offset, 1, FALSE);
@@ -3996,15 +4000,20 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Integrity protected and ciphered = 2, Integrity protected and ciphered with new EPS security context = 4 */
 				pd = tvb_get_guint8(tvb,offset)&0x0f;
 				/* If pd is in plaintext this message probably isn't ciphered */
-				if((pd!=7)&&(pd!=2)){
+				if((pd!=7)&&(pd!=2)&&(pd!=15)){
 				proto_tree_add_text(nas_eps_tree, tvb, offset, len-6,"Ciphered message");
 			return;
 		}
-	}
+			}else{
+				/* msg_auth_code == 0, probably not ciphered */
+				/* Sequence number	Sequence number 9.6	M	V	1 */
+				proto_tree_add_item(nas_eps_tree, hf_nas_eps_seq_no, tvb, offset, 1, FALSE);
+				offset++;
+			}
 		}else{
-	/* Sequence number	Sequence number 9.6	M	V	1 */
-	proto_tree_add_item(nas_eps_tree, hf_nas_eps_seq_no, tvb, offset, 1, FALSE);
-	offset++;
+			/* Sequence number	Sequence number 9.6	M	V	1 */
+			proto_tree_add_item(nas_eps_tree, hf_nas_eps_seq_no, tvb, offset, 1, FALSE);
+			offset++;
 		}
 	}
 	/* NAS message	NAS message 9.7	M	V	1-n  */
