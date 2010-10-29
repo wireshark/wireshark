@@ -93,6 +93,7 @@ dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		class;
 	const gchar	*class_str;
 	guint8		type;
+	guint		len;
 
 	/*
 	 * Check whether it's a known class value; if not, assume it's
@@ -140,8 +141,13 @@ dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		next_tvb = tvb_new_subset_remaining(tvb, 4);
 
 		if (!dissector_try_port(rmcp_dissector_table, class, next_tvb, pinfo,
-			tree))
-			call_dissector(data_handle, next_tvb, pinfo, tree);
+			tree)) {
+			len = call_dissector(data_handle, next_tvb, pinfo, tree);
+			if (len < tvb_length(next_tvb)) {
+			proto_tree_add_text(tree, tvb, 4 + len, -1, 
+				"RSP Trailer (%d bytes):", tvb_length(next_tvb) - len);
+			}
+		}
 	}
 
 	return tvb_length(tvb);
