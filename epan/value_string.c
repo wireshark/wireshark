@@ -269,6 +269,7 @@ _match_strval_ext_init(const guint32 val, value_string_ext *vse)
     if ((type == VS_INDEX) && (vs_p[i].value != (i + first_value))) {
       type = VS_BIN_TREE;
     }
+    /* XXX: Should check for dups ?? */
     if ((type == VS_BIN_TREE) && (prev_value > vs_p[i].value)) {
       type = VS_SEARCH;
       break;
@@ -280,7 +281,8 @@ _match_strval_ext_init(const guint32 val, value_string_ext *vse)
   switch (type) {
   case VS_SEARCH:
     vse->_vs_match = _match_strval_linear;
-    g_warning("Extended value string: %s not sorted; accessing linearly", vse->_vs_name);
+    g_warning("Extended value string: %s not sorted; accessing linearly (%0x/%0x)",
+              vse->_vs_name, prev_value, vs_p[i].value);
     break;
   case VS_BIN_TREE:
     vse->_vs_match = _match_strval_bsearch;
