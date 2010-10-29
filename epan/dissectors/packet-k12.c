@@ -332,7 +332,7 @@ k12_update_cb(void* r, const char** err)
 }
 
 static void*
-k12_copy_cb(void* dest, const void* orig, unsigned len _U_)
+k12_copy_cb(void* dest, const void* orig, size_t len _U_)
 {
 	k12_handles_t* d = dest;
 	const k12_handles_t* o = orig;

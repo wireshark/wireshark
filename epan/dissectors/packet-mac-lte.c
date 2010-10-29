@@ -3196,7 +3196,7 @@ mac_lte_init_protocol(void)
 }
 
 
-static void* lcid_drb_mapping_copy_cb(void* dest, const void* orig, unsigned len _U_)
+static void* lcid_drb_mapping_copy_cb(void* dest, const void* orig, size_t len _U_)
 {
     const lcid_drb_mapping_t *o = orig;
     lcid_drb_mapping_t *d = dest;

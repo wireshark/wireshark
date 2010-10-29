@@ -501,7 +501,7 @@ static void macro_free(void* r) {
 	g_free(m->args_pos);
 }
 
-static void* macro_copy(void* dest, const void* orig, unsigned len _U_) {
+static void* macro_copy(void* dest, const void* orig, size_t len _U_) {
 	dfilter_macro_t* d = dest;
 	const dfilter_macro_t* m = orig;
 

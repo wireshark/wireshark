@@ -76,7 +76,7 @@ UAT_DEC_CB_DEF(ess_category_attributes, lacv, ess_category_attributes_t);
 UAT_CSTRING_CB_DEF(ess_category_attributes, name, ess_category_attributes_t);
 
 static void *
-ess_copy_cb(void *dest, const void *orig, unsigned len _U_)
+ess_copy_cb(void *dest, const void *orig, size_t len _U_)
 {
   ess_category_attributes_t *u = dest;
   const ess_category_attributes_t *o = orig;

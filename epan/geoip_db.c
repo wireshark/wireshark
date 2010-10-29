@@ -107,7 +107,7 @@ geoip_dat_scan_dir(const char *dirname) {
 }
 
 /* UAT callbacks */
-static void* geoip_db_path_copy_cb(void* dest, const void* orig, unsigned len _U_) {
+static void* geoip_db_path_copy_cb(void* dest, const void* orig, size_t len _U_) {
 	const geoip_db_path_t *m = orig;
 	geoip_db_path_t *d = dest;
 

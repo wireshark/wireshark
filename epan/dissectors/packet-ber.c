@@ -281,7 +281,7 @@ static const fragment_items octet_string_frag_items = {
 };
 
 static void *
-oid_copy_cb(void *dest, const void *orig, unsigned len _U_)
+oid_copy_cb(void *dest, const void *orig, size_t len _U_)
 {
 	oid_user_t *u = dest;
 	const oid_user_t *o = orig;

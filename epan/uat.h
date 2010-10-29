@@ -82,7 +82,7 @@ typedef void (*uat_post_update_cb_t)(void);
  * optional, memcpy will be used if not given
  * copy(dest,orig,len)
  */
-typedef void* (*uat_copy_cb_t)(void*, const void*, unsigned);
+typedef void* (*uat_copy_cb_t)(void*, const void*, size_t);
 
 /*
  *

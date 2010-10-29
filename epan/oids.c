@@ -234,7 +234,7 @@ static void smi_error_handler(char *path, int line, int severity, char *msg, cha
 }
 
 
-static void* smi_mod_copy_cb(void* dest, const void* orig, unsigned len _U_) {
+static void* smi_mod_copy_cb(void* dest, const void* orig, size_t len _U_) {
 	const smi_module_t* m = orig;
 	smi_module_t* d = dest;
 

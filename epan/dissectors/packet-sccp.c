@@ -2891,7 +2891,7 @@ static void sccp_users_update_cb(void* r, const char** err _U_) {
 	u->handlep = &data_handle;
 }
 
-static void* sccp_users_copy_cb(void* n, const void* o, unsigned siz _U_) {
+static void* sccp_users_copy_cb(void* n, const void* o, size_t siz _U_) {
 	const sccp_user_t* u = o;
 	sccp_user_t* un = n;
 

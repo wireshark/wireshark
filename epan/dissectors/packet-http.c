@@ -147,7 +147,7 @@ header_fields_update_cb(void* r, const char** err)
 }
 
 static void *
-header_fields_copy_cb(void* n, const void* o, unsigned siz _U_)
+header_fields_copy_cb(void* n, const void* o, size_t siz _U_)
 {
     header_field_t* new_rec = n;
     const header_field_t* old_rec = o;

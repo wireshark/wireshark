@@ -127,7 +127,7 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 	}
 }
 
-static void* user_copy_cb(void* dest, const void* orig, unsigned len _U_) 
+static void* user_copy_cb(void* dest, const void* orig, size_t len _U_) 
 {
   const user_encap_t *o = orig;
   user_encap_t *d = dest;

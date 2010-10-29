@@ -142,7 +142,7 @@ typedef struct _uat_key_record_t {
 static uat_key_record_t *uat_key_records = NULL;
 static guint             num_uat_key_records = 0;
 
-static void* uat_key_record_copy_cb(void* n, const void* o, unsigned siz _U_) {
+static void* uat_key_record_copy_cb(void* n, const void* o, size_t siz _U_) {
     uat_key_record_t* new_key = (uat_key_record_t *)n;
     const uat_key_record_t* old_key = (uat_key_record_t *)o;
 
