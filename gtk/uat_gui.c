@@ -79,6 +79,7 @@ struct _uat_rep_t {
 	GtkWidget* bbox;
 	GtkWidget* bt_new;
 	GtkWidget* bt_edit;
+	GtkWidget* bt_copy;
 	GtkWidget* bt_delete;
 	GtkWidget* bt_up;
 	GtkWidget* bt_down;
@@ -129,6 +130,7 @@ static void set_buttons(uat_t* uat, gint row) {
 
 	if (row < 0) {
 		gtk_widget_set_sensitive (uat->rep->bt_edit, FALSE);
+		gtk_widget_set_sensitive (uat->rep->bt_copy, FALSE);
 		gtk_widget_set_sensitive (uat->rep->bt_delete, FALSE);
 	}
 
@@ -361,7 +363,7 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 	
 	dd->uat->changed = TRUE;
 
-	set_buttons(dd->uat,-1);
+	set_buttons(dd->uat, dd->uat->rep ? dd->uat->rep->selected : -1);
 
 	if (dd->is_new) {
 		append_row(dd->uat, (*dd->uat->nrows_p) - 1 );
@@ -408,7 +410,7 @@ static void fld_combo_box_changed_cb(GtkComboBox *combo_box, gpointer user_data)
 	*valptr = gtk_combo_box_get_active(combo_box);
 }
 
-static void uat_edit_dialog(uat_t* uat, gint row) {
+static void uat_edit_dialog(uat_t* uat, gint row, gboolean copy) {
 	GtkWidget *win, *main_tb, *main_vb, *bbox, *bt_cancel, *bt_ok;
 	struct _uat_dlg_data* dd = g_malloc(sizeof(struct _uat_dlg_data));
 	uat_field_t* f = uat->fields;
@@ -420,8 +422,19 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 	dd->entries = g_ptr_array_new();
 	dd->win = dlg_conf_window_new(ep_strdup_printf("%s: %s", uat->name, (row == -1 ? "New" : "Edit")));
 	dd->uat = uat;
-	dd->rec = row < 0 ? g_malloc0(uat->record_size) : UAT_INDEX_PTR(uat,row);
-	dd->is_new = row < 0 ? TRUE : FALSE;
+	if (copy && row >= 0) {
+	  dd->rec = g_malloc0(uat->record_size);
+	  if (uat->copy_cb) {
+	    uat->copy_cb (dd->rec, UAT_INDEX_PTR(uat,row), uat->record_size);
+	  }
+	  dd->is_new = TRUE;
+	} else if (row >= 0) {
+	  dd->rec = UAT_INDEX_PTR(uat,row);
+	  dd->is_new = FALSE;
+	} else {
+	  dd->rec = g_malloc0(uat->record_size);
+	  dd->is_new = TRUE;
+	}
 	dd->row = row;
 	dd->tobe_freed = g_ptr_array_new();
 
@@ -469,7 +482,7 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 				entry = gtk_entry_new();
 				g_ptr_array_add(dd->entries,entry);
 				gtk_table_attach_defaults(GTK_TABLE(main_tb), entry, 1, 2, colnum+1, colnum + 2);
-				if (! dd->is_new) {
+				if (! dd->is_new || copy) {
 					gtk_entry_set_text(GTK_ENTRY(entry),text);
 				}
 				dlg_set_activate(entry, bt_ok);
@@ -609,7 +622,7 @@ static void uat_new_cb(GtkButton *button _U_, gpointer u) {
 
 	if (! uat->rep) return;
 
-	uat_edit_dialog(uat, -1);
+	uat_edit_dialog(uat, -1, FALSE);
 }
 
 static void uat_edit_cb(GtkWidget *button _U_, gpointer u) {
@@ -617,7 +630,15 @@ static void uat_edit_cb(GtkWidget *button _U_, gpointer u) {
 
 	if (! uat->rep) return;
 
-	uat_edit_dialog(uat, uat->rep->selected);
+	uat_edit_dialog(uat, uat->rep->selected, FALSE);
+}
+
+static void uat_copy_cb(GtkWidget *button _U_, gpointer u) {
+	uat_t* uat = u;
+
+	if (! uat->rep) return;
+
+	uat_edit_dialog(uat, uat->rep->selected, TRUE);
 }
 
 static void uat_double_click_cb(GtkWidget *tv, GtkTreePath *path _U_, GtkTreeViewColumn *column _U_, gpointer u) {
@@ -749,6 +770,7 @@ static void remember_selected_row(GtkWidget *w _U_, gpointer u) {
 	uat->rep->selected = row;
 
 	gtk_widget_set_sensitive (uat->rep->bt_edit, TRUE);
+	gtk_widget_set_sensitive (uat->rep->bt_copy, uat->copy_cb ? TRUE : FALSE);
 	gtk_widget_set_sensitive(uat->rep->bt_delete, TRUE);
 
 	set_buttons(uat,row);
@@ -948,10 +970,12 @@ static GtkWidget* uat_window(void* u) {
 
 	rep->bt_new = gtk_button_new_from_stock(GTK_STOCK_NEW);
 	rep->bt_edit = gtk_button_new_from_stock(WIRESHARK_STOCK_EDIT);
+	rep->bt_copy = gtk_button_new_from_stock(GTK_STOCK_COPY);
 	rep->bt_delete = gtk_button_new_from_stock(GTK_STOCK_DELETE);
 
 	gtk_box_pack_end(GTK_BOX(edit_hbox), rep->bt_new, TRUE, FALSE, 5);
 	gtk_box_pack_end(GTK_BOX(edit_hbox), rep->bt_edit, TRUE, FALSE, 5);
+	gtk_box_pack_end(GTK_BOX(edit_hbox), rep->bt_copy, TRUE, FALSE, 5);
 	gtk_box_pack_end(GTK_BOX(edit_hbox), rep->bt_delete, TRUE, FALSE, 5);
 
 
@@ -964,6 +988,7 @@ static GtkWidget* uat_window(void* u) {
 	gtk_widget_set_sensitive (rep->bt_up, FALSE);
 	gtk_widget_set_sensitive (rep->bt_down, FALSE);
 	gtk_widget_set_sensitive (rep->bt_edit, FALSE);
+	gtk_widget_set_sensitive (rep->bt_copy, FALSE);
 	gtk_widget_set_sensitive (rep->bt_delete, FALSE);
 
 
@@ -974,6 +999,7 @@ static GtkWidget* uat_window(void* u) {
 
 	g_signal_connect(rep->bt_new, "clicked", G_CALLBACK(uat_new_cb), uat);
 	g_signal_connect(rep->bt_edit, "clicked", G_CALLBACK(uat_edit_cb), uat);
+	g_signal_connect(rep->bt_copy, "clicked", G_CALLBACK(uat_copy_cb), uat);
 	g_signal_connect(rep->bt_delete, "clicked", G_CALLBACK(uat_delete_cb), uat);
 
 	g_signal_connect(rep->bt_up, "clicked", G_CALLBACK(uat_up_cb), uat);
