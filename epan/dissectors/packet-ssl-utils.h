@@ -152,7 +152,7 @@
  */
 extern const value_string ssl_version_short_names[];
 extern const value_string ssl_20_msg_types[];
-extern const value_string ssl_20_cipher_suites[];
+extern value_string_ext ssl_20_cipher_suites_ext;
 extern const value_string ssl_20_certificate_type[];
 extern const value_string ssl_31_content_type[];
 extern const value_string ssl_versions[];
@@ -165,7 +165,7 @@ extern const value_string ssl_31_key_exchange_algorithm[];
 extern const value_string ssl_31_signature_algorithm[];
 extern const value_string ssl_31_client_certificate_type[];
 extern const value_string ssl_31_public_value_encoding[];
-extern const value_string ssl_31_ciphersuite[];
+extern value_string_ext ssl_31_ciphersuite_ext;
 extern const value_string pct_msg_types[];
 extern const value_string pct_cipher_type[];
 extern const value_string pct_hash_type[];

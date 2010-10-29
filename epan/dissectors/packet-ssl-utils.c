@@ -67,15 +67,8 @@ const value_string ssl_20_msg_types[] = {
     { 0x00, NULL }
 };
 /* http://www.iana.org/assignments/tls-parameters/tls-parameters.xhtml */
-const value_string ssl_20_cipher_suites[] = {
-    { 0x010080, "SSL2_RC4_128_WITH_MD5" },
-    { 0x020080, "SSL2_RC4_128_EXPORT40_WITH_MD5" },
-    { 0x030080, "SSL2_RC2_CBC_128_CBC_WITH_MD5" },
-    { 0x040080, "SSL2_RC2_CBC_128_CBC_WITH_MD5" },
-    { 0x050080, "SSL2_IDEA_128_CBC_WITH_MD5" },
-    { 0x060040, "SSL2_DES_64_CBC_WITH_MD5" },
-    { 0x0700c0, "SSL2_DES_192_EDE3_CBC_WITH_MD5" },
-    { 0x080080, "SSL2_RC4_64_WITH_MD5" },
+/* Note: sorted by ascending value so value_string-ext can do a binary search */
+static const value_string ssl_20_cipher_suites[] = {
     { 0x000000, "TLS_NULL_WITH_NULL_NULL" },
     { 0x000001, "TLS_RSA_WITH_NULL_MD5" },
     { 0x000002, "TLS_RSA_WITH_NULL_SHA" },
@@ -324,23 +317,36 @@ const value_string ssl_20_cipher_suites[] = {
     { 0x00feff, "SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA" },
     { 0x00ffe0, "SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA" },
     { 0x00ffe1, "SSL_RSA_FIPS_WITH_DES_CBC_SHA"},
-    /* Microsoft's old PCT protocol. These are from Eric Rescorla's
-       book "SSL and TLS" */
-    { 0x8f8001, "PCT_SSL_COMPAT | PCT_VERSION_1" },
-    { 0x800003, "PCT_SSL_CERT_TYPE | PCT1_CERT_X509_CHAIN" },
-    { 0x800001, "PCT_SSL_CERT_TYPE | PCT1_CERT_X509" },
-    { 0x810001, "PCT_SSL_HASH_TYPE | PCT1_HASH_MD5" },
-    { 0x810003, "PCT_SSL_HASH_TYPE | PCT1_HASH_SHA" },
-    { 0x820001, "PCT_SSL_EXCH_TYPE | PCT1_EXCH_RSA_PKCS1" },
-    { 0x830004, "PCT_SSL_CIPHER_TYPE_1ST_HALF | PCT1_CIPHER_RC4" },
-    { 0x848040, "PCT_SSL_CIPHER_TYPE_2ND_HALF | PCT1_ENC_BITS_128 | PCT1_MAC_BITS_128" },
-    { 0x842840, "PCT_SSL_CIPHER_TYPE_2ND_HALF | PCT1_ENC_BITS_40 | PCT1_MAC_BITS_128" },
     /* note that ciphersuites of {0x00????} are TLS cipher suites in
      * a sslv2 client hello message; the ???? above is the two-byte
      * tls cipher suite id
      */
+
+    { 0x010080, "SSL2_RC4_128_WITH_MD5" },
+    { 0x020080, "SSL2_RC4_128_EXPORT40_WITH_MD5" },
+    { 0x030080, "SSL2_RC2_CBC_128_CBC_WITH_MD5" },
+    { 0x040080, "SSL2_RC2_CBC_128_CBC_WITH_MD5" },
+    { 0x050080, "SSL2_IDEA_128_CBC_WITH_MD5" },
+    { 0x060040, "SSL2_DES_64_CBC_WITH_MD5" },
+    { 0x0700c0, "SSL2_DES_192_EDE3_CBC_WITH_MD5" },
+    { 0x080080, "SSL2_RC4_64_WITH_MD5" },
+
+    /* Microsoft's old PCT protocol. These are from Eric Rescorla's
+       book "SSL and TLS" */
+    { 0x800001, "PCT_SSL_CERT_TYPE | PCT1_CERT_X509" },
+    { 0x800003, "PCT_SSL_CERT_TYPE | PCT1_CERT_X509_CHAIN" },
+    { 0x810001, "PCT_SSL_HASH_TYPE | PCT1_HASH_MD5" },
+    { 0x810003, "PCT_SSL_HASH_TYPE | PCT1_HASH_SHA" },
+    { 0x820001, "PCT_SSL_EXCH_TYPE | PCT1_EXCH_RSA_PKCS1" },
+    { 0x830004, "PCT_SSL_CIPHER_TYPE_1ST_HALF | PCT1_CIPHER_RC4" },
+    { 0x842840, "PCT_SSL_CIPHER_TYPE_2ND_HALF | PCT1_ENC_BITS_40 | PCT1_MAC_BITS_128" },
+    { 0x848040, "PCT_SSL_CIPHER_TYPE_2ND_HALF | PCT1_ENC_BITS_128 | PCT1_MAC_BITS_128" },
+    { 0x8f8001, "PCT_SSL_COMPAT | PCT_VERSION_1" },
     { 0x00, NULL }
 };
+
+value_string_ext ssl_20_cipher_suites_ext = VALUE_STRING_EXT_INIT(ssl_20_cipher_suites);
+
 
 const value_string ssl_extension_curves[] = {
     { 1, "sect163k1" },
@@ -513,9 +519,10 @@ const value_string ssl_31_public_value_encoding[] = {
     { 0x00, NULL }
 };
 #endif
-/* http://www.iana.org/assignments/tls-parameters/tls-parameters.xhtml */
 
-const value_string ssl_31_ciphersuite[] = {
+/* http://www.iana.org/assignments/tls-parameters/tls-parameters.xhtml */
+/* Note: sorted by ascending value so value_string_ext fcns can do a binary search */
+static const value_string ssl_31_ciphersuite[] = {
     /* RFC 2246, RFC 4346, RFC 5246 */
     { 0x0000, "TLS_NULL_WITH_NULL_NULL" },
     { 0x0001, "TLS_RSA_WITH_NULL_MD5" },
@@ -594,25 +601,6 @@ const value_string ssl_31_ciphersuite[] = {
     { 0x003E, "TLS_DH_DSS_WITH_AES_128_CBC_SHA256" },
     { 0x003F, "TLS_DH_RSA_WITH_AES_128_CBC_SHA256" },
     { 0x0040, "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256" },
-    { 0x0067, "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256" },
-    { 0x0068, "TLS_DH_DSS_WITH_AES_256_CBC_SHA256" },
-    { 0x0069, "TLS_DH_RSA_WITH_AES_256_CBC_SHA256" },
-    { 0x006A, "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256" },
-    { 0x006B, "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256" },
-    { 0x006C, "TLS_DH_anon_WITH_AES_128_CBC_SHA256" },
-    { 0x006D, "TLS_DH_anon_WITH_AES_256_CBC_SHA256" },
-
-	/* 0x00,0x60-66 Reserved to avoid conflicts with widely deployed implementations  */
-    /* ??? */
-    { 0x0060, "TLS_RSA_EXPORT1024_WITH_RC4_56_MD5" },
-    { 0x0061, "TLS_RSA_EXPORT1024_WITH_RC2_CBC_56_MD5" },
-
-    /* draft-ietf-tls-56-bit-ciphersuites-01.txt */
-    { 0x0062, "TLS_RSA_EXPORT1024_WITH_DES_CBC_SHA" },
-    { 0x0063, "TLS_DHE_DSS_EXPORT1024_WITH_DES_CBC_SHA" },
-    { 0x0064, "TLS_RSA_EXPORT1024_WITH_RC4_56_SHA" },
-    { 0x0065, "TLS_DHE_DSS_EXPORT1024_WITH_RC4_56_SHA" },
-    { 0x0066, "TLS_DHE_DSS_WITH_RC4_128_SHA" },
 
     /* RFC 4132 */
     { 0x0041, "TLS_RSA_WITH_CAMELLIA_128_CBC_SHA" },
@@ -621,6 +609,29 @@ const value_string ssl_31_ciphersuite[] = {
     { 0x0044, "TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA" },
     { 0x0045, "TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA" },
     { 0x0046, "TLS_DH_anon_WITH_CAMELLIA_128_CBC_SHA" },
+
+    /* 0x00,0x60-66 Reserved to avoid conflicts with widely deployed implementations  */
+    /* --- ??? --- */
+    { 0x0060, "TLS_RSA_EXPORT1024_WITH_RC4_56_MD5" },
+    { 0x0061, "TLS_RSA_EXPORT1024_WITH_RC2_CBC_56_MD5" },
+    /* draft-ietf-tls-56-bit-ciphersuites-01.txt */
+    { 0x0062, "TLS_RSA_EXPORT1024_WITH_DES_CBC_SHA" },
+    { 0x0063, "TLS_DHE_DSS_EXPORT1024_WITH_DES_CBC_SHA" },
+    { 0x0064, "TLS_RSA_EXPORT1024_WITH_RC4_56_SHA" },
+    { 0x0065, "TLS_DHE_DSS_EXPORT1024_WITH_RC4_56_SHA" },
+    { 0x0066, "TLS_DHE_DSS_WITH_RC4_128_SHA" },
+    /* --- ??? ---*/
+
+    { 0x0067, "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256" },
+    { 0x0068, "TLS_DH_DSS_WITH_AES_256_CBC_SHA256" },
+    { 0x0069, "TLS_DH_RSA_WITH_AES_256_CBC_SHA256" },
+    { 0x006A, "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256" },
+    { 0x006B, "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256" },
+    { 0x006C, "TLS_DH_anon_WITH_AES_128_CBC_SHA256" },
+    { 0x006D, "TLS_DH_anon_WITH_AES_256_CBC_SHA256" },
+
+
+    /* RFC 4132 */
     { 0x0084, "TLS_RSA_WITH_CAMELLIA_256_CBC_SHA" },
     { 0x0085, "TLS_DH_DSS_WITH_CAMELLIA_256_CBC_SHA" },
     { 0x0086, "TLS_DH_RSA_WITH_CAMELLIA_256_CBC_SHA" },
@@ -783,6 +794,9 @@ const value_string ssl_31_ciphersuite[] = {
     /* note that ciphersuites 0xff00 - 0xffff are private */
     { 0x00, NULL }
 };
+
+value_string_ext ssl_31_ciphersuite_ext = VALUE_STRING_EXT_INIT(ssl_31_ciphersuite);
+
 
 const value_string pct_msg_types[] = {
     { PCT_MSG_CLIENT_HELLO,         "Client Hello" },

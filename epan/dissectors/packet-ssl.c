@@ -4133,12 +4133,12 @@ proto_register_ssl(void)
         },
         { &hf_ssl_handshake_cipher_suite,
           { "Cipher Suite", "ssl.handshake.ciphersuite",
-            FT_UINT16, BASE_HEX, VALS(ssl_31_ciphersuite), 0x0,
+            FT_UINT16, BASE_HEX|BASE_EXT_STRING, &ssl_31_ciphersuite_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_ssl2_handshake_cipher_spec,
           { "Cipher Spec", "ssl.handshake.cipherspec",
-            FT_UINT24, BASE_HEX, VALS(ssl_20_cipher_suites), 0x0,
+            FT_UINT24, BASE_HEX|BASE_EXT_STRING, &ssl_20_cipher_suites_ext, 0x0,
             "Cipher specification", HFILL }
         },
         { &hf_ssl_handshake_session_id,

@@ -2040,7 +2040,7 @@ proto_register_dtls(void)
     },
     { &hf_dtls_handshake_cipher_suite,
       { "Cipher Suite", "dtls.handshake.ciphersuite",
-        FT_UINT16, BASE_HEX, VALS(ssl_31_ciphersuite), 0x0,
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &ssl_31_ciphersuite_ext, 0x0,
         NULL, HFILL }
     },
     { &hf_dtls_handshake_cookie_len,
