@@ -425,7 +425,7 @@ static void uat_edit_dialog(uat_t* uat, gint row, gboolean copy) {
 	if (copy && row >= 0) {
 	  dd->rec = g_malloc0(uat->record_size);
 	  if (uat->copy_cb) {
-	    uat->copy_cb (dd->rec, UAT_INDEX_PTR(uat,row), uat->record_size);
+	    uat->copy_cb (dd->rec, UAT_INDEX_PTR(uat,row), (unsigned int) uat->record_size);
 	  }
 	  dd->is_new = TRUE;
 	} else if (row >= 0) {
