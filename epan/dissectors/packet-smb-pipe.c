@@ -1,5 +1,5 @@
 /*
-XXX  Fixme : shouldnt show [malformed frame] for long packets
+XXX  Fixme : shouldn't show [malformed frame] for long packets
 */
 
 /* packet-smb-pipe.c
@@ -2465,6 +2465,8 @@ static const value_string commands[] = {
 	{0,					NULL}
 };
 
+static value_string_ext commands_ext = VALUE_STRING_EXT_INIT(commands);
+
 static void
 dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
     proto_tree *tree, struct smb_info *smb_info,
@@ -2663,7 +2665,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		/* function code */
 		cmd = tvb_get_letohs(p_tvb, offset);
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request", val_to_str(cmd, commands, "Unknown Command (%u)"));
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request", val_to_str_ext(cmd, &commands_ext, "Unknown Command (%u)"));
 		}
 		proto_tree_add_uint(tree, hf_function_code, p_tvb, offset, 2,
 		    cmd);
@@ -2808,7 +2810,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 			/* command */
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_add_fstr(pinfo->cinfo, COL_INFO, "%s Interim Response",
-					     val_to_str(trp->lanman_cmd, commands, "Unknown Command (%u)"));
+					     val_to_str_ext(trp->lanman_cmd, &commands_ext, "Unknown Command (%u)"));
 			}
 			proto_tree_add_uint(tree, hf_function_code, p_tvb, 0, 0, trp->lanman_cmd);
 			return TRUE;
@@ -2817,7 +2819,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		/* command */
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_fstr(pinfo->cinfo, COL_INFO, "%s Response",
-				     val_to_str(trp->lanman_cmd, commands, "Unknown Command (%u)"));
+				     val_to_str_ext(trp->lanman_cmd, &commands_ext, "Unknown Command (%u)"));
 		}
 		proto_tree_add_uint(tree, hf_function_code, p_tvb, 0, 0,
 		    trp->lanman_cmd);
@@ -2904,8 +2906,8 @@ proto_register_pipe_lanman(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_function_code,
-			{ "Function Code", "lanman.function_code", FT_UINT16, BASE_DEC,
-			VALS(commands), 0, "LANMAN Function Code/Command", HFILL }},
+			{ "Function Code", "lanman.function_code", FT_UINT16, BASE_DEC|BASE_EXT_STRING,
+			&commands_ext, 0, "LANMAN Function Code/Command", HFILL }},
 
 		{ &hf_param_desc,
 			{ "Parameter Descriptor", "lanman.param_desc", FT_STRING, BASE_NONE,
