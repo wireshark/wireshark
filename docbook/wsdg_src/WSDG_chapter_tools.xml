@@ -245,15 +245,22 @@ PARTICULAR PURPOSE.]]>
     </orderedlist>
     <section>
       <title>Toolchain Package Alternatives</title>
-      <para>The official Wireshark 1.0.x releases are compiled using Microsoft
-      Visual C++ 6.0. The subsequent releases are compiled using
-      Microsoft Visual C++ 2008 SP1. Using the release compilers is recommended
-      for Wireshark development work. Visual C++ 2008 Express Edition SP1 may
-      be used for the development branch, but it cannot create PortableApps
-      or U3 packages.</para>
-      <para>However, you might already have a different Microsoft C
-      compiler installed. With the considerations listed below, it should
-      be possible to use it as well:</para>
+      <para>
+        The official Wireshark 1.4.x and 1.2.x releases are compiled using
+        Microsoft Visual C++ 2008 SP1. Past releases, including the 1.0 branch,
+        were compiled using Microsoft Visual C++ 6.0. Using the release
+        compilers is recommended for Wireshark development work. "Express
+        Edition" compilers such as Visual C++ 2008 Express Edition SP1 can be
+        used but any PortableApps or U3 packages you create will require the
+        installation of a separate Visual C++ Redistributable package. See
+        <quote><link linkend='msvc-runtime-redistributable' endterm='msvc-runtime-redistributable.title'/></quote>
+        below for more details.
+      </para>
+      <para>
+        However, you might already have a different Microsoft C++ compiler
+        installed. With the considerations listed below, it should be possible
+        to use it as well:
+      </para>
 
       <informaltable frame="all">
         <tgroup cols="7">
@@ -822,8 +829,8 @@ Stop.]]>
       <title>link.exe (Linker)</title>
       <para>XXX - add info here</para>
     </section>
-    <section>
-      <title>C-Runtime "Redistributable" files</title>
+    <section id='msvc-runtime-redistributable'>
+      <title id='msvc-runtime-redistributable.title'>C-Runtime "Redistributable" Files</title>
       <para>Please note: The following is not legal advice - ask
       your preferred lawyer instead! It's the authors view, but
       this view might be wrong!</para>
