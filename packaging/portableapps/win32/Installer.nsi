@@ -77,7 +77,7 @@ RequestExecutionLevel user
 Icon "Files\App\AppInfo\appicon.ico"
 
 ;=== Icon & Stye ===
-!define MUI_ICON "Files\App\AppInfo\appicon.ico"
+!define MUI_ICON "..\..\..\image\wiresharkinst.ico"
 BrandingText "PortableApps.com - Your Digital Life, Anywhere™"
 
 ;=== Pages
