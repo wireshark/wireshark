@@ -220,12 +220,13 @@ extern int hf_scsi_alloclen16;
 #define SHORT_FORM_VENDOR_SPECIFIC 0x01
 #define LONG_FORM                  0x06
 #define EXTENDED_FORM              0x08
-#define SERVICE_READ_CAPACITY16	0x10
-#define SERVICE_READ_LONG16	0x11
+#define SERVICE_READ_CAPACITY16	   0x10
+#define SERVICE_READ_LONG16	   0x11
+
 extern const value_string service_action_vals[];
-extern const value_string scsi_asc_val[];
 extern const value_string scsi_devid_codeset_val[];
 extern const value_string scsi_devid_idtype_val[];
+extern value_string_ext scsi_asc_val_ext;
 
 /* These two defines are used to handle cases where data coming back from
  * the device is truncated due to a too short allocation_length specified
@@ -241,7 +242,7 @@ extern const value_string scsi_devid_idtype_val[];
  */
 #define TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb, offset, length)		\
     {									\
-	volatile gboolean short_packet;						\
+	volatile gboolean short_packet;					\
 	tvbuff_t *new_tvb;						\
 	guint32 end_data_offset=0;					\
 									\

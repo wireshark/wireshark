@@ -1309,6 +1309,8 @@ static const value_string scsi_verdesc_val[] = {
     {0, NULL},
 };
 
+static value_string_ext scsi_verdesc_val_ext = VALUE_STRING_EXT_INIT(scsi_verdesc_val);
+
 /* Command Support Data "Support" field definitions */
 static const value_string scsi_cmdt_supp_val[] = {
     {0, "Data not currently available"},
@@ -1517,7 +1519,7 @@ static const value_string scsi_sns_errtype_val[] = {
     {0, NULL},
 };
 
-const value_string scsi_asc_val[] = {
+static const value_string scsi_asc_val[] = {
     {0x0000,  "No Additional Sense Information"},
     {0x0001,  "Filemark Detected"},
     {0x0002,  "End Of Partition/Medium Detected"},
@@ -1839,6 +1841,8 @@ const value_string scsi_asc_val[] = {
     {0, NULL},
 };
 
+value_string_ext scsi_asc_val_ext = VALUE_STRING_EXT_INIT(scsi_asc_val);
+
 /* SCSI Status Codes */
 const value_string scsi_status_val[] = {
     {0x00, "Good"},
@@ -2046,9 +2050,9 @@ dissect_scsi_cmddt (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                              val_to_str (tvb_get_guint8 (tvb, offset+1) & 0x7,
                                            scsi_cmdt_supp_val, "Unknown (%d)"));
         proto_tree_add_text (cmdt_tree, tvb, offset+2, 1, "Version: %s",
-                             val_to_str (tvb_get_guint8 (tvb, offset+2),
-                                         scsi_verdesc_val,
-                                         "Unknown (0x%02x)"));
+                             val_to_str_ext (tvb_get_guint8 (tvb, offset+2),
+                                             &scsi_verdesc_val_ext,
+                                             "Unknown (0x%02x)"));
         proto_tree_add_text (cmdt_tree, tvb, offset+5, 1, "CDB Size: %u",
                              plen);
     }
@@ -5103,8 +5107,8 @@ proto_register_scsi (void)
           {"Reserved", "scsi.inquiry.reserved", FT_BYTES, BASE_NONE,
            NULL, 0, NULL, HFILL}},
         { &hf_scsi_inq_version_desc,
-          {"Version Description", "scsi.inquiry.version_desc", FT_UINT16, BASE_HEX,
-           VALS(scsi_verdesc_val), 0, NULL, HFILL}},
+          {"Version Description", "scsi.inquiry.version_desc", FT_UINT16, BASE_HEX|BASE_EXT_STRING,
+           &scsi_verdesc_val_ext, 0, NULL, HFILL}},
         { &hf_scsi_inq_devtype,
           {"Device Type", "scsi.inquiry.devtype", FT_UINT8, BASE_HEX,
            VALS (scsi_devtype_val), SCSI_DEV_BITS, NULL, HFILL}},
@@ -5230,7 +5234,7 @@ proto_register_scsi (void)
            BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_scsi_ascascq,
           {"Additional Sense Code+Qualifier", "scsi.sns.ascascq", FT_UINT16,
-           BASE_HEX, VALS (scsi_asc_val), 0x0, NULL, HFILL}},
+           BASE_HEX|BASE_EXT_STRING, &scsi_asc_val_ext, 0x0, NULL, HFILL}},
         { &hf_scsi_fru,
           {"Field Replaceable Unit Code", "scsi.sns.fru", FT_UINT8, BASE_HEX,
            NULL, 0x0, NULL, HFILL}},

@@ -568,6 +568,8 @@ static const value_string v9_v10_template_types[] = {
 	{ 0, NULL }
 };
 
+static value_string_ext v9_v10_template_types_ext = VALUE_STRING_EXT_INIT(v9_v10_template_types);
+
 static const value_string v9_scope_field_types[] = {
 	{ 1, "System" },
 	{ 2, "Interface" },
@@ -576,6 +578,8 @@ static const value_string v9_scope_field_types[] = {
 	{ 5, "Template" },
 	{ 0, NULL }
 };
+
+static value_string_ext v9_scope_field_types_ext = VALUE_STRING_EXT_INIT(v9_scope_field_types);
 
 static const value_string v9_sampler_mode[] = {
 	{ 0, "Deterministic" },
@@ -3988,7 +3992,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 			/* XXX: why showing type ? type not shown if not reverse */
 			proto_item_append_text(ti, " (Reverse Type %u %s)",
 					       masked_type,
-					       val_to_str_const(masked_type, v9_v10_template_types,"Unknown"));
+					       val_to_str_ext_const(masked_type, &v9_v10_template_types_ext,"Unknown"));
 		}
 
 		offset += length;
@@ -4040,12 +4044,12 @@ static const int *v10_template_type_hf_list[TF_NUM] = {
 	&hf_cflow_template_ipfix_field_type,            /* scope */
 	&hf_cflow_template_ipfix_field_type};           /* entry */
 
-static const value_string *v9_template_type_vs_list[TF_NUM] = {
-	v9_scope_field_types,                           /* scope */
-	v9_v10_template_types };                        /* entry */
-static const value_string *v10_template_type_vs_list[TF_NUM] = {
-	v9_v10_template_types,                          /* scope */
-	v9_v10_template_types };                        /* entry */
+static value_string_ext *v9_template_type_vse_list[TF_NUM] = {
+	&v9_scope_field_types_ext,                      /* scope */
+	&v9_v10_template_types_ext };                   /* entry */
+static value_string_ext *v10_template_type_vse_list[TF_NUM] = {
+	&v9_v10_template_types_ext,                     /* scope */
+	&v9_v10_template_types_ext };                   /* entry */
 
 static int
 dissect_v9_v10_template_fields(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tplt_tree, int offset,
@@ -4102,7 +4106,7 @@ dissect_v9_v10_template_fields(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 			proto_tree_add_item(field_tree, *v9_template_type_hf_list[fields_type],
 					    tvb, offset, 2, ENC_BIG_ENDIAN);
 			proto_item_append_text(field_item, ": %s",
-					       val_to_str(type, v9_template_type_vs_list[fields_type], "Unknown(%d)"));
+					       val_to_str_ext(type, v9_template_type_vse_list[fields_type], "Unknown(%d)"));
 		} else { /* v10 */
 			proto_tree_add_item(field_tree, hf_cflow_template_ipfix_pen_provided,
 					    tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -4111,7 +4115,7 @@ dissect_v9_v10_template_fields(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 				ti = proto_tree_add_item(field_tree, *v10_template_type_hf_list[fields_type],
 							 tvb, offset, 2, ENC_BIG_ENDIAN);
 				proto_item_append_text(field_item, ": %s",
-						       val_to_str(type&0x7fff, v10_template_type_vs_list[fields_type], "Unknown(%d)"));
+						       val_to_str_ext(type&0x7fff, v10_template_type_vse_list[fields_type], "Unknown(%d)"));
 				if (pen == REVPEN) {
 					proto_item_append_text(ti, " [Reverse]");
 					proto_item_append_text(field_item, " [Reverse]");
@@ -4676,7 +4680,7 @@ proto_register_netflow(void)
 		 },
 		{&hf_cflow_template_field_type,
 		 {"Type", "cflow.template_field_type",
-		  FT_UINT16, BASE_DEC, VALS(v9_v10_template_types), 0x0,
+		  FT_UINT16, BASE_DEC|BASE_EXT_STRING, &v9_v10_template_types_ext, 0x0,
 		  "Template field type", HFILL}
 		 },
 		{&hf_cflow_template_field_length,
@@ -4698,7 +4702,7 @@ proto_register_netflow(void)
 		 },
 		{&hf_cflow_template_scope_field_type,
 		 {"Scope Type", "cflow.scope_field_type",
-		  FT_UINT16, BASE_DEC, VALS(v9_scope_field_types), 0x0,
+		  FT_UINT16, BASE_DEC|BASE_EXT_STRING, &v9_scope_field_types_ext, 0x0,
 		  "Scope field type", HFILL}
 		},
 		{&hf_cflow_icmp_type,
@@ -6133,7 +6137,7 @@ proto_register_netflow(void)
 		},
 		{&hf_cflow_template_ipfix_field_type,
 		 {"Type", "cflow.template_ipfix_field_type",
-		  FT_UINT16, BASE_DEC, VALS(v9_v10_template_types), 0x7FFF,
+		  FT_UINT16, BASE_DEC|BASE_EXT_STRING, &v9_v10_template_types_ext, 0x7FFF,
 		  "Template field type", HFILL}
 		 },
 		{&hf_cflow_template_ipfix_field_type_enterprise,

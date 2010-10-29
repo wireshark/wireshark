@@ -337,8 +337,8 @@ dissect_scsi_smc_element (tvbuff_t *tvb, packet_info *pinfo _U_,
     if (flags & EXCEPT) {
         proto_tree_add_text (tree, tvb, offset, 2,
                              "Additional Sense Code+Qualifier: %s",
-                             val_to_str (tvb_get_ntohs (tvb, offset),
-                                         scsi_asc_val, "Unknown (0x%04x)"));
+                             val_to_str_ext (tvb_get_ntohs (tvb, offset),
+                                         &scsi_asc_val_ext, "Unknown (0x%04x)"));
     }
     offset += 2;
     elem_bytecnt -= 2;
