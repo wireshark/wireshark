@@ -436,12 +436,12 @@ proto_register_mongo(void)
 		},
 		{ &hf_mongo_request_id,
 			{ "Request ID",           "mongo.request_id",
-			FT_INT32, BASE_DEC, NULL, 0x0,
+			FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
 			"Identifier for this message", HFILL }
 		},
 		{ &hf_mongo_response_to,
 			{ "Response To",           "mongo.response_to",
-			FT_INT32, BASE_DEC, NULL, 0x0,
+			FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
 			"RequestID from the original request", HFILL }
 		},
 		{ &hf_mongo_op_code,
