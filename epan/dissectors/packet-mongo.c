@@ -652,6 +652,7 @@ proto_reg_handoff_mongo(void)
 	if (!initialized) {
 
 		mongo_handle = create_dissector_handle(dissect_mongo, proto_mongo);
+		data_handle = find_dissector("data");
 		initialized = TRUE;
 	} else {
 
@@ -662,6 +663,5 @@ proto_reg_handoff_mongo(void)
 	currentPort = global_mongo_tcp_port;
 
 	dissector_add("tcp.port", currentPort, mongo_handle);
- 	data_handle = find_dissector("data");
 
 }
