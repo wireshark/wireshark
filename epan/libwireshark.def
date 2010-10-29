@@ -654,7 +654,7 @@ nstime_set_zero
 nstime_sum
 nstime_to_msec
 nstime_to_sec
-nt_cmd_vals                     DATA
+nt_cmd_vals_ext                 DATA
 num_tree_types                  DATA
 oid_add
 oid_add_from_encoded
@@ -940,8 +940,8 @@ show_fragment_seq_tree
 show_fragment_tree
 sid_name_snooping               DATA
 sid_name_table                  DATA
-smb2_cmd_vals                   DATA
-smb_cmd_vals                    DATA
+smb2_cmd_vals_ext               DATA
+smb_cmd_vals_ext                DATA
 smb_fid_types                   DATA
 sminmpec_values_ext             DATA
 srtcp_add_address
@@ -1024,7 +1024,7 @@ timestamp_get_seconds_type
 timestamp_set_precision
 timestamp_set_type
 timestamp_set_seconds_type
-trans2_cmd_vals                 DATA
+trans2_cmd_vals_ext             DATA
 tree_is_expanded                DATA
 tvb_bytes_exist
 tvb_bytes_to_str

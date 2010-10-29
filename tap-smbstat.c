@@ -133,7 +133,7 @@ smbstat_draw(void *pss)
 		}
 
 		printf("%-25s %6d %3d.%05d %3d.%05d %3" G_GINT64_MODIFIER "u.%05" G_GINT64_MODIFIER "u\n",
-			val_to_str(i, smb_cmd_vals, "Unknown (0x%02x)"),
+			val_to_str_ext(i, &smb_cmd_vals_ext, "Unknown (0x%02x)"),
 			ss->proc[i].num,
 			(int)ss->proc[i].min.secs,ss->proc[i].min.nsecs/10000,
 			(int)ss->proc[i].max.secs,ss->proc[i].max.nsecs/10000,
@@ -159,7 +159,7 @@ smbstat_draw(void *pss)
 		}
 
 		printf("%-25s %6d %3d.%05d %3d.%05d %3" G_GINT64_MODIFIER "u.%05" G_GINT64_MODIFIER "u\n",
-			val_to_str(i, trans2_cmd_vals, "Unknown (0x%02x)"),
+			val_to_str_ext(i, &trans2_cmd_vals_ext, "Unknown (0x%02x)"),
 			ss->trans2[i].num,
 			(int)ss->trans2[i].min.secs,ss->trans2[i].min.nsecs/10000,
 			(int)ss->trans2[i].max.secs,ss->trans2[i].max.nsecs/10000,
@@ -185,7 +185,7 @@ smbstat_draw(void *pss)
 		}
 
 		printf("%-25s %6d %3d.%05d %3d.%05d %3" G_GINT64_MODIFIER "u.%05" G_GINT64_MODIFIER "u\n",
-			val_to_str(i, nt_cmd_vals, "Unknown (0x%02x)"),
+			val_to_str_ext(i, &nt_cmd_vals_ext, "Unknown (0x%02x)"),
 			ss->nt_trans[i].num,
 			(int)ss->nt_trans[i].min.secs,ss->nt_trans[i].min.nsecs/10000,
 			(int)ss->nt_trans[i].max.secs,ss->nt_trans[i].max.nsecs/10000,

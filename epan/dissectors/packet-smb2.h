@@ -25,15 +25,15 @@
 #ifndef __PACKET_SMB2_H__
 #define __PACKET_SMB2_H__
 
-/* SMB2 command codes. With MSVC and a 
+/* SMB2 command codes. With MSVC and a
  * libwireshark.dll, we need a special declaration.
  */
-WS_VAR_IMPORT const value_string smb2_cmd_vals[];
+WS_VAR_IMPORT value_string_ext smb2_cmd_vals_ext;
 
 /* Structure to keep track of information specific to a single
  * SMB2 transaction. Here we store things we need to remember between
  * a specific request and a specific response.
- * 
+ *
  * There is no guarantee we will have this structure available for all
  * SMB2 packets so a dissector must check this pointer for NULL
  * before dereferencing it.

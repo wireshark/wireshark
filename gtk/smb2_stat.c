@@ -172,7 +172,7 @@ gtk_smb2stat_init(const char *optarg, void *userdata _U_)
 
 	init_srt_table(&ss->smb2_srt_table, 256, vbox, "smb2.cmd");
 	for(i=0;i<256;i++){
-		init_srt_table_row(&ss->smb2_srt_table, i, val_to_str(i, smb2_cmd_vals, "Unknown(0x%02x)"));
+		init_srt_table_row(&ss->smb2_srt_table, i, val_to_str_ext(i, &smb2_cmd_vals_ext, "Unknown(0x%02x)"));
 	}
 
 

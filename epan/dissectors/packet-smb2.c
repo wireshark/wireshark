@@ -4646,7 +4646,7 @@ dissect_smb2_break_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 /* names here are just until we find better names for these functions */
-const value_string smb2_cmd_vals[] = {
+static const value_string smb2_cmd_vals[] = {
   { 0x00, "NegotiateProtocol" },
   { 0x01, "SessionSetup" },
   { 0x02, "SessionLogoff" },
@@ -4905,6 +4905,9 @@ const value_string smb2_cmd_vals[] = {
   { 0xFF, "unknown-0xFF" },
   { 0x00, NULL },
 };
+
+value_string_ext smb2_cmd_vals_ext = VALUE_STRING_EXT_INIT(smb2_cmd_vals);
+
 static const char *decode_smb2_name(guint16 cmd)
 {
   if (cmd > 0xFF) return "unknown";
@@ -5616,8 +5619,8 @@ proto_register_smb2(void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_smb2_cmd,
-		{ "Command", "smb2.cmd", FT_UINT16, BASE_DEC,
-		VALS(smb2_cmd_vals), 0, "SMB2 Command Opcode", HFILL }},
+		{ "Command", "smb2.cmd", FT_UINT16, BASE_DEC|BASE_EXT_STRING,
+		&smb2_cmd_vals_ext, 0, "SMB2 Command Opcode", HFILL }},
 	{ &hf_smb2_response_to,
 		{ "Response to", "smb2.response_to", FT_FRAMENUM, BASE_NONE,
 		NULL, 0, "This packet is a response to the packet in this frame", HFILL }},

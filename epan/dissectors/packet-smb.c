@@ -7843,7 +7843,7 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 #define NT_TRANS_QSD		6
 #define NT_TRANS_GET_USER_QUOTA	7
 #define NT_TRANS_SET_USER_QUOTA 8
-const value_string nt_cmd_vals[] = {
+static const value_string nt_cmd_vals[] = {
 	{NT_TRANS_CREATE,		"NT CREATE"},
 	{NT_TRANS_IOCTL,		"NT IOCTL"},
 	{NT_TRANS_SSD,			"NT SET SECURITY DESC"},
@@ -7854,6 +7854,8 @@ const value_string nt_cmd_vals[] = {
 	{NT_TRANS_SET_USER_QUOTA,	"NT SET USER QUOTA"},
 	{0, NULL}
 };
+
+value_string_ext nt_cmd_vals_ext = VALUE_STRING_EXT_INIT(nt_cmd_vals);
 
 static const value_string nt_ioctl_isfsctl_vals[] = {
 	{0,	"Device IOCTL"},
@@ -8483,7 +8485,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 		tvb_ensure_bytes_exist(tvb, offset, bc);
 		item = proto_tree_add_text(parent_tree, tvb, offset, bc,
 				"%s Data",
-				val_to_str(ntd->subcmd, nt_cmd_vals, "Unknown NT transaction (%u)"));
+				val_to_str_ext(ntd->subcmd, &nt_cmd_vals_ext, "Unknown NT transaction (%u)"));
 		tree = proto_item_add_subtree(item, ett_smb_nt_trans_data);
 	}
 
@@ -8578,7 +8580,7 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, len,
 				"%s Parameters",
-				val_to_str(ntd->subcmd, nt_cmd_vals, "Unknown NT transaction (%u)"));
+				val_to_str_ext(ntd->subcmd, &nt_cmd_vals_ext, "Unknown NT transaction (%u)"));
 		tree = proto_item_add_subtree(item, ett_smb_nt_trans_param);
 	}
 
@@ -8741,7 +8743,7 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		tvb_ensure_bytes_exist(tvb, offset, len);
 		item = proto_tree_add_text(parent_tree, tvb, offset, len,
 				"%s Setup",
-				val_to_str(ntd->subcmd, nt_cmd_vals, "Unknown NT transaction (%u)"));
+				val_to_str_ext(ntd->subcmd, &nt_cmd_vals_ext, "Unknown NT transaction (%u)"));
 		tree = proto_item_add_subtree(item, ett_smb_nt_trans_setup);
 	}
 
@@ -8925,7 +8927,7 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		proto_tree_add_uint(tree, hf_smb_nt_trans_subcmd, tvb, offset, 2, subcmd);
 		if(check_col(pinfo->cinfo, COL_INFO)){
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-				val_to_str(subcmd, nt_cmd_vals, "<unknown>"));
+				val_to_str_ext(subcmd, &nt_cmd_vals_ext, "<unknown>"));
 		}
 		ntd.subcmd = subcmd;
 		if (!si->unidir && sip) {
@@ -9028,7 +9030,7 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo,
 		if(nti != NULL){
 			item = proto_tree_add_text(parent_tree, tvb, offset, len,
 				"%s Data",
-				val_to_str(nti->subcmd, nt_cmd_vals, "Unknown NT Transaction (%u)"));
+				val_to_str_ext(nti->subcmd, &nt_cmd_vals_ext, "Unknown NT Transaction (%u)"));
 		} else {
 			/*
 			 * We never saw the request to which this is a
@@ -9120,7 +9122,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 		if(nti != NULL){
 			item = proto_tree_add_text(parent_tree, tvb, offset, len,
 				"%s Parameters",
-				val_to_str(nti->subcmd, nt_cmd_vals, "Unknown NT Transaction (%u)"));
+				val_to_str_ext(nti->subcmd, &nt_cmd_vals_ext, "Unknown NT Transaction (%u)"));
 		} else {
 			/*
 			 * We never saw the request to which this is a
@@ -9332,7 +9334,7 @@ dissect_nt_trans_setup_response(tvbuff_t *tvb, packet_info *pinfo,
 		if(nti != NULL){
 			item = proto_tree_add_text(parent_tree, tvb, offset, len,
 				"%s Setup",
-				val_to_str(nti->subcmd, nt_cmd_vals, "Unknown NT Transaction (%u)"));
+				val_to_str_ext(nti->subcmd, &nt_cmd_vals_ext, "Unknown NT Transaction (%u)"));
 		} else {
 			/*
 			 * We never saw the request to which this is a
@@ -9401,7 +9403,7 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 		proto_tree_add_uint(tree, hf_smb_nt_trans_subcmd, tvb, 0, 0, nti->subcmd);
 		if(check_col(pinfo->cinfo, COL_INFO)){
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-				val_to_str(nti->subcmd, nt_cmd_vals, "<unknown (%u)>"));
+				val_to_str_ext(nti->subcmd, &nt_cmd_vals_ext, "<unknown (%u)>"));
 		}
 	} else {
 		proto_tree_add_text(tree, tvb, offset, 0,
@@ -10270,7 +10272,7 @@ dissect_nt_cancel_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
 
 
-const value_string trans2_cmd_vals[] = {
+static const value_string trans2_cmd_vals[] = {
 	{ 0x00,		"OPEN2" },
 	{ 0x01,		"FIND_FIRST2" },
 	{ 0x02,		"FIND_NEXT2" },
@@ -10286,10 +10288,13 @@ const value_string trans2_cmd_vals[] = {
 	{ 0x0C,		"FIND_NOTIFY_NEXT" },
 	{ 0x0D,		"CREATE_DIRECTORY" },
 	{ 0x0E,		"SESSION_SETUP" },
+        { 0x0F,         "Unknown (0x0f)" },  /* dummy so val_to_str_ext can do indexed lookup */
 	{ 0x10,		"GET_DFS_REFERRAL" },
 	{ 0x11,		"REPORT_DFS_INCONSISTENCY" },
 	{ 0,    NULL }
 };
+
+value_string_ext trans2_cmd_vals_ext = VALUE_STRING_EXT_INIT(trans2_cmd_vals);
 
 static const true_false_string tfs_tf_dtid = {
 	"Also DISCONNECT TID",
@@ -10706,8 +10711,8 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		tvb_ensure_bytes_exist(tvb, offset, bc);
 		item = proto_tree_add_text(parent_tree, tvb, offset, bc,
 				"%s Parameters",
-				val_to_str(subcmd, trans2_cmd_vals,
-					   "Unknown (0x%02x)"));
+				val_to_str_ext(subcmd, &trans2_cmd_vals_ext,
+					       "Unknown (0x%02x)"));
 		tree = proto_item_add_subtree(item, ett_smb_transaction_params);
 	}
 
@@ -13042,8 +13047,8 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		tvb_ensure_bytes_exist(tvb, offset, dc);
 		item = proto_tree_add_text(parent_tree, tvb, offset, dc,
 				"%s Data",
-				val_to_str(subcmd, trans2_cmd_vals,
-						"Unknown (0x%02x)"));
+				val_to_str_ext(subcmd, &trans2_cmd_vals_ext,
+					       "Unknown (0x%02x)"));
 		tree = proto_item_add_subtree(item, ett_smb_transaction_data);
 	}
 
@@ -13389,8 +13394,8 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				    tvb, offset, 2, subcmd);
 				if (check_col(pinfo->cinfo, COL_INFO)) {
 					col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
- 					    val_to_str(subcmd, trans2_cmd_vals,
-						"Unknown (0x%02x)"));
+ 					    val_to_str_ext(subcmd, &trans2_cmd_vals_ext,
+							   "Unknown (0x%02x)"));
 				}
 				if (!si->unidir) {
 					if(!pinfo->fd->flags.visited && si->sip){
@@ -15233,8 +15238,8 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		if (t2i != NULL && t2i->subcmd != -1) {
 			item = proto_tree_add_text(parent_tree, tvb, offset, dc,
 				"%s Data",
-				val_to_str(t2i->subcmd, trans2_cmd_vals,
-					"Unknown (0x%02x)"));
+				val_to_str_ext(t2i->subcmd, &trans2_cmd_vals_ext,
+					       "Unknown (0x%02x)"));
 			tree = proto_item_add_subtree(item, ett_smb_transaction_data);
 		} else {
 			item = proto_tree_add_text(parent_tree, tvb, offset, dc,
@@ -15408,8 +15413,8 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		if (t2i != NULL && t2i->subcmd != -1) {
 			item = proto_tree_add_text(parent_tree, tvb, offset, pc,
 				"%s Parameters",
-				val_to_str(t2i->subcmd, trans2_cmd_vals,
-						"Unknown (0x%02x)"));
+				val_to_str_ext(t2i->subcmd, &trans2_cmd_vals_ext,
+					       "Unknown (0x%02x)"));
 			tree = proto_item_add_subtree(item, ett_smb_transaction_params);
 		} else {
 			item = proto_tree_add_text(parent_tree, tvb, offset, pc,
@@ -15722,9 +15727,9 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 				if (t2i && check_col(pinfo->cinfo, COL_INFO)) {
 					col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-						val_to_str(t2i->subcmd,
-							trans2_cmd_vals,
-							"<unknown (0x%02x)>"));
+						val_to_str_ext(t2i->subcmd,
+							       &trans2_cmd_vals_ext,
+							       "<unknown (0x%02x)>"));
 				}
 			}
 		}
@@ -16385,8 +16390,10 @@ dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *s
  * This means that this value_string array MUST always
  * 1, contain all entries 0x00 to 0xff
  * 2, all entries must be in order.
+ * Note: This value_string array can also be accessed directly via the use of value_string_ext
+ * ToDo?: use val_to_str_ext instead of decode_smb_name() ?
  */
-const value_string smb_cmd_vals[] = {
+static const value_string smb_cmd_vals[] = {
   { 0x00, "Create Directory" },
   { 0x01, "Delete Directory" },
   { 0x02, "Open" },
@@ -16645,6 +16652,8 @@ const value_string smb_cmd_vals[] = {
   { 0xFF, "unknown-0xFF" },
   { 0x00, NULL },
 };
+
+value_string_ext smb_cmd_vals_ext = VALUE_STRING_EXT_INIT(smb_cmd_vals);
 
 static const char *decode_smb_name(guint8 cmd)
 {
@@ -17490,16 +17499,16 @@ proto_register_smb(void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_smb_cmd,
-		{ "SMB Command", "smb.cmd", FT_UINT8, BASE_HEX,
-		VALS(smb_cmd_vals), 0x0, NULL, HFILL }},
+		{ "SMB Command", "smb.cmd", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
+		&smb_cmd_vals, 0x0, NULL, HFILL }},
 
 	{ &hf_smb_trans2_subcmd,
-		{ "Subcommand", "smb.trans2.cmd", FT_UINT16, BASE_HEX,
-		VALS(trans2_cmd_vals), 0, "Subcommand for TRANSACTION2", HFILL }},
+		{ "Subcommand", "smb.trans2.cmd", FT_UINT16, BASE_HEX|BASE_EXT_STRING,
+		&trans2_cmd_vals_ext, 0, "Subcommand for TRANSACTION2", HFILL }},
 
 	{ &hf_smb_nt_trans_subcmd,
-		{ "Function", "smb.nt.function", FT_UINT16, BASE_DEC,
-		VALS(nt_cmd_vals), 0, "Function for NT Transaction", HFILL }},
+		{ "Function", "smb.nt.function", FT_UINT16, BASE_DEC|BASE_EXT_STRING,
+		&nt_cmd_vals_ext, 0, "Function for NT Transaction", HFILL }},
 
 	{ &hf_smb_word_count,
 		{ "Word Count (WCT)", "smb.wct", FT_UINT8, BASE_DEC,
