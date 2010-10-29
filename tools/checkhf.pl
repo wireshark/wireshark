@@ -145,6 +145,7 @@ while (<>) {
 	# Read input
 	if (/static\s+.*int\s+(hf_\w*)\s*=\s*-1\s*;/) {
 		$element = $1;
+		$debug && print "t_declaration for $element$D\n";
 		$type = "t_declaration";
 		# ignore: declarations without any use are detected by the compiler
 		next;
@@ -164,14 +165,26 @@ while (<>) {
 		next;
 	} elsif ($brace == 1 && /^\s*&\s*(hf_\w*)\W+/) {
 		$element = $1;
+		$debug && print "t_array1 for $element$D\n";
 		$type = "t_array";
 	} elsif (/^\s*\{\s*?&\s*?(hf_\w*)\W+/) {
 		$element = $1;
+		$debug && print "t_array2 for $element$D\n";
 		$type = "t_array";
 	# Order matters: catch all remaining hf_ lines
-	} elsif (/\W(hf_\w*)\W/) {
+	} elsif (/\w*\s*=\s*(hf_\w*)\s*;/) {
+		# Catches: variable = hf_*
+		# But we don't check if the variable actually gets used...
 		$element = $1;
+		$debug && print "in variable usage for $element$D\n";
 		next if ($skip{$element});
+		$debug && print "set t_usage for $element$D\n";
+		$type = "t_usage";
+	} elsif (/\W(hf_\w*)\W*/) {
+		$element = $1;
+		$debug && print "in usage for $element$D\n";
+		next if ($skip{$element});
+		$debug && print "set t_usage for $element$D\n";
 		$type = "t_usage";
 	} else {
 		# Line with only a {
@@ -179,6 +192,7 @@ while (<>) {
 			$brace = 1;
 		} else {
 			$brace = 0;
+			$debug && print "else: $D\n";
 		}
 		next;
 	}
