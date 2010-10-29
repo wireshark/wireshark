@@ -199,7 +199,7 @@ write_recent(void)
   fputs("\n"
     "######## Recent remote hosts, cannot be altered through command line ########\n"
     "\n", rf);
-	
+
   capture_remote_combo_recent_write_all(rf);
 #endif
 
@@ -440,7 +440,9 @@ write_recent_geom(gpointer key _U_, gpointer value, gpointer rf)
 
 /* set one user's recent common file key/value pair */
 static prefs_set_pref_e
-read_set_recent_common_pair_static(gchar *key, gchar *value, void *private_data _U_)
+read_set_recent_common_pair_static(gchar *key, gchar *value,
+				   void *private_data _U_,
+				   gboolean return_range_errors _U_)
 {
   long num;
   char *p;
@@ -534,7 +536,8 @@ read_set_recent_common_pair_static(gchar *key, gchar *value, void *private_data 
 
 /* set one user's recent file key/value pair */
 static prefs_set_pref_e
-read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
+read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_,
+			    gboolean return_range_errors _U_)
 {
   long num;
   char *p;
@@ -722,7 +725,7 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
       recent.col_width_list = g_list_append(recent.col_width_list, cfmt);
     }
     prefs_clear_string_list(col_l);
-  } else if (strcmp(key, RECENT_GUI_FILEOPEN_REMEMBERED_DIR) == 0) { 
+  } else if (strcmp(key, RECENT_GUI_FILEOPEN_REMEMBERED_DIR) == 0) {
     if (recent.gui_fileopen_remembered_dir) {
       g_free (recent.gui_fileopen_remembered_dir);
     }
@@ -735,7 +738,8 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
 
 /* set one user's recent file key/value pair */
 static prefs_set_pref_e
-read_set_recent_pair_dynamic(gchar *key, gchar *value, void *private_data _U_)
+read_set_recent_pair_dynamic(gchar *key, gchar *value, void *private_data _U_,
+			     gboolean return_range_errors _U_)
 {
   if (strcmp(key, RECENT_KEY_CAPTURE_FILE) == 0) {
     if(u3_active())
@@ -792,7 +796,7 @@ recent_set_arg(char *prefarg)
 		return PREFS_SET_SYNTAX_ERR;
 	}
 
-	ret = read_set_recent_pair_static(prefarg, p, NULL);
+	ret = read_set_recent_pair_static(prefarg, p, NULL, TRUE);
 	*colonp = ':';	/* put the colon back */
 	return ret;
 }
@@ -898,9 +902,9 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
     fclose(rf);
 
     /* XXX: The following code doesn't actually do anything since
-     *  the "recent common file" always exists. Presumably the 
+     *  the "recent common file" always exists. Presumably the
      *  "if (!file_exists())" should actually be "if (file_exists())".
-     *  However, I've left the code as is because this 
+     *  However, I've left the code as is because this
      *  behaviour has existed for quite some time and I don't
      *  know what's supposed to happen at this point.
      *  ToDo: Determine if the "recent common file" should be read at this point
