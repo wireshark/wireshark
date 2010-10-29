@@ -317,7 +317,7 @@ find_oid_by_pres_ctx_id(packet_info *pinfo _U_, guint32 idx)
 }
 
 static void *
-pres_copy_cb(void *dest, const void *orig, unsigned len _U_)
+pres_copy_cb(void *dest, const void *orig, size_t len _U_)
 {
 	pres_user_t *u = dest;
 	const pres_user_t *o = orig;

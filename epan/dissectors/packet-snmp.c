@@ -3110,7 +3110,7 @@ process_prefs(void)
 }
 
 static void*
-snmp_users_copy_cb(void* dest, const void* orig, unsigned len _U_)
+snmp_users_copy_cb(void* dest, const void* orig, size_t len _U_)
 {
 	const snmp_ue_assoc_t* o = orig;
 	snmp_ue_assoc_t* d = dest;
