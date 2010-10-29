@@ -1790,9 +1790,33 @@ const value_string tab_cause[] = {
   { 0x2c, "Invalid container unit information" },
   { 0x2d, "PFC queuing" },
   { 0x2e, "PFC created successfully" },
+  { 0x2f, "T12 expiry" },
+  { 0x30, "MS under PS Handover treatment" },
+  { 0x31, "Uplink quality" },
+  { 0x32, "Uplink strength" },
+  { 0x33, "Downlink quality" },
+  { 0x34, "Downlink strength" },
+  { 0x35, "Distance" },
+  { 0x36, "Better cell" },
+  { 0x37, "Traffic" },
+  { 0x38, "Radio contact lost with MS" },
+  { 0x39, "MS back on old channel" },
+  { 0x3a, "T13 expiry" },
+  { 0x3b, "T14 expiry" },
+  { 0x3c, "Not all requested PFCs created" },
+  { 0x3d, "CS cause" },
+  { 0x3e, "Requested ciphering and/or integrity protection algorithms not supported" },
+  { 0x3f, "Relocation failure in target system" },
+  { 0x40, "Directed Retry" },
+  { 0x41, "Time critical relocation" },
+  { 0x42, "PS Handover Target not allowed" },
+  { 0x43, "PS Handover not Supported in Target BSS or Target System" },
+  { 0x44, "Incoming relocation not supported due to PUESBINE feature" },
   { 0,    NULL },
 };
-
+/*
+ * 11.3.8 Cause
+ */
 static void
 decode_iei_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
