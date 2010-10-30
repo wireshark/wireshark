@@ -1914,7 +1914,7 @@ process_reassembled_data(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 			tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
 			/* Add the defragmented data to the data source list. */
-			packet_add_new_data_source(pinfo, tree, next_tvb, name);
+			add_new_data_source(pinfo, next_tvb, name);
 
 			/* show all fragments */
 			if (fd_head->flags & FD_BLOCKSEQUENCE) {

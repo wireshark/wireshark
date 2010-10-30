@@ -192,7 +192,7 @@ extern gboolean dissector_try_port(dissector_table_t sub_dissectors,
 /* Look for a given value in a given uint dissector table and, if found,
    call the dissector with the arguments supplied, and return TRUE,
    otherwise return FALSE. */
-extern gboolean dissector_try_port_new(dissector_table_t sub_dissectors, 
+extern gboolean dissector_try_port_new(dissector_table_t sub_dissectors,
 	const guint32 port, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const gboolean add_proto_name);
 
 /* Look for a given value in a given uint dissector table and, if found,
@@ -307,14 +307,14 @@ extern dissector_handle_t new_create_dissector_handle(new_dissector_t dissector,
  *   @param  tvb The buffer to dissect.
  *   @param  pinfo Packet Info.
  *   @param  tree The protocol tree.
- *   @return  If the protocol for that handle isn't enabled call the data 
- *   dissector. Otherwise, if the handle refers to a new-style 
- *   dissector, call the dissector and return its return value, otherwise call 
+ *   @return  If the protocol for that handle isn't enabled call the data
+ *   dissector. Otherwise, if the handle refers to a new-style
+ *   dissector, call the dissector and return its return value, otherwise call
  *   it and return the length of the tvbuff pointed to by the argument.
  */
 extern int call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree);
-    
+
 /* Call a dissector through a handle but if no dissector was found
  * just return 0 and do not call the "data" dissector instead.
  *
@@ -323,8 +323,8 @@ extern int call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
  *   @param  pinfo Packet Info.
  *   @param  tree The protocol tree.
  *   @return  If the protocol for that handle isn't enabled, return 0 without
- *   calling the dissector. Otherwise, if the handle refers to a new-style 
- *   dissector, call the dissector and return its return value, otherwise call 
+ *   calling the dissector. Otherwise, if the handle refers to a new-style
+ *   dissector, call the dissector and return its return value, otherwise call
  *   it and return the length of the tvbuff pointed to by the argument.
  */
 extern int call_dissector_only(dissector_handle_t handle, tvbuff_t *tvb,
@@ -377,22 +377,11 @@ extern void
 final_registration_all_protocols(void);
 
 /*
- * DEPRECATED: Use packet_add_new_data_source() instead.
- */
-extern void
-add_new_data_source(packet_info *pinfo, tvbuff_t *tvb, const char *name);
-
-/*
  * Add a new data source to the list of data sources for a frame, given
  * the tvbuff for the data source and its name.
- *
- *   @param  tree The protocol tree.
- *   @param  pinfo Packet Info.
- *   @param  tvb The buffer to store.
- *   @param  name The name of the data source
  */
-extern void
-packet_add_new_data_source(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, const char *name);
+extern void add_new_data_source(packet_info *pinfo, tvbuff_t *tvb,
+    const char *name);
 
 /*
  * Return the data source name.

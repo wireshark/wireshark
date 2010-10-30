@@ -1215,7 +1215,7 @@ reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, gint hf_id, tvbuff_t
       actx->created_item = proto_tree_add_item(tree, hf_id, reassembled_tvb, 0, -1, FALSE);
       next_tree = proto_item_add_subtree (actx->created_item, ett_ber_reassembled_octet_string);
 
-      packet_add_new_data_source(actx->pinfo, next_tree, reassembled_tvb, "Reassembled OCTET STRING");
+      add_new_data_source(actx->pinfo, reassembled_tvb, "Reassembled OCTET STRING");
       show_fragment_seq_tree(fd_head, &octet_string_frag_items, next_tree, actx->pinfo, reassembled_tvb, &frag_tree_item);
     }
   }

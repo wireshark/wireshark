@@ -928,7 +928,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 	}
 	if(segment == 0x02 && mfp && mfp->last_frame==pinfo->fd->num){
 		next_tvb = tvb_new_child_real_data(tvb, (guint8*)mfp->reassembled, mfp->tot_len, mfp->tot_len);
-		packet_add_new_data_source(pinfo, btl2cap_tree, next_tvb, "Reassembled L2CAP");
+		add_new_data_source(pinfo, next_tvb, "Reassembled L2CAP");
 	}
 	/*pass up to higher layer if we have a complete packet*/
 	if(segment == 0x00) {

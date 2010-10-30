@@ -225,20 +225,6 @@ add_new_data_source(packet_info *pinfo, tvbuff_t *tvb, const char *name)
 	pinfo->data_src = g_slist_append(pinfo->data_src, src);
 }
 
-/*
- * This should only add a data source to the list of data sources for
- * a frame if the data sources are being used.  Note that they can
- * be used even if the protocol tree isn't being built or isn't visible,
- * e.g. if you run tshark with -x but without -V or anything else to
- * cause the protocol tree to be built.
- */
-void
-packet_add_new_data_source(packet_info *pinfo, proto_tree *tree _U_,
-			   tvbuff_t *tvb, const char *name)
-{
-	add_new_data_source(pinfo, tvb, name);
-}
-
 const char*
 get_data_source_name(data_source *src)
 {
@@ -330,7 +316,7 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	TRY {
 		edt->tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len);
 		/* Add this tvbuffer into the data_src list */
-		packet_add_new_data_source(&edt->pi, edt->tree, edt->tvb, "Frame");
+		add_new_data_source(&edt->pi, edt->tvb, "Frame");
 
 		/* Even though dissect_frame() catches all the exceptions a
 		 * sub-dissector can throw, dissect_frame() itself may throw
