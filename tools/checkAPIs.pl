@@ -957,6 +957,7 @@ sub findAPIinFile($$$)
 sub check_hf_entries($$)
 {
         my ($fileContentsRef, $filename) = @_;
+	my $errorCount = 0;
 
 	my @items;
 	@items = (${$fileContentsRef} =~ m{
@@ -990,34 +991,44 @@ sub check_hf_entries($$)
 		#print "name=$name, abbrev=$abbrev, ft=$ft, display=$display, convert=$convert, bitmask=$bitmask, blurb=$blurb\n";
 
 		if ($name eq $abbrev) {
-			print STDERR "Warning: the abbreviation for field $name matches the field name in $filename\n";
+			print STDERR "Error: the abbreviation for field $name matches the field name in $filename\n";
+			$errorCount++;
 		}
 		if (lc($name) eq lc($blurb)) {
-			print STDERR "Warning: the blurb for field $name ($abbrev) matches the field name in $filename\n";
+			print STDERR "Error: the blurb for field $name ($abbrev) matches the field name in $filename\n";
+			$errorCount++;
 		}
 		if ($name =~ m/"\s+/) {
-			print STDERR "Warning: the name for field $name ($abbrev) has leading space in $filename\n";
+			print STDERR "Error: the name for field $name ($abbrev) has leading space in $filename\n";
+			$errorCount++;
 		}
 		if ($name =~ m/\s+"/) {
-			print STDERR "Warning: the name for field $name ($abbrev) has trailing space in $filename\n";
+			print STDERR "Error: the name for field $name ($abbrev) has trailing space in $filename\n";
+			$errorCount++;
 		}
 		if ($blurb =~ m/"\s+/) {
-			print STDERR "Warning: the blurb for field $name ($abbrev) has leading space in $filename\n";
+			print STDERR "Error: the blurb for field $name ($abbrev) has leading space in $filename\n";
+			$errorCount++;
 		}
 		if ($blurb =~ m/\s+"/) {
-			print STDERR "Warning: the blurb for field $name ($abbrev) has trailing space in $filename\n";
+			print STDERR "Error: the blurb for field $name ($abbrev) has trailing space in $filename\n";
+			$errorCount++;
 		}
 		if ($abbrev =~ m/\s+/) {
-			print STDERR "Warning: the abbreviation for field $name ($abbrev) has white space in $filename\n";
+			print STDERR "Error: the abbreviation for field $name ($abbrev) has white space in $filename\n";
+			$errorCount++;
 		}
 		if ("\"".$hf ."\"" eq $name) {
-			print STDERR "Warning: name is the hf_variable_name in field $name ($abbrev) in $filename\n";
+			print STDERR "Error: name is the hf_variable_name in field $name ($abbrev) in $filename\n";
+			$errorCount++;
 		}
 		if ("\"".$hf ."\"" eq $abbrev) {
-			print STDERR "Warning: abbreviation is the hf_variable_name in field $name ($abbrev) in $filename\n";
+			print STDERR "Error: abbreviation is the hf_variable_name in field $name ($abbrev) in $filename\n";
+			$errorCount++;
 		}
-
 	}
+
+	return $errorCount;
 }
 
 # The below Regexp are based on those from:
@@ -1141,7 +1152,9 @@ while ($_ = $ARGV[0])
         }
 
 	# optionally check the hf entries
-	check_hf_entries(\$fileContents, $filename) if $check_hf;
+	if ($check_hf) {
+		$errorCount += check_hf_entries(\$fileContents, $filename)
+	}
 
         # Remove all the C-comments and strings
         $fileContents =~ s {$commentAndStringRegex} []xog;
