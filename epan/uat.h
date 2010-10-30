@@ -533,6 +533,6 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
 
 #define UAT_FLD_RANGE(basename,field_name,title,max,desc) \
 	{#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_range,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},\
-	  {GUINT_TO_POINTER(max),GUINT_TO_POINTER(max),GUINT_TO_POINTER(max)},0,desc,FLDFILL}
+	  {0,0,0},GUINT_TO_POINTER(max),desc,FLDFILL}
 
 #endif
