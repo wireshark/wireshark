@@ -147,7 +147,7 @@ static void dissect_asf_payload_authentication(tvbuff_t *tvb, proto_tree *tree,
 static void dissect_asf_payload_integrity(tvbuff_t *tvb, proto_tree *tree,
 	gint offset, gint len);
 
-static void
+static int
 dissect_asf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*asf_tree = NULL;
@@ -193,6 +193,7 @@ dissect_asf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 	}
+	return 8 + len;
 }
 
 static void dissect_asf_open_session_request(tvbuff_t *tvb, proto_tree *tree,
@@ -371,6 +372,6 @@ proto_reg_handoff_asf(void)
 
 	data_handle = find_dissector("data");
 
-	asf_handle = create_dissector_handle(dissect_asf, proto_asf);
+	asf_handle = new_create_dissector_handle(dissect_asf, proto_asf);
 	dissector_add("rmcp.class", RMCP_CLASS_ASF, asf_handle);
 }
