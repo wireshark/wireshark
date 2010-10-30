@@ -1719,6 +1719,8 @@ static int cf_aruba = -1;
 static int cf_aruba_hb_seq = -1;
 static int cf_aruba_mtu = -1;
 
+static int hf_ieee80211_tag_vendor_oui_type = -1;
+
 /* ************************************************************************* */
 /*                               Protocol trees                              */
 /* ************************************************************************* */
@@ -5901,6 +5903,10 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         proto_tree_add_bytes_format (tree, tag_oui, tvb, offset + 2, 3,
           tag_data_ptr, "Vendor: %s", get_manuf_name(tag_data_ptr));
         proto_item_append_text(ti, ": %s", get_manuf_name(tag_data_ptr));
+        if (tag_len > 3) {
+          proto_tree_add_item(ti, hf_ieee80211_tag_vendor_oui_type, tag_tvb,
+                              3, 1, FALSE);
+        }
 
 #define WPAWME_OUI  0x0050F2
 #define RSNOUI_VAL  0x000FAC
@@ -11855,6 +11861,10 @@ proto_register_ieee80211 (void)
      {"Current Channel", "wlan_mgt.ds.current_channel",
       FT_UINT8, BASE_DEC, NULL, 0,
       "DS Parameter Set - Current Channel", HFILL }},
+
+    {&hf_ieee80211_tag_vendor_oui_type,
+     {"Vendor Specific OUI Type", "wlan_mgt.tag.oui.type",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&tim_length,
      {"TIM length", "wlan_mgt.tim.length",
