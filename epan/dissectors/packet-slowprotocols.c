@@ -249,20 +249,20 @@ static const value_string event_type_vals[] = {
 
 /*
  * In the OAM protocol the {iso(1) member-body(2) us(840) ieee802dot3(10006)
- * csmacdmgt(30)} prefix for the objects is pre-define. Only the 
+ * csmacdmgt(30)} prefix for the objects is pre-define. Only the
  * managedObjectClass(3) is put in the branch and the leaf is one of the
  * following value:
  */
 static const value_string object_vals[] = {
-    { 1, "macObjectClass" },
-    { 2, "phyObjectClass"},
-    { 3, "repeaterObjectClass"},
-    { 4, "groupObjectClass"},
-    { 5, "repeaterPortObjectClass"},
-    { 6, "mauObjectClass"},
-    { 7, "autoNegObjectClass"},
-    { 8, "macControlObjectClass"},
-    { 9, "macControlFunctionObjectClass"},
+    {  1, "macObjectClass" },
+    {  2, "phyObjectClass"},
+    {  3, "repeaterObjectClass"},
+    {  4, "groupObjectClass"},
+    {  5, "repeaterPortObjectClass"},
+    {  6, "mauObjectClass"},
+    {  7, "autoNegObjectClass"},
+    {  8, "macControlObjectClass"},
+    {  9, "macControlFunctionObjectClass"},
     { 10, "oAggregator"},
     { 11, "oAggregationPort"},
     { 12, "oAggPortStats"},
@@ -280,20 +280,20 @@ static const value_string object_vals[] = {
 
 /*
  * In the OAM protocol the {iso(1) member-body(2) us(840) ieee802dot3(10006)
- * csmacdmgt(30)} prefix for the objects is pre-define. Only the 
+ * csmacdmgt(30)} prefix for the objects is pre-define. Only the
  * package(4) is put in the branch and the leaf is one of the
  * following value:
  */
 static const value_string package_vals[] = {
-    { 1, "macMandatoryPkg" },
-    { 2, "macRecommendedPkg" },
-    { 3, "macOptionalPkg" },
-    { 4, "macarrayPkg" },
-    { 5, "macExcessiveDeferralPkg" },
-    { 6, "phyRecommendedPkg" },
-    { 7, "phyMultiplePhyPkg" },
-    { 8, "phy100MbpsMonitor" },
-    { 9, "repeaterPerfMonitorPkg"},
+    {  1, "macMandatoryPkg" },
+    {  2, "macRecommendedPkg" },
+    {  3, "macOptionalPkg" },
+    {  4, "macarrayPkg" },
+    {  5, "macExcessiveDeferralPkg" },
+    {  6, "phyRecommendedPkg" },
+    {  7, "phyMultiplePhyPkg" },
+    {  8, "phy100MbpsMonitor" },
+    {  9, "repeaterPerfMonitorPkg"},
     { 10, "portPerfMonitorPkg"},
     { 11, "portAddrTrackPkg"},
     { 12, "port100MbpsMonitor"},
@@ -321,7 +321,7 @@ static const value_string package_vals[] = {
 
 /*
  * In the OAM protocol the {iso(1) member-body(2) us(840) ieee802dot3(10006)
- * csmacdmgt(30)} prefix for the objects is pre-define. Only the 
+ * csmacdmgt(30)} prefix for the objects is pre-define. Only the
  * nameBinding(6) is put in the branch and the leaf is one of the
  * following value:
  */
@@ -332,110 +332,110 @@ static const value_string binding_vals[] = {
 
 /*
  * In the OAM protocol the {iso(1) member-body(2) us(840) ieee802dot3(10006)
- * csmacdmgt(30)} prefix for the objects is pre-define. Only the 
+ * csmacdmgt(30)} prefix for the objects is pre-define. Only the
  * attribute(7) is put in the branch and the leaf is one of the
  * following value:
  */
 static const value_string attribute_vals[] = {
-    { 1, "aMACID" },
-    { 2, "aFramesTransmittedOK" },
-    { 3, "aSingleCollisionFrames" },
-    { 4, "aMultipleCollisionFrames" },
-    { 5, "aFramesReceivedOK" },
-    { 6, "aFrameCheckSequenceErrors" },
-    { 7, "aAlignmentErrors" },
-    { 8, "aOctetsTransmittedOK" },
-    { 9, "aFramesWithDeferredXmissions" },
-    { 10, "aLateCollisions" },
-    { 11, "aFramesAbortedDueToXSColls" },
-    { 12, "aFramesLostDueToIntMACXmitError" },
-    { 13, "aCarrierSenseErrors" },
-    { 14, "aOctetsReceivedOK" },
-    { 15, "aFramesLostDueToIntMACRcvError" },
-    { 16, "aPromiscuousStatus" },
-    { 17, "aReadMulticastAddressList" },
-    { 18, "aMulticastFramesXmittedOK" },
-    { 19, "aBroadcastFramesXmittedOK" },
-    { 20, "aFramesWithExcessiveDeferral" },
-    { 21, "aMulticastFramesReceivedOK" },
-    { 22, "aBroadcastFramesReceivedOK" },
-    { 23, "aInRangeLengthErrors" },
-    { 24, "aOutOfRangeLengthField" },
-    { 25, "aFrameTooLongErrors" },
-    { 26, "aMACEnableStatus" },
-    { 27, "aTransmitEnableStatus" },
-    { 28, "aMulticastReceiveStatus" },
-    { 29, "aReadWriteMACAddress" },
-    { 30, "aCollisionFrames" },
-    { 31, "aPHYID" },
-    { 32, "aPHYType" },
-    { 33, "aPHYTypeList" },
-    { 34, "aSQETestErrors" },
-    { 35, "aSymbolErrorDuringCarrier" },
-    { 36, "aMIIDetect" },
-    { 37, "aPHYAdminState" },
-    { 38, "aRepeaterID" },
-    { 39, "aRepeaterType" },
-    { 40, "aRepeaterGroupCapacity" },
-    { 41, "aGroupMap" },
-    { 42, "aRepeaterHealthState" },
-    { 43, "aRepeaterHealthText" },
-    { 44, "aRepeaterHealthData" },
-    { 44, "aTransmitCollisions" },
-    { 46, "aGroupID" },
-    { 47, "aGroupPortCapacity" },
-    { 48, "aPortMap" },
-    { 49, "aPortID" },
-    { 50, "aPortAdminState" },
-    { 51, "aAutoPartitionState" },
-    { 52, "aReadableFrames" },
-    { 53, "aReadableOctets" },
-    { 54, "aFrameCheckSequenceErrors" },
-    { 55, "aAlignmentErrors" },
-    { 56, "aFramesTooLong" },
-    { 57, "aShortEvents" },
-    { 58, "aRunts" },
-    { 59, "aCollisions" },
-    { 60, "aLateEvents" },
-    { 61, "aVeryLongEvents" },
-    { 62, "aDataRateMismatches" },
-    { 63, "aAutoPartitions" },
-    { 64, "aIsolates" },
-    { 65, "aSymbolErrorDuringPacket" },
-    { 66, "aLastSourceAddress" },
-    { 67, "aSourceAddressChanges" },
-    { 68, "aMAUID" },
-    { 69, "aMAUType" },
-    { 70, "aMAUTypeList" },
-    { 71, "aMediaAvailable" },
-    { 72, "aLoseMediaCounter" },
-    { 73, "aJabber" },
-    { 74, "aMAUAdminState" },
-    { 75, "aBbMAUXmitRcvSplitType" },
-    { 76, "aBroadbandFrequencies" },
-    { 77, "aFalseCarriers" },
-    { 78, "aAutoNegID" },
-    { 79, "aAutoNegAdminState" },
-    { 80, "aAutoNegRemoteSignaling" },
-    { 81, "aAutoNegAutoConfig" },
-    { 82, "aAutoNegLocalTechnologyAbility" },
-    { 83, "aAutoNegAdvertisedTechnologyAbility" },
-    { 84, "aAutoNegReceivedTechnologyAbility" },
-    { 85, "aAutoNegLocalSelectorAbility" },
-    { 86, "aAutoNegAdvertisedSelectorAbility" },
-    { 87, "aAutoNegReceivedSelectorAbility" },
+    {   1, "aMACID" },
+    {   2, "aFramesTransmittedOK" },
+    {   3, "aSingleCollisionFrames" },
+    {   4, "aMultipleCollisionFrames" },
+    {   5, "aFramesReceivedOK" },
+    {   6, "aFrameCheckSequenceErrors" },
+    {   7, "aAlignmentErrors" },
+    {   8, "aOctetsTransmittedOK" },
+    {   9, "aFramesWithDeferredXmissions" },
+    {  10, "aLateCollisions" },
+    {  11, "aFramesAbortedDueToXSColls" },
+    {  12, "aFramesLostDueToIntMACXmitError" },
+    {  13, "aCarrierSenseErrors" },
+    {  14, "aOctetsReceivedOK" },
+    {  15, "aFramesLostDueToIntMACRcvError" },
+    {  16, "aPromiscuousStatus" },
+    {  17, "aReadMulticastAddressList" },
+    {  18, "aMulticastFramesXmittedOK" },
+    {  19, "aBroadcastFramesXmittedOK" },
+    {  20, "aFramesWithExcessiveDeferral" },
+    {  21, "aMulticastFramesReceivedOK" },
+    {  22, "aBroadcastFramesReceivedOK" },
+    {  23, "aInRangeLengthErrors" },
+    {  24, "aOutOfRangeLengthField" },
+    {  25, "aFrameTooLongErrors" },
+    {  26, "aMACEnableStatus" },
+    {  27, "aTransmitEnableStatus" },
+    {  28, "aMulticastReceiveStatus" },
+    {  29, "aReadWriteMACAddress" },
+    {  30, "aCollisionFrames" },
+    {  31, "aPHYID" },
+    {  32, "aPHYType" },
+    {  33, "aPHYTypeList" },
+    {  34, "aSQETestErrors" },
+    {  35, "aSymbolErrorDuringCarrier" },
+    {  36, "aMIIDetect" },
+    {  37, "aPHYAdminState" },
+    {  38, "aRepeaterID" },
+    {  39, "aRepeaterType" },
+    {  40, "aRepeaterGroupCapacity" },
+    {  41, "aGroupMap" },
+    {  42, "aRepeaterHealthState" },
+    {  43, "aRepeaterHealthText" },
+    {  44, "aRepeaterHealthData" },
+    {  44, "aTransmitCollisions" },
+    {  46, "aGroupID" },
+    {  47, "aGroupPortCapacity" },
+    {  48, "aPortMap" },
+    {  49, "aPortID" },
+    {  50, "aPortAdminState" },
+    {  51, "aAutoPartitionState" },
+    {  52, "aReadableFrames" },
+    {  53, "aReadableOctets" },
+    {  54, "aFrameCheckSequenceErrors" },
+    {  55, "aAlignmentErrors" },
+    {  56, "aFramesTooLong" },
+    {  57, "aShortEvents" },
+    {  58, "aRunts" },
+    {  59, "aCollisions" },
+    {  60, "aLateEvents" },
+    {  61, "aVeryLongEvents" },
+    {  62, "aDataRateMismatches" },
+    {  63, "aAutoPartitions" },
+    {  64, "aIsolates" },
+    {  65, "aSymbolErrorDuringPacket" },
+    {  66, "aLastSourceAddress" },
+    {  67, "aSourceAddressChanges" },
+    {  68, "aMAUID" },
+    {  69, "aMAUType" },
+    {  70, "aMAUTypeList" },
+    {  71, "aMediaAvailable" },
+    {  72, "aLoseMediaCounter" },
+    {  73, "aJabber" },
+    {  74, "aMAUAdminState" },
+    {  75, "aBbMAUXmitRcvSplitType" },
+    {  76, "aBroadbandFrequencies" },
+    {  77, "aFalseCarriers" },
+    {  78, "aAutoNegID" },
+    {  79, "aAutoNegAdminState" },
+    {  80, "aAutoNegRemoteSignaling" },
+    {  81, "aAutoNegAutoConfig" },
+    {  82, "aAutoNegLocalTechnologyAbility" },
+    {  83, "aAutoNegAdvertisedTechnologyAbility" },
+    {  84, "aAutoNegReceivedTechnologyAbility" },
+    {  85, "aAutoNegLocalSelectorAbility" },
+    {  86, "aAutoNegAdvertisedSelectorAbility" },
+    {  87, "aAutoNegReceivedSelectorAbility" },
 
-    { 89, "aMACCapabilities" },
-    { 90, "aDuplexStatus" },
-    { 91, "aIdleErrorCount"},
-    { 92, "aMACControlID" },
-    { 93, "aMACControlFunctionsSupported" },
-    { 94, "aMACControlFramesTransmitted" },
-    { 95, "aMACControlFramesReceived" },
-    { 96, "aUnsupportedOpcodesReceived" },
-    { 97, "aPAUSELinkDelayAllowance" },
-    { 98, "aPAUSEMACCtrlFramesTransmitted" },
-    { 99, "aPAUSEMACCtrlFramesReceived" },
+    {  89, "aMACCapabilities" },
+    {  90, "aDuplexStatus" },
+    {  91, "aIdleErrorCount"},
+    {  92, "aMACControlID" },
+    {  93, "aMACControlFunctionsSupported" },
+    {  94, "aMACControlFramesTransmitted" },
+    {  95, "aMACControlFramesReceived" },
+    {  96, "aUnsupportedOpcodesReceived" },
+    {  97, "aPAUSELinkDelayAllowance" },
+    {  98, "aPAUSEMACCtrlFramesTransmitted" },
+    {  99, "aPAUSEMACCtrlFramesReceived" },
     { 100, "aBursts" },
     { 101, "aAggID" },
     { 102, "aAggDescription" },
@@ -569,9 +569,11 @@ static const value_string attribute_vals[] = {
     { 0, NULL }
 };
 
+static value_string_ext attribute_vals_ext = VALUE_STRING_EXT_INIT(attribute_vals);
+
 /*
  * In the OAM protocol the {iso(1) member-body(2) us(840) ieee802dot3(10006)
- * csmacdmgt(30)} prefix for the objects is pre-define. Only the 
+ * csmacdmgt(30)} prefix for the objects is pre-define. Only the
  * package(4) is put in the branch and the leaf is one of the
  * following value:
  */
@@ -691,18 +693,18 @@ static const value_string esmc_timestamp_valid_flag_vals[] = {
 
 /* G.781 5.5.1.1 Option I SDH (same in G.707) */
 static const value_string esmc_quality_level_opt_1_vals[] = {
-    { 2,    "QL-PRC, Primary reference clock (G.811)" },
-    { 4,    "QL-SSU-A, Type I or V SSU clock (G.812), 'transit node clock'" },
-    { 8,    "QL-SSU-B, Type VI SSU clock (G.812), 'local node clock'" },
+    {  2,   "QL-PRC, Primary reference clock (G.811)" },
+    {  4,   "QL-SSU-A, Type I or V SSU clock (G.812), 'transit node clock'" },
+    {  8,   "QL-SSU-B, Type VI SSU clock (G.812), 'local node clock'" },
     { 11,   "QL-SEC, SEC clock (G.813, Option I) or QL-EEC1 (G.8262)" },
     { 15,   "QL-DNU, 'Do Not Use'" },
     { 0, NULL }
 };
 
 static const value_string esmc_quality_level_opt_1_vals_short[] = {
-    { 2,    "QL-PRC" },
-    { 4,    "QL-SSU-A" },
-    { 8,    "QL-SSU-B" },
+    {  2,   "QL-PRC" },
+    {  4,   "QL-SSU-A" },
+    {  8,   "QL-SSU-B" },
     { 11,   "QL-SEC" },
     { 15,   "QL-DNU" },
     { 0, NULL }
@@ -711,10 +713,10 @@ static const value_string esmc_quality_level_opt_1_vals_short[] = {
 #if 0 /*not used yet*/
 /* G.781 5.5.1.2 Option II SDH synchronization networking */
 static const value_string esmc_quality_level_opt_2_vals[] = {
-    { 0,    "QL-STU, unknown - signal does not carry the QL message of the source" },
-    { 1,    "QL-PRS, PRS clock (G.811) / ST1, Stratum 1 Traceable" },
-    { 4,    "QL-TNC, Transit Node Clock (G.812, Type V)" },
-    { 7,    "QL-ST2, Stratum 2 clock (G.812, Type II)" },
+    {  0,   "QL-STU, unknown - signal does not carry the QL message of the source" },
+    {  1,   "QL-PRS, PRS clock (G.811) / ST1, Stratum 1 Traceable" },
+    {  4,   "QL-TNC, Transit Node Clock (G.812, Type V)" },
+    {  7,   "QL-ST2, Stratum 2 clock (G.812, Type II)" },
     { 10,   "QL-ST3, Stratum 3 clock (G.812, Type IV) or QL-EEC2 (G.8262)" },
     { 12,   "QL-SMC, SONET self timed clock (G.813, Option II) / SMC 20 ppm Clock Traceable" },
     { 13,   "QL-ST3E, Stratum 3E clock (G.812, Type III)" },
@@ -724,9 +726,9 @@ static const value_string esmc_quality_level_opt_2_vals[] = {
 };
 
 static const value_string esmc_quality_level_opt_2_short[] = {
-    { 0,    "QL-STU" },
-    { 1,    "QL-PRS" },
-    { 4,    "QL-TNC" },
+    {  0,   "QL-STU" },
+    {  1,   "QL-PRS" },
+    {  4,   "QL-TNC" },
     { 7,    "QL-ST2" },
     { 10,   "QL-ST3" },
     { 12,   "QL-SMC" },
@@ -738,16 +740,16 @@ static const value_string esmc_quality_level_opt_2_short[] = {
 #endif
 
 static const value_string esmc_quality_level_invalid_vals[] = {
-    { 0,    "QL-INV0" },
-    { 1,    "QL-INV1" },
-    { 2,    "QL-INV2" },
-    { 3,    "QL-INV3" },
-    { 4,    "QL-INV4" },
-    { 5,    "QL-INV5" },
-    { 6,    "QL-INV6" },
-    { 7,    "QL-INV7" },
-    { 8,    "QL-INV8" },
-    { 9,    "QL-INV9" },
+    {  0,   "QL-INV0" },
+    {  1,   "QL-INV1" },
+    {  2,   "QL-INV2" },
+    {  3,   "QL-INV3" },
+    {  4,   "QL-INV4" },
+    {  5,   "QL-INV5" },
+    {  6,   "QL-INV6" },
+    {  7,   "QL-INV7" },
+    {  8,   "QL-INV8" },
+    {  9,   "QL-INV9" },
     { 10,   "QL-INV10" },
     { 11,   "QL-INV11" },
     { 12,   "QL-INV12" },
@@ -1046,7 +1048,7 @@ dissect_itu_ossp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void
 dissect_slow_protocols(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint8 subtype;
+    guint8      subtype;
     proto_tree *pdu_tree;
     proto_item *pdu_item;
 
@@ -1433,7 +1435,7 @@ dissect_lacp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * Description:
  *    This function is used to dissect the Link Aggregation Marker Protocol
  *    slow protocols define in IEEE802.3 clause 43.5 (The PDUs are define
- *    in section 43.5.3.2). The TLV type are, 0x01 for a marker TLV and 0x02 
+ *    in section 43.5.3.2). The TLV type are, 0x01 for a marker TLV and 0x02
  *    for a marker response. A value of 0x00 indicate an end of message.
  *
  * Input Arguments:
@@ -1546,13 +1548,13 @@ dissect_marker_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_ossp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    gint offset = 0;
+    gint          offset = 0;
     const guint8 *oui_ptr;
-    const gchar *str;
-    proto_item *oui_item, *ossp_item;
-    proto_tree *ossp_tree;
-    tvbuff_t *ossp_tvb;
-    const guint8 itu_oui[] = {ITU_OUI_0, ITU_OUI_1, ITU_OUI_2};
+    const gchar  *str;
+    proto_item   *oui_item, *ossp_item;
+    proto_tree   *ossp_tree;
+    tvbuff_t     *ossp_tvb;
+    const guint8  itu_oui[] = {ITU_OUI_0, ITU_OUI_1, ITU_OUI_2};
 
     /* OUI of the organization defining the protocol */
     oui_ptr = tvb_get_ptr(tvb, offset+1, OUI_SIZE);
@@ -1583,16 +1585,16 @@ dissect_ossp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *
  *  else if (tvb_memeql(tvb, 1, xxx_oui, OUI_SIZE) == 0)
  *  {
- *     dissect_xxx_ossp(ossp_tvb, pinfo, ossp_tree);
+ *      dissect_xxx_ossp(ossp_tvb, pinfo, ossp_tree);
  *  }
  *  else if (tvb_memeql(tvb, 1, yyy_oui, OUI_SIZE) == 0)
  *  {
- *     dissect_yyy_ossp(ossp_tvb, pinfo, ossp_tree);
+ *      dissect_yyy_ossp(ossp_tvb, pinfo, ossp_tree);
  *  }
  */
     else
     {
-      proto_item_append_text(oui_item, " (Unknown OSSP organization)");
+        proto_item_append_text(oui_item, " (Unknown OSSP organization)");
     }
 }
 
@@ -1621,7 +1623,7 @@ dissect_ossp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_itu_ossp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint16  subtype;
+    guint16     subtype;
     proto_tree *itu_ossp_tree, *ti;
 
     /* ITU-T OSSP Subtype */
@@ -1632,9 +1634,9 @@ dissect_itu_ossp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     switch (subtype)
     {
-      case ESMC_ITU_SUBTYPE:
-        dissect_esmc_pdu(tvb, pinfo, itu_ossp_tree);
-        break;
+        case ESMC_ITU_SUBTYPE:
+            dissect_esmc_pdu(tvb, pinfo, itu_ossp_tree);
+            break;
 
 /*    Other ITU-T defined slow protocols go hereafter
  *
@@ -1642,8 +1644,8 @@ dissect_itu_ossp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *      dissect_xxxx_pdu(tvb, pinfo, itu_ossp_tree);
  *      break;
  */
-      default:
-        proto_item_append_text(itu_ossp_tree, " (Unknown)");
+        default:
+            proto_item_append_text(itu_ossp_tree, " (Unknown)");
     }
 }
 /*
@@ -1656,12 +1658,12 @@ dissect_itu_ossp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
 {
-    gint offset = 2; /*starting from ESMC Version */
+    gint     offset    = 2; /*starting from ESMC Version */
     gboolean event_flag;
     gboolean malformed = FALSE;
-    gint ql = -1; /*negative means unknown:*/
+    gint     ql        = -1; /*negative means unknown:*/
     gboolean timestamp_valid_flag = FALSE; /*set if timestamp valid*/
-    gint32 timestamp = -1; /*nanoseconds*/
+    gint32   timestamp = -1; /*nanoseconds*/
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESMC");
 
@@ -1905,7 +1907,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
  * Name: dissect_oampdu
  *
  * Description:
- *    This function is used to dissect the Operation, Administration, and 
+ *    This function is used to dissect the Operation, Administration, and
  *    Maintenance slow protocol define in IEEE802.3 clause 57 (The OAMPDUs
  *    common part is define in section 57.4).
  *
@@ -2025,7 +2027,7 @@ dissect_oampdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_item_append_text(flags_item, " (");
         else
             proto_item_append_text(flags_item, ", ");
-        
+
         for(i=0;i<2;i++)
         {
             if (i==0)
@@ -2040,7 +2042,7 @@ dissect_oampdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 state = (flags&(OAMPDU_FLAGS_REMOTE_EVAL|OAMPDU_FLAGS_REMOTE_STABLE));
                 state = state>>5;
             }
-            
+
             switch (state)
             {
                 case 0:
@@ -2057,10 +2059,10 @@ dissect_oampdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     break;
             }
 
-            if (i==0)     
+            if (i==0)
                 proto_item_append_text(flags_item, ", ");
 
-        }        
+        }
 
         proto_item_append_text(flags_item, ")");
 
@@ -2115,29 +2117,29 @@ dissect_oampdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
 {
-      guint16   raw_word;
-      guint8    raw_octet;
-      guint8    info_type;
-      guint32   offset;
-      guint16   bytes;
+    guint16   raw_word;
+    guint8    raw_octet;
+    guint8    info_type;
+    guint32   offset;
+    guint16   bytes;
 
-      const guint8 *resv_bytes;
-      const guint8 *ptr;
+    const guint8 *resv_bytes;
+    const guint8 *ptr;
 
-      proto_tree *info_tree;
-      proto_item *info_item;
-      proto_tree *state_tree;
-      proto_item *state_item;
-      proto_tree *cfg_tree;
-      proto_item *cfg_item;
-      proto_item *oui_item;
-      proto_item *item;
+    proto_tree *info_tree;
+    proto_item *info_item;
+    proto_tree *state_tree;
+    proto_item *state_item;
+    proto_tree *cfg_tree;
+    proto_item *cfg_item;
+    proto_item *oui_item;
+    proto_item *item;
 
 
-      offset = OAMPDU_HEADER_SIZE;
+    offset = OAMPDU_HEADER_SIZE;
 
-      while (1)
-      {
+    while (1)
+    {
         bytes = tvb_length_remaining(tvb, offset);
         if (bytes < 1) break;
 
@@ -2146,22 +2148,22 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
         if (info_type == OAMPDU_INFO_TYPE_ENDMARKER) break;
 
         info_item = proto_tree_add_uint(tree, hf_oampdu_info_type, tvb,
-                            offset, 1, info_type);
+                                        offset, 1, info_type);
 
         switch (info_type)
         {
-         case OAMPDU_INFO_TYPE_LOCAL:
-           info_tree = proto_item_add_subtree(info_item, ett_oampdu_local_info);
-           break;
-         case OAMPDU_INFO_TYPE_REMOTE:
-           info_tree = proto_item_add_subtree(info_item, ett_oampdu_remote_info);
-           break;
-         case OAMPDU_INFO_TYPE_ORG:
-           info_tree = proto_item_add_subtree(info_item, ett_oampdu_org_info);
-           break;
-         default:
-            info_tree = NULL;
-           break;
+            case OAMPDU_INFO_TYPE_LOCAL:
+                info_tree = proto_item_add_subtree(info_item, ett_oampdu_local_info);
+                break;
+            case OAMPDU_INFO_TYPE_REMOTE:
+                info_tree = proto_item_add_subtree(info_item, ett_oampdu_remote_info);
+                break;
+            case OAMPDU_INFO_TYPE_ORG:
+                info_tree = proto_item_add_subtree(info_item, ett_oampdu_org_info);
+                break;
+            default:
+                info_tree = NULL;
+                break;
         }
 
         offset += OAMPDU_INFO_TYPE_SZ;
@@ -2170,26 +2172,26 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
         {
             raw_octet = tvb_get_guint8(tvb, offset);
             proto_tree_add_uint(info_tree, hf_oampdu_info_len,
-                    tvb, offset, 1, raw_octet);
+                                tvb, offset, 1, raw_octet);
 
             offset += OAMPDU_INFO_LENGTH_SZ;
 
             raw_octet = tvb_get_guint8(tvb, offset);
             proto_tree_add_uint(info_tree, hf_oampdu_info_version,
-                    tvb, offset, 1, raw_octet);
+                                tvb, offset, 1, raw_octet);
 
             offset += OAMPDU_INFO_VERSION_SZ;
 
             raw_word = tvb_get_ntohs(tvb, offset);
             proto_tree_add_uint(info_tree, hf_oampdu_info_revision,
-                    tvb, offset, 2, raw_word);
+                                tvb, offset, 2, raw_word);
 
             offset += OAMPDU_INFO_REVISION_SZ;
 
             /* Build OAM State field field */
             raw_octet = tvb_get_guint8(tvb, offset);
             state_item = proto_tree_add_uint(info_tree, hf_oampdu_info_state,
-                    tvb, offset, 1, raw_octet);
+                                             tvb, offset, 1, raw_octet);
 
             if (raw_octet == OAMPDU_INFO_TYPE_LOCAL)
                 state_tree = proto_item_add_subtree(state_item, ett_oampdu_local_info_state);
@@ -2197,17 +2199,17 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
                 state_tree = proto_item_add_subtree(state_item, ett_oampdu_remote_info_state);
 
             proto_tree_add_uint(state_tree, hf_oampdu_info_state_parser,
-                    tvb, offset, 1, raw_octet);
+                                tvb, offset, 1, raw_octet);
 
             proto_tree_add_boolean(state_tree, hf_oampdu_info_state_mux,
-                    tvb, offset, 1, raw_octet);
+                                   tvb, offset, 1, raw_octet);
 
             offset += OAMPDU_INFO_STATE_SZ;
 
             /* Build OAM configuration field */
             raw_octet = tvb_get_guint8(tvb, offset);
             cfg_item = proto_tree_add_uint(info_tree, hf_oampdu_info_oamConfig,
-                    tvb, offset, 1, raw_octet);
+                                           tvb, offset, 1, raw_octet);
 
             if (raw_octet == OAMPDU_INFO_TYPE_LOCAL)
                 cfg_tree = proto_item_add_subtree(cfg_item, ett_oampdu_local_info_config);
@@ -2215,25 +2217,25 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
                 cfg_tree = proto_item_add_subtree(cfg_item, ett_oampdu_remote_info_config);
 
             proto_tree_add_boolean(cfg_tree, hf_oampdu_info_oamConfig_mode,
-                    tvb, offset, 1, raw_octet);
+                                   tvb, offset, 1, raw_octet);
 
             proto_tree_add_boolean(cfg_tree, hf_oampdu_info_oamConfig_uni,
-                    tvb, offset, 1, raw_octet);
+                                   tvb, offset, 1, raw_octet);
 
             proto_tree_add_boolean(cfg_tree, hf_oampdu_info_oamConfig_lpbk,
-                    tvb, offset, 1, raw_octet);
+                                   tvb, offset, 1, raw_octet);
 
             proto_tree_add_boolean(cfg_tree, hf_oampdu_info_oamConfig_event,
-                    tvb, offset, 1, raw_octet);
+                                   tvb, offset, 1, raw_octet);
 
             proto_tree_add_boolean(cfg_tree, hf_oampdu_info_oamConfig_var,
-                    tvb, offset, 1, raw_octet);
+                                   tvb, offset, 1, raw_octet);
 
             offset += OAMPDU_INFO_OAM_CONFIG_SZ;
 
             raw_word = tvb_get_ntohs(tvb, offset);
             item = proto_tree_add_uint(info_tree, hf_oampdu_info_oampduConfig,
-                    tvb, offset, 2, raw_word);
+                                       tvb, offset, 2, raw_word);
 
             proto_item_append_text(item, " (bytes)");
 
@@ -2241,7 +2243,7 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
 
             resv_bytes = tvb_get_ptr(tvb, offset, 3);
             oui_item = proto_tree_add_bytes(info_tree, hf_oampdu_info_oui,
-                    tvb, offset, 3, resv_bytes);
+                                            tvb, offset, 3, resv_bytes);
 
             APPEND_OUI_NAME(oui_item, ptr, resv_bytes);
 
@@ -2249,22 +2251,22 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
 
             resv_bytes = tvb_get_ptr(tvb, offset, 4);
             proto_tree_add_bytes(info_tree, hf_oampdu_info_vendor,
-                    tvb, offset, 4, resv_bytes);
-  
+                                 tvb, offset, 4, resv_bytes);
+
             offset += OAMPDU_INFO_VENDOR_SPECIFIC_SZ;
-         }
-         else if (info_type == OAMPDU_INFO_TYPE_ORG)
-         {
+        }
+        else if (info_type == OAMPDU_INFO_TYPE_ORG)
+        {
             /* see IEEE802.3, section 57.5.2.3 for more details */
             raw_octet = tvb_get_guint8(tvb, offset);
             proto_tree_add_uint(info_tree, hf_oampdu_info_len,
-                    tvb, offset, 1, raw_octet);
+                                tvb, offset, 1, raw_octet);
 
             offset += OAMPDU_INFO_LENGTH_SZ;
 
             resv_bytes = tvb_get_ptr(tvb, offset, 3);
             oui_item = proto_tree_add_bytes(info_tree, hf_oampdu_info_oui,
-                    tvb, offset, 3, resv_bytes);
+                                            tvb, offset, 3, resv_bytes);
 
             APPEND_OUI_NAME(oui_item, ptr, resv_bytes);
 
@@ -2272,23 +2274,23 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
 
             resv_bytes = tvb_get_ptr(tvb, offset, raw_octet-5);
             proto_tree_add_bytes(info_tree, hf_oampdu_info_vendor,
-                    tvb, offset, raw_octet-5, resv_bytes);
+                                 tvb, offset, raw_octet-5, resv_bytes);
 
             offset += raw_octet-2;
 
-         }
-         else if (info_type==OAMPDU_INFO_TYPE_ENDMARKER)
-         {
-           /* A TLV of zero indicate an End of TLV marker */
-           break;
-         }
-         else
-         {
+        }
+        else if (info_type==OAMPDU_INFO_TYPE_ENDMARKER)
+        {
+            /* A TLV of zero indicate an End of TLV marker */
+            break;
+        }
+        else
+        {
             /* If it's a unknown type jump over */
             raw_octet = tvb_get_guint8(tvb, offset);
             offset += raw_octet;
-         }
-      }
+        }
+    }
 }
 
 /*
@@ -2350,8 +2352,8 @@ dissect_oampdu_event_notification(tvbuff_t *tvb, proto_tree *tree)
         switch (event_type)
         {
             case OAMPDU_EVENT_TYPE_END:
-                break; 
-            case OAMPDU_EVENT_TYPE_ESPE: 
+                break;
+            case OAMPDU_EVENT_TYPE_ESPE:
             {
                 event_tree = proto_item_add_subtree(event_item,
                                     ett_oampdu_event_espe);
@@ -2399,7 +2401,7 @@ dissect_oampdu_event_notification(tvbuff_t *tvb, proto_tree *tree)
                 offset += OAMPDU_ESPE_TOTAL_SZ;
                 break;
             }
-            case OAMPDU_EVENT_TYPE_EFE:  
+            case OAMPDU_EVENT_TYPE_EFE:
             {
                 event_tree = proto_item_add_subtree(event_item,
                                     ett_oampdu_event_efe);
@@ -2448,7 +2450,7 @@ dissect_oampdu_event_notification(tvbuff_t *tvb, proto_tree *tree)
 
                 break;
             }
-            case OAMPDU_EVENT_TYPE_EFPE: 
+            case OAMPDU_EVENT_TYPE_EFPE:
             {
                 event_tree = proto_item_add_subtree(event_item,
                                     ett_oampdu_event_efpe);
@@ -2664,23 +2666,23 @@ dissect_oampdu_variable_request(tvbuff_t *tvb, proto_tree *tree)
 static void
 dissect_oampdu_variable_response(tvbuff_t *tvb, proto_tree *tree)
 {
-      guint16   raw_word;
-      guint8    raw_octet;
-      guint32   offset;
+    guint16   raw_word;
+    guint8    raw_octet;
+    guint32   offset;
 
-      const guint8 *resv_bytes;
+    const guint8 *resv_bytes;
 
 
-      offset = OAMPDU_HEADER_SIZE;
+    offset = OAMPDU_HEADER_SIZE;
 
-      while (1)
-      {
+    while (1)
+    {
         raw_octet = tvb_get_guint8(tvb, offset);
 
         if (raw_octet == 0) break;
 
         proto_tree_add_uint(tree, hf_oampdu_variable_branch,
-                tvb,offset, 1, raw_octet);
+                            tvb,offset, 1, raw_octet);
 
         offset+=1;
 
@@ -2690,28 +2692,28 @@ dissect_oampdu_variable_response(tvbuff_t *tvb, proto_tree *tree)
             {
                 raw_word = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(tree, hf_oampdu_variable_object,
-                        tvb, offset, 2, raw_word);
+                                    tvb, offset, 2, raw_word);
                 break;
             }
             case OAMPDU_VARS_PACKAGE:
             {
                 raw_word = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(tree, hf_oampdu_variable_package,
-                        tvb, offset, 2, raw_word);
+                                    tvb, offset, 2, raw_word);
                 break;
             }
             case OAMPDU_VARS_BINDING:
             {
                 raw_word = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(tree, hf_oampdu_variable_binding,
-                        tvb, offset, 2, raw_word);
+                                    tvb, offset, 2, raw_word);
                 break;
             }
             case OAMPDU_VARS_ATTRIBUTE:
             {
                 raw_word = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(tree, hf_oampdu_variable_attribute,
-                        tvb, offset, 2, raw_word);
+                                    tvb, offset, 2, raw_word);
                 break;
             }
             default:
@@ -2726,27 +2728,27 @@ dissect_oampdu_variable_response(tvbuff_t *tvb, proto_tree *tree)
         {
             /* Variable Indication */
             proto_tree_add_uint(tree, hf_oampdu_variable_indication,
-                    tvb,offset, 1, (raw_octet&0x7F));
+                                tvb,offset, 1, (raw_octet&0x7F));
 
             offset+=1;
         }
-        else 
+        else
         {
             /* Special case for 128 bytes container */
             if (raw_octet == 0) raw_octet = 128;
 
             proto_tree_add_uint(tree, hf_oampdu_variable_width,
-                    tvb,offset, 1, raw_octet);
+                                tvb,offset, 1, raw_octet);
 
             offset+=1;
 
             resv_bytes = tvb_get_ptr(tvb, offset, raw_octet);
             proto_tree_add_bytes(tree, hf_oampdu_variable_value,
-                    tvb, offset, raw_octet, resv_bytes);
+                                 tvb, offset, raw_octet, resv_bytes);
 
-            offset+=raw_octet;        
+            offset+=raw_octet;
         }
-      }
+    }
 }
 
 /*
@@ -3483,7 +3485,7 @@ proto_register_slow_protocols(void)
 
         { &hf_oampdu_variable_attribute,
           { "Leaf",    "slow.oam.variable.attribute",
-            FT_UINT16,    BASE_HEX,    VALS(attribute_vals),    0x0,
+            FT_UINT16,    BASE_HEX|BASE_EXT_STRING,  &attribute_vals_ext,   0x0,
             "Attribute, derived from the CMIP protocol in Annex 30A", HFILL }},
 
         { &hf_oampdu_variable_width,
