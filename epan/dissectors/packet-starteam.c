@@ -475,150 +475,162 @@ static const value_string starteam_opcode_vals[] = {
   { 0,          NULL }
 };
 
+static value_string_ext starteam_opcode_vals_ext = VALUE_STRING_EXT_INIT(starteam_opcode_vals);
+
+static gint iPreviousFrameNumber = -1;
+
+static void
+starteam_init(void)
+{
+  iPreviousFrameNumber = -1;
+}
+
 static void
 dissect_starteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree	*starteam_tree = NULL;
-	proto_tree	*starteamroot_tree = NULL;
-	proto_item	*ti = NULL;
-	gint offset = 0;
-	static gint iPreviousFrameNumber = -1;
+  gint offset = 0;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "StarTeam");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "StarTeam");
 
-	if(check_col(pinfo->cinfo, COL_INFO)){
-		/* This is a trick to know whether this is the first PDU in this packet or not */
-		if(iPreviousFrameNumber != (gint) pinfo->fd->num){
-			col_clear(pinfo->cinfo, COL_INFO);
-		} else {
-			col_append_str(pinfo->cinfo, COL_INFO, " | ");
-		}
-	}
-	iPreviousFrameNumber = pinfo->fd->num;
-	if(tvb_length(tvb) >= 16){
-		guint32 iCommand = 0;
-		gboolean bRequest = FALSE;
-		if(tvb_get_ntohl(tvb, offset + 0) == STARTEAM_MAGIC){
-			/* This packet is a response */
-			bRequest = FALSE;
-			if(check_col(pinfo->cinfo, COL_INFO)){
-				col_append_fstr(pinfo->cinfo, COL_INFO, "Reply: %d bytes", tvb_length(tvb));
-			}
-		} else if(tvb_length_remaining(tvb, offset) >= 28 && tvb_get_ntohl(tvb, offset + 20) == STARTEAM_MAGIC){
-			/* This packet is a request */
-			bRequest = TRUE;
-			if(tvb_length_remaining(tvb, offset) >= 66){
-				iCommand = tvb_get_letohl(tvb, offset + 62);
-			}
-			if(check_col(pinfo->cinfo, COL_INFO)){
-				col_append_str(pinfo->cinfo, COL_INFO, val_to_str(iCommand, starteam_opcode_vals, "Unknown (0x%02x)"));
-			}
-		}
+  if(check_col(pinfo->cinfo, COL_INFO)){
+    /* This is a trick to know whether this is the first PDU in this packet or not */
+    if(iPreviousFrameNumber != (gint) pinfo->fd->num){
+      col_clear(pinfo->cinfo, COL_INFO);
+    } else {
+      col_append_str(pinfo->cinfo, COL_INFO, " | ");
+    }
+  }
+  iPreviousFrameNumber = pinfo->fd->num;
+  if(tvb_length(tvb) >= 16){
+    guint32 iCommand = 0;
+    gboolean bRequest = FALSE;
+    if(tvb_get_ntohl(tvb, offset + 0) == STARTEAM_MAGIC){
+      /* This packet is a response */
+      bRequest = FALSE;
+      if(check_col(pinfo->cinfo, COL_INFO)){
+        col_append_fstr(pinfo->cinfo, COL_INFO, "Reply: %d bytes", tvb_length(tvb));
+      }
+    } else if(tvb_length_remaining(tvb, offset) >= 28 && tvb_get_ntohl(tvb, offset + 20) == STARTEAM_MAGIC){
+      /* This packet is a request */
+      bRequest = TRUE;
+      if(tvb_length_remaining(tvb, offset) >= 66){
+        iCommand = tvb_get_letohl(tvb, offset + 62);
+      }
+      if(check_col(pinfo->cinfo, COL_INFO)){
+        col_append_str(pinfo->cinfo, COL_INFO,
+                       val_to_str_ext(iCommand, &starteam_opcode_vals_ext, "Unknown (0x%02x)"));
+      }
+    }
 
-		if(tree){
-			ti = proto_tree_add_item(tree, proto_starteam, tvb, offset, -1, FALSE);
-			if (bRequest) proto_item_append_text(ti, " (%s)", val_to_str(iCommand, starteam_opcode_vals, "Unknown (0x%02x)"));
-			starteamroot_tree = proto_item_add_subtree(ti, ett_starteam);
+    if(tree){
+      proto_tree *starteam_tree;
+      proto_tree *starteamroot_tree;
+      proto_item *ti;
 
-			if(bRequest){
-				if(tvb_length_remaining(tvb, offset) >= 20){
-					ti = proto_tree_add_text(starteamroot_tree, tvb, offset, 20, STARTEAM_TEXT_MDH);
-					starteam_tree = proto_item_add_subtree(ti, ett_starteam_mdh);
+      ti = proto_tree_add_item(tree, proto_starteam, tvb, offset, -1, FALSE);
+      if (bRequest) proto_item_append_text(ti, " (%s)",
+                                           val_to_str_ext(iCommand, &starteam_opcode_vals_ext, "Unknown (0x%02x)"));
+      starteamroot_tree = proto_item_add_subtree(ti, ett_starteam);
 
-					proto_tree_add_item(starteam_tree, hf_starteam_mdh_session_tag, tvb, offset + 0, 4, TRUE);
-					proto_tree_add_item(starteam_tree, hf_starteam_mdh_ctimestamp, tvb, offset + 4, 4, TRUE);
-					proto_tree_add_item(starteam_tree, hf_starteam_mdh_flags, tvb, offset + 8, 4, TRUE);
-					proto_tree_add_item(starteam_tree, hf_starteam_mdh_keyid, tvb, offset + 12, 4, TRUE);
-					proto_tree_add_item(starteam_tree, hf_starteam_mdh_reserved, tvb, offset + 16, 4, TRUE);
-					offset += 20;
-				}
-			}
+      if(bRequest){
+        if(tvb_length_remaining(tvb, offset) >= 20){
+          ti = proto_tree_add_text(starteamroot_tree, tvb, offset, 20, STARTEAM_TEXT_MDH);
+          starteam_tree = proto_item_add_subtree(ti, ett_starteam_mdh);
 
-			if(tvb_length_remaining(tvb, offset) >= 16){
-				ti = proto_tree_add_text(starteamroot_tree, tvb, offset, 16, STARTEAM_TEXT_PH);
-				starteam_tree = proto_item_add_subtree(ti, ett_starteam_ph);
+          proto_tree_add_item(starteam_tree, hf_starteam_mdh_session_tag, tvb, offset + 0, 4, TRUE);
+          proto_tree_add_item(starteam_tree, hf_starteam_mdh_ctimestamp, tvb, offset + 4, 4, TRUE);
+          proto_tree_add_item(starteam_tree, hf_starteam_mdh_flags, tvb, offset + 8, 4, TRUE);
+          proto_tree_add_item(starteam_tree, hf_starteam_mdh_keyid, tvb, offset + 12, 4, TRUE);
+          proto_tree_add_item(starteam_tree, hf_starteam_mdh_reserved, tvb, offset + 16, 4, TRUE);
+          offset += 20;
+        }
+      }
 
-				proto_tree_add_item(starteam_tree, hf_starteam_ph_signature, tvb, offset + 0, 4, FALSE);
-				proto_tree_add_item(starteam_tree, hf_starteam_ph_packet_size, tvb, offset + 4, 4, TRUE);
-				proto_tree_add_item(starteam_tree, hf_starteam_ph_data_size, tvb, offset + 8, 4, TRUE);
-				proto_tree_add_item(starteam_tree, hf_starteam_ph_data_flags, tvb, offset + 12, 4, TRUE);
-				offset += 16;
+      if(tvb_length_remaining(tvb, offset) >= 16){
+        ti = proto_tree_add_text(starteamroot_tree, tvb, offset, 16, STARTEAM_TEXT_PH);
+        starteam_tree = proto_item_add_subtree(ti, ett_starteam_ph);
 
-				if(bRequest){
-					if(tvb_length_remaining(tvb, offset) >= 38){
-						ti = proto_tree_add_text(starteamroot_tree, tvb, offset, 38, STARTEAM_TEXT_ID);
-						starteam_tree = proto_item_add_subtree(ti, ett_starteam_id);
+        proto_tree_add_item(starteam_tree, hf_starteam_ph_signature, tvb, offset + 0, 4, FALSE);
+        proto_tree_add_item(starteam_tree, hf_starteam_ph_packet_size, tvb, offset + 4, 4, TRUE);
+        proto_tree_add_item(starteam_tree, hf_starteam_ph_data_size, tvb, offset + 8, 4, TRUE);
+        proto_tree_add_item(starteam_tree, hf_starteam_ph_data_flags, tvb, offset + 12, 4, TRUE);
+        offset += 16;
 
-						proto_tree_add_item(starteam_tree, hf_starteam_id_revision_level, tvb, offset + 0, 2, TRUE);
-						proto_tree_add_item(starteam_tree, hf_starteam_id_client, tvb, offset + 2, 16, TRUE);
-						proto_tree_add_item(starteam_tree, hf_starteam_id_connect, tvb, offset + 18, 4, TRUE);
-						proto_tree_add_item(starteam_tree, hf_starteam_id_component, tvb, offset + 22, 4, TRUE);
-						proto_tree_add_item(starteam_tree, hf_starteam_id_command, tvb, offset + 26, 4, TRUE);
-						proto_tree_add_item(starteam_tree, hf_starteam_id_command_time, tvb, offset + 30, 4, TRUE);
-						proto_tree_add_item(starteam_tree, hf_starteam_id_command_userid, tvb, offset + 34, 4, TRUE);
-						offset += 38;
-					}
-				}
-				if(tvb_length_remaining(tvb, offset) > 0){
-					ti = proto_tree_add_text(starteamroot_tree, tvb, offset, -1, STARTEAM_TEXT_DATA);
-					starteam_tree = proto_item_add_subtree(ti, ett_starteam_data);
-					proto_tree_add_item(starteam_tree, hf_starteam_data_data, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
-				}
-			}
-		}
-	}
+        if(bRequest){
+          if(tvb_length_remaining(tvb, offset) >= 38){
+            ti = proto_tree_add_text(starteamroot_tree, tvb, offset, 38, STARTEAM_TEXT_ID);
+            starteam_tree = proto_item_add_subtree(ti, ett_starteam_id);
+
+            proto_tree_add_item(starteam_tree, hf_starteam_id_revision_level, tvb, offset + 0, 2, TRUE);
+            proto_tree_add_item(starteam_tree, hf_starteam_id_client, tvb, offset + 2, 16, TRUE);
+            proto_tree_add_item(starteam_tree, hf_starteam_id_connect, tvb, offset + 18, 4, TRUE);
+            proto_tree_add_item(starteam_tree, hf_starteam_id_component, tvb, offset + 22, 4, TRUE);
+            proto_tree_add_item(starteam_tree, hf_starteam_id_command, tvb, offset + 26, 4, TRUE);
+            proto_tree_add_item(starteam_tree, hf_starteam_id_command_time, tvb, offset + 30, 4, TRUE);
+            proto_tree_add_item(starteam_tree, hf_starteam_id_command_userid, tvb, offset + 34, 4, TRUE);
+            offset += 38;
+          }
+        }
+        if(tvb_length_remaining(tvb, offset) > 0){
+          ti = proto_tree_add_text(starteamroot_tree, tvb, offset, -1, STARTEAM_TEXT_DATA);
+          starteam_tree = proto_item_add_subtree(ti, ett_starteam_data);
+          proto_tree_add_item(starteam_tree, hf_starteam_data_data, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
+        }
+      }
+    }
+  }
 }
 
 static guint
 get_starteam_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-	guint32 iPDULength = 0;
-	if(tvb_length_remaining(tvb, offset) >= 8 && tvb_get_ntohl(tvb, offset + 0) == STARTEAM_MAGIC){
-		/* Response */
-		iPDULength = tvb_get_letohl(tvb, offset + 4) + 16;
-	} else if(tvb_length_remaining(tvb, offset) >= 28 && tvb_get_ntohl(tvb, offset + 20) == STARTEAM_MAGIC){
-		/* Request */
-		iPDULength = tvb_get_letohl(tvb, offset + 24) + 36;
-	}
-	return iPDULength;
+  guint32 iPDULength = 0;
+  if(tvb_length_remaining(tvb, offset) >= 8 && tvb_get_ntohl(tvb, offset + 0) == STARTEAM_MAGIC){
+    /* Response */
+    iPDULength = tvb_get_letohl(tvb, offset + 4) + 16;
+  } else if(tvb_length_remaining(tvb, offset) >= 28 && tvb_get_ntohl(tvb, offset + 20) == STARTEAM_MAGIC){
+    /* Request */
+    iPDULength = tvb_get_letohl(tvb, offset + 24) + 36;
+  }
+  return iPDULength;
 }
 
 static void
 dissect_starteam_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	tcp_dissect_pdus(tvb, pinfo, tree, starteam_desegment, 8, get_starteam_pdu_len, dissect_starteam);
+  tcp_dissect_pdus(tvb, pinfo, tree, starteam_desegment, 8, get_starteam_pdu_len, dissect_starteam);
 }
 
 
 static gboolean
 dissect_starteam_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	if(tvb_length(tvb) >= 32){
-		gint iOffsetLengths = -1;
-		if(tvb_get_ntohl(tvb, 0) == STARTEAM_MAGIC){
-			iOffsetLengths = 4;
-		} else if(tvb_get_ntohl(tvb, 20) == STARTEAM_MAGIC){
-			iOffsetLengths = 24;
-		}
-		if(iOffsetLengths != -1){
-			guint32 iLengthPacket;
-			guint32 iLengthData;
-			iLengthPacket = tvb_get_letohl(tvb, iOffsetLengths);
-			iLengthData = tvb_get_letohl(tvb, iOffsetLengths + 4);
+  if(tvb_length(tvb) >= 32){
+    gint iOffsetLengths = -1;
+    if(tvb_get_ntohl(tvb, 0) == STARTEAM_MAGIC){
+      iOffsetLengths = 4;
+    } else if(tvb_get_ntohl(tvb, 20) == STARTEAM_MAGIC){
+      iOffsetLengths = 24;
+    }
+    if(iOffsetLengths != -1){
+      guint32 iLengthPacket;
+      guint32 iLengthData;
+      iLengthPacket = tvb_get_letohl(tvb, iOffsetLengths);
+      iLengthData   = tvb_get_letohl(tvb, iOffsetLengths + 4);
 
-			if(iLengthPacket == iLengthData){
-				/* Register this dissector for this conversation */
-				conversation_t  *conversation = NULL;
-				conversation = find_or_create_conversation(pinfo);
-				conversation_set_dissector(conversation, starteam_tcp_handle);
+      if(iLengthPacket == iLengthData){
+        /* Register this dissector for this conversation */
+        conversation_t  *conversation = NULL;
+        conversation = find_or_create_conversation(pinfo);
+        conversation_set_dissector(conversation, starteam_tcp_handle);
 
-				/* Dissect the packet */
-				dissect_starteam(tvb, pinfo, tree);
-				return TRUE;
-			}
-		}
-	}
-	return FALSE;
+        /* Dissect the packet */
+        dissect_starteam(tvb, pinfo, tree);
+        return TRUE;
+      }
+    }
+  }
+  return FALSE;
 }
 
 void
@@ -665,7 +677,7 @@ proto_register_starteam(void)
       { "Component ID", "starteam.id.component", FT_UINT32, BASE_DEC, NULL, 0x0, "ID component ID", HFILL }},
 
    { &hf_starteam_id_command,
-      { "Command ID", "starteam.id.command", FT_UINT32, BASE_DEC, VALS(starteam_opcode_vals), 0x0, "ID command ID", HFILL }},
+      { "Command ID", "starteam.id.command", FT_UINT32, BASE_DEC|BASE_EXT_STRING, &starteam_opcode_vals_ext, 0x0, "ID command ID", HFILL }},
 
    { &hf_starteam_id_command_time,
       { "Command time", "starteam.id.commandtime", FT_UINT32, BASE_HEX, NULL, 0x0, "ID command time", HFILL }},
@@ -696,12 +708,12 @@ proto_register_starteam(void)
     "Whether the StarTeam dissector should reassemble messages spanning multiple TCP segments."
     " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &starteam_desegment);
-
+  register_init_routine(&starteam_init);
 }
 
 void
 proto_reg_handoff_starteam(void)
 {
-	heur_dissector_add("tcp", dissect_starteam_heur, proto_starteam);
-	starteam_tcp_handle = create_dissector_handle(dissect_starteam_tcp, proto_starteam);
+  heur_dissector_add("tcp", dissect_starteam_heur, proto_starteam);
+  starteam_tcp_handle = create_dissector_handle(dissect_starteam_tcp, proto_starteam);
 }
