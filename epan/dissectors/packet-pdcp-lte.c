@@ -1413,7 +1413,7 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     /* OK, compare with signature string */
-    if (tvb_strneql(tvb, offset, PDCP_LTE_START_STRING, (gint)strlen(PDCP_LTE_START_STRING)) != 0) {
+    if (tvb_strneql(tvb, offset, PDCP_LTE_START_STRING, strlen(PDCP_LTE_START_STRING)) != 0) {
         return FALSE;
     }
     offset += (gint)strlen(PDCP_LTE_START_STRING);

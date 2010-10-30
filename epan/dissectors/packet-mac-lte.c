@@ -849,7 +849,7 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     /* OK, compare with signature string */
-    if (tvb_strneql(tvb, offset, MAC_LTE_START_STRING, (gint)strlen(MAC_LTE_START_STRING)) != 0) {
+    if (tvb_strneql(tvb, offset, MAC_LTE_START_STRING, strlen(MAC_LTE_START_STRING)) != 0) {
         return FALSE;
     }
     offset += (gint)strlen(MAC_LTE_START_STRING);

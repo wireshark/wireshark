@@ -26,7 +26,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* 
+/*
  * RFC 2281 describes opcodes 0 - 2
  *
  * Op Code 3: **** HSRP Interface State Advertisements ****
@@ -63,7 +63,7 @@
  *
  * HSRP Version 2
  *  Ref. http://www.smartnetworks.jp/2006/02/hsrp_8_hsrp_version_2.html (Japanese Only)
- * 
+ *
  *  Group State TLV
  *
  *    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -350,7 +350,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 opcode = tvb_get_guint8(tvb, 1);
                 if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_add_str(pinfo->cinfo, COL_INFO, 
+                        col_add_str(pinfo->cinfo, COL_INFO,
                                      val_to_str(opcode, hsrp_opcode_vals, "Unknown"));
         	}
         	if (opcode < 3) {
@@ -407,7 +407,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         			auth_buf[sizeof auth_buf - 1] = '\0';
         			proto_tree_add_string_format(hsrp_tree, hf_hsrp_auth_data, tvb, offset, 8, auth_buf,
                                                      "Authentication Data: %sDefault (%s)",
-                                                     (tvb_strneql(tvb, offset, "cisco", (int)strlen("cisco"))) == 0 ? "" : "Non-",
+                                                     (tvb_strneql(tvb, offset, "cisco", strlen("cisco"))) == 0 ? "" : "Non-",
                                                      auth_buf);
         			offset += 8;
         			proto_tree_add_item(hsrp_tree, hf_hsrp_virt_ip_addr, tvb, offset, 4, FALSE);
@@ -470,7 +470,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                         col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
                                                      val_to_str(opcode, hsrp2_opcode_vals, "Unknown"));
                         	}
-				
+
                                 state = tvb_get_guint8(tvb, offset+2);
                         	if (check_col(pinfo->cinfo, COL_INFO)) {
                                        	col_append_fstr(pinfo->cinfo, COL_INFO, " (state %s)",
@@ -527,7 +527,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 guint16 active,passive;
                                 active = tvb_get_ntohs(tvb, offset+2);
                                 passive = tvb_get_ntohs(tvb, offset+4);
-                                
+
                                 if (check_col(pinfo->cinfo, COL_INFO)) {
                                         col_add_fstr(pinfo->cinfo, COL_INFO, "Interface State TLV (Act=%d Pass=%d)",active,passive);
                                 }
@@ -562,7 +562,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 			auth_buf[sizeof auth_buf - 1] = '\0';
                 			proto_tree_add_string_format(text_auth_tlv, hf_hsrp2_auth_data, tvb, offset, 8, auth_buf,
                                                              "Authentication Data: %sDefault (%s)",
-                                                             (tvb_strneql(tvb, offset, "cisco", (int)strlen("cisco"))) == 0 ? "" : "Non-",
+                                                             (tvb_strneql(tvb, offset, "cisco", strlen("cisco"))) == 0 ? "" : "Non-",
                                                              auth_buf);
                 			offset += 8;
                                 }

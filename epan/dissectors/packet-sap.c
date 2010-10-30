@@ -203,7 +203,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         		      auth_len, pad_len);
         		  return;
 		  }
-		  
+
 
                   proto_tree_add_text(sa_tree, tvb, offset+1, auth_data_len-pad_len-1,
                                       "Authentication subheader: (%u byte%s)",
@@ -230,7 +230,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           }
 
           /* Do we have the optional payload type aka. MIME content specifier */
-          if (tvb_strneql(tvb, offset, "v=", (int)strlen("v="))) {
+          if (tvb_strneql(tvb, offset, "v=", strlen("v="))) {
                   gint remaining_len;
                   guint32 pt_len;
                   int pt_string_len;

@@ -959,7 +959,7 @@ guint8_pbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles, g
 {
 	gchar tmp[256] = { 0 };
 	const guint8 *haystack_end;
-	
+
 	while (*needles)
 		tmp[*needles++] = 1;
 
@@ -1982,7 +1982,7 @@ tvb_strnlen(tvbuff_t *tvb, const gint offset, const guint maxlength)
  * it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
  */
 gint
-tvb_strneql(tvbuff_t *tvb, const gint offset, const gchar *str, const gint size)
+tvb_strneql(tvbuff_t *tvb, const gint offset, const gchar *str, const size_t size)
 {
 	const guint8 *ptr;
 
@@ -2572,7 +2572,7 @@ tvb_find_line_end(tvbuff_t *tvb, const gint offset, int len, gint *next_offset,
 
 		/*
 		 * Is it a CR?
-		 */		
+		 */
 		if (found_needle == '\r') {
 			/*
 			 * Yes - is it followed by an LF?
