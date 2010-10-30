@@ -23,7 +23,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA.
  */
 
@@ -64,42 +64,42 @@ static gint ett_asf = -1;
 static gint ett_asf_payload = -1;
 static gint ett_asf_alg_payload = -1;
 
-#define ASF_TYPE_RESET				0x10
-#define ASF_TYPE_PWR_UP				0x11
-#define ASF_TYPE_PWR_DOWN			0x12
-#define ASF_TYPE_PWR_CYCLE			0x13
-#define ASF_TYPE_PRES_PONG			0x40
-#define ASF_TYPE_CAP_RESP			0x41
-#define ASF_TYPE_SYS_STATE_RESP		0x42
-#define ASF_TYPE_OPEN_SESS_RESP		0x43
-#define ASF_TYPE_CLOSE_SESS_RESP	0x44
-#define ASF_TYPE_PRES_PING			0x80
-#define ASF_TYPE_CAP_RQST			0x81
-#define ASF_TYPE_SYS_STATE_RQST		0x82
-#define ASF_TYPE_OPEN_SESS_RQST		0x83
-#define ASF_TYPE_CLOSE_SESS_RQST	0x84
-#define ASF_TYPE_RAKP_MSG_1			0xC0
-#define ASF_TYPE_RAKP_MSG_2			0xC1
-#define ASF_TYPE_RAKP_MSG_3			0xC2
+#define ASF_TYPE_RESET                  0x10
+#define ASF_TYPE_PWR_UP                 0x11
+#define ASF_TYPE_PWR_DOWN               0x12
+#define ASF_TYPE_PWR_CYCLE              0x13
+#define ASF_TYPE_PRES_PONG              0x40
+#define ASF_TYPE_CAP_RESP               0x41
+#define ASF_TYPE_SYS_STATE_RESP         0x42
+#define ASF_TYPE_OPEN_SESS_RESP         0x43
+#define ASF_TYPE_CLOSE_SESS_RESP        0x44
+#define ASF_TYPE_PRES_PING              0x80
+#define ASF_TYPE_CAP_RQST               0x81
+#define ASF_TYPE_SYS_STATE_RQST         0x82
+#define ASF_TYPE_OPEN_SESS_RQST         0x83
+#define ASF_TYPE_CLOSE_SESS_RQST        0x84
+#define ASF_TYPE_RAKP_MSG_1             0xC0
+#define ASF_TYPE_RAKP_MSG_2             0xC1
+#define ASF_TYPE_RAKP_MSG_3             0xC2
 
 static const value_string asf_type_vals[] = {
-	{ ASF_TYPE_RESET, "Reset" },
-	{ ASF_TYPE_PWR_UP, "Power-up" },
-	{ ASF_TYPE_PWR_DOWN, "Unconditional Power-down" },
-	{ ASF_TYPE_PWR_CYCLE, "Power Cycle" },
-	{ ASF_TYPE_PRES_PONG, "Presence Pong" },
-	{ ASF_TYPE_CAP_RESP, "Capabilities Response" },
-	{ ASF_TYPE_SYS_STATE_RESP, "System State Response" },
-	{ ASF_TYPE_OPEN_SESS_RESP, "Open Session Response" },
+	{ ASF_TYPE_RESET,           "Reset" },
+	{ ASF_TYPE_PWR_UP,          "Power-up" },
+	{ ASF_TYPE_PWR_DOWN,        "Unconditional Power-down" },
+	{ ASF_TYPE_PWR_CYCLE,       "Power Cycle" },
+	{ ASF_TYPE_PRES_PONG,       "Presence Pong" },
+	{ ASF_TYPE_CAP_RESP,        "Capabilities Response" },
+	{ ASF_TYPE_SYS_STATE_RESP,  "System State Response" },
+	{ ASF_TYPE_OPEN_SESS_RESP,  "Open Session Response" },
 	{ ASF_TYPE_CLOSE_SESS_RESP, "Close Session Response" },
-	{ ASF_TYPE_PRES_PING, "Presence Ping" },
-	{ ASF_TYPE_CAP_RQST, "Capabilities Request" },
-	{ ASF_TYPE_SYS_STATE_RQST, "System State Request" },
-	{ ASF_TYPE_OPEN_SESS_RQST, "Open Session Request" },
+	{ ASF_TYPE_PRES_PING,       "Presence Ping" },
+	{ ASF_TYPE_CAP_RQST,        "Capabilities Request" },
+	{ ASF_TYPE_SYS_STATE_RQST,  "System State Request" },
+	{ ASF_TYPE_OPEN_SESS_RQST,  "Open Session Request" },
 	{ ASF_TYPE_CLOSE_SESS_RQST, "Close Session Request" },
-	{ ASF_TYPE_RAKP_MSG_1, "RAKP Message 1" },
-	{ ASF_TYPE_RAKP_MSG_2, "RAKP Message 2" },
-	{ ASF_TYPE_RAKP_MSG_3, "RAKP Message 3" },
+	{ ASF_TYPE_RAKP_MSG_1,      "RAKP Message 1" },
+	{ ASF_TYPE_RAKP_MSG_2,      "RAKP Message 2" },
+	{ ASF_TYPE_RAKP_MSG_3,      "RAKP Message 3" },
 	{ 0x00, NULL }
 };
 
@@ -115,14 +115,14 @@ static const value_string asf_rssp_status_code_vals[] = {
 	{ 0x00, NULL }
 };
 
-#define ASF_PAYLOAD_TYPE_NONE			0x00
-#define ASF_PAYLOAD_TYPE_AUTHENTICATION	0x01
-#define ASF_PAYLOAD_TYPE_INTEGRITY		0x02
+#define ASF_PAYLOAD_TYPE_NONE           0x00
+#define ASF_PAYLOAD_TYPE_AUTHENTICATION 0x01
+#define ASF_PAYLOAD_TYPE_INTEGRITY      0x02
 
 static const value_string asf_payload_type_vals[] = {
-	{ ASF_PAYLOAD_TYPE_NONE, "No payload present (end of list)" },
+	{ ASF_PAYLOAD_TYPE_NONE,           "No payload present (end of list)" },
 	{ ASF_PAYLOAD_TYPE_AUTHENTICATION, "Authentication algorithm payload" },
-	{ ASF_PAYLOAD_TYPE_INTEGRITY, "Integrity algorithm payload" },
+	{ ASF_PAYLOAD_TYPE_INTEGRITY,      "Integrity algorithm payload" },
 	{ 0x00, NULL }
 };
 
@@ -150,11 +150,11 @@ static void dissect_asf_payload_integrity(tvbuff_t *tvb, proto_tree *tree,
 static int
 dissect_asf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree	*asf_tree = NULL;
-	proto_item	*ti;
-	guint8		type;
-	guint8		len;
-	tvbuff_t	*next_tvb;
+	proto_tree *asf_tree = NULL;
+	proto_item *ti;
+	guint8      type;
+	guint8      len;
+	tvbuff_t   *next_tvb;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ASF");
 
@@ -184,9 +184,9 @@ dissect_asf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case ASF_TYPE_OPEN_SESS_RESP:
 			dissect_asf_open_session_response(tvb, asf_tree, 8, len);
 			break;
-		
+
 		/* TODO: Add the rest as captures become available to test. */
-		
+
 		default:
 			next_tvb = tvb_new_subset(tvb, 8, len, len);
 			call_dissector(data_handle, next_tvb, pinfo, tree);
@@ -196,31 +196,34 @@ dissect_asf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return 8 + len;
 }
 
-static void dissect_asf_open_session_request(tvbuff_t *tvb, proto_tree *tree,
+static void
+dissect_asf_open_session_request(tvbuff_t *tvb, proto_tree *tree,
 	gint offset, gint len)
 {
 	proto_tree_add_item(tree, hf_asf_mgt_console_id, tvb, offset, 4, FALSE);
 	offset += 4;
-	len -= 4;
+	len    -= 4;
 	dissect_asf_payloads(tvb, tree, offset, len);
 }
 
-static void dissect_asf_open_session_response(tvbuff_t *tvb, proto_tree *tree,
+static void
+dissect_asf_open_session_response(tvbuff_t *tvb, proto_tree *tree,
 	gint offset, gint len)
 {
 	proto_tree_add_item(tree, hf_asf_rssp_status_code, tvb, offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_asf_mgt_console_id, tvb, offset + 4, 4, FALSE);
 	proto_tree_add_item(tree, hf_asf_client_id, tvb, offset + 8, 4, FALSE);
 	offset += 12;
-	len -= 12;
+	len    -= 12;
 	dissect_asf_payloads(tvb, tree, offset, len);
-}	
+}
 
-static void dissect_asf_payloads(tvbuff_t *tvb, proto_tree *tree,
+static void
+dissect_asf_payloads(tvbuff_t *tvb, proto_tree *tree,
 	gint offset, gint len)
 {
-	guint8 ptype;
-	guint16 plen;
+	guint8      ptype;
+	guint16     plen;
 	proto_item *ti;
 	proto_tree *ptree;
 
@@ -228,7 +231,7 @@ static void dissect_asf_payloads(tvbuff_t *tvb, proto_tree *tree,
 	{
 		ptype = tvb_get_guint8(tvb, offset);
 		plen = tvb_get_ntohs(tvb, offset + 2);
-		
+
 		ti = proto_tree_add_none_format(tree, hf_asf_payload, tvb, offset,
 			plen, "%s: %u bytes",
 			val_to_str(ptype, asf_payload_type_vals, "Unknown (%u)"), plen);
@@ -254,14 +257,15 @@ static void dissect_asf_payloads(tvbuff_t *tvb, proto_tree *tree,
 			}
 		}
 		offset += plen;
-		len -= plen;
+		len    -= plen;
 	}
 }
 
-static void dissect_asf_payload_authentication(tvbuff_t *tvb, proto_tree *tree,
+static void
+dissect_asf_payload_authentication(tvbuff_t *tvb, proto_tree *tree,
 	gint offset, gint len)
 {
-	guint8 alg;
+	guint8      alg;
 	proto_item *ti;
 	proto_tree *atree;
 
@@ -274,10 +278,11 @@ static void dissect_asf_payload_authentication(tvbuff_t *tvb, proto_tree *tree,
 	proto_tree_add_item(atree, hf_asf_reserved, tvb, offset + 1, len - 1, FALSE);
 }
 
-static void dissect_asf_payload_integrity(tvbuff_t *tvb, proto_tree *tree,
+static void
+dissect_asf_payload_integrity(tvbuff_t *tvb, proto_tree *tree,
 	gint offset, gint len)
 {
-	guint8 alg;
+	guint8      alg;
 	proto_item *ti;
 	proto_tree *atree;
 
@@ -372,6 +377,6 @@ proto_reg_handoff_asf(void)
 
 	data_handle = find_dissector("data");
 
-	asf_handle = new_create_dissector_handle(dissect_asf, proto_asf);
+	asf_handle  = new_create_dissector_handle(dissect_asf, proto_asf);
 	dissector_add("rmcp.class", RMCP_CLASS_ASF, asf_handle);
 }
