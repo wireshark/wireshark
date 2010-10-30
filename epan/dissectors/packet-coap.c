@@ -34,6 +34,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <expert.h>
 
 #if 0
 #include <math.h>	/* for exp2() to calculate a block size */
@@ -174,13 +175,17 @@ dissect_coap_opt(tvbuff_t *tvb, proto_tree *subtree, gint offset, gint opt_lengt
 }
 
 static void
-dissect_coap_opt_ctype(tvbuff_t *tvb, proto_tree *subtree, gint offset, gint opt_length)
+dissect_coap_opt_ctype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, gint offset, gint opt_length)
 {
 	guint32 opt_ctype = 0;
+	proto_item *pi;
 
 	opt_ctype = tvb_get_guint8(tvb, offset);
 	coap_content_type = val_to_str(opt_ctype, vals_ctype, "Unknown %d");
-	proto_tree_add_item(subtree, hf_coap_opt_ctype, tvb, offset, opt_length, FALSE);
+	pi = proto_tree_add_item(subtree, hf_coap_opt_ctype, tvb, offset, 1, FALSE);
+	if (opt_length != 1)
+		expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_WARN,
+				       "Parameter has invalid length; should be 1");
 }
 
 /* the value of opt_length should be checked out of this function */
@@ -254,7 +259,7 @@ dissect_coap_opt_block(tvbuff_t *tvb, proto_tree *subtree, gint offset, gint opt
  * return the total length of the option including the header (e.g. delta and length).
  */
 static int
-dissect_coap_options(tvbuff_t *tvb, proto_tree *coap_tree, gint offset, guint8 opt_count, guint8 *opt_code)
+dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, gint offset, guint8 opt_count, guint8 *opt_code)
 {
 	guint8 opt_delta;
 	gint opt_length;
@@ -286,7 +291,7 @@ dissect_coap_options(tvbuff_t *tvb, proto_tree *coap_tree, gint offset, guint8 o
 	} else {
 		switch (*opt_code) {
 		case COAP_OPT_CONTENT_TYPE:
-			dissect_coap_opt_ctype(tvb, subtree, offset, opt_length);
+			dissect_coap_opt_ctype(tvb, pinfo, subtree, offset, opt_length);
 			break;
 		case COAP_OPT_MAX_AGE:
 			dissect_coap_opt_time(tvb, subtree, offset, opt_length, hf_coap_opt_max_age);
@@ -376,7 +381,7 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	/* dissect the options */
 	for (i = 1; i <= opt_count; i++) {
-		offset = dissect_coap_options(tvb, coap_tree, offset, i, &opt_code);
+		offset = dissect_coap_options(tvb, pinfo, coap_tree, offset, i, &opt_code);
 		if (coap_length < offset) {
 			/* error */
 			proto_tree_add_text(coap_tree, tvb, 0, 0, "Invalid length: coap_length(%d) < offset(%d)", coap_length, offset);
