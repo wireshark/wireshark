@@ -359,7 +359,6 @@ static const value_string drda_opcode_vals[] = {
   { DRDA_CP_ENDBND,       "End Binding a Package to an RDB" },
   { DRDA_CP_EXCSQLIMM,    "Execute Immediate SQL Statement" },
   { DRDA_CP_EXCSQLSTT,    "Execute SQL Statement" },
-  { DRDA_CP_EXCSQLSET,    "Set SQL Environment" },
   { DRDA_CP_OPNQRY,       "Open Query" },
   { DRDA_CP_PRPSQLSTT,    "Prepare SQL Statement" },
   { DRDA_CP_RDBCMM,       "RDB Commit Unit of Work" },
@@ -436,7 +435,6 @@ static const value_string drda_opcode_vals[] = {
   { DRDA_CP_OPNQFLRM,     "Open Query Failure" },
   { DRDA_CP_SQLERRRM,     "SQL Error Condition" },
   { DRDA_CP_RDBUPDRM,     "RDB Update Reply Message" },
-  { DRDA_CP_OPNQFLRM,     "Open Query Failure" },
   { DRDA_CP_RSLSETRM,     "RDB Result Set Reply Message" },
   { DRDA_CP_RDBAFLRM,     "RDB Access Failed Reply Message" },
   { DRDA_CP_CMDVLTRM,     "Command Violation" },
@@ -461,6 +459,8 @@ static const value_string drda_opcode_vals[] = {
   { DRDA_CP_SQLATTR,      "SQL Statement Attributes" },
   { 0,          NULL }
 };
+
+static value_string_ext drda_opcode_vals_ext = VALUE_STRING_EXT_INIT(drda_opcode_vals);
 
 static const value_string drda_opcode_abbr[] = {
   { DRDA_CP_DATA,         "DATA" },
@@ -544,7 +544,6 @@ static const value_string drda_opcode_abbr[] = {
   { DRDA_CP_ENDBND,       "ENDBND" },
   { DRDA_CP_EXCSQLIMM,    "EXCSQLIMM" },
   { DRDA_CP_EXCSQLSTT,    "EXCSQLSTT" },
-  { DRDA_CP_EXCSQLSET,    "EXCSQLSET" },
   { DRDA_CP_OPNQRY,       "OPNQRY" },
   { DRDA_CP_PRPSQLSTT,    "PRPSQLSTT" },
   { DRDA_CP_RDBCMM,       "RDBCMM" },
@@ -620,7 +619,6 @@ static const value_string drda_opcode_abbr[] = {
   { DRDA_CP_OPNQFLRM,     "OPNQFLRM" },
   { DRDA_CP_SQLERRRM,     "SQLERRRM" },
   { DRDA_CP_RDBUPDRM,     "RDBUPDRM" },
-  { DRDA_CP_OPNQFLRM,     "OPNQFLRM" },
   { DRDA_CP_RSLSETRM,     "RSLSETRM" },
   { DRDA_CP_RDBAFLRM,     "RDBAFLRM" },
   { DRDA_CP_CMDVLTRM,     "CMDVLTRM" },
@@ -646,6 +644,8 @@ static const value_string drda_opcode_abbr[] = {
   { 0,          NULL }
 };
 
+static value_string_ext drda_opcode_abbr_ext = VALUE_STRING_EXT_INIT(drda_opcode_abbr);
+
 static const value_string drda_dsstyp_abbr[] = {
   { DRDA_DSSFMT_RQSDSS,     "RQSDSS" },
   { DRDA_DSSFMT_RPYDSS,     "RPYDSS" },
@@ -655,14 +655,18 @@ static const value_string drda_dsstyp_abbr[] = {
   { 0,          NULL }
 };
 
+static gint iPreviousFrameNumber = -1;
+
+static void
+drda_init(void)
+{
+	iPreviousFrameNumber = -1;
+}
+
 static void
 dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree	*drda_tree = NULL;
-	proto_tree	*drdaroot_tree = NULL;
-	proto_item	*ti = NULL;
 	gint offset = 0;
-	static gint iPreviousFrameNumber = -1;
 
 	guint16 iCommand;
 	guint16 iLength;
@@ -673,7 +677,6 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 iDSSFlags;
 
 	guint16 iParameterCP;
-	proto_tree	*drda_tree_sub;
 	gint iLengthParam;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DRDA");
@@ -698,37 +701,39 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		{
 			if (offset > 0)
 				col_append_str(pinfo->cinfo, COL_INFO, " | ");
-			col_append_str(pinfo->cinfo, COL_INFO, val_to_str(iCommand, drda_opcode_abbr, "Unknown (0x%02x)"));
+			col_append_str(pinfo->cinfo, COL_INFO, val_to_str_ext(iCommand, &drda_opcode_abbr_ext, "Unknown (0x%02x)"));
 		}
 
 		if (tree)
 		{
+			proto_tree	*drda_tree;
+			proto_tree	*drdaroot_tree;
+			proto_tree	*drda_tree_sub;
+			proto_item	*ti;
+
 			ti = proto_tree_add_item(tree, proto_drda, tvb, offset, -1, FALSE);
-			proto_item_append_text(ti, " (%s)", val_to_str(iCommand, drda_opcode_vals, "Unknown (0x%02x)"));
+			proto_item_append_text(ti, " (%s)", val_to_str_ext(iCommand, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
 			drdaroot_tree = proto_item_add_subtree(ti, ett_drda);
 
 			ti = proto_tree_add_text(drdaroot_tree, tvb, offset, 10, DRDA_TEXT_DDM);
-			proto_item_append_text(ti, " (%s)", val_to_str(iCommand, drda_opcode_abbr, "Unknown (0x%02x)"));
+			proto_item_append_text(ti, " (%s)", val_to_str_ext(iCommand, &drda_opcode_abbr_ext, "Unknown (0x%02x)"));
 			drda_tree = proto_item_add_subtree(ti, ett_drda_ddm);
 
 			proto_tree_add_item(drda_tree, hf_drda_ddm_length, tvb, offset + 0, 2, FALSE);
 			proto_tree_add_item(drda_tree, hf_drda_ddm_magic, tvb, offset + 2, 1, FALSE);
 
-			{
-				drda_tree_sub = NULL;
-				iFormatFlags = tvb_get_guint8(tvb, offset + 3);
-				iDSSType = iFormatFlags & 0x0F;
-				iDSSFlags = iFormatFlags >> 4;
+			iFormatFlags = tvb_get_guint8(tvb, offset + 3);
+			iDSSType = iFormatFlags & 0x0F;
+			iDSSFlags = iFormatFlags >> 4;
 
-				ti = proto_tree_add_item(drda_tree, hf_drda_ddm_format, tvb, offset + 3, 1, FALSE);
-				drda_tree_sub = proto_item_add_subtree(ti, ett_drda_ddm_format);
+			ti = proto_tree_add_item(drda_tree, hf_drda_ddm_format, tvb, offset + 3, 1, FALSE);
+			drda_tree_sub = proto_item_add_subtree(ti, ett_drda_ddm_format);
 
-				proto_tree_add_boolean(drda_tree_sub, hf_drda_ddm_fmt_reserved, tvb, offset + 3, 1, iDSSFlags);
-				proto_tree_add_boolean(drda_tree_sub, hf_drda_ddm_fmt_chained, tvb, offset + 3, 1, iDSSFlags);
-				proto_tree_add_boolean(drda_tree_sub, hf_drda_ddm_fmt_errcont, tvb, offset + 3, 1, iDSSFlags);
-				proto_tree_add_boolean(drda_tree_sub, hf_drda_ddm_fmt_samecorr, tvb, offset + 3, 1, iDSSFlags);
-				proto_tree_add_uint(drda_tree_sub, hf_drda_ddm_fmt_dsstyp, tvb, offset + 3, 1, iDSSType);
-			}
+			proto_tree_add_boolean(drda_tree_sub, hf_drda_ddm_fmt_reserved, tvb, offset + 3, 1, iDSSFlags);
+			proto_tree_add_boolean(drda_tree_sub, hf_drda_ddm_fmt_chained, tvb, offset + 3, 1, iDSSFlags);
+			proto_tree_add_boolean(drda_tree_sub, hf_drda_ddm_fmt_errcont, tvb, offset + 3, 1, iDSSFlags);
+			proto_tree_add_boolean(drda_tree_sub, hf_drda_ddm_fmt_samecorr, tvb, offset + 3, 1, iDSSFlags);
+			proto_tree_add_uint(drda_tree_sub, hf_drda_ddm_fmt_dsstyp, tvb, offset + 3, 1, iDSSType);
 
 			proto_tree_add_item(drda_tree, hf_drda_ddm_rc, tvb, offset + 4, 2, FALSE);
 			proto_tree_add_item(drda_tree, hf_drda_ddm_length2, tvb, offset + 6, 2, FALSE);
@@ -743,10 +748,9 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					if (iLengthParam == 0 || iLengthParam == 1) iLengthParam = iLength - 10;
 					if (tvb_length_remaining(tvb, offset) >= iLengthParam)
 					{
-						drda_tree_sub = NULL;
 						iParameterCP = tvb_get_ntohs(tvb, offset + 2);
 						ti = proto_tree_add_text(drdaroot_tree, tvb, offset, iLengthParam, DRDA_TEXT_PARAM);
-						proto_item_append_text(ti, " (%s)", val_to_str(iParameterCP, drda_opcode_vals, "Unknown (0x%02x)"));
+						proto_item_append_text(ti, " (%s)", val_to_str_ext(iParameterCP, &drda_opcode_vals_ext, "Unknown (0x%02x)"));
 						drda_tree_sub = proto_item_add_subtree(ti, ett_drda_param);
 						proto_tree_add_item(drda_tree_sub, hf_drda_param_length, tvb, offset, 2, FALSE);
 						proto_tree_add_item(drda_tree_sub, hf_drda_param_codepoint, tvb, offset + 2, 2, FALSE);
@@ -854,13 +858,13 @@ proto_register_drda(void)
       { "Length2", "drda.ddm.length2", FT_UINT16, BASE_DEC, NULL, 0x0, "DDM length2", HFILL }},
 
    { &hf_drda_ddm_codepoint,
-      { "Code point", "drda.ddm.codepoint", FT_UINT16, BASE_HEX, VALS(drda_opcode_abbr), 0x0, "DDM code point", HFILL }},
+      { "Code point", "drda.ddm.codepoint", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &drda_opcode_abbr_ext, 0x0, "DDM code point", HFILL }},
 
    { &hf_drda_param_length,
       { "Length", "drda.param.length", FT_UINT16, BASE_DEC, NULL, 0x0, "Param length", HFILL }},
 
    { &hf_drda_param_codepoint,
-      { "Code point", "drda.param.codepoint", FT_UINT16, BASE_HEX, VALS(drda_opcode_abbr), 0x0, "Param code point", HFILL }},
+      { "Code point", "drda.param.codepoint", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &drda_opcode_abbr_ext, 0x0, "Param code point", HFILL }},
 
    { &hf_drda_param_data,
       { "Data (ASCII)", "drda.param.data", FT_STRING, BASE_NONE, NULL, 0x0, "Param data left as ASCII for display", HFILL }},
@@ -894,6 +898,7 @@ proto_register_drda(void)
     "Whether the DRDA dissector should reassemble messages spanning multiple TCP segments."
     " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &drda_desegment);
+  register_init_routine(&drda_init);
 }
 
 void
