@@ -78,6 +78,7 @@ static int hf_http_request_uri = -1;
 static int hf_http_request_full_uri = -1;
 static int hf_http_version = -1;
 static int hf_http_response_code = -1;
+static int hf_http_response_phrase = -1;
 static int hf_http_authorization = -1;
 static int hf_http_proxy_authenticate = -1;
 static int hf_http_proxy_authorization = -1;
@@ -1344,29 +1345,52 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 {
 	const guchar *next_token;
 	int tokenlen;
-	gchar response_chars[4];
+	gchar response_code_chars[4];
 
-	/* The first token is the version. */
+	/*
+	 * The first token is the HTTP Version.
+	 */
 	tokenlen = get_token_len(line, lineend, &next_token);
 	if (tokenlen == 0)
 		return;
 	proto_tree_add_item(tree, hf_http_version, tvb, offset, tokenlen,
 			    FALSE);
+	/* Advance to the start of the next token. */
 	offset += (int) (next_token - line);
 	line = next_token;
 
-	/* The next token is the status code. */
+	/*
+	 * The second token is the Status Code.
+	 */
 	tokenlen = get_token_len(line, lineend, &next_token);
 	if (tokenlen < 3)
 		return;
-	memcpy(response_chars, line, 3);
-	response_chars[3] = '\0';
+
+	/* The Status Code characters must be copied into a null-terminated
+	 * buffer for strtoul() to parse them into an unsigned integer value.
+	 */
+	memcpy(response_code_chars, line, 3);
+	response_code_chars[3] = '\0';
 
 	stat_info->response_code = conv_data->response_code =
-		strtoul(response_chars, NULL, 10);
+		strtoul(response_code_chars, NULL, 10);
 
 	proto_tree_add_uint(tree, hf_http_response_code, tvb, offset, 3,
 			    stat_info->response_code);
+
+	/* Advance to the start of the next token. */
+	offset += (int) (next_token - line);
+	line = next_token;
+
+	/*
+	 * The remaining tokens in the line comprise the Reason Phrase.
+	 */
+	tokenlen = (int) (lineend - line);
+	if (tokenlen < 1)
+		return;
+	proto_tree_add_item(tree, hf_http_response_phrase, tvb, offset,
+				tokenlen, FALSE);
+
 }
 
 /*
@@ -2380,9 +2404,13 @@ proto_register_http(void)
 		FT_STRING, BASE_NONE, NULL, 0x0,
 		"The full requested URI (including host name)", HFILL }},
 	    { &hf_http_response_code,
-	      { "Response Code",	"http.response.code",
+	      { "Status Code",	"http.response.code",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
-		"HTTP Response Code", HFILL }},
+		"HTTP Response Status Code", HFILL }},
+		{ &hf_http_response_phrase,
+		  { "Response Phrase", "http.response.phrase",
+	    FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Response Reason Phrase", HFILL }},
 	    { &hf_http_authorization,
 	      { "Authorization",	"http.authorization",
 		FT_STRING, BASE_NONE, NULL, 0x0,
