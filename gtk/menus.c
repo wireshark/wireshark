@@ -2830,7 +2830,7 @@ static const GtkActionEntry packet_list_heading_menu_popup_action_entries[] = {
   { "/Align Center",					GTK_STOCK_JUSTIFY_CENTER,			"Align Center",				NULL,	NULL,	G_CALLBACK(packet_list_heading_align_center_cb) },
   { "/Align Right",						GTK_STOCK_JUSTIFY_RIGHT,			"Align Right",				NULL,	NULL,	G_CALLBACK(packet_list_heading_align_right_cb) },
   { "/Column Preferences",				GTK_STOCK_PREFERENCES,				"Column Preferences...",	NULL,	NULL,	G_CALLBACK(packet_list_heading_col_pref_cb) },
-  { "/Edit Column Details",				NULL,						"Edit Column Details...",	NULL,	NULL,	G_CALLBACK(packet_list_heading_change_col_cb) },
+  { "/Edit Column Details",				WIRESHARK_STOCK_EDIT,			"Edit Column Details...",	NULL,	NULL,	G_CALLBACK(packet_list_heading_change_col_cb) },
   { "/Resize Column",					WIRESHARK_STOCK_RESIZE_COLUMNS,		"Resize Column",			NULL,	NULL,	G_CALLBACK(packet_list_heading_resize_col_cb) },
   { "/Displayed Columns",				NULL,								"Displayed Columns",		NULL,	NULL,	NULL },
   { "/Displayed Columns/Display All",				NULL,					"Display All",				NULL,	NULL,	G_CALLBACK(packet_list_heading_activate_all_columns_cb) },
