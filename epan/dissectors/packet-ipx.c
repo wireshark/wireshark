@@ -145,7 +145,7 @@ dissect_ipxmsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 /* ================================================================= */
 /* IPX                                                               */
 /* ================================================================= */
-const value_string ipx_socket_vals[] = {
+static const value_string ipx_socket_vals[] = {
 	{ IPX_SOCKET_PING_CISCO,		"CISCO PING" },
 	{ IPX_SOCKET_NCP,			"NCP" },
 	{ IPX_SOCKET_SAP,			"SAP" },
@@ -162,16 +162,20 @@ const value_string ipx_socket_vals[] = {
 	{ IPX_SOCKET_ATTACHMATE_GW,		"Attachmate Gateway" },
 	{ IPX_SOCKET_IPX_MESSAGE,		"IPX Message" },
 	{ IPX_SOCKET_IPX_MESSAGE1,		"IPX Message" },
-	{ IPX_SOCKET_SNMP_AGENT,		"SNMP Agent" },
-	{ IPX_SOCKET_SNMP_SINK,			"SNMP Sink" },
-	{ IPX_SOCKET_PING_NOVELL,		"Novell PING" },
-	{ IPX_SOCKET_UDP_TUNNEL,		"UDP Tunnel" },
-	{ IPX_SOCKET_TCP_TUNNEL,		"TCP Tunnel" },
-	{ IPX_SOCKET_TCP_TUNNEL,		"TCP Tunnel" },
+	{ 0x4006,				"NetWare Directory Server" },
+	{ 0x400C,				"HP LaserJet/QuickSilver" },
+	{ 0x8104,				"NetWare 386" },
 	{ IPX_SOCKET_ADSM,			"ADSM" },
 	{ IPX_SOCKET_EIGRP,			"Cisco EIGRP for IPX" },
+	{ 0x8F83,				"Powerchute UPS Monitoring" },
 	{ IPX_SOCKET_NLSP,			"NetWare Link Services Protocol" },
 	{ IPX_SOCKET_IPXWAN,			"IPX WAN" },
+	{ IPX_SOCKET_SNMP_AGENT,		"SNMP Agent" },
+	{ IPX_SOCKET_SNMP_SINK,			"SNMP Sink" },
+	{ 0x907B,				"SMS Testing and Development" },
+	{ IPX_SOCKET_PING_NOVELL,		"Novell PING" },
+	{ IPX_SOCKET_TCP_TUNNEL,		"TCP Tunnel" },
+	{ IPX_SOCKET_UDP_TUNNEL,		"UDP Tunnel" },
 	{ SPX_SOCKET_PA,			"NDPS Printer Agent/PSM" },
 	{ SPX_SOCKET_BROKER,			"NDPS Broker" },
 	{ SPX_SOCKET_SRS,			"NDPS Service Registry Service" },
@@ -179,18 +183,15 @@ const value_string ipx_socket_vals[] = {
 	{ SPX_SOCKET_RMS,			"NDPS Remote Management Service" },
 	{ SPX_SOCKET_NOTIFY_LISTENER,		"NDPS Notify Listener" },
 	{ 0xE885,				"NT Server-RPC/GW" },
-	{ 0x400C,				"HP LaserJet/QuickSilver" },
-	{ 0x907B,				"SMS Testing and Development" },
-	{ 0x8F83,				"Powerchute UPS Monitoring" },
-	{ 0x4006,				"NetWare Directory Server" },
-	{ 0x8104,				"NetWare 386" },
 	{ 0x0000,				NULL }
 };
+
+value_string_ext ipx_socket_vals_ext = VALUE_STRING_EXT_INIT(ipx_socket_vals);
 
 static const char*
 socket_text(guint16 socket)
 {
-	return val_to_str(socket, ipx_socket_vals, "Unknown");
+	return val_to_str_ext_const(socket, &ipx_socket_vals_ext, "Unknown");
 }
 
 static const value_string ipx_packet_type_vals[] = {
@@ -426,9 +427,9 @@ typedef struct {
 } spx_hash_key;
 
 typedef struct {
-        guint16             spx_ack;
-        guint16             spx_all;
-        guint32             num;
+	guint16             spx_ack;
+	guint16             spx_all;
+	guint32             num;
 } spx_hash_value;
 
 /*
@@ -436,7 +437,7 @@ typedef struct {
  * frame number of the original transmission.
  */
 typedef struct {
-        guint32             num;
+	guint32             num;
 } spx_rexmit_info;
 
 static GHashTable *spx_hash = NULL;
@@ -848,7 +849,7 @@ dissect_ipxmsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO,
 			"%s, Connection %d",
-			val_to_str(sig_char, ipxmsg_sigchar_vals, "Unknown Signature Char"), conn_number);
+			val_to_str_const(sig_char, ipxmsg_sigchar_vals, "Unknown Signature Char"), conn_number);
 	}
 
 	if (tree) {
@@ -981,7 +982,7 @@ dissect_serialization(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * which has a huge list - but many of the entries list only the
  * organization owning the SAP type, not what the type is for).
  */
-const value_string server_vals[] = {
+static const value_string novell_server_vals[] = {
 	{ 0x0000,	"Unknown" },
 	{ 0x0001,	"User" },
 	{ 0x0002,	"User Group" },
@@ -1164,8 +1165,8 @@ const value_string server_vals[] = {
 	{ 0x079b,	"Shiva LanRover/E 115" },
 	{ 0x079c,	"Shiva LanRover/T 115" },
 	{ 0x07B4,	"Cubix WorldDesk" },
-	{ 0x07c2,	"Quarterdeck IWare Connect V2.x NLM" },
 	{ 0x07c1,	"Quarterdeck IWare Connect V3.x NLM" },
+	{ 0x07c2,	"Quarterdeck IWare Connect V2.x NLM" },
 	{ 0x0810,	"ELAN License Server Demo" },
 	{ 0x0824,	"Shiva LanRover Access Switch/E" },
 	{ 0x086a,	"ISSC collector NLMs" },
@@ -1199,6 +1200,8 @@ const value_string server_vals[] = {
 	{ 0xffff,	"Any Service or Wildcard" },
 	{ 0x0000,	NULL }
 };
+
+value_string_ext novell_server_vals_ext = VALUE_STRING_EXT_INIT(novell_server_vals);
 
 static void
 dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -1265,7 +1268,7 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				s_tree = proto_item_add_subtree(ti, ett_ipxsap_server);
 
 				proto_tree_add_text(s_tree, tvb, cursor, 2, "Server Type: %s (0x%04X)",
-				    val_to_str(server_type, server_vals, "Unknown"),
+				    val_to_str_ext_const(server_type, &novell_server_vals_ext, "Unknown"),
 				    server_type);
 				proto_tree_add_text(s_tree, tvb, cursor+50, 4, "Network: %s",
 						ipxnet_to_string(tvb_get_ptr(tvb, cursor+50, 4)));
@@ -1283,7 +1286,7 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		else {  /* queries */
 			proto_tree_add_text(sap_tree, tvb, 2, 2, "Server Type: %s (0x%04X)",
-				val_to_str(query.server_type, server_vals, "Unknown"),
+				val_to_str_ext_const(query.server_type, &novell_server_vals_ext, "Unknown"),
 				query.server_type);
 		}
 	}
@@ -1330,8 +1333,8 @@ proto_register_ipx(void)
 			NULL, HFILL }},
 
 		{ &hf_ipx_dsocket,
-		{ "Destination Socket",	"ipx.dst.socket", FT_UINT16, BASE_HEX,
-			VALS(ipx_socket_vals), 0x0,
+		{ "Destination Socket",	"ipx.dst.socket", FT_UINT16, BASE_HEX|BASE_EXT_STRING,
+			&ipx_socket_vals_ext, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_ipx_snet,
@@ -1343,8 +1346,8 @@ proto_register_ipx(void)
 			NULL, HFILL }},
 
 		{ &hf_ipx_ssocket,
-		{ "Source Socket",	"ipx.src.socket", FT_UINT16, BASE_HEX,
-			VALS(ipx_socket_vals), 0x0,
+		{ "Source Socket",	"ipx.src.socket", FT_UINT16, BASE_HEX|BASE_EXT_STRING,
+			&ipx_socket_vals_ext, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_ipx_net,
@@ -1356,8 +1359,8 @@ proto_register_ipx(void)
 			NULL, HFILL }},
 
 		{ &hf_ipx_socket,
-		{ "Source or Destination Socket", "ipx.socket", FT_UINT16, BASE_HEX,
-			VALS(ipx_socket_vals), 0x0,
+		{ "Source or Destination Socket", "ipx.socket", FT_UINT16, BASE_HEX|BASE_EXT_STRING,
+			&ipx_socket_vals_ext, 0x0,
 			NULL, HFILL }},
 	};
 
@@ -1508,7 +1511,7 @@ proto_register_ipx(void)
 
 	register_init_routine(&spx_init_protocol);
 	register_postseq_cleanup_routine(&spx_postseq_cleanup);
-        ipx_tap=register_tap("ipx");
+	ipx_tap=register_tap("ipx");
 }
 
 void

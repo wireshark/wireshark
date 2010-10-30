@@ -145,9 +145,8 @@ struct ipx_rip_packet
 #define SPX_SOCKET_RMS                  0x90b6 /* NDPS Remote Management Service */
 #define SPX_SOCKET_NOTIFY_LISTENER      0x90b7 /* NDPS Notify Listener */
 
-extern const value_string ipx_socket_vals[];
-
-extern const value_string server_vals[];
+extern value_string_ext ipx_socket_vals_ext;
+extern value_string_ext novell_server_vals_ext;
 
 void capture_ipx(packet_counts *);
 

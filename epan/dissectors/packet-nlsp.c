@@ -824,7 +824,7 @@ dissect_lsp_svcs_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	if (tree) {
 		proto_tree_add_text(tree, tvb, offset, 2,
 		    "Socket: %s",
-		    val_to_str(tvb_get_ntohs(tvb, offset), ipx_socket_vals,
+		    val_to_str_ext(tvb_get_ntohs(tvb, offset), &ipx_socket_vals_ext,
 			"Unknown (0x%04x)"));
 	}
 	offset += 2;
@@ -838,7 +838,7 @@ dissect_lsp_svcs_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	if (tree) {
 		proto_tree_add_text(tree, tvb, offset, 2,
 		    "Type: %s",
-		    val_to_str(tvb_get_ntohs(tvb, offset), server_vals,
+		    val_to_str_ext(tvb_get_ntohs(tvb, offset), &novell_server_vals_ext,
 			"Unknown (0x%04x)"));
 	}
 	offset += 2;
