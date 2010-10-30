@@ -716,7 +716,7 @@ static void uat_cancel_cb(GtkWidget *button _U_, gpointer u) {
 			report_failure("Error while loading %s: %s",uat->name,err);
 		}
 
-		if (cfile.state == FILE_READ_DONE) cf_reload(&cfile);
+		redissect_packets ();
 	}
 
 	g_signal_handlers_disconnect_by_func(uat->rep->window, uat_window_delete_event_cb, uat);
@@ -730,8 +730,8 @@ static void uat_apply_cb(GtkButton *button _U_, gpointer u) {
 	uat_t* uat = u;
 
 	if (uat->changed) {
-		if (cfile.state == FILE_READ_DONE) cf_reload(&cfile);
 		if (uat->post_update_cb) uat->post_update_cb();
+		redissect_packets ();
 	}
 }
 
@@ -746,11 +746,8 @@ static void uat_ok_cb(GtkButton *button _U_, gpointer u) {
 			report_failure("Error while saving %s: %s",uat->name,err);
 		}
 
-		if (cfile.state == FILE_READ_DONE) cf_reload(&cfile);
-		
-		
 		if (uat->post_update_cb) uat->post_update_cb();
-		
+		redissect_packets ();
 	}
 
 	g_signal_handlers_disconnect_by_func(uat->rep->window, uat_window_delete_event_cb, uat);
