@@ -296,7 +296,7 @@ proto_register_asf(void)
 		{ &hf_asf_iana, {
 			"IANA Enterprise Number", "asf.iana",
 			FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0,
-			"IANA Enterprise Number", HFILL }},
+			NULL, HFILL }},
 		{ &hf_asf_type, {
 			"Message Type", "asf.type",
 			FT_UINT8, BASE_HEX, VALS(asf_type_vals), 0,
