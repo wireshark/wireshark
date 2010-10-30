@@ -4570,8 +4570,8 @@ module IOP{
 
 */
 
-void decode_IOR(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset,
-                guint32 boundary, gboolean stream_is_big_endian) {
+static void decode_IOR(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset,
+                       guint32 boundary, gboolean stream_is_big_endian) {
 
 
   guint32 seqlen_p;             /* sequence length of profiles */
@@ -5098,6 +5098,8 @@ static const value_string giop_code_set_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext giop_code_set_vals_ext = VALUE_STRING_EXT_INIT(giop_code_set_vals);
+
 static void decode_CodeSets(tvbuff_t *tvb, proto_tree *tree, int *offset,
                             gboolean stream_is_be, guint32 boundary) {
 
@@ -5113,12 +5115,12 @@ static void decode_CodeSets(tvbuff_t *tvb, proto_tree *tree, int *offset,
     code_set_id = get_CDR_ulong(tvb, offset, stream_is_be, -((gint32) boundary) );
 
     proto_tree_add_text (tree, tvb, *offset - 4, 4,
-                             "char_data:  0x%08x %s", code_set_id, val_to_str(code_set_id, giop_code_set_vals, "Unknown (%u)") );
+                             "char_data:  0x%08x %s", code_set_id, val_to_str_ext(code_set_id, &giop_code_set_vals_ext, "Unknown (%u)") );
 
     code_set_id = get_CDR_ulong(tvb, offset, stream_is_be, -((gint32) boundary) );
 
     proto_tree_add_text (tree, tvb, *offset - 4, 4,
-                             "wchar_data: 0x%08x %s", code_set_id, val_to_str(code_set_id, giop_code_set_vals, "Unknown (%u)") );
+                             "wchar_data: 0x%08x %s", code_set_id, val_to_str_ext(code_set_id, &giop_code_set_vals_ext, "Unknown (%u)") );
 
   }
 
@@ -5215,8 +5217,8 @@ static void decode_UnknownServiceContext(tvbuff_t *tvb, proto_tree *tree, int *o
  *
  */
 
-void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *ptree, int *offset,
-                               gboolean stream_is_be, guint32 boundary) {
+static void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *ptree, int *offset,
+                                      gboolean stream_is_be, guint32 boundary) {
 
   guint32 seqlen;               /* sequence length  */
   guint32 context_data_len;     /* context data sequence length  */
