@@ -110,7 +110,7 @@ static const true_false_string ipmi_payload_enc_val  = {
   "Payload is unencrypted"
 };
 
-static void
+static int
 dissect_ipmi_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*sess_tree = NULL, *s_tree;
@@ -261,6 +261,7 @@ dissect_ipmi_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					tvb, offset, tvb_length(tvb) - offset, TRUE);
 		}
 	}
+	return tvb_length(tvb);
 }
 
 void
@@ -319,7 +320,7 @@ proto_reg_handoff_ipmi_session(void)
 {
 	dissector_handle_t ipmi_session_handle;
 
-	ipmi_session_handle = create_dissector_handle(dissect_ipmi_session, proto_ipmi_session);
+	ipmi_session_handle = new_create_dissector_handle(dissect_ipmi_session, proto_ipmi_session);
 	dissector_add("rmcp.class", RMCP_CLASS_IPMI, ipmi_session_handle);
 
 	data_handle = find_dissector("data");
