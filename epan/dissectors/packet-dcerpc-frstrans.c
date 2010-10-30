@@ -6,6 +6,8 @@
 	It is maintained by the Samba team, not the Wireshark team.
 	Instructions on how to download and install Pidl can be 
 	found at http://wiki.wireshark.org/Pidl
+
+	$Id$
 */
 
 
