@@ -624,7 +624,7 @@ extern gint tvb_strneql(tvbuff_t *tvb, const gint offset, const gchar *str,
  * 0 if it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
  */
 extern gint tvb_strncaseeql(tvbuff_t *tvb, const gint offset, const gchar *str,
-    const gint size);
+    const size_t size);
 
 /**
  * Call memcmp after checking if enough chars left, returning 0 if

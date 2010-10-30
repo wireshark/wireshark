@@ -1986,7 +1986,7 @@ tvb_strneql(tvbuff_t *tvb, const gint offset, const gchar *str, const size_t siz
 {
 	const guint8 *ptr;
 
-	ptr = ensure_contiguous_no_exception(tvb, offset, size, NULL);
+	ptr = ensure_contiguous_no_exception(tvb, offset, (gint)size, NULL);
 
 	if (ptr) {
 		int cmp = strncmp((const char *)ptr, str, size);
@@ -2009,11 +2009,11 @@ tvb_strneql(tvbuff_t *tvb, const gint offset, const gchar *str, const size_t siz
  * 0 if it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
  */
 gint
-tvb_strncaseeql(tvbuff_t *tvb, const gint offset, const gchar *str, const gint size)
+tvb_strncaseeql(tvbuff_t *tvb, const gint offset, const gchar *str, const size_t size)
 {
 	const guint8 *ptr;
 
-	ptr = ensure_contiguous_no_exception(tvb, offset, size, NULL);
+	ptr = ensure_contiguous_no_exception(tvb, offset, (gint)size, NULL);
 
 	if (ptr) {
 		int cmp = g_ascii_strncasecmp((const char *)ptr, str, size);
