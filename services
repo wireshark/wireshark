@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2010-10-21)
+(last updated 2010-10-25)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -2602,7 +2602,7 @@ winpoplanmess   1152/udp   Winpopup LAN Messenger
 #                          Vitali Fomine <info&winpopup-lan-messenger.com> November 2005
 c1222-acse      1153/tcp   ANSI C12.22 Port
 c1222-acse      1153/udp   ANSI C12.22 Port
-#                          Avygdor Moise <avy&fdos.ca> November 2005
+#                          [RFC-c1222-transport-over-ip-07.txt]
 resacommunity   1154/tcp   Community Service
 resacommunity   1154/udp   Community Service
 #                          StÈphane MONS <stephane.mons&free.fr> September 2005
@@ -17040,7 +17040,10 @@ References
 [RFC-moriarty-post-inch-rid-transport-03.txt]
             K. Moriarty and B. Trammell, "Transport of Real-time Inter-network Defense 
             (RID) Messages", RFC XXXX, Month Year.
-
+            
+[RFC-c1222-transport-over-ip-07.txt]
+            A. Moise, J. Brodkin, "ANSI C12.22, IEEE 1703 and MC12.22 Transport Over IP", 
+            RFC XXXX, Month Year. 
 
 []
 
