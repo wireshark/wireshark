@@ -2010,12 +2010,12 @@ void proto_register_batadv(void)
 		    NULL, HFILL }
 		},
 		{ &hf_batadv_vis_entry_src,
-		  { "Source", "hf_batadv_vis_entry.src",
+		  { "Source", "batadv.vis.src",
 		    FT_ETHER, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_batadv_vis_entry_dst,
-		  { "Destination", "hf_batadv_vis_entry.dst",
+		  { "Destination", "batadv.vis.dst",
 		    FT_ETHER, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
 		},
