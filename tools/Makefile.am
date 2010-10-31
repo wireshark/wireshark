@@ -29,8 +29,6 @@ PIDL_FILES= \
 	pidl/Makefile.PL				\
 	pidl/README					\
 	pidl/TODO					\
-	pidl/config.m4					\
-	pidl/config.mk					\
 	pidl/expr.yp					\
 	pidl/idl.yp					\
 	pidl/lib/Parse/Pidl.pm				\
@@ -60,9 +58,6 @@ PIDL_FILES= \
 	pidl/lib/Parse/Pidl/Wireshark/NDR.pm		\
 	pidl/lib/Parse/Yapp/Driver.pm			\
 	pidl/pidl					\
-	pidl/ref_notes.txt				\
-	pidl/smb_interfaces.pm				\
-	pidl/smb_interfaces.yp				\
 	pidl/tests/Util.pm				\
 	pidl/tests/cutil.pl				\
 	pidl/tests/dump.pl				\
