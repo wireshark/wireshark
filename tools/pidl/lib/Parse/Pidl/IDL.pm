@@ -1065,11 +1065,9 @@ sub new {
 		DEFAULT => -16
 	},
 	{#State 125
-		ACTIONS => {
-			'IDENTIFIER' => 26
-		},
+		DEFAULT => -75,
 		GOTOS => {
-			'identifier' => 137
+			'pointers' => 137
 		}
 	},
 	{#State 126
@@ -1165,11 +1163,11 @@ sub new {
 	},
 	{#State 137
 		ACTIONS => {
-			"[" => 155
+			'IDENTIFIER' => 26,
+			"*" => 152
 		},
-		DEFAULT => -86,
 		GOTOS => {
-			'array_len' => 156
+			'identifier' => 155
 		}
 	},
 	{#State 138
@@ -1178,7 +1176,7 @@ sub new {
 	{#State 139
 		DEFAULT => -68,
 		GOTOS => {
-			'union_elements' => 157
+			'union_elements' => 156
 		}
 	},
 	{#State 140
@@ -1190,7 +1188,7 @@ sub new {
 	{#State 142
 		DEFAULT => -78,
 		GOTOS => {
-			'element_list1' => 158
+			'element_list1' => 157
 		}
 	},
 	{#State 143
@@ -1201,9 +1199,9 @@ sub new {
 			'IDENTIFIER' => 26
 		},
 		GOTOS => {
-			'identifier' => 159,
-			'enum_element' => 160,
-			'enum_elements' => 161
+			'identifier' => 158,
+			'enum_element' => 159,
+			'enum_elements' => 160
 		}
 	},
 	{#State 145
@@ -1221,10 +1219,10 @@ sub new {
 		},
 		DEFAULT => -57,
 		GOTOS => {
-			'identifier' => 164,
-			'bitmap_element' => 163,
-			'bitmap_elements' => 162,
-			'opt_bitmap_elements' => 165
+			'identifier' => 163,
+			'bitmap_element' => 162,
+			'bitmap_elements' => 161,
+			'opt_bitmap_elements' => 164
 		}
 	},
 	{#State 149
@@ -1233,19 +1231,19 @@ sub new {
 	{#State 150
 		ACTIONS => {
 			"," => -82,
-			"void" => 169,
-			"const" => 167,
+			"void" => 168,
+			"const" => 166,
 			")" => -82
 		},
 		DEFAULT => -80,
 		GOTOS => {
-			'optional_const' => 166,
-			'element_list2' => 168
+			'optional_const' => 165,
+			'element_list2' => 167
 		}
 	},
 	{#State 151
 		ACTIONS => {
-			"[" => 155,
+			"[" => 169,
 			"=" => 171
 		},
 		GOTOS => {
@@ -1288,96 +1286,100 @@ sub new {
 	},
 	{#State 155
 		ACTIONS => {
+			"[" => 169
+		},
+		DEFAULT => -86,
+		GOTOS => {
+			'array_len' => 172
+		}
+	},
+	{#State 156
+		ACTIONS => {
+			"}" => 173
+		},
+		DEFAULT => -89,
+		GOTOS => {
+			'optional_base_element' => 175,
+			'property_list' => 174
+		}
+	},
+	{#State 157
+		ACTIONS => {
+			"}" => 176
+		},
+		DEFAULT => -89,
+		GOTOS => {
+			'base_element' => 177,
+			'property_list' => 178
+		}
+	},
+	{#State 158
+		ACTIONS => {
+			"=" => 179
+		},
+		DEFAULT => -49
+	},
+	{#State 159
+		DEFAULT => -47
+	},
+	{#State 160
+		ACTIONS => {
+			"}" => 180,
+			"," => 181
+		}
+	},
+	{#State 161
+		ACTIONS => {
+			"," => 182
+		},
+		DEFAULT => -58
+	},
+	{#State 162
+		DEFAULT => -55
+	},
+	{#State 163
+		ACTIONS => {
+			"=" => 183
+		}
+	},
+	{#State 164
+		ACTIONS => {
+			"}" => 184
+		}
+	},
+	{#State 165
+		DEFAULT => -89,
+		GOTOS => {
+			'base_element' => 185,
+			'property_list' => 178
+		}
+	},
+	{#State 166
+		DEFAULT => -81
+	},
+	{#State 167
+		ACTIONS => {
+			"," => 186,
+			")" => 187
+		}
+	},
+	{#State 168
+		DEFAULT => -83
+	},
+	{#State 169
+		ACTIONS => {
 			'CONSTANT' => 48,
 			'TEXT' => 16,
-			"]" => 172,
+			"]" => 188,
 			'IDENTIFIER' => 26
 		},
 		DEFAULT => -97,
 		GOTOS => {
 			'identifier' => 50,
-			'anytext' => 173,
+			'anytext' => 189,
 			'text' => 51,
 			'constant' => 47
 		}
-	},
-	{#State 156
-		ACTIONS => {
-			";" => 174
-		}
-	},
-	{#State 157
-		ACTIONS => {
-			"}" => 175
-		},
-		DEFAULT => -89,
-		GOTOS => {
-			'optional_base_element' => 177,
-			'property_list' => 176
-		}
-	},
-	{#State 158
-		ACTIONS => {
-			"}" => 178
-		},
-		DEFAULT => -89,
-		GOTOS => {
-			'base_element' => 179,
-			'property_list' => 180
-		}
-	},
-	{#State 159
-		ACTIONS => {
-			"=" => 181
-		},
-		DEFAULT => -49
-	},
-	{#State 160
-		DEFAULT => -47
-	},
-	{#State 161
-		ACTIONS => {
-			"}" => 182,
-			"," => 183
-		}
-	},
-	{#State 162
-		ACTIONS => {
-			"," => 184
-		},
-		DEFAULT => -58
-	},
-	{#State 163
-		DEFAULT => -55
-	},
-	{#State 164
-		ACTIONS => {
-			"=" => 185
-		}
-	},
-	{#State 165
-		ACTIONS => {
-			"}" => 186
-		}
-	},
-	{#State 166
-		DEFAULT => -89,
-		GOTOS => {
-			'base_element' => 187,
-			'property_list' => 180
-		}
-	},
-	{#State 167
-		DEFAULT => -81
-	},
-	{#State 168
-		ACTIONS => {
-			"," => 188,
-			")" => 189
-		}
-	},
-	{#State 169
-		DEFAULT => -83
 	},
 	{#State 170
 		ACTIONS => {
@@ -1400,63 +1402,36 @@ sub new {
 	},
 	{#State 172
 		ACTIONS => {
-			"[" => 155
-		},
-		DEFAULT => -86,
-		GOTOS => {
-			'array_len' => 192
+			";" => 192
 		}
 	},
 	{#State 173
-		ACTIONS => {
-			"-" => 69,
-			":" => 68,
-			"?" => 70,
-			"<" => 71,
-			"+" => 73,
-			"~" => 72,
-			"&" => 75,
-			"{" => 74,
-			"/" => 76,
-			"=" => 77,
-			"|" => 79,
-			"(" => 78,
-			"*" => 80,
-			"." => 81,
-			"]" => 193,
-			">" => 82
-		}
-	},
-	{#State 174
-		DEFAULT => -29
-	},
-	{#State 175
 		DEFAULT => -70
 	},
-	{#State 176
+	{#State 174
 		ACTIONS => {
 			"[" => 20
 		},
 		DEFAULT => -89,
 		GOTOS => {
-			'base_or_empty' => 194,
-			'base_element' => 195,
-			'empty_element' => 196,
-			'property_list' => 197
+			'base_or_empty' => 193,
+			'base_element' => 194,
+			'empty_element' => 195,
+			'property_list' => 196
 		}
 	},
-	{#State 177
+	{#State 175
 		DEFAULT => -69
 	},
-	{#State 178
+	{#State 176
 		DEFAULT => -60
 	},
-	{#State 179
+	{#State 177
 		ACTIONS => {
-			";" => 198
+			";" => 197
 		}
 	},
-	{#State 180
+	{#State 178
 		ACTIONS => {
 			'IDENTIFIER' => 26,
 			"signed" => 100,
@@ -1474,12 +1449,12 @@ sub new {
 			'identifier' => 96,
 			'struct' => 62,
 			'enum' => 65,
-			'type' => 199,
+			'type' => 198,
 			'union' => 67,
 			'sign' => 97
 		}
 	},
-	{#State 181
+	{#State 179
 		ACTIONS => {
 			'CONSTANT' => 48,
 			'TEXT' => 16,
@@ -1488,33 +1463,33 @@ sub new {
 		DEFAULT => -97,
 		GOTOS => {
 			'identifier' => 50,
-			'anytext' => 200,
+			'anytext' => 199,
 			'text' => 51,
 			'constant' => 47
+		}
+	},
+	{#State 180
+		DEFAULT => -43
+	},
+	{#State 181
+		ACTIONS => {
+			'IDENTIFIER' => 26
+		},
+		GOTOS => {
+			'identifier' => 158,
+			'enum_element' => 200
 		}
 	},
 	{#State 182
-		DEFAULT => -43
+		ACTIONS => {
+			'IDENTIFIER' => 26
+		},
+		GOTOS => {
+			'identifier' => 163,
+			'bitmap_element' => 201
+		}
 	},
 	{#State 183
-		ACTIONS => {
-			'IDENTIFIER' => 26
-		},
-		GOTOS => {
-			'identifier' => 159,
-			'enum_element' => 201
-		}
-	},
-	{#State 184
-		ACTIONS => {
-			'IDENTIFIER' => 26
-		},
-		GOTOS => {
-			'identifier' => 164,
-			'bitmap_element' => 202
-		}
-	},
-	{#State 185
 		ACTIONS => {
 			'CONSTANT' => 48,
 			'TEXT' => 16,
@@ -1523,29 +1498,58 @@ sub new {
 		DEFAULT => -97,
 		GOTOS => {
 			'identifier' => 50,
-			'anytext' => 203,
+			'anytext' => 202,
 			'text' => 51,
 			'constant' => 47
 		}
 	},
-	{#State 186
+	{#State 184
 		DEFAULT => -51
 	},
-	{#State 187
+	{#State 185
 		DEFAULT => -84
 	},
-	{#State 188
+	{#State 186
 		ACTIONS => {
-			"const" => 167
+			"const" => 166
 		},
 		DEFAULT => -80,
 		GOTOS => {
-			'optional_const' => 204
+			'optional_const' => 203
+		}
+	},
+	{#State 187
+		ACTIONS => {
+			";" => 204
+		}
+	},
+	{#State 188
+		ACTIONS => {
+			"[" => 169
+		},
+		DEFAULT => -86,
+		GOTOS => {
+			'array_len' => 205
 		}
 	},
 	{#State 189
 		ACTIONS => {
-			";" => 205
+			"-" => 69,
+			":" => 68,
+			"?" => 70,
+			"<" => 71,
+			"+" => 73,
+			"~" => 72,
+			"&" => 75,
+			"{" => 74,
+			"/" => 76,
+			"=" => 77,
+			"|" => 79,
+			"(" => 78,
+			"*" => 80,
+			"." => 81,
+			"]" => 206,
+			">" => 82
 		}
 	},
 	{#State 190
@@ -1557,7 +1561,7 @@ sub new {
 		DEFAULT => -97,
 		GOTOS => {
 			'identifier' => 50,
-			'anytext' => 206,
+			'anytext' => 207,
 			'text' => 51,
 			'constant' => 47
 		}
@@ -1568,7 +1572,7 @@ sub new {
 			":" => 68,
 			"?" => 70,
 			"<" => 71,
-			";" => 207,
+			";" => 208,
 			"+" => 73,
 			"~" => 72,
 			"&" => 75,
@@ -1583,29 +1587,20 @@ sub new {
 		}
 	},
 	{#State 192
-		DEFAULT => -87
+		DEFAULT => -29
 	},
 	{#State 193
-		ACTIONS => {
-			"[" => 155
-		},
-		DEFAULT => -86,
-		GOTOS => {
-			'array_len' => 208
-		}
-	},
-	{#State 194
 		DEFAULT => -67
 	},
-	{#State 195
+	{#State 194
 		ACTIONS => {
 			";" => 209
 		}
 	},
-	{#State 196
+	{#State 195
 		DEFAULT => -66
 	},
-	{#State 197
+	{#State 196
 		ACTIONS => {
 			'IDENTIFIER' => 26,
 			"signed" => 100,
@@ -1624,21 +1619,21 @@ sub new {
 			'identifier' => 96,
 			'struct' => 62,
 			'enum' => 65,
-			'type' => 199,
+			'type' => 198,
 			'union' => 67,
 			'sign' => 97
 		}
 	},
-	{#State 198
+	{#State 197
 		DEFAULT => -79
 	},
-	{#State 199
+	{#State 198
 		DEFAULT => -75,
 		GOTOS => {
 			'pointers' => 211
 		}
 	},
-	{#State 200
+	{#State 199
 		ACTIONS => {
 			"-" => 69,
 			":" => 68,
@@ -1658,13 +1653,13 @@ sub new {
 		},
 		DEFAULT => -50
 	},
-	{#State 201
+	{#State 200
 		DEFAULT => -48
 	},
-	{#State 202
+	{#State 201
 		DEFAULT => -56
 	},
-	{#State 203
+	{#State 202
 		ACTIONS => {
 			"-" => 69,
 			":" => 68,
@@ -1684,23 +1679,35 @@ sub new {
 		},
 		DEFAULT => -59
 	},
-	{#State 204
+	{#State 203
 		DEFAULT => -89,
 		GOTOS => {
 			'base_element' => 212,
-			'property_list' => 180
+			'property_list' => 178
 		}
 	},
-	{#State 205
+	{#State 204
 		DEFAULT => -28
 	},
+	{#State 205
+		DEFAULT => -87
+	},
 	{#State 206
+		ACTIONS => {
+			"[" => 169
+		},
+		DEFAULT => -86,
+		GOTOS => {
+			'array_len' => 213
+		}
+	},
+	{#State 207
 		ACTIONS => {
 			"-" => 69,
 			":" => 68,
 			"?" => 70,
 			"<" => 71,
-			";" => 213,
+			";" => 214,
 			"+" => 73,
 			"~" => 72,
 			"&" => 75,
@@ -1714,11 +1721,8 @@ sub new {
 			">" => 82
 		}
 	},
-	{#State 207
-		DEFAULT => -26
-	},
 	{#State 208
-		DEFAULT => -88
+		DEFAULT => -26
 	},
 	{#State 209
 		DEFAULT => -65
@@ -1732,25 +1736,28 @@ sub new {
 			"*" => 152
 		},
 		GOTOS => {
-			'identifier' => 214
+			'identifier' => 215
 		}
 	},
 	{#State 212
 		DEFAULT => -85
 	},
 	{#State 213
-		DEFAULT => -27
+		DEFAULT => -88
 	},
 	{#State 214
+		DEFAULT => -27
+	},
+	{#State 215
 		ACTIONS => {
-			"[" => 155
+			"[" => 169
 		},
 		DEFAULT => -86,
 		GOTOS => {
-			'array_len' => 215
+			'array_len' => 216
 		}
 	},
-	{#State 215
+	{#State 216
 		DEFAULT => -74
 	}
 ],
@@ -1765,43 +1772,43 @@ sub new {
 	[#Rule 2
 		 'idl', 2,
 sub
-#line 20 "./../pidl/idl.yp"
+#line 20 "idl.yp"
 { push(@{$_[1]}, $_[2]); $_[1] }
 	],
 	[#Rule 3
 		 'idl', 2,
 sub
-#line 22 "./../pidl/idl.yp"
+#line 22 "idl.yp"
 { push(@{$_[1]}, $_[2]); $_[1] }
 	],
 	[#Rule 4
 		 'idl', 2,
 sub
-#line 24 "./../pidl/idl.yp"
+#line 24 "idl.yp"
 { push(@{$_[1]}, $_[2]); $_[1] }
 	],
 	[#Rule 5
 		 'idl', 2,
 sub
-#line 26 "./../pidl/idl.yp"
+#line 26 "idl.yp"
 { push(@{$_[1]}, $_[2]); $_[1] }
 	],
 	[#Rule 6
 		 'idl', 2,
 sub
-#line 28 "./../pidl/idl.yp"
+#line 28 "idl.yp"
 { push(@{$_[1]}, $_[2]); $_[1] }
 	],
 	[#Rule 7
 		 'idl', 2,
 sub
-#line 30 "./../pidl/idl.yp"
+#line 30 "idl.yp"
 { push(@{$_[1]}, $_[2]); $_[1] }
 	],
 	[#Rule 8
 		 'import', 3,
 sub
-#line 35 "./../pidl/idl.yp"
+#line 35 "idl.yp"
 {{
 		"TYPE" => "IMPORT",
 		"PATHS" => $_[2],
@@ -1812,7 +1819,7 @@ sub
 	[#Rule 9
 		 'include', 3,
 sub
-#line 45 "./../pidl/idl.yp"
+#line 45 "idl.yp"
 {{
 		"TYPE" => "INCLUDE",
 		"PATHS" => $_[2],
@@ -1823,7 +1830,7 @@ sub
 	[#Rule 10
 		 'importlib', 3,
 sub
-#line 55 "./../pidl/idl.yp"
+#line 55 "idl.yp"
 {{
 		"TYPE" => "IMPORTLIB",
 		"PATHS" => $_[2],
@@ -1834,19 +1841,19 @@ sub
 	[#Rule 11
 		 'commalist', 1,
 sub
-#line 64 "./../pidl/idl.yp"
+#line 64 "idl.yp"
 { [ $_[1] ] }
 	],
 	[#Rule 12
 		 'commalist', 3,
 sub
-#line 66 "./../pidl/idl.yp"
+#line 66 "idl.yp"
 { push(@{$_[1]}, $_[3]); $_[1] }
 	],
 	[#Rule 13
 		 'coclass', 7,
 sub
-#line 71 "./../pidl/idl.yp"
+#line 71 "idl.yp"
 {{
 		"TYPE" => "COCLASS",
 		"PROPERTIES" => $_[1],
@@ -1862,13 +1869,13 @@ sub
 	[#Rule 15
 		 'interface_names', 4,
 sub
-#line 84 "./../pidl/idl.yp"
+#line 84 "idl.yp"
 { push(@{$_[1]}, $_[2]); $_[1] }
 	],
 	[#Rule 16
 		 'interface', 8,
 sub
-#line 89 "./../pidl/idl.yp"
+#line 89 "idl.yp"
 {{
 		"TYPE" => "INTERFACE",
 		"PROPERTIES" => $_[1],
@@ -1885,13 +1892,13 @@ sub
 	[#Rule 18
 		 'base_interface', 2,
 sub
-#line 103 "./../pidl/idl.yp"
+#line 103 "idl.yp"
 { $_[2] }
 	],
 	[#Rule 19
 		 'cpp_quote', 4,
 sub
-#line 109 "./../pidl/idl.yp"
+#line 109 "idl.yp"
 {{
 		 "TYPE" => "CPP_QUOTE",
 		 "DATA" => $_[3],
@@ -1902,13 +1909,13 @@ sub
 	[#Rule 20
 		 'definitions', 1,
 sub
-#line 118 "./../pidl/idl.yp"
+#line 118 "idl.yp"
 { [ $_[1] ] }
 	],
 	[#Rule 21
 		 'definitions', 2,
 sub
-#line 120 "./../pidl/idl.yp"
+#line 120 "idl.yp"
 { push(@{$_[1]}, $_[2]); $_[1] }
 	],
 	[#Rule 22
@@ -1926,7 +1933,7 @@ sub
 	[#Rule 26
 		 'const', 7,
 sub
-#line 135 "./../pidl/idl.yp"
+#line 135 "idl.yp"
 {{
 		"TYPE"  => "CONST",
 		"DTYPE"  => $_[2],
@@ -1940,7 +1947,7 @@ sub
 	[#Rule 27
 		 'const', 8,
 sub
-#line 146 "./../pidl/idl.yp"
+#line 146 "idl.yp"
 {{
 		"TYPE"  => "CONST",
 		"DTYPE"  => $_[2],
@@ -1955,7 +1962,7 @@ sub
 	[#Rule 28
 		 'function', 7,
 sub
-#line 160 "./../pidl/idl.yp"
+#line 160 "idl.yp"
 {{
 		"TYPE" => "FUNCTION",
 		"NAME" => $_[3],
@@ -1967,15 +1974,16 @@ sub
 	}}
 	],
 	[#Rule 29
-		 'typedef', 6,
+		 'typedef', 7,
 sub
-#line 173 "./../pidl/idl.yp"
+#line 173 "idl.yp"
 {{
 		"TYPE" => "TYPEDEF",
 		"PROPERTIES" => $_[1],
-		"NAME" => $_[4],
+		"NAME" => $_[5],
 		"DATA" => $_[3],
-		"ARRAY_LEN" => $_[5],
+		"POINTERS" => $_[4],
+		"ARRAY_LEN" => $_[6],
 		"FILE" => $_[0]->YYData->{FILE},
 		"LINE" => $_[0]->YYData->{LINE},
         }}
@@ -1998,7 +2006,7 @@ sub
 	[#Rule 35
 		 'typedecl', 2,
 sub
-#line 197 "./../pidl/idl.yp"
+#line 198 "idl.yp"
 { $_[1] }
 	],
 	[#Rule 36
@@ -2010,7 +2018,7 @@ sub
 	[#Rule 38
 		 'existingtype', 2,
 sub
-#line 207 "./../pidl/idl.yp"
+#line 208 "idl.yp"
 { ($_[1]?$_[1]:"signed") ." $_[2]" }
 	],
 	[#Rule 39
@@ -2025,13 +2033,13 @@ sub
 	[#Rule 42
 		 'type', 1,
 sub
-#line 217 "./../pidl/idl.yp"
+#line 218 "idl.yp"
 { "void" }
 	],
 	[#Rule 43
 		 'enum_body', 3,
 sub
-#line 221 "./../pidl/idl.yp"
+#line 222 "idl.yp"
 { $_[2] }
 	],
 	[#Rule 44
@@ -2043,7 +2051,7 @@ sub
 	[#Rule 46
 		 'enum', 4,
 sub
-#line 232 "./../pidl/idl.yp"
+#line 233 "idl.yp"
 {{
 		"TYPE" => "ENUM",
 		"PROPERTIES" => $_[1],
@@ -2056,13 +2064,13 @@ sub
 	[#Rule 47
 		 'enum_elements', 1,
 sub
-#line 243 "./../pidl/idl.yp"
+#line 244 "idl.yp"
 { [ $_[1] ] }
 	],
 	[#Rule 48
 		 'enum_elements', 3,
 sub
-#line 245 "./../pidl/idl.yp"
+#line 246 "idl.yp"
 { push(@{$_[1]}, $_[3]); $_[1] }
 	],
 	[#Rule 49
@@ -2071,13 +2079,13 @@ sub
 	[#Rule 50
 		 'enum_element', 3,
 sub
-#line 251 "./../pidl/idl.yp"
+#line 252 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 51
 		 'bitmap_body', 3,
 sub
-#line 255 "./../pidl/idl.yp"
+#line 256 "idl.yp"
 { $_[2] }
 	],
 	[#Rule 52
@@ -2089,7 +2097,7 @@ sub
 	[#Rule 54
 		 'bitmap', 4,
 sub
-#line 266 "./../pidl/idl.yp"
+#line 267 "idl.yp"
 {{
 		"TYPE" => "BITMAP",
 		"PROPERTIES" => $_[1],
@@ -2102,13 +2110,13 @@ sub
 	[#Rule 55
 		 'bitmap_elements', 1,
 sub
-#line 277 "./../pidl/idl.yp"
+#line 278 "idl.yp"
 { [ $_[1] ] }
 	],
 	[#Rule 56
 		 'bitmap_elements', 3,
 sub
-#line 279 "./../pidl/idl.yp"
+#line 280 "idl.yp"
 { push(@{$_[1]}, $_[3]); $_[1] }
 	],
 	[#Rule 57
@@ -2120,13 +2128,13 @@ sub
 	[#Rule 59
 		 'bitmap_element', 3,
 sub
-#line 289 "./../pidl/idl.yp"
+#line 290 "idl.yp"
 { "$_[1] ( $_[3] )" }
 	],
 	[#Rule 60
 		 'struct_body', 3,
 sub
-#line 293 "./../pidl/idl.yp"
+#line 294 "idl.yp"
 { $_[2] }
 	],
 	[#Rule 61
@@ -2138,7 +2146,7 @@ sub
 	[#Rule 63
 		 'struct', 4,
 sub
-#line 304 "./../pidl/idl.yp"
+#line 305 "idl.yp"
 {{
 		"TYPE" => "STRUCT",
 		"PROPERTIES" => $_[1],
@@ -2151,7 +2159,7 @@ sub
 	[#Rule 64
 		 'empty_element', 2,
 sub
-#line 316 "./../pidl/idl.yp"
+#line 317 "idl.yp"
 {{
 		"NAME" => "",
 		"TYPE" => "EMPTY",
@@ -2171,7 +2179,7 @@ sub
 	[#Rule 67
 		 'optional_base_element', 2,
 sub
-#line 333 "./../pidl/idl.yp"
+#line 334 "idl.yp"
 { $_[2]->{PROPERTIES} = FlattenHash([$_[1],$_[2]->{PROPERTIES}]); $_[2] }
 	],
 	[#Rule 68
@@ -2180,13 +2188,13 @@ sub
 	[#Rule 69
 		 'union_elements', 2,
 sub
-#line 339 "./../pidl/idl.yp"
+#line 340 "idl.yp"
 { push(@{$_[1]}, $_[2]); $_[1] }
 	],
 	[#Rule 70
 		 'union_body', 3,
 sub
-#line 343 "./../pidl/idl.yp"
+#line 344 "idl.yp"
 { $_[2] }
 	],
 	[#Rule 71
@@ -2198,7 +2206,7 @@ sub
 	[#Rule 73
 		 'union', 4,
 sub
-#line 354 "./../pidl/idl.yp"
+#line 355 "idl.yp"
 {{
 		"TYPE" => "UNION",
 		"PROPERTIES" => $_[1],
@@ -2211,7 +2219,7 @@ sub
 	[#Rule 74
 		 'base_element', 5,
 sub
-#line 366 "./../pidl/idl.yp"
+#line 367 "idl.yp"
 {{
 		"NAME" => $_[4],
 		"TYPE" => $_[2],
@@ -2225,23 +2233,22 @@ sub
 	[#Rule 75
 		 'pointers', 0,
 sub
-#line 379 "./../pidl/idl.yp"
+#line 380 "idl.yp"
 { 0 }
 	],
 	[#Rule 76
 		 'pointers', 2,
 sub
-#line 381 "./../pidl/idl.yp"
+#line 382 "idl.yp"
 { $_[1]+1 }
 	],
 	[#Rule 77
 		 'pipe', 3,
 sub
-#line 386 "./../pidl/idl.yp"
+#line 387 "idl.yp"
 {{
 		"TYPE" => "PIPE",
 		"PROPERTIES" => $_[1],
-		"NAME" => $_[4],
 		"DATA" => $_[3],
 		"FILE" => $_[0]->YYData->{FILE},
 		"LINE" => $_[0]->YYData->{LINE},
@@ -2250,13 +2257,13 @@ sub
 	[#Rule 78
 		 'element_list1', 0,
 sub
-#line 398 "./../pidl/idl.yp"
+#line 398 "idl.yp"
 { [] }
 	],
 	[#Rule 79
 		 'element_list1', 3,
 sub
-#line 400 "./../pidl/idl.yp"
+#line 400 "idl.yp"
 { push(@{$_[1]}, $_[2]); $_[1] }
 	],
 	[#Rule 80
@@ -2274,13 +2281,13 @@ sub
 	[#Rule 84
 		 'element_list2', 2,
 sub
-#line 414 "./../pidl/idl.yp"
+#line 414 "idl.yp"
 { [ $_[2] ] }
 	],
 	[#Rule 85
 		 'element_list2', 4,
 sub
-#line 416 "./../pidl/idl.yp"
+#line 416 "idl.yp"
 { push(@{$_[1]}, $_[4]); $_[1] }
 	],
 	[#Rule 86
@@ -2289,13 +2296,13 @@ sub
 	[#Rule 87
 		 'array_len', 3,
 sub
-#line 422 "./../pidl/idl.yp"
+#line 422 "idl.yp"
 { push(@{$_[3]}, "*"); $_[3] }
 	],
 	[#Rule 88
 		 'array_len', 4,
 sub
-#line 424 "./../pidl/idl.yp"
+#line 424 "idl.yp"
 { push(@{$_[4]}, "$_[2]"); $_[4] }
 	],
 	[#Rule 89
@@ -2304,31 +2311,31 @@ sub
 	[#Rule 90
 		 'property_list', 4,
 sub
-#line 430 "./../pidl/idl.yp"
+#line 430 "idl.yp"
 { FlattenHash([$_[1],$_[3]]); }
 	],
 	[#Rule 91
 		 'properties', 1,
 sub
-#line 434 "./../pidl/idl.yp"
+#line 434 "idl.yp"
 { $_[1] }
 	],
 	[#Rule 92
 		 'properties', 3,
 sub
-#line 436 "./../pidl/idl.yp"
+#line 436 "idl.yp"
 { FlattenHash([$_[1], $_[3]]); }
 	],
 	[#Rule 93
 		 'property', 1,
 sub
-#line 440 "./../pidl/idl.yp"
+#line 440 "idl.yp"
 {{ "$_[1]" => "1"     }}
 	],
 	[#Rule 94
 		 'property', 4,
 sub
-#line 442 "./../pidl/idl.yp"
+#line 442 "idl.yp"
 {{ "$_[1]" => "$_[3]" }}
 	],
 	[#Rule 95
@@ -2337,13 +2344,13 @@ sub
 	[#Rule 96
 		 'commalisttext', 3,
 sub
-#line 448 "./../pidl/idl.yp"
+#line 448 "idl.yp"
 { "$_[1],$_[3]" }
 	],
 	[#Rule 97
 		 'anytext', 0,
 sub
-#line 453 "./../pidl/idl.yp"
+#line 453 "idl.yp"
 { "" }
 	],
 	[#Rule 98
@@ -2358,91 +2365,91 @@ sub
 	[#Rule 101
 		 'anytext', 3,
 sub
-#line 461 "./../pidl/idl.yp"
+#line 461 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 102
 		 'anytext', 3,
 sub
-#line 463 "./../pidl/idl.yp"
+#line 463 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 103
 		 'anytext', 3,
 sub
-#line 465 "./../pidl/idl.yp"
+#line 465 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 104
 		 'anytext', 3,
 sub
-#line 467 "./../pidl/idl.yp"
+#line 467 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 105
 		 'anytext', 3,
 sub
-#line 469 "./../pidl/idl.yp"
+#line 469 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 106
 		 'anytext', 3,
 sub
-#line 471 "./../pidl/idl.yp"
+#line 471 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 107
 		 'anytext', 3,
 sub
-#line 473 "./../pidl/idl.yp"
+#line 473 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 108
 		 'anytext', 3,
 sub
-#line 475 "./../pidl/idl.yp"
+#line 475 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 109
 		 'anytext', 3,
 sub
-#line 477 "./../pidl/idl.yp"
+#line 477 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 110
 		 'anytext', 3,
 sub
-#line 479 "./../pidl/idl.yp"
+#line 479 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 111
 		 'anytext', 3,
 sub
-#line 481 "./../pidl/idl.yp"
+#line 481 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 112
 		 'anytext', 3,
 sub
-#line 483 "./../pidl/idl.yp"
+#line 483 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 113
 		 'anytext', 3,
 sub
-#line 485 "./../pidl/idl.yp"
+#line 485 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 114
 		 'anytext', 5,
 sub
-#line 487 "./../pidl/idl.yp"
+#line 487 "idl.yp"
 { "$_[1]$_[2]$_[3]$_[4]$_[5]" }
 	],
 	[#Rule 115
 		 'anytext', 5,
 sub
-#line 489 "./../pidl/idl.yp"
+#line 489 "idl.yp"
 { "$_[1]$_[2]$_[3]$_[4]$_[5]" }
 	],
 	[#Rule 116
@@ -2460,7 +2467,7 @@ sub
 	[#Rule 120
 		 'text', 1,
 sub
-#line 507 "./../pidl/idl.yp"
+#line 507 "idl.yp"
 { "\"$_[1]\"" }
 	],
 	[#Rule 121
@@ -2474,7 +2481,7 @@ sub
     bless($self,$class);
 }
 
-#line 519 "./../pidl/idl.yp"
+#line 519 "idl.yp"
 
 
 use Parse::Pidl qw(error);

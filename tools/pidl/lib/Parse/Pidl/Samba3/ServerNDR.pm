@@ -100,7 +100,7 @@ sub CallWithStruct($$$$)
 
 	pidl "ZERO_STRUCT(r->out);" if ($hasout);
 
-	my $proto = "_$fn->{NAME}(pipes_struct *p, struct $fn->{NAME} *r";
+	my $proto = "_$fn->{NAME}(struct pipes_struct *p, struct $fn->{NAME} *r";
 	my $ret = "_$fn->{NAME}($pipes_struct, r";
 	foreach (@{$fn->{ELEMENTS}}) {
 		my @dir = @{$_->{DIRECTION}};
@@ -138,14 +138,13 @@ sub ParseFunction($$)
 
 	my $op = "NDR_".uc($fn->{NAME});
 
-	pidl "static bool api_$fn->{NAME}(pipes_struct *p)";
+	pidl "static bool api_$fn->{NAME}(struct pipes_struct *p)";
 	pidl "{";
 	indent;
 	pidl "const struct ndr_interface_call *call;";
 	pidl "struct ndr_pull *pull;";
 	pidl "struct ndr_push *push;";
 	pidl "enum ndr_err_code ndr_err;";
-	pidl "DATA_BLOB blob;";
 	pidl "struct $fn->{NAME} *r;";
 	pidl "";
 	pidl "call = &ndr_table_$if->{NAME}.calls[$op];";
@@ -155,18 +154,16 @@ sub ParseFunction($$)
 	pidl "\treturn false;";
 	pidl "}";
 	pidl "";
-	pidl "if (!prs_data_blob(&p->in_data.data, &blob, r)) {";
-	pidl "\ttalloc_free(r);";
-	pidl "\treturn false;";
-	pidl "}";
-	pidl "";
-	pidl "pull = ndr_pull_init_blob(&blob, r, NULL);";
+	pidl "pull = ndr_pull_init_blob(&p->in_data.data, r);";
 	pidl "if (pull == NULL) {";
 	pidl "\ttalloc_free(r);";
 	pidl "\treturn false;";
 	pidl "}";
 	pidl "";
 	pidl "pull->flags |= LIBNDR_FLAG_REF_ALLOC;";
+	pidl "if (p->endian) {";
+	pidl "\tpull->flags |= LIBNDR_FLAG_BIGENDIAN;";
+	pidl "}";
 	pidl "ndr_err = call->ndr_pull(pull, NDR_IN, r);";
 	pidl "if (!NDR_ERR_CODE_IS_SUCCESS(ndr_err)) {";
 	pidl "\ttalloc_free(r);";
@@ -174,7 +171,7 @@ sub ParseFunction($$)
 	pidl "}";
 	pidl "";
 	pidl "if (DEBUGLEVEL >= 10) {";
-	pidl "\tNDR_PRINT_IN_DEBUG($fn->{NAME}, r);";
+	pidl "\tNDR_PRINT_FUNCTION_DEBUG($fn->{NAME}, NDR_IN, r);";
 	pidl "}";
 	pidl "";
 
@@ -193,10 +190,10 @@ sub ParseFunction($$)
 	pidl "}";
 	pidl "";
 	pidl "if (DEBUGLEVEL >= 10) {";
-	pidl "\tNDR_PRINT_OUT_DEBUG($fn->{NAME}, r);";
+	pidl "\tNDR_PRINT_FUNCTION_DEBUG($fn->{NAME}, NDR_OUT | NDR_SET_VALUES, r);";
 	pidl "}";
 	pidl "";
-	pidl "push = ndr_push_init_ctx(r, NULL);";
+	pidl "push = ndr_push_init_ctx(r);";
 	pidl "if (push == NULL) {";
 	pidl "\ttalloc_free(r);";
 	pidl "\treturn false;";
@@ -208,56 +205,14 @@ sub ParseFunction($$)
 	pidl "\treturn false;";
 	pidl "}";
 	pidl "";
-	pidl "blob = ndr_push_blob(push);";
-	pidl "if (!prs_copy_data_in(&p->out_data.rdata, (const char *)blob.data, (uint32_t)blob.length)) {";
-	pidl "\ttalloc_free(r);";
-	pidl "\treturn false;";
-	pidl "}";
+	pidl "p->out_data.rdata = ndr_push_blob(push);";
+	pidl "talloc_steal(p->mem_ctx, p->out_data.rdata.data);";
 	pidl "";
 	pidl "talloc_free(r);";
 	pidl "";
 	pidl "return true;";
 	deindent;
 	pidl "}";
-	pidl "";
-}
-
-sub ParseDispatchFunction($)
-{
-	my ($if) = @_;
-
-	pidl_hdr "NTSTATUS rpc_$if->{NAME}_dispatch(struct rpc_pipe_client *cli, TALLOC_CTX *mem_ctx, const struct ndr_interface_table *table, uint32_t opnum, void *r);";
-	pidl "NTSTATUS rpc_$if->{NAME}_dispatch(struct rpc_pipe_client *cli, TALLOC_CTX *mem_ctx, const struct ndr_interface_table *table, uint32_t opnum, void *_r)";
-	pidl "{";
-	indent;
-	pidl "if (cli->pipes_struct == NULL) {";
-	pidl "\treturn NT_STATUS_INVALID_PARAMETER;";
-	pidl "}";
-	pidl "";
-	pidl "switch (opnum)";
-	pidl "{";
-	indent;
-	foreach my $fn (@{$if->{FUNCTIONS}}) {
-		next if ($fn->{PROPERTIES}{noopnum});
-		my $op = "NDR_".uc($fn->{NAME});
-		pidl "case $op: {";
-		indent;
-		pidl "struct $fn->{NAME} *r = (struct $fn->{NAME} *)_r;";
-		CallWithStruct("cli->pipes_struct", "mem_ctx", $fn, 
-			sub { pidl "return NT_STATUS_NO_MEMORY;"; });
-		pidl "return NT_STATUS_OK;";
-		deindent;
-		pidl "}";
-		pidl "";
-	}
-
-	pidl "default:";
-	pidl "\treturn NT_STATUS_NOT_IMPLEMENTED;";
-	deindent;
-	pidl "}";
-	deindent;
-	pidl "}";
-
 	pidl "";
 }
 
@@ -301,14 +256,22 @@ sub ParseInterface($)
 	pidl "}";
 	pidl "";
 
-	ParseDispatchFunction($if);
+	if (not has_property($if, "no_srv_register")) {
+	    pidl_hdr "struct rpc_srv_callbacks;";
+	    pidl_hdr "NTSTATUS rpc_$if->{NAME}_init(const struct rpc_srv_callbacks *rpc_srv_cb);";
+	    pidl "NTSTATUS rpc_$if->{NAME}_init(const struct rpc_srv_callbacks *rpc_srv_cb)";
+	    pidl "{";
+	    pidl "\treturn rpc_srv_register(SMB_RPC_INTERFACE_VERSION, \"$if->{NAME}\", \"$if->{NAME}\", \&ndr_table_$if->{NAME}, api_$if->{NAME}_cmds, sizeof(api_$if->{NAME}_cmds) / sizeof(struct api_struct), rpc_srv_cb);";
+	    pidl "}";
 
-	pidl_hdr "NTSTATUS rpc_$if->{NAME}_init(void);";
-	pidl "NTSTATUS rpc_$if->{NAME}_init(void)";
-	pidl "{";
-	pidl "\treturn rpc_srv_register(SMB_RPC_INTERFACE_VERSION, \"$if->{NAME}\", \"$if->{NAME}\", \&ndr_table_$if->{NAME}, api_$if->{NAME}_cmds, sizeof(api_$if->{NAME}_cmds) / sizeof(struct api_struct));";
-	pidl "}";
+	    pidl "";
 
+	    pidl_hdr "NTSTATUS rpc_$if->{NAME}_shutdown(void);";
+	    pidl "NTSTATUS rpc_$if->{NAME}_shutdown(void)";
+	    pidl "{";
+	    pidl "\treturn rpc_srv_unregister(\&ndr_table_$if->{NAME});";
+	    pidl "}";
+	}
 	pidl_hdr "#endif /* __SRV_$uif\__ */";
 }
 

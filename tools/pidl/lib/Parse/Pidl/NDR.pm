@@ -72,9 +72,13 @@ my $scalar_alignment = {
 	'WERROR' => 4,
 	'NTSTATUS' => 4,
 	'COMRESULT' => 4,
+	'dns_string' => 4,
 	'nbt_string' => 4,
 	'wrepl_nbt_name' => 4,
-	'ipv4address' => 4
+	'ipv4address' => 4,
+	'ipv6address' => 4, #16?
+	'dnsp_name' => 1,
+	'dnsp_string' => 1
 };
 
 sub GetElementLevelTable($$)
@@ -103,7 +107,7 @@ sub GetElementLevelTable($$)
 	if (has_property($e, "out")) {
 		my $needptrs = 1;
 
-		if (has_property($e, "string")) { $needptrs++; }
+		if (has_property($e, "string") and not has_property($e, "in")) { $needptrs++; }
 		if ($#bracket_array >= 0) { $needptrs = 0; }
 
 		warning($e, "[out] argument `$e->{NAME}' not a pointer") if ($needptrs > $e->{POINTERS});
@@ -124,6 +128,10 @@ sub GetElementLevelTable($$)
 		if ($d eq "*") {
 			$is_conformant = 1;
 			if ($size = shift @size_is) {
+				if ($e->{POINTERS} < 1 and has_property($e, "string")) {
+					$is_string = 1;
+					delete($e->{PROPERTIES}->{string});
+				}
 			} elsif ((scalar(@size_is) == 0) and has_property($e, "string")) {
 				$is_string = 1;
 				delete($e->{PROPERTIES}->{string});
@@ -605,12 +613,19 @@ sub ParseTypedef($$)
 {
 	my ($d, $pointer_default) = @_;
 
-	if (defined($d->{DATA}->{PROPERTIES}) && !defined($d->{PROPERTIES})) {
-		$d->{PROPERTIES} = $d->{DATA}->{PROPERTIES};
-	}
+	my $data;
 
-	my $data = ParseType($d->{DATA}, $pointer_default);
-	$data->{ALIGN} = align_type($d->{NAME});
+	if (ref($d->{DATA}) eq "HASH") {
+		if (defined($d->{DATA}->{PROPERTIES})
+		    and not defined($d->{PROPERTIES})) {
+			$d->{PROPERTIES} = $d->{DATA}->{PROPERTIES};
+		}
+
+		$data = ParseType($d->{DATA}, $pointer_default);
+		$data->{ALIGN} = align_type($d->{NAME});
+	} else {
+		$data = getType($d->{DATA});
+	}
 
 	return {
 		NAME => $d->{NAME},
@@ -655,14 +670,10 @@ sub ParseFunction($$$)
 		$rettype = expandAlias($d->{RETURN_TYPE});
 	}
 	
-	my $async = 0;
-	if (has_property($d, "async")) { $async = 1; }
-	
 	return {
 			NAME => $d->{NAME},
 			TYPE => "FUNCTION",
 			OPNUM => $thisopnum,
-			ASYNC => $async,
 			RETURN_TYPE => $rettype,
 			PROPERTIES => $d->{PROPERTIES},
 			ELEMENTS => \@elements,
@@ -882,7 +893,8 @@ my %property_list = (
 	"helper"		=> ["INTERFACE"],
 	"pyhelper"		=> ["INTERFACE"],
 	"authservice"		=> ["INTERFACE"],
-	"restricted"	=> ["INTERFACE"],
+	"restricted"	        => ["INTERFACE"],
+        "no_srv_register"       => ["INTERFACE"],
 
 	# dcom
 	"object"		=> ["INTERFACE"],
@@ -895,16 +907,15 @@ my %property_list = (
 	"noopnum"		=> ["FUNCTION"],
 	"in"			=> ["ELEMENT"],
 	"out"			=> ["ELEMENT"],
-	"async"			=> ["FUNCTION"],
 
 	# pointer
-	"ref"			=> ["ELEMENT"],
-	"ptr"			=> ["ELEMENT"],
-	"unique"		=> ["ELEMENT"],
+	"ref"			=> ["ELEMENT", "TYPEDEF"],
+	"ptr"			=> ["ELEMENT", "TYPEDEF"],
+	"unique"		=> ["ELEMENT", "TYPEDEF"],
 	"ignore"		=> ["ELEMENT"],
-	"relative"		=> ["ELEMENT"],
-	"relative_short"	=> ["ELEMENT"],
-	"null_is_ffffffff" => ["ELEMENT"],
+	"relative"		=> ["ELEMENT", "TYPEDEF"],
+	"relative_short"	=> ["ELEMENT", "TYPEDEF"],
+	"null_is_ffffffff"	=> ["ELEMENT"],
 	"relative_base"		=> ["TYPEDEF", "STRUCT", "UNION"],
 
 	"gensize"		=> ["TYPEDEF", "STRUCT", "UNION"],
@@ -917,6 +928,7 @@ my %property_list = (
 	"nopull"		=> ["FUNCTION", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP"],
 	"nosize"		=> ["FUNCTION", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP"],
 	"noprint"		=> ["FUNCTION", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP", "ELEMENT"],
+	"nopython"		=> ["FUNCTION", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP"],
 	"todo"			=> ["FUNCTION"],
 
 	# union
@@ -1159,12 +1171,14 @@ sub ValidTypedef($)
 
 	ValidProperties($typedef, "TYPEDEF");
 
+	return unless (ref($data) eq "HASH");
+
 	$data->{PARENT} = $typedef;
 
 	$data->{FILE} = $typedef->{FILE} unless defined($data->{FILE});
 	$data->{LINE} = $typedef->{LINE} unless defined($data->{LINE});
 
-	ValidType($data) if (ref($data) eq "HASH");
+	ValidType($data);
 }
 
 #####################################################################

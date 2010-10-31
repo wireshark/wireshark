@@ -20,8 +20,8 @@ use strict;
 my %types = ();
 
 my @reference_scalars = (
-	"string", "string_array", "nbt_string", 
-	"wrepl_nbt_name", "ipv4address"
+	"string", "string_array", "nbt_string", "dns_string",
+	"wrepl_nbt_name", "ipv4address", "ipv6address"
 );
 
 # a list of known scalar types
@@ -54,9 +54,13 @@ my %scalars = (
 	"WERROR"	=> "WERROR",
 	"NTSTATUS"	=> "NTSTATUS",
 	"COMRESULT" => "COMRESULT",
+	"dns_string"	=> "const char *",
 	"nbt_string"	=> "const char *",
 	"wrepl_nbt_name"=> "struct nbt_name *",
 	"ipv4address"	=> "const char *",
+	"ipv6address"   => "const char *",
+	"dnsp_name"	=> "const char *",
+	"dnsp_string"	=> "const char *",
 );
 
 my %aliases = (
@@ -127,13 +131,15 @@ sub getType($)
 sub typeIs($$)
 {
 	my ($t,$tt) = @_;
-	
+
 	if (ref($t) eq "HASH") {
+		return 1 if ($t->{TYPE} eq "TYPEDEF" and $t->{DATA}->{TYPE} eq $tt);
 		return 1 if ($t->{TYPE} eq $tt);
 		return 0;
 	}
-	return 1 if (hasType($t) and getType($t)->{TYPE} eq "TYPEDEF" and 
-		         getType($t)->{DATA}->{TYPE} eq $tt);
+	if (hasType($t) and getType($t)->{TYPE} eq "TYPEDEF") {
+		return typeIs(getType($t)->{DATA}, $tt);
+	 }
 	return 0;
 }
 

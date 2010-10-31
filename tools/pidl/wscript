@@ -1,0 +1,71 @@
+#!/usr/bin/env python
+
+import os
+from samba_utils import MODE_755
+
+def set_options(opt):
+    opt.tool_options('perl')
+
+def configure(conf):
+    conf.check_tool('perl')
+    # we need a recent version of MakeMaker to get the right man page names
+    if conf.CHECK_PERL_MANPAGE():
+        conf.env.PERLMAN1EXT = conf.CHECK_PERL_MANPAGE(section='1')
+        conf.env.PERLMAN3EXT = conf.CHECK_PERL_MANPAGE(section='3')
+        conf.DEFINE('HAVE_PERL_MAKEMAKER', 1)
+
+    # yapp is used for building the parser
+    conf.find_program('yapp', var='YAPP')
+    conf.find_program('pod2man', var='POD2MAN')
+
+def build(bld):
+    bld.INSTALL_FILES('${BINDIR}', 'pidl', chmod=MODE_755)
+
+    bld.RECURSE('lib')
+
+    if not bld.CONFIG_SET('HAVE_PERL_MAKEMAKER'):
+        return
+
+    pidl_src = ['pidl']
+    pidl_src.extend(bld.path.ant_glob('lib/**/*.pm').split())
+
+    pidl_manpages = {
+        'pidl': 'man1/pidl.${PERLMAN1EXT}',
+        'lib/Parse/Pidl/NDR.pm': 'man3/Parse::Pidl::NDR.${PERLMAN3EXT}',
+        'lib/Parse/Pidl/Wireshark/Conformance.pm': 'man3/Parse::Pidl::Wireshark::Conformance.${PERLMAN3EXT}',
+        'lib/Parse/Pidl/Dump.pm': 'man3/Parse::Pidl::Dump.${PERLMAN3EXT}',
+        'lib/Parse/Pidl/Util.pm': 'man3/Parse::Pidl::Util.${PERLMAN3EXT}',
+        'lib/Parse/Pidl/Wireshark/NDR.pm': 'man3/Parse::Pidl::Wireshark::NDR.${PERLMAN3EXT}'
+    }
+
+    for k, v in pidl_manpages.iteritems():
+        pidl_manpages[k] = bld.EXPAND_VARIABLES(v)
+
+    # use perl to build the manpages
+    bld.env.pidl_srcdir = os.path.join(bld.srcnode.abspath(), 'pidl')
+
+    blib_bld = os.path.join(bld.srcnode.abspath(bld.env), 'pidl/blib')
+
+    link_command = 'rm -rf blib && ln -fs blib %s' % blib_bld
+    
+    bld.SET_BUILD_GROUP('final')
+    if 'POD2MAN' in bld.env and bld.env['POD2MAN'] != '':
+        for src, manpage in pidl_manpages.iteritems():
+            bld(rule='${PERL} ${POD2MAN} -c "Samba Documentation" ${SRC} ${TGT}',
+                shell=True,
+                source=src,
+                install_path=os.path.dirname(bld.EXPAND_VARIABLES('${MANDIR}/'+manpage)),
+                target=os.path.basename(manpage))
+
+    # we want to prefer the git version of the parsers if we can. Only if the
+    # source has changed do we want to re-run yapp
+    need_yapp_build = ('YAPP' in bld.env and (
+        bld.IS_NEWER('idl.yp', 'lib/Parse/Pidl/IDL.pm') or
+        bld.IS_NEWER('expr.yp', 'lib/Parse/Pidl/Expr.pm')))
+
+    if need_yapp_build:
+        t = bld.SAMBA_GENERATOR('pidl_parser',
+                                source='idl.yp expr.yp',
+                                target='lib/Parse/Pidl/IDL.pm lib/Parse/Pidl/Expr.pm Makefile.PL',
+                                rule='cd ${pidl_srcdir} && ${LINK_COMMAND} && ${PERL} Makefile.PL && make lib/Parse/Pidl/IDL.pm lib/Parse/Pidl/Expr.pm && rm -f Makefile Makefile.old && rm -f blib')
+        t.env.LINK_COMMAND = link_command

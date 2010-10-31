@@ -4,12 +4,12 @@
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More tests => 8;
 use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util;
 use Parse::Pidl::Util qw(MyDumper);
-use Parse::Pidl::Samba3::ClientNDR qw(ParseFunction ParseOutputArgument);
+use Parse::Pidl::Samba3::ClientNDR qw(ParseFunction);
 use Parse::Pidl::Samba4::Header qw(GenerateFunctionInEnv GenerateFunctionOutEnv);
 
 # Make sure GenerateFunctionInEnv and GenerateFunctionOutEnv work
@@ -31,10 +31,7 @@ $fn = { NAME => "bar", ELEMENTS => [ ] };
 $x->ParseFunction("foo", $fn);
 is($x->{res}, 
 "struct rpccli_bar_state {
-	struct bar orig;
-	struct bar tmp;
 	TALLOC_CTX *out_mem_ctx;
-	NTSTATUS (*dispatch_recv)(struct tevent_req *req, TALLOC_CTX *mem_ctx);
 };
 
 static void rpccli_bar_done(struct tevent_req *subreq);
@@ -53,19 +50,10 @@ struct tevent_req *rpccli_bar_send(TALLOC_CTX *mem_ctx,
 		return NULL;
 	}
 	state->out_mem_ctx = NULL;
-	state->dispatch_recv = cli->dispatch_recv;
 
-	/* In parameters */
-
-	/* Out parameters */
-
-	/* make a temporary copy, that we pass to the dispatch function */
-	state->tmp = state->orig;
-
-	subreq = cli->dispatch_send(state, ev, cli,
-				    &ndr_table_foo,
-				    NDR_BAR,
-				    &state->tmp);
+	subreq = dcerpc_bar_send(state,
+				 ev,
+				 cli->binding_handle);
 	if (tevent_req_nomem(subreq, req)) {
 		return tevent_req_post(req, ev);
 	}
@@ -88,17 +76,13 @@ static void rpccli_bar_done(struct tevent_req *subreq)
 		mem_ctx = state;
 	}
 
-	status = state->dispatch_recv(subreq, mem_ctx);
+	status = dcerpc_bar_recv(subreq,
+				 mem_ctx);
 	TALLOC_FREE(subreq);
 	if (!NT_STATUS_IS_OK(status)) {
 		tevent_req_nterror(req, status);
 		return;
 	}
-
-	/* Copy out parameters */
-
-	/* Reset temporary structure */
-	ZERO_STRUCT(state->tmp);
 
 	tevent_req_done(req);
 }
@@ -115,7 +99,7 @@ NTSTATUS rpccli_bar_recv(struct tevent_req *req,
 		return status;
 	}
 
-	/* Steal possbile out parameters to the callers context */
+	/* Steal possible out parameters to the callers context */
 	talloc_steal(mem_ctx, state->out_mem_ctx);
 
 	tevent_req_received(req);
@@ -125,26 +109,13 @@ NTSTATUS rpccli_bar_recv(struct tevent_req *req,
 NTSTATUS rpccli_bar(struct rpc_pipe_client *cli,
 		    TALLOC_CTX *mem_ctx)
 {
-	struct bar r;
 	NTSTATUS status;
 
-	/* In parameters */
-
-	status = cli->dispatch(cli,
-				mem_ctx,
-				&ndr_table_foo,
-				NDR_BAR,
-				&r);
-
+	status = dcerpc_bar(cli->binding_handle,
+			    mem_ctx);
 	if (!NT_STATUS_IS_OK(status)) {
 		return status;
 	}
-
-	if (NT_STATUS_IS_ERR(status)) {
-		return status;
-	}
-
-	/* Return variables */
 
 	/* Return result */
 	return NT_STATUS_OK;
@@ -158,10 +129,8 @@ $fn = { NAME => "bar", ELEMENTS => [ ], RETURN_TYPE => "WERROR" };
 $x->ParseFunction("foo", $fn);
 is($x->{res}, 
 "struct rpccli_bar_state {
-	struct bar orig;
-	struct bar tmp;
 	TALLOC_CTX *out_mem_ctx;
-	NTSTATUS (*dispatch_recv)(struct tevent_req *req, TALLOC_CTX *mem_ctx);
+	WERROR result;
 };
 
 static void rpccli_bar_done(struct tevent_req *subreq);
@@ -180,22 +149,10 @@ struct tevent_req *rpccli_bar_send(TALLOC_CTX *mem_ctx,
 		return NULL;
 	}
 	state->out_mem_ctx = NULL;
-	state->dispatch_recv = cli->dispatch_recv;
 
-	/* In parameters */
-
-	/* Out parameters */
-
-	/* Result */
-	ZERO_STRUCT(state->orig.out.result);
-
-	/* make a temporary copy, that we pass to the dispatch function */
-	state->tmp = state->orig;
-
-	subreq = cli->dispatch_send(state, ev, cli,
-				    &ndr_table_foo,
-				    NDR_BAR,
-				    &state->tmp);
+	subreq = dcerpc_bar_send(state,
+				 ev,
+				 cli->binding_handle);
 	if (tevent_req_nomem(subreq, req)) {
 		return tevent_req_post(req, ev);
 	}
@@ -218,20 +175,14 @@ static void rpccli_bar_done(struct tevent_req *subreq)
 		mem_ctx = state;
 	}
 
-	status = state->dispatch_recv(subreq, mem_ctx);
+	status = dcerpc_bar_recv(subreq,
+				 mem_ctx,
+				 &state->result);
 	TALLOC_FREE(subreq);
 	if (!NT_STATUS_IS_OK(status)) {
 		tevent_req_nterror(req, status);
 		return;
 	}
-
-	/* Copy out parameters */
-
-	/* Copy result */
-	state->orig.out.result = state->tmp.out.result;
-
-	/* Reset temporary structure */
-	ZERO_STRUCT(state->tmp);
 
 	tevent_req_done(req);
 }
@@ -249,11 +200,11 @@ NTSTATUS rpccli_bar_recv(struct tevent_req *req,
 		return status;
 	}
 
-	/* Steal possbile out parameters to the callers context */
+	/* Steal possible out parameters to the callers context */
 	talloc_steal(mem_ctx, state->out_mem_ctx);
 
 	/* Return result */
-	*result = state->orig.out.result;
+	*result = state->result;
 
 	tevent_req_received(req);
 	return NT_STATUS_OK;
@@ -263,42 +214,23 @@ NTSTATUS rpccli_bar(struct rpc_pipe_client *cli,
 		    TALLOC_CTX *mem_ctx,
 		    WERROR *werror)
 {
-	struct bar r;
+	WERROR result;
 	NTSTATUS status;
 
-	/* In parameters */
-
-	status = cli->dispatch(cli,
-				mem_ctx,
-				&ndr_table_foo,
-				NDR_BAR,
-				&r);
-
+	status = dcerpc_bar(cli->binding_handle,
+			    mem_ctx,
+			    &result);
 	if (!NT_STATUS_IS_OK(status)) {
 		return status;
 	}
 
-	if (NT_STATUS_IS_ERR(status)) {
-		return status;
-	}
-
-	/* Return variables */
-
 	/* Return result */
 	if (werror) {
-		*werror = r.out.result;
+		*werror = result;
 	}
 
-	return werror_to_ntstatus(r.out.result);
+	return werror_to_ntstatus(result);
 }
 
 ");
 
-$x = new Parse::Pidl::Samba3::ClientNDR();
-
-$fn = { NAME => "bar", ELEMENTS => [ ], RETURN_TYPE => "WERROR" };
-my $e = { NAME => "foo", ORIGINAL => { FILE => "f", LINE => -1 },
-          LEVELS => [ { TYPE => "ARRAY", SIZE_IS => "mysize" }, { TYPE => "DATA", DATA_TYPE => "int" } ]};
-
-$x->ParseOutputArgument($fn, $e);
-is($x->{res}, "memcpy(foo, r.out.foo, (mysize) * sizeof(*foo));\n");

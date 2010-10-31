@@ -169,13 +169,14 @@ function:
 ;
 
 typedef:
-	property_list 'typedef' type identifier array_len ';'
+	property_list 'typedef' type pointers identifier array_len ';'
 	{{
 		"TYPE" => "TYPEDEF",
 		"PROPERTIES" => $_[1],
-		"NAME" => $_[4],
+		"NAME" => $_[5],
 		"DATA" => $_[3],
-		"ARRAY_LEN" => $_[5],
+		"POINTERS" => $_[4],
+		"ARRAY_LEN" => $_[6],
 		"FILE" => $_[0]->YYData->{FILE},
 		"LINE" => $_[0]->YYData->{LINE},
         }}

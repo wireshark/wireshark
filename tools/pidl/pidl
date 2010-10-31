@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl
 
 ###################################################
 # package to parse IDL files and generate code for
@@ -692,13 +692,15 @@ sub process_file($)
 	}
 
 	my $h_filename = "$outputdir/ndr_$basename.h";
-	if (defined($opt_client)) {
+	my $c_header = "$outputdir/ndr_$basename\_c.h";
+	if (defined($opt_client) or defined($opt_samba3_ndr_client)) {
 		require Parse::Pidl::Samba4::NDR::Client;
 		my ($c_client) = ($opt_client or "$outputdir/ndr_$basename\_c.c");
-		my ($c_header) = $c_client;
+		$c_header = $c_client;
 		$c_header =~ s/\.c$/.h/;
 
-		my ($srcd,$hdrd) = Parse::Pidl::Samba4::NDR::Client::Parse(
+		my $generator = new Parse::Pidl::Samba4::NDR::Client();
+		my ($srcd,$hdrd) = $generator->Parse(
 			$ndr,$gen_header,$h_filename,$c_header);
 
 		FileSave($c_client, $srcd);
@@ -771,7 +773,7 @@ sub process_file($)
 		my $header = $client; $header =~ s/\.c$/\.h/;
 		require Parse::Pidl::Samba3::ClientNDR;
 		my $generator = new Parse::Pidl::Samba3::ClientNDR();
-		my ($c_code,$h_code) = $generator->Parse($ndr, $header, $h_filename);
+		my ($c_code,$h_code) = $generator->Parse($ndr, $header, $c_header);
 		FileSave($client, $c_code);
 		FileSave($header, $h_code);
 	}
