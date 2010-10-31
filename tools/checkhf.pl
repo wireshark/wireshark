@@ -83,6 +83,8 @@ my $currfile = "";
 my $comment = 0;
 my $brace = 0;
 
+my $error = 0;
+
 sub printprevfile {
 	my $state;
 
@@ -92,13 +94,20 @@ sub printprevfile {
 		if ($state eq "s_usedarray") {
 			# Everything is fine
 		} elsif ($state eq "s_used") {
-			print "NO ARRAY: $currfile, $element\n"
+			# A value is declared and used but the hf_ array
+			# entry is missing
+			print "ERROR: NO ARRAY: $currfile, $element\n";
+			$error = 1;
 		} elsif ($state eq "s_array") {
-			print "Unused entry: $currfile, $element\n"
+			# A value is declared, has an hf_ array entry
+			# but it is never used
+			print "Unused entry: $currfile, $element\n";
 		} elsif ($state eq "s_declared") {
+			# A value is declared but no error value exists.
+			# This doesn't matter as it isn't used either.
 			print "Declared only entry: $currfile, $element\n"
 		} elsif ($state eq "s_unknown") {
-			print "UNKNOWN: $currfile, $element\n"
+			print "UNKNOWN: $currfile, $element\n";
 		} else {
 			die "Impossible: State $state for $currfile, $element\n";
 		}
@@ -224,6 +233,6 @@ while (<>) {
 }
 &printprevfile();
 
-exit 0;
+exit $error;
 
 __END__
