@@ -22,21 +22,16 @@
 
 PROTOCOL_NAME=ns_cert_exts
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
-	packet-$(PROTOCOL_NAME).h
-
+DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c
 
 EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = NETSCAPE-CERT-EXTS.asn
 
-# The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
-# files do not exist for all protocols: Please add/remove as required.
 EXTRA_DIST = \
 	Makefile.nmake \
 	$(ASN_FILE_LIST) \
 	packet-$(PROTOCOL_NAME)-template.c \
-	packet-$(PROTOCOL_NAME)-template.h \
 	$(PROTOCOL_NAME).cnf
 
 SRC_FILES = \
