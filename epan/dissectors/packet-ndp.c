@@ -8,17 +8,17 @@
 * Wireshark - Network traffic analyzer
 * By Gerald Combs <gerald@wireshark.org>
 * Copyright 1998 Gerald Combs
-* 
+*
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
 * as published by the Free Software Foundation; either version 2
 * of the License, or (at your option) any later version.
-* 
+*
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU General Public License for more details.
-* 
+*
 * You should have received a copy of the GNU General Public License
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -29,7 +29,7 @@
 * Protocol (BNMP), Nortel Management MIB (NMM), Nortel Topology Discovery
 * Protocol (NTDP), SynOptics Network Management Protocol (SONMP).
 *   (source: Wikipedia article on "Nortel Discovery Protocol")
-* 
+*
 */
 
 #include "config.h"
@@ -44,7 +44,7 @@
 #include <epan/packet.h>
 #include <epan/nlpid.h>
 
-/* Although this protocol is propietary it is documented in the SynOptics MIB's
+/* Although this protocol is proprietary it is documented in the SynOptics MIB's
 * So I'm not giving anything away :-)
 * The only thing I have not done is decode the segment identifier;
 * This changes so much depending on whether the chassis supports
@@ -54,7 +54,7 @@
 * http://www.nortelnetworks.com
 */
 
-  
+
 /* chassis types */
 /* Last updated from version 229 ("200609010000Z") of SnpxChassisType in SYNOPTICS-ROOT-MIB.mib */
 static const value_string ndp_chassis_val[] =
@@ -77,6 +77,7 @@ static const value_string ndp_chassis_val[] =
 	{16, "Ethercell"},
 	{17, "5005"},
 	{18, "Alcatel Ethernet workgroup conc."},
+
 	{20, "2715SA"},
 	{21, "2486"},
 	{22, "28000 series"},
@@ -163,7 +164,7 @@ static const value_string ndp_chassis_val[] =
 	{103, "Alteon Application Switch 2208"},
 	{104, "Alteon Application Switch 2216"},
 	{105, "Alteon Application Switch 3408"},
-	{106, "Alteon Application Switch 3416"}, 
+	{106, "Alteon Application Switch 3416"},
 	{107, "Nortel Networks Wireless LAN SecuritySwitch 2250"},
 	{108, "Ethernet Switch 425-48T"},
 	{109, "Ethernet Switch 425-24T"},
@@ -222,6 +223,7 @@ static const value_string ndp_chassis_val[] =
 	{162, "Ethernet Routing Switch 2500-50T-PWR"},
 	{0, NULL}
 };
+static value_string_ext ndp_chassis_val_ext = VALUE_STRING_EXT_INIT(ndp_chassis_val);
 
 /* from synro179.mib - SnpxBackplaneType */
 static const value_string ndp_backplane_val[] =
@@ -240,6 +242,7 @@ static const value_string ndp_backplane_val[] =
 	{12, "Ethernet, Fast Ethernet and Gigabit Ethernet"},
 	{0, NULL}
 };
+static value_string_ext ndp_backplane_val_ext = VALUE_STRING_EXT_INIT(ndp_backplane_val);
 
 static const value_string ndp_state_val[] =
 {
@@ -260,7 +263,7 @@ static const value_string ndp_state_val[] =
 
 static int proto_ndp = -1;
 static int hf_ndp_ip_address = -1;
-static int hf_ndp_segment_identifier = -1; 
+static int hf_ndp_segment_identifier = -1;
 static int hf_ndp_chassis_type = -1;
 static int hf_ndp_backplane_type = -1;
 static int hf_ndp_state = -1;
@@ -269,15 +272,15 @@ static int hf_ndp_number_of_links = -1;
 static gint ett_ndp = -1;
 
 
-static void 
+static void
 dissect_ndp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	const char *hello_type;
 	proto_tree *ndp_tree = NULL;
 	proto_item *ti;
-	
+
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDP");
-	
+
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		hello_type = "";
 		if (pinfo->dl_dst.type == AT_ETHER) {
@@ -297,36 +300,36 @@ dissect_ndp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%sHello",
 		    hello_type);
 	}
-	
+
 	if (tree) {
 		ti = proto_tree_add_protocol_format(tree, proto_ndp, tvb, 0, 11,
 			"Nortel Discovery Protocol");
 
 		ndp_tree = proto_item_add_subtree(ti, ett_ndp);
-		
+
 		proto_tree_add_item(ndp_tree, hf_ndp_ip_address, tvb,
 			NDP_IP_ADDRESS, 4, FALSE);
-		
-		
-		proto_tree_add_item(ndp_tree, hf_ndp_segment_identifier, tvb, 
+
+
+		proto_tree_add_item(ndp_tree, hf_ndp_segment_identifier, tvb,
 			NDP_SEGMENT_IDENTIFIER, 3, FALSE);
-		
-		
+
+
 		proto_tree_add_item(ndp_tree, hf_ndp_chassis_type, tvb,
 			NDP_CHASSIS_TYPE, 1, FALSE);
-		
+
 		proto_tree_add_item(ndp_tree, hf_ndp_backplane_type, tvb,
 			NDP_BACKPLANE_TYPE, 1, FALSE);
-		
-		
+
+
 		proto_tree_add_item(ndp_tree, hf_ndp_state, tvb,
 			NDP_STATE, 1, FALSE);
-		
+
 		proto_tree_add_item(ndp_tree, hf_ndp_number_of_links, tvb,
 			NDP_NUMBER_OF_LINKS, 1, FALSE);
 	}
-	
-	
+
+
 }
 
 
@@ -338,38 +341,38 @@ proto_register_ndp(void)
 		{ &hf_ndp_ip_address,
 		{ "IP address",		"ndp.ipaddress",  FT_IPv4, BASE_NONE, NULL, 0x0,
 		"IP address of the Network Management Module (NMM))", HFILL }},
-		
+
 		{ &hf_ndp_segment_identifier,
 		{ "Segment Identifier",		"ndp.segmentident", FT_UINT24, BASE_HEX, NULL, 0x0,
 		"Segment id of the segment from which the agent is sending the topology message", HFILL }},
-		
+
 		{ &hf_ndp_chassis_type,
-		{ "Chassis type",		"ndp.chassis", FT_UINT8, BASE_DEC, 
-		VALS(ndp_chassis_val), 0x0,
+		{ "Chassis type",		"ndp.chassis", FT_UINT8, BASE_DEC|BASE_EXT_STRING,
+		&ndp_chassis_val_ext, 0x0,
 		"Chassis type of the agent sending the topology message", HFILL }},
-		
+
 		{ &hf_ndp_backplane_type,
-		{ "Backplane type",		"ndp.backplane", FT_UINT8, BASE_DEC,
-		 VALS(ndp_backplane_val), 0x0,
+		{ "Backplane type",		"ndp.backplane", FT_UINT8, BASE_DEC|BASE_EXT_STRING,
+		 &ndp_backplane_val_ext, 0x0,
 		"Backplane type of the agent sending the topology message", HFILL }},
-		
+
 		{ &hf_ndp_state,
 		{ "State",		"ndp.state", FT_UINT8, BASE_DEC,
 		 VALS(ndp_state_val), 0x0,
 		"Current state of this Network Management Module (NMM)", HFILL }},
-		
+
 		{ &hf_ndp_number_of_links,
 		{ "Number of links",		"ndp.numberoflinks", FT_UINT8, BASE_DEC, NULL, 0x0,
 		"Number of interconnect ports", HFILL }},
     };
-	
+
     static gint *ett[] = {
 		&ett_ndp,
     };
     proto_ndp = proto_register_protocol("Nortel Discovery Protocol", "NDP", "ndp");
     proto_register_field_array(proto_ndp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-	
+
     register_dissector("ndp", dissect_ndp, proto_ndp);
 }
 
@@ -377,9 +380,9 @@ void
 proto_reg_handoff_ndp(void)
 {
 	dissector_handle_t ndp_handle;
-	
+
 	ndp_handle = find_dissector("ndp");
-	
+
 	dissector_add("llc.nortel_pid", 0x01a1, ndp_handle); /* flatnet hello */
 	dissector_add("llc.nortel_pid", 0x01a2, ndp_handle); /* Segment hello */ 
 	/* not got round to adding this but its really old, so I'm not sure people will see it */

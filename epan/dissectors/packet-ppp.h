@@ -34,7 +34,7 @@ tvbuff_t *decode_fcs(tvbuff_t *tvb, proto_tree *fh_tree, int fcs_decode, int pro
 /*
  * Used by the GTP dissector as well.
  */
-extern const value_string ppp_vals[];
+extern value_string_ext ppp_vals_ext;
 
 /*
  * Used by CHDLC dissector as well.

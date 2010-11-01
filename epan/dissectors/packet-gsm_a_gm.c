@@ -3221,7 +3221,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 				if ( handle != NULL )
 				{
 					proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Protocol: %s (%u)" ,
-					val_to_str(prot, ppp_vals, "Unknown"), prot);
+					val_to_str_ext_const(prot, &ppp_vals_ext, "Unknown"), prot);
 					proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
 					/*
 					 * dissect the embedded message

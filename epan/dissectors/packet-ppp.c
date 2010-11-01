@@ -171,41 +171,41 @@ static int ett_mp_flags = -1;
 
 static int proto_mplscp = -1;
 static gint ett_mplscp = -1;
-static gint ett_mplscp_options 	= -1;
+static gint ett_mplscp_options  = -1;
 
 static int proto_cdpcp = -1;
 static gint ett_cdpcp = -1;
-static gint ett_cdpcp_options 	= -1;
+static gint ett_cdpcp_options   = -1;
 
-static int proto_pap		= -1;		/* PAP vars */
-static gint ett_pap		= -1;
-static gint ett_pap_data	= -1;
+static int proto_pap = -1;           /* PAP vars */
+static gint ett_pap = -1;
+static gint ett_pap_data = -1;
 
-static gint hf_pap_code		= -1;
-static gint hf_pap_identifier	= -1;
-static gint hf_pap_length	= -1;
-static gint hf_pap_data		= -1;
-static gint hf_pap_peer_id	= -1;
+static gint hf_pap_code = -1;
+static gint hf_pap_identifier = -1;
+static gint hf_pap_length = -1;
+static gint hf_pap_data = -1;
+static gint hf_pap_peer_id = -1;
 static gint hf_pap_peer_id_length = -1;
-static gint hf_pap_password	= -1;
+static gint hf_pap_password = -1;
 static gint hf_pap_password_length = -1;
-static gint hf_pap_message	= -1;
+static gint hf_pap_message = -1;
 static gint hf_pap_message_length = -1;
-static gint hf_pap_stuff	= -1;
+static gint hf_pap_stuff = -1;
 
-static int proto_chap		= -1;		/* CHAP vars */
-static gint ett_chap		= -1;
-static gint ett_chap_data	= -1;
+static int proto_chap = -1;           /* CHAP vars */
+static gint ett_chap = -1;
+static gint ett_chap_data = -1;
 
 
-static gint hf_chap_code	= -1;
-static gint hf_chap_identifier	= -1;
-static gint hf_chap_length	= -1;
-static gint hf_chap_data	= -1;
-static gint hf_chap_value_size	= -1;
-static gint hf_chap_value	= -1;
-static gint hf_chap_name	= -1;
-static gint hf_chap_message	= -1;
+static gint hf_chap_code = -1;
+static gint hf_chap_identifier = -1;
+static gint hf_chap_length = -1;
+static gint hf_chap_data = -1;
+static gint hf_chap_value_size = -1;
+static gint hf_chap_value = -1;
+static gint hf_chap_name = -1;
+static gint hf_chap_message = -1;
 
 
 static int proto_ipv6cp = -1;  /* IPv6CP vars */
@@ -215,7 +215,7 @@ static gint ett_ipv6cp_options = -1;
 static gint ett_ipv6cp_if_id_opt = -1;
 static gint ett_ipv6cp_compress_opt = -1;
 
-static int proto_iphc_crtp = -1;	    /* CRTP vars */
+static int proto_iphc_crtp = -1;            /* CRTP vars */
 static int hf_iphc_crtp_cid8 = -1;
 static int hf_iphc_crtp_cid16 = -1;
 static int hf_iphc_crtp_gen = -1;
@@ -269,138 +269,139 @@ static guint pppmux_def_prot_id = 0;
 /*
  * Used by the GTP dissector as well.
  */
-const value_string ppp_vals[] = {
-  {PPP_PADDING,	"Padding Protocol" },
-  {PPP_ROHC_SCID,	"ROHC small-CID" },
-  {PPP_ROHC_LCID,	"ROHC large-CID" },
-  {PPP_IP,        "IP"             },
-  {PPP_OSI,       "OSI"            },
-  {PPP_XNSIDP,    "Xerox NS IDP" },
-  {PPP_DEC4,      "DECnet Phase IV" },
-  {PPP_AT,        "Appletalk"      },
-  {PPP_IPX,       "Netware IPX/SPX"},
-  {PPP_VJC_COMP,	"VJ compressed TCP"},
-  {PPP_VJC_UNCOMP,"VJ uncompressed TCP"},
-  {PPP_BCP,       "Bridging Control Protocol"},
-  {PPP_ST,        "Stream Protocol (ST-II)" },
-  {PPP_VINES,     "Vines"          },
-  {PPP_AT_EDDP,	"AppleTalk EDDP" },
-  {PPP_AT_SB,	    "AppleTalk SmartBuffered" },
-  {PPP_MP,	    "Multilink"},
-  {PPP_NB,	    "NETBIOS Framing" },
-  {PPP_CISCO,	    "Cisco Systems" },
-  {PPP_ASCOM,	    "Ascom Timeplex" },
-  {PPP_LBLB,	    "Fujitsu Link Backup and Load Balancing" },
-  {PPP_RL,	    "DCA Remote Lan" },
-  {PPP_SDTP,	    "Serial Data Transport Protocol" },
-  {PPP_LLC,	    "SNA over LLC" },
-  {PPP_SNA,	    "SNA" },
-  {PPP_IPV6HC,	"IPv6 Header Compression " },
-  {PPP_KNX,	    "KNX Bridging Data" },
-  {PPP_ENCRYPT,	"Encryption" },
-  {PPP_ILE,	    "Individual Link Encryption" },
-  {PPP_IPV6,      "IPv6"           },
-  {PPP_MUX,       "PPP Multiplexing"},
-  {PPP_VSNP,      "Vendor-Specific Network Protocol"},
-  {PPP_RTP_FH,	"RTP IPHC Full Header" },
-  {PPP_RTP_CTCP,	"RTP IPHC Compressed TCP" },
-  {PPP_RTP_CNTCP,	"RTP IPHC Compressed Non TCP" },
-  {PPP_RTP_CUDP8,	"RTP IPHC Compressed UDP 8" },
-  {PPP_RTP_CRTP8,	"RTP IPHC Compressed RTP 8" },
-  {PPP_STAMPEDE,	"Stampede Bridging" },
-  {PPP_MPPLUS,	"MP+ Protocol" },
-  {PPP_NTCITS_IPI,"NTCITS IPI" },
-  {PPP_ML_SLCOMP,	"single link compression in multilink" },
-  {PPP_COMP,	    "compressed packet" },
-  {PPP_STP_HELLO,	"802.1D Hello Packet" },
-  {PPP_IBM_SR,	"IBM Source Routing BPDU" },
-  {PPP_DEC_LB,	"DEC LANBridge100 Spanning Tree"},
-  {PPP_CDP,       "Cisco Discovery Protocol" },
-  {PPP_NETCS,     "Netcs Twin Routing" },
-  {PPP_STP,       "Scheduled Transfer Protocol" },
-  {PPP_EDP,       "Extreme Discovery Protocol" },
-  {PPP_OSCP,	    "Optical Supervisory Channel Protocol" },
-  {PPP_OSCP2,	    "Optical Supervisory Channel Protocol" },
-  {PPP_LUXCOM,	"Luxcom" },
-  {PPP_SIGMA,     "Sigma Network Systems" },
-  {PPP_ACSP,      "Apple Client Server Protocol" },
-  {PPP_MPLS_UNI,  "MPLS Unicast"},
-  {PPP_MPLS_MULTI, "MPLS Multicast"},
-  {PPP_P12844,	"IEEE p1284.4 standard - data packets" },
-  {PPP_TETRA,     "ETSI TETRA Networks Protocol Type 1" },
-  {PPP_MFTP,      "Multichannel Flow Treatment Protocol" },
-  {PPP_RTP_CTCPND,"RTP IPHC Compressed TCP No Delta" },
-  {PPP_RTP_CS,	"RTP IPHC Context State" },
-  {PPP_RTP_CUDP16,"RTP IPHC Compressed UDP 16" },
-  {PPP_RTP_CRDP16,"RTP IPHC Compressed RTP 16" },
-  {PPP_CCCP,		"Cray Communications Control Protocol" },
-  {PPP_CDPD_MNRP,	"CDPD Mobile Network Registration Protocol" },
-  {PPP_EXPANDAP,	"Expand accelerator protocol" },
-  {PPP_ODSICP,	"ODSICP NCP" },
-  {PPP_DOCSIS,	"DOCSIS DLL" },
-  {PPP_CETACEANNDP,	"Cetacean Network Detection Protocol" },
-  {PPP_LZS,		"Stacker LZS" },
-  {PPP_REFTEK,	"RefTek Protocol" },
-  {PPP_FC,		"Fibre Channel" },
-  {PPP_EMIT,		"EMIT Protocols" },
-  {PPP_VSP,		"Vendor-Specific Protocol" },
-  {PPP_IPCP,		"IP Control Protocol" },
-  {PPP_OSICP,     "OSI Control Protocol" },
-  {PPP_XNSIDPCP,	"Xerox NS IDP Control Protocol" },
-  {PPP_DECNETCP,	"DECnet Phase IV Control Protocol" },
-  {PPP_ATCP,		"AppleTalk Control Protocol" },
-  {PPP_IPXCP,		"IPX Control Protocol" },
-  {PPP_BRIDGENCP,	"Bridging NCP" },
-  {PPP_SPCP,		"Stream Protocol Control Protocol" },
-  {PPP_BVCP,		"Banyan Vines Control Protocol" },
-  {PPP_MLCP,		"Multi-Link Control Protocol" },
-  {PPP_NBCP,		"NETBIOS Framing Control Protocol" },
-  {PPP_CISCOCP,	"Cisco Systems Control Protocol" },
-  {PPP_ASCOMCP,	"Ascom Timeplex" },
-  {PPP_LBLBCP,	"Fujitsu LBLB Control Protocol" },
-  {PPP_RLNCP,		"DCA Remote Lan Network Control Protocol" },
-  {PPP_SDCP,		"Serial Data Control Protocol" },
-  {PPP_LLCCP,		"SNA over LLC Control Protocol" },
-  {PPP_SNACP,		"SNA Control Protocol" },
-  {PPP_KNXCP,		"KNX Bridging Control Protocol" },
-  {PPP_ECP,		"Encryption Control Protocol" },
-  {PPP_ILECP,		"Individual Encryption Control Protocol" },
-  {PPP_IPV6CP,	"IPv6 Control Protocol" },
-  {PPP_MUXCP,     "PPPMux Control Protocol"},
-  {PPP_VSNCP,     "Vendor-Specific Network Control Protocol"},
-  {PPP_STAMPEDECP,"Stampede Bridging Control Protocol" },
-  {PPP_MPPCP,		"MP+ Control Protocol" },
-  {PPP_IPICP,		"NTCITS IPI Control Protocol" },
-  {PPP_SLCC,		"single link compression in multilink control" },
-  {PPP_CCP,		"Compression Control Protocol" },
-  {PPP_CDPCP,		"CDP Control Protocol" },
-  {PPP_NETCSCP,	"Netcs Twin Routing" },
-  {PPP_STPCP,		"STP - Control Protocol" },
-  {PPP_EDPCP,     "EDP Control Protocol" },
-  {PPP_ACSPC,     "Apple Client Server Protocol Control" },
-  {PPP_MPLSCP,	"MPLS Control Protocol" },
-  {PPP_P12844CP,	"IEEE p1284.4 standard - Protocol Control" },
-  {PPP_TETRACP,	"ETSI TETRA TNP1 Control Protocol" },
-  {PPP_MFTPCP,	"Multichannel Flow Treatment Protocol" },
-  {PPP_LCP,		"Link Control Protocol" },
-  {PPP_PAP,		"Password Authentication Protocol"  },
-  {PPP_LQR,		"Link Quality Report protocol" },
-  {PPP_SPAP,		"Shiva Password Authentication Protocol" },
-  {PPP_CBCP,		"Callback Control Protocol" },
-  {PPP_BACP,		"Bandwidth Allocation Control Protocol" },
-  {PPP_BAP,		"Bandwidth Allocation Protocol" },
-  {PPP_VSAP,		"Vendor-Specific Authentication Protocol" },
-  {PPP_CONTCP,	"Container Control Protocol" },
-  {PPP_CHAP,		"Challenge Handshake Authentication Protocol" },
-  {PPP_RSAAP,		"RSA Authentication Protocol" },
-  {PPP_EAP,		"Extensible Authentication Protocol" },
-  {PPP_SIEP,		"Mitsubishi Security Information Exchange Protocol"},
-  {PPP_SBAP,		"Stampede Bridging Authorization Protocol" },
-  {PPP_PRPAP,		"Proprietary Authentication Protocol" },
-  {PPP_PRPAP2,	"Proprietary Authentication Protocol" },
-  {PPP_PRPNIAP,	"Proprietary Node ID Authentication Protocol" },
+static const value_string ppp_vals[] = {
+  {PPP_PADDING,     "Padding Protocol" },
+  {PPP_ROHC_SCID,   "ROHC small-CID" },
+  {PPP_ROHC_LCID,   "ROHC large-CID" },
+  {PPP_IP,          "IP"             },
+  {PPP_OSI,         "OSI"            },
+  {PPP_XNSIDP,      "Xerox NS IDP" },
+  {PPP_DEC4,        "DECnet Phase IV" },
+  {PPP_AT,          "Appletalk"      },
+  {PPP_IPX,         "Netware IPX/SPX"},
+  {PPP_VJC_COMP,    "VJ compressed TCP"},
+  {PPP_VJC_UNCOMP,  "VJ uncompressed TCP"},
+  {PPP_BCP,         "Bridging Control Protocol"},
+  {PPP_ST,          "Stream Protocol (ST-II)" },
+  {PPP_VINES,       "Vines"          },
+  {PPP_AT_EDDP,     "AppleTalk EDDP" },
+  {PPP_AT_SB,       "AppleTalk SmartBuffered" },
+  {PPP_MP,          "Multilink"},
+  {PPP_NB,          "NETBIOS Framing" },
+  {PPP_CISCO,       "Cisco Systems" },
+  {PPP_ASCOM,       "Ascom Timeplex" },
+  {PPP_LBLB,        "Fujitsu Link Backup and Load Balancing" },
+  {PPP_RL,          "DCA Remote Lan" },
+  {PPP_SDTP,        "Serial Data Transport Protocol" },
+  {PPP_LLC,         "SNA over LLC" },
+  {PPP_SNA,         "SNA" },
+  {PPP_IPV6HC,      "IPv6 Header Compression " },
+  {PPP_KNX,         "KNX Bridging Data" },
+  {PPP_ENCRYPT,     "Encryption" },
+  {PPP_ILE,         "Individual Link Encryption" },
+  {PPP_IPV6,        "IPv6"           },
+  {PPP_MUX,         "PPP Multiplexing"},
+  {PPP_VSNP,        "Vendor-Specific Network Protocol"},
+  {PPP_RTP_FH,      "RTP IPHC Full Header" },
+  {PPP_RTP_CTCP,    "RTP IPHC Compressed TCP" },
+  {PPP_RTP_CNTCP,   "RTP IPHC Compressed Non TCP" },
+  {PPP_RTP_CUDP8,   "RTP IPHC Compressed UDP 8" },
+  {PPP_RTP_CRTP8,   "RTP IPHC Compressed RTP 8" },
+  {PPP_STAMPEDE,    "Stampede Bridging" },
+  {PPP_MPPLUS,      "MP+ Protocol" },
+  {PPP_NTCITS_IPI,  "NTCITS IPI" },
+  {PPP_ML_SLCOMP,   "single link compression in multilink" },
+  {PPP_COMP,        "compressed packet" },
+  {PPP_STP_HELLO,   "802.1D Hello Packet" },
+  {PPP_IBM_SR,      "IBM Source Routing BPDU" },
+  {PPP_DEC_LB,      "DEC LANBridge100 Spanning Tree"},
+  {PPP_CDP,         "Cisco Discovery Protocol" },
+  {PPP_NETCS,       "Netcs Twin Routing" },
+  {PPP_STP,         "Scheduled Transfer Protocol" },
+  {PPP_EDP,         "Extreme Discovery Protocol" },
+  {PPP_OSCP,        "Optical Supervisory Channel Protocol" },
+  {PPP_OSCP2,       "Optical Supervisory Channel Protocol" },
+  {PPP_LUXCOM,      "Luxcom" },
+  {PPP_SIGMA,       "Sigma Network Systems" },
+  {PPP_ACSP,        "Apple Client Server Protocol" },
+  {PPP_MPLS_UNI,    "MPLS Unicast"},
+  {PPP_MPLS_MULTI,  "MPLS Multicast"},
+  {PPP_P12844,      "IEEE p1284.4 standard - data packets" },
+  {PPP_TETRA,       "ETSI TETRA Networks Protocol Type 1" },
+  {PPP_MFTP,        "Multichannel Flow Treatment Protocol" },
+  {PPP_RTP_CTCPND,  "RTP IPHC Compressed TCP No Delta" },
+  {PPP_RTP_CS,      "RTP IPHC Context State" },
+  {PPP_RTP_CUDP16,  "RTP IPHC Compressed UDP 16" },
+  {PPP_RTP_CRDP16,  "RTP IPHC Compressed RTP 16" },
+  {PPP_CCCP,        "Cray Communications Control Protocol" },
+  {PPP_CDPD_MNRP,   "CDPD Mobile Network Registration Protocol" },
+  {PPP_EXPANDAP,    "Expand accelerator protocol" },
+  {PPP_ODSICP,      "ODSICP NCP" },
+  {PPP_DOCSIS,      "DOCSIS DLL" },
+  {PPP_CETACEANNDP, "Cetacean Network Detection Protocol" },
+  {PPP_LZS,         "Stacker LZS" },
+  {PPP_REFTEK,      "RefTek Protocol" },
+  {PPP_FC,          "Fibre Channel" },
+  {PPP_EMIT,        "EMIT Protocols" },
+  {PPP_VSP,         "Vendor-Specific Protocol" },
+  {PPP_IPCP,        "IP Control Protocol" },
+  {PPP_OSICP,       "OSI Control Protocol" },
+  {PPP_XNSIDPCP,    "Xerox NS IDP Control Protocol" },
+  {PPP_DECNETCP,    "DECnet Phase IV Control Protocol" },
+  {PPP_ATCP,        "AppleTalk Control Protocol" },
+  {PPP_IPXCP,       "IPX Control Protocol" },
+  {PPP_BRIDGENCP,   "Bridging NCP" },
+  {PPP_SPCP,        "Stream Protocol Control Protocol" },
+  {PPP_BVCP,        "Banyan Vines Control Protocol" },
+  {PPP_MLCP,        "Multi-Link Control Protocol" },
+  {PPP_NBCP,        "NETBIOS Framing Control Protocol" },
+  {PPP_CISCOCP,     "Cisco Systems Control Protocol" },
+  {PPP_ASCOMCP,     "Ascom Timeplex" },
+  {PPP_LBLBCP,      "Fujitsu LBLB Control Protocol" },
+  {PPP_RLNCP,       "DCA Remote Lan Network Control Protocol" },
+  {PPP_SDCP,        "Serial Data Control Protocol" },
+  {PPP_LLCCP,       "SNA over LLC Control Protocol" },
+  {PPP_SNACP,       "SNA Control Protocol" },
+  {PPP_KNXCP,       "KNX Bridging Control Protocol" },
+  {PPP_ECP,         "Encryption Control Protocol" },
+  {PPP_ILECP,       "Individual Encryption Control Protocol" },
+  {PPP_IPV6CP,      "IPv6 Control Protocol" },
+  {PPP_MUXCP,       "PPPMux Control Protocol"},
+  {PPP_VSNCP,       "Vendor-Specific Network Control Protocol"},
+  {PPP_STAMPEDECP,  "Stampede Bridging Control Protocol" },
+  {PPP_MPPCP,       "MP+ Control Protocol" },
+  {PPP_IPICP,       "NTCITS IPI Control Protocol" },
+  {PPP_SLCC,        "single link compression in multilink control" },
+  {PPP_CCP,         "Compression Control Protocol" },
+  {PPP_CDPCP,       "CDP Control Protocol" },
+  {PPP_NETCSCP,     "Netcs Twin Routing" },
+  {PPP_STPCP,       "STP - Control Protocol" },
+  {PPP_EDPCP,       "EDP Control Protocol" },
+  {PPP_ACSPC,       "Apple Client Server Protocol Control" },
+  {PPP_MPLSCP,      "MPLS Control Protocol" },
+  {PPP_P12844CP,    "IEEE p1284.4 standard - Protocol Control" },
+  {PPP_TETRACP,     "ETSI TETRA TNP1 Control Protocol" },
+  {PPP_MFTPCP,      "Multichannel Flow Treatment Protocol" },
+  {PPP_LCP,         "Link Control Protocol" },
+  {PPP_PAP,         "Password Authentication Protocol"  },
+  {PPP_LQR,         "Link Quality Report protocol" },
+  {PPP_SPAP,        "Shiva Password Authentication Protocol" },
+  {PPP_CBCP,        "Callback Control Protocol" },
+  {PPP_BACP,        "Bandwidth Allocation Control Protocol" },
+  {PPP_BAP,         "Bandwidth Allocation Protocol" },
+  {PPP_VSAP,        "Vendor-Specific Authentication Protocol" },
+  {PPP_CONTCP,      "Container Control Protocol" },
+  {PPP_CHAP,        "Challenge Handshake Authentication Protocol" },
+  {PPP_RSAAP,       "RSA Authentication Protocol" },
+  {PPP_EAP,         "Extensible Authentication Protocol" },
+  {PPP_SIEP,        "Mitsubishi Security Information Exchange Protocol"},
+  {PPP_SBAP,        "Stampede Bridging Authorization Protocol" },
+  {PPP_PRPAP,       "Proprietary Authentication Protocol" },
+  {PPP_PRPAP2,      "Proprietary Authentication Protocol" },
+  {PPP_PRPNIAP,     "Proprietary Node ID Authentication Protocol" },
   {0,             NULL            }
 };
+value_string_ext ppp_vals_ext = VALUE_STRING_EXT_INIT(ppp_vals);
 
 /* CP (LCP, IPCP, etc.) codes.
  * from pppd fsm.h
@@ -498,57 +499,57 @@ static const value_string cbcp_vals[] = {
 };
 
 static const value_string bap_vals[] = {
-  {BAP_CREQ,	"Call Request" },
-  {BAP_CRES,	"Call Response" },
-  {BAP_CBREQ,	"Callback Request" },
-  {BAP_CBRES,	"Callback Response" },
-  {BAP_LDQREQ,	"Link Drop Query Request" },
-  {BAP_LDQRES,	"Link Drop Query Response" },
-  {BAP_CSI,	"Call Status Indication" },
-  {BAP_CSRES,	"Call Status Response" },
-  {0,		NULL }
+  {BAP_CREQ,    "Call Request" },
+  {BAP_CRES,    "Call Response" },
+  {BAP_CBREQ,   "Callback Request" },
+  {BAP_CBRES,   "Callback Response" },
+  {BAP_LDQREQ,  "Link Drop Query Request" },
+  {BAP_LDQRES,  "Link Drop Query Response" },
+  {BAP_CSI,     "Call Status Indication" },
+  {BAP_CSRES,   "Call Status Response" },
+  {0,           NULL }
 };
 
-#define BAP_RESP_CODE_REQACK	0x00
-#define BAP_RESP_CODE_REQNAK	0x01
-#define BAP_RESP_CODE_REQREJ	0x02
-#define BAP_RESP_CODE_REQFULLNAK	0x03
+#define BAP_RESP_CODE_REQACK     0x00
+#define BAP_RESP_CODE_REQNAK     0x01
+#define BAP_RESP_CODE_REQREJ     0x02
+#define BAP_RESP_CODE_REQFULLNAK 0x03
 static const value_string bap_resp_code_vals[] = {
-  {BAP_RESP_CODE_REQACK,	"Request Ack" },
-  {BAP_RESP_CODE_REQNAK,	"Request Nak" },
-  {BAP_RESP_CODE_REQREJ,	"Request Rej" },
-  {BAP_RESP_CODE_REQFULLNAK,	"Request Full Nak" },
-  {0,			NULL }
+  {BAP_RESP_CODE_REQACK,        "Request Ack" },
+  {BAP_RESP_CODE_REQNAK,        "Request Nak" },
+  {BAP_RESP_CODE_REQREJ,        "Request Rej" },
+  {BAP_RESP_CODE_REQFULLNAK,    "Request Full Nak" },
+  {0,                   NULL }
 };
 
-#define BAP_LINK_TYPE_ISDN	0	/* ISDN */
-#define BAP_LINK_TYPE_X25	1	/* X.25 */
-#define BAP_LINK_TYPE_ANALOG	2	/* Analog */
-#define BAP_LINK_TYPE_SD	3	/* Switched Digital (non-ISDN) */
-#define BAP_LINK_TYPE_ISDNOV	4	/* ISDN data over voice */
-#define BAP_LINK_TYPE_RESV5	5	/* Reserved */
-#define BAP_LINK_TYPE_RESV6	6	/* Reserved */
-#define BAP_LINK_TYPE_RESV7	7	/* Reserved */
+#define BAP_LINK_TYPE_ISDN      0       /* ISDN */
+#define BAP_LINK_TYPE_X25       1       /* X.25 */
+#define BAP_LINK_TYPE_ANALOG    2       /* Analog */
+#define BAP_LINK_TYPE_SD        3       /* Switched Digital (non-ISDN) */
+#define BAP_LINK_TYPE_ISDNOV    4       /* ISDN data over voice */
+#define BAP_LINK_TYPE_RESV5     5       /* Reserved */
+#define BAP_LINK_TYPE_RESV6     6       /* Reserved */
+#define BAP_LINK_TYPE_RESV7     7       /* Reserved */
 static const value_string bap_link_type_vals[] = {
-  {BAP_LINK_TYPE_ISDN,	"ISDN" },
-  {BAP_LINK_TYPE_X25,	"X.25" },
-  {BAP_LINK_TYPE_ANALOG,	"Analog" },
-  {BAP_LINK_TYPE_SD,	"Switched Digital (non-ISDN)" },
-  {BAP_LINK_TYPE_ISDNOV,	"ISDN data over voice" },
-  {BAP_LINK_TYPE_RESV5,	"Reserved" },
-  {BAP_LINK_TYPE_RESV6,	"Reserved" },
-  {BAP_LINK_TYPE_RESV7,	"Reserved" },
-  {0,			NULL }
+  {BAP_LINK_TYPE_ISDN,   "ISDN" },
+  {BAP_LINK_TYPE_X25,    "X.25" },
+  {BAP_LINK_TYPE_ANALOG, "Analog" },
+  {BAP_LINK_TYPE_SD,     "Switched Digital (non-ISDN)" },
+  {BAP_LINK_TYPE_ISDNOV, "ISDN data over voice" },
+  {BAP_LINK_TYPE_RESV5,  "Reserved" },
+  {BAP_LINK_TYPE_RESV6,  "Reserved" },
+  {BAP_LINK_TYPE_RESV7,  "Reserved" },
+  {0,                   NULL }
 };
 
-#define BAP_PHONE_DELTA_SUBOPT_UNIQ_DIGIT	1	/* Unique Digit */
-#define BAP_PHONE_DELTA_SUBOPT_SUBSC_NUM	2	/* Subscriber Number */
-#define BAP_PHONE_DELTA_SUBOPT_PHONENUM_SUBADDR	3 /* Phone Number Sub Address */
+#define BAP_PHONE_DELTA_SUBOPT_UNIQ_DIGIT       1 /* Unique Digit */
+#define BAP_PHONE_DELTA_SUBOPT_SUBSC_NUM        2 /* Subscriber Number */
+#define BAP_PHONE_DELTA_SUBOPT_PHONENUM_SUBADDR 3 /* Phone Number Sub Address */
 static const value_string bap_phone_delta_subopt_vals[] = {
-  {BAP_PHONE_DELTA_SUBOPT_UNIQ_DIGIT,	"Unique Digit" },
-  {BAP_PHONE_DELTA_SUBOPT_SUBSC_NUM,	"Subscriber Number" },
+  {BAP_PHONE_DELTA_SUBOPT_UNIQ_DIGIT,       "Unique Digit" },
+  {BAP_PHONE_DELTA_SUBOPT_SUBSC_NUM,        "Subscriber Number" },
   {BAP_PHONE_DELTA_SUBOPT_PHONENUM_SUBADDR, "Phone Number Sub Address" },
-  {0,					NULL }
+  {0,                                   NULL }
 };
 
 /*
@@ -558,167 +559,168 @@ static const value_string bap_phone_delta_subopt_vals[] = {
  * adapted to BAP protocol.
  */
 static const value_string q931_cause_code_vals[] = {
-  { 0x00,	"Call successful" },
-  { 0x01,	"Unallocated (unassigned) number" },
-  { 0x02,	"No route to specified transit network" },
-  { 0x03,	"No route to destination" },
-  { 0x04,	"Send special information tone" },
-  { 0x05,	"Misdialled trunk prefix" },
-  { 0x06,	"Channel unacceptable" },
-  { 0x07,	"Call awarded and being delivered in an established channel" },
-  { 0x08,	"Prefix 0 dialed but not allowed" },
-  { 0x09,	"Prefix 1 dialed but not allowed" },
-  { 0x0A,	"Prefix 1 dialed but not required" },
-  { 0x0B,	"More digits received than allowed, call is proceeding" },
-  { 0x10,	"Normal call clearing" },
-  { 0x11,	"User busy" },
-  { 0x12,	"No user responding" },
-  { 0x13,	"No answer from user (user alerted)" },
-  { 0x14,	"Subscriber absent" },
-  { 0x15,	"Call rejected" },
-  { 0x16,	"Number changed" },
-  { 0x17,	"Reverse charging rejected" },
-  { 0x18,	"Call suspended" },
-  { 0x19,	"Call resumed" },
-  { 0x1A,	"Non-selected user clearing" },
-  { 0x1B,	"Destination out of order" },
-  { 0x1C,	"Invalid number format (incomplete number)" },
-  { 0x1D,	"Facility rejected" },
-  { 0x1E,	"Response to STATUS ENQUIRY" },
-  { 0x1F,	"Normal unspecified" },
-  { 0x21,	"Circuit out of order" },
-  { 0x22,	"No circuit/channel available" },
-  { 0x23,	"Destination unattainable" },
-  { 0x25,	"Degraded service" },
-  { 0x26,	"Network out of order" },
-  { 0x27,	"Transit delay range cannot be achieved" },
-  { 0x28,	"Throughput range cannot be achieved" },
-  { 0x29,	"Temporary failure" },
-  { 0x2A,	"Switching equipment congestion" },
-  { 0x2B,	"Access information discarded" },
-  { 0x2C,	"Requested circuit/channel not available" },
-  { 0x2D,	"Pre-empted" },
-  { 0x2E,	"Precedence call blocked" },
-  { 0x2F,	"Resources unavailable, unspecified" },
-  { 0x31,	"Quality of service unavailable" },
-  { 0x32,	"Requested facility not subscribed" },
-  { 0x33,	"Reverse charging not allowed" },
-  { 0x34,	"Outgoing calls barred" },
-  { 0x35,	"Outgoing calls barred within CUG" },
-  { 0x36,	"Incoming calls barred" },
-  { 0x37,	"Incoming calls barred within CUG" },
-  { 0x38,	"Call waiting not subscribed" },
-  { 0x39,	"Bearer capability not authorized" },
-  { 0x3A,	"Bearer capability not presently available" },
-  { 0x3E,	"Inconsistency in designated outgoing access information and subscriber class" },
-  { 0x3F,	"Service or option not available, unspecified" },
-  { 0x41,	"Bearer capability not implemented" },
-  { 0x42,	"Channel type not implemented" },
-  { 0x43,	"Transit network selection not implemented" },
-  { 0x44,	"Message not implemented" },
-  { 0x45,	"Requested facility not implemented" },
-  { 0x46,	"Only restricted digital information bearer capability is available" },
-  { 0x4F,	"Service or option not implemented, unspecified" },
-  { 0x51,	"Invalid call reference value" },
-  { 0x52,	"Identified channel does not exist" },
-  { 0x53,	"Call identity does not exist for suspended call" },
-  { 0x54,	"Call identity in use" },
-  { 0x55,	"No call suspended" },
-  { 0x56,	"Call having the requested call identity has been cleared" },
-  { 0x57,	"Called user not member of CUG" },
-  { 0x58,	"Incompatible destination" },
-  { 0x59,	"Non-existent abbreviated address entry" },
-  { 0x5A,	"Destination address missing, and direct call not subscribed" },
-  { 0x5B,	"Invalid transit network selection (national use)" },
-  { 0x5C,	"Invalid facility parameter" },
-  { 0x5D,	"Mandatory information element is missing" },
-  { 0x5F,	"Invalid message, unspecified" },
-  { 0x60,	"Mandatory information element is missing" },
-  { 0x61,	"Message type non-existent or not implemented" },
-  { 0x62,	"Message not compatible with call state or message type non-existent or not implemented" },
-  { 0x63,	"Information element non-existent or not implemented" },
-  { 0x64,	"Invalid information element contents" },
-  { 0x65,	"Message not compatible with call state" },
-  { 0x66,	"Recovery on timer expiry" },
-  { 0x67,	"Parameter non-existent or not implemented - passed on" },
-  { 0x6E,	"Message with unrecognized parameter discarded" },
-  { 0x6F,	"Protocol error, unspecified" },
-  { 0x7F,	"Internetworking, unspecified" },
+  { 0x00,       "Call successful" },
+  { 0x01,       "Unallocated (unassigned) number" },
+  { 0x02,       "No route to specified transit network" },
+  { 0x03,       "No route to destination" },
+  { 0x04,       "Send special information tone" },
+  { 0x05,       "Misdialled trunk prefix" },
+  { 0x06,       "Channel unacceptable" },
+  { 0x07,       "Call awarded and being delivered in an established channel" },
+  { 0x08,       "Prefix 0 dialed but not allowed" },
+  { 0x09,       "Prefix 1 dialed but not allowed" },
+  { 0x0A,       "Prefix 1 dialed but not required" },
+  { 0x0B,       "More digits received than allowed, call is proceeding" },
+  { 0x10,       "Normal call clearing" },
+  { 0x11,       "User busy" },
+  { 0x12,       "No user responding" },
+  { 0x13,       "No answer from user (user alerted)" },
+  { 0x14,       "Subscriber absent" },
+  { 0x15,       "Call rejected" },
+  { 0x16,       "Number changed" },
+  { 0x17,       "Reverse charging rejected" },
+  { 0x18,       "Call suspended" },
+  { 0x19,       "Call resumed" },
+  { 0x1A,       "Non-selected user clearing" },
+  { 0x1B,       "Destination out of order" },
+  { 0x1C,       "Invalid number format (incomplete number)" },
+  { 0x1D,       "Facility rejected" },
+  { 0x1E,       "Response to STATUS ENQUIRY" },
+  { 0x1F,       "Normal unspecified" },
+  { 0x21,       "Circuit out of order" },
+  { 0x22,       "No circuit/channel available" },
+  { 0x23,       "Destination unattainable" },
+  { 0x25,       "Degraded service" },
+  { 0x26,       "Network out of order" },
+  { 0x27,       "Transit delay range cannot be achieved" },
+  { 0x28,       "Throughput range cannot be achieved" },
+  { 0x29,       "Temporary failure" },
+  { 0x2A,       "Switching equipment congestion" },
+  { 0x2B,       "Access information discarded" },
+  { 0x2C,       "Requested circuit/channel not available" },
+  { 0x2D,       "Pre-empted" },
+  { 0x2E,       "Precedence call blocked" },
+  { 0x2F,       "Resources unavailable, unspecified" },
+  { 0x31,       "Quality of service unavailable" },
+  { 0x32,       "Requested facility not subscribed" },
+  { 0x33,       "Reverse charging not allowed" },
+  { 0x34,       "Outgoing calls barred" },
+  { 0x35,       "Outgoing calls barred within CUG" },
+  { 0x36,       "Incoming calls barred" },
+  { 0x37,       "Incoming calls barred within CUG" },
+  { 0x38,       "Call waiting not subscribed" },
+  { 0x39,       "Bearer capability not authorized" },
+  { 0x3A,       "Bearer capability not presently available" },
+  { 0x3E,       "Inconsistency in designated outgoing access information and subscriber class" },
+  { 0x3F,       "Service or option not available, unspecified" },
+  { 0x41,       "Bearer capability not implemented" },
+  { 0x42,       "Channel type not implemented" },
+  { 0x43,       "Transit network selection not implemented" },
+  { 0x44,       "Message not implemented" },
+  { 0x45,       "Requested facility not implemented" },
+  { 0x46,       "Only restricted digital information bearer capability is available" },
+  { 0x4F,       "Service or option not implemented, unspecified" },
+  { 0x51,       "Invalid call reference value" },
+  { 0x52,       "Identified channel does not exist" },
+  { 0x53,       "Call identity does not exist for suspended call" },
+  { 0x54,       "Call identity in use" },
+  { 0x55,       "No call suspended" },
+  { 0x56,       "Call having the requested call identity has been cleared" },
+  { 0x57,       "Called user not member of CUG" },
+  { 0x58,       "Incompatible destination" },
+  { 0x59,       "Non-existent abbreviated address entry" },
+  { 0x5A,       "Destination address missing, and direct call not subscribed" },
+  { 0x5B,       "Invalid transit network selection (national use)" },
+  { 0x5C,       "Invalid facility parameter" },
+  { 0x5D,       "Mandatory information element is missing" },
+  { 0x5F,       "Invalid message, unspecified" },
+  { 0x60,       "Mandatory information element is missing" },
+  { 0x61,       "Message type non-existent or not implemented" },
+  { 0x62,       "Message not compatible with call state or message type non-existent or not implemented" },
+  { 0x63,       "Information element non-existent or not implemented" },
+  { 0x64,       "Invalid information element contents" },
+  { 0x65,       "Message not compatible with call state" },
+  { 0x66,       "Recovery on timer expiry" },
+  { 0x67,       "Parameter non-existent or not implemented - passed on" },
+  { 0x6E,       "Message with unrecognized parameter discarded" },
+  { 0x6F,       "Protocol error, unspecified" },
+  { 0x7F,       "Internetworking, unspecified" },
   { 0xFF, "Non-specific failure" },
-  { 0,	NULL }
+  { 0,  NULL }
 };
+static value_string_ext q931_cause_code_vals_ext = VALUE_STRING_EXT_INIT(q931_cause_code_vals);
 
 static const value_string bap_call_status_opt_action_vals[] = {
-  {0,	"No retry" },
-  {1,	"Retry" },
-  {0,	NULL }
+  {0,   "No retry" },
+  {1,   "Retry" },
+  {0,   NULL }
 };
 
-#define STAC_CM_NONE		0
-#define STAC_CM_LCB		1
-#define	STAC_CM_CRC		2
-#define	STAC_CM_SN		3
-#define STAC_CM_EXTMODE		4
+#define STAC_CM_NONE            0
+#define STAC_CM_LCB             1
+#define STAC_CM_CRC             2
+#define STAC_CM_SN              3
+#define STAC_CM_EXTMODE         4
 static const value_string stac_checkmode_vals[] = {
-  {STAC_CM_NONE,		"None" },
-  {STAC_CM_LCB,		"LCB" },
-  {STAC_CM_CRC,		"CRC" },
-  {STAC_CM_SN,		"Sequence Number" },
-  {STAC_CM_EXTMODE,	"Extended Mode" },
-  {0,			NULL }
+  {STAC_CM_NONE,        "None" },
+  {STAC_CM_LCB,         "LCB" },
+  {STAC_CM_CRC,         "CRC" },
+  {STAC_CM_SN,          "Sequence Number" },
+  {STAC_CM_EXTMODE,     "Extended Mode" },
+  {0,                   NULL }
 };
 
-#define LZSDCP_CM_NONE		0
-#define LZSDCP_CM_LCB		1
-#define	LZSDCP_CM_SN		2
-#define	LZSDCP_CM_SN_LCB	3
+#define LZSDCP_CM_NONE          0
+#define LZSDCP_CM_LCB           1
+#define LZSDCP_CM_SN            2
+#define LZSDCP_CM_SN_LCB        3
 static const value_string lzsdcp_checkmode_vals[] = {
-  {LZSDCP_CM_NONE,	"None" },
-  {LZSDCP_CM_LCB,		"LCB" },
-  {LZSDCP_CM_SN,		"Sequence Number" },
-  {LZSDCP_CM_SN_LCB,	"Sequence Number + LCB" },
-  {0,			NULL }
+  {LZSDCP_CM_NONE,      "None" },
+  {LZSDCP_CM_LCB,       "LCB" },
+  {LZSDCP_CM_SN,        "Sequence Number" },
+  {LZSDCP_CM_SN_LCB,    "Sequence Number + LCB" },
+  {0,                   NULL }
 };
 
-#define LZSDCP_PM_NONE		0
-#define LZSDCP_PM_PROC_UNCOMP	1
+#define LZSDCP_PM_NONE          0
+#define LZSDCP_PM_PROC_UNCOMP   1
 static const value_string lzsdcp_processmode_vals[] = {
-  {LZSDCP_PM_NONE,	"None" },
-  {LZSDCP_PM_PROC_UNCOMP,	"Process-Uncompressed" },
-  {0,			NULL }
+  {LZSDCP_PM_NONE,        "None" },
+  {LZSDCP_PM_PROC_UNCOMP, "Process-Uncompressed" },
+  {0,                   NULL }
 };
 
 /*
  * Options.  (LCP)
  */
-#define CI_MRU			1	/* Maximum Receive Unit */
-#define CI_ASYNCMAP		2	/* Async Control Character Map */
-#define CI_AUTHTYPE		3	/* Authentication Type */
-#define CI_QUALITY		4	/* Quality Protocol */
-#define CI_MAGICNUMBER		5	/* Magic Number */
-#define CI_PCOMPRESSION		7	/* Protocol Field Compression */
-#define CI_ACCOMPRESSION	8	/* Address/Control Field Compression */
-#define CI_FCS_ALTERNATIVES	9	/* FCS Alternatives (RFC 1570) */
-#define CI_SELF_DESCRIBING_PAD	10	/* Self-Describing Pad (RFC 1570) */
-#define CI_NUMBERED_MODE	11	/* Numbered Mode (RFC 1663) */
-#define CI_CALLBACK		13	/* Callback (RFC 1570) */
-#define CI_COMPOUND_FRAMES	15	/* Compound frames (RFC 1570) */
-#define CI_MULTILINK_MRRU	17	/* Multilink MRRU (RFC 1990) */
-#define CI_MULTILINK_SSNH	18	/* Multilink Short Sequence Number
-					   Header (RFC 1990) */
-#define CI_MULTILINK_EP_DISC	19	/* Multilink Endpoint Discriminator
-					   (RFC 1990) */
-#define CI_DCE_IDENTIFIER	21	/* DCE Identifier */
-#define CI_MULTILINK_PLUS_PROC	22	/* Multilink Plus Procedure */
-#define CI_LINK_DISC_FOR_BACP	23	/* Link Discriminator for BACP
-					   (RFC 2125) */
-#define CI_LCP_AUTHENTICATION	24	/* LCP Authentication Option */
-#define CI_COBS			25	/* Consistent Overhead Byte
-					   Stuffing */
-#define CI_PREFIX_ELISION	26	/* Prefix elision */
-#define CI_MULTILINK_HDR_FMT	27	/* Multilink header format */
-#define CI_INTERNATIONALIZATION	28	/* Internationalization (RFC 2484) */
-#define	CI_SDL_ON_SONET_SDH	29	/* Simple Data Link on SONET/SDH */
+#define CI_MRU                  1       /* Maximum Receive Unit */
+#define CI_ASYNCMAP             2       /* Async Control Character Map */
+#define CI_AUTHTYPE             3       /* Authentication Type */
+#define CI_QUALITY              4       /* Quality Protocol */
+#define CI_MAGICNUMBER          5       /* Magic Number */
+#define CI_PCOMPRESSION         7       /* Protocol Field Compression */
+#define CI_ACCOMPRESSION        8       /* Address/Control Field Compression */
+#define CI_FCS_ALTERNATIVES     9       /* FCS Alternatives (RFC 1570) */
+#define CI_SELF_DESCRIBING_PAD  10      /* Self-Describing Pad (RFC 1570) */
+#define CI_NUMBERED_MODE        11      /* Numbered Mode (RFC 1663) */
+#define CI_CALLBACK             13      /* Callback (RFC 1570) */
+#define CI_COMPOUND_FRAMES      15      /* Compound frames (RFC 1570) */
+#define CI_MULTILINK_MRRU       17      /* Multilink MRRU (RFC 1990) */
+#define CI_MULTILINK_SSNH       18      /* Multilink Short Sequence Number
+                                           Header (RFC 1990) */
+#define CI_MULTILINK_EP_DISC    19      /* Multilink Endpoint Discriminator
+                                           (RFC 1990) */
+#define CI_DCE_IDENTIFIER       21      /* DCE Identifier */
+#define CI_MULTILINK_PLUS_PROC  22      /* Multilink Plus Procedure */
+#define CI_LINK_DISC_FOR_BACP   23      /* Link Discriminator for BACP
+                                           (RFC 2125) */
+#define CI_LCP_AUTHENTICATION   24      /* LCP Authentication Option */
+#define CI_COBS                 25      /* Consistent Overhead Byte
+                                           Stuffing */
+#define CI_PREFIX_ELISION       26      /* Prefix elision */
+#define CI_MULTILINK_HDR_FMT    27      /* Multilink header format */
+#define CI_INTERNATIONALIZATION 28      /* Internationalization (RFC 2484) */
+#define CI_SDL_ON_SONET_SDH     29      /* Simple Data Link on SONET/SDH */
 
 static void dissect_lcp_mru_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                                 int offset, guint length, packet_info *pinfo,
@@ -956,22 +958,22 @@ static const ip_tcp_opt lcp_opts[] = {
   }
 };
 
-#define N_LCP_OPTS	(sizeof lcp_opts / sizeof lcp_opts[0])
+#define N_LCP_OPTS      (sizeof lcp_opts / sizeof lcp_opts[0])
 
 /*
  * Options.  (VSNCP)
  */
 
-#define CI_PDN_IDENTIFIER	1
-#define CI_ACCESS_POINT_NM	2
-#define CI_PDN_TYPE		3
-#define CI_PDN_ADDRESS		4
-#define CI_PROTOCOL_CONFIG	5
-#define CI_ERROR_CODE		6
-#define CI_ATTACH_TYPE		7
-#define CI_IPv4DEFAULT_ROUTER	8
-#define CI_ADDRESS_ALLOC	9
-#define CI_APN_AMBR		10
+#define CI_PDN_IDENTIFIER       1
+#define CI_ACCESS_POINT_NM      2
+#define CI_PDN_TYPE             3
+#define CI_PDN_ADDRESS          4
+#define CI_PROTOCOL_CONFIG      5
+#define CI_ERROR_CODE           6
+#define CI_ATTACH_TYPE          7
+#define CI_IPv4DEFAULT_ROUTER   8
+#define CI_ADDRESS_ALLOC        9
+#define CI_APN_AMBR             10
 
 static void dissect_vsncp_pdnid_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                                 int offset, guint length, packet_info *pinfo,
@@ -1084,34 +1086,34 @@ static const ip_tcp_opt vsncp_opts[] = {
   }
 };
 
-#define N_VSNCP_OPTS	(sizeof vsncp_opts / sizeof vsncp_opts[0])
+#define N_VSNCP_OPTS    (sizeof vsncp_opts / sizeof vsncp_opts[0])
 
 /*
  * CHAP Algorithms
  */
-#define CHAP_ALG_MD5	0x05	/* CHAP with MD5 */
-#define CHAP_ALG_MSV1	0x80	/* MS-CHAPv1 */
-#define CHAP_ALG_MSV2	0x81	/* MS-CHAPv2 */
+#define CHAP_ALG_MD5    0x05    /* CHAP with MD5 */
+#define CHAP_ALG_MSV1   0x80    /* MS-CHAPv1 */
+#define CHAP_ALG_MSV2   0x81    /* MS-CHAPv2 */
 
 static const value_string chap_alg_vals[] = {
-  {CHAP_ALG_MD5,	"CHAP with MD5" },
-  {CHAP_ALG_MSV1,	"MS-CHAP" },
-  {CHAP_ALG_MSV2,	"MS-CHAP-2" },
-  {0,          	NULL }
+  {CHAP_ALG_MD5,        "CHAP with MD5" },
+  {CHAP_ALG_MSV1,       "MS-CHAP" },
+  {CHAP_ALG_MSV2,       "MS-CHAP-2" },
+  {0,           NULL }
 };
 
 
 /*
  * Options.  (IPCP)
  */
-#define CI_ADDRS	1	/* IP Addresses (deprecated) (RFC 1172) */
-#define CI_COMPRESSTYPE	2	/* Compression Type (RFC 1332) */
-#define CI_ADDR		3	/* IP Address (RFC 1332) */
-#define CI_MOBILE_IPv4	4	/* Mobile IPv4 (RFC 2290) */
-#define CI_MS_DNS1	129	/* Primary DNS value (RFC 1877) */
-#define CI_MS_WINS1	130	/* Primary WINS value (RFC 1877) */
-#define CI_MS_DNS2	131	/* Secondary DNS value (RFC 1877) */
-#define CI_MS_WINS2	132	/* Secondary WINS value (RFC 1877) */
+#define CI_ADDRS        1       /* IP Addresses (deprecated) (RFC 1172) */
+#define CI_COMPRESSTYPE 2       /* Compression Type (RFC 1332) */
+#define CI_ADDR         3       /* IP Address (RFC 1332) */
+#define CI_MOBILE_IPv4  4       /* Mobile IPv4 (RFC 2290) */
+#define CI_MS_DNS1      129     /* Primary DNS value (RFC 1877) */
+#define CI_MS_WINS1     130     /* Primary WINS value (RFC 1877) */
+#define CI_MS_DNS2      131     /* Secondary DNS value (RFC 1877) */
+#define CI_MS_WINS2     132     /* Secondary WINS value (RFC 1877) */
 
 static void dissect_ipcp_addrs_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                                 int offset, guint length, packet_info *pinfo,
@@ -1193,32 +1195,32 @@ static const ip_tcp_opt ipcp_opts[] = {
   }
 };
 
-#define N_IPCP_OPTS	(sizeof ipcp_opts / sizeof ipcp_opts[0])
+#define N_IPCP_OPTS     (sizeof ipcp_opts / sizeof ipcp_opts[0])
 
 
 /*
  * IP Compression options
  */
-#define IPCP_COMPRESS_VJ_1172	0x37	/* value defined in RFC1172 (typo) */
-#define IPCP_COMPRESS_VJ	0x2d	/* value defined in RFC1332 (correct) */
-#define IPCP_COMPRESS_IPHC	0x61
+#define IPCP_COMPRESS_VJ_1172   0x37    /* value defined in RFC1172 (typo) */
+#define IPCP_COMPRESS_VJ        0x2d    /* value defined in RFC1332 (correct) */
+#define IPCP_COMPRESS_IPHC      0x61
 
 const value_string ipcp_compress_proto_vals[] = {
-  { IPCP_COMPRESS_VJ_1172,	"VJ compression (RFC1172-typo)" },
-  { IPCP_COMPRESS_VJ,		"VJ compression" },
-  { IPCP_COMPRESS_IPHC,	"IPHC compression" },
-  { 0,			NULL }
+  { IPCP_COMPRESS_VJ_1172, "VJ compression (RFC1172-typo)" },
+  { IPCP_COMPRESS_VJ,      "VJ compression" },
+  { IPCP_COMPRESS_IPHC,    "IPHC compression" },
+  { 0,                  NULL }
 };
 
 /* IPHC suboptions (RFC2508, 3544) */
-#define IPCP_IPHC_CRTP		1
-#define IPCP_IPHC_ECRTP		2
-#define IPCP_IPHC_DISABLE_PROTO	3	/* Disable compression for protocol */
+#define IPCP_IPHC_CRTP          1
+#define IPCP_IPHC_ECRTP         2
+#define IPCP_IPHC_DISABLE_PROTO 3       /* Disable compression for protocol */
 
 const value_string ipcp_iphc_disable_proto_vals[] = {
-  { 1,	"TCP" },
-  { 2,	"Non-TCP" },
-  { 0,	NULL }
+  { 1,  "TCP" },
+  { 2,  "Non-TCP" },
+  { 0,  NULL }
 };
 
 static const ip_tcp_opt ipcp_iphc_subopts[] = {
@@ -1276,31 +1278,31 @@ static const ip_tcp_opt osicp_opts[] = {
 /*
  * Options.  (CCP)
  */
-#define CI_CCP_OUI	0	/* OUI (RFC1962) */
-#define CI_CCP_PREDICT1	1	/* Predictor type 1 (RFC1962) */
-#define CI_CCP_PREDICT2	2	/* Predictor type 2 (RFC1962) */
-#define CI_CCP_PUDDLE	3	/* Puddle Jumper (RFC1962) */
-#define CI_CCP_HPPPC	16	/* Hewlett-Packard PPC (RFC1962) */
-#define CI_CCP_STAC	17	/* stac Electronics LZS (RFC1974) */
-#define CI_CCP_MPPC	18	/* Microsoft PPC (RFC2218/3078) */
-#define CI_CCP_GFZA	19	/* Gandalf FZA (RFC1962) */
-#define CI_CCP_V42BIS	20	/* V.42bis compression */
-#define CI_CCP_BSDLZW	21	/* BSD LZW Compress (RFC1977) */
-#define CI_CCP_LZSDCP	23	/* LZS-DCP (RFC1967) */
-#define CI_CCP_MVRCA	24	/* MVRCA (Magnalink) (RFC1975) */
-#define CI_CCP_DEFLATE	26	/* Deflate (RFC1979) */
-#define CI_CCP_RESERVED	255	/* Reserved (RFC1962) */
+#define CI_CCP_OUI      0       /* OUI (RFC1962) */
+#define CI_CCP_PREDICT1 1       /* Predictor type 1 (RFC1962) */
+#define CI_CCP_PREDICT2 2       /* Predictor type 2 (RFC1962) */
+#define CI_CCP_PUDDLE   3       /* Puddle Jumper (RFC1962) */
+#define CI_CCP_HPPPC    16      /* Hewlett-Packard PPC (RFC1962) */
+#define CI_CCP_STAC     17      /* stac Electronics LZS (RFC1974) */
+#define CI_CCP_MPPC     18      /* Microsoft PPC (RFC2218/3078) */
+#define CI_CCP_GFZA     19      /* Gandalf FZA (RFC1962) */
+#define CI_CCP_V42BIS   20      /* V.42bis compression */
+#define CI_CCP_BSDLZW   21      /* BSD LZW Compress (RFC1977) */
+#define CI_CCP_LZSDCP   23      /* LZS-DCP (RFC1967) */
+#define CI_CCP_MVRCA    24      /* MVRCA (Magnalink) (RFC1975) */
+#define CI_CCP_DEFLATE  26      /* Deflate (RFC1979) */
+#define CI_CCP_RESERVED 255     /* Reserved (RFC1962) */
 
 /*
  * Microsoft Point-To-Point Compression (MPPC) and Encryption (MPPE)
  * supported bits.
  */
-#define MPPC_SUPPORTED_BITS_C	0x00000001	/* MPPC negotiation */
-#define MPPE_SUPPORTED_BITS_D	0x00000010	/* Obsolete */
-#define MPPE_SUPPORTED_BITS_L	0x00000020	/* 40-bit encryption */
-#define MPPE_SUPPORTED_BITS_S	0x00000040	/* 128-bit encryption */
-#define MPPE_SUPPORTED_BITS_M	0x00000080	/* 56-bit encryption */
-#define MPPE_SUPPORTED_BITS_H	0x01000000	/* stateless mode */
+#define MPPC_SUPPORTED_BITS_C   0x00000001      /* MPPC negotiation */
+#define MPPE_SUPPORTED_BITS_D   0x00000010      /* Obsolete */
+#define MPPE_SUPPORTED_BITS_L   0x00000020      /* 40-bit encryption */
+#define MPPE_SUPPORTED_BITS_S   0x00000040      /* 128-bit encryption */
+#define MPPE_SUPPORTED_BITS_M   0x00000080      /* 56-bit encryption */
+#define MPPE_SUPPORTED_BITS_H   0x01000000      /* stateless mode */
 
 static void dissect_ccp_stac_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                                 int offset, guint length, packet_info *pinfo,
@@ -1380,16 +1382,16 @@ static const ip_tcp_opt ccp_opts[] = {
   },
 };
 
-#define N_CCP_OPTS	(sizeof ccp_opts / sizeof ccp_opts[0])
+#define N_CCP_OPTS      (sizeof ccp_opts / sizeof ccp_opts[0])
 
 /*
  * Options.  (CBCP)
  */
-#define CI_CBCP_NO_CALLBACK	1  /* No callback */
-#define CI_CBCP_CB_USER		2  /* Callback to a user-specified number */
-#define CI_CBCP_CB_PRE		3  /* Callback to a pre-specified or
+#define CI_CBCP_NO_CALLBACK     1  /* No callback */
+#define CI_CBCP_CB_USER         2  /* Callback to a user-specified number */
+#define CI_CBCP_CB_PRE          3  /* Callback to a pre-specified or
                                       administrator specified number */
-#define CI_CBCP_CB_ANY		4  /* Callback to any of a list of numbers */
+#define CI_CBCP_CB_ANY          4  /* Callback to any of a list of numbers */
 
 static void dissect_cbcp_no_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                                 int offset, guint length, packet_info *pinfo,
@@ -1435,12 +1437,12 @@ static const ip_tcp_opt cbcp_opts[] = {
 
 };
 
-#define N_CBCP_OPTS	(sizeof cbcp_opts / sizeof cbcp_opts[0])
+#define N_CBCP_OPTS     (sizeof cbcp_opts / sizeof cbcp_opts[0])
 
 /*
  * Options.  (BACP)
  */
-#define CI_BACP_FAVORED_PEER	1  /* Favored-Peer */
+#define CI_BACP_FAVORED_PEER    1  /* Favored-Peer */
 
 static void dissect_bacp_favored_peer_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                                           int offset, guint length, packet_info *pinfo,
@@ -1457,17 +1459,17 @@ static const ip_tcp_opt bacp_opts[] = {
   }
 };
 
-#define N_BACP_OPTS	(sizeof bacp_opts / sizeof bacp_opts[0])
+#define N_BACP_OPTS     (sizeof bacp_opts / sizeof bacp_opts[0])
 
 /*
  * Options.  (BAP)
  */
-#define CI_BAP_LINK_TYPE	1  /* Link Type */
-#define CI_BAP_PHONE_DELTA	2  /* Phone-Delta */
-#define CI_BAP_NO_PHONE_NUM_NEEDED	3  /* No Phone Number Needed */
-#define CI_BAP_REASON		4  /* Reason */
-#define CI_BAP_LINK_DISC	5  /* Link Discriminator */
-#define CI_BAP_CALL_STATUS	6  /* Call Status */
+#define CI_BAP_LINK_TYPE           1  /* Link Type */
+#define CI_BAP_PHONE_DELTA         2  /* Phone-Delta */
+#define CI_BAP_NO_PHONE_NUM_NEEDED 3  /* No Phone Number Needed */
+#define CI_BAP_REASON              4  /* Reason */
+#define CI_BAP_LINK_DISC           5  /* Link Discriminator */
+#define CI_BAP_CALL_STATUS         6  /* Call Status */
 
 static void dissect_bap_link_type_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                                 int offset, guint length, packet_info *pinfo,
@@ -1540,7 +1542,7 @@ static const ip_tcp_opt bap_opts[] = {
   }
 };
 
-#define N_BAP_OPTS	(sizeof bap_opts / sizeof bap_opts[0])
+#define N_BAP_OPTS     (sizeof bap_opts / sizeof bap_opts[0])
 
 static void dissect_ppp(tvbuff_t *tvb, packet_info *pinfo,
                         proto_tree *tree);
@@ -1599,8 +1601,8 @@ static const ip_tcp_opt pppmuxcp_opts[] = {
 /*
  * Options.  (IPv6CP)
  */
-#define CI_IPV6CP_IF_ID		1	/* Interface Identifier (RFC 2472) */
-#define CI_IPV6CP_COMPRESSTYPE	2	/* Compression Type (RFC 2472) */
+#define CI_IPV6CP_IF_ID         1       /* Interface Identifier (RFC 2472) */
+#define CI_IPV6CP_COMPRESSTYPE  2       /* Compression Type (RFC 2472) */
 
 static void dissect_ipv6cp_if_id_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                                      int offset, guint length, packet_info *pinfo,
@@ -1625,7 +1627,7 @@ static const ip_tcp_opt ipv6cp_opts[] = {
   },
 };
 
-#define N_IPV6CP_OPTS	(sizeof ipv6cp_opts / sizeof ipv6cp_opts[0])
+#define N_IPV6CP_OPTS   (sizeof ipv6cp_opts / sizeof ipv6cp_opts[0])
 
 /*
 *******************************************************************************
@@ -1852,9 +1854,9 @@ dissect_lcp_async_map_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
    */
   map = tvb_get_ntohl(tvb, offset + 2);
   if (map == 0x00000000)
-      mapstr = "None";	/* don't map any control characters */
+      mapstr = "None";  /* don't map any control characters */
   else if (map == 0xffffffff)
-      mapstr = "All";	/* map all control characters */
+      mapstr = "All";   /* map all control characters */
   else {
 #define MAX_MAPSTR_LEN (32*(10+2)+1)
     mapstr=ep_alloc(MAX_MAPSTR_LEN);
@@ -1890,7 +1892,7 @@ dissect_lcp_protocol_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   length -= 2;
   protocol = tvb_get_ntohs(tvb, offset);
   proto_tree_add_text(field_tree, tvb, offset, 2, "%s: %s (0x%02x)", optp->name,
-                      val_to_str(protocol, ppp_vals, "Unknown"), protocol);
+                      val_to_str_ext_const(protocol, &ppp_vals_ext, "Unknown"), protocol);
   offset += 2;
   length -= 2;
   if (length > 0)
@@ -1915,7 +1917,7 @@ dissect_lcp_authprot_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   length -= 2;
   protocol = tvb_get_ntohs(tvb, offset);
   proto_tree_add_text(field_tree, tvb, offset, 2, "%s: %s (0x%02x)", optp->name,
-                      val_to_str(protocol, ppp_vals, "Unknown"), protocol);
+                      val_to_str_ext_const(protocol, &ppp_vals_ext, "Unknown"), protocol);
   offset += 2;
   length -= 2;
   if (length > 0) {
@@ -1923,7 +1925,7 @@ dissect_lcp_authprot_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
       algorithm = tvb_get_guint8(tvb, offset);
       proto_tree_add_text(field_tree, tvb, offset, length,
                           "Algorithm: %s (0x%02x)",
-                          val_to_str(algorithm, chap_alg_vals, "Unknown"),
+                          val_to_str_const(algorithm, chap_alg_vals, "Unknown"),
                           algorithm);
       offset++;
     } else {
@@ -2025,7 +2027,7 @@ dissect_lcp_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   length -= 2;
   operation = tvb_get_guint8(tvb, offset);
   proto_tree_add_text(field_tree, tvb, offset, 1, "Operation: %s (0x%02x)",
-                      val_to_str(operation, callback_op_vals, "Unknown"),
+                      val_to_str_const(operation, callback_op_vals, "Unknown"),
                       operation);
   offset += 1;
   length -= 1;
@@ -2043,12 +2045,12 @@ dissect_lcp_multilink_mrru_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                       tvb_get_ntohs(tvb, offset + 2));
 }
 
-#define CLASS_NULL			0
-#define CLASS_LOCAL			1
-#define CLASS_IP			2
-#define CLASS_IEEE_802_1		3
-#define CLASS_PPP_MAGIC_NUMBER		4
-#define CLASS_PSDN_DIRECTORY_NUMBER	5
+#define CLASS_NULL                      0
+#define CLASS_LOCAL                     1
+#define CLASS_IP                        2
+#define CLASS_IEEE_802_1                3
+#define CLASS_PPP_MAGIC_NUMBER          4
+#define CLASS_PSDN_DIRECTORY_NUMBER     5
 
 static const value_string multilink_ep_disc_class_vals[] = {
   {CLASS_NULL,                  "Null" },
@@ -2076,7 +2078,7 @@ dissect_lcp_multilink_ep_disc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   length -= 2;
   ep_disc_class = tvb_get_guint8(tvb, offset);
   proto_tree_add_text(field_tree, tvb, offset, 1, "Class: %s (%u)",
-                      val_to_str(ep_disc_class, multilink_ep_disc_class_vals, "Unknown"),
+                      val_to_str_const(ep_disc_class, multilink_ep_disc_class_vals, "Unknown"),
                       ep_disc_class);
   offset += 1;
   length -= 1;
@@ -2189,7 +2191,7 @@ dissect_lcp_internationalization_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   length -= 2;
   charset = tvb_get_ntohl(tvb, offset);
   proto_tree_add_text(field_tree, tvb, offset, 4, "Character set: %s (0x%04x)",
-                      val_to_str(charset, charset_num_vals, "Unknown"),
+                      val_to_str_const(charset, charset_num_vals, "Unknown"),
                       charset);
   offset += 4;
   length -= 4;
@@ -2223,17 +2225,19 @@ dissect_ipcp_addrs_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                       ip_to_str(tvb_get_ptr(tvb, offset, 4)));
 }
 
-static void dissect_ipcp_addr_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-                                  int offset, guint length, packet_info *pinfo _U_,
-                                  proto_tree *tree)
+static void
+dissect_ipcp_addr_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                      int offset, guint length, packet_info *pinfo _U_,
+                      proto_tree *tree)
 {
   proto_tree_add_text(tree, tvb, offset, length, "%s: %s", optp->name,
                       ip_to_str(tvb_get_ptr(tvb, offset + 2, 4)));
 }
 
-static void dissect_ipcp_compress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-                                      int offset, guint length, packet_info *pinfo _U_,
-                                      proto_tree *tree)
+static void
+dissect_ipcp_compress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                          int offset, guint length, packet_info *pinfo _U_,
+                          proto_tree *tree)
 {
   guint8  ub;
   guint16 us;
@@ -2244,14 +2248,14 @@ static void dissect_ipcp_compress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                            optp->name, length, plurality(length, "", "s"));
 
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
-  offset += 2;	/* Skip option type + length */
+  offset += 2;  /* Skip option type + length */
   length -= 2;
 
   us = tvb_get_ntohs(tvb, offset);
   proto_tree_add_text( field_tree, tvb, offset, 2, "IP compression protocol: %s (0x%04x)",
-                       val_to_str( us, ipcp_compress_proto_vals, "Unknown protocol" ),
+                       val_to_str_const( us, ipcp_compress_proto_vals, "Unknown protocol" ),
                        us );
-  offset += 2;	/* skip protocol */
+  offset += 2;  /* skip protocol */
   length -= 2;
 
   if (length > 0) {
@@ -2354,9 +2358,10 @@ static void dissect_ipcp_compress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   }
 }
 
-static void dissect_ipcp_iphc_disableprot_opt(const ip_tcp_opt *optp,
-                                              tvbuff_t *tvb,
-                                              int offset, guint length,
+static void
+dissect_ipcp_iphc_disableprot_opt(const ip_tcp_opt *optp,
+                                  tvbuff_t *tvb,
+                                  int offset, guint length,
                                               packet_info *pinfo _U_,
                                               proto_tree *tree)
 {
@@ -2370,14 +2375,15 @@ static void dissect_ipcp_iphc_disableprot_opt(const ip_tcp_opt *optp,
   param = tvb_get_guint8(tvb, offset + 2);
   proto_tree_add_text(field_tree, tvb, offset + 2, 1,
                       "Protocol: %s (0x%02x)",
-                      val_to_str( param, ipcp_iphc_disable_proto_vals, "Unknown" ),
+                      val_to_str_const( param, ipcp_iphc_disable_proto_vals, "Unknown" ),
                       param );
 }
 
 
-static void dissect_osicp_align_npdu_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-                                         int offset, guint length, packet_info *pinfo _U_,
-                                         proto_tree *tree)
+static void
+dissect_osicp_align_npdu_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                             int offset, guint length, packet_info *pinfo _U_,
+                             proto_tree *tree)
 {
   proto_item *tf;
   proto_tree *field_tree;
@@ -2391,13 +2397,14 @@ static void dissect_osicp_align_npdu_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                       "Alignment: %u", alignment);
 }
 
-static void dissect_pppmuxcp_def_pid_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-                                         int offset, guint length, packet_info *pinfo _U_,
-                                         proto_tree *tree)
+static void
+dissect_pppmuxcp_def_pid_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                             int offset, guint length, packet_info *pinfo _U_,
+                             proto_tree *tree)
 {
   pppmux_def_prot_id = tvb_get_ntohs(tvb, offset + 2);
   proto_tree_add_text(tree, tvb, offset + 2, length - 2, "%s: %s (0x%02x)",optp->name,
-                      val_to_str(pppmux_def_prot_id, ppp_vals, "Unknown"), pppmux_def_prot_id);
+                      val_to_str_ext_const(pppmux_def_prot_id, &ppp_vals_ext, "Unknown"), pppmux_def_prot_id);
 }
 
 
@@ -2424,7 +2431,7 @@ dissect_ccp_stac_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
     check_mode = tvb_get_guint8(tvb, offset + 4);
     proto_tree_add_text(field_tree, tvb, offset + 4, 1,
                         "Check Mode: %s (0x%02X)",
-                        val_to_str(check_mode, stac_checkmode_vals, "Unknown"),
+                        val_to_str_const(check_mode, stac_checkmode_vals, "Unknown"),
                         check_mode);
   }
 }
@@ -2498,12 +2505,12 @@ dissect_ccp_lzsdcp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   check_mode = tvb_get_guint8(tvb, offset + 4);
   proto_tree_add_text(field_tree, tvb, offset + 4, 1,
                       "Check Mode: %s (0x%02X)",
-                      val_to_str(check_mode, lzsdcp_checkmode_vals, "Unknown"),
+                      val_to_str_const(check_mode, lzsdcp_checkmode_vals, "Unknown"),
                       check_mode);
   process_mode = tvb_get_guint8(tvb, offset + 5);
   proto_tree_add_text(field_tree, tvb, offset + 5, 1,
                       "Process Mode: %s (0x%02X)",
-                      val_to_str(process_mode, lzsdcp_processmode_vals, "Unkown"),
+                      val_to_str_const(process_mode, lzsdcp_processmode_vals, "Unkown"),
                       process_mode);
 }
 
@@ -2635,8 +2642,9 @@ dissect_bap_link_type_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                       "Link Speed: %u kbps", tvb_get_ntohs(tvb, offset + 2));
   link_type = tvb_get_guint8(tvb, offset + 4);
   proto_tree_add_text(field_tree, tvb, offset + 4, 1,
-                      "Link Type: %s (%u)", val_to_str(link_type, bap_link_type_vals,
-                                                       "Unknown"), link_type);
+                      "Link Type: %s (%u)",
+                      val_to_str_const(link_type, bap_link_type_vals, "Unknown"),
+                      link_type);
 }
 
 static void
@@ -2667,7 +2675,7 @@ dissect_bap_phone_delta_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
     proto_tree_add_text(suboption_tree, tvb, offset, 1,
                         "Sub-Option Type: %s (%u)",
-                        val_to_str(subopt_type, bap_phone_delta_subopt_vals, "Unknown"),
+                        val_to_str_const(subopt_type, bap_phone_delta_subopt_vals, "Unknown"),
                         subopt_type);
 
     if (subopt_len < 2) {
@@ -2769,17 +2777,18 @@ dissect_bap_call_status_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   status = tvb_get_guint8(tvb, offset + 2);
   proto_tree_add_text(field_tree, tvb, offset + 2, 1,
                       "Status: %s (0x%02x)",
-                      val_to_str(status, q931_cause_code_vals, "Unknown"), status);
+                      val_to_str_ext_const(status, &q931_cause_code_vals_ext, "Unknown"), status);
 
   action = tvb_get_guint8(tvb, offset + 3);
   proto_tree_add_text(field_tree, tvb, offset + 3, 1,
                       "Action: %s (0x%02x)",
-                      val_to_str(action, bap_call_status_opt_action_vals, "Unknown"), action);
+                      val_to_str_const(action, bap_call_status_opt_action_vals, "Unknown"), action);
 }
 
-static void dissect_vsncp_pdnid_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-                                    int offset, guint length, packet_info *pinfo _U_,
-                                    proto_tree *tree)
+static void
+dissect_vsncp_pdnid_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                        int offset, guint length, packet_info *pinfo _U_,
+                        proto_tree *tree)
 {
   proto_item *tf;
   guint8 PDNID;
@@ -2790,9 +2799,10 @@ static void dissect_vsncp_pdnid_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   offset += 2;
 }
 
-static void dissect_vsncp_attachtype_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-                                         int offset, guint length, packet_info *pinfo _U_,
-                                         proto_tree *tree)
+static void
+dissect_vsncp_attachtype_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                             int offset, guint length, packet_info *pinfo _U_,
+                             proto_tree *tree)
 {
   static const value_string attach_vals[] =
     {
@@ -2807,22 +2817,23 @@ static void dissect_vsncp_attachtype_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   if(tree)
   {
     proto_tree_add_text(tree, tvb, offset, length, "%s: %s (0x%02x)",
-                        optp->name, val_to_str(attach , attach_vals, "Unknown"), attach);
+                        optp->name, val_to_str_const(attach , attach_vals, "Unknown"), attach);
   }
   offset += 2;
 
 }
 
-static void dissect_vsncp_pdntype_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-                                      int offset, guint length, packet_info *pinfo _U_,
-                                      proto_tree *tree)
+static void
+dissect_vsncp_pdntype_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                          int offset, guint length, packet_info *pinfo _U_,
+                          proto_tree *tree)
 {
   static const value_string pdntype_vals[] =
     {
-      {1,    "IPv4"			},
-      {2,    "IPv6"			},
-      {3,    "IPv6/IPv4"		},
-      {0,     NULL			}
+      {1,    "IPv4"                     },
+      {2,    "IPv6"                     },
+      {3,    "IPv6/IPv4"                },
+      {0,     NULL                      }
     };
 
   guint8 pdntype;
@@ -2831,30 +2842,31 @@ static void dissect_vsncp_pdntype_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   if(tree)
   {
     proto_tree_add_text(tree, tvb, offset, length, "%s: %s (0x%02x)",
-                        optp->name, val_to_str(pdntype, pdntype_vals, "Unknown"), pdntype);
+                        optp->name, val_to_str_const(pdntype, pdntype_vals, "Unknown"), pdntype);
   }
   offset += 2;
 }
 
-static void dissect_vsncp_errorcode_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-                                        int offset, guint length, packet_info *pinfo _U_,
-                                        proto_tree *tree)
+static void
+dissect_vsncp_errorcode_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                            int offset, guint length, packet_info *pinfo _U_,
+                            proto_tree *tree)
 {
   static const value_string errorcode_vals[] =
     {
-      {0,    "General Eror"			},
-      {1,    "Unauthorized APN"		},
-      {2,    "PDN Limit Exceeded"		},
-      {3,    "NO PG-W Available"		},
-      {4,    "P-GW Unreachable"		},
-      {5,    "P-GW Reject"			},
-      {6,    "Insufficient Parameters"	},
-      {7,    "Resource Unavailable"		},
-      {8,    "Admin Prohibited"		},
-      {9,    "PDN-ID Already in Use"		},
-      {10,   "Subscription Limitation"	},
-      {11,   "PDN connection already exists for APN"},
-      {0,     NULL				}
+      {0,    "General Eror"                             },
+      {1,    "Unauthorized APN"                         },
+      {2,    "PDN Limit Exceeded"                       },
+      {3,    "NO PG-W Available"                        },
+      {4,    "P-GW Unreachable"                         },
+      {5,    "P-GW Reject"                              },
+      {6,    "Insufficient Parameters"                  },
+      {7,    "Resource Unavailable"                     },
+      {8,    "Admin Prohibited"                         },
+      {9,    "PDN-ID Already in Use"                    },
+      {10,   "Subscription Limitation"                  },
+      {11,   "PDN connection already exists for APN"    },
+      {0,     NULL                                      }
     };
 
   guint8 pdntype;
@@ -2863,24 +2875,25 @@ static void dissect_vsncp_errorcode_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   if(tree)
   {
     proto_tree_add_text(tree, tvb, offset, length, "%s: %s (0x%02x)",
-                        optp->name, val_to_str(pdntype, errorcode_vals, "Unknown"), pdntype);
+                        optp->name, val_to_str_const(pdntype, errorcode_vals, "Unknown"), pdntype);
   }
   offset += 2;
 
 }
-static void dissect_vsncp_pdnaddress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-                                         int offset, guint length, packet_info *pinfo _U_,
-                                         proto_tree *tree)
+static void
+dissect_vsncp_pdnaddress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                             int offset, guint length, packet_info *pinfo _U_,
+                             proto_tree *tree)
 {
   guint8 pdnaddtype;
 
   static const value_string pdntype_vals[] =
     {
-      {0,    "Initial Request by UE"	},
-      {1,    "IPv4 Address"		},
-      {2,    "IPv6 Address"		},
-      {3,    "IPv6/IPv4 Address"	},
-      {0,     NULL			}
+      {0,    "Initial Request by UE"    },
+      {1,    "IPv4 Address"             },
+      {2,    "IPv6 Address"             },
+      {3,    "IPv6/IPv4 Address"        },
+      {0,     NULL                      }
     };
   proto_item *tf;
   proto_tree *field_tree;
@@ -2894,14 +2907,14 @@ static void dissect_vsncp_pdnaddress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   pdnaddtype = tvb_get_guint8(tvb, offset + 2);
 
   proto_tree_add_text(field_tree, tvb, offset+2, 1, "PDN Type (%s): 0x%02x",
-                      val_to_str(pdnaddtype, pdntype_vals, "Unknown"), pdnaddtype);
+                      val_to_str_const(pdnaddtype, pdntype_vals, "Unknown"), pdnaddtype);
 
 
   switch (pdnaddtype)
   {
   case 1:
     proto_tree_add_text(field_tree, tvb, offset+3, length-3, "%s: %s",
-                        val_to_str(pdnaddtype, pdntype_vals, "Unknown"),
+                        val_to_str_const(pdnaddtype, pdntype_vals, "Unknown"),
                         ip_to_str(tvb_get_ptr(tvb, offset + 3, 4)));
     break;
 
@@ -2911,7 +2924,7 @@ static void dissect_vsncp_pdnaddress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
     tvb_memcpy(tvb, &ad->bytes[8], offset+3, 8);
 
     proto_tree_add_text(field_tree, tvb, offset+3, length-3, "%s: %s",
-                        val_to_str(pdnaddtype, pdntype_vals, "Unknown"), ip6_to_str(ad));
+                        val_to_str_const(pdnaddtype, pdntype_vals, "Unknown"), ip6_to_str(ad));
     break;
   }
   case 3:
@@ -2920,10 +2933,10 @@ static void dissect_vsncp_pdnaddress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
     tvb_memcpy(tvb, &ad->bytes[8], offset+3, 8);
 
     proto_tree_add_text(field_tree, tvb, offset+3, length-3, "%s: %s",
-                        val_to_str(pdnaddtype, pdntype_vals, "Unknown"), ip6_to_str(ad));
+                        val_to_str_const(pdnaddtype, pdntype_vals, "Unknown"), ip6_to_str(ad));
 
     proto_tree_add_text(field_tree, tvb, offset+11, length-11, "%s: %s",
-                        val_to_str(pdnaddtype, pdntype_vals, "Unknown"),
+                        val_to_str_const(pdnaddtype, pdntype_vals, "Unknown"),
                         ip_to_str(tvb_get_ptr(tvb, offset + 11, 4)));
     break;
   }
@@ -2934,18 +2947,20 @@ static void dissect_vsncp_pdnaddress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 }
 
-static void dissect_vsncp_ipv4adress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-                                         int offset, guint length, packet_info *pinfo _U_,
-                                         proto_tree *tree)
+static void
+dissect_vsncp_ipv4adress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                             int offset, guint length, packet_info *pinfo _U_,
+                             proto_tree *tree)
 {
   proto_tree_add_text(tree, tvb, offset, length, "%s: %s", optp->name,
                       ip_to_str(tvb_get_ptr(tvb, offset + 2, 4)));
   offset += 2;
 }
 
-static void dissect_vsncp_apname_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-                                     int offset, guint length, packet_info *pinfo _U_,
-                                     proto_tree *tree)
+static void
+dissect_vsncp_apname_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                         int offset, guint length, packet_info *pinfo _U_,
+                         proto_tree *tree)
 {
   proto_item *tf;
   proto_tree *field_tree;
@@ -2976,16 +2991,17 @@ static void dissect_vsncp_apname_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   }
 }
 
-static void dissect_vsncp_addressalloc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-                                           int offset, guint length, packet_info *pinfo _U_,
-                                           proto_tree *tree)
+static void
+dissect_vsncp_addressalloc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                               int offset, guint length, packet_info *pinfo _U_,
+                               proto_tree *tree)
 {
   static const value_string alloc_vals[] =
     {
-      {0,    "Null Value (Attach or Handover)"	},
-      {18,   "New PDN type due to network preference"	},
-      {255,  "Success"				},
-      {0,     NULL					}
+      {0,    "Null Value (Attach or Handover)"          },
+      {18,   "New PDN type due to network preference"   },
+      {255,  "Success"                                  },
+      {0,     NULL                                      }
     };
 
   guint8 alloc;
@@ -2994,22 +3010,23 @@ static void dissect_vsncp_addressalloc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb
   if(tree)
   {
     proto_tree_add_text(tree, tvb, offset, length, "%s: %s (0x%02x)",
-                        optp->name, val_to_str(alloc, alloc_vals, "Unknown"), alloc);
+                        optp->name, val_to_str_const(alloc, alloc_vals, "Unknown"), alloc);
   }
   offset += 2;
 }
 
-static void dissect_vsncp_pco_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-                                  int offset, guint length, packet_info *pinfo _U_,
-                                  proto_tree *tree)
+static void
+dissect_vsncp_pco_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                      int offset, guint length, packet_info *pinfo _U_,
+                      proto_tree *tree)
 {
   static const value_string pco_vals[] =
     {
-      {0x8021,    "IPCP (DNS Address Request)"		},
-      {0x0001,    "P-CSCF Address Request (IPv6)"		},
-      {0x0003,    "DNS Server Address (IPv6)"			},
-      {0x000A,    "IP address allocation via NAS signalling"	},
-      {0,         NULL					}
+      {0x8021,    "IPCP (DNS Address Request)"                  },
+      {0x0001,    "P-CSCF Address Request (IPv6)"               },
+      {0x0003,    "DNS Server Address (IPv6)"                   },
+      {0x000A,    "IP address allocation via NAS signalling"    },
+      {0,         NULL                                          }
     };
   int off = offset+3;
   guint8 i = 0;
@@ -3029,7 +3046,7 @@ static void dissect_vsncp_pco_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
     pcotype = tvb_get_ntohs(tvb, off);
     len = tvb_get_guint8(tvb, (off+2));
     proto_tree_add_text(field_tree, tvb, off,2, "Protocol: %s (0x%02x)",
-                        val_to_str(pcotype, pco_vals, "Unknown"), pcotype);
+                        val_to_str_const(pcotype, pco_vals, "Unknown"), pcotype);
     proto_tree_add_text(field_tree, tvb, off+2,1, "Length:(0x%02x)", len);
     if(len >0)
       proto_tree_add_text(field_tree, tvb, off+3,len, "Data (%d byte%s)", len, plurality(len, "", "s"));
@@ -3065,13 +3082,13 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 
   if(check_col(pinfo->cinfo, COL_INFO))
     col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str(code, proto_vals, "Unknown"));
+                val_to_str_const(code, proto_vals, "Unknown"));
 
   if(tree) {
     ti = proto_tree_add_item(tree, proto_id, tvb, 0, length, FALSE);
     fh_tree = proto_item_add_subtree(ti, proto_subtree_index);
     proto_tree_add_text(fh_tree, tvb, 0, 1, "Code: %s (0x%02x)",
-                        val_to_str(code, proto_vals, "Unknown"), code);
+                        val_to_str_const(code, proto_vals, "Unknown"), code);
     proto_tree_add_text(fh_tree, tvb, 1, 1, "Identifier: 0x%02x",
                         id);
     proto_tree_add_text(fh_tree, tvb, 2, 2, "Length: %u",
@@ -3146,7 +3163,7 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
       protocol = tvb_get_ntohs(tvb, offset);
       proto_tree_add_text(fh_tree, tvb, offset, 2,
                           "Rejected protocol: %s (0x%04x)",
-                          val_to_str(protocol, ppp_vals, "Unknown"),
+                          val_to_str_ext_const(protocol, &ppp_vals_ext, "Unknown"),
                           protocol);
       offset += 2;
       length -= 2;
@@ -3204,9 +3221,9 @@ static void
 dissect_ppp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_tree *fh_tree, proto_item *ti, int proto_offset )
 {
-  guint16 ppp_prot;
-  int     proto_len;
-  tvbuff_t	*next_tvb;
+  guint16   ppp_prot;
+  int       proto_len;
+  tvbuff_t *next_tvb;
 
   /* Make direction information filterable */
   if (tree &&
@@ -3246,7 +3263,7 @@ dissect_ppp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x", ppp_prot);
     if (check_col(pinfo->cinfo, COL_INFO))
       col_add_fstr(pinfo->cinfo, COL_INFO, "PPP %s (0x%04x)",
-                   val_to_str(ppp_prot, ppp_vals, "Unknown"), ppp_prot);
+                   val_to_str_ext_const(ppp_prot, &ppp_vals_ext, "Unknown"), ppp_prot);
     call_dissector(data_handle,next_tvb, pinfo, tree);
   }
 }
@@ -3283,8 +3300,8 @@ dissect_vsncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   static const value_string OUI_vals[] =
     {
-      {0xcf0002, "3GPP2 Unique Organization Number"	},
-      {0,        NULL					}
+      {0xcf0002, "3GPP2 Unique Organization Number"     },
+      {0,        NULL                                   }
     };
 
   code = tvb_get_guint8(tvb, 0);
@@ -3293,16 +3310,16 @@ dissect_vsncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   OUI = tvb_get_ntoh24(tvb, 4);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSNCP");
-  col_add_str(pinfo->cinfo, COL_INFO, val_to_str(code, cp_vals, "Unknown"));
+  col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(code, cp_vals, "Unknown"));
 
   if(tree)
   {
     ti = proto_tree_add_item(tree, proto_vsncp, tvb, 0, length, FALSE);
     fh_tree = proto_item_add_subtree(ti, ett_vsncp);
-    proto_tree_add_text(fh_tree, tvb, 0, 1, "Code: %s (0x%02x)", val_to_str(code, cp_vals, "Unknown"), code);
+    proto_tree_add_text(fh_tree, tvb, 0, 1, "Code: %s (0x%02x)", val_to_str_const(code, cp_vals, "Unknown"), code);
     proto_tree_add_text(fh_tree, tvb, 1, 1, "Identifier: 0x%02x", id);
     proto_tree_add_text(fh_tree, tvb, 2, 2, "Length: %u", length);
-    proto_tree_add_text(fh_tree, tvb, 4, 3, "OUI: %s (0x%02x)", val_to_str(OUI, OUI_vals, "Unknown"), OUI);
+    proto_tree_add_text(fh_tree, tvb, 4, 3, "OUI: %s (0x%02x)", val_to_str_const(OUI, OUI_vals, "Unknown"), OUI);
   }
   offset = 7;
   length -= 7;
@@ -3360,7 +3377,7 @@ dissect_vsnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x", PPP_IP);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "PPP %s (0x%04x)",
-                 val_to_str(PPP_IP, ppp_vals, "Unknown"), PPP_IP);
+                 val_to_str_ext_const(PPP_IP, &ppp_vals_ext, "Unknown"), PPP_IP);
     call_dissector(data_handle, next_tvb, pinfo, tree);
   }
 }
@@ -3378,17 +3395,17 @@ dissect_ipcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /*
  * RFC 3518
  */
-#define BCP_FCS_PRESENT		0x80
-#define BCP_ZEROPAD		0x20
-#define BCP_IS_BCONTROL		0x10
-#define BCP_PADS_MASK		0x0f
+#define BCP_FCS_PRESENT         0x80
+#define BCP_ZEROPAD             0x20
+#define BCP_IS_BCONTROL         0x10
+#define BCP_PADS_MASK           0x0f
 
-#define BCP_MACT_ETHERNET	1
-#define BCP_MACT_802_4		2
-#define BCP_MACT_802_5_NONCANON	3
-#define BCP_MACT_FDDI_NONCANON	4
-#define BCP_MACT_802_5_CANON	11
-#define BCP_MACT_FDDI_CANON	12
+#define BCP_MACT_ETHERNET       1
+#define BCP_MACT_802_4          2
+#define BCP_MACT_802_5_NONCANON 3
+#define BCP_MACT_FDDI_NONCANON  4
+#define BCP_MACT_802_5_CANON    11
+#define BCP_MACT_FDDI_CANON     12
 
 static const value_string bcp_mac_type_vals[] = {
   { BCP_MACT_ETHERNET,       "IEEE 802.3/Ethernet" },
@@ -3514,7 +3531,7 @@ dissect_ccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /*
  * Callback Control Protocol - see
  *
- *	http://www.linet.gr.jp/~manabe/PPxP/doc/Standards/draft-gidwani-ppp-callback-cp-00.txt
+ *      http://www.linet.gr.jp/~manabe/PPxP/doc/Standards/draft-gidwani-ppp-callback-cp-00.txt
  */
 static void
 dissect_cbcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -3554,13 +3571,13 @@ dissect_bap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if(check_col(pinfo->cinfo, COL_INFO))
     col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str(type, bap_vals, "Unknown"));
+                val_to_str_const(type, bap_vals, "Unknown"));
 
   if(tree) {
     ti = proto_tree_add_item(tree, proto_bap, tvb, 0, length, FALSE);
     fh_tree = proto_item_add_subtree(ti, ett_bap_options);
     proto_tree_add_text(fh_tree, tvb, 0, 1, "Type: %s (0x%02x)",
-                        val_to_str(type, bap_vals, "Unknown"), type);
+                        val_to_str_const(type, bap_vals, "Unknown"), type);
     proto_tree_add_text(fh_tree, tvb, 1, 1, "Identifier: 0x%02x",
                         id);
     proto_tree_add_text(fh_tree, tvb, 2, 2, "Length: %u",
@@ -3573,7 +3590,7 @@ dissect_bap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       type == BAP_LDQRES || type == BAP_CSRES) {
     resp_code = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(fh_tree, tvb, offset, 1, "Response Code: %s (0x%02x)",
-                        val_to_str(resp_code, bap_resp_code_vals, "Unknown"), resp_code);
+                        val_to_str_const(resp_code, bap_resp_code_vals, "Unknown"), resp_code);
     offset++;
     length--;
   }
@@ -3722,24 +3739,24 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * RFC 2508 Internet Protocol Header Compression
  */
 
-#define IPHC_CRTP_FH_FLAG_MASK	0xc0
-#define IPHC_CRTP_FH_FLAG_POS	6
-#define IPHC_CRTP_FH_CID8	1
-#define IPHC_CRTP_FH_CID16	3
+#define IPHC_CRTP_FH_FLAG_MASK  0xc0
+#define IPHC_CRTP_FH_FLAG_POS   6
+#define IPHC_CRTP_FH_CID8       1
+#define IPHC_CRTP_FH_CID16      3
 
-#define IPHC_CRTP_CS_CID8	1
-#define IPHC_CRTP_CS_CID16	2
+#define IPHC_CRTP_CS_CID8       1
+#define IPHC_CRTP_CS_CID16      2
 
 static const value_string iphc_crtp_fh_flags[] = {
-  {IPHC_CRTP_FH_CID8,	"8-bit Context Id" },
-  {IPHC_CRTP_FH_CID16,	"16-bit Context Id" },
-  {0,          	NULL }
+  {IPHC_CRTP_FH_CID8,   "8-bit Context Id"  },
+  {IPHC_CRTP_FH_CID16,  "16-bit Context Id" },
+  {0,           NULL }
 };
 
 static const value_string iphc_crtp_cs_flags[] = {
-  {IPHC_CRTP_CS_CID8,	"8-bit Context Id" },
-  {IPHC_CRTP_CS_CID16,	"16-bit Context Id" },
-  {0,          	NULL }
+  {IPHC_CRTP_CS_CID8,   "8-bit Context Id"  },
+  {IPHC_CRTP_CS_CID16,  "16-bit Context Id" },
+  {0,           NULL }
 };
 
 /*
@@ -3778,7 +3795,7 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
 
     ti = proto_tree_add_protocol_format(tree, proto_iphc_crtp, tvb, 0, -1,
-                                        "%s", val_to_str(PPP_RTP_FH, ppp_vals, "Unknown"));
+                                        "%s", val_to_str_ext_const(PPP_RTP_FH, &ppp_vals_ext, "Unknown"));
     fh_tree = proto_item_add_subtree(ti, ett_iphc_crtp);
 
     flags = (tvb_get_guint8(tvb, 2) & IPHC_CRTP_FH_FLAG_MASK) >> IPHC_CRTP_FH_FLAG_POS;
@@ -3872,7 +3889,7 @@ dissect_iphc_crtp_cudp16(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree) {
     ti = proto_tree_add_protocol_format(tree, proto_iphc_crtp, tvb, 0, -1,
-                                        "%s", val_to_str(PPP_RTP_CUDP16, ppp_vals, "Unknown"));
+                                        "%s", val_to_str_ext_const(PPP_RTP_CUDP16, &ppp_vals_ext, "Unknown"));
     cudp_tree = proto_item_add_subtree(ti, ett_iphc_crtp);
 
     hdr_length = 3;
@@ -3907,7 +3924,7 @@ dissect_iphc_crtp_cudp8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree) {
     ti = proto_tree_add_protocol_format(tree, proto_iphc_crtp, tvb, 0, -1,
-                                        "%s", val_to_str(PPP_RTP_CUDP8, ppp_vals, "Unknown"));
+                                        "%s", val_to_str_ext_const(PPP_RTP_CUDP8, &ppp_vals_ext, "Unknown"));
     cudp_tree = proto_item_add_subtree(ti, ett_iphc_crtp);
 
     hdr_length = 2;
@@ -3942,7 +3959,7 @@ dissect_iphc_crtp_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
 
     ti = proto_tree_add_protocol_format(tree, proto_iphc_crtp, tvb, 0, -1,
-                                        "%s", val_to_str(PPP_RTP_CS, ppp_vals, "Unknown"));
+                                        "%s", val_to_str_ext_const(PPP_RTP_CS, &ppp_vals_ext, "Unknown"));
 
     cs_tree = proto_item_add_subtree(ti, ett_iphc_crtp);
 
@@ -4170,10 +4187,10 @@ dissect_ppp_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 static tvbuff_t*
 remove_escape_chars(tvbuff_t *tvb, int offset, int length)
 {
-  guint8	*buff;
-  int		i;
-  int		scanned_len = 0;
-  guint8	octet;
+  guint8    *buff;
+  int        i;
+  int        scanned_len = 0;
+  guint8     octet;
   tvbuff_t  *next_tvb;
 
   buff = g_malloc(length);
@@ -4219,8 +4236,8 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
   proto_item *ti;
   proto_tree *bs_tree = NULL;
-  gint	      offset, end_offset, data_offset;
-  int	      length, data_length;
+  gint        offset, end_offset, data_offset;
+  int         length, data_length;
   tvbuff_t   *ppp_tvb;
   gboolean    first = TRUE;
 
@@ -4299,7 +4316,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
       return;
     }
 
-    data_offset = offset+1;	/* skip starting frame delimiter */
+    data_offset = offset+1;     /* skip starting frame delimiter */
     data_length = end_offset - data_offset;
 
     /*
@@ -4438,7 +4455,7 @@ dissect_pap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP PAP");
 
   if(check_col(pinfo->cinfo, COL_INFO))
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(code, pap_vals, "Unknown"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(code, pap_vals, "Unknown"));
 
   if(tree) {
     ti = proto_tree_add_item(tree, proto_pap, tvb, 0, -1, FALSE);
@@ -4460,41 +4477,41 @@ dissect_pap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
     data_tree = proto_item_add_subtree(data_ti, ett_pap_data);
 
     switch(code){
-	case CONFREQ:
-	   proto_tree_add_item(data_tree, hf_pap_peer_id_length, tvb, offset, 1, FALSE);
-	   peer_id_length = tvb_get_guint8(tvb, offset);
-	   offset +=1;
+      case CONFREQ:
+        proto_tree_add_item(data_tree, hf_pap_peer_id_length, tvb, offset, 1, FALSE);
+        peer_id_length = tvb_get_guint8(tvb, offset);
+        offset +=1;
 
-	   proto_tree_add_item(data_tree, hf_pap_peer_id, tvb, offset, peer_id_length, FALSE);
-	   peer_id = tvb_format_text(tvb, offset, peer_id_length);
-	   offset += peer_id_length;
+        proto_tree_add_item(data_tree, hf_pap_peer_id, tvb, offset, peer_id_length, FALSE);
+        peer_id = tvb_format_text(tvb, offset, peer_id_length);
+        offset += peer_id_length;
 
-	   proto_tree_add_item(data_tree, hf_pap_password_length, tvb, offset, 1, FALSE);
-	   password_length = tvb_get_guint8(tvb, offset);
-	   offset +=1;
+        proto_tree_add_item(data_tree, hf_pap_password_length, tvb, offset, 1, FALSE);
+        password_length = tvb_get_guint8(tvb, offset);
+        offset +=1;
 
-	   proto_tree_add_item(data_tree, hf_pap_password, tvb, offset, password_length, FALSE);
-	   password = tvb_format_text(tvb, offset, password_length);
-	   offset += password_length;
+        proto_tree_add_item(data_tree, hf_pap_password, tvb, offset, password_length, FALSE);
+        password = tvb_format_text(tvb, offset, password_length);
+        offset += password_length;
 
-           col_append_fstr(pinfo->cinfo, COL_INFO, " (Peer-ID='%s', Password='%s')", peer_id, password);
-	break;
-	case CONFACK:
-	case CONFNAK:
-	   proto_tree_add_item(data_tree, hf_pap_message_length, tvb, offset, 1, FALSE);
-	   message_length = tvb_get_guint8(tvb, offset);
-	   offset +=1;
-
-	   proto_tree_add_item(data_tree, hf_pap_message, tvb, offset, message_length, FALSE);
-	   message = tvb_format_text(tvb, offset, message_length);
-	   offset += message_length;
-
-           col_append_fstr(pinfo->cinfo, COL_INFO, " (Message='%s')", message);
-	break;
-        default:
-           proto_tree_add_item(data_tree, hf_pap_stuff, tvb, offset, -1, FALSE);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (Peer-ID='%s', Password='%s')", peer_id, password);
         break;
-	}
+      case CONFACK:
+      case CONFNAK:
+        proto_tree_add_item(data_tree, hf_pap_message_length, tvb, offset, 1, FALSE);
+        message_length = tvb_get_guint8(tvb, offset);
+        offset +=1;
+
+        proto_tree_add_item(data_tree, hf_pap_message, tvb, offset, message_length, FALSE);
+        message = tvb_format_text(tvb, offset, message_length);
+        offset += message_length;
+
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (Message='%s')", message);
+        break;
+      default:
+        proto_tree_add_item(data_tree, hf_pap_stuff, tvb, offset, -1, FALSE);
+        break;
+    }
   }
 
 }
@@ -4519,7 +4536,7 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
 
   if(check_col(pinfo->cinfo, COL_INFO))
     col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str(code, chap_vals, "Unknown"));
+                val_to_str_const(code, chap_vals, "Unknown"));
 
   if(tree) {
     /* Create CHAP protocol tree */
@@ -4645,9 +4662,10 @@ dissect_ipv6cp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              ipv6cp_opts, N_IPV6CP_OPTS, pinfo, tree);
 }
 
-static void dissect_ipv6cp_if_id_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-                                     int offset, guint length, packet_info *pinfo _U_,
-                                     proto_tree *tree)
+static void
+dissect_ipv6cp_if_id_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                         int offset, guint length, packet_info *pinfo _U_,
+                         proto_tree *tree)
 {
   proto_tree_add_text(tree, tvb, offset, length, "%s: %02x%02x:%02x%02x:%02x%x:%02x%02x",
                       optp->name,
@@ -4679,8 +4697,8 @@ proto_register_ppp(void)
         NULL, 0x0, NULL, HFILL }},
 
     { &hf_ppp_protocol,
-      { "Protocol", "ppp.protocol", FT_UINT16, BASE_HEX,
-        VALS(ppp_vals), 0x0, NULL, HFILL }},
+      { "Protocol", "ppp.protocol", FT_UINT16, BASE_HEX|BASE_EXT_STRING,
+        &ppp_vals_ext, 0x0, NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_ppp
@@ -4748,19 +4766,19 @@ proto_register_mp(void)
 {
   static hf_register_info hf[] = {
     { &hf_mp_frag_first,
-      { "First fragment",		"mp.first",	FT_BOOLEAN, 8,
+      { "First fragment",       "mp.first",     FT_BOOLEAN, 8,
         TFS(&tfs_yes_no), MP_FRAG_FIRST, NULL, HFILL }},
 
     { &hf_mp_frag_last,
-      { "Last fragment",		"mp.last",	FT_BOOLEAN, 8,
+      { "Last fragment",        "mp.last",      FT_BOOLEAN, 8,
         TFS(&tfs_yes_no), MP_FRAG_LAST, NULL, HFILL }},
 
     { &hf_mp_sequence_num,
-      { "Sequence number",	"mp.seq",	FT_UINT24, BASE_DEC, NULL, 0x0,
+      { "Sequence number",      "mp.seq",       FT_UINT24, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_mp_short_sequence_num,
-      { "Sequence number",	"mp.seq",	FT_UINT16, BASE_DEC, NULL, 0x0FFF,
+      { "Sequence number",      "mp.seq",       FT_UINT16, BASE_DEC, NULL, 0x0FFF,
         NULL, HFILL }}
   };
   static gint *ett[] = {
@@ -4877,7 +4895,7 @@ proto_register_vsnp(void)
 
   static hf_register_info hf[] = {
     { &hf_vsnp_pdnid,
-      { "PDN ID", "vsnp.pdnid", 
+      { "PDN ID", "vsnp.pdnid",
       FT_UINT8, BASE_HEX, NULL, 0x0,
       NULL, HFILL }
     }
@@ -4943,19 +4961,19 @@ proto_register_bcp(void)
         NULL, 0x0, NULL, HFILL }},
 
     { &hf_bcp_fcs_present,
-      { "LAN FCS present",	"bcp.flags.fcs_present",	FT_BOOLEAN, 8,
+      { "LAN FCS present",       "bcp.flags.fcs_present",       FT_BOOLEAN, 8,
         TFS(&tfs_yes_no), BCP_FCS_PRESENT, NULL, HFILL }},
 
     { &hf_bcp_zeropad,
-      { "802.3 pad zero-filled",	"bcp.flags.zeropad",	FT_BOOLEAN, 8,
+      { "802.3 pad zero-filled", "bcp.flags.zeropad",   FT_BOOLEAN, 8,
         TFS(&tfs_yes_no), BCP_ZEROPAD, NULL, HFILL }},
 
     { &hf_bcp_bcontrol,
-      { "Bridge control",	"bcp.flags.bcontrol",	FT_BOOLEAN, 8,
+      { "Bridge control",        "bcp.flags.bcontrol",  FT_BOOLEAN, 8,
         TFS(&tfs_yes_no), BCP_IS_BCONTROL, NULL, HFILL }},
 
     { &hf_bcp_pads,
-      { "Pads",	"bcp.pads",	FT_UINT8, BASE_DEC,
+      { "Pads", "bcp.pads",     FT_UINT8, BASE_DEC,
         NULL, BCP_PADS_MASK, NULL, HFILL }},
 
     { &hf_bcp_mac_type,
@@ -5177,49 +5195,49 @@ proto_register_pap(void)
   static hf_register_info hf[] = {
     { &hf_pap_code,
       { "Code", "pap.code",
-	FT_UINT8, BASE_DEC, VALS(pap_vals), 0x0,
+        FT_UINT8, BASE_DEC, VALS(pap_vals), 0x0,
         "The Code field is one octet and identifies the type of PAP packet", HFILL }},
     { &hf_pap_identifier,
       { "Identifier", "pap.identifier",
-	FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_DEC, NULL, 0x0,
         "The Identifier field is one octet and aids in matching requests and replies.", HFILL }},
     { &hf_pap_length,
       { "Length", "pap.length",
-	FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_DEC, NULL, 0x0,
         "The Length field is two octets and indicates the length of the PAP packet", HFILL }},
     { &hf_pap_data,
       { "Data", "pap.data",
-	FT_NONE, BASE_NONE, NULL, 0x0,
+        FT_NONE, BASE_NONE, NULL, 0x0,
         "The format of the Data field is determined by the Code field", HFILL }},
     { &hf_pap_peer_id_length,
       { "Peer-ID-Length", "pap.peer_id.length",
-	FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_DEC, NULL, 0x0,
         "The Peer-ID-Length field is one octet and indicates the length of the Peer-ID field", HFILL }},
     { &hf_pap_peer_id,
       { "Peer-ID", "pap.peer_id",
-	FT_STRING, BASE_NONE, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "The Peer-ID field is zero or more octets and indicates the name of the peer to be authenticated", HFILL }},
     { &hf_pap_password_length,
       { "Password-Length", "pap.password.length",
-	FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_DEC, NULL, 0x0,
         "The Password-Length field is one octet and indicates the length of the Password field", HFILL }},
     { &hf_pap_password,
       { "Password", "pap.password",
-	FT_STRING, BASE_NONE, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "The Password field is zero or more octets and indicates the password to be used for authentication", HFILL }},
     { &hf_pap_message_length,
       { "Message-Length", "pap.message.length",
-	FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_DEC, NULL, 0x0,
         "The Message-Length field is one octet and indicates the length of the Message field", HFILL }},
     { &hf_pap_message,
       { "Message", "pap.message",
-	FT_STRING, BASE_NONE, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         "The Message field is zero or more octets, and its contents are implementation dependent.", HFILL }},
     { &hf_pap_stuff,
       { "stuff", "pap.stuff",
-	FT_BYTES, BASE_NONE, NULL, 0x0,
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }}
-	};
+  };
 
 
   proto_pap = proto_register_protocol("PPP Password Authentication Protocol", "PPP PAP",
@@ -5362,8 +5380,8 @@ proto_register_pppmux(void)
   static hf_register_info hf[] =
     {
       { &hf_pppmux_protocol,
-        { "Protocol", "ppp.protocol", FT_UINT16, BASE_HEX,
-          VALS(ppp_vals), 0x0,
+        { "Protocol", "ppp.protocol", FT_UINT16, BASE_HEX|BASE_EXT_STRING,
+          &ppp_vals_ext, 0x0,
           "The protocol of the sub-frame.", HFILL }},
     };
 

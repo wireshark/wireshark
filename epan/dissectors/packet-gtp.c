@@ -465,6 +465,7 @@ static const value_string message_type[] = {
     {GTP_MSG_TPDU, "T-PDU"},
     {0, NULL}
 };
+static value_string_ext message_type_ext = VALUE_STRING_EXT_INIT(message_type);
 
 /* definitions of fields in extension header */
 #define GTP_EXT_CAUSE                 0x01
@@ -691,6 +692,7 @@ static const value_string gtp_val[] = {
     {GTP_EXT_PRIV_EXT, "Private Extension"},
     {0, NULL}
 };
+static value_string_ext gtp_val_ext = VALUE_STRING_EXT_INIT(gtp_val);
 
 /* It seems like some IE's are renamed in gtpv1 at least reading
  * 3GPP TS 29.060 version 6.11.0 Release 6
@@ -790,22 +792,23 @@ static const value_string gtpv1_val[] = {
     {GTP_EXT_PRIV_EXT, "Private Extension"},
     {0, NULL}
 };
+static value_string_ext gtpv1_val_ext = VALUE_STRING_EXT_INIT(gtpv1_val);
 
 /* GPRS:    9.60 v7.6.0, page 37
  * UMTS:    29.060 v4.0, page 45
  */
 static const value_string cause_type[] = {
-    {0, "Request IMSI"},
-    {1, "Request IMEI"},
-    {2, "Request IMSI and IMEI"},
-    {3, "No identity needed"},
-    {4, "MS refuses"},
-    {5, "MS is not GPRS responding"},
-    {59, "System failure"}, /* charging */
-    {60, "The transmit buffers are becoming full"}, /* charging */
-    {61, "The receive buffers are becoming full"},  /* charging */
-    {62, "Another node is about to go down"},       /* charging */
-    {63, "This node is about to go down"},          /* charging */
+    {  0, "Request IMSI"},
+    {  1, "Request IMEI"},
+    {  2, "Request IMSI and IMEI"},
+    {  3, "No identity needed"},
+    {  4, "MS refuses"},
+    {  5, "MS is not GPRS responding"},
+    { 59, "System failure"}, /* charging */
+    { 60, "The transmit buffers are becoming full"}, /* charging */
+    { 61, "The receive buffers are becoming full"},  /* charging */
+    { 62, "Another node is about to go down"},       /* charging */
+    { 63, "This node is about to go down"},          /* charging */
     {128, "Request accepted"},
     {192, "Non-existent"},
     {193, "Invalid message format"},
@@ -848,6 +851,7 @@ static const value_string cause_type[] = {
     {255, "Request not fulfilled"}, /* charging */
     {0, NULL}
 };
+static value_string_ext cause_type_ext = VALUE_STRING_EXT_INIT(cause_type);
 
 /* GPRS:    9.02 v7.7.0
  * UMTS:    29.002 v4.2.1, chapter 17.5, page 268
@@ -962,6 +966,7 @@ static const value_string qos_mean_type[] = {
     {0x1F, "Best effort"},  /* Class 1 */
     {0, NULL}
 };
+static value_string_ext qos_mean_type_ext = VALUE_STRING_EXT_INIT(qos_mean_type);
 
 static const value_string qos_del_err_sdu[] = {
     {0x00, "Subscribed delivery of erroneous SDUs (in MS to network direction)"},
@@ -1120,6 +1125,7 @@ static const value_string qos_trans_delay[] = {
     {0x3F, "Reserved"},
     {0, NULL}
 };
+static value_string_ext qos_trans_delay_ext = VALUE_STRING_EXT_INIT(qos_trans_delay);
 
 static const value_string qos_guar_ul[] = {
     {0x00, "Subscribed guaranteed bit rate for uplink (in MS to network direction)"},
@@ -1282,6 +1288,7 @@ static const value_string ranap_cause_type[] = {
 
     {0, NULL}
 };
+static value_string_ext ranap_cause_type_ext = VALUE_STRING_EXT_INIT(ranap_cause_type);
 
 static const value_string mm_sec_modep[] = {
     {0, "Used cipher value, UMTS keys and Quintuplets"},
@@ -2850,7 +2857,7 @@ static int decode_gtp_rai(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, p
     guint8 byte[3];
     guint16 mnc, mcc;
 
-    te = proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str(GTP_EXT_RAI, gtp_val, "Unknown message"));
+    te = proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str_ext_const(GTP_EXT_RAI, &gtp_val_ext, "Unknown message"));
     ext_tree_rai = proto_item_add_subtree(te, ett_gtp_rai);
 
     byte[0] = tvb_get_guint8(tvb, offset + 1);
@@ -2972,7 +2979,7 @@ static int decode_gtp_auth_tri(tvbuff_t * tvb, int offset, packet_info * pinfo _
     proto_tree *ext_tree_auth_tri;
     proto_item *te;
 
-    te = proto_tree_add_text(tree, tvb, offset, 29, "%s", val_to_str(GTP_EXT_AUTH_TRI, gtp_val, "Unknown message"));
+    te = proto_tree_add_text(tree, tvb, offset, 29, "%s", val_to_str_ext_const(GTP_EXT_AUTH_TRI, &gtp_val_ext, "Unknown message"));
     ext_tree_auth_tri = proto_item_add_subtree(tree, ett_gtp_auth_tri);
 
     proto_tree_add_text(ext_tree_auth_tri, tvb, offset + 1, 16, "RAND: %s", tvb_bytes_to_str(tvb, offset + 1, 16));
@@ -3053,7 +3060,7 @@ static const gchar *dissect_radius_selection_mode(proto_tree * tree, tvbuff_t * 
     sel_mode = tvb_get_guint8(tvb, 0) - 0x30;
     proto_tree_add_uint(tree, hf_gtp_sel_mode, tvb, 0, 1, sel_mode);
 
-    return val_to_str(sel_mode, sel_mode_type, "Unknown");
+    return val_to_str_const(sel_mode, sel_mode_type, "Unknown");
 }
 
 static int decode_gtp_sel_mode(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
@@ -3127,7 +3134,7 @@ static int decode_gtp_18(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, pr
 
     switch (gtp_version) {
     case 0:
-        te = proto_tree_add_text(tree, tvb, offset, 4, "%s", val_to_str(GTP_EXT_FLOW_II, gtp_val, "Unknown message"));
+        te = proto_tree_add_text(tree, tvb, offset, 4, "%s", val_to_str_ext_const(GTP_EXT_FLOW_II, &gtp_val_ext, "Unknown message"));
         ext_tree_flow_ii = proto_item_add_subtree(te, ett_gtp_flow_ii);
 
         proto_tree_add_uint(ext_tree_flow_ii, hf_gtp_nsapi, tvb, offset + 1, 1, tvb_get_guint8(tvb, offset + 1) & 0x0F);
@@ -3137,7 +3144,7 @@ static int decode_gtp_18(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, pr
 
         return 4;
     case 1:
-        te = proto_tree_add_text(tree, tvb, offset, 6, "%s", val_to_str(GTP_EXT_TEID_II, gtpv1_val, "Unknown message"));
+        te = proto_tree_add_text(tree, tvb, offset, 6, "%s", val_to_str_ext_const(GTP_EXT_TEID_II, &gtpv1_val_ext, "Unknown message"));
         ext_tree_flow_ii = proto_item_add_subtree(te, ett_gtp_flow_ii);
 
         proto_tree_add_uint(ext_tree_flow_ii, hf_gtp_nsapi, tvb, offset + 1, 1, tvb_get_guint8(tvb, offset + 1) & 0x0F);
@@ -3207,38 +3214,38 @@ static int decode_gtp_ranap_cause(tvbuff_t * tvb, int offset, packet_info * pinf
     if (ranap > 0 && ranap <= 64)
         proto_tree_add_uint_format(tree, hf_gtp_ranap_cause, tvb, offset, 2,
                                    ranap, "%s (Radio Network Layer Cause) : %s (%u)",
-                                   val_to_str(GTP_EXT_RANAP_CAUSE, gtp_val, "Unknown"),
-                                   val_to_str(ranap, ranap_cause_type, "Unknown RANAP Cause"), ranap);
+                                   val_to_str_ext_const(GTP_EXT_RANAP_CAUSE, &gtp_val_ext, "Unknown"),
+                                   val_to_str_ext_const(ranap, &ranap_cause_type_ext, "Unknown RANAP Cause"), ranap);
 
     if (ranap > 64 && ranap <= 80)
         proto_tree_add_uint_format(tree, hf_gtp_ranap_cause, tvb, offset, 2,
                                    ranap, "%s (Transport Layer Cause) : %s (%u)",
-                                   val_to_str(GTP_EXT_RANAP_CAUSE, gtp_val, "Unknown"),
-                                   val_to_str(ranap, ranap_cause_type, "Unknown RANAP Cause"), ranap);
+                                   val_to_str_ext_const(GTP_EXT_RANAP_CAUSE, &gtp_val_ext, "Unknown"),
+                                   val_to_str_ext_const(ranap, &ranap_cause_type_ext, "Unknown RANAP Cause"), ranap);
 
     if (ranap > 80 && ranap <= 96)
         proto_tree_add_uint_format(tree, hf_gtp_ranap_cause, tvb, offset, 2,
                                    ranap, "%s (NAS Cause) : %s (%u)",
-                                   val_to_str(GTP_EXT_RANAP_CAUSE, gtp_val, "Unknown"),
-                                   val_to_str(ranap, ranap_cause_type, "Unknown RANAP Cause"), ranap);
+                                   val_to_str_ext_const(GTP_EXT_RANAP_CAUSE, &gtp_val_ext, "Unknown"),
+                                   val_to_str_ext_const(ranap, &ranap_cause_type_ext, "Unknown RANAP Cause"), ranap);
 
     if (ranap > 96 && ranap <= 112)
         proto_tree_add_uint_format(tree, hf_gtp_ranap_cause, tvb, offset, 2, ranap,
                                    "%s (Protocol Cause) : %s (%u)",
-                                   val_to_str(GTP_EXT_RANAP_CAUSE, gtp_val, "Unknown"),
-                                   val_to_str(ranap, ranap_cause_type, "Unknown RANAP Cause"), ranap);
+                                   val_to_str_ext_const(GTP_EXT_RANAP_CAUSE, &gtp_val_ext, "Unknown"),
+                                   val_to_str_ext_const(ranap, &ranap_cause_type_ext, "Unknown RANAP Cause"), ranap);
 
     if (ranap > 112 && ranap <= 128)
         proto_tree_add_uint_format(tree, hf_gtp_ranap_cause, tvb, offset, 2, ranap,
                                    "%s (Miscellaneous Cause) : %s (%u)",
-                                   val_to_str(GTP_EXT_RANAP_CAUSE, gtp_val, "Unknown"),
-                                   val_to_str(ranap, ranap_cause_type, "Unknown RANAP Cause"), ranap);
+                                   val_to_str_ext_const(GTP_EXT_RANAP_CAUSE, &gtp_val_ext, "Unknown"),
+                                   val_to_str_ext_const(ranap, &ranap_cause_type_ext, "Unknown RANAP Cause"), ranap);
 
     if (ranap > 128 /* && ranap <=255 */ )
         proto_tree_add_uint_format(tree, hf_gtp_ranap_cause, tvb, offset, 2, ranap,
                                    "%s (Non-standard Cause) : %s (%u)",
-                                   val_to_str(GTP_EXT_RANAP_CAUSE, gtp_val, "Unknown"),
-                                   val_to_str(ranap, ranap_cause_type, "Unknown RANAP Cause"), ranap);
+                                   val_to_str_ext_const(GTP_EXT_RANAP_CAUSE, &gtp_val_ext, "Unknown"),
+                                   val_to_str_ext_const(ranap, &ranap_cause_type_ext, "Unknown RANAP Cause"), ranap);
 
     return 2;
 }
@@ -3253,7 +3260,7 @@ static int decode_gtp_rab_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo 
     proto_tree *ext_tree_rab_cntxt;
     proto_item *te;
 
-    te = proto_tree_add_text(tree, tvb, offset, 10, "%s", val_to_str(GTP_EXT_RAB_CNTXT, gtp_val, "Unknown message"));
+    te = proto_tree_add_text(tree, tvb, offset, 10, "%s", val_to_str_ext_const(GTP_EXT_RAB_CNTXT, &gtp_val_ext, "Unknown message"));
     ext_tree_rab_cntxt = proto_item_add_subtree(te, ett_gtp_rab_cntxt);
 
     nsapi = tvb_get_guint8(tvb, offset + 1) & 0x0F;
@@ -3324,7 +3331,7 @@ static int decode_gtp_pkt_flow_id(tvbuff_t * tvb, int offset, packet_info * pinf
 
     proto_tree_add_uint(ext_tree_pkt_flow_id, hf_gtp_nsapi, tvb, offset + 1, 1, nsapi);
     proto_tree_add_uint_format(ext_tree_pkt_flow_id, hf_gtp_pkt_flow_id, tvb,
-                               offset + 2, 1, pkt_flow_id, "%s : %u", val_to_str(GTP_EXT_PKT_FLOW_ID, gtp_val, "Unknown message"), pkt_flow_id);
+                               offset + 2, 1, pkt_flow_id, "%s : %u", val_to_str_ext_const(GTP_EXT_PKT_FLOW_ID, &gtp_val_ext, "Unknown message"), pkt_flow_id);
 
     return 3;
 }
@@ -3343,7 +3350,7 @@ static int decode_gtp_chrg_char(tvbuff_t * tvb, int offset, packet_info * pinfo 
     chrg_char = tvb_get_ntohs(tvb, offset + 1);
 
     te = proto_tree_add_uint(tree, hf_gtp_chrg_char, tvb, offset, 3, chrg_char);
-    /*"%s: %x", val_to_str (GTP_EXT_CHRG_CHAR, gtp_val, "Unknown message"), chrg_char); */
+    /*"%s: %x", val_to_str_ext_const (GTP_EXT_CHRG_CHAR, &gtp_val_ext, "Unknown message"), chrg_char); */
     ext_tree_chrg_char = proto_item_add_subtree(te, ett_gtp_chrg_char);
 
     proto_tree_add_uint(ext_tree_chrg_char, hf_gtp_chrg_char_s, tvb, offset + 1, 2, chrg_char);
@@ -3413,7 +3420,7 @@ static int decode_gtp_ra_prio_lcs(tvbuff_t * tvb, int offset, packet_info * pinf
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s : ", val_to_str(GTP_EXT_RA_PRIO_LCS, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s : ", val_to_str_ext_const(GTP_EXT_RA_PRIO_LCS, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_ra_prio_lcs);
 
     offset++;
@@ -3474,8 +3481,9 @@ static int decode_gtp_user_addr(tvbuff_t * tvb, int offset, packet_info * pinfo 
     pdp_typ = tvb_get_guint8(tvb, offset + 4);
 
     te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s (%s/%s)",
-                             val_to_str(GTP_EXT_USER_ADDR, gtp_val, "Unknown message"),
-                             val_to_str(pdp_org, pdp_org_type, "Unknown PDP Organization"), val_to_str(pdp_typ, pdp_type, "Unknown PDP Type"));
+                             val_to_str_ext_const(GTP_EXT_USER_ADDR, &gtp_val_ext, "Unknown message"),
+                             val_to_str_const(pdp_org, pdp_org_type, "Unknown PDP Organization"),
+                             val_to_str_const(pdp_typ, pdp_type, "Unknown PDP Type"));
     ext_tree_user = proto_item_add_subtree(te, ett_gtp_user);
 
     proto_tree_add_text(ext_tree_user, tvb, offset + 1, 2, "Length : %u", length);
@@ -3584,7 +3592,7 @@ static int decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _
     tvbuff_t *l3_tvb;
 
 
-    te = proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str(GTP_EXT_MM_CNTXT, gtp_val, "Unknown message"));
+    te = proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str_ext_const(GTP_EXT_MM_CNTXT, &gtp_val_ext, "Unknown message"));
     ext_tree_mm = proto_item_add_subtree(te, ett_gtp_mm);
 
     /* Octet 2 - 3 */
@@ -4135,7 +4143,7 @@ static int decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo 
 
     length = tvb_get_ntohs(tvb, offset + 1);
 
-    te = proto_tree_add_text(tree, tvb, offset, length + 3, "%s", val_to_str(GTP_EXT_PDP_CNTXT, gtp_val, "Unknown message"));
+    te = proto_tree_add_text(tree, tvb, offset, length + 3, "%s", val_to_str_ext_const(GTP_EXT_PDP_CNTXT, &gtp_val_ext, "Unknown message"));
     ext_tree_pdp = proto_item_add_subtree(te, ett_gtp_pdp);
 
     vaa = (tvb_get_guint8(tvb, offset + 3) >> 6) & 0x01;
@@ -4196,8 +4204,8 @@ static int decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo 
     pdp_type_num = tvb_get_guint8(tvb, offset + 1);
     pdp_addr_len = tvb_get_guint8(tvb, offset + 2);
 
-    proto_tree_add_text(ext_tree_pdp, tvb, offset, 1, "PDP organization: %s", val_to_str(pdp_type_org, pdp_type, "Unknown PDP org"));
-    proto_tree_add_text(ext_tree_pdp, tvb, offset + 1, 1, "PDP type: %s", val_to_str(pdp_type_num, pdp_type, "Unknown PDP type"));
+    proto_tree_add_text(ext_tree_pdp, tvb, offset, 1, "PDP organization: %s", val_to_str_const(pdp_type_org, pdp_type, "Unknown PDP org"));
+    proto_tree_add_text(ext_tree_pdp, tvb, offset + 1, 1, "PDP type: %s", val_to_str_const(pdp_type_num, pdp_type, "Unknown PDP type"));
     proto_tree_add_text(ext_tree_pdp, tvb, offset + 2, 1, "PDP address length: %u", pdp_addr_len);
 
     if (pdp_addr_len > 0) {
@@ -4287,7 +4295,7 @@ static int decode_gtp_apn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, p
 
     length = tvb_get_ntohs(tvb, offset + 1);
 
-    te = proto_tree_add_text(tree, tvb, offset, length + 3, "%s", val_to_str(GTP_EXT_APN, gtp_val, "Unknown field"));
+    te = proto_tree_add_text(tree, tvb, offset, length + 3, "%s", val_to_str_ext_const(GTP_EXT_APN, &gtp_val_ext, "Unknown field"));
     ext_tree_apn = proto_item_add_subtree(te, ett_gtp_apn);
 
     proto_tree_add_text(ext_tree_apn, tvb, offset + 1, 2, "APN length : %u", length);
@@ -4314,7 +4322,7 @@ int decode_gtp_proto_conf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto
 
     length = tvb_get_ntohs(tvb, offset + 1);
 
-    te = proto_tree_add_text(tree, tvb, offset, length + 3, "%s", val_to_str(GTP_EXT_PROTO_CONF, gtp_val, "Unknown message"));
+    te = proto_tree_add_text(tree, tvb, offset, length + 3, "%s", val_to_str_ext_const(GTP_EXT_PROTO_CONF, &gtp_val_ext, "Unknown message"));
     ext_tree_proto = proto_item_add_subtree(te, ett_gtp_proto);
 
     proto_tree_add_text(ext_tree_proto, tvb, offset + 1, 2, "Length: %u", length);
@@ -4338,7 +4346,7 @@ int decode_gtp_proto_conf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto
         if (proto_len > 0) {
 
             proto_tree_add_text(ext_tree_proto, tvb, offset, 2, "Protocol %u ID: %s (0x%04x)",
-                                cnt, val_to_str(proto_id, ppp_vals, "Unknown"), proto_id);
+                                cnt, val_to_str_ext_const(proto_id, &ppp_vals_ext, "Unknown"), proto_id);
             proto_tree_add_text(ext_tree_proto, tvb, offset + 2, 1, "Protocol %u length: %u", cnt, proto_len);
 
             /*
@@ -4761,7 +4769,7 @@ static int decode_gtp_hdr_list(tvbuff_t * tvb, int offset, packet_info * pinfo _
 
     length = tvb_get_guint8(tvb, offset + 1);
 
-    te = proto_tree_add_text(tree, tvb, offset, 2 + length, "%s", val_to_str(GTP_EXT_HDR_LIST, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 2 + length, "%s", val_to_str_ext_const(GTP_EXT_HDR_LIST, &gtp_val_ext, "Unknown"));
     ext_tree_hdr_list = proto_item_add_subtree(te, ett_gtp_hdr_list);
 
     proto_tree_add_text(ext_tree_hdr_list, tvb, offset + 1, 1, "Number of Extension Header Types in list (i.e., length) : %u", length);
@@ -4770,7 +4778,7 @@ static int decode_gtp_hdr_list(tvbuff_t * tvb, int offset, packet_info * pinfo _
         hdr = tvb_get_guint8(tvb, offset + 2 + i);
 
         proto_tree_add_text(ext_tree_hdr_list, tvb, offset + 2 + i, 1, "No. %u --> Extension Header Type value : %s (%u)", i + 1,
-                            val_to_str(hdr, gtp_val, "Unknown Extension Header Type"), hdr);
+                            val_to_str_ext_const(hdr, &gtp_val_ext, "Unknown Extension Header Type"), hdr);
     }
 
     return 2 + length;
@@ -4787,7 +4795,7 @@ static int decode_gtp_trigger_id(tvbuff_t * tvb, int offset, packet_info * pinfo
 
     length = tvb_get_ntohs(tvb, offset + 1);
 
-    proto_tree_add_text(tree, tvb, offset, 3 + length, "%s length : %u", val_to_str(GTP_EXT_TRIGGER_ID, gtp_val, "Unknown"), length);
+    proto_tree_add_text(tree, tvb, offset, 3 + length, "%s length : %u", val_to_str_ext_const(GTP_EXT_TRIGGER_ID, &gtp_val_ext, "Unknown"), length);
 
     return 3 + length;
 
@@ -4804,7 +4812,7 @@ static int decode_gtp_omc_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_
 
     length = tvb_get_ntohs(tvb, offset + 1);
 
-    proto_tree_add_text(tree, tvb, offset, 3 + length, "%s length : %u", val_to_str(GTP_EXT_OMC_ID, gtp_val, "Unknown"), length);
+    proto_tree_add_text(tree, tvb, offset, 3 + length, "%s length : %u", val_to_str_ext_const(GTP_EXT_OMC_ID, &gtp_val_ext, "Unknown"), length);
 
     return 3 + length;
 
@@ -4824,10 +4832,10 @@ static int decode_gtp_chrg_addr(tvbuff_t * tvb, int offset, packet_info * pinfo 
 
     length = tvb_get_ntohs(tvb, offset + 1);
 
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s : ", val_to_str(GTP_EXT_CHRG_ADDR, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s : ", val_to_str_ext_const(GTP_EXT_CHRG_ADDR, &gtp_val_ext, "Unknown"));
     ext_tree_chrg_addr = proto_item_add_subtree(te, ett_gtp_chrg_addr);
 
-    proto_tree_add_text(ext_tree_chrg_addr, tvb, offset + 1, 2, "%s length : %u", val_to_str(GTP_EXT_CHRG_ADDR, gtp_val, "Unknown"), length);
+    proto_tree_add_text(ext_tree_chrg_addr, tvb, offset + 1, 2, "%s length : %u", val_to_str_ext_const(GTP_EXT_CHRG_ADDR, &gtp_val_ext, "Unknown"), length);
 
     switch (length) {
     case 4:
@@ -4859,7 +4867,7 @@ static int decode_gtp_ran_tr_cont(tvbuff_t * tvb, int offset, packet_info * pinf
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s : ", val_to_str(GTP_EXT_RAN_TR_CONT, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s : ", val_to_str_ext_const(GTP_EXT_RAN_TR_CONT, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_ran_tr_cont);
 
     offset++;
@@ -4883,7 +4891,7 @@ static int decode_gtp_pdp_cont_prio(tvbuff_t * tvb, int offset, packet_info * pi
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s : ", val_to_str(GTP_EXT_PDP_CONT_PRIO, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s : ", val_to_str_ext_const(GTP_EXT_PDP_CONT_PRIO, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdp_cont_prio);
 
     offset++;
@@ -4907,7 +4915,7 @@ static int decode_gtp_add_rab_setup_inf(tvbuff_t * tvb, int offset, packet_info 
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s : ", val_to_str(GTP_EXT_ADD_RAB_SETUP_INF, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s : ", val_to_str_ext_const(GTP_EXT_ADD_RAB_SETUP_INF, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_rab_setup_inf);
 
     offset++;
@@ -4932,7 +4940,7 @@ static int decode_gtp_ssgn_no(tvbuff_t * tvb, int offset, packet_info * pinfo _U
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s : ", val_to_str(GTP_EXT_SSGN_NO, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s : ", val_to_str_ext_const(GTP_EXT_SSGN_NO, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_ssgn_no);
 
     offset++;
@@ -4956,7 +4964,7 @@ static int decode_gtp_common_flgs(tvbuff_t * tvb, int offset, packet_info * pinf
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s : ", val_to_str(GTP_EXT_COMMON_FLGS, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s : ", val_to_str_ext_const(GTP_EXT_COMMON_FLGS, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_common_flgs);
 
     offset++;
@@ -4992,7 +5000,7 @@ static int decode_gtp_apn_res(tvbuff_t * tvb, int offset, packet_info * pinfo _U
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s : ", val_to_str(GTP_EXT_APN_RES, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s : ", val_to_str_ext_const(GTP_EXT_APN_RES, &gtp_val_ext, "Unknown"));
     ext_tree_apn_res = proto_item_add_subtree(te, ett_gtp_ext_tree_apn_res);
 
     offset++;
@@ -5026,7 +5034,7 @@ static int decode_gtp_rat_type(tvbuff_t * tvb, int offset, packet_info * pinfo _
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_RAT_TYPE, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_RAT_TYPE, &gtp_val_ext, "Unknown"));
     ext_tree_rat_type = proto_item_add_subtree(te, ett_gtp_ext_rat_type);
 
     offset++;
@@ -5088,7 +5096,7 @@ static int decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinf
     guint8 geo_loc_type;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_USR_LOC_INF, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_USR_LOC_INF, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_usr_loc_inf);
 
     offset++;
@@ -5141,7 +5149,7 @@ static int decode_gtp_ms_time_zone(tvbuff_t * tvb, int offset, packet_info * pin
     char sign;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s: ", val_to_str(GTP_EXT_MS_TIME_ZONE, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s: ", val_to_str_ext_const(GTP_EXT_MS_TIME_ZONE, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_ms_time_zone);
 
     offset++;
@@ -5166,7 +5174,7 @@ static int decode_gtp_ms_time_zone(tvbuff_t * tvb, int offset, packet_info * pin
     offset++;
 
     data = tvb_get_guint8(tvb, offset) & 0x3;
-    proto_tree_add_text(ext_tree, tvb, offset, 1, "%s", val_to_str(data, daylight_saving_time_vals, "Unknown"));
+    proto_tree_add_text(ext_tree, tvb, offset, 1, "%s", val_to_str_const(data, daylight_saving_time_vals, "Unknown"));
 
     return 3 + length;
 
@@ -5187,7 +5195,7 @@ static int decode_gtp_imeisv(tvbuff_t * tvb, int offset, packet_info * pinfo _U_
     const char *digit_str;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_IMEISV, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_IMEISV, &gtp_val_ext, "Unknown"));
     ext_imeisv = proto_item_add_subtree(te, ett_gtp_ext_imeisv);
 
     offset++;
@@ -5221,7 +5229,7 @@ static int decode_gtp_camel_chg_inf_con(tvbuff_t * tvb, int offset, packet_info 
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_CAMEL_CHG_INF_CON, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_CAMEL_CHG_INF_CON, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_camel_chg_inf_con);
 
     offset++;
@@ -5246,7 +5254,7 @@ static int decode_gtp_mbms_ue_ctx(tvbuff_t * tvb, int offset, packet_info * pinf
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_MBMS_UE_CTX, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_MBMS_UE_CTX, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_GTP_EXT_MBMS_UE_CTX);
 
     offset++;
@@ -5276,7 +5284,7 @@ static int decode_gtp_tmgi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, 
     tvbuff_t *next_tvb;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_TMGI, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_TMGI, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_tmgi);
 
     offset++;
@@ -5304,7 +5312,7 @@ static int decode_gtp_rim_ra(tvbuff_t * tvb, int offset, packet_info * pinfo _U_
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_RIM_RA, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_RIM_RA, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_rim_ra);
 
     offset++;
@@ -5332,7 +5340,7 @@ static int decode_gtp_mbms_prot_conf_opt(tvbuff_t * tvb, int offset, packet_info
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_MBMS_PROT_CONF_OPT, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_MBMS_PROT_CONF_OPT, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_mbms_prot_conf_opt);
 
     offset++;
@@ -5370,7 +5378,7 @@ static int decode_gtp_mbms_ses_dur(tvbuff_t * tvb, int offset, packet_info * pin
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_MBMS_SES_DUR, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_MBMS_SES_DUR, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_bms_ses_dur);
 
     offset++;
@@ -5411,7 +5419,7 @@ static int decode_gtp_mbms_sa(tvbuff_t * tvb, int offset, packet_info * pinfo _U
     int i;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_MBMS_SA, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_MBMS_SA, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_mbms_sa);
 
     offset++;
@@ -5461,7 +5469,7 @@ static int decode_gtp_src_rnc_pdp_ctx_inf(tvbuff_t * tvb, int offset, packet_inf
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_SRC_RNC_PDP_CTX_INF, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_SRC_RNC_PDP_CTX_INF, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_src_rnc_pdp_ctx_inf);
 
     offset++;
@@ -5486,7 +5494,7 @@ static int decode_gtp_add_trs_inf(tvbuff_t * tvb, int offset, packet_info * pinf
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_ADD_TRS_INF, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_ADD_TRS_INF, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_add_trs_inf);
 
     offset++;
@@ -5511,7 +5519,7 @@ static int decode_gtp_hop_count(tvbuff_t * tvb, int offset, packet_info * pinfo 
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_HOP_COUNT, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_HOP_COUNT, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_hop_count);
 
     offset++;
@@ -5536,7 +5544,7 @@ static int decode_gtp_sel_plmn_id(tvbuff_t * tvb, int offset, packet_info * pinf
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_SEL_PLMN_ID, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_SEL_PLMN_ID, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_sel_plmn_id);
 
     offset++;
@@ -5561,7 +5569,7 @@ static int decode_gtp_mbms_ses_id(tvbuff_t * tvb, int offset, packet_info * pinf
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_MBMS_SES_ID, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_MBMS_SES_ID, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_mbms_ses_id);
 
     offset++;
@@ -5593,7 +5601,7 @@ static int decode_gtp_mbms_2g_3g_ind(tvbuff_t * tvb, int offset, packet_info * p
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_MBMS_2G_3G_IND, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_MBMS_2G_3G_IND, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_mbms_2g_3g_ind);
 
     offset++;
@@ -5618,7 +5626,7 @@ static int decode_gtp_enh_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo 
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_ENH_NSAPI, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_ENH_NSAPI, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_enh_nsapi);
 
     offset++;
@@ -5643,7 +5651,7 @@ static int decode_gtp_add_mbms_trs_inf(tvbuff_t * tvb, int offset, packet_info *
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_ADD_MBMS_TRS_INF, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_ADD_MBMS_TRS_INF, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_ad_mbms_trs_inf);
 
     offset++;
@@ -5668,7 +5676,7 @@ static int decode_gtp_mbms_ses_id_rep_no(tvbuff_t * tvb, int offset, packet_info
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_MBMS_SES_ID_REP_NO, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_MBMS_SES_ID_REP_NO, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_mbms_ses_id_rep_no);
 
     offset++;
@@ -5708,7 +5716,7 @@ static int decode_gtp_mbms_time_to_data_tr(tvbuff_t * tvb, int offset, packet_in
     guint8 time_2_dta_tr;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_MBMS_TIME_TO_DATA_TR, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_MBMS_TIME_TO_DATA_TR, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_mbms_time_to_data_tr);
 
     offset++;
@@ -5752,7 +5760,7 @@ decode_gtp_ps_ho_req_ctx(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, pr
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_PS_HO_REQ_CTX, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_PS_HO_REQ_CTX, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_ps_ho_req_ctx);
 
     offset++;
@@ -5778,7 +5786,7 @@ decode_gtp_bss_cont(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_BSS_CONT, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_BSS_CONT, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_bss_cont);
 
     offset++;
@@ -5807,7 +5815,7 @@ decode_gtp_cell_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tr
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_CELL_ID, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_CELL_ID, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_cell_id);
 
     offset++;
@@ -5840,7 +5848,7 @@ decode_gtp_pdu_no(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tre
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_PDU_NO, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_PDU_NO, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
 
     offset++;
@@ -5866,7 +5874,7 @@ decode_gtp_bssgp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_BSSGP_CAUSE, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_BSSGP_CAUSE, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_bssgp_cause);
 
     offset++;
@@ -5893,7 +5901,7 @@ decode_gtp_mbms_bearer_cap(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, 
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_BSSGP_CAUSE, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_BSSGP_CAUSE, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_bssgp_cause);
 
     offset++;
@@ -5919,7 +5927,7 @@ decode_gtp_rim_ra_disc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_RIM_ROUTING_ADDR_DISC, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_RIM_ROUTING_ADDR_DISC, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
 
     offset++;
@@ -5943,7 +5951,7 @@ decode_gtp_lst_set_up_pfc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, p
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_LIST_OF_SETUP_PFCS, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_LIST_OF_SETUP_PFCS, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
 
     offset++;
@@ -5969,7 +5977,7 @@ static int decode_gtp_ps_handover_xid(tvbuff_t * tvb, int offset, packet_info * 
     guint8 xid_par_len;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_PS_HANDOVER_XIP_PAR, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_PS_HANDOVER_XIP_PAR, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_ps_handover_xid);
 
     offset++;
@@ -6005,7 +6013,7 @@ static int decode_gtp_ms_inf_chg_rep_act(tvbuff_t * tvb, int offset, packet_info
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_MS_INF_CHG_REP_ACT, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_MS_INF_CHG_REP_ACT, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
 
     offset++;
@@ -6028,7 +6036,7 @@ static int decode_gtp_direct_tnl_flg(tvbuff_t * tvb, int offset, packet_info * p
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_DIRECT_TUNNEL_FLGS, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_DIRECT_TUNNEL_FLGS, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
 
     offset++;
@@ -6055,7 +6063,7 @@ static int decode_gtp_corrl_id(tvbuff_t * tvb, int offset, packet_info * pinfo _
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_CORRELATION_ID, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_CORRELATION_ID, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
 
     offset++;
@@ -6078,7 +6086,7 @@ static int decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info *
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str(GTP_EXT_BEARER_CONTROL_MODE, gtp_val, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_BEARER_CONTROL_MODE, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
 
     offset++;
@@ -6155,7 +6163,7 @@ static int decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo _
     proto_item *te;
     tvbuff_t *next_tvb;
 
-    te = proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str(GTP_EXT_DATA_REQ, gtp_val, "Unknown message"));
+    te = proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str_ext_const(GTP_EXT_DATA_REQ, &gtp_val_ext, "Unknown message"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext);
 
     length = tvb_get_ntohs(tvb, offset + 1);
@@ -6257,7 +6265,7 @@ static int decode_gtp_priv_ext(tvbuff_t * tvb, int offset, packet_info * pinfo _
     proto_tree *ext_tree_priv_ext;
     proto_item *te;
 
-    te = proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str(GTP_EXT_PRIV_EXT, gtp_val, "Unknown message"));
+    te = proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str_ext_const(GTP_EXT_PRIV_EXT, &gtp_val_ext, "Unknown message"));
     ext_tree_priv_ext = proto_item_add_subtree(te, ett_gtp_ext);
 
     offset++;
@@ -6355,7 +6363,7 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                         break;
     }
 
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(gtp_hdr.message, message_type, "Unknown"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(gtp_hdr.message, &message_type_ext, "Unknown"));
 
     if (tree) {
         ti = proto_tree_add_item(tree, proto_gtp, tvb, 0, -1, FALSE);
@@ -6501,7 +6509,7 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                         break;
                     default:
                         proto_tree_add_text(gtp_tree, tvb, offset, 1, "[WARNING] wrong next field, should be: %s",
-                                            val_to_str(checked_field, gtp_val, "Unknown extension field"));
+                                            val_to_str_ext_const(checked_field, &gtp_val_ext, "Unknown extension field"));
                         break;
                     }
                 }
@@ -6597,7 +6605,8 @@ static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                 }
         }
         if(version>2){
-                proto_tree_add_text(tree, tvb, 0, -1, "No WS dissector for GTP version %u %s", version, val_to_str(version, ver_types, "Unknown"));
+                proto_tree_add_text(tree, tvb, 0, -1, "No WS dissector for GTP version %u %s", version,
+                                    val_to_str_const(version, ver_types, "Unknown"));
                 return;
         }
 
@@ -6642,7 +6651,7 @@ void proto_register_gtp(void)
          {"Response To", "gtp.response_to", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "This is a response to the GTP request in this frame", HFILL}},
         {&hf_gtp_time, {"Time", "gtp.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, "The time between the Request and the Response", HFILL}},
         {&hf_gtp_apn, {"APN", "gtp.apn", FT_STRING, BASE_NONE, NULL, 0, "Access Point Name", HFILL}},
-        {&hf_gtp_cause, {"Cause", "gtp.cause", FT_UINT8, BASE_DEC, VALS(cause_type), 0, "Cause of operation", HFILL}},
+        {&hf_gtp_cause, {"Cause", "gtp.cause", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &cause_type_ext, 0, "Cause of operation", HFILL}},
         {&hf_gtp_chrg_char, {"Charging characteristics", "gtp.chrg_char", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL}},
         {&hf_gtp_chrg_char_s, {"Spare", "gtp.chrg_char_s", FT_UINT16, BASE_DEC, NULL, GTP_MASK_CHRG_CHAR_S, NULL, HFILL}},
         {&hf_gtp_chrg_char_n, {"Normal charging", "gtp.chrg_char_n", FT_UINT16, BASE_DEC, NULL, GTP_MASK_CHRG_CHAR_N, NULL, HFILL}},
@@ -6705,7 +6714,7 @@ void proto_register_gtp(void)
         {&hf_gtp_imsi, {"IMSI", "gtp.imsi", FT_STRING, BASE_NONE, NULL, 0, "International Mobile Subscriber Identity number", HFILL}},
         {&hf_gtp_length, {"Length", "gtp.length", FT_UINT16, BASE_DEC, NULL, 0, "Length (i.e. number of octets after TID or TEID)", HFILL}},
         {&hf_gtp_map_cause, {"MAP cause", "gtp.map_cause", FT_UINT8, BASE_DEC, VALS(gsm_old_GSMMAPLocalErrorcode_vals), 0, NULL, HFILL}},
-        {&hf_gtp_message_type, {"Message Type", "gtp.message", FT_UINT8, BASE_HEX, VALS(message_type), 0x0, "GTP Message Type", HFILL}},
+        {&hf_gtp_message_type, {"Message Type", "gtp.message", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &message_type_ext, 0x0, "GTP Message Type", HFILL}},
         {&hf_gtp_ms_reason,
          {"MS not reachable reason", "gtp.ms_reason", FT_UINT8, BASE_DEC, VALS(ms_not_reachable_type), 0, NULL, HFILL}},
         {&hf_gtp_ms_valid, {"MS validated", "gtp.ms_valid", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}},
@@ -6733,7 +6742,7 @@ void proto_register_gtp(void)
         {&hf_gtp_qos_spare3,
          {"Spare", "gtp.qos_spare3", FT_UINT8, BASE_DEC, NULL, GTP_EXT_QOS_SPARE3_MASK, "Spare (shall be sent as '000' )", HFILL}},
         {&hf_gtp_qos_mean,
-         {"QoS mean", "gtp.qos_mean", FT_UINT8, BASE_DEC, VALS(qos_mean_type), GTP_EXT_QOS_MEAN_MASK, "Quality of Service Mean Throughput", HFILL}},
+         {"QoS mean", "gtp.qos_mean", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &qos_mean_type_ext, GTP_EXT_QOS_MEAN_MASK, "Quality of Service Mean Throughput", HFILL}},
         {&hf_gtp_qos_al_ret_priority,
          {"Allocation/Retention priority", "gtp.qos_al_ret_priority", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}},
         {&hf_gtp_qos_traf_class,
@@ -6755,7 +6764,7 @@ void proto_register_gtp(void)
          {"SDU Error ratio", "gtp.qos_sdu_err_ratio", FT_UINT8, BASE_DEC, VALS(qos_sdu_err_ratio), GTP_EXT_QOS_SDU_ERR_RATIO_MASK, NULL,
           HFILL}},
         {&hf_gtp_qos_trans_delay,
-         {"Transfer delay", "gtp.qos_trans_delay", FT_UINT8, BASE_DEC, VALS(qos_trans_delay), GTP_EXT_QOS_TRANS_DELAY_MASK, NULL, HFILL}},
+         {"Transfer delay", "gtp.qos_trans_delay", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &qos_trans_delay_ext, GTP_EXT_QOS_TRANS_DELAY_MASK, NULL, HFILL}},
         {&hf_gtp_qos_traf_handl_prio,
          {"Traffic handling priority", "gtp.qos_traf_handl_prio", FT_UINT8, BASE_DEC, VALS(qos_traf_handl_prio), GTP_EXT_QOS_TRAF_HANDL_PRIORITY_MASK,
           NULL, HFILL}},
@@ -6781,7 +6790,7 @@ void proto_register_gtp(void)
         {&hf_gtp_rai_mnc, {"MNC", "gtp.mnc", FT_UINT8, BASE_DEC, NULL, 0, "Mobile Network Code", HFILL}},
         {&hf_gtp_rai_rac, {"RAC", "gtp.rac", FT_UINT8, BASE_DEC, NULL, 0, "Routing Area Code", HFILL}},
         {&hf_gtp_rai_lac, {"LAC", "gtp.lac", FT_UINT16, BASE_DEC, NULL, 0, "Location Area Code", HFILL}},
-        {&hf_gtp_ranap_cause, {"RANAP cause", "gtp.ranap_cause", FT_UINT8, BASE_DEC, VALS(ranap_cause_type), 0, NULL, HFILL}},
+        {&hf_gtp_ranap_cause, {"RANAP cause", "gtp.ranap_cause", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ranap_cause_type_ext, 0, NULL, HFILL}},
         {&hf_gtp_recovery, {"Recovery", "gtp.recovery", FT_UINT8, BASE_DEC, NULL, 0, "Restart counter", HFILL}},
         {&hf_gtp_reorder, {"Reordering required", "gtp.reorder", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         {&hf_gtp_rnc_ipv4, {"RNC address IPv4", "gtp.rnc_ipv4", FT_IPv4, BASE_NONE, NULL, 0, "Radio Network Controller address IPv4", HFILL}},
@@ -7143,9 +7152,9 @@ void proto_reg_handoff_gtp(void)
     }
 
     gtp_over_tcp = g_gtp_over_tcp;
-    gtpv0_port = g_gtpv0_port;
-    gtpv1c_port = g_gtpv1c_port;
-    gtpv1u_port = g_gtpv1u_port;
+    gtpv0_port   = g_gtpv0_port;
+    gtpv1c_port  = g_gtpv1c_port;
+    gtpv1u_port  = g_gtpv1u_port;
 
     dissector_add("udp.port", g_gtpv0_port, gtp_prim_handle);
     dissector_add("udp.port", g_gtpv1c_port, gtp_handle);
