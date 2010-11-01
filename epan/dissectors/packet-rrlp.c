@@ -1193,7 +1193,7 @@ dissect_rrlp_PrivateExtensionList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 
 static const per_sequence_t PCS_Extensions_sequence[] = {
-  { NULL, 0, 0, NULL }
+  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
 };
 
 static int

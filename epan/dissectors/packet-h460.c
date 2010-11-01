@@ -1635,7 +1635,7 @@ dissect_h460_15_ChannelSuspendResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 
 static const per_sequence_t h460_15_ChannelSuspendConfirm_sequence[] = {
-  { NULL, 0, 0, NULL }
+  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
 };
 
 static int
@@ -1648,7 +1648,7 @@ dissect_h460_15_ChannelSuspendConfirm(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 
 static const per_sequence_t h460_15_ChannelSuspendCancel_sequence[] = {
-  { NULL, 0, 0, NULL }
+  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
 };
 
 static int
@@ -1686,7 +1686,7 @@ dissect_h460_15_ChannelResumeRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static const per_sequence_t h460_15_ChannelResumeResponse_sequence[] = {
-  { NULL, 0, 0, NULL }
+  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
 };
 
 static int

@@ -9193,7 +9193,7 @@ dissect_pcap_T_ueBased(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
 
 static const per_sequence_t T_ueAssisted_sequence[] = {
-  { NULL, 0, 0, NULL }
+  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
 };
 
 static int
@@ -9293,7 +9293,7 @@ dissect_pcap_T_fdd_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 
 static const per_sequence_t T_tdd_02_sequence[] = {
-  { NULL, 0, 0, NULL }
+  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
 };
 
 static int
@@ -9604,7 +9604,7 @@ dissect_pcap_T_ueBased_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 
 static const per_sequence_t T_ueAssisted_01_sequence[] = {
-  { NULL, 0, 0, NULL }
+  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
 };
 
 static int

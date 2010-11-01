@@ -1328,7 +1328,7 @@ dissect_h501_DescriptorRejection(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 
 static const per_sequence_t DescriptorIDRequest_sequence[] = {
-  { NULL, 0, 0, NULL }
+  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
 };
 
 static int
@@ -1505,7 +1505,7 @@ dissect_h501_DescriptorUpdate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 
 static const per_sequence_t DescriptorUpdateAck_sequence[] = {
-  { NULL, 0, 0, NULL }
+  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
 };
 
 static int
@@ -1734,7 +1734,7 @@ dissect_h501_RequestInProgress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 
 static const per_sequence_t NonStandardRequest_sequence[] = {
-  { NULL, 0, 0, NULL }
+  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
 };
 
 static int
@@ -1747,7 +1747,7 @@ dissect_h501_NonStandardRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 
 static const per_sequence_t NonStandardConfirmation_sequence[] = {
-  { NULL, 0, 0, NULL }
+  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
 };
 
 static int
@@ -1866,7 +1866,7 @@ dissect_h501_UsageRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 
 static const per_sequence_t UsageConfirmation_sequence[] = {
-  { NULL, 0, 0, NULL }
+  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
 };
 
 static int
@@ -1996,7 +1996,7 @@ dissect_h501_UsageIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 
 static const per_sequence_t UsageIndicationConfirmation_sequence[] = {
-  { NULL, 0, 0, NULL }
+  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
 };
 
 static int
@@ -2214,7 +2214,7 @@ dissect_h501_AuthenticationRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 
 static const per_sequence_t AuthenticationConfirmation_sequence[] = {
-  { NULL, 0, 0, NULL }
+  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
 };
 
 static int
