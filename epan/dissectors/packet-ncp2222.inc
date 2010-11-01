@@ -7512,10 +7512,27 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint32 nw_connection, guint8 sequ
             }
         }
         else
-        { 
+        {
             dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree, ncp_tap);
         }
     }
+}
+
+static gboolean ncp2222_dfilters_compiled = FALSE;
+
+static void
+ncp2222_compile_dfilters(void)
+{
+	int i;
+
+	for (i = 0; i < NUM_REQ_CONDS; i++) {
+		if (!dfilter_compile((const gchar*)req_conds[i].dfilter_text,
+				     &req_conds[i].dfilter)) {
+			g_message("NCP dissector failed to compile dfilter: %s\n",
+				  req_conds[i].dfilter_text);
+			g_assert_not_reached();
+		}
+	}
 }
 
 void
@@ -7539,6 +7556,15 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
     volatile unsigned long  except_code;
     const char              *volatile message;
 
+
+    /* We're dissecting an ncp2222 request; Compile the dfilters (if not yet done). */
+    /* XXX: We do this here rather than at "post-registration" (as previouly done)  */
+    /*      so compiling over 100 dfilters is done only if needed (thus avoiding    */
+    /*      compiling the dfilters each time Wireshark is started.                  */
+    if (! ncp2222_dfilters_compiled) {
+        ncp2222_compile_dfilters();
+        ncp2222_dfilters_compiled = TRUE;
+    }
 
     /* Determine which ncp_record to use. */
     switch (type) {

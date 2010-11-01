@@ -5756,10 +5756,10 @@ static int ptvc_struct_int_storage;
 
 	if global_highest_var > -1:
 		print "#define NUM_REPEAT_VARS\t%d" % (global_highest_var + 1)
-		print "static guint repeat_vars[NUM_REPEAT_VARS];",
+		print "static guint repeat_vars[NUM_REPEAT_VARS];"
 	else:
 		print "#define NUM_REPEAT_VARS\t0"
-		print "static guint *repeat_vars = NULL;",
+		print "static guint *repeat_vars = NULL;"
 
 	print """
 #define NO_VAR		NUM_REPEAT_VARS
@@ -6271,7 +6271,7 @@ static int hf_iter_search = -1;
 static int hf_iter_other = -1;
 static int hf_nds_oid = -1;
 
-	"""
+"""
 
 	# Look at all packet types in the packets collection, and cull information
 	# from them.
@@ -6295,6 +6295,9 @@ static int hf_nds_oid = -1;
 		if not groups_used_hash.has_key(group):
 			groups_used_hash[group] = len(groups_used_list)
 			groups_used_list.append(group)
+
+
+
 
 		# Determine which variables are used.
 		vars = pkt.Variables()
@@ -6574,26 +6577,7 @@ static int hf_nds_oid = -1;
 	print "\t0"
 	print "};\n"
 
-	# final_registration_ncp2222()
-	print """
-static void
-final_registration_ncp2222(void)
-{
-	int i;
-	"""
-
-	# Create dfilter_t's for conditional_record's
-	print """
-	for (i = 0; i < NUM_REQ_CONDS; i++) {
-		if (!dfilter_compile((const gchar*)req_conds[i].dfilter_text,
-			&req_conds[i].dfilter)) {
-			g_message("NCP dissector failed to compile dfilter: %s\\n",
-			req_conds[i].dfilter_text);
-			g_assert_not_reached();
-		}
-	}
-}
-	"""
+	print ""
 
 	# proto_register_ncp2222()
 	print """
@@ -8276,20 +8260,15 @@ proto_register_ncp2222(void)
 		print "\t};\n"
 
 	print """
-	proto_register_field_array(proto_ncp, hf, array_length(hf));
-	"""
+	proto_register_field_array(proto_ncp, hf, array_length(hf));"""
 
 	if ett_list:
 		print """
-	proto_register_subtree_array(ett, array_length(ett));
-		"""
+	proto_register_subtree_array(ett, array_length(ett));"""
 
 	print """
 	register_init_routine(&ncp_init_protocol);
-	register_postseq_cleanup_routine(&ncp_postseq_cleanup);
-	register_final_registration_routine(final_registration_ncp2222);
-	"""
-
+	register_postseq_cleanup_routine(&ncp_postseq_cleanup);"""
 
 	# End of proto_register_ncp2222()
 	print "}"
