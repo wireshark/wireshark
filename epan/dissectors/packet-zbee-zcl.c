@@ -176,6 +176,7 @@ static const value_string zbee_zcl_cmd_names[] = {
 
     { 0, NULL }
 };
+static value_string_ext zbee_zcl_cmd_names_ext = VALUE_STRING_EXT_INIT(zbee_zcl_cmd_names);
 
 /* ZCL Cluster-Specific Command Names */
 static const value_string zbee_zcl_cs_cmd_names[] = {
@@ -307,6 +308,7 @@ static const value_string zbee_mfr_code_names[] = {
     { ZBEE_MFG_CODE_4_NOKS,     ZBEE_MFG_4_NOKS },
     { 0, NULL }
 };
+static value_string_ext zbee_mfr_code_names_ext = VALUE_STRING_EXT_INIT(zbee_mfr_code_names);
 
 /* ZCL Attribute Status Names */
 static const value_string zbee_zcl_status_names[] = {
@@ -340,6 +342,7 @@ static const value_string zbee_zcl_status_names[] = {
 
     { 0, NULL }
 };
+static value_string_ext zbee_zcl_status_names_ext = VALUE_STRING_EXT_INIT(zbee_zcl_status_names);
 
 /* ZCL Attribute Data Names */
 static const value_string zbee_zcl_data_type_names[] = {
@@ -415,6 +418,7 @@ static const value_string zbee_zcl_data_type_names[] = {
 
     { 0, NULL }
 };
+static value_string_ext zbee_zcl_data_type_names_ext = VALUE_STRING_EXT_INIT(zbee_zcl_data_type_names);
 
 /* ZCL Attribute Short Data Names */
 static const value_string zbee_zcl_short_data_type_names[] = {
@@ -490,6 +494,7 @@ static const value_string zbee_zcl_short_data_type_names[] = {
 
     { 0, NULL }
 };
+static value_string_ext zbee_zcl_short_data_type_names_ext = VALUE_STRING_EXT_INIT(zbee_zcl_short_data_type_names);
 
 /* ZCL Attribute English Weekday Names */
 static const value_string zbee_zcl_wd_names[] = {
@@ -503,6 +508,7 @@ static const value_string zbee_zcl_wd_names[] = {
 
     { 0, NULL }
 };
+static value_string_ext zbee_zcl_wd_names_ext = VALUE_STRING_EXT_INIT(zbee_zcl_wd_names);
 
 /* Attribute Direction Names */
 static const value_string zbee_zcl_dir_names[] = {
@@ -572,7 +578,7 @@ static void dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         /* Create the subtree */
         ti = proto_tree_add_text(zcl_tree, tvb, offset, sizeof(guint8),
                     "Frame Control Field: %s (0x%02x)",
-                    val_to_str(packet.frame_type, zbee_zcl_frame_types, "Unknown"), fcf);
+                    val_to_str_const(packet.frame_type, zbee_zcl_frame_types, "Unknown"), fcf);
         sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_fcf);
 
         /* Add the frame type */
@@ -600,7 +606,7 @@ static void dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                             packet.mfr_code);
 
             proto_item_append_text(proto_root, ", Mfr: %s (0x%04x)",
-                            val_to_str(packet.mfr_code, zbee_mfr_code_names, "Unknown"),
+                            val_to_str_ext_const(packet.mfr_code, &zbee_mfr_code_names_ext, "Unknown"),
                             packet.mfr_code);
         }
         offset += sizeof(guint16);
@@ -622,13 +628,13 @@ static void dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     if ( packet.frame_type == ZBEE_ZCL_FCF_PROFILE_WIDE ) {
         if ( tree ) {
             proto_item_append_text(proto_root, ", Command: %s, Seq: %u",
-                val_to_str(packet.cmd_id, zbee_zcl_cmd_names, "Unknown Command"),
+                val_to_str_ext_const(packet.cmd_id, &zbee_zcl_cmd_names_ext, "Unknown Command"),
                 packet.tran_seqno);
         }
 
         if ( check_col(pinfo->cinfo, COL_INFO) ) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
-                val_to_str(packet.cmd_id, zbee_zcl_cmd_names, "Unknown Command"),
+                val_to_str_ext_const(packet.cmd_id, &zbee_zcl_cmd_names_ext, "Unknown Command"),
                 packet.tran_seqno);
         }
 
@@ -1323,7 +1329,7 @@ static void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset
             attr_uint = tvb_get_guint8(tvb, *offset);
 
             proto_item_append_text(tree, ", %s: %u",
-                val_to_str(data_type, zbee_zcl_short_data_type_names, "Reserved"), attr_uint);
+                val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_uint);
 
             proto_tree_add_uint(tree, hf_zbee_zcl_attr_uint8, tvb, *offset, sizeof(guint8),
                         attr_uint);
@@ -1336,7 +1342,7 @@ static void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset
             attr_int = (gint8)tvb_get_guint8(tvb, *offset);
 
             proto_item_append_text(tree, ", %s: %-d",
-                val_to_str(data_type, zbee_zcl_short_data_type_names, "Reserved"), attr_int);
+                val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_int);
 
             proto_tree_add_int(tree, hf_zbee_zcl_attr_int8, tvb, *offset, sizeof(gint8),
                         (gint)attr_int);
@@ -1349,7 +1355,7 @@ static void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset
             attr_uint = tvb_get_guint8(tvb, *offset);
 
             proto_item_append_text(tree, ", %s: 0x%02x",
-                val_to_str(data_type, zbee_zcl_short_data_type_names, "Reserved"), attr_uint);
+                val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_uint);
 
             proto_tree_add_item(tree, hf_zbee_zcl_attr_boolean, tvb, *offset, 1, FALSE);
 
@@ -1368,7 +1374,7 @@ static void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset
             attr_uint = tvb_get_letohs(tvb, *offset);
 
             proto_item_append_text(tree, ", %s: %u",
-                val_to_str(data_type, zbee_zcl_short_data_type_names, "Reserved"), attr_uint);
+                val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_uint);
 
             proto_tree_add_uint(tree, hf_zbee_zcl_attr_uint16, tvb, *offset, sizeof(guint16),
                         attr_uint);
@@ -1382,7 +1388,7 @@ static void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset
             attr_int = (gint16)tvb_get_letohs(tvb, *offset);
 
             proto_item_append_text(tree, ", %s: %-d",
-                val_to_str(data_type, zbee_zcl_short_data_type_names, "Reserved"), attr_int);
+                val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_int);
 
             proto_tree_add_int(tree, hf_zbee_zcl_attr_int16, tvb, *offset, sizeof(gint16),
                         attr_int);
@@ -1401,7 +1407,7 @@ static void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset
             attr_uint = tvb_get_letoh24(tvb, *offset);
 
             proto_item_append_text(tree, ", %s: %u",
-                val_to_str(data_type, zbee_zcl_short_data_type_names, "Reserved"), attr_uint);
+                val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_uint);
 
             proto_tree_add_uint(tree, hf_zbee_zcl_attr_uint24, tvb, *offset, 3,
                         attr_uint);
@@ -1417,7 +1423,7 @@ static void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset
             if (attr_int & INT24_SIGN_BITS) attr_int |= INT24_SIGN_BITS;
 
             proto_item_append_text(tree, ", %s: %-d",
-                val_to_str(data_type, zbee_zcl_short_data_type_names, "Reserved"), attr_int);
+                val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_int);
 
             proto_tree_add_int(tree, hf_zbee_zcl_attr_int24, tvb, *offset, 3,
                         attr_int);
@@ -1436,7 +1442,7 @@ static void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset
             attr_uint = tvb_get_letohl(tvb, *offset);
 
             proto_item_append_text(tree, ", %s: %u",
-                val_to_str(data_type, zbee_zcl_short_data_type_names, "Reserved"), attr_uint);
+                val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_uint);
 
             proto_tree_add_uint(tree, hf_zbee_zcl_attr_uint32, tvb, *offset, sizeof(guint),
                         attr_uint);
@@ -1450,7 +1456,7 @@ static void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset
             attr_int = (gint)tvb_get_letohl(tvb, *offset);
 
             proto_item_append_text(tree, ", %s: %-d",
-                val_to_str(data_type, zbee_zcl_short_data_type_names, "Reserved"), attr_int);
+                val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_int);
 
             proto_tree_add_int(tree, hf_zbee_zcl_attr_int32, tvb, *offset, sizeof(gint),
                         attr_int);
@@ -1520,7 +1526,7 @@ static void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset
 
 
             proto_item_append_text(tree, ", %s: %g",
-                val_to_str(data_type, zbee_zcl_short_data_type_names, "Reserved"), attr_float);
+                val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_float);
 
             proto_tree_add_item(tree, hf_zbee_zcl_attr_float, tvb, *offset, 4, TRUE);
 
@@ -1627,7 +1633,7 @@ static void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset
 
             proto_item_append_text(tree, ", Date: %u/%u/%u %s",
                 attr_uint8[0]+1900, attr_uint8[1], attr_uint8[2],
-                val_to_str(attr_uint8[3], zbee_zcl_wd_names, "Invalid Weekday") );
+                val_to_str_ext_const(attr_uint8[3], &zbee_zcl_wd_names_ext, "Invalid Weekday") );
             break;
 
         case ZBEE_ZCL_UTC:
@@ -1637,7 +1643,7 @@ static void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset
             attr_time.nsecs = 0;
 
             proto_item_append_text(tree, ", %s",
-                val_to_str(data_type, zbee_zcl_short_data_type_names, "Reserved") );
+                val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved") );
             proto_tree_add_time(tree, hf_zbee_zcl_attr_utc, tvb, *offset, sizeof(guint),
                             &attr_time);
 
@@ -1890,15 +1896,15 @@ void proto_register_zbee_zcl(void)
                 ZBEE_ZCL_FCF_DISABLE_DEFAULT_RESP, NULL, HFILL }},
 
         { &hf_zbee_zcl_mfr_code,
-            { "Manufacturer Code", "zbee.zcl.cmd.mc", FT_UINT16, BASE_HEX,
-                    VALS(zbee_mfr_code_names), 0x0, "Assigned manufacturer code.", HFILL }},
+            { "Manufacturer Code", "zbee.zcl.cmd.mc", FT_UINT16, BASE_HEX|BASE_EXT_STRING,
+                    &zbee_mfr_code_names_ext, 0x0, "Assigned manufacturer code.", HFILL }},
 
         { &hf_zbee_zcl_tran_seqno,
             { "Sequence Number", "zbee.zcl.cmd.tsn", FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
 
         { &hf_zbee_zcl_cmd_id,
-            { "Command",    "zbee.zcl.cmd.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_cmd_names),
+            { "Command",    "zbee.zcl.cmd.id", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &zbee_zcl_cmd_names_ext,
                 0x0, NULL, HFILL }},
 
         { &hf_zbee_zcl_cs_cmd_id,
@@ -1910,8 +1916,8 @@ void proto_register_zbee_zcl(void)
                 NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_data_type,
-            { "Data Type",  "zbee.zcl.attr.data.type", FT_UINT8, BASE_HEX,
-                VALS(zbee_zcl_data_type_names), 0x0, NULL, HFILL }},
+            { "Data Type",  "zbee.zcl.attr.data.type", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
+                &zbee_zcl_data_type_names_ext, 0x0, NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_boolean,
             { "Boolean",    "zbee.zcl.attr.boolean", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0xff,
@@ -2017,7 +2023,7 @@ void proto_register_zbee_zcl(void)
             { "UTC", "zbee.zcl.attr.utc", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_status,
-            { "Status", "zbee.zcl.attr.status", FT_UINT8, BASE_HEX, VALS(zbee_zcl_status_names),
+            { "Status", "zbee.zcl.attr.status", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &zbee_zcl_status_names_ext,
                 0x0, NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_dir,

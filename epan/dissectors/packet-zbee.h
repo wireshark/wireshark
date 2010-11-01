@@ -348,7 +348,7 @@
 #define ZBEE_MFG_CODE_LUXOFT            0x100c
 #define ZBEE_MFG_CODE_KORWIN            0x100d
 #define ZBEE_MFG_CODE_1_RF              0x100e
-#define ZBEE_MFG_CODE_STG               0x101f
+#define ZBEE_MFG_CODE_STG               0x100f
 
 #define ZBEE_MFG_CODE_TELEGESIS         0x1010
 #define ZBEE_MFG_CODE_VISIONIC          0x1011
