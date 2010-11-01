@@ -99,7 +99,7 @@ void stock_icons_init(void) {
         { WIRESHARK_STOCK_CAPTURE_START,         "_Start",         0, 0, NULL },
         { WIRESHARK_STOCK_CAPTURE_STOP,          "S_top",          0, 0, NULL },
         { WIRESHARK_STOCK_CAPTURE_RESTART,       "_Restart",       0, 0, NULL },
-        { WIRESHARK_STOCK_CAPTURE_FILTER,        "_CFilter",        0, 0, NULL },
+        { WIRESHARK_STOCK_CAPTURE_FILTER,        "_Capture Filter",   0, 0, NULL },
         { WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY,  "_Capture Filter:",  0, 0, NULL },
         { WIRESHARK_STOCK_CAPTURE_DETAILS,       "_Details",       0, 0, NULL },
 #endif
@@ -107,7 +107,7 @@ void stock_icons_init(void) {
         { WIRESHARK_STOCK_MAP,                   "Map",                   0, 0, NULL },
 #endif
         { WIRESHARK_STOCK_FOLLOW_STREAM,         "Follow Stream",         0, 0, NULL },
-        { WIRESHARK_STOCK_DISPLAY_FILTER,        "_Filter",        0, 0, NULL },
+        { WIRESHARK_STOCK_DISPLAY_FILTER,        "Display _Filter",       0, 0, NULL },
         { WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY,  "F_ilter:",  0, 0, NULL },
         { WIRESHARK_STOCK_BROWSE,                "_Browse...",                0, 0, NULL },
         { WIRESHARK_STOCK_CREATE_STAT,           "Create _Stat",           0, 0, NULL },
