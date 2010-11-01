@@ -171,7 +171,7 @@ abs_time_to_str_with_sec_resolution(const struct wtap_nstime *abs_time)
 
 static gchar*
 fileset_get_filename_by_pattern(guint idx,    const struct wtap_nstime *time_val,
-                                    gchar *fprefix, gchar *fsuffix)
+                                gchar *fprefix, gchar *fsuffix)
 {
     gchar filenum[5+1];
     gchar *timestr;
@@ -692,7 +692,7 @@ usage(gboolean is_error)
   fprintf(output, "\n");
   fprintf(output, "           NOTE: The use of the 'Duplicate packet removal' options with\n");
   fprintf(output, "           other editcap options except -v may not always work as expected.\n");
-  fprintf(stderr, "           Specifically the -r, -t or -S options will very likely NOT have the\n");
+  fprintf(output, "           Specifically the -r, -t or -S options will very likely NOT have the\n");
   fprintf(output, "           desired effect if combined with the -d, -D or -w.\n");
   fprintf(output, "\n");
   fprintf(output, "Packet manipulation:\n");
@@ -700,14 +700,14 @@ usage(gboolean is_error)
   fprintf(output, "  -C <choplen>           chop each packet at the end by <choplen> bytes.\n");
   fprintf(output, "  -t <time adjustment>   adjust the timestamp of each packet;\n");
   fprintf(output, "                         <time adjustment> is in relative seconds (e.g. -0.5).\n");
-  fprintf(stderr, "  -S <strict adjustment> adjust timestamp of packets if necessary to insure\n");
-  fprintf(stderr, "                         strict chronological increasing order. The <strict\n");
-  fprintf(stderr, "                         adjustment> is specified in relative seconds with\n");
-  fprintf(stderr, "                         values of 0 or 0.000001 being the most reasonable.\n");
-  fprintf(stderr, "                         A negative adjustment value will modify timestamps so\n");
-  fprintf(stderr, "                         that each packet's delta time is the absolute value\n");
-  fprintf(stderr, "                         of the adjustment specified. A value of -0 will set\n");
-  fprintf(stderr, "                         all packets to the timestamp of the first packet.\n");
+  fprintf(output, "  -S <strict adjustment> adjust timestamp of packets if necessary to insure\n");
+  fprintf(output, "                         strict chronological increasing order. The <strict\n");
+  fprintf(output, "                         adjustment> is specified in relative seconds with\n");
+  fprintf(output, "                         values of 0 or 0.000001 being the most reasonable.\n");
+  fprintf(output, "                         A negative adjustment value will modify timestamps so\n");
+  fprintf(output, "                         that each packet's delta time is the absolute value\n");
+  fprintf(output, "                         of the adjustment specified. A value of -0 will set\n");
+  fprintf(output, "                         all packets to the timestamp of the first packet.\n");
   fprintf(output, "  -E <error probability> set the probability (between 0.0 and 1.0 incl.)\n");
   fprintf(output, "                         that a particular packet byte will be randomly changed.\n");
   fprintf(output, "\n");
