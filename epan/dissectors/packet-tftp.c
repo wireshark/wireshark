@@ -222,7 +222,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
 	  if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
-			    tvb_format_text(tvb, offset, i1));
+			    tvb_format_stringzpad(tvb, offset, i1));
 	  }
 	  offset += i1;
 
@@ -233,7 +233,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 	  }
 	  if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Transfer type: %s",
-			    tvb_format_text(tvb, offset, i1));
+			    tvb_format_stringzpad(tvb, offset, i1));
 	  }
 	  offset += i1;
 
@@ -254,7 +254,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
 	  if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
-			    tvb_format_text(tvb, offset, i1));
+			    tvb_format_stringzpad(tvb, offset, i1));
 	  }
 	  offset += i1;
 
@@ -266,7 +266,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
 	  if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Transfer type: %s",
-			    tvb_format_text(tvb, offset, i1));
+			    tvb_format_stringzpad(tvb, offset, i1));
 	  }
 	  offset += i1;
 
@@ -336,7 +336,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 	  }
 	  if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Message: %s",
-			    tvb_format_text(tvb, offset, i1));
+			    tvb_format_stringzpad(tvb, offset, i1));
 	  }
 	  expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE,
 		PI_NOTE, "TFTP blocksize out of range");
