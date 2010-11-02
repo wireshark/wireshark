@@ -54,6 +54,7 @@
 #define ZBEE_HAS_2007(x)            ((x) >= ZBEE_VERSION_2007)
 
 /* ZigBee Application Profile IDs */
+/* Per: 053298r17, July 21 2010 */
 #define ZBEE_DEVICE_PROFILE                 0x0000
 
 #define ZBEE_PROFILE_IPM                    0x0101
@@ -317,6 +318,52 @@
 #define ZBEE_PROFILE_KAGA_MAX               0xc439
 #define ZBEE_PROFILE_4_NOKS_MIN             0xc43a
 #define ZBEE_PROFILE_4_NOKS_MAX             0xc443
+#define ZBEE_PROFILE_PROFILE_SYS_MIN        0xc444
+#define ZBEE_PROFILE_PROFILE_SYS_MAX        0xc44d
+#define ZBEE_PROFILE_FREESTYLE_MIN          0xc44e
+#define ZBEE_PROFILE_FREESTYLE_MAX          0xc457
+#define ZBEE_PROFILE_REMOTE_MIN             0xc458
+#define ZBEE_PROFILE_REMOTE_MAX             0xc461
+#define ZBEE_PROFILE_TRANE_RES_MIN          0xc462
+#define ZBEE_PROFILE_TRANE_RES_MAX          0xc46b
+#define ZBEE_PROFILE_WAVECOM_MIN            0xc46c
+#define ZBEE_PROFILE_WAVECOM_MAX            0xc475
+#define ZBEE_PROFILE_GE_MIN                 0xc476
+#define ZBEE_PROFILE_GE_MAX                 0xc47f
+#define ZBEE_PROFILE_MESHWORKS_MIN          0xc480
+#define ZBEE_PROFILE_MESHWORKS_MAX          0xc489
+#define ZBEE_PROFILE_ENERGY_OPT_MIN         0xc48a
+#define ZBEE_PROFILE_ENERGY_OPT_MAX         0xc493
+#define ZBEE_PROFILE_ELLIPS_MIN             0xc494
+#define ZBEE_PROFILE_ELLIPS_MAX             0xc49d
+#define ZBEE_PROFILE_CEDO_MIN               0xc49e
+#define ZBEE_PROFILE_CEDO_MAX               0xc4a7
+#define ZBEE_PROFILE_A_D_MIN                0xc4a8
+#define ZBEE_PROFILE_A_D_MAX                0xc4b1
+#define ZBEE_PROFILE_CARRIER_MIN            0xc4b2
+#define ZBEE_PROFILE_CARRIER_MAX            0xc4bb
+#define ZBEE_PROFILE_PASSIVESYS_MIN         0xc4bc
+#define ZBEE_PROFILE_PASSIVESYS_MAX         0xc4bd
+#define ZBEE_PROFILE_G4S_JUSTICE_MIN        0xc4be
+#define ZBEE_PROFILE_G4S_JUSTICE_MAX        0xc4bf
+#define ZBEE_PROFILE_SYCHIP_MIN             0xc4c0
+#define ZBEE_PROFILE_SYCHIP_MAX             0xc4c1
+#define ZBEE_PROFILE_MMB_MIN                0xc4c2
+#define ZBEE_PROFILE_MMB_MAX                0xc4c3
+#define ZBEE_PROFILE_SUNRISE_MIN            0xc4c4
+#define ZBEE_PROFILE_SUNRISE_MAX            0xc4c5
+#define ZBEE_PROFILE_MEMTEC_MIN             0xc4c6
+#define ZBEE_PROFILE_MEMTEC_MAX             0xc4c7
+#define ZBEE_PROFILE_HOME_AUTO_MIN          0xc4c8
+#define ZBEE_PROFILE_HOME_AUTO_MAX          0xc4c9
+#define ZBEE_PROFILE_BRITISH_GAS_MIN        0xc4ca
+#define ZBEE_PROFILE_BRITISH_GAS_MAX        0xc4cb
+#define ZBEE_PROFILE_SENTEC_MIN             0xc4cc
+#define ZBEE_PROFILE_SENTEC_MAX             0xc4cd
+#define ZBEE_PROFILE_NAVETAS_MIN            0xc4ce
+#define ZBEE_PROFILE_NAVETAS_MAX            0xc4cf
+#define ZBEE_PROFILE_ENERNOC_MIN            0xc4d0
+#define ZBEE_PROFILE_ENERNOC_MAX            0xc4d1
 
 /* Unallocated Manufacturer IDs */
 #define ZBEE_PROFILE_UNALLOCATED_MIN        0xc000
@@ -453,6 +500,42 @@
 
 #define ZBEE_MFG_CODE_KAGA              0x1070
 #define ZBEE_MFG_CODE_4_NOKS            0x1071
+/**/
+#define ZBEE_MFG_CODE_PROFILE_SYS       0x1074
+/**/
+#define ZBEE_MFG_CODE_FREESTYLE         0x1076
+/**/
+#define ZBEE_MFG_CODE_REMOTE            0x1079
+#define ZBEE_MFG_CODE_WAVECOM           0x107a
+#define ZBEE_MFG_CODE_ENERGY_OPT        0x107b
+#define ZBEE_MFG_CODE_GE                0x107c
+/**/
+#define ZBEE_MFG_CODE_MESHWORKS         0x1082
+#define ZBEE_MFG_CODE_ELLIPS            0x1083
+/**/
+#define ZBEE_MFG_CODE_CEDO              0x1085
+/**/
+#define ZBEE_MFG_CODE_A_D               0x1094
+/**/
+#define ZBEE_MFG_CODE_CARRIER           0x1096
+#define ZBEE_MFG_CODE_SYCHIP            0x1097
+/**/
+#define ZBEE_MFG_CODE_PASSIVESYS        0x1099
+/*
+#define ZBEE_MFG_CODE_G4S_JUSTICE       0x109a conflict!
+#define ZBEE_MFG_CODE_MMB               0x109a conflict!
+*/
+/**/
+#define ZBEE_MFG_CODE_HOME_AUTO         0x109b
+/**/
+#define ZBEE_MFG_CODE_SUNRISE           0x10a3
+#define ZBEE_MFG_CODE_MEMTEC            0x10a4
+/**/
+#define ZBEE_MFG_CODE_BRITISH_GAS       0x10a7
+#define ZBEE_MFG_CODE_SENTEC            0x10a8
+#define ZBEE_MFG_CODE_NAVETAS           0x10a9
+/**/
+#define ZBEE_MFG_CODE_ENERNOC           0x10b2
 
 /* Manufacturer Names */
 #define ZBEE_MFG_CIRRONET       "Cirronet"
@@ -575,6 +658,42 @@
 
 #define ZBEE_MFG_KAGA           "Kaga Electronics"
 #define ZBEE_MFG_4_NOKS         "4-noks s.r.l."
+
+#define ZBEE_MFG_PROFILE_SYS    "Profile Systems LLC"
+/**/
+#define ZBEE_MFG_FREESTYLE      "Freestyle Energy Ltd"
+/**/
+#define ZBEE_MFG_REMOTE         "Remote Technology, Inc."
+#define ZBEE_MFG_WAVECOM        "Wavecom S.A."
+#define ZBEE_MFG_ENERGY_OPT     "Energy Optimizer Ltd"
+#define ZBEE_MFG_GE             "General Electric"
+/**/
+#define ZBEE_MFG_MESHWORKS      "MeshWorks Wireless"
+#define ZBEE_MFG_ELLIPS         "Ellips B.V."
+/**/
+#define ZBEE_MFG_CEDO           "CEDO"
+/**/
+#define ZBEE_MFG_A_D            "A&D Co. Ltd."
+/**/
+#define ZBEE_MFG_CARRIER        "Carrier Electronics"
+#define ZBEE_MFG_SYCHIP         "SyChip"
+/**/
+#define ZBEE_MFG_PASSIVESYS     "PassiveSystems"
+
+#define ZBEE_MFG_G4S_JUSTICE    "G4S Justice Services"
+#define ZBEE_MFG_MMB            "MMB Research"
+
+/**/
+#define ZBEE_MFG_HOME_AUTO      "Home Automation Inc."
+/**/
+#define ZBEE_MFG_SUNRISE        "Sunrise Technologies" 
+#define ZBEE_MFG_MEMTEC         "Memtec Corp"
+/**/
+#define ZBEE_MFG_BRITISH_GAS    "British Gas"
+#define ZBEE_MFG_SENTEC         "Sentec Ltd."
+#define ZBEE_MFG_NAVETAS        "Navetas"
+/**/
+#define ZBEE_MFG_ENERNOC        "EnerNOC"
 
 /* Protocol Abbreviations */
 #define ZBEE_PROTOABBREV_NWK    "zbee.nwk"
