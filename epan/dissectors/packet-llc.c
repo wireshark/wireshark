@@ -972,6 +972,7 @@ proto_reg_handoff_llc(void)
 	 * apparently.
 	 */
 	dissector_add("arcnet.protocol_id", ARCNET_PROTO_BACNET, llc_handle);
+	dissector_add("ethertype", ETHERTYPE_JUMBO_LLC, llc_handle);
 
 	/*
 	 * Register all the fields for PIDs for various OUIs.
