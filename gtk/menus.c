@@ -3576,6 +3576,8 @@ menus_init(void) {
             error = NULL;
         }
 
+		g_object_unref(packet_list_byte_menu_action_group);
+
         g_object_set_data(G_OBJECT(popup_menu_object), PM_BYTES_VIEW_KEY,
                         gtk_ui_manager_get_widget(ui_manager_bytes_menu, "/BytesMenuPopup"));
 
@@ -3619,14 +3621,19 @@ menus_init(void) {
                     error->message); 
             g_error_free (error); 
             error = NULL; 
-        } 
+        }
+		g_object_unref(main_menu_bar_action_group);
+	    gtk_window_add_accel_group (GTK_WINDOW(top_level),
+                                gtk_ui_manager_get_accel_group(ui_manager_main_menubar));
 
-	  /* Add the recent files items to the menu
-	   * use place holders and
-	   * gtk_ui_manager_add_ui().
-	   */
-	  merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
-	  add_recent_items (merge_id, ui_manager_main_menubar);
+
+		
+	    /* Add the recent files items to the menu
+	     * use place holders and
+	     * gtk_ui_manager_add_ui().
+	     */
+	    merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
+	    add_recent_items (merge_id, ui_manager_main_menubar);
 #else /* MAIN_MENU_USE_UIMANAGER */
         main_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", grp);
         gtk_item_factory_create_items_ac(main_menu_factory, nmenu_items, menu_items, NULL, 2);
@@ -3652,6 +3659,8 @@ menus_init(void) {
             g_error_free (error);
             error = NULL;
         }
+
+		g_object_unref(statusbar_profiles_action_group);
 
         g_object_set_data(G_OBJECT(popup_menu_object), PM_STATUSBAR_PROFILES_KEY,
                        gtk_ui_manager_get_widget(ui_manager_statusbar_profiles_menu, "/ProfilesMenuPopup"));
