@@ -36,7 +36,11 @@
  *
  * References:
  * IKEv2 http://www.ietf.org/rfc/rfc4306.txt?number=4306
- * http://www.iana.org/assignments/ikev2-parameters
+ * IKEv2bis http://www.ietf.org/rfc/rfc5996.txt?number=5996
+ *
+ * http://www.iana.org/assignments/isakmp-registry (last updated 2009-10-08)
+ * http://www.iana.org/assignments/ipsec-registry (last updated 2010-06-14)
+ * http://www.iana.org/assignments/ikev2-parameters (last updated 2010-10-11)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -66,7 +70,6 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
-#define isakmp_min(a, b)  ((a<b) ? a : b)
 
 /* Struct for the byte_to_str, match_bytestr_idx, and match_bytestr functions */
 
@@ -75,8 +78,6 @@ typedef struct _byte_string {
   const guint16 len;
   const gchar   *strptr;
 } byte_string;
-
-#define ARLEN(a) (sizeof(a)/sizeof(a[0]))
 
 static int proto_isakmp = -1;
 
@@ -168,6 +169,16 @@ static int hf_isakmp_notify_data_redirect_org_resp_gw_ident_ipv6 = -1;
 static int hf_isakmp_notify_data_redirect_org_resp_gw_ident = -1;
 static int hf_isakmp_notify_data_ticket_lifetime = -1;
 static int hf_isakmp_notify_data_ticket_data = -1;
+static int hf_isakmp_notify_data_rohc_attr = -1;
+static int hf_isakmp_notify_data_rohc_attr_type = -1;
+static int hf_isakmp_notify_data_rohc_attr_format = -1;
+static int hf_isakmp_notify_data_rohc_attr_length = -1;
+static int hf_isakmp_notify_data_rohc_attr_value = -1;
+static int hf_isakmp_notify_data_rohc_attr_max_cid = -1;
+static int hf_isakmp_notify_data_rohc_attr_profile = -1;
+static int hf_isakmp_notify_data_rohc_attr_integ = -1;
+static int hf_isakmp_notify_data_rohc_attr_icv_len = -1;
+static int hf_isakmp_notify_data_rohc_attr_mrru = -1;
 static int hf_isakmp_delete_doi  = -1;
 static int hf_isakmp_delete_protoid_v1 = -1;
 static int hf_isakmp_delete_protoid_v2 = -1;
@@ -493,7 +504,7 @@ static const fragment_items isakmp_frag_items = {
 #define PLOAD_IKE2_V			43
 #define PLOAD_IKE2_TSI			44
 #define PLOAD_IKE2_TSR			45
-#define PLOAD_IKE2_E			46
+#define PLOAD_IKE2_SK			46
 #define PLOAD_IKE2_CP			47
 #define PLOAD_IKE2_EAP			48
 #define PLOAD_IKE_NAT_D13		130
@@ -525,7 +536,7 @@ static const value_string exchange_v2_type[] = {
   { 35,	"IKE_AUTH " },
   { 36,	"CREATE_CHILD_SA" },
   { 37,	"INFORMATIONAL" },
-  { 38,	"IKE_SA_RESUME" }, /* RFC5723 */
+  { 38,	"IKE_SESSION_RESUME" }, /* RFC5723 */
   { 0,	NULL },
 };
 
@@ -588,7 +599,7 @@ static const range_string payload_type[] = {
   { PLOAD_IKE2_V,PLOAD_IKE2_V, "Vendor ID"},
   { PLOAD_IKE2_TSI,PLOAD_IKE2_TSI, "Traffic Selector - Initiator"},
   { PLOAD_IKE2_TSR,PLOAD_IKE2_TSR, "Traffic Selector - Responder"},
-  { PLOAD_IKE2_E,PLOAD_IKE2_E, "Encrypted"},
+  { PLOAD_IKE2_SK,PLOAD_IKE2_SK, "Encrypted and Authenticated"},
   { PLOAD_IKE2_CP,PLOAD_IKE2_CP, "Configuration"},
   { PLOAD_IKE2_EAP,PLOAD_IKE2_EAP, "Extensible Authentication"},
   { 49,127,    "Unassigned"	},
@@ -777,13 +788,14 @@ static const value_string transform_attr_auth_type[] = {
   { 5,	"HMAC-SHA2-256" },
   { 6,	"HMAC-SHA2-384" },
   { 7,	"HMAC-SHA2-512" },
-/*
-    HMAC-RIPEMD            8               [RFC2857]
-    AES-XCBC-MAC           9               [RFC3566]
-    SIG-RSA                10              [RFC4359]
-    AES-128-GMAC           11              [RFC4543][Errata1821]
-    AES-192-GMAC           12              [RFC4543][Errata1821]
-    AES-256-GMAC           13              [RFC4543][Errata1821]
+  { 8,	"HMAC-RIPEMD" },		/* [RFC2857] */
+  { 9,	"AES-XCBC-MAC" },		/* [RFC3566] */
+  { 10,	"SIG-RSA" },			/* [RFC4359] */
+  { 11, "AES-128-GMAC" },		/* [RFC4543][Errata1821] */
+  { 12, "AES-192-GMAC" },		/* [RFC4543][Errata1821] */
+  { 13, "AES-256-GMAC" },		/* [RFC4543][Errata1821] */
+
+/*           
 	Values 11-61439 are reserved to IANA.  Values 61440-65535 are
 	for private use.
 */
@@ -800,7 +812,7 @@ static const value_string transform_attr_auth_type[] = {
 #define ENC_CAMELLIA_CBC	8
 
 static const value_string transform_attr_enc_type[] = {
-  { 0,			"RESERVED" },
+  { 0,				"RESERVED" },
   { ENC_DES_CBC,		"DES-CBC" },
   { ENC_IDEA_CBC,		"IDEA-CBC" },
   { ENC_BLOWFISH_CBC,		"BLOWFISH-CBC" },
@@ -1056,7 +1068,8 @@ static const range_string cert_v2_type[] = {
   { 11,11,	"Raw RSA Key" },
   { 12,12,	"Hash and URL of X.509 certificate" },
   { 13,13,	"Hash and URL of X.509 bundle" },
-  { 14,200,	"RESERVED to IANA" },
+  { 14,14,      "OCSP Content" }, 			/* [RFC4806] */
+  { 15,200,	"RESERVED to IANA" },
   { 201,255,	"PRIVATE USE" },
   { 0,0,	NULL },
 };
@@ -1074,7 +1087,7 @@ static const range_string authmeth_v2_type[] = {
   { 201,255,	"PRIVATE USE" },
   { 0,0,	NULL },
 };
-/* vs_v1_notifmsg */
+
 static const range_string notifmsg_v1_type[] = {
   { 0,0,	"<UNKNOWN>" },
   { 1,1,	"INVALID-PAYLOAD-TYPE" },
@@ -1152,10 +1165,12 @@ static const range_string notifmsg_v2_type[] = {
   { 37,37,	"FAILED_CP_REQUIRED" },
   { 38,38,	"TS_UNACCEPTABLE" },
   { 39,39,	"INVALID_SELECTORS" },
-  { 40,40,	"UNACCEPTABLE_ADDRESSES" }, /* RFC4555 */
-  { 41,41,	"UNEXPECTED_NAT_DETECTED" }, /* RFC4555 */
-  { 42,42,	"USE_ASSIGNED_HoA " }, /* RFC5026 */
-  { 43,8191,	"RESERVED TO IANA - Error types" },
+  { 40,40,	"UNACCEPTABLE_ADDRESSES" },			/* RFC4555 */
+  { 41,41,	"UNEXPECTED_NAT_DETECTED" },			/* RFC4555 */
+  { 42,42,	"USE_ASSIGNED_HoA" }, 				/* RFC5026 */
+  { 43,43,	"TEMPORARY_FAILURE" }, 				/* RFC5996 */
+  { 44,44,	"CHILD_SA_NOT_FOUND" }, 			/* RFC5996 */
+  { 45,8191,	"RESERVED TO IANA - Error types" },
   { 8192,16383,	"Private Use - Errors" },
   { 16384,16384,	"INITIAL_CONTACT" },
   { 16385,16385,	"SET_WINDOW_SIZE" },
@@ -1169,27 +1184,30 @@ static const range_string notifmsg_v2_type[] = {
   { 16393,16393,	"REKEY_SA" },
   { 16394,16394,	"ESP_TFC_PADDING_NOT_SUPPORTED" },
   { 16395,16395,	"NON_FIRST_FRAGMENTS_ALSO" },
-  { 16396,16396,	"MOBIKE_SUPPORTED" },  /* RFC4555 */
-  { 16397,16397,	"ADDITIONAL_IP4_ADDRESS" },  /* RFC4555 */
-  { 16398,16398,	"ADDITIONAL_IP6_ADDRESS" },  /* RFC4555 */
-  { 16399,16399,	"NO_ADDITIONAL_ADDRESSES" },  /* RFC4555 */
-  { 16400,16400,	"UPDATE_SA_ADDRESSES" },  /* RFC4555 */
-  { 16401,16401,	"COOKIE2" }, /* RFC4555 */
-  { 16402,16402,	"NO_NATS_ALLOWED" },  /* RFC4555 */
-  { 16403,16403,        "AUTH_LIFETIME" },                     /* RFC4478 */
-  { 16404,16404,        "MULTIPLE_AUTH_SUPPORTED" },           /* RFC4739 */
-  { 16405,16405,        "ANOTHER_AUTH_FOLLOWS" },              /* RFC4739 */
-  { 16406,16406,        "REDIRECT_SUPPORTED" },                /* RFC5685 */
-  { 16407,16407,        "REDIRECT" },                          /* RFC5685 */
-  { 16408,16408,        "REDIRECTED_FROM" },                   /* RFC5685 */
-  { 16409,16409,        "TICKET_LT_OPAQUE" },                  /* RFC5723 */
-  { 16410,16410,        "TICKET_REQUEST" },                    /* RFC5723 */
-  { 16411,16411,        "TICKET_ACK" },                        /* RFC5723 */
-  { 16412,16412,        "TICKET_NACK" },                       /* RFC5723 */
-  { 16413,16413,        "TICKET_OPAQUE" },                     /* RFC5723 */
-  { 16414,16414,        "LINK_ID" },                           /* RFC5739 */
-  { 16415,16415,        "USE_WESP_MODE" },                     /* RFC-ietf-ipsecme-traffic-visibility-12.txt */
-  { 16416,40959,        "RESERVED TO IANA - STATUS TYPES" },
+  { 16396,16396,	"MOBIKE_SUPPORTED" },			/* RFC4555 */
+  { 16397,16397,	"ADDITIONAL_IP4_ADDRESS" },		/* RFC4555 */
+  { 16398,16398,	"ADDITIONAL_IP6_ADDRESS" },		/* RFC4555 */
+  { 16399,16399,	"NO_ADDITIONAL_ADDRESSES" }, 		/* RFC4555 */
+  { 16400,16400,	"UPDATE_SA_ADDRESSES" },  		/* RFC4555 */
+  { 16401,16401,	"COOKIE2" }, 				/* RFC4555 */
+  { 16402,16402,	"NO_NATS_ALLOWED" },  			/* RFC4555 */
+  { 16403,16403,        "AUTH_LIFETIME" },			/* RFC4478 */
+  { 16404,16404,        "MULTIPLE_AUTH_SUPPORTED" },		/* RFC4739 */
+  { 16405,16405,        "ANOTHER_AUTH_FOLLOWS" },		/* RFC4739 */
+  { 16406,16406,        "REDIRECT_SUPPORTED" },			/* RFC5685 */
+  { 16407,16407,        "REDIRECT" },				/* RFC5685 */
+  { 16408,16408,        "REDIRECTED_FROM" },			/* RFC5685 */
+  { 16409,16409,        "TICKET_LT_OPAQUE" },			/* RFC5723 */
+  { 16410,16410,        "TICKET_REQUEST" },			/* RFC5723 */
+  { 16411,16411,        "TICKET_ACK" },				/* RFC5723 */
+  { 16412,16412,        "TICKET_NACK" },			/* RFC5723 */
+  { 16413,16413,        "TICKET_OPAQUE" },			/* RFC5723 */
+  { 16414,16414,        "LINK_ID" },				/* RFC5739 */
+  { 16415,16415,        "USE_WESP_MODE" },			/* RFC5840 */
+  { 16416,16416,        "ROHC_SUPPORTED" },			/* RFC5857 */
+  { 16417,16417,        "EAP_ONLY_AUTHENTICATION" },		/* RFC5998 */
+  { 16418,16418,        "CHILDLESS_IKEV2_SUPPORTED" },		/* RFC6023 */
+  { 16419,40959,        "RESERVED TO IANA - STATUS TYPES" },
   { 40960,65535,        "Private Use - STATUS TYPES" },
   { 0,0,	NULL },
 };
@@ -1274,13 +1292,13 @@ static const range_string vs_v2_cfgattr[] = {
   { 2,2,	 "INTERNAL_IP4_NETMASK" },
   { 3,3,	 "INTERNAL_IP4_DNS" },
   { 4,4,	 "INTERNAL_IP4_NBNS" },
-  { 5,5,	 "INTERNAL_ADDRESS_EXPIREY" },
+  { 5,5,	 "INTERNAL_ADDRESS_EXPIREY" },	/* OBSO */
   { 6,6,	 "INTERNAL_IP4_DHCP" },
   { 7,7,	 "APPLICATION_VERSION" },
   { 8,8,	 "INTERNAL_IP6_ADDRESS" },
   { 9,9, 	 "RESERVED" },
   { 10,10,	 "INTERNAL_IP6_DNS" },
-  { 11,11,	 "INTERNAL_IP6_NBNS" },
+  { 11,11,	 "INTERNAL_IP6_NBNS" }, 	/* OBSO */
   { 12,12,	 "INTERNAL_IP6_DHCP" },
   { 13,13,	 "INTERNAL_IP4_SUBNET" },
   { 14,14,	 "SUPPORTED_ATTRIBUTES" },
@@ -1288,7 +1306,8 @@ static const range_string vs_v2_cfgattr[] = {
   { 16,16,       "MIP6_HOME_PREFIX" },
   { 17,17,       "INTERNAL_IP6_LINK" },
   { 18,18,       "INTERNAL_IP6_PREFIX" },
-  { 19,16383,    "RESERVED TO IANA"},
+  { 19,19,       "HOME_AGENT_ADDRESS" },	/* 3GPP TS 24.302 http://www.3gpp.org/ftp/Specs/html-info/24302.htm */
+  { 20,16383,    "RESERVED TO IANA"},
   { 16384,32767, "PRIVATE USE"},
   { 0,0,   	  NULL },
   };
@@ -1430,13 +1449,28 @@ static const true_false_string flag_r = {
   "Request"
 };
 
+/* ROHC Attribute Type RFC5857 */
+
+#define ROHC_MAX_CID		1
+#define ROHC_PROFILE		2
+#define ROHC_INTEG		3
+#define ROHC_ICV_LEN		4
+#define ROHC_MRRU		5
+
+static const value_string rohc_attr_type[] = {
+  { ROHC_MAX_CID,	"Maximum Context Identifier (MAX_CID)" },
+  { ROHC_PROFILE,	"ROHC Profile (ROHC_PROFILE)" },
+  { ROHC_INTEG,		"ROHC Integrity Algorithm (ROHC_INTEG)" },
+  { ROHC_ICV_LEN,	"ROHC ICV Length in bytes (ROHC_ICV_LEN)" },
+  { ROHC_MRRU,		"Maximum Reconstructed Reception Unit (MRRU)" },
+  { 0,	NULL },
+};
+
 #define ISAKMP_HDR_SIZE (sizeof(struct isakmp_hdr) + (2 * COOKIE_SIZE))
 
 
 #ifdef HAVE_LIBGCRYPT
 
-#define MAIN_MODE            2
-#define AGGRESSIVE_MODE      4
 #define MAX_KEY_SIZE       256
 #define MAX_DIGEST_SIZE     64
 #define MAX_OAKLEY_KEY_LEN  32
@@ -2570,7 +2604,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, proto_tree *parent_tree _U_,
 	   case PLOAD_IKE2_TSR:
 	   dissect_ts(tvb, offset + 4, payload_length - 4, ntree);
 	   break;
-	   case PLOAD_IKE2_E:
+	   case PLOAD_IKE2_SK:
 	   if(isakmp_version == 2)
 	     dissect_enc(tvb, offset + 4, payload_length - 4, ntree, pinfo, next_payload);
 	   break;
@@ -2983,6 +3017,69 @@ dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int is
 
 /* Returns the number of bytes consumed by this option. */
 static int
+dissect_rohc_supported(tvbuff_t *tvb, proto_tree *rohc_tree, int offset )
+{
+	guint optlen, rohc, len = 0;
+	proto_item *rohc_item = NULL;
+	proto_tree *sub_rohc_tree = NULL;
+
+	rohc = tvb_get_ntohs(tvb, offset);
+	optlen = tvb_get_ntohs(tvb, offset+2);
+	len = 2;
+
+	/* is TV ? (Type/Value) ? */
+   	if (rohc & 0x8000) {
+	      rohc = rohc & 0x7fff;
+	      len = 0;
+	      optlen = 2;
+   	}
+
+
+	rohc_item = proto_tree_add_item(rohc_tree, hf_isakmp_notify_data_rohc_attr, tvb, offset, 2+len+optlen, FALSE);
+        proto_item_append_text(rohc_item," (t=%d,l=%d) %s",rohc, optlen, val_to_str(rohc, rohc_attr_type, "Unknown Attribute Type (%02d)") );
+	sub_rohc_tree = proto_item_add_subtree(rohc_item, ett_isakmp_tf_attr);
+	proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_format, tvb, offset, 2, FALSE);
+	proto_tree_add_uint(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_type, tvb, offset, 2, rohc);
+
+	offset += 2;
+	if (len)
+	{
+	   proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_length, tvb, offset, 2, FALSE);
+           offset += 2;
+	}
+	if (optlen==0)
+ 	{
+    	   proto_tree_add_text(sub_rohc_tree, tvb, offset, 0,"Attribut value is empty");
+	   return 2+len;
+	}
+	proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_value, tvb, offset, optlen, FALSE);
+	switch(rohc) {
+		case ROHC_MAX_CID:
+		proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_max_cid, tvb, offset, optlen, FALSE);
+		break;
+		case ROHC_PROFILE:
+		proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_profile, tvb, offset, optlen, FALSE);
+		break;
+		case ROHC_INTEG:
+		proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_integ, tvb, offset, optlen, FALSE);
+		break;
+		case ROHC_ICV_LEN:
+		proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_icv_len, tvb, offset, optlen, FALSE);
+		break;
+		case ROHC_MRRU:
+		proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_mrru, tvb, offset, optlen, FALSE);
+		break;
+
+		default:
+		/* No Default Action */
+		break;
+	}
+
+	return 2+len+optlen;
+}
+
+/* Returns the number of bytes consumed by this option. */
+static int
 dissect_transform_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_tree, int offset )
 {
 	guint optlen, transform_attr_type, len = 0;
@@ -3002,7 +3099,7 @@ dissect_transform_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_tree,
 
 
 	transform_attr_type_item = proto_tree_add_item(transform_attr_type_tree, hf_isakmp_tf_attr, tvb, offset, 2+len+optlen, FALSE);
-        proto_item_append_text(transform_attr_type_item," (t=%d,l=%d) %s",transform_attr_type, optlen, val_to_str(transform_attr_type,transform_isakmp_attr_type,"Unknown Attribute Type (%02d)") );
+        proto_item_append_text(transform_attr_type_item, " (t=%d,l=%d) %s",transform_attr_type, optlen, val_to_str(transform_attr_type, transform_isakmp_attr_type, "Unknown Attribute Type (%02d)") );
 	sub_transform_attr_type_tree = proto_item_add_subtree(transform_attr_type_item, ett_isakmp_tf_attr);
 	proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_format, tvb, offset, 2, FALSE);
 	proto_tree_add_uint(sub_transform_attr_type_tree, hf_isakmp_tf_attr_type_v1, tvb, offset, 2, transform_attr_type);
@@ -3633,7 +3730,8 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakm
 
   guint8		spi_size;
   guint16		msgtype;
-
+  int 			offset_end = 0;
+  offset_end = offset + length;
 
   if (isakmp_version == 1) {
 
@@ -3752,6 +3850,11 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakm
           break;
           case 16413: /* TICKET_OPAQUE */
                proto_tree_add_item(tree, hf_isakmp_notify_data_ticket_data, tvb, offset, length, FALSE);
+          break;
+          case 16416: /* ROHC_SUPPORTED */
+               while (offset < offset_end) {
+                      offset += dissect_rohc_supported(tvb, tree, offset);
+		}
           break;
           default:
                /* No Default Action */
@@ -5061,6 +5164,48 @@ proto_register_isakmp(void)
       { "TICKET OPAQUE Data", "isakmp.notify.data.ticket_opaque.data",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
+
+	/* ROHC Attributes Type */
+   { &hf_isakmp_notify_data_rohc_attr,
+      { "ROHC Attribute Type",	"isakmp.notify.data.rohc.attr",
+	FT_NONE, BASE_NONE, NULL, 0x00,
+	NULL, HFILL }},
+   { &hf_isakmp_notify_data_rohc_attr_type,
+      { "ROHC Attribute Type",	"isakmp.notify.data.rohc.attr.type",
+	FT_UINT16, BASE_DEC, VALS(&rohc_attr_type), 0x00,
+	NULL, HFILL }},
+   { &hf_isakmp_notify_data_rohc_attr_format,
+      { "ROHC Format",	"isakmp.notify.data.rohc.attr.format",
+	FT_BOOLEAN, 16, TFS(&attribute_format), 0x8000,
+	NULL, HFILL }},
+   { &hf_isakmp_notify_data_rohc_attr_length,
+      { "Length",	"isakmp.notify.data.rohc.attr.length",
+	FT_UINT16, BASE_DEC, NULL, 0x00,
+	NULL, HFILL }},
+   { &hf_isakmp_notify_data_rohc_attr_value,
+      { "Value",	"isakmp.notify.data.rohc.attr.value",
+	FT_BYTES, BASE_NONE, NULL, 0x00,
+	NULL, HFILL }},
+   { &hf_isakmp_notify_data_rohc_attr_max_cid,
+      { "Maximum Context Identifier",	"isakmp.notify.data.rohc.attr.max_cid",
+	FT_UINT16, BASE_DEC, NULL, 0x00,
+	NULL, HFILL }},
+   { &hf_isakmp_notify_data_rohc_attr_profile,
+      { "ROHC Profile",	"isakmp.notify.data.rohc.attr.profile",
+	FT_UINT16, BASE_DEC, NULL, 0x00,
+	NULL, HFILL }},
+   { &hf_isakmp_notify_data_rohc_attr_integ,
+      { "ROHC Integrity Algorithm",	"isakmp.notify.data.rohc.attr.integ",
+	FT_UINT16, BASE_DEC, VALS(transform_ike2_integ_type), 0x00,
+	NULL, HFILL }},
+   { &hf_isakmp_notify_data_rohc_attr_icv_len,
+      { "ROHC ICV Length in bytes",	"isakmp.notify.data.rohc.attr.icv_len",
+	FT_UINT16, BASE_DEC, NULL, 0x00,
+	"In bytes", HFILL }},
+   { &hf_isakmp_notify_data_rohc_attr_mrru,
+      { "MRRU",	"isakmp.notify.data.rohc.attr.mrru",
+	FT_UINT16, BASE_DEC, NULL, 0x00,
+	NULL, HFILL }},
 
     { &hf_isakmp_delete_doi,
       { "Domain of interpretation", "isakmp.delete.doi",
