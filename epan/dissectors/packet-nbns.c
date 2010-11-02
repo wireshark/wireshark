@@ -1318,7 +1318,8 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 *
 		 * XXX - take the datagram length into account?
 		 */
-		proto_item_set_len(ti, offset);
+		if (ti != NULL)
+			proto_item_set_len(ti, offset);
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		dissect_netbios_payload(next_tvb, pinfo, tree);
 		break;
@@ -1329,7 +1330,8 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				val_to_str(header.error_code, error_codes, "Unknown (0x%x)"));
 		}
 		offset += 1;
-		proto_item_set_len(ti, offset);
+		if (ti != NULL)
+			proto_item_set_len(ti, offset);
 		break;
 
 	case NBDS_QUERY_REQUEST:
@@ -1343,7 +1345,8 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    "Destination name", name, name_type);
 		}
 		offset += len;
-		proto_item_set_len(ti, offset);
+		if (ti != NULL)
+			proto_item_set_len(ti, offset);
 		break;
 	}
 }
@@ -1578,7 +1581,6 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	   * Set the length of our top-level tree item to include
 	   * only our stuff.
 	   */
-	  proto_item_set_len(ti, offset);
 	  len = tvb_length_remaining(tvb, offset);
 	  reported_len = tvb_reported_length_remaining(tvb, offset);
 	  if (len > length)
