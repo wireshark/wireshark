@@ -45,7 +45,7 @@
  */
 
 /* TODO:
-   - AM re-assembly?
+   - UM & AM re-assembly?
 */
 
 /********************************/
@@ -1815,17 +1815,6 @@ static gboolean dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
         return FALSE;
     }
 
-    /* If redissecting, use previous info struct (if available) */
-    p_rlc_lte_info = p_get_proto_data(pinfo->fd, proto_rlc_lte);
-    if (p_rlc_lte_info == NULL) {
-        /* Allocate new info struct for this frame */
-        p_rlc_lte_info = se_alloc0(sizeof(struct rlc_lte_info));
-        infoAlreadySet = FALSE;
-    }
-    else {
-        infoAlreadySet = TRUE;
-    }
-
     /* Do this again on re-dissection to re-discover offset of actual PDU */
 
     /* Needs to be at least as long as:
@@ -1842,6 +1831,19 @@ static gboolean dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
         return FALSE;
     }
     offset += (gint)strlen(RLC_LTE_START_STRING);
+
+
+    /* If redissecting, use previous info struct (if available) */
+    p_rlc_lte_info = p_get_proto_data(pinfo->fd, proto_rlc_lte);
+    if (p_rlc_lte_info == NULL) {
+        /* Allocate new info struct for this frame */
+        p_rlc_lte_info = se_alloc0(sizeof(struct rlc_lte_info));
+        infoAlreadySet = FALSE;
+    }
+    else {
+        infoAlreadySet = TRUE;
+    }
+
 
     /* Read fixed fields */
     p_rlc_lte_info->rlcMode = tvb_get_guint8(tvb, offset++);

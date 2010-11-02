@@ -264,6 +264,9 @@ static dissector_handle_t ip_handle;
 static gboolean global_pdcp_show_feedback_option_tag_length = FALSE;
 static gboolean global_pdcp_dissect_user_plane_as_ip = FALSE;
 static gboolean global_pdcp_dissect_signalling_plane_as_rrc = FALSE;
+#if 0
+static gboolean global_pdcp_check_missing_sequence_numbers = FALSE;
+#endif
 static gboolean global_pdcp_dissect_rohc = FALSE;
 
 /* Dissect a Large-CID field.
@@ -1390,17 +1393,6 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
         return FALSE;
     }
 
-    /* If redissecting, use previous info struct (if available) */
-    p_pdcp_lte_info = p_get_proto_data(pinfo->fd, proto_pdcp_lte);
-    if (p_pdcp_lte_info == NULL) {
-        /* Allocate new info struct for this frame */
-        p_pdcp_lte_info = se_alloc0(sizeof(struct pdcp_lte_info));
-        infoAlreadySet = FALSE;
-    }
-    else {
-        infoAlreadySet = TRUE;
-    }
-
     /* Do this again on re-dissection to re-discover offset of actual PDU */
 
     /* Needs to be at least as long as:
@@ -1417,6 +1409,19 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
         return FALSE;
     }
     offset += (gint)strlen(PDCP_LTE_START_STRING);
+
+
+    /* If redissecting, use previous info struct (if available) */
+    p_pdcp_lte_info = p_get_proto_data(pinfo->fd, proto_pdcp_lte);
+    if (p_pdcp_lte_info == NULL) {
+        /* Allocate new info struct for this frame */
+        p_pdcp_lte_info = se_alloc0(sizeof(struct pdcp_lte_info));
+        infoAlreadySet = FALSE;
+    }
+    else {
+        infoAlreadySet = TRUE;
+    }
+
 
     /* Read fixed fields */
     p_pdcp_lte_info->no_header_pdu = tvb_get_guint8(tvb, offset++);
@@ -2548,6 +2553,14 @@ void proto_register_pdcp(void)
         "Show unciphered Signalling-Plane data as RRC",
         "Show unciphered Signalling-Plane data as RRC",
         &global_pdcp_dissect_signalling_plane_as_rrc);
+
+#if 0
+    /* Check for missing sequence numbers */
+    prefs_register_bool_preference(pdcp_lte_module, "check_sequence_numbers",
+        "Check for missing sequence numbers",
+        "Check for missing sequence numbers",
+        &global_pdcp_check_missing_sequence_numbers);
+#endif
 
     /* Attempt to dissect ROHC headers */
     prefs_register_bool_preference(pdcp_lte_module, "dissect_rohc",
