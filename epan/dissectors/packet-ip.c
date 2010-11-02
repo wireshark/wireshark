@@ -911,8 +911,9 @@ dissect_ipopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
   ptr = tvb_get_guint8(tvb, offset + optoffset);
   proto_tree_add_text(field_tree, tvb, offset + optoffset, 1,
               "Pointer: %d%s", ptr,
-              ((ptr < 5) ? " (points before first address)" :
-               (((ptr - 1) & 3) ? " (points to middle of address)" : "")));
+              ((ptr == 1) ? " (header is full)" :
+               (ptr < 5) ? " (points before first address)" :
+               (((ptr - 1) & 3) ? " (points to middle of field)" : "")));
   optoffset++;
   optlen--;
   ptr--;	/* ptr is 1-origin */
@@ -927,7 +928,7 @@ dissect_ipopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
   optlen--;
 
   while (optlen > 0) {
-    if (flg == IPOPT_TS_TSANDADDR) {
+    if (flg == IPOPT_TS_TSANDADDR || flg == IPOPT_TS_PRESPEC) {
       if (optlen < 8) {
         proto_tree_add_text(field_tree, tvb, offset + optoffset, optlen,
           "(suboption would go past end of option)");
