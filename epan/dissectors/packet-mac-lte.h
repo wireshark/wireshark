@@ -125,6 +125,8 @@ typedef struct mac_lte_info
             guint8 redundancy_version_index;
             guint8 resource_block_length;
             mac_lte_crc_status crc_status;
+            guint8 harq_id;
+            gboolean ndi;
         } dl_info;
     } detailed_phy_info;
     

@@ -84,6 +84,8 @@ static int hf_mac_lte_context_phy_dl_redundancy_version_index = -1;
 static int hf_mac_lte_context_phy_dl_retx = -1;
 static int hf_mac_lte_context_phy_dl_resource_block_length = -1;
 static int hf_mac_lte_context_phy_dl_crc_status = -1;
+static int hf_mac_lte_context_phy_dl_harq_id = -1;
+static int hf_mac_lte_context_phy_dl_ndi = -1;
 
 
 /* Out-of-band events */
@@ -1075,12 +1077,23 @@ static void show_extra_phy_parameters(packet_info *pinfo, tvbuff_t *tvb, proto_t
                                      p_mac_lte_info->detailed_phy_info.dl_info.crc_status);
             PROTO_ITEM_SET_GENERATED(ti);
 
+            ti = proto_tree_add_uint(phy_tree, hf_mac_lte_context_phy_dl_harq_id,
+                                     tvb, 0, 0,
+                                     p_mac_lte_info->detailed_phy_info.dl_info.harq_id);
+            PROTO_ITEM_SET_GENERATED(ti);
+
+            ti = proto_tree_add_uint(phy_tree, hf_mac_lte_context_phy_dl_ndi,
+                                     tvb, 0, 0,
+                                     p_mac_lte_info->detailed_phy_info.dl_info.ndi);
+            PROTO_ITEM_SET_GENERATED(ti);
+
+
             proto_item_append_text(phy_ti, " (");
 
             write_pdu_label_and_info(phy_ti, NULL,
                                      (global_mac_lte_layer_to_show == ShowPHYLayer) ? pinfo : NULL,
                                      "DL: UEId=%u RNTI=%u DCI_Format=%s Res_Alloc=%u Aggr_Level=%s MCS=%u RV=%u "
-                                     "Res_Block_len=%u CRC_status=%s",
+                                     "Res_Block_len=%u CRC_status=%s HARQ_id=%u NDI=%u",
                                      p_mac_lte_info->ueid,
                                      p_mac_lte_info->rnti,
                                      val_to_str_const(p_mac_lte_info->detailed_phy_info.dl_info.dci_format,
@@ -1092,7 +1105,9 @@ static void show_extra_phy_parameters(packet_info *pinfo, tvbuff_t *tvb, proto_t
                                      p_mac_lte_info->detailed_phy_info.dl_info.redundancy_version_index,
                                      p_mac_lte_info->detailed_phy_info.dl_info.resource_block_length,
                                      val_to_str_const(p_mac_lte_info->detailed_phy_info.dl_info.crc_status,
-                                                      crc_status_vals, "Unknown"));
+                                                      crc_status_vals, "Unknown"),
+                                     p_mac_lte_info->detailed_phy_info.dl_info.harq_id,
+                                     p_mac_lte_info->detailed_phy_info.dl_info.ndi);
             proto_item_append_text(phy_ti, ")");
 
             /* Don't want columns to be replaced now */
@@ -3393,6 +3408,18 @@ void proto_register_mac_lte(void)
             { "CRC Status",
               "mac-lte.dl-phy.crc-status", FT_UINT8, BASE_DEC, VALS(crc_status_vals), 0x0,
               NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_context_phy_dl_harq_id,
+            { "HARQ Id",
+              "mac-lte.dl-phy.harq-id", FT_UINT8, BASE_DEC, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_context_phy_dl_ndi,
+            { "NDI",
+              "mac-lte.dl-phy.ndi", FT_UINT8, BASE_DEC, 0, 0x0,
+              "New Data Indicator", HFILL
             }
         },
 

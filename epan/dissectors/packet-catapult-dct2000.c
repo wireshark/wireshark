@@ -1272,6 +1272,10 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
 
     /* Channel type */
     p_fp_info->channel = outhdr_values[i++];
+    /* Sad hack until this value is filled in properly */
+    if (p_fp_info->channel == 0) {
+        p_fp_info->channel = CHANNEL_DCH;
+    }
 
     /* Derive direction from node type/side */
     node_type = outhdr_values[i++];
@@ -1427,6 +1431,10 @@ static void attach_mac_lte_info(packet_info *pinfo)
             p_mac_lte_info->detailed_phy_info.dl_info.resource_block_length = outhdr_values[i++];
             p_mac_lte_info->crcStatusValid = TRUE;
             p_mac_lte_info->detailed_phy_info.dl_info.crc_status = outhdr_values[i++];
+            if (outhdr_values_found > 18) {
+                p_mac_lte_info->detailed_phy_info.dl_info.harq_id = outhdr_values[i++];
+                p_mac_lte_info->detailed_phy_info.dl_info.ndi = outhdr_values[i++];
+            }
         }
         else {
             p_mac_lte_info->detailed_phy_info.ul_info.present = outhdr_values[i++];
