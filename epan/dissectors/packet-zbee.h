@@ -145,8 +145,8 @@
 #define ZBEE_PROFILE_TENDRIL_MAX            0xc0fa
 #define ZBEE_PROFILE_ASSA_MIN               0xc0fb
 #define ZBEE_PROFILE_ASSA_MAX               0xc104
-#define ZBEE_PROFILE_MAXSTREAM_MIN          0xc105
-#define ZBEE_PROFILE_MAXSTREAM_MAX          0xc10e
+#define ZBEE_PROFILE_DIGI_MIN               0xc105
+#define ZBEE_PROFILE_DIGI_MAX               0xc10e
 #define ZBEE_PROFILE_XANADU_MIN             0xc10f
 #define ZBEE_PROFILE_XANADU_MAX             0xc118
 #define ZBEE_PROFILE_NEUROCOM_MIN           0xc119
@@ -222,8 +222,8 @@
 
 #define ZBEE_PROFILE_STM_MIN                0xc266
 #define ZBEE_PROFILE_STM_MAX                0xc26f
-#define ZBEE_PROFILE_ASN_MIN                0xc270
-#define ZBEE_PROFILE_ASN_MAX                0xc270
+#define ZBEE_PROFILE_ASN_0_MIN              0xc270
+#define ZBEE_PROFILE_ASN_0_MAX              0xc270
 #define ZBEE_PROFILE_DCSI_MIN               0xc271
 #define ZBEE_PROFILE_DCSI_MAX               0xc27a
 #define ZBEE_PROFILE_FRANCE_TEL_MIN         0xc27b
@@ -411,7 +411,7 @@
 #define ZBEE_MFG_CODE_YAMATAKE          0x101b
 #define ZBEE_MFG_CODE_TENDRIL           0x101c
 #define ZBEE_MFG_CODE_ASSA              0x101d
-#define ZBEE_MFG_CODE_MAXSTREAM         0x101e
+#define ZBEE_MFG_CODE_DIGI              0x101e
 #define ZBEE_MFG_CODE_NEUROCOM          0x101f
 
 #define ZBEE_MFG_CODE_III               0x1020
@@ -521,10 +521,10 @@
 #define ZBEE_MFG_CODE_SYCHIP            0x1097
 /**/
 #define ZBEE_MFG_CODE_PASSIVESYS        0x1099
-/*
+#if 0
 #define ZBEE_MFG_CODE_G4S_JUSTICE       0x109a conflict!
 #define ZBEE_MFG_CODE_MMB               0x109a conflict!
-*/
+#endif
 /**/
 #define ZBEE_MFG_CODE_HOME_AUTO         0x109b
 /**/
@@ -563,19 +563,19 @@
 #define ZBEE_MFG_DEVELCO        "Develco"
 #define ZBEE_MFG_HONEYWELL      "Honeywell"
 /**/
-#define ZBEE_MFG_RENESAS        "NEC Engineering"
-#define ZBEE_MFG_XANADU         "Yamatake"
-#define ZBEE_MFG_NEC            "Tendril"
-#define ZBEE_MFG_YAMATAKE       "Assa Abloy"
-#define ZBEE_MFG_TENDRIL        "MaxStream"
-#define ZBEE_MFG_ASSA           "Xanadu Wireless"
-#define ZBEE_MFG_MAXSTREAM      "Neurocom"
-#define ZBEE_MFG_NEUROCOM       "Institute for Information Industry"
+#define ZBEE_MFG_RENESAS        "Renesas"
+#define ZBEE_MFG_XANADU         "Xanadu Wireless"
+#define ZBEE_MFG_NEC            "NEC Engineering"
+#define ZBEE_MFG_YAMATAKE       "Yamatake"
+#define ZBEE_MFG_TENDRIL        "Tendril"
+#define ZBEE_MFG_ASSA           "Assa Abloy"
+#define ZBEE_MFG_DIGI           "Digi"
+#define ZBEE_MFG_NEUROCOM       "Neurocom"
 
-#define ZBEE_MFG_III            "Vantage Controls"
-#define ZBEE_MFG_VANTAGE        "iControl"
-#define ZBEE_MFG_ICONTROL       "Raymarine"
-#define ZBEE_MFG_RAYMARINE      "Renesas"
+#define ZBEE_MFG_III            "Institute for Information Industry"
+#define ZBEE_MFG_VANTAGE        "Vantage Controls"
+#define ZBEE_MFG_ICONTROL       "iControl"
+#define ZBEE_MFG_RAYMARINE      "Raymarine"
 #define ZBEE_MFG_LSR            "LS Research"
 #define ZBEE_MFG_ONITY          "Onity"
 #define ZBEE_MFG_MONO           "Mono Products"
