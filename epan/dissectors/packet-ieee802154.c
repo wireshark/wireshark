@@ -820,8 +820,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     if ( ((packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) || (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT)) &&
          ((packet->dst_addr_mode == IEEE802154_FCF_ADDR_NONE) || (!packet->intra_pan)) ) {
         /* Source PAN is present, extract it and add it to the tree. */
-        ieee_hints->src_pan = packet->src_pan = tvb_get_letohs(tvb, offset);
-
+        packet->src_pan = tvb_get_letohs(tvb, offset);
         if (tree) {
             proto_tree_add_uint(ieee802154_tree, hf_ieee802154_src_panID, tvb, offset, 2, packet->src_pan);
         }
@@ -829,7 +828,11 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     }
     else {
         /* Set the panID field in case the intra-pan condition was met. */
-        ieee_hints->src_pan = packet->src_pan = packet->dst_pan;
+        packet->src_pan = packet->dst_pan;
+    }
+
+    if (ieee_hints) {
+        ieee_hints->src_pan = packet->src_pan;
     }
 
     /* Get short source address if present. */
