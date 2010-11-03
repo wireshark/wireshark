@@ -147,6 +147,10 @@ static int hf_smb2_sec_info_00 = -1;
 static int hf_smb2_fid = -1;
 static int hf_smb2_write_length = -1;
 static int hf_smb2_write_data = -1;
+static int hf_smb2_write_flags = -1;
+static int hf_smb2_write_flags_write_through = -1;
+static int hf_smb2_write_count = -1;
+static int hf_smb2_write_remaining = -1;
 static int hf_smb2_read_length = -1;
 static int hf_smb2_read_remaining = -1;
 static int hf_smb2_file_offset = -1;
@@ -306,6 +310,7 @@ static gint ett_smb2_share_caps = -1;
 static gint ett_smb2_ioctl_flags = -1;
 static gint ett_smb2_close_flags = -1;
 static gint ett_smb2_notify_flags = -1;
+static gint ett_smb2_write_flags = -1;
 static gint ett_smb2_find_flags = -1;
 static gint ett_smb2_file_directory_info = -1;
 static gint ett_smb2_both_directory_info = -1;
@@ -3593,12 +3598,17 @@ dissect_file_data_dcerpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_
 	return offset;
 }
 
+#define SMB2_WRITE_FLAG_WRITE_THROUGH		0x00000001
 
 static int
 dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	guint32 length;
 	guint64 off;
+	static const int *f_fields[] = {
+		&hf_smb2_write_flags_write_through,
+		NULL
+	};
 
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
@@ -3624,11 +3634,26 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
-	offset += 16;
+	/* channel */
+	proto_tree_add_item(tree, hf_smb2_channel, tvb, offset, 4, TRUE);
+	offset += 4;
 
+	/* remaining bytes */
+	proto_tree_add_item(tree, hf_smb2_remaining_bytes, tvb, offset, 4, TRUE);
+	offset += 4;
 
+	/* write channel info offset */
+	proto_tree_add_item(tree, hf_smb2_channel_info_offset, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* write channel info length */
+	proto_tree_add_item(tree, hf_smb2_channel_info_length, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* flags */
+	proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_write_flags, ett_smb2_write_flags, f_fields, TRUE);
+	offset += 4;
+        
 	/* data or dcerpc ?*/
 	if(length && si->tree && si->tree->share_type == SMB2_SHARE_TYPE_IPC){
 		offset = dissect_file_data_dcerpc(tvb, pinfo, tree, offset, length, si->top_tree);
@@ -3653,17 +3678,26 @@ dissect_smb2_write_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
-	/* some unknown bytes */
+
+	/* reserved */
 	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 2, TRUE);
 	offset += 2;
 
-	/* length */
-	proto_tree_add_item(tree, hf_smb2_write_length, tvb, offset, 4, TRUE);
+	/* count */
+	proto_tree_add_item(tree, hf_smb2_write_count, tvb, offset, 4, TRUE);
 	offset += 4;
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
-	offset += 8;
+	/* remaining, must be set to 0 */
+	proto_tree_add_item(tree, hf_smb2_write_remaining, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* write channel info offset */
+	proto_tree_add_item(tree, hf_smb2_channel_info_offset, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* write channel info length */
+	proto_tree_add_item(tree, hf_smb2_channel_info_length, tvb, offset, 2, TRUE);
+	offset += 2;
 
 	return offset;
 }
@@ -5838,6 +5872,22 @@ proto_register_smb2(void)
 		{ "Write Data", "smb2.write_data", FT_BYTES, BASE_NONE,
 		NULL, 0, "SMB2 Data to be written", HFILL }},
 
+	{ &hf_smb2_write_flags,
+		{ "Write Flags", "smb2.write.flags", FT_UINT32, BASE_HEX,
+		NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb2_write_flags_write_through,
+		{ "Write through", "smb2.write.flags.write_through", FT_BOOLEAN, 32,
+		NULL, SMB2_WRITE_FLAG_WRITE_THROUGH, NULL, HFILL }},
+
+	{ &hf_smb2_write_count,
+		{ "Write Count", "smb2.write.count", FT_UINT32, BASE_DEC,
+		NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb2_write_remaining,
+		{ "Write Remaining", "smb2.write.remaining", FT_UINT32, BASE_DEC,
+		NULL, 0, NULL, HFILL }},
+
 	{ &hf_smb2_read_data,
 		{ "Read Data", "smb2.read_data", FT_BYTES, BASE_NONE,
 		NULL, 0, "SMB2 Data that is read", HFILL }},
@@ -6465,6 +6515,7 @@ proto_register_smb2(void)
 		&ett_smb2_ioctl_flags,
 		&ett_smb2_close_flags,
 		&ett_smb2_notify_flags,
+		&ett_smb2_write_flags,
 		&ett_smb2_find_flags,
 		&ett_smb2_file_directory_info,
 		&ett_smb2_both_directory_info,
