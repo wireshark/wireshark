@@ -353,7 +353,7 @@ static dissector_handle_t media_handle;
 /* Handle for WBXML-encoded UAPROF dissector */
 static dissector_handle_t wbxml_uaprof_handle;
 
-const value_string wsp_vals_pdu_type[] = {
+static const value_string wsp_vals_pdu_type[] = {
 	{ 0x00, "Reserved" },
 	{ 0x01, "Connect" },
 	{ 0x02, "ConnectReply" },
@@ -419,9 +419,10 @@ const value_string wsp_vals_pdu_type[] = {
 	{ 0x00, NULL }
 
 };
+value_string_ext wsp_vals_pdu_type_ext = VALUE_STRING_EXT_INIT(wsp_vals_pdu_type);
 
 /* The WSP status codes are inherited from the HTTP status codes */
-const value_string wsp_vals_status[] = {
+static const value_string wsp_vals_status[] = {
 	/* 0x00 - 0x0F Reserved */
 
 	{ 0x10, "100 Continue" },
@@ -471,8 +472,9 @@ const value_string wsp_vals_status[] = {
 
 	{ 0x00, NULL }
 };
+value_string_ext wsp_vals_status_ext = VALUE_STRING_EXT_INIT(wsp_vals_status);
 
-const value_string vals_wsp_reason_codes[] = {
+static const value_string vals_wsp_reason_codes[] = {
 	{ 0xE0, "Protocol Error (Illegal PDU)" },
 	{ 0xE1, "Session disconnected" },
 	{ 0xE2, "Session suspended" },
@@ -491,6 +493,7 @@ const value_string vals_wsp_reason_codes[] = {
 
 	{ 0x00, NULL }
 };
+value_string_ext vals_wsp_reason_codes_ext = VALUE_STRING_EXT_INIT(vals_wsp_reason_codes);
 
 /*
  * Field names.
@@ -639,7 +642,7 @@ static const value_string vals_openwave_field_names[] = {
 	{ FN_OPENWAVE_DEVCAP_GUI,              "x-up-devcap-gui" },
 	{ 0,                                   NULL }
 };
-
+static value_string_ext vals_openwave_field_names_ext = VALUE_STRING_EXT_INIT(vals_openwave_field_names);
 
 static const value_string vals_field_names[] = {
 	{ FN_ACCEPT,               "Accept" },
@@ -720,6 +723,7 @@ static const value_string vals_field_names[] = {
 	{ FN_X_WAP_LOC_DELIVERY,   "X-Wap-Loc-Delivery" },
 	{ 0,                       NULL }
 };
+static value_string_ext vals_field_names_ext = VALUE_STRING_EXT_INIT(vals_field_names);
 
 /*
  * Bearer types (from the WDP specification).
@@ -788,6 +792,7 @@ static const value_string vals_bearer_types[] = {
 	{ BT_ANSI_136_GHOST,       "ANSI-136 GHOST/R-Data" },
 	{ 0,                       NULL }
 };
+static value_string_ext vals_bearer_types_ext = VALUE_STRING_EXT_INIT(vals_bearer_types);
 
 static const value_string vals_content_types[] = {
 	/* Well-known media types */
@@ -886,6 +891,7 @@ static const value_string vals_content_types[] = {
 	{ 0x0301, "application/iota.mmc-xml"},
 	{ 0x00, NULL }
 };
+static value_string_ext vals_content_types_ext = VALUE_STRING_EXT_INIT(vals_content_types);
 
 static const value_string vals_languages[] = {
 	{ 0x00, "*" },
@@ -1030,6 +1036,7 @@ static const value_string vals_languages[] = {
 	{ 0x8C, "Rhaeto-Romance (rm)" },
 	{ 0x00, NULL }
 };
+static value_string_ext vals_languages_ext = VALUE_STRING_EXT_INIT(vals_languages);
 
 
 #define CACHE_CONTROL_NO_CACHE			0x00
@@ -1061,6 +1068,7 @@ static const value_string vals_cache_control[] = {
 
 	{ 0x00, NULL }
 };
+static value_string_ext vals_cache_control_ext = VALUE_STRING_EXT_INIT(vals_cache_control);
 
 static const value_string vals_wap_application_ids[] = {
 	/* Well-known WAP applications */
@@ -1098,6 +1106,7 @@ static const value_string vals_wap_application_ids[] = {
 
 	{ 0x00, NULL }
 };
+static value_string_ext vals_wap_application_ids_ext = VALUE_STRING_EXT_INIT(vals_wap_application_ids);
 
 
 /* Parameters and well-known encodings */
@@ -1109,6 +1118,7 @@ static const value_string vals_wsp_parameter_sec[] = {
 
 	{ 0x00, NULL }
 };
+static value_string_ext vals_wsp_parameter_sec_ext = VALUE_STRING_EXT_INIT(vals_wsp_parameter_sec);
 
 /* Warning codes and mappings */
 static const value_string vals_wsp_warning_code[] = {
@@ -1121,6 +1131,7 @@ static const value_string vals_wsp_warning_code[] = {
 
 	{ 0, NULL }
 };
+static value_string_ext vals_wsp_warning_code_ext = VALUE_STRING_EXT_INIT(vals_wsp_warning_code);
 
 static const value_string vals_wsp_warning_code_short[] = {
 	{ 10, "110" },
@@ -1132,6 +1143,7 @@ static const value_string vals_wsp_warning_code_short[] = {
 
 	{ 0, NULL }
 };
+static value_string_ext vals_wsp_warning_code_short_ext = VALUE_STRING_EXT_INIT(vals_wsp_warning_code_short);
 
 /* Profile-Warning codes - see http://www.w3.org/TR/NOTE-CCPPexchange */
 static const value_string vals_wsp_profile_warning_code[] = {
@@ -1145,6 +1157,7 @@ static const value_string vals_wsp_profile_warning_code[] = {
 
 	{ 0x00, NULL }
 };
+static value_string_ext vals_wsp_profile_warning_code_ext = VALUE_STRING_EXT_INIT(vals_wsp_profile_warning_code);
 
 /* Well-known TE values */
 static const value_string vals_well_known_te[] = {
@@ -1156,6 +1169,7 @@ static const value_string vals_well_known_te[] = {
 
 	{ 0x00, NULL }
 };
+static value_string_ext vals_well_known_te_ext = VALUE_STRING_EXT_INIT(vals_well_known_te);
 
 
 /*
@@ -1757,14 +1771,14 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 			/* Call header value dissector for given header */
 			if (codepage == 1) { /* Default header code page */
 				DebugLog(("add_headers(code page 0): %s\n",
-							val_to_str (hdr_id & 0x7f, vals_field_names, "Undefined")));
+							val_to_str_ext_const (hdr_id & 0x7f, &vals_field_names_ext, "Undefined")));
 				offset = WellKnownHeader[hdr_id & 0x7F](wsp_headers, tvb,
 						hdr_start, pinfo);
 			} else { /* Openwave header code page */
 				/* Here I'm delibarately assuming that Openwave is the only
 				 * company that defines a WSP header code page. */
 				DebugLog(("add_headers(code page 0x%02x - assumed to be x-up-1): %s\n",
-							codepage, val_to_str (hdr_id & 0x7f, vals_openwave_field_names, "Undefined")));
+							codepage, val_to_str_ext_const (hdr_id & 0x7f, &vals_openwave_field_names_ext, "Undefined")));
 				offset = WellKnownOpenwaveHeader[hdr_id & 0x7F](wsp_headers,
 						tvb, hdr_start, pinfo);
 			}
@@ -1889,7 +1903,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 #define wkh_1_WellKnownValue				/* Parse Well Known Value */ \
 	hidden_item = proto_tree_add_string(tree, hf_hdr_name, \
 			tvb, hdr_start, offset - hdr_start, \
-			val_to_str (hdr_id, vals_field_names, \
+			val_to_str_ext (hdr_id, &vals_field_names_ext, \
 				"<Unknown WSP header field 0x%02X>")); \
 				PROTO_ITEM_SET_HIDDEN(hidden_item); \
 	if (val_id & 0x80) { /* Well-known value */ \
@@ -1944,7 +1958,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 			proto_tree_add_text(tree, tvb, hdr_start, offset - hdr_start, \
 					"%s: <Error: Invalid header value>", \
-					val_to_str (hdr_id, vals_field_names, \
+					val_to_str_ext (hdr_id, &vals_field_names_ext, \
 						"<Unknown WSP header field 0x%02X>")); \
 		} \
 	} \
@@ -1966,19 +1980,19 @@ wkh_default(proto_tree *tree, tvbuff_t *tvb,
 		tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
 		ti = proto_tree_add_text (tree, tvb, hdr_start, offset - hdr_start,
 				"%s: (Undecoded well-known value 0x%02x)",
-				val_to_str (hdr_id, vals_field_names,
+				val_to_str_ext (hdr_id, &vals_field_names_ext,
 					"<Unknown WSP header field 0x%02X>"), val_id & 0x7F);
 	wkh_2_TextualValue;
 		tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
 		ti = proto_tree_add_text(tree, tvb, hdr_start, offset - hdr_start,
 				"%s: %s",
-				val_to_str (hdr_id, vals_field_names,
+				val_to_str_ext (hdr_id, &vals_field_names_ext,
 					"<Unknown WSP header field 0x%02X>"), val_str);
 	wkh_3_ValueWithLength;
 		tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
 		ti = proto_tree_add_text (tree, tvb, hdr_start, offset - hdr_start,
 				"%s: (Undecoded value in general form with length indicator)",
-				val_to_str (hdr_id, vals_field_names,
+				val_to_str_ext (hdr_id, &vals_field_names_ext,
 					"<Unknown WSP header field 0x%02X>"));
 
 	wkh_4_End(HF_EMPTY); /* The default parser has no associated hf_index;
@@ -2000,7 +2014,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 		tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 		ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 				tvb, hdr_start, offset - hdr_start, \
-				val_to_str(val_id & 0x7F, vals_content_types, \
+				val_to_str_ext(val_id & 0x7F, &vals_content_types_ext, \
 					"(Unknown content type identifier 0x%X)")); \
 		ok = TRUE; \
 	wkh_2_TextualValue; \
@@ -2034,7 +2048,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 				tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 						tvb, hdr_start, offset - hdr_start, \
-						val_to_str(val, vals_content_types, \
+						val_to_str_ext(val, &vals_content_types_ext, \
 							"(Unknown content type identifier 0x%X)")); \
 			} \
 			off += len; \
@@ -2110,7 +2124,7 @@ add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
 
 	wkh_1_WellKnownValue;
 		DebugLog(("add_content_type() - Well-known - Start\n"));
-		*textual_content = val_to_str(val_id & 0x7F, vals_content_types,
+		*textual_content = val_to_str_ext(val_id & 0x7F, &vals_content_types_ext,
 				"<Unknown media type identifier 0x%X>");
 		tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
 		ti = proto_tree_add_string(tree, hf_hdr_content_type,
@@ -2161,7 +2175,7 @@ add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
 			DebugLog(("add_content_type() - General form - integer_value\n"));
 			get_integer_value(val, tvb, off, len, ok);
 			if (ok) {
-				*textual_content = val_to_str(val, vals_content_types,
+				*textual_content = val_to_str_ext(val, &vals_content_types_ext,
 						"<Unknown media type identifier 0x%X>");
 				tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
 				ti = proto_tree_add_string(tree, hf_hdr_content_type,
@@ -2192,7 +2206,7 @@ add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
 /*
  * Template for accept_X headers with optional Q parameter value
  */
-#define wkh_accept_x_q_header(underscored,Text,valueString,valueName) \
+#define wkh_accept_x_q_header(underscored,Text,valueStringExtAddr,valueName) \
 static guint32 \
 wkh_ ## underscored (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_) \
 { \
@@ -2205,7 +2219,7 @@ wkh_ ## underscored (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_
 		tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 		ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 				tvb, hdr_start, offset - hdr_start, \
-				val_to_str(val_id & 0x7F, valueString, \
+				val_to_str_ext(val_id & 0x7F, valueStringExtAddr, \
 					"<Unknown " valueName " identifier 0x%X>")); \
 		ok = TRUE; \
 	wkh_2_TextualValue; \
@@ -2229,7 +2243,7 @@ wkh_ ## underscored (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_
 				tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 						tvb, hdr_start, offset - hdr_start, \
-						val_to_str(val, valueString, \
+						val_to_str_ext(val, valueStringExtAddr, \
 							"<Unknown " valueName " identifier 0x%X>")); \
 			} \
 			off += len; \
@@ -2250,7 +2264,7 @@ wkh_ ## underscored (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_
  *	| ( Value-length ( Token-text | Integer-value ) [ Q-value ] )
  */
 wkh_accept_x_q_header(accept_charset, "Accept-Charset",
-		vals_character_sets, "character set")
+		&vals_character_sets_ext, "character set")
 /*
  * Accept-language-value =
  *	  Short-integer
@@ -2258,7 +2272,7 @@ wkh_accept_x_q_header(accept_charset, "Accept-Charset",
  *	| ( Value-length ( Text-string | Integer-value ) [ Q-value ] )
  */
 wkh_accept_x_q_header(accept_language, "Accept-Language",
-		vals_languages, "language")
+		&vals_languages_ext, "language")
 
 
 /*
@@ -2343,7 +2357,7 @@ wkh_allow(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo
 			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
 			ti = proto_tree_add_string(tree, hf_hdr_allow,
 					tvb, hdr_start, offset - hdr_start,
-					val_to_str(val_id & 0x7F, wsp_vals_pdu_type,
+					val_to_str_ext(val_id & 0x7F, &wsp_vals_pdu_type_ext,
 						"<Unknown WSP method 0x%02X>"));
 			ok = TRUE;
 		}
@@ -2370,7 +2384,7 @@ wkh_public(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinf
 			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
 			ti = proto_tree_add_string(tree, hf_hdr_public,
 					tvb, hdr_start, offset - hdr_start,
-					val_to_str(val_id & 0x7F, wsp_vals_pdu_type,
+					val_to_str_ext(val_id & 0x7F, &wsp_vals_pdu_type_ext,
 						"<Unknown WSP method 0x%02X>"));
 			ok = TRUE;
 		}
@@ -2398,7 +2412,7 @@ wkh_vary(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo 
 		tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
 		ti = proto_tree_add_string(tree, hf_hdr_vary,
 				tvb, hdr_start, offset - hdr_start,
-				val_to_str(val_id & 0x7F, vals_field_names,
+				val_to_str_ext(val_id & 0x7F, &vals_field_names_ext,
 					"<Unknown WSP header field 0x%02X>"));
 		ok = TRUE;
 	wkh_2_TextualValue;
@@ -2970,7 +2984,7 @@ wkh_age(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _
 /*
  * Template for Integer lookup or text value headers:
  */
-#define wkh_integer_lookup_or_text_value(underscored,Text,valueString,valueName) \
+#define wkh_integer_lookup_or_text_value(underscored,Text,valueStringExtAddr,valueName) \
 static guint32 \
 wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_) \
 { \
@@ -2981,7 +2995,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 		tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 		ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 				tvb, hdr_start, offset - hdr_start, \
-				val_to_str(val_id & 0x7F, valueString, \
+				val_to_str_ext(val_id & 0x7F, valueStringExtAddr, \
 				"(Unknown " valueName " identifier 0x%X)")); \
 		ok = TRUE; \
 	wkh_2_TextualValue; \
@@ -2996,7 +3010,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 				tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 						tvb, hdr_start, offset - hdr_start, \
-						val_to_str(val_id & 0x7F, valueString, \
+						val_to_str_ext(val_id & 0x7F, valueStringExtAddr, \
 						"(Unknown " valueName " identifier 0x%X)")); \
 			} \
 		} \
@@ -3007,15 +3021,15 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
  * Wap-application-value: Uri-value | Integer-value
  */
 wkh_integer_lookup_or_text_value(x_wap_application_id, "X-Wap-Application-Id",
-		vals_wap_application_ids, "WAP application")
+		&vals_wap_application_ids_ext, "WAP application")
 wkh_integer_lookup_or_text_value(accept_application, "Accept-Application",
-		vals_wap_application_ids, "WAP application")
+		&vals_wap_application_ids_ext, "WAP application")
 wkh_integer_lookup_or_text_value(content_language, "Content-Language",
-		vals_languages, "language")
+		&vals_languages_ext, "language")
 /* NOTE - Although the WSP spec says this is an integer-value, the WSP headers
  * are encoded as a 7-bit entity! */
 wkh_integer_lookup_or_text_value(trailer, "Trailer",
-		vals_field_names, "well-known-header")
+		&vals_field_names_ext, "well-known-header")
 
 
 /*
@@ -3301,7 +3315,7 @@ wkh_integer_value_header(content_length, "Content-Length")
 wkh_integer_value_header(max_forwards, "Max-Forwards")
 
 
-#define wkh_integer_lookup_value_header(underscored,Text,valueString,valueName) \
+#define wkh_integer_lookup_value_header(underscored,Text,valueStringExtAddr,valueName) \
 static guint32 \
 wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_) \
 { \
@@ -3309,7 +3323,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 	guint32 val = 0, off = val_start, len; \
 	\
 	wkh_1_WellKnownValue; \
-		val_str = match_strval(val_id & 0x7F, valueString); \
+		val_str = match_strval_ext(val_id & 0x7F, valueStringExtAddr); \
 		if (val_str) { \
 			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 			ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
@@ -3327,7 +3341,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 		if (val_id <= 4) { /* Length field already parsed by macro! */ \
 			get_long_integer(val, tvb, off, len, ok); \
 			if (ok) { \
-				val_str = match_strval(val_id & 0x7F, valueString); \
+				val_str = match_strval_ext(val_id & 0x7F, valueStringExtAddr); \
 				if (val_str) { \
 					tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 					ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
@@ -3345,7 +3359,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 }
 
 wkh_integer_lookup_value_header(bearer_indication, "Bearer-Indication",
-		vals_bearer_types, "bearer type")
+		&vals_bearer_types_ext, "bearer type")
 
 
 /*
@@ -3361,7 +3375,7 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_inf
 
 	wkh_1_WellKnownValue;
 		val = val_id & 0x7F;
-		val_str = match_strval(val, vals_cache_control);
+		val_str = match_strval_ext(val, &vals_cache_control_ext);
 		if (val_str) {
 			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
 			ti = proto_tree_add_string(tree, hf_hdr_cache_control,
@@ -3390,7 +3404,7 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_inf
 					tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
 					ti = proto_tree_add_string(tree, hf_hdr_cache_control,
 							tvb, hdr_start, offset - hdr_start,
-							val_to_str (cache_control_directive & 0x7F, vals_cache_control,
+							val_to_str_ext (cache_control_directive & 0x7F, &vals_cache_control_ext,
 								"<Unknown cache control directive 0x%02X>"));
 					/* TODO: split multiple entries */
 					ok = TRUE;
@@ -3419,7 +3433,7 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_inf
 					tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
 					ti = proto_tree_add_string(tree, hf_hdr_cache_control,
 							tvb, hdr_start, offset - hdr_start,
-							val_to_str (cache_control_directive & 0x7F, vals_cache_control,
+							val_to_str_ext (cache_control_directive & 0x7F, &vals_cache_control_ext,
 								"<Unknown cache control directive 0x%02X>"));
 					get_delta_seconds_value(val, tvb, off, len, ok);
 					if (ok) {
@@ -3490,7 +3504,7 @@ wkh_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pin
 
 	wkh_1_WellKnownValue;
 		val = val_id & 0x7F;
-		val_str = match_strval(val, vals_wsp_warning_code);
+		val_str = match_strval_ext(val, &vals_wsp_warning_code_ext);
 		if (val_str) {
 			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
 			ti = proto_tree_add_string(tree, hf_hdr_warning,
@@ -3508,7 +3522,7 @@ wkh_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pin
 		warn_code = tvb_get_guint8(tvb, off);
 		if (warn_code & 0x80) { /* Well known warn code */
 			val = warn_code & 0x7f;
-			val_str = match_strval(val, vals_wsp_warning_code_short);
+			val_str = match_strval_ext(val, &vals_wsp_warning_code_short_ext);
 			if (val_str) { /* OK */
 				str = g_strdup_printf("code=%s", val_str);
 				tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
@@ -3561,7 +3575,7 @@ wkh_profile_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 
 	wkh_1_WellKnownValue;
 		val = val_id & 0x7F;
-		val_str = match_strval(val, vals_wsp_profile_warning_code);
+		val_str = match_strval_ext(val, &vals_wsp_profile_warning_code_ext);
 		if (val_str) {
 			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
 			ti = proto_tree_add_string(tree, hf_hdr_profile_warning,
@@ -3574,7 +3588,7 @@ wkh_profile_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 		off = val_start + val_len_len;
 		warn_code = tvb_get_guint8(tvb, off++);
 		if (warn_code & 0x80) { /* Well known warn code */
-			val_str = match_strval(val, vals_wsp_profile_warning_code);
+			val_str = match_strval_ext(val, &vals_wsp_profile_warning_code_ext);
 			if (val_str) { /* OK */
 				tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
 				ti = proto_tree_add_string(tree, hf_hdr_profile_warning,
@@ -3792,7 +3806,7 @@ static guint32 wkh_te (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packe
 		off = val_start + val_len_len;
 		val = tvb_get_guint8(tvb, off);
 		if (val & 0x80) { /* Well-known-TE */
-			val_str = match_strval((val & 0x7F), vals_well_known_te);
+			val_str = match_strval_ext((val & 0x7F), &vals_well_known_te_ext);
 			if (val_str) {
 				tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
 				ti = proto_tree_add_string(tree, hf_hdr_te,
@@ -3834,7 +3848,7 @@ static guint32 wkh_te (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packe
 	tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 	hidden_item = proto_tree_add_string(tree, hf_hdr_name, \
 			tvb, hdr_start, offset - hdr_start, \
-			val_to_str (hdr_id, vals_openwave_field_names, \
+			val_to_str_ext (hdr_id, &vals_openwave_field_names_ext, \
 					"<Unknown WSP header field 0x%02X>")); \
 					PROTO_ITEM_SET_HIDDEN(hidden_item); \
 	if (val_id & 0x80) { /* Well-known value */ \
@@ -3865,7 +3879,7 @@ static guint32 wkh_te (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packe
 			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 			proto_tree_add_text(tree, tvb, hdr_start, offset - hdr_start, \
 					"%s: <Error: Invalid header value>", \
-					val_to_str (hdr_id, vals_openwave_field_names, \
+					val_to_str_ext (hdr_id, &vals_openwave_field_names_ext, \
 						"<Unknown WSP header field 0x%02X>")); \
 		} \
 	} \
@@ -3884,19 +3898,19 @@ wkh_openwave_default(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_
 		tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
 		ti = proto_tree_add_text(tree, tvb, hdr_start, offset - hdr_start,
 				"%s: (Undecoded well-known value 0x%02x)",
-				val_to_str (hdr_id, vals_openwave_field_names,
+				val_to_str_ext (hdr_id, &vals_openwave_field_names_ext,
 					"<Unknown WSP header field 0x%02X>"), val_id & 0x7F);
 	wkh_2_TextualValue;
 		tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
 		ti = proto_tree_add_text(tree,tvb,hdr_start, offset - hdr_start,
 				"%s: %s",
-				val_to_str (hdr_id, vals_openwave_field_names,
+				val_to_str_ext (hdr_id, &vals_openwave_field_names_ext,
 					"<Unknown WSP header field 0x%02X>"), val_str);
 	wkh_3_ValueWithLength;
 		tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
 		ti = proto_tree_add_text(tree, tvb, hdr_start, offset - hdr_start,
 				"%s: (Undecoded value in general form with length indicator)",
-				val_to_str (hdr_id, vals_openwave_field_names,
+				val_to_str_ext (hdr_id, &vals_openwave_field_names_ext,
 					"<Unknown WSP header field 0x%02X>"));
 
 	wkh_4_End(HF_EMPTY); /* See wkh_default for explanation */
@@ -3963,7 +3977,7 @@ wkh_tod_value_header(openwave_x_up_proxy_tod,
 /* Openwave accept_x_q header */
 wkh_accept_x_q_header(openwave_x_up_proxy_trans_charset,
 		"x-up-proxy-trans-charset",
-		vals_character_sets, "character set")
+		&vals_character_sets_ext, "character set")
 
 /* Openwave content type header */
 wkh_content_type_header(openwave_x_up_proxy_push_accept,
@@ -4152,7 +4166,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 		case 0x01:	/* WSP 1.1 encoding - Charset: Well-known-charset */
 			get_integer_value(val, tvb, offset, val_len, ok);
 			if (ok) {
-				val_str = val_to_str(val, vals_character_sets,
+				val_str = val_to_str_ext(val, &vals_character_sets_ext,
 						"<Unknown character set Identifier 0x%X>");
 				proto_tree_add_string(tree, hf_parameter_charset,
 						tvb, start, type_len + val_len, val_str);
@@ -4214,7 +4228,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 				get_short_integer(val,tvb,offset,val_len,ok);
 				if (ok) {
 					offset += val_len;
-					val_str = val_to_str(val, vals_content_types,
+					val_str = val_to_str_ext(val, &vals_content_types_ext,
 							"(Unknown content type identifier 0x%X)");
 				} /* Else: invalid parameter value */
 			}
@@ -4284,7 +4298,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 				peek &= 0x7F;
 				proto_tree_add_uint (tree, hf_wsp_parameter_sec,
 						tvb, start, 2, peek);
-				str = (gchar *) val_to_str(peek, vals_wsp_parameter_sec, "Undefined");
+				str = (gchar *) val_to_str_ext_const(peek, &vals_wsp_parameter_sec_ext, "Undefined");
 				s = g_strdup_printf("; SEC=%s", str);
 				proto_item_append_string (ti, s);
 				g_free(s);
@@ -4986,7 +5000,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
 		col_append_fstr(pinfo->cinfo, COL_INFO, "WSP %s (0x%02x)",
-				val_to_str (pdut, wsp_vals_pdu_type, "Unknown PDU type (0x%02x)"),
+				val_to_str_ext (pdut, &wsp_vals_pdu_type_ext, "Unknown PDU type (0x%02x)"),
 				pdut);
 	};
 
@@ -5010,7 +5024,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				tvb, 0, -1, bo_little_endian);
 		wsp_tree = proto_item_add_subtree(proto_ti, ett_wsp);
 		proto_item_append_text(proto_ti, ", Method: %s (0x%02x)",
-				val_to_str (pdut, wsp_vals_pdu_type, "Unknown (0x%02x)"),
+				val_to_str_ext (pdut, &wsp_vals_pdu_type_ext, "Unknown (0x%02x)"),
 				pdut);
 
 		/* Add common items: only TID and PDU Type */
@@ -5230,7 +5244,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				guint8 reply_status = tvb_get_guint8(tvb, offset);
 				const char *reply_status_str;
 
-				reply_status_str = val_to_str (reply_status, wsp_vals_status, "(Unknown response status)");
+				reply_status_str = val_to_str_ext_const (reply_status, &wsp_vals_status_ext, "(Unknown response status)");
 				if (tree) {
 					ti = proto_tree_add_item (wsp_tree, hf_wsp_header_status,
 							tvb, offset, 1, bo_little_endian);
@@ -6035,7 +6049,7 @@ proto_register_wsp(void)
 		{ &hf_wsp_header_pdu_type,
 			{ 	"PDU Type",
 				"wsp.pdu_type",
-				 FT_UINT8, BASE_HEX, VALS( wsp_vals_pdu_type ), 0x00,
+				 FT_UINT8, BASE_HEX|BASE_EXT_STRING,  &wsp_vals_pdu_type_ext, 0x00,
 				NULL, HFILL
 			}
 		},
@@ -6105,7 +6119,7 @@ proto_register_wsp(void)
 		{ &hf_wsp_header_status,
 			{ 	"Status",
 				"wsp.reply.status",
-				 FT_UINT8, BASE_HEX, VALS( wsp_vals_status ), 0x00,
+				 FT_UINT8, BASE_HEX|BASE_EXT_STRING,  &wsp_vals_status_ext, 0x00,
 				"Reply Status", HFILL
 			}
 		},
@@ -6168,7 +6182,7 @@ proto_register_wsp(void)
 		{ &hf_wsp_parameter_sec,
 			{ 	"SEC",
 				"wsp.parameter.sec",
-				 FT_UINT8, BASE_HEX, VALS (vals_wsp_parameter_sec), 0x00,
+				 FT_UINT8, BASE_HEX|BASE_EXT_STRING, &vals_wsp_parameter_sec_ext, 0x00,
 				"SEC parameter (Content-Type: application/vnd.wap.connectivity-wbxml)", HFILL
 			}
 		},
@@ -6420,7 +6434,7 @@ proto_register_wsp(void)
 		{ &hf_address_bearer_type,
 			{ 	"Bearer Type",
 				"wsp.address.bearer_type",
-				 FT_UINT8, BASE_HEX, VALS(vals_bearer_types), 0x0,
+				 FT_UINT8, BASE_HEX|BASE_EXT_STRING, &vals_bearer_types_ext, 0x0,
 				NULL, HFILL
 			}
 		},
@@ -6877,7 +6891,7 @@ proto_register_wsp(void)
 		{ &hf_hdr_warning_code,
 			{	"Warning code",
 				"wsp.header.warning.code",
-				FT_UINT8, BASE_HEX, VALS(vals_wsp_warning_code), 0x00,
+				FT_UINT8, BASE_HEX|BASE_EXT_STRING, &vals_wsp_warning_code_ext, 0x00,
 				"WSP header Warning code", HFILL
 			}
 		},

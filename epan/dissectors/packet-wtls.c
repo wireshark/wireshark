@@ -128,6 +128,7 @@ static const value_string wtls_vals_record_type[] = {
 	{ 4, "application_data" },
 	{ 0, NULL }
 };
+static value_string_ext wtls_vals_record_type_ext = VALUE_STRING_EXT_INIT(wtls_vals_record_type);
 
 static const value_string wtls_vals_cipher_bulk[] = {
 	{ 0, "Null" },
@@ -142,6 +143,7 @@ static const value_string wtls_vals_cipher_bulk[] = {
 	{ 9, "IDEA CBC" },
 	{ 0, NULL }
 };
+static value_string_ext wtls_vals_cipher_bulk_ext = VALUE_STRING_EXT_INIT(wtls_vals_cipher_bulk);
 
 static const value_string wtls_vals_cipher_mac[] = {
 	{ 0, "SHA 0" },
@@ -154,6 +156,7 @@ static const value_string wtls_vals_cipher_mac[] = {
 	{ 7, "MD5" },
 	{ 0, NULL }
 };
+static value_string_ext wtls_vals_cipher_mac_ext = VALUE_STRING_EXT_INIT(wtls_vals_cipher_mac);
 
 static const value_string wtls_vals_handshake_type[] = {
 	{ 0, "Hello Request" },
@@ -168,6 +171,7 @@ static const value_string wtls_vals_handshake_type[] = {
 	{ 20, "Finished" },
 	{ 0x00, NULL }
 };
+static value_string_ext wtls_vals_handshake_type_ext = VALUE_STRING_EXT_INIT(wtls_vals_handshake_type);
 
 static const value_string wtls_vals_key_exchange_suite[] = {
 	{ 0, "NULL" },
@@ -191,6 +195,7 @@ static const value_string wtls_vals_key_exchange_suite[] = {
 	{ 18, "EC Diffie Hellman ECDSA Uncomp" },
 	{ 0x00, NULL }
 };
+static value_string_ext wtls_vals_key_exchange_suite_ext = VALUE_STRING_EXT_INIT(wtls_vals_key_exchange_suite);
 
 static const value_string wtls_vals_identifier_type[] = {
 	{ 0, "No identifier" },
@@ -200,6 +205,7 @@ static const value_string wtls_vals_identifier_type[] = {
 	{ 255, "x509 Distinguished Name" },
 	{ 0x00, NULL }
 };
+static value_string_ext wtls_vals_identifier_type_ext = VALUE_STRING_EXT_INIT(wtls_vals_identifier_type);
 
 static const value_string wtls_vals_certificate_type[] = {
 	{ 1, "WTLS" },
@@ -208,6 +214,7 @@ static const value_string wtls_vals_certificate_type[] = {
 	{ 4, "URL" },
 	{ 0x00, NULL }
 };
+static value_string_ext wtls_vals_certificate_type_ext = VALUE_STRING_EXT_INIT(wtls_vals_certificate_type);
 
 static const value_string wtls_vals_compression[] = {
 	{ 0, "Null" },
@@ -277,6 +284,7 @@ static const value_string wtls_vals_alert_description[] = {
 	{ 100,"no_renegotiation"},
 	{ 0x00, NULL }
 };
+static value_string_ext wtls_vals_alert_description_ext = VALUE_STRING_EXT_INIT(wtls_vals_alert_description);
 
 #define WTLS_RECORD_TYPE_LENGTH 	0x80
 #define WTLS_RECORD_TYPE_SEQUENCE 	0x40
@@ -789,10 +797,10 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 			offset+=1;
 			for (;count > 0;count-=client_size) {
 			       value = tvb_get_guint8 (tvb, offset);
-                               valBulk = match_strval(value, wtls_vals_cipher_bulk);
+                               valBulk = match_strval_ext(value, &wtls_vals_cipher_bulk_ext);
                                offset++;
                                client_size=1;
-                               valMac = match_strval(tvb_get_guint8 (tvb, offset), wtls_vals_cipher_mac);
+                               valMac = match_strval_ext(tvb_get_guint8 (tvb, offset), &wtls_vals_cipher_mac_ext);
                                if (valBulk != NULL)
                                {
                                        if (valMac != NULL)
@@ -1078,14 +1086,14 @@ proto_register_wtls(void)
 		{ &hf_wtls_record,
 			{ 	"Record",
 				"wtls.record",
-				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_record_type ), 0x0f,
+				 FT_UINT8, BASE_DEC|BASE_EXT_STRING, &wtls_vals_record_type_ext, 0x0f,
 				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_record_type,
 			{ 	"Record Type",
 				"wtls.rec_type",
-				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_record_type ), 0x0f,
+				 FT_UINT8, BASE_DEC|BASE_EXT_STRING, &wtls_vals_record_type_ext, 0x0f,
 				NULL, HFILL
 			}
 		},
@@ -1113,14 +1121,14 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands,
 			{ 	"Handshake",
 				"wtls.handshake",
-				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_handshake_type ), 0x00,
+				 FT_UINT8, BASE_DEC|BASE_EXT_STRING, &wtls_vals_handshake_type_ext, 0x00,
 				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_type,
 			{ 	"Type",
 				"wtls.handshake.type",
-				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_handshake_type ), 0x00,
+				 FT_UINT8, BASE_DEC|BASE_EXT_STRING, &wtls_vals_handshake_type_ext, 0x00,
 				NULL, HFILL
 			}
 		},
@@ -1197,14 +1205,14 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_cli_hello_key_exchange,
 			{ 	"Key Exchange",
 				"wtls.handshake.client_hello.key.key_exchange",
-				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_key_exchange_suite ), 0x00,
+				 FT_UINT8, BASE_DEC|BASE_EXT_STRING, &wtls_vals_key_exchange_suite_ext, 0x00,
 				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_key_exchange_suite,
 			{ 	"Suite",
 				"wtls.handshake.client_hello.key.key_exchange.suite",
-				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_key_exchange_suite ), 0x00,
+				 FT_UINT8, BASE_DEC|BASE_EXT_STRING, &wtls_vals_key_exchange_suite_ext, 0x00,
 				NULL, HFILL
 			}
 		},
@@ -1225,14 +1233,14 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_cli_hello_key_identifier_type,
 			{ 	"Identifier Type",
 				"wtls.handshake.client_hello.ident_type",
-				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_identifier_type ), 0x00,
+				 FT_UINT8, BASE_DEC|BASE_EXT_STRING, &wtls_vals_identifier_type_ext, 0x00,
 				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_key_identifier_charset,
 			{ 	"Identifier CharSet",
 				"wtls.handshake.client_hello.ident_charset",
-				 FT_UINT16, BASE_HEX, VALS ( vals_character_sets ), 0x00,
+				 FT_UINT16, BASE_HEX|BASE_EXT_STRING, &vals_character_sets_ext, 0x00,
 				NULL, HFILL
 			}
 		},
@@ -1358,14 +1366,14 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_serv_hello_cipher_bulk,
 			{ 	"Cipher Bulk",
 				"wtls.handshake.server_hello.cipher.bulk",
-				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_cipher_bulk ), 0x00,
+				 FT_UINT8, BASE_DEC|BASE_EXT_STRING, &wtls_vals_cipher_bulk_ext, 0x00,
 				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_serv_hello_cipher_mac,
 			{ 	"Cipher MAC",
 				"wtls.handshake.server_hello.cipher.mac",
-				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_cipher_mac ), 0x00,
+				 FT_UINT8, BASE_DEC|BASE_EXT_STRING, &wtls_vals_cipher_mac_ext, 0x00,
 				NULL, HFILL
 			}
 		},
@@ -1407,7 +1415,7 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_certificate_type,
 			{ 	"Type",
 				"wtls.handshake.certificate.type",
-				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_certificate_type ), 0x00,
+				 FT_UINT8, BASE_DEC|BASE_EXT_STRING, &wtls_vals_certificate_type_ext, 0x00,
 				NULL, HFILL
 			}
 		},
@@ -1435,14 +1443,14 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_certificate_wtls_issuer_type,
 			{ 	"Issuer",
 				"wtls.handshake.certificate.issuer.type",
-				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_identifier_type ), 0x00,
+				 FT_UINT8, BASE_DEC|BASE_EXT_STRING, &wtls_vals_identifier_type_ext, 0x00,
 				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_issuer_charset,
 			{ 	"Charset",
 				"wtls.handshake.certificate.issuer.charset",
-				 FT_UINT16, BASE_HEX, VALS ( vals_character_sets ), 0x00,
+				 FT_UINT16, BASE_HEX|BASE_EXT_STRING, &vals_character_sets_ext, 0x00,
 				NULL, HFILL
 			}
 		},
@@ -1477,14 +1485,14 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_certificate_wtls_subject_type,
 			{ 	"Subject",
 				"wtls.handshake.certificate.subject.type",
-				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_identifier_type ), 0x00,
+				 FT_UINT8, BASE_DEC|BASE_EXT_STRING, &wtls_vals_identifier_type_ext, 0x00,
 				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_subject_charset,
 			{ 	"Charset",
 				"wtls.handshake.certificate.subject.charset",
-				 FT_UINT16, BASE_HEX, VALS ( vals_character_sets ), 0x00,
+				 FT_UINT16, BASE_HEX|BASE_EXT_STRING, &vals_character_sets_ext, 0x00,
 				NULL, HFILL
 			}
 		},
@@ -1554,7 +1562,7 @@ proto_register_wtls(void)
 		{ &hf_wtls_alert_description,
 			{ 	"Description",
 				"wtls.alert.description",
-				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_alert_description ), 0x00,
+				 FT_UINT8, BASE_DEC|BASE_EXT_STRING, &wtls_vals_alert_description_ext, 0x00,
 				NULL, HFILL
 			}
 		},

@@ -1132,6 +1132,7 @@ static const value_string vals_wbxml_public_ids[] = {
 
 	{ 0x00, NULL }
 };
+static value_string_ext vals_wbxml_public_ids_ext = VALUE_STRING_EXT_INIT(vals_wbxml_public_ids);
 
 static const value_string vals_wbxml_versions[] = {
 	{ 0x00, "1.0" },	/* WAP-104-WBXML */
@@ -1141,6 +1142,7 @@ static const value_string vals_wbxml_versions[] = {
 
 	{ 0x00, NULL }
 };
+static value_string_ext vals_wbxml_versions_ext = VALUE_STRING_EXT_INIT(vals_wbxml_versions);
 
 /* WBXML 1.0 global tokens: WAP-104-WBXML
  * Same token mapping as in vals_wbxml1x_global_tokens, but:
@@ -1176,6 +1178,7 @@ static const value_string vals_wbxml1x_global_tokens[] = {
 
 	{ 0x00, NULL }
 };
+static value_string_ext vals_wbxml1x_global_tokens_ext = VALUE_STRING_EXT_INIT(vals_wbxml1x_global_tokens);
 
 
 
@@ -6789,13 +6792,13 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* Compose the summary line */
 	if ( publicid ) {
 		summary = g_strdup_printf("%s, Public ID: \"%s\"",
-					  val_to_str (version, vals_wbxml_versions, "(unknown 0x%x)"),
-					  val_to_str (publicid, vals_wbxml_public_ids, "(unknown 0x%x)"));
+					  val_to_str_ext (version, &vals_wbxml_versions_ext, "(unknown 0x%x)"),
+					  val_to_str_ext (publicid, &vals_wbxml_public_ids_ext, "(unknown 0x%x)"));
 	} else {
 		/* Read length of Public ID from string table */
 		len = tvb_strsize (tvb, str_tbl + publicid_index);
 		summary = g_strdup_printf("%s, Public ID: \"%s\"",
-					  val_to_str (version, vals_wbxml_versions, "(unknown 0x%x)"),
+					  val_to_str_ext (version, &vals_wbxml_versions_ext, "(unknown 0x%x)"),
 					  tvb_format_text (tvb, str_tbl + publicid_index, len - 1));
 	}
 
@@ -8029,7 +8032,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 					     "| %-10s     (Invalid Token!) "
 					     "| WBXML parsing stops here.",
 					     level, *codepage_attr,
-					     val_to_str (peek, vals_wbxml1x_global_tokens, "(unknown 0x%x)"));
+					     val_to_str_ext (peek, &vals_wbxml1x_global_tokens_ext, "(unknown 0x%x)"));
 			/* Move to end of buffer */
 			off = tvb_len;
 			break;
@@ -8216,7 +8219,7 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 					     "| %-10s     (Invalid Token!) "
 					     "| WBXML parsing stops here.",
 					     level, *codepage_attr,
-					     val_to_str (peek, vals_wbxml1x_global_tokens, "(unknown 0x%x)"));
+					     val_to_str_ext (peek, &vals_wbxml1x_global_tokens_ext, "(unknown 0x%x)"));
 			/* Move to end of buffer */
 			off = tvb_len;
 			break;
@@ -8262,15 +8265,15 @@ proto_register_wbxml(void)
 		{ &hf_wbxml_version,
 		  { "Version",
 		    "wbxml.version",
-		    FT_UINT8, BASE_HEX,
-		    VALS ( vals_wbxml_versions ), 0x00,
+		    FT_UINT8, BASE_HEX|BASE_EXT_STRING,
+		    &vals_wbxml_versions_ext, 0x00,
 		    "WBXML Version", HFILL }
 		},
 		{ &hf_wbxml_public_id_known,
 		  { "Public Identifier (known)",
 		    "wbxml.public_id.known",
-		    FT_UINT32, BASE_HEX,
-		    VALS ( vals_wbxml_public_ids ), 0x00,
+		    FT_UINT32, BASE_HEX|BASE_EXT_STRING,
+		    &vals_wbxml_public_ids_ext, 0x00,
 		    "WBXML Known Public Identifier (integer)", HFILL }
 		},
 		{ &hf_wbxml_public_id_literal,
@@ -8283,8 +8286,8 @@ proto_register_wbxml(void)
 		{ &hf_wbxml_charset,
 		  { "Character Set",
 		    "wbxml.charset",
-		    FT_UINT32, BASE_HEX,
-		    VALS ( vals_character_sets ), 0x00,
+		    FT_UINT32, BASE_HEX|BASE_EXT_STRING,
+		    &vals_character_sets_ext, 0x00,
 		    "WBXML Character Set", HFILL }
 		},
 	};

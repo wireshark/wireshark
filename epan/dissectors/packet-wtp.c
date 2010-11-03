@@ -552,7 +552,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					", Reason: %s (%u)",
 					ABORT,
 					PROVIDER,
-					val_to_str(reason, vals_wsp_reason_codes, "Undefined"),
+					val_to_str_ext_const(reason, &vals_wsp_reason_codes_ext, "Undefined"),
 					reason);
 		}
 		break;
@@ -926,7 +926,7 @@ proto_register_wtp(void)
 	{ &hf_wtp_header_Abort_reason_user,
 	    { 	"Abort Reason",
 		"wtp.abort.reason.user",
-		FT_UINT8, BASE_HEX, VALS ( vals_wsp_reason_codes ), 0x00,
+		FT_UINT8, BASE_HEX|BASE_EXT_STRING, &vals_wsp_reason_codes_ext, 0x00,
 		NULL, HFILL
 	    }
 	},

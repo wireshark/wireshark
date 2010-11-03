@@ -215,11 +215,12 @@ wspstat_draw(void *psp)
 static void
 wspstat_init(const char *optarg, void* userdata _U_)
 {
-	wspstat_t *sp;
-	const char *filter=NULL;
-	guint32 i;
-	GString	*error_string;
-	wsp_status_code_t *sc;
+	wspstat_t          *sp;
+	const char         *filter=NULL;
+	guint32             i;
+	GString	           *error_string;
+	wsp_status_code_t  *sc;
+	const value_string *wsp_vals_status_p;
 
 	if (!strncmp (optarg, "wsp,stat," , 9)){
 		filter=optarg+9;
@@ -230,14 +231,15 @@ wspstat_init(const char *optarg, void* userdata _U_)
 
 	sp = g_malloc( sizeof(wspstat_t) );
 	sp->hash = g_hash_table_new( g_int_hash, g_int_equal);
-	for (i=0 ; wsp_vals_status[i].strptr ; i++ )
+	wsp_vals_status_p = VALUE_STRING_EXT_VS_P(&wsp_vals_status_ext);
+	for (i=0 ; wsp_vals_status_p[i].strptr ; i++ )
 	{
 		gint *key;
 		sc=g_malloc( sizeof(wsp_status_code_t) );
 		key=g_malloc( sizeof(gint) );
 		sc->packets=0;
-		sc->name=wsp_vals_status[i].strptr;
-		*key=wsp_vals_status[i].value;
+		sc->name=wsp_vals_status_p[i].strptr;
+		*key=wsp_vals_status_p[i].value;
 		g_hash_table_insert(
 				sp->hash,
 				key,
@@ -253,7 +255,7 @@ wspstat_init(const char *optarg, void* userdata _U_)
 	for (i=0;i<sp->num_pdus; i++)
 	{
 		sp->pdu_stats[i].packets=0;
-		sp->pdu_stats[i].type = match_strval( index2pdut( i ), wsp_vals_pdu_type) ;
+		sp->pdu_stats[i].type = match_strval_ext( index2pdut( i ), &wsp_vals_pdu_type_ext) ;
 	}
 
 	error_string = register_tap_listener(

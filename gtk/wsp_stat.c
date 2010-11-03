@@ -282,9 +282,9 @@ wsp_init_table(wspstat_t *sp)
 			x=2;
 		}
 		/* Maybe we should display the hexadecimal value ? */
-		/* g_snprintf(buffer, sizeof(buffer), "%s  (0X%x)", match_strval( index2pdut( i ), wsp_vals_pdu_type), index2pdut(i) );*/
+		/* g_snprintf(buffer, sizeof(buffer), "%s  (0X%x)", match_strval_ext( index2pdut( i ), &wsp_vals_pdu_type_ext), index2pdut(i) );*/
 		add_table_entry( sp,
-				match_strval(index2pdut(i), wsp_vals_pdu_type), /* or buffer, */
+				match_strval_ext(index2pdut(i), &wsp_vals_pdu_type_ext), /* or buffer, */
 				x,
 				pos,
 				0
@@ -312,7 +312,8 @@ gtk_wspstat_init(const char *optarg, void *userdata _U_)
 	GtkWidget	*bt_close;
 	GtkWidget	*bbox;
 	guint32		 i;
-	wsp_status_code_t *sc;
+	wsp_status_code_t  *sc;
+	const value_string *wsp_vals_status_p;
 
 
 	if (strncmp (optarg, "wsp,stat,", 9) == 0){
@@ -326,16 +327,17 @@ gtk_wspstat_init(const char *optarg, void *userdata _U_)
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(sp->win), TRUE);
 
 	sp->hash = g_hash_table_new( g_int_hash, g_int_equal);
-	for (i=0 ; wsp_vals_status[i].strptr ; i++ )
+	wsp_vals_status_p = VALUE_STRING_EXT_VS_P(&wsp_vals_status_ext);
+	for (i=0 ; wsp_vals_status_p[i].strptr ; i++ )
 	{
 		gint *key;
 		sc=g_malloc( sizeof(wsp_status_code_t) );
 		key=g_malloc( sizeof(gint) );
-		sc->name=wsp_vals_status[i].strptr;
+		sc->name=wsp_vals_status_p[i].strptr;
 		sc->packets=0;
 		sc->widget=NULL;
 		sc->sp = sp;
-		*key=wsp_vals_status[i].value;
+		*key=wsp_vals_status_p[i].value;
 		g_hash_table_insert(
 				sp->hash,
 				key,

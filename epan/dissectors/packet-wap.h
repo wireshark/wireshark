@@ -83,7 +83,7 @@ enum
 guint tvb_get_guintvar (tvbuff_t *, guint , guint *);
 
 /* Character set encoding */
-extern const value_string vals_character_sets[];
+extern value_string_ext vals_character_sets_ext;
 
 /*
  * Misc TODO:

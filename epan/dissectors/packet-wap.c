@@ -86,7 +86,7 @@ tvb_get_guintvar (tvbuff_t *tvb, guint offset, guint *octetCount)
 }
 
 /* See http://www.iana.org/assignments/character-sets for the MIBenum mapping */
-const value_string vals_character_sets[] = {
+static const value_string vals_character_sets[] = {
 	{ 0x0000, "*" },
 	{ 0x0003, "us-ascii" },
 	{ 0x0004, "iso-8859-1" },
@@ -325,3 +325,4 @@ const value_string vals_character_sets[] = {
 	{ 0x08D3, "tis-620" },
 	{ 0x0000, NULL }
 };
+value_string_ext vals_character_sets_ext = VALUE_STRING_EXT_INIT(vals_character_sets);

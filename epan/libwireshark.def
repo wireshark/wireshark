@@ -1147,8 +1147,8 @@ write_prefs
 ws_strdup_escape_underscore
 ws_strdup_unescape_underscore
 wslua_plugin_list               DATA
-wsp_vals_pdu_type               DATA
-wsp_vals_status                 DATA
+wsp_vals_pdu_type_ext           DATA
+wsp_vals_status_ext             DATA
 wtap_nstime_to_sec
 xml_escape
 xml_get_attrib
