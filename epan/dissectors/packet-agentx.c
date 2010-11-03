@@ -356,8 +356,7 @@ static int dissect_object_id(tvbuff_t *tvb, proto_tree *tree, int offset, char f
 	}
 
 	if(!(slen = convert_oid_to_str(&oid[0], n_subid, &str_oid[0], 2048, prefix)))
-		return offset;
-
+		slen = g_snprintf(&str_oid[0], 2048, "(null)");
 
 	if(tree) {
 		item = proto_tree_add_text(tree,tvb,offset,n_subid + 4 ,
