@@ -226,6 +226,7 @@ static const value_string  message_id[] = {
 
   {0     , NULL}	/* terminator */
 };
+static value_string_ext message_id_ext = VALUE_STRING_EXT_INIT(message_id);
 
 /*
  * Device type to text conversion table
@@ -286,6 +287,7 @@ static const value_string  deviceTypes[] = {
   {255, "NotDefined"},
   { 0    , NULL}
 };
+static value_string_ext deviceTypes_ext = VALUE_STRING_EXT_INIT(deviceTypes);
 
 /*
  * keypad button -> text conversion
@@ -309,6 +311,7 @@ static const value_string keypadButtons[] = {
   {0xf   , "Pound"},
   {0     , NULL}
 };
+static value_string_ext keypadButtons_ext = VALUE_STRING_EXT_INIT(keypadButtons);
 
 static const value_string deviceStimuli[] = {
   {0x1  , "LastNumberRedial"},
@@ -344,6 +347,7 @@ static const value_string deviceStimuli[] = {
   {0x80 , "GroupCallPickup"},
   {0,NULL}
 };
+static value_string_ext deviceStimuli_ext = VALUE_STRING_EXT_INIT(deviceStimuli);
 
 
 /* Note i'm only using 7 later on cuz i'm lazy ;) */
@@ -387,6 +391,7 @@ static const value_string mediaPayloads[] = {
   {257 , "RFC2833_DynPayload"},
   {0  , NULL}
 };
+static value_string_ext mediaPayloads_ext = VALUE_STRING_EXT_INIT(mediaPayloads);
 
 static const value_string alarmSeverities[] = {
   {0   , "Critical"},
@@ -399,6 +404,7 @@ static const value_string alarmSeverities[] = {
   {20  , "TraceInfo"},
   {0  , NULL}
 };
+static value_string_ext alarmSeverities_ext = VALUE_STRING_EXT_INIT(alarmSeverities);
 
 static const value_string multicastMediaReceptionStatus[] = {
   {0  , "Ok"},
@@ -441,6 +447,7 @@ static const value_string softKeyEvents[] = {
   {18  , "GrpCallPickUp"},
   {0   , NULL}
 };
+static value_string_ext softKeyEvents_ext = VALUE_STRING_EXT_INIT(softKeyEvents);
 
 /* Define info index for each softkey event for Telecaster station. */
 static const value_string softKeyIndexes[] = {
@@ -464,6 +471,7 @@ static const value_string softKeyIndexes[] = {
   {318  , "GrpCallPickUpInfoIndex"},
   {0   , NULL}
 };
+static value_string_ext softKeyIndexes_ext = VALUE_STRING_EXT_INIT(softKeyIndexes);
 
 
 static const value_string buttonDefinitions[] = {
@@ -487,6 +495,7 @@ static const value_string buttonDefinitions[] = {
   {0xff , "Undefined"},
   {0   , NULL}
 };
+static value_string_ext buttonDefinitions_ext = VALUE_STRING_EXT_INIT(buttonDefinitions);
 
 #define StationTotalSoftKeySets 10 /* total number of the soft key sets */
 static const value_string keySetNames[] = {
@@ -502,7 +511,9 @@ static const value_string keySetNames[] = {
   {9   , "OffHook with features"},
   {0   , NULL}
 };
+static value_string_ext keySetNames_ext = VALUE_STRING_EXT_INIT(keySetNames);
 
+#if 0
 /* Define soft key labels for the Telecaster station */
 static const value_string softKeyLabel[] _U_ = {
   {0   , "undefined"},
@@ -526,7 +537,7 @@ static const value_string softKeyLabel[] _U_ = {
   {18  , "GPickUp"},
   {0   , NULL}
 };
-
+#endif
 
 /*
  * define lamp modes;
@@ -545,6 +556,7 @@ static const value_string stationLampModes[] = {
   {0x5 , "Blink"},
   {0   , NULL}
 };
+static value_string_ext stationLampModes_ext = VALUE_STRING_EXT_INIT(stationLampModes);
 
 /* Defined the Call States to be sent to the Telecaste station.
  * These are NOT the call states used in CM internally. Instead,
@@ -567,6 +579,7 @@ static const value_string skinny_stationCallStates[] = {
   {14  , "InvalidNumber"},
   {0   , NULL}
 };
+static value_string_ext skinny_stationCallStates_ext = VALUE_STRING_EXT_INIT(skinny_stationCallStates);
 
 /* Defined Call Type */
 static const value_string skinny_callTypes[] = {
@@ -666,6 +679,7 @@ static const value_string skinny_deviceTones[] = {
   {0x7f , "NoTone"},
   {0   , NULL}
 };
+static value_string_ext skinny_deviceTones_ext = VALUE_STRING_EXT_INIT(skinny_deviceTones);
 
 /* define ring types */
 static const value_string skinny_ringTypes[] = {
@@ -677,6 +691,8 @@ static const value_string skinny_ringTypes[] = {
   {0x6  , "PrecedenceRing"},
   {0   , NULL}
 };
+static value_string_ext skinny_ringTypes_ext = VALUE_STRING_EXT_INIT(skinny_ringTypes);
+
 static const value_string skinny_ringModes[] = {
   {0x1  , "RingForever"},
   {0x2  , "RingOnce"},
@@ -739,6 +755,7 @@ static const value_string skinny_modifyConfResults[] = {
   {6   , "SystemErr"},
   {0   , NULL}
 };
+static value_string_ext skinny_modifyConfResults_ext = VALUE_STRING_EXT_INIT(skinny_modifyConfResults);
 
 static const value_string skinny_deleteConfResults[] = {
   {0   , "Ok"},
@@ -755,6 +772,7 @@ static const value_string skinny_addParticipantResults[] = {
   {4   , "SystemErr"},
   {0   , NULL}
 };
+static value_string_ext skinny_addParticipantResults_ext = VALUE_STRING_EXT_INIT(skinny_addParticipantResults);
 
 static const value_string skinny_auditParticipantResults[] = {
   {0   , "Ok"},
@@ -796,6 +814,7 @@ static const value_string skinny_sessionTypes[] = {
   {10  , "Video"},
   {0   , NULL}
 };
+static value_string_ext skinny_sessionTypes_ext = VALUE_STRING_EXT_INIT(skinny_sessionTypes);
 
 static const value_string skinny_mediaEnunciationTypes[] = {
   {1  , "None"},
@@ -830,6 +849,7 @@ static const value_string skinny_Layouts[] = {
   {10 , "ThreeByThree4Alt2"},
   {0  , NULL}
 };
+static value_string_ext skinny_Layouts_ext = VALUE_STRING_EXT_INIT(skinny_Layouts);
 
 static const value_string skinny_transmitOrReceive[] = {
   {1  , "Station_Receive_only"},
@@ -868,6 +888,7 @@ static const value_string skinny_miscCommandType[] = {
   {7  , "temporalSpatialTradeOff"},
   {0  , NULL}
 };
+static value_string_ext skinny_miscCommandType_ext = VALUE_STRING_EXT_INIT(skinny_miscCommandType);
 
 static const value_string skinny_formatTypes[] = {
   {1  , "sqcif (128x96)"},
@@ -878,6 +899,7 @@ static const value_string skinny_formatTypes[] = {
   {6  , "custom_base"},
   {0  , NULL}
 };
+static value_string_ext skinny_formatTypes_ext = VALUE_STRING_EXT_INIT(skinny_formatTypes);
 
 static const value_string cast_callSecurityStatusTypes[] = {
   {0   , "CallSecurityStatusUnknown"},
@@ -907,23 +929,23 @@ static const value_string cast_callSecurityStatusTypes[] = {
 #define StationMaxDisplayPromptStatusSize 32 /* max status text size in the display status message */
 #define StationMaxDisplayNotifySize 32       /* max prompt text size in the display prompt message */
 #define StationMaxAlarmMessageSize 80        /* max size for an alarm message */
-#define StationMaxUserDeviceDataSize	2000	/* max size of user data between application and device */
-#define StationMaxConference	32
-#define AppConferenceIDSize		32
-#define AppDataSize				24
-#define MAX_CUSTOM_PICTURES				6
-#define MAX_LAYOUT_WITH_SAME_SERVICE	5
-#define MAX_SERVICE_TYPE				4
-#define DeviceMaxCapabilities       18  /* max capabilities allowed in Cap response message */
+#define StationMaxUserDeviceDataSize 2000    /* max size of user data between application and device */
+#define StationMaxConference 32
+#define AppConferenceIDSize 32
+#define AppDataSize 24
+#define MAX_CUSTOM_PICTURES 6
+#define MAX_LAYOUT_WITH_SAME_SERVICE 5
+#define MAX_SERVICE_TYPE 4
+#define DeviceMaxCapabilities 18         /* max capabilities allowed in Cap response message */
 #define StationMaxCapabilities       DeviceMaxCapabilities
-#define StationMaxVideoCapabilities	10
-#define StationMaxDataCapabilities   5
-#define MAX_LEVEL_PREFERENCE		 4
-#define MaxAnnouncementList	32
-#define StationMaxMonitorParties	16          /* Max Monitor Bridge whisper matrix parties,  rm, M&R in Parche */
-#define StationMaxServiceURLSize     256	/* max number of service URLs length */
-#define MAX_PICTURE_FORMAT			 5
-#define MAX_REFERENCE_PICTURE		 4
+#define StationMaxVideoCapabilities 10
+#define StationMaxDataCapabilities  5
+#define MAX_LEVEL_PREFERENCE 4
+#define MaxAnnouncementList 32
+#define StationMaxMonitorParties 16      /* Max Monitor Bridge whisper matrix parties,  rm, M&R in Parche */
+#define StationMaxServiceURLSize 256	 /* max number of service URLs length */
+#define MAX_PICTURE_FORMAT 5
+#define MAX_REFERENCE_PICTURE 4
 
 /* Initialize the protocol and registered fields */
 static int proto_skinny          = -1;
@@ -1249,7 +1271,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   si = &pi_arr[pi_current];
   si->messId = data_messageid;
-  si->messageName = val_to_str(data_messageid, message_id, "0x%08X (Unknown)");
+  si->messageName = val_to_str_ext(data_messageid, &message_id_ext, "0x%08X (Unknown)");
   si->callId = 0;
   si->lineId = 0;
   si->passThruId = 0;
@@ -2758,7 +2780,7 @@ proto_register_skinny(void)
     /* FIXME: Enable use of message name ???  */
     { &hf_skinny_messageid,
       { "Message ID", "skinny.messageid",
-	FT_UINT32, BASE_HEX, VALS(message_id), 0x0,
+	FT_UINT32, BASE_HEX|BASE_EXT_STRING, &message_id_ext, 0x0,
 	"The function requested/done with this message.",
 	HFILL }
     },
@@ -2786,7 +2808,7 @@ proto_register_skinny(void)
 
     { &hf_skinny_deviceType,
       { "DeviceType", "skinny.deviceType",
-	FT_UINT32, BASE_DEC, VALS(deviceTypes), 0x0,
+	FT_UINT32, BASE_DEC|BASE_EXT_STRING, &deviceTypes_ext, 0x0,
 	"DeviceType of the station.",
 	HFILL }
     },
@@ -2807,7 +2829,7 @@ proto_register_skinny(void)
 
     { &hf_skinny_stationKeypadButton,
       { "KeypadButton", "skinny.stationKeypadButton",
-	FT_UINT32, BASE_HEX, VALS(keypadButtons), 0x0,
+	FT_UINT32, BASE_HEX|BASE_EXT_STRING, &keypadButtons_ext, 0x0,
 	"The button pressed on the phone.",
 	HFILL }
     },
@@ -2821,7 +2843,7 @@ proto_register_skinny(void)
 
     { &hf_skinny_stimulus,
       { "Stimulus", "skinny.stimulus",
-	FT_UINT32, BASE_HEX, VALS(deviceStimuli), 0x0,
+	FT_UINT32, BASE_HEX|BASE_EXT_STRING, &deviceStimuli_ext, 0x0,
 	"Reason for the device stimulus message.",
 	HFILL }
     },
@@ -2856,7 +2878,7 @@ proto_register_skinny(void)
 
     { &hf_skinny_payloadCapability,
       { "PayloadCapability", "skinny.payloadCapability",
-	FT_UINT32, BASE_DEC, VALS(mediaPayloads), 0x0,
+	FT_UINT32, BASE_DEC|BASE_EXT_STRING, &mediaPayloads_ext, 0x0,
 	"The payload capability for this media capability structure.",
 	HFILL }
     },
@@ -2870,7 +2892,7 @@ proto_register_skinny(void)
 
     { &hf_skinny_alarmSeverity,
       { "AlarmSeverity", "skinny.alarmSeverity",
-	FT_UINT32, BASE_DEC, VALS(alarmSeverities), 0x0,
+	FT_UINT32, BASE_DEC|BASE_EXT_STRING, &alarmSeverities_ext, 0x0,
 	"The severity of the reported alarm.",
 	HFILL }
     },
@@ -3003,7 +3025,7 @@ proto_register_skinny(void)
 
     { &hf_skinny_softKeyEvent,
       { "SoftKeyEvent", "skinny.softKeyEvent",
-	FT_UINT32, BASE_DEC, VALS(softKeyEvents), 0x0,
+	FT_UINT32, BASE_DEC|BASE_EXT_STRING, &softKeyEvents_ext, 0x0,
 	"Which softkey event is being reported.",
 	HFILL }
     },
@@ -3052,14 +3074,14 @@ proto_register_skinny(void)
 
     { &hf_skinny_buttonInstanceNumber,
       { "InstanceNumber", "skinny.buttonInstanceNumber",
-	FT_UINT8, BASE_HEX, VALS(keypadButtons), 0x0,
+	FT_UINT8, BASE_HEX|BASE_EXT_STRING, &keypadButtons_ext, 0x0,
 	"The button instance number for a button or the StationKeyPad value, repeats allowed.",
 	HFILL }
     },
 
     { &hf_skinny_buttonDefinition,
       { "ButtonDefinition", "skinny.buttonDefinition",
-	FT_UINT8, BASE_HEX, VALS(buttonDefinitions), 0x0,
+	FT_UINT8, BASE_HEX|BASE_EXT_STRING, &buttonDefinitions_ext, 0x0,
 	"The button type for this instance (ie line, speed dial, ....",
 	HFILL }
     },
@@ -3115,21 +3137,21 @@ proto_register_skinny(void)
 
     { &hf_skinny_softKeyTemplateIndex,
       { "SoftKeyTemplateIndex", "skinny.softKeyTemplateIndex",
-	FT_UINT8, BASE_DEC, VALS(softKeyEvents), 0x0,
+	FT_UINT8, BASE_DEC|BASE_EXT_STRING, &softKeyEvents_ext, 0x0,
 	"Array of size 16 8-bit unsigned ints containing an index into the softKeyTemplate.",
 	HFILL }
     },
 
     { &hf_skinny_softKeyInfoIndex,
       { "SoftKeyInfoIndex", "skinny.softKeyInfoIndex",
-	FT_UINT16, BASE_DEC, VALS(softKeyIndexes), 0x0,
+	FT_UINT16, BASE_DEC|BASE_EXT_STRING, &softKeyIndexes_ext, 0x0,
 	"Array of size 16 16-bit unsigned integers containing an index into the soft key description information.",
 	HFILL }
     },
 
     { &hf_skinny_softKeySetDescription,
       { "SoftKeySet", "skinny.softKeySetDescription",
-	FT_UINT8, BASE_DEC, VALS(keySetNames), 0x0,
+	FT_UINT8, BASE_DEC|BASE_EXT_STRING, &keySetNames_ext, 0x0,
 	"A text description of what this softkey when this softkey set is displayed",
 	HFILL }
     },
@@ -3255,7 +3277,7 @@ proto_register_skinny(void)
 
     { &hf_skinny_lampMode,
       { "LampMode", "skinny.lampMode",
-	FT_UINT32, BASE_DEC, VALS(stationLampModes), 0x0,
+	FT_UINT32, BASE_DEC|BASE_EXT_STRING, &stationLampModes_ext, 0x0,
 	"The lamp mode",
 	HFILL }
     },
@@ -3373,14 +3395,14 @@ proto_register_skinny(void)
     },
     { &hf_skinny_callState,
       { "CallState", "skinny.callState",
-	FT_UINT32, BASE_DEC, VALS(skinny_stationCallStates), 0x0,
+	FT_UINT32, BASE_DEC|BASE_EXT_STRING, &skinny_stationCallStates_ext, 0x0,
 	"The D channel call state of the call",
 	HFILL }
     },
 
     { &hf_skinny_deviceTone,
       { "Tone", "skinny.deviceTone",
-	FT_UINT32, BASE_HEX, VALS(skinny_deviceTones), 0x0,
+	FT_UINT32, BASE_HEX|BASE_EXT_STRING, &skinny_deviceTones_ext, 0x0,
 	"Which tone to play",
 	HFILL }
     },
@@ -3429,7 +3451,7 @@ proto_register_skinny(void)
 
     { &hf_skinny_ringType,
       { "Ring Type", "skinny.ringType",
-	FT_UINT32, BASE_HEX, VALS(skinny_ringTypes), 0x0,
+	FT_UINT32, BASE_HEX|BASE_EXT_STRING, &skinny_ringTypes_ext, 0x0,
 	"What type of ring to play",
 	HFILL }
     },
@@ -3611,7 +3633,7 @@ proto_register_skinny(void)
 
     { &hf_skinny_sessionType,
       { "Session Type", "skinny.sessionType",
-	FT_UINT32, BASE_DEC, VALS(skinny_sessionTypes), 0x0,
+	FT_UINT32, BASE_DEC|BASE_EXT_STRING, &skinny_sessionTypes_ext, 0x0,
 	"The type of this session.",
 	HFILL }
     },
@@ -3751,7 +3773,7 @@ proto_register_skinny(void)
 
     { &hf_skinny_modifyConfResults,
       { "ModifyConfResults", "skinny.modifyConfResults",
-	FT_UINT32, BASE_DEC, VALS(skinny_modifyConfResults), 0x0,
+	FT_UINT32, BASE_DEC|BASE_EXT_STRING, &skinny_modifyConfResults_ext, 0x0,
 	"The modify conference results",
 	HFILL }
     },
@@ -3765,7 +3787,7 @@ proto_register_skinny(void)
 
     { &hf_skinny_addParticipantResults,
       { "AddParticipantResults", "skinny.addParticipantResults",
-	FT_UINT32, BASE_DEC, VALS(skinny_addParticipantResults), 0x0,
+	FT_UINT32, BASE_DEC|BASE_EXT_STRING, &skinny_addParticipantResults_ext, 0x0,
 	"The add conference participant results",
 	HFILL }
     },
@@ -3975,7 +3997,7 @@ proto_register_skinny(void)
 
     { &hf_skinny_layout,
       { "Layout", "skinny.layout",
-	FT_UINT32, BASE_DEC, VALS(skinny_Layouts), 0x0,
+	FT_UINT32, BASE_DEC|BASE_EXT_STRING, &skinny_Layouts_ext, 0x0,
 	NULL,
 	HFILL }
     },
@@ -4017,7 +4039,7 @@ proto_register_skinny(void)
 
     { &hf_skinny_format,
       { "Format", "skinny.format",
-	FT_UINT32, BASE_DEC, VALS(skinny_formatTypes), 0x0,
+	FT_UINT32, BASE_DEC|BASE_EXT_STRING, &skinny_formatTypes_ext, 0x0,
 	"Format.",
 	HFILL }
     },
@@ -4262,7 +4284,7 @@ proto_register_skinny(void)
 
     { &hf_skinny_miscCommandType,
       { "MiscCommandType", "skinny.miscCommandType",
-	FT_UINT32, BASE_DEC, VALS(skinny_miscCommandType), 0x0,
+	FT_UINT32, BASE_DEC|BASE_EXT_STRING, &skinny_miscCommandType_ext, 0x0,
 	NULL,
 	HFILL }
     },

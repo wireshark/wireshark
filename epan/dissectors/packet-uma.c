@@ -89,25 +89,25 @@ static dissector_handle_t llc_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_uma					= -1;
-static int hf_uma_length_indicator		= -1;
+static int hf_uma_length_indicator			= -1;
 static int hf_uma_pd					= -1;
 static int hf_uma_skip_ind				= -1;
-static int hf_uma_urr_msg_type			= -1;
-static int hf_uma_urlc_msg_type			= -1;
+static int hf_uma_urr_msg_type				= -1;
+static int hf_uma_urlc_msg_type				= -1;
 static int hf_uma_urlc_TLLI				= -1;
-static int hf_uma_urlc_seq_nr			= -1;
+static int hf_uma_urlc_seq_nr				= -1;
 static int hf_uma_urr_IE				= -1;
-static int hf_uma_urr_IE_len			= -1;
+static int hf_uma_urr_IE_len				= -1;
 static int hf_uma_urr_mobile_identity_type		= -1;
-static int hf_uma_urr_odde_even_ind		= -1;
+static int hf_uma_urr_odde_even_ind			= -1;
 static int hf_uma_urr_imsi				= -1;
 static int hf_uma_urr_imei				= -1;
-static int hf_uma_urr_imeisv			= -1;
-static int hf_uma_urr_tmsi_p_tmsi		= -1;
+static int hf_uma_urr_imeisv				= -1;
+static int hf_uma_urr_tmsi_p_tmsi			= -1;
 static int hf_uma_urr_uri				= -1;
 static int hf_uma_urr_radio_type_of_id	= -1;
-static int hf_uma_urr_radio_id			= -1;
-static int hf_uma_urr_cell_id			= -1;
+static int hf_uma_urr_radio_id				= -1;
+static int hf_uma_urr_cell_id				= -1;
 static int hf_uma_urr_mcc				= -1;
 static int hf_uma_urr_mnc				= -1;
 static int hf_uma_urr_lac				= -1;
@@ -118,11 +118,11 @@ static int hf_uma_urr_uc				= -1;
 static int hf_uma_urr_rrs				= -1;
 static int hf_uma_urr_gmsi				= -1;
 static int hf_uma_urr_psho				= -1;
-static int hf_uma_urr_IP_Address_type	= -1;
+static int hf_uma_urr_IP_Address_type			= -1;
 static int hf_uma_urr_FQDN				= -1;
-static int hf_uma_urr_sgw_ipv4			= -1;
-static int hf_uma_urr_redirection_counter = -1;
-static int hf_uma_urr_dis_rej_cau		= -1;
+static int hf_uma_urr_sgw_ipv4				= -1;
+static int hf_uma_urr_redirection_counter =		 -1;
+static int hf_uma_urr_dis_rej_cau			= -1;
 static int hf_uma_urr_MSCR				= -1;
 static int hf_uma_urr_ATT				= -1;
 static int hf_uma_urr_DTM				= -1;
@@ -158,7 +158,7 @@ static int hf_uma_urr_TU3920_timer			= -1;
 static int hf_uma_urr_peak_tpt_cls			= -1;
 static int hf_uma_urr_radio_pri				= -1;
 static int hf_uma_urr_rlc_mode				= -1;
-static int hf_uma_urr_ga_psr_cause				= -1;
+static int hf_uma_urr_ga_psr_cause			= -1;
 static int hf_uma_urr_udr				= -1;
 static int hf_uma_urr_TU4001_timer			= -1;
 static int hf_uma_urr_LS				= -1;
@@ -275,6 +275,7 @@ static const value_string uma_urr_msg_type_vals[] = {
 	{ 130,		"GA-CSR REQUEST REJECT"},
 	{ 0,	NULL }
 };
+static value_string_ext uma_urr_msg_type_vals_ext = VALUE_STRING_EXT_INIT(uma_urr_msg_type_vals);
 /*
  * Message types for URLC signaling
  */
@@ -291,6 +292,8 @@ static const value_string uma_urlc_msg_type_vals[] = {
 	{ 12,		"URLC STATUS"},
 	{ 0,	NULL }
 };
+static value_string_ext uma_urlc_msg_type_vals_ext = VALUE_STRING_EXT_INIT(uma_urlc_msg_type_vals);
+
 /*
  * IE type and identifiers for Unlicensed Radio Resources management
  */
@@ -368,6 +371,28 @@ static const value_string uma_urr_IE_type_vals[] = {
 	{ 71,		"Required GAN Services"},
 	{ 72,		"Broadcast Container"},
 	{ 73,		"3G Cell Identity"},
+	{ 74,		"3G Security Capability"},			/* 11.2.108 */
+	{ 75,		"NAS Synchronisation Indicator"},		/* 11.2.109 */
+	{ 76,		"GANC TEID"},					/* 11.2.110 */
+	{ 77,		"MS TEID"},					/* 11.2.110 */
+	{ 78,		"UTRAN RRC Message"},				/* 11.2.111 */
+	{ 79,		"GAN Mode Indicator"},				/* 11.2.79 */
+	{ 80,		"CN Domain Identity"},				/* 11.2.80 */
+	{ 81,		"GAN Iu Mode Cell Description"},		/* 11.2.81 */
+	{ 82,		"3G UARFCN"},					/* 11.2.82 */
+	{ 83,		"RAB ID"},					/* 11.2.83 */
+	{ 84,		"RAB ID List"},					/* 11.2.84 */
+	{ 85,		"GA-RRC Establishment Cause"},			/* 11.2.85 */
+	{ 86,		"GA-RRC Cause"},				/* 11.2.86 */
+	{ 87,		"GA-RRC Paging Cause"},				/* 11.2.87 */
+	{ 88,		"Intra Domain NAS Node Selector"},		/* 11.2.88 */
+	{ 89,		"CTC Activation List"},				/* 11.2.89 */
+	{ 90,		"CTC Description"},				/* 11.2.90 */
+	{ 91,		"CTC Activation Ack List"},			/* 11.2.91 */
+	{ 92,		"CTC Activation Ack Description"},		/* 11.2.92 */
+	{ 93,		"CTC Modification List"},			/* 11.2.93 */
+	{ 94,		"CTC Modification Ack List"},			/* 11.2.94 */
+	{ 95,		"CTC Modification Ack Description"},		/* 11.2.95 */
 	{ 96,		"MS Radio Identity"},
 	{ 97,		"GANC IP Address"},
 	{ 98,		"GANC Fully Qualified Domain/Host Name"},
@@ -378,47 +403,26 @@ static const value_string uma_urr_IE_type_vals[] = {
 	{ 105,		"RTCP UDP port"},
 	{ 106,		"GERAN Received Signal Level List"},
 	{ 107,		"UTRAN Received Signal Level List"},
-	{ 108,		"PS Handover to GERAN Command"},			/* 11.2.74 */
-	{ 109,		"PS Handover to UTRAN Command"},			/* 11.2.75 */
-	{ 110,		"PS Handover to GERAN PSI"},				/* 11.2.76 */
-	{ 111,		"PS Handover to GERAN SI"},					/* 11.2.77 */
-	{ 112,		"TU4004 Timer"},							/* 11.2.78 */
-	{ 79,		"GAN Mode Indicator"},						/* 11.2.79 */
-	{ 80,		"CN Domain Identity"},						/* 11.2.80 */
-	{ 81,		"GAN Iu Mode Cell Description"},			/* 11.2.81 */
-	{ 82,		"3G UARFCN"},								/* 11.2.82 */
-	{ 83,		"RAB ID"},									/* 11.2.83 */
-	{ 84,		"RAB ID List"},								/* 11.2.84 */
-	{ 85,		"GA-RRC Establishment Cause"},				/* 11.2.85 */
-	{ 86,		"GA-RRC Cause"},							/* 11.2.86 */
-	{ 87,		"GA-RRC Paging Cause"},						/* 11.2.87 */
-	{ 88,		"Intra Domain NAS Node Selector"},			/* 11.2.88 */
-	{ 89,		"CTC Activation List"},						/* 11.2.89 */
-	{ 90,		"CTC Description"},							/* 11.2.90 */
-	{ 91,		"CTC Activation Ack List"},					/* 11.2.91 */
-	{ 92,		"CTC Activation Ack Description"},			/* 11.2.92 */
-	{ 93,		"CTC Modification List"},					/* 11.2.93 */
-	{ 94,		"CTC Modification Ack List"},				/* 11.2.94 */
-	{ 95,		"CTC Modification Ack Description"},		/* 11.2.95 */
-	{ 115,		"PTC Activation List"},						/* 11.2.96 */
-	{ 116,		"PTC Description"},							/* 11.2.97 */
-	{ 117,		"PTC Activation Ack List"},					/* 11.2.98 */
-	{ 118,		"PTC Activation Ack Description"},			/* 11.2.99 */
-	{ 119,		"PTC Modification List"},					/* 11.2.100 */
-	{ 120,		"PTC Modification Ack List"},				/* 11.2.101 */
+	{ 108,		"PS Handover to GERAN Command"},		/* 11.2.74 */
+	{ 109,		"PS Handover to UTRAN Command"},		/* 11.2.75 */
+	{ 110,		"PS Handover to GERAN PSI"},			/* 11.2.76 */
+	{ 111,		"PS Handover to GERAN SI"},			/* 11.2.77 */
+	{ 112,		"TU4004 Timer"},				/* 11.2.78 */
+	{ 115,		"PTC Activation List"},				/* 11.2.96 */
+	{ 116,		"PTC Description"},				/* 11.2.97 */
+	{ 117,		"PTC Activation Ack List"},			/* 11.2.98 */
+	{ 118,		"PTC Activation Ack Description"},		/* 11.2.99 */
+	{ 119,		"PTC Modification List"},			/* 11.2.100 */
+	{ 120,		"PTC Modification Ack List"},			/* 11.2.101 */
 	{ 121,		"PTC Modification Ack Description"},		/* 11.2.102 */
-	{ 122,		"RAB Configuration"},						/* 11.2.103 */
-	{ 123,		"Multi-rate Configuration 2"},				/* 11.2.104 */
+	{ 122,		"RAB Configuration"},				/* 11.2.103 */
+	{ 123,		"Multi-rate Configuration 2"},			/* 11.2.104 */
 	{ 124,		"Selected Integrity Protection Algorithm"},	/* 11.2.105 */
-	{ 125,		"Selected Encryption Algorithm"},			/* 11.2.106 */
-	{ 126,		"CN Domains to Handover"},					/* 11.2.107 */
-	{ 74,		"3G Security Capability"},					/* 11.2.108 */
-	{ 75,		"NAS Synchronisation Indicator"},			/* 11.2.109 */
-	{ 76,		"GANC TEID"},								/* 11.2.110 */
-	{ 77,		"MS TEID"},									/* 11.2.110 */
-	{ 78,		"UTRAN RRC Message"},						/* 11.2.111 */
+	{ 125,		"Selected Encryption Algorithm"},		/* 11.2.106 */
+	{ 126,		"CN Domains to Handover"},			/* 11.2.107 */
 	{ 0,	NULL }
 };
+static value_string_ext uma_urr_IE_type_vals_ext = VALUE_STRING_EXT_INIT(uma_urr_IE_type_vals);
 
 static const value_string uma_urr_mobile_identity_type_vals[] = {
 	{ 1,		"IMSI"},
@@ -605,6 +609,8 @@ static const value_string uma_GRS_GSM_RR_State_vals[] = {
 	{ 7,		"Unknown"},
 	{ 0,	NULL }
 };
+static value_string_ext uma_GRS_GSM_RR_State_vals_ext = VALUE_STRING_EXT_INIT(uma_GRS_GSM_RR_State_vals);
+
 /* UMA Band (4 bit field) */
 static const value_string uma_gan_band_vals[] = {
 	{ 0,		"E-GSM is supported"},
@@ -617,6 +623,8 @@ static const value_string uma_gan_band_vals[] = {
 	{ 7,		"GSM 700 is supported"},
 	{ 0,	NULL }
 };
+static value_string_ext uma_gan_band_vals_ext = VALUE_STRING_EXT_INIT(uma_gan_band_vals);
+
 /*URS, URR State (octet 3) */
 static const value_string URR_state_vals[] = {
 	{ 0,		"GA-CSR is in GA-CSR-IDLE state"},
@@ -661,6 +669,7 @@ static const value_string register_reject_cause_vals[] = {
 	/* 12 to 255 Reserved for future use. */
 	{ 0,	NULL }
 };
+static value_string_ext register_reject_cause_vals_ext = VALUE_STRING_EXT_INIT(register_reject_cause_vals);
 
 /* L3 Protocol discriminator values according to TS 24 007 (640)  */
 #if 0  /** See packet-gms_a-dtap.c **/
@@ -690,7 +699,7 @@ static const value_string protocol_discriminator_vals[] = {
  * bits
  * 4 3 2
  */
- static const value_string algorithm_identifier_vals[] = {
+static const value_string algorithm_identifier_vals[] = {
 	{ 0,		"Cipher with algorithm A5/1"},
  	{ 1,		"Cipher with algorithm A5/2"},
  	{ 2,		"Cipher with algorithm A5/3"},
@@ -701,8 +710,10 @@ static const value_string protocol_discriminator_vals[] = {
 	{ 7,		"Reserved"},
 	{ 0,	NULL }
 };
+static value_string_ext algorithm_identifier_vals_ext = VALUE_STRING_EXT_INIT(algorithm_identifier_vals);
+
 /*  GPRS Resumption */
- static const value_string GPRS_resumption_vals[] = {
+static const value_string GPRS_resumption_vals[] = {
 	{ 0,		"Resumption of GPRS services not successfully acknowledged"},
 	{ 1,		"Resumption of GPRS services successfully acknowledged"},
 	{ 0,	NULL }
@@ -728,7 +739,7 @@ static const value_string radio_pri_vals[] = {
 	{ 1,		"Radio priority 2"},
 	{ 2,		"Radio priority 3"},
 	{ 3,		"Radio priority 4"},
-	{ 3,		"Radio Priority Unknown"},
+	{ 3,		"Radio Priority Unknown"}, /* XX: ?? */
 	{ 0,	NULL }
 };
 
@@ -758,6 +769,7 @@ static const value_string uma_ga_psr_cause_vals[] = {
 	{ 17,		"PS handover failure - no uplink TBF allocation"},
 	{ 0,	NULL }
 };
+static value_string_ext uma_ga_psr_cause_vals_ext = VALUE_STRING_EXT_INIT(uma_ga_psr_cause_vals);
 
 /* LS, Location Status (octet 3) */
 static const value_string LS_vals[] = {
@@ -825,20 +837,22 @@ static const value_string uma_service_zone_icon_ind_vals[] = {
 };
 /*Establishment Cause (octet 3)*/
 static const value_string establishment_cause_vals[] = {
-	{ 0xa0,		"Emergency"},
-	{ 0xc0,		"Call re-establishment"},
 	{ 0x00,		"Location Update"},
 	{ 0x10,		"Other SDCCH procedures including IMSI Detach, SMS, SS, paging response"},
 /* note: Paging response for SDCCH needed is using codepoint  0001 0000 */
 	{ 0x20,		"Paging response (TCH/F needed)"},
 	{ 0x30,		"Paging response (TCH/F or TCH/H needed)"},
-	{ 0x80,		"Paging response (any channel needed)"},
 	{ 0x40,		"Originating speech call from dual-rate mobile station when TCH/H is sufficient"},
 	{ 0x50,		"Originating data call from dual-rate mobile station when TCH/H is sufficient"},
+	{ 0x80,		"Paging response (any channel needed)"},
+	{ 0xa0,		"Emergency"},
+	{ 0xc0,		"Call re-establishment"},
 	{ 0xe0,		"Originating speech call and TCH/F is needed"},
 	{ 0xf0,		"Originating data call and TCH/F is needed"},
 	{ 0,	NULL }
 };
+static value_string_ext establishment_cause_vals_ext = VALUE_STRING_EXT_INIT(establishment_cause_vals);
+
 /*CHANNEL (octet 3) */
 static const value_string channel_vals[] = {
 	{ 0,		"Any channel"},
@@ -902,7 +916,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 
 	ie_value = tvb_get_guint8(tvb,offset);
 	urr_ie_item = proto_tree_add_text(tree,tvb,offset,-1,"%s",
-		val_to_str(ie_value, uma_urr_IE_type_vals, "Unknown IE (%u)"));
+		val_to_str_ext(ie_value, &uma_urr_IE_type_vals_ext, "Unknown IE (%u)"));
 	urr_ie_tree = proto_item_add_subtree(urr_ie_item, ett_urr_ie);
 
 	proto_tree_add_item(urr_ie_tree, hf_uma_urr_IE, tvb, offset, 1, FALSE);
@@ -1694,7 +1708,7 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		octet = tvb_get_guint8(tvb,offset);
 		proto_tree_add_item(uma_tree, hf_uma_urr_msg_type, tvb, offset, 1, FALSE);
 		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_str(pinfo->cinfo, COL_INFO, val_to_str(octet, uma_urr_msg_type_vals, "Unknown URR (%u)"));
+			col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(octet, &uma_urr_msg_type_vals_ext, "Unknown URR (%u)"));
 		while ((msg_len + 1) > offset ){
 			offset++;
 			offset = dissect_uma_IE(tvb, pinfo, uma_tree, offset);
@@ -1705,7 +1719,7 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		octet = tvb_get_guint8(tvb,offset);
 		proto_tree_add_item(uma_tree, hf_uma_urlc_msg_type, tvb, offset, 1, FALSE);
 		if (check_col(pinfo->cinfo, COL_INFO)){
-			col_add_str(pinfo->cinfo, COL_INFO, val_to_str(octet, uma_urlc_msg_type_vals, "Unknown URLC (%u)"));
+			col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(octet, &uma_urlc_msg_type_vals_ext, "Unknown URLC (%u)"));
 			col_set_fence(pinfo->cinfo,COL_INFO);
 		}
 		offset++;
@@ -1758,7 +1772,7 @@ dissect_uma_urlc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	octet = tvb_get_guint8(tvb,offset);
 	proto_tree_add_item(uma_tree, hf_uma_urlc_msg_type, tvb, offset, 1, FALSE);
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",val_to_str(octet, uma_urlc_msg_type_vals, "Unknown URLC (%u)"));
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",val_to_str_ext(octet, &uma_urlc_msg_type_vals_ext, "Unknown URLC (%u)"));
 		col_set_fence(pinfo->cinfo,COL_INFO);
 	}
 	msg_len = tvb_length_remaining(tvb,offset) - 1;
@@ -1857,12 +1871,12 @@ proto_register_uma(void)
 		},
 		{ &hf_uma_urr_msg_type,
 			{ "URR Message Type", "uma.urr.msg.type",
-			FT_UINT16, BASE_DEC, VALS(uma_urr_msg_type_vals), 0x0,
+			FT_UINT16, BASE_DEC|BASE_EXT_STRING, &uma_urr_msg_type_vals_ext, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_uma_urlc_msg_type,
 			{ "URLC Message Type", "uma.urlc.msg.type",
-			FT_UINT8, BASE_DEC, VALS(uma_urlc_msg_type_vals), 0x0,
+			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &uma_urlc_msg_type_vals_ext, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_uma_urlc_TLLI,
@@ -1877,7 +1891,7 @@ proto_register_uma(void)
 		},
 		{ &hf_uma_urr_IE,
 			{ "URR Information Element","uma.urr.ie.type",
-			FT_UINT8, BASE_DEC, VALS(uma_urr_IE_type_vals), 0x0,
+			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &uma_urr_IE_type_vals_ext, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_uma_urr_IE_len,
@@ -2099,12 +2113,12 @@ proto_register_uma(void)
 		},
 		{ &hf_uma_urr_GSM_RR_state,
 			{ "GSM RR State value","uma.urr.gsmrrstate",
-			FT_UINT8,BASE_DEC,  VALS(uma_GRS_GSM_RR_State_vals), 0x7,
+			FT_UINT8,BASE_DEC|BASE_EXT_STRING,  &uma_GRS_GSM_RR_State_vals_ext, 0x7,
 			NULL, HFILL }
 		},
 		{ &hf_uma_urr_gan_band,
 			{ "UMA Band","uma.urr.umaband",
-			FT_UINT8,BASE_DEC,  VALS(uma_gan_band_vals), 0x0f,
+			FT_UINT8,BASE_DEC|BASE_EXT_STRING,  &uma_gan_band_vals_ext, 0x0f,
 			NULL, HFILL }
 		},
 		{ &hf_uma_urr_URR_state,
@@ -2114,7 +2128,7 @@ proto_register_uma(void)
 		},
 		{ &hf_uma_urr_register_reject_cause,
 			{ "Register Reject Cause","uma.urr.state",
-			FT_UINT8,BASE_DEC,  VALS(register_reject_cause_vals), 0x0,
+			FT_UINT8,BASE_DEC|BASE_EXT_STRING,  &register_reject_cause_vals_ext, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_uma_urr_TU3906_timer,
@@ -2154,7 +2168,7 @@ proto_register_uma(void)
 		},
 		{ &hf_uma_urr_algorithm_id,
 			{ "Algorithm identifier","uma.urr.algorithm_identifier",
-			FT_UINT8,BASE_DEC,  VALS(algorithm_identifier_vals), 0xe,
+			FT_UINT8,BASE_DEC|BASE_EXT_STRING,  &algorithm_identifier_vals_ext, 0xe,
 			"Algorithm_identifier", HFILL }
 		},
 		{ &hf_uma_urr_GPRS_resumption,
@@ -2189,7 +2203,7 @@ proto_register_uma(void)
 		},
 		{ &hf_uma_urr_ga_psr_cause,
 			{ "GA-PSR Cause","uma.urr.ga_psr_cause",
-			FT_UINT8,BASE_DEC,  VALS(uma_ga_psr_cause_vals), 0x0,
+			FT_UINT8,BASE_DEC|BASE_EXT_STRING,  &uma_ga_psr_cause_vals_ext, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_uma_urr_udr,
@@ -2234,7 +2248,7 @@ proto_register_uma(void)
 		},
 		{ &hf_uma_urr_establishment_cause,
 			{ "Establishment Cause","uma.urr.establishment_cause",
-			FT_UINT8,BASE_DEC,  VALS(establishment_cause_vals), 0x0,
+			FT_UINT8,BASE_DEC|BASE_EXT_STRING,  &establishment_cause_vals_ext, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_uma_urr_channel,

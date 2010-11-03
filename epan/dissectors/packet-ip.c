@@ -997,6 +997,7 @@ dissect_ipopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     {15, "1.31072 Gbit/s"},
     {0, NULL}
   };
+  static value_string_ext qs_rates_ext = VALUE_STRING_EXT_INIT(qs_rates);
 
   guint8 command = tvb_get_guint8(tvb, offset + 2);
   guint8 function = command >> 4;
@@ -1006,13 +1007,13 @@ dissect_ipopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   case 0x00: /* rate request */
     proto_tree_add_text(opt_tree, tvb, offset,      optlen,
 			"%s: Rate request, %s, QS TTL %u", optp->name,
-		      val_to_str(rate, qs_rates, "Unknown"),
+		      val_to_str_ext_const(rate, &qs_rates_ext, "Unknown"),
 		      tvb_get_guint8(tvb, offset + 3));
     break;
   case 0x08: /* rate report */
     proto_tree_add_text(opt_tree, tvb, offset,      optlen,
 			"%s: Rate report, %s", optp->name,
-			val_to_str(rate, qs_rates, "Unknown"));
+			val_to_str_ext_const(rate, &qs_rates_ext, "Unknown"));
     break;
   default:
     proto_tree_add_text(opt_tree, tvb, offset,      optlen,

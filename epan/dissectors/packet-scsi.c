@@ -4270,7 +4270,7 @@ dissect_scsi_rsp (tvbuff_t *tvb, packet_info *pinfo,
     cdata->type=SCSI_PDU_TYPE_RSP;
     tap_queue_packet(scsi_tap, pinfo, cdata);
 
-    csdata=get_cmdset_data(itlq, itl);   /* will gassert if itlq is null */
+    csdata=get_cmdset_data(itlq, itl);   /* will g_assert if itlq is null */
 
     /* Nothing really to do here, just print some stuff passed to us
      */

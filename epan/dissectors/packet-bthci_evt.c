@@ -640,7 +640,7 @@ dissect_bthci_evt_cod(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 
 		buf[0] = 0;
 
-		proto_item_append_text(item, " (%s - services:", val_to_str(cod1 & 0x1f, bthci_cmd_major_dev_class_vals, "???"));
+		proto_item_append_text(item, " (%s - services:", val_to_str_ext_const(cod1 & 0x1f, &bthci_cmd_major_dev_class_vals_ext, "???"));
 		if (cod2 & 0x80) g_strlcat(buf, " Information,", sizeof(buf));
 		if (cod2 & 0x40) g_strlcat(buf, " Telephony,", sizeof(buf));
 		if (cod2 & 0x20) g_strlcat(buf, " Audio,", sizeof(buf));
@@ -658,7 +658,7 @@ dissect_bthci_evt_cod(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 	}
 	else
 	{
-		proto_item_append_text(item, " (%s - no major services)", val_to_str(cod1 & 0x1f, bthci_cmd_major_dev_class_vals, "???"));
+		proto_item_append_text(item, " (%s - no major services)", val_to_str_ext_const(cod1 & 0x1f, &bthci_cmd_major_dev_class_vals_ext, "???"));
 	}
 
 	return offset+3;
@@ -1147,7 +1147,7 @@ dissect_bthci_evt_command_status(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 	offset+=2;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-						val_to_str(opcode, bthci_cmd_opcode_vals, "Unknown 0x%08x"));
+						val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext, "Unknown 0x%08x"));
 
 	return offset;
 }
@@ -1230,7 +1230,7 @@ dissect_bthci_evt_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *p
 
 			type = tvb_get_guint8(tvb, offset+i+1);
 
-			proto_item_append_text(ti_eir_struct,"%s", val_to_str(type, bthci_cmd_eir_data_type_vals, "Unknown"));
+			proto_item_append_text(ti_eir_struct,"%s", val_to_str_ext_const(type, &bthci_cmd_eir_data_type_vals_ext, "Unknown"));
 
 			proto_tree_add_item(ti_eir_struct_subtree,hf_bthci_evt_eir_struct_length, tvb, offset+i, 1, TRUE);
 			proto_tree_add_item(ti_eir_struct_subtree,hf_bthci_evt_eir_struct_type, tvb, offset+i+1, 1, TRUE);
@@ -1403,7 +1403,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
 	offset+=2;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-						val_to_str(com_opcode, bthci_cmd_opcode_vals, "Unknown 0x%08x"));
+						val_to_str_ext(com_opcode, &bthci_cmd_opcode_vals_ext, "Unknown 0x%08x"));
 
 	switch(com_opcode) {
 		/* This is a list of Commands that all return just the status */
@@ -2598,12 +2598,12 @@ proto_register_bthci_evt(void)
 
 		{ &hf_bthci_evt_com_opcode,
 			{ "Command Opcode",           "bthci_evt.com_opcode",
-				FT_UINT16, BASE_HEX, VALS(bthci_cmd_opcode_vals), 0x0,
+				FT_UINT16, BASE_HEX|BASE_EXT_STRING, &bthci_cmd_opcode_vals_ext, 0x0,
 				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_ogf,
 			{ "ogf",           "bthci_evt.ogf",
-				FT_UINT16, BASE_HEX, VALS(bthci_ogf_vals), 0xfc00,
+				FT_UINT16, BASE_HEX|BASE_EXT_STRING, &bthci_ogf_vals_ext, 0xfc00,
 				"Opcode Group Field", HFILL }
 		},
 		{ &hf_bthci_evt_ocf,
@@ -2618,7 +2618,7 @@ proto_register_bthci_evt(void)
 		},
 		{ &hf_bthci_evt_status,
 			{ "Status",           "bthci_evt.status",
-				FT_UINT8, BASE_HEX, VALS(bthci_cmd_status_vals), 0x0,
+				FT_UINT8, BASE_HEX|BASE_EXT_STRING, &bthci_cmd_status_vals_ext, 0x0,
 				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_status_pending,
@@ -2648,7 +2648,7 @@ proto_register_bthci_evt(void)
 		},
 		{ &hf_bthci_evt_reason,
 			{ "Reason",           "bthci_evt.reason",
-				FT_UINT8, BASE_HEX, VALS(bthci_cmd_status_vals), 0x0,
+				FT_UINT8, BASE_HEX|BASE_EXT_STRING, &bthci_cmd_status_vals_ext, 0x0,
 				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_remote_name,
@@ -3458,7 +3458,7 @@ proto_register_bthci_evt(void)
 		},
 		{ &hf_bthci_evt_auth_requirements,
 			{"Authentication Requirements", "bthci_evt.auth_requirements",
-				FT_UINT8, BASE_DEC, VALS(bthci_cmd_auth_req_vals), 0x0,
+				FT_UINT8, BASE_DEC|BASE_EXT_STRING, &bthci_cmd_auth_req_vals_ext, 0x0,
 				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_numeric_value,
@@ -3488,12 +3488,12 @@ proto_register_bthci_evt(void)
 		},
 		{ &hf_bthci_evt_eir_struct_type,
 			{ "Type",           "bthci_cmd.eir_data_type",
-				FT_UINT8, BASE_HEX, VALS(bthci_cmd_eir_data_type_vals), 0x0,
+				FT_UINT8, BASE_HEX|BASE_EXT_STRING, &bthci_cmd_eir_data_type_vals_ext, 0x0,
 				"Data Type", HFILL }
 		},
 		{ &hf_bthci_evt_sc_uuid16,
 			{ "UUID",           "bthci_cmd.service_class_uuid16",
-				FT_UINT16, BASE_HEX, VALS(bthci_cmd_service_class_type_vals), 0x0,
+				FT_UINT16, BASE_HEX|BASE_EXT_STRING, &bthci_cmd_service_class_type_vals_ext, 0x0,
 				"16-bit Service Class UUID", HFILL }
 		},
 		{ &hf_bthci_evt_sc_uuid32,

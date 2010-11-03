@@ -233,6 +233,7 @@ static const value_string v8_agg[] = {
 	{V8PDU_PREPORTPROTOCOL_METHOD,  "V8 Port+Protocol aggregation"},
 	{0, NULL}
 };
+static value_string_ext v8_agg_ext = VALUE_STRING_EXT_INIT(v8_agg);
 
 /* Version 9 template cache structures */
 /* This was 100, but this gives a horrible hash distribution. */
@@ -567,7 +568,6 @@ static const value_string v9_v10_template_types[] = {
 	{ 40005, "FW_EVENT" },
 	{ 0, NULL }
 };
-
 static value_string_ext v9_v10_template_types_ext = VALUE_STRING_EXT_INIT(v9_v10_template_types);
 
 static const value_string v9_scope_field_types[] = {
@@ -578,7 +578,6 @@ static const value_string v9_scope_field_types[] = {
 	{ 5, "Template" },
 	{ 0, NULL }
 };
-
 static value_string_ext v9_scope_field_types_ext = VALUE_STRING_EXT_INIT(v9_scope_field_types);
 
 static const value_string v9_sampler_mode[] = {
@@ -587,11 +586,13 @@ static const value_string v9_sampler_mode[] = {
 	{ 2, "Random" },
 	{ 0, NULL }
 };
+
 static const value_string v9_direction[] = {
 	{ 0, "Ingress" },
 	{ 1, "Egress" },
 	{ 0, NULL }
 };
+
 static const value_string v9_forwarding_status[] = {
 	{ 0, "Unknown"},  /* Observed on IOS-XR 3.2 */
 	{ 1, "Forward"},  /* Observed on 7200 12.4(9)T */
@@ -599,6 +600,7 @@ static const value_string v9_forwarding_status[] = {
 	{ 3, "Consume"},  /* Observed on 7200 12.4(9)T */
 	{ 0, NULL }
 };
+
 static const value_string v9_forwarding_status_code[] = {
 	{  64, "Forwarded (Unknown)" },
 	{  65, "Forwarded Fragmented" },
@@ -625,6 +627,8 @@ static const value_string v9_forwarding_status_code[] = {
 	{ 195, "Terminate For us" },
 	{ 0, NULL }
 };
+static value_string_ext v9_forwarding_status_code_ext = VALUE_STRING_EXT_INIT(v9_forwarding_status_code);
+
 static const value_string v9_firewall_event[] = {
 	{ 0, "Default (ignore)"},
 	{ 1, "Flow created"},
@@ -642,12 +646,14 @@ static const value_string v9_extended_firewall_event[] = {
 	{ 1004, "Flow denied (TCP flow beginning with not TCP SYN)"},
 	{ 0, NULL }
 };
+
 static const value_string engine_type[] = {
 	{ 0, "RP"},
 	{ 1, "VIP/Linecard"},
 	{ 2, "PFC/DFC" },
 	{ 0, NULL }
 };
+
 static const value_string v9_flow_end_reason[] = {
 	{ 0, "Unknown"},
 	{ 1, "Idle timeout"},
@@ -657,6 +663,7 @@ static const value_string v9_flow_end_reason[] = {
 	{ 5, "Lack of resources" },
 	{ 0, NULL }
 };
+
 static const value_string v9_biflow_direction[] = {
 	{ 0, "Arbitrary"},
 	{ 1, "Initiator"},
@@ -664,6 +671,7 @@ static const value_string v9_biflow_direction[] = {
 	{ 3, "Perimeter" },
 	{ 0, NULL }
 };
+
 static const value_string selector_algorithm[] = {
 	{ 0, "Reserved"},
 	{ 1, "Systematic count-based Sampling"},
@@ -676,6 +684,7 @@ static const value_string selector_algorithm[] = {
 	{ 8, "Hash based Filtering using CRC"},
 	{ 0, NULL }
 };
+static value_string_ext selector_algorithm_ext = VALUE_STRING_EXT_INIT(selector_algorithm);
 
 
 
@@ -1186,7 +1195,7 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ipfix_debug0("dissect_netflow: start");
 
 	ver = tvb_get_ntohs(tvb, offset);
-	
+
 	ipfix_debug1("dissect_netflow: found version %d", ver);
 
 	switch (ver) {
@@ -2745,8 +2754,8 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 			if (length==1) {
 				proto_item_append_text(ti, ": %s", val_to_str((tvb_get_guint8(tvb, offset)>>6),
 									      v9_forwarding_status, "Unknown(%d)"));
-				proto_item_append_text(ti, ": %s", val_to_str((tvb_get_guint8(tvb, offset)&0x3F),
-									      v9_forwarding_status_code, "Unknown(%d)"));
+				proto_item_append_text(ti, ": %s", val_to_str_ext((tvb_get_guint8(tvb, offset)&0x3F),
+									      &v9_forwarding_status_code_ext, "Unknown(%d)"));
 			};
 			break;
 
@@ -4644,7 +4653,7 @@ proto_register_netflow(void)
 		 },
 		{&hf_cflow_aggmethod,
 		 {"AggMethod", "cflow.aggmethod",
-		  FT_UINT8, BASE_DEC, VALS(v8_agg), 0x0,
+		  FT_UINT8, BASE_DEC|BASE_EXT_STRING, &v8_agg_ext, 0x0,
 		  "CFlow V8 Aggregation Method", HFILL}
 		 },
 		{&hf_cflow_aggversion,
@@ -5046,7 +5055,7 @@ proto_register_netflow(void)
 		 },
 		{&hf_cflow_forwarding_code,
 		 {"ForwdCode", "cflow.forwarding_code",
-		  FT_UINT8, BASE_DEC, VALS(v9_forwarding_status_code), 0x3F,
+		  FT_UINT8, BASE_DEC|BASE_EXT_STRING, &v9_forwarding_status_code_ext, 0x3F,
 		  "Forwarding Code", HFILL}
 		 },
 		{&hf_cflow_nbar_appl_desc,
@@ -5892,7 +5901,7 @@ proto_register_netflow(void)
 		},
 		{&hf_cflow_selector_algorithm,
 		 {"Selector Algorithm", "cflow.selector_algorithm",
-		  FT_UINT16, BASE_DEC, VALS(selector_algorithm), 0x0,
+		  FT_UINT16, BASE_DEC|BASE_EXT_STRING, &selector_algorithm_ext, 0x0,
 		  NULL, HFILL}
 		},
 		{&hf_cflow_sampling_packet_interval,

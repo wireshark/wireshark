@@ -238,7 +238,7 @@ static gint ett_opcode = -1;
 static gint ett_eir_subtree = -1;
 static gint ett_eir_struct_subtree = -1;
 
-const value_string bthci_cmd_opcode_vals[] = {
+static const value_string bthci_cmd_opcode_vals[] = {
 	{0x0000, "No Operation"},
 	{0x0401, "Inquiry"},
 	{0x0402, "Inquiry Cancel"},
@@ -382,8 +382,9 @@ const value_string bthci_cmd_opcode_vals[] = {
 	{0xfc00, "Vendor-Specific"},
 	{0, NULL}
 };
+value_string_ext bthci_cmd_opcode_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_opcode_vals);
 
-const value_string bthci_ogf_vals[] = {
+static const value_string bthci_ogf_vals[] = {
 	{ HCI_OGF_LINK_CONTROL,	"Link Control Commands" },
 	{ HCI_OGF_LINK_POLICY,	"Link Policy Commands" },
 	{ HCI_OGF_HOST_CONTROLLER,"Host Controller & Baseband Commands" },
@@ -394,8 +395,9 @@ const value_string bthci_ogf_vals[] = {
 	{ HCI_OGF_VENDOR_SPECIFIC,	"Vendor-Specific Commands" },
 	{ 0, NULL }
 };
+value_string_ext bthci_ogf_vals_ext = VALUE_STRING_EXT_INIT(bthci_ogf_vals);
 
-const value_string bthci_cmd_status_vals[] = {
+static const value_string bthci_cmd_status_vals[] = {
 	{0x00, "Success"},
 	{0x01, "Unknown HCI Command"},
 	{0x02, "No Connection"},
@@ -452,8 +454,9 @@ const value_string bthci_cmd_status_vals[] = {
 	{0x38, "Host Busy - Pairing"},
 	{0, NULL }
 };
+value_string_ext bthci_cmd_status_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_status_vals);
 
-const value_string bthci_cmd_major_dev_class_vals[] = {
+static const value_string bthci_cmd_major_dev_class_vals[] = {
 	{0x00, "Miscellaneous"},
 	{0x01, "Computer"},
 	{0x02, "Phone"},
@@ -465,8 +468,9 @@ const value_string bthci_cmd_major_dev_class_vals[] = {
 	{0x08, "Toy"},
 	{0, NULL }
 };
+value_string_ext bthci_cmd_major_dev_class_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_major_dev_class_vals);
 
-const value_string bthci_cmd_service_class_type_vals[] = {
+static const value_string bthci_cmd_service_class_type_vals[] = {
 	{0x1000, "Service Discovery Server Service"},
 	{0x1001, "Browse Group Descriptor Service"},
 	{0x1002, "Public Browse Group"},
@@ -533,50 +537,53 @@ const value_string bthci_cmd_service_class_type_vals[] = {
 	{0x1305, "Video Distribution"},
 	{0, NULL}
 };
+value_string_ext bthci_cmd_service_class_type_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_service_class_type_vals);
 
-const value_string bthci_cmd_eir_data_type_vals[] = {
-  {0x01, "Flags" },
-  {0x02, "16-bit Service Class UUIDs (incomplete)" },
-  {0x03, "16-bit Service Class UUIDs" },
-  {0x04, "32-bit Service Class UUIDs (incomplete)" },
-  {0x05, "32-bit Service Class UUIDs" },
-  {0x06, "128-bit Service Class UUIDs (incomplete)" },
-  {0x07, "128-bit Service Class UUIDs" },
-  {0x08, "Device Name (shortened)" },
-  {0x09, "Device Name" },
-  {0x0A, "Tx Power Level" },
-  {0x0B, "OOB Optional Data Length" },
-  {0x0C, "BD_ADDR" },
-  {0x0D, "Class Of Device" },
-  {0x0E, "Simple Pairing Hash C" },
-  {0x0F, "Simple Pairing Randomizer R" },
-  {0xFF, "Manufacturer Specific" },
-  {   0, NULL }
+static const value_string bthci_cmd_eir_data_type_vals[] = {
+	{0x01, "Flags" },
+	{0x02, "16-bit Service Class UUIDs (incomplete)" },
+	{0x03, "16-bit Service Class UUIDs" },
+	{0x04, "32-bit Service Class UUIDs (incomplete)" },
+	{0x05, "32-bit Service Class UUIDs" },
+	{0x06, "128-bit Service Class UUIDs (incomplete)" },
+	{0x07, "128-bit Service Class UUIDs" },
+	{0x08, "Device Name (shortened)" },
+	{0x09, "Device Name" },
+	{0x0A, "Tx Power Level" },
+	{0x0B, "OOB Optional Data Length" },
+	{0x0C, "BD_ADDR" },
+	{0x0D, "Class Of Device" },
+	{0x0E, "Simple Pairing Hash C" },
+	{0x0F, "Simple Pairing Randomizer R" },
+	{0xFF, "Manufacturer Specific" },
+	{   0, NULL }
 };
+value_string_ext bthci_cmd_eir_data_type_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_eir_data_type_vals);
 
 const value_string bthci_cmd_io_capability_vals[] = {
-  {0x00, "Display Only" },
-  {0x01, "Display Yes/No" },
-  {0x02, "Keyboard Only" },
-  {0x03, "No Input, No Output" },
-  {   0, NULL }
+	{0x00, "Display Only" },
+	{0x01, "Display Yes/No" },
+	{0x02, "Keyboard Only" },
+	{0x03, "No Input, No Output" },
+	{   0, NULL }
 };
 
 const value_string bthci_cmd_oob_data_present_vals[] = {
-  {0x00, "OOB Authentication Data Not Present" },
-  {0x01, "OOB Authentication Data From Remote Device Present" },
-  {   0, NULL }
+	{0x00, "OOB Authentication Data Not Present" },
+	{0x01, "OOB Authentication Data From Remote Device Present" },
+	{   0, NULL }
 };
 
-const value_string bthci_cmd_auth_req_vals[] = {
-  {0x00, "MITM Protection Not Required - No Bonding. Numeric Comparison, Automatic Accept Allowed" },
-  {0x01, "MITM Protection Required - No Bonding. Use IO Capabilty To Determine Procedure" },
-  {0x02, "MITM Protection Not Required - Dedicated Bonding. Numeric Comparison, Automatic Accept Allowed" },
-  {0x03, "MITM Protection Required - Dedicated Bonding. Use IO Capabilty To Determine Procedure" },
-  {0x04, "MITM Protection Not Required - General Bonding. Numeric Comparison, Automatic Accept Allowed" },
-  {0x05, "MITM Protection Required - General Bonding. Use IO Capabilty To Determine Procedure" },
-  {   0, NULL }
+static const value_string bthci_cmd_auth_req_vals[] = {
+	{0x00, "MITM Protection Not Required - No Bonding. Numeric Comparison, Automatic Accept Allowed" },
+	{0x01, "MITM Protection Required - No Bonding. Use IO Capabilty To Determine Procedure" },
+	{0x02, "MITM Protection Not Required - Dedicated Bonding. Numeric Comparison, Automatic Accept Allowed" },
+	{0x03, "MITM Protection Required - Dedicated Bonding. Use IO Capabilty To Determine Procedure" },
+	{0x04, "MITM Protection Not Required - General Bonding. Numeric Comparison, Automatic Accept Allowed" },
+	{0x05, "MITM Protection Required - General Bonding. Use IO Capabilty To Determine Procedure" },
+	{   0, NULL }
 };
+value_string_ext bthci_cmd_auth_req_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_auth_req_vals);
 
 static const value_string cmd_role_vals[] = {
 	{0x00, "Become Master"},
@@ -759,44 +766,44 @@ static const value_string cmd_role_switch_modes[] = {
 };
 
 static const value_string cmd_rtx_effort[] = {
-  {0x00, "No Retransmission" },
-  {0x01, "At least 1 retransmission, optimize for consumption" },
-  {0x02, "At least 1 retransmission, optimize for link quality" },
-  {0xFF, "Don't Care" },
-  {   0, NULL }
+	{0x00, "No Retransmission" },
+	{0x01, "At least 1 retransmission, optimize for consumption" },
+	{0x02, "At least 1 retransmission, optimize for link quality" },
+	{0xFF, "Don't Care" },
+	{   0, NULL }
 };
 
 static const value_string cmd_scan_types[] = {
-  {0x00, "Standard Scan" },
-  {0x01, "Interlaced Scan" },
-  {   0, NULL }
+	{0x00, "Standard Scan" },
+	{0x01, "Interlaced Scan" },
+	{   0, NULL }
 };
 
 static const value_string cmd_inq_modes[] = {
-  {0x00, "Standard Results" },
-  {0x01, "Results With RSSI" },
-  {0x02, "Results With RSSI or Extended Results" },
-  {   0, NULL }
+	{0x00, "Standard Results" },
+	{0x01, "Results With RSSI" },
+	{0x02, "Results With RSSI or Extended Results" },
+	{   0, NULL }
 };
 
 static const value_string cmd_flush_pkt_type[] = {
-  {0x00, "Automatically Flushable Only" },
-  {   0, NULL }
+	{0x00, "Automatically Flushable Only" },
+	{   0, NULL }
 };
 
 static const value_string cmd_which_clock[] = {
-  {0x00, "Local" },
-  {0x01, "Piconet" },
-  {   0, NULL }
+	{0x00, "Local" },
+	{0x01, "Piconet" },
+	{   0, NULL }
 };
 
 static const value_string cmd_notification_types[] = {
-  {0x00, "Passkey Entry Started" },
-  {0x01, "Passkey Digit Entered" },
-  {0x02, "Passkey Digit Erased" },
-  {0x03, "Passkey Cleared" },
-  {0x04, "Passkey Entry Completed" },
-  {   0, NULL }
+	{0x00, "Passkey Entry Started" },
+	{0x01, "Passkey Digit Entered" },
+	{0x02, "Passkey Digit Erased" },
+	{0x03, "Passkey Cleared" },
+	{0x04, "Passkey Entry Completed" },
+	{   0, NULL }
 };
 
 
@@ -836,7 +843,7 @@ dissect_bthci_cmd_cod(int type, tvbuff_t *tvb, int offset, packet_info *pinfo _U
 
 		buf[0] = '\0';
 
-		proto_item_append_text(item, " (%s - services:", val_to_str(cod1 & 0x1f, bthci_cmd_major_dev_class_vals, "???"));
+		proto_item_append_text(item, " (%s - services:", val_to_str_ext_const(cod1 & 0x1f, &bthci_cmd_major_dev_class_vals_ext, "???"));
 		if (cod2 & 0x80) g_strlcat(buf, " Information,", sizeof(buf));
 		if (cod2 & 0x40) g_strlcat(buf, " Telephony,", sizeof(buf));
 		if (cod2 & 0x20) g_strlcat(buf, " Audio,", sizeof(buf));
@@ -854,7 +861,7 @@ dissect_bthci_cmd_cod(int type, tvbuff_t *tvb, int offset, packet_info *pinfo _U
 	}
 	else
 	{
-		proto_item_append_text(item, " (%s - no major services)", val_to_str(cod1 & 0x1f, bthci_cmd_major_dev_class_vals, "???"));
+		proto_item_append_text(item, " (%s - no major services)", val_to_str_ext_const(cod1 & 0x1f, &bthci_cmd_major_dev_class_vals_ext, "???"));
 	}
 
 	return offset+3;
@@ -885,7 +892,7 @@ dissect_bthci_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 			type = tvb_get_guint8(tvb, offset+i+1);
 
-			proto_item_append_text(ti_eir_struct,"%s", val_to_str(type, bthci_cmd_eir_data_type_vals, "Unknown"));
+			proto_item_append_text(ti_eir_struct,"%s", val_to_str_ext_const(type, &bthci_cmd_eir_data_type_vals_ext, "Unknown"));
 
 			proto_tree_add_item(ti_eir_struct_subtree,hf_bthci_cmd_eir_struct_length, tvb, offset+i, 1, TRUE);
 			proto_tree_add_item(ti_eir_struct_subtree,hf_bthci_cmd_eir_struct_type, tvb, offset+i+1, 1, TRUE);
@@ -1889,12 +1896,12 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ocf = opcode & 0x03ff;
     ogf = (guint8) (opcode >> 10);
 
-	proto_item_append_text(ti_cmd," - %s", val_to_str(opcode, bthci_cmd_opcode_vals, "Unknown 0x%04x"));
+	proto_item_append_text(ti_cmd," - %s", val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext, "Unknown 0x%04x"));
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_CMD");
 
 	if((check_col(pinfo->cinfo, COL_INFO))){
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(opcode, bthci_cmd_opcode_vals, "Unknown 0x%04x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext, "Unknown 0x%04x"));
 	}
 
 
@@ -1955,12 +1962,12 @@ proto_register_bthci_cmd(void)
 	/* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
 		{ &hf_bthci_cmd_opcode,
-			{ "Command Opcode","bthci_cmd.opcode", FT_UINT16, BASE_HEX,
-				VALS(bthci_cmd_opcode_vals), 0x0, "HCI Command Opcode", HFILL }
+			{ "Command Opcode","bthci_cmd.opcode", FT_UINT16, BASE_HEX|BASE_EXT_STRING,
+				&bthci_cmd_opcode_vals_ext, 0x0, "HCI Command Opcode", HFILL }
 		},
 		{ &hf_bthci_cmd_ogf,
 			{ "ogf",           "bthci_cmd.ogf",
-				FT_UINT16, BASE_HEX, VALS(bthci_ogf_vals), 0xfc00,
+				FT_UINT16, BASE_HEX|BASE_EXT_STRING, &bthci_ogf_vals_ext, 0xfc00,
 				"Opcode Group Field", HFILL }
 		},
 		{ &hf_bthci_cmd_ocf,
@@ -2095,7 +2102,7 @@ proto_register_bthci_cmd(void)
 		},
 		{ &hf_bthci_cmd_status,
 			{ "Status",           "bthci_cmd.status",
-				FT_UINT8, BASE_HEX, VALS(bthci_cmd_status_vals), 0x0,
+				FT_UINT8, BASE_HEX|BASE_EXT_STRING, &bthci_cmd_status_vals_ext, 0x0,
 				NULL, HFILL }
 		},
 
@@ -2116,7 +2123,7 @@ proto_register_bthci_cmd(void)
 		},
 		{ &hf_bthci_cmd_reason,
 			{ "Reason",           "bthci_cmd.reason",
-				FT_UINT8, BASE_HEX, VALS(bthci_cmd_status_vals), 0x0,
+				FT_UINT8, BASE_HEX|BASE_EXT_STRING, &bthci_cmd_status_vals_ext, 0x0,
 				NULL, HFILL }
 		},
 		{ &hf_bthci_cmd_num_link_keys,
@@ -2812,17 +2819,17 @@ proto_register_bthci_cmd(void)
 		},
 		{ &hf_bthci_cmd_io_capability,
 			{"IO Capability", "bthci_cmd.io_capability",
-				FT_UINT8, BASE_DEC, VALS(bthci_cmd_io_capability_vals), 0x0,
+			 	FT_UINT8, BASE_DEC, VALS(bthci_cmd_io_capability_vals), 0x0,
 				NULL, HFILL}
 		},
 		{ &hf_bthci_cmd_oob_data_present,
 			{"OOB Data Present", "bthci_cmd.oob_data_present",
-				FT_UINT8, BASE_DEC, VALS(bthci_cmd_oob_data_present_vals), 0x0,
+			 	FT_UINT8, BASE_DEC, VALS(bthci_cmd_oob_data_present_vals), 0x0,
 				NULL, HFILL}
 		},
 		{ &hf_bthci_cmd_auth_requirements,
 			{"Authentication Requirements", "bthci_cmd.auth_requirements",
-				FT_UINT8, BASE_DEC, VALS(bthci_cmd_auth_req_vals), 0x0,
+				FT_UINT8, BASE_DEC|BASE_EXT_STRING, &bthci_cmd_auth_req_vals_ext, 0x0,
 				NULL, HFILL}
 		},
 		{ &hf_bthci_cmd_passkey,
@@ -2867,12 +2874,12 @@ proto_register_bthci_cmd(void)
 		},
 		{ &hf_bthci_cmd_eir_struct_type,
 			{ "Type",           "bthci_cmd.eir_data_type",
-				FT_UINT8, BASE_HEX, VALS(bthci_cmd_eir_data_type_vals), 0x0,
+				FT_UINT8, BASE_HEX|BASE_EXT_STRING, &bthci_cmd_eir_data_type_vals_ext, 0x0,
 				"Data Type", HFILL }
 		},
 		{ &hf_bthci_cmd_sc_uuid16,
 			{ "UUID",           "bthci_cmd.service_class_uuid16",
-				FT_UINT16, BASE_HEX, VALS(bthci_cmd_service_class_type_vals), 0x0,
+				FT_UINT16, BASE_HEX|BASE_EXT_STRING, &bthci_cmd_service_class_type_vals_ext, 0x0,
 				"16-bit Service Class UUID", HFILL }
 		},
 		{ &hf_bthci_cmd_sc_uuid32,

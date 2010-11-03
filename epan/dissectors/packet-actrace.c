@@ -124,6 +124,7 @@ static const value_string actrace_cas_mf_vals[] = {
 	{46, "#"},
 	{0, NULL}
 };
+static value_string_ext actrace_cas_mf_vals_ext = VALUE_STRING_EXT_INIT(actrace_cas_mf_vals);
 
 static const value_string actrace_cas_event_vals[] = {
 	{0, "FUNCTION0"},
@@ -173,21 +174,21 @@ static const value_string actrace_cas_event_vals[] = {
 	{44, "EV_MFRn_13"},
 	{45, "EV_MFRn_14"},
 	{46, "EV_MFRn_15"},
-	{47, "EV_MFRn_1_STOPED"},
-	{48, "EV_MFRn_2_STOPED"},
-	{49, "EV_MFRn_3_STOPED"},
-	{50, "EV_MFRn_4_STOPED"},
-	{51, "EV_MFRn_5_STOPED"},
-	{52, "EV_MFRn_6_STOPED"},
-	{53, "EV_MFRn_7_STOPED"},
-	{54, "EV_MFRn_8_STOPED"},
-	{55, "EV_MFRn_9_STOPED"},
-	{56, "EV_MFRn_10_STOPED"},
-	{57, "EV_MFRn_11_STOPED"},
-	{58, "EV_MFRn_12_STOPED"},
-	{59, "EV_MFRn_13_STOPED"},
-	{60, "EV_MFRn_14_STOPED"},
-	{61, "EV_MFRn_15_STOPED"},
+	{47, "EV_MFRn_1_STOPPED"},
+	{48, "EV_MFRn_2_STOPPED"},
+	{49, "EV_MFRn_3_STOPPED"},
+	{50, "EV_MFRn_4_STOPPED"},
+	{51, "EV_MFRn_5_STOPPED"},
+	{52, "EV_MFRn_6_STOPPED"},
+	{53, "EV_MFRn_7_STOPPED"},
+	{54, "EV_MFRn_8_STOPPED"},
+	{55, "EV_MFRn_9_STOPPED"},
+	{56, "EV_MFRn_10_STOPPED"},
+	{57, "EV_MFRn_11_STOPPED"},
+	{58, "EV_MFRn_12_STOPPED"},
+	{59, "EV_MFRn_13_STOPPED"},
+	{60, "EV_MFRn_14_STOPPED"},
+	{61, "EV_MFRn_15_STOPPED"},
 	{62, "EV_ANI_NUM_DETECTED"},
 	{ACTRACE_CAS_EV_FIRST_DIGIT, "EV_FIRST_DIGIT"},
 	{64, "EV_END_OF_MF_DIGIT"},
@@ -198,9 +199,6 @@ static const value_string actrace_cas_event_vals[] = {
 	{69, "EV_REJECT_RESERVE1"},
 	{70, "EV_REJECT_RESERVE2"},
 	{71, "EV_NO_ANI"},
-	{1010, "EV_TIMER_EXPIRED10"},
-	{1020, "EV_DEBOUNCE_TIMER_EXPIRED"},
-	{1030, "EV_INTER_DIGIT_TIMER_EXPIRED"},
 	{100, "EV_INIT_CHANNEL"},
 	{101, "EV_BUSY_TONE_STOPPED"},
 	{102, "EV_FAST_BUSY_TONE_STOPPED"},
@@ -212,8 +210,12 @@ static const value_string actrace_cas_event_vals[] = {
 	{113, "EV_FAIL_SEND_CAS"},
 	{114, "EV_ALARM"},
 	{ACTRACE_CAS_EV_DTMF, "EV_DTMF"},
+	{1010, "EV_TIMER_EXPIRED10"},
+	{1020, "EV_DEBOUNCE_TIMER_EXPIRED"},
+	{1030, "EV_INTER_DIGIT_TIMER_EXPIRED"},
 	{0, NULL}
 };
+static value_string_ext actrace_cas_event_vals_ext = VALUE_STRING_EXT_INIT(actrace_cas_event_vals);
 
 #define SEND_CAS 2
 #define SEND_EVENT 3
@@ -239,6 +241,7 @@ static const value_string actrace_cas_function_vals[] = {
 	{14, "GENERATE_CAS_EV"},
 	{0, NULL}
 };
+static value_string_ext actrace_cas_function_vals_ext = VALUE_STRING_EXT_INIT(actrace_cas_function_vals);
 
 static const value_string actrace_cas_pstn_event_vals[] = {
 	{64, "acEV_PSTN_INTERNAL_ERROR"},
@@ -265,6 +268,7 @@ static const value_string actrace_cas_pstn_event_vals[] = {
 	{132, "acEV_CAS_SEIZURE_ACK"},
 	{0, NULL}
 };
+static value_string_ext actrace_cas_pstn_event_vals_ext = VALUE_STRING_EXT_INIT(actrace_cas_pstn_event_vals);
 
 static const value_string actrace_cas_collect_type_vals[] = {
 	{0, "COLLECT_TYPE_ADDRESS"},
@@ -315,22 +319,22 @@ static const value_string actrace_cas_cause_vals[] = {
 	{33, "USER_CONGESTION"},
 	{34, "NO_CIRCUIT_AVAILABLE"},
 	{38, "NETWORK_OUT_OF_ORDER"},
+	{39, "PERM_FR_MODE_CONN_OUT_OF_S"},
+	{40, "PERM_FR_MODE_CONN_OPERATIONAL"},
 	{41, "NETWORK_TEMPORARY_FAILURE"},
 	{42, "NETWORK_CONGESTION"},
 	{43, "ACCESS_INFORMATION_DISCARDED"},
 	{44, "REQUESTED_CIRCUIT_NOT_AVAILABLE"},
-	{47, "RESOURCE_UNAVAILABLE_UNSPECIFIED"},
-	{39, "PERM_FR_MODE_CONN_OUT_OF_S"},
-	{40, "PERM_FR_MODE_CONN_OPERATIONAL"},
 	{46, "PRECEDENCE_CALL_BLOCKED"},
+	{47, "RESOURCE_UNAVAILABLE_UNSPECIFIED"},
 	{49, "QUALITY_OF_SERVICE_UNAVAILABLE"},
 	{50, "REQUESTED_FAC_NOT_SUBSCRIBED"},
-	{57, "BC_NOT_AUTHORIZED"},
-	{58, "BC_NOT_PRESENTLY_AVAILABLE"},
-	{63, "SERVICE_NOT_AVAILABLE"},
 	{53, "CUG_OUT_CALLS_BARRED"},
 	{55, "CUG_INC_CALLS_BARRED"},
+	{57, "BC_NOT_AUTHORIZED"},
+	{58, "BC_NOT_PRESENTLY_AVAILABLE"},
 	{62, "ACCES_INFO_SUBS_CLASS_INCONS"},
+	{63, "SERVICE_NOT_AVAILABLE"},
 	{65, "BC_NOT_IMPLEMENTED"},
 	{66, "CHANNEL_TYPE_NOT_IMPLEMENTED"},
 	{69, "REQUESTED_FAC_NOT_IMPLEMENTED"},
@@ -342,11 +346,11 @@ static const value_string actrace_cas_cause_vals[] = {
 	{84, "CALL_ID_IN_USE"},
 	{85, "NO_CALL_SUSPENDED"},
 	{86, "CALL_HAVING_CALL_ID_CLEARED"},
+	{87, "NOT_CUG_MEMBER"},
 	{88, "INCOMPATIBLE_DESTINATION"},
+	{90, "CUG_NON_EXISTENT"},
 	{91, "INVALID_TRANSIT_NETWORK_SELECTION"},
 	{95, "INVALID_MESSAGE_UNSPECIFIED"},
-	{87, "NOT_CUG_MEMBER"},
-	{90, "CUG_NON_EXISTENT"},
 	{96, "MANDATORY_IE_MISSING"},
 	{97, "MESSAGE_TYPE_NON_EXISTENT"},
 	{98, "MESSAGE_STATE_INCONSISTENCY"},
@@ -360,12 +364,12 @@ static const value_string actrace_cas_cause_vals[] = {
 	{129, "ACU_CAUSE_ACU_BAD_SERVICE"},
 	{130, "ACU_CAUSE_ACU_COLLISION"},
 	{131, "ACU_CAUSE_ACU_FAC_REJECTED"},
-	{255, "ACU_NETWORK_CAUSE_NIL"},
 	{200, "C_ALREADY_BLOCKED"},
 	{201, "C_CHANNEL_BLOCKED"},
 	{202, "C_BLOCKING_DONE"},
 	{203, "C_ALREADY_UNBLOCKED"},
 	{204, "C_UNBLOCKING_DONE"},
+	{255, "ACU_NETWORK_CAUSE_NIL"},
 	{260, "CLRN_MFRn_A4"},
 	{261, "CLRN_MFRn_B1"},
 	{262, "CLRN_MFRn_B2"},
@@ -403,6 +407,7 @@ static const value_string actrace_cas_cause_vals[] = {
 	{318, "ACURC_CLEAR_RQ"},
 	{0, NULL}
 };
+static value_string_ext actrace_cas_cause_vals_ext = VALUE_STRING_EXT_INIT(actrace_cas_cause_vals);
 
 /* ISDN */
 #define PSTN_TO_BLADE	0x49446463
@@ -527,21 +532,21 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *a
 	offset += 4;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s|%d|%s|%d|%s|",
-			val_to_str(source, actrace_cas_source_vals_short, "ukn"),
+			val_to_str_const(source, actrace_cas_source_vals_short, "ukn"),
 			curr_state,
-			val_to_str(event, actrace_cas_event_vals, "%d"),
+			val_to_str_ext(event, &actrace_cas_event_vals_ext, "%d"),
 			next_state,
-			val_to_str(function, actrace_cas_function_vals, "%d"));
+			val_to_str_ext(function, &actrace_cas_function_vals_ext, "%d"));
 
 	par0 = tvb_get_ntohl(tvb, offset);
 	switch (function)
 	{
 		case SEND_EVENT:
 			proto_tree_add_text(actrace_tree, tvb, offset, 4,
-				"Parameter 0: %s", val_to_str(par0,
-				actrace_cas_pstn_event_vals, "Unknown (%d)"));
+				"Parameter 0: %s",  val_to_str_ext(par0,
+				&actrace_cas_pstn_event_vals_ext, "Unknown (%d)"));
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s|",
-					val_to_str(par0, actrace_cas_pstn_event_vals, "%d"));
+					val_to_str_ext(par0, &actrace_cas_pstn_event_vals_ext, "%d"));
 			break;
 		case CHANGE_COLLECT_TYPE:
 			proto_tree_add_text(actrace_tree, tvb, offset, 4,
@@ -567,9 +572,9 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *a
 	par1 = tvb_get_ntohl(tvb, offset);
 	if (function == SEND_EVENT) {
 		proto_tree_add_text(actrace_tree, tvb, offset, 4,
-			"Parameter 1: %s", val_to_str(par1, actrace_cas_cause_vals, "Unknown (%d)"));
+			"Parameter 1: %s", val_to_str_ext(par1, &actrace_cas_cause_vals_ext, "Unknown (%d)"));
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s|",
-				val_to_str(par1, actrace_cas_cause_vals, "%d"));
+				val_to_str_ext(par1, &actrace_cas_cause_vals_ext, "%d"));
 	} else {
 		proto_tree_add_int(actrace_tree, hf_actrace_cas_par1, tvb, offset, 4, par1);
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%d|", par1);
@@ -599,9 +604,9 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *a
 	if (source == ACTRACE_CAS_SOURCE_DSP) {
 		direction = 1;
 		if ( (event >= ACTRACE_CAS_EV_11) && (event <= ACTRACE_CAS_EV_00 ) ) {
-			frame_label = ep_strdup_printf("AB: %s", val_to_str(event, actrace_cas_event_ab_vals, "ERROR") );
+			frame_label = ep_strdup_printf("AB: %s", val_to_str_const(event, actrace_cas_event_ab_vals, "ERROR") );
 		} else if ( (event >= 32) && (event <= 46 ) ) { /* is an MF tone */
-			frame_label = ep_strdup_printf("MF: %s", val_to_str(event, actrace_cas_mf_vals, "ERROR") );
+			frame_label = ep_strdup_printf("MF: %s", val_to_str_ext_const(event, &actrace_cas_mf_vals_ext, "ERROR") );
 		} else if ( (event == ACTRACE_CAS_EV_DTMF ) || (event == ACTRACE_CAS_EV_FIRST_DIGIT ) ) { /* DTMF digit */
 			frame_label = ep_strdup_printf("DTMF: %u", par0 );
 		}
@@ -622,7 +627,7 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *a
 				frame_label = ep_strdup("MF: inter_exch_sw");
 			}
 		} else if (function == SEND_CAS) {
-			frame_label = ep_strdup_printf("AB: %s", val_to_str(ACTRACE_CAS_EV_00-par0, actrace_cas_event_ab_vals, "ERROR"));
+			frame_label = ep_strdup_printf("AB: %s", val_to_str_const(ACTRACE_CAS_EV_00-par0, actrace_cas_event_ab_vals, "ERROR"));
 		} else if (function == SEND_DEST_NUM) {
 			if (par0 == SEND_TYPE_ADDRESS ) {
 				frame_label = ep_strdup("DTMF/MF: sending DNIS");
@@ -745,13 +750,13 @@ void proto_register_actrace(void)
 			  { "Current State", "actrace.cas.curr_state", FT_INT32, BASE_DEC, NULL, 0x0,
 			    NULL, HFILL }},
 			{ &hf_actrace_cas_event,
-			  { "Event", "actrace.cas.event", FT_INT32, BASE_DEC, VALS(actrace_cas_event_vals), 0x0,
+			  { "Event", "actrace.cas.event", FT_INT32, BASE_DEC|BASE_EXT_STRING, &actrace_cas_event_vals_ext, 0x0,
 			    "New Event", HFILL }},
 			{ &hf_actrace_cas_next_state,
 			  { "Next State", "actrace.cas.next_state", FT_INT32, BASE_DEC, NULL, 0x0,
 			    NULL, HFILL }},
 			{ &hf_actrace_cas_function,
-			  { "Function", "actrace.cas.function", FT_INT32, BASE_DEC, VALS(actrace_cas_function_vals), 0x0,
+			  { "Function", "actrace.cas.function", FT_INT32, BASE_DEC|BASE_EXT_STRING, &actrace_cas_function_vals_ext, 0x0,
 			    NULL, HFILL }},
 			{ &hf_actrace_cas_par0,
 			  { "Parameter 0", "actrace.cas.par0", FT_INT32, BASE_DEC, NULL, 0x0,
