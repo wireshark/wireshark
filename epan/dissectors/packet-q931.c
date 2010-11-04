@@ -2612,8 +2612,12 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_str(pinfo->cinfo, COL_INFO, get_message_name(prot_discr, message_type));
 	}
-	if (q931_tree != NULL)
-		proto_tree_add_uint(q931_tree, (prot_discr==NLPID_DMS)?hf_q931_maintenance_message_type:hf_q931_message_type, tvb, offset, 1, message_type);
+	if (q931_tree != NULL){
+		if (prot_discr == NLPID_DMS)
+			proto_tree_add_item(q931_tree, hf_q931_maintenance_message_type, tvb, offset, 1, FALSE);
+		else
+			proto_tree_add_item(q931_tree, hf_q931_message_type, tvb, offset, 1, FALSE);
+	}
 	offset += 1;
 
 	/*
