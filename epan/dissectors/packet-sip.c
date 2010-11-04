@@ -3303,7 +3303,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
 	sip_frame_result = p_get_proto_data(pinfo->fd, proto_sip);
 	if (sip_frame_result == NULL)
 	{
-		sip_frame_result = se_alloc(sizeof(sip_frame_result_value));
+		sip_frame_result = se_alloc0(sizeof(sip_frame_result_value));
 	}
 
 	/* Store return value with this packet */
