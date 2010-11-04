@@ -34,9 +34,6 @@
 
 #include <epan/packet.h>
 
-#ifndef min
-#define min(a,b) (((a)<(b))?(a):(b))
-#endif
 
 /**
  * Returns a value string for the BACnet MS/TP Frame Type.

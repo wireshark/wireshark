@@ -262,15 +262,6 @@ static const value_string mip_extensions[] = {
 #define MPLS_STACK_ENTRY_C_TYPE                 1
 #define MPLS_EXTENDED_PAYLOAD_C_TYPE            1
 
-/* XXX no header defines these macros ??? */
-#ifndef min
-#define min(a,b) (((a)<(b))?(a):(b))
-#endif
-
-#ifndef max
-#define max(a,b) (((a)>(b))?(a):(b))
-#endif
-
 /*
  * Dissect the mobile ip advertisement extensions.
  */
@@ -494,13 +485,13 @@ dissect_mpls_extensions(tvbuff_t *tvb, gint offset, proto_tree *tree)
         /* Object length */
         obj_length = tvb_get_ntohs(tvb, offset);
 
-        obj_trunc_length =  min(obj_length, tvb_reported_length_remaining(tvb, offset));
+        obj_trunc_length =  MIN(obj_length, tvb_reported_length_remaining(tvb, offset));
 
         obj_end_offset = offset + obj_trunc_length;
 
         /* Add a subtree for this object (the text will be reset later) */
         tf_object = proto_tree_add_text(mpls_tree, tvb, offset,
-                                        max(obj_trunc_length, 4),
+                                        MAX(obj_trunc_length, 4),
                                         "Unknown object");
 
         mpls_object_tree = proto_item_add_subtree(tf_object, ett_icmp_mpls_object);

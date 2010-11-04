@@ -261,7 +261,7 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 #if defined(BACNET_MSTP_CHECKSUM_VALIDATE)
 		/* 16-bit checksum - calculate to validate */
-		max_len = min(mstp_frame_pdu_len, mstp_tvb_pdu_len);
+		max_len = MIN(mstp_frame_pdu_len, mstp_tvb_pdu_len);
 		for (i = 0; i < max_len; i++) {
 			crcdata = tvb_get_guint8(tvb, offset+i);
 			crc16 = CRC_Calc_Data(crcdata, crc16);

@@ -45,9 +45,6 @@
 #include <epan/lapd_sapi.h>
 #include "packet-tpkt.h"
 
-#ifndef min
-#define min(a,b) (((a)<(b))?(a):(b))
-#endif
 
 /* Q.931 references:
  *
@@ -2855,7 +2852,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 				 * to the actual size in the frame
 				 */
 				if (!pinfo->can_desegment) {
-					info_element_len = min(info_element_len, tvb_length_remaining(tvb, offset + 3));
+					info_element_len = MIN(info_element_len, tvb_length_remaining(tvb, offset + 3));
 				}
 				/*
 				 * Do we have a handle for the H.225

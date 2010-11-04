@@ -521,11 +521,6 @@ typedef struct _iscsi_conv_data {
     itlq_nexus_t itlq;
 } iscsi_conv_data_t;
 
-static int
-iscsi_min(int a, int b) {
-    return (a < b)? a : b;
-}
-
 /* TargetAddress describes a iscsi port, possibly using a non-standard port
    so we can use this to set up a conversation dissector to that port.
 
@@ -688,7 +683,7 @@ static int
 handleDataSegment(proto_item *ti, tvbuff_t *tvb, guint offset, guint dataSegmentLen, guint endOffset, int hf_id) {
     if(endOffset > offset) {
 	int dataOffset = offset;
-	int dataLen = iscsi_min(dataSegmentLen, endOffset - offset);
+	int dataLen = MIN(dataSegmentLen, endOffset - offset);
 	if(dataLen > 0) {
 	    proto_tree_add_item(ti, hf_id, tvb, offset, dataLen, FALSE);
 	    offset += dataLen;
@@ -709,7 +704,7 @@ static int
 handleDataSegmentAsTextKeys(packet_info *pinfo, proto_item *ti, tvbuff_t *tvb, guint offset, guint dataSegmentLen, guint endOffset, int digestsActive) {
     if(endOffset > offset) {
 	int dataOffset = offset;
-	int textLen = iscsi_min(dataSegmentLen, endOffset - offset);
+	int textLen = MIN(dataSegmentLen, endOffset - offset);
 	if(textLen > 0) {
 	    proto_item *tf = proto_tree_add_text(ti, tvb, offset, textLen, "Key/Value Pairs");
 	    proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_KeyValues);
