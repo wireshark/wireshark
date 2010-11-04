@@ -82,7 +82,7 @@ static void
 dissect_git_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree             *git_tree;
-  proto_item             *ti, *ti1, *ti2;
+  proto_item             *ti;
   int offset = 0;
   guint16 plen;
 
@@ -97,7 +97,7 @@ dissect_git_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  return;
 
   if (plen == 0) {
-	  ti1 = proto_tree_add_uint(git_tree, hf_git_packet_terminator, tvb, offset,
+	  proto_tree_add_uint(git_tree, hf_git_packet_terminator, tvb, offset,
 								4, plen);
 	  return;
   }
@@ -105,11 +105,11 @@ dissect_git_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (git_tree)
   {
 	  tvbuff_t *subtvb;
-	  ti1 = proto_tree_add_uint(git_tree, hf_git_packet_len, tvb, offset,
+	  proto_tree_add_uint(git_tree, hf_git_packet_len, tvb, offset,
 								4, plen);
 
 	  subtvb = tvb_new_subset(tvb, offset+4, plen-4, plen-4);
-	  ti2 = proto_tree_add_item(git_tree, hf_git_packet_data, tvb, offset+4, 
+	  proto_tree_add_item(git_tree, hf_git_packet_data, subtvb, offset+4, 
 								plen-4, FALSE);
 	}
 }
