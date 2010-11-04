@@ -930,7 +930,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      proto_tree_add_item(sbus_tree,
                          hf_sbus_command, tvb, offset, 1, FALSE);
                          offset += 1;
-                     if (request_val->retry_count > 0) {/*this is a retry telegram*/
+                     if (request_val && request_val->retry_count > 0) {/*this is a retry telegram*/
                          hi = proto_tree_add_boolean(sbus_tree,
                               hf_sbus_retry, tvb, 0, 0, TRUE);
                          PROTO_ITEM_SET_GENERATED(hi);
@@ -942,7 +942,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                           proto_tree_add_uint(sbus_tree, hf_sbus_request_in, tvb, 0, 0,
                           request_val->req_frame);
                      }
-                     if (request_val->resp_frame > pinfo->fd->num){
+                     if (request_val && request_val->resp_frame > pinfo->fd->num){
                           proto_tree_add_uint(sbus_tree, hf_sbus_response_in, tvb, 0, 0,
                           request_val->resp_frame);
                      }
