@@ -56,9 +56,6 @@
 #include "atm.h"
 #include "erf.h"
 
-#ifndef min
-#define min(a, b) ((a) > (b) ? (b) : (a))
-#endif
 
 static int erf_read_header(FILE_T fh,
 			   struct wtap_pkthdr *phdr,
@@ -447,7 +444,7 @@ static int erf_read_header(FILE_T fh,
 
   if (phdr != NULL) {
     phdr->len = g_htons(erf_header->wlen);
-    phdr->caplen = min( g_htons(erf_header->wlen),
+    phdr->caplen = MIN( g_htons(erf_header->wlen),
 			g_htons(erf_header->rlen) - (guint32)sizeof(*erf_header) - skiplen );
   }
   return TRUE;

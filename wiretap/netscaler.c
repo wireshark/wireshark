@@ -30,10 +30,6 @@
 #include "buffer.h"
 #include "netscaler.h"
 
-/* Defines imported from netscaler code: nstypes.h */
-
-#define ns_min(a, b)	((a<b)?a:b)
-
 /* Defines imported from netscaler code: nsperfrc.h */
 
 #define	NSPR_SIGSTR_V10	"NetScaler Performance Data"
@@ -574,7 +570,7 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
 	bytes_read = file_read(dp, 1, len, wth->fh);
 	if (bytes_read == len) {
 
-		for ( ; len > (gint32)(ns_min(sizeof(NSPR_SIGSTR_V10), sizeof(NSPR_SIGSTR_V20))); dp++, len--)
+		for ( ; len > (gint32)(MIN(sizeof(NSPR_SIGSTR_V10), sizeof(NSPR_SIGSTR_V20))); dp++, len--)
 		{
 #define	sigv10p	((nspr_signature_v10_t*)dp)
 			if ((pletohs(&sigv10p->nsprRecordType) == NSPR_SIGNATURE_V10) &&
