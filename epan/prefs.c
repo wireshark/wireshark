@@ -2007,13 +2007,6 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
     /* Check to make sure all column formats are valid.  */
     col_l_elt = g_list_first(col_l);
     while(col_l_elt) {
-      /* Make sure the title isn't empty.  */
-      if (strcmp(col_l_elt->data, "") == 0) {
-      	/* It is.  */
-        prefs_clear_string_list(col_l);
-        return PREFS_SET_SYNTAX_ERR;
-      }
-
       /* Go past the title.  */
       col_l_elt = col_l_elt->next;
 

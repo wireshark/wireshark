@@ -6731,10 +6731,18 @@ rebuild_visible_columns_menu (void)
         while (clp) {
             cfmt = (fmt_data *) clp->data;
             cur_fmt = get_column_format_from_str(cfmt->fmt);
-            if (cur_fmt == COL_CUSTOM) {
-                title = g_strdup_printf ("%s  (%s)", cfmt->title, cfmt->custom_field);
+            if (cfmt->title[0]) {
+                if (cur_fmt == COL_CUSTOM) {
+                    title = g_strdup_printf ("%s  (%s)", cfmt->title, cfmt->custom_field);
+                } else {
+                    title = g_strdup_printf ("%s  (%s)", cfmt->title, col_format_desc (cur_fmt));
+                }
             } else {
-                title = g_strdup_printf ("%s  (%s)", cfmt->title, col_format_desc (cur_fmt));
+                if (cur_fmt == COL_CUSTOM) {
+                    title = g_strdup_printf ("(%s)", cfmt->custom_field);
+                } else {
+                    title = g_strdup_printf ("(%s)", col_format_desc (cur_fmt));
+                }
             }
             menu_item = gtk_check_menu_item_new_with_label(title);
             g_free (title);
