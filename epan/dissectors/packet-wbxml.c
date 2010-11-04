@@ -4915,6 +4915,7 @@ static const value_string vals_wv_csp_11_element_value_tokens[] = {
 
 	{ 0x00, NULL }
 };
+static value_string_ext vals_wv_csp_11_element_value_tokens_ext = VALUE_STRING_EXT_INIT(vals_wv_csp_11_element_value_tokens);
 
 
 /***** Token code page aggregation *****/
@@ -4923,7 +4924,7 @@ static char *
 ext_t_0_wv_cspc_11(tvbuff_t *tvb _U_, guint32 value, guint32 str_tbl _U_)
 {
 	char *str = g_strdup_printf("Common Value: '%s'",
-				    val_to_str(value, vals_wv_csp_11_element_value_tokens,
+				    val_to_str_ext(value, &vals_wv_csp_11_element_value_tokens_ext,
 					       "<Unknown WV-CSP 1.1 Common Value token 0x%X>"));
 	return str;
 }

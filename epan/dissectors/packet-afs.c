@@ -867,6 +867,7 @@ static const value_string fs_req[] = {
 	{ 65540, 	"get-capabilities" },
 	{ 0,		NULL },
 };
+static value_string_ext fs_req_ext = VALUE_STRING_EXT_INIT(fs_req);
 
 static const value_string cb_req[] = {
 	{ 204,		"callback" },
@@ -889,6 +890,7 @@ static const value_string cb_req[] = {
 	{ 65538,	"get-capabilities" },
 	{ 0,		NULL },
 };
+static value_string_ext cb_req_ext = VALUE_STRING_EXT_INIT(cb_req);
 
 static const value_string prot_req[] = {
 	{ 500,		"new-user" },
@@ -915,6 +917,7 @@ static const value_string prot_req[] = {
 	{ 521,		"list-entries" },
 	{ 0,		NULL },
 };
+static value_string_ext prot_req_ext = VALUE_STRING_EXT_INIT(prot_req);
 
 static const value_string vldb_req[] = {
 	{ 501,		"create-entry" },
@@ -953,14 +956,12 @@ static const value_string vldb_req[] = {
 	{ 534,		"list-attrib-n2" },
 	{ 0,		NULL },
 };
+static value_string_ext vldb_req_ext = VALUE_STRING_EXT_INIT(vldb_req);
 
 static const value_string kauth_req[] = {
 	{ 1,		"auth-old" },
-	{ 21,		"authenticate" },
-	{ 22,		"authenticate-v2" },
 	{ 2,		"change-pw" },
 	{ 3,		"get-ticket-old" },
-	{ 23,		"get-ticket" },
 	{ 4,		"set-pw" },
 	{ 5,		"set-fields" },
 	{ 6,		"create-user" },
@@ -973,8 +974,12 @@ static const value_string kauth_req[] = {
 	{ 13,		"get-random-key" },
 	{ 14,		"unlock" },
 	{ 15,		"lock-status" },
+	{ 21,		"authenticate" },
+	{ 22,		"authenticate-v2" },
+	{ 23,		"get-ticket" },
 	{ 0,		NULL },
 };
+static value_string_ext kauth_req_ext = VALUE_STRING_EXT_INIT(kauth_req);
 
 static const value_string vol_req[] = {
 	{ 100,		"create-volume" },
@@ -1010,6 +1015,7 @@ static const value_string vol_req[] = {
 	{ 65537,	"getsize" },
 	{ 0,		NULL },
 };
+static value_string_ext vol_req_ext = VALUE_STRING_EXT_INIT(vol_req);
 
 static const value_string bos_req[] = {
 	{ 80,		"create-bnode" },
@@ -1051,18 +1057,21 @@ static const value_string bos_req[] = {
 	{ 116, 		"set restricted" },
 	{ 0,		NULL },
 };
+static value_string_ext bos_req_ext = VALUE_STRING_EXT_INIT(bos_req);
 
 static const value_string update_req[] = {
 	{ 1,		"fetch-file" },
 	{ 2,		"fetch-info" },
 	{ 0,		NULL },
 };
+static value_string_ext update_req_ext = VALUE_STRING_EXT_INIT(update_req);
 
 static const value_string rmtsys_req[] = {
 	{ 1,		"setpag" },
 	{ 2,		"pioctl" },
 	{ 0,		NULL },
 };
+static value_string_ext rmtsys_req_ext = VALUE_STRING_EXT_INIT(rmtsys_req);
 
 static const value_string backup_req[] = {
 	{ 100,		"perform-dump" },
@@ -1086,6 +1095,7 @@ static const value_string backup_req[] = {
 	{ 118,		"delete-dump" },
 	{ 0,		NULL },
 };
+static value_string_ext backup_req_ext = VALUE_STRING_EXT_INIT(backup_req);
 
 static const value_string ubik_req[] = {
 	{ 10000,	"vote-beacon" },
@@ -1112,6 +1122,7 @@ static const value_string ubik_req[] = {
 	{ 20013,	"disk-setversion" },
 	{ 0,		NULL },
 };
+static value_string_ext ubik_req_ext = VALUE_STRING_EXT_INIT(ubik_req);
 
 static const value_string cb_types[] = {
 	{ CB_TYPE_EXCLUSIVE, "exclusive" },
@@ -1121,36 +1132,6 @@ static const value_string cb_types[] = {
 };
 
 static const value_string afs_errors[] = {
-	/* VOL Errors */
-	{ 363520, "ID Exists"},
-	{ 363521, "IO Error"},
-	{ 363522, "Name Exists"},
-	{ 363523, "Create Failed"},
-	{ 363524, "Entry Not Found"},
-	{ 363525, "Empty"},
-	{ 363526, "Entry Deleted"},
-	{ 363527, "Bad Name"},
-	{ 363528, "Bad Index"},
-	{ 363529, "Bad Volume Type"},
-	{ 363530, "Bad Partition"},
-	{ 363531, "Bad Server"},
-	{ 363532, "Bad Replicate Server"},
-	{ 363533, "No Replicate Server"},
-	{ 363534, "Duplicate Replicate Server"},
-	{ 363535, "ReadWrite Volume Not Found"},
-	{ 363536, "Bad Reference Count"},
-	{ 363537, "Size Exceeded"},
-	{ 363538, "Bad Entry"},
-	{ 363539, "Bad Volume ID Bump"},
-	{ 363540, "Already has edit"},
-	{ 363541, "Entry Locked"},
-	{ 363542, "Bad Volume Operation"},
-	{ 363543, "Bad Rel Lock Type"},
-	{ 363544, "Rerelease"},
-	{ 363545, "Bad Server"},
-	{ 363546, "Permission Denied"},
-	{ 363547, "Out of Memory"},
-
 	/* KAUTH Errors */
 	{ 180480, "Database Inconsistent"},
 	{ 180481, "Exists"},
@@ -1215,6 +1196,36 @@ static const value_string afs_errors[] = {
 	{ 267279, "Too many"},
 	{ 267280, "No memory"},
 
+	/* VOL Errors */
+	{ 363520, "ID Exists"},
+	{ 363521, "IO Error"},
+	{ 363522, "Name Exists"},
+	{ 363523, "Create Failed"},
+	{ 363524, "Entry Not Found"},
+	{ 363525, "Empty"},
+	{ 363526, "Entry Deleted"},
+	{ 363527, "Bad Name"},
+	{ 363528, "Bad Index"},
+	{ 363529, "Bad Volume Type"},
+	{ 363530, "Bad Partition"},
+	{ 363531, "Bad Server"},
+	{ 363532, "Bad Replicate Server"},
+	{ 363533, "No Replicate Server"},
+	{ 363534, "Duplicate Replicate Server"},
+	{ 363535, "ReadWrite Volume Not Found"},
+	{ 363536, "Bad Reference Count"},
+	{ 363537, "Size Exceeded"},
+	{ 363538, "Bad Entry"},
+	{ 363539, "Bad Volume ID Bump"},
+	{ 363540, "Already has edit"},
+	{ 363541, "Entry Locked"},
+	{ 363542, "Bad Volume Operation"},
+	{ 363543, "Bad Rel Lock Type"},
+	{ 363544, "Rerelease"},
+	{ 363545, "Bad Server"},
+	{ 363546, "Permission Denied"},
+	{ 363547, "Out of Memory"},
+
 	/* Volume server errors */
 	{ 1492325120, "Release error"},
 	{ 1492325121, "No op"},
@@ -1238,36 +1249,39 @@ static const value_string afs_errors[] = {
 	/* add more of these errors to decode the errcode responses */
 	{ 0, NULL },
 };
+static value_string_ext afs_errors_ext = VALUE_STRING_EXT_INIT(afs_errors);
 
 static const value_string port_types[] = {
-	{ AFS_PORT_FS, "File Server" },
-	{ AFS_PORT_CB, "Callback Server" },
-	{ AFS_PORT_BOS, "BOS Server" },
-	{ AFS_PORT_PROT, "Protection Server" },
-	{ AFS_PORT_VLDB, "Volume Location Database Server" },
-	{ AFS_PORT_KAUTH, "Kerberos Authentication Server" },
-	{ AFS_PORT_ERROR, "Error Server" },
-	{ AFS_PORT_VOL, "Volume Server" },
-	{ AFS_PORT_RMTSYS, "Rmtsys? Server" },
+	{ AFS_PORT_FS,     "File Server" },
+	{ AFS_PORT_CB,     "Callback Server" },
+	{ AFS_PORT_PROT,   "Protection Server" },
+	{ AFS_PORT_VLDB,   "Volume Location Database Server" },
+	{ AFS_PORT_KAUTH,  "Kerberos Authentication Server" },
+	{ AFS_PORT_VOL,    "Volume Server" },
+	{ AFS_PORT_ERROR,  "Error Server" },
+	{ AFS_PORT_BOS,    "BOS Server" },
 	{ AFS_PORT_UPDATE, "Update? Server" },
+	{ AFS_PORT_RMTSYS, "Rmtsys? Server" },
 	{ AFS_PORT_BACKUP, "Backup Server" },
 	{ 0, NULL }
 };
+static value_string_ext port_types_ext = VALUE_STRING_EXT_INIT(port_types);
 
 static const value_string port_types_short[] = {
-	{ AFS_PORT_FS, "FS" },
-	{ AFS_PORT_CB, "CB" },
-	{ AFS_PORT_BOS, "BOS" },
-	{ AFS_PORT_PROT, "PROT" },
-	{ AFS_PORT_VLDB, "VLDB" },
-	{ AFS_PORT_KAUTH, "KAUTH" },
-	{ AFS_PORT_ERROR, "ERR" },
-	{ AFS_PORT_VOL, "VOL" },
-	{ AFS_PORT_RMTSYS, "RMT" },
+	{ AFS_PORT_FS,     "FS" },
+	{ AFS_PORT_CB,     "CB" },
+	{ AFS_PORT_PROT,   "PROT" },
+	{ AFS_PORT_VLDB,   "VLDB" },
+	{ AFS_PORT_KAUTH,  "KAUTH" },
+	{ AFS_PORT_VOL,    "VOL" },
+	{ AFS_PORT_ERROR,  "ERR" },
+	{ AFS_PORT_BOS,    "BOS" },
 	{ AFS_PORT_UPDATE, "UPD" },
+	{ AFS_PORT_RMTSYS, "RMT" },
 	{ AFS_PORT_BACKUP, "BKUP" },
 	{ 0, NULL }
 };
+static value_string_ext port_types_short_ext = VALUE_STRING_EXT_INIT(port_types_short);
 
 static const value_string ubik_lock_types[] = {
 	{ 1,		"read" },
@@ -1416,7 +1430,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree      *afs_tree, *afs_op_tree, *ti;
 	proto_item		*hidden_item;
 	int port, node, typenode, opcode;
-	value_string const *vals;
+	value_string_ext *vals_ext;
 	int offset = 0;
 	nstime_t delta_ts;
 
@@ -1481,43 +1495,43 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	node = 0;
 	typenode = 0;
-	vals = NULL;
+	vals_ext = NULL;
 	dissector = NULL;
 	switch (port) {
 		case AFS_PORT_FS:
 			typenode = hf_afs_fs;
 			node = hf_afs_fs_opcode;
-			vals = fs_req;
+			vals_ext = &fs_req_ext;
 			dissector = reply ? dissect_fs_reply : dissect_fs_request;
 			break;
 		case AFS_PORT_CB:
 			typenode = hf_afs_cb;
 			node = hf_afs_cb_opcode;
-			vals = cb_req;
+			vals_ext = &cb_req_ext;
 			dissector = reply ? dissect_cb_reply : dissect_cb_request;
 			break;
 		case AFS_PORT_PROT:
 			typenode = hf_afs_prot;
 			node = hf_afs_prot_opcode;
-			vals = prot_req;
+			vals_ext = &prot_req_ext;
 			dissector = reply ? dissect_prot_reply : dissect_prot_request;
 			break;
 		case AFS_PORT_VLDB:
 			typenode = hf_afs_vldb;
 			node = hf_afs_vldb_opcode;
-			vals = vldb_req;
+			vals_ext = &vldb_req_ext;
 			dissector = reply ? dissect_vldb_reply : dissect_vldb_request;
 			break;
 		case AFS_PORT_KAUTH:
 			typenode = hf_afs_kauth;
 			node = hf_afs_kauth_opcode;
-			vals = kauth_req;
+			vals_ext = &kauth_req_ext;
 			dissector = reply ? dissect_kauth_reply : dissect_kauth_request;
 			break;
 		case AFS_PORT_VOL:
 			typenode = hf_afs_vol;
 			node = hf_afs_vol_opcode;
-			vals = vol_req;
+			vals_ext = &vol_req_ext;
 			dissector = reply ? dissect_vol_reply : dissect_vol_request;
 			break;
 		case AFS_PORT_ERROR:
@@ -1528,25 +1542,25 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case AFS_PORT_BOS:
 			typenode = hf_afs_bos;
 			node = hf_afs_bos_opcode;
-			vals = bos_req;
+			vals_ext = &bos_req_ext;
 			dissector = reply ? dissect_bos_reply : dissect_bos_request;
 			break;
 		case AFS_PORT_UPDATE:
 			typenode = hf_afs_update;
 			node = hf_afs_update_opcode;
-			vals = update_req;
+			vals_ext = &update_req_ext;
 			/* dissector = reply ? dissect_update_reply : dissect_update_request; */
 			break;
 		case AFS_PORT_RMTSYS:
 			typenode = hf_afs_rmtsys;
 			node = hf_afs_rmtsys_opcode;
-			vals = rmtsys_req;
+			vals_ext = &rmtsys_req_ext;
 			/* dissector = reply ? dissect_rmtsys_reply : dissect_rmtsys_request; */
 			break;
 		case AFS_PORT_BACKUP:
 			typenode = hf_afs_backup;
 			node = hf_afs_backup_opcode;
-			vals = backup_req;
+			vals_ext = &backup_req_ext;
 			dissector = reply ? dissect_backup_reply : dissect_backup_request;
 			break;
 	}
@@ -1555,28 +1569,28 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		(opcode >= DISK_LOW && opcode <= DISK_HIGH) ) {
 		typenode = hf_afs_ubik;
 		node = hf_afs_ubik_opcode;
-		vals = ubik_req;
+		vals_ext = &ubik_req_ext;
 		dissector = reply ? dissect_ubik_reply : dissect_ubik_request;
 	}
 
 
 	if ( VALID_OPCODE(opcode) ) {
-		if ( vals ) {
+		if ( vals_ext ) {
 			col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s %s: %s (%d)",
 				typenode == hf_afs_ubik ? "UBIK-" : "",
-				val_to_str(port, port_types_short, "Unknown(%d)"),
+				val_to_str_ext(port, &port_types_short_ext, "Unknown(%d)"),
 				reply ? "Reply" : "Request",
-				val_to_str(opcode, vals, "Unknown(%d)"), opcode);
+				val_to_str_ext(opcode, vals_ext, "Unknown(%d)"), opcode);
 		} else {
 			col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s %s: Unknown(%d)",
 				typenode == hf_afs_ubik ? "UBIK-" : "",
-				val_to_str(port, port_types_short, "Unknown(%d)"),
+				val_to_str_ext(port, &port_types_short_ext, "Unknown(%d)"),
 				reply ? "Reply" : "Request",
 				opcode);
 		}
 	} else {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Encrypted %s %s",
-			val_to_str(port, port_types_short, "Unknown(%d)"),
+			val_to_str_ext(port, &port_types_short_ext, "Unknown(%d)"),
 			reply ? "Reply" : "Request"
 			);
 	}
@@ -1590,7 +1604,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			"Service: %s%s%s %s",
 			VALID_OPCODE(opcode) ? "" : "Encrypted ",
 			typenode == hf_afs_ubik ? "UBIK - " : "",
-			val_to_str(port, port_types, "Unknown(%d)"),
+			val_to_str_ext(port, &port_types_ext, "Unknown(%d)"),
 			reply ? "Reply" : "Request");
 
 		if( request_val && !reply && request_val->rep_num) {
@@ -2992,71 +3006,64 @@ proto_register_afs(void)
 		FT_BOOLEAN, BASE_NONE, 0, 0x0, "Backup Server", HFILL }},
 
 	{ &hf_afs_fs_opcode, { "Operation", "afs.fs.opcode",
-		FT_UINT32, BASE_DEC,
-	VALS(fs_req), 0, NULL, HFILL }},
+		FT_UINT32, BASE_DEC|BASE_EXT_STRING,
+		&fs_req_ext, 0, NULL, HFILL }},
 	{ &hf_afs_cb_opcode, { "Operation", "afs.cb.opcode",
-		FT_UINT32, BASE_DEC,
-	VALS(cb_req), 0, NULL, HFILL }},
+		FT_UINT32, BASE_DEC|BASE_EXT_STRING,
+		&cb_req_ext, 0, NULL, HFILL }},
 	{ &hf_afs_prot_opcode, { "Operation", "afs.prot.opcode",
-		FT_UINT32, BASE_DEC,
-	VALS(prot_req), 0, NULL, HFILL }},
+		FT_UINT32, BASE_DEC|BASE_EXT_STRING,
+		&prot_req_ext, 0, NULL, HFILL }},
 	{ &hf_afs_vldb_opcode, { "Operation", "afs.vldb.opcode",
-		FT_UINT32, BASE_DEC,
-	VALS(vldb_req), 0, NULL, HFILL }},
+		FT_UINT32, BASE_DEC|BASE_EXT_STRING,
+		&vldb_req_ext, 0, NULL, HFILL }},
 	{ &hf_afs_kauth_opcode, { "Operation", "afs.kauth.opcode",
-		FT_UINT32, BASE_DEC,
-	VALS(kauth_req), 0, NULL, HFILL }},
+		FT_UINT32, BASE_DEC|BASE_EXT_STRING,
+		&kauth_req_ext, 0, NULL, HFILL }},
 	{ &hf_afs_vol_opcode, { "Operation", "afs.vol.opcode",
-		FT_UINT32, BASE_DEC,
-	VALS(vol_req), 0, NULL, HFILL }},
+		FT_UINT32, BASE_DEC|BASE_EXT_STRING,
+		&vol_req_ext, 0, NULL, HFILL }},
 	{ &hf_afs_bos_opcode, { "Operation", "afs.bos.opcode",
-		FT_UINT32, BASE_DEC,
-	VALS(bos_req), 0, NULL, HFILL }},
+		FT_UINT32, BASE_DEC|BASE_EXT_STRING,
+		&bos_req_ext, 0, NULL, HFILL }},
 	{ &hf_afs_update_opcode, { "Operation", "afs.update.opcode",
-		FT_UINT32, BASE_DEC,
-	VALS(update_req), 0, NULL, HFILL }},
+		FT_UINT32, BASE_DEC|BASE_EXT_STRING,
+		&update_req_ext, 0, NULL, HFILL }},
 	{ &hf_afs_rmtsys_opcode, { "Operation", "afs.rmtsys.opcode",
-		FT_UINT32, BASE_DEC,
-	VALS(rmtsys_req), 0, NULL, HFILL }},
+		FT_UINT32, BASE_DEC|BASE_EXT_STRING,
+		&rmtsys_req_ext, 0, NULL, HFILL }},
+
 	{ &hf_afs_error_opcode, { "Operation", "afs.error.opcode",
-		FT_UINT32, BASE_DEC,
-	0, 0, NULL, HFILL }},
-	{ &hf_afs_backup_opcode, {
-	"Operation", "afs.backup.opcode",
-		FT_UINT32, BASE_DEC,
-	VALS(backup_req), 0, NULL, HFILL }},
-	{ &hf_afs_ubik_opcode, {
-	"Operation", "afs.ubik.opcode",
-		FT_UINT32, BASE_DEC,
-	VALS(ubik_req), 0, NULL, HFILL }},
+		FT_UINT32, BASE_DEC, 0, 0, NULL, HFILL }},
+	{ &hf_afs_backup_opcode, { "Operation", "afs.backup.opcode",
+		FT_UINT32, BASE_DEC|BASE_EXT_STRING,
+		&backup_req_ext, 0, NULL, HFILL }},
+	{ &hf_afs_ubik_opcode, { "Operation", "afs.ubik.opcode",
+		FT_UINT32, BASE_DEC|BASE_EXT_STRING,
+		&ubik_req_ext, 0, NULL, HFILL }},
 
 
 /* File Server Fields */
 	{ &hf_afs_fs_fid_volume, { "FileID (Volume)", "afs.fs.fid.volume",
-		FT_UINT32, BASE_DEC,
-	0, 0, "File ID (Volume)", HFILL }},
+		FT_UINT32, BASE_DEC, 0, 0, "File ID (Volume)", HFILL }},
 	{ &hf_afs_fs_fid_vnode, { "FileID (VNode)", "afs.fs.fid.vnode",
-		FT_UINT32, BASE_DEC,
-	0, 0, "File ID (VNode)", HFILL }},
+		FT_UINT32, BASE_DEC, 0, 0, "File ID (VNode)", HFILL }},
 	{ &hf_afs_fs_fid_uniqifier, { "FileID (Uniqifier)", "afs.fs.fid.uniq",
-		FT_UINT32, BASE_DEC,
-	0, 0, "File ID (Uniqifier)", HFILL }},
+		FT_UINT32, BASE_DEC, 0, 0, "File ID (Uniqifier)", HFILL }},
 	{ &hf_afs_fs_offset, { "Offset", "afs.fs.offset",
-		FT_UINT32, BASE_DEC,
-	0, 0, NULL, HFILL }},
+		FT_UINT32, BASE_DEC, 0, 0, NULL, HFILL }},
 	{ &hf_afs_fs_length, { "Length", "afs.fs.length",
 		FT_UINT32, BASE_DEC, 0, 0, NULL, HFILL }},
 	{ &hf_afs_fs_flength, { "FLength", "afs.fs.flength",
 		FT_UINT32, BASE_DEC, 0, 0, NULL, HFILL }},
 	{ &hf_afs_fs_offset64, { "Offset64", "afs.fs.offset64",
-		FT_UINT64, BASE_DEC,
-	0, 0, NULL, HFILL }},
+		FT_UINT64, BASE_DEC, 0, 0, NULL, HFILL }},
 	{ &hf_afs_fs_length64, { "Length64", "afs.fs.length64",
 		FT_UINT64, BASE_DEC, 0, 0, NULL, HFILL }},
 	{ &hf_afs_fs_flength64, { "FLength64", "afs.fs.flength64",
 		FT_UINT64, BASE_DEC, 0, 0, NULL, HFILL }},
 	{ &hf_afs_fs_errcode, { "Error Code", "afs.fs.errcode",
-		FT_UINT32, BASE_DEC, VALS(afs_errors), 0, NULL, HFILL }},
+		FT_UINT32, BASE_DEC|BASE_EXT_STRING, &afs_errors_ext, 0, NULL, HFILL }},
 	{ &hf_afs_fs_data, { "Data", "afs.fs.data",
 		FT_BYTES, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_fs_token, { "Token", "afs.fs.token",
@@ -3215,7 +3222,7 @@ proto_register_afs(void)
 
 /* BOS Server Fields */
 	{ &hf_afs_bos_errcode, { "Error Code", "afs.bos.errcode",
-		FT_UINT32, BASE_DEC, VALS(afs_errors), 0, NULL, HFILL }},
+		FT_UINT32, BASE_DEC|BASE_EXT_STRING, &afs_errors_ext, 0, NULL, HFILL }},
 	{ &hf_afs_bos_type, { "Type", "afs.bos.type",
 		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_bos_content, { "Content", "afs.bos.content",
@@ -3278,7 +3285,7 @@ proto_register_afs(void)
 
 /* KAUTH Server Fields */
 	{ &hf_afs_kauth_errcode, { "Error Code", "afs.kauth.errcode",
-		FT_UINT32, BASE_DEC, VALS(afs_errors), 0, NULL, HFILL }},
+		FT_UINT32, BASE_DEC|BASE_EXT_STRING, &afs_errors_ext, 0, NULL, HFILL }},
 	{ &hf_afs_kauth_princ, { "Principal", "afs.kauth.princ",
 		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_kauth_realm, { "Realm", "afs.kauth.realm",
@@ -3294,7 +3301,7 @@ proto_register_afs(void)
 
 /* VOL Server Fields */
 	{ &hf_afs_vol_errcode, { "Error Code", "afs.vol.errcode",
-		FT_UINT32, BASE_DEC, VALS(afs_errors), 0, NULL, HFILL }},
+		FT_UINT32, BASE_DEC|BASE_EXT_STRING, &afs_errors_ext, 0, NULL, HFILL }},
 	{ &hf_afs_vol_id, { "Volume ID", "afs.vol.id",
 		FT_UINT32, BASE_DEC, 0, 0, NULL, HFILL }},
 	{ &hf_afs_vol_count, { "Volume Count", "afs.vol.count",
@@ -3304,7 +3311,7 @@ proto_register_afs(void)
 
 /* VLDB Server Fields */
 	{ &hf_afs_vldb_errcode, { "Error Code", "afs.vldb.errcode",
-		FT_UINT32, BASE_DEC, VALS(afs_errors), 0, NULL, HFILL }},
+		FT_UINT32, BASE_DEC|BASE_EXT_STRING, &afs_errors_ext, 0, NULL, HFILL }},
 	{ &hf_afs_vldb_type, { "Volume Type", "afs.vldb.type",
 		FT_UINT32, BASE_HEX, VALS(volume_types), 0, NULL, HFILL }},
 	{ &hf_afs_vldb_id, { "Volume ID", "afs.vldb.id",
@@ -3374,11 +3381,11 @@ proto_register_afs(void)
 
 /* BACKUP Server Fields */
 	{ &hf_afs_backup_errcode, { "Error Code", "afs.backup.errcode",
-		FT_UINT32, BASE_DEC, VALS(afs_errors), 0, NULL, HFILL }},
+		FT_UINT32, BASE_DEC|BASE_EXT_STRING, &afs_errors_ext, 0, NULL, HFILL }},
 
 /* CB Server Fields */
 	{ &hf_afs_cb_errcode, { "Error Code", "afs.cb.errcode",
-		FT_UINT32, BASE_DEC, VALS(afs_errors), 0, NULL, HFILL }},
+		FT_UINT32, BASE_DEC|BASE_EXT_STRING, &afs_errors_ext, 0, NULL, HFILL }},
 	{ &hf_afs_cb_callback_version, { "Version", "afs.cb.callback.version",
 		FT_UINT32, BASE_DEC, 0, 0, NULL, HFILL }},
 	{ &hf_afs_cb_callback_expires, { "Expires", "afs.cb.callback.expires",
@@ -3394,7 +3401,7 @@ proto_register_afs(void)
 
 /* PROT Server Fields */
 	{ &hf_afs_prot_errcode, { "Error Code", "afs.prot.errcode",
-		FT_UINT32, BASE_DEC, VALS(afs_errors), 0, NULL, HFILL }},
+		FT_UINT32, BASE_DEC|BASE_EXT_STRING, &afs_errors_ext, 0, NULL, HFILL }},
 	{ &hf_afs_prot_name, { "Name", "afs.prot.name",
 		FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 	{ &hf_afs_prot_id, { "ID", "afs.prot.id",
@@ -3420,7 +3427,7 @@ proto_register_afs(void)
 
 /* UBIK Fields */
 	{ &hf_afs_ubik_errcode, { "Error Code", "afs.ubik.errcode",
-		FT_UINT32, BASE_DEC, VALS(afs_errors), 0, NULL, HFILL }},
+		FT_UINT32, BASE_DEC|BASE_EXT_STRING, &afs_errors_ext, 0, NULL, HFILL }},
 	{ &hf_afs_ubik_state, { "State", "afs.ubik.state",
 		FT_UINT32, BASE_HEX, 0, 0, NULL, HFILL }},
 	{ &hf_afs_ubik_version_epoch, { "Epoch", "afs.ubik.version.epoch",

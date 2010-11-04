@@ -262,6 +262,7 @@ static const value_string cigi2_packet_id_vals[] = {
     {CIGI2_PACKET_ID_USER_DEFINABLE_MAX, "User Definable"},
     {0, NULL},
 };
+static value_string_ext cigi2_packet_id_vals_ext = VALUE_STRING_EXT_INIT(cigi2_packet_id_vals);
 
 /* CIGI2 IG Control */
 #define CIGI2_PACKET_SIZE_IG_CONTROL 16
@@ -887,6 +888,7 @@ static const value_string cigi3_packet_id_vals[] = {
     {CIGI3_PACKET_ID_USER_DEFINED_MAX, "User-Defined Data"},
     {0, NULL},
 };
+static value_string_ext cigi3_packet_id_vals_ext = VALUE_STRING_EXT_INIT(cigi3_packet_id_vals);
 
 /* CIGI3 IG Control */
 #define CIGI3_PACKET_SIZE_IG_CONTROL 16
@@ -2898,7 +2900,10 @@ cigi2_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
             hf_cigi2_packet = hf_cigi_unknown;
             packet_length = packet_size;
         }
-        tipacket = proto_tree_add_string_format(cigi_tree, hf_cigi2_packet, tvb, offset, packet_length, NULL, "%s (%i bytes)", val_to_str(packet_id, cigi2_packet_id_vals, "Unknown"), packet_length);
+        tipacket = proto_tree_add_string_format(cigi_tree, hf_cigi2_packet, tvb, offset, packet_length, NULL,
+                                                "%s (%i bytes)",
+                                                val_to_str_ext_const(packet_id, &cigi2_packet_id_vals_ext, "Unknown"),
+                                                packet_length);
 
         cigi_packet_tree = proto_item_add_subtree(tipacket, ett_cigi);
 
@@ -3203,7 +3208,10 @@ cigi3_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
             hf_cigi3_packet = hf_cigi_unknown;
             packet_length = packet_size;
         }
-        tipacket = proto_tree_add_string_format(cigi_tree, hf_cigi3_packet, tvb, offset, packet_length, NULL, "%s (%i bytes)", val_to_str(packet_id, cigi3_packet_id_vals, "Unknown"), packet_length);
+        tipacket = proto_tree_add_string_format(cigi_tree, hf_cigi3_packet, tvb, offset, packet_length, NULL,
+                                                "%s (%i bytes)",
+                                                val_to_str_ext_const(packet_id, &cigi3_packet_id_vals_ext, "Unknown"),
+                                                packet_length);
 
         cigi_packet_tree = proto_item_add_subtree(tipacket, ett_cigi);
 
@@ -6441,14 +6449,14 @@ proto_register_cigi(void)
         /* CIGI2 */
         { &hf_cigi2_packet_id,
             { "Packet ID", "cigi.packet_id",
-                FT_UINT8, BASE_DEC, VALS(cigi2_packet_id_vals), 0x0,
+                FT_UINT8, BASE_DEC|BASE_EXT_STRING, &cigi2_packet_id_vals_ext, 0x0,
                 "Identifies the packet's ID", HFILL }
         },
 
         /* CIGI3 */
         { &hf_cigi3_packet_id,
             { "Packet ID", "cigi.packet_id",
-                FT_UINT8, BASE_DEC, VALS(cigi3_packet_id_vals), 0x0,
+                FT_UINT8, BASE_DEC|BASE_EXT_STRING, &cigi3_packet_id_vals_ext, 0x0,
                 "Identifies the packet's ID", HFILL }
         },
         { &hf_cigi3_byte_swap,

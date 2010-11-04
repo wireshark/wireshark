@@ -1204,6 +1204,7 @@ static const value_string names_fhtype[] =
 	{	FHT_CELERRA,		"Celerra nfs file handle"		},
 	{	0,			NULL					}
 };
+static value_string_ext names_fhtype_ext = VALUE_STRING_EXT_INIT(names_fhtype);
 
 
 static const true_false_string tfs_endianness = { "Little Endian", "Big Endian" };
@@ -2367,7 +2368,7 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		int real_length;
 
 		proto_tree_add_text(tree, tvb, offset, 0,
-			"decode type as: %s", val_to_str(default_nfs_fhandle_type, names_fhtype, "Unknown"));
+			"decode type as: %s", val_to_str_ext_const(default_nfs_fhandle_type, &names_fhtype_ext, "Unknown"));
 
 
 		real_length=fhlen;
@@ -2477,6 +2478,7 @@ static const value_string names_nfs_stat[] =
 	{	10049,	"NFSERR_REPLAY_ME" },
 	{	0,	NULL }
 };
+static value_string_ext names_nfs_stat_ext = VALUE_STRING_EXT_INIT(names_nfs_stat);
 
 /* RFC 1094, Page 12..14 */
 static int
@@ -2517,7 +2519,7 @@ dissect_nfs2_rmdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 			proto_item_append_text(tree, ", RMDIR Reply");
 			break;
 		default:
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_stat_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", RMDIR Reply  Error:%s", err);
 	}
@@ -2537,7 +2539,7 @@ dissect_nfs2_symlink_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
 			proto_item_append_text(tree, ", SYMLINK Reply");
 			break;
 		default:
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_stat_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", SYMLINK Reply  Error:%s", err);
 	}
@@ -2557,7 +2559,7 @@ dissect_nfs2_link_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 			proto_item_append_text(tree, ", LINK Reply");
 			break;
 		default:
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_stat_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", LINK Reply  Error:%s", err);
 	}
@@ -2577,7 +2579,7 @@ dissect_nfs2_rename_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
 			proto_item_append_text(tree, ", RENAME Reply");
 			break;
 		default:
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_stat_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", RENAME Reply  Error:%s", err);
 	}
@@ -2597,7 +2599,7 @@ dissect_nfs2_remove_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
 			proto_item_append_text(tree, ", REMOVE Reply");
 			break;
 		default:
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_stat_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", REMOVE Reply  Error:%s", err);
 	}
@@ -2617,6 +2619,7 @@ static const value_string nfs2_ftype[] =
 	{	5,	"Symbolic Link" },
 	{	0,	NULL }
 };
+static value_string_ext nfs2_ftype_ext = VALUE_STRING_EXT_INIT(nfs2_ftype);
 
 static int
 dissect_ftype(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
@@ -2627,7 +2630,7 @@ dissect_ftype(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 	ftype = tvb_get_ntohl(tvb, offset+0);
 
 	if (tree) {
-		ftype_name_p = val_to_str(ftype, nfs2_ftype, "%u");
+		ftype_name_p = val_to_str_ext(ftype, &nfs2_ftype_ext, "%u");
 
 		proto_tree_add_text(tree, tvb, offset, 4,
 			"%s: %s (%u)", name, ftype_name_p, ftype);
@@ -2957,7 +2960,7 @@ dissect_attrstat(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
 			proto_item_append_text(tree, ", %s Reply", funcname);
 		break;
 		default:
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_stat_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", %s Reply  Error:%s", funcname, err);
 		break;
@@ -3097,7 +3100,7 @@ dissect_diropres(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_item_append_text(tree, ", %s Reply FH:0x%08x", funcname, hash);
 		break;
 		default:
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_stat_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", %s Reply  Error:%s", funcname, err);
 		break;
@@ -3175,7 +3178,7 @@ dissect_nfs2_readlink_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			proto_item_append_text(tree, ", READLINK Reply Path:%s", name);
 		break;
 		default:
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_stat_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", READLINK Reply  Error:%s", err);
 		break;
@@ -3232,7 +3235,7 @@ dissect_nfs2_read_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_data);
 		break;
 		default:
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_stat_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", READ Reply  Error:%s", err);
 		break;
@@ -3462,7 +3465,7 @@ dissect_nfs2_readdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset += 4;
 		break;
 		default:
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_stat_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", READDIR Reply  Error:%s", err);
 		break;
@@ -3509,7 +3512,7 @@ dissect_nfs2_statfs_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			proto_item_append_text(tree, ", STATFS Reply");
 		break;
 		default:
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_stat_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", STATFS Reply  Error:%s", err);
 		break;
@@ -3706,6 +3709,7 @@ static const value_string names_nfs_nfsstat3[] =
 	{	10008,	"NFS3ERR_JUKEBOX" },
 	{	0,	NULL }
 };
+static value_string_ext names_nfs_nfsstat3_ext = VALUE_STRING_EXT_INIT(names_nfs_nfsstat3);
 
 
 /* RFC 1813, Page 16 */
@@ -3742,6 +3746,7 @@ static const value_string names_nfs_ftype3[] =
 	{	NF3FIFO,"Named Pipe" },
 	{	0,	NULL }
 };
+static value_string_ext names_nfs_ftype3_ext = VALUE_STRING_EXT_INIT(names_nfs_ftype3);
 
 
 /* RFC 1813, Page 20 */
@@ -3978,13 +3983,13 @@ dissect_nfs_fattr3(packet_info *pinfo, tvbuff_t *tvb, int offset,
 		levels&=(~COL_INFO_LEVEL);
 		col_append_fstr(pinfo->cinfo, COL_INFO,
 				"  %s mode:%04o uid:%d gid:%d",
-				val_to_str(type, names_nfs_ftype3,"Unknown Type:0x%x"),
+				val_to_str_ext(type, &names_nfs_ftype3_ext,"Unknown Type:0x%x"),
 				mode&0x0fff, uid, gid);
 	}
 	/* populate the expansion lines with some nice useable info */
 	while( fattr3_tree && levels-- ){
 		proto_item_append_text(fattr3_tree, "  %s mode:%04o uid:%d gid:%d",
-				val_to_str(type, names_nfs_ftype3,"Unknown Type:0x%x"),
+				val_to_str_ext(type, &names_nfs_ftype3_ext,"Unknown Type:0x%x"),
 				mode&0x0fff, uid, gid);
 		fattr3_tree=fattr3_tree->parent;
 	}
@@ -4021,7 +4026,7 @@ dissect_nfs_post_op_attr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	attributes_follow = tvb_get_ntohl(tvb, offset+0);
 	proto_tree_add_text(post_op_attr_tree, tvb, offset, 4,
 		"attributes_follow: %s (%u)",
-		val_to_str(attributes_follow,value_follows,"Unknown"), attributes_follow);
+		val_to_str_const(attributes_follow,value_follows,"Unknown"), attributes_follow);
 	offset += 4;
 	switch (attributes_follow) {
 		case TRUE:
@@ -4090,7 +4095,7 @@ dissect_pre_op_attr(tvbuff_t *tvb, int offset, proto_tree *tree, const char* nam
 	attributes_follow = tvb_get_ntohl(tvb, offset+0);
 	proto_tree_add_text(pre_op_attr_tree, tvb, offset, 4,
 		"attributes_follow: %s (%u)",
-		val_to_str(attributes_follow,value_follows,"Unknown"), attributes_follow);
+		val_to_str_const(attributes_follow,value_follows,"Unknown"), attributes_follow);
 	offset += 4;
 	switch (attributes_follow) {
 		case TRUE:
@@ -4158,7 +4163,7 @@ dissect_post_op_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	handle_follows = tvb_get_ntohl(tvb, offset+0);
 	proto_tree_add_text(post_op_fh3_tree, tvb, offset, 4,
 		"handle_follows: %s (%u)",
-		val_to_str(handle_follows,value_follows,"Unknown"), handle_follows);
+		val_to_str_const(handle_follows,value_follows,"Unknown"), handle_follows);
 	offset += 4;
 	switch (handle_follows) {
 		case TRUE:
@@ -4192,7 +4197,7 @@ dissect_set_mode3(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 	set_it = tvb_get_ntohl(tvb, offset+0);
 
 	if (tree) {
-		set_it_name = val_to_str(set_it,value_follows,"Unknown");
+		set_it_name = val_to_str_const(set_it,value_follows,"Unknown");
 
 		set_mode3_item = proto_tree_add_text(tree, tvb, offset, -1,
 			"%s: %s", name, set_it_name);
@@ -4237,7 +4242,7 @@ dissect_set_uid3(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 	set_it = tvb_get_ntohl(tvb, offset+0);
 
 	if (tree) {
-		set_it_name = val_to_str(set_it,value_follows,"Unknown");
+		set_it_name = val_to_str_const(set_it,value_follows,"Unknown");
 
 		set_uid3_item = proto_tree_add_text(tree, tvb, offset, -1,
 			"%s: %s", name, set_it_name);
@@ -4281,7 +4286,7 @@ dissect_set_gid3(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 	set_it = tvb_get_ntohl(tvb, offset+0);
 
 	if (tree) {
-		set_it_name = val_to_str(set_it,value_follows,"Unknown");
+		set_it_name = val_to_str_const(set_it,value_follows,"Unknown");
 		set_gid3_item = proto_tree_add_text(tree, tvb, offset, -1,
 			"%s: %s", name, set_it_name);
 		set_gid3_tree = proto_item_add_subtree(set_gid3_item,
@@ -4324,7 +4329,7 @@ dissect_set_size3(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 	set_it = tvb_get_ntohl(tvb, offset+0);
 
 	if (tree) {
-		set_it_name = val_to_str(set_it,value_follows,"Unknown");
+		set_it_name = val_to_str_const(set_it,value_follows,"Unknown");
 
 		set_size3_item = proto_tree_add_text(tree, tvb, offset, -1,
 			"%s: %s", name, set_it_name);
@@ -4382,7 +4387,7 @@ dissect_set_atime(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 	set_it = tvb_get_ntohl(tvb, offset+0);
 
 	if (tree) {
-		set_it_name = val_to_str(set_it,time_how,"Unknown");
+		set_it_name = val_to_str_const(set_it,time_how,"Unknown");
 
 		set_atime_item = proto_tree_add_text(tree, tvb, offset, -1,
 			"%s: %s", name, set_it_name);
@@ -4428,7 +4433,7 @@ dissect_set_mtime(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 	set_it = tvb_get_ntohl(tvb, offset+0);
 
 	if (tree) {
-		set_it_name = val_to_str(set_it,time_how,"Unknown");
+		set_it_name = val_to_str_const(set_it,time_how,"Unknown");
 
 		set_mtime_item = proto_tree_add_text(tree, tvb, offset, -1,
 			"%s: %s", name, set_it_name);
@@ -4625,7 +4630,7 @@ dissect_nfs3_getattr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			offset = dissect_nfs_fattr3(pinfo, tvb, offset, tree, "obj_attributes",2|COL_INFO_LEVEL);
 		break;
 		default:
-			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_nfsstat3_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, "  Error:%s", err);
 		break;
@@ -4648,7 +4653,7 @@ dissect_sattrguard3(tvbuff_t *tvb, int offset, proto_tree* tree, const char *nam
 	check = tvb_get_ntohl(tvb, offset+0);
 
 	if (tree) {
-		check_name = val_to_str(check,value_follows,"Unknown");
+		check_name = val_to_str_const(check,value_follows,"Unknown");
 
 		sattrguard3_item = proto_tree_add_text(tree, tvb, offset, -1,
 			"%s: %s", name, check_name);
@@ -4716,7 +4721,7 @@ dissect_nfs3_setattr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		default:
 			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "obj_wcc");
 
-			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_nfsstat3_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", SETATTR Reply  Error:%s", err);
 		break;
@@ -4768,7 +4773,7 @@ dissect_nfs3_lookup_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"dir_attributes");
 
-			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_nfsstat3_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", LOOKUP Reply  Error:%s", err);
 		break;
@@ -5007,7 +5012,7 @@ dissect_nfs3_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_item_append_text(tree, ", ACCESS Reply");
 		offset = dissect_access_reply(tvb, offset, pinfo, tree, 3, NULL);
 	} else {
-		err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
+		err=val_to_str_ext(status, &names_nfs_nfsstat3_ext, "Unknown error:%u");
 		col_append_fstr(pinfo->cinfo, COL_INFO," Error: %s", err);
 		proto_item_append_text(tree, ", ACCESS Reply  Error: %s", err);
 	}
@@ -5052,7 +5057,7 @@ dissect_nfs3_readlink_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"symlink_attributes");
 
-			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_nfsstat3_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", READLINK Reply  Error:%s", err);
 		break;
@@ -5114,7 +5119,7 @@ dissect_nfs3_read_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"file_attributes");
 
-			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_nfsstat3_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", READ Reply  Error:%s", err);
 		break;
@@ -5208,7 +5213,7 @@ dissect_nfs3_write_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		default:
 			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "file_wcc");
 
-			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_nfsstat3_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", WRITE Reply  Error:%s", err);
 		break;
@@ -5293,7 +5298,7 @@ dissect_nfs3_create_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		default:
 			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "dir_wcc");
 
-			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_nfsstat3_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", CREATE Reply  Error:%s", err);
 		break;
@@ -5339,7 +5344,7 @@ dissect_nfs3_mkdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		default:
 			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "dir_wcc");
 
-			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_nfsstat3_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", MKDIR Reply  Error:%s", err);
 		break;
@@ -5386,7 +5391,7 @@ dissect_nfs3_symlink_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		default:
 			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "dir_wcc");
 
-			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_nfsstat3_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", SYMLINK Reply  Error:%s", err);
 		break;
@@ -5423,7 +5428,7 @@ dissect_nfs3_mknod_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		break;
 	}
 
-	type_str=val_to_str(type, names_nfs_ftype3, "Unknown type:%u");
+	type_str=val_to_str_ext(type, &names_nfs_ftype3_ext, "Unknown type:%u");
 	col_append_fstr(pinfo->cinfo, COL_INFO,", FH:0x%08x/%s %s", hash, name, type_str);
 	proto_item_append_text(tree, ", MKNOD Call FH:0x%08x/%s %s", hash, name, type_str);
 
@@ -5448,7 +5453,7 @@ dissect_nfs3_mknod_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		default:
 			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "dir_wcc");
 
-			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_nfsstat3_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", MKNOD Reply  Error:%s", err);
 		break;
@@ -5474,7 +5479,7 @@ dissect_nfs3_remove_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		break;
 		default:
 			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "dir_wcc");
-			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_nfsstat3_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", REMOVE Reply  Error:%s", err);
 		break;
@@ -5497,7 +5502,7 @@ dissect_nfs3_rmdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		break;
 		default:
 			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "dir_wcc");
-			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_nfsstat3_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", RMDIR Reply  Error:%s", err);
 		break;
@@ -5546,7 +5551,7 @@ dissect_nfs3_rename_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "fromdir_wcc");
 			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "todir_wcc");
 
-			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_nfsstat3_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", RENAME Reply  Error:%s", err);
 		break;
@@ -5596,7 +5601,7 @@ dissect_nfs3_link_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 				"file_attributes");
 			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "linkdir_wcc");
 
-			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_nfsstat3_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", LINK Reply  Error:%s", err);
 		break;
@@ -5692,7 +5697,7 @@ dissect_nfs3_readdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"dir_attributes");
 
-			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_nfsstat3_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", READDIR Reply  Error:%s", err);
 		break;
@@ -5812,7 +5817,7 @@ dissect_nfs3_readdirplus_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"dir_attributes");
 
-			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_nfsstat3_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", READDIRPLUS Reply  Error:%s", err);
 		break;
@@ -5874,7 +5879,7 @@ dissect_nfs3_fsstat_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"obj_attributes");
 
-			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_nfsstat3_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", FSSTAT Reply  Error:%s", err);
 		break;
@@ -6009,7 +6014,7 @@ dissect_nfs3_fsinfo_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"obj_attributes");
 
-			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_nfsstat3_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", FSINFO Reply  Error:%s", err);
 		break;
@@ -6071,7 +6076,7 @@ dissect_nfs3_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			offset = dissect_nfs_post_op_attr(tvb, offset, pinfo, tree,
 				"obj_attributes");
 
-			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_nfsstat3_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", PATHCONF Reply  Error:%s", err);
 		break;
@@ -6118,7 +6123,7 @@ dissect_nfs3_commit_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		default:
 			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "file_wcc");
 
-			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
+			err=val_to_str_ext(status, &names_nfs_nfsstat3_ext, "Unknown error:%u");
 			col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			proto_item_append_text(tree, ", COMMIT Reply  Error:%s", err);
 		break;
@@ -6240,6 +6245,7 @@ static const value_string names_nfs_nfsstat4[] = {
 	{	10086,	"NFS4ERR_RETURNCONFLICT"			},
 	{	0,	NULL }
 };
+static value_string_ext names_nfs_nfsstat4_ext = VALUE_STRING_EXT_INIT(names_nfs_nfsstat4);
 
 
 static int
@@ -8067,6 +8073,7 @@ static const value_string names_nfsv4_operation[] = {
 	{	NFS4_OP_ILLEGAL,		"ILLEGAL"		},
 	{	0,	NULL }
 };
+static value_string_ext names_nfsv4_operation_ext = VALUE_STRING_EXT_INIT(names_nfsv4_operation);
 
 static gint *nfsv4_operation_ett[] =
 {
@@ -8990,11 +8997,12 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 		}
 
-		opname=val_to_str(opcode, names_nfsv4_operation, "Unknown");
+		opname=val_to_str_ext_const(opcode, &names_nfsv4_operation_ext, "Unknown");
 		offset += 4;
 
 		g_string_append_printf (op_summary[ops_counter].optext, "%s", opname);
-		g_string_printf (op_summary[ops_counter].optext, "%s", val_to_str(opcode, names_nfsv4_operation, "Unknown"));
+		g_string_printf (op_summary[ops_counter].optext, "%s",
+                                 val_to_str_ext_const(opcode, &names_nfsv4_operation_ext, "Unknown"));
 
 
 		switch(opcode)
@@ -9507,7 +9515,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				const char *main_opname=NULL;
 
 				/* Display a filterable field of the most significant operations in all cases. */
-				main_opname=val_to_str(main_opcode, names_nfsv4_operation, "Unknown");
+				main_opname=val_to_str_ext_const(main_opcode, &names_nfsv4_operation_ext, "Unknown");
 
 				main_op_item=proto_tree_add_uint(ftree, hf_nfs_main_opcode, tvb, 0, 0, main_opcode);
 				PROTO_ITEM_SET_GENERATED(main_op_item);
@@ -9641,7 +9649,7 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 		}
 
-		opname=val_to_str(opcode, names_nfsv4_operation, "Unknown");
+		opname=val_to_str_ext_const(opcode, &names_nfsv4_operation_ext, "Unknown");
 		offset += 4;
 
 		g_string_append_printf (op_summary[ops_counter].optext, "%s", opname);
@@ -9919,7 +9927,7 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				const char *main_opname=NULL;
 
 				/* Display a filterable field of the most significant operations in all cases. */
-				main_opname=val_to_str(main_opcode, names_nfsv4_operation, "Unknown");
+				main_opname=val_to_str_ext_const(main_opcode, &names_nfsv4_operation_ext, "Unknown");
 
 				main_op_item=proto_tree_add_uint(ftree, hf_nfs_main_opcode, tvb, 0, 0, main_opcode);
 			}
@@ -9955,7 +9963,8 @@ dissect_nfs4_compound_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_nfs_resop4(tvb, offset, pinfo, tree);
 
 	if (status != NFS4_OK)
-		col_append_fstr(pinfo->cinfo, COL_INFO," Status: %s", val_to_str(status, names_nfs_nfsstat4, "Unknown error:%u"));
+		col_append_fstr(pinfo->cinfo, COL_INFO," Status: %s",
+                                val_to_str_ext(status, &names_nfs_nfsstat4_ext, "Unknown error:%u"));
 
 	return offset;
 }
@@ -10229,6 +10238,7 @@ static const value_string names_nfs_cb_operation[] = {
         {       NFS4_OP_CB_ILLEGAL,                             "CB_ILLEGAL"},
         {       0,      NULL }
 };
+static value_string_ext names_nfs_cb_operation_ext = VALUE_STRING_EXT_INIT(names_nfs_cb_operation);
 
 static gint *nfs_cb_operation_ett[] =
 {
@@ -10325,7 +10335,7 @@ dissect_nfs_cb_argop(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	{
 		opcode = tvb_get_ntohl(tvb, offset);
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%c%s", ops_counter==0?' ':';',
-				val_to_str(opcode, names_nfs_cb_operation, "Unknown"));
+				val_to_str_ext_const(opcode, &names_nfs_cb_operation_ext, "Unknown"));
 
 		fitem = proto_tree_add_uint(ftree, hf_nfs_cb_op, tvb, offset, 4, opcode);
 		offset += 4;
@@ -10426,7 +10436,7 @@ dissect_nfs_cb_resop(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 			break;
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%c%s",	ops_counter==0?' ':';',
-				val_to_str(opcode, names_nfs_cb_operation, "Unknown"));
+				val_to_str_ext_const(opcode, &names_nfs_cb_operation_ext, "Unknown"));
 
 		fitem = proto_tree_add_uint(ftree, hf_nfs_cb_op, tvb, offset, 4, opcode);
 		offset += 4;
@@ -10753,8 +10763,8 @@ proto_register_nfs(void)
 			"endianness", "nfs.fh.endianness", FT_BOOLEAN, BASE_NONE,
 			TFS(&tfs_endianness), 0x0, "server native endianness", HFILL }},
 		{ &hf_nfs_stat, {
-			"Status", "nfs.stat", FT_UINT32, BASE_DEC,
-			VALS(names_nfs_stat), 0, "Reply status", HFILL }},
+			"Status", "nfs.stat", FT_UINT32, BASE_DEC|BASE_EXT_STRING,
+			&names_nfs_stat_ext, 0, "Reply status", HFILL }},
 		{ &hf_nfs_full_name, {
 			"Full Name", "nfs.full_name", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
@@ -10861,11 +10871,11 @@ proto_register_nfs(void)
 			"Available Blocks", "nfs.statfs.bavail", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs_ftype3, {
-			"Type", "nfs.type", FT_UINT32, BASE_DEC,
-			VALS(names_nfs_ftype3), 0, "File Type", HFILL }},
+			"Type", "nfs.type", FT_UINT32, BASE_DEC|BASE_EXT_STRING,
+			&names_nfs_ftype3_ext, 0, "File Type", HFILL }},
 		{ &hf_nfs_nfsstat3, {
-			"Status", "nfs.nfsstat3", FT_UINT32, BASE_DEC,
-			VALS(names_nfs_nfsstat3), 0, "Reply status", HFILL }},
+			"Status", "nfs.nfsstat3", FT_UINT32, BASE_DEC|BASE_EXT_STRING,
+			&names_nfs_nfsstat3_ext, 0, "Reply status", HFILL }},
 		{ &hf_nfs_read_eof, {
 			"EOF", "nfs.read.eof", FT_BOOLEAN, BASE_NONE,
 			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
@@ -10968,8 +10978,8 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_fattr3_type, {
-			"Type", "nfs.fattr3.type", FT_UINT32, BASE_DEC,
-			VALS(names_nfs_ftype3), 0, NULL, HFILL }},
+			"Type", "nfs.fattr3.type", FT_UINT32, BASE_DEC|BASE_EXT_STRING,
+			&names_nfs_ftype3_ext, 0, NULL, HFILL }},
 
 		{ &hf_nfs_fattr3_nlink, {
 			"nlink", "nfs.fattr3.nlink", FT_UINT32, BASE_DEC,
@@ -11066,12 +11076,12 @@ proto_register_nfs(void)
 		/* NFSv4 */
 
 		{ &hf_nfs_nfsstat4, {
-			"Status", "nfs.nfsstat4", FT_UINT32, BASE_DEC,
-			VALS(names_nfs_nfsstat4), 0, "Reply status", HFILL }},
+			"Status", "nfs.nfsstat4", FT_UINT32, BASE_DEC|BASE_EXT_STRING,
+			&names_nfs_nfsstat4_ext, 0, "Reply status", HFILL }},
 
 		{ &hf_nfs_op4, {
-			"Opcode", "nfs.opcode", FT_UINT32, BASE_DEC,
-			VALS(names_nfsv4_operation), 0, NULL, HFILL }},
+			"Opcode", "nfs.opcode", FT_UINT32, BASE_DEC|BASE_EXT_STRING,
+			&names_nfsv4_operation_ext, 0, NULL, HFILL }},
 
 		{ &hf_nfs_main_opcode, {
 			"Main Opcode", "nfs.main_opcode", FT_UINT32, BASE_DEC,
@@ -12068,8 +12078,8 @@ proto_register_nfs(void)
 		   "CB Procedure", "nfs.cb_procedure", FT_UINT32, BASE_DEC,
 			VALS(nfs_cb_proc_vals), 0, NULL, HFILL }},
 		{ &hf_nfs_cb_op, {
-		    "Opcode", "nfs.cb.operation", FT_UINT32, BASE_DEC,
-		    VALS(names_nfs_cb_operation), 0, NULL, HFILL }},
+		    "Opcode", "nfs.cb.operation", FT_UINT32, BASE_DEC|BASE_EXT_STRING,
+		    &names_nfs_cb_operation_ext, 0, NULL, HFILL }},
 		{ &hf_nfs_lrs_present, {
 			"Stateid present?", "nfs.lrs_present", FT_BOOLEAN, BASE_NONE,
 			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
