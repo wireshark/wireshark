@@ -99,7 +99,6 @@ static int hf_iscsi_request_frame = -1;
 static int hf_iscsi_data_in_frame = -1;
 static int hf_iscsi_data_out_frame = -1;
 static int hf_iscsi_response_frame = -1;
-static int hf_iscsi_AHS = -1;
 static int hf_iscsi_AHS_length = -1;
 static int hf_iscsi_AHS_type = -1;
 static int hf_iscsi_AHS_blob = -1;
@@ -108,8 +107,6 @@ static int hf_iscsi_AHS_extended_cdb = -1;
 static int hf_iscsi_Padding = -1;
 static int hf_iscsi_ping_data = -1;
 static int hf_iscsi_immediate_data = -1;
-static int hf_iscsi_write_data = -1;
-static int hf_iscsi_read_data = -1;
 static int hf_iscsi_error_pdu_data = -1;
 static int hf_iscsi_async_event_data = -1;
 static int hf_iscsi_vendor_specific_data = -1;
@@ -127,7 +124,6 @@ static int hf_iscsi_SCSICommand_R = -1;
 static int hf_iscsi_SCSICommand_W = -1;
 static int hf_iscsi_SCSICommand_Attr = -1;
 static int hf_iscsi_SCSICommand_CRN = -1;
-static int hf_iscsi_SCSICommand_AddCDB = -1;
 static int hf_iscsi_DataSegmentLength = -1;
 static int hf_iscsi_TotalAHSLength = -1;
 static int hf_iscsi_LUN = -1;
@@ -175,8 +171,6 @@ static int hf_iscsi_ISID_d = -1;
 /* #endif */
 static int hf_iscsi_TSID = -1;
 static int hf_iscsi_TSIH = -1;
-static int hf_iscsi_InitStatSN = -1;
-static int hf_iscsi_InitCmdSN = -1;
 /* #ifdef DRAFT09 */
 static int hf_iscsi_Login_X = -1;
 /* #endif */
@@ -2497,12 +2491,6 @@ proto_register_iscsi(void)
 	  { "Response in", "iscsi.response_frame",
 	    FT_FRAMENUM, BASE_NONE, NULL, 0,
 	    "The response to this transaction is in this frame", HFILL }},
-
-	{ &hf_iscsi_AHS,
-	  { "AHS", "iscsi.ahs",
-	    FT_BYTES, BASE_NONE, NULL, 0,
-	    "Additional header segment", HFILL }
-	},
 	{ &hf_iscsi_AHS_length,
 	  { "AHS Length", "iscsi.ahs.length",
 	    FT_UINT16, BASE_DEC, NULL, 0,
@@ -2542,16 +2530,6 @@ proto_register_iscsi(void)
 	  { "ImmediateData", "iscsi.immediatedata",
 	    FT_BYTES, BASE_NONE, NULL, 0,
 	    "Immediate Data", HFILL }
-	},
-	{ &hf_iscsi_write_data,
-	  { "WriteData", "iscsi.writedata",
-	    FT_BYTES, BASE_NONE, NULL, 0,
-	    "Write Data", HFILL }
-	},
-	{ &hf_iscsi_read_data,
-	  { "ReadData", "iscsi.readdata",
-	    FT_BYTES, BASE_NONE, NULL, 0,
-	    "Read Data", HFILL }
 	},
 	{ &hf_iscsi_error_pdu_data,
 	  { "ErrorPDUData", "iscsi.errorpdudata",
@@ -2629,11 +2607,6 @@ proto_register_iscsi(void)
 	  { "CRN", "iscsi.scsicommand.crn",
 	    FT_UINT8, BASE_HEX, NULL, 0,
 	    "SCSI command reference number", HFILL }
-	},
-	{ &hf_iscsi_SCSICommand_AddCDB,
-	  { "AddCDB", "iscsi.scsicommand.addcdb",
-	    FT_UINT8, BASE_HEX, NULL, 0,
-	    "Additional CDB length (in 4 byte units)", HFILL }
 	},
 	{ &hf_iscsi_DataSegmentLength,
 	  { "DataSegmentLength", "iscsi.datasegmentlength",
@@ -2860,16 +2833,6 @@ proto_register_iscsi(void)
 	  { "TSIH", "iscsi.tsih",
 	    FT_UINT16, BASE_HEX, NULL, 0,
 	    "Target session identifying handle", HFILL }
-	},
-	{ &hf_iscsi_InitStatSN,
-	  { "InitStatSN", "iscsi.initstatsn",
-	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Initial status sequence number", HFILL }
-	},
-	{ &hf_iscsi_InitCmdSN,
-	  { "InitCmdSN", "iscsi.initcmdsn",
-	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Initial command sequence number", HFILL }
 	},
 	{ &hf_iscsi_Login_T,
 	  { "T", "iscsi.login.T",
