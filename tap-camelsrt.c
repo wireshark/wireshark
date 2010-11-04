@@ -44,8 +44,6 @@
 #include "timestats.h"
 #include "epan/stat_cmd_args.h"
 
-#undef  MIN
-#define MIN(x,y) ((x) < (y) ? (x) : (y))
 
 void register_tap_listener_camelsrt(void);
 
