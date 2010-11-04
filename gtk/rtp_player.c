@@ -83,12 +83,6 @@
 #include "gtk/rtp_player.h"
 #include "gtk/stock_icons.h"
 
-#ifndef min
-#define min(a,b) (((a)<(b))?(a):(b))
-#endif
-#ifndef max
-#define max(a,b) (((a)>(b))?(a):(b))
-#endif
 
 /*define this symbol to compile with G729 and G723 codecs*/
 /*#define HAVE_G729_G723 1*/
@@ -1015,7 +1009,7 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 		(idx/MULT >= (rci->h_scrollbar_adjustment->value+rci->h_scrollbar_adjustment->page_increment)) ){
 		rci->cursor_catch = FALSE;
 		for (i=1; i<10; i++) {
-			rci->h_scrollbar_adjustment->value = min(rci->h_scrollbar_adjustment->upper-rci->h_scrollbar_adjustment->page_size, rci->h_scrollbar_adjustment->value + (rci->h_scrollbar_adjustment->page_size/20));
+			rci->h_scrollbar_adjustment->value = MIN(rci->h_scrollbar_adjustment->upper-rci->h_scrollbar_adjustment->page_size, rci->h_scrollbar_adjustment->value + (rci->h_scrollbar_adjustment->page_size/20));
 			gtk_adjustment_value_changed(rci->h_scrollbar_adjustment);
 		}
 
@@ -1092,8 +1086,8 @@ init_rtp_channels_vals(void)
 
 	/* if the two channels are to be played, then we need to sync both based on the start/end time of each one */
 	} else {
-		rpci->max_frame_index = (guint32)(SAMPLE_RATE/1000) * (guint32)(max(rpci->rci[0]->end_time, rpci->rci[1]->end_time) -
-							(guint32)min(rpci->rci[0]->start_time, rpci->rci[1]->start_time));
+		rpci->max_frame_index = (guint32)(SAMPLE_RATE/1000) * (guint32)(MAX(rpci->rci[0]->end_time, rpci->rci[1]->end_time) -
+							(guint32)MIN(rpci->rci[0]->start_time, rpci->rci[1]->start_time));
 
 		if (rpci->rci[0]->start_time < rpci->rci[1]->start_time) {
 			rpci->start_index[0] = 0;
@@ -1282,7 +1276,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 				rci->draw_area->allocation.width,
 				rci->draw_area->allocation.height-HEIGHT_TIME_LABEL);
 
-		imax = min(rci->draw_area->allocation.width,(gint)(rci->samples->len/MULT));
+		imax = MIN(rci->draw_area->allocation.width,(gint)(rci->samples->len/MULT));
 
 		/* we update the progress bar 100 times */
 
@@ -1315,8 +1309,8 @@ static void channel_draw(rtp_channel_info_t* rci)
 
 			for (j=0; j<MULT; j++) {
 				sample = g_array_index(rci->samples, sample_t, i*MULT+j);
-				max = max(max, sample.val);
-				min = min(min, sample.val);
+				max = MAX(max, sample.val);
+				min = MIN(min, sample.val);
 				if (sample.status == S_DROP_BY_JITT) status = S_DROP_BY_JITT;
 				if (sample.status == S_WRONG_TIMESTAMP) status = S_WRONG_TIMESTAMP;
 			}
@@ -1961,7 +1955,7 @@ decode_streams(void)
                 prefs.rtp_player_max_visible = RTP_PLAYER_DEFAULT_VISIBLE;
 
 	gtk_widget_set_size_request(main_scrolled_window, CHANNEL_WIDTH,
-		min(counter, prefs.rtp_player_max_visible) * (CHANNEL_HEIGHT+60));
+		MIN(counter, prefs.rtp_player_max_visible) * (CHANNEL_HEIGHT+60));
 
 	gtk_widget_show_all(main_scrolled_window);
 
