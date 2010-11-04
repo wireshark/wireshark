@@ -493,7 +493,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          XXX - if this isn't the first Derived PDU of a segmented Initial
          PDU, skip that? */
 
-      if (nsel == (char)tp_nsap_selector || always_decode_transport) {
+      if (nsel == (guchar)tp_nsap_selector || always_decode_transport) {
         if (call_dissector(ositp_handle, next_tvb, pinfo, tree) != 0) {
           pinfo->fragmented = save_fragmented;
           return;	/* yes, it appears to be COTP or CLTP */

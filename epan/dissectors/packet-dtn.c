@@ -404,7 +404,7 @@ dissect_tcp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								"TCP Convergence Header");
 	    conv_tree = proto_item_add_subtree(conv_item, ett_tcp_conv_hdr);
 
-	    if(conv_hdr == magic[0]) {
+	    if(conv_hdr == (guint8)magic[0]) {
 		sptr = (char *) tvb_get_ephemeral_string(tvb, frame_offset, 4);
 		if(!memcmp(sptr, magic, 4)){
 		    dissect_contact_header(tvb, pinfo, conv_tree, conv_item);

@@ -259,7 +259,7 @@ parse_extended_pasv_response(const guchar *line, int linelen, guint16 *ftp_port)
 	   (Try to cope with '(' in description)
 	 */
 	for (; !delimiters_seen;) {
-		char delimiter = '\0';
+		guchar delimiter = '\0';
 		while ((c = *p) != '\0' && (c != '('))
 			p++;
 
