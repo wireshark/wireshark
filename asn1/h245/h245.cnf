@@ -72,6 +72,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   /* create a h223_mux_element to hold onto the head of the list, since
    * h223_me will track the tail */
   h223_mux_element dummy_me;
+  memset (&dummy_me, 0, sizeof (h223_mux_element));
   h223_me = &dummy_me;
 %(DEFAULT_BODY)s
   /* set h223_me to the head of the list for MEDescriptor to pick up */
@@ -98,6 +99,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #----------------------------------------------------------------------------------------
 #.FN_BODY MultiplexElement/type/subElementList
   h223_mux_element dummy_me, *parent_me = h223_me;
+  memset (&dummy_me, 0, sizeof (h223_mux_element));
   h223_me = &dummy_me;
 %(DEFAULT_BODY)s
   parent_me->sublist = dummy_me.next;
