@@ -779,9 +779,9 @@ static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
 		gint16 tmp = tvb_get_ntohs(tvb, offset);
 		temp_item  = proto_tree_add_text(config_tree, tvb, offset, 2, "Rate of transmission: "); offset += 2;
 		if (tmp > 0)
-			proto_item_append_text(temp_item, "%"G_GUINT16_FORMAT" frame(s) per second", tmp);
+			proto_item_append_text(temp_item, "%"G_GINT16_FORMAT" frame(s) per second", tmp);
 		else
-			proto_item_append_text(temp_item, "1 frame per %"G_GUINT16_FORMAT" second(s)", -tmp);
+			proto_item_append_text(temp_item, "1 frame per %"G_GINT16_FORMAT" second(s)", (gint16)-tmp);
 	}
 
 	return offset;

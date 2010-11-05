@@ -1594,7 +1594,7 @@ cmd_modresp(tvbuff_t *tvb, int offset, proto_tree *pt)
 	proto_tree_add_text(pt, tvb, offset, 1, "Response handle: %u",
 	    resp_handle);
     else if (dest)
-	proto_tree_add_text(pt, tvb, offset, 1, "Response handles: all on channel %hd", dest);
+	proto_tree_add_text(pt, tvb, offset, 1, "Response handles: all on channel %hhd", dest);
     else
     	proto_tree_add_text(pt, tvb, offset, 1, "Response handles: all");
     action = tvb_get_guint8(tvb, offset+1);
