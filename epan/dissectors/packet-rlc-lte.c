@@ -510,7 +510,9 @@ static void show_AM_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *
             p_add_proto_data(pinfo->fd, proto_pdcp_lte, p_pdcp_lte_info);
         }
 
+        p_pdcp_lte_info->ueid = rlc_info->ueid;
         p_pdcp_lte_info->channelType = Channel_DCCH;
+        p_pdcp_lte_info->channelId = rlc_info->channelId;
         p_pdcp_lte_info->direction = rlc_info->direction;
         p_pdcp_lte_info->no_header_pdu = FALSE;
         if (rlc_info->channelType == CHANNEL_TYPE_SRB) {

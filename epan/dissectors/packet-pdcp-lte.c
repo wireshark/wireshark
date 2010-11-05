@@ -60,6 +60,9 @@ int proto_pdcp_lte = -1;
 /* Configuration (info known outside of PDU) */
 static int hf_pdcp_lte_configuration = -1;
 static int hf_pdcp_lte_direction = -1;
+static int hf_pdcp_lte_ueid = -1;
+static int hf_pdcp_lte_channel_type = -1;
+static int hf_pdcp_lte_channel_id = -1;
 static int hf_pdcp_lte_rohc = -1;
 static int hf_pdcp_lte_rohc_compression = -1;
 static int hf_pdcp_lte_rohc_mode = -1;
@@ -196,6 +199,13 @@ static const value_string pdcp_plane_vals[] = {
     { 0,   NULL }
 };
 
+static const value_string logical_channel_vals[] = {
+    { Channel_DCCH,  "DCCH"},
+    { Channel_BCCH,  "BCCH"},
+    { Channel_CCCH,  "CCCH"},
+    { Channel_PCCH,  "PCCH"},
+    { 0,             NULL}
+};
 
 static const value_string rohc_mode_vals[] = {
     { UNIDIRECTIONAL,            "Unidirectional" },
@@ -1244,6 +1254,25 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
                              p_pdcp_info->plane);
     PROTO_ITEM_SET_GENERATED(ti);
 
+    /* UEId */
+    if (p_pdcp_info->ueid != 0) {
+        ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_ueid, tvb, 0, 0,
+                                 p_pdcp_info->ueid);
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
+
+    /* Channel type */
+    ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_channel_type, tvb, 0, 0,
+                             p_pdcp_info->channelType);
+    PROTO_ITEM_SET_GENERATED(ti);
+    if (p_pdcp_info->channelId != 0) {
+        /* Channel type */
+        ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_channel_id, tvb, 0, 0,
+                                 p_pdcp_info->channelId);
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
+
+
     /* User-plane-specific fields */
     if (p_pdcp_info->plane == USER_PLANE) {
 
@@ -1992,6 +2021,24 @@ void proto_register_pdcp(void)
             { "Direction",
               "pdcp-lte.direction", FT_UINT8, BASE_DEC, VALS(direction_vals), 0x0,
               "Direction of message", HFILL
+            }
+        },
+        { &hf_pdcp_lte_ueid,
+            { "UE",
+              "pdcp-lte.ueid", FT_UINT16, BASE_DEC, 0, 0x0,
+              "UE Identifier", HFILL
+            }
+        },
+        { &hf_pdcp_lte_channel_type,
+            { "Channel type",
+              "pdcp-lte.channel-type", FT_UINT8, BASE_DEC, VALS(logical_channel_vals), 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_pdcp_lte_channel_id,
+            { "Channel Id",
+              "pdcp-lte.channel-id", FT_UINT8, BASE_DEC, 0, 0x0,
+              NULL, HFILL
             }
         },
         { &hf_pdcp_lte_rohc_profile,

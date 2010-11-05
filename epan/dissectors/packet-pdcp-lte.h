@@ -68,7 +68,9 @@ typedef struct pdcp_lte_info
 {
     /* Channel info is needed for RRC parsing */
     guint8             direction;
+    guint16            ueid;
     LogicalChannelType channelType;
+    guint8             channelId;
     BCCHTransportType  BCCHTransport;
 
     /* Details of PDCP header */

@@ -881,6 +881,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
     struct pdcp_lte_info   *p_pdcp_lte_info = NULL;
     tvbuff_t               *pdcp_lte_tvb;
     guint16                ueid;
+    guint8                 channelId;
 
     /* Look this up so can update channel info */
     p_pdcp_lte_info = p_get_proto_data(pinfo->fd, proto_pdcp_lte);
@@ -931,9 +932,11 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
                     p_pdcp_lte_info->channelType = Channel_DCCH;
 
                     /* UEId */
+                    ueid = tvb_get_ntohs(tvb, offset);
                     proto_tree_add_item(tree, hf_catapult_dct2000_lte_ueid, tvb, offset, 2, FALSE);
                     col_append_fstr(pinfo->cinfo, COL_INFO,
-                                    " UEId=%u", tvb_get_ntohs(tvb, offset));
+                                    " UEId=%u", ueid);
+                    p_pdcp_lte_info->ueid = ueid;
                     offset += 2;
 
                     /* Get tag of channel type */
@@ -942,17 +945,21 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
                     switch (tag) {
                         case 0:
                             offset++;
+                            channelId = tvb_get_guint8(tvb, offset);
                             col_append_fstr(pinfo->cinfo, COL_INFO, " SRB:%u",
-                                            tvb_get_guint8(tvb, offset));
+                                            channelId);
                             proto_tree_add_item(tree, hf_catapult_dct2000_lte_srbid,
                                                 tvb, offset++, 1, FALSE);
+                            p_pdcp_lte_info->channelId = channelId;
                             break;
                         case 1:
                             offset++;
+                            channelId = tvb_get_guint8(tvb, offset);
                             col_append_fstr(pinfo->cinfo, COL_INFO, " DRB:%u",
-                                            tvb_get_guint8(tvb, offset));
+                                            channelId);
                             proto_tree_add_item(tree, hf_catapult_dct2000_lte_drbid,
                                                 tvb, offset++, 1, FALSE);
+                            p_pdcp_lte_info->channelId = channelId;
                             break;
 
                         default:
