@@ -65,6 +65,7 @@
 #include <epan/epan.h>
 #include <epan/filesystem.h>
 #include <wsutil/privileges.h>
+#include <wsutil/file_util.h>
 
 #include "globals.h"
 #include <epan/timestamp.h>
@@ -2081,7 +2082,6 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
   gboolean is_tempfile;
   int  err;
 
-
   if(capture_opts->state == CAPTURE_PREPARING) {
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture started!");
   }
@@ -2271,6 +2271,9 @@ capture_input_closed(capture_options *capture_opts, gchar *msg)
 
   if(capture_opts->cf != NULL && ((capture_file *) capture_opts->cf)->wth != NULL) {
     wtap_close(((capture_file *) capture_opts->cf)->wth);
+	if(((capture_file *) capture_opts->cf)->user_saved == FALSE){
+		ws_unlink(((capture_file *) capture_opts->cf)->filename);
+	}
   }
 #ifdef USE_BROKEN_G_MAIN_LOOP
   /*g_main_loop_quit(loop);*/
