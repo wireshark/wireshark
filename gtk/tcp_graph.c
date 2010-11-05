@@ -4196,7 +4196,7 @@ static void wscale_initialize(struct graph* g)
 	guint32 wsize_max = 0;
 	guint32	wsize_min = 0;
 	gdouble sec_max = 0.0;
-	gdouble sec_min = 0.0;
+	gdouble sec_base = -1.0;
 	
 	wscale_read_config (g);
 
@@ -4215,23 +4215,25 @@ static void wscale_initialize(struct graph* g)
 			guint32 wsize = segm->th_win;
 
 			/* only data segments */
-			if ( (flags & (TH_SYN|TH_FIN|TH_RST)) == 0 )
+			if ( (flags & (TH_SYN|TH_RST)) == 0 )
 				if ( wsize > wsize_max )
 					wsize_max = wsize;
+
+			/* remind time of first probe */
+			if ( sec_base < 0 && sec > 0 )
+				sec_base = sec;
 
 			if ( sec_max < sec )
 				sec_max = sec;
 
-			if ( sec_min > sec ) 
-				sec_min = sec;
 		} 
 
 	}
 
-	g->bounds.x0 = sec_min;
+	g->bounds.x0 = 0;
 	g->bounds.y0 = wsize_min;
-	g->bounds.width = sec_max;
-	g->bounds.height = wsize_max;
+	g->bounds.width = sec_max - sec_base + 5;
+	g->bounds.height = wsize_max + 5;
 	g->zoom.x = g->geom.width / g->bounds.width;
 	g->zoom.y = g->geom.height / g->bounds.height;
 
@@ -4245,6 +4247,7 @@ static void wscale_make_elmtlist(struct graph* g)
 	struct segment* segm = NULL;
 	struct element* elements = NULL;
 	struct element* e = NULL;
+	gdouble sec_base = -1.0;
 
 	debug(DBS_FENTRY) puts ("wscale_make_elmtlist()");
 
@@ -4270,15 +4273,19 @@ static void wscale_make_elmtlist(struct graph* g)
 			guint16 flags = segm->th_flags;
 			guint32 wsize = segm->th_win;
 
+			/* remind time of first probe */
+			if ( sec_base < 0 && sec > 0 )
+				sec_base = sec;
+
 			/* only data or ack segments */
-			if ( (flags & (TH_SYN|TH_FIN|TH_RST)) == 0 )
+			if ( (flags & (TH_SYN|TH_RST)) == 0 )
 			{
 				e->type = ELMT_ARC;
 				e->parent = segm;
 				e->gc = g->fg_gc;
 				e->p.arc.dim.width = g->s.wscale.win_width;
 				e->p.arc.dim.height = g->s.wscale.win_height;
-				e->p.arc.dim.x = g->zoom.x * sec - g->s.wscale.win_width / 2.0;
+				e->p.arc.dim.x = g->zoom.x * (sec - sec_base) - g->s.wscale.win_width / 2.0;
 				e->p.arc.dim.y = g->zoom.y * wsize - g->s.wscale.win_height / 2.0;
 				e->p.arc.filled = TRUE;
 				e->p.arc.angle1 = 0;
