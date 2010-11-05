@@ -9985,7 +9985,7 @@ void proto_register_inap(void) {
         NULL, HFILL }},
     { &hf_inap_callingPartysCategory,
       { "callingPartysCategory", "inap.callingPartysCategory",
-        FT_UINT16, BASE_DEC, VALS(isup_calling_partys_category_value), 0,
+        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &isup_calling_partys_category_value_ext, 0,
         NULL, HFILL }},
     { &hf_inap_iPSSPCapabilities,
       { "iPSSPCapabilities", "inap.iPSSPCapabilities",

@@ -632,7 +632,11 @@ static void RTP_packet_draw(void *prs _U_)
 						new_gai->port_src = rtp_listinfo->src_port;
 						new_gai->port_dst = rtp_listinfo->dest_port;
 						duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_rel) - nstime_to_msec(&rtp_listinfo->start_rel));
-						new_gai->frame_label = g_strdup_printf("%s (%s) %s", (rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->pt_str, (rtp_listinfo->rtp_event == -1)?"":val_to_str(rtp_listinfo->rtp_event, rtp_event_type_values, "Unknown RTP Event"));
+						new_gai->frame_label = g_strdup_printf("%s (%s) %s",
+										       (rtp_listinfo->is_srtp)?"SRTP":"RTP",
+										       rtp_listinfo->pt_str,
+										       (rtp_listinfo->rtp_event == -1)?
+										         "":val_to_str_const(rtp_listinfo->rtp_event, rtp_event_type_values, "Unknown RTP Event"));
 						new_gai->comment = g_strdup_printf("%s Num packets:%u  Duration:%u.%03us SSRC:0x%X",
 															(rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->npackets,
 															duration/1000,(duration%1000), rtp_listinfo->ssrc);
@@ -1086,7 +1090,6 @@ isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 	GList *list;
 	gchar *frame_label = NULL;
 	gchar *comment = NULL;
-	int i;
 
 	/*voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct; unused */
 	const isup_tap_rec_t *pi = isup_info;
@@ -1173,15 +1176,7 @@ isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 
 		/* Let's analyze the call state */
 
-
-		for (i=0;(isup_message_type_value[i].strptr!=NULL)&& (isup_message_type_value[i].value!=pi->message_type);i++);
-
-		if (isup_message_type_value[i].value==pi->message_type){
-			frame_label = g_strdup(isup_message_type_value_acro[i].strptr);
-		}
-		else{
-			frame_label = g_strdup("Unknown");
-		}
+		frame_label = g_strdup(val_to_str_ext_const(pi->message_type, &isup_message_type_value_acro_ext, "Unknown"));
 
 		if (callsinfo->npackets == 1){ /* this is the first packet, that must be an IAM */
 
@@ -1224,13 +1219,9 @@ isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 					callsinfo->call_state = VOIP_COMPLETED;
 					tapinfo->completed_calls++;
 				}
-				for (i=0;(q931_cause_code_vals[i].strptr!=NULL)&& (q931_cause_code_vals[i].value!=pi->cause_value);i++);
-				if (q931_cause_code_vals[i].value==pi->cause_value){
-					comment = g_strdup_printf("Cause %i - %s",pi->cause_value, q931_cause_code_vals[i].strptr);
-				}
-				else{
-					comment = g_strdup_printf("Cause %i",pi->cause_value);
-				}
+				comment = g_strdup_printf("Cause %i - %s",
+							  pi->cause_value,
+							  val_to_str_ext_const(pi->cause_value, &q931_cause_code_vals_ext, "(Unknown)"));
 				break;
 		}
 
@@ -1515,7 +1506,8 @@ q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 			} else if (h225_cstype == H225_RELEASE_COMPLET) {
 				/* get the Q931 Release cause code */
 				if (q931_cause_value != 0xFF){
-					comment = g_strdup_printf("H225 Q931 Rel Cause (%i):%s", q931_cause_value, val_to_str(q931_cause_value, q931_cause_code_vals, "<unknown>"));
+					comment = g_strdup_printf("H225 Q931 Rel Cause (%i):%s", q931_cause_value,
+                                                                  val_to_str_ext_const(q931_cause_value, &q931_cause_code_vals_ext, "<unknown>"));
 				} else { /* Cause not set */
 					comment = g_strdup("H225 No Q931 Rel Cause");
 				}
@@ -1635,7 +1627,8 @@ q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 					tapinfo->completed_calls++;
 			}
 			if (q931_cause_value != 0xFF){
-				comment = g_strdup_printf("AC_ISDN trunk:%u Q931 Rel Cause (%i):%s", actrace_trunk, q931_cause_value, val_to_str(q931_cause_value, q931_cause_code_vals, "<unknown>"));
+				comment = g_strdup_printf("AC_ISDN trunk:%u Q931 Rel Cause (%i):%s", actrace_trunk, q931_cause_value,
+                                                          val_to_str_ext_const(q931_cause_value, &q931_cause_code_vals_ext, "<unknown>"));
 			} else { /* Cause not set */
 				comment = g_strdup("AC_ISDN No Q931 Rel Cause");
 			}
@@ -1927,7 +1920,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			default:
 				comment = g_strdup("H225 RAS");
 			}
-			frame_label = g_strdup(val_to_str(pi->msg_tag, h225_RasMessage_vals, "<unknown>"));
+			frame_label = g_strdup(val_to_str_const(pi->msg_tag, h225_RasMessage_vals, "<unknown>"));
 		} else {
 			frame_label = g_strdup("H225: Unknown");
 			comment = NULL;

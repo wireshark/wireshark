@@ -2307,7 +2307,7 @@ de_call_state(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 	case 0:
 		proto_tree_add_uint_format_value(subtree, hf_gsm_a_dtap_call_state, tvb,
 				offset, 1, call_state, "%s (%u)",
-				val_to_str(call_state, q931_call_state_vals, "Reserved"),
+				val_to_str_ext_const(call_state, &q931_call_state_vals_ext, "Reserved"),
 				call_state);
 		break;
 	case 1:
@@ -3030,7 +3030,7 @@ de_prog_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 	case 0:
 		proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_progress_description, tvb,
 				curr_offset, 1, progress_description, "%s (%u)",
-				val_to_str(progress_description, q931_progress_description_vals, "Reserved"),
+				val_to_str_ext_const(progress_description, &q931_progress_description_vals_ext, "Reserved"),
 				progress_description);
 		break;
 	case 1:
@@ -6605,7 +6605,7 @@ proto_register_gsm_a_dtap(void)
 	},
 	{ &hf_gsm_a_dtap_afi,
 		{ "Authority and Format Identifier", "gsm_a.dtap.afi",
-		FT_UINT8, BASE_HEX, VALS(x213_afi_value), 0x0,
+		FT_UINT8, BASE_HEX|BASE_EXT_STRING, &x213_afi_value_ext, 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_dtap_rej_cause,

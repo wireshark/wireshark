@@ -112,8 +112,8 @@ static int hf_q931_segment_overlap_conflict = -1;
 static int hf_q931_segment_multiple_tails = -1;
 static int hf_q931_segment_too_long_segment = -1;
 static int hf_q931_segment_error = -1;
-static int hf_q931_reassembled_in = -1; 
-static int hf_q931_reassembled_length = -1; 
+static int hf_q931_reassembled_in = -1;
+static int hf_q931_reassembled_length = -1;
 
 static gint ett_q931 					= -1;
 static gint ett_q931_ie 				= -1;
@@ -154,7 +154,7 @@ static gboolean q931_desegment = TRUE;
 static dissector_handle_t h225_handle;
 static dissector_handle_t q931_tpkt_handle;
 static dissector_handle_t q931_tpkt_pdu_handle;
-static dissector_handle_t data_handle = NULL; 
+static dissector_handle_t data_handle = NULL;
 
 static heur_dissector_list_t q931_user_heur_subdissector_list;
 
@@ -166,50 +166,52 @@ const value_string q931_message_type_vals[] = {
 	{ Q931_ESCAPE,			"ESCAPE" },
 	{ Q931_ALERTING,		"ALERTING" },
 	{ Q931_CALL_PROCEEDING,		"CALL PROCEEDING" },
-	{ Q931_CONNECT,			"CONNECT" },
-	{ Q931_CONNECT_ACK,		"CONNECT ACKNOWLEDGE" },
 	{ Q931_PROGRESS,		"PROGRESS" },
 	{ Q931_SETUP,			"SETUP" },
+	{ Q931_GROUIP_SERVICE,		"GROUP SERVICE" },
+	{ Q931_CONNECT,			"CONNECT" },
+	{ Q931_RESYNC_REQ,		"RESYNC REQ" },
+	{ Q931_RESYNC_RESP,		"RESYNC RESP" },
+	{ Q931_VERSION,			"VERSION" },
+	{ Q931_GROUIP_SERVICE_ACK,	"GROUP SERVICE ACK" },
 	{ Q931_SETUP_ACK,		"SETUP ACKNOWLEDGE" },
-	{ Q931_HOLD,			"HOLD" },
-	{ Q931_HOLD_ACK,		"HOLD_ACKNOWLEDGE" },
-	{ Q931_HOLD_REJECT,		"HOLD_REJECT" },
-	{ Q931_RESUME,			"RESUME" },
-	{ Q931_RESUME_ACK,		"RESUME ACKNOWLEDGE" },
+	{ Q931_CONNECT_ACK,		"CONNECT ACKNOWLEDGE" },
+	{ Q931_USER_INFORMATION,	"USER INFORMATION" },
+	{ Q931_SUSPEND_REJECT,		"SUSPEND REJECT" },
 	{ Q931_RESUME_REJECT,		"RESUME REJECT" },
+	{ Q931_HOLD,			"HOLD" },
+	{ Q931_SUSPEND,			"SUSPEND" },
+	{ Q931_RESUME,			"RESUME" },
+	{ Q931_HOLD_ACK,		"HOLD_ACKNOWLEDGE" },
+	{ Q931_SUSPEND_ACK,		"SUSPEND ACKNOWLEDGE" },
+	{ Q931_RESUME_ACK,		"RESUME ACKNOWLEDGE" },
+	{ Q931_HOLD_REJECT,		"HOLD_REJECT" },
 	{ Q931_RETRIEVE,		"RETRIEVE" },
 	{ Q931_RETRIEVE_ACK,		"RETRIEVE ACKNOWLEDGE" },
 	{ Q931_RETRIEVE_REJECT,		"RETRIEVE REJECT" },
-	{ Q931_SUSPEND,			"SUSPEND" },
-	{ Q931_SUSPEND_ACK,		"SUSPEND ACKNOWLEDGE" },
-	{ Q931_SUSPEND_REJECT,		"SUSPEND REJECT" },
-	{ Q931_USER_INFORMATION,	"USER INFORMATION" },
 	{ Q931_DETACH, 			"DETACH" },
-	{ Q931_DETACH_ACKNOWLEDGE, "DETACH ACKNOWLEDGE" },
 	{ Q931_DISCONNECT,		"DISCONNECT" },
-	{ Q931_RELEASE,			"RELEASE" },
-	{ Q931_RELEASE_COMPLETE,	"RELEASE COMPLETE" },
 	{ Q931_RESTART,			"RESTART" },
+	{ Q931_DETACH_ACKNOWLEDGE,	"DETACH ACKNOWLEDGE" },
+	{ Q931_RELEASE,			"RELEASE" },
 	{ Q931_RESTART_ACK,		"RESTART ACKNOWLEDGE" },
-	{ Q931_CONGESTION_CONTROL,	"CONGESTION CONTROL" },
-	{ Q931_FACILITY,		"FACILITY" },
-	{ Q931_FACILITY_ACKNOWLEDGE, "FACILITY ACKNOWLEDGE" },
-	{ Q931_FACILITY_REJECT,	"FACILITY REJECT" },
-	{ Q931_INFORMATION,		"INFORMATION" },
-	{ Q931_NOTIFY,			"NOTIFY" },
-	{ Q931_REGISTER,		"REGISTER" },
+	{ Q931_RELEASE_COMPLETE,	"RELEASE COMPLETE" },
 	{ Q931_SEGMENT,			"SEGMENT" },
-	{ Q931_STATUS,			"STATUS" },
+	{ Q931_FACILITY,		"FACILITY" },
+	{ Q931_REGISTER,		"REGISTER" },
+	{ Q931_FACILITY_ACKNOWLEDGE,	"FACILITY ACKNOWLEDGE" },
+	{ Q931_NOTIFY,			"NOTIFY" },
+	{ Q931_FACILITY_REJECT,		"FACILITY REJECT" },
 	{ Q931_STATUS_ENQUIRY,		"STATUS ENQUIRY" },
-	{ Q931_VERSION,			"VERSION" },
-	{ Q931_GROUIP_SERVICE,		"GROUP SERVICE" },
-	{ Q931_GROUIP_SERVICE_ACK,	"GROUP SERVICE ACK" },
-	{ Q931_RESYNC_REQ,		"RESYNC REQ" },
-	{ Q931_RESYNC_RESP,		"RESYNC RESP" },
+	{ Q931_CONGESTION_CONTROL,	"CONGESTION CONTROL" },
+	{ Q931_INFORMATION,		"INFORMATION" },
+	{ Q931_STATUS,			"STATUS" },
+
 	{ 0,				NULL }
 };
+static value_string_ext q931_message_type_vals_ext = VALUE_STRING_EXT_INIT(q931_message_type_vals);
 
-const value_string dms_message_type_vals[] = {
+static const value_string dms_message_type_vals[] = {
 	{ DMS_SERVICE_ACKNOWLEDGE,	"SERVICE ACKNOWLEDGE" },
 	{ DMS_SERVICE,				"SERVICE" },
 	{ 0,				NULL }
@@ -426,6 +428,7 @@ static const value_string q931_info_element_vals0[] = {
 	{ Q931_IE_CONNECTED_SUBADDR,		"Connected subaddress" },
 	{ 0,					NULL }
 };
+
 /* Codeset 1 */
 static const value_string q931_info_element_vals1[] = {
 	{ 0,					NULL }
@@ -572,6 +575,7 @@ static const value_string q931_uil1_vals[] = {
 	{ 0x0b, "Recommendation G.729 CS-ACELP" },
 	{ 0,    NULL }
 };
+static value_string_ext q931_uil1_vals_ext = VALUE_STRING_EXT_INIT(q931_uil1_vals);
 
 static const value_string q931_l1_user_rate_vals[] = {
 	{ 0x00, "Rate indicated by E-bits" },
@@ -603,6 +607,7 @@ static const value_string q931_l1_user_rate_vals[] = {
 	{ 0x1F, "12 kbit/s" },
 	{ 0,    NULL }
 };
+static value_string_ext q931_l1_user_rate_vals_ext = VALUE_STRING_EXT_INIT(q931_l1_user_rate_vals);
 
 static const value_string q931_l1_intermediate_rate_vals[] = {
 	{ 0x20, "8 kbit/s" },
@@ -650,6 +655,7 @@ static const value_string q931_l1_modem_type_vals[] = {
 	{ 0x1E, "V.34" },
 	{ 0,    NULL }
 };
+static value_string_ext q931_l1_modem_type_vals_ext = VALUE_STRING_EXT_INIT(q931_l1_modem_type_vals);
 
 #define	Q931_UIL2_USER_SPEC	0x10
 
@@ -670,6 +676,7 @@ static const value_string q931_uil2_vals[] = {
 	{ 0x11,			"ISO 7776 DTE-DTE operation" },
 	{ 0,			NULL }
 };
+static value_string_ext q931_uil2_vals_ext = VALUE_STRING_EXT_INIT(q931_uil2_vals);
 
 static const value_string q931_mode_vals[] = {
 	{ 0x20, "Normal mode" },
@@ -736,7 +743,7 @@ static const value_string q931_bearer_capability_layer_ident_vals[] = {
 	{ 0x02, "Layer 2 identifier" },
 	{ 0x03, "Layer 3 identifier" },
 	{ 0x00, NULL }
-}; 
+};
 
 void
 dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
@@ -830,7 +837,7 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 		    (octet & 0x20) ? "" : "not ");
 		proto_tree_add_text(tree, tvb, offset, 1,
 		    "User rate: %s",
-		    val_to_str(octet & 0x1F, q931_l1_user_rate_vals,
+		    val_to_str_ext(octet & 0x1F, &q931_l1_user_rate_vals_ext,
 		      "Unknown (0x%02X)"));
 		offset += 1;
 		len -= 1;
@@ -922,7 +929,7 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 		} else {
 			proto_tree_add_text(tree, tvb, offset, 1,
 			    "Modem type: %s",
-			      val_to_str(modem_type, q931_l1_modem_type_vals,
+			      val_to_str_ext(modem_type, &q931_l1_modem_type_vals_ext,
 			      "Unknown (0x%02X)"));
 		}
 		offset += 1;
@@ -943,7 +950,7 @@ l1_done:
 		uil2_protocol = octet & 0x1F;
 		proto_tree_add_text(tree, tvb, offset, 1,
 		    "User information layer 2 protocol: %s",
-		    val_to_str(uil2_protocol, q931_uil2_vals,
+		    val_to_str_ext(uil2_protocol, &q931_uil2_vals_ext,
 		      "Unknown (0x%02X)"));
 		offset += 1;
 		len -= 1;
@@ -1075,7 +1082,7 @@ l3_done:
  */
 
 
-const value_string q931_cause_location_vals[] = {
+static const value_string q931_cause_location_vals[] = {
 	{ 0x00, "User (U)" },
 	{ 0x01, "Private network serving the local user (LPN)" },
 	{ 0x02, "Public network serving the local user (LN)" },
@@ -1086,6 +1093,7 @@ const value_string q931_cause_location_vals[] = {
 	{ 0x0A, "Network beyond interworking point (BI)" },
 	{ 0,    NULL }
 };
+value_string_ext q931_cause_location_vals_ext = VALUE_STRING_EXT_INIT(q931_cause_location_vals);
 
 static const value_string q931_cause_recommendation_vals[] = {
 	{ 0x00, "Q.931" },
@@ -1113,7 +1121,7 @@ static const value_string q931_cause_recommendation_vals[] = {
 #define	Q931_CAUSE_MSG_INCOMPAT_W_CS	0x65
 #define	Q931_CAUSE_REC_TIMER_EXP	0x66
 
-const value_string q931_cause_code_vals[] = {
+static const value_string q931_cause_code_vals[] = {
 	{ 0x00,				"Valid cause code not yet received" },
 	{ Q931_CAUSE_UNALLOC_NUMBER,	"Unallocated (unassigned) number" },
 	{ 0x02,				"No route to specified transit network" },
@@ -1211,6 +1219,7 @@ const value_string q931_cause_code_vals[] = {
 	{ 0x7F,				"Internetworking, unspecified" },
 	{ 0,				NULL }
 };
+value_string_ext q931_cause_code_vals_ext = VALUE_STRING_EXT_INIT(q931_cause_code_vals);
 
 static const value_string q931_cause_condition_vals[] = {
 	{ 0x00, "Unknown" },
@@ -1234,7 +1243,7 @@ static const gchar *get_message_name(guint8 prot_discr, guint8 message_type) {
 	if (prot_discr == NLPID_DMS)
 		return val_to_str(message_type, dms_message_type_vals, "Unknown (0x%02X)");
 	else
-		return val_to_str(message_type, q931_message_type_vals, "Unknown (0x%02X)");
+		return val_to_str_ext(message_type, &q931_message_type_vals_ext, "Unknown (0x%02X)");
 }
 
 static void
@@ -1378,7 +1387,7 @@ dissect_q931_cause_ie_unsafe(tvbuff_t *tvb, int offset, int len,
 	case Q931_CAUSE_MSG_INCOMPAT_W_CS:
 		proto_tree_add_text(tree, tvb, offset, 1,
 		    "Message type: %s",
-		    val_to_str(tvb_get_guint8(tvb, offset), q931_message_type_vals,
+		    val_to_str_ext(tvb_get_guint8(tvb, offset), &q931_message_type_vals_ext,
 		      "Unknown (0x%02X)"));
 		break;
 
@@ -1441,7 +1450,7 @@ dissect_q931_change_status_ie(tvbuff_t *tvb, int offset, int len _U_, proto_tree
 /*
  * Dissect a Call state information element.
  */
-const value_string q931_call_state_vals[] = {
+static const value_string q931_call_state_vals[] = {
 	{ 0x00, "Null" },
 	{ 0x01, "Call initiated" },
 	{ 0x02, "Overlap sending" },
@@ -1463,6 +1472,7 @@ const value_string q931_call_state_vals[] = {
 	{ 0x3E, "Restart" },
 	{ 0,    NULL }
 };
+value_string_ext q931_call_state_vals_ext = VALUE_STRING_EXT_INIT(q931_call_state_vals);
 
 static void
 dissect_q931_call_state_ie(tvbuff_t *tvb, int offset, int len,
@@ -1488,7 +1498,7 @@ dissect_q931_call_state_ie(tvbuff_t *tvb, int offset, int len,
 	}
 	proto_tree_add_text(tree, tvb, offset, 1,
 	    "Call state: %s",
-	    val_to_str(octet & 0x3F, q931_call_state_vals,
+	    val_to_str_ext(octet & 0x3F, &q931_call_state_vals_ext,
 	      "Unknown (0x%02X)"));
 }
 
@@ -1539,7 +1549,7 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 	proto_tree_add_item(tree, hf_q931_channel_interface_type, tvb, offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_q931_channel_exclusive, tvb, offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_q931_channel_dchan, tvb, offset, 1, FALSE);
-	
+
 	if (octet & Q931_NOT_BASIC_CHANNEL) {
 		proto_tree_add_item(tree, hf_q931_channel_selection_pri, tvb, offset, 1, FALSE);
 	} else {
@@ -1590,7 +1600,7 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 		}
 		proto_tree_add_item(tree, hf_q931_channel_map, tvb, offset, 1, FALSE);
 		proto_tree_add_item(tree, hf_q931_channel_element_type, tvb, offset, 1, FALSE);
-		
+
 		offset += 1;
 		len -= 1;
 
@@ -1602,7 +1612,7 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 					"Slot map: 0x%02x", octet2);
 				offset += 1;
 				len -= 1;
-			} 
+			}
 		} else {
 			guint8 octet2;
 			do {
@@ -1623,7 +1633,7 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 /*
  * Dissect a Progress indicator information element.
  */
-const value_string q931_progress_description_vals[] = {
+static const value_string q931_progress_description_vals[] = {
 	{ 0x01, "Call is not end-to-end ISDN - progress information available in-band" },
 	{ 0x02, "Destination address is non-ISDN" },
 	{ 0x03, "Origination address is non-ISDN" },
@@ -1632,6 +1642,7 @@ const value_string q931_progress_description_vals[] = {
 	{ 0x08, "In-band information or an appropriate pattern is now available" },
 	{ 0,    NULL }
 };
+value_string_ext q931_progress_description_vals_ext = VALUE_STRING_EXT_INIT(q931_progress_description_vals);
 
 void
 dissect_q931_progress_indicator_ie(tvbuff_t *tvb, int offset, int len,
@@ -1657,7 +1668,7 @@ dissect_q931_progress_indicator_ie(tvbuff_t *tvb, int offset, int len,
 	}
 	proto_tree_add_text(tree, tvb, offset, 1,
 	    "Location: %s",
-	    val_to_str(octet & 0x0F, q931_cause_location_vals,
+	    val_to_str_ext(octet & 0x0F, &q931_cause_location_vals_ext,
 	      "Unknown (0x%X)"));
 	offset += 1;
 	len -= 1;
@@ -1667,7 +1678,7 @@ dissect_q931_progress_indicator_ie(tvbuff_t *tvb, int offset, int len,
 	octet = tvb_get_guint8(tvb, offset);
 	proto_tree_add_text(tree, tvb, offset, 1,
 	    "Progress description: %s",
-	    val_to_str(octet & 0x7F, q931_progress_description_vals,
+	    val_to_str_ext(octet & 0x7F, &q931_progress_description_vals_ext,
 	      "Unknown (0x%02X)"));
 }
 
@@ -1823,6 +1834,7 @@ static const value_string q931_signal_vals[] = {
 	{ 0x4F, "Alerting off" },
 	{ 0,    NULL }
 };
+static value_string_ext q931_signal_vals_ext = VALUE_STRING_EXT_INIT(q931_signal_vals);
 
 static void
 dissect_q931_signal_ie(tvbuff_t *tvb, int offset, int len,
@@ -1835,7 +1847,7 @@ dissect_q931_signal_ie(tvbuff_t *tvb, int offset, int len,
 	}
 	proto_tree_add_text(tree, tvb, offset, 1,
 	    "Signal: %s",
-	    val_to_str(tvb_get_guint8(tvb, offset), q931_signal_vals,
+	    val_to_str_ext(tvb_get_guint8(tvb, offset), &q931_signal_vals_ext,
 	        "Unknown (0x%02X)"));
 }
 
@@ -1856,6 +1868,7 @@ static const value_string q931_throughput_class_vals[] = {
 	{ 0x0D, "64000 bit/s" },
 	{ 0,    NULL }
 };
+static value_string_ext q931_throughput_class_vals_ext = VALUE_STRING_EXT_INIT(q931_throughput_class_vals);
 
 static void
 dissect_q931_information_rate_ie(tvbuff_t *tvb, int offset, int len,
@@ -1868,20 +1881,20 @@ dissect_q931_information_rate_ie(tvbuff_t *tvb, int offset, int len,
 	}
 	proto_tree_add_text(tree, tvb, offset + 0, 1,
 	    "Incoming information rate: %s",
-	    val_to_str(tvb_get_guint8(tvb, offset + 0) & 0x1F,
-	      q931_throughput_class_vals, "Unknown (0x%02X)"));
+	    val_to_str_ext(tvb_get_guint8(tvb, offset + 0) & 0x1F,
+	      &q931_throughput_class_vals_ext, "Unknown (0x%02X)"));
 	proto_tree_add_text(tree, tvb, offset + 1, 1,
 	    "Outgoing information rate: %s",
-	    val_to_str(tvb_get_guint8(tvb, offset + 1) & 0x1F,
-	      q931_throughput_class_vals, "Unknown (0x%02X)"));
+	    val_to_str_ext(tvb_get_guint8(tvb, offset + 1) & 0x1F,
+	      &q931_throughput_class_vals_ext, "Unknown (0x%02X)"));
 	proto_tree_add_text(tree, tvb, offset + 2, 1,
 	    "Minimum incoming information rate: %s",
-	    val_to_str(tvb_get_guint8(tvb, offset + 2) & 0x1F,
-	      q931_throughput_class_vals, "Unknown (0x%02X)"));
+	    val_to_str_ext(tvb_get_guint8(tvb, offset + 2) & 0x1F,
+	      &q931_throughput_class_vals_ext, "Unknown (0x%02X)"));
 	proto_tree_add_text(tree, tvb, offset + 3, 1,
 	    "Minimum outgoing information rate: %s",
-	    val_to_str(tvb_get_guint8(tvb, offset + 3) & 0x1F,
-	      q931_throughput_class_vals, "Unknown (0x%02X)"));
+	    val_to_str_ext(tvb_get_guint8(tvb, offset + 3) & 0x1F,
+	      &q931_throughput_class_vals_ext, "Unknown (0x%02X)"));
 }
 
 static int
@@ -2189,7 +2202,7 @@ dissect_q931_number_ie(tvbuff_t *tvb, int offset, int len,
 	proto_tree_add_uint(tree, hf_q931_numbering_plan, tvb, offset, 1, octet);
 	proto_tree_add_uint(tree, hf_q931_number_type, tvb, offset, 1, octet);
 	proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
-	
+
 	offset += 1;
 	len -= 1;
 
@@ -2330,9 +2343,10 @@ static const value_string q931_high_layer_characteristics_vals[] = {
 	{ Q931_AUDIOVISUAL, "F.720/F.821 and F.731 Profile 1a videotelephony" },
 	{ 0x61,             "F.702 and F.731 Profile 1b videoconferencing" },
 	{ 0x62,             "F.702 and F.731 audiographic conferencing" },
-	{ 0x68,             "F.700-series Multimedia services" },	
+	{ 0x68,             "F.700-series Multimedia services" },
 	{ 0,                NULL }
 };
+static value_string_ext q931_high_layer_characteristics_vals_ext = VALUE_STRING_EXT_INIT(q931_high_layer_characteristics_vals);
 
 static const value_string q931_extended_high_layer_characteristics_vals[] = {
 	{ 0x01,             "Telephony" },
@@ -2352,9 +2366,10 @@ static const value_string q931_extended_high_layer_characteristics_vals[] = {
 	{ Q931_AUDIOVISUAL, "F.720/F.821 and F.731 Profile 1a videotelephony" },
 	{ 0x61,             "F.702 and F.731 Profile 1b videoconferencing" },
 	{ 0x62,             "F.702 and F.731 audiographic conferencing" },
-	{ 0x68,             "F.700-series Multimedia services" },	
+	{ 0x68,             "F.700-series Multimedia services" },
 	{ 0,                NULL }
 };
+static value_string_ext q931_extended_high_layer_characteristics_vals_ext = VALUE_STRING_EXT_INIT(q931_extended_high_layer_characteristics_vals);
 
 static const value_string q931_audiovisual_characteristics_vals[] = {
 	{ 0x01, "Capability set of initial channel of H.221" },
@@ -2430,11 +2445,11 @@ dissect_q931_high_layer_compat_ie(tvbuff_t *tvb, int offset, int len,
 			(characteristics == 0x68)) {
 			proto_tree_add_item(tree, hf_q931_extension_ind, tvb, offset, 1, FALSE);
 			proto_tree_add_uint(tree, hf_q931_extended_audiovisual_characteristics, tvb, offset, 1, octet);
-		} 
+		}
 		else if ((characteristics == Q931_MANAGEMENT) || (characteristics == Q931_MAINTENANCE)) {
 			proto_tree_add_item(tree, hf_q931_extension_ind, tvb, offset, 1, FALSE);
 			proto_tree_add_uint(tree, hf_q931_extended_high_layer_characteristics, tvb, offset, 1, octet);
-		}	
+		}
 	}
 }
 
@@ -2446,7 +2461,7 @@ dissect_q931_high_layer_compat_ie(tvbuff_t *tvb, int offset, int len,
 #define	Q931_PROTOCOL_DISCRIMINATOR_IA5		0x04
 #define Q931_PROTOCOL_DISCRIMINATOR_ASN1	0x05
 
-const value_string q931_protocol_discriminator_vals[] = {
+static const value_string q931_protocol_discriminator_vals[] = {
 	{ Q931_PROTOCOL_DISCRIMINATOR_USER, "User-specific protocol" },
 	{ 0x01,					"OSI high layer protocols" },
 	{ 0x02,					"X.244" },
@@ -2456,6 +2471,7 @@ const value_string q931_protocol_discriminator_vals[] = {
 	{ 0x08,					"Q.931/I.451 user-network call control messages" },
 	{ 0,					NULL }
 };
+value_string_ext q931_protocol_discriminator_vals_ext = VALUE_STRING_EXT_INIT(q931_protocol_discriminator_vals);
 
 void
 dissect_q931_user_user_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
@@ -2469,7 +2485,7 @@ dissect_q931_user_user_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len
 	octet = tvb_get_guint8(tvb, offset);
 	proto_tree_add_text(tree, tvb, offset, 1,
 	    "Protocol discriminator: %s",
-	    val_to_str(octet, q931_protocol_discriminator_vals,
+	    val_to_str_ext(octet, &q931_protocol_discriminator_vals_ext,
 	    "Unknown (0x%02x)"));
 	offset += 1;
 	len -= 1;
@@ -2556,7 +2572,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint8		message_type, segmented_message_type;
 	guint8		info_element;
 	guint16		info_element_len;
-	gboolean	first_frag, more_frags; 
+	gboolean	first_frag, more_frags;
 	guint32		frag_len;
 	fragment_data *fd_head;
 	tvbuff_t *next_tvb = NULL;
@@ -2588,7 +2604,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		case 2:	call_ref_val = tvb_get_ntohs(tvb, offset); break;
 		case 3:	call_ref_val = tvb_get_ntoh24(tvb, offset); break;
 		default: call_ref_val = tvb_get_ntohl(tvb, offset);
-	} 
+	}
 	if (call_ref_len != 0) {
 		tvb_memcpy(tvb, call_ref, offset, call_ref_len);
 		if (q931_tree != NULL) {
@@ -2623,7 +2639,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/*
 	 * And now for the information elements....
 	 */
-	if ((message_type != Q931_SEGMENT) || !q931_reassembly || 
+	if ((message_type != Q931_SEGMENT) || !q931_reassembly ||
 			(tvb_reported_length_remaining(tvb, offset) <= 4)) {
 		dissect_q931_IEs(tvb, pinfo, tree, q931_tree, is_over_ip, offset, 0);
 		return;
@@ -2646,8 +2662,8 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	more_frags = (tvb_get_guint8(tvb, offset + 2) & 0x7F) != 0;
 	segmented_message_type = tvb_get_guint8(tvb, offset + 3);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " of %s", 
-		    val_to_str(segmented_message_type, q931_message_type_vals, "Unknown message type (0x%02X)"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, " of %s",
+		    val_to_str_ext(segmented_message_type, &q931_message_type_vals_ext, "Unknown message type (0x%02X)"));
 	}
 	offset += 1 + 1 + info_element_len;
 	/* Reassembly */
@@ -2674,7 +2690,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_add_fstr(pinfo->cinfo, COL_INFO, "%s [reassembled]",
-				    val_to_str(segmented_message_type, q931_message_type_vals, "Unknown message type (0x%02X)"));
+				    val_to_str_ext(segmented_message_type, &q931_message_type_vals_ext, "Unknown message type (0x%02X)"));
 			}
 		} else {
 			if (tree) proto_tree_add_uint(q931_tree, hf_q931_reassembled_in, tvb, offset, frag_len, fd_head->reassembled_in);
@@ -2755,7 +2771,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 			switch ((codeset << 8) | (info_element & Q931_IE_SO_IDENTIFIER_MASK)) {
 
 			case CS0 | Q931_IE_MORE_DATA_OR_SEND_COMP:
-				switch (info_element) {	
+				switch (info_element) {
 
 				case Q931_IE_MORE_DATA:
 					if (q931_tree != NULL) {
@@ -2845,14 +2861,14 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 				    2, "Length: %u", info_element_len);
 				proto_tree_add_text(ie_tree, tvb, offset + 3,
 				    1, "Protocol discriminator: %s",
-				    val_to_str(tvb_get_guint8(tvb, offset + 3),
-				      q931_protocol_discriminator_vals,
+				    val_to_str_ext(tvb_get_guint8(tvb, offset + 3),
+				      &q931_protocol_discriminator_vals_ext,
 				      "Unknown (0x%02x)"));
 			}
 
 			if (info_element_len > 1) {
 				/*
-				 * If we don't desegment limit the length 
+				 * If we don't desegment limit the length
 				 * to the actual size in the frame
 				 */
 				if (!pinfo->can_desegment) {
@@ -2921,7 +2937,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 				dissect_q931_segmented_message_ie(tvb, offset + 2, info_element_len, ie_tree);
 				if (check_col(pinfo->cinfo, COL_INFO)) {
 					col_append_fstr(pinfo->cinfo, COL_INFO, " of %s",
-					    val_to_str(tvb_get_guint8(tvb, offset + 3), q931_message_type_vals, "Unknown message type (0x%02X)"));
+					    val_to_str_ext(tvb_get_guint8(tvb, offset + 3), &q931_message_type_vals_ext, "Unknown message type (0x%02X)"));
 				}
 				if (tvb_get_guint8(tvb, offset + 2) & 0x80) {  /* the 1st segment */
 					first_segment = TRUE;
@@ -3317,7 +3333,7 @@ dissect_q931_ie_cs7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_q931_IEs(tvb, pinfo, NULL, tree, FALSE, 0, 7);
 }
 
-static void 
+static void
 q931_init(void) {
 	/* Initialize the fragment and reassembly tables */
 	fragment_table_init(&q931_fragment_table);
@@ -3345,7 +3361,7 @@ proto_register_q931(void)
 			NULL, HFILL }},
 
 		{ &hf_q931_message_type,
-		  { "Message type", "q931.message_type", FT_UINT8, BASE_HEX, VALS(q931_message_type_vals), 0x0,
+		  { "Message type", "q931.message_type", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q931_message_type_vals_ext, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_q931_maintenance_message_type,
@@ -3353,7 +3369,7 @@ proto_register_q931(void)
 			NULL, HFILL }},
 
 		{ &hf_q931_segment_type,
-		  { "Segmented message type", "q931.segment_type", FT_UINT8, BASE_HEX, VALS(q931_message_type_vals), 0x0,
+		  { "Segmented message type", "q931.segment_type", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q931_message_type_vals_ext, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_q931_coding_standard,
@@ -3369,12 +3385,12 @@ proto_register_q931(void)
 			VALS(q931_pres_meth_prot_prof_vals), 0x03, NULL, HFILL}},
 
 		{ &hf_q931_high_layer_characteristics,
-		  { "High layer characteristics identification", "q931.high_layer_characteristics", FT_UINT8, BASE_HEX,
-			VALS(q931_high_layer_characteristics_vals), 0x7f, NULL, HFILL }},
+		  { "High layer characteristics identification", "q931.high_layer_characteristics", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
+			&q931_high_layer_characteristics_vals_ext, 0x7f, NULL, HFILL }},
 
 		{ &hf_q931_extended_high_layer_characteristics,
-		  { "Extended high layer characteristics identification", "q931.extended_high_layer_characteristics", FT_UINT8, BASE_HEX,
-			VALS(q931_extended_high_layer_characteristics_vals), 0x7f, NULL, HFILL }},
+		  { "Extended high layer characteristics identification", "q931.extended_high_layer_characteristics", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
+			&q931_extended_high_layer_characteristics_vals_ext, 0x7f, NULL, HFILL }},
 
 		{ &hf_q931_extended_audiovisual_characteristics,
 		  { "Extended audiovisual characteristics identification", "q931.extended_audiovisual_characteristics", FT_UINT8, BASE_HEX,
@@ -3397,15 +3413,15 @@ proto_register_q931(void)
 			 VALS(q931_bearer_capability_layer_ident_vals), 0x60, NULL, HFILL }},
 
 		{ &hf_q931_uil1,
-		  { "User information layer 1 protocol", "q931.uil1", FT_UINT8, BASE_HEX,
-			 VALS(q931_uil1_vals), 0x1f,NULL, HFILL }},
+		  { "User information layer 1 protocol", "q931.uil1", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
+			 &q931_uil1_vals_ext, 0x1f,NULL, HFILL }},
 
 		{ &hf_q931_cause_location,
-		  { "Cause location", "q931.cause_location", FT_UINT8, BASE_DEC, VALS(q931_cause_location_vals), 0x0f,
+		  { "Cause location", "q931.cause_location", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &q931_cause_location_vals_ext, 0x0f,
 			NULL, HFILL }},
 
 		{ &hf_q931_cause_value,
-		  { "Cause value", "q931.cause_value", FT_UINT8, BASE_DEC, VALS(q931_cause_code_vals), 0x7f,
+		  { "Cause value", "q931.cause_value", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &q931_cause_code_vals_ext, 0x7f,
 			NULL, HFILL }},
 
 		{ &hf_q931_number_type,
@@ -3517,11 +3533,11 @@ proto_register_q931(void)
 
 		{ &hf_q931_reassembled_in,
 		  { "Reassembled Q.931 in frame", "q931.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-			"This Q.931 message is reassembled in this frame", HFILL}}, 
+			"This Q.931 message is reassembled in this frame", HFILL}},
 
 		{ &hf_q931_reassembled_length,
 		  { "Reassembled Q.931 length", "q931.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"The total length of the reassembled payload", HFILL}}, 
+			"The total length of the reassembled payload", HFILL}},
 	};
 	static gint *ett[] = {
 		&ett_q931,

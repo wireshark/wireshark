@@ -1414,7 +1414,7 @@ dissect_sip_reason_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gi
 		cause_value = atoi(tvb_get_ephemeral_string(tvb, current_offset, length));
 		proto_tree_add_text(tree, tvb, current_offset, length,
 			"Cause: %u(0x%x)[%s]", cause_value,cause_value,
-			val_to_str(cause_value, q850_cause_code_vals, "Unknown (%d)" ));
+			val_to_str_ext(cause_value, &q850_cause_code_vals_ext, "Unknown (%d)" ));
 
 	}
 

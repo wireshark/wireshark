@@ -443,7 +443,7 @@ void proto_register_q1950(void) {
 		},
 		{ &hf_h248_pkg_BCP_BNCChar,
 			{ "BNCChar (BNC Characteristics)", "h248.pkg.bcp.bncchar", 
-			FT_UINT32, BASE_HEX, VALS(bearer_network_connection_characteristics_vals), 0, "BNC Characteristics", HFILL }
+			FT_UINT32, BASE_HEX|BASE_EXT_STRING, &bearer_network_connection_characteristics_vals_ext, 0, "BNC Characteristics", HFILL }
 		},
 		
 		/* A.4 Bearer Network connection cut-through package */

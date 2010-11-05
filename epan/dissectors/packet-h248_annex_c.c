@@ -1245,7 +1245,7 @@ void proto_register_h248_annex_c(void) {
 
 		{ &hf_h248_pkg_annexc_tmr,
 		{ "TMR", "h248.pkg.annexc.tmr",
-			FT_UINT8, BASE_HEX, VALS(isup_transmission_medium_requirement_value), 0,
+			FT_UINT8, BASE_HEX|BASE_EXT_STRING, &isup_transmission_medium_requirement_value_ext, 0,
 			"Transmission Medium Requirement", HFILL }},
 		{ &hf_h248_pkg_annexc_tmrsr,
 		{ "TMSR", "h248.pkg.annexc.tmsr",

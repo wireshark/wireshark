@@ -622,9 +622,8 @@ ipv4_get_net_order_addr
 is_big_endian
 is_default_profile
 is_tpkt
-isup_calling_partys_category_value      DATA
-isup_message_type_value_acro    DATA
-isup_message_type_value         DATA
+isup_calling_partys_category_value_ext  DATA
+isup_message_type_value_acro_ext    DATA
 list_stat_cmd_args
 llc_add_oui
 LocationRejectReason_vals       DATA
@@ -845,8 +844,8 @@ ptvcursor_pop_subtree
 ptvcursor_add_with_subtree
 ptvcursor_add_text_with_subtree
 ptvcursor_set_subtree
-q850_cause_code_vals           DATA
-q931_cause_code_vals           DATA
+q850_cause_code_vals_ext       DATA
+q931_cause_code_vals_ext       DATA
 q931_message_type_vals         DATA
 range_convert_range
 range_convert_str

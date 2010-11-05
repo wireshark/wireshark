@@ -7636,7 +7636,7 @@ void proto_register_h225(void) {
         NULL, HFILL }},
     { &hf_h225_protocol_discriminator,
       { "protocol-discriminator", "h225.protocol_discriminator",
-        FT_UINT32, BASE_DEC, VALS(q931_protocol_discriminator_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &q931_protocol_discriminator_vals_ext, 0,
         "INTEGER_0_255", HFILL }},
     { &hf_h225_user_information,
       { "user-information", "h225.user_information",

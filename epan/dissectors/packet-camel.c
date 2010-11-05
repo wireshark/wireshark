@@ -7102,7 +7102,7 @@ void proto_register_camel(void) {
         "ERROR code", HFILL }},
     { &hf_camel_cause_indicator, /* Currently not enabled */
       { "Cause indicator",  "camel.cause_indicator",
-        FT_UINT8, BASE_DEC, VALS(q850_cause_code_vals), 0x7f,
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &q850_cause_code_vals_ext, 0x7f,
         NULL, HFILL }},
     { &hf_digit,
       { "Digit Value",  "camel.digit_value",
@@ -8654,7 +8654,7 @@ void proto_register_camel(void) {
         NULL, HFILL }},
     { &hf_camel_callingPartysCategory,
       { "callingPartysCategory", "camel.callingPartysCategory",
-        FT_UINT16, BASE_DEC, VALS(isup_calling_partys_category_value), 0,
+        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &isup_calling_partys_category_value_ext, 0,
         NULL, HFILL }},
     { &hf_camel_redirectingPartyID,
       { "redirectingPartyID", "camel.redirectingPartyID",
