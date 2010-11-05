@@ -4090,6 +4090,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 				proto_tree_add_text(tf_tree,tvb, curr_offset, 1,"Not enough data");
 				return(len);
 			}
+			proto_tree_add_bits_item(tf_tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 4, FALSE);
 			proto_tree_add_item(tf_tree, hf_gsm_a_tft_pkt_flt_id, tvb, curr_offset, 1, FALSE);
 			curr_offset++;
 			curr_len--;
@@ -4102,6 +4103,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 				proto_tree_add_text(tf_tree,tvb, curr_offset, 1,"Not enough data");
 				return(len);
 			}
+			proto_tree_add_bits_item(tf_tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 2, FALSE);
 			proto_tree_add_item(tf_tree, hf_gsm_a_tft_pkt_flt_dir, tvb, curr_offset, 1, FALSE);
 			proto_tree_add_item(tf_tree, hf_gsm_a_tft_pkt_flt_id, tvb, curr_offset, 1, FALSE);
 			curr_offset++;
@@ -4235,6 +4237,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 
 				case 0x80:
 					str="Flow label type";
+					proto_tree_add_bits_item(comp_tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 4, FALSE);
 					proto_tree_add_item(comp_tree,hf_gsm_a_tft_flow_label_type,tvb,curr_offset,3,FALSE);
 					curr_offset+=3;
 					curr_len-=3;
@@ -5990,7 +5993,7 @@ proto_register_gsm_a_gm(void)
 	},
 	{ &hf_gsm_a_tft_pkt_flt_dir,
 		{ "Packet filter direction", "gsm_a.tft.pkt_flt_dir",
-		  FT_UINT8, BASE_DEC, VALS(gsm_a_tft_pkt_flt_dir_vals), 0xf0,
+		  FT_UINT8, BASE_DEC, VALS(gsm_a_tft_pkt_flt_dir_vals), 0x30,
 		  NULL, HFILL }
 	},
 	{ &hf_gsm_a_tft_pkt_flt_id,
