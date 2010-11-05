@@ -3741,7 +3741,7 @@ void proto_register_mac_lte(void)
         },
         { &hf_mac_lte_control_timing_advance_reserved,
             { "Reserved",
-              "mac-lte.control.timing-advance.reserved", FT_UINT8, BASE_DEC, 0, 0xc0,
+              "mac-lte.control.timing-advance.reserved", FT_UINT8, BASE_HEX, 0, 0xc0,
               "Reserved bits", HFILL
             }
         },
