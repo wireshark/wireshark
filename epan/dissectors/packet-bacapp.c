@@ -8803,7 +8803,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	proto_tree *bacapp_tree = NULL;
 
-	gint svc;
+	gint svc = 0;
 	proto_item *tt = 0;
 	gint8 ack = 0;
 
