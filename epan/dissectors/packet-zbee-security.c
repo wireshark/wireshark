@@ -654,27 +654,27 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
                         }
                     }
                 }
-            }
             
-            /* Loop through user's password table for preconfigured keys, our last resort */
-            GSList_i = zbee_pc_keyring;
-            while ( GSList_i && !decrypted ) { 
-                decrypted = zbee_sec_decrypt_payload( &packet, enc_buffer, offset, dec_buffer,
-                        payload_len, mic_len, ((key_record_t *)(GSList_i->data))->key);
+                /* Loop through user's password table for preconfigured keys, our last resort */
+                GSList_i = zbee_pc_keyring;
+                while ( GSList_i && !decrypted ) { 
+                    decrypted = zbee_sec_decrypt_payload( &packet, enc_buffer, offset, dec_buffer,
+                            payload_len, mic_len, ((key_record_t *)(GSList_i->data))->key);
 
-                if (decrypted) {
-                    /* save pointer to the successful key record */
-                    switch (packet.key_id) {
-                        case ZBEE_SEC_KEY_NWK:
-                            key_rec = nwk_hints->nwk = (key_record_t *)(GSList_i->data);
-                            break;
+                    if (decrypted) {
+                        /* save pointer to the successful key record */
+                        switch (packet.key_id) {
+                            case ZBEE_SEC_KEY_NWK:
+                                key_rec = nwk_hints->nwk = (key_record_t *)(GSList_i->data);
+                                break;
 
-                        default:
-                            key_rec = nwk_hints->link = (key_record_t *)(GSList_i->data);
-                            break;
-                     }
-                } else {
-                    GSList_i = g_slist_next(GSList_i);
+                            default:
+                                key_rec = nwk_hints->link = (key_record_t *)(GSList_i->data);
+                                break;
+                        }
+                    } else {
+                        GSList_i = g_slist_next(GSList_i);
+                    }
                 }
             }
         } /* ( ! pinfo->fd->flags.visited ) */
