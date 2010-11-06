@@ -1560,6 +1560,8 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
     if (finfo != NULL) {
         bstart = finfo->start;
         blen = finfo->length;
+	if ( blen > tvb_reported_length_remaining(finfo->ds_tvb, bstart) )
+		blen = tvb_reported_length_remaining(finfo->ds_tvb, bstart);
         /* bmask = finfo->hfinfo->bitmask << finfo->hfinfo->bitshift; */ /* (value & mask) >> shift */
         bmask = finfo->hfinfo->bitmask;
         astart = finfo->appendix_start;
