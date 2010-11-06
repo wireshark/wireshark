@@ -70,7 +70,7 @@ typedef struct pdcp_lte_info
     guint8             direction;
     guint16            ueid;
     LogicalChannelType channelType;
-    guint8             channelId;
+    guint16            channelId;
     BCCHTransportType  BCCHTransport;
 
     /* Details of PDCP header */

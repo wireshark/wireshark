@@ -52,8 +52,8 @@ typedef struct rlc_lte_info
     guint8          direction;
     guint8          priority;
     guint16         ueid;
-    guint8          channelType;
-    guint8          channelId;
+    guint16         channelType;
+    guint16         channelId;
     guint16         pduLength;
     guint8          UMSequenceNumberLength;
 } rlc_lte_info;
