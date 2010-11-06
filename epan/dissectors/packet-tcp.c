@@ -2025,12 +2025,24 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             show_reported_bounds_error(tvb, pinfo, tree);
             return;
         }
-        /*
-         * Display the PDU length as a field
-         */
-        item=proto_tree_add_uint(pinfo->tcp_tree, hf_tcp_pdu_size, tvb, offset, plen, plen);
-        PROTO_ITEM_SET_GENERATED(item);
 
+	/* 
+	 * Do not display the the PDU length if it crosses the boundary of the 
+	 * packet and no more packets are available
+	 */
+	if ( length_remaining >= plen || pinfo->fd->next != NULL )
+	{
+		/*
+		 * Display the PDU length as a field
+		 */
+		item=proto_tree_add_uint(pinfo->tcp_tree, hf_tcp_pdu_size, 
+				tvb, offset, plen, plen);
+		PROTO_ITEM_SET_GENERATED(item);
+	}else{
+		item = proto_tree_add_text(pinfo->tcp_tree, tvb, offset, -1, 
+			"PDU Size: %u cut short at %u",plen,length_remaining);
+		PROTO_ITEM_SET_GENERATED(item);
+	}
 
 
         /* give a hint to TCP where the next PDU starts
