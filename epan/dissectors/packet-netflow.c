@@ -4079,7 +4079,7 @@ dissect_v9_v10_template_fields(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	for(i=0; i<count; i++) {
 		guint16      type;
 		guint16      length;
-		guint16      pen;
+		guint32      pen;
 		const gchar *pen_str;
 		proto_tree  *field_tree;
 		proto_item  *field_item;
