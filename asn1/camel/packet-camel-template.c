@@ -454,7 +454,7 @@ void proto_register_camel(void) {
         "ERROR code", HFILL }},
     { &hf_camel_cause_indicator, /* Currently not enabled */
       { "Cause indicator",  "camel.cause_indicator",
-        FT_UINT8, BASE_DEC, VALS(q850_cause_code_vals), 0x7f,
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &q850_cause_code_vals_ext, 0x7f,
         NULL, HFILL }},
     { &hf_digit,
       { "Digit Value",  "camel.digit_value",
