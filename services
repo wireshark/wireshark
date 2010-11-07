@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2010-10-25)
+(last updated 2010-11-01)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -12498,7 +12498,10 @@ caevms          5251/udp   CA eTrust VM Service
 movaz-ssc       5252/tcp   Movaz SSC
 movaz-ssc       5252/udp   Movaz SSC
 #                          Lou Berger <lberger&movaz.com> November 2004
-#               5253-5263  Unassigned
+kpdp            5253/tcp   Kohler Power Device Protocol
+#                          Bill Gross <william.gross&kohler.com> 01 November 2010
+#               5253/udp   Reserved
+#               5254-5263  Unassigned
 3com-njack-1    5264/tcp   3Com Network Jack Port 1 
 3com-njack-1    5264/udp   3Com Network Jack Port 1
 3com-njack-2    5265/tcp   3Com Network Jack Port 2
