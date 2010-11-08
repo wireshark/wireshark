@@ -250,7 +250,7 @@ static GString *eo_rename(GString *gstr, gchar dup)
 }
 
 static GString *
-eo_massage_str(const gchar *in_str, guint maxlen, gchar dup)
+eo_massage_str(const gchar *in_str, gsize maxlen, gchar dup)
 {
 	gchar *tmp_ptr;
 	/* The characters in "reject" come from:
