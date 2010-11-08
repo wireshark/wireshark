@@ -1,10 +1,10 @@
 -- $Id$
--- 3GPP TS 29.002 V9.1.0 (2010-03)
+-- 3GPP TS 29.002 V9.3.0 (2010-09)
 -- 17.7.8	Common data types
 
 MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version11 (11)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version12 (12)}
 
 DEFINITIONS
 
@@ -29,6 +29,7 @@ AccessNetworkSignalInfo,
 	maxSignalInfoLength,
 	AlertingPattern,
 	TBCD-STRING,
+	DiameterIdentity,
 
 	-- data types for numbering and identification
 	IMSI,
@@ -72,6 +73,7 @@ AccessNetworkSignalInfo,
 	ProtocolId,
 	-- gprs location registration types
 	GSN-Address
+
 ;
 
 IMPORTS
@@ -79,23 +81,23 @@ IMPORTS
 	Ext-TeleserviceCode
 FROM MAP-TS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-TS-Code (19) version11 (11)}
+   gsm-Network (1) modules (3) map-TS-Code (19) version12 (12)}
 
 	BearerServiceCode,
 	Ext-BearerServiceCode
 FROM MAP-BS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-BS-Code (20) version11 (11)}
+   gsm-Network (1) modules (3) map-BS-Code (20) version12 (12)}
 
 	SS-Code
 FROM MAP-SS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-Code (15) version11 (11)}
+   gsm-Network (1) modules (3) map-SS-Code (15) version12 (12)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version11 (11)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version12 (12)}
 ;
 
 
@@ -110,6 +112,9 @@ TBCD-STRING ::= OCTET STRING
 
 	-- bits 8765 of octet n encoding digit 2n
 	-- bits 4321 of octet n encoding digit 2(n-1) +1
+
+DiameterIdentity ::= OCTET STRING (SIZE(9..55))
+-- content of DiameterIdentity is defined in IETF RFC 3588 [139]
 
 AddressString ::= OCTET STRING (SIZE (1..maxAddressLength))
 	-- This type is used to represent a number for addressing

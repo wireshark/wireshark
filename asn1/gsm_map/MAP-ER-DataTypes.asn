@@ -1,10 +1,10 @@
 -- $Id$
--- 3GPP TS 29.002 V9.0.0 (2009-12) 
+-- 3GPP TS 29.002 V9.3.0 (2010-09) 
 -- 17.7.7	Error data types
 
 MAP-ER-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ER-DataTypes (17) version11 (11)}
+   gsm-Network (1) modules (3) map-ER-DataTypes (17) version12 (12)}
 
 DEFINITIONS
 
@@ -70,7 +70,7 @@ IMPORTS
 	SS-Status
 FROM MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-DataTypes (14) version11 (11)}
+   gsm-Network (1) modules (3) map-SS-DataTypes (14) version12 (12)}
 
 	SignalInfo,
 	BasicServiceCode,
@@ -78,18 +78,18 @@ FROM MAP-SS-DataTypes {
 	AdditionalNetworkResource
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version11 (11)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version12 (12)}
 
 
 	SS-Code
 FROM MAP-SS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-Code (15) version11 (11)}
+   gsm-Network (1) modules (3) map-SS-Code (15) version12 (12)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version11 (11)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version12 (12)}
 ;
 
 RoamingNotAllowedParam ::= SEQUENCE {
@@ -270,13 +270,16 @@ AbsentSubscriberReason ::= ENUMERATED {
 	restrictedArea (1),
 	noPageResponse (2),
 	... ,
-	purgedMS (3)}
+	purgedMS (3),
+	mtRoamingRetry (4)}
 -- exception handling: at reception of other values than the ones listed the 
 -- AbsentSubscriberReason shall be ignored. 
 -- The AbsentSubscriberReason: purgedMS is defined for the Super-Charger feature 
 -- (see TS 23.116). If this value is received in a Provide Roaming Number response
 -- it shall be mapped to the AbsentSubscriberReason: imsiDetach in the Send Routeing
 -- Information response
+-- The AbsentSubscriberReason: mtRoamingRetry is used during MT Roaming Retry, 
+-- see 3GPP TS 23.018[97].
 
 BusySubscriberParam ::= SEQUENCE {
 	extensionContainer	ExtensionContainer	OPTIONAL,

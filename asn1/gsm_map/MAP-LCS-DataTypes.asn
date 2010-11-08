@@ -1,14 +1,14 @@
 -- $Id$
 -- MAP-LCS-DataTypes.asn
 --
--- Taken from 3GPP TS 29.002  V9.1.0 (2010-03)
+-- Taken from 3GPP TS 29.002  V9.3.0 (2010-09)
 --
 -- 17.7.13 Location service data types
 --
 
 MAP-LCS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-LCS-DataTypes (25) version11 (11)}
+   gsm-Network (1) modules (3) map-LCS-DataTypes (25) version12 (12)}
 
 DEFINITIONS
 IMPLICIT TAGS
@@ -54,33 +54,34 @@ IMPORTS
 LCSServiceTypeID,
 CellGlobalIdOrServiceAreaIdOrLAI,
 PLMN-Id,
-	GSN-Address
+	GSN-Address,
+	DiameterIdentity
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version11 (11)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version12 (12)}
 
 	ExtensionContainer,
 	SLR-ArgExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version11 (11)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version12 (12)}
 
 	USSD-DataCodingScheme,
 USSD-String
 FROM MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3)
-   map-SS-DataTypes (14) version11 (11)}
+   map-SS-DataTypes (14) version12 (12)}
 
 	APN,
 	SupportedLCS-CapabilitySets
 FROM MAP-MS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-MS-DataTypes (11) version11 (11)}
+   gsm-Network (1) modules (3) map-MS-DataTypes (11) version12 (12)}
 
 	Additional-Number
 FROM MAP-SM-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SM-DataTypes (16) version11 (11)}
+   gsm-Network (1) modules (3) map-SM-DataTypes (16) version12 (12)}
 ;
 
 
@@ -402,10 +403,11 @@ ProvideSubscriberLocation-Res ::= SEQUENCE {
 	utranPositioningData	[5] UtranPositioningDataInfo	OPTIONAL,
 	cellIdOrSai	[6] CellGlobalIdOrServiceAreaIdOrLAI	OPTIONAL,
 	sai-Present	[7] NULL		OPTIONAL,
-	accuracyFulfilmentIndicator	[8] AccuracyFulfilmentIndicator		OPTIONAL,
+	accuracyFulfilmentIndicator	[8] AccuracyFulfilmentIndicator	OPTIONAL,
 	velocityEstimate	[9] VelocityEstimate	OPTIONAL,
 	mo-lrShortCircuitIndicator	[10] NULL		OPTIONAL,
-	targetServingNodeForHandover	[11] ServingNodeAddress	OPTIONAL }
+	geranGANSSpositioningData	[11] GeranGANSSpositioningData	OPTIONAL,
+	utranGANSSpositioningData	[12] UtranGANSSpositioningData	OPTIONAL,	targetServingNodeForHandover	[13] ServingNodeAddress	OPTIONAL }
 
 --	if deferredmt-lrResponseIndicator is set, locationEstimate is ignored.
 
@@ -530,6 +532,22 @@ UtranPositioningDataInfo ::= OCTET STRING (SIZE (3..maxUtranPositioningDataInfo)
 maxUtranPositioningDataInfo INTEGER ::= 11
 	-- 
 
+GeranGANSSpositioningData ::= OCTET STRING (SIZE (2..maxGeranGANSSpositioningData))
+	-- Refers to the GANSS Positioning Data defined in 3GPP TS 49.031.
+	-- This is composed of 2 or more octets with an internal structure according to
+	-- 3GPP TS 49.031. 
+
+maxGeranGANSSpositioningData INTEGER ::= 10
+	-- 
+
+UtranGANSSpositioningData ::= OCTET STRING (SIZE (1..maxUtranGANSSpositioningData))
+	-- Refers to the Position Data defined in 3GPP TS 25.413.
+	-- This is composed of the GANSS-PositioningDataSet only, included in PositionData
+     -- as defined in 3GPP TS 25.413.
+
+maxUtranGANSSpositioningData INTEGER ::= 9
+	-- 
+
 Add-GeographicalInformation ::= OCTET STRING (SIZE (1..maxAdd-GeographicalInformation))
 	-- Refers to geographical Information defined in 3GPP TS 23.032.
 	-- This is composed of 1 or more octets with an internal structure according to 
@@ -579,7 +597,9 @@ SubscriberLocationReport-Arg ::= SEQUENCE {
 	sequenceNumber	[21] SequenceNumber	OPTIONAL,
 	periodicLDRInfo	[22] PeriodicLDRInfo	OPTIONAL,
 	mo-lrShortCircuitIndicator	[23] NULL		OPTIONAL,
-	targetServingNodeForHandover	[24] ServingNodeAddress	OPTIONAL }
+	geranGANSSpositioningData	[24] GeranGANSSpositioningData	OPTIONAL,
+	utranGANSSpositioningData	[25] UtranGANSSpositioningData	OPTIONAL,
+	targetServingNodeForHandover	[26] ServingNodeAddress	OPTIONAL }
 
 	-- one of msisdn or imsi is mandatory
 	-- a location estimate that is valid for the locationEstimate parameter should 
@@ -646,9 +666,6 @@ ServingNodeAddress ::= CHOICE {
 	msc-Number	[0] ISDN-AddressString,
 	sgsn-Number	[1] ISDN-AddressString,
 	mme-Number	[2] DiameterIdentity }
-
-DiameterIdentity ::= OCTET STRING (SIZE(9..255))
--- content of DiameterIdentity is defined in IETF RFC 3588 [139]
 
 SubscriberLocationReport-Res ::= SEQUENCE {
 	extensionContainer	ExtensionContainer	OPTIONAL, 
