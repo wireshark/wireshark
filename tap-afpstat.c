@@ -100,7 +100,7 @@ afpstat_draw(void *pss)
 		}
 
 		printf("%-25s %6d %3d.%05d %3d.%05d %3" G_GINT64_MODIFIER "u.%05" G_GINT64_MODIFIER "u\n",
-			val_to_str(i, CommandCode_vals, "Unknown (%u)"),
+			val_to_str_ext(i, &CommandCode_vals_ext, "Unknown (%u)"),
 			ss->proc[i].num,
 			(int)ss->proc[i].min.secs,ss->proc[i].min.nsecs/10000,
 			(int)ss->proc[i].max.secs,ss->proc[i].max.nsecs/10000,

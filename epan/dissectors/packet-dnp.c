@@ -32,11 +32,9 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <glib.h>
-#include <time.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
@@ -95,9 +93,9 @@
 #define DNP3_CTL_DFC    0x10
 #define DNP3_CTL_FUNC   0x0f
 
-#define DNP3_TR_FIR   0x40
-#define DNP3_TR_FIN   0x80
-#define DNP3_TR_SEQ   0x3f
+#define DNP3_TR_FIR     0x40
+#define DNP3_TR_FIN     0x80
+#define DNP3_TR_SEQ     0x3f
 
 #define AL_MAX_CHUNK_SIZE 16
 
@@ -198,18 +196,18 @@
 /* Application Layer Data Object Qualifier */
 /***************************************************************************/
 /* Bit-Masks */
-#define AL_OBJQ_INDEX      0x70     /* x111xxxx Masks Index from Qualifier */
-#define AL_OBJQ_CODE       0x0F     /* xxxx1111 Masks Code from Qualifier */
+#define AL_OBJQ_INDEX          0x70     /* x111xxxx Masks Index from Qualifier */
+#define AL_OBJQ_CODE           0x0F     /* xxxx1111 Masks Code from Qualifier */
 
 /* Index Size (3-bits x111xxxx)            */
 /* When Qualifier Code != 11               */
-#define AL_OBJQL_IDX_NI    0x00    /* Objects are Packed with no index */
-#define AL_OBJQL_IDX_1O    0x01    /* Objects are prefixed w/ 1-octet index */
-#define AL_OBJQL_IDX_2O    0x02    /* Objects are prefixed w/ 2-octet index */
-#define AL_OBJQL_IDX_4O    0x03    /* Objects are prefixed w/ 4-octet index */
-#define AL_OBJQL_IDX_1OS   0x04    /* Objects are prefixed w/ 1-octet object size */
-#define AL_OBJQL_IDX_2OS   0x05    /* Objects are prefixed w/ 2-octet object size */
-#define AL_OBJQL_IDX_4OS   0x06    /* Objects are prefixed w/ 4-octet object size */
+#define AL_OBJQL_IDX_NI        0x00    /* Objects are Packed with no index */
+#define AL_OBJQL_IDX_1O        0x01    /* Objects are prefixed w/ 1-octet index */
+#define AL_OBJQL_IDX_2O        0x02    /* Objects are prefixed w/ 2-octet index */
+#define AL_OBJQL_IDX_4O        0x03    /* Objects are prefixed w/ 4-octet index */
+#define AL_OBJQL_IDX_1OS       0x04    /* Objects are prefixed w/ 1-octet object size */
+#define AL_OBJQL_IDX_2OS       0x05    /* Objects are prefixed w/ 2-octet object size */
+#define AL_OBJQL_IDX_4OS       0x06    /* Objects are prefixed w/ 4-octet object size */
 
 /* When Qualifier Code == 11 */
 #define AL_OBJQL_IDX11_1OIS    0x01    /* 1 octet identifier size */
@@ -677,6 +675,7 @@ static const value_string dnp3_al_func_vals[] = {
   { AL_FUNC_AUTHRESP,   "Authentication Response" },
   { 0, NULL }
 };
+static value_string_ext dnp3_al_func_vals_ext = VALUE_STRING_EXT_INIT(dnp3_al_func_vals);
 
 /* Application Layer Internal Indication (IIN) bit Values */
 static const value_string dnp3_al_iin_vals[] _U_ = {
@@ -707,6 +706,7 @@ static const value_string dnp3_al_objq_index_vals[] = {
   { AL_OBJQL_IDX_4OS,   "4-Octet Object Size" },
   { 0, NULL }
 };
+static value_string_ext dnp3_al_objq_index_vals_ext = VALUE_STRING_EXT_INIT(dnp3_al_objq_index_vals);
 
 /* Application Layer Object Qualifier Code Values */
 static const value_string dnp3_al_objq_code_vals[] = {
@@ -723,6 +723,7 @@ static const value_string dnp3_al_objq_code_vals[] = {
   { AL_OBJQL_CODE_FF,       "Free-format Qualifier" },
   { 0, NULL }
 };
+static value_string_ext dnp3_al_objq_code_vals_ext = VALUE_STRING_EXT_INIT(dnp3_al_objq_code_vals);
 
 /* Application Layer Data Object Values */
 static const value_string dnp3_al_obj_vals[] = {
@@ -828,6 +829,7 @@ static const value_string dnp3_al_obj_vals[] = {
   { AL_OBJ_OCT,        "Octet String (Obj:110)" },
   { 0, NULL }
 };
+static value_string_ext dnp3_al_obj_vals_ext = VALUE_STRING_EXT_INIT(dnp3_al_obj_vals);
 
 /* Application Layer Control Code 'Code' Values */
 static const value_string dnp3_al_ctlc_code_vals[] = {
@@ -869,6 +871,7 @@ static const value_string dnp3_al_ctl_status_vals[] = {
   { AL_OBJCTL_STAT10,    "Req. Not Accepted; Local automation proc active" },
   { 0, NULL }
 };
+static value_string_ext dnp3_al_ctl_status_vals_ext = VALUE_STRING_EXT_INIT(dnp3_al_ctl_status_vals);
 
 /* Application Layer Binary Input Quality Flag Values */
 static const value_string dnp3_al_biflag_vals[] _U_ = {
@@ -1326,7 +1329,9 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
 
   /* Create Data Objects Detail Tree */
   object_item = proto_tree_add_uint_format(robj_tree, hf_dnp3_al_obj, tvb, offset, 2, al_obj,
-     "Object(s): %s (0x%04x)", val_to_str(al_obj, dnp3_al_obj_vals, "Unknown Object - Abort Decoding..."), al_obj);
+                                           "Object(s): %s (0x%04x)",
+                                           val_to_str_ext_const(al_obj, &dnp3_al_obj_vals_ext, "Unknown Object - Abort Decoding..."),
+                                           al_obj);
   object_tree = proto_item_add_subtree(object_item, ett_dnp3_al_obj);
 
   offset += 2;
@@ -1338,8 +1343,8 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
   al_objq_code = al_objq & AL_OBJQ_CODE;
 
   qualifier_item = proto_tree_add_text(object_tree, tvb, offset, 1, "Qualifier Field, Prefix: %s, Code: %s",
-    val_to_str(al_objq_index, dnp3_al_objq_index_vals, "Unknown Index Type"),
-    val_to_str(al_objq_code, dnp3_al_objq_code_vals, "Unknown Code Type"));
+    val_to_str_ext_const(al_objq_index, &dnp3_al_objq_index_vals_ext, "Unknown Index Type"),
+    val_to_str_ext_const(al_objq_code, &dnp3_al_objq_code_vals_ext, "Unknown Code Type"));
   qualifier_tree = proto_item_add_subtree(qualifier_item, ett_dnp3_al_obj_qualifier);
   proto_tree_add_item(qualifier_tree, hf_dnp3_al_objq_index, tvb, offset, 1, FALSE);
   proto_tree_add_item(qualifier_tree, hf_dnp3_al_objq_code, tvb, offset, 1, FALSE);
@@ -1628,11 +1633,11 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
 
             /* Bit-Mask xx11xxxx for Control Code Misc Values */
             al_ctlobj_code_m = al_ctlobj_code & AL_OBJCTLC_MISC;
-            ctl_misc_str = val_to_str(al_ctlobj_code_m, dnp3_al_ctlc_misc_vals, "");
+            ctl_misc_str = val_to_str_const(al_ctlobj_code_m, dnp3_al_ctlc_misc_vals, "");
 
             /* Bit-Mask 11xxxxxx for Control Code 'Trip/Close' */
             al_ctlobj_code_tc = al_ctlobj_code & AL_OBJCTLC_TC;
-            ctl_tc_str = val_to_str(al_ctlobj_code_tc, dnp3_al_ctlc_tc_vals, "");
+            ctl_tc_str = val_to_str_const(al_ctlobj_code_tc, dnp3_al_ctlc_tc_vals, "");
 
             /* Get "Count" Field */
             al_ctlobj_count = tvb_get_guint8(tvb, data_pos);
@@ -1648,7 +1653,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
 
             al_ctlobj_stat = tvb_get_guint8(tvb, data_pos);
             proto_tree_add_item(point_item, hf_dnp3_al_ctrlstatus, tvb, data_pos, 1, TRUE);
-            ctl_status_str = val_to_str(al_ctlobj_stat, dnp3_al_ctl_status_vals, "Invalid Status (0x%02x)");
+            ctl_status_str = val_to_str_ext(al_ctlobj_stat, &dnp3_al_ctl_status_vals_ext, "Invalid Status (0x%02x)");
             data_pos += 1;
 
             proto_item_append_text(point_item, ", Control Code: [%s,%s,%s (0x%02x)]",
@@ -1698,7 +1703,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
 
             /* Get control status */
             al_ctlobj_stat = tvb_get_guint8(tvb, data_pos);
-            ctl_status_str = val_to_str(al_ctlobj_stat, dnp3_al_ctl_status_vals, "Invalid Status (0x%02x)");
+            ctl_status_str = val_to_str_ext(al_ctlobj_stat, &dnp3_al_ctl_status_vals_ext, "Invalid Status (0x%02x)");
             proto_item_append_text(point_item, " [Status: %s (0x%02x)]", ctl_status_str, al_ctlobj_stat);
             proto_tree_add_item(point_tree, hf_dnp3_al_ctrlstatus, tvb, data_pos, 1, TRUE);
             data_pos += 1;
@@ -2103,7 +2108,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   al_con = al_ctl & DNP3_AL_CON;
   al_uns = al_ctl & DNP3_AL_UNS;
   al_func = tvb_get_guint8(tvb, (offset+1));
-  func_code_str = val_to_str(al_func, dnp3_al_func_vals, "Unknown function (0x%02x)");
+  func_code_str = val_to_str_ext(al_func, &dnp3_al_func_vals_ext, "Unknown function (0x%02x)");
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", func_code_str);
@@ -2733,8 +2738,8 @@ proto_register_dnp3(void)
     { "Sequence", "dnp3.al.seq", FT_UINT8, BASE_DEC, NULL, DNP3_AL_SEQ, "Frame Sequence Number", HFILL }},
 
     { &hf_dnp3_al_func,
-    { "Application Layer Function Code", "dnp3.al.func", FT_UINT8, BASE_DEC,
-      VALS(dnp3_al_func_vals), DNP3_AL_FUNC, "Application Function Code", HFILL }},
+    { "Application Layer Function Code", "dnp3.al.func", FT_UINT8, BASE_DEC|BASE_EXT_STRING,
+      &dnp3_al_func_vals_ext, DNP3_AL_FUNC, "Application Function Code", HFILL }},
 
     { &hf_dnp3_al_iin,
     { "Application Layer IIN bits", "dnp3.al.iin", FT_UINT16, BASE_DEC, NULL, 0x0, "Application Layer IIN", HFILL }},
@@ -2779,13 +2784,13 @@ proto_register_dnp3(void)
     { "Configuration Corrupt", "dnp3.al.iin.cc", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_CC, NULL, HFILL }},
 
     { &hf_dnp3_al_obj,
-    { "Object", "dnp3.al.obj", FT_UINT16, BASE_HEX, VALS(dnp3_al_obj_vals), 0x0, "Application Layer Object", HFILL }},
+    { "Object", "dnp3.al.obj", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &dnp3_al_obj_vals_ext, 0x0, "Application Layer Object", HFILL }},
 
     { &hf_dnp3_al_objq_index,
-    { "Index Prefix", "dnp3.al.objq.index", FT_UINT8, BASE_DEC, VALS(dnp3_al_objq_index_vals), AL_OBJQ_INDEX, "Object Index Prefixing", HFILL }},
+    { "Index Prefix", "dnp3.al.objq.index", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &dnp3_al_objq_index_vals_ext, AL_OBJQ_INDEX, "Object Index Prefixing", HFILL }},
 
     { &hf_dnp3_al_objq_code,
-    { "Qualifier Code", "dnp3.al.objq.code", FT_UINT8, BASE_DEC, VALS(dnp3_al_objq_code_vals), AL_OBJQ_CODE, "Object Qualifier Code", HFILL }},
+    { "Qualifier Code", "dnp3.al.objq.code", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &dnp3_al_objq_code_vals_ext, AL_OBJQ_CODE, "Object Qualifier Code", HFILL }},
 
     { &hf_dnp3_al_range_start8,
     { "Start (8 bit)", "dnp3.al.range.start", FT_UINT8, BASE_DEC, NULL, 0x0, "Object Start Index", HFILL }},
@@ -2872,7 +2877,7 @@ proto_register_dnp3(void)
     { "Counter (32 bit)", "dnp3.al.cnt", FT_UINT32, BASE_DEC, NULL, 0x0, "Counter Value (32 bit)", HFILL }},
 
     { &hf_dnp3_al_ctrlstatus,
-    { "Control Status", "dnp3.al.ctrlstatus", FT_UINT8, BASE_DEC, dnp3_al_ctl_status_vals, 0xff, NULL, HFILL }},
+    { "Control Status", "dnp3.al.ctrlstatus", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &dnp3_al_ctl_status_vals_ext, 0xff, NULL, HFILL }},
 
     { &hf_dnp3_al_biq_b0,
     { "Online", "dnp3.al.biq.b0", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BI_FLAG0, NULL, HFILL }},
@@ -3075,10 +3080,6 @@ proto_register_dnp3(void)
 }
 
 
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
 void
 proto_reg_handoff_dnp3(void)
 {

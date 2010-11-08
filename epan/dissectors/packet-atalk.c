@@ -172,6 +172,7 @@ static const value_string zip_function_vals[] = {
   {8, "Extended reply"},
   {0, NULL}
 };
+static value_string_ext zip_function_vals_ext = VALUE_STRING_EXT_INIT(zip_function_vals);
 
 static const value_string zip_atp_function_vals[] = {
   {7, "GetMyZone"},
@@ -392,6 +393,7 @@ static const value_string pap_function_vals[] = {
 
   {0, NULL}
 };
+static value_string_ext pap_function_vals_ext = VALUE_STRING_EXT_INIT(pap_function_vals);
 
 /* -------------------------------- */
 
@@ -423,15 +425,16 @@ typedef struct _e_ddp {
 
 static const value_string op_vals[] = {
   {DDP_RTMPDATA, "AppleTalk Routing Table response or data" },
-  {DDP_NBP, "AppleTalk Name Binding Protocol packet"},
-  {DDP_ATP, "AppleTalk Transaction Protocol packet"},
-  {DDP_AEP, "AppleTalk Echo Protocol packet"},
-  {DDP_RTMPREQ, "AppleTalk Routing Table request"},
-  {DDP_ZIP, "AppleTalk Zone Information Protocol packet"},
-  {DDP_ADSP, "AppleTalk Data Stream Protocol"},
-  {DDP_EIGRP, "Cisco EIGRP for AppleTalk"},
+  {DDP_NBP,      "AppleTalk Name Binding Protocol packet"},
+  {DDP_ATP,      "AppleTalk Transaction Protocol packet"},
+  {DDP_AEP,      "AppleTalk Echo Protocol packet"},
+  {DDP_RTMPREQ,  "AppleTalk Routing Table request"},
+  {DDP_ZIP,      "AppleTalk Zone Information Protocol packet"},
+  {DDP_ADSP,     "AppleTalk Data Stream Protocol"},
+  {DDP_EIGRP,    "Cisco EIGRP for AppleTalk"},
   {0, NULL}
 };
+static value_string_ext op_vals_ext = VALUE_STRING_EXT_INIT(op_vals);
 
 static const value_string rtmp_function_vals[] = {
   {1, "Request"},
@@ -481,60 +484,63 @@ static const value_string asp_func_vals[] = {
   {ASPFUNC_WRTCONT,     "Write Cont" },
   {ASPFUNC_ATTN,        "Attention" },
   {0,                   NULL } };
+static value_string_ext asp_func_vals_ext = VALUE_STRING_EXT_INIT(asp_func_vals);
 
-const value_string asp_error_vals[] = {
+/* XXX: Array sorted in ascending order (unsigned) to allow value_string_ext binary search */
+static const value_string asp_error_vals[] = {
   {AFP_OK               , "success"},
-  {ASPERR_NOSESS        , "no more sessions available"},
-  {ASPERR_SESSCLOS      , "session closed (ASP)" },
-  {AFPERR_ACCESS        , "permission denied" },
-  {AFPERR_AUTHCONT      , "logincont" },
-  {AFPERR_BADUAM        , "uam doesn't exist" },
-  {AFPERR_BADVERS       , "bad afp version number" },
-  {AFPERR_BITMAP        , "invalid bitmap" },
-  {AFPERR_CANTMOVE      , "can't move file" },
-  {AFPERR_DENYCONF      , "file synchronization locks conflict" },
-  {AFPERR_DIRNEMPT      , "directory not empty" },
-  {AFPERR_DFULL         , "disk full" },
-  {AFPERR_EOF           , "end of file" },
-  {AFPERR_BUSY          , "FileBusy" },
-  {AFPERR_FLATVOL       , "volume doesn't support directories" },
-  {AFPERR_NOITEM        , "ItemNotFound" },
-  {AFPERR_LOCK          , "LockErr" },
-  {AFPERR_MISC          , "misc. err" },
-  {AFPERR_NLOCK         , "no more locks" },
-  {AFPERR_NOSRVR        , "no response by server at that address" },
-  {AFPERR_EXIST         , "object already exists" },
-  {AFPERR_NOOBJ         , "object not found" },
-  {AFPERR_PARAM         , "parameter error" },
-  {AFPERR_NORANGE       , "no range lock" },
-  {AFPERR_RANGEOVR      , "range overlap" },
-  {AFPERR_SESSCLOS      , "session closed" },
-  {AFPERR_NOTAUTH       , "user not authenticated" },
-  {AFPERR_NOOP          , "command not supported" },
-  {AFPERR_BADTYPE       , "object is the wrong type" },
-  {AFPERR_NFILE         , "too many files open" },
-  {AFPERR_SHUTDOWN      , "server is going down" },
-  {AFPERR_NORENAME      , "can't rename" },
-  {AFPERR_NODIR         , "couldn't find directory" },
-  {AFPERR_ITYPE         , "wrong icon type" },
-  {AFPERR_VLOCK         , "volume locked" },
-  {AFPERR_OLOCK         , "object locked" },
-  {AFPERR_CTNSHRD       , "share point contains a share point" },
-  {AFPERR_NOID          , "file thread not found" },
-  {AFPERR_EXISTID       , "file already has an id" },
-  {AFPERR_DIFFVOL       , "different volume" },
-  {AFPERR_CATCHNG       , "catalog has changed" },
-  {AFPERR_SAMEOBJ       , "source file == destination file" },
-  {AFPERR_BADID         , "non-existent file id" },
-  {AFPERR_PWDSAME       , "same password/can't change password" },
-  {AFPERR_PWDSHORT      , "password too short" },
-  {AFPERR_PWDEXPR       , "password expired" },
-  {AFPERR_INSHRD        , "folder being shared is inside a shared folder." },
-  {AFPERR_INTRASH       , "shared folder in trash." },
-  {AFPERR_PWDCHNG       , "password needs to be changed" },
-  {AFPERR_PWDPOLCY      , "password fails policy check" },
   {AFPERR_USRLOGIN      , "user already logged on" },
+  {AFPERR_PWDPOLCY      , "password fails policy check" },
+  {AFPERR_PWDCHNG       , "password needs to be changed" },
+  {AFPERR_INTRASH       , "shared folder in trash." },
+  {AFPERR_INSHRD        , "folder being shared is inside a shared folder." },
+  {AFPERR_PWDEXPR       , "password expired" },
+  {AFPERR_PWDSHORT      , "password too short" },
+  {AFPERR_PWDSAME       , "same password/can't change password" },
+  {AFPERR_BADID         , "non-existent file id" },
+  {AFPERR_SAMEOBJ       , "source file == destination file" },
+  {AFPERR_CATCHNG       , "catalog has changed" },
+  {AFPERR_DIFFVOL       , "different volume" },
+  {AFPERR_EXISTID       , "file already has an id" },
+  {AFPERR_NOID          , "file thread not found" },
+  {AFPERR_CTNSHRD       , "share point contains a share point" },
+  {AFPERR_OLOCK         , "object locked" },
+  {AFPERR_VLOCK         , "volume locked" },
+  {AFPERR_ITYPE         , "wrong icon type" },
+  {AFPERR_NODIR         , "couldn't find directory" },
+  {AFPERR_NORENAME      , "can't rename" },
+  {AFPERR_SHUTDOWN      , "server is going down" },
+  {AFPERR_NFILE         , "too many files open" },
+  {AFPERR_BADTYPE       , "object is the wrong type" },
+  {AFPERR_NOOP          , "command not supported" },
+  {AFPERR_NOTAUTH       , "user not authenticated" },
+  {AFPERR_SESSCLOS      , "session closed" },
+  {AFPERR_RANGEOVR      , "range overlap" },
+  {AFPERR_NORANGE       , "no range lock" },
+  {AFPERR_PARAM         , "parameter error" },
+  {AFPERR_NOOBJ         , "object not found" },
+  {AFPERR_EXIST         , "object already exists" },
+  {AFPERR_NOSRVR        , "no response by server at that address" },
+  {AFPERR_NLOCK         , "no more locks" },
+  {AFPERR_MISC          , "misc. err" },
+  {AFPERR_LOCK          , "LockErr" },
+  {AFPERR_NOITEM        , "ItemNotFound" },
+  {AFPERR_FLATVOL       , "volume doesn't support directories" },
+  {AFPERR_BUSY          , "FileBusy" },
+  {AFPERR_EOF           , "end of file" },
+  {AFPERR_DFULL         , "disk full" },
+  {AFPERR_DIRNEMPT      , "directory not empty" },
+  {AFPERR_DENYCONF      , "file synchronization locks conflict" },
+  {AFPERR_CANTMOVE      , "can't move file" },
+  {AFPERR_BITMAP        , "invalid bitmap" },
+  {AFPERR_BADVERS       , "bad afp version number" },
+  {AFPERR_BADUAM        , "uam doesn't exist" },
+  {AFPERR_AUTHCONT      , "logincont" },
+  {AFPERR_ACCESS        , "permission denied" },
+  {ASPERR_SESSCLOS      , "session closed (ASP)" },
+  {ASPERR_NOSESS        , "no more sessions available"},
   {0,                   NULL } };
+value_string_ext asp_error_vals_ext = VALUE_STRING_EXT_INIT(asp_error_vals);
 
 /*
  * XXX - do this with an FT_UINT_STRING?
@@ -1205,7 +1211,7 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s  ID: %d",
-                 val_to_str(fn, pap_function_vals, "Unknown (0x%01x)"), connID);
+                 val_to_str_ext(fn, &pap_function_vals_ext, "Unknown (0x%01x)"), connID);
   }
   switch(fn) {
   case PAPOpenConn:
@@ -1333,7 +1339,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %u",aspinfo->seq);
     else
       col_add_fstr(pinfo->cinfo, COL_INFO, "Function: %s  tid %u",
-                   val_to_str(fn, asp_func_vals, "Unknown (0x%01x)"), aspinfo->seq);
+                   val_to_str_ext(fn, &asp_func_vals_ext, "Unknown (0x%01x)"), aspinfo->seq);
   }
 
   if (tree) {
@@ -1550,7 +1556,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   fn = tvb_get_guint8(tvb, 0);
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str(fn, zip_function_vals, "Unknown ZIP function (%02x)"));
+                val_to_str_ext(fn, &zip_function_vals_ext, "Unknown ZIP function (%02x)"));
   }
 
   if (!tree)
@@ -1704,7 +1710,7 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, guint8 dnode,
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str(type, op_vals, "Unknown DDP protocol (%02x)"));
+                val_to_str_ext(type, &op_vals_ext, "Unknown DDP protocol (%02x)"));
   }
   if (tree) {
     hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_src, tvb,
@@ -1755,7 +1761,7 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_str(pinfo->cinfo, COL_INFO,
-      val_to_str(ddp.type, op_vals, "Unknown DDP protocol (%02x)"));
+      val_to_str_ext(ddp.type, &op_vals_ext, "Unknown DDP protocol (%02x)"));
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_ddp, tvb, 0, DDP_HEADER_SIZE,
@@ -1807,6 +1813,7 @@ static const value_string llap_type_vals[] = {
   {0x85, "CTS"},
   {0, NULL}
 };
+static value_string_ext llap_type_vals_ext = VALUE_STRING_EXT_INIT(llap_type_vals);
 
 void
 capture_llap(packet_counts *ld)
@@ -1841,7 +1848,7 @@ dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   type = tvb_get_guint8(tvb, 2);
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_add_str(pinfo->cinfo, COL_INFO,
-      val_to_str(type, llap_type_vals, "Unknown LLAP type (%02x)"));
+      val_to_str_ext(type, &llap_type_vals_ext, "Unknown LLAP type (%02x)"));
   }
   if (tree)
     proto_tree_add_uint(llap_tree, hf_llap_type, tvb, 2, 1, type);
@@ -1902,7 +1909,7 @@ proto_register_atalk(void)
         NULL, HFILL }},
 
     { &hf_llap_type,
-      { "Type",                 "llap.type",    FT_UINT8,  BASE_HEX, VALS(llap_type_vals), 0x0,
+      { "Type",                 "llap.type",    FT_UINT8,  BASE_HEX|BASE_EXT_STRING, &llap_type_vals_ext, 0x0,
         NULL, HFILL }},
   };
 
@@ -1952,7 +1959,7 @@ proto_register_atalk(void)
         NULL, HFILL }},
 
     { &hf_ddp_type,
-      { "Protocol type",        "ddp.type",     FT_UINT8,  BASE_DEC, VALS(op_vals), 0x0,
+      { "Protocol type",        "ddp.type",     FT_UINT8,  BASE_DEC|BASE_EXT_STRING, &op_vals_ext, 0x0,
         NULL, HFILL }},
   };
 
@@ -2097,12 +2104,12 @@ proto_register_atalk(void)
 
   static hf_register_info hf_asp[] = {
     { &hf_asp_func,
-      { "asp function",         "asp.function", FT_UINT8,  BASE_DEC,
-                VALS(asp_func_vals), 0, NULL, HFILL }},
+      { "asp function",         "asp.function", FT_UINT8,  BASE_DEC|BASE_EXT_STRING,
+                &asp_func_vals_ext, 0, NULL, HFILL }},
 
     { &hf_asp_error,
-      { "asp error",            "asp.error",    FT_INT32,  BASE_DEC,
-                VALS(asp_error_vals), 0, "return error code", HFILL }},
+      { "asp error",            "asp.error",    FT_INT32,  BASE_DEC|BASE_EXT_STRING,
+                &asp_error_vals_ext, 0, "return error code", HFILL }},
 
     { &hf_asp_version,
       { "Version",              "asp.version",  FT_UINT16,  BASE_HEX,
@@ -2229,7 +2236,7 @@ proto_register_atalk(void)
 
     { &hf_asp_server_addr_type,
       { "Type",          "asp.server_addr.type",
-        FT_UINT8, BASE_DEC, VALS(afp_server_addr_type_vals), 0x0,
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &afp_server_addr_type_vals_ext, 0x0,
         "Address type.", HFILL }},
 
     { &hf_asp_server_addr_value,
@@ -2250,7 +2257,7 @@ proto_register_atalk(void)
 
   static hf_register_info hf_zip[] = {
     { &hf_zip_function,
-      { "Function",     "zip.function", FT_UINT8,  BASE_DEC, VALS(zip_function_vals), 0x0,
+      { "Function",     "zip.function", FT_UINT8,  BASE_DEC|BASE_EXT_STRING, &zip_function_vals_ext, 0x0,
         "ZIP function", HFILL }},
 
     { &hf_zip_zero_value,
@@ -2326,7 +2333,7 @@ proto_register_atalk(void)
         "PAP connection ID", HFILL }},
 
     { &hf_pap_function,
-      { "Function",     "pap.function", FT_UINT8,  BASE_DEC, VALS(pap_function_vals), 0x0,
+      { "Function",     "pap.function", FT_UINT8,  BASE_DEC|BASE_EXT_STRING, &pap_function_vals_ext, 0x0,
         "PAP function", HFILL }},
 
     { &hf_pap_socket,

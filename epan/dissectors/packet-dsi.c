@@ -48,8 +48,8 @@ http://developer.apple.com/DOCUMENTATION/macos8/pdf/ASAppleTalkFiling2.1_2.2.pdf
   http://developer.apple.com/documentation/Networking/Conceptual/AFPClient/AFPClient-6.html
 
 (no longer available, apparently)
- 
-  Also, AFP 3.3 documents parts of DSI at:  
+
+  Also, AFP 3.3 documents parts of DSI at:
   http://developer.apple.com/mac/library/documentation/Networking/Conceptual/AFP/Introduction/Introduction.html
 
  * What a Data Stream Interface packet looks like:
@@ -64,7 +64,7 @@ http://developer.apple.com/DOCUMENTATION/macos8/pdf/ASAppleTalkFiling2.1_2.2.pdf
  * |reserved field                 |
  * |-------------------------------|
  */
-#define INET6_ADDRLEN	16
+#define INET6_ADDRLEN  16
 
 static int proto_dsi = -1;
 static int hf_dsi_flags = -1;
@@ -77,41 +77,42 @@ static int hf_dsi_reserved = -1;
 
 static gint ett_dsi = -1;
 
-static int hf_dsi_open_type	= -1;
-static int hf_dsi_open_len	= -1;
-static int hf_dsi_open_quantum	= -1;
+static int hf_dsi_open_type     = -1;
+static int hf_dsi_open_len      = -1;
+static int hf_dsi_open_quantum  = -1;
 static int hf_dsi_replay_cache_size = -1;
-static int hf_dsi_open_option	= -1;
+static int hf_dsi_open_option   = -1;
 
-static int hf_dsi_attn_flag 		= -1;
-static int hf_dsi_attn_flag_shutdown	= -1;
-static int hf_dsi_attn_flag_crash	= -1;
-static int hf_dsi_attn_flag_msg		= -1;
-static int hf_dsi_attn_flag_reconnect	= -1;
-static int hf_dsi_attn_flag_time	= -1;
-static int hf_dsi_attn_flag_bitmap	= -1;
+static int hf_dsi_attn_flag             = -1;
+static int hf_dsi_attn_flag_shutdown    = -1;
+static int hf_dsi_attn_flag_crash       = -1;
+static int hf_dsi_attn_flag_msg         = -1;
+static int hf_dsi_attn_flag_reconnect   = -1;
+static int hf_dsi_attn_flag_time        = -1;
+static int hf_dsi_attn_flag_bitmap      = -1;
 
-static gint ett_dsi_open	= -1;
-static gint ett_dsi_attn	= -1;
-static gint ett_dsi_attn_flag	= -1;
+static gint ett_dsi_open        = -1;
+static gint ett_dsi_attn        = -1;
+static gint ett_dsi_attn_flag   = -1;
 
 static const value_string dsi_attn_flag_vals[] = {
-  {0x0,	"Reserved" },						/* 0000 */
-  {0x1,	"Reserved" },						/* 0001 */
-  {0x2,	"Server message" },					/* 0010 */
-  {0x3,	"Server notification, cf. extended bitmap" },		/* 0011 */
-  {0x4,	"Server is shutting down, internal error" },		/* 0100 */
-  {0x8,	"Server is shutting down" },				/* 1000 */
-  {0x9,	"Server disconnects user" },				/* 1001 */
-  {0x10,"Server is shutting down, message" },			/* 1010 */
-  {0x11,"Server is shutting down, message,no reconnect"},	/* 1011 */
-  {0,			NULL } };
+	{0x0, "Reserved" },                                           /* 0000 */
+	{0x1, "Reserved" },                                           /* 0001 */
+	{0x2, "Server message" },                                     /* 0010 */
+	{0x3, "Server notification, cf. extended bitmap" },           /* 0011 */
+	{0x4, "Server is shutting down, internal error" },            /* 0100 */
+	{0x8, "Server is shutting down" },                            /* 1000 */
+	{0x9, "Server disconnects user" },                            /* 1001 */
+	{0x10,"Server is shutting down, message" },                   /* 1010 */
+	{0x11,"Server is shutting down, message,no reconnect"},       /* 1011 */
+	{0,                   NULL } };
+static value_string_ext dsi_attn_flag_vals_ext = VALUE_STRING_EXT_INIT(dsi_attn_flag_vals);
 
 static const value_string dsi_open_type_vals[] = {
-  {0,	"Server quantum" },
-  {1,	"Attention quantum" },
-  {2,	"Replay cache size" },
-  {0,			NULL } };
+	{0,   "Server quantum" },
+	{1,   "Attention quantum" },
+	{2,   "Replay cache size" },
+	{0,                   NULL } };
 
 /* status stuff same for asp and afp */
 static int hf_dsi_server_name = -1;
@@ -127,21 +128,21 @@ static int hf_dsi_server_flag = -1;
 static int hf_dsi_server_flag_copyfile = -1;
 static int hf_dsi_server_flag_passwd   = -1;
 static int hf_dsi_server_flag_no_save_passwd = -1;
-static int hf_dsi_server_flag_srv_msg	= -1;
-static int hf_dsi_server_flag_srv_sig	= -1;
-static int hf_dsi_server_flag_tcpip	= -1;
-static int hf_dsi_server_flag_notify	= -1;
-static int hf_dsi_server_flag_reconnect	= -1;
-static int hf_dsi_server_flag_directory	= -1;
+static int hf_dsi_server_flag_srv_msg   = -1;
+static int hf_dsi_server_flag_srv_sig   = -1;
+static int hf_dsi_server_flag_tcpip     = -1;
+static int hf_dsi_server_flag_notify    = -1;
+static int hf_dsi_server_flag_reconnect = -1;
+static int hf_dsi_server_flag_directory = -1;
 static int hf_dsi_server_flag_utf8_name = -1;
 static int hf_dsi_server_flag_uuid      = -1;
 static int hf_dsi_server_flag_ext_sleep = -1;
 static int hf_dsi_server_flag_fast_copy = -1;
-static int hf_dsi_server_signature	= -1;
+static int hf_dsi_server_signature      = -1;
 
-static int hf_dsi_server_addr_len	= -1;
-static int hf_dsi_server_addr_type	= -1;
-static int hf_dsi_server_addr_value	= -1;
+static int hf_dsi_server_addr_len       = -1;
+static int hf_dsi_server_addr_type      = -1;
+static int hf_dsi_server_addr_value     = -1;
 
 static gint ett_dsi_status = -1;
 static gint ett_dsi_uams   = -1;
@@ -152,15 +153,16 @@ static gint ett_dsi_directory = -1;
 static gint ett_dsi_utf8_name = -1;
 static gint ett_dsi_status_server_flag = -1;
 
-const value_string afp_server_addr_type_vals[] = {
-  {1,	"IP address" },
-  {2,	"IP+port address" },
-  {3,	"DDP address" },
-  {4,	"DNS name" },
-  {5,	"IP+port ssh tunnel" },
-  {6,	"IP6 address" },
-  {7,	"IP6+port address" },
-  {0,			NULL } };
+static const value_string afp_server_addr_type_vals[] = {
+	{1,   "IP address" },
+	{2,   "IP+port address" },
+	{3,   "DDP address" },
+	{4,   "DNS name" },
+	{5,   "IP+port ssh tunnel" },
+	{6,   "IP6 address" },
+	{7,   "IP6+port address" },
+	{0,   NULL } };
+value_string_ext afp_server_addr_type_vals_ext = VALUE_STRING_EXT_INIT(afp_server_addr_type_vals);
 
 /* end status stuff */
 
@@ -170,9 +172,9 @@ static gboolean dsi_desegment = TRUE;
 static dissector_handle_t data_handle;
 static dissector_handle_t afp_handle;
 
-#define TCP_PORT_DSI			548
+#define TCP_PORT_DSI      548
 
-#define DSI_BLOCKSIZ            16
+#define DSI_BLOCKSIZ       16
 
 /* DSI flags */
 #define DSIFL_REQUEST    0x00
@@ -190,33 +192,34 @@ static dissector_handle_t afp_handle;
 #define DSIFUNC_MAX     8       /* largest command */
 
 static const value_string flag_vals[] = {
-  {DSIFL_REQUEST,	"Request" },
-  {DSIFL_REPLY,		"Reply" },
-  {0,			NULL } };
+	{DSIFL_REQUEST,       "Request" },
+	{DSIFL_REPLY,         "Reply" },
+	{0,                   NULL } };
 
 static const value_string func_vals[] = {
-  {DSIFUNC_CLOSE,	"CloseSession" },
-  {DSIFUNC_CMD,		"Command" },
-  {DSIFUNC_STAT,	"GetStatus" },
-  {DSIFUNC_OPEN,	"OpenSession" },
-  {DSIFUNC_TICKLE,	"Tickle" },
-  {DSIFUNC_WRITE,	"Write" },
-  {DSIFUNC_ATTN,	"Attention" },
-  {0,			NULL } };
+	{DSIFUNC_CLOSE,       "CloseSession" },
+	{DSIFUNC_CMD,         "Command" },
+	{DSIFUNC_STAT,        "GetStatus" },
+	{DSIFUNC_OPEN,        "OpenSession" },
+	{DSIFUNC_TICKLE,      "Tickle" },
+	{DSIFUNC_WRITE,       "Write" },
+	{DSIFUNC_ATTN,        "Attention" },
+	{0,                   NULL } };
+static value_string_ext func_vals_ext = VALUE_STRING_EXT_INIT(func_vals);
 
 static gint
 dissect_dsi_open_session(tvbuff_t *tvb, proto_tree *dsi_tree, gint offset, gint dsi_length)
 {
-        proto_tree      *tree;
+	proto_tree      *tree;
 	proto_item	*ti;
 	guint8		type;
 	guint8		len;
 
 	ti = proto_tree_add_text(dsi_tree, tvb, offset, -1, "Open Session");
 	tree = proto_item_add_subtree(ti, ett_dsi_open);
-	
+
 	while( dsi_length >2 ) {
-		
+
 		type = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(tree, hf_dsi_open_type, tvb, offset, 1, FALSE);
 		offset++;
@@ -226,19 +229,19 @@ dissect_dsi_open_session(tvbuff_t *tvb, proto_tree *dsi_tree, gint offset, gint 
 		switch (type) {
 			case 0:
 				proto_tree_add_item(tree, hf_dsi_open_quantum, tvb, offset, 4, FALSE);
-				break;	
+				break;
 			case 1:
 				proto_tree_add_item(tree, hf_dsi_open_quantum, tvb, offset, 4, FALSE);
-                break;	
+				break;
 			case 2:
 				proto_tree_add_item(tree, hf_dsi_replay_cache_size, tvb, offset, 4, FALSE);
 				break;
 			default:
 				proto_tree_add_item(tree, hf_dsi_open_option, tvb, offset, len, FALSE);
 		}
-		
+
 		dsi_length -= len + 2;
-		
+
 		offset += len;
 	}
 	return offset;
@@ -247,7 +250,7 @@ dissect_dsi_open_session(tvbuff_t *tvb, proto_tree *dsi_tree, gint offset, gint 
 static gint
 dissect_dsi_attention(tvbuff_t *tvb, proto_tree *dsi_tree, gint offset)
 {
-        proto_tree      *tree;
+	proto_tree      *tree;
 	proto_item	*ti;
 	guint16		flag;
 
@@ -279,7 +282,7 @@ dissect_dsi_attention(tvbuff_t *tvb, proto_tree *dsi_tree, gint offset)
 static gint
 dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-        proto_tree      *sub_tree;
+	proto_tree      *sub_tree;
 	proto_item	*ti;
 
 	guint16 ofs;
@@ -399,12 +402,12 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	}
 
 	if (adr_ofs) {
-        	proto_tree *adr_tree;
+		proto_tree *adr_tree;
 		unsigned char *tmp;
-        	const guint8 *ip;
+		const guint8 *ip;
 		guint16 net;
 		guint8  node;
-        	guint16 port;
+		guint16 port;
 
 		ofs = adr_ofs;
 		nbe = tvb_get_guint8(tvb, ofs);
@@ -437,7 +440,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 			case 5: /* SSH tunnel */
 				if (len > 2) {
 					tmp = tvb_get_ephemeral_string(tvb, ofs +2, len -2);
-					ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "%s: %s", 
+					ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "%s: %s",
 								(type==4)?"dns":"ssh tunnel", tmp);
 					break;
 				}
@@ -447,7 +450,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 				break;
 			case 6: /* IP6 */
 				ip = tvb_get_ptr(tvb, ofs+2, INET6_ADDRLEN);
-				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip6: %s", 
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip6: %s",
 				                ip6_to_str((const struct e_in6_addr *)ip));
 				break;
 			case 7: /* IP6 + 2bytes port */
@@ -504,7 +507,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 static void
 dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree      *dsi_tree;
+	proto_tree      *dsi_tree;
 	proto_item	*ti;
 	guint8		dsi_flags,dsi_command;
 	guint16		dsi_requestid;
@@ -513,7 +516,7 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32		dsi_reserved;
 	struct		aspinfo aspinfo;
 	gint            col_info;
-	
+
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DSI");
 	col_info = check_col(pinfo->cinfo, COL_INFO);
@@ -531,7 +534,7 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s (%u)",
 			val_to_str(dsi_flags, flag_vals,
 				   "Unknown flag (0x%02x)"),
-			val_to_str(dsi_command, func_vals,
+			val_to_str_ext(dsi_command, &func_vals_ext,
 				   "Unknown function (0x%02x)"),
 			dsi_requestid);
 	}
@@ -586,7 +589,7 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case DSIFUNC_CMD:
 	case DSIFUNC_WRITE:
 		{
-  			tvbuff_t   *new_tvb;
+			tvbuff_t   *new_tvb;
 			void* pd_save;
 			int len = tvb_reported_length_remaining(tvb,DSI_BLOCKSIZ);
 
@@ -603,11 +606,11 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			pinfo->private_data = pd_save;
 		}
 		break;
-  	default:
+	default:
 		if (tree) {
- 			call_dissector(data_handle,
- 			    tvb_new_subset_remaining(tvb, DSI_BLOCKSIZ),
- 			    pinfo, dsi_tree);
+			call_dissector(data_handle,
+				       tvb_new_subset_remaining(tvb, DSI_BLOCKSIZ),
+				       pinfo, dsi_tree);
 		}
 		break;
 	}
@@ -621,7 +624,7 @@ get_dsi_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 
 	dsi_flags = tvb_get_guint8(tvb, offset);
 	dsi_command = tvb_get_guint8(tvb, offset+ 1);
-	if ( dsi_flags > DSIFL_MAX || !dsi_command || dsi_command > DSIFUNC_MAX) 
+	if ( dsi_flags > DSIFL_MAX || !dsi_command || dsi_command > DSIFUNC_MAX)
 	{
 	    /* it's not a known dsi pdu start sequence */
 	    return tvb_length_remaining(tvb, offset);
@@ -650,252 +653,252 @@ void
 proto_register_dsi(void)
 {
 
-  static hf_register_info hf[] = {
-    { &hf_dsi_flags,
-      { "Flags",            "dsi.flags",
-	FT_UINT8, BASE_HEX, VALS(flag_vals), 0x0,
-      	"Indicates request or reply.", HFILL }},
+	static hf_register_info hf[] = {
+		{ &hf_dsi_flags,
+		  { "Flags",            "dsi.flags",
+		    FT_UINT8, BASE_HEX, VALS(flag_vals), 0x0,
+		    "Indicates request or reply.", HFILL }},
 
-    { &hf_dsi_command,
-      { "Command",          "dsi.command",
-	FT_UINT8, BASE_DEC, VALS(func_vals), 0x0,
-      	"Represents a DSI command.", HFILL }},
+		{ &hf_dsi_command,
+		  { "Command",          "dsi.command",
+		    FT_UINT8, BASE_DEC|BASE_EXT_STRING, &func_vals_ext, 0x0,
+		    "Represents a DSI command.", HFILL }},
 
-    { &hf_dsi_requestid,
-      { "Request ID",       "dsi.requestid",
-	FT_UINT16, BASE_DEC, NULL, 0x0,
-      	"Keeps track of which request this is.  Replies must match a Request.  IDs must be generated in sequential order.", HFILL }},
+		{ &hf_dsi_requestid,
+		  { "Request ID",       "dsi.requestid",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    "Keeps track of which request this is.  Replies must match a Request.  IDs must be generated in sequential order.", HFILL }},
 
-    { &hf_dsi_offset,
-      { "Data offset",      "dsi.data_offset",
-	FT_INT32, BASE_DEC, NULL, 0x0,
-      	NULL, HFILL }},
+		{ &hf_dsi_offset,
+		  { "Data offset",      "dsi.data_offset",
+		    FT_INT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
 
-    { &hf_dsi_error,
-      { "Error code",       "dsi.error_code",
-	FT_INT32, BASE_DEC, VALS(asp_error_vals), 0x0,
-      	NULL, HFILL }},
+		{ &hf_dsi_error,
+		  { "Error code",       "dsi.error_code",
+		    FT_INT32, BASE_DEC|BASE_EXT_STRING, &asp_error_vals_ext, 0x0,
+		    NULL, HFILL }},
 
-    { &hf_dsi_length,
-      { "Length",           "dsi.length",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-      	"Total length of the data that follows the DSI header.", HFILL }},
+		{ &hf_dsi_length,
+		  { "Length",           "dsi.length",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "Total length of the data that follows the DSI header.", HFILL }},
 
-    { &hf_dsi_reserved,
-      { "Reserved",         "dsi.reserved",
-	FT_UINT32, BASE_HEX, NULL, 0x0,
-      	"Reserved for future use.  Should be set to zero.", HFILL }},
-	/* asp , afp */
-    { &hf_dsi_utf8_server_name_len,
-      { "Length",          "dsi.utf8_server_name_len",
-	FT_UINT16, BASE_DEC, NULL, 0x0,
-      	"UTF8 server name length.", HFILL }},
-    { &hf_dsi_utf8_server_name,
-      { "UTF8 Server name",         "dsi.utf8_server_name",
-	FT_STRING, BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+		{ &hf_dsi_reserved,
+		  { "Reserved",         "dsi.reserved",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    "Reserved for future use.  Should be set to zero.", HFILL }},
+		/* asp , afp */
+		{ &hf_dsi_utf8_server_name_len,
+		  { "Length",          "dsi.utf8_server_name_len",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    "UTF8 server name length.", HFILL }},
+		{ &hf_dsi_utf8_server_name,
+		  { "UTF8 Server name",         "dsi.utf8_server_name",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
 
-    { &hf_dsi_server_name,
-      { "Server name",         "dsi.server_name",
-	FT_UINT_STRING, BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+		{ &hf_dsi_server_name,
+		  { "Server name",         "dsi.server_name",
+		    FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
 
-    { &hf_dsi_server_type,
-      { "Server type",         "dsi.server_type",
-	FT_UINT_STRING, BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+		{ &hf_dsi_server_type,
+		  { "Server type",         "dsi.server_type",
+		    FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
 
-    { &hf_dsi_server_vers,
-      { "AFP version",         "dsi.server_vers",
-	FT_UINT_STRING, BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+		{ &hf_dsi_server_vers,
+		  { "AFP version",         "dsi.server_vers",
+		    FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
 
-    { &hf_dsi_server_uams,
-      { "UAM",         "dsi.server_uams",
-	FT_UINT_STRING, BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+		{ &hf_dsi_server_uams,
+		  { "UAM",         "dsi.server_uams",
+		    FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
 
-    { &hf_dsi_server_icon,
-      { "Icon bitmap",         "dsi.server_icon",
-	FT_BYTES, BASE_NONE, NULL, 0x0,
-      	"Server icon bitmap", HFILL }},
+		{ &hf_dsi_server_icon,
+		  { "Icon bitmap",         "dsi.server_icon",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    "Server icon bitmap", HFILL }},
 
-    { &hf_dsi_server_directory,
-      { "Directory service",         "dsi.server_directory",
-	FT_UINT_STRING, BASE_NONE, NULL, 0x0,
-      	"Server directory service", HFILL }},
+		{ &hf_dsi_server_directory,
+		  { "Directory service",         "dsi.server_directory",
+		    FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+		    "Server directory service", HFILL }},
 
-    { &hf_dsi_server_signature,
-      { "Server signature",         "dsi.server_signature",
-	FT_BYTES, BASE_NONE, NULL, 0x0,
-      	NULL, HFILL }},
+		{ &hf_dsi_server_signature,
+		  { "Server signature",         "dsi.server_signature",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
 
-    { &hf_dsi_server_flag,
-      { "Flag",         "dsi.server_flag",
-	FT_UINT16, BASE_HEX, NULL, 0x0,
-      	"Server capabilities flag", HFILL }},
-    { &hf_dsi_server_flag_copyfile,
-      { "Support copyfile",      "dsi.server_flag.copyfile",
-		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_COPY,
-      	"Server support copyfile", HFILL }},
-    { &hf_dsi_server_flag_passwd,
-      { "Support change password",      "dsi.server_flag.passwd",
-		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_PASSWD,
-      	"Server support change password", HFILL }},
-    { &hf_dsi_server_flag_no_save_passwd,
-      { "Don't allow save password",      "dsi.server_flag.no_save_passwd",
-		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_NOSAVEPASSWD,
-      	NULL, HFILL }},
-    { &hf_dsi_server_flag_srv_msg,
-      { "Support server message",      "dsi.server_flag.srv_msg",
-		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVMSGS,
-      	NULL, HFILL }},
-    { &hf_dsi_server_flag_srv_sig,
-      { "Support server signature",      "dsi.server_flag.srv_sig",
-		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVSIGNATURE,
-      	NULL, HFILL }},
-    { &hf_dsi_server_flag_tcpip,
-      { "Support TCP/IP",      "dsi.server_flag.tcpip",
-		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_TCPIP,
-      	"Server support TCP/IP", HFILL }},
-    { &hf_dsi_server_flag_notify,
-      { "Support server notifications",      "dsi.server_flag.notify",
-		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVNOTIFY,
-      	"Server support notifications", HFILL }},
-    { &hf_dsi_server_flag_reconnect,
-      { "Support server reconnect",      "dsi.server_flag.reconnect",
-		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVRECONNECT,
-      	"Server support reconnect", HFILL }},
-    { &hf_dsi_server_flag_directory,
-      { "Support directory services",      "dsi.server_flag.directory",
-		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVDIRECTORY,
-      	"Server support directory services", HFILL }},
-    { &hf_dsi_server_flag_utf8_name,
-      { "Support UTF8 server name",      "dsi.server_flag.utf8_name",
-		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVUTF8,
-      	"Server support UTF8 server name", HFILL }},
-    { &hf_dsi_server_flag_uuid,
-      { "Support UUIDs",      "dsi.server_flag.uuids",
-		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_UUID,
-      	"Server supports UUIDs", HFILL }},
-    { &hf_dsi_server_flag_ext_sleep,
-      { "Support extended sleep",      "dsi.server_flag.ext_sleep",
-        FT_BOOLEAN, 16, NULL, AFPSRVRINFO_EXT_SLEEP,
-        "Server supports extended sleep", HFILL }},    
-    { &hf_dsi_server_flag_fast_copy,
-      { "Support fast copy",      "dsi.server_flag.fast_copy",
-		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_FASTBOZO,
-      	"Server support fast copy", HFILL }},
+		{ &hf_dsi_server_flag,
+		  { "Flag",         "dsi.server_flag",
+		    FT_UINT16, BASE_HEX, NULL, 0x0,
+		    "Server capabilities flag", HFILL }},
+		{ &hf_dsi_server_flag_copyfile,
+		  { "Support copyfile",      "dsi.server_flag.copyfile",
+		    FT_BOOLEAN, 16, NULL, AFPSRVRINFO_COPY,
+		    "Server support copyfile", HFILL }},
+		{ &hf_dsi_server_flag_passwd,
+		  { "Support change password",      "dsi.server_flag.passwd",
+		    FT_BOOLEAN, 16, NULL, AFPSRVRINFO_PASSWD,
+		    "Server support change password", HFILL }},
+		{ &hf_dsi_server_flag_no_save_passwd,
+		  { "Don't allow save password",      "dsi.server_flag.no_save_passwd",
+		    FT_BOOLEAN, 16, NULL, AFPSRVRINFO_NOSAVEPASSWD,
+		    NULL, HFILL }},
+		{ &hf_dsi_server_flag_srv_msg,
+		  { "Support server message",      "dsi.server_flag.srv_msg",
+		    FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVMSGS,
+		    NULL, HFILL }},
+		{ &hf_dsi_server_flag_srv_sig,
+		  { "Support server signature",      "dsi.server_flag.srv_sig",
+		    FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVSIGNATURE,
+		    NULL, HFILL }},
+		{ &hf_dsi_server_flag_tcpip,
+		  { "Support TCP/IP",      "dsi.server_flag.tcpip",
+		    FT_BOOLEAN, 16, NULL, AFPSRVRINFO_TCPIP,
+		    "Server support TCP/IP", HFILL }},
+		{ &hf_dsi_server_flag_notify,
+		  { "Support server notifications",      "dsi.server_flag.notify",
+		    FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVNOTIFY,
+		    "Server support notifications", HFILL }},
+		{ &hf_dsi_server_flag_reconnect,
+		  { "Support server reconnect",      "dsi.server_flag.reconnect",
+		    FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVRECONNECT,
+		    "Server support reconnect", HFILL }},
+		{ &hf_dsi_server_flag_directory,
+		  { "Support directory services",      "dsi.server_flag.directory",
+		    FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVDIRECTORY,
+		    "Server support directory services", HFILL }},
+		{ &hf_dsi_server_flag_utf8_name,
+		  { "Support UTF8 server name",      "dsi.server_flag.utf8_name",
+		    FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVUTF8,
+		    "Server support UTF8 server name", HFILL }},
+		{ &hf_dsi_server_flag_uuid,
+		  { "Support UUIDs",      "dsi.server_flag.uuids",
+		    FT_BOOLEAN, 16, NULL, AFPSRVRINFO_UUID,
+		    "Server supports UUIDs", HFILL }},
+		{ &hf_dsi_server_flag_ext_sleep,
+		  { "Support extended sleep",      "dsi.server_flag.ext_sleep",
+		    FT_BOOLEAN, 16, NULL, AFPSRVRINFO_EXT_SLEEP,
+		    "Server supports extended sleep", HFILL }},
+		{ &hf_dsi_server_flag_fast_copy,
+		  { "Support fast copy",      "dsi.server_flag.fast_copy",
+		    FT_BOOLEAN, 16, NULL, AFPSRVRINFO_FASTBOZO,
+		    "Server support fast copy", HFILL }},
 
 
-    { &hf_dsi_server_addr_len,
-      { "Length",          "dsi.server_addr.len",
-	FT_UINT8, BASE_DEC, NULL, 0x0,
-      	"Address length.", HFILL }},
+		{ &hf_dsi_server_addr_len,
+		  { "Length",          "dsi.server_addr.len",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "Address length.", HFILL }},
 
-    { &hf_dsi_server_addr_type,
-      { "Type",          "dsi.server_addr.type",
-	FT_UINT8, BASE_DEC, VALS(afp_server_addr_type_vals), 0x0,
-      	"Address type.", HFILL }},
+		{ &hf_dsi_server_addr_type,
+		  { "Type",          "dsi.server_addr.type",
+		    FT_UINT8, BASE_DEC|BASE_EXT_STRING, &afp_server_addr_type_vals_ext, 0x0,
+		    "Address type.", HFILL }},
 
-    { &hf_dsi_server_addr_value,
-      { "Value",          "dsi.server_addr.value",
-	FT_BYTES, BASE_NONE, NULL, 0x0,
-      	"Address value", HFILL }},
+		{ &hf_dsi_server_addr_value,
+		  { "Value",          "dsi.server_addr.value",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    "Address value", HFILL }},
 
-    { &hf_dsi_open_type,
-      { "Option",          "dsi.open_type",
-	FT_UINT8, BASE_DEC, VALS(dsi_open_type_vals), 0x0,
-      	"Open session option type.", HFILL }},
+		{ &hf_dsi_open_type,
+		  { "Option",          "dsi.open_type",
+		    FT_UINT8, BASE_DEC, VALS(dsi_open_type_vals), 0x0,
+		    "Open session option type.", HFILL }},
 
-    { &hf_dsi_open_len,
-      { "Length",          "dsi.open_len",
-	FT_UINT8, BASE_DEC, NULL, 0x0,
-      	"Open session option len", HFILL }},
+		{ &hf_dsi_open_len,
+		  { "Length",          "dsi.open_len",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "Open session option len", HFILL }},
 
-    { &hf_dsi_open_quantum,
-      { "Quantum",       "dsi.open_quantum",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-      	"Server/Attention quantum", HFILL }},
+		{ &hf_dsi_open_quantum,
+		  { "Quantum",       "dsi.open_quantum",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "Server/Attention quantum", HFILL }},
 
-    { &hf_dsi_replay_cache_size,
-      { "Replay",       "dsi.replay_cache",
-    FT_UINT32, BASE_DEC, NULL, 0x0,
-        "Replay cache size", HFILL }},
-	  
-    { &hf_dsi_open_option,
-      { "Option",          "dsi.open_option",
-	FT_BYTES, BASE_NONE, NULL, 0x0,
-      	"Open session options (undecoded)", HFILL }},
+		{ &hf_dsi_replay_cache_size,
+		  { "Replay",       "dsi.replay_cache",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "Replay cache size", HFILL }},
 
-    { &hf_dsi_attn_flag,
-      { "Flags",          "dsi.attn_flag",
-	FT_UINT16, BASE_HEX, VALS(dsi_attn_flag_vals), 0xf000,
-      	"Server attention flag", HFILL }},
-    { &hf_dsi_attn_flag_shutdown,
-      { "Shutdown",      "dsi.attn_flag.shutdown",
-		FT_BOOLEAN, 16, NULL, 1<<15,
-      	"Attention flag, server is shutting down", HFILL }},
-    { &hf_dsi_attn_flag_crash,
-      { "Crash",      "dsi.attn_flag.crash",
-		FT_BOOLEAN, 16, NULL, 1<<14,
-      	"Attention flag, server crash bit", HFILL }},
-    { &hf_dsi_attn_flag_msg,
-      { "Message",      "dsi.attn_flag.msg",
-		FT_BOOLEAN, 16, NULL, 1<<13,
-      	"Attention flag, server message bit", HFILL }},
-    { &hf_dsi_attn_flag_reconnect,
-      { "Don't reconnect",      "dsi.attn_flag.reconnect",
-		FT_BOOLEAN, 16, NULL, 1<<12,
-      	"Attention flag, don't reconnect bit", HFILL }},
-    { &hf_dsi_attn_flag_time,
-     { "Minutes",          "dsi.attn_flag.time",
-	FT_UINT16, BASE_DEC, NULL, 0xfff,
-      	"Number of minutes", HFILL }},
-    { &hf_dsi_attn_flag_bitmap,
-     { "Bitmap",          "dsi.attn_flag.time",
-	FT_UINT16, BASE_HEX, NULL, 0xfff,
-      	"Attention extended bitmap", HFILL }},
+		{ &hf_dsi_open_option,
+		  { "Option",          "dsi.open_option",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    "Open session options (undecoded)", HFILL }},
 
-  };
+		{ &hf_dsi_attn_flag,
+		  { "Flags",          "dsi.attn_flag",
+		    FT_UINT16, BASE_HEX|BASE_EXT_STRING, &dsi_attn_flag_vals_ext, 0xf000,
+		    "Server attention flag", HFILL }},
+		{ &hf_dsi_attn_flag_shutdown,
+		  { "Shutdown",      "dsi.attn_flag.shutdown",
+		    FT_BOOLEAN, 16, NULL, 1<<15,
+		    "Attention flag, server is shutting down", HFILL }},
+		{ &hf_dsi_attn_flag_crash,
+		  { "Crash",      "dsi.attn_flag.crash",
+		    FT_BOOLEAN, 16, NULL, 1<<14,
+		    "Attention flag, server crash bit", HFILL }},
+		{ &hf_dsi_attn_flag_msg,
+		  { "Message",      "dsi.attn_flag.msg",
+		    FT_BOOLEAN, 16, NULL, 1<<13,
+		    "Attention flag, server message bit", HFILL }},
+		{ &hf_dsi_attn_flag_reconnect,
+		  { "Don't reconnect",      "dsi.attn_flag.reconnect",
+		    FT_BOOLEAN, 16, NULL, 1<<12,
+		    "Attention flag, don't reconnect bit", HFILL }},
+		{ &hf_dsi_attn_flag_time,
+		  { "Minutes",          "dsi.attn_flag.time",
+		    FT_UINT16, BASE_DEC, NULL, 0xfff,
+		    "Number of minutes", HFILL }},
+		{ &hf_dsi_attn_flag_bitmap,
+		  { "Bitmap",          "dsi.attn_flag.time",
+		    FT_UINT16, BASE_HEX, NULL, 0xfff,
+		    "Attention extended bitmap", HFILL }},
 
-  static gint *ett[] = {
-    &ett_dsi,
-    &ett_dsi_open,
-    &ett_dsi_attn,
-    &ett_dsi_attn_flag,
-    /* asp afp */
-    &ett_dsi_status,
-    &ett_dsi_status_server_flag,
-    &ett_dsi_vers,
-    &ett_dsi_uams,
-    &ett_dsi_addr,
-    &ett_dsi_addr_line,
-    &ett_dsi_directory,
-    &ett_dsi_utf8_name,
-  };
-  module_t *dsi_module;
+	};
 
-  proto_dsi = proto_register_protocol("Data Stream Interface", "DSI", "dsi");
-  proto_register_field_array(proto_dsi, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+	static gint *ett[] = {
+		&ett_dsi,
+		&ett_dsi_open,
+		&ett_dsi_attn,
+		&ett_dsi_attn_flag,
+		/* asp afp */
+		&ett_dsi_status,
+		&ett_dsi_status_server_flag,
+		&ett_dsi_vers,
+		&ett_dsi_uams,
+		&ett_dsi_addr,
+		&ett_dsi_addr_line,
+		&ett_dsi_directory,
+		&ett_dsi_utf8_name,
+	};
+	module_t *dsi_module;
 
-  dsi_module = prefs_register_protocol(proto_dsi, NULL);
-  prefs_register_bool_preference(dsi_module, "desegment",
-    "Reassemble DSI messages spanning multiple TCP segments",
-    "Whether the DSI dissector should reassemble messages spanning multiple TCP segments."
-    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
-    &dsi_desegment);
+	proto_dsi = proto_register_protocol("Data Stream Interface", "DSI", "dsi");
+	proto_register_field_array(proto_dsi, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+
+	dsi_module = prefs_register_protocol(proto_dsi, NULL);
+	prefs_register_bool_preference(dsi_module, "desegment",
+				       "Reassemble DSI messages spanning multiple TCP segments",
+				       "Whether the DSI dissector should reassemble messages spanning multiple TCP segments."
+				       " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+				       &dsi_desegment);
 }
 
 void
 proto_reg_handoff_dsi(void)
 {
-  dissector_handle_t dsi_handle;
+	dissector_handle_t dsi_handle;
 
-  dsi_handle = create_dissector_handle(dissect_dsi, proto_dsi);
-  dissector_add("tcp.port", TCP_PORT_DSI, dsi_handle);
+	dsi_handle = create_dissector_handle(dissect_dsi, proto_dsi);
+	dissector_add("tcp.port", TCP_PORT_DSI, dsi_handle);
 
-  data_handle = find_dissector("data");
-  afp_handle = find_dissector("afp");
+	data_handle = find_dissector("data");
+	afp_handle = find_dissector("afp");
 }

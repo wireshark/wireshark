@@ -138,40 +138,41 @@ http://developer.apple.com/mac/library/documentation/Networking/Conceptual/AFP/I
 #define AFP_ADDCMT		56
 #define AFP_RMVCMT		57
 #define AFP_GETCMT		58
+
 #define AFP_ZZZ		       122
 #define AFP_ADDICON	       192
 
 /* AFP 3.0 new calls */
 #define AFP_BYTELOCK_EXT	59
-#define AFP_CATSEARCH_EXT	67
-#define AFP_ENUMERATE_EXT	66
 #define AFP_READ_EXT		60
 #define AFP_WRITE_EXT		61
 #define AFP_LOGIN_EXT		63
 #define AFP_GETSESSTOKEN	64
 #define AFP_DISCTOLDSESS	65
+#define AFP_ENUMERATE_EXT	66
+#define AFP_CATSEARCH_EXT	67
 
 /* AFP 3.1 new calls */
-#define AFP_ENUMERATE_EXT2	68
+#define AFP_ENUMERATE_EXT2      68
 
 /* AFP 3.2 new calls */
-#define AFP_GETEXTATTR		69
-#define AFP_SETEXTATTR		70
-#define AFP_REMOVEATTR		71
-#define AFP_LISTEXTATTR		72
-#define AFP_GETACL		73
-#define AFP_SETACL		74
-#define AFP_ACCESS		75
+#define AFP_GETEXTATTR          69
+#define AFP_SETEXTATTR          70
+#define AFP_REMOVEATTR          71
+#define AFP_LISTEXTATTR         72
+#define AFP_GETACL              73
+#define AFP_SETACL              74
+#define AFP_ACCESS              75
 
 /* AFP 3.2 calls added in 10.5 */
-#define AFP_SPOTLIGHTRPC 76
-#define AFP_SYNCDIR		78
-#define AFP_SYNCFORK		79
+#define AFP_SPOTLIGHTRPC        76
+#define AFP_SYNCDIR             78
+#define AFP_SYNCFORK            79
 
 /* FPSpotlightRPC subcommand codes */
 #define SPOTLIGHT_CMD_GET_VOLPATH 1
-#define SPOTLIGHT_CMD_GET_VOLID 2
-#define SPOTLIGHT_CMD_GET_THREE 3
+#define SPOTLIGHT_CMD_GET_VOLID   2
+#define SPOTLIGHT_CMD_GET_THREE   3
 
 /* ----------------------------- */
 static int proto_afp			    = -1;
@@ -366,7 +367,7 @@ static const value_string vol_signature_vals[] = {
 	{0, NULL }
 };
 
-const value_string CommandCode_vals[] = {
+static const value_string CommandCode_vals[] = {
 	{AFP_BYTELOCK,		"FPByteRangeLock" },
 	{AFP_CLOSEVOL,		"FPCloseVol" },
 	{AFP_CLOSEDIR,		"FPCloseDir" },
@@ -419,16 +420,14 @@ const value_string CommandCode_vals[] = {
 	{AFP_RMVCMT,		"FPRemoveComment" },
 	{AFP_GETCMT,		"FPGetComment" },
 	{AFP_BYTELOCK_EXT,	"FPByteRangeLockExt" },
-	{AFP_CATSEARCH_EXT,	"FPCatSearchExt" },
-	{AFP_ENUMERATE_EXT,	"FPEnumerateExt" },
-	{AFP_ENUMERATE_EXT2,	"FPEnumerateExt2" },
 	{AFP_READ_EXT,		"FPReadExt" },
 	{AFP_WRITE_EXT,		"FPWriteExt" },
 	{AFP_LOGIN_EXT,		"FPLoginExt" },
 	{AFP_GETSESSTOKEN,	"FPGetSessionToken" },
 	{AFP_DISCTOLDSESS,	"FPDisconnectOldSession" },
-	{AFP_ZZZ,		"FPZzzzz" },
-	{AFP_ADDICON,		"FPAddIcon" },
+	{AFP_ENUMERATE_EXT,	"FPEnumerateExt" },
+	{AFP_CATSEARCH_EXT,	"FPCatSearchExt" },
+	{AFP_ENUMERATE_EXT2,	"FPEnumerateExt2" },
 	{AFP_GETEXTATTR,	"FPGetExtAttr" },
 	{AFP_SETEXTATTR,	"FPSetExtAttr" },
 	{AFP_REMOVEATTR,	"FPRemoveExtAttr" },
@@ -437,10 +436,13 @@ const value_string CommandCode_vals[] = {
 	{AFP_SETACL,		"FPSetACL" },
 	{AFP_ACCESS,		"FPAccess" },
 	{AFP_SPOTLIGHTRPC,	"FPSpotlightRPC" },
-	{AFP_SYNCFORK,		"FPSyncFork" },
 	{AFP_SYNCDIR,		"FPSyncDir" },
+	{AFP_SYNCFORK,		"FPSyncFork" },
+	{AFP_ZZZ,		"FPZzzzz" },
+	{AFP_ADDICON,		"FPAddIcon" },
 	{0,			 NULL }
 };
+value_string_ext CommandCode_vals_ext = VALUE_STRING_EXT_INIT(CommandCode_vals);
 
 static const value_string unicode_hint_vals[] = {
 	{    0,	"MacRoman" },
@@ -546,6 +548,7 @@ static const value_string unicode_hint_vals[] = {
 	{ 1570, "JIS_X0208_90" },
 	{ 0,	   NULL }
 };
+static value_string_ext unicode_hint_vals_ext = VALUE_STRING_EXT_INIT(unicode_hint_vals);
 
 /* volume bitmap
   from Apple AFP3.0.pdf
@@ -707,6 +710,7 @@ static const value_string map_name_type_vals[] = {
 	{5,	"Unicode user name to a user UUID" },
 	{6,	"Unicode group name to a group UUID" },
 	{0,	NULL } };
+static value_string_ext map_name_type_vals_ext = VALUE_STRING_EXT_INIT(map_name_type_vals);
 
 static const value_string map_id_type_vals[] = {
 	{1,	"User ID to a Macintosh roman user name" },
@@ -716,6 +720,7 @@ static const value_string map_id_type_vals[] = {
 	{5,	"User UUID to a unicode user name" },
 	{6,	"Group UUID to a unicode group name" },
 	{0,	NULL } };
+static value_string_ext map_id_type_vals_ext = VALUE_STRING_EXT_INIT(map_id_type_vals);
 
 /* map_id subfunctions 5,6: reply type */
 static const value_string map_id_reply_type_vals[] = {
@@ -773,24 +778,24 @@ static const value_string map_id_reply_type_vals[] = {
 	table 1-7 p. 28
 */
 
-#define AR_O_SEARCH	(1 << 0)	/* owner has search access */
-#define AR_O_READ	(1 << 1)    /* owner has read access */
-#define AR_O_WRITE	(1 << 2)    /* owner has write access */
+#define AR_O_SEARCH     (1 << 0)    /* owner has search access */
+#define AR_O_READ       (1 << 1)    /* owner has read access */
+#define AR_O_WRITE      (1 << 2)    /* owner has write access */
 
-#define AR_G_SEARCH	(1 << 8)    /* group has search access */
-#define AR_G_READ	(1 << 9)    /* group has read access */
-#define AR_G_WRITE	(1 << 10)   /* group has write access */
+#define AR_G_SEARCH     (1 << 8)    /* group has search access */
+#define AR_G_READ       (1 << 9)    /* group has read access */
+#define AR_G_WRITE      (1 << 10)   /* group has write access */
 
-#define AR_E_SEARCH	(1 << 16)	/* everyone has search access */
-#define AR_E_READ	(1 << 17)   /* everyone has read access */
-#define AR_E_WRITE	(1 << 18)   /* everyone has write access */
+#define AR_E_SEARCH     (1 << 16)   /* everyone has search access */
+#define AR_E_READ       (1 << 17)   /* everyone has read access */
+#define AR_E_WRITE      (1 << 18)   /* everyone has write access */
 
-#define AR_U_SEARCH	(1 << 24)   /* user has search access */
-#define AR_U_READ  	(1 << 25)   /* user has read access */
-#define AR_U_WRITE 	(1 << 26)	/* user has write access */
+#define AR_U_SEARCH     (1 << 24)   /* user has search access */
+#define AR_U_READ       (1 << 25)   /* user has read access */
+#define AR_U_WRITE      (1 << 26)   /* user has write access */
 
-#define AR_BLANK	(1 << 28)	/* Blank Access Privileges (use parent dir privileges) */
-#define AR_U_OWN 	(1UL << 31)	/* user is the owner */
+#define AR_BLANK        (1 << 28)   /* Blank Access Privileges (use parent dir privileges) */
+#define AR_U_OWN        (1UL << 31) /* user is the owner */
 
 static int hf_afp_dir_ar           = -1;
 static int hf_afp_dir_ar_o_search  = -1;
@@ -821,9 +826,9 @@ static int hf_afp_user_bitmap_UUID = -1;
 static gint ett_afp_user_bitmap    = -1;
 
 static const value_string user_flag_vals[] = {
-  {0,	"Use user ID" },
-  {1,	"Default user" },
-  {0,	NULL } };
+	{0,	"Use user ID" },
+	{1,	"Default user" },
+	{0,	NULL } };
 
 static int hf_afp_message            = -1;
 static int hf_afp_message_type       = -1;
@@ -898,7 +903,7 @@ kFPUTF8NameBit 			(bit 13)
 #define kGetKerberosSessionKey  8
 
 static const value_string token_type_vals[] = {
-	{kLoginWithoutID,		"LoginWithoutID"},
+	{kLoginWithoutID,             "LoginWithoutID"},
 	{kLoginWithID,                "LoginWithID"},
 	{kReconnWithID,               "ReconnWithID"},
 	{kLoginWithTimeAndID,         "LoginWithTimeAndID"},
@@ -909,6 +914,7 @@ static const value_string token_type_vals[] = {
 	{kGetKerberosSessionKey,      "GetKerberosSessionKey"},
 
 	{0,			       NULL } };
+static value_string_ext token_type_vals_ext = VALUE_STRING_EXT_INIT(token_type_vals);
 
 /* AFP 3.2 ACL bitmap */
 #define kFileSec_UUID		(1 << 0)
@@ -1026,10 +1032,10 @@ static gint spotlight_endianess;
 static guint64
 spotlight_ntoh64(tvbuff_t *tvb, gint offset)
 {
-    if (spotlight_endianess == SPOTLIGHT_LITTLE_ENDIAN)
-        return tvb_get_letoh64(tvb, offset);
-    else
-        return tvb_get_ntoh64(tvb, offset);
+	if (spotlight_endianess == SPOTLIGHT_LITTLE_ENDIAN)
+		return tvb_get_letoh64(tvb, offset);
+	else
+		return tvb_get_ntoh64(tvb, offset);
 }
 
 /* Hash Functions */
@@ -3956,199 +3962,199 @@ dissect_query_afp_with_did(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 static gint
 dissect_spotlight(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
-    gint i;
-    gint mdlen;
-    gint query_offset;
-    gint query_offset_next;
-    gint querylen;
-    gint toc_offset;
-    gint num_queries;
-    gint query_data_len;
-    guint64 query_data64;
-    guint64 toc_entry;
-    guint8 *mds;
+	gint i;
+	gint mdlen;
+	gint query_offset;
+	gint query_offset_next;
+	gint querylen;
+	gint toc_offset;
+	gint num_queries;
+	gint query_data_len;
+	guint64 query_data64;
+	guint64 toc_entry;
+	guint8 *mds;
 
-    proto_item *item_queries_data;
-    proto_tree *sub_tree_queries;
-    proto_item *item_toc;
-    proto_tree *sub_tree_toc;
-    proto_item *item_query;
-    proto_tree *sub_tree_query;
-    proto_item *item_data;
-    proto_tree *sub_tree_data;
+	proto_item *item_queries_data;
+	proto_tree *sub_tree_queries;
+	proto_item *item_toc;
+	proto_tree *sub_tree_toc;
+	proto_item *item_query;
+	proto_tree *sub_tree_query;
+	proto_item *item_data;
+	proto_tree *sub_tree_data;
 
-    if (strncmp(tvb_get_ephemeral_string(tvb, offset, 8), "md031234", 8) == 0)
-        spotlight_endianess = SPOTLIGHT_BIG_ENDIAN;
-    else
-        spotlight_endianess = SPOTLIGHT_LITTLE_ENDIAN;
-    proto_tree_add_text(tree,
-                        tvb,
-                        offset,
-                        8,
-                        "Endianess: %s",
-                        spotlight_endianess == SPOTLIGHT_BIG_ENDIAN ?
-                        "Big Endian" : "Litte Endian");
-    offset += 8;
+	if (strncmp(tvb_get_ephemeral_string(tvb, offset, 8), "md031234", 8) == 0)
+		spotlight_endianess = SPOTLIGHT_BIG_ENDIAN;
+	else
+		spotlight_endianess = SPOTLIGHT_LITTLE_ENDIAN;
+	proto_tree_add_text(tree,
+			    tvb,
+			    offset,
+			    8,
+			    "Endianess: %s",
+			    spotlight_endianess == SPOTLIGHT_BIG_ENDIAN ?
+			    "Big Endian" : "Litte Endian");
+	offset += 8;
 
-    toc_offset = (spotlight_ntoh64(tvb, offset) >> 32) * 8 - 8;
-    querylen = (spotlight_ntoh64(tvb, offset) & 0xffffffff) * 8 - 8;
-    proto_tree_add_text(tree,
-                        tvb,
-                        offset,
-                        8,
-                        "ToC Offset: %u Bytes, Query length: %u Bytes",
-                        toc_offset,
-                        querylen);
-    offset += 8;
+	toc_offset = (spotlight_ntoh64(tvb, offset) >> 32) * 8 - 8;
+	querylen = (spotlight_ntoh64(tvb, offset) & 0xffffffff) * 8 - 8;
+	proto_tree_add_text(tree,
+			    tvb,
+			    offset,
+			    8,
+			    "ToC Offset: %u Bytes, Query length: %u Bytes",
+			    toc_offset,
+			    querylen);
+	offset += 8;
 
-    num_queries = (gint)(spotlight_ntoh64(tvb, offset + toc_offset) & 0xffff) - 1;
+	num_queries = (gint)(spotlight_ntoh64(tvb, offset + toc_offset) & 0xffff) - 1;
 
-    item_queries_data = proto_tree_add_text(tree,
-                                            tvb,
-                                            offset,
-                                            toc_offset,
-                                            "Query data (%u queries)",
-                                            num_queries);
+	item_queries_data = proto_tree_add_text(tree,
+						tvb,
+						offset,
+						toc_offset,
+						"Query data (%u queries)",
+						num_queries);
 
-    sub_tree_queries = proto_item_add_subtree(item_queries_data, ett_afp_spotlight_queries);
-    /* Queries */
-    query_offset_next = (spotlight_ntoh64(tvb, offset + toc_offset + 8) & 0xff) * 8 - 16;
-    for (i = 0; i < num_queries; i++) {
-        query_offset = query_offset_next;
-        if (i == num_queries - 1)
-            /* last */
-            query_offset_next = toc_offset;
-        else
-            /* peek at next offset */
-            query_offset_next = (spotlight_ntoh64(tvb, offset + toc_offset + 8 + (i+1)*8) & 0xff) * 8 - 16;
+	sub_tree_queries = proto_item_add_subtree(item_queries_data, ett_afp_spotlight_queries);
+	/* Queries */
+	query_offset_next = (spotlight_ntoh64(tvb, offset + toc_offset + 8) & 0xff) * 8 - 16;
+	for (i = 0; i < num_queries; i++) {
+		query_offset = query_offset_next;
+		if (i == num_queries - 1)
+			/* last */
+			query_offset_next = toc_offset;
+		else
+			/* peek at next offset */
+			query_offset_next = (spotlight_ntoh64(tvb, offset + toc_offset + 8 + (i+1)*8) & 0xff) * 8 - 16;
 
-        /* this is obviously the length of one query */
-        query_data_len = query_offset_next - query_offset;
+		/* this is obviously the length of one query */
+		query_data_len = query_offset_next - query_offset;
 
-        if (query_data_len > 8)
-            item_query = proto_tree_add_text(sub_tree_queries,
-                                             tvb,
-                                             offset + query_offset,
-                                             query_data_len,
-                                             "Query %u",
-                                             i + 1);
-        else
-            item_query = proto_tree_add_text(sub_tree_queries,
-                                             tvb,
-                                             offset + query_offset,
-                                             query_data_len,
-                                             "Query %u (empty?)",
-                                             i + 1);
+		if (query_data_len > 8)
+			item_query = proto_tree_add_text(sub_tree_queries,
+							 tvb,
+							 offset + query_offset,
+							 query_data_len,
+							 "Query %u",
+							 i + 1);
+		else
+			item_query = proto_tree_add_text(sub_tree_queries,
+							 tvb,
+							 offset + query_offset,
+							 query_data_len,
+							 "Query %u (empty?)",
+							 i + 1);
 
-        /* tree per query */
-        sub_tree_query = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
-        query_data64 = spotlight_ntoh64(tvb, offset + query_offset);
+		/* tree per query */
+		sub_tree_query = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
+		query_data64 = spotlight_ntoh64(tvb, offset + query_offset);
 
-        /* print the query line */
-        proto_tree_add_text(sub_tree_query,
-                            tvb,
-                            offset + query_offset,
-                            8,
-                            "Index: %" G_GINT64_MODIFIER "u, ?: 0x%08" G_GINT64_MODIFIER "x",
-                            query_data64 >> 32,
-                            query_data64 & 0xffffffff);
+		/* print the query line */
+		proto_tree_add_text(sub_tree_query,
+				    tvb,
+				    offset + query_offset,
+				    8,
+				    "Index: %" G_GINT64_MODIFIER "u, ?: 0x%08" G_GINT64_MODIFIER "x",
+				    query_data64 >> 32,
+				    query_data64 & 0xffffffff);
 
-        /* really any data in the query */
-        if (query_data_len > 8) {
-            /* populate the query tree */
-            query_data64 = spotlight_ntoh64(tvb, offset + query_offset + 8);
-            mdlen = ((query_data64 & 0xffff) - 1) * 8;
-            proto_tree_add_text(sub_tree_query,
-                                tvb,
-                                offset + query_offset + 8,
-                                8,
-                                "?(reappears in ToC): 0x%08" G_GINT64_MODIFIER "x, ?: 0x%04" G_GINT64_MODIFIER "x, strlen: ((%u-1)*8 = ) %u",
-                                query_data64 >> 32,
-                                (query_data64 & 0xffff0000) >> 16,
-                                mdlen/8+1,
-                                mdlen);
+		/* really any data in the query */
+		if (query_data_len > 8) {
+			/* populate the query tree */
+			query_data64 = spotlight_ntoh64(tvb, offset + query_offset + 8);
+			mdlen = ((query_data64 & 0xffff) - 1) * 8;
+			proto_tree_add_text(sub_tree_query,
+					    tvb,
+					    offset + query_offset + 8,
+					    8,
+					    "?(reappears in ToC): 0x%08" G_GINT64_MODIFIER "x, ?: 0x%04" G_GINT64_MODIFIER "x, strlen: ((%u-1)*8 = ) %u",
+					    query_data64 >> 32,
+					    (query_data64 & 0xffff0000) >> 16,
+					    mdlen/8+1,
+					    mdlen);
 
-            mds = tvb_get_ephemeral_string(tvb, offset + query_offset + 16, mdlen);
-            proto_item_append_text(item_query, ": \"%s\"", mds);
+			mds = tvb_get_ephemeral_string(tvb, offset + query_offset + 16, mdlen);
+			proto_item_append_text(item_query, ": \"%s\"", mds);
 
-            proto_tree_add_text(sub_tree_query,
-                                tvb,
-                                offset + query_offset + 16,
-                                mdlen,
-                                "mdstring: \"%s\" (%u bytes)",
-                                mds,
-                                mdlen);
+			proto_tree_add_text(sub_tree_query,
+					    tvb,
+					    offset + query_offset + 16,
+					    mdlen,
+					    "mdstring: \"%s\" (%u bytes)",
+					    mds,
+					    mdlen);
 
-            item_data = proto_tree_add_text(sub_tree_query,
-                                            tvb,
-                                            offset + query_offset + 16 + mdlen,
-                                            query_data_len - 16 - mdlen,
-                                            "data: %u bytes",
-                                            query_data_len - 16 - mdlen);
+			item_data = proto_tree_add_text(sub_tree_query,
+							tvb,
+							offset + query_offset + 16 + mdlen,
+							query_data_len - 16 - mdlen,
+							"data: %u bytes",
+							query_data_len - 16 - mdlen);
 
-            /* If there are more then 8 bytes theres at least x*8+8 bytes */
-            if ((query_data_len - 16 - mdlen) >= 16) {
-                sub_tree_data = proto_item_add_subtree(item_data, ett_afp_spotlight_data);
-                query_data64 = spotlight_ntoh64(tvb, offset + query_offset + 16 + mdlen);
+			/* If there are more then 8 bytes theres at least x*8+8 bytes */
+			if ((query_data_len - 16 - mdlen) >= 16) {
+				sub_tree_data = proto_item_add_subtree(item_data, ett_afp_spotlight_data);
+				query_data64 = spotlight_ntoh64(tvb, offset + query_offset + 16 + mdlen);
 
-                proto_tree_add_text(sub_tree_data,
-                                    tvb,
-                                    offset + query_offset + 16 + mdlen,
-                                    8,
-                                    "data: %" G_GINT64_MODIFIER "u * 8 (= %" G_GINT64_MODIFIER "u) bytes, ?: 0x%04" G_GINT64_MODIFIER "x",
-                                    (query_data64 & G_GINT64_CONSTANT(0xffffffff00000000)) >> 32,
-                                    ((query_data64 & G_GINT64_CONSTANT(0xffffffff00000000)) >> 32) * 8,
-                                    query_data64 & 0xffffffff);
-                proto_tree_add_text(sub_tree_data,
-                                    tvb,
-                                    offset + query_offset + 16 + mdlen + 8,
-                                    query_data_len - 16 - mdlen - 8,
-                                    "data: %u  bytes",
-                                    query_data_len - 16 - mdlen - 8);
-            }
+				proto_tree_add_text(sub_tree_data,
+						    tvb,
+						    offset + query_offset + 16 + mdlen,
+						    8,
+						    "data: %" G_GINT64_MODIFIER "u * 8 (= %" G_GINT64_MODIFIER "u) bytes, ?: 0x%04" G_GINT64_MODIFIER "x",
+						    (query_data64 & G_GINT64_CONSTANT(0xffffffff00000000)) >> 32,
+						    ((query_data64 & G_GINT64_CONSTANT(0xffffffff00000000)) >> 32) * 8,
+						    query_data64 & 0xffffffff);
+				proto_tree_add_text(sub_tree_data,
+						    tvb,
+						    offset + query_offset + 16 + mdlen + 8,
+						    query_data_len - 16 - mdlen - 8,
+						    "data: %u  bytes",
+						    query_data_len - 16 - mdlen - 8);
+			}
 
-        }
-    }
-    offset += toc_offset;
+		}
+	}
+	offset += toc_offset;
 
-    /* ToC */
-    item_toc = proto_tree_add_text(tree,
-                                   tvb,
-                                   offset,
-                                   querylen - toc_offset,
-                                   "ToC (%u entries)",
-                                   num_queries);
-    sub_tree_toc = proto_item_add_subtree(item_toc, ett_afp_spotlight_toc);
-    proto_tree_add_text(sub_tree_toc,
-                        tvb,
-                        offset,
-                        8,
-                        "Number of entries (%u)",
-                        num_queries);
-    for (i = 0; i < num_queries; i++) {
-        toc_entry = spotlight_ntoh64(tvb, offset + 8 + i*8);
-        proto_tree_add_text(sub_tree_toc,
-                            tvb,
-                            offset + 8 + i*8,
-                            8,
-                            "Index: %u, ?(reappears in queries): 0x%08" G_GINT64_MODIFIER "x, ?: 0x%04" G_GINT64_MODIFIER "x, Offset: %" G_GINT64_MODIFIER "u",
-                            i+1,
-                            toc_entry >> 32,
-                            (toc_entry & 0xffff0000) >> 16,
-                            (toc_entry & 0xffff) * 8);
-    }
+	/* ToC */
+	item_toc = proto_tree_add_text(tree,
+				       tvb,
+				       offset,
+				       querylen - toc_offset,
+				       "ToC (%u entries)",
+				       num_queries);
+	sub_tree_toc = proto_item_add_subtree(item_toc, ett_afp_spotlight_toc);
+	proto_tree_add_text(sub_tree_toc,
+			    tvb,
+			    offset,
+			    8,
+			    "Number of entries (%u)",
+			    num_queries);
+	for (i = 0; i < num_queries; i++) {
+		toc_entry = spotlight_ntoh64(tvb, offset + 8 + i*8);
+		proto_tree_add_text(sub_tree_toc,
+				    tvb,
+				    offset + 8 + i*8,
+				    8,
+				    "Index: %u, ?(reappears in queries): 0x%08" G_GINT64_MODIFIER "x, ?: 0x%04" G_GINT64_MODIFIER "x, Offset: %" G_GINT64_MODIFIER "u",
+				    i+1,
+				    toc_entry >> 32,
+				    (toc_entry & 0xffff0000) >> 16,
+				    (toc_entry & 0xffff) * 8);
+	}
 
-    offset += querylen - toc_offset;
-    return offset;
+	offset += querylen - toc_offset;
+	return offset;
 }
 
 static gint
 dissect_query_afp_spotlight(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset, afp_request_val *request_val)
 {
-    gint len;
+	gint len;
 
-    PAD(1);
-    offset = decode_vol(tree, tvb, offset);
+	PAD(1);
+	offset = decode_vol(tree, tvb, offset);
 
 	proto_tree_add_item(tree, hf_afp_spotlight_request_flags, tvb, offset, 4, FALSE);
 	offset += 4;
@@ -4159,30 +4165,30 @@ dissect_query_afp_spotlight(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	proto_tree_add_item(tree, hf_afp_spotlight_request_reserved, tvb, offset, 4, FALSE);
 	offset += 4;
 
-    switch (request_val->spotlight_req_command) {
+	switch (request_val->spotlight_req_command) {
 
-    case SPOTLIGHT_CMD_GET_VOLPATH:
-        tvb_get_ephemeral_stringz(tvb, offset, &len);
-        proto_tree_add_item(tree, hf_afp_spotlight_volpath_client, tvb, offset, len, FALSE);
-        offset += len;
-        break;
+	case SPOTLIGHT_CMD_GET_VOLPATH:
+		tvb_get_ephemeral_stringz(tvb, offset, &len);
+		proto_tree_add_item(tree, hf_afp_spotlight_volpath_client, tvb, offset, len, FALSE);
+		offset += len;
+		break;
 
-    case SPOTLIGHT_CMD_GET_VOLID:
-        /* empty */
-        break;
+	case SPOTLIGHT_CMD_GET_VOLID:
+		/* empty */
+		break;
 
-    case SPOTLIGHT_CMD_GET_THREE:
-        proto_tree_add_item(tree, hf_afp_spotlight_volflags, tvb, offset, 4,FALSE);
-    	offset += 4;
+	case SPOTLIGHT_CMD_GET_THREE:
+		proto_tree_add_item(tree, hf_afp_spotlight_volflags, tvb, offset, 4,FALSE);
+		offset += 4;
 
-        proto_tree_add_item(tree, hf_afp_spotlight_reqlen, tvb, offset, 4,FALSE);
-    	offset += 4;
+		proto_tree_add_item(tree, hf_afp_spotlight_reqlen, tvb, offset, 4,FALSE);
+		offset += 4;
 
-        offset = dissect_spotlight(tvb, tree, offset);
+		offset = dissect_spotlight(tvb, tree, offset);
 
-        break;
-    }
-    return offset;
+		break;
+	}
+	return offset;
 }
 
 /* ************************** */
@@ -4361,32 +4367,32 @@ dissect_reply_afp_get_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 static gint
 dissect_reply_afp_spotlight(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset, afp_request_val *request_val)
 {
-    gint len;
+	gint len;
 
-    switch (request_val->spotlight_req_command) {
+	switch (request_val->spotlight_req_command) {
 
-    case SPOTLIGHT_CMD_GET_VOLPATH:
-        proto_tree_add_item(tree, hf_afp_spotlight_returncode, tvb, offset, 4,FALSE);
-    	offset += 4;
+	case SPOTLIGHT_CMD_GET_VOLPATH:
+		proto_tree_add_item(tree, hf_afp_spotlight_returncode, tvb, offset, 4,FALSE);
+		offset += 4;
 
-        tvb_get_ephemeral_stringz(tvb, offset, &len);;
+		tvb_get_ephemeral_stringz(tvb, offset, &len);;
 		proto_tree_add_item(tree, hf_afp_spotlight_volpath_server, tvb, offset, len, FALSE);
-        offset += len;
-        break;
+		offset += len;
+		break;
 
-    case SPOTLIGHT_CMD_GET_VOLID:
-        proto_tree_add_item(tree, hf_afp_spotlight_volflags, tvb, offset, 4,FALSE);
-    	offset += 4;
-        break;
+	case SPOTLIGHT_CMD_GET_VOLID:
+		proto_tree_add_item(tree, hf_afp_spotlight_volflags, tvb, offset, 4,FALSE);
+		offset += 4;
+		break;
 
-    case SPOTLIGHT_CMD_GET_THREE:
-        proto_tree_add_item(tree, hf_afp_spotlight_returncode, tvb, offset, 4,FALSE);
-    	offset += 4;
+	case SPOTLIGHT_CMD_GET_THREE:
+		proto_tree_add_item(tree, hf_afp_spotlight_returncode, tvb, offset, 4,FALSE);
+		offset += 4;
 
-        offset = dissect_spotlight(tvb, tree, offset);
-        break;
-    }
-    return offset;
+		offset = dissect_spotlight(tvb, tree, offset);
+		break;
+	}
+	return offset;
 }
 
 
@@ -4425,10 +4431,10 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		request_val = se_alloc(sizeof(afp_request_val));
 		request_val->command = afp_command;
 
-        if (afp_command == AFP_SPOTLIGHTRPC)
-            request_val->spotlight_req_command = tvb_get_ntohl(tvb, offset + 2 + 2 + 4);
-        else
-            request_val->spotlight_req_command = -1;
+		if (afp_command == AFP_SPOTLIGHTRPC)
+			request_val->spotlight_req_command = tvb_get_ntohl(tvb, offset + 2 + 2 + 4);
+		else
+			request_val->spotlight_req_command = -1;
 
 		request_val->frame_req = pinfo->fd->num;
 		request_val->frame_res = 0;
@@ -4445,12 +4451,12 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	afp_command = request_val->command;
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-		     val_to_str(afp_command, CommandCode_vals,
+		     val_to_str_ext(afp_command, &CommandCode_vals_ext,
 				"Unknown command (%u)"),
 		     aspinfo->reply ? "reply" : "request");
 	if (aspinfo->reply && aspinfo->code != 0) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ": %s (%d)",
-			val_to_str(aspinfo->code, asp_error_vals,
+			val_to_str_ext(aspinfo->code, &asp_error_vals_ext,
 				"Unknown error (%u)"), aspinfo->code);
 	}
 
@@ -4624,7 +4630,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = dissect_query_afp_with_did(tvb, pinfo, afp_tree, offset);break;
 		case AFP_SPOTLIGHTRPC:
 			offset = dissect_query_afp_spotlight(tvb, pinfo, afp_tree, offset, request_val);
-            break;
+			break;
 		}
 	}
 	else {
@@ -4750,7 +4756,7 @@ proto_register_afp(void)
 	static hf_register_info hf[] = {
 		{ &hf_afp_command,
 		  { "Command",      "afp.command",
-		    FT_UINT8, BASE_DEC, VALS(CommandCode_vals), 0x0,
+		    FT_UINT8, BASE_DEC|BASE_EXT_STRING, &CommandCode_vals_ext, 0x0,
 		    "AFP function", HFILL }},
 
 		{ &hf_afp_pad,
@@ -5580,7 +5586,7 @@ proto_register_afp(void)
 
 		{ &hf_afp_path_unicode_hint,
 		  { "Unicode hint",  "afp.path_unicode_hint",
-		    FT_UINT32, BASE_HEX, VALS(unicode_hint_vals), 0x0,
+		    FT_UINT32, BASE_HEX|BASE_EXT_STRING, &unicode_hint_vals_ext, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_afp_path_name,
@@ -5790,12 +5796,12 @@ proto_register_afp(void)
 
 		{ &hf_afp_map_name_type,
 		  { "Type",      "afp.map_name_type",
-		    FT_UINT8, BASE_DEC, VALS(map_name_type_vals), 0x0,
+		    FT_UINT8, BASE_DEC|BASE_EXT_STRING, &map_name_type_vals_ext, 0x0,
 		    "Map name type", HFILL }},
 
 		{ &hf_afp_map_id_type,
 		  { "Type",      "afp.map_id_type",
-		    FT_UINT8, BASE_DEC, VALS(map_id_type_vals), 0x0,
+		    FT_UINT8, BASE_DEC|BASE_EXT_STRING, &map_id_type_vals_ext, 0x0,
 		    "Map ID type", HFILL }},
 
 		{ &hf_afp_map_id,
@@ -5851,7 +5857,7 @@ proto_register_afp(void)
 
 		{ &hf_afp_session_token_type,
 		  { "Type",         "afp.session_token_type",
-		    FT_UINT16, BASE_HEX, VALS(token_type_vals), 0x0,
+		    FT_UINT16, BASE_HEX|BASE_EXT_STRING, &token_type_vals_ext, 0x0,
 		    "Session token type", HFILL }},
 
 		/* FIXME FT_UINT32 in specs */
@@ -6196,55 +6202,55 @@ proto_register_afp(void)
 		    FT_BOOLEAN, 32, NULL, ACE_ONLY_INHERIT,
 		    NULL, HFILL }},
 
-        { &hf_afp_spotlight_request_flags,
-          { "Flags",               "afp.spotlight.flags",
-            FT_UINT32, BASE_HEX, NULL, 0x0,
-            "Spotlight RPC Flags", HFILL }},
+		{ &hf_afp_spotlight_request_flags,
+		  { "Flags",               "afp.spotlight.flags",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    "Spotlight RPC Flags", HFILL }},
 
-        { &hf_afp_spotlight_request_command,
-          { "Command",               "afp.spotlight.command",
-            FT_UINT32, BASE_HEX, NULL, 0x0,
-            "Spotlight RPC Command", HFILL }},
+		{ &hf_afp_spotlight_request_command,
+		  { "Command",               "afp.spotlight.command",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    "Spotlight RPC Command", HFILL }},
 
-        { &hf_afp_spotlight_request_reserved,
-          { "Padding",               "afp.spotlight.reserved",
-            FT_UINT32, BASE_HEX, NULL, 0x0,
-            "Spotlight RPC Padding", HFILL }},
+		{ &hf_afp_spotlight_request_reserved,
+		  { "Padding",               "afp.spotlight.reserved",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    "Spotlight RPC Padding", HFILL }},
 
-        { &hf_afp_spotlight_volpath_client,
-          { "Client's volume path",               "afp.spotlight.volpath_client",
-            FT_STRING, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
+		{ &hf_afp_spotlight_volpath_client,
+		  { "Client's volume path",               "afp.spotlight.volpath_client",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
 
-        { &hf_afp_spotlight_volpath_server,
-          { "Server's volume path",               "afp.spotlight.volpath_server",
-            FT_STRING, BASE_NONE, NULL, 0x0,
-            "Servers's volume path", HFILL }},
+		{ &hf_afp_spotlight_volpath_server,
+		  { "Server's volume path",               "afp.spotlight.volpath_server",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Servers's volume path", HFILL }},
 
-        { &hf_afp_spotlight_returncode,
-          { "Return code",               "afp.spotlight.return",
-            FT_INT32, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
+		{ &hf_afp_spotlight_returncode,
+		  { "Return code",               "afp.spotlight.return",
+		    FT_INT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
 
-        { &hf_afp_spotlight_volflags,
-          { "Volume flags",               "afp.spotlight.volflags",
-            FT_UINT32, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
+		{ &hf_afp_spotlight_volflags,
+		  { "Volume flags",               "afp.spotlight.volflags",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }},
 
-        { &hf_afp_spotlight_reqlen,
-          { "Length",               "afp.spotlight.reqlen",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
+		{ &hf_afp_spotlight_reqlen,
+		  { "Length",               "afp.spotlight.reqlen",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
 
-        { &hf_afp_spotlight_toc_query_end,
-          { "End marker",               "afp.spotlight.query_end",
-            FT_UINT32, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
+		{ &hf_afp_spotlight_toc_query_end,
+		  { "End marker",               "afp.spotlight.query_end",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }},
 
-        { &hf_afp_spotlight_mdstring,
-          { "mdquery string",               "afp.spotlight.mds",
-            FT_STRINGZ, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
+		{ &hf_afp_spotlight_mdstring,
+		  { "mdquery string",               "afp.spotlight.mds",
+		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
 
 		{ &hf_afp_unknown,
 		  { "Unknown parameter",         "afp.unknown",
@@ -6283,11 +6289,11 @@ proto_register_afp(void)
 		&ett_afp_ace_entries,
 		&ett_afp_ace_entry,
 		&ett_afp_ace_flags,
-        &ett_afp_spotlight_queries,
-        &ett_afp_spotlight_query_line,
-        &ett_afp_spotlight_query,
-        &ett_afp_spotlight_data,
-        &ett_afp_spotlight_toc
+		&ett_afp_spotlight_queries,
+		&ett_afp_spotlight_query_line,
+		&ett_afp_spotlight_query,
+		&ett_afp_spotlight_data,
+		&ett_afp_spotlight_toc
 	};
 
 	proto_afp = proto_register_protocol("Apple Filing Protocol", "AFP", "afp");

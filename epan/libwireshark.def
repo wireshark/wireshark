@@ -98,7 +98,7 @@ col_set_str
 col_set_time
 col_set_writable
 col_setup
-CommandCode_vals        DATA
+CommandCode_vals_ext    DATA
 conversation_add_proto_data
 conversation_delete_proto_data
 conversation_get_proto_data
