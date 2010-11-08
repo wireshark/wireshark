@@ -254,8 +254,8 @@ sub print_svn_version
 			$revision . "\"\n" .
 			"#define SVNPATH \"" . $repo_path . "\"\n";
 	} else {
-		$svn_version = "/* #define SVNVERSION \"\" */\n" .
-			"/* #define SVNPATH \"\" */\n";
+		$svn_version = "#define SVNVERSION \"SVN Rev Unknown\"\n" .
+			"#define SVNPATH \"unknown\"\n";
 	}
 	if (open(OLDVER, "<$version_file")) {
 		my $old_svn_version = <OLDVER> . <OLDVER>;
