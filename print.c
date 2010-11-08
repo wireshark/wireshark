@@ -615,25 +615,43 @@ write_csv_preamble(FILE *fh _U_)
 	write_headers = TRUE;
 }
 
+static gchar *csv_massage_str(const gchar *source, const gchar *exceptions)
+{
+    gchar *csv_str;
+    gchar *tmp_str;
+
+    csv_str = g_strescape(source, exceptions);
+    tmp_str = csv_str;
+    while ( tmp_str = strstr(tmp_str, "\\\"") )
+        *tmp_str = '\"';
+    return csv_str;
+}
+
+static void csv_write_str(const char *str, char sep, FILE *fh)
+{
+    gchar *csv_str;
+
+    csv_str = csv_massage_str(str, NULL);
+    fprintf(fh, "\"%s\"%c", csv_str, sep);
+    g_free(csv_str);
+}    
+
 void
 proto_tree_write_csv(epan_dissect_t *edt, FILE *fh)
 {
-        gint    i;
+    gint i;
 
-        /* if this is the first packet, we have to write the CSV header */
-        if(write_headers) {
-            for(i=0; i < edt->pi.cinfo->num_cols - 1; i++)
-	        fprintf(fh, "\"%s\",", edt->pi.cinfo->col_title[i]);
-
-            fprintf(fh, "\"%s\"\n", edt->pi.cinfo->col_title[i]);
-
-	    write_headers = FALSE;
-        }
-
+    /* if this is the first packet, we have to write the CSV header */
+    if(write_headers) {
         for(i=0; i < edt->pi.cinfo->num_cols - 1; i++)
-            fprintf(fh, "\"%s\",", edt->pi.cinfo->col_data[i]);
+            csv_write_str(edt->pi.cinfo->col_title[i], ',', fh);
+        csv_write_str(edt->pi.cinfo->col_title[i], '\n', fh);
+        write_headers = FALSE;
+    }
 
-        fprintf(fh, "\"%s\"\n", edt->pi.cinfo->col_data[i]);
+    for(i=0; i < edt->pi.cinfo->num_cols - 1; i++)
+        csv_write_str(edt->pi.cinfo->col_data[i], ',', fh);
+    csv_write_str(edt->pi.cinfo->col_data[i], '\n', fh);
 }
 
 void
