@@ -431,9 +431,14 @@ http://www.windows.com/windows2000/en/server/help/sag_DNS_imp_UsingWinsLookup.ht
 http://www.microsoft.com/windows2000/library/resources/reskit/samplechapters/cncf/cncf_imp_wwaw.asp
 
    which discuss them to some extent. */
+/* http://www.iana.org/assignments/dns-parameters */
 
 static const value_string dns_types[] = {
 	{ 0,		"Unused" },
+/* Sort most common for speed */
+	{ T_NAPTR,	"NAPTR" }, /* RFC 3403 */
+	{ T_SRV,	"SRV" }, /* RFC 2052 */
+
 	{ T_A,		"A" },
 	{ T_NS,		"NS" },
 	{ T_MD,		"MD" },
@@ -466,9 +471,7 @@ static const value_string dns_types[] = {
 	{ T_NXT,	"NXT" }, /* RFC 1876 */
 	{ T_EID,	"EID" },
 	{ T_NIMLOC,	"NIMLOC" },
-	{ T_SRV,	"SRV" }, /* RFC 2052 */
 	{ T_ATMA,	"ATMA" },
-	{ T_NAPTR,	"NAPTR" }, /* RFC 3403 */
 	{ T_KX,		"KX" }, /* RFC 2230 */
 	{ T_CERT,	"CERT" }, /* RFC 2538 */
 	{ T_A6,		"A6" }, /* RFC 2874 */
@@ -524,7 +527,11 @@ dns_type_description (guint type)
 {
   static const char *type_names[] = {
     "unused",
-    "Host address",
+/* Sort most common for speed */
+	"Naming authority pointer",		/* RFC 2168 */
+    "Service location",			/* RFC 2052 */
+
+	"Host address",
     "Authoritative name server",
     "Mail destination",
     "Mail forwarder",
@@ -556,9 +563,7 @@ dns_type_description (guint type)
     "Next",				/* RFC 2535 */
     "EID",
     "NIMLOC",
-    "Service location",			/* RFC 2052 */
     "ATMA",
-    "Naming authority pointer",		/* RFC 2168 */
     "Key Exchange",			/* RFC 2230 */
     "Certificate",			/* RFC 2538 */
     "IPv6 address with indirection",	/* RFC 2874 */
