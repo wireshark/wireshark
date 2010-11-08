@@ -514,8 +514,6 @@ static const value_string rtp_payload_type_short_vals[] =
 /* 89 */	{ 89,				"Unassigned" },
 /* 90 */	{ 90,				"Unassigned" },
 /* 91 */	{ 91,				"Unassigned" },
-/* 90 */	{ 90,				"Unassigned" },
-/* 91 */	{ 91,				"Unassigned" },
 /* 92 */	{ 92,				"Unassigned" },
 /* 93 */	{ 93,				"Unassigned" },
 /* 94 */	{ 94,				"Unassigned" },
