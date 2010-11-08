@@ -622,7 +622,7 @@ static gchar *csv_massage_str(const gchar *source, const gchar *exceptions)
 
     csv_str = g_strescape(source, exceptions);
     tmp_str = csv_str;
-    while ( tmp_str = strstr(tmp_str, "\\\"") )
+    while ( (tmp_str = strstr(tmp_str, "\\\"")) != NULL )
         *tmp_str = '\"';
     return csv_str;
 }
