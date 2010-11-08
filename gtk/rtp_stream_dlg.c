@@ -686,7 +686,7 @@ add_to_list_store(rtp_stream_info_t* strinfo)
 	if ((strinfo->pt > 95) && (strinfo->info_payload_type_str != NULL)) {
 		data[5] = g_strdup(strinfo->info_payload_type_str);
 	} else {
-		data[5] = g_strdup(val_to_str(strinfo->pt, rtp_payload_type_short_vals,
+		data[5] = g_strdup(val_to_str_ext(strinfo->pt, &rtp_payload_type_short_vals_ext,
 			"Unknown (%u)"));
 	}
 	data[6] = g_strdup_printf("%u", strinfo->npackets);

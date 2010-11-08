@@ -545,7 +545,7 @@ RTP_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void cons
 				}
 			}
 		}
-		if (!strinfo->pt_str) strinfo->pt_str = g_strdup(val_to_str(strinfo->pt, rtp_payload_type_short_vals, "%u"));
+		if (!strinfo->pt_str) strinfo->pt_str = g_strdup(val_to_str_ext(strinfo->pt, &rtp_payload_type_short_vals_ext, "%u"));
 		strinfo->npackets = 0;
 		strinfo->first_frame_num = pinfo->fd->num;
 		strinfo->start_abs = pinfo->fd->abs_ts;

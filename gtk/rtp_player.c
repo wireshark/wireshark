@@ -489,7 +489,7 @@ decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash
 		decoder = g_malloc(sizeof(rtp_decoder_t));
 		decoder->handle = NULL;
 		decoder->context = NULL;
-		p = match_strval(payload_type, rtp_payload_type_short_vals);
+		p = match_strval_ext(payload_type, &rtp_payload_type_short_vals_ext);
 		if (p) {
 			decoder->handle = find_codec(p);
 			if (decoder->handle)

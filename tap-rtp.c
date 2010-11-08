@@ -96,7 +96,7 @@ rtp_streams_stat_draw(void *arg _U_)
     	}
 
         }else{
-    	    payload_type = g_strdup(val_to_str(strinfo->pt, rtp_payload_type_vals,
+    	    payload_type = g_strdup(val_to_str_ext(strinfo->pt, &rtp_payload_type_vals_ext,
 	        "Unknown (%u)"));
         }
 

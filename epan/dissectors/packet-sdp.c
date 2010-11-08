@@ -561,7 +561,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           }
         } else
           if (strlen(sdp_pi->summary_str)) g_strlcat(sdp_pi->summary_str, " ", 50);
-          g_strlcat(sdp_pi->summary_str, val_to_str(transport_info.media[n].pt[i], rtp_payload_type_short_vals, "%u"), 50);
+          g_strlcat(sdp_pi->summary_str, val_to_str_ext(transport_info.media[n].pt[i], &rtp_payload_type_short_vals_ext, "%u"), 50);
       }
     }
 
@@ -1149,7 +1149,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
                "RTP/AVP") == 0) {
       media_format = tvb_get_ephemeral_string(tvb, offset, tokenlen);
       proto_tree_add_string(sdp_media_tree, hf_media_format, tvb, offset,
-                            tokenlen, val_to_str(atol((char*)media_format), rtp_payload_type_vals, "%u"));
+                            tokenlen, val_to_str_ext(atol((char*)media_format), &rtp_payload_type_vals_ext, "%u"));
       idx = transport_info->media[transport_info->media_count].pt_count;
       transport_info->media[transport_info->media_count].pt[idx] = atol((char*)media_format);
       if (idx < (SDP_MAX_RTP_PAYLOAD_TYPES-1))

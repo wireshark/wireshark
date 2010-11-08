@@ -259,9 +259,9 @@ static guint rtp_rfc2198_pt = 99;
 
 static const value_string rtp_version_vals[] =
 {
+	{ 2, "RFC 1889 Version" }, /* First for speed */
 	{ 0, "Old VAT Version" },
 	{ 1, "First Draft Version" },
-	{ 2, "RFC 1889 Version" },
 	{ 0, NULL },
 };
 
@@ -274,37 +274,111 @@ static const value_string rtp_version_vals[] =
 
 /* Payload type is the last 7 bits */
 #define RTP_PAYLOAD_TYPE(octet)	((octet) & 0x7F)
+/* http://www.iana.org/assignments/rtp-parameters */
 
-const value_string rtp_payload_type_vals[] =
+static const value_string rtp_payload_type_vals[] =
 {
-	{ PT_PCMU,	"ITU-T G.711 PCMU" },
-	{ PT_1016,	"USA Federal Standard FS-1016" },
-	{ PT_G721,	"ITU-T G.721" },
-	{ PT_GSM,	"GSM 06.10" },
-	{ PT_G723,	"ITU-T G.723" },
-	{ PT_DVI4_8000,	"DVI4 8000 samples/s" },
-	{ PT_DVI4_16000, "DVI4 16000 samples/s" },
-	{ PT_LPC,	"Experimental linear predictive encoding from Xerox PARC" },
-	{ PT_PCMA,	"ITU-T G.711 PCMA" },
-	{ PT_G722,	"ITU-T G.722" },
-	{ PT_L16_STEREO, "16-bit uncompressed audio, stereo" },
-	{ PT_L16_MONO,	"16-bit uncompressed audio, monaural" },
-	{ PT_QCELP,	"Qualcomm Code Excited Linear Predictive coding" },
-	{ PT_CN,	"Comfort noise" },
-	{ PT_MPA,	"MPEG-I/II Audio"},
-	{ PT_G728,	"ITU-T G.728" },
-	{ PT_DVI4_11025, "DVI4 11025 samples/s" },
-	{ PT_DVI4_22050, "DVI4 22050 samples/s" },
-	{ PT_G729,	"ITU-T G.729" },
-	{ PT_CN_OLD,	"Comfort noise (old)" },
-	{ PT_CELB,	"Sun CellB video encoding" },
-	{ PT_JPEG,	"JPEG-compressed video" },
-	{ PT_NV,	"'nv' program" },
-	{ PT_H261,	"ITU-T H.261" },
-	{ PT_MPV,	"MPEG-I/II Video"},
-	{ PT_MP2T,	"MPEG-II transport streams"},
-	{ PT_H263,	"ITU-T H.263" },
-
+/*  0 */	{ PT_PCMU,			"ITU-T G.711 PCMU" },
+/*  1 */	{ PT_1016,			"USA Federal Standard FS-1016" },
+/*  2 */	{ PT_G721,			"ITU-T G.721" },
+/*  3 */	{ PT_GSM,			"GSM 06.10" },
+/*  4 */	{ PT_G723,			"ITU-T G.723" },
+/*  5 */	{ PT_DVI4_8000,		"DVI4 8000 samples/s" },
+/*  6 */	{ PT_DVI4_16000,	"DVI4 16000 samples/s" },
+/*  7 */	{ PT_LPC,			"Experimental linear predictive encoding from Xerox PARC" },
+/*  8 */	{ PT_PCMA,			"ITU-T G.711 PCMA" },
+/*  9 */	{ PT_G722,			"ITU-T G.722" },
+/* 10 */	{ PT_L16_STEREO,	"16-bit uncompressed audio, stereo" },
+/* 11 */	{ PT_L16_MONO,		"16-bit uncompressed audio, monaural" },
+/* 12 */	{ PT_QCELP,			"Qualcomm Code Excited Linear Predictive coding" },
+/* 13 */	{ PT_CN,			"Comfort noise" },
+/* 14 */	{ PT_MPA,			"MPEG-I/II Audio"},
+/* 15 */	{ PT_G728,			"ITU-T G.728" },
+/* 16 */	{ PT_DVI4_11025,	"DVI4 11025 samples/s" },
+/* 17 */	{ PT_DVI4_22050,	"DVI4 22050 samples/s" },
+/* 18 */	{ PT_G729,			"ITU-T G.729" },
+/* 19 */	{ PT_CN_OLD,		"Comfort noise (old)" },
+/* 20 */	{ 20,				"Unassigned" },
+/* 21 */	{ 21,				"Unassigned" },
+/* 22 */	{ 22,				"Unassigned" },
+/* 23 */	{ 23,				"Unassigned" },
+/* 24 */	{ 24,				"Unassigned" },
+/* 25 */	{ PT_CELB,			"Sun CellB video encoding" },
+/* 26 */	{ PT_JPEG,			"JPEG-compressed video" },
+/* 27 */	{ 27,				"Unassigned" },
+/* 28 */	{ PT_NV,			"'nv' program" },
+/* 29 */	{ 29,				"Unassigned" },
+/* 30 */	{ 30,				"Unassigned" },
+/* 31 */	{ PT_H261,			"ITU-T H.261" },
+/* 32 */	{ PT_MPV,			"MPEG-I/II Video"},
+/* 33 */	{ PT_MP2T,			"MPEG-II transport streams"},
+/* 34 */	{ PT_H263,			"ITU-T H.263" },
+/* 35-71     Unassigned  */
+/* 35 */	{ 35,				"Unassigned" },
+/* 36 */	{ 36,				"Unassigned" },
+/* 37 */	{ 37,				"Unassigned" },
+/* 38 */	{ 38,				"Unassigned" },
+/* 39 */	{ 39,				"Unassigned" },
+/* 40 */	{ 40,				"Unassigned" },
+/* 41 */	{ 41,				"Unassigned" },
+/* 42 */	{ 42,				"Unassigned" },
+/* 43 */	{ 43,				"Unassigned" },
+/* 44 */	{ 44,				"Unassigned" },
+/* 45 */	{ 45,				"Unassigned" },
+/* 46 */	{ 46,				"Unassigned" },
+/* 47 */	{ 47,				"Unassigned" },
+/* 48 */	{ 48,				"Unassigned" },
+/* 49 */	{ 49,				"Unassigned" },
+/* 50 */	{ 50,				"Unassigned" },
+/* 51 */	{ 51,				"Unassigned" },
+/* 52 */	{ 52,				"Unassigned" },
+/* 53 */	{ 53,				"Unassigned" },
+/* 54 */	{ 54,				"Unassigned" },
+/* 55 */	{ 55,				"Unassigned" },
+/* 56 */	{ 56,				"Unassigned" },
+/* 57 */	{ 57,				"Unassigned" },
+/* 58 */	{ 58,				"Unassigned" },
+/* 59 */	{ 59,				"Unassigned" },
+/* 60 */	{ 60,				"Unassigned" },
+/* 61 */	{ 61,				"Unassigned" },
+/* 62 */	{ 62,				"Unassigned" },
+/* 63 */	{ 63,				"Unassigned" },
+/* 64 */	{ 64,				"Unassigned" },
+/* 65 */	{ 65,				"Unassigned" },
+/* 66 */	{ 66,				"Unassigned" },
+/* 67 */	{ 67,				"Unassigned" },
+/* 68 */	{ 68,				"Unassigned" },
+/* 69 */	{ 69,				"Unassigned" },
+/* 70 */	{ 70,				"Unassigned" },
+/* 71 */	{ 71,				"Unassigned" },
+/* 72-76     Reserved for RTCP conflict avoidance                                  [RFC3551] */
+/* 72 */	{ 72,				"Reserved for RTCP conflict avoidance" },
+/* 73 */	{ 73,				"Reserved for RTCP conflict avoidance" },
+/* 74 */	{ 74,				"Reserved for RTCP conflict avoidance" },
+/* 75 */	{ 75,				"Reserved for RTCP conflict avoidance" },
+/* 76 */	{ 76,				"Reserved for RTCP conflict avoidance" },
+/* 77-95     Unassigned      ? */
+/* 77 */	{ 77,				"Unassigned" },
+/* 78 */	{ 78,				"Unassigned" },
+/* 79 */	{ 79,				"Unassigned" },
+/* 80 */	{ 80,				"Unassigned" },
+/* 81 */	{ 81,				"Unassigned" },
+/* 82 */	{ 82,				"Unassigned" },
+/* 83 */	{ 83,				"Unassigned" },
+/* 84 */	{ 84,				"Unassigned" },
+/* 85 */	{ 85,				"Unassigned" },
+/* 86 */	{ 86,				"Unassigned" },
+/* 87 */	{ 87,				"Unassigned" },
+/* 88 */	{ 88,				"Unassigned" },
+/* 89 */	{ 89,				"Unassigned" },
+/* 90 */	{ 90,				"Unassigned" },
+/* 91 */	{ 91,				"Unassigned" },
+/* 90 */	{ 90,				"Unassigned" },
+/* 91 */	{ 91,				"Unassigned" },
+/* 92 */	{ 92,				"Unassigned" },
+/* 93 */	{ 93,				"Unassigned" },
+/* 94 */	{ 94,				"Unassigned" },
+/* 95 */	{ 95,				"Unassigned" },
  	/* Alex Lindberg - Added to support addtional RTP payload types
  	See epan/rtp_pt.h */
 	{ PT_UNDF_96,	"DynamicRTP-Type-96" },
@@ -343,7 +417,9 @@ const value_string rtp_payload_type_vals[] =
 	{ 0,		NULL },
 };
 
-const value_string rtp_payload_type_short_vals[] =
+value_string_ext rtp_payload_type_vals_ext = VALUE_STRING_EXT_INIT(rtp_payload_type_vals);
+
+static const value_string rtp_payload_type_short_vals[] =
 {
 	{ PT_PCMU,      "g711U" },
 	{ PT_1016,      "fs-1016" },
@@ -365,14 +441,87 @@ const value_string rtp_payload_type_short_vals[] =
 	{ PT_DVI4_22050, "DVI4 22k" },
 	{ PT_G729,      "g729" },
 	{ PT_CN_OLD,    "CN(old)" },
+/* 20 */	{ 20,				"Unassigned" },
+/* 21 */	{ 21,				"Unassigned" },
+/* 22 */	{ 22,				"Unassigned" },
+/* 23 */	{ 23,				"Unassigned" },
+/* 24 */	{ 24,				"Unassigned" },
 	{ PT_CELB,      "CellB" },
 	{ PT_JPEG,      "JPEG" },
+/* 27 */	{ 27,				"Unassigned" },
 	{ PT_NV,        "NV" },
+/* 29 */	{ 29,				"Unassigned" },
+/* 30 */	{ 30,				"Unassigned" },
 	{ PT_H261,      "h261" },
 	{ PT_MPV,       "MPEG-I/II Video"},
 	{ PT_MP2T,      "MPEG-II streams"},
 	{ PT_H263,      "h263" },
-
+/* 35-71     Unassigned  */
+/* 35 */	{ 35,				"Unassigned" },
+/* 36 */	{ 36,				"Unassigned" },
+/* 37 */	{ 37,				"Unassigned" },
+/* 38 */	{ 38,				"Unassigned" },
+/* 39 */	{ 39,				"Unassigned" },
+/* 40 */	{ 40,				"Unassigned" },
+/* 41 */	{ 41,				"Unassigned" },
+/* 42 */	{ 42,				"Unassigned" },
+/* 43 */	{ 43,				"Unassigned" },
+/* 44 */	{ 44,				"Unassigned" },
+/* 45 */	{ 45,				"Unassigned" },
+/* 46 */	{ 46,				"Unassigned" },
+/* 47 */	{ 47,				"Unassigned" },
+/* 48 */	{ 48,				"Unassigned" },
+/* 49 */	{ 49,				"Unassigned" },
+/* 50 */	{ 50,				"Unassigned" },
+/* 51 */	{ 51,				"Unassigned" },
+/* 52 */	{ 52,				"Unassigned" },
+/* 53 */	{ 53,				"Unassigned" },
+/* 54 */	{ 54,				"Unassigned" },
+/* 55 */	{ 55,				"Unassigned" },
+/* 56 */	{ 56,				"Unassigned" },
+/* 57 */	{ 57,				"Unassigned" },
+/* 58 */	{ 58,				"Unassigned" },
+/* 59 */	{ 59,				"Unassigned" },
+/* 60 */	{ 60,				"Unassigned" },
+/* 61 */	{ 61,				"Unassigned" },
+/* 62 */	{ 62,				"Unassigned" },
+/* 63 */	{ 63,				"Unassigned" },
+/* 64 */	{ 64,				"Unassigned" },
+/* 65 */	{ 65,				"Unassigned" },
+/* 66 */	{ 66,				"Unassigned" },
+/* 67 */	{ 67,				"Unassigned" },
+/* 68 */	{ 68,				"Unassigned" },
+/* 69 */	{ 69,				"Unassigned" },
+/* 70 */	{ 70,				"Unassigned" },
+/* 71 */	{ 71,				"Unassigned" },
+/* 72-76     Reserved for RTCP conflict avoidance                                  [RFC3551] */
+/* 72 */	{ 72,				"Reserved for RTCP conflict avoidance" },
+/* 73 */	{ 73,				"Reserved for RTCP conflict avoidance" },
+/* 74 */	{ 74,				"Reserved for RTCP conflict avoidance" },
+/* 75 */	{ 75,				"Reserved for RTCP conflict avoidance" },
+/* 76 */	{ 76,				"Reserved for RTCP conflict avoidance" },
+/* 77-95     Unassigned      ? */
+/* 77 */	{ 77,				"Unassigned" },
+/* 78 */	{ 78,				"Unassigned" },
+/* 79 */	{ 79,				"Unassigned" },
+/* 80 */	{ 80,				"Unassigned" },
+/* 81 */	{ 81,				"Unassigned" },
+/* 82 */	{ 82,				"Unassigned" },
+/* 83 */	{ 83,				"Unassigned" },
+/* 84 */	{ 84,				"Unassigned" },
+/* 85 */	{ 85,				"Unassigned" },
+/* 86 */	{ 86,				"Unassigned" },
+/* 87 */	{ 87,				"Unassigned" },
+/* 88 */	{ 88,				"Unassigned" },
+/* 89 */	{ 89,				"Unassigned" },
+/* 90 */	{ 90,				"Unassigned" },
+/* 91 */	{ 91,				"Unassigned" },
+/* 90 */	{ 90,				"Unassigned" },
+/* 91 */	{ 91,				"Unassigned" },
+/* 92 */	{ 92,				"Unassigned" },
+/* 93 */	{ 93,				"Unassigned" },
+/* 94 */	{ 94,				"Unassigned" },
+/* 95 */	{ 95,				"Unassigned" },
  	/* Alex Lindberg - Short RTP types */
 	{ PT_UNDF_96,	"RTPType-96" },
 	{ PT_UNDF_97,	"RTPType-97" },
@@ -409,6 +558,8 @@ const value_string rtp_payload_type_short_vals[] =
 
 	{ 0,            NULL },
 };
+value_string_ext rtp_payload_type_short_vals_ext = VALUE_STRING_EXT_INIT(rtp_payload_type_short_vals);
+
 #if 0
 static const value_string srtp_encryption_alg_vals[] =
 {
@@ -951,11 +1102,11 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		proto_tree_add_item(rfc2198_hdr_tree, hf_rtp_rfc2198_follow, tvb, offset, 1, FALSE );
 		proto_tree_add_uint_format(rfc2198_hdr_tree, hf_rtp_payload_type, tvb,
 		    offset, 1, octet1, "Payload type: %s (%u)",
-			payload_type_str ? payload_type_str : val_to_str(hdr_new->pt, rtp_payload_type_vals, "Unknown"),
+			payload_type_str ? payload_type_str : val_to_str_ext(hdr_new->pt, &rtp_payload_type_vals_ext, "Unknown"),
 			hdr_new->pt);
 		proto_item_append_text(ti, ": PT=%s",
 				       payload_type_str ? payload_type_str :
-				                          val_to_str(hdr_new->pt, rtp_payload_type_vals, "Unknown (%u)"));
+				                          val_to_str_ext(hdr_new->pt, &rtp_payload_type_vals_ext, "Unknown (%u)"));
 		offset += 1;
 
 		/* Timestamp offset and block length don't apply to last header */
@@ -1178,7 +1329,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 	col_add_fstr( pinfo->cinfo, COL_INFO,
 	    "PT=%s, SSRC=0x%X, Seq=%u, Time=%u%s",
-		payload_type_str ? payload_type_str : val_to_str( payload_type, rtp_payload_type_vals,"Unknown (%u)" ),
+		payload_type_str ? payload_type_str : val_to_str_ext( payload_type, &rtp_payload_type_vals_ext,"Unknown (%u)" ),
 	    sync_src,
 	    seq_num,
 	    timestamp,
@@ -1212,7 +1363,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 		item = proto_tree_add_uint_format( rtp_tree, hf_rtp_payload_type, tvb,
 		    offset, 1, octet2, "Payload type: %s (%u)",
-			payload_type_str ? payload_type_str : val_to_str( payload_type, rtp_payload_type_vals,"Unknown"),
+			payload_type_str ? payload_type_str : val_to_str_ext( payload_type, &rtp_payload_type_vals_ext,"Unknown"),
 			payload_type);
 
 		offset++;
