@@ -312,9 +312,9 @@ draw_nr_sack_graph(struct sctp_udata *u_data)
 {
 	tsn_t *sack;
 	GList *list=NULL, *tlist;
-	guint16 gap_start=0, gap_end=0, i, j, numberOf_gaps, numberOf_nr_gaps;
+	guint16 gap_start=0, gap_end=0, i, numberOf_gaps, numberOf_nr_gaps;
 	guint8 type;
-	guint32 tsnumber;
+	guint32 tsnumber, j;
 	gint xvalue, yvalue;
 	GdkColor red_color = {0, 65535, 0, 0};
 	GdkColor blue_color = {0, 0, 0, 65535};
