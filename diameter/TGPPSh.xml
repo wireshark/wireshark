@@ -13,10 +13,10 @@
 
 		<!-- ************************** 3GPP Sh AVPS ********************* -->
 		<avp name="User-Identity" code="700" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
-                        <grouped>
-                                <gavp name="Public-Identity"/>
-                                <gavp name="MSISDN"/>
-                        </grouped>
+      <grouped>
+              <gavp name="Public-Identity"/>
+              <gavp name="MSISDN"/>
+      </grouped>
 		</avp>
 		<avp name="MSISDN" code="701" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="OctetString"/>
@@ -26,42 +26,48 @@
 		</avp>
 		<avp name="Data-Reference" code="703" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="Unsigned32"/>
-                        <enum name="RepositoryData" code="0"/>
-                        <enum name="IMSPublicIdentity" code="10"/>
-                        <enum name="IMSUserState" code="11"/>
-                        <enum name="S-CSCFName" code="12"/>
-                        <enum name="InitialFilterCriteria" code="13"/>
-                        <enum name="LocationInformation" code="14"/>
-                        <enum name="UserState" code="15"/>
-                        <enum name="ChargingInformation" code="16"/>
-                        <enum name="MSISDN" code="17"/>
-                        <enum name="PSIActivation" code="18"/>
-		</avp>
+      <enum name="RepositoryData" code="0"/>
+      <enum name="IMSPublicIdentity" code="10"/>
+      <enum name="IMSUserState" code="11"/>
+      <enum name="S-CSCFName" code="12"/>
+      <enum name="InitialFilterCriteria" code="13"/>
+      <enum name="LocationInformation" code="14"/>
+      <enum name="UserState" code="15"/>
+      <enum name="ChargingInformation" code="16"/>
+      <enum name="MSISDN" code="17"/>
+      <enum name="PSIActivation" code="18"/>
+      <enum name="DSAI" code="19"/>
+      <enum name="ServiceLevelTraceInfo" code="21"/>
+      <enum name="IPAddressSecureBindingInformation" code="22"/>
+      <enum name="ServicePriorityLevel" code="23"/>
+      <enum name="SMSRegistrationInfo" code="24"/>
+      <enum name="UEReachabilityForIP" code="25"/>
+      <enum name="TADSinformation" code="26"/>
+    </avp>
 		<avp name="Service-Indication" code="704" mandatory="must" vendor-bit="mustnot" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Subs-Req-Type" code="705" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="Unsigned32"/>
-                        <enum name="Subscribe" code="0"/>
-                        <enum name="Unsubscribe" code="1"/>
+      <enum name="Subscribe" code="0"/>
+      <enum name="Unsubscribe" code="1"/>
 		</avp>
 		<avp name="Requested-Domain" code="706" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="Unsigned32"/>
-                        <enum name="CS-Domain" code="0"/>
-                        <enum name="PS-Domain" code="1"/>
+      <enum name="CS-Domain" code="0"/>
+      <enum name="PS-Domain" code="1"/>
 		</avp>
 		<avp name="Current-Location" code="707" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="Unsigned32"/>
-                        <enum name="DoNotNeedInitiateActiveLocationRetrieval" code="0"/>
-                        <enum name="InitiateActiveLocationRetrieval" code="1"/>
+      <enum name="DoNotNeedInitiateActiveLocationRetrieval" code="0"/>
+      <enum name="InitiateActiveLocationRetrieval" code="1"/>
 		</avp>
 		<avp name="Identity-Set" code="708" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="Unsigned32"/>
-                        <enum name="ALL_IDENTITIES" code="0"/>
-                        <enum name="REGISTERED_IDENTITIES" code="1"/>
-                        <enum name="IMPLICIT_IDENTITIES" code="2"/>
+      <enum name="ALL_IDENTITIES" code="0"/>
+      <enum name="REGISTERED_IDENTITIES" code="1"/>
+      <enum name="IMPLICIT_IDENTITIES" code="2"/>
 		</avp>
-
 		<avp name="Expiry-Time" code="709" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
       <type type-name="Time"/>
     </avp>
@@ -71,9 +77,15 @@
 		<avp name="DSAI-Tag" code="711" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
       <type type-name="OctetString"/>
     </avp>
-<!-- 
-712	One-Time-Notification	Enumerated
--->
+    <avp name="One-Time-Notification" code="713" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="ONE_TIME_NOTIFICATION_REQUESTED" code="0"/>
+    </avp>
+    <avp name="Requested-Nodes" code="714" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+      <type type-name="Unsigned32"/>
+    </avp>
+
+    <!-- Note: The AVP codes from 714 to799 are reserved for TS 29.329. -->
 		<!-- ************************ END 3GPP Sh AVPS ******************* -->
 
 	</application>

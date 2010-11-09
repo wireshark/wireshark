@@ -408,7 +408,7 @@ dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset)
 		                                     "if you know what this is you can add it to dictionary.xml");
 		expert_add_info_format(c->pinfo, iu, PI_UNDECODED, PI_WARN,
 		                       "Unknown AVP %u (vendor=%s)", code,
-		                       val_to_str(vendorid, vnd_short_vs, "Unknown"));
+		                       val_to_str_ext(vendorid, &sminmpec_values_ext, "Unknown"));
 		PROTO_ITEM_SET_GENERATED(iu);
 	}
 
@@ -1142,19 +1142,19 @@ build_simple_avp(const avp_type_t* type, guint32 code, const diam_vnd_t* vendor,
 static const avp_type_t basic_types[] = {
 	{"octetstring"				, simple_avp	, simple_avp	, FT_BYTES			, BASE_NONE	, build_simple_avp  },
 	{"utf8string"				, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE	, build_simple_avp  },
-	{"grouped"				, grouped_avp	, grouped_avp	, FT_BYTES			, BASE_NONE	, build_simple_avp  },
+	{"grouped"					, grouped_avp	, grouped_avp	, FT_BYTES			, BASE_NONE	, build_simple_avp  },
 	{"integer32"				, simple_avp	, simple_avp	, FT_INT32			, BASE_DEC	, build_simple_avp  },
 	{"unsigned32"				, unsigned32_avp, unsigned32_avp, FT_UINT32			, BASE_DEC	, build_simple_avp  },
 	{"integer64"				, simple_avp	, simple_avp	, FT_INT64			, BASE_DEC	, build_simple_avp  },
 	{"unsigned64"				, simple_avp	, simple_avp	, FT_UINT64			, BASE_DEC	, build_simple_avp  },
-	{"float32"				, simple_avp	, simple_avp	, FT_FLOAT			, BASE_NONE	, build_simple_avp  },
-	{"float64"				, simple_avp	, simple_avp	, FT_DOUBLE			, BASE_NONE	, build_simple_avp  },
-	{"ipaddress"				,  NULL		, NULL		, FT_NONE			, BASE_NONE	, build_address_avp },
+	{"float32"					, simple_avp	, simple_avp	, FT_FLOAT			, BASE_NONE	, build_simple_avp  },
+	{"float64"					, simple_avp	, simple_avp	, FT_DOUBLE			, BASE_NONE	, build_simple_avp  },
+	{"ipaddress"				,  NULL			, NULL			, FT_NONE			, BASE_NONE	, build_address_avp },
 	{"diameteruri"				, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE	, build_simple_avp  },
 	{"diameteridentity"			, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE	, build_simple_avp  },
 	{"ipfilterrule"				, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE	, build_simple_avp  },
 	{"qosfilterrule"			, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE	, build_simple_avp  },
-	{"time"					, time_avp	, time_avp	, FT_UINT32			, BASE_DEC	, build_simple_avp  },
+	{"time"						, time_avp		, time_avp	, FT_UINT32			, BASE_DEC	, build_simple_avp  },
 	{NULL, NULL, NULL, FT_NONE, BASE_NONE, NULL }
 };
 
