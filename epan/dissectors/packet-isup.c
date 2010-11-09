@@ -2124,7 +2124,7 @@ dissect_isup_backward_call_indicators_parameter(tvbuff_t *parameter_tvb,proto_tr
  * dissector, as that has some values not specified by the standard but
  * that appear to be used for purposes other than the ones in Q.850.
  */
-  /* The table is "filed" with "unassigned" to make full use of value_string_ext */
+  /* The table is "filled" with "unassigned" to make full use of value_string_ext */
 static const value_string q850_cause_code_vals[] = {
   { 0x00,  "Valid cause code not yet received" },
   { 0x01,  "Unallocated (unassigned) number" },
@@ -2186,7 +2186,7 @@ static const value_string q850_cause_code_vals[] = {
   { 0x39,  "Bearer capability not authorized" },
   { 0x3A,  "Bearer capability not presently available" },
   { 0x3B,  "Unassigned" },
-  { 0x3B,  "Unassigned" },
+  { 0x3C,  "Unassigned" },
   { 0x3D,  "Unassigned" },
   { 0x3E,  "Inconsistency in designated outgoing access information and subscriber class" },
   { 0x3F,  "Service or option not available, unspecified" },
@@ -2204,6 +2204,7 @@ static const value_string q850_cause_code_vals[] = {
   { 0x4B,  "Unassigned" },
   { 0x4C,  "Unassigned" },
   { 0x4D,  "Unassigned" },
+  { 0x4E,  "Unassigned" },
   { 0x4F,  "Service or option not implemented, unspecified" },
   { 0x50,  "Unassigned" },
   { 0x51,  "Invalid call reference value" },
@@ -2303,15 +2304,16 @@ static const value_string ansi_isup_cause_code_vals[] = {
   { 0x2A,  "Switching equipment congestion" },
   { 0x2B,  "Access information discarded" },
   { 0x2C,  "Requested circuit/channel not available" },
-  { 0x2d,  "Preemption" },
+  { 0x2D,  "Preemption" },
   { 0x2E,  "Precedence call blocked" },
   { 0x2F,  "Resources unavailable, unspecified" },
+  { 0x30,  "Unassigned" },
   { 0x31,  "Quality of service unavailable" },
   { 0x32,  "Requested facility not subscribed" },
   { 0x33,  "Call type incompatible with service request" },
   { 0x34,  "Unassigned" },
   { 0x35,  "Outgoing calls barred within CUG" },
-  {   54,  "Call blocked due to group restriction" },
+  { 0x36,  "Call blocked due to group restriction" },
   { 0x37,  "Incoming calls barred within CUG" },
   { 0x38,  "Call waiting not subscribed" },
   { 0x39,  "Bearer capability not authorized" },
@@ -2335,6 +2337,7 @@ static const value_string ansi_isup_cause_code_vals[] = {
   { 0x4B,  "Unassigned" },
   { 0x4C,  "Unassigned" },
   { 0x4D,  "Unassigned" },
+  { 0x4E,  "Unassigned" },
   { 0x4F,  "Service or option not implemented, unspecified" },
   { 0x50,  "Unassigned" },
   { 0x51,  "Invalid call reference value" },
