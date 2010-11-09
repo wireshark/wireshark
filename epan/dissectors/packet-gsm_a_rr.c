@@ -2892,6 +2892,8 @@ static const value_string gsm_a_rr_amr_threshold_vals[] = {
     { 0, NULL }
 };
 
+static value_string_ext gsm_a_rr_amr_threshold_vals_ext = VALUE_STRING_EXT_INIT(gsm_a_rr_amr_threshold_vals);
+
 static const value_string gsm_a_rr_amr_hysteresis_vals[] = {
     {  0, "0.0 dB"},
     {  1, "0.5 dB"},
@@ -10181,7 +10183,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_amr_threshold,
               { "AMR Threshold", "gsm_a.rr.amr_threshold",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_amr_threshold_vals), 0x00,
+		FT_UINT8, BASE_DEC|BASE_EXT_STRING,  &gsm_a_rr_amr_threshold_vals_ext, 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_amr_hysteresis,
