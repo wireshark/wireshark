@@ -332,7 +332,7 @@ the first packet after that is selected.
 
 =item -j
 
-Use after B<-J> to change the behaviour when no exact match is found for
+Use after B<-J> to change the behavior when no exact match is found for
 the filter. With this option select the first packet before.
 
 =item -k
@@ -616,7 +616,7 @@ If the optional I<filter> is provided, the stats will only be calculated
 on those calls that match that filter.
 
 Example: B<-z "smb,srt,ip.addr==1.2.3.4"> will collect stats only for
-SMB packets echanged by the host at IP address 1.2.3.4 .
+SMB packets exchanged by the host at IP address 1.2.3.4 .
 
 =item B<-z> fc,srt[,I<filter>]
 
@@ -658,7 +658,7 @@ If the optional I<filter> is provided, the stats will only be calculated
 on those calls that match that filter.
 
 Example: use B<-z "ldap,srt,ip.addr==10.1.1.1"> will collect stats only for
-LDAP packets echanged by the host at IP address 10.1.1.1 .
+LDAP packets exchanged by the host at IP address 10.1.1.1 .
 
 The only LDAP commands that are currently implemented and for which the stats will be available are:
 BIND
@@ -733,7 +733,7 @@ conversation type from the menu "Tools/Statistics/Conversation List/".
 
 Count ITU-T H.225 messages and their reasons. In the first column you get a
 list of H.225 messages and H.225 message reasons which occur in the current
-capture file. The number of occurences of each message or reason is displayed
+capture file. The number of occurrences of each message or reason is displayed
 in the second column.
 
 Example: B<-z h225,counter>
@@ -761,13 +761,13 @@ This option can be used multiple times on the command line.
 If the optional I<filter> is provided, the stats will only be calculated
 on those calls that match that filter.
 
-Example: B<-z "h225,srt,ip.addr==1.2.3.4"> willcollect stats only for
+Example: B<-z "h225,srt,ip.addr==1.2.3.4"> will collect stats only for
 ITU-T H.225 RAS packets exchanged by the host at IP address 1.2.3.4 .
 
 =item B<-z> sip,stat[I<,filter>]
 
 This option will activate a counter for SIP messages. You will get the number
-of occurences of each SIP Method and of each SIP Status-Code. Additionally you
+of occurrences of each SIP Method and of each SIP Status-Code. Additionally you
 also get the number of resent SIP Messages (only for SIP over UDP).
 
 Example: B<-z sip,stat>
@@ -1127,7 +1127,7 @@ or F</tmp>.
 =item Capture:Start
 
 Start a live packet capture with the previously selected options. This won't
-open the options dialog box, and can be convenient for repeatingly capturing
+open the options dialog box, and can be convenient for repeatedly capturing
 with the same options.
 
 =item Capture:Stop
@@ -1137,7 +1137,7 @@ Stop a running live capture.
 =item Capture:Restart
 
 While a live capture is running, stop it and restart with the same options
-again. This can be convenient to remove unrelevant packets, if no valuable
+again. This can be convenient to remove irrelevant packets, if no valuable
 packets were captured so far.
 
 =item Capture:Capture Filters
@@ -1347,7 +1347,7 @@ single display filter field can be specified.
 The following restrictions apply to type and field combinations:
 
 SUM: available for all types of integers and will calculate the SUM of
-all occurences of this field in the measurement interval.  Note that
+all occurrences of this field in the measurement interval.  Note that
 some field can occur multiple times in the same packet and then all
 instances will be summed up.  Example: 'tcp.len' which will count the
 amount of payload data transferred across TCP in each interval.
@@ -1401,7 +1401,7 @@ Set first graph to
 
 LOAD:
 The LOAD io-stat type is very different from anything you have ever seen
-before! While the response times themself as plotted by MIN,MAX,AVG are
+before! While the response times themselves as plotted by MIN,MAX,AVG are
 indications on the Server load (which affects the Server response time),
 the LOAD measurement measures the Client LOAD.
 What this measures is how much workload the client generates,
@@ -1639,7 +1639,7 @@ ONC-RPC Programs/versions that exist in the capture file.
 
 =item Statistics:TCP Stream Graph
 
-Graphs: Round Trip; Thoughput; Time-Sequence (Stevens); Time-Sequence (tcptrace)
+Graphs: Round Trip; Throughput; Time-Sequence (Stevens); Time-Sequence (tcptrace)
 
 =item Statistics:UDP Multicast streams
 
@@ -1647,13 +1647,13 @@ Multicast Streams Counts/Rates/... by Source/Destination Address/Port pairs
 
 =item Statistics:WLAN Traffic
 
-WLAn Traffic Statistics
+WLAN Traffic Statistics
 
 =item Telephony:ITU-T H.225
 
 Count ITU-T H.225 messages and their reasons. In the first column you get a
 list of H.225 messages and H.225 message reasons, which occur in the current
-capture file. The number of occurences of each message or reason will be displayed
+capture file. The number of occurrences of each message or reason will be displayed
 in the second column.
 This window opened will update in semi-real time to reflect changes when
 doing live captures or when reading new capture files into B<Wireshark>.
@@ -1664,7 +1664,7 @@ on those calls matching that filter.
 
 =item Telephony:SIP
 
-Activate a counter for SIP messages. You will get the number of occurences of each
+Activate a counter for SIP messages. You will get the number of occurrences of each
 SIP Method and of each SIP Status-Code. Additionally you also get the number of
 resent SIP Messages (only for SIP over UDP).
 
@@ -1860,14 +1860,14 @@ the user is presented the option to save the file when this item is set.
 
 =item Wrap during find
 
-This items determines the behaviour when reaching the beginning or the end
+This items determines the behavior when reaching the beginning or the end
 of a capture file. When set the search wraps around and continues, otherwise
 it stops.
 
 =item Settings dialogs show a save button
 
 This item determines if the various dialogs sport an explicit Save button
-or that save is implicit in Ok / Apply.
+or that save is implicit in OK / Apply.
 
 =item Web browser command
 
@@ -2247,7 +2247,7 @@ I<Update list of packets in real time> option is checked.
 
 The I<Next file every ...  megabyte(s)> check box and fields lets
 you specify that a switch to a next file should be done
-if the specified filesize is reached. You can also select the appriate
+if the specified filesize is reached. You can also select the appropriate
 unit, but beware that the filesize has a maximum of 2 GB.
 The check box is forced to be checked, as "multiple files" mode requires a
 file size to be specified.
