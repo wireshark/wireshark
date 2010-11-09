@@ -871,7 +871,7 @@ MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 9.0\VC\redist\$(VCREDIST_DLL)
 # and copy it to the lib folder!!!
 VCREDIST_EXE=$(WIRESHARK_LIBS)\vcredist_$(TARGET_MACHINE).exe
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2010"
-MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 10.0\VC\redist\$(TARGET_MACHINE)\Microsoft.VC100.CRT*.*
+MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 10.0\VC\redist\$(TARGET_MACHINE)\Microsoft.VC100.CRT\*.*
 
 !ELSE
 !ERROR MSVC_VARIANT unknown
