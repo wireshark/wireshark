@@ -1490,7 +1490,8 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n",name,impl
 	if(hf_id >= 0){
 		/*  */
 		if(len < 1 || len > 8) {
-			proto_tree_add_text(tree, tvb, offset-len, len, "Can't handle integer length: %u", len);
+			proto_item *pi = proto_tree_add_text(tree, tvb, offset-len, len, "Can't handle integer length: %u", len);
+			expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "BER Error: Illegal integer length: %u", len);
 		} else {
 			header_field_info* hfi;
 
