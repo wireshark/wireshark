@@ -178,8 +178,8 @@ packet, and prepend a dummy SCTP DATA chunk header with a payload
 protocol identifier if I<ppi>.  Use this option if your dump is the SCTP
 payload of a packet but does not include any SCTP, IP or Ethernet
 headers.  Note that appropriate Ethernet and IP headers are 
-automatcally included with each packet.  A CRC32C checksum will be put into the
-SCTP header.
+automatically included with each packet.  A CRC32C checksum will be put
+into the SCTP header.
 
 =item -t E<lt>timefmtE<gt>
 

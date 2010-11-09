@@ -105,7 +105,7 @@ to standard out.  This verbose output (specifically the MD5 hash strings)
 can be useful in scripts to identify duplicate packets across trace
 files.
 
-The <dup window> is specifed as an integer value between 0 and 1000000 (inclusive).
+The <dup window> is specified as an integer value between 0 and 1000000 (inclusive).
 
 NOTE: Specifying large <dup window> values with large tracefiles can
 result in very long processing times for B<editcap>.
@@ -119,7 +119,7 @@ and the packet length and MD5 hash of the current packet are the same then
 the packet to skipped.  The duplicate comparison test stops when
 the current packet's relative arrival time is greater than <dup time window>.
 
-The <dup time window> is specifed as I<seconds>[I<.fractional seconds>].
+The <dup time window> is specified as I<seconds>[I<.fractional seconds>].
 
 The [.fractional seconds] component can be specified to nine (9) decimal
 places (billionths of a second) but most typical trace files have resolution
@@ -134,7 +134,7 @@ removal option may not identify some duplicates.
 
 =item -E  E<lt>error probabilityE<gt>
 
-Sets the probabilty that bytes in the output file are randomly changed.
+Sets the probability that bytes in the output file are randomly changed.
 B<Editcap> uses that probability (between 0.0 and 1.0 inclusive) 
 to apply errors to each data byte in the file.  For instance, a 
 probability of 0.02 means that each byte has a 2% chance of having an error.

@@ -297,7 +297,7 @@ have the same number of bytes as the slice itself, as in:
 =head2 Logical expressions
 
 Tests can be combined using logical expressions. 
-These too are expressable in C-like syntax or with English-like
+These too are expressible in C-like syntax or with English-like
 abbreviations:
 
     and, &&   Logical AND
@@ -366,7 +366,7 @@ packets as well, you can use one of the following two expressions:
 The first filter uses "not ip" to include all non-IP packets and then
 lets "ip.dst ne 224.1.2.3" filter out the unwanted IP packets. The
 second filter has already been explained above where filtering with
-multiply occuring fields was discussed.
+multiply occurring fields was discussed.
 
 =head1 FILTER FIELD REFERENCE
 
