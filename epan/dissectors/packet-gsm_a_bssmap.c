@@ -6750,7 +6750,7 @@ proto_register_gsm_a_bssmap(void)
     },
     { &hf_fe_target_radio_cell_info_rxlev_ncell,
     { "RXLEV-NCELL", "fe_target_radio_cell_info.rxlev_ncell",
-        FT_UINT8, BASE_HEX, VALS(gsm_a_rr_rxlev_vals), 0x3f,
+        FT_UINT8, BASE_HEX|BASE_EXT_STRING, &gsm_a_rr_rxlev_vals_ext, 0x3f,
         NULL, HFILL }
     },
     { &hf_fe_target_radio_cell_info_rxlev_ncell_spare,

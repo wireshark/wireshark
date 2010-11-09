@@ -2685,6 +2685,7 @@ static const value_string gsm_a_rr_ncell_vals [] = {
     {0, NULL}
 };
 
+
 guint16
 de_rr_meas_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -7032,7 +7033,7 @@ de_rr_ext_meas_result(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
     for (i=0; i<21; i++)
     {
         value = tvb_get_bits8(tvb,bit_offset,6);
-        proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "RXLEV carrier %d: %s (%d)",i,gsm_a_rr_rxlev_vals[value].strptr,value);
+        proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "RXLEV carrier %d: %s (%d)",i,val_to_str_ext(value, &gsm_a_rr_rxlev_vals_ext, "Unknown"),value);
         bit_offset += 6;
     }
 
@@ -9819,12 +9820,12 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_rxlev_full_serv_cell,
               { "RXLEV-FULL-SERVING-CELL","gsm_a.rr.rxlev_full_serv_cell",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_rxlev_vals), 0x00,
+		FT_UINT8,BASE_DEC|BASE_EXT_STRING,  &gsm_a_rr_rxlev_vals_ext, 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_rxlev_sub_serv_cell,
               { "RXLEV-SUB-SERVING-CELL","gsm_a.rr.rxlev_sub_serv_cell",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_rxlev_vals), 0x3f,
+		FT_UINT8,BASE_DEC|BASE_EXT_STRING,  &gsm_a_rr_rxlev_vals_ext, 0x3f,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_rxqual_full_serv_cell,
@@ -10230,7 +10231,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_rxlev_access_min,
               { "RXLEV-ACCESS-MIN", "gsm_a.rr.rxlev_access_min",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_rxlev_vals), 0x3f,
+		FT_UINT8, BASE_DEC|BASE_EXT_STRING,  &gsm_a_rr_rxlev_vals_ext, 0x3f,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_mscr,

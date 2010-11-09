@@ -460,7 +460,7 @@ static const value_string e_utra_meas_and_report_support_vals[] = {
 	{ 0, NULL}
 };
 
-const value_string gsm_a_rr_rxlev_vals [] = {
+static const value_string gsm_a_rr_rxlev_vals [] = {
     { 0, "< -110 dBm"},
     { 1, "-110 <= x < -109 dBm"},
     { 2, "-109 <= x < -108 dBm"},
@@ -527,6 +527,8 @@ const value_string gsm_a_rr_rxlev_vals [] = {
     {63, ">= -48 dBm"},
     { 0, NULL}
 };
+
+value_string_ext gsm_a_rr_rxlev_vals_ext = VALUE_STRING_EXT_INIT(gsm_a_rr_rxlev_vals);
 
 /* Initialize the protocol and registered fields */
 static int proto_a_common = -1;
