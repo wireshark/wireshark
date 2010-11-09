@@ -1125,7 +1125,7 @@ Copyright (C) 2005 Free Software Foundation, Inc.]]>
     <para>Python is an interpreter based programming language. The
     homepage of the python project is:
     <ulink url="http://python.org/" />. Python is used to generate
-    some source files. Python 2.4 to 2.6 should work fine.
+    some source files. Python 2.4 to 2.7 should work fine.
     </para>
     <section id="ChToolsUnixPython">
       <title>UNIX or Win32 Cygwin: python</title>
@@ -1148,24 +1148,24 @@ Copyright (C) 2005 Free Software Foundation, Inc.]]>
     </section>
     <section id="ChToolsWin32Python">
       <title>Win32 native: python</title>
-      <para>Get Python 2.6, 2.5, or 2.4 from
+      <para>Get Python 2.7, 2.6, 2.5, or 2.4 from
       <ulink url="http://python.org/download/" />.
       You can download an installation package there, which
       will install the Python system in the top level of your
       <filename>C:</filename> drive by default, e.g.
-      <filename>C:\Python26</filename>.</para>
+      <filename>C:\Python27</filename>.</para>
       <para>You can check for a successful installation from a command prompt (cmd.exe):</para>
       <para>
         <prompt>C:\&gt;</prompt>
-        <userinput>cd python26</userinput>
+        <userinput>cd python27</userinput>
       </para>
       <para>
-        <prompt>C:\Python26&gt;</prompt>
+        <prompt>C:\Python27&gt;</prompt>
         <userinput>python -V</userinput>
       </para>
       <para>The output should look something like:
       <programlisting>
-<![CDATA[Python 2.6]]>
+<![CDATA[Python 2.7]]>
       </programlisting>However, the version string may vary.</para>
     </section>
   </section>

@@ -130,9 +130,9 @@ title Command Prompt (VC++ 2008)]]>
     </section>
     <section id="ChSetupPython">
       <title>Install Python</title>
-      <para>Get the Python 2.6 installer from:
+      <para>Get the Python 2.7 installer from:
       <ulink url="http://python.org/download/" /> and install Python
-      into the default location (C:\Python26).</para>
+      into the default location (C:\Python27).</para>
       <para>Why this is recommended: Cygwin's Python package
       doesn't work on some machines, so the Win32 native package is
       recommended.</para>
@@ -337,7 +337,7 @@ title Command Prompt (VC++ 2008)]]>
         /usr/bin/find: /usr/bin/find
         perl: /usr/bin/perl
         env: /usr/bin/env
-        C:/python26/python.exe: /cygdrive/c/python26/python.exe
+        C:/python27/python.exe: /cygdrive/c/python27/python.exe
         sed: /usr/bin/sed
         unzip: /usr/bin/unzip
         wget: /usr/bin/wget]]>
