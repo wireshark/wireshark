@@ -37,7 +37,6 @@
 #include "packet-ip.h"
 #include "packet-ipv6.h"
 #include "packet-ipx.h"
-#include "packet-vlan.h"
 #include "packet-ieee8021ah.h"
 #include "packet-vines.h"
 #include <epan/etypes.h>
@@ -186,7 +185,7 @@ capture_ethertype(guint16 etype, const guchar *pd, int offset, int len,
       capture_ipx(ld);
       break;
     case ETHERTYPE_VLAN:
-      capture_vlan(pd, offset, len, ld);
+      capture_eth(pd, offset, len, ld);
       break;
     case ETHERTYPE_IEEE_802_1AD:
     case ETHERTYPE_IEEE_802_1AH:
