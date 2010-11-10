@@ -34,6 +34,7 @@
 #include <ctype.h>
 #include <epan/packet.h>
 #include <epan/dissectors/packet-smb.h>
+#include <string.h>
 
 #include "packet-smb-browse.h"
 #include "packet-dcerpc.h"
@@ -581,7 +582,8 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	proto_tree *tree = NULL;
 	proto_item *item = NULL;
 	guint32 periodicity;
-	guint8 host_name[17];
+	gchar host_name[17];
+	gchar *utf8_host_name;
 	gint namelen;
 	guint8 server_count, reset_cmd;
 	guint8 os_major_ver, os_minor_ver;
@@ -628,16 +630,22 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 		/* server name */
 		tvb_get_nstringz0(tvb, offset, sizeof(host_name), host_name);
+		utf8_host_name = g_convert(host_name, strlen(host_name),
+			"UTF-8", "CP437", NULL, NULL, NULL);
+		if (utf8_host_name == NULL)
+			utf8_host_name = host_name;
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", host_name);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", utf8_host_name);
 		}
 		proto_tree_add_string_format(tree, hf_server_name,
 			tvb, offset, 16,
-			host_name,
+			utf8_host_name,
 			(cmd==BROWSE_DOMAIN_ANNOUNCEMENT)?
 				"Domain/Workgroup: %s":
 				"Host Name: %s",
-			host_name);
+			utf8_host_name);
+		if (utf8_host_name != host_name)
+			g_free(utf8_host_name);
 		offset += 16;
 
 		/* Windows version (See "OSVERSIONINFO Structure" on MSDN) */
