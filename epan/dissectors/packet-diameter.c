@@ -980,10 +980,10 @@ reginfo(int* hf_ptr, const char* name, const char* abbr, const char* desc,
 
 static void
 basic_avp_reginfo(diam_avp_t* a, const char* name, enum ftenum ft,
-		  base_display_e base, const value_string* vs)
+		  base_display_e base, value_string_ext* vs_ext)
 {
 	hf_register_info hf[] = { { &(a->hf_value),
-				  { NULL, NULL, ft, base, VALS(vs), 0x0,
+				  { NULL, NULL, ft, base, NULL, 0x0,
 				  a->vendor->code ?
 				  g_strdup_printf("vendor=%d code=%d", a->vendor->code, a->code)
 				  : g_strdup_printf("code=%d", a->code),
@@ -993,6 +993,9 @@ basic_avp_reginfo(diam_avp_t* a, const char* name, enum ftenum ft,
 
 	hf->hfinfo.name = g_strdup_printf("%s",name);
 	hf->hfinfo.abbrev = alnumerize(g_strdup_printf("diameter.%s",name));
+	if(vs_ext){
+		hf->hfinfo.strings = vs_ext;
+	}
 
 	g_array_append_vals(build_dict.hf,hf,1);
 	g_ptr_array_add(build_dict.ett,ettp);
@@ -1102,10 +1105,14 @@ build_simple_avp(const avp_type_t* type, guint32 code, const diam_vnd_t* vendor,
 		 const char* name, const value_string* vs, void* data _U_)
 {
 	diam_avp_t* a;
+	value_string_ext *vs_ext = NULL;
+	base_display_e base;
+	guint i = 0;
 
 	/*
 	 * Only 32-bit or shorter integral types can have a list of values.
 	 */
+	base = type->base;
 	if (vs != NULL) {
 		switch (type->ft) {
 
@@ -1122,6 +1129,11 @@ build_simple_avp(const avp_type_t* type, guint32 code, const diam_vnd_t* vendor,
 				name);
 			return NULL;
 		}
+		while (vs[i].strptr) {
+		  i++;
+		}
+		vs_ext = value_string_ext_new((void*)vs, i+1, g_strdup_printf("%s_vals_ext",name));
+		base = base|BASE_EXT_STRING;
 	}
 
 	a = g_malloc0(sizeof(diam_avp_t));
@@ -1132,7 +1144,7 @@ build_simple_avp(const avp_type_t* type, guint32 code, const diam_vnd_t* vendor,
 	a->ett = -1;
 	a->hf_value = -1;
 
-	basic_avp_reginfo(a,name,type->ft,type->base,vs);
+	basic_avp_reginfo(a,name,type->ft,base,vs_ext);
 
 	return a;
 }
@@ -1341,6 +1353,7 @@ dictionary_load(void)
 				value_string item = {e->code,e->name};
 				g_array_append_val(arr,item);
 			}
+			g_array_sort(arr, compare_avps);
 			vs = (void*)arr->data;
 		}
 
