@@ -10894,7 +10894,7 @@
 00:50:C2:09:F0:00/36	MetawaveVe             # MetaWave Vedeo Systems
 00:50:C2:0A:00:00/36	Cynaps
 00:50:C2:0A:10:00/36	VisableGen             # Visable Genetics, Inc.
-00:50:C2:0A:20:00/36	Jï¿½gerCom             # Jï¿½ger Computergesteuerte Messtechnik GmbH
+00:50:C2:0A:20:00/36	JägerCompu             # Jäger Computergesteuerte Messtechnik GmbH
 00:50:C2:0A:30:00/36	Basytec                # BaSyTec GmbH
 00:50:C2:0A:40:00/36	BountyPty              # Bounty Systems Pty Ltd.
 00:50:C2:0A:50:00/36	MobiltexDa             # Mobiltex Data Ltd.
@@ -14137,6 +14137,8 @@
 00:50:C2:D5:C0:00/36	IbetorSL               # Ibetor S.L.
 00:50:C2:D5:D0:00/36	GlobalcomE             # GLOBALCOM ENGINEERING SRL
 00:50:C2:D5:E0:00/36	Infinitec              # infinitec co., ltd.
+00:50:C2:D5:F0:00/36	EmbeddedSo             # Embedded Solution Co., Ltd. 
+00:50:C2:D6:00:00/36	NihonKessh             # Nihon Kessho Koogaku Co., Ltd.
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
@@ -16342,6 +16344,7 @@
 10:E8:EE	Phasespace
 11:00:AA	Private
 14:1B:BD	Volex                  # Volex Inc.
+14:4C:1A	MaxCommuni             # Max Communication GmbH
 14:54:12	Entis                  # Entis Co., Ltd.
 14:6E:0A	Private
 14:73:73	TubitakUek             # TUBITAK UEKAE
@@ -16664,6 +16667,7 @@
 4C:8B:55	GrupoDigic             # Grupo Digicon
 4C:9E:E4	HanyangNav             # Hanyang Navicom Co.,Ltd.
 4C:B4:EA	HrdSPte                # HRD (S) PTE., LTD.
+4C:B9:C8	Conet                  # CONET CO., LTD.
 4C:BA:A3	BisonElect             # Bison Electronics Inc.
 4C:C4:52	ShangHaiTy             # Shang Hai Tyd. Electon Technology Ltd.
 4C:C6:02	Radios                 # Radios, Inc.
@@ -16707,6 +16711,7 @@
 54:FD:BF	ScheidtBac             # Scheidt & Bachmann GmbH
 56:58:57	AculabPlcA             # Aculab plc			audio bridges
 58:05:56	Elettronic             # Elettronica GF S.r.L.
+58:16:26	Avaya                  # Avaya, Inc
 58:17:0C	SonyEricss             # Sony Ericsson Mobile Communications AB
 58:2F:42	UniversalE             # Universal Electric Corporation
 58:3C:C6	Omneality              # Omneality Ltd.
@@ -16748,6 +16753,7 @@
 5C:6D:20	HonHaiPrec             # Hon Hai Precision Ind. Co.,Ltd.
 5C:86:4A	SecretLabs             # Secret Labs LLC
 5C:87:78	Cybertelbr             # Cybertelbridge co.,ltd
+5C:9A:D8	Fujitsu                # Fujitsu Limited
 5C:AC:4C	HonHaiPrec             # Hon Hai Precision Ind. Co.,Ltd.
 5C:CA:32	Theben                 # Theben AG
 5C:D1:35	XtremePowe             # Xtreme Power Systems
@@ -16955,6 +16961,7 @@
 78:C4:0E	H&DWireles             # H&D Wireless 
 78:C6:BB	Innovasic              # Innovasic, Inc.
 78:CA:39	Apple
+78:CD:8E	SmcNetwork             # SMC Networks Inc
 78:D0:04	NeousysTec             # Neousys Technology Inc.
 78:DD:08	HonHaiPrec             # Hon Hai Precision Ind. Co.,Ltd. 
 78:E4:00	HonHaiPrec             # Hon Hai Precision Ind. Co.,Ltd. 
@@ -17092,6 +17099,7 @@
 90:90:3C	TrisonTech             # TRISON TECHNOLOGY CORPORATION
 90:A2:DA	GheoSa                 # GHEO SA
 90:A7:C1	PakedgeDev             # Pakedge Device and Software Inc.
+90:D7:EB	TexasInstr             # Texas Instruments
 90:D8:52	Comtec                 # Comtec Co., Ltd.
 90:D9:2C	Hug-Witsch             # HUG-WITSCHI AG
 90:E0:F0	IeeeP1722              # IEEE P1722 
@@ -17123,6 +17131,7 @@
 94:F7:20	TianjinDev             # Tianjin Deviser Electronics Instrument Co., Ltd
 94:FE:F4	Sagemcom
 98:03:A0	AbbNVPower             # ABB n.v. Power Quality Products
+98:0E:E4	Private
 98:2C:BE	2wire
 98:2D:56	Resolution             # Resolution Audio
 98:35:B8	AssembledP             # Assembled Products Corporation
@@ -17143,6 +17152,7 @@
 9C:22:0E	TascanServ             # TASCAN Service GmbH
 9C:28:BF	Continenta             # Continental Automotive Czech Republic s.r.o.
 9C:45:63	DimepSiste             # DIMEP Sistemas
+9C:4A:7B	Nokia                  # Nokia Corporation
 9C:4E:20	Cisco                  # Cisco Systems
 9C:4E:8E	Alt                    # ALT Systems Ltd
 9C:55:B4	ISESRL                 # I.S.E. S.r.l.
@@ -17179,6 +17189,7 @@ A0:6A:00	Verilink               # Verilink Corporation
 A0:73:32	Cashmaster             # Cashmaster International Limited
 A0:82:C7	PTI                    # P.T.I Co.,LTD
 A0:88:B4	IntelCorpo             # Intel Corporate
+A0:8C:9B	XtremeTech             # Xtreme Technologies Corp
 A0:98:05	OpenvoxCom             # OpenVox Communication Co Ltd
 A0:98:ED	ShandongIn             # Shandong Intelligent Optical Communication Development Co., Ltd.
 A0:9A:5A	TimeDomain             # Time Domain
@@ -17209,6 +17220,7 @@ A4:B1:EE	HZander                # H. ZANDER GmbH & Co. KG
 A4:B2:A7	AdaxysSolu             # Adaxys Solutions AG
 A4:BA:DB	Dell                   # Dell Inc.
 A4:BE:61	Eutrovisio             # EutroVision System, Inc.
+A4:C0:E1	Nintendo               # Nintendo Co., Ltd.
 A4:C2:AB	HangzhouLe             # Hangzhou LEAD-IT Information & Technology Co.,Ltd
 A4:D1:D1	EcotalityN             # ECOtality North America
 A4:DA:3F	Bionics                # Bionics Corp.
@@ -17332,6 +17344,7 @@ B8:F7:32	AryakaNetw             # Aryaka Networks Inc
 B8:F9:34	SonyEricss             # Sony Ericsson Mobile Communications AB
 B8:FF:61	Apple
 B8:FF:6F	ShanghaiTy             # Shanghai Typrotech Technology Co.Ltd
+B8:FF:FE	TexasInstr             # Texas Instruments
 BC:05:43	Avm                    # AVM GmbH
 BC:0D:A5	TexasInstr             # Texas Instruments
 BC:20:BA	InspurShan             # Inspur (Shandong) Electronic Information Co., Ltd
@@ -17755,6 +17768,7 @@ FC:D4:F2	CocaCola               # The Coca Cola Company
 FC:D4:F6	MessanaAir             # Messana Air.Ray Conditioning s.r.l.
 FC:E1:92	SichuanJin             # Sichuan Jinwangtong Electronic Science&Technology Co,.Ltd
 FC:E2:3F	ClayPaky               # CLAY PAKY SPA
+FC:E5:57	Nokia                  # Nokia Corporation
 FC:ED:B9	Arrayent
 FC:FA:F7	ShanghaiBa             # Shanghai Baud Data Communication Co.,Ltd.
 FC:FB:FB	Cisco                  # Cisco Systems
