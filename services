@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2010-11-01)
+(last updated 2010-11-09)
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -11657,7 +11657,7 @@ iax             4569/udp   Inter-Asterisk eXchange
 #                          [RFC5456]
 #               4570-4589  Unassigned
 rid             4590/tcp   RID over HTTP/TLS
-#                          [RFC-moriarty-post-inch-rid-transport-03.txt]
+#                          [RFC6046]
 #               4590/udp   Reserved
 l3t-at-an       4591/tcp   HRPD L3T (AT-AN)
 l3t-at-an       4591/udp   HRPD L3T (AT-AN)
@@ -12326,9 +12326,7 @@ taep-as-svc     5111/udp   TAEP AS service
 pm-cmdsvr       5112/tcp   PeerMe Msg Cmd Service
 pm-cmdsvr       5112/udp   PeerMe Msg Cmd Service
 #                          Marcos Della <mdella&peerme.com> August 2005
-ni-conf         5113/tcp   NI Device Configuration Protocol
-ni-dc           5113/udp   NI Device Discovery and Configuration Protocol
-#                          Ioan Cornea <ioan.cornea&ni.com> 03 August 2009
+#               5113       Unassigned (Removed on 2010-11-09)
 ev-services     5114/tcp   Enterprise Vault Services
 #                          Richard Jones <richard_jones1&symantec.com> 26 May 2009
 #               5114/udp   Reserved
@@ -16706,6 +16704,7 @@ pmcdproxy       44322/tcp   PCP server (pmcd) proxy
 pmcdproxy       44322/udp   PCP server (pmcd) proxy
 #                           Ken McDonnell <kenmcd&sgi.com> July 2003
 #               44323-44552 Unassigned
+### UNAUTHORIZED USE: Ports 44515 & 44516 used by NI Device Protocol############
 rbr-debug       44553/tcp   REALbasic Remote Debug
 rbr-debug       44553/udp   REALbasic Remote Debug
 #                           Aaron Ballman <aaron&realsoftware.com> November 2004
@@ -17040,9 +17039,8 @@ References
 [RFC6012]  J. Salowey, T. Petch, T. Gerhards, H. Feng, "Datagram Transport Layer Security 
            (DTLS) Transport Mapping for Syslog", RFC 6012, October 2010.
 
-[RFC-moriarty-post-inch-rid-transport-03.txt]
-            K. Moriarty and B. Trammell, "Transport of Real-time Inter-network Defense 
-            (RID) Messages", RFC XXXX, Month Year.
+[RFC6046]  K. Moriarty and B. Trammell, "Transport of Real-time Inter-network Defense 
+           (RID) Messages", RFC 6045, November 2010.
             
 [RFC-c1222-transport-over-ip-07.txt]
             A. Moise, J. Brodkin, "ANSI C12.22, IEEE 1703 and MC12.22 Transport Over IP", 
