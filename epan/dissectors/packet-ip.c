@@ -1450,9 +1450,15 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     col_add_fstr(pinfo->cinfo, COL_INFO, "Bogus IP length (%u, less than header length %u)",
        iph->ip_len, hlen);
     if (tree) {
-      proto_tree_add_uint_format(ip_tree, hf_ip_len, tvb, offset + 2, 2, iph->ip_len,
-       "Total length: %u bytes (bogus, less than header length %u)", iph->ip_len,
-       hlen);
+      if (!iph->ip_len) {
+        tf = proto_tree_add_uint_format(ip_tree, hf_ip_len, tvb, offset + 2, 2, iph->ip_len,
+         "Total length: 0 bytes (maybe caused by \"TCP segmentation offload\" (TSO)?)");
+      } else {
+        tf = proto_tree_add_uint_format(ip_tree, hf_ip_len, tvb, offset + 2, 2, iph->ip_len,
+         "Total length: %u bytes (bogus, less than header length %u)", iph->ip_len,
+         hlen);
+      }
+      expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_ERROR, "Bogus IP length");
     }
     return;
   }
@@ -1527,7 +1533,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
         PROTO_ITEM_SET_GENERATED(item);
       } else {
         item = proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum,
-                                          "Header checksum: 0x%04x [incorrect, should be 0x%04x]", iph->ip_sum,
+                                          "Header checksum: 0x%04x [incorrect, should be 0x%04x (maybe caused by \"IP checksum offload\"?)]", iph->ip_sum,
         in_cksum_shouldbe(iph->ip_sum, ipsum));
         checksum_tree = proto_item_add_subtree(item, ett_ip_checksum);
         item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_good, tvb, offset + 10, 2, FALSE);
@@ -2025,7 +2031,7 @@ proto_register_ip(void)
 		  &ip_check_checksum);
 	prefs_register_bool_preference(ip_module, "tso_support" ,
 		  "Support packet-capture from IP TSO-enabled hardware",
-		  "Whether to correct for TSO-enabled hardware captures, such as spoofing the IP packet length",
+		  "Whether to correct for TSO-enabled (TCP segmentation offload) hardware captures, such as spoofing the IP packet length",
 		  &ip_tso_supported);
 #ifdef HAVE_GEOIP
 	prefs_register_bool_preference(ip_module, "use_geoip" ,
