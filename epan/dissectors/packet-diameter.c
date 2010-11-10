@@ -380,7 +380,7 @@ dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset)
 	if(vendor->vs_avps_ext == NULL) {
 		g_array_sort(vendor->vs_avps, compare_avps);
 		vendor->vs_avps_ext = value_string_ext_new(VND_AVP_VS(vendor), VND_AVP_VS_LEN(vendor)+1,
-                                                           "diameter_vendor");
+                                                           g_strdup_printf("diameter_vendor_%s",val_to_str_ext(vendorid, &sminmpec_values_ext, "Unknown")));
 #if 0
 		{ /* Debug code */
 			value_string* vendor_avp_vs=VALUE_STRING_EXT_VS_P(vendor->vs_avps_ext);
