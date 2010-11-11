@@ -3167,31 +3167,98 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 			<enum name="Alphanumeric Shortcode" code="5"/>
 			<enum name="Other" code="6"/>
 		</avp>
-<!--
-900 TMGI OctectString
-901 Required-MBMS-Bearer-Capabilities UTF8String
-902 MBMS-StartStop-Indication Enumerated
-903 MBMS-Service-Area OctectString
-904 MBMS-Session-Duration Unsigned32
-905 Alternative-APN UTF8String
-906 MBMS-Service-Type Enumerated
-907 MBMS-2G-3G-Indicator Enumerated
-908 MBMS-Session-Identity OctetString
-909 RAI UTF8String
-910 Additional-MBMS-Trace-Info OctetString
-911 MBMS-Time-To-Data-Transfer Unsigned32
-912 MBMS-Session-Identity-Repetition-Number Unsigned32
-913 MBMS-Required-QoS UTF8String
-914 MBMS-Counting-Information Enumerated
-915 MBMS-User-Data-Mode-Indication Enumerated
-916 MBMS-GGSN-Address UTF8String
-917 MBMS-GGSN-IPv6-Address UTF8String
-918 MBMS-BMSC-SSM-IP-Address UTF8String
-919 MBMS-BMSC-SSM-IPv6-Address UTF8String
-920 MBMS-Flow-Identifier OctetString
-921 CN-IP-Multicast-Distribution Enumerated
-922 MBMS-HC-Indicator Enumerated
-923 MBMS-Access-Indicator Enumerated
+    <avp name="TMGI" code="900" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctectString"/>
+    </avp>
+    <avp name="Required-MBMS-Bearer-Capabilities" code="901" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="MBMS-StartStop-Indicatio" code="902" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="START" code="0"/>
+      <enum name="STOP" code="1"/>
+      <enum name="UPDATE" code="2"/>
+    </avp>
+    <avp name="MBMS-Service-Area" code="903" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctectString"/>
+    </avp>
+    <avp name="MBMS-Session-Duration" code="904" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="Alternative-APN" code="905" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="MBMS-Service-Type" code="906" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="MULTICAST" code="0"/>
+      <enum name="BROADCAST" code="1"/>
+    </avp>
+    <avp name="MBMS-2G-3G-Indicator" code="907" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="2G" code="0"/>
+      <enum name="3G" code="1"/>
+      <enum name="2G-AND-3G" code="3"/>
+    </avp>
+    <avp name="MBMS-Session-Identity" code="908" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="RAI" code="909" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="Additional-MBMS-Trace-Info" code="910" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="MBMS-Time-To-Data-Transfe" code="911" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="MBMS-Session-Identity-Repetition-Number" code="912" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="MBMS-Required-QoS" code="913" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="MBMS-Counting-Information" code="914" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="COUNTING-NOT-APPLICABLE" code="0"/>
+      <enum name="COUNTING-APPLICABLE" code="1"/>
+    </avp>
+    <avp name="MBMS-User-Data-Mode-Indication" code="915" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="Unicast" code="0"/>
+      <enum name="Multicast and Unicast" code="1"/>
+    </avp>
+    <avp name="MBMS-GGSN-Address" code="916" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="MBMS-GGSN-IPv6-Address" code="917" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="MBMS-BMSC-SSM-IP-Address" code="918" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="MBMS-BMSC-SSM-IPv6-Address" code="919" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="MBMS-Flow-Identifier" code="920" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="CN-IP-Multicast-Distribution" code="921" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="NO-IP-MULTICAST" code="0"/>
+      <enum name="IP-MULTICAST" code="1"/>
+    </avp>
+    <avp name="CN-IP-Multicast-Distribution" code="922" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="uncompressed-header" code="0"/>
+      <enum name="compressed-header" code="1"/>
+    </avp>
+    <avp name="MBMS-Access-Indicator" code="923" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Enumerated"/>
+      <enum name="UTRAN" code="0"/>
+      <enum name="E-UTRAN" code="1"/>
+      <enum name="UTRAN-AND-E-UTRAN" code="2"/>
+    </avp>
+    <!--
 Note: The AVP codes from 924 to 999 are reserved for TS 29.061
 29.210
 ******** Found in TGPPGmb.xml ********
