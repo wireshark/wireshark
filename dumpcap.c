@@ -283,7 +283,7 @@ static loop_data   global_ld;
  *
  * A bug in Mac OS X 10.6 and 10.6.1 causes calls to pcap_open_live(), in
  * 64-bit applications, with sub-second timeouts not to work.  The bug is
- * fixed in 10.6.2 and re-broken in 10.6.3.
+ * fixed in 10.6.2, re-broken in 10.6.3, and again fixed in 10.6.5.
  */
 #if defined(__APPLE__) && defined(__LP64__)
 static gboolean need_timeout_workaround;
@@ -3366,12 +3366,12 @@ main(int argc, char *argv[])
 
 #if defined(__APPLE__) && defined(__LP64__)
   /*
-   * Is this Mac OS X 10.6.x, other than 10.6.2?  If so, we need a bug
-   * workaround - timeouts less than 1 second don't work with libpcap
+   * Is this Mac OS X 10.6.0, 10.6.1, 10.6.3, or 10.6.4?  If so, we need
+   * a bug workaround - timeouts less than 1 second don't work with libpcap
    * in 64-bit code.  (The bug was introduced in 10.6, fixed in 10.6.2,
-   * and re-introduced in 10.6.3.  We don't know whether it'll be fixed
-   * again in a later 10.6.x release; we'll assume that it'll be fixed
-   * in any future major releases.)
+   * re-introduced in 10.6.3, not fixed in 10.6.4, and fixed in 10.6.5.
+   * The problem is extremely unlikely to be reintroduced in a future
+   * release.)
    */
   if (uname(&osinfo) == 0) {
     /*
@@ -3379,15 +3379,10 @@ main(int argc, char *argv[])
      * {x+4}.y.0 (except that 10.6.1 appears to have a uname version
      * number of 10.0.0, not 10.1.0 - go figure).
      */
-    if (strncmp(osinfo.release, "10.", 3) == 0) {
-      /*
-       * OK, it's Snow Leopard - which version?
-       */
-      if (strcmp(osinfo.release, "10.2.0") != 0) {
-        /* Not 10.6.2. */
-        need_timeout_workaround = TRUE;
-      }
-    }
+    if (strcmp(osinfo.release, "10.0.0") == 0 ||	/* 10.6, 10.6.1 */
+        strcmp(osinfo.release, "10.3.0") == 0 ||	/* 10.6.3 */
+        strcmp(osinfo.release, "10.4.0") == 0)		/* 10.6.4 */
+      need_timeout_workaround = TRUE;
   }
 #endif
 
