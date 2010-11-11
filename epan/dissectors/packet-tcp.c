@@ -2363,6 +2363,8 @@ dissect_tcpopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb,
         {15, "1.31072 Gbit/s"},
         {0, NULL}
     };
+	static value_string_ext qs_rates_ext = VALUE_STRING_EXT_INIT(qs_rates);
+
     proto_item *hidden_item;
 
     guint8 rate = tvb_get_guint8(tvb, offset + 2) & 0x0f;
@@ -2372,9 +2374,9 @@ dissect_tcpopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb,
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     proto_tree_add_text(opt_tree, tvb, offset,      optlen,
                         "%s: Rate response, %s, TTL diff %u ", optp->name,
-                        val_to_str(rate, qs_rates, "Unknown"),
+                        val_to_str_ext(rate, &qs_rates_ext, "Unknown"),
                         tvb_get_guint8(tvb, offset + 3));
-    col_append_fstr(pinfo->cinfo, COL_INFO, " QSresp=%s", val_to_str(rate, qs_rates, "Unknown"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, " QSresp=%s", val_to_str_ext(rate, &qs_rates_ext, "Unknown"));
 }
 
 

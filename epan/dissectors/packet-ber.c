@@ -197,6 +197,9 @@ static const value_string ber_uni_tag_codes[] = {
 	 * Reserved for future editions of this
 	 * Recommendation | International Standard
 	 */
+	{  14,		"Reserved for future editions" },
+	{  15 ,		"Reserved for future editions" },
+
 	{ BER_UNI_TAG_SEQUENCE,			"SEQUENCE" },
 	{ BER_UNI_TAG_SET,				"SET" },
 	{ BER_UNI_TAG_NumericString,	"NumericString" },
@@ -215,6 +218,7 @@ static const value_string ber_uni_tag_codes[] = {
 	{ 31,							"Continued" },
 	{ 0, NULL }
 };
+static value_string_ext ber_uni_tag_codes_ext = VALUE_STRING_EXT_INIT(ber_uni_tag_codes);
 
 static const true_false_string ber_real_binary_vals = {
 	"Binary encoding",
@@ -531,7 +535,7 @@ printf("dissect_ber_tagged_type(%s) entered\n",name);
  if ((tmp_cls != tag_cls) || (tmp_tag != tag_tag)) {
    cause = proto_tree_add_text(tree, tvb, offset, tmp_len,
 		"BER Error: Wrong tag in tagged type - expected class:%s(%d) tag:%d (%s) but found class:%s(%d) tag:%d",
-		val_to_str(tag_cls, ber_class_codes, "Unknown"), tag_cls, tag_tag, val_to_str(tag_tag, ber_uni_tag_codes,"Unknown"),
+		val_to_str(tag_cls, ber_class_codes, "Unknown"), tag_cls, tag_tag, val_to_str_ext(tag_tag, &ber_uni_tag_codes_ext,"Unknown"),
 		val_to_str(tmp_cls, ber_class_codes, "Unknown"), tmp_cls, tmp_tag);
    expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: Wrong tag in tagged type");
  }
@@ -765,7 +769,7 @@ try_dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, volatile int offset, 
 
 	  switch(class) {
 	  case BER_CLASS_UNI:
-       	    item=proto_tree_add_text(tree, tvb, offset, len, "%s", val_to_str(tag,ber_uni_tag_codes,"Unknown"));
+       	    item=proto_tree_add_text(tree, tvb, offset, len, "%s", val_to_str_ext(tag,&ber_uni_tag_codes_ext,"Unknown"));
 		if(item){
 			next_tree=proto_item_add_subtree(item, ett_ber_SEQUENCE);
 		}
@@ -1808,7 +1812,7 @@ ber_sequence_try_again:
 			  cause = proto_tree_add_text(tree, tvb, offset, len,
 				    "BER Error: Wrong field in SEQUENCE  expected class:%s(%d) tag:%d (%s) but found class:%s(%d) tag:%d",
 				    val_to_str(seq->class,ber_class_codes,"Unknown"),seq->class,
-				    seq->tag,val_to_str(seq->tag,ber_uni_tag_codes,"Unknown"),
+				    seq->tag,val_to_str_ext(seq->tag,&ber_uni_tag_codes_ext,"Unknown"),
 				    val_to_str(class,ber_class_codes,"Unknown"),class,tag);
 				expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: Wrong field in SEQUENCE");
 			}else{
@@ -1841,7 +1845,8 @@ ber_sequence_try_again:
 			offset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
 			offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, NULL, NULL);
 			if( seq->class == BER_CLASS_UNI){
-			  cause = proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in sequence  expected class:%s(%d) tag:%d(%s) but found class:%s(%d) tag:%d",val_to_str(seq->class,ber_class_codes,"Unknown"),seq->class,seq->tag,val_to_str(seq->tag,ber_uni_tag_codes,"Unknown"),val_to_str(class,ber_class_codes,"Unknown"),class,tag);
+			  cause = proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in sequence  expected class:%s(%d) tag:%d(%s) but found class:%s(%d) tag:%d",
+				  val_to_str(seq->class,ber_class_codes,"Unknown"),seq->class,seq->tag,val_to_str_ext(seq->tag,&ber_uni_tag_codes_ext,"Unknown"),val_to_str(class,ber_class_codes,"Unknown"),class,tag);
 				expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: Wrong field in sequence");
 			}else{
 			  cause = proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in sequence  expected class:%s(%d) tag:%d but found class:%s(%d) tag:%d",val_to_str(seq->class,ber_class_codes,"Unknown"),seq->class,seq->tag,val_to_str(class,ber_class_codes,"Unknown"),class,tag);
@@ -2131,7 +2136,7 @@ ber_old_sequence_try_again:
 			  cause = proto_tree_add_text(tree, tvb, offset, len,
 				    "BER Error: Wrong field in SEQUENCE  expected class:%s(%d) tag:%d (%s) but found class:%s(%d) tag:%d",
 				    val_to_str(seq->class,ber_class_codes,"Unknown"),seq->class,
-				    seq->tag,val_to_str(seq->tag,ber_uni_tag_codes,"Unknown"),
+				    seq->tag,val_to_str_ext(seq->tag,&ber_uni_tag_codes_ext,"Unknown"),
 				    val_to_str(class,ber_class_codes,"Unknown"),class,tag);
 				expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: Wrong field in SEQUENCE");
 			}else{
@@ -2164,7 +2169,8 @@ ber_old_sequence_try_again:
 			offset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
 			offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, NULL, NULL);
 			if( seq->class == BER_CLASS_UNI){
-			  cause = proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in sequence  expected class:%s(%d) tag:%d(%s) but found class:%s(%d) tag:%d",val_to_str(seq->class,ber_class_codes,"Unknown"),seq->class,seq->tag,val_to_str(seq->tag,ber_uni_tag_codes,"Unknown"),val_to_str(class,ber_class_codes,"Unknown"),class,tag);
+			  cause = proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in sequence  expected class:%s(%d) tag:%d(%s) but found class:%s(%d) tag:%d",
+				  val_to_str(seq->class,ber_class_codes,"Unknown"),seq->class,seq->tag,val_to_str_ext(seq->tag,&ber_uni_tag_codes_ext,"Unknown"),val_to_str(class,ber_class_codes,"Unknown"),class,tag);
 				expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: Wrong field in sequence");
 			}else{
 			  cause = proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in sequence  expected class:%s(%d) tag:%d but found class:%s(%d) tag:%d",val_to_str(seq->class,ber_class_codes,"Unknown"),seq->class,seq->tag,val_to_str(class,ber_class_codes,"Unknown"),class,tag);
@@ -4607,8 +4613,8 @@ proto_register_ber(void)
 	    "P/C", "ber.id.pc", FT_BOOLEAN, 8,
 	    TFS(&ber_pc_codes), 0x20, "Primitive or Constructed BER encoding", HFILL }},
 	{ &hf_ber_id_uni_tag, {
-	    "Tag", "ber.id.uni_tag", FT_UINT8, BASE_DEC,
-	    VALS(ber_uni_tag_codes), 0x1f, "Universal tag type", HFILL }},
+	    "Tag", "ber.id.uni_tag", FT_UINT8, BASE_DEC|BASE_EXT_STRING,
+	    &ber_uni_tag_codes, 0x1f, "Universal tag type", HFILL }},
 	{ &hf_ber_id_uni_tag_ext, {
 	    "Tag", "ber.id.uni_tag", FT_UINT32, BASE_DEC,
 	    NULL, 0, "Universal tag type", HFILL }},
