@@ -397,36 +397,39 @@ static const value_string names_rpl_option[] = {
 
 /* http://www.iana.org/assignments/icmpv6-parameters */
 static const value_string option_vals[] = {
-    { ND_OPT_SOURCE_LINKADDR,           "Source link-layer address" },
-    { ND_OPT_TARGET_LINKADDR,           "Target link-layer address" },
-    { ND_OPT_PREFIX_INFORMATION,        "Prefix information" },
-    { ND_OPT_REDIRECTED_HEADER,         "Redirected header" },
-    { ND_OPT_MTU,                       "MTU" },
-    { ND_OPT_ADVINTERVAL,               "Advertisement Interval" },
-    { ND_OPT_HOMEAGENT_INFO,            "Home Agent Information" },
-    { ND_OPT_CGA,                       "CGA" },                                    /* [RFC3971] */
-    { ND_OPT_RSA,                       "RSA Signature" },                          /* [RFC3971] */
-    { ND_OPT_TIMESTAMP,                 "Timestamp" },                              /* [RFC3971] */
-    { ND_OPT_NONCE,                     "Nonce" },                                  /* [RFC3971] */
-    { ND_OPT_TRUST_ANCHOR,              "Trust Anchor" },                           /* [RFC3971] */
-    { ND_OPT_CERTIFICATE,               "Certificate" },                            /* [RFC3971] */
-    { FMIP6_OPT_IP_ADDRESS,             "IP Address Option" },                      /* [RFC4068] */
-    { FMIP6_OPT_NEW_ROUTER_PREFIX_INFO, "New Router Prefix Information" },          /* [RFC4068] */
-    { FMIP6_OPT_LINK_LAYER_ADDRESS,     "Link-layer Address" },                     /* [RFC4068] */
-    { FMIP6_OPT_NEIGHBOR_ADV_ACK,       "Neighbor Advertisement Acknowledgment" },  /* [RFC4068] */
+/*  1 */    { ND_OPT_SOURCE_LINKADDR,           "Source link-layer address" },
+/*  2 */    { ND_OPT_TARGET_LINKADDR,           "Target link-layer address" },
+/*  3 */    { ND_OPT_PREFIX_INFORMATION,        "Prefix information" },
+/*  4 */    { ND_OPT_REDIRECTED_HEADER,         "Redirected header" },
+/*  5 */    { ND_OPT_MTU,                       "MTU" },
+/*  6 */    { ND_OPT_ADVINTERVAL,               "Advertisement Interval" },
+/*  8 */    { ND_OPT_HOMEAGENT_INFO,            "Home Agent Information" },
+/*  9 */    { ND_OPT_SOURCE_ADDRLIST,           "Source Address List" },
+/* 10 */    { ND_OPT_TARGET_ADDRLIST,           "Target Address List" },
+/* 11 */    { ND_OPT_CGA,                       "CGA" },                                    /* [RFC3971] */
+/* 12 */    { ND_OPT_RSA,                       "RSA Signature" },                          /* [RFC3971] */
+/* 13 */    { ND_OPT_TIMESTAMP,                 "Timestamp" },                              /* [RFC3971] */
+/* 14 */    { ND_OPT_NONCE,                     "Nonce" },                                  /* [RFC3971] */
+/* 15 */    { ND_OPT_TRUST_ANCHOR,              "Trust Anchor" },                           /* [RFC3971] */
+/* 16 */    { ND_OPT_CERTIFICATE,               "Certificate" },                            /* [RFC3971] */
+/* 17 */    { FMIP6_OPT_IP_ADDRESS,             "IP Address Option" },                      /* [RFC4068] */
+/* 18 */    { FMIP6_OPT_NEW_ROUTER_PREFIX_INFO, "New Router Prefix Information" },          /* [RFC4068] */
+/* 19 */    { FMIP6_OPT_LINK_LAYER_ADDRESS,     "Link-layer Address" },                     /* [RFC4068] */
+/* 20 */    { FMIP6_OPT_NEIGHBOR_ADV_ACK,       "Neighbor Advertisement Acknowledgment" },  /* [RFC4068] */
 	/* 21-22   Unassigned */
-    { 23,                               "MAP" },                                    /* [RFC4140] */
-    { ND_OPT_ROUTE_INFO,                "Route Information" },                      /* [RFC4191] */
-    { ND_OPT_RECURSIVE_DNS_SERVER,      "Recursive DNS Server" },                   /* [RFC5006] */
-    { 26,                               "RA Flags Extension" },                     /* [RFC5075] */
-    { 27,                               "Handover Key Request" },                   /* [RFC5269] */
-    { 28,                               "Handover Key Reply" },                     /* [RFC5269] */
-    { 29,                               "Handover Assist Information" },            /* [RFC5271] */
-    { 30,                               "Mobile Node Identifier Option" },          /* [RFC5271] */
-    { ND_OPT_ADDR_RESOLUTION,           "Address Resolution Option" },              /* 6LoWPAN-ND */
-    { ND_OPT_6LOWPAN_CONTEXT,           "6LoWPAN Context Option" },                 /* 6LoWPAN-ND */
-    { ND_OPT_AUTH_BORDER_ROUTER,        "Authorative Border Router" },              /* 6LoWPAN-ND */
-	/* 31-137  Unassigned */
+            { 23,                               "MAP" },                                    /* [RFC4140] */
+/* 24 */    { ND_OPT_ROUTE_INFO,                "Route Information" },                      /* [RFC4191] */
+/* 25 */    { ND_OPT_RECURSIVE_DNS_SERVER,      "Recursive DNS Server" },                   /* [RFC5006] */
+            { 26,                               "RA Flags Extension" },                     /* [RFC5075] */
+            { 27,                               "Handover Key Request" },                   /* [RFC5269] */
+            { 28,                               "Handover Key Reply" },                     /* [RFC5269] */
+            { 29,                               "Handover Assist Information" },            /* [RFC5271] */
+            { 30,                               "Mobile Node Identifier Option" },          /* [RFC5271] */
+/* 31      DNS Search List Option                  [RFC-ietf-6man-dns-options-bis-08.txt] */
+/* 31 */    { ND_OPT_ADDR_RESOLUTION,           "Address Resolution Option" },              /* 6LoWPAN-ND */
+/* 32 */    { ND_OPT_6LOWPAN_CONTEXT,           "6LoWPAN Context Option" },                 /* 6LoWPAN-ND */
+/* 33 */    { ND_OPT_AUTH_BORDER_ROUTER,        "Authorative Border Router" },              /* 6LoWPAN-ND */
+	/* 32-137  Unassigned */
     { 138,                              "CARD Request" },                           /* [RFC4065] */
     { 139,                              "CARD Reply" },                             /* [RFC4065] */
 	/* 140-252 Unassigned */
