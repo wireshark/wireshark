@@ -64,12 +64,12 @@
 static dissector_handle_t sflow_handle;
 
 /*
- *	global_sflow_ports : holds the configured range of ports for sflow
+ *  global_sflow_ports : holds the configured range of ports for sflow
  */
 static range_t *global_sflow_ports = NULL;
 
 /*
- *	sflow_245_ports : holds the currently used range of ports for sflow
+ *  sflow_245_ports : holds the currently used range of ports for sflow
  */
 static gboolean global_dissect_samp_headers = TRUE;
 static gboolean global_analyze_samp_ip_headers = FALSE;
@@ -488,6 +488,19 @@ struct radio_utilization {
     guint32 on_channel_busy_time;
 };
 
+struct sflow_address_type {
+    int hf_addr_v4;
+    int hf_addr_v6;
+};
+
+struct sflow_address_details {
+    int addr_type;              /* ADDR_TYPE_IPV4 | ADDR_TYPE_IPV6 */
+    union {
+        guint8 v4[4];
+        guint8 v6[16];
+    } agent_address;
+};
+
 /* Initialize the protocol and registered fields */
 static int proto_sflow = -1;
 static int hf_sflow_version = -1;
@@ -516,9 +529,9 @@ static int hf_sflow_245_pri_out = -1; /* outgoing 802.1p priority */
 static int hf_sflow_245_nexthop_v4 = -1; /* nexthop address */
 static int hf_sflow_245_nexthop_v6 = -1; /* nexthop address */
 static int hf_sflow_245_ipv4_src = -1;
-static int hf_sflow_245_ipv4_des = -1;
+static int hf_sflow_245_ipv4_dst = -1;
 static int hf_sflow_245_ipv6_src = -1;
-static int hf_sflow_245_ipv6_des = -1;
+static int hf_sflow_245_ipv6_dst = -1;
 static int hf_sflow_245_nexthop_src_mask = -1;
 static int hf_sflow_245_nexthop_dst_mask = -1;
 
@@ -687,7 +700,7 @@ void proto_reg_handoff_sflow_245(void);
 /* dissect a sampled header - layer 2 protocols */
 static gint
 dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
-				 proto_tree *tree, volatile gint offset) {
+                                 proto_tree *tree, volatile gint offset) {
     guint32 version, header_proto, frame_length, stripped;
     volatile guint32 header_length;
     tvbuff_t *next_tvb;
@@ -823,15 +836,15 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
             default:
                 /* some of the protocols, I have no clue where to begin. */
                 break;
-        };
+        }
     }
 
     CATCH2(BoundsError, ReportedBoundsError) {
-	/*  Restore the private_data structure in case one of the
-	 *  called dissectors modified it (and, due to the exception,
-	 *  was unable to restore it).
-	 */
-	pinfo->private_data = pd_save;
+        /*  Restore the private_data structure in case one of the
+         *  called dissectors modified it (and, due to the exception,
+         *  was unable to restore it).
+         */
+        pinfo->private_data = pd_save;
     }
     ENDTRY;
 
@@ -850,79 +863,93 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
     return offset;
 }
 
-/* extended switch data, after the packet data */
 static gint
-dissect_sflow_245_extended_switch(tvbuff_t *tvb, proto_tree *tree, gint offset) {
-    gint32 len = 0;
-
-    proto_tree_add_item(tree, hf_sflow_245_vlan_in, tvb, offset + len, 4, FALSE);
-    len += 4;
-    proto_tree_add_item(tree, hf_sflow_245_pri_in, tvb, offset + len, 4, FALSE);
-    len += 4;
-    proto_tree_add_item(tree, hf_sflow_245_vlan_out, tvb, offset + len, 4, FALSE);
-    len += 4;
-    proto_tree_add_item(tree, hf_sflow_245_pri_out, tvb, offset + len, 4, FALSE);
-    len += 4;
-
-    return len;
-}
-
-/* extended router data, after the packet data */
-static gint
-dissect_sflow_245_extended_router(tvbuff_t *tvb, proto_tree *tree, gint offset) {
-    gint32 len = 0;
+dissect_sflow_245_address_type(tvbuff_t *tvb, proto_tree *tree, gint offset,
+                               struct sflow_address_type *hf_type,
+                               struct sflow_address_details *addr_detail) {
     guint32 addr_type;
-
-    addr_type = tvb_get_ntohl(tvb, offset);
-    len += 4;
-    switch (addr_type) {
-        case ADDR_TYPE_IPV4:
-            proto_tree_add_item(tree, hf_sflow_245_nexthop_v4, tvb, offset + len, 4, FALSE);
-            len += 4;
-            break;
-        case ADDR_TYPE_IPV6:
-            proto_tree_add_item(tree, hf_sflow_245_nexthop_v6, tvb, offset + len, 16, FALSE);
-            len += 16;
-            break;
-        default:
-            proto_tree_add_text(tree, tvb, offset + len - 4, 4, "Unknown address type (%u)", addr_type);
-            len += 4; /* not perfect, but what else to do? */
-            return len; /* again, this is wrong.  but... ? */
-    };
-
-    proto_tree_add_item(tree, hf_sflow_245_nexthop_src_mask, tvb, offset + len, 4, FALSE);
-    len += 4;
-    proto_tree_add_item(tree, hf_sflow_245_nexthop_dst_mask, tvb, offset + len, 4, FALSE);
-    len += 4;
-    return len;
-}
-
-/* extended MPLS data */
-static gint
-dissect_sflow_5_extended_mpls_data(tvbuff_t *tvb, proto_tree *tree, gint offset) {
-    guint32 addr_type, in_label_count, out_label_count, i, j;
-    proto_tree *in_stack;
-    proto_item *ti_in;
-    proto_tree *out_stack;
-    proto_item *ti_out;
+    int len;
 
     addr_type = tvb_get_ntohl(tvb, offset);
     offset += 4;
 
     switch (addr_type) {
-        case ADDR_TYPE_IPV4:
-            proto_tree_add_item(tree, hf_sflow_245_nexthop_v4, tvb, offset, 4, FALSE);
-            offset += 4;
+    case ADDR_TYPE_IPV4:
+        len = 4;
+        proto_tree_add_item(tree, hf_type->hf_addr_v4, tvb, offset, 4, FALSE);
+        break;
+    case ADDR_TYPE_IPV6:
+        len = 16;
+        proto_tree_add_item(tree, hf_type->hf_addr_v6, tvb, offset, 16, FALSE);
+        break;
+    default:
+        /* acferen:  November 10, 2010
+         * 
+         * We should never get here, but if we do we don't know
+         * the length for this address type.  Not knowing the
+         * length this default case is doomed to failure.  Might
+         * as well acknowledge that as soon as possible.
+         */
+        DISSECTOR_ASSERT ((addr_type == ADDR_TYPE_IPV4)
+                          || (addr_type == ADDR_TYPE_IPV6));
+        proto_tree_add_text(tree, tvb, offset - 4, 4, "Unknown address type (%u)", addr_type);
+        return 0;               /* malformed packet */
+    }
+
+    if (addr_detail) {
+        addr_detail->addr_type = addr_type;
+        switch (len) {
+        case 4:
+            tvb_memcpy(tvb, addr_detail->agent_address.v4, offset, len);
             break;
-        case ADDR_TYPE_IPV6:
-            proto_tree_add_item(tree, hf_sflow_245_nexthop_v6, tvb, offset, 16, FALSE);
-            offset += 16;
+        case 16:
+            tvb_memcpy(tvb, addr_detail->agent_address.v6, offset, len);
             break;
-        default:
-            proto_tree_add_text(tree, tvb, offset - 4, 4, "Unknown address type (%u)", addr_type);
-            offset += 4; /* not perfect, but what else to do? */
-            return offset; /* again, this is wrong.  but... ? */
-    };
+        }
+    }
+
+    return offset + len;
+}
+
+/* extended switch data, after the packet data */
+static gint
+dissect_sflow_245_extended_switch(tvbuff_t *tvb, proto_tree *tree, gint offset) {
+    proto_tree_add_item(tree, hf_sflow_245_vlan_in, tvb, offset, 4, FALSE);
+    offset += 4;
+    proto_tree_add_item(tree, hf_sflow_245_pri_in, tvb, offset, 4, FALSE);
+    offset += 4;
+    proto_tree_add_item(tree, hf_sflow_245_vlan_out, tvb, offset, 4, FALSE);
+    offset += 4;
+    proto_tree_add_item(tree, hf_sflow_245_pri_out, tvb, offset, 4, FALSE);
+    offset += 4;
+
+    return offset;
+}
+
+/* extended router data, after the packet data */
+static gint
+dissect_sflow_245_extended_router(tvbuff_t *tvb, proto_tree *tree, gint offset) {
+    struct sflow_address_type addr_type = {hf_sflow_245_nexthop_v4, hf_sflow_245_nexthop_v6};
+
+    offset = dissect_sflow_245_address_type(tvb, tree, offset, &addr_type, NULL);
+    proto_tree_add_item(tree, hf_sflow_245_nexthop_src_mask, tvb, offset, 4, FALSE);
+    offset += 4;
+    proto_tree_add_item(tree, hf_sflow_245_nexthop_dst_mask, tvb, offset, 4, FALSE);
+    offset += 4;
+    return offset;
+}
+
+/* extended MPLS data */
+static gint
+dissect_sflow_5_extended_mpls_data(tvbuff_t *tvb, proto_tree *tree, gint offset) {
+    guint32 in_label_count, out_label_count, i, j;
+    proto_tree *in_stack;
+    proto_item *ti_in;
+    proto_tree *out_stack;
+    proto_item *ti_out;
+
+    struct sflow_address_type addr_type = {hf_sflow_245_nexthop_v4, hf_sflow_245_nexthop_v6};
+    offset = dissect_sflow_245_address_type(tvb, tree, offset, &addr_type, NULL);
 
     in_label_count = tvb_get_ntohl(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 4, "In Label Stack Entries: %u", in_label_count);
@@ -958,43 +985,14 @@ dissect_sflow_5_extended_mpls_data(tvbuff_t *tvb, proto_tree *tree, gint offset)
 /* extended NAT data */
 static gint
 dissect_sflow_5_extended_nat(tvbuff_t *tvb, proto_tree *tree, gint offset) {
-    guint32 src_type, des_type;
+    struct sflow_address_type addr_type = {hf_sflow_245_ipv4_src,
+                                           hf_sflow_245_ipv6_src};
+    offset = dissect_sflow_245_address_type(tvb, tree, offset, &addr_type, NULL);
 
-    src_type = tvb_get_ntohl(tvb, offset);
-    offset += 4;
+    addr_type.hf_addr_v4 = hf_sflow_245_ipv4_dst;
+    addr_type.hf_addr_v6 = hf_sflow_245_ipv6_dst;
 
-    switch (src_type) {
-        case ADDR_TYPE_IPV4:
-            proto_tree_add_item(tree, hf_sflow_245_ipv4_src, tvb, offset, 4, FALSE);
-            offset += 4;
-            break;
-        case ADDR_TYPE_IPV6:
-            proto_tree_add_item(tree, hf_sflow_245_ipv6_src, tvb, offset, 16, FALSE);
-            offset += 16;
-            break;
-        default:
-            proto_tree_add_text(tree, tvb, offset - 4, 4, "Unknown address type (%u)", src_type);
-            offset += 4; /* not perfect, but what else to do? */
-            return offset; /* again, this is wrong.  but... ? */
-    };
-
-    des_type = tvb_get_ntohl(tvb, offset);
-    offset += 4;
-
-    switch (des_type) {
-        case ADDR_TYPE_IPV4:
-            proto_tree_add_item(tree, hf_sflow_245_ipv4_des, tvb, offset, 4, FALSE);
-            offset += 4;
-            break;
-        case ADDR_TYPE_IPV6:
-            proto_tree_add_item(tree, hf_sflow_245_ipv6_des, tvb, offset, 16, FALSE);
-            offset += 16;
-            break;
-        default:
-            proto_tree_add_text(tree, tvb, offset - 4, 4, "Unknown address type (%u)", des_type);
-            offset += 4; /* not perfect, but what else to do? */
-            return offset; /* again, this is wrong.  but... ? */
-    };
+    offset = dissect_sflow_245_address_type(tvb, tree, offset, &addr_type, NULL);
 
     return offset;
 }
@@ -1004,7 +1002,7 @@ static gint
 dissect_sflow_245_extended_gateway(tvbuff_t *tvb, proto_tree *tree, gint offset) {
     gint32 len = 0;
     gint32 i, j, comm_len, dst_len, dst_seg_len;
-    guint32 addr_type, path_type;
+    guint32 path_type;
     gint32 kludge;
 
     guint32 version = tvb_get_ntohl(tvb, 0); /* get sFlow version */
@@ -1015,21 +1013,9 @@ dissect_sflow_245_extended_gateway(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
     /* sFlow v5 contains next hop router IP address */
     if (version == 5) {
-        addr_type = tvb_get_ntohl(tvb, offset);
-        len += 4;
-        switch (addr_type) {
-            case ADDR_TYPE_IPV4:
-                proto_tree_add_item(tree, hf_sflow_245_nexthop_v4, tvb, offset + len, 4, FALSE);
-                len += 4;
-                break;
-            case ADDR_TYPE_IPV6:
-                proto_tree_add_item(tree, hf_sflow_245_nexthop_v6, tvb, offset + len, 16, FALSE);
-                len += 16;
-                break;
-            default:
-                proto_tree_add_text(tree, tvb, offset + len - 4, 4, "Unknown address type (%u)", addr_type);
-                len += 4; /* not perfect, but what else to do? */
-        };
+        struct sflow_address_type addr_type = {hf_sflow_245_nexthop_v4, hf_sflow_245_nexthop_v6};
+
+        offset = dissect_sflow_245_address_type(tvb, tree, offset, &addr_type, NULL);
     }
 
     proto_tree_add_item(tree, hf_sflow_245_as, tvb, offset + len, 4, FALSE);
@@ -1104,7 +1090,7 @@ dissect_sflow_245_extended_gateway(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
     }
 
-    return len;
+    return offset + len;
 }
 
 /* sflow v5 ethernet frame data */
@@ -1160,7 +1146,7 @@ dissect_sflow_5_ipv4(tvbuff_t *tvb, proto_tree *tree, gint offset) {
     proto_tree_add_item(tree, hf_sflow_245_ipv4_src, tvb, offset, 4, FALSE);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_sflow_245_ipv4_des, tvb, offset, 4, FALSE);
+    proto_tree_add_item(tree, hf_sflow_245_ipv4_dst, tvb, offset, 4, FALSE);
     offset += 4;
 
     src_port = tvb_get_ntohl(tvb, offset);
@@ -1250,7 +1236,7 @@ dissect_sflow_5_ipv6(tvbuff_t *tvb, proto_tree *tree, gint offset) {
     proto_tree_add_item(tree, hf_sflow_245_ipv6_src, tvb, offset, 16, FALSE);
     offset += 16;
 
-    proto_tree_add_item(tree, hf_sflow_245_ipv6_des, tvb, offset, 16, FALSE);
+    proto_tree_add_item(tree, hf_sflow_245_ipv6_dst, tvb, offset, 16, FALSE);
     offset += 16;
 
     src_port = tvb_get_ntohl(tvb, offset);
@@ -1772,7 +1758,7 @@ dissect_sflow_24_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
         case SFLOW_245_PACKET_DATA_TYPE_IPV6:
         default:
             break;
-    };
+    }
     /* still need to dissect extended data */
     extended_data = tvb_get_ntohl(tvb, offset);
     offset += 4;
@@ -1818,7 +1804,7 @@ static gint
 dissect_sflow_5_flow_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) {
     proto_tree *flow_data_tree;
     proto_item *ti;
-    guint32 enterprise_format, enterprise, format, length;
+    guint32 enterprise_format, enterprise, format;
 
 
     /* what kind of flow sample is it? */
@@ -1836,7 +1822,6 @@ dissect_sflow_5_flow_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(flow_data_tree, hf_sflow_5_flow_record_format, tvb, offset, 4, FALSE);
         offset += 4;
 
-        length = tvb_get_ntohl(tvb, offset);
         proto_tree_add_item(flow_data_tree, hf_sflow_5_flow_data_length, tvb, offset, 4, FALSE);
         offset += 4;
 
@@ -2511,7 +2496,7 @@ dissect_sflow_24_counters_sample(tvbuff_t *tvb, proto_tree *tree, gint offset, p
             proto_tree_add_item(tree, hf_sflow_245_ifpromisc, tvb, offset, 4, FALSE);
             offset += 4;
             break;
-    };
+    }
 
     /* Some counter types have other info to gather */
     switch (g_ntohl(counters_header.counters_type)) {
@@ -2677,12 +2662,9 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_item *ti;
     proto_tree *sflow_245_tree;
     guint32 version, sub_agent_id, seqnum;
-    guint32 agent_addr_type;
+    struct sflow_address_details addr_details;
+    struct sflow_address_type addr_type = {hf_sflow_agent_address_v4, hf_sflow_agent_address_v6};
 
-    union {
-        guint8 v4[4];
-        guint8 v6[16];
-    } agent_address;
     guint32 numsamples;
     volatile guint offset = 0;
     guint i = 0;
@@ -2701,26 +2683,20 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_tree_add_item(sflow_245_tree, hf_sflow_version, tvb, offset, 4, FALSE);
     offset += 4;
 
-    agent_addr_type = tvb_get_ntohl(tvb, offset);
-    offset += 4;
-    switch (agent_addr_type) {
+    offset = dissect_sflow_245_address_type(tvb, sflow_245_tree, offset,
+                                            &addr_type, &addr_details);
+    switch (addr_details.addr_type) {
         case ADDR_TYPE_IPV4:
-            tvb_memcpy(tvb, agent_address.v4, offset, 4);
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", agent %s", ip_to_str(agent_address.v4));
-            proto_tree_add_item(sflow_245_tree, hf_sflow_agent_address_v4, tvb, offset, 4, FALSE);
-            offset += 4;
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", agent %s", ip_to_str(addr_details.agent_address.v4));
             break;
         case ADDR_TYPE_IPV6:
-            tvb_memcpy(tvb, agent_address.v6, offset, 16);
             col_append_fstr(pinfo->cinfo, COL_INFO, ", agent %s",
-                    ip6_to_str((struct e_in6_addr *) agent_address.v6));
-            proto_tree_add_item(sflow_245_tree, hf_sflow_agent_address_v6, tvb, offset, 16, FALSE);
-            offset += 16;
+                    ip6_to_str((struct e_in6_addr *) addr_details.agent_address.v6));
             break;
         default:
             /* unknown address.  this will cause a malformed packet.  */
             return 0;
-    };
+    }
 
     if (version == 5) {
         sub_agent_id = tvb_get_ntohl(tvb, offset);
@@ -2868,8 +2844,8 @@ proto_register_sflow(void) {
             { "Source IP address", "sflow_245.ipv4_src",
                 FT_IPv4, BASE_NONE, NULL, 0x0,
                 "Source IPv4 address", HFILL}},
-        { &hf_sflow_245_ipv4_des,
-            { "Destination IP address", "sflow_245.ipv4_des",
+        { &hf_sflow_245_ipv4_dst,
+            { "Destination IP address", "sflow_245.ipv4_dst",
                 FT_IPv4, BASE_NONE, NULL, 0x0,
                 "Destination IPv4 address", HFILL}},
         { &hf_sflow_245_nexthop_v6,
@@ -2880,8 +2856,8 @@ proto_register_sflow(void) {
             { "Source IP address", "sflow_245.ipv6_src",
                 FT_IPv6, BASE_NONE, NULL, 0x0,
                 "Source IPv6 address", HFILL}},
-        { &hf_sflow_245_ipv6_des,
-            { "Destination IP address", "sflow_245.ipv6_des",
+        { &hf_sflow_245_ipv6_dst,
+            { "Destination IP address", "sflow_245.ipv6_dst",
                 FT_IPv6, BASE_NONE, NULL, 0x0,
                 "Destination IPv6 address", HFILL}},
         { &hf_sflow_245_nexthop_src_mask,
@@ -3492,3 +3468,15 @@ proto_reg_handoff_sflow_245(void) {
 }
 
 
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=4 noexpandtab
+ * :indentSize=4:tabSize=4:noTabs=true:
+ */
