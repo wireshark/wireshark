@@ -1073,15 +1073,17 @@ static const value_string s1ap_ProcedureCode_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext s1ap_ProcedureCode_vals_ext = VALUE_STRING_EXT_INIT(s1ap_ProcedureCode_vals);
+
 
 static int
 dissect_s1ap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 89 "s1ap.cnf"
+#line 94 "s1ap.cnf"
      col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                 val_to_str(ProcedureCode, s1ap_ProcedureCode_vals,
+                 val_to_str_ext(ProcedureCode, &s1ap_ProcedureCode_vals_ext,
                             "unknown message"));
 
   return offset;
@@ -1236,15 +1238,17 @@ static const value_string s1ap_ProtocolIE_ID_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext s1ap_ProtocolIE_ID_vals_ext = VALUE_STRING_EXT_INIT(s1ap_ProtocolIE_ID_vals);
+
 
 static int
 dissect_s1ap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &ProtocolIE_ID, FALSE);
 
-#line 72 "s1ap.cnf"
+#line 77 "s1ap.cnf"
   if (tree) {
-    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(s1ap_ProtocolIE_ID_vals), "unknown (%d)"));
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str_ext(ProtocolIE_ID, &s1ap_ProtocolIE_ID_vals_ext, "unknown (%d)"));
   }
 
   return offset;
@@ -1322,7 +1326,7 @@ static const per_sequence_t ProtocolIE_ContainerList_sequence_of[1] = {
 
 static int
 dissect_s1ap_ProtocolIE_ContainerList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 114 "s1ap.cnf"
+#line 119 "s1ap.cnf"
   static const asn1_par_def_t ProtocolIE_ContainerList_pars[] = {
     { "lowerBound", ASN1_PAR_INTEGER },
     { "upperBound", ASN1_PAR_INTEGER },
@@ -1585,7 +1589,7 @@ dissect_s1ap_BitRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_s1ap_PLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 176 "s1ap.cnf"
+#line 181 "s1ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -2075,6 +2079,8 @@ const value_string s1ap_CauseRadioNetwork_vals[] = {
   {  38, "invalid-CSG-Id" },
   { 0, NULL }
 };
+
+static value_string_ext s1ap_CauseRadioNetwork_vals_ext = VALUE_STRING_EXT_INIT(s1ap_CauseRadioNetwork_vals);
 
 
 static int
@@ -2789,7 +2795,7 @@ dissect_s1ap_ENBname(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_s1ap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 198 "s1ap.cnf"
+#line 203 "s1ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
   proto_tree *subtree;
   gint tvb_len;
@@ -3193,7 +3199,7 @@ static const value_string s1ap_HandoverType_vals[] = {
 
 static int
 dissect_s1ap_HandoverType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 233 "s1ap.cnf"
+#line 238 "s1ap.cnf"
 
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      5, &handover_type_value, TRUE, 0, NULL);
@@ -3398,7 +3404,7 @@ dissect_s1ap_MSClassmark3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_s1ap_NAS_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 189 "s1ap.cnf"
+#line 194 "s1ap.cnf"
 
   tvbuff_t *parameter_tvb=NULL;
   
@@ -3645,7 +3651,7 @@ dissect_s1ap_RepetitionPeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_s1ap_RRC_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 363 "s1ap.cnf"
+#line 368 "s1ap.cnf"
 
 
  gint32 start_offset;
@@ -3878,7 +3884,7 @@ dissect_s1ap_SONConfigurationTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 static int
 dissect_s1ap_Source_ToTarget_TransparentContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 252 "s1ap.cnf"
+#line 257 "s1ap.cnf"
  gint32 start_offset;
  tvbuff_t *parameter_tvb;
  proto_tree *subtree;
@@ -4249,7 +4255,7 @@ dissect_s1ap_TargeteNB_ToSourceeNB_TransparentContainer(tvbuff_t *tvb _U_, int o
 
 static int
 dissect_s1ap_Target_ToSource_TransparentContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 306 "s1ap.cnf"
+#line 311 "s1ap.cnf"
 
  gint32 start_offset;
  tvbuff_t *parameter_tvb;
@@ -4503,7 +4509,7 @@ dissect_s1ap_UEPagingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_s1ap_UERadioCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 423 "s1ap.cnf"
+#line 428 "s1ap.cnf"
 
  gint32 start_offset;
  tvbuff_t *parameter_tvb;
@@ -4599,7 +4605,7 @@ dissect_s1ap_WarningMessageContents(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static int
 dissect_s1ap_E_RAB_IE_ContainerList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 141 "s1ap.cnf"
+#line 146 "s1ap.cnf"
   asn1_stack_frame_push(actx, "ProtocolIE-ContainerList");
   asn1_param_push_integer(actx, 1);
   asn1_param_push_integer(actx, maxNrOfE_RABs);
@@ -4619,7 +4625,7 @@ static const per_sequence_t HandoverRequired_sequence[] = {
 
 static int
 dissect_s1ap_HandoverRequired(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 238 "s1ap.cnf"
+#line 243 "s1ap.cnf"
 	handover_type_value = 0;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4636,7 +4642,7 @@ static const per_sequence_t HandoverCommand_sequence[] = {
 
 static int
 dissect_s1ap_HandoverCommand(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 240 "s1ap.cnf"
+#line 245 "s1ap.cnf"
 	handover_type_value = 0;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -4695,7 +4701,7 @@ static const per_sequence_t HandoverRequest_sequence[] = {
 
 static int
 dissect_s1ap_HandoverRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 242 "s1ap.cnf"
+#line 247 "s1ap.cnf"
 	handover_type_value = 0;
 	
 
@@ -5443,7 +5449,7 @@ static const per_sequence_t DownlinkNASTransport_sequence[] = {
 
 static int
 dissect_s1ap_DownlinkNASTransport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 225 "s1ap.cnf"
+#line 230 "s1ap.cnf"
 	/* Set the direction of the message */
 	actx->pinfo->link_dir=P2P_DIR_DL;
 
@@ -5462,7 +5468,7 @@ static const per_sequence_t InitialUEMessage_sequence[] = {
 
 static int
 dissect_s1ap_InitialUEMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 221 "s1ap.cnf"
+#line 226 "s1ap.cnf"
 	/* Set the direction of the message */
 	actx->pinfo->link_dir=P2P_DIR_UL;
 
@@ -5481,7 +5487,7 @@ static const per_sequence_t UplinkNASTransport_sequence[] = {
 
 static int
 dissect_s1ap_UplinkNASTransport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 229 "s1ap.cnf"
+#line 234 "s1ap.cnf"
 	/* Set the direction of the message */
 	actx->pinfo->link_dir=P2P_DIR_UL;
 
@@ -6141,7 +6147,7 @@ dissect_s1ap_UplinkNonUEAssociatedLPPaTransport(tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_s1ap_InitiatingMessage_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 96 "s1ap.cnf"
+#line 101 "s1ap.cnf"
 	message_type = INITIATING_MESSAGE;
 
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_InitiatingMessageValue);
@@ -6169,7 +6175,7 @@ dissect_s1ap_InitiatingMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_s1ap_SuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 99 "s1ap.cnf"
+#line 104 "s1ap.cnf"
 	message_type = SUCCESSFUL_OUTCOME;
 
   offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_SuccessfulOutcomeValue);
@@ -6197,7 +6203,7 @@ dissect_s1ap_SuccessfulOutcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_s1ap_UnsuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 102 "s1ap.cnf"
+#line 107 "s1ap.cnf"
 	message_type = UNSUCCESSFUL_OUTCOME;
 
 
@@ -8888,7 +8894,7 @@ void proto_register_s1ap(void) {
         NULL, HFILL }},
     { &hf_s1ap_id,
       { "id", "s1ap.id",
-        FT_UINT32, BASE_DEC, VALS(s1ap_ProtocolIE_ID_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &s1ap_ProtocolIE_ID_vals_ext, 0,
         "ProtocolIE_ID", HFILL }},
     { &hf_s1ap_criticality,
       { "criticality", "s1ap.criticality",
@@ -8908,7 +8914,7 @@ void proto_register_s1ap(void) {
         NULL, HFILL }},
     { &hf_s1ap_ext_id,
       { "id", "s1ap.id",
-        FT_UINT8, BASE_DEC, VALS(s1ap_ProtocolIE_ID_vals), 0,
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &s1ap_ProtocolIE_ID_vals_ext, 0,
         "ProtocolExtensionID", HFILL }},
     { &hf_s1ap_extensionValue,
       { "extensionValue", "s1ap.extensionValue",
@@ -9008,7 +9014,7 @@ void proto_register_s1ap(void) {
         NULL, HFILL }},
     { &hf_s1ap_radioNetwork,
       { "radioNetwork", "s1ap.radioNetwork",
-        FT_UINT32, BASE_DEC, VALS(s1ap_CauseRadioNetwork_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &s1ap_CauseRadioNetwork_vals_ext, 0,
         "CauseRadioNetwork", HFILL }},
     { &hf_s1ap_transport,
       { "transport", "s1ap.transport",
@@ -9084,7 +9090,7 @@ void proto_register_s1ap(void) {
         NULL, HFILL }},
     { &hf_s1ap_procedureCode,
       { "procedureCode", "s1ap.procedureCode",
-        FT_UINT32, BASE_DEC, VALS(s1ap_ProcedureCode_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &s1ap_ProcedureCode_vals_ext, 0,
         NULL, HFILL }},
     { &hf_s1ap_triggeringMessage,
       { "triggeringMessage", "s1ap.triggeringMessage",
@@ -9108,7 +9114,7 @@ void proto_register_s1ap(void) {
         "Criticality", HFILL }},
     { &hf_s1ap_iE_ID,
       { "iE-ID", "s1ap.iE_ID",
-        FT_UINT32, BASE_DEC, VALS(s1ap_ProtocolIE_ID_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &s1ap_ProtocolIE_ID_vals_ext, 0,
         "ProtocolIE_ID", HFILL }},
     { &hf_s1ap_typeOfError,
       { "typeOfError", "s1ap.typeOfError",
