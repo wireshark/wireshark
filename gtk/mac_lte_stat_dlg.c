@@ -98,7 +98,7 @@ enum {
 
 static const gchar *ue_titles[] = { "RNTI", "Type", "UEId",
                                     "UL Frames", "UL Bytes", "UL MBit/sec", "UL Padding %", "UL ReTX",
-                                    "DL Frames", "DL Bytes", "DL MBit/sec", "DL CRC Failed", "DL CRC High Code Rate", "DL CRC PSSCH Lost", "DL ReTX"};
+                                    "DL Frames", "DL Bytes", "DL MBit/sec", "DL CRC Failed", "DL CRC High Code Rate", "DL CRC PDSCH Lost", "DL ReTX"};
 
 static const gchar *channel_titles[] = { "CCCH",
                                          "LCID 1", "LCID 2", "LCID 3", "LCID 4", "LCID 5",
