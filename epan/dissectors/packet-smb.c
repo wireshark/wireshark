@@ -17500,7 +17500,7 @@ proto_register_smb(void)
 	static hf_register_info hf[] = {
 	{ &hf_smb_cmd,
 		{ "SMB Command", "smb.cmd", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
-		&smb_cmd_vals, 0x0, NULL, HFILL }},
+		&smb_cmd_vals_ext, 0x0, NULL, HFILL }},
 
 	{ &hf_smb_trans2_subcmd,
 		{ "Subcommand", "smb.trans2.cmd", FT_UINT16, BASE_HEX|BASE_EXT_STRING,
