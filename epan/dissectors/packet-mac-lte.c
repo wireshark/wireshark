@@ -3009,6 +3009,38 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                              tvb, 0, 0, p_mac_lte_info->rntiType);
     PROTO_ITEM_SET_GENERATED(ti);
 
+    /* Check that RNTI value is consistent with given RNTI type */
+    switch (p_mac_lte_info->rntiType) {
+        case P_RNTI:
+            if (p_mac_lte_info->rnti != 0xFFFE) {
+                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                      "P-RNTI indicated, but value is %u (0x%x) (must be 0x%x)",
+                      p_mac_lte_info->rnti, p_mac_lte_info->rnti, 0xFFFE);
+                return;
+            }
+            break;
+        case SI_RNTI:
+            if (p_mac_lte_info->rnti != 0xFFFF) {
+                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                      "SI-RNTI indicated, but value is %u (0x%x) (must be 0x%x)",
+                      p_mac_lte_info->rnti, p_mac_lte_info->rnti, 0xFFFE);
+                return;
+            }
+            break;
+        case RA_RNTI:
+        case C_RNTI:
+            if ((p_mac_lte_info->rnti < 0x0001) || (p_mac_lte_info->rnti > 0xFFF3)) {
+                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                      "%s indicated, but given value %u (0x%x)is out of range",
+                      val_to_str_const(p_mac_lte_info->rntiType,  rnti_type_vals, "Unknown"),
+                      p_mac_lte_info->rnti, p_mac_lte_info->rnti);
+            }
+            return;
+
+        default:
+            break;
+    }
+
     ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_predefined_frame,
                              tvb, 0, 0, p_mac_lte_info->isPredefinedData);
     if (p_mac_lte_info->isPredefinedData) {
