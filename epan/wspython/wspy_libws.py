@@ -27,7 +27,7 @@ import platform
 
 __libwireshark = None
 
-/* XXX - We should probably return a full path here, at least on Windows. */
+# XXX - We should probably return a full path here, at least on Windows.
 def get_libws_libname():
   system = platform.system()
   if system == "Darwin":
