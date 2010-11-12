@@ -203,6 +203,7 @@ static const value_string zbee_mfr_code_names[] = {
     { ZBEE_MFG_CODE_KORWIN,     ZBEE_MFG_KORWIN },
     { ZBEE_MFG_CODE_1_RF,       ZBEE_MFG_1_RF },
     { ZBEE_MFG_CODE_STG,        ZBEE_MFG_STG },
+
     { ZBEE_MFG_CODE_TELEGESIS,  ZBEE_MFG_TELEGESIS },
     { ZBEE_MFG_CODE_VISIONIC,   ZBEE_MFG_VISIONIC },
     { ZBEE_MFG_CODE_INSTA,      ZBEE_MFG_INSTA },
@@ -210,18 +211,20 @@ static const value_string zbee_mfr_code_names[] = {
     { ZBEE_MFG_CODE_ATMEL,      ZBEE_MFG_ATMEL },
     { ZBEE_MFG_CODE_DEVELCO,    ZBEE_MFG_DEVELCO },
     { ZBEE_MFG_CODE_HONEYWELL,  ZBEE_MFG_HONEYWELL },
+    { 0x1017,                   "Unknown" },             /**/
+    { ZBEE_MFG_CODE_RENESAS,    ZBEE_MFG_RENESAS },
+    { ZBEE_MFG_CODE_XANADU,     ZBEE_MFG_XANADU },
     { ZBEE_MFG_CODE_NEC,        ZBEE_MFG_NEC },
     { ZBEE_MFG_CODE_YAMATAKE,   ZBEE_MFG_YAMATAKE },
     { ZBEE_MFG_CODE_TENDRIL,    ZBEE_MFG_TENDRIL },
     { ZBEE_MFG_CODE_ASSA,       ZBEE_MFG_ASSA },
     { ZBEE_MFG_CODE_DIGI,       ZBEE_MFG_DIGI },
-    { ZBEE_MFG_CODE_XANADU,     ZBEE_MFG_XANADU },
     { ZBEE_MFG_CODE_NEUROCOM,   ZBEE_MFG_NEUROCOM },
+
     { ZBEE_MFG_CODE_III,        ZBEE_MFG_III },
     { ZBEE_MFG_CODE_VANTAGE,    ZBEE_MFG_VANTAGE },
     { ZBEE_MFG_CODE_ICONTROL,   ZBEE_MFG_ICONTROL },
     { ZBEE_MFG_CODE_RAYMARINE,  ZBEE_MFG_RAYMARINE },
-    { ZBEE_MFG_CODE_RENESAS,    ZBEE_MFG_RENESAS },
     { ZBEE_MFG_CODE_LSR,        ZBEE_MFG_LSR },
     { ZBEE_MFG_CODE_ONITY,      ZBEE_MFG_ONITY },
     { ZBEE_MFG_CODE_MONO,       ZBEE_MFG_MONO },
@@ -234,11 +237,13 @@ static const value_string zbee_mfr_code_names[] = {
     { ZBEE_MFG_CODE_MINDTECH,   ZBEE_MFG_MINDTECH },
     { ZBEE_MFG_CODE_LGE,        ZBEE_MFG_LGE },
     { ZBEE_MFG_CODE_MITSUBISHI, ZBEE_MFG_MITSUBISHI },
+
     { ZBEE_MFG_CODE_JOHNSON,    ZBEE_MFG_JOHNSON },
     { ZBEE_MFG_CODE_PRI,        ZBEE_MFG_PRI },
     { ZBEE_MFG_CODE_KNICK,      ZBEE_MFG_KNICK },
     { ZBEE_MFG_CODE_VICONICS,   ZBEE_MFG_VICONICS },
     { ZBEE_MFG_CODE_FLEXIPANEL, ZBEE_MFG_FLEXIPANEL },
+    { 0x1035,                   "Unknown" },             /**/
     { ZBEE_MFG_CODE_TRANE,      ZBEE_MFG_TRANE },
     { ZBEE_MFG_CODE_JENNIC,     ZBEE_MFG_JENNIC },
     { ZBEE_MFG_CODE_LIG,        ZBEE_MFG_LIG },
@@ -249,6 +254,7 @@ static const value_string zbee_mfr_code_names[] = {
     { ZBEE_MFG_CODE_MIKROKRETS, ZBEE_MFG_MIKROKRETS },
     { ZBEE_MFG_CODE_OKI,        ZBEE_MFG_OKI },
     { ZBEE_MFG_CODE_NEWPORT,    ZBEE_MFG_NEWPORT },
+
     { ZBEE_MFG_CODE_C4,         ZBEE_MFG_C4 },
     { ZBEE_MFG_CODE_STM,        ZBEE_MFG_STM },
     { ZBEE_MFG_CODE_ASN,        ZBEE_MFG_ASN },
@@ -290,7 +296,8 @@ static const value_string zbee_mfr_code_names[] = {
     { ZBEE_MFG_CODE_KABA,       ZBEE_MFG_KABA },
     { ZBEE_MFG_CODE_SHURE,      ZBEE_MFG_SHURE },
     { ZBEE_MFG_CODE_COMVERGE,   ZBEE_MFG_COMVERGE },
-    /**/
+    { 0x1067,                   "Unknown" },             /**/
+    { 0x1068,                   "Unknown" },             /**/
     { ZBEE_MFG_CODE_HIDALGO,    ZBEE_MFG_HIDALGO },
     { ZBEE_MFG_CODE_AIR2APP,    ZBEE_MFG_AIR2APP },
     { ZBEE_MFG_CODE_AMX,        ZBEE_MFG_AMX },
@@ -301,29 +308,80 @@ static const value_string zbee_mfr_code_names[] = {
 
     { ZBEE_MFG_CODE_KAGA,       ZBEE_MFG_KAGA },
     { ZBEE_MFG_CODE_4_NOKS,     ZBEE_MFG_4_NOKS },
+    { 0x1072,                   "Unknown" },             /**/
+    { 0x1073,                   "Unknown" },             /**/
     { ZBEE_MFG_CODE_PROFILE_SYS,ZBEE_MFG_PROFILE_SYS },
+    { 0x1075,                   "Unknown" },             /**/
     { ZBEE_MFG_CODE_FREESTYLE,  ZBEE_MFG_FREESTYLE },
+    { 0x1077,                   "Unknown" },             /**/
+    { 0x1078,                   "Unknown" },             /**/
     { ZBEE_MFG_CODE_REMOTE     ,ZBEE_MFG_REMOTE },
     { ZBEE_MFG_CODE_WAVECOM,    ZBEE_MFG_WAVECOM },
     { ZBEE_MFG_CODE_ENERGY_OPT, ZBEE_MFG_ENERGY_OPT },
     { ZBEE_MFG_CODE_GE,         ZBEE_MFG_GE },
+    { 0x107d,                   "Unknown" },             /**/
+    { 0x107e,                   "Unknown" },             /**/
+    { 0x107f,                   "Unknown" },             /**/
+
+    { 0x1080,                   "Unknown" },             /**/
+    { 0x1081,                   "Unknown" },             /**/
     { ZBEE_MFG_CODE_MESHWORKS,  ZBEE_MFG_MESHWORKS },
     { ZBEE_MFG_CODE_ELLIPS,     ZBEE_MFG_ELLIPS },
+    { 0x1084,                   "Unknown" },             /**/
     { ZBEE_MFG_CODE_CEDO,       ZBEE_MFG_CEDO },
+    { 0x1086,                   "Unknown" },             /**/
+    { 0x1087,                   "Unknown" },             /**/
+    { 0x1088,                   "Unknown" },             /**/
+    { 0x1089,                   "Unknown" },             /**/
+    { 0x108a,                   "Unknown" },             /**/
+    { 0x108b,                   "Unknown" },             /**/
+    { 0x108c,                   "Unknown" },             /**/
+    { 0x108d,                   "Unknown" },             /**/
+    { 0x108e,                   "Unknown" },             /**/
+    { 0x108f,                   "Unknown" },             /**/
+
+    { 0x1090,                   "Unknown" },             /**/
+    { 0x1091,                   "Unknown" },             /**/
+    { 0x1092,                   "Unknown" },             /**/
+    { 0x1093,                   "Unknown" },             /**/
     { ZBEE_MFG_CODE_A_D,        ZBEE_MFG_A_D },
+    { 0x1095,                   "Unknown" },             /**/
     { ZBEE_MFG_CODE_CARRIER,    ZBEE_MFG_CARRIER },
+    { ZBEE_MFG_CODE_SYCHIP,     ZBEE_MFG_SYCHIP },
+    { 0x1098,                   "Unknown" },             /**/
     { ZBEE_MFG_CODE_PASSIVESYS, ZBEE_MFG_PASSIVESYS },
 #if 0
     { ZBEE_MFG_CODE_G4S_JUSTICE,ZBEE_MFG_G4S_JUSTICE },
     { ZBEE_MFG_CODE_MMB,        ZBEE_MFG_PASSIVESYS },
 #endif
+    { 0x109a,                   "Unknown" },             /**/
     { ZBEE_MFG_CODE_HOME_AUTO,  ZBEE_MFG_HOME_AUTO },
+    { 0x109c,                   "Unknown" },             /**/
+    { 0x109d,                   "Unknown" },             /**/
+    { 0x109e,                   "Unknown" },             /**/
+    { 0x109f,                   "Unknown" },             /**/
+
+    { 0x10a0,                   "Unknown" },             /**/
+    { 0x10a1,                   "Unknown" },             /**/
+    { 0x10a2,                   "Unknown" },             /**/
     { ZBEE_MFG_CODE_SUNRISE,    ZBEE_MFG_SUNRISE },
     { ZBEE_MFG_CODE_MEMTEC,     ZBEE_MFG_MEMTEC },
+    { 0x10a5,                   "Unknown" },             /**/
+    { 0x10a6,                   "Unknown" },             /**/
     { ZBEE_MFG_CODE_BRITISH_GAS,ZBEE_MFG_BRITISH_GAS },
     { ZBEE_MFG_CODE_SENTEC,     ZBEE_MFG_SENTEC },
     { ZBEE_MFG_CODE_NAVETAS,    ZBEE_MFG_NAVETAS },
+    { 0x10aa,                   "Unknown" },             /**/
+    { 0x10ab,                   "Unknown" },             /**/
+    { 0x10ac,                   "Unknown" },             /**/
+    { 0x10ad,                   "Unknown" },             /**/
+    { 0x10ae,                   "Unknown" },             /**/
+    { 0x10af,                   "Unknown" },             /**/
+
+    { 0x10b0,                   "Unknown" },             /**/
+    { 0x10b1,                   "Unknown" },             /**/
     { ZBEE_MFG_CODE_ENERNOC,    ZBEE_MFG_ENERNOC },
+
     { 0, NULL }
 };
 static value_string_ext zbee_mfr_code_names_ext = VALUE_STRING_EXT_INIT(zbee_mfr_code_names);
