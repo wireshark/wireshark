@@ -890,8 +890,6 @@ dissect_sflow_245_address_type(tvbuff_t *tvb, proto_tree *tree, gint offset,
          * length this default case is doomed to failure.  Might
          * as well acknowledge that as soon as possible.
          */
-        DISSECTOR_ASSERT ((addr_type == ADDR_TYPE_IPV4)
-                          || (addr_type == ADDR_TYPE_IPV6));
         proto_tree_add_text(tree, tvb, offset - 4, 4, "Unknown address type (%u)", addr_type);
         return 0;               /* malformed packet */
     }
