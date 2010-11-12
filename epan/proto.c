@@ -5922,23 +5922,36 @@ proto_registrar_dump_protocols(void)
 	}
 }
 
-/* Dumps the value_strings, range_strings or true/false strings for fields
- * that have them. There is one record per line. Fields are tab-delimited.
- * There are three types of records: Value String, Range String
- * and True/False String. The first field, 'V', 'R' or 'T', indicates
+/* Dumps the value_strings, extended value string headers, range_strings
+ * or true/false strings for fields that have them.
+ * There is one record per line. Fields are tab-delimited.
+ * There are four types of records: Value String, Extended Value String Header,
+ * Range String and True/False String. The first field, 'V', 'E', 'R' or 'T', indicates
  * the type of record.
+ *
+ * Note that a record will be generated only if the value_string,... is referenced
+ * in a registered hfinfo entry.
+ *
  *
  * Value Strings
  * -------------
  * Field 1 = 'V'
- * Field 2 = field abbreviation to which this value string corresponds
+ * Field 2 = Field abbreviation to which this value string corresponds
  * Field 3 = Integer value
  * Field 4 = String
+ *
+ * Extended Value String Headers
+ * -----------------------------
+ * Field 1 = 'E'
+ * Field 2 = Field abbreviation to which this extended value string header corresponds
+ * Field 3 = Extended Value String "Name"
+ * Field 4 = Number of entries in the associated value_string array
+ * Field 5 = Access Type: "Linear Search", "Binary Search", "Direct (indexed) Access"
  *
  * Range Strings
  * -------------
  * Field 1 = 'R'
- * Field 2 = field abbreviation to which this range string corresponds
+ * Field 2 = Field abbreviation to which this range string corresponds
  * Field 3 = Integer value: lower bound
  * Field 4 = Integer value: upper bound
  * Field 5 = String
@@ -5946,7 +5959,7 @@ proto_registrar_dump_protocols(void)
  * True/False Strings
  * ------------------
  * Field 1 = 'T'
- * Field 2 = field abbreviation to which this true/false string corresponds
+ * Field 2 = Field abbreviation to which this true/false string corresponds
  * Field 3 = True String
  * Field 4 = False String
  */
@@ -6006,8 +6019,8 @@ proto_registrar_dump_values(void)
 				hfinfo->type == FT_INT32 ||
 				hfinfo->type == FT_INT64)) {
 
-				if ((hfinfo->display & BASE_EXT_STRING)) {
-					vals = VALUE_STRING_EXT_VS_P((value_string_ext *) hfinfo->strings);
+				if (hfinfo->display & BASE_EXT_STRING) {
+					vals = VALUE_STRING_EXT_VS_P((value_string_ext *)hfinfo->strings);
 				} else if ((hfinfo->display & BASE_RANGE_STRING) == 0) {
 					vals = hfinfo->strings;
 				} else {
@@ -6020,6 +6033,15 @@ proto_registrar_dump_values(void)
 
 			/* Print value strings? */
 			if (vals) {
+				if (hfinfo->display & BASE_EXT_STRING) {
+					value_string_ext *vse_p = (value_string_ext *)hfinfo->strings;
+					match_strval_ext(0, vse_p); /* "prime" the extended value_string */
+					printf("E\t%s\t%d\t%s\t%s\n",
+					       hfinfo->abbrev,
+					       VALUE_STRING_EXT_VS_NUM_ENTRIES(vse_p),
+					       VALUE_STRING_EXT_VS_NAME(vse_p),
+					       value_string_ext_match_type_str(vse_p));
+				}
 				vi = 0;
 				while (vals[vi].strptr) {
 					/* Print in the proper base */

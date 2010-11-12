@@ -126,7 +126,12 @@ typedef struct _value_string_ext {
   const gchar *_vs_name;      /* vse "Name" (for error messages)             */
 } value_string_ext;
 
+/* "Acessors" */
 #define VALUE_STRING_EXT_VS_P(x) (x)->_vs_p
+#define VALUE_STRING_EXT_VS_NUM_ENTRIES(x) (x)->_vs_num_entries
+#define VALUE_STRING_EXT_VS_NAME(x) (x)->_vs_name
+gchar *value_string_ext_match_type_str(value_string_ext *vse);
+/* --- --- */
 
 extern const gchar *_match_strval_ext_init(const guint32 val, value_string_ext *vse);
 #define VALUE_STRING_EXT_INIT(x) { (_value_string_match_t) _match_strval_ext_init, 0, array_length(x)-1, x, #x }
