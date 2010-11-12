@@ -5017,11 +5017,11 @@ fill_label_bitfield(field_info *fi, gchar *label_str)
 		} else if (hfinfo->display & BASE_EXT_STRING) {
 			g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
 				 format,  hfinfo->name,
-				 val_to_str_ext(value, (value_string_ext *) hfinfo->strings, "Unknown"), value);
+				 val_to_str_ext_const(value, (value_string_ext *) hfinfo->strings, "Unknown"), value);
 		} else {
 			g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
 				   format,  hfinfo->name,
-				   val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
+				   val_to_str_const(value, cVALS(hfinfo->strings), "Unknown"), value);
 		}
 	}
 	else {
@@ -5063,11 +5063,11 @@ fill_label_uint(field_info *fi, gchar *label_str)
 		} else if (hfinfo->display & BASE_EXT_STRING) {
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				 format,  hfinfo->name,
-				 val_to_str_ext(value, (value_string_ext *) hfinfo->strings, "Unknown"), value);
+				 val_to_str_ext_const(value, (value_string_ext *) hfinfo->strings, "Unknown"), value);
 		} else {
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				   format,  hfinfo->name,
-				   val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
+				   val_to_str_const(value, cVALS(hfinfo->strings), "Unknown"), value);
 		}
 	}
 	else {
@@ -5130,11 +5130,11 @@ fill_label_int(field_info *fi, gchar *label_str)
 		} else if (hfinfo->display & BASE_EXT_STRING) {
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				 format,  hfinfo->name,
-				 val_to_str_ext(value, (value_string_ext *) hfinfo->strings, "Unknown"), value);
+				 val_to_str_ext_const(value, (value_string_ext *) hfinfo->strings, "Unknown"), value);
 		} else {
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				   format,  hfinfo->name,
-				   val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
+				   val_to_str_const(value, cVALS(hfinfo->strings), "Unknown"), value);
 		}
 	}
 	else {
@@ -6722,10 +6722,10 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 							       hf->name, rval_to_str(tmpval, hf->strings, "Unknown"));
 				} else if (hf->display & BASE_EXT_STRING) {
 					proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
-							       hf->name, val_to_str_ext(tmpval, (value_string_ext *) (hf->strings), "Unknown"));
+							       hf->name, val_to_str_ext_const(tmpval, (value_string_ext *) (hf->strings), "Unknown"));
 				} else {
 					proto_item_append_text(item, "%s%s: %s", first ? "" : ", ",
-							       hf->name, val_to_str(tmpval, cVALS(hf->strings), "Unknown"));
+							       hf->name, val_to_str_const(tmpval, cVALS(hf->strings), "Unknown"));
 				}
 				first = FALSE;
 			}
@@ -6942,8 +6942,8 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 				str,	(hf_field->display & BASE_RANGE_STRING) ?
 					rval_to_str((guint32)value, hf_field->strings, "Unknown ") :
 					(hf_field->display & BASE_EXT_STRING) ?
-					val_to_str_ext((guint32)value, (value_string_ext *) (hf_field->strings), "Unknown ") :
-					val_to_str((guint32)value, cVALS(hf_field->strings), "Unknown "),
+					val_to_str_ext_const((guint32)value, (value_string_ext *) (hf_field->strings), "Unknown ") :
+					val_to_str_const((guint32)value, cVALS(hf_field->strings), "Unknown "),
 				(guint32)value);
 			break;
 		}
