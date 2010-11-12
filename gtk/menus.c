@@ -60,6 +60,7 @@
 #include "gtk/dlg_utils.h"
 #include "gtk/capture_file_dlg.h"
 #include "gtk/fileset_dlg.h"
+#include "gtk/file_import_dlg.h"
 #include "gtk/find_dlg.h"
 #include "gtk/goto_dlg.h"
 #include "gtk/summary_dlg.h"
@@ -1004,6 +1005,7 @@ static const char *ui_desc_menubar =
 "         <placeholder name='RecentFiles'/>\n"
 "      </menu>\n"
 "      <menuitem name='Merge' action='/File/Merge'/>\n"
+"      <menuitem name='Import' action='/File/Import'/>\n"
 "      <menuitem name='Close' action='/File/Close'/>\n"
 "      <separator/>\n"
 "      <menuitem name='Save' action='/File/Save'/>\n"
@@ -1313,6 +1315,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
   { "/File/Open",				GTK_STOCK_OPEN,					"_Open...",			"<control>O",			"Open a file",	G_CALLBACK(file_open_cmd_cb) },
   { "/File/OpenRecent",			NULL,							"Open _Recent",		NULL,					NULL,			NULL },
   { "/File/Merge",				NULL,							"_Merge...",		NULL,					NULL,			G_CALLBACK(file_merge_cmd_cb) },
+  { "/File/Import",				NULL,							"_Import...",		NULL,					NULL,			G_CALLBACK(file_import_cmd_cb) },
   { "/File/Close",				GTK_STOCK_CLOSE,				"_Close",			"<control>W",			NULL,			G_CALLBACK(file_close_cmd_cb) },
 
   { "/File/Save",				GTK_STOCK_SAVE,					"_Save",			"<control>S",			NULL,			G_CALLBACK(file_save_cmd_cb) },
@@ -1673,6 +1676,7 @@ static GtkItemFactoryEntry menu_items[] =
                              0, "<StockItem>", GTK_STOCK_OPEN,},
     {"/File/Open _Recent", NULL, NULL, 0, "<Branch>", NULL,},
     {"/File/_Merge...", NULL, GTK_MENU_FUNC(file_merge_cmd_cb), 0, NULL, NULL,},
+    {"/File/_Import...", NULL, GTK_MENU_FUNC(file_import_cmd_cb), 0, NULL, NULL,},
     {"/File/_Close", "<control>W", GTK_MENU_FUNC(file_close_cmd_cb),
                              0, "<StockItem>", GTK_STOCK_CLOSE,},
     {"/File/<separator>", NULL, NULL, 0, "<Separator>", NULL,},

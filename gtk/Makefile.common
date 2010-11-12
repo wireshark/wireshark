@@ -24,15 +24,20 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 # Generated header files that we want in the distribution.
-# (None, so far.)
-GENERATED_HEADER_FILES =
+GENERATED_HEADER_FILES = \
+	text_import_scanner_lex.h
 
 # Generated C source files that we want in the distribution.
 GENERATED_C_FILES = \
-	wireshark-tap-register.c
+	wireshark-tap-register.c	\
+	text_import_scanner.c
 
 # All the generated files we want in the distribution.
 GENERATED_FILES = $(GENERATED_HEADER_FILES) $(GENERATED_C_FILES)
+
+# Files that generate compileable files
+GENERATOR_FILES = \
+	text_import_scanner.l
 
 WIRESHARK_GTK_SRC = \
 	about_dlg.c	\
@@ -61,6 +66,7 @@ WIRESHARK_GTK_SRC = \
 	export_object_smb.c   \
 	filter_autocomplete.c	\
 	file_dlg.c	\
+	file_import_dlg.c	\
 	fileset_dlg.c	\
 	filter_dlg.c	\
 	filter_utils.c	\
@@ -126,6 +132,7 @@ WIRESHARK_GTK_SRC = \
 	summary_dlg.c	\
 	supported_protos_dlg.c	\
 	tap_dfilter_dlg.c	\
+	text_import.c	\
 	text_page_utils.c	\
 	u3.c		\
 	uat_gui.c	\
@@ -243,6 +250,7 @@ noinst_HEADERS = \
 	expert_indicators.h	\
 	export_object.h	\
 	file_dlg.h	\
+	file_import_dlg.h	\
 	fileset_dlg.h	\
 	filter_autocomplete.h	\
 	filter_dlg.h	\

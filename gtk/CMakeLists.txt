@@ -49,6 +49,7 @@ set(WIRESHARK_GTK_SRC
 	export_object_smb.c
 	filter_autocomplete.c
 	file_dlg.c
+	file_import_dlg.c
 	fileset_dlg.c
 	filter_dlg.c
 	filter_utils.c
@@ -114,6 +115,7 @@ set(WIRESHARK_GTK_SRC
 	summary_dlg.c
 	supported_protos_dlg.c
 	tap_dfilter_dlg.c
+	text_import.c
 	text_page_utils.c
 	u3.c
 	uat_gui.c

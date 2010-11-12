@@ -22,6 +22,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 include Makefile.common
+include ../Makefile.am.inc
 
 if HAVE_WARNINGS_AS_ERRORS
 AM_CFLAGS = -Werror
@@ -36,6 +37,8 @@ CLEANFILES = \
 MAINTAINERCLEANFILES = \
 	$(GENERATED_FILES)	\
 	Makefile.in
+
+RUNLEX=$(top_srcdir)/tools/runlex.sh
 
 wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) $(top_srcdir)/tools/make-tapreg-dotc
 	@echo Making wireshark-tap-register.c
