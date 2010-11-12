@@ -1,15 +1,15 @@
 -- $Id$
--- 3GPP TS 29.078 9.0.0 (2009-12)
+-- 3GPP TS 29.078 9.2.0 (2010-06)
 -- 6	Circuit Switched Call Control
 -- 6.1	gsmSSF/CCF - gsmSCF Interface
 -- 6.1.1	Operations and arguments
 CAP-gsmSSF-gsmSCF-ops-args {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
-umts-network(1) modules(3) cap-gsmSSF-gsmSCF-ops-args(101) version5(4)}
+umts-network(1) modules(3) cap-gsmSSF-gsmSCF-ops-args(101) version8(7)}
 
 DEFINITIONS IMPLICIT TAGS ::= BEGIN
 
 -- This module contains the operations and operation arguments used for the
--- gsmSSF - gsmSCF interface, for the control of circuit switched calls.
+-- gsmSSF – gsmSCF interface, for the control of circuit switched calls.
 
 -- The table in subclause 2.1 lists the specifications that contain the modules
 -- that are used by CAP.
@@ -23,7 +23,7 @@ IMPORTS
 	tc-Messages,
 	ros-InformationObjects
 FROM CAP-object-identifiers {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
-umts-network(1) modules(3) cap-object-identifiers(100) version5(4)}
+umts-network(1) modules(3) cap-object-identifiers(100) version8(7)}
 
 	OPERATION
 FROM Remote-Operations-Information-Objects ros-InformationObjects
@@ -45,7 +45,7 @@ cs2(20) modules(0) in-cs2-datatypes (0) version1(0)}
 	IMSI,
 	ISDN-AddressString
 FROM MAP-CommonDataTypes {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
-gsm-Network(1) modules(3) map-CommonDataTypes(18) version9(9)}
+gsm-Network(1) modules(3) map-CommonDataTypes(18) version12(12)}
 
 	CUG-Index,
 	CUG-Interlock,
@@ -56,13 +56,13 @@ gsm-Network(1) modules(3) map-CommonDataTypes(18) version9(9)}
 	SupportedCamelPhases,
 	OfferedCamel4Functionalities
 FROM MAP-MS-DataTypes {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
-gsm-Network(1) modules(3) map-MS-DataTypes(11) version9(9)}
+gsm-Network(1) modules(3) map-MS-DataTypes(11) version12(12)}
 
 	CallReferenceNumber,
 	SuppressionOfAnnouncement,
 	UU-Data
 FROM MAP-CH-DataTypes {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
-gsm-Network(1) modules(3) map-CH-DataTypes(13) version9(9)}
+gsm-Network(1) modules(3) map-CH-DataTypes(13) version12(12)}
 
 	PARAMETERS-BOUND
 FROM CAP-classes classes
@@ -74,7 +74,7 @@ FROM CAP-classes classes
 	opcode-callGap,
 	opcode-callInformationReport,
 	opcode-callInformationRequest,
-	opcode-cancel,
+	opcode-cancel, 
 	opcode-collectInformation,
 	opcode-connect,
 	opcode-connectToResource,
@@ -155,8 +155,8 @@ FROM CAP-operationcodes operationcodes
 	TimerID,
 	TimerValue
 FROM CAP-datatypes datatypes
--- For Rel-6, the CAP-datatypes module is updated to version5(4); Object Identifier 'datatypes'
--- is also updated to version5(4). As a result, the present module uses Rel-6 data type definitions.
+-- For Rel-6, the CAP-datatypes module is updated to version8(7); Object Identifier 'datatypes'
+-- is also updated to version8(7). As a result, the present module uses Rel-6 data type definitions.
 
 	cancelFailed,
 	eTCFailed,
@@ -172,8 +172,8 @@ FROM CAP-datatypes datatypes
 	unknownLegID,
 	unknownCSID
 FROM CAP-errortypes errortypes
--- For Rel-6, the CAP-errortypes module is updated to version5(4); Object Identifier
--- 'errortypes' is also updated to version5(4). As a result, the present module uses Rel-6
+-- For Rel-6, the CAP-errortypes module is updated to version8(7); Object Identifier
+-- 'errortypes' is also updated to version8(7). As a result, the present module uses Rel-6
 -- error type definitions.
 
 ;
@@ -345,13 +345,25 @@ CancelArg {PARAMETERS-BOUND : bound} ::= CHOICE {
 	}
 -- The InvokeID has the same value as that which was used for the operation to be cancelled.
 
-collectInformation OPERATION::= {
-RETURN RESULT		FALSE
-ALWAYS RESPONDS		FALSE
-CODE				opcode-collectInformation}
+collectInformation {PARAMETERS-BOUND : bound} OPERATION::= {
+	ARGUMENT			CollectInformationArg {bound}
+	RETURN RESULT		FALSE
+	ERRORS		{missingParameter |
+					parameterOutOfRange | 
+					SystemFailure	|
+					TaskRefused	|
+					UnexpectedComponentSequence	|
+					UnexpectedDataValue	|
+					UnexpectedParameter}
+	CODE				opcode-collectInformation}
 -- Direction: gsmSCF-> gsmSSF, Timer: Tci 
 -- This operation is used to request the gsmSSF to perform the call
--- processing actions to prompt a calling party for additional destination informationdigits.
+-- processing actions to prompt a calling party for additional digits.
+
+CollectInformationArg {PARAMETERS-BOUND : bound} ::= SEQUENCE{
+	extensions										[0]	Extensions {bound}	OPTIONAL,
+	...
+	}
 
 connect {PARAMETERS-BOUND : bound} OPERATION ::= {
 	ARGUMENT		ConnectArg {bound}
@@ -371,26 +383,25 @@ connect {PARAMETERS-BOUND : bound} OPERATION ::= {
 
 ConnectArg {PARAMETERS-BOUND : bound} ::= SEQUENCE {
 	destinationRoutingAddress			[0] DestinationRoutingAddress {bound},
-	alertingPattern						[1] AlertingPattern				OPTIONAL,
+	alertingPattern						[1] AlertingPattern							OPTIONAL,
 	originalCalledPartyID				[6] OriginalCalledPartyID {bound}			OPTIONAL,
-	extensions					[10] Extensions {bound}					OPTIONAL,
-	carrier						[11] Carrier {bound}					OPTIONAL,
-	callingPartysCategory				[28] CallingPartysCategory				OPTIONAL,
-	redirectingPartyID				[29] RedirectingPartyID {bound}				OPTIONAL,
-	redirectionInformation				[30] RedirectionInformation				OPTIONAL,
-	genericNumbers					[14] GenericNumbers {bound}				OPTIONAL,
-	serviceInteractionIndicatorsTwo 		[15] ServiceInteractionIndicatorsTwo			OPTIONAL,
-	chargeNumber					[19] ChargeNumber {bound}				OPTIONAL,
-	legToBeConnected				[21] LegID						OPTIONAL,
-	cug-Interlock					[31] CUG-Interlock					OPTIONAL,
-	cug-OutgoingAccess				[32] NULL						OPTIONAL,
+	extensions							[10] Extensions {bound}						OPTIONAL,
+	carrier								[11] Carrier {bound}						OPTIONAL,
+	callingPartysCategory				[28] CallingPartysCategory					OPTIONAL,
+	redirectingPartyID					[29] RedirectingPartyID {bound}				OPTIONAL,
+	redirectionInformation				[30] RedirectionInformation					OPTIONAL,
+	genericNumbers						[14] GenericNumbers {bound}					OPTIONAL,
+	serviceInteractionIndicatorsTwo 	[15] ServiceInteractionIndicatorsTwo		OPTIONAL,
+	chargeNumber						[19] ChargeNumber {bound}					OPTIONAL,
+	legToBeConnected					[21] LegID									OPTIONAL,
+	cug-Interlock						[31] CUG-Interlock							OPTIONAL,
+	cug-OutgoingAccess					[32] NULL									OPTIONAL,
 	suppressionOfAnnouncement			[55] SuppressionOfAnnouncement				OPTIONAL,
-	oCSIApplicable					[56] OCSIApplicable					OPTIONAL,
-	naOliInfo					[57] NAOliInfo						OPTIONAL,
-	bor-InterrogationRequested			[58] NULL						OPTIONAL,
-	...,
-	suppress-N-CSI					[59] NULL						OPTIONAL
-
+	oCSIApplicable						[56] OCSIApplicable							OPTIONAL,
+	naOliInfo							[57] NAOliInfo								OPTIONAL,
+	bor-InterrogationRequested			[58] NULL									OPTIONAL,
+	... ,
+	suppress-N-CSI						[59] NULL									OPTIONAL
 	}
 -- na-Info is included at the discretion of the gsmSCF operator.
 
@@ -682,7 +693,9 @@ InitialDPArgExtension {PARAMETERS-BOUND : bound} ::= SEQUENCE {
 -- of playing announcements via elementaryMessageIDs and variableMessages, the playing of
 -- tones and the collection of DTMF digits. Other supported capabilities are explicitly 
 -- detailed in the IPSSPCapabilities parameter itself.
--- Carrier is included at the discretion of the gsmSSF operator.
+-- Carrier is included at the discretion of the gsmSSF operator. 
+-- The UserCSGInformation is conveyed in the LocationInformation. The encoding of the parameter is
+-- as defined in 3GPP TS 29.002 [11].
 
 initiateCallAttempt {PARAMETERS-BOUND : bound} OPERATION ::= {
 	ARGUMENT		InitiateCallAttemptArg {bound}

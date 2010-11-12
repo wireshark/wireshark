@@ -1,16 +1,16 @@
 -- $Id$
--- 3GPP TS 29.078 9.0.0 (2009-12)
+-- 3GPP TS 29.078 9.2.0 (2010-06)
 -- 8	GPRS Control
 -- 8.1	gsmSCF/gprsSSF operations and arguments
 CAP-gprsSSF-gsmSCF-ops-args {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
-umts-network(1) modules(3) cap-GPRS-ops-args(107) version5(4)}
--- Module CAP-gprsSSF-gsmSCF-ops-args is updated to version5(4) for Rel-6. The OPERATION
+umts-network(1) modules(3) cap-GPRS-ops-args(107) version8(7)}
+-- Module CAP-gprsSSF-gsmSCF-ops-args is updated to version8(7) for Rel-6. The OPERATION
 -- definitions in this module are not modified, compared to Rel-5.
 
 DEFINITIONS IMPLICIT TAGS ::= BEGIN
 
 -- This module contains the operations and operation arguments used for the
--- gprsSSF - gsmSCF interface, for the control of GPRS.
+-- gprsSSF – gsmSCF interface, for the control of GPRS.
 
 -- The table in subclause 2.1 lists the specifications that contain the modules
 -- that are used by CAP.
@@ -23,7 +23,7 @@ IMPORTS
 	classes,
 	ros-InformationObjects
 FROM CAP-object-identifiers {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
-umts-network(1) modules(3) cap-object-identifiers(100) version5(4)}
+umts-network(1) modules(3) cap-object-identifiers(100) version8(7)}
 
 	OPERATION
 FROM Remote-Operations-Information-Objects ros-InformationObjects
@@ -41,13 +41,14 @@ cs2(20) modules(0) in-cs2-datatypes (0) version1(0)}
 	GSN-Address, -- WS moved to common datatypes in rel 9.0.0
 	ISDN-AddressString
 FROM MAP-CommonDataTypes {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
-gsm-Network(1) modules(3) map-CommonDataTypes(18) version9(9)}
+gsm-Network(1) modules(3) map-CommonDataTypes(18) version12(12)}
 
 	GPRSChargingID,
 	GPRSMSClass,
+--	GSN-Address,  WS moved to common datatypes in rel 9.0.0
 	RAIdentity
 FROM MAP-MS-DataTypes {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
-gsm-Network(1) modules(3) map-MS-DataTypes(11) version9(9)}
+gsm-Network(1) modules(3) map-MS-DataTypes(11) version12(12)}
 
 	PARAMETERS-BOUND
 FROM CAP-classes classes
@@ -91,8 +92,8 @@ FROM CAP-operationcodes operationcodes
 	TimerID,
 	TimerValue
 FROM CAP-datatypes datatypes
--- For Rel-6, the CAP-datatypes module is updated to version5(4); Object Identifier 'datatypes'
--- is also updated to version5(4). As a result, the present module uses Rel-6 data type definitions.
+-- For Rel-6, the CAP-datatypes module is updated to version8(7); Object Identifier 'datatypes'
+-- is also updated to version8(7). As a result, the present module uses Rel-6 data type definitions.
 
 	missingCustomerRecord,
 	missingParameter,
@@ -104,8 +105,8 @@ FROM CAP-datatypes datatypes
 	unexpectedParameter,
 	unknownPDPID
 FROM CAP-errortypes errortypes
--- For Rel-6, the CAP-errortypes module is updated to version5(4); Object Identifier
--- 'errortypes' is also updated to version5(4). As a result, the present module uses Rel-6
+-- For Rel-6, the CAP-errortypes module is updated to version8(7); Object Identifier
+-- 'errortypes' is also updated to version8(7). As a result, the present module uses Rel-6
 -- error type definitions.
 
 ;
@@ -319,7 +320,9 @@ InitialDPGPRSArg {PARAMETERS-BOUND : bound}::= SEQUENCE {
 	}
 --	The RouteingAreaIdentity parameter is not used. 
 --	The receiving entity shall ignore RouteingAreaIdentity if received.
---  The RouteingAreaIdentity is conveyed in the LocationInformationGPRS parameter.
+--  The RouteingAreaIdentity is conveyed in the LocationInformationGPRS parameter. 
+--  The CSGInformation is conveyed in the LocationInformationGPRS parameter. The encoding of the
+--  parameter is as defined in 3GPP TS 29.002 [11].
 
 releaseGPRS {PARAMETERS-BOUND : bound} OPERATION ::= {
 	ARGUMENT		ReleaseGPRSArg {bound}
@@ -372,7 +375,7 @@ resetTimerGPRS OPERATION ::= {
 					unexpectedParameter |
 					unknownPDPID}
 	CODE			opcode-resetTimerGPRS}
---  Direction: gsmSCF -? gprsSSF, Timer: Trtg
+--  Direction: gsmSCF –? gprsSSF, Timer: Trtg
 --  This operation is used to request the gprsSSF to refresh an application timer in the gprsSSF.
 
 ResetTimerGPRSArg ::= SEQUENCE {

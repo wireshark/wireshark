@@ -1,14 +1,14 @@
 -- $Id$
--- 3GPP TS 29.078 9.0.0 (2009-12)
+-- 3GPP TS 29.078 9.2.0 (2010-06)
 -- 6.2	gsmSCF/gsmSRF interface
 -- 6.2.1	gsmSCF/gsmSRF operations and arguments
 CAP-gsmSCF-gsmSRF-ops-args {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
-umts-network(1) modules(3) cap-gsmSCF-gsmSRF-ops-args(103) version5(4)}
+umts-network(1) modules(3) cap-gsmSCF-gsmSRF-ops-args(103) version8(7)}
 
 DEFINITIONS IMPLICIT TAGS ::= BEGIN
 
 -- This module contains the operations and operation arguments used for the
--- gsmSRF - gsmSCF interface, for the control of circuit switched calls.
+-- gsmSRF – gsmSCF interface, for the control of circuit switched calls.
 
 -- The table in subclause 2.1 lists the specifications that contain the modules
 -- that are used by CAP.
@@ -31,8 +31,8 @@ FROM CAP-operationcodes operationcodes
 	Extensions {},
 	InformationToSend {}
 FROM CAP-datatypes datatypes
--- For Rel-6, the CAP-datatypes module is updated to version5(4); Object Identifier 'datatypes'
--- is also updated to version5(4). As a result, the present module uses Rel-6 data type definitions.
+-- For Rel-6, the CAP-datatypes module is updated to version8(7); Object Identifier 'datatypes'
+-- is also updated to version8(7). As a result, the present module uses Rel-6 data type definitions.
 
 	canceled,
 	improperCallerResponse,
@@ -46,8 +46,8 @@ FROM CAP-datatypes datatypes
 	unexpectedParameter,
 	unknownCSID
 FROM CAP-errortypes errortypes
--- For Rel-6, the CAP-errortypes module is updated to version5(4); Object Identifier
--- 'errortypes' is also updated to version5(4). As a result, the present module uses Rel-6
+-- For Rel-6, the CAP-errortypes module is updated to version8(7); Object Identifier
+-- 'errortypes' is also updated to version8(7). As a result, the present module uses Rel-6
 -- error type definitions.
 
 	PARAMETERS-BOUND
@@ -59,7 +59,7 @@ FROM CAP-classes classes
 	errortypes,
 	classes
 FROM CAP-object-identifiers {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
-umts-network(1) modules(3) cap-object-identifiers(100) version5(4)}
+umts-network(1) modules(3) cap-object-identifiers(100) version8(7)}
 
 ;
 

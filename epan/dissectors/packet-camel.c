@@ -133,6 +133,7 @@ static int hf_camel_CallGapArg_PDU = -1;          /* CallGapArg */
 static int hf_camel_CallInformationReportArg_PDU = -1;  /* CallInformationReportArg */
 static int hf_camel_CallInformationRequestArg_PDU = -1;  /* CallInformationRequestArg */
 static int hf_camel_CancelArg_PDU = -1;           /* CancelArg */
+static int hf_camel_CollectInformationArg_PDU = -1;  /* CollectInformationArg */
 static int hf_camel_ConnectArg_PDU = -1;          /* ConnectArg */
 static int hf_camel_ConnectToResourceArg_PDU = -1;  /* ConnectToResourceArg */
 static int hf_camel_ContinueWithArgumentArg_PDU = -1;  /* ContinueWithArgumentArg */
@@ -373,6 +374,7 @@ static int hf_camel_sgsn_Number = -1;             /* ISDN_AddressString */
 static int hf_camel_selectedLSAIdentity = -1;     /* LSAIdentity */
 static int hf_camel_extensionContainer = -1;      /* ExtensionContainer */
 static int hf_camel_sai_Present = -1;             /* NULL */
+static int hf_camel_userCSGInformation = -1;      /* UserCSGInformation */
 static int hf_camel_elementaryMessageID = -1;     /* Integer4 */
 static int hf_camel_text = -1;                    /* T_text */
 static int hf_camel_messageContent = -1;          /* IA5String_SIZE_bound__minMessageContentLength_bound__maxMessageContentLength */
@@ -750,6 +752,7 @@ static gint ett_camel_CallGapArg = -1;
 static gint ett_camel_CallInformationReportArg = -1;
 static gint ett_camel_CallInformationRequestArg = -1;
 static gint ett_camel_CancelArg = -1;
+static gint ett_camel_CollectInformationArg = -1;
 static gint ett_camel_ConnectArg = -1;
 static gint ett_camel_ConnectToResourceArg = -1;
 static gint ett_camel_T_resourceAddress = -1;
@@ -942,19 +945,19 @@ static const value_string camel_ectTreatmentIndicator_values[] = {
 #define tc_Messages                    "0.0.17.773.2.1.3"
 #define tc_NotationExtensions          "0.0.17.775.2.4.1"
 #define ros_InformationObjects         "2.4.5.0"
-#define datatypes                      "0.4.0.0.1.3.52.4"
-#define errortypes                     "0.4.0.0.1.3.51.4"
-#define operationcodes                 "0.4.0.0.1.3.53.4"
-#define errorcodes                     "0.4.0.0.1.3.57.4"
-#define classes                        "0.4.0.0.1.3.54.4"
-#define gsmSSF_gsmSCF_Operations       "0.4.0.0.1.3.101.4"
-#define gsmSSF_gsmSCF_Protocol         "0.4.0.0.1.3.102.4"
-#define gsmSCF_gsmSRF_Operations       "0.4.0.0.1.3.103.4"
-#define gsmSCF_gsmSRF_Protocol         "0.4.0.0.1.3.104.4"
-#define sms_Operations                 "0.4.0.0.1.3.105.4"
-#define smsSSF_gsmSCF_Protocol         "0.4.0.0.1.3.106.4"
-#define gprsSSF_gsmSCF_Operations      "0.4.0.0.1.3.107.4"
-#define gprsSSF_gsmSCF_Protocol        "0.4.0.0.1.3.108.4"
+#define datatypes                      "0.4.0.0.1.3.52.7"
+#define errortypes                     "0.4.0.0.1.3.51.7"
+#define operationcodes                 "0.4.0.0.1.3.53.7"
+#define errorcodes                     "0.4.0.0.1.3.57.7"
+#define classes                        "0.4.0.0.1.3.54.7"
+#define gsmSSF_gsmSCF_Operations       "0.4.0.0.1.3.101.7"
+#define gsmSSF_gsmSCF_Protocol         "0.4.0.0.1.3.102.7"
+#define gsmSCF_gsmSRF_Operations       "0.4.0.0.1.3.103.7"
+#define gsmSCF_gsmSRF_Protocol         "0.4.0.0.1.3.104.7"
+#define sms_Operations                 "0.4.0.0.1.3.105.7"
+#define smsSSF_gsmSCF_Protocol         "0.4.0.0.1.3.106.7"
+#define gprsSSF_gsmSCF_Operations      "0.4.0.0.1.3.107.7"
+#define gprsSSF_gsmSCF_Protocol        "0.4.0.0.1.3.108.7"
 #define id_CAP                         "0.4.0.0.1.22"
 #define id_CAP3                        "0.4.0.0.1.20"
 #define id_CAPOE                       "0.4.0.0.1.23"
@@ -4336,6 +4339,16 @@ dissect_camel_T_cellGlobalIdOrServiceAreaIdOrLAI(gboolean implicit_tag _U_, tvbu
 }
 
 
+
+static int
+dissect_camel_UserCSGInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
 static const ber_sequence_t LocationInformationGPRS_sequence[] = {
   { &hf_camel_cellGlobalIdOrServiceAreaIdOrLAI, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_T_cellGlobalIdOrServiceAreaIdOrLAI },
   { &hf_camel_routeingAreaIdentity, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_RAIdentity },
@@ -4344,6 +4357,7 @@ static const ber_sequence_t LocationInformationGPRS_sequence[] = {
   { &hf_camel_selectedLSAIdentity, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_LSAIdentity },
   { &hf_camel_extensionContainer, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ExtensionContainer },
   { &hf_camel_sai_Present   , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_NULL },
+  { &hf_camel_userCSGInformation, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_UserCSGInformation },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -5213,6 +5227,20 @@ dissect_camel_CancelArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  CancelArg_choice, hf_index, ett_camel_CancelArg,
                                  NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t CollectInformationArg_sequence[] = {
+  { &hf_camel_extensions    , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_Extensions },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_camel_CollectInformationArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   CollectInformationArg_sequence, hf_index, ett_camel_CollectInformationArg);
 
   return offset;
 }
@@ -6464,6 +6492,13 @@ static int dissect_CancelArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
   offset = dissect_camel_CancelArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_CancelArg_PDU);
   return offset;
 }
+static int dissect_CollectInformationArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_camel_CollectInformationArg(FALSE, tvb, offset, &asn1_ctx, tree, hf_camel_CollectInformationArg_PDU);
+  return offset;
+}
 static int dissect_ConnectArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -6784,6 +6819,9 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
       break;
     case opcode_cancel:  /* cancel */
       offset= dissect_CancelArg_PDU(tvb, actx->pinfo , tree);
+      break;
+    case opcode_collectInformation:  /* collectInformation */
+      offset= dissect_CollectInformationArg_PDU(tvb, actx->pinfo , tree);
       break;
     case opcode_connect:  /* connect */
       offset= dissect_ConnectArg_PDU(tvb, actx->pinfo , tree);
@@ -7315,6 +7353,10 @@ void proto_register_camel(void) {
     { &hf_camel_CancelArg_PDU,
       { "CancelArg", "camel.CancelArg",
         FT_UINT32, BASE_DEC, VALS(camel_CancelArg_vals), 0,
+        NULL, HFILL }},
+    { &hf_camel_CollectInformationArg_PDU,
+      { "CollectInformationArg", "camel.CollectInformationArg",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_camel_ConnectArg_PDU,
       { "ConnectArg", "camel.ConnectArg",
@@ -8275,6 +8317,10 @@ void proto_register_camel(void) {
     { &hf_camel_sai_Present,
       { "sai-Present", "camel.sai_Present",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_camel_userCSGInformation,
+      { "userCSGInformation", "camel.userCSGInformation",
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_camel_elementaryMessageID,
       { "elementaryMessageID", "camel.elementaryMessageID",
@@ -9281,6 +9327,7 @@ void proto_register_camel(void) {
     &ett_camel_CallInformationReportArg,
     &ett_camel_CallInformationRequestArg,
     &ett_camel_CancelArg,
+    &ett_camel_CollectInformationArg,
     &ett_camel_ConnectArg,
     &ett_camel_ConnectToResourceArg,
     &ett_camel_T_resourceAddress,

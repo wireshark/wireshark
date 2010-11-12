@@ -1,15 +1,15 @@
 -- $Id$
--- 3GPP TS 29.078 9.0.0 (2009-12)
+-- 3GPP TS 29.078 9.2.0 (2010-06)
 -- 7	SMS Control
 -- 7.1	SMS operations and arguments
-CAP-SMS-ops-args {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) umts-network(1) modules(3) cap-SMS-ops-args(105) version5(4)}
--- The module CAP-SMS-ops-args is updated to version5(4) for Rel-6. The OPERATION definitions
+CAP-SMS-ops-args {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) umts-network(1) modules(3) cap-SMS-ops-args(105) version8(7)}
+-- The module CAP-SMS-ops-args is updated to version8(7) for Rel-6. The OPERATION definitions
 -- are not modified.
 
 DEFINITIONS IMPLICIT TAGS::= BEGIN
 
 -- This module contains the operations and operation arguments used for the
--- smsSSF- gsmSCF interface, for the control of MO-SMS and MT-SMS.
+-- smsSSF– gsmSCF interface, for the control of MO-SMS and MT-SMS.
 
 -- The table in subclause 2.1 lists the specifications that contain the modules
 -- that are used by CAP.
@@ -23,7 +23,7 @@ IMPORTS
 	ros-InformationObjects,
 	tc-Messages
 FROM CAP-object-identifiers {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
-umts-network(1) modules(3) cap-object-identifiers(100) version5(4)}
+umts-network(1) modules(3) cap-object-identifiers(100) version8(7)}
 
 	OPERATION
 FROM Remote-Operations-Information-Objects ros-InformationObjects
@@ -40,13 +40,13 @@ cs2(20) modules(0) in-cs2-datatypes (0) version1(0)}
 	IMSI,
 	ISDN-AddressString
 FROM MAP-CommonDataTypes {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
-gsm-Network(1) modules(3) map-CommonDataTypes(18) version9(9)}
+gsm-Network(1) modules(3) map-CommonDataTypes(18) version12(12)}
 
 	GPRSMSClass,
 	LocationInformation,
 	MS-Classmark2
 FROM MAP-MS-DataTypes {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
-gsm-Network(1) modules(3) map-MS-DataTypes(11) version9(9)}
+gsm-Network(1) modules(3) map-MS-DataTypes(11) version12(12)}
 
 	PARAMETERS-BOUND
 FROM CAP-classes classes
@@ -79,8 +79,8 @@ FROM CAP-operationcodes operationcodes
 	TPShortMessageSpecificInfo,
 	TPValidityPeriod
 FROM CAP-datatypes datatypes
--- For Rel-6, the CAP-datatypes module is updated to version5(4); Object Identifier 'datatypes'
--- is also updated to version5(4). As a result, the present module uses Rel-6 data type definitions.
+-- For Rel-6, the CAP-datatypes module is updated to version8(7); Object Identifier 'datatypes'
+-- is also updated to version8(7). As a result, the present module uses Rel-6 data type definitions.
 
 	missingCustomerRecord,
 	missingParameter,
@@ -91,13 +91,13 @@ FROM CAP-datatypes datatypes
 	unexpectedDataValue,
 	unexpectedParameter
 FROM CAP-errortypes errortypes
--- For Rel-6, the CAP-errortypes module is updated to version5(4); Object Identifier
--- 'errortypes' is also updated to version5(4). As a result, the present module uses Rel-6
+-- For Rel-6, the CAP-errortypes module is updated to version8(7); Object Identifier
+-- 'errortypes' is also updated to version8(7). As a result, the present module uses Rel-6
 -- error type definitions.
 
 	CallReferenceNumber
 FROM MAP-CH-DataTypes {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
-gsm-Network(1) modules(3) map-CH-DataTypes(13) version9(9)}
+gsm-Network(1) modules(3) map-CH-DataTypes(13) version12(12)}
 
 ;
 
@@ -209,6 +209,9 @@ InitialDPSMSArg {PARAMETERS-BOUND : bound} ::= SEQUENCE {
 	iMEI								[19] IMEI									OPTIONAL,
 	calledPartyNumber					[20] ISDN-AddressString						OPTIONAL
 	}
+
+--  The UserCSGInformation is conveyed in the LocationInformation for CS and LocationInformationGPRS
+--  for GPRS. The encoding of the parameter is as defined in 3GPP TS 29.002 [11].
 
 releaseSMS OPERATION ::= {
 	ARGUMENT		ReleaseSMSArg

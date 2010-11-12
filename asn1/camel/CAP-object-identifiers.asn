@@ -1,8 +1,8 @@
 -- $Id$
--- 3GPP TS 29.078 9.0.0 (2009-12)
+-- 3GPP TS 29.078 9.2.0 (2010-06)
 -- 5.6	Object IDentifiers (IDs)
 CAP-object-identifiers {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
-umts-network(1) modules(3) cap-object-identifiers(100) version5(4)}
+umts-network(1) modules(3) cap-object-identifiers(100) version8(7)}
 
 DEFINITIONS ::= BEGIN
 
@@ -23,71 +23,71 @@ ros-InformationObjects							OBJECT IDENTIFIER ::=
 -- For CAP Modules
 datatypes										OBJECT IDENTIFIER ::=
 	{itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) umts-network(1) modules(3)
-	cap-datatypes(52) version5(4)}
+	cap-datatypes(52) version8(7)}
 
 errortypes										OBJECT IDENTIFIER ::=
 	{itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) umts-network(1) modules(3)
-	cap-errortypes(51) version5(4)}
+	cap-errortypes(51) version8(7)}
 
 operationcodes									OBJECT IDENTIFIER ::=
 	{itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) umts-network(1) modules(3)
-	cap-operationcodes(53) version5(4)}
+	cap-operationcodes(53) version8(7)}
 
 errorcodes										OBJECT IDENTIFIER ::=
 	{itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) umts-network(1) modules(3)
-	cap-errorcodes(57) version5(4)}
+	cap-errorcodes(57) version8(7)}
 
 classes											OBJECT IDENTIFIER ::=
 	{itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) umts-network(1) modules(3)
-	cap-classes(54) version5(4)}
+	cap-classes(54) version8(7)}
 
 
 gsmSSF-gsmSCF-Operations						OBJECT IDENTIFIER ::=
 	{itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) umts-network(1) modules(3)
-	cap-gsmSSF-gsmSCF-ops-args(101) version5(4)}
--- The Object Identifier 'gsmSSF-gsmSCF-Operations' is updated to version5(4) in Rel-6, so
+	cap-gsmSSF-gsmSCF-ops-args(101) version8(7)}
+-- The Object Identifier 'gsmSSF-gsmSCF-Operations’ is updated to version8(7) in Rel-6, so
 -- other modules can IMPORT Rel-6 Operation definitions related to call control.
 
 gsmSSF-gsmSCF-Protocol							OBJECT IDENTIFIER ::=
 	{itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) umts-network(1) modules(3)
-	cap-gsmSSF-gsmSCF-pkgs-contracts-acs(102) version5(4)}
--- The Object Identifier 'gsmSSF-gsmSCF-Protocol' is updated to version5(4) in Rel-6, so
+	cap-gsmSSF-gsmSCF-pkgs-contracts-acs(102) version8(7)}
+-- The Object Identifier 'gsmSSF-gsmSCF-Protocol' is updated to version8(7) in Rel-6, so
 -- other modules can IMPORT Rel-6 Protocol definitions related to call control.
 
 gsmSCF-gsmSRF-Operations						OBJECT IDENTIFIER ::=
 	{itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) umts-network(1) modules(3)
-	cap-gsmSCF-gsmSRF-ops-args(103) version5(4)}
--- The Object Identifier 'gsmSCF-gsmSRF-Operations' is updated to version5(4) in Rel-6, so
+	cap-gsmSCF-gsmSRF-ops-args(103) version8(7)}
+-- The Object Identifier 'gsmSCF-gsmSRF-Operations' is updated to version8(7) in Rel-6, so
 -- other modules can IMPORT Rel-6 Operation definitions related to gsmSRF control.
 
 gsmSCF-gsmSRF-Protocol							OBJECT IDENTIFIER ::=
 	{itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) umts-network(1) modules(3)
-	cap-gsmSCF-gsmSRF-pkgs-contracts-acs(104) version5(4)}
--- The Object Identifier 'gsmSCF-gsmSRF-Protocol' is updated to version5(4) in Rel-6, so
+	cap-gsmSCF-gsmSRF-pkgs-contracts-acs(104) version8(7)}
+-- The Object Identifier 'gsmSCF-gsmSRF-Protocol' is updated to version8(7) in Rel-6, so
 -- other modules can IMPORT Rel-6 Protocol definitions related to gsmSRF control.
 
 sms-Operations									OBJECT IDENTIFIER ::=
 	{itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) umts-network(1) modules(3)
-	cap-SMS-ops-args(105) version5(4)}
--- The Object Identifier 'sms-Operations' is updated to version5(4) in Rel-6, so other
+	cap-SMS-ops-args(105) version8(7)}
+-- The Object Identifier 'sms-Operations' is updated to version8(7) in Rel-6, so other
 -- modules can IMPORT Rel-6 Operation definitions related to SMS control.
 
 smsSSF-gsmSCF-Protocol							OBJECT IDENTIFIER ::=
 	{itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) umts-network(1) modules(3)
-	cap-smsSSF-gsmSCF-pkgs-contracts-acs(106) version5(4)}
--- The Object Identifier 'smsSSF-gsmSCF-Protocol' is updated to version5(4) in Rel-6, so
+	cap-smsSSF-gsmSCF-pkgs-contracts-acs(106) version8(7)}
+-- The Object Identifier 'smsSSF-gsmSCF-Protocol' is updated to version8(7) in Rel-6, so
 -- other modules can IMPORT Rel-6 Protocol definitions related to SMS control.
 
 gprsSSF-gsmSCF-Operations						OBJECT IDENTIFIER ::=
 	{itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) umts-network(1) modules(3)
-	cap-GPRS-ops-args(107) version5(4)}
--- The Object Identifier 'gprsSSF-gsmSCF-Operations' is updated to version5(4) in Rel-6, so
+	cap-GPRS-ops-args(107) version8(7)}
+-- The Object Identifier 'gprsSSF-gsmSCF-Operations' is updated to version8(7) in Rel-6, so
 -- other modules can IMPORT Rel-6 Operation definitions related to GPRS control.
 
 gprsSSF-gsmSCF-Protocol							OBJECT IDENTIFIER ::=
 	{itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) umts-network(1) modules(3)
-	cap-gprsSSF-gsmSCF-pkgs-contracts-acs(108) version5(4)}
--- The Object Identifier 'gprsSSF-gsmSCF-Protocol' is updated to version5(4) in Rel-6, so
+	cap-gprsSSF-gsmSCF-pkgs-contracts-acs(108) version8(7)}
+-- The Object Identifier 'gprsSSF-gsmSCF-Protocol' is updated to version8(7) in Rel-6, so
 -- other modules can IMPORT Rel-6 Protocol definitions related to GPRS control.
 
 id-CAP											OBJECT IDENTIFIER ::=
