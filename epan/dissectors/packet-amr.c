@@ -167,7 +167,7 @@ static const value_string amr_nb_codec_mode_request_vals[] = {
 	{6,		"AMR 10,2 kbit/s"},
 	{7,		"AMR 12,2 kbit/s (GSM-EFR)"},
 	{8,		"Illegal Frametype - For future use"},
-	{8,		"Illegal Frametype - For future use"},
+	{9,		"Illegal Frametype - For future use"},
 	{10,	"Illegal Frametype - For future use"},
 	{11,	"Illegal Frametype - For future use"},
 	{12,	"Illegal Frametype - For future use"},
