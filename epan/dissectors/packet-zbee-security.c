@@ -494,30 +494,30 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     packet.key_id   = zbee_get_bit_field(packet.control, ZBEE_SEC_CONTROL_KEY);
     packet.nonce    = zbee_get_bit_field(packet.control, ZBEE_SEC_CONTROL_NONCE);
     if (tree) {
-        ti = proto_tree_add_text(sec_tree, tvb, offset, sizeof(guint8), "Security Control Field");
+        ti = proto_tree_add_text(sec_tree, tvb, offset, 1, "Security Control Field");
         field_tree = proto_item_add_subtree(ti, ett_zbee_sec_control);
 
-        proto_tree_add_uint(field_tree, hf_zbee_sec_key_id, tvb, offset, sizeof(guint8),
+        proto_tree_add_uint(field_tree, hf_zbee_sec_key_id, tvb, offset, 1,
                                 packet.control & ZBEE_SEC_CONTROL_KEY);
-        proto_tree_add_boolean(field_tree, hf_zbee_sec_nonce, tvb, offset, sizeof(guint8),
+        proto_tree_add_boolean(field_tree, hf_zbee_sec_nonce, tvb, offset, 1,
                                 packet.control & ZBEE_SEC_CONTROL_NONCE);
     }
-    offset += sizeof(guint8);
+    offset += 1;
 
     /* Get and display the frame counter field. */
     packet.counter = tvb_get_letohl(tvb, offset);
     if (tree) {
-        proto_tree_add_uint(sec_tree, hf_zbee_sec_counter, tvb, offset, sizeof(guint32), packet.counter);
+        proto_tree_add_uint(sec_tree, hf_zbee_sec_counter, tvb, offset, 4, packet.counter);
     }
-    offset += sizeof(guint32);
+    offset += 4;
 
     if (packet.nonce) {
         /* Get and display the source address of the device that secured this payload. */
         packet.src64 = tvb_get_letoh64(tvb, offset);
         if (tree) {
-            proto_tree_add_eui64(sec_tree, hf_zbee_sec_src64, tvb, offset, sizeof(guint64), packet.src64);
+            proto_tree_add_eui64(sec_tree, hf_zbee_sec_src64, tvb, offset, 8, packet.src64);
         }
-        offset += sizeof(guint64);
+        offset += 8;
     }
     else {
         /* Look for a source address in hints */
@@ -525,13 +525,13 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
             case ZBEE_SEC_KEY_NWK:
                 /* use the ieee extended source address for NWK decryption */
                 if ( ieee_hints && (map_rec = ieee_hints->map_rec) ) packet.src64 = map_rec->addr64;
-                else if (tree) proto_tree_add_text(sec_tree, tvb, 0, 0, "Source: Unknown");
+                else if (tree) proto_tree_add_text(sec_tree, tvb, 0, 0, "[Source: Unknown]");
                 break;
 
             default:
                 /* use the nwk extended source address for APS decryption */
                 if ( nwk_hints && (map_rec = nwk_hints->map_rec) ) packet.src64 = map_rec->addr64;
-                else if (tree) proto_tree_add_text(sec_tree, tvb, 0, 0, "Source: Unknown");
+                else if (tree) proto_tree_add_text(sec_tree, tvb, 0, 0, "[Source: Unknown]");
                 break;
         }
     }
@@ -540,9 +540,9 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
         /* Get and display the key sequence number. */
         packet.key_seqno = tvb_get_guint8(tvb, offset);
         if (tree) {
-            proto_tree_add_uint(sec_tree, hf_zbee_sec_key_seqno, tvb, offset, sizeof(guint8), packet.key_seqno);
+            proto_tree_add_uint(sec_tree, hf_zbee_sec_key_seqno, tvb, offset, 1, packet.key_seqno);
         }
-        offset += sizeof(guint8);
+        offset += 1;
     }
 
     /* Determine the length of the MIC. */
@@ -569,9 +569,6 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
             break;
     } /* switch */
 
-    /* Ensure that the payload exists (length >= 1) for this length. */
-    payload_len = tvb_ensure_length_remaining(tvb, offset+mic_len+1)+1;
-
     /* Get and display the MIC. */
     if (mic_len) {
         /* Display the MIC. */
@@ -579,6 +576,11 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
            ti = proto_tree_add_item(sec_tree, hf_zbee_sec_mic, tvb, (gint)(tvb_length(tvb)-mic_len),
                    mic_len, ENC_BIG_ENDIAN);
         }
+    }
+
+    /* Check for null payload. */
+    if ( !(payload_len = tvb_length_remaining(tvb, offset+mic_len)) ) {
+        return NULL;
     }
 
     /**********************************************
