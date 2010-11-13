@@ -59,5 +59,6 @@ wtap_short_string_to_encap
 wtap_short_string_to_file_type
 wtap_snapshot_length
 wtap_strerror
+wtap_wtap_encap_to_pcap_encap
 
 
