@@ -882,6 +882,23 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
 
     p_mac_lte_info->rntiType = tvb_get_guint8(tvb, offset++);
 
+    /* Initialize RNTI with a default value in case optional field is not present */
+	switch (p_mac_lte_info->rntiType) {
+        case P_RNTI:
+            p_mac_lte_info->rnti = 0xFFFE;
+            break;
+        case SI_RNTI:
+            p_mac_lte_info->rnti = 0xFFFF;
+            break;
+        case RA_RNTI:
+        case C_RNTI:
+        case SPS_RNTI:
+            p_mac_lte_info->rnti = 0x0001;
+            break;
+        default:
+            break;
+    }
+			
     /* Read optional fields */
     while (tag != MAC_LTE_PAYLOAD_TAG) {
         /* Process next tag */
@@ -3028,14 +3045,23 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
             break;
         case RA_RNTI:
+            if ((p_mac_lte_info->rnti < 0x0001) || (p_mac_lte_info->rnti > 0x003C)) {
+                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                      "RA_RNTI indicated, but given value %u (0x%x)is out of range",
+                      p_mac_lte_info->rnti, p_mac_lte_info->rnti);
+                return;
+            }
+            break;
         case C_RNTI:
+        case SPS_RNTI:
             if ((p_mac_lte_info->rnti < 0x0001) || (p_mac_lte_info->rnti > 0xFFF3)) {
                 expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
                       "%s indicated, but given value %u (0x%x)is out of range",
                       val_to_str_const(p_mac_lte_info->rntiType,  rnti_type_vals, "Unknown"),
                       p_mac_lte_info->rnti, p_mac_lte_info->rnti);
+                return;
             }
-            return;
+            break;
 
         default:
             break;
