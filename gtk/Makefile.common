@@ -323,6 +323,7 @@ noinst_HEADERS = \
 	summary_dlg.h   \
 	supported_protos_dlg.h   \
 	tap_dfilter_dlg.h	\
+	text_import.h	\
 	text_page_utils.h	\
 	u3.h \
 	uat_gui.h \
