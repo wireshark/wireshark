@@ -4614,7 +4614,7 @@ proto_register_ber(void)
 	    TFS(&ber_pc_codes), 0x20, "Primitive or Constructed BER encoding", HFILL }},
 	{ &hf_ber_id_uni_tag, {
 	    "Tag", "ber.id.uni_tag", FT_UINT8, BASE_DEC|BASE_EXT_STRING,
-	    &ber_uni_tag_codes, 0x1f, "Universal tag type", HFILL }},
+	    &ber_uni_tag_codes_ext, 0x1f, "Universal tag type", HFILL }},
 	{ &hf_ber_id_uni_tag_ext, {
 	    "Tag", "ber.id.uni_tag", FT_UINT32, BASE_DEC,
 	    NULL, 0, "Universal tag type", HFILL }},
