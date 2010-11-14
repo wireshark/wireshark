@@ -298,7 +298,19 @@ _match_strval_ext_init(const guint32 val, value_string_ext *vse)
   return vse->_vs_match(val, vse);
 }
 
-/* (For use by proto_registrar_dump_values() [See proto.c]) */
+/* (Fcns for use by proto_registrar_dump_values() [See proto.c]) */
+gboolean
+value_string_ext_validate(value_string_ext *vse) {
+    if (vse == NULL)
+        return FALSE;
+    if ((vse->_vs_match == (_value_string_match_t) _match_strval_ext_init) ||
+        (vse->_vs_match == _match_strval_linear)   ||
+        (vse->_vs_match == _match_strval_bsearch)  ||
+        (vse->_vs_match == _match_strval_index))
+        return TRUE;
+    return FALSE;
+}
+
 gchar *
 value_string_ext_match_type_str(value_string_ext *vse) {
     if (vse->_vs_match == _match_strval_linear)
@@ -307,7 +319,7 @@ value_string_ext_match_type_str(value_string_ext *vse) {
         return "[Binary Search]";
     if (vse->_vs_match == _match_strval_index)
         return "[Direct (indexed) Access]";
-    return "[Match Type not initialized]";
+    return "[Match Type not initialized or invalid]";
 }
 
 /* ----------- */

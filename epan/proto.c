@@ -6035,6 +6035,10 @@ proto_registrar_dump_values(void)
 			if (vals) {
 				if (hfinfo->display & BASE_EXT_STRING) {
 					value_string_ext *vse_p = (value_string_ext *)hfinfo->strings;
+                                        if (!value_string_ext_validate(vse_p)) {
+                                            g_warning("Invalid value_string_ext ptr for: %s", hfinfo->abbrev);
+                                            continue;
+                                        }
 					match_strval_ext(0, vse_p); /* "prime" the extended value_string */
 					printf("E\t%s\t%d\t%s\t%s\n",
 					       hfinfo->abbrev,

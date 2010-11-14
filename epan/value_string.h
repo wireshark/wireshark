@@ -130,6 +130,9 @@ typedef struct _value_string_ext {
 #define VALUE_STRING_EXT_VS_P(x) (x)->_vs_p
 #define VALUE_STRING_EXT_VS_NUM_ENTRIES(x) (x)->_vs_num_entries
 #define VALUE_STRING_EXT_VS_NAME(x) (x)->_vs_name
+
+/* (Fcns for use by proto_registrar_dump_values() [See proto.c]) */
+gboolean value_string_ext_validate(value_string_ext *vse);
 gchar *value_string_ext_match_type_str(value_string_ext *vse);
 /* --- --- */
 
