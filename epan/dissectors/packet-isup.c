@@ -134,6 +134,10 @@ static const value_string isup_message_type_value[] = {
   { MESSAGE_TYPE_CONNECT,                     "Connect"},
   { MESSAGE_TYPE_FORW_TRANS,                  "Forward transfer"},
   { MESSAGE_TYPE_ANSWER,                      "Answer"},
+
+  { 0x0a,                                     "Reserved (used in 1984 version)"},
+  { 0x0b,                                     "Reserved (used in 1984 version)"},
+
   { MESSAGE_TYPE_RELEASE,                     "Release"},
   { MESSAGE_TYPE_SUSPEND,                     "Suspend"},
   { MESSAGE_TYPE_RESUME,                      "Resume"},
@@ -149,10 +153,24 @@ static const value_string isup_message_type_value[] = {
   { MESSAGE_TYPE_CIRC_GRP_UNBL,               "Circuit group unblocking"},
   { MESSAGE_TYPE_CIRC_GRP_BL_ACK,             "Circuit group blocking acknowledgement"},
   { MESSAGE_TYPE_CIRC_GRP_UNBL_ACK,           "Circuit group unblocking acknowledgement"},
+
+  { 28,                                      "Reserved (used in 1988 version)"},
+  { 29,                                      "Reserved (used in 1988 version)"},
+  { 30,                                      "Reserved (used in 1988 version)"},
+
   { MESSAGE_TYPE_FACILITY_REQ,                "Facility request"},
   { MESSAGE_TYPE_FACILITY_ACC,                "Facility accepted"},
   { MESSAGE_TYPE_FACILITY_REJ,                "Facility reject"},
+
+  { 34,                                      "Reserved (used in 1984 version)"},
+  { 35,                                      "Reserved (used in 1984 version)"},
+
   { MESSAGE_TYPE_LOOP_BACK_ACK,               "Loop back acknowledgement (national use)"},
+
+  { 37,                                      "Reserved (used in 1984 version)"},
+  { 38,                                      "Reserved (used in 1984 version)"},
+  { 39,                                      "Reserved (used in 1984 version)"},
+
   { MESSAGE_TYPE_PASS_ALONG,                  "Pass-along (national use)"},
   { MESSAGE_TYPE_CIRC_GRP_RST_ACK,            "Circuit group reset acknowledgement"},
   { MESSAGE_TYPE_CIRC_GRP_QRY,                "Circuit group query (national use)"},
@@ -170,6 +188,16 @@ static const value_string isup_message_type_value[] = {
   { MESSAGE_TYPE_IDENT_REQ,                   "Identification request"},
   { MESSAGE_TYPE_IDENT_RSP,                   "Identification response"},
   { MESSAGE_TYPE_SEGMENTATION,                "Segmentation"},
+
+  { 57,                                       "Reserved (used in B-ISUP)"},
+  { 58,                                       "Reserved (used in B-ISUP)"},
+  { 59,                                       "Reserved (used in B-ISUP)"},
+  { 60,                                       "Reserved (used in B-ISUP)"},
+  { 61,                                       "Reserved (used in B-ISUP)"},
+
+  { 63,                                       "Unknown"},
+  { 63,                                       "Unknown"},
+
   { MESSAGE_TYPE_LOOP_PREVENTION,             "Loop prevention"},
   { MESSAGE_TYPE_APPLICATION_TRANS,           "Application transport"},
   { MESSAGE_TYPE_PRE_RELEASE_INFO,            "Pre-release information"},
@@ -246,6 +274,10 @@ static const value_string isup_message_type_value_acro[] = {
   { MESSAGE_TYPE_CONNECT,                     "CON"},
   { MESSAGE_TYPE_FORW_TRANS,                  "FOT"},
   { MESSAGE_TYPE_ANSWER,                      "ANM"},
+
+  { 0x0a,                                     "Reserved"},
+  { 0x0b,                                     "Reserved"},
+
   { MESSAGE_TYPE_RELEASE,                     "REL"},
   { MESSAGE_TYPE_SUSPEND,                     "SUS"},
   { MESSAGE_TYPE_RESUME,                      "RES"},
@@ -261,10 +293,24 @@ static const value_string isup_message_type_value_acro[] = {
   { MESSAGE_TYPE_CIRC_GRP_UNBL,               "CGU"},
   { MESSAGE_TYPE_CIRC_GRP_BL_ACK,             "CGBA"},
   { MESSAGE_TYPE_CIRC_GRP_UNBL_ACK,           "CGUA"},
+
+  { 28,                                      "Reserved"},
+  { 29,                                      "Reserved"},
+  { 30,                                      "Reserved"},
+
   { MESSAGE_TYPE_FACILITY_REQ,                "FAR"},
   { MESSAGE_TYPE_FACILITY_ACC,                "FAA"},
   { MESSAGE_TYPE_FACILITY_REJ,                "FRJ"},
+
+  { 34,                                      "Reserved"},
+  { 35,                                      "Reserved"},
+
   { MESSAGE_TYPE_LOOP_BACK_ACK,               "LPA"},
+
+  { 37,                                      "Reserved"},
+  { 38,                                      "Reserved"},
+  { 39,                                      "Reserved"},
+
   { MESSAGE_TYPE_PASS_ALONG,                  "PAM"},
   { MESSAGE_TYPE_CIRC_GRP_RST_ACK,            "GRA"},
   { MESSAGE_TYPE_CIRC_GRP_QRY,                "CQM"},
@@ -282,6 +328,16 @@ static const value_string isup_message_type_value_acro[] = {
   { MESSAGE_TYPE_IDENT_REQ,                   "IDR"},
   { MESSAGE_TYPE_IDENT_RSP,                   "IDS"},
   { MESSAGE_TYPE_SEGMENTATION,                "SGM"},
+
+  { 57,                                       "Reserved"},
+  { 58,                                       "Reserved"},
+  { 59,                                       "Reserved"},
+  { 60,                                       "Reserved"},
+  { 61,                                       "Reserved"},
+
+  { 63,                                       "Unknown"},
+  { 63,                                       "Unknown"},
+
   { MESSAGE_TYPE_LOOP_PREVENTION,             "LOP"},
   { MESSAGE_TYPE_APPLICATION_TRANS,           "APM"},
   { MESSAGE_TYPE_PRE_RELEASE_INFO,            "PRI"},
@@ -736,6 +792,12 @@ static const value_string isup_calling_partys_category_value[] = {
   { OPERATOR_GERMAN,                    "operator, language German"},
   { OPERATOR_RUSSIAN,                   "operator, language Russian"},
   { OPERATOR_SPANISH,                   "operator, language Spanish"},
+
+  { 6,                                  "available to Administrations"},
+  { 7,                                  "available to Administrations"},
+  { 8,                                  "available to Administrations"},
+  { 9,                                  "reserved (national use)"},
+
   { ORDINARY_CALLING_SUBSCRIBER,        "ordinary calling subscriber"},
   { CALLING_SUBSCRIBER_WITH_PRIORITY,   "calling subscriber with priority"},
   { DATA_CALL,                          "data call (voice band data)"},
@@ -818,9 +880,11 @@ static const value_string isup_cvr_cont_chk_ind_value[ ] = {
 #define MEDIUM_384KBS                        8
 #define MEDIUM_1536KBS                       9
 #define MEDIUM_1920KBS                      10
+
 #define MEDIUM_3_64KBS                      16
 #define MEDIUM_4_64KBS                      17
 #define MEDIUM_5_64KBS                      18
+
 #define MEDIUM_7_64KBS                      20
 #define MEDIUM_8_64KBS                      21
 #define MEDIUM_9_64KBS                      22
@@ -838,6 +902,7 @@ static const value_string isup_cvr_cont_chk_ind_value[ ] = {
 #define MEDIUM_21_64KBS                     34
 #define MEDIUM_22_64KBS                     35
 #define MEDIUM_23_64KBS                     36
+
 #define MEDIUM_25_64KBS                     38
 #define MEDIUM_26_64KBS                     39
 #define MEDIUM_27_64KBS                     40
@@ -846,6 +911,7 @@ static const value_string isup_cvr_cont_chk_ind_value[ ] = {
 
 static const value_string isup_transmission_medium_requirement_value[] = {
   { MEDIUM_SPEECH,                       "speech"},
+  { 1,                                   "spare"},
   { MEDIUM_64KBS,                        "64 kbit/s unrestricted"},
   { MEDIUM_3_1_KHZ_AUDIO,                "3.1 kHz audio"},
   { MEDIUM_RESERVED_SERVICE2_1,          "reserved for alternate speech (service 2)/64 kbit/s unrestricted (service 1)"},
@@ -855,9 +921,19 @@ static const value_string isup_transmission_medium_requirement_value[] = {
   { MEDIUM_384KBS,                       "384 kbit/s unrestricted"},
   { MEDIUM_1536KBS,                      "1536 kbit/s unrestricted"},
   { MEDIUM_1920KBS,                      "1920 kbit/s unrestricted"},
+
+  { 11,                                  "spare"},
+  { 12,                                  "spare"},
+  { 13,                                  "spare"},
+  { 14,                                  "spare"},
+  { 15,                                  "spare"},
+
   { MEDIUM_3_64KBS,                      "3x64 kbit/s unrestricted"},
   { MEDIUM_4_64KBS,                      "4x64 kbit/s unrestricted"},
   { MEDIUM_5_64KBS,                      "5x64 kbit/s unrestricted"},
+
+  { 19,                                  "spare"},
+
   { MEDIUM_7_64KBS,                      "7x64 kbit/s unrestricted"},
   { MEDIUM_8_64KBS,                      "8x64 kbit/s unrestricted"},
   { MEDIUM_9_64KBS,                      "9x64 kbit/s unrestricted"},
@@ -875,6 +951,9 @@ static const value_string isup_transmission_medium_requirement_value[] = {
   { MEDIUM_21_64KBS,                     "21x64 kbit/s unrestricted"},
   { MEDIUM_22_64KBS,                     "22x64 kbit/s unrestricted"},
   { MEDIUM_23_64KBS,                     "23x64 kbit/s unrestricted"},
+
+  { 37,                                  "spare"},
+
   { MEDIUM_25_64KBS,                     "25x64 kbit/s unrestricted"},
   { MEDIUM_26_64KBS,                     "26x64 kbit/s unrestricted"},
   { MEDIUM_27_64KBS,                     "27x64 kbit/s unrestricted"},
@@ -885,6 +964,7 @@ value_string_ext isup_transmission_medium_requirement_value_ext = VALUE_STRING_E
 
 static const value_string isup_transmission_medium_requirement_prime_value[] = {
   { MEDIUM_SPEECH,                       "speech"},
+  { 1,                                   "spare"},
   { MEDIUM_64KBS,                        "reserved for 64 kbit/s unrestricted"},
   { MEDIUM_3_1_KHZ_AUDIO,                "3.1 kHz audio"},
   { MEDIUM_RESERVED_SERVICE2_1,          "reserved for alternate speech (service 2)/64 kbit/s unrestricted (service 1)"},

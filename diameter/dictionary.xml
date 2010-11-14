@@ -672,8 +672,9 @@
 			<enum name="PortMaster" code="3"/>
 			<enum name="LAT" code="4"/>
 			<enum name="X25-PAD" code="5"/>
-			<enum name="X25-T3POS" code="6"/>
-			<enum name="TCP Clear Quiet (suppresses any NAS-generated connect string)" code="8"/>
+      <enum name="X25-T3POS" code="6"/>
+      <enum name="Unassigned" code="7"/>
+      <enum name="TCP Clear Quiet (suppresses any NAS-generated connect string)" code="8"/>
 		</avp>
     <avp name="Login-TCP-Port" code="16" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
@@ -2898,7 +2899,14 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 			<enum name="CHANGE_IN_QOS" code="2"/>
 			<enum name="CHANGE_IN_LOCATION" code="3"/>
 			<enum name="CHANGE_IN_RAT" code="4"/>
-			<enum name="CHANGEINQOS_TRAFFIC_CLASS" code="10"/>
+
+      <enum name="Undefined" code="5"/>
+      <enum name="Undefined" code="6"/>
+      <enum name="Undefined" code="7"/>
+      <enum name="Undefined" code="8"/>
+      <enum name="Undefined" code="9"/>
+
+      <enum name="CHANGEINQOS_TRAFFIC_CLASS" code="10"/>
 			<enum name="CHANGEINQOS_RELIABILITY_CLASS" code="11"/>
 			<enum name="CHANGEINQOS_DELAY_CLASS" code="12"/>
 			<enum name="CHANGEINQOS_PEAK_THROUGHPUT" code="13"/>
@@ -2912,17 +2920,63 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 			<enum name="CHANGEINQOS_TRAFFIC_HANDLING_PRIORITY" code="21"/>
 			<enum name="CHANGEINQOS_GUARANTEED_BIT_RATE_FOR_UPLINK" code="22"/>
 			<enum name="CHANGEINQOS_GUARANTEED_BIT_RATE_FOR_DOWNLINK" code="23"/>
-			<enum name="CHANGEINLOCATION_MCC" code="30"/>
+
+      <enum name="Undefined" code="24"/>
+      <enum name="Undefined" code="25"/>
+      <enum name="Undefined" code="26"/>
+      <enum name="Undefined" code="27"/>
+      <enum name="Undefined" code="28"/>
+      <enum name="Undefined" code="29"/>
+
+      <enum name="CHANGEINLOCATION_MCC" code="30"/>
 			<enum name="CHANGEINLOCATION_MNC" code="31"/>
 			<enum name="CHANGEINLOCATION_RAC" code="32"/>
 			<enum name="CHANGEINLOCATION_LAC" code="33"/>
 			<enum name="CHANGEINLOCATION_CellId" code="34"/>
-			<enum name="CHANGE_IN_MEDIA_COMPOSITION" code="40"/>
-			<enum name="CHANGEINPARTICIPANTS_Number" code="50"/>
-			<enum name="CHANGE_IN_THRSHLD_OF_PARTICIPANTS_NMB" code="51"/>
+      <enum name="Undefined" code="35"/>
+      <enum name="Undefined" code="36"/>
+      <enum name="Undefined" code="37"/>
+      <enum name="Undefined" code="38"/>
+      <enum name="Undefined" code="39"/>
+
+      <enum name="CHANGE_IN_MEDIA_COMPOSITION" code="40"/>
+
+      <enum name="Undefined" code="41"/>
+      <enum name="Undefined" code="42"/>
+      <enum name="Undefined" code="43"/>
+      <enum name="Undefined" code="44"/>
+      <enum name="Undefined" code="45"/>
+      <enum name="Undefined" code="46"/>
+      <enum name="Undefined" code="47"/>
+      <enum name="Undefined" code="48"/>
+      <enum name="Undefined" code="49"/>
+
+      <enum name="CHANGEINPARTICIPANTS_Number" code="50"/>
+      <enum name="CHANGE_IN_THRSHLD_OF_PARTICIPANTS_NMB" code="51"/>
 			<enum name="CHANGE_IN_USER_PARTICIPATING_TYPE" code="52"/>
-			<enum name="CHANGE_IN_SERVICE_CONDITION" code="60"/>
-		</avp>
+
+      <enum name="Undefined" code="53"/>
+      <enum name="Undefined" code="54"/>
+      <enum name="Undefined" code="55"/>
+      <enum name="Undefined" code="56"/>
+      <enum name="Undefined" code="57"/>
+      <enum name="Undefined" code="58"/>
+      <enum name="Undefined" code="59"/>
+
+      <enum name="CHANGE_IN_SERVICE_CONDITION" code="60"/>
+      <enum name="Undefined" code="61"/>
+      <enum name="Undefined" code="62"/>
+      <enum name="Undefined" code="63"/>
+      <enum name="Undefined" code="64"/>
+      <enum name="Undefined" code="65"/>
+      <enum name="Undefined" code="66"/>
+      <enum name="Undefined" code="67"/>
+      <enum name="Undefined" code="68"/>
+      <enum name="Undefined" code="69"/>
+
+      <enum name="CHANGE_IN_USER_CSG_INFORMATION" code="70"/>
+
+    </avp>
 		<avp name="Quota-Holding-Time" code="871" mandatory="must" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
@@ -3197,7 +3251,7 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
       <type type-name="Enumerated"/>
       <enum name="2G" code="0"/>
       <enum name="3G" code="1"/>
-      <enum name="2G-AND-3G" code="3"/>
+      <enum name="2G-AND-3G" code="2"/>
     </avp>
     <avp name="MBMS-Session-Identity" code="908" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
       <type type-name="OctetString"/>
@@ -3842,17 +3896,18 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 		</avp>
 <!-- The Type-Number AVP (AVP code1204) is of type Enumerated and identifies the well-known -->
 <!-- media types. The values are taken from OMNA WSP Content Type Codes database -->
-<!-- http://www.openmobilealliance.org/tech/omna/omna-wsp-content-type.htm -->
+<!-- http://www.openmobilealliance.org/tech/omna/omna-wsp-content-type.aspx -->
 		<avp name="Type-Number" code="1204" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
-			<enum name="text/*" code="1"/>
-			<enum name="text/html" code="2"/> 
+      <enum name="*/*" code="0"/>
+      <enum name="text/*" code="1"/>
+      <enum name="text/html" code="2"/> 
 			<enum name="text/plain" code="3"/> 
 			<enum name="text/x-hdml" code="4"/> 
 			<enum name="text/x-ttml" code="5"/>
 			<enum name="text/x-vCalendar" code="6"/>
 			<enum name="text/x-vCard" code="7"/>
-			<enum name="text/vnd.wap.wml" code="9"/>
+			<enum name="text/vnd.wap.wml" code="8"/>
 			<enum name="text/vnd.wap.wmlscript" code="9"/>
 			<enum name="text/vnd.wap.wta-event" code="10"/>
 			<enum name="multipart/*" code="11"/>
@@ -3952,8 +4007,8 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 		<avp name="Priority" code="1209" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="Low" code="0"/>
-			<enum name="Normal" code="2"/> 
-			<enum name="High" code="3"/> 
+			<enum name="Normal" code="1"/> 
+			<enum name="High" code="2"/> 
 		</avp>
 		<avp name="Message-ID" code="1210" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
@@ -4982,7 +5037,7 @@ Note: The AVP codes from 1621 to 1699 are reserved for TS 29.272.
 			<type type-name="Enumerated"/>
 			<enum name="SUBMISSION" code="0"/>
 			<enum name="DELIVERY_REPORT" code="1"/>
-			<enum name="SM Service Request" code="1"/>
+			<enum name="SM Service Request" code="2"/>
 		</avp>
 		<avp name="Originating-SCCP-Address" code="2008" vendor-bit="must" vendor-id="TGPP"> 
 			<type type-name="IPAddress"/>
@@ -5020,7 +5075,7 @@ Note: The AVP codes from 1621 to 1699 are reserved for TS 29.272.
 			<enum name="SMS Router" code="0"/>
 			<enum name="IP-SM-GW" code="1"/>
 			<enum name="SMS Router and IP-SM-GW" code="2"/>
-			<enum name="SMS-SC" code="4"/>
+			<enum name="SMS-SC" code="3"/>
 		</avp>
 		<avp name="SMSC-Address" code="2017" vendor-bit="must" vendor-id="TGPP"> 
 			<type type-name="IPAddress"/>

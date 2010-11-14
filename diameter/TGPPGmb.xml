@@ -200,7 +200,7 @@
 			<type type-name="Enumerated"/>
 			<enum name="START" code="0"/>
 			<enum name="STOP" code="1"/>
-			<enum name="UPDATE" code="1"/>
+			<enum name="UPDATE" code="2"/>
 		</avp>
 		<avp name="MBMS-Service-Area" code="903" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
