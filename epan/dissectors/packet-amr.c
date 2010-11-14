@@ -683,7 +683,7 @@ proto_register_amr(void)
 		},
 		{ &hf_amr_wb_cmr,
 			{ "CMR",           "amr.wb.cmr",
-			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &amr_wb_codec_mode_request_vals, 0x0,          
+			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &amr_wb_codec_mode_request_vals_ext, 0x0,          
 			"codec mode request", HFILL }
 		},
 		{ &hf_amr_reserved,
@@ -703,7 +703,7 @@ proto_register_amr(void)
 		},
 		{ &hf_amr_wb_toc_ft,
 			{ "FT bits",           "amr.wb.toc.ft",
-			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &amr_wb_codec_mode_request_vals, 0x0,          
+			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &amr_wb_codec_mode_request_vals_ext, 0x0,          
 			"Frame type index", HFILL }
 		},
 		{ &hf_amr_toc_q,
@@ -723,12 +723,12 @@ proto_register_amr(void)
 		},
 		{ &hf_amr_nb_if1_mode_req,
 			{ "Mode Type request",           "amr.nb.if1.modereq",
-			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &amr_nb_codec_mode_request_vals, 0xe0,
+			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &amr_nb_codec_mode_request_vals_ext, 0xe0,
 			NULL, HFILL }
 		},
 		{ &hf_amr_wb_if1_mode_req,
 			{ "Mode Type request",           "amr.wb.if1.modereq",
-			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &amr_wb_codec_mode_request_vals, 0x0f,
+			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &amr_wb_codec_mode_request_vals_ext, 0x0f,
 			NULL, HFILL }
 		},
 		{ &hf_amr_if1_sti,
@@ -738,32 +738,32 @@ proto_register_amr(void)
 		},
 		{ &hf_amr_nb_if1_sti_mode_ind,
 			{ "Mode Type indication",           "amr.nb.if1.stimodeind",
-			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &amr_nb_codec_mode_vals, 0x0e,
+			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &amr_nb_codec_mode_vals_ext, 0x0e,
 			NULL, HFILL }
 		},
 		{ &hf_amr_wb_if1_sti_mode_ind,
 			{ "Mode Type indication",           "amr.wb.if1.stimodeind",
-			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &amr_wb_codec_mode_vals, 0x0f,
+			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &amr_wb_codec_mode_vals_ext, 0x0f,
 			NULL, HFILL }
 		},
 		{ &hf_amr_nb_if1_mode_ind,
 			{ "Mode Type indication",           "amr.nb.if1.modeind",
-			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &amr_nb_codec_mode_vals, 0x07,
+			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &amr_nb_codec_mode_vals_ext, 0x07,
 			NULL, HFILL }
 		},
 		{ &hf_amr_wb_if1_mode_ind,
 			{ "Mode Type indication",           "amr.wb.if1.modeind",
-			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &amr_wb_codec_mode_vals, 0xf0,
+			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &amr_wb_codec_mode_vals_ext, 0xf0,
 			NULL, HFILL }
 		},
 		{ &hf_amr_nb_if2_ft,
 			{ "Frame Type",           "amr.nb.if2.ft",
-			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &amr_nb_codec_mode_vals, 0x0f,
+			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &amr_nb_codec_mode_vals_ext, 0x0f,
 			NULL, HFILL }
 		},
 		{ &hf_amr_wb_if2_ft,
 			{ "Frame Type",           "amr.wb.if2.ft",
-			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &amr_wb_codec_mode_vals, 0xf0,
+			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &amr_wb_codec_mode_vals_ext, 0xf0,
 			NULL, HFILL }
 		},
 		{ &hf_amr_if2_sti,
@@ -773,12 +773,12 @@ proto_register_amr(void)
 		},
 		{ &hf_amr_nb_if2_sti_mode_ind,
 			{ "Mode Type indication",           "amr.nb.if2.stimodeind",
-			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &amr_nb_codec_mode_vals, 0x07,
+			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &amr_nb_codec_mode_vals_ext, 0x07,
 			NULL, HFILL }
 		},
 		{ &hf_amr_wb_if2_sti_mode_ind,
 			{ "Mode Type indication",           "amr.wb.if2.stimodeind",
-			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &amr_wb_codec_mode_vals, 0x78,
+			FT_UINT8, BASE_DEC|BASE_EXT_STRING, &amr_wb_codec_mode_vals_ext, 0x78,
 			NULL, HFILL }
 		},
 		{ &hf_amr_if1_fqi,
