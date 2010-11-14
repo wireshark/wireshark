@@ -742,6 +742,7 @@ proto_is_private
 proto_is_protocol_enabled
 proto_tree_add_bitmask_text
 proto_item_add_subtree
+proto_item_append_string
 proto_item_append_text
 proto_item_fill_label
 proto_item_get_len
