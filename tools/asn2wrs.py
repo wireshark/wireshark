@@ -1358,6 +1358,8 @@ class EthCtx:
     out = ""
     has_enum = self.eth_type[tname]['enum'] & EF_ENUM
     use_ext = self.eth_type[tname]['vals_ext']
+    if (use_ext):
+      vals.sort(key=lambda vals_entry: int(vals_entry[0]))
     if (not self.eth_type[tname]['export'] & EF_VALS):
       out += 'static '
     if (self.eth_type[tname]['export'] & EF_VALS) and (self.eth_type[tname]['export'] & EF_TABLE):
