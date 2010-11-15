@@ -27,6 +27,8 @@ ProtocolIE-ID
 
 #.USE_VALS_EXT
 ProtocolIE-ID
+CauseRadioNetwork
+ProcedureCode
 
 #.NO_EMIT
 TBCD-STRING
@@ -85,7 +87,7 @@ RAB-DataVolumeReportItem/dl-UnsuccessfullyTransmittedDataVolume rab-dl-Unsuccess
 #.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
 #.FN_FTR ProcedureCode
      col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                 val_to_str(ProcedureCode, ranap_ProcedureCode_vals,
+                 val_to_str_ext_const(ProcedureCode, &ranap_ProcedureCode_vals_ext,
                             "unknown message"));
 #.END
 
