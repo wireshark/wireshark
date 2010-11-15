@@ -91,6 +91,12 @@ Wireshark Info
 -->
 
         <listitem><para>
+          GTK-ERROR can occur in packets when there are multiple Netbios/SMB headers in a single frame.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5289">Bug
+          5289</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           "Tshark -G values" crashes on Windows.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5296">Bug
           5296</ulink>)
@@ -112,6 +118,30 @@ Wireshark Info
           [lua] Dumper:close() will cause a segfault due later GC of the Dumper.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5320">Bug
           5320</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          IO Graph Time of Day times incorrect for filtered data.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5340">Bug
+          5340</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark tools do not detect and read some ERF files correctly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5344">Bug
+          5344</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          "editcap -h" sends some lines to stderr and others to stdout.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5353">Bug
+          5353</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          IP Timestamp Option: "flag=3" variant (prespecified) not displayed correctly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5357">Bug
+          5357</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -141,8 +171,10 @@ There are no new protocols in this release.
 
 DIAMETER,
 HTTP,
+IP,
 LDSS,
 MIME,
+NBNS,
 PROFINET,
 SIP,
 Telnet,
@@ -154,7 +186,7 @@ ZigBee
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-There are no new or updated capture file formats in this release.
+Endace ERF.
 
     </para>
     </section>
