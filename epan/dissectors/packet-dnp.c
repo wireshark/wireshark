@@ -720,6 +720,7 @@ static const value_string dnp3_al_objq_code_vals[] = {
   { AL_OBJQL_CODE_SF8,      "8-bit Single Field Quantity" },
   { AL_OBJQL_CODE_SF16,     "16-bit Single Field Quantity" },
   { AL_OBJQL_CODE_SF32,     "32-bit Single Field Quantity" },
+  { 10,                     "Reserved" },
   { AL_OBJQL_CODE_FF,       "Free-format Qualifier" },
   { 0, NULL }
 };

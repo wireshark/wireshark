@@ -203,6 +203,7 @@ static const value_string func_vals[] = {
 	{DSIFUNC_OPEN,        "OpenSession" },
 	{DSIFUNC_TICKLE,      "Tickle" },
 	{DSIFUNC_WRITE,       "Write" },
+	{ 7,                  "Unknown" },
 	{DSIFUNC_ATTN,        "Attention" },
 	{0,                   NULL } };
 static value_string_ext func_vals_ext = VALUE_STRING_EXT_INIT(func_vals);
