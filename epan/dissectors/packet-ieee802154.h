@@ -204,11 +204,11 @@ typedef struct {
     GHashTable *short_table;
 } ieee802154_packet;
 
+/* Structure for two-way mapping table */
 typedef struct {
-    guint       proto;
     GHashTable *long_table;
     GHashTable *short_table;
-} ieee802154_addr_t;
+} ieee802154_map_tab_t;
 
 /* Key used by the short address hash table. */
 typedef struct {
@@ -223,7 +223,7 @@ typedef struct {
 
 /* A mapping record for a frame, pointed to by hash table */
 typedef struct {
-    int         proto; /* protocol that created this record */
+    const char *proto; /* name of protocol that created this record */
     guint       start_fnum;
     guint       end_fnum;
     guint64     addr64;
@@ -244,7 +244,8 @@ extern gchar       *print_eui64_oui(guint64);
 extern proto_item  *proto_tree_add_eui64(proto_tree *, int, tvbuff_t *, gint, gint, gint64);
 
 /* Short to Extended Address Prototypes */
-extern ieee802154_map_rec *ieee802154_addr_update(ieee802154_addr_t *, guint16, guint16, guint64, int, guint);
+extern ieee802154_map_rec *ieee802154_addr_update(ieee802154_map_tab_t *, guint16, guint16, guint64,
+        const char *, guint);
 extern guint    ieee802154_short_addr_hash(gconstpointer);
 extern guint    ieee802154_long_addr_hash(gconstpointer key);
 extern gboolean ieee802154_short_addr_equal(gconstpointer, gconstpointer);

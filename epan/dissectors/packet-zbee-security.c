@@ -65,9 +65,6 @@ static gboolean    zbee_security_parse_key(const gchar *, guint8 *, gboolean);
 static void proto_init_zbee_security(void);
 
 /* Field pointers. */
-#if 0
-static int hf_zbee_sec_level = -1;
-#endif
 static int hf_zbee_sec_key_id = -1;
 static int hf_zbee_sec_nonce = -1;
 static int hf_zbee_sec_counter = -1;
@@ -217,11 +214,6 @@ static GSList *zbee_pc_keyring = NULL;
 void zbee_security_register(module_t *zbee_prefs, int proto)
 {
     static hf_register_info hf[] = {
-#if 0
-            { &hf_zbee_sec_level,
-            { "Level",                  "zbee.sec.level", FT_UINT8, BASE_HEX, VALS(zbee_sec_level_names), ZBEE_SEC_CONTROL_LEVEL,
-                NULL, HFILL }},
-#endif
             { &hf_zbee_sec_key_id,
             { "Key Id",                    "zbee.sec.key", FT_UINT8, BASE_HEX, VALS(zbee_sec_key_names),
                 ZBEE_SEC_CONTROL_KEY, NULL, HFILL }},
@@ -440,10 +432,6 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
 #ifdef HAVE_LIBGCRYPT
     guint8             *enc_buffer;
     guint8             *dec_buffer;
-#if 0
-    guint8              buffer[ZBEE_SEC_CONST_BLOCKSIZE+1];
-    guint8             *key_buffer = buffer;
-#endif
     gboolean            decrypted;
     GSList            **nwk_keyring;
     GSList             *GSList_i;
@@ -516,6 +504,12 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
         packet.src64 = tvb_get_letoh64(tvb, offset);
         if (tree) {
             proto_tree_add_eui64(sec_tree, hf_zbee_sec_src64, tvb, offset, 8, packet.src64);
+        }
+
+        if (!pinfo->fd->flags.visited && nwk_hints && ieee_hints ) {
+            /* record this mapping */
+            nwk_hints->map_rec = ieee802154_addr_update(&zbee_nwk_map, nwk_hints->src,
+                    ieee_hints->src_pan, packet.src64, pinfo->current_proto, pinfo->fd->num);
         }
         offset += 8;
     }

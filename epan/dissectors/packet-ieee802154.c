@@ -107,12 +107,13 @@ static gboolean ieee802154_fcs_ok = TRUE;
 static const gchar *ieee802154_key_str = NULL;
 static gboolean     ieee802154_key_valid;
 static guint8       ieee802154_key[IEEE802154_CIPHER_SIZE];
+static const char  *ieee802154_user = "User";
 
 /*-------------------------------------
  * Address Hash Tables
  *-------------------------------------
  */
-static ieee802154_addr_t ieee802154_addr = { 0, NULL, NULL };
+static ieee802154_map_tab_t ieee802154_map = { NULL, NULL };
 
 /*-------------------------------------
  * Static Address Mapping UAT
@@ -680,7 +681,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     pd_save = pinfo->private_data;
     pinfo->private_data = packet;
 
-    packet->short_table = ieee802154_addr.short_table;
+    packet->short_table = ieee802154_map.short_table;
 
     /* Allocate frame data with hints for upper layers */
     if(!pinfo->fd->flags.visited){
@@ -859,7 +860,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                 if (ieee_hints) {
                     ieee_hints->src16 = packet->src16;
                     ieee_hints->map_rec = (ieee802154_map_rec *)
-                        g_hash_table_lookup(ieee802154_addr.short_table, &addr16);
+                        g_hash_table_lookup(ieee802154_map.short_table, &addr16);
                 }
             }
         }
@@ -1597,8 +1598,8 @@ dissect_ieee802154_assoc_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     /* Update the address table. */
     if ((status == IEEE802154_CMD_ASRSP_AS_SUCCESS) && (short_addr != IEEE802154_NO_ADDR16)) {
-        ieee802154_addr_update(&ieee802154_addr, short_addr, packet->dst_pan, packet->dst64,
-                proto_ieee802154, pinfo->fd->num);
+        ieee802154_addr_update(&ieee802154_map, short_addr, packet->dst_pan, packet->dst64,
+                pinfo->current_proto, pinfo->fd->num);
     }
 
     /* Call the data dissector for any leftover bytes. */
@@ -1729,8 +1730,8 @@ dissect_ieee802154_realign(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     offset += 2;
     /* Update the address table. */
     if ((short_addr != IEEE802154_NO_ADDR16) && (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT)) {
-        ieee802154_addr_update(&ieee802154_addr, short_addr, packet->dst_pan, packet->dst64,
-                proto_ieee802154, pinfo->fd->num);
+        ieee802154_addr_update(&ieee802154_map, short_addr, packet->dst_pan, packet->dst64,
+                pinfo->current_proto, pinfo->fd->num);
     }
 
     /* Get and display the channel page, if it exists. Added in IEEE802.15.4-2006 */
@@ -2246,20 +2247,20 @@ gboolean ieee802154_long_addr_equal(gconstpointer a, gconstpointer b)
  *      ieee802154_addr_update
  *  DESCRIPTION
  *      Creates a record that maps the given short address and pan
- *      to a long (extended) address. Typically called when a
- *      successful association reponse is received.
+ *      to a long (extended) address.
  *  PARAMETERS
  *      guint16 short_addr  - 16-bit short address
  *      guint16 pan         - 16-bit PAN id
  *      guint64 long_addr   - 64-bit long (extended) address
+ *      const char *        - Pointer to name of current protocol
  *      guint               - Frame number this mapping became valid
  *  RETURNS
  *      TRUE                - Record was updated
  *      FALSE               - Couldn't find it
  *---------------------------------------------------------------
  */
-ieee802154_map_rec *ieee802154_addr_update(ieee802154_addr_t *ieee802154_addr,
-        guint16 short_addr, guint16 pan, guint64 long_addr, int proto, guint fnum)
+ieee802154_map_rec *ieee802154_addr_update(ieee802154_map_tab_t *ieee802154_map,
+        guint16 short_addr, guint16 pan, guint64 long_addr, const char *proto, guint fnum)
 {
     ieee802154_short_addr   addr16;
     ieee802154_map_rec     *p_map_rec;
@@ -2268,7 +2269,7 @@ ieee802154_map_rec *ieee802154_addr_update(ieee802154_addr_t *ieee802154_addr,
     /* Look up short address hash */
     addr16.pan = pan;
     addr16.addr = short_addr;
-    p_map_rec = g_hash_table_lookup(ieee802154_addr->short_table, &addr16);
+    p_map_rec = g_hash_table_lookup(ieee802154_map->short_table, &addr16);
 
     /* Update mapping record */
     if (p_map_rec) {
@@ -2291,20 +2292,20 @@ ieee802154_map_rec *ieee802154_addr_update(ieee802154_addr_t *ieee802154_addr,
     p_map_rec->addr64 = long_addr;
 
     /* link new mapping record to addr hash tables */
-    if ( g_hash_table_lookup_extended(ieee802154_addr->short_table, &addr16, &old_key, NULL) ) {
+    if ( g_hash_table_lookup_extended(ieee802154_map->short_table, &addr16, &old_key, NULL) ) {
         /* update short addr hash table, reusing pointer to old key */
-        g_hash_table_insert(ieee802154_addr->short_table, &old_key, p_map_rec);
+        g_hash_table_insert(ieee802154_map->short_table, &old_key, p_map_rec);
     } else {
         /* create new hash entry */
-        g_hash_table_insert(ieee802154_addr->short_table, se_memdup(&addr16, sizeof(addr16)), p_map_rec);
+        g_hash_table_insert(ieee802154_map->short_table, se_memdup(&addr16, sizeof(addr16)), p_map_rec);
     }
 
-    if ( g_hash_table_lookup_extended(ieee802154_addr->long_table, &long_addr, &old_key, NULL) ) {
+    if ( g_hash_table_lookup_extended(ieee802154_map->long_table, &long_addr, &old_key, NULL) ) {
         /* update long addr hash table, reusing pointer to old key */
-        g_hash_table_insert(ieee802154_addr->long_table, &old_key, p_map_rec);
+        g_hash_table_insert(ieee802154_map->long_table, &old_key, p_map_rec);
     } else {
         /* create new hash entry */
-        g_hash_table_insert(ieee802154_addr->long_table, se_memdup(&long_addr, sizeof(long_addr)), p_map_rec);
+        g_hash_table_insert(ieee802154_map->long_table, se_memdup(&long_addr, sizeof(long_addr)), p_map_rec);
     }
 
     return p_map_rec;
@@ -2333,8 +2334,8 @@ gboolean ieee802154_short_addr_invalidate(guint16 short_addr, guint16 pan, guint
 
     addr16.pan = pan;
     addr16.addr = short_addr;
- 
-    map_rec = g_hash_table_lookup(ieee802154_addr.short_table, &addr16);
+
+    map_rec = g_hash_table_lookup(ieee802154_map.short_table, &addr16);
     if ( map_rec ) {
         /* indicates this mapping is invalid at frame fnum */
         map_rec->end_fnum = fnum;
@@ -2363,7 +2364,7 @@ gboolean ieee802154_long_addr_invalidate(guint64 long_addr, guint fnum)
 {
     ieee802154_map_rec   *map_rec;
 
-    map_rec = g_hash_table_lookup(ieee802154_addr.long_table, &long_addr);
+    map_rec = g_hash_table_lookup(ieee802154_map.long_table, &long_addr);
     if ( map_rec ) {
         /* indicates this mapping is invalid at frame fnum */
         map_rec->end_fnum = fnum;
@@ -2423,7 +2424,7 @@ void proto_register_ieee802154(void)
             NULL, HFILL }},
 
         { &hf_ieee802154_nonask_phy_length,
-        { "Frame Length",                   "wpan-nonask-phy.frame_length", FT_UINT8, BASE_HEX, NULL, 
+        { "Frame Length",                   "wpan-nonask-phy.frame_length", FT_UINT8, BASE_HEX, NULL,
             IEEE802154_PHY_LENGTH_MASK, NULL, HFILL }},
     };
 
@@ -2831,15 +2832,15 @@ proto_init_ieee802154(void)
     guint       i;
 
     /* Destroy hash tables, if they exist. */
-    if (ieee802154_addr.short_table) g_hash_table_destroy(ieee802154_addr.short_table);
-    if (ieee802154_addr.long_table) g_hash_table_destroy(ieee802154_addr.long_table);
+    if (ieee802154_map.short_table) g_hash_table_destroy(ieee802154_map.short_table);
+    if (ieee802154_map.long_table) g_hash_table_destroy(ieee802154_map.long_table);
 
     /* Create the hash tables. */
-    ieee802154_addr.short_table = g_hash_table_new(ieee802154_short_addr_hash, ieee802154_short_addr_equal);
-    ieee802154_addr.long_table = g_hash_table_new(ieee802154_long_addr_hash, ieee802154_long_addr_equal);
+    ieee802154_map.short_table = g_hash_table_new(ieee802154_short_addr_hash, ieee802154_short_addr_equal);
+    ieee802154_map.long_table = g_hash_table_new(ieee802154_long_addr_hash, ieee802154_long_addr_equal);
     /* Re-load the hash table from the static address UAT. */
     for (i=0; (i<num_static_addrs) && (static_addrs); i++) {
-        ieee802154_addr_update(&ieee802154_addr,(guint16)static_addrs[i].addr16, (guint16)static_addrs[i].pan,
-               pntoh64(static_addrs[i].eui64), proto_ieee802154, IEEE802154_USER_MAPPING);
+        ieee802154_addr_update(&ieee802154_map,(guint16)static_addrs[i].addr16, (guint16)static_addrs[i].pan,
+               pntoh64(static_addrs[i].eui64), ieee802154_user, IEEE802154_USER_MAPPING);
     } /* for */
 } /* proto_init_ieee802154 */
