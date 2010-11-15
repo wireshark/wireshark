@@ -41,13 +41,30 @@ Wireshark Info
             Nephi Johnson of BreakingPoint discovered that the LDSS dissector
             could overflow a buffer.
             <!-- Fixed in trunk: r34581 -->
-            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.4: r34889 -->
             <!-- Fixed in trunk-1.2: r????? -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5318">Bug
             5318</ulink>)
           </para>
           <para>Versions affected: All previous versions up to and including
           1.2.12 and 1.4.1.</para>
+<!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
+          </para>
+-->
+        </listitem>
+
+        <listitem>
+          <para>
+            The ZigBee ZCL dissector could go into an infinite loop.
+            <!-- Fixed in trunk: r34575 -->
+            <!-- Fixed in trunk-1.4: r34889 -->
+            <!-- Fixed in trunk-1.2: r????? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5303">Bug
+            5303</ulink>)
+          </para>
+          <para>Versions affected: ?.</para>
 <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
@@ -73,6 +90,29 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+          "Tshark -G values" crashes on Windows.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5296">Bug
+          5296</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          PROFINET I&amp;M0FilterData packet not fully decoded.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5299">Bug
+          5299</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          PROFINET MRP linkup/linkdown decoding incorrect.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5300">Bug
+          5300</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          [lua] Dumper:close() will cause a segfault due later GC of the Dumper.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5320">Bug
+          5320</ulink>)
+        </para></listitem>
 
       </itemizedlist>
 
@@ -99,7 +139,14 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
     <para>
 
+DIAMETER,
+HTTP,
 LDSS,
+MIME,
+PROFINET,
+SIP,
+Telnet,
+ZigBee
 
     </para>
     </section>

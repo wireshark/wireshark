@@ -54,6 +54,8 @@ static int hf_telnet_auth_krb5_type = -1;
 static int hf_telnet_enc_cmd = -1;
 static int hf_telnet_enc_type = -1;
 
+static int hf_telnet_data = -1;
+
 static gint ett_telnet = -1;
 static gint ett_telnet_subopt = -1;
 static gint ett_status_subopt = -1;
@@ -1836,9 +1838,7 @@ telnet_add_text(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
      */
     linelen = next_offset - offset;
 
-    proto_tree_add_text(tree, tvb, offset, linelen,
-			"Data: %s",
-			tvb_format_text(tvb, offset, linelen));
+    proto_tree_add_item(tree, hf_telnet_data, tvb, offset, linelen, FALSE);
     offset = next_offset;
   }
 }
@@ -1957,6 +1957,9 @@ proto_register_telnet(void)
 	{ &hf_telnet_enc_type,
 		{ "Enc Type", "telnet.enc.type", FT_UINT8, BASE_DEC,
 		  VALS(enc_type_vals), 0, "Encryption type", HFILL }},
+	{ &hf_telnet_data,
+		{ "Data", "telnet.data", FT_STRING, BASE_NONE,
+		  NULL, 0, NULL, HFILL }},
         };
 	static gint *ett[] = {
 		&ett_telnet,

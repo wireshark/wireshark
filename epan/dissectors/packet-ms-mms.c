@@ -481,8 +481,6 @@ static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
     /* Show summary in info column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
         col_append_fstr(pinfo->cinfo, COL_INFO,
                         "seq=%03u: %s %s",
                         sequence_number,
@@ -490,7 +488,6 @@ static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                         (command_dir == TO_SERVER) ?
                             val_to_str(command_id, to_server_command_vals, "Unknown") :
                             val_to_str(command_id, to_client_command_vals, "Unknown"));
-    }
 
     /* Adjust length_remaining for command-specific details */
     length_remaining = (length_remaining*8) - 8;
@@ -610,11 +607,8 @@ static gint dissect_msmms_data_udp_command(tvbuff_t *tvb, packet_info *pinfo, pr
         proto_tree_add_item(msmms_tree, hf_msmms_data_packet_to_resend, tvb, offset, 4, TRUE);
         offset += 4;
 
-        if (check_col(pinfo->cinfo, COL_INFO))
-        {
             col_append_fstr(pinfo->cinfo, COL_INFO, " %u", packet_number);
         }
-    }
 
     /* Report that whole of UDP packet was dissected */
     return tvb_reported_length_remaining(tvb, 0);
@@ -734,11 +728,8 @@ static gint dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     offset = packet_length;
 
     /* Show summary in info column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
         col_add_fstr(pinfo->cinfo, COL_INFO, "Data: seq=%05u, len=%05u",
                      sequence_number, packet_length);
-    }
 
     /* Whole of packet length has been dissected now */
     return offset;
@@ -778,11 +769,8 @@ static void dissect_client_transport_info(tvbuff_t *tvb, packet_info *pinfo, pro
                                  offset, length_remaining-20,
                                  transport_info, "Transport: (%s)", transport_info);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
                         format_text((guchar*)transport_info, length_remaining - 20));
-    }
 
 
     /* Try to extract details from this string */
@@ -883,12 +871,9 @@ static void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                               offset, server_version_length*2,
                               server_version);
 
-        if (check_col(pinfo->cinfo, COL_INFO))
-        {
             col_append_fstr(pinfo->cinfo, COL_INFO, " (version='%s')",
                         format_text((guchar*)server_version, server_version_length));
         }
-    }
     offset += (server_version_length*2);
 
 
@@ -950,12 +935,9 @@ static void dissect_client_player_info(tvbuff_t *tvb, packet_info *pinfo, proto_
                           offset, length_remaining-12,
                           player_info);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
                         format_text((guchar*)player_info, (length_remaining - 12)/2));
     }
-}
 
 /* Dissect info about where client wants to start playing from */
 static void dissect_start_sending_from_info(tvbuff_t *tvb, proto_tree *tree, guint offset)
@@ -1046,12 +1028,9 @@ static void dissect_request_server_file(tvbuff_t *tvb, packet_info *pinfo, proto
                           offset, length_remaining-16,
                           server_file);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
                         format_text((guchar*)server_file, (length_remaining - 16)/2));
     }
-}
 
 /* Dissect media details from server */
 static void dissect_media_details(tvbuff_t *tvb, proto_tree *tree, guint offset)

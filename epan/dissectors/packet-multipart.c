@@ -1081,4 +1081,10 @@ proto_reg_handoff_multipart(void)
 	dissector_add_string("media_type",
 			"multipart/form-data", multipart_handle);
 
+	/*
+	 * Supply an entry to use for unknown multipart subtype.
+	 * See RFC 2046, section 5.1.3
+	 */
+	dissector_add_string("media_type",
+			"multipart/", multipart_handle);
 }

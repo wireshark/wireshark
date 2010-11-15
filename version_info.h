@@ -39,13 +39,17 @@ extern const gchar *wireshark_svnversion;
  * Get various library compile-time versions and append them to
  * the specified GString.
  *
- * "additional_info" is called at the end to append any additional
+ * "prepend_info" is called at the start to prepend any additional
+ * information.
+ *
+ * "append_info" is called at the end to append any additional
  * information; this is required in order to, for example, put the
  * Portaudio information at the end of the string, as we currently
  * don't use Portaudio in TShark.
  */
 void get_compiled_version_info(GString *str,
-    void (*additional_info)(GString *));
+    void (*prepend_info)(GString *),
+    void (*append_info)(GString *));
 
 /*
  * Get various library run-time versions, and the OS version, and append

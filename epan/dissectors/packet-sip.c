@@ -2705,6 +2705,14 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 			                                   media_type_str_lower_case,
 			                                   next_tvb, pinfo,
 			                                   message_body_tree);
+			if (!found_match &&
+			    !strncmp(media_type_str_lower_case, "multipart/", sizeof("multipart/")-1)) {
+				/* Try to decode the unknown multipart subtype anyway */
+				found_match = dissector_try_string(media_type_dissector_table,
+				                                   "multipart/",
+				                                   next_tvb, pinfo,
+				                                   message_body_tree);
+			}
 			pinfo->private_data = save_private_data;
 			/* If no match dump as text */
 		}
