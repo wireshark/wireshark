@@ -514,24 +514,26 @@ static void show_AM_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *
         p_pdcp_lte_info->channelType = Channel_DCCH;
         p_pdcp_lte_info->channelId = rlc_info->channelId;
         p_pdcp_lte_info->direction = rlc_info->direction;
+
+        /* Set plane and sequnce number length */
         p_pdcp_lte_info->no_header_pdu = FALSE;
         if (rlc_info->channelType == CHANNEL_TYPE_SRB) {
             p_pdcp_lte_info->plane = SIGNALING_PLANE;
+            p_pdcp_lte_info->seqnum_length = 5;
         }
         else {
             p_pdcp_lte_info->plane = USER_PLANE;
-        }
-        /* Set sequence number field length */
-        switch (global_rlc_lte_call_pdcp_for_drb) {
-            case PDCP_drb_SN_7:
-                p_pdcp_lte_info->seqnum_length = 7;
-                break;
-            case PDCP_drb_SN_12:
-                p_pdcp_lte_info->seqnum_length = 12;
-                break;
-            default:
-                DISSECTOR_ASSERT(FALSE);
-                break;
+            switch (global_rlc_lte_call_pdcp_for_drb) {
+                case PDCP_drb_SN_7:
+                    p_pdcp_lte_info->seqnum_length = 7;
+                    break;
+                case PDCP_drb_SN_12:
+                    p_pdcp_lte_info->seqnum_length = 12;
+                    break;
+                default:
+                    DISSECTOR_ASSERT(FALSE);
+                    break;
+            }
         }
 
         p_pdcp_lte_info->rohc_compression = FALSE;
