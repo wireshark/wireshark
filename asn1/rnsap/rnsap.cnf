@@ -1,6 +1,6 @@
 # rnsap.cnf
 # rnsap conformation file
-# Copyright 2005 Anders Broman 
+# Copyright 2005 Anders Broman
 # $Id$
 
 #.OPT
@@ -17,6 +17,9 @@ ProcedureCode
 #.MAKE_ENUM
 ProtocolIE-ID
 ProcedureID/ddMode
+
+#.USE_VALS_EXT
+ProtocolIE-ID
 
 #.TYPE_RENAME
 ProcedureID/ddMode DdMode
@@ -56,7 +59,7 @@ ProtocolIE-ContainerPairList
 
 #.FN_PARS ProtocolIE-ID  VAL_PTR = &ProtocolIE_ID
 
-#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue 
+#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue
 
 #.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
 
@@ -76,9 +79,9 @@ ProtocolIE-ContainerPairList
 #.END
 
 #.FN_FTR ProcedureID
-  ProcedureID = ep_strdup_printf("%s/%s", 
+  ProcedureID = ep_strdup_printf("%s/%s",
                                  val_to_str(ProcedureCode, VALS(rnsap_ProcedureCode_vals), "unknown(%u)"),
-                                 val_to_str(ddMode, VALS(rnsap_DdMode_vals), "unknown(%u)"));      
+                                 val_to_str(ddMode, VALS(rnsap_DdMode_vals), "unknown(%u)"));
 #.END
 
 #.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
@@ -811,7 +814,7 @@ DCH-MeasurementType-Indicator							N rnsap.extension id-DCH-MeasurementType-Ind
 Out-of-Sychronization-Window							N rnsap.extension id-Out-of-Sychronization-Window
 MulticellEDCH-RL-SpecificInformationItemIEs				N rnsap.ies id-MulticellEDCH-RL-SpecificInformation
 DGNSS-ValidityPeriod									N rnsap.extension id-DGNSS-ValidityPeriod
-TS0-HS-PDSCH-Indication-LCR								N rnsap.extension id-TS0-HS-PDSCH-Indication-LCR 
+TS0-HS-PDSCH-Indication-LCR								N rnsap.extension id-TS0-HS-PDSCH-Indication-LCR
 UE-TS0-CapabilityLCR									N rnsap.extension id-UE-TS0-CapabilityLCR
 
 #RNSAP-ELEMENTARY-PROCEDURE
