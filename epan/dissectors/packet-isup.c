@@ -3037,7 +3037,7 @@ static const value_string bearer_network_connection_characteristics_vals[] = {
   { 0x02,   "AAL type 2"},
   { 0x03,   "Structured AAL type 1"},
   { 0x04,   "IP/RTP"},
-  { 0x05, "TDM (reserved for use by ITU-T Rec. Q.1950)"},
+  { 0x05,   "TDM (reserved for use by ITU-T Rec. Q.1950)"},
   { 0,  NULL }
 };
 value_string_ext bearer_network_connection_characteristics_vals_ext = VALUE_STRING_EXT_INIT(bearer_network_connection_characteristics_vals);
@@ -3070,7 +3070,7 @@ static const value_string Bearer_Redirection_Indicator_vals[] = {
 static value_string_ext Bearer_Redirection_Indicator_vals_ext = VALUE_STRING_EXT_INIT(Bearer_Redirection_Indicator_vals);
 
 /*26/Q.765.5 - Signal Type */
-static const value_string BAt_ASE_Signal_Type_vals[] = {
+static const value_string BAT_ASE_Signal_Type_vals[] = {
   { 0x00,  "DTMF 0"},
   { 0x01,  "DTMF 1"},
   { 0x02,  "DTMF 2"},
@@ -3086,7 +3086,61 @@ static const value_string BAt_ASE_Signal_Type_vals[] = {
   { 0x0c,  "DTMF A"},
   { 0x0d,  "DTMF B"},
   { 0x0e,  "DTMF C"},
-  { 0x1f,  "DTMF D"},
+  { 0x0f,  "DTMF D"},
+  /* 0001 0000
+   * to
+   * 0011 1111
+   * Spare
+   */
+  { 0x10,  "Spare"},
+  { 0x11,  "Spare"},
+  { 0x12,  "Spare"},
+  { 0x13,  "Spare"},
+  { 0x14,  "Spare"},
+  { 0x15,  "Spare"},
+  { 0x16,  "Spare"},
+  { 0x17,  "Spare"},
+  { 0x18,  "Spare"},
+  { 0x19,  "Spare"},
+  { 0x1a,  "Spare"},
+  { 0x1b,  "Spare"},
+  { 0x1c,  "Spare"},
+  { 0x1d,  "Spare"},
+  { 0x1e,  "Spare"},
+  { 0x1f,  "Spare"},
+  { 0x20,  "Spare"},
+  { 0x21,  "Spare"},
+  { 0x22,  "Spare"},
+  { 0x23,  "Spare"},
+  { 0x24,  "Spare"},
+  { 0x25,  "Spare"},
+  { 0x26,  "Spare"},
+  { 0x27,  "Spare"},
+  { 0x28,  "Spare"},
+  { 0x29,  "Spare"},
+  { 0x2a,  "Spare"},
+  { 0x2b,  "Spare"},
+  { 0x2c,  "Spare"},
+  { 0x2d,  "Spare"},
+  { 0x2e,  "Spare"},
+  { 0x2f,  "Spare"},
+  { 0x30,  "Spare"},
+  { 0x31,  "Spare"},
+  { 0x32,  "Spare"},
+  { 0x33,  "Spare"},
+  { 0x34,  "Spare"},
+  { 0x35,  "Spare"},
+  { 0x36,  "Spare"},
+  { 0x37,  "Spare"},
+  { 0x38,  "Spare"},
+  { 0x39,  "Spare"},
+  { 0x3a,  "Spare"},
+  { 0x3b,  "Spare"},
+  { 0x3c,  "Spare"},
+  { 0x3d,  "Spare"},
+  { 0x3e,  "Spare"},
+  { 0x3f,  "Spare"},
+
   { 0x40,  "dial tone"},
   { 0x41,  "PABX internal dial tone"},
   { 0x42,  "special dial tone"},
@@ -3109,7 +3163,7 @@ static const value_string BAt_ASE_Signal_Type_vals[] = {
   { 0x53,  "negative indication tone"},
   { 0,  NULL }
 };
-static value_string_ext BAt_ASE_Signal_Type_vals_ext = VALUE_STRING_EXT_INIT(BAt_ASE_Signal_Type_vals);
+static value_string_ext BAT_ASE_Signal_Type_vals_ext = VALUE_STRING_EXT_INIT(BAT_ASE_Signal_Type_vals);
 
 static const value_string BAT_ASE_Report_Reason_vals[] = {
 
@@ -8434,7 +8488,7 @@ proto_register_isup(void)
 
     { &hf_bat_ase_signal,
       { "Q.765.5 - Signal Type",  "bat_ase.signal_type",
-        FT_UINT8, BASE_HEX|BASE_EXT_STRING, &BAt_ASE_Signal_Type_vals_ext,0x0,
+        FT_UINT8, BASE_HEX|BASE_EXT_STRING, &BAT_ASE_Signal_Type_vals_ext,0x0,
         NULL, HFILL }},
 
     { &hf_bat_ase_duration,

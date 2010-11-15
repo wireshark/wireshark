@@ -390,79 +390,161 @@ static const value_string next_extension_header_fieldvals[] = {
 #define GTPv1_EXT_RP_MASK               0x07
 
 static const value_string message_type[] = {
-    {GTP_MSG_UNKNOWN, "For future use"},
-    {GTP_MSG_ECHO_REQ, "Echo request"},
-    {GTP_MSG_ECHO_RESP, "Echo response"},
-    {GTP_MSG_VER_NOT_SUPP, "Version not supported"},
-    {GTP_MSG_NODE_ALIVE_REQ, "Node alive request"},
-    {GTP_MSG_NODE_ALIVE_RESP, "Node alive response"},
-    {GTP_MSG_REDIR_REQ, "Redirection request"},
-    {GTP_MSG_REDIR_RESP, "Redirection response"},
-    {GTP_MSG_CREATE_PDP_REQ, "Create PDP context request"},
-    {GTP_MSG_CREATE_PDP_RESP, "Create PDP context response"},
-    {GTP_MSG_UPDATE_PDP_REQ, "Update PDP context request"},
-    {GTP_MSG_UPDATE_PDP_RESP, "Update PDP context response"},
-    {GTP_MSG_DELETE_PDP_REQ, "Delete PDP context request"},
-    {GTP_MSG_DELETE_PDP_RESP, "Delete PDP context response"},
-    {GTP_MSG_CREATE_AA_PDP_REQ, "Create AA PDP Context Request"},
-    {GTP_MSG_CREATE_AA_PDP_RESP, "Create AA PDP Context Response"},
-    {GTP_MSG_DELETE_AA_PDP_REQ, "Delete AA PDP Context Request"},
-    {GTP_MSG_DELETE_AA_PDP_RESP, "Delete AA PDP Context Response"},
-    {GTP_MSG_ERR_IND, "Error indication"},
-    {GTP_MSG_PDU_NOTIFY_REQ, "PDU notification request"},
-    {GTP_MSG_PDU_NOTIFY_RESP, "PDU notification response"},
-    {GTP_MSG_PDU_NOTIFY_REJ_REQ, "PDU notification reject request"},
+    {GTP_MSG_UNKNOWN,             "For future use"},
+    {GTP_MSG_ECHO_REQ,            "Echo request"},
+    {GTP_MSG_ECHO_RESP,           "Echo response"},
+    {GTP_MSG_VER_NOT_SUPP,        "Version not supported"},
+    {GTP_MSG_NODE_ALIVE_REQ,      "Node alive request"},
+    {GTP_MSG_NODE_ALIVE_RESP,     "Node alive response"},
+    {GTP_MSG_REDIR_REQ,           "Redirection request"},
+    {GTP_MSG_REDIR_RESP,          "Redirection response"},
+	/*
+	 * 8-15 For future use. Shall not be sent. If received,
+	 * shall be treated as an Unknown message.
+	 */
+#if 0
+    {   8,                        "Unknown message(For future use)"},
+    {   9,                        "Unknown message(For future use)"},
+    {  10,                        "Unknown message(For future use)"},
+    {  11,                        "Unknown message(For future use)"},
+    {  12,                        "Unknown message(For future use)"},
+    {  13,                        "Unknown message(For future use)"},
+    {  14,                        "Unknown message(For future use)"},
+    {  15,                        "Unknown message(For future use)"},
+#endif
+	{GTP_MSG_CREATE_PDP_REQ,      "Create PDP context request"},
+    {GTP_MSG_CREATE_PDP_RESP,     "Create PDP context response"},
+    {GTP_MSG_UPDATE_PDP_REQ,      "Update PDP context request"},
+    {GTP_MSG_UPDATE_PDP_RESP,     "Update PDP context response"},
+    {GTP_MSG_DELETE_PDP_REQ,      "Delete PDP context request"},
+    {GTP_MSG_DELETE_PDP_RESP,     "Delete PDP context response"},
+    {GTP_MSG_CREATE_AA_PDP_REQ,   "Create AA PDP Context Request"},
+    {GTP_MSG_CREATE_AA_PDP_RESP,  "Create AA PDP Context Response"},
+    {GTP_MSG_DELETE_AA_PDP_REQ,   "Delete AA PDP Context Request"},
+    {GTP_MSG_DELETE_AA_PDP_RESP,  "Delete AA PDP Context Response"},
+    {GTP_MSG_ERR_IND,             "Error indication"},
+    {GTP_MSG_PDU_NOTIFY_REQ,      "PDU notification request"},
+    {GTP_MSG_PDU_NOTIFY_RESP,     "PDU notification response"},
+    {GTP_MSG_PDU_NOTIFY_REJ_REQ,  "PDU notification reject request"},
     {GTP_MSG_PDU_NOTIFY_REJ_RESP, "PDU notification reject response"},
-    {GTP_MSG_SUPP_EXT_HDR, "Supported extension header notification"},
-    {GTP_MSG_SEND_ROUT_INFO_REQ, "Send routing information for GPRS request"},
+    {GTP_MSG_SUPP_EXT_HDR,        "Supported extension header notification"},
+    {GTP_MSG_SEND_ROUT_INFO_REQ,  "Send routing information for GPRS request"},
     {GTP_MSG_SEND_ROUT_INFO_RESP, "Send routing information for GPRS response"},
-    {GTP_MSG_FAIL_REP_REQ, "Failure report request"},
-    {GTP_MSG_FAIL_REP_RESP, "Failure report response"},
-    {GTP_MSG_MS_PRESENT_REQ, "Note MS GPRS present request"},
-    {GTP_MSG_MS_PRESENT_RESP, "Note MS GPRS present response"},
-    {GTP_MSG_IDENT_REQ, "Identification request"},
-    {GTP_MSG_IDENT_RESP, "Identification response"},
-    {GTP_MSG_SGSN_CNTXT_REQ, "SGSN context request"},
-    {GTP_MSG_SGSN_CNTXT_RESP, "SGSN context response"},
-    {GTP_MSG_SGSN_CNTXT_ACK, "SGSN context acknowledgement"},
-    {GTP_MSG_FORW_RELOC_REQ, "Forward relocation request"},
-    {GTP_MSG_FORW_RELOC_RESP, "Forward relocation response"},
-    {GTP_MSG_FORW_RELOC_COMP, "Forward relocation complete"},
-    {GTP_MSG_RELOC_CANCEL_REQ, "Relocation cancel request"},
-    {GTP_MSG_RELOC_CANCEL_RESP, "Relocation cancel response"},
-    {GTP_MSG_FORW_SRNS_CNTXT, "Forward SRNS context"},
-    {GTP_MSG_FORW_RELOC_ACK, "Forward relocation complete acknowledge"},
+    {GTP_MSG_FAIL_REP_REQ,        "Failure report request"},
+    {GTP_MSG_FAIL_REP_RESP,       "Failure report response"},
+    {GTP_MSG_MS_PRESENT_REQ,      "Note MS GPRS present request"},
+    {GTP_MSG_MS_PRESENT_RESP,     "Note MS GPRS present response"},
+	/* 38-47 For future use. Shall not be sent. If received,
+	 * shall be treated as an Unknown message.
+	 */
+#if 0
+    {  38,                        "Unknown message(For future use)"},
+    {  39,                        "Unknown message(For future use)"},
+    {  40,                        "Unknown message(For future use)"},
+    {  41,                        "Unknown message(For future use)"},
+    {  42,                        "Unknown message(For future use)"},
+    {  43,                        "Unknown message(For future use)"},
+    {  44,                        "Unknown message(For future use)"},
+    {  45,                        "Unknown message(For future use)"},
+    {  46,                        "Unknown message(For future use)"},
+    {  47,                        "Unknown message(For future use)"},
+#endif
+    {GTP_MSG_IDENT_REQ,           "Identification request"},
+    {GTP_MSG_IDENT_RESP,          "Identification response"},
+    {GTP_MSG_SGSN_CNTXT_REQ,      "SGSN context request"},
+    {GTP_MSG_SGSN_CNTXT_RESP,     "SGSN context response"},
+    {GTP_MSG_SGSN_CNTXT_ACK,      "SGSN context acknowledgement"},
+    {GTP_MSG_FORW_RELOC_REQ,      "Forward relocation request"},
+    {GTP_MSG_FORW_RELOC_RESP,     "Forward relocation response"},
+    {GTP_MSG_FORW_RELOC_COMP,     "Forward relocation complete"},
+    {GTP_MSG_RELOC_CANCEL_REQ,    "Relocation cancel request"},
+    {GTP_MSG_RELOC_CANCEL_RESP,   "Relocation cancel response"},
+    {GTP_MSG_FORW_SRNS_CNTXT,     "Forward SRNS context"},
+    {GTP_MSG_FORW_RELOC_ACK,      "Forward relocation complete acknowledge"},
     {GTP_MSG_FORW_SRNS_CNTXT_ACK, "Forward SRNS context acknowledge"},
-    {GTP_MSG_RAN_INFO_RELAY, "RAN Information Relay"},
-    {GTP_MBMS_NOTIFY_REQ, "MBMS Notification Request"},
-    {GTP_MBMS_NOTIFY_RES, "MBMS Notification Response"},
-    {GTP_MBMS_NOTIFY_REJ_REQ, "MBMS Notification Reject Request"},
-    {GTP_MBMS_NOTIFY_REJ_RES, "MBMS Notification Reject Response"},
-    {GTP_CREATE_MBMS_CNTXT_REQ, "Create MBMS Context Request"},
-    {GTP_CREATE_MBMS_CNTXT_RES, "Create MBMS Context Response"},
-    {GTP_UPD_MBMS_CNTXT_REQ, "Update MBMS Context Request"},
-    {GTP_UPD_MBMS_CNTXT_RES, "Update MBMS Context Response"},
-    {GTP_DEL_MBMS_CNTXT_REQ, "Delete MBMS Context Request"},
-    {GTP_DEL_MBMS_CNTXT_RES, "Delete MBMS Context Response"},
-    {GTP_MBMS_REG_REQ, "MBMS Registration Request"},
-    {GTP_MBMS_REG_RES, "MBMS Registration Response"},
-    {GTP_MBMS_DE_REG_REQ, "MBMS De-Registration Request"},
-    {GTP_MBMS_DE_REG_RES, "MBMS De-Registration Response"},
-    {GTP_MBMS_SES_START_REQ, "MBMS Session Start Request"},
-    {GTP_MBMS_SES_START_RES, "MBMS Session Start Response"},
-    {GTP_MBMS_SES_STOP_REQ, "MBMS Session Stop Request"},
-    {GTP_MBMS_SES_STOP_RES, "MBMS Session Stop Response"},
-    {GTP_MBMS_SES_UPD_REQ, "MBMS Session Update Request"},
-    {GTP_MBMS_SES_UPD_RES, "MBMS Session Update Response"},
-/* 122-127 For future use. Shall not be sent.
- * If received, shall be treated as an Unknown message.
- */
-    {GTP_MS_INFO_CNG_NOT_REQ, "MS Info Change Notification Request"},
-    {GTP_MS_INFO_CNG_NOT_RES, "MS Info Change Notification Response"},
-    {GTP_MSG_DATA_TRANSF_REQ, "Data record transfer request"},
-    {GTP_MSG_DATA_TRANSF_RESP, "Data record transfer response"},
-    {GTP_MSG_END_MARKER, "End Marker"},
-    {GTP_MSG_TPDU, "T-PDU"},
+	/* 61-69 For future use. Shall not be sent. If received,
+	 * shall be treated as an Unknown message.
+	 */
+#if 0
+    {  61,                        "Unknown message(For future use)"},
+    {  62,                        "Unknown message(For future use)"},
+    {  63,                        "Unknown message(For future use)"},
+    {  64,                        "Unknown message(For future use)"},
+    {  65,                        "Unknown message(For future use)"},
+    {  66,                        "Unknown message(For future use)"},
+    {  67,                        "Unknown message(For future use)"},
+    {  68,                        "Unknown message(For future use)"},
+    {  69,                        "Unknown message(For future use)"},
+#endif
+    {GTP_MSG_RAN_INFO_RELAY,      "RAN Information Relay"},
+	/* 71-95 For future use. Shall not be sent. If received,
+	 * shall be treated as an Unknown message.
+	 */
+#if 0
+    {  71,                        "Unknown message(For future use)"},
+    {  72,                        "Unknown message(For future use)"},
+    {  73,                        "Unknown message(For future use)"},
+    {  74,                        "Unknown message(For future use)"},
+    {  75,                        "Unknown message(For future use)"},
+    {  76,                        "Unknown message(For future use)"},
+    {  77,                        "Unknown message(For future use)"},
+    {  78,                        "Unknown message(For future use)"},
+    {  79,                        "Unknown message(For future use)"},
+    {  80,                        "Unknown message(For future use)"},
+    {  81,                        "Unknown message(For future use)"},
+    {  82,                        "Unknown message(For future use)"},
+    {  83,                        "Unknown message(For future use)"},
+    {  84,                        "Unknown message(For future use)"},
+    {  85,                        "Unknown message(For future use)"},
+    {  86,                        "Unknown message(For future use)"},
+    {  87,                        "Unknown message(For future use)"},
+    {  88,                        "Unknown message(For future use)"},
+    {  89,                        "Unknown message(For future use)"},
+    {  90,                        "Unknown message(For future use)"},
+    {  91,                        "Unknown message(For future use)"},
+    {  92,                        "Unknown message(For future use)"},
+    {  93,                        "Unknown message(For future use)"},
+    {  94,                        "Unknown message(For future use)"},
+    {  95,                        "Unknown message(For future use)"},
+#endif
+    {GTP_MBMS_NOTIFY_REQ,         "MBMS Notification Request"},
+    {GTP_MBMS_NOTIFY_RES,         "MBMS Notification Response"},
+    {GTP_MBMS_NOTIFY_REJ_REQ,     "MBMS Notification Reject Request"},
+    {GTP_MBMS_NOTIFY_REJ_RES,     "MBMS Notification Reject Response"},
+    {GTP_CREATE_MBMS_CNTXT_REQ,   "Create MBMS Context Request"},
+    {GTP_CREATE_MBMS_CNTXT_RES,   "Create MBMS Context Response"},
+    {GTP_UPD_MBMS_CNTXT_REQ,      "Update MBMS Context Request"},
+    {GTP_UPD_MBMS_CNTXT_RES,      "Update MBMS Context Response"},
+    {GTP_DEL_MBMS_CNTXT_REQ,      "Delete MBMS Context Request"},
+    {GTP_DEL_MBMS_CNTXT_RES,      "Delete MBMS Context Response"},
+	/* 106 - 111 For future use. Shall not be sent. If received,
+	 * shall be treated as an Unknown message.
+	 */
+    {GTP_MBMS_REG_REQ,            "MBMS Registration Request"},
+    {GTP_MBMS_REG_RES,            "MBMS Registration Response"},
+    {GTP_MBMS_DE_REG_REQ,         "MBMS De-Registration Request"},
+    {GTP_MBMS_DE_REG_RES,         "MBMS De-Registration Response"},
+    {GTP_MBMS_SES_START_REQ,      "MBMS Session Start Request"},
+    {GTP_MBMS_SES_START_RES,      "MBMS Session Start Response"},
+    {GTP_MBMS_SES_STOP_REQ,       "MBMS Session Stop Request"},
+    {GTP_MBMS_SES_STOP_RES,       "MBMS Session Stop Response"},
+    {GTP_MBMS_SES_UPD_REQ,        "MBMS Session Update Request"},
+    {GTP_MBMS_SES_UPD_RES,        "MBMS Session Update Response"},
+    /* 122-127 For future use. Shall not be sent.
+     * If received, shall be treated as an Unknown message.
+     */
+    {GTP_MS_INFO_CNG_NOT_REQ,     "MS Info Change Notification Request"},
+    {GTP_MS_INFO_CNG_NOT_RES,     "MS Info Change Notification Response"},
+    /* 130-239 For future use. Shall not be sent. If received,
+	 * shall be treated as an Unknown message.
+	 */
+    {GTP_MSG_DATA_TRANSF_REQ,     "Data record transfer request"},
+    {GTP_MSG_DATA_TRANSF_RESP,    "Data record transfer response"},
+	/* 242-253 For future use. Shall not be sent. If received,
+	 * shall be treated as an Unknown message.
+	 */
+    {GTP_MSG_END_MARKER,          "End Marker"},
+    {GTP_MSG_TPDU,                "T-PDU"},
     {0, NULL}
 };
 static value_string_ext message_type_ext = VALUE_STRING_EXT_INIT(message_type);
@@ -796,6 +878,7 @@ static value_string_ext gtpv1_val_ext = VALUE_STRING_EXT_INIT(gtpv1_val);
 
 /* GPRS:    9.60 v7.6.0, page 37
  * UMTS:    29.060 v4.0, page 45
+ * ETSI TS 129 060 V9.4.0 (2010-10)
  */
 static const value_string cause_type[] = {
     {  0, "Request IMSI"},
@@ -804,13 +887,26 @@ static const value_string cause_type[] = {
     {  3, "No identity needed"},
     {  4, "MS refuses"},
     {  5, "MS is not GPRS responding"},
+	/* For future use 6-48 */
+	/* Cause values reserved for GPRS charging
+	 * protocol use (see GTP' in 3GPP TS 32.295 [33])
+	 * 49-63
+	 */
     { 59, "System failure"}, /* charging */
     { 60, "The transmit buffers are becoming full"}, /* charging */
     { 61, "The receive buffers are becoming full"},  /* charging */
     { 62, "Another node is about to go down"},       /* charging */
     { 63, "This node is about to go down"},          /* charging */
+	/* For future use 64-127 */
     {128, "Request accepted"},
-    {192, "Non-existent"},
+    {129, "New PDP type due to network preference"},
+    {130, "New PDP type due to single address bearer only"},
+	/* For future use 131-176 */
+	/* Cause values reserved for GPRS charging
+	 * protocol use (see GTP' in 3GPP TS 32.295 [33])
+	 * 177-191
+	 */
+	{192, "Non-existent"},
     {193, "Invalid message format"},
     {194, "IMSI not known"},
     {195, "MS is GPRS detached"},
@@ -845,6 +941,13 @@ static const value_string cause_type[] = {
     {224, "MS MBMS Capabilities Insufficient"},
     {225, "Invalid Correlation-ID"},
     {226, "MBMS Bearer Context Superseded"},
+    {227, "Bearer Control Mode violation"},
+    {228, "Collision with network initiated request"},
+	/* For future use 229-240 */
+	/* Cause values reserved for GPRS charging
+	 * protocol use (see GTP' in 3GPP TS 32.295 [33])
+	 * 241-255
+	 */
     {252, "Request related to possibly duplicated packets already fulfilled"},  /* charging */
     {253, "Request already fulfilled"}, /* charging */
     {254, "Sequence numbers of released/cancelled packets IE incorrect"},   /* charging */
@@ -2816,6 +2919,7 @@ static int check_field_presence(guint8 message, guint8 field, int *position)
 
 /* GPRS:        9.60 v7.6.0, chapter
  * UMTS:        29.060 v4.0, chapter
+ * 7.7.1 Cause
  */
 static int decode_gtp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {

@@ -103,8 +103,8 @@ typedef struct gtp_msg_hash_entry {
 /* 122-127  For future use. Shall not be sent.
  * If received, shall be treated as an Unknown message.
  */
-#define GTP_MS_INFO_CNG_NOT_REQ     121
-#define GTP_MS_INFO_CNG_NOT_RES     122
+#define GTP_MS_INFO_CNG_NOT_REQ     128
+#define GTP_MS_INFO_CNG_NOT_RES     129
 /* 130-239  For future use. Shall not be sent.
  * If received, shall be treated as an Unknown message.
  */
