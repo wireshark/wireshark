@@ -5055,7 +5055,6 @@ static const value_string rnsap_ProcedureCode_vals[] = {
   { RNSAP_ID_PHYSICALCHANNELRECONFIGURATION, "id-physicalChannelReconfiguration" },
   { RNSAP_ID_PRIVATEMESSAGE, "id-privateMessage" },
   { RNSAP_ID_RADIOLINKADDITION, "id-radioLinkAddition" },
-  { RNSAP_ID_RADIOLINKCONGESTION, "id-radioLinkCongestion" },
   { RNSAP_ID_RADIOLINKDELETION, "id-radioLinkDeletion" },
   { RNSAP_ID_RADIOLINKFAILURE, "id-radioLinkFailure" },
   { RNSAP_ID_RADIOLINKPREEMPTION, "id-radioLinkPreemption" },
@@ -5075,6 +5074,7 @@ static const value_string rnsap_ProcedureCode_vals[] = {
   { RNSAP_ID_INFORMATIONEXCHANGEINITIATION, "id-informationExchangeInitiation" },
   { RNSAP_ID_INFORMATIONREPORTING, "id-informationReporting" },
   { RNSAP_ID_INFORMATIONEXCHANGETERMINATION, "id-informationExchangeTermination" },
+  { RNSAP_ID_RADIOLINKCONGESTION, "id-radioLinkCongestion" },
   { RNSAP_ID_RESET, "id-reset" },
   { RNSAP_ID_RADIOLINKACTIVATION, "id-radioLinkActivation" },
   { RNSAP_ID_GERANUPLINKSIGNALLINGTRANSFER, "id-gERANuplinkSignallingTransfer" },
@@ -5098,16 +5098,18 @@ static const value_string rnsap_ProcedureCode_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext rnsap_ProcedureCode_vals_ext = VALUE_STRING_EXT_INIT(rnsap_ProcedureCode_vals);
+
 
 static int
 dissect_rnsap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 68 "rnsap.cnf"
+#line 76 "rnsap.cnf"
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
        col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                   val_to_str(ProcedureCode, rnsap_ProcedureCode_vals,
+                   val_to_str_ext_const(ProcedureCode, &rnsap_ProcedureCode_vals_ext,
                               "unknown message"));
 
   return offset;
@@ -5139,7 +5141,7 @@ static const per_sequence_t ProcedureID_sequence[] = {
 
 static int
 dissect_rnsap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 76 "rnsap.cnf"
+#line 84 "rnsap.cnf"
   ProcedureCode = 0xFFFF;
   ddMode = 0xFFFF;
   ProcedureID = NULL;
@@ -5147,10 +5149,10 @@ dissect_rnsap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_rnsap_ProcedureID, ProcedureID_sequence);
 
-#line 82 "rnsap.cnf"
+#line 90 "rnsap.cnf"
   ProcedureID = ep_strdup_printf("%s/%s",
-                                 val_to_str(ProcedureCode, VALS(rnsap_ProcedureCode_vals), "unknown(%u)"),
-                                 val_to_str(ddMode, VALS(rnsap_DdMode_vals), "unknown(%u)"));
+                                 val_to_str_ext(ProcedureCode, &rnsap_ProcedureCode_vals_ext, "unknown(%u)"),
+                                 val_to_str(ddMode, rnsap_DdMode_vals, "unknown(%u)"));
 
   return offset;
 }
@@ -6969,6 +6971,8 @@ static const value_string rnsap_CauseRadioNetwork_vals[] = {
   {  83, "cellSpecificTxDiversityHandlingForMultiCellOperationNotSupported" },
   { 0, NULL }
 };
+
+static value_string_ext rnsap_CauseRadioNetwork_vals_ext = VALUE_STRING_EXT_INIT(rnsap_CauseRadioNetwork_vals);
 
 
 static int
@@ -12443,6 +12447,8 @@ static const value_string rnsap_DiscardTimer_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext rnsap_DiscardTimer_vals_ext = VALUE_STRING_EXT_INIT(rnsap_DiscardTimer_vals);
+
 
 static int
 dissect_rnsap_DiscardTimer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -12911,6 +12917,8 @@ static const value_string rnsap_TDD_ChannelisationCode_vals[] = {
   {  30, "chCode16div16" },
   { 0, NULL }
 };
+
+static value_string_ext rnsap_TDD_ChannelisationCode_vals_ext = VALUE_STRING_EXT_INIT(rnsap_TDD_ChannelisationCode_vals);
 
 
 static int
@@ -13417,6 +13425,8 @@ static const value_string rnsap_TDD_ChannelisationCode768_vals[] = {
   {  62, "chCode32div32" },
   { 0, NULL }
 };
+
+static value_string_ext rnsap_TDD_ChannelisationCode768_vals_ext = VALUE_STRING_EXT_INIT(rnsap_TDD_ChannelisationCode768_vals);
 
 
 static int
@@ -15703,6 +15713,8 @@ static const value_string rnsap_E_DCH_MACdFlow_Retransmission_Timer_LCR_vals[] =
   { 0, NULL }
 };
 
+static value_string_ext rnsap_E_DCH_MACdFlow_Retransmission_Timer_LCR_vals_ext = VALUE_STRING_EXT_INIT(rnsap_E_DCH_MACdFlow_Retransmission_Timer_LCR_vals);
+
 
 static int
 dissect_rnsap_E_DCH_MACdFlow_Retransmission_Timer_LCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -16851,6 +16863,8 @@ static const value_string rnsap_FrequencyBandIndicator_vals[] = {
   {  21, "bandXXII" },
   { 0, NULL }
 };
+
+static value_string_ext rnsap_FrequencyBandIndicator_vals_ext = VALUE_STRING_EXT_INIT(rnsap_FrequencyBandIndicator_vals);
 
 
 static int
@@ -21762,6 +21776,8 @@ static const value_string rnsap_Process_Memory_Size_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext rnsap_Process_Memory_Size_vals_ext = VALUE_STRING_EXT_INIT(rnsap_Process_Memory_Size_vals);
+
 
 static int
 dissect_rnsap_Process_Memory_Size(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -22515,7 +22531,7 @@ dissect_rnsap_List_Of_PLMNs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_rnsap_L3_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 95 "rnsap.cnf"
+#line 103 "rnsap.cnf"
 	tvbuff_t *parameter_tvb;
 	dissector_handle_t parameter_handle = NULL;
 
@@ -43108,7 +43124,7 @@ void proto_register_rnsap(void) {
         NULL, HFILL }},
     { &hf_rnsap_E_DCH_MACdFlow_Retransmission_Timer_LCR_PDU,
       { "E-DCH-MACdFlow-Retransmission-Timer-LCR", "rnsap.E_DCH_MACdFlow_Retransmission_Timer_LCR",
-        FT_UINT32, BASE_DEC, VALS(rnsap_E_DCH_MACdFlow_Retransmission_Timer_LCR_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &rnsap_E_DCH_MACdFlow_Retransmission_Timer_LCR_vals_ext, 0,
         NULL, HFILL }},
     { &hf_rnsap_E_DCH_Information_Reconfig_PDU,
       { "E-DCH-Information-Reconfig", "rnsap.E_DCH_Information_Reconfig",
@@ -43212,7 +43228,7 @@ void proto_register_rnsap(void) {
         NULL, HFILL }},
     { &hf_rnsap_FrequencyBandIndicator_PDU,
       { "FrequencyBandIndicator", "rnsap.FrequencyBandIndicator",
-        FT_UINT32, BASE_DEC, VALS(rnsap_FrequencyBandIndicator_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &rnsap_FrequencyBandIndicator_vals_ext, 0,
         NULL, HFILL }},
     { &hf_rnsap_GA_Cell_PDU,
       { "GA-Cell", "rnsap.GA_Cell",
@@ -45564,7 +45580,7 @@ void proto_register_rnsap(void) {
         "OBJECT_IDENTIFIER", HFILL }},
     { &hf_rnsap_procedureCode,
       { "procedureCode", "rnsap.procedureCode",
-        FT_UINT32, BASE_DEC, VALS(rnsap_ProcedureCode_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &rnsap_ProcedureCode_vals_ext, 0,
         NULL, HFILL }},
     { &hf_rnsap_ddMode,
       { "ddMode", "rnsap.ddMode",
@@ -46048,7 +46064,7 @@ void proto_register_rnsap(void) {
         "INTEGER_1_16", HFILL }},
     { &hf_rnsap_radioNetwork,
       { "radioNetwork", "rnsap.radioNetwork",
-        FT_UINT32, BASE_DEC, VALS(rnsap_CauseRadioNetwork_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &rnsap_CauseRadioNetwork_vals_ext, 0,
         "CauseRadioNetwork", HFILL }},
     { &hf_rnsap_transport,
       { "transport", "rnsap.transport",
@@ -47468,7 +47484,7 @@ void proto_register_rnsap(void) {
         NULL, HFILL }},
     { &hf_rnsap_tDD_ChannelisationCode,
       { "tDD-ChannelisationCode", "rnsap.tDD_ChannelisationCode",
-        FT_UINT32, BASE_DEC, VALS(rnsap_TDD_ChannelisationCode_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &rnsap_TDD_ChannelisationCode_vals_ext, 0,
         NULL, HFILL }},
     { &hf_rnsap_e_HICH_TimeOffset,
       { "e-HICH-TimeOffset", "rnsap.e_HICH_TimeOffset",
@@ -47496,7 +47512,7 @@ void proto_register_rnsap(void) {
         NULL, HFILL }},
     { &hf_rnsap_tdd_ChannelisationCode,
       { "tdd-ChannelisationCode", "rnsap.tdd_ChannelisationCode",
-        FT_UINT32, BASE_DEC, VALS(rnsap_TDD_ChannelisationCode_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &rnsap_TDD_ChannelisationCode_vals_ext, 0,
         NULL, HFILL }},
     { &hf_rnsap_e_DCH_TDD_Information768,
       { "e-DCH-TDD-Information768", "rnsap.e_DCH_TDD_Information768",
@@ -47524,11 +47540,11 @@ void proto_register_rnsap(void) {
         NULL, HFILL }},
     { &hf_rnsap_tDD_ChannelisationCode768,
       { "tDD-ChannelisationCode768", "rnsap.tDD_ChannelisationCode768",
-        FT_UINT32, BASE_DEC, VALS(rnsap_TDD_ChannelisationCode768_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &rnsap_TDD_ChannelisationCode768_vals_ext, 0,
         NULL, HFILL }},
     { &hf_rnsap_tdd_ChannelisationCode768,
       { "tdd-ChannelisationCode768", "rnsap.tdd_ChannelisationCode768",
-        FT_UINT32, BASE_DEC, VALS(rnsap_TDD_ChannelisationCode768_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &rnsap_TDD_ChannelisationCode768_vals_ext, 0,
         NULL, HFILL }},
     { &hf_rnsap_e_PUCH_LCR_Information,
       { "e-PUCH-LCR-Information", "rnsap.e_PUCH_LCR_Information",
@@ -49644,11 +49660,11 @@ void proto_register_rnsap(void) {
         NULL, HFILL }},
     { &hf_rnsap_first_TDD_ChannelisationCode,
       { "first-TDD-ChannelisationCode", "rnsap.first_TDD_ChannelisationCode",
-        FT_UINT32, BASE_DEC, VALS(rnsap_TDD_ChannelisationCode_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &rnsap_TDD_ChannelisationCode_vals_ext, 0,
         "TDD_ChannelisationCode", HFILL }},
     { &hf_rnsap_second_TDD_ChannelisationCode,
       { "second-TDD-ChannelisationCode", "rnsap.second_TDD_ChannelisationCode",
-        FT_UINT32, BASE_DEC, VALS(rnsap_TDD_ChannelisationCode_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &rnsap_TDD_ChannelisationCode_vals_ext, 0,
         "TDD_ChannelisationCode", HFILL }},
     { &hf_rnsap_hSSICH_InfoLCR,
       { "hSSICH-InfoLCR", "rnsap.hSSICH_InfoLCR",
@@ -49736,7 +49752,7 @@ void proto_register_rnsap(void) {
         NULL, HFILL }},
     { &hf_rnsap_buffer_Size_for_HS_DSCH_SPS,
       { "buffer-Size-for-HS-DSCH-SPS", "rnsap.buffer_Size_for_HS_DSCH_SPS",
-        FT_UINT32, BASE_DEC, VALS(rnsap_Process_Memory_Size_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &rnsap_Process_Memory_Size_vals_ext, 0,
         "Process_Memory_Size", HFILL }},
     { &hf_rnsap_number_of_Processes_for_HS_DSCH_SPS,
       { "number-of-Processes-for-HS-DSCH-SPS", "rnsap.number_of_Processes_for_HS_DSCH_SPS",
@@ -49784,11 +49800,11 @@ void proto_register_rnsap(void) {
         "HS_DSCH_TimeslotResourceLCR", HFILL }},
     { &hf_rnsap_startCode,
       { "startCode", "rnsap.startCode",
-        FT_UINT32, BASE_DEC, VALS(rnsap_TDD_ChannelisationCode_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &rnsap_TDD_ChannelisationCode_vals_ext, 0,
         "TDD_ChannelisationCode", HFILL }},
     { &hf_rnsap_endCode,
       { "endCode", "rnsap.endCode",
-        FT_UINT32, BASE_DEC, VALS(rnsap_TDD_ChannelisationCode_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &rnsap_TDD_ChannelisationCode_vals_ext, 0,
         "TDD_ChannelisationCode", HFILL }},
     { &hf_rnsap_transport_Block_Size_Index_01,
       { "transport-Block-Size-Index", "rnsap.transport_Block_Size_Index",
@@ -50480,7 +50496,7 @@ void proto_register_rnsap(void) {
         NULL, HFILL }},
     { &hf_rnsap_discardTimer,
       { "discardTimer", "rnsap.discardTimer",
-        FT_UINT32, BASE_DEC, VALS(rnsap_DiscardTimer_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &rnsap_DiscardTimer_vals_ext, 0,
         NULL, HFILL }},
     { &hf_rnsap_mAC_hsWindowSize,
       { "mAC-hsWindowSize", "rnsap.mAC_hsWindowSize",

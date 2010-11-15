@@ -20,6 +20,14 @@ ProcedureID/ddMode
 
 #.USE_VALS_EXT
 ProtocolIE-ID
+CauseRadioNetwork
+TDD-ChannelisationCode768
+Process-Memory-Size
+ProcedureCode
+TDD-ChannelisationCode
+E-DCH-MACdFlow-Retransmission-Timer-LCR
+DiscardTimer
+FrequencyBandIndicator
 
 #.TYPE_RENAME
 ProcedureID/ddMode DdMode
@@ -67,7 +75,7 @@ ProtocolIE-ContainerPairList
 #.FN_FTR ProcedureCode
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
        col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                   val_to_str(ProcedureCode, rnsap_ProcedureCode_vals,
+                   val_to_str_ext_const(ProcedureCode, &rnsap_ProcedureCode_vals_ext,
                               "unknown message"));
 #.END
 #.FN_PARS ProcedureID/ddMode VAL_PTR = &ddMode
@@ -80,8 +88,8 @@ ProtocolIE-ContainerPairList
 
 #.FN_FTR ProcedureID
   ProcedureID = ep_strdup_printf("%s/%s",
-                                 val_to_str(ProcedureCode, VALS(rnsap_ProcedureCode_vals), "unknown(%u)"),
-                                 val_to_str(ddMode, VALS(rnsap_DdMode_vals), "unknown(%u)"));
+                                 val_to_str_ext(ProcedureCode, &rnsap_ProcedureCode_vals_ext, "unknown(%u)"),
+                                 val_to_str(ddMode, rnsap_DdMode_vals, "unknown(%u)"));
 #.END
 
 #.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
