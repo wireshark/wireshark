@@ -81,11 +81,11 @@ What needs to be done?
 ======================
 
 - Add asn1 autogen target (assigned: krj)
-- Redo glib2 find modules. Add version detection while at it.
 - Add back platform specific objects.
 - Fix places in the cmake files marked as todo.
 - Add back (working) install target.
-  Currently, directories are created with user umask
+  Currently, directories are created with user umask.
+  Also the guides are not installed.
 - Build source package (using CPack).
 - Build rpm package (using CPack).
 - Build dpkg package (using CPack).

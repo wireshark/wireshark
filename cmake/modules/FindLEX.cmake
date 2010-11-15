@@ -43,6 +43,7 @@ MACRO(ADD_LEX_FILES _sources )
         DEPENDS ${_in}
       )
     SET(${_sources} ${${_sources}} ${_outc} )
+    INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
   ENDFOREACH (_current_FILE)
 ENDMACRO(ADD_LEX_FILES)
 

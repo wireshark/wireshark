@@ -71,7 +71,6 @@ set(WIRESHARK_GTK_SRC
 	main.c
 	main_airpcap_toolbar.c
 	main_filter_toolbar.c
-	menus.c
 	main_packet_list.c
 	main_proto_draw.c
 	main_statusbar.c
@@ -79,6 +78,7 @@ set(WIRESHARK_GTK_SRC
 	main_welcome.c
 	manual_addr_resolv.c
 	mcast_stream.c
+	menus.c
 	new_packet_list.c
 	packet_history.c
 	packet_list_store.c
@@ -215,6 +215,16 @@ if (WERROR)
 		${CLEAN_FILES}
 		PROPERTIES
 		COMPILE_FLAGS -Werror
+	)
+endif()
+
+add_lex_files(WIRESHARK_GTK_SRC
+	text_import_scanner.l
+)
+
+if (UI_MANAGER)
+	add_definitions(
+		-DMAIN_MENU_USE_UIMANAGER=1
 	)
 endif()
 
