@@ -1,6 +1,6 @@
 # nbap.cnf
 # nbap conformation file
-# Copyright 2005 Anders Broman 
+# Copyright 2005 Anders Broman
 # $Id$
 
 #.OPT
@@ -69,11 +69,11 @@ ProtocolIE-ContainerPairList
 #.FN_PARS ProtocolIE-ID  VAL_PTR = &ProtocolIE_ID
 #.FN_FTR ProtocolIE-ID
   if (tree) {
-    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(nbap_ProtocolIE_ID_vals), "unknown (%d)"));
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str_ext(ProtocolIE_ID, &nbap_ProtocolIE_ID_vals_ext, "unknown (%d)"));
   }
 #.END
 
-#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue 
+#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue
 
 #.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
 
@@ -92,9 +92,9 @@ ProtocolIE-ContainerPairList
 #.END
 
 #.FN_FTR ProcedureID
-  ProcedureID = ep_strdup_printf("%s/%s", 
+  ProcedureID = ep_strdup_printf("%s/%s",
                                  val_to_str(ProcedureCode, VALS(nbap_ProcedureCode_vals), "unknown(%u)"),
-                                 val_to_str(ddMode, VALS(nbap_DdMode_vals), "unknown(%u)"));      
+                                 val_to_str(ddMode, VALS(nbap_DdMode_vals), "unknown(%u)"));
 #.END
 
 #.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
@@ -107,7 +107,7 @@ ProtocolIE-ContainerPairList
   tvbuff_t *parameter_tvb=NULL;
   proto_tree *subtree;
   gint tvb_len;
-  
+
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
     return offset;
@@ -533,7 +533,7 @@ TransmittedCarrierPowerOfAllCodesNotUsedForHSTransmissionValue			N nbap.ies id-T
 ActivationInformation													N nbap.ies id-ActivationInformation
 
 #NBAP-PROTOCOL-EXTENSION
-BroadcastCommonTransportBearerIndication						N nbap.extension id-BroadcastCommonTransportBearerIndication			
+BroadcastCommonTransportBearerIndication						N nbap.extension id-BroadcastCommonTransportBearerIndication
 MessageStructure												N nbap.extension id-MessageStructure
 TypeOfError														N nbap.extension id-TypeOfError
 TnlQos															N nbap.extension id-TnlQos
@@ -1047,7 +1047,7 @@ UE-AggregateMaximumBitRate											N nbap.extension id-UE-AggregateMaximumBitR
 UE-AggregateMaximumBitRate-Enforcement-Indicator					N nbap.extension id-UE-AggregateMaximumBitRate-Enforcement-Indicator
 MIMO-PowerOffsetForS-CPICHCapability								N nbap.extension id-MIMO-Power-Offset-For-S-CPICH-Capability
 MIMO-PilotConfigurationExtension									N nbap.extension id-MIMO-PilotConfigurationExtension
-TxDiversityOnDLControlChannelsByMIMOUECapability					N nbap.extension id-TxDiversityOnDLControlChannelsByMIMOUECapability 
+TxDiversityOnDLControlChannelsByMIMOUECapability					N nbap.extension id-TxDiversityOnDLControlChannelsByMIMOUECapability
 NumberOfReportedCellPortionsLCR										N nbap.extension id-NumberOfReportedCellPortionsLCR
 CellPortion-CapabilityLCR											N nbap.extension id-CellPortion-CapabilityLCR
 Additional-EDCH-Setup-Info											N nbap.extension id-Additional-EDCH-Cell-Information-RL-Setup-Req
