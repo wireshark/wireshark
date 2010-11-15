@@ -556,15 +556,16 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldN
     proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_variant);
     gint    iOffset = *pOffset;
     guint8  EncodingMask;
-    gint32  ArrayLength;
+    gint32  ArrayLength = 0;
 
     EncodingMask = tvb_get_guint8(tvb, iOffset);
     proto_tree_add_item(subtree, hf_opcua_variant_encodingmask, tvb, iOffset, 1, TRUE);
     iOffset++;
-    ArrayLength = tvb_get_letohl(tvb, iOffset);
 
     if (EncodingMask & VARIANT_ARRAYMASK)
     {
+        ArrayLength = tvb_get_letohl(tvb, iOffset);
+
         /* type is encoded in bits 0-5 */
         switch(EncodingMask & 0x3f)
         {
@@ -594,6 +595,28 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldN
         case OpcUaType_ExtensionObject: parseArrayComplex(subtree, tvb, &iOffset, "ExtensionObject", parseExtensionObject); break;
         case OpcUaType_DataValue: parseArrayComplex(subtree, tvb, &iOffset, "DataValue", parseDataValue); break;
         case OpcUaType_Variant: parseArrayComplex(subtree, tvb, &iOffset, "Variant", parseVariant); break;
+        }
+
+        if (EncodingMask & VARIANT_ARRAYDIMENSIONS)
+        {
+            proto_item *ti_2 = proto_tree_add_text(tree, tvb, 0, -1, "Array Dimensions");
+            proto_tree *subtree_2 = proto_item_add_subtree(ti_2, ett_opcua_array);
+            int i;
+
+            if (ArrayLength < MAX_ARRAY_LEN)
+            {
+                for (i=0; i<ArrayLength; i++)
+                {
+                    parseInt32(subtree_2, tvb, pOffset, hf_opcua_Int32);
+                }
+            }
+            else
+            {
+                proto_item *pi;
+                /* XXX - This should be expert_add_info_format, but we need pinfo for that */
+                pi = proto_tree_add_text(tree, tvb, iOffset, 4, "Array length %d too large to process", ArrayLength);
+                PROTO_ITEM_SET_GENERATED(pi);
+            }
         }
     }
     else
@@ -630,28 +653,6 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldN
         }
     }
 
-    if (EncodingMask & VARIANT_ARRAYDIMENSIONS)
-    {
-        proto_item *ti_2 = proto_tree_add_text(tree, tvb, 0, -1, "Array Dimensions");
-        proto_tree *subtree_2 = proto_item_add_subtree(ti_2, ett_opcua_array);
-        int i;
-
-        if (ArrayLength < MAX_ARRAY_LEN)
-        {
-            for (i=0; i<ArrayLength; i++)
-            {
-                parseInt32(subtree_2, tvb, pOffset, hf_opcua_Int32);
-            }
-        }
-        else
-        {
-	    proto_item *pi;
-            /* XXX - This should be expert_add_info_format, but we need pinfo for that */
-            pi = proto_tree_add_text(tree, tvb, iOffset, 4, "Array length %d too large to process", ArrayLength);
-	    PROTO_ITEM_SET_GENERATED(pi);
-        }
-    }
-
     *pOffset = iOffset;
 }
 
@@ -670,9 +671,6 @@ void parseArraySimple(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfInde
     /* read array length */
     iLen = tvb_get_letohl(tvb, *pOffset);
     proto_tree_add_item(subtree, hf_opcua_ArraySize, tvb, *pOffset, 4, TRUE);
-
-    if (iLen == -1) return; /* no array */
-    if (iLen == 0)  return; /* array with zero elements*/
 
     if (iLen > MAX_ARRAY_LEN)
     {
@@ -705,9 +703,6 @@ void parseArrayEnum(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, fctEnumParse
     iLen = tvb_get_letohl(tvb, *pOffset);
     proto_tree_add_item(subtree, hf_opcua_ArraySize, tvb, *pOffset, 4, TRUE);
 
-    if (iLen == -1) return; /* no array */
-    if (iLen == 0)  return; /* array with zero elements*/
-
     if (iLen > MAX_ARRAY_LEN)
     {
 	proto_item *pi;
@@ -737,9 +732,6 @@ void parseArrayComplex(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szF
     /* read array length */
     iLen = tvb_get_letohl(tvb, *pOffset);
     proto_tree_add_item(subtree, hf_opcua_ArraySize, tvb, *pOffset, 4, TRUE);
-
-    if (iLen == -1) return; /* no array */
-    if (iLen == 0)  return; /* array with zero elements*/
 
     if (iLen > MAX_ARRAY_LEN)
     {
