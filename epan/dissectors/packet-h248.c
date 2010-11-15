@@ -598,7 +598,7 @@ static int dissect_h248_EventParameterV1(gboolean implicit_tag, tvbuff_t *tvb, i
 static int dissect_h248_PropertyParmV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 static int dissect_h248_SigParameterV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 
-/* http://www.iana.org/assignments/megaco-h248 last updated 2007-11-28*/
+/* 2010-11-15: New entries added based on: http://www.iana.org/assignments/megaco-h248 last updated 2010-10-01 */
 static const value_string package_name_vals[] = {
   {   0x0000, "Media stream properties H.248.1 Annex C" },
   {   0x0001, "Generic H.248.1 Annex E" },
@@ -801,9 +801,9 @@ static const value_string package_name_vals[] = {
   {   0x00ca, "Pull Mode Package" },									/* H.248.55 */
   {   0x00cb, "RTP Application Data Package" },							/* H.248.58 */
   {   0x00cc, "Event Timestamp Notification Package" },					/* H.248.59 */
-  {   0x00ce, "Resource Management Rules Package" },					/* H.248.63 */
-  {   0x00cd, "Resource Management Configuration" },					/* H.248.63 */
-  {   0x00cf, "Abstract Resource Management" },							/* H.248.63 */
+  {   0x00cd, "Resource Management Rules Package" },					/* H.248.63 */
+  {   0x00ce, "Resource Management Configuration Package" },					/* H.248.63 */
+  {   0x00cf, "Abstract Resource Management packages" },						/* H.248.63 */
 
   {   0x00d0, "IP layer octets count statistics Package" },				/* H.248.61 */
   {   0x00d1, "Content of Communication Identity Package" },			/* H.248.60 */
@@ -818,8 +818,8 @@ static const value_string package_name_vals[] = {
   {   0x00da, "RTSP Play Package" },									/* H.248.66 */
   {   0x00db, "Signal Pause Package" },									/* H.248.66 */
   {   0x00dc, "Data Delivery Speed Adjustme Package" },					/* H.248.66 */
-  {   0x00de, "RTP Information Package" },								/* H.248.66 */
   {   0x00dd, "Playback Relative Scale Adjustment Package" },			/* H.248.66 */
+  {   0x00de, "RTP Information Package" },								/* H.248.66 */
   {   0x00df, "RTP Interleaving Package" },								/* H.248.66 */
   {   0x00e0, "IP Realm Availability Package" },						/* H.248.41 Amendment 1 */
   {   0x00e1, "General IP Header QoS Octet Package" },					/* H.248.52  */
@@ -840,13 +840,31 @@ static const value_string package_name_vals[] = {
   {   0x00f0, "Stored Message Information Package" },					/* H.248.69 */
   {   0x00f1, "Record Message Package" },								/* H.248.69 */
   {   0x00f2, "Digit Dialling Method Information Package" },			/* H.248.70 */
-  {   0x00f, "Digit Dialling Method Information for Extended Digitmap Detection Package" },		/* H.248.70 */
+  {   0x00f3, "Digit Dialling Method Information for Extended Digitmap Detection Package" },		/* H.248.70 */
   {   0x00f4, "Digit Dialling Method Information for Enhanced Digitmap Detection Package" },	/* H.248.70 */
   {   0x00f5, "Received RTCP Package " },								/* H.248.71 */
   {   0x00f6, "RTP Cumulative Loss Package" },							/* H.248.71 */
   {   0x00f7, "H.245 Transport Package for SPC use" },					/* H.248.72 */
   {   0x00f8, "MONA Preference Package" },								/* H.248.72 */
   {   0x00f9, "TDM Gain Control Package" },								/* H.248.73 */
+  {   0x00fa, "Media Start Package" },                                      /* H.248.74 */
+  {   0x00fb, "Trim Package" },                                             /* H.248.74 */
+  {   0x00fc, "Enhanced Recording Package" },                               /* H.248.74 */
+  {   0x00fd, "Enhanced ASR Package" },                                     /* H.248.74      */
+  {   0x00fe, "Enhanced TTS Package" },                                     /* H.248.74 */
+  {   0x00ff, "Play Offset Control Package" },                              /* H.248.74 */
+  {   0x0100, "Enhanced DTMF Detection Package" },                          /* H.248.9 Revised 2009 */
+  {   0x0101, "IP Router NAT Package" },                                    /* H.248.64 */
+  {   0x0102, "Voice Enrolled Grammar Package" },                           /* H.248.74 */
+  {   0x0103, "Filter Group Package" },                                     /* H.248.76 */
+  {   0x0104, "RTCP Source Description Package" },                          /* H.248.71 */
+  {   0x0105, "Speaker Verification and Identification Package" },          /* H.248.74 */
+  {   0x0106, "Package Identifier Publishing and Application Package" },    /* H.248 */
+  {   0x0107, "Secure RTP Package " },                                      /* H.248.77 */
+  {   0x0108, "MGC Controlled Bearer Level ALG Package" },                  /* H.248.78 */
+  {   0x0109, "Enhanced Revised Offer/Answer SDP Support Package" },        /* H.248.80 */
+  {   0x010a, "Enhanced SDP Media Capabilities Negotiation Support Package" }, /* H.248.80 */
+
   {   0x8000, "Ericsson IU" },
   {   0x8001, "Ericsson UMTS and GSM Circuit" },
   {   0x8002, "Ericsson Tone Generator Package" },
@@ -5321,7 +5339,7 @@ dissect_h248_SigParameterV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1308 "packet-h248-template.c"
+#line 1326 "packet-h248-template.c"
 
 static void dissect_h248_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	dissect_tpkt_encap(tvb, pinfo, tree, h248_desegment, h248_handle);
@@ -6714,7 +6732,7 @@ void proto_register_h248(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1448 "packet-h248-template.c"
+#line 1466 "packet-h248-template.c"
 
 	GCP_HF_ARR_ELEMS("h248",h248_arrel)
 
@@ -6883,7 +6901,7 @@ void proto_register_h248(void) {
     &ett_h248_SigParameterV1,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1466 "packet-h248-template.c"
+#line 1484 "packet-h248-template.c"
   };
 
   module_t *h248_module;
