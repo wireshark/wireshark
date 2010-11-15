@@ -1992,6 +1992,8 @@ static const value_string pcap_ProtocolIE_ID_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext pcap_ProtocolIE_ID_vals_ext = VALUE_STRING_EXT_INIT(pcap_ProtocolIE_ID_vals);
+
 
 static int
 dissect_pcap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -1999,7 +2001,7 @@ dissect_pcap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
                                                             0U, maxProtocolIEs, &ProtocolIE_ID, FALSE);
 
   if (tree) {
-    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(pcap_ProtocolIE_ID_vals), "unknown (%d)"));
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str_ext(ProtocolIE_ID, &pcap_ProtocolIE_ID_vals_ext, "unknown (%d)"));
   }
   return offset;
 }
@@ -2415,6 +2417,8 @@ static const value_string pcap_CauseRadioNetwork_vals[] = {
   {  31, "ue-positioning-error-Not-Accomplished-GANSS-Timing-of-Cell-Frames" },
   { 0, NULL }
 };
+
+static value_string_ext pcap_CauseRadioNetwork_vals_ext = VALUE_STRING_EXT_INIT(pcap_CauseRadioNetwork_vals);
 
 
 static int
@@ -9523,6 +9527,8 @@ static const value_string pcap_SFN_SFN_Drift_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext pcap_SFN_SFN_Drift_vals_ext = VALUE_STRING_EXT_INIT(pcap_SFN_SFN_Drift_vals);
+
 
 static int
 dissect_pcap_SFN_SFN_Drift(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -10085,6 +10091,8 @@ static const value_string pcap_TDD_ChannelisationCode_vals[] = {
   {  30, "chCode16div16" },
   { 0, NULL }
 };
+
+static value_string_ext pcap_TDD_ChannelisationCode_vals_ext = VALUE_STRING_EXT_INIT(pcap_TDD_ChannelisationCode_vals);
 
 
 static int
@@ -13862,7 +13870,7 @@ void proto_register_pcap(void) {
         NULL, HFILL }},
     { &hf_pcap_id,
       { "id", "pcap.id",
-        FT_UINT32, BASE_DEC, VALS(pcap_ProtocolIE_ID_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &pcap_ProtocolIE_ID_vals_ext, 0,
         "ProtocolIE_ID", HFILL }},
     { &hf_pcap_criticality,
       { "criticality", "pcap.criticality",
@@ -13878,7 +13886,7 @@ void proto_register_pcap(void) {
         NULL, HFILL }},
     { &hf_pcap_ext_id,
       { "id", "pcap.id",
-        FT_UINT32, BASE_DEC, VALS(pcap_ProtocolIE_ID_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &pcap_ProtocolIE_ID_vals_ext, 0,
         "ProtocolIE_ID", HFILL }},
     { &hf_pcap_extensionValue,
       { "extensionValue", "pcap.extensionValue",
@@ -13914,7 +13922,7 @@ void proto_register_pcap(void) {
         "ProtocolExtensionContainer", HFILL }},
     { &hf_pcap_radioNetwork,
       { "radioNetwork", "pcap.radioNetwork",
-        FT_UINT32, BASE_DEC, VALS(pcap_CauseRadioNetwork_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &pcap_CauseRadioNetwork_vals_ext, 0,
         "CauseRadioNetwork", HFILL }},
     { &hf_pcap_transport,
       { "transport", "pcap.transport",
@@ -14138,7 +14146,7 @@ void proto_register_pcap(void) {
         "Criticality", HFILL }},
     { &hf_pcap_iE_ID,
       { "iE-ID", "pcap.iE_ID",
-        FT_UINT32, BASE_DEC, VALS(pcap_ProtocolIE_ID_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &pcap_ProtocolIE_ID_vals_ext, 0,
         "ProtocolIE_ID", HFILL }},
     { &hf_pcap_repetitionNumber,
       { "repetitionNumber", "pcap.repetitionNumber",
@@ -17014,7 +17022,7 @@ void proto_register_pcap(void) {
         NULL, HFILL }},
     { &hf_pcap_sfn_SFN_Drift,
       { "sfn-SFN-Drift", "pcap.sfn_SFN_Drift",
-        FT_UINT32, BASE_DEC, VALS(pcap_SFN_SFN_Drift_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &pcap_SFN_SFN_Drift_vals_ext, 0,
         NULL, HFILL }},
     { &hf_pcap_searchWindowSize,
       { "searchWindowSize", "pcap.searchWindowSize",
@@ -17386,7 +17394,7 @@ void proto_register_pcap(void) {
         NULL, HFILL }},
     { &hf_pcap_tdd_ChannelisationCode,
       { "tdd-ChannelisationCode", "pcap.tdd_ChannelisationCode",
-        FT_UINT32, BASE_DEC, VALS(pcap_TDD_ChannelisationCode_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &pcap_TDD_ChannelisationCode_vals_ext, 0,
         NULL, HFILL }},
     { &hf_pcap_pRACHparameters,
       { "pRACHparameters", "pcap.pRACHparameters",

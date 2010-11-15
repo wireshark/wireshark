@@ -18,6 +18,12 @@ PCAP-PDU
 ProcedureCode
 ProtocolIE-ID
 
+#.USE_VALS_EXT
+ProtocolIE-ID
+CauseRadioNetwork
+TDD-ChannelisationCode
+SFN-SFN-Drift
+
 #.NO_EMIT
 
 #.OMIT_ASSIGNMENT
@@ -58,7 +64,7 @@ ProtocolIE-Field/value ie_field_value
 #.FN_PARS ProtocolIE-ID  VAL_PTR=&ProtocolIE_ID
 #.FN_FTR ProtocolIE-ID
   if (tree) {
-    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(pcap_ProtocolIE_ID_vals), "unknown (%d)"));
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str_ext(ProtocolIE_ID, &pcap_ProtocolIE_ID_vals_ext, "unknown (%d)"));
   }
 #.END
 
@@ -122,7 +128,7 @@ ProtocolIE-Field/value ie_field_value
 
 
 #.TYPE_ATTR
-ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(pcap_ProtocolIE_ID_vals)
+ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = &pcap_ProtocolIE_ID_vals_ext
 
 #.ASSIGN_VALUE_TO_TYPE  # PCAP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
