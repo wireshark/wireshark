@@ -219,6 +219,7 @@ static const value_string diameter_avp_data_addrfamily_vals[]= {
 	{24,"GWID"},
 	{0,NULL}
 };
+value_string_ext diameter_avp_data_addrfamily_vals_ext = VALUE_STRING_EXT_INIT(diameter_avp_data_addrfamily_vals);
 
 static int proto_diameter = -1;
 static int hf_diameter_length = -1;
@@ -961,7 +962,7 @@ alnumerize(char* name)
 
 static guint
 reginfo(int* hf_ptr, const char* name, const char* abbr, const char* desc,
-	enum ftenum ft, base_display_e base, const value_string* vs,
+	enum ftenum ft, base_display_e base, value_string_ext* vs_ext,
 	guint32 mask)
 {
 	hf_register_info hf = { hf_ptr, {
@@ -969,10 +970,14 @@ reginfo(int* hf_ptr, const char* name, const char* abbr, const char* desc,
 				g_strdup(abbr),
 				ft,
 				base,
-				VALS(vs),
+				NULL,
 				mask,
 				g_strdup(desc),
 				HFILL }};
+
+	if(vs_ext){
+		hf.hfinfo.strings = vs_ext;
+	}
 
 	g_array_append_vals(build_dict.hf,&hf,1);
 	return build_dict.hf->len - 1;
@@ -1055,7 +1060,7 @@ RFC3588
 
 	reginfo(&(t->hf_address_type), ep_strdup_printf("%s Address Family",name),
 		alnumerize(ep_strdup_printf("diameter.%s.addr_family",name)),
-		NULL, FT_UINT16, BASE_DEC, diameter_avp_data_addrfamily_vals, 0);
+		NULL, FT_UINT16, BASE_DEC|BASE_EXT_STRING, &diameter_avp_data_addrfamily_vals_ext, 0);
 
 	reginfo(&(t->hf_ipv4), ep_strdup_printf("%s Address",name),
 		alnumerize(ep_strdup_printf("diameter.%s",name)),
