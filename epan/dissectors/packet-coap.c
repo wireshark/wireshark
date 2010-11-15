@@ -36,10 +36,6 @@
 #include <epan/prefs.h>
 #include <expert.h>
 
-#if 0
-#include <math.h>	/* for exp2() to calculate a block size */
-#endif
-
 static dissector_table_t media_type_dissector_table;
 
 static int proto_coap = -1;
@@ -59,10 +55,11 @@ static int hf_coap_opt_uri_authority	= -1;
 static int hf_coap_opt_location		= -1;
 static int hf_coap_opt_uri_path		= -1;
 static int hf_coap_opt_subscr_lifetime	= -1;
-static int hf_coap_opt_opaque_bytes	= -1;
+static int hf_coap_opt_token	= -1;
 static int hf_coap_opt_block_number	= -1;
 static int hf_coap_opt_block_mflag	= -1;
 static int hf_coap_opt_block_size	= -1;
+static int hf_coap_opt_uri_query	= -1;
 
 static gint ett_coap			= -1;
 static gint ett_coap_option		= -1;
@@ -73,6 +70,8 @@ static gint ett_coap_payload		= -1;
 
 static const gchar *coap_content_type = NULL;
 static guint global_coap_port_number = DEFAULT_COAP_PORT;
+static gint block_number = ~0;
+static guint block_mflag = 0;
 
 /*
  * Transaction Type
@@ -109,6 +108,9 @@ static const value_string vals_code[] = {
 	{ 202, "502 Bad Gateway"},
 	{ 203, "503 Service Unavailable"},
 	{ 204, "504 Gateway Timeout"},
+	{ 240, "Token Option required by server"},
+	{ 241, "Uri-Authority Option required by server"},
+	{ 242, "Critical Option not supported"},
 	{ 0, NULL },
 };
 
@@ -124,8 +126,9 @@ static const value_string vals_code[] = {
 #define COAP_OPT_LOCATION	6
 #define COAP_OPT_URI_PATH	9
 #define COAP_OPT_SUBSCR_LIFETIME	10
-#define COAP_OPT_OPAQUE_BYTES	11
+#define COAP_OPT_TOKEN		11
 #define COAP_OPT_BLOCK		13
+#define COAP_OPT_URI_QUERY	15
 
 static const value_string vals_opt_type[] = {
 	{ COAP_OPT_CONTENT_TYPE, "Content-Type" },
@@ -135,8 +138,9 @@ static const value_string vals_opt_type[] = {
 	{ COAP_OPT_LOCATION, "Location" },
 	{ COAP_OPT_URI_PATH, "Uri-Path" },
 	{ COAP_OPT_SUBSCR_LIFETIME, "Subscription Lifetime" },
-	{ COAP_OPT_OPAQUE_BYTES, "Opaque Bytes" },
+	{ COAP_OPT_TOKEN, "Token" },
 	{ COAP_OPT_BLOCK, "Block" },
+	{ COAP_OPT_URI_QUERY, "Uri-Query" },
 	{ 0, NULL },
 };
 
@@ -222,10 +226,10 @@ dissect_coap_opt_time(tvbuff_t *tvb, proto_tree *subtree, gint offset, gint opt_
 static void
 dissect_coap_opt_block(tvbuff_t *tvb, proto_tree *subtree, gint offset, gint opt_length)
 {
-	guint block_number = 0;
-	guint encoded_block_size = 0;
 	guint8 val = 0;
-	proto_item *item;
+	guint encoded_block_size = 0;
+	guint block_size;
+	proto_item *item = NULL;
 
 	switch (opt_length) {
 	case 1:
@@ -244,14 +248,14 @@ dissect_coap_opt_block(tvbuff_t *tvb, proto_tree *subtree, gint offset, gint opt
 
 	val = tvb_get_guint8(tvb, offset + opt_length - 1) & 0x0f;
 	encoded_block_size = val & 0x07;
+	block_mflag = val & 0x08;
 
 	proto_tree_add_int(subtree, hf_coap_opt_block_number, tvb, offset, opt_length, block_number);
 	proto_tree_add_item(subtree, hf_coap_opt_block_mflag, tvb, offset + opt_length - 1, 1, FALSE);
-	item = proto_tree_add_item(subtree, hf_coap_opt_block_size, tvb, offset + opt_length - 1, 1, FALSE);
-#if 0
-	proto_item_append_text(item, ", results %.0f = exp2(%d + 4)", exp2(encoded_block_size + 4), encoded_block_size);
-#endif
 
+	block_size = 1 << (encoded_block_size + 4);
+	item = proto_tree_add_item(subtree, hf_coap_opt_block_size, tvb, offset + opt_length - 1, 1, FALSE);
+	proto_item_append_text(item, ", Result: %d", block_size);
 }
 
 /*
@@ -311,12 +315,14 @@ dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, g
 		case COAP_OPT_URI_PATH:
 			dissect_coap_opt(tvb, subtree, offset, opt_length, hf_coap_opt_uri_path);
 			break;
-		case COAP_OPT_OPAQUE_BYTES:
-			dissect_coap_opt(tvb, subtree, offset, opt_length, hf_coap_opt_opaque_bytes);
+		case COAP_OPT_TOKEN:
+			dissect_coap_opt(tvb, subtree, offset, opt_length, hf_coap_opt_token);
 			break;
 		case COAP_OPT_BLOCK:
 			dissect_coap_opt_block(tvb, subtree, offset, opt_length);
 			break;
+		case COAP_OPT_URI_QUERY:
+			dissect_coap_opt(tvb, subtree, offset, opt_length, hf_coap_opt_uri_query);
 		default:
 			proto_tree_add_text(subtree, tvb, 0, 0, "Unkown Option Type");
 		}
@@ -379,6 +385,8 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/* append the header information */
 	proto_item_append_text(coap_tree, ", TID: %u, Length: %u", tid, coap_length);
 
+	block_number = ~0;
+
 	/* dissect the options */
 	for (i = 1; i <= opt_count; i++) {
 		offset = dissect_coap_options(tvb, pinfo, coap_tree, offset, i, &opt_code);
@@ -421,6 +429,10 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 		dissector_try_string(media_type_dissector_table, coap_content_type, payload_tvb, pinfo, payload_tree);
 	}
+
+	if (block_number != ~0) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %sBlock #%d", block_mflag ? "" : "End of ", block_number);
+	}
 }
 
 /*
@@ -445,10 +457,11 @@ proto_register_coap(void)
 		{ &hf_coap_opt_location, { "Location", "coap.opt.location", FT_STRING, BASE_NONE, NULL, 0x0, "COAP Location", HFILL }},
 		{ &hf_coap_opt_uri_path, { "Uri-Path", "coap.opt.uri_path", FT_STRING, BASE_NONE, NULL, 0x0, "COAP Uri-Path", HFILL }},
 		{ &hf_coap_opt_subscr_lifetime, { "Subscription Lifetime", "coap.opt.subscr_lifetime", FT_INT32, BASE_DEC, NULL, 0x0, "COAP Subscription Lifetime", HFILL }},
-		{ &hf_coap_opt_opaque_bytes, { "Opaque Bytes", "coap.opt.opaquebytes", FT_BYTES, BASE_NONE, NULL, 0x0, "COAP Opaque Bytes", HFILL }},
+		{ &hf_coap_opt_token, { "Token", "coap.opt.token", FT_BYTES, BASE_NONE, NULL, 0x0, "COAP Token", HFILL }},
 		{ &hf_coap_opt_block_number, { "Block Number", "coap.opt.block_number", FT_INT32, BASE_DEC, NULL, 0x0, "COAP Block Number", HFILL }},
-		{ &hf_coap_opt_block_mflag, { "More Flag", "coap.opt.block_mflag", FT_UINT8, BASE_DEC, NULL, 0x08, "COAP Block More Flag", HFILL }},
-		{ &hf_coap_opt_block_size, { "Block Size", "coap.opt.block_size", FT_UINT8, BASE_DEC, NULL, 0x07, "COAP Block Size", HFILL }},
+		{ &hf_coap_opt_block_mflag, { "More Flag", "coap.opt.block_mflag", FT_UINT8, BASE_DEC, NULL, 0x08, "COAP Block More Size", HFILL }},
+		{ &hf_coap_opt_block_size, { "Encoded Block Size", "coap.opt.block_size", FT_UINT8, BASE_DEC, NULL, 0x07, "COAP Encoded Block Size", HFILL }},
+		{ &hf_coap_opt_uri_query, { "Uri-Query", "coap.opt.uri_query", FT_STRING, BASE_NONE, NULL, 0x0, "COAP Uri-Query", HFILL }},
 	};
 
 	static gint *ett[] = {
