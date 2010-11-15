@@ -423,6 +423,7 @@ dissect_ancp_port_up_dn_mgmt(tvbuff_t *tvb, proto_tree *ancp_tree, gint offset)
                             hf_ancp_oam_timeout, tvb, offset, 1, FALSE);
                     offset += 1;
                     /* Lets not bother about 2B until IETF WG figures out */
+                    offset += 2;    
                     break;
                 default: 
                     /* Assume TLV value is string - covers ALCID, OAM resp */
