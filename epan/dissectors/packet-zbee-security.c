@@ -303,7 +303,7 @@ void zbee_security_register(module_t *zbee_prefs, int proto)
     proto_register_subtree_array(ett, array_length(ett));
 
         /* Register the init routine. */
-    register_init_routine(proto_init_zbee_security);  
+    register_init_routine(proto_init_zbee_security);
 } /* zbee_security_register */
 
 /*FUNCTION:------------------------------------------------------
@@ -434,7 +434,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
 
     zbee_security_packet    packet;
     guint           mic_len;
-    guint           payload_len;
+    gint            payload_len;
     tvbuff_t       *payload_tvb;
 
 #ifdef HAVE_LIBGCRYPT
@@ -452,14 +452,14 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     zbee_nwk_hints_t   *nwk_hints;
     ieee802154_hints_t *ieee_hints;
     ieee802154_map_rec *map_rec = NULL;
-    
+
     /* Init */
     memset(&packet, 0, sizeof(zbee_security_packet));
 
     /* Get pointers to any useful frame data from lower layers */
     nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(pinfo->fd, proto_get_id_by_filter_name(ZBEE_PROTOABBREV_NWK));
     ieee_hints = (ieee802154_hints_t *)p_get_proto_data(pinfo->fd,
-           proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN));
+    proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN));
 
     /* Create a subtree for the security information. */
     if (tree) {
@@ -581,6 +581,8 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     /* Check for null payload. */
     if ( !(payload_len = tvb_length_remaining(tvb, offset+mic_len)) ) {
         return NULL;
+    } else if ( payload_len < 0 ) {
+        THROW(ReportedBoundsError);
     }
 
     /**********************************************
@@ -636,7 +638,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
 
                 if ( nwk_keyring ) {
                     GSList_i = *nwk_keyring;
-                    while ( GSList_i && !decrypted ) { 
+                    while ( GSList_i && !decrypted ) {
                         decrypted = zbee_sec_decrypt_payload( &packet, enc_buffer, offset, dec_buffer,
                                 payload_len, mic_len, ((key_record_t *)(GSList_i->data))->key);
 
@@ -656,10 +658,10 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
                         }
                     }
                 }
-            
+
                 /* Loop through user's password table for preconfigured keys, our last resort */
                 GSList_i = zbee_pc_keyring;
-                while ( GSList_i && !decrypted ) { 
+                while ( GSList_i && !decrypted ) {
                     decrypted = zbee_sec_decrypt_payload( &packet, enc_buffer, offset, dec_buffer,
                             payload_len, mic_len, ((key_record_t *)(GSList_i->data))->key);
 
@@ -1194,7 +1196,7 @@ zbee_sec_key_hash(guint8 *key, guint8 input, guint8 *hash_out)
  *  NAME
  *      proto_init_zbee_security
  *  DESCRIPTION
- *      Init routine for the 
+ *      Init routine for the
  *  PARAMETERS
  *      none
  *  RETURNS
