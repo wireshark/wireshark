@@ -1,11 +1,22 @@
 # ansi_map.cnf
 # ansi_map conformation file
-# Copyright 2005-2007 Anders Broman 
+# Copyright 2005-2007 Anders Broman
 # $Id$
 
 #.IMPORT ../gsm_map/gsm_map-exp.cnf
 #.EXPORTS
 
+#.USE_VALS_EXT
+##AnnouncementCode-std-ann
+TriggerType
+SMS-CauseCode
+SystemMyTypeCode
+##AnnouncementCode-tone
+DMH-RedirectionIndicator
+ActionCode
+SignalQuality
+##AlertCode-Cadence
+TerminalType
 
 #.NO_EMIT
 
@@ -168,7 +179,7 @@
 		dissect_ansi_map_intermsccircuitid(parameter_tvb,actx->pinfo,tree, actx);
 	}
 
-# 6.5.2.78 MessageWaitingNotificationCount 
+# 6.5.2.78 MessageWaitingNotificationCount
 #.FN_BODY MessageWaitingNotificationCount VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
@@ -411,7 +422,7 @@
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
 		subtree = proto_item_add_subtree(actx->created_item, ett_CDMA2000HandoffInvokeIOSData);
-		dissect_cdma2000_a1_elements(parameter_tvb, actx->pinfo, subtree, 
+		dissect_cdma2000_a1_elements(parameter_tvb, actx->pinfo, subtree,
 			0, tvb_length_remaining(parameter_tvb,0));
 	}
 #6.5.2.gn CDMA2000HandoffResponseIOSData
@@ -422,7 +433,7 @@
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
 		subtree = proto_item_add_subtree(actx->created_item, ett_CDMA2000HandoffResponseIOSData);
-		dissect_cdma2000_a1_elements(parameter_tvb, actx->pinfo, subtree, 
+		dissect_cdma2000_a1_elements(parameter_tvb, actx->pinfo, subtree,
 			0, tvb_length_remaining(parameter_tvb,0));
 	}
 #6.5.2.wB ServiceIndicator N.S0011-0 v 1.0
@@ -446,7 +457,7 @@
 			}
 		}
 	}
-	 
+
 #.TYPE_ATTR
 # Dont't put the bytes after the name in the display
 CDMA2000HandoffInvokeIOSData TYPE = FT_NONE DISPLAY = BASE_NONE STRINGS = NULL
@@ -472,8 +483,8 @@ CallingPartyNumberDigits1 = FT_NONE DISPLAY = BASE_NONE STRINGS = NULL
 CallingPartyNumberDigits2 = FT_NONE DISPLAY = BASE_NONE STRINGS = NULL
 TemporaryReferenceNumber TYPE = FT_NONE DISPLAY = BASE_NONE STRINGS = NULL
 
-ActionCode   TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_ActionCode_vals)
-AuthenticationCapability TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_AuthenticationCapability_vals) 
+ActionCode   TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING  STRINGS = &ansi_map_ActionCode_vals_ext
+AuthenticationCapability TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_AuthenticationCapability_vals)
 AlertResult   TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_AlertResult_result_vals)
 AvailabilityType TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_AvailabilityType_vals)
 CancellationType TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_CancellationType_vals)
@@ -482,7 +493,7 @@ CountUpdateReport TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_C
 ControlChannelMode  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_ControlChannelMode_vals)
 PageIndicator  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_PageIndicator_vals)
 SMS-AccessDeniedReason  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_SMS_AccessDeniedReason_vals)
-SMS-CauseCode  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_SMS_CauseCode_vals)
+SMS-CauseCode  TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING  STRINGS = &ansi_map_SMS_CauseCode_vals_ext
 SMS-ChargeIndicator TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_SMS_ChargeIndicator_vals)
 SMS-NotificationIndicator TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_SMS_NotificationIndicator_vals)
 #SMS-TeleserviceIdentifier TYPE = FT_UINT16  DISPLAY = BASE_DEC STRINGS = VALS(ansi_map_SMS_TeleserviceIdentifier_vals)

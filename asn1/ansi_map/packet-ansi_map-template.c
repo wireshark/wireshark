@@ -552,11 +552,19 @@ const value_string ansi_map_opr_code_strings[] = {
     { 100, "Drop Service" },
     { 101, "InterSystemSMSPage" },
     { 102, "LCSParameterRequest" },
+    { 103, "Unknown ANSI-MAP PDU" },
+    { 104, "Unknown ANSI-MAP PDU" },
+    { 105, "Unknown ANSI-MAP PDU" },
     { 106, "PositionEventNotification" },
+    { 107, "Unknown ANSI-MAP PDU" },
+    { 108, "Unknown ANSI-MAP PDU" },
+    { 109, "Unknown ANSI-MAP PDU" },
+    { 110, "Unknown ANSI-MAP PDU" },
     { 111, "InterSystemSMSDelivery-PointToPoint" },
     { 112, "QualificationRequest2" },
     {   0, NULL },
 };
+static value_string_ext ansi_map_opr_code_strings_ext = VALUE_STRING_EXT_INIT(ansi_map_opr_code_strings);
 
 static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);
 static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx);
@@ -887,6 +895,8 @@ static const value_string ansi_map_ActionCode_vals[]  = {
     {  23, "CDMA Handset-Based Position Determination Complete"},
     {   0, NULL }
 };
+static value_string_ext ansi_map_ActionCode_vals_ext = VALUE_STRING_EXT_INIT(ansi_map_ActionCode_vals);
+
 /* 6.5.2.3 AlertCode */
 
 /* Pitch (octet 1, bits G-H) */
@@ -2398,6 +2408,7 @@ static const value_string ansi_map_SMS_CauseCode_vals[]  = {
     {   110, "MS Disconnect"},
     {   0, NULL }
 };
+static value_string_ext ansi_map_SMS_CauseCode_vals_ext = VALUE_STRING_EXT_INIT(ansi_map_SMS_CauseCode_vals);
 
 /* 6.5.2.126 SMS_ChargeIndicator */
 /* SMS Charge Indicator (octet 1) */
@@ -3664,7 +3675,7 @@ dissect_ansi_map_win_trigger_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
             j=0;
             break;
         default:
-            proto_tree_add_text(subtree, tvb, offset, 1, "[%u] (%u) %s",j,octet,val_to_str(octet, ansi_map_TriggerType_vals, "Unknown TriggerType (%u)"));
+            proto_tree_add_text(subtree, tvb, offset, 1, "[%u] (%u) %s",j,octet,val_to_str_ext(octet, &ansi_map_TriggerType_vals_ext, "Unknown TriggerType (%u)"));
             j++;
             break;
         }
@@ -4411,22 +4422,22 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case 1:
         OperationCode = p_private_tcap->d.OperationCode_private & 0x00ff;
         ansi_map_is_invoke = TRUE;
-	col_add_fstr(pinfo->cinfo, COL_INFO,"%s Invoke ", val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
-        proto_item_append_text(p_private_tcap->d.OperationCode_item," %s",val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
+	col_add_fstr(pinfo->cinfo, COL_INFO,"%s Invoke ", val_to_str_ext(OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
+        proto_item_append_text(p_private_tcap->d.OperationCode_item," %s",val_to_str_ext(OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
         offset = dissect_invokeData(ansi_map_tree, tvb, 0, &asn1_ctx);
         update_saved_invokedata(pinfo, ansi_map_tree, tvb);
         break;
     case 2:
         OperationCode = find_saved_invokedata(&asn1_ctx);
-	col_add_fstr(pinfo->cinfo, COL_INFO,"%s ReturnResult ", val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
-        proto_item_append_text(p_private_tcap->d.OperationCode_item," %s",val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
+	col_add_fstr(pinfo->cinfo, COL_INFO,"%s ReturnResult ", val_to_str_ext(OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
+        proto_item_append_text(p_private_tcap->d.OperationCode_item," %s",val_to_str_ext(OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
         offset = dissect_returnData(ansi_map_tree, tvb, 0, &asn1_ctx);
         break;
     case 3:
-	col_add_fstr(pinfo->cinfo, COL_INFO,"%s ReturnError ", val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
+	col_add_fstr(pinfo->cinfo, COL_INFO,"%s ReturnError ", val_to_str_ext(OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
         break;
     case 4:
-	col_add_fstr(pinfo->cinfo, COL_INFO,"%s Reject ", val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
+	col_add_fstr(pinfo->cinfo, COL_INFO,"%s Reject ", val_to_str_ext(OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
         break;
     default:
         /* Must be Invoke ReturnResult ReturnError or Reject */
@@ -4509,7 +4520,7 @@ void proto_register_ansi_map(void) {
             NULL, HFILL }},
         { &hf_ansi_map_op_code,
           { "Operation Code", "ansi_map.op_code",
-            FT_UINT8, BASE_DEC, VALS(ansi_map_opr_code_strings), 0x0,
+            FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ansi_map_opr_code_strings_ext, 0x0,
             NULL, HFILL }},
         { &hf_ansi_map_type_of_digits,
           { "Type of Digits", "ansi_map.type_of_digits",
