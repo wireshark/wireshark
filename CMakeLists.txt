@@ -567,6 +567,7 @@ set(TSHARK_TAP_SRC
 
 set(INSTALL_DIRS
 	diameter
+	docbook
 	dtds
 	help
 	radius

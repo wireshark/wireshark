@@ -354,21 +354,19 @@ ADD_CUSTOM_COMMAND(
 		${WSLUA_MODULES}
 )
 
+message(STATUS "Debugging docdir install: ${DOC_DIR}")
+
 if(${DOC_DIR})
 	INSTALL(
 		DIRECTORY
-			wsug_html_chunked
-			wsug_html
-			wsdg_html_chunked
-			wsdg_html
-			.
+			${CMAKE_CURRENT_BINARY_DIR}
 		DIRECTORY_PERMISSIONS
 			OWNER_EXECUTE OWNER_WRITE OWNER_READ
 			GROUP_EXECUTE GROUP_READ
 			WORLD_EXECUTE WORLD_READ
 		DESTINATION
 			${DOC_DIR}/guides
-		PATTERN "./*.pdf" 
+#		PATTERN "*.pdf" 
 	)
 endif()
 
