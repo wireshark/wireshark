@@ -29,7 +29,9 @@ GENERATED_HEADER_FILES = \
 
 # Generated C source files that we want in the distribution.
 GENERATED_C_FILES = \
-	wireshark-tap-register.c	\
+	wireshark-tap-register.c
+
+DIRTY_GENERATED_C_FILES = \
 	text_import_scanner.c
 
 # All the generated files we want in the distribution.

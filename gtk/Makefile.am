@@ -25,13 +25,14 @@ include Makefile.common
 include ../Makefile.am.inc
 
 if HAVE_WARNINGS_AS_ERRORS
-AM_CFLAGS = -Werror
+AM_CLEAN_CFLAGS = -Werror
 endif
 
-noinst_LIBRARIES = libui.a
+noinst_LIBRARIES = libui.a libui_dirty.a
 
 CLEANFILES = \
 	libui.a		\
+	libui_dirty.a	\
 	*~
 
 MAINTAINERCLEANFILES = \
@@ -50,7 +51,15 @@ libui_a_SOURCES = \
 	$(noinst_HEADERS) \
 	$(WIRESHARK_TAP_SRC)
 
-libui_a_DEPENDENCIES = 
+libui_a_CFLAGS = $(AM_CLEAN_CFLAGS)
+
+libui_a_DEPENDENCIES =
+
+
+libui_dirty_a_SOURCES = \
+	$(DIRTY_GENERATED_C_FILES)
+
+libui_dirty_a_DEPENDENCIES =
 
 # Common headers
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap $(LIBGCRYPT_CFLAGS) $(LIBGNUTLS_CFLAGS) $(PORTAUDIO_INCLUDES)

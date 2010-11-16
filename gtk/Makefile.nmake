@@ -31,6 +31,7 @@ include Makefile.common
 WIRESHARK_WIN32_GTK_SRC = \
 	$(WIRESHARK_GTK_SRC) \
 	$(GENERATED_C_FILES) \
+	$(DIRTY_GENERATED_C_FILES) \
 	capture_if_details_dlg_win32.c	\
 	file_dlg_win32.c \
 	print_win32.c \
@@ -52,14 +53,14 @@ WIRESHARK_WIN32_GTK_SRC = \
 	pa_x86_plain_converters.c \
 	pa_win_waveformat.c \
 !ENDIF
-	pa_win_wmme.c 
+	pa_win_wmme.c
 !ENDIF
 
 WIRESHARK_TAP_OBJECTS = $(WIRESHARK_TAP_SRC:.c=.obj)
 
 
 WIRESHARK_WIN32_GTK_OBJECTS = $(WIRESHARK_WIN32_GTK_SRC:.c=.obj)
-	
+
 
 libui.lib	: ..\config.h $(WIRESHARK_WIN32_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS)
 	link /lib /out:libui.lib $(WIRESHARK_WIN32_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS) winmm.lib
@@ -89,7 +90,7 @@ RUNLEX=..\tools\runlex.sh
 text_import_scanner.h: text_import_scanner.c
 text_import_scanner.obj : text_import_scanner.c
 	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) $(WSUG_CFLAGS) -Fd.\ -c $?
-	
+
 !IF "$(PORTAUDIO_VERSION)" == "18"
 pa_lib.obj: $(PORTAUDIO_DIR)\pa_common\pa_lib.c
 	$(CC) -c $(LOCAL_CFLAGS) $?
@@ -179,13 +180,13 @@ checkapi-base:
 	$(WIRESHARK_TAP_SRC) \
 	capture_if_details_dlg_win32.c	\
 	file_dlg_win32.c \
-	print_win32.c 
-	
+	print_win32.c
+
 checkapi-todo:
 	$(PERL) ../tools/checkAPIs.pl -M -g deprecated-gtk-todo \
 	$(WIRESHARK_GTK_SRC) \
 	$(WIRESHARK_TAP_SRC) \
 	capture_if_details_dlg_win32.c	\
 	file_dlg_win32.c \
-	print_win32.c 
-	
+	print_win32.c
+

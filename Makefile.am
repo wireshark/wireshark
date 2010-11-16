@@ -310,6 +310,7 @@ endif
 # applications are X applications).
 wireshark_LDADD = \
 	gtk/libui.a			\
+	gtk/libui_dirty.a		\
 	codecs/libcodec.a		\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
@@ -537,7 +538,7 @@ MAINTAINERCLEANFILES =		\
 	depcomp			\
 	install-sh		\
 	ltmain.sh		\
-	missing	
+	missing
 
 EXTRA_DIST = \
 	INSTALL.configure	\
