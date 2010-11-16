@@ -3097,7 +3097,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     cap_err_str = pcap_geterr(global_ld.pcap_h);
     if (strcmp(cap_err_str, "recvfrom: Network is down") == 0 ||
         strcmp(cap_err_str, "read: Device not configured") == 0 ||
-        strcmp(cap_err_str, "read: I/O error") == 0) {
+        strcmp(cap_err_str, "read: I/O error") == 0 ||
+        strcmp(cap_err_str, "read error: PacketReceivePacket failed") == 0) {
       report_capture_error("The network adapter on which the capture was being done "
                            "is no longer running; the capture has stopped.",
                            "");
