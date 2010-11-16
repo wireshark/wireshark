@@ -3183,6 +3183,10 @@ Thomas Boehne		<TBoehne [AT] ADwin.de> {
 	ADwin and ADwin-config protocol dissectors
 }
 
+Gerhard Gappmeier	<gerhard.gappmeier [AT] ascolab.com> {
+	OPCUA dissector plugin
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

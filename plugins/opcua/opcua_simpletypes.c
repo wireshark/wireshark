@@ -31,6 +31,7 @@
 #include <epan/dissectors/packet-windows-common.h>
 #include "opcua_simpletypes.h"
 #include "opcua_hfindeces.h"
+#include "opcua_extensionobjectids.h"
 #include <epan/emem.h>
 
 #define DIAGNOSTICINFO_ENCODINGMASK_SYMBOLICID_FLAG           0x01
@@ -54,6 +55,8 @@
 
 /* Chosen arbitrarily */
 #define MAX_ARRAY_LEN 10000
+
+void dispatchExtensionObjectType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int TypeId);
 
 static int hf_opcua_diag_mask_symbolicflag = -1;
 static int hf_opcua_diag_mask_namespaceflag = -1;
@@ -824,6 +827,7 @@ void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *
 {
     gint    iOffset = *pOffset;
     guint8  EncodingMask;
+    guint32 TypeId;
     proto_tree *extobj_tree;
     proto_tree *mask_tree;
     proto_item *ti;
@@ -833,6 +837,7 @@ void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *
     extobj_tree = proto_item_add_subtree(ti, ett_opcua_extensionobject);
 
     /* add nodeid subtree */
+    TypeId = getExtensionObjectType(tvb, &iOffset);
     parseExpandedNodeId(extobj_tree, tvb, &iOffset, "TypeId");
 
     /* parse encoding mask */
@@ -845,7 +850,7 @@ void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *
 
     if (EncodingMask & EXTOBJ_ENCODINGMASK_BINBODY_FLAG) /* has binary body ? */
     {
-        parseByteString(extobj_tree, tvb, &iOffset, hf_opcua_ByteString);
+        dispatchExtensionObjectType(extobj_tree, tvb, &iOffset, TypeId);
     }
 
     *pOffset = iOffset;
@@ -907,4 +912,38 @@ void parseExpandedNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *s
     }
 
     *pOffset = iOffset;
+}
+
+guint32 getExtensionObjectType(tvbuff_t *tvb, gint *pOffset)
+{
+    gint    iOffset = *pOffset;
+    guint8  EncodingMask;
+    guint32 Numeric = 0;
+
+    EncodingMask = tvb_get_guint8(tvb, iOffset);
+    iOffset++;
+
+    switch(EncodingMask)
+    {
+    case 0x00: /* two byte node id */
+        Numeric = tvb_get_guint8(tvb, iOffset);
+        iOffset+=1;
+        break;
+    case 0x01: /* four byte node id */
+        iOffset+=1;
+        Numeric = tvb_get_letohs(tvb, iOffset);
+        break;
+    case 0x02: /* numeric, that does not fit into four bytes */
+        iOffset+=4;
+        Numeric = tvb_get_letohl(tvb, iOffset);
+        break;
+    case 0x03: /* string */
+    case 0x04: /* uri */
+    case 0x05: /* guid */
+    case 0x06: /* byte string */
+        /* NOT USED */
+        break;
+    };
+
+    return Numeric;
 }

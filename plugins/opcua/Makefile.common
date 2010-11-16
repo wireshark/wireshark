@@ -42,6 +42,7 @@ DISSECTOR_INCLUDES =	\
 	opcua_application_layer.h \
 	opcua_security_layer.h \
 	opcua_transport_layer.h \
+	opcua_extensionobjectids.h \
 	opcua_serviceids.h
 
 # other sources
@@ -54,4 +55,5 @@ DISSECTOR_SUPPORT_SRC = \
 	opcua_enumparser.c \
 	opcua_simpletypes.c \
 	opcua_servicetable.c \
+	opcua_extensionobjecttable.c \
 	opcua_hfindeces.c

@@ -39,3 +39,10 @@ typedef struct _ParserEntry
 	int iRequestId;
 	fctServiceParser pParser;
 } ParserEntry;
+
+typedef struct _ExtensionObjectParserEntry
+{
+	int iRequestId;
+	fctComplexTypeParser pParser;
+	gchar *typeName;
+} ExtensionObjectParserEntry;

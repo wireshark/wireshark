@@ -54,3 +54,4 @@ void parseArraySimple(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfInde
 void parseArrayEnum(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, fctEnumParser pParserFunction);
 void parseArrayComplex(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName, fctComplexTypeParser pParserFunction);
 void registerSimpleTypes(int proto);
+guint32 getExtensionObjectType(tvbuff_t *tvb, gint *pOffset);
