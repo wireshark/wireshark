@@ -56,9 +56,12 @@
 #define __set_errno(x) errno=(x)
 #endif
 
+#define INITIAL_PATH_SIZE   128
+#define TMP_FILE_SUFFIX     "XXXXXX"
+
 #ifndef HAVE_MKSTEMP
 /* Generate a unique temporary file name from TEMPLATE.
-   The last six characters of TEMPLATE must be "XXXXXX";
+   The last six characters of TEMPLATE must be TMP_FILE_SUFFIX;
    they are replaced with a string that makes the filename unique.
    Returns a file descriptor open on the file for reading and writing.  */
 static int
@@ -71,7 +74,7 @@ mkstemp (template)
   size_t i;
 
   len = strlen (template);
-  if (len < 6 || strcmp (&template[len - 6], "XXXXXX"))
+  if (len < 6 || strcmp (&template[len - 6], TMP_FILE_SUFFIX))
     {
       __set_errno (EINVAL);
       return -1;
@@ -103,7 +106,7 @@ mkstemp (template)
 
 #ifndef HAVE_MKDTEMP
 /* Generate a unique temporary directory name from TEMPLATE.
-   The last six characters of TEMPLATE must be "XXXXXX";
+   The last six characters of TEMPLATE must be TMP_FILE_SUFFIX;
    they are replaced with a string that makes the filename unique.
    Returns 0 on success or -1 on error (from mkdir(2)).  */
 char *
@@ -116,7 +119,7 @@ mkdtemp (template)
   size_t i;
 
   len = strlen (template);
-  if (len < 6 || strcmp (&template[len - 6], "XXXXXX"))
+  if (len < 6 || strcmp (&template[len - 6], TMP_FILE_SUFFIX))
     {
       __set_errno (EINVAL);
       return NULL;
@@ -146,9 +149,7 @@ mkdtemp (template)
 
 #endif /* HAVE_MKDTEMP */
 
-
-#define INITIAL_PATH_SIZE 128
-#define TMP_FILE_SUFFIX "XXXXXXXXXX"
+#define MAX_TEMPFILES   3
 
 /**
  * Create a tempfile with the given prefix (e.g. "wireshark").
@@ -161,21 +162,28 @@ mkdtemp (template)
 int
 create_tempfile(char **namebuf, const char *pfx)
 {
-	static char *tf_path[3];
-	static int tf_path_len[3];
+	static struct _tf {
+		char *path;
+		unsigned int len;
+	} tf[MAX_TEMPFILES];
 	static int idx;
+
 	const char *tmp_dir;
 	int old_umask;
 	int fd;
+	time_t current_time;
+	char timestr[14 + 1];
+	gchar *tmp_file;
+	gchar sep[2] = {0, 0};
 
-	idx = (idx + 1) % 3;
+	idx = (idx + 1) % MAX_TEMPFILES;
 	
 	/*
 	 * Allocate the buffer if it's not already allocated.
 	 */
-	if (tf_path[idx] == NULL) {
-		tf_path_len[idx] = INITIAL_PATH_SIZE;
-		tf_path[idx] = (char *)g_malloc(tf_path_len[idx]);
+	if (tf[idx].path == NULL) {
+		tf[idx].len = INITIAL_PATH_SIZE;
+		tf[idx].path = (char *)g_malloc(tf[idx].len);
 	}
 
 	/*
@@ -183,13 +191,22 @@ create_tempfile(char **namebuf, const char *pfx)
 	 */
 	tmp_dir = g_get_tmp_dir();
 
-	while (g_snprintf(tf_path[idx], tf_path_len[idx], "%s%c%s" TMP_FILE_SUFFIX, tmp_dir, G_DIR_SEPARATOR, pfx) > tf_path_len[idx]) {
-		tf_path_len[idx] *= 2;
-		tf_path[idx] = (char *)g_realloc(tf_path[idx], tf_path_len[idx]);
+#ifdef _WIN32
+	_tzset();
+#endif
+	current_time = time(NULL);
+	strftime(timestr, sizeof(timestr), "%Y%m%d%H%M%S", localtime(&current_time));
+	sep[0] = G_DIR_SEPARATOR;
+	tmp_file = g_strconcat(tmp_dir, sep, pfx, "_", timestr, "_", TMP_FILE_SUFFIX, NULL);
+	if (strlen(tmp_file) > tf[idx].len) {
+		tf[idx].len = strlen(tmp_file) + 1;
+		tf[idx].path = (char *)g_realloc(tf[idx].path, tf[idx].len);
 	}
+	g_strlcpy(tf[idx].path, tmp_file, tf[idx].len);
+	g_free(tmp_file);
 
 	if (namebuf) {
-		*namebuf = tf_path[idx];
+		*namebuf = tf[idx].path;
 	}
 	/* The Single UNIX Specification doesn't say that "mkstemp()"
 	   creates the temporary file with mode rw-------, so we
@@ -198,7 +215,7 @@ create_tempfile(char **namebuf, const char *pfx)
 	   permissions, attempt to create the file, and then put
 	   the umask back. */
 	old_umask = umask(0077);
-	fd = mkstemp(tf_path[idx]);
+	fd = mkstemp(tf[idx].path);
 	umask(old_umask);
 	return fd;
 }

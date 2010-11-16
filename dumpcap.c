@@ -2633,6 +2633,29 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
   return ld->packet_count - packet_count_before;
 }
 
+#ifdef _WIN32
+/* Isolate the Universally Unique Identifier from the interface.  Basically, we
+ * want to grab only the characters between the '{' and '}' delimiters. 
+ * 
+ * Returns a GString that must be freed with g_string_free(). */
+static GString *isolate_uuid(const char *iface)
+{
+    gchar *ptr;
+    GString *gstr;
+
+    ptr = strchr(iface, '{');
+    if (ptr == NULL)
+        return g_string_new(iface);
+    gstr = g_string_new(ptr + 1);
+
+    ptr = strchr(gstr->str, '}');
+    if (ptr == NULL)
+        return gstr;
+
+    gstr = g_string_truncate(gstr, ptr - gstr->str);
+    return gstr;
+}
+#endif
 
 /* open the output file (temporary/specified name/ringbuffer/named pipe/stdout) */
 /* Returns TRUE if the file opened successfully, FALSE otherwise. */
@@ -2642,6 +2665,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
 
   char *tmpname;
   gchar *capfile_name;
+  gchar *prefix;
   gboolean is_tempfile;
 #ifndef _WIN32
   int ret;
@@ -2696,7 +2720,17 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
     is_tempfile = FALSE;
   } else {
     /* Choose a random name for the temporary capture buffer */
-    *save_file_fd = create_tempfile(&tmpname, "wireshark");
+#ifdef _WIN32
+    GString *iface;
+
+    iface = isolate_uuid(capture_opts->iface);
+    prefix = g_strconcat("wireshark_", g_basename(iface->str), NULL);
+    g_string_free(iface, TRUE);
+#else
+    prefix = g_strconcat("wireshark_", g_basename(capture_opts->iface), NULL);
+#endif
+    *save_file_fd = create_tempfile(&tmpname, prefix);
+    g_free(prefix);
     capfile_name = g_strdup(tmpname);
     is_tempfile = TRUE;
   }
