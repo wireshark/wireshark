@@ -87,6 +87,6 @@ compare_files: generate_dissector
    @<<compare_files.bat
 @setlocal
 @set CYGWIN=%CYGWIN% nodosfilewarning
-@FOR %%A IN ($(DISSECTOR_FILES)) DO @diff -U 0 -I '[[:blank:]]\*[[:blank:]]\^$Id:[[:blank:]]' %%A ..\..\epan\dissectors
+@FOR %%A IN ($(DISSECTOR_FILES)) DO @diff -U 0 -I '\^#line' -I '[[:blank:]]\*[[:blank:]]\^$Id:[[:blank:]]' ..\..\epan\dissectors\%%A %%A
 @exit /b 0
 <<
