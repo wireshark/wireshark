@@ -51,7 +51,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "text_import.h"
+#include "text_import_scanner.h"
 
 /*
  * Flex (v 2.5.35) uses this symbol to "exclude" unistd.h

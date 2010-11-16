@@ -56,6 +56,7 @@
 
 #include "gtk/file_import_dlg.h"
 #include "gtk/text_import.h"
+#include "gtk/text_import_scanner.h"
 
 #include "file.h"
 #include "wsutil/file_util.h"
@@ -501,7 +502,8 @@ file_import_open(text_import_info_t *info)
 
     text_import_setup(info);
 
-    text_importset_in(info->import_text_file);
+    text_importin = info->import_text_file;
+    
     text_importlex();
 
     text_import_cleanup();

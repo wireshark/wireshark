@@ -132,6 +132,7 @@
 #endif
 
 #include "text_import.h"
+#include "text_import_scanner.h"
 
 /*--- Options --------------------------------------------------------------------*/
 
