@@ -776,7 +776,7 @@
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="Accounting-Session-Id" code="44" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
+			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Acct-Authentic" code="45" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Enumerated"/>
