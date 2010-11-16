@@ -1,6 +1,6 @@
 -- NBAP-Containers.asn
 --
--- Taken from 3GPP TS 25.433 V9.2.0 (2010-03)
+-- Taken from 3GPP TS 25.433 V9.4.0 (2010-09)
 -- http://www.3gpp.org/ftp/Specs/archive/25_series/25.433/
 --
 -- 9.3.7	Container Definitions
@@ -205,4 +205,3 @@ PrivateIE-Field {NBAP-PRIVATE-IES : IEsSetParam} ::= SEQUENCE {
 }
 
 END
-

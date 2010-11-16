@@ -20,6 +20,15 @@ ProcedureID/ddMode
 
 #.USE_VALS_EXT
 ProtocolIE-ID
+CommonMeasurementType
+E-AGCH-UE-Inactivity-Monitor-Threshold
+DedicatedMeasurementType
+E-DCH-MACdFlow-Retransmission-Timer
+MeasurementFilterCoefficient
+TDD-ChannelisationCode
+TDD-ChannelisationCode768
+Process-Memory-Size
+DiscardTimer
 
 #.TYPE_RENAME
 ProcedureID/ddMode DdMode

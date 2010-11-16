@@ -1,6 +1,6 @@
 -- NBAP-Constants.asn
 --
--- Taken from 3GPP TS 25.433 V9.2.0 (2010-03)
+-- Taken from 3GPP TS 25.433 V9.4.0 (2010-09)
 -- http://www.3gpp.org/ftp/Specs/archive/25_series/25.433/
 ---
 -- 9.3.6	Constant Definitions
@@ -280,6 +280,8 @@ id-Cell-InformationList-AuditRsp									ProtocolIE-ID ::= 19
 id-CellParameterID													ProtocolIE-ID ::= 23
 id-CFN																ProtocolIE-ID ::= 24
 id-C-ID																	ProtocolIE-ID ::= 25
+-- WS extension to fill the range
+id-Unknown-38														ProtocolIE-ID ::= 38
 id-CommonMeasurementAccuracy										ProtocolIE-ID ::= 39
 id-CommonMeasurementObjectType-CM-Rprt								ProtocolIE-ID ::= 31
 id-CommonMeasurementObjectType-CM-Rqst								ProtocolIE-ID ::= 32
@@ -302,6 +304,9 @@ id-DCH-DeleteList-RL-ReconfRqstTDD									ProtocolIE-ID ::= 55
 id-DCH-FDD-Information												ProtocolIE-ID ::= 56
 id-DCH-TDD-Information												ProtocolIE-ID ::= 57
 id-DCH-InformationResponse											ProtocolIE-ID ::= 59
+-- WS extension to fill the range
+id-Unknown-60														ProtocolIE-ID ::= 60
+id-Unknown-61														ProtocolIE-ID ::= 61
 id-FDD-DCHs-to-Modify												ProtocolIE-ID ::= 62
 id-TDD-DCHs-to-Modify												ProtocolIE-ID ::= 63
 id-DCH-ModifyList-RL-ReconfRqstTDD									ProtocolIE-ID ::= 65
@@ -310,11 +315,17 @@ id-DedicatedMeasurementObjectType-DM-Rprt							ProtocolIE-ID ::= 67
 id-DedicatedMeasurementObjectType-DM-Rqst							ProtocolIE-ID ::= 68
 id-DedicatedMeasurementObjectType-DM-Rsp							ProtocolIE-ID ::= 69
 id-DedicatedMeasurementType											ProtocolIE-ID ::= 70
+-- WS extension to fill the range
+id-Unknown-71														ProtocolIE-ID ::= 71
 id-DL-CCTrCH-InformationItem-RL-SetupRqstTDD						ProtocolIE-ID ::= 72
 id-DL-CCTrCH-InformationList-RL-AdditionRqstTDD						ProtocolIE-ID ::= 73
 id-DL-CCTrCH-InformationList-RL-SetupRqstTDD						ProtocolIE-ID ::= 76
+-- WS extension to fill the range
+id-Unknown-75														ProtocolIE-ID ::= 75
 id-DL-DPCH-InformationItem-RL-AdditionRqstTDD						ProtocolIE-ID ::= 77
 id-DL-DPCH-InformationList-RL-SetupRqstTDD							ProtocolIE-ID ::= 79
+-- WS extension to fill the range
+id-Unknown-80														ProtocolIE-ID ::= 80
 id-DL-DPCH-Information-RL-ReconfPrepFDD								ProtocolIE-ID ::= 81
 id-DL-DPCH-Information-RL-ReconfRqstFDD								ProtocolIE-ID ::= 82
 id-DL-DPCH-Information-RL-SetupRqstFDD								ProtocolIE-ID ::= 83
@@ -323,9 +334,15 @@ id-DL-ReferencePowerInformationItem-DL-PC-Rqst						ProtocolIE-ID ::= 84
 id-DLReferencePower													ProtocolIE-ID ::= 85
 id-DLReferencePowerList-DL-PC-Rqst									ProtocolIE-ID ::= 86
 id-Unused-ProtocolIE-ID-87											ProtocolIE-ID ::= 87
+-- WS extension to fill the range
+id-Unknown-88														ProtocolIE-ID ::= 88
 id-Unused-ProtocolIE-ID-89											ProtocolIE-ID ::= 89
 id-Unused-ProtocolIE-ID-91											ProtocolIE-ID ::= 91
+-- WS extension to fill the range
+id-Unknown-92														ProtocolIE-ID ::= 92
 id-Unused-ProtocolIE-ID-93											ProtocolIE-ID ::= 93
+-- WS extension to fill the range
+id-Unknown-95														ProtocolIE-ID ::= 95
 id-DSCHs-to-Add-TDD													ProtocolIE-ID ::= 96
 id-DSCH-Information-DeleteList-RL-ReconfPrepTDD						ProtocolIE-ID ::= 98
 id-DSCH-Information-ModifyList-RL-ReconfPrepTDD						ProtocolIE-ID ::= 100
@@ -333,11 +350,15 @@ id-DSCH-InformationResponse											ProtocolIE-ID ::= 105
 id-Unused-ProtocolIE-ID-106											ProtocolIE-ID ::= 106
 id-DSCH-TDD-Information												ProtocolIE-ID ::= 107
 id-Unused-ProtocolIE-ID-108											ProtocolIE-ID ::= 108
+-- WS extension to fill the range
+id-Unknown-109														ProtocolIE-ID ::= 109
 id-Unused-ProtocolIE-ID-112											ProtocolIE-ID ::= 112
 id-DSCH-RearrangeList-Bearer-RearrangeInd							ProtocolIE-ID ::= 136
 id-End-Of-Audit-Sequence-Indicator 									ProtocolIE-ID ::= 113
 id-FACH-Information													ProtocolIE-ID ::= 116
 id-FACH-InformationItem-ResourceStatusInd							ProtocolIE-ID ::= 117
+-- WS extension to fill the range
+id-Unknown-118														ProtocolIE-ID ::= 118
 id-FACH-ParametersList-CTCH-ReconfRqstTDD							ProtocolIE-ID ::= 120
 id-FACH-ParametersListIE-CTCH-SetupRqstFDD							ProtocolIE-ID ::= 121
 id-FACH-ParametersListIE-CTCH-SetupRqstTDD							ProtocolIE-ID ::= 122
@@ -358,6 +379,9 @@ id-MeasurementFilterCoefficient										ProtocolIE-ID ::= 132
 id-MeasurementID													ProtocolIE-ID ::= 133
 id-MessageStructure													ProtocolIE-ID ::= 115
 id-MIB-SB-SIB-InformationList-SystemInfoUpdateRqst					ProtocolIE-ID ::= 134
+-- WS extension to fill the range
+id-Unknown-137														ProtocolIE-ID ::= 137
+id-Unknown-140														ProtocolIE-ID ::= 140
 id-NodeB-CommunicationContextID										ProtocolIE-ID ::= 143
 id-NeighbouringCellMeasurementInformation							ProtocolIE-ID ::= 455
 id-P-CCPCH-Information												ProtocolIE-ID ::= 144
@@ -365,12 +389,20 @@ id-P-CCPCH-InformationItem-ResourceStatusInd						ProtocolIE-ID ::= 145
 id-P-CPICH-Information												ProtocolIE-ID ::= 146
 id-P-CPICH-InformationItem-ResourceStatusInd						ProtocolIE-ID ::= 147
 id-P-SCH-Information												ProtocolIE-ID ::= 148
+-- WS extension to fill the range
+id-Unknown-149														ProtocolIE-ID ::= 149
 id-PCCPCH-Information-Cell-ReconfRqstTDD							ProtocolIE-ID ::= 150
 id-PCCPCH-Information-Cell-SetupRqstTDD								ProtocolIE-ID ::= 151
+-- WS extension to fill the range
+id-Unknown-152														ProtocolIE-ID ::= 152
+id-Unknown-153														ProtocolIE-ID ::= 153
 id-PCH-Parameters-CTCH-ReconfRqstTDD								ProtocolIE-ID ::= 155
 id-PCH-ParametersItem-CTCH-SetupRqstFDD								ProtocolIE-ID ::= 156
 id-PCH-ParametersItem-CTCH-SetupRqstTDD								ProtocolIE-ID ::= 157
 id-PCH-Information													ProtocolIE-ID ::= 158
+-- WS extension to fill the range
+id-Unknown-159														ProtocolIE-ID ::= 159
+id-Unknown-160														ProtocolIE-ID ::= 160
 id-PDSCH-Information-AddListIE-PSCH-ReconfRqst						ProtocolIE-ID ::= 161
 id-PDSCH-Information-ModifyListIE-PSCH-ReconfRqst					ProtocolIE-ID ::= 162
 id-PDSCHSets-AddList-PSCH-ReconfRqst								ProtocolIE-ID ::= 163
@@ -380,6 +412,10 @@ id-PICH-Information													ProtocolIE-ID ::= 166
 id-PICH-Parameters-CTCH-ReconfRqstTDD								ProtocolIE-ID ::= 168
 id-PowerAdjustmentType												ProtocolIE-ID ::= 169
 id-PRACH-Information												ProtocolIE-ID ::= 170
+-- WS extension to fill the range
+id-Unknown-171														ProtocolIE-ID ::= 171
+id-Unknown-172														ProtocolIE-ID ::= 172
+id-Unknown-173														ProtocolIE-ID ::= 173
 id-PrimaryCCPCH-Information-Cell-ReconfRqstFDD						ProtocolIE-ID ::= 175
 id-PrimaryCCPCH-Information-Cell-SetupRqstFDD						ProtocolIE-ID ::= 176
 id-PrimaryCPICH-Information-Cell-ReconfRqstFDD						ProtocolIE-ID ::= 177
@@ -387,6 +423,8 @@ id-PrimaryCPICH-Information-Cell-SetupRqstFDD						ProtocolIE-ID ::= 178
 id-PrimarySCH-Information-Cell-ReconfRqstFDD						ProtocolIE-ID ::= 179
 id-PrimarySCH-Information-Cell-SetupRqstFDD							ProtocolIE-ID ::= 180
 id-PrimaryScramblingCode											ProtocolIE-ID ::= 181
+-- WS extension to fill the range
+id-Unknown-182														ProtocolIE-ID ::= 182
 id-SCH-Information-Cell-ReconfRqstTDD								ProtocolIE-ID ::= 183
 id-SCH-Information-Cell-SetupRqstTDD								ProtocolIE-ID ::= 184
 id-PUSCH-Information-AddListIE-PSCH-ReconfRqst						ProtocolIE-ID ::= 185
@@ -395,11 +433,19 @@ id-PUSCHSets-AddList-PSCH-ReconfRqst								ProtocolIE-ID ::= 187
 id-PUSCHSets-DeleteList-PSCH-ReconfRqst								ProtocolIE-ID ::= 188
 id-PUSCHSets-ModifyList-PSCH-ReconfRqst								ProtocolIE-ID ::= 189
 id-RACH-Information													ProtocolIE-ID ::= 190
+-- WS extension to fill the range
+id-Unknown-191														ProtocolIE-ID ::= 191
+id-Unknown-192														ProtocolIE-ID ::= 192
+id-Unknown-193														ProtocolIE-ID ::= 193
+id-Unknown-194														ProtocolIE-ID ::= 194
+id-Unknown-195														ProtocolIE-ID ::= 195
 id-RACH-ParametersItem-CTCH-SetupRqstFDD							ProtocolIE-ID ::= 196
 id-RACH-ParameterItem-CTCH-SetupRqstTDD								ProtocolIE-ID ::= 197
 id-ReportCharacteristics											ProtocolIE-ID ::= 198
 id-Reporting-Object-RL-FailureInd									ProtocolIE-ID ::= 199
 id-Reporting-Object-RL-RestoreInd									ProtocolIE-ID ::= 200
+-- WS extension to fill the range
+id-Unknown-201														ProtocolIE-ID ::= 201
 id-RL-InformationItem-DM-Rprt										ProtocolIE-ID ::= 202
 id-RL-InformationItem-DM-Rqst										ProtocolIE-ID ::= 203
 id-RL-InformationItem-DM-Rsp										ProtocolIE-ID ::= 204
@@ -433,13 +479,30 @@ id-RL-Information-RL-ReconfPrepTDD									ProtocolIE-ID ::= 229
 id-RL-Information-RL-SetupRqstTDD									ProtocolIE-ID ::= 230
 id-RL-ReconfigurationFailureItem-RL-ReconfFailure					ProtocolIE-ID ::= 236
 id-RL-Set-InformationItem-DM-Rprt									ProtocolIE-ID ::= 238
+-- WS extension to fill the range
+id-Unknown-239														ProtocolIE-ID ::= 239
 id-RL-Set-InformationItem-DM-Rsp									ProtocolIE-ID ::= 240
 id-RL-Set-InformationItem-RL-FailureInd								ProtocolIE-ID ::= 241
 id-RL-Set-InformationItem-RL-RestoreInd								ProtocolIE-ID ::= 242
+-- WS extension to fill the range
+id-Unknown-243														ProtocolIE-ID ::= 243
+id-Unknown-244														ProtocolIE-ID ::= 244
+id-Unknown-245														ProtocolIE-ID ::= 245
+id-Unknown-246														ProtocolIE-ID ::= 246
 id-S-CCPCH-Information												ProtocolIE-ID ::= 247
+-- WS extension to fill the range
+id-Unknown-248														ProtocolIE-ID ::= 248
 id-S-CPICH-Information												ProtocolIE-ID ::= 249
+-- WS extension to fill the range
+id-Unknown-250														ProtocolIE-ID ::= 250
 id-SCH-Information													ProtocolIE-ID ::= 251
+-- WS extension to fill the range
+id-Unknown-252														ProtocolIE-ID ::= 252
 id-S-SCH-Information												ProtocolIE-ID ::= 253
+-- WS extension to fill the range
+id-Unknown-254														ProtocolIE-ID ::= 254
+id-Unknown-255														ProtocolIE-ID ::= 255
+id-Unknown-256														ProtocolIE-ID ::= 256
 id-Secondary-CCPCHListIE-CTCH-ReconfRqstTDD							ProtocolIE-ID ::= 257
 id-Secondary-CCPCH-parameterListIE-CTCH-SetupRqstTDD				ProtocolIE-ID ::= 258
 id-Secondary-CCPCH-Parameters-CTCH-ReconfRqstTDD					ProtocolIE-ID ::= 259
@@ -450,12 +513,17 @@ id-SecondaryCPICH-InformationList-Cell-SetupRqstFDD					ProtocolIE-ID ::= 263
 id-SecondarySCH-Information-Cell-ReconfRqstFDD						ProtocolIE-ID ::= 264
 id-SecondarySCH-Information-Cell-SetupRqstFDD						ProtocolIE-ID ::= 265
 id-SegmentInformationListIE-SystemInfoUpdate						ProtocolIE-ID ::= 266
+-- WS extension to fill the range
+id-Unknown-267														ProtocolIE-ID ::= 267
 id-SFN																ProtocolIE-ID ::= 268
 id-SignallingBearerRequestIndicator									ProtocolIE-ID ::= 138
 id-ShutdownTimer													ProtocolIE-ID ::= 269
 id-Start-Of-Audit-Sequence-Indicator								ProtocolIE-ID ::= 114
 id-Successful-RL-InformationRespItem-RL-AdditionFailureFDD			ProtocolIE-ID ::= 270
 id-Successful-RL-InformationRespItem-RL-SetupFailureFDD				ProtocolIE-ID ::= 271
+-- WS extension to fill the range
+id-Unknown-272														ProtocolIE-ID ::= 272
+id-Unknown-273														ProtocolIE-ID ::= 273
 id-SyncCase															ProtocolIE-ID ::= 274
 id-SyncCaseIndicatorItem-Cell-SetupRqstTDD-PSCH						ProtocolIE-ID ::= 275
 id-T-Cell															ProtocolIE-ID ::= 276
@@ -477,18 +545,35 @@ id-UL-DPCH-Information-RL-ReconfRqstFDD								ProtocolIE-ID ::= 294
 id-UL-DPCH-Information-RL-SetupRqstFDD								ProtocolIE-ID ::= 295
 id-Unsuccessful-RL-InformationRespItem-RL-AdditionFailureFDD		ProtocolIE-ID ::= 296
 id-Unsuccessful-RL-InformationRespItem-RL-SetupFailureFDD			ProtocolIE-ID ::= 297
+-- WS extension to fill the range
+id-Unknown-298														ProtocolIE-ID ::= 298
+id-Unknown-299														ProtocolIE-ID ::= 299
 id-Unsuccessful-RL-InformationResp-RL-AdditionFailureTDD			ProtocolIE-ID ::= 300
 id-Unsuccessful-RL-InformationResp-RL-SetupFailureTDD				ProtocolIE-ID ::= 301
 id-USCH-Information-Add												ProtocolIE-ID ::= 302
+-- WS extension to fill the range
+id-Unknown-303														ProtocolIE-ID ::= 303
 id-USCH-Information-DeleteList-RL-ReconfPrepTDD						ProtocolIE-ID ::= 304
+-- WS extension to fill the range
+id-Unknown-305														ProtocolIE-ID ::= 305
 id-USCH-Information-ModifyList-RL-ReconfPrepTDD						ProtocolIE-ID ::= 306
+-- WS extension to fill the range
+id-Unknown-307														ProtocolIE-ID ::= 307
+id-Unknown-308														ProtocolIE-ID ::= 308
 id-USCH-InformationResponse											ProtocolIE-ID ::= 309
 id-USCH-Information													ProtocolIE-ID ::= 310
 id-USCH-RearrangeList-Bearer-RearrangeInd							ProtocolIE-ID ::= 141
+-- WS extension to fill the range
+id-Unknown-313														ProtocolIE-ID ::= 313
 id-Active-Pattern-Sequence-Information 								ProtocolIE-ID ::= 315
 id-AICH-ParametersListIE-CTCH-ReconfRqstFDD							ProtocolIE-ID ::= 316
 id-AdjustmentRatio													ProtocolIE-ID ::= 317
+-- WS extension to fill the range
+id-Unknown-318														ProtocolIE-ID ::= 318
+id-Unknown-319														ProtocolIE-ID ::= 319
 id-Not-Used-320														ProtocolIE-ID ::= 320
+-- WS extension to fill the range
+id-Unknown-321														ProtocolIE-ID ::= 321
 id-Not-Used-322														ProtocolIE-ID ::= 322
 id-FACH-ParametersListIE-CTCH-ReconfRqstFDD							ProtocolIE-ID ::= 323
 id-CauseLevel-PSCH-ReconfFailure									ProtocolIE-ID ::= 324
@@ -498,13 +583,24 @@ id-CauseLevel-RL-ReconfFailure										ProtocolIE-ID ::= 327
 id-CauseLevel-RL-SetupFailureFDD									ProtocolIE-ID ::= 328
 id-CauseLevel-RL-SetupFailureTDD									ProtocolIE-ID ::= 329
 id-Not-Used-330														ProtocolIE-ID ::= 330
+-- WS extension to fill the range
+id-Unknown-331														ProtocolIE-ID ::= 331
 id-Not-Used-332														ProtocolIE-ID ::= 332
 id-Closed-Loop-Timing-Adjustment-Mode								ProtocolIE-ID ::= 333
 id-CommonPhysicalChannelType-CTCH-ReconfRqstFDD						ProtocolIE-ID ::= 334
 id-Compressed-Mode-Deactivation-Flag								ProtocolIE-ID ::= 335
 id-Not-Used-336														ProtocolIE-ID ::= 336
+-- WS extension to fill the range
+id-Unknown-337														ProtocolIE-ID ::= 337
+id-Unknown-338														ProtocolIE-ID ::= 338
+id-Unknown-339														ProtocolIE-ID ::= 339
+id-Unknown-340														ProtocolIE-ID ::= 340
+id-Unknown-341														ProtocolIE-ID ::= 341
 id-Not-Used-342														ProtocolIE-ID ::= 342
 id-Not-Used-343														ProtocolIE-ID ::= 343
+-- WS extension to fill the range
+id-Unknown-344														ProtocolIE-ID ::= 344
+id-Unknown-345														ProtocolIE-ID ::= 345
 id-DL-CCTrCH-InformationAddList-RL-ReconfPrepTDD					ProtocolIE-ID ::= 346
 id-DL-CCTrCH-InformationDeleteItem-RL-ReconfRqstTDD					ProtocolIE-ID ::= 347
 id-DL-CCTrCH-InformationDeleteList-RL-ReconfPrepTDD					ProtocolIE-ID ::= 348
@@ -513,6 +609,8 @@ id-DL-CCTrCH-InformationModifyItem-RL-ReconfRqstTDD					ProtocolIE-ID ::= 350
 id-DL-CCTrCH-InformationModifyList-RL-ReconfPrepTDD					ProtocolIE-ID ::= 351
 id-DL-CCTrCH-InformationModifyList-RL-ReconfRqstTDD					ProtocolIE-ID ::= 352
 id-DL-DPCH-InformationAddListIE-RL-ReconfPrepTDD					ProtocolIE-ID ::= 353
+-- WS extension to fill the range
+id-Unknown-354														ProtocolIE-ID ::= 354
 id-DL-DPCH-InformationModify-AddListIE-RL-ReconfPrepTDD				ProtocolIE-ID ::= 355
 id-DL-DPCH-InformationModify-DeleteListIE-RL-ReconfPrepTDD			ProtocolIE-ID ::= 356
 id-DL-DPCH-InformationModify-ModifyListIE-RL-ReconfPrepTDD			ProtocolIE-ID ::= 357
@@ -522,16 +620,45 @@ id-DPCHConstant														ProtocolIE-ID ::= 359
 id-Unused-ProtocolIE-ID-94											ProtocolIE-ID ::= 94
 id-Unused-ProtocolIE-ID-110											ProtocolIE-ID ::= 110
 id-Unused-ProtocolIE-ID-111											ProtocolIE-ID ::= 111
+-- WS extension to fill the range
+id-Unknown-360														ProtocolIE-ID ::= 360
+id-Unknown-361														ProtocolIE-ID ::= 361
 id-FACH-ParametersList-CTCH-SetupRsp								ProtocolIE-ID ::= 362
+-- WS extension to fill the range
+id-Unknown-363														ProtocolIE-ID ::= 363
+id-Unknown-364														ProtocolIE-ID ::= 364
+id-Unknown-365														ProtocolIE-ID ::= 365
+id-Unknown-366														ProtocolIE-ID ::= 366
+id-Unknown-367														ProtocolIE-ID ::= 367
+id-Unknown-368														ProtocolIE-ID ::= 368
 id-Limited-power-increase-information-Cell-SetupRqstFDD				ProtocolIE-ID ::= 369
+-- WS extension to fill the range
+id-Unknown-370														ProtocolIE-ID ::= 370
+id-Unknown-371														ProtocolIE-ID ::= 371
+id-Unknown-372														ProtocolIE-ID ::= 372
+id-Unknown-373														ProtocolIE-ID ::= 373
 id-PCH-Parameters-CTCH-SetupRsp										ProtocolIE-ID ::= 374
 id-PCH-ParametersItem-CTCH-ReconfRqstFDD							ProtocolIE-ID ::= 375
 id-Not-Used-376														ProtocolIE-ID ::= 376
+-- WS extension to fill the range
+id-Unknown-377														ProtocolIE-ID ::= 377
+id-Unknown-378														ProtocolIE-ID ::= 378
+id-Unknown-379														ProtocolIE-ID ::= 379
 id-PICH-ParametersItem-CTCH-ReconfRqstFDD							ProtocolIE-ID ::= 380
 id-PRACHConstant													ProtocolIE-ID ::= 381
+-- WS extension to fill the range
+id-Unknown-382														ProtocolIE-ID ::= 382
 id-PRACH-ParametersListIE-CTCH-ReconfRqstFDD						ProtocolIE-ID ::= 383
 id-PUSCHConstant													ProtocolIE-ID ::= 384
 id-RACH-Parameters-CTCH-SetupRsp									ProtocolIE-ID ::= 385
+-- WS extension to fill the range
+id-Unknown-386														ProtocolIE-ID ::= 386
+id-Unknown-387														ProtocolIE-ID ::= 387
+id-Unknown-388														ProtocolIE-ID ::= 388
+id-Unknown-389														ProtocolIE-ID ::= 389
+id-Unknown-390														ProtocolIE-ID ::= 390
+id-Unknown-391														ProtocolIE-ID ::= 391
+id-Unknown-392														ProtocolIE-ID ::= 392
 id-Unused-ProtocolIE-ID-443											ProtocolIE-ID ::= 443
 id-Synchronisation-Configuration-Cell-ReconfRqst					ProtocolIE-ID ::= 393
 id-Synchronisation-Configuration-Cell-SetupRqst						ProtocolIE-ID ::= 394
@@ -544,13 +671,22 @@ id-UL-CCTrCH-InformationModifyItem-RL-ReconfRqstTDD					ProtocolIE-ID ::= 400
 id-UL-CCTrCH-InformationModifyList-RL-ReconfPrepTDD					ProtocolIE-ID ::= 401
 id-UL-CCTrCH-InformationModifyList-RL-ReconfRqstTDD					ProtocolIE-ID ::= 402
 id-UL-DPCH-InformationAddListIE-RL-ReconfPrepTDD					ProtocolIE-ID ::= 403
+-- WS extension to fill the range
+id-Unknown-404														ProtocolIE-ID ::= 404
 id-UL-DPCH-InformationModify-AddListIE-RL-ReconfPrepTDD				ProtocolIE-ID ::= 405
 id-UL-DPCH-InformationModify-DeleteListIE-RL-ReconfPrepTDD			ProtocolIE-ID ::= 406
 id-UL-DPCH-InformationModify-ModifyListIE-RL-ReconfPrepTDD			ProtocolIE-ID ::= 407
 id-Unsuccessful-PDSCHSetItem-PSCH-ReconfFailureTDD					ProtocolIE-ID ::= 408
 id-Unsuccessful-PUSCHSetItem-PSCH-ReconfFailureTDD					ProtocolIE-ID ::= 409
+-- WS extension to fill the range
+id-Unknown-410														ProtocolIE-ID ::= 410
+id-Unknown-411														ProtocolIE-ID ::= 411
 id-CommunicationContextInfoItem-Reset								ProtocolIE-ID ::= 412
+-- WS extension to fill the range
+id-Unknown-413														ProtocolIE-ID ::= 413
 id-CommunicationControlPortInfoItem-Reset							ProtocolIE-ID ::= 414
+-- WS extension to fill the range
+id-Unknown-415														ProtocolIE-ID ::= 415
 id-ResetIndicator													ProtocolIE-ID ::= 416
 id-Unused-ProtocolIE-ID-417											ProtocolIE-ID ::= 417
 id-Unused-ProtocolIE-ID-418											ProtocolIE-ID ::= 418
@@ -586,6 +722,9 @@ id-SyncFrameNumber													ProtocolIE-ID ::= 437
 id-SynchronisationReportType										ProtocolIE-ID ::= 438
 id-SynchronisationReportCharacteristics								ProtocolIE-ID ::= 439
 id-Unsuccessful-cell-InformationRespItem-SyncAdjustmntFailureTDD	ProtocolIE-ID ::= 440
+-- WS extension to fill the range
+id-Unknown-441														ProtocolIE-ID ::= 441
+id-Unknown-442														ProtocolIE-ID ::= 442
 id-LateEntranceCellSyncInfoItem-CellSyncReprtTDD					ProtocolIE-ID ::= 119
 id-ReferenceClockAvailability										ProtocolIE-ID ::= 435
 id-ReferenceSFNoffset												ProtocolIE-ID ::= 436
@@ -617,8 +756,14 @@ id-PCCPCH-LCR-Information-Cell-SetupRqstTDD                   		ProtocolIE-ID ::
 id-PCH-Power-LCR-CTCH-SetupRqstTDD									ProtocolIE-ID ::= 457
 id-PCH-Power-LCR-CTCH-ReconfRqstTDD									ProtocolIE-ID ::= 458
 id-PICH-LCR-Parameters-CTCH-SetupRqstTDD                   			ProtocolIE-ID ::= 459
+-- WS extension to fill the range
+id-Unknown-460														ProtocolIE-ID ::= 460
 id-PRACH-LCR-ParametersList-CTCH-SetupRqstTDD                  		ProtocolIE-ID ::= 461
+-- WS extension to fill the range
+id-Unknown-462														ProtocolIE-ID ::= 462
 id-RL-InformationResponse-LCR-RL-SetupRspTDD	                   	ProtocolIE-ID ::= 463
+-- WS extension to fill the range
+id-Unknown-464														ProtocolIE-ID ::= 464
 id-Secondary-CCPCH-LCR-parameterList-CTCH-SetupRqstTDD              ProtocolIE-ID ::= 465
 id-TimeSlot															ProtocolIE-ID ::= 495
 id-TimeSlotConfigurationList-LCR-Cell-ReconfRqstTDD                 ProtocolIE-ID ::= 466
@@ -626,15 +771,23 @@ id-TimeSlotConfigurationList-LCR-Cell-SetupRqstTDD                  ProtocolIE-I
 id-TimeslotISCP-LCR-InfoList-RL-SetupRqstTDD                   		ProtocolIE-ID ::= 468
 id-TimeSlotLCR-CM-Rqst                   							ProtocolIE-ID ::= 469
 id-UL-DPCH-LCR-Information-RL-SetupRqstTDD                   		ProtocolIE-ID ::= 470
+-- WS extension to fill the range
+id-Unknown-471														ProtocolIE-ID ::= 471
 id-DL-DPCH-InformationItem-LCR-RL-AdditionRqstTDD					ProtocolIE-ID ::= 472
 id-UL-DPCH-InformationItem-LCR-RL-AdditionRqstTDD					ProtocolIE-ID ::= 473
 id-TimeslotISCP-InformationList-LCR-RL-AdditionRqstTDD				ProtocolIE-ID ::= 474
 id-DL-DPCH-LCR-InformationAddList-RL-ReconfPrepTDD					ProtocolIE-ID ::= 475
+-- WS extension to fill the range
+id-Unknown-476														ProtocolIE-ID ::= 476
 id-DL-DPCH-LCR-InformationModify-AddList-RL-ReconfPrepTDD			ProtocolIE-ID ::= 477
+-- WS extension to fill the range
+id-Unknown-478														ProtocolIE-ID ::= 478
 id-DL-Timeslot-LCR-InformationModify-ModifyList-RL-ReconfPrepTDD	ProtocolIE-ID ::= 479
 id-TimeslotISCPInfoList-LCR-DL-PC-RqstTDD							ProtocolIE-ID ::= 480
 id-UL-DPCH-LCR-InformationAddListIE-RL-ReconfPrepTDD				ProtocolIE-ID ::= 481
 id-UL-DPCH-LCR-InformationModify-AddList							ProtocolIE-ID ::= 483
+-- WS extension to fill the range
+id-Unknown-484														ProtocolIE-ID ::= 484
 id-UL-TimeslotLCR-Information-RL-ReconfPrepTDD						ProtocolIE-ID ::= 485
 id-UL-SIRTarget														ProtocolIE-ID ::= 510
 id-PDSCH-AddInformation-LCR-PSCH-ReconfRqst							ProtocolIE-ID ::= 486
@@ -706,10 +859,17 @@ id-AccumulatedClockupdate-CellSyncReprtTDD							ProtocolIE-ID ::= 552
 id-Angle-Of-Arrival-Value-LCR										ProtocolIE-ID ::= 521
 id-HSDSCH-FDD-Information											ProtocolIE-ID ::= 530
 id-HSDSCH-FDD-Information-Response									ProtocolIE-ID ::= 531
+-- WS extension to fill the range
+id-Unknown-532														ProtocolIE-ID ::= 532
+id-Unknown-533														ProtocolIE-ID ::= 533
 id-HSDSCH-Information-to-Modify										ProtocolIE-ID ::= 534
 id-HSDSCH-RNTI														ProtocolIE-ID ::= 535
 id-HSDSCH-TDD-Information											ProtocolIE-ID ::= 536
 id-HSDSCH-TDD-Information-Response									ProtocolIE-ID ::= 537
+-- WS extension to fill the range
+id-Unknown-538														ProtocolIE-ID ::= 538
+id-Unknown-539														ProtocolIE-ID ::= 539
+id-Unknown-540														ProtocolIE-ID ::= 540
 id-HSPDSCH-RL-ID													ProtocolIE-ID ::= 541
 id-PrimCCPCH-RSCP-DL-PC-RqstTDD										ProtocolIE-ID ::= 542
 id-Unused-ProtocolIE-ID-64											ProtocolIE-ID ::= 64
@@ -718,6 +878,8 @@ id-HSDSCH-RearrangeList-Bearer-RearrangeInd							ProtocolIE-ID ::= 553
 id-UL-Synchronisation-Parameters-LCR								ProtocolIE-ID ::= 554
 id-HSDSCH-FDD-Update-Information									ProtocolIE-ID ::= 555
 id-HSDSCH-TDD-Update-Information									ProtocolIE-ID ::= 556
+-- WS extension to fill the range
+id-Unknown-557														ProtocolIE-ID ::= 557
 id-DL-DPCH-TimeSlotFormat-LCR-ModifyItem-RL-ReconfPrepTDD			ProtocolIE-ID ::= 558
 id-UL-DPCH-TimeSlotFormat-LCR-ModifyItem-RL-ReconfPrepTDD			ProtocolIE-ID ::= 559
 id-TDD-TPC-UplinkStepSize-LCR-RL-SetupRqstTDD						ProtocolIE-ID ::= 560
@@ -744,6 +906,8 @@ id-Initial-DL-Power-TimeslotLCR-InformationItem						ProtocolIE-ID ::= 580
 id-Maximum-DL-Power-TimeslotLCR-InformationItem						ProtocolIE-ID ::= 581
 id-Minimum-DL-Power-TimeslotLCR-InformationItem						ProtocolIE-ID ::= 582
 id-HS-DSCHProvidedBitRateValueInformation							ProtocolIE-ID ::= 583
+-- WS extension to fill the range
+id-Unknown-584														ProtocolIE-ID ::= 584
 id-HS-DSCHRequiredPowerValueInformation								ProtocolIE-ID ::= 585
 id-HS-DSCHRequiredPowerValue										ProtocolIE-ID ::= 586
 id-TransmittedCarrierPowerOfAllCodesNotUsedForHSTransmission		ProtocolIE-ID ::= 587
@@ -932,10 +1096,23 @@ id-hS-SCCH-Information-768-PSCH-ReconfRqst							ProtocolIE-ID ::= 769
 id-hS-SCCH-InformationModify-768-PSCH-ReconfRqst					ProtocolIE-ID ::= 770
 id-hsSCCH-Specific-Information-ResponseTDD768						ProtocolIE-ID ::= 771
 id-E-DPCH-Information-RL-AdditionReqFDD								ProtocolIE-ID ::= 772
+-- WS extension to fill the range
+id-Unknown-773														ProtocolIE-ID ::= 773
+id-Unknown-774														ProtocolIE-ID ::= 774
 id-PDSCH-Timeslot-Format-PSCH-ReconfRqst-LCR						ProtocolIE-ID ::= 775
+-- WS extension to fill the range
+id-Unknown-776														ProtocolIE-ID ::= 776
+id-Unknown-777														ProtocolIE-ID ::= 777
+id-Unknown-778														ProtocolIE-ID ::= 778
+id-Unknown-779														ProtocolIE-ID ::= 779
 id-PUSCH-Timeslot-Format-PSCH-ReconfRqst-LCR						ProtocolIE-ID ::= 780
+-- WS extension to fill the range
+id-Unknown-781														ProtocolIE-ID ::= 781
 id-E-DCH-PowerOffset-for-SchedulingInfo								ProtocolIE-ID ::= 782
 id-HSDSCH-Configured-Indicator										ProtocolIE-ID ::= 783
+-- WS extension to fill the range
+id-Unknown-784														ProtocolIE-ID ::= 784
+id-Unknown-785														ProtocolIE-ID ::= 785
 id-Rx-Timing-Deviation-Value-384-ext								ProtocolIE-ID ::= 786
 id-RTWP-ReportingIndicator											ProtocolIE-ID ::= 787
 id-RTWP-CellPortion-ReportingIndicator								ProtocolIE-ID ::= 788
@@ -989,6 +1166,9 @@ id-ContinuousPacketConnectivityHS-SCCH-less-Information-Response	ProtocolIE-ID :
 id-CPC-Information													ProtocolIE-ID ::= 836
 id-MIMO-Capability													ProtocolIE-ID ::= 837
 id-MIMO-PilotConfiguration											ProtocolIE-ID ::= 838
+-- WS extension to fill the range
+id-Unknown-839														ProtocolIE-ID ::= 839
+id-Unknown-840														ProtocolIE-ID ::= 840
 id-MBSFN-Cell-ParameterID-Cell-SetupRqstTDD							ProtocolIE-ID ::= 841
 id-MBSFN-Cell-ParameterID-Cell-ReconfRqstTDD						ProtocolIE-ID ::= 842
 id-S-CCPCH-Modulation												ProtocolIE-ID ::= 843
@@ -997,6 +1177,10 @@ id-HS-PDSCH-Code-Change-Indicator									ProtocolIE-ID ::= 845
 id-SYNC-UL-Partition-LCR											ProtocolIE-ID ::= 846
 id-E-DCH-LCR-Information											ProtocolIE-ID ::= 847
 id-E-DCH-LCR-Information-Reconfig									ProtocolIE-ID ::= 848
+-- WS extension to fill the range
+id-Unknown-849														ProtocolIE-ID ::= 849
+id-Unknown-850														ProtocolIE-ID ::= 850
+id-Unknown-851														ProtocolIE-ID ::= 851
 id-E-PUCH-Information-LCR-PSCH-ReconfRqst							ProtocolIE-ID ::= 852
 id-Add-To-E-AGCH-Resource-Pool-LCR-PSCH-ReconfRqst					ProtocolIE-ID ::= 853
 id-Modify-E-AGCH-Resource-Pool-LCR-PSCH-ReconfRqst					ProtocolIE-ID ::= 854
@@ -1004,17 +1188,30 @@ id-Add-To-E-HICH-Resource-Pool-LCR-PSCH-ReconfRqst					ProtocolIE-ID ::= 855
 id-Modify-E-HICH-Resource-Pool-LCR-PSCH-ReconfRqst					ProtocolIE-ID ::= 856
 id-Delete-From-E-HICH-Resource-Pool-PSCH-ReconfRqst					ProtocolIE-ID ::= 857
 id-E-HICH-TimeOffsetLCR												ProtocolIE-ID ::= 858
+-- WS extension to fill the range
+id-Unknown-859														ProtocolIE-ID ::= 859
 id-SixtyfourQAM-DL-Capability										ProtocolIE-ID ::= 860
 id-SixteenQAM-UL-Capability											ProtocolIE-ID ::= 861
+-- WS extension to fill the range
+id-Unknown-862														ProtocolIE-ID ::= 862
+id-Unknown-863														ProtocolIE-ID ::= 863
 id-HSDSCH-MACdPDU-SizeCapability									ProtocolIE-ID ::= 864
 id-HSDSCH-MACdPDUSizeFormat 										ProtocolIE-ID ::= 865
 id-MaximumMACdPDU-SizeExtended										ProtocolIE-ID ::= 866
+-- WS extension to fill the range
+id-Unknown-867														ProtocolIE-ID ::= 867
+id-Unknown-868														ProtocolIE-ID ::= 868
+id-Unknown-869														ProtocolIE-ID ::= 869
 id-F-DPCH-SlotFormat												ProtocolIE-ID ::= 870
 id-F-DPCH-SlotFormatCapability										ProtocolIE-ID ::= 871
 id-LCRTDD-uplink-Physical-Channel-Capability						ProtocolIE-ID ::= 872
 id-Extended-RNC-ID													ProtocolIE-ID ::= 873
 id-Max-UE-DTX-Cycle													ProtocolIE-ID ::= 874
+-- WS extension to fill the range
+id-Unknown-875														ProtocolIE-ID ::= 875
 id-Secondary-CCPCH-SlotFormat-Extended								ProtocolIE-ID ::= 876
+-- WS extension to fill the range
+id-Unknown-877														ProtocolIE-ID ::= 877
 id-MBSFN-Only-Mode-Indicator-Cell-SetupRqstTDD-LCR					ProtocolIE-ID ::= 878
 id-MBSFN-Only-Mode-Capability										ProtocolIE-ID ::= 879
 id-Time-Slot-Parameter-ID											ProtocolIE-ID ::= 880
@@ -1022,12 +1219,18 @@ id-Additional-failed-HS-SICH										ProtocolIE-ID ::= 881
 id-Additional-missed-HS-SICH										ProtocolIE-ID ::= 882
 id-Additional-total-HS-SICH											ProtocolIE-ID ::= 883
 id-Additional-HS-SICH-Reception-Quality-Measurement-Value			ProtocolIE-ID ::= 884
+-- WS extension to fill the range
+id-Unknown-885  													ProtocolIE-ID ::= 885
+id-Unknown-886  													ProtocolIE-ID ::= 886
 id-GANSS-Common-Data												ProtocolIE-ID ::= 887
 id-GANSS-Information												ProtocolIE-ID ::= 888
 id-GANSS-Generic-Data												ProtocolIE-ID ::= 889
 id-TUTRANGANSSMeasurementThresholdInformation						ProtocolIE-ID ::= 890
 id-TUTRANGANSSMeasurementValueInformation							ProtocolIE-ID ::= 891
 id-ModulationPO-MBSFN												ProtocolIE-ID ::= 892
+-- WS extension to fill the range
+id-Unknown-893  													ProtocolIE-ID ::= 893
+id-Unknown-894  													ProtocolIE-ID ::= 894
 id-Enhanced-FACH-Capability											ProtocolIE-ID ::= 895
 id-Enhanced-PCH-Capability											ProtocolIE-ID ::= 896
 id-HSDSCH-Common-System-InformationFDD								ProtocolIE-ID ::= 897
@@ -1106,12 +1309,23 @@ id-DGANSS-Corrections-Req											ProtocolIE-ID ::= 969
 id-UE-with-enhanced-HS-SCCH-support-indicator						ProtocolIE-ID ::= 970
 id-AdditionalTimeSlotListLCR										ProtocolIE-ID ::= 971
 id-AdditionalMeasurementValueList									ProtocolIE-ID ::= 972
+-- WS extension to fill the range
+id-Unknown-973														ProtocolIE-ID ::= 973
+id-Unknown-974														ProtocolIE-ID ::= 974
+id-Unknown-975														ProtocolIE-ID ::= 975
+id-Unknown-976														ProtocolIE-ID ::= 976
+id-Unknown-977														ProtocolIE-ID ::= 977
 id-E-AGCH-Table-Choice					 							ProtocolIE-ID ::= 978
+-- WS extension to fill the range
+id-Unknown-979														ProtocolIE-ID ::= 979
+id-Unknown-980														ProtocolIE-ID ::= 980
 id-PLCCH-parameters													ProtocolIE-ID ::= 981
 id-E-RUCCH-parameters												ProtocolIE-ID ::= 982
 id-E-RUCCH-768-parameters											ProtocolIE-ID ::= 983
 id-HS-Cause															ProtocolIE-ID ::= 984
 id-E-Cause															ProtocolIE-ID ::= 985
+-- WS extension to fill the range
+id-Unknown-986														ProtocolIE-ID ::= 986
 id-Common-EDCH-Capability											ProtocolIE-ID ::= 987
 id-E-AI-Capability													ProtocolIE-ID ::= 988
 id-Common-EDCH-System-InformationFDD								ProtocolIE-ID ::= 989
@@ -1147,6 +1361,8 @@ id-EDCH-RACH-Report-IncrDecrThres									ProtocolIE-ID ::= 1018
 id-EDCH-RACH-Report-ThresholdInformation							ProtocolIE-ID ::= 1019
 id-E-DPCCH-Power-Boosting-Capability									ProtocolIE-ID ::= 1020
 id-HSDSCH-Common-System-InformationLCR								ProtocolIE-ID ::= 1021
+-- WS extension to fill the range
+id-Unknown-1022														ProtocolIE-ID ::= 1022
 id-HSDSCH-Common-System-Information-ResponseLCR						ProtocolIE-ID ::= 1222
 id-HSDSCH-Paging-System-InformationLCR								ProtocolIE-ID ::= 1023
 id-HSDSCH-Paging-System-Information-ResponseLCR						ProtocolIE-ID ::= 1024
@@ -1185,33 +1401,56 @@ id-CPC-InformationLCR												ProtocolIE-ID ::= 1056
 id-HS-DSCH-Semi-PersistentScheduling-Information-ResponseLCR		ProtocolIE-ID ::= 1057
 id-E-DCH-Semi-PersistentScheduling-Information-ResponseLCR			ProtocolIE-ID ::= 1058
 id-E-AGCH-UE-Inactivity-Monitor-Threshold							ProtocolIE-ID ::= 1059
+-- WS extension to fill the range
+id-Unknown-1060														ProtocolIE-ID ::= 1060
+id-Unknown-1061														ProtocolIE-ID ::= 1061
+id-Unknown-1062														ProtocolIE-ID ::= 1062
 id-IdleIntervalInformation											ProtocolIE-ID ::= 1063
 id-GANSS-alm-keplerianNAVAlmanac									ProtocolIE-ID ::= 1064
 id-GANSS-alm-keplerianReducedAlmanac								ProtocolIE-ID ::= 1065
 id-GANSS-alm-keplerianMidiAlmanac									ProtocolIE-ID ::= 1066
 id-GANSS-alm-keplerianGLONASS										ProtocolIE-ID ::= 1067
 id-GANSS-alm-ecefSBASAlmanac										ProtocolIE-ID ::= 1068
+-- WS extension to fill the range
+id-Unknown-1069														ProtocolIE-ID ::= 1069
 id-HSSICH-ReferenceSignal-InformationLCR							ProtocolIE-ID ::= 1070
 id-MIMO-ReferenceSignal-InformationListLCR							ProtocolIE-ID ::= 1071
 id-MIMO-SFMode-For-HSPDSCHDualStream								ProtocolIE-ID ::= 1072
 id-MIMO-SFMode-Supported-For-HSPDSCHDualStream						ProtocolIE-ID ::= 1073
 id-UE-Selected-MBMS-Service-Information								ProtocolIE-ID ::= 1074
+-- WS extension to fill the range
+id-Unknown-1075														ProtocolIE-ID ::= 1075
+id-Unknown-1076														ProtocolIE-ID ::= 1076
 id-MultiCarrier-HSDSCH-Physical-Layer-Category 						ProtocolIE-ID ::= 1077
 id-Common-E-DCH-HSDPCCH-Capability									ProtocolIE-ID ::= 1078
 id-DL-RLC-PDU-Size-Format											ProtocolIE-ID ::= 1079
 id-HSSICH-ReferenceSignal-InformationModifyLCR						ProtocolIE-ID ::= 1080
 id-schedulingPriorityIndicator										ProtocolIE-ID ::= 1081
 id-TimeSlotMeasurementValueListLCR									ProtocolIE-ID ::= 1082
+-- WS extension to fill the range
+id-Unknown-1083														ProtocolIE-ID ::= 1083
+id-Unknown-1084														ProtocolIE-ID ::= 1084
 id-UE-SupportIndicatorExtension										ProtocolIE-ID ::= 1085
+-- WS extension to fill the range
+id-Unknown-1086														ProtocolIE-ID ::= 1086
+id-Unknown-1087														ProtocolIE-ID ::= 1087
 id-Single-Stream-MIMO-ActivationIndicator							ProtocolIE-ID ::= 1088
 id-Single-Stream-MIMO-Capability									ProtocolIE-ID ::= 1089
 id-Single-Stream-MIMO-Mode-Indicator								ProtocolIE-ID ::= 1090
 id-Dual-Band-Capability-Info										ProtocolIE-ID ::= 1091
 id-UE-AggregateMaximumBitRate										ProtocolIE-ID ::= 1092
 id-UE-AggregateMaximumBitRate-Enforcement-Indicator					ProtocolIE-ID ::= 1093
+-- WS extension to fill the range
+id-Unknown-1094														ProtocolIE-ID ::= 1094
+id-Unknown-1095														ProtocolIE-ID ::= 1095
+id-Unknown-1096														ProtocolIE-ID ::= 1096
+id-Unknown-1097														ProtocolIE-ID ::= 1097
+id-Unknown-1098														ProtocolIE-ID ::= 1098
+id-Unknown-1099														ProtocolIE-ID ::= 1099
+id-Unknown-1100														ProtocolIE-ID ::= 1100
 id-MIMO-Power-Offset-For-S-CPICH-Capability							ProtocolIE-ID ::= 1101
 id-MIMO-PilotConfigurationExtension									ProtocolIE-ID ::= 1102
-id-TxDiversityOnDLControlChannelsByMIMOUECapability					ProtocolIE-ID ::= 1103 
+id-TxDiversityOnDLControlChannelsByMIMOUECapability					ProtocolIE-ID ::= 1103
 id-ULTimeslotISCPValue-For-CellPortion								ProtocolIE-ID ::= 1104
 id-UpPTSInterferenceValue-For-CellPortion							ProtocolIE-ID ::= 1105
 id-Best-Cell-Portions-ValueLCR										ProtocolIE-ID ::= 1106
@@ -1226,6 +1465,8 @@ id-NumberOfReportedCellPortionsLCR									ProtocolIE-ID ::= 1114
 id-CellPortion-CapabilityLCR										ProtocolIE-ID ::= 1115
 id-TransmittedCarrierPowerOfAllCodesNotUsedForHS-PDSCH-HS-SCCH-E-AGCHOrE-HICHTransmissionCellPortionValue	ProtocolIE-ID ::= 1116
 id-TransmittedCarrierPowerOfAllCodesNotUsedForHS-PDSCH-HS-SCCH-E-AGCHOrE-HICHTransmissionCellPortion	ProtocolIE-ID ::= 1117
+-- WS extension to fill the range
+id-Unknown-1118														ProtocolIE-ID ::= 1118
 id-ActivationInformation											ProtocolIE-ID ::= 1119
 id-Additional-EDCH-Cell-Information-RL-Setup-Req					ProtocolIE-ID ::= 1120
 id-Additional-EDCH-Cell-Information-Response						ProtocolIE-ID ::= 1121
@@ -1237,9 +1478,11 @@ id-Additional-EDCH-Cell-Information-Bearer-Rearrangement			ProtocolIE-ID ::= 112
 id-Additional-EDCH-Cell-Information-RL-Param-Upd					ProtocolIE-ID ::= 1127
 id-Additional-EDCH-Preconfiguration-Information						ProtocolIE-ID ::= 1128
 id-EDCH-Indicator													ProtocolIE-ID ::= 1129
+-- WS extension to fill the range
+id-Unknown-1130														ProtocolIE-ID ::= 1130
 id-HS-DSCH-SPS-Reservation-Indicator								ProtocolIE-ID ::= 1131
 id-E-DCH-SPS-Reservation-Indicator									ProtocolIE-ID ::= 1132
-id-MultipleFreq-HARQ-MemoryPartitioning-InformationList				ProtocolIE-ID ::= 1133 
+id-MultipleFreq-HARQ-MemoryPartitioning-InformationList				ProtocolIE-ID ::= 1133
 id-Ul-common-E-DCH-MACflow-Specific-InfoResponseListLCR-Ext			ProtocolIE-ID ::= 1134
 id-RepetitionPeriodIndex											ProtocolIE-ID ::= 1135
 id-MidambleShiftLCR													ProtocolIE-ID ::= 1136
@@ -1252,8 +1495,12 @@ id-Cell-Capability-Container										ProtocolIE-ID ::= 1142
 id-E-RNTI-List-Request												ProtocolIE-ID ::= 1143
 id-E-RNTI-List														ProtocolIE-ID ::= 1144
 id-PowerControlGAP-For-CellFACHLCR									ProtocolIE-ID ::= 1145
+-- WS extension to fill the range
+id-Unknown-1146														ProtocolIE-ID ::= 1146
 id-UL-Synchronisation-Parameters-For-FACHLCR						ProtocolIE-ID ::= 1147
 id-HS-DSCH-SPS-Operation-Indicator									ProtocolIE-ID ::= 1148
+id-HSDSCH-RNTI-For-FACH												ProtocolIE-ID ::= 1149
+id-E-RNTI-For-FACH													ProtocolIE-ID ::= 1150
 id-Out-of-Sychronization-Window										ProtocolIE-ID ::= 1151
 id-Max-RTWP-perUARFCN-Information-LCR-PSCH-ReconfRqst				ProtocolIE-ID ::= 1152
 id-E-HICH-TimeOffset-ReconfFailureTDD								ProtocolIE-ID ::= 1153
@@ -1275,5 +1522,56 @@ id-AssociatedPhsicalChannelID										ProtocolIE-ID ::= 1168
 id-DGNSS-ValidityPeriod												ProtocolIE-ID ::= 1169
 id-PhysicalChannelID-for-CommonERNTI-RequestedIndicator				ProtocolIE-ID ::= 1170
 id-PrecodingWeightSetRestriction									ProtocolIE-ID ::= 1171
-
+id-Treset-Usage-Indicator											ProtocolIE-ID ::= 1172
+id-Non-Serving-RL-Preconfig-Info									ProtocolIE-ID ::= 1173
+id-Non-Serving-RL-Preconfig-Setup									ProtocolIE-ID ::= 1174
+id-Non-Serving-RL-Preconfig-Removal									ProtocolIE-ID ::= 1175
+id-Additional-E-DCH-Non-Serving-RL-Preconfiguration-Setup			ProtocolIE-ID ::= 1176
+id-Additional-E-DCH-New-non-serving-RL-E-DCH-FDD-DL-Control-Channel-InfoList	ProtocolIE-ID ::= 1177
+id-Ul-common-E-DCH-MACflow-Specific-InfoListLCR-Ext					ProtocolIE-ID ::= 1178
+id-CommonMACFlow-Specific-InfoList-ResponseLCR-Ext					ProtocolIE-ID ::= 1179
+id-Enabling-Delay-Ext-LCR											ProtocolIE-ID ::= 1180
+-- WS extension to fill the range
+id-Unallocated-1181													ProtocolIE-ID ::= 1181
+id-Unallocated-1182													ProtocolIE-ID ::= 1182
+id-Unallocated-1183													ProtocolIE-ID ::= 1183
+id-Unallocated-1184													ProtocolIE-ID ::= 1184
+id-Unallocated-1185													ProtocolIE-ID ::= 1185
+id-Unallocated-1186													ProtocolIE-ID ::= 1186
+id-Unallocated-1187													ProtocolIE-ID ::= 1187
+id-Unallocated-1188													ProtocolIE-ID ::= 1188
+id-Unallocated-1189													ProtocolIE-ID ::= 1189
+id-Unallocated-1190													ProtocolIE-ID ::= 1190
+id-Unallocated-1191													ProtocolIE-ID ::= 1191
+id-Unallocated-1192													ProtocolIE-ID ::= 1192
+id-Unallocated-1193													ProtocolIE-ID ::= 1193
+id-Unallocated-1194													ProtocolIE-ID ::= 1194
+id-Unallocated-1195													ProtocolIE-ID ::= 1195
+id-Unallocated-1196													ProtocolIE-ID ::= 1196
+id-Unallocated-1197													ProtocolIE-ID ::= 1197
+id-Unallocated-1198													ProtocolIE-ID ::= 1198
+id-Unallocated-1199													ProtocolIE-ID ::= 1199
+id-Unallocated-1200													ProtocolIE-ID ::= 1200
+id-Unallocated-1201													ProtocolIE-ID ::= 1201
+id-Unallocated-1202													ProtocolIE-ID ::= 1202
+id-Unallocated-1203													ProtocolIE-ID ::= 1203
+id-Unallocated-1204													ProtocolIE-ID ::= 1204
+id-Unallocated-1205													ProtocolIE-ID ::= 1205
+id-Unallocated-1206													ProtocolIE-ID ::= 1206
+id-Unallocated-1207													ProtocolIE-ID ::= 1207
+id-Unallocated-1208													ProtocolIE-ID ::= 1208
+id-Unallocated-1209													ProtocolIE-ID ::= 1209
+id-Unallocated-1210													ProtocolIE-ID ::= 1210
+id-Unallocated-1211													ProtocolIE-ID ::= 1211
+id-Unallocated-1212													ProtocolIE-ID ::= 1212
+id-Unallocated-1213													ProtocolIE-ID ::= 1213
+id-Unallocated-1214													ProtocolIE-ID ::= 1214
+id-Unallocated-1215													ProtocolIE-ID ::= 1215
+id-Unallocated-1216													ProtocolIE-ID ::= 1216
+id-Unallocated-1217													ProtocolIE-ID ::= 1217
+id-Unallocated-1218													ProtocolIE-ID ::= 1218
+id-Unallocated-1219													ProtocolIE-ID ::= 1219
+id-Unallocated-1220													ProtocolIE-ID ::= 1220
+id-Unallocated-1221													ProtocolIE-ID ::= 1221
+--id-HSDSCH-Common-System-Information-ResponseLCR					ProtocolIE-ID ::= 1222
 END
