@@ -344,18 +344,24 @@ void parseString(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 
     if (iLen == -1)
     {
-        proto_tree_add_string(tree, hfIndex, tvb, *pOffset, (iOffset - *pOffset),
-                              "[OpcUa Null String]");
+        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, iOffset, 0, TRUE);
+        proto_item_append_text(item, "[OpcUa Null String]");
     }
-    else if (iLen >= 0)
+    else if (iLen == 0)
     {
+        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, iOffset, 0, TRUE);
+        proto_item_append_text(item, "[OpcUa Empty String]");
+    }
+    else if (iLen > 0)
+    {
+        proto_tree_add_item(tree, hfIndex, tvb, iOffset, iLen, TRUE);
         iOffset += iLen; /* eat the whole string */
-        proto_tree_add_item(tree, hfIndex, tvb, *pOffset, (iOffset - *pOffset), TRUE);
     }
     else
     {
+        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, iOffset, 0, TRUE);
         szValue = ep_strdup_printf("[Invalid String] Invalid length: %d", iLen);
-        proto_tree_add_string(tree, hfIndex, tvb, *pOffset, (iOffset - *pOffset), szValue);
+        proto_item_append_text(item, "%s", szValue);
     }
 
     *pOffset = iOffset;
@@ -406,18 +412,33 @@ void parseGuid(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 
 void parseByteString(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 {
+    char *szValue;
     int iOffset = *pOffset;
     gint32 iLen = tvb_get_letohl(tvb, iOffset);
     iOffset += 4;
 
     if (iLen == -1)
     {
+        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, iOffset, 0, TRUE);
+        proto_item_append_text(item, "[OpcUa Null ByteString]");
     }
-    else if (iLen >= 0)
+    else if (iLen == 0)
     {
-        iOffset += iLen;
+        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, iOffset, 0, TRUE);
+        proto_item_append_text(item, "[OpcUa Empty ByteString]");
     }
-    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, (iOffset - *pOffset), TRUE);
+    else if (iLen > 0)
+    {
+        proto_tree_add_item(tree, hfIndex, tvb, iOffset, iLen, TRUE);
+        iOffset += iLen; /* eat the whole bytestring */
+    }
+    else
+    {
+        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, iOffset, 0, TRUE);
+        szValue = ep_strdup_printf("[Invalid ByteString] Invalid length: %d", iLen);
+        proto_item_append_text(item, "%s", szValue);
+    }
+
     *pOffset = iOffset;
 }
 
