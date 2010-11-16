@@ -294,7 +294,7 @@ check_timestamp(wtap *wth)
 {
   struct wtap_pkthdr* pkthdr = wtap_phdr(wth);
 
-  return ( pkthdr->ts.secs >= starttime ) && ( pkthdr->ts.secs <= stoptime );
+  return ( pkthdr->ts.secs >= starttime ) && ( pkthdr->ts.secs < stoptime );
 }
 
 static void
@@ -674,9 +674,9 @@ usage(gboolean is_error)
   fprintf(output, "\n");
   fprintf(output, "Packet selection:\n");
   fprintf(output, "  -r                     keep the selected packets; default is to delete them.\n");
-  fprintf(output, "  -A <start time>        don't output packets whose timestamp is before the\n");
-  fprintf(output, "                         given time (format as YYYY-MM-DD hh:mm:ss).\n");
-  fprintf(output, "  -B <stop time>         don't output packets whose timestamp is after the\n");
+  fprintf(output, "  -A <start time>        only output packets whose timestamp is after (or equal\n");
+  fprintf(output, "                         to) the given time (format as YYYY-MM-DD hh:mm:ss).\n");
+  fprintf(output, "  -B <stop time>         only output packets whose timestamp is before the\n");
   fprintf(output, "                         given time (format as YYYY-MM-DD hh:mm:ss).\n");
   fprintf(output, "\n");
   fprintf(output, "Duplicate packet removal:\n");

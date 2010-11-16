@@ -155,7 +155,7 @@ The time is given in the following format YYYY-MM-DD HH:MM:SS
 
 =item -B  E<lt>stop timeE<gt>
 
-Saves only the packets whose timestamp is on or before stop time.
+Saves only the packets whose timestamp is before stop time.
 The time is given in the following format YYYY-MM-DD HH:MM:SS
 
 =item -h
