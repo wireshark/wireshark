@@ -4528,7 +4528,6 @@ remove_menu_recent_capture_filename(gchar *cf_name) {
 
     update_menu_recent_capture_file(submenu_recent_files);
 }
-#endif
 
 /* remove the capture filename from the "Recent Files" menu */
 static void
@@ -4554,6 +4553,7 @@ remove_menu_recent_capture_file(GtkWidget *widget, gpointer unused _U_) {
        will that free the label? */
     gtk_container_remove(GTK_CONTAINER(submenu_recent_files), widget);
 }
+#endif
 
 #ifdef MAIN_MENU_USE_UIMANAGER
 /* Add a file name to the top of the list, if its allrady present remove it first */
