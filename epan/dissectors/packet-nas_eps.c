@@ -178,8 +178,7 @@ static int hf_nas_eps_esm_eit = -1;
 static int hf_nas_eps_esm_lnkd_eps_bearer_id = -1;
 static int hf_nas_eps_esm_pdn_type = -1;
 static int hf_nas_eps_esm_pdn_ipv4 = -1;
-static int hf_nas_eps_esm_pdn_ipv6_len = -1;
-static int hf_nas_eps_esm_pdn_ipv6 = -1;
+static int hf_nas_eps_esm_pdn_ipv6_if_id = -1;
 
 static int hf_nas_eps_esm_linked_bearer_id = -1;
 
@@ -2284,18 +2283,24 @@ de_esm_pdn_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 			curr_offset+=4;
 			break;
 		case 2:
-			/* IPv6*/
-			proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv6_len, tvb, curr_offset, 1, FALSE);
-			curr_offset++;
-			proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv6, tvb, curr_offset, 16, FALSE);
-			offset+=16;
+			/* IPv6 3GPP TS 24.301 version 9.4.0 Release 9
+			 * If PDN type value indicates IPv6, the PDN address information in octet 4 to octet 11
+			 * contains an IPv6 interface identifier. Bit 8 of octet 4 represents the most significant bit
+			 * of the IPv6 interface identifier and bit 1 of octet 11 the least significant bit.
+			 */
+			proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv6_if_id, tvb, curr_offset, 8, FALSE);
+			offset+=8;
 			break;
 		case 3:
-			/* IPv4/IPv6 */
-			proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv6_len, tvb, curr_offset, 1, FALSE);
-			curr_offset++;
-			proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv6, tvb, curr_offset, 16, FALSE);
-			curr_offset+=16;
+			/* IPv4/IPv6 3GPP TS 24.301 version 9.4.0 Release 9
+			 * If PDN type value indicates IPv4v6, the PDN address information in octet 4 to octet 15
+			 * contains an IPv6 interface identifier and an IPv4 address. Bit 8 of octet 4 represents
+			 * the most significant bit of the IPv6 interface identifier and bit 1 of octet 11 the least
+			 * significant bit. Bit 8 of octet 12 represents the most significant bit of the IPv4 address
+			 * and bit 1 of octet 15 the least significant bit.
+			 */
+			proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv6_if_id, tvb, curr_offset, 8, FALSE);
+			curr_offset+=8;
 			proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv4, tvb, curr_offset, 4, FALSE);
 			curr_offset+=4;
 			break;
@@ -5008,14 +5013,9 @@ void proto_register_nas_eps(void) {
 		FT_IPv4, BASE_NONE, NULL, 0x0,
 		NULL, HFILL}
 	},
-	{ &hf_nas_eps_esm_pdn_ipv6_len,
-		{"IPv6 Prefix Length", "nas_eps.esm.pdn_ipv6_len",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		NULL, HFILL}
-	},
-	{ &hf_nas_eps_esm_pdn_ipv6,
-		{"PDN IPv6", "nas_eps.esm.pdn_ipv6",
-		FT_IPv6, BASE_NONE, NULL, 0x0,
+	{ &hf_nas_eps_esm_pdn_ipv6_if_id,
+		{"PDN IPv6 if id", "nas_eps.esm.pdn_ipv6_if_id",
+		FT_BYTES, BASE_NONE, NULL, 0x0,
 		NULL, HFILL}
 	},
 	{ &hf_nas_eps_esm_linked_bearer_id,
