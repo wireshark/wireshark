@@ -164,7 +164,7 @@ create_tempfile(char **namebuf, const char *pfx)
 {
 	static struct _tf {
 		char *path;
-		unsigned int len;
+		unsigned long len;
 	} tf[MAX_TEMPFILES];
 	static int idx;
 
