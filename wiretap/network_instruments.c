@@ -115,7 +115,7 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 	errno = WTAP_ERR_CANT_READ;
 	offset = 0;
 
-	/* Read in the buffer file header */
+	/* read in the buffer file header */
 	bytes_read = file_read(&file_header, sizeof file_header, 1, wth->fh);
 	if (bytes_read != sizeof file_header) {
 		*err = file_error(wth->fh);
@@ -198,7 +198,7 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 		return -1;
 	}
 
-	/* Check the data link type. */
+	/* check the data link type */
 	if (packet_header.network_type >= NUM_OBSERVER_ENCAPS) {
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 		*err_info = g_strdup_printf("Observer: network type %u unknown or unsupported", packet_header.network_type);
@@ -227,16 +227,14 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 	return 1;
 }
 
-/* reads the next packet */
+/* Reads the next packet. */
 static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	int offset;
 	packet_entry_header packet_header;
 
-	/*
-	 * Skip records other than data records.
-	 */
+	/* skip records other than data records */
 	for (;;) {
 		*data_offset = wth->data_offset;
 
@@ -252,16 +250,11 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
 			break;
 
 		/* skip to next packet */
-		packet_header.offset_to_next_packet =
-		    GUINT16_FROM_LE(packet_header.offset_to_next_packet);
 		if (!skip_to_next_packet(wth, offset,
 		    packet_header.offset_to_next_packet, err, err_info))
 			return FALSE;	/* EOF or error */
 	}
 
-	/* set-up the packet header */
-	packet_header.network_size =
-	    GUINT16_FROM_LE(packet_header.network_size);
 	/* neglect frame markers for wiretap */
 	if (packet_header.network_size < 4) {
 		*err = WTAP_ERR_BAD_RECORD;
@@ -269,28 +262,14 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
 		    packet_header.network_size);
 		return FALSE;
 	}
-	packet_header.network_size -= 4;
-	packet_header.captured_size =
-	    GUINT16_FROM_LE(packet_header.captured_size);
+
+	/* set the wiretap packet header fields */
 	wth->phdr.pkt_encap = observer_encap[packet_header.network_type];
-	wth->phdr.len    = packet_header.network_size;
+	wth->phdr.len = packet_header.network_size - 4;
 	wth->phdr.caplen = MIN(packet_header.captured_size, wth->phdr.len);
-	packet_header.nano_seconds_since_2000 =
-	    GUINT64_FROM_LE(packet_header.nano_seconds_since_2000);
 	wth->phdr.ts.secs =
 	    (time_t) (packet_header.nano_seconds_since_2000/1000000000 + seconds1970to2000);
 	wth->phdr.ts.nsecs = (int) (packet_header.nano_seconds_since_2000%1000000000);
-
-	/* set-up the packet buffer */
-	buffer_assure_space(wth->frame_buffer, packet_header.captured_size);
-
-	/* read data */
-	if (!read_packet_data(wth->fh, packet_header.offset_to_frame, offset,
-	    buffer_start_ptr(wth->frame_buffer), packet_header.captured_size,
-	    err, err_info))
-		return FALSE;
-	wth->data_offset += packet_header.captured_size;
-	offset += packet_header.captured_size;
 
 	/* update the pseudo header */
 	switch (wth->file_encap) {
@@ -301,10 +280,26 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
 		break;
 	}
 
+	/* set-up the packet buffer */
+	buffer_assure_space(wth->frame_buffer, packet_header.captured_size);
+
+	/* read the frame data */
+	if (!read_packet_data(wth->fh, packet_header.offset_to_frame, offset,
+	    buffer_start_ptr(wth->frame_buffer), packet_header.captured_size,
+	    err, err_info))
+		return FALSE;
+	wth->data_offset += packet_header.captured_size;
+	offset += packet_header.captured_size;
+
+	/* skip over any extra bytes following the frame data */
+	if (!skip_to_next_packet(wth, offset, packet_header.offset_to_next_packet,
+		err, err_info))
+		return FALSE;
+
 	return TRUE;
 }
 
-/* reads a packet at an offset */
+/* Reads a packet at an offset. */
 static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
     int *err, gchar **err_info)
@@ -321,11 +316,6 @@ static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
 	if (offset <= 0)
 		return FALSE;	/* EOF or error */
 
-	/* read data */
-	if (!read_packet_data(wth->random_fh, packet_header.offset_to_frame,
-	    offset, pd, length, err, err_info))
-		return FALSE;
-
 	/* update the pseudo header */
 	switch (wth->file_encap) {
 
@@ -334,6 +324,11 @@ static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
 		pseudo_header->eth.fcs_len = 0;
 		break;
 	}
+
+	/* read the frame data */
+	if (!read_packet_data(wth->random_fh, packet_header.offset_to_frame,
+	    offset, pd, length, err, err_info))
+		return FALSE;
 
 	return TRUE;
 }
@@ -360,9 +355,38 @@ read_packet_header(FILE_T fh, packet_entry_header *packet_header, int *err,
 	}
 	offset += bytes_read;
 
-	/* check the packet's magic number; the magic number is all 8's,
-	   so the byte order doesn't matter */
+	/* swap all multi-byte fields immediately */
+	packet_header->packet_magic = GUINT32_FROM_LE(packet_header->packet_magic);
+	packet_header->network_speed = GUINT32_FROM_LE(packet_header->network_speed);
+	packet_header->captured_size = GUINT16_FROM_LE(packet_header->captured_size);
+	packet_header->network_size = GUINT16_FROM_LE(packet_header->network_size);
+	packet_header->offset_to_frame = GUINT16_FROM_LE(packet_header->offset_to_frame);
+	packet_header->offset_to_next_packet = GUINT16_FROM_LE(packet_header->offset_to_next_packet);
+	packet_header->errors = GUINT16_FROM_LE(packet_header->errors);
+	packet_header->reserved = GUINT16_FROM_LE(packet_header->reserved);
+	packet_header->packet_number = GUINT64_FROM_LE(packet_header->packet_number);
+	packet_header->original_packet_number = GUINT64_FROM_LE(packet_header->original_packet_number);
+	packet_header->nano_seconds_since_2000 = GUINT64_FROM_LE(packet_header->nano_seconds_since_2000);
+
+	/* check the packet's magic number */
 	if (packet_header->packet_magic != observer_packet_magic) {
+
+		/*
+		 * Some files are zero-padded at the end. There is no warning of this
+		 * in the previous packet header information, such as setting
+		 * offset_to_next_packet to zero. So detect this situation by treating
+		 * an all-zero header as a sentinel. Return EOF when it is encountered,
+		 * rather than treat it as a bad record.
+		 */
+		for (i = 0; i < sizeof *packet_header; i++) {
+			if (((guint8*) packet_header)[i] != 0)
+				break;
+		}
+		if (i == sizeof *packet_header) {
+			*err = 0;
+			return 0;	/* EOF */
+		}
+
 		*err = WTAP_ERR_BAD_RECORD;
 		*err_info = g_strdup_printf("Observer: bad record: Invalid magic number 0x%08x",
 		    GUINT32_FROM_LE(packet_header->packet_magic));
@@ -397,9 +421,6 @@ read_packet_header(FILE_T fh, packet_entry_header *packet_header, int *err,
 		}
 		offset += seek_increment;
 	}
-
-	packet_header->offset_to_frame =
-	    GUINT16_FROM_LE(packet_header->offset_to_frame);
 
 	return offset;
 }
@@ -458,7 +479,7 @@ typedef struct {
    an error indication otherwise. */
 int network_instruments_dump_can_write_encap(int encap)
 {
-	/* Per-packet encapsulations aren't supported. */
+	/* per-packet encapsulations aren't supported */
 	if (encap == WTAP_ENCAP_PER_PACKET)
 		return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
 	
@@ -469,7 +490,7 @@ int network_instruments_dump_can_write_encap(int encap)
 }
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
-   failure */
+   failure. */
 gboolean network_instruments_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
 {
 	capture_file_header file_header;

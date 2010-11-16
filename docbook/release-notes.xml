@@ -91,6 +91,12 @@ Wireshark Info
 -->
 
         <listitem><para>
+          File-Open Display Filter is overwritten by Save-As Filename.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3894">Bug
+          3894</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           GTK-ERROR can occur in packets when there are multiple Netbios/SMB headers in a single frame.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5289">Bug
           5289</ulink>)
@@ -121,6 +127,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Network Instruments' trace files sometimes cannot be read with an error message of "Observer: bad record: Invalid magic number".
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5330">Bug
+          5330</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           IO Graph Time of Day times incorrect for filtered data.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5340">Bug
           5340</ulink>)
@@ -142,6 +154,24 @@ Wireshark Info
           IP Timestamp Option: "flag=3" variant (prespecified) not displayed correctly.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5357">Bug
           5357</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          AgentX PDU Header 'hex field highlighting' incorrectly spans extra bytes.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5364">Bug
+          5364</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          AgentX dissector cannot handle null OID in Open-PDU.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5368">Bug
+          5368</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Crash with "Gtk-ERROR **: Byte index 6 is off the end of the line".
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5374">Bug
+          5374</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -169,6 +199,7 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
     <para>
 
+AgentX,
 DIAMETER,
 HTTP,
 IP,
@@ -186,7 +217,7 @@ ZigBee
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-Endace ERF.
+Endace ERF, Network Instruments Observer.
 
     </para>
     </section>

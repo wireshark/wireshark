@@ -356,8 +356,7 @@ static int dissect_object_id(tvbuff_t *tvb, proto_tree *tree, int offset, char f
 	}
 
 	if(!(slen = convert_oid_to_str(&oid[0], n_subid, &str_oid[0], 2048, prefix)))
-		return offset;
-
+		slen = g_snprintf(&str_oid[0], 2048, "(null)");
 
 	if(tree) {
 		item = proto_tree_add_text(tree,tvb,offset,n_subid + 4 ,
@@ -821,7 +820,7 @@ static void dissect_agentx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 			session_id,trans_id,packet_id,payload_len);
 	agentx_tree = proto_item_add_subtree(t_item, ett_agentx);
 
-	pdu_item = proto_tree_add_text(agentx_tree, tvb, 0, 5, "PDU Header: Type[%u], len=%d, sid=%d, tid=%d, packid=%d",
+	pdu_item = proto_tree_add_text(agentx_tree, tvb, 0, 4, "PDU Header: Type[%u], len=%d, sid=%d, tid=%d, packid=%d",
 			(char)type,payload_len,session_id,trans_id,packet_id);
 
 	pdu_hdr_tree = proto_item_add_subtree(pdu_item, ett_pdu_hdr);
