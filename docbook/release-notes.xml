@@ -97,6 +97,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Wireshark crashes with "Gtk-ERROR **: Byte index 6 is off the end of the line" if click on last PDU.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5285">Bug
+          5285</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           GTK-ERROR can occur in packets when there are multiple Netbios/SMB headers in a single frame.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5289">Bug
           5289</ulink>)
@@ -174,6 +180,18 @@ Wireshark Info
           5374</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          ANCP Portmanagment TLV wrong decoded.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5388">Bug
+          5388</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Crash during startup because of Python SyntaxError in wspy_libws.py.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5389">Bug
+          5389</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -200,6 +218,7 @@ There are no new protocols in this release.
     <para>
 
 AgentX,
+ANCP,
 DIAMETER,
 HTTP,
 IP,
@@ -208,6 +227,7 @@ MIME,
 NBNS,
 PROFINET,
 SIP,
+TCP,
 Telnet,
 ZigBee
 
