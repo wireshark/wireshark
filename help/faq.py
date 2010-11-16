@@ -1355,8 +1355,8 @@ on the main system disk (normally <tt>C:</tt>) on Windows 9x/Me/NT 4.0,
 and <tt>\Documents and Settings\</tt><var>your login
 name</var><tt>\Local Settings\Temp</tt> on the main system disk on
 Windows 2000/Windows XP/Windows Server 2003, so the capture file will
-probably be there.  It will have a name beginning with <tt>wireshark</tt>,
-with some mixture of letters and numbers after that.  Please don't send
+probably be there.  It will have a name of the form,
+<tt>wireshark_iface_YYYYmmddHHMMSS_XXXXXX</tt>.  Please don't send
 a trace file greater than 1 MB when compressed; instead, make it
 available via FTP or HTTP, or say it's available but leave it up to a
 developer to ask for it.  If the trace file contains sensitive
