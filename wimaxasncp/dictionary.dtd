@@ -9,6 +9,7 @@
     name    CDATA #REQUIRED
     type    CDATA #REQUIRED
     decoder CDATA #IMPLIED
+    since CDATA #IMPLIED
 >
 
 <!ELEMENT enum EMPTY>

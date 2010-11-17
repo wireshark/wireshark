@@ -134,7 +134,7 @@ wimaxasncp_build_dict_t wimaxasncp_build_dict;
 
 static wimaxasncp_dict_tlv_t wimaxasncp_tlv_not_found =
 {
-    0, "Unknown", NULL, WIMAXASNCP_TLV_UNKNOWN,
+    0, "Unknown", NULL, WIMAXASNCP_TLV_UNKNOWN, 0,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     NULL, NULL, NULL
 };
@@ -176,195 +176,303 @@ static const value_string wimaxasncp_op_id_vals[] =
 #define WIMAXASNCP_FT_QOS                 1
 #define WIMAXASNCP_FT_HO_CONTROL          2
 #define WIMAXASNCP_FT_DATA_PATH_CONTROL   3
-#define WIMAXASNCP_FT_CONTEXT_DELIVERY    4
+#define WIMAXASNCP_FT_CONTEXT_TRANSFER    4
 #define WIMAXASNCP_FT_R3_MOBILITY         5
 #define WIMAXASNCP_FT_PAGING              6
 #define WIMAXASNCP_FT_RRM                 7
 #define WIMAXASNCP_FT_AUTHENTICATION      8
 #define WIMAXASNCP_FT_MS_STATE            9
 #define WIMAXASNCP_FT_REAUTHENTICATION    10
-#define WIMAXASNCP_FT_SESSION             11    /* Nokia recommended value */
+/* since NWG R1 V1.2.0 */
+#define WIMAXASNCP_FT_IM_OPERATIONS       10
+/* since NWG R1 V1.2.1 */
+#define WIMAXASNCP_FT_ACCOUNTING          11
 
 /* ------------------------------------------------------------------------- */
 
-static const value_string wimaxasncp_function_type_vals[] =
+/* struct to hold a value_string tuple, per version */
+typedef struct _ver_value_string
 {
-    { WIMAXASNCP_FT_QOS,               "QoS"},
-    { WIMAXASNCP_FT_HO_CONTROL,        "HO Control"},
-    { WIMAXASNCP_FT_DATA_PATH_CONTROL, "Data Path Control"},
-    { WIMAXASNCP_FT_CONTEXT_DELIVERY,  "Context Delivery"},
-    { WIMAXASNCP_FT_R3_MOBILITY,       "R3 Mobility"},
-    { WIMAXASNCP_FT_PAGING,            "Paging"},
-    { WIMAXASNCP_FT_RRM,               "RRM"},
-    { WIMAXASNCP_FT_AUTHENTICATION,    "Authentication"},
-    { WIMAXASNCP_FT_MS_STATE,          "MS State"},
-    { WIMAXASNCP_FT_REAUTHENTICATION,  "Re-Authentication"},
-    { WIMAXASNCP_FT_SESSION,           "Session"},
-    { 0,    NULL}
+    guint32 since;
+    value_string vs;
+} ver_value_string;
+
+static const ver_value_string wimaxasncp_function_type_vals[] =
+{
+    {0,                          { WIMAXASNCP_FT_QOS,                   "QoS"}},
+    {0,                          { WIMAXASNCP_FT_HO_CONTROL,            "HO Control"}},
+    {0,                          { WIMAXASNCP_FT_DATA_PATH_CONTROL,     "Data Path Control"}},
+    {0,                          { WIMAXASNCP_FT_CONTEXT_TRANSFER,      "Context Transfer"}},
+    {0,                          { WIMAXASNCP_FT_R3_MOBILITY,           "R3 Mobility"}},
+    {0,                          { WIMAXASNCP_FT_PAGING,                "Paging"}},
+    {0,                          { WIMAXASNCP_FT_RRM,                   "RRM"}},
+    {0,                          { WIMAXASNCP_FT_AUTHENTICATION,  "Authentication Relay"}},
+    {0,                          { WIMAXASNCP_FT_MS_STATE,              "MS State"}},
+    {0,                          { WIMAXASNCP_FT_REAUTHENTICATION,     "Re-Authentication"}},
+    {WIMAXASNCP_NWGVER_R10_V120, {WIMAXASNCP_FT_IM_OPERATIONS,          "IM Operations"}},
+    {WIMAXASNCP_NWGVER_R10_V121, { WIMAXASNCP_FT_ACCOUNTING,            "Accounting"}},
+    {0, { 0, NULL}}
 };
 
 /* ------------------------------------------------------------------------- */
 
-static const value_string wimaxasncp_qos_msg_vals[] =
+static const ver_value_string wimaxasncp_qos_msg_vals[] =
 {
-    { 1,  "RR_Req"},
-    { 2,  "RR_Rsp"},
-    { 3,  "RR_Ack"},
-    { 0,   NULL}
+    {0,{ 1,  "RR_Req"}},
+    {0,{ 2,  "RR_Rsp"}},
+    {0,{ 3,  "RR_Ack"}},
+    {0,{ 0,   NULL}}
 };
 
 /* ------------------------------------------------------------------------- */
 
-static const value_string wimaxasncp_ho_control_msg_vals[] =
+static const ver_value_string wimaxasncp_ho_control_msg_vals[] =
 {
-    { 1,  "HO_Req"},
-    { 2,  "HO_Rsp"},
-    { 3,  "HO_Ack"},
-    { 4,  "HO_Cnf"},
-    { 5,  "HO_Complete"},
-    { 6,  "HO_Directive"},
-    { 7,  "HO_Directive_Rsp"},
-    /* TODO: Add others */
-    { 0,   NULL}
+    {0,                          { 1,  "HO_Ack"}},
+    {0,                          { 2,  "HO_Complete"}},
+    {0,                          { 3,  "HO_Cnf"}},
+    {0,                          { 4,  "HO_Req"}},
+    {0,                          { 5,  "HO_Rsp"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 1,  "HO_Req"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 2,  "HO_Rsp"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 3,  "HO_Ack"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 4,  "HO_Cnf"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 5,  "HO_Complete"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 6,  "HO_Directive"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 7,  "HO_Directive_Rsp"}},
+    {0, { 0,   NULL}}
 };
 
 /* ------------------------------------------------------------------------- */
 
-static const value_string wimaxasncp_data_path_control_msg_vals[] =
+static const ver_value_string wimaxasncp_data_path_control_msg_vals[] =
 {
-    { 1,   "Path_Dereg_Req"},
-    { 2,   "Path_Dereg_Rsp"},
-    { 3,   "Path_Dereg_Ack"},
-    { 4,   "Path_Modification_Req"},
-    { 5,   "Path_Modification_Rsp"},
-    { 6,   "Path_Modification_Ack"},
-    { 7,   "Path_Prereg_Req"},
-    { 8,   "Path_Prereg_Rsp"},
-    { 9,   "Path_Prereg_Ack"},
-    { 10,  "Path_Reg_Req"},
-    { 11,  "Path_Reg_Rsp"},
-    { 12,  "Path_Reg_Ack"},
-    { 13,  "IM_Exit_State_Ind"},
-    { 14,  "IM_Exit_State_Ind_Ack"},
-    { 0,   NULL}
+    {0, { 1,   "Path_Dereg_Ack"}},
+    {0, { 2,   "Path_Dereg_Req"}},
+    {0, { 3,   "Path_Dereg_Rsp"}},
+    {0, { 4,   "Path_Modification_Ack"}},
+    {0, { 5,   "Path_Modification_Req"}},
+    {0, { 6,   "Path_Modification_Rsp"}},
+    {0, { 7,   "Path_Prereg_Ack"}},
+    {0, { 8,   "Path_Prereg_Req"}},
+    {0, { 9,   "Path_Prereg_Rsp"}},
+    {0, { 10,  "Path_Reg_Ack"}},
+    {0, { 11,  "Path_Reg_Req"}},
+    {0, { 12,  "Path_Reg_Rsp"}},
+    {0, { 13,  "MS_Attachment_Req"}},
+    {0, { 14,  "MS_Attachment_Rsp"}},
+    {0, { 15,  "MS_Attachment_Ack"}},
+    {0, { 16,  "Key_Change_Directive"}},
+    {0, { 0,   NULL}}
+};
 
+static const ver_value_string wimaxasncp_data_path_control_msg_vals_r1v120[] =
+{
+    {WIMAXASNCP_NWGVER_R10_V120, { 1,   "Path_Dereg_Req"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 2,   "Path_Dereg_Rsp"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 3,   "Path_Dereg_Ack"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 4,   "Path_Modification_Req"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 5,   "Path_Modification_Rsp"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 6,   "Path_Modification_Ack"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 7,   "Path_Prereg_Req"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 8,   "Path_Prereg_Rsp"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 9,   "Path_Prereg_Ack"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 10,  "Path_Reg_Req"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 11,  "Path_Reg_Rsp"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 12,  "Path_Reg_Ack"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 13,  "Obsolete"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 14,  "Obsolete"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 15,  "Obsolete"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 16,  "Obsolete"}},
+    {0, { 0,   NULL}}
 };
 
 /* ------------------------------------------------------------------------- */
 
-static const value_string wimaxasncp_context_delivery_msg_vals[] =
+static const ver_value_string wimaxasncp_context_transfer_msg_vals[] =
 {
-    { 1,  "Context_Req"},
-    { 2,  "Context_Rpt"},
-    { 3,  "Context_Ack"},
-    { 4,  "CMAC_Key_Count_Update"},
-    { 5,  "CMAC_Key_Count_Update_ACK"},
-    { 0,   NULL}
+    {0,                          { 1,  "Context_Rpt"}},
+    {0,                          { 2,  "Context_Req"}},
+    {0,                          { 3,  "Context_Ack"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 1,  "Context_Req"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 2,  "Context_Rpt"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 4,  "CMAC_Key_Count_Update"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 5,  "CMAC_Key_Count_Update_ACK"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 6,  "CMAC_Key_Count_Req"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 7,  "CMAC_Key_Count_Rsp"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 8,  "Prepaid Request"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 9,  "Prepaid Notify"}},
+    {WIMAXASNCP_NWGVER_R10_V121, { 6,  "VOID"}},
+    {WIMAXASNCP_NWGVER_R10_V121, { 7,  "VOID"}},
+    {WIMAXASNCP_NWGVER_R10_V121, { 0,   NULL}}
 };
 
 /* ------------------------------------------------------------------------- */
 
-static const value_string wimaxasncp_r3_mobility_msg_vals[] =
+static const ver_value_string wimaxasncp_r3_mobility_msg_vals[] =
 {
-    { 1,  "Anchor_DPF_HO_Req"},
-    { 2,  "Anchor_DPF_HO_Trigger"},
-    { 3,  "Anchor_DPF_HO_Rsp"},
-    { 4,  "Anchor_DPF_Relocate_Req"},
-    { 5,  "FA_Register_Req"},
-    { 6,  "FA_Register_Rsp"},
-    { 7,  "Anchor_DPF_Relocate_Rsp"},
-    { 8,  "FA_Revoke_Req"},
-    { 9,  "FA_Revoke_Rsp"},
-    { 0,   NULL}
+    {0,                          { 1,  "Anchor_DPF_HO_Req"}},
+    {0,                          { 2,  "Anchor_DPF_HO_Trigger"}},
+    {0,                          { 3,  "Anchor_DPF_HO_Rsp"}},
+    {0,                          { 4,  "Anchor_DPF_Relocate_Req"}},
+    {0,                          { 5,  "FA_Register_Req"}},
+    {0,                          { 6,  "FA_Register_Rsp"}},
+    {0,                          { 7,  "Anchor_DPF_Relocate_Rsp"}},
+    {0,                          { 8,  "FA_Revoke_Req"}},
+    {0,                          { 9,  "FA_Revoke_Rsp"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 5,  "Anchor_DPF_Relocate_Rsp"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 6,  "FA_Register_Req"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 7,  "FA_Register_Rsp"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 10, "Anchor_DPF_Release_Req"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 11, "Relocation_Ready_Req"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 12, "Relocation_Ready_Rsp"}},
+    {0, { 0,   NULL}}
 };
 
 /* ------------------------------------------------------------------------- */
 
-static const value_string wimaxasncp_paging_msg_vals[] =
+static const ver_value_string wimaxasncp_paging_msg_vals[] =
 {
-    { 1,  "Paging_Announce"},
-    { 2,  "Delete_MS_Entry_Req"},
-    { 5,  "Delete_MS_Entry_Rsp"},
-    { 0,   NULL}
+    {0,                          { 1,  "Initiate_Paging_Req"}},
+    {0,                          { 2,  "Initiate_Paging_Rsp"}},
+    {0,                          { 3,  "LU_Cnf"}},
+    {0,                          { 4,  "LU_Req"}},
+    {0,                          { 5,  "LU_Rsp"}},
+    {0,                          { 6,  "Paging_Announce"}},
+    {0,                          { 7,  "CMAC_Key_Count_Req"}},
+    {0,                          { 8,  "CMAC_Key_Count_Rsp"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 1,  "Paging_Announce"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 2,  "Delete_MS_Entry_Req"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 3,  "PC_Relocation_Ind"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 4,  "PC_Relocation_Ack"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 5,  "Obsolete"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 6,  "Obsolete"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 7,  "Obsolete"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 8,  "Obsolete"}},
+    {0, { 0,   NULL}}
 };
 
 /* ------------------------------------------------------------------------- */
 
-static const value_string wimaxasncp_rrm_msg_vals[] =
+static const ver_value_string wimaxasncp_rrm_msg_vals[] =
 {
-    { 1,  "R6 PHY_Parameters_Req"},
-    { 2,  "R6 PHY_Parameters_Rpt"},
-    { 3,  "R4/R6 Spare_Capacity_Req"},
-    { 4,  "R4/R6 Spare_Capacity_Rpt"},
-    { 5,  "R6 Neighbor_BS_Resource_Status_Update"},
-    { 6,  "R4/R6 Radio_Config_Update_Req"},
-    { 7,  "R4/R6 Radio_Config_Update_Rpt"},
-    { 8,  "R4/R6 Radio_Config_Update_Ack"},
-    { 0,   NULL}
+    {0,                          { 1,  "R6 PHY_Parameters_Req"}},
+    {0,                          { 2,  "R6 PHY_Parameters_Rpt"}},
+    {0,                          { 3,  "R4/R6 Spare_Capacity_Req"}},
+    {0,                          { 4,  "R4/R6 Spare_Capacity_Rpt"}},
+    {0,                          { 5,  "R6 Neighbor_BS_Resource_Status_Update"}},
+    {0,                          { 6,  "R4/R6 Radio_Config_Update_Req"}},
+    {0,                          { 7,  "R4/R6 Radio_Config_Update_Rpt"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 8,  "R4/R6 Radio_Config_Update_Ack"}},
+    {0, { 0,   NULL}}
 };
 
 /* ------------------------------------------------------------------------- */
 
-static const value_string wimaxasncp_authentication_msg_vals[] =
+static const ver_value_string wimaxasncp_authentication_msg_vals[] =
 {
-    { 1,  "AR_EAP_Start"},
-    { 2,  "AR_EAP_Transfer"},
-    { 3,  "Bulk_Interim_Update"},
-    { 4,  "Bulk_Interim_Update_Ack"},
-    { 0,   NULL}
+    {0,                          { 1,  "AR_Authenticated_Eap_Start"}},
+    {0,                          { 2,  "AR_Authenticated_EAP_Transfer"}},
+    {0,                          { 3,  "AR_Eap_Start"}},
+    {0,                          { 4,  "AR_EAP_Transfer"}},
+    {0,                          { 5,  "AR_EAP_Complete"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 1,  "AR_EAP_Start"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 2,  "AR_EAP_Transfer"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 3,  "Bulk_Interim_Update"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 4,  "Bulk_Interim_Update_Ack"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 5,  "Obsolete"}},
+    {0, { 0,   NULL}}
 };
 
 /* ------------------------------------------------------------------------- */
 
-static const value_string wimaxasncp_ms_state_msg_vals[] =
+static const ver_value_string wimaxasncp_ms_state_msg_vals[] =
 {
-    { 1,  "MS_PreAttachment_Req"},
-    { 2,  "MS_PreAttachment_Rsp"},
-    { 3,  "MS_PreAttachment_Ack"},
-    { 4,  "MS_Attachment_Req"},
-    { 5,  "MS_Attachment_Rsp"},
-    { 6,  "MS_Attachment_Ack"},
-    { 7,  "Key_Change_Directive"},
-    { 8,  "Key_Change_Cnf"},
-    { 9,  "Key_Change_Ack"},
-    { 0,   NULL}
+    {0,                          { 1,  "IM_Entry_State_Change_Req"}},
+    {0,                          { 2,  "IM_Entry_State_Change_Rsp"}},
+    {0,                          { 3,  "IM_Exit_State_Change_Req"}},
+    {0,                          { 4,  "IM_Exit_State_Change_Rsp"}},
+    {0,                          { 5,  "NW_ReEntry_State_Change_Directive"}},
+    {0,                          { 6,  "MS_PreAttachment_Req"}},
+    {0,                          { 7,  "MS_PreAttachment_Rsp"}},
+    {0,                          { 8,  "MS_PreAttachment_Ack"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 1,  "MS_PreAttachment_Req"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 2,  "MS_PreAttachment_Rsp"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 3,  "MS_PreAttachment_Ack"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 4,  "MS_Attachment_Req"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 5,  "MS_Attachment_Rsp"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 6,  "MS_Attachment_Ack"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 7,  "Key_Change_Directive"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 8,  "Key_Change_Cnf"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 9,  "Key_Change_Ack"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 10, "Relocation_Conplete_Req"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 11, "Relocation_Conplete_Rsp"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 12, "Relocation_Conplete_Ack"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 13, "Relocation_Notify"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 14, "Relocation_Req"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 15, "Relocation_Rsp"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 16, "NetExit_MS_State_Change_Req"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 17, "NetExit_MS_State_Change_Rsp"}},
+    {0, { 0,   NULL}}
 };
 
 /* ------------------------------------------------------------------------- */
 
-static const value_string wimaxasncp_reauthentication_msg_vals[] =
+/* note - function type 10-im_operation, was once used for re-authrntication */
+static const ver_value_string wimaxasncp_im_operations_msg_vals[] =
 {
-/* IM */
-    { 1,  "IM_Entry_State_Change_Req"},
-    { 2,  "IM_Entry_State_Change_Rsp"},
-    { 3,  "IM_Entry_State_Change_Ack"},
-    { 4,  "IM_Exit_State_Change_Req"},
-    { 5,  "IM_Exit_State_Change_Rsp"},
-    { 6,  "Initiate_Paging_Req"},
-    { 7,  "Initiate_Paging_Rsp"},
-    { 8,  "LU_Req"},
-    { 9,  "LU_Rsp"},
-    { 10,  "LU_Cnf"},
-    { 0,   NULL}
+    {0,                          { 1,  "AR_EAP_Start"}},
+    {0,                          { 2,  "Key_Change_Directive"}},
+    {0,                          { 3,  "Key_Change_Cnf"}},
+    {0,                          { 4,  "Relocation_Cnf"}},
+    {0,                          { 5,  "Relocation_Confirm_Ack"}},
+    {0,                          { 6,  "Relocation_Notify"}},
+    {0,                          { 7,  "Relocation_Notify_Ack"}},
+    {0,                          { 8,  "Relocation_Req"}},
+    {0,                          { 9,  "Relocation_Rsp"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 1,  "IM_Entry_State_Change_Req"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 2,  "IM_Entry_State_Change_Rsp"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 3,  "IM_Entry_State_Change_Ack"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 4,  "IM_Exit_State_Change_Req"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 5,  "IM_Exit_State_Change_Rsp"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 6,  "Initiate_Paging_Req"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 7,  "Initiate_Paging_Rsp"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 8,  "LU_Req"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 9,  "LU_Rsp"}},
+    {WIMAXASNCP_NWGVER_R10_V120, { 10, "LU_Cnf"}},
+    {0, { 0,   NULL}}
 };
 
 /* ------------------------------------------------------------------------- */
 
-static const value_string wimaxasncp_session_msg_vals[] =
+static const ver_value_string wimaxasncp_accounting_msg_vals_r1v121[] =
 {
-    { 1,  "Session_Release_Req"},  /* Nokia recommended value */
-    { 2,  "Session_Release_Rsp"},  /* Nokia recommended value */
-    { 3,  "Session_Release_Ack"},  /* Nokia recommended value */
-    { 4,  "Session_Failure_Rpt"},  /* Nokia recommended value */
-    { 5,  "Session_Failure_Rsp"},  /* Nokia recommended value */
-    { 0,   NULL}
+    {WIMAXASNCP_NWGVER_R10_V121, { 1,  "Hot_lining_Req"}},
+    {WIMAXASNCP_NWGVER_R10_V121, { 2,  "Hot_lining_Rsp"}},
+    {0, { 0,   NULL}}
 };
+
+/* ------------------------------------------------------------------------- */
+
+/* supported NWG versions */
+static const enum_val_t wimaxasncp_nwg_versions[] = {
+    { "Release 1.0, Version 1.0.0" , "R1.0 v1.0.0" , WIMAXASNCP_NWGVER_R10_V100  },
+    { "Release 1.0, Version 1.2.0" , "R1.0 v1.2.0" , WIMAXASNCP_NWGVER_R10_V120  },
+    { "Release 1.0, Version 1.2.1" , "R1.0 v1.2.1" , WIMAXASNCP_NWGVER_R10_V121  },
+    { NULL, NULL, 0 }
+};
+
+/* ------------------------------------------------------------------------- */
+
+/* NWG version */
+#define WIMAXASNCP_DEF_NWGVER       WIMAXASNCP_NWGVER_R10_V121
+static guint global_wimaxasncp_nwg_ver = WIMAXASNCP_DEF_NWGVER;
 
 /* ========================================================================= */
 
 typedef struct {
     guint8 function_type;
-    const value_string *vals;
+    const ver_value_string *vals;
 } wimaxasncp_func_msg_t;
 
 /* ------------------------------------------------------------------------ */
@@ -374,14 +482,14 @@ static const wimaxasncp_func_msg_t wimaxasncp_func_to_msg_vals_map[] =
     { WIMAXASNCP_FT_QOS,               wimaxasncp_qos_msg_vals },
     { WIMAXASNCP_FT_HO_CONTROL,        wimaxasncp_ho_control_msg_vals },
     { WIMAXASNCP_FT_DATA_PATH_CONTROL, wimaxasncp_data_path_control_msg_vals },
-    { WIMAXASNCP_FT_CONTEXT_DELIVERY,  wimaxasncp_context_delivery_msg_vals },
+    { WIMAXASNCP_FT_CONTEXT_TRANSFER,  wimaxasncp_context_transfer_msg_vals },
     { WIMAXASNCP_FT_R3_MOBILITY,       wimaxasncp_r3_mobility_msg_vals },
     { WIMAXASNCP_FT_PAGING,            wimaxasncp_paging_msg_vals },
     { WIMAXASNCP_FT_RRM,               wimaxasncp_rrm_msg_vals },
     { WIMAXASNCP_FT_AUTHENTICATION,    wimaxasncp_authentication_msg_vals },
     { WIMAXASNCP_FT_MS_STATE,          wimaxasncp_ms_state_msg_vals },
-    { WIMAXASNCP_FT_REAUTHENTICATION,  wimaxasncp_reauthentication_msg_vals },
-    { WIMAXASNCP_FT_SESSION,           wimaxasncp_session_msg_vals }
+    { WIMAXASNCP_FT_IM_OPERATIONS,     wimaxasncp_im_operations_msg_vals },
+    { WIMAXASNCP_FT_ACCOUNTING,        wimaxasncp_accounting_msg_vals_r1v121 }
 };
 
 /* ========================================================================= */
@@ -389,6 +497,8 @@ static const wimaxasncp_func_msg_t wimaxasncp_func_to_msg_vals_map[] =
 static const wimaxasncp_dict_tlv_t *wimaxasncp_get_tlv_info(
     guint16 type)
 {
+    wimaxasncp_dict_tlv_t *res = NULL;
+
     if (wimaxasncp_dict)
     {
         wimaxasncp_dict_tlv_t *tlv;
@@ -397,17 +507,25 @@ static const wimaxasncp_dict_tlv_t *wimaxasncp_get_tlv_info(
         {
             if (tlv->type == type)
             {
-                return tlv;
+                /* if the TLV is defined for current NWG version */
+                if (tlv->since<= global_wimaxasncp_nwg_ver)
+                {
+                    /* if the current TLV is newer then last found TLV, save it */
+                    if(!res || (tlv->since > res->since))
+                    {
+                        res = tlv;
+                    }
+                }
             }
         }
     }
 
-    if (debug_enabled)
+    if (debug_enabled && !res)
     {
         g_print("fix-me: unknown TLV type: %u\n", type);
     }
 
-    return &wimaxasncp_tlv_not_found;
+    return res? res:&wimaxasncp_tlv_not_found;
 }
 
 /* ========================================================================= */
@@ -440,7 +558,7 @@ static const value_string wimaxasncp_decode_type_vals[] =
   { WIMAXASNCP_TLV_ETHER,               "WIMAXASNCP_TLV_ETHER"},
   { WIMAXASNCP_TLV_ASCII_STRING,        "WIMAXASNCP_TLV_ASCII_STRING"},
   { WIMAXASNCP_TLV_FLAG0,               "WIMAXASNCP_TLV_FLAG0"},
-  { WIMAXASNCP_TLV_BITFLAGS8,           "WIMAXASNCP_TLV_BITFLAGS8"},  
+  { WIMAXASNCP_TLV_BITFLAGS8,           "WIMAXASNCP_TLV_BITFLAGS8"},
   { WIMAXASNCP_TLV_BITFLAGS16,          "WIMAXASNCP_TLV_BITFLAGS16"},
   { WIMAXASNCP_TLV_BITFLAGS32,          "WIMAXASNCP_TLV_BITFLAGS32"},
   { WIMAXASNCP_TLV_ID,                  "WIMAXASNCP_TLV_ID"},
@@ -566,7 +684,7 @@ static void wimaxasncp_proto_tree_add_ether_value(
         tvb, offset, length, p,
         "Value: %s (%s)",
         ether_name, ether_str);
-    
+
     proto_item_append_text(
         tlv_item, " - %s (%s)",
         ether_name, ether_str);
@@ -787,7 +905,7 @@ static void wimaxasncp_dissect_tlv_value(
                     if (value & mask)
                     {
                         const gchar *s;
-			    
+
                         s = wimaxasncp_get_enum_name(tlv_info, value & mask);
 
                         proto_tree_add_uint_format(
@@ -798,9 +916,9 @@ static void wimaxasncp_dissect_tlv_value(
                 }
             }
         }
-  
+
 	return;
-    }    
+    }
     case WIMAXASNCP_TLV_BITFLAGS16:
     {
         if (length != 2)
@@ -959,7 +1077,7 @@ static void wimaxasncp_dissect_tlv_value(
             const gchar *format1;
             const gchar *format2;
             const guint8 *p = tvb_get_ptr(tvb, offset, length);
-            const gchar *s = 
+            const gchar *s =
                 bytestring_to_str(p, MIN(length, max_show_bytes), 0);
 
             if (length <= max_show_bytes)
@@ -1140,7 +1258,7 @@ static void wimaxasncp_dissect_tlv_value(
         {
             const gchar *format;
             const guint8 *p = tvb_get_ptr(tvb, offset, length);
-            const gchar *s = 
+            const gchar *s =
                 bytestring_to_str(p, MIN(length, max_show_bytes), 0);
 
             if (length <= max_show_bytes)
@@ -1151,7 +1269,7 @@ static void wimaxasncp_dissect_tlv_value(
             {
                 format = "Value: %s %s...";
             }
-            
+
             proto_tree_add_bytes_format(
                 tree, tlv_info->hf_value,
                 tvb, offset, length, p,
@@ -1660,7 +1778,7 @@ static void wimaxasncp_dissect_tlv_value(
             const gchar *format1;
             const gchar *format2;
             const guint8 *p = tvb_get_ptr(tvb, offset, length);
-            const gchar *s = 
+            const gchar *s =
                 bytestring_to_str(p, MIN(length, max_show_bytes), 0);
 
             if (length <= max_show_bytes)
@@ -2001,6 +2119,31 @@ static guint dissect_wimaxasncp_backend(
 
 /* ========================================================================= */
 
+
+static const gchar*
+match_ver_value_string(
+    const guint32 val,
+    const ver_value_string* const strings,
+    const guint32 max_ver)
+{
+    const ver_value_string* vvs;
+    const ver_value_string* res = NULL;
+
+    /* loop on the levels, from max to 0 */
+    for(vvs=strings; vvs->vs.strptr; vvs++)
+    {
+        if((vvs->vs.value == val) && (vvs->since <= max_ver))
+        {
+            if(!res || vvs->since > res->since)
+            {
+                res = vvs;
+            }
+        }
+    }
+
+    return res? res->vs.strptr : NULL;
+}
+
 static void register_wimaxasncp_fields(const char*);
 
 
@@ -2022,6 +2165,7 @@ dissect_wimaxasncp(
     guint8 ui8;
 
     guint8 function_type;
+    const gchar *function_type_name;
     proto_item *function_type_item;
     guint16 length;
 
@@ -2181,20 +2325,30 @@ dissect_wimaxasncp(
 
     function_type = tvb_get_guint8(tvb, offset);
 
-    function_type_item = proto_tree_add_item(
-        wimaxasncp_tree, hf_wimaxasncp_function_type,
-        tvb, offset, 1, FALSE);
+    function_type_name = match_ver_value_string(function_type,
+        wimaxasncp_function_type_vals,
+        global_wimaxasncp_nwg_ver);
 
-    /* Add expert item if not matched */
-    if (strcmp(val_to_str(function_type,
-                          wimaxasncp_function_type_vals,
-                          unknown),
-               unknown) == 0)
+    if( function_type_name )
     {
-            expert_add_info_format(pinfo, function_type_item,
-                                   PI_UNDECODED, PI_WARN,
-                                   "Unknown function type (%u)",
-                                   function_type);
+        /* add the item to the tree */
+        function_type_item = proto_tree_add_uint_format(
+            wimaxasncp_tree, hf_wimaxasncp_function_type,
+            tvb, offset, 1, function_type,
+            "%s (%u)", function_type_name, function_type);
+    }
+    else
+    {
+        /* if not matched, add the item and append expert item  */
+        function_type_item = proto_tree_add_uint_format(
+            wimaxasncp_tree, hf_wimaxasncp_function_type,
+            tvb, offset, 1, function_type,
+            "Unknown (%u)", function_type);
+
+        expert_add_info_format(pinfo, function_type_item,
+                               PI_UNDECODED, PI_WARN,
+                               "Unknown function type (%u)",
+                               function_type);
     }
 
     offset += 1;
@@ -2237,7 +2391,11 @@ dissect_wimaxasncp(
      * --------------------------------------------------------------------
      */
 
-    message_name = p ? val_to_str(0x1f & ui8, p->vals, unknown) : unknown;
+    message_name = p ? match_ver_value_string(0x1f & ui8, p->vals, global_wimaxasncp_nwg_ver) : unknown;
+    if(message_name == NULL)
+    {
+        message_name = unknown;
+    }
 
     item = proto_tree_add_uint_format(
         wimaxasncp_tree, hf_wimaxasncp_op_id,
@@ -2326,9 +2484,9 @@ static char *alnumerize(
     char *w = name;  /* write pointer */
     char c;
 
-    for ( ; (c = *r); ++r) 
+    for ( ; (c = *r); ++r)
     {
-        if (isalnum((unsigned char)c) || c == '_' || c == '.') 
+        if (isalnum((unsigned char)c) || c == '_' || c == '.')
         {
             /* These characters are fine - copy them */
             *(w++) = c;
@@ -2369,7 +2527,7 @@ static void add_reg_info(
     int  display,
     const char *blurb)
 {
-    hf_register_info hf = { 
+    hf_register_info hf = {
         hf_ptr, { name, abbrev, type, display, NULL, 0x0, blurb, HFILL } };
 
     g_array_append_val(wimaxasncp_build_dict.hf, hf);
@@ -2474,7 +2632,7 @@ static void add_tlv_reg_info(
         add_reg_info(
             &tlv->hf_value, name, abbrev, FT_STRING, BASE_NONE, blurb);
         break;
-    
+
     case WIMAXASNCP_TLV_BITFLAGS8:
         add_reg_info(
             &tlv->hf_value, name, abbrev, FT_UINT8, BASE_HEX, blurb);
@@ -2584,7 +2742,7 @@ static void add_tlv_reg_info(
         blurb = g_strdup_printf("value component for type=%u", tlv->type);
 
         name = "Protocol";
-        
+
         abbrev = alnumerize(
             g_strdup_printf("wimaxasncp.tlv.%s.value.protocol", tlv->name));
 
@@ -2754,7 +2912,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     "wimaxasncp.function_type",
                     FT_UINT8,
                     BASE_DEC,
-                    VALS(wimaxasncp_function_type_vals),
+                    NULL,
                     0x0,
                     NULL,
                     HFILL
@@ -2793,7 +2951,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     "wimaxasncp.qos_msg",
                     FT_UINT8,
                     BASE_HEX,
-                    VALS(wimaxasncp_qos_msg_vals),
+                    NULL,
                     0x1F,
                     NULL,
                     HFILL
@@ -2806,7 +2964,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     "wimaxasncp.ho_control_msg",
                     FT_UINT8,
                     BASE_HEX,
-                    VALS(wimaxasncp_ho_control_msg_vals),
+                    NULL,
                     0x1F,
                     NULL,
                     HFILL
@@ -2819,7 +2977,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     "wimaxasncp.data_path_control_msg",
                     FT_UINT8,
                     BASE_HEX,
-                    VALS(wimaxasncp_data_path_control_msg_vals),
+                    NULL,
                     0x1F,
                     NULL,
                     HFILL
@@ -2832,7 +2990,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     "wimaxasncp.context_delivery_msg",
                     FT_UINT8,
                     BASE_HEX,
-                    VALS(wimaxasncp_context_delivery_msg_vals),
+                    NULL,
                     0x1F,
                     NULL,
                     HFILL
@@ -2845,7 +3003,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     "wimaxasncp.r3_mobility_msg",
                     FT_UINT8,
                     BASE_HEX,
-                    VALS(wimaxasncp_r3_mobility_msg_vals),
+                    NULL,
                     0x1F,
                     NULL,
                     HFILL
@@ -2858,7 +3016,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     "wimaxasncp.paging_msg",
                     FT_UINT8,
                     BASE_HEX,
-                    VALS(wimaxasncp_paging_msg_vals),
+                    NULL,
                     0x1F,
                     NULL,
                     HFILL
@@ -2871,7 +3029,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     "wimaxasncp.rrm_msg",
                     FT_UINT8,
                     BASE_HEX,
-                    VALS(wimaxasncp_rrm_msg_vals),
+                    NULL,
                     0x1F,
                     NULL,
                     HFILL
@@ -2884,7 +3042,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     "wimaxasncp.authentication_msg",
                     FT_UINT8,
                     BASE_HEX,
-                    VALS(wimaxasncp_authentication_msg_vals),
+                    NULL,
                     0x1F,
                     NULL,
                     HFILL
@@ -2897,7 +3055,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     "wimaxasncp.ms_state_msg",
                     FT_UINT8,
                     BASE_HEX,
-                    VALS(wimaxasncp_ms_state_msg_vals),
+                    NULL,
                     0x1F,
                     NULL,
                     HFILL
@@ -2910,7 +3068,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     "wimaxasncp.reauthentication_msg",
                     FT_UINT8,
                     BASE_HEX,
-                    VALS(wimaxasncp_reauthentication_msg_vals),
+                    NULL,
                     0x1F,
                     NULL,
                     HFILL
@@ -2923,7 +3081,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     "wimaxasncp.session_msg",
                     FT_UINT8,
                     BASE_HEX,
-                    VALS(wimaxasncp_session_msg_vals),
+                    NULL,
                     0x1F,
                     NULL,
                     HFILL
@@ -3058,7 +3216,7 @@ register_wimaxasncp_fields(const char* unused _U_)
                     NULL,
                     HFILL
                 }
-            },		
+            },
             {
                 &hf_wimaxasncp_tlv_value_bitflags16,
                 {
@@ -3122,7 +3280,7 @@ register_wimaxasncp_fields(const char* unused _U_)
             &ett_wimaxasncp,
             &ett_wimaxasncp_flags,
             &ett_wimaxasncp_tlv,
-            &ett_wimaxasncp_tlv_value_bitflags8,	    
+            &ett_wimaxasncp_tlv_value_bitflags8,
             &ett_wimaxasncp_tlv_value_bitflags16,
             &ett_wimaxasncp_tlv_value_bitflags32,
             &ett_wimaxasncp_tlv_protocol_list,
@@ -3145,7 +3303,7 @@ register_wimaxasncp_fields(const char* unused _U_)
         "%s" G_DIR_SEPARATOR_S "wimaxasncp",
         get_datafile_dir());
 
-    wimaxasncp_dict = 
+    wimaxasncp_dict =
         wimaxasncp_dict_scan(dir, "dictionary.xml", debug_parser, &dict_error);
 
     if (dict_error)
@@ -3164,13 +3322,13 @@ register_wimaxasncp_fields(const char* unused _U_)
      * ------------------------------------------------------------------------
      */
 
-    wimaxasncp_build_dict.hf = 
+    wimaxasncp_build_dict.hf =
         g_array_new(FALSE, TRUE, sizeof(hf_register_info));
 
     g_array_append_vals(
         wimaxasncp_build_dict.hf, hf_base, array_length(hf_base));
 
-    wimaxasncp_build_dict.ett = 
+    wimaxasncp_build_dict.ett =
         g_array_new(FALSE, TRUE, sizeof(gint*));
 
     g_array_append_vals(
@@ -3261,7 +3419,7 @@ register_wimaxasncp_fields(const char* unused _U_)
          * used */
     proto_register_field_array(
         proto_wimaxasncp,
-        (hf_register_info*)wimaxasncp_build_dict.hf->data, 
+        (hf_register_info*)wimaxasncp_build_dict.hf->data,
         wimaxasncp_build_dict.hf->len);
 
     proto_register_subtree_array(
@@ -3322,11 +3480,20 @@ proto_register_wimaxasncp(void)
             &debug_enabled);
 
     prefs_register_uint_preference(
-        wimaxasncp_module, 
+        wimaxasncp_module,
         "udp.wimax_port",
         "UDP Port for WiMAX ASN Control Plane Protocol",
         "Set UDP port for WiMAX ASN Control Plane Protocol",
         10, &global_wimaxasncp_udp_port);
+
+    prefs_register_enum_preference(
+        wimaxasncp_module,
+        "nwg_version",
+        "NWG Version",
+        "Version of the NWG that the R6 protocol complies with",
+        &global_wimaxasncp_nwg_ver,
+        wimaxasncp_nwg_versions,
+        FALSE);
 
     proto_register_prefix("wimaxasncp", register_wimaxasncp_fields);
 }

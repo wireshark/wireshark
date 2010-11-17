@@ -172,6 +172,7 @@ code_attr code=\042
 typename_attr type-name=\042
 description_attr description=\042
 decoder_attr decoder=\042
+since_attr since=\042
 
 
 %S LOADING LOADING_COMMENT LOADING_XMLPI ENTITY GET_SYSTEM GET_FILE END_ENTITY
@@ -386,6 +387,7 @@ decoder_attr decoder=\042
 	tlv->name = NULL;
 	tlv->description = NULL;
 	tlv->decoder = 0;
+	tlv->since = 0;
 	tlv->hf_root = -1;
 	tlv->hf_value = -1;
 	tlv->hf_ipv4 = -1;
@@ -412,6 +414,7 @@ decoder_attr decoder=\042
 <TLV_ATTRS>{description_attr}		{ ATTR_STR(tlv->description); }
 <TLV_ATTRS>{type_attr}			{ ATTR_UINT16(tlv->type); }
 <TLV_ATTRS>{decoder_attr}		{ ATTR_DECODER(tlv->decoder); }
+<TLV_ATTRS>{since_attr}			{ ATTR_UINT(tlv->since); }
 <TLV_ATTRS>{stop}			{ BEGIN IN_TLV;	 }
 <TLV_ATTRS>{stop_end}			{ BEGIN IN_DICT; }
 
@@ -482,7 +485,7 @@ static const value_string wimaxasncp_decode_type_vals[] =
   { WIMAXASNCP_TLV_ETHER,               "WIMAXASNCP_TLV_ETHER"},
   { WIMAXASNCP_TLV_ASCII_STRING,        "WIMAXASNCP_TLV_ASCII_STRING"},
   { WIMAXASNCP_TLV_FLAG0,               "WIMAXASNCP_TLV_FLAG0"},
-  { WIMAXASNCP_TLV_BITFLAGS8,           "WIMAXASNCP_TLV_BITFLAGS8"},  
+  { WIMAXASNCP_TLV_BITFLAGS8,           "WIMAXASNCP_TLV_BITFLAGS8"},
   { WIMAXASNCP_TLV_BITFLAGS16,          "WIMAXASNCP_TLV_BITFLAGS16"},
   { WIMAXASNCP_TLV_BITFLAGS32,          "WIMAXASNCP_TLV_BITFLAGS32"},
   { WIMAXASNCP_TLV_ID,                  "WIMAXASNCP_TLV_ID"},
@@ -710,14 +713,15 @@ void wimaxasncp_dict_print(FILE *fh, wimaxasncp_dict_t *d) {
 
 	for (tlv = d->tlvs; tlv; tlv = tlv->next) {
 		wimaxasncp_dict_enum_t *e;
-		fprintf(fh,"TLV: %s[%u] %s[%d] %s\n",
+		fprintf(fh,"TLV: %s[%u] %s[%d] %s (since %u)\n",
 				tlv->name ? tlv->name : "-",
 				tlv->type,
 				val_to_str(tlv->decoder,
 					   wimaxasncp_decode_type_vals,
 					   "Unknown"),
 				tlv->decoder,
-				tlv->description ? tlv->description : "");
+				tlv->description ? tlv->description : "",
+            			tlv->since);
 
 		for (e = tlv->enums; e; e = e->next) {
 			fprintf(fh,"\tEnum: %s[%u]\n",

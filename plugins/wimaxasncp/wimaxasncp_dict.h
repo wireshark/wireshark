@@ -26,6 +26,15 @@
 #define _WIMAXASNCP_DICT_H_
 
 /* -------------------------------------------------------------------------
+ * NWG versions
+ * ------------------------------------------------------------------------- */
+
+#define WIMAXASNCP_NWGVER_R10_V100  0
+#define WIMAXASNCP_NWGVER_R10_V120  1
+#define WIMAXASNCP_NWGVER_R10_V121  2
+#define WIMAXASNCP_NWGVER_NUM       3
+
+/* -------------------------------------------------------------------------
  * decode types
  * ------------------------------------------------------------------------- */
 
@@ -41,7 +50,7 @@ enum
     WIMAXASNCP_TLV_ETHER,
     WIMAXASNCP_TLV_ASCII_STRING,
     WIMAXASNCP_TLV_FLAG0,
-    WIMAXASNCP_TLV_BITFLAGS8,	
+    WIMAXASNCP_TLV_BITFLAGS8,
     WIMAXASNCP_TLV_BITFLAGS16,
     WIMAXASNCP_TLV_BITFLAGS32,
     WIMAXASNCP_TLV_ID,
@@ -67,7 +76,7 @@ enum
 struct _wimaxasncp_dict_namecode_t {
     gchar *name;
     unsigned code;
-    struct _wimaxasncp_dict_namecode_t *next;	
+    struct _wimaxasncp_dict_namecode_t *next;
 };
 
 typedef struct _wimaxasncp_dict_namecode_t wimaxasncp_dict_enum_t;
@@ -77,6 +86,7 @@ typedef struct _wimaxasncp_dict_tlv_t {
     gchar *name;
     gchar *description;
     gint decoder;
+    guint since;
     int hf_root;
     int hf_value;
     int hf_ipv4;
@@ -110,7 +120,7 @@ extern void wimaxasncp_dict_print(
     FILE *fh, wimaxasncp_dict_t *d);
 
 extern wimaxasncp_dict_t *wimaxasncp_dict_scan(
-    const gchar *system_directory, const gchar *filename, int dbg, 
+    const gchar *system_directory, const gchar *filename, int dbg,
     gchar **error);
 
 extern void wimaxasncp_dict_free(
