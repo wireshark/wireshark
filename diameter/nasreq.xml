@@ -87,7 +87,7 @@
 			<enum name="MS-CHAP-1" code="3"/>
 			<enum name="MS-CHAP-2" code="4"/>
 			<enum name="EAP" code="5"/>
-      <enum name="Undefined" code="5"/>
+      <enum name="Undefined" code="6"/>
 			<enum name="None" code="7"/>
 		</avp>
 		<avp name="QoS-Filter-Rule" code="407">
