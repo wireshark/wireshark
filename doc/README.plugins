@@ -55,8 +55,9 @@ with "xxx".
 
 Your plugins/xxx/Makefile.common should only list the main source file(s),
 which exports register_*() and handoff_*(), for your dissector in the
-DISSECTOR_SRC variable, and all other supporting source files in the
-DISSECTOR_SUPPORT_SRC variable.
+DISSECTOR_SRC variable. All other supporting source files should be listed
+in the DISSECTOR_SUPPORT_SRC variable, and this variable added to the
+xxx_la_SOURCES variable in Makefile.am.
 The header files for your dissector, if any, must be listed in the
 DISSECTOR_INCLUDES variable. The DISSECTOR_INCLUDES variable should not
 include moduleinfo.h.
