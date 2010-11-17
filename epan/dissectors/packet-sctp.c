@@ -1,30 +1,6 @@
 /* packet-sctp.c
  * Routines for Stream Control Transmission Protocol dissection
- *
- * It should be compliant to
- * - RFC 2960
- * - RFC 3309
- * - RFC 3758
- * - RFC 4460
- * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-addip-sctp-18.txt
- * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctp-auth-08.txt
- * - http://www.ietf.org/internet-drafts/draft-stewart-sctp-pktdrprep-02.txt
- * - http://www.ietf.org/internet-drafts/draft-stewart-sctpstrrst-01.txt
- * - http://www.ietf.org/internet-drafts/draft-ladha-sctp-nonce-02.txt
- * -  http://www.ietf.org/internet-drafts/draft-tuexen-tsvwg-sctp-sack-immediately-00.txt
- *
  * Copyright 2000-2005 Michael Tuexen <tuexen [AT] fh-muenster.de>
- * Still to do (so stay tuned)
- * - error checking mode
- *   * padding errors
- *   * length errors
- *   * bundling errors
- *   * value errors
- *
- *
- * Reassembly added 2006 by Robin Seggelmann
- * TSN Tracking by Luis E. G. Ontanon (Feb 2007)
- * Copyright 2009, Varun Notibala <nbvarun [AT] gmail.com>
  *
  * $Id$
  *
@@ -46,6 +22,30 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+/*
+ * It should be compliant to
+ * - RFC 2960
+ * - RFC 3309
+ * - RFC 3758
+ * - RFC 4460
+ * - http://tools.ietf.org/html/draft-ietf-tsvwg-addip-sctp-18
+ * - http://tools.ietf.org/html/draft-ietf-tsvwg-sctp-auth-08
+ * - http://tools.ietf.org/html/draft-stewart-sctp-pktdrprep-02
+ * - http://tools.ietf.org/html/draft-stewart-sctpstrrst-01
+ * - http://tools.ietf.org/html/draft-ladha-sctp-nonce-02
+ * - http://tools.ietf.org/html/draft-tuexen-tsvwg-sctp-sack-immediately-00
+ *
+ * Still to do (so stay tuned)
+ * - error checking mode
+ *   * padding errors
+ *   * length errors
+ *   * bundling errors
+ *   * value errors
+ *
+ * Reassembly added 2006 by Robin Seggelmann
+ * TSN Tracking by Luis E. G. Ontanon (Feb 2007)
+ * Copyright 2009, Varun Notibala <nbvarun [AT] gmail.com>
+ */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -63,6 +63,7 @@
 #include <epan/expert.h>
 #include <packet-frame.h>
 #include <epan/crc32.h>
+#include <epan/adler32.h>
 
 #define LT(x, y) ((gint32)((x) - (y)) < 0)
 
@@ -290,6 +291,7 @@ static gboolean enable_ulp_dissection = TRUE;
 #define SCTP_ASCONF_ACK_CHUNK_ID      0x80
 #define SCTP_PKTDROP_CHUNK_ID         0x81
 #define SCTP_STREAM_RESET_CHUNK_ID    0x82
+#define SCTP_PAD_CHUNK_ID             0x84
 #define SCTP_FORWARD_TSN_CHUNK_ID     0xC0
 #define SCTP_ASCONF_CHUNK_ID          0xC1
 #define SCTP_IETF_EXT                 0xFF
@@ -310,19 +312,20 @@ static const value_string chunk_type_values[] = {
   { SCTP_ECNE_CHUNK_ID,              "ECNE" },
   { SCTP_CWR_CHUNK_ID,               "CWR" },
   { SCTP_SHUTDOWN_COMPLETE_CHUNK_ID, "SHUTDOWN_COMPLETE" },
-  { SCTP_STREAM_RESET_CHUNK_ID,      "STREAM_RESET" },
   { SCTP_AUTH_CHUNK_ID,              "AUTH" },
   { SCTP_NR_SACK_CHUNK_ID,           "NR-SACK" },
-  { SCTP_FORWARD_TSN_CHUNK_ID,       "FORWARD_TSN" },
   { SCTP_ASCONF_ACK_CHUNK_ID,        "ASCONF_ACK" },
   { SCTP_PKTDROP_CHUNK_ID,           "PKTDROP" },
+  { SCTP_STREAM_RESET_CHUNK_ID,      "STREAM_RESET" },
+  { SCTP_PAD_CHUNK_ID,               "PAD" },
+  { SCTP_FORWARD_TSN_CHUNK_ID,       "FORWARD_TSN" },
   { SCTP_ASCONF_CHUNK_ID,            "ASCONF" },
   { SCTP_IETF_EXT,                   "IETF_EXTENSION" },
   { 0,                               NULL } };
 
 /*
  * Based on http://www.iana.org/assignments/sctp-parameters
- * as of August 23rd, 2009
+ * as of November 10th, 2010
  */
 static const value_string sctp_payload_proto_id_values[] = {
   { NOT_SPECIFIED_PROTOCOL_ID,           "not specified" },
@@ -356,6 +359,7 @@ static const value_string sctp_payload_proto_id_values[] = {
   { IRCP_PAYLOAD_PROTOCOL_ID,            "IRCP" },
   { LCS_AP_PAYLOAD_PROTOCOL_ID,          "LCS-AP" },
   { MPICH2_PAYLOAD_PROTOCOL_ID,          "MPICH2" },
+  { SABP_PAYLOAD_PROTOCOL_ID,            "SABP" },
   { 0,                                   NULL } };
 
 
@@ -410,63 +414,18 @@ static gboolean use_reassembly             = FALSE;
 
 static struct _sctp_info sctp_info;
 
-/* adler32.c -- compute the Adler-32 checksum of a data stream
- * Copyright (C) 1995-1996 Mark Adler
- * For conditions of distribution and use, see copyright notice in zlib.h
- * available, e.g. from  http://www.cdrom.com/pub/infozip/zlib/
- *
- * It was modified for the use in this dissector.
- */
-
-#define BASE 65521L /* largest prime smaller than 65536      */
-#define NMAX 5540   /* NMAX is the largest n - 12 such that  */
-        /* 255n(n+1)/2 + (n+1)(BASE-1) <= 2^32-1 */
-
-#define DO1(buf,i)  {s1 += buf[i]; s2 += s1;}
-#define DO2(buf,i)  DO1(buf,i); DO1(buf,i+1);
-#define DO4(buf,i)  DO2(buf,i); DO2(buf,i+2);
-#define DO8(buf,i)  DO4(buf,i); DO4(buf,i+4);
-#define DO16(buf)   DO8(buf,0); DO8(buf,8);
-
 static unsigned int
 sctp_adler32(const unsigned char* buf, unsigned int len)
 {
-  unsigned int s1 = 1L;
-  unsigned int s2 = 0L;
-  int k;
+  guint32 result = 1L;
 
-  /* handle the first 8 bytes of the datagram */
-  DO8(buf,0);
-  buf += SOURCE_PORT_LENGTH +
-    DESTINATION_PORT_LENGTH +
-    VERIFICATION_TAG_LENGTH;
-
+  result = update_adler32(result, buf, SOURCE_PORT_LENGTH + DESTINATION_PORT_LENGTH + VERIFICATION_TAG_LENGTH);
   /* handle four 0 bytes as checksum */
-  s2  += CHECKSUM_LENGTH * s1;
-  buf += CHECKSUM_LENGTH;
+  result = update_adler32(result, "\0\0\0\0", 4);
+  result = update_adler32(result, buf+COMMON_HEADER_LENGTH, len-COMMON_HEADER_LENGTH);
 
-  /* now we have 12 bytes handled */
-  len -= COMMON_HEADER_LENGTH;
-
-  /* handle the rest of the datagram */
-  while (len > 0) {
-    k = len < NMAX ? len : NMAX;
-    len -= k;
-    while (k >= 16) {
-      DO16(buf);
-      buf += 16;
-      k -= 16;
-    }
-    if (k != 0) do {
-        s1 += *buf++;
-        s2 += s1;
-      } while (--k);
-    s1 %= BASE;
-    s2 %= BASE;
-  }
-  return (s2 << 16) | s1;
+  return result;
 }
-
 
 static guint32
 sctp_crc32c(const unsigned char* buf, unsigned int len)
@@ -474,12 +433,12 @@ sctp_crc32c(const unsigned char* buf, unsigned int len)
   unsigned int i;
   guint32 crc32 = CRC32C_PRELOAD;
   guint32 result;
-  unsigned char byte0,byte1,byte2,byte3;
 
   for (i = 0; i < SOURCE_PORT_LENGTH + DESTINATION_PORT_LENGTH + VERIFICATION_TAG_LENGTH; i++)
   {
     CRC32C(crc32, buf[i]);
   }
+  /* handle four 0 bytes as checksum */  
   CRC32C(crc32, 0);
   CRC32C(crc32, 0);
   CRC32C(crc32, 0);
@@ -488,14 +447,9 @@ sctp_crc32c(const unsigned char* buf, unsigned int len)
   {
     CRC32C(crc32, buf[i]);
   }
-  result = ~crc32;
+  result = CRC32C_SWAP(crc32);
 
-  byte0 = result & 0xff;
-  byte1 = (result>>8) & 0xff;
-  byte2 = (result>>16) & 0xff;
-  byte3 = (result>>24) & 0xff;
-  crc32 = ((byte0 << 24) | (byte1 << 16) | (byte2 << 8) | byte3);
-  return ( crc32 );
+  return ( ~result );
 }
 
 /*
@@ -614,8 +568,8 @@ get_half_assoc(packet_info *pinfo, guint32 spt, guint32 dpt, guint32 vtag)
     ha->spt = spt;
     ha->dpt = dpt;
     ha->vtag = vtag;
-    ha->tsns = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,"");
-    ha->tsn_acks = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,"");
+    ha->tsns = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "sctp_tsns");
+    ha->tsn_acks = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "sctp_tsn_acks");
     ha->started = FALSE;
     ha->first_tsn= 0;
     ha->cumm_ack= 0;
@@ -752,7 +706,7 @@ sctp_tsn(packet_info *pinfo,  tvbuff_t *tvb, proto_item *tsn_item,
     return;
 
 
-  framenum = pinfo->fd->num;
+  framenum = PINFO_FD_NUM(pinfo);
 
   /*  If we're dissecting for a read filter in the GUI [tshark assigns
    *  frame numbers before running the read filter], don't do the TSN
@@ -784,8 +738,7 @@ sctp_tsn(packet_info *pinfo,  tvbuff_t *tvb, proto_item *tsn_item,
     t->tsn = tsn;
 
     t->first_transmit.framenum = framenum;
-    t->first_transmit.ts.secs = pinfo->fd->abs_ts.secs;
-    t->first_transmit.ts.nsecs = pinfo->fd->abs_ts.nsecs;
+    t->first_transmit.ts = pinfo->fd->abs_ts;
 
     emem_tree_insert32(h->tsns,reltsn,t);
   }
@@ -812,8 +765,7 @@ sctp_tsn(packet_info *pinfo,  tvbuff_t *tvb, proto_item *tsn_item,
        */
       *r = se_alloc0(sizeof(struct _retransmit_t));
       (*r)->framenum = framenum;
-      (*r)->ts.secs = pinfo->fd->abs_ts.secs;
-      (*r)->ts.nsecs = pinfo->fd->abs_ts.nsecs;
+      (*r)->ts = pinfo->fd->abs_ts;
     }
   }
 
@@ -856,7 +808,7 @@ sctp_ack(packet_info *pinfo, tvbuff_t *tvb,  proto_tree *acks_tree,
   if (!h || !h->peer)
     return;
 
-  framenum =  pinfo->fd->num;
+  framenum = PINFO_FD_NUM(pinfo);
 
   /* printf("%.6d ACK: %p->%p [%u] \n",framenum,h,h->peer,reltsn); */
 
@@ -867,8 +819,7 @@ sctp_ack(packet_info *pinfo, tvbuff_t *tvb,  proto_tree *acks_tree,
       sctp_tsn_t *t2;
 
       t->ack.framenum = framenum;
-      t->ack.ts.secs = pinfo->fd->abs_ts.secs;
-      t->ack.ts.nsecs = pinfo->fd->abs_ts.nsecs;
+      t->ack.ts = pinfo->fd->abs_ts;
 
       if (( t2 = emem_tree_lookup32(h->peer->tsn_acks, framenum) )) {
         for(;t2->next;t2 = t2->next)
@@ -903,7 +854,7 @@ sctp_ack_block(packet_info *pinfo, sctp_half_assoc_t *h, tvbuff_t *tvb,
   if ( !h || !h->peer || ! h->peer->started )
     return;
 
-  framenum =  pinfo->fd->num;
+  framenum =  PINFO_FD_NUM(pinfo);
   rel_end = RELTSNACK(tsn_end);
 
   if (tsn_start_ptr) {
@@ -932,7 +883,7 @@ sctp_ack_block(packet_info *pinfo, sctp_half_assoc_t *h, tvbuff_t *tvb,
     return;
   }
 
-  if (pinfo->fd->flags.visited || rel_end < rel_start || rel_end - rel_start > 0xffff0000 ) return;
+  if (PINFO_FD_VISITED(pinfo) || rel_end < rel_start || rel_end - rel_start > 0xffff0000 ) return;
 
   if (! tsn_start_ptr )
     h->peer->cumm_ack = rel_end + 1;

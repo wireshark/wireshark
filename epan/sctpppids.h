@@ -28,7 +28,7 @@
 /*
  * SCTP payload protocol IDs.
  * Based on http://www.iana.org/assignments/sctp-parameters
- * as of October 28th, 2009
+ * as of November 10th, 2010
  */
 #define NOT_SPECIFIED_PROTOCOL_ID        0
 #define IUA_PAYLOAD_PROTOCOL_ID          1
@@ -61,5 +61,7 @@
 #define IRCP_PAYLOAD_PROTOCOL_ID        28
 #define LCS_AP_PAYLOAD_PROTOCOL_ID      29
 #define MPICH2_PAYLOAD_PROTOCOL_ID      30
+#define SABP_PAYLOAD_PROTOCOL_ID        31
+
 #define M2TP_PAYLOAD_PROTOCOL_ID        99    /* s-link */
 #endif /* sctpppids.h */
