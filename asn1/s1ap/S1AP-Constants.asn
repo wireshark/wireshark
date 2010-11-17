@@ -134,7 +134,15 @@ id-HandoverType								ProtocolIE-ID ::= 1
 id-Cause									ProtocolIE-ID ::= 2
 id-SourceID									ProtocolIE-ID ::= 3
 id-TargetID									ProtocolIE-ID ::= 4
+--WS extension
+id-Unknown-5								ProtocolIE-ID ::= 5
+id-Unknown-6								ProtocolIE-ID ::= 6
+id-Unknown-7								ProtocolIE-ID ::= 7
 id-eNB-UE-S1AP-ID							ProtocolIE-ID ::= 8
+--WS extension
+id-Unknown-9								ProtocolIE-ID ::= 9
+id-Unknown-10								ProtocolIE-ID ::= 10
+id-Unknown-11								ProtocolIE-ID ::= 11
 id-E-RABSubjecttoDataForwardingList			ProtocolIE-ID ::= 12
 id-E-RABtoReleaseListHOCmd					ProtocolIE-ID ::= 13
 id-E-RABDataForwardingItem					ProtocolIE-ID ::= 14
@@ -165,8 +173,12 @@ id-E-RABReleaseItem							ProtocolIE-ID ::= 38
 id-E-RABSetupItemBearerSURes				ProtocolIE-ID ::= 39
 id-SecurityContext							ProtocolIE-ID ::= 40
 id-HandoverRestrictionList					ProtocolIE-ID ::= 41
+--WS extension
+id-Unknown-42								ProtocolIE-ID ::= 42
 id-UEPagingID 								ProtocolIE-ID ::= 43
 id-pagingDRX 								ProtocolIE-ID ::= 44
+--WS extension
+id-Unknown-45								ProtocolIE-ID ::= 45
 id-TAIList									ProtocolIE-ID ::= 46
 id-TAIItem									ProtocolIE-ID ::= 47
 id-E-RABFailedToSetupListCtxtSURes			ProtocolIE-ID ::= 48
@@ -175,17 +187,25 @@ id-E-RABSetupItemCtxtSURes					ProtocolIE-ID ::= 50
 id-E-RABSetupListCtxtSURes					ProtocolIE-ID ::= 51
 id-E-RABToBeSetupItemCtxtSUReq				ProtocolIE-ID ::= 52
 id-E-RABToBeSetupListHOReq					ProtocolIE-ID ::= 53
+--WS extension
+id-Unknown-54									ProtocolIE-ID ::= 54
 id-GERANtoLTEHOInformationRes					ProtocolIE-ID ::= 55
+--WS extension
+id-Unknown-56									ProtocolIE-ID ::= 56
 id-UTRANtoLTEHOInformationRes					ProtocolIE-ID ::= 57
 id-CriticalityDiagnostics 						ProtocolIE-ID ::= 58
 id-Global-ENB-ID								ProtocolIE-ID ::= 59
 id-eNBname										ProtocolIE-ID ::= 60
 id-MMEname										ProtocolIE-ID ::= 61
+--WS extension
+id-Unknown-62									ProtocolIE-ID ::= 62
 id-ServedPLMNs									ProtocolIE-ID ::= 63
 id-SupportedTAs									ProtocolIE-ID ::= 64
 id-TimeToWait									ProtocolIE-ID ::= 65
 id-uEaggregateMaximumBitrate					ProtocolIE-ID ::= 66
 id-TAI											ProtocolIE-ID ::= 67
+--WS extension
+id-Unknown-68									ProtocolIE-ID ::= 68
 id-E-RABReleaseListBearerRelComp				ProtocolIE-ID ::= 69
 id-cdma2000PDU									ProtocolIE-ID ::= 70
 id-cdma2000RATType								ProtocolIE-ID ::= 71
@@ -193,11 +213,19 @@ id-cdma2000SectorID								ProtocolIE-ID ::= 72
 id-SecurityKey									ProtocolIE-ID ::= 73
 id-UERadioCapability							ProtocolIE-ID ::= 74
 id-GUMMEI-ID									ProtocolIE-ID ::= 75
+--WS extension
+id-Unknown-76									ProtocolIE-ID ::= 76
+id-Unknown-77									ProtocolIE-ID ::= 77
 id-E-RABInformationListItem						ProtocolIE-ID ::= 78
 id-Direct-Forwarding-Path-Availability			ProtocolIE-ID ::= 79
 id-UEIdentityIndexValue							ProtocolIE-ID ::= 80
+--WS extension
+id-Unknown-81									ProtocolIE-ID ::= 81
+id-Unknown-82									ProtocolIE-ID ::= 82
 id-cdma2000HOStatus								ProtocolIE-ID ::= 83
 id-cdma2000HORequiredIndication					ProtocolIE-ID ::= 84
+--WS extension
+id-Unknown-85									ProtocolIE-ID ::= 85
 id-E-UTRAN-Trace-ID								ProtocolIE-ID ::= 86
 id-RelativeMMECapacity							ProtocolIE-ID ::= 87
 id-SourceMME-UE-S1AP-ID							ProtocolIE-ID ::= 88

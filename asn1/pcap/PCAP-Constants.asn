@@ -109,12 +109,18 @@ id-RequestedDataValue							ProtocolIE-ID ::= 15
 id-RequestedDataValueInformation				ProtocolIE-ID ::= 16
 id-TransactionID								ProtocolIE-ID ::= 17
 id-UE-PositionEstimate							ProtocolIE-ID ::= 18
+-- WS extension
+id-Unknown-19									ProtocolIE-ID ::= 19
 id-CellId-MeasuredResultsSets					ProtocolIE-ID ::= 20
+-- WS extension
+id-Unknown-21									ProtocolIE-ID ::= 21
 id-OTDOA-MeasurementGroup						ProtocolIE-ID ::= 22
 id-AccuracyFulfilmentIndicator					ProtocolIE-ID ::= 23
 id-HorizontalAccuracyCode						ProtocolIE-ID ::= 24
 id-VerticalAccuracyCode							ProtocolIE-ID ::= 25
 id-UTDOA-Group									ProtocolIE-ID ::= 26
+-- WS extension
+id-Unknown-27									ProtocolIE-ID ::= 27
 id-RequestType									ProtocolIE-ID ::= 28
 id-UE-PositioningCapability						ProtocolIE-ID ::= 29
 id-UC-id										ProtocolIE-ID ::= 30
@@ -139,6 +145,10 @@ id-UTRAN-GPS-DriftRate							ProtocolIE-ID ::= 48
 id-OTDOA-AddMeasuredResultsInfo					ProtocolIE-ID ::= 49
 id-GPS-ReferenceLocation						ProtocolIE-ID ::= 50
 id-OTDOA-MeasuredResultsSets					ProtocolIE-ID ::= 51
+-- WS extension
+id-Unknown-52									ProtocolIE-ID ::= 52
+id-Unknown-53									ProtocolIE-ID ::= 53
+id-Unknown-54									ProtocolIE-ID ::= 54
 id-rxTimingDeviation384extInfo					ProtocolIE-ID ::= 55
 id-ExtendedRoundTripTime						ProtocolIE-ID ::= 56
 id-PeriodicPosCalcInfo							ProtocolIE-ID ::= 57
@@ -149,6 +159,8 @@ id-RRCstateChange								ProtocolIE-ID ::= 61
 id-PeriodicTerminationCause						ProtocolIE-ID ::= 62
 id-MeasurementValidity							ProtocolIE-ID ::= 63
 id-roundTripTimeInfoWithType1					ProtocolIE-ID ::= 64
+-- WS extension
+id-Unknown-65									ProtocolIE-ID ::= 65
 id-CellIDPositioning							ProtocolIE-ID ::= 66
 id-AddMeasurementInfo							ProtocolIE-ID ::= 67
 id-Extended-RNC-ID								ProtocolIE-ID ::= 68
@@ -156,7 +168,8 @@ id-GANSS-CommonAssistanceData					ProtocolIE-ID ::= 69
 id-GANSS-GenericAssistanceDataList				ProtocolIE-ID ::= 70
 id-GANSS-MeasuredResultsList					ProtocolIE-ID ::= 71
 id-GANSS-UTRAN-TRU								ProtocolIE-ID ::= 72
-id-GANSSPositioning								ProtocolIE-ID ::= 73 id-GANSS-PositioningDataSet						ProtocolIE-ID ::= 74
+id-GANSSPositioning								ProtocolIE-ID ::= 73 
+id-GANSS-PositioningDataSet						ProtocolIE-ID ::= 74
 id-GNSS-PositioningMethod						ProtocolIE-ID ::= 75
 id-NetworkAssistedGANSSSuport					ProtocolIE-ID ::= 76
 id-TUTRANGANSSMeasurementValueInfo				ProtocolIE-ID ::= 77
@@ -167,7 +180,8 @@ id-extendedTimingAdvanceLCR						ProtocolIE-ID ::= 81
 id-additionalMeasurementInforLCR				ProtocolIE-ID ::= 82
 id-timingAdvanceLCR-R7							ProtocolIE-ID ::= 83
 id-rxTimingDeviationLCR 						ProtocolIE-ID ::= 84
-id-GPSReferenceTimeUncertainty					ProtocolIE-ID ::= 85 id-GANSS-AddIonoModelReq						ProtocolIE-ID ::= 86
+id-GPSReferenceTimeUncertainty					ProtocolIE-ID ::= 85 
+id-GANSS-AddIonoModelReq						ProtocolIE-ID ::= 86
 id-GANSS-EarthOrientParaReq						ProtocolIE-ID ::= 87
 id-GANSS-Additional-Ionospheric-Model			ProtocolIE-ID ::= 88
 id-GANSS-Earth-Orientation-Parameters			ProtocolIE-ID ::= 89

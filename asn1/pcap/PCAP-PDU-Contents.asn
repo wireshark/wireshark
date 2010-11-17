@@ -1,6 +1,6 @@
 -- $Id$
 --
--- 3GPP TS 25.453  V9.1.0 (2010-03)
+-- 3GPP TS 25.453  V9.2.0 (2010-09)
 --
 --9.3.3	PDU Definitions
 -- **************************************************************
@@ -754,3 +754,4 @@ PositionPeriodicTermination-Extensions PCAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 END
+

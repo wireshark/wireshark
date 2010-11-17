@@ -23,6 +23,10 @@ ProtocolIE-ID
 CauseRadioNetwork
 TDD-ChannelisationCode
 SFN-SFN-Drift
+CodePhaseSearchWindow
+TUTRAN-GANSS-DriftRate
+UTRAN-GPS-DriftRate
+ExplicitInformation
 
 #.NO_EMIT
 

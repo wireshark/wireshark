@@ -142,12 +142,15 @@ typedef enum _ProtocolIE_ID_enum {
   id_RequestedDataValueInformation =  16,
   id_TransactionID =  17,
   id_UE_PositionEstimate =  18,
+  id_Unknown_19 =  19,
   id_CellId_MeasuredResultsSets =  20,
+  id_Unknown_21 =  21,
   id_OTDOA_MeasurementGroup =  22,
   id_AccuracyFulfilmentIndicator =  23,
   id_HorizontalAccuracyCode =  24,
   id_VerticalAccuracyCode =  25,
   id_UTDOA_Group =  26,
+  id_Unknown_27 =  27,
   id_RequestType =  28,
   id_UE_PositioningCapability =  29,
   id_UC_id     =  30,
@@ -172,6 +175,9 @@ typedef enum _ProtocolIE_ID_enum {
   id_OTDOA_AddMeasuredResultsInfo =  49,
   id_GPS_ReferenceLocation =  50,
   id_OTDOA_MeasuredResultsSets =  51,
+  id_Unknown_52 =  52,
+  id_Unknown_53 =  53,
+  id_Unknown_54 =  54,
   id_rxTimingDeviation384extInfo =  55,
   id_ExtendedRoundTripTime =  56,
   id_PeriodicPosCalcInfo =  57,
@@ -182,6 +188,7 @@ typedef enum _ProtocolIE_ID_enum {
   id_PeriodicTerminationCause =  62,
   id_MeasurementValidity =  63,
   id_roundTripTimeInfoWithType1 =  64,
+  id_Unknown_65 =  65,
   id_CellIDPositioning =  66,
   id_AddMeasurementInfo =  67,
   id_Extended_RNC_ID =  68,
@@ -1896,12 +1903,15 @@ static const value_string pcap_ProtocolIE_ID_vals[] = {
   { id_RequestedDataValueInformation, "id-RequestedDataValueInformation" },
   { id_TransactionID, "id-TransactionID" },
   { id_UE_PositionEstimate, "id-UE-PositionEstimate" },
+  { id_Unknown_19, "id-Unknown-19" },
   { id_CellId_MeasuredResultsSets, "id-CellId-MeasuredResultsSets" },
+  { id_Unknown_21, "id-Unknown-21" },
   { id_OTDOA_MeasurementGroup, "id-OTDOA-MeasurementGroup" },
   { id_AccuracyFulfilmentIndicator, "id-AccuracyFulfilmentIndicator" },
   { id_HorizontalAccuracyCode, "id-HorizontalAccuracyCode" },
   { id_VerticalAccuracyCode, "id-VerticalAccuracyCode" },
   { id_UTDOA_Group, "id-UTDOA-Group" },
+  { id_Unknown_27, "id-Unknown-27" },
   { id_RequestType, "id-RequestType" },
   { id_UE_PositioningCapability, "id-UE-PositioningCapability" },
   { id_UC_id, "id-UC-id" },
@@ -1926,6 +1936,9 @@ static const value_string pcap_ProtocolIE_ID_vals[] = {
   { id_OTDOA_AddMeasuredResultsInfo, "id-OTDOA-AddMeasuredResultsInfo" },
   { id_GPS_ReferenceLocation, "id-GPS-ReferenceLocation" },
   { id_OTDOA_MeasuredResultsSets, "id-OTDOA-MeasuredResultsSets" },
+  { id_Unknown_52, "id-Unknown-52" },
+  { id_Unknown_53, "id-Unknown-53" },
+  { id_Unknown_54, "id-Unknown-54" },
   { id_rxTimingDeviation384extInfo, "id-rxTimingDeviation384extInfo" },
   { id_ExtendedRoundTripTime, "id-ExtendedRoundTripTime" },
   { id_PeriodicPosCalcInfo, "id-PeriodicPosCalcInfo" },
@@ -1936,6 +1949,7 @@ static const value_string pcap_ProtocolIE_ID_vals[] = {
   { id_PeriodicTerminationCause, "id-PeriodicTerminationCause" },
   { id_MeasurementValidity, "id-MeasurementValidity" },
   { id_roundTripTimeInfoWithType1, "id-roundTripTimeInfoWithType1" },
+  { id_Unknown_65, "id-Unknown-65" },
   { id_CellIDPositioning, "id-CellIDPositioning" },
   { id_AddMeasurementInfo, "id-AddMeasurementInfo" },
   { id_Extended_RNC_ID, "id-Extended-RNC-ID" },
@@ -4030,6 +4044,8 @@ static const value_string pcap_CodePhaseSearchWindow_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext pcap_CodePhaseSearchWindow_vals_ext = VALUE_STRING_EXT_INIT(pcap_CodePhaseSearchWindow_vals);
+
 
 static int
 dissect_pcap_CodePhaseSearchWindow(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -5638,6 +5654,8 @@ static const value_string pcap_TUTRAN_GANSS_DriftRate_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext pcap_TUTRAN_GANSS_DriftRate_vals_ext = VALUE_STRING_EXT_INIT(pcap_TUTRAN_GANSS_DriftRate_vals);
+
 
 static int
 dissect_pcap_TUTRAN_GANSS_DriftRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -6837,6 +6855,8 @@ static const value_string pcap_UTRAN_GPS_DriftRate_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext pcap_UTRAN_GPS_DriftRate_vals_ext = VALUE_STRING_EXT_INIT(pcap_UTRAN_GPS_DriftRate_vals);
+
 
 static int
 dissect_pcap_UTRAN_GPS_DriftRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -7803,6 +7823,8 @@ static const value_string pcap_ExplicitInformation_vals[] = {
   {  11, "ganss-Generic-DataList" },
   { 0, NULL }
 };
+
+static value_string_ext pcap_ExplicitInformation_vals_ext = VALUE_STRING_EXT_INIT(pcap_ExplicitInformation_vals);
 
 static const per_choice_t ExplicitInformation_choice[] = {
   {   0, &hf_pcap_almanacAndSatelliteHealth, ASN1_EXTENSION_ROOT    , dissect_pcap_AlmanacAndSatelliteHealth },
@@ -13522,7 +13544,7 @@ void proto_register_pcap(void) {
         NULL, HFILL }},
     { &hf_pcap_UTRAN_GPS_DriftRate_PDU,
       { "UTRAN-GPS-DriftRate", "pcap.UTRAN_GPS_DriftRate",
-        FT_UINT32, BASE_DEC, VALS(pcap_UTRAN_GPS_DriftRate_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &pcap_UTRAN_GPS_DriftRate_vals_ext, 0,
         NULL, HFILL }},
     { &hf_pcap_GPSReferenceTimeUncertainty_PDU,
       { "GPSReferenceTimeUncertainty", "pcap.GPSReferenceTimeUncertainty",
@@ -14394,7 +14416,7 @@ void proto_register_pcap(void) {
         "INTEGER_0_3", HFILL }},
     { &hf_pcap_codePhaseSearchWindow,
       { "codePhaseSearchWindow", "pcap.codePhaseSearchWindow",
-        FT_UINT32, BASE_DEC, VALS(pcap_CodePhaseSearchWindow_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &pcap_CodePhaseSearchWindow_vals_ext, 0,
         NULL, HFILL }},
     { &hf_pcap_azimuthAndElevation,
       { "azimuthAndElevation", "pcap.azimuthAndElevation",
@@ -15038,7 +15060,7 @@ void proto_register_pcap(void) {
         "UTRAN_GANSSReferenceTimeDL", HFILL }},
     { &hf_pcap_tutran_ganss_driftRate,
       { "tutran-ganss-driftRate", "pcap.tutran_ganss_driftRate",
-        FT_UINT32, BASE_DEC, VALS(pcap_TUTRAN_GANSS_DriftRate_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &pcap_TUTRAN_GANSS_DriftRate_vals_ext, 0,
         NULL, HFILL }},
     { &hf_pcap_gANSS_tod,
       { "gANSS-tod", "pcap.gANSS_tod",
@@ -16362,7 +16384,7 @@ void proto_register_pcap(void) {
         "ExplicitInformationList", HFILL }},
     { &hf_pcap_ExplicitInformationList_item,
       { "ExplicitInformation", "pcap.ExplicitInformation",
-        FT_UINT32, BASE_DEC, VALS(pcap_ExplicitInformation_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &pcap_ExplicitInformation_vals_ext, 0,
         NULL, HFILL }},
     { &hf_pcap_almanacAndSatelliteHealth,
       { "almanacAndSatelliteHealth", "pcap.almanacAndSatelliteHealth",

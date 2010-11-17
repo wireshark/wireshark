@@ -1,6 +1,6 @@
 -- $Id$
 --
--- 3GPP TS 25.453 V9.1.0 (2010-03)
+-- 3GPP TS 25.453 V9.2.0 (2010-09)
 --
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
@@ -1047,7 +1047,8 @@ DGANSS-SignalInformationItem ::= SEQUENCE {
 	...
 }
 
-DGANSS-SignalInformationItem-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {	{ID id-DGNSS-ValidityPeriod	CRITICALITY	ignore	EXTENSION	DGNSS-ValidityPeriod	PRESENCE	OPTIONAL},
+DGANSS-SignalInformationItem-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
+	{ID id-DGNSS-ValidityPeriod	CRITICALITY	ignore	EXTENSION	DGNSS-ValidityPeriod	PRESENCE	optional},
 	...
 }
 
