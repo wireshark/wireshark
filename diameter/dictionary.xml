@@ -775,8 +775,9 @@
 		<avp name="Acct-Output-Octets" code="43" mandatory="may">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<avp name="Accounting-Session-Id" code="44" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
-			<type type-name="UTF8String"/>
+		<avp name="Acct-Session-Id" code="44" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
+			<type type-name="OctetString"/>
+      <!-- See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5411 -->
 		</avp>
 		<avp name="Acct-Authentic" code="45" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Enumerated"/>
@@ -3519,17 +3520,17 @@ Note: The AVP codes from 924 to 999 are reserved for TS 29.061
 		</avp>
 		<avp name="QoS-Class-Identifier" code="1028" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
-			<enum name="None" 			code="0"/>
-			<enum name="Conversational" 			code="1"/>
-			<enum name="Conversational" 			code="2"/>
-			<enum name="Streaming" 	code="3"/>
-			<enum name="Streaming" 		code="4"/>
-			<enum name="Interactive"			code="5"/>
-			<enum name="Interactive" 		code="6"/>
-			<enum name="Interactive" 		code="7"/>
-			<enum name="Interactive" 		code="8"/>
-			<enum name="Background" 		code="9"/>
-			<enum name="OTHER"			code="0xFFFFFFFF"/>
+			<enum name="QCI_1" 	code="1"/>
+			<enum name="QCI_2" 	code="2"/>
+			<enum name="QCI_3" 	code="3"/>
+			<enum name="QCI_4"	code="4"/>
+			<enum name="QCI_5"	code="5"/>
+			<enum name="QCI_6"	code="6"/>
+			<enum name="QCI_7" 	code="7"/>
+			<enum name="QCI_8"	code="8"/>
+			<enum name="QCI_9"	code="9"/>
+      <!-- The values shall be used to indicate standardized characteristics associated with standardized QCI values from
+        3GPP TS 23.203-->
 		</avp>
 		<avp name="QoS-Negotiation" code="1029" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
