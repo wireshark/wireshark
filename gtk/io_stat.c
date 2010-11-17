@@ -2066,21 +2066,21 @@ copy_as_csv_cb(GtkWindow *copy_bt _U_, gpointer user_data)
 	GString         *CSV_str=g_string_new("");
 	io_stat_t       *io = user_data;
 
-	g_string_append(CSV_str, "Interval start");
+	g_string_append(CSV_str, "\"Interval start\"");
 	for(i=0;i<MAX_GRAPHS;i++) {
 		if (io->graphs[i].display) {
-			g_string_append_printf(CSV_str, ",Graph %d", i+1);
+			g_string_append_printf(CSV_str, ",\"Graph %d\"", i+1);
 		}
 	}
 	g_string_append(CSV_str,"\n");
 
 	for(interval=0; interval<io->max_interval; interval+=io->interval) {
 		print_interval_string (string, 15, interval, io, FALSE);
-		g_string_append(CSV_str, string);
+		g_string_append_printf(CSV_str, "\"%s\"", string);
 		for(i=0;i<MAX_GRAPHS;i++) {
 			if (io->graphs[i].display) {
 				val=get_it_value(io, i, interval/io->interval);
-				g_string_append_printf(CSV_str, ",%d", val);
+				g_string_append_printf(CSV_str, ",\"%d\"", val);
 			}
 		}
 		g_string_append(CSV_str,"\n");

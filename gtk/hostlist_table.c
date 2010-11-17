@@ -840,7 +840,7 @@ csv_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
         case PORT_COLUMN:
             gtk_tree_model_get(model, iter, csv->columns_order[i], &table_text, -1);
             if (table_text) {
-                g_string_append(csv->CSV_str, table_text);
+                g_string_append_printf(csv->CSV_str, "\"%s\"", table_text);
                 g_free(table_text);
             }
             break;
@@ -851,12 +851,12 @@ csv_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
         case PKT_BA_COLUMN:
         case BYTES_BA_COLUMN:
             gtk_tree_model_get(model, iter, csv->columns_order[i], &value, -1);
-            g_string_append_printf(csv->CSV_str, "%" G_GINT64_MODIFIER "u", value);
+            g_string_append_printf(csv->CSV_str, "\"%" G_GINT64_MODIFIER "u\"", value);
             break;
         default:
             gtk_tree_model_get(model, iter, csv->columns_order[i], &table_text, -1);
             if (table_text) {
-                g_string_append(csv->CSV_str, table_text);
+                g_string_append_printf(csv->CSV_str, "\"%s\"", table_text);
                 g_free(table_text);
             }
             break;
@@ -894,7 +894,7 @@ copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
             csv.columns_order[csv.nb_cols] = gtk_tree_view_column_get_sort_column_id(column);
             if (csv.nb_cols)
                 g_string_append(csv.CSV_str, ",");
-            g_string_append(csv.CSV_str, gtk_tree_view_column_get_title(column));
+            g_string_append_printf(csv.CSV_str, "\"%s\"", gtk_tree_view_column_get_title(column));
             csv.nb_cols++;
         }
         columns = g_list_next(columns);

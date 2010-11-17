@@ -465,7 +465,7 @@ rtpstream_on_copy_as_csv(GtkWindow *win _U_, gpointer data _U_)
 	for (j=0; j<NUM_COLS-1; j++) {
 		column = gtk_tree_view_get_column(GTK_TREE_VIEW(list), j);
 		title = gtk_tree_view_column_get_title(column);
-		g_string_append(CSV_str, title);
+		g_string_append_printf(CSV_str, "\"%s\"", title);
 		if (j<NUM_COLS-2) g_string_append(CSV_str, ",");
 	}
 	g_string_append(CSV_str,"\n");
@@ -475,7 +475,7 @@ rtpstream_on_copy_as_csv(GtkWindow *win _U_, gpointer data _U_)
 		for (i=0; i<streams_nb; i++) {
 			for (j=0; j<NUM_COLS-1; j++) {
 				gtk_tree_model_get(GTK_TREE_MODEL(list_store), &iter, j, &table_entry, -1);
-				g_string_append(CSV_str,table_entry);
+				g_string_append_printf(CSV_str, "\"%s\"", table_entry);
 				if (j<NUM_COLS-2) g_string_append(CSV_str,",");
 			}
 			g_string_append(CSV_str,"\n");

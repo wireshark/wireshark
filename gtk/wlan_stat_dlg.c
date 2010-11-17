@@ -683,11 +683,11 @@ csv_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
 		if (i == BSSID_COLUMN || i == CHANNEL_COLUMN || i == SSID_COLUMN ||
 		    i == PERCENT_COLUMN || i == PROTECTION_COLUMN) {
 			gtk_tree_model_get(model, iter, i, &table_text, -1);
-			g_string_append(CSV_str, table_text);
+			g_string_append_printf(CSV_str, "\"%s\"", table_text);
                         g_free(table_text);
 		} else {
 			gtk_tree_model_get(model, iter, i, &table_value, -1);
-			g_string_append_printf(CSV_str, "%u", table_value);
+			g_string_append_printf(CSV_str, "\"%u\"", table_value);
 		}
 		if (i != PROTECTION_COLUMN)
 			g_string_append(CSV_str,",");
@@ -708,7 +708,7 @@ wlan_copy_as_csv(GtkWindow *win _U_, gpointer data)
 
 	/* Add the column headers to the CSV data */
 	for (i=0; i<=PROTECTION_COLUMN; i++) {
-		g_string_append(CSV_str, titles[i]);
+		g_string_append_printf(CSV_str, "\"%s\"", titles[i]);
 		if (i != PROTECTION_COLUMN)
 			g_string_append(CSV_str, ",");
 	}

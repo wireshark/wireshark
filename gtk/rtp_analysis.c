@@ -1920,9 +1920,9 @@ static gboolean save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *u
 
 		for(j = 0; j < NUM_COLS; j++) {
 			if (j == 0) {
-				fprintf(fp,"%s",titles[j]);
+				fprintf(fp,"\"%s\"",titles[j]);
 			} else {
-				fprintf(fp,",%s",titles[j]);
+				fprintf(fp,",\"%s\"",titles[j]);
 			}
 		}
 		fprintf(fp,"\n");
@@ -1950,17 +1950,17 @@ static gboolean save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *u
 						    DATE_COLUMN,      &date_str,
 						    LENGTH_COLUMN,    &length,
 					 -1);
-				 fprintf(fp, "%u",    packet);
-				 fprintf(fp, ",%u",   sequence);
-				 fprintf(fp, ",%u",   timestamp);
-				 fprintf(fp, ",%.2f", delta);
-				 fprintf(fp, ",%.2f", jitter);
-				 fprintf(fp, ",%.2f", skew);
-				 fprintf(fp, ",%.2f", ipbw);
-				 fprintf(fp, ",%s",   marker? "SET" : "");
-				 fprintf(fp, ",%s",   status_str);
-				 fprintf(fp, ",%s",   date_str);
-				 fprintf(fp, ",%u",   length);
+				 fprintf(fp, "\"%u\"",    packet);
+				 fprintf(fp, ",\"%u\"",   sequence);
+				 fprintf(fp, ",\"%u\"",   timestamp);
+				 fprintf(fp, ",\"%.2f\"", delta);
+				 fprintf(fp, ",\"%.2f\"", jitter);
+				 fprintf(fp, ",\"%.2f\"", skew);
+				 fprintf(fp, ",\"%.2f\"", ipbw);
+				 fprintf(fp, ",\"%s\"",   marker? "SET" : "");
+				 fprintf(fp, ",\"%s\"",   status_str);
+				 fprintf(fp, ",\"%s\"",   date_str);
+				 fprintf(fp, ",\"%u\"",   length);
 				 fprintf(fp,"\n");
 				 g_free(status_str);
 				 g_free(date_str);
@@ -2008,9 +2008,9 @@ static gboolean save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *u
 		}
 		for(j = 0; j < NUM_COLS; j++) {
 			if (j == 0) {
-				fprintf(fp,"%s",titles[j]);
+				fprintf(fp,"\"%s\"",titles[j]);
 			} else {
-				fprintf(fp,",%s",titles[j]);
+				fprintf(fp,",\"%s\"",titles[j]);
 			}
 		}
 		fprintf(fp,"\n");
@@ -2040,17 +2040,17 @@ static gboolean save_csv_as_ok_cb(GtkWidget *w _U_, gpointer fc /*user_data_t *u
 					 DATE_COLUMN,      &date_str,
 					 LENGTH_COLUMN,    &length,
 					 -1);
-				 fprintf(fp, "%u",    packet);
-				 fprintf(fp, ",%u",   sequence);
-				 fprintf(fp, ",%u",   timestamp);
-				 fprintf(fp, ",%.2f", delta);
-				 fprintf(fp, ",%.2f", jitter);
-				 fprintf(fp, ",%.2f", skew);
-				 fprintf(fp, ",%.2f", ipbw);
-				 fprintf(fp, ",%s",   marker? "SET" : "");
-				 fprintf(fp, ",%s",   status_str);
-				 fprintf(fp, ",%s",   date_str);
-				 fprintf(fp, ",%u",   length);
+				 fprintf(fp, "\"%u\"",    packet);
+				 fprintf(fp, ",\"%u\"",   sequence);
+				 fprintf(fp, ",\"%u\"",   timestamp);
+				 fprintf(fp, ",\"%.2f\"", delta);
+				 fprintf(fp, ",\"%.2f\"", jitter);
+				 fprintf(fp, ",\"%.2f\"", skew);
+				 fprintf(fp, ",\"%.2f\"", ipbw);
+				 fprintf(fp, ",\"%s\"",   marker? "SET" : "");
+				 fprintf(fp, ",\"%s\"",   status_str);
+				 fprintf(fp, ",\"%s\"",   date_str);
+				 fprintf(fp, ",\"%u\"",   length);
 				 fprintf(fp,"\n");
 				 g_free(status_str);
 				 g_free(date_str);
