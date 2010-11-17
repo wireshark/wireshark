@@ -218,6 +218,20 @@ tipc_addr_to_str_buf( const guint8 *data, gchar *buf, int buf_len){
 	g_snprintf(buf,buf_len,"%u.%u.%u",zone,subnetwork,processor);
 }
 
+static void
+ib_addr_to_str_buf( const address *addr, gchar *buf, int buf_len){
+	if (addr->len >= 16) {	/* GID is 128bits */
+		#define PREAMBLE_STR_LEN		(sizeof("GID: ") - 1)
+		g_snprintf(buf,buf_len,"GID: ");
+		if ( 	inet_ntop(AF_INET6, addr->data, buf + PREAMBLE_STR_LEN,
+						  buf_len + PREAMBLE_STR_LEN) == NULL ) /* Returns NULL if no space and does not touch buf */
+			g_snprintf ( buf, buf_len, BUF_TOO_SMALL_ERR ); /* Let the unexpected value alert user */
+	} else {	/* this is a LID (16 bits) */
+		guint16 lid_number = *((guint16*) addr->data);
+		g_snprintf(buf,buf_len,"LID: %u",lid_number);
+	}
+}
+
 /* XXX FIXME
 remove this one later when every call has been converted to ep_address_to_str()
 */
@@ -387,6 +401,9 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
     break;
   case AT_TIPC:
     tipc_addr_to_str_buf(addr->data, buf, buf_len);
+    break;
+  case AT_IB:
+    ib_addr_to_str_buf(addr, buf, buf_len);
     break;
   default:
     g_assert_not_reached();

@@ -33,11 +33,1532 @@
 #include <epan/packet.h>
 #include <epan/proto.h>
 #include <epan/emem.h>
+#include <epan/conversation.h>
 #include <epan/dissectors/packet-frame.h>
 #include <epan/prefs.h>
 #include <epan/etypes.h>
 #include <string.h>
 #include "packet-infiniband.h"
+
+#define PROTO_TAG_INFINIBAND    "Infiniband"
+
+/* Wireshark ID */
+static int proto_infiniband = -1;
+static int proto_infiniband_link = -1;
+
+/* Variables to hold expansion values between packets */
+/* static gint ett_infiniband = -1;                */
+static gint ett_all_headers = -1;
+static gint ett_lrh = -1;
+static gint ett_grh = -1;
+static gint ett_bth = -1;
+static gint ett_rwh = -1;
+static gint ett_rawdata = -1;
+static gint ett_rdeth = -1;
+static gint ett_deth = -1;
+static gint ett_reth = -1;
+static gint ett_atomiceth = -1;
+static gint ett_aeth = -1;
+static gint ett_atomicacketh = -1;
+static gint ett_immdt = -1;
+static gint ett_ieth = -1;
+static gint ett_payload = -1;
+static gint ett_vendor = -1;
+static gint ett_subn_lid_routed = -1;
+static gint ett_subn_directed_route = -1;
+static gint ett_subnadmin = -1;
+static gint ett_mad = -1;
+static gint ett_cm = -1;
+static gint ett_rmpp = -1;
+static gint ett_subm_attribute = -1;
+static gint ett_suba_attribute = -1;
+static gint ett_datadetails = -1;
+static gint ett_noticestraps = -1;
+/* static gint ett_nodedesc = -1;                  */
+/* static gint ett_nodeinfo = -1;                  */
+/* static gint ett_switchinfo = -1;                */
+/* static gint ett_guidinfo = -1;                  */
+/* static gint ett_portinfo = -1;                  */
+static gint ett_portinfo_capmask = -1;
+static gint ett_pkeytable = -1;
+static gint ett_sltovlmapping = -1;
+static gint ett_vlarbitrationtable = -1;
+static gint ett_linearforwardingtable = -1;
+static gint ett_randomforwardingtable = -1;
+static gint ett_multicastforwardingtable = -1;
+static gint ett_sminfo = -1;
+static gint ett_vendordiag = -1;
+static gint ett_ledinfo = -1;
+static gint ett_linkspeedwidthpairs = -1;
+static gint ett_informinfo = -1;
+static gint ett_linkrecord = -1;
+static gint ett_servicerecord = -1;
+static gint ett_pathrecord = -1;
+static gint ett_mcmemberrecord = -1;
+static gint ett_tracerecord = -1;
+static gint ett_multipathrecord = -1;
+static gint ett_serviceassocrecord = -1;
+static gint ett_perfclass = -1;
+static gint ett_eoib = -1;
+static gint ett_link = -1;
+
+/* Global ref to highest level tree should we find other protocols encapsulated in IB */
+static proto_tree *top_tree = NULL;
+
+/* Dissector Declarations */
+static dissector_handle_t ipv6_handle;
+static dissector_handle_t data_handle;
+static dissector_handle_t eth_handle;
+static dissector_table_t ethertype_dissector_table;
+
+/* MAD_Data
+* Structure to hold information from the common MAD header.
+* This is necessary because the MAD header contains information which significantly changes the dissection algorithm. */
+typedef struct {
+    guint8 managementClass;
+    guint8 classVersion;
+    guint8 method;
+    guint8 status;
+    guint16 classSpecific;
+    guint64 transactionID;
+    guint16 attributeID;
+    guint32 attributeModifier;
+    char data[232];
+} MAD_Data;
+
+/* Forward-declarations */
+
+static void dissect_roce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean starts_with_grh);
+static void dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static gint32 find_next_header_sequence(guint32 OpCode);
+static gboolean contains(guint32 value, guint32* arr, int length);
+static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo, gboolean starts_with_grh);
+
+/* Parsing Methods for specific IB headers. */
+
+static void parse_VENDOR(proto_tree *, tvbuff_t *, gint *);
+static void parse_PAYLOAD(proto_tree *, packet_info *, tvbuff_t *, gint *, gint length);
+static void parse_IETH(proto_tree *, tvbuff_t *, gint *);
+static void parse_IMMDT(proto_tree *, tvbuff_t *, gint *offset);
+static void parse_ATOMICACKETH(proto_tree *, tvbuff_t *, gint *offset);
+static void parse_AETH(proto_tree *, tvbuff_t *, gint *offset);
+static void parse_ATOMICETH(proto_tree *, tvbuff_t *, gint *offset);
+static void parse_RETH(proto_tree *, tvbuff_t *, gint *offset);
+static void parse_DETH(proto_tree *, packet_info *, tvbuff_t *, gint *offset);
+static void parse_RDETH(proto_tree *, tvbuff_t *, gint *offset);
+static void parse_IPvSix(proto_tree *, tvbuff_t *, gint *offset, packet_info *);
+static void parse_RWH(proto_tree *, tvbuff_t *, gint *offset, packet_info *);
+static gboolean parse_EoIB(proto_tree *, tvbuff_t *, gint offset, packet_info *);
+
+static void parse_SUBN_LID_ROUTED(proto_tree *, packet_info *, tvbuff_t *, gint *offset);
+static void parse_SUBN_DIRECTED_ROUTE(proto_tree *, packet_info *, tvbuff_t *, gint *offset);
+static void parse_SUBNADMN(proto_tree *, packet_info *, tvbuff_t *, gint *offset);
+static void parse_PERF(proto_tree *, tvbuff_t *, packet_info *, gint *offset);
+static void parse_BM(proto_tree *, tvbuff_t *, gint *offset);
+static void parse_DEV_MGT(proto_tree *, tvbuff_t *, gint *offset);
+static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset);
+static void parse_SNMP(proto_tree *, tvbuff_t *, gint *offset);
+static void parse_VENDOR_MANAGEMENT(proto_tree *, tvbuff_t *, gint *offset);
+static void parse_APPLICATION_MANAGEMENT(proto_tree *, tvbuff_t *, gint *offset);
+static void parse_RESERVED_MANAGEMENT(proto_tree *, tvbuff_t *, gint *offset);
+
+static gboolean parse_MAD_Common(proto_tree*, tvbuff_t*, gint *offset, MAD_Data*);
+static gboolean parse_RMPP(proto_tree* , tvbuff_t* , gint *offset);
+static void label_SUBM_Method(proto_item*, MAD_Data*, packet_info*);
+static void label_SUBM_Attribute(proto_item*, MAD_Data*, packet_info*);
+static void label_SUBA_Method(proto_item*, MAD_Data*, packet_info*);
+static void label_SUBA_Attribute(proto_item*, MAD_Data*, packet_info*);
+
+/* Class Attribute Parsing Routines */
+static gboolean parse_SUBM_Attribute(proto_tree*, tvbuff_t*, gint *offset, MAD_Data*);
+static gboolean parse_SUBA_Attribute(proto_tree*, tvbuff_t*, gint *offset, MAD_Data*);
+
+/* These methods parse individual attributes
+* Naming convention FunctionHandle = "parse_" + [Attribute Name];
+* Where [Attribute Name] is the attribute identifier from chapter 14 of the IB Specification
+* Subnet Management */
+static void parse_NoticesAndTraps(proto_tree*, tvbuff_t*, gint *offset);
+static void parse_NodeDescription(proto_tree*, tvbuff_t*, gint *offset);
+static void parse_NodeInfo(proto_tree*, tvbuff_t*, gint *offset);
+static void parse_SwitchInfo(proto_tree*, tvbuff_t*, gint *offset);
+static void parse_GUIDInfo(proto_tree*, tvbuff_t*, gint *offset);
+static void parse_PortInfo(proto_tree*, tvbuff_t*, gint *offset);
+static void parse_P_KeyTable(proto_tree*, tvbuff_t*, gint *offset);
+static void parse_SLtoVLMappingTable(proto_tree*, tvbuff_t*, gint *offset);
+static void parse_VLArbitrationTable(proto_tree*, tvbuff_t*, gint *offset);
+static void parse_LinearForwardingTable(proto_tree*, tvbuff_t*, gint *offset);
+static void parse_RandomForwardingTable(proto_tree*, tvbuff_t*, gint *offset);
+static void parse_MulticastForwardingTable(proto_tree*, tvbuff_t*, gint *offset);
+static void parse_SMInfo(proto_tree*, tvbuff_t*, gint *offset);
+static void parse_VendorDiag(proto_tree*, tvbuff_t*, gint *offset);
+static void parse_LedInfo(proto_tree*, tvbuff_t*, gint *offset);
+static void parse_LinkSpeedWidthPairsTable(proto_tree*, tvbuff_t*, gint *offset);
+
+/* These methods parse individual attributes for specific MAD management classes.
+* Naming convention FunctionHandle = "parse_" + [Management Class] + "_" + [Attribute Name];
+* Where [Management Class] is the shorthand name for the management class as defined
+* in the MAD Management Classes section below in this file, and [Attribute Name] is the
+* attribute identifier from the corresponding chapter of the IB Specification */
+static void parse_PERF_PortCounters(proto_tree* parentTree, tvbuff_t* tvb, packet_info *pinfo, gint *offset);
+static void parse_PERF_PortCountersExtended(proto_tree* parentTree, tvbuff_t* tvb, packet_info *pinfo, gint *offset);
+
+/* Subnet Administration */
+static void parse_InformInfo(proto_tree*, tvbuff_t*, gint *offset);
+static void parse_LinkRecord(proto_tree*, tvbuff_t*, gint *offset);
+static void parse_ServiceRecord(proto_tree*, tvbuff_t*, gint *offset);
+static void parse_PathRecord(proto_tree*, tvbuff_t*, gint *offset);
+static void parse_MCMemberRecord(proto_tree*, tvbuff_t*, gint *offset);
+static void parse_TraceRecord(proto_tree*, tvbuff_t*, gint *offset);
+static void parse_MultiPathRecord(proto_tree*, tvbuff_t*, gint *offset);
+static void parse_ServiceAssociationRecord(proto_tree*, tvbuff_t*, gint *offset);
+
+/* Subnet Administration */
+static void parse_RID(proto_tree*, tvbuff_t*, gint *offset, MAD_Data*);
+
+/* SM Methods */
+static const value_string SUBM_Methods[] = {
+    { 0x01, "SubnGet("},
+    { 0x02, "SubnSet("},
+    { 0x81, "SubnGetResp("},
+    { 0x05, "SubnTrap("},
+    { 0x07, "SubnTrapResp("},
+    { 0, NULL}
+};
+/* SM Attributes */
+static const value_string SUBM_Attributes[] = {
+    { 0x0001, "Attribute (ClassPortInfo)"},
+    { 0x0002, "Attribute (Notice)"},
+    { 0x0003, "Attribute (InformInfo)"},
+    { 0x0010, "Attribute (NodeDescription)"},
+    { 0x0011, "Attribute (NodeInfo)"},
+    { 0x0012, "Attribute (SwitchInfo)"},
+    { 0x0014, "Attribute (GUIDInfo)"},
+    { 0x0015, "Attribute (PortInfo)"},
+    { 0x0016, "Attribute (P_KeyTable)"},
+    { 0x0017, "Attribute (SLtoVLMapptingTable)"},
+    { 0x0018, "Attribute (VLArbitrationTable)"},
+    { 0x0019, "Attribute (LinearForwardingTable)"},
+    { 0x001A, "Attribute (RandomForwardingTable)"},
+    { 0x001B, "Attribute (MulticastForwardingTable)"},
+    { 0x001C, "Attribute (LinkSpeedWidthPairsTable)"},
+    { 0x0020, "Attribute (SMInfo)"},
+    { 0x0030, "Attribute (VendorDiag)"},
+    { 0x0031, "Attribute (LedInfo)"},
+    { 0, NULL}
+};
+
+/* SA Methods */
+static const value_string SUBA_Methods[] = {
+    { 0x01, "SubnAdmGet("},
+    { 0x81, "SubnAdmGetResp("},
+    { 0x02, "SubnAdmSet("},
+    { 0x06, "SubnAdmReport("},
+    { 0x86, "SubnAdmReportResp("},
+    { 0x12, "SubnAdmGetTable("},
+    { 0x92, "SubnAdmGetTableResp("},
+    { 0x13, "SubnAdmGetTraceTable("},
+    { 0x14, "SubnAdmGetMulti("},
+    { 0x94, "SubnAdmGetMultiResp("},
+    { 0x15, "SubnAdmDelete("},
+    { 0x95, "SubnAdmDeleteResp("},
+    { 0, NULL}
+};
+/* SA Attributes */
+static const value_string SUBA_Attributes[] = {
+    { 0x0001, "Attribute (ClassPortInfo)"},
+    { 0x0002, "Attribute (Notice)"},
+    { 0x0003, "Attribute (InformInfo)"},
+    { 0x0011, "Attribute (NodeRecord)"},
+    { 0x0012, "Attribute (PortInfoRecord)"},
+    { 0x0013, "Attribute (SLtoVLMappingTableRecord)"},
+    { 0x0014, "Attribute (SwitchInfoRecord)"},
+    { 0x0015, "Attribute (LinearForwardingTableRecord)"},
+    { 0x0016, "Attribute (RandomForwardingTableRecord)"},
+    { 0x0017, "Attribute (MulticastForwardingTableRecord)"},
+    { 0x0018, "Attribute (SMInfoRecord)"},
+    { 0x0019, "Attribute (LinkSpeedWidthPairsTableRecord)"},
+    { 0x00F3, "Attribute (InformInfoRecord)"},
+    { 0x0020, "Attribute (LinkRecord)"},
+    { 0x0030, "Attribute (GuidInfoRecord)"},
+    { 0x0031, "Attribute (ServiceRecord)"},
+    { 0x0033, "Attribute (P_KeyTableRecord)"},
+    { 0x0035, "Attribute (PathRecord)"},
+    { 0x0036, "Attribute (VLArbitrationTableRecord)"},
+    { 0x0038, "Attribute (MCMembersRecord)"},
+    { 0x0039, "Attribute (TraceRecord)"},
+    { 0x003A, "Attribute (MultiPathRecord)"},
+    { 0x003B, "Attribute (ServiceAssociationRecord)"},
+    { 0, NULL}
+};
+
+/* CM Attributes */
+static const value_string CM_Attributes[] = {
+    { 0x0001, "ClassPortInfo"},
+    { 0x0010, "ConnectRequest"},
+    { 0x0011, "MsgRcptAck"},
+    { 0x0012, "ConnectReject"},
+    { 0x0013, "ConnectReply"},
+    { 0x0014, "ReadyToUse"},
+    { 0x0015, "DisconnectRequest"},
+    { 0x0016, "DisconnectReply"},
+    { 0x0017, "ServiceIDResReq"},
+    { 0x0018, "ServiceIDResReqResp"},
+    { 0x0019, "LoadAlternatePath"},
+    { 0x001A, "AlternatePathResponse"},
+    { 0, NULL}
+};
+
+
+/* RMPP Types */
+#define RMPP_ILLEGAL 0
+#define RMPP_DATA   1
+#define RMPP_ACK    2
+#define RMPP_STOP   3
+#define RMPP_ABORT  4
+
+static const value_string RMPP_Packet_Types[] = {
+    { RMPP_ILLEGAL, " Illegal RMPP Type (0)! " },
+    { RMPP_DATA, "RMPP (DATA)" },
+    { RMPP_ACK, "RMPP (ACK)" },
+    { RMPP_STOP, "RMPP (STOP)" },
+    { RMPP_ABORT, "RMPP (ABORT)" },
+    { 0, NULL}
+};
+
+static const value_string RMPP_Flags[] = {
+    { 3, " (Transmission Sequence - First Packet)"},
+    { 5, " (Transmission Sequence - Last Packet)"},
+    { 1, " (Transmission Sequence) " },
+    { 0, NULL}
+};
+
+static const value_string RMPP_Status[]= {
+    { 0, " (Normal)"},
+    { 1, " (Resources Exhausted)"},
+    { 118, " (Total Time Too Long)"},
+    { 119, " (Inconsistent Last and PayloadLength)"},
+    { 120, " (Inconsistent First and Segment Number)"},
+    { 121, " (Bad RMPPType)"},
+    { 122, " (NewWindowLast Too Small)"},
+    { 123, " (SegmentNumber Too Big)"},
+    { 124, " (Illegal Status)"},
+    { 125, " (Unsupported Version)"},
+    { 126, " (Too Many Retries)"},
+    { 127, " (Unspecified - Unknown Error Code on ABORT)"},
+    { 0, NULL}
+};
+
+static const value_string DiagCode[]= {
+    {0x0000, "Function Ready"},
+    {0x0001, "Performing Self Test"},
+    {0x0002, "Initializing"},
+    {0x0003, "Soft Error - Function has non-fatal error"},
+    {0x0004, "Hard Error - Function has fatal error"},
+    { 0, NULL}
+};
+static const value_string LinkWidthEnabled[]= {
+    {0x0000, "No State Change"},
+    {0x0001, "1x"},
+    {0x0002, "4x"},
+    {0x0003, "1x or 4x"},
+    {0x0004, "8x"},
+    {0x0005, "1x or 8x"},
+    {0x0006, "4x or 8x"},
+    {0x0007, "1x or 4x or 8x"},
+    {0x0008, "12x"},
+    {0x0009, "1x or 12x"},
+    {0x000A, "4x or 12x"},
+    {0x000B, "1x or 4x or 12x"},
+    {0x000C, "8x or 12x"},
+    {0x000D, "1x or 8x or 12x"},
+    {0x000E, "4x or 8x or 12x"},
+    {0x000E, "1x or 4x or 8x or 12x"},
+    {0x00FF, "Set to LinkWidthSupported Value - Response contains actual LinkWidthSupported"},
+    { 0, NULL}
+};
+
+static const value_string LinkWidthSupported[]= {
+    {0x0001, "1x"},
+    {0x0003, "1x or 4x"},
+    {0x0007, "1x or 4x or 8x"},
+    {0x000B, "1x or 4x or 12x"},
+    {0x000F, "1x or 4x or 8x or 12x"},
+    { 0, NULL}
+};
+static const value_string LinkWidthActive[]= {
+    {0x0001, "1x"},
+    {0x0002, "4x"},
+    {0x0004, "8x"},
+    {0x0008, "12x"},
+    { 0, NULL}
+};
+static const value_string LinkSpeedSupported[]= {
+    {0x0001, "2.5 Gbps"},
+    {0x0003, "2.5 or 5.0 Gbps"},
+    {0x0005, "2.5 or 10.0 Gbps"},
+    {0x0007, "2.5 or 5.0 or 10.0 Gbps"},
+    { 0, NULL}
+};
+static const value_string PortState[]= {
+    {0x0000, "No State Change"},
+    {0x0001, "Down (includes failed links)"},
+    {0x0002, "Initialized"},
+    {0x0003, "Armed"},
+    {0x0004, "Active"},
+    { 0, NULL}
+};
+static const value_string PortPhysicalState[]= {
+    {0x0000, "No State Change"},
+    {0x0001, "Sleep"},
+    {0x0002, "Polling"},
+    {0x0003, "Disabled"},
+    {0x0004, "PortConfigurationTraining"},
+    {0x0005, "LinkUp"},
+    {0x0006, "LinkErrorRecovery"},
+    {0x0007, "Phy Test"},
+    { 0, NULL}
+};
+static const value_string LinkDownDefaultState[]= {
+    {0x0000, "No State Change"},
+    {0x0001, "Sleep"},
+    {0x0002, "Polling"},
+    { 0, NULL}
+};
+static const value_string LinkSpeedActive[]= {
+    {0x0001, "2.5 Gbps"},
+    {0x0002, "5.0 Gbps"},
+    {0x0004, "10.0 Gbps"},
+    { 0, NULL}
+};
+static const value_string LinkSpeedEnabled[]= {
+    {0x0000, "No State Change"},
+    {0x0001, "2.5 Gbps"},
+    {0x0003, "2.5 or 5.0 Gbps"},
+    {0x0005, "2.5 or 10.0 Gbps"},
+    {0x0007, "2.5 or 5.0 or 10.0 Gbps"},
+    {0x000F, "Set to LinkSpeedSupported value - response contains actual LinkSpeedSupported"},
+    { 0, NULL}
+};
+static const value_string NeighborMTU[]= {
+    {0x0001, "256"},
+    {0x0002, "512"},
+    {0x0003, "1024"},
+    {0x0004, "2048"},
+    {0x0005, "4096"},
+    { 0, NULL}
+};
+static const value_string VLCap[]= {
+    {0x0001, "VL0"},
+    {0x0002, "VL0, VL1"},
+    {0x0003, "VL0 - VL3"},
+    {0x0004, "VL0 - VL7"},
+    {0x0005, "VL0 - VL14"},
+    { 0, NULL}
+};
+static const value_string MTUCap[]= {
+    {0x0001, "256"},
+    {0x0002, "512"},
+    {0x0003, "1024"},
+    {0x0004, "2048"},
+    {0x0005, "4096"},
+    { 0, NULL}
+};
+static const value_string OperationalVLs[]= {
+    {0x0000, "No State Change"},
+    {0x0001, "VL0"},
+    {0x0002, "VL0, VL1"},
+    {0x0003, "VL0 - VL3"},
+    {0x0004, "VL0 - VL7"},
+    {0x0005, "VL0 - VL14"},
+    { 0, NULL}
+};
+
+/* Local Route Header (LRH) */
+static int hf_infiniband_LRH = -1;
+static int hf_infiniband_virtual_lane = -1;
+static int hf_infiniband_link_version = -1;
+static int hf_infiniband_service_level = -1;
+static int hf_infiniband_reserved2 = -1;
+static int hf_infiniband_link_next_header = -1;
+static int hf_infiniband_destination_local_id = -1;
+static int hf_infiniband_reserved5 = -1;
+static int hf_infiniband_packet_length = -1;
+static int hf_infiniband_source_local_id = -1;
+/* Global Route Header (GRH) */
+static int hf_infiniband_GRH = -1;
+static int hf_infiniband_ip_version = -1;
+static int hf_infiniband_traffic_class = -1;
+static int hf_infiniband_flow_label = -1;
+static int hf_infiniband_payload_length = -1;
+static int hf_infiniband_next_header = -1;
+static int hf_infiniband_hop_limit = -1;
+static int hf_infiniband_source_gid = -1;
+static int hf_infiniband_destination_gid = -1;
+/* Base Transport Header (BTH) */
+static int hf_infiniband_BTH = -1;
+static int hf_infiniband_opcode = -1;
+static int hf_infiniband_solicited_event = -1;
+static int hf_infiniband_migreq = -1;
+static int hf_infiniband_pad_count = -1;
+static int hf_infiniband_transport_header_version = -1;
+static int hf_infiniband_partition_key = -1;
+static int hf_infiniband_reserved8 = -1;
+static int hf_infiniband_destination_qp = -1;
+static int hf_infiniband_acknowledge_request = -1;
+static int hf_infiniband_reserved7 = -1;
+static int hf_infiniband_packet_sequence_number = -1;
+/* Raw Header (RWH) */
+static int hf_infiniband_RWH = -1;
+static int hf_infiniband_reserved16_RWH = -1;
+static int hf_infiniband_etype = -1;
+/* Reliable Datagram Extended Transport Header (RDETH) */
+static int hf_infiniband_RDETH = -1;
+static int hf_infiniband_reserved8_RDETH = -1;
+static int hf_infiniband_ee_context = -1;
+/* Datagram Extended Transport Header (DETH) */
+static int hf_infiniband_DETH = -1;
+static int hf_infiniband_queue_key = -1;
+static int hf_infiniband_reserved8_DETH = -1;
+static int hf_infiniband_source_qp = -1;
+/* RDMA Extended Transport Header (RETH) */
+static int hf_infiniband_RETH = -1;
+static int hf_infiniband_virtual_address = -1;
+static int hf_infiniband_remote_key = -1;
+static int hf_infiniband_dma_length = -1;
+/* Atomic Extended Transport Header (AtomicETH) */
+static int hf_infiniband_AtomicETH = -1;
+/* static int hf_infiniband_virtual_address_AtomicETH = -1;                  */
+/* static int hf_infiniband_remote_key_AtomicETH = -1;                       */
+static int hf_infiniband_swap_or_add_data = -1;
+static int hf_infiniband_compare_data = -1;
+/* ACK Extended Transport Header (AETH) */
+static int hf_infiniband_AETH = -1;
+static int hf_infiniband_syndrome = -1;
+static int hf_infiniband_message_sequence_number = -1;
+/* Atomic ACK Extended Transport Header (AtomicAckETH) */
+static int hf_infiniband_AtomicAckETH = -1;
+static int hf_infiniband_original_remote_data = -1;
+/* Immediate Extended Transport Header (ImmDt) */
+static int hf_infiniband_IMMDT = -1;
+/* Invalidate Extended Transport Header (IETH) */
+static int hf_infiniband_IETH = -1;
+/* Payload */
+static int hf_infiniband_payload = -1;
+static int hf_infiniband_invariant_crc = -1;
+static int hf_infiniband_variant_crc = -1;
+/* Unknown or Vendor Specific */
+static int hf_infiniband_raw_data = -1;
+static int hf_infiniband_vendor = -1;
+/* CM REQ Header */
+static int hf_cm_req_local_comm_id = -1;
+static int hf_cm_req_service_id = -1;
+static int hf_cm_req_local_ca_guid = -1;
+static int hf_cm_req_local_qkey = -1;
+static int hf_cm_req_local_qpn = -1;
+static int hf_cm_req_respo_res = -1;
+static int hf_cm_req_local_eecn = -1;
+static int hf_cm_req_init_depth = -1;
+static int hf_cm_req_remote_eecn = -1;
+static int hf_cm_req_remote_cm_resp_to = -1;
+static int hf_cm_req_transp_serv_type = -1;
+static int hf_cm_req_e2e_flow_ctrl = -1;
+static int hf_cm_req_start_psn = -1;
+static int hf_cm_req_local_cm_resp_to = -1;
+static int hf_cm_req_retry_count = -1;
+static int hf_cm_req_pkey = -1;
+static int hf_cm_req_path_pp_mtu = -1;
+static int hf_cm_req_rdc_exists = -1;
+static int hf_cm_req_rnr_retry_count = -1;
+static int hf_cm_req_max_cm_retries = -1;
+static int hf_cm_req_srq = -1;
+static int hf_cm_req_primary_local_lid = -1;
+static int hf_cm_req_primary_remote_lid = -1;
+static int hf_cm_req_primary_local_gid = -1;
+static int hf_cm_req_primary_remote_gid = -1;
+static int hf_cm_req_primary_flow_label = -1;
+static int hf_cm_req_primary_packet_rate = -1;
+static int hf_cm_req_primary_traffic_class = -1;
+static int hf_cm_req_primary_hop_limit = -1;
+static int hf_cm_req_primary_sl = -1;
+static int hf_cm_req_primary_subnet_local = -1;
+static int hf_cm_req_primary_local_ack_to = -1;
+static int hf_cm_req_alt_local_lid = -1;
+static int hf_cm_req_alt_remote_lid = -1;
+static int hf_cm_req_alt_local_gid = -1;
+static int hf_cm_req_alt_remote_gid = -1;
+static int hf_cm_req_flow_label = -1;
+static int hf_cm_req_packet_rate = -1;
+static int hf_cm_req_alt_traffic_class = -1;
+static int hf_cm_req_alt_hop_limit = -1;
+static int hf_cm_req_SL = -1;
+static int hf_cm_req_subnet_local = -1;
+static int hf_cm_req_local_ACK_timeout = -1;
+static int hf_cm_req_private_data = -1;
+/* CM REP Header */
+static int hf_cm_rep_localcommid = -1;
+static int hf_cm_rep_remotecommid = -1;
+static int hf_cm_rep_localqkey = -1;
+static int hf_cm_rep_localqpn = -1;
+static int hf_cm_rep_localeecontnum = -1;
+static int hf_cm_rep_startingpsn = -1;
+static int hf_cm_rep_responderres = -1;
+static int hf_cm_rep_initiatordepth = -1;
+static int hf_cm_rep_tgtackdelay = -1;
+static int hf_cm_rep_failoveracc = -1;
+static int hf_cm_rep_e2eflowctl = -1;
+static int hf_cm_rep_rnrretrycount = -1;
+static int hf_cm_rep_srq = -1;
+static int hf_cm_rep_localcaguid = -1;
+static int hf_cm_rep_privatedata = -1;
+/* CM RTU Header */
+static int hf_cm_rtu_localcommid = -1;
+static int hf_cm_rtu_remotecommid = -1;
+static int hf_cm_rtu_privatedata = -1;
+/* CM REJ Header */
+static int hf_cm_rej_local_commid = -1;
+static int hf_cm_rej_remote_commid = -1;
+static int hf_cm_rej_msg_rej = -1;
+static int hf_cm_rej_rej_info_len = -1;
+static int hf_cm_rej_reason = -1;
+static int hf_cm_rej_add_rej_info = -1;
+static int hf_cm_rej_private_data = -1;
+/* MAD Base Header */
+static int hf_infiniband_MAD = -1;
+static int hf_infiniband_base_version = -1;
+static int hf_infiniband_mgmt_class = -1;
+static int hf_infiniband_class_version = -1;
+/* static int hf_infiniband_reserved1 = -1;                                  */
+static int hf_infiniband_method = -1;
+static int hf_infiniband_status = -1;
+static int hf_infiniband_class_specific = -1;
+static int hf_infiniband_transaction_id = -1;
+static int hf_infiniband_attribute_id = -1;
+static int hf_infiniband_reserved16 = -1;
+static int hf_infiniband_attribute_modifier = -1;
+static int hf_infiniband_data = -1;
+/* RMPP Header */
+static int hf_infiniband_RMPP = -1;
+static int hf_infiniband_rmpp_version = -1;
+static int hf_infiniband_rmpp_type = -1;
+static int hf_infiniband_r_resp_time = -1;
+static int hf_infiniband_rmpp_flags = -1;
+static int hf_infiniband_rmpp_status = -1;
+static int hf_infiniband_rmpp_data1 = -1;
+static int hf_infiniband_rmpp_data2 = -1;
+/* RMPP Data */
+/* static int hf_infiniband_RMPP_DATA = -1;                                  */
+static int hf_infiniband_segment_number = -1;
+static int hf_infiniband_payload_length32 = -1;
+static int hf_infiniband_transferred_data = -1;
+/* RMPP ACK */
+static int hf_infiniband_new_window_last = -1;
+static int hf_infiniband_reserved220 = -1;
+/* RMPP ABORT and STOP */
+static int hf_infiniband_reserved32 = -1;
+static int hf_infiniband_optional_extended_error_data = -1;
+/* SMP Data LID Routed */
+static int hf_infiniband_SMP_LID = -1;
+static int hf_infiniband_m_key = -1;
+static int hf_infiniband_smp_data = -1;
+static int hf_infiniband_reserved1024 = -1;
+static int hf_infiniband_reserved256 = -1;
+/* SMP Data Directed Route */
+static int hf_infiniband_SMP_DIRECTED = -1;
+static int hf_infiniband_smp_status = -1;
+static int hf_infiniband_hop_pointer = -1;
+static int hf_infiniband_hop_count = -1;
+static int hf_infiniband_dr_slid = -1;
+static int hf_infiniband_dr_dlid = -1;
+static int hf_infiniband_reserved28 = -1;
+static int hf_infiniband_d = -1;
+static int hf_infiniband_initial_path = -1;
+static int hf_infiniband_return_path = -1;
+/* SA MAD Header */
+static int hf_infiniband_SA = -1;
+static int hf_infiniband_sm_key = -1;
+static int hf_infiniband_attribute_offset = -1;
+static int hf_infiniband_component_mask = -1;
+static int hf_infiniband_subnet_admin_data = -1;
+/* Mellanox EoIB encapsulation header */
+static int hf_infiniband_EOIB = -1;
+static int hf_infiniband_ver = -1;
+static int hf_infiniband_tcp_chk = -1;
+static int hf_infiniband_ip_chk = -1;
+static int hf_infiniband_fcs = -1;
+static int hf_infiniband_ms = -1;
+static int hf_infiniband_seg_off = -1;
+static int hf_infiniband_seg_id = -1;
+
+/* Attributes
+* Additional Structures for individuala attribute decoding.
+* Since they are not headers the naming convention is slightly modified
+* Convention: hf_infiniband_[attribute name]_[field]
+* This was not entirely necessary but I felt the previous convention
+* did not provide adequate readability for the granularity of attribute/attribute fields. */
+
+/* NodeDescription */
+static int hf_infiniband_NodeDescription_NodeString = -1;
+/* NodeInfo */
+static int hf_infiniband_NodeInfo_BaseVersion = -1;
+static int hf_infiniband_NodeInfo_ClassVersion = -1;
+static int hf_infiniband_NodeInfo_NodeType = -1;
+static int hf_infiniband_NodeInfo_NumPorts = -1;
+static int hf_infiniband_NodeInfo_SystemImageGUID = -1;
+static int hf_infiniband_NodeInfo_NodeGUID = -1;
+static int hf_infiniband_NodeInfo_PortGUID = -1;
+static int hf_infiniband_NodeInfo_PartitionCap = -1;
+static int hf_infiniband_NodeInfo_DeviceID = -1;
+static int hf_infiniband_NodeInfo_Revision = -1;
+static int hf_infiniband_NodeInfo_LocalPortNum = -1;
+static int hf_infiniband_NodeInfo_VendorID = -1;
+/* SwitchInfo */
+static int hf_infiniband_SwitchInfo_LinearFDBCap = -1;
+static int hf_infiniband_SwitchInfo_RandomFDBCap = -1;
+static int hf_infiniband_SwitchInfo_MulticastFDBCap = -1;
+static int hf_infiniband_SwitchInfo_LinearFDBTop = -1;
+static int hf_infiniband_SwitchInfo_DefaultPort = -1;
+static int hf_infiniband_SwitchInfo_DefaultMulticastPrimaryPort = -1;
+static int hf_infiniband_SwitchInfo_DefaultMulticastNotPrimaryPort = -1;
+static int hf_infiniband_SwitchInfo_LifeTimeValue = -1;
+static int hf_infiniband_SwitchInfo_PortStateChange = -1;
+static int hf_infiniband_SwitchInfo_OptimizedSLtoVLMappingProgramming = -1;
+static int hf_infiniband_SwitchInfo_LIDsPerPort = -1;
+static int hf_infiniband_SwitchInfo_PartitionEnforcementCap = -1;
+static int hf_infiniband_SwitchInfo_InboundEnforcementCap = -1;
+static int hf_infiniband_SwitchInfo_OutboundEnforcementCap = -1;
+static int hf_infiniband_SwitchInfo_FilterRawInboundCap = -1;
+static int hf_infiniband_SwitchInfo_FilterRawOutboundCap = -1;
+static int hf_infiniband_SwitchInfo_EnhancedPortZero = -1;
+/* GUIDInfo */
+/* static int hf_infiniband_GUIDInfo_GUIDBlock = -1;                         */
+static int hf_infiniband_GUIDInfo_GUID = -1;
+/* PortInfo */
+static int hf_infiniband_PortInfo_GidPrefix = -1;
+static int hf_infiniband_PortInfo_LID = -1;
+static int hf_infiniband_PortInfo_MasterSMLID = -1;
+static int hf_infiniband_PortInfo_CapabilityMask = -1;
+
+/* Capability Mask Flags */
+static int hf_infiniband_PortInfo_CapabilityMask_SM = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_NoticeSupported = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_TrapSupported = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_OptionalPDSupported = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_AutomaticMigrationSupported = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_SLMappingSupported = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_MKeyNVRAM = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_PKeyNVRAM = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_LEDInfoSupported = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_SMdisabled = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_SystemImageGUIDSupported = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_PKeySwitchExternalPortTrapSupported = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_CommunicationsManagementSupported = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_SNMPTunnelingSupported = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_ReinitSupported = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_DeviceManagementSupported = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_VendorClassSupported = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_DRNoticeSupported = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_CapabilityMaskNoticeSupported = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_BootManagementSupported = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_LinkRoundTripLatencySupported = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_ClientRegistrationSupported = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_OtherLocalChangesNoticeSupported = -1;
+static int hf_infiniband_PortInfo_CapabilityMask_LinkSpeedWIdthPairsTableSupported = -1;
+/* End Capability Mask Flags */
+
+
+static int hf_infiniband_PortInfo_DiagCode = -1;
+static int hf_infiniband_PortInfo_M_KeyLeasePeriod = -1;
+static int hf_infiniband_PortInfo_LocalPortNum = -1;
+static int hf_infiniband_PortInfo_LinkWidthEnabled = -1;
+static int hf_infiniband_PortInfo_LinkWidthSupported = -1;
+static int hf_infiniband_PortInfo_LinkWidthActive = -1;
+static int hf_infiniband_PortInfo_LinkSpeedSupported = -1;
+static int hf_infiniband_PortInfo_PortState = -1;
+static int hf_infiniband_PortInfo_PortPhysicalState = -1;
+static int hf_infiniband_PortInfo_LinkDownDefaultState = -1;
+static int hf_infiniband_PortInfo_M_KeyProtectBits = -1;
+static int hf_infiniband_PortInfo_LMC = -1;
+static int hf_infiniband_PortInfo_LinkSpeedActive = -1;
+static int hf_infiniband_PortInfo_LinkSpeedEnabled = -1;
+static int hf_infiniband_PortInfo_NeighborMTU = -1;
+static int hf_infiniband_PortInfo_MasterSMSL = -1;
+static int hf_infiniband_PortInfo_VLCap = -1;
+static int hf_infiniband_PortInfo_M_Key = -1;
+static int hf_infiniband_PortInfo_InitType = -1;
+static int hf_infiniband_PortInfo_VLHighLimit = -1;
+static int hf_infiniband_PortInfo_VLArbitrationHighCap = -1;
+static int hf_infiniband_PortInfo_VLArbitrationLowCap = -1;
+static int hf_infiniband_PortInfo_InitTypeReply = -1;
+static int hf_infiniband_PortInfo_MTUCap = -1;
+static int hf_infiniband_PortInfo_VLStallCount = -1;
+static int hf_infiniband_PortInfo_HOQLife = -1;
+static int hf_infiniband_PortInfo_OperationalVLs = -1;
+static int hf_infiniband_PortInfo_PartitionEnforcementInbound = -1;
+static int hf_infiniband_PortInfo_PartitionEnforcementOutbound = -1;
+static int hf_infiniband_PortInfo_FilterRawInbound = -1;
+static int hf_infiniband_PortInfo_FilterRawOutbound = -1;
+static int hf_infiniband_PortInfo_M_KeyViolations = -1;
+static int hf_infiniband_PortInfo_P_KeyViolations = -1;
+static int hf_infiniband_PortInfo_Q_KeyViolations = -1;
+static int hf_infiniband_PortInfo_GUIDCap = -1;
+static int hf_infiniband_PortInfo_ClientReregister = -1;
+static int hf_infiniband_PortInfo_SubnetTimeOut = -1;
+static int hf_infiniband_PortInfo_RespTimeValue = -1;
+static int hf_infiniband_PortInfo_LocalPhyErrors = -1;
+static int hf_infiniband_PortInfo_OverrunErrors = -1;
+static int hf_infiniband_PortInfo_MaxCreditHint = -1;
+static int hf_infiniband_PortInfo_LinkRoundTripLatency = -1;
+
+/* P_KeyTable */
+static int hf_infiniband_P_KeyTable_P_KeyTableBlock = -1;
+static int hf_infiniband_P_KeyTable_MembershipType = -1;
+static int hf_infiniband_P_KeyTable_P_KeyBase = -1;
+
+/* SLtoVLMappingTable */
+static int hf_infiniband_SLtoVLMappingTable_SLtoVL_HighBits = -1;
+static int hf_infiniband_SLtoVLMappingTable_SLtoVL_LowBits = -1;
+
+/* VLArbitrationTable */
+/* static int hf_infiniband_VLArbitrationTable_VLWeightPairs = -1;           */
+static int hf_infiniband_VLArbitrationTable_VL = -1;
+static int hf_infiniband_VLArbitrationTable_Weight = -1;
+
+/* LinearForwardingTable */
+/* static int hf_infiniband_LinearForwardingTable_LinearForwardingTableBlock = -1;  */
+static int hf_infiniband_LinearForwardingTable_Port = -1;
+
+/* RandomForwardingTable */
+/* static int hf_infiniband_RandomForwardingTable_RandomForwardingTableBlock = -1;  */
+static int hf_infiniband_RandomForwardingTable_LID = -1;
+static int hf_infiniband_RandomForwardingTable_Valid = -1;
+static int hf_infiniband_RandomForwardingTable_LMC = -1;
+static int hf_infiniband_RandomForwardingTable_Port = -1;
+
+/* MulticastForwardingTable */
+/* static int hf_infiniband_MulticastForwardingTable_MulticastForwardingTableBlock = -1;    */
+static int hf_infiniband_MulticastForwardingTable_PortMask = -1;
+
+/* SMInfo */
+static int hf_infiniband_SMInfo_GUID = -1;
+static int hf_infiniband_SMInfo_SM_Key = -1;
+static int hf_infiniband_SMInfo_ActCount = -1;
+static int hf_infiniband_SMInfo_Priority = -1;
+static int hf_infiniband_SMInfo_SMState = -1;
+
+/* VendorDiag */
+static int hf_infiniband_VendorDiag_NextIndex = -1;
+static int hf_infiniband_VendorDiag_DiagData = -1;
+
+/* LedInfo */
+static int hf_infiniband_LedInfo_LedMask = -1;
+
+/* LinkSpeedWidthPairsTable */
+static int hf_infiniband_LinkSpeedWidthPairsTable_NumTables = -1;
+static int hf_infiniband_LinkSpeedWidthPairsTable_PortMask = -1;
+static int hf_infiniband_LinkSpeedWidthPairsTable_SpeedTwoFive = -1;
+static int hf_infiniband_LinkSpeedWidthPairsTable_SpeedFive = -1;
+static int hf_infiniband_LinkSpeedWidthPairsTable_SpeedTen = -1;
+
+/* Attributes for Subnet Administration.
+* Mostly we have "Records" here which are just structures of SM attributes.
+* There are some unique attributes though that we will want to have a structure for. */
+
+/* NodeRecord */
+/* PortInfoRecord */
+/* SLtoVLMappingTableRecord */
+/* SwitchInfoRecord */
+/* LinearForwardingTableRecord */
+/* RandomForwardingTableRecord */
+/* MulticastForwardingTableRecord */
+/* VLArbitrationTableRecord */
+
+static int hf_infiniband_SA_LID = -1;
+static int hf_infiniband_SA_EndportLID = -1;
+static int hf_infiniband_SA_PortNum = -1;
+static int hf_infiniband_SA_InputPortNum = -1;
+static int hf_infiniband_SA_OutputPortNum = -1;
+static int hf_infiniband_SA_BlockNum_EightBit = -1;
+static int hf_infiniband_SA_BlockNum_NineBit = -1;
+static int hf_infiniband_SA_BlockNum_SixteenBit = -1;
+static int hf_infiniband_SA_Position = -1;
+/* static int hf_infiniband_SA_Index = -1;                                   */
+
+/* InformInfoRecord */
+static int hf_infiniband_InformInfoRecord_SubscriberGID = -1;
+static int hf_infiniband_InformInfoRecord_Enum = -1;
+
+/* InformInfo */
+static int hf_infiniband_InformInfo_GID = -1;
+static int hf_infiniband_InformInfo_LIDRangeBegin = -1;
+static int hf_infiniband_InformInfo_LIDRangeEnd = -1;
+static int hf_infiniband_InformInfo_IsGeneric = -1;
+static int hf_infiniband_InformInfo_Subscribe = -1;
+static int hf_infiniband_InformInfo_Type = -1;
+static int hf_infiniband_InformInfo_TrapNumberDeviceID = -1;
+static int hf_infiniband_InformInfo_QPN = -1;
+static int hf_infiniband_InformInfo_RespTimeValue = -1;
+static int hf_infiniband_InformInfo_ProducerTypeVendorID = -1;
+
+/* LinkRecord */
+static int hf_infiniband_LinkRecord_FromLID = -1;
+static int hf_infiniband_LinkRecord_FromPort = -1;
+static int hf_infiniband_LinkRecord_ToPort = -1;
+static int hf_infiniband_LinkRecord_ToLID = -1;
+
+/* ServiceRecord */
+static int hf_infiniband_ServiceRecord_ServiceID = -1;
+static int hf_infiniband_ServiceRecord_ServiceGID = -1;
+static int hf_infiniband_ServiceRecord_ServiceP_Key = -1;
+static int hf_infiniband_ServiceRecord_ServiceLease = -1;
+static int hf_infiniband_ServiceRecord_ServiceKey = -1;
+static int hf_infiniband_ServiceRecord_ServiceName = -1;
+static int hf_infiniband_ServiceRecord_ServiceData = -1;
+
+/* ServiceAssociationRecord */
+static int hf_infiniband_ServiceAssociationRecord_ServiceKey = -1;
+static int hf_infiniband_ServiceAssociationRecord_ServiceName = -1;
+
+/* PathRecord */
+static int hf_infiniband_PathRecord_DGID = -1;
+static int hf_infiniband_PathRecord_SGID = -1;
+static int hf_infiniband_PathRecord_DLID = -1;
+static int hf_infiniband_PathRecord_SLID = -1;
+static int hf_infiniband_PathRecord_RawTraffic = -1;
+static int hf_infiniband_PathRecord_FlowLabel = -1;
+static int hf_infiniband_PathRecord_HopLimit = -1;
+static int hf_infiniband_PathRecord_TClass = -1;
+static int hf_infiniband_PathRecord_Reversible = -1;
+static int hf_infiniband_PathRecord_NumbPath = -1;
+static int hf_infiniband_PathRecord_P_Key = -1;
+static int hf_infiniband_PathRecord_SL = -1;
+static int hf_infiniband_PathRecord_MTUSelector = -1;
+static int hf_infiniband_PathRecord_MTU = -1;
+static int hf_infiniband_PathRecord_RateSelector = -1;
+static int hf_infiniband_PathRecord_Rate = -1;
+static int hf_infiniband_PathRecord_PacketLifeTimeSelector = -1;
+static int hf_infiniband_PathRecord_PacketLifeTime = -1;
+static int hf_infiniband_PathRecord_Preference = -1;
+
+/* MCMemberRecord */
+static int hf_infiniband_MCMemberRecord_MGID = -1;
+static int hf_infiniband_MCMemberRecord_PortGID = -1;
+static int hf_infiniband_MCMemberRecord_Q_Key = -1;
+static int hf_infiniband_MCMemberRecord_MLID = -1;
+static int hf_infiniband_MCMemberRecord_MTUSelector = -1;
+static int hf_infiniband_MCMemberRecord_MTU = -1;
+static int hf_infiniband_MCMemberRecord_TClass = -1;
+static int hf_infiniband_MCMemberRecord_P_Key = -1;
+static int hf_infiniband_MCMemberRecord_RateSelector = -1;
+static int hf_infiniband_MCMemberRecord_Rate = -1;
+static int hf_infiniband_MCMemberRecord_PacketLifeTimeSelector = -1;
+static int hf_infiniband_MCMemberRecord_PacketLifeTime = -1;
+static int hf_infiniband_MCMemberRecord_SL = -1;
+static int hf_infiniband_MCMemberRecord_FlowLabel = -1;
+static int hf_infiniband_MCMemberRecord_HopLimit = -1;
+static int hf_infiniband_MCMemberRecord_Scope = -1;
+static int hf_infiniband_MCMemberRecord_JoinState = -1;
+static int hf_infiniband_MCMemberRecord_ProxyJoin = -1;
+
+/* TraceRecord */
+static int hf_infiniband_TraceRecord_GIDPrefix = -1;
+static int hf_infiniband_TraceRecord_IDGeneration = -1;
+static int hf_infiniband_TraceRecord_NodeType = -1;
+static int hf_infiniband_TraceRecord_NodeID = -1;
+static int hf_infiniband_TraceRecord_ChassisID = -1;
+static int hf_infiniband_TraceRecord_EntryPortID = -1;
+static int hf_infiniband_TraceRecord_ExitPortID = -1;
+static int hf_infiniband_TraceRecord_EntryPort = -1;
+static int hf_infiniband_TraceRecord_ExitPort = -1;
+
+/* MultiPathRecord */
+static int hf_infiniband_MultiPathRecord_RawTraffic = -1;
+static int hf_infiniband_MultiPathRecord_FlowLabel = -1;
+static int hf_infiniband_MultiPathRecord_HopLimit = -1;
+static int hf_infiniband_MultiPathRecord_TClass = -1;
+static int hf_infiniband_MultiPathRecord_Reversible = -1;
+static int hf_infiniband_MultiPathRecord_NumbPath = -1;
+static int hf_infiniband_MultiPathRecord_P_Key = -1;
+static int hf_infiniband_MultiPathRecord_SL = -1;
+static int hf_infiniband_MultiPathRecord_MTUSelector = -1;
+static int hf_infiniband_MultiPathRecord_MTU = -1;
+static int hf_infiniband_MultiPathRecord_RateSelector = -1;
+static int hf_infiniband_MultiPathRecord_Rate = -1;
+static int hf_infiniband_MultiPathRecord_PacketLifeTimeSelector = -1;
+static int hf_infiniband_MultiPathRecord_PacketLifeTime = -1;
+static int hf_infiniband_MultiPathRecord_IndependenceSelector = -1;
+static int hf_infiniband_MultiPathRecord_GIDScope = -1;
+static int hf_infiniband_MultiPathRecord_SGIDCount = -1;
+static int hf_infiniband_MultiPathRecord_DGIDCount = -1;
+static int hf_infiniband_MultiPathRecord_SDGID = -1;
+
+/* Notice */
+static int hf_infiniband_Notice_IsGeneric = -1;
+static int hf_infiniband_Notice_Type = -1;
+static int hf_infiniband_Notice_ProducerTypeVendorID = -1;
+static int hf_infiniband_Notice_TrapNumberDeviceID = -1;
+static int hf_infiniband_Notice_IssuerLID = -1;
+static int hf_infiniband_Notice_NoticeToggle = -1;
+static int hf_infiniband_Notice_NoticeCount = -1;
+static int hf_infiniband_Notice_DataDetails = -1;
+/* static int hf_infiniband_Notice_IssuerGID = -1;             */
+/* static int hf_infiniband_Notice_ClassTrapSpecificData = -1; */
+
+/* PortCounters attribute in Performance class */
+static int hf_infiniband_PortCounters = -1;
+static int hf_infiniband_PortCounters_PortSelect = -1;
+static int hf_infiniband_PortCounters_CounterSelect = -1;
+static int hf_infiniband_PortCounters_SymbolErrorCounter = -1;
+static int hf_infiniband_PortCounters_LinkErrorRecoveryCounter = -1;
+static int hf_infiniband_PortCounters_LinkDownedCounter = -1;
+static int hf_infiniband_PortCounters_PortRcvErrors = -1;
+static int hf_infiniband_PortCounters_PortRcvRemotePhysicalErrors = -1;
+static int hf_infiniband_PortCounters_PortRcvSwitchRelayErrors = -1;
+static int hf_infiniband_PortCounters_PortXmitDiscards = -1;
+static int hf_infiniband_PortCounters_PortXmitConstraintErrors = -1;
+static int hf_infiniband_PortCounters_PortRcvConstraintErrors = -1;
+static int hf_infiniband_PortCounters_LocalLinkIntegrityErrors = -1;
+static int hf_infiniband_PortCounters_ExcessiveBufferOverrunErrors = -1;
+static int hf_infiniband_PortCounters_VL15Dropped = -1;
+static int hf_infiniband_PortCounters_PortXmitData = -1;
+static int hf_infiniband_PortCounters_PortRcvData = -1;
+static int hf_infiniband_PortCounters_PortXmitPkts = -1;
+static int hf_infiniband_PortCounters_PortRcvPkts = -1;
+
+/* Extended PortCounters attribute in Performance class */
+static int hf_infiniband_PortCountersExt = -1;
+static int hf_infiniband_PortCountersExt_PortSelect = -1;
+static int hf_infiniband_PortCountersExt_CounterSelect = -1;
+static int hf_infiniband_PortCountersExt_PortXmitData = -1;
+static int hf_infiniband_PortCountersExt_PortRcvData = -1;
+static int hf_infiniband_PortCountersExt_PortXmitPkts = -1;
+static int hf_infiniband_PortCountersExt_PortRcvPkts = -1;
+static int hf_infiniband_PortCountersExt_PortUnicastXmitPkts = -1;
+static int hf_infiniband_PortCountersExt_PortUnicastRcvPkts = -1;
+static int hf_infiniband_PortCountersExt_PortMulticastXmitPkts = -1;
+static int hf_infiniband_PortCountersExt_PortMulticastRcvPkts = -1;
+
+/* Notice DataDetails and ClassTrapSpecific Data for certain traps
+* Note that traps reuse many fields, so they are only declared once under the first trap that they appear.
+* There is no need to redeclare them for specific Traps (as with other SA Attributes) because they are uniform between Traps. */
+
+/* Parse DataDetails for a given Trap */
+static void parse_NoticeDataDetails(proto_tree*, tvbuff_t*, gint *offset, guint16 trapNumber);
+
+/* Traps 64,65,66,67 */
+static int hf_infiniband_Trap_GIDADDR = -1;
+
+/* Traps 68,69 */
+/* DataDetails */
+static int hf_infiniband_Trap_COMP_MASK = -1;
+static int hf_infiniband_Trap_WAIT_FOR_REPATH = -1;
+/* ClassTrapSpecificData */
+/* static int hf_infiniband_Trap_PATH_REC = -1;                              */
+
+/* Trap 128 */
+static int hf_infiniband_Trap_LIDADDR = -1;
+
+/* Trap 129, 130, 131 */
+static int hf_infiniband_Trap_PORTNO = -1;
+
+/* Trap 144 */
+static int hf_infiniband_Trap_OtherLocalChanges = -1;
+static int hf_infiniband_Trap_CAPABILITYMASK = -1;
+static int hf_infiniband_Trap_LinkSpeecEnabledChange = -1;
+static int hf_infiniband_Trap_LinkWidthEnabledChange = -1;
+static int hf_infiniband_Trap_NodeDescriptionChange = -1;
+
+/* Trap 145 */
+static int hf_infiniband_Trap_SYSTEMIMAGEGUID = -1;
+
+/* Trap 256 */
+static int hf_infiniband_Trap_DRSLID = -1;
+static int hf_infiniband_Trap_METHOD = -1;
+static int hf_infiniband_Trap_ATTRIBUTEID = -1;
+static int hf_infiniband_Trap_ATTRIBUTEMODIFIER = -1;
+static int hf_infiniband_Trap_MKEY = -1;
+static int hf_infiniband_Trap_DRNotice = -1;
+static int hf_infiniband_Trap_DRPathTruncated = -1;
+static int hf_infiniband_Trap_DRHopCount = -1;
+static int hf_infiniband_Trap_DRNoticeReturnPath = -1;
+
+/* Trap 257, 258 */
+static int hf_infiniband_Trap_LIDADDR1 = -1;
+static int hf_infiniband_Trap_LIDADDR2 = -1;
+static int hf_infiniband_Trap_KEY = -1;
+static int hf_infiniband_Trap_SL = -1;
+static int hf_infiniband_Trap_QP1 = -1;
+static int hf_infiniband_Trap_QP2 = -1;
+static int hf_infiniband_Trap_GIDADDR1 = -1;
+static int hf_infiniband_Trap_GIDADDR2 = -1;
+
+/* Trap 259 */
+static int hf_infiniband_Trap_DataValid = -1;
+static int hf_infiniband_Trap_PKEY = -1;
+static int hf_infiniband_Trap_SWLIDADDR = -1;
+
+/* Infiniband Link */
+static int hf_infiniband_link_op = -1;
+static int hf_infiniband_link_fctbs = -1;
+static int hf_infiniband_link_vl = -1;
+static int hf_infiniband_link_fccl = -1;
+static int hf_infiniband_link_lpcrc = -1;
+
+/* Trap Type/Descriptions for dissection */
+static const value_string Operand_Description[]= {
+    { 0, " Normal Flow Control"},
+    { 1, " Flow Control Init"},
+    { 0, NULL}
+};
+
+/* Trap Type/Descriptions for dissection */
+static const value_string Trap_Description[]= {
+    { 64, " (Informational) <GIDADDR> is now in service"},
+    { 65, " (Informational) <GIDADDR> is out of service"},
+    { 66, " (Informational) New Multicast Group with multicast address <GIDADDR> is now created"},
+    { 67, " (Informational) Multicast Group with multicast address <GIDADDR> is now deleted"},
+    { 68, " (Informational) Paths indicated by <PATH_REC> and <COMP_MASK> are no longer valid"},
+    { 69, " (Informational) Paths indicated by <PATH_REC> and <COMP_MASK> have been recomputed"},
+    { 128, " (Urgent) Link State of at least one port of switch at <LIDADDR> has changed"},
+    { 129, " (Urgent) Local Link Integrity threshold reached at <LIDADDR><PORTNO>"},
+    { 130, " (Urgent) Excessive Buffer OVerrun threshold reached at <LIDADDR><PORTNO>"},
+    { 131, " (Urgent) Flow Control Update watchdog timer expired at <LIDADDR><PORTNO>"},
+    { 144, " (Informational) CapMask, NodeDesc, LinkWidthEnabled or LinkSpeedEnabled at <LIDADDR> has been modified"},
+    { 145, " (Informational) SystemImageGUID at <LIDADDR> has been modified.  New value is <SYSTEMIMAGEGUID>"},
+    { 256, " (Security) Bad M_Key, <M_KEY> from <LIDADDR> attempted <METHOD> with <ATTRIBUTEID> and <ATTRIBUTEMODIFIER>"},
+    { 257, " (Security) Bad P_Key, <KEY> from <LIDADDR1><GIDADDR1><QP1> to <LIDADDR2><GIDADDR2><QP2> on <SL>"},
+    { 258, " (Security) Bad Q_Key, <KEY> from <LIDADDR1><GIDADDR1><QP1> to <LIDADDR2><GIDADDR2><QP2> on <SL>"},
+    { 259, " (Security) Bad P_Key, <KEY> from <LIDADDR1><GIDADDR1><QP1> to <LIDADDR2><GIDADDR2><QP2> on <SL> at switch <LIDADDR><PORTNO>"},
+    { 0, NULL}
+};
+
+
+
+
+/* MAD Management Classes
+* Classes from the Common MAD Header
+*
+*      Management Class Name        Class Description
+* ------------------------------------------------------------------------------------------------------------ */
+#define SUBN_LID_ROUTED 0x01        /* Subnet Management LID Route */
+#define SUBN_DIRECTED_ROUTE 0x81    /* Subnet Management Directed Route */
+#define SUBNADMN 0x03               /* Subnet Administration */
+#define PERF 0x04                   /* Performance Management */
+#define BM 0x05                     /* Baseboard Management (Tunneling of IB-ML commands through the IBA subnet) */
+#define DEV_MGT 0x06                /* Device Management */
+#define COM_MGT 0x07                /* Communications Management */
+#define SNMP 0x08                   /* SNMP Tunneling (tunneling of the SNMP protocol through the IBA fabric) */
+#define VENDOR_1_START 0x09         /* Start of first Vendor Specific Range */
+#define VENDOR_1_END 0x0F           /* End of first Vendor Specific Range */
+#define VENDOR_2_START 0x30         /* Start of second Vendor Specific Range */
+#define VENDOR_2_END 0x4F           /* End of the second Vendor Specific Range */
+#define APPLICATION_START 0x10      /* Start of Application Specific Range */
+#define APPLICATION_END 0x2F        /* End of Application Specific Range */
+
+/* Performance class Attributes */
+#define ATTR_PORT_COUNTERS      0x0012
+#define ATTR_PORT_COUNTERS_EXT  0x001D
+
+/* ComMgt class Attributes*/
+#define ATTR_CM_REQ             0x0010
+#define ATTR_CM_REP             0x0013
+#define ATTR_CM_RTU             0x0014
+#define ATTR_CM_REJ             0x0012
+
+/* Link Next Header Values */
+#define IBA_GLOBAL 3
+#define IBA_LOCAL  2
+#define IP_NON_IBA 1
+#define RAW        0
+
+/* OpCodeValues
+* Code Bits [7-5] Connection Type
+*           [4-0] Message Type
+
+* Reliable Connection (RC)
+* [7-5] = 000 */
+#define RC_SEND_FIRST                   0 /*0x00000000 */
+#define RC_SEND_MIDDLE                  1 /*0x00000001 */
+#define RC_SEND_LAST                    2 /*0x00000010 */
+#define RC_SEND_LAST_IMM                3 /*0x00000011 */
+#define RC_SEND_ONLY                    4 /*0x00000100 */
+#define RC_SEND_ONLY_IMM                5 /*0x00000101 */
+#define RC_RDMA_WRITE_FIRST             6 /*0x00000110 */
+#define RC_RDMA_WRITE_MIDDLE            7 /*0x00000111 */
+#define RC_RDMA_WRITE_LAST              8 /*0x00001000 */
+#define RC_RDMA_WRITE_LAST_IMM          9 /*0x00001001 */
+#define RC_RDMA_WRITE_ONLY              10 /*0x00001010 */
+#define RC_RDMA_WRITE_ONLY_IMM          11 /*0x00001011 */
+#define RC_RDMA_READ_REQUEST            12 /*0x00001100 */
+#define RC_RDMA_READ_RESPONSE_FIRST     13 /*0x00001101 */
+#define RC_RDMA_READ_RESPONSE_MIDDLE    14 /*0x00001110 */
+#define RC_RDMA_READ_RESPONSE_LAST      15 /*0x00001111 */
+#define RC_RDMA_READ_RESPONSE_ONLY      16 /*0x00010000 */
+#define RC_ACKNOWLEDGE                  17 /*0x00010001 */
+#define RC_ATOMIC_ACKNOWLEDGE           18 /*0x00010010 */
+#define RC_CMP_SWAP                     19 /*0x00010011 */
+#define RC_FETCH_ADD                    20 /*0x00010100 */
+#define RC_SEND_LAST_INVAL              22 /*0x00010110 */
+#define RC_SEND_ONLY_INVAL              23 /*0x00010111 */
+
+/* Reliable Datagram (RD)
+* [7-5] = 010 */
+#define RD_SEND_FIRST                   64 /*0x01000000 */
+#define RD_SEND_MIDDLE                  65 /*0x01000001 */
+#define RD_SEND_LAST                    66 /*0x01000010 */
+#define RD_SEND_LAST_IMM                67 /*0x01000011 */
+#define RD_SEND_ONLY                    68 /*0x01000100 */
+#define RD_SEND_ONLY_IMM                69 /*0x01000101 */
+#define RD_RDMA_WRITE_FIRST             70 /*0x01000110 */
+#define RD_RDMA_WRITE_MIDDLE            71 /*0x01000111 */
+#define RD_RDMA_WRITE_LAST              72 /*0x01001000 */
+#define RD_RDMA_WRITE_LAST_IMM          73 /*0x01001001 */
+#define RD_RDMA_WRITE_ONLY              74 /*0x01001010 */
+#define RD_RDMA_WRITE_ONLY_IMM          75 /*0x01001011 */
+#define RD_RDMA_READ_REQUEST            76 /*0x01001100 */
+#define RD_RDMA_READ_RESPONSE_FIRST     77 /*0x01001101 */
+#define RD_RDMA_READ_RESPONSE_MIDDLE    78 /*0x01001110 */
+#define RD_RDMA_READ_RESPONSE_LAST      79 /*0x01001111 */
+#define RD_RDMA_READ_RESPONSE_ONLY      80 /*0x01010000 */
+#define RD_ACKNOWLEDGE                  81 /*0x01010001 */
+#define RD_ATOMIC_ACKNOWLEDGE           82 /*0x01010010 */
+#define RD_CMP_SWAP                     83 /*0x01010011 */
+#define RD_FETCH_ADD                    84 /*0x01010100 */
+#define RD_RESYNC                       85 /*0x01010101 */
+
+/* Unreliable Datagram (UD)
+* [7-5] = 011 */
+#define UD_SEND_ONLY                    100 /*0x01100100 */
+#define UD_SEND_ONLY_IMM                101 /*0x01100101 */
+
+/* Unreliable Connection (UC)
+* [7-5] = 001 */
+#define UC_SEND_FIRST                   32 /*0x00100000 */
+#define UC_SEND_MIDDLE                  33 /*0x00100001 */
+#define UC_SEND_LAST                    34 /*0x00100010 */
+#define UC_SEND_LAST_IMM                35 /*0x00100011 */
+#define UC_SEND_ONLY                    36 /*0x00100100 */
+#define UC_SEND_ONLY_IMM                37 /*0x00100101 */
+#define UC_RDMA_WRITE_FIRST             38 /*0x00100110 */
+#define UC_RDMA_WRITE_MIDDLE            39 /*0x00100111 */
+#define UC_RDMA_WRITE_LAST              40 /*0x00101000 */
+#define UC_RDMA_WRITE_LAST_IMM          41 /*0x00101001 */
+#define UC_RDMA_WRITE_ONLY              42 /*0x00101010 */
+#define UC_RDMA_WRITE_ONLY_IMM          43 /*0x00101011 */
+
+static const value_string OpCodeMap[] =
+{
+    { RC_SEND_FIRST, "RC Send First " },
+    { RC_SEND_MIDDLE, "RC Send Middle "},
+    { RC_SEND_LAST, "RC Send Last " },
+    { RC_SEND_LAST_IMM, "RC Send Last Immediate "},
+    { RC_SEND_ONLY, "RC Send Only "},
+    { RC_SEND_ONLY_IMM, "RC Send Only Immediate "},
+    { RC_RDMA_WRITE_FIRST, "RC RDMA Write First " },
+    { RC_RDMA_WRITE_MIDDLE, "RC RDMA Write Middle "},
+    { RC_RDMA_WRITE_LAST, "RC RDMA Write Last "},
+    { RC_RDMA_WRITE_LAST_IMM, "RC RDMA Write Last Immediate " },
+    { RC_RDMA_WRITE_ONLY, "RC RDMA Write Only " },
+    { RC_RDMA_WRITE_ONLY_IMM, "RC RDMA Write Only Immediate "},
+    { RC_RDMA_READ_REQUEST,  "RC RDMA Read Request " },
+    { RC_RDMA_READ_RESPONSE_FIRST, "RC RDMA Read Response First " },
+    { RC_RDMA_READ_RESPONSE_MIDDLE, "RC RDMA Read Response Middle "},
+    { RC_RDMA_READ_RESPONSE_LAST, "RC RDMA Read Response Last " },
+    { RC_RDMA_READ_RESPONSE_ONLY, "RC RDMA Read Response Only "},
+    { RC_ACKNOWLEDGE, "RC Acknowledge " },
+    { RC_ATOMIC_ACKNOWLEDGE, "RC Atomic Acknowledge " },
+    { RC_CMP_SWAP, "RC Compare Swap " },
+    { RC_FETCH_ADD, "RC Fetch Add "},
+    { RC_SEND_LAST_INVAL, "RC Send Last Invalidate "},
+    { RC_SEND_ONLY_INVAL, "RC Send Only Invalidate " },
+
+
+    { RD_SEND_FIRST, "RD Send First "},
+    { RD_SEND_MIDDLE,"RD Send Middle " },
+    { RD_SEND_LAST, "RD Send Last "},
+    { RD_SEND_LAST_IMM, "RD Last Immediate " },
+    { RD_SEND_ONLY,"RD Send Only "},
+    { RD_SEND_ONLY_IMM,"RD Send Only Immediate "},
+    { RD_RDMA_WRITE_FIRST,"RD RDMA Write First "},
+    { RD_RDMA_WRITE_MIDDLE, "RD RDMA Write Middle "},
+    { RD_RDMA_WRITE_LAST,"RD RDMA Write Last "},
+    { RD_RDMA_WRITE_LAST_IMM,"RD RDMA Write Last Immediate "},
+    { RD_RDMA_WRITE_ONLY,"RD RDMA Write Only "},
+    { RD_RDMA_WRITE_ONLY_IMM,"RD RDMA Write Only Immediate "},
+    { RD_RDMA_READ_REQUEST,"RD RDMA Read Request "},
+    { RD_RDMA_READ_RESPONSE_FIRST,"RD RDMA Read Response First "},
+    { RD_RDMA_READ_RESPONSE_MIDDLE,"RD RDMA Read Response Middle "},
+    { RD_RDMA_READ_RESPONSE_LAST,"RD RDMA Read Response Last "},
+    { RD_RDMA_READ_RESPONSE_ONLY,"RD RDMA Read Response Only "},
+    { RD_ACKNOWLEDGE,"RD Acknowledge "},
+    { RD_ATOMIC_ACKNOWLEDGE,"RD Atomic Acknowledge "},
+    { RD_CMP_SWAP,"RD Compare Swap "},
+    { RD_FETCH_ADD, "RD Fetch Add "},
+    { RD_RESYNC,"RD RESYNC "},
+
+
+    { UD_SEND_ONLY, "UD Send Only "},
+    { UD_SEND_ONLY_IMM, "UD Send Only Immediate "},
+
+
+    { UC_SEND_FIRST,"UC Send First "},
+    { UC_SEND_MIDDLE,"UC Send Middle "},
+    { UC_SEND_LAST,"UC Send Last "},
+    { UC_SEND_LAST_IMM,"UC Send Last Immediate "},
+    { UC_SEND_ONLY,"UC Send Only "},
+    { UC_SEND_ONLY_IMM,"UC Send Only Immediate "},
+    { UC_RDMA_WRITE_FIRST,"UC RDMA Write First"},
+    { UC_RDMA_WRITE_MIDDLE,"Unreliable Connection RDMA Write Middle "},
+    { UC_RDMA_WRITE_LAST,"UC RDMA Write Last "},
+    { UC_RDMA_WRITE_LAST_IMM,"UC RDMA Write Last Immediate "},
+    { UC_RDMA_WRITE_ONLY,"UC RDMA Write Only "},
+    { UC_RDMA_WRITE_ONLY_IMM,"UC RDMA Write Only Immediate "},
+    { 0, NULL}
+
+};
+
+
+
+/* Header Ordering Based on OPCODES
+* These are simply an enumeration of the possible header combinations defined by the IB Spec.
+* These enumerations
+* #DEFINE [HEADER_ORDER]         [ENUM]
+* __________________________________ */
+#define RDETH_DETH_PAYLD            0
+/* __________________________________ */
+#define RDETH_DETH_RETH_PAYLD       1
+/* __________________________________ */
+#define RDETH_DETH_IMMDT_PAYLD      2
+/* __________________________________ */
+#define RDETH_DETH_RETH_IMMDT_PAYLD 3
+/* __________________________________ */
+#define RDETH_DETH_RETH             4
+/* __________________________________ */
+#define RDETH_AETH_PAYLD            5
+/* __________________________________ */
+#define RDETH_PAYLD                 6
+/* __________________________________ */
+#define RDETH_AETH                  7
+/* __________________________________ */
+#define RDETH_AETH_ATOMICACKETH     8
+/* __________________________________ */
+#define RDETH_DETH_ATOMICETH        9
+/* ___________________________________ */
+#define RDETH_DETH                  10
+/* ___________________________________ */
+#define DETH_PAYLD                  11
+/* ___________________________________ */
+#define DETH_IMMDT_PAYLD            12
+/* ___________________________________ */
+#define PAYLD                       13
+/* ___________________________________ */
+#define IMMDT_PAYLD                 14
+/* ___________________________________ */
+#define RETH_PAYLD                  15
+/* ___________________________________ */
+#define RETH_IMMDT_PAYLD            16
+/* ___________________________________ */
+#define RETH                        17
+/* ___________________________________ */
+#define AETH_PAYLD                  18
+/* ___________________________________ */
+#define AETH                        19
+/* ___________________________________ */
+#define AETH_ATOMICACKETH           20
+/* ___________________________________ */
+#define ATOMICETH                   21
+/* ___________________________________ */
+#define IETH_PAYLD                  22
+/* ___________________________________ */
+
+
+/* Infiniband transport services
+   These are an enumeration of the transport services over which an IB packet
+   might be sent. The values match the corresponding 3 bits of the opCode field
+   in the BTH  */
+#define TRANSPORT_RC    0
+#define TRANSPORT_UC    1
+#define TRANSPORT_RD    2
+#define TRANSPORT_UD    3
+
+
+/* Array of all availavle OpCodes to make matching a bit easier.
+* The OpCodes dictate the header sequence following in the packet.
+* These arrays tell the dissector which headers must be decoded for the given OpCode. */
+static guint32 opCode_RDETH_DETH_ATOMICETH[] = {
+ RD_CMP_SWAP,
+ RD_FETCH_ADD
+};
+static guint32 opCode_IETH_PAYLD[] = {
+ RC_SEND_LAST_INVAL,
+ RC_SEND_ONLY_INVAL
+};
+static guint32 opCode_ATOMICETH[] = {
+ RC_CMP_SWAP,
+ RC_FETCH_ADD
+};
+static guint32 opCode_RDETH_DETH_RETH_PAYLD[] = {
+ RD_RDMA_WRITE_FIRST,
+ RD_RDMA_WRITE_ONLY
+};
+static guint32 opCode_RETH_IMMDT_PAYLD[] = {
+ RC_RDMA_WRITE_ONLY_IMM,
+ UC_RDMA_WRITE_ONLY_IMM
+};
+static guint32 opCode_RDETH_DETH_IMMDT_PAYLD[] = {
+ RD_SEND_LAST_IMM,
+ RD_SEND_ONLY_IMM,
+ RD_RDMA_WRITE_LAST_IMM
+};
+
+static guint32 opCode_RDETH_AETH_PAYLD[] = {
+ RD_RDMA_READ_RESPONSE_FIRST,
+ RD_RDMA_READ_RESPONSE_LAST,
+ RD_RDMA_READ_RESPONSE_ONLY
+};
+static guint32 opCode_AETH_PAYLD[] = {
+ RC_RDMA_READ_RESPONSE_FIRST,
+ RC_RDMA_READ_RESPONSE_LAST,
+ RC_RDMA_READ_RESPONSE_ONLY
+};
+static guint32 opCode_RETH_PAYLD[] = {
+ RC_RDMA_WRITE_FIRST,
+ RC_RDMA_WRITE_ONLY,
+ UC_RDMA_WRITE_FIRST,
+ UC_RDMA_WRITE_ONLY
+};
+
+static guint32 opCode_RDETH_DETH_PAYLD[] = {
+ RD_SEND_FIRST,
+ RD_SEND_MIDDLE,
+ RD_SEND_LAST,
+ RD_SEND_ONLY,
+ RD_RDMA_WRITE_MIDDLE,
+ RD_RDMA_WRITE_LAST
+};
+
+static guint32 opCode_IMMDT_PAYLD[] = {
+ RC_SEND_LAST_IMM,
+ RC_SEND_ONLY_IMM,
+ RC_RDMA_WRITE_LAST_IMM,
+ UC_SEND_LAST_IMM,
+ UC_SEND_ONLY_IMM,
+ UC_RDMA_WRITE_LAST_IMM
+};
+
+static guint32 opCode_PAYLD[] = {
+ RC_SEND_FIRST,
+ RC_SEND_MIDDLE,
+ RC_SEND_LAST,
+ RC_SEND_ONLY,
+ RC_RDMA_WRITE_MIDDLE,
+ RC_RDMA_WRITE_LAST,
+ RC_RDMA_READ_RESPONSE_MIDDLE,
+ UC_SEND_FIRST,
+ UC_SEND_MIDDLE,
+ UC_SEND_LAST,
+ UC_SEND_ONLY,
+ UC_RDMA_WRITE_MIDDLE,
+ UC_RDMA_WRITE_LAST
+};
+
+/* It is not necessary to create arrays for these OpCodes since they indicate only one further header.
+*  We can just decode it directly
+
+* static guint32 opCode_DETH_IMMDT_PAYLD[] = {
+* UD_SEND_ONLY_IMM
+* };
+* static guint32 opCode_DETH_PAYLD[] = {
+* UD_SEND_ONLY
+* };
+* static guint32 opCode_RDETH_DETH[] = {
+* RD_RESYNC
+* };
+* static guint32 opCode_RDETH_DETH_RETH[] = {
+* RD_RDMA_READ_REQUEST
+* };
+* static guint32 opCode_RDETH_DETH_RETH_IMMDT_PAYLD[] = {
+* RD_RDMA_WRITE_ONLY_IMM
+* };
+* static guint32 opCode_RDETH_AETH_ATOMICACKETH[] = {
+* RD_ATOMIC_ACKNOWLEDGE
+* };
+* static guint32 opCode_RDETH_AETH[] = {
+* RD_ACKNOWLEDGE
+* };
+* static guint32 opCode_RDETH_PAYLD[] = {
+* RD_RDMA_READ_RESPONSE_MIDDLE
+* };
+* static guint32 opCode_AETH_ATOMICACKETH[] = {
+* RC_ATOMIC_ACKNOWLEDGE
+* };
+* static guint32 opCode_RETH[] = {
+* RC_RDMA_READ_REQUEST
+* };
+* static guint32 opCode_AETH[] = {
+* RC_ACKNOWLEDGE
+* }; */
+
+static gchar *src_addr = NULL,     /* the address to be displayed in the source/destination columns */
+             *dst_addr = NULL;     /* (lid/gid number) will be stored here */
+
+#define ADDR_MAX_LEN  sizeof("IPv6 over IB Packet")      /* maximum length of src_addr and dst_addr is for IPoIB
+                                                            where we print an explanation string */
+
+static gint8 transport_type = -1;      /* reflects the transport type of the packet being parsed.
+                                          only use one of the TRANSPORT_* values for this field */
+
+/* settings to be set by the user via the preferences dialog */
+static gboolean pref_dissect_eoib = TRUE;
+static gboolean pref_identify_iba_payload = TRUE;
+
+/* saves information about connections that have been/are in the process of being
+   negotiated via ConnectionManagement packets */
+typedef struct {
+    guint8 req_gid[GID_SIZE],
+           resp_gid[GID_SIZE];  /* GID of requester/responder, respectively */
+    guint16 req_lid,
+            resp_lid;   /* LID of requester/responder, respectively */
+    guint32 req_qp,
+            resp_qp;            /* QP number of requester/responder, respectively */
+    guint64 service_id;         /* service id for this connection */
+} connection_context;
+
+/* holds a table of connection contexts being negotiated by CM. the key is a obtained
+   using ADD_ADDRESS_TO_HASH(initiator address, TransactionID) [remember that the 1st
+   argument to ADD_ADDRESS_TO_HASH must be an lvalue. */
+GHashTable *CM_context_table = NULL;
+
+/* heuristics sub-dissectors list for dissecting the data payload of IB packets */
+static heur_dissector_list_t heur_dissectors_payload;
+/* heuristics sub-dissectors list for dissecting the PrivateData of CM packets */
+static heur_dissector_list_t heur_dissectors_cm_private;
+
+/* ----- This sections contains various utility functions indirectly related to Infiniband dissection ---- */
+
+/* g_int64_hash, g_int64_equal are defined starting glib 2.22 - otherwise, we'll have to
+   provide them ourselves! */
+#if !GLIB_CHECK_VERSION(2,22,0)
+guint
+g_int64_hash (gconstpointer v)
+{
+  return (guint) *(const gint64*) v;
+}
+
+gboolean
+g_int64_equal (gconstpointer v1,
+               gconstpointer v2)
+{
+  return *((const gint64*) v1) == *((const gint64*) v2);
+}
+#endif
+
+void table_destroy_notify(gpointer data) {
+    g_free(data);
+}
+
+/* --------------------------------------------------------------------------------------------------------*/
 
 /* Helper dissector for correctly dissecting RoCE packets (encapsulated within an Ethernet */
 /* frame). The only difference from regular IB packets is that RoCE packets do not contain */
@@ -105,13 +1626,20 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     struct e_in6_addr SRCgid;       /* Structures to hold GIDs should we need them */
     struct e_in6_addr DSTgid;
     gint crc_length = 0;
-    gint32 src_qp = -1, dst_qp = -1;    /* Tracks source and destination QPs. This is important
-                                           for deciding whether or not the packet is a MAD      */
 
-    /* initialize source/destination address strings. we will fill them in later */
-    src_addr_str = ep_alloc(ADDR_STR_MAX_LEN+1);
-    dst_addr_str = ep_alloc(ADDR_STR_MAX_LEN+1);
-                                                                   
+    /* allocate space for source/destination addresses. we will fill them in later */
+    src_addr = ep_alloc(ADDR_MAX_LEN);
+    dst_addr = ep_alloc(ADDR_MAX_LEN);
+
+    pinfo->srcport = pinfo->destport = 0xffffffff;  /* set the src/dest QPN to something impossible instead of the default 0,
+                                                       so we don't mistake it for a MAD. (QP is only 24bit, so can't be 0xffffffff)*/
+
+    /* add any code that should only run the first time the packet is dissected here: */
+    if (!pinfo->fd->flags.visited)
+    {
+        pinfo->ptype = PT_IBQP;     /* set the port-type for this packet to be Infiniband QP number */
+    }
+
     /* Mark the Packet type as Infiniband in the wireshark UI */
     /* Clear other columns */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "InfiniBand");
@@ -126,7 +1654,12 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         top_tree = tree;
     }
 
-    if(!tree)
+    /* The "quick-dissection" code in dissect_general_info skips lots of the recently-added code
+       for saving context etc. It is no longer viable to maintain two code branches, so we have
+       (temporarily?) disabled the second one. All dissection now goes through the full branch,
+       using a NULL tree pointer if this is not a full dissection call. Take care not to dereference
+       the tree pointer or any subtree pointers you create using it and you'll be fine. */
+    if(0 && !tree)
     {
         /* If no packet details are being dissected, extract some high level info for the packet view */
         /* Assigns column values rather than full tree population */
@@ -177,8 +1710,8 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
 
     /* Set destination in packet view. */
-    g_snprintf(dst_addr_str, ADDR_STR_MAX_LEN, "DLID: %d", tvb_get_ntohs(tvb, offset));
-    SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(dst_addr_str)+1, dst_addr_str);
+    *((guint16*) dst_addr) = tvb_get_ntohs(tvb, offset);
+    SET_ADDRESS(&pinfo->dst, AT_IB, sizeof(guint16), dst_addr);
 
     offset+=2;
 
@@ -193,8 +1726,8 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     proto_tree_add_item(local_route_header_tree, hf_infiniband_source_local_id,         tvb, offset, 2, FALSE);
 
     /* Set Source in packet view. */
-    g_snprintf(src_addr_str, ADDR_STR_MAX_LEN, "SLID: %d", tvb_get_ntohs(tvb, offset));
-    SET_ADDRESS(&pinfo->src, AT_STRINGZ, (int)strlen(src_addr_str)+1, src_addr_str);
+    *((guint16*) src_addr) = tvb_get_ntohs(tvb, offset);
+    SET_ADDRESS(&pinfo->src, AT_IB, sizeof(guint16), src_addr);
 
     offset+=2;
     packetLength -= 8; /* Shave 8 bytes for the LRH. */
@@ -226,8 +1759,8 @@ skip_lrh:
             tvb_get_ipv6(tvb, offset, &SRCgid);
 
             /* set source GID in packet view*/
-            g_snprintf(src_addr_str,  ADDR_STR_MAX_LEN, "SGID: %s", ip6_to_str(&SRCgid));
-            SET_ADDRESS(&pinfo->src,  AT_STRINGZ, (int)strlen(src_addr_str)+1, src_addr_str);
+            memcpy(src_addr, &SRCgid, GID_SIZE);
+            SET_ADDRESS(&pinfo->src, AT_IB, GID_SIZE, src_addr);
 
             offset += 16;
 
@@ -236,8 +1769,8 @@ skip_lrh:
             tvb_get_ipv6(tvb, offset, &DSTgid);
 
             /* set destination GID in packet view*/
-            g_snprintf(dst_addr_str,  ADDR_STR_MAX_LEN, "DGID: %s", ip6_to_str(&DSTgid));
-            SET_ADDRESS(&pinfo->dst,  AT_STRINGZ, (int)strlen(dst_addr_str)+1, dst_addr_str);
+            memcpy(dst_addr, &DSTgid, GID_SIZE);
+            SET_ADDRESS(&pinfo->dst, AT_IB, GID_SIZE, dst_addr);
 
             offset += 16;
             packetLength -= 40; /* Shave 40 bytes for GRH */
@@ -267,7 +1800,7 @@ skip_lrh:
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_partition_key,                tvb, offset, 2, FALSE); offset +=2;
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_reserved8,                    tvb, offset, 1, FALSE); offset +=1;
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_destination_qp,               tvb, offset, 3, FALSE);
-            dst_qp = tvb_get_ntoh24(tvb, offset); offset +=3;
+            pinfo->destport = tvb_get_ntoh24(tvb, offset); offset +=3;
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_acknowledge_request,          tvb, offset, 1, FALSE);
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_reserved7,                    tvb, offset, 1, FALSE); offset +=1;
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_packet_sequence_number,       tvb, offset, 3, FALSE); offset +=3;
@@ -278,8 +1811,8 @@ skip_lrh:
         break;
         case IP_NON_IBA:
             /* Raw IPv6 Packet */
-            g_snprintf(dst_addr_str,  ADDR_STR_MAX_LEN, "IPv6 over IB Packet");
-            SET_ADDRESS(&pinfo->src,  AT_STRINGZ, (int)strlen(dst_addr_str)+1, dst_addr_str);
+            g_snprintf(dst_addr,  ADDR_MAX_LEN, "IPv6 over IB Packet");
+            SET_ADDRESS(&pinfo->dst,  AT_STRINGZ, (int)strlen(dst_addr)+1, dst_addr);
 
             parse_IPvSix(all_headers_tree, tvb, &offset, pinfo);
             break;
@@ -312,38 +1845,38 @@ skip_lrh:
         {
             case RDETH_DETH_PAYLD:
                 parse_RDETH(all_headers_tree, tvb, &offset);
-                parse_DETH(all_headers_tree, tvb, &offset, &src_qp);
+                parse_DETH(all_headers_tree, pinfo, tvb, &offset);
 
                 packetLength -= 4; /* RDETH */
                 packetLength -= 8; /* DETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
                 break;
             case RDETH_DETH_RETH_PAYLD:
                 parse_RDETH(all_headers_tree, tvb, &offset);
-                parse_DETH(all_headers_tree, tvb, &offset, &src_qp);
+                parse_DETH(all_headers_tree, pinfo, tvb, &offset);
                 parse_RETH(all_headers_tree, tvb, &offset);
 
                 packetLength -= 4; /* RDETH */
                 packetLength -= 8; /* DETH */
                 packetLength -= 16; /* RETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
                 break;
             case RDETH_DETH_IMMDT_PAYLD:
                 parse_RDETH(all_headers_tree, tvb, &offset);
-                parse_DETH(all_headers_tree, tvb, &offset, &src_qp);
+                parse_DETH(all_headers_tree, pinfo, tvb, &offset);
                 parse_IMMDT(all_headers_tree, tvb, &offset);
 
                 packetLength -= 4; /* RDETH */
                 packetLength -= 8; /* DETH */
                 packetLength -= 4; /* IMMDT */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
                 break;
             case RDETH_DETH_RETH_IMMDT_PAYLD:
                 parse_RDETH(all_headers_tree, tvb, &offset);
-                parse_DETH(all_headers_tree, tvb, &offset, &src_qp);
+                parse_DETH(all_headers_tree, pinfo, tvb, &offset);
                 parse_RETH(all_headers_tree, tvb, &offset);
                 parse_IMMDT(all_headers_tree, tvb, &offset);
 
@@ -352,11 +1885,11 @@ skip_lrh:
                 packetLength -= 16; /* RETH */
                 packetLength -= 4; /* IMMDT */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
                 break;
             case RDETH_DETH_RETH:
                 parse_RDETH(all_headers_tree, tvb, &offset);
-                parse_DETH(all_headers_tree, tvb, &offset, &src_qp);
+                parse_DETH(all_headers_tree, pinfo, tvb, &offset);
                 parse_RETH(all_headers_tree, tvb, &offset);
 
                 packetLength -= 4; /* RDETH */
@@ -371,14 +1904,14 @@ skip_lrh:
                 packetLength -= 4; /* RDETH */
                 packetLength -= 4; /* AETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
                 break;
             case RDETH_PAYLD:
                 parse_RDETH(all_headers_tree, tvb, &offset);
 
                 packetLength -= 4; /* RDETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
                 break;
             case RDETH_AETH:
                 parse_AETH(all_headers_tree, tvb, &offset);
@@ -401,7 +1934,7 @@ skip_lrh:
                 break;
             case RDETH_DETH_ATOMICETH:
                 parse_RDETH(all_headers_tree, tvb, &offset);
-                parse_DETH(all_headers_tree, tvb, &offset, &src_qp);
+                parse_DETH(all_headers_tree, pinfo, tvb, &offset);
                 parse_ATOMICETH(all_headers_tree, tvb, &offset);
 
                 packetLength -= 4; /* RDETH */
@@ -411,36 +1944,36 @@ skip_lrh:
                 break;
             case RDETH_DETH:
                 parse_RDETH(all_headers_tree, tvb, &offset);
-                parse_DETH(all_headers_tree, tvb, &offset, &src_qp);
+                parse_DETH(all_headers_tree, pinfo, tvb, &offset);
 
                 packetLength -= 4; /* RDETH */
                 packetLength -= 8; /* DETH */
 
                 break;
             case DETH_PAYLD:
-                parse_DETH(all_headers_tree, tvb, &offset, &src_qp);
+                parse_DETH(all_headers_tree, pinfo, tvb, &offset);
 
                 packetLength -= 8; /* DETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
                 break;
             case PAYLD:
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
                 break;
             case IMMDT_PAYLD:
                 parse_IMMDT(all_headers_tree, tvb, &offset);
 
                 packetLength -= 4; /* IMMDT */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
                 break;
             case RETH_PAYLD:
                 parse_RETH(all_headers_tree, tvb, &offset);
 
                 packetLength -= 16; /* RETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
                 break;
             case RETH:
                 parse_RETH(all_headers_tree, tvb, &offset);
@@ -453,7 +1986,7 @@ skip_lrh:
 
                 packetLength -= 4; /* AETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
                 break;
             case AETH:
                 parse_AETH(all_headers_tree, tvb, &offset);
@@ -480,16 +2013,16 @@ skip_lrh:
 
                 packetLength -= 4; /* IETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
                 break;
             case DETH_IMMDT_PAYLD:
-                parse_DETH(all_headers_tree, tvb, &offset, &src_qp);
+                parse_DETH(all_headers_tree, pinfo, tvb, &offset);
                 parse_IMMDT(all_headers_tree, tvb, &offset);
 
                 packetLength -= 8; /* DETH */
                 packetLength -= 4; /* IMMDT */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength, src_qp, dst_qp);
+                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
                 break;
             default:
                 parse_VENDOR(all_headers_tree, tvb, &offset);
@@ -515,7 +2048,7 @@ skip_lrh:
     {
         proto_tree_add_item(all_headers_tree, hf_infiniband_variant_crc,   tvb, offset, 2, FALSE); offset+=2;
     }
-    
+
 }
 
 static void
@@ -539,7 +2072,7 @@ dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "InfiniBand Link");
     col_clear(pinfo->cinfo, COL_INFO);
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
-		     val_to_str(operand, Operand_Description, "Unknown (0x%1x)"));
+             val_to_str(operand, Operand_Description, "Unknown (0x%1x)"));
 
     /* Get the parent tree from the ERF dissector.  We don't want to nest under ERF */
     if(tree && tree->parent)
@@ -560,26 +2093,25 @@ dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Top Level Packet */
     infiniband_link_packet = proto_tree_add_item(tree, proto_infiniband_link, tvb, offset, -1, FALSE);
- 
+
     /* Headers Level Tree */
     link_tree = proto_item_add_subtree(infiniband_link_packet, ett_link);
 
     operand_item = proto_tree_add_item(link_tree, hf_infiniband_link_op, tvb, offset, 2, FALSE);
 
     if (operand > 1) {
-	proto_item_set_text(operand_item, "%s", "Reserved");
-	call_dissector(data_handle, tvb, pinfo, link_tree);
+        proto_item_set_text(operand_item, "%s", "Reserved");
+        call_dissector(data_handle, tvb, pinfo, link_tree);
     } else {
-	proto_tree_add_item(link_tree, hf_infiniband_link_fctbs, tvb, offset, 2, FALSE);
-	offset += 2;
+        proto_tree_add_item(link_tree, hf_infiniband_link_fctbs, tvb, offset, 2, FALSE);
+        offset += 2;
 
-	proto_tree_add_item(link_tree, hf_infiniband_link_vl, tvb, offset, 2, FALSE);
-	proto_tree_add_item(link_tree, hf_infiniband_link_fccl, tvb, offset, 2, FALSE);
-	offset += 2;
+        proto_tree_add_item(link_tree, hf_infiniband_link_vl, tvb, offset, 2, FALSE);
+        proto_tree_add_item(link_tree, hf_infiniband_link_fccl, tvb, offset, 2, FALSE);
+        offset += 2;
 
-	proto_tree_add_item(link_tree, hf_infiniband_link_lpcrc, tvb, offset, 2, FALSE);
-	offset += 2;
-	
+        proto_tree_add_item(link_tree, hf_infiniband_link_lpcrc, tvb, offset, 2, FALSE);
+        offset += 2;
     }
 
 }
@@ -708,10 +2240,9 @@ parse_RDETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
 /* Parse DETH - Datagram Extended Transport Header
 * IN: parentTree to add the dissection to - in this code the all_headers_tree
 * IN: tvb - the data buffer from wireshark
-* IN/OUT: The current and updated offset
-* OUT:	  src_qp - The source QP of this packet */
+* IN/OUT: The current and updated offset  */
 static void
-parse_DETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset, gint *src_qp)
+parse_DETH(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset)
 {
     gint local_offset = *offset;
     /* DETH - Datagram Extended Transport Header */
@@ -725,7 +2256,7 @@ parse_DETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset, gint *src_qp)
     proto_tree_add_item(DETH_header_tree, hf_infiniband_queue_key,                  tvb, local_offset, 4, FALSE); local_offset+=4;
     proto_tree_add_item(DETH_header_tree, hf_infiniband_reserved8_DETH,             tvb, local_offset, 1, FALSE); local_offset+=1;
     proto_tree_add_item(DETH_header_tree, hf_infiniband_source_qp,                  tvb, local_offset, 3, FALSE);
-    *src_qp = tvb_get_ntoh24(tvb, local_offset); local_offset+=3;
+    pinfo->srcport = tvb_get_ntoh24(tvb, local_offset); local_offset+=3;
 
     *offset = local_offset;
 }
@@ -862,10 +2393,8 @@ parse_IETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
 * IN: pinfo - packet info from wireshark
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: offset - The current and updated offset
-* IN: length - Length of Payload
-* IN: src_qp - Source QP of the packet
-* IN: dst_qp - Destination QP of the packet */
-static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset, gint length, gint src_qp, gint dst_qp)
+* IN: length - Length of Payload */
+static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset, gint length)
 {
     gint local_offset = *offset;
     /* Payload - Packet Payload */
@@ -877,14 +2406,16 @@ static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
     guint16 etype, reserved;
     const char      *saved_proto;
     volatile gboolean   dissector_found = FALSE;
- 
+
     if(!tvb_bytes_exist(tvb, *offset, length)) /* previously consumed bytes + offset was all the data - none or corrupt payload */
     {
         col_set_str(pinfo->cinfo, COL_INFO, "Invalid Packet Length from LRH! [Malformed Packet]");
         col_set_fence(pinfo->cinfo, COL_INFO);
         return;
     }
-    if(src_qp == 0 || src_qp == 1 || dst_qp == 0 || dst_qp == 1)    /* management datagram */
+
+    /* management datagrams are determined by the source/destination QPs */
+    if (pinfo->srcport == 0 || pinfo->srcport == 1 || pinfo->destport == 0 || pinfo->destport == 1)    /* management datagram */
     {
         management_class =  tvb_get_guint8(tvb, (*offset) + 1);
 
@@ -936,7 +2467,7 @@ static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
                 break;
                 case COM_MGT:
                     /* parse communication management */
-                    parse_COM_MGT(parentTree, tvb, &local_offset);
+                    parse_COM_MGT(parentTree, pinfo, tvb, &local_offset);
                 break;
                 case SNMP:
                     /* parse snmp tunneling */
@@ -956,6 +2487,17 @@ static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
         * We need the total length of the packet, - length of previous headers, + offset where payload started.
         * We also need  to reserve 6 bytes for the CRCs which are not actually part of the payload.  */
 
+        etype = tvb_get_ntohs(tvb, local_offset);
+        reserved =  tvb_get_ntohs(tvb, local_offset + 2);
+
+        /* try to recognize whether or not this is a Mellanox EoIB packet by the
+           transport type and the 4 first bits of the payload */
+        if      (pref_dissect_eoib &&
+                 transport_type == TRANSPORT_UD &&
+                 tvb_get_bits8(tvb, local_offset*8, 4) == 0xC) {
+            dissector_found = parse_EoIB(parentTree, tvb, local_offset, pinfo);
+        }
+
         /* IBA packet data could be anything in principle, however it is common
          * practice to carry non-IBA data encapsulated with an EtherType header,
          * similar to the RWH header. There is no way to identify these frames
@@ -965,54 +2507,44 @@ static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
          * We see if the first few bytes look like an EtherType header, and if so
          * call the appropriate dissector. If not we call the "data" dissector.
          */
+        if (!dissector_found && pref_identify_iba_payload && reserved == 0) {
+            void *pd_save;
 
-        etype = tvb_get_ntohs(tvb, local_offset);
-        reserved =  tvb_get_ntohs(tvb, local_offset + 2);
-
-    	/* try to recognize whether or not this is a Mellanox EoIB packet by the
-           transport type and the 4 first bits of the payload */
-        if      (pref_dissect_eoib &&
-                 transport_type == TRANSPORT_UD &&
-                 tvb_get_bits8(tvb, local_offset*8, 4) == 0xC) {
-            dissector_found = parse_EoIB(parentTree, tvb, local_offset, pinfo);
-        }
-        else if (pref_identify_iba_payload && reserved == 0) {
-	    void *pd_save;
-            
             /* Get the captured length and reported length of the data
                after the Ethernet type. */
             captured_length = tvb_length_remaining(tvb, local_offset+4);
             reported_length = tvb_reported_length_remaining(tvb,
                                     local_offset+4);
-            
+
             next_tvb = tvb_new_subset(tvb, local_offset+4, captured_length,
                           reported_length);
-            
+
             pinfo->ethertype = etype;
-            
+
             /* Look for sub-dissector, and call it if found.
                Catch exceptions, so that if the reported length of "next_tvb"
                was reduced by some dissector before an exception was thrown,
                we can still put in an item for the trailer. */
             saved_proto = pinfo->current_proto;
-	    pd_save = pinfo->private_data;
+            pd_save = pinfo->private_data;
+
             TRY {
                 dissector_found = dissector_try_port(ethertype_dissector_table,
                                      etype, next_tvb, pinfo, top_tree);
             }
             CATCH(BoundsError) {
                 /* Somebody threw BoundsError, which means that:
-                   
+
                 1) a dissector was found, so we don't need to
                 dissect the payload as data or update the
                 protocol or info columns;
-                
+
                 2) dissecting the payload found that the packet was
                 cut off by a snapshot length before the end of
                 the payload.  The trailer comes after the payload,
                 so *all* of the trailer is cut off, and we'll
                 just get another BoundsError if we add the trailer.
-                
+
                 Therefore, we just rethrow the exception so it gets
                 reported; we don't dissect the trailer or do anything
                 else. */
@@ -1030,22 +2562,22 @@ static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
                    found and restoring the protocol value that was in effect
                    before we called the subdissector. */
 
-		/*  Restore the private_data structure in case one of the
-		 *  called dissectors modified it (and, due to the exception,
-		 *  was unable to restore it).
-		 */
-		pinfo->private_data = pd_save;
+                /*  Restore the private_data structure in case one of the
+                 *  called dissectors modified it (and, due to the exception,
+                 *  was unable to restore it).
+                 */
+                pinfo->private_data = pd_save;
 
                 show_exception(next_tvb, pinfo, top_tree, EXCEPT_CODE, GET_MESSAGE);
                 dissector_found = TRUE;
                 pinfo->current_proto = saved_proto;
             }
             ENDTRY;
-            
+
             if (dissector_found) {
                 /* now create payload entry to show Ethertype */
                 PAYLOAD_header_item = proto_tree_add_item(parentTree, hf_infiniband_payload, tvb, local_offset, tvb_reported_length_remaining(tvb, local_offset)-6, FALSE);
-                proto_item_set_text(PAYLOAD_header_item, "%s", "IBA Payload - appears to be EtherType encapsulated"); 
+                proto_item_set_text(PAYLOAD_header_item, "%s", "IBA Payload - appears to be EtherType encapsulated");
                 PAYLOAD_header_tree = proto_item_add_subtree(PAYLOAD_header_item, ett_payload);
                 proto_tree_add_uint(PAYLOAD_header_tree, hf_infiniband_etype, tvb,
                             local_offset, 2,  tvb_get_ntohs(tvb, local_offset));
@@ -1056,33 +2588,37 @@ static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
                             local_offset, 2, tvb_get_ntohs(tvb, local_offset));
 
             }
-                
+
         }
-        
+
+        captured_length = tvb_length_remaining(tvb, local_offset);
+        reported_length = tvb_reported_length_remaining(tvb,
+                                local_offset);
+
+        if (reported_length >= 6)
+            reported_length -= 6;
+        if (captured_length > reported_length)
+            captured_length = reported_length;
+
+        next_tvb = tvb_new_subset(tvb, local_offset,
+                      captured_length,
+                      reported_length);
+
+        /* Try any heuristic dissectors that requested a chance to try and dissect IB payloads */
+        if (!dissector_found) {
+            dissector_found = dissector_try_heuristic(heur_dissectors_payload, next_tvb, pinfo, parentTree);
+        }
+
         if (!dissector_found) {
             /* No sub-dissector found.
                Label rest of packet as "Data" */
-            
-            captured_length = tvb_length_remaining(tvb, local_offset);
-            reported_length = tvb_reported_length_remaining(tvb,
-                                    local_offset);
-            
-            if (reported_length >= 6)
-                reported_length -= 6;
-            if (captured_length > reported_length)
-                captured_length = reported_length;
-
-            next_tvb = tvb_new_subset(tvb, local_offset,
-                          captured_length,
-                          reported_length);
-            
             call_dissector(data_handle, next_tvb, pinfo, top_tree);
-            
+
         }
-        
+
 
         /*parse_RWH(parentTree, tvb, &local_offset, pinfo);*/
-        
+
         /* Will contain ICRC and VCRC = 4+2 */
         local_offset = tvb_reported_length(tvb) - 6;
     }
@@ -1142,7 +2678,7 @@ static void parse_RWH(proto_tree *ah_tree, tvbuff_t *tvb, gint *offset, packet_i
     proto_item *RWH_header_item = NULL;
 
     gint captured_length, reported_length;
-    
+
     RWH_header_item = proto_tree_add_item(ah_tree, hf_infiniband_RWH, tvb, *offset, 4, FALSE);
     proto_item_set_text(RWH_header_item, "%s", "RWH - Raw Header");
     RWH_header_tree = proto_item_add_subtree(RWH_header_item, ett_rwh);
@@ -1184,6 +2720,7 @@ static void parse_RWH(proto_tree *ah_tree, tvbuff_t *tvb, gint *offset, packet_i
     proto_tree_add_item(ah_tree, hf_infiniband_variant_crc, tvb, *offset, 2, FALSE);
 }
 
+
 /* Parse a Mellanox EoIB Encapsulation Header and the associated Ethernet frame
 * IN: parentTree to add the dissection to - in this code the all_headers_tree
 * IN: tvb - the data buffer from wireshark
@@ -1209,20 +2746,20 @@ static gboolean parse_EoIB(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_
     header_item = proto_tree_add_item(tree, hf_infiniband_EOIB, tvb, offset, 4, FALSE);
     header_subtree = proto_item_add_subtree(header_item, ett_eoib);
 
-    proto_tree_add_item(header_subtree, hf_infiniband_ver, tvb, offset, 2, FALSE); 
+    proto_tree_add_item(header_subtree, hf_infiniband_ver, tvb, offset, 2, FALSE);
     proto_tree_add_item(header_subtree, hf_infiniband_tcp_chk, tvb, offset, 2, FALSE);
     proto_tree_add_item(header_subtree, hf_infiniband_ip_chk, tvb, offset, 2, FALSE);
     proto_tree_add_item(header_subtree, hf_infiniband_fcs, tvb, offset, 2, FALSE);
 
     ms = tvb_get_bits8(tvb, (offset + 1)*8 + 2, 1);
-    seg_offset = tvb_get_bits8(tvb, (offset + 1)*8 + 3, 5); 
+    seg_offset = tvb_get_bits8(tvb, (offset + 1)*8 + 3, 5);
 
     proto_tree_add_item(header_subtree, hf_infiniband_ms, tvb, offset, 2, FALSE);
     proto_tree_add_item(header_subtree, hf_infiniband_seg_off, tvb, offset, 2, FALSE); offset += 2;
     proto_tree_add_item(header_subtree, hf_infiniband_seg_id, tvb, offset, 2, FALSE); offset += 2;
 
     if (seg_offset || ms) {
-        /* this is a fragment of an encapsulated Ethernet jumbo frame, parse as data */ 
+        /* this is a fragment of an encapsulated Ethernet jumbo frame, parse as data */
         call_dissector(data_handle, encap_tvb, pinfo, top_tree);
     } else {
         /* non-fragmented frames can be fully parsed */
@@ -1231,6 +2768,7 @@ static gboolean parse_EoIB(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_
 
     return TRUE;
 }
+
 
 /* Parse Subnet Management (LID Routed)
 * IN: parentTree to add the dissection to
@@ -1454,12 +2992,22 @@ static void parse_DEV_MGT(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
 * IN: parentTree to add the dissection to
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: The current and updated offset */
-static void parse_COM_MGT(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
+static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset)
 {
-    /* Parse the Common MAD Header */
     MAD_Data MadData;
     gint local_offset;
-    proto_item *PERF_header_item = NULL;
+    guint32 local_qpn = 0, remote_qpn = 0;
+    guint8 *local_gid, *remote_gid;
+    guint32 local_lid, remote_lid;
+    guint64 serviceid;
+    const char *label = NULL;
+    proto_item *CM_header_item = NULL;
+    proto_tree *CM_header_tree = NULL;
+    connection_context *connection = NULL; /* we'll use this to store new connections this CM packet is establishing*/
+    tvbuff_t *next_tvb;
+
+    local_gid = ep_alloc(GID_SIZE);
+    remote_gid = ep_alloc(GID_SIZE);
 
     if(!parse_MAD_Common(parentTree, tvb, offset, &MadData))
     {
@@ -1467,8 +3015,230 @@ static void parse_COM_MGT(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
         return;
     }
     local_offset = *offset;
-    PERF_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, MAD_DATA_SIZE, FALSE); local_offset += MAD_DATA_SIZE;
-    proto_item_set_text(PERF_header_item, "%s", "COMM - Communication Management MAD (Dissector Not Implemented)");
+
+    CM_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, 140, FALSE);
+
+    label = val_to_str(MadData.attributeID, CM_Attributes, "(Unknown CM Attribute)");
+
+    proto_item_set_text(CM_header_item, "CM %s", label);
+    col_clear(pinfo->cinfo, COL_INFO);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "CM: %s", label);
+
+    CM_header_tree = proto_item_add_subtree(CM_header_item, ett_cm);
+
+    switch (MadData.attributeID) {
+        case ATTR_CM_REQ:
+            proto_tree_add_item(CM_header_tree, hf_cm_req_local_comm_id, tvb, local_offset, 4, FALSE); local_offset += 4;
+            local_offset += 4;  /* skip reserved */
+            proto_tree_add_item(CM_header_tree, hf_cm_req_service_id, tvb, local_offset, 8, FALSE);
+            serviceid = tvb_get_ntoh64(tvb, local_offset); local_offset += 8;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_local_ca_guid, tvb, local_offset, 8, FALSE); local_offset += 8;
+            local_offset += 4;  /* skip reserved */
+            proto_tree_add_item(CM_header_tree, hf_cm_req_local_qkey, tvb, local_offset, 4, FALSE); local_offset += 4;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_local_qpn, tvb, local_offset, 3, FALSE);
+            local_qpn = tvb_get_ntoh24(tvb, local_offset); local_offset += 3;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_respo_res, tvb, local_offset, 1, FALSE); local_offset += 1;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_local_eecn, tvb, local_offset, 3, FALSE); local_offset += 3;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_init_depth, tvb, local_offset, 1, FALSE); local_offset += 1;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_remote_eecn, tvb, local_offset, 3, FALSE); local_offset += 3;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_remote_cm_resp_to, tvb, local_offset, 1, FALSE);
+            proto_tree_add_item(CM_header_tree, hf_cm_req_transp_serv_type, tvb, local_offset, 1, FALSE);
+            proto_tree_add_item(CM_header_tree, hf_cm_req_e2e_flow_ctrl, tvb, local_offset, 1, FALSE); local_offset += 1;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_start_psn, tvb, local_offset, 3, FALSE); local_offset += 3;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_local_cm_resp_to, tvb, local_offset, 1, FALSE);
+            proto_tree_add_item(CM_header_tree, hf_cm_req_retry_count, tvb, local_offset, 1, FALSE); local_offset += 1;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_pkey, tvb, local_offset, 2, FALSE); local_offset += 2;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_path_pp_mtu, tvb, local_offset, 1, FALSE);
+            proto_tree_add_item(CM_header_tree, hf_cm_req_rdc_exists, tvb, local_offset, 1, FALSE);
+            proto_tree_add_item(CM_header_tree, hf_cm_req_rnr_retry_count, tvb, local_offset, 1, FALSE); local_offset += 1;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_max_cm_retries, tvb, local_offset, 1, FALSE);
+            proto_tree_add_item(CM_header_tree, hf_cm_req_srq, tvb, local_offset, 1, FALSE);
+            local_offset += 1;  /* skip reserved */
+            proto_tree_add_item(CM_header_tree, hf_cm_req_primary_local_lid, tvb, local_offset, 2, FALSE);
+            local_lid = tvb_get_ntohs(tvb, local_offset); local_offset += 2;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_primary_remote_lid, tvb, local_offset, 2, FALSE);
+            remote_lid = tvb_get_ntohs(tvb, local_offset); local_offset += 2;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_primary_local_gid, tvb, local_offset, 16, FALSE);
+            tvb_get_ipv6(tvb, local_offset, (struct e_in6_addr*)local_gid); local_offset += 16;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_primary_remote_gid, tvb, local_offset, 16, FALSE);
+            tvb_get_ipv6(tvb, local_offset, (struct e_in6_addr*)remote_gid); local_offset += 16;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_primary_flow_label, tvb, local_offset, 2, FALSE); local_offset += 2;
+            local_offset += 1;  /* skip reserved */
+            proto_tree_add_item(CM_header_tree, hf_cm_req_primary_packet_rate, tvb, local_offset, 1, FALSE); local_offset += 1;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_primary_traffic_class, tvb, local_offset, 1, FALSE); local_offset += 1;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_primary_hop_limit, tvb, local_offset, 1, FALSE); local_offset += 1;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_primary_sl, tvb, local_offset, 1, FALSE);
+            proto_tree_add_item(CM_header_tree, hf_cm_req_primary_subnet_local, tvb, local_offset, 1, FALSE);
+            local_offset += 1;  /* skip reserved */
+            proto_tree_add_item(CM_header_tree, hf_cm_req_primary_local_ack_to, tvb, local_offset, 1, FALSE);
+            local_offset += 1;  /* skip reserved */
+            proto_tree_add_item(CM_header_tree, hf_cm_req_alt_local_lid, tvb, local_offset, 2, FALSE); local_offset += 2;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_alt_remote_lid, tvb, local_offset, 2, FALSE); local_offset += 2;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_alt_local_gid, tvb, local_offset, 16, FALSE); local_offset += 16;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_alt_remote_gid, tvb, local_offset, 16, FALSE); local_offset += 16;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_flow_label, tvb, local_offset, 2, FALSE); local_offset += 2;
+            local_offset += 1;  /* skip reserved */
+            proto_tree_add_item(CM_header_tree, hf_cm_req_packet_rate, tvb, local_offset, 1, FALSE); local_offset += 1;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_alt_traffic_class, tvb, local_offset, 1, FALSE); local_offset += 1;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_alt_hop_limit, tvb, local_offset, 1, FALSE); local_offset += 1;
+            proto_tree_add_item(CM_header_tree, hf_cm_req_SL, tvb, local_offset, 1, FALSE);
+            proto_tree_add_item(CM_header_tree, hf_cm_req_subnet_local, tvb, local_offset, 1, FALSE);
+            local_offset += 1;  /* skip reserved */
+            proto_tree_add_item(CM_header_tree, hf_cm_req_local_ACK_timeout, tvb, local_offset, 1, FALSE);
+            local_offset += 1;  /* skip reserved */
+
+            /* the following saves information about the conversation this packet defines,
+               so there's no point in doing it more than once per packet */
+            if(!pinfo->fd->flags.visited)
+            {
+                conversation_t *conv;
+                conversation_infiniband_data *proto_data = NULL;
+                guint64 *hash_key = g_malloc(sizeof(hash_key));
+
+                /* create a new connection context and store it in the hash table */
+                connection = g_malloc(sizeof(connection_context));
+                memcpy(&(connection->req_gid), local_gid, GID_SIZE);
+                memcpy(&(connection->resp_gid), remote_gid, GID_SIZE);
+                connection->req_lid = local_lid;
+                connection->resp_lid = remote_lid;
+                connection->req_qp = local_qpn;
+                connection->resp_qp = 0;   /* not currently known. we'll fill this in later */
+                connection->service_id = serviceid;
+
+                /* save the context to the context hash table, for retrieval when the corresponding
+                   CM REP message arrives*/
+                *hash_key = MadData.transactionID;
+                ADD_ADDRESS_TO_HASH(*hash_key, &pinfo->src);
+                g_hash_table_replace(CM_context_table, hash_key, connection);
+
+                /* Now we create a conversation for the CM exchange. This uses both
+                   sides of the conversation since CM packets also include the source
+                   QPN */
+                proto_data = se_alloc(sizeof(conversation_infiniband_data));
+                proto_data->service_id = connection->service_id;
+
+                conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                                        PT_IBQP, pinfo->srcport, pinfo->destport, 0);
+                conversation_add_proto_data(conv, proto_infiniband, proto_data);
+            }
+
+            /* give a chance for subdissectors to analyze the private data */
+            next_tvb = tvb_new_subset(tvb, local_offset, 92, -1);
+            if (! dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, parentTree) )
+                /* if none reported success, add this as raw "data" */
+                proto_tree_add_item(CM_header_tree, hf_cm_req_private_data, tvb, local_offset, 92, FALSE);
+
+            local_offset += 92;
+            break;
+        case ATTR_CM_REP:
+            proto_tree_add_item(CM_header_tree, hf_cm_rep_localcommid, tvb, local_offset, 4, FALSE); local_offset += 4;
+            proto_tree_add_item(CM_header_tree, hf_cm_rep_remotecommid, tvb, local_offset, 4, FALSE); local_offset += 4;
+            proto_tree_add_item(CM_header_tree, hf_cm_rep_localqkey, tvb, local_offset, 4, FALSE); local_offset += 4;
+            proto_tree_add_item(CM_header_tree, hf_cm_rep_localqpn, tvb, local_offset, 3, FALSE);
+            remote_qpn = tvb_get_ntoh24(tvb, local_offset); local_offset += 3;
+            local_offset += 1;  /* skip reserved */
+            proto_tree_add_item(CM_header_tree, hf_cm_rep_localeecontnum, tvb, local_offset, 3, FALSE); local_offset += 3;
+            local_offset += 1;  /* skip reserved */
+            proto_tree_add_item(CM_header_tree, hf_cm_rep_startingpsn, tvb, local_offset, 3, FALSE); local_offset += 3;
+            local_offset += 1;  /* skip reserved */
+            proto_tree_add_item(CM_header_tree, hf_cm_rep_responderres, tvb, local_offset, 1, FALSE); local_offset += 1;
+            proto_tree_add_item(CM_header_tree, hf_cm_rep_initiatordepth, tvb, local_offset, 1, FALSE); local_offset += 1;
+            proto_tree_add_item(CM_header_tree, hf_cm_rep_tgtackdelay, tvb, local_offset, 1, FALSE);
+            proto_tree_add_item(CM_header_tree, hf_cm_rep_failoveracc, tvb, local_offset, 1, FALSE);
+            proto_tree_add_item(CM_header_tree, hf_cm_rep_e2eflowctl, tvb, local_offset, 1, FALSE); local_offset += 1;
+            proto_tree_add_item(CM_header_tree, hf_cm_rep_rnrretrycount, tvb, local_offset, 1, FALSE);
+            proto_tree_add_item(CM_header_tree, hf_cm_rep_srq, tvb, local_offset, 1, FALSE);
+            local_offset += 1;  /* skip reserved */
+            proto_tree_add_item(CM_header_tree, hf_cm_rep_localcaguid, tvb, local_offset, 8, FALSE); local_offset += 8;
+
+            /* the following saves information about the conversation this packet defines,
+               so there's no point in doing it more than once per packet */
+            if(!pinfo->fd->flags.visited)
+            {
+                /* get the previously saved context for this connection */
+                guint64 hash_key;
+                hash_key = MadData.transactionID;
+                ADD_ADDRESS_TO_HASH(hash_key, &pinfo->dst);
+                connection = g_hash_table_lookup(CM_context_table, &hash_key);
+
+                /* if an appropriate connection was not found there's something wrong, but nothing we can
+                   do about it here - so just skip saving the context */
+                if(connection)
+                {
+                    address req_addr,
+                            resp_addr;  /* we'll fill these in and pass them to conversation_new */
+                    conversation_t *conv;
+                    conversation_infiniband_data *proto_data = NULL;
+
+                    connection->resp_qp = remote_qpn;
+
+                    proto_data = se_alloc(sizeof(conversation_infiniband_data));
+                    proto_data->service_id = connection->service_id;
+
+                    /* RC traffic never(?) includes a field indicating the source QPN, so
+                       the destination host knows it only from previous context (a single
+                       QPN on the host that is part of an RC can only receive traffic from
+                       that RC). For this reason we do not register conversations with both
+                       sides, but rather we register the same conversation twice - once for
+                       each side of the Reliable Connection. */
+
+                    /* first register the conversation using the GIDs */
+                    SET_ADDRESS(&req_addr, AT_IB, GID_SIZE, connection->req_gid);
+                    SET_ADDRESS(&resp_addr, AT_IB, GID_SIZE, connection->resp_gid);
+
+                    conv = conversation_new(pinfo->fd->num, &req_addr, &req_addr,
+                                            PT_IBQP, connection->req_qp, connection->req_qp, NO_ADDR2|NO_PORT2);
+                    conversation_add_proto_data(conv, proto_infiniband, proto_data);
+                    conv = conversation_new(pinfo->fd->num, &resp_addr, &resp_addr,
+                                            PT_IBQP, connection->resp_qp, connection->resp_qp, NO_ADDR2|NO_PORT2);
+                    conversation_add_proto_data(conv, proto_infiniband, proto_data);
+
+                    /* next, register the conversation using the LIDs */
+                    SET_ADDRESS(&req_addr, AT_IB, sizeof(guint16), &(connection->req_lid));
+                    SET_ADDRESS(&resp_addr, AT_IB, sizeof(guint16), &(connection->resp_lid));
+
+                    conv = conversation_new(pinfo->fd->num, &req_addr, &req_addr,
+                                            PT_IBQP, connection->req_qp, connection->req_qp, NO_ADDR2|NO_PORT2);
+                    conversation_add_proto_data(conv, proto_infiniband, proto_data);
+                    conv = conversation_new(pinfo->fd->num, &resp_addr, &resp_addr,
+                                            PT_IBQP, connection->resp_qp, connection->resp_qp, NO_ADDR2|NO_PORT2);
+                    conversation_add_proto_data(conv, proto_infiniband, proto_data);
+
+                    g_hash_table_remove(CM_context_table, &hash_key);
+                }
+            }
+
+            /* give a chance for subdissectors to get the private data */
+            next_tvb = tvb_new_subset(tvb, local_offset, 196, -1);
+            if (! dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, parentTree) )
+                /* if none reported success, add this as raw "data" */
+                proto_tree_add_item(CM_header_tree, hf_cm_rep_privatedata, tvb, local_offset, 196, FALSE);
+
+            local_offset += 196;
+            break;
+        case ATTR_CM_RTU:
+            proto_tree_add_item(CM_header_tree, hf_cm_rtu_localcommid, tvb, local_offset, 4, FALSE); local_offset += 4;
+            proto_tree_add_item(CM_header_tree, hf_cm_rtu_remotecommid, tvb, local_offset, 4, FALSE); local_offset += 4;
+            /* currently only REQ/REP call subdissectors for the private data */
+            proto_tree_add_item(CM_header_tree, hf_cm_rtu_privatedata, tvb, local_offset, 224, FALSE); local_offset += 224;
+            break;
+        case ATTR_CM_REJ:
+            proto_tree_add_item(CM_header_tree, hf_cm_rej_local_commid, tvb, local_offset, 4, FALSE); local_offset += 4;
+            proto_tree_add_item(CM_header_tree, hf_cm_rej_remote_commid, tvb, local_offset, 4, FALSE); local_offset += 4;
+            proto_tree_add_item(CM_header_tree, hf_cm_rej_msg_rej, tvb, local_offset, 1, FALSE);
+            local_offset += 1;  /* skip reserved */
+            proto_tree_add_item(CM_header_tree, hf_cm_rej_rej_info_len, tvb, local_offset, 1, FALSE);
+            local_offset += 1;  /* skip reserved */
+            proto_tree_add_item(CM_header_tree, hf_cm_rej_reason, tvb, local_offset, 2, FALSE); local_offset += 2;
+            proto_tree_add_item(CM_header_tree, hf_cm_rej_add_rej_info, tvb, local_offset, 72, FALSE); local_offset += 72;
+            /* currently only REQ/REP call subdissectors for the private data */
+            proto_tree_add_item(CM_header_tree, hf_cm_rej_private_data, tvb, local_offset, 148, FALSE); local_offset += 148;
+            break;
+        default:
+            proto_item_append_text(CM_header_item, " (Dissector Not Implemented)"); local_offset += MAD_DATA_SIZE;
+            break;
+    }
+
     *offset = local_offset;
 }
 
@@ -1478,7 +3248,7 @@ static void parse_COM_MGT(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
 * IN/OUT: The current and updated offset */
 static void parse_SNMP(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
 {
-        /* Parse the Common MAD Header */
+    /* Parse the Common MAD Header */
     MAD_Data MadData;
     gint local_offset;
     proto_item *PERF_header_item = NULL;
@@ -3211,13 +4981,15 @@ static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     offset+=1;
 
     /* Set destination in packet view. */
-    g_snprintf(dst_addr_str, ADDR_STR_MAX_LEN, "DLID: %d", tvb_get_ntohs(tvb, offset));
-    SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(dst_addr_str)+1, dst_addr_str);
+    *((guint16*) dst_addr) = tvb_get_ntohs(tvb, offset);
+    SET_ADDRESS(&pinfo->dst, AT_IB, sizeof(guint16), dst_addr);
+
     offset+=4;
 
     /* Set Source in packet view. */
-    g_snprintf(src_addr_str, ADDR_STR_MAX_LEN, "SLID: %d", tvb_get_ntohs(tvb, offset));
-    SET_ADDRESS(&pinfo->src, AT_STRINGZ, (int)strlen(src_addr_str)+1, src_addr_str);
+    *((guint16*) src_addr) = tvb_get_ntohs(tvb, offset);
+    SET_ADDRESS(&pinfo->src, AT_IB, sizeof(guint16), src_addr);
+
     offset+=2;
 
 skip_lrh:
@@ -3232,16 +5004,16 @@ skip_lrh:
             tvb_get_ipv6(tvb, offset, &SRCgid);
 
             /* Set source GID in packet view. */
-            g_snprintf(src_addr_str, ADDR_STR_MAX_LEN, "SGID: %s", ip6_to_str(&SRCgid));
-            SET_ADDRESS(&pinfo->src, AT_STRINGZ, (int)strlen(src_addr_str)+1, src_addr_str);
+            memcpy(src_addr, &SRCgid, GID_SIZE);
+            SET_ADDRESS(&pinfo->src, AT_IB, GID_SIZE, src_addr);
 
             offset += 16;
 
             tvb_get_ipv6(tvb, offset, &DSTgid);
-            
+
             /* Set destination GID in packet view. */
-            g_snprintf(dst_addr_str, ADDR_STR_MAX_LEN, "DGID: %s", ip6_to_str(&DSTgid));
-            SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(dst_addr_str)+1, dst_addr_str);
+            memcpy(dst_addr, &DSTgid, GID_SIZE);
+            SET_ADDRESS(&pinfo->dst, AT_IB, GID_SIZE, dst_addr);
 
             offset += 16;
 
@@ -3265,8 +5037,8 @@ skip_lrh:
             break;
         case IP_NON_IBA:
             /* Raw IPv6 Packet */
-            g_snprintf(dst_addr_str, ADDR_STR_MAX_LEN, "IPv6 over IB Packet");
-            SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(dst_addr_str)+1, dst_addr_str);
+            g_snprintf(dst_addr,  ADDR_MAX_LEN, "IPv6 over IB Packet");
+            SET_ADDRESS(&pinfo->dst,  AT_STRINGZ, (int)strlen(dst_addr)+1, dst_addr);
             break;
         case RAW:
             break;
@@ -3427,7 +5199,7 @@ void proto_register_infiniband(void)
         { 0,    NULL }
     };
 
-    static hf_register_info hf[] = {    
+    static hf_register_info hf[] = {
         /* Local Route Header (LRH) */
         { &hf_infiniband_LRH, {
                 "Local Route Header", "infiniband.lrh",
@@ -3469,7 +5241,7 @@ void proto_register_infiniband(void)
                 "Source Local ID", "infiniband.lrh.slid",
                 FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
-        
+
         /* Global Route Header (GRH) */
         { &hf_infiniband_GRH, {
                 "Global Route Header", "infiniband.grh",
@@ -3507,7 +5279,7 @@ void proto_register_infiniband(void)
                 "Destination GID", "infiniband.grh.dgid",
                 FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
-        
+
         /* Base Transport Header (BTH) */
         { &hf_infiniband_BTH, {
                 "Base Transport Header", "infiniband.bth",
@@ -3557,7 +5329,7 @@ void proto_register_infiniband(void)
                 "Packet Sequence Number", "infiniband.bth.psn",
                 FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
-        
+
         /* Raw Header (RWH) */
         { &hf_infiniband_RWH, {
                 "Raw Header", "infiniband.rwh",
@@ -3585,7 +5357,7 @@ void proto_register_infiniband(void)
                 "E2E Context", "infiniband.rdeth.eecnxt",
                 FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
-        
+
         /* Datagram Extended Transport Header (DETH) */
         { &hf_infiniband_DETH, {
                 "Datagram Extended Transport Header", "infiniband.deth",
@@ -3601,9 +5373,9 @@ void proto_register_infiniband(void)
         },
         { &hf_infiniband_source_qp, {
                 "Source Queue Pair", "infiniband.deth.srcqp",
-                FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
-        
+
         /* RDMA Extended Transport Header (RETH) */
         { &hf_infiniband_RETH, {
                 "RDMA Extended Transport Header", "infiniband.reth",
@@ -3621,7 +5393,7 @@ void proto_register_infiniband(void)
                 "DMA Length", "infiniband.reth.dmalen",
                 FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
-        
+
         /* Atomic Extended Transport Header (AtomicETH) */
         { &hf_infiniband_AtomicETH, {
                 "Atomic Extended Transport Header", "infiniband.atomiceth",
@@ -3645,7 +5417,7 @@ void proto_register_infiniband(void)
                 "Compare Data", "infiniband.atomiceth.cmpdt",
                 FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
-        
+
         /* ACK Extended Transport Header (AETH) */
         { &hf_infiniband_AETH, {
                 "ACK Extended Transport Header", "infiniband.aeth",
@@ -3659,7 +5431,7 @@ void proto_register_infiniband(void)
                 "Message Sequence Number", "infiniband.aeth.msn",
                 FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
-        
+
         /* Atomic ACK Extended Transport Header (AtomicAckETH) */
         { &hf_infiniband_AtomicAckETH, {
                 "Atomic ACK Extended Transport Header", "infiniband.atomicacketh",
@@ -3704,7 +5476,286 @@ void proto_register_infiniband(void)
                 "Unknown/Vendor Specific Data", "infiniband.vendor",
                 FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
-
+        /* CM REQ Header */
+        {&hf_cm_req_local_comm_id, {
+                "Local Communication ID", "infiniband.cm.req",
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_service_id, {
+                "ServiceID", "infiniband.cm.req.serviceid",
+                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_local_ca_guid, {
+                "Local CA GUID", "infiniband.cm.req.localcaguid",
+                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_local_qkey, {
+                "Local Q_Key", "infiniband.cm.req.localqkey",
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_local_qpn, {
+                "Local QPN", "infiniband.cm.req.localqpn",
+                FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_respo_res, {
+                "Responder Resources", "infiniband.cm.req.responderres",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_local_eecn, {
+                "Local EECN", "infiniband.cm.req.localeecn",
+                FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_init_depth, {
+                "Initiator Depth", "infiniband.cm.req.initdepth",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_remote_eecn, {
+                "Remote EECN", "infiniband.cm.req.remoteeecn",
+                FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_remote_cm_resp_to, {
+                "Remote CM Response Timeout", "infiniband.cm.req.remoteresptout",
+                FT_UINT8, BASE_HEX, NULL, 0x1f, NULL, HFILL}
+        },
+        {&hf_cm_req_transp_serv_type, {
+                "Transport Service Type", "infiniband.cm.req.transpsvctype",
+                FT_UINT8, BASE_HEX, NULL, 0x60, NULL, HFILL}
+        },
+        {&hf_cm_req_e2e_flow_ctrl, {
+                "End-to-End Flow Control", "infiniband.cm.req.e2eflowctrl",
+                FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL}
+        },
+        {&hf_cm_req_start_psn, {
+                "Starting PSN", "infiniband.cm.req.startpsn",
+                FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_local_cm_resp_to, {
+                "Local CM Response Timeout", "infiniband.cm.req.localresptout",
+                FT_UINT8, BASE_HEX, NULL, 0x1f, NULL, HFILL}
+        },
+        {&hf_cm_req_retry_count, {
+                "Retry Count", "infiniband.cm.req.retrcount",
+                FT_UINT8, BASE_HEX, NULL, 0xe0, NULL, HFILL}
+        },
+        {&hf_cm_req_pkey, {
+                "Partition Key", "infiniband.cm.req.pkey",
+                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_path_pp_mtu, {
+                "Path Packet Payload MTU", "infiniband.cm.req.pppmtu",
+                FT_UINT8, BASE_HEX, NULL, 0xf, NULL, HFILL}
+        },
+        {&hf_cm_req_rdc_exists, {
+                "RDC Exists", "infiniband.cm.req.rdcexist",
+                FT_UINT8, BASE_HEX, NULL, 0x10, NULL, HFILL}
+        },
+        {&hf_cm_req_rnr_retry_count, {
+                "RNR Retry Count", "infiniband.cm.req.rnrretrcount",
+                FT_UINT8, BASE_HEX, NULL, 0xe0, NULL, HFILL}
+        },
+        {&hf_cm_req_max_cm_retries, {
+                "Max CM Retries", "infiniband.cm.req.maxcmretr",
+                FT_UINT8, BASE_HEX, NULL, 0xf, NULL, HFILL}
+        },
+        {&hf_cm_req_srq, {
+                "SRQ", "infiniband.cm.req.srq",
+                FT_UINT8, BASE_HEX, NULL, 0x10, NULL, HFILL}
+        },
+        {&hf_cm_req_primary_local_lid, {
+                "Primary Local Port LID", "infiniband.cm.req.prim_locallid",
+                FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_primary_remote_lid, {
+                "Primary Remote Port LID", "infiniband.cm.req.prim_remotelid",
+                FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_primary_local_gid, {
+                "Primary Local Port GID", "infiniband.cm.req.prim_localgid",
+                FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_primary_remote_gid, {
+                "Primary Remote Port GID", "infiniband.cm.req.prim_remotegid",
+                FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_primary_flow_label, {
+                "Primary Flow Label", "infiniband.cm.req.prim_flowlabel",
+                FT_UINT24, BASE_HEX, NULL, 0xfffff, NULL, HFILL}
+        },
+        {&hf_cm_req_primary_packet_rate, {
+                "Primary Packet Rate", "infiniband.cm.req.prim_pktrate",
+                FT_UINT8, BASE_HEX, NULL, 0xfc, NULL, HFILL}
+        },
+        {&hf_cm_req_primary_traffic_class, {
+                "Primary Traffic Class", "infiniband.cm.req.prim_tfcclass",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_primary_hop_limit, {
+                "Primary Hop Limit", "infiniband.cm.req.prim_hoplim",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_primary_sl, {
+                "Primary SL", "infiniband.cm.req.prim_sl",
+                FT_UINT8, BASE_HEX, NULL, 0xf, NULL, HFILL}
+        },
+        {&hf_cm_req_primary_subnet_local, {
+                "Primary Subnet Local", "infiniband.cm.req.prim_subnetlocal",
+                FT_UINT8, BASE_HEX, NULL, 0x10, NULL, HFILL}
+        },
+        {&hf_cm_req_primary_local_ack_to, {
+                "Primary Local ACK Timeout", "infiniband.cm.req.prim_localacktout",
+                FT_UINT8, BASE_HEX, NULL, 0x1f, NULL, HFILL}
+        },
+        {&hf_cm_req_alt_local_lid, {
+                "Alternate Local Port LID", "infiniband.cm.req.alt_locallid",
+                FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_alt_remote_lid, {
+                "Alternate Remote Port LID", "infiniband.cm.req.alt_remotelid",
+                FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_alt_local_gid, {
+                "Alternate Local Port GID", "infiniband.cm.req.alt_localgid",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_alt_remote_gid, {
+                "Alternate Remote Port GID", "infiniband.cm.req.alt_remotegid",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_flow_label, {
+                "Alternate Flow Label", "infiniband.cm.req.alt_flowlabel",
+                FT_UINT24, BASE_HEX, NULL, 0xfffff, NULL, HFILL}
+        },
+        {&hf_cm_req_packet_rate, {
+                "Alternate Packet Rate", "infiniband.cm.req.alt_pktrate",
+                FT_UINT8, BASE_HEX, NULL, 0xfc, NULL, HFILL}
+        },
+        {&hf_cm_req_alt_traffic_class, {
+                "Alternate Traffic Class", "infiniband.cm.req.alt_tfcclass",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_alt_hop_limit, {
+                "Alternate Hop Limit", "infiniband.cm.req.alt_hoplim",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_req_SL, {
+                "Alternate SL", "infiniband.cm.req.alt_sl",
+                FT_UINT8, BASE_HEX, NULL, 0xf, NULL, HFILL}
+        },
+        {&hf_cm_req_subnet_local, {
+                "Alternate Subnet Local", "infiniband.cm.req.alt_subnetlocal",
+                FT_UINT8, BASE_HEX, NULL, 0x10, NULL, HFILL}
+        },
+        {&hf_cm_req_local_ACK_timeout, {
+                "Alternate Local ACK Timeout", "infiniband.cm.req.alt_localacktout",
+                FT_UINT8, BASE_HEX, NULL, 0x1f, NULL, HFILL}
+        },
+        {&hf_cm_req_private_data, {
+                "PrivateData", "infiniband.cm.req.private",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        /* CM REP Header */
+        {&hf_cm_rep_localcommid, {
+                "Local Communication ID", "infiniband.cm.rep",
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_rep_remotecommid, {
+                "Remote Communication ID", "infiniband.cm.rep.remotecommid",
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_rep_localqkey, {
+                "Local Q_Key", "infiniband.cm.rep.localqkey",
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_rep_localqpn, {
+                "Local QPN", "infiniband.cm.rep.localqpn",
+                FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_rep_localeecontnum, {
+                "Local EE Context Number", "infiniband.cm.rep.localeecn",
+                FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_rep_startingpsn, {
+                "Starting PSN", "infiniband.cm.rep.startpsn",
+                FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_rep_responderres, {
+                "Responder Resources", "infiniband.cm.rep.respres",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_rep_initiatordepth, {
+                "Initiator Depth", "infiniband.cm.rep.initdepth",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_rep_tgtackdelay, {
+                "Target ACK Delay", "infiniband.cm.rep.tgtackdelay",
+                FT_UINT8, BASE_HEX, NULL, 0x1f, NULL, HFILL}
+        },
+        {&hf_cm_rep_failoveracc, {
+                "Failover Accepted", "infiniband.cm.rep.failoveracc",
+                FT_UINT8, BASE_HEX, NULL, 0x60, NULL, HFILL}
+        },
+        {&hf_cm_rep_e2eflowctl, {
+                "End-To-End Flow Control", "infiniband.cm.rep.e2eflowctrl",
+                FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL}
+        },
+        {&hf_cm_rep_rnrretrycount, {
+                "RNR Retry Count", "infiniband.cm.rep.rnrretrcount",
+                FT_UINT8, BASE_HEX, NULL, 0x7, NULL, HFILL}
+        },
+        {&hf_cm_rep_srq, {
+                "SRQ", "infiniband.cm.rep.srq",
+                FT_UINT8, BASE_HEX, NULL, 0x8, NULL, HFILL}
+        },
+        {&hf_cm_rep_localcaguid, {
+                "Local CA GUID", "infiniband.cm.rep.localcaguid",
+                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_rep_privatedata, {
+                "PrivateData", "infiniband.cm.rep.private",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        /* IB CM RTU Header */
+        {&hf_cm_rtu_localcommid, {
+                "Local Communication ID", "infiniband.cm.rtu.localcommid",
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_rtu_remotecommid, {
+                "Remote Communication ID", "infiniband.cm.rtu.remotecommid",
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_rtu_privatedata, {
+                "PrivateData", "infiniband.cm.rtu.private",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        /* CM REJ Header */
+        {&hf_cm_rej_local_commid, {
+                "Local Communication ID", "infiniband.cm.rej.localcommid",
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_rej_remote_commid, {
+                "Remote Communication ID", "infiniband.cm.rej.remotecommid",
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_rej_msg_rej, {
+                "Message REJected", "infiniband.cm.rej.msgrej",
+                FT_UINT8, BASE_HEX, NULL, 0x3, NULL, HFILL}
+        },
+        {&hf_cm_rej_rej_info_len, {
+                "Reject Info Length", "infiniband.cm.rej.rejinfolen",
+                FT_UINT8, BASE_HEX, NULL, 0x7f, NULL, HFILL}
+        },
+        {&hf_cm_rej_reason, {
+                "Reason", "infiniband.cm.rej.reason",
+                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_rej_add_rej_info, {
+                "Additional Reject Information (ARI)", "infiniband.cm.rej.ari",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_cm_rej_private_data, {
+                "PrivateData", "infiniband.cm.rej.private",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
         /* MAD Base Header */
         { &hf_infiniband_MAD, {
                 "MAD (Management Datagram) Common Header", "infiniband.mad",
@@ -4111,7 +6162,7 @@ void proto_register_infiniband(void)
                 "CapabilityMask", "infiniband.portinfo.capabilitymask",
                 FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
-        
+
         /* Capability Mask Flags */
         { &hf_infiniband_PortInfo_CapabilityMask_SM, {
                 "SM", "infiniband.portinfo.capabilitymask.issm",
@@ -4501,7 +6552,7 @@ void proto_register_infiniband(void)
         { &hf_infiniband_LedInfo_LedMask, {
                 "LedMask", "infiniband.ledinfo.ledmask",
                 FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL}
-        },  
+        },
 
         /* LinkSpeedWidthPairsTable */
         { &hf_infiniband_LinkSpeedWidthPairsTable_NumTables, {
@@ -4511,19 +6562,19 @@ void proto_register_infiniband(void)
         { &hf_infiniband_LinkSpeedWidthPairsTable_PortMask, {
                 "PortMask", "infiniband.linkspeedwidthpairstable.portmask",
                 FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
-        },  
+        },
         { &hf_infiniband_LinkSpeedWidthPairsTable_SpeedTwoFive, {
                 "Speed 2.5 Gbps", "infiniband.linkspeedwidthpairstable.speedtwofive",
                 FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL}
-        },  
+        },
         { &hf_infiniband_LinkSpeedWidthPairsTable_SpeedFive, {
                 "Speed 5 Gbps", "infiniband.linkspeedwidthpairstable.speedfive",
                 FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL}
-        },  
+        },
         { &hf_infiniband_LinkSpeedWidthPairsTable_SpeedTen, {
                 "Speed 10 Gbps", "infiniband.linkspeedwidthpairstable.speedten",
                 FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL}
-        },  
+        },
 
         /* NodeRecord */
         /* PortInfoRecord */
@@ -5150,7 +7201,7 @@ void proto_register_infiniband(void)
         { &hf_infiniband_PortCounters_PortRcvSwitchRelayErrors, {
                 "PortRcvSwitchRelayErrors", "infiniband.portcounters.portrcvswitchrelayerrors",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Total number of packets number of packets discarded because they could not be forwarded by switch relay", 
+                "Total number of packets discarded because they could not be forwarded by switch relay",
                 HFILL}
         },
         { &hf_infiniband_PortCounters_PortXmitDiscards, {
@@ -5285,6 +7336,7 @@ void proto_register_infiniband(void)
         &ett_subn_lid_routed,
         &ett_subn_directed_route,
         &ett_subnadmin,
+        &ett_cm,
         &ett_mad,
         &ett_rmpp,
         &ett_subm_attribute,
@@ -5319,7 +7371,7 @@ void proto_register_infiniband(void)
         &ett_eoib
     };
 
-    static hf_register_info hf_link[] = {    
+    static hf_register_info hf_link[] = {
         { &hf_infiniband_link_op, {
                 "Operand", "infiniband_link.op",
                 FT_UINT16, BASE_DEC, VALS(Operand_Description), 0xF000, NULL, HFILL}
@@ -5353,6 +7405,10 @@ void proto_register_infiniband(void)
     proto_register_field_array(proto_infiniband, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    /* register the subdissector tables */
+    register_heur_dissector_list("infiniband.payload", &heur_dissectors_payload);
+    register_heur_dissector_list("infiniband.mad.cm.private", &heur_dissectors_cm_private);
+
     /* register dissection preferences */
     infiniband_module = prefs_register_protocol(proto_infiniband, NULL);
 
@@ -5373,6 +7429,9 @@ void proto_register_infiniband(void)
     proto_register_field_array(proto_infiniband_link, hf_link, array_length(hf_link));
     proto_register_subtree_array(ett_link_array, array_length(ett_link_array));
 
+    /* initialize the hash table */
+    CM_context_table = g_hash_table_new_full(g_int64_hash, g_int64_equal,
+                                             table_destroy_notify, table_destroy_notify);
 }
 
 /* Reg Handoff.  Register dissectors we'll need for IPoIB and RoCE */

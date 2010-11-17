@@ -627,6 +627,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-iana-oui.c
 	dissectors/packet-iapp.c
 	dissectors/packet-iax2.c
+       dissectors/packet-infiniband_sdp.c
 	dissectors/packet-icap.c
 	dissectors/packet-icep.c
 	dissectors/packet-icmp.c
