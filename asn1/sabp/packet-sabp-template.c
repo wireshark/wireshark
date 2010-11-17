@@ -39,6 +39,7 @@
 #include "packet-e212.h"
 #include "packet-gsm_map.h"
 #include "packet-gsm_sms.h"
+#include <epan/sctpppids.h>
 
 #define PNAME  "UTRAN IuBC interface SABP signaling"
 #define PSNAME "SABP"
@@ -216,6 +217,7 @@ proto_reg_handoff_sabp(void)
   sabp_tcp_handle = find_dissector("sabp.tcp");
   dissector_add("udp.port", 3452, sabp_handle);
   dissector_add("tcp.port", 3452, sabp_tcp_handle);
+  dissector_add("sctp.ppi", SABP_PAYLOAD_PROTOCOL_ID,   sabp_handle);
 
 #include "packet-sabp-dis-tab.c"
 

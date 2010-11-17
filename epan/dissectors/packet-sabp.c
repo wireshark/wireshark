@@ -47,6 +47,7 @@
 #include "packet-e212.h"
 #include "packet-gsm_map.h"
 #include "packet-gsm_sms.h"
+#include <epan/sctpppids.h>
 
 #define PNAME  "UTRAN IuBC interface SABP signaling"
 #define PSNAME "SABP"
@@ -98,7 +99,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-sabp-val.h ---*/
-#line 48 "packet-sabp-template.c"
+#line 49 "packet-sabp-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_sabp = -1;
@@ -188,7 +189,7 @@ static int hf_sabp_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_sabp_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-sabp-hf.c ---*/
-#line 54 "packet-sabp-template.c"
+#line 55 "packet-sabp-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_sabp = -1;
@@ -240,7 +241,7 @@ static gint ett_sabp_SuccessfulOutcome = -1;
 static gint ett_sabp_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-sabp-ett.c ---*/
-#line 62 "packet-sabp-template.c"
+#line 63 "packet-sabp-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -297,16 +298,17 @@ static const value_string sabp_ProcedureCode_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext sabp_ProcedureCode_vals_ext = VALUE_STRING_EXT_INIT(sabp_ProcedureCode_vals);
+
 
 static int
 dissect_sabp_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 54 "sabp.cnf"
-	if (check_col(actx->pinfo->cinfo, COL_INFO))
+#line 59 "sabp.cnf"
        col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                   val_to_str(ProcedureCode, sabp_ProcedureCode_vals,
+                   val_to_str_ext(ProcedureCode, &sabp_ProcedureCode_vals_ext,
                               "unknown message"));
 
   return offset;
@@ -349,15 +351,17 @@ static const value_string sabp_ProtocolIE_ID_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext sabp_ProtocolIE_ID_vals_ext = VALUE_STRING_EXT_INIT(sabp_ProtocolIE_ID_vals);
+
 
 static int
 dissect_sabp_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &ProtocolIE_ID, FALSE);
 
-#line 41 "sabp.cnf"
+#line 46 "sabp.cnf"
   if (tree) {
-    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(sabp_ProtocolIE_ID_vals), "unknown (%d)"));
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str_ext(ProtocolIE_ID, &sabp_ProtocolIE_ID_vals_ext, "unknown (%d)"));
   }
 
   return offset;
@@ -535,6 +539,8 @@ static const value_string sabp_Cause_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext sabp_Cause_vals_ext = VALUE_STRING_EXT_INIT(sabp_Cause_vals);
+
 
 static int
 dissect_sabp_Cause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -647,7 +653,7 @@ dissect_sabp_MessageStructure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_sabp_Data_Coding_Scheme(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 169 "sabp.cnf"
+#line 173 "sabp.cnf"
  tvbuff_t *parameter_tvb=NULL;
  proto_tree *subtree;
 
@@ -670,7 +676,7 @@ dissect_sabp_Data_Coding_Scheme(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_sabp_T_pLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 157 "sabp.cnf"
+#line 161 "sabp.cnf"
   tvbuff_t *parameter_tvb=NULL;
  proto_tree *subtree;
 
@@ -1676,7 +1682,7 @@ static int dissect_SABP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-sabp-fn.c ---*/
-#line 86 "packet-sabp-template.c"
+#line 87 "packet-sabp-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1783,7 +1789,7 @@ void proto_register_sabp(void) {
         NULL, HFILL }},
     { &hf_sabp_Cause_PDU,
       { "Cause", "sabp.Cause",
-        FT_UINT32, BASE_DEC, VALS(sabp_Cause_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sabp_Cause_vals_ext, 0,
         NULL, HFILL }},
     { &hf_sabp_Criticality_Diagnostics_PDU,
       { "Criticality-Diagnostics", "sabp.Criticality_Diagnostics",
@@ -1939,7 +1945,7 @@ void proto_register_sabp(void) {
         NULL, HFILL }},
     { &hf_sabp_id,
       { "id", "sabp.id",
-        FT_UINT32, BASE_DEC, VALS(sabp_ProtocolIE_ID_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sabp_ProtocolIE_ID_vals_ext, 0,
         "ProtocolIE_ID", HFILL }},
     { &hf_sabp_criticality,
       { "criticality", "sabp.criticality",
@@ -1963,7 +1969,7 @@ void proto_register_sabp(void) {
         NULL, HFILL }},
     { &hf_sabp_procedureCode,
       { "procedureCode", "sabp.procedureCode",
-        FT_UINT32, BASE_DEC, VALS(sabp_ProcedureCode_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sabp_ProcedureCode_vals_ext, 0,
         NULL, HFILL }},
     { &hf_sabp_triggeringMessage,
       { "triggeringMessage", "sabp.triggeringMessage",
@@ -1991,7 +1997,7 @@ void proto_register_sabp(void) {
         "Criticality", HFILL }},
     { &hf_sabp_iE_ID,
       { "iE-ID", "sabp.iE_ID",
-        FT_UINT32, BASE_DEC, VALS(sabp_ProtocolIE_ID_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sabp_ProtocolIE_ID_vals_ext, 0,
         "ProtocolIE_ID", HFILL }},
     { &hf_sabp_repetitionNumber,
       { "repetitionNumber", "sabp.repetitionNumber",
@@ -2015,7 +2021,7 @@ void proto_register_sabp(void) {
         NULL, HFILL }},
     { &hf_sabp_cause,
       { "cause", "sabp.cause",
-        FT_UINT32, BASE_DEC, VALS(sabp_Cause_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sabp_Cause_vals_ext, 0,
         NULL, HFILL }},
     { &hf_sabp_Number_of_Broadcasts_Completed_List_item,
       { "Number-of-Broadcasts-Completed-List-Item", "sabp.Number_of_Broadcasts_Completed_List_Item",
@@ -2087,7 +2093,7 @@ void proto_register_sabp(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-sabp-hfarr.c ---*/
-#line 176 "packet-sabp-template.c"
+#line 177 "packet-sabp-template.c"
   };
 
   /* List of subtrees */
@@ -2140,7 +2146,7 @@ void proto_register_sabp(void) {
     &ett_sabp_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-sabp-ettarr.c ---*/
-#line 185 "packet-sabp-template.c"
+#line 186 "packet-sabp-template.c"
   };
 
 
@@ -2175,6 +2181,7 @@ proto_reg_handoff_sabp(void)
   sabp_tcp_handle = find_dissector("sabp.tcp");
   dissector_add("udp.port", 3452, sabp_handle);
   dissector_add("tcp.port", 3452, sabp_tcp_handle);
+  dissector_add("sctp.ppi", SABP_PAYLOAD_PROTOCOL_ID,   sabp_handle);
 
 
 /*--- Included file: packet-sabp-dis-tab.c ---*/
@@ -2222,7 +2229,7 @@ proto_reg_handoff_sabp(void)
 
 
 /*--- End of included file: packet-sabp-dis-tab.c ---*/
-#line 221 "packet-sabp-template.c"
+#line 223 "packet-sabp-template.c"
 
 }
 

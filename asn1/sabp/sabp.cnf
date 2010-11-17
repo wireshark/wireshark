@@ -18,6 +18,11 @@ SABP-PDU
 ProcedureCode
 ProtocolIE-ID
 
+#.USE_VALS_EXT
+ProcedureCode
+ProtocolIE-ID
+Cause
+
 #.OMIT_ASSIGNMENT
 Presence
 ProtocolIE-ContainerList
@@ -39,7 +44,7 @@ MessageStructure/_item/repetitionNumber repetitionNumber1
 #.FN_PARS ProtocolIE-ID  VAL_PTR=&ProtocolIE_ID
 #.FN_FTR ProtocolIE-ID
   if (tree) {
-    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(sabp_ProtocolIE_ID_vals), "unknown (%d)"));
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str_ext(ProtocolIE_ID, &sabp_ProtocolIE_ID_vals_ext, "unknown (%d)"));
   }
 #.END
 
@@ -51,9 +56,8 @@ MessageStructure/_item/repetitionNumber repetitionNumber1
 
 #.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
 #.FN_FTR ProcedureCode
-	if (check_col(actx->pinfo->cinfo, COL_INFO))
        col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                   val_to_str(ProcedureCode, sabp_ProcedureCode_vals,
+                   val_to_str_ext(ProcedureCode, &sabp_ProcedureCode_vals_ext,
                               "unknown message"));
 #.END
 
