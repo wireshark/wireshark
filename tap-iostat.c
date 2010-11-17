@@ -655,9 +655,12 @@ iostat_init(const char *optarg, void* userdata _U_)
 	io_stat_t *io;
 	const char *filter=NULL;
 
-	if(sscanf(optarg,"io,stat,%f,%n",&interval_float,&idx)==1){
+	if(sscanf(optarg,"io,stat,%f%n",&interval_float,&idx)==1){
 		if(idx){
-			filter=optarg+idx;
+			if(*(optarg+idx)==',')
+				filter=optarg+idx+1;
+			else
+				filter=optarg+idx;
 		} else {
 			filter=NULL;
 		}
