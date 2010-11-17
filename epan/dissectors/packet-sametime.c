@@ -8,12 +8,6 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * Copied from WHATEVER_FILE_YOU_USED (where "WHATEVER_FILE_YOU_USED"
- * is a dissector file; if you just copied this from README.developer,
- * don't bother with the "Copied from" - you don't even need to put
- * in a "Copied from" if you copied an existing dissector, especially
- * if the bulk of the code in the new dissector is your code)
- *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -235,7 +229,7 @@ add_text_item(tvbuff_t *tvb, proto_tree *tree, int offset, int hf)
 
 		/* add string length only if preferences is set */
 		if (global_sametime_show_length)
-			proto_tree_add_item(tree, hf_sametime_field_length, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_sametime_field_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 		/* add string */
 		proto_tree_add_string(tree, hf, tvb, offset + 2, length, tvb_get_string(tvb, offset + 2, length));
@@ -252,9 +246,9 @@ dissect_set_user_status(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 	user_status = tvb_get_ntohs(tvb, offset);
 	proto_item_append_text(tree, ", %s", val_to_str(user_status, userstatusnames, "0x%04x"));
-	proto_tree_add_item(tree, hf_sametime_user_status, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_sametime_user_status, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	proto_tree_add_item(tree, hf_sametime_time, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_sametime_time, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 	offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
 
@@ -265,16 +259,16 @@ dissect_set_user_status(tvbuff_t *tvb, proto_tree *tree, int offset)
 static int
 dissect_handshake(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-	proto_tree_add_item(tree, hf_sametime_handshake_major, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_sametime_handshake_major, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	proto_tree_add_item(tree, hf_sametime_handshake_minor, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_sametime_handshake_minor, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	offset += 4;
-	proto_tree_add_item(tree, hf_sametime_handshake_srvrcalc_addr, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_sametime_handshake_srvrcalc_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_sametime_login_type, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_sametime_login_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	proto_tree_add_item(tree, hf_sametime_handshake_loclcalc_addr, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_sametime_handshake_loclcalc_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 	offset += 6;
 	offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
@@ -288,11 +282,11 @@ dissect_handshake(tvbuff_t *tvb, proto_tree *tree, int offset)
 static void
 dissect_handshake_ack(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-	proto_tree_add_item(tree, hf_sametime_handshake_major, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_sametime_handshake_major, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	proto_tree_add_item(tree, hf_sametime_handshake_minor, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_sametime_handshake_minor, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	proto_tree_add_item(tree, hf_sametime_handshake_loclcalc_addr, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_sametime_handshake_loclcalc_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 	offset += 4;
 	offset += 4;
@@ -320,13 +314,13 @@ static void
 dissect_login_ack(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
-	proto_tree_add_item(tree, hf_sametime_login_type, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_sametime_login_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
 	offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
 	offset += 3;
 	offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
-	proto_tree_add_item(tree, hf_sametime_handshake_loclcalc_addr, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_sametime_handshake_loclcalc_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 	offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
 	offset += 21;
@@ -339,10 +333,10 @@ static void
 dissect_channel_create(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	offset += 4;
-	proto_tree_add_item(tree, hf_sametime_channel_id, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_sametime_channel_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 	offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
-	proto_tree_add_item(tree, hf_sametime_channel_service, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_sametime_channel_service, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 	offset += 8;
 	offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
@@ -357,7 +351,7 @@ dissect_channel_send(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 	send_type = tvb_get_ntohs(tvb, offset);
 	proto_item_append_text(tree, ", %s", val_to_str(send_type, sendtypenames, "0x%04x"));
-	proto_tree_add_item(tree, hf_sametime_channel_send_type, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_sametime_channel_send_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	switch (send_type)	{
@@ -365,7 +359,7 @@ dissect_channel_send(tvbuff_t *tvb, proto_tree *tree, int offset)
 		offset += 8;
 		awareness = tvb_get_ntohs(tvb, offset);
 		proto_item_append_text(tree, ", %s", val_to_str(awareness, awarenessnames, "0x%04x"));
-		proto_tree_add_item(tree, hf_sametime_channel_awareness, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_sametime_channel_awareness, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
 
@@ -394,7 +388,7 @@ dissect_channel_send(tvbuff_t *tvb, proto_tree *tree, int offset)
 		offset += 8;
 		awareness = tvb_get_ntohs(tvb, offset);
 		proto_item_append_text(tree, ", %s", val_to_str(awareness, awarenessnames, "0x%04x"));
-		proto_tree_add_item(tree, hf_sametime_channel_awareness, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_sametime_channel_awareness, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		while (tvb_length_remaining(tvb, offset) > 2)	{
 			int n = add_text_item(tvb, tree, offset, hf_sametime_field_text);
@@ -407,7 +401,7 @@ dissect_channel_send(tvbuff_t *tvb, proto_tree *tree, int offset)
 		offset += 12;
 		awareness = tvb_get_ntohs(tvb, offset);
 		proto_item_append_text(tree, ", %s", val_to_str(awareness, awarenessnames, "0x%04x"));
-		proto_tree_add_item(tree, hf_sametime_channel_awareness, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_sametime_channel_awareness, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
 
@@ -418,7 +412,7 @@ dissect_channel_send(tvbuff_t *tvb, proto_tree *tree, int offset)
 		offset += 4;
 		awareness = tvb_get_ntohs(tvb, offset);
 		proto_item_append_text(tree, ", %s", val_to_str(awareness, awarenessnames, "0x%04x"));
-		proto_tree_add_item(tree, hf_sametime_channel_awareness, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_sametime_channel_awareness, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
 		offset += 4;
@@ -500,7 +494,7 @@ dissect_sense_service(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 	code = tvb_get_ntohl(tvb, offset);
 	proto_item_append_text(tree, ", %s", val_to_str(code, codenames, "0x%04x"));
-	proto_tree_add_item(tree, hf_sametime_code, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_sametime_code, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 }
 
@@ -540,13 +534,13 @@ dissect_sametime_content(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	sinfo->user_status = -1;
 
 	/* packet detail tree */
-	ti = proto_tree_add_item(tree, proto_sametime, tvb, offset, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_sametime, tvb, offset, -1, ENC_NA);
 	sametime_tree = proto_item_add_subtree(ti, ett_sametime);
 	proto_item_append_text(sametime_tree, ", %s", val_to_str(message_type, messagetypenames, "0x%04x"));
 
 	/* dissect message */
 	if (message_type == SAMETIME_MESSAGETYPE_HEARTBEAT)	{
-		proto_tree_add_item(sametime_tree, hf_sametime_heartbeat, tvb, offset, 1, FALSE);
+		proto_tree_add_item(sametime_tree, hf_sametime_heartbeat, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	} else if (message_type != -1)	{
 		proto_tree *options_tree;
@@ -554,23 +548,23 @@ dissect_sametime_content(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* first 4 bytes gives the length of the sametime message */
 		if (global_sametime_show_length)	{
-			proto_tree_add_item(sametime_tree, hf_sametime_message_length, tvb, offset, 4, FALSE);
+			proto_tree_add_item(sametime_tree, hf_sametime_message_length, tvb, offset, 4, ENC_BIG_ENDIAN);
 		}
 		offset += 4;
 
 		/* next 2 bytes gives the message type */
-		proto_tree_add_item(sametime_tree, hf_sametime_message_type, tvb, offset, 2, FALSE);
+		proto_tree_add_item(sametime_tree, hf_sametime_message_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		/* next 2 bytes are the message options */
-		op = proto_tree_add_item(sametime_tree, hf_sametime_message_options, tvb, offset, 2, FALSE);
+		op = proto_tree_add_item(sametime_tree, hf_sametime_message_options, tvb, offset, 2, ENC_BIG_ENDIAN);
 		options_tree = proto_item_add_subtree(op, ett_sametime_options);
-		proto_tree_add_item(options_tree, hf_sametime_message_options_attribute, tvb, offset, 2, FALSE);
-		proto_tree_add_item(options_tree, hf_sametime_message_options_encrypted, tvb, offset, 2, FALSE);
+		proto_tree_add_item(options_tree, hf_sametime_message_options_attribute, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(options_tree, hf_sametime_message_options_encrypted, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		/* next 4 bytes contains the channel id */
-		proto_tree_add_item(sametime_tree, hf_sametime_message_channel, tvb, offset, 4, FALSE);
+		proto_tree_add_item(sametime_tree, hf_sametime_message_channel, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
 		switch (message_type)
