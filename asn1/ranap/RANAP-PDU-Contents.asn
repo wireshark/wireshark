@@ -1,6 +1,6 @@
 -- RANAP-PDU-Contents.asn
 --
--- 3GPP TS 25.413 V9.2.0 (2010-03)
+-- 3GPP TS 25.413 V9.4.0 (2010-09)
 -- http://www.3gpp.org/ftp/Specs/html-info/25413.htm
 --
 -- 9.3.3	PDU Definitions
@@ -102,7 +102,8 @@ IMPORTS
 	OldBSS-ToNewBSS-Information,
 	PagingAreaID,
 	PagingCause,
-	PDP-TypeInformation,
+	PDP-TypeInformation, 
+	PDP-TypeInformation-extension,
 	PermanentNAS-UE-ID,
 	PLMNidentity,
 	PositionData,
@@ -264,7 +265,8 @@ FROM RANAP-Containers
 	id-OldBSS-ToNewBSS-Information,
 	id-PagingAreaID,
 	id-PagingCause,
-	id-PDP-TypeInformation,
+	id-PDP-TypeInformation, 
+	id-PDP-TypeInformation-extension,
 	id-PermanentNAS-UE-ID,
 	id-PositionData,
 	id-PositionDataSpecificToGERANIuMode,
@@ -683,7 +685,9 @@ RAB-SetupItem-RelocReq-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 5 to enable GERAN support over Iu-cs --
 	{ ID id-GERAN-BSC-Container					CRITICALITY ignore	EXTENSION GERAN-BSC-Container			PRESENCE optional	}|
 -- Extension for Release 8 to enable handover restriction to E-UTRAN --
-	{ ID id-E-UTRAN-Service-Handover			CRITICALITY ignore	EXTENSION E-UTRAN-Service-Handover			PRESENCE optional	},
+	{ ID id-E-UTRAN-Service-Handover			CRITICALITY ignore	EXTENSION E-UTRAN-Service-Handover			PRESENCE optional	}|
+-- Extension for Release 9 to enable a new value --
+	{ ID id-PDP-TypeInformation-extension 		CRITICALITY ignore	EXTENSION PDP-TypeInformation-extension	PRESENCE optional	},
 	...
 }
 
@@ -2115,7 +2119,9 @@ RAB-SetupOrModifyItemSecond-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 4 to enable RAB Quality of Service negotiation over Iu --
 	{	ID id-Alt-RAB-Parameters	CRITICALITY ignore		EXTENSION Alt-RAB-Parameters		PRESENCE optional	} |
 -- Extension for Release 5 to enable GERAN support over Iu-cs --
-	{ ID id-GERAN-BSC-Container					CRITICALITY ignore	EXTENSION GERAN-BSC-Container			PRESENCE optional	} ,
+	{ ID id-GERAN-BSC-Container					CRITICALITY ignore	EXTENSION GERAN-BSC-Container			PRESENCE optional	} |
+-- Extension for Release Release 9 to enable a new value --
+	{ ID id-PDP-TypeInformation-extension		CRITICALITY ignore	EXTENSION PDP-TypeInformation-extension	PRESENCE optional	},
 	...
 }
 
@@ -2388,7 +2394,9 @@ RAB-SetupItem-EnhRelocInfoReq ::= SEQUENCE {
 
 RAB-SetupItem-EnhRelocInfoReq-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 8 to enable handover restriction to E-UTRAN --
-	{ ID id-E-UTRAN-Service-Handover			CRITICALITY ignore	EXTENSION E-UTRAN-Service-Handover			PRESENCE optional	},
+	{ ID id-E-UTRAN-Service-Handover			CRITICALITY ignore	EXTENSION E-UTRAN-Service-Handover			PRESENCE optional	}|
+-- Extension for Release Release 9 to enable a new value --
+	{ ID id-PDP-TypeInformation-extension		CRITICALITY ignore	EXTENSION PDP-TypeInformation-extension	PRESENCE optional	},
 	...
 }
 
@@ -2876,7 +2884,9 @@ MBMSSessionStartIEs RANAP-PROTOCOL-IES ::= {
 MBMSSessionStartExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 6 to enable MBMS counting in broadcast mode --
 	{ ID id-MBMSCountingInformation			CRITICALITY ignore		EXTENSION MBMSCountingInformation				PRESENCE optional	} |
-	{ ID id-MBMSSynchronisationInformation	CRITICALITY ignore		EXTENSION MBMSSynchronisationInformation		PRESENCE optional	},
+	{ ID id-MBMSSynchronisationInformation	CRITICALITY ignore		EXTENSION MBMSSynchronisationInformation		PRESENCE optional	} |
+-- Extension for Release Release 9 to enable a new value --
+	{ ID id-PDP-TypeInformation-extension 	CRITICALITY ignore		EXTENSION PDP-TypeInformation-extension		PRESENCE optional	},
 	...
 }
 

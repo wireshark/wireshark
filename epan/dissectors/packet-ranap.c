@@ -100,8 +100,6 @@
 #define maxNrOfEDCHMACdFlows_1         7
 #define maxGANSSSet                    9
 #define maxNrOfCSGs                    256
-#define id_170_not_to_be_used_for_IE_ids 170
-#define id_183_not_to_be_used_for_IE_ids 183
 
 typedef enum _ProcedureCode_enum {
   id_RAB_Assignment =   0,
@@ -112,6 +110,7 @@ typedef enum _ProcedureCode_enum {
   id_SRNS_ContextTransfer =   5,
   id_SecurityModeControl =   6,
   id_DataVolumeReport =   7,
+  id_Not_Used_8 =   8,
   id_Reset     =   9,
   id_RAB_ReleaseRequest =  10,
   id_Iu_ReleaseRequest =  11,
@@ -154,6 +153,8 @@ typedef enum _ProcedureCode_enum {
 
 typedef enum _ProtocolIE_ID_enum {
   id_AreaIdentity =   0,
+  id_Not_Used_1 =   1,
+  id_Not_Used_2 =   2,
   id_CN_DomainIndicator =   3,
   id_Cause     =   4,
   id_ChosenEncryptionAlgorithm =   5,
@@ -224,6 +225,8 @@ typedef enum _ProtocolIE_ID_enum {
   id_UL_GTP_PDU_SequenceNumber =  70,
   id_RAB_FailedtoReportItem =  71,
   id_RAB_FailedtoReportList =  72,
+  id_Not_Used_73 =  73,
+  id_Not_Used_74 =  74,
   id_KeyStatus =  75,
   id_DRX_CycleLengthCoefficient =  76,
   id_IuSigConIdList =  77,
@@ -250,6 +253,8 @@ typedef enum _ProtocolIE_ID_enum {
   id_SRB_TrCH_Mapping =  98,
   id_InterSystemInformation_TransparentContainer =  99,
   id_NewBSS_To_OldBSS_Information = 100,
+  id_Not_Used_101 = 101,
+  id_Not_Used_102 = 102,
   id_SourceRNC_PDCP_context_info = 103,
   id_InformationTransferID = 104,
   id_SNA_Access_Information = 105,
@@ -317,6 +322,7 @@ typedef enum _ProtocolIE_ID_enum {
   id_RAT_Type  = 167,
   id_PeriodicLocationInfo = 168,
   id_MBMSCountingInformation = 169,
+  id_170_not_to_be_used_for_IE_ids = 170,
   id_ExtendedRNC_ID = 171,
   id_Alt_RAB_Parameter_ExtendedGuaranteedBitrateInf = 172,
   id_Alt_RAB_Parameter_ExtendedMaxBitrateInf = 173,
@@ -329,6 +335,7 @@ typedef enum _ProtocolIE_ID_enum {
   id_LAofIdleModeUEs = 180,
   id_newLAListofIdleModeUEs = 181,
   id_LAListwithNoIdleModeUEsAnyMore = 182,
+  id_183_not_to_be_used_for_IE_ids = 183,
   id_GANSS_PositioningDataSet = 184,
   id_RequestedGANSSAssistanceData = 185,
   id_BroadcastGANSSAssistanceDataDecipheringKeys = 186,
@@ -377,11 +384,13 @@ typedef enum _ProtocolIE_ID_enum {
   id_CSG_Id_List = 229,
   id_PSRABtobeReplaced = 230,
   id_E_UTRAN_Service_Handover = 231,
+  id_Not_Used_232 = 232,
   id_UE_AggregateMaximumBitRate = 233,
   id_CSG_Membership_Status = 234,
   id_Cell_Access_Mode = 235,
   id_IP_Source_Address = 236,
-  id_CSFB_Information = 237
+  id_CSFB_Information = 237,
+  id_PDP_TypeInformation_extension = 238
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-ranap-val.h ---*/
@@ -482,6 +491,7 @@ static int hf_ranap_OMC_ID_PDU = -1;              /* OMC_ID */
 static int hf_ranap_PagingAreaID_PDU = -1;        /* PagingAreaID */
 static int hf_ranap_PagingCause_PDU = -1;         /* PagingCause */
 static int hf_ranap_PDP_TypeInformation_PDU = -1;  /* PDP_TypeInformation */
+static int hf_ranap_PDP_TypeInformation_extension_PDU = -1;  /* PDP_TypeInformation_extension */
 static int hf_ranap_PeriodicLocationInfo_PDU = -1;  /* PeriodicLocationInfo */
 static int hf_ranap_PermanentNAS_UE_ID_PDU = -1;  /* PermanentNAS_UE_ID */
 static int hf_ranap_PLMNidentity_PDU = -1;        /* PLMNidentity */
@@ -851,6 +861,7 @@ static int hf_ranap_requestedGPSAssistanceData = -1;  /* RequestedGPSAssistanceD
 static int hf_ranap_MBMSIPMulticastAddressandAPNRequest_item = -1;  /* TMGI */
 static int hf_ranap_rAI = -1;                     /* RAI */
 static int hf_ranap_PDP_TypeInformation_item = -1;  /* PDP_Type */
+static int hf_ranap_PDP_TypeInformation_extension_item = -1;  /* PDP_Type_extension */
 static int hf_ranap_reportingAmount = -1;         /* INTEGER_1_8639999_ */
 static int hf_ranap_reportingInterval = -1;       /* INTEGER_1_8639999_ */
 static int hf_ranap_iMSI = -1;                    /* IMSI */
@@ -1140,6 +1151,7 @@ static gint ett_ranap_LocationRelatedDataRequestType = -1;
 static gint ett_ranap_MBMSIPMulticastAddressandAPNRequest = -1;
 static gint ett_ranap_PagingAreaID = -1;
 static gint ett_ranap_PDP_TypeInformation = -1;
+static gint ett_ranap_PDP_TypeInformation_extension = -1;
 static gint ett_ranap_PeriodicLocationInfo = -1;
 static gint ett_ranap_PermanentNAS_UE_ID = -1;
 static gint ett_ranap_PermittedEncryptionAlgorithms = -1;
@@ -1474,6 +1486,7 @@ static const value_string ranap_ProcedureCode_vals[] = {
   { id_SRNS_ContextTransfer, "id-SRNS-ContextTransfer" },
   { id_SecurityModeControl, "id-SecurityModeControl" },
   { id_DataVolumeReport, "id-DataVolumeReport" },
+  { id_Not_Used_8, "id-Not-Used-8" },
   { id_Reset, "id-Reset" },
   { id_RAB_ReleaseRequest, "id-RAB-ReleaseRequest" },
   { id_Iu_ReleaseRequest, "id-Iu-ReleaseRequest" },
@@ -1544,6 +1557,8 @@ dissect_ranap_ProtocolExtensionID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static const value_string ranap_ProtocolIE_ID_vals[] = {
   { id_AreaIdentity, "id-AreaIdentity" },
+  { id_Not_Used_1, "id-Not-Used-1" },
+  { id_Not_Used_2, "id-Not-Used-2" },
   { id_CN_DomainIndicator, "id-CN-DomainIndicator" },
   { id_Cause, "id-Cause" },
   { id_ChosenEncryptionAlgorithm, "id-ChosenEncryptionAlgorithm" },
@@ -1614,6 +1629,8 @@ static const value_string ranap_ProtocolIE_ID_vals[] = {
   { id_UL_GTP_PDU_SequenceNumber, "id-UL-GTP-PDU-SequenceNumber" },
   { id_RAB_FailedtoReportItem, "id-RAB-FailedtoReportItem" },
   { id_RAB_FailedtoReportList, "id-RAB-FailedtoReportList" },
+  { id_Not_Used_73, "id-Not-Used-73" },
+  { id_Not_Used_74, "id-Not-Used-74" },
   { id_KeyStatus, "id-KeyStatus" },
   { id_DRX_CycleLengthCoefficient, "id-DRX-CycleLengthCoefficient" },
   { id_IuSigConIdList, "id-IuSigConIdList" },
@@ -1640,6 +1657,8 @@ static const value_string ranap_ProtocolIE_ID_vals[] = {
   { id_SRB_TrCH_Mapping, "id-SRB-TrCH-Mapping" },
   { id_InterSystemInformation_TransparentContainer, "id-InterSystemInformation-TransparentContainer" },
   { id_NewBSS_To_OldBSS_Information, "id-NewBSS-To-OldBSS-Information" },
+  { id_Not_Used_101, "id-Not-Used-101" },
+  { id_Not_Used_102, "id-Not-Used-102" },
   { id_SourceRNC_PDCP_context_info, "id-SourceRNC-PDCP-context-info" },
   { id_InformationTransferID, "id-InformationTransferID" },
   { id_SNA_Access_Information, "id-SNA-Access-Information" },
@@ -1707,6 +1726,7 @@ static const value_string ranap_ProtocolIE_ID_vals[] = {
   { id_RAT_Type, "id-RAT-Type" },
   { id_PeriodicLocationInfo, "id-PeriodicLocationInfo" },
   { id_MBMSCountingInformation, "id-MBMSCountingInformation" },
+  { id_170_not_to_be_used_for_IE_ids, "id-170-not-to-be-used-for-IE-ids" },
   { id_ExtendedRNC_ID, "id-ExtendedRNC-ID" },
   { id_Alt_RAB_Parameter_ExtendedGuaranteedBitrateInf, "id-Alt-RAB-Parameter-ExtendedGuaranteedBitrateInf" },
   { id_Alt_RAB_Parameter_ExtendedMaxBitrateInf, "id-Alt-RAB-Parameter-ExtendedMaxBitrateInf" },
@@ -1719,6 +1739,7 @@ static const value_string ranap_ProtocolIE_ID_vals[] = {
   { id_LAofIdleModeUEs, "id-LAofIdleModeUEs" },
   { id_newLAListofIdleModeUEs, "id-newLAListofIdleModeUEs" },
   { id_LAListwithNoIdleModeUEsAnyMore, "id-LAListwithNoIdleModeUEsAnyMore" },
+  { id_183_not_to_be_used_for_IE_ids, "id-183-not-to-be-used-for-IE-ids" },
   { id_GANSS_PositioningDataSet, "id-GANSS-PositioningDataSet" },
   { id_RequestedGANSSAssistanceData, "id-RequestedGANSSAssistanceData" },
   { id_BroadcastGANSSAssistanceDataDecipheringKeys, "id-BroadcastGANSSAssistanceDataDecipheringKeys" },
@@ -1767,11 +1788,13 @@ static const value_string ranap_ProtocolIE_ID_vals[] = {
   { id_CSG_Id_List, "id-CSG-Id-List" },
   { id_PSRABtobeReplaced, "id-PSRABtobeReplaced" },
   { id_E_UTRAN_Service_Handover, "id-E-UTRAN-Service-Handover" },
+  { id_Not_Used_232, "id-Not-Used-232" },
   { id_UE_AggregateMaximumBitRate, "id-UE-AggregateMaximumBitRate" },
   { id_CSG_Membership_Status, "id-CSG-Membership-Status" },
   { id_Cell_Access_Mode, "id-Cell-Access-Mode" },
   { id_IP_Source_Address, "id-IP-Source-Address" },
   { id_CSFB_Information, "id-CSFB-Information" },
+  { id_PDP_TypeInformation_extension, "id-PDP-TypeInformation-extension" },
   { 0, NULL }
 };
 
@@ -5372,6 +5395,35 @@ static int
 dissect_ranap_PDP_TypeInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_ranap_PDP_TypeInformation, PDP_TypeInformation_sequence_of,
+                                                  1, maxNrOfPDPDirections, FALSE);
+
+  return offset;
+}
+
+
+static const value_string ranap_PDP_Type_extension_vals[] = {
+  {   0, "ipv4-and-ipv6" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_ranap_PDP_Type_extension(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t PDP_TypeInformation_extension_sequence_of[1] = {
+  { &hf_ranap_PDP_TypeInformation_extension_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ranap_PDP_Type_extension },
+};
+
+static int
+dissect_ranap_PDP_TypeInformation_extension(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_ranap_PDP_TypeInformation_extension, PDP_TypeInformation_extension_sequence_of,
                                                   1, maxNrOfPDPDirections, FALSE);
 
   return offset;
@@ -10177,6 +10229,14 @@ static int dissect_PDP_TypeInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_PDP_TypeInformation_extension_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ranap_PDP_TypeInformation_extension(tvb, offset, &asn1_ctx, tree, hf_ranap_PDP_TypeInformation_extension_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_PeriodicLocationInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -12336,6 +12396,10 @@ void proto_register_ranap(void) {
       { "PDP-TypeInformation", "ranap.PDP_TypeInformation",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_ranap_PDP_TypeInformation_extension_PDU,
+      { "PDP-TypeInformation-extension", "ranap.PDP_TypeInformation_extension",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_ranap_PeriodicLocationInfo_PDU,
       { "PeriodicLocationInfo", "ranap.PeriodicLocationInfo",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -13812,6 +13876,10 @@ void proto_register_ranap(void) {
       { "PDP-Type", "ranap.PDP_Type",
         FT_UINT32, BASE_DEC, VALS(ranap_PDP_Type_vals), 0,
         NULL, HFILL }},
+    { &hf_ranap_PDP_TypeInformation_extension_item,
+      { "PDP-Type-extension", "ranap.PDP_Type_extension",
+        FT_UINT32, BASE_DEC, VALS(ranap_PDP_Type_extension_vals), 0,
+        NULL, HFILL }},
     { &hf_ranap_reportingAmount,
       { "reportingAmount", "ranap.reportingAmount",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -14657,6 +14725,7 @@ void proto_register_ranap(void) {
     &ett_ranap_MBMSIPMulticastAddressandAPNRequest,
     &ett_ranap_PagingAreaID,
     &ett_ranap_PDP_TypeInformation,
+    &ett_ranap_PDP_TypeInformation_extension,
     &ett_ranap_PeriodicLocationInfo,
     &ett_ranap_PermanentNAS_UE_ID,
     &ett_ranap_PermittedEncryptionAlgorithms,
@@ -15140,6 +15209,7 @@ proto_reg_handoff_ranap(void)
   dissector_add("ranap.extension", id_Cell_Access_Mode, new_create_dissector_handle(dissect_Cell_Access_Mode_PDU, proto_ranap));
   dissector_add("ranap.extension", id_IP_Source_Address, new_create_dissector_handle(dissect_IPMulticastAddress_PDU, proto_ranap));
   dissector_add("ranap.extension", id_CSFB_Information, new_create_dissector_handle(dissect_CSFB_Information_PDU, proto_ranap));
+  dissector_add("ranap.extension", id_PDP_TypeInformation_extension, new_create_dissector_handle(dissect_PDP_TypeInformation_extension_PDU, proto_ranap));
   dissector_add("ranap.proc.imsg", id_Iu_Release, new_create_dissector_handle(dissect_Iu_ReleaseCommand_PDU, proto_ranap));
   dissector_add("ranap.proc.sout", id_Iu_Release, new_create_dissector_handle(dissect_Iu_ReleaseComplete_PDU, proto_ranap));
   dissector_add("ranap.proc.imsg", id_RelocationPreparation, new_create_dissector_handle(dissect_RelocationRequired_PDU, proto_ranap));

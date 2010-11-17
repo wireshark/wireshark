@@ -364,6 +364,7 @@ id-RelocationCancel					ProcedureCode
 id-SRNS-ContextTransfer				ProcedureCode
 id-SecurityModeControl				ProcedureCode
 id-DataVolumeReport					ProcedureCode
+id-Not-Used-8						ProcedureCode
 id-Reset							ProcedureCode
 id-RAB-ReleaseRequest				ProcedureCode
 id-Iu-ReleaseRequest				ProcedureCode
@@ -405,6 +406,8 @@ id-SRVCCPreparation						ProcedureCode
 
 # ProtocolIE-ID
 id-AreaIdentity 								ProtocolIE-ID 
+id-Not-Used-1									ProtocolIE-ID
+id-Not-Used-2									ProtocolIE-ID
 id-CN-DomainIndicator 							ProtocolIE-ID 
 id-Cause 										ProtocolIE-ID 
 id-ChosenEncryptionAlgorithm 					ProtocolIE-ID 
@@ -474,7 +477,9 @@ id-TriggerID 									ProtocolIE-ID
 id-UE-ID 										ProtocolIE-ID 
 id-UL-GTP-PDU-SequenceNumber 					ProtocolIE-ID 
 id-RAB-FailedtoReportItem						ProtocolIE-ID 
-id-RAB-FailedtoReportList 						ProtocolIE-ID 
+id-RAB-FailedtoReportList 						ProtocolIE-ID
+id-Not-Used-73 									ProtocolIE-ID
+id-Not-Used-74									ProtocolIE-ID
 id-KeyStatus									ProtocolIE-ID 
 id-DRX-CycleLengthCoefficient 					ProtocolIE-ID 
 id-IuSigConIdList								ProtocolIE-ID 
@@ -501,6 +506,8 @@ id-LastKnownServiceArea							ProtocolIE-ID
 id-SRB-TrCH-Mapping								ProtocolIE-ID 
 id-InterSystemInformation-TransparentContainer	ProtocolIE-ID 
 id-NewBSS-To-OldBSS-Information 						ProtocolIE-ID 
+id-Not-Used-101	 										ProtocolIE-ID
+id-Not-Used-102			 								ProtocolIE-ID
 id-SourceRNC-PDCP-context-info							ProtocolIE-ID 
 id-InformationTransferID								ProtocolIE-ID 
 id-SNA-Access-Information								ProtocolIE-ID 
@@ -569,6 +576,7 @@ id-RAT-Type												ProtocolIE-ID
 id-PeriodicLocationInfo									ProtocolIE-ID 
 id-MBMSCountingInformation								ProtocolIE-ID 
 id-ExtendedRNC-ID										ProtocolIE-ID 
+id-170-not-to-be-used-for-IE-ids						ProtocolIE-ID
 id-Alt-RAB-Parameter-ExtendedGuaranteedBitrateInf		ProtocolIE-ID 
 id-Alt-RAB-Parameter-ExtendedMaxBitrateInf				ProtocolIE-ID 
 id-Ass-RAB-Parameter-ExtendedGuaranteedBitrateList		ProtocolIE-ID 
@@ -580,6 +588,7 @@ id-Requested-RAB-Parameter-ExtendedGuaranteedBitrateList	ProtocolIE-ID
 id-LAofIdleModeUEs										ProtocolIE-ID 
 id-newLAListofIdleModeUEs								ProtocolIE-ID 
 id-LAListwithNoIdleModeUEsAnyMore						ProtocolIE-ID 
+id-183-not-to-be-used-for-IE-ids						ProtocolIE-ID
 id-GANSS-PositioningDataSet								ProtocolIE-ID 
 id-RequestedGANSSAssistanceData							ProtocolIE-ID 
 id-BroadcastGANSSAssistanceDataDecipheringKeys			ProtocolIE-ID
@@ -629,11 +638,13 @@ id-SRVCC-Operation-Possible									ProtocolIE-ID
 id-CSG-Id-List												ProtocolIE-ID
 id-PSRABtobeReplaced										ProtocolIE-ID
 id-E-UTRAN-Service-Handover									ProtocolIE-ID
+id-Not-Used-232	 											ProtocolIE-ID
 id-UE-AggregateMaximumBitRate								ProtocolIE-ID
 id-CSG-Membership-Status 									ProtocolIE-ID
 id-Cell-Access-Mode											ProtocolIE-ID
 id-IP-Source-Address										ProtocolIE-ID 
 id-CSFB-Information											ProtocolIE-ID
+id-PDP-TypeInformation-extension							ProtocolIE-ID
 #.END
 
 #.REGISTER_NEW
@@ -880,6 +891,7 @@ CSG-Membership-Status									N ranap.extension id-CSG-Membership-Status
 Cell-Access-Mode										N ranap.extension id-Cell-Access-Mode
 IPMulticastAddress										N ranap.extension id-IP-Source-Address
 CSFB-Information										N ranap.extension id-CSFB-Information
+PDP-TypeInformation-extension							N ranap.extension id-PDP-TypeInformation-extension
 
 #RANAP-ELEMENTARY-PROCEDURE
 Iu-ReleaseCommand							N ranap.proc.imsg id-Iu-Release

@@ -1,6 +1,6 @@
 -- RANAP-IEs.asn
 --
--- 3GPP TS 25.413 V9.2.0 (2010-03)
+-- 3GPP TS 25.413 V9.4.0 (2010-09)
 -- http://www.3gpp.org/ftp/Specs/html-info/25413.htm
 --
 -- 9.3.4	Information Element Definitions
@@ -1187,6 +1187,13 @@ PDP-Type ::= ENUMERATED {
 	ipv6,
 	...
 }
+PDP-TypeInformation-extension ::= SEQUENCE (SIZE (1..maxNrOfPDPDirections)) OF
+	PDP-Type-extension
+
+PDP-Type-extension ::= ENUMERATED {
+	ipv4-and-ipv6,
+	...
+}
 
 PeriodicLocationInfo ::= SEQUENCE {
 	reportingAmount				INTEGER (1..8639999, ...),
@@ -2127,3 +2134,4 @@ VerticalSpeedDirection ::= ENUMERATED {
 VerticalAccuracyCode			::= INTEGER (0..127)
 
 END
+
