@@ -236,6 +236,7 @@
 #define RNSAP_ID_IURINVOKETRACE  44
 #define RNSAP_ID_MBMSATTACH  45
 #define RNSAP_ID_MBMSDETACH  46
+#define RNSAP_ID_NOT_USED_47  47
 #define RNSAP_ID_DIRECTINFORMATIONTRANSFER  48
 #define RNSAP_ID_ENHANCEDRELOCATION  49
 #define RNSAP_ID_ENHANCEDRELOCATIONCANCEL  50
@@ -323,6 +324,7 @@ typedef enum _ProtocolIE_ID_enum {
   id_MeasurementID =  93,
   id_Neighbouring_GSM_CellInformation =  13,
   id_Neighbouring_UMTS_CellInformationItem =  95,
+  id_Unknown_305 = 304,
   id_NRT_Load_Information_Value = 305,
   id_NRT_Load_Information_Value_IncrDecrThres = 306,
   id_PagingArea_PagingRqst = 102,
@@ -330,6 +332,7 @@ typedef enum _ProtocolIE_ID_enum {
   id_PartialReportingIndicator = 472,
   id_Permanent_NAS_UE_Identity =  17,
   id_PowerAdjustmentType = 107,
+  id_Unknown_108 = 108,
   id_RANAP_RelocationInformation = 109,
   id_RL_Information_PhyChReconfRqstFDD = 110,
   id_RL_Information_PhyChReconfRqstTDD = 111,
@@ -388,13 +391,17 @@ typedef enum _ProtocolIE_ID_enum {
   id_SRNC_ID   = 157,
   id_SuccessfulRL_InformationResponse_RL_AdditionFailureFDD = 159,
   id_SuccessfulRL_InformationResponse_RL_SetupFailureFDD = 160,
+  id_Unknown_161 = 161,
+  id_Unknown_162 = 162,
   id_TransportBearerID = 163,
   id_TransportBearerRequestIndicator = 164,
   id_TransportLayerAddress = 165,
   id_TypeOfError = 140,
   id_UC_ID     = 166,
   id_UL_CCTrCH_AddInformation_RL_ReconfPrepTDD = 167,
+  id_Unknown_168 = 168,
   id_UL_CCTrCH_InformationAddList_RL_ReconfPrepTDD = 169,
+  id_Unknown_170 = 170,
   id_UL_CCTrCH_InformationItem_RL_SetupRqstTDD = 171,
   id_UL_CCTrCH_InformationList_RL_SetupRqstTDD = 172,
   id_UL_CCTrCH_InformationListIE_PhyChReconfRqstTDD = 173,
@@ -410,11 +417,17 @@ typedef enum _ProtocolIE_ID_enum {
   id_UL_DPCH_InformationAddListIE_RL_ReconfReadyTDD = 183,
   id_UL_SIRTarget = 184,
   id_URA_Information = 185,
+  id_Unknown_186 = 186,
+  id_Unknown_187 = 187,
   id_UnsuccessfulRL_InformationResponse_RL_AdditionFailureFDD = 188,
   id_UnsuccessfulRL_InformationResponse_RL_SetupFailureFDD = 189,
   id_UnsuccessfulRL_InformationResponse_RL_SetupFailureTDD = 190,
+  id_Unknown_191 = 191,
+  id_Unknown_192 = 192,
   id_Active_Pattern_Sequence_Information = 193,
   id_AdjustmentRatio = 194,
+  id_Unknown_195 = 195,
+  id_Unknown_196 = 196,
   id_CauseLevel_RL_AdditionFailureFDD = 197,
   id_CauseLevel_RL_AdditionFailureTDD = 198,
   id_CauseLevel_RL_ReconfFailure = 199,
@@ -444,11 +457,13 @@ typedef enum _ProtocolIE_ID_enum {
   id_Unused_ProtocolIE_ID_324 = 324,
   id_Unused_ProtocolIE_ID_229 = 229,
   id_DSCHToBeAddedOrModifiedList_RL_ReconfReadyTDD = 230,
+  id_Unknown_231 = 231,
   id_Unused_ProtocolIE_ID_29 =  29,
   id_Unused_ProtocolIE_ID_225 = 225,
   id_GA_Cell   = 232,
   id_GA_CellAdditionalShapes =   3,
   id_Unused_ProtocolIE_ID_246 = 246,
+  id_Unknown_254 = 254,
   id_Transmission_Gap_Pattern_Sequence_Information = 255,
   id_UL_CCTrCH_DeleteInformation_RL_ReconfPrepTDD = 256,
   id_UL_CCTrCH_ModifyInformation_RL_ReconfPrepTDD = 257,
@@ -513,6 +528,7 @@ typedef enum _ProtocolIE_ID_enum {
   id_DSCH_LCR_InformationListIEs_RL_AdditionRspTDD =  96,
   id_USCH_LCR_InformationListIEs_RL_AdditionRspTDD =  97,
   id_UL_DPCH_LCR_InformationAddListIE_RL_ReconfReadyTDD =  98,
+  id_Unknown_99 =  99,
   id_UL_Timeslot_LCR_InformationModifyList_RL_ReconfReadyTDD = 100,
   id_DL_DPCH_LCR_InformationAddListIE_RL_ReconfReadyTDD = 101,
   id_DL_Timeslot_LCR_InformationModifyList_RL_ReconfReadyTDD = 104,
@@ -533,6 +549,7 @@ typedef enum _ProtocolIE_ID_enum {
   id_UL_Timeslot_ISCP_Value = 242,
   id_UL_Timeslot_ISCP_Value_IncrDecrThres = 243,
   id_Rx_Timing_Deviation_Value_LCR = 293,
+  id_Unknown_294 = 294,
   id_DPC_Mode_Change_SupportIndicator =  19,
   id_Unused_ProtocolIE_ID_247 = 247,
   id_Unused_ProtocolIE_ID_295 = 295,
@@ -552,7 +569,9 @@ typedef enum _ProtocolIE_ID_enum {
   id_RL_Specific_DCH_Info = 317,
   id_RL_ReconfigurationRequestFDD_RL_InformationList = 318,
   id_RL_ReconfigurationRequestFDD_RL_Information_IEs = 319,
+  id_Unknown_320 = 320,
   id_RL_ReconfigurationRequestTDD_RL_Information = 321,
+  id_Unknown_322 = 322,
   id_CommonTransportChannelResourcesInitialisationNotRequired = 250,
   id_DelayedActivation = 312,
   id_DelayedActivationList_RL_ActivationCmdFDD = 313,
@@ -565,6 +584,8 @@ typedef enum _ProtocolIE_ID_enum {
   id_PrimCCPCH_RSCP_DL_PC_RqstTDD = 451,
   id_HSDSCH_FDD_Information = 452,
   id_HSDSCH_FDD_Information_Response = 453,
+  id_Unknown_454 = 454,
+  id_Unknown_455 = 455,
   id_HSDSCH_FDD_Update_Information = 466,
   id_HSDSCH_Information_to_Modify = 456,
   id_HSDSCHMacdFlowSpecificInformationList_RL_PreemptRequiredInd = 516,
@@ -572,16 +593,145 @@ typedef enum _ProtocolIE_ID_enum {
   id_HSDSCH_RNTI = 457,
   id_HSDSCH_TDD_Information = 458,
   id_HSDSCH_TDD_Information_Response = 459,
+  id_Unknown_460 = 460,
+  id_Unknown_461 = 461,
+  id_Unknown_462 = 462,
   id_HSDSCH_TDD_Update_Information = 467,
   id_HSPDSCH_RL_ID = 463,
   id_HSDSCH_MACdFlows_to_Add = 531,
   id_HSDSCH_MACdFlows_to_Delete = 532,
   id_Angle_Of_Arrival_Value_LCR = 148,
+  id_Unknown_149 = 149,
   id_TrafficClass = 158,
   id_Unused_ProtocolIE_ID_248 = 248,
   id_Unused_ProtocolIE_ID_253 = 253,
   id_PDSCH_RL_ID = 323,
   id_TimeSlot_RL_SetupRspTDD = 325,
+  id_Unknown_326 = 326,
+  id_Unknown_327 = 327,
+  id_Unknown_328 = 328,
+  id_Unknown_329 = 329,
+  id_Unknown_330 = 330,
+  id_Unknown_331 = 331,
+  id_Unknown_332 = 332,
+  id_Unknown_333 = 333,
+  id_Unknown_334 = 334,
+  id_Unknown_335 = 335,
+  id_Unknown_336 = 336,
+  id_Unknown_337 = 337,
+  id_Unknown_338 = 338,
+  id_Unknown_339 = 339,
+  id_Unknown_340 = 340,
+  id_Unknown_341 = 341,
+  id_Unknown_342 = 342,
+  id_Unknown_343 = 343,
+  id_Unknown_344 = 344,
+  id_Unknown_345 = 345,
+  id_Unknown_346 = 346,
+  id_Unknown_347 = 347,
+  id_Unknown_348 = 348,
+  id_Unknown_349 = 349,
+  id_Unknown_350 = 350,
+  id_Unknown_351 = 351,
+  id_Unknown_352 = 352,
+  id_Unknown_353 = 353,
+  id_Unknown_354 = 354,
+  id_Unknown_355 = 355,
+  id_Unknown_356 = 356,
+  id_Unknown_357 = 357,
+  id_Unknown_358 = 358,
+  id_Unknown_359 = 359,
+  id_Unknown_360 = 360,
+  id_Unknown_361 = 361,
+  id_Unknown_362 = 362,
+  id_Unknown_363 = 363,
+  id_Unknown_364 = 364,
+  id_Unknown_365 = 365,
+  id_Unknown_366 = 366,
+  id_Unknown_367 = 367,
+  id_Unknown_368 = 368,
+  id_Unknown_369 = 369,
+  id_Unknown_370 = 370,
+  id_Unknown_371 = 371,
+  id_Unknown_372 = 372,
+  id_Unknown_373 = 373,
+  id_Unknown_374 = 374,
+  id_Unknown_375 = 375,
+  id_Unknown_376 = 376,
+  id_Unknown_377 = 377,
+  id_Unknown_378 = 378,
+  id_Unknown_379 = 379,
+  id_Unknown_380 = 380,
+  id_Unknown_381 = 381,
+  id_Unknown_382 = 382,
+  id_Unknown_383 = 383,
+  id_Unknown_384 = 384,
+  id_Unknown_385 = 385,
+  id_Unknown_386 = 386,
+  id_Unknown_387 = 387,
+  id_Unknown_388 = 388,
+  id_Unknown_389 = 389,
+  id_Unknown_390 = 390,
+  id_Unknown_391 = 391,
+  id_Unknown_392 = 392,
+  id_Unknown_393 = 393,
+  id_Unknown_394 = 394,
+  id_Unknown_395 = 395,
+  id_Unknown_396 = 396,
+  id_Unknown_397 = 397,
+  id_Unknown_398 = 398,
+  id_Unknown_399 = 399,
+  id_Unknown_400 = 400,
+  id_Unknown_401 = 401,
+  id_Unknown_402 = 402,
+  id_Unknown_403 = 403,
+  id_Unknown_404 = 404,
+  id_Unknown_405 = 405,
+  id_Unknown_406 = 406,
+  id_Unknown_407 = 407,
+  id_Unknown_408 = 408,
+  id_Unknown_409 = 409,
+  id_Unknown_410 = 410,
+  id_Unknown_411 = 411,
+  id_Unknown_412 = 412,
+  id_Unknown_413 = 413,
+  id_Unknown_414 = 414,
+  id_Unknown_415 = 415,
+  id_Unknown_416 = 416,
+  id_Unknown_417 = 417,
+  id_Unknown_418 = 418,
+  id_Unknown_419 = 419,
+  id_Unknown_420 = 420,
+  id_Unknown_421 = 421,
+  id_Unknown_422 = 422,
+  id_Unknown_423 = 423,
+  id_Unknown_424 = 424,
+  id_Unknown_425 = 425,
+  id_Unknown_426 = 426,
+  id_Unknown_427 = 427,
+  id_Unknown_428 = 428,
+  id_Unknown_429 = 429,
+  id_Unknown_430 = 430,
+  id_Unknown_431 = 431,
+  id_Unknown_432 = 432,
+  id_Unknown_433 = 433,
+  id_Unknown_434 = 434,
+  id_Unknown_435 = 435,
+  id_Unknown_436 = 436,
+  id_Unknown_437 = 437,
+  id_Unknown_438 = 438,
+  id_Unknown_439 = 439,
+  id_Unknown_440 = 440,
+  id_Unknown_441 = 441,
+  id_Unknown_442 = 442,
+  id_Unknown_443 = 443,
+  id_Unknown_444 = 444,
+  id_Unknown_445 = 445,
+  id_Unknown_446 = 446,
+  id_Unknown_447 = 447,
+  id_Unknown_448 = 448,
+  id_Unknown_449 = 449,
+  id_Unknown_450 = 450,
   id_GERAN_Cell_Capability = 468,
   id_GERAN_Classmark = 469,
   id_DSCH_InitialWindowSize = 480,
@@ -667,8 +817,12 @@ typedef enum _ProtocolIE_ID_enum {
   id_Active_MBMS_Bearer_ServiceFDD = 562,
   id_Active_MBMS_Bearer_ServiceTDD = 563,
   id_Old_URA_ID = 564,
+  id_Unknown_565 = 565,
+  id_Unknown_566 = 566,
+  id_Unknown_567 = 567,
   id_UE_State  = 568,
   id_URA_ID    = 569,
+  id_Unknown_570 = 570,
   id_HARQ_Preamble_Mode = 571,
   id_SynchronisationIndicator = 572,
   id_UL_DPDCHIndicatorEDCH = 573,
@@ -772,7 +926,9 @@ typedef enum _ProtocolIE_ID_enum {
   id_Continuous_Packet_Connectivity_HS_SCCH_Less_Information = 671,
   id_Continuous_Packet_Connectivity_HS_SCCH_Less_Information_Response = 672,
   id_CPC_Information = 673,
+  id_Unknown_674 = 674,
   id_MIMO_InformationResponse = 675,
+  id_Unknown_676 = 676,
   id_E_DCH_LCR_Information = 677,
   id_E_DCH_LCR_Information_Reconfig = 678,
   id_E_DCH_LCR_Information_Response = 679,
@@ -783,17 +939,24 @@ typedef enum _ProtocolIE_ID_enum {
   id_SixtyfourQAM_DL_SupportIndicator = 684,
   id_Enhanced_FACH_Support_Indicator = 685,
   id_Enhanced_FACH_Information_ResponseFDD = 686,
+  id_Unknown_687 = 687,
+  id_Unknown_688 = 688,
+  id_Unknown_689 = 689,
   id_HSDSCH_MACdPDUSizeFormat = 690,
   id_MaximumMACdPDU_SizeExtended = 691,
   id_F_DPCH_SlotFormat = 692,
   id_F_DPCH_SlotFormatSupportRequest = 693,
   id_eDCH_MACdFlow_Retransmission_Timer_LCR = 694,
   id_Max_UE_DTX_Cycle = 695,
+  id_Unknown_696 = 696,
+  id_Unknown_697 = 697,
+  id_Unknown_698 = 698,
   id_GANSS_Common_Data = 699,
   id_GANSS_Information = 700,
   id_GANSS_Generic_Data = 701,
   id_TUTRANGANSSMeasurementThresholdInformation = 702,
   id_TUTRANGANSSMeasurementValueInformation = 703,
+  id_Unknown_704 = 704,
   id_Ext_Reference_E_TFCI_PO = 705,
   id_Ext_Max_Bits_MACe_PDU_non_scheduled = 706,
   id_HARQ_MemoryPartitioningInfoExtForMIMO = 707,
@@ -857,6 +1020,7 @@ typedef enum _ProtocolIE_ID_enum {
   id_MBMS_RLC_Sequence_Number_Information = 765,
   id_RLC_Sequence_Number = 766,
   id_Neighbouring_E_UTRA_CellInformation = 767,
+  id_Unknown_768 = 768,
   id_MBSFN_Cluster_Identity = 769,
   id_MCCH_Configuration_Info = 770,
   id_MCCH_Message_List = 771,
@@ -920,6 +1084,9 @@ typedef enum _ProtocolIE_ID_enum {
   id_power_offset_for_S_CPICH_for_MIMO = 829,
   id_power_offset_for_S_CPICH_for_MIMO_Request_Indicator = 830,
   id_UE_SupportIndicatorExtension = 831,
+  id_Unknown_832 = 832,
+  id_Unknown_833 = 833,
+  id_Unknown_834 = 834,
   id_ActivationInformation = 835,
   id_CellPortionLCRID = 836,
   id_Additional_EDCH_Cell_Information_RL_Setup_Req = 837,
@@ -931,6 +1098,14 @@ typedef enum _ProtocolIE_ID_enum {
   id_Additional_EDCH_Cell_Information_RL_Param_Upd = 843,
   id_Additional_EDCH_Preconfiguration_Information = 844,
   id_MulticellEDCH_Information = 845,
+  id_Unknown_846 = 846,
+  id_Unknown_847 = 847,
+  id_Unknown_848 = 848,
+  id_Unknown_849 = 849,
+  id_Unknown_850 = 850,
+  id_Unknown_851 = 851,
+  id_Unknown_852 = 852,
+  id_Unknown_853 = 853,
   id_Additional_EDCH_Cell_Information_ResponseRLReconf = 854,
   id_EDCH_Indicator = 855,
   id_DiversityMode = 856,
@@ -948,7 +1123,13 @@ typedef enum _ProtocolIE_ID_enum {
   id_MulticellEDCH_RL_SpecificInformation = 868,
   id_DGNSS_ValidityPeriod = 869,
   id_TS0_HS_PDSCH_Indication_LCR = 870,
-  id_UE_TS0_CapabilityLCR = 871
+  id_UE_TS0_CapabilityLCR = 871,
+  id_Non_Serving_RL_Preconfig_Info = 872,
+  id_Non_Serving_RL_Preconfig_Setup = 873,
+  id_Non_Serving_RL_Preconfig_Removal = 874,
+  id_Additional_E_DCH_Non_Serving_RL_Preconfiguration_Setup = 875,
+  id_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList = 876,
+  id_CellListValidityIndicator = 877
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-rnsap-val.h ---*/
@@ -2907,6 +3088,17 @@ static int hf_rnsap_eARFCN_Information = -1;      /* EARFCN_Information */
 static int hf_rnsap_NotProvidedCellList_item = -1;  /* MBMSChannelTypeCellList */
 static int hf_rnsap_uplinkNRTLoadInformationValue = -1;  /* INTEGER_0_3 */
 static int hf_rnsap_downlinkNRTLoadInformationValue = -1;  /* INTEGER_0_3 */
+static int hf_rnsap_new_non_serving_RL_selection = -1;  /* New_non_serving_RL_setup_selection */
+static int hf_rnsap_new_Serving_RL_in_DRNS = -1;  /* NULL */
+static int hf_rnsap_new_Serving_RL_Not_in_DRNS = -1;  /* NULL */
+static int hf_rnsap_new_Serving_RL_in_or_Not_in_DRNS = -1;  /* NULL */
+static int hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_ControlChannelInformation_A = -1;  /* EDCH_FDD_DL_ControlChannelInformation */
+static int hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_ControlChannelInformation_B = -1;  /* EDCH_FDD_DL_ControlChannelInformation */
+static int hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_ControlChannelInformation_C = -1;  /* EDCH_FDD_DL_ControlChannelInformation */
+static int hf_rnsap_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList_item = -1;  /* Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList_item */
+static int hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_Control_Channel_Information_A = -1;  /* EDCH_FDD_DL_ControlChannelInformation */
+static int hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_Control_Channel_Information_B = -1;  /* EDCH_FDD_DL_ControlChannelInformation */
+static int hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_Control_Channel_Information_C = -1;  /* EDCH_FDD_DL_ControlChannelInformation */
 static int hf_rnsap_measurementThreshold = -1;    /* MeasurementThreshold */
 static int hf_rnsap_informationThreshold = -1;    /* InformationThreshold */
 static int hf_rnsap_PCH_InformationList_item = -1;  /* PCH_InformationItem */
@@ -4239,6 +4431,11 @@ static gint ett_rnsap_Neighbouring_E_UTRA_CellInformation = -1;
 static gint ett_rnsap_Neighbouring_E_UTRA_CellInformationItem = -1;
 static gint ett_rnsap_NotProvidedCellList = -1;
 static gint ett_rnsap_NRTLoadInformationValue = -1;
+static gint ett_rnsap_Non_Serving_RL_Preconfig_Setup = -1;
+static gint ett_rnsap_New_non_serving_RL_setup_selection = -1;
+static gint ett_rnsap_Non_Serving_RL_Preconfig_Info = -1;
+static gint ett_rnsap_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList = -1;
+static gint ett_rnsap_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList_item = -1;
 static gint ett_rnsap_OnModification = -1;
 static gint ett_rnsap_OnModificationInformation = -1;
 static gint ett_rnsap_PCH_InformationList = -1;
@@ -5087,6 +5284,7 @@ static const value_string rnsap_ProcedureCode_vals[] = {
   { RNSAP_ID_IURINVOKETRACE, "id-iurInvokeTrace" },
   { RNSAP_ID_MBMSATTACH, "id-mBMSAttach" },
   { RNSAP_ID_MBMSDETACH, "id-mBMSDetach" },
+  { RNSAP_ID_NOT_USED_47, "id-Not-used-47" },
   { RNSAP_ID_DIRECTINFORMATIONTRANSFER, "id-directInformationTransfer" },
   { RNSAP_ID_ENHANCEDRELOCATION, "id-enhancedRelocation" },
   { RNSAP_ID_ENHANCEDRELOCATIONCANCEL, "id-enhancedRelocationCancel" },
@@ -5106,7 +5304,7 @@ dissect_rnsap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 76 "rnsap.cnf"
+#line 77 "rnsap.cnf"
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
        col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                    val_to_str_ext_const(ProcedureCode, &rnsap_ProcedureCode_vals_ext,
@@ -5141,7 +5339,7 @@ static const per_sequence_t ProcedureID_sequence[] = {
 
 static int
 dissect_rnsap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 84 "rnsap.cnf"
+#line 85 "rnsap.cnf"
   ProcedureCode = 0xFFFF;
   ddMode = 0xFFFF;
   ProcedureID = NULL;
@@ -5149,7 +5347,7 @@ dissect_rnsap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_rnsap_ProcedureID, ProcedureID_sequence);
 
-#line 90 "rnsap.cnf"
+#line 91 "rnsap.cnf"
   ProcedureID = ep_strdup_printf("%s/%s",
                                  val_to_str_ext(ProcedureCode, &rnsap_ProcedureCode_vals_ext, "unknown(%u)"),
                                  val_to_str(ddMode, rnsap_DdMode_vals, "unknown(%u)"));
@@ -5257,6 +5455,7 @@ static const value_string rnsap_ProtocolIE_ID_vals[] = {
   { id_DSCH_LCR_InformationListIEs_RL_AdditionRspTDD, "id-DSCH-LCR-InformationListIEs-RL-AdditionRspTDD" },
   { id_USCH_LCR_InformationListIEs_RL_AdditionRspTDD, "id-USCH-LCR-InformationListIEs-RL-AdditionRspTDD" },
   { id_UL_DPCH_LCR_InformationAddListIE_RL_ReconfReadyTDD, "id-UL-DPCH-LCR-InformationAddListIE-RL-ReconfReadyTDD" },
+  { id_Unknown_99, "id-Unknown-99" },
   { id_UL_Timeslot_LCR_InformationModifyList_RL_ReconfReadyTDD, "id-UL-Timeslot-LCR-InformationModifyList-RL-ReconfReadyTDD" },
   { id_DL_DPCH_LCR_InformationAddListIE_RL_ReconfReadyTDD, "id-DL-DPCH-LCR-InformationAddListIE-RL-ReconfReadyTDD" },
   { id_PagingArea_PagingRqst, "id-PagingArea-PagingRqst" },
@@ -5265,6 +5464,7 @@ static const value_string rnsap_ProtocolIE_ID_vals[] = {
   { id_UL_Timeslot_LCR_InformationList_PhyChReconfRqstTDD, "id-UL-Timeslot-LCR-InformationList-PhyChReconfRqstTDD" },
   { id_DL_Timeslot_LCR_InformationList_PhyChReconfRqstTDD, "id-DL-Timeslot-LCR-InformationList-PhyChReconfRqstTDD" },
   { id_PowerAdjustmentType, "id-PowerAdjustmentType" },
+  { id_Unknown_108, "id-Unknown-108" },
   { id_RANAP_RelocationInformation, "id-RANAP-RelocationInformation" },
   { id_RL_Information_PhyChReconfRqstFDD, "id-RL-Information-PhyChReconfRqstFDD" },
   { id_RL_Information_PhyChReconfRqstTDD, "id-RL-Information-PhyChReconfRqstTDD" },
@@ -5305,6 +5505,7 @@ static const value_string rnsap_ProtocolIE_ID_vals[] = {
   { id_RL_Set_Information_RL_FailureInd, "id-RL-Set-Information-RL-FailureInd" },
   { id_RL_Set_Information_RL_RestoreInd, "id-RL-Set-Information-RL-RestoreInd" },
   { id_Angle_Of_Arrival_Value_LCR, "id-Angle-Of-Arrival-Value-LCR" },
+  { id_Unknown_149, "id-Unknown-149" },
   { id_UL_SIR_Target_CCTrCH_InformationItem_RL_SetupRspTDD, "id-UL-SIR-Target-CCTrCH-InformationItem-RL-SetupRspTDD" },
   { id_UL_SIR_Target_CCTrCH_LCR_InformationItem_RL_SetupRspTDD, "id-UL-SIR-Target-CCTrCH-LCR-InformationItem-RL-SetupRspTDD" },
   { id_ReportCharacteristics, "id-ReportCharacteristics" },
@@ -5316,12 +5517,16 @@ static const value_string rnsap_ProtocolIE_ID_vals[] = {
   { id_TrafficClass, "id-TrafficClass" },
   { id_SuccessfulRL_InformationResponse_RL_AdditionFailureFDD, "id-SuccessfulRL-InformationResponse-RL-AdditionFailureFDD" },
   { id_SuccessfulRL_InformationResponse_RL_SetupFailureFDD, "id-SuccessfulRL-InformationResponse-RL-SetupFailureFDD" },
+  { id_Unknown_161, "id-Unknown-161" },
+  { id_Unknown_162, "id-Unknown-162" },
   { id_TransportBearerID, "id-TransportBearerID" },
   { id_TransportBearerRequestIndicator, "id-TransportBearerRequestIndicator" },
   { id_TransportLayerAddress, "id-TransportLayerAddress" },
   { id_UC_ID, "id-UC-ID" },
   { id_UL_CCTrCH_AddInformation_RL_ReconfPrepTDD, "id-UL-CCTrCH-AddInformation-RL-ReconfPrepTDD" },
+  { id_Unknown_168, "id-Unknown-168" },
   { id_UL_CCTrCH_InformationAddList_RL_ReconfPrepTDD, "id-UL-CCTrCH-InformationAddList-RL-ReconfPrepTDD" },
+  { id_Unknown_170, "id-Unknown-170" },
   { id_UL_CCTrCH_InformationItem_RL_SetupRqstTDD, "id-UL-CCTrCH-InformationItem-RL-SetupRqstTDD" },
   { id_UL_CCTrCH_InformationList_RL_SetupRqstTDD, "id-UL-CCTrCH-InformationList-RL-SetupRqstTDD" },
   { id_UL_CCTrCH_InformationListIE_PhyChReconfRqstTDD, "id-UL-CCTrCH-InformationListIE-PhyChReconfRqstTDD" },
@@ -5337,11 +5542,17 @@ static const value_string rnsap_ProtocolIE_ID_vals[] = {
   { id_UL_DPCH_InformationAddListIE_RL_ReconfReadyTDD, "id-UL-DPCH-InformationAddListIE-RL-ReconfReadyTDD" },
   { id_UL_SIRTarget, "id-UL-SIRTarget" },
   { id_URA_Information, "id-URA-Information" },
+  { id_Unknown_186, "id-Unknown-186" },
+  { id_Unknown_187, "id-Unknown-187" },
   { id_UnsuccessfulRL_InformationResponse_RL_AdditionFailureFDD, "id-UnsuccessfulRL-InformationResponse-RL-AdditionFailureFDD" },
   { id_UnsuccessfulRL_InformationResponse_RL_SetupFailureFDD, "id-UnsuccessfulRL-InformationResponse-RL-SetupFailureFDD" },
   { id_UnsuccessfulRL_InformationResponse_RL_SetupFailureTDD, "id-UnsuccessfulRL-InformationResponse-RL-SetupFailureTDD" },
+  { id_Unknown_191, "id-Unknown-191" },
+  { id_Unknown_192, "id-Unknown-192" },
   { id_Active_Pattern_Sequence_Information, "id-Active-Pattern-Sequence-Information" },
   { id_AdjustmentRatio, "id-AdjustmentRatio" },
+  { id_Unknown_195, "id-Unknown-195" },
+  { id_Unknown_196, "id-Unknown-196" },
   { id_CauseLevel_RL_AdditionFailureFDD, "id-CauseLevel-RL-AdditionFailureFDD" },
   { id_CauseLevel_RL_AdditionFailureTDD, "id-CauseLevel-RL-AdditionFailureTDD" },
   { id_CauseLevel_RL_ReconfFailure, "id-CauseLevel-RL-ReconfFailure" },
@@ -5376,6 +5587,7 @@ static const value_string rnsap_ProtocolIE_ID_vals[] = {
   { id_Unused_ProtocolIE_ID_228, "id-Unused-ProtocolIE-ID-228" },
   { id_Unused_ProtocolIE_ID_229, "id-Unused-ProtocolIE-ID-229" },
   { id_DSCHToBeAddedOrModifiedList_RL_ReconfReadyTDD, "id-DSCHToBeAddedOrModifiedList-RL-ReconfReadyTDD" },
+  { id_Unknown_231, "id-Unknown-231" },
   { id_GA_Cell, "id-GA-Cell" },
   { id_Load_Value, "id-Load-Value" },
   { id_Load_Value_IncrDecrThres, "id-Load-Value-IncrDecrThres" },
@@ -5398,6 +5610,7 @@ static const value_string rnsap_ProtocolIE_ID_vals[] = {
   { id_neighbouringTDDCellMeasurementInformationLCR, "id-neighbouringTDDCellMeasurementInformationLCR" },
   { id_IPDL_TDD_ParametersLCR, "id-IPDL-TDD-ParametersLCR" },
   { id_Unused_ProtocolIE_ID_253, "id-Unused-ProtocolIE-ID-253" },
+  { id_Unknown_254, "id-Unknown-254" },
   { id_Transmission_Gap_Pattern_Sequence_Information, "id-Transmission-Gap-Pattern-Sequence-Information" },
   { id_UL_CCTrCH_DeleteInformation_RL_ReconfPrepTDD, "id-UL-CCTrCH-DeleteInformation-RL-ReconfPrepTDD" },
   { id_UL_CCTrCH_ModifyInformation_RL_ReconfPrepTDD, "id-UL-CCTrCH-ModifyInformation-RL-ReconfPrepTDD" },
@@ -5437,6 +5650,7 @@ static const value_string rnsap_ProtocolIE_ID_vals[] = {
   { id_InformationReportCharacteristics, "id-InformationReportCharacteristics" },
   { id_InformationType, "id-InformationType" },
   { id_Rx_Timing_Deviation_Value_LCR, "id-Rx-Timing-Deviation-Value-LCR" },
+  { id_Unknown_294, "id-Unknown-294" },
   { id_Unused_ProtocolIE_ID_295, "id-Unused-ProtocolIE-ID-295" },
   { id_DL_PowerBalancing_Information, "id-DL-PowerBalancing-Information" },
   { id_DL_PowerBalancing_ActivationIndicator, "id-DL-PowerBalancing-ActivationIndicator" },
@@ -5446,6 +5660,7 @@ static const value_string rnsap_ProtocolIE_ID_vals[] = {
   { id_CellCapabilityContainer_TDD, "id-CellCapabilityContainer-TDD" },
   { id_CellCapabilityContainer_TDD_LCR, "id-CellCapabilityContainer-TDD-LCR" },
   { id_Cell_Capacity_Class_Value, "id-Cell-Capacity-Class-Value" },
+  { id_Unknown_305, "id-Unknown-305" },
   { id_NRT_Load_Information_Value, "id-NRT-Load-Information-Value" },
   { id_NRT_Load_Information_Value_IncrDecrThres, "id-NRT-Load-Information-Value-IncrDecrThres" },
   { id_RT_Load_Value, "id-RT-Load-Value" },
@@ -5461,17 +5676,149 @@ static const value_string rnsap_ProtocolIE_ID_vals[] = {
   { id_RL_Specific_DCH_Info, "id-RL-Specific-DCH-Info" },
   { id_RL_ReconfigurationRequestFDD_RL_InformationList, "id-RL-ReconfigurationRequestFDD-RL-InformationList" },
   { id_RL_ReconfigurationRequestFDD_RL_Information_IEs, "id-RL-ReconfigurationRequestFDD-RL-Information-IEs" },
+  { id_Unknown_320, "id-Unknown-320" },
   { id_RL_ReconfigurationRequestTDD_RL_Information, "id-RL-ReconfigurationRequestTDD-RL-Information" },
+  { id_Unknown_322, "id-Unknown-322" },
   { id_PDSCH_RL_ID, "id-PDSCH-RL-ID" },
   { id_Unused_ProtocolIE_ID_324, "id-Unused-ProtocolIE-ID-324" },
   { id_TimeSlot_RL_SetupRspTDD, "id-TimeSlot-RL-SetupRspTDD" },
+  { id_Unknown_326, "id-Unknown-326" },
+  { id_Unknown_327, "id-Unknown-327" },
+  { id_Unknown_328, "id-Unknown-328" },
+  { id_Unknown_329, "id-Unknown-329" },
+  { id_Unknown_330, "id-Unknown-330" },
+  { id_Unknown_331, "id-Unknown-331" },
+  { id_Unknown_332, "id-Unknown-332" },
+  { id_Unknown_333, "id-Unknown-333" },
+  { id_Unknown_334, "id-Unknown-334" },
+  { id_Unknown_335, "id-Unknown-335" },
+  { id_Unknown_336, "id-Unknown-336" },
+  { id_Unknown_337, "id-Unknown-337" },
+  { id_Unknown_338, "id-Unknown-338" },
+  { id_Unknown_339, "id-Unknown-339" },
+  { id_Unknown_340, "id-Unknown-340" },
+  { id_Unknown_341, "id-Unknown-341" },
+  { id_Unknown_342, "id-Unknown-342" },
+  { id_Unknown_343, "id-Unknown-343" },
+  { id_Unknown_344, "id-Unknown-344" },
+  { id_Unknown_345, "id-Unknown-345" },
+  { id_Unknown_346, "id-Unknown-346" },
+  { id_Unknown_347, "id-Unknown-347" },
+  { id_Unknown_348, "id-Unknown-348" },
+  { id_Unknown_349, "id-Unknown-349" },
+  { id_Unknown_350, "id-Unknown-350" },
+  { id_Unknown_351, "id-Unknown-351" },
+  { id_Unknown_352, "id-Unknown-352" },
+  { id_Unknown_353, "id-Unknown-353" },
+  { id_Unknown_354, "id-Unknown-354" },
+  { id_Unknown_355, "id-Unknown-355" },
+  { id_Unknown_356, "id-Unknown-356" },
+  { id_Unknown_357, "id-Unknown-357" },
+  { id_Unknown_358, "id-Unknown-358" },
+  { id_Unknown_359, "id-Unknown-359" },
+  { id_Unknown_360, "id-Unknown-360" },
+  { id_Unknown_361, "id-Unknown-361" },
+  { id_Unknown_362, "id-Unknown-362" },
+  { id_Unknown_363, "id-Unknown-363" },
+  { id_Unknown_364, "id-Unknown-364" },
+  { id_Unknown_365, "id-Unknown-365" },
+  { id_Unknown_366, "id-Unknown-366" },
+  { id_Unknown_367, "id-Unknown-367" },
+  { id_Unknown_368, "id-Unknown-368" },
+  { id_Unknown_369, "id-Unknown-369" },
+  { id_Unknown_370, "id-Unknown-370" },
+  { id_Unknown_371, "id-Unknown-371" },
+  { id_Unknown_372, "id-Unknown-372" },
+  { id_Unknown_373, "id-Unknown-373" },
+  { id_Unknown_374, "id-Unknown-374" },
+  { id_Unknown_375, "id-Unknown-375" },
+  { id_Unknown_376, "id-Unknown-376" },
+  { id_Unknown_377, "id-Unknown-377" },
+  { id_Unknown_378, "id-Unknown-378" },
+  { id_Unknown_379, "id-Unknown-379" },
+  { id_Unknown_380, "id-Unknown-380" },
+  { id_Unknown_381, "id-Unknown-381" },
+  { id_Unknown_382, "id-Unknown-382" },
+  { id_Unknown_383, "id-Unknown-383" },
+  { id_Unknown_384, "id-Unknown-384" },
+  { id_Unknown_385, "id-Unknown-385" },
+  { id_Unknown_386, "id-Unknown-386" },
+  { id_Unknown_387, "id-Unknown-387" },
+  { id_Unknown_388, "id-Unknown-388" },
+  { id_Unknown_389, "id-Unknown-389" },
+  { id_Unknown_390, "id-Unknown-390" },
+  { id_Unknown_391, "id-Unknown-391" },
+  { id_Unknown_392, "id-Unknown-392" },
+  { id_Unknown_393, "id-Unknown-393" },
+  { id_Unknown_394, "id-Unknown-394" },
+  { id_Unknown_395, "id-Unknown-395" },
+  { id_Unknown_396, "id-Unknown-396" },
+  { id_Unknown_397, "id-Unknown-397" },
+  { id_Unknown_398, "id-Unknown-398" },
+  { id_Unknown_399, "id-Unknown-399" },
+  { id_Unknown_400, "id-Unknown-400" },
+  { id_Unknown_401, "id-Unknown-401" },
+  { id_Unknown_402, "id-Unknown-402" },
+  { id_Unknown_403, "id-Unknown-403" },
+  { id_Unknown_404, "id-Unknown-404" },
+  { id_Unknown_405, "id-Unknown-405" },
+  { id_Unknown_406, "id-Unknown-406" },
+  { id_Unknown_407, "id-Unknown-407" },
+  { id_Unknown_408, "id-Unknown-408" },
+  { id_Unknown_409, "id-Unknown-409" },
+  { id_Unknown_410, "id-Unknown-410" },
+  { id_Unknown_411, "id-Unknown-411" },
+  { id_Unknown_412, "id-Unknown-412" },
+  { id_Unknown_413, "id-Unknown-413" },
+  { id_Unknown_414, "id-Unknown-414" },
+  { id_Unknown_415, "id-Unknown-415" },
+  { id_Unknown_416, "id-Unknown-416" },
+  { id_Unknown_417, "id-Unknown-417" },
+  { id_Unknown_418, "id-Unknown-418" },
+  { id_Unknown_419, "id-Unknown-419" },
+  { id_Unknown_420, "id-Unknown-420" },
+  { id_Unknown_421, "id-Unknown-421" },
+  { id_Unknown_422, "id-Unknown-422" },
+  { id_Unknown_423, "id-Unknown-423" },
+  { id_Unknown_424, "id-Unknown-424" },
+  { id_Unknown_425, "id-Unknown-425" },
+  { id_Unknown_426, "id-Unknown-426" },
+  { id_Unknown_427, "id-Unknown-427" },
+  { id_Unknown_428, "id-Unknown-428" },
+  { id_Unknown_429, "id-Unknown-429" },
+  { id_Unknown_430, "id-Unknown-430" },
+  { id_Unknown_431, "id-Unknown-431" },
+  { id_Unknown_432, "id-Unknown-432" },
+  { id_Unknown_433, "id-Unknown-433" },
+  { id_Unknown_434, "id-Unknown-434" },
+  { id_Unknown_435, "id-Unknown-435" },
+  { id_Unknown_436, "id-Unknown-436" },
+  { id_Unknown_437, "id-Unknown-437" },
+  { id_Unknown_438, "id-Unknown-438" },
+  { id_Unknown_439, "id-Unknown-439" },
+  { id_Unknown_440, "id-Unknown-440" },
+  { id_Unknown_441, "id-Unknown-441" },
+  { id_Unknown_442, "id-Unknown-442" },
+  { id_Unknown_443, "id-Unknown-443" },
+  { id_Unknown_444, "id-Unknown-444" },
+  { id_Unknown_445, "id-Unknown-445" },
+  { id_Unknown_446, "id-Unknown-446" },
+  { id_Unknown_447, "id-Unknown-447" },
+  { id_Unknown_448, "id-Unknown-448" },
+  { id_Unknown_449, "id-Unknown-449" },
+  { id_Unknown_450, "id-Unknown-450" },
   { id_PrimCCPCH_RSCP_DL_PC_RqstTDD, "id-PrimCCPCH-RSCP-DL-PC-RqstTDD" },
   { id_HSDSCH_FDD_Information, "id-HSDSCH-FDD-Information" },
   { id_HSDSCH_FDD_Information_Response, "id-HSDSCH-FDD-Information-Response" },
+  { id_Unknown_454, "id-Unknown-454" },
+  { id_Unknown_455, "id-Unknown-455" },
   { id_HSDSCH_Information_to_Modify, "id-HSDSCH-Information-to-Modify" },
   { id_HSDSCH_RNTI, "id-HSDSCH-RNTI" },
   { id_HSDSCH_TDD_Information, "id-HSDSCH-TDD-Information" },
   { id_HSDSCH_TDD_Information_Response, "id-HSDSCH-TDD-Information-Response" },
+  { id_Unknown_460, "id-Unknown-460" },
+  { id_Unknown_461, "id-Unknown-461" },
+  { id_Unknown_462, "id-Unknown-462" },
   { id_HSPDSCH_RL_ID, "id-HSPDSCH-RL-ID" },
   { id_UL_Synchronisation_Parameters_LCR, "id-UL-Synchronisation-Parameters-LCR" },
   { id_MAChs_ResetIndicator, "id-MAChs-ResetIndicator" },
@@ -5574,8 +5921,12 @@ static const value_string rnsap_ProtocolIE_ID_vals[] = {
   { id_Active_MBMS_Bearer_ServiceFDD, "id-Active-MBMS-Bearer-ServiceFDD" },
   { id_Active_MBMS_Bearer_ServiceTDD, "id-Active-MBMS-Bearer-ServiceTDD" },
   { id_Old_URA_ID, "id-Old-URA-ID" },
+  { id_Unknown_565, "id-Unknown-565" },
+  { id_Unknown_566, "id-Unknown-566" },
+  { id_Unknown_567, "id-Unknown-567" },
   { id_UE_State, "id-UE-State" },
   { id_URA_ID, "id-URA-ID" },
+  { id_Unknown_570, "id-Unknown-570" },
   { id_HARQ_Preamble_Mode, "id-HARQ-Preamble-Mode" },
   { id_SynchronisationIndicator, "id-SynchronisationIndicator" },
   { id_UL_DPDCHIndicatorEDCH, "id-UL-DPDCHIndicatorEDCH" },
@@ -5679,7 +6030,9 @@ static const value_string rnsap_ProtocolIE_ID_vals[] = {
   { id_Continuous_Packet_Connectivity_HS_SCCH_Less_Information, "id-Continuous-Packet-Connectivity-HS-SCCH-Less-Information" },
   { id_Continuous_Packet_Connectivity_HS_SCCH_Less_Information_Response, "id-Continuous-Packet-Connectivity-HS-SCCH-Less-Information-Response" },
   { id_CPC_Information, "id-CPC-Information" },
+  { id_Unknown_674, "id-Unknown-674" },
   { id_MIMO_InformationResponse, "id-MIMO-InformationResponse" },
+  { id_Unknown_676, "id-Unknown-676" },
   { id_E_DCH_LCR_Information, "id-E-DCH-LCR-Information" },
   { id_E_DCH_LCR_Information_Reconfig, "id-E-DCH-LCR-Information-Reconfig" },
   { id_E_DCH_LCR_Information_Response, "id-E-DCH-LCR-Information-Response" },
@@ -5690,17 +6043,24 @@ static const value_string rnsap_ProtocolIE_ID_vals[] = {
   { id_SixtyfourQAM_DL_SupportIndicator, "id-SixtyfourQAM-DL-SupportIndicator" },
   { id_Enhanced_FACH_Support_Indicator, "id-Enhanced-FACH-Support-Indicator" },
   { id_Enhanced_FACH_Information_ResponseFDD, "id-Enhanced-FACH-Information-ResponseFDD" },
+  { id_Unknown_687, "id-Unknown-687" },
+  { id_Unknown_688, "id-Unknown-688" },
+  { id_Unknown_689, "id-Unknown-689" },
   { id_HSDSCH_MACdPDUSizeFormat, "id-HSDSCH-MACdPDUSizeFormat" },
   { id_MaximumMACdPDU_SizeExtended, "id-MaximumMACdPDU-SizeExtended" },
   { id_F_DPCH_SlotFormat, "id-F-DPCH-SlotFormat" },
   { id_F_DPCH_SlotFormatSupportRequest, "id-F-DPCH-SlotFormatSupportRequest" },
   { id_eDCH_MACdFlow_Retransmission_Timer_LCR, "id-eDCH-MACdFlow-Retransmission-Timer-LCR" },
   { id_Max_UE_DTX_Cycle, "id-Max-UE-DTX-Cycle" },
+  { id_Unknown_696, "id-Unknown-696" },
+  { id_Unknown_697, "id-Unknown-697" },
+  { id_Unknown_698, "id-Unknown-698" },
   { id_GANSS_Common_Data, "id-GANSS-Common-Data" },
   { id_GANSS_Information, "id-GANSS-Information" },
   { id_GANSS_Generic_Data, "id-GANSS-Generic-Data" },
   { id_TUTRANGANSSMeasurementThresholdInformation, "id-TUTRANGANSSMeasurementThresholdInformation" },
   { id_TUTRANGANSSMeasurementValueInformation, "id-TUTRANGANSSMeasurementValueInformation" },
+  { id_Unknown_704, "id-Unknown-704" },
   { id_Ext_Reference_E_TFCI_PO, "id-Ext-Reference-E-TFCI-PO" },
   { id_Ext_Max_Bits_MACe_PDU_non_scheduled, "id-Ext-Max-Bits-MACe-PDU-non-scheduled" },
   { id_HARQ_MemoryPartitioningInfoExtForMIMO, "id-HARQ-MemoryPartitioningInfoExtForMIMO" },
@@ -5764,6 +6124,7 @@ static const value_string rnsap_ProtocolIE_ID_vals[] = {
   { id_MBMS_RLC_Sequence_Number_Information, "id-MBMS-RLC-Sequence-Number-Information" },
   { id_RLC_Sequence_Number, "id-RLC-Sequence-Number" },
   { id_Neighbouring_E_UTRA_CellInformation, "id-Neighbouring-E-UTRA-CellInformation" },
+  { id_Unknown_768, "id-Unknown-768" },
   { id_MBSFN_Cluster_Identity, "id-MBSFN-Cluster-Identity" },
   { id_MCCH_Configuration_Info, "id-MCCH-Configuration-Info" },
   { id_MCCH_Message_List, "id-MCCH-Message-List" },
@@ -5827,6 +6188,9 @@ static const value_string rnsap_ProtocolIE_ID_vals[] = {
   { id_power_offset_for_S_CPICH_for_MIMO, "id-power-offset-for-S-CPICH-for-MIMO" },
   { id_power_offset_for_S_CPICH_for_MIMO_Request_Indicator, "id-power-offset-for-S-CPICH-for-MIMO-Request-Indicator" },
   { id_UE_SupportIndicatorExtension, "id-UE-SupportIndicatorExtension" },
+  { id_Unknown_832, "id-Unknown-832" },
+  { id_Unknown_833, "id-Unknown-833" },
+  { id_Unknown_834, "id-Unknown-834" },
   { id_ActivationInformation, "id-ActivationInformation" },
   { id_CellPortionLCRID, "id-CellPortionLCRID" },
   { id_Additional_EDCH_Cell_Information_RL_Setup_Req, "id-Additional-EDCH-Cell-Information-RL-Setup-Req" },
@@ -5838,6 +6202,14 @@ static const value_string rnsap_ProtocolIE_ID_vals[] = {
   { id_Additional_EDCH_Cell_Information_RL_Param_Upd, "id-Additional-EDCH-Cell-Information-RL-Param-Upd" },
   { id_Additional_EDCH_Preconfiguration_Information, "id-Additional-EDCH-Preconfiguration-Information" },
   { id_MulticellEDCH_Information, "id-MulticellEDCH-Information" },
+  { id_Unknown_846, "id-Unknown-846" },
+  { id_Unknown_847, "id-Unknown-847" },
+  { id_Unknown_848, "id-Unknown-848" },
+  { id_Unknown_849, "id-Unknown-849" },
+  { id_Unknown_850, "id-Unknown-850" },
+  { id_Unknown_851, "id-Unknown-851" },
+  { id_Unknown_852, "id-Unknown-852" },
+  { id_Unknown_853, "id-Unknown-853" },
   { id_Additional_EDCH_Cell_Information_ResponseRLReconf, "id-Additional-EDCH-Cell-Information-ResponseRLReconf" },
   { id_EDCH_Indicator, "id-EDCH-Indicator" },
   { id_DiversityMode, "id-DiversityMode" },
@@ -5856,6 +6228,12 @@ static const value_string rnsap_ProtocolIE_ID_vals[] = {
   { id_DGNSS_ValidityPeriod, "id-DGNSS-ValidityPeriod" },
   { id_TS0_HS_PDSCH_Indication_LCR, "id-TS0-HS-PDSCH-Indication-LCR" },
   { id_UE_TS0_CapabilityLCR, "id-UE-TS0-CapabilityLCR" },
+  { id_Non_Serving_RL_Preconfig_Info, "id-Non-Serving-RL-Preconfig-Info" },
+  { id_Non_Serving_RL_Preconfig_Setup, "id-Non-Serving-RL-Preconfig-Setup" },
+  { id_Non_Serving_RL_Preconfig_Removal, "id-Non-Serving-RL-Preconfig-Removal" },
+  { id_Additional_E_DCH_Non_Serving_RL_Preconfiguration_Setup, "id-Additional-E-DCH-Non-Serving-RL-Preconfiguration-Setup" },
+  { id_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList, "id-Additional-E-DCH-New-non-serving-RL-E-DCH-FDD-DL-Control-Channel-InfoList" },
+  { id_CellListValidityIndicator, "id-CellListValidityIndicator" },
   { 0, NULL }
 };
 
@@ -8511,6 +8889,23 @@ static int
 dissect_rnsap_CellIndividualOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             -20, 20U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string rnsap_CellListValidityIndicator_vals[] = {
+  {   0, "ignoreSecondaryServingCellList" },
+  {   1, "ignoreDualBandSecondaryServingCellList" },
+  {   2, "ignoreBoth" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_rnsap_CellListValidityIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     3, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -22531,7 +22926,7 @@ dissect_rnsap_List_Of_PLMNs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_rnsap_L3_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 103 "rnsap.cnf"
+#line 104 "rnsap.cnf"
 	tvbuff_t *parameter_tvb;
 	dissector_handle_t parameter_handle = NULL;
 
@@ -23084,6 +23479,8 @@ static const value_string rnsap_MeasurementFilterCoefficient_vals[] = {
   {  14, "k19" },
   { 0, NULL }
 };
+
+static value_string_ext rnsap_MeasurementFilterCoefficient_vals_ext = VALUE_STRING_EXT_INIT(rnsap_MeasurementFilterCoefficient_vals);
 
 
 static int
@@ -23862,6 +24259,102 @@ static int
 dissect_rnsap_NoOfTargetCellHS_SCCH_Order(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             1U, 30U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string rnsap_New_non_serving_RL_setup_selection_vals[] = {
+  {   0, "new-Serving-RL-in-DRNS" },
+  {   1, "new-Serving-RL-Not-in-DRNS" },
+  {   2, "new-Serving-RL-in-or-Not-in-DRNS" },
+  { 0, NULL }
+};
+
+static const per_choice_t New_non_serving_RL_setup_selection_choice[] = {
+  {   0, &hf_rnsap_new_Serving_RL_in_DRNS, ASN1_EXTENSION_ROOT    , dissect_rnsap_NULL },
+  {   1, &hf_rnsap_new_Serving_RL_Not_in_DRNS, ASN1_EXTENSION_ROOT    , dissect_rnsap_NULL },
+  {   2, &hf_rnsap_new_Serving_RL_in_or_Not_in_DRNS, ASN1_EXTENSION_ROOT    , dissect_rnsap_NULL },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_rnsap_New_non_serving_RL_setup_selection(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_rnsap_New_non_serving_RL_setup_selection, New_non_serving_RL_setup_selection_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t Non_Serving_RL_Preconfig_Setup_sequence[] = {
+  { &hf_rnsap_new_non_serving_RL_selection, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_rnsap_New_non_serving_RL_setup_selection },
+  { &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rnsap_Non_Serving_RL_Preconfig_Setup(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rnsap_Non_Serving_RL_Preconfig_Setup, Non_Serving_RL_Preconfig_Setup_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_rnsap_Additional_E_DCH_Non_Serving_RL_Preconfiguration_Setup(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_null(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const per_sequence_t Non_Serving_RL_Preconfig_Info_sequence[] = {
+  { &hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_ControlChannelInformation_A, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_EDCH_FDD_DL_ControlChannelInformation },
+  { &hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_ControlChannelInformation_B, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_EDCH_FDD_DL_ControlChannelInformation },
+  { &hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_ControlChannelInformation_C, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_EDCH_FDD_DL_ControlChannelInformation },
+  { &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rnsap_Non_Serving_RL_Preconfig_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rnsap_Non_Serving_RL_Preconfig_Info, Non_Serving_RL_Preconfig_Info_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList_item_sequence[] = {
+  { &hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_Control_Channel_Information_A, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_EDCH_FDD_DL_ControlChannelInformation },
+  { &hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_Control_Channel_Information_B, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_EDCH_FDD_DL_ControlChannelInformation },
+  { &hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_Control_Channel_Information_C, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_EDCH_FDD_DL_ControlChannelInformation },
+  { &hf_rnsap_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_rnsap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_rnsap_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_rnsap_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList_item, Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList_item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList_sequence_of[1] = {
+  { &hf_rnsap_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList_item },
+};
+
+static int
+dissect_rnsap_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_rnsap_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList, Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList_sequence_of,
+                                                  1, maxNrOfEDCH_1, FALSE);
 
   return offset;
 }
@@ -43608,7 +44101,7 @@ void proto_register_rnsap(void) {
         NULL, HFILL }},
     { &hf_rnsap_MeasurementFilterCoefficient_PDU,
       { "MeasurementFilterCoefficient", "rnsap.MeasurementFilterCoefficient",
-        FT_UINT32, BASE_DEC, VALS(rnsap_MeasurementFilterCoefficient_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &rnsap_MeasurementFilterCoefficient_vals_ext, 0,
         NULL, HFILL }},
     { &hf_rnsap_MeasurementID_PDU,
       { "MeasurementID", "rnsap.MeasurementID",
@@ -50450,6 +50943,50 @@ void proto_register_rnsap(void) {
       { "downlinkNRTLoadInformationValue", "rnsap.downlinkNRTLoadInformationValue",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_3", HFILL }},
+    { &hf_rnsap_new_non_serving_RL_selection,
+      { "new-non-serving-RL-selection", "rnsap.new_non_serving_RL_selection",
+        FT_UINT32, BASE_DEC, VALS(rnsap_New_non_serving_RL_setup_selection_vals), 0,
+        "New_non_serving_RL_setup_selection", HFILL }},
+    { &hf_rnsap_new_Serving_RL_in_DRNS,
+      { "new-Serving-RL-in-DRNS", "rnsap.new_Serving_RL_in_DRNS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_rnsap_new_Serving_RL_Not_in_DRNS,
+      { "new-Serving-RL-Not-in-DRNS", "rnsap.new_Serving_RL_Not_in_DRNS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_rnsap_new_Serving_RL_in_or_Not_in_DRNS,
+      { "new-Serving-RL-in-or-Not-in-DRNS", "rnsap.new_Serving_RL_in_or_Not_in_DRNS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_ControlChannelInformation_A,
+      { "new-non-serving-RL-E-DCH-FDD-DL-ControlChannelInformation-A", "rnsap.new_non_serving_RL_E_DCH_FDD_DL_ControlChannelInformation_A",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EDCH_FDD_DL_ControlChannelInformation", HFILL }},
+    { &hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_ControlChannelInformation_B,
+      { "new-non-serving-RL-E-DCH-FDD-DL-ControlChannelInformation-B", "rnsap.new_non_serving_RL_E_DCH_FDD_DL_ControlChannelInformation_B",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EDCH_FDD_DL_ControlChannelInformation", HFILL }},
+    { &hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_ControlChannelInformation_C,
+      { "new-non-serving-RL-E-DCH-FDD-DL-ControlChannelInformation-C", "rnsap.new_non_serving_RL_E_DCH_FDD_DL_ControlChannelInformation_C",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EDCH_FDD_DL_ControlChannelInformation", HFILL }},
+    { &hf_rnsap_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList_item,
+      { "Additional-E-DCH-New-non-serving-RL-E-DCH-FDD-DL-Control-Channel-InfoList item", "rnsap.Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_Control_Channel_Information_A,
+      { "new-non-serving-RL-E-DCH-FDD-DL-Control-Channel-Information-A", "rnsap.new_non_serving_RL_E_DCH_FDD_DL_Control_Channel_Information_A",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EDCH_FDD_DL_ControlChannelInformation", HFILL }},
+    { &hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_Control_Channel_Information_B,
+      { "new-non-serving-RL-E-DCH-FDD-DL-Control-Channel-Information-B", "rnsap.new_non_serving_RL_E_DCH_FDD_DL_Control_Channel_Information_B",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EDCH_FDD_DL_ControlChannelInformation", HFILL }},
+    { &hf_rnsap_new_non_serving_RL_E_DCH_FDD_DL_Control_Channel_Information_C,
+      { "new-non-serving-RL-E-DCH-FDD-DL-Control-Channel-Information-C", "rnsap.new_non_serving_RL_E_DCH_FDD_DL_Control_Channel_Information_C",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EDCH_FDD_DL_ControlChannelInformation", HFILL }},
     { &hf_rnsap_measurementThreshold,
       { "measurementThreshold", "rnsap.measurementThreshold",
         FT_UINT32, BASE_DEC, VALS(rnsap_MeasurementThreshold_vals), 0,
@@ -54078,6 +54615,11 @@ void proto_register_rnsap(void) {
     &ett_rnsap_Neighbouring_E_UTRA_CellInformationItem,
     &ett_rnsap_NotProvidedCellList,
     &ett_rnsap_NRTLoadInformationValue,
+    &ett_rnsap_Non_Serving_RL_Preconfig_Setup,
+    &ett_rnsap_New_non_serving_RL_setup_selection,
+    &ett_rnsap_Non_Serving_RL_Preconfig_Info,
+    &ett_rnsap_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList,
+    &ett_rnsap_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList_item,
     &ett_rnsap_OnModification,
     &ett_rnsap_OnModificationInformation,
     &ett_rnsap_PCH_InformationList,

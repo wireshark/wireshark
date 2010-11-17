@@ -1,6 +1,6 @@
 -- RNSAP-IEs.asn
 --
--- Taken from 3GPP TS 25.423 V9.2.3 (2010-03)
+-- Taken from 3GPP TS 25.423 V9.4.0 (2010-09)
 -- http://www.3gpp.org/ftp/Specs/archive/25_series/25.423/25423-790.zip/25423-790.DOC
 --
 -- 9.3.4	Information Element Definitions
@@ -317,8 +317,11 @@ IMPORTS
 	id-DGNSS-ValidityPeriod,
 	id-UE-AggregateMaximumBitRate-Enforcement-Indicator,
 	id-Out-of-Sychronization-Window,
-	id-MulticellEDCH-RL-SpecificInformation
-
+	id-MulticellEDCH-RL-SpecificInformation,
+	id-Continuous-Packet-Connectivity-DTX-DRX-Information,
+	id-Additional-E-DCH-Non-Serving-RL-Preconfiguration-Setup,
+	id-Additional-E-DCH-New-non-serving-RL-E-DCH-FDD-DL-Control-Channel-InfoList,
+	id-CellListValidityIndicator
 
 
 
@@ -1064,6 +1067,12 @@ Cell-Capacity-Class-Value ::= SEQUENCE {
 
 
 CellIndividualOffset	::= INTEGER (-20..20)
+
+CellListValidityIndicator	::= ENUMERATED {
+	ignoreSecondaryServingCellList,
+	ignoreDualBandSecondaryServingCellList,
+	ignoreBoth
+}
 
 CellParameterID				::= INTEGER (0..127,...)
 
@@ -2356,7 +2365,7 @@ EDCH-FDD-Information-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-E-DCH-PowerOffset-for-SchedulingInfo		CRITICALITY ignore	EXTENSION	E-DCH-PowerOffset-for-SchedulingInfo	PRESENCE  optional}|
 	{ ID id-SixteenQAM-UL-Operation-Indicator			CRITICALITY reject	EXTENSION	SixteenQAM-UL-Operation-Indicator		PRESENCE  optional}|
 	{ ID id-E-AGCH-Table-Choice							CRITICALITY ignore	EXTENSION	E-AGCH-Table-Choice		PRESENCE conditional},
-	-- The IE shall be present if the SixteenQAM UL Operation Indicator IE is set to “Activate”–
+	-- The IE shall be present if the SixteenQAM UL Operation Indicator IE is set to “Activate”--
 	...
 }
 
@@ -2405,7 +2414,7 @@ EDCH-FDD-Information-To-Modify-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 { ID id-E-DCH-MACdPDUSizeFormat						CRITICALITY reject	EXTENSION	E-DCH-MACdPDUSizeFormat 					PRESENCE optional}|
 { ID id-E-DCH-DL-Control-Channel-Grant-Information	CRITICALITY ignore	EXTENSION	E-DCH-DL-Control-Channel-Grant-Information	PRESENCE optional}|
 { ID id-E-AGCH-Table-Choice							CRITICALITY ignore	EXTENSION	E-AGCH-Table-Choice					PRESENCE conditional},
--- The IE shall be present if the SixteenQAM UL Operation Indicator IE is set to “Activate”–
+-- The IE shall be present if the SixteenQAM UL Operation Indicator IE is set to “Activate”--
 ...
 }
 E-DCH-FDD-Update-Information ::= SEQUENCE {
@@ -3647,7 +3656,7 @@ FDD-DCHs-to-ModifySpecificItem-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 }
 
 FDD-DL-ChannelisationCodeNumber		::= INTEGER (0..511)
--- According to the mapping in [27]. The maximum value is equal to the DL spreading factor -1–
+-- According to the mapping in [27]. The maximum value is equal to the DL spreading factor -1--
 
 FDD-DL-CodeInformation ::= SEQUENCE (SIZE (1..maxNrOfDL-Codes)) OF FDD-DL-CodeInformationItem
 
@@ -4737,12 +4746,12 @@ GeographicalCoordinate-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 }
 
 GERAN-Cell-Capability ::=	BIT STRING (SIZE (16))
--- First bit:  A/Gb mode –
+-- First bit:  A/Gb mode --
 -- Second bit: Iu mode   --
 -- Note: undefined bits are considered as a spare bit and spare bits shall be set to 0 by the transmitter and shall be ignored by the receiver. –
 
 GERAN-Classmark ::= 		OCTET STRING
-	-- GERAN Classmark as defined in (38) –
+	-- GERAN Classmark as defined in (38) --
 
 GERAN-SI-Type ::= CHOICE {
 	sI							GERAN-SystemInfo,
@@ -5440,7 +5449,8 @@ HS-DSCH-serving-cell-change-information ::= SEQUENCE {
 }
 
 HS-DSCH-serving-cell-change-information-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
-{ ID id-Continuous-Packet-Connectivity-HS-SCCH-Less-Information	CRITICALITY reject	EXTENSION Continuous-Packet-Connectivity-HS-SCCH-Less-Information		PRESENCE optional},
+{ ID id-Continuous-Packet-Connectivity-HS-SCCH-Less-Information	CRITICALITY reject	EXTENSION Continuous-Packet-Connectivity-HS-SCCH-Less-Information		PRESENCE optional}|
+{ ID id-Continuous-Packet-Connectivity-DTX-DRX-Information	CRITICALITY reject	EXTENSION Continuous-Packet-Connectivity-DTX-DRX-Information		PRESENCE optional},
 	...
 }
 
@@ -6918,8 +6928,9 @@ Neighbouring-FDD-CellInformationItem-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-Multiple-PLMN-List				CRITICALITY ignore			EXTENSION Multiple-PLMN-List					PRESENCE optional }|
 	{ ID id-Secondary-Serving-Cell-List 	CRITICALITY ignore			EXTENSION Secondary-Serving-Cell-List 	PRESENCE optional }|
 	{ ID id-Dual-Band-Secondary-Serving-Cell-List 	CRITICALITY ignore	EXTENSION Secondary-Serving-Cell-List 	PRESENCE optional }|
--- This IE shall be present if the the x-th bit Dual Band Support Indicator in the Cell Capability Container FDD IE is set to the value “1”.
-{ ID id-CellCapabilityContainerExtension-FDD	CRITICALITY ignore			EXTENSION CellCapabilityContainerExtension-FDD		PRESENCE optional },
+-- This IE shall be present if the twenty-eighth bit Dual Band Support Indicator in the Cell Capability Container FDD IE is set to the value “1”.
+	{ ID id-CellCapabilityContainerExtension-FDD	CRITICALITY ignore	EXTENSION CellCapabilityContainerExtension-FDD		PRESENCE optional }|
+	{ ID id-CellListValidityIndicator		CRITICALITY ignore			EXTENSION CellListValidityIndicator		PRESENCE optional },
 	...
 }
 
@@ -7115,6 +7126,52 @@ Number-Of-Supported-Carriers  ::= ENUMERATED {
 NumHS-SCCH-Codes ::= INTEGER (1..maxNrOfHSSCCHCodes)
 
 NoOfTargetCellHS-SCCH-Order::= INTEGER (1..30)
+
+Non-Serving-RL-Preconfig-Setup	::=	SEQUENCE {
+	new-non-serving-RL-selection	New-non-serving-RL-setup-selection,
+	iE-Extensions			ProtocolExtensionContainer { {Non-Serving-RL-Preconfig-Setup-ExtIEs} } OPTIONAL,
+	...
+}
+
+Non-Serving-RL-Preconfig-Setup-ExtIEs	RNSAP-PROTOCOL-EXTENSION::=	{
+	{ID id-Additional-E-DCH-Non-Serving-RL-Preconfiguration-Setup	CRITICALITY ignore	EXTENSION Additional-E-DCH-Non-Serving-RL-Preconfiguration-Setup PRESENCE optional },
+...
+}
+
+Additional-E-DCH-Non-Serving-RL-Preconfiguration-Setup	::= NULL
+
+New-non-serving-RL-setup-selection	::=	CHOICE {
+	new-Serving-RL-in-DRNS					NULL,
+	new-Serving-RL-Not-in-DRNS				NULL,
+	new-Serving-RL-in-or-Not-in-DRNS		NULL,
+	...
+}
+
+
+Non-Serving-RL-Preconfig-Info	::=	SEQUENCE {
+	new-non-serving-RL-E-DCH-FDD-DL-ControlChannelInformation-A		EDCH-FDD-DL-ControlChannelInformation OPTIONAL,
+	new-non-serving-RL-E-DCH-FDD-DL-ControlChannelInformation-B		EDCH-FDD-DL-ControlChannelInformation OPTIONAL,
+	new-non-serving-RL-E-DCH-FDD-DL-ControlChannelInformation-C		EDCH-FDD-DL-ControlChannelInformation OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { {Non-Serving-RL-Preconfig-Info-ExtIEs} } OPTIONAL,
+	...
+}
+
+Non-Serving-RL-Preconfig-Info-ExtIEs	RNSAP-PROTOCOL-EXTENSION	::=	{
+	{ID id-Additional-E-DCH-New-non-serving-RL-E-DCH-FDD-DL-Control-Channel-InfoList	CRITICALITY ignore	EXTENSION Additional-E-DCH-New-non-serving-RL-E-DCH-FDD-DL-Control-Channel-InfoList PRESENCE optional},
+...
+}
+
+Additional-E-DCH-New-non-serving-RL-E-DCH-FDD-DL-Control-Channel-InfoList	::=	SEQUENCE(SIZE(1.. maxNrOfEDCH-1)) OF SEQUENCE { 
+	new-non-serving-RL-E-DCH-FDD-DL-Control-Channel-Information-A	EDCH-FDD-DL-ControlChannelInformation OPTIONAL,
+	new-non-serving-RL-E-DCH-FDD-DL-Control-Channel-Information-B	EDCH-FDD-DL-ControlChannelInformation OPTIONAL,
+	new-non-serving-RL-E-DCH-FDD-DL-Control-Channel-Information-C	EDCH-FDD-DL-ControlChannelInformation OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { { Additional-E-DCH-New-non-serving-RL-E-DCH-FDD-DL-Control-Channel-InfoList-ExtIEs} } OPTIONAL,
+	...
+}
+
+Additional-E-DCH-New-non-serving-RL-E-DCH-FDD-DL-Control-Channel-InfoList-ExtIEs	RNSAP-PROTOCOL-EXTENSION ::= {
+...
+}
 
 NeedforIdleInterval ::= ENUMERATED {
 	true,
@@ -9745,3 +9802,4 @@ Uu-ActivationState ::= ENUMERATED {
 -- Z
 
 END
+

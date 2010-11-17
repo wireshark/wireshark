@@ -1,6 +1,6 @@
 -- RNSAP-PDU-Contents.asn
 --
--- Taken from 3GPP TS 25.423  V9.2.3 (2010-03)
+-- Taken from 3GPP TS 25.423  V9.4.0 (2010-09)
 -- http://www.3gpp.org/ftp/Specs/archive/25_series/25.423/25423-790.zip/25423-790.DOC
 --
 -- 9.3.3	PDU Definitions
@@ -411,7 +411,9 @@ IMPORTS
 	DCH-MeasurementOccasion-Information,
 	DCH-MeasurementType-Indicator,
 	Setup-Or-ConfigurationChange-Or-Removal-Of-EDCH-On-secondary-UL-Frequency,
-	Additional-EDCH-Cell-Information-Response-RLAddList
+	Additional-EDCH-Cell-Information-Response-RLAddList,
+	Non-Serving-RL-Preconfig-Setup,
+	Non-Serving-RL-Preconfig-Info
 
 
 
@@ -817,6 +819,7 @@ FROM RNSAP-Containers
 	id-UEMeasurementParameterModAllow,
 	id-UEMeasurementValueInformation,
 	id-UE-State,
+	id-UE-with-enhanced-HS-SCCH-support-indicator,
 	id-UL-CCTrCH-AddInformation-RL-ReconfPrepTDD,
 	id-UL-CCTrCH-DeleteInformation-RL-ReconfPrepTDD,
 	id-UL-CCTrCH-ModifyInformation-RL-ReconfPrepTDD,
@@ -1002,7 +1005,10 @@ FROM RNSAP-Containers
 	id-Additional-EDCH-Cell-Information-RL-Param-Upd,
 	id-Additional-EDCH-Cell-Information-ResponseRLReconf,
 	id-DCH-MeasurementOccasion-Information,
-	id-DCH-MeasurementType-Indicator
+	id-DCH-MeasurementType-Indicator,
+	id-Non-Serving-RL-Preconfig-Info,
+	id-Non-Serving-RL-Preconfig-Setup,
+	id-Non-Serving-RL-Preconfig-Removal
 
 
 
@@ -1121,8 +1127,9 @@ RL-InformationItem-RL-SetupRqstFDD-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-RL-Specific-EDCH-Information	CRITICALITY reject	EXTENSION RL-Specific-EDCH-Information	PRESENCE optional }|
 	{ ID id-EDCH-RL-Indication	CRITICALITY reject	EXTENSION EDCH-RL-Indication	PRESENCE optional }|
 	{ ID id-ExtendedPropagationDelay	CRITICALITY ignore	EXTENSION ExtendedPropagationDelay 	PRESENCE optional }|
-	{ ID id-SynchronisationIndicator	CRITICALITY reject	EXTENSION SynchronisationIndicator	PRESENCE optional}|
-	{ ID id-HSDSCH-PreconfigurationSetup	CRITICALITY ignore	EXTENSION HSDSCH-PreconfigurationSetup	PRESENCE optional},
+	{ ID id-SynchronisationIndicator	CRITICALITY reject	EXTENSION SynchronisationIndicator	PRESENCE optional }|
+	{ ID id-HSDSCH-PreconfigurationSetup	CRITICALITY ignore	EXTENSION HSDSCH-PreconfigurationSetup	PRESENCE optional }|
+	{ ID id-Non-Serving-RL-Preconfig-Setup	CRITICALITY ignore	EXTENSION Non-Serving-RL-Preconfig-Setup	PRESENCE optional },
 	...
 }
 
@@ -1361,7 +1368,7 @@ RadioLinkSetupRequestTDD-Extensions RNSAP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 RadioLinkSetupResponseFDD ::= SEQUENCE {
-	protocolIEs                     ProtocolIE-Container       {{RadioLinkSetupResponseFDD-Ies}},
+	protocolIEs                     ProtocolIE-Container       {{RadioLinkSetupResponseFDD-IEs}},
 	protocolExtensions              ProtocolExtensionContainer {{RadioLinkSetupResponseFDD-Extensions}}                   OPTIONAL,
 	...
 }
@@ -1427,7 +1434,8 @@ RL-InformationResponseItem-RL-SetupRspFDD-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-FrameOffset									CRITICALITY ignore	EXTENSION FrameOffset						PRESENCE optional }|
 	{ ID id-ChipOffset									CRITICALITY ignore	EXTENSION ChipOffset												PRESENCE optional }|
 	{ ID id-Neighbouring-E-UTRA-CellInformation			CRITICALITY ignore	EXTENSION Neighbouring-E-UTRA-CellInformation				PRESENCE optional }|
-	{ ID id-HSDSCH-PreconfigurationInfo					CRITICALITY ignore	EXTENSION HSDSCH-PreconfigurationInfo						PRESENCE optional },
+	{ ID id-HSDSCH-PreconfigurationInfo					CRITICALITY ignore	EXTENSION HSDSCH-PreconfigurationInfo						PRESENCE optional }|
+	{ ID id-Non-Serving-RL-Preconfig-Info				CRITICALITY ignore	EXTENSION Non-Serving-RL-Preconfig-Info						PRESENCE optional },
 	...
 }
 
@@ -1493,7 +1501,7 @@ Additional-HS-Cell-Information-Response-ItemIEs-ExtIEs	RNSAP-PROTOCOL-EXTENSION 
 -- **************************************************************
 
 RadioLinkSetupResponseTDD ::= SEQUENCE {
-	protocolIEs                     ProtocolIE-Container       {{RadioLinkSetupResponseTDD-Ies}},
+	protocolIEs                     ProtocolIE-Container       {{RadioLinkSetupResponseTDD-IEs}},
 	protocolExtensions              ProtocolExtensionContainer {{RadioLinkSetupResponseTDD-Extensions}}                   OPTIONAL,
 	...
 }
@@ -1525,7 +1533,7 @@ RL-InformationResponse-RL-SetupRspTDD ::= SEQUENCE {
 	cellParameterID				CellParameterID		OPTIONAL,
 	syncCase					SyncCase			OPTIONAL,
 	sCH-TimeSlot				SCH-TimeSlot		OPTIONAL,
-	-- This IE shall be present if Sync Case IE is equal to “Case2”. –
+	-- This IE shall be present if Sync Case IE is equal to “Case2”. --
 	sCTD-Indicator				SCTD-Indicator	OPTIONAL,
 	pCCPCH-Power				PCCPCH-Power,
 	timingAdvanceApplied		TimingAdvanceApplied,
@@ -1548,7 +1556,7 @@ RL-InformationResponse-RL-SetupRspTDD-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-GA-CellAdditionalShapes					CRITICALITY	ignore	EXTENSION	GA-CellAdditionalShapes					PRESENCE optional }|
 	{ ID id-HCS-Prio								CRITICALITY	ignore	EXTENSION	HCS-Prio										PRESENCE optional }|
 	{ ID id-TimeSlot-RL-SetupRspTDD					CRITICALITY ignore	EXTENSION	TimeSlot										PRESENCE conditional	}|
-	-- This IE shall be present if Sync Case IE is Case1. –
+	-- This IE shall be present if Sync Case IE is Case1. --
 	{ ID id-Neighbouring-E-UTRA-CellInformation		CRITICALITY ignore	EXTENSION Neighbouring-E-UTRA-CellInformation		PRESENCE optional },
 	...
 }
@@ -1883,7 +1891,7 @@ RL-InformationResponse-RL-SetupRspTDD768 ::= SEQUENCE {
 	cellParameterID				CellParameterID		OPTIONAL,
 	syncCase					SyncCase			OPTIONAL,
 	sCH-TimeSlot				SCH-TimeSlot		OPTIONAL,
-	-- This IE shall be present if Sync Case IE is equal to “Case2”. –
+	-- This IE shall be present if Sync Case IE is equal to “Case2”. --
 	sCTD-Indicator				SCTD-Indicator	OPTIONAL,
 	pCCPCH-Power				PCCPCH-Power,
 	timingAdvanceApplied		TimingAdvanceApplied,
@@ -1901,7 +1909,7 @@ RL-InformationResponse-RL-SetupRspTDD768 ::= SEQUENCE {
 	gA-CellAdditionalShapes						GA-CellAdditionalShapes		OPTIONAL,
 	hCS-Prio							HCS-Prio		OPTIONAL,
 	timeSlot-RL-SetupRspTDD				TimeSlot	OPTIONAL,
-	-- This IE shall be present if Sync Case IE is Case1. –
+	-- This IE shall be present if Sync Case IE is Case1. --
 
 	iE-Extensions					ProtocolExtensionContainer { {RL-InformationResponse-RL-SetupRspTDD768-ExtIEs} } OPTIONAL,
 	...
@@ -2113,8 +2121,9 @@ SuccessfulRL-InformationResponse-RL-SetupFailureFDD-ExtIEs RNSAP-PROTOCOL-EXTENS
 	{ ID id-EDCH-FDD-DL-ControlChannelInformation		CRITICALITY ignore	EXTENSION EDCH-FDD-DL-ControlChannelInformation			PRESENCE optional }|
 	{ ID id-Initial-DL-DPCH-TimingAdjustment			CRITICALITY ignore	EXTENSION DL-DPCH-TimingAdjustment							PRESENCE optional }|
 	{ ID id-Neighbouring-E-UTRA-CellInformation			CRITICALITY ignore	EXTENSION Neighbouring-E-UTRA-CellInformation				PRESENCE optional }|
-	{ ID id-HSDSCH-PreconfigurationInfo					CRITICALITY ignore	EXTENSION HSDSCH-PreconfigurationInfo						PRESENCE optional}|
-	{ ID id-F-DPCH-SlotFormat							CRITICALITY ignore	EXTENSION F-DPCH-SlotFormat										PRESENCE optional },
+	{ ID id-HSDSCH-PreconfigurationInfo					CRITICALITY ignore	EXTENSION HSDSCH-PreconfigurationInfo						PRESENCE optional }|
+	{ ID id-F-DPCH-SlotFormat							CRITICALITY ignore	EXTENSION F-DPCH-SlotFormat										PRESENCE optional }|
+	{ ID id-Non-Serving-RL-Preconfig-Info				CRITICALITY ignore	EXTENSION Non-Serving-RL-Preconfig-Info						PRESENCE optional },
 	...
 }
 
@@ -2256,13 +2265,14 @@ RL-Information-RL-AdditionRqstFDD ::= SEQUENCE {
 
 RL-Information-RL-AdditionRqstFDD-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-DLReferencePower	CRITICALITY ignore		EXTENSION	DL-Power		PRESENCE optional}|
-	{ ID id-Enhanced-PrimaryCPICH-EcNo				CRITICALITY ignore		EXTENSION Enhanced-PrimaryCPICH-EcNo				PRESENCE optional	}|
-	{ ID id-RL-Specific-DCH-Info					CRITICALITY ignore		EXTENSION 	RL-Specific-DCH-Info					PRESENCE optional	}|
-	{ ID id-DelayedActivation 						CRITICALITY reject		EXTENSION DelayedActivation							PRESENCE optional }|
-	{ ID id-RL-Specific-EDCH-Information			CRITICALITY reject		EXTENSION RL-Specific-EDCH-Information			PRESENCE optional }|
-	{ ID id-EDCH-RL-Indication						CRITICALITY reject		EXTENSION EDCH-RL-Indication			PRESENCE optional }|
-	{ ID id-SynchronisationIndicator				CRITICALITY ignore		EXTENSION SynchronisationIndicator				PRESENCE optional}|
-	{ ID id-HSDSCH-PreconfigurationSetup			CRITICALITY ignore		EXTENSION HSDSCH-PreconfigurationSetup			PRESENCE optional},
+	{ ID id-Enhanced-PrimaryCPICH-EcNo				CRITICALITY ignore	EXTENSION Enhanced-PrimaryCPICH-EcNo				PRESENCE optional	}|
+	{ ID id-RL-Specific-DCH-Info					CRITICALITY ignore	EXTENSION RL-Specific-DCH-Info						PRESENCE optional	}|
+	{ ID id-DelayedActivation 						CRITICALITY reject	EXTENSION DelayedActivation							PRESENCE optional }|
+	{ ID id-RL-Specific-EDCH-Information			CRITICALITY reject	EXTENSION RL-Specific-EDCH-Information			PRESENCE optional }|
+	{ ID id-EDCH-RL-Indication						CRITICALITY reject	EXTENSION EDCH-RL-Indication						PRESENCE optional }|
+	{ ID id-SynchronisationIndicator				CRITICALITY ignore	EXTENSION SynchronisationIndicator				PRESENCE optional }|
+	{ ID id-HSDSCH-PreconfigurationSetup			CRITICALITY ignore	EXTENSION HSDSCH-PreconfigurationSetup			PRESENCE optional }|
+	{ ID id-Non-Serving-RL-Preconfig-Setup			CRITICALITY ignore	EXTENSION Non-Serving-RL-Preconfig-Setup			PRESENCE optional },
 	...
 }
 
@@ -2483,15 +2493,16 @@ RL-InformationResponseItem-RL-AdditionRspFDD ::= SEQUENCE {
 
 RL-InformationResponseItem-RL-AdditionRspFDD-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-GA-CellAdditionalShapes					CRITICALITY ignore	EXTENSION GA-CellAdditionalShapes							PRESENCE optional }|
-	{ ID id-DL-PowerBalancing-ActivationIndicator	CRITICALITY ignore	EXTENSION DL-PowerBalancing-ActivationIndicator		PRESENCE optional}|
+	{ ID id-DL-PowerBalancing-ActivationIndicator	CRITICALITY ignore	EXTENSION DL-PowerBalancing-ActivationIndicator		PRESENCE optional }|
 	{ ID id-HCS-Prio								CRITICALITY ignore	EXTENSION HCS-Prio												PRESENCE optional }|
-	{ ID id-Active-MBMS-Bearer-ServiceFDD-PFL		CRITICALITY ignore EXTENSION Active-MBMS-Bearer-Service-ListFDD-PFL		PRESENCE optional }|
-	{ ID id-EDCH-RLSet-Id							CRITICALITY ignore EXTENSION RL-Set-ID												PRESENCE optional }|
-	{ ID id-EDCH-FDD-DL-ControlChannelInformation	CRITICALITY ignore EXTENSION EDCH-FDD-DL-ControlChannelInformation			PRESENCE optional }|
-	{ ID id-Initial-DL-DPCH-TimingAdjustment		CRITICALITY ignore EXTENSION DL-DPCH-TimingAdjustment							PRESENCE optional }|
-	{ ID id-F-DPCH-SlotFormat						CRITICALITY ignore EXTENSION F-DPCH-SlotFormat									PRESENCE optional }|
+	{ ID id-Active-MBMS-Bearer-ServiceFDD-PFL		CRITICALITY ignore	EXTENSION Active-MBMS-Bearer-Service-ListFDD-PFL		PRESENCE optional }|
+	{ ID id-EDCH-RLSet-Id							CRITICALITY ignore	EXTENSION RL-Set-ID												PRESENCE optional }|
+	{ ID id-EDCH-FDD-DL-ControlChannelInformation	CRITICALITY ignore	EXTENSION EDCH-FDD-DL-ControlChannelInformation		PRESENCE optional }|
+	{ ID id-Initial-DL-DPCH-TimingAdjustment		CRITICALITY ignore	EXTENSION DL-DPCH-TimingAdjustment							PRESENCE optional }|
+	{ ID id-F-DPCH-SlotFormat						CRITICALITY ignore	EXTENSION F-DPCH-SlotFormat									PRESENCE optional }|
 	{ ID id-Neighbouring-E-UTRA-CellInformation		CRITICALITY ignore	EXTENSION Neighbouring-E-UTRA-CellInformation			PRESENCE optional }|
-	{ ID id-HSDSCH-PreconfigurationInfo				CRITICALITY ignore	EXTENSION HSDSCH-PreconfigurationInfo						PRESENCE optional},
+	{ ID id-HSDSCH-PreconfigurationInfo				CRITICALITY ignore	EXTENSION HSDSCH-PreconfigurationInfo						PRESENCE optional }|
+	{ ID id-Non-Serving-RL-Preconfig-Info			CRITICALITY ignore	EXTENSION Non-Serving-RL-Preconfig-Info					PRESENCE optional },
 	...
 }
 
@@ -3182,8 +3193,9 @@ SuccessfulRL-InformationResponse-RL-AdditionFailureFDD-ExtIEs RNSAP-PROTOCOL-EXT
 	{ ID id-EDCH-FDD-DL-ControlChannelInformation		CRITICALITY ignore	EXTENSION EDCH-FDD-DL-ControlChannelInformation		PRESENCE optional }|
 	{ ID id-Initial-DL-DPCH-TimingAdjustment			CRITICALITY ignore	EXTENSION DL-DPCH-TimingAdjustment						PRESENCE optional }|
 	{ ID id-Neighbouring-E-UTRA-CellInformation			CRITICALITY ignore	EXTENSION Neighbouring-E-UTRA-CellInformation			PRESENCE optional }|
-	{ ID id-HSDSCH-PreconfigurationInfo					CRITICALITY ignore	EXTENSION HSDSCH-PreconfigurationInfo					PRESENCE optional}|
-	{ ID id-F-DPCH-SlotFormat							CRITICALITY ignore	EXTENSION F-DPCH-SlotFormat									PRESENCE optional },
+	{ ID id-HSDSCH-PreconfigurationInfo					CRITICALITY ignore	EXTENSION HSDSCH-PreconfigurationInfo					PRESENCE optional }|
+	{ ID id-F-DPCH-SlotFormat							CRITICALITY ignore	EXTENSION F-DPCH-SlotFormat									PRESENCE optional }|
+	{ ID id-Non-Serving-RL-Preconfig-Info				CRITICALITY ignore	EXTENSION Non-Serving-RL-Preconfig-Info					PRESENCE optional },
 	...
 }
 
@@ -3302,19 +3314,19 @@ RadioLinkAdditionFailureTDD-Extensions RNSAP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 RadioLinkDeletionRequest ::= SEQUENCE {
-	protocolIEs                     ProtocolIE-Container       {{RadioLinkDeletionRequest-Ies}},
+	protocolIEs                     ProtocolIE-Container       {{RadioLinkDeletionRequest-IEs}},
 	protocolExtensions              ProtocolExtensionContainer {{RadioLinkDeletionRequest-Extensions}}                   OPTIONAL,
 	...
 }
 
-RadioLinkDeletionRequest-Ies RNSAP-PROTOCOL-IES ::= {
+RadioLinkDeletionRequest-IEs RNSAP-PROTOCOL-IES ::= {
 	{ ID id-RL-InformationList-RL-DeletionRqst	CRITICALITY notify	TYPE RL-InformationList-RL-DeletionRqst		PRESENCE mandatory	},
 	...
 }
 
-RL-InformationList-RL-DeletionRqst			::= SEQUENCE (SIZE (1..maxNrOfRLs)) OF ProtocolIE-Single-Container { {RL-Information-RL-DeletionRqst-Ies} }
+RL-InformationList-RL-DeletionRqst			::= SEQUENCE (SIZE (1..maxNrOfRLs)) OF ProtocolIE-Single-Container { {RL-Information-RL-DeletionRqst-IEs} }
 
-RL-Information-RL-DeletionRqst-Ies RNSAP-PROTOCOL-IES ::= {
+RL-Information-RL-DeletionRqst-IEs RNSAP-PROTOCOL-IES ::= {
 	{ ID id-RL-Information-RL-DeletionRqst		CRITICALITY notify	TYPE RL-Information-RL-DeletionRqst		PRESENCE mandatory	}
 }
 
@@ -3339,7 +3351,7 @@ RadioLinkDeletionRequest-Extensions RNSAP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 RadioLinkDeletionResponse ::= SEQUENCE {
-	protocolIEs                     ProtocolIE-Container       {{RadioLinkDeletionResponse-Ies}},
+	protocolIEs                     ProtocolIE-Container       {{RadioLinkDeletionResponse-IEs}},
 	protocolExtensions              ProtocolExtensionContainer {{RadioLinkDeletionResponse-Extensions}}                   OPTIONAL,
 	...
 }
@@ -3469,12 +3481,15 @@ RL-Information-RL-ReconfPrepFDD ::= SEQUENCE {
 }
 
 RL-Information-RL-ReconfPrepFDD-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-DLReferencePower					CRITICALITY ignore	EXTENSION	DL-Power				PRESENCE optional	}|
-	{ ID id-RL-Specific-DCH-Info				CRITICALITY	ignore	EXTENSION RL-Specific-DCH-Info	PRESENCE 	optional	}|
-	{ ID id-DL-DPCH-TimingAdjustment			CRITICALITY reject	EXTENSION DL-DPCH-TimingAdjustment	PRESENCE optional }|
+	{ ID id-DLReferencePower					CRITICALITY ignore	EXTENSION DL-Power									PRESENCE optional }|
+	{ ID id-RL-Specific-DCH-Info				CRITICALITY ignore	EXTENSION RL-Specific-DCH-Info					PRESENCE optional }|
+	{ ID id-DL-DPCH-TimingAdjustment			CRITICALITY reject	EXTENSION DL-DPCH-TimingAdjustment				PRESENCE optional }|
 	{ ID id-Phase-Reference-Update-Indicator	CRITICALITY ignore	EXTENSION Phase-Reference-Update-Indicator	PRESENCE optional }|
-	{ ID id-RL-Specific-EDCH-Information		CRITICALITY reject		EXTENSION RL-Specific-EDCH-Information 		PRESENCE optional }|
-	{ ID id-EDCH-RL-Indication					CRITICALITY reject		EXTENSION EDCH-RL-Indication						PRESENCE optional },
+	{ ID id-RL-Specific-EDCH-Information		CRITICALITY reject	EXTENSION RL-Specific-EDCH-Information 		PRESENCE optional }|
+	{ ID id-EDCH-RL-Indication					CRITICALITY reject	EXTENSION EDCH-RL-Indication						PRESENCE optional }|
+	{ ID id-HSDSCH-PreconfigurationSetup		CRITICALITY ignore	EXTENSION HSDSCH-PreconfigurationSetup			PRESENCE optional }|
+	{ ID id-Non-Serving-RL-Preconfig-Setup		CRITICALITY ignore	EXTENSION Non-Serving-RL-Preconfig-Setup		PRESENCE optional }|
+	{ ID id-Non-Serving-RL-Preconfig-Removal	CRITICALITY ignore	EXTENSION Non-Serving-RL-Preconfig-Setup		PRESENCE optional },
 	...
 }
 
@@ -3894,13 +3909,15 @@ RL-InformationResponseItem-RL-ReconfReadyFDD ::= SEQUENCE {
 }
 
 RL-InformationResponseItem-RL-ReconfReadyFDD-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-DL-PowerBalancing-UpdatedIndicator			CRITICALITY ignore	EXTENSION DL-PowerBalancing-UpdatedIndicator				PRESENCE optional}|
+	{ ID id-DL-PowerBalancing-UpdatedIndicator			CRITICALITY ignore	EXTENSION DL-PowerBalancing-UpdatedIndicator				PRESENCE optional }|
 	{ ID id-Primary-CPICH-Usage-For-Channel-Estimation	CRITICALITY ignore	EXTENSION Primary-CPICH-Usage-For-Channel-Estimation	PRESENCE optional }|
 	{ ID id-Secondary-CPICH-Information-Change			CRITICALITY ignore	EXTENSION Secondary-CPICH-Information-Change				PRESENCE optional }|
 	{ ID id-EDCH-FDD-InformationResponse				CRITICALITY ignore	EXTENSION EDCH-FDD-InformationResponse						PRESENCE optional }|
 	{ ID id-EDCH-RLSet-Id								CRITICALITY ignore	EXTENSION RL-Set-ID													PRESENCE optional }|
 	{ ID id-EDCH-FDD-DL-ControlChannelInformation		CRITICALITY ignore	EXTENSION EDCH-FDD-DL-ControlChannelInformation			PRESENCE optional }|
-	{ ID id-F-DPCH-SlotFormat							CRITICALITY ignore	EXTENSION F-DPCH-SlotFormat										PRESENCE optional },
+	{ ID id-F-DPCH-SlotFormat							CRITICALITY ignore	EXTENSION F-DPCH-SlotFormat										PRESENCE optional }|
+	{ ID id-HSDSCH-PreconfigurationInfo					CRITICALITY ignore	EXTENSION HSDSCH-PreconfigurationInfo						PRESENCE optional }|
+	{ ID id-Non-Serving-RL-Preconfig-Info				CRITICALITY ignore	EXTENSION Non-Serving-RL-Preconfig-Info						PRESENCE optional },
 ...
 }
 
@@ -4714,8 +4731,11 @@ RL-ReconfigurationRequestFDD-RL-Information-IEs ::= SEQUENCE {
 }
 
 RL-ReconfigurationRequestFDD-RL-Information-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-RL-Specific-EDCH-Information		CRITICALITY reject		EXTENSION RL-Specific-EDCH-Information 		PRESENCE optional }|
-	{ ID id-EDCH-RL-Indication					CRITICALITY reject		EXTENSION EDCH-RL-Indication						PRESENCE optional },
+	{ ID id-RL-Specific-EDCH-Information		CRITICALITY reject	EXTENSION RL-Specific-EDCH-Information 		PRESENCE optional }|
+	{ ID id-EDCH-RL-Indication					CRITICALITY reject	EXTENSION EDCH-RL-Indication						PRESENCE optional }|
+	{ ID id-HSDSCH-PreconfigurationSetup		CRITICALITY ignore	EXTENSION HSDSCH-PreconfigurationSetup			PRESENCE optional }|
+	{ ID id-Non-Serving-RL-Preconfig-Setup		CRITICALITY ignore	EXTENSION Non-Serving-RL-Preconfig-Setup		PRESENCE optional }|
+	{ ID id-Non-Serving-RL-Preconfig-Removal	CRITICALITY ignore	EXTENSION Non-Serving-RL-Preconfig-Setup		PRESENCE optional },
 	...
 }
 
@@ -4893,11 +4913,13 @@ RL-InformationResponseItem-RL-ReconfRspFDD ::= SEQUENCE {
 }
 
 RL-InformationResponseItem-RL-ReconfRspFDD-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-DL-PowerBalancing-UpdatedIndicator	CRITICALITY ignore		EXTENSION		DL-PowerBalancing-UpdatedIndicator	PRESENCE optional}|
+	{ ID id-DL-PowerBalancing-UpdatedIndicator		CRITICALITY ignore	EXTENSION DL-PowerBalancing-UpdatedIndicator			PRESENCE optional }|
 	{ ID id-EDCH-FDD-InformationResponse			CRITICALITY ignore	EXTENSION EDCH-FDD-InformationResponse					PRESENCE optional }|
 	{ ID id-EDCH-RLSet-Id							CRITICALITY ignore	EXTENSION RL-Set-ID												PRESENCE optional }|
 	{ ID id-EDCH-FDD-DL-ControlChannelInformation	CRITICALITY ignore	EXTENSION EDCH-FDD-DL-ControlChannelInformation		PRESENCE optional }|
-	{ ID id-F-DPCH-SlotFormat						CRITICALITY ignore	EXTENSION F-DPCH-SlotFormat									PRESENCE optional },
+	{ ID id-F-DPCH-SlotFormat						CRITICALITY ignore	EXTENSION F-DPCH-SlotFormat									PRESENCE optional }|
+	{ ID id-HSDSCH-PreconfigurationInfo				CRITICALITY ignore	EXTENSION HSDSCH-PreconfigurationInfo						PRESENCE optional }|
+	{ ID id-Non-Serving-RL-Preconfig-Info			CRITICALITY ignore	EXTENSION Non-Serving-RL-Preconfig-Info					PRESENCE optional },
 	...
 }
 
@@ -5228,12 +5250,12 @@ EDCH-MacdFlowSpecificInformation-RL-PreemptRequiredInd-ExtIEs RNSAP-PROTOCOL-EXT
 -- **************************************************************
 
 RadioLinkRestoreIndication ::= SEQUENCE {
-	protocolIEs                     ProtocolIE-Container       {{RadioLinkRestoreIndication-Ies}},
+	protocolIEs                     ProtocolIE-Container       {{RadioLinkRestoreIndication-IEs}},
 	protocolExtensions              ProtocolExtensionContainer {{RadioLinkRestoreIndication-Extensions}}                   OPTIONAL,
 	...
 }
 
-RadioLinkRestoreIndication-Ies RNSAP-PROTOCOL-IES ::= {
+RadioLinkRestoreIndication-IEs RNSAP-PROTOCOL-IES ::= {
 	{ ID id-Reporing-Object-RL-RestoreInd	CRITICALITY ignore	TYPE Reporting-Object-RL-RestoreInd		PRESENCE mandatory	},
 	...
 }
@@ -6079,9 +6101,9 @@ RLItem-DM-Rqst-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-RL-InformationList-DM-Rqst					::= SEQUENCE (SIZE (1..maxNrOfRLs)) OF ProtocolIE-Single-Container { {RL-Information-DM-Rqst-Ies} }
+RL-InformationList-DM-Rqst					::= SEQUENCE (SIZE (1..maxNrOfRLs)) OF ProtocolIE-Single-Container { {RL-Information-DM-Rqst-IEs} }
 
-RL-Information-DM-Rqst-Ies RNSAP-PROTOCOL-IES ::= {
+RL-Information-DM-Rqst-IEs RNSAP-PROTOCOL-IES ::= {
 	{ ID id-RL-InformationItem-DM-Rqst		CRITICALITY reject	TYPE RL-InformationItem-DM-Rqst			PRESENCE mandatory	}
 }
 
@@ -6189,9 +6211,9 @@ RL-SetItem-DM-Rsp-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-RL-InformationList-DM-Rsp					::= SEQUENCE (SIZE (1..maxNrOfRLs)) OF ProtocolIE-Single-Container { {RL-Information-DM-Rsp-Ies} }
+RL-InformationList-DM-Rsp					::= SEQUENCE (SIZE (1..maxNrOfRLs)) OF ProtocolIE-Single-Container { {RL-Information-DM-Rsp-IEs} }
 
-RL-Information-DM-Rsp-Ies RNSAP-PROTOCOL-IES ::= {
+RL-Information-DM-Rsp-IEs RNSAP-PROTOCOL-IES ::= {
 	{ ID id-RL-InformationItem-DM-Rsp		CRITICALITY ignore	TYPE RL-InformationItem-DM-Rsp		PRESENCE mandatory	}
 }
 
@@ -6477,9 +6499,9 @@ RL-SetItem-DM-Rprt-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-RL-InformationList-DM-Rprt					::= SEQUENCE (SIZE (1..maxNrOfRLs)) OF ProtocolIE-Single-Container { {RL-Information-DM-Rprt-Ies} }
+RL-InformationList-DM-Rprt					::= SEQUENCE (SIZE (1..maxNrOfRLs)) OF ProtocolIE-Single-Container { {RL-Information-DM-Rprt-IEs} }
 
-RL-Information-DM-Rprt-Ies RNSAP-PROTOCOL-IES ::= {
+RL-Information-DM-Rprt-IEs RNSAP-PROTOCOL-IES ::= {
 	{ ID id-RL-InformationItem-DM-Rprt		CRITICALITY ignore	TYPE RL-InformationItem-DM-Rprt			PRESENCE mandatory	}
 }
 
@@ -6681,7 +6703,8 @@ CommonTransportChannelResourcesRequest-Extensions RNSAP-PROTOCOL-EXTENSION ::= {
 	 -- FDD and 1.28Mcps TDD only
 	{ ID id-Common-EDCH-Support-Indicator	CRITICALITY ignore	EXTENSION Common-EDCH-Support-Indicator	PRESENCE optional }|
 	 -- FDD only
-	{ ID id-HSDSCH-Physical-Layer-Category	CRITICALITY ignore	EXTENSION HSDSCH-Physical-Layer-Category	PRESENCE optional },
+	{ ID id-HSDSCH-Physical-Layer-Category	CRITICALITY ignore	EXTENSION HSDSCH-Physical-Layer-Category	PRESENCE optional }|
+	{ ID id-UE-with-enhanced-HS-SCCH-support-indicator CRITICALITY ignore EXTENSION NULL	PRESENCE optional },
 	...
 }
 
@@ -6809,7 +6832,7 @@ CommonTransportChannelResourcesFailure-Extensions RNSAP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 CompressedModeCommand ::= SEQUENCE {
-	protocolIEs                     ProtocolIE-Container       {{CompressedModeCommand-Ies}},
+	protocolIEs                     ProtocolIE-Container       {{CompressedModeCommand-IEs}},
 	protocolExtensions              ProtocolExtensionContainer {{CompressedModeCommand-Extensions}}                   OPTIONAL,
 	...
 }
@@ -7417,7 +7440,7 @@ InformationExchangeFailureIndication-Extensions RNSAP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 ResetRequest ::= SEQUENCE {
-	protocolIEs				ProtocolIE-Container	{{ResetRequest-Ies}},
+	protocolIEs				ProtocolIE-Container	{{ResetRequest-IEs}},
 	protocolExtensions		ProtocolExtensionContainer	{{ResetRequest-Extensions}}		OPTIONAL,
 	...
 }
@@ -7505,7 +7528,7 @@ ContextGroupInfoItem-Reset-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 ResetResponse ::= SEQUENCE {
-	protocolIEs				ProtocolIE-Container	{{ResetResponse-Ies}},
+	protocolIEs				ProtocolIE-Container	{{ResetResponse-IEs}},
 	protocolExtensions		ProtocolExtensionContainer	{{ResetResponse-Extensions}}     		OPTIONAL,
 	...
 }
@@ -7755,12 +7778,12 @@ UEMeasurementInitiationRequest-Extensions RNSAP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 UEMeasurementInitiationResponse ::= SEQUENCE {
-	protocolIEs                     ProtocolIE-Container       {{UEMeasurementInitiationResponse-Ies}},
+	protocolIEs                     ProtocolIE-Container       {{UEMeasurementInitiationResponse-IEs}},
 	protocolExtensions              ProtocolExtensionContainer {{UEMeasurementInitiationResponse-Extensions}}                   OPTIONAL,
 	...
 }
 
-UEMeasurementInitiationResponse-Ies RNSAP-PROTOCOL-IES ::= {
+UEMeasurementInitiationResponse-IEs RNSAP-PROTOCOL-IES ::= {
 	{ ID id-MeasurementID						CRITICALITY ignore	TYPE MeasurementID								PRESENCE mandatory	} |
 	{ ID id-MeasurementFilterCoefficient		CRITICALITY reject	TYPE MeasurementFilterCoefficient			PRESENCE optional		} |
 	{ ID id-UEMeasurementReportCharacteristics	CRITICALITY reject	TYPE UEMeasurementReportCharacteristics	PRESENCE optional		} |
@@ -7802,12 +7825,12 @@ UEMeasurementInitiationFailure-Extensions RNSAP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 UEMeasurementReport ::= SEQUENCE {
-	protocolIEs                     ProtocolIE-Container       {{UEMeasurementReport-Ies}},
+	protocolIEs                     ProtocolIE-Container       {{UEMeasurementReport-IEs}},
 	protocolExtensions              ProtocolExtensionContainer {{UEMeasurementReport-Extensions}}                   OPTIONAL,
 	...
 }
 
-UEMeasurementReport-Ies RNSAP-PROTOCOL-IES ::= {
+UEMeasurementReport-IEs RNSAP-PROTOCOL-IES ::= {
 	{ ID id-MeasurementID					CRITICALITY ignore	TYPE MeasurementID							PRESENCE mandatory	} |
 	{ ID id-UEMeasurementValueInformation	CRITICALITY ignore	TYPE UEMeasurementValueInformation		PRESENCE mandatory	},
 	...
@@ -7867,7 +7890,7 @@ UEMeasurementFailureIndication-Extensions RNSAP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 IurInvokeTrace ::= SEQUENCE {
-	protocolIEs									ProtocolIE-Container		{{IurInvokeTrace-Ies}},
+	protocolIEs									ProtocolIE-Container		{{IurInvokeTrace-IEs}},
 	protocolExtensions							ProtocolExtensionContainer	{{IurInvokeTrace-Extensions}}		OPTIONAL,
 	...
 }
@@ -7910,7 +7933,7 @@ IurInvokeTrace-Extensions RNSAP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 IurDeactivateTrace ::= SEQUENCE {
-	protocolIEs									ProtocolIE-Container		{{IurDeactivateTrace-Ies}},
+	protocolIEs									ProtocolIE-Container		{{IurDeactivateTrace-IEs}},
 	protocolExtensions							ProtocolExtensionContainer	{{IurDeactivateTrace-Extensions}}	OPTIONAL,
 	...
 }
@@ -7954,12 +7977,12 @@ MBMSAttachCommand-Extensions RNSAP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 MBMSDetachCommand ::= SEQUENCE {
-	protocolIEs				ProtocolIE-Container	{{MBMSDetachCommand-Ies}},
+	protocolIEs				ProtocolIE-Container	{{MBMSDetachCommand-IEs}},
 	protocolExtensions		ProtocolExtensionContainer	{{MBMSDetachCommand-Extensions}}		OPTIONAL,
 	...
 }
 
-MBMSDetachCommand-Ies RNSAP-PROTOCOL-IES ::= {
+MBMSDetachCommand-IEs RNSAP-PROTOCOL-IES ::= {
 	{ ID id-MBMS-Bearer-Service-List 	CRITICALITY		ignore		TYPE MBMS-Bearer-Service-List PRESENCE	mandatory} |
 	{ ID id-UE-State					CRITICALITY		ignore		TYPE	UE-State				PRESENCE	optional},
 	...
@@ -7976,7 +7999,7 @@ MBMSDetachCommand-Extensions RNSAP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 DirectInformationTransfer ::= SEQUENCE {
-	protocolIEs				ProtocolIE-Container		{{DirectInformationTransfer-Ies}},
+	protocolIEs				ProtocolIE-Container		{{DirectInformationTransfer-IEs}},
 	protocolExtensions		ProtocolExtensionContainer	{{DirectInformationTransfer-Extensions}}		OPTIONAL,
 	...
 }
@@ -7999,16 +8022,16 @@ DirectInformationTransfer-Extensions RNSAP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 EnhancedRelocationRequest ::= SEQUENCE {
-	protocolIEs                     ProtocolIE-Container       {{EnhancedRelocationRequest-Ies}},
+	protocolIEs                     ProtocolIE-Container       {{EnhancedRelocationRequest-IEs}},
 	protocolExtensions              ProtocolExtensionContainer {{EnhancedRelocationRequest-Extensions}}                   OPTIONAL,
 	...
 }
 
-EnhancedRelocationRequest-Ies RNSAP-PROTOCOL-IES ::= {
+EnhancedRelocationRequest-IEs RNSAP-PROTOCOL-IES ::= {
 	{ ID id-Cause				CRITICALITY reject	TYPE Cause					PRESENCE mandatory	} |
 	{ ID id-Permanent-NAS-UE-Identity	CRITICALITY reject	TYPE Permanent-NAS-UE-Identity	 PRESENCE mandatory } |
 	{ ID id-SRNC-ID		CRITICALITY reject	TYPE RNC-ID	PRESENCE optional	}|
-	-- This IE shall be present if the Relocation type IE is set to “UE involved in relocation of SRNS” –
+	-- This IE shall be present if the Relocation type IE is set to “UE involved in relocation of SRNS” --
 	{ ID id-Extended-SRNC-ID	CRITICALITY reject	TYPE Extended-RNC-ID	 PRESENCE optional }|
 	{ ID id-S-RNTI		CRITICALITY reject	TYPE S-RNTI	PRESENCE mandatory	}|
 	{ ID id-RANAP-EnhancedRelocationInformationRequest		CRITICALITY reject	TYPE RANAP-EnhancedRelocationInformationRequest		PRESENCE mandatory	},
@@ -8026,7 +8049,7 @@ EnhancedRelocationRequest-Extensions RNSAP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 EnhancedRelocationResponse ::= SEQUENCE {
-	protocolIEs                     ProtocolIE-Container       {{EnhancedRelocationResponse-Ies}},
+	protocolIEs                     ProtocolIE-Container       {{EnhancedRelocationResponse-IEs}},
 	protocolExtensions              ProtocolExtensionContainer {{EnhancedRelocationResponse-Extensions}}                   OPTIONAL,
 	...
 }
@@ -8069,7 +8092,7 @@ EnhancedRelocationFailure-Extensions RNSAP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 EnhancedRelocationCancel ::= SEQUENCE {
-	protocolIEs                     ProtocolIE-Container       {{EnhancedRelocationCancel-Ies}},
+	protocolIEs                     ProtocolIE-Container       {{EnhancedRelocationCancel-IEs}},
 	protocolExtensions              ProtocolExtensionContainer {{EnhancedRelocationCancel-Extensions}}                   OPTIONAL,
 	...
 }

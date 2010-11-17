@@ -1,6 +1,6 @@
 -- RNSAP-Constants.asn
 --
--- Taken from 3GPP TS 25.423 V9.2.3 (2010-03)
+-- Taken from 3GPP TS 25.423 V9.4.0 (2010-09)
 -- http://www.3gpp.org/ftp/Specs/archive/25_series/25.423/25423-790.zip/25423-790.DOC
 --
 -- 9.3.6	Constant Definitions
@@ -80,6 +80,8 @@ id-iurDeactivateTrace										ProcedureCode ::= 43
 id-iurInvokeTrace											ProcedureCode ::= 44
 id-mBMSAttach												ProcedureCode ::= 45
 id-mBMSDetach												ProcedureCode ::= 46
+--WS extension
+id-Not-used-47												ProcedureCode ::= 47
 id-directInformationTransfer								ProcedureCode ::= 48
 id-enhancedRelocation										ProcedureCode ::= 49
 id-enhancedRelocationCancel									ProcedureCode ::= 50
@@ -298,6 +300,8 @@ id-MessageStructure															ProtocolIE-ID ::= 57
 id-MeasurementID															ProtocolIE-ID ::= 93
 id-Neighbouring-GSM-CellInformation											ProtocolIE-ID ::= 13
 id-Neighbouring-UMTS-CellInformationItem									ProtocolIE-ID ::= 95
+--WS extension
+id-Unknown-305																ProtocolIE-ID ::= 304
 id-NRT-Load-Information-Value												ProtocolIE-ID ::= 305
 id-NRT-Load-Information-Value-IncrDecrThres									ProtocolIE-ID ::= 306
 id-PagingArea-PagingRqst													ProtocolIE-ID ::= 102
@@ -305,6 +309,8 @@ id-FACH-FlowControlInformation												ProtocolIE-ID ::= 103
 id-PartialReportingIndicator												ProtocolIE-ID ::= 472
 id-Permanent-NAS-UE-Identity												ProtocolIE-ID ::= 17
 id-PowerAdjustmentType														ProtocolIE-ID ::= 107
+--WS extension
+id-Unknown-108																ProtocolIE-ID ::= 108
 id-RANAP-RelocationInformation												ProtocolIE-ID ::= 109
 id-RL-Information-PhyChReconfRqstFDD										ProtocolIE-ID ::= 110
 id-RL-Information-PhyChReconfRqstTDD										ProtocolIE-ID ::= 111
@@ -363,13 +369,18 @@ id-SAI																		ProtocolIE-ID ::= 156
 id-SRNC-ID																	ProtocolIE-ID ::= 157
 id-SuccessfulRL-InformationResponse-RL-AdditionFailureFDD					ProtocolIE-ID ::= 159
 id-SuccessfulRL-InformationResponse-RL-SetupFailureFDD						ProtocolIE-ID ::= 160
+--WS extension
+id-Unknown-161																ProtocolIE-ID ::= 161
+id-Unknown-162																ProtocolIE-ID ::= 162
 id-TransportBearerID														ProtocolIE-ID ::= 163
 id-TransportBearerRequestIndicator											ProtocolIE-ID ::= 164
 id-TransportLayerAddress													ProtocolIE-ID ::= 165
 id-TypeOfError																ProtocolIE-ID ::= 140
 id-UC-ID																	ProtocolIE-ID ::= 166
 id-UL-CCTrCH-AddInformation-RL-ReconfPrepTDD								ProtocolIE-ID ::= 167
+id-Unknown-168																ProtocolIE-ID ::= 168
 id-UL-CCTrCH-InformationAddList-RL-ReconfPrepTDD							ProtocolIE-ID ::= 169
+id-Unknown-170																ProtocolIE-ID ::= 170
 id-UL-CCTrCH-InformationItem-RL-SetupRqstTDD								ProtocolIE-ID ::= 171
 id-UL-CCTrCH-InformationList-RL-SetupRqstTDD								ProtocolIE-ID ::= 172
 id-UL-CCTrCH-InformationListIE-PhyChReconfRqstTDD							ProtocolIE-ID ::= 173
@@ -385,11 +396,20 @@ id-UL-DPCH-InformationItem-RL-SetupRspTDD									ProtocolIE-ID ::= 182
 id-UL-DPCH-InformationAddListIE-RL-ReconfReadyTDD							ProtocolIE-ID ::= 183
 id-UL-SIRTarget																ProtocolIE-ID ::= 184
 id-URA-Information															ProtocolIE-ID ::= 185
+--WS extension
+id-Unknown-186																ProtocolIE-ID ::= 186
+id-Unknown-187																ProtocolIE-ID ::= 187
 id-UnsuccessfulRL-InformationResponse-RL-AdditionFailureFDD					ProtocolIE-ID ::= 188
 id-UnsuccessfulRL-InformationResponse-RL-SetupFailureFDD					ProtocolIE-ID ::= 189
 id-UnsuccessfulRL-InformationResponse-RL-SetupFailureTDD					ProtocolIE-ID ::= 190
+--WS extension
+id-Unknown-191																ProtocolIE-ID ::= 191
+id-Unknown-192																ProtocolIE-ID ::= 192
 id-Active-Pattern-Sequence-Information										ProtocolIE-ID ::= 193
 id-AdjustmentRatio															ProtocolIE-ID ::= 194
+--WS extension
+id-Unknown-195																ProtocolIE-ID ::= 195
+id-Unknown-196																ProtocolIE-ID ::= 196
 id-CauseLevel-RL-AdditionFailureFDD											ProtocolIE-ID ::= 197
 id-CauseLevel-RL-AdditionFailureTDD											ProtocolIE-ID ::= 198
 id-CauseLevel-RL-ReconfFailure												ProtocolIE-ID ::= 199
@@ -419,11 +439,15 @@ id-Unused-ProtocolIE-ID-228													ProtocolIE-ID ::= 228
 id-Unused-ProtocolIE-ID-324													ProtocolIE-ID ::= 324
 id-Unused-ProtocolIE-ID-229													ProtocolIE-ID ::= 229
 id-DSCHToBeAddedOrModifiedList-RL-ReconfReadyTDD							ProtocolIE-ID ::= 230
+--WS extension
+id-Unknown-231																ProtocolIE-ID ::= 231
 id-Unused-ProtocolIE-ID-29													ProtocolIE-ID ::= 29
 id-Unused-ProtocolIE-ID-225													ProtocolIE-ID ::= 225
 id-GA-Cell																	ProtocolIE-ID ::= 232
 id-GA-CellAdditionalShapes													ProtocolIE-ID ::= 3
 id-Unused-ProtocolIE-ID-246													ProtocolIE-ID ::= 246
+--WS extension
+id-Unknown-254																ProtocolIE-ID ::= 254
 id-Transmission-Gap-Pattern-Sequence-Information							ProtocolIE-ID ::= 255
 id-UL-CCTrCH-DeleteInformation-RL-ReconfPrepTDD								ProtocolIE-ID ::= 256
 id-UL-CCTrCH-ModifyInformation-RL-ReconfPrepTDD								ProtocolIE-ID ::= 257
@@ -488,6 +512,8 @@ id-DL-DPCH-LCR-InformationItem-RL-AdditionRspTDD							ProtocolIE-ID ::= 94
 id-DSCH-LCR-InformationListIEs-RL-AdditionRspTDD							ProtocolIE-ID ::= 96
 id-USCH-LCR-InformationListIEs-RL-AdditionRspTDD							ProtocolIE-ID ::= 97
 id-UL-DPCH-LCR-InformationAddListIE-RL-ReconfReadyTDD						ProtocolIE-ID ::= 98
+--WS extension
+id-Unknown-99																ProtocolIE-ID ::= 99
 id-UL-Timeslot-LCR-InformationModifyList-RL-ReconfReadyTDD					ProtocolIE-ID ::= 100
 id-DL-DPCH-LCR-InformationAddListIE-RL-ReconfReadyTDD						ProtocolIE-ID ::= 101
 id-DL-Timeslot-LCR-InformationModifyList-RL-ReconfReadyTDD					ProtocolIE-ID ::= 104
@@ -508,6 +534,8 @@ id-TUTRANGPSMeasurementThresholdInformation									ProtocolIE-ID ::= 241
 id-UL-Timeslot-ISCP-Value													ProtocolIE-ID ::= 242
 id-UL-Timeslot-ISCP-Value-IncrDecrThres										ProtocolIE-ID ::= 243
 id-Rx-Timing-Deviation-Value-LCR											ProtocolIE-ID ::= 293
+--WS extension
+id-Unknown-294																ProtocolIE-ID ::= 294
 id-DPC-Mode-Change-SupportIndicator											ProtocolIE-ID ::= 19
 id-Unused-ProtocolIE-ID-247													ProtocolIE-ID ::= 247
 id-Unused-ProtocolIE-ID-295													ProtocolIE-ID ::= 295
@@ -527,7 +555,11 @@ id-CellCapabilityContainer-TDD-LCR											ProtocolIE-ID ::= 302
 id-RL-Specific-DCH-Info														ProtocolIE-ID ::= 317
 id-RL-ReconfigurationRequestFDD-RL-InformationList 							ProtocolIE-ID ::= 318
 id-RL-ReconfigurationRequestFDD-RL-Information-IEs							ProtocolIE-ID ::= 319
+--WS extension
+id-Unknown-320																ProtocolIE-ID ::= 320
 id-RL-ReconfigurationRequestTDD-RL-Information								ProtocolIE-ID ::= 321
+--WS extension
+id-Unknown-322																ProtocolIE-ID ::= 322
 id-CommonTransportChannelResourcesInitialisationNotRequired					ProtocolIE-ID ::= 250
 id-DelayedActivation 														ProtocolIE-ID ::= 312
 id-DelayedActivationList-RL-ActivationCmdFDD								ProtocolIE-ID ::= 313
@@ -540,6 +572,9 @@ id-UL-SIR-Target-CCTrCH-LCR-InformationItem-RL-SetupRspTDD					ProtocolIE-ID ::=
 id-PrimCCPCH-RSCP-DL-PC-RqstTDD												ProtocolIE-ID ::= 451
 id-HSDSCH-FDD-Information													ProtocolIE-ID ::= 452
 id-HSDSCH-FDD-Information-Response											ProtocolIE-ID ::= 453
+--WS extension
+id-Unknown-454																ProtocolIE-ID ::= 454
+id-Unknown-455																ProtocolIE-ID ::= 455
 id-HSDSCH-FDD-Update-Information											ProtocolIE-ID ::= 466
 id-HSDSCH-Information-to-Modify												ProtocolIE-ID ::= 456
 id-HSDSCHMacdFlowSpecificInformationList-RL-PreemptRequiredInd				ProtocolIE-ID ::= 516
@@ -547,16 +582,148 @@ id-HSDSCHMacdFlowSpecificInformationItem-RL-PreemptRequiredInd				ProtocolIE-ID 
 id-HSDSCH-RNTI																ProtocolIE-ID ::= 457
 id-HSDSCH-TDD-Information													ProtocolIE-ID ::= 458
 id-HSDSCH-TDD-Information-Response											ProtocolIE-ID ::= 459
+--WS extension
+id-Unknown-460																ProtocolIE-ID ::= 460
+id-Unknown-461																ProtocolIE-ID ::= 461
+id-Unknown-462																ProtocolIE-ID ::= 462
 id-HSDSCH-TDD-Update-Information											ProtocolIE-ID ::= 467
 id-HSPDSCH-RL-ID															ProtocolIE-ID ::= 463
 id-HSDSCH-MACdFlows-to-Add 													ProtocolIE-ID ::= 531
 id-HSDSCH-MACdFlows-to-Delete												ProtocolIE-ID ::= 532
 id-Angle-Of-Arrival-Value-LCR												ProtocolIE-ID ::= 148
+--WS extension
+id-Unknown-149																ProtocolIE-ID ::= 149
 id-TrafficClass																ProtocolIE-ID ::= 158
 id-Unused-ProtocolIE-ID-248													ProtocolIE-ID ::= 248
 id-Unused-ProtocolIE-ID-253													ProtocolIE-ID ::= 253
 id-PDSCH-RL-ID																ProtocolIE-ID ::= 323
 id-TimeSlot-RL-SetupRspTDD													ProtocolIE-ID ::= 325
+--WS extension
+id-Unknown-326																ProtocolIE-ID ::= 326
+id-Unknown-327																ProtocolIE-ID ::= 327
+id-Unknown-328																ProtocolIE-ID ::= 328
+id-Unknown-329																ProtocolIE-ID ::= 329
+id-Unknown-330																ProtocolIE-ID ::= 330
+id-Unknown-331																ProtocolIE-ID ::= 331
+id-Unknown-332																ProtocolIE-ID ::= 332
+id-Unknown-333																ProtocolIE-ID ::= 333
+id-Unknown-334																ProtocolIE-ID ::= 334
+id-Unknown-335																ProtocolIE-ID ::= 335
+id-Unknown-336																ProtocolIE-ID ::= 336
+id-Unknown-337																ProtocolIE-ID ::= 337
+id-Unknown-338																ProtocolIE-ID ::= 338
+id-Unknown-339																ProtocolIE-ID ::= 339
+id-Unknown-340																ProtocolIE-ID ::= 340
+id-Unknown-341																ProtocolIE-ID ::= 341
+id-Unknown-342																ProtocolIE-ID ::= 342
+id-Unknown-343																ProtocolIE-ID ::= 343
+id-Unknown-344																ProtocolIE-ID ::= 344
+id-Unknown-345																ProtocolIE-ID ::= 345
+id-Unknown-346																ProtocolIE-ID ::= 346
+id-Unknown-347																ProtocolIE-ID ::= 347
+id-Unknown-348																ProtocolIE-ID ::= 348
+id-Unknown-349																ProtocolIE-ID ::= 349
+id-Unknown-350																ProtocolIE-ID ::= 350
+id-Unknown-351																ProtocolIE-ID ::= 351
+id-Unknown-352																ProtocolIE-ID ::= 352
+id-Unknown-353																ProtocolIE-ID ::= 353
+id-Unknown-354																ProtocolIE-ID ::= 354
+id-Unknown-355																ProtocolIE-ID ::= 355
+id-Unknown-356																ProtocolIE-ID ::= 356
+id-Unknown-357																ProtocolIE-ID ::= 357
+id-Unknown-358																ProtocolIE-ID ::= 358
+id-Unknown-359																ProtocolIE-ID ::= 359
+id-Unknown-360																ProtocolIE-ID ::= 360
+id-Unknown-361																ProtocolIE-ID ::= 361
+id-Unknown-362																ProtocolIE-ID ::= 362
+id-Unknown-363																ProtocolIE-ID ::= 363
+id-Unknown-364																ProtocolIE-ID ::= 364
+id-Unknown-365																ProtocolIE-ID ::= 365
+id-Unknown-366																ProtocolIE-ID ::= 366
+id-Unknown-367																ProtocolIE-ID ::= 367
+id-Unknown-368																ProtocolIE-ID ::= 368
+id-Unknown-369																ProtocolIE-ID ::= 369
+id-Unknown-370																ProtocolIE-ID ::= 370
+id-Unknown-371																ProtocolIE-ID ::= 371
+id-Unknown-372																ProtocolIE-ID ::= 372
+id-Unknown-373																ProtocolIE-ID ::= 373
+id-Unknown-374																ProtocolIE-ID ::= 374
+id-Unknown-375																ProtocolIE-ID ::= 375
+id-Unknown-376																ProtocolIE-ID ::= 376
+id-Unknown-377																ProtocolIE-ID ::= 377
+id-Unknown-378																ProtocolIE-ID ::= 378
+id-Unknown-379																ProtocolIE-ID ::= 379
+id-Unknown-380																ProtocolIE-ID ::= 380
+id-Unknown-381																ProtocolIE-ID ::= 381
+id-Unknown-382																ProtocolIE-ID ::= 382
+id-Unknown-383																ProtocolIE-ID ::= 383
+id-Unknown-384																ProtocolIE-ID ::= 384
+id-Unknown-385																ProtocolIE-ID ::= 385
+id-Unknown-386																ProtocolIE-ID ::= 386
+id-Unknown-387																ProtocolIE-ID ::= 387
+id-Unknown-388																ProtocolIE-ID ::= 388
+id-Unknown-389																ProtocolIE-ID ::= 389
+id-Unknown-390																ProtocolIE-ID ::= 390
+id-Unknown-391																ProtocolIE-ID ::= 391
+id-Unknown-392																ProtocolIE-ID ::= 392
+id-Unknown-393																ProtocolIE-ID ::= 393
+id-Unknown-394																ProtocolIE-ID ::= 394
+id-Unknown-395																ProtocolIE-ID ::= 395
+id-Unknown-396																ProtocolIE-ID ::= 396
+id-Unknown-397																ProtocolIE-ID ::= 397
+id-Unknown-398																ProtocolIE-ID ::= 398
+id-Unknown-399																ProtocolIE-ID ::= 399
+id-Unknown-400																ProtocolIE-ID ::= 400
+id-Unknown-401																ProtocolIE-ID ::= 401
+id-Unknown-402																ProtocolIE-ID ::= 402
+id-Unknown-403																ProtocolIE-ID ::= 403
+id-Unknown-404																ProtocolIE-ID ::= 404
+id-Unknown-405																ProtocolIE-ID ::= 405
+id-Unknown-406																ProtocolIE-ID ::= 406
+id-Unknown-407																ProtocolIE-ID ::= 407
+id-Unknown-408																ProtocolIE-ID ::= 408
+id-Unknown-409																ProtocolIE-ID ::= 409
+id-Unknown-410																ProtocolIE-ID ::= 410
+id-Unknown-411																ProtocolIE-ID ::= 411
+id-Unknown-412																ProtocolIE-ID ::= 412
+id-Unknown-413																ProtocolIE-ID ::= 413
+id-Unknown-414																ProtocolIE-ID ::= 414
+id-Unknown-415																ProtocolIE-ID ::= 415
+id-Unknown-416																ProtocolIE-ID ::= 416
+id-Unknown-417																ProtocolIE-ID ::= 417
+id-Unknown-418																ProtocolIE-ID ::= 418
+id-Unknown-419																ProtocolIE-ID ::= 419
+id-Unknown-420																ProtocolIE-ID ::= 420
+id-Unknown-421																ProtocolIE-ID ::= 421
+id-Unknown-422																ProtocolIE-ID ::= 422
+id-Unknown-423																ProtocolIE-ID ::= 423
+id-Unknown-424																ProtocolIE-ID ::= 424
+id-Unknown-425																ProtocolIE-ID ::= 425
+id-Unknown-426																ProtocolIE-ID ::= 426
+id-Unknown-427																ProtocolIE-ID ::= 427
+id-Unknown-428																ProtocolIE-ID ::= 428
+id-Unknown-429																ProtocolIE-ID ::= 429
+id-Unknown-430																ProtocolIE-ID ::= 430
+id-Unknown-431																ProtocolIE-ID ::= 431
+id-Unknown-432																ProtocolIE-ID ::= 432
+id-Unknown-433																ProtocolIE-ID ::= 433
+id-Unknown-434																ProtocolIE-ID ::= 434
+id-Unknown-435																ProtocolIE-ID ::= 435
+id-Unknown-436																ProtocolIE-ID ::= 436
+id-Unknown-437																ProtocolIE-ID ::= 437
+id-Unknown-438																ProtocolIE-ID ::= 438
+id-Unknown-439																ProtocolIE-ID ::= 439
+id-Unknown-440																ProtocolIE-ID ::= 440
+id-Unknown-441																ProtocolIE-ID ::= 441
+id-Unknown-442																ProtocolIE-ID ::= 442
+id-Unknown-443																ProtocolIE-ID ::= 443
+id-Unknown-444																ProtocolIE-ID ::= 444
+id-Unknown-445																ProtocolIE-ID ::= 445
+id-Unknown-446																ProtocolIE-ID ::= 446
+id-Unknown-447																ProtocolIE-ID ::= 447
+id-Unknown-448																ProtocolIE-ID ::= 448
+id-Unknown-449																ProtocolIE-ID ::= 449
+id-Unknown-450																ProtocolIE-ID ::= 450
 id-GERAN-Cell-Capability													ProtocolIE-ID ::= 468
 id-GERAN-Classmark															ProtocolIE-ID ::= 469
 id-DSCH-InitialWindowSize													ProtocolIE-ID ::= 480
@@ -642,8 +809,14 @@ id-MBMS-Bearer-Service-List-InfEx-Rsp										ProtocolIE-ID ::= 561
 id-Active-MBMS-Bearer-ServiceFDD											ProtocolIE-ID ::= 562
 id-Active-MBMS-Bearer-ServiceTDD											ProtocolIE-ID ::= 563
 id-Old-URA-ID																ProtocolIE-ID ::= 564
+--WS extension
+id-Unknown-565																ProtocolIE-ID ::= 565
+id-Unknown-566																ProtocolIE-ID ::= 566
+id-Unknown-567																ProtocolIE-ID ::= 567
 id-UE-State																	ProtocolIE-ID ::= 568
 id-URA-ID																	ProtocolIE-ID ::= 569
+--WS extension
+id-Unknown-570																ProtocolIE-ID ::= 570
 id-HARQ-Preamble-Mode														ProtocolIE-ID ::= 571
 id-SynchronisationIndicator													ProtocolIE-ID ::= 572
 id-UL-DPDCHIndicatorEDCH													ProtocolIE-ID ::= 573
@@ -747,7 +920,11 @@ id-Continuous-Packet-Connectivity-DTX-DRX-Information						ProtocolIE-ID ::= 670
 id-Continuous-Packet-Connectivity-HS-SCCH-Less-Information					ProtocolIE-ID ::= 671
 id-Continuous-Packet-Connectivity-HS-SCCH-Less-Information-Response			ProtocolIE-ID ::= 672
 id-CPC-Information															ProtocolIE-ID ::= 673
+--WS extension
+id-Unknown-674																ProtocolIE-ID ::= 674
 id-MIMO-InformationResponse													ProtocolIE-ID ::= 675
+--WS extension
+id-Unknown-676																ProtocolIE-ID ::= 676
 id-E-DCH-LCR-Information													ProtocolIE-ID ::= 677
 id-E-DCH-LCR-Information-Reconfig											ProtocolIE-ID ::= 678
 id-E-DCH-LCR-Information-Response											ProtocolIE-ID ::= 679
@@ -758,17 +935,27 @@ id-Extended-RNC-ID															ProtocolIE-ID ::= 683
 id-SixtyfourQAM-DL-SupportIndicator											ProtocolIE-ID ::= 684
 id-Enhanced-FACH-Support-Indicator											ProtocolIE-ID ::= 685
 id-Enhanced-FACH-Information-ResponseFDD									ProtocolIE-ID ::= 686
+--WS extension
+id-Unknown-687																ProtocolIE-ID ::= 687
+id-Unknown-688																ProtocolIE-ID ::= 688
+id-Unknown-689																ProtocolIE-ID ::= 689
 id-HSDSCH-MACdPDUSizeFormat													ProtocolIE-ID ::= 690
 id-MaximumMACdPDU-SizeExtended												ProtocolIE-ID ::= 691
 id-F-DPCH-SlotFormat														ProtocolIE-ID ::= 692
 id-F-DPCH-SlotFormatSupportRequest											ProtocolIE-ID ::= 693
 id-eDCH-MACdFlow-Retransmission-Timer-LCR									ProtocolIE-ID ::= 694
 id-Max-UE-DTX-Cycle															ProtocolIE-ID ::= 695
+--WS extension
+id-Unknown-696																ProtocolIE-ID ::= 696
+id-Unknown-697																ProtocolIE-ID ::= 697
+id-Unknown-698																ProtocolIE-ID ::= 698
 id-GANSS-Common-Data														ProtocolIE-ID ::= 699
 id-GANSS-Information														ProtocolIE-ID ::= 700
 id-GANSS-Generic-Data														ProtocolIE-ID ::= 701
 id-TUTRANGANSSMeasurementThresholdInformation								ProtocolIE-ID ::= 702
 id-TUTRANGANSSMeasurementValueInformation									ProtocolIE-ID ::= 703
+--WS extension
+id-Unknown-704																ProtocolIE-ID ::= 704
 id-Ext-Reference-E-TFCI-PO													ProtocolIE-ID ::= 705
 id-Ext-Max-Bits-MACe-PDU-non-scheduled										ProtocolIE-ID ::= 706
 id-HARQ-MemoryPartitioningInfoExtForMIMO									ProtocolIE-ID ::= 707
@@ -832,6 +1019,8 @@ id-MBMS-Neighbouring-Cell-Information										ProtocolIE-ID ::= 764
 id-MBMS-RLC-Sequence-Number-Information										ProtocolIE-ID ::= 765
 id-RLC-Sequence-Number														ProtocolIE-ID ::= 766
 id-Neighbouring-E-UTRA-CellInformation										ProtocolIE-ID ::= 767
+--WS extension
+id-Unknown-768																ProtocolIE-ID ::= 768
 id-MBSFN-Cluster-Identity													ProtocolIE-ID ::= 769
 id-MCCH-Configuration-Info 													ProtocolIE-ID ::= 770
 id-MCCH-Message-List 														ProtocolIE-ID ::= 771
@@ -895,6 +1084,10 @@ id-UE-AggregateMaximumBitRate												ProtocolIE-ID ::= 828
 id-power-offset-for-S-CPICH-for-MIMO										ProtocolIE-ID ::= 829
 id-power-offset-for-S-CPICH-for-MIMO-Request-Indicator						ProtocolIE-ID ::= 830
 id-UE-SupportIndicatorExtension												ProtocolIE-ID ::= 831
+--WS extension
+id-Unknown-832																ProtocolIE-ID ::= 832
+id-Unknown-833																ProtocolIE-ID ::= 833
+id-Unknown-834																ProtocolIE-ID ::= 834
 id-ActivationInformation													ProtocolIE-ID ::= 835
 id-CellPortionLCRID															ProtocolIE-ID ::= 836
 id-Additional-EDCH-Cell-Information-RL-Setup-Req							ProtocolIE-ID ::= 837
@@ -906,6 +1099,15 @@ id-Additional-EDCH-Cell-Information-RL-Reconf-Req							ProtocolIE-ID ::= 842
 id-Additional-EDCH-Cell-Information-RL-Param-Upd							ProtocolIE-ID ::= 843
 id-Additional-EDCH-Preconfiguration-Information								ProtocolIE-ID ::= 844
 id-MulticellEDCH-Information												ProtocolIE-ID ::= 845
+--WS extension
+id-Unknown-846																ProtocolIE-ID ::= 846
+id-Unknown-847																ProtocolIE-ID ::= 847
+id-Unknown-848																ProtocolIE-ID ::= 848
+id-Unknown-849																ProtocolIE-ID ::= 849
+id-Unknown-850																ProtocolIE-ID ::= 850
+id-Unknown-851																ProtocolIE-ID ::= 851
+id-Unknown-852																ProtocolIE-ID ::= 852
+id-Unknown-853																ProtocolIE-ID ::= 853
 id-Additional-EDCH-Cell-Information-ResponseRLReconf						ProtocolIE-ID ::= 854
 id-EDCH-Indicator															ProtocolIE-ID ::= 855
 id-DiversityMode															ProtocolIE-ID ::= 856
@@ -922,7 +1124,13 @@ id-DCH-MeasurementType-Indicator											ProtocolIE-ID ::= 866
 id-Out-of-Sychronization-Window												ProtocolIE-ID ::= 867
 id-MulticellEDCH-RL-SpecificInformation										ProtocolIE-ID ::= 868
 id-DGNSS-ValidityPeriod														ProtocolIE-ID ::= 869
-id-TS0-HS-PDSCH-Indication-LCR 												ProtocolIE-ID ::= 870 
+id-TS0-HS-PDSCH-Indication-LCR 												ProtocolIE-ID ::= 870
 id-UE-TS0-CapabilityLCR														ProtocolIE-ID ::= 871
+id-Non-Serving-RL-Preconfig-Info											ProtocolIE-ID ::= 872
+id-Non-Serving-RL-Preconfig-Setup											ProtocolIE-ID ::= 873
+id-Non-Serving-RL-Preconfig-Removal											ProtocolIE-ID ::= 874
+id-Additional-E-DCH-Non-Serving-RL-Preconfiguration-Setup					ProtocolIE-ID ::= 875
+id-Additional-E-DCH-New-non-serving-RL-E-DCH-FDD-DL-Control-Channel-InfoList	ProtocolIE-ID ::= 876
+id-CellListValidityIndicator												ProtocolIE-ID ::= 877
 
 END

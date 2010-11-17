@@ -28,6 +28,7 @@ TDD-ChannelisationCode
 E-DCH-MACdFlow-Retransmission-Timer-LCR
 DiscardTimer
 FrequencyBandIndicator
+MeasurementFilterCoefficient
 
 #.TYPE_RENAME
 ProcedureID/ddMode DdMode
