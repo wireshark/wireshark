@@ -264,11 +264,11 @@ static const value_string uma_urr_msg_type_vals[] = {
 	{ 113,		"URR INITIAL DIRECT TRANSFER"},
 	{ 114,		"GA-CSR DOWNLINK DIRECT TRANSFER"},
 	{ 115,		"GA-CSR STATUS"},
-	{ 116,		"GA-CSR KEEP ALIVE"},
+	{ 116,		"GA-RC KEEP ALIVE"},
 	{ 117,		"GA-CSR CLASSMARK ENQUIRY"},
 	{ 118,		"GA-CSR CLASSMARK CHANGE"},
-	{ 119,		"URR GPRS SUSPENSION REQUEST"},
-	{ 120,		"GA-CSR SYNCHRONIZATION INFORMATION"},
+	{ 119,		"GA-CSR GPRS SUSPENSION REQUEST"},
+	{ 120,		"GA-RC SYNCHRONIZATION INFORMATION"},
 	{ 121,		"GA-CSR UTRAN CLASSMARK CHANGE"},
 	{ 128,		"GA-CSR REQUEST"},
 	{ 129,		"GA-CSR REQUEST ACCEPT"},
@@ -280,16 +280,24 @@ static value_string_ext uma_urr_msg_type_vals_ext = VALUE_STRING_EXT_INIT(uma_ur
  * Message types for URLC signaling
  */
 static const value_string uma_urlc_msg_type_vals[] = {
-	{ 1,		"URLC-DATA"},
+	{ 1,		"GA-PSR-DATA"},
 	{ 2,		"URLC UNITDATA"},
-	{ 3,		"URLC-PS-PAGE"},
+	{ 3,		"GA-PSR-PS-PAGE"},
+	{ 4,		"Unknown"},
+	{ 5,		"Unknown"},
 	{ 6,		"URLC-UFC-REQ"},
 	{ 7,		"URLC-DFC-REQ"},
-	{ 8,		"URLC-ACTIVATE-UTC-REQ"},
-	{ 9,		"URLC-ACTIVATE-UTC-ACK"},
-	{ 10,		"URLC-DEACTIVATE-UTC-REQ"},
-	{ 11,		"URLC-DEACTIVATE-UTC-ACK"},
-	{ 12,		"URLC STATUS"},
+	{ 8,		"GA-PSR-ACTIVATE-UTC-REQ"},
+	{ 9,		"GA-PSR-ACTIVATE-UTC-ACK"},
+	{ 10,		"GA-PSR-DEACTIVATE-UTC-REQ"},
+	{ 11,		"GA-PSR-DEACTIVATE-UTC-ACK"},
+	{ 12,		"GA-PSR STATUS"},
+	{ 13,		"GA-PSR HANDOVER COMPLETE"},
+	{ 14,		"GA-PSR UPLINK QUALITY INDICATION"},
+	{ 15,		"GA-PSR HANDOVER INFORMATION"},
+	{ 16,		"GA-PSR HANDOVER COMMAND"},
+	{ 17,		"GA-PSR HANDOVER CONTINUE"},
+	{ 18,		"GA-PSR HANDOVER FAILURE"},
 	{ 0,	NULL }
 };
 static value_string_ext uma_urlc_msg_type_vals_ext = VALUE_STRING_EXT_INIT(uma_urlc_msg_type_vals);
@@ -398,6 +406,8 @@ static const value_string uma_urr_IE_type_vals[] = {
 	{ 98,		"GANC Fully Qualified Domain/Host Name"},
 	{ 99,		"IP address for GPRS user data transport"},
 	{ 100,		"UDP Port for GPRS user data transport"},
+	{ 101,		"Unknown"},
+	{ 102,		"Unknown"},
 	{ 103,		"GANC TCP port"},
 	{ 104,		"RTP UDP port"},
 	{ 105,		"RTCP UDP port"},
@@ -408,6 +418,8 @@ static const value_string uma_urr_IE_type_vals[] = {
 	{ 110,		"PS Handover to GERAN PSI"},			/* 11.2.76 */
 	{ 111,		"PS Handover to GERAN SI"},			/* 11.2.77 */
 	{ 112,		"TU4004 Timer"},				/* 11.2.78 */
+	{ 113,		"Unknown"},
+	{ 114,		"Unknown"},
 	{ 115,		"PTC Activation List"},				/* 11.2.96 */
 	{ 116,		"PTC Description"},				/* 11.2.97 */
 	{ 117,		"PTC Activation Ack List"},			/* 11.2.98 */
@@ -420,16 +432,19 @@ static const value_string uma_urr_IE_type_vals[] = {
 	{ 124,		"Selected Integrity Protection Algorithm"},	/* 11.2.105 */
 	{ 125,		"Selected Encryption Algorithm"},		/* 11.2.106 */
 	{ 126,		"CN Domains to Handover"},			/* 11.2.107 */
+	{ 127,		"SRNS Relocation Info"},			/* 11.2.107 */
+	{ 128,		"MS Radio Access Capability"},			/* 11.2.107 */
+	{ 129,		"Handover Reporting Control"},			/* 11.2.107 */
 	{ 0,	NULL }
 };
 static value_string_ext uma_urr_IE_type_vals_ext = VALUE_STRING_EXT_INIT(uma_urr_IE_type_vals);
 
 static const value_string uma_urr_mobile_identity_type_vals[] = {
+	{ 0,		"No Identity"},
 	{ 1,		"IMSI"},
 	{ 2,		"IMEI"},
 	{ 3,		"IMEISV"},
 	{ 4,		"TMSI/P-TMSI"},
-	{ 0,		"No Identity"},
 	{ 0,	NULL }
 };
 
@@ -752,6 +767,7 @@ static const value_string rlc_mode_vals[] = {
 /*URLC Cause (octet 3) */
 static const value_string uma_ga_psr_cause_vals[] = {
 	{ 0,		"success"},
+	{ 1,		"future use"},
 	{ 2,		"no available resources"},
 	{ 3,		"GANC failure"},
 	{ 4,		"not authorized for data service"},
@@ -761,6 +777,7 @@ static const value_string uma_ga_psr_cause_vals[] = {
 	{ 8,		"syntactically incorrect message"},
 	{ 9,		"GPRS suspended"},
 	{ 10,		"normal deactivation"},
+	{ 11,		"future use"},
 	{ 12,		"conditional IE error"},
 	{ 13,		"semantically incorrect message"},
 	{ 14,		"PS handover failure - incorrect handover command"},
@@ -836,7 +853,7 @@ static const value_string uma_service_zone_icon_ind_vals[] = {
 	{ 0,	NULL }
 };
 /*Establishment Cause (octet 3)*/
-static const value_string establishment_cause_vals[] = {
+static const value_string uma_establishment_cause_val[] = {
 	{ 0x00,		"Location Update"},
 	{ 0x10,		"Other SDCCH procedures including IMSI Detach, SMS, SS, paging response"},
 /* note: Paging response for SDCCH needed is using codepoint  0001 0000 */
@@ -851,7 +868,7 @@ static const value_string establishment_cause_vals[] = {
 	{ 0xf0,		"Originating data call and TCH/F is needed"},
 	{ 0,	NULL }
 };
-static value_string_ext establishment_cause_vals_ext = VALUE_STRING_EXT_INIT(establishment_cause_vals);
+static value_string_ext uma_establishment_cause_val_ext = VALUE_STRING_EXT_INIT(uma_establishment_cause_val);
 
 /*CHANNEL (octet 3) */
 static const value_string channel_vals[] = {
@@ -2248,7 +2265,7 @@ proto_register_uma(void)
 		},
 		{ &hf_uma_urr_establishment_cause,
 			{ "Establishment Cause","uma.urr.establishment_cause",
-			FT_UINT8,BASE_DEC|BASE_EXT_STRING,  &establishment_cause_vals_ext, 0x0,
+			FT_UINT8,BASE_DEC|BASE_EXT_STRING,  &uma_establishment_cause_val_ext, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_uma_urr_channel,
