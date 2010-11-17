@@ -34,10 +34,11 @@ http://www.iana.org/assignments/aaa-parameters
 		<avp name="MIP-HA-to-FA-SPI" code="323" mandatory="must" protected="may" vendor-bit="mustnot" may-encrypt="yes">
 			<type type-name="Unsigned32"/>
 		</avp>
-<!--
-324            Unassigned
--->
-		<avp name="MIP-MN-to-FA-MSA" code="325" mandatory="must" protected="may" vendor-bit="mustnot" may-encrypt="yes">
+<!-- 324            Unassigned -->
+    <avp name="Unassigned" code="324" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="MIP-MN-to-FA-MSA" code="325" mandatory="must" protected="may" vendor-bit="mustnot" may-encrypt="yes">
 			<grouped>
 				<gavp name="MIP-MN-AAA-SPI"/>
 				<gavp name="MIP-Algorithm-Type"/>
@@ -53,10 +54,11 @@ http://www.iana.org/assignments/aaa-parameters
 				<gavp name="AVP"/>
 			</grouped>
 		</avp>
-<!--
-327            Unassigned
--->
-		<avp name="MIP-FA-to-HA-MSA" code="328" mandatory="must" protected="may" vendor-bit="mustnot" may-encrypt="yes">
+<!-- 327            Unassigned -->
+    <avp name="Unassigned" code="327" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="MIP-FA-to-HA-MSA" code="328" mandatory="must" protected="may" vendor-bit="mustnot" may-encrypt="yes">
 			<grouped>
 				<gavp name="MIP-FA-to-HA-SPI"/>
 				<gavp name="MIP-Algorithm-Type"/>
@@ -72,10 +74,12 @@ http://www.iana.org/assignments/aaa-parameters
 				<gavp name="AVP"/>
 			</grouped>
 		</avp>
-<!--
-330            Unassigned
--->
-		<avp name="MIP-MN-to-HA-MSA" code="331" mandatory="must" protected="may" vendor-bit="mustnot" may-encrypt="yes">
+<!-- 330            Unassigned -->
+    <avp name="Unassigned" code="330" mandatory="may">
+      <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="MIP-MN-to-HA-MSA" code="331" mandatory="must" protected="may" vendor-bit="mustnot" may-encrypt="yes">
 			<grouped>
 				<gavp name="MIP-MN-HA-SPI"/>
 				<gavp name="MIP-Algorithm-Type"/>
@@ -162,10 +166,12 @@ http://www.iana.org/assignments/aaa-parameters
 		</avp>
 <!--
 349-362        Unassigned
+in dictionary.xml
 363            Accounting-Input-Octets            [RFC4005][RFC4004]
 364            Accounting-Output-Octets           [RFC4005][RFC4004]
 365            Accounting-Input-Packets           [RFC4005][RFC4004]
 366            Accounting-Output-Packets          [RFC4005][RFC4004]
+in SIP.xml
 -->
 		<avp name="MIP-MSA-Lifetime" code="367" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
 			<type type-name="Unsigned32"/>
