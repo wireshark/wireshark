@@ -299,13 +299,11 @@ static gboolean need_timeout_workaround;
  * in OS X 10.6, 10.6.1, 10.6.3, and 10.6.4, so we always use a timeout
  * of 250ms, i.e. the same value as CAP_READ_TIMEOUT when not on one
  * of the offending versions of Snow Leopard.
- *
- * XXX - why is it 100 for threaded capturing?
  */
 #ifndef USE_THREADS
 #define PIPE_READ_TIMEOUT   250000
 #else
-#define PIPE_READ_TIMEOUT   100
+#define PIPE_READ_TIMEOUT   100000
 #endif
 static const char *cap_pipe_err_str;
 
