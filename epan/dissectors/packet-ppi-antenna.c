@@ -255,15 +255,15 @@ proto_register_ppi_antenna(void) {
             "Gain of antenna (dBi)", HFILL } },
         { &hf_ppi_antenna_horizbw,
           { "HorizBw", "ppi_antenna.horizbw",
-            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Horizontal beamwidth", HFILL } },
         { &hf_ppi_antenna_vertbw,
           { "VertBw", "ppi_antenna.vertbw",
-            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Vertical beamwidth", HFILL } },
         { &hf_ppi_antenna_pgain,
           { "Precision Gain (dBi)", "ppi_antenna.pgain",
-            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Precision Gain", HFILL } },
         { &hf_ppi_antenna_beamid,
           { "BeamID", "ppi_antenna.beamid",
@@ -431,7 +431,7 @@ void dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             t_hbw = tvb_get_letohl(tvb, offset);
             horizbw =  fixed3_6_to_gdouble(t_hbw);
             if (tree) {
-                proto_tree_add_float(ppi_antenna_tree, hf_ppi_antenna_horizbw, tvb, offset, 4, horizbw);
+                proto_tree_add_double(ppi_antenna_tree, hf_ppi_antenna_horizbw, tvb, offset, 4, horizbw);
             }
             offset+=4;
             length_remaining-=4;
@@ -442,7 +442,7 @@ void dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             t_vbw = tvb_get_letohl(tvb, offset);
             vertbw =  fixed3_6_to_gdouble(t_vbw);
             if (tree) {
-                proto_tree_add_float(ppi_antenna_tree, hf_ppi_antenna_vertbw, tvb, offset, 4, vertbw);
+                proto_tree_add_double(ppi_antenna_tree, hf_ppi_antenna_vertbw, tvb, offset, 4, vertbw);
             }
             offset+=4;
             length_remaining-=4;
@@ -453,7 +453,7 @@ void dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             t_pgain = tvb_get_letohl(tvb, offset);
             pgain =  fixed3_6_to_gdouble(t_pgain);
             if (tree) {
-                proto_tree_add_float(ppi_antenna_tree, hf_ppi_antenna_pgain, tvb, offset, 4, pgain);
+                proto_tree_add_double(ppi_antenna_tree, hf_ppi_antenna_pgain, tvb, offset, 4, pgain);
             }
             offset+=4;
             length_remaining-=4;
