@@ -764,8 +764,15 @@
 			<enum name="Accounting-On" code="7"/>
 			<enum name="Accounting-Off" code="8"/>
 			<!-- 9-14 Reserved for Tunnel Accounting -->
-			<!-- 15 Reserved for Tunnel Failed -->
-		</avp>
+      <enum name="Tunnel-Start" code="9"/>
+      <enum name="Tunnel-Stop" code="10"/>
+      <enum name="Tunnel-Reject" code="11"/>
+      <enum name="Tunnel-Link-Start" code="12"/>
+      <enum name="Tunnel-Link-Stop" code="13"/>
+      <enum name="Tunnel-Link-Rejectf" code="14"/>
+      <!-- 15 Reserved for Tunnel Failed -->
+      <enum name="Failed" code="15"/>
+    </avp>
 		<avp name="Acct-Delay-Time" code="41" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Unsigned32"/>
 		</avp>
