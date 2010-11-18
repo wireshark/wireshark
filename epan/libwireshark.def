@@ -598,6 +598,7 @@ new_create_dissector_handle
 new_register_dissector
 nstime_cmp
 nstime_delta
+nstime_diff
 nstime_is_unset
 nstime_is_zero
 nstime_set_unset
@@ -690,6 +691,7 @@ proto_initialize_all_prefixes
 proto_is_private
 proto_is_protocol_enabled
 proto_item_add_subtree
+proto_item_append_string
 proto_item_append_text
 proto_item_fill_label
 proto_item_get_len

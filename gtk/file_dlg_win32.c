@@ -139,8 +139,7 @@ static print_args_t   print_args;
  *       being opened/saved/etc.).
  */
 static HWND           g_sf_hwnd = NULL;
-char *dfilter_open_str = NULL;
-char *dfilter_merge_str = NULL;
+static char *dfilter_str = NULL;
 
 gboolean
 win32_open_file (HWND h_wnd) {
@@ -226,7 +225,7 @@ win32_open_file (HWND h_wnd) {
         }
 
         /* apply our filter */
-        if (dfilter_compile(dfilter_open_str, &dfp)) {
+        if (dfilter_compile(dfilter_str, &dfp)) {
             cf_set_rfcode(&cfile, dfp);
         }
 
@@ -480,7 +479,7 @@ win32_merge_file (HWND h_wnd) {
         }
 
         /* apply our filter */
-        if (dfilter_compile(dfilter_merge_str, &dfp)) {
+        if (dfilter_compile(dfilter_str, &dfp)) {
             cf_set_rfcode(&cfile, dfp);
         }
 
@@ -1096,11 +1095,11 @@ filter_tb_get(HWND hwnd) {
         len++;
         strval = g_malloc(len*sizeof(TCHAR));
         len = GetWindowText(hwnd, strval, len);
-        ret = utf_16to8(strval);
+        ret = g_utf16_to_utf8(strval, -1, NULL, NULL, NULL);
         g_free(strval);
         return ret;
     } else {
-        return "";
+        return NULL;
     }
 }
 
@@ -1161,9 +1160,9 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     switch(msg) {
         case WM_INITDIALOG:
             /* Retain the filter text, and fill it in. */
-            if(dfilter_open_str != NULL) {
+            if(dfilter_str != NULL) {
                 cur_ctrl = GetDlgItem(of_hwnd, EWFD_FILTER_EDIT);
-                SetWindowText(cur_ctrl, utf_8to16(dfilter_open_str));
+                SetWindowText(cur_ctrl, utf_8to16(dfilter_str));
             }
 
             /* Fill in our resolution values */
@@ -1181,7 +1180,9 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                 case CDN_FILEOK:
                     /* Fetch the read filter */
                     cur_ctrl = GetDlgItem(of_hwnd, EWFD_FILTER_EDIT);
-                    dfilter_open_str = filter_tb_get(cur_ctrl);
+                    if (dfilter_str)
+                        g_free(dfilter_str);
+                    dfilter_str = filter_tb_get(cur_ctrl);
 
                     /* Fetch our resolution values */
                     g_resolv_flags = prefs.name_resolve & RESOLV_CONCURRENT;
@@ -1666,9 +1667,9 @@ merge_file_hook_proc(HWND mf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     switch(msg) {
         case WM_INITDIALOG:
             /* Retain the filter text, and fill it in. */
-            if(dfilter_merge_str != NULL) {
+            if(dfilter_str != NULL) {
                 cur_ctrl = GetDlgItem(mf_hwnd, EWFD_FILTER_EDIT);
-                SetWindowText(cur_ctrl, utf_8to16(dfilter_merge_str));
+                SetWindowText(cur_ctrl, utf_8to16(dfilter_str));
             }
 
             /* Append by default */
@@ -1683,7 +1684,9 @@ merge_file_hook_proc(HWND mf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                 case CDN_FILEOK:
                     /* Fetch the read filter */
                     cur_ctrl = GetDlgItem(mf_hwnd, EWFD_FILTER_EDIT);
-                    dfilter_merge_str = filter_tb_get(cur_ctrl);
+                    if (dfilter_str)
+                        g_free(dfilter_str);
+                    dfilter_str = filter_tb_get(cur_ctrl);
 
                     cur_ctrl = GetDlgItem(mf_hwnd, EWFD_MERGE_CHRONO_BTN);
                     if(SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {

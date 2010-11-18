@@ -74,15 +74,21 @@ Wireshark Info
 -->
 
         <listitem><para>
-          ERROR:capture.c:141:capture_start: assertion failed: (capture_opts->state == CAPTURE_STOPPED).
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5126">Bug
-          5126</ulink>)
+          File-Open Display Filter is overwritten by Save-As Filename.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3894">Bug
+          3894</ulink>)
         </para></listitem>
 
         <listitem><para>
-          GTP header is exported in PDML with an incorrect size.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5162">Bug
-          5162</ulink>)
+          GTK-ERROR can occur in packets when there are multiple Netbios/SMB headers in a single frame.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5289">Bug
+          5289</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          IO Graph Time of Day times incorrect for filtered data.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5340">Bug
+          5340</ulink>)
         </para></listitem>
 
       </itemizedlist>
