@@ -380,6 +380,7 @@ static void
 dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb)
 {
    gint        offset = 0;
+   gint        reported_length;
    guint32     tagname;
    guint32     tagsize;
    gint        len;
@@ -388,7 +389,9 @@ dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb)
    proto_tree *new_tree;
    tvbuff_t   *new_tvb;
 
-   while ((offset >= 0) && (tvb_reported_length_remaining(tvb, offset) > 0)) {
+   reported_length = tvb_reported_length(tvb);
+
+   while ((offset >= 0) &&  (offset < reported_length)) {
       tagname = tvb_get_ntohl(tvb, offset);
       tagsize = tvb_get_ntohl(tvb, offset+4);
       ti = proto_tree_add_text(tree, tvb, offset, 8,
@@ -404,7 +407,7 @@ dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb)
 
       offset += 8;
 
-      len = tvb_reported_length_remaining(tvb, offset); /* should be >= 0 since no exception above */ 
+      len = reported_length - offset; /* should be >= 0 since no exception above */ 
       DISSECTOR_ASSERT(len >= 0);
       if (tagsize <= (unsigned)len) {
          len = tagsize;
@@ -614,10 +617,12 @@ dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb)
       default:
          break;
       }
+      if ((signed)tagsize < 0)   /* we'll consider a tagsize >= 0x80000000 invalid */
+          break;
       offset += tagsize;
    }
-   if ((offset < 0) || (tvb_reported_length_remaining(tvb, offset) != 0)) {
-      THROW(ReportedBoundsError);
+   if ((offset < 0) || ((reported_length - offset) != 0)) {
+       THROW(ReportedBoundsError);
    }
    return;
 }
