@@ -39,22 +39,22 @@
 #define ADWIN_COMM_PORT 6543
 
 /* lengths of valid packet structures */
-#define UDPH1_OLD_LENGTH            52
-#define UDPH1_NEW_LENGTH            56
-#define UDPR1_LENGTH                32
-#define UDPH2_LENGTH               412 /* AFAIK: unused */
-#define UDPR2_LENGTH              1008
-#define UDPR3_LENGTH              1408
-#define UDPR4_LENGTH              1416
-#define GetDataSHPacket_LENGTH    1356
-#define GetDataSHRequest_LENGTH     64
+#define UDPH1_OLD_LENGTH              52
+#define UDPH1_NEW_LENGTH              56
+#define UDPR1_LENGTH                  32
+#define UDPH2_LENGTH                 412 /* AFAIK: unused */
+#define UDPR2_LENGTH                1008
+#define UDPR3_LENGTH                1408
+#define UDPR4_LENGTH                1416
+#define GetDataSHPacket_LENGTH      1356
+#define GetDataSHRequest_LENGTH       64
 
 /* operating systems */
-#define OS_WINDOWS                 0x00
-#define OS_LINUX                   0x10
-#define OS_JAVA                    0x20
-#define OS_DOT_NET                 0x40
-#define OS_GENERIC                 0x80
+#define OS_WINDOWS                  0x00
+#define OS_LINUX                    0x10
+#define OS_JAVA                     0x20
+#define OS_DOT_NET                  0x40
+#define OS_GENERIC                  0x80
 static const value_string osys_mapping[] = {
 	{ OS_WINDOWS, "Windows"},
 	{ OS_LINUX,   "Linux"},
@@ -63,6 +63,7 @@ static const value_string osys_mapping[] = {
 	{ OS_GENERIC, "Generic TCP/IP Driver"},
 	{ 0,          NULL },
 };
+static value_string_ext osys_mapping_ext = VALUE_STRING_EXT_INIT(osys_mapping);
 
 /* error codes */
 #define EC_OK                          0
@@ -71,21 +72,21 @@ static const value_string osys_mapping[] = {
 #define EC_TIMEOUT_FAST_TO_LINK        3
 #define EC_TIMEOUT_FAST_FROM_LINK      4
 #define	EC_TIMEOUT                     5
-#define EC_UDP_TIMEOUT                -1
-#define EC_WRONG_PASSWORD             -5
-#define EC_TRY_LATER                 -10
-#define EC_FILE_ERROR                -15
-#define EC_PACKET_ERROR              -20
-#define EC_PACKET_TOO_LARGE          -25
-#define EC_WRONG_SIZE                -26
-#define EC_WRONG_VERSION             -30
-#define EC_DATA_TOO_SMALL            -31
-#define EC_FIFO_NOT_ENOUGH_DATA      -32
-#define EC_INVALID_PACKET_ORDER      -33
-#define EC_WRONG_BINARY_FILE         -35
-#define EC_ALREADY_PROCESSED         -40
-#define EC_RETRY_UNKNOWN             -41
 #define EC_MEMORY_ERROR             -100
+#define EC_RETRY_UNKNOWN             -41
+#define EC_ALREADY_PROCESSED         -40
+#define EC_WRONG_BINARY_FILE         -35
+#define EC_INVALID_PACKET_ORDER      -33
+#define EC_FIFO_NOT_ENOUGH_DATA      -32
+#define EC_DATA_TOO_SMALL            -31
+#define EC_WRONG_VERSION             -30
+#define EC_WRONG_SIZE                -26
+#define EC_PACKET_TOO_LARGE          -25
+#define EC_PACKET_ERROR              -20
+#define EC_FILE_ERROR                -15
+#define EC_TRY_LATER                 -10
+#define EC_WRONG_PASSWORD             -5
+#define EC_UDP_TIMEOUT                -1
 static const value_string error_code_mapping[] = {
 	{ EC_OK,                     "OK"},
 	{ EC_TIMEOUT_TO_LINK,        "Timeout to link"},
@@ -93,22 +94,23 @@ static const value_string error_code_mapping[] = {
 	{ EC_TIMEOUT_FAST_TO_LINK,   "Timeout fast to link"},
 	{ EC_TIMEOUT_FAST_FROM_LINK, "Timeout fast from link"},
 	{ EC_TIMEOUT,                "Timeout"},
-	{ EC_UDP_TIMEOUT,            "UDP timeout"},
-	{ EC_WRONG_PASSWORD,         "Wrong password"},
-	{ EC_TRY_LATER,              "Try later"},
-	{ EC_FILE_ERROR,             "File error"},
-	{ EC_PACKET_ERROR,           "Packet error"},
-	{ EC_WRONG_SIZE,             "Wrong size"},
-	{ EC_WRONG_VERSION,          "Wrong version"},
-	{ EC_DATA_TOO_SMALL,         "Data too small"},
-	{ EC_FIFO_NOT_ENOUGH_DATA,   "Fifo has not enough data"},
-	{ EC_INVALID_PACKET_ORDER,   "Invalid Packet order"},
-	{ EC_WRONG_BINARY_FILE,      "Binary/Processor mismatch"},
-	{ EC_ALREADY_PROCESSED,      "Already processed"},
-	{ EC_RETRY_UNKNOWN,          "Retry unknown"},
 	{ EC_MEMORY_ERROR,           "Memory error"},
+	{ EC_RETRY_UNKNOWN,          "Retry unknown"},
+	{ EC_ALREADY_PROCESSED,      "Already processed"},
+	{ EC_WRONG_BINARY_FILE,      "Binary/Processor mismatch"},
+	{ EC_INVALID_PACKET_ORDER,   "Invalid Packet order"},
+	{ EC_FIFO_NOT_ENOUGH_DATA,   "Fifo has not enough data"},
+	{ EC_DATA_TOO_SMALL,         "Data too small"},
+	{ EC_WRONG_VERSION,          "Wrong version"},
+	{ EC_WRONG_SIZE,             "Wrong size"},
+	{ EC_PACKET_ERROR,           "Packet error"},
+	{ EC_FILE_ERROR,             "File error"},
+	{ EC_TRY_LATER,              "Try later"},
+	{ EC_WRONG_PASSWORD,         "Wrong password"},
+	{ EC_UDP_TIMEOUT,            "UDP timeout"},
 	{ 0, NULL },
 };
+static value_string_ext error_code_mapping_ext = VALUE_STRING_EXT_INIT(error_code_mapping);
 
 static const value_string data_type_mapping[] = {
 	{ 2, "short / int"},
@@ -119,49 +121,51 @@ static const value_string data_type_mapping[] = {
 	{ 20, "variant"},
 	{ 0, NULL },
 };
+static value_string_ext data_type_mapping_ext = VALUE_STRING_EXT_INIT(data_type_mapping);
 
-#define I_3PLUS1                       0
-#define I_LOAD_BIN_FILE                4
-#define I_GET_DATA_TYPE              100
-#define I_GET_DATA                     7
-#define I_GET_DATA_SHIFTED_HANDSHAKE 107
-#define I_GET_DATA_SMALL             207
-#define I_SET_DATA                     8
-#define I_SET_DATA_LAST_STATUS       108
-#define I_CREATE_DATA                 10
-#define I_GET_PAR_ALL                 13
-#define I_GET_WORKLOAD                20
-#define I_GET_FIFO                    24
-#define I_GET_FIFO_RETRY             124
-#define I_SET_FIFO                    25
-#define I_SET_FIFO_RETRY             125
-#define I_BOOT                        50
-#define I_GET_ARM_VERSION           1000
-#define I_TEST_VERSION               255
-#define I_GET_MEMORY             1000000
+#define I_3PLUS1                           0
+#define I_LOAD_BIN_FILE                    4
+#define I_GET_DATA                         7
+#define I_SET_DATA                         8
+#define I_CREATE_DATA                     10
+#define I_GET_PAR_ALL                     13
+#define I_GET_WORKLOAD                    20
+#define I_GET_FIFO                        24
+#define I_SET_FIFO                        25
+#define I_BOOT                            50
+#define I_GET_DATA_TYPE                  100
+#define I_GET_DATA_SHIFTED_HANDSHAKE     107
+#define I_SET_DATA_LAST_STATUS           108
+#define I_GET_FIFO_RETRY                 124
+#define I_SET_FIFO_RETRY                 125
+#define I_GET_DATA_SMALL                 207
+#define I_TEST_VERSION                   255
+#define I_GET_ARM_VERSION               1000
+#define I_GET_MEMORY                 1000000
 
 static const value_string instruction_mapping[] = {
 	{ I_3PLUS1,                     "3+1 instruction" },
-	{ I_GET_DATA_TYPE,              "Get data type" },
 	{ I_LOAD_BIN_FILE,              "Load binary file" },
 	{ I_GET_DATA,                   "Get data" },
-	{ I_GET_DATA_SHIFTED_HANDSHAKE, "Get data (shifted handshake)" },
-	{ I_GET_DATA_SMALL,             "Get data (small/fast)" },
 	{ I_SET_DATA,                   "Set data" },
-	{ I_SET_DATA_LAST_STATUS,       "Get status of last set data" },
 	{ I_CREATE_DATA,                "Create data" },
 	{ I_GET_PAR_ALL,                "Get all parameters" },
-	{ I_GET_FIFO,                   "Get fifo" },
-	{ I_GET_FIFO_RETRY,             "Get fifo - retry" },
-	{ I_SET_FIFO,                   "Set fifo" },
-	{ I_SET_FIFO_RETRY,             "Set fifo - retry" },
-	{ I_BOOT,                       "Boot" },
-	{ I_GET_ARM_VERSION,            "Get ARM-Version" },
-	{ I_TEST_VERSION,               "Get/test version information" },
 	{ I_GET_WORKLOAD,               "Get workload"},
+	{ I_GET_FIFO,                   "Get fifo" },
+	{ I_SET_FIFO,                   "Set fifo" },
+	{ I_BOOT,                       "Boot" },
+	{ I_GET_DATA_TYPE,              "Get data type" },
+	{ I_GET_DATA_SHIFTED_HANDSHAKE, "Get data (shifted handshake)" },
+	{ I_SET_DATA_LAST_STATUS,       "Get status of last set data" },
+	{ I_GET_FIFO_RETRY,             "Get fifo - retry" },
+	{ I_SET_FIFO_RETRY,             "Set fifo - retry" },
+	{ I_GET_DATA_SMALL,             "Get data (small/fast)" },
+	{ I_TEST_VERSION,               "Get/test version information" },
+	{ I_GET_ARM_VERSION,            "Get ARM-Version" },
 	{ I_GET_MEMORY,                 "Get memory DSP" },
 	{ 0, NULL },
 };
+static value_string_ext instruction_mapping_ext = VALUE_STRING_EXT_INIT(instruction_mapping);
 
 /* 3+1 instructions */
 #define I_3P1_GET_PAR                     1
@@ -185,22 +189,23 @@ static const value_string instruction_3plus1_mapping[] = {
 	{ I_3P1_GET_PAR,               "Get parameter"},
 	{ I_3P1_START,                 "Start process"},
 	{ I_3P1_STOP,                  "Stop process"},
+	{ I_3P1_GET_MEMORY_INFO,       "Get memory info"},
 	{ I_3P1_SET_PAR,               "Set parameter"},
 	{ I_3P1_CLEAR_DATA,            "Clear data"},
 	{ I_3P1_GET_DATA_LENGTH,       "Get data length"},
 	{ I_3P1_GET_DETAILED_MEM_INFO, "Get detailed memory info"},
 	{ I_3P1_CLEAR_PROCESS,         "Clear process"},
-	{ I_3P1_CLEAR_FIFO,            "Clear fifo"},
-	{ I_3P1_GET_FIFO_EMPTY,        "Get fifo empty"},
-	{ I_3P1_GET_FIFO_COUNT,        "Get fifo full/count"},
-	{ I_3P1_GET_MEMORY_INFO,       "Get memory info"},
 	{ I_3P1_ADC,                   "Get ADC value"},
 	{ I_3P1_DAC,                   "Set DAC value"},
 	{ I_3P1_GET_DIGIN,             "Get digital in"},
 	{ I_3P1_SET_DIGOUT,            "Set digital out"},
 	{ I_3P1_GET_DIGOUT,            "Get digital out"},
+	{ I_3P1_CLEAR_FIFO,            "Clear fifo"},
+	{ I_3P1_GET_FIFO_EMPTY,        "Get fifo empty"},
+	{ I_3P1_GET_FIFO_COUNT,        "Get fifo full/count"},
 	{ 0,               NULL },
 };
+static value_string_ext instruction_3plus1_mapping_ext = VALUE_STRING_EXT_INIT(instruction_3plus1_mapping);
 
 static const value_string parameter_mapping[] = {
 	{ 901 , "Status of Process No. 01"},
@@ -415,6 +420,7 @@ static const value_string parameter_mapping[] = {
 	{10001 , "Stop Timing Analyzer"},
 	{ 0, NULL },
 };
+static value_string_ext parameter_mapping_ext = VALUE_STRING_EXT_INIT(parameter_mapping);
 
 typedef enum {
 	APT_UDPH1_old, APT_UDPH1_new, APT_UDPR1, APT_UDPR2, APT_UDPR3,
@@ -432,26 +438,26 @@ static const value_string packet_type_mapping[] = {
 	{ APT_GDSHR, "GDSHR"},
 	{ 0, NULL },
 };
+static value_string_ext packet_type_mapping_ext = VALUE_STRING_EXT_INIT(packet_type_mapping);
 
 /* add little endian number (incorrect network byte-order) value to a tree */
 #define ADWIN_ADD_LE(tree, field, offset, length)                \
-        proto_tree_add_item(tree, hf_adwin_##field, tvb, offset, \
-                            length, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_adwin_##field, tvb, offset, \
+			    length, ENC_LITTLE_ENDIAN);
 
 /* add big endian number (correct network byte-order) value to a tree */
 #define ADWIN_ADD_BE(tree, field, offset, length)                \
-        proto_tree_add_item(tree, hf_adwin_##field, tvb, offset, \
-                            length, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_adwin_##field, tvb, offset, \
+			    length, ENC_BIG_ENDIAN);
 
 #define SET_PACKET_TYPE(tree, type)                              \
-        proto_tree_add_int(tree, hf_adwin_packet_type, tvb, 0, tvb_length(tvb), type);
+	proto_tree_add_int(tree, hf_adwin_packet_type, tvb, 0, tvb_length(tvb), type);
 
 
 /* Initialize the protocol and registered fields */
 static int proto_adwin                = -1;
 
 static unsigned int global_adwin_udp_port = ADWIN_COMM_PORT;
-static unsigned int udp_port          = 0;
 static int global_adwin_dissect_data  = 1;
 
 static int hf_adwin_address           = -1;
@@ -526,13 +532,13 @@ adwin_request_response_handling(tvbuff_t *tvb, packet_info *pinfo,
 				proto_tree *adwin_tree, guint32 seq_num, adwin_direction_t direction)
 {
 	conversation_t *conversation;
-        adwin_conv_info_t *adwin_info;
-        adwin_transaction_t *adwin_trans;
+	adwin_conv_info_t *adwin_info;
+	adwin_transaction_t *adwin_trans;
 
 	/*
-         * Find or create a conversation for this connection.
-         */
-        conversation = find_or_create_conversation(pinfo);
+	 * Find or create a conversation for this connection.
+	 */
+	conversation = find_or_create_conversation(pinfo);
 
 	/*
 	 * Do we already have a state structure for this conv
@@ -540,7 +546,7 @@ adwin_request_response_handling(tvbuff_t *tvb, packet_info *pinfo,
 	adwin_info = conversation_get_proto_data(conversation, proto_adwin);
 	if (!adwin_info) {
 		/*
-                 * No.  Attach that information to the conversation, and add
+		 * No.  Attach that information to the conversation, and add
 		 * it to the list of information structures.
 		 */
 		adwin_info = se_alloc(sizeof(adwin_conv_info_t));
@@ -609,13 +615,13 @@ dissect_UDPH1_generic(tvbuff_t *tvb, packet_info *pinfo,
 
 	instructionID = tvb_get_letohl(tvb, 0);
 	*info_string = ep_strdup_printf("%s: %s", packet_name,
-				        val_to_str(instructionID, instruction_mapping, "unknown instruction: %d"));
+				        val_to_str_ext(instructionID, &instruction_mapping_ext, "unknown instruction: %d"));
 
 	if (instructionID == I_3PLUS1) {
 		gchar *tmp = *info_string;
 
 		i3plus1code = tvb_get_letohl(tvb, 20);
-		*info_string = ep_strdup_printf("%s: %s", tmp, val_to_str(i3plus1code, instruction_3plus1_mapping, "unknown 3+1 code: %d"));
+		*info_string = ep_strdup_printf("%s: %s", tmp, val_to_str_ext(i3plus1code, &instruction_3plus1_mapping_ext, "unknown 3+1 code: %d"));
 	}
 
 	/* Get the transaction identifier */
@@ -806,7 +812,7 @@ dissect_UDPR1(tvbuff_t *tvb, packet_info *pinfo,
 	guint32 seq_num, status;
 
 	status = tvb_get_letohl(tvb, 0);
-	status_string = match_strval(status, error_code_mapping);
+	status_string = match_strval_ext(status, &error_code_mapping_ext);
 	if (status_string) {
 		*info_string = ep_strdup_printf("UDPR1 Status: %s", status_string);
 	} else {
@@ -840,7 +846,7 @@ dissect_UDPR2(tvbuff_t *tvb, packet_info *pinfo,
 	guint32 i, status, seq_num;
 
 	status = tvb_get_letohl(tvb, 0);
-	status_string = match_strval(status, error_code_mapping);
+	status_string = match_strval_ext(status, &error_code_mapping_ext);
 	if (status_string) {
 	        *info_string = ep_strdup_printf("UDPR2 Status: %s", status_string);
 	} else {
@@ -927,7 +933,7 @@ dissect_UDPR4(tvbuff_t *tvb, packet_info *pinfo,
 	guint32 data_type, i, status, seq_num;
 
 	status = tvb_get_letohl(tvb, 0);
-	status_string = match_strval(status, error_code_mapping);
+	status_string = match_strval_ext(status, &error_code_mapping_ext);
 	if (status_string) {
 		*info_string = ep_strdup_printf("UDPR4 Status: %s", status_string);
 	} else {
@@ -1045,11 +1051,11 @@ dissect_GDSHR(tvbuff_t *tvb, packet_info *pinfo,
 
 	SET_PACKET_TYPE(adwin_tree, APT_GDSHR);
  	ADWIN_ADD_BE(adwin_tree, packet_index,        0,  4);
-  	ADWIN_ADD_BE(adwin_tree, request_no,          4,  4);
-  	ADWIN_ADD_BE(adwin_tree, complete_packets,    8,  4);
-  	ADWIN_ADD_BE(adwin_debug_tree, is_range,     12,  4);
-  	ADWIN_ADD_BE(adwin_debug_tree, packet_start, 16,  4);
-  	ADWIN_ADD_BE(adwin_debug_tree, packet_end,   20,  4);
+ 	ADWIN_ADD_BE(adwin_tree, request_no,          4,  4);
+ 	ADWIN_ADD_BE(adwin_tree, complete_packets,    8,  4);
+ 	ADWIN_ADD_BE(adwin_debug_tree, is_range,     12,  4);
+ 	ADWIN_ADD_BE(adwin_debug_tree, packet_start, 16,  4);
+ 	ADWIN_ADD_BE(adwin_debug_tree, packet_end,   20,  4);
 
 	is_range = tvb_get_ntohl(tvb, 12);
 	packet_start = tvb_get_ntohl(tvb, 16);
@@ -1071,7 +1077,7 @@ dissect_GDSHR(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_text(adwin_tree, tvb, 12, 12,
 				    "GDSH status: unknown code %d", is_range);
 	}
-  	ADWIN_ADD_BE(adwin_debug_tree, unused,       24, 40);
+ 	ADWIN_ADD_BE(adwin_debug_tree, unused,       24, 40);
 }
 
 /* here we determine which type of packet is sent by looking at its
@@ -1224,7 +1230,7 @@ proto_register_adwin(void)
 		},
 		{ &hf_adwin_data_type,
 		  { "Data type", "adwin.data_type",
-		    FT_UINT32, BASE_DEC, data_type_mapping, 0x0,
+		    FT_UINT32, BASE_DEC|BASE_EXT_STRING, &data_type_mapping_ext, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_adwin_data_packet_index,
@@ -1249,7 +1255,7 @@ proto_register_adwin(void)
 		},
 		{ &hf_adwin_instruction,
 		  { "Instruction", "adwin.instruction",
-		    FT_UINT32, BASE_DEC, instruction_mapping, 0x0,
+		    FT_UINT32, BASE_DEC|BASE_EXT_STRING, &instruction_mapping_ext, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_adwin_is_range,
@@ -1259,7 +1265,7 @@ proto_register_adwin(void)
 		},
 		{ &hf_adwin_i3plus1,
 		  { "3+1 Instruction", "adwin.i3plus1",
-		    FT_UINT32, BASE_DEC, instruction_3plus1_mapping, 0x0,
+		    FT_UINT32, BASE_DEC|BASE_EXT_STRING, &instruction_3plus1_mapping_ext, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_adwin_link_addr,
@@ -1279,7 +1285,7 @@ proto_register_adwin(void)
 		},
 		{ &hf_adwin_osys,
 		  { "Operating system", "adwin.osys",
-		    FT_UINT32, BASE_DEC, osys_mapping, 0x0,
+		    FT_UINT32, BASE_DEC|BASE_EXT_STRING, &osys_mapping_ext, 0x0,
 		    "Operating system / environment", HFILL }
 		},
 		{ &hf_adwin_packet_end,
@@ -1304,12 +1310,12 @@ proto_register_adwin(void)
 		},
 		{ &hf_adwin_packet_type,
 		  { "Packet type", "adwin.packet_type",
-		    FT_INT32, BASE_DEC, packet_type_mapping, 0x0,
+		    FT_INT32, BASE_DEC|BASE_EXT_STRING, &packet_type_mapping_ext, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_adwin_parameter,
 		  { "Parameter", "adwin.parameter",
-		    FT_UINT32, BASE_DEC, parameter_mapping, 0x0,
+		    FT_UINT32, BASE_DEC|BASE_EXT_STRING, &parameter_mapping_ext, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_adwin_password,
@@ -1359,7 +1365,7 @@ proto_register_adwin(void)
 		},
 		{ &hf_adwin_status,
 		  { "Status", "adwin.status",
-		    FT_INT32, BASE_DEC, error_code_mapping, 0x0,
+		    FT_INT32, BASE_DEC|BASE_EXT_STRING, &error_code_mapping_ext, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_adwin_timeout,
@@ -1436,6 +1442,7 @@ proto_reg_handoff_adwin(void)
 {
 	static int adwin_prefs_initialized = FALSE;
 	static dissector_handle_t adwin_handle;
+	static unsigned int udp_port;
 
 	if (! adwin_prefs_initialized) {
 		adwin_handle = new_create_dissector_handle(dissect_adwin, proto_adwin);
