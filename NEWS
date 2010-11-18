@@ -18,8 +18,7 @@ What's New
      o Nephi Johnson of BreakingPoint discovered that the LDSS
        dissector could overflow a buffer. (Bug 5318)
 
-       Versions affected: All previous versions up to and including
-       1.2.0 to 1.2.12 and 1.4.0 to 1.4.1.
+       Versions affected: 1.2.0 to 1.2.12 and 1.4.0 to 1.4.1.
 
      o The ZigBee ZCL dissector could go into an infinite loop. (Bug
        5303)
