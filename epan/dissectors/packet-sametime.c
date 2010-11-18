@@ -224,7 +224,7 @@ add_text_item(tvbuff_t *tvb, proto_tree *tree, int offset, int hf)
 	length = tvb_get_ntohs(tvb, offset);
 	if (length)	{
 		/* the string length must not exceed the packet length */
-		if (length > tvb_length_remaining(tvb, offset + 2))
+		if (length > tvb_reported_length_remaining(tvb, offset + 2))
 			return 0;
 
 		/* add string length only if preferences is set */
@@ -390,7 +390,7 @@ dissect_channel_send(tvbuff_t *tvb, proto_tree *tree, int offset)
 		proto_item_append_text(tree, ", %s", val_to_str(awareness, awarenessnames, "0x%04x"));
 		proto_tree_add_item(tree, hf_sametime_channel_awareness, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
-		while (tvb_length_remaining(tvb, offset) > 2)	{
+		while (tvb_reported_length_remaining(tvb, offset) > 2)	{
 			int n = add_text_item(tvb, tree, offset, hf_sametime_field_text);
 			offset += (n) ? n : 1;
 		}
@@ -439,7 +439,7 @@ dissect_channel_send(tvbuff_t *tvb, proto_tree *tree, int offset)
 		break;
 
 	case 0x0005:	/* XML */
-		if (26 <= tvb_length_remaining(tvb, offset + 2))	{
+		if (26 <= tvb_reported_length_remaining(tvb, offset + 2))	{
 			offset += 26;
 			offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
 		}
@@ -448,7 +448,7 @@ dissect_channel_send(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 	case 0x0007:
 		offset += 8;
-		if (4 <= tvb_length_remaining(tvb, offset + 2))	{
+		if (4 <= tvb_reported_length_remaining(tvb, offset + 2))	{
 			offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
 			offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
 			offset += 3;
@@ -476,7 +476,7 @@ static void
 dissect_channel_accept(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	offset += 34;
-	if (tvb_length_remaining(tvb, offset + 2))	{
+	if (tvb_reported_length_remaining(tvb, offset + 2))	{
 		offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
 		if (tvb_get_guint8(tvb, offset))	{
 			offset += 1;
@@ -512,7 +512,7 @@ dissect_sametime_content(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int packet_length, offset = 0;
 
 	/* we expect either 1 heartbeat byte (0x80) or a sametime message */
-	packet_length = tvb_length_remaining(tvb, offset);
+	packet_length = tvb_reported_length_remaining(tvb, offset);
 	if (packet_length == 1)	{
 		message_type = tvb_get_guint8(tvb, 0);
 
@@ -658,7 +658,10 @@ sametime_stats_tree_init(stats_tree* st)
 */
 static guint
 get_sametime_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
-{	guint32 N = tvb_length_remaining(tvb, offset);
+{
+	/* XXX: Actually: the length of the tvb will always be 4 or greater at this point */
+	/*      because tcp_dissect_pdus was called with 4 as a required "fixed length".  */
+	guint32 N = tvb_length_remaining(tvb, offset);
 
 	return (N < 4) ? N : tvb_get_ntohl(tvb, offset) + 4;
 }
@@ -908,6 +911,9 @@ proto_reg_handoff_sametime(void)
 
 	if (!initialized) {
 		sametime_handle = create_dissector_handle(dissect_sametime, proto_sametime);
+		stats_tree_register("sametime", "sametime", "Sametime/Messages", 0,
+				    sametime_stats_tree_packet,
+				    sametime_stats_tree_init, NULL );
 		initialized = TRUE;
 	} else {
 	        dissector_delete("tcp.port", saved_sametime_tcp_port, sametime_handle);
@@ -916,8 +922,5 @@ proto_reg_handoff_sametime(void)
 	dissector_add("tcp.port", global_sametime_port, sametime_handle);
 	saved_sametime_tcp_port = global_sametime_port;
 
-	stats_tree_register("sametime", "sametime", "Sametime/Messages", 0,
-			    sametime_stats_tree_packet,
-			    sametime_stats_tree_init, NULL );
 }
 
