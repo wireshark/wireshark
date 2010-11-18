@@ -330,77 +330,77 @@ void proto_register_ppi_vector(void) {
             FT_UINT32, BASE_HEX, NULL, 0x0, "Bitmask indicating if vector tracks antenna, vehicle, motion, etc", HFILL } },
         { &hf_ppi_vector_rot_x,
           { "Pitch", "ppi_vector.pitch",
-            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Pitch (Rotation x) packet was receivd at", HFILL } },
         { &hf_ppi_vector_rot_y,
           { "Roll", "ppi_vector.roll",
-            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Roll (Rotation y) packet was receivd at", HFILL } },
         { &hf_ppi_vector_rot_z,
           { "Heading", "ppi_vector.heading",
-            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Heading (Rotation z) packet was receivd at", HFILL } },
         { &hf_ppi_vector_off_r,
           { "Off-r", "ppi_vector.off_r",
-            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Offset right", HFILL } },
         { &hf_ppi_vector_off_f,
           { "Off-f", "ppi_vector.off_f",
-            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Offation forward", HFILL } },
         { &hf_ppi_vector_off_u,
           { "Off-u", "ppi_vector.off_u",
-            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Offset up", HFILL } },
         { &hf_ppi_vector_vel_r,
           { "Vel-r", "ppi_vector.vel_r",
-            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Velocity-right", HFILL } },
         { &hf_ppi_vector_vel_f,
           { "Vel-f", "ppi_vector.vel_f",
-            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Velocity-forward", HFILL } },
         { &hf_ppi_vector_vel_u,
           { "Vel-u", "ppi_vector.vel_u",
-            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Velocity-up", HFILL } },
         { &hf_ppi_vector_vel_t,
           { "Vel-t", "ppi_vector.vel_t",
-            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Velocity-Total", HFILL } },
 
         { &hf_ppi_vector_acc_r,
           { "Accel-r", "ppi_vector.acc_r",
-            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Acceleration-right", HFILL } },
         { &hf_ppi_vector_acc_f,
           { "Accel-f", "ppi_vector.acc_f",
-            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Acceleration-forward", HFILL } },
         { &hf_ppi_vector_acc_u,
           { "Accel-u", "ppi_vector.acc_u",
-            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Acceleration-up", HFILL } },
         { &hf_ppi_vector_acc_t,
           { "Accel-t", "ppi_vector.acc_t",
-            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Acceleration-Total", HFILL } },
 
         { &hf_ppi_vector_err_rot,
           { "Err-Rot", "ppi_vector.err_rot",
-            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Rotation margin of error", HFILL } },
         { &hf_ppi_vector_err_off,
           { "Err-Off", "ppi_vector.err_off",
-            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Offset margin of  error", HFILL } },
         { &hf_ppi_vector_err_vel,
           { "Err-Vel", "ppi_vector.err_vel",
-            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Velocity margin of error", HFILL } },
         { &hf_ppi_vector_err_acc,
           { "Err-Accel", "ppi_vector.err_acc",
-            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
             "Acceleration margin of error", HFILL } },
 
         { &hf_ppi_vector_descstr,
@@ -654,7 +654,7 @@ void dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             t_val = tvb_get_letohl(tvb, offset);
             rot_x = fixed3_6_to_gdouble(t_val);
             if (tree) {
-                ti = proto_tree_add_float(ppi_vector_tree, hf_ppi_vector_rot_x, tvb, offset, 4, rot_x);
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_rot_x, tvb, offset, 4, rot_x);
                 if (flags &  PPI_VECTOR_VFLAGS_ROTS_ABSOLUTE)
                     proto_item_append_text(ti, " Degrees (Absolute)");
                 else
@@ -669,7 +669,7 @@ void dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             t_val = tvb_get_letohl(tvb, offset);
             rot_y = fixed3_6_to_gdouble(t_val);
             if (tree) {
-                ti = proto_tree_add_float(ppi_vector_tree, hf_ppi_vector_rot_y, tvb, offset, 4, rot_y);
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_rot_y, tvb, offset, 4, rot_y);
                 if (flags &  PPI_VECTOR_VFLAGS_ROTS_ABSOLUTE)
                     proto_item_append_text(ti, " Degrees (Absolute)");
                 else
@@ -684,7 +684,7 @@ void dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             t_val = tvb_get_letohl(tvb, offset);
             rot_z =  fixed3_6_to_gdouble(t_val);
             if (tree) {
-                ti = proto_tree_add_float(ppi_vector_tree, hf_ppi_vector_rot_z, tvb, offset, 4, rot_z);
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_rot_z, tvb, offset, 4, rot_z);
                 if (flags &  PPI_VECTOR_VFLAGS_ROTS_ABSOLUTE)
                     proto_item_append_text(ti, " Degrees (Absolute) ");
                 else
@@ -699,7 +699,7 @@ void dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             t_val = tvb_get_letohl(tvb, offset);
             off_r = fixed6_4_to_gdouble(t_val);
             if (tree) {
-                ti = proto_tree_add_float(ppi_vector_tree, hf_ppi_vector_off_r, tvb, offset, 4, off_r);
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_off_r, tvb, offset, 4, off_r);
                 if (flags &  PPI_VECTOR_VFLAGS_OFFSETS_FROM_GPS)
                     proto_item_append_text(ti, " m from Curr_GPS");
                 else
@@ -714,7 +714,7 @@ void dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             t_val = tvb_get_letohl(tvb, offset);
             off_f = fixed6_4_to_gdouble(t_val);
             if (tree) {
-                ti = proto_tree_add_float(ppi_vector_tree, hf_ppi_vector_off_f, tvb, offset, 4, off_f);
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_off_f, tvb, offset, 4, off_f);
                 if (flags &  PPI_VECTOR_VFLAGS_OFFSETS_FROM_GPS)
                     proto_item_append_text(ti, " m from Curr_GPS");
                 else
@@ -729,7 +729,7 @@ void dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             t_val = tvb_get_letohl(tvb, offset);
             off_u = fixed6_4_to_gdouble(t_val);
             if (tree) {
-                ti = proto_tree_add_float(ppi_vector_tree, hf_ppi_vector_off_u, tvb, offset, 4, off_u);
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_off_u, tvb, offset, 4, off_u);
                 if (flags &  PPI_VECTOR_VFLAGS_OFFSETS_FROM_GPS)
                     proto_item_append_text(ti, " m from Curr_GPS");
                 else
@@ -744,7 +744,7 @@ void dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             t_val = tvb_get_letohl(tvb, offset);
             vel_r = fixed6_4_to_gdouble(t_val);
             if (tree) {
-                ti = proto_tree_add_float(ppi_vector_tree, hf_ppi_vector_vel_r, tvb, offset, 4, vel_r);
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_vel_r, tvb, offset, 4, vel_r);
                 proto_item_append_text(ti, " m/s");
             }
             offset+=4;
@@ -756,7 +756,7 @@ void dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             t_val = tvb_get_letohl(tvb, offset);
             vel_f = fixed6_4_to_gdouble(t_val);
             if (tree) {
-                ti = proto_tree_add_float(ppi_vector_tree, hf_ppi_vector_vel_f, tvb, offset, 4, vel_f);
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_vel_f, tvb, offset, 4, vel_f);
                 proto_item_append_text(ti, " m/s");
             }
             offset+=4;
@@ -768,7 +768,7 @@ void dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             t_val = tvb_get_letohl(tvb, offset);
             vel_u = fixed6_4_to_gdouble(t_val);
             if (tree) {
-                ti = proto_tree_add_float(ppi_vector_tree, hf_ppi_vector_vel_u, tvb, offset, 4, vel_u);
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_vel_u, tvb, offset, 4, vel_u);
                 proto_item_append_text(ti, " m/s");
             }
             offset+=4;
@@ -780,7 +780,7 @@ void dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             t_val = tvb_get_letohl(tvb, offset);
             vel_t = fixed6_4_to_gdouble(t_val);
             if (tree) {
-                ti = proto_tree_add_float(ppi_vector_tree, hf_ppi_vector_vel_t, tvb, offset, 4, vel_t);
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_vel_t, tvb, offset, 4, vel_t);
                 proto_item_append_text(ti, " m/s");
             }
             offset+=4;
@@ -792,7 +792,7 @@ void dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             t_val = tvb_get_letohl(tvb, offset);
             acc_r = fixed6_4_to_gdouble(t_val);
             if (tree) {
-                ti = proto_tree_add_float(ppi_vector_tree, hf_ppi_vector_acc_r, tvb, offset, 4, acc_r);
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_acc_r, tvb, offset, 4, acc_r);
                 proto_item_append_text(ti, " (m/s)/s");
             }
             offset+=4;
@@ -804,7 +804,7 @@ void dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             t_val = tvb_get_letohl(tvb, offset);
             acc_f = fixed6_4_to_gdouble(t_val);
             if (tree) {
-                ti = proto_tree_add_float(ppi_vector_tree, hf_ppi_vector_acc_f, tvb, offset, 4, acc_f);
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_acc_f, tvb, offset, 4, acc_f);
                 proto_item_append_text(ti, " (m/s)/s");
             }
             offset+=4;
@@ -816,7 +816,7 @@ void dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             t_val = tvb_get_letohl(tvb, offset);
             acc_u = fixed6_4_to_gdouble(t_val);
             if (tree) {
-                ti = proto_tree_add_float(ppi_vector_tree, hf_ppi_vector_acc_u, tvb, offset, 4, acc_u);
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_acc_u, tvb, offset, 4, acc_u);
                 proto_item_append_text(ti, " (m/s)/s");
             }
             offset+=4;
@@ -828,7 +828,7 @@ void dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             t_val = tvb_get_letohl(tvb, offset);
             acc_t = fixed6_4_to_gdouble(t_val);
             if (tree) {
-                ti = proto_tree_add_float(ppi_vector_tree, hf_ppi_vector_acc_t, tvb, offset, 4, acc_t);
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_acc_t, tvb, offset, 4, acc_t);
                 proto_item_append_text(ti, " (m/s)/s");
             }
             offset+=4;
@@ -840,7 +840,7 @@ void dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             t_val = tvb_get_letohl(tvb, offset);
             err_rot  = fixed3_6_to_gdouble(t_val);
             if (tree) {
-                ti = proto_tree_add_float(ppi_vector_tree, hf_ppi_vector_err_rot, tvb, offset, 4, err_rot);
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_rot, tvb, offset, 4, err_rot);
                 proto_item_append_text(ti, " degrees");
             }
             offset+=4;
@@ -852,7 +852,7 @@ void dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             t_val = tvb_get_letohl(tvb, offset);
             err_off  = fixed6_4_to_gdouble(t_val);
             if (tree) {
-                ti = proto_tree_add_float(ppi_vector_tree, hf_ppi_vector_err_off, tvb, offset, 4, err_off);
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_off, tvb, offset, 4, err_off);
                 proto_item_append_text(ti, " meters");
             }
             offset+=4;
@@ -864,7 +864,7 @@ void dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             t_val = tvb_get_letohl(tvb, offset);
             err_vel  = fixed6_4_to_gdouble(t_val);
             if (tree) {
-                ti = proto_tree_add_float(ppi_vector_tree, hf_ppi_vector_err_vel, tvb, offset, 4, err_vel);
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_vel, tvb, offset, 4, err_vel);
                 proto_item_append_text(ti, "m/s");
             }
             offset+=4;
@@ -876,7 +876,7 @@ void dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             t_val = tvb_get_letohl(tvb, offset);
             err_acc  = fixed6_4_to_gdouble(t_val);
             if (tree) {
-                ti = proto_tree_add_float(ppi_vector_tree, hf_ppi_vector_err_acc, tvb, offset, 4, err_acc);
+                ti = proto_tree_add_double(ppi_vector_tree, hf_ppi_vector_err_acc, tvb, offset, 4, err_acc);
                 proto_item_append_text(ti, " (m/s)/s");
             }
             offset+=4;
