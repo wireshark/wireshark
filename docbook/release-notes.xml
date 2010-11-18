@@ -39,19 +39,21 @@ Wireshark Info
 
         <listitem>
           <para>
-            The Penetration Test Team of NCNIPC (China) discovered that the
-            ASN.1 BER dissector was susceptible to a stack overflow.
-            <!-- Fixed in trunk: r34111 -->
-            <!-- Fixed in trunk-1.4: r34414 -->
-            <!-- Fixed in trunk-1.2: r34441 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5230">Bug
-            5230</ulink>)
+            Nephi Johnson of BreakingPoint discovered that the LDSS dissector
+            could overflow a buffer.
+            <!-- Fixed in trunk: r34581 -->
+            <!-- Fixed in trunk-1.4: r34889 -->
+            <!-- Fixed in trunk-1.2: r????? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5318">Bug
+            5318</ulink>)
           </para>
           <para>Versions affected: All previous versions up to and including
-          1.2.11 and 1.4.1.</para>
+          1.2.12 and 1.4.1.</para>
+<!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
           </para>
+-->
         </listitem>
 
       </itemizedlist>
@@ -108,10 +110,8 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
     <para>
 
-ASN.1 BER,
-GTP,
-IPv4,
-RPC
+BOOTP,
+LDSS,
 
     </para>
     </section>
