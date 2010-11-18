@@ -299,6 +299,10 @@ static gboolean need_timeout_workaround;
  * in OS X 10.6, 10.6.1, 10.6.3, and 10.6.4, so we always use a timeout
  * of 250ms, i.e. the same value as CAP_READ_TIMEOUT when not on one
  * of the offending versions of Snow Leopard.
+ *
+ * On Windows this value is converted to milliseconds and passed to
+ * WaitForSingleObject. If it's less than 1000 WaitForSingleObject
+ * will return immediately.
  */
 #ifndef USE_THREADS
 #define PIPE_READ_TIMEOUT   250000
