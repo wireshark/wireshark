@@ -1152,6 +1152,7 @@ static const char *ui_desc_menubar =
 "    <menu name= 'GoMenu' action='/Go'>\n"
 "      <menuitem name='Back' action='/Go/Back'/>\n"
 "      <menuitem name='Forward' action='/Go/Forward'/>\n"
+"      <menuitem name='Goto' action='/Go/Goto'/>\n"
 "      <menuitem name='GotoCorrespondingPacket' action='/Go/GotoCorrespondingPacket'/>\n"
 "      <separator/>\n"
 "      <menuitem name='PreviousPacket' action='/Go/PreviousPacket'/>\n"
@@ -1483,8 +1484,19 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 
 
    { "/Go/Back",					GTK_STOCK_GO_BACK,		"_Back",							"<alt>Left",					NULL,				G_CALLBACK(history_back_cb) },
-   { "/Go/Forward",					GTK_STOCK_JUMP_TO,		"_Forward",							"<control>G",					NULL,				G_CALLBACK(goto_frame_cb) },
+   { "/Go/Forward",					GTK_STOCK_GO_FORWARD,	"_Forward",							"<alt>Right",					NULL,				G_CALLBACK(history_forward_cb) },
+   { "/Go/Goto",					GTK_STOCK_JUMP_TO,		"_Go to Packet...",					"<control>G",					NULL,				G_CALLBACK(goto_frame_cb) },
    { "/Go/GotoCorrespondingPacket",	NULL,					"Go to _Corresponding Packet",		NULL,							NULL,				G_CALLBACK(goto_framenum_cb) },
+   /*
+    {"/Go/_Back", "<alt>Left",
+                             GTK_MENU_FUNC(history_back_cb), 0, "<StockItem>", GTK_STOCK_GO_BACK,},
+    {"/Go/_Forward", "<alt>Right",
+                             GTK_MENU_FUNC(history_forward_cb), 0, "<StockItem>", GTK_STOCK_GO_FORWARD,},
+    {"/Go/_Go to Packet...", "<control>G",
+                             GTK_MENU_FUNC(goto_frame_cb), 0, "<StockItem>", GTK_STOCK_JUMP_TO,},
+    {"/Go/Go to _Corresponding Packet", NULL, GTK_MENU_FUNC(goto_framenum_cb),
+                       0, NULL, NULL,},
+*/
 
    { "/Go/PreviousPacket",			GTK_STOCK_GO_UP,		"Previous Packet",					"<control>Up",					NULL,				G_CALLBACK(goto_previous_frame_cb) },
    { "/Go/NextPacket",				GTK_STOCK_GO_DOWN,		"Next Packet",						"<control>Down",				NULL,				G_CALLBACK(goto_next_frame_cb) },
