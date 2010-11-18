@@ -1,4 +1,4 @@
-Wireshark 1.2.12 Release Notes
+Wireshark 1.2.13 Release Notes
 
    ------------------------------------------------------------------
 
@@ -15,22 +15,22 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o The Penetration Test Team of NCNIPC (China) discovered that
-       the ASN.1 BER dissector was susceptible to a stack overflow.
-       (Bug 5230)
+     o Nephi Johnson of BreakingPoint discovered that the LDSS
+       dissector could overflow a buffer. (Bug 5318)
 
        Versions affected: All previous versions up to and including
-       1.2.11 and 1.4.1.
-
-       CVE-2010-????
+       1.2.12 and 1.4.1.
 
    The following bugs have been fixed:
 
-     o ERROR:capture.c:141:capture_start: assertion failed:
-       (capture_opts->state == CAPTURE_STOPPED). (Bug 5126)
+     o File-Open Display Filter is overwritten by Save-As Filename.
+       (Bug 3894)
 
-     o GTP header is exported in PDML with an incorrect size. (Bug
-       5162)
+     o GTK-ERROR can occur in packets when there are multiple
+       Netbios/SMB headers in a single frame. (Bug 5289)
+
+     o IO Graph Time of Day times incorrect for filtered data. (Bug
+       5340)
 
   New and Updated Features
 
@@ -42,7 +42,7 @@ What's New
 
   Updated Protocol Support
 
-   ASN.1 BER, GTP, IPv4, RPC
+   BOOTP, LDSS
 
   Updated Capture File Support
 
