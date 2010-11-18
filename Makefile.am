@@ -146,6 +146,7 @@ radius_DATA = \
 	radius/dictionary.cosine  \
 	radius/dictionary.dhcp \
 	radius/dictionary.digium \
+	radius/dictionary.eltex \
 	radius/dictionary.epygi \
 	radius/dictionary.ericsson  \
 	radius/dictionary.erx  \

@@ -1,0 +1,22 @@
+#
+# dictionary.eltex
+#
+#		$Id$
+#
+
+VENDOR		Eltex Enterprise, Ltd.		35265
+
+ATTRIBUTE	Eltex-AVPair			1	string		Eltex
+ATTRIBUTE	Disconnect-Code-Local		11	integer		Eltex
+
+VALUE		Disconnect-Code-Local		User-Answer			1
+VALUE		Disconnect-Code-Local		Incomplete-Number		2
+VALUE		Disconnect-Code-Local		Unassigned-Number		3
+VALUE		Disconnect-Code-Local		Unsuccesfull-Other-Cause	4
+VALUE		Disconnect-Code-Local		User-Busy			5
+VALUE		Disconnect-Code-Local		Out-of-Order			6
+VALUE		Disconnect-Code-Local		No-Answer			7
+VALUE		Disconnect-Code-Local		Unavailable-Trunk		8
+VALUE		Disconnect-Code-Local		Access-Denied			9
+VALUE		Disconnect-Code-Local		Unavailable-Voice-Channel	10
+VALUE		Disconnect-Code-Local		RADIUS-Server-Unavailable	11
