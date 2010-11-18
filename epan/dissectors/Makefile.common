@@ -750,6 +750,10 @@ DISSECTOR_SRC = \
 	packet-portmap.c	\
 	packet-pgsql.c		\
 	packet-ppi.c		\
+	packet-ppi-antenna.c	\
+	packet-ppi-geolocation-common.c	\
+	packet-ppi-gps.c	\
+	packet-ppi-vector.c	\
 	packet-ppp.c		\
 	packet-pppoe.c		\
 	packet-pptp.c		\
@@ -1208,6 +1212,7 @@ DISSECTOR_INCLUDES =	\
 	packet-pktc.h	\
 	packet-portmap.h	\
 	packet-ppi.h		\
+	packet-ppi-geolocation-common.h		\
 	packet-ppp.h	\
 	packet-pres.h	\
 	packet-pw-atm.h		\
