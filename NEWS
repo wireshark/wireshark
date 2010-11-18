@@ -1,4 +1,4 @@
-Wireshark 1.4.1 Release Notes
+Wireshark 1.4.2 Release Notes
 
    ------------------------------------------------------------------
 
@@ -15,92 +15,66 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o The Penetration Test Team of NCNIPC (China) discovered that
-       the ASN.1 BER dissector was susceptible to a stack overflow.
-       (Bug 5230)
+     o Nephi Johnson of BreakingPoint discovered that the LDSS
+       dissector could overflow a buffer. (Bug 5318)
 
        Versions affected: All previous versions up to and including
-       1.2.11 and 1.4.1.
+       1.2.12 and 1.4.1.
 
-       CVE-2010-????
+     o The ZigBee ZCL dissector could go into an infinite loop. (Bug
+       5303)
+
+       Versions affected: ?.
 
    The following bugs have been fixed:
 
-     o Wireshark may appear offscreen on multi-monitor Windows
-       systems. (Bug 553)
+     o File-Open Display Filter is overwritten by Save-As Filename.
+       (Bug 3894)
 
-     o Incorrect behavior using sorting in the packet list. (Bug
-       2225)
+     o Wireshark crashes with "Gtk-ERROR **: Byte index 6 is off the
+       end of the line" if click on last PDU. (Bug 5285)
 
-     o Cooked-capture dissector should omit the source address field
-       if empty. (Bug 2519)
+     o GTK-ERROR can occur in packets when there are multiple
+       Netbios/SMB headers in a single frame. (Bug 5289)
 
-     o MySQL dissector doesn't dissect MySQL stream. (Bug 2691)
+     o "Tshark -G values" crashes on Windows. (Bug 5296)
 
-     o Wireshark crashes if active display filter macro is renamed.
-       (Bug 5002)
+     o PROFINET I&M0FilterData packet not fully decoded. (Bug 5299)
 
-     o Incorrect dissection of MAP V2 PRN_ACK. (Bug 5076)
+     o PROFINET MRP linkup/linkdown decoding incorrect. (Bug 5300)
 
-     o TCP bytes_in_flight becomes inflated with lost packets. (Bug
-       5132)
+     o [lua] Dumper:close() will cause a segfault due later GC of the
+       Dumper. (Bug 5320)
 
-     o Wireshark fails to start on Windows XP 64bit. (Bug 5160)
+     o Network Instruments' trace files sometimes cannot be read with
+       an error message of "Observer: bad record: Invalid magic
+       number". (Bug 5330)
 
-     o GTP header is exported in PDML with an incorrect size. (Bug
-       5162)
+     o IO Graph Time of Day times incorrect for filtered data. (Bug
+       5340)
 
-     o Packet list hidden columns will not be parsed correctly from
-       preferences file. (Bug 5163)
+     o Wireshark tools do not detect and read some ERF files
+       correctly. (Bug 5344)
 
-     o Wireshark does not display the t.38 graph. (Bug 5165)
+     o "editcap -h" sends some lines to stderr and others to stdout.
+       (Bug 5353)
 
-     o Wireshark don't show mgcp calls in "Telephony → VoIP calls".
-       (Bug 5167)
+     o IP Timestamp Option: "flag=3" variant (prespecified) not
+       displayed correctly. (Bug 5357)
 
-     o Wireshark 1.4.0 & VoIP calls "Prepare Filter" problem. (Bug
-       5172)
+     o AgentX PDU Header 'hex field highlighting' incorrectly spans
+       extra bytes. (Bug 5364)
 
-     o GTPv2: IMSI is decoded improperly. (Bug 5179)
+     o AgentX dissector cannot handle null OID in Open-PDU. (Bug
+       5368)
 
-     o [NAS EPS] EPS Quality of Service IE decoding is wrong. (Bug
-       5186)
+     o Crash with "Gtk-ERROR **: Byte index 6 is off the end of the
+       line". (Bug 5374)
 
-     o Wireshark mistakenly writes "not all data available" for IPv4
-       checksum. (Bug 5194)
+     o ANCP Portmanagment TLV wrong decoded. (Bug 5388)
 
-     o GSM: Cell Channel Description, range 1024 format. (Bug 5214)
-
-     o Wrong SDP interpretation on VoIP call flow chart. (Bug 5220)
-
-     o The CLDAP attribute value on a CLDAP reply is no longer being
-       decoded. (Bug 5239)
-
-     o [NAS EPS] Traffic Flow Template IE dissection bugs. (Bug 5243)
-
-     o [NAS EPS] Use Request Type IE defined in 3GPP 24.008. (Bug
-       5246)
-
-     o NTLMSSP_AUTH domain and username truncated to first letter
-       with IE8/Windows7 (generating the NTLM packet). (Bug 5251)
-
-     o IPv6 RH0: dest addr is to be used i.s.o. last RH address when
-       0 segments remain. (Bug 5252)
-
-     o EIGRP dissection error in Flags field in external route TLVs.
-       (Bug 5261)
-
-     o MRP packet is not correctly parsed in PROFINET multiple write
-       record request. (Bug 5267)
-
-     o MySQL Enhancement: support of Show Fields and bug fix. (Bug
-       5271)
-
-     o [NAS EPS] Fix TFT decoding when having several Packet Filters
-       defined. (Bug 5274)
-
-     o Crash if using ssl.debug.file with no password for
-       ssl.keys_list. (Bug 5277)
+     o Crash during startup because of Python SyntaxError in
+       wspy_libws.py. (Bug 5389)
 
   New and Updated Features
 
@@ -112,13 +86,12 @@ What's New
 
   Updated Protocol Support
 
-   ASN.1 BER, ASN.1 PER, EIGRP, GSM A RR, GSM Management, GSM MAP,
-   GTP, GTPv2, ICMPv6, Interlink, IPv4, IPv6, IPX, LDAP, LLC, MySQL,
-   NAS EPS, NTLMSSP, PN-IO, PPP, RPC, SDP, SLL, SSL, TCP
+   AgentX, ANCP, DIAMETER, HTTP, IP, LDSS, MIME, NBNS, PROFINET, SIP,
+   TCP, Telnet, ZigBee
 
   New and Updated Capture File Support
 
-   There are no new or updated capture file formats in this release.
+   Endace ERF, Network Instruments Observer.
 
 Getting Wireshark
 

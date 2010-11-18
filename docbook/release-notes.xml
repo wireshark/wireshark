@@ -42,7 +42,7 @@ Wireshark Info
             could overflow a buffer.
             <!-- Fixed in trunk: r34581 -->
             <!-- Fixed in trunk-1.4: r34889 -->
-            <!-- Fixed in trunk-1.2: r????? -->
+            <!-- Fixed in trunk-1.2: r34941 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5318">Bug
             5318</ulink>)
           </para>
@@ -60,7 +60,6 @@ Wireshark Info
             The ZigBee ZCL dissector could go into an infinite loop.
             <!-- Fixed in trunk: r34575 -->
             <!-- Fixed in trunk-1.4: r34889 -->
-            <!-- Fixed in trunk-1.2: r????? -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5303">Bug
             5303</ulink>)
           </para>
