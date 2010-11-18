@@ -284,6 +284,12 @@ gtk_version=`pkg-config --variable=gtk_binary_version gtk+-2.0`
 mkdir -p $pkglib/gtk-2.0/$gtk_version/{engines,immodules,loaders}
 cp -r $LIBPREFIX/lib/gtk-2.0/$gtk_version/* $pkglib/gtk-2.0/$gtk_version/
 
+gdk_pixbuf_version=`pkg-config --variable=gdk_pixbuf_binary_version gdk-pixbuf-2.0`
+if [ ! -z $gdk_pixbuf_version ]; then
+	mkdir -p $pkglib/gdk-pixbuf-2.0/$gdk_pixbuf_version/loaders
+	cp -r $LIBPREFIX/lib/gdk-pixbuf-2.0/$gdk_pixbuf_version/loaders/* $pkglib/gdk-pixbuf-2.0/$gdk_pixbuf_version/loaders
+fi
+
 # Find out libs we need from fink, darwinports, or from a custom install
 # (i.e. $LIBPREFIX), then loop until no changes.
 a=1
@@ -294,6 +300,7 @@ lib_dep_search_list="
 	$pkglib/gtk-2.0/$gtk_version/immodules/*
 	$pkglib/gtk-2.0/$gtk_version/engines/*.so
 	$pkglib/pango/$pango_version/modules/*
+	$pkglib/gdk-pixbuf-2.0/$gdk_pixbuf_version/loaders/*
 	$package/Contents/Resources/lib/*
 	$pkgbin/*-bin
 	"
