@@ -66,10 +66,10 @@ void proto_reg_handoff_ipdc(void);
 static guint
 get_ipdc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-        /* lower 10 bits only */
-        guint raw_len = (tvb_get_ntohs(tvb,offset+2) & 0x03FF);
+	/* lower 10 bits only */
+	guint raw_len = (tvb_get_ntohs(tvb,offset+2) & 0x03FF);
 
-        return raw_len + 4;
+	return raw_len + 4;
 }
 
 static void
@@ -94,16 +94,16 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	gshort nr = tvb_get_guint8(tvb,0);
 	gshort ns = tvb_get_guint8(tvb,1);
-        guint payload_len = get_ipdc_pdu_len(pinfo,tvb,0);
+	guint payload_len = get_ipdc_pdu_len(pinfo,tvb,0);
 
-        gshort protocol_id;
-        gshort trans_id_size;
-        guint32 trans_id;
-        guint16 message_code;
-        guint16 offset;
+	gshort protocol_id;
+	gshort trans_id_size;
+	guint32 trans_id;
+	guint16 message_code;
+	guint16 offset;
 
-        /* display IPDC protocol ID */
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPDC");
+	/* display IPDC protocol ID */
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPDC");
 
 	/* short frame... */
 	if (payload_len < 4)
@@ -123,11 +123,11 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (!tree)
 			return;
 
-	        ti = proto_tree_add_item(tree, proto_ipdc, tvb, 0, -1, FALSE);
-       		ipdc_tree = proto_item_add_subtree(ti, ett_ipdc);
+		ti = proto_tree_add_item(tree, proto_ipdc, tvb, 0, -1, FALSE);
+		ipdc_tree = proto_item_add_subtree(ti, ett_ipdc);
 		proto_tree_add_item(ipdc_tree, hf_ipdc_nr, tvb, 0, 1, nr);
-        	proto_tree_add_item(ipdc_tree, hf_ipdc_ns, tvb, 1, 1, ns);
-        	proto_tree_add_uint(ipdc_tree, hf_ipdc_payload_len, tvb, 2, 2,
+		proto_tree_add_item(ipdc_tree, hf_ipdc_ns, tvb, 1, 1, ns);
+		proto_tree_add_uint(ipdc_tree, hf_ipdc_payload_len, tvb, 2, 2,
 			payload_len);
 
 		return;
@@ -135,17 +135,17 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* IPDC tags present - display message code and trans. ID */
 	protocol_id = tvb_get_guint8(tvb,4);
-        trans_id_size = TRANS_ID_SIZE_IPDC; /* tvb_get_guint8(tvb,5); */
-       	trans_id = tvb_get_ntohl(tvb,6);
-       	message_code = tvb_get_ntohs(tvb,6+trans_id_size);
-       	offset = 6 + trans_id_size + 2; /* past message_code */
+	trans_id_size = TRANS_ID_SIZE_IPDC; /* tvb_get_guint8(tvb,5); */
+	trans_id = tvb_get_ntohl(tvb,6);
+	message_code = tvb_get_ntohs(tvb,6+trans_id_size);
+	offset = 6 + trans_id_size + 2; /* past message_code */
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-       		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"TID=%x %s ",
-                        trans_id,
-                        val_to_str(message_code, message_code_vals,
-                        TEXT_UNDEFINED));
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+				"TID=%x %s ",
+				trans_id,
+				val_to_str(message_code, message_code_vals,
+					   TEXT_UNDEFINED));
 
 
 	ti = proto_tree_add_item(tree, proto_ipdc, tvb, 0, -1, FALSE);
@@ -170,7 +170,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tag_tree = proto_item_add_subtree(ipdc_tag, ett_ipdc_tag);
 
 	/* iterate through tags. first byte is tag, second is length,
-           in bytes, following is tag data. tag of 0x0 should be
+	   in bytes, following is tag data. tag of 0x0 should be
 	   end of tags. */
 	for (;;) {
 		tag = tvb_get_guint8(tvb, offset);
@@ -188,7 +188,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		len = tvb_get_guint8(tvb,offset+1);
-		des = val_to_str(tag, tag_description, TEXT_UNDEFINED);
+		des = val_to_str_ext(tag, &tag_description_ext, TEXT_UNDEFINED);
 		/* lookup tag type */
 		for (i = 0; (ipdc_tag_types[i].tag != tag &&
 			ipdc_tag_types[i].type != IPDC_UNKNOWN); i++)
@@ -218,9 +218,9 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				if (len == 1)
 					enum_val =
-						val_to_str(IPDC_TAG(tag) +
+						val_to_str_ext(IPDC_TAG(tag) +
 						tmp_tag,
-						tag_enum_type, TEXT_UNDEFINED);
+						&tag_enum_type_ext, TEXT_UNDEFINED);
 
 				if (len == 1 &&
 					strcmp(enum_val, TEXT_UNDEFINED) != 0) {
@@ -265,7 +265,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						g_snprintf(tmp_tag_text,
 						IPDC_STR_LEN,
 						"Invalid IP address length %u",
-                                       		 len);
+						len);
 				}
 
 				proto_tree_add_text(tag_tree, tvb,

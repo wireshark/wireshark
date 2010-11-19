@@ -15,12 +15,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -44,7 +44,7 @@ typedef enum {
 	IPDC_CHANNELSTATUS,
 	IPDC_Q931,
 	IPDC_ENCTYPE
-} ipdc_tag_type; 
+} ipdc_tag_type;
 
 static const value_string encoding_type_vals[] = {
 	{ 0x00, "PCMU (G.711 mu-law)" },
@@ -81,66 +81,67 @@ static const value_string channel_status_vals[] = {
 	{ 0, NULL }
 };
 
+/* XXX: Note duplicate values in the following ?? */
 static const value_string message_code_vals[] = {
-	{ 0x0082, "SS -> GW: ASUP: Acknowledgment to NSUP" },
-	{ 0x0084, "SS -> GW: LNK: Link Active" },
-	{ 0x0087, "SS -> GW: RCGST: Request Congestion Status" },
-	{ 0x00FF, "SS -> GW: MRJ: Message reject." },
-	{ 0x0041, "SS -> GW: RMS: Request module status" },
-	{ 0x0043, "SS -> GW: RLS: Request line status" },
-	{ 0x0045, "SS -> GW: RCS: Request channel status" },
-	{ 0x0051, "SS -> GW: SMS: Set a module to a given state" },
-	{ 0x0053, "SS -> GW: SLS: Set a line to a given state" },
-	{ 0x0055, "SS -> GW: SCS: Set a group of channels to a given state" },
-	{ 0x0047, "SS -> GW: RRS: Request RTP port Status" },
-	{ 0x0048, "SS -> GW: RARS: Request All RTP port Status" },
-	{ 0x0091, "SS -> GW: RSI: Request system information" },
-	{ 0x0001, "SS -> GW: RCSI: Request inbound call setup" },
-	{ 0x0009, "SS -> GW: RCST: Request pass-through call setup (TDM connection between two channels)" },
-	{ 0x0013, "SS -> GW: RCCP: Request packet call setup" },
-	{ 0x0015, "SS -> GW: RMPC: Modify/Query request packet call" },
-	{ 0x0011, "SS -> GW: RCR: Release channel request" },
-	{ 0x0012, "SS -> GW: ACR: Release channel complete" },
-	{ 0x0061, "SS -> GW: PCT: Prepare channel for continuity test" },
-	{ 0x0063, "SS -> GW: SCT: Start continuity test procedure with far end as loopback (Generate tone and check for received tone)" },
-	{ 0x0073, "SS -> GW: STN: Send tones" },
-	{ 0x0071, "SS -> GW: LTN: Listen for tones" },
-	{ 0x007D, "SS -> GW: RTE: Request Test Echo" },
-	{ 0x007E, "SS -> GW: ARTE: Response to Request Test Echo" },
-	{ 0x0079, "SS -> GW: NATV: Native Mode Q.931 Signaling Transport" },
-	{ 0x007A, "SS -> GW: TUNL: Tunneled Transport of signaling protocol data units" },
-	{ 0x0081, "GW -> SS: NSUP: Notify the soft switch that the GW is coming up" },
-	{ 0x0083, "GW -> SS: NSDN: Indication that the GW is going down" },
-	{ 0x0085, "GW -> SS: ALNK: Acknowledgement to Link Active" },
-	{ 0x0086, "GW -> SS: SLNK: Link Status" },
-	{ 0x0088, "GW -> SS: CGST: Congestion Status" },
-	{ 0x00FF, "GW -> SS: MRJ: Message reject." },
-	{ 0x0042, "GW -> SS: NMS: Notify module status" },
-	{ 0x0044, "GW -> SS: NLS: Notify line status" },
-	{ 0x0046, "GW -> SS: NCS: Notify channel status" },
-	{ 0x0056, "GW -> SS: RSCS: Response to SCS" },
-	{ 0x0049, "GW -> SS: NRS: Notify RTP port Status" },
-	{ 0x004A, "GW -> SS: NARS: Notify All RTP port Status" },
-	{ 0x0092, "GW -> SS: NSI: Notify System Information" },
-	{ 0x0002, "GW -> SS: ACSI: Accept inbound call setup" },
-	{ 0x0003, "GW -> SS: CONI: Connect inbound call (answer)" },
-	{ 0x0014, "GW -> SS: ACCP: Accept packet call setup" },
-	{ 0x0016, "GW -> SS: AMPC: Accept modify to packet call" },
-	{ 0x000A, "GW -> SS: ACST: Accept pass-through call" },
-	{ 0x0011, "GW -> SS: RCR: Release channel request" },
-	{ 0x0012, "GW -> SS: ACR: Release channel complete" },
-	{ 0x0062, "GW -> SS: APCT: Response to PCT" },
-	{ 0x0064, "GW -> SS: ASCT: Continuity test result" },
-	{ 0x0074, "GW -> SS: ASTN: Completion result of STN command" },
-	{ 0x0072, "GW -> SS: ALTN: Response to Listen for tones" },
-	{ 0x00F0, "GW -> SS: NTN: Notify ToNe" },
-	{ 0x007D, "GW -> SS: RTE: Request Test Echo" },
-	{ 0x007E, "GW -> SS: ARTE: Response to Request Test Echo" },
-	{ 0x0079, "GW -> SS: NATV: Native Mode Q.931 Signaling Transport" },
-	{ 0x007A, "GW -> SS: TUNL: Tunneled Transport of signaling protocol data units" },
-	{ 0x0005, "TD -> SS: RCSO: Request outbound call setup" },
-	{ 0x0006, "SS -> TD: ACSO: Accept outbound call setup" },
-	{ 0x0007, "SS -> TD: CONO: Outbound call connected" },
+        { 0x0082, "SS -> GW: ASUP: Acknowledgment to NSUP" },
+        { 0x0084, "SS -> GW: LNK: Link Active" },
+        { 0x0087, "SS -> GW: RCGST: Request Congestion Status" },
+        { 0x00FF, "SS -> GW: MRJ: Message reject." },
+        { 0x0041, "SS -> GW: RMS: Request module status" },
+        { 0x0043, "SS -> GW: RLS: Request line status" },
+        { 0x0045, "SS -> GW: RCS: Request channel status" },
+        { 0x0051, "SS -> GW: SMS: Set a module to a given state" },
+        { 0x0053, "SS -> GW: SLS: Set a line to a given state" },
+        { 0x0055, "SS -> GW: SCS: Set a group of channels to a given state" },
+        { 0x0047, "SS -> GW: RRS: Request RTP port Status" },
+        { 0x0048, "SS -> GW: RARS: Request All RTP port Status" },
+        { 0x0091, "SS -> GW: RSI: Request system information" },
+        { 0x0001, "SS -> GW: RCSI: Request inbound call setup" },
+        { 0x0009, "SS -> GW: RCST: Request pass-through call setup (TDM connection between two channels)" },
+        { 0x0013, "SS -> GW: RCCP: Request packet call setup" },
+        { 0x0015, "SS -> GW: RMPC: Modify/Query request packet call" },
+        { 0x0011, "SS -> GW: RCR: Release channel request" },
+        { 0x0012, "SS -> GW: ACR: Release channel complete" },
+        { 0x0061, "SS -> GW: PCT: Prepare channel for continuity test" },
+        { 0x0063, "SS -> GW: SCT: Start continuity test procedure with far end as loopback (Generate tone and check for received tone)" },
+        { 0x0073, "SS -> GW: STN: Send tones" },
+        { 0x0071, "SS -> GW: LTN: Listen for tones" },
+        { 0x007D, "SS -> GW: RTE: Request Test Echo" },
+        { 0x007E, "SS -> GW: ARTE: Response to Request Test Echo" },
+        { 0x0079, "SS -> GW: NATV: Native Mode Q.931 Signaling Transport" },
+        { 0x007A, "SS -> GW: TUNL: Tunneled Transport of signaling protocol data units" },
+        { 0x0081, "GW -> SS: NSUP: Notify the soft switch that the GW is coming up" },
+        { 0x0083, "GW -> SS: NSDN: Indication that the GW is going down" },
+        { 0x0085, "GW -> SS: ALNK: Acknowledgement to Link Active" },
+        { 0x0086, "GW -> SS: SLNK: Link Status" },
+        { 0x0088, "GW -> SS: CGST: Congestion Status" },
+        { 0x00FF, "GW -> SS: MRJ: Message reject." },
+        { 0x0042, "GW -> SS: NMS: Notify module status" },
+        { 0x0044, "GW -> SS: NLS: Notify line status" },
+        { 0x0046, "GW -> SS: NCS: Notify channel status" },
+        { 0x0056, "GW -> SS: RSCS: Response to SCS" },
+        { 0x0049, "GW -> SS: NRS: Notify RTP port Status" },
+        { 0x004A, "GW -> SS: NARS: Notify All RTP port Status" },
+        { 0x0092, "GW -> SS: NSI: Notify System Information" },
+        { 0x0002, "GW -> SS: ACSI: Accept inbound call setup" },
+        { 0x0003, "GW -> SS: CONI: Connect inbound call (answer)" },
+        { 0x0014, "GW -> SS: ACCP: Accept packet call setup" },
+        { 0x0016, "GW -> SS: AMPC: Accept modify to packet call" },
+        { 0x000A, "GW -> SS: ACST: Accept pass-through call" },
+        { 0x0011, "GW -> SS: RCR: Release channel request" },
+        { 0x0012, "GW -> SS: ACR: Release channel complete" },
+        { 0x0062, "GW -> SS: APCT: Response to PCT" },
+        { 0x0064, "GW -> SS: ASCT: Continuity test result" },
+        { 0x0074, "GW -> SS: ASTN: Completion result of STN command" },
+        { 0x0072, "GW -> SS: ALTN: Response to Listen for tones" },
+        { 0x00F0, "GW -> SS: NTN: Notify ToNe" },
+        { 0x007D, "GW -> SS: RTE: Request Test Echo" },
+        { 0x007E, "GW -> SS: ARTE: Response to Request Test Echo" },
+        { 0x0079, "GW -> SS: NATV: Native Mode Q.931 Signaling Transport" },
+        { 0x007A, "GW -> SS: TUNL: Tunneled Transport of signaling protocol data units" },
+        { 0x0005, "TD -> SS: RCSO: Request outbound call setup" },
+        { 0x0006, "SS -> TD: ACSO: Accept outbound call setup" },
+        { 0x0007, "SS -> TD: CONO: Outbound call connected" },
 	{ 0, NULL }
 };
 
@@ -250,6 +251,7 @@ static const value_string tag_description[] = {
 	{ 0xFE, "Q.850 Cause code" },
 	{ 0, NULL }
 };
+static value_string_ext tag_description_ext = VALUE_STRING_EXT_INIT(tag_description);
 
 typedef struct _ipdc_tag_type_val {
 	gint	tag;
@@ -653,3 +655,4 @@ static const value_string tag_enum_type[] = {
 	{ IPDC_TAG(0xc1) + 0x15, "Brazil" },
 	{ 0, NULL }
 };
+static value_string_ext tag_enum_type_ext = VALUE_STRING_EXT_INIT(tag_enum_type);
