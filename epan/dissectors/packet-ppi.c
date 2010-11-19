@@ -8,8 +8,6 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2007 Gerald Combs
  *
- * Copied from README.developer
- *
  * Copyright (c) 2006 CACE Technologies, Davis (California)
  * All rights reserved.
  *
@@ -96,9 +94,9 @@
  *     guint16 pfh_datalen;     // Length of data
  * } ppi_fieldheader_t;
  *
- * Anyone looking to add their own PPI dissector  would probably do well to imitate the GPS 
- * ones seperation into a distinct file.  Here is a step by step guide:
- * 1) add the number you received to the enum ppi_field_type declaration. 
+ * Anyone looking to add their own PPI dissector would probably do well to imitate the GPS
+ * ones separation into a distinct file.  Here is a step by step guide:
+ * 1) add the number you received to the enum ppi_field_type declaration.
  * 2) Add a value string for your number into vs_ppi_field_type
  * 3) declare a dissector handle by the ppi_gps_handle, and initialize it inside proto_reg_handoff
  * 4) add  case inside dissect_ppi to call your new handle.
@@ -706,7 +704,7 @@ static void dissect_8023_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
     if (data_len != PPI_8023_EXTENSION_LEN) {
         proto_tree_add_text(ftree, tvb, offset, data_len, "Invalid length: %u", data_len);
-  	THROW(ReportedBoundsError);
+        THROW(ReportedBoundsError);
     }
 
     csr = ptvcursor_new(ftree, tvb, offset);
@@ -762,9 +760,8 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tot_len = tvb_get_letohs(tvb, offset+2);
     dlt = tvb_get_letohl(tvb, offset+4);
 
-    if(check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "PPI version %u, %u bytes",
-                     version, tot_len);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "PPI version %u, %u bytes",
+                 version, tot_len);
 
     /* Dissect the packet */
     if (tree) {
@@ -829,66 +826,66 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 dissect_aggregation_extension(tvb, pinfo, ppi_tree, offset, data_len);
                 break;
 
-            case PPI_8023_EXTENSION:
-                dissect_8023_extension(tvb, pinfo, ppi_tree, offset, data_len);
-                break;
-			case PPI_GPS_INFO:
-				if (ppi_gps_handle == NULL)
-				{
-					proto_tree_add_text(ppi_tree, tvb, offset, data_len,
-					"%s (%u bytes)", val_to_str(data_type, (value_string *)&vs_ppi_field_type, "GPS: "), data_len);
-				}
-				else /* we found a suitable dissector */
-				{
-					/* skip over the ppi_fieldheader, and pass it off to the dedicated GPS dissetor */
-					next_tvb = tvb_new_subset(tvb, offset + 4, data_len - 4 , -1);
-					call_dissector(ppi_gps_handle, next_tvb, pinfo, ppi_tree);
-				}
-				break;
-			case PPI_VECTOR_INFO:
-				if (ppi_vector_handle == NULL)
-				{
-					proto_tree_add_text(ppi_tree, tvb, offset, data_len,
-					"%s (%u bytes)", val_to_str(data_type, (value_string *)&vs_ppi_field_type, "VECTOR: "), data_len);
-				}
-				else /* we found a suitable dissector */
-				{
-					/* skip over the ppi_fieldheader, and pass it off to the dedicated VECTOR dissetor */
-					next_tvb = tvb_new_subset(tvb, offset + 4, data_len - 4 , -1);
-					call_dissector(ppi_vector_handle, next_tvb, pinfo, ppi_tree);
-				}
-				break;
-			case PPI_HARRIS_TEST0:
-				if (ppi_harris_test_handle == NULL)
-				{
-					proto_tree_add_text(ppi_tree, tvb, offset, data_len,
-					"%s (%u bytes)", val_to_str(data_type, (value_string *)&vs_ppi_field_type, "HARRIS: "), data_len);
-				}
-				else /* we found a suitable dissector */
-				{
-					/* skip over the ppi_fieldheader, and pass it off to the dedicated ANTENNA_ORIENTATION dissetor */
-					next_tvb = tvb_new_subset(tvb, offset + 4, data_len - 4 , -1);
-					call_dissector(ppi_harris_test_handle, next_tvb, pinfo, ppi_tree);
-				}
-				break;
-			case PPI_ANTENNA_INFO:
-				if (ppi_antenna_handle == NULL)
-				{
-					proto_tree_add_text(ppi_tree, tvb, offset, data_len,
-					"%s (%u bytes)", val_to_str(data_type, (value_string *)&vs_ppi_field_type, "ANTENNA: "), data_len);
-				}
-				else /* we found a suitable dissector */
-				{
-					/* skip over the ppi_fieldheader, and pass it off to the dedicated ANTENNA dissetor */
-					next_tvb = tvb_new_subset(tvb, offset + 4, data_len - 4 , -1);
-					call_dissector(ppi_antenna_handle, next_tvb, pinfo, ppi_tree);
-				}
-				break;
+        case PPI_8023_EXTENSION:
+            dissect_8023_extension(tvb, pinfo, ppi_tree, offset, data_len);
+            break;
+        case PPI_GPS_INFO:
+            if (ppi_gps_handle == NULL)
+            {
+                proto_tree_add_text(ppi_tree, tvb, offset, data_len,
+                                    "%s (%u bytes)", val_to_str(data_type, (value_string *)&vs_ppi_field_type, "GPS: "), data_len);
+            }
+            else /* we found a suitable dissector */
+            {
+                /* skip over the ppi_fieldheader, and pass it off to the dedicated GPS dissetor */
+                next_tvb = tvb_new_subset(tvb, offset + 4, data_len - 4 , -1);
+                call_dissector(ppi_gps_handle, next_tvb, pinfo, ppi_tree);
+            }
+            break;
+        case PPI_VECTOR_INFO:
+            if (ppi_vector_handle == NULL)
+            {
+                proto_tree_add_text(ppi_tree, tvb, offset, data_len,
+                                    "%s (%u bytes)", val_to_str(data_type, (value_string *)&vs_ppi_field_type, "VECTOR: "), data_len);
+            }
+            else /* we found a suitable dissector */
+            {
+                /* skip over the ppi_fieldheader, and pass it off to the dedicated VECTOR dissetor */
+                next_tvb = tvb_new_subset(tvb, offset + 4, data_len - 4 , -1);
+                call_dissector(ppi_vector_handle, next_tvb, pinfo, ppi_tree);
+            }
+            break;
+        case PPI_HARRIS_TEST0:
+            if (ppi_harris_test_handle == NULL)
+            {
+                proto_tree_add_text(ppi_tree, tvb, offset, data_len,
+                                    "%s (%u bytes)", val_to_str(data_type, (value_string *)&vs_ppi_field_type, "HARRIS: "), data_len);
+            }
+            else /* we found a suitable dissector */
+            {
+                /* skip over the ppi_fieldheader, and pass it off to the dedicated ANTENNA_ORIENTATION dissetor */
+                next_tvb = tvb_new_subset(tvb, offset + 4, data_len - 4 , -1);
+                call_dissector(ppi_harris_test_handle, next_tvb, pinfo, ppi_tree);
+            }
+            break;
+        case PPI_ANTENNA_INFO:
+            if (ppi_antenna_handle == NULL)
+            {
+                proto_tree_add_text(ppi_tree, tvb, offset, data_len,
+                                    "%s (%u bytes)", val_to_str(data_type, (value_string *)&vs_ppi_field_type, "ANTENNA: "), data_len);
+            }
+            else /* we found a suitable dissector */
+            {
+                /* skip over the ppi_fieldheader, and pass it off to the dedicated ANTENNA dissetor */
+                next_tvb = tvb_new_subset(tvb, offset + 4, data_len - 4 , -1);
+                call_dissector(ppi_antenna_handle, next_tvb, pinfo, ppi_tree);
+            }
+            break;
 
-            default:
-                if (tree)
-                    proto_tree_add_text(ppi_tree, tvb, offset, data_len,
-                        "%s (%u bytes)", val_to_str(data_type, (value_string *)&vs_ppi_field_type, "Reserved"), data_len);
+        default:
+            if (tree)
+                proto_tree_add_text(ppi_tree, tvb, offset, data_len,
+                                    "%s (%u bytes)", val_to_str(data_type, (value_string *)&vs_ppi_field_type, "Reserved"), data_len);
         }
 
         offset += data_len;
@@ -1362,10 +1359,10 @@ proto_reg_handoff_ppi(void)
     ppi_handle = create_dissector_handle(dissect_ppi, proto_ppi);
     data_handle = find_dissector("data");
     ieee80211_ht_handle = find_dissector("wlan_ht");
-	ppi_gps_handle = find_dissector("ppi_gps");
-	ppi_vector_handle = find_dissector("ppi_vector");
-	ppi_harris_test_handle = find_dissector("ppi_harris_test");
-	ppi_antenna_handle = find_dissector("ppi_antenna");
+    ppi_gps_handle = find_dissector("ppi_gps");
+    ppi_vector_handle = find_dissector("ppi_vector");
+    ppi_harris_test_handle = find_dissector("ppi_harris_test");
+    ppi_antenna_handle = find_dissector("ppi_antenna");
 
     dissector_add("wtap_encap", WTAP_ENCAP_PPI, ppi_handle);
 }

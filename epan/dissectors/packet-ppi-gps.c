@@ -130,21 +130,21 @@ proto_register_ppi_gps(void) {
           { "Present", "ppi_gps.present",
             FT_UINT32, BASE_HEX, NULL, 0x0, "Bitmask indicating which fields are present", HFILL } },
 
-#define PPI_GPS_MASK_GPSFLAGS		0x00000001
-#define PPI_GPS_MASK_LAT			0x00000002
-#define PPI_GPS_MASK_LON			0x00000004
-#define PPI_GPS_MASK_ALT    	    0x00000008
-#define PPI_GPS_MASK_ALT_G    	    0x00000010
+#define PPI_GPS_MASK_GPSFLAGS       0x00000001
+#define PPI_GPS_MASK_LAT            0x00000002
+#define PPI_GPS_MASK_LON            0x00000004
+#define PPI_GPS_MASK_ALT            0x00000008
+#define PPI_GPS_MASK_ALT_G          0x00000010
 
-#define PPI_GPS_MASK_GPSTIME 		0x00000020
-#define PPI_GPS_MASK_FRACTIME		0x00000040
-#define PPI_GPS_MASK_EPH			0x00000080
-#define PPI_GPS_MASK_EPV			0x00000100
-#define PPI_GPS_MASK_EPT			0x00000200
+#define PPI_GPS_MASK_GPSTIME        0x00000020
+#define PPI_GPS_MASK_FRACTIME       0x00000040
+#define PPI_GPS_MASK_EPH            0x00000080
+#define PPI_GPS_MASK_EPV            0x00000100
+#define PPI_GPS_MASK_EPT            0x00000200
 
-#define PPI_GPS_MASK_DESCRSTR		0x10000000
-#define PPI_GPS_MASK_APPID			0x20000000
-#define PPI_GPS_MASK_APPDATA		0x40000000
+#define PPI_GPS_MASK_DESCRSTR       0x10000000
+#define PPI_GPS_MASK_APPID          0x20000000
+#define PPI_GPS_MASK_APPDATA        0x40000000
 #define PPI_GPS_MASK_EXT            0x80000000
 
         /* Boolean 'present' flags */
@@ -275,15 +275,15 @@ proto_register_ppi_gps(void) {
             "application specific data", HFILL } },
 
         /* --- moving on to the 'FixType' flags --- */
-#define PPI_GPS_GPSFLAGS_FLAG0_NOFIX		0x00000001
-#define PPI_GPS_GPSFLAGS_FLAG1_GPS		0x00000002
-#define PPI_GPS_GPSFLAGS_FLAG2_DIFFGPS	0x00000004
-#define PPI_GPS_GPSFLAGS_FLAG3_PPS		0x00000008
-#define PPI_GPS_GPSFLAGS_FLAG4_RTK		0x00000010
-#define PPI_GPS_GPSFLAGS_FLAG5_FLOATRTK	0x00000020
-#define PPI_GPS_GPSFLAGS_FLAG6_DEAD_RECK	0x00000040
-#define PPI_GPS_GPSFLAGS_FLAG7_MANUAL	0x00000080
-#define PPI_GPS_GPSFLAGS_FLAG8_SIM		0x00000100
+#define PPI_GPS_GPSFLAGS_FLAG0_NOFIX     0x00000001
+#define PPI_GPS_GPSFLAGS_FLAG1_GPS       0x00000002
+#define PPI_GPS_GPSFLAGS_FLAG2_DIFFGPS   0x00000004
+#define PPI_GPS_GPSFLAGS_FLAG3_PPS       0x00000008
+#define PPI_GPS_GPSFLAGS_FLAG4_RTK       0x00000010
+#define PPI_GPS_GPSFLAGS_FLAG5_FLOATRTK  0x00000020
+#define PPI_GPS_GPSFLAGS_FLAG6_DEAD_RECK 0x00000040
+#define PPI_GPS_GPSFLAGS_FLAG7_MANUAL    0x00000080
+#define PPI_GPS_GPSFLAGS_FLAG8_SIM       0x00000100
         { &hf_ppi_gps_gpsflags_flag0_nofix, /* no fix available */
           { "No fix available", "ppi_gps.gpsflagss.nofix",
             FT_BOOLEAN, 32, NULL, PPI_GPS_GPSFLAGS_FLAG0_NOFIX,

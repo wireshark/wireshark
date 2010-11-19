@@ -38,26 +38,26 @@
 #include "packet-ppi-geolocation-common.h"
 
 enum ppi_vector_type {
-    PPI_VECTOR_VFLAGS		= 0,
-    PPI_VECTOR_VCHARS		= 1,
-    PPI_VECTOR_ROTX        = 2,
-    PPI_VECTOR_ROTY        = 3,
-    PPI_VECTOR_ROTZ  	    = 4,
-    PPI_VECTOR_OFF_R		= 5,
-    PPI_VECTOR_OFF_F		= 6,
-    PPI_VECTOR_OFF_U  	    = 7,
-    PPI_VECTOR_VEL_R		= 8,
-    PPI_VECTOR_VEL_F		= 9,
-    PPI_VECTOR_VEL_U  	    = 10,
-    PPI_VECTOR_VEL_T  	    = 11,
-    PPI_VECTOR_ACC_R		= 12,
-    PPI_VECTOR_ACC_F		= 13,
-    PPI_VECTOR_ACC_U  	    = 14,
-    PPI_VECTOR_ACC_T  	    = 15,
-    PPI_VECTOR_ERR_ROT		= 16,
-    PPI_VECTOR_ERR_OFF		= 17,
-    PPI_VECTOR_ERR_VEL		= 18,
-    PPI_VECTOR_ERR_ACC		= 19,
+    PPI_VECTOR_VFLAGS       =  0,
+    PPI_VECTOR_VCHARS       =  1,
+    PPI_VECTOR_ROTX         =  2,
+    PPI_VECTOR_ROTY         =  3,
+    PPI_VECTOR_ROTZ         =  4,
+    PPI_VECTOR_OFF_R        =  5,
+    PPI_VECTOR_OFF_F        =  6,
+    PPI_VECTOR_OFF_U        =  7,
+    PPI_VECTOR_VEL_R        =  8,
+    PPI_VECTOR_VEL_F        =  9,
+    PPI_VECTOR_VEL_U        = 10,
+    PPI_VECTOR_VEL_T        = 11,
+    PPI_VECTOR_ACC_R        = 12,
+    PPI_VECTOR_ACC_F        = 13,
+    PPI_VECTOR_ACC_U        = 14,
+    PPI_VECTOR_ACC_T        = 15,
+    PPI_VECTOR_ERR_ROT      = 16,
+    PPI_VECTOR_ERR_OFF      = 17,
+    PPI_VECTOR_ERR_VEL      = 18,
+    PPI_VECTOR_ERR_ACC      = 19,
 
     PPI_VECTOR_DESCSTR      = 28,
     PPI_VECTOR_APPID        = 29,
@@ -129,14 +129,14 @@ static int hf_ppi_vector_present_ext = -1;
 /*  There are currently only three vector flags.
 *  These control the units/interpreration of a vector
 */
-static int hf_ppi_vector_vflags_defines_forward	= -1;
+static int hf_ppi_vector_vflags_defines_forward = -1;
 static int hf_ppi_vector_vflags_rots_absolute = -1; /* different ways to display the same bit, hi or low */
 static int hf_ppi_vector_vflags_offsets_from_gps = -1; /* these are different ways to display the same bit, hi or low */
 
 /*  There are currently eight vector characteristics.
 *  These are purely descriptive (no mathematical importance)
 */
-static int hf_ppi_vector_vchars_antenna	 = -1;
+static int hf_ppi_vector_vchars_antenna = -1;
 static int hf_ppi_vector_vchars_dir_of_travel = -1;
 static int hf_ppi_vector_vchars_front_of_veh = -1;
 
@@ -173,31 +173,31 @@ void proto_register_ppi_vector(void) {
           { "Present", "ppi_vector.present",
             FT_UINT32, BASE_HEX, NULL, 0x0, "Bitmask indicating which fields are present", HFILL } },
 
-#define PPI_VECTOR_MASK_VFLAGS		0x00000001
-#define PPI_VECTOR_MASK_VCHARS		0x00000002
-#define PPI_VECTOR_MASK_ROTX		0x00000004
-#define PPI_VECTOR_MASK_ROTY		0x00000008
-#define PPI_VECTOR_MASK_ROTZ  	    0x00000010
-#define PPI_VECTOR_MASK_OFF_R		0x00000020
-#define PPI_VECTOR_MASK_OFF_F		0x00000040
-#define PPI_VECTOR_MASK_OFF_U  	    0x00000080
-#define PPI_VECTOR_MASK_VEL_R		0x00000100
-#define PPI_VECTOR_MASK_VEL_F		0x00000200
-#define PPI_VECTOR_MASK_VEL_U  	    0x00000400
-#define PPI_VECTOR_MASK_VEL_T  	    0x00000800
-#define PPI_VECTOR_MASK_ACC_R		0x00001000
-#define PPI_VECTOR_MASK_ACC_F		0x00002000
-#define PPI_VECTOR_MASK_ACC_U  	    0x00004000
-#define PPI_VECTOR_MASK_ACC_T  	    0x00008000
+#define PPI_VECTOR_MASK_VFLAGS      0x00000001
+#define PPI_VECTOR_MASK_VCHARS      0x00000002
+#define PPI_VECTOR_MASK_ROTX        0x00000004
+#define PPI_VECTOR_MASK_ROTY        0x00000008
+#define PPI_VECTOR_MASK_ROTZ        0x00000010
+#define PPI_VECTOR_MASK_OFF_R       0x00000020
+#define PPI_VECTOR_MASK_OFF_F       0x00000040
+#define PPI_VECTOR_MASK_OFF_U       0x00000080
+#define PPI_VECTOR_MASK_VEL_R       0x00000100
+#define PPI_VECTOR_MASK_VEL_F       0x00000200
+#define PPI_VECTOR_MASK_VEL_U       0x00000400
+#define PPI_VECTOR_MASK_VEL_T       0x00000800
+#define PPI_VECTOR_MASK_ACC_R       0x00001000
+#define PPI_VECTOR_MASK_ACC_F       0x00002000
+#define PPI_VECTOR_MASK_ACC_U       0x00004000
+#define PPI_VECTOR_MASK_ACC_T       0x00008000
 
-#define PPI_VECTOR_MASK_ERR_ROT		0x00010000
-#define PPI_VECTOR_MASK_ERR_OFF		0x00020000
-#define PPI_VECTOR_MASK_ERR_VEL		0x00040000
-#define PPI_VECTOR_MASK_ERR_ACC		0x00080000
+#define PPI_VECTOR_MASK_ERR_ROT     0x00010000
+#define PPI_VECTOR_MASK_ERR_OFF     0x00020000
+#define PPI_VECTOR_MASK_ERR_VEL     0x00040000
+#define PPI_VECTOR_MASK_ERR_ACC     0x00080000
 
-#define PPI_VECTOR_MASK_DESCSTR    0x10000000  /* 28 */
-#define PPI_VECTOR_MASK_APPID      0x20000000  /* 29 */
-#define PPI_VECTOR_MASK_APPDATA    0x40000000  /* 30 */
+#define PPI_VECTOR_MASK_DESCSTR     0x10000000  /* 28 */
+#define PPI_VECTOR_MASK_APPID       0x20000000  /* 29 */
+#define PPI_VECTOR_MASK_APPDATA     0x40000000  /* 30 */
 #define PPI_VECTOR_MASK_EXT         0x80000000  /* 31 */
 
         /* Boolean 'present' flags */
@@ -419,8 +419,8 @@ void proto_register_ppi_vector(void) {
         /*  There are currently only three vector flags.
          *  These control the units/interpreration of a vector
          */
-#define PPI_VECTOR_VFLAGS_DEFINES_FORWARD	0x00000001
-#define PPI_VECTOR_VFLAGS_ROTS_ABSOLUTE		0x00000002
+#define PPI_VECTOR_VFLAGS_DEFINES_FORWARD   0x00000001
+#define PPI_VECTOR_VFLAGS_ROTS_ABSOLUTE     0x00000002
 #define PPI_VECTOR_VFLAGS_OFFSETS_FROM_GPS  0x00000004
         /* Boolean vector flags */
         { &hf_ppi_vector_vflags_defines_forward,
@@ -439,15 +439,15 @@ void proto_register_ppi_vector(void) {
         /*  There are currently eight vector characteristics.
          *  These are purely descriptive (no mathematical importance)
          */
-#define PPI_VECTOR_VCHARS_ANTENNA	        0x00000001
-#define PPI_VECTOR_VCHARS_DIR_OF_TRAVEL		0x00000002
-#define PPI_VECTOR_VCHARS_FRONT_OF_VEH      0x00000004
+#define PPI_VECTOR_VCHARS_ANTENNA                0x00000001
+#define PPI_VECTOR_VCHARS_DIR_OF_TRAVEL          0x00000002
+#define PPI_VECTOR_VCHARS_FRONT_OF_VEH           0x00000004
 
-#define PPI_VECTOR_VCHARS_GPS_DERIVED       0x00000100
-#define PPI_VECTOR_VCHARS_INS_DERIVED       0x00000200
-#define PPI_VECTOR_VCHARS_COMPASS_DERIVED   0x00000400
+#define PPI_VECTOR_VCHARS_GPS_DERIVED            0x00000100
+#define PPI_VECTOR_VCHARS_INS_DERIVED            0x00000200
+#define PPI_VECTOR_VCHARS_COMPASS_DERIVED        0x00000400
 #define PPI_VECTOR_VCHARS_ACCELEROMETER_DERIVED  0x00000800
-#define PPI_VECTOR_VCHARS_HUMAN_DERIVED     0x00001000
+#define PPI_VECTOR_VCHARS_HUMAN_DERIVED          0x00001000
         /* Boolean vector chars */
         { &hf_ppi_vector_vchars_antenna,
           { "Antenna", "ppi_vector.chars.antenna",

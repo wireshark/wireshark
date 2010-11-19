@@ -115,9 +115,9 @@ proto_register_ppi_antenna(void) {
     /* The following array initializes those header fields declared above to the values displayed */
     static hf_register_info hf[] = {
         { &hf_ppi_antenna_version,
-            { "Header revision", "ppi_antenna.version",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Version of ppi_antenna header format", HFILL } },
+          { "Header revision", "ppi_antenna.version",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Version of ppi_antenna header format", HFILL } },
         { &hf_ppi_antenna_pad,
           { "Header pad", "ppi_antenna.pad",
             FT_UINT8, BASE_DEC, NULL, 0x0,
