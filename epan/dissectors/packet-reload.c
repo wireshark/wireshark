@@ -25,7 +25,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
  * Please refer to the following specs for protocol detail:
- * - draft-ietf-p2psip-base-10
+ * - draft-ietf-p2psip-base-12
  */
 
 #ifdef HAVE_CONFIG_H
@@ -166,6 +166,9 @@ static int hf_reload_storereq = -1;
 static int hf_reload_store_replica_num = -1;
 static int hf_reload_store_kind_data_length = -1;
 static int hf_reload_storeans_kind_responses = -1;
+static int hf_reload_storeans_kind_responses_length = -1;
+static int hf_reload_storekindresponse = -1;
+static int hf_reload_storekindresponse_replicas = -1;
 static int hf_reload_storeddataspecifiers = -1;
 static int hf_reload_fetchans = -1;
 static int hf_reload_kind_responses_length = -1;
@@ -182,6 +185,11 @@ static int hf_reload_fragment_too_long_fragment = -1;
 static int hf_reload_fragment_error = -1;
 static int hf_reload_reassembled_in = -1;
 static int hf_reload_reassembled_length = -1;
+static int hf_reload_configupdatereq = -1;
+static int hf_reload_configupdatereq_type = -1;
+static int hf_reload_configupdatereq_length = -1;
+static int hf_reload_configupdatereq_configdata = -1;
+static int hf_reload_configupdatereq_kinds = -1;
 
 static dissector_handle_t data_handle;
 
@@ -219,6 +227,8 @@ typedef struct _reload_conv_info_t {
 #define METHOD_PING             24
 #define METHOD_STAT             26
 #define METHOD_APPATTACH        30
+#define METHOD_CONFIGUPDATE     34
+
 
 /* ReLOAD Destinationtype */
 #define DESTINATIONTYPE_RESERVED            0
@@ -242,7 +252,7 @@ typedef struct _reload_conv_info_t {
 #define IPADDRESSPORTTYPE_IPV6     2
 
 /* OverlayLink types */
-#define OVERLAYLINKTYPE_RESERVED                                        0
+#define OVERLAYLINKTYPE_RESERVEDOVERLAYLINK                             0
 #define OVERLAYLINKTYPE_DTLS_UDP_SR                                     1
 #define OVERLAYLINKTYPE_DTLS_UDP_SR_NO_ICE                              3
 #define OVERLAYLINKTYPE_TLS_TCP_FH_NO_ICE                               4
@@ -261,6 +271,9 @@ typedef struct _reload_conv_info_t {
 #define ERRORCODE_MESSAGETOOLARGE                                       11
 #define ERRORCODE_UNKNOWNKIND                                           12
 #define ERRORCODE_UNKNOWNEXTENSION                                      13
+#define ERRORCODE_RESPONSETOOLARGE                                      14
+#define ERRORCODE_CONFIGTOOOLD                                          15
+#define ERRORCODE_CONFIGTOONEW                                          16
 
 /* Certificate types */
 #define CERTIFICATETYPE_X509                                            0
@@ -284,6 +297,7 @@ typedef struct _reload_conv_info_t {
 #define SIGNATUREIDENTITYTYPE_CERTHASH                                  1
 
 /* Probe information type */
+#define PROBEINFORMATIONTYPE_RESERVED                                   0
 #define PROBEINFORMATIONTYPE_RESPONSIBLESET                             1
 #define PROBEINFORMATIONTYPE_NUMRESOURCES                               2
 #define PROBEINFORMATIONTYPE_UPTIME                                     3
@@ -293,6 +307,14 @@ typedef struct _reload_conv_info_t {
 #define DATAKINDID_TURNSERVICE                                          2
 #define DATAKINDID_CERTIFICATE_BY_NODE                                  4
 #define DATAKINDID_CERTIFICATE_BY_USER                                  6
+
+/* Message Extension Type */
+#define MESSAGEEXTENSIONTYPE_RESERVED                                   0
+
+/* Config Update Type */
+#define CONFIGUPDATETYPE_RESERVED                                       0
+#define CONFIGUPDATETYPE_CONFIG                                         1
+#define CONFIGUPDATETYPE_KIND                                           2
 
 /* Initialize the subtree pointers */
 static gint ett_reload = -1;
@@ -330,11 +352,14 @@ static gint ett_reload_appattach = -1;
 static gint ett_reload_storeddata = -1;
 static gint ett_reload_kinddata = -1;
 static gint ett_reload_storereq = -1;
+static gint ett_reload_storeans_kind_responses = -1;
+static gint ett_reload_storekindresponse = -1;
 static gint ett_reload_fetchans = -1;
 static gint ett_reload_statans = -1;
 static gint ett_reload_findkinddata = -1;
 static gint ett_reload_fragments = -1;
 static gint ett_reload_fragment  = -1;
+static gint ett_reload_configupdatereq = -1;
 
 static const fragment_items reload_frag_items = {
   &ett_reload_fragment,
@@ -386,6 +411,7 @@ static const value_string methods[] = {
   {METHOD_PING,                                 "Ping"},
   {METHOD_STAT,                                 "Stat"},
   {METHOD_APPATTACH,                            "App-Attach"},
+  {METHOD_CONFIGUPDATE,                         "Config Update"},
   {0x00, NULL}
 };
 
@@ -403,7 +429,7 @@ static const value_string forwardingoptiontypes[] = {
 };
 
 static const value_string candtypes[] = {
-  {CANDTYPE_RESERVED,                           "reserved"},
+  {CANDTYPE_RESERVED,                           "reservedCand"},
   {CANDTYPE_HOST,                               "host"},
   {CANDTYPE_SRFLX,                              "srflx"},
   {CANDTYPE_PRFLX,                              "prflx"},
@@ -419,7 +445,7 @@ static const value_string ipaddressporttypes [] = {
 };
 
 static const value_string overlaylinktypes [] ={
-  {OVERLAYLINKTYPE_RESERVED,                    "reserved"},
+  {OVERLAYLINKTYPE_RESERVEDOVERLAYLINK,         "ReservedOverLayLink"},
   {OVERLAYLINKTYPE_DTLS_UDP_SR,                 "DTLS-UDP-SR"},
   {OVERLAYLINKTYPE_DTLS_UDP_SR_NO_ICE,          "DTLS-UDP-SR-NO-ICE"},
   {OVERLAYLINKTYPE_TLS_TCP_FH_NO_ICE,           "TLS-TCP-FH-NO-ICE"},
@@ -441,6 +467,9 @@ static const value_string errorcodes [] ={
   {ERRORCODE_MESSAGETOOLARGE,                   "Message Too Large"},
   {ERRORCODE_UNKNOWNKIND,                       "Unknown Kind"},
   {ERRORCODE_UNKNOWNEXTENSION,                  "Unknown Extension"},
+  {ERRORCODE_RESPONSETOOLARGE,                  "Response Too Large"},
+  {ERRORCODE_CONFIGTOOOLD,                      "Config Too Old"},
+  {ERRORCODE_CONFIGTOONEW,                      "Config Too New"},
   {0x00, NULL}
 };
 
@@ -475,6 +504,7 @@ static const value_string signatureidentitytypes[] = {
 };
 
 static const value_string probeinformationtypes[] = {
+  {PROBEINFORMATIONTYPE_RESERVED,               "reservedProbeInformation"},
   {PROBEINFORMATIONTYPE_RESPONSIBLESET,         "responsible_set"},
   {PROBEINFORMATIONTYPE_NUMRESOURCES,           "num_resources"},
   {PROBEINFORMATIONTYPE_UPTIME,                 "uptime"},
@@ -489,6 +519,17 @@ static const value_string datakindids[] = {
   {0x00, NULL}
 };
 
+static const value_string messageextensiontypes[] = {
+  {MESSAGEEXTENSIONTYPE_RESERVED,               "reservedMessageExtension"},
+  {0x00, NULL}
+};
+
+static const value_string configupdatetypes[] = {
+  {CONFIGUPDATETYPE_RESERVED,                   "reservedConfigUpdate"},
+  {CONFIGUPDATETYPE_CONFIG,                     "config"},
+  {CONFIGUPDATETYPE_KIND,                       "kind"},
+  {0x00, NULL}
+};
 /*
  * defragmentation of IPv4
  */
@@ -549,6 +590,10 @@ dissect_opaque(tvbuff_t *tvb, packet_info *pinfo,proto_tree *tree, int anchor_in
   case 2:
     length_index = hf_reload_opaque_length_uint16;
     length = (gint32)tvb_get_ntohs(tvb, offset);
+    break;
+  case 3:
+    length_index = hf_reload_opaque_length_uint32;
+    length = ((gint32) (tvb_get_ntohs(tvb, offset) <<8) + (tvb_get_guint8(tvb, offset+2)));
     break;
   case 4:
     length_index = hf_reload_opaque_length_uint32;
@@ -1685,6 +1730,49 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
       break;
 
+    case METHOD_CONFIGUPDATE:
+      {
+        proto_item *ti_message_body;
+        proto_tree *message_body_tree;
+        ti_message_body = proto_tree_add_item(message_contents_tree, hf_reload_message_body, tvb, offset, 4 + message_body_length, FALSE);
+        message_body_tree = proto_item_add_subtree(ti_message_body, ett_reload_message_body);
+        proto_tree_add_uint(message_body_tree, hf_reload_opaque_length_uint32, tvb, offset, 4, message_body_length);
+        if (IS_REQUEST(message_code)) {
+          guint16 local_offset = 0;
+          proto_item *ti_configupdate;
+          proto_tree *configupdate_tree;
+          guint8 configupdate_type;
+          guint32 configupdate_length;
+          ti_configupdate = proto_tree_add_item(message_body_tree, hf_reload_configupdatereq, tvb, offset+4+local_offset, message_body_length, FALSE);
+          configupdate_tree  = proto_item_add_subtree(ti_configupdate, ett_reload_configupdatereq);
+          configupdate_type = tvb_get_guint8(tvb, offset + 4 + local_offset);
+          proto_tree_add_uint(configupdate_tree, hf_reload_configupdatereq_type, tvb, offset+4+local_offset, 1, configupdate_type);
+          local_offset += 1;
+          configupdate_length = tvb_get_ntohl(tvb, offset + 4 + local_offset);
+          proto_tree_add_uint(configupdate_tree, hf_reload_configupdatereq_length, tvb,  offset + 4 + local_offset, 4, configupdate_length);
+          if (5 + configupdate_length > message_body_length) {
+            expert_add_info_format(pinfo, ti_configupdate, PI_PROTOCOL, PI_ERROR, "Truncated ConfigupdateReq");
+            break;
+          }
+          local_offset += 4;
+          switch(configupdate_type) {
+          case CONFIGUPDATETYPE_CONFIG:
+            local_offset +=
+              dissect_opaque(tvb, pinfo, configupdate_tree, hf_reload_configupdatereq_configdata,
+                             offset + 4 + local_offset, 3, configupdate_length);
+
+            break;
+
+          case CONFIGUPDATETYPE_KIND:
+            local_offset +=
+              dissect_opaque(tvb, pinfo, configupdate_tree, hf_reload_configupdatereq_kinds,
+                             offset + 4 + local_offset, 3, configupdate_length);
+            break;
+          }
+
+        }
+      }
+
     case METHOD_STORE:
       {
         proto_item *ti_message_body;
@@ -1696,7 +1784,38 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           dissect_storereq(tvb, pinfo, message_body_tree, offset + 4, message_body_length);
         }
         else {
-          dissect_opaque(tvb, pinfo, message_body_tree, hf_reload_storeans_kind_responses, offset + 4, 2, message_body_length);
+          guint16 storeans_kind_responses_length;
+          guint32 local_offset = 0;
+          proto_item *ti_storeans_kind_responses;
+          proto_tree *storeans_kind_responses_tree;
+          ti_storeans_kind_responses = proto_tree_add_item(message_body_tree, hf_reload_storeans_kind_responses, tvb, offset + 4, message_body_length, FALSE);
+          storeans_kind_responses_tree = proto_item_add_subtree(ti_storeans_kind_responses, ett_reload_storeans_kind_responses);
+          storeans_kind_responses_length = tvb_get_ntohs(tvb, offset + 4);
+          proto_tree_add_uint(storeans_kind_responses_tree, hf_reload_storeans_kind_responses_length, tvb, offset + 4, 2, storeans_kind_responses_length);
+          if ((guint32)storeans_kind_responses_length + 2 > message_body_length) {
+            expert_add_info_format(pinfo, ti_storeans_kind_responses, PI_PROTOCOL, PI_ERROR, "Truncated StoreAns");
+            break;
+          }
+          while (local_offset + 4 + 8 + 2< storeans_kind_responses_length) {
+            proto_item *ti_storekindresponse;
+            proto_tree *storekindresponse_tree;
+            guint16 replicas_length;
+            replicas_length = tvb_get_ntohs(tvb, offset + 4 + local_offset +4 + 8);
+            if (local_offset + 4 + 8 + 2 +replicas_length > storeans_kind_responses_length) {
+              expert_add_info_format(pinfo, ti_storeans_kind_responses, PI_PROTOCOL, PI_ERROR, "Truncated StoreKindResponse");
+              break;
+            }
+            ti_storekindresponse =
+              proto_tree_add_item(storeans_kind_responses_tree, hf_reload_storekindresponse, tvb, offset+4+local_offset, 4+ 8 + 2 + replicas_length, FALSE);
+            storekindresponse_tree = proto_item_add_subtree(ti_storekindresponse, ett_reload_storekindresponse);
+            proto_tree_add_item(storekindresponse_tree, hf_reload_kindid, tvb, offset+4+local_offset, 4, FALSE);
+            local_offset += 4;
+            proto_tree_add_item(storekindresponse_tree, hf_reload_kinddata_generation_counter, tvb, offset+4+local_offset, 8, FALSE);
+            local_offset += 8;
+            local_offset +=
+              dissect_opaque(tvb, pinfo, storekindresponse_tree, hf_reload_storekindresponse_replicas,
+                             offset + 4 + local_offset, 2, (storeans_kind_responses_length-(local_offset+4+8)));
+          }
         }
       }
       break;
@@ -2307,7 +2426,7 @@ proto_register_reload(void)
     },
     { &hf_reload_message_extension_type,
       { "Message extension type", "reload.message_extension.type",  FT_UINT16,
-        BASE_DEC, NULL, 0x0,  NULL, HFILL }
+        BASE_DEC, VALS(messageextensiontypes), 0x0,  NULL, HFILL }
     },
     { &hf_reload_message_extension_critical,
       { "Message extension critical", "reload.message_extension.critical",  FT_BOOLEAN,
@@ -2474,7 +2593,7 @@ proto_register_reload(void)
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_kindid,
-      { "Kind Id",  "reload.kindid",  FT_UINT8,
+      { "Kind Id",  "reload.kindid",  FT_UINT32,
         BASE_DEC, VALS(datakindids),  0x0,  NULL, HFILL }
     },
     { &hf_reload_kinddata_generation_counter,
@@ -2499,6 +2618,18 @@ proto_register_reload(void)
     },
     { &hf_reload_storeans_kind_responses,
       { "Kind Responses", "reload.storeans.kind_responses", FT_NONE,
+        BASE_NONE,  NULL, 0x0,  NULL, HFILL }
+    },
+    { &hf_reload_storeans_kind_responses_length,
+      { "Kind Responses Length", "reload.storeans.kind_responses.length", FT_UINT16,
+        BASE_DEC,  NULL, 0x0,  NULL, HFILL }
+    },
+    { &hf_reload_storekindresponse,
+      { "Store Kind Response", "reload.storekindresponse", FT_NONE,
+        BASE_NONE,  NULL, 0x0,  NULL, HFILL }
+    },
+    { &hf_reload_storekindresponse_replicas,
+      { "Store Kind Response Replicas", "reload.storekindresponse.replicas", FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_storeddataspecifiers,
@@ -2563,7 +2694,33 @@ proto_register_reload(void)
 
     { &hf_reload_reassembled_length,
       { "Reassembled ReLOAD length", "reload.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
-        "The total length of the reassembled payload", HFILL }}
+        "The total length of the reassembled payload", HFILL }},
+
+    { &hf_reload_configupdatereq,
+      { "ConfigUpdate Req",  "reload.configupdatereq.",  FT_BYTES,
+        BASE_NONE,  NULL, 0x0,  NULL, HFILL }
+    },
+
+    { &hf_reload_configupdatereq_type,
+      { "ConfigUpdate Req Type", "reload.configupdatereq.type", FT_UINT8,
+        BASE_DEC, VALS(configupdatetypes),  0x0,  NULL, HFILL }
+    },
+
+    { &hf_reload_configupdatereq_length,
+      { "ConfigUpdate Req Length", "reload.configupdatereq.length", FT_UINT32,
+        BASE_DEC, NULL,  0x0,  NULL, HFILL }
+    },
+
+    { &hf_reload_configupdatereq_configdata,
+      { "ConfigUpdate Req Config Data",  "reload.configupdatereq.config_data",  FT_NONE,
+        BASE_NONE,  NULL, 0x0,  NULL, HFILL }
+    },
+
+    { &hf_reload_configupdatereq_kinds,
+      { "ConfigUpdate Req Kinds",  "reload.configupdatereq.kinds",  FT_NONE,
+        BASE_NONE,  NULL, 0x0,  NULL, HFILL }
+    },
+
   };
 
   /* Setup protocol subtree array */
@@ -2603,16 +2760,19 @@ proto_register_reload(void)
     &ett_reload_storeddata,
     &ett_reload_kinddata,
     &ett_reload_storereq,
+    &ett_reload_storeans_kind_responses,
+    &ett_reload_storekindresponse,
     &ett_reload_fetchans,
     &ett_reload_statans,
     &ett_reload_findkinddata,
     &ett_reload_fragments,
-    &ett_reload_fragment
+    &ett_reload_fragment,
+    &ett_reload_configupdatereq,
   };
 
   /* Register the protocol name and description */
   proto_reload = proto_register_protocol("REsource LOcation And Discovery", "RELOAD", "reload");
-
+  register_dissector("reload", dissect_reload_message_no_return, proto_reload);
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_reload, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -2644,6 +2804,5 @@ proto_reg_handoff_reload(void)
   heur_dissector_add("udp", dissect_reload_heur, proto_reload);
   heur_dissector_add("tcp", dissect_reload_heur, proto_reload);
 
-  return;
 }
 
