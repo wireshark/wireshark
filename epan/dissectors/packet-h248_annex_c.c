@@ -804,6 +804,15 @@ static void dissect_h248_annexc_USI(proto_tree* tree, tvbuff_t* tvb, packet_info
 		dissect_q931_bearer_capability_ie(new_tvb, 0, tvb_length(new_tvb), tree);
 }
 
+static void dissect_h248_annexc_SDP(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* h248_info _U_, void* implicit_p) {
+	asn1_ctx_t asn1_ctx;
+
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	dissect_ber_restricted_string( FALSE, BER_UNI_TAG_IA5String,
+                                            &asn1_ctx, tree, tvb, 0, hfid,
+                                            NULL);
+}
+
 gboolean h248_c_implicit = TRUE;
 
 static h248_pkg_param_t h248_annexc_package_properties[] = {
@@ -924,21 +933,21 @@ static h248_pkg_param_t h248_annexc_package_properties[] = {
 	{ 0xA002, &hf_h248_pkg_annexc_bmsdu, h248_param_ber_octetstring, NULL },
 	{ 0xA003, &hf_h248_pkg_annexc_sscs, NULL, NULL },
 
-	{ 0xB001, &hf_h248_pkg_annexc_sdp_v, h248_param_ber_octetstring, &h248_c_implicit },
-	{ 0xB002, &hf_h248_pkg_annexc_sdp_o, h248_param_ber_octetstring, &h248_c_implicit },
-	{ 0xB003, &hf_h248_pkg_annexc_sdp_s, h248_param_ber_octetstring, &h248_c_implicit },
-	{ 0xB004, &hf_h248_pkg_annexc_sdp_i, h248_param_ber_octetstring, &h248_c_implicit },
-	{ 0xB005, &hf_h248_pkg_annexc_sdp_u, h248_param_ber_octetstring, &h248_c_implicit },
-	{ 0xB006, &hf_h248_pkg_annexc_sdp_e, h248_param_ber_octetstring, &h248_c_implicit },
-	{ 0xB007, &hf_h248_pkg_annexc_sdp_p, h248_param_ber_octetstring, &h248_c_implicit },
-	{ 0xB008, &hf_h248_pkg_annexc_sdp_c, h248_param_ber_octetstring, &h248_c_implicit },
-	{ 0xB009, &hf_h248_pkg_annexc_sdp_b, h248_param_ber_octetstring, &h248_c_implicit },
-	{ 0xB00a, &hf_h248_pkg_annexc_sdp_z, h248_param_ber_octetstring, &h248_c_implicit },
-	{ 0xB00b, &hf_h248_pkg_annexc_sdp_k, h248_param_ber_octetstring, &h248_c_implicit },
-	{ 0xB00c, &hf_h248_pkg_annexc_sdp_a, h248_param_ber_octetstring, &h248_c_implicit },
-	{ 0xB00d, &hf_h248_pkg_annexc_sdp_t, h248_param_ber_octetstring, &h248_c_implicit },
-	{ 0xB00e, &hf_h248_pkg_annexc_sdp_r, h248_param_ber_octetstring, &h248_c_implicit },
-	{ 0xB00f, &hf_h248_pkg_annexc_sdp_m, h248_param_ber_octetstring, &h248_c_implicit },
+	{ 0xB001, &hf_h248_pkg_annexc_sdp_v, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB002, &hf_h248_pkg_annexc_sdp_o, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB003, &hf_h248_pkg_annexc_sdp_s, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB004, &hf_h248_pkg_annexc_sdp_i, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB005, &hf_h248_pkg_annexc_sdp_u, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB006, &hf_h248_pkg_annexc_sdp_e, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB007, &hf_h248_pkg_annexc_sdp_p, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB008, &hf_h248_pkg_annexc_sdp_c, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB009, &hf_h248_pkg_annexc_sdp_b, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB00a, &hf_h248_pkg_annexc_sdp_z, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB00b, &hf_h248_pkg_annexc_sdp_k, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB00c, &hf_h248_pkg_annexc_sdp_a, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB00d, &hf_h248_pkg_annexc_sdp_t, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB00e, &hf_h248_pkg_annexc_sdp_r, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB00f, &hf_h248_pkg_annexc_sdp_m, dissect_h248_annexc_SDP, &h248_c_implicit },
 
 	{ 0xC001, &hf_h248_pkg_annexc_olc, h248_param_ber_octetstring, NULL },
 	{ 0xC002, &hf_h248_pkg_annexc_olcack, h248_param_ber_octetstring, NULL },
@@ -1485,8 +1494,7 @@ void proto_register_h248_annex_c(void) {
 		{ &hf_h248_pkg_annexc_clcack,
 		{ "CLCack", "h248.pkg.annexc.clcack",
 			FT_BYTES, BASE_NONE, NULL, 0,
-			"Close Logical Channel Acknowledge", HFILL }},
-
+			NULL, HFILL }},
 	};
 
 	static gint *ett[] = {
