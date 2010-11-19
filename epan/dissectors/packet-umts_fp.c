@@ -219,6 +219,8 @@ static const value_string channel_type_vals[] =
     { CHANNEL_IUR_DSCH,     "IUR DSCH" },
     { CHANNEL_EDCH,         "EDCH" },
     { CHANNEL_RACH_TDD_128, "RACH_TDD_128" },
+    { CHANNEL_HSDSCH_COMMON,"HSDSCH-COMMON" },
+    { CHANNEL_HSDSCH_COMMON_T3,"HSDSCH-COMMON-T3" },
     { 0, NULL }
 };
 
@@ -3030,6 +3032,12 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     /* TODO: dissector error */
                     break;
             }
+            break;
+        case CHANNEL_HSDSCH_COMMON:
+            /* TODO: */
+            break;
+        case CHANNEL_HSDSCH_COMMON_T3:
+            /* TODO: */
             break;
         case CHANNEL_IUR_CPCHF:
             /* TODO: */
