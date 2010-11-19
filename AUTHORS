@@ -419,6 +419,7 @@ Yaniv Kaul              <ykaul[AT]netvision.net.il> {
 	PCT support
 	X509 Certificates over HTTP support
 	VNC heuristic dissection
+	TightVNC dissection
 	More tags in the DAAP dissector
 }
 
