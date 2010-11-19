@@ -256,7 +256,7 @@ proto_register_ppi_gps(void) {
         { &hf_ppi_gps_epv,
           { "Vertical Error (m)", "ppi_gps.epv",
             FT_DOUBLE, BASE_NONE, NULL, 0x0,
-            "Vertical margin of error (meters) ", HFILL } },
+            "Vertical margin of error (meters)", HFILL } },
         { &hf_ppi_gps_ept,
           { "Time Error (s)", "ppi_gps.ept",
             FT_DOUBLE, BASE_NONE, NULL, 0x0,
@@ -264,15 +264,15 @@ proto_register_ppi_gps(void) {
         { &hf_ppi_gps_descr,
           { "Description", "ppi_gps.descr",
             FT_STRING, BASE_NONE, NULL, 0x0,
-            "Description", HFILL } },
+            NULL, HFILL } },
         { &hf_ppi_gps_appspecific_num,
           { "Application Specific id", "ppi_gps.appid",
             FT_UINT32, BASE_HEX, NULL, 0x0,
-            "application specific identifier", HFILL } },
+            "Application-specific identifier", HFILL } },
         { &hf_ppi_gps_appspecific_data,
           { "Application specific data", "ppi_gps.appdata",
             FT_BYTES, BASE_NONE, NULL, 0x0,
-            "application specific data", HFILL } },
+            "Application-specific data", HFILL } },
 
         /* --- moving on to the 'FixType' flags --- */
 #define PPI_GPS_GPSFLAGS_FLAG0_NOFIX     0x00000001
@@ -299,23 +299,23 @@ proto_register_ppi_gps(void) {
         { &hf_ppi_gps_gpsflags_flag3_PPS, /* PPS fix  */
           { "PPS fix", "ppi_gps.gpsflagss.pps",
             FT_BOOLEAN, 32, NULL, PPI_GPS_GPSFLAGS_FLAG3_PPS,
-            " PPS fix ", HFILL } },
+            "PPS fix", HFILL } },
         { &hf_ppi_gps_gpsflags_flag4_RTK, /* RTK fix*/
           { "RTK fix", "ppi_gps.gpsflagss.rtk",
             FT_BOOLEAN, 32, NULL, PPI_GPS_GPSFLAGS_FLAG4_RTK,
-            "RTK  fix ", HFILL } },
+            "RTK fix", HFILL } },
         { &hf_ppi_gps_gpsflags_flag5_floatRTK, /*float RTK */
           { "floatRTK fix", "ppi_gps.gpsflagss.frtk",
             FT_BOOLEAN, 32, NULL, PPI_GPS_GPSFLAGS_FLAG5_FLOATRTK,
-            " floatRTK fix ", HFILL } },
+            "floatRTK fix", HFILL } },
         { &hf_ppi_gps_gpsflags_flag6_dead_reck, /*dead reckoning */
           { "dead reckoning fix", "ppi_gps.gpsflagss.dead_reck",
             FT_BOOLEAN, 32, NULL, PPI_GPS_GPSFLAGS_FLAG6_DEAD_RECK,
-            "dead reckoning fix ", HFILL } },
+            "dead reckoning fix", HFILL } },
         { &hf_ppi_gps_gpsflags_flag7_manual, /* manual */
           { "manual fix", "ppi_gps.gpsflagss.manual",
             FT_BOOLEAN, 32, NULL, PPI_GPS_GPSFLAGS_FLAG7_MANUAL,
-            "manual  fix available", HFILL } },
+            "manual fix available", HFILL } },
         { &hf_ppi_gps_gpsflags_flag8_sim, /* simulation */
           { "simulated fix", "ppi_gps.gpsflagss.simulation",
             FT_BOOLEAN, 32, NULL, PPI_GPS_GPSFLAGS_FLAG8_SIM,

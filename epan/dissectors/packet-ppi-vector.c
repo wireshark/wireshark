@@ -406,15 +406,15 @@ void proto_register_ppi_vector(void) {
         { &hf_ppi_vector_descstr,
           { "Description", "ppi_vector.descr",
             FT_STRING,  BASE_NONE, NULL, 0x0,
-            "Description", HFILL } } ,
+            NULL, HFILL } } ,
         { &hf_ppi_vector_appspecific_num,
           { "Application Specific id", "ppi_vector.appid",
             FT_UINT32, BASE_HEX, NULL, 0x0,
-            "application specific identifier", HFILL } },
+            "Application-specific identifier", HFILL } },
         { &hf_ppi_vector_appspecific_data,
           { "Application specific data", "ppi_vector.appdata",
             FT_BYTES, BASE_NONE, NULL, 0x0,
-            "application specific data", HFILL } },
+            "Application-specific data", HFILL } },
 
         /*  There are currently only three vector flags.
          *  These control the units/interpreration of a vector

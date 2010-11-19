@@ -210,7 +210,7 @@ proto_register_ppi_antenna(void) {
         { &hf_ppi_antenna_present_ext,
           { "ext", "ppi_antenna.present.ext",
             FT_BOOLEAN, 32, NULL, PPI_ANTENNA_MASK_EXT,
-            "Specifies if there are any extensions to the header present ", HFILL } },
+            "Specifies if there are any extensions to the header present", HFILL } },
 
         /*Here we switch to the antennflags bits*/
         /* Boolean AntennaFlags' flags */
@@ -268,7 +268,7 @@ proto_register_ppi_antenna(void) {
         { &hf_ppi_antenna_beamid,
           { "BeamID", "ppi_antenna.beamid",
             FT_UINT16, BASE_HEX, NULL, 0x0,
-            "BeamID", HFILL } },
+            "Beam ID", HFILL } },
 
         { &hf_ppi_antenna_serialnum,
           { "SerialNumber", "ppi_antenna.serialnum",
@@ -281,15 +281,15 @@ proto_register_ppi_antenna(void) {
         { &hf_ppi_antenna_descstr,
           { "Description", "ppi_antenna.descr",
             FT_STRING,  BASE_NONE, NULL, 0x0,
-            "Description", HFILL } } ,
+            NULL, HFILL } } ,
         { &hf_ppi_antenna_appspecific_num,
           { "Application Specific id", "ppi_antenna.appid",
             FT_UINT32, BASE_HEX, NULL, 0x0,
-            "application specific identifier", HFILL } },
+            "Application-specific identifier", HFILL } },
         { &hf_ppi_antenna_appspecific_data,
           { "Application specific data", "ppi_antenna.appdata",
             FT_BYTES, BASE_NONE, NULL, 0x0,
-            "application specific data", HFILL } },
+            "Application-specific data", HFILL } },
     };
     static gint *ett[] = {
         &ett_ppi_antenna,
