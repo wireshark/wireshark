@@ -1,6 +1,6 @@
 /* packet-coap.c
  * Routines for COAP packet disassembly
- * draft-ietf-core-coap-02.txt
+ * draft-ietf-core-coap-03.txt
  * draft-ietf-core-block-00.txt
  * draft-ietf-core-observe-00.txt
  * Shoichi Sakane <sakane@tanu.org>
@@ -46,8 +46,7 @@ static int hf_coap_opt_count		= -1;
 static int hf_coap_code			= -1;
 static int hf_coap_tid			= -1;
 static int hf_coap_opt_delta		= -1;
-static int hf_coap_opt_length4		= -1;
-static int hf_coap_opt_length12		= -1;
+static int hf_coap_opt_length		= -1;
 static int hf_coap_opt_ctype		= -1;
 static int hf_coap_opt_etag		= -1;
 static int hf_coap_opt_max_age		= -1;
@@ -270,9 +269,18 @@ dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, g
 	proto_tree *subtree = NULL;
 	proto_item *item = NULL;
 	gint opt_hlen = 0;
+	tvbuff_t *tvb_lenbuf = NULL;
 
 	opt_delta = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
 	*opt_code += opt_delta;
+
+	/*
+	 * Length:
+	 *   Normally Length is a 4-bit unsigned integer
+	 *   allowing values of 0-14 octets.  When the length is 15 or more,
+	 *   another byte is added as an 8-bit unsigned integer plus 15
+	 *   allowing values of 15-270 octets.
+	 */
 	opt_length = (tvb_get_guint8(tvb, offset) & 0x0f);
 	opt_hlen = 1;
 	if (opt_length == 0x0f) {
@@ -286,7 +294,9 @@ dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, g
 
 	subtree = proto_item_add_subtree(item, ett_coap_option);
 	proto_tree_add_item(subtree, hf_coap_opt_delta, tvb, offset, 1, FALSE);
-	proto_tree_add_item(subtree, opt_hlen == 1 ? hf_coap_opt_length4 : hf_coap_opt_length12, tvb, offset, opt_hlen, FALSE);
+
+	tvb_lenbuf = tvb_new_subset(tvb, offset, opt_hlen, opt_hlen);
+	proto_tree_add_uint_bits_format_value(subtree, hf_coap_opt_length, tvb_lenbuf, 4, opt_hlen == 1 ? 4 : 12, opt_length, "%d", opt_length);
 	offset += opt_hlen;
 
 	/* if opt_code is a multiple of 14, that means the option is a noop option */
@@ -448,8 +458,7 @@ proto_register_coap(void)
 		{ &hf_coap_code, { "Code", "coap.code", FT_UINT8, BASE_DEC, VALS(&vals_code), 0x0, "COAP Method or Response Code", HFILL }},
 		{ &hf_coap_tid, { "Transaction ID", "coap.tid", FT_UINT16, BASE_DEC, NULL, 0x0, "COAP Transaction ID", HFILL }},
 		{ &hf_coap_opt_delta, { "Delta", "coap.opt.delta", FT_UINT8, BASE_DEC, NULL, 0xf0, "COAP Option Delta", HFILL }},
-		{ &hf_coap_opt_length4, { "Length", "coap.opt.length4", FT_UINT8, BASE_DEC, NULL, 0x0f, "COAP Option Length", HFILL }},
-		{ &hf_coap_opt_length12, { "Length", "coap.opt.length12", FT_UINT16, BASE_DEC, NULL, 0x0fff, "COAP Option Length", HFILL }},
+		{ &hf_coap_opt_length, { "Length", "coap.opt.length", FT_UINT16, BASE_DEC, NULL, 0x0, "COAP Option Length", HFILL }},
 		{ &hf_coap_opt_ctype, { "Content-type", "coap.opt.ctype", FT_UINT8, BASE_DEC, VALS(&vals_ctype), 0x0, "COAP Content Type", HFILL }},
 		{ &hf_coap_opt_max_age, { "Max-age", "coap.opt.max_age", FT_INT32, BASE_DEC, NULL, 0x0, "COAP Max-age", HFILL }},
 		{ &hf_coap_opt_etag, { "Etag", "coap.opt.etag", FT_BYTES, BASE_NONE, NULL, 0x0, "COAP Etag", HFILL }},
