@@ -3192,8 +3192,12 @@ David Katz <dkatz [AT] airspan.com> {
 	Support for versioning in the WiMAX ASN CP dissector
 }
 
-Toralf Foerster <toralf.foerster [AT] gmx.de> {
+Toralf Förster <toralf.foerster [AT] gmx.de> {
 	SAMETIME dissector
+}
+
+Stéphane Bryant <stephane [AT] glycon.org> {
+	RELOAD dissector
 }
 
 and by:
