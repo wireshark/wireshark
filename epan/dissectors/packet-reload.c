@@ -32,16 +32,11 @@
 # include "config.h"
 #endif
 
-#include <glib.h>
-
-#include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/ipproto.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include <packet-tcp.h>
-#include <packet-udp.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_reload = -1;
