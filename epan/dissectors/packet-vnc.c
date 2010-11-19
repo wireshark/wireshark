@@ -52,6 +52,7 @@
 #include <epan/emem.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 #include "packet-x11-keysym.h" /* This contains the X11 value_string
 				* "keysym_vals_source" that VNC also uses. */
 
@@ -386,7 +387,6 @@ static guint8 vnc_get_bytes_per_pixel(const packet_info *pinfo);
 	if(a > (guint)tvb_length_remaining(tvb, *offset))	\
 		return a;
 
-
 /* Variables for our preferences */
 static guint vnc_preference_alternate_port = 0;
 
@@ -623,17 +623,15 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Retrieve information from conversation, or add it if it isn't
 	 * there yet */
-	per_conversation_info = conversation_get_proto_data(conversation,
-							    proto_vnc);
+	per_conversation_info = conversation_get_proto_data(conversation, proto_vnc);
 	if(!per_conversation_info) {
 		per_conversation_info = se_alloc(sizeof(vnc_conversation_t));
 
 		per_conversation_info->vnc_next_state = VNC_SESSION_STATE_SERVER_VERSION;
 		per_conversation_info->security_type_selected = VNC_SECURITY_TYPE_INVALID;
 		per_conversation_info->tight_enabled = FALSE;
-		
-      	conversation_add_proto_data(conversation, proto_vnc,
-					    per_conversation_info);
+
+		conversation_add_proto_data(conversation, proto_vnc, per_conversation_info);
 	}
 
 
@@ -738,7 +736,7 @@ vnc_is_client_or_server_version_message(tvbuff_t *tvb)
 }
 
 static gboolean test_vnc_protocol(tvbuff_t *tvb, packet_info *pinfo,
-					proto_tree *tree)
+				  proto_tree *tree)
 {
 	conversation_t *conversation;
 
@@ -785,10 +783,9 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 			return TRUE; /* we still hope to get a SERVER_VERSION message some day. Do not proceed yet */
 
 		proto_tree_add_item(tree, hf_vnc_server_proto_ver, tvb, 4,
-						7, FALSE);
+				    7, FALSE);
 		per_conversation_info->server_proto_ver =
-			g_ascii_strtod((char *)tvb_get_ephemeral_string(tvb, 4, 7),
-				 NULL);
+			g_ascii_strtod((char *)tvb_get_ephemeral_string(tvb, 4, 7), NULL);
 		per_conversation_info->server_port = pinfo->srcport;
 
 		if (check_col(pinfo->cinfo, COL_INFO))
@@ -804,10 +801,9 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 			return TRUE; /* we still hope to get a CLIENT_VERSION message some day. Do not proceed yet */
 
 		proto_tree_add_item(tree, hf_vnc_client_proto_ver, tvb,
-					4, 7, FALSE);
+				    4, 7, FALSE);
 		per_conversation_info->client_proto_ver =
-			g_ascii_strtod((char *)tvb_get_ephemeral_string(tvb, 4, 7),
-				 NULL);
+			g_ascii_strtod((char *)tvb_get_ephemeral_string(tvb, 4, 7), NULL);
 
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -828,22 +824,21 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 			num_security_types = tvb_get_guint8(tvb, offset);
 			if (tree) {
 				proto_tree_add_item(tree,
-					hf_vnc_num_security_types, tvb,
-					offset, 1, FALSE);
+						    hf_vnc_num_security_types,
+						    tvb, offset, 1, FALSE);
 
 				for(offset = 1; offset <= num_security_types; offset++){
 					proto_tree_add_item(tree,
-						hf_vnc_security_type, tvb,
-						offset, 1, FALSE);
+							    hf_vnc_security_type, tvb,
+							    offset, 1, FALSE);
 				}
 			}
 			per_conversation_info->vnc_next_state =	VNC_SESSION_STATE_SECURITY_TYPES;
 		} else {
 			/* Version < 3.007: The server decides the
 			 * authentication type for us to use */
-			proto_tree_add_item(tree,
-				hf_vnc_server_security_type, tvb,
-				offset, 4, FALSE);
+			proto_tree_add_item(tree, hf_vnc_server_security_type,
+					    tvb, offset, 4, FALSE);
 			/* The cast below is possible since in older versions of the protocol the only possible values are 0,1,2 */
 			per_conversation_info->security_type_selected = (guint8)tvb_get_ntohl(tvb, offset);
 			switch(per_conversation_info->security_type_selected) {
@@ -872,8 +867,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 	case VNC_SESSION_STATE_SECURITY_TYPES :
 		col_set_str(pinfo->cinfo, COL_INFO, "Authentication type selected by client");
-		proto_tree_add_item(tree, hf_vnc_client_security_type, tvb,
-							offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_vnc_client_security_type, tvb, offset, 1, FALSE);
 		per_conversation_info->security_type_selected =
 			tvb_get_guint8(tvb, offset);
 
@@ -908,23 +902,23 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		break;
 
 	case VNC_SESSION_STATE_TIGHT_TUNNELING_CAPABILITIES :
+	{
+		gint i;
+
 		col_set_str(pinfo->cinfo, COL_INFO, "TightVNC tunneling capabilities supported");
 
 		proto_tree_add_item(tree, hf_vnc_tight_num_tunnel_types, tvb, offset, 4, FALSE);
 		num_tunnel_types = tvb_get_ntohl(tvb, offset);
+
 		offset += 4;
 
-		{
-			gint i;
+		for(i = 0; i < num_tunnel_types; i++) {
+			/* TightVNC and Xvnc don't support any tunnel capabilities yet, but each capability
+			 * is 16 bytes, so skip them.
+			 */
 
-			for(i = 0; i < num_tunnel_types; i++) {
-				/* TightVNC and Xvnc don't support any tunnel capabilities yet, but each capability
-				 * is 16 bytes, so skip them.
-				 */
-
-				proto_tree_add_item(tree, hf_vnc_tight_tunnel_type, tvb, offset, 16, FALSE);
-				offset += 16;
-			}
+			proto_tree_add_item(tree, hf_vnc_tight_tunnel_type, tvb, offset, 16, FALSE);
+			offset += 16;
 		}
 
 		if (num_tunnel_types == 0)
@@ -932,7 +926,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		else
 			per_conversation_info->vnc_next_state = VNC_SESSION_STATE_TIGHT_TUNNEL_TYPE_REPLY;
 		break;
-
+	}
 	case VNC_SESSION_STATE_TIGHT_TUNNEL_TYPE_REPLY:
 		/* Neither TightVNC nor Xvnc implement this; they just have a placeholder that emits an error
 		 * message and closes the connection (xserver/hw/vnc/auth.c:rfbProcessClientTunnelingType).
@@ -954,19 +948,19 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 				auth_code = tvb_get_ntohl(tvb, offset);
 				proto_tree_add_item(tree, hf_vnc_tight_auth_code, tvb, offset, 4, FALSE);
 				offset += 4;
-				vendor = tvb_get_string(tvb, offset, 4);
+				vendor = tvb_get_ephemeral_string(tvb, offset, 4);
 				process_vendor(tree, hf_vnc_tight_server_vendor, tvb, offset);
 				offset += 4;
-				signature = tvb_get_string(tvb, offset, 8);
+				signature = tvb_get_ephemeral_string(tvb, offset, 8);
 				proto_tree_add_text(tree, tvb, offset, 8, "Signature: %s", signature);
 				offset += 8;
-				
+
 				switch(auth_code) {
 					case VNC_SECURITY_TYPE_NONE:
 						if ((g_ascii_strcasecmp(vendor, "STDV") != 0) || (g_ascii_strcasecmp(signature, "NOAUTH__") != 0)) {
 						/* TODO: create a Expert Info */
 							proto_tree_add_text(tree, tvb, offset, 0, "Authentication code does not match vendor or signature");
-						}						
+						}
 						break;
 					case VNC_SECURITY_TYPE_VNC:
 						if ((g_ascii_strcasecmp(vendor, "STDV") != 0) || (g_ascii_strcasecmp(signature, "VNCAUTH_") != 0)) {
@@ -1002,9 +996,6 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 						proto_tree_add_text(tree, tvb, offset, 0, "Unknown TIGHT VNC authentication");
 						break;
 				}
-				
-				g_free(vendor);
-				g_free(signature);
 			}
 		}
 
@@ -1018,7 +1009,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		col_set_str(pinfo->cinfo, COL_INFO, "TightVNC authentication type selected by client");
 		auth_code = tvb_get_ntohl(tvb, offset);
 		proto_tree_add_item(tree, hf_vnc_tight_auth_code, tvb, offset, 4, FALSE);
-			
+
 		switch(auth_code) {
 			case VNC_SECURITY_TYPE_NONE:
 				per_conversation_info->security_type_selected = VNC_SECURITY_TYPE_NONE;
@@ -1301,10 +1292,9 @@ vnc_client_to_server(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		break;
 
 	default :
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO,
-					"Unknown client message type (%u)",
-					message_type);
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+				"Unknown client message type (%u)",
+				message_type);
 		break;
 	}
 }
@@ -1424,8 +1414,7 @@ vnc_client_set_pixel_format(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 			    1, FALSE);
 	*offset += 1;
 
-	proto_tree_add_item(tree, hf_vnc_padding, tvb, *offset,
-			    3, FALSE);
+	proto_tree_add_item(tree, hf_vnc_padding, tvb, *offset, 3, FALSE);
 	*offset += 3; /* Skip over 3 bytes of padding */
 }
 
@@ -1584,8 +1573,8 @@ static guint
 vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 			      proto_tree *tree)
 {
-	gint num_rects, i;
-	guint16 width, height;
+	gint i;
+	guint16 num_rects, width, height;
 	guint bytes_needed = 0;
 	guint32 encoding_type;
 	proto_item *ti, *ti_x, *ti_y, *ti_width, *ti_height;
@@ -1597,13 +1586,23 @@ vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	*offset += 1;
 
 	num_rects = tvb_get_ntohs(tvb, *offset);
-	proto_tree_add_text(tree, tvb, *offset, 2, "Number of rectangles: %d",
-			    num_rects);
+	ti = proto_tree_add_text(tree, tvb, *offset, 2, "Number of rectangles: %d",
+				 num_rects);
+
+	if (num_rects > 5000) {
+		expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+				       "Too many rectangles, aborting dissection");
+		return(0);
+	}
+
 	*offset += 2;
 
+	/*  We know we need (at least) all these bytes, so ask for them now
+	 *  (instead of 12 at a time...).
+	 */
+	VNC_BYTES_NEEDED((guint)12*num_rects);
+
 	for(i = 1; i <= num_rects; i++) {
-	
-		VNC_BYTES_NEEDED(12);
 
 		ti = proto_tree_add_text(tree, tvb, *offset, 12,
 					 "Rectangle #%d", i);
@@ -1771,19 +1770,29 @@ vnc_rre_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	proto_tree *subrect_tree;
 
 	VNC_BYTES_NEEDED(4);
-	proto_tree_add_item(tree, hf_vnc_rre_num_subrects, tvb, *offset,
-			    4, FALSE);
+	ti = proto_tree_add_item(tree, hf_vnc_rre_num_subrects, tvb, *offset,
+				 4, FALSE);
 	num_subrects = tvb_get_ntohl(tvb, *offset);
 	*offset += 4;
 
+	if (num_subrects > 10000) {
+		expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+				       "Too many sub-rectangles, aborting dissection");
+		return(0);
+	}
+
+	*offset += 2;
 	VNC_BYTES_NEEDED(bytes_per_pixel);
 	proto_tree_add_item(tree, hf_vnc_rre_bg_pixel, tvb, *offset,
 			    bytes_per_pixel, FALSE);
 	*offset += bytes_per_pixel;
 
+	/*  We know we need (at least) all these bytes, so ask for them now
+	 *  (instead of a few at a time...).
+	 */
+	bytes_needed = bytes_per_pixel + 8;
+	VNC_BYTES_NEEDED(bytes_needed * num_subrects);
 	for(i = 1; i <= num_subrects; i++) {
-		bytes_needed = bytes_per_pixel + 8;
-		VNC_BYTES_NEEDED(bytes_needed);
 
 		ti = proto_tree_add_text(tree, tvb, *offset, bytes_per_pixel +
 					 8, "Subrectangle #%d", i);
@@ -2117,17 +2126,13 @@ process_tight_rect_filter_palette(tvbuff_t *tvb, packet_info *pinfo, gint *offse
 
 static guint
 vnc_tight_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
-		   proto_tree *tree, const guint16 width, const guint16 height)
+		   proto_tree *tree, const guint16 width _U_, const guint16 height _U_)
 {
 	vnc_packet_t *per_packet_info;
 	guint8 comp_ctl;
 	proto_item *compression_type_ti;
 	gint bit_offset;
 	gint bytes_needed = -1;
-
-	/* unused arguments */
-	(void) width;
-	(void) height;
 
 	per_packet_info = p_get_proto_data(pinfo->fd, proto_vnc);
 
@@ -2178,8 +2183,8 @@ vnc_tight_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	} else if (comp_ctl > TIGHT_RECT_MAX_VALUE) {
 		/* invalid encoding */
 
-		proto_item_append_text(compression_type_ti, " (invalid encoding)");
-		DISSECTOR_ASSERT_NOT_REACHED();
+		expert_add_info_format(pinfo, compression_type_ti, PI_MALFORMED, PI_ERROR,
+				       "Invalid encoding");
 	} else {
 		guint row_size;
 		gint bits_per_pixel;
@@ -2285,12 +2290,11 @@ vnc_rich_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 
 static guint
-vnc_x_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
+vnc_x_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, gint *offset,
 		      proto_tree *tree, const guint16 width, const guint16 height)
 {
 	gint bitmap_row_bytes = (width + 7) / 8;
 	gint mask_bytes = bitmap_row_bytes * height;
-	(void) pinfo; /* unused argument */
 
 	VNC_BYTES_NEEDED (6);
 	proto_tree_add_item(tree, hf_vnc_cursor_x_fore_back, tvb, *offset, 6, FALSE);
@@ -2315,19 +2319,30 @@ vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 	number_of_colors = tvb_get_ntohs(tvb, 4);
 
-	bytes_needed = (number_of_colors * 6) + 5;
-	VNC_BYTES_NEEDED(bytes_needed);
-
+	VNC_BYTES_NEEDED(3);
 	proto_tree_add_item(tree, hf_vnc_padding, tvb, *offset, 1, FALSE);
 	*offset += 1; /* Skip over 1 byte of padding */
 
-	proto_tree_add_item(tree,
-			    hf_vnc_colormap_first_color,
+	proto_tree_add_item(tree, hf_vnc_colormap_first_color,
 			    tvb, *offset, 2, FALSE);
 	*offset += 2;
 
+	/*  XXX - this is 3 bytes into the tvb, but number_of_colors is set off
+	 *  of 4 bytes in... Bug???
+	 */
 	ti = proto_tree_add_item(tree, hf_vnc_colormap_num_colors, tvb,
 				 *offset, 2, FALSE);
+
+	if (number_of_colors > 10000) {
+		expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+				       "Too many colors (%d), aborting dissection",
+				       number_of_colors);
+		return(0);
+	}
+
+	bytes_needed = (number_of_colors * 6) + 5;
+	VNC_BYTES_NEEDED(bytes_needed);
+
 	proto_item_add_subtree(ti, ett_vnc_colormap_num_groups);
 
 	*offset += 2;
@@ -2379,14 +2394,20 @@ vnc_server_cut_text(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		    proto_tree *tree)
 {
 	guint32 text_len;
+	proto_item *pi;
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Server cut text");
 
 	text_len = tvb_get_ntohl(tvb, *offset);
-	proto_tree_add_item(tree,
-			    hf_vnc_server_cut_text_len, tvb, *offset, 4,
+	pi = proto_tree_add_item(tree, hf_vnc_server_cut_text_len, tvb, *offset, 4,
 			    FALSE);
 	*offset += 4;
+
+	if (text_len > 100000) {
+		expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
+				       "Too much cut text, aborting dissection");
+		return(0);
+	}
 
 	VNC_BYTES_NEEDED(text_len);
 
@@ -3215,9 +3236,16 @@ proto_register_vnc(void)
 	/* Register our preferences module */
 	vnc_module = prefs_register_protocol(proto_vnc, proto_reg_handoff_vnc);
 
-	prefs_register_bool_preference(vnc_module, "desegment", "Reassemble VNC messages spanning multiple TCP segments.", "Whether the VNC dissector should reassemble messages spanning multiple TCP segments.  To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.", &vnc_preference_desegment);
+	prefs_register_bool_preference(vnc_module, "desegment",
+				       "Reassemble VNC messages spanning multiple TCP segments.",
+				       "Whether the VNC dissector should reassemble messages spanning "
+				       "multiple TCP segments.  To use this option, you must also enable "
+				       "\"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+				       &vnc_preference_desegment);
 
-	prefs_register_uint_preference(vnc_module, "alternate_port", "Alternate TCP port", "Decode this port's traffic as VNC in addition to the default ports (5500, 5501, 5900, 5901)", 10, &vnc_preference_alternate_port);
+	prefs_register_uint_preference(vnc_module, "alternate_port", "Alternate TCP port",
+				       "Decode this port's traffic as VNC in addition to the default ports (5500, 5501, 5900, 5901)",
+				       10, &vnc_preference_alternate_port);
 
 }
 
