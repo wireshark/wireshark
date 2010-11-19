@@ -120,6 +120,7 @@ $INCLUDE dictionary.colubris
 $INCLUDE dictionary.cosine
 #$INCLUDE dictionary.dhcp
 $INCLUDE dictionary.digium
+$INCLUDE dictionary.eltex
 $INCLUDE dictionary.epygi
 $INCLUDE dictionary.erx
 $INCLUDE dictionary.ericsson
