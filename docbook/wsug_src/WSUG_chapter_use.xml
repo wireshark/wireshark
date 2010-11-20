@@ -425,6 +425,15 @@
 		  </para></entry>
 	      </row>
 	      <row>
+		<entry><command>Import...</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item brings up the import file dialog box that
+		    allows you to import a text file into a new temporary capture.
+			It is discussed in more detail in <xref linkend="ChIOImportSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
 		<entry><command>Close</command></entry>
 		<entry>Ctrl+W</entry>
 		<entry><para>
