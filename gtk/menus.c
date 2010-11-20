@@ -840,76 +840,72 @@ static void
 view_menu_color_conv_color1_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_*/ , user_data, 1*256);
-
 }
 
 static void
 view_menu_color_conv_color2_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 2*256);
-
 }
+
 static void
 view_menu_color_conv_color3_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 3*256);
-
 }
+
 static void
 view_menu_color_conv_color4_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 4*256);
-
 }
+
 static void
 view_menu_color_conv_color5_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 5*256);
-
 }
+
 static void
 view_menu_color_conv_color6_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 6*256);
-
 }
+
 static void
 view_menu_color_conv_color7_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 7*256);
-
 }
+
 static void
 view_menu_color_conv_color8_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 8*256);
-
 }
+
 static void
 view_menu_color_conv_color9_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 9*256);
-
 }
+
 static void
 view_menu_color_conv_color10_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 10*256);
-
 }
 
 static void
 view_menu_color_conv_new_rule_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 0);
-
 }
 
 static void
 view_menu_reset_coloring_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 255*256);
-
 }
 
 static void
@@ -2617,67 +2613,71 @@ static void
 packet_list_menu_color_conv_cba_color7_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+7*256);
-
 }
 static void
 packet_list_menu_color_conv_cba_color8_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+8*256);
-
 }
 static void
 packet_list_menu_color_conv_cba_color9_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+9*256);
-
 }
 static void
 packet_list_menu_color_conv_cba_color10_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+10*256);
-
 }
 
 static void
 packet_list_menu_color_conv_cba_new_rule_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA);
-
 }
 
+#ifdef NEW_PACKET_LIST
 static void
 packet_list_menu_copy_sum_txt(GtkAction *action _U_, gpointer user_data)
 {
-	copy_hex_cb( NULL /* widget _U_ */ , user_data, CS_TEXT);
-
+	new_packet_list_copy_summary_cb( NULL /* widget _U_ */ , user_data, CS_TEXT);
 }
 
 static void
 packet_list_menu_copy_sum_csv(GtkAction *action _U_, gpointer user_data)
 {
-	copy_hex_cb( NULL /* widget _U_ */ , user_data, CS_CSV);
-
+	new_packet_list_copy_summary_cb( NULL /* widget _U_ */ , user_data, CS_CSV);
 }
+#else
+static void
+packet_list_menu_copy_sum_txt(GtkAction *action _U_, gpointer user_data)
+{
+	packet_list_copy_summary_cb( NULL /* widget _U_ */ , user_data, CS_TEXT);
+}
+
+static void
+packet_list_menu_copy_sum_csv(GtkAction *action _U_, gpointer user_data)
+{
+	packet_list_copy_summary_cb( NULL /* widget _U_ */ , user_data, CS_CSV);
+}
+#endif /* NEW_PACKET_LIST */
 
 static void
 packet_list_menu_copy_as_flt(GtkAction *action _U_, gpointer user_data)
 {
-	copy_hex_cb( NULL /* widget _U_ */ , user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
-
+	match_selected_plist_cb( NULL /* widget _U_ */ , user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
 }
 
 static void
 packet_list_menu_copy_bytes_oht_cb(GtkAction *action _U_, gpointer user_data)
 {
 	copy_hex_cb( NULL /* widget _U_ */ , user_data,  CD_ALLINFO | CD_FLAGS_SELECTEDONLY);
-
 }
 
 static void
 packet_list_menu_copy_bytes_oh_cb(GtkAction *action _U_, gpointer user_data)
 {
 	copy_hex_cb( NULL /* widget _U_ */ , user_data, CD_HEXCOLUMNS | CD_FLAGS_SELECTEDONLY);
-
 }
 
 static void
