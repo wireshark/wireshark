@@ -271,6 +271,7 @@ FILE SECTION
   <!ENTITY WiresharkOpenDialogWin32 SYSTEM "./wsug_graphics/ws-open-win32.png" NDATA PNG>
   <!ENTITY WiresharkSaveAsDialogWin32 SYSTEM "./wsug_graphics/ws-save-as-win32.png" NDATA PNG>
   <!ENTITY WiresharkMergeDialogWin32 SYSTEM "./wsug_graphics/ws-merge-win32.png" NDATA PNG>
+  <!ENTITY WiresharkFileImportDialog SYSTEM "./wsug_graphics/ws-file-import.png" NDATA PNG>
   <!ENTITY WiresharkFileSetDialog SYSTEM "./wsug_graphics/ws-file-set-dialog.png" NDATA PNG>
   <!ENTITY WiresharkExportPlainDialog SYSTEM "./wsug_graphics/ws-export-plain.png" NDATA PNG>
   <!ENTITY WiresharkExportPSDialog SYSTEM "./wsug_graphics/ws-export-ps.png" NDATA PNG>
