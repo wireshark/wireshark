@@ -36,6 +36,7 @@
 #include "packet-ipx.h"
 #include "packet-isl.h"
 #include "packet-llc.h"
+#include "packet-sll.h"
 #include <epan/crc32.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
@@ -754,6 +755,8 @@ proto_reg_handoff_eth(void)
 	dissector_add("ethertype", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
 	dissector_add("chdlctype", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
 	dissector_add("gre.proto", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
+
+	dissector_add("sll.ltype", LINUX_SLL_P_ETHERNET, eth_withoutfcs_handle);
 
 	/*
 	 * This is to handle the output for the Cisco CMTS "cable intercept"

@@ -33,6 +33,7 @@
 #include "packet-sll.h"
 #include "packet-ipx.h"
 #include "packet-llc.h"
+#include "packet-eth.h"
 #include "packet-ppp.h"
 #include "packet-gre.h"
 #include <epan/addr_resolv.h>
@@ -78,6 +79,7 @@ static const value_string packet_type_vals[] = {
 
 static const value_string ltype_vals[] = {
 	{ LINUX_SLL_P_802_3,	"Raw 802.3" },
+	{ LINUX_SLL_P_ETHERNET,	"Ethernet" },
 	{ LINUX_SLL_P_802_2,	"802.2 LLC" },
 	{ LINUX_SLL_P_PPPHDLC,	"PPP (HDLC)" },
 	{ 0,			NULL }
@@ -109,6 +111,13 @@ capture_sll(const guchar *pd, int len, packet_counts *ld)
 			 * 802.2 LLC.
 			 */
 			capture_llc(pd, len, SLL_HEADER_SIZE, ld);
+			break;
+
+		case LINUX_SLL_P_ETHERNET:
+			/*
+			 * Ethernet.
+			 */
+			capture_eth(pd, SLL_HEADER_SIZE, len, ld);
 			break;
 
 		case LINUX_SLL_P_802_3:

@@ -28,6 +28,7 @@
  * The LINUX_SLL_ values for "sll_protocol".
  */
 #define LINUX_SLL_P_802_3	0x0001	/* Novell 802.3 frames without 802.2 LLC header */
+#define LINUX_SLL_P_ETHERNET	0x0003	/* Ethernet */
 #define LINUX_SLL_P_802_2	0x0004	/* 802.2 frames (not D/I/X Ethernet) */
 #define LINUX_SLL_P_PPPHDLC	0x0007	/* PPP HDLC frames */
 
