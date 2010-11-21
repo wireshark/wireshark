@@ -1557,11 +1557,10 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
     guint32 bmask = 0x00; int bmask_le = 0;
     int astart = -1, aend = -1, alen = -1;
 
+
     if (finfo != NULL) {
         bstart = finfo->start;
         blen = finfo->length;
-        if (blen && finfo->ds_tvb && blen > tvb_reported_length_remaining(finfo->ds_tvb, bstart))
-            blen = tvb_reported_length_remaining(finfo->ds_tvb, bstart);
         /* bmask = finfo->hfinfo->bitmask << finfo->hfinfo->bitshift; */ /* (value & mask) >> shift */
         bmask = finfo->hfinfo->bitmask;
         astart = finfo->appendix_start;
@@ -1605,6 +1604,10 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
         bend = aend;
         astart = aend = -1;
     }
+
+    /* don't exceed the end of available data */
+    if (aend != -1 && (guint)aend > len) aend = len;
+    if (bend != -1 && (guint)bend > len) bend = len;
 
     /* save the information needed to redraw the text */
     /* should we save the fd & finfo pointers instead ?? */
