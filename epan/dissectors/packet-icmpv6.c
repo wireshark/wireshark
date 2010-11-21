@@ -905,7 +905,6 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	{
 
             guint8 prefix_len;
-            guint8 route_preference = 8;
             struct e_in6_addr prefix;
             /* RFC 4191 */
 
