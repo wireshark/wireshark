@@ -31,6 +31,7 @@
 #define LINUX_SLL_P_ETHERNET	0x0003	/* Ethernet */
 #define LINUX_SLL_P_802_2	0x0004	/* 802.2 frames (not D/I/X Ethernet) */
 #define LINUX_SLL_P_PPPHDLC	0x0007	/* PPP HDLC frames */
+#define LINUX_SLL_P_CAN		0x000C	/* Controller Area Network */
 
 void capture_sll(const guchar *, int, packet_counts *);
 

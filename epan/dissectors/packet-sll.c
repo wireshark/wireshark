@@ -82,6 +82,7 @@ static const value_string ltype_vals[] = {
 	{ LINUX_SLL_P_ETHERNET,	"Ethernet" },
 	{ LINUX_SLL_P_802_2,	"802.2 LLC" },
 	{ LINUX_SLL_P_PPPHDLC,	"PPP (HDLC)" },
+	{ LINUX_SLL_P_CAN,	"CAN" },
 	{ 0,			NULL }
 };
 

@@ -29,6 +29,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include "packet-sll.h"
 
 /* controller area network (CAN) kernel definitions
  * This maskare usualy defined within <linux/can.h> but not
@@ -195,6 +196,7 @@ proto_reg_handoff_socketcan(void)
 
 	can_handle = create_dissector_handle(dissect_socketcan, proto_can);
 	dissector_add("wtap_encap", WTAP_ENCAP_SOCKETCAN, can_handle);
+	dissector_add("sll.ltype", LINUX_SLL_P_CAN, can_handle);
 }
 
 
