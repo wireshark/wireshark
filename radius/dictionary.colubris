@@ -5,6 +5,8 @@ VENDOR		Colubris			8744
 #
 #       Vendor-specific attributes
 #
+#	$Id$
+#
 BEGIN-VENDOR	Colubris
 
 ATTRIBUTE	Colubris-AVPair				0	string
