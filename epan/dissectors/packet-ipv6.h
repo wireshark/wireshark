@@ -360,15 +360,16 @@ struct nd_router_advert {	/* router advertisement */
 #define ND_RA_FLAG_HOME_AGENT	0x20
 
 /*
- * Router preference values based on draft-draves-ipngwg-router-selection-01.
- * These are non-standard definitions.
+ * Router preference values based on RFC4191.
  */
 #define ND_RA_FLAG_RTPREF_MASK	0x18 /* 00011000 */
+#define ND_RA_FLAG_RESERV_MASK	0xE7 /* 11100111 */
 
-#define ND_RA_FLAG_RTPREF_HIGH	0x08 /* 00001000 */
-#define ND_RA_FLAG_RTPREF_MEDIUM	0x00 /* 00000000 */
-#define ND_RA_FLAG_RTPREF_LOW	0x18 /* 00011000 */
-#define ND_RA_FLAG_RTPREF_RSV	0x10 /* 00010000 */
+#define ND_RA_FLAG_RTPREF_HIGH		0x01 
+#define ND_RA_FLAG_RTPREF_MEDIUM	0x00 
+#define ND_RA_FLAG_RTPREF_LOW		0x03 
+#define ND_RA_FLAG_RTPREF_RSV		0x02 
+
 #define ND_RA_FLAG_ND_PROXY     0x04 /* RFC 4389 */
 
 #define nd_ra_router_lifetime	nd_ra_hdr.icmp6_data16[1]
@@ -405,16 +406,6 @@ struct nd_redirect {		/* redirect */
 	/* could be followed by options */
 };
 
-#define nd_rd_type		nd_rd_hdr.icmp6_type
-#define nd_rd_code		nd_rd_hdr.icmp6_code
-#define nd_rd_cksum		nd_rd_hdr.icmp6_cksum
-#define nd_rd_reserved		nd_rd_hdr.icmp6_data32[0]
-
-struct nd_opt_hdr {		/* Neighbor discovery option header */
-	guint8	nd_opt_type;
-	guint8	nd_opt_len;
-	/* followed by option specific data*/
-};
 
 /* http://www.iana.org/assignments/icmpv6-parameters */
 #define ND_OPT_SOURCE_LINKADDR		1
@@ -444,83 +435,28 @@ struct nd_opt_hdr {		/* Neighbor discovery option header */
 22      CARD Reply option                       [RFC4065]
 23      MAP Option                              [RFC4140]
 */
-#define ND_OPT_ROUTE_INFO			24  /* Route Information Option                [RFC4191] */
-#define ND_OPT_RECURSIVE_DNS_SERVER	25	/* Recursive DNS Server Option             [RFC5006] */
+#define ND_OPT_MAP			23 /*	[RFC4140] */
+#define ND_OPT_ROUTE_INFO		24 /* Route Information Option                [RFC4191] */
+#define ND_OPT_RECURSIVE_DNS_SERVER	25 /* Recursive DNS Server Option             [RFC5006] */
 /*
 26      RA Flags Extension Option               [RFC5075]
 27      Handover Key Request Option             [RFC-ietf-mipshop-handover-key-03.txt]
 28      Handover Key Reply Option               [RFC-ietf-mipshop-handover-key-03.txt]
-29-252  Unassigned
+*/
+/* draft-6lowpan-nd types, pending IANA assignment */
+#define ND_OPT_ADDR_RESOLUTION 		31
+#define ND_OPT_6LOWPAN_CONTEXT 		32
+#define ND_OPT_AUTH_BORDER_ROUTER  	33
+/*
+34-252  Unassigned
 253     RFC3692-style Experiment 1 (*)          [RFC4727]
 254     RFC3692-style Experiment 2 (*)          [RFC4727]
 */
 
-/* draft-ietf-mobileip-hmipv6, not officially assigned yet */
-#define ND_OPT_MAP			201
-
-struct nd_opt_prefix_info {	/* prefix information */
-	guint8	nd_opt_pi_type;
-	guint8	nd_opt_pi_len;
-	guint8	nd_opt_pi_prefix_len;
-	guint8	nd_opt_pi_flags_reserved;
-	guint32	nd_opt_pi_valid_time;
-	guint32	nd_opt_pi_preferred_time;
-	guint32	nd_opt_pi_reserved2;
-	struct e_in6_addr	nd_opt_pi_prefix;
-};
-
 #define ND_OPT_PI_FLAG_ONLINK		0x80
-#define ND_OPT_PI_FLAG_AUTO			0x40
+#define ND_OPT_PI_FLAG_AUTO		0x40
 #define ND_OPT_PI_FLAG_ROUTER		0x20
 #define ND_OPT_PI_FLAG_SITEPREF		0x10
-
-struct nd_opt_rd_hdr {         /* redirected header */
-	guint8	nd_opt_rh_type;
-	guint8	nd_opt_rh_len;
-	guint16	nd_opt_rh_reserved1;
-	guint32	nd_opt_rh_reserved2;
-	/* followed by IP header and data */
-};
-
-struct nd_opt_mtu {		/* MTU option */
-	guint8	nd_opt_mtu_type;
-	guint8	nd_opt_mtu_len;
-	guint16	nd_opt_mtu_reserved;
-	guint32	nd_opt_mtu_mtu;
-};
-
-struct nd_opt_adv_int {		/* Advertisement Interval option */
-	guint8	nd_opt_adv_int_type;
-	guint8	nd_opt_adv_int_len;
-	guint16	nd_opt_adv_int_reserved;
-	guint32	nd_opt_adv_int_advint;
-};
-
-struct nd_opt_ha_info {		/* Home Agent Information option */
-	guint8	nd_opt_ha_info_type;
-	guint8	nd_opt_ha_info_len;
-	guint16	nd_opt_ha_info_reserved;
-	guint16	nd_opt_ha_info_ha_pref;
-	guint16	nd_opt_ha_info_ha_life;
-};
-
-struct nd_opt_route_info {	/* route info */
-	guint8	nd_opt_rti_type;
-	guint8	nd_opt_rti_len;
-	guint8	nd_opt_rti_prefixlen;
-	guint8	nd_opt_rti_flags;
-	guint32	nd_opt_rti_lifetime;
-	/* prefix follows */
-};
-
-struct nd_opt_map_info {	/* HMIPv6 MAP option */
-	guint8			nd_opt_map_type;
-	guint8			nd_opt_map_len;
-	guint8			nd_opt_map_dist_and_pref;
-	guint8			nd_opt_map_flags;
-	guint32			nd_opt_map_lifetime;
-	struct e_in6_addr	nd_opt_map_address;
-};
 
 #define ND_OPT_MAP_FLAG_R	0x80
 #define ND_OPT_MAP_FLAG_M	0x40
@@ -529,35 +465,9 @@ struct nd_opt_map_info {	/* HMIPv6 MAP option */
 #define ND_OPT_MAP_FLAG_P	0x08
 #define ND_OPT_MAP_FLAG_V	0x04
 
-
-/* draft-6lowpan-nd types, pending IANA assignment */
-#define ND_OPT_ADDR_RESOLUTION 		31
-#define ND_OPT_6LOWPAN_CONTEXT 		32
-#define ND_OPT_AUTH_BORDER_ROUTER  	33
-
-struct nd_opt_addr_resolution { /* 6LoWPAN-ND Address Resolution Option WITHOUT registered address */
-	guint8			nd_opt_aro_type;
-	guint8			nd_opt_aro_len;
-	guint8			nd_opt_aro_status;
-	guint8			nd_opt_aro_reserved1;
-	guint16			nd_opt_aro_reserved2;
-	guint16			nd_opt_aro_lifetime;
-	guint8			nd_opt_aro_eui64[8];
-    /* Followed by 'registered address' if length is 4 */
-};
-
-
-struct nd_opt_6lowpan_context { /* 6LoWPAN-ND 6LoWPAN Context Option */
-	guint8			nd_opt_6co_type;
-	guint8			nd_opt_6co_len;
-	guint8			nd_opt_6co_context_length;
-	guint8			nd_opt_6co_CID;
-	guint16			nd_opt_6co_reserved;
-	guint16			nd_opt_6co_lifetime;
-    /* Followed by context, 8 or 16 bytes */
-};
-#define ND_OPT_6CO_CFLAG        0x10
-#define ND_OPT_6CO_CIDMASK      0x0F
+#define ND_OPT_6CO_FLAG_C        0x10
+#define ND_OPT_6CO_FLAG_CID      0x0F
+#define ND_OPT_6CO_FLAG_RESERVED 0xE0
 
 /*
  * icmp6 node information
@@ -601,7 +511,7 @@ struct ni_reply_fqdn {
 /*
  * Router Renumbering. as router-renum-05.txt
  */
-struct icmp6_router_renum {	/* router renumbering header */
+struct icmp6_router_renum {	/* router rnd_opt_route_infoenumbering header */
 	struct icmp6_hdr	rr_hdr;
 	guint8		rr_segnum;
 	guint8		rr_flags;
@@ -796,22 +706,6 @@ struct fmip6_opt_link_layer_address {
 #define FMIP6_OPT_LINK_LAYER_ADDRESS_OPTCODE_NOSUPPORT	7	/* No fast handovers support available for the access point identified by the LLA */
 /* Length of this option in 8 octets including opt_hdr, is variable */
 
-/* Neighbor Advertisement Acknowledgment (NAACK) */
-struct fmip6_opt_neighbor_advertisement_ack {
-	guint8 fmip6_opt_type; 	/* Type = 20 */
-	guint8 fmip6_opt_len;		/* size of this option in 8 octets including opt_hdr (1 or 3), because NAACK is caried in a RA (ICMP, not MH) */
-	guint8 fmip6_opt_optcode;	/* Sub-types see the definition below */
-	guint8 fmip6_opt_status;	/* See the below definitions */
-	guint32 fmip6_opt_reserved;	/* Reserved */
-	/* could be followed by New CoA */
-};
-
-#define FMIP6_OPT_NEIGHBOR_ADV_ACK_OPTCODE		0	/* Currently no other sub-type */
-#define	FMIP6_OPT_NEIGHBOR_ADV_ACK_STATUS_INVALID 	1	/* New CoA is invalid */
-#define	FMIP6_OPT_NEIGHBOR_ADV_ACK_STATUS_INVALID_NEW 	2	/* New CoA is invalid, use the supplied CoA in reserved field */
-#define	FMIP6_OPT_NEIGHBOR_ADV_ACK_STATUS_UNRECOGNIZED 	128	/* LLA is unrecognized */
-#define FMIP6_OPT_NEIGHBOR_ADV_ACK_LEN_NO_COA		1	/* No CoA included */
-#define FMIP6_OPT_NEIGHBOR_ADV_ACK_LEN_COA		3	/* CoA included */
 
 /* RPL: draft-ietf-roll-rpl-12.txt: Routing over Low-Power and Lossy Networks. */
 /* Pending IANA Assignment */

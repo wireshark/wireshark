@@ -158,6 +158,23 @@ static int hf_icmpv6_rpl_opt_targetdesc = -1;
 static int hf_icmpv6_option = -1;
 static int hf_icmpv6_option_type = -1;
 static int hf_icmpv6_option_length = -1;
+static int hf_icmpv6_opt_linkaddr_mac = -1;
+static int hf_icmpv6_opt_src_linkaddr_mac = -1;
+static int hf_icmpv6_opt_target_linkaddr_mac = -1;
+static int hf_icmpv6_opt_linkaddr = -1;
+static int hf_icmpv6_opt_src_linkaddr = -1;
+static int hf_icmpv6_opt_target_linkaddr = -1;
+static int hf_icmpv6_opt_prefix_len = -1;
+static int hf_icmpv6_opt_prefix_flag = -1;
+static int hf_icmpv6_opt_prefix_flag_l = -1;
+static int hf_icmpv6_opt_prefix_flag_a = -1;
+static int hf_icmpv6_opt_prefix_flag_reserved = -1;
+static int hf_icmpv6_opt_prefix_valid_lifetime = -1;
+static int hf_icmpv6_opt_prefix_preferred_lifetime = -1;
+static int hf_icmpv6_opt_prefix = -1;
+static int hf_icmpv6_opt_naack_option_code = -1;
+static int hf_icmpv6_opt_naack_status = -1;
+static int hf_icmpv6_opt_naack_supplied_ncoa = -1;
 static int hf_icmpv6_opt_cga_pad_len = -1;
 static int hf_icmpv6_opt_cga = -1;
 static int hf_icmpv6_opt_cga_modifier = -1;
@@ -165,7 +182,23 @@ static int hf_icmpv6_opt_cga_subnet_prefix = -1;
 static int hf_icmpv6_opt_cga_count = -1;
 static int hf_icmpv6_opt_cga_ext_type = -1;
 static int hf_icmpv6_opt_cga_ext_length = -1;
+static int hf_icmpv6_opt_cga_ext_data = -1;
 static int hf_icmpv6_opt_rsa_key_hash = -1;
+static int hf_icmpv6_opt_digital_signature_padding = -1;
+static int hf_icmpv6_opt_timestamp = -1;
+static int hf_icmpv6_opt_nonce = -1;
+static int hf_icmpv6_opt_certificate_padding = -1;
+static int hf_icmpv6_opt_map_dist = -1;
+static int hf_icmpv6_opt_map_pref = -1;
+static int hf_icmpv6_opt_map_flag = -1;
+static int hf_icmpv6_opt_map_flag_r = -1;
+static int hf_icmpv6_opt_map_flag_reserved = -1;
+static int hf_icmpv6_opt_map_valid_lifetime = -1;
+static int hf_icmpv6_opt_map_global_address = -1;
+static int hf_icmpv6_opt_route_info_flag = -1;
+static int hf_icmpv6_opt_route_info_flag_route_preference = -1;
+static int hf_icmpv6_opt_route_info_flag_reserved = -1;
+static int hf_icmpv6_opt_route_lifetime = -1;
 static int hf_icmpv6_opt_name_type = -1;
 static int hf_icmpv6_opt_name_x501 = -1;
 static int hf_icmpv6_opt_name_fqdn = -1;
@@ -175,19 +208,28 @@ static int hf_icmpv6_all_comp = -1;
 static int hf_icmpv6_comp = -1;
 static int hf_icmpv6_x509if_Name = -1;
 static int hf_icmpv6_x509af_Certificate = -1;
-static int hf_icmpv6_recursive_dns_serv = -1;
-static int hf_icmpv6_opt_prefix_len = -1;
-static int hf_icmpv6_opt_flag_l = -1;
-static int hf_icmpv6_opt_flag_a = -1;
-static int hf_icmpv6_opt_flag_reserved = -1;
+static int hf_icmpv6_opt_redirected_packet = -1;
+static int hf_icmpv6_opt_mtu = -1;
+static int hf_icmpv6_opt_advertisement_interval = -1;
+static int hf_icmpv6_opt_home_agent_preference = -1;
+static int hf_icmpv6_opt_home_agent_lifetime = -1;
+static int hf_icmpv6_opt_reserved = -1;
+static int hf_icmpv6_opt_padding = -1;
+static int hf_icmpv6_opt_rdnss_lifetime = -1;
+static int hf_icmpv6_opt_rdnss = -1;
 
-static int hf_icmpv6_opt_aro_lifetime = -1;
+static int hf_icmpv6_opt_aro_status = -1;
+static int hf_icmpv6_opt_aro_registration_lifetime = -1;
 static int hf_icmpv6_opt_aro_eui64 = -1;
-static int hf_icmpv6_opt_aro_addr_reg = -1;
-static int hf_icmpv6_opt_6co_lifetime = -1;
 static int hf_icmpv6_opt_6co_context_length = -1;
-static int hf_icmpv6_opt_abro_addr = -1;
+static int hf_icmpv6_opt_6co_flag = -1;
+static int hf_icmpv6_opt_6co_flag_c = -1;
+static int hf_icmpv6_opt_6co_flag_cid = -1;
+static int hf_icmpv6_opt_6co_flag_reserved = -1;
+static int hf_icmpv6_opt_6co_valid_lifetime = -1;
+static int hf_icmpv6_opt_6co_context_prefix  = -1;
 static int hf_icmpv6_opt_abro_version = -1;
+static int hf_icmpv6_opt_abro_6lbr_address = -1;
 
 static gint ett_icmpv6 = -1;
 static gint ett_icmpv6opt = -1;
@@ -351,10 +393,12 @@ static const value_string names_fmip6_lla_opt_code[] = {
 };
 
 static const value_string names_fmip6_naack_opt_status[] = {
-    { FMIP6_OPT_NEIGHBOR_ADV_ACK_STATUS_INVALID,        "New CoA is invalid" },
-    { FMIP6_OPT_NEIGHBOR_ADV_ACK_STATUS_INVALID_NEW,    "New CoA is invalid, use the supplied CoA" },
-    { FMIP6_OPT_NEIGHBOR_ADV_ACK_STATUS_UNRECOGNIZED,   "LLA is unrecognized" },
-    { 0,                        NULL }
+    { 1,    "New CoA is invalid, perform address configuration" },
+    { 2,    "New CoA is invalid, use the supplied CoA" },
+    { 3,    "NCoA is invalid, use NAR's IP address as NCoA in FBU" },
+    { 4,    "PCoA supplied, do not send FBU" },
+    { 128,  "LLA is unrecognized" },
+    { 0,    NULL }
 };
 
 static const value_string fmip6_opt_type_str[] = {
@@ -365,9 +409,9 @@ static const value_string fmip6_opt_type_str[] = {
 };
 
 static const value_string names_6lowpannd_aro_status_str[] = {
-    { 0,                                "Success" },
-    { 1,                                "Duplicate Exists" },
-    { 2,                                "Neighbor Cache Full" },
+    { 0, "Success" },
+    { 1, "Duplicate Exists" },
+    { 2, "Neighbor Cache Full" },
     { 0, NULL }
 };
 
@@ -402,7 +446,8 @@ static const value_string option_vals[] = {
 /*  3 */    { ND_OPT_PREFIX_INFORMATION,        "Prefix information" },
 /*  4 */    { ND_OPT_REDIRECTED_HEADER,         "Redirected header" },
 /*  5 */    { ND_OPT_MTU,                       "MTU" },
-/*  6 */    { ND_OPT_ADVINTERVAL,               "Advertisement Interval" },
+/* FIXME: Miss 6 ?? NBMA ! */
+/*  7 */    { ND_OPT_ADVINTERVAL,               "Advertisement Interval" },
 /*  8 */    { ND_OPT_HOMEAGENT_INFO,            "Home Agent Information" },
 /*  9 */    { ND_OPT_SOURCE_ADDRLIST,           "Source Address List" },
 /* 10 */    { ND_OPT_TARGET_ADDRLIST,           "Target Address List" },
@@ -470,7 +515,6 @@ dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
        "real" packets. */
     save_in_error_pkt = pinfo->in_error_pkt;
     pinfo->in_error_pkt = TRUE;
-    pinfo->in_error_pkt = TRUE;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
@@ -488,217 +532,239 @@ dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 static void
 dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree *icmp6opt_tree, *field_tree, *name_tree, *cga_tree;
-    proto_item *ti, *tf, *name_item, *cga_item;
-    struct nd_opt_hdr nd_opt_hdr, *opt;
-    int len;
-    const char *typename;
-    static const guint8 nd_redirect_reserved[6] = {0, 0, 0, 0, 0, 0};
-    guint8 nd_redirect_res[6];
+    proto_tree *icmp6opt_tree, *flag_tree;
+    proto_item *ti, *ti_opt;
+    guint8 opt_type;
+    int opt_len;
     int opt_offset;
-    guint8 padd_length = 0;
-    int par_len;
-    guint8 name_type = 0;
-    guint8 cert_type = 0;
-    asn1_ctx_t asn1_ctx;
-    guint32 lifetime;
-    guint32 no_of_pars;
-    guint32 i;
 
     while ((int)tvb_reported_length(tvb) > offset) {
 	/* there are more options */
 
-	opt = &nd_opt_hdr;
-	tvb_memcpy(tvb, (guint8 *)opt, offset, sizeof *opt);
-	len = opt->nd_opt_len << 3;
-
-	/* !!! specify length */
-	ti = proto_tree_add_item(tree, hf_icmpv6_option, tvb, offset, len, FALSE);
+	/* ICMPv6 Option */
+	opt_len = tvb_get_guint8(tvb, offset + 1) * 8; 
+	ti = proto_tree_add_item(tree, hf_icmpv6_option, tvb, offset, opt_len, FALSE);
 	icmp6opt_tree = proto_item_add_subtree(ti, ett_icmpv6opt);
-
-	if (len == 0) {
-	    proto_tree_add_text(icmp6opt_tree, tvb,
-				offset + offsetof(struct nd_opt_hdr, nd_opt_len), 1,
-				"Invalid option length: %u",
-				opt->nd_opt_len);
-	    return; /* we must not try to decode this */
-	}
-
-	typename = val_to_str(opt->nd_opt_type, option_vals, "Unknown");
-
-	/* Add option name to option root label */
-	proto_item_append_text(ti, " (%s)", typename);
+        opt_offset = offset;
 
 	/* Option type */
-	proto_tree_add_item(icmp6opt_tree, hf_icmpv6_option_type, tvb,
-			    offset + offsetof(struct nd_opt_hdr, nd_opt_type), 1, FALSE);
+	proto_tree_add_item(icmp6opt_tree, hf_icmpv6_option_type, tvb, opt_offset, 1, FALSE);
+        opt_type = tvb_get_guint8(tvb, opt_offset);
+        opt_offset += 1;
+
+	/* Add option name to option root label */
+	proto_item_append_text(ti, " (%s", val_to_str(opt_type, option_vals, "Unknown %d"));
+
 	/* Option length */
-	proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_option_length, tvb,
-			    offset + offsetof(struct nd_opt_hdr, nd_opt_len), 1,
-			    opt->nd_opt_len << 3);
+	ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_option_length, tvb,opt_offset, 1, FALSE);
+        opt_offset += 1;
+
+        /* Add length value in bytes */
+	proto_item_append_text(ti_opt, " (%i bytes)", opt_len);
+
+        if(opt_len == 0){
+            expert_add_info_format(pinfo, ti_opt, PI_MALFORMED, PI_ERROR, "Invalid option length (Zero)");
+            return;
+        }
 
 	/* decode... */
-	switch (opt->nd_opt_type) {
+	switch (opt_type) {
 	case ND_OPT_SOURCE_LINKADDR:
+        {
+            const guint8	*link_addr;
+            /* if the opt len is 8, the Link Addr is MAC Address */ 
+            if(opt_len == 8){
+            	proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr_mac, tvb, opt_offset, 6, FALSE);
+                ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_src_linkaddr_mac, tvb, opt_offset, 6, FALSE);
+                PROTO_ITEM_SET_HIDDEN(ti_opt);
+
+                link_addr = tvb_get_ptr(tvb, opt_offset, 6);
+	        col_append_fstr(pinfo->cinfo, COL_INFO, " from %s", ether_to_str(link_addr));
+                proto_item_append_text(ti, " : %s",  ether_to_str(link_addr));
+
+            }else{
+            	proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr, tvb, opt_offset, opt_len-2, FALSE);
+                ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_src_linkaddr, tvb, opt_offset, opt_len-2, FALSE);
+                PROTO_ITEM_SET_HIDDEN(ti_opt);
+            }
+            break;
+        }
 	case ND_OPT_TARGET_LINKADDR:
 	{
-	    int len_local, p;
-	    gchar *llstr;
+            const guint8	*link_addr;
+            /* if the opt len is 8, the Link Addr is MAC Address */ 
+            if(opt_len == 8){
+            	proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr_mac, tvb, opt_offset, 6, FALSE);
+                ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_target_linkaddr_mac, tvb, opt_offset, 6, FALSE);
+                PROTO_ITEM_SET_HIDDEN(ti_opt);
 
-	    p = offset + sizeof(*opt);
-	    len_local = (opt->nd_opt_len << 3) - sizeof(*opt);
-	    llstr = tvb_bytes_to_str_punct(tvb, p, len_local, ':');
-	    proto_tree_add_text(icmp6opt_tree, tvb,
-				offset + sizeof(*opt), len_local, "Link-layer address: %s",
-				llstr);
-	    col_append_fstr(pinfo->cinfo, COL_INFO,
-			    " %s %s",
-			    opt->nd_opt_type == ND_OPT_SOURCE_LINKADDR ? "from" : "is at",
-			    llstr);
+                link_addr = tvb_get_ptr(tvb, opt_offset, 6);
+	        col_append_fstr(pinfo->cinfo, COL_INFO, " is at %s", ether_to_str(link_addr));
+                proto_item_append_text(ti, " : %s",  ether_to_str(link_addr));
+
+            }else{
+            	proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr, tvb, opt_offset, opt_len-2, FALSE);
+                ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_target_linkaddr, tvb, opt_offset, opt_len-2, FALSE);
+                PROTO_ITEM_SET_HIDDEN(ti_opt);
+            }
+
 	    break;
 	}
 	case ND_OPT_PREFIX_INFORMATION:
 	{
-		    /* RFC 4861 */
-	    struct nd_opt_prefix_info nd_opt_prefix_info, *pi;
-	    int flagoff;
+            guint8 prefix_len;
+            struct e_in6_addr prefix;
+            /* RFC 4861 */
 
-	    pi = &nd_opt_prefix_info;
-	    tvb_memcpy(tvb, (guint8 *)pi, offset, sizeof *pi);
-		    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_prefix_len, tvb, offset + 2, 1, FALSE);
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_prefix_len, tvb, opt_offset, 1, FALSE);
+            prefix_len = tvb_get_guint8(tvb, opt_offset);
+            opt_offset += 1;
+        
+	    ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_prefix_flag, tvb, opt_offset, 1, FALSE);
+	    flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6flag);
 
-	    flagoff = offset + 3;
-	    tf = proto_tree_add_text(icmp6opt_tree, tvb, flagoff, 1, "Flags: 0x%02x",
-				     tvb_get_guint8(tvb, flagoff));
-	    field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
-		    proto_tree_add_item(field_tree, hf_icmpv6_opt_flag_l, tvb, offset + 3, 1, FALSE);
-		    proto_tree_add_item(field_tree, hf_icmpv6_opt_flag_a, tvb, offset + 3, 1, FALSE);
-		    proto_tree_add_item(field_tree, hf_icmpv6_opt_flag_reserved, tvb, offset + 3, 1, FALSE);
-    #if 0
-		    /* This bits are not in the RFC, removed the code Anders Broman 2010-06-02
-			    if no one complains for a while delete it. */
-	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-				decode_boolean_bitfield(pi->nd_opt_pi_flags_reserved,
-							ND_OPT_PI_FLAG_ROUTER, 8,
-							"Router Address", "Not router address"));
-	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-				decode_boolean_bitfield(pi->nd_opt_pi_flags_reserved,
-							ND_OPT_PI_FLAG_SITEPREF, 8,
-							"Site prefix", "Not site prefix"));
-    #endif
-	    if (pntohl(&pi->nd_opt_pi_valid_time) == 0xffffffff)
-		proto_tree_add_text(icmp6opt_tree, tvb,
-				    offset+4,
-				    4, "Valid lifetime: infinity");
-	    else
-		proto_tree_add_text(icmp6opt_tree, tvb,
-				    offset+4,
-				    4, "Valid lifetime: %u",
-				    pntohl(&pi->nd_opt_pi_valid_time));
-	    if (pntohl(&pi->nd_opt_pi_preferred_time) == 0xffffffff)
-		proto_tree_add_text(icmp6opt_tree, tvb,
-				    offset+8,
-				    4, "Preferred lifetime: infinity");
-	    else
-		proto_tree_add_text(icmp6opt_tree, tvb,
-				    offset+8,
-				    4, "Preferred lifetime: %u",
-				    pntohl(&pi->nd_opt_pi_preferred_time));
-	    proto_tree_add_text(icmp6opt_tree, tvb,
-				offset + 12,
-				4, "Reserved");
-	    proto_tree_add_text(icmp6opt_tree, tvb,
-				offset + 16,
-				16, "Prefix: %s", ip6_to_str(&pi->nd_opt_pi_prefix));
+            proto_tree_add_item(flag_tree, hf_icmpv6_opt_prefix_flag_l, tvb, opt_offset, 1, FALSE);
+	    proto_tree_add_item(flag_tree, hf_icmpv6_opt_prefix_flag_a, tvb, opt_offset, 1, FALSE);
+	    proto_tree_add_item(flag_tree, hf_icmpv6_opt_prefix_flag_reserved, tvb, opt_offset, 1, FALSE);
+            opt_offset += 1;
+
+            ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_prefix_valid_lifetime, tvb, opt_offset, 4, FALSE);
+           
+             switch(tvb_get_ntohl(tvb, opt_offset)){ /* Prefix Valid Lifetime */
+                case 0xffffffff:
+                	proto_item_append_text(ti_opt, " (Infinity)");
+                break;
+                default:
+                break;
+            }
+            opt_offset += 4;
+
+            ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_prefix_preferred_lifetime, tvb, opt_offset, 4, FALSE);
+           
+             switch(tvb_get_ntohl(tvb, opt_offset)){ /* Prefix Preferred Lifetime */
+                case 0xffffffff:
+                	proto_item_append_text(ti_opt, " (Infinity)");
+                break;
+                default:
+                break;
+            }
+            opt_offset += 4;
+
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 4, FALSE);
+            opt_offset += 4;
+
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_prefix, tvb, opt_offset, 16, FALSE);
+            tvb_get_ipv6(tvb, opt_offset, &prefix);
+            proto_item_append_text(ti, " : %s/%d", ip6_to_str(&prefix), prefix_len);
+            opt_offset += 16;         
+
 	    break;
 	}
 	case ND_OPT_REDIRECTED_HEADER:
-	    tvb_memcpy(tvb, (guint8 *)&nd_redirect_res, offset + 2, 6);
-	    if (memcmp(nd_redirect_res, nd_redirect_reserved, 6) == 0)
-		proto_tree_add_text(icmp6opt_tree, tvb,
-				    offset + 2, 6, "Reserved: 0 (correct)");
-	    else
-		proto_tree_add_text(icmp6opt_tree, tvb,
-				    offset +2, 6, "Reserved: MUST be 0 (incorrect!)");
-	    proto_tree_add_text(icmp6opt_tree, tvb,
-				offset + 8, (opt->nd_opt_len << 3) - 8, "Redirected packet");
-	    dissect_contained_icmpv6(tvb, offset + 8, pinfo, icmp6opt_tree);
+
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 6, FALSE);
+            opt_offset += 6;
+
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_redirected_packet, tvb, opt_offset, -1, FALSE);
+
+	    dissect_contained_icmpv6(tvb, opt_offset, pinfo, icmp6opt_tree);
 	    break;
 	case ND_OPT_MTU:
-	    proto_tree_add_text(icmp6opt_tree, tvb,
-				offset + offsetof(struct nd_opt_mtu, nd_opt_mtu_mtu), 4,
-				"MTU: %u", tvb_get_ntohl(tvb, offset + offsetof(struct nd_opt_mtu, nd_opt_mtu_mtu)));
+
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, FALSE);
+            opt_offset += 2;
+
+	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_mtu, tvb, opt_offset, 4, FALSE);
+            proto_item_append_text(ti, " : %d", tvb_get_ntohl(tvb, opt_offset));
 	    break;
 	case ND_OPT_ADVINTERVAL:
-	    proto_tree_add_text(icmp6opt_tree, tvb,
-				offset + offsetof(struct nd_opt_adv_int, nd_opt_adv_int_advint), 4,
-				"Advertisement Interval: %u",
-				tvb_get_ntohl(tvb, offset + offsetof(struct nd_opt_adv_int, nd_opt_adv_int_advint)));
+
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, FALSE);
+            opt_offset += 2;
+
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_advertisement_interval, tvb, opt_offset, 4, FALSE);
+            proto_item_append_text(ti, " : %d", tvb_get_ntohl(tvb, opt_offset));
+
 	    break;
 	case ND_OPT_HOMEAGENT_INFO: /* 8 */
 	{
-	    struct nd_opt_ha_info pibuf, *pi;
 
-	    pi = &pibuf;
-	    tvb_memcpy(tvb, (guint8 *)pi, offset, sizeof *pi);
-	    proto_tree_add_text(icmp6opt_tree, tvb,
-				offset + offsetof(struct nd_opt_ha_info, nd_opt_ha_info_ha_pref),
-				2, "Home Agent Preference: %d",
-				(gint16)pntohs(&pi->nd_opt_ha_info_ha_pref));
-	    proto_tree_add_text(icmp6opt_tree, tvb,
-				offset + offsetof(struct nd_opt_ha_info, nd_opt_ha_info_ha_life),
-				2, "Home Agent Lifetime: %u",
-				pntohs(&pi->nd_opt_ha_info_ha_life));
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, FALSE);
+            opt_offset += 2;
+
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_home_agent_preference, tvb, opt_offset, 2, FALSE);
+            opt_offset += 2;
+
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_home_agent_lifetime, tvb, opt_offset, 2, FALSE);
+            opt_offset += 2;
 	    break;
 	}
-	case ND_OPT_CGA: /* 11 */ {
+	case ND_OPT_CGA: /* 11 */ 
+        {
+            proto_tree *cga_tree;
+            proto_item *cga_item;
 	    guint16 ext_data_len;
+            guint8 padd_length;
+            int par_len;
+            asn1_ctx_t asn1_ctx;
 	    /* RFC 3971 5.1.  CGA Option */
+
 	    /* Pad Length */
-	    opt_offset = offset +2;
-	    padd_length = tvb_get_guint8(tvb,opt_offset);
+	    padd_length = tvb_get_guint8(tvb, opt_offset);
 	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_cga_pad_len, tvb, opt_offset, 1, FALSE);
-	    opt_offset++;
+	    opt_offset += 1;
+
 	    /* Reserved 8 bits */
-	    proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,1,"Reserved");
-	    opt_offset++;
+
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 1, FALSE);
+	    opt_offset += 1;
+
 	    /* CGA Parameters A variable-length field containing the CGA Parameters data
 	     * structure described in Section 4 of
 	     * "Cryptographically Generated Addresses (CGA)", RFC3972.
 	     */
-	    par_len = len-4-padd_length;
+	    par_len = opt_len-4-padd_length;
 	    cga_item = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_cga, tvb, opt_offset, par_len, FALSE);
 	    par_len += opt_offset;
+
 	    cga_tree = proto_item_add_subtree(cga_item, ett_cga_param_name);
-	    proto_tree_add_item(cga_tree,hf_icmpv6_opt_cga_modifier,tvb, opt_offset,16,FALSE);
+	    proto_tree_add_item(cga_tree, hf_icmpv6_opt_cga_modifier, tvb, opt_offset, 16, FALSE);
 	    opt_offset += 16;
-	    proto_tree_add_item(cga_tree,hf_icmpv6_opt_cga_subnet_prefix,tvb,opt_offset,8,FALSE);
+
+	    proto_tree_add_item(cga_tree, hf_icmpv6_opt_cga_subnet_prefix, tvb, opt_offset, 8, FALSE);
 	    opt_offset += 8;
-	    proto_tree_add_item(cga_tree,hf_icmpv6_opt_cga_count,tvb,opt_offset,1,FALSE);
+
+	    proto_tree_add_item(cga_tree ,hf_icmpv6_opt_cga_count, tvb, opt_offset, 1, FALSE);
 	    opt_offset++;
+
 	    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 	    opt_offset = dissect_x509af_SubjectPublicKeyInfo(FALSE, tvb, opt_offset, &asn1_ctx, cga_tree, -1);
+
 	    /* Process RFC 4581*/
 	    while (opt_offset < par_len) {
-		proto_tree_add_item(cga_tree,hf_icmpv6_opt_cga_ext_type,tvb,opt_offset,2,FALSE);
+		proto_tree_add_item(cga_tree, hf_icmpv6_opt_cga_ext_type, tvb, opt_offset, 2, FALSE);
 		opt_offset += 2;
-		ext_data_len = tvb_get_ntohs(tvb,opt_offset);
-		proto_tree_add_item(cga_tree,hf_icmpv6_opt_cga_ext_length,tvb,opt_offset,2,FALSE);
+
+		ext_data_len = tvb_get_ntohs(tvb, opt_offset);
+		proto_tree_add_item(cga_tree, hf_icmpv6_opt_cga_ext_length, tvb, opt_offset, 2, FALSE);
 		opt_offset += 2;
-		proto_tree_add_text(cga_tree,tvb,opt_offset,ext_data_len,"Ext Data");
+
+                proto_tree_add_item(cga_tree, hf_icmpv6_opt_cga_ext_data, tvb, opt_offset, ext_data_len, FALSE);
 		opt_offset += ext_data_len;
 	    }
 
 	    /* Padding */
-	    proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,padd_length,"Padding");
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset, padd_length, FALSE);
 	    break;
 	}
 	case ND_OPT_RSA: /* 12 */
+        {
+            int par_len;
 	    /*5.2.  RSA Signature Option */
-	    opt_offset = offset +2;
 	    /* Reserved, A 16-bit field reserved for future use. */
-	    proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,2,"Reserved");
+	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, FALSE);
 	    opt_offset = opt_offset + 2;
+
 	    /* Key Hash
 	     * A 128-bit field containing the most significant (leftmost) 128
 	     * bits of a SHA-1 [14] hash of the public key used for constructing
@@ -706,17 +772,20 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	     */
 	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_rsa_key_hash, tvb, opt_offset, 16, FALSE);
 	    opt_offset = opt_offset + 16;
+
 	    /* Digital Signature */
-	    par_len = len - 20;
-	    proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,par_len,"Digital Signature + Padding");
+	    par_len = opt_len - 20;
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_digital_signature_padding , tvb, opt_offset, par_len, FALSE);
+
 	    /* Padding */
 	    /* TODO: Calculate padding length and exlude from the signature */
 	    break;
+        }
 	case ND_OPT_TIMESTAMP: /* 13 */
-	    opt_offset = offset +2;
 	    /* Reserved A 48-bit field reserved for future use. */
-	    proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,6,"Reserved");
-	    opt_offset = opt_offset + 6;
+	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 6, FALSE);
+	    opt_offset += 6;
+
 	    /* Timestamp
 	     * A 64-bit unsigned integer field containing a timestamp.  The value
 	     * indicates the number of seconds since January 1, 1970, 00:00 UTC,
@@ -725,31 +794,39 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	     * remaining 16 bits indicate the number of 1/64K fractions of a
 	     * second.
 	     */
-	    proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,6,"Timestamp(number of seconds since January 1, 1970, 00:00 UTC)");
-	    opt_offset = opt_offset + 6;
-	    proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,2,"Timestamp(1/64K fractions of a second)");
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_timestamp, tvb, opt_offset + 2, 4, FALSE);
 	    break;
 	case ND_OPT_NONCE:
 	    /* 5.3.2.  Nonce Option */
-	    opt_offset = offset +2;
-	    proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,len-2,"Nonce");
+
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_nonce, tvb, opt_offset, opt_len - 2, FALSE);
 	    /* Nonce */
 	    break;
 	case ND_OPT_TRUST_ANCHOR:
-	    opt_offset = offset +2;
+        {
+            proto_tree *name_tree;
+            proto_item *name_item;
+            guint8 name_type;
+            guint8 padd_length;
+            int par_len;
+            asn1_ctx_t asn1_ctx;
+
 	    /* Name Type */
-	    name_type = tvb_get_guint8(tvb,opt_offset);
+	    name_type = tvb_get_guint8(tvb, opt_offset);
 	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_name_type, tvb, opt_offset, 1, FALSE);
-	    opt_offset++;
+	    opt_offset += 1;
+
 	    /* Pad Length */
-	    padd_length = tvb_get_guint8(tvb,opt_offset);
+	    padd_length = tvb_get_guint8(tvb, opt_offset);
 	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_cga_pad_len, tvb, opt_offset, 1, FALSE);
-	    opt_offset++;
-	    par_len = len - 4 - padd_length;
+	    opt_offset += 1;
+
+	    par_len = opt_len - 4 - padd_length;
+
 	    switch (name_type){
 	    case 1:
 		/* DER Encoded X.501 Name */
-		name_item =proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_name_x501, tvb, opt_offset, par_len, FALSE);
+		name_item = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_name_x501, tvb, opt_offset, par_len, FALSE);
 		name_tree = proto_item_add_subtree(name_item, ett_icmpv6opt_name);
 		asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 		dissect_x509if_Name(FALSE, tvb, opt_offset, &asn1_ctx, name_tree, hf_icmpv6_x509if_Name);
@@ -759,298 +836,248 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_name_fqdn, tvb, opt_offset, par_len, FALSE);
 		break;
 	    default:
-		proto_tree_add_text(icmp6opt_tree, tvb,opt_offset, par_len,"Unknown name type");
 		break;
 	    }
 	    opt_offset = opt_offset + par_len;
+
 	    /* Padding */
-	    proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,padd_length,"Padding");
-	    opt_offset = opt_offset + padd_length;
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset, padd_length, FALSE);
+
 	    break;
+        }
 	case ND_OPT_CERTIFICATE:
-	    opt_offset = offset +2;
+        {
+            guint8 cert_type;
+            guint8 padd_length;
+            asn1_ctx_t asn1_ctx;
+
 	    /* Cert Type */
-	    cert_type = tvb_get_guint8(tvb,opt_offset);
+	    cert_type = tvb_get_guint8(tvb, opt_offset);
 	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_cert_type, tvb, opt_offset, 1, FALSE);
-	    opt_offset++;
+	    opt_offset += 1;
+
 	    /* Reserved */
-	    proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,1,"Reserved");
-	    opt_offset++;
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 1, FALSE);
+	    opt_offset += 1;
+
 	    /* Certificate */
 
 	    if(cert_type == 1){
 		asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 		opt_offset = dissect_x509af_Certificate(FALSE, tvb, opt_offset, &asn1_ctx, icmp6opt_tree, hf_icmpv6_x509af_Certificate);
-		par_len = len - (opt_offset - offset);
+		padd_length = opt_len - (opt_offset - offset);
 		/* Padding */
-		proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,par_len,"Padding");
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset, padd_length, FALSE);
 	    }else{
-		par_len = len - 4;
-		proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,par_len,"Unknown Certificate + padding");
+		padd_length = opt_len - 4;
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_certificate_padding, tvb, opt_offset, padd_length, FALSE);
 	    }
 	    break;
+        }
 	case ND_OPT_MAP:
 	{
-	    struct nd_opt_map_info mapbuf, *map;
-	    int flagoff;
 
-	    map = &mapbuf;
-	    tvb_memcpy(tvb, (guint8 *)map, offset, sizeof *map);
-	    proto_tree_add_text(icmp6opt_tree, tvb,
-				offset + offsetof(struct nd_opt_map_info, nd_opt_map_dist_and_pref),
-				1, "Distance: %u", (map->nd_opt_map_dist_and_pref >> 4));
-	    proto_tree_add_text(icmp6opt_tree, tvb,
-				offset + offsetof(struct nd_opt_map_info, nd_opt_map_dist_and_pref),
-				1, "Preference: %u", (map->nd_opt_map_dist_and_pref & 0x0F));
-	    flagoff = offset + offsetof(struct nd_opt_map_info,
-					nd_opt_map_flags);
-	    tf = proto_tree_add_text(icmp6opt_tree, tvb, flagoff, 1,
-				     "Flags: 0x%02x",
-				     tvb_get_guint8(tvb, offset + offsetof(struct nd_opt_map_info,
-									   nd_opt_map_flags)));
-	    field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
-	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-				decode_boolean_bitfield(map->nd_opt_map_flags,
-							ND_OPT_MAP_FLAG_R, 8, "R", "No R"));
-	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-				decode_boolean_bitfield(map->nd_opt_map_flags,
-							ND_OPT_MAP_FLAG_M, 8, "M", "No M"));
-	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-				decode_boolean_bitfield(map->nd_opt_map_flags,
-							ND_OPT_MAP_FLAG_I, 8, "I", "No I"));
-	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-				decode_boolean_bitfield(map->nd_opt_map_flags,
-							ND_OPT_MAP_FLAG_T, 8, "T", "No T"));
-	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-				decode_boolean_bitfield(map->nd_opt_map_flags,
-							ND_OPT_MAP_FLAG_P, 8, "P", "No P"));
-	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-				decode_boolean_bitfield(map->nd_opt_map_flags,
-							ND_OPT_MAP_FLAG_V, 8, "V", "No V"));
-	    proto_tree_add_text(icmp6opt_tree, tvb,
-				offset + offsetof(struct nd_opt_map_info, nd_opt_map_lifetime),
-				4, "Lifetime: %u", pntohl(&map->nd_opt_map_lifetime));
+            /* Dist */
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_map_dist, tvb, opt_offset, 1, FALSE);
 
-	    proto_tree_add_text(icmp6opt_tree, tvb,
-				offset + offsetof(struct nd_opt_map_info, nd_opt_map_address), 16,
-				"Address of MAP: %s (%s)",
-				get_hostname6(&map->nd_opt_map_address),
-				ip6_to_str(&map->nd_opt_map_address));
+            /* Pref */
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_map_pref, tvb, opt_offset, 1, FALSE);
+            opt_offset += 1;
+            
+            /* Flag */
+	    ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_map_flag, tvb, opt_offset, 1, FALSE);
+	    flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6flag);
+
+            proto_tree_add_item(flag_tree, hf_icmpv6_opt_map_flag_r, tvb, opt_offset, 1, FALSE);
+	    proto_tree_add_item(flag_tree, hf_icmpv6_opt_map_flag_reserved, tvb, opt_offset, 1, FALSE);
+            opt_offset += 1;
+
+            /* Valid Lifetime */
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_map_valid_lifetime, tvb, opt_offset, 4, FALSE);
+            opt_offset += 4;
+
+            /* Global Address */
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_map_global_address, tvb, opt_offset, 16, FALSE);
+            opt_offset += 16;
 	    break;
 	}
 	case ND_OPT_ROUTE_INFO:
 	{
-	    struct nd_opt_route_info ribuf, *ri;
-	    struct e_in6_addr in6;
-	    int l;
-	    guint32 lifetime_local;
 
-	    ri = &ribuf;
-	    tvb_memcpy(tvb, (guint8 *)ri, offset, sizeof *ri);
-	    memset(&in6, 0, sizeof(in6));
-	    switch (ri->nd_opt_rti_len) {
-	    case 1:
-		l = 0;
-		break;
-	    case 2:
-		tvb_memcpy(tvb, (guint8 *)&in6, offset + sizeof(*ri), l = 8);
-		break;
-	    case 3:
-		tvb_memcpy(tvb, (guint8 *)&in6, offset + sizeof(*ri), l = 16);
-		break;
-	    default:
-		l = -1;
-		break;
-	    }
-	    if (l >= 0) {
-		proto_tree_add_text(icmp6opt_tree, tvb,
-				    offset + offsetof(struct nd_opt_route_info, nd_opt_rti_prefixlen),
-				    1, "Prefix length: %u", ri->nd_opt_rti_prefixlen);
-		tf = proto_tree_add_text(icmp6opt_tree, tvb,
-					 offset + offsetof(struct nd_opt_route_info, nd_opt_rti_flags),
-					 1, "Flags: 0x%02x", ri->nd_opt_rti_flags);
-		field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
-		proto_tree_add_text(field_tree, tvb,
-				    offset + offsetof(struct nd_opt_route_info, nd_opt_rti_flags),
-				    1, "%s",
-				    decode_enumerated_bitfield(ri->nd_opt_rti_flags,
-							       ND_RA_FLAG_RTPREF_MASK, 8, names_router_pref,
-							       "Router preference: %s"));
-		lifetime_local = pntohl(&ri->nd_opt_rti_lifetime);
-		if (lifetime_local == 0xffffffff)
-		    proto_tree_add_text(icmp6opt_tree, tvb,
-					offset + offsetof(struct nd_opt_route_info, nd_opt_rti_lifetime),
-					sizeof(ri->nd_opt_rti_lifetime), "Lifetime: infinity");
-		else
-		    proto_tree_add_text(icmp6opt_tree, tvb,
-					offset + offsetof(struct nd_opt_route_info, nd_opt_rti_lifetime),
-					sizeof(ri->nd_opt_rti_lifetime), "Lifetime: %u", lifetime_local);
-		proto_tree_add_text(icmp6opt_tree, tvb,
-				    offset + sizeof(*ri), l, "Prefix: %s", ip6_to_str(&in6));
-	    } else {
-		proto_tree_add_text(icmp6opt_tree, tvb,
-				    offset + offsetof(struct nd_opt_hdr, nd_opt_len), 1,
-				    "Invalid option length: %u", opt->nd_opt_len);
-	    }
+            guint8 prefix_len;
+            guint8 route_preference = 8;
+            struct e_in6_addr prefix;
+            /* RFC 4191 */
+
+
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_prefix_len, tvb, opt_offset, 1, FALSE);
+            prefix_len = tvb_get_guint8(tvb, opt_offset);
+            opt_offset += 1;
+        
+	    ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_route_info_flag, tvb, opt_offset, 1, FALSE);
+	    flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6flag);
+
+            proto_tree_add_item(flag_tree, hf_icmpv6_opt_route_info_flag_route_preference, tvb, opt_offset, 1, FALSE);
+	    proto_tree_add_item(flag_tree, hf_icmpv6_opt_route_info_flag_reserved, tvb, opt_offset, 1, FALSE);
+            opt_offset += 1;
+
+            ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_route_lifetime, tvb, opt_offset, 4, FALSE);
+           
+             switch(tvb_get_ntohl(tvb, opt_offset)){ /* Route Lifetime */
+                case 0xffffffff:
+                	proto_item_append_text(ti_opt, " (Infinity)");
+                break;
+                default:
+                break;
+            }
+            opt_offset += 4;
+
+            if(opt_len - 8 != 0 ){
+                /* FIXME: Not use tvb_memcpy... */
+	        memset(&prefix, 0, sizeof(prefix));
+                tvb_memcpy(tvb, (guint8 *)&prefix, opt_offset, opt_len - 8);
+                proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_opt_prefix, tvb, opt_offset, opt_len - 8, prefix.bytes);
+                /* FIXME: add Route Pref in ti item*/
+                opt_offset += opt_len - 8;         
+            }
 	    break;
+
 	}
 	case FMIP6_OPT_NEIGHBOR_ADV_ACK:
 	{
-	    struct fmip6_opt_neighbor_advertisement_ack fmip6_opt_neighbor_advertisement_ack, *opt_naack;
-	    struct e_in6_addr in6;
+            guint8 option_code;
+            
+            /* Option-Code */
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_naack_option_code, tvb, opt_offset, 1, FALSE);
+            option_code = tvb_get_guint8(tvb, opt_offset);
+            opt_offset += 1;
 
-	    opt_naack = &fmip6_opt_neighbor_advertisement_ack;
-	    tvb_memcpy(tvb, (guint8 *)opt_naack, offset, sizeof *opt_naack);
+            /* Status */
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_naack_status, tvb, opt_offset, 1, FALSE);
+            opt_offset += 1;
 
-	    proto_tree_add_text(icmp6opt_tree, tvb,
-				offset + offsetof(struct fmip6_opt_neighbor_advertisement_ack, fmip6_opt_optcode),
-				1, "Option-Code: %u",
-				opt_naack->fmip6_opt_optcode);
-
-	    proto_tree_add_text(icmp6opt_tree, tvb,
-				offset + offsetof(struct fmip6_opt_neighbor_advertisement_ack, fmip6_opt_status),
-				1, "Status: %s",
-				val_to_str(opt_naack->fmip6_opt_status, names_fmip6_naack_opt_status, "Unknown"));
-
-	    if (opt_naack->fmip6_opt_len == 3){
-		tvb_memcpy(tvb, (guint8 *)&in6, offset + sizeof(*opt_naack), 16);
-		proto_tree_add_text(icmp6opt_tree, tvb,
-				    offset + sizeof(*opt_naack),
-				    16, "New Care-of Address: %s",
-				    ip6_to_str(&in6));
-	    }
-
+            if(option_code == 2){
+                  proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_naack_supplied_ncoa, tvb, opt_offset, 16, FALSE);
+            }else{
+                  proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, opt_len - 4, FALSE);
+            }
 	    break;
 	}
 	case ND_OPT_RECURSIVE_DNS_SERVER:
 
-	    opt_offset = offset + 2;
-	    proto_tree_add_text(icmp6opt_tree, tvb, opt_offset ,2 ,"Reserved");
-	    opt_offset = opt_offset + 2;
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, FALSE);
+            opt_offset += 2;
+
+            ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_rdnss_lifetime, tvb, opt_offset, 4, FALSE);
 	    /* A value of all one bits (0xffffffff) represents infinity.  A value of
 	     * zero means that the RDNSS address MUST no longer be used.
 	     */
-	    lifetime = tvb_get_ntohl(tvb, opt_offset);
-	    if (lifetime == 0xffffffff){
-		proto_tree_add_text(icmp6opt_tree, tvb, opt_offset ,4 ,"Lifetime: infinity");
-	    }else{
-		if(lifetime==0){
-		    proto_tree_add_text(icmp6opt_tree, tvb, opt_offset ,4 ,"Lifetime: RDNSS address MUST no longer be used");
-		}else{
-		    proto_tree_add_text(icmp6opt_tree, tvb, opt_offset ,4 ,"Lifetime: %u", lifetime);
-		}
-	    }
-	    opt_offset = opt_offset+4;
-	    /* Addresses of IPv6 Recursive DNS Servers */
-	    no_of_pars = opt->nd_opt_len - 1;
-	    no_of_pars = no_of_pars >> 2;
-
-	    for (i = 0; i <= no_of_pars; i++) {
-		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_recursive_dns_serv, tvb, opt_offset, 16, FALSE);
+            switch(tvb_get_ntohl(tvb, opt_offset)){ /* RDNSS Lifetime */
+                case 0:
+                	proto_item_append_text(ti_opt, " (RDNSS address MUST no longer be used)");
+                break;
+                case 0xffffffff:
+                	proto_item_append_text(ti_opt, " (Infinity)");
+                break;
+                default:
+                break;
+            }
+            opt_offset += 4;
+            
+            while(opt_offset < (offset + opt_len) ) {
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_rdnss, tvb, opt_offset, 16, FALSE);
 		opt_offset = opt_offset+16;
 	    }
 	    break;
 	case ND_OPT_6LOWPAN_CONTEXT:
 	{
 	    /* 6lowpan-ND */
-	    struct nd_opt_6lowpan_context nd_opt_6lowpan_context, *sco;
-	    struct e_in6_addr in6;
-	    int flagoff;
+            guint8 context_len;
+            struct e_in6_addr context_prefix;
 
-	    sco = &nd_opt_6lowpan_context;
-	    tvb_memcpy(tvb, (guint8 *)sco, offset, sizeof *sco);
-	    /* Length */
-	    proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_opt_6co_context_length, tvb,
-				    offset + offsetof(struct nd_opt_6lowpan_context, nd_opt_6co_context_length),
-				    1, sco->nd_opt_6co_context_length);
+	    /* Context Length */
+	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_6co_context_length, tvb, opt_offset, 1, FALSE);
+            context_len = tvb_get_guint8(tvb, opt_offset);
+	    opt_offset += 1; 
+
+	    /*  Flags & CID */
+	    ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_6co_flag, tvb, opt_offset, 1, FALSE);
+	    flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6flag);
+            proto_tree_add_item(flag_tree, hf_icmpv6_opt_6co_flag_c, tvb, opt_offset, 1, FALSE);
+            proto_tree_add_item(flag_tree, hf_icmpv6_opt_6co_flag_cid, tvb, opt_offset, 1, FALSE);
+            proto_tree_add_item(flag_tree, hf_icmpv6_opt_6co_flag_reserved, tvb, opt_offset, 1, FALSE);
+            opt_offset += 1;
+
+            /* Reserved */ 
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, FALSE);
+            opt_offset += 2;
 
 	    /* Lifetime */
-	    proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_opt_6co_lifetime, tvb,
-				    offset + offsetof(struct nd_opt_6lowpan_context, nd_opt_6co_lifetime),
-				    2, pntohs(&sco->nd_opt_6co_lifetime));
-
-	    /* CID & Flags */
-	    flagoff = offset + offsetof(struct nd_opt_6lowpan_context,nd_opt_6co_CID);
-	    tf = proto_tree_add_text(icmp6opt_tree, tvb, flagoff, 1,
-				    "Flags & CID: 0x%02x", tvb_get_guint8(tvb, offset +
-				    offsetof(struct nd_opt_6lowpan_context, nd_opt_6co_CID)));
-	    field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
-	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-				decode_boolean_bitfield(sco->nd_opt_6co_CID,
-							ND_OPT_6CO_CFLAG, 8, "Valid for Compression", "Not Valid for Compression"));
-
-	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-				decode_numeric_bitfield(sco->nd_opt_6co_CID,
-							ND_OPT_6CO_CIDMASK, 8, "CID of %d"));
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_6co_valid_lifetime, tvb, opt_offset, 2, FALSE);
+            opt_offset += 2;
 
 	    /* Context */
-	    if(sco->nd_opt_6co_context_length > 64){
-		tvb_memcpy(tvb, (guint8 *)&in6, offset + sizeof *sco, 16);
-	    } else {
-		tvb_memcpy(tvb, (guint8 *)&in6, offset + sizeof *sco, 8);
-		in6.bytes[8] = 0;
-		in6.bytes[9] = 0;
-		in6.bytes[10] = 0;
-		in6.bytes[11] = 0;
-		in6.bytes[12] = 0;
-		in6.bytes[13] = 0;
-		in6.bytes[14] = 0;
-		in6.bytes[15] = 0;
-	    }
-
-	    proto_tree_add_text(icmp6opt_tree, tvb, offset + sizeof *sco,
-				    16, "Context: %s", ip6_to_str(&in6));
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_6co_context_prefix, tvb, opt_offset, 16, FALSE);
+            tvb_get_ipv6(tvb, opt_offset, &context_prefix);
+            proto_item_append_text(ti, " : %s/%d", ip6_to_str(&context_prefix), context_len);
+            opt_offset += 16;
 	}
 	break;
 	case ND_OPT_ADDR_RESOLUTION:
 	{
 	    /* 6lowpan-ND */
-	    struct nd_opt_addr_resolution nd_opt_addr_resolution, *aro;
+            guint8 status;
+            gchar *eui64;
 
-	    aro = &nd_opt_addr_resolution;
-	    tvb_memcpy(tvb, (guint8 *)aro, offset, sizeof *aro);
 	    /* Status */
-	    proto_tree_add_text(icmp6opt_tree, tvb,
-				offset + offsetof(struct nd_opt_addr_resolution, nd_opt_aro_status),
-				1, "Status: %s",
-				val_to_str(aro->nd_opt_aro_status, names_6lowpannd_aro_status_str, "Unknown"));
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_status, tvb, opt_offset, 1, FALSE);
+            status = tvb_get_guint8(tvb, opt_offset);
+            opt_offset += 1;
+
+	    /* Reserved */
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 3, FALSE);
+            opt_offset += 3;
 
 	    /* Lifetime */
-	    proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_opt_aro_lifetime, tvb,
-				    offset + offsetof(struct nd_opt_addr_resolution, nd_opt_aro_lifetime),
-				    2, pntohs(&aro->nd_opt_aro_lifetime));
+            proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_registration_lifetime, tvb, opt_offset, 2, FALSE);
+            opt_offset += 2;
 
-	    /* EUI-64 */
-	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_eui64, tvb, offset + offsetof(struct nd_opt_addr_resolution, nd_opt_aro_eui64), 8, FALSE);
-
-	    /* Registered Address (if present only) */
-	    if(aro->nd_opt_aro_len == 4)
-	    {
-		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_addr_reg, tvb, offset + sizeof *aro, 16, FALSE);
-	    }
+	    /* EUI-64 */ 
+	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_eui64, tvb, opt_offset, 8, FALSE);
+            eui64 = tvb_bytes_to_str_punct(tvb, opt_offset, 8, ':');
+            proto_item_append_text(ti, " : Register %s %s", eui64, val_to_str(status, names_6lowpannd_aro_status_str, "Unknown %d"));
+            opt_offset += 8;
 
 	}
 	break;
 	case ND_OPT_AUTH_BORDER_ROUTER:
 	{
-	    /* Version at offset 2, Address at offset 8 */
-	    guint8 version[2];
-	    tvb_memcpy(tvb, version, offset+2, 2);
+	    guint16 version;
+            struct e_in6_addr addr_6lbr;
 
-	    proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_opt_abro_version, tvb,
-				    offset + 2, 2, pntohs(version));
+            /* Version */
+	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_abro_version, tvb, opt_offset, 2, FALSE);
+            version = tvb_get_ntohs(tvb, opt_offset);
+	    opt_offset += 2; 
 
-	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_abro_addr, tvb,
-				offset + 8, 16, FALSE);
+            /* Reserved */
+	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 4, FALSE);
+	    opt_offset += 4; 
+
+            /* 6LBR Address */ 
+	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_abro_6lbr_address, tvb, opt_offset, 16, FALSE);
+            tvb_get_ipv6(tvb, opt_offset, &addr_6lbr);
+            proto_item_append_text(ti, " : Version %d, 6LBR : %s", version, ip6_to_str(&addr_6lbr));
+            opt_offset += 16;
 
 	}
 	    break;
-	} /* switch (opt->nd_opt_type) */
+	} /* switch (opt_type) */
 
-	offset += (opt->nd_opt_len << 3);
+        offset += opt_len;
 
-	/* Set length of option tree */
-	proto_item_set_len(ti, opt->nd_opt_len << 3);
+	/* Close the ) to option root label */
+	proto_item_append_text(ti, ")");
     }
 }
 
@@ -2822,49 +2849,150 @@ proto_register_icmpv6(void)
           { "Retrans timer",           "icmpv6.ra.retrans_timer", FT_UINT32,  BASE_DEC, NULL, 0x0,
             "Retrans timer (ms)", HFILL }},
         { &hf_icmpv6_option,
-          { "ICMPv6 Option",           "icmpv6.option", FT_NONE,  BASE_NONE, NULL, 0x0,
+          { "ICMPv6 Option",           "icmpv6.opt", FT_NONE,  BASE_NONE, NULL, 0x0,
             "Option", HFILL }},
         { &hf_icmpv6_option_type,
-          { "Type",           "icmpv6.option.type", FT_UINT8,  BASE_DEC, VALS(option_vals), 0x0,
+          { "Type",           "icmpv6.opt.type", FT_UINT8,  BASE_DEC, VALS(option_vals), 0x0,
             "Options type", HFILL }},
         { &hf_icmpv6_option_length,
-          { "Length",         "icmpv6.option.length", FT_UINT8,  BASE_DEC, NULL, 0x0,
-            "Options length (in bytes)", HFILL }},
+          { "Length",         "icmpv6.opt.length", FT_UINT8,  BASE_DEC, NULL, 0x0,
+            "The length (in units of 8 bytes) of the option (including the Type and Length fields)", HFILL }},
+        { &hf_icmpv6_opt_linkaddr,
+          { "Link-layer address",         "icmpv6.opt.linkaddr", FT_BYTES,  BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+       { &hf_icmpv6_opt_src_linkaddr,
+          { "Source Link-layer address",         "icmpv6.opt.src_linkaddr", FT_BYTES,  BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+       { &hf_icmpv6_opt_target_linkaddr,
+          { "Target Link-layer address",         "icmpv6.opt.target_linkaddr", FT_BYTES,  BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_icmpv6_opt_linkaddr_mac,
+          { "Link-layer address",         "icmpv6.opt.linkaddr", FT_ETHER,  BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+       { &hf_icmpv6_opt_src_linkaddr_mac,
+          { "Source Link-layer address",         "icmpv6.opt.src_linkaddr", FT_ETHER,  BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+       { &hf_icmpv6_opt_target_linkaddr_mac,
+          { "Target Link-layer address",         "icmpv6.opt.target_linkaddr", FT_ETHER,  BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+	{ &hf_icmpv6_opt_prefix_len,
+          { "Prefix Length", "icmpv6.opt.prefix.length", FT_UINT8, BASE_DEC, NULL, 0x0,
+            "The number of leading bits in the Prefix that are valid", HFILL }},
+	{ &hf_icmpv6_opt_prefix_flag,
+          { "Flags", "icmpv6.opt.prefix.flag", FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }},
+	{ &hf_icmpv6_opt_prefix_flag_l,
+          { "On-link flag(L)", "icmpv6.opt.prefix.flag.l", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
+            "When set, indicates that this prefix can be used for on-link determination", HFILL }},
+	{ &hf_icmpv6_opt_prefix_flag_a,
+          { "Autonomous address-configuration flag(A)", "icmpv6.opt_prefix.flag.a", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
+            "When set indicates that this prefix can be used for stateless address configuration", HFILL }},
+	{ &hf_icmpv6_opt_prefix_flag_reserved,
+          { "Reserved", "icmpv6.opt.prefix.flag.reserved", FT_UINT8, BASE_DEC, NULL, 0x3f,
+            NULL, HFILL }},
+	{ &hf_icmpv6_opt_prefix_valid_lifetime,
+          { "Valid Lifetime", "icmpv6.opt.prefix.valid_lifetime", FT_UINT32, BASE_DEC, NULL, 0x00,
+            "The length of time in seconds that the prefix is valid for the purpose of on-link determination", HFILL }},
+	{ &hf_icmpv6_opt_prefix_preferred_lifetime,
+          { "Preferred Lifetime", "icmpv6.opt.prefix.preferred_lifetime", FT_UINT32, BASE_DEC, NULL, 0x00,
+            "The length of time in seconds that addresses generated from the prefix via stateless address autoconfiguration remain preferred", HFILL }},
+	{ &hf_icmpv6_opt_prefix,
+          { "Prefix", "icmpv6.opt.prefix", FT_IPv6, BASE_NONE, NULL, 0x00,
+            "An IP address or a prefix of an IP address", HFILL }},
+	{ &hf_icmpv6_opt_naack_option_code,
+          { "Option-Code", "icmpv6.opt.naack.option_code", FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }},
+	{ &hf_icmpv6_opt_naack_status,
+          { "Status", "icmpv6.opt.naack.status", FT_UINT8, BASE_DEC, VALS(names_fmip6_naack_opt_status), 0x00,
+            "Indicating the disposition of the Unsolicited Neighbor Advertisement message", HFILL }},
+	{ &hf_icmpv6_opt_naack_supplied_ncoa,
+          { "Supplied NCoA", "icmpv6.opt.naack.supplied_ncoa", FT_IPv6, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }}, 
+
         { &hf_icmpv6_opt_cga_pad_len,
-          { "Pad Length",     "icmpv6.option.cga.pad_length", FT_UINT8,  BASE_DEC, NULL, 0x0,
+          { "Pad Length",     "icmpv6.opt.cga.pad_length", FT_UINT8,  BASE_DEC, NULL, 0x0,
             "Pad Length (in bytes)", HFILL }},
         { &hf_icmpv6_opt_cga,
-          { "CGA",            "icmpv6.option.cga", FT_BYTES,  BASE_NONE, NULL, 0x0,
+          { "CGA",            "icmpv6.opt.cga", FT_BYTES,  BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_opt_cga_modifier,
-          { "Modifier",       "icmpv6.option.cga.modifier", FT_BYTES, BASE_NONE, NULL, 0x0,
+          { "Modifier",       "icmpv6.opt.cga.modifier", FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_opt_cga_subnet_prefix,
-          { "Subnet Prefix",  "icmpv6.option.cga.subnet_prefix", FT_BYTES, BASE_NONE, NULL, 0x0,
+          { "Subnet Prefix",  "icmpv6.opt.cga.subnet_prefix", FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_opt_cga_count,
-          { "Count",          "icmpv6.option.cga.count", FT_BYTES, BASE_NONE, NULL, 0x0,
+          { "Count",          "icmpv6.opt.cga.count", FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_opt_cga_ext_type,
-          { "Ext Type",       "icmpv6.option.cga.ext_type", FT_BYTES, BASE_NONE, NULL, 0x0,
+          { "Ext Type",       "icmpv6.opt.cga.ext_type", FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_opt_cga_ext_length,
-          { "Ext Length",     "icmpv6.option.cga.ext_length", FT_BYTES, BASE_NONE, NULL, 0x0,
+          { "Ext Length",     "icmpv6.opt.cga.ext_length", FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_icmpv6_opt_cga_ext_data,
+          { "Ext Data",     "icmpv6.opt.cga.ext_length", FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_opt_rsa_key_hash,
-          { "Key Hash",       "icmpv6.option.rsa.key_hash", FT_BYTES,  BASE_NONE, NULL, 0x0,
+          { "Key Hash",       "icmpv6.opt.rsa.key_hash", FT_BYTES,  BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
+        { &hf_icmpv6_opt_digital_signature_padding,
+          { "Digital Signature and Padding",       "icmpv6.opt.digital_signature_padding", FT_NONE,  BASE_NONE, NULL, 0x0,
+            "TO DO FIX ME !!", HFILL }},
+        { &hf_icmpv6_opt_timestamp,
+          { "Timestamp",       "icmpv6.opt.timestamp", FT_ABSOLUTE_TIME,  ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+            "The value indicates the number of seconds since January 1, 1970, 00:00 UTC", HFILL }},
+        { &hf_icmpv6_opt_nonce,
+          { "Nonce",       "icmpv6.opt.nonce", FT_BYTES,  BASE_NONE, NULL, 0x0,
+            "A field containing a random number selected by the sender of the solicitation message", HFILL }},
+        { &hf_icmpv6_opt_certificate_padding,
+          { "Certificat and Padding",       "icmpv6.opt.certificate_padding", FT_NONE,  BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_icmpv6_opt_map_dist,
+          { "Distance",       "icmpv6.opt.map.distance", FT_UINT8,  BASE_DEC, NULL, 0xF0,
+            "Identifying the distance between MAP and the receiver of the advertisement (in the number of hops)", HFILL }},
+        { &hf_icmpv6_opt_map_pref,
+          { "Preference",       "icmpv6.opt.map.preference", FT_UINT8,  BASE_DEC, NULL, 0x0F,
+            "Used as an indicator of operator preference (Highest is better)", HFILL }},
+        { &hf_icmpv6_opt_map_flag,
+          { "Flag",       "icmpv6.opt.map.flag", FT_UINT8,  BASE_HEX, NULL, 0x00,
+            NULL, HFILL }},
+        { &hf_icmpv6_opt_map_flag_r,
+          { "RCoA Flag",       "icmpv6.opt.map.flag.r", FT_BOOLEAN,  8, NULL, 0x80,
+            "It indicates that the mobile node is allocated the RCoA by the MAP", HFILL }},
+        { &hf_icmpv6_opt_map_flag_reserved,
+          { "Reserved",       "icmpv6.opt.map.flag.reserved", FT_UINT8,  BASE_DEC, NULL, 0x7F,
+            "Must be 0", HFILL }},
+        { &hf_icmpv6_opt_map_valid_lifetime,
+          { "Valid Lifetime",       "icmpv6.opt.map.valid_lifetime", FT_UINT32,  BASE_DEC, NULL, 0x0,
+            "This value indicates the validity of the MAP's address and the RCoA.", HFILL }},
+        { &hf_icmpv6_opt_map_global_address,
+          { "Global Address",       "icmpv6.opt.map.global_address", FT_IPv6,  BASE_NONE, NULL, 0x0,
+            "TOne of the MAP's global addresses", HFILL }},
+	{ &hf_icmpv6_opt_route_info_flag,
+          { "Flags", "icmpv6.opt.route_info.flag", FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }},
+	{ &hf_icmpv6_opt_route_info_flag_route_preference,
+          { "Route Preference", "icmpv6.opt.route_info.flag.route_preference", FT_UINT8, BASE_DEC, VALS(names_router_pref), ND_RA_FLAG_RTPREF_MASK,
+            "The Route Preference indicates whether to prefer the router associated with this prefix over others", HFILL }},
+	{ &hf_icmpv6_opt_route_info_flag_reserved,
+          { "Reserved", "icmpv6.opt.route_info.flag.reserved", FT_UINT8, BASE_DEC, NULL, ND_RA_FLAG_RESERV_MASK,
+            "Must be 0", HFILL }},
+	{ &hf_icmpv6_opt_route_lifetime,
+          { "Route Lifetime", "icmpv6.opt.route_lifetime", FT_UINT32, BASE_DEC, NULL, 0x00,
+            "The length of time in seconds that the prefix is valid for the purpose of route determination", HFILL }},
+	
         { &hf_icmpv6_opt_name_type,
-          { "Name Type",      "icmpv6.option.name_type", FT_UINT8,  BASE_DEC, VALS(icmpv6_option_name_type_vals), 0x0,
+          { "Name Type",      "icmpv6.opt.name_type", FT_UINT8,  BASE_DEC, VALS(icmpv6_option_name_type_vals), 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_opt_name_x501,
-          { "DER Encoded X.501 Name", "icmpv6.option.name_x501", FT_BYTES,  BASE_NONE, NULL, 0x0,
+          { "DER Encoded X.501 Name", "icmpv6.opt.name_x501", FT_BYTES,  BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_opt_name_fqdn,
-          { "FQDN",           "icmpv6.option.name_type.fqdn", FT_STRING,  BASE_NONE, NULL, 0x0,
+          { "FQDN",           "icmpv6.opt.name_type.fqdn", FT_STRING,  BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_opt_cert_type,
-          { "Cert Type",       "icmpv6.option.name_type", FT_UINT8,  BASE_DEC, VALS(icmpv6_option_cert_type_vals), 0x0,
+          { "Cert Type",       "icmpv6.opt.name_type", FT_UINT8,  BASE_DEC, VALS(icmpv6_option_cert_type_vals), 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_identifier,
           { "Identifier",      "icmpv6.identifier", FT_UINT16,  BASE_DEC, NULL, 0x0,
@@ -2881,42 +3009,70 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_x509af_Certificate,
           { "Certificate",     "icmpv6.x509_Certificate", FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
-        { &hf_icmpv6_recursive_dns_serv,
-          { "Recursive DNS Servers", "icmpv6.recursive_dns_serv", FT_IPv6, BASE_NONE, NULL, 0x0,
+        { &hf_icmpv6_opt_redirected_packet,
+          { "Redirected Packet", "icmpv6.opt.redirected_packet", FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
-		{ &hf_icmpv6_opt_prefix_len,
-          { "Prefix Length", "icmpv6.opt_prefix.length", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { &hf_icmpv6_opt_mtu,
+          { "MTU", "icmpv6.opt.mtu", FT_UINT32, BASE_DEC, NULL, 0x0,
+            "The recommended MTU for the link", HFILL }},
+        { &hf_icmpv6_opt_advertisement_interval,
+          { "Advertisement Interval", "icmpv6.opt.advertisement_interval", FT_UINT32, BASE_DEC, NULL, 0x0,
+            "The maximum time (in milliseconds) between successive unsolicited Router Advertisement messages sent by this router on this network interface", HFILL }},
+        { &hf_icmpv6_opt_home_agent_preference,
+          { "Home Agent Preference", "icmpv6.opt.home_agent_preference", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "The preference for the home agent sending this Router Advertisement", HFILL }},
+        { &hf_icmpv6_opt_home_agent_lifetime,
+          { "Home Agent Preference", "icmpv6.opt.home_agent_lifetime", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "The lifetime associated with the home agent in units of seconds.", HFILL }},
+
+        { &hf_icmpv6_opt_reserved,
+          { "Reserved", "icmpv6.opt.reserved", FT_NONE, BASE_NONE, NULL, 0x0,
+            "Reserved (Must be 0)", HFILL }},
+        { &hf_icmpv6_opt_padding,
+          { "Padding", "icmpv6.opt.padding", FT_NONE, BASE_NONE, NULL, 0x0,
+            "Padding (Must be 0)", HFILL }},
+        { &hf_icmpv6_opt_rdnss_lifetime,
+          { "Lifetime", "icmpv6.opt.rdnss.lifetime", FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
-		{ &hf_icmpv6_opt_flag_l,
-          { "On-link flag(L)", "icmpv6.opt_prefix.flag.l", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
+        { &hf_icmpv6_opt_rdnss,
+          { "Recursive DNS Servers", "icmpv6.opt.rdnss", FT_IPv6, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
-		{ &hf_icmpv6_opt_flag_a,
-          { "Autonomous address-configuration flag(A)", "icmpv6.opt_prefix.flag.a", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
-            NULL, HFILL }},
-        { &hf_icmpv6_opt_aro_lifetime,
-          { "Address Lifetime", "icmpv6.opt_aro.lifetime", FT_UINT16, BASE_DEC, NULL, 0x00,
-            NULL, HFILL }},
-        { &hf_icmpv6_opt_aro_eui64,
-          { "EUI-64", "icmpv6.opt_aro.eui64", FT_BYTES, BASE_NONE, NULL, 0x00,
-            NULL, HFILL }},
-        { &hf_icmpv6_opt_aro_addr_reg,
-          { "Registered Address", "icmpv6.opt_aro.addr_reg", FT_IPv6, BASE_NONE, NULL, 0x00,
-            NULL, HFILL }},
+        { &hf_icmpv6_opt_aro_status,
+          { "Status", "icmpv6.opt.aro.status", FT_UINT8, BASE_DEC, VALS(names_6lowpannd_aro_status_str), 0x00,
+            "The amount of time (in a unit of 10 seconds) that the router should retain the Neighbor Cache entry", HFILL }},
+        { &hf_icmpv6_opt_aro_registration_lifetime,
+          { "Registration  Lifetime", "icmpv6.opt.aro.registration_lifetime", FT_UINT16, BASE_DEC, NULL, 0x00,
+            "The amount of time (in a unit of 10 seconds) that the router should retain the Neighbor Cache entry", HFILL }},
+        { &hf_icmpv6_opt_aro_eui64, /*  TODO: add a FT_EUI64 Type ? */
+          { "EUI-64", "icmpv6.opt.aro.eui64", FT_BYTES, BASE_NONE, NULL, 0x00,
+            "This field is used to uniquely identify the interface of the registered address", HFILL }},
         { &hf_icmpv6_opt_6co_context_length,
-          { "Context Length", "icmpv6.opt_6co.context_length", FT_UINT8, BASE_DEC, NULL, 0x00,
+          { "Context Length", "icmpv6.opt.6co.context_length", FT_UINT8, BASE_DEC, NULL, 0x00,
+            "The number of leading bits in the Context Prefix field that are valid", HFILL }},
+        { &hf_icmpv6_opt_6co_flag,
+          { "Flag", "icmpv6.opt.6co.flag", FT_UINT8, BASE_HEX, NULL, 0x00,
             NULL, HFILL }},
-        { &hf_icmpv6_opt_6co_lifetime,
-          { "Lifetime (x 10s)", "icmpv6.opt_6co.lifetime", FT_UINT16, BASE_DEC, NULL, 0x00,
-            NULL, HFILL }},
+        { &hf_icmpv6_opt_6co_flag_c,
+          { "Compression Flag", "icmpv6.opt.6co.flag.c", FT_BOOLEAN, 8, TFS(&tfs_set_notset), ND_OPT_6CO_FLAG_C,
+            "This flag indicates if the context is valid for use in compression", HFILL }},
+        { &hf_icmpv6_opt_6co_flag_cid,
+          { "CID", "icmpv6.opt.6co.flag.cid", FT_UINT8, BASE_DEC, NULL, ND_OPT_6CO_FLAG_CID,
+            "Context Identifier for this prefix information", HFILL }},
+        { &hf_icmpv6_opt_6co_flag_reserved,
+          { "Reserved", "icmpv6.opt.6co.flag.reserved", FT_UINT8, BASE_DEC, NULL, ND_OPT_6CO_FLAG_RESERVED,
+            "Must be zero", HFILL }},
+        { &hf_icmpv6_opt_6co_valid_lifetime,
+          { "Lifetime", "icmpv6.opt.6co.valid_lifetime", FT_UINT16, BASE_DEC, NULL, 0x00,
+            "The length of time in a unit of 10 seconds that the context is valid for the purpose of header compression or decompression", HFILL }},
+        { &hf_icmpv6_opt_6co_context_prefix,
+          { "Context Prefix", "icmpv6.opt.6co.context_prefix", FT_IPv6, BASE_NONE, NULL, 0x00,
+            "The IPv6 prefix or address corresponding to the Context ID (CID) field", HFILL }},
         { &hf_icmpv6_opt_abro_version,
-          { "Version", "icmpv6.opt_abro.version", FT_UINT16, BASE_DEC, NULL, 0x00,
-            NULL, HFILL }},
-        { &hf_icmpv6_opt_abro_addr,
-          { "Address", "icmpv6.opt_abro.addr", FT_IPv6, BASE_NONE, NULL, 0x00,
-            NULL, HFILL }},
-		{ &hf_icmpv6_opt_flag_reserved,
-          { "Reserved", "icmpv6.opt_prefix.flag.reserved", FT_UINT8, BASE_DEC, NULL, 0x3f,
-            NULL, HFILL }},
+          { "Version", "icmpv6.opt.abro.version", FT_UINT16, BASE_DEC, NULL, 0x00,
+            "The version number corresponding to this set of information contained in the RA message", HFILL }},
+        { &hf_icmpv6_opt_abro_6lbr_address,
+          { "6LBR Address", "icmpv6.opt.abro.6lbr_address", FT_IPv6, BASE_NONE, NULL, 0x00,
+            "IPv6 address of the 6LBR that is the origin of the included version number", HFILL }},
         /* RPL: draft-ietf-roll-rpl-12.txt: Routing over Low-Power and Lossy Networks. */
         { &hf_icmpv6_dis_reserved,
            { "Grounded",          "icmpv6.rpl.dis.reserved", FT_UINT16, BASE_DEC, NULL, 0x0,
