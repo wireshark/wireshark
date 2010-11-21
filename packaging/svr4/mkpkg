@@ -5,7 +5,9 @@
 #
 # This is a modified version of a script written by mark@metalab.unc.edu .
 # The original is at http://metalab.unc.edu/pub/packages/solaris/sparc/html/creating.solaris.packages.html .
-
+#
+# $Id$
+#
 if [ "$1" != "" ] ; then
   pkg=$1
 else

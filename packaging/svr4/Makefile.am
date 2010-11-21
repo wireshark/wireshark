@@ -1,3 +1,6 @@
+#
+# $Id$
+#
 DISTCLEANFILES = \
 	Prototype
 
