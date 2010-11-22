@@ -159,13 +159,14 @@
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
+#include <epan/expert.h>
 
 #define TDS_QUERY_PKT        1
 #define TDS_LOGIN_PKT        2
 #define TDS_RPC_PKT          3
 #define TDS_RESP_PKT         4
 #define TDS_RAW_PKT          5
-#define TDS_CANCEL_PKT       6
+#define TDS_ATTENTION_PKT    6
 #define TDS_BULK_DATA_PKT    7
 #define TDS_OPEN_CHN_PKT     8
 #define TDS_CLOSE_CHN_PKT    9
@@ -173,12 +174,14 @@
 #define TDS_LOG_CHN_ACK_PKT 11
 #define TDS_ECHO_PKT        12
 #define TDS_LOGOUT_CHN_PKT  13
+#define TDS_TRANS_MGR_PKT   14
 #define TDS_QUERY5_PKT      15  /* or "Normal tokenized request or response */
 #define TDS_LOGIN7_PKT      16  /* or "Urgent tokenized request or response */
-#define TDS_NTLMAUTH_PKT    17
-#define TDS_XXX7_PKT        18  /* seen in one capture */
+#define TDS_SSPI_PKT        17
+#define TDS_PRELOGIN_PKT    18
+#define TDS_INVALID_PKT     19
 
-#define is_valid_tds_type(x) ((x) >= TDS_QUERY_PKT && (x) <= TDS_XXX7_PKT)
+#define is_valid_tds_type(x) ((x) >= TDS_QUERY_PKT && (x) < TDS_INVALID_PKT)
 
 /* The following constants are imported more or less directly from FreeTDS */
 /*      Updated from FreeTDS v0.63 tds.h                                   */
@@ -251,6 +254,14 @@
 #define TDS_SP_PREPEXECRPC     14
 #define TDS_SP_UNPREPARE       15
 
+
+#define TDS_RPC_OPT_WITH_RECOMP    0x01
+#define TDS_RPC_OPT_NO_METADATA    0x02
+#define TDS_RPC_OPT_REUSE_METADATA 0x04
+
+#define TDS_RPC_PARAMETER_STATUS_BY_REF  0x01
+#define TDS_RPC_PARAMETER_STATUS_DEFAULT 0x02
+
 /* Sybase Data Types */
 
 #define SYBCHAR        47  /* 0x2F */
@@ -307,11 +318,113 @@
                              x==SYBMONEY4    ||         \
                              x==SYBUNIQUE)
 
+/* FIXEDLENTYPE */
+#define TDS_DATA_TYPE_NULL            0x1F  /* Null (no data associated with this type) */
+#define TDS_DATA_TYPE_INT1            0x30  /* TinyInt (1 byte data representation) */
+#define TDS_DATA_TYPE_BIT             0x32  /* Bit (1 byte data representation) */
+#define TDS_DATA_TYPE_INT2            0x34  /* SmallInt (2 byte data representation) */
+#define TDS_DATA_TYPE_INT4            0x38  /* Int (4 byte data representation) */
+#define TDS_DATA_TYPE_DATETIM4        0x3A  /* SmallDateTime (4 byte data representation) */
+#define TDS_DATA_TYPE_FLT4            0x3B  /* Real (4 byte data representation) */
+#define TDS_DATA_TYPE_MONEY           0x3C  /* Money (8 byte data representation) */
+#define TDS_DATA_TYPE_DATETIME        0x3D  /* DateTime (8 byte data representation) */
+#define TDS_DATA_TYPE_FLT8            0x3E  /* Float (8 byte data representation) */
+#define TDS_DATA_TYPE_MONEY4          0x7A  /* SmallMoney (4 byte data representation) */
+#define TDS_DATA_TYPE_INT8            0x7F  /* BigInt (8 byte data representation) */
+/* BYTELEN_TYPE */
+#define TDS_DATA_TYPE_GUID            0x24  /* UniqueIdentifier */
+#define TDS_DATA_TYPE_INTN            0x26
+#define TDS_DATA_TYPE_DECIMAL         0x37  /* Decimal (legacy support) */
+#define TDS_DATA_TYPE_NUMERIC         0x3F  /* Numeric (legacy support) */
+#define TDS_DATA_TYPE_BITN            0x68
+#define TDS_DATA_TYPE_DECIMALN        0x6A  /* Decimal */
+#define TDS_DATA_TYPE_NUMERICN        0x6C  /* Numeric */
+#define TDS_DATA_TYPE_FLTN            0x6D
+#define TDS_DATA_TYPE_MONEYN          0x6E
+#define TDS_DATA_TYPE_DATETIMN        0x6F
+#define TDS_DATA_TYPE_DATEN           0x28  /* (introduced in TDS 7.3) */
+#define TDS_DATA_TYPE_TIMEN           0x29  /* (introduced in TDS 7.3) */
+#define TDS_DATA_TYPE_DATETIME2N      0x2A  /* (introduced in TDS 7.3) */
+#define TDS_DATA_TYPE_DATETIMEOFFSETN 0x2B  /* (introduced in TDS 7.3) */
+#define TDS_DATA_TYPE_CHAR            0x2F  /* Char (legacy support) */
+#define TDS_DATA_TYPE_VARCHAR         0x27  /* VarChar (legacy support) */
+#define TDS_DATA_TYPE_BINARY          0x2D  /* Binary (legacy support) */
+#define TDS_DATA_TYPE_VARBINARY       0x25  /* VarBinary (legacy support) */
+/* USHORTLEN_TYPE */
+#define TDS_DATA_TYPE_BIGVARBIN       0xA5  /* VarBinary */
+#define TDS_DATA_TYPE_BIGVARCHR       0xA7  /* VarChar */
+#define TDS_DATA_TYPE_BIGBINARY       0xAD  /* Binary */
+#define TDS_DATA_TYPE_BIGCHAR         0xAF  /* Char */
+#define TDS_DATA_TYPE_NVARCHAR        0xE7  /* NVarChar */
+#define TDS_DATA_TYPE_NCHAR           0xEF  /* NChar */
+/* LONGLEN_TYPE */
+#define TDS_DATA_TYPE_XML             0xF1  /* XML (introduced in TDS 7.2) */
+#define TDS_DATA_TYPE_UDT             0xF0  /* CLR-UDT (introduced in TDS 7.2) */
+#define TDS_DATA_TYPE_TEXT            0x23  /* Text */
+#define TDS_DATA_TYPE_IMAGE           0x22  /* Image */
+#define TDS_DATA_TYPE_NTEXT           0x63  /* NText */
+#define TDS_DATA_TYPE_SSVARIANT       0x62  /* Sql_Variant (introduced in TDS 7.2) */
+
+static const value_string tds_data_type_names[] = {
+    /* FIXEDLENTYPE */
+    {TDS_DATA_TYPE_NULL,            "NULLTYPE - Null (no data associated with this type)"},
+    {TDS_DATA_TYPE_INT1,            "INT1TYPE - TinyInt (1 byte data representation)"},
+    {TDS_DATA_TYPE_BIT,             "BITTYPE - Bit (1 byte data representation)"},
+    {TDS_DATA_TYPE_INT2,            "INT2TYPE - SmallInt (2 byte data representation)"},
+    {TDS_DATA_TYPE_INT4,            "INT4TYPE - Int (4 byte data representation)"},
+    {TDS_DATA_TYPE_DATETIM4,        "DATETIM4TYPE - SmallDateTime (4 byte data representation)"},
+    {TDS_DATA_TYPE_FLT4,            "FLT4TYPE - Real (4 byte data representation)"},
+    {TDS_DATA_TYPE_MONEY,           "MONEYTYPE - Money (8 byte data representation)"},
+    {TDS_DATA_TYPE_DATETIME,        "DATETIMETYPE - DateTime (8 byte data representation)"},
+    {TDS_DATA_TYPE_FLT8,            "FLT8TYPE - Float (8 byte data representation)"},
+    {TDS_DATA_TYPE_MONEY4,          "MONEY4TYPE - SmallMoney (4 byte data representation)"},
+    {TDS_DATA_TYPE_INT8,            "INT8TYPE - BigInt (8 byte data representation)"},
+    /* BYTELEN_TYPE */
+    {TDS_DATA_TYPE_GUID,            "GUIDTYPE - UniqueIdentifier"},
+    {TDS_DATA_TYPE_INTN,            "INTNTYPE"},
+    {TDS_DATA_TYPE_DECIMAL,         "DECIMALTYPE - Decimal (legacy support)"},
+    {TDS_DATA_TYPE_NUMERIC,         "NUMERICTYPE - Numeric (legacy support)"},
+    {TDS_DATA_TYPE_BITN,            "BITNTYPE"},
+    {TDS_DATA_TYPE_DECIMALN,        "DECIMALNTYPE - Decimal"},
+    {TDS_DATA_TYPE_NUMERICN,        "NUMERICNTYPE - Numeric"},
+    {TDS_DATA_TYPE_FLTN,            "FLTNTYPE"},
+    {TDS_DATA_TYPE_MONEYN,          "MONEYNTYPE"},
+    {TDS_DATA_TYPE_DATETIMN,        "DATETIMNTYPE"},
+    {TDS_DATA_TYPE_DATEN,           "DATENTYPE - (introduced in TDS 7.3)"},
+    {TDS_DATA_TYPE_TIMEN,           "TIMENTYPE - (introduced in TDS 7.3)"},
+    {TDS_DATA_TYPE_DATETIME2N,      "DATETIME2NTYPE - (introduced in TDS 7.3)"},
+    {TDS_DATA_TYPE_DATETIMEOFFSETN, "DATETIMEOFFSETNTYPE - (introduced in TDS 7.3)"},
+    {TDS_DATA_TYPE_CHAR,            "CHARTYPE - Char (legacy support)"},
+    {TDS_DATA_TYPE_VARCHAR,         "VARCHARTYPE - VarChar (legacy support)"},
+    {TDS_DATA_TYPE_BINARY,          "BINARYTYPE - Binary (legacy support)"},
+    {TDS_DATA_TYPE_VARBINARY,       "VARBINARYTYPE - VarBinary (legacy support)"},
+    /* USHORTLEN_TYPE */
+    {TDS_DATA_TYPE_BIGVARBIN,       "BIGVARBINTYPE - VarBinary"},
+    {TDS_DATA_TYPE_BIGVARCHR,       "BIGVARCHRTYPE - VarChar"},
+    {TDS_DATA_TYPE_BIGBINARY,       "BIGBINARYTYPE - Binary"},
+    {TDS_DATA_TYPE_BIGCHAR,         "BIGCHARTYPE - Char"},
+    {TDS_DATA_TYPE_NVARCHAR,        "NVARCHARTYPE - NVarChar"},
+    {TDS_DATA_TYPE_NCHAR,           "NCHARTYPE - NChar"},
+    /* LONGLEN_TYPE */
+    {TDS_DATA_TYPE_XML,             "XMLTYPE - XML (introduced in TDS 7.2)"},
+    {TDS_DATA_TYPE_UDT,             "UDTTYPE - CLR-UDT (introduced in TDS 7.2)"},
+    {TDS_DATA_TYPE_TEXT,            "TEXTTYPE - Text"},
+    {TDS_DATA_TYPE_IMAGE,           "IMAGETYPE - Image"},
+    {TDS_DATA_TYPE_NTEXT,           "NTEXTTYPE - NText"},
+    {TDS_DATA_TYPE_SSVARIANT,       "SSVARIANTTYPE - Sql_Variant (introduced in TDS 7.2)"},
+    {0, NULL }
+};
+
 /* Initialize the protocol and registered fields */
 static int proto_tds = -1;
 static int hf_tds_type = -1;
 static int hf_tds_status = -1;
-static int hf_tds_size = -1;
+static int hf_tds_status_eom = -1;
+static int hf_tds_status_ignore = -1;
+static int hf_tds_status_event_notif = -1;
+static int hf_tds_status_reset_conn = -1;
+static int hf_tds_status_reset_conn_skip_tran = -1;
+static int hf_tds_length = -1;
 static int hf_tds_channel = -1;
 static int hf_tds_packet_number = -1;
 static int hf_tds_window = -1;
@@ -337,15 +450,78 @@ static int hf_tds7_sql_type_flags = -1;
 static int hf_tds7_reserved_flags = -1;
 static int hf_tds7_time_zone = -1;
 static int hf_tds7_collation = -1;
-static int hf_tds7_message = -1;
+
+static int hf_tds_all_headers = -1;
+static int hf_tds_all_headers_total_length = -1;
+static int hf_tds_all_headers_header_length = -1;
+static int hf_tds_all_headers_header_type = -1;
+static int hf_tds_all_headers_trans_descr = -1;
+static int hf_tds_all_headers_request_cnt = -1;
+
+static int hf_tds_type_info = -1;
+static int hf_tds_type_info_type = -1;
+static int hf_tds_type_info_varlen = -1;
+static int hf_tds_type_info_precision = -1;
+static int hf_tds_type_info_scale = -1;
+static int hf_tds_type_info_collation = -1;
+static int hf_tds_type_info_collation_lcid = -1;
+static int hf_tds_type_info_collation_ign_case = -1;
+static int hf_tds_type_info_collation_ign_accent = -1;
+static int hf_tds_type_info_collation_ign_kana = -1;
+static int hf_tds_type_info_collation_ign_width = -1;
+static int hf_tds_type_info_collation_binary = -1;
+static int hf_tds_type_info_collation_version = -1;
+static int hf_tds_type_info_collation_sortid = -1;
+static int hf_tds_type_varbyte_length = -1;
+static int hf_tds_type_varbyte_data_null = -1;
+static int hf_tds_type_varbyte_data_boolean = -1;
+static int hf_tds_type_varbyte_data_int1 = -1;
+static int hf_tds_type_varbyte_data_int2 = -1;
+static int hf_tds_type_varbyte_data_int4 = -1;
+static int hf_tds_type_varbyte_data_int8 = -1;
+static int hf_tds_type_varbyte_data_float = -1;
+static int hf_tds_type_varbyte_data_double = -1;
+static int hf_tds_type_varbyte_data_bytes = -1;
+static int hf_tds_type_varbyte_data_guid = -1;
+static int hf_tds_type_varbyte_data_string = -1;
+static int hf_tds_type_varbyte_plp_len = -1;
+static int hf_tds_type_varbyte_plp_chunk_len = -1;
+
+static int hf_tds_rpc = -1;
+static int hf_tds_rpc_name_length8 = -1;
+static int hf_tds_rpc_name_length = -1;
+static int hf_tds_rpc_name = -1;
+static int hf_tds_rpc_proc_id = -1;
+static int hf_tds_rpc_options = -1;
+static int hf_tds_rpc_options_with_recomp = -1;
+static int hf_tds_rpc_options_no_metadata = -1;
+static int hf_tds_rpc_options_reuse_metadata = -1;
+static int hf_tds_rpc_separator = -1;
+static int hf_tds_rpc_parameter = -1;
+static int hf_tds_rpc_parameter_name_length = -1;
+static int hf_tds_rpc_parameter_name = -1;
+static int hf_tds_rpc_parameter_status = -1;
+static int hf_tds_rpc_parameter_status_by_ref = -1;
+static int hf_tds_rpc_parameter_status_default = -1;
+static int hf_tds_rpc_parameter_value = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_tds = -1;
+static gint ett_tds_status = -1;
 static gint ett_tds_fragments = -1;
 static gint ett_tds_fragment = -1;
 static gint ett_tds_token = -1;
+static gint ett_tds_all_headers = -1;
+static gint ett_tds_all_headers_header = -1;
+static gint ett_tds_type_info = -1;
+static gint ett_tds_type_info_collation = -1;
+static gint ett_tds_type_varbyte = -1;
+static gint ett_tds_message = -1;
+static gint ett_tds_rpc_options = -1;
+static gint ett_tds_rpc_parameter = -1;
+static gint ett_tds_rpc_parameter_status = -1;
+static gint ett_tds7_query = -1;
 static gint ett_tds7_login = -1;
-static gint ett_tds7_query = 0;
 static gint ett_tds7_hdr = -1;
 
 /* Desegmentation of Netlib buffers crossing TCP segment boundaries. */
@@ -385,10 +561,12 @@ static dissector_handle_t data_handle;
 /*        (when type is determined and using the preference as a default) ??              */
 
 #define TDS_PROTOCOL_NOT_SPECIFIED   0
-#define TDS_PROTOCOL_4      4
-#define TDS_PROTOCOL_5      5
-#define TDS_PROTOCOL_7      7
-#define TDS_PROTOCOL_8      8
+#define TDS_PROTOCOL_4      0x40
+#define TDS_PROTOCOL_5      0x50
+#define TDS_PROTOCOL_7_0    0x70
+#define TDS_PROTOCOL_7_1    0x71
+#define TDS_PROTOCOL_7_2    0x72
+#define TDS_PROTOCOL_7_3    0x73
 
 static gint tds_protocol_type = TDS_PROTOCOL_NOT_SPECIFIED;
 
@@ -396,17 +574,21 @@ static const enum_val_t tds_protocol_type_options[] = {
     {"not_specified", "Not Specified", TDS_PROTOCOL_NOT_SPECIFIED},
     {"tds4", "TDS 4", TDS_PROTOCOL_4},  /* TDS 4.2 and TDS 4.6 */
     {"tds5", "TDS 5", TDS_PROTOCOL_5},
-    {"tds7", "TDS 7", TDS_PROTOCOL_7},
-    {"tds8", "TDS 8", TDS_PROTOCOL_8},
+    {"tds70", "TDS 7.0", TDS_PROTOCOL_7_0},
+    {"tds71", "TDS 7.1", TDS_PROTOCOL_7_1},
+    {"tds72", "TDS 7.2", TDS_PROTOCOL_7_2},
+    {"tds73", "TDS 7.3", TDS_PROTOCOL_7_3},
     {NULL, NULL, -1}
 };
 
 #define TDS_PROTO_PREF_NOT_SPECIFIED (tds_protocol_type == TDS_NOT_SPECIFIED)
 #define TDS_PROTO_PREF_TDS4 (tds_protocol_type == TDS_PROTOCOL_4)
 #define TDS_PROTO_PREF_TDS5 (tds_protocol_type == TDS_PROTOCOL_5)
-#define TDS_PROTO_PREF_TDS7 (tds_protocol_type == TDS_PROTOCOL_7)
-#define TDS_PROTO_PREF_TDS8 (tds_protocol_type == TDS_PROTOCOL_8)
-#define TDS_PROTO_PREF_TDS7_TDS8 ( TDS_PROTO_PREF_TDS7 || TDS_PROTO_PREF_TDS8 )
+#define TDS_PROTO_PREF_TDS7_0 (tds_protocol_type == TDS_PROTOCOL_7_0)
+#define TDS_PROTO_PREF_TDS7_1 (tds_protocol_type == TDS_PROTOCOL_7_1)
+#define TDS_PROTO_PREF_TDS7_2 (tds_protocol_type == TDS_PROTOCOL_7_2)
+#define TDS_PROTO_PREF_TDS7_3 (tds_protocol_type == TDS_PROTOCOL_7_3)
+#define TDS_PROTO_PREF_TDS7 (tds_protocol_type >= TDS_PROTOCOL_7_0 && tds_protocol_type <= TDS_PROTOCOL_7_3)
 
 /* TDS "endian type" */
 /*   XXX: Assumption is that all TDS conversations being decoded in a particular capture */
@@ -429,36 +611,40 @@ static range_t *tds_tcp_ports = NULL;
 
 /* These correspond to the netlib packet type field */
 static const value_string packet_type_names[] = {
-    {TDS_QUERY_PKT,    "Query Packet"},
-    {TDS_LOGIN_PKT,    "Login Packet"},
-    {TDS_RPC_PKT,      "Remote Procedure Call Packet"},
-    {TDS_RESP_PKT,     "Response Packet"},
-    {TDS_CANCEL_PKT,   "Cancel Packet"},
-    {TDS_QUERY5_PKT,   "TDS5 Query Packet"},
-    {TDS_LOGIN7_PKT,   "TDS7/8 Login Packet"},
-    {TDS_XXX7_PKT,     "TDS7/8 0x12 Packet"},
-    {TDS_NTLMAUTH_PKT, "NT Authentication Packet"},
-    {0, NULL},
+    {TDS_QUERY_PKT,     "SQL batch"},
+    {TDS_LOGIN_PKT,     "Pre-TDS7 login"},
+    {TDS_RPC_PKT,       "Remote Procedure Call"},
+    {TDS_RESP_PKT,      "Response"},
+    {TDS_RAW_PKT,       "Unused"},
+    {TDS_ATTENTION_PKT, "Attention"},
+    {TDS_BULK_DATA_PKT, "Bulk load data"},
+    {TDS_QUERY5_PKT,    "TDS5 query"},
+    {TDS_LOGIN7_PKT,    "TDS7 login"},
+    {TDS_SSPI_PKT,      "SSPI message"},
+    {TDS_PRELOGIN_PKT,  "TDS7 pre-login message"},
+    {0, NULL}
+};
+
+enum {
+    TDS_HEADER_QUERY_NOTIF = 0x0001,
+    TDS_HEADER_TRANS_DESCR = 0x0002
+};
+
+static const value_string header_type_names[] = {
+    {TDS_HEADER_QUERY_NOTIF, "Query notifications"},
+    {TDS_HEADER_TRANS_DESCR, "Transaction descriptor"},
+    {0, NULL}
 };
 
 /* The status field */
 
 #define is_valid_tds_status(x) ((x) <= STATUS_EVENT_NOTIFICATION)
 
-#define STATUS_NOT_LAST_BUFFER          0x00
 #define STATUS_LAST_BUFFER              0x01
-#define STATUS_ATTN_REQUEST_ACK         0x02
-#define STATUS_ATTN_REQUEST             0x03
+#define STATUS_IGNORE_EVENT             0x02
 #define STATUS_EVENT_NOTIFICATION       0x04
-
-static const value_string status_names[] = {
-    {STATUS_NOT_LAST_BUFFER,    "Not last buffer"},
-    {STATUS_LAST_BUFFER,        "Last buffer in request or response"},
-    {STATUS_ATTN_REQUEST_ACK,   "Acknowledgment of last attention request"},
-    {STATUS_ATTN_REQUEST,       "Attention request"},
-    {STATUS_EVENT_NOTIFICATION, "Event notification"},
-    {0, NULL},
-};
+#define STATUS_RESETCONNECTION          0x08
+#define STATUS_RESETCONNECTIONSKIPTRAN  0x10
 
 /* The one byte token at the start of each TDS PDU */
 static const value_string token_names[] = {
@@ -497,9 +683,19 @@ static const value_string token_names[] = {
     {TDS5_CURDECLARE2_TOKEN,    "TDS5 CurDeclare2"},
     {TDS5_ROWFMT2_TOKEN,        "TDS5 RowFmt2"},
     {TDS5_MSG_TOKEN,            "TDS5 Msg"},
-    {0, NULL},
+    {0, NULL}
 };
 
+#define TDS_RPC_SEPARATOR_BATCH_FLAG            0x80
+#define TDS_RPC_SEPARATOR_BATCH_FLAG_7_2        0xFF
+#define TDS_RPC_SEPARATOR_NO_EXEC_FLAG          0xFE
+
+static const value_string tds_rpc_separators[] = {
+    {TDS_RPC_SEPARATOR_BATCH_FLAG,     "Batch flag"},
+    {TDS_RPC_SEPARATOR_BATCH_FLAG_7_2, "Batch flag 7.2"},
+    {TDS_RPC_SEPARATOR_NO_EXEC_FLAG,   "No exec flag"},
+    {0, NULL }
+};
 
 static const value_string internal_stored_proc_id_names[] = {
     {TDS_SP_CURSOR,          "sp_cursor"         },
@@ -680,7 +876,70 @@ tds_get_variable_token_size(tvbuff_t *tvb, gint offset, guint8 token,
 
 
 static void
-dissect_tds_query_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_tds_all_headers(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_tree *tree)
+{
+    proto_item *item = NULL, *total_length_item = NULL;
+    proto_tree *sub_tree = NULL;
+    guint32 total_length;
+    guint final_offset;
+
+    total_length = tvb_get_letohl(tvb, *offset);
+    /* Try to find out heuristically whether the ALL_HEADERS rule is actually present.
+     * In practice total_length is a single byte value, so if the extracted value exceeds 1 byte,
+     * then the headers are most likely absent. */
+    if(total_length >= 0x100)
+        return;
+    item = proto_tree_add_item(tree, hf_tds_all_headers, tvb, *offset, total_length, TRUE);
+    sub_tree = proto_item_add_subtree(item, ett_tds_all_headers);
+    total_length_item = proto_tree_add_item(sub_tree, hf_tds_all_headers_total_length, tvb, *offset, 4, TRUE);
+
+    final_offset = *offset + total_length;
+    *offset += 4;
+    do {
+        /* dissect a stream header */
+        proto_tree *header_sub_tree = NULL;
+        proto_item *length_item = NULL, *type_item = NULL;
+        guint32 header_length;
+        guint16 header_type;
+
+        header_length = tvb_get_letohl(tvb, *offset);
+        item = proto_tree_add_text(sub_tree, tvb, *offset, header_length, "Header");
+        header_sub_tree = proto_item_add_subtree(item, ett_tds_all_headers_header);
+        length_item = proto_tree_add_item(header_sub_tree, hf_tds_all_headers_header_length, tvb, *offset, 4, TRUE);
+        if(header_length == 0 ) {
+            expert_add_info_format(pinfo, length_item, PI_MALFORMED, PI_ERROR, "Empty header");
+            break;
+        }
+
+        header_type = tvb_get_letohs(tvb, *offset + 4);
+        type_item = proto_tree_add_item(header_sub_tree, hf_tds_all_headers_header_type, tvb, *offset + 4, 2, TRUE);
+
+        switch(header_type) {
+            case TDS_HEADER_QUERY_NOTIF:
+                break;
+            case TDS_HEADER_TRANS_DESCR:
+                if(header_length != 18)
+                    expert_add_info_format(pinfo, length_item, PI_MALFORMED, PI_ERROR, "Length should equal 18");
+                proto_tree_add_item(header_sub_tree, hf_tds_all_headers_trans_descr, tvb, *offset + 6, 8, TRUE);
+                proto_tree_add_item(header_sub_tree, hf_tds_all_headers_request_cnt, tvb, *offset + 14, 4, TRUE);
+                break;
+            default:
+                expert_add_info_format(pinfo, type_item, PI_MALFORMED, PI_ERROR, "Invalid header type");
+        }
+
+        *offset += header_length;
+    } while(*offset < final_offset);
+    if(*offset != final_offset) {
+        expert_add_info_format(pinfo, total_length_item, PI_MALFORMED, PI_ERROR,
+                               "Sum of headers' lengths (%d) differs from total headers length (%d)",
+                               total_length + *offset - final_offset, total_length);
+        return;
+    }
+}
+
+
+static void
+dissect_tds_query_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint offset, len;
     gboolean is_unicode = TRUE;
@@ -692,10 +951,11 @@ dissect_tds_query_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     offset = 0;
     query_hdr = proto_tree_add_text(tree, tvb, offset, -1, "TDS Query Packet");
     query_tree = proto_item_add_subtree(query_hdr, ett_tds7_query);
+    dissect_tds_all_headers(tvb, &offset, pinfo, query_tree);
     len = tvb_reported_length_remaining(tvb, offset);
 
     if (TDS_PROTO_PREF_TDS4 ||
-        (!TDS_PROTO_PREF_TDS7_TDS8 &&
+        (!TDS_PROTO_PREF_TDS7 &&
          ((len < 2) || tvb_get_guint8(tvb, offset+1) != 0)))
         is_unicode = FALSE;
 
@@ -1423,49 +1683,457 @@ dissect_tds_done_token(tvbuff_t *tvb, guint offset, proto_tree *tree)
     offset += 2;
 }
 
-static void
-dissect_tds_rpc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static guint8
+dissect_tds_type_info(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_tree *tree, gboolean *plp)
 {
-    int offset = 0;
-    guint len;
-    guint16 sp_id;
-    char *val;
+    proto_item *item = NULL, *item1 = NULL, *data_type_item = NULL;
+    proto_tree *sub_tree = NULL, *collation_tree;
+    guint32 varlen, varlen_len = 0;
+    guint8 data_type;
 
-    /*
-     * RPC name.
-     */
-    switch(tds_protocol_type) {
-        case TDS_PROTOCOL_4:
-            len = tvb_get_guint8(tvb, offset);
-            proto_tree_add_text(tree, tvb, offset, 1, "RPC Name Length: %u", len);
-            offset += 1;
-            val = (gchar*)tvb_get_ephemeral_string(tvb, offset, len);
-            proto_tree_add_text(tree, tvb, offset, len, "RPC Name: %s", val);
-            offset += len;
+    *plp = FALSE; /* most types are not Partially Length-Prefixed */
+    item = proto_tree_add_item(tree, hf_tds_type_info, tvb, *offset, 0, TRUE);
+    data_type = tvb_get_guint8(tvb, *offset);
+    proto_item_append_text(item, " (%s)", val_to_str(data_type, tds_data_type_names, "Invalid data type: %02X"));
+    sub_tree = proto_item_add_subtree(item, ett_tds_type_info);
+    data_type_item = proto_tree_add_item(sub_tree, hf_tds_type_info_type, tvb, *offset, 1, TRUE);
+    *offset += 1;
+
+    /* optional TYPE_VARLEN for variable length types */
+    switch(data_type) {
+        /* FIXEDLENTYPE */
+        case TDS_DATA_TYPE_NULL:            /* Null (no data associated with this type) */
+        case TDS_DATA_TYPE_INT1:            /* TinyInt (1 byte data representation) */
+        case TDS_DATA_TYPE_BIT:             /* Bit (1 byte data representation) */
+        case TDS_DATA_TYPE_INT2:            /* SmallInt (2 byte data representation) */
+        case TDS_DATA_TYPE_INT4:            /* Int (4 byte data representation) */
+        case TDS_DATA_TYPE_FLT4:            /* Real (4 byte data representation) */
+        case TDS_DATA_TYPE_DATETIM4:        /* SmallDateTime (4 byte data representation) */
+        case TDS_DATA_TYPE_MONEY4:          /* SmallMoney (4 byte data representation) */
+        case TDS_DATA_TYPE_INT8:            /* BigInt (8 byte data representation) */
+        case TDS_DATA_TYPE_FLT8:            /* Float (8 byte data representation) */
+        case TDS_DATA_TYPE_MONEY:           /* Money (8 byte data representation) */
+        case TDS_DATA_TYPE_DATETIME:        /* DateTime (8 byte data representation) */
+        /* BYTELEN_TYPE with length determined by SCALE */
+        case TDS_DATA_TYPE_TIMEN:           /* (introduced in TDS 7.3) */
+        case TDS_DATA_TYPE_DATETIME2N:      /* (introduced in TDS 7.3) */
+        case TDS_DATA_TYPE_DATETIMEOFFSETN: /* (introduced in TDS 7.3) */
+            varlen_len = 0;
+            break;
+        /* BYTELEN_TYPE */
+        case TDS_DATA_TYPE_GUID:            /* UniqueIdentifier */
+        case TDS_DATA_TYPE_INTN:
+        case TDS_DATA_TYPE_DECIMAL:         /* Decimal (legacy support) */
+        case TDS_DATA_TYPE_NUMERIC:         /* Numeric (legacy support) */
+        case TDS_DATA_TYPE_BITN:
+        case TDS_DATA_TYPE_DECIMALN:        /* Decimal */
+        case TDS_DATA_TYPE_NUMERICN:        /* Numeric */
+        case TDS_DATA_TYPE_FLTN:
+        case TDS_DATA_TYPE_MONEYN:
+        case TDS_DATA_TYPE_DATETIMN:
+        case TDS_DATA_TYPE_DATEN:           /* (introduced in TDS 7.3) */
+        case TDS_DATA_TYPE_CHAR:            /* Char (legacy support) */
+        case TDS_DATA_TYPE_VARCHAR:         /* VarChar (legacy support) */
+        case TDS_DATA_TYPE_BINARY:          /* Binary (legacy support) */
+        case TDS_DATA_TYPE_VARBINARY:       /* VarBinary (legacy support) */
+            varlen_len = 1;
+            varlen = tvb_get_guint8(tvb, *offset);
+            break;
+        /* USHORTLEN_TYPE */
+        case TDS_DATA_TYPE_BIGVARCHR:       /* VarChar */
+        case TDS_DATA_TYPE_BIGVARBIN:       /* VarBinary */
+        case TDS_DATA_TYPE_NVARCHAR:        /* NVarChar */
+            varlen_len = 2;
+            varlen = tvb_get_letohs(tvb, *offset);
+            /* A type with unlimited max size, known as varchar(max), varbinary(max) and nvarchar(max),
+               which has a max size of 0xFFFF, defined by PARTLENTYPE. This class of types was introduced in TDS 7.2. */
+            if(varlen == 0xFFFF)
+                *plp = TRUE;
+            break;
+        case TDS_DATA_TYPE_BIGBINARY:       /* Binary */
+        case TDS_DATA_TYPE_BIGCHAR:         /* Char */
+        case TDS_DATA_TYPE_NCHAR:           /* NChar */
+            varlen_len = 2;
+            varlen = tvb_get_letohs(tvb, *offset);
+            break;
+        /* LONGLEN_TYPE */
+        case TDS_DATA_TYPE_XML:             /* XML (introduced in TDS 7.2) */
+        case TDS_DATA_TYPE_UDT:             /* CLR-UDT (introduced in TDS 7.2) */
+            *plp = TRUE;
+        case TDS_DATA_TYPE_TEXT:            /* Text */
+        case TDS_DATA_TYPE_IMAGE:           /* Image */
+        case TDS_DATA_TYPE_NTEXT:           /* NText */
+        case TDS_DATA_TYPE_SSVARIANT:       /* Sql_Variant (introduced in TDS 7.2) */
+            varlen_len = 4;
+            varlen = tvb_get_letohl(tvb, *offset);
+            break;
+        default:
+            expert_add_info_format(pinfo, data_type_item, PI_MALFORMED, PI_ERROR, "Invalid data type %d", data_type);
+            return data_type;
+    }
+    if(varlen_len)
+        item1 = proto_tree_add_uint(sub_tree, hf_tds_type_info_varlen, tvb, *offset, varlen_len, varlen);
+    if(*plp)
+        proto_item_append_text(item1, " (PLP - Partially Length-Prefixed data type)");
+    *offset += varlen_len;
+
+    /* Optional data dependent on type */
+    switch(data_type) {
+        /* PRECISION and SCALE */
+        case TDS_DATA_TYPE_DECIMAL:         /* Decimal (legacy support) */
+        case TDS_DATA_TYPE_NUMERIC:         /* Numeric (legacy support) */
+        case TDS_DATA_TYPE_DECIMALN:        /* Decimal */
+        case TDS_DATA_TYPE_NUMERICN:        /* Numeric */
+            proto_tree_add_item(sub_tree, hf_tds_type_info_precision, tvb, *offset, 1, TRUE);
+            *offset += 1;
+        /* SCALE */
+        case TDS_DATA_TYPE_TIMEN:           /* (introduced in TDS 7.3) */
+        case TDS_DATA_TYPE_DATETIME2N:      /* (introduced in TDS 7.3) */
+        case TDS_DATA_TYPE_DATETIMEOFFSETN: /* (introduced in TDS 7.3) */
+            proto_tree_add_item(sub_tree, hf_tds_type_info_scale, tvb, *offset, 1, TRUE);
+            *offset += 1;
+            break;
+        /* COLLATION */
+        case TDS_DATA_TYPE_BIGCHAR:         /* Char */
+        case TDS_DATA_TYPE_BIGVARCHR:       /* VarChar */
+        case TDS_DATA_TYPE_TEXT:            /* Text */
+        case TDS_DATA_TYPE_NTEXT:           /* NText */
+        case TDS_DATA_TYPE_NCHAR:           /* NChar */
+        case TDS_DATA_TYPE_NVARCHAR:        /* NVarChar */
+            item1 = proto_tree_add_item(sub_tree, hf_tds_type_info_collation, tvb, *offset, 5, TRUE);
+            collation_tree = proto_item_add_subtree(item1, ett_tds_type_info_collation);
+            proto_tree_add_item(collation_tree, hf_tds_type_info_collation_lcid, tvb, *offset, 4, TRUE);
+            proto_tree_add_item(collation_tree, hf_tds_type_info_collation_ign_case, tvb, *offset, 4, TRUE);
+            proto_tree_add_item(collation_tree, hf_tds_type_info_collation_ign_accent, tvb, *offset, 4, TRUE);
+            proto_tree_add_item(collation_tree, hf_tds_type_info_collation_ign_kana, tvb, *offset, 4, TRUE);
+            proto_tree_add_item(collation_tree, hf_tds_type_info_collation_ign_width, tvb, *offset, 4, TRUE);
+            proto_tree_add_item(collation_tree, hf_tds_type_info_collation_binary, tvb, *offset, 4, TRUE);
+            proto_tree_add_item(collation_tree, hf_tds_type_info_collation_version, tvb, *offset, 4, TRUE);
+            proto_tree_add_item(collation_tree, hf_tds_type_info_collation_sortid, tvb, *offset + 4, 1, TRUE);
+            *offset += 5;
+            break;
+    }
+
+    proto_item_set_end(item, tvb, *offset);
+    return data_type;
+}
+
+static void
+dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_tree *tree, int hf, guint8 data_type, gboolean plp)
+{
+    enum { GEN_NULL = 0x00U, CHARBIN_NULL = 0xFFFFU, CHARBIN_NULL32 = 0xFFFFFFFFUL };
+    guint32 length;
+    char *string_value;
+    proto_tree *sub_tree = NULL;
+    proto_item *item = NULL, *length_item = NULL;
+
+    item = proto_tree_add_item(tree, hf, tvb, *offset, 0, TRUE);
+    sub_tree = proto_item_add_subtree(item, ett_tds_type_varbyte);
+
+    if(plp) {
+        enum { PLP_TERMINATOR = 0x00000000UL, UNKNOWN_PLP_LEN = 0xFFFFFFFFFFFFFFFEULL, PLP_NULL = 0xFFFFFFFFFFFFFFFFULL };
+        guint64 plp_length = tvb_get_letoh64(tvb, *offset);
+        length_item = proto_tree_add_item(sub_tree, hf_tds_type_varbyte_plp_len, tvb, *offset, 8, TRUE);
+        *offset += 8;
+        if(plp_length == PLP_NULL)
+            proto_item_append_text(length_item, " (PLP_NULL)");
+        else {
+            if(plp_length == UNKNOWN_PLP_LEN)
+                proto_item_append_text(length_item, " (UNKNOWN_PLP_LEN)");
+            while(TRUE) {
+                length = tvb_get_letohl(tvb, *offset);
+                length_item = proto_tree_add_item(sub_tree, hf_tds_type_varbyte_plp_chunk_len, tvb, *offset, 4, TRUE);
+                *offset += 4;
+                if(length == PLP_TERMINATOR) {
+                    proto_item_append_text(length_item, " (PLP_TERMINATOR)");
+                    break;
+                }
+                switch(data_type) {
+                    case TDS_DATA_TYPE_BIGVARBIN: /* VarBinary */
+                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset, length, TRUE);
+                        break;
+                    case TDS_DATA_TYPE_BIGVARCHR: /* VarChar */
+                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, TRUE);
+                        break;
+                    case TDS_DATA_TYPE_NVARCHAR:  /* NVarChar */
+                        string_value = tvb_get_ephemeral_faked_unicode(tvb, *offset, length / 2, TRUE);
+                        proto_tree_add_string(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, string_value);
+                        break;
+                    case TDS_DATA_TYPE_XML:       /* XML (introduced in TDS 7.2) */
+                    case TDS_DATA_TYPE_UDT:       /* CLR-UDT (introduced in TDS 7.2) */
+                        expert_add_info_format(pinfo, length_item, PI_UNDECODED, PI_ERROR, "Data types not supported yet");
+                        return;
+                    default:
+                        /* no other data type sets plp = TRUE */
+                        expert_add_info_format(pinfo, length_item, PI_MALFORMED, PI_ERROR, "Invalid data type %d", data_type);
+                        return;
+                }
+                *offset += length;
+            }
+        }
+    }
+    else switch(data_type) {
+        /* FIXEDLENTYPE */
+        case TDS_DATA_TYPE_NULL:            /* Null (no data associated with this type) */
+            break;
+        case TDS_DATA_TYPE_BIT:             /* Bit (1 byte data representation) */
+            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_boolean, tvb, *offset, 1, TRUE);
+            *offset += 1;
+            break;
+        case TDS_DATA_TYPE_INT1:            /* TinyInt (1 byte data representation) */
+            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int1, tvb, *offset, 1, TRUE);
+            *offset += 1;
+            break;
+        case TDS_DATA_TYPE_INT2:            /* SmallInt (2 byte data representation) */
+            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int2, tvb, *offset, 2, TRUE);
+            *offset += 2;
+            break;
+        case TDS_DATA_TYPE_INT4:            /* Int (4 byte data representation) */
+            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int4, tvb, *offset, 4, TRUE);
+            *offset += 4;
+            break;
+        case TDS_DATA_TYPE_INT8:            /* BigInt (8 byte data representation) */
+            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int8, tvb, *offset, 8, TRUE);
+            *offset += 8;
+            break;
+        case TDS_DATA_TYPE_FLT4:            /* Real (4 byte data representation) */
+            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_float, tvb, *offset, 4, TRUE);
+            *offset += 4;
+            break;
+        case TDS_DATA_TYPE_FLT8:            /* Float (8 byte data representation) */
+            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_double, tvb, *offset, 8, TRUE);
+            *offset += 8;
+            break;
+        case TDS_DATA_TYPE_MONEY4:          /* SmallMoney (4 byte data representation) */
+        case TDS_DATA_TYPE_DATETIM4:        /* SmallDateTime (4 byte data representation) */
+            /*TODO*/
+            *offset += 4;
+            break;
+        case TDS_DATA_TYPE_MONEY:           /* Money (8 byte data representation) */
+        case TDS_DATA_TYPE_DATETIME:        /* DateTime (8 byte data representation) */
+            /*TODO*/
+            *offset += 8;
             break;
 
-        case TDS_PROTOCOL_7:
-        case TDS_PROTOCOL_8:
-        default:        /* unspecified: try as if TDS7/TDS8 */
-            len = tvb_get_letohs(tvb, offset);
-            proto_tree_add_text(tree, tvb, offset, 2, "RPC Name Length: %u", len);
-            offset += 2;
-            if (len == 0xFFFF) {
-                sp_id = tvb_get_letohs(tvb, offset);
-                proto_tree_add_text(tree, tvb, offset, 2, "RPC Stored Proc ID: %u (%s)",
-                                    sp_id,
-                                    val_to_str(sp_id, internal_stored_proc_id_names, "Unknown"));
-                offset += 2;
+
+        /* BYTELEN_TYPE - types prefixed with 1-byte length */
+        case TDS_DATA_TYPE_GUID:            /* UniqueIdentifier */
+            length = tvb_get_guint8(tvb, *offset);
+            length_item = proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
+            switch(length) {
+                case GEN_NULL: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, TRUE); break;
+                case 16: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_guid, tvb, *offset + 1, length, TRUE); break;
+                default: expert_add_info_format(pinfo, length_item, PI_MALFORMED, PI_ERROR, "Invalid length");
             }
-            else if (len != 0) {
-                val = tvb_get_ephemeral_faked_unicode(tvb, offset, len, TRUE);
-                len *= 2;
-                proto_tree_add_text(tree, tvb, offset, len, "RPC Name: %s", val);
-                offset += len;
+            *offset += 1 + length;
+            break;
+        case TDS_DATA_TYPE_BITN:
+            length = tvb_get_guint8(tvb, *offset);
+            length_item = proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
+            switch(length) {
+                case GEN_NULL: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, TRUE); break;
+                case 1: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_boolean, tvb, *offset + 1, 1, TRUE); break;
+                default: expert_add_info_format(pinfo, length_item, PI_MALFORMED, PI_ERROR, "Invalid length");
+            }
+            *offset += 1 + length;
+            break;
+        case TDS_DATA_TYPE_INTN:
+            length = tvb_get_guint8(tvb, *offset);
+            length_item = proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
+            switch(length) {
+                case GEN_NULL: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, TRUE); break;
+                case 1: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int1, tvb, *offset + 1, 1, TRUE); break;
+                case 2: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int2, tvb, *offset + 1, 2, TRUE); break;
+                case 4: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int4, tvb, *offset + 1, 4, TRUE); break;
+                case 8: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int8, tvb, *offset + 1, 8, TRUE); break;
+                default: expert_add_info_format(pinfo, length_item, PI_MALFORMED, PI_ERROR, "Invalid length");
+            }
+            *offset += 1 + length;
+            break;
+        case TDS_DATA_TYPE_FLTN:
+            length = tvb_get_guint8(tvb, *offset);
+            length_item = proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
+            switch(length) {
+                case GEN_NULL: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, TRUE); break;
+                case 4: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_float, tvb, *offset + 1, 4, TRUE); break;
+                case 8: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_double, tvb, *offset + 1, 8, TRUE); break;
+                default: expert_add_info_format(pinfo, length_item, PI_MALFORMED, PI_ERROR, "Invalid length");
+            }
+            *offset += 1 + length;
+            break;
+        case TDS_DATA_TYPE_DECIMAL:         /* Decimal (legacy support) */
+        case TDS_DATA_TYPE_NUMERIC:         /* Numeric (legacy support) */
+        case TDS_DATA_TYPE_DECIMALN:        /* Decimal */
+        case TDS_DATA_TYPE_NUMERICN:        /* Numeric */
+        case TDS_DATA_TYPE_MONEYN:
+        case TDS_DATA_TYPE_DATETIMN:
+        case TDS_DATA_TYPE_DATEN:           /* (introduced in TDS 7.3) */
+        case TDS_DATA_TYPE_TIMEN:           /* (introduced in TDS 7.3) */
+        case TDS_DATA_TYPE_DATETIME2N:      /* (introduced in TDS 7.3) */
+        case TDS_DATA_TYPE_DATETIMEOFFSETN: /* (introduced in TDS 7.3) */
+        case TDS_DATA_TYPE_CHAR:            /* Char (legacy support) */
+        case TDS_DATA_TYPE_VARCHAR:         /* VarChar (legacy support) */
+        case TDS_DATA_TYPE_BINARY:          /* Binary (legacy support) */
+        case TDS_DATA_TYPE_VARBINARY:       /* VarBinary (legacy support) */
+            length = tvb_get_guint8(tvb, *offset);
+            proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
+            *offset += 1;
+            if(length > 0) {
+                proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset, length, TRUE);
+                *offset += length;
+            }
+            break;
+
+        /* USHORTLEN_TYPE - types prefixed with 2-byte length */
+        case TDS_DATA_TYPE_BIGVARBIN:       /* VarBinary */
+        case TDS_DATA_TYPE_BIGBINARY:       /* Binary */
+        case TDS_DATA_TYPE_BIGVARCHR:       /* VarChar */
+        case TDS_DATA_TYPE_BIGCHAR:         /* Char */
+        case TDS_DATA_TYPE_NVARCHAR:        /* NVarChar */
+        case TDS_DATA_TYPE_NCHAR:           /* NChar */
+            length = tvb_get_letohs(tvb, *offset);
+            length_item = proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 2, length);
+            *offset += 2;
+            if(length == CHARBIN_NULL) {
+                proto_item_append_text(length_item, " (CHARBIN_NULL)");
+                proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, TRUE);
+            }
+            else {
+                switch(data_type) {
+                    case TDS_DATA_TYPE_BIGVARBIN: /* VarBinary */
+                    case TDS_DATA_TYPE_BIGBINARY: /* Binary */
+                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset, length, TRUE);
+                        break;
+                    case TDS_DATA_TYPE_BIGVARCHR: /* VarChar */
+                    case TDS_DATA_TYPE_BIGCHAR:   /* Char */
+                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, TRUE);
+                        break;
+                    case TDS_DATA_TYPE_NVARCHAR:  /* NVarChar */
+                    case TDS_DATA_TYPE_NCHAR:     /* NChar */
+                        string_value = tvb_get_ephemeral_faked_unicode(tvb, *offset, length / 2, TRUE);
+                        proto_tree_add_string(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, string_value);
+                        break;
+                    default:
+                        expert_add_info_format(pinfo, length_item, PI_MALFORMED, PI_ERROR, "Invalid data type %d", data_type);
+			return;
+                }
+                *offset += length;
+            }
+            break;
+
+        /* LONGLEN_TYPE - types prefixed with 2-byte length */
+        case TDS_DATA_TYPE_NTEXT:           /* NText */
+        case TDS_DATA_TYPE_XML:             /* XML (introduced in TDS 7.2) */
+        case TDS_DATA_TYPE_UDT:             /* CLR-UDT (introduced in TDS 7.2) */
+        case TDS_DATA_TYPE_TEXT:            /* Text */
+        case TDS_DATA_TYPE_IMAGE:           /* Image */
+        case TDS_DATA_TYPE_SSVARIANT:       /* Sql_Variant (introduced in TDS 7.2) */
+            length = tvb_get_letohl(tvb, *offset);
+            length_item = proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 4, length);
+            *offset += 4;
+            if(length == CHARBIN_NULL32) {
+                proto_item_append_text(length_item, " (CHARBIN_NULL)");
+                proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, TRUE);
+            }
+            else {
+                switch(data_type) {
+                    case TDS_DATA_TYPE_NTEXT: /* NText */
+                        string_value = tvb_get_ephemeral_faked_unicode(tvb, *offset, length / 2, TRUE);
+                        proto_tree_add_string(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, string_value);
+                        break;
+                    default: /*TODO*/
+                        expert_add_info_format(pinfo, length_item, PI_UNDECODED, PI_ERROR, "Data type %d not supported yet", data_type);
+                        return;
+                }
+                *offset += length;
             }
             break;
     }
-    proto_tree_add_text(tree, tvb, offset, -1, "Params (not dissected)");
+    proto_item_set_end(item, tvb, *offset);
+}
+
+static void
+dissect_tds_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    proto_item *item = NULL, *param_item = NULL;
+    proto_tree *sub_tree = NULL, *status_sub_tree = NULL;
+    int offset = 0;
+    guint len;
+    char *val;
+    guint8 data_type;
+
+    item = proto_tree_add_item(tree, hf_tds_rpc, tvb, 0, -1, TRUE);
+    tree = proto_item_add_subtree(item, ett_tds_message);
+
+    dissect_tds_all_headers(tvb, &offset, pinfo, tree);
+    while(tvb_length_remaining(tvb, offset) > 0) {
+        /*
+         * RPC name.
+         */
+        switch(tds_protocol_type) {
+            case TDS_PROTOCOL_4:
+                len = tvb_get_guint8(tvb, offset);
+                proto_tree_add_item(tree, hf_tds_rpc_name_length8, tvb, offset, 1, TRUE);
+                proto_tree_add_item(tree, hf_tds_rpc_name, tvb, offset + 1, len, TRUE);
+                offset += 1 + len;
+                break;
+
+            case TDS_PROTOCOL_7_0:
+            case TDS_PROTOCOL_7_1:
+            case TDS_PROTOCOL_7_2:
+            case TDS_PROTOCOL_7_3:
+            default: /* unspecified: try as if TDS7 */
+                len = tvb_get_letohs(tvb, offset);
+                proto_tree_add_item(tree, hf_tds_rpc_name_length, tvb, offset, 2, TRUE);
+                offset += 2;
+                if (len == 0xFFFF) {
+                    proto_tree_add_item(tree, hf_tds_rpc_proc_id, tvb, offset, 2, TRUE);
+                    offset += 2;
+                }
+                else if (len != 0) {
+                    val = tvb_get_ephemeral_faked_unicode(tvb, offset, len, TRUE);
+                    proto_tree_add_string(tree, hf_tds_rpc_name, tvb, offset, len * 2, val);
+                    offset += len * 2;
+                }
+                break;
+        }
+        item = proto_tree_add_item(tree, hf_tds_rpc_options, tvb, offset, 2, TRUE);
+        sub_tree = proto_item_add_subtree(item, ett_tds_rpc_options);
+        proto_tree_add_item(sub_tree, hf_tds_rpc_options_with_recomp, tvb, offset, 2, TRUE);
+        proto_tree_add_item(sub_tree, hf_tds_rpc_options_no_metadata, tvb, offset, 2, TRUE);
+        proto_tree_add_item(sub_tree, hf_tds_rpc_options_reuse_metadata, tvb, offset, 2, TRUE);
+        offset += 2;
+
+        /* dissect parameters */
+        while(tvb_length_remaining(tvb, offset) > 0) {
+            gboolean plp;
+
+            len = tvb_get_guint8(tvb, offset);
+            /* check for BatchFlag or NoExecFlag */
+            if((gint8)len < 0) {
+                proto_tree_add_item(tree, hf_tds_rpc_separator, tvb, offset, 1, TRUE);
+                ++offset;
+                break;
+            }
+            param_item = proto_tree_add_item(tree, hf_tds_rpc_parameter, tvb, offset, 0, TRUE);
+            sub_tree = proto_item_add_subtree(param_item, ett_tds_rpc_parameter);
+            proto_tree_add_item(sub_tree, hf_tds_rpc_parameter_name_length, tvb, offset, 1, TRUE);
+            ++offset;
+            if(len) {
+                val = tvb_get_ephemeral_faked_unicode(tvb, offset, len, TRUE);
+                proto_tree_add_string(sub_tree, hf_tds_rpc_parameter_name, tvb, offset, len * 2, val);
+                offset += len * 2;
+            }
+            item = proto_tree_add_item(sub_tree, hf_tds_rpc_parameter_status, tvb, offset, 1, TRUE);
+            status_sub_tree = proto_item_add_subtree(item, ett_tds_rpc_parameter_status);
+            proto_tree_add_item(status_sub_tree, hf_tds_rpc_parameter_status_by_ref, tvb, offset, 1, TRUE);
+            proto_tree_add_item(status_sub_tree, hf_tds_rpc_parameter_status_default, tvb, offset, 1, TRUE);
+            ++offset;
+            data_type = dissect_tds_type_info(tvb, &offset, pinfo, sub_tree, &plp);
+            dissect_tds_type_varbyte(tvb, &offset, pinfo, sub_tree, hf_tds_rpc_parameter_value, data_type, plp);
+            proto_item_set_end(param_item, tvb, offset);
+        }
+    }
 }
 
 static void
@@ -1594,9 +2262,9 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int offset = 0;
     proto_item *tds_item = NULL;
     proto_tree *tds_tree = NULL;
+    proto_tree *tds_status_tree = NULL;
     guint8 type;
     guint8 status;
-    guint16 size;
     guint16 channel;
     guint8 packet_number;
     gboolean save_fragmented;
@@ -1604,40 +2272,26 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     fragment_data *fd_head;
     tvbuff_t *next_tvb;
 
-    if (tree) {
-        /* create display subtree for the protocol */
-        tds_item = proto_tree_add_item(tree, proto_tds, tvb, offset, -1,
-                                       FALSE);
-
-        tds_tree = proto_item_add_subtree(tds_item, ett_tds);
-    }
     type = tvb_get_guint8(tvb, offset);
-    if (tree) {
-        proto_tree_add_uint(tds_tree, hf_tds_type, tvb, offset, 1,
-                            type);
-    }
     status = tvb_get_guint8(tvb, offset + 1);
-    if (tree) {
-        proto_tree_add_uint(tds_tree, hf_tds_status, tvb, offset + 1, 1,
-                            status);
-    }
-    size = tvb_get_ntohs(tvb, offset + 2);
-    if (tree) {
-        proto_tree_add_uint(tds_tree, hf_tds_size, tvb, offset + 2, 2,
-                            size);
-    }
     channel = tvb_get_ntohs(tvb, offset + 4);
-    if (tree) {
-        proto_tree_add_uint(tds_tree, hf_tds_channel, tvb, offset + 4, 2,
-                            channel);
-    }
     packet_number = tvb_get_guint8(tvb, offset + 6);
-    if (tree) {
-        proto_tree_add_uint(tds_tree, hf_tds_packet_number, tvb, offset + 6, 1,
-                            packet_number);
-        proto_tree_add_item(tds_tree, hf_tds_window, tvb, offset + 7, 1,
-                            FALSE);
-    }
+
+    /* create display subtree for the protocol */
+    tds_item = proto_tree_add_item(tree, proto_tds, tvb, offset, -1, FALSE);
+    tds_tree = proto_item_add_subtree(tds_item, ett_tds);
+    proto_tree_add_item(tds_tree, hf_tds_type, tvb, offset, 1, TRUE);
+    tds_item = proto_tree_add_item(tds_tree, hf_tds_status, tvb, offset + 1, 1, TRUE);
+    tds_status_tree = proto_item_add_subtree(tds_item, ett_tds_status);
+    proto_tree_add_item(tds_status_tree, hf_tds_status_eom, tvb, offset + 1, 1, FALSE);
+    proto_tree_add_item(tds_status_tree, hf_tds_status_ignore, tvb, offset + 1, 1, FALSE);
+    proto_tree_add_item(tds_status_tree, hf_tds_status_event_notif, tvb, offset + 1, 1, FALSE);
+    proto_tree_add_item(tds_status_tree, hf_tds_status_reset_conn, tvb, offset + 1, 1, FALSE);
+    proto_tree_add_item(tds_status_tree, hf_tds_status_reset_conn_skip_tran,tvb, offset + 1, 1, FALSE);
+    proto_tree_add_item(tds_tree, hf_tds_length, tvb, offset + 2, 2, FALSE);
+    proto_tree_add_item(tds_tree, hf_tds_channel, tvb, offset + 4, 2, FALSE);
+    proto_tree_add_item(tds_tree, hf_tds_packet_number, tvb, offset + 6, 1, TRUE);
+    proto_tree_add_item(tds_tree, hf_tds_window, tvb, offset + 7, 1, TRUE);
     offset += 8;        /* skip Netlib header */
 
     /*
@@ -1649,8 +2303,8 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     save_fragmented = pinfo->fragmented;
     if (tds_defragment &&
-        (packet_number > 1 || status == STATUS_NOT_LAST_BUFFER)) {
-        if (status == STATUS_NOT_LAST_BUFFER) {
+        (packet_number > 1 || (status & STATUS_LAST_BUFFER) == 0)) {
+        if ((status & STATUS_LAST_BUFFER) == 0) {
             col_append_str(pinfo->cinfo, COL_INFO,
                            " (Not last buffer)");
         }
@@ -1661,7 +2315,7 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          */
         fd_head = fragment_add_seq_check(tvb, offset, pinfo, channel,
                                          tds_fragment_table, tds_reassembled_table,
-                                         packet_number - 1, len, status == STATUS_NOT_LAST_BUFFER);
+                                         packet_number - 1, len, (status & STATUS_LAST_BUFFER) == 0);
         next_tvb = process_reassembled_data(tvb, offset, pinfo,
                                             "Reassembled TDS", fd_head, &tds_frag_items, NULL,
                                             tds_tree);
@@ -1677,7 +2331,7 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * of a fragmented message, but we'd need to do reassembly
          * in order to discover that.)
          */
-        if (status == STATUS_NOT_LAST_BUFFER)
+        if ((status & STATUS_LAST_BUFFER) == 0)
             next_tvb = NULL;
         else {
             next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -1705,7 +2359,7 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             case TDS_QUERY5_PKT:
                 dissect_tds_query5_packet(next_tvb, pinfo, tds_tree);
                 break;
-            case TDS_NTLMAUTH_PKT:
+            case TDS_SSPI_PKT:
                 dissect_tds_nt(next_tvb, pinfo, tds_tree, offset - 8, -1);
                 break;
             default:
@@ -1781,7 +2435,7 @@ dissect_tds_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(tds_tree, hf_tds_status,
                                     tvb, offset + 1, 1, FALSE);
                 proto_tree_add_uint_format(tds_tree,
-                                           hf_tds_size, tvb, offset + 2, 2, plen,
+                                           hf_tds_length, tvb, offset + 2, 2, plen,
                                            "Size: %u (bogus, should be >= 8)", plen);
             }
 
@@ -1986,18 +2640,43 @@ proto_register_tds(void)
     static hf_register_info hf[] = {
         { &hf_tds_type,
           { "Type",             "tds.type",
-            FT_UINT8, BASE_HEX, VALS(packet_type_names), 0x0,
-            "Packet Type", HFILL }
+            FT_UINT8, BASE_DEC, VALS(packet_type_names), 0x0,
+            "Packet type", HFILL }
         },
         { &hf_tds_status,
           { "Status",           "tds.status",
-            FT_UINT8, BASE_DEC, VALS(status_names), 0x0,
-            "Frame status", HFILL }
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            "Packet status", HFILL }
         },
-        { &hf_tds_size,
-          { "Size",             "tds.size",
+        { &hf_tds_status_eom,
+          { "End of message",   "tds.status.eom",
+            FT_BOOLEAN, 8, NULL, STATUS_LAST_BUFFER,
+            "The packet is the last packet in the whole request", HFILL }
+        },
+        { &hf_tds_status_ignore,
+          { "Ignore this event", "tds.status.ignore",
+            FT_BOOLEAN, 8, NULL, STATUS_IGNORE_EVENT,
+            "(From client to server) Ignore this event (EOM MUST also be set)", HFILL }
+        },
+        { &hf_tds_status_event_notif,
+          { "Event notification", "tds.status.event_notif",
+            FT_BOOLEAN, 8, NULL, STATUS_EVENT_NOTIFICATION,
+            NULL, HFILL }
+        },
+        { &hf_tds_status_reset_conn,
+          { "Reset connection", "tds.status.reset_conn",
+            FT_BOOLEAN, 8, NULL, STATUS_RESETCONNECTION,
+            "(From client to server) Reset this connection before processing event", HFILL }
+        },
+        { &hf_tds_status_reset_conn_skip_tran,
+          { "Reset connection keeping transaction state", "tds.status.reset_conn_skip_tran",
+            FT_BOOLEAN, 8, NULL, STATUS_RESETCONNECTIONSKIPTRAN,
+            "(From client to server) Reset the connection before processing event but do not modify the transaction state", HFILL }
+        },
+        { &hf_tds_length,
+          { "Length",           "tds.length",
             FT_UINT16, BASE_DEC, NULL, 0x0,
-            "Packet Size", HFILL }
+            "Packet length", HFILL }
         },
         { &hf_tds_channel,
           { "Channel",          "tds.channel",
@@ -2119,18 +2798,279 @@ proto_register_tds(void)
             FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_tds7_message,
-          { "Message", "tds7.message",
+        { &hf_tds_all_headers,
+          { "Packet data stream headers", "tds.all_headers",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            "The ALL_HEADERS rule", HFILL }
+        },
+        { &hf_tds_all_headers_total_length,
+          { "Total length",     "tds.all_headers.total_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Total length of ALL_HEADERS stream", HFILL }
+        },
+        { &hf_tds_all_headers_header_length,
+          { "Length",           "tds.all_headers.header.length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Total length of an individual header", HFILL }
+        },
+        { &hf_tds_all_headers_header_type,
+          { "Type",             "tds.all_headers.header.type",
+            FT_UINT16, BASE_HEX, VALS(header_type_names), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_all_headers_trans_descr,
+          { "Transaction descriptor", "tds.all_headers.header.trans_descr",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            "For each connection, a number that uniquely identifies the transaction the request is associated with. Initially generated by the server when a new transaction is created and returned to the client as part of the ENVCHANGE token stream.", HFILL }
+        },
+        { &hf_tds_all_headers_request_cnt,
+          { "Outstanding request count", "tds.all_headers.header.request_cnt",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Number of requests currently active on the connection", HFILL }
+        },
+        { &hf_tds_type_info,
+          { "Type info",        "tds.type_info",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            "The TYPE_INFO rule applies to several messages used to describe column information", HFILL }
+        },
+        { &hf_tds_type_info_type,
+          { "Type",             "tds.type_info.type",
+            FT_UINT8, BASE_HEX, VALS(tds_data_type_names), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_type_info_varlen,
+          { "Maximal length",   "tds.type_info.varlen",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Defines the length of the data contained within the column", HFILL }
+        },
+        { &hf_tds_type_info_precision,
+          { "Precision",        "tds.type_info.precision",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_type_info_scale,
+          { "Scale",            "tds.type_info.scale",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_type_info_collation,
+          { "Collation",        "tds.type_info.collation",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            "Specifies collation information for character data or metadata describing character data", HFILL }
+        },
+        { &hf_tds_type_info_collation_lcid,
+          { "LCID",             "tds.type_info.collation.lcid",
+            FT_UINT32, BASE_HEX, NULL, 0x000FFFFF,
+            "For a SortId==0 collation, the LCID bits correspond to a LocaleId as defined by the National Language Support (NLS) functions", HFILL }
+        },
+        { &hf_tds_type_info_collation_ign_case,
+          { "Ignore case",      "tds.type_info.collation.ignore_case",
+            FT_BOOLEAN, 32, NULL, 0x00100000,
+            NULL, HFILL }
+        },
+        { &hf_tds_type_info_collation_ign_accent,
+          { "Ignore accent",    "tds.type_info.collation.ignore_accent",
+            FT_BOOLEAN, 32, NULL, 0x00200000,
+            NULL, HFILL }
+        },
+        { &hf_tds_type_info_collation_ign_kana,
+          { "Ignore kana",      "tds.type_info.collation.ignore_kana",
+            FT_BOOLEAN, 32, NULL, 0x00400000,
+            NULL, HFILL }
+        },
+        { &hf_tds_type_info_collation_ign_width,
+          { "Ignore width",     "tds.type_info.collation.ignore_width",
+            FT_BOOLEAN, 32, NULL, 0x00800000,
+            NULL, HFILL }
+        },
+        { &hf_tds_type_info_collation_binary,
+          { "Binary",           "tds.type_info.collation.binary",
+            FT_BOOLEAN, 32, NULL, 0x01000000,
+            NULL, HFILL }
+        },
+        { &hf_tds_type_info_collation_version,
+          { "Version",          "tds.type_info.collation.version",
+            FT_UINT32, BASE_DEC, NULL, 0xF0000000,
+            NULL, HFILL }
+        },
+        { &hf_tds_type_info_collation_sortid,
+          { "SortId",           "tds.type_info.collation.sortid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_type_varbyte_length,
+          { "Length",           "tds.type_varbyte.length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_type_varbyte_data_null,
+          { "Data: NULL",       "tds.type_varbyte.data",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_type_varbyte_data_boolean,
+          { "Data",             "tds.type_varbyte.data",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_type_varbyte_data_int1,
+          { "Data",             "tds.type_varbyte.data",
+            FT_INT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_type_varbyte_data_int2,
+          { "Data",             "tds.type_varbyte.data",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_type_varbyte_data_int4,
+          { "Data",             "tds.type_varbyte.data",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_type_varbyte_data_int8,
+          { "Data",             "tds.type_varbyte.data",
+            FT_INT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_type_varbyte_data_float,
+          { "Data",             "tds.type_varbyte.data",
+            FT_FLOAT, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_type_varbyte_data_double,
+          { "Data",             "tds.type_varbyte.data",
+            FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_type_varbyte_data_bytes,
+          { "Data",             "tds.type_varbyte.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_type_varbyte_data_guid,
+          { "Data",             "tds.type_varbyte.data",
+            FT_GUID, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_type_varbyte_data_string,
+          { "Data",             "tds.type_varbyte.data",
             FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_type_varbyte_plp_len,
+          { "PLP length",       "tds.type_varbyte.plp_len",
+            FT_INT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_type_varbyte_plp_chunk_len,
+          { "PLP chunk length", "tds.type_varbyte.plp_chunk_len",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rpc,
+          { "Remote Procedure Call", "tds.rpc",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rpc_name_length8,
+          { "Procedure name length", "tds.rpc.name_length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rpc_name_length,
+          { "Procedure name length", "tds.rpc.name_length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rpc_name,
+          { "Procedure name",   "tds.rpc.name",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rpc_proc_id,
+          { "Stored procedure ID", "tds.rpc.proc_id",
+            FT_UINT16, BASE_DEC, VALS(internal_stored_proc_id_names), 0x0,
+            "The number identifying the special stored procedure to be executed", HFILL }
+        },
+        { &hf_tds_rpc_options,
+          { "Option flags",     "tds.rpc.options",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            "The number identifying the special stored procedure to be executed", HFILL }
+        },
+        { &hf_tds_rpc_options_with_recomp,
+          { "With recompile",   "tds.rpc.options.with_recomp",
+            FT_BOOLEAN, 16, NULL, TDS_RPC_OPT_WITH_RECOMP,
+            "The number identifying the special stored procedure to be executed", HFILL }
+        },
+        { &hf_tds_rpc_options_no_metadata,
+          { "No metadata",      "tds.rpc.options.no_metadata",
+            FT_BOOLEAN, 16, NULL, TDS_RPC_OPT_NO_METADATA,
+            "The number identifying the special stored procedure to be executed", HFILL }
+        },
+        { &hf_tds_rpc_options_reuse_metadata,
+          { "Reuse metadata",   "tds.rpc.options.reuse_metadata",
+            FT_BOOLEAN, 16, NULL, TDS_RPC_OPT_REUSE_METADATA,
+            "The number identifying the special stored procedure to be executed", HFILL }
+        },
+        { &hf_tds_rpc_separator,
+          { "RPC batch separator", "tds.rpc.separator",
+            FT_UINT8, BASE_DEC, VALS(tds_rpc_separators), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rpc_parameter,
+          { "Parameter",        "tds.rpc.parameter",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rpc_parameter_name_length,
+          { "Name length",      "tds.rpc.parameter.name_length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rpc_parameter_name,
+          { "Name",             "tds.rpc.parameter.name",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_rpc_parameter_status,
+          { "Status flags",     "tds.rpc.parameter.status",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            "Information on how the parameter is passed", HFILL }
+        },
+        { &hf_tds_rpc_parameter_status_by_ref,
+          { "By reference",     "tds.rpc.parameter.status.by_ref",
+            FT_BOOLEAN, 16, NULL, TDS_RPC_PARAMETER_STATUS_BY_REF,
+            NULL, HFILL }
+        },
+        { &hf_tds_rpc_parameter_status_default,
+          { "Default value",    "tds.rpc.parameter.status.default",
+            FT_BOOLEAN, 16, NULL, TDS_RPC_PARAMETER_STATUS_DEFAULT,
+            NULL, HFILL }
+        },
+        { &hf_tds_rpc_parameter_value,
+          { "Value",            "tds.rpc.parameter.value",
+            FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
     };
 
     static gint *ett[] = {
         &ett_tds,
+        &ett_tds_status,
         &ett_tds_fragments,
         &ett_tds_fragment,
+        &ett_tds_all_headers,
+        &ett_tds_all_headers_header,
+        &ett_tds_type_info,
+        &ett_tds_type_info_collation,
+        &ett_tds_type_varbyte,
+        &ett_tds_message,
+        &ett_tds_rpc_options,
+        &ett_tds_rpc_parameter,
+        &ett_tds_rpc_parameter_status,
         &ett_tds_token,
+        &ett_tds7_query,
         &ett_tds7_login,
         &ett_tds7_hdr,
     };

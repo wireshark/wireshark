@@ -3202,6 +3202,10 @@ Stéphane Bryant <stephane [AT] glycon.org> {
 	RELOAD Framing dissector
 }
 
+Emil Wojak <emil [AT] wojak.eu>
+	TDS dissector improvements
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
