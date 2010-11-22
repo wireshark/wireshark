@@ -81,15 +81,6 @@ void win32_export_color_file(HWND h_wnd, gpointer filter_list);
  */
 void win32_import_color_file(HWND h_wnd, gpointer color_filters);
 
-/** Given a print_args_t struct, update a set of print/export format controls
- *  accordingly.
- *
- * @param dlg_hwnd HWND of the dialog in question.
- * @param args Pointer to a print args struct.
- */
-/* XXX - This should be moved to win32-print.c, maybe? */
-void print_update_dynamic(HWND dlg_hwnd, print_args_t *args);
-
 void file_set_save_marked_sensitive();
 
 /* Open dialog defines */

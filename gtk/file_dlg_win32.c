@@ -838,49 +838,13 @@ win32_import_color_file(HWND h_wnd, gpointer color_filters) {
 /*
  * Private routines
  */
-static void
-format_handle_wm_initdialog(HWND dlg_hwnd, print_args_t *args) {
-    HWND cur_ctrl;
 
-    /* Set the "Packet summary" box */
-    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_SUMMARY_CB);
-    SendMessage(cur_ctrl, BM_SETCHECK, args->print_summary, 0);
-
-    /* Set the "Packet details" box */
-    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_DETAIL_CB);
-    SendMessage(cur_ctrl, BM_SETCHECK, args->print_dissections != print_dissections_none, 0);
-
-    /* Set the "Packet details" combo */
-    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_DETAIL_COMBO);
-    SendMessage(cur_ctrl, CB_ADDSTRING, 0, (WPARAM) _T("All collapsed"));
-    SendMessage(cur_ctrl, CB_ADDSTRING, 0, (WPARAM) _T("As displayed"));
-    SendMessage(cur_ctrl, CB_ADDSTRING, 0, (WPARAM) _T("All expanded"));
-
-    switch (args->print_dissections) {
-        case print_dissections_none:
-        case print_dissections_collapsed:
-            SendMessage(cur_ctrl, CB_SETCURSEL, 0, 0);
-            break;
-        case print_dissections_as_displayed:
-            SendMessage(cur_ctrl, CB_SETCURSEL, 1, 0);
-            break;
-        case print_dissections_expanded:
-            SendMessage(cur_ctrl, CB_SETCURSEL, 2, 0);
-        default:
-            g_assert_not_reached();
-    }
-
-    /* Set the "Packet bytes" box */
-    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_BYTES_CB);
-    SendMessage(cur_ctrl, BM_SETCHECK, args->print_hex, 0);
-
-    /* Set the "Each packet on a new page" box */
-    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_NEW_PAGE_CB);
-    SendMessage(cur_ctrl, BM_SETCHECK, args->print_formfeed, 0);
-
-    print_update_dynamic(dlg_hwnd, args);
-}
-
+/** Given a print_args_t struct, update a set of print/export format controls
+ *  accordingly.
+ *
+ * @param dlg_hwnd HWND of the dialog in question.
+ * @param args Pointer to a print args struct.
+ */
 static void
 print_update_dynamic(HWND dlg_hwnd, print_args_t *args) {
     HWND cur_ctrl;
@@ -927,9 +891,51 @@ print_update_dynamic(HWND dlg_hwnd, print_args_t *args) {
         args->print_formfeed = FALSE;
 }
 
+static void
+format_handle_wm_initdialog(HWND dlg_hwnd, print_args_t *args) {
+    HWND cur_ctrl;
+
+    /* Set the "Packet summary" box */
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_SUMMARY_CB);
+    SendMessage(cur_ctrl, BM_SETCHECK, args->print_summary, 0);
+
+    /* Set the "Packet details" box */
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_DETAIL_CB);
+    SendMessage(cur_ctrl, BM_SETCHECK, args->print_dissections != print_dissections_none, 0);
+
+    /* Set the "Packet details" combo */
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_DETAIL_COMBO);
+    SendMessage(cur_ctrl, CB_ADDSTRING, 0, (WPARAM) _T("All collapsed"));
+    SendMessage(cur_ctrl, CB_ADDSTRING, 0, (WPARAM) _T("As displayed"));
+    SendMessage(cur_ctrl, CB_ADDSTRING, 0, (WPARAM) _T("All expanded"));
+
+    switch (args->print_dissections) {
+        case print_dissections_none:
+        case print_dissections_collapsed:
+            SendMessage(cur_ctrl, CB_SETCURSEL, 0, 0);
+            break;
+        case print_dissections_as_displayed:
+            SendMessage(cur_ctrl, CB_SETCURSEL, 1, 0);
+            break;
+        case print_dissections_expanded:
+            SendMessage(cur_ctrl, CB_SETCURSEL, 2, 0);
+        default:
+            g_assert_not_reached();
+    }
+
+    /* Set the "Packet bytes" box */
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_BYTES_CB);
+    SendMessage(cur_ctrl, BM_SETCHECK, args->print_hex, 0);
+
+    /* Set the "Each packet on a new page" box */
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_NEW_PAGE_CB);
+    SendMessage(cur_ctrl, BM_SETCHECK, args->print_formfeed, 0);
+
+    print_update_dynamic(dlg_hwnd, args);
+}
+
 
 #define PREVIEW_STR_MAX      200
-
 
 /* If preview_file is NULL, disable the elements.  If not, enable and
  * show the preview info. */
