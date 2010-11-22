@@ -3199,6 +3199,7 @@ Toralf Förster <toralf.foerster [AT] gmx.de> {
 
 Stéphane Bryant <stephane [AT] glycon.org> {
 	RELOAD dissector
+	RELOAD Framing dissector
 }
 
 and by:

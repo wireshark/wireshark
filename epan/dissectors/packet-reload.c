@@ -372,9 +372,6 @@ static const fragment_items reload_frag_items = {
 };
 
 
-#define UDP_PORT_RELOAD                 3478
-#define TCP_PORT_RELOAD                 3478
-
 #define MSG_LENGH_OFFSET                16
 #define MIN_HDR_LENGTH                  38      /* Forwarding header till options_length member (included) */
 
@@ -2792,9 +2789,6 @@ proto_reg_handoff_reload(void)
   reload_udp_handle = new_create_dissector_handle(dissect_reload_udp, proto_reload);
 
   data_handle = find_dissector("data");
-
-  dissector_add("tcp.port", TCP_PORT_RELOAD, reload_tcp_handle);
-  dissector_add("udp.port", UDP_PORT_RELOAD, reload_udp_handle);
 
   heur_dissector_add("udp", dissect_reload_heur, proto_reload);
   heur_dissector_add("tcp", dissect_reload_heur, proto_reload);

@@ -875,6 +875,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-redback.c
 	dissectors/packet-redbackli.c
 	dissectors/packet-reload.c
+	dissectors/packet-reload-framing.c
 	dissectors/packet-retix-bpdu.c
 	dissectors/packet-rfc2190.c
 	dissectors/packet-rgmp.c
