@@ -78,6 +78,7 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-export-ps.png
 	wsug_graphics/ws-export-psml.png
 	wsug_graphics/ws-export-selected.png
+	wsug_graphics/ws-file-import.png
 	wsug_graphics/ws-file-menu.png
 	wsug_graphics/ws-file-set-dialog.png
 	wsug_graphics/ws-filter-add-expression.png

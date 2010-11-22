@@ -831,6 +831,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-per.c
 	dissectors/packet-pflog.c
 	dissectors/packet-pgm.c
+	dissectors/packet-pgsql.c
 	dissectors/packet-pim.c
 	dissectors/packet-pingpongprotocol.c
 	dissectors/packet-pktgen.c
@@ -838,8 +839,10 @@ set(DISSECTOR_SRC
 	dissectors/packet-pnrp.c
 	dissectors/packet-pop.c
 	dissectors/packet-portmap.c
-	dissectors/packet-pgsql.c
 	dissectors/packet-ppi.c
+	dissectors/packet-ppi-geolocation-common.c
+	dissectors/packet-ppi-geolocation-common.h
+	dissectors/packet-ppi-antenna.c
 	dissectors/packet-ppp.c
 	dissectors/packet-pppoe.c
 	dissectors/packet-pptp.c
