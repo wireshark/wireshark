@@ -1435,7 +1435,6 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
 	gboolean ipv6_address;
 	guchar c;
 	gchar *param_name = NULL;
-	return;
 
 	current_offset = start_offset;
 
