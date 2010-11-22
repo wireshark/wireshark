@@ -1855,21 +1855,28 @@ be_l3_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
        as defined in 3GPP TS 44.018. */
 
     /* note that we can't (from this PDU alone) determine whether a handover is to UMTS or cdma2000
-       for now we will always assume (GSM or) UMTS.
-       Maybe if cdma2000 support is added later, a preference option would select dissection of cdma2000 or UMTS. */
-    if (cell_discriminator < 8) {
+       Maybe if cdma2000 support is added later, a preference option would select dissection of cdma2000 or UMTS.
+       If SCCP trace is enabled (and the cell discriminator has correctly appeared in an earlier PDU)
+       then we will have remembered the discriminator */
+    if ( cell_discriminator == 0xFF)
+    {
+        proto_tree_add_text(tree, l3_tvb, curr_offset, len, "Cell Discriminator not initialised, try enabling the SCCP protocol option [Trace Associations], \n or maybe the file does not contain the PDUs needed for SCCP trace");
+    }
+    else if ((cell_discriminator & 0x0f) < 8) {
         /* GSM */
         call_dissector(dtap_handle, l3_tvb, g_pinfo, g_tree);
     }
-    else if (cell_discriminator < 13) {
+    else if ((cell_discriminator & 0x0f) < 13) {
+  
+        /* UMTS or CDMA 2000 */
         dissect_rrc_HandoverToUTRANCommand_PDU(l3_tvb, g_pinfo, g_tree);
     }
-
+    else{
+        proto_tree_add_text(tree, l3_tvb, curr_offset, len, "Unrecognised Cell Discriminator %x",cell_discriminator);
+    }
     curr_offset += len;
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-    cell_discriminator = 0x0f;
 
     return(curr_offset - offset);
 }
@@ -1955,6 +1962,7 @@ be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
     proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, curr_offset<<3, 4, FALSE);
 
     disc = oct & 0x0f;
+    cell_discriminator = disc; /* may be required later */
     proto_tree_add_item(tree, hf_gsm_a_bssmap_be_cell_id_disc, tvb, curr_offset, 1, FALSE);
     curr_offset++;
 
@@ -6282,10 +6290,7 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         bssmap_tree = proto_item_add_subtree(bssmap_item, ett_gsm_bssmap_msg[idx]);
 
-        if (check_col(pinfo->cinfo, COL_INFO))
-        {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", str);
-        }
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", str);
 
         /*
          * add BSSMAP message name
@@ -6306,15 +6311,20 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * decode elements
      */
-    if (idx < 0 || bssmap_msg_fcn[idx] == NULL)
-    {
+    if (idx < 0 || bssmap_msg_fcn[idx] == NULL){
         proto_tree_add_text(bssmap_tree,
             tvb, offset, len - offset,
             "Message Elements");
-    }
-    else
-    {
+    }else{
+        if (sccp_msg_p && ((sccp_msg_p->data.co.assoc->app_info & 0xCD00) == 0xCD00)){
+            cell_discriminator = sccp_msg_p->data.co.assoc->app_info & 0xFF;
+        }else{
+            cell_discriminator = 0xFF;
+        }
         (*bssmap_msg_fcn[idx])(tvb, bssmap_tree, offset, len - offset);
+        if (sccp_msg_p){
+            sccp_msg_p->data.co.assoc->app_info = cell_discriminator | 0xCDF0;
+        }
     }
     g_pinfo = NULL;
     g_tree = NULL;

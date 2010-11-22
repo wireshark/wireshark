@@ -101,6 +101,7 @@ typedef struct _sccp_assoc_info_t {
     gchar* calling_party;
     gchar* called_party;
     gchar* extra_info;
+    guint32 app_info;  /* used only by dissectors of protocols above SCCP */
 
 } sccp_assoc_info_t;
 
