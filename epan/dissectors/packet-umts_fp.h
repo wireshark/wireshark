@@ -43,6 +43,7 @@
 #define CHANNEL_RACH_TDD_128  18
 #define CHANNEL_HSDSCH_COMMON 19
 #define CHANNEL_HSDSCH_COMMON_T3 20
+#define CHANNEL_EDCH_COMMON      21
 
 enum fp_interface_type
 {
