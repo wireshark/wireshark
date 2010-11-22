@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/emem.h>
+#include <epan/expert.h>
 #include "packet-wccp.h"
 
 static int proto_wccp = -1;
@@ -166,30 +167,30 @@ static gchar *bucket_name(guint8 bucket);
 static guint16 dissect_wccp2_header(tvbuff_t *tvb, int offset,
     proto_tree *wccp_tree);
 static void dissect_wccp2_info(tvbuff_t *tvb, int offset, guint16 length,
-    proto_tree *wccp_tree);
+    packet_info *pinfo, proto_tree *wccp_tree);
 static gboolean dissect_wccp2_security_info(tvbuff_t *tvb, int offset,
-    int length, proto_tree *info_tree);
+    int length, packet_info *pinfo _U_, proto_tree *info_tree);
 static gboolean dissect_wccp2_service_info(tvbuff_t *tvb, int offset,
-    int length, proto_tree *info_tree);
-static gboolean dissect_wccp2_router_identity_info(tvbuff_t *tvb,
-    int offset, int length, proto_tree *info_tree);
+    int length, packet_info *pinfo, proto_tree *info_tree);
+static gboolean dissect_wccp2_router_identity_info(tvbuff_t *tvb, int offset, 
+    int length, packet_info *pinfo _U_, proto_tree *info_tree);
 static gboolean dissect_wccp2_wc_identity_info(tvbuff_t *tvb, int offset,
-    int length, proto_tree *info_tree);
+    int length, packet_info *pinfo _U_, proto_tree *info_tree);
 static gboolean dissect_wccp2_router_view_info(tvbuff_t *tvb, int offset,
-    int length, proto_tree *info_tree);
+    int length, packet_info *pinfo _U_, proto_tree *info_tree);
 static gboolean dissect_wccp2_wc_view_info(tvbuff_t *tvb, int offset,
-    int length, proto_tree *info_tree);
+    int length, packet_info *pinfo _U_, proto_tree *info_tree);
 static gboolean dissect_wccp2_assignment_info(tvbuff_t *tvb, int offset,
-    int length, proto_tree *info_tree);
+    int length, packet_info *pinfo _U_, proto_tree *info_tree);
 static gboolean dissect_wccp2_router_query_info(tvbuff_t *tvb, int offset,
-    int length, proto_tree *info_tree);
+    int length, packet_info *pinfo _U_, proto_tree *info_tree);
 static gboolean dissect_wccp2_capability_info(tvbuff_t *tvb, int offset,
-    int length, proto_tree *info_tree);
+    int length, packet_info *pinfo _U_, proto_tree *info_tree);
 static void dissect_32_bit_capability_flags(tvbuff_t *tvb, int curr_offset,
     guint16 capability_val_len, gint ett, const capability_flag *flags,
     proto_tree *element_tree);
 static gboolean dissect_wccp2_alt_assignment_info(tvbuff_t *tvb, int offset,
-    int length, proto_tree *info_tree);
+    int length, packet_info *pinfo, proto_tree *info_tree);
 
 static int
 dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -305,7 +306,7 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		default:	/* assume unknown packets are v2 */
 			length = dissect_wccp2_header(tvb, offset, wccp_tree);
 			offset += 4;
-			dissect_wccp2_info(tvb, offset, length, wccp_tree);
+			dissect_wccp2_info(tvb, offset, length, pinfo, wccp_tree);
 			break;
 		}
 	}
@@ -414,14 +415,14 @@ dissect_wccp2_header(tvbuff_t *tvb, int offset, proto_tree *wccp_tree)
 
 static void
 dissect_wccp2_info(tvbuff_t *tvb, int offset, guint16 length,
-    proto_tree *wccp_tree)
+    packet_info *pinfo, proto_tree *wccp_tree)
 {
 	guint16 type;
 	guint16 item_length;
 	proto_item *ti;
 	proto_tree *info_tree;
 	gint ett;
-	gboolean (*dissector)(tvbuff_t *, int, int, proto_tree *);
+	gboolean (*dissector)(tvbuff_t *, int, int, packet_info *, proto_tree *);
 
 	while (length != 0) {
 		type = tvb_get_ntohs(tvb, offset);
@@ -502,7 +503,7 @@ dissect_wccp2_info(tvbuff_t *tvb, int offset, guint16 length,
 		 * XXX - pass in "length" and check for that as well.
 		 */
 		if (dissector != NULL) {
-			if (!(*dissector)(tvb, offset, item_length, info_tree))
+			if (!(*dissector)(tvb, offset, item_length, pinfo, info_tree))
 				return;	/* ran out of data */
 		} else {
 			proto_tree_add_text(info_tree, tvb, offset, item_length,
@@ -521,7 +522,7 @@ dissect_wccp2_info(tvbuff_t *tvb, int offset, guint16 length,
 
 static gboolean
 dissect_wccp2_security_info(tvbuff_t *tvb, int offset, int length,
-    proto_tree *info_tree)
+    packet_info *pinfo _U_, proto_tree *info_tree)
 {
 	guint32 security_option;
 
@@ -580,9 +581,11 @@ dissect_wccp2_security_info(tvbuff_t *tvb, int offset, int length,
 
 static gboolean
 dissect_wccp2_service_info(tvbuff_t *tvb, int offset, int length,
-    proto_tree *info_tree)
+    packet_info *pinfo, proto_tree *info_tree)
 {
 	guint8 service_type;
+	guint8 priority;
+	guint8 protocol;
 	guint32 flags;
 	proto_item *tf;
 	proto_tree *field_tree;
@@ -605,7 +608,18 @@ dissect_wccp2_service_info(tvbuff_t *tvb, int offset, int length,
 		    "Service ID: %s",
 		    val_to_str(tvb_get_guint8(tvb, offset+1), service_id_vals,
 			    "Unknown (0x%02X)"));
-
+		priority = tvb_get_guint8(tvb, offset+2);
+		tf = proto_tree_add_text(info_tree, tvb, offset+2, 1,
+		    "Priority: %u (unused, must be zero)", priority);
+		if (priority != 0)
+		    expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
+			    "The priority must be zero for well-known services.");
+		protocol = tvb_get_guint8(tvb, offset+3);
+		tf = proto_tree_add_text(info_tree, tvb, offset+3, 1,
+		    "Protocol: %u (unused, must be zero)", protocol);
+		if (protocol != 0)
+		    expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
+			    "The protocol must be zero for well-known services.");
 		break;
 
 	case WCCP2_SERVICE_DYNAMIC:
@@ -717,7 +731,7 @@ dissect_wccp2_router_identity_element(tvbuff_t *tvb, int offset,
 
 static gboolean
 dissect_wccp2_router_identity_info(tvbuff_t *tvb, int offset, int length,
-    proto_tree *info_tree)
+    packet_info *pinfo _U_, proto_tree *info_tree)
 {
 	guint32 n_received_from;
 	guint i;
@@ -816,7 +830,7 @@ dissect_wccp2_web_cache_identity_element(tvbuff_t *tvb, int offset,
 
 static gboolean
 dissect_wccp2_wc_identity_info(tvbuff_t *tvb, int offset, int length,
-    proto_tree *info_tree)
+    packet_info *pinfo _U_, proto_tree *info_tree)
 {
 	proto_item *te;
 	proto_tree *element_tree;
@@ -853,7 +867,7 @@ dissect_wccp2_assignment_key(tvbuff_t *tvb, int offset,
 
 static gboolean
 dissect_wccp2_router_view_info(tvbuff_t *tvb, int offset, int length,
-    proto_tree *info_tree)
+    packet_info *pinfo _U_, proto_tree *info_tree)
 {
 	guint32 n_routers;
 	guint32 n_web_caches;
@@ -911,7 +925,7 @@ dissect_wccp2_router_view_info(tvbuff_t *tvb, int offset, int length,
 
 static gboolean
 dissect_wccp2_wc_view_info(tvbuff_t *tvb, int offset, int length,
-    proto_tree *info_tree)
+    packet_info *pinfo _U_, proto_tree *info_tree)
 {
 	guint32 n_routers;
 	guint32 n_web_caches;
@@ -990,7 +1004,7 @@ assignment_bucket_name(guint8 bucket)
 
 static gboolean
 dissect_wccp2_assignment_info(tvbuff_t *tvb, int offset, int length,
-    proto_tree *info_tree)
+    packet_info *pinfo _U_, proto_tree *info_tree)
 {
 	guint32 n_routers;
 	guint32 n_web_caches;
@@ -1054,7 +1068,7 @@ dissect_wccp2_assignment_info(tvbuff_t *tvb, int offset, int length,
 
 static gboolean
 dissect_wccp2_router_query_info(tvbuff_t *tvb, int offset, int length,
-    proto_tree *info_tree)
+    packet_info *pinfo _U_, proto_tree *info_tree)
 {
 	if (length != QUERY_INFO_LEN) {
 		proto_tree_add_text(info_tree, tvb, offset, 0,
@@ -1126,7 +1140,7 @@ static const capability_flag packet_return_method_flags[] = {
 
 static gboolean
 dissect_wccp2_capability_info(tvbuff_t *tvb, int offset, int length,
-    proto_tree *info_tree)
+    packet_info *pinfo _U_, proto_tree *info_tree)
 {
 	guint16 capability_type;
 	guint16 capability_val_len;
@@ -1324,7 +1338,7 @@ dissect_wccp2_mask_value_set_element(tvbuff_t *tvb, int offset, int idx, proto_t
 
 static gboolean
 dissect_wccp2_alt_assignment_info(tvbuff_t *tvb, int offset, int length,
-    proto_tree *info_tree)
+    packet_info *pinfo, proto_tree *info_tree)
 {
 	guint16 assignment_type;
 	guint16 assignment_length;
@@ -1349,7 +1363,8 @@ dissect_wccp2_alt_assignment_info(tvbuff_t *tvb, int offset, int length,
 
 	switch (assignment_type) {
 	case WCCP2_HASH_ASSIGNMENT_TYPE:
-		dissect_wccp2_assignment_info(tvb, offset, assignment_length, info_tree);
+		dissect_wccp2_assignment_info(tvb, offset, assignment_length,
+			pinfo, info_tree);
 		break;
 
 	case WCCP2_MASK_ASSIGNMENT_TYPE:
