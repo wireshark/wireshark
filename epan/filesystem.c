@@ -267,11 +267,8 @@ init_progfile_dir(const char *arg0
 #endif
 )
 {
-	char *dir_end;
-	char *path;
 #ifdef _WIN32
 	TCHAR prog_pathname_w[_MAX_PATH+2];
-	size_t progfile_dir_len;
 	char *prog_pathname;
 	DWORD error;
 	TCHAR *msg_w;
@@ -291,36 +288,14 @@ init_progfile_dir(const char *arg0
 		/*
 		 * We got it; strip off the last component, which would be
 		 * the file name of the executable, giving us the pathname
-		 * of the directory where the executable resies
-		 *
-		 * First, find the last "\" in the directory, as that
-		 * marks the end of the directory pathname.
-		 *
-		 * XXX - Can the pathname be something such as
-		 * "C:wireshark.exe"?  Or is it always a full pathname
-		 * beginning with "\" after the drive letter?
+		 * of the directory where the executable resides.
 		 */
-		dir_end = strrchr(prog_pathname, '\\');
-		if (dir_end != NULL) {
-			/*
-			 * Found it - now figure out how long the program
-			 * directory pathname will be.
-			 */
-			progfile_dir_len = (dir_end - prog_pathname);
-
-			/*
-			 * Allocate a buffer for the program directory
-			 * pathname, and construct it.
-			 */
-			path = g_malloc(progfile_dir_len + 1);
-			strncpy(path, prog_pathname, progfile_dir_len);
-			path[progfile_dir_len] = '\0';
-			progfile_dir = path;
-
+		progfile_dir = g_path_get_dirname(prog_pathname);
+		if (progfile_dir != NULL) {
 			return NULL;	/* we succeeded */
 		} else {
 			/*
-			 * OK, no \ - what do we do now?
+			 * OK, no. What do we do now?
 			 */
 			return g_strdup_printf("No \\ in executable pathname \"%s\"",
 			    prog_pathname);
@@ -363,6 +338,8 @@ init_progfile_dir(const char *arg0
 	char *path_start, *path_end;
 	size_t path_component_len;
 	char *retstr;
+	char *path;
+	char *dir_end;
 
 	/*
 	 * Check whether WIRESHARK_RUN_FROM_BUILD_DIRECTORY is set in the
