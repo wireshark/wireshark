@@ -58,7 +58,8 @@ typedef enum
 #define CID_IN_PDCP_HEADER 0
 #define CID_IN_ROHC_PACKET 1
 
-#define PDCP_SN_LENGTH_7_BITS 7
+#define PDCP_SN_LENGTH_5_BITS  5
+#define PDCP_SN_LENGTH_7_BITS  7
 #define PDCP_SN_LENGTH_12_BITS 12
 
 
