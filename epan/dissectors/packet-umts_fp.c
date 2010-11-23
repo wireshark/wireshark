@@ -2375,12 +2375,36 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
                 int     ddi_offset;
                 guint64 n_pdus;
                 int     n_pdus_offset;
+                proto_item *ddi_ti;
+                gint ddi_size = -1;
+                int     p;
 
                 /* DDI (6 bits) */
                 ddi_offset = offset + (bit_offset / 8);
 
-                proto_tree_add_bits_ret_val(subframe_header_tree, hf_fp_edch_ddi, tvb,
-                                            offset*8 + bit_offset, 6, &ddi, FALSE);
+                ddi_ti = proto_tree_add_bits_ret_val(subframe_header_tree, hf_fp_edch_ddi, tvb,
+                                                     offset*8 + bit_offset, 6, &ddi, FALSE);
+
+                /* Look up the size from this DDI value */
+                for (p=0; p < p_fp_info->no_ddi_entries; p++)
+                {
+                    if (ddi == p_fp_info->edch_ddi[p])
+                    {
+                        ddi_size = p_fp_info->edch_macd_pdu_size[p];
+                        break;
+                    }
+                }
+                if (ddi_size == -1)
+                {
+                    expert_add_info_format(pinfo, ddi_ti,
+                                           PI_MALFORMED, PI_ERROR,
+                                           "DDI %u not defined for this UE!", (guint)ddi);
+                    return;
+                }
+                else
+                {
+                    proto_item_append_text(ddi_ti, " (%d bits)", ddi_size);
+                }
 
                 subframes[n].ddi[i] = (guint8)ddi;
                 bit_offset += 6;
