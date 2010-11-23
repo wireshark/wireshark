@@ -1768,9 +1768,10 @@ dissect_tds_type_info(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_tr
             varlen = tvb_get_letohl(tvb, *offset);
             break;
         default:
-            expert_add_info_format(pinfo, data_type_item, PI_MALFORMED, PI_ERROR, "Invalid data type %d", data_type);
-            return data_type;
+            expert_add_info_format(pinfo, data_type_item, PI_MALFORMED, PI_ERROR, "Invalid data type");
+            THROW(ReportedBoundsError); /* No point in continuing */
     }
+
     if(varlen_len)
         item1 = proto_tree_add_uint(sub_tree, hf_tds_type_info_varlen, tvb, *offset, varlen_len, varlen);
     if(*plp)
@@ -1861,12 +1862,12 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                         break;
                     case TDS_DATA_TYPE_XML:       /* XML (introduced in TDS 7.2) */
                     case TDS_DATA_TYPE_UDT:       /* CLR-UDT (introduced in TDS 7.2) */
-                        expert_add_info_format(pinfo, length_item, PI_UNDECODED, PI_ERROR, "Data types not supported yet");
-                        return;
+                        expert_add_info_format(pinfo, length_item, PI_UNDECODED, PI_ERROR, "Data type %d not supported yet", data_type);
+                        /* No point in continuing: we need to parse the full data_type to know where it ends */
+                        THROW(ReportedBoundsError);
                     default:
                         /* no other data type sets plp = TRUE */
-                        expert_add_info_format(pinfo, length_item, PI_MALFORMED, PI_ERROR, "Invalid data type %d", data_type);
-                        return;
+                        DISSECTOR_ASSERT_NOT_REACHED();
                 }
                 *offset += length;
             }
@@ -2014,8 +2015,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                         proto_tree_add_string(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, string_value);
                         break;
                     default:
-                        expert_add_info_format(pinfo, length_item, PI_MALFORMED, PI_ERROR, "Invalid data type %d", data_type);
-			return;
+                        DISSECTOR_ASSERT_NOT_REACHED();
                 }
                 *offset += length;
             }
@@ -2043,7 +2043,8 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                         break;
                     default: /*TODO*/
                         expert_add_info_format(pinfo, length_item, PI_UNDECODED, PI_ERROR, "Data type %d not supported yet", data_type);
-                        return;
+                        /* No point in continuing: we need to parse the full data_type to know where it ends */
+                        THROW(ReportedBoundsError);
                 }
                 *offset += length;
             }
@@ -2473,9 +2474,9 @@ dissect_tds_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * Set the packet description based on its TDS packet
              * type.
              */
-	    col_add_str(pinfo->cinfo, COL_INFO,
-			val_to_str(type, packet_type_names,
-				   "Unknown Packet Type: %u"));
+            col_add_str(pinfo->cinfo, COL_INFO,
+                        val_to_str(type, packet_type_names,
+                                   "Unknown Packet Type: %u"));
             first_time = FALSE;
         }
 
@@ -2512,7 +2513,7 @@ dissect_tds_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * If it gets a BoundsError, we can stop, as there's nothing
          * more to see, so we just re-throw it.
          */
-	pd_save = pinfo->private_data;
+        pd_save = pinfo->private_data;
         TRY {
             dissect_netlib_buffer(next_tvb, pinfo, tree);
         }
@@ -2520,11 +2521,11 @@ dissect_tds_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             RETHROW;
         }
         CATCH(ReportedBoundsError) {
-	    /*  Restore the private_data structure in case one of the
-	     *  called dissectors modified it (and, due to the exception,
-	     *  was unable to restore it).
-	     */
-	    pinfo->private_data = pd_save;
+            /*  Restore the private_data structure in case one of the
+             *  called dissectors modified it (and, due to the exception,
+             *  was unable to restore it).
+             */
+            pinfo->private_data = pd_save;
 
             show_reported_bounds_error(tvb, pinfo, tree);
         }
