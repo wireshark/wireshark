@@ -6124,25 +6124,22 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 #endif /* MESH_OVERRIDES */
 
     case TAG_SUPPORTED_CHANNELS:
+		/* 7.3.2.19 Supported Channels element */
       {
         proto_item *chan_item;
         proto_tree *chan_tree;
         guint i;
 
         offset += 2;
-        if (tag_len > 8) /* XXX Is this a sane limit? */
-        {
-          proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-                               "Supported Channels: Error: Tag length too long");
-        } else if (tag_len % 2 == 1) {
-          proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-                               "Supported Channels: Error: Tag length must be even");
+		if (tag_len % 2 == 1) {
+          proto_tree_add_text (tree, tvb, offset -1, 1,
+                               "Supported Channels: Error: Tag length %u must be even",tag_len);
         }
 
         for (i=0; i<(tag_len/2); i++)
         {
           chan_item = proto_tree_add_uint_format(tree, hf_tag_supported_channels, tvb, offset, 2, i,
-                                                 "Supported Channels Set #%d", i);
+                                                 "Supported Channels Set #%d", i+1);
           chan_tree = proto_item_add_subtree(chan_item , ett_tag_supported_channels);
           proto_tree_add_item(chan_tree, hf_tag_supported_channels_first, tvb, offset++, 1, TRUE);
           proto_tree_add_item(chan_tree, hf_tag_supported_channels_range, tvb, offset++, 1, TRUE);
