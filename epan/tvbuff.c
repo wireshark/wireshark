@@ -1712,7 +1712,7 @@ tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const gboo
 		}
 		else
 		{
-			tempval = tempval >> (8 - shift);
+			tempval = tempval >> (- shift);
 		}
 		value = value | tempval;
 	}
