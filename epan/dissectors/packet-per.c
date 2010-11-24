@@ -231,7 +231,7 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 boffset, asn1_ctx
   /* The bits can be contained in two "extra octets" .... .xxx [xxxx]*n xx... ....*/
   tvb_bits = (boffset & 7)+ no_of_bits;
   check_length = tvb_bits/8;
-  remainderval = no_of_bits % 8;
+  remainderval = tvb_bits % 8; /* not no_of_bits % 8 */
   if(remainderval){
 	  check_length++;
   }
