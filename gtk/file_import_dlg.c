@@ -842,7 +842,6 @@ file_import_dlg_new()
                *header_rblbl_4_hb, *header_rblbl_4_lbl,
                *header_rblbl_5_hb, *header_rblbl_5_lbl,
                *header_rblbl_6_hb, *header_rblbl_6_lbl,
-               *header_entries_vb,
                *etype_te, *protocol_te, *src_port_te,
                *dst_port_te, *tag_te, *ppi_te,
                *framelen_hb, *framelen_lbl, *framelen_te,
@@ -1039,9 +1038,6 @@ file_import_dlg_new()
     header_rblbl_vb = gtk_vbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(header_hb), header_rblbl_vb, TRUE, TRUE, 0);
 
-    header_entries_vb = gtk_vbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(header_hb), header_entries_vb, FALSE, FALSE, 0);
-
     /* Line 1 */
     header_rblbl_1_hb = gtk_hbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(header_rblbl_vb), header_rblbl_1_hb, FALSE, FALSE, 2);
@@ -1059,7 +1055,7 @@ file_import_dlg_new()
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_ETH_RB_KEY, header_eth_rb);
     
     header_rblbl_1_lbl = gtk_label_new("  Ethertype (hex):");
-    gtk_box_pack_end(GTK_BOX(header_rblbl_1_hb), header_rblbl_1_lbl, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(header_rblbl_1_hb), header_rblbl_1_lbl, TRUE, TRUE, 0);
     gtk_misc_set_alignment(GTK_MISC(header_rblbl_1_lbl), 1.0f, 0.5f);
 
     etype_te = gtk_entry_new();
@@ -1068,7 +1064,7 @@ file_import_dlg_new()
 #else
     gtk_tooltips_set_tip(tooltips, etype_te, "The type to set in the Ethernet header", NULL);
 #endif
-    gtk_box_pack_start(GTK_BOX(header_entries_vb), etype_te, FALSE, FALSE, 0);
+    gtk_box_pack_end(GTK_BOX(header_rblbl_1_hb), etype_te, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_ETYPE_LBL_KEY, header_rblbl_1_lbl);
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_ETYPE_TE_KEY, etype_te);
@@ -1090,7 +1086,7 @@ file_import_dlg_new()
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_IPV4_RB_KEY, header_ipv4_rb);
     
     header_rblbl_2_lbl = gtk_label_new("  Protocol (dec):");
-    gtk_box_pack_end(GTK_BOX(header_rblbl_2_hb), header_rblbl_2_lbl, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(header_rblbl_2_hb), header_rblbl_2_lbl, TRUE, TRUE, 0);
     gtk_misc_set_alignment(GTK_MISC(header_rblbl_2_lbl), 1.0f, 0.5f);
 
     protocol_te = gtk_entry_new();
@@ -1099,7 +1095,7 @@ file_import_dlg_new()
 #else
     gtk_tooltips_set_tip(tooltips, protocol_te, "The protocol id to set in the IPv4 header", NULL);
 #endif
-    gtk_box_pack_start(GTK_BOX(header_entries_vb), protocol_te, FALSE, FALSE, 0);
+    gtk_box_pack_end(GTK_BOX(header_rblbl_2_hb), protocol_te, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_PROT_LBL_KEY, header_rblbl_2_lbl);
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_PROT_TE_KEY, protocol_te);
@@ -1121,7 +1117,7 @@ file_import_dlg_new()
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_UDP_RB_KEY, header_udp_rb);
     
     header_rblbl_3_lbl = gtk_label_new("  Source port:");
-    gtk_box_pack_end(GTK_BOX(header_rblbl_3_hb), header_rblbl_3_lbl, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(header_rblbl_3_hb), header_rblbl_3_lbl, TRUE, TRUE, 0);
     gtk_misc_set_alignment(GTK_MISC(header_rblbl_3_lbl), 1.0f, 0.5f);
 
     src_port_te = gtk_entry_new();
@@ -1130,7 +1126,7 @@ file_import_dlg_new()
 #else
     gtk_tooltips_set_tip(tooltips, src_port_te, "The source port to set in the UDP, TCP or SCTP header", NULL);
 #endif
-    gtk_box_pack_start(GTK_BOX(header_entries_vb), src_port_te, FALSE, FALSE, 0);
+    gtk_box_pack_end(GTK_BOX(header_rblbl_3_hb), src_port_te, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_SRC_PORT_LBL_KEY, header_rblbl_3_lbl);
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_SRC_PORT_TE_KEY, src_port_te);
@@ -1152,7 +1148,7 @@ file_import_dlg_new()
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_TCP_RB_KEY, header_tcp_rb);
     
     header_rblbl_4_lbl = gtk_label_new("  Destination port:");
-    gtk_box_pack_end(GTK_BOX(header_rblbl_4_hb), header_rblbl_4_lbl, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(header_rblbl_4_hb), header_rblbl_4_lbl, TRUE, TRUE, 0);
     gtk_misc_set_alignment(GTK_MISC(header_rblbl_4_lbl), 1.0f, 0.5f);
 
     dst_port_te = gtk_entry_new();
@@ -1161,7 +1157,7 @@ file_import_dlg_new()
 #else
     gtk_tooltips_set_tip(tooltips, dst_port_te, "The destination port to set in the UDP, TCP or SCTP header", NULL);
 #endif
-    gtk_box_pack_start(GTK_BOX(header_entries_vb), dst_port_te, FALSE, FALSE, 0);
+    gtk_box_pack_end(GTK_BOX(header_rblbl_4_hb), dst_port_te, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_DST_PORT_LBL_KEY, header_rblbl_4_lbl);
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_DST_PORT_TE_KEY, dst_port_te);
@@ -1183,7 +1179,7 @@ file_import_dlg_new()
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_SCTP_RB_KEY, header_sctp_rb);
         
     header_rblbl_5_lbl = gtk_label_new("  Tag:");
-    gtk_box_pack_end(GTK_BOX(header_rblbl_5_hb), header_rblbl_5_lbl, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(header_rblbl_5_hb), header_rblbl_5_lbl, TRUE, TRUE, 0);
     gtk_misc_set_alignment(GTK_MISC(header_rblbl_5_lbl), 1.0f, 0.5f);
 
     tag_te = gtk_entry_new();
@@ -1192,7 +1188,7 @@ file_import_dlg_new()
 #else
     gtk_tooltips_set_tip(tooltips, tag_te, "The verification tag to set in the SCTP header", NULL);
 #endif
-    gtk_box_pack_start(GTK_BOX(header_entries_vb), tag_te, FALSE, FALSE, 0);
+    gtk_box_pack_end(GTK_BOX(header_rblbl_5_hb), tag_te, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_TAG_LBL_KEY, header_rblbl_5_lbl);
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_TAG_TE_KEY, tag_te);
@@ -1214,7 +1210,7 @@ file_import_dlg_new()
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_SCTP_D_RB_KEY, header_sctp_data_rb);
         
     header_rblbl_6_lbl = gtk_label_new("  PPI:");
-    gtk_box_pack_end(GTK_BOX(header_rblbl_6_hb), header_rblbl_6_lbl, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(header_rblbl_6_hb), header_rblbl_6_lbl, TRUE, TRUE, 0);
     gtk_misc_set_alignment(GTK_MISC(header_rblbl_6_lbl), 1.0f, 0.5f);
 
     ppi_te = gtk_entry_new();
@@ -1223,7 +1219,7 @@ file_import_dlg_new()
 #else
     gtk_tooltips_set_tip(tooltips, ppi_te, "The payload protocol identifier to set in the SCTP DATA header", NULL);
 #endif
-    gtk_box_pack_start(GTK_BOX(header_entries_vb), ppi_te, FALSE, FALSE, 0);
+    gtk_box_pack_end(GTK_BOX(header_rblbl_6_hb), ppi_te, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_PPI_LBL_KEY, header_rblbl_6_lbl);
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_PPI_TE_KEY, ppi_te);
