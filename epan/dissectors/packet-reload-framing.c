@@ -129,20 +129,33 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   if (effective_length < MIN_HDR_LENGTH)
     return 0;
 
-  /* Get the type */
+  /* Get the type 
+   * http://tools.ietf.org/html/draft-ietf-p2psip-base-12
+   * 5.6.2.  Framing Header
+   */
   type = tvb_get_guint8(tvb, 0);
 
-  if (type == DATA) {
-    /* in the data type, check the reload token to be sure this
-       is a reLoad packet */
-    message_length = (tvb_get_ntohs(tvb, 1 + 4)<<8)+ tvb_get_guint8(tvb, 1 + 4 + 2);
-    if (message_length < MIN_RELOADDATA_HDR_LENGTH) {
-      return 0;
-    }
-    relo_token = tvb_get_ntohl(tvb,1 + 4 + 3);
-    if (relo_token != RELOAD_TOKEN) {
-      return 0;
-    }
+  switch(type){
+	  case DATA:
+		/* in the data type, check the reload token to be sure this
+		 *  is a reLoad packet
+		 */
+		message_length = (tvb_get_ntohs(tvb, 1 + 4)<<8)+ tvb_get_guint8(tvb, 1 + 4 + 2);
+		if (message_length < MIN_RELOADDATA_HDR_LENGTH) {
+		  return 0;
+		}
+		relo_token = tvb_get_ntohl(tvb,1 + 4 + 3);
+		if (relo_token != RELOAD_TOKEN) {
+		  return 0;
+		}
+		break;
+	  case ACK:
+		  if (effective_length != 9){
+			  return 0;
+		  }
+		  break;
+	  default:
+		  return 0;
   }
 
 
