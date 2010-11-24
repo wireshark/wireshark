@@ -72,6 +72,15 @@ static int hf_usb_wFeatureSelector = -1;
 static int hf_usb_wInterface = -1;
 static int hf_usb_wStatus = -1;
 static int hf_usb_wFrameNumber = -1;
+
+static int hf_usb_iso_error_count = -1;
+static int hf_usb_iso_numdesc = -1;
+static int hf_usb_iso_status = -1;
+static int hf_usb_iso_off = -1;
+static int hf_usb_iso_len = -1;
+static int hf_usb_iso_pad = -1;
+static int hf_usb_iso_data = -1;
+
 static int hf_usb_bmRequestType = -1;
 static int hf_usb_bmRequestType_direction = -1;
 static int hf_usb_bmRequestType_type = -1;
@@ -125,6 +134,7 @@ static int hf_usb_request_in = -1;
 
 static gint usb_hdr = -1;
 static gint usb_setup_hdr = -1;
+static gint usb_isodesc = -1;
 static gint ett_usb_setup_bmrequesttype = -1;
 static gint ett_descriptor_device = -1;
 static gint ett_configuration_bmAttributes = -1;
@@ -2154,6 +2164,121 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         }
         }
         break;
+    case URB_ISOCHRONOUS:
+        {
+        /* All fields which belong to Linux usbmon headers are in host-endian
+         * byte order. The fields coming from the USB communication are in little
+         * endian format (see usb_20.pdf, chapter 8.1 Byte/Bit ordering).
+         *
+         * When a capture file is transfered to a host with different endianness
+         * than packet was captured then the necessary swapping happens in
+         * wiretap/pcap-common.c, pcap_process_linux_usb_pseudoheader().
+         */
+        guint32 iso_numdesc = 0;
+
+        if (setup_flag == 0) {
+            proto_item *ti = NULL;
+            proto_tree *setup_tree = NULL;
+            int type_2;
+
+            /* Dissect the setup header - it's applicable */
+
+            ti = proto_tree_add_protocol_format(tree, proto_usb, tvb, offset, 8, "URB setup");
+            setup_tree = proto_item_add_subtree(ti, usb_setup_hdr);
+
+            offset = dissect_usb_bmrequesttype(setup_tree, tvb, offset, &type_2);
+            proto_tree_add_item(setup_tree, hf_usb_request, tvb, offset, 1, TRUE);
+            offset++;
+            proto_tree_add_item(tree, hf_usb_value, tvb, offset, 2, TRUE);
+            offset += 2;
+            proto_tree_add_item(tree, hf_usb_index, tvb, offset, 2, TRUE);
+            offset += 2;
+            proto_tree_add_item(tree, hf_usb_length, tvb, offset, 2, TRUE);
+            offset += 2;
+        } else {
+
+            /* Process ISO related fields (usbmon_packet.iso). The fields are
+             * in host endian byte order so use tvb_memcopy() and
+             * proto_tree_add_uint() pair.
+             */
+            guint32 val32;
+
+            tvb_memcpy(tvb, (guint8 *)&val32, offset, 4);
+            proto_tree_add_uint(tree, hf_usb_iso_error_count, tvb, offset, 4, val32);
+            offset += 4;
+
+            tvb_memcpy(tvb, (guint8 *)&iso_numdesc, offset, 4);
+            proto_tree_add_uint(tree, hf_usb_iso_numdesc, tvb, offset, 4, iso_numdesc);
+            offset += 4;
+        }
+
+        /*
+         * If this has a 64-byte header, process the extra 16 bytes of
+         * pseudo-header information.
+         */
+        if (header_len_64_bytes) {
+            guint32 ndesc;
+
+            offset += 4;	/* interval */
+            offset += 4;	/* start_frame */
+            offset += 4;	/* copy of URB's transfer flags */
+
+            tvb_memcpy(tvb, (guint8 *)&ndesc, offset, 4);
+            offset += 4;
+
+        }
+
+        if (setup_flag != 0) {
+            proto_tree *urb_tree = NULL;
+            guint32 i;
+            unsigned int data_base;
+            guint32 iso_status;
+            guint32 iso_off;
+            guint32 iso_len;
+            guint32 iso_pad;
+
+            data_base = offset + iso_numdesc * 16;
+            urb_tree = tree;
+            for (i = 0; i != iso_numdesc; i++) {
+                if (parent) {
+                    proto_item *ti = NULL;
+                    ti = proto_tree_add_protocol_format(urb_tree, proto_usb, tvb, offset,
+                         16, "USB isodesc %u", i);
+                    tree = proto_item_add_subtree(ti, usb_isodesc);
+                }
+
+                /* Add ISO descriptor fields which are stored in host
+                 * endian byte order so use tvb_memcopy() and
+                 * proto_tree_add_uint()/proto_tree_add_int() pair.
+                 */
+                tvb_memcpy(tvb, (guint8 *)&iso_status, offset, 4);
+                proto_tree_add_int(tree, hf_usb_iso_status, tvb, offset, 4, iso_status);
+                offset += 4;
+
+                tvb_memcpy(tvb, (guint8 *)&iso_off, offset, 4);
+                proto_tree_add_uint(tree, hf_usb_iso_off, tvb, offset, 4, iso_off);
+                offset += 4;
+
+                tvb_memcpy(tvb, (guint8 *)&iso_len, offset, 4);
+                proto_tree_add_uint(tree, hf_usb_iso_len, tvb, offset, 4, iso_len);
+                offset += 4;
+
+                /* When the ISO status is OK and there is ISO data and this ISO data is
+                 * fully captured then show this data.
+                 */
+                if (!iso_status && iso_len && data_base + iso_off + iso_len <= tvb_length(tvb))
+                    proto_tree_add_item(tree, hf_usb_iso_data, tvb, data_base + iso_off, iso_len, TRUE);
+
+                tvb_memcpy(tvb, (guint8 *)&iso_pad, offset, 4);
+                proto_tree_add_uint(tree, hf_usb_iso_pad, tvb, offset, 4, iso_pad);
+                offset += 4;
+            }
+            tree = urb_tree;
+        }
+
+        }
+        break;
+
     default:
         /* dont know */
         if (setup_flag == 0) {
@@ -2326,6 +2451,37 @@ proto_register_usb(void)
         { "wFrameNumber", "usb.setup.wFrameNumber", FT_UINT16, BASE_DEC,
                 NULL, 0x0, NULL, HFILL }},
 
+    /* --------------------------------- */
+        { &hf_usb_iso_error_count,                /* host endian byte order */
+        { "ISO error count", "usb.iso.error_count", FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_usb_iso_numdesc,                    /* host endian byte order */
+        { "Number of ISO descriptors", "usb.iso.numdesc", FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }},
+
+    /* fields of struct mon_bin_isodesc from linux/drivers/usb/mon/mon_bin.c */
+        { &hf_usb_iso_status,                     /* host endian byte order */
+        { "Status", "usb.iso.iso_status", FT_INT32, BASE_DEC,
+                VALS(usb_urb_status_vals), 0x0,
+                "ISO descriptor status", HFILL }},
+
+        { &hf_usb_iso_off,                        /* host endian byte order */
+        { "Offset [bytes]", "usb.iso.iso_off", FT_UINT32, BASE_DEC, NULL, 0x0,
+                "ISO data offset in bytes starting from the end of the last ISO descriptor", HFILL }},
+
+        { &hf_usb_iso_len,                        /* host endian byte order */
+        { "Length [bytes]", "usb.iso.iso_len", FT_UINT32, BASE_DEC, NULL, 0x0,
+                "ISO data length in bytes", HFILL }},
+
+        { &hf_usb_iso_pad,                        /* host endian byte order */
+        { "Padding", "usb.iso._pad", FT_UINT32, BASE_HEX, NULL, 0x0,
+                "Padding field of ISO descriptor structure", HFILL }},
+
+        { &hf_usb_iso_data,
+        {"ISO Data", "usb.iso.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
     /* --------------------------------- */
         { &hf_usb_data,
         {"Application Data", "usb.data",
@@ -2537,6 +2693,7 @@ proto_register_usb(void)
     static gint *usb_subtrees[] = {
         &usb_hdr,
         &usb_setup_hdr,
+        &usb_isodesc,
         &ett_usb_setup_bmrequesttype,
         &ett_descriptor_device,
         &ett_configuration_bmAttributes,

@@ -962,6 +962,24 @@ pcap_read_sita_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, 
  */
 
 /*
+ * URB transfer_type values
+ */
+#define URB_ISOCHRONOUS   0x0
+#define URB_INTERRUPT     0x1
+#define URB_CONTROL       0x2
+#define URB_BULK          0x3
+
+/*
+ * Information from the URB for Isochronous transfers.
+ *
+ * This structure is 8 bytes long.
+ */
+struct iso_rec {
+    gint32 error_count;
+    gint32 numdesc;
+};
+
+/*
  * Header prepended by Linux kernel to each USB event.
  *
  * (Setup flag is '-', 'D', 'Z', or 0.  Data flag is '<', '>', 'Z', or 0.)
@@ -988,7 +1006,10 @@ struct linux_usb_phdr {
      * USB setup information of setup_flag is true.
      * Otherwise, some isochronous transfer information.
      */
-    guint8 data[8];
+    union {
+        guint8 data[8];
+        struct iso_rec iso;
+    } s;
 
     /*
      * This data is provided by Linux 2.6.31 and later kernels.
@@ -1008,6 +1029,13 @@ struct linux_usb_phdr {
     guint32 ndesc;      /* actual number of isochronous descriptors */
 };
 
+struct linux_usb_isodesc {
+    gint32 iso_status;
+    guint32 iso_off;
+    guint32 iso_len;
+    guint32 _pad;
+};
+
 /*
  * USB setup header as defined in USB specification
  * See usb_20.pdf, Chapter 9.3 'USB Device Requests' for details.
@@ -1023,15 +1051,6 @@ struct usb_device_setup_hdr {
     guint16 wLength;
 };
 
-/*
- * Information from the URB for Isochronous transfers.
- *
- * This structure is 8 bytes long.
- */
-struct iso_rec {
-    gint32 error_count;
-    gint32 numdesc;
-};
 
 /*
  * Offset of the *end* of a field within a particular structure.
@@ -1045,6 +1064,8 @@ pcap_process_linux_usb_pseudoheader(guint packet_size, gboolean byte_swapped,
     gboolean header_len_64_bytes, guint8 *pd)
 {
 	struct linux_usb_phdr *phdr;
+	struct linux_usb_isodesc *pisodesc;
+	gint32 iso_numdesc, i;
 
 	if (byte_swapped) {
 		phdr = (struct linux_usb_phdr *)pd;
@@ -1070,6 +1091,17 @@ pcap_process_linux_usb_pseudoheader(guint packet_size, gboolean byte_swapped,
 		if (packet_size < END_OFFSETOF(phdr, &phdr->data_len))
 			return;
 		PBSWAP32((guint8 *)&phdr->data_len);
+
+		if (phdr->transfer_type == URB_ISOCHRONOUS) {
+			if (packet_size < END_OFFSETOF(phdr, &phdr->s.iso.error_count))
+				return;
+			PBSWAP32((guint8 *)&phdr->s.iso.error_count);
+
+			if (packet_size < END_OFFSETOF(phdr, &phdr->s.iso.numdesc))
+				return;
+			PBSWAP32((guint8 *)&phdr->s.iso.numdesc);
+
+		}
 
 		if (header_len_64_bytes) {
 			/*
@@ -1097,7 +1129,37 @@ pcap_process_linux_usb_pseudoheader(guint packet_size, gboolean byte_swapped,
 			if (packet_size < END_OFFSETOF(phdr, &phdr->ndesc))
 				return;
 			PBSWAP32((guint8 *)&phdr->ndesc);
-		}	
+		}
+
+		if (phdr->transfer_type == URB_ISOCHRONOUS) {
+			/* swap the values in struct linux_usb_isodesc */
+
+			if (header_len_64_bytes) {
+				pisodesc = (struct linux_usb_isodesc*)(pd + 64);
+			} else {
+				pisodesc = (struct linux_usb_isodesc*)(pd + 48);
+			}
+			iso_numdesc = phdr->s.iso.numdesc;
+			for (i = 0; i < iso_numdesc; i++) {
+				/* always check if we have enough data from the
+				 * beginnig of the packet (phdr)
+				 */
+				if (packet_size < END_OFFSETOF(phdr, &pisodesc->iso_status))
+					return;
+				PBSWAP32((guint8 *)&pisodesc->iso_status);
+				if (packet_size < END_OFFSETOF(phdr, &pisodesc->iso_off))
+					return;
+				PBSWAP32((guint8 *)&pisodesc->iso_off);
+				if (packet_size < END_OFFSETOF(phdr, &pisodesc->iso_len))
+					return;
+				PBSWAP32((guint8 *)&pisodesc->iso_len);
+				if (packet_size < END_OFFSETOF(phdr, &pisodesc->_pad))
+					return;
+				PBSWAP32((guint8 *)&pisodesc->_pad);
+
+				pisodesc++;
+			}
+		}
 	}
 }
 
