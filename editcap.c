@@ -739,15 +739,18 @@ struct string_elem {
 };
 
 static gint
-string_compare(const struct string_elem *a, const struct string_elem *b)
+string_compare(gconstpointer a, gconstpointer b)
 {
-    return strcmp(a->sstr, b->sstr);
+    return strcmp(((struct string_elem *)a)->sstr, 
+        ((struct string_elem *)b)->sstr);
 }    
 
 static void
-string_elem_print(const struct string_elem *data, void *not_used)
-{
-    fprintf(stderr, "    %s - %s\n", data->sstr, data->lstr);
+string_elem_print(gpointer data, gpointer not_used _U_)
+{    
+    fprintf(stderr, "    %s - %s\n",
+        ((struct string_elem *)data)->sstr,
+        ((struct string_elem *)data)->lstr);
 }
 
 static void
