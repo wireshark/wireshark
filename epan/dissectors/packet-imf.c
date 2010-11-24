@@ -460,7 +460,7 @@ int imf_find_field_end(tvbuff_t *tvb, int offset, gint max_length, gboolean *las
 
   }
 
-  return offset;
+  return -1;  /* Fail: No CR found (other than possible continuation) */
 
 }
 
@@ -493,6 +493,9 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   max_length = tvb_length(tvb);
   /* first go through the tvb until we find a blank line and extract the content type if
      we find one */
+
+  /* XXX: What if the tvb contains encrypted data ? is there a way to bypass dissection if so ?  */
+  /*      As it is, the following code blithely tries to dissect what may be binary data.        */
 
   while(!last_field) {
 
@@ -529,22 +532,23 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       start_offset = end_offset+1;
 
       end_offset = imf_find_field_end(tvb, start_offset, max_length, &last_field);
+      if(end_offset == -1) {
+          break;   /* Something's fishy */
+      }
 
-      if(end_offset != -1) {
+      /* remove any leading whitespace */
 
-	/* remove any leading whitespace */
-
-	for(value_offset = start_offset; value_offset < end_offset; value_offset++)
+      for(value_offset = start_offset; value_offset < end_offset; value_offset++)
 	  if(!isspace(tvb_get_guint8(tvb, value_offset))) {
-	    break;
+              break;
 	  }
 
-	if(value_offset == end_offset) {
+      if(value_offset == end_offset) {
 	  /* empty field - show whole value */
 	  value_offset = start_offset;
-	}
+      }
 
-	if(hf_id == hf_imf_extension_type) {
+      if(hf_id == hf_imf_extension_type) {
 
 	  /* remove 2 bytes to take off the final CRLF to make things a little prettier */
 	  item = proto_tree_add_item(tree, hf_imf_extension, tvb, unknown_offset, end_offset - unknown_offset - 2, FALSE);
@@ -558,29 +562,28 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  /* remove 2 bytes to take off the final CRLF to make things a little prettier */
 	  item = proto_tree_add_item(unknown_tree, hf_imf_extension_value, tvb, start_offset, end_offset - start_offset - 2, FALSE);
 
-	} else
+      } else
 
 	  /* remove 2 bytes to take off the final CRLF to make things a little prettier */
 	  item = proto_tree_add_item(tree, hf_id, tvb, value_offset, end_offset - value_offset - 2, FALSE);
 
-	if(f_info->add_to_col_info && check_col(pinfo->cinfo, COL_INFO)) {
+      if(f_info->add_to_col_info && check_col(pinfo->cinfo, COL_INFO)) {
 
 	  col_append_fstr(pinfo->cinfo, COL_INFO, "%s: %s, ", f_info->name,
 			  tvb_format_text(tvb, value_offset, end_offset - value_offset - 2));
-	}
+      }
 
-	if(hf_id == hf_imf_content_type) {
+      if(hf_id == hf_imf_content_type) {
 	  /* we need some additional processing to extract the content type and parameters */
 
 	  dissect_imf_content_type(tvb, start_offset, end_offset - start_offset, item,
 				   &content_type_str, &parameters);
 
-	} else if(f_info && f_info->subdissector) {
+      } else if(f_info && f_info->subdissector) {
 
 	  /* we have a subdissector */
 	  f_info->subdissector(tvb, value_offset, end_offset - value_offset, item);
 
-	}
       }
     }
     start_offset = end_offset;
