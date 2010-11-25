@@ -40,6 +40,7 @@ wsutil_optional_objects =	\
 	@STRPTIME_LO@
 
 lib_LTLIBRARIES = libwsutil.la
+libwsutil_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
 
 INCLUDES = -I$(srcdir)/..
 
