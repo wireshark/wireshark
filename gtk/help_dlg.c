@@ -339,6 +339,9 @@ topic_action(topic_action_e action)
     case(HELP_MERGE_WIN32_DIALOG):
         help_topic_html("ChIOMergeSection.html");
         break;
+    case(HELP_IMPORT_DIALOG):
+        help_topic_html("ChIOImportSection.html");
+        break;
     case(HELP_SAVE_DIALOG):
     case(HELP_SAVE_WIN32_DIALOG):
         help_topic_html("ChIOSaveSection.html");

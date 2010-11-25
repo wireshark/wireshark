@@ -1257,8 +1257,7 @@ file_import_dlg_new()
     gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 3);
 
     help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-    /* TODO: Create a Help chapter, make a proper reference, add it to help_dlg */
-    g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_CONTENT);
+    g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_IMPORT_DIALOG);
 #if GTK_CHECK_VERSION(2,12,0)
     gtk_widget_set_tooltip_text(help_bt, "Show topic specific help");
 #else
