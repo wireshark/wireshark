@@ -32,6 +32,7 @@
 #define LINUX_SLL_P_802_2	0x0004	/* 802.2 frames (not D/I/X Ethernet) */
 #define LINUX_SLL_P_PPPHDLC	0x0007	/* PPP HDLC frames */
 #define LINUX_SLL_P_CAN		0x000C	/* Controller Area Network */
+#define LINUX_SLL_P_IRDA_LAP	0x0017	/* IrDA Link Access Protocol */
 
 void capture_sll(const guchar *, int, packet_counts *);
 

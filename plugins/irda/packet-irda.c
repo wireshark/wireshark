@@ -40,6 +40,7 @@
 #include <epan/xdlc.h>
 
 #include "irda-appl.h"
+#include <epan/dissectors/packet-sll.h>
 
 /*
  * This plugin dissects infrared data transmissions as defined by the IrDA
@@ -2239,8 +2240,9 @@ void proto_register_irda(void)
 void proto_reg_handoff_irda(void)
 {
     dissector_handle_t irda_handle;
-
+    
     irda_handle = find_dissector("irda");
     dissector_add("wtap_encap", WTAP_ENCAP_IRDA, irda_handle);
+    dissector_add("sll.ltype", LINUX_SLL_P_IRDA_LAP, irda_handle);
     data_handle = find_dissector("data");
 }

@@ -83,6 +83,7 @@ static const value_string ltype_vals[] = {
 	{ LINUX_SLL_P_802_2,	"802.2 LLC" },
 	{ LINUX_SLL_P_PPPHDLC,	"PPP (HDLC)" },
 	{ LINUX_SLL_P_CAN,	"CAN" },
+	{ LINUX_SLL_P_IRDA_LAP,	"IrDA LAP" },
 	{ 0,			NULL }
 };
 
