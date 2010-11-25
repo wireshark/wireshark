@@ -1352,6 +1352,8 @@ protect_thread_critical_region(void)
 {
 	/* Threading support for TAP:s removed 
 	 * http://www.wireshark.org/lists/wireshark-dev/200611/msg00199.html
+	 * See the commit for removed code:
+	 * http://anonsvn.wireshark.org/viewvc/viewvc.cgi?view=rev&revision=35027
 	 */
 }
 void
@@ -2417,6 +2419,9 @@ main(int argc, char *argv[])
   prefs_register_modules();
 
   prefs_p = read_configuration_files (&gdp_path, &dp_path);
+  /* Removed thread code:
+   * http://anonsvn.wireshark.org/viewvc/viewvc.cgi?view=rev&revision=35027
+   */
 
   /* this is to keep tap extensions updating once every 3 seconds */
   tap_update_timer_id = g_timeout_add(prefs_p->tap_update_interval, tap_update_cb, NULL);
