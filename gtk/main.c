@@ -1329,11 +1329,9 @@ cmdarg_err_cont(const char *fmt, ...)
   va_end(ap);
 }
 
-#if defined(_WIN32) || ! defined USE_THREADS
 /*
    Once every 3 seconds we get a callback here which we use to update
-   the tap extensions. Since Gtk1 is single threaded we dont have to
-   worry about any locking or critical regions.
+   the tap extensions. 
  */
 static gboolean
 tap_update_cb(gpointer data _U_)
@@ -1349,54 +1347,20 @@ void reset_tap_update_timer(void)
     tap_update_timer_id = g_timeout_add(prefs.tap_update_interval, tap_update_cb, NULL);
 }
 
-#else
-
-/* if these three functions are copied to gtk1 Wireshark, since gtk1 does not
-   use threads all update_thread_mutex can be dropped and protect/unprotect
-   would just be empty functions.
-
-   This allows gtk2-rpcstat.c and friends to be copied unmodified to
-   gtk1-wireshark and it will just work.
- */
-static GStaticMutex update_thread_mutex = G_STATIC_MUTEX_INIT;
-gpointer
-update_thread(gpointer data _U_)
-{
-    while(1){
-        GTimeVal tv1, tv2;
-        g_get_current_time(&tv1);
-        g_static_mutex_lock(&update_thread_mutex);
-        gdk_threads_enter();
-        draw_tap_listeners(FALSE);
-        gdk_threads_leave();
-        g_static_mutex_unlock(&update_thread_mutex);
-        g_thread_yield();
-        g_get_current_time(&tv2);
-
-        /* Assuming it took less than configured time to update tap listeners... */
-        if( (tv1.tv_sec * 1000000 + tv1.tv_usec + prefs.tap_update_interval * 1000) >
-            (tv2.tv_sec * 1000000 + tv2.tv_usec) ){
-            /* Wait for remainder of configured time */
-            g_usleep((tv1.tv_sec * 1000000 + tv1.tv_usec + prefs.tap_update_interval * 1000) -
-                     (tv2.tv_sec * 1000000 + tv2.tv_usec));
-        }
-
-        return NULL;
-}
-#endif
 void
 protect_thread_critical_region(void)
 {
-#if !defined(_WIN32) && defined USE_THREADS
-    g_static_mutex_lock(&update_thread_mutex);
-#endif
+	/* Threading support for TAP:s removed 
+	 * http://www.wireshark.org/lists/wireshark-dev/200611/msg00199.html
+	 */
 }
 void
 unprotect_thread_critical_region(void)
 {
-#if !defined(_WIN32) && defined USE_THREADS
-    g_static_mutex_unlock(&update_thread_mutex);
-#endif
+	/* Threading support for TAP:s removed 
+	 * http://www.wireshark.org/lists/wireshark-dev/200611/msg00199.html
+	 */
+
 }
 
 /*
@@ -2454,19 +2418,8 @@ main(int argc, char *argv[])
 
   prefs_p = read_configuration_files (&gdp_path, &dp_path);
 
-  /* multithread support currently doesn't seem to work in win32 gtk2.0.6 */
-#if !defined(_WIN32) && defined(G_THREADS_ENABLED) && defined USE_THREADS
-  {
-      GThread *ut;
-      g_thread_init(NULL);
-      gdk_threads_init();
-      ut=g_thread_create(update_thread, NULL, FALSE, NULL);
-      g_thread_set_priority(ut, G_THREAD_PRIORITY_LOW);
-  }
-#else  /* !_WIN32 && G_THREADS_ENABLED && USE_THREADS */
   /* this is to keep tap extensions updating once every 3 seconds */
   tap_update_timer_id = g_timeout_add(prefs_p->tap_update_interval, tap_update_cb, NULL);
-#endif /* !_WIN32 && G_THREADS_ENABLED && USE_THREADS */
 
   splash_update(RA_CONFIGURATION, NULL, (gpointer)splash_win);
   proto_help_init();
