@@ -31,6 +31,17 @@
  *
  */
 
+/* SSH version 2 is defined in:
+ *
+ * RFC 4250: The Secure Shell (SSH) Protocol Assigned Numbers
+ * RFC 4251: The Secure Shell (SSH) Protocol Architecture
+ * RFC 4252: The Secure Shell (SSH) Authentication Protocol
+ * RFC 4253: The Secure Shell (SSH) Transport Layer Protocol
+ * RFC 4254: The Secure Shell (SSH) Connection Protocol
+ *
+ * SSH versions under 2 were never officially standardized.
+ */
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
