@@ -35,7 +35,7 @@
 
 #include <winspool.h>
 
-#include "gtk/print_win32.h"
+#include "print_win32.h"
 #include "wsutil/file_util.h"
 /*
 Some thoughts about a GTK win32 printer dialog:

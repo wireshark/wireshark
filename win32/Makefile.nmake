@@ -1,0 +1,47 @@
+## Makefile for building wireshark.exe with Microsoft C and nmake
+## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+#
+# $Id: Makefile.nmake -1   $
+
+include ..\config.nmake
+include ..\Makefile.nmake.inc
+
+############### no need to modify below this line #########
+
+CFLAGS=-WX -DHAVE_CONFIG_H /I.. /I../wiretap $(GTK_CFLAGS) $(GNUTLS_CFLAGS) \
+	/I$(PCAP_DIR)\WPCAP\LIBPCAP /I$(PCAP_DIR)\WPCAP\LIBPCAP\bpf \
+	/I$(PCAP_DIR)\WPCAP\LIBPCAP\lbl \
+	/I$(PCAP_DIR)\include $(AIRPCAP_CFLAGS) \
+	/Zm800 -D_U_="" -D_NEED_VAR_IMPORT_ $(LOCAL_CFLAGS) \
+
+CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
+
+.c.obj::
+	$(CC) $(CVARSDLL) $(CFLAGS) $(WSUG_CFLAGS) -Fd.\ -c $<
+	
+# if you add files here, be sure to include them also in Makefile.am EXTRA_DIST in the main Wireshark directory
+WIRESHARK_WIN32_SRC = \
+	file_dlg_win32.c \
+	print_win32.c \
+
+WIRESHARK_WIN32_OBJECTS = $(WIRESHARK_WIN32_SRC:.c=.obj)
+
+libui_win32.lib	: ..\config.h $(WIRESHARK_WIN32_OBJECTS)
+	link /lib /out:libui_win32.lib $(WIRESHARK_WIN32_OBJECTS) winmm.lib
+
+clean:
+	rm -f $(WIRESHARK_WIN32_OBJECTS) libui_win32.lib *.pdb
+
+distclean: clean
+
+maintainer-clean: distclean
+
+checkapi: checkapi-base checkapi-todo
+
+checkapi-base:
+	file_dlg_win32.c \
+	print_win32.c
+
+checkapi-todo:
+	file_dlg_win32.c \
+	print_win32.c

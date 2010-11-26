@@ -835,6 +835,11 @@ EXTRA_DIST = \
 	cmake/modules/FindM.cmake		\
 	cmake/modules/FindKERBEROS.cmake	\
 	cmake/modules/FindPOD.cmake		\
+	win32/Makefile.nmake	\
+	win32/file_dlg_win32.c		\
+	win32/file_dlg_win32.h		\
+	win32/print_win32.c			\
+	win32/print_win32.h			\
 	CPackConfig.txt				\
 	all.vcproj		\
 	dumpcap.vcproj		\

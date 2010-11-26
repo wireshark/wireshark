@@ -39,7 +39,6 @@
 #include <commdlg.h>
 #include <richedit.h>
 
-
 #include <gtk/gtk.h>
 
 #include "epan/filesystem.h"
@@ -62,7 +61,7 @@
 #include "gtk/menus.h"
 #include "gtk/drag_and_drop.h"
 #include "gtk/capture_dlg.h"
-#include "gtk/file_dlg_win32.h"
+#include "win32/file_dlg_win32.h"
 #include "gtk/help_dlg.h"
 
 typedef enum {
