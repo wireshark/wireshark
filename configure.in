@@ -674,6 +674,7 @@ if test "x$enable_wireshark" = "xyes"; then
 	[
 		CFLAGS="$CFLAGS $GTK_CFLAGS"
 		CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
+		AC_DEFINE(HAVE_GTK, 1, [Define to 1 if compiling with GTK])
 	], GTK_OK=no, gthread)
 else
 	GTK_OK=no

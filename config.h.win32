@@ -232,6 +232,9 @@
 #define popen			_popen
 #define pclose			_pclose
 
+/* Define to use GTK *(/
+#define HAVE_GTK
+
 /* Name of package */
 #define PACKAGE "wireshark"
 
