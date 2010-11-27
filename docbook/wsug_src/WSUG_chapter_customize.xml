@@ -205,7 +205,7 @@ Miscellaneous:
 	  <listitem>
 	    <para>
 	      Win32 only: set capture buffer size (in MB, default is 1MB). This
-		  is used by the the capture driver to buffer packet data until that
+		  is used by the capture driver to buffer packet data until that
 		  data can be written to disk. If you encounter packet drops while
 		  capturing, try to increase this size.
 	    </para>

@@ -577,7 +577,7 @@ c0-a8-1c-00      CEO
 		  substitution in the "location" value. For example, if
 		  the database section contains
 		  <programlisting>
-locatoin = http://www.example.com/proto?cookie=${cookie}&amp;path=${PATH}
+location = http://www.example.com/proto?cookie=${cookie}&amp;path=${PATH}
 		  </programlisting>
 		  then setting
 		  <programlisting>
@@ -628,7 +628,7 @@ version=1
 url_template=http://${language}.wikipedia.org/wiki/${PATH}
 
 # Substitution data for the location template.
-# Each occurence of the keys below in the locaton template will be
+# Each occurence of the keys below in the location template will be
 # substituted with their corresponding values. For example, "${license}"
 # in the URL template above will be replaced with the value of "license"
 # below.

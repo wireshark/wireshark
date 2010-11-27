@@ -2,9 +2,9 @@
 <appendix id="AppGPL">
 <!-- $Id$ -->
   <title>This Document's License (GPL)</title>
-  <para>As with the original licence and documentation distributed
+  <para>As with the original license and documentation distributed
     with Wireshark, this document is covered by the GNU General Public
-    Licence (GNU GPL).</para>
+    License (GNU GPL).</para>
 
   <para>If you haven't read the GPL before, please do so. It
     explains all the things that you are allowed to do with this

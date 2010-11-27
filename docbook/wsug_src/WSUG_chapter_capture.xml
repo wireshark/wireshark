@@ -745,7 +745,7 @@ wireshark -i eth0 -k
       </section>
       <section><title>Remote Capture Settings</title>
       <para>
-	  The remote capture can be furhter fine tuned to match your situation.
+	  The remote capture can be further fine tuned to match your situation.
 	  The <command>Remote Settings</command> button gives you this option.
 	  It pops up the dialog shown in
 	  <xref linkend="ChCapInterfaceRemoteSettingsDialog"/>.

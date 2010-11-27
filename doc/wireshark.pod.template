@@ -248,7 +248,7 @@ to 1MB by default, and can be told to set it to a larger value, the
 system or interface on which you're capturing might silently limit the
 capture buffer size to a lower value or raise it to a higher value.
 
-This is available on on UNIX systems with libpcap 1.0.0 or later and on
+This is available on UNIX systems with libpcap 1.0.0 or later and on
 Windows.  It is not available on UNIX systems with earlier versions of
 libpcap.
 

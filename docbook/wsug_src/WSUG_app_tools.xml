@@ -675,7 +675,7 @@ Miscellaneous:
     <para>
       Text2pcap also allows the user to read in dumps of application-level
       data, by inserting dummy L2, L3 and L4 headers before each packet.
-      Possiblities include inserting headers such as Ethernet, Ethernet + IP,
+      Possibilities include inserting headers such as Ethernet, Ethernet + IP,
       Ethernet + IP + UDP, or Ethernet + Ip + TCP before each packet.
       This allows Wireshark or any other full-packet decoder to handle these dumps.
     </para>
@@ -834,7 +834,7 @@ Miscellaneous:
 	</listitem>
 	<listitem>
 	  <para>
-	    omniidl from the the omniORB package must be available. See
+	    omniidl from the omniORB package must be available. See
 	    <ulink url="http://omniorb.sourceforge.net/"/>
 	  </para>
 	</listitem>

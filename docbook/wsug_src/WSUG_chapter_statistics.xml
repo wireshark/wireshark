@@ -649,7 +649,7 @@
         <listitem>
         <para>
             <command>Endpoint distinction:</command> Use MAC addresses or IP
-            time-to-live values to determine connection enpoints.
+            time-to-live values to determine connection endpoints.
         </para>
         </listitem>
         <listitem>

@@ -1548,7 +1548,7 @@ written by Larry Wall and Paul Eggert]]>
     your Internet connection might use an HTTP proxy. Some Internet
     providers use such a proxy and it is common in many company
     networks today. Wireshark's setup script will try to discover
-    your proxy settings automatically, but you you may need to set
+    your proxy settings automatically, but you may need to set
     the environment variable HTTP_PROXY by hand before using wget.
     For example, if you are behind proxy.com which is listening on
     port 8080, you have to set it to something like:</para>

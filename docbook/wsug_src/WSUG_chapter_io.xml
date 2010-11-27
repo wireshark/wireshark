@@ -719,7 +719,7 @@
     character dump). Any hex numbers in this text are also ignored. An offset of zero
     is indicative of starting a new packet, so a single text file with a series of
     hexdumps can be converted into a packet capture with multiple packets. Packets may
-    be preseded by a timestamp. These are interpreted according to the format
+    be preceded by a timestamp. These are interpreted according to the format
     given. If not the first packet is timestamped with the current time the import
     takes place. Multiple packets are read in with timestamps differing by one
     microsecond each. In general, short of these restrictions, Wireshark is pretty
@@ -821,7 +821,7 @@
       <para>
       Here you can select which type of frames you are importing. This all depends on
       from what type of medium the dump to import was taken. It lists all types that 
-      Wirshark understands, so as to pass the capture file contents to the right dissector.
+      Wireshark understands, so as to pass the capture file contents to the right dissector.
       </para>
       </listitem>
     </varlistentry>

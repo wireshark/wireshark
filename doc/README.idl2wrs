@@ -50,7 +50,7 @@ need the following.
 1. Python must be installed
    http://python.org/
 
-2. omniidl from the the omniORB package must be available.
+2. omniidl from the omniORB package must be available.
    http://omniorb.sourceforge.net/
 
 3  Of course you need wireshark installed to compile the
