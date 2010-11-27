@@ -864,7 +864,6 @@ VCREDIST_EXE=$(WIRESHARK_LIBS)\vcredist_$(TARGET_MACHINE).exe
 MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 9.0\VC\redist\$(VCREDIST_DLL)\Microsoft.VC90.CRT\*.*
 
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2010EE"
-# NOT TESTED
 # you need to download the redistributable package vcredist_x86.exe from Microsoft first,
 # and copy it to the lib folder!!!
 VCREDIST_EXE=$(WIRESHARK_LIBS)\vcredist_$(TARGET_MACHINE).exe
