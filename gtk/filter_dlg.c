@@ -1317,7 +1317,6 @@ filter_te_syntax_check_cb(GtkWidget *w, gpointer user_data _U_)
     dfilter_t   *dfp;
     GPtrArray   *depr = NULL;
     gboolean     use_statusbar;
-    gchar       *msg;
     guchar       c;
 
     strval = gtk_entry_get_text(GTK_ENTRY(w));
@@ -1333,9 +1332,7 @@ filter_te_syntax_check_cb(GtkWidget *w, gpointer user_data _U_)
     {
         colorize_filter_te_as_invalid(w);
         if (use_statusbar) {
-            msg = g_strdup_printf(" Illegal character in field name: '%c'", c);
-            statusbar_push_filter_msg(msg);
-            g_free(msg);
+            statusbar_push_filter_msg(" Illegal character in field name: '%c'", c);
         }
     } else if (strval && dfilter_compile(strval, &dfp)) {
         if (dfp != NULL) {
@@ -1362,9 +1359,7 @@ filter_te_syntax_check_cb(GtkWidget *w, gpointer user_data _U_)
         colorize_filter_te_as_invalid(w);
         if (use_statusbar) {
             if (dfilter_error_msg) {
-                msg = g_strdup_printf(" Invalid filter: %s", dfilter_error_msg);
-                statusbar_push_filter_msg(msg);
-                g_free(msg);
+                statusbar_push_filter_msg(" Invalid filter: %s", dfilter_error_msg);
             } else {
                 statusbar_push_filter_msg(" Invalid filter");
             }

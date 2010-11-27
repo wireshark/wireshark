@@ -29,21 +29,23 @@ void profile_bar_update(void);
 void packets_bar_update(void);
 void status_expert_update(void);
 
-/** Push a message referring to the currently-selected field onto the statusbar.
+/** Push a formatted message referring to the currently-selected field
+ * onto the statusbar.
  *
- * @param msg The message
+ * @param msg_format The format string for the message
  */
-void statusbar_push_field_msg(const gchar *msg);
+void statusbar_push_field_msg(const gchar *msg_format, ...);
 
 /** Pop a message referring to the currently-selected field off the statusbar.
  */
 void statusbar_pop_field_msg(void);
 
-/** Push a message referring to the current filter onto the statusbar.
+/** Push a formatted message referring to the current filter onto the
+ * statusbar.
  *
- * @param msg The message
+ * @param msg_format The format string for the message
  */
-void statusbar_push_filter_msg(const gchar *msg);
+void statusbar_push_filter_msg(const gchar *msg_format, ...);
 
 /** Pop a message referring to the current filter off the statusbar.
  */

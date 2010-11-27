@@ -44,7 +44,7 @@ void welcome_if_panel_reload(void);
  *
  * @param msg The message
  */
-void welcome_header_push_msg(gchar *msg);
+void welcome_header_push_msg(const gchar *msg);
 
 /** Pop a status message from the welcome screen. If there are no
  *  messages on the stack, the default message and the main columns

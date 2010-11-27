@@ -799,7 +799,6 @@ static void
 tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
 {
     field_info   *finfo;
-    gchar        *help_str = NULL;
     gchar         len_str[2+10+1+5+1]; /* ", {N} bytes\0",
                                           N < 4294967296 */
     gboolean      has_blurb = FALSE;
@@ -862,11 +861,9 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
         }
         statusbar_pop_field_msg();	/* get rid of current help msg */
         if (length) {
-            help_str = g_strdup_printf(" %s (%s)%s",
+            statusbar_push_field_msg(" %s (%s)%s",
                     (has_blurb) ? finfo->hfinfo->blurb : finfo->hfinfo->name,
                     finfo->hfinfo->abbrev, len_str);
-            statusbar_push_field_msg(help_str);
-            g_free(help_str);
         } else {
             /*
              * Don't show anything if the field name is zero-length;

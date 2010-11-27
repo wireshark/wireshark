@@ -341,7 +341,7 @@ welcome_header_new(void)
 
 
 void
-welcome_header_push_msg(gchar *msg) {
+welcome_header_push_msg(const gchar *msg) {
     gchar *msg_copy = g_strdup(msg);
 
     status_messages = g_slist_append(status_messages, msg_copy);

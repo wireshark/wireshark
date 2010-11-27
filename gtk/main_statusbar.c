@@ -103,11 +103,13 @@ static gint flash_time;
 static gboolean flash_highlight = FALSE;
 
 /*
- * Push a message referring to file access onto the statusbar.
+ * Push a formatted message referring to file access onto the statusbar.
  */
 static void
-statusbar_push_file_msg(const gchar *msg)
+statusbar_push_file_msg(const gchar *msg_format, ...)
 {
+    va_list ap;
+    gchar *msg;
     int i;
 
     /*g_warning("statusbar_push: %s", msg);*/
@@ -117,7 +119,12 @@ statusbar_push_file_msg(const gchar *msg)
     }
     status_levels[STATUS_LEVEL_FILE]++;
 
+    va_start(ap, msg_format);
+    msg = g_strdup_vprintf(msg_format, ap);
+    va_end(ap);
+
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, msg);
+    g_free(msg);
 }
 
 /*
@@ -134,11 +141,14 @@ statusbar_pop_file_msg(void)
 }
 
 /*
- * Push a message referring to the currently-selected field onto the statusbar.
+ * Push a formatted message referring to the currently-selected field onto
+ * the statusbar.
  */
 void
-statusbar_push_field_msg(const gchar *msg)
+statusbar_push_field_msg(const gchar *msg_format, ...)
 {
+    va_list ap;
+    gchar *msg;
     int i;
 
     for (i = STATUS_LEVEL_HELP + 1; i < NUM_STATUS_LEVELS; i++) {
@@ -147,7 +157,12 @@ statusbar_push_field_msg(const gchar *msg)
     }
     status_levels[STATUS_LEVEL_HELP]++;
 
+    va_start(ap, msg_format);
+    msg = g_strdup_vprintf(msg_format, ap);
+    va_end(ap);
+
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), help_ctx, msg);
+    g_free(msg);
 }
 
 /*
@@ -163,11 +178,13 @@ statusbar_pop_field_msg(void)
 }
 
 /*
- * Push a message referring to the current filter onto the statusbar.
+ * Push a formatted message referring to the current filter onto the statusbar.
  */
 void
-statusbar_push_filter_msg(const gchar *msg)
+statusbar_push_filter_msg(const gchar *msg_format, ...)
 {
+    va_list ap;
+    gchar *msg;
     int i;
 
     for (i = STATUS_LEVEL_FILTER + 1; i < NUM_STATUS_LEVELS; i++) {
@@ -176,7 +193,12 @@ statusbar_push_filter_msg(const gchar *msg)
     }
     status_levels[STATUS_LEVEL_FILTER]++;
 
+    va_start(ap, msg_format);
+    msg = g_strdup_vprintf(msg_format, ap);
+    va_end(ap);
+
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), filter_ctx, msg);
+    g_free(msg);
 }
 
 /*
@@ -587,7 +609,6 @@ static void
 statusbar_set_filename(const char *file_name, gint64 file_length, nstime_t *file_elapsed_time)
 {
     gchar       *size_str;
-    gchar       *status_msg;
 
     /* expert info indicator */
     status_expert_update();
@@ -602,14 +623,12 @@ statusbar_set_filename(const char *file_name, gint64 file_length, nstime_t *file
         size_str = g_strdup_printf("%" G_GINT64_MODIFIER "d Bytes", file_length);
     }
 
-    status_msg = g_strdup_printf(" File: \"%s\" %s %02lu:%02lu:%02lu",
-                                 (file_name) ? file_name : "", size_str,
-                                 (long)file_elapsed_time->secs/3600,
-                                 (long)file_elapsed_time->secs%3600/60,
-                                 (long)file_elapsed_time->secs%60);
+    statusbar_push_file_msg(" File: \"%s\" %s %02lu:%02lu:%02lu",
+                            (file_name) ? file_name : "", size_str,
+                            (long)file_elapsed_time->secs/3600,
+                            (long)file_elapsed_time->secs%3600/60,
+                            (long)file_elapsed_time->secs%60);
     g_free(size_str);
-    statusbar_push_file_msg(status_msg);
-    g_free(status_msg);
 }
 
 
@@ -639,16 +658,13 @@ static void
 statusbar_cf_file_read_started_cb(capture_file *cf)
 {
     const gchar *name_ptr;
-    gchar       *load_msg;
 
     /* Ensure we pop any previous loaded filename */
     statusbar_pop_file_msg();
 
     name_ptr = get_basename(cf->filename);
 
-    load_msg = g_strdup_printf(" Loading: %s", name_ptr);
-    statusbar_push_file_msg(load_msg);
-    g_free(load_msg);
+    statusbar_push_file_msg(" Loading: %s", name_ptr);
 }
 
 
@@ -664,7 +680,7 @@ statusbar_cf_file_read_finished_cb(capture_file *cf)
 static void
 statusbar_capture_prepared_cb(capture_options *capture_opts _U_)
 {
-    gchar *msg = " Waiting for capture input data ...";
+    static const gchar msg[] = " Waiting for capture input data ...";
     statusbar_push_file_msg(msg);
     welcome_header_push_msg(msg);
 }
@@ -672,55 +688,44 @@ statusbar_capture_prepared_cb(capture_options *capture_opts _U_)
 static void
 statusbar_capture_update_started_cb(capture_options *capture_opts)
 {
-    gchar *capture_msg;
-
-
     statusbar_pop_file_msg();
     welcome_header_pop_msg();
 
     if(capture_opts->iface) {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> to file: %s",
-                                      get_iface_description(capture_opts),
-                                      (capture_opts->save_file) ? capture_opts->save_file : "");
+        statusbar_push_file_msg(" %s: <live capture in progress> to file: %s",
+                                get_iface_description(capture_opts),
+                                (capture_opts->save_file) ? capture_opts->save_file : "");
     } else {
-        capture_msg = g_strdup_printf(" <live capture in progress> to file: %s",
-            (capture_opts->save_file) ? capture_opts->save_file : "");
+        statusbar_push_file_msg(" <live capture in progress> to file: %s",
+                                (capture_opts->save_file) ? capture_opts->save_file : "");
     }
-
-    statusbar_push_file_msg(capture_msg);
-
-    g_free(capture_msg);
 }
 
 static void
 statusbar_capture_update_continue_cb(capture_options *capture_opts)
 {
     capture_file *cf = capture_opts->cf;
-    gchar *capture_msg;
-
 
     status_expert_update();
 
     statusbar_pop_file_msg();
 
     if (cf->f_datalen/1024/1024 > 10) {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d MB",
-                                      get_iface_description(capture_opts),
-                                      capture_opts->save_file,
-                                      cf->f_datalen/1024/1024);
+        statusbar_push_file_msg(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d MB",
+                                get_iface_description(capture_opts),
+                                capture_opts->save_file,
+                                cf->f_datalen/1024/1024);
     } else if (cf->f_datalen/1024 > 10) {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d KB",
-                                      get_iface_description(capture_opts),
-                                      capture_opts->save_file,
-                                      cf->f_datalen/1024);
+        statusbar_push_file_msg(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d KB",
+                                get_iface_description(capture_opts),
+                                capture_opts->save_file,
+                                cf->f_datalen/1024);
     } else {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d Bytes",
-                                      get_iface_description(capture_opts),
-                                      capture_opts->save_file,
-                                      cf->f_datalen);
+        statusbar_push_file_msg(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d Bytes",
+                                get_iface_description(capture_opts),
+                                capture_opts->save_file,
+                                cf->f_datalen);
     }
-
-    statusbar_push_file_msg(capture_msg);
 }
 
 static void
@@ -737,19 +742,13 @@ statusbar_capture_update_finished_cb(capture_options *capture_opts)
 static void
 statusbar_capture_fixed_started_cb(capture_options *capture_opts)
 {
-    gchar *capture_msg;
-
-
     statusbar_pop_file_msg();
 
-    capture_msg = g_strdup_printf(" %s: <live capture in progress> to file: %s",
-                                  get_iface_description(capture_opts),
-                                  (capture_opts->save_file) ? capture_opts->save_file : "");
+    statusbar_push_file_msg(" %s: <live capture in progress> to file: %s",
+                            get_iface_description(capture_opts),
+                            (capture_opts->save_file) ? capture_opts->save_file : "");
 
-    statusbar_push_file_msg(capture_msg);
     gtk_statusbar_push(GTK_STATUSBAR(packets_bar), packets_ctx, " Packets: 0");
-
-    g_free(capture_msg);
 }
 
 static void
@@ -793,12 +792,8 @@ statusbar_cf_field_unselected_cb(capture_file *cf _U_)
 static void
 statusbar_cf_file_save_started_cb(gchar *filename)
 {
-    gchar        *save_msg;
-
     statusbar_pop_file_msg();
-    save_msg = g_strdup_printf(" Saving: %s...", get_basename(filename));
-    statusbar_push_file_msg(save_msg);
-    g_free(save_msg);
+    statusbar_push_file_msg(" Saving: %s...", get_basename(filename));
 }
 
 static void
