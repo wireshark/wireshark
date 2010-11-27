@@ -39,6 +39,7 @@
 #include "../globals.h"
 #include "../alert_box.h"
 #include "../simple_dialog.h"
+#include "../main_statusbar.h"
 
 #include "gtk/gui_utils.h"
 #include "gtk/find_dlg.h"
@@ -590,7 +591,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
      */
     bytes = convert_string_to_hex(filter_text, &nbytes);
     if (bytes == NULL) {
-      simple_status("That's not a valid hex string.");
+      statusbar_push_temporary_msg("That's not a valid hex string.");
       return;
     }
   } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (string_rb))) {
@@ -599,7 +600,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
      * Make sure we're searching for something, first.
      */
     if (strcmp(filter_text, "") == 0) {
-      simple_status("You didn't specify any text for which to search.");
+      statusbar_push_temporary_msg("You didn't specify any text for which to search.");
       return;
     }
 
@@ -613,7 +614,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
     else if (string_type == SCS_UNICODE)
       scs_type = SCS_UNICODE;
     else {
-      simple_status("You didn't choose a valid character set.");
+      statusbar_push_temporary_msg("You didn't choose a valid character set.");
       return;
     }
     string = convert_string_case(filter_text, case_type);
@@ -630,7 +631,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
     /* Was it empty? */
     if (sfcode == NULL) {
       /* Yes - complain. */
-      simple_status("That filter doesn't test anything.");
+      statusbar_push_temporary_msg("That filter doesn't test anything.");
       return;
     }
   }
@@ -653,7 +654,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
     g_free(bytes);
     if (!found_packet) {
       /* We didn't find a packet */
-      simple_status("No packet contained those bytes.");
+      statusbar_push_temporary_msg("No packet contained those bytes.");
       return;
     }
   } else if (cfile.string) {
@@ -666,7 +667,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
       }
       if (!found_packet) {
         /* We didn't find the packet. */
-        simple_status("No packet contained that string in its dissected display.");
+        statusbar_push_temporary_msg("No packet contained that string in its dissected display.");
         return;
       }
     } else if (cfile.summary_data) {
@@ -692,7 +693,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
       }
       if (!found_packet) {
         /* We didn't find the packet. */
-        simple_status("No packet contained that string in its data.");
+        statusbar_push_temporary_msg("No packet contained that string in its data.");
         return;
       }
     }
@@ -701,7 +702,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
     dfilter_free(sfcode);
     if (!found_packet) {
       /* We didn't find a packet */
-      simple_status("No packet matched that filter.");
+      statusbar_push_temporary_msg("No packet matched that filter.");
       g_free(bytes);
       return;
     }

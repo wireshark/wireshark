@@ -48,7 +48,6 @@
 
 #include "gtk/recent.h"
 #include "gtk/main.h"
-#include "gtk/main_statusbar.h"
 #include "gtk/main_statusbar_private.h"
 #include "gtk/gui_utils.h"
 #include "gtk/gtkglobals.h"
@@ -58,6 +57,8 @@
 #include "gtk/expert_indicators.h"
 #include "gtk/keys.h"
 #include "gtk/menus.h"
+
+#include "main_statusbar.h"
 
 /*
  * The order below defines the priority of info bar contexts.
@@ -231,14 +232,21 @@ statusbar_flash_temporary_msg(gpointer data _U_)
 }
 
 /*
- * Push a temporary message onto the statusbar.
+ * Push a formatted temporary message onto the statusbar.
  */
 void
-statusbar_push_temporary_msg(const gchar *msg)
+statusbar_push_temporary_msg(const gchar *msg_format, ...)
 {
+    va_list ap;
+    gchar *msg;
     guint msg_id;
 
+    va_start(ap, msg_format);
+    msg = g_strdup_vprintf(msg_format, ap);
+    va_end(ap);
+
     msg_id = gtk_statusbar_push(GTK_STATUSBAR(info_bar), main_ctx, msg);
+    g_free(msg);
 
     flash_time = TEMPORARY_FLASH_TIMEOUT - 1;
     g_timeout_add(TEMPORARY_FLASH_INTERVAL, statusbar_flash_temporary_msg, NULL);

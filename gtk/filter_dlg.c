@@ -36,9 +36,9 @@
 
 #include "../filters.h"
 #include "../simple_dialog.h"
+#include "../main_statusbar.h"
 
 #include "gtk/main.h"
-#include "gtk/main_statusbar.h"
 #include "gtk/filter_dlg.h"
 #include "gtk/dlg_utils.h"
 #include "gtk/gui_utils.h"
@@ -1351,10 +1351,8 @@ filter_te_syntax_check_cb(GtkWidget *w, gpointer user_data _U_)
                  * We're being lazy and only printing the first "problem" token.
                  * Would it be better to print all of them?
                  */
-                msg = g_strdup_printf(" \"%s\" may have unexpected results (see the User's Guide)",
+                statusbar_push_temporary_msg(" \"%s\" may have unexpected results (see the User's Guide)",
                                       (const char *) g_ptr_array_index(depr, 0));
-                statusbar_push_temporary_msg(msg);
-                g_free(msg);
             }
         } else {
             colorize_filter_te_as_valid(w);

@@ -283,7 +283,6 @@ noinst_HEADERS = \
 	menus.h		\
 	main_packet_list.h	\
 	main_proto_draw.h	\
-	main_statusbar.h		\
 	main_statusbar_private.h	\
 	main_toolbar.h	\
 	main_welcome.h		\

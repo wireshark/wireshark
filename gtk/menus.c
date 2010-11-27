@@ -48,6 +48,7 @@
 #include "../print.h"
 #include "../ui_util.h"
 #include "../simple_dialog.h"
+#include "../main_statusbar.h"
 #include "../color_filters.h"
 #include "../stat_menu.h"
 
@@ -456,14 +457,14 @@ goto_conversation_frame(gboolean dir)
         if( filter == NULL )
             filter = build_conversation_filter(CONV_IP,FALSE);
         if( filter == NULL ) {
-	    simple_status("Unable to build conversation filter.");
+	    statusbar_push_temporary_msg("Unable to build conversation filter.");
             g_free(filter);
             return;
         }
 
         if (!dfilter_compile(filter, &dfcode)) {
             /* The attempt failed; report an error. */
-            simple_status("Error compiling filter for this conversation.");
+            statusbar_push_temporary_msg("Error compiling filter for this conversation.");
             g_free(filter);
             return;
         }
@@ -472,7 +473,7 @@ goto_conversation_frame(gboolean dir)
 
         if (!found_packet) {
             /* We didn't find a packet */
-            simple_status("No previous/next packet in conversation.");
+            statusbar_push_temporary_msg("No previous/next packet in conversation.");
         }
 
         dfilter_free(dfcode);

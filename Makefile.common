@@ -167,6 +167,7 @@ wireshark_INCLUDES =	\
 	g711.h	\
 	globals.h	\
 	log.h	\
+	main_statusbar.h	\
 	merge.h	\
 	progress_dlg.h	\
 	proto_hier_stats.h	\

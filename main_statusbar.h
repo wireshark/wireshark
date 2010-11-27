@@ -49,11 +49,11 @@ void statusbar_push_filter_msg(const gchar *msg);
  */
 void statusbar_pop_filter_msg(void);
 
-/** Push a temporary message onto the statusbar. The message is automatically
- * removed at a later interval.
+/** Push a formatted temporary message onto the statusbar. The message
+ * is automatically removed at a later interval.
  *
- * @param msg The message
+ * @param msg_format The format string for the message
  */
-void statusbar_push_temporary_msg(const gchar *msg);
+void statusbar_push_temporary_msg(const gchar *msg_format, ...);
 
 #endif /* __MAIN_STATUSBAR_H__ */

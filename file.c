@@ -60,6 +60,7 @@
 #include "merge.h"
 #include "alert_box.h"
 #include "simple_dialog.h"
+#include "main_statusbar.h"
 #include "progress_dlg.h"
 #include "ui_util.h"
 #include <epan/prefs.h>
@@ -3931,12 +3932,12 @@ find_packet(capture_file *cf,
 
           if (prefs.gui_find_wrap)
           {
-              simple_status("Search reached the beginning. Continuing at end.");
+              statusbar_push_temporary_msg("Search reached the beginning. Continuing at end.");
               fdata = cf->plist_end;    /* wrap around */
           }
           else
           {
-              simple_status("Search reached the beginning.");
+              statusbar_push_temporary_msg("Search reached the beginning.");
               fdata = start_fd;        /* stay on previous packet */
           }
         }
@@ -3946,12 +3947,12 @@ find_packet(capture_file *cf,
         if (fdata == NULL) {
           if (prefs.gui_find_wrap)
           {
-              simple_status("Search reached the end. Continuing at beginning.");
+              statusbar_push_temporary_msg("Search reached the end. Continuing at beginning.");
               fdata = cf->plist_start;    /* wrap around */
           }
           else
           {
-              simple_status("Search reached the end.");
+              statusbar_push_temporary_msg("Search reached the end.");
               fdata = start_fd;     /* stay on previous packet */
           }
         }
@@ -4027,13 +4028,13 @@ cf_goto_frame(capture_file *cf, guint fnumber)
 
   if (fdata == NULL) {
     /* we didn't find a packet with that packet number */
-    simple_status("There is no packet number %u.", fnumber);
+    statusbar_push_temporary_msg("There is no packet number %u.", fnumber);
     return FALSE;   /* we failed to go to that packet */
   }
   if (!fdata->flags.passed_dfilter) {
     /* that packet currently isn't displayed */
     /* XXX - add it to the set of displayed packets? */
-    simple_status("Packet number %u isn't displayed.", fnumber);
+    statusbar_push_temporary_msg("Packet number %u isn't displayed.", fnumber);
     return FALSE;   /* we failed to go to that packet */
   }
 

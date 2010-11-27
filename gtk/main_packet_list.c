@@ -44,6 +44,7 @@
 #include "../color_filters.h"
 #include "../ui_util.h"
 #include "../progress_dlg.h"
+#include "../main_statusbar.h"
 
 #include "gtk/gtkglobals.h"
 #include "gtk/gui_utils.h"
@@ -56,7 +57,6 @@
 #include "gtk/main.h"
 #include "gtk/menus.h"
 #include "gtk/main_packet_list.h"
-#include "gtk/main_statusbar.h"
 #include "gtk/packet_win.h"
 #include "gtk/prefs_column.h"
 #include "gtk/prefs_dlg.h"
