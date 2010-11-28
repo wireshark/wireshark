@@ -86,6 +86,8 @@ static int hf_dns_rr_cache_flush = -1;
 static int hf_dns_rr_ttl = -1;
 static int hf_dns_rr_len = -1;
 static int hf_dns_rr_addr = -1;
+static int hf_dns_rr_primaryname = -1;
+static int hf_dns_rr_ns = -1;
 static int hf_dns_nsec3_algo = -1;
 static int hf_dns_nsec3_flags = -1;
 static int hf_dns_nsec3_flag_optout = -1;
@@ -1255,15 +1257,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       const guchar *ns_name;
       int ns_name_len;
 
-      /* XXX Fix data length */
       ns_name_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &ns_name);
       name_out = format_text(ns_name, strlen(ns_name));
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %s", name_out);
 
 	proto_item_append_text(trr, ", ns %s", name_out);
-	proto_tree_add_text(rr_tree, tvb, cur_offset, ns_name_len, "Name server: %s",
-			name_out);
+	proto_tree_add_string(rr_tree, hf_dns_rr_ns, tvb, cur_offset, ns_name_len, name_out);
 
     }
     break;
@@ -1273,15 +1273,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       const guchar *cname;
       int cname_len;
 
-      /* XXX Fix data length */
       cname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &cname);
       name_out = format_text(cname, strlen(cname));
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %s", name_out);
 
 	proto_item_append_text(trr, ", cname %s", name_out);
-	proto_tree_add_text(rr_tree, tvb, cur_offset, cname_len, "Primary name: %s",
-			name_out);
+	proto_tree_add_string(rr_tree, hf_dns_rr_primaryname, tvb, cur_offset, cname_len, name_out);
 
     }
     break;
@@ -3501,6 +3499,14 @@ proto_register_dns(void)
       { "Addr",        "dns.resp.addr",
 	FT_IPv4, BASE_NONE, NULL, 0x0,
 	"Response Address", HFILL }},
+    { &hf_dns_rr_primaryname,
+      { "Primaryname",      	"dns.resp.primaryname",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	"Response Primary Name", HFILL }},
+    { &hf_dns_rr_ns,
+      { "Name Server",      	"dns.resp.ns",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	NULL, HFILL }},
     { &hf_dns_count_questions,
       { "Questions",		"dns.count.queries",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
