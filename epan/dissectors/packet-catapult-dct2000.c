@@ -665,7 +665,7 @@ static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
                                     tvb_get_guint8(tvb, offset));
                     proto_tree_add_item(tree, hf_catapult_dct2000_lte_srbid,
                                         tvb, offset, 1, FALSE);
-
+                    offset++;
                     break;
                 case 1:
                     offset++;
@@ -673,6 +673,7 @@ static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
                                     tvb_get_guint8(tvb, offset));
                     proto_tree_add_item(tree, hf_catapult_dct2000_lte_drbid,
                                         tvb, offset, 1, FALSE);
+                    offset++;
                     break;
 
                 default:
@@ -748,10 +749,10 @@ static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
         /* Uplink channel types */
         switch (logicalChannelType) {
             case Channel_DCCH:
-                protocol_handle = find_dissector("lte-rrc.ul.dcch");
+                protocol_handle = find_dissector("lte_rrc.ul_dcch");
                 break;
             case Channel_CCCH:
-                protocol_handle = find_dissector("lte-rrc.ul.ccch");
+                protocol_handle = find_dissector("lte_rrc.ul_ccch");
                 break;
 
             default:
@@ -763,10 +764,10 @@ static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
         /* Downlink channel types */
         switch (logicalChannelType) {
             case Channel_DCCH:
-                protocol_handle = find_dissector("lte-rrc.dl.dcch");
+                protocol_handle = find_dissector("lte_rrc.dl_dcch");
                 break;
             case Channel_CCCH:
-                protocol_handle = find_dissector("lte-rrc.dl.ccch");
+                protocol_handle = find_dissector("lte_rrc.dl_ccch");
                 break;
             case Channel_PCCH:
                 protocol_handle = find_dissector("lte-rrc.pcch");
