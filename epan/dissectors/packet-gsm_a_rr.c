@@ -8638,9 +8638,9 @@ dtap_rr_sys_info_4(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_RACH_CTRL_PARAM);
 
-    ELEM_OPT_TV(0x64, GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC, "CBCH Channel Description");
+    ELEM_OPT_TV(0x64, GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC, " - CBCH");
 
-    ELEM_OPT_TV(0x72, GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, "CBCH Mobile Allocation");
+    ELEM_OPT_TLV(0x72, GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, " - CBCH");
 
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_SI4_REST_OCT);
 }
