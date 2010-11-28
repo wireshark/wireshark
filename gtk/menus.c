@@ -51,6 +51,7 @@
 #include "../main_statusbar.h"
 #include "../color_filters.h"
 #include "../stat_menu.h"
+#include "../u3.h"
 
 #include "gtk/about_dlg.h"
 #include "gtk/capture_dlg.h"
@@ -85,7 +86,6 @@
 #include "gtk/packet_history.h"
 #include "gtk/sctp_stat.h"
 #include "gtk/firewall_dlg.h"
-#include "gtk/u3.h"
 #include "gtk/macros_dlg.h"
 #include "gtk/export_object.h"
 #include "gtk/gui_stat_menu.h"

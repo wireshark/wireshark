@@ -50,7 +50,7 @@
 
 #include <epan/filesystem.h>
 
-#include <gtk/u3.h>
+#include "u3.h"
 
 
 #define U3_DEVICE_PATH_VAR   "$U3_DEVICE_PATH"

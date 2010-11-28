@@ -151,7 +151,8 @@ wireshark_SOURCES =	\
 	merge.c	\
 	proto_hier_stats.c	\
 	summary.c	\
-	tempfile.c
+	tempfile.c	\
+	u3.c
 
 # corresponding headers
 wireshark_INCLUDES =	\
@@ -175,6 +176,7 @@ wireshark_INCLUDES =	\
 	stat_menu.h	\
 	summary.h	\
 	sync_pipe.h	\
+	u3.h	\
 	ui_util.h
 
 # tshark specifics

@@ -104,6 +104,7 @@
 #include "../merge.h"
 #include "../alert_box.h"
 #include "../log.h"
+#include "../u3.h"
 #include <wsutil/file_util.h>
 
 #ifdef HAVE_LIBPCAP
@@ -131,7 +132,6 @@
 #include "gtk/color_dlg.h"
 #include "gtk/filter_dlg.h"
 #include "gtk/uat_gui.h"
-#include "gtk/u3.h"
 #include "gtk/main.h"
 #include "gtk/main_airpcap_toolbar.h"
 #include "gtk/main_filter_toolbar.h"

@@ -136,7 +136,6 @@ WIRESHARK_GTK_SRC = \
 	tap_dfilter_dlg.c	\
 	text_import.c	\
 	text_page_utils.c	\
-	u3.c		\
 	uat_gui.c	\
 	voip_calls.c	\
 	webbrowser.c
@@ -327,7 +326,6 @@ noinst_HEADERS = \
 	text_import.h	\
 	text_import_scanner.h	\
 	text_page_utils.h	\
-	u3.h \
 	uat_gui.h \
 	utf8_entities.h \
 	voip_calls.h	\

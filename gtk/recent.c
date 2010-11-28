@@ -40,6 +40,7 @@
 #include <epan/column.h>
 
 #include "../simple_dialog.h"
+#include "../u3.h"
 #include <wsutil/file_util.h>
 
 #include "gtk/recent.h"
@@ -53,7 +54,6 @@
 #endif /*NEW_PACKET_LIST */
 #include "gtk/file_dlg.h"
 #include "gtk/cfilter_combo_utils.h"
-#include "gtk/u3.h"
 
 #ifdef HAVE_PCAP_REMOTE
 #include "gtk/capture_dlg.h"
