@@ -102,6 +102,10 @@ static void status_expert_new(void);
 static gint flash_time;
 static gboolean flash_highlight = FALSE;
 
+static void
+statusbar_push_file_msg(const gchar *msg_format, ...)
+    G_GNUC_PRINTF(1, 2);
+
 /*
  * Push a formatted message referring to file access onto the statusbar.
  */

@@ -884,7 +884,7 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
              * with no pseudo-field being used, but that might also
              * require special checks for -1 to be added.
              */
-            statusbar_push_field_msg("");
+            statusbar_push_field_msg("%s", "");
         }
     }
     packet_hex_print(byte_view, byte_data, cfile.current_frame, finfo,

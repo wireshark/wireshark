@@ -34,7 +34,8 @@ void status_expert_update(void);
  *
  * @param msg_format The format string for the message
  */
-void statusbar_push_field_msg(const gchar *msg_format, ...);
+void statusbar_push_field_msg(const gchar *msg_format, ...)
+    G_GNUC_PRINTF(1, 2);
 
 /** Pop a message referring to the currently-selected field off the statusbar.
  */
@@ -45,7 +46,8 @@ void statusbar_pop_field_msg(void);
  *
  * @param msg_format The format string for the message
  */
-void statusbar_push_filter_msg(const gchar *msg_format, ...);
+void statusbar_push_filter_msg(const gchar *msg_format, ...)
+    G_GNUC_PRINTF(1, 2);
 
 /** Pop a message referring to the current filter off the statusbar.
  */
@@ -56,6 +58,7 @@ void statusbar_pop_filter_msg(void);
  *
  * @param msg_format The format string for the message
  */
-void statusbar_push_temporary_msg(const gchar *msg_format, ...);
+void statusbar_push_temporary_msg(const gchar *msg_format, ...)
+    G_GNUC_PRINTF(1, 2);
 
 #endif /* __MAIN_STATUSBAR_H__ */
