@@ -73,15 +73,15 @@ proto_data_func (GtkTreeViewColumn *column _U_,
                            GtkTreeIter       *iter,
                            gpointer           user_data)
 {
-	 gchar *str = NULL;
-	 gchar *grp = NULL; /* type pointer, don't free */
+     gchar *str = NULL;
+     gchar *grp = NULL; /* type pointer, don't free */
 
      /* The col to get data from is in userdata */
      gint data_column = GPOINTER_TO_INT(user_data);
 
      gtk_tree_model_get(model, iter, data_column, &str, -1);
      gtk_tree_model_get(model, iter, GROUP_COLUMN, &grp, -1);
-	 /* XXX should we check that str is non NULL and print a warning or do assert? */
+     /* XXX should we check that str is non NULL and print a warning or do assert? */
 
      g_object_set(renderer, "text", str, NULL);
      if (grp == packet) {
@@ -96,29 +96,29 @@ proto_data_func (GtkTreeViewColumn *column _U_,
 
 static gint
 proto_sort_func(GtkTreeModel *model,
-							GtkTreeIter *a,
-							GtkTreeIter *b,
-							gpointer user_data)
+                            GtkTreeIter *a,
+                            GtkTreeIter *b,
+                            gpointer user_data)
 {
-	 gchar *str_a = NULL;
-	 gchar *str_b = NULL;
-	 gchar *grp = NULL; /* type pointer, don't free */
-	 gint ret = 0;
+     gchar *str_a = NULL;
+     gchar *str_b = NULL;
+     gchar *grp = NULL; /* type pointer, don't free */
+     gint ret = 0;
 
-	 /* The col to get data from is in userdata */
-	 gint data_column = GPOINTER_TO_INT(user_data);
+     /* The col to get data from is in userdata */
+     gint data_column = GPOINTER_TO_INT(user_data);
 
      gtk_tree_model_get(model, a, data_column, &str_a, -1);
      gtk_tree_model_get(model, b, data_column, &str_b, -1);
      gtk_tree_model_get(model, a, GROUP_COLUMN, &grp, -1);
 
-	if (str_a == str_b) {
-		ret = 0;
-	}
-	else if (str_a == NULL || str_b == NULL) {
-		ret = (str_a == NULL) ? -1 : 1;
-	}
-	else {
+    if (str_a == str_b) {
+        ret = 0;
+    }
+    else if (str_a == NULL || str_b == NULL) {
+        ret = (str_a == NULL) ? -1 : 1;
+    }
+    else {
         if (grp == packet) {
           gint int_a = atoi(str_a);
           gint int_b = atoi(str_b);
@@ -130,11 +130,11 @@ proto_sort_func(GtkTreeModel *model,
               ret = 1;
         }
         else
-		    ret = g_ascii_strcasecmp(str_a,str_b);
-	}
-	g_free(str_a);
-	g_free(str_b);
-	return ret;
+            ret = g_ascii_strcasecmp(str_a,str_b);
+    }
+    g_free(str_a);
+    g_free(str_b);
+    return ret;
 }
 
 static gint find_summary_data(error_equiv_table *err, const expert_info_t *expert_data)
@@ -174,10 +174,10 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
     type=FILTER_ACTYPE(callback_action);
 
 
-	if(!gtk_tree_selection_get_selected(err->select, &model, &iter)){
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No selection made or the table is empty");
-		return;
-	}
+    if(!gtk_tree_selection_get_selected(err->select, &model, &iter)){
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No selection made or the table is empty");
+        return;
+    }
 
     gtk_tree_model_get (model, &iter,
                         GROUP_COLUMN,    &grp,
@@ -276,9 +276,9 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
 
     switch(action){
     case ACTION_MATCH:
-		gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
+        gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
         main_filter_packets(&cfile, str, FALSE);
-		gdk_window_raise(top_level->window);
+        gdk_window_raise(top_level->window);
         break;
     case ACTION_PREPARE:
         gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
@@ -301,7 +301,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
          * A better aproach would be to attempt in capturing the last find string and utilize this
          * with a find next/previous. Also a better approach might be to just send a <Ctl-N> keystroke.
          */
-		/* Fall trough */
+        /* Fall trough */
     case ACTION_FIND_PREVIOUS:
         /* In the case of find previous, if there was no expert item, then most likely the expert
          * string was modified to locate the text inside the message. So we can't just perform
@@ -346,128 +346,128 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
 static gboolean
 error_show_popup_menu_cb(void *widg _U_, GdkEvent *event, gpointer user_data)
 {
-	error_equiv_table *err = user_data;
-	GdkEventButton *bevent = (GdkEventButton *)event;
+    error_equiv_table *err = user_data;
+    GdkEventButton *bevent = (GdkEventButton *)event;
 
-	if(event->type==GDK_BUTTON_PRESS && bevent->button==3){
-		gtk_menu_popup(GTK_MENU(err->menu), NULL, NULL, NULL, NULL,
-			bevent->button, bevent->time);
-	}
+    if(event->type==GDK_BUTTON_PRESS && bevent->button==3){
+        gtk_menu_popup(GTK_MENU(err->menu), NULL, NULL, NULL, NULL,
+            bevent->button, bevent->time);
+    }
 
-	return FALSE;
+    return FALSE;
 }
 
 static void
 apply_as_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	error_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_SELECTED, 0));
+    error_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_SELECTED, 0));
 }
 static void
 apply_as_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	error_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, 0));
+    error_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, 0));
 }
 static void
 apply_as_and_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	error_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, 0));
+    error_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, 0));
 }
 static void
 apply_as_or_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	error_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, 0));
+    error_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, 0));
 }
 static void
 apply_as_and_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	error_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, 0));
+    error_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, 0));
 }
 static void
 apply_as_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	error_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, 0));
+    error_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, 0));
 }
 
 static void
 prep_as_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	error_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, 0));
+    error_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, 0));
 }
 static void
 prep_as_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	error_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, 0));
+    error_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, 0));
 }
 static void
 prep_as_and_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	error_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, 0));
+    error_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, 0));
 }
 static void
 prep_as_or_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	error_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, 0));
+    error_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, 0));
 }
 static void
 prep_as_and_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	error_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, 0));
+    error_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, 0));
 }
 static void
 prep_as_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	error_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, 0));
+    error_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, 0));
 }
 
 static void
 find_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	error_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, 0));
+    error_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, 0));
 }
 static void
 find_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	error_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_NOT_SELECTED, 0));
+    error_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_NOT_SELECTED, 0));
 }
 static void
 find_prev_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	error_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, 0));
+    error_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, 0));
 }
 static void
 find_prev_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	error_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_NOT_SELECTED, 0));
+    error_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_NOT_SELECTED, 0));
 }
 static void
 find_next_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	error_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_SELECTED, 0));
+    error_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_SELECTED, 0));
 }
 static void
 find_next_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	error_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, 0));
+    error_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, 0));
 }
 static void
 color_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	error_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, 0));
+    error_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, 0));
 }
 static void
 color_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	error_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, 0));
+    error_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, 0));
 }
 static void
 internet_search_cb(GtkWidget *widget, gpointer user_data)
 {
-	error_select_filter_cb( widget , user_data, CALLBACK_WEB_LOOKUP);
+    error_select_filter_cb( widget , user_data, CALLBACK_WEB_LOOKUP);
 }
 static void
 copy_cb(GtkWidget *widget, gpointer user_data)
 {
-	error_select_filter_cb( widget , user_data, CALLBACK_COPY);
+    error_select_filter_cb( widget , user_data, CALLBACK_COPY);
 }
 
 static const char *ui_desc_expert_filter_popup =
@@ -575,54 +575,54 @@ static const GtkActionEntry expert_popup_entries[] = {
 static void
 expert_goto_pkt_cb (GtkTreeSelection *selection, gpointer data _U_)
 {
-        GtkTreeIter iter;
-        GtkTreeModel *model;
-        gchar *pkt;
-        gchar *grp;
+    GtkTreeIter iter;
+    GtkTreeModel *model;
+    gchar *pkt;
+    gchar *grp;
 
-        if (gtk_tree_selection_get_selected (selection, &model, &iter))
-        {
-                gtk_tree_model_get (model, &iter,
-                                    PROTOCOL_COLUMN, &pkt,
-                                    GROUP_COLUMN,    &grp,
-                                    -1);
+    if (gtk_tree_selection_get_selected (selection, &model, &iter))
+    {
+        gtk_tree_model_get (model, &iter,
+                            PROTOCOL_COLUMN, &pkt,
+                            GROUP_COLUMN,    &grp,
+                            -1);
 
-                if (strcmp(grp, packet)==0) {
-                    cf_goto_frame(&cfile, atoi(pkt));
-                }
-                g_free (pkt);
+        if (strcmp(grp, packet)==0) {
+            cf_goto_frame(&cfile, atoi(pkt));
         }
+        g_free (pkt);
+    }
 }
 
 static void
 error_create_popup_menu(error_equiv_table *err)
 {
-	GtkUIManager *ui_manager;
-	GtkActionGroup *action_group;
-	GError *error = NULL;
+    GtkUIManager *ui_manager;
+    GtkActionGroup *action_group;
+    GError *error = NULL;
 
     err->select = gtk_tree_view_get_selection (GTK_TREE_VIEW (err->tree_view));
     gtk_tree_selection_set_mode (err->select, GTK_SELECTION_SINGLE);
     g_signal_connect (G_OBJECT (err->select), "changed", G_CALLBACK(expert_goto_pkt_cb), NULL);
 
-	action_group = gtk_action_group_new ("ExpertFilterPopupActionGroup");
-	gtk_action_group_add_actions (action_group,							/* the action group */
-								expert_popup_entries,					/* an array of action descriptions */
-								G_N_ELEMENTS(expert_popup_entries),		/* the number of entries */
-								err);									/* data to pass to the action callbacks */
+    action_group = gtk_action_group_new ("ExpertFilterPopupActionGroup");
+    gtk_action_group_add_actions (action_group,                            /* the action group */
+                                expert_popup_entries,                    /* an array of action descriptions */
+                                G_N_ELEMENTS(expert_popup_entries),        /* the number of entries */
+                                err);                                    /* data to pass to the action callbacks */
 
-	ui_manager = gtk_ui_manager_new ();
-	gtk_ui_manager_insert_action_group (ui_manager, action_group, 0);
-	gtk_ui_manager_add_ui_from_string (ui_manager,ui_desc_expert_filter_popup, -1, &error);
-	if (error != NULL)
+    ui_manager = gtk_ui_manager_new ();
+    gtk_ui_manager_insert_action_group (ui_manager, action_group, 0);
+    gtk_ui_manager_add_ui_from_string (ui_manager,ui_desc_expert_filter_popup, -1, &error);
+    if (error != NULL)
     {
         fprintf (stderr, "Warning: building expert filter popup failed: %s\n",
                 error->message);
         g_error_free (error);
         error = NULL;
     }
-	err->menu = gtk_ui_manager_get_widget(ui_manager, "/ExpertFilterPopup");
-	g_signal_connect(err->tree_view, "button_press_event", G_CALLBACK(error_show_popup_menu_cb), err);
+    err->menu = gtk_ui_manager_get_widget(ui_manager, "/ExpertFilterPopup");
+    g_signal_connect(err->tree_view, "button_press_event", G_CALLBACK(error_show_popup_menu_cb), err);
 }
 
 void
@@ -647,8 +647,8 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
     sortable = GTK_TREE_SORTABLE(store);
 
 #if GTK_CHECK_VERSION(2,6,0)
-	/* Speed up the list display */
-  	gtk_tree_view_set_fixed_height_mode(err->tree_view, TRUE);
+    /* Speed up the list display */
+      gtk_tree_view_set_fixed_height_mode(err->tree_view, TRUE);
 #endif
 
     gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW (tree), FALSE);
@@ -664,11 +664,11 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
     column = gtk_tree_view_column_new_with_attributes ("Group", renderer, NULL);
     gtk_tree_view_column_set_sort_column_id(column, GROUP_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func,
-		GINT_TO_POINTER(GROUP_COLUMN), NULL);
+    gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func,
+        GINT_TO_POINTER(GROUP_COLUMN), NULL);
 
-	gtk_tree_sortable_set_sort_func(sortable, GROUP_COLUMN, str_ptr_sort_func,
-		GINT_TO_POINTER(GROUP_COLUMN), NULL);
+    gtk_tree_sortable_set_sort_func(sortable, GROUP_COLUMN, str_ptr_sort_func,
+        GINT_TO_POINTER(GROUP_COLUMN), NULL);
 
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
     gtk_tree_view_column_set_min_width(column, 80);
@@ -680,15 +680,15 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
     column = gtk_tree_view_column_new_with_attributes ("Protocol", renderer, "text", PROTOCOL_COLUMN, NULL);
     gtk_tree_view_column_set_sort_column_id(column, PROTOCOL_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, proto_data_func,
-		GINT_TO_POINTER(PROTOCOL_COLUMN), NULL);
+    gtk_tree_view_column_set_cell_data_func(column, renderer, proto_data_func,
+        GINT_TO_POINTER(PROTOCOL_COLUMN), NULL);
 
-	gtk_tree_sortable_set_sort_func(sortable, PROTOCOL_COLUMN, proto_sort_func,
-		GINT_TO_POINTER(PROTOCOL_COLUMN), NULL);
+    gtk_tree_sortable_set_sort_func(sortable, PROTOCOL_COLUMN, proto_sort_func,
+        GINT_TO_POINTER(PROTOCOL_COLUMN), NULL);
 
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
     gtk_tree_view_column_set_min_width(column, 40);
-	gtk_tree_view_column_set_fixed_width(column, 100);
+    gtk_tree_view_column_set_fixed_width(column, 100);
     gtk_tree_view_append_column (GTK_TREE_VIEW (err->tree_view), column);
 
     /* Third column.. Summary. */
@@ -698,7 +698,7 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
     gtk_tree_view_column_set_min_width(column, 80);
-	gtk_tree_view_column_set_fixed_width(column, 230);
+    gtk_tree_view_column_set_fixed_width(column, 230);
     gtk_tree_view_append_column (GTK_TREE_VIEW (err->tree_view), column);
 
     /* Last column.. Count. */
@@ -794,13 +794,13 @@ init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
     store = GTK_TREE_STORE(gtk_tree_view_get_model(err->tree_view));
     gtk_tree_store_set(store, &procedure->iter,
                        COUNT_COLUMN, procedure->count,
-					   -1);
+                       -1);
 
     g_snprintf(num, sizeof(num), "%d", expert_data->packet_num);
 #if 0
-	This does not have a big performance improvment :(
+    This does not have a big performance improvment :(
 if GTK_CHECK_VERSION(2,10,0)
-	gtk_tree_store_insert_with_values   (store,
+    gtk_tree_store_insert_with_values   (store,
                        &new_iter,   /* *iter */
                        &procedure->iter, /* *parent*/
                        G_MAXINT,    /* position */
