@@ -2683,17 +2683,14 @@ static void parse_RWH(proto_tree *ah_tree, tvbuff_t *tvb, gint *offset, packet_i
     proto_item_set_text(RWH_header_item, "%s", "RWH - Raw Header");
     RWH_header_tree = proto_item_add_subtree(RWH_header_item, ett_rwh);
 
-    ether_type = tvb_get_ntohs(tvb, *offset);
-#if 0
-    ether_type = ether_type & 0x0F; /* mask off reserved bits just in case. */
-#endif
-    proto_tree_add_uint(RWH_header_tree, hf_infiniband_etype, tvb, *offset, 2,
-                        ether_type);
-    *offset += 2;
-
     proto_tree_add_item(RWH_header_tree, hf_infiniband_reserved16_RWH, tvb,
             *offset, 2, FALSE);
 
+    *offset += 2;
+    
+    ether_type = tvb_get_ntohs(tvb, *offset);
+    proto_tree_add_uint(RWH_header_tree, hf_infiniband_etype, tvb, *offset, 2,
+                        ether_type);
     *offset += 2;
 
     /* Get the captured length and reported length of the data
