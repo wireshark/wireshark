@@ -136,7 +136,7 @@ capture_start(capture_options *capture_opts)
   GString *source = g_string_new("");
 
   if (capture_opts->state != CAPTURE_STOPPED)
-	  return FALSE;
+    return FALSE;
   capture_opts->state = CAPTURE_PREPARING;
 
   /* close the currently loaded capture file */
@@ -534,16 +534,16 @@ capture_input_closed(capture_options *capture_opts, gchar *msg)
     }
 
     if(capture_opts->real_time_mode) {
-	cf_read_status_t status;
+        cf_read_status_t status;
 
         /* Read what remains of the capture file. */
         status = cf_finish_tail(capture_opts->cf, &err);
 
         /* XXX: If -Q (quit-after-cap) then cf->count clr'd below so save it first */
-	packet_count_save = cf_get_packet_count(capture_opts->cf);
+        packet_count_save = cf_get_packet_count(capture_opts->cf);
         /* Tell the GUI we are not doing a capture any more.
-		   Must be done after the cf_finish_tail(), so file lengths are 
-                   correctly displayed */
+           Must be done after the cf_finish_tail(), so file lengths are 
+           correctly displayed */
         capture_callback_invoke(capture_cb_capture_update_finished, capture_opts);
 
         /* Finish the capture. */
@@ -642,12 +642,12 @@ capture_stat_start(GList *if_list) {
      *
      * This means that
      *
-     *	1) this might fail if you run out of BPF devices
+     *    1) this might fail if you run out of BPF devices
      *
      * and
      *
-     *	2) opening every interface could leave too few BPF devices
-     *	   for *other* programs.
+     *    2) opening every interface could leave too few BPF devices
+     *       for *other* programs.
      *
      * It also means the system could end up getting a lot of traffic
      * that it has to pass through the networking stack and capture
@@ -734,7 +734,7 @@ capture_stat_stop(if_stat_cache_t *sc) {
 
     ret = sync_interface_stats_close(&sc->stat_fd, &sc->fork_child, &msg);
     if (ret == -1) {
-    	/* XXX - report failure? */
+        /* XXX - report failure? */
         g_free(msg);
     }
 
