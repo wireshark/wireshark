@@ -117,7 +117,6 @@ set(WIRESHARK_GTK_SRC
 	tap_dfilter_dlg.c
 	text_import.c
 	text_page_utils.c
-	u3.c
 	uat_gui.c
 	voip_calls.c
 	webbrowser.c

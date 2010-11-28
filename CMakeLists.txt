@@ -647,6 +647,7 @@ if(BUILD_wireshark AND GTK2_FOUND)
 		proto_hier_stats.c
 		summary.c
 		tempfile.c
+		u3.c
 		${SHARK_COMMON_CAPTURE_SRC}
 		${WIRESHARK_COMMON_SRC}
 	)
