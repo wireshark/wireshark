@@ -196,6 +196,8 @@ typedef struct rlc_lte_stat_t {
     GtkWidget  *uldl_filter_bt;
     GtkWidget  *show_only_control_pdus_cb;
     GtkWidget  *show_dct_errors_cb;
+    GtkWidget  *dct_error_substring_lb;
+    GtkWidget  *dct_error_substring_te;
     GtkWidget  *sn_filter_lb;
     GtkWidget  *sn_filter_te;
 
@@ -228,6 +230,8 @@ static void enable_filter_controls(guint8 enabled, guint8 rlcMode, rlc_lte_stat_
     gtk_widget_set_sensitive(hs->dl_filter_bt, enabled);
     gtk_widget_set_sensitive(hs->uldl_filter_bt, enabled);
     gtk_widget_set_sensitive(hs->show_dct_errors_cb, enabled);
+    gtk_widget_set_sensitive(hs->dct_error_substring_lb, enabled);
+    gtk_widget_set_sensitive(hs->dct_error_substring_te, enabled);
 
     switch (rlcMode) {
         case RLC_TM_MODE:
@@ -947,6 +951,7 @@ static void set_channel_filter_expression(guint16  ueid,
                                           gint     filterOnSN,
                                           gint     statusOnlyPDUs,
                                           gint     showDCTErrors,
+                                          const gchar    *DCTErrorSubstring,
                                           rlc_lte_stat_t *hs)
 {
     #define MAX_FILTER_LEN 1024
@@ -955,8 +960,15 @@ static void set_channel_filter_expression(guint16  ueid,
 
     /* Show DCT errors */
     if (showDCTErrors) {
-        offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
-                             "dct2000.error-comment or (");
+        if (strlen(DCTErrorSubstring) > 0) {
+            offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
+                                 "(dct2000.error-comment and (dct2000.comment contains \"%s\")) or (",
+                                 DCTErrorSubstring);
+        }
+        else {
+            offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
+                                 "dct2000.error-comment or (");
+        }
     }
 
     /* Include dialog filter */
@@ -1080,6 +1092,7 @@ static void ul_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
     set_channel_filter_expression(ueid, rlcMode, channelType, channelId, UL_Only, sn,
                                   gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_only_control_pdus_cb)),
                                   gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb)),
+                                  gtk_entry_get_text(GTK_ENTRY(hs->dct_error_substring_te)),
                                   hs);
 }
 
@@ -1106,6 +1119,7 @@ static void dl_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
     set_channel_filter_expression(ueid, rlcMode, channelType, channelId, DL_Only, sn,
                                   gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_only_control_pdus_cb)),
                                   gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb)),
+                                  gtk_entry_get_text(GTK_ENTRY(hs->dct_error_substring_te)),
                                   hs);
 }
 
@@ -1132,6 +1146,7 @@ static void uldl_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
     set_channel_filter_expression(ueid, rlcMode, channelType, channelId, UL_and_DL, sn,
                                   gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_only_control_pdus_cb)),
                                   gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb)),
+                                  gtk_entry_get_text(GTK_ENTRY(hs->dct_error_substring_te)),
                                   hs);
 }
 
@@ -1423,11 +1438,21 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
                          "(i.e. if you filter on UL you'll see ACKs/NACK replies sent in the DL)", NULL);
 
     /* Allow DCT errors to be shown... */
-    hs->show_dct_errors_cb = gtk_check_button_new_with_mnemonic("Show DCT2000 error strings");
+    hs->show_dct_errors_cb = gtk_check_button_new_with_mnemonic("Show DCT2000 error strings...");
     gtk_container_add(GTK_CONTAINER(sn_filter_hb), hs->show_dct_errors_cb);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb), FALSE);
     gtk_tooltips_set_tip(tooltips, hs->show_dct_errors_cb, "When checked, generated filters will "
                          "include DCT2000 error strings", NULL);
+
+    /* ... optionally limited by a substring */
+    hs->dct_error_substring_lb = gtk_label_new("...containing");
+    gtk_box_pack_start(GTK_BOX(sn_filter_hb), hs->dct_error_substring_lb, FALSE, FALSE, 0);
+    gtk_widget_show(hs->dct_error_substring_lb);
+
+    hs->dct_error_substring_te = gtk_entry_new();
+    gtk_box_pack_start(GTK_BOX(sn_filter_hb), hs->dct_error_substring_te, FALSE, FALSE, 0);
+    gtk_widget_show(hs->dct_error_substring_te);
+
 
     /* Allow filtering of a particular sequence number */
     hs->sn_filter_te = gtk_entry_new();
