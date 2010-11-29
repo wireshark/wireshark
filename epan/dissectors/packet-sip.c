@@ -64,6 +64,10 @@
 #define TCP_PORT_SIP 5060
 #define UDP_PORT_SIP 5060
 #define TLS_PORT_SIP 5061
+#define DEFAULT_SIP_PORT_RANGE "5060"
+
+static dissector_handle_t sip_tcp_handle;
+static range_t *global_sip_tcp_port_range;
 
 static gint sip_tap = -1;
 static dissector_handle_t sigcomp_handle;
@@ -3540,7 +3544,17 @@ guint sip_find_invite(packet_info *pinfo,
 
 	return result;
 }
+static void
+tcp_range_add_callback(guint32 port)
+{
+	dissector_add("tcp.port", port, sip_tcp_handle);
+}
 
+static void
+tcp_range_delete_callback(guint32 port)
+{
+	dissector_delete("tcp.port", port, sip_tcp_handle);
+}
 
 /* Register the protocol with Wireshark */
 void proto_register_sip(void)
@@ -4552,11 +4566,14 @@ void proto_register_sip(void)
 	proto_register_field_array(proto_raw_sip, raw_hf, array_length(raw_hf));
 
 	sip_module = prefs_register_protocol(proto_sip, proto_reg_handoff_sip);
+	range_convert_str(&global_sip_tcp_port_range, DEFAULT_SIP_PORT_RANGE, MAX_UDP_PORT);
 
-	prefs_register_uint_preference(sip_module, "tcp.port",
-                                 "SIP TCP Port",
-                                 "SIP Server TCP Port",
-                                 10, &sip_tcp_port);
+
+	prefs_register_range_preference(sip_module, "tcp.ports", "SIP TCP ports",
+					"TCP ports to be decoded as SIP (default: "
+					DEFAULT_SIP_PORT_RANGE ")",
+					&global_sip_tcp_port_range, MAX_UDP_PORT);
+
 	prefs_register_uint_preference(sip_module, "tls.port",
                                  "SIP TLS Port",
                                  "SIP Server TLS Port",
@@ -4601,6 +4618,8 @@ void proto_register_sip(void)
 	    "Whether retransmissions are detected coming from the same source port only.",
 	    &sip_retrans_the_same_sport);
 
+	prefs_register_obsolete_preference(sip_module, "tcp.port");
+
 	register_init_routine(&sip_init_protocol);
 	register_heur_dissector_list("sip", &heur_subdissector_list);
 	/* Register for tapping */
@@ -4613,8 +4632,8 @@ void proto_register_sip(void)
 void
 proto_reg_handoff_sip(void)
 {
-	static dissector_handle_t sip_tcp_handle;
-	static guint saved_sip_tcp_port;
+	static range_t *sip_tcp_port_range;
+
 	static guint saved_sip_tls_port;
 	static gboolean sip_prefs_initialized = FALSE;
 
@@ -4635,13 +4654,14 @@ proto_reg_handoff_sip(void)
 		heur_dissector_add("stun", dissect_sip_heur, proto_sip);
 		sip_prefs_initialized = TRUE;
 	} else {
-		dissector_delete("tcp.port", saved_sip_tcp_port, sip_tcp_handle);
+		range_foreach(sip_tcp_port_range, tcp_range_delete_callback);
+		g_free(sip_tcp_port_range);
 		ssl_dissector_delete(saved_sip_tls_port, "sip.tcp", TRUE);
 	}
 	/* Set our port number for future use */
-	saved_sip_tcp_port = sip_tcp_port;
+	sip_tcp_port_range = range_copy(global_sip_tcp_port_range);
+	range_foreach(sip_tcp_port_range, tcp_range_add_callback);
 	saved_sip_tls_port = sip_tls_port;
-	dissector_add("tcp.port", saved_sip_tcp_port, sip_tcp_handle);
 	ssl_dissector_add(saved_sip_tls_port, "sip.tcp", TRUE);
 
 }
