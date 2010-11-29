@@ -1108,7 +1108,7 @@ print.file: /a/very/long/path/
  *
  */
 
-#define DEF_NUM_COLS    6
+#define DEF_NUM_COLS    7
 
 /* Initialize preferences to wired-in default values.
  * They may be overridden by the global preferences file or the
@@ -1120,7 +1120,8 @@ init_prefs(void) {
   fmt_data    *cfmt;
   const gchar *col_fmt[] = {"No.",      "%m", "Time",        "%t",
                             "Source",   "%s", "Destination", "%d",
-                            "Protocol", "%p", "Info",        "%i"};
+                            "Protocol", "%p", "Length",      "%L",
+                            "Info",     "%i"};
 
   if (prefs_initialized)
     return;
