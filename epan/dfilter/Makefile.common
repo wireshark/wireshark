@@ -76,3 +76,8 @@ GENERATED_HEADER_FILES = \
 
 # All the generated files.
 GENERATED_FILES = $(GENERATED_C_FILES) $(GENERATED_HEADER_FILES)
+
+checkapi:
+	$(PERL) ../../tools/checkAPIs.pl -g termoutput \
+		$(GENERATOR_FILES)	\
+		$(NONGENERATED_C_FILES)

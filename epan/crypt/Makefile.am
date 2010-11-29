@@ -47,8 +47,4 @@ libairpdcap_la_SOURCES =	\
 
 EXTRA_DIST = \
 	Makefile.common	\
-	Makefile.nmake 
-
-checkapi:
-	$(PERL) ../../tools/checkAPIs.pl -g termoutput \
-	$(LIBAIRPDCAP_SRC)
+	Makefile.nmake
