@@ -67,7 +67,6 @@
 #define DEFAULT_SIP_PORT_RANGE "5060"
 
 static dissector_handle_t sip_tcp_handle;
-static range_t *global_sip_tcp_port_range;
 
 static gint sip_tap = -1;
 static dissector_handle_t sigcomp_handle;
@@ -685,8 +684,8 @@ typedef enum {
 } line_type_t;
 
 /* Preferences */
-static guint sip_tcp_port = TCP_PORT_SIP;
 static guint sip_tls_port = TLS_PORT_SIP;
+static range_t *global_sip_tcp_port_range;
 
 /* global_sip_raw_text determines whether we are going to display		*/
 /* the raw text of the SIP message, much like the MEGACO dissector does.	*/
@@ -4121,7 +4120,7 @@ void proto_register_sip(void)
 		       { "Record-Route", 		"sip.Record-Route",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Record-Route Header", HFILL }
-		},			
+		},
 		{ &hf_header_array[POS_RECV_INFO],
 		       { "Recv-Info", 		"sip.Recv-Info",
 		       FT_STRING, BASE_NONE,NULL,0x0,
