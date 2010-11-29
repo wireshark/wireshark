@@ -620,12 +620,12 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
             prefix_len = tvb_get_guint8(tvb, opt_offset);
             opt_offset += 1;
         
-	    ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_prefix_flag, tvb, opt_offset, 1, FALSE);
-	    flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6flag);
+			ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_prefix_flag, tvb, opt_offset, 1, FALSE);
+			flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6flag);
 
             proto_tree_add_item(flag_tree, hf_icmpv6_opt_prefix_flag_l, tvb, opt_offset, 1, FALSE);
-	    proto_tree_add_item(flag_tree, hf_icmpv6_opt_prefix_flag_a, tvb, opt_offset, 1, FALSE);
-	    proto_tree_add_item(flag_tree, hf_icmpv6_opt_prefix_flag_reserved, tvb, opt_offset, 1, FALSE);
+			proto_tree_add_item(flag_tree, hf_icmpv6_opt_prefix_flag_a, tvb, opt_offset, 1, FALSE);
+			proto_tree_add_item(flag_tree, hf_icmpv6_opt_prefix_flag_reserved, tvb, opt_offset, 1, FALSE);
             opt_offset += 1;
 
             ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_prefix_valid_lifetime, tvb, opt_offset, 4, FALSE);
@@ -667,14 +667,14 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
             proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_redirected_packet, tvb, opt_offset, -1, FALSE);
 
-	    dissect_contained_icmpv6(tvb, opt_offset, pinfo, icmp6opt_tree);
+			dissect_contained_icmpv6(tvb, opt_offset, pinfo, icmp6opt_tree);
 	    break;
 	case ND_OPT_MTU:
 
             proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, FALSE);
             opt_offset += 2;
 
-	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_mtu, tvb, opt_offset, 4, FALSE);
+			proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_mtu, tvb, opt_offset, 4, FALSE);
             proto_item_append_text(ti, " : %d", tvb_get_ntohl(tvb, opt_offset));
 	    break;
 	case ND_OPT_ADVINTERVAL:
@@ -703,7 +703,7 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
         {
             proto_tree *cga_tree;
             proto_item *cga_item;
-	    guint16 ext_data_len;
+			guint16 ext_data_len;
             guint8 padd_length;
             int par_len;
             asn1_ctx_t asn1_ctx;
@@ -905,19 +905,48 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	{
 
             guint8 prefix_len;
-            struct e_in6_addr prefix;
             /* RFC 4191 */
+/*
+2.3.  Route Information Option
 
+      0                   1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |     Type      |    Length     | Prefix Length |Resvd|Prf|Resvd|
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                        Route Lifetime                         |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                   Prefix (Variable Length)                    |
+      .                                                               .
+      .                                                               .
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+:
+   Prefix Length
+               8-bit unsigned integer.  The number of leading bits in
+               the Prefix that are valid.  The value ranges from 0 to
+               128.  The Prefix field is 0, 8, or 16 octets depending on
+               Length.
+
+:
+   Prefix      Variable-length field containing an IP address or a
+               prefix of an IP address.  The Prefix Length field
+               contains the number of valid leading bits in the prefix.
+               The bits in the prefix after the prefix length (if any)
+               are reserved and MUST be initialized to zero by the
+               sender and ignored by the receiver.
+
+
+*/
 
             proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_prefix_len, tvb, opt_offset, 1, FALSE);
             prefix_len = tvb_get_guint8(tvb, opt_offset);
             opt_offset += 1;
         
-	    ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_route_info_flag, tvb, opt_offset, 1, FALSE);
-	    flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6flag);
+			ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_route_info_flag, tvb, opt_offset, 1, FALSE);
+			flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6flag);
 
             proto_tree_add_item(flag_tree, hf_icmpv6_opt_route_info_flag_route_preference, tvb, opt_offset, 1, FALSE);
-	    proto_tree_add_item(flag_tree, hf_icmpv6_opt_route_info_flag_reserved, tvb, opt_offset, 1, FALSE);
+			proto_tree_add_item(flag_tree, hf_icmpv6_opt_route_info_flag_reserved, tvb, opt_offset, 1, FALSE);
             opt_offset += 1;
 
             ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_route_lifetime, tvb, opt_offset, 4, FALSE);
@@ -931,13 +960,10 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
             }
             opt_offset += 4;
 
-            if(opt_len - 8 != 0 ){
-                /* FIXME: Not use tvb_memcpy... */
-	        memset(&prefix, 0, sizeof(prefix));
-                tvb_memcpy(tvb, (guint8 *)&prefix, opt_offset, opt_len - 8);
-                proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_opt_prefix, tvb, opt_offset, opt_len - 8, prefix.bytes);
+            if(prefix_len != 0 ){
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_prefix, tvb, opt_offset, prefix_len/8, FALSE);
                 /* FIXME: add Route Pref in ti item*/
-                opt_offset += opt_len - 8;         
+                opt_offset += prefix_len;         
             }
 	    break;
 
@@ -2896,7 +2922,7 @@ proto_register_icmpv6(void)
           { "Preferred Lifetime", "icmpv6.opt.prefix.preferred_lifetime", FT_UINT32, BASE_DEC, NULL, 0x00,
             "The length of time in seconds that addresses generated from the prefix via stateless address autoconfiguration remain preferred", HFILL }},
 	{ &hf_icmpv6_opt_prefix,
-          { "Prefix", "icmpv6.opt.prefix", FT_IPv6, BASE_NONE, NULL, 0x00,
+          { "Prefix", "icmpv6.opt.prefix", FT_BYTES, BASE_NONE, NULL, 0x00,
             "An IP address or a prefix of an IP address", HFILL }},
 	{ &hf_icmpv6_opt_naack_option_code,
           { "Option-Code", "icmpv6.opt.naack.option_code", FT_UINT8, BASE_DEC, NULL, 0x00,
