@@ -311,6 +311,7 @@ static const value_string bthci_cmd_status_pending_vals[] = {
 static const value_string evt_link_types[]  = {
 	{0x00, "SCO connection (Voice Channels)"},
 	{0x01, "ACL connection (Data Channels)"},
+	{0x02, "eSCO connection (Voice Channels)"},
 	{0, NULL }
 };
 
@@ -2637,7 +2638,7 @@ proto_register_bthci_evt(void)
 				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_link_type,
-			{ "Link Type",        "bthci_evt.link_type",
+			{ "Link Type", "bthci_evt.link_type",
 				FT_UINT8, BASE_HEX, VALS(evt_link_types), 0x0,
 				NULL, HFILL }
 		},
