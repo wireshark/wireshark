@@ -358,7 +358,11 @@ colorize_selected_ptree_cb(GtkWidget *w _U_, gpointer data _U_, guint8 filt_nr)
             } else {
                 color_filters_set_tmp(filt_nr,filter, FALSE);
             }
+#ifdef NEW_PACKET_LIST
+            new_packet_list_colorize_packets();
+#else
             cf_colorize_packets(&cfile);
+#endif
         }
     }
 }
