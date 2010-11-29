@@ -1512,7 +1512,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 			 * have a pseudo-header.
 			 */
 			*err = WTAP_ERR_BAD_RECORD;
-			*err_info = g_strdup_printf("pcap: lipcap bluetooth file has a %u-byte packet, too small to have even a pseudo-header",
+			*err_info = g_strdup_printf("pcap: libpcap bluetooth file has a %u-byte packet, too small to have even a pseudo-header",
 			    packet_size);
 			return -1;
 		}
@@ -1531,7 +1531,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 			 * have a pseudo-header.
 			 */
 			*err = WTAP_ERR_BAD_RECORD;
-			*err_info = g_strdup_printf("pcap: lipcap ppp file has a %u-byte packet, too small to have even a pseudo-header",
+			*err_info = g_strdup_printf("pcap: libpcap ppp file has a %u-byte packet, too small to have even a pseudo-header",
 			    packet_size);
 			return -1;
 		}
