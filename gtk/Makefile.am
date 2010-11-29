@@ -74,9 +74,7 @@ checkapi:
 	$(PERL) ../tools/checkAPIs.pl \
 	$(WIRESHARK_GTK_SRC) \
 	$(WIRESHARK_TAP_SRC) \
-	capture_if_details_dlg_win32.c	\
-	file_dlg_win32.c \
-	print_win32.c
+	capture_if_details_dlg_win32.c
 
 expert_indicators.h:
 	echo "/* This file was automatically generated. DO NOT EDIT. */" > $@
