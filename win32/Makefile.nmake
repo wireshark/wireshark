@@ -18,7 +18,7 @@ CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 
 .c.obj::
 	$(CC) $(CVARSDLL) $(CFLAGS) $(WSUG_CFLAGS) -Fd.\ -c $<
-	
+
 # if you add files here, be sure to include them also in Makefile.am EXTRA_DIST in the main Wireshark directory
 WIRESHARK_WIN32_SRC = \
 	file_dlg_win32.c \
@@ -36,12 +36,6 @@ distclean: clean
 
 maintainer-clean: distclean
 
-checkapi: checkapi-base checkapi-todo
-
-checkapi-base:
-	file_dlg_win32.c \
-	print_win32.c
-
-checkapi-todo:
-	file_dlg_win32.c \
-	print_win32.c
+checkapi:
+	$(PERL) ../tools/checkAPIs.pl -g deprecated-gtk \
+	$(WIRESHARK_WIN32_SRC)
