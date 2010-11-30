@@ -138,7 +138,6 @@
 #define ENAME_MANUF     "manuf"
 #define ENAME_SERVICES  "services"
 
-#define MAXMANUFLEN         9  /* max vendor name length with ending '\0' */
 #define HASHETHSIZE      2048
 #define HASHHOSTSIZE     2048
 #define HASHIPXNETSIZE    256
@@ -213,7 +212,7 @@ typedef struct hashipxnet {
 typedef struct hashmanuf {
   struct hashmanuf *next;
   guint8            addr[3];
-  char              name[MAXMANUFLEN];
+  char              *name;
 } hashmanuf_t;
 
 #define HASHETHER_STATUS_UNRESOLVED     1
@@ -1015,7 +1014,7 @@ se_solve_address_to_name(const address *addr)
  * ethers files parsing (see ethers(4)).
  *
  * The manuf file has the same format as ethers(4) except that names are
- * truncated to MAXMANUFLEN-1 characters and that an address contains
+ * truncated to MAXMANUFLEN-1 (8) characters and that an address contains
  * only 3 bytes (instead of 6).
  *
  * Notes:
@@ -1299,18 +1298,24 @@ hash_eth_wka(const guint8 *addr, unsigned int mask)
 }
 
 static hashmanuf_t *
-manuf_hash_new_entry(const guint8 *addr, gchar *name) {
+manuf_hash_new_entry(const guint8 *addr, gchar *name)
+{
   hashmanuf_t *mtp;
 
   mtp = (hashmanuf_t *)g_malloc(sizeof(hashmanuf_t));
   memcpy(mtp->addr, addr, sizeof(mtp->addr));
-  g_strlcpy(mtp->name, name, MAXMANUFLEN);
+  /*  The length of this name is limited (in the number of UTF-8 characters,
+   *  not bytes) in make-manuf.  That doesn't mean a user can't put a longer
+   *  name in their personal manuf file, though...
+   */
+  mtp->name = g_strdup(name);
   mtp->next = NULL;
   return mtp;
 } /* manuf_hash_new_entry */
 
 static hashwka_t *
-wka_hash_new_entry(const guint8 *addr, gchar *name) {
+wka_hash_new_entry(const guint8 *addr, gchar *name)
+{
   hashwka_t *wtp;
 
   wtp =  (hashwka_t *)g_malloc(sizeof(hashwka_t));
@@ -2952,8 +2957,7 @@ get_manuf_name(const guint8 *addr)
   }
 
   if (!(gbl_resolv_flags & RESOLV_MAC) || ((mtp = manuf_name_lookup(addr)) == NULL)) {
-    cur=ep_alloc(MAXMANUFLEN);
-    g_snprintf(cur, MAXMANUFLEN, "%02x:%02x:%02x", addr[0], addr[1], addr[2]);
+    cur=ep_strdup_printf("%02x:%02x:%02x", addr[0], addr[1], addr[2]);
     return cur;
   }
 

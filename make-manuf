@@ -13,10 +13,10 @@
 # with the listing in "oui.txt", with the entries in "manuf.tmpl" taking
 # precedence.
 
-# LWP is part of the standard Perl module libwww 
+# LWP is part of the standard Perl module libwww
 
 use Encode;
-use open ':encoding(utf8)'; 
+use open ':encoding(utf8)';
 
 eval "require LWP::UserAgent;";
 if( $@ ) {
@@ -48,7 +48,7 @@ $iab_skipped = 0;
 
 sub shorten
 {
-  my $origmanuf = shift; 
+  my $origmanuf = shift;
   my $manuf = " " . $origmanuf . " ";
   # Remove any punctuation
   $manuf =~ tr/',.()/    /;
@@ -60,8 +60,9 @@ sub shorten
   $manuf =~ s/(\w+)/\u\L$1/g;
   # Remove all spaces
   $manuf =~ s/\s+//g;
-  # Truncate all names to a reasonable length, say 10 characters.
-  $manuf = substr($manuf, 0, 10);
+  # Truncate all names to a reasonable length, say, 8 characters.
+  # If the string contains UTF-8, this may be substantially more than 8 bytes.
+  $manuf = substr($manuf, 0, 8);
 
   if ($manuf =~ /\Q$origmanuf\E/i) {
     return $manuf;
@@ -85,7 +86,7 @@ sub fetch
 
 # Write out the header and populate the OUI list with our entries.
 
-open (TMPL, "< $template") || 
+open (TMPL, "< $template") ||
   die "Couldn't open template file for reading ($template)\n";
 
 while ($line = <TMPL>) {
@@ -184,7 +185,7 @@ foreach $oui (sort(keys %oui_list)) {
 # addresses, and then read the well-known address template file
 # and write it to the manuf file.
 
-open (WKATMPL, "< $wkatmpl") || 
+open (WKATMPL, "< $wkatmpl") ||
   die "Couldn't open well-known address template file for reading ($wkatmpl)\n";
 
 # XXX - it'd be nice to get this from the Cavebear file, but inferring
