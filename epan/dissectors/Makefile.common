@@ -1373,9 +1373,3 @@ ALL_DISSECTORS_SRC = \
 	$(ASN1_DISSECTOR_SRC) \
 	$(DIRTY_ASN1_DISSECTOR_SRC) \
 	$(CUSTOM_DISSECTOR_SRC)
-
-
-checkapi:
-	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput \
-		$(ALL_DISSECTORS_SRC) $(DISSECTOR_INCLUDES) \
-		packet-dcerpc-nt.c

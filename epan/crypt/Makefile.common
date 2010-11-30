@@ -52,8 +52,3 @@ LIBAIRPDCAP_INCLUDES =	\
 	crypt-rc4.h		\
 	crypt-sha1.h		\
 	wep-wpadefs.h
-
-
-checkapi:
-	$(PERL) ../../tools/checkAPIs.pl -g termoutput \
-	$(LIBAIRPDCAP_SRC)

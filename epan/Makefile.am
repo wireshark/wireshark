@@ -292,3 +292,6 @@ doxygen:
 if HAVE_DOXYGEN
 	$(DOXYGEN) doxygen.cfg
 endif		# HAVE_DOXYGEN
+
+checkapi:
+	$(PERL) ../tools/checkAPIs.pl -g termoutput $(LIBWIRESHARK_SRC)

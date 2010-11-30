@@ -57,9 +57,14 @@ scanner.obj : scanner.c grammar.h
 
 grammar.h : grammar.c
 grammar.c : $(LEMON)\lemon.exe $(LEMON)\lempar.c grammar.lemon
-	$(LEMON)\lemon.exe t=$(LEMON)\lempar.c grammar.lemon
+	$(LEMON)\lemon.exe t=$(LEMON)\lempar.c grammar.lemon 
 
 $(LEMON)\lemon.exe:
 	cd ../../tools
 	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake lemon
 	cd ../epan/dfilter
+
+checkapi:
+	$(PERL) ../../tools/checkAPIs.pl -g termoutput \
+		$(GENERATOR_FILES)	\
+		$(NONGENERATED_C_FILES)
