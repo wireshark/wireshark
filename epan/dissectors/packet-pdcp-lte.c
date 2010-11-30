@@ -2109,42 +2109,41 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     /* If not compressed with ROHC, show as user-plane data */
     if (!p_pdcp_info->rohc_compression) {
-
-        if (global_pdcp_dissect_user_plane_as_ip) {
-            tvbuff_t *payload_tvb = tvb_new_subset_remaining(tvb, offset);
-            call_dissector_only(ip_handle, payload_tvb, pinfo, pdcp_tree);
-        }
-        else {
-            if (tvb_length_remaining(tvb, offset) > 0) {
-                if (p_pdcp_info->plane == USER_PLANE) {
-                    proto_tree_add_item(pdcp_tree, hf_pdcp_lte_user_plane_data, tvb, offset, -1, FALSE);
+        if (tvb_length_remaining(tvb, offset) > 0) {
+            if (p_pdcp_info->plane == USER_PLANE) {
+                if (global_pdcp_dissect_user_plane_as_ip) {
+                    tvbuff_t *payload_tvb = tvb_new_subset_remaining(tvb, offset);
+                    call_dissector_only(ip_handle, payload_tvb, pinfo, pdcp_tree);
                 }
                 else {
-                    if (global_pdcp_dissect_signalling_plane_as_rrc) {
-                        /* Get appropriate dissector handle */
-                        dissector_handle_t rrc_handle = lookup_rrc_dissector_handle(p_pdcp_info);
+                    proto_tree_add_item(pdcp_tree, hf_pdcp_lte_user_plane_data, tvb, offset, -1, FALSE);
+                }
+            }
+            else {
+                if (global_pdcp_dissect_signalling_plane_as_rrc) {
+                    /* Get appropriate dissector handle */
+                    dissector_handle_t rrc_handle = lookup_rrc_dissector_handle(p_pdcp_info);
 
-                        if (rrc_handle != 0) {
-                            /* Call RRC dissector if have one */
-                            tvbuff_t *payload_tvb = tvb_new_subset(tvb, offset,
-                                                                   tvb_length_remaining(tvb, offset),
-                                                                   tvb_length_remaining(tvb, offset));
-                            call_dissector_only(rrc_handle, payload_tvb, pinfo, pdcp_tree);
-                        }
-                        else {
-                             /* Just show data */
-                             proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, tvb, offset,
-                                                 tvb_length_remaining(tvb, offset), FALSE);
-                        }
+                    if (rrc_handle != 0) {
+                        /* Call RRC dissector if have one */
+                        tvbuff_t *payload_tvb = tvb_new_subset(tvb, offset,
+                                                               tvb_length_remaining(tvb, offset),
+                                                               tvb_length_remaining(tvb, offset));
+                        call_dissector_only(rrc_handle, payload_tvb, pinfo, pdcp_tree);
                     }
                     else {
-                        proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, tvb, offset, -1, FALSE);
+                         /* Just show data */
+                         proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, tvb, offset,
+                                             tvb_length_remaining(tvb, offset), FALSE);
                     }
                 }
-
-                col_append_fstr(pinfo->cinfo, COL_INFO, "(%u bytes data)",
-                                tvb_length_remaining(tvb, offset));
+                else {
+                    proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, tvb, offset, -1, FALSE);
+                }
             }
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(%u bytes data)",
+                            tvb_length_remaining(tvb, offset));
         }
         return;
     }
