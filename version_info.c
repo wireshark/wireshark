@@ -190,6 +190,8 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 #if defined(_WIN32)
 	OSVERSIONINFOEX info;
 	SYSTEM_INFO system_info;
+	typedef void (WINAPI *PGNSI)(LPSYSTEM_INFO);
+	PGNSI pGNSI;
 #elif defined(HAVE_SYS_UTSNAME_H)
 	struct utsname name;
 #endif
@@ -229,7 +231,14 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 	}
 
 	memset(&system_info, '\0', sizeof system_info);
-	GetSystemInfo(&system_info);    /* only for W2K or greater .... (which is what we support) */
+
+	/* Detect if the system we're *running on* supports the GetNativeSystemInfo() function (Windows XP/Server 2003 and higher),
+	 * so we get the correct CPU architecture when running under "WOW64" x86 emulation on a 64-bit system. */
+	pGNSI = (PGNSI) GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")), "GetNativeSystemInfo");
+	if(NULL != pGNSI)
+		pGNSI(&system_info); /* Call GetNativeSystemInfo() if found */
+	else
+		GetSystemInfo(&system_info);	/* Fallback to GetSystemInfo() - only for W2K or greater .... (which is what we support) */
 
 	switch (info.dwPlatformId) {
 
