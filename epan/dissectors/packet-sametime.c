@@ -39,7 +39,7 @@ static int proto_sametime = -1;
 static guint global_sametime_port = DEFAULT_SAMETIME_PORT;
 static dissector_handle_t sametime_handle;
 
-/* Preference */
+/*preferences*/
 static gboolean global_sametime_show_length = FALSE;
 static gboolean global_sametime_reassemble_packets = TRUE;
 
@@ -110,6 +110,7 @@ typedef struct SametimeTap {
 #define SAMETIME_MESSAGETYPE_HANDSHAKE		0x0000
 
 #define SAMETIME_MESSAGETYPE_HANDSHAKE_ACK	0x8000
+#define SAMETIME_MESSAGETYPE_HANDSHAKE_SYN	0x0025
 #define SAMETIME_MESSAGETYPE_LOGIN		0x0001
 #define SAMETIME_MESSAGETYPE_LOGIN_ACK		0x8001
 #define SAMETIME_MESSAGETYPE_LOGIN_REDIRECT	0x0018
@@ -126,10 +127,12 @@ typedef struct SametimeTap {
 #define SAMETIME_MESSAGETYPE_ADMIN		0x0019
 #define SAMETIME_MESSAGETYPE_ANNOUNCE		0x0022
 
+
 static const value_string messagetypenames[] = {
 	{  SAMETIME_MESSAGETYPE_HEARTBEAT,   		"HEARTBEAT" },
 
 	{  SAMETIME_MESSAGETYPE_HANDSHAKE, 		"HANDSHAKE" },
+	{  SAMETIME_MESSAGETYPE_HANDSHAKE_SYN, 		"HANDSHAKE_SYN" },
 	{  SAMETIME_MESSAGETYPE_HANDSHAKE_ACK, 		"HANDSHAKE_ACK" },
 	{  SAMETIME_MESSAGETYPE_LOGIN, 			"LOGIN" },
 	{  SAMETIME_MESSAGETYPE_LOGIN_ACK, 		"LOGIN_ACK" },
@@ -157,16 +160,17 @@ static const value_string optionnames[] = {
 	{  0x0,    				"" },
 	{  SAMETIME_MESSAGEOPTION_ENCRYPT,	"ENCRYPT" },
 	{  SAMETIME_MESSAGEOPTION_HAS_ATTRIBS,	"HAS_ATTRIBS" },
+
 	{ 0, NULL }
 };
 
 static const value_string userstatusnames[] = {
-	{ 0x0020, "ACTIVE" },	/* I am available */
-	{ 0x0040, "IDLE" },	/* ? */
-	{ 0x0060, "AWAY" },	/* I am away */
-	{ 0x0080, "BUSY" },	/* Please do not disturb me */
+	{ 0x0020, "ACTIVE" },	/* "I am available" */
+	{ 0x0040, "IDLE" },	/* never seen in the wild, maybe non-pc :-) ? */
+	{ 0x0060, "AWAY" },	/* "I am away from my computer now" */
+	{ 0x0080, "BUSY" },	/* "Please do not disturb me" */
+	{ 0x0008, "MEETING" },	/* "I am in a meeting" */
 
-	{ 0x0008, "MEETING" },	/* I have a meeting */
 	{ 0, NULL }
 };
 
@@ -577,6 +581,9 @@ dissect_sametime_content(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			dissect_handshake_ack(tvb, sametime_tree, offset);
 			break;
 
+		case SAMETIME_MESSAGETYPE_HANDSHAKE_SYN:
+			break;
+
 		case SAMETIME_MESSAGETYPE_LOGIN:
 			dissect_login(tvb, sametime_tree, offset);
 			break;
@@ -610,6 +617,8 @@ dissect_sametime_content(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 
 		default:
+			/* do not fill the statistics with useless data from encrypted packages */
+			sinfo->message_type = -1;
 			break;
 		}
 	}
@@ -661,6 +670,8 @@ get_sametime_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
 	/* XXX: Actually: the length of the tvb will always be 4 or greater at this point */
 	/*      because tcp_dissect_pdus was called with 4 as a required "fixed length".  */
+	/*	But newer variants of this protocol with a full encrypted network stream  */
+	/*	may require a more sophisticated dissection logic here                    */
 	guint32 N = tvb_length_remaining(tvb, offset);
 
 	return (N < 4) ? N : tvb_get_ntohl(tvb, offset) + 4;
@@ -900,6 +911,7 @@ proto_register_sametime(void)
 				       10, &global_sametime_port);
 }
 
+
 /*
 	create / register
 */
@@ -921,6 +933,5 @@ proto_reg_handoff_sametime(void)
 
 	dissector_add("tcp.port", global_sametime_port, sametime_handle);
 	saved_sametime_tcp_port = global_sametime_port;
-
 }
 
