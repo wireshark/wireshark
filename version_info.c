@@ -180,6 +180,10 @@ get_compiled_version_info(GString *str, void (*prepend_info)(GString *),
 	end_string(str);
 }
 
+#ifdef _WIN32
+typedef void (WINAPI *nativesi_func_ptr)(LPSYSTEM_INFO);
+#endif
+
 /*
  * Get various library run-time versions, and the OS version, and append
  * them to the specified GString.
@@ -190,6 +194,7 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 #if defined(_WIN32)
 	OSVERSIONINFOEX info;
 	SYSTEM_INFO system_info;
+	nativesi_func_ptr nativesi_func;
 #elif defined(HAVE_SYS_UTSNAME_H)
 	struct utsname name;
 #endif
@@ -229,7 +234,13 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 	}
 
 	memset(&system_info, '\0', sizeof system_info);
-	GetSystemInfo(&system_info);    /* only for W2K or greater .... (which is what we support) */
+	/* Look for and use the GetNativeSystemInfo() function if available to get the correct processor
+	 * architecture even when running 32-bit Wireshark in WOW64 (x86 emulation on 64-bit Windows) */
+	nativesi_func = GetProcAddress(GetModuleHandle(_T("kernel32.dll")), "GetNativeSystemInfo");
+	if(nativesi_func)
+		nativesi_func(&system_info);
+	else    
+		GetSystemInfo(&system_info);
 
 	switch (info.dwPlatformId) {
 
