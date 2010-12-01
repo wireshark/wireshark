@@ -472,7 +472,7 @@ static const char *mon_names[12] = {
 	"Dec"
 };
 
-static gchar *get_zonename(struct tm *tmp) {
+static const gchar *get_zonename(struct tm *tmp) {
 #if defined(HAVE_TM_ZONE)
 	return tmp->tm_zone;
 #else
