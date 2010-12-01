@@ -25,6 +25,10 @@
 #ifndef __PLUGINS_H__
 #define __PLUGINS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #include <glib.h>
 #include <gmodule.h>
 
@@ -50,5 +54,9 @@ extern void register_all_plugin_handoffs(void);
 extern void register_all_plugin_tap_listeners(void);
 extern void register_all_wiretap_modules(void);
 extern void register_all_codecs(void);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __PLUGINS_H__ */

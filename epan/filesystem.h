@@ -25,6 +25,10 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /*
  * Default profile name.
  */
@@ -294,5 +298,9 @@ extern gboolean copy_file_binary_mode(const char *from_filename,
  */
 extern char *getenv_utf8(const char *varname);
 #endif
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* FILESYSTEM_H */

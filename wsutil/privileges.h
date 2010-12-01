@@ -25,6 +25,10 @@
 #ifndef __PRIVILEGES_H__
 #define __PRIVILEGES_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Called when the program starts, to enable security features and save
  * whatever credential information we'll need later.
@@ -75,5 +79,9 @@ extern gchar *get_cur_groupname(void);
  */
 extern gboolean npf_sys_is_running();
 #endif
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __PRIVILEGES_H__ */
