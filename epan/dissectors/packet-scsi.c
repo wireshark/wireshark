@@ -993,7 +993,9 @@ static const value_string scsi_persresv_type_val[] = {
     {1, "Write Excl"},
     {3, "Excl Access"},
     {5, "Write Excl, Registrants Only"},
-    {7, "Excl Access, Registrants Only"},
+    {6, "Excl Access, Registrants Only"},
+    {7, "Write Excl, All Registrants"},
+    {8, "Excl Access, All Registrants"},
     {0, NULL},
 };
 
