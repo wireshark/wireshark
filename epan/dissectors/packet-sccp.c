@@ -61,7 +61,11 @@
 #include <epan/tap.h>
 #include <address.h>
 
+/* function prototypes */
+void proto_reg_handoff_sccp(void);
+
 static Standard_Type decode_mtp3_standard;
+
 #define SCCP_SI 3
 
 #define SCCP_MSG_TYPE_OFFSET 0
@@ -755,6 +759,9 @@ static dissector_handle_t bssap_handle;
 static dissector_handle_t gsmmap_handle;
 static dissector_handle_t camel_handle;
 static dissector_handle_t inap_handle;
+static dissector_handle_t default_handle;
+
+static const char *default_payload=NULL;
 
 static const value_string sccp_users_vals[] = {
 	{ SCCP_USER_DATA,	"Data"},
@@ -1788,6 +1795,12 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* try heuristic subdissector list to see if there are any takers */
     if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree)) {
 		return;
+    }
+
+    /* try user default subdissector */
+    if (default_handle) {
+        call_dissector(default_handle, tvb, pinfo, tree);
+        return;
     }
 
     /* No sub-dissection occured, treat it as raw data */
@@ -3370,7 +3383,7 @@ proto_register_sccp(void)
 
   register_heur_dissector_list("sccp", &heur_subdissector_list);
 
-  sccp_module = prefs_register_protocol(proto_sccp, NULL);
+  sccp_module = prefs_register_protocol(proto_sccp, proto_reg_handoff_sccp);
 
   prefs_register_uint_preference(sccp_module, "source_pc",
 				 "Source PC (in hex)",
@@ -3406,6 +3419,10 @@ proto_register_sccp(void)
 				 "Set the source and destination addresses to the GT digits (if RI=GT)."
 				 "  This may affect TCAP's ability to recognize which messages belong to which TCAP session.", &set_addresses);
 
+  prefs_register_string_preference(sccp_module, "default_payload", "Default Payload",
+                 "The protocol which should be used to dissect the payload if nothing else has claimed it",
+                 &default_payload);
+
   register_init_routine(&init_sccp);
 
   assocs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "sccp_associations");
@@ -3419,18 +3436,25 @@ proto_reg_handoff_sccp(void)
 {
   dissector_handle_t sccp_handle;
 
-  sccp_handle = find_dissector("sccp");
+  static gboolean initialised=FALSE;
 
-  dissector_add("wtap_encap", WTAP_ENCAP_SCCP, sccp_handle);
-  dissector_add("mtp3.service_indicator", SCCP_SI, sccp_handle);
-  dissector_add_string("tali.opcode", "sccp", sccp_handle);
+  if (!initialised) {
+    sccp_handle = find_dissector("sccp");
 
-  data_handle = find_dissector("data");
-  tcap_handle = find_dissector("tcap");
-  ranap_handle = find_dissector("ranap");
-  bssap_handle = find_dissector("bssap");
-  gsmmap_handle = find_dissector("gsm_map");
-  camel_handle = find_dissector("camel");
-  inap_handle = find_dissector("inap");
+    dissector_add("wtap_encap", WTAP_ENCAP_SCCP, sccp_handle);
+    dissector_add("mtp3.service_indicator", SCCP_SI, sccp_handle);
+    dissector_add_string("tali.opcode", "sccp", sccp_handle);
+
+    data_handle = find_dissector("data");
+    tcap_handle = find_dissector("tcap");
+    ranap_handle = find_dissector("ranap");
+    bssap_handle = find_dissector("bssap");
+    gsmmap_handle = find_dissector("gsm_map");
+    camel_handle = find_dissector("camel");
+    inap_handle = find_dissector("inap");
+
+    initialised = TRUE;
+  }
+
+  default_handle = find_dissector(default_payload);
 }
-
