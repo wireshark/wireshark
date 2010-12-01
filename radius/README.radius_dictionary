@@ -1,5 +1,7 @@
-$Id$
-
+[Dec-01-2010]
+ Commented out global VSA:s from dictionary.ascend to avoid name clashes with IANA assigned VSA:s
+ https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5455
+ 
 [Jul-09-2009]
 
 As of the above date the dictionary files in this directory are those from the FreeRadius 2.1.6 [May-18-2009] release
