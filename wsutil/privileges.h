@@ -22,6 +22,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __PRIVILEGES_H__
+#define __PRIVILEGES_H__
+
 /**
  * Called when the program starts, to enable security features and save
  * whatever credential information we'll need later.
@@ -72,3 +75,5 @@ extern gchar *get_cur_groupname(void);
  */
 extern gboolean npf_sys_is_running();
 #endif
+
+#endif /* __PRIVILEGES_H__ */
