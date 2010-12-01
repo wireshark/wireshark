@@ -2697,6 +2697,8 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * (ie none)
    */
   if (tree) {
+    tvbuff_t *data, *decomp;
+
     ti = proto_tree_add_item(tree, proto_ipcomp, tvb, 0, -1, FALSE);
     ipcomp_tree = proto_item_add_subtree(ti, ett_ipcomp);
 
@@ -2710,9 +2712,21 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(ipcomp_tree, hf_ipcomp_cpi, tvb,
 			offsetof(struct ipcomp, comp_cpi), 2,
 			g_ntohs(ipcomp.comp_cpi));
-    call_dissector(data_handle,
-		   tvb_new_subset(tvb, sizeof(struct ipcomp), -1, -1), pinfo,
-		   ipcomp_tree);
+
+    data = tvb_new_subset(tvb, sizeof(struct ipcomp), -1, -1);
+    call_dissector(data_handle, data, pinfo, ipcomp_tree);
+
+    /*
+     * try to uncompress as if it were DEFLATEd.  With negotiated
+     * CPIs, we don't know the algorithm beforehand; if we get it
+     * wrong, tvb_uncompress() returns NULL and nothing is displayed.
+     */
+    decomp = tvb_uncompress(data, 0, tvb_length(data));
+    if (decomp) {
+        add_new_data_source(pinfo, decomp, "IPcomp inflated data");
+        if (!dissector_try_port(ip_dissector_table, ipcomp.comp_nxt, decomp, pinfo, tree))
+            call_dissector(data_handle, decomp, pinfo, tree);
+    }
   }
 }
 
