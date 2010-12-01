@@ -123,7 +123,7 @@ Tool/File           Cygwin Package          Opt./Mand.  Comments
 xsltproc:           Doc/libxslt             M
 xmllint:            Doc/libxml2             M
 xsl stylesheets:    Doc/docbook-xsl         M           docbook.xsl, chunk.xsl and htmlhelp.xsl
-docbookx.dtd:       Doc/docbook_xml42       M
+docbookx.dtd:       Doc/docbook-xml42       M
 lynx:               Web/lynx                M
 fop:                -                       O           URL: http://xml.apache.org/fop/ - install it into docbook\fop-0.95 to keep defaults from config.nmake
 jimi:               -                       O           URL: http://java.sun.com/products/jimi/ - see above
