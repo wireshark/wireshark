@@ -2913,8 +2913,8 @@ static void sccp_users_free_cb(void*r) {
 
 
 UAT_DEC_CB_DEF(sccp_users, ni, sccp_user_t)
-UAT_RANGE_CB_DEF(sccp_users,called_pc,sccp_user_t)
-UAT_RANGE_CB_DEF(sccp_users,called_ssn,sccp_user_t)
+UAT_RANGE_CB_DEF(sccp_users, called_pc,sccp_user_t)
+UAT_RANGE_CB_DEF(sccp_users, called_ssn,sccp_user_t)
 UAT_VS_DEF(sccp_users, user, sccp_user_t, SCCP_USER_DATA, "Data")
 
 /** End SccpUsersTable **/
@@ -3333,10 +3333,10 @@ proto_register_sccp(void)
 
 
   static uat_field_t users_flds[] = {
-		UAT_FLD_DEC(sccp_users,ni,"Network Indicator","Network Indicator"),
-		UAT_FLD_RANGE(sccp_users,called_pc,"Called DPCs",65535,"DPCs for which this protocol is to be used"),
-		UAT_FLD_RANGE(sccp_users,called_ssn,"Called SSNs",65535,"Called SSNs for which this protocol is to be used"),
-		UAT_FLD_VS(sccp_users,user,"User protocol",sccp_users_vals,"The User Protocol"),
+		UAT_FLD_DEC(sccp_users, ni, "Network Indicator", "Network Indicator"),
+		UAT_FLD_RANGE(sccp_users, called_pc, "Called DPCs", 0xFFFFFF, "DPCs for which this protocol is to be used"),
+		UAT_FLD_RANGE(sccp_users, called_ssn, "Called SSNs", 255, "Called SSNs for which this protocol is to be used"),
+		UAT_FLD_VS(sccp_users, user, "User protocol", sccp_users_vals, "The User Protocol"),
 		UAT_END_FIELDS
   };
 
