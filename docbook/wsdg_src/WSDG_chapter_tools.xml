@@ -436,7 +436,6 @@ PARTICULAR PURPOSE.]]>
                 <superscript>2</superscript></para>
               </entry>
               <entry>
-                <para>-</para>
                 <para>MSVC2008</para>
               </entry>
               <entry>
@@ -470,6 +469,59 @@ PARTICULAR PURPOSE.]]>
               <entry>
                 <para>Microsoft Visual Studio
                 9.0\VC\bin\vcvars32.bat</para>
+              </entry>
+              <entry>
+                <para>vcredist_x86.exe
+                <superscript>3</superscript></para>
+              </entry>
+            </row>
+            <row>
+              <entry>
+                <para>Visual Studio 2010</para>
+              </entry>
+              <entry>
+                <para>Yes</para>
+              </entry>
+              <entry>
+                <para>Commercial</para>
+              </entry>
+              <entry>
+                <para>No
+                <superscript>2</superscript></para>
+              </entry>
+              <entry>
+                <para>MSVC2010</para>
+              </entry>
+              <entry>
+                <para>Microsoft Visual Studio
+                9.0\VC\bin\vcvars32.bat</para>
+              </entry>
+              <entry>
+                <para>-</para>
+              </entry>
+            </row>
+             <row>
+              <entry>
+                <para>Visual C++ 2010 Express Edition</para>
+              </entry>
+              <entry>
+                <para>Yes</para>
+              </entry>
+              <entry>
+                <para>
+                <ulink url="http://www.microsoft.com/express/Downloads/#Visual_Studio_2010_Express_Downloads">
+                Free Download</ulink></para>
+              </entry>
+              <entry>
+                <para>No
+                <superscript>2</superscript></para>
+              </entry>
+              <entry>
+                <para>MSVC2010EE</para>
+              </entry>
+              <entry>
+                <para>Microsoft Visual Studio
+                10.0\VC\vcvarsall.bat"" x86</para>
               </entry>
               <entry>
                 <para>vcredist_x86.exe
