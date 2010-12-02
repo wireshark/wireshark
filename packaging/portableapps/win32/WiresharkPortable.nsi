@@ -66,6 +66,7 @@ XPStyle on
 ;=== Program Icon
 Icon "Files\App\AppInfo\appicon.ico"
 
+;=== Variables
 Var PROGRAMDIRECTORY
 Var ADDITIONALPARAMETERS
 Var EXECSTRING
@@ -80,10 +81,10 @@ Var PDRIVE
 
 Section "Main"
 	;=== Check if another WiresharkPortable already running
-	System::Call 'kernel32::CreateMutexA(i 0, i 0, t "${NAME}") i .r1 ?e'
-	Pop $0
-	StrCmp $0 0 CheckINI
-		Goto WarnAnotherInstance
+	;System::Call 'kernel32::CreateMutexA(i 0, i 0, t "${NAME}") i .r1 ?e'
+	;Pop $0
+	;StrCmp $0 0 CheckINI
+	;	Goto WarnAnotherInstance
 
 	CheckINI:
 		;=== Find the INI file, if there is one
@@ -153,12 +154,12 @@ Section "Main"
 		;=== Check if Wireshark running from somwehere else (e.g. U3 device)
 		; if the following step fails, you'll need the FindProcDLL plug-in from:
 		; http://nsis.sourceforge.net/Find_Process_By_Name 
-		FindProcDLL::FindProc "${PROGRAMEXECUTABLE}"
-		StrCmp $R0 "1" WarnAnotherInstance GetPassedParameters
+		;FindProcDLL::FindProc "${PROGRAMEXECUTABLE}"
+		;StrCmp $R0 "1" WarnAnotherInstance GetPassedParameters
 
-	WarnAnotherInstance:
-		MessageBox MB_OK|MB_ICONINFORMATION `Another instance of ${APP} is already running. Please close other instances of ${APP} before launching ${FULLNAME}.`
-		Abort
+	;WarnAnotherInstance:
+	;	MessageBox MB_OK|MB_ICONINFORMATION `Another instance of ${APP} is already running. Please close other instances of ${APP} before launching ${FULLNAME}.`
+	;	Abort
 	
 	GetPassedParameters:
 		;=== Get any passed parameters
