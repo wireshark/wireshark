@@ -301,7 +301,7 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
         /* append the default file extension if there's none given by the user */
         /* (we expect a file extension to be at most 5 chars + the dot) */
         file_name8 = g_string_new(utf_16to8(file_name16));
-        file_last_dot = strrchr(file_name8->str,'.');
+        file_last_dot = strrchr(file_name8->str,'.'); /* XXX: strrchr not really OK for utf8 ? */
         if(file_last_dot == NULL || strlen(file_name8->str)-(file_last_dot-file_name8->str) > 5+1) {
             if(wtap_file_extension_default_string(filetype) != NULL) {
                 file_name8 = g_string_append(file_name8, wtap_file_extension_default_string(filetype));
@@ -314,12 +314,29 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
 
         /* GetSaveFileName() already asked the user if he wants to overwrite the old file,        */
         /* so if we are here, user already confirmed to overwrite - just delete the old file now. */
-        ws_unlink(file_name8->str);  /* XX: Windows Wireshark is built with GLIB >= 2.6 these     */
-                                     /* days so ws_unlink will properly convert the               */
-                                     /* UTF8 filename to UTF16 & then do a _wunlink.              */
-
+        /* Note: Windows ws_unlink cannot delete a currently open file; Therefore the             */
+        /*       GetSaveFileName dialog has been coded to prevent doing a 'save as' to the        */
+        /*       currently open capture file.                                                     */
+        /* XX: Windows Wireshark is built with GLIB >= 2.6 these       */
+        /*     days so ws_unlink will properly convert the             */
+        /*     UTF8 filename to UTF16 & then do a _wunlink.            */
+        /* XX: if the cf_save fails, it will do a GTK simple_dialog()  */
+        /*     which is not useful while doing a Windows dialog.       */
+        /*     (A GTK dialog box will be generated and basically will  */
+        /*     only appear when the redisplayed Windows 'save_as-file' */
+        /*     dialog is dismissed. It will then need to be dismissed. */
+        /*     This should be fixed even though the cf_save()          */
+        /*     presumably should rarely fail in this case.             */
+        if ((ws_unlink(file_name8->str) != 0) && (errno == EACCES)) {
+            /* XXX: Is MessageBox the best way to pop up an error ? How to make text bold ? */
+            gchar *str = g_strdup_printf("Unable to delete file: %s\nPlease choose another name !", file_name8->str);
+            MessageBox( NULL, utf_8to16(str), _T("Error"), MB_ICONERROR | MB_APPLMODAL | MB_OK);
+            g_free(str);
+            goto AGAIN;
+        }
         if (cf_save(&cfile, file_name8->str, &range, filetype, FALSE) != CF_OK) {
             /* The write failed.  Try again. */
+        AGAIN:
             g_string_free(file_name8, TRUE /* free_segment */);
             g_free( (void *) ofn->lpstrFilter);
             g_free( (void *) ofn);
@@ -1474,6 +1491,31 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
             switch (notify->hdr.code) {
                 case CDN_HELP:
                     topic_cb(NULL, HELP_SAVE_WIN32_DIALOG);
+                    break;
+                case CDN_FILEOK: {
+                    HWND   parent;
+                    TCHAR  file_name16_selected[MAX_PATH];
+                    char  *file_name8_selected;
+                    int    selected_size;
+
+                    /* Check if trying to do 'save as' to the currently open file */
+                    parent = GetParent(sf_hwnd);
+                    selected_size = CommDlg_OpenSave_GetSpec(parent, file_name16_selected, MAX_PATH);
+                    if (selected_size > 0) {
+                        file_name8_selected = utf_16to8(file_name16_selected);
+                        if (files_identical(cfile.filename, file_name8_selected)) {
+                            /* XXX: Is MessageBox the best way to pop up an error ? How to make text bold ? */
+                            gchar *str = g_strdup_printf(
+                                "Capture File \"%s\" identical to loaded file !!\n\n"
+                                "Please choose a different filename.",
+                                file_name8_selected);
+                            MessageBox( parent, utf_8to16(str), _T("Error"), MB_ICONERROR | MB_APPLMODAL | MB_OK);
+                            g_free(str);
+                            SetWindowLongPtr(sf_hwnd, DWLP_MSGRESULT, 1L); /* Don't allow ! */
+                            return 1;
+                        }
+                    }
+                }
                     break;
                 default:
                     break;
