@@ -346,7 +346,7 @@ proto_register_ib_sdp(void)
         },
         { &hf_ib_sdp_mid, {
             "MID", "infiniband.sdp.bsdh.mid",
-            FT_UINT8, BASE_HEX, RVALS(mid_meanings), 0x0, NULL, HFILL}
+            FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(mid_meanings), 0x0, NULL, HFILL}
         },
         {&hf_ib_sdp_flags, {
             "Flags", "infiniband.sdp.bsdh.flags",
