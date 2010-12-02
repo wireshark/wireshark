@@ -324,7 +324,7 @@ dissect_mongo_kill_cursors(tvbuff_t *tvb, guint offset, proto_tree *tree)
 	offset += 4;
 
 	while(offset < tvb_reported_length(tvb)) {
-		proto_tree_add_item(tree, hf_mongo_cursor_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_mongo_cursor_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		offset +=8;
 	}
 	return offset;
