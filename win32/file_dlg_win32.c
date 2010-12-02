@@ -301,7 +301,7 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
         /* append the default file extension if there's none given by the user */
         /* (we expect a file extension to be at most 5 chars + the dot) */
         file_name8 = g_string_new(utf_16to8(file_name16));
-        file_last_dot = strrchr(file_name8->str,'.'); /* XXX: strrchr not really OK for utf8 ? */
+        file_last_dot = strrchr(file_name8->str,'.');
         if(file_last_dot == NULL || strlen(file_name8->str)-(file_last_dot-file_name8->str) > 5+1) {
             if(wtap_file_extension_default_string(filetype) != NULL) {
                 file_name8 = g_string_append(file_name8, wtap_file_extension_default_string(filetype));
