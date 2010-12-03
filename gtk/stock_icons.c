@@ -122,7 +122,7 @@ void stock_icons_init(void) {
         { WIRESHARK_STOCK_QUIT_DONT_SAVE,        "Quit _without Saving",             0, 0, NULL },
         { WIRESHARK_STOCK_ABOUT,                 "_About",                 0, 0, NULL },
         { WIRESHARK_STOCK_COLORIZE,              "_Colorize",              0, 0, NULL },
-        { WIRESHARK_STOCK_AUTOSCROLL,            "_Auto Scroll in Live Capture",            0, 0, NULL },
+        { WIRESHARK_STOCK_AUTOSCROLL,            "_Auto Scroll",            0, 0, NULL },
         { WIRESHARK_STOCK_RESIZE_COLUMNS,        "Resize Columns",        0, 0, NULL },
         { WIRESHARK_STOCK_TIME,                  "Time",                  0, 0, NULL },
         { WIRESHARK_STOCK_INTERNET,              "Internet",              0, 0, NULL },
