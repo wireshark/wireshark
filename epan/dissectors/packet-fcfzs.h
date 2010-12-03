@@ -5,17 +5,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -64,7 +64,7 @@ static const value_string fc_fzs_opcode_val[] = {
     {0, NULL},
 };
 
-/* Reason code explanantions */
+/* Reason code explanations */
 #define FC_FZS_RJT_NODETAIL                0x0
 #define FC_FZS_RJT_ZONENOTSUPPORTED        0x1
 #define FC_FZS_RJT_ZSNUNKNOWN              0x10
@@ -80,7 +80,7 @@ static const value_string fc_fzs_opcode_val[] = {
 #define FC_FZS_RJT_INVLDZSDEF              0x1A
 
 static const value_string fc_fzs_rjt_code_val[] = {
-    {FC_FZS_RJT_NODETAIL         , "No Additional Explanantion"},
+    {FC_FZS_RJT_NODETAIL         , "No Additional Explanation"},
     {FC_FZS_RJT_ZONENOTSUPPORTED , "Zones Not Supported"},
     {FC_FZS_RJT_ZSNUNKNOWN       , "Zone Set Name Unknown"},
     {FC_FZS_RJT_NZSACTIVE        , "No Zone Set Active"},
