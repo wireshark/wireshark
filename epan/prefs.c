@@ -1256,7 +1256,7 @@ init_prefs(void) {
   prefs.gui_webbrowser             = g_strdup(HTML_VIEWER " %s");
   prefs.gui_window_title           = g_strdup("");
   prefs.gui_start_title            = g_strdup("The World's Most Popular Network Protocol Analyzer");
-  prefs.gui_version_in_start_page  = FALSE;
+  prefs.gui_version_in_start_page  = TRUE;
   prefs.gui_layout_type            = layout_type_5;
   prefs.gui_layout_content_1       = layout_pane_content_plist;
   prefs.gui_layout_content_2       = layout_pane_content_pdetails;
