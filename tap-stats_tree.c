@@ -97,7 +97,7 @@ init_stats_tree(const char *optarg, void *userdata _U_)
 		g_free(abbr);
 		
 	} else {
-		report_failure("could not obtain stats_tree abbr (%s) from grg '%s'",abbr,optarg);		
+		report_failure("could not obtain stats_tree abbr (%s) from arg '%s'",abbr,optarg);		
 		return;
 	}
 	
