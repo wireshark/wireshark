@@ -277,7 +277,7 @@ welcome_button_callback_helper(GtkWidget *w, GdkEventButton *event _U_, gpointer
 }
 
 
-static void
+void
 welcome_header_set_message(gchar *msg) {
     GString *message;
     time_t secs = time(NULL);

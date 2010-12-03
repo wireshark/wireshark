@@ -51,6 +51,7 @@
 #include "gtk/font_utils.h"
 #include "gtk/recent.h"
 #include "gtk/webbrowser.h"
+#include "gtk/main_welcome.h"
 
 
 static gint fetch_enum_value(gpointer control, const enum_val_t *enumvals);
@@ -499,6 +500,10 @@ gui_prefs_apply(GtkWidget *w _U_ , gboolean redissect)
 
 	/* Redisplay the main window's title */
 	update_main_window_title();
+
+	/* Redisplay the default welcome header message in case the "show 
+	 * version" option was changed. */
+	welcome_header_set_message(NULL);
 
 	/* Redraw the help window(s). */
 	supported_redraw();
