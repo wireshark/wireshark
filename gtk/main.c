@@ -80,7 +80,6 @@
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
 #include <epan/uat.h>
-#include <epan/emem.h>
 #include <epan/column.h>
 
 /* general (not GTK specific) */
