@@ -139,7 +139,8 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case 0x01:	/* Continuation fragment */
 		fragmented = TRUE;
 		break;
-	case 0x02:	/* Start fragment */
+	case 0x00:	/* First fragment/packet, non-auto flushable */
+	case 0x02:	/* First fragment/packet, auto flushable */
 		l2cap_length=tvb_get_letohs(tvb, offset);
 		fragmented=((l2cap_length+4)!=length);
 		break;
@@ -150,7 +151,7 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 	if((!fragmented)
-	|| ((!acl_reassembly)&&(pb_flag==0x02)) ){
+	|| ((!acl_reassembly)&& !(pb_flag&0x01)) ){
 		/* call L2CAP dissector for PDUs that are not fragmented
 		 * also for the first fragment if reassembly is disabled
 		 */
@@ -166,7 +167,7 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		multi_fragment_pdu_t *mfp=NULL;
 		gint len;
 
-		if(pb_flag==0x02){ /* first fragment */
+		if(!(pb_flag&0x01)){ /* first fragment */
 			if(!pinfo->fd->flags.visited){
 				mfp=se_alloc(sizeof(multi_fragment_pdu_t));
 				mfp->first_frame=pinfo->fd->num;
