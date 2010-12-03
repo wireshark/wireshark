@@ -24,7 +24,7 @@ sub new($) {
 	my ($class) = @_;
 	my $self = { res => "", res_hdr => "", tabs => "", constants => {},
 	             module_methods => [], module_objects => [], ready_types => [],
-				 module_imports => [], type_imports => {},
+				 module_imports => {}, type_imports => {},
 				 patch_type_calls => [], prereadycode => [],
 			 	 postreadycode => []};
 	bless($self, $class);
@@ -64,7 +64,10 @@ sub PrettifyTypeName($$)
 {
 	my ($name, $basename) = @_;
 
+	$basename =~ s/^.*\.([^.]+)$/\1/;
+
 	$name =~ s/^$basename\_//;
+
 
 	return $name;
 }
@@ -77,7 +80,7 @@ sub Import
 		$_ = unmake_str($_);
 		s/\.idl$//;
 		$self->pidl_hdr("#include \"librpc/gen_ndr/$_\.h\"\n");
-		$self->register_module_import($_);
+		$self->register_module_import("samba.dcerpc.$_");
 	}
 }
 
@@ -321,21 +324,21 @@ sub PythonStruct($$$$$$)
 	$self->indent;
 	$self->pidl("PyObject_HEAD_INIT(NULL) 0,");
 	$self->pidl(".tp_name = \"$modulename.$prettyname\",");
-	$self->pidl(".tp_basicsize = sizeof(py_talloc_Object),");
-	$self->pidl(".tp_dealloc = py_talloc_dealloc,");
 	$self->pidl(".tp_getset = $getsetters,");
-	$self->pidl(".tp_repr = py_talloc_default_repr,");
-	$self->pidl(".tp_compare = py_talloc_default_cmp,");
 	if ($docstring) {
 		$self->pidl(".tp_doc = $docstring,");
 	}
 	$self->pidl(".tp_methods = $py_methods,");
 	$self->pidl(".tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,");
+	$self->pidl(".tp_basicsize = sizeof(py_talloc_Object),");
 	$self->pidl(".tp_new = py_$name\_new,");
 	$self->deindent;
 	$self->pidl("};");
 
 	$self->pidl("");
+
+	my $talloc_typename = $self->import_type_variable("talloc", "Object");
+	$self->register_module_prereadycode(["$name\_Type.tp_base = $talloc_typename;", ""]);
 
 	return "&$typeobject";
 }
@@ -720,7 +723,7 @@ sub Interface($$$)
 		$self->pidl("");
 
 		$self->register_module_typeobject($interface->{NAME}, "&$if_typename");
-		my $dcerpc_typename = $self->import_type_variable("base", "ClientConnection");
+		my $dcerpc_typename = $self->import_type_variable("samba.dcerpc.base", "ClientConnection");
 		$self->register_module_prereadycode(["$if_typename.tp_base = $dcerpc_typename;", ""]);
 		$self->register_module_postreadycode(["if (!PyInterface_AddNdrRpcMethods(&$if_typename, py_ndr_$interface->{NAME}\_methods))", "\treturn;", ""]);
 	}
@@ -754,9 +757,15 @@ sub check_ready_type($$)
 
 sub register_module_import($$)
 {
-	my ($self, $basename) = @_;
+	my ($self, $module_path) = @_;
 
-	push (@{$self->{module_imports}}, $basename) unless (grep(/^$basename$/,@{$self->{module_imports}}));
+	my $var_name = $module_path;
+	$var_name =~ s/\./_/g;
+	$var_name = "dep_$var_name";
+
+	$self->{module_imports}->{$var_name} = $module_path;
+
+	return $var_name;
 }
 
 sub import_type_variable($$$)
@@ -784,7 +793,7 @@ sub use_type_variable($$)
 	}
 	# If this is an external type, make sure we do the right imports.
 	if (($ctype->{BASEFILE} ne $self->{BASENAME})) {
-		return $self->import_type_variable($ctype->{BASEFILE}, $ctype->{NAME});
+		return $self->import_type_variable("samba.dcerpc.$ctype->{BASEFILE}", $ctype->{NAME});
 	}
 	return "&$ctype->{NAME}_Type";
 }
@@ -824,7 +833,8 @@ sub assign($$$)
 	if ($dest =~ /^\&/ and $src eq "NULL") {
 		$self->pidl("memset($dest, 0, sizeof(" . get_value_of($dest) . "));");
 	} elsif ($dest =~ /^\&/) {
-		$self->pidl("memmove($dest, $src, sizeof(" . get_value_of($dest) . "));");
+		my $destvar = get_value_of($dest);
+		$self->pidl("$destvar = *$src;");
 	} else {
 		$self->pidl("$dest = $src;");
 	}
@@ -1047,7 +1057,8 @@ sub ConvertObjectFromPythonLevel($$$$$$$$)
 		my $switch_ptr = "$e->{NAME}_switch_$l->{LEVEL_INDEX}";
 		$self->pidl("{");
 		$self->indent;
-		$self->pidl("void *$switch_ptr;");
+		my $union_type = mapTypeName(GetNextLevel($e, $l)->{DATA_TYPE});
+		$self->pidl("$union_type *$switch_ptr;");
 		$self->pidl("$switch_ptr = py_export_" . GetNextLevel($e, $l)->{DATA_TYPE} . "($mem_ctx, $switch, $py_var);");
 		$self->pidl("if ($switch_ptr == NULL) { $fail }");
 		$self->assign($var_name, "$switch_ptr");
@@ -1292,24 +1303,29 @@ sub Parse($$$$$)
 	$self->pidl("{");
 	$self->indent;
 	$self->pidl("PyObject *m;");
-	foreach (@{$self->{module_imports}}) {
-		$self->pidl("PyObject *dep_$_;");
+	foreach (keys %{$self->{module_imports}}) {
+		$self->pidl("PyObject *$_;");
 	}
 	$self->pidl("");
 
-	foreach (@{$self->{module_imports}}) {
-		$self->pidl("dep_$_ = PyImport_ImportModule(\"samba.dcerpc.$_\");");
-		$self->pidl("if (dep_$_ == NULL)");
+	foreach (keys %{$self->{module_imports}}) {
+		my $var_name = $_;
+		my $module_path = $self->{module_imports}->{$var_name};
+		$self->pidl("$var_name = PyImport_ImportModule(\"$module_path\");");
+		$self->pidl("if ($var_name == NULL)");
 		$self->pidl("\treturn;");
 		$self->pidl("");
 	}
 
 	foreach (keys %{$self->{type_imports}}) {
-		my $basefile = $self->{type_imports}->{$_};
-		$self->pidl_hdr("static PyTypeObject *$_\_Type;\n");
-		my $pretty_name = PrettifyTypeName($_, $basefile);
-		$self->pidl("$_\_Type = (PyTypeObject *)PyObject_GetAttrString(dep_$basefile, \"$pretty_name\");");
-		$self->pidl("if ($_\_Type == NULL)");
+		my $type_var = "$_\_Type";
+		my $module_path = $self->{type_imports}->{$_};
+		$self->pidl_hdr("static PyTypeObject *$type_var;\n");
+		my $pretty_name = PrettifyTypeName($_, $module_path);
+		my $module_var = "dep_$module_path";
+		$module_var =~ s/\./_/g;
+		$self->pidl("$type_var = (PyTypeObject *)PyObject_GetAttrString($module_var, \"$pretty_name\");");
+		$self->pidl("if ($type_var == NULL)");
 		$self->pidl("\treturn;");
 		$self->pidl("");
 	}
