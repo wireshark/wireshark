@@ -237,13 +237,13 @@ static const value_string zbee_aps_ea_key_names[] = {
 
 /* Update Device Status Names */
 static const value_string zbee_aps_update_status_names[] = {
-    { ZBEE_APS_CMD_UPDATE_STANDARD_SEC_REJOIN,  "Standard device secured rejoin" },
-    { ZBEE_APS_CMD_UPDATE_STANDARD_UNSEC_JOIN,  "Standard device unsecured join" },
+    { ZBEE_APS_CMD_UPDATE_STANDARD_SEC_REJOIN,  "Standard security, secured rejoin" },
+    { ZBEE_APS_CMD_UPDATE_STANDARD_UNSEC_JOIN,  "Standard security, unsecured join" },
     { ZBEE_APS_CMD_UPDATE_LEAVE,                "Device left" },
-    { ZBEE_APS_CMD_UPDATE_STANDARD_UNSEC_REJOIN,"Standard device unsecured rejoin" },
-    { ZBEE_APS_CMD_UPDATE_HIGH_SEC_REJOIN,      "High security device secured rejoin" },
-    { ZBEE_APS_CMD_UPDATE_HIGH_UNSEC_JOIN,      "High security device unsecured join" },
-    { ZBEE_APS_CMD_UPDATE_HIGH_UNSEC_REJOIN,    "High security device unsecured rejoin" },
+    { ZBEE_APS_CMD_UPDATE_STANDARD_UNSEC_REJOIN,"Standard security, unsecured rejoin" },
+    { ZBEE_APS_CMD_UPDATE_HIGH_SEC_REJOIN,      "High security, secured rejoin" },
+    { ZBEE_APS_CMD_UPDATE_HIGH_UNSEC_JOIN,      "High security, unsecured join" },
+    { ZBEE_APS_CMD_UPDATE_HIGH_UNSEC_REJOIN,    "High security, unsecured rejoin" },
     { 0, NULL }
 };
 
@@ -710,7 +710,7 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += 1;
 
         /* Update the info column. */
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst Endpt: %d", packet.dst);
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst Endpt: %d", packet.dst);
     }
 
     /* If the group address is present, display it. */
@@ -723,7 +723,7 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset +=2;
 
         /* Update the info column. */
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", Group: 0x%04x", packet.group);
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Group: 0x%04x", packet.group);
     }
 
     /* Get and display the cluster ID. */
@@ -754,7 +754,7 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Update the protocol root and info column later, after the source endpoint
          * so that the source and destination will be back-to-back in the text.
          */
-	}
+    }
     offset +=2;
 
     /* The source endpoint is present for all cases except indirect /w indirect_mode == FALSE */
@@ -767,13 +767,13 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += 1;
 
         /* Update the info column. */
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", Src Endpt: %d", packet.src);
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Src Endpt: %d", packet.src);
     }
 
     /* Display the profile ID now that the source endpoint was listed. */
     if (packet.type == ZBEE_APS_FCF_DATA) {
       col_append_fstr(pinfo->cinfo, COL_PROTOCOL, " %s",
-		      rval_to_str(packet.profile, zbee_aps_apid_abbrs, ""));
+              rval_to_str(packet.profile, zbee_aps_apid_abbrs, ""));
     }
 
     /* Jump here if there is no endpoint addressing in this frame. */
@@ -885,8 +885,8 @@ dissect_zbee_aps_no_endpt:
                 frag_msg, &zbee_aps_frag_items, NULL, aps_tree);
 
         /* Update the info column regarding the fragmentation. */
-	if (frag_msg)   col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
-	else            col_append_fstr(pinfo->cinfo, COL_INFO, " (Message fragment %u)", packet.counter);
+        if (frag_msg)   col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
+        else            col_append_fstr(pinfo->cinfo, COL_INFO, " (Message fragment %u)", packet.counter);
 
         if (new_tvb) {
             /* The reassembly handler defragmented the message, and created a new tvbuff. */
@@ -1097,7 +1097,7 @@ dissect_zbee_aps_skke_challenge(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
     /* Get and display the SKKE data. */
     if (tree) {
-		proto_tree_add_item(tree, hf_zbee_aps_cmd_challenge, tvb, offset, ZBEE_APS_CMD_SKKE_DATA_LENGTH, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_zbee_aps_cmd_challenge, tvb, offset, ZBEE_APS_CMD_SKKE_DATA_LENGTH, ENC_BIG_ENDIAN);
     }
     offset += ZBEE_APS_CMD_SKKE_DATA_LENGTH;
 
@@ -1142,7 +1142,7 @@ dissect_zbee_aps_skke_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
     /* Get and display the SKKE data. */
     if (tree) {
-		proto_tree_add_item(tree, hf_zbee_aps_cmd_mac, tvb, offset, ZBEE_APS_CMD_SKKE_DATA_LENGTH, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_zbee_aps_cmd_mac, tvb, offset, ZBEE_APS_CMD_SKKE_DATA_LENGTH, ENC_BIG_ENDIAN);
     }
     offset += ZBEE_APS_CMD_SKKE_DATA_LENGTH;
 
@@ -1188,38 +1188,37 @@ dissect_zbee_aps_transport_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         key[i] = tvb_get_guint8(tvb, offset+i);
     } /* for */
     if (tree) {
-		proto_tree_add_item(tree, hf_zbee_aps_cmd_key, tvb, offset, ZBEE_APS_CMD_KEY_LENGTH, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_zbee_aps_cmd_key, tvb, offset, ZBEE_APS_CMD_KEY_LENGTH, ENC_BIG_ENDIAN);
     }
     offset += ZBEE_APS_CMD_KEY_LENGTH;
     
-            /* Update the key ring for this pan */
-            if ( !pinfo->fd->flags.visited &&
-                    (nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(pinfo->fd,
-                                                        proto_get_id_by_filter_name(ZBEE_PROTOABBREV_NWK)))) {
+    /* Update the key ring for this pan */
+    if ( !pinfo->fd->flags.visited && (nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(pinfo->fd,
+                                                proto_get_id_by_filter_name(ZBEE_PROTOABBREV_NWK)))) {
 
-                nwk_keyring = (GSList **)g_hash_table_lookup(zbee_table_nwk_keyring, &nwk_hints->src_pan);
-                if ( !nwk_keyring ) {
-                    /* Create an empty key ring for this pan. Use g_alloc() because we must free
-                     * GSLists after a capture is closed and wireshark freed seasonal memory
-                     * with se_free_all()
-                     */
-                    nwk_keyring = (GSList **)g_malloc0(sizeof(GSList**));
-                    g_hash_table_insert(zbee_table_nwk_keyring,
+        nwk_keyring = (GSList **)g_hash_table_lookup(zbee_table_nwk_keyring, &nwk_hints->src_pan);
+        if ( !nwk_keyring ) {
+            /* Create an empty key ring for this pan. Use g_alloc() because we must free
+             * GSLists after a capture is closed and wireshark freed seasonal memory
+             * with se_free_all()
+             */
+            nwk_keyring = (GSList **)g_malloc0(sizeof(GSList**));
+            g_hash_table_insert(zbee_table_nwk_keyring,
                             g_memdup(&nwk_hints->src_pan, sizeof(nwk_hints->src_pan)), nwk_keyring);
-                }
+        }
 
-                if ( nwk_keyring ) {
-                    if ( !*nwk_keyring ||
-                            memcmp( ((key_record_t *)((GSList *)(*nwk_keyring))->data)->key, &key,
-                            ZBEE_APS_CMD_KEY_LENGTH) ) {
-                        /* Store a new or different key in the key ring */
-                        key_record.frame_num = pinfo->fd->num;
-                        key_record.label = NULL;
-                        memcpy(&key_record.key, &key, ZBEE_APS_CMD_KEY_LENGTH);
-                        *nwk_keyring = g_slist_prepend(*nwk_keyring, se_memdup(&key_record, sizeof(key_record_t)));
-                    }
-                }
+        if ( nwk_keyring ) {
+            if ( !*nwk_keyring ||
+                    memcmp( ((key_record_t *)((GSList *)(*nwk_keyring))->data)->key, &key,
+                    ZBEE_APS_CMD_KEY_LENGTH) ) {
+                /* Store a new or different key in the key ring */
+                key_record.frame_num = pinfo->fd->num;
+                key_record.label = NULL;
+                memcpy(&key_record.key, &key, ZBEE_APS_CMD_KEY_LENGTH);
+                *nwk_keyring = g_slist_prepend(*nwk_keyring, se_memdup(&key_record, sizeof(key_record_t)));
             }
+        }
+    }
 
     /* Parse the rest of the key descriptor. */
     switch (key_type) {
@@ -1508,7 +1507,7 @@ dissect_zbee_aps_auth_challenge(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
     /* Get and display the challenge. */
     if (tree) {
-		proto_tree_add_item(tree, hf_zbee_aps_cmd_challenge, tvb, offset, ZBEE_APS_CMD_EA_CHALLENGE_LENGTH, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_zbee_aps_cmd_challenge, tvb, offset, ZBEE_APS_CMD_EA_CHALLENGE_LENGTH, ENC_BIG_ENDIAN);
     }
     offset += ZBEE_APS_CMD_EA_CHALLENGE_LENGTH;
 
@@ -1538,7 +1537,7 @@ dissect_zbee_aps_auth_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
     /* Display the MAC. */
     if (tree) {
-		proto_tree_add_item(tree, hf_zbee_aps_cmd_mac, tvb, offset, ZBEE_APS_CMD_EA_MAC_LENGTH, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_zbee_aps_cmd_mac, tvb, offset, ZBEE_APS_CMD_EA_MAC_LENGTH, ENC_BIG_ENDIAN);
     }
     offset += ZBEE_APS_CMD_EA_MAC_LENGTH;
 
@@ -1557,7 +1556,7 @@ dissect_zbee_aps_auth_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
     /* Display the data field. */
     if (tree) {
-		proto_tree_add_item(tree, hf_zbee_aps_cmd_ea_data, tvb, offset, ZBEE_APS_CMD_EA_DATA_LENGTH, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_zbee_aps_cmd_ea_data, tvb, offset, ZBEE_APS_CMD_EA_DATA_LENGTH, ENC_BIG_ENDIAN);
     }
     offset += ZBEE_APS_CMD_EA_DATA_LENGTH;
 
@@ -1883,11 +1882,11 @@ void proto_register_zbee_aps(void)
                     VALS(zbee_aps_key_names), 0x0, NULL, HFILL }},
 
             { &hf_zbee_aps_cmd_dst,
-            { "Destination Address",    "zbee.aps.cmd.dst", FT_UINT64, BASE_HEX, NULL, 0x0,
+            { "Extended Destination",    "zbee.aps.cmd.dst", FT_UINT64, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_aps_cmd_src,
-            { "Source Address",         "zbee.aps.cmd.src", FT_UINT64, BASE_HEX, NULL, 0x0,
+            { "Extended Source",         "zbee.aps.cmd.src", FT_UINT64, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_aps_cmd_seqno,
@@ -1942,7 +1941,7 @@ void proto_register_zbee_aps(void)
 
             { &hf_zbee_aps_reassembled_in,
             { "Reassembled in",         "zbee.aps.reassembled.in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-	        NULL, HFILL }},
+                NULL, HFILL }},
 
             { &hf_zbee_aps_reassembled_length,
             { "Reassembled ZigBee APS length",         "zbee.aps.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,

@@ -163,12 +163,14 @@ typedef struct {
 } key_record_t;
 
 typedef struct {
-    gint                    src_pan;        /* source pan */
-    gint                    src;           /* short source address from nwk */
-    gint                    ieee_src;       /* short source address from mac */
+    gint                    src_pan;    /* source pan */
+    gint                    src;        /* short source address from nwk */
+#if 0
+    gint                    ieee_src;   /* short source address from mac */
+#endif
     ieee802154_map_rec     *map_rec;    /* extended src from nwk */
-    key_record_t           *nwk;            /* Network key found for this packet */
-    key_record_t           *link;           /* Link key found for this packet */
+    key_record_t           *nwk;        /* Network key found for this packet */
+    key_record_t           *link;       /* Link key found for this packet */
 } zbee_nwk_hints_t;
 
 extern ieee802154_map_tab_t zbee_nwk_map;

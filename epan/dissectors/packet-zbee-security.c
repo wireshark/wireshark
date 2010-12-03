@@ -227,7 +227,7 @@ void zbee_security_register(module_t *zbee_prefs, int proto)
                 NULL, HFILL }},
 
             { &hf_zbee_sec_src64,
-            { "Source",                 "zbee.sec.src64", FT_UINT64, BASE_HEX, NULL, 0x0,
+            { "Extended Source",                 "zbee.sec.src64", FT_UINT64, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_sec_key_seqno,
@@ -505,12 +505,34 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
         if (tree) {
             proto_tree_add_eui64(sec_tree, hf_zbee_sec_src64, tvb, offset, 8, packet.src64);
         }
+#if 1
+        if (!pinfo->fd->flags.visited) {
+            switch ( packet.key_id ) {
+                case ZBEE_SEC_KEY_LINK:
+                if (nwk_hints) {
+                    /* Map this long address with the nwk layer short address. */
+                    nwk_hints->map_rec = ieee802154_addr_update(&zbee_nwk_map, nwk_hints->src,
+                            ieee_hints->src_pan, packet.src64, pinfo->current_proto, pinfo->fd->num);
+                }
+                break;
 
-        if (!pinfo->fd->flags.visited && nwk_hints && ieee_hints ) {
-            /* record this mapping */
-            nwk_hints->map_rec = ieee802154_addr_update(&zbee_nwk_map, nwk_hints->src,
-                    ieee_hints->src_pan, packet.src64, pinfo->current_proto, pinfo->fd->num);
+                case ZBEE_SEC_KEY_NWK:
+                if (ieee_hints) {
+                    /* Map this long address with the ieee short address. */
+                    ieee_hints->map_rec = ieee802154_addr_update(&zbee_nwk_map, ieee_hints->src16,
+                        ieee_hints->src_pan, packet.src64, pinfo->current_proto, pinfo->fd->num);
+                }
+                break;
+
+                /* We ignore the extended source addresses used to encrypt payloads with these
+                 * types of keys, because they can emerge from APS tunnels created by nodes whose
+                 * short address is not recorded in the packet. */
+                case ZBEE_SEC_KEY_TRANSPORT:
+                case ZBEE_SEC_KEY_LOAD:
+                break;
+            }
         }
+#endif
         offset += 8;
     }
     else {
@@ -519,13 +541,13 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
             case ZBEE_SEC_KEY_NWK:
                 /* use the ieee extended source address for NWK decryption */
                 if ( ieee_hints && (map_rec = ieee_hints->map_rec) ) packet.src64 = map_rec->addr64;
-                else if (tree) proto_tree_add_text(sec_tree, tvb, 0, 0, "[Source: Unknown]");
+                else if (tree) proto_tree_add_text(sec_tree, tvb, 0, 0, "[Extended Source: Unknown]");
                 break;
 
             default:
                 /* use the nwk extended source address for APS decryption */
                 if ( nwk_hints && (map_rec = nwk_hints->map_rec) ) packet.src64 = map_rec->addr64;
-                else if (tree) proto_tree_add_text(sec_tree, tvb, 0, 0, "[Source: Unknown]");
+                else if (tree) proto_tree_add_text(sec_tree, tvb, 0, 0, "[Extended Source: Unknown]");
                 break;
         }
     }
@@ -573,7 +595,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     }
 
     /* Check for null payload. */
-    if ( !(payload_len = tvb_length_remaining(tvb, offset+mic_len)) ) {
+    if ( !(payload_len = tvb_reported_length_remaining(tvb, offset+mic_len)) ) {
         return NULL;
     } else if ( payload_len < 0 ) {
         THROW(ReportedBoundsError);
