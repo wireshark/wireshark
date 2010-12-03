@@ -252,12 +252,14 @@ section("General Questions")
 
 question("What is Wireshark?")
 answer("""
-Wireshark&#174; is the world's most popular network protocol analyzer. It has a
-rich and powerful feature set and runs on most computing platforms including
-Windows, OS X, Linux, and UNIX. Network professionals, security experts,
-developers, and educators around the world use it regularly. It is freely
-available as open source, and is released under the GNU General Public
-License version 2.
+Wireshark&#174; is a network protocol analyzer. It lets you capture and
+interactively browse the traffic running on a computer network.  It has
+a rich and powerful feature set and is world's most popular tool of its
+kind. It runs on most computing platforms including Windows, OS X,
+Linux, and UNIX. Network professionals, security experts, developers,
+and educators around the world use it regularly. It is freely available
+as open source, and is released under the GNU General Public License
+version 2.
 
 <br />
 
