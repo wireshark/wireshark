@@ -1091,6 +1091,18 @@ proto_tree_add_mpls_label(proto_tree *pdutree, tvbuff_t *tvb, int offset, int le
 	return ti;
 }
 
+
+static void
+nbar_fmt_id(gchar *result, guint32 nbar_id)
+{
+	guint32 nbar_id_type = (nbar_id>>24)&0xFF;
+	nbar_id &= 0xFFFFFF;
+
+	g_snprintf(result, ITEM_LABEL_LENGTH,
+		   "NBAR Application ID: %d:%d (type:id)", nbar_id_type, nbar_id);
+}
+
+
 void		proto_reg_handoff_netflow(void);
 
 typedef struct _hdrinfo_t {
@@ -2776,7 +2788,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
 		case 95: /* NBAR applicationId */
 			ti = proto_tree_add_item(pdutree, hf_cflow_nbar_appl_id,
-					    tvb, offset+2, 2, ENC_BIG_ENDIAN); /*XXX: 2 bytes skipped ?? */
+					    tvb, offset, length, ENC_BIG_ENDIAN);
 			break;
 
 		case 96: /* NBAR applicationName */
@@ -5065,7 +5077,7 @@ proto_register_netflow(void)
 		 },
 		{&hf_cflow_nbar_appl_id,
 		 {"ApplicationID", "cflow.appl_id",
-		 FT_UINT16, BASE_DEC, NULL, 0x0,
+		 FT_UINT32, BASE_CUSTOM, nbar_fmt_id, 0x0,
 		 "Application ID (NBAR)", HFILL}
 		},
 		{&hf_cflow_nbar_appl_name,
