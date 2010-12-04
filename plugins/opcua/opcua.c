@@ -38,13 +38,16 @@
 #include "opcua_simpletypes.h"
 #include "opcua_hfindeces.h"
 
+extern const value_string g_requesttypes[];
+extern const int g_NumServices;
+
 /* forward reference */
 static void dissect_opcua(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 void proto_reg_handoff_opcua(void);
 
 /* declare parse function pointer */
-typedef void (*FctParse)(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
+typedef int (*FctParse)(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
 
 static int proto_opcua = -1;
 static dissector_handle_t opcua_handle;
@@ -208,6 +211,7 @@ static void dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     if (tree && pfctParse)
     {
         gint offset = 0;
+        int iServiceId = -1;
 
         /* we are being asked for details */
         proto_item *ti = NULL;
@@ -217,7 +221,22 @@ static void dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         transport_tree = proto_item_add_subtree(ti, ett_opcua_transport);
 
         /* call the transport message dissector */
-        (*pfctParse)(transport_tree, tvb, &offset);
+        iServiceId = (*pfctParse)(transport_tree, tvb, &offset);
+
+        /* display the service type in addition to the message type */
+        if (iServiceId != -1)
+        {
+            int index = 0;
+            while (index < g_NumServices)
+            {
+                if (g_requesttypes[index].value == (guint32)iServiceId)
+                {
+                    col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s", g_szMessageTypes[msgtype], g_requesttypes[index].strptr);
+                    break;
+                }
+                index++;
+            }
+        }
     }
 }
 

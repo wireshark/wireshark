@@ -22,11 +22,11 @@
 ******************************************************************************/
 
 /* Transport Layer: message parsers */
-void parseHello(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
-void parseAcknowledge(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
-void parseError(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
-void parseMessage(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
-void parseOpenSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
-void parseCloseSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
-void registerTransportLayerTypes(int proto);
+int parseHello(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
+int parseAcknowledge(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
+int parseError(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
+int parseMessage(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
+int parseOpenSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
+int parseCloseSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
+int registerTransportLayerTypes(int proto);
 

@@ -125,7 +125,7 @@ void registerTransportLayerTypes(int proto)
 }
 
 /* Transport Layer: message parsers */
-void parseHello(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
+int parseHello(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, TRUE); *pOffset+=3;
     proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, TRUE); *pOffset+=1;
@@ -136,9 +136,10 @@ void parseHello(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
     proto_tree_add_item(tree, hf_opcua_transport_mms, tvb, *pOffset, 4, TRUE); *pOffset+=4;
     proto_tree_add_item(tree, hf_opcua_transport_mcc, tvb, *pOffset, 4, TRUE); *pOffset+=4;
     parseString(tree, tvb, pOffset, hf_opcua_transport_endpoint);
+    return -1;
 }
 
-void parseAcknowledge(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
+int parseAcknowledge(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, TRUE); *pOffset+=3;
     proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, TRUE); *pOffset+=1;
@@ -148,18 +149,20 @@ void parseAcknowledge(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
     proto_tree_add_item(tree, hf_opcua_transport_sbs, tvb, *pOffset, 4, TRUE); *pOffset+=4;
     proto_tree_add_item(tree, hf_opcua_transport_mms, tvb, *pOffset, 4, TRUE); *pOffset+=4;
     proto_tree_add_item(tree, hf_opcua_transport_mcc, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    return -1;
 }
 
-void parseError(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
+int parseError(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, TRUE); *pOffset+=3;
     proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, TRUE); *pOffset+=1;
     proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, TRUE); *pOffset+=4;
     proto_tree_add_item(tree, hf_opcua_transport_error, tvb, *pOffset, 4, TRUE); *pOffset+=4;
     parseString(tree, tvb, pOffset, hf_opcua_transport_reason);
+    return -1;
 }
 
-void parseMessage(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
+int parseMessage(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
     proto_item *ti;
     proto_tree *encobj_tree;
@@ -188,9 +191,10 @@ void parseMessage(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
     ServiceId = parseServiceNodeId(nodeid_tree, tvb, pOffset, "NodeId");
 
     dispatchService(encobj_tree, tvb, pOffset, ServiceId);
+    return ServiceId;
 }
 
-void parseOpenSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
+int parseOpenSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
     proto_item *ti;
     proto_tree *encobj_tree;
@@ -217,13 +221,15 @@ void parseOpenSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
     ServiceId = parseServiceNodeId(nodeid_tree, tvb, pOffset, "NodeId");
 
     dispatchService(encobj_tree, tvb, pOffset, ServiceId);
+    return -1;
 }
 
-void parseCloseSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
+int parseCloseSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, TRUE); *pOffset+=3;
     proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, TRUE); *pOffset+=1;
     proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, TRUE); *pOffset+=4;
     proto_tree_add_item(tree, hf_opcua_transport_scid, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    return -1;
 }
 
