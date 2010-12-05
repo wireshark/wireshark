@@ -1443,6 +1443,9 @@ static void attach_mac_lte_info(packet_info *pinfo)
                 p_mac_lte_info->detailed_phy_info.dl_info.harq_id = outhdr_values[i++];
                 p_mac_lte_info->detailed_phy_info.dl_info.ndi = outhdr_values[i++];
             }
+            if (outhdr_values_found > 20) {
+                p_mac_lte_info->detailed_phy_info.dl_info.transport_block = outhdr_values[i++];
+            }
         }
         else {
             p_mac_lte_info->detailed_phy_info.ul_info.present = outhdr_values[i++];
@@ -1450,6 +1453,10 @@ static void attach_mac_lte_info(packet_info *pinfo)
             p_mac_lte_info->detailed_phy_info.ul_info.tbs_index = outhdr_values[i++];
             p_mac_lte_info->detailed_phy_info.ul_info.resource_block_length = outhdr_values[i++];
             p_mac_lte_info->detailed_phy_info.ul_info.resource_block_start = outhdr_values[i++];
+            if (outhdr_values_found > 15) {
+                p_mac_lte_info->detailed_phy_info.ul_info.harq_id = outhdr_values[i++];
+                p_mac_lte_info->detailed_phy_info.ul_info.ndi = outhdr_values[i++];
+            }
         }
     }
 

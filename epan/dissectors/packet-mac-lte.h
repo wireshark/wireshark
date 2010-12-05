@@ -81,7 +81,8 @@ typedef enum mac_lte_crc_status {
     crc_fail = 0,
     crc_success = 1,
     crc_high_code_rate = 2,
-    crc_pdsch_lost = 3
+    crc_pdsch_lost = 3,
+    crc_duplicate_nonzero_rv = 4
 } mac_lte_crc_status;
 
 /* Context info attached to each LTE MAC frame */
@@ -114,6 +115,8 @@ typedef struct mac_lte_info
             guint8 tbs_index;
             guint8 resource_block_length;
             guint8 resource_block_start;
+            guint8 harq_id;
+            gboolean ndi;
         } ul_info;
         struct mac_lte_dl_phy_info
         {
@@ -127,6 +130,7 @@ typedef struct mac_lte_info
             mac_lte_crc_status crc_status;
             guint8 harq_id;
             gboolean ndi;
+            guint8   transport_block;  /* 1-4 */
         } dl_info;
     } detailed_phy_info;
     

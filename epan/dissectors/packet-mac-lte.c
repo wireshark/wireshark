@@ -74,6 +74,8 @@ static int hf_mac_lte_context_phy_ul_modulation_type = -1;
 static int hf_mac_lte_context_phy_ul_tbs_index = -1;
 static int hf_mac_lte_context_phy_ul_resource_block_length = -1;
 static int hf_mac_lte_context_phy_ul_resource_block_start = -1;
+static int hf_mac_lte_context_phy_ul_harq_id = -1;
+static int hf_mac_lte_context_phy_ul_ndi = -1;
 
 static int hf_mac_lte_context_phy_dl = -1;
 static int hf_mac_lte_context_phy_dl_dci_format = -1;
@@ -86,6 +88,7 @@ static int hf_mac_lte_context_phy_dl_resource_block_length = -1;
 static int hf_mac_lte_context_phy_dl_crc_status = -1;
 static int hf_mac_lte_context_phy_dl_harq_id = -1;
 static int hf_mac_lte_context_phy_dl_ndi = -1;
+static int hf_mac_lte_context_phy_dl_tb = -1;
 
 
 /* Out-of-band events */
@@ -231,10 +234,11 @@ static const value_string bch_transport_channel_vals[] =
 
 static const value_string crc_status_vals[] =
 {
-    { crc_success,        "OK"},
-    { crc_fail,           "Failed"},
-    { crc_high_code_rate, "High Code Rate"},
-    { crc_pdsch_lost,     "PDSCH Lost"},
+    { crc_success,                "OK"},
+    { crc_fail,                   "Failed"},
+    { crc_high_code_rate,         "High Code Rate"},
+    { crc_pdsch_lost,             "PDSCH Lost"},
+    { crc_duplicate_nonzero_rv,   "Duplicate_nonzero_rv"},
     { 0, NULL }
 };
 
@@ -1028,6 +1032,17 @@ static void show_extra_phy_parameters(packet_info *pinfo, tvbuff_t *tvb, proto_t
                                      p_mac_lte_info->detailed_phy_info.ul_info.resource_block_start);
             PROTO_ITEM_SET_GENERATED(ti);
 
+            ti = proto_tree_add_uint(phy_tree, hf_mac_lte_context_phy_ul_harq_id,
+                                     tvb, 0, 0,
+                                     p_mac_lte_info->detailed_phy_info.ul_info.harq_id);
+            PROTO_ITEM_SET_GENERATED(ti);
+
+            ti = proto_tree_add_uint(phy_tree, hf_mac_lte_context_phy_ul_ndi,
+                                     tvb, 0, 0,
+                                     p_mac_lte_info->detailed_phy_info.ul_info.ndi);
+            PROTO_ITEM_SET_GENERATED(ti);
+
+
             proto_item_append_text(phy_ti, " (");
 
             write_pdu_label_and_info(phy_ti, NULL,
@@ -1102,6 +1117,11 @@ static void show_extra_phy_parameters(packet_info *pinfo, tvbuff_t *tvb, proto_t
             ti = proto_tree_add_uint(phy_tree, hf_mac_lte_context_phy_dl_ndi,
                                      tvb, 0, 0,
                                      p_mac_lte_info->detailed_phy_info.dl_info.ndi);
+            PROTO_ITEM_SET_GENERATED(ti);
+
+            ti = proto_tree_add_uint(phy_tree, hf_mac_lte_context_phy_dl_tb,
+                                     tvb, 0, 0,
+                                     p_mac_lte_info->detailed_phy_info.dl_info.transport_block);
             PROTO_ITEM_SET_GENERATED(ti);
 
 
@@ -3418,7 +3438,18 @@ void proto_register_mac_lte(void)
               NULL, HFILL
             }
         },
-
+        { &hf_mac_lte_context_phy_ul_harq_id,
+            { "HARQ Id",
+              "mac-lte.ul-phy.harq-id", FT_UINT8, BASE_DEC, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_context_phy_ul_ndi,
+            { "NDI",
+              "mac-lte.ul-phy.ndi", FT_UINT8, BASE_DEC, 0, 0x0,
+              "UL New Data Indicator", HFILL
+            }
+        },
 
         { &hf_mac_lte_context_phy_dl,
             { "DL PHY attributes",
@@ -3478,6 +3509,12 @@ void proto_register_mac_lte(void)
             { "NDI",
               "mac-lte.dl-phy.ndi", FT_UINT8, BASE_DEC, 0, 0x0,
               "New Data Indicator", HFILL
+            }
+        },
+        { &hf_mac_lte_context_phy_dl_tb,
+            { "TB",
+              "mac-lte.dl-phy.tb", FT_UINT8, BASE_DEC, 0, 0x0,
+              "Transport Block (antenna #)", HFILL
             }
         },
 
