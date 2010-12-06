@@ -109,7 +109,7 @@ static const value_string giop_message_types[] = {
 };
 
 
-gboolean ziop_desegment = TRUE;
+static gboolean ziop_desegment = TRUE;
 
 static void dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
 

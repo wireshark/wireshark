@@ -45,7 +45,7 @@
 
 static dissector_handle_t rrlp_handle;
 
-/* IANA Registered Ports  
+/* IANA Registered Ports
  * oma-ulp         7275/tcp    OMA UserPlane Location
  * oma-ulp         7275/udp    OMA UserPlane Location
  */
@@ -57,7 +57,7 @@ static int proto_ulp = -1;
 
 #define ULP_HEADER_SIZE 2
 
-gboolean ulp_desegment = TRUE;
+static gboolean ulp_desegment = TRUE;
 
 #include "packet-ulp-hf.c"
 
@@ -128,7 +128,7 @@ void proto_register_ulp(void) {
                                  "Set the TCP port for Ulp messages(IANA registerd port is 7275)",
                                  10,
                                  &gbl_ulp_port);
- 
+
 }
 
 

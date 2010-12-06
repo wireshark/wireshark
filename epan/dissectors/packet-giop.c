@@ -812,7 +812,7 @@ struct giop_object_val {
 GHashTable *giop_objkey_hash = NULL; /* hash */
 
 
-gboolean giop_desegment = TRUE;
+static gboolean giop_desegment = TRUE;
 static const char *giop_ior_file = "IOR.txt";
 
 /*
