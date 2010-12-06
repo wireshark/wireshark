@@ -100,9 +100,20 @@
 #include "packet-scsi-smc.h"
 
 static int proto_scsi                    = -1;
+static int hf_scsi_inq_control_vendor_specific = -1;
+static int hf_scsi_inq_control_reserved  = -1;
+static int hf_scsi_inq_control_naca      = -1;
+static int hf_scsi_inq_control_obs1      = -1;
+static int hf_scsi_inq_control_obs2      = -1;
+static int hf_scsi_inq_control           = -1;
+static int hf_scsi_control_vendor_specific = -1;
+static int hf_scsi_control_reserved      = -1;
+static int hf_scsi_control_naca          = -1;
+static int hf_scsi_control_obs1          = -1;
+static int hf_scsi_control_obs2          = -1;
        int hf_scsi_control               = -1;
        int hf_scsi_alloclen16            = -1;
-static int hf_scsi_alloclen32		 = -1;
+static int hf_scsi_alloclen32            = -1;
 static int hf_scsi_time                  = -1;
 static int hf_scsi_request_frame         = -1;
 static int hf_scsi_response_frame        = -1;
@@ -278,6 +289,8 @@ static int hf_scsi_log_ta_wmoa		= -1;
 
 static gint ett_scsi         = -1;
 static gint ett_scsi_page    = -1;
+       gint ett_scsi_control = -1;
+static gint ett_scsi_inq_control = -1;
 static gint ett_scsi_inq_peripheral = -1;
 static gint ett_scsi_inq_acaflags = -1;
 static gint ett_scsi_inq_rmbflags = -1;
@@ -298,6 +311,18 @@ static gboolean scsi_defragment = FALSE;
 
 static GHashTable *scsi_fragment_table = NULL;
 static GHashTable *scsi_reassembled_table = NULL;
+
+/*
+ * Required by all commands 
+ */
+const int *cdb_control_fields[6] = {
+    &hf_scsi_control_vendor_specific,
+    &hf_scsi_control_reserved,
+    &hf_scsi_control_naca,
+    &hf_scsi_control_obs1,
+    &hf_scsi_control_obs2,
+    NULL
+};
 
 static void
 scsi_defragment_init(void)
@@ -1379,6 +1404,11 @@ static const true_false_string scsi_modesns_qerr_val = {
     "Blocked tasks shall resume after ACA/CA is cleared",
 };
 
+static const true_false_string scsi_naca_tfs = {
+    "Normal ACA is set",
+    "Normal ACA is not set"
+};
+
 static const true_false_string normaca_tfs = {
     "NormACA is SUPPORTED",
     "Normaca is NOT supported",
@@ -2251,7 +2281,15 @@ dissect_spc_inquiry (tvbuff_t *tvb, packet_info *pinfo,
     tvbuff_t *volatile tvb_v = tvb;
     volatile guint offset_v = offset;
 
-    static const int *peripheal_fields[] = {
+    static const int *inq_control_fields[] = {
+        &hf_scsi_inq_control_vendor_specific,
+        &hf_scsi_inq_control_reserved,
+        &hf_scsi_inq_control_naca,
+        &hf_scsi_inq_control_obs1,
+        &hf_scsi_inq_control_obs2,
+        NULL
+    };
+    static const int *peripheral_fields[] = {
         &hf_scsi_inq_qualifier,
             &hf_scsi_inq_devtype,
             NULL
@@ -2304,11 +2342,8 @@ dissect_spc_inquiry (tvbuff_t *tvb, packet_info *pinfo,
             cdata->itlq->alloc_len=tvb_get_guint8(tvb_v, offset_v+3);
         }
 
-        flags = tvb_get_guint8 (tvb_v, offset_v+4);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb_v, offset_v+4, 1,
-            flags,
-            "Vendor Unique = %u, NACA = %u, Link = %u",
-            flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb_v, offset_v+4, hf_scsi_inq_control,
+            ett_scsi_inq_control, inq_control_fields, FALSE);
     } else if (!isreq) {
         if (!cdata) {
             return;
@@ -2329,7 +2364,7 @@ dissect_spc_inquiry (tvbuff_t *tvb, packet_info *pinfo,
         TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb_v, offset_v, cdata->itlq->alloc_len);
 
         /* Qualifier and DeviceType */
-        proto_tree_add_bitmask(tree, tvb_v, offset_v, hf_scsi_inq_peripheral, ett_scsi_inq_peripheral, peripheal_fields, FALSE);
+        proto_tree_add_bitmask(tree, tvb_v, offset_v, hf_scsi_inq_peripheral, ett_scsi_inq_peripheral, peripheral_fields, FALSE);
         offset_v+=1;
 
         /* RMB */
@@ -2514,7 +2549,6 @@ dissect_spc_logselect (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                         guint offset, gboolean isreq, gboolean iscdb,
                         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
     static const int *ppcflags_fields[] = {
         &hf_scsi_log_pcr,
             &hf_scsi_log_sp,
@@ -2529,17 +2563,12 @@ dissect_spc_logselect (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         return;
 
     if (isreq && iscdb) {
-        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_log_ppc_flags, ett_scsi_log_ppc, ppcflags_fields, FALSE);
-
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_log_ppc_flags,
+            ett_scsi_log_ppc, ppcflags_fields, FALSE);
         proto_tree_add_bitmask(tree, tvb, offset+1, hf_scsi_log_pc_flags, ett_scsi_log_pc, pcflags_fields, FALSE);
-
         proto_tree_add_item (tree, hf_scsi_paramlen16, tvb, offset+6, 2, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
     else {
     }
@@ -2563,7 +2592,6 @@ dissect_spc_logsense (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                        guint offset, gboolean isreq, gboolean iscdb,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
     static const int *ppcflags_fields[] = {
         &hf_scsi_log_ppc,
         &hf_scsi_log_sp,
@@ -2579,19 +2607,15 @@ dissect_spc_logsense (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return;
 
     if (isreq && iscdb) {
-        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_log_ppc_flags, ett_scsi_log_ppc, ppcflags_fields, FALSE);
-
-        proto_tree_add_bitmask(tree, tvb, offset+1, hf_scsi_log_pc_flags, ett_scsi_log_pc, pcflags_fields, FALSE);
-
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_log_ppc_flags,
+            ett_scsi_log_ppc, ppcflags_fields, FALSE);
+        proto_tree_add_bitmask(tree, tvb, offset+1, hf_scsi_log_pc_flags,
+            ett_scsi_log_pc, pcflags_fields, FALSE);
         proto_tree_add_text (tree, tvb, offset+4, 2, "Parameter Pointer: 0x%04x",
                              tvb_get_ntohs (tvb, offset+4));
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+6, 2, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     } else if (!isreq) {
         if (!cdata) {
             return;
@@ -3405,17 +3429,12 @@ dissect_spc_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
-
         proto_tree_add_uint_format (tree, hf_scsi_modesel_flags, tvb, offset, 1,
                                     flags, "PF = %u, SP = %u", flags & 0x10,
                                     flags & 0x1);
         proto_tree_add_item (tree, hf_scsi_paramlen, tvb, offset+3, 1, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+4);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
     else {
         /* Mode Parameter has the following format:
@@ -3504,17 +3523,12 @@ dissect_spc_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
-
         proto_tree_add_uint_format (tree, hf_scsi_modesel_flags, tvb, offset, 1,
                                     flags, "PF = %u, SP = %u", flags & 0x10,
                                     flags & 0x1);
         proto_tree_add_item (tree, hf_scsi_paramlen16, tvb, offset+6, 2, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
     else {
         /* Mode Parameter has the following format:
@@ -3659,18 +3673,13 @@ dissect_spc_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
-
         proto_tree_add_uint_format (tree, hf_scsi_modesns_flags, tvb, offset, 1,
                                     flags, "DBD = %u", flags & 0x8);
         proto_tree_add_item (tree, hf_scsi_modesns_pc, tvb, offset+1, 1, 0);
         dissect_scsi_pagecode (tvb, pinfo, tree, offset+1, cdata);
         proto_tree_add_item (tree, hf_scsi_alloclen, tvb, offset+3, 1, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+4);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
     else {
         /* Mode sense response has the following format:
@@ -3753,19 +3762,14 @@ dissect_spc_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
-
         proto_tree_add_uint_format (tree, hf_scsi_modesns_flags, tvb, offset, 1,
                                     flags, "LLBAA = %u, DBD = %u", flags & 0x10,
                                     flags & 0x8);
         proto_tree_add_item (tree, hf_scsi_modesns_pc, tvb, offset+1, 1, 0);
         dissect_scsi_pagecode (tvb, pinfo, tree, offset+1, cdata);
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+6, 2, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
     else {
         /* Mode sense response has the following format:
@@ -3852,12 +3856,8 @@ dissect_spc_preventallowmediaremoval (tvbuff_t *tvb, packet_info *pinfo _U_, pro
         proto_tree_add_text (tree, tvb, offset+3, 1,
                              "Persistent: %u, Prevent: %u",
                              flags & 0x02, flags & 0x01);
-
-        flags = tvb_get_guint8 (tvb, offset+4);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -3874,15 +3874,10 @@ dissect_spc_persistentreservein (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         return;
 
     if (isreq && iscdb) {
-        proto_tree_add_item (tree, hf_scsi_persresvin_svcaction, tvb, offset,
-                             1, 0);
+        proto_tree_add_item (tree, hf_scsi_persresvin_svcaction, tvb, offset, 1, 0);
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+6, 2, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
         /* We store the service action since we want to interpret the data */
         cdata->itlq->flags = tvb_get_guint8 (tvb, offset);
     }
@@ -3930,23 +3925,16 @@ dissect_spc_persistentreserveout (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
                           guint offset, gboolean isreq, gboolean iscdb,
                           guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
-
     if (!tree)
         return;
 
     if (isreq && iscdb) {
-        proto_tree_add_item (tree, hf_scsi_persresvout_svcaction, tvb, offset,
-                             1, 0);
+        proto_tree_add_item (tree, hf_scsi_persresvout_svcaction, tvb, offset, 1, 0);
         proto_tree_add_item (tree, hf_scsi_persresv_scope, tvb, offset+1, 1, 0);
         proto_tree_add_item (tree, hf_scsi_persresv_type, tvb, offset+1, 1, 0);
         proto_tree_add_item (tree, hf_scsi_paramlen16, tvb, offset+6, 2, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
     else {
     }
@@ -3957,17 +3945,12 @@ dissect_spc_release6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                        guint offset, gboolean isreq, gboolean iscdb,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
-
     if (!tree)
         return;
 
     if (isreq && iscdb) {
-        flags = tvb_get_guint8 (tvb, offset+4);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -3983,7 +3966,6 @@ dissect_spc_release10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
-
         proto_tree_add_uint_format (tree, hf_scsi_release_flags, tvb, offset, 1,
                                     flags,
                                     "Flags: 3rd Party ID = %u, LongID = %u",
@@ -3993,12 +3975,8 @@ dissect_spc_release10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                                  offset+2, 1, 0);
         }
         proto_tree_add_item (tree, hf_scsi_paramlen16, tvb, offset+6, 2, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -4017,24 +3995,18 @@ dissect_spc_reportluns (tvbuff_t *tvb, packet_info *pinfo _U_,
 			gboolean isreq, gboolean iscdb, guint payload_len _U_,
 			scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
     gint listlen;
     tvbuff_t *volatile tvb_v = tvb;
     volatile guint offset_v = offset;
 
     if (isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_select_report, tvb_v, offset_v+1, 1, 0);
-
         proto_tree_add_item (tree, hf_scsi_alloclen32, tvb_v, offset_v+5, 4, 0);
         if(cdata){
             cdata->itlq->alloc_len=tvb_get_ntohl(tvb_v, offset_v+5);
         }
-
-        flags = tvb_get_guint8 (tvb_v, offset_v+10);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb_v, offset_v+10, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset_v+10, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     } else if (!isreq) {
         if (!cdata) {
             return;
@@ -4098,19 +4070,13 @@ dissect_spc_requestsense (tvbuff_t * tvb, packet_info *pinfo _U_, proto_tree *tr
                        guint offset, gboolean isreq, gboolean iscdb,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
-
     if (!tree)
         return;
 
     if (isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_alloclen, tvb, offset+3, 1, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+4);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
     else if (!isreq)
         dissect_scsi_fix_snsinfo(tvb, tree, offset);
@@ -4121,17 +4087,12 @@ dissect_spc_reserve6 (tvbuff_t * tvb, packet_info *pinfo _U_, proto_tree *tree,
                        guint offset, gboolean isreq, gboolean iscdb,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
-
     if (!tree)
         return;
 
     if (isreq && iscdb) {
-        flags = tvb_get_guint8 (tvb, offset+4);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -4147,7 +4108,6 @@ dissect_spc_reserve10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     if (isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
-
         proto_tree_add_uint_format (tree, hf_scsi_release_flags, tvb, offset, 1,
                                     flags,
                                     "Flags: 3rd Party ID = %u, LongID = %u",
@@ -4157,12 +4117,8 @@ dissect_spc_reserve10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                                  offset+2, 1, 0);
         }
         proto_tree_add_item (tree, hf_scsi_paramlen16, tvb, offset+6, 2, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -4171,17 +4127,13 @@ dissect_spc_testunitready (tvbuff_t * tvb, packet_info *pinfo _U_, proto_tree *t
                           guint offset, gboolean isreq, gboolean iscdb,
                           guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
 
     if (!tree)
         return;
 
     if (isreq && iscdb) {
-        flags = tvb_get_guint8 (tvb, offset+4);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -4195,8 +4147,6 @@ dissect_spc_senddiagnostic (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
                           guint offset, gboolean isreq, gboolean iscdb _U_,
                           guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
-
     if (!tree && !isreq)
         return;
 
@@ -4206,12 +4156,8 @@ dissect_spc_senddiagnostic (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     proto_tree_add_boolean (tree, hf_scsi_senddiag_devoff, tvb, offset, 1, 0);
     proto_tree_add_boolean (tree, hf_scsi_senddiag_unitoff, tvb, offset, 1, 0);
     proto_tree_add_uint (tree, hf_scsi_paramlen16, tvb, offset+2, 2, 0);
-
-    flags = tvb_get_guint8 (tvb, offset+4);
-    proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                flags,
-                                "Vendor Unique = %u, NACA = %u, Link = %u",
-                                flags & 0xC0, flags & 0x4, flags & 0x1);
+    proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
+        ett_scsi_control, cdb_control_fields, FALSE);
 }
 
 void
@@ -4219,8 +4165,6 @@ dissect_spc_writebuffer (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
                           guint offset, gboolean isreq, gboolean iscdb _U_,
                           guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
-
     if (!tree && !isreq)
         return;
 
@@ -4228,12 +4172,8 @@ dissect_spc_writebuffer (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     proto_tree_add_uint (tree, hf_scsi_wb_bufferid, tvb, offset+1, 1, 0);
     proto_tree_add_uint (tree, hf_scsi_wb_bufoffset, tvb, offset+2, 3, 0);
     proto_tree_add_uint (tree, hf_scsi_paramlen24, tvb, offset+5, 3, 0);
-
-    flags = tvb_get_guint8 (tvb, offset+8);
-    proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                flags,
-                                "Vendor Unique = %u, NACA = %u, Link = %u",
-                                flags & 0xC0, flags & 0x4, flags & 0x1);
+    proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+        ett_scsi_control, cdb_control_fields, FALSE);
 }
 
 static void
@@ -4251,10 +4191,6 @@ dissect_scsi_varlencdb (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     }
 }
-
-
-
-
 
 void
 dissect_scsi_rsp (tvbuff_t *tvb, packet_info *pinfo,
@@ -5012,6 +4948,24 @@ proto_register_scsi (void)
         { &hf_scsi_control,
           {"Control", "scsi.cdb.control", FT_UINT8, BASE_HEX, NULL, 0x0, NULL,
            HFILL}},
+        { &hf_scsi_control_vendor_specific,
+          {"Vendor specific", "scsi.cdb.control.vendorspecific", FT_UINT8,
+           BASE_HEX, NULL, 0xC0, NULL, HFILL}},
+        { &hf_scsi_control_reserved,
+          {"Reserved", "scsi.cdb.control.reserved", FT_UINT8, BASE_HEX, NULL,
+           0x38, NULL, HFILL}},
+        { &hf_scsi_control_naca,
+          {"NACA", "scsi.cdb.control.naca", FT_BOOLEAN, 8, 
+           TFS(&scsi_naca_tfs), 0x04, NULL, HFILL}},
+        { &hf_scsi_control_obs1,
+          {"Obsolete", "scsi.cdb.control.obs1", FT_UINT8, BASE_HEX,
+           NULL, 0x02, NULL, HFILL}},
+        { &hf_scsi_control_obs2,
+          {"Obsolete", "scsi.cdb.control.obs2", FT_UINT8, BASE_HEX,
+           NULL, 0x01, NULL, HFILL}},
+        { &hf_scsi_inq_control,
+          {"Control", "scsi.cdb.inq.control", FT_UINT8, BASE_HEX, NULL, 0x0, 
+           NULL, HFILL}},
         { &hf_scsi_inquiry_flags,
           {"Inquiry Flags", "scsi.inquiry.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL,
            HFILL}},
@@ -5171,6 +5125,21 @@ proto_register_scsi (void)
         { &hf_scsi_inq_acaflags,
           {"Inquiry ACA Flags", "scsi.inquiry.acaflags", FT_UINT8, BASE_HEX, NULL, 0,
            NULL, HFILL}},
+        { &hf_scsi_inq_control_vendor_specific,
+          {"Vendor specific", "scsi.inquiry.control.vendorspecific", FT_UINT8,
+           BASE_HEX, NULL, 0xC0, NULL, HFILL}},
+        { &hf_scsi_inq_control_reserved,
+          {"Reserved", "scsi.inquiry.control.reserved", FT_UINT8, BASE_HEX,
+           NULL, 0x38, NULL, HFILL}},
+        { &hf_scsi_inq_control_naca,
+          {"NACA", "scsi.inquiry.control.naca", FT_BOOLEAN, 8, 
+           TFS(&scsi_naca_tfs), 0x04, NULL, HFILL}},
+        { &hf_scsi_inq_control_obs1,
+          {"Obsolete", "scsi.inquiry.control.obs1", FT_UINT8, BASE_HEX,
+           NULL, 0x02, NULL, HFILL}},
+        { &hf_scsi_inq_control_obs2,
+          {"Obsolete", "scsi.inquiry.control.obs2", FT_UINT8, BASE_HEX,
+           NULL, 0x01, NULL, HFILL}},
         { &hf_scsi_inq_rmbflags,
           {"Inquiry RMB Flags", "scsi.inquiry.rmbflags", FT_UINT8, BASE_HEX, NULL, 0,
            NULL, HFILL}},
@@ -5528,6 +5497,8 @@ proto_register_scsi (void)
     static gint *ett[] = {
         &ett_scsi,
         &ett_scsi_page,
+        &ett_scsi_control,
+        &ett_scsi_inq_control,
         &ett_scsi_inq_peripheral,
         &ett_scsi_inq_acaflags,
         &ett_scsi_inq_rmbflags,

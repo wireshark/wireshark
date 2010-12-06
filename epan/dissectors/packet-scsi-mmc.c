@@ -356,7 +356,6 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_,
 			       scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags;
     gint32 len;
     guint old_offset;
     tvbuff_t *volatile tvb_v = tvb;
@@ -365,18 +364,13 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_,
     if (tree && isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_mmc_getconf_rt, tvb_v, offset_v+0, 1, 0);
         proto_tree_add_item (tree, hf_scsi_mmc_getconf_starting_feature, tvb_v, offset_v+1, 2, 0);
-
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb_v, offset_v+6, 2, 0);
 	/* we need the alloc_len in the response */
 	if(cdata){
 		cdata->itlq->alloc_len=tvb_get_ntohs(tvb_v, offset_v+6);
 	}
-
-        flags = tvb_get_guint8 (tvb_v, offset_v+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb_v, offset_v+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
     if(!isreq) {
 	if(!cdata){
@@ -531,7 +525,7 @@ dissect_mmc4_readtocpmaatip (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags, format;
+    guint8 format;
     gint16 len;
 
     if (tree && isreq && iscdb) {
@@ -565,13 +559,8 @@ dissect_mmc4_readtocpmaatip (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
         }
 
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+6, 2, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
-
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
     if(tree && (!isreq)) {
         len=tvb_get_ntohs(tvb, offset);
@@ -647,17 +636,10 @@ dissect_mmc4_readdiscinformation (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags;
-
     if (tree && isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+6, 2, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
-
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
     if(tree && (!isreq)) {
         proto_tree_add_item (tree, hf_scsi_mmc_data_length, tvb, 0, 2, 0);
@@ -698,25 +680,22 @@ dissect_mmc4_readdiscstructure (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         proto_tree_add_text (tree, tvb, offset+1, 4,
                              "Address: %u",
                              tvb_get_ntohl (tvb, offset+1));
-
         proto_tree_add_text (tree, tvb, offset+5, 1,
                              "Layer Number: %u",
                              tvb_get_guint8 (tvb, offset+5));
 
         cdata->itlq->flags=tvb_get_guint8 (tvb, offset+6);
         proto_tree_add_uint (tree, hf_scsi_mmc_read_dvd_format, tvb, offset+6, 1, cdata->itlq->flags);
-
+        
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+7, 2, 0);
+        
         flags = tvb_get_guint8 (tvb, offset+9);
         proto_tree_add_text (tree, tvb, offset+9, 1,
                              "AGID: %u",
                              flags & 0xc0);
-
-        flags = tvb_get_guint8 (tvb, offset+10);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+10, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        
+        proto_tree_add_bitmask(tree, tvb, offset+10, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
     if(tree && (!isreq)) {
         proto_item *ti;
@@ -815,26 +794,20 @@ proto_tree *tree,
         proto_tree_add_text (tree, tvb, offset, 1,
                              "Data Type: %u",
                              flags & 0x1f);
-
         proto_tree_add_text (tree, tvb, offset+1, 4,
                              "Starting LBA: %u",
                              tvb_get_ntohl (tvb, offset+1));
-
         proto_tree_add_text (tree, tvb, offset+7, 2,
                              "Maximum Number of Descriptors: %u",
                              tvb_get_ntohs (tvb, offset+7));
-
+        
         flags = tvb_get_guint8 (tvb, offset+9);
         proto_tree_add_text (tree, tvb, offset+9, 1,
                              "Type: %u",
                              flags);
-
-        flags = tvb_get_guint8 (tvb, offset+10);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+10, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
-
+        
+        proto_tree_add_bitmask(tree, tvb, offset+10, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -844,20 +817,13 @@ dissect_mmc4_synchronizecache (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags;
-
     if (tree && isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_mmc_synccache_immed, tvb, offset, 1, 0);
         proto_tree_add_item (tree, hf_scsi_mmc_synccache_reladr, tvb, offset, 1, 0);
         proto_tree_add_item (tree, hf_scsi_mmc_lba, tvb, offset+1, 4, 0);
         proto_tree_add_item (tree, hf_scsi_mmc_num_blocks, tvb, offset+6, 2, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
-
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -896,7 +862,7 @@ dissect_mmc4_reportkey (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags, agid, key_format, key_class;
+    guint8 agid, key_format, key_class;
     proto_item *ti;
 
     if (tree && isreq && iscdb) {
@@ -922,11 +888,8 @@ dissect_mmc4_reportkey (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	/* save key_class/key_format so we can decode the response */
 	cdata->itlq->flags=(key_format<<8)|key_class;
 
-        flags = tvb_get_guint8 (tvb, offset+14);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+14, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+14, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
     if(tree && (!isreq)) {
         switch(cdata->itlq->flags){
@@ -961,7 +924,7 @@ dissect_mmc4_readtrackinformation (tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags, addresstype;
+    guint8 addresstype;
 
     if (tree && isreq && iscdb) {
         addresstype=tvb_get_guint8(tvb, offset)&0x03;
@@ -982,13 +945,8 @@ dissect_mmc4_readtrackinformation (tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         }
 
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+6, 2, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
-
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
     if(tree && (!isreq)) {
         proto_tree_add_item (tree, hf_scsi_mmc_data_length, tvb, 0, 2, 0);
@@ -1036,12 +994,8 @@ dissect_mmc4_geteventstatusnotification (tvbuff_t *tvb, packet_info *pinfo _U_, 
                              flags);
 
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+6, 2, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -1052,17 +1006,10 @@ dissect_mmc4_reservetrack (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags;
-
     if (tree && isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_mmc_reservation_size, tvb, offset+4, 4, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
-
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -1083,8 +1030,6 @@ dissect_mmc4_close_track (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    int flags;
-
     if (tree && isreq && iscdb) {
 	/* immediate */
         proto_tree_add_item (tree, hf_scsi_mmc_closetrack_immed, tvb, offset, 1, 0);
@@ -1104,12 +1049,8 @@ dissect_mmc4_close_track (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	/* reserved */
 	offset+=3;
 
-        flags = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
-
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -1120,8 +1061,6 @@ dissect_mmc4_readbuffercapacity (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags;
-
     if (tree && isreq && iscdb) {
         cdata->itlq->flags=0;
         proto_tree_add_item (tree, hf_scsi_mmc_rbc_block, tvb, offset, 1, 0);
@@ -1130,13 +1069,8 @@ dissect_mmc4_readbuffercapacity (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         }
 
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+6, 2, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
-
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
     if(tree && (!isreq)) {
         proto_tree_add_item (tree, hf_scsi_mmc_data_length, tvb, offset, 2, 0);
@@ -1165,23 +1099,16 @@ dissect_mmc4_setcdspeed (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags;
-
     if (tree && isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_mmc_setcdspeed_rc, tvb, offset+0, 1, 0);
-
         proto_tree_add_text (tree, tvb, offset+1, 2,
                              "Logical Unit Read Speed(bytes/sec): %u",
                              tvb_get_ntohs (tvb, offset+1));
         proto_tree_add_text (tree, tvb, offset+3, 2,
                              "Logical Unit Write Speed(bytes/sec): %u",
                              tvb_get_ntohs (tvb, offset+3));
-
-        flags = tvb_get_guint8 (tvb, offset+10);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+10, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+10, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -1198,7 +1125,7 @@ dissect_mmc4_setstreaming (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags, type;
+    guint8 type;
     proto_item *ti;
 
     if (tree && isreq && iscdb) {
@@ -1206,12 +1133,8 @@ dissect_mmc4_setstreaming (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	cdata->itlq->flags=type;
         proto_tree_add_item (tree, hf_scsi_mmc_setstreaming_type, tvb, offset+7, 1, 0);
         proto_tree_add_item (tree, hf_scsi_mmc_setstreaming_param_len, tvb, offset+8, 2, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+10);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+10, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+10, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
     if(tree && isreq && (!iscdb)) {
         switch(cdata->itlq->flags){

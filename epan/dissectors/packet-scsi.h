@@ -212,6 +212,8 @@ void dissect_scsi_snsinfo (tvbuff_t *, packet_info *, proto_tree *, guint, guint
 
 WS_VAR_IMPORT const value_string scsi_mmc_vals[];
 
+extern const int *cdb_control_fields[6];
+extern gint ett_scsi_control;
 extern int hf_scsi_control;
 extern int hf_scsi_alloclen16;
 

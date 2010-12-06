@@ -69,7 +69,6 @@ dissect_smc_exchangemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
     static const int *exchg_fields[] = {
         &hf_scsi_smc_inv1,
         &hf_scsi_smc_inv2,
@@ -84,15 +83,10 @@ dissect_smc_exchangemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
         proto_tree_add_item (tree, hf_scsi_smc_sa,  tvb, offset+3, 2, 0);
         proto_tree_add_item (tree, hf_scsi_smc_fda, tvb, offset+5, 2, 0);
         proto_tree_add_item (tree, hf_scsi_smc_sda, tvb, offset+7, 2, 0);
-
-
-	proto_tree_add_bitmask(tree, tvb, offset+9, hf_scsi_smc_medium_flags, ett_scsi_exchange_medium, exchg_fields, FALSE);
-
-        flags = tvb_get_guint8 (tvb, offset+10);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+10, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+9, hf_scsi_smc_medium_flags,
+            ett_scsi_exchange_medium, exchg_fields, FALSE);
+        proto_tree_add_bitmask(tree, tvb, offset+10, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -101,7 +95,6 @@ dissect_smc_position_to_element (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
     static const int *pte_fields[] = {
         &hf_scsi_smc_invert,
 	NULL
@@ -113,14 +106,10 @@ dissect_smc_position_to_element (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     if (isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_smc_mta, tvb, offset+1, 2, 0);
         proto_tree_add_item (tree, hf_scsi_smc_da,  tvb, offset+3, 2, 0);
-
-	proto_tree_add_bitmask(tree, tvb, offset+7, hf_scsi_smc_medium_flags, ett_scsi_exchange_medium, pte_fields, FALSE);
-
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+7, hf_scsi_smc_medium_flags,
+            ett_scsi_exchange_medium, pte_fields, FALSE);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -129,17 +118,12 @@ dissect_smc_initialize_element_status (tvbuff_t *tvb, packet_info *pinfo _U_, pr
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
-
     if (!tree)
         return;
 
     if (isreq && iscdb) {
-        flags = tvb_get_guint8 (tvb, offset+4);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -148,7 +132,6 @@ dissect_smc_initialize_element_status_with_range (tvbuff_t *tvb, packet_info *pi
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
     static const int *range_fields[] = {
         &hf_scsi_smc_fast,
         &hf_scsi_smc_range,
@@ -159,17 +142,12 @@ dissect_smc_initialize_element_status_with_range (tvbuff_t *tvb, packet_info *pi
         return;
 
     if (isreq && iscdb) {
-	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_smc_range_flags, ett_scsi_range, range_fields, FALSE);
-
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_smc_range_flags,
+            ett_scsi_range, range_fields, FALSE);
         proto_tree_add_item (tree, hf_scsi_smc_sa,  tvb, offset+1, 2, 0);
-
         proto_tree_add_item (tree, hf_scsi_smc_num_elements,  tvb, offset+5, 2, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -178,21 +156,14 @@ dissect_smc_openclose_importexport_element (tvbuff_t *tvb, packet_info *pinfo _U
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
-
     if (!tree)
         return;
 
     if (isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_smc_ea,  tvb, offset+1, 2, 0);
-
         proto_tree_add_item (tree, hf_scsi_smc_action_code,  tvb, offset+3, 1, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+4);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 void
@@ -200,7 +171,6 @@ dissect_smc_movemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
     static const int *move_fields[] = {
         &hf_scsi_smc_invert,
 	NULL
@@ -213,14 +183,10 @@ dissect_smc_movemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         proto_tree_add_item (tree, hf_scsi_smc_mta, tvb, offset+1, 2, 0);
         proto_tree_add_item (tree, hf_scsi_smc_sa,  tvb, offset+3, 2, 0);
         proto_tree_add_item (tree, hf_scsi_smc_da,  tvb, offset+5, 2, 0);
-
-	proto_tree_add_bitmask(tree, tvb, offset+9, hf_scsi_smc_range_flags, ett_scsi_move, move_fields, FALSE);
-
-        flags = tvb_get_guint8 (tvb, offset+10);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+10, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+9, hf_scsi_smc_range_flags,
+            ett_scsi_move, move_fields, FALSE);
+        proto_tree_add_bitmask(tree, tvb, offset+10, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -528,11 +494,8 @@ dissect_smc_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_text (tree, tvb, offset+6, 3,
                              "Allocation Length: %u",
                              tvb_get_ntoh24 (tvb, offset+6));
-        flags = tvb_get_guint8 (tvb, offset+10);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+10, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+10, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
     else if (!isreq) {
         proto_tree_add_text (tree, tvb, offset, 2,

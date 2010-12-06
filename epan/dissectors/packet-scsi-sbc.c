@@ -166,7 +166,6 @@ dissect_sbc_formatunit (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                          guint offset, gboolean isreq, gboolean iscdb,
                          guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
     static const int *fuflags_fields[] = {
 	&hf_scsi_sbc_fuflags_fmtpinfo,
 	&hf_scsi_sbc_fuflags_rto_req,
@@ -181,17 +180,12 @@ dissect_sbc_formatunit (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         return;
 
     if (isreq && iscdb) {
-	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_formatunit_flags, ett_scsi_format_unit, fuflags_fields, FALSE);
-
-        proto_tree_add_item (tree, hf_scsi_sbc_formatunit_vendor, tvb, offset+1,
-                             1, 0);
-        proto_tree_add_item (tree, hf_scsi_sbc_formatunit_interleave, tvb, offset+2,
-                             2, 0);
-        flags = tvb_get_guint8 (tvb, offset+4);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_formatunit_flags,
+            ett_scsi_format_unit, fuflags_fields, FALSE);
+        proto_tree_add_item (tree, hf_scsi_sbc_formatunit_vendor, tvb, offset+1, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_formatunit_interleave, tvb, offset+2, 2, 0);
+        proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
     /* TODO : add dissection of DATA */
 }
@@ -201,8 +195,6 @@ dissect_sbc_read6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
-
     if (isreq && iscdb) {
         if (check_col (pinfo->cinfo, COL_INFO))
             col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: 0x%06x, Len: %u)",
@@ -213,11 +205,8 @@ dissect_sbc_read6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (tree && isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr6_lba, tvb, offset, 3, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr6_xferlen, tvb, offset+3, 1, 0);
-        flags = tvb_get_guint8 (tvb, offset+4);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -226,8 +215,6 @@ dissect_sbc_write6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
-
     if (isreq && iscdb) {
         if (check_col (pinfo->cinfo, COL_INFO))
             col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: 0x%06x, Len: %u)",
@@ -238,11 +225,8 @@ dissect_sbc_write6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (tree && isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr6_lba, tvb, offset, 3, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr6_xferlen, tvb, offset+3, 1, 0);
-        flags = tvb_get_guint8 (tvb, offset+4);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -252,7 +236,6 @@ dissect_sbc_prefetch10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags;
     static const int *prefetch_fields[] = {
 	&hf_scsi_sbc_prefetch_immed,
 	NULL
@@ -266,18 +249,13 @@ dissect_sbc_prefetch10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 
     if (tree && isreq && iscdb) {
-	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_prefetch_flags, ett_scsi_prefetch, prefetch_fields, FALSE);
-
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_prefetch_flags,
+            ett_scsi_prefetch, prefetch_fields, FALSE);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
-
         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+5, 1, 0);
-
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_xferlen, tvb, offset+6, 2, 0);
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -287,7 +265,6 @@ dissect_sbc_synchronizecache10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags;
     static const int *sync_fields[] = {
 	&hf_scsi_sbc_synccache_sync_nv,
 	&hf_scsi_sbc_synccache_immed,
@@ -302,18 +279,13 @@ dissect_sbc_synchronizecache10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     }
 
     if (tree && isreq && iscdb) {
-	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_synccache_flags, ett_scsi_synccache, sync_fields, FALSE);
-
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_synccache_flags,
+            ett_scsi_synccache, sync_fields, FALSE);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
-
         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+5, 1, 0);
-
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_xferlen, tvb, offset+6, 2, 0);
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -323,7 +295,6 @@ dissect_sbc_synchronizecache16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags;
     static const int *sync_fields[] = {
 	&hf_scsi_sbc_synccache_sync_nv,
 	&hf_scsi_sbc_synccache_immed,
@@ -338,17 +309,13 @@ dissect_sbc_synchronizecache16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     }
 
     if (tree && isreq && iscdb) {
-	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_synccache_flags, ett_scsi_synccache, sync_fields, FALSE);
-
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_synccache_flags,
+            ett_scsi_synccache, sync_fields, FALSE);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr16_lba, tvb, offset+1, 8, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr12_xferlen, tvb, offset+9, 4, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+13, 1, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+14);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+14, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+14, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -358,7 +325,6 @@ dissect_sbc_prefetch16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags;
     static const int *prefetch_fields[] = {
 	&hf_scsi_sbc_prefetch_immed,
 	NULL
@@ -372,17 +338,13 @@ dissect_sbc_prefetch16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 
     if (tree && isreq && iscdb) {
-	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_prefetch_flags, ett_scsi_prefetch, prefetch_fields, FALSE);
-
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_prefetch_flags,
+            ett_scsi_prefetch, prefetch_fields, FALSE);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr16_lba, tvb, offset+1, 8, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr12_xferlen, tvb, offset+9, 4, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+13, 1, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+14);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+14, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+14, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -392,7 +354,6 @@ dissect_sbc_read10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags;
     static const int *rdwr10_fields[] = {
 	&hf_scsi_sbc_rdprotect,
 	&hf_scsi_sbc_dpo,
@@ -409,17 +370,13 @@ dissect_sbc_read10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 
     if (tree && isreq && iscdb) {
-	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_read_flags, ett_scsi_rdwr, rdwr10_fields, FALSE);
-
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_read_flags,
+            ett_scsi_rdwr, rdwr10_fields, FALSE);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+5, 1, 0);
-
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_xferlen, tvb, offset+6, 2, 0);
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -429,7 +386,6 @@ dissect_sbc_xdread10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags;
     static const int *xdread10_fields[] = {
 	&hf_scsi_sbc_xorpinfo,
 	NULL
@@ -443,17 +399,13 @@ dissect_sbc_xdread10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 
     if (tree && isreq && iscdb) {
-	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_xdread_flags, ett_scsi_xdread, xdread10_fields, FALSE);
-
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_xdread_flags,
+            ett_scsi_xdread, xdread10_fields, FALSE);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+5, 1, 0);
-
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_xferlen, tvb, offset+6, 2, 0);
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -463,7 +415,6 @@ dissect_sbc_xdwrite10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags;
     static const int *xdwrite10_fields[] = {
 	&hf_scsi_sbc_wrprotect,
 	&hf_scsi_sbc_dpo,
@@ -481,17 +432,13 @@ dissect_sbc_xdwrite10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 
     if (tree && isreq && iscdb) {
-	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_xdwrite_flags, ett_scsi_xdwrite, xdwrite10_fields, FALSE);
-
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_xdwrite_flags,
+            ett_scsi_xdwrite, xdwrite10_fields, FALSE);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+5, 1, 0);
-
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_xferlen, tvb, offset+6, 2, 0);
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -501,7 +448,6 @@ dissect_sbc_xdwriteread10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags;
     static const int *xdwriteread10_fields[] = {
 	&hf_scsi_sbc_wrprotect,
 	&hf_scsi_sbc_dpo,
@@ -520,17 +466,13 @@ dissect_sbc_xdwriteread10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     }
 
     if (tree && isreq && iscdb) {
-	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_xdwriteread_flags, ett_scsi_xdwriteread, xdwriteread10_fields, FALSE);
-
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_xdwriteread_flags,
+            ett_scsi_xdwriteread, xdwriteread10_fields, FALSE);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+5, 1, 0);
-
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_xferlen, tvb, offset+6, 2, 0);
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -540,7 +482,6 @@ dissect_sbc_xpwrite10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags;
     static const int *xpwrite10_fields[] = {
 	&hf_scsi_sbc_dpo,
 	&hf_scsi_sbc_fua,
@@ -557,17 +498,13 @@ dissect_sbc_xpwrite10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 
     if (tree && isreq && iscdb) {
-	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_xpwrite_flags, ett_scsi_xpwrite, xpwrite10_fields, FALSE);
-
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_xpwrite_flags,
+            ett_scsi_xpwrite, xpwrite10_fields, FALSE);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+5, 1, 0);
-
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_xferlen, tvb, offset+6, 2, 0);
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -577,7 +514,6 @@ dissect_sbc_write10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags;
     static const int *rdwr10_fields[] = {
 	&hf_scsi_sbc_wrprotect,
 	&hf_scsi_sbc_dpo,
@@ -594,17 +530,13 @@ dissect_sbc_write10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 
     if (tree && isreq && iscdb) {
-	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_read_flags, ett_scsi_rdwr, rdwr10_fields, FALSE);
-
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_read_flags,
+            ett_scsi_rdwr, rdwr10_fields, FALSE);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+5, 1, 0);
-
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_xferlen, tvb, offset+6, 2, 0);
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -613,7 +545,6 @@ dissect_sbc_read12 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
     static const int *rdwr12_fields[] = {
 	&hf_scsi_sbc_rdprotect,
 	&hf_scsi_sbc_dpo,
@@ -630,17 +561,13 @@ dissect_sbc_read12 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 
     if (tree && isreq && iscdb) {
-	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_read_flags, ett_scsi_rdwr, rdwr12_fields, FALSE);
-
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_read_flags,
+            ett_scsi_rdwr, rdwr12_fields, FALSE);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr12_xferlen, tvb, offset+5, 4, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+9, 1, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+10);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+10, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+10, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 void
@@ -648,7 +575,6 @@ dissect_sbc_write12 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
     static const int *rdwr12_fields[] = {
 	&hf_scsi_sbc_wrprotect,
 	&hf_scsi_sbc_dpo,
@@ -665,17 +591,13 @@ dissect_sbc_write12 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 
     if (tree && isreq && iscdb) {
-	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_read_flags, ett_scsi_rdwr, rdwr12_fields, FALSE);
-
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_read_flags,
+            ett_scsi_rdwr, rdwr12_fields, FALSE);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr12_xferlen, tvb, offset+5, 4, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+9, 1, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+10);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+10, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+10, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -684,7 +606,6 @@ dissect_sbc_read16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
     static const int *rdwr16_fields[] = {
 	&hf_scsi_sbc_rdprotect,
 	&hf_scsi_sbc_dpo,
@@ -701,17 +622,13 @@ dissect_sbc_read16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 
     if (tree && isreq && iscdb) {
-	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_read_flags, ett_scsi_rdwr, rdwr16_fields, FALSE);
-
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_read_flags,
+            ett_scsi_rdwr, rdwr16_fields, FALSE);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr16_lba, tvb, offset+1, 8, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr12_xferlen, tvb, offset+9, 4, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+13, 1, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+14);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+14, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+14, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 static void
@@ -719,7 +636,6 @@ dissect_sbc_write16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
     static const int *rdwr16_fields[] = {
 	&hf_scsi_sbc_wrprotect,
 	&hf_scsi_sbc_dpo,
@@ -736,17 +652,13 @@ dissect_sbc_write16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 
     if (tree && isreq && iscdb) {
-	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_read_flags, ett_scsi_rdwr, rdwr16_fields, FALSE);
-
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_read_flags,
+            ett_scsi_rdwr, rdwr16_fields, FALSE);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr16_lba, tvb, offset+1, 8, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr12_xferlen, tvb, offset+9, 4, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+13, 1, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+14);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+14, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+14, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -772,7 +684,6 @@ dissect_sbc_startstopunit (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
                             guint offset, gboolean isreq _U_, gboolean iscdb,
                             guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
     static const int *ssu_fields[] = {
 	&hf_scsi_sbc_ssu_immed,
 	NULL
@@ -788,16 +699,12 @@ dissect_sbc_startstopunit (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
         return;
 
     if (isreq && iscdb) {
-	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_ssu_immed_flags, ett_scsi_ssu_immed, ssu_fields, FALSE);
-
-	proto_tree_add_bitmask(tree, tvb, offset+3, hf_scsi_sbc_ssu_pwr_flags, ett_scsi_ssu_pwr, pwr_fields, FALSE);
-
-
-        flags = tvb_get_guint8 (tvb, offset+4);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
-                                flags,
-                                "Vendor Unique = %u, NACA = %u, Link = %u",
-                                flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_ssu_immed_flags,
+            ett_scsi_ssu_immed, ssu_fields, FALSE);
+        proto_tree_add_bitmask(tree, tvb, offset+3, hf_scsi_sbc_ssu_pwr_flags,
+            ett_scsi_ssu_pwr, pwr_fields, FALSE);
+        proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -807,7 +714,6 @@ dissect_sbc_verify10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags;
     static const int *verify10_fields[] = {
 	&hf_scsi_sbc_vrprotect,
 	&hf_scsi_sbc_dpo,
@@ -823,17 +729,13 @@ dissect_sbc_verify10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 
     if (tree && isreq && iscdb) {
-	 proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_verify_flags, ett_scsi_verify, verify10_fields, FALSE);
-
-         proto_tree_add_item (tree, hf_scsi_sbc_verify_lba, tvb, offset+1, 4, 0);
-         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+5, 1, 0);
-
-         proto_tree_add_item (tree, hf_scsi_sbc_verify_vlen, tvb, offset+6, 2, 0);
-         flags = tvb_get_guint8 (tvb, offset+8);
-         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                     flags,
-                                     "Vendor Unique = %u, NACA = %u, Link = %u",
-                                     flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_verify_flags,
+            ett_scsi_verify, verify10_fields, FALSE);
+        proto_tree_add_item (tree, hf_scsi_sbc_verify_lba, tvb, offset+1, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+5, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_verify_vlen, tvb, offset+6, 2, 0);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -843,7 +745,6 @@ dissect_sbc_verify12 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags;
     static const int *verify12_fields[] = {
 	&hf_scsi_sbc_vrprotect,
 	&hf_scsi_sbc_dpo,
@@ -859,19 +760,13 @@ dissect_sbc_verify12 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 
     if (isreq && iscdb) {
-	 proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_verify_flags, ett_scsi_verify, verify12_fields, FALSE);
-
-
-         proto_tree_add_item (tree, hf_scsi_sbc_verify_lba, tvb, offset+1, 4, 0);
-         proto_tree_add_item (tree, hf_scsi_sbc_verify_vlen32, tvb, offset+5, 4, 0);
-
-         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+9, 1, 0);
-
-         flags = tvb_get_guint8 (tvb, offset+10);
-         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+10, 1,
-                                     flags,
-                                     "Vendor Unique = %u, NACA = %u, Link = %u",
-                                     flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_verify_flags,
+            ett_scsi_verify, verify12_fields, FALSE);
+        proto_tree_add_item (tree, hf_scsi_sbc_verify_lba, tvb, offset+1, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_verify_vlen32, tvb, offset+5, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+9, 1, 0);
+        proto_tree_add_bitmask(tree, tvb, offset+10, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -881,7 +776,6 @@ dissect_sbc_verify16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags;
     static const int *verify16_fields[] = {
 	&hf_scsi_sbc_vrprotect,
 	&hf_scsi_sbc_dpo,
@@ -897,17 +791,13 @@ dissect_sbc_verify16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 
     if (isreq && iscdb) {
-	 proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_verify_flags, ett_scsi_verify, verify16_fields, FALSE);
-
-         proto_tree_add_item (tree, hf_scsi_sbc_verify_lba64, tvb, offset+1, 8, 0);
-         proto_tree_add_item (tree, hf_scsi_sbc_verify_vlen32, tvb, offset+9, 4, 0);
-         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+13, 1, 0);
-
-         flags = tvb_get_guint8 (tvb, offset+14);
-         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+14, 1,
-                                     flags,
-                                     "Vendor Unique = %u, NACA = %u, Link = %u",
-                                     flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_verify_flags,
+            ett_scsi_verify, verify16_fields, FALSE);
+        proto_tree_add_item (tree, hf_scsi_sbc_verify_lba64, tvb, offset+1, 8, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_verify_vlen32, tvb, offset+9, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+13, 1, 0);
+        proto_tree_add_bitmask(tree, tvb, offset+14, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -919,7 +809,6 @@ dissect_sbc_wrverify10 (tvbuff_t *tvb, packet_info *pinfo _U_,
                          scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags;
     static const int *wrverify10_fields[] = {
 	&hf_scsi_sbc_wrprotect,
 	&hf_scsi_sbc_dpo,
@@ -935,18 +824,13 @@ dissect_sbc_wrverify10 (tvbuff_t *tvb, packet_info *pinfo _U_,
     }
 
     if (tree && isreq && iscdb) {
-	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_wrverify_flags, ett_scsi_wrverify, wrverify10_fields, FALSE);
-
-         proto_tree_add_item (tree, hf_scsi_sbc_wrverify_lba, tvb, offset+1, 4, 0);
-         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+5, 1, 0);
-
-         proto_tree_add_item (tree, hf_scsi_sbc_wrverify_xferlen, tvb, offset+6,
-                              2, 0);
-         flags = tvb_get_guint8 (tvb, offset+8);
-         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                     flags,
-                                     "Vendor Unique = %u, NACA = %u, Link = %u",
-                                     flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_wrverify_flags,
+        ett_scsi_wrverify, wrverify10_fields, FALSE);
+        proto_tree_add_item (tree, hf_scsi_sbc_wrverify_lba, tvb, offset+1, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+5, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_wrverify_xferlen, tvb, offset+6, 2, 0);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -956,7 +840,6 @@ dissect_sbc_wrverify12 (tvbuff_t *tvb, packet_info *pinfo _U_,
                          gboolean iscdb, guint payload_len _U_,
                          scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
     static const int *wrverify12_fields[] = {
 	&hf_scsi_sbc_wrprotect,
 	&hf_scsi_sbc_dpo,
@@ -972,18 +855,13 @@ dissect_sbc_wrverify12 (tvbuff_t *tvb, packet_info *pinfo _U_,
     }
 
     if (tree && isreq && iscdb) {
-	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_wrverify_flags, ett_scsi_wrverify, wrverify12_fields, FALSE);
-
-         proto_tree_add_item (tree, hf_scsi_sbc_wrverify_lba, tvb, offset+1, 4, 0);
-         proto_tree_add_item (tree, hf_scsi_sbc_wrverify_xferlen32, tvb, offset+5,
-                              4, 0);
-         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+9, 1, 0);
-
-         flags = tvb_get_guint8 (tvb, offset+10);
-         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+10, 1,
-                                     flags,
-                                     "Vendor Unique = %u, NACA = %u, Link = %u",
-                                     flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_wrverify_flags,
+            ett_scsi_wrverify, wrverify12_fields, FALSE);
+        proto_tree_add_item (tree, hf_scsi_sbc_wrverify_lba, tvb, offset+1, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_wrverify_xferlen32, tvb, offset+5, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+9, 1, 0);
+        proto_tree_add_bitmask(tree, tvb, offset+10, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -993,7 +871,6 @@ dissect_sbc_wrverify16 (tvbuff_t *tvb, packet_info *pinfo _U_,
                          gboolean iscdb, guint payload_len _U_,
                          scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
     static const int *wrverify16_fields[] = {
 	&hf_scsi_sbc_wrprotect,
 	&hf_scsi_sbc_dpo,
@@ -1009,28 +886,21 @@ dissect_sbc_wrverify16 (tvbuff_t *tvb, packet_info *pinfo _U_,
     }
 
     if (tree && isreq && iscdb) {
-	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_wrverify_flags, ett_scsi_wrverify, wrverify16_fields, FALSE);
-
-         proto_tree_add_item (tree, hf_scsi_sbc_wrverify_lba64, tvb, offset+1, 8, 0);
-         proto_tree_add_item (tree, hf_scsi_sbc_wrverify_xferlen32, tvb, offset+9,
-                              4, 0);
-         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+13, 1, 0);
-
-         flags = tvb_get_guint8 (tvb, offset+14);
-         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+14, 1,
-                                     flags,
-                                     "Vendor Unique = %u, NACA = %u, Link = %u",
-                                     flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_wrverify_flags,
+            ett_scsi_wrverify, wrverify16_fields, FALSE);
+        proto_tree_add_item (tree, hf_scsi_sbc_wrverify_lba64, tvb, offset+1, 8, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_wrverify_xferlen32, tvb, offset+9, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+13, 1, 0);
+        proto_tree_add_bitmask(tree, tvb, offset+14, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
-
 
 void
 dissect_sbc_readcapacity10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                            guint offset, gboolean isreq, gboolean iscdb,
                            guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
     guint32 len, block_len, tot_len;
     const char *un;
     static const int *pmi_fields[] = {
@@ -1042,16 +912,11 @@ dissect_sbc_readcapacity10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
         return;
 
     if (isreq && iscdb) {
-        proto_tree_add_item (tree, hf_scsi_sbc_readcapacity_lba, tvb, offset+1,
-                             4, 0);
-	proto_tree_add_bitmask(tree, tvb, offset+7, hf_scsi_sbc_pmi_flags, ett_scsi_pmi, pmi_fields, FALSE);
-
-
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_item (tree, hf_scsi_sbc_readcapacity_lba, tvb, offset+1, 4, 0);
+        proto_tree_add_bitmask(tree, tvb, offset+7, hf_scsi_sbc_pmi_flags,
+            ett_scsi_pmi, pmi_fields, FALSE);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
     else if (!iscdb) {
         len = tvb_get_ntohl (tvb, offset);
@@ -1073,7 +938,6 @@ dissect_sbc_readdefectdata10 (tvbuff_t *tvb, packet_info *pinfo _U_,
                             gboolean iscdb,
                             guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
     static const int *defect_fields[] = {
 	&hf_scsi_sbc_defect_list_format,
 	&hf_scsi_sbc_req_plist,
@@ -1085,14 +949,11 @@ dissect_sbc_readdefectdata10 (tvbuff_t *tvb, packet_info *pinfo _U_,
         return;
 
     if (isreq && iscdb) {
-	proto_tree_add_bitmask(tree, tvb, offset+1, hf_scsi_sbc_readdefdata_flags, ett_scsi_defectdata, defect_fields, FALSE);
-
+        proto_tree_add_bitmask(tree, tvb, offset+1, hf_scsi_sbc_readdefdata_flags,
+            ett_scsi_defectdata, defect_fields, FALSE);
         proto_tree_add_item (tree, hf_scsi_sbc_alloclen16, tvb, offset+6, 2, 0);
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
     /* TODO : add dissection of DATA */
 }
@@ -1104,7 +965,6 @@ dissect_sbc_readlong10 (tvbuff_t *tvb, packet_info *pinfo _U_,
                             gboolean iscdb,
                             guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
     static const int *corrct_fields[] = {
 	&hf_scsi_sbc_corrct,
 	NULL
@@ -1114,16 +974,12 @@ dissect_sbc_readlong10 (tvbuff_t *tvb, packet_info *pinfo _U_,
         return;
 
     if (isreq && iscdb) {
-	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_corrct_flags, ett_scsi_corrct, corrct_fields, FALSE);
-
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_corrct_flags,
+            ett_scsi_corrct, corrct_fields, FALSE);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
-
         proto_tree_add_item (tree, hf_scsi_sbc_alloclen16, tvb, offset+6, 2, 0);
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -1133,20 +989,15 @@ dissect_sbc_writelong10 (tvbuff_t *tvb, packet_info *pinfo _U_,
                             gboolean iscdb,
                             guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
 
     if (!tree)
         return;
 
     if (isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
-
         proto_tree_add_item (tree, hf_scsi_sbc_alloclen16, tvb, offset+6, 2, 0);
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -1156,7 +1007,6 @@ dissect_sbc_writesame10 (tvbuff_t *tvb, packet_info *pinfo _U_,
                             gboolean iscdb,
                             guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
     static const int *writesame10_fields[] = {
 	&hf_scsi_sbc_wrprotect,
 	&hf_scsi_sbc_pbdata,
@@ -1168,18 +1018,13 @@ dissect_sbc_writesame10 (tvbuff_t *tvb, packet_info *pinfo _U_,
         return;
 
     if (isreq && iscdb) {
- 	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_writesame_flags, ett_scsi_writesame, writesame10_fields, FALSE);
-
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_writesame_flags,
+            ett_scsi_writesame, writesame10_fields, FALSE);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
-
-	proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+5, 1, 0);
-
+        proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+5, 1, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_alloclen16, tvb, offset+6, 2, 0);
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
 
@@ -1189,7 +1034,6 @@ dissect_sbc_writesame16 (tvbuff_t *tvb, packet_info *pinfo _U_,
                             gboolean iscdb,
                             guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
     static const int *writesame16_fields[] = {
 	&hf_scsi_sbc_wrprotect,
 	&hf_scsi_sbc_pbdata,
@@ -1201,20 +1045,15 @@ dissect_sbc_writesame16 (tvbuff_t *tvb, packet_info *pinfo _U_,
         return;
 
     if (isreq && iscdb) {
- 	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_writesame_flags, ett_scsi_writesame, writesame16_fields, FALSE);
-
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_writesame_flags,
+            ett_scsi_writesame, writesame16_fields, FALSE);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr16_lba, tvb, offset+1, 8, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr12_xferlen, tvb, offset+9, 4, 0);
-	proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+13, 1, 0);
-
-        flags = tvb_get_guint8 (tvb, offset+14);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+14, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+13, 1, 0);
+        proto_tree_add_bitmask(tree, tvb, offset+14, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
 }
-
 
 static void
 dissect_sbc_readdefectdata12 (tvbuff_t *tvb, packet_info *pinfo _U_,
@@ -1222,7 +1061,6 @@ dissect_sbc_readdefectdata12 (tvbuff_t *tvb, packet_info *pinfo _U_,
                             gboolean iscdb,
                             guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
     static const int *defect_fields[] = {
 	&hf_scsi_sbc_defect_list_format,
 	&hf_scsi_sbc_req_plist,
@@ -1234,14 +1072,11 @@ dissect_sbc_readdefectdata12 (tvbuff_t *tvb, packet_info *pinfo _U_,
         return;
 
     if (isreq && iscdb) {
-	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_readdefdata_flags, ett_scsi_defectdata, defect_fields, FALSE);
-
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_readdefdata_flags,
+            ett_scsi_defectdata, defect_fields, FALSE);
         proto_tree_add_item (tree, hf_scsi_sbc_alloclen32, tvb, offset+5, 4, 0);
-        flags = tvb_get_guint8 (tvb, offset+10);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+10, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset+10, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
     /* TODO : add dissection of DATA */
 }
@@ -1253,7 +1088,6 @@ dissect_sbc_reassignblocks (tvbuff_t *tvb, packet_info *pinfo _U_,
                            gboolean iscdb,
                            guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 flags;
     static const int *reassign_fields[] = {
 	&hf_scsi_sbc_reassignblocks_longlba,
 	&hf_scsi_sbc_reassignblocks_longlist,
@@ -1264,13 +1098,10 @@ dissect_sbc_reassignblocks (tvbuff_t *tvb, packet_info *pinfo _U_,
         return;
 
     if (isreq && iscdb) {
-	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_reassignblks_flags, ett_scsi_reassign_blocks, reassign_fields, FALSE);
-
-        flags = tvb_get_guint8 (tvb, offset+4);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_reassignblks_flags,
+            ett_scsi_reassign_blocks, reassign_fields, FALSE);
+        proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, FALSE);
     }
     /* TODO : add dissection of DATA */
 }
@@ -1295,7 +1126,7 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
                            gboolean iscdb,
                            guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
-    guint8 service_action, flags;
+    guint8 service_action;
     guint32 block_len;
     guint64 len, tot_len;
     char *un;
@@ -1333,11 +1164,8 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
 		proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_pmi_flags, ett_scsi_pmi, pmi_fields, FALSE);
 		offset++;
 
-	        flags = tvb_get_guint8 (tvb, offset);
-        	proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+		proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_control,
+			ett_scsi_control, cdb_control_fields, FALSE);
 		offset++;
 
 		break;
@@ -1363,11 +1191,8 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
 		/* CORRCT bit */
 		offset++;
 
-	        flags = tvb_get_guint8 (tvb, offset);
-        	proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset, 1,
-                                    flags,
-                                    "Vendor Unique = %u, NACA = %u, Link = %u",
-                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+		proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_control,
+			ett_scsi_control, cdb_control_fields, FALSE);
 		offset++;
 
 		break;
