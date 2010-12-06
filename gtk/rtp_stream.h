@@ -37,7 +37,7 @@
 /****************************************************************************/
 /* type for storing rtp frame information */
 typedef struct st_rtp_sample_header {
-	guint32 rec_time;	/* miliseconds since start of recording */
+	guint32 rec_time;	/* milliseconds since start of recording */
 	guint16 frame_length;   /* number of bytes in *frame */
 } rtp_sample_header_t;
 

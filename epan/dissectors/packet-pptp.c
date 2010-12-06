@@ -826,7 +826,7 @@ proto_register_pptp(void)
     { &hf_pptp_in_result,
       { "Result Code",			"pptp.in_result",
 	FT_UINT8,	BASE_DEC,	VALS(in_resulttype_vals),	0x0,
-      	"This value indicates the result of the Incoming-Call-Request attemp", HFILL }},
+      	"This value indicates the result of the Incoming-Call-Request attempt", HFILL }},
     { &hf_pptp_disc_result,
       { "Result Code",			"pptp.disc_result",
 	FT_UINT8,	BASE_DEC,	VALS(disc_resulttype_vals),	0x0,

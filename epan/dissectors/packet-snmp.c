@@ -2777,7 +2777,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * This is TCP, and we should, and can, do reassembly.
 		 *
 		 * Is the "Sequence Of" header split across segment
-		 * boundaries?  We requre at least 6 bytes for the
+		 * boundaries?  We require at least 6 bytes for the
 		 * header, which allows for a 4-byte length (ASN.1
 		 * BER).
 		 */

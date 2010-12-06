@@ -121,7 +121,7 @@ diam_tree_to_csv(proto_node* node, gpointer data)
 			}
 		}
 		if(!val_str)
-			val_str=ep_strdup_printf("unsuprorted type: %s",ftype_name(ftype));
+			val_str=ep_strdup_printf("unsupported type: %s",ftype_name(ftype));
 
 		/*printf("traverse: name='%s', abbrev='%s',desc='%s', val='%s'\n",hfi->name,hfi->abbrev,ftype_name(hfi->type),val_str);*/
 		printf("%s='%s' ",hfi->name,val_str);

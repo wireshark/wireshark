@@ -18271,7 +18271,7 @@ const value_string ssCode_vals[] = {
   { 0x13 ,"colp - connected line identification presentation" },
   { 0x14 ,"colr - connected line identification restriction" },
   { 0x15 ,"mci - malicious call identification" },
-  { 0x18 ,"allNameIdentificationSS - all name indentification SS" },
+  { 0x18 ,"allNameIdentificationSS - all name identification SS" },
   { 0x19 ,"cnap - calling name presentation" },
   { 0x20 ,"allForwardingSS - all forwarding SS" },
   { 0x21 ,"cfu - call forwarding unconditional" },

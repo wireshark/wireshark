@@ -96,7 +96,7 @@ static const value_string h248_3GUP_delerrsdu_vals[] = {
 
 static const value_string h248_3GUP_interface_vals[] = {
 	{   0x0001, "RAN (Iu interface)" },
-	{   0x0002, "CN (Nb interfac)" },
+	{   0x0002, "CN (Nb interface)" },
 	{0,     NULL}
 };
 

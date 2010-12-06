@@ -2528,7 +2528,7 @@ void proto_register_rlc_lte(void)
     prefs_register_bool_preference(rlc_lte_module, "header_only_mode",
         "May see RLC headers only",
         "When enabled, if data is not present, don't report as an error, but instead "
-        "add expert info to indicate that headers were ommitted",
+        "add expert info to indicate that headers were omitted",
         &global_rlc_lte_headers_expected);
 
     register_init_routine(&rlc_lte_init_protocol);

@@ -1313,7 +1313,7 @@ void proto_register_synphasor(void)
 		  TFS(&data_statb14names), 0x4000, NULL, HFILL }},
 
 		{ &hf_data_statb13,
-		{ "Time syncronized", PROTOCOL_ABBREV ".data.sync", FT_BOOLEAN, 16,
+		{ "Time synchronized", PROTOCOL_ABBREV ".data.sync", FT_BOOLEAN, 16,
 		  TFS(&data_statb13names), 0x2000, NULL, HFILL }},
 
 		{ &hf_data_statb12,

@@ -1902,7 +1902,7 @@ void proto_register_isns(void)
 	{ &hf_isns_node_next_index,
 	  { "Node Next Index","isns.node.next_index",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "Node INext ndex", HFILL }},
+	    "Node INext index", HFILL }},
 
 	{ &hf_isns_portal_index,
 	  { "Portal Index","isns.portal.index",

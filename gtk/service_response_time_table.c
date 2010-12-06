@@ -315,7 +315,7 @@ srt_create_popup_menu(srt_stat_table *rst)
 	gtk_ui_manager_add_ui_from_string (ui_manager,ui_desc_service_resp_t_filter_popup, -1, &error);
 	if (error != NULL)
     {
-        fprintf (stderr, "Warning: building service responce time filter popup failed: %s\n",
+        fprintf (stderr, "Warning: building service response time filter popup failed: %s\n",
                 error->message);
         g_error_free (error);
         error = NULL;

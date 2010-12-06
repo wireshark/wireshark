@@ -439,7 +439,7 @@ typedef struct dcm_state_pdv {
 
     /* Used and filled for Export Object only */
     gpointer data;		/* Copy of PDV data without any PDU/PDV header */
-    guint32  data_len;		/* Length of this PDV buffer. If >0, memory has been alocated */
+    guint32  data_len;		/* Length of this PDV buffer. If >0, memory has been allocated */
 
     gchar   *sop_class_uid;	/* SOP Class UID.    Set in 1st PDV of a DICOM object. se_alloc() */
     gchar   *sop_instance_uid;	/* SOP Instance UID. Set in 1st PDV of a DICOM object. se_alloc() */

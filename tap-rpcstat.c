@@ -72,7 +72,7 @@ typedef struct _rpcstat_t {
  * to reset all state. Such as when wireshark opens a new file, when it
  * starts a new capture, when it rescans the packetlist after some prefs have
  * changed etc.
- * So if your aplication has some state it needs to clean up in those
+ * So if your application has some state it needs to clean up in those
  * situations, here is a good place to put that code.
  */
 static void

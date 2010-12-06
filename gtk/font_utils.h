@@ -42,8 +42,8 @@ extern void font_init(void);
 /** Return value from font_apply() */
 typedef enum {
 	FA_SUCCESS,             /**< function succeeded */
-	FA_FONT_NOT_RESIZEABLE, /**< the choosen font isn't resizable */
-	FA_FONT_NOT_AVAILABLE   /**< the choosen font isn't available */
+	FA_FONT_NOT_RESIZEABLE, /**< the chosen font isn't resizable */
+	FA_FONT_NOT_AVAILABLE   /**< the chosen font isn't available */
 } fa_ret_t;
 
 /** Applies a new user font, corresponding to the preferences font name and recent zoom level. 

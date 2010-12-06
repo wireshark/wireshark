@@ -646,7 +646,7 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 
 }
 
-/* This funktion is adapted to parsing NAL units from SDP data where the
+/* This function is adapted to parsing NAL units from SDP data where the
  * base64 coding may add extra padding
  */
 

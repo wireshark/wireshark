@@ -177,7 +177,7 @@ static const value_string mysql_opcode_vals[] = {
 };
 
 
-/* charset: pre-4.1 used ther term 'charset', later changed to 'collation' */
+/* charset: pre-4.1 used the term 'charset', later changed to 'collation' */
 static const value_string mysql_charset_vals[] = {
 	{1,  "big5"},
 	{2,  "czech"},
@@ -1074,7 +1074,7 @@ void proto_register_mysql(void)
 		{ &hf_mysql_row_length,
 		{ "length", "mysql.row.length",
 		FT_UINT8, BASE_DEC, NULL, 0x0,
-		"Field: row packet text tength", HFILL }},
+		"Field: row packet text length", HFILL }},
 
 		{ &hf_mysql_row_text,
 		{ "text", "mysql.row.text",

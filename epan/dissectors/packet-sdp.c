@@ -236,7 +236,7 @@ void proto_reg_handoff_sdp(void);
 
 /* static functions */
 
-static void call_sdp_subdissector(tvbuff_t *tvb, packet_info *pinfo, int hf, proto_tree* ti, int lenght,
+static void call_sdp_subdissector(tvbuff_t *tvb, packet_info *pinfo, int hf, proto_tree* ti, int length,
                                   transport_info_t *transport_info);
 
 /* Subdissector functions */

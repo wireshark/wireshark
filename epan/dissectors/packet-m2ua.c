@@ -859,7 +859,7 @@ static const value_string parameter_tag_values[] = {
   { LINK_KEY_PARAMETER_TAG,                        "Link key" },
   { LOCAL_LK_IDENTIFIER_PARAMETER_TAG,             "Local LK identifier" },
   { SDT_IDENTIFIER_PARAMETER_TAG,                  "SDT identifier" },
-  { SDL_IDENTIFIER_PARAMETER_TAG,                  "SDL identifer" },
+  { SDL_IDENTIFIER_PARAMETER_TAG,                  "SDL identifier" },
   { REG_RESULT_PARAMETER_TAG,                      "Registration result" },
   { REG_STATUS_PARAMETER_TAG,                      "Registration status" },
   { DEREG_RESULT_PARAMETER_TAG,                    "Deregistration result" },

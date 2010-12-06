@@ -2544,9 +2544,9 @@ static hf_register_info hf [] =
   { &hf_r3_nvramchecksumvalue_fixup, { "Fixup", "r3.nvramchecksum.fixup", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
   { &hf_r3_capabilities,        { "Capability", "r3.capabilities",      FT_NONE,   BASE_NONE,    NULL, 0x0, NULL, HFILL }},
-  { &hf_r3_capabilities_length, { "Length",     "r3.capabilies.length", FT_UINT8,  BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
-  { &hf_r3_capabilities_type,   { "Type",       "r3.capabilies.type",   FT_UINT8,  BASE_HEX_DEC|BASE_EXT_STRING, &r3_capabilitiesnames_ext, 0x0, NULL, HFILL }},
-  { &hf_r3_capabilities_value,  { "Value",      "r3.capabilies.value",  FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
+  { &hf_r3_capabilities_length, { "Length",     "r3.capabilities.length", FT_UINT8,  BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
+  { &hf_r3_capabilities_type,   { "Type",       "r3.capabilities.type",   FT_UINT8,  BASE_HEX_DEC|BASE_EXT_STRING, &r3_capabilitiesnames_ext, 0x0, NULL, HFILL }},
+  { &hf_r3_capabilities_value,  { "Value",      "r3.capabilities.value",  FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
 
   { &hf_r3_lockstate_passage,            { "Passage",              "r3.lockstate.passage",            FT_BOOLEAN, 24, NULL, 0x00000001, NULL, HFILL }},
   { &hf_r3_lockstate_panic,              { "Panic",                "r3.lockstate.panic",              FT_BOOLEAN, 24, NULL, 0x00000002, NULL, HFILL }},

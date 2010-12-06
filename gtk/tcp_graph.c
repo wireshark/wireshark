@@ -515,7 +515,7 @@ static char helptext[] =
 #else /* !ORIGINAL_WIN32_BUTTONS */
 	"   Left Mouse Button			selects segment under cursor in Wireshark's packet list\n"
 	"\n"
-	"   Middle Mouse Button			zooms in (towards area under cousor)\n"
+	"   Middle Mouse Button			zooms in (towards area under cursor)\n"
 	"   <Shift>-Middle Mouse Button	zooms out\n"
 	"\n"
 	"   Right Mouse Button			moves the graph (if zoomed in)\n"

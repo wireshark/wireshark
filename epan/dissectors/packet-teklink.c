@@ -343,7 +343,7 @@ static int dissect_teklink_vtc_mode(tvbuff_t *tvb, int offset, packet_info *pinf
 	offset = dissect_rpc_uint32(tvb, tree, hf_teklink_vtc_mode, offset);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO," %s, %s, %s",
-			val_to_str(sig, teklink_vtc_dstnames, "Unknown destinatin %d"),
+			val_to_str(sig, teklink_vtc_dstnames, "Unknown destination %d"),
 			val_to_str(edge, teklink_vtc_edge, "Unknown edge setting %d"),
 			val_to_str(mode, teklink_vtc_modes, "Unknown mode setting %d"));
 	return offset;

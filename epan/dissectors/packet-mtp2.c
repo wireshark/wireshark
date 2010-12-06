@@ -356,7 +356,7 @@ dissect_mtp2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
 static void
 dissect_mtp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  /* If the link extention indicate the FCS presence, then the Checkbits
+  /* If the link extension indicates the FCS presence, then the Checkbits
    * have to be proceeded in the MTP2 dissector */
   if ( pinfo->fd->lnk_t == WTAP_ENCAP_ERF ) {
     dissect_mtp2_common(tvb, pinfo, tree, TRUE);

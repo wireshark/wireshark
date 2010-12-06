@@ -199,7 +199,7 @@ static const value_string p2p_minor_reason_codes[] = {
     "Disconnected because concurrent device is not setting coexistence "
     "parameters" },
   { P2P_MINOR_DISCONNECT_DUE_TO_OUTSIDE_POLICY,
-    "Disconnected because P2P oepration is outside the IT defined policy" },
+    "Disconnected because P2P operation is outside the IT defined policy" },
   { 0, NULL }
 };
 

@@ -3240,7 +3240,7 @@ proto_register_smpp(void)
         {   &hf_smpp_opt_param_tag,
             {   "Tag", "smpp.opt_param_tag",
                 FT_UINT16, BASE_HEX, NULL, 0x00,
-                "Optional parameter intentifier tag",
+                "Optional parameter identifier tag",
                 HFILL
             }
         },

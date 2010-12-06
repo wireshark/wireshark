@@ -56,13 +56,13 @@ void rmt_ext_parse(GArray *a, tvbuff_t *tvb, guint *offset, guint offset_max)
 		e.het = tvb_get_guint8(tvb, *offset);
 
 		if (e.het <= 127) {
-			/* If HET <= 127, we have a variable-size extention */
+			/* If HET <= 127, we have a variable-size extension */
 			e.hel = tvb_get_guint8(tvb, *offset+1);
 			e.hec_offset = *offset + 2;
 			e.hec_size = e.hel * 4 - 2;
 			e.length = e.hel * 4;
 		} else {
-			/* If HET > 127, we have a short 32-bit extention */
+			/* If HET > 127, we have a short 32-bit extension */
 			e.hel = 1;	/* even if HEL field is not defined for HET > 127 */
 			e.hec_offset = *offset + 1;
 			e.hec_size = 3;

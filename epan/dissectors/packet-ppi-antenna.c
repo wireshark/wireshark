@@ -50,7 +50,7 @@ enum ppi_antenna_type {
     PPI_ANTENNA_SERIALNUM   = 26,
     PPI_ANTENNA_MODELSTR    = 27, /*32 bytes, fixed length, null terminated model of antenna */
     PPI_ANTENNA_DESCSTR     = 28, /*32 bytes, fixed length, null terminated description of what the antenna is for */
-    PPI_ANTENNA_APPID       = 29, /*4-byte identifer*/
+    PPI_ANTENNA_APPID       = 29, /*4-byte identifier*/
     PPI_ANTENNA_APPDATA     = 30, /* 60-byte app-id specific data*/
     PPI_ANTENNA_EXT         = 31  /* Indicates n extended bitmap follows */
 };
@@ -231,12 +231,12 @@ proto_register_ppi_antenna(void) {
         { &hf_ppi_antennaflags_circpol_l,
           { "circularly polarized left", "ppi_antenna.antennaflags.circpol_l",
             FT_BOOLEAN, 32, NULL, PPI_ANTENNAFLAGS_MASK_CPOL_L,
-            "Specifies if the antenna is circulary polarized, left handed", HFILL } },
+            "Specifies if the antenna is circularly polarized, left handed", HFILL } },
 
         { &hf_ppi_antennaflags_circpol_r,
           { "circularly polarized right", "ppi_antenna.antennaflags.circpol_r",
             FT_BOOLEAN, 32, NULL, PPI_ANTENNAFLAGS_MASK_CPOL_R,
-            "Specifies if the antenna is circulary polarized, right handed", HFILL } },
+            "Specifies if the antenna is circularly polarized, right handed", HFILL } },
 
         { &hf_ppi_antennaflags_steer_elec,
           { "electrically steerable", "ppi_antenna.antennaflags.steer_elec",

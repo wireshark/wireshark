@@ -261,7 +261,7 @@ dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
 		guint8 control;
 		proto_tree *trick_tree;
 		proto_item *trick_item;
-		
+
 		trick_item = proto_tree_add_item(item,
 			hf_mpeg_pes_dsm_trick_mode, tvb,
 				offset, 1, FALSE);
@@ -274,7 +274,7 @@ dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
 			hf_mpeg_pes_dsm_trick_mode_control, tvb,
 			offset, 1,
 			control);
-	
+
 		if (control == FAST_FORWARD_CONTROL
 			|| control == FAST_REVERSE_CONTROL)
 		{
@@ -508,12 +508,12 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			offset = dissect_mpeg_pes_Stream(tvb, offset, &asn1_ctx,
 					tree, hf_mpeg_pes_extension);
-			/* https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2229 
-			 * A value of 0 indicates that the PES packet length is neither specified nor 
-			 * bounded and is allowed only in PES packets whose payload is a video elementary 
-			 * stream contained in Transport Stream packets. 
-			 * XXX Some one with access to the spec should check this 
-			 */ 
+			/* https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2229
+			 * A value of 0 indicates that the PES packet length is neither specified nor
+			 * bounded and is allowed only in PES packets whose payload is a video elementary
+			 * stream contained in Transport Stream packets.
+			 * XXX Some one with access to the spec should check this
+			 */
 			 if(length !=0 && stream != STREAM_VIDEO){
 				 length -= 5 * 8;
 			 }
@@ -525,14 +525,14 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						header_length, header_length);
 				dissect_mpeg_pes_header_data(header_data, pinfo, tree, flags);
 				offset += header_length * 8;
-				 /* lenght may be zero for Video stream */
+				 /* length may be zero for Video stream */
 				if(length !=0 && stream != STREAM_VIDEO){
 					length -= header_length * 8;
 				}
 			}
 
-			/* lenght may be zero for Video stream */ 
-			if(length==0){ 
+			/* length may be zero for Video stream */
+			if(length==0){
 				proto_tree_add_item(tree, hf_mpeg_pes_data, tvb, (offset>>3),-1, FALSE);
 				return TRUE;
 			}

@@ -1933,7 +1933,7 @@ find_pointer_index(guint32 id)
  *   this is text is what text we should put in any created tree node.
  *
  *   hf_index is what hf value we want to pass to the callback function when
- *   it is called, the callback can later pich this one up from di->hf_index.
+ *   it is called, the callback can later pick this one up from di->hf_index.
  *
  *   callback is executed after the pointer has been dereferenced.
  *

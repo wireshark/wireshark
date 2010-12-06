@@ -258,7 +258,7 @@ static const value_string scsi_read_dvd_formats[] = {
     {0x07, "Media Key block protected by a Bus Key"},
     {0x08, "DDS information"},
     {0x09, "DVD-RAM Medium status"},
-    {0x0a, "DVD-RAM Spare Area infomraiton"},
+    {0x0a, "DVD-RAM Spare Area information"},
     {0x0b, "DVD-RAM Recording Type information"},
     {0x0c, "DVD-R/-RW RMD"},
     {0x0d, "Specified RMD"},

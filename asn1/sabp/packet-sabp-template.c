@@ -125,9 +125,9 @@ get_sabp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	/* Get the length of the sabp packet. offset in bits  */
 	offset = dissect_per_length_determinant(tvb, bit_offset, &asn1_ctx, NULL, -1, &type_length);
 
-	/* 
+	/*
 	 * Return the length of the PDU
-	 * which is 3 + the length of the length, we only care about lenght up to 16K
+	 * which is 3 + the length of the length, we only care about length up to 16K
 	 * ("n" less than 128) a single octet containing "n" with bit 8 set to zero;
 	 * ("n" less than 16K) two octets containing "n" with bit 8 of the first octet set to 1 and bit 7 set to zero;
 	 */
@@ -150,7 +150,7 @@ dissect_sabp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* create the sbap protocol tree */
 	sabp_item = proto_tree_add_item(tree, proto_sabp, tvb, 0, -1, FALSE);
 	sabp_tree = proto_item_add_subtree(sabp_item, ett_sabp);
-	
+
 	dissect_SABP_PDU_PDU(tvb, pinfo, sabp_tree);
 }
 
@@ -191,7 +191,7 @@ void proto_register_sabp(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_sabp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
- 
+
   /* Register dissector */
   register_dissector("sabp", dissect_sabp, proto_sabp);
   register_dissector("sabp.tcp", dissect_sabp_tcp, proto_sabp);

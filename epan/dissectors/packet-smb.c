@@ -2208,7 +2208,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 		if(dialect==0xffff){
 			proto_tree_add_uint_format(tree, hf_smb_dialect_index,
 				tvb, offset, 2, dialect,
-				"Selected Index: -1, PC NETWORK PROGRAM 1.0 choosen");
+				"Selected Index: -1, PC NETWORK PROGRAM 1.0 chosen");
 		} else {
 			proto_tree_add_uint(tree, hf_smb_dialect_index,
 				tvb, offset, 2, dialect);
@@ -18256,7 +18256,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_timeout,
 		{ "Timeout", "smb.timeout", FT_UINT32, BASE_DEC,
-		NULL, 0, "Timeout in miliseconds", HFILL }},
+		NULL, 0, "Timeout in milliseconds", HFILL }},
 
 	{ &hf_smb_high_offset,
 		{ "High Offset", "smb.offset_high", FT_UINT32, BASE_DEC,
@@ -18809,7 +18809,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_nt_create_options_sequential_only,
 		{ "Sequential Only", "smb.nt.create_options.sequential_only", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_create_options_sequential_only), 0x00000004, "Will access to thsis file only be sequential?", HFILL }},
+		TFS(&tfs_nt_create_options_sequential_only), 0x00000004, "Will access to this file only be sequential?", HFILL }},
 
 	{ &hf_smb_nt_create_options_no_intermediate_buffering,
 		{ "Intermediate Buffering", "smb.nt.create_options.intermediate_buffering", FT_BOOLEAN, 32,
@@ -18956,19 +18956,19 @@ proto_register_smb(void)
 
 	{ &hf_smb_nt_qsd_owner,
 		{ "Owner", "smb.nt_qsd.owner", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_qsd_owner), NT_QSD_OWNER, "Is owner security informaton being queried?", HFILL }},
+		TFS(&tfs_nt_qsd_owner), NT_QSD_OWNER, "Is owner security information being queried?", HFILL }},
 
 	{ &hf_smb_nt_qsd_group,
 		{ "Group", "smb.nt_qsd.group", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_qsd_group), NT_QSD_GROUP, "Is group security informaton being queried?", HFILL }},
+		TFS(&tfs_nt_qsd_group), NT_QSD_GROUP, "Is group security information being queried?", HFILL }},
 
 	{ &hf_smb_nt_qsd_dacl,
 		{ "DACL", "smb.nt_qsd.dacl", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_qsd_dacl), NT_QSD_DACL, "Is DACL security informaton being queried?", HFILL }},
+		TFS(&tfs_nt_qsd_dacl), NT_QSD_DACL, "Is DACL security information being queried?", HFILL }},
 
 	{ &hf_smb_nt_qsd_sacl,
 		{ "SACL", "smb.nt_qsd.sacl", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_qsd_sacl), NT_QSD_SACL, "Is SACL security informaton being queried?", HFILL }},
+		TFS(&tfs_nt_qsd_sacl), NT_QSD_SACL, "Is SACL security information being queried?", HFILL }},
 
 	{ &hf_smb_extended_attributes,
 		{ "Extended Attributes", "smb.ext_attr", FT_BYTES, BASE_NONE,
@@ -19421,8 +19421,8 @@ proto_register_smb(void)
 		NULL, 0, "Number of actual free allocation units", HFILL }},
 
 	{ &hf_smb_soft_quota_limit,
-		{ "(Soft) Quota Treshold", "smb.quota.soft.default", FT_UINT64, BASE_DEC,
-		NULL, 0, "Soft Quota treshold", HFILL }},
+		{ "(Soft) Quota Threshold", "smb.quota.soft.default", FT_UINT64, BASE_DEC,
+		NULL, 0, "Soft Quota threshold", HFILL }},
 
 	{ &hf_smb_hard_quota_limit,
 		{ "(Hard) Quota Limit", "smb.quota.hard.default", FT_UINT64, BASE_DEC,

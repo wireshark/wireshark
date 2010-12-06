@@ -5400,7 +5400,7 @@ static const true_false_string get_dcname_request_flags_is_flat_name = {
 };
 static const true_false_string get_dcname_request_flags_is_dns_name = {
     "the name we specify is a DNS name",
-    "ther name we specify is NOT a dns name"
+    "the name we specify is NOT a dns name"
 };
 static const true_false_string get_dcname_request_flags_return_dns_name = {
     "return a DNS name",
@@ -8877,7 +8877,7 @@ proto_register_dcerpc_netlogon(void)
           { "RC4 encryption", "ntlmssp.neg_flags.na4", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_4, "RC4", HFILL }},
 
         { &hf_netlogon_neg_flags_2,
-          { "NT3.5 BDC continious update", "ntlmssp.neg_flags.na2", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_2, "NT3.5", HFILL }},
+          { "NT3.5 BDC continuous update", "ntlmssp.neg_flags.na2", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_2, "NT3.5", HFILL }},
 
         { &hf_netlogon_neg_flags_1,
           { "Account lockout", "ntlmssp.neg_flags.na1", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_1, NULL, HFILL }},
@@ -8988,7 +8988,7 @@ proto_register_dcerpc_netlogon(void)
         { &hf_netlogon_get_dcname_request_flags_ip_required,
           { "IP Required", "netlogon.get_dcname.request.flags.ip_required",
             FT_BOOLEAN, 32, TFS(&get_dcname_request_flags_ip_required), DS_IP_REQUIRED,
-            "If we requre the IP of the DC in the reply", HFILL }},
+            "If we require the IP of the DC in the reply", HFILL }},
 
         { &hf_netlogon_get_dcname_request_flags_kdc_required,
           { "KDC Required", "netlogon.get_dcname.request.flags.kdc_required",

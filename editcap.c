@@ -913,7 +913,7 @@ main(int argc, char *argv[])
       dup_detect_by_time = FALSE;
       dup_window = strtol(optarg, &p, 10);
       if (p == optarg || *p != '\0') {
-        fprintf(stderr, "editcap: \"%s\" isn't a valid dupicate window value\n",
+        fprintf(stderr, "editcap: \"%s\" isn't a valid duplicate window value\n",
             optarg);
         exit(1);
       }

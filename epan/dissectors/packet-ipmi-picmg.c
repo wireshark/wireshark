@@ -515,7 +515,7 @@ static const value_string vals_35_override[] = {
 static const value_string vals_36_result[] = {
 	{ 0x55, "No error. All Self Tests Passed" },
 	{ 0x56, "Reserved, cannot be used" },
-	{ 0x57, "Corrupted or inaccesible data or devices" },
+	{ 0x57, "Corrupted or inaccessible data or devices" },
 	{ 0x58, "Fatal hardware error" },
 	{ 0x60, "Component failure" },
 	{ 0xff, "Reserved" },

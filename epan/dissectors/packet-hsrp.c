@@ -741,7 +741,7 @@ void proto_register_hsrp(void)
                 { &hf_hsrp2_identifier,
                   { "Identifier", "hsrp2.identifier",
                     FT_ETHER, BASE_NONE, NULL, 0x0,
-                    "BIA value of a sender interafce", HFILL }},
+                    "BIA value of a sender interface", HFILL }},
 
                 { &hf_hsrp2_hellotime,
                   { "Hellotime", "hsrp2.hellotime",

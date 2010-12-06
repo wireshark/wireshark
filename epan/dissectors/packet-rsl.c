@@ -1481,7 +1481,7 @@ static const value_string rsl_rlm_cause_vals[] = {
 	{  0x02,	"re-establishment request" },
 	{  0x03,	"unsolicited UA response" },
 	{  0x04,	"unsolicited DM response" },
-	{  0x05,	"unsolicated DM response, multiple frame established state" },
+	{  0x05,	"unsolicited DM response, multiple frame established state" },
 	{  0x06,	"unsolicited supervisory response" },
 	{  0x07,	"sequence error" },
 	{  0x08,	"U-frame with incorrect parameters" },

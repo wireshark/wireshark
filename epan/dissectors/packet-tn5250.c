@@ -842,7 +842,7 @@ static const struct true_false_string tn5250_field_wdsf_ds_ct_flag1_2 = {
 };
 
 static const struct true_false_string tn5250_field_wdsf_ds_ct_flag1_3 = {
-	"Reserved (incorrectely set to on).",
+	"Reserved (incorrectly set to on).",
 	"Reserved (set to zero)."
 };
 
@@ -899,7 +899,7 @@ static const struct true_false_string tn5250_field_wdsf_ds_ct_flag2_5 = {
 };
 
 static const struct true_false_string tn5250_field_wdsf_ds_ct_flag2_6 = {
-	"Reserved (incorrectely set to on).",
+	"Reserved (incorrectly set to on).",
 	"Reserved (set to zero)."
 };
 

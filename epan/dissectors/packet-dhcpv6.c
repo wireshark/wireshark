@@ -779,7 +779,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, tvbuff_t *tvb, int voff, int
     int sub_off; /** The offset for the sub-option */
     proto_item *ti;
     int i;
-    int field_len; /* holds the lenght of one occurrence of a field */
+    int field_len; /* holds the length of one occurrence of a field */
     int field_value;
     proto_tree *subtree;
     struct e_in6_addr in6;

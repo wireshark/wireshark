@@ -1,4 +1,4 @@
-/* packet-sflow.c       < Last change made on 12/08/2009 13.00 >
+/* packet-sflow.c
  * Routines for sFlow v5 dissection implemented according to the specifications
  * at http://www.sflow.org/sflow_version_5.txt
  *
@@ -1658,7 +1658,7 @@ dissect_sflow_5_extended_80211_tx(tvbuff_t *tvb, proto_tree *tree, gint offset) 
             break;
         case 1:
             proto_tree_add_text(tree, tvb, offset, 4,
-                    "Retransmission: Packet transmitted sucessfully on first attemp");
+                    "Retransmission: Packet transmitted sucessfully on first attempt");
             break;
         default:
             proto_tree_add_text(tree, tvb, offset, 4, "Retransmissions: %u", transmissions - 1);
