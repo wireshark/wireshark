@@ -42,6 +42,7 @@
 #include <epan/charsets.h>
 
 #include <../alert_box.h>
+#include <../isprint.h>
 #include <../print.h>
 #include <../simple_dialog.h>
 #include <wsutil/file_util.h>
@@ -116,7 +117,7 @@ follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_server,
 	for (i = 0; i < nchars; i++) {
 		if (buffer[i] == '\n' || buffer[i] == '\r')
 			continue;
-		if (! g_unichar_isprint((guchar)buffer[i])) {
+		if (! isprint((guchar)buffer[i])) {
 			buffer[i] = '.';
 		}
 	}
@@ -151,7 +152,7 @@ follow_print_text(char *buffer, size_t nchars, gboolean is_server _U_,
 	for (i = 0; i < nchars; i++) {
 		if (buffer[i] == '\n' || buffer[i] == '\r')
 			continue;
-		if (! g_unichar_isprint((guchar)buffer[i])) {
+		if (! isprint((guchar)buffer[i])) {
 			buffer[i] = '.';
 		}
 	}
@@ -1042,7 +1043,7 @@ follow_show(follow_info_t *follow_info,
 			/* Now dump bytes as text */
 			for (i = 0; i < 16 && current_pos + i < nchars; i++) {
 				*cur++ =
-					(g_unichar_isprint((guchar)buffer[current_pos + i]) ?
+					(isprint((guchar)buffer[current_pos + i]) ?
 					 buffer[current_pos + i] : '.' );
 				if (i == 7) {
 					*cur++ = ' ';
