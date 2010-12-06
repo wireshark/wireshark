@@ -773,7 +773,6 @@ EXTRA_DIST = \
 	image/wssplash-dev.xpm	\
 	image/wssplash.xpm	\
 	ipmap.html	\
-	make-manuf		\
 	make-version.pl		\
 	manuf			\
 	manuf.tmpl		\

@@ -100,6 +100,7 @@ EXTRA_DIST = \
 	Makefile.nmake					\
 	make-dissector-reg				\
 	make-dissector-reg.py				\
+	make-manuf					\
 	make-sminmpec.pl 				\
 	make-services.pl 				\
 	make-tapreg-dotc				\
