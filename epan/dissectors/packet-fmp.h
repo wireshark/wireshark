@@ -1,23 +1,23 @@
 /* packet-fmp.h
  * Defines for fmp dissection
- *  
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -87,14 +87,14 @@
 
 #define FMP_PLUG_IN_ID_SZ 16
 
-/* 
+/*
  * FMP Notify Protocol
  */
 #define FMP_TCP	0
 #define FMP_UDP	1
 
 /*
- * Capabilities 
+ * Capabilities
  */
 
 #define FMP_CAP_REVOKE_HANDLE_LIST 0x0001
@@ -148,8 +148,8 @@ typedef enum {
 	FMP_CIFSV2  = 7,
 	FMP_UNC     = 8
 } nativeProtocol;
-   
- 
+
+
 #define FMP_MAX_PATH_LEN	1024
 
 
@@ -173,7 +173,7 @@ typedef enum  {
     FMP_VOLUME_SLICE   = 1,
     FMP_VOLUME_STRIPE  = 2,
     FMP_VOLUME_META    = 3
-}fmpVolumeType;
+} fmpVolumeType;
 
 /*
  * Extent States
@@ -197,18 +197,5 @@ typedef enum {
 
 
 #define MAX_MSG_SIZE		256  /* For wireshark messages */
-/*
-extern int hf_fmp_fsID;
-extern int hf_fmp_fsBlkSz;
-extern int hf_fmp_sessionHandle;
-extern int hf_fmp_fmpFHandle;
-extern int hf_fmp_msgNum;
-extern int hf_fmp_fileSize;
-extern int hf_fmp_firstLogBlk;
-extern int hf_fmp_numBlksReq;
-extern int hf_fmp_cookie;
-*/
-int dissect_fmp_status(tvbuff_t *, int, proto_tree *, int *);
-int dissect_fmp_extentList(tvbuff_t *, int, packet_info *, proto_tree *);
 
 #endif

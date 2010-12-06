@@ -30,26 +30,22 @@
 #include "config.h"
 #endif
 
-#include <string.h>
-#include <glib.h>
-#include <gmodule.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/strutil.h>
 #include "packet-fmp.h"
 #include "packet-rpc.h"
 
 
-int hf_fmp_procedure = -1;
-int hf_fmp_fsID = -1;
-int hf_fmp_fsBlkSz = -1;
-int hf_fmp_sessionHandle = -1;
-int hf_fmp_fmpFHandle = -1;
-int hf_fmp_msgNum = -1;
-int hf_fmp_fileSize = -1;
-int hf_fmp_cookie = -1;
-int hf_fmp_firstLogBlk = -1;
-int hf_fmp_numBlksReq = -1;
+static int hf_fmp_procedure = -1;
+static int hf_fmp_fsID = -1;
+static int hf_fmp_fsBlkSz = -1;
+static int hf_fmp_sessionHandle = -1;
+static int hf_fmp_fmpFHandle = -1;
+static int hf_fmp_msgNum = -1;
+static int hf_fmp_fileSize = -1;
+static int hf_fmp_cookie = -1;
+static int hf_fmp_firstLogBlk = -1;
+static int hf_fmp_numBlksReq = -1;
 
 static int proto_fmp = -1;
 static int hf_fmp_hostID = -1;
@@ -110,9 +106,9 @@ static gint ett_capabilities = -1;
 static gint ett_HierVolumeDescription = -1;
 static gint ett_attrs = -1;
 
-gboolean fmp_fhandle_reqrep_matching = FALSE;
+static gboolean fmp_fhandle_reqrep_matching = FALSE;
 
-int
+static int
 dissect_fmp_genString(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	encoding mode;
@@ -185,7 +181,7 @@ get_fileHandleSrc_size(tvbuff_t *tvb, int offset)
 	return length;
 }
 
-int
+static int
 dissect_fmp_fileHandleSrc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                           proto_tree *tree)
 {
@@ -315,7 +311,7 @@ dissect_fmp_fileHandleSrc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	return offset;
 }
 
-int
+static int
 dissect_fmp_extentState(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	extentState state;
@@ -331,7 +327,7 @@ dissect_fmp_extentState(tvbuff_t *tvb, int offset, proto_tree *tree)
 	return offset;
 }
 
-int
+static int
 dissect_fmp_extent(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint32 ext_num)
 {
 	proto_item *extItem;
@@ -358,7 +354,7 @@ dissect_fmp_extent(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 	return offset;
 }
 
-int
+static int
 dissect_fmp_extentList(tvbuff_t *tvb, int offset, packet_info *pinfo,
                        proto_tree *tree)
 {
@@ -390,7 +386,7 @@ dissect_fmp_extentList(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-int
+static int
 dissect_fmp_extentListEx(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                        proto_tree *tree)
 {
@@ -431,7 +427,7 @@ dissect_fmp_extentListEx(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 
-int
+static int
 dissect_plugInID(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	const guint8 *plugInID;
@@ -446,7 +442,7 @@ dissect_plugInID(tvbuff_t *tvb, int offset, proto_tree *tree)
 	return offset;
 }
 
-int
+static int
 dissect_fmp_flushCmd(tvbuff_t *tvb, int offset,  proto_tree *tree)
 {
 	guint32 cmd;
@@ -510,7 +506,8 @@ dissect_fmp_flushCmd(tvbuff_t *tvb, int offset,  proto_tree *tree)
 	offset += 4;
 	return offset;
 }
-int
+
+static int
 dissect_InterpretVolMgtStuff(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	int length,numdisks,i,j;
@@ -540,7 +537,8 @@ dissect_InterpretVolMgtStuff(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 
 }
-int
+
+static int
 dissect_fmp_capability(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	int vmType;
@@ -592,7 +590,7 @@ dissect_fmp_capability(tvbuff_t *tvb, int offset, proto_tree *tree)
 	return offset;
 }
 
-int
+static int
 dissect_fmp_timeval(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                     proto_tree *tree, int hf_time, int hf_time_sec,
                     int hf_time_nsec)
@@ -625,7 +623,7 @@ dissect_fmp_timeval(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	return offset;
 }
 
-int
+static int
 dissect_fmp_heartBeatIntv(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                           proto_tree *tree)
 {
@@ -641,7 +639,7 @@ dissect_fmp_heartBeatIntv(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	return offset;
 }
 
-int
+static int
 dissect_fmp_status(tvbuff_t *tvb, int offset, proto_tree *tree, int *rval)
 {
 	fmpStat status;
@@ -716,7 +714,7 @@ dissect_fmp_status(tvbuff_t *tvb, int offset, proto_tree *tree, int *rval)
 	return offset;
 }
 
-int
+static int
 dissect_fmp_devSerial(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                       proto_tree *tree)
 {
@@ -756,7 +754,8 @@ dissect_fmp_devSerial(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 
 
-int dissect_fmp_VolumeDescription(tvbuff_t *tvb, int offset, proto_tree * tree)
+static int
+dissect_fmp_VolumeDescription(tvbuff_t *tvb, int offset, proto_tree * tree)
 {
         int i,length;
         proto_tree *Hietree,*hieTree;
@@ -864,8 +863,8 @@ int dissect_fmp_VolumeDescription(tvbuff_t *tvb, int offset, proto_tree * tree)
 }
 
 
-int dissect_fmp_Hiervolume(tvbuff_t *tvb, int offset, proto_tree * tree)
-
+static int
+dissect_fmp_Hiervolume(tvbuff_t *tvb, int offset, proto_tree * tree)
 {
 
 	int vollength;
@@ -905,7 +904,7 @@ int dissect_fmp_Hiervolume(tvbuff_t *tvb, int offset, proto_tree * tree)
 
 
 
-int
+static int
 dissect_fmp_vmInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
                    proto_tree *tree)
 {
@@ -1010,7 +1009,7 @@ dissect_fmp_vmInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-int
+static int
 dissect_fmp_notifyProtocol(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 
@@ -1046,7 +1045,7 @@ dissect_fmp_notifyProtocol(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 
-int
+static int
 dissect_fmp_capabilities(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 
@@ -1084,7 +1083,7 @@ dissect_fmp_capabilities(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 
-int
+static int
 dissect_fmp_cerrInfo(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 		int rval;
@@ -1118,7 +1117,7 @@ dissect_fmp_cerrInfo(tvbuff_t *tvb, int offset, proto_tree *tree)
         return offset;
 }
 
-int
+static int
 dissect_fmp_attrs(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
         int attrs;
@@ -2304,8 +2303,8 @@ proto_register_fmp(void)
 
         prefs_register_bool_preference(fmp_module, "fhandle_find_both_reqrep",
                                        "Fhandle filters finds both request/response",
-                                       "With this option display filters for fmp fhandle a RPC call, even if the actual fhandle is only present in one of the packets"
-      , &fmp_fhandle_reqrep_matching);
+                                       "With this option display filters for fmp fhandle a RPC call, even if the actual fhandle is only present in one of the packets",
+                                       &fmp_fhandle_reqrep_matching);
 
 }
 
@@ -2316,5 +2315,5 @@ proto_reg_handoff_fmp(void)
 	rpc_init_prog(proto_fmp, FMP_PROGRAM, ett_fmp);
 
 	/* Register the procedure tables */
-	rpc_init_proc_table(FMP_PROGRAM, FMP_VERSION_3, fmp3_proc,hf_fmp_procedure);
+	rpc_init_proc_table(FMP_PROGRAM, FMP_VERSION_3, fmp3_proc, hf_fmp_procedure);
 }

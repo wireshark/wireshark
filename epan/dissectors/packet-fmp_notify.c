@@ -10,7 +10,7 @@
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.  
+ * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -85,9 +85,9 @@ static int hf_fmp_startOffset = -1;
 static int hf_fmp_extent_state = -1;
 
 
-int dissect_fmp_notify_extentList(tvbuff_t *, int, packet_info *, proto_tree *);
+static int dissect_fmp_notify_extentList(tvbuff_t *, int, packet_info *, proto_tree *);
 
-int
+static int
 dissect_fmp_notify_status(tvbuff_t *tvb, int offset, proto_tree *tree, int *rval)
 {
         fmpStat status;
@@ -148,7 +148,7 @@ dissect_fmp_notify_status(tvbuff_t *tvb, int offset, proto_tree *tree, int *rval
         case FMP_REQUEST_CANCELLED:
                 *rval = 1;
                 break;
-	
+
 	       case FMP_WRITER_ZEROED_BLK:
                 *rval = 0;
                 break;
@@ -171,7 +171,7 @@ dissect_fmp_notify_status(tvbuff_t *tvb, int offset, proto_tree *tree, int *rval
 
         offset = dissect_rpc_uint32(tvb, tree, hf_fmp_status , offset);
         return offset;
-                                               
+
 }
 
 static int
@@ -214,7 +214,7 @@ static int
 dissect_handleList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                    proto_tree *tree)
 {
-      
+
 	int numHandles;
 	int listLength;
 	int i;
@@ -226,7 +226,7 @@ dissect_handleList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	}
 
 	numHandles = tvb_get_ntohl(tvb, offset);
-	listLength = 4;	
+	listLength = 4;
 
 	for (i = 0; i < numHandles; i++) {
 		listLength += (4 + tvb_get_ntohl(tvb, offset + listLength));
@@ -240,13 +240,13 @@ dissect_handleList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_rpc_uint32(tvb,  handleListTree,
 	                            hf_fmp_handleListLen, offset);
 
-	for (i = 0; i <= numHandles; i++) { 
+	for (i = 0; i <= numHandles; i++) {
 		offset = dissect_rpc_data(tvb, handleListTree,
 		                          hf_fmp_fmpFHandle, offset);/*  changed */
 	}
 
 	return offset;
-} 
+}
 
 static int
 dissect_FMP_NOTIFY_DownGrade_request(tvbuff_t *tvb, int offset,
@@ -410,13 +410,13 @@ dissect_FMP_NOTIFY_revokeHandleList_reply(tvbuff_t *tvb, int offset,
                                           packet_info *pinfo _U_, proto_tree *tree)
 {
 	int rval;
-	
+
 	offset = dissect_fmp_notify_status(tvb, offset,tree, &rval);
 	return offset;
 }
 
 /*
- * proc number, "proc name", dissect_request, dissect_reply 
+ * proc number, "proc name", dissect_request, dissect_reply
  * NULL as function pointer means: type of arguments is "void".
  */
 static const vsff fmp_notify2_proc[] = {
@@ -499,7 +499,7 @@ proto_register_fmp_notify(void)
 		{ &hf_fmp_notify_procedure, {
                         "Procedure", "fmp_notify.fmp_notify_procedure", FT_UINT32, BASE_DEC,
                         VALS(fmp_notify_proc_vals) , 0, NULL, HFILL }},        /* New addition */
-	
+
 		{ &hf_fmp_status, {
                         "Status", "fmp_notify.status", FT_UINT32, BASE_DEC,
                         VALS(fmp_status_vals), 0, "Reply Status", HFILL }},
@@ -528,7 +528,7 @@ proto_register_fmp_notify(void)
                 { &hf_fmp_numBlksReq, {
                         "Number Blocks Requested", "fmp_notify.numBlksReq", FT_UINT32,
                         BASE_DEC, NULL, 0, NULL, HFILL }},
-	
+
 
                 { &hf_fmp_msgNum, {
                         "Message Number", "fmp_notify.msgNum", FT_UINT32, BASE_DEC,
@@ -543,7 +543,7 @@ proto_register_fmp_notify(void)
                         "First Logical Block", "fmp_notify.firstLogBlk", FT_UINT32,
                         BASE_DEC, NULL, 0, "First Logical File Block", HFILL }},
 
-		
+
                 { &hf_fmp_fileSize, {
                         "File Size", "fmp_notify.fileSize", FT_UINT64, BASE_DEC,
                         NULL, 0, NULL, HFILL }},
@@ -562,7 +562,7 @@ proto_register_fmp_notify(void)
 		&ett_fmp_notify_hlist,
 	};
 
-	proto_fmp_notify = 
+	proto_fmp_notify =
 		proto_register_protocol("File Mapping Protocol Nofity",
 		                        "FMP/NOTIFY", "fmp_notify");
 	proto_register_field_array(proto_fmp_notify, hf, array_length(hf));
@@ -582,7 +582,7 @@ proto_reg_handoff_fmp_notify(void)
 }
 
 
-int
+static int
 dissect_fmp_notify_extentState(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	extentState state;
@@ -598,7 +598,7 @@ dissect_fmp_notify_extentState(tvbuff_t *tvb, int offset, proto_tree *tree)
 	return offset;
 }
 
-int
+static int
 dissect_fmp_notify_extent(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                    proto_tree *tree, guint32 ext_num)
 {
@@ -612,7 +612,7 @@ dissect_fmp_notify_extent(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	extItem = proto_tree_add_text(tree, tvb, offset, 20 ,
 	                              "Extent (%u)", (guint32) ext_num);
 
-	
+
 	extTree = proto_item_add_subtree(extItem, ett_fmp_ext);
 
 	offset = dissect_rpc_uint32(tvb,  extTree, hf_fmp_firstLogBlk,
@@ -628,7 +628,7 @@ dissect_fmp_notify_extent(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 
-int
+static int
 dissect_fmp_notify_extentList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                        proto_tree *tree)
 {
@@ -643,7 +643,7 @@ dissect_fmp_notify_extentList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	}
 
 	numExtents = tvb_get_ntohl(tvb, offset);
-	totalLength = 4 + (20 * numExtents); 
+	totalLength = 4 + (20 * numExtents);
 
 	extListItem =  proto_tree_add_text(tree, tvb, offset, totalLength,
 	                                   "Extent List");
