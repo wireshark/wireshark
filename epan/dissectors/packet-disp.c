@@ -57,7 +57,7 @@
 #include "packet-disp.h"
 
 
-/* we don't have a separate dissector for X519 - 
+/* we don't have a separate dissector for X519 -
    and most of DISP is defined in X525 */
 #define PNAME  "X.519 Directory Information Shadowing Protocol"
 #define PSNAME "DISP"
@@ -65,7 +65,7 @@
 
 static guint global_disp_tcp_port = 102;
 static dissector_handle_t tpkt_handle;
-void prefs_register_disp(void); /* forward declaration for use in preferences registration */
+static void prefs_register_disp(void); /* forward declaration for use in preferences registration */
 
 
 /* Initialize the protocol and registered fields */
@@ -1521,7 +1521,7 @@ dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		if(parent_tree){
 			proto_tree_add_text(parent_tree, tvb, offset, -1,
 				"Internal error: can't get operation information from ROS dissector.");
-		} 
+		}
 		return  ;
 	} else {
 		session  = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
@@ -2176,9 +2176,9 @@ void proto_reg_handoff_disp(void) {
 
   disp_handle = find_dissector("disp");
 
-  register_ros_oid_dissector_handle("2.5.9.3", disp_handle, 0, "id-as-directory-shadow", FALSE); 
-  register_rtse_oid_dissector_handle("2.5.9.5", disp_handle, 0, "id-as-directory-reliable-shadow", FALSE); 
-  register_rtse_oid_dissector_handle("2.5.9.6", disp_handle, 0, "id-as-directory-reliable-binding", FALSE); 
+  register_ros_oid_dissector_handle("2.5.9.3", disp_handle, 0, "id-as-directory-shadow", FALSE);
+  register_rtse_oid_dissector_handle("2.5.9.5", disp_handle, 0, "id-as-directory-reliable-shadow", FALSE);
+  register_rtse_oid_dissector_handle("2.5.9.6", disp_handle, 0, "id-as-directory-reliable-binding", FALSE);
 
   /* OPERATIONAL BINDING */
   oid_add_from_string("id-op-binding-shadow","2.5.1.0.5.1");
@@ -2191,7 +2191,9 @@ void proto_reg_handoff_disp(void) {
 }
 
 
-void prefs_register_disp(void) {
+static void
+prefs_register_disp(void)
+{
   static guint tcp_port = 0;
 
   /* de-register the old port */

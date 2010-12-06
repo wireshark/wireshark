@@ -62,7 +62,7 @@
 
 static guint global_dop_tcp_port = 102;
 static dissector_handle_t tpkt_handle;
-void prefs_register_dop(void); /* forward declaration for use in preferences registration */
+static void prefs_register_dop(void); /* forward declaration for use in preferences registration */
 
 /* Initialize the protocol and registered fields */
 static int proto_dop = -1;
@@ -2094,7 +2094,7 @@ dissect_dop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		if(parent_tree){
 			proto_tree_add_text(parent_tree, tvb, offset, -1,
 				"Internal error: can't get operation information from ROS dissector.");
-		} 
+		}
 		return  ;
 	} else {
 		session  = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
@@ -3105,10 +3105,10 @@ void proto_reg_handoff_dop(void) {
   oid_add_from_string("id-ac-directory-operational-binding-management","2.5.3.3");
 
   /* ABSTRACT SYNTAXES */
-    
+
   /* Register DOP with ROS (with no use of RTSE) */
   dop_handle = find_dissector("dop");
-  register_ros_oid_dissector_handle("2.5.9.4", dop_handle, 0, "id-as-directory-operational-binding-management", FALSE); 
+  register_ros_oid_dissector_handle("2.5.9.4", dop_handle, 0, "id-as-directory-operational-binding-management", FALSE);
 
   /* BINDING TYPES */
 
@@ -3138,7 +3138,9 @@ void proto_reg_handoff_dop(void) {
 
 }
 
-void prefs_register_dop(void) {
+static void
+prefs_register_dop(void)
+{
   static guint tcp_port = 0;
 
   /* de-register the old port */

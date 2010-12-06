@@ -59,7 +59,7 @@ static const char *protocolID = NULL;
 static const char *saved_protocolID = NULL;
 static guint32 opcode = -1;
 
-void prefs_register_idmp(void); /* forward declaration for use in preferences registration */
+static void prefs_register_idmp(void); /* forward declaration for use in preferences registration */
 
 /* Initialize the protocol and registered fields */
 int proto_idmp = -1;
@@ -71,7 +71,7 @@ static int hf_idmp_PDU = -1;
 
 static GHashTable *idmp_segment_table = NULL;
 static GHashTable *idmp_reassembled_table = NULL;
- 
+
 static int hf_idmp_fragments = -1;
 static int hf_idmp_fragment = -1;
 static int hf_idmp_fragment_overlap = -1;
@@ -106,10 +106,10 @@ static const fragment_items idmp_frag_items = {
 };
 
 
-static int call_idmp_oid_callback(tvbuff_t *tvb, int offset, packet_info *pinfo, int op, proto_tree *tree _U_)	
+static int call_idmp_oid_callback(tvbuff_t *tvb, int offset, packet_info *pinfo, int op, proto_tree *tree _U_)
 {
 	struct SESSION_DATA_STRUCTURE *session;
-	
+
 	if((session = (struct SESSION_DATA_STRUCTURE*)pinfo->private_data) != NULL) {
 
 		if((!saved_protocolID) && (op == (ROS_OP_BIND | ROS_OP_RESULT))) {
@@ -179,9 +179,9 @@ static void dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 	/* now check the segment fields */
 
 	proto_tree_add_item(tree, hf_idmp_version, tvb, offset, 1, FALSE); offset++;
-	proto_tree_add_item(tree, hf_idmp_final, tvb, offset, 1, FALSE); 
+	proto_tree_add_item(tree, hf_idmp_final, tvb, offset, 1, FALSE);
 	idmp_final = tvb_get_guint8(tvb, offset); offset++;
-	proto_tree_add_item(tree, hf_idmp_length, tvb, offset, 4, FALSE); 
+	proto_tree_add_item(tree, hf_idmp_length, tvb, offset, 4, FALSE);
 	idmp_length = tvb_get_ntohl(tvb, offset); offset += 4;
 
 	if(idmp_reassemble) {
@@ -189,7 +189,7 @@ static void dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 		pinfo->fragmented = !idmp_final;
 
 		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, " [%sIDMP fragment, %u byte%s]", 
+			col_append_fstr(pinfo->cinfo, COL_INFO, " [%sIDMP fragment, %u byte%s]",
 				idmp_final ? "Final " : "" ,
 				idmp_length, plurality(idmp_length, "", "s"));
 
@@ -200,7 +200,7 @@ static void dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 		if(fd_head && fd_head->next) {
 			proto_tree_add_text(tree, tvb, offset, (idmp_length) ? -1 : 0,
 			  "IDMP segment data (%u byte%s)", idmp_length,
-			  plurality(idmp_length, "", "s"));	
+			  plurality(idmp_length, "", "s"));
 
 			if (idmp_final) {
 			/* This is the last segment */
@@ -213,17 +213,17 @@ static void dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 		       		tvb, 0, 0, fd_head->reassembled_in);
 			}
 		}
-	
-	} else { 
+
+	} else {
 		if(!idmp_final) {
 
 			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, " [IDMP fragment, %u byte%s, IDMP reassembly not enabled]", 
+				col_append_fstr(pinfo->cinfo, COL_INFO, " [IDMP fragment, %u byte%s, IDMP reassembly not enabled]",
 					idmp_length, plurality(idmp_length, "", "s"));
 
 			proto_tree_add_text(tree, tvb, offset, (idmp_length) ? -1 : 0,
 				"IDMP segment data (%u byte%s) (IDMP reassembly not enabled)", idmp_length,
-				plurality(idmp_length, "", "s"));		
+				plurality(idmp_length, "", "s"));
 		}
 	}
 	/* not reassembling - just dissect */
@@ -234,7 +234,7 @@ static void dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 		offset = dissect_idmp_IDM_PDU(FALSE, tvb, offset, &asn1_ctx, tree, hf_idmp_PDU);
 
 		pinfo->private_data = save_private_data;
-	} 
+	}
 
 }
 
@@ -354,7 +354,7 @@ void proto_register_idmp(void) {
 				 " To use this option, you must also enable"
 				 " \"Allow subdissectors to reassemble TCP streams\""
 				 " in the TCP protocol settings.", &idmp_reassemble);
-  
+
   prefs_register_uint_preference(idmp_module, "tcp.port", "IDMP TCP Port",
 				 "Set the port for Internet Directly Mapped Protocol requests/responses",
 				 10, &global_idmp_tcp_port);
@@ -371,7 +371,9 @@ void proto_reg_handoff_idm(void) {
 }
 
 
-void prefs_register_idmp(void) {
+static void
+prefs_register_idmp(void)
+{
 
   /* de-register the old port */
   /* port 102 is registered by TPKT - don't undo this! */

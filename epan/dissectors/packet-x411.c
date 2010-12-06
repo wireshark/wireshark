@@ -61,7 +61,7 @@
 
 static guint global_x411_tcp_port = 102;
 static dissector_handle_t tpkt_handle;
-void prefs_register_x411(void); /* forward declaration for use in preferences registration */
+static void prefs_register_x411(void); /* forward declaration for use in preferences registration */
 
 /* Initialize the protocol and registered fields */
 static int proto_x411 = -1;
@@ -8329,7 +8329,7 @@ dissect_x411(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		if(parent_tree){
 			proto_tree_add_text(parent_tree, tvb, offset, -1,
 				"Internal error: can't get operation information from ROS dissector.");
-		} 
+		}
 		return  ;
 	} else {
 		session  = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
@@ -11069,7 +11069,7 @@ void proto_reg_handoff_x411(void) {
   /* ABSTRACT SYNTAXES */
 
   x411_handle = find_dissector("x411");
-  register_rtse_oid_dissector_handle("2.6.0.2.12", x411_handle, 0, "id-as-mta-rtse", TRUE); 
+  register_rtse_oid_dissector_handle("2.6.0.2.12", x411_handle, 0, "id-as-mta-rtse", TRUE);
   register_rtse_oid_dissector_handle("2.6.0.2.7", x411_handle, 0, "id-as-mtse", FALSE);
 
   register_rtse_oid_dissector_handle("applicationProtocol.1", x411_handle, 0, "mts-transfer-protocol-1984", FALSE);
@@ -11087,19 +11087,21 @@ void proto_reg_handoff_x411(void) {
 
 
   /* Register P3 with ROS */
-  register_ros_protocol_info(id_as_msse, &p3_ros_info, 0, "id-as-msse", FALSE); 
+  register_ros_protocol_info(id_as_msse, &p3_ros_info, 0, "id-as-msse", FALSE);
 
-  register_ros_protocol_info(id_as_mdse_88, &p3_ros_info, 0, "id-as-mdse-88", FALSE); 
-  register_ros_protocol_info(id_as_mdse_94, &p3_ros_info, 0, "id-as-mdse-94", FALSE); 
+  register_ros_protocol_info(id_as_mdse_88, &p3_ros_info, 0, "id-as-mdse-88", FALSE);
+  register_ros_protocol_info(id_as_mdse_94, &p3_ros_info, 0, "id-as-mdse-94", FALSE);
 
-  register_ros_protocol_info(id_as_mase_88, &p3_ros_info, 0, "id-as-mase-88", FALSE); 
-  register_ros_protocol_info(id_as_mase_94, &p3_ros_info, 0, "id-as-mase-94", FALSE); 
+  register_ros_protocol_info(id_as_mase_88, &p3_ros_info, 0, "id-as-mase-88", FALSE);
+  register_ros_protocol_info(id_as_mase_94, &p3_ros_info, 0, "id-as-mase-94", FALSE);
 
-  register_ros_protocol_info(id_as_mts, &p3_ros_info, 0, "id-as-mts", FALSE); 
+  register_ros_protocol_info(id_as_mts, &p3_ros_info, 0, "id-as-mts", FALSE);
 
 }
 
-void prefs_register_x411(void) {
+static void
+prefs_register_x411(void)
+{
   static guint tcp_port = 0;
 
   /* de-register the old port */

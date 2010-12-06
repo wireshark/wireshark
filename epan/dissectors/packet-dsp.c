@@ -59,7 +59,7 @@
 
 static guint global_dsp_tcp_port = 102;
 static dissector_handle_t tpkt_handle;
-void prefs_register_dsp(void); /* forward declaration for use in preferences registration */
+static void prefs_register_dsp(void); /* forward declaration for use in preferences registration */
 
 
 /* Initialize the protocol and registered fields */
@@ -1810,7 +1810,7 @@ dissect_dsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		if(parent_tree){
 			proto_tree_add_text(parent_tree, tvb, offset, -1,
 				"Internal error: can't get operation information from ROS dissector.");
-		} 
+		}
 		return  ;
 	} else {
 		session  = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
@@ -2675,17 +2675,19 @@ void proto_reg_handoff_dsp(void) {
   oid_add_from_string("id-ac-directory-system","2.5.3.2");
 
   /* ABSTRACT SYNTAXES */
-    
+
   /* remember the tpkt handler for change in preferences */
   tpkt_handle = find_dissector("tpkt");
 
   /* Register DSP with ROS (with no use of RTSE) */
   dsp_handle = find_dissector("dsp");
-  register_ros_oid_dissector_handle("2.5.9.2", dsp_handle, 0, "id-as-directory-system", FALSE); 
+  register_ros_oid_dissector_handle("2.5.9.2", dsp_handle, 0, "id-as-directory-system", FALSE);
 
 }
 
-void prefs_register_dsp(void) {
+static void
+prefs_register_dsp(void)
+{
   static guint tcp_port = 0;
 
   /* de-register the old port */

@@ -439,7 +439,7 @@ static dissector_handle_t spnego_handle;
 static dissector_handle_t ssl_handle;
 static dissector_handle_t ldap_handle ;
 
-void prefs_register_ldap(void); /* forward declaration for use in preferences registration */
+static void prefs_register_ldap(void); /* forward declaration for use in preferences registration */
 
 
 /* different types of rpc calls ontop of ms cldap */
@@ -5737,7 +5737,9 @@ proto_reg_handoff_ldap(void)
 
 }
 
-void prefs_register_ldap(void) {
+static void
+prefs_register_ldap(void)
+{
 
   if(tcp_port != global_ldap_tcp_port) {
     if(tcp_port)

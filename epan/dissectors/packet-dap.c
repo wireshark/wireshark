@@ -56,7 +56,7 @@
 #include "packet-dap.h"
 #include <epan/strutil.h>
 
-/* we don't have a separate dissector for X519 - 
+/* we don't have a separate dissector for X519 -
    most of DAP is defined in X511 */
 #define PNAME  "X.519 Directory Access Protocol"
 #define PSNAME "DAP"
@@ -64,7 +64,7 @@
 
 static guint global_dap_tcp_port = 102;
 static dissector_handle_t tpkt_handle;
-void prefs_register_dap(void); /* forward declaration for use in preferences registration */
+static void prefs_register_dap(void); /* forward declaration for use in preferences registration */
 
 
 /* Initialize the protocol and registered fields */
@@ -6693,9 +6693,9 @@ void proto_reg_handoff_dap(void) {
   oid_add_from_string("id-ac-directory-access","2.5.3.1");
 
   /* ABSTRACT SYNTAXES */
-    
+
   /* Register DAP with ROS (with no use of RTSE) */
-  register_ros_protocol_info("2.5.9.1", &dap_ros_info, 0, "id-as-directory-access", FALSE); 
+  register_ros_protocol_info("2.5.9.1", &dap_ros_info, 0, "id-as-directory-access", FALSE);
 
   register_idmp_protocol_info("2.5.33.0", &dap_ros_info, 0, "dap-ip");
 
@@ -6713,7 +6713,9 @@ void proto_reg_handoff_dap(void) {
 }
 
 
-void prefs_register_dap(void) {
+static void
+prefs_register_dap(void)
+{
   static guint tcp_port = 0;
 
   /* de-register the old port */

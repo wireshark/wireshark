@@ -58,7 +58,7 @@ static dissector_handle_t tpkt_handle;
 static const char *object_identifier_id = NULL; /* attribute identifier */
 static int seqno = 0;
 
-void prefs_register_p7(void); /* forward declaration for use in preferences registration */
+static void prefs_register_p7(void); /* forward declaration for use in preferences registration */
 
 
 /* Initialize the protocol and registered fields */
@@ -5842,16 +5842,18 @@ void proto_reg_handoff_p7(void) {
   /* ABSTRACT SYNTAXES */
 
   /* Register P7 with ROS (with no use of RTSE) */
-  register_ros_protocol_info("2.6.0.2.9", &p7_ros_info, 0, "id-as-ms", FALSE); 
-  register_ros_protocol_info("2.6.0.2.5", &p7_ros_info, 0, "id-as-mrse", FALSE); 
-  register_ros_protocol_info("2.6.0.2.1", &p7_ros_info, 0, "id-as-msse", FALSE); 
+  register_ros_protocol_info("2.6.0.2.9", &p7_ros_info, 0, "id-as-ms", FALSE);
+  register_ros_protocol_info("2.6.0.2.5", &p7_ros_info, 0, "id-as-mrse", FALSE);
+  register_ros_protocol_info("2.6.0.2.1", &p7_ros_info, 0, "id-as-msse", FALSE);
 
   /* remember the tpkt handler for change in preferences */
   tpkt_handle = find_dissector("tpkt");
 }
 
 
-void prefs_register_p7(void) {
+static void
+prefs_register_p7(void)
+{
   static guint tcp_port = 0;
 
   /* de-register the old port */
