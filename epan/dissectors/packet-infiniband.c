@@ -1528,7 +1528,7 @@ typedef struct {
 /* holds a table of connection contexts being negotiated by CM. the key is a obtained
    using ADD_ADDRESS_TO_HASH(initiator address, TransactionID) [remember that the 1st
    argument to ADD_ADDRESS_TO_HASH must be an lvalue. */
-GHashTable *CM_context_table = NULL;
+static GHashTable *CM_context_table = NULL;
 
 /* heuristics sub-dissectors list for dissecting the data payload of IB packets */
 static heur_dissector_list_t heur_dissectors_payload;
@@ -2687,7 +2687,7 @@ static void parse_RWH(proto_tree *ah_tree, tvbuff_t *tvb, gint *offset, packet_i
             *offset, 2, FALSE);
 
     *offset += 2;
-    
+
     ether_type = tvb_get_ntohs(tvb, *offset);
     proto_tree_add_uint(RWH_header_tree, hf_infiniband_etype, tvb, *offset, 2,
                         ether_type);

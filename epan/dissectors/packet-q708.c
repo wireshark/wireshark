@@ -11754,9 +11754,9 @@ static const value_string q708_ispc_operator_name[] = {
 	{  0, NULL }
 };
 
-value_string_ext q708_ispc_point_name_ext = VALUE_STRING_EXT_INIT(q708_ispc_point_name);
-value_string_ext q708_ispc_operator_name_ext = VALUE_STRING_EXT_INIT(q708_ispc_operator_name);
-value_string_ext q708_sanc_areas_ext = VALUE_STRING_EXT_INIT(q708_sanc_areas);
+static value_string_ext q708_ispc_point_name_ext = VALUE_STRING_EXT_INIT(q708_ispc_point_name);
+static value_string_ext q708_ispc_operator_name_ext = VALUE_STRING_EXT_INIT(q708_ispc_operator_name);
+static value_string_ext q708_sanc_areas_ext = VALUE_STRING_EXT_INIT(q708_sanc_areas);
 
 /*
  * International signalling point codes (i.e. PCs with ni = 0) are allocated by the ITU,

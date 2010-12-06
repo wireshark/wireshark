@@ -55,7 +55,7 @@
 /******************************************************************************/
 /*	Internal function prototypes declarations												*/
 /*																										*/
-void AirPDcapTkipMixingPhase1(
+static void AirPDcapTkipMixingPhase1(
 	UINT16 *TTAK,
 	const UINT8 *TK,
 	const UINT8 *TA,
@@ -145,7 +145,7 @@ static const UINT16 Sbox[256] = {
 /******************************************************************************/
 /*	Function definitions																			*/
 
-void AirPDcapTkipMixingPhase1(
+static void AirPDcapTkipMixingPhase1(
 	UINT16 *TTAK,
 	const UINT8 *TK,
 	const UINT8 *TA,

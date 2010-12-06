@@ -219,7 +219,7 @@ static const value_string diameter_avp_data_addrfamily_vals[]= {
 	{24,"GWID"},
 	{0,NULL}
 };
-value_string_ext diameter_avp_data_addrfamily_vals_ext = VALUE_STRING_EXT_INIT(diameter_avp_data_addrfamily_vals);
+static value_string_ext diameter_avp_data_addrfamily_vals_ext = VALUE_STRING_EXT_INIT(diameter_avp_data_addrfamily_vals);
 
 static int proto_diameter = -1;
 static int hf_diameter_length = -1;

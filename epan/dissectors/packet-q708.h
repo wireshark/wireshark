@@ -26,10 +26,6 @@
 #ifndef __PACKET_Q708_H__
 #define __PACKET_Q708_H__
 
-extern value_string_ext q708_ispc_point_name_ext;
-extern value_string_ext q708_ispc_operator_name_ext;
-extern value_string_ext q708_sanc_areas_ext;
-
 void analyze_q708_ispc(tvbuff_t *tvb, proto_tree *tree, int offset, int length, guint16 ispc);
 
 #endif /* __PACKET_Q708_H__ */
