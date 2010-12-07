@@ -1075,6 +1075,13 @@ heur_dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	return TRUE;
 }
 
+
+static void
+mp2t_init(void) {
+	fragment_table_init(&mp2t_depi_fragment_table);
+	reassembled_table_init(&mp2t_depi_reassembled_table);
+}
+
 void
 proto_register_mp2t(void)
 {
@@ -1329,9 +1336,8 @@ proto_register_mp2t(void)
 	register_dissector("mp2t", dissect_mp2t, proto_mp2t);
 	proto_register_field_array(proto_mp2t, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	/* Register processing of fragmented DEPI packets */
-	fragment_table_init(&mp2t_depi_fragment_table);
-	reassembled_table_init(&mp2t_depi_reassembled_table);
+	/* Register init of processing of fragmented DEPI packets */
+        register_init_routine(mp2t_init);
 }
 
 
