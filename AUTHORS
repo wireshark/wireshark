@@ -1066,6 +1066,7 @@ Andrew C. Feren         <acferen[AT]yahoo.com> {
 	Put all of Cisco's OUIs into manuf.tmpl
 	Put human-readable descriptions in the combo box entries for
 	    "Interface:" on Windows
+	ntop nProbe and Plixer Mailinizer extensions for the Netflow dissector
 }
 
 Tomas Kukosa            <tomas.kukosa [AT] siemens.com> {

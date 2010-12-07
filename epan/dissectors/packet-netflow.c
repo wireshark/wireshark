@@ -98,14 +98,37 @@
  *
  */
 
+/*
+ * November 2010: acferen:  Add ntop nProbe and Plixer Mailinizer extensions
+ *
+ * nProbe changes are for nprobe >= 5.5.6.  Earlier nprobe versions
+ * "supported" some of the same fields, but they used element IDs that
+ * collide with standard IDs.  Because of this versions prior to 5.5.6
+ * using IDs above 80 (nprobe extensions) cannot be decoded correctly.
+ *
+ * nprobe supports extensions in v9 and IPFIX.  IPFIX is done in the
+ * standard way.  See the NTOP_BASE for handling v9 with no collisions
+ * (maybe).
+ *
+ * Plixer changes are just new field definitions.  (IPFIX only)
+ *
+ * extended core code to allow naming vendor extensions.
+ *
+ * Put the length for variable length strings in a tree under the
+ * decoded string.  Wonder if this might be overkill.  Could probably
+ * just format the "(Variable length)" string to include the actual
+ * length.
+ *
+ * Did some minor cleanup.
+ *
+ * Note for WMeier...  Added YYY comments with some XXX comments.
+ */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
 
-#include <glib.h>
 #include <epan/packet.h>
-#include <string.h>
 
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
@@ -135,6 +158,12 @@
 #define IPFIX_UDP_PORTS   "4739"
 #define REVPEN            29305
 static dissector_handle_t netflow_handle;
+
+/* If you want sort of safely to send enterprise specific element IDs
+   using v9 you need to stake a claim in the wilds with the high bit
+   set.  Still no naming authority, but at least it will never collide
+   with valid IPFIX */
+#define NTOP_BASE 57472u		/* nprobe >= 5.5.6 */
 
 /*
  *	global_netflow_ports : holds the configured range of ports for netflow
@@ -257,8 +286,13 @@ struct v9_v10_template_entry {
 typedef enum {
 	TF_SCOPES=0,
 	TF_ENTRIES,
+	/* START IPFIX VENDOR FIELDS */
+	TF_PLIXER,
+	TF_NTOP,
+	TF_NO_VENDOR_INFO
 } v9_v10_template_fields_type_t;
 #define TF_NUM 2
+#define TF_NUM_EXT 5		/* includes vendor fields */
 
 struct v9_v10_template {
 	guint	 length;
@@ -267,7 +301,7 @@ struct v9_v10_template {
 	guint32  source_id;
 	gboolean option_template; /* FALSE=data template, TRUE=option template */ /* XXX: not used ?? */
 	guint16  field_count[TF_NUM];                  /* 0:scopes; 1:entries  */
-	struct v9_v10_template_entry *fields[TF_NUM];  /* 0:scopes; 1:entries  */
+	struct v9_v10_template_entry *fields[TF_NUM_EXT];  /* 0:scopes; 1:entries; n:vendor_entries  */
 };
 
 static struct v9_v10_template v9_v10_template_cache[V9_V10_TEMPLATE_CACHE_MAX_ENTRIES];
@@ -566,9 +600,179 @@ static const value_string v9_v10_template_types[] = {
 	{ 40003, "XLATE_SRC_PORT" },
 	{ 40004, "XLATE_DST_PORT" },
 	{ 40005, "FW_EVENT" },
+	/* v9 nTop extensions. */
+	{  80 + NTOP_BASE, "FRAGMENTS" },
+	{  82 + NTOP_BASE, "CLIENT_NW_DELAY_SEC" },
+	{  83 + NTOP_BASE, "CLIENT_NW_DELAY_USEC" },
+	{  84 + NTOP_BASE, "SERVER_NW_DELAY_SEC" },
+	{  85 + NTOP_BASE, "SERVER_NW_DELAY_USEC" },
+	{  86 + NTOP_BASE, "APPL_LATENCY_SEC" },
+	{  87 + NTOP_BASE, "APPL_LATENCY_USEC" },
+	{  98 + NTOP_BASE, "ICMP_FLAGS" },
+	{ 101 + NTOP_BASE, "SRC_IP_COUNTRY" },
+	{ 102 + NTOP_BASE, "SRC_IP_CITY" },
+	{ 103 + NTOP_BASE, "DST_IP_COUNTRY" },
+	{ 104 + NTOP_BASE, "DST_IP_CITY" },
+	{ 105 + NTOP_BASE, "FLOW_PROTO_PORT" },
+	{ 106 + NTOP_BASE, "TUNNEL_ID" },
+	{ 107 + NTOP_BASE, "LONGEST_FLOW_PKT" },
+	{ 108 + NTOP_BASE, "SHORTEST_FLOW_PKT" },
+	{ 109 + NTOP_BASE, "RETRANSMITTED_IN_PKTS" },
+	{ 110 + NTOP_BASE, "RETRANSMITTED_OUT_PKTS" },
+	{ 111 + NTOP_BASE, "OOORDER_IN_PKTS" },
+	{ 112 + NTOP_BASE, "OOORDER_OUT_PKTS" },
+	{ 113 + NTOP_BASE, "UNTUNNELED_PROTOCOL" },
+	{ 114 + NTOP_BASE, "UNTUNNELED_IPV4_SRC_ADDR" },
+	{ 115 + NTOP_BASE, "UNTUNNELED_L4_SRC_PORT" },
+	{ 116 + NTOP_BASE, "UNTUNNELED_IPV4_DST_ADDR" },
+	{ 117 + NTOP_BASE, "UNTUNNELED_L4_DST_PORT" },
+	{ 120 + NTOP_BASE, "DUMP_PATH" },
+	{ 130 + NTOP_BASE, "SIP_CALL_ID" },
+	{ 131 + NTOP_BASE, "SIP_CALLING_PARTY" },
+	{ 132 + NTOP_BASE, "SIP_CALLED_PARTY" },
+	{ 133 + NTOP_BASE, "SIP_RTP_CODECS" },
+	{ 134 + NTOP_BASE, "SIP_INVITE_TIME" },
+	{ 135 + NTOP_BASE, "SIP_TRYING_TIME" },
+	{ 136 + NTOP_BASE, "SIP_RINGING_TIME" },
+	{ 137 + NTOP_BASE, "SIP_OK_TIME" },
+	{ 138 + NTOP_BASE, "SIP_BYE_TIME" },
+	{ 139 + NTOP_BASE, "SIP_RTP_SRC_IP" },
+	{ 140 + NTOP_BASE, "SIP_RTP_SRC_PORT" },
+	{ 141 + NTOP_BASE, "SIP_RTP_DST_IP" },
+	{ 142 + NTOP_BASE, "SIP_RTP_DST_PORT" },
+	{ 150 + NTOP_BASE, "RTP_FIRST_SSRC" },
+	{ 151 + NTOP_BASE, "RTP_FIRST_TS" },
+	{ 152 + NTOP_BASE, "RTP_LAST_SSRC" },
+	{ 153 + NTOP_BASE, "RTP_LAST_TS" },
+	{ 154 + NTOP_BASE, "RTP_IN_JITTER" },
+	{ 155 + NTOP_BASE, "RTP_OUT_JITTER" },
+	{ 156 + NTOP_BASE, "RTP_IN_PKT_LOST" },
+	{ 157 + NTOP_BASE, "RTP_OUT_PKT_LOST" },
+	{ 158 + NTOP_BASE, "RTP_OUT_PAYLOAD_TYPE" },
+	{ 159 + NTOP_BASE, "RTP_IN_MAX_DELTA" },
+	{ 160 + NTOP_BASE, "RTP_OUT_MAX_DELTA" },
+	{ 165 + NTOP_BASE, "L7_PROTO" },
+	{ 180 + NTOP_BASE, "HTTP_URL" },
+	{ 181 + NTOP_BASE, "HTTP_RET_CODE" },
+	{ 182 + NTOP_BASE, "HTTP_REFERER" },
+	{ 183 + NTOP_BASE, "HTTP_UA" },
+	{ 184 + NTOP_BASE, "HTTP_MIME" },
+	{ 185 + NTOP_BASE, "SMTP_MAIL_FROM" },
+	{ 186 + NTOP_BASE, "SMTP_RCPT_TO" },
+	{ 195 + NTOP_BASE, "MYSQL_SERVER_VERSION" },
+	{ 196 + NTOP_BASE, "MYSQL_USERNAME" },
+	{ 197 + NTOP_BASE, "MYSQL_DB" },
+	{ 198 + NTOP_BASE, "MYSQL_QUERY" },
+	{ 199 + NTOP_BASE, "MYSQL_RESPONSE" },
 	{ 0, NULL }
 };
+static const value_string v10_template_types_plixer[] = {
+	{ 100, "client_ip_v4" },
+	{ 101, "client_hostname" },
+	{ 102, "partner_name" },
+	{ 103, "server_hostname" },
+	{ 104, "server_ip_v4" },
+	{ 105, "recipient_address" },
+	{ 106, "event_id" },
+	{ 107, "msgid" },
+	{ 108, "priority" },
+	{ 109, "recipient_report_status" },
+	{ 110, "number_recipients" },
+	{ 111, "origination_time" },
+	{ 112, "encryption" },
+	{ 113, "service_version" },
+	{ 114, "linked_msgid" },
+	{ 115, "message_subject" },
+	{ 116, "sender_address" },
+	{ 117, "date_time" },
+	{ 118, "client_ip_v6" },
+	{ 119, "server_ip_v6" },
+	{ 120, "source_context" },
+	{ 121, "connector_id" },
+	{ 122, "source_component" },
+	{ 124, "related_recipient_address" },
+	{ 125, "reference" },
+	{ 126, "return_path" },
+	{ 127, "message_info" },
+	{ 128, "directionality" },
+	{ 129, "tenant_id" },
+	{ 130, "original_client_ip_v4" },
+	{ 131, "original_server_ip_v4" },
+	{ 132, "custom_data" },
+	{ 133, "internal_message_id" },
+	{ 0, NULL }
+};
+static const value_string v10_template_types_ntop[] = {
+	{  80, "FRAGMENTS" },
+	{  82, "CLIENT_NW_DELAY_SEC" },
+	{  83, "CLIENT_NW_DELAY_USEC" },
+	{  84, "SERVER_NW_DELAY_SEC" },
+	{  85, "SERVER_NW_DELAY_USEC" },
+	{  86, "APPL_LATENCY_SEC" },
+	{  87, "APPL_LATENCY_USEC" },
+	{  98, "ICMP_FLAGS" },
+	{ 101, "SRC_IP_COUNTRY" },
+	{ 102, "SRC_IP_CITY" },
+	{ 103, "DST_IP_COUNTRY" },
+	{ 104, "DST_IP_CITY" },
+	{ 105, "FLOW_PROTO_PORT" },
+	{ 106, "TUNNEL_ID" },
+	{ 107, "LONGEST_FLOW_PKT" },
+	{ 108, "SHORTEST_FLOW_PKT" },
+	{ 109, "RETRANSMITTED_IN_PKTS" },
+	{ 110, "RETRANSMITTED_OUT_PKTS" },
+	{ 111, "OOORDER_IN_PKTS" },
+	{ 112, "OOORDER_OUT_PKTS" },
+	{ 113, "UNTUNNELED_PROTOCOL" },
+	{ 114, "UNTUNNELED_IPV4_SRC_ADDR" },
+	{ 115, "UNTUNNELED_L4_SRC_PORT" },
+	{ 116, "UNTUNNELED_IPV4_DST_ADDR" },
+	{ 117, "UNTUNNELED_L4_DST_PORT" },
+	{ 120, "DUMP_PATH" },
+	{ 130, "SIP_CALL_ID" },
+	{ 131, "SIP_CALLING_PARTY" },
+	{ 132, "SIP_CALLED_PARTY" },
+	{ 133, "SIP_RTP_CODECS" },
+	{ 134, "SIP_INVITE_TIME" },
+	{ 135, "SIP_TRYING_TIME" },
+	{ 136, "SIP_RINGING_TIME" },
+	{ 137, "SIP_OK_TIME" },
+	{ 138, "SIP_BYE_TIME" },
+	{ 139, "SIP_RTP_SRC_IP" },
+	{ 140, "SIP_RTP_SRC_PORT" },
+	{ 141, "SIP_RTP_DST_IP" },
+	{ 142, "SIP_RTP_DST_PORT" },
+	{ 150, "RTP_FIRST_SSRC" },
+	{ 151, "RTP_FIRST_TS" },
+	{ 152, "RTP_LAST_SSRC" },
+	{ 153, "RTP_LAST_TS" },
+	{ 154, "RTP_IN_JITTER" },
+	{ 155, "RTP_OUT_JITTER" },
+	{ 156, "RTP_IN_PKT_LOST" },
+	{ 157, "RTP_OUT_PKT_LOST" },
+	{ 158, "RTP_OUT_PAYLOAD_TYPE" },
+	{ 159, "RTP_IN_MAX_DELTA" },
+	{ 160, "RTP_OUT_MAX_DELTA" },
+	{ 165, "L7_PROTO" },
+	{ 180, "HTTP_URL" },
+	{ 181, "HTTP_RET_CODE" },
+	{ 182, "HTTP_REFERER" },
+	{ 183, "HTTP_UA" },
+	{ 184, "HTTP_MIME" },
+	{ 185, "SMTP_MAIL_FROM" },
+	{ 186, "SMTP_RCPT_TO" },
+	{ 195, "MYSQL_SERVER_VERSION" },
+	{ 196, "MYSQL_USERNAME" },
+	{ 197, "MYSQL_DB" },
+	{ 198, "MYSQL_QUERY" },
+	{ 199, "MYSQL_RESPONSE" },
+	{ 0, NULL }
+};
+
 static value_string_ext v9_v10_template_types_ext = VALUE_STRING_EXT_INIT(v9_v10_template_types);
+
+static value_string_ext v10_template_types_plixer_ext = VALUE_STRING_EXT_INIT(v10_template_types_plixer);
+static value_string_ext v10_template_types_ntop_ext = VALUE_STRING_EXT_INIT(v10_template_types_ntop);
 
 static const value_string v9_scope_field_types[] = {
 	{ 1, "System" },
@@ -680,7 +884,7 @@ static const value_string selector_algorithm[] = {
 	{ 4, "Uniform probabilistic Sampling"},
 	{ 5, "Property match Filtering"},
 	{ 6, "Hash based Filtering using BOB"},
-	{ 7, " Hash based Filtering using IPSX"},
+	{ 7, "Hash based Filtering using IPSX"},
 	{ 8, "Hash based Filtering using CRC"},
 	{ 0, NULL }
 };
@@ -697,6 +901,7 @@ static int      ett_netflow		= -1;
 static int      ett_unixtime		= -1;
 static int      ett_flow		= -1;
 static int      ett_flowtime		= -1;
+static int      ett_str_len		= -1;
 static int      ett_template		= -1;
 static int      ett_field		= -1;
 static int      ett_dataflowset		= -1;
@@ -755,6 +960,11 @@ static int	hf_cflow_template_ipfix_pen_provided	      = -1;
 static int	hf_cflow_template_ipfix_field_type	      = -1;
 static int	hf_cflow_template_ipfix_field_type_enterprise = -1;
 static int      hf_cflow_template_ipfix_field_pen	      = -1;
+
+/* IPFIX / vendor */
+static int	hf_cflow_template_plixer_field_type	      = -1;
+static int	hf_cflow_template_ntop_field_type	      = -1;
+
 
 /*
  * pdu storage
@@ -1061,6 +1271,96 @@ static int      hf_pie_cace_local_username       = -1;
 static int      hf_pie_cace_local_cmd_len        = -1;
 static int      hf_pie_cace_local_cmd            = -1;
 
+static int      hf_pie_ntop_fragmented		 = -1;
+static int      hf_pie_ntop_fingerprint		 = -1;
+static int      hf_pie_ntop_client_nw_delay_sec	 = -1;
+static int      hf_pie_ntop_client_nw_delay_usec = -1;
+static int      hf_pie_ntop_server_nw_delay_sec	 = -1;
+static int      hf_pie_ntop_server_nw_delay_usec = -1;
+static int      hf_pie_ntop_appl_latency_sec	 = -1;
+static int      hf_pie_ntop_appl_latency_usec	 = -1;
+static int      hf_pie_ntop_icmp_flags		 = -1;
+static int      hf_pie_ntop_src_ip_country	 = -1;
+static int      hf_pie_ntop_src_ip_city		 = -1;
+static int      hf_pie_ntop_dst_ip_country	 = -1;
+static int      hf_pie_ntop_dst_ip_city		 = -1;
+static int      hf_pie_ntop_flow_proto_port	 = -1;
+
+static int      hf_pie_ntop_longest_flow_pkt	     = -1;
+static int      hf_pie_ntop_ooorder_in_pkts	     = -1;
+static int      hf_pie_ntop_ooorder_out_pkts	     = -1;
+static int      hf_pie_ntop_retransmitted_in_pkts    = -1;
+static int      hf_pie_ntop_retransmitted_out_pkts   = -1;
+static int      hf_pie_ntop_shortest_flow_pkt	     = -1;
+static int      hf_pie_ntop_tunnel_id		     = -1;
+static int      hf_pie_ntop_untunneled_ipv4_dst_addr = -1;
+static int      hf_pie_ntop_untunneled_ipv4_src_addr = -1;
+static int      hf_pie_ntop_untunneled_l4_dst_port   = -1;
+static int      hf_pie_ntop_untunneled_l4_src_port   = -1;
+static int      hf_pie_ntop_untunneled_protocol	     = -1;
+
+static int      hf_pie_ntop_dump_path		 = -1;
+static int      hf_pie_ntop_sip_call_id		 = -1;
+static int      hf_pie_ntop_sip_calling_party	 = -1;
+static int      hf_pie_ntop_sip_called_party	 = -1;
+static int      hf_pie_ntop_sip_rtp_codecs	 = -1;
+static int      hf_pie_ntop_sip_invite_time	 = -1;
+static int      hf_pie_ntop_sip_trying_time	 = -1;
+static int      hf_pie_ntop_sip_ringing_time	 = -1;
+static int      hf_pie_ntop_sip_ok_time		 = -1;
+static int      hf_pie_ntop_sip_bye_time	 = -1;
+static int      hf_pie_ntop_sip_rtp_src_ip	 = -1;
+static int      hf_pie_ntop_sip_rtp_src_port	 = -1;
+static int      hf_pie_ntop_sip_rtp_dst_ip	 = -1;
+static int      hf_pie_ntop_sip_rtp_dst_port	 = -1;
+static int      hf_pie_ntop_rtp_first_ssrc	 = -1;
+static int      hf_pie_ntop_rtp_first_ts	 = -1;
+static int      hf_pie_ntop_rtp_last_ssrc	 = -1;
+static int      hf_pie_ntop_rtp_last_ts		 = -1;
+static int      hf_pie_ntop_rtp_in_jitter	 = -1;
+static int      hf_pie_ntop_rtp_out_jitter	 = -1;
+static int      hf_pie_ntop_rtp_in_pkt_lost	 = -1;
+static int      hf_pie_ntop_rtp_out_pkt_lost	 = -1;
+static int      hf_pie_ntop_rtp_out_payload_type = -1;
+static int      hf_pie_ntop_rtp_in_max_delta	 = -1;
+static int      hf_pie_ntop_rtp_out_max_delta	 = -1;
+static int      hf_pie_ntop_proc_id		 = -1;
+static int      hf_pie_ntop_proc_name		 = -1;
+static int      hf_pie_ntop_http_url		 = -1;
+static int      hf_pie_ntop_http_ret_code	 = -1;
+static int      hf_pie_ntop_smtp_mail_from	 = -1;
+static int      hf_pie_ntop_smtp_rcpt_to	 = -1;
+
+static int      hf_pie_ntop_mysql_server_version = -1;
+static int      hf_pie_ntop_mysql_username	 = -1;
+static int      hf_pie_ntop_mysql_db		 = -1;
+static int      hf_pie_ntop_mysql_query		 = -1;
+static int      hf_pie_ntop_mysql_response	 = -1;
+
+static int      hf_pie_plixer_client_ip_v4	      = -1;
+static int      hf_pie_plixer_client_hostname	      = -1;	/* string */
+static int      hf_pie_plixer_partner_name	      = -1;	/* string */
+static int      hf_pie_plixer_server_hostname	      = -1;	/* string */
+static int      hf_pie_plixer_server_ip_v4	      = -1;
+static int      hf_pie_plixer_recipient_address	      = -1;	/* string */
+static int      hf_pie_plixer_event_id		      = -1;
+static int      hf_pie_plixer_msgid		      = -1;	/* string */
+
+static int      hf_pie_plixer_priority		      = -1;
+static int      hf_pie_plixer_recipient_report_status = -1;
+static int      hf_pie_plixer_number_recipients	      = -1;
+static int      hf_pie_plixer_origination_time	      = -1;
+static int      hf_pie_plixer_encryption	      = -1;	/* string */
+static int      hf_pie_plixer_service_version	      = -1;	/* string */
+static int      hf_pie_plixer_linked_msgid	      = -1;	/* string */
+static int      hf_pie_plixer_message_subject	      = -1;	/* string */
+static int      hf_pie_plixer_sender_address	      = -1;	/* string */
+static int      hf_pie_plixer_date_time		      = -1;
+
+static int      hf_string_len_short	= -1;
+static int      hf_string_len_long = -1;
+
+
 static const value_string special_mpls_top_label_type[] = {
 	{0,	"Unknown"},
 	{1,	"TE-MIDPT"},
@@ -1155,6 +1455,17 @@ static int      flow_process_sizecount(proto_tree *pdutree, tvbuff_t *tvb,
 static int      flow_process_textfield(proto_tree *pdutree, tvbuff_t *tvb,
 				       int offset, int bytes,
 				       const char *text);
+
+static int	pen_to_type_hf_list (guint32 pen) {
+	switch (pen) {
+	case VENDOR_PLIXER:
+		return TF_PLIXER;
+	case VENDOR_NTOP:
+		return TF_NTOP;
+	default:
+		return TF_NO_VENDOR_INFO;
+	}
+}
 
 /* ------------------------------------ */
 /* NTP <-> nstime conversions */
@@ -1431,9 +1742,9 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (pdus == 0) { /* no payload to decode - in theory */
-		/* This is absurd, but does happens in practice.  */
+		/* This is absurd, but does happen in practice.  */
 		proto_tree_add_text(netflow_tree, tvb, offset, tvb_length_remaining(tvb, offset),
-					"FlowSets impossibles - PDU Count is %d", pdus);
+					"FlowSets impossible - PDU Count is %d", pdus);
 		return tvb_length(tvb);
 	}
 	/*
@@ -1965,10 +2276,11 @@ dissect_v9_pdu_scope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int
 		guint16 type   = tplt->fields[TF_SCOPES][i].type;
 		guint16 length = tplt->fields[TF_SCOPES][i].length;
 		if (length == 0) { /* XXX: Zero length fields probably shouldn't be included in the cached template */
+			/* YYY: Maybe.  If you don't cache the zero length fields can you still compare that you actually the same template with the same ID.  See WMeier comment c) above */
 			continue;
 		}
 		switch (type) {
-			/* XXX: template length fields should be validated during temlate processing ... */
+			/* XXX: template length fields should be validated during template processing ... */
 		case 1: /* system */
 			ti = proto_tree_add_item(pdutree, hf_cflow_scope_system,
 						 tvb, offset, length, ENC_NA);
@@ -2031,6 +2343,13 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 	gchar          *cmd_str = NULL;
 	guint16         got_flags = 0;
 
+	int             string_len_short = 0;
+	int             string_len_long = 0;
+
+	proto_tree     *string_tree;
+
+        gchar *         gen_str = NULL;
+	int             gen_str_offset = 0;
 
 	proto_item     *ti;
 	const guint8   *reftime;
@@ -2067,18 +2386,20 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 		pen_str = entries[i].pen_str;
 
 		if (length == 0) { /* XXX: Zero length fields probably shouldn't be included in the cached template */
+			/* YYY: Maybe.  If you don't cache the zero length fields can you still compare that you actually the same template with the same ID.  See WMeier comment c) above */
 			continue;
 		}
 		/* See if variable length field */
 		vstr_len = 0;
 		if (length == VARIABLE_LENGTH) {
 			vstr_len = 1;
-			length = tvb_get_guint8(tvb, offset);
+			string_len_short = length = tvb_get_guint8(tvb, offset);
 			if (length == 255) {
 				vstr_len = 3;
-				length = tvb_get_ntohs(tvb, offset+1);
+				string_len_long = length = tvb_get_ntohs(tvb, offset+1);
 			}
 			offset += vstr_len;
+			gen_str_offset = offset;
 		}
 
 		/*  v9 types
@@ -3985,6 +4306,435 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 			got_flags |= GOT_COMMAND;
 			break;
 
+                /* START NTOP */
+		case (NTOP_BASE + 80):		 /* FRAGMENTED */
+		case ((VENDOR_NTOP << 16) | 80): /* FRAGMENTED */
+		        ti = proto_tree_add_item(pdutree, hf_pie_ntop_fragmented,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 81):		 /* FINGERPRINT */
+		case ((VENDOR_NTOP << 16) | 81): /* FINGERPRINT */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_fingerprint,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 82):           /* CLIENT_NW_DELAY_SEC */
+		case ((VENDOR_NTOP << 16) | 82): /* CLIENT_NW_DELAY_SEC */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_client_nw_delay_sec,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 83): /*           /\* CLIENT_NW_DELAY_USEC *\/ */
+		case ((VENDOR_NTOP << 16) | 83): /* CLIENT_NW_DELAY_USEC */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_client_nw_delay_usec,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 84):           /* SERVER_NW_DELAY_SEC */
+		case ((VENDOR_NTOP << 16) | 84): /* SERVER_NW_DELAY_SEC */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_server_nw_delay_sec,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 85):           /* SERVER_NW_DELAY_USEC */
+		case ((VENDOR_NTOP << 16) | 85): /* SERVER_NW_DELAY_USEC */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_server_nw_delay_usec,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 86):           /* APPL_LATENCY_SEC */
+		case ((VENDOR_NTOP << 16) | 86): /* APPL_LATENCY_SEC */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_appl_latency_sec,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 87):           /* APPL_LATENCY_USEC */
+		case ((VENDOR_NTOP << 16) | 87): /* APPL_LATENCY_USEC */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_appl_latency_sec,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 98):		 /* ICMP_FLAGS */
+		case ((VENDOR_NTOP << 16) | 98): /* ICMP_FLAGS */
+			/* Cumulative of all flow ICMP types */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_icmp_flags,
+			    tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 101):		  /* SRC_IP_COUNTRY */
+		case ((VENDOR_NTOP << 16) | 101): /* SRC_IP_COUNTRY */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_src_ip_country,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 102):		  /* SRC_IP_CITY */
+		case ((VENDOR_NTOP << 16) | 102): /* SRC_IP_CITY */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_src_ip_city,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 103):		  /* DST_IP_COUNTRY */
+		case ((VENDOR_NTOP << 16) | 103): /* DST_IP_COUNTRY */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_dst_ip_country,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 104):		  /* DST_IP_CITY */
+		case ((VENDOR_NTOP << 16) | 104): /* DST_IP_CITY */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_dst_ip_city,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 105):	          /* FLOW_PROTO_PORT */
+		case ((VENDOR_NTOP << 16) | 105): /* FLOW_PROTO_PORT */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_flow_proto_port,
+						 tvb, offset, length, FALSE);
+			break;
+
+		case (NTOP_BASE + 106):		  /* TUNNEL_ID */
+		case ((VENDOR_NTOP << 16) | 106): /* TUNNEL_ID */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_tunnel_id,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 107):	          /* LONGEST_FLOW_PKT */
+		case ((VENDOR_NTOP << 16) | 107): /* LONGEST_FLOW_PKT */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_longest_flow_pkt,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 108):	          /* SHORTEST_FLOW_PKT */
+		case ((VENDOR_NTOP << 16) | 108): /* SHORTEST_FLOW_PKT */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_shortest_flow_pkt,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 109):	          /* RETRANSMITTED_IN_PKTS */
+		case ((VENDOR_NTOP << 16) | 109): /* RETRANSMITTED_IN_PKTS */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_retransmitted_in_pkts,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 110):	          /* RETRANSMITTED_OUT_PKTS */
+		case ((VENDOR_NTOP << 16) | 110): /* RETRANSMITTED_OUT_PKTS */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_retransmitted_out_pkts,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 111):	          /* OOORDER_IN_PKTS */
+		case ((VENDOR_NTOP << 16) | 111): /* OOORDER_IN_PKTS */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_ooorder_in_pkts,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 112):	          /* OOORDER_OUT_PKTS */
+		case ((VENDOR_NTOP << 16) | 112): /* OOORDER_OUT_PKTS */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_ooorder_out_pkts,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 113):	          /* UNTUNNELED_PROTOCOL */
+		case ((VENDOR_NTOP << 16) | 113): /* UNTUNNELED_PROTOCOL */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_untunneled_protocol,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 114):	          /* UNTUNNELED_IPV4_SRC_ADDR */
+		case ((VENDOR_NTOP << 16) | 114): /* UNTUNNELED_IPV4_SRC_ADDR */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_untunneled_ipv4_src_addr,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 115):	          /* UNTUNNELED_L4_SRC_PORT */
+		case ((VENDOR_NTOP << 16) | 115): /* UNTUNNELED_L4_SRC_PORT */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_untunneled_l4_src_port,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 116):	          /* UNTUNNELED_IPV4_DST_ADDR */
+		case ((VENDOR_NTOP << 16) | 116): /* UNTUNNELED_IPV4_DST_ADDR */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_untunneled_ipv4_dst_addr,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 117):	          /* UNTUNNELED_L4_DST_PORT */
+		case ((VENDOR_NTOP << 16) | 117): /* UNTUNNELED_L4_DST_PORT */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_untunneled_l4_dst_port,
+						 tvb, offset, length, FALSE);
+			break;
+
+		case (NTOP_BASE + 120):		  /* DUMP_PATH */
+		case ((VENDOR_NTOP << 16) | 120): /* DUMP_PATH */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_dump_path,
+						 tvb, offset, length, FALSE);
+			break;
+
+		case (NTOP_BASE + 130):		  /* SIP_CALL_ID */
+		case ((VENDOR_NTOP << 16) | 130): /* SIP_CALL_ID */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_call_id,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 131):	          /* SIP_CALLING_PARTY */
+		case ((VENDOR_NTOP << 16) | 131): /* SIP_CALLING_PARTY */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_calling_party,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 132):	          /* SIP_CALLED_PARTY */
+		case ((VENDOR_NTOP << 16) | 132): /* SIP_CALLED_PARTY */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_called_party,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 133):		  /* SIP_RTP_CODECS */
+		case ((VENDOR_NTOP << 16) | 133): /* SIP_RTP_CODECS */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_rtp_codecs,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 134):	          /* SIP_INVITE_TIME */
+		case ((VENDOR_NTOP << 16) | 134): /* SIP_INVITE_TIME */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_invite_time,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 135):	          /* SIP_TRYING_TIME */
+		case ((VENDOR_NTOP << 16) | 135): /* SIP_TRYING_TIME */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_trying_time,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 136):           /* SIP_RINGING_TIME */
+		case ((VENDOR_NTOP << 16) | 136): /* SIP_RINGING_TIME */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_ringing_time,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 137):		  /* SIP_OK_TIME */
+		case ((VENDOR_NTOP << 16) | 137): /* SIP_OK_TIME */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_ok_time,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 138):		  /* SIP_BYE_TIME */
+		case ((VENDOR_NTOP << 16) | 138): /* SIP_BYE_TIME */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_bye_time,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 139):		  /* SIP_RTP_SRC_IP */
+		case ((VENDOR_NTOP << 16) | 139): /* SIP_RTP_SRC_IP */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_rtp_src_ip,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 140):           /* SIP_RTP_SRC_PORT */
+		case ((VENDOR_NTOP << 16) | 140): /* SIP_RTP_SRC_PORT */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_rtp_src_port,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 141):		  /* SIP_RTP_DST_IP */
+		case ((VENDOR_NTOP << 16) | 141): /* SIP_RTP_DST_IP */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_rtp_dst_ip,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 142):           /* SIP_RTP_DST_PORT */
+		case ((VENDOR_NTOP << 16) | 142): /* SIP_RTP_DST_PORT */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_rtp_dst_port,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 150):		  /* RTP_FIRST_SSRC */
+		case ((VENDOR_NTOP << 16) | 150): /* RTP_FIRST_SSRC */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_rtp_first_ssrc,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 151):		  /* RTP_FIRST_TS */
+		case ((VENDOR_NTOP << 16) | 151): /* RTP_FIRST_TS */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_rtp_first_ts,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 152):		  /* RTP_LAST_SSRC */
+		case ((VENDOR_NTOP << 16) | 152): /* RTP_LAST_SSRC */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_rtp_last_ssrc,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 153):		  /* RTP_LAST_TS */
+		case ((VENDOR_NTOP << 16) | 153): /* RTP_LAST_TS */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_rtp_last_ts,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 154):		  /* RTP_IN_JITTER */
+		case ((VENDOR_NTOP << 16) | 154): /* RTP_IN_JITTER */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_rtp_in_jitter,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 155):		  /* RTP_OUT_JITTER */
+		case ((VENDOR_NTOP << 16) | 155): /* RTP_OUT_JITTER */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_rtp_out_jitter,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 156):	          /* RTP_IN_PKT_LOST */
+		case ((VENDOR_NTOP << 16) | 156): /* RTP_IN_PKT_LOST */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_rtp_in_pkt_lost,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 157):	          /* RTP_OUT_PKT_LOST */
+		case ((VENDOR_NTOP << 16) | 157): /* RTP_OUT_PKT_LOST */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_rtp_out_pkt_lost,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 158):	          /* RTP_OUT_PAYLOAD_TYPE */
+		case ((VENDOR_NTOP << 16) | 158): /* RTP_OUT_PAYLOAD_TYPE */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_rtp_out_payload_type,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 159):	          /* RTP_IN_MAX_DELTA */
+		case ((VENDOR_NTOP << 16) | 159): /* RTP_IN_MAX_DELTA */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_rtp_in_max_delta,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 160):	          /* RTP_OUT_MAX_DELTA */
+		case ((VENDOR_NTOP << 16) | 160): /* RTP_OUT_MAX_DELTA */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_rtp_out_max_delta,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 168):		  /* PROC_ID */
+		case ((VENDOR_NTOP << 16) | 168): /* PROC_ID */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_proc_id,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 169):		  /* PROC_NAME */
+		case ((VENDOR_NTOP << 16) | 169): /* PROC_NAME */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_proc_name,
+						 tvb, offset, length, FALSE);
+			break;
+		case (NTOP_BASE + 180):		  /* HTTP_URL */
+		case ((VENDOR_NTOP << 16) | 180): /* HTTP_URL */
+			gen_str = tvb_format_text(tvb, offset, length);
+			ti = proto_tree_add_string(pdutree, hf_pie_ntop_http_url,
+						   tvb, offset, length, gen_str);
+			break;
+		case (NTOP_BASE + 181):		  /* HTTP_RET_CODE */
+		case ((VENDOR_NTOP << 16) | 181): /* HTTP_RET_CODE */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_http_ret_code,
+						 tvb, offset, length, FALSE);
+			break;
+
+
+		case (NTOP_BASE + 182):		  /* HTTP_REFERER */
+		case ((VENDOR_NTOP << 16) | 182): /* HTTP_REFERER */
+			break;
+		case (NTOP_BASE + 183):           /* HTTP_UA */
+		case ((VENDOR_NTOP << 16) | 183): /* HTTP_UA */
+			break;
+		case (NTOP_BASE + 184):           /* HTTP_MIME */
+		case ((VENDOR_NTOP << 16) | 184): /* HTTP_MIME */
+			break;
+
+		case (NTOP_BASE + 185):		  /* SMTP_MAIL_FROM */
+		case ((VENDOR_NTOP << 16) | 185): /* SMTP_MAIL_FROM */
+			gen_str = tvb_format_text(tvb, offset, length);
+			ti = proto_tree_add_string(pdutree, hf_pie_ntop_smtp_mail_from,
+						   tvb, offset, length, gen_str);
+			break;
+		case (NTOP_BASE + 186):		  /* SMTP_RCPT_TO */
+		case ((VENDOR_NTOP << 16) | 186): /* SMTP_RCPT_TO */
+			gen_str = tvb_format_text(tvb, offset, length);
+			ti = proto_tree_add_string(pdutree, hf_pie_ntop_smtp_rcpt_to,
+						   tvb, offset, length, gen_str);
+			break;
+
+		case (NTOP_BASE + 190):           /* FLOW_ID */
+		case ((VENDOR_NTOP << 16) | 190): /* FLOW_ID */
+		        ti = proto_tree_add_item(pdutree, hf_cflow_flow_id,
+					    tvb, offset, length, ENC_BIG_ENDIAN);
+			break;
+
+		case (NTOP_BASE + 195):           /* MYSQL_SERVER_VERSION */
+		case ((VENDOR_NTOP << 16) | 195): /* MYSQL_SERVER_VERSION */
+			gen_str = tvb_format_text(tvb, offset, length);
+			ti = proto_tree_add_string(pdutree, hf_pie_ntop_mysql_server_version,
+						   tvb, offset, length, gen_str);
+			break;
+		case (NTOP_BASE + 196):           /* MYSQL_USERNAME */
+		case ((VENDOR_NTOP << 16) | 196): /* MYSQL_USERNAME */
+			gen_str = tvb_format_text(tvb, offset, length);
+			ti = proto_tree_add_string(pdutree, hf_pie_ntop_mysql_username,
+						   tvb, offset, length, gen_str);
+			break;
+		case (NTOP_BASE + 197):           /* MYSQL_DB */
+		case ((VENDOR_NTOP << 16) | 197): /* MYSQL_DB */
+			gen_str = tvb_format_text(tvb, offset, length);
+			ti = proto_tree_add_string(pdutree, hf_pie_ntop_mysql_db,
+						   tvb, offset, length, gen_str);
+			break;
+		case (NTOP_BASE + 198):           /* MYSQL_QUERY */
+		case ((VENDOR_NTOP << 16) | 198): /* MYSQL_QUERY */
+			gen_str = tvb_format_text(tvb, offset, length);
+			ti = proto_tree_add_string(pdutree, hf_pie_ntop_mysql_query,
+						   tvb, offset, length, gen_str);
+			break;
+		case (NTOP_BASE + 199):           /* MYSQL_RESPONSE */
+		case ((VENDOR_NTOP << 16) | 199): /* MYSQL_RESPONSE */
+			ti = proto_tree_add_item(pdutree, hf_pie_ntop_mysql_response,
+						 tvb, offset, length, FALSE);
+
+			break;
+
+		/* END NTOP */
+
+                /* START Plixer International */
+		case ((VENDOR_PLIXER << 16) | 100):    /* client_ip_v4 */
+			ti = proto_tree_add_item(pdutree, hf_pie_plixer_client_ip_v4,
+						 tvb, offset, length, FALSE);
+			break;
+		case ((VENDOR_PLIXER << 16) | 101):    /* client_hostname */
+			gen_str = tvb_format_text(tvb, offset, length);
+			ti = proto_tree_add_string(pdutree, hf_pie_plixer_client_hostname,
+						   tvb, offset, length, gen_str);
+			break;
+		case ((VENDOR_PLIXER << 16) | 102):    /* partner_name */
+			gen_str = tvb_format_text(tvb, offset, length);
+			ti = proto_tree_add_string(pdutree, hf_pie_plixer_partner_name,
+						   tvb, offset, length, gen_str);
+			break;
+		case ((VENDOR_PLIXER << 16) | 103):    /* server_hostname */
+			gen_str = tvb_format_text(tvb, offset, length);
+			ti = proto_tree_add_string(pdutree, hf_pie_plixer_server_hostname,
+						   tvb, offset, length, gen_str);
+			break;
+		case ((VENDOR_PLIXER << 16) | 104):    /* server_ip_v4 */
+			ti = proto_tree_add_item(pdutree, hf_pie_plixer_server_ip_v4,
+						 tvb, offset, length, FALSE);
+			break;
+		case ((VENDOR_PLIXER << 16) | 105):    /* recipient_address */
+			gen_str = tvb_format_text(tvb, offset, length);
+			ti = proto_tree_add_string(pdutree, hf_pie_plixer_recipient_address,
+						   tvb, offset, length, gen_str);
+			break;
+		case ((VENDOR_PLIXER << 16) | 106):    /* event_id */
+			ti = proto_tree_add_item(pdutree, hf_pie_plixer_event_id,
+						 tvb, offset, length, FALSE);
+			break;
+		case ((VENDOR_PLIXER << 16) | 107):    /* msgid */
+			gen_str = tvb_format_text(tvb, offset, length);
+			ti = proto_tree_add_string(pdutree, hf_pie_plixer_msgid,
+						   tvb, offset, length, gen_str);
+			break;
+		case ((VENDOR_PLIXER << 16) | 108):    /* priority */
+			ti = proto_tree_add_item(pdutree, hf_pie_plixer_priority,
+						 tvb, offset, length, FALSE);
+			break;
+		case ((VENDOR_PLIXER << 16) | 109):    /* recipient_report_status */
+			ti = proto_tree_add_item(pdutree, hf_pie_plixer_recipient_report_status,
+						 tvb, offset, length, FALSE);
+			break;
+		case ((VENDOR_PLIXER << 16) | 110):    /* number_recipients */
+			ti = proto_tree_add_item(pdutree, hf_pie_plixer_number_recipients,
+						 tvb, offset, length, FALSE);
+			break;
+		case ((VENDOR_PLIXER << 16) | 111):    /* origination_time */
+			ti = proto_tree_add_item(pdutree, hf_pie_plixer_origination_time,
+						 tvb, offset, length, FALSE);
+			break;
+		case ((VENDOR_PLIXER << 16) | 112):    /* encryption */
+			ti = proto_tree_add_item(pdutree, hf_pie_plixer_encryption,
+						 tvb, offset, length, FALSE);
+			break;
+		case ((VENDOR_PLIXER << 16) | 113):    /* service_version */
+			gen_str = tvb_format_text(tvb, offset, length);
+			ti = proto_tree_add_string(pdutree, hf_pie_plixer_service_version,
+						   tvb, offset, length, gen_str);
+			break;
+		case ((VENDOR_PLIXER << 16) | 114):    /* linked_msgid */
+			gen_str = tvb_format_text(tvb, offset, length);
+			ti = proto_tree_add_string(pdutree, hf_pie_plixer_linked_msgid,
+						   tvb, offset, length, gen_str);
+			break;
+		case ((VENDOR_PLIXER << 16) | 115):    /* message_subject */
+			gen_str = tvb_format_text(tvb, offset, length);
+			ti = proto_tree_add_string(pdutree, hf_pie_plixer_message_subject,
+						   tvb, offset, length, gen_str);
+			break;
+		case ((VENDOR_PLIXER << 16) | 116):    /* sender_address */
+			gen_str = tvb_format_text(tvb, offset, length);
+			ti = proto_tree_add_string(pdutree, hf_pie_plixer_sender_address,
+						   tvb, offset, length, gen_str);
+			break;
+		case ((VENDOR_PLIXER << 16) | 117):    /* date_time */
+			ti = proto_tree_add_item(pdutree, hf_pie_plixer_date_time,
+						 tvb, offset, length, FALSE);
+			break;
+                /* END Plixer International */
+
 		default:  /* Unknown Field ID */
 			if ((hdrinfo->vspec == 9) || (pen == REVPEN)) {
 				ti = proto_tree_add_bytes_format_value(pdutree, hf_cflow_unknown_field_type,
@@ -4003,10 +4753,24 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 								  tvb_bytes_to_str_punct(tvb, offset, length, ' '));
 			}
 			break;
+
 		} /* switch (pen_type) */
 
-		if (ti && (vstr_len != 0)) { /* XXX: ugh: not very pretty: how to show/highlight actual length bytes ?? */
+		if (ti && (vstr_len != 0)) {
+			/* XXX: ugh: not very pretty: how to show/highlight actual length bytes ?? */
+			/* YYY: added the length in a tree.  Not sure if this is best.  */
 			proto_item_append_text(ti, " (Variable Length)");
+			PROTO_ITEM_SET_GENERATED(ti);
+			string_tree = proto_item_add_subtree(ti, ett_str_len);
+			proto_tree_add_uint(string_tree, hf_string_len_short, tvb,
+					    gen_str_offset-vstr_len, 1, string_len_short);
+			if (vstr_len == 3) {
+				proto_tree_add_uint(string_tree, hf_string_len_long, tvb,
+						    gen_str_offset-2, 2, string_len_long);
+			}
+
+
+
 		}
 
 		if (ti && (pen == REVPEN)) {
@@ -4020,7 +4784,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 	} /* for (i=0; i < count; i++) */
 
 	/* If only "start" or "end" time, show it here */
-	/* XXX: length is actually be 8 if millisec, microsec, nanosec time */
+	/* XXX: length is actually 8 if millisec, microsec, nanosec time */
 	for (i = 0; i < 2; i++) {
 		if (!(offset_s[i] && offset_e[i])) {
 			if (offset_s[i]) {
@@ -4061,16 +4825,22 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 static const int *v9_template_type_hf_list[TF_NUM] = {
 	&hf_cflow_template_scope_field_type,            /* scope */
 	&hf_cflow_template_field_type};                 /* entry */
-static const int *v10_template_type_hf_list[TF_NUM] = {
+static const int *v10_template_type_hf_list[TF_NUM_EXT] = {
 	&hf_cflow_template_ipfix_field_type,            /* scope */
-	&hf_cflow_template_ipfix_field_type};           /* entry */
+	&hf_cflow_template_ipfix_field_type,
+	&hf_cflow_template_plixer_field_type,
+	&hf_cflow_template_ntop_field_type,
+	NULL};
 
 static value_string_ext *v9_template_type_vse_list[TF_NUM] = {
 	&v9_scope_field_types_ext,                      /* scope */
 	&v9_v10_template_types_ext };                   /* entry */
-static value_string_ext *v10_template_type_vse_list[TF_NUM] = {
+static value_string_ext *v10_template_type_vse_list[TF_NUM_EXT] = {
 	&v9_v10_template_types_ext,                     /* scope */
-	&v9_v10_template_types_ext };                   /* entry */
+	&v9_v10_template_types_ext,			/* entry */
+	&v10_template_types_plixer_ext,
+	&v10_template_types_ntop_ext,
+	NULL};
 
 static int
 dissect_v9_v10_template_fields(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tplt_tree, int offset,
@@ -4141,12 +4911,20 @@ dissect_v9_v10_template_fields(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 					proto_item_append_text(ti, " [Reverse]");
 					proto_item_append_text(field_item, " [Reverse]");
 				}
-			} else { /* Private Enterprise */
-				proto_item *ti;
-				ti = proto_tree_add_item(field_tree, hf_cflow_template_ipfix_field_type_enterprise,
-							 tvb, offset, 2, ENC_BIG_ENDIAN);
-				proto_item_append_text(ti, " [pen: %s]", pen_str);
-				proto_item_append_text(field_item, ": %3u [pen: %s]", type&0x7fff, pen_str);
+			} else {
+				int fields_type_pen = pen_to_type_hf_list(pen);
+				if (fields_type_pen != TF_NO_VENDOR_INFO) {
+					ti = proto_tree_add_item(field_tree, *v10_template_type_hf_list[fields_type_pen],
+								 tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_item_append_text(field_item, ": %s",
+							       val_to_str_ext(type&0x7fff, v10_template_type_vse_list[fields_type_pen], "Unknown(%d)"));
+				} else { /* Private Enterprise */
+					proto_item *ti;
+					ti = proto_tree_add_item(field_tree, hf_cflow_template_ipfix_field_type_enterprise,
+								 tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_item_append_text(ti, " [pen: %s]", pen_str);
+					proto_item_append_text(field_item, ": %3u [pen: %s]", type&0x7fff, pen_str);
+				}
 			}
 		}
 
@@ -6161,6 +6939,16 @@ proto_register_netflow(void)
 		  FT_UINT16, BASE_DEC|BASE_EXT_STRING, &v9_v10_template_types_ext, 0x7FFF,
 		  "Template field type", HFILL}
 		 },
+		{&hf_cflow_template_plixer_field_type,
+		 {"Type", "cflow.template_plixer_field_type",
+		  FT_UINT16, BASE_DEC|BASE_EXT_STRING, &v10_template_types_plixer_ext, 0x7FFF,
+		  "Template field type", HFILL}
+		 },
+		{&hf_cflow_template_ntop_field_type,
+		 {"Type", "cflow.template_ntop_field_type",
+		  FT_UINT16, BASE_DEC|BASE_EXT_STRING, &v10_template_types_ntop_ext, 0x7FFF,
+		  "Template field type", HFILL}
+		 },
 		{&hf_cflow_template_ipfix_field_type_enterprise,
 		 {"Type", "cflow.template_ipfix_field_type_enterprise",
 		  FT_UINT16, BASE_DEC, NULL, 0x7FFF,
@@ -6285,6 +7073,499 @@ proto_register_netflow(void)
 		 {"Local Command", "cflow.pie.cace.localcmd",
 		  FT_STRING, BASE_NONE, NULL, 0x0,
 		  "Local Command (caceLocalProcessCommand)", HFILL}
+		},
+                /* ntop, 35632 / 80 */
+                {&hf_pie_ntop_fragmented,
+		 {"Fragmented","cflow.pie.ntop.fragmented",
+		  FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 81 */
+                {&hf_pie_ntop_fingerprint,
+		 {"Fingerprint","cflow.pie.ntop.fingerprint",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 82 */
+                {&hf_pie_ntop_client_nw_delay_sec,
+		 {"Client_nw_delay_sec","cflow.pie.ntop.client_nw_delay_sec",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 83 */
+                {&hf_pie_ntop_client_nw_delay_usec,
+		 {"Client_nw_delay_usec","cflow.pie.ntop.client_nw_delay_usec",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 84 */
+                {&hf_pie_ntop_server_nw_delay_sec,
+		 {"Server_nw_delay_sec","cflow.pie.ntop.server_nw_delay_sec",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 85 */
+                {&hf_pie_ntop_server_nw_delay_usec,
+		 {"Server_nw_delay_usec","cflow.pie.ntop.server_nw_delay_usec",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 86 */
+                {&hf_pie_ntop_appl_latency_sec,
+		 {"Appl_latency_sec","cflow.pie.ntop.appl_latency_sec",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 87 */
+                {&hf_pie_ntop_appl_latency_usec,
+		 {"Appl_latency_usec","cflow.pie.ntop.appl_latency_usec",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 98 */
+                {&hf_pie_ntop_icmp_flags,
+		 {"Icmp_flags","cflow.pie.ntop.icmp_flags",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 101 */
+                {&hf_pie_ntop_src_ip_country,
+		 {"Src_ip_country","cflow.pie.ntop.src_ip_country",
+		  FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 102 */
+                {&hf_pie_ntop_src_ip_city,
+		 {"Src_ip_city","cflow.pie.ntop.src_ip_city",
+		  FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 103 */
+                {&hf_pie_ntop_dst_ip_country,
+		 {"Dst_ip_country","cflow.pie.ntop.dst_ip_country",
+		  FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 104 */
+                {&hf_pie_ntop_dst_ip_city,
+		 {"Dst_ip_city","cflow.pie.ntop.dst_ip_city",
+		  FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 105 */
+                {&hf_pie_ntop_flow_proto_port,
+		 {"Flow_proto_port","cflow.pie.ntop.flow_proto_port",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 106 */
+		{&hf_pie_ntop_tunnel_id,
+		 {"Tunnel_id","cflow.pie.ntop.tunnel_id",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 107 */
+		{&hf_pie_ntop_longest_flow_pkt,
+		 {"Longest_flow_pkt","cflow.pie.ntop.longest_flow_pkt",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 108 */
+		{&hf_pie_ntop_shortest_flow_pkt,
+		 {"Shortest_flow_pkt","cflow.pie.ntop.shortest_flow_pkt",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 109 */
+		{&hf_pie_ntop_retransmitted_in_pkts,
+		 {"Retransmitted_in_pkts","cflow.pie.ntop.retransmitted_in_pkts",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 110 */
+		{&hf_pie_ntop_retransmitted_out_pkts,
+		 {"Retransmitted_out_pkts","cflow.pie.ntop.retransmitted_out_pkts",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 111 */
+		{&hf_pie_ntop_ooorder_in_pkts,
+		 {"Ooorder_in_pkts","cflow.pie.ntop.ooorder_in_pkts",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 112 */
+		{&hf_pie_ntop_ooorder_out_pkts,
+		 {"Ooorder_out_pkts","cflow.pie.ntop.ooorder_out_pkts",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 113 */
+		{&hf_pie_ntop_untunneled_protocol,
+		 {"Untunneled_protocol","cflow.pie.ntop.untunneled_protocol",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 114 */
+		{&hf_pie_ntop_untunneled_ipv4_src_addr,
+		 {"Untunneled_ipv4_src_addr","cflow.pie.ntop.untunneled_ipv4_src_addr",
+		  FT_IPv4, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 115 */
+		{&hf_pie_ntop_untunneled_l4_src_port,
+		 {"Untunneled_l4_src_port","cflow.pie.ntop.untunneled_l4_src_port",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 116 */
+		{&hf_pie_ntop_untunneled_ipv4_dst_addr,
+		 {"Untunneled_ipv4_dst_addr","cflow.pie.ntop.untunneled_ipv4_dst_addr",
+		  FT_IPv4, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 117 */
+		{&hf_pie_ntop_untunneled_l4_dst_port,
+		 {"Untunneled_l4_dst_port","cflow.pie.ntop.untunneled_l4_dst_port",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+
+                /* ntop, 35632 / 110 */
+                {&hf_pie_ntop_dump_path,
+		 {"Dump_path","cflow.pie.ntop.dump_path",
+		  FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 130 */
+                {&hf_pie_ntop_sip_call_id,
+		 {"Sip_call_id","cflow.pie.ntop.sip_call_id",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 131 */
+                {&hf_pie_ntop_sip_calling_party,
+		 {"Sip_calling_party","cflow.pie.ntop.sip_calling_party",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 132 */
+                {&hf_pie_ntop_sip_called_party,
+		 {"Sip_called_party","cflow.pie.ntop.sip_called_party",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 133 */
+                {&hf_pie_ntop_sip_rtp_codecs,
+		 {"Sip_rtp_codecs","cflow.pie.ntop.sip_rtp_codecs",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 134 */
+                {&hf_pie_ntop_sip_invite_time,
+		 {"Sip_invite_time","cflow.pie.ntop.sip_invite_time",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 135 */
+                {&hf_pie_ntop_sip_trying_time,
+		 {"Sip_trying_time","cflow.pie.ntop.sip_trying_time",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 136 */
+                {&hf_pie_ntop_sip_ringing_time,
+		 {"Sip_ringing_time","cflow.pie.ntop.sip_ringing_time",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 137 */
+                {&hf_pie_ntop_sip_ok_time,
+		 {"Sip_ok_time","cflow.pie.ntop.sip_ok_time",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 138 */
+                {&hf_pie_ntop_sip_bye_time,
+		 {"Sip_bye_time","cflow.pie.ntop.sip_bye_time",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 139 */
+                {&hf_pie_ntop_sip_rtp_src_ip,
+		 {"Sip_rtp_src_ip","cflow.pie.ntop.sip_rtp_src_ip",
+		  FT_IPv4, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 140 */
+                {&hf_pie_ntop_sip_rtp_src_port,
+		 {"Sip_rtp_src_port","cflow.pie.ntop.sip_rtp_src_port",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 141 */
+                {&hf_pie_ntop_sip_rtp_dst_ip,
+		 {"Sip_rtp_dst_ip","cflow.pie.ntop.sip_rtp_dst_ip",
+		  FT_IPv4, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 142 */
+                {&hf_pie_ntop_sip_rtp_dst_port,
+		 {"Sip_rtp_dst_port","cflow.pie.ntop.sip_rtp_dst_port",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 150 */
+                {&hf_pie_ntop_rtp_first_ssrc,
+		 {"Rtp_first_ssrc","cflow.pie.ntop.rtp_first_ssrc",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 151 */
+                {&hf_pie_ntop_rtp_first_ts,
+		 {"Rtp_first_ts","cflow.pie.ntop.rtp_first_ts",
+		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 152 */
+                {&hf_pie_ntop_rtp_last_ssrc,
+		 {"Rtp_last_ssrc","cflow.pie.ntop.rtp_last_ssrc",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 153 */
+                {&hf_pie_ntop_rtp_last_ts,
+		 {"Rtp_last_ts","cflow.pie.ntop.rtp_last_ts",
+		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 154 */
+                {&hf_pie_ntop_rtp_in_jitter,
+		 {"Rtp_in_jitter","cflow.pie.ntop.rtp_in_jitter",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 155 */
+                {&hf_pie_ntop_rtp_out_jitter,
+		 {"Rtp_out_jitter","cflow.pie.ntop.rtp_out_jitter",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 156 */
+                {&hf_pie_ntop_rtp_in_pkt_lost,
+		 {"Rtp_in_pkt_lost","cflow.pie.ntop.rtp_in_pkt_lost",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 157 */
+                {&hf_pie_ntop_rtp_out_pkt_lost,
+		 {"Rtp_out_pkt_lost","cflow.pie.ntop.rtp_out_pkt_lost",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 158 */
+                {&hf_pie_ntop_rtp_out_payload_type,
+		 {"Rtp_out_payload_type","cflow.pie.ntop.rtp_out_payload_type",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 159 */
+                {&hf_pie_ntop_rtp_in_max_delta,
+		 {"Rtp_in_max_delta","cflow.pie.ntop.rtp_in_max_delta",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 160 */
+                {&hf_pie_ntop_rtp_out_max_delta,
+		 {"Rtp_out_max_delta","cflow.pie.ntop.rtp_out_max_delta",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 168 */
+                {&hf_pie_ntop_proc_id,
+		 {"Proc_id","cflow.pie.ntop.proc_id",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 169 */
+                {&hf_pie_ntop_proc_name,
+		 {"Proc_name","cflow.pie.ntop.proc_name",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 180 */
+                {&hf_pie_ntop_http_url,
+		 {"Http_url","cflow.pie.ntop.http_url",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 181 */
+                {&hf_pie_ntop_http_ret_code,
+		 {"Http_ret_code","cflow.pie.ntop.http_ret_code",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 185 */
+                {&hf_pie_ntop_smtp_mail_from,
+		 {"Smtp_mail_from","cflow.pie.ntop.smtp_mail_from",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 186 */
+                {&hf_pie_ntop_smtp_rcpt_to,
+		 {"Smtp_rcpt_to","cflow.pie.ntop.smtp_rcpt_to",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 195 */
+                {&hf_pie_ntop_mysql_server_version,
+		 {"Mysql_server_version","cflow.pie.ntop.mysql_server_version",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 196 */
+                {&hf_pie_ntop_mysql_username,
+		 {"Mysql_username","cflow.pie.ntop.mysql_username",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 197 */
+                {&hf_pie_ntop_mysql_db,
+		 {"Mysql_db","cflow.pie.ntop.mysql_db",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 198 */
+                {&hf_pie_ntop_mysql_query,
+		 {"Mysql_query","cflow.pie.ntop.mysql_query",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* ntop, 35632 / 199 */
+                {&hf_pie_ntop_mysql_response,
+		 {"Mysql_response","cflow.pie.ntop.mysql_response",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+
+                /* plixer, 13745 / 100 */
+                {&hf_pie_plixer_client_ip_v4,
+		 {"client_ip_v4","cflow.pie.plixer.client.ip_v4",
+		  FT_IPv4, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                {&hf_pie_plixer_client_hostname,
+		 /* plixer, 13745 / 101 */
+		 {"client_hostname","cflow.pie.plixer.client_hostname",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* plixer, 13745 / 102 */
+		{&hf_pie_plixer_partner_name,
+		 {"Partner_name","cflow.pie.plixer.partner_name",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* plixer, 13745 / 103 */
+		{&hf_pie_plixer_server_hostname,
+		 {"Server_hostname","cflow.pie.plixer.server_hostname",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* plixer, 13745 / 104 */
+		{&hf_pie_plixer_server_ip_v4,
+		 {"Server_ip_v4","cflow.pie.plixer.server_ip_v4",
+		  FT_IPv4, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* plixer, 13745 / 105 */
+		{&hf_pie_plixer_recipient_address,
+		 {"Recipient_address","cflow.pie.plixer.recipient_address",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* plixer, 13745 / 106 */
+		{&hf_pie_plixer_event_id,
+		 {"Event_id","cflow.pie.plixer.event_id",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* plixer, 13745 / 107 */
+		{&hf_pie_plixer_msgid,
+		 {"Msgid","cflow.pie.plixer.msgid",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* plixer, 13745 / 108 */
+		{&hf_pie_plixer_priority,
+		 {"Priority","cflow.pie.plixer_priority",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* plixer, 13745 / 109 */
+		{&hf_pie_plixer_recipient_report_status,
+		 {"Recipient_report_status","cflow.pie.plixer.recipient_report_status",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* plixer, 13745 / 110 */
+		{&hf_pie_plixer_number_recipients,
+		 {"Number_recipients","cflow.pie.plixer.number_recipients",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* plixer, 13745 / 111 */
+		{&hf_pie_plixer_origination_time,
+		 {"Origination_time","cflow.pie.plixer.origination_time",
+		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* plixer, 13745 / 112 */
+		{&hf_pie_plixer_encryption,
+		 {"Cncryption","cflow.pie.plixer.encryption",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* plixer, 13745 / 113 */
+		{&hf_pie_plixer_service_version,
+		 {"Service_version","cflow.pie.plixer.service_version",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* plixer, 13745 / 114 */
+		{&hf_pie_plixer_linked_msgid,
+		 {"Linked_msgid","cflow.pie.plixer.linked_msgid",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* plixer, 13745 / 115 */
+		{&hf_pie_plixer_message_subject,
+		 {"Message_subject","cflow.pie.plixer.message_subject",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* plixer, 13745 / 116 */
+		{&hf_pie_plixer_sender_address,
+		 {"Sender_address","cflow.pie.plixer.sender_address",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}
+		},
+                /* plixer, 13745 / 117 */
+		{&hf_pie_plixer_date_time,
+		 {"Date_time","cflow.pie.plixer.date_time",
+		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+		  NULL, HFILL}
+		},
+
+		{&hf_string_len_short,
+		 {"String_len_short","cflow.string_len_short",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
+		},
+		{&hf_string_len_long,
+		 {"String_len_short","cflow.string_len_long",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL}
 		}
 
 	};
@@ -6294,6 +7575,7 @@ proto_register_netflow(void)
 		&ett_unixtime,
 		&ett_flow,
 		&ett_flowtime,
+		&ett_str_len,
 		&ett_template,
 		&ett_field,
 		&ett_dataflowset,
