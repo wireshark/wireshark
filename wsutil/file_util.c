@@ -46,6 +46,7 @@
 #include <tchar.h>
 /*#include <direct.h>*/
 #include <io.h>
+#include <stdlib.h>
 
 #include "file_util.h"
 
