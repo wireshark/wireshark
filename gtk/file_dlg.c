@@ -30,7 +30,7 @@
 
 #include <gtk/gtk.h>
 
-#include <epan/filesystem.h>
+#include <wsutil/file_util.h>
 
 #include "gtk/gtkglobals.h"
 #include "gtk/gui_utils.h"
@@ -55,7 +55,7 @@ file_selection_new(const gchar *title, file_selection_action_t action)
     GtkFileChooserAction gtk_action;
 #ifdef _WIN32
     char *u3devicedocumentpath;
-#endif 
+#endif
     const gchar *ok_button_text;
 
     switch (action) {
@@ -125,7 +125,7 @@ file_selection_set_current_folder(GtkWidget *fs, const gchar *filename)
     gchar *new_filename;
 
     /* trim filename, so gtk_file_chooser_set_current_folder() likes it, see below */
-    if (filename[filename_len -1] == G_DIR_SEPARATOR 
+    if (filename[filename_len -1] == G_DIR_SEPARATOR
 #ifdef _WIN32
         && filename_len > 3)    /* e.g. "D:\" */
 #else
@@ -157,7 +157,7 @@ file_selection_set_extra_widget(GtkWidget *fs, GtkWidget *extra)
 /*
  * A generic select_file routine that is intended to be connected to
  * a Browse button on other dialog boxes. This allows the user to browse
- * for a file and select it. We fill in the text_entry that is given to us. 
+ * for a file and select it. We fill in the text_entry that is given to us.
  *
  * We display the window label specified in our args.
  */
@@ -189,7 +189,7 @@ file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *label,
 
     /* Call a handler when the file selection box is destroyed, so we can inform
        our caller, if any, that it's been destroyed. */
-    g_signal_connect(fs, "destroy", G_CALLBACK(file_selection_browse_destroy_cb), 
+    g_signal_connect(fs, "destroy", G_CALLBACK(file_selection_browse_destroy_cb),
                      file_te);
 
     if (gtk_dialog_run(GTK_DIALOG(fs)) == GTK_RESPONSE_ACCEPT)
