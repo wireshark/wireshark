@@ -564,7 +564,6 @@ get_tcp_port
 get_tempfile_path
 get_udp_port
 get_wspython_dir
-getenv_utf8
 golay_decode
 golay_encode
 golay_errors

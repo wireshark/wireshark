@@ -47,7 +47,9 @@
  */
 
 /* Convert from UTF-8 to UTF-16. */
-wchar_t * utf_8to16(const char *utf8str) {
+wchar_t *
+utf_8to16(const char *utf8str)
+{
   static wchar_t *utf16buf[3];
   static int utf16buf_len[3];
   static int idx;
@@ -84,7 +86,9 @@ wchar_t * utf_8to16(const char *utf8str) {
   return utf16buf[idx];
 }
 
-void utf_8to16_snprintf(TCHAR *utf16buf, gint utf16buf_len, const gchar* fmt, ...) {
+void
+utf_8to16_snprintf(TCHAR *utf16buf, gint utf16buf_len, const gchar* fmt, ...)
+{
     va_list ap;
     gchar* dst;
 
@@ -98,7 +102,9 @@ void utf_8to16_snprintf(TCHAR *utf16buf, gint utf16buf_len, const gchar* fmt, ..
 }
 
 /* Convert from UTF-16 to UTF-8. */
-gchar * utf_16to8(const wchar_t *utf16str) {
+gchar *
+utf_16to8(const wchar_t *utf16str)
+{
   static gchar *utf8buf[3];
   static int utf8buf_len[3];
   static int idx;

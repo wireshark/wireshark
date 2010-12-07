@@ -123,6 +123,12 @@ void *ws_load_library(gchar *library_name);
  * @return A handle to the DLL if found, NULL on failure.
  */
 GModule *ws_module_open(gchar *module_name, GModuleFlags flags);
+
+/*
+ * utf8 version of getenv, needed to get win32 filename paths
+ */
+extern char *getenv_utf8(const char *varname);
+
 #else /* _WIN32 */
 #define ws_read  read
 #define ws_write write

@@ -82,7 +82,7 @@ extern const char *get_datafile_dir(void);
  */
 extern char *get_datafile_path(const char *filename);
 
-/* 
+/*
  * Get the personal plugin dir.
  */
 extern char *get_plugins_pers_dir(void);
@@ -96,7 +96,7 @@ extern char *get_plugins_pers_dir(void);
 extern const char *get_systemfile_dir(void);
 
 /*
- * Set the configuration profile name to be used for storing 
+ * Set the configuration profile name to be used for storing
  * personal configuration files.
  */
 extern void set_profile_name(const gchar *profilename);
@@ -128,34 +128,34 @@ extern void profile_store_persconffiles(gboolean store);
  */
 extern gboolean profile_exists(const gchar *profilename);
 
-/* 
+/*
  * Create a directory for the given configuration profile.
  * If we attempted to create it, and failed, return -1 and
  * set "*pf_dir_path_return" to the pathname of the directory we failed
  * to create (it's g_mallocated, so our caller should free it); otherwise,
  * return 0.
  */
-extern int create_persconffile_profile(const char *profilename, 
+extern int create_persconffile_profile(const char *profilename,
 				       char **pf_dir_path_return);
 
-/* 
+/*
  * Delete the directory for the given configuration profile.
  * If we attempted to delete it, and failed, return -1 and
  * set "*pf_dir_path_return" to the pathname of the directory we failed
  * to delete (it's g_mallocated, so our caller should free it); otherwise,
  * return 0.
  */
-extern int delete_persconffile_profile(const char *profilename, 
+extern int delete_persconffile_profile(const char *profilename,
 				       char **pf_dir_path_return);
 
-/* 
+/*
  * Rename the directory for the given confinguration profile.
  */
 extern int rename_persconffile_profile(const char *fromname, const char *toname,
-				       char **pf_from_dir_path_return, 
+				       char **pf_from_dir_path_return,
 				       char **pf_to_dir_path_return);
 
-/* 
+/*
  * Copy files in one profile to the other.
  */
 extern int copy_persconffile_profile(const char *toname, const char *fromname,
@@ -205,7 +205,7 @@ extern const char *get_persdatafile_dir(void);
  */
 extern char *get_tempfile_path(const char *filename);
 
-/* 
+/*
  * process command line option belonging to the filesystem settings
  */
 extern int filesystem_opt(int opt, const char *optstr);
@@ -291,13 +291,6 @@ extern gboolean files_identical(const char *fname1, const char *fname2);
  */
 extern gboolean copy_file_binary_mode(const char *from_filename,
     const char *to_filename);
-
-#ifdef _WIN32
-/*
- * utf8 version of getenv, needed to get win32 filename paths
- */
-extern char *getenv_utf8(const char *varname);
-#endif
 
 #ifdef __cplusplus
 }

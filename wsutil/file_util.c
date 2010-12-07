@@ -446,7 +446,8 @@ ws_stdio_freopen (const gchar *filename,
 
 /* DLL loading */
 static gboolean
-init_dll_load_paths() {
+init_dll_load_paths()
+{
       TCHAR path_w[MAX_PATH];
 
       if (program_path && system_path)
@@ -480,7 +481,8 @@ init_dll_load_paths() {
 }
 
 gboolean
-ws_init_dll_search_path() {
+ws_init_dll_search_path()
+{
       gboolean dll_dir_set = FALSE;
       wchar_t *program_path_w;
 
@@ -508,7 +510,8 @@ ws_init_dll_search_path() {
  */
 
 void *
-ws_load_library(gchar *library_name) {
+ws_load_library(gchar *library_name)
+{
       gchar   *full_path;
       wchar_t *full_path_w;
       HMODULE  dll_h;
@@ -546,7 +549,8 @@ ws_load_library(gchar *library_name) {
 }
 
 GModule *
-ws_module_open(gchar *module_name, GModuleFlags flags) {
+ws_module_open(gchar *module_name, GModuleFlags flags)
+{
       gchar   *full_path;
       GModule *mod;
 
@@ -577,3 +581,39 @@ ws_module_open(gchar *module_name, GModuleFlags flags) {
 
       return NULL;
 }
+
+/* utf8 version of getenv, needed to get win32 filename paths */
+char *
+getenv_utf8(const char *varname)
+{
+	char *envvar;
+	wchar_t *envvarw;
+	wchar_t *varnamew;
+
+	envvar = getenv(varname);
+
+	/* since GLib 2.6 we need an utf8 version of the filename */
+#if GLIB_CHECK_VERSION(2,6,0)
+	/* using the wide char version of getenv should work under all circumstances */
+
+	/* convert given varname to utf16, needed by _wgetenv */
+	varnamew = g_utf8_to_utf16(varname, -1, NULL, NULL, NULL);
+	if (varnamew == NULL) {
+		return envvar;
+	}
+
+	/* use wide char version of getenv */
+	envvarw = _wgetenv(varnamew);
+	g_free(varnamew);
+	if (envvarw == NULL) {
+		return envvar;
+	}
+
+	/* convert value to utf8 */
+	envvar = g_utf16_to_utf8(envvarw, -1, NULL, NULL, NULL);
+	/* XXX - memleak */
+#endif
+
+	return envvar;
+}
+

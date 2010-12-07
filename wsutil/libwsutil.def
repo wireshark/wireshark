@@ -10,6 +10,7 @@
 EXPORTS
 
 ; file_util.c
+getenv_utf8
 ws_stdio_fopen
 ws_stdio_freopen
 ws_stdio_mkdir
