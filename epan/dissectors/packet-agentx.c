@@ -29,12 +29,6 @@
 #include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <ctype.h>
-#include <time.h>
-#include <string.h>
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
@@ -52,6 +46,11 @@ static int proto_agentx = -1;
 static int hf_version = -1;
 static int hf_type   = -1;
 static int hf_flags  = -1;
+static int hf_flags_register  = -1;
+static int hf_flags_newindex  = -1;
+static int hf_flags_anyindex  = -1;
+static int hf_flags_context  = -1;
+static int hf_flags_byteorder  = -1;
 static int hf_session_id = -1;
 static int hf_trans_id = -1;
 static int hf_packet_id = -1;
@@ -82,6 +81,7 @@ static int hf_gbulk_nrepeat = -1;
 static int hf_gbulk_mrepeat = -1;
 
 
+static gint ett_flags = -1;
 static gint ett_agentx = -1;
 static gint ett_pdu_hdr = -1;
 static gint ett_get = -1;
@@ -293,7 +293,8 @@ static const value_string resp_errors[] = {
 		tvb_get_ntohs(tvb, offset) : \
 		tvb_get_letohs(tvb, offset)
 
-static int dissect_octet_string(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
+static int
+dissect_octet_string(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
 {
 	guint32 n_oct, p_noct;
 	char context[1024];
@@ -306,14 +307,15 @@ static int dissect_octet_string(tvbuff_t *tvb, proto_tree *tree, int offset, cha
 	tvb_get_nstringz(tvb, offset + 4, n_oct, context);
 	context[n_oct]='\0';
 
-	proto_tree_add_uint(tree,hf_ostring_len,tvb,offset,4,n_oct);
+	proto_tree_add_uint(tree, hf_ostring_len, tvb, offset, 4, n_oct);
 	proto_tree_add_string(tree, hf_ostring, tvb, offset + 4, n_oct, context);
 	return p_noct + 4;
 
 }
 
 /* XXX - Is there a particular reason we're not using oid_encoded2string() here? */
-static int convert_oid_to_str(guint32 *oid, int len, char* str, int slen, char prefix)
+static int
+convert_oid_to_str(guint32 *oid, int len, char* str, int slen, char prefix)
 {
 	int i, tlen = 0;
 	if(!oid) return 0;
@@ -323,16 +325,17 @@ static int convert_oid_to_str(guint32 *oid, int len, char* str, int slen, char p
 	if(slen < len) return 0;
 
 	if(prefix) {
-		tlen += g_snprintf(str,slen,".1.3.6.1.%d",prefix);
+		tlen += g_snprintf(str, slen, ".1.3.6.1.%d", prefix);
 	}
 
 	for(i=0; i < len && tlen < slen; i++) {
-		tlen += g_snprintf(str+tlen,slen-tlen,".%d",oid[i]);
+		tlen += g_snprintf(str+tlen, slen-tlen, ".%d", oid[i]);
 	}
 	return tlen;
 }
 
-static int dissect_object_id(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
+static int
+dissect_object_id(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
 {
 	guint8 n_subid;
 	guint8 prefix;
@@ -348,7 +351,7 @@ static int dissect_object_id(tvbuff_t *tvb, proto_tree *tree, int offset, char f
 
 	n_subid = tvb_get_guint8(tvb, offset);
 	prefix = tvb_get_guint8(tvb, offset + 1);
-	include = tvb_get_guint8(tvb,offset + 2);
+	include = tvb_get_guint8(tvb, offset + 2);
 	tvb_get_guint8(tvb, offset + 3);
 
 	for(i=0; i<n_subid; i++) {
@@ -359,29 +362,31 @@ static int dissect_object_id(tvbuff_t *tvb, proto_tree *tree, int offset, char f
 		slen = g_snprintf(&str_oid[0], 2048, "(null)");
 
 	if(tree) {
-		item = proto_tree_add_text(tree,tvb,offset,n_subid + 4 ,
-				"Object Identifier: (%s) %s",(include) ? "Start" : "End" , str_oid);
+		item = proto_tree_add_text(tree, tvb, offset, 4 + (n_subid * 4) ,
+				"Object Identifier: (%s) %s", (include) ? "Start" : "End" , str_oid);
 		subtree = proto_item_add_subtree(item, ett_obj_ident);
 	} else return offset;
 
 	proto_tree_add_uint(subtree, hf_oid_sub, tvb, offset, 1, n_subid);
 	proto_tree_add_uint(subtree, hf_oid_prefix, tvb, offset + 1, 1, prefix);
 	proto_tree_add_uint(subtree, hf_oid_include, tvb, offset + 2, 1, include);
-	proto_tree_add_string(subtree,hf_oid_str, tvb, offset + 4, slen, str_oid);
+	proto_tree_add_string(subtree, hf_oid_str, tvb, offset + 4, slen, str_oid);
 
 	return 4 + (n_subid * 4);
 }
 
-static int dissect_search_range(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
+static int
+dissect_search_range(tvbuff_t *tvb, proto_tree *tree, int start_offset, char flags)
 {
-
+	int offset = start_offset;
 	offset += dissect_object_id(tvb, tree, offset, flags);
 	offset += dissect_object_id(tvb, tree, offset, flags);
 
-	return offset;
+	return (offset - start_offset);
 }
 
-static int dissect_val64(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
+static int
+dissect_val64(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
 {
 	gboolean little_endian = !(flags & NETWORK_BYTE_ORDER);
 
@@ -390,7 +395,8 @@ static int dissect_val64(tvbuff_t *tvb, proto_tree *tree, int offset, char flags
 	return 8;
 }
 
-static int dissect_val32(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
+static int
+dissect_val32(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
 {
 	gboolean little_endian = !(flags & NETWORK_BYTE_ORDER);
 
@@ -399,7 +405,8 @@ static int dissect_val32(tvbuff_t *tvb, proto_tree *tree, int offset, char flags
 	return 4;
 }
 
-static int dissect_varbind(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char flags)
+static int
+dissect_varbind(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char flags)
 {
 	guint16 vtag;
 	int tlen;
@@ -410,7 +417,7 @@ static int dissect_varbind(tvbuff_t *tvb, proto_tree *tree, int offset, int len,
 	/* 2 reserved bytes after this */
 
 	if(tree) {
-		item = proto_tree_add_text(tree,tvb, offset, len, "Value Representation");
+		item = proto_tree_add_text(tree, tvb, offset, len, "Value Representation");
 		subtree = proto_item_add_subtree(item, ett_valrep);
 	} else return len;
 
@@ -426,18 +433,18 @@ static int dissect_varbind(tvbuff_t *tvb, proto_tree *tree, int offset, int len,
 		case  VB_OPAQUE:
 		case  VB_OSTR:
 		case  VB_IPADDR:
-			tlen += dissect_octet_string(tvb, subtree,offset + tlen + 4,flags);
+			tlen += dissect_octet_string(tvb, subtree, offset + tlen + 4, flags);
 			break;
 
 		case  VB_TIMETICK:
 		case  VB_COUNTER32:
 		case  VB_INT:
 		case  VB_GAUGE32:
-			tlen += dissect_val32(tvb, subtree,offset + tlen + 4, flags);
+			tlen += dissect_val32(tvb, subtree, offset + tlen + 4, flags);
 			break;
 
 		case  VB_COUNTER64:
-			tlen += dissect_val64(tvb, subtree,offset + tlen + 4, flags);
+			tlen += dissect_val64(tvb, subtree, offset + tlen + 4, flags);
 			break;
 
 		case  VB_NULL:
@@ -449,7 +456,8 @@ static int dissect_varbind(tvbuff_t *tvb, proto_tree *tree, int offset, int len,
 	return tlen + 4;
 }
 
-static void dissect_response_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void
+dissect_response_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char flags)
 {
 	proto_item* item;
 	proto_tree* subtree;
@@ -468,12 +476,14 @@ static void dissect_response_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int 
 	proto_tree_add_item(subtree, hf_resp_index,  tvb, offset + 6, 2, little_endian);
 	offset += 8;
 
+	len += PDU_HDR_LEN;
 	while(len > offset) {
 		offset += dissect_varbind(tvb, subtree, offset, len, flags);
 	}
 }
 
-static void dissect_getnext_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void
+dissect_getnext_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char flags)
 {
 	proto_item* item;
 	proto_tree* subtree;
@@ -486,12 +496,14 @@ static void dissect_getnext_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int l
 		offset += dissect_octet_string(tvb, subtree, offset, flags);
 	}
 
+	len += PDU_HDR_LEN;
 	while(len > offset) {
 		offset += dissect_search_range(tvb, subtree, offset, flags);
 	}
 }
 
-static void dissect_get_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void
+dissect_get_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char flags)
 {
 	proto_item* item;
 	proto_tree* subtree;
@@ -504,13 +516,14 @@ static void dissect_get_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, 
 		offset += dissect_octet_string(tvb, subtree, offset, flags);
 	}
 
-	while(len >= offset) {
+	len += PDU_HDR_LEN;
+	while(len > offset) {
 		offset += dissect_search_range(tvb, subtree, offset, flags);
-		offset += 4; /* skip 0 end dword */
 	}
 }
 
-static void dissect_getbulk_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void
+dissect_getbulk_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char flags)
 {
 	proto_item* item;
 	proto_tree* subtree;
@@ -533,7 +546,8 @@ static void dissect_getbulk_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int l
 	}
 }
 
-static void dissect_open_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void
+dissect_open_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char flags)
 {
 	proto_item* item;
 	proto_tree* subtree;
@@ -555,7 +569,8 @@ static void dissect_open_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len,
 	offset += dissect_octet_string(tvb, subtree, offset, flags);
 }
 
-static void dissect_close_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len)
+static void
+dissect_close_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
 {
 	proto_item* item;
 	proto_tree* subtree;
@@ -572,7 +587,8 @@ static void dissect_close_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len
 }
 
 
-static void dissect_register_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void
+dissect_register_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char flags)
 {
 
 	proto_item* item;
@@ -604,7 +620,8 @@ static void dissect_register_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int 
 }
 
 
-static void dissect_unregister_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void
+dissect_unregister_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char flags)
 {
 	proto_item* item;
 	proto_tree* subtree;
@@ -633,7 +650,8 @@ static void dissect_unregister_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,in
 	}
 }
 
-static void dissect_testset_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void
+dissect_testset_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char flags)
 {
 	proto_item* item;
 	proto_tree* subtree;
@@ -651,7 +669,8 @@ static void dissect_testset_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int l
 	}
 }
 
-static void dissect_notify_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void
+dissect_notify_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char flags)
 {
 	proto_item* item;
 	proto_tree* subtree;
@@ -669,7 +688,8 @@ static void dissect_notify_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int le
 	}
 }
 
-static void dissect_ping_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void
+dissect_ping_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char flags)
 {
 	proto_item* item;
 	proto_tree* subtree;
@@ -683,7 +703,8 @@ static void dissect_ping_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len,
 	}
 }
 
-static void dissect_idx_alloc_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void
+dissect_idx_alloc_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char flags)
 {
 	proto_item* item;
 	proto_tree* subtree;
@@ -702,7 +723,8 @@ static void dissect_idx_alloc_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int
 }
 
 
-static void dissect_idx_dealloc_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void
+dissect_idx_dealloc_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char flags)
 {
 	proto_item* item;
 	proto_tree* subtree;
@@ -720,7 +742,8 @@ static void dissect_idx_dealloc_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,i
 	}
 }
 
-static void dissect_add_caps_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void
+dissect_add_caps_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char flags)
 {
 	proto_item* item;
 	proto_tree* subtree;
@@ -738,7 +761,8 @@ static void dissect_add_caps_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int 
 	offset += dissect_octet_string(tvb, subtree, offset, flags);
 }
 
-static void dissect_rem_caps_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int len, char flags)
+static void
+dissect_rem_caps_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char flags)
 {
 	proto_item* item;
 	proto_tree* subtree;
@@ -755,7 +779,8 @@ static void dissect_rem_caps_pdu(tvbuff_t *tvb, proto_tree *tree,int offset,int 
 }
 
 
-static guint get_agentx_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static guint
+get_agentx_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
 	guint8  flags;
 	guint32 plen;
@@ -779,10 +804,11 @@ static guint get_agentx_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offse
 	return plen + 20;
 }
 
-static void dissect_agentx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_agentx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
-	proto_tree* agentx_tree ,*pdu_hdr_tree;
+	proto_tree* agentx_tree, *pdu_hdr_tree, *flags_tree;
 	proto_item* pdu_item , *t_item;
 	guint8 version;
 	guint8 type;
@@ -792,9 +818,9 @@ static void dissect_agentx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	guint32 packet_id;
 	guint32 payload_len;
 
-	version = tvb_get_guint8(tvb,0); offset+=1;
-	type = tvb_get_guint8(tvb,1); offset+=1;
-	flags = tvb_get_guint8(tvb,2); offset+=1;
+	version = tvb_get_guint8(tvb, 0); offset+=1;
+	type = tvb_get_guint8(tvb, 1); offset+=1;
+	flags = tvb_get_guint8(tvb, 2); offset+=1;
 	/* skip reserved byte */
 	offset+=1;
 
@@ -806,8 +832,8 @@ static void dissect_agentx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AgentX");
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: sid=%d, tid=%d, packid=%d, plen=%d",
-		     val_to_str(type,type_values,"unknown"),
-		     session_id,trans_id,packet_id,payload_len);
+		     val_to_str(type, type_values, "unknown"),
+		     session_id, trans_id, packet_id, payload_len);
 
 
 	if(!tree)
@@ -816,54 +842,62 @@ static void dissect_agentx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	/*t_item = proto_tree_add_item(tree, proto_agentx, tvb, 0, -1, FALSE);*/
 	t_item = proto_tree_add_protocol_format(tree, proto_agentx, tvb, 0, -1,
 			"Agent Extensibility (AgentX) Protocol: %s, sid=%d, tid=%d, packid=%d, plen=%d",
-			val_to_str(type,type_values,"unknown"),
-			session_id,trans_id,packet_id,payload_len);
+			val_to_str(type, type_values, "unknown"),
+			session_id, trans_id, packet_id, payload_len);
 	agentx_tree = proto_item_add_subtree(t_item, ett_agentx);
 
-	pdu_item = proto_tree_add_text(agentx_tree, tvb, 0, 4, "PDU Header: Type[%u], len=%d, sid=%d, tid=%d, packid=%d",
-			(char)type,payload_len,session_id,trans_id,packet_id);
+	pdu_item = proto_tree_add_text(agentx_tree, tvb, 0, PDU_HDR_LEN, "PDU Header: Type[%u], len=%d, sid=%d, tid=%d, packid=%d",
+			(char)type, payload_len, session_id, trans_id, packet_id);
 
 	pdu_hdr_tree = proto_item_add_subtree(pdu_item, ett_pdu_hdr);
 
-	proto_tree_add_uint(pdu_hdr_tree,hf_version,tvb,0,1,version);
-	proto_tree_add_uint(pdu_hdr_tree,hf_type,tvb,1,1,type);
-	proto_tree_add_uint(pdu_hdr_tree,hf_flags,tvb,2,1,flags);
-	proto_tree_add_uint(pdu_hdr_tree,hf_session_id,tvb,4,4,session_id);
-	proto_tree_add_uint(pdu_hdr_tree,hf_trans_id,tvb,8,4,trans_id);
-	proto_tree_add_uint(pdu_hdr_tree,hf_packet_id,tvb,12,4,packet_id);
-	proto_tree_add_uint(pdu_hdr_tree,hf_payload_len,tvb,16,4,payload_len);
+	proto_tree_add_uint(pdu_hdr_tree, hf_version, tvb, 0, 1, version);
+	proto_tree_add_uint(pdu_hdr_tree, hf_type, tvb, 1, 1, type);
+
+	t_item = proto_tree_add_text(pdu_hdr_tree, tvb, 2, 1, "Flags: 0x%02x", flags);
+	flags_tree = proto_item_add_subtree(t_item, ett_flags);
+	proto_tree_add_boolean(flags_tree, hf_flags_register,	tvb, 2, 1, flags);
+	proto_tree_add_boolean(flags_tree, hf_flags_newindex,	tvb, 2, 1, flags);
+	proto_tree_add_boolean(flags_tree, hf_flags_anyindex,	tvb, 2, 1, flags);
+	proto_tree_add_boolean(flags_tree, hf_flags_context,	tvb, 2, 1, flags);
+	proto_tree_add_boolean(flags_tree, hf_flags_byteorder,	tvb, 2, 1, flags);
+
+	proto_tree_add_uint(pdu_hdr_tree, hf_session_id, tvb, 4, 4, session_id);
+	proto_tree_add_uint(pdu_hdr_tree, hf_trans_id, tvb, 8, 4, trans_id);
+	proto_tree_add_uint(pdu_hdr_tree, hf_packet_id, tvb, 12, 4, packet_id);
+	proto_tree_add_uint(pdu_hdr_tree, hf_payload_len, tvb, 16, 4, payload_len);
 
 	switch(type) {
 		case AGENTX_OPEN_PDU:
-		dissect_open_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
+		dissect_open_pdu(tvb, agentx_tree, offset, payload_len, flags);
 		break;
 
 		case AGENTX_CLOSE_PDU:
-		dissect_close_pdu(tvb, pdu_hdr_tree, offset,payload_len);
+		dissect_close_pdu(tvb, agentx_tree, offset, payload_len);
 		break;
 
 		case AGENTX_REGISTER_PDU:
-		dissect_register_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
+		dissect_register_pdu(tvb, agentx_tree, offset, payload_len, flags);
 		break;
 
 		case AGENTX_UNREGISTER_PDU:
-		dissect_unregister_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
+		dissect_unregister_pdu(tvb, agentx_tree, offset, payload_len, flags);
 		break;
 
 		case AGENTX_GET_PDU:
-		dissect_get_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
+		dissect_get_pdu(tvb, agentx_tree, offset, payload_len, flags);
 		break;
 
 		case AGENTX_GETNEXT_PDU:
-		dissect_getnext_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
+		dissect_getnext_pdu(tvb, agentx_tree, offset, payload_len, flags);
 		break;
 
 		case AGENTX_GETBULK_PDU:
-		dissect_getbulk_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
+		dissect_getbulk_pdu(tvb, agentx_tree, offset, payload_len, flags);
 		break;
 
 		case AGENTX_TESTSET_PDU:
-		dissect_testset_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
+		dissect_testset_pdu(tvb, agentx_tree, offset, payload_len, flags);
 		break;
 
 		case AGENTX_COMMITSET_PDU:
@@ -873,40 +907,47 @@ static void dissect_agentx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		break;
 
 		case AGENTX_NOTIFY_PDU:
-		dissect_notify_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
+		dissect_notify_pdu(tvb, agentx_tree, offset, payload_len, flags);
 		break;
 
 		case AGENTX_PING_PDU:
-		dissect_ping_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
+		dissect_ping_pdu(tvb, agentx_tree, offset, payload_len, flags);
 		break;
 
 		case AGENTX_INDEX_ALLOC_PDU:
-		dissect_idx_alloc_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
+		dissect_idx_alloc_pdu(tvb, agentx_tree, offset, payload_len, flags);
 		break;
 
 		case AGENTX_INDEX_DEALLOC_PDU:
-		dissect_idx_dealloc_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
+		dissect_idx_dealloc_pdu(tvb, agentx_tree, offset, payload_len, flags);
 		break;
 
 		case AGENTX_ADD_AGENT_CAPS_PDU:
-		dissect_add_caps_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
+		dissect_add_caps_pdu(tvb, agentx_tree, offset, payload_len, flags);
 		break;
 
 		case AGENTX_REM_AGENT_CAPS_PDU:
-		dissect_rem_caps_pdu(tvb, pdu_hdr_tree, offset,payload_len,flags);
+		dissect_rem_caps_pdu(tvb, agentx_tree, offset, payload_len, flags);
 		break;
 
 		case AGENTX_RESPONSE_PDU:
-		dissect_response_pdu(tvb, pdu_hdr_tree, offset, payload_len, flags);
+		dissect_response_pdu(tvb, agentx_tree, offset, payload_len, flags);
 		break;
 	}
 }
 
-static void dissect_agentx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_agentx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 20, get_agentx_pdu_len,
-	    dissect_agentx_pdu);
+			 dissect_agentx_pdu);
 }
+
+static const true_false_string tfs_agentx_register	= { "Yes",			"No"	};
+static const true_false_string tfs_agentx_newindex	= { "Yes",			"No"	};
+static const true_false_string tfs_agentx_anyindex	= { "Yes",			"No"	};
+static const true_false_string tfs_agentx_context	= { "Provided",			"None"	};
+static const true_false_string tfs_agentx_byteorder	= { "MSB (network order)",	"LSB"	};
 
 void
 proto_register_agentx(void)
@@ -924,6 +965,26 @@ proto_register_agentx(void)
 		{ &hf_flags,
 		  { "Flags", "agentx.flags", FT_UINT8, BASE_DEC, NULL, 0x0,
 		    "header type", HFILL }},
+
+		{ &hf_flags_register,
+		  { "Register", "agentx.flags.register", FT_BOOLEAN, 8, TFS(&tfs_agentx_register),
+		    INSTANCE_REGISTRATION, "Instance Registration",  HFILL }},
+
+		{ &hf_flags_newindex,
+		  { "New Index", "agentx.flags.newindex", FT_BOOLEAN, 8, TFS(&tfs_agentx_newindex),
+		    NEW_INDEX, "New Index Requested",  HFILL }},
+
+		{ &hf_flags_anyindex,
+		  { "Any Index", "agentx.flags.anyindex", FT_BOOLEAN, 8, TFS(&tfs_agentx_anyindex),
+		    ANY_INDEX, "Any Index Requested",  HFILL }},
+
+		{ &hf_flags_context,
+		  { "Non-default Context", "agentx.flags.context", FT_BOOLEAN, 8, TFS(&tfs_agentx_context),
+		    NON_DEFAULT_CONTEXT, NULL,  HFILL }},
+
+		{ &hf_flags_byteorder,
+		  { "Byte Order", "agentx.flags.byteorder", FT_BOOLEAN, 8, TFS(&tfs_agentx_byteorder),
+		    NETWORK_BYTE_ORDER, NULL,  HFILL }},
 
 		{ &hf_session_id,
 		  { "sessionID", "agentx.session_id", FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -1066,6 +1127,7 @@ proto_register_agentx(void)
 		&ett_idxdalloc,
 		&ett_addcap,
 		&ett_remcap,
+		&ett_flags,
 	};
 
 
