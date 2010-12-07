@@ -1488,8 +1488,8 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Go/NextPacket",				GTK_STOCK_GO_DOWN,		"Next Packet",						"<control>Down",				NULL,				G_CALLBACK(goto_next_frame_cb) },
    { "/Go/FirstPacket",				GTK_STOCK_GOTO_TOP,		"F_irst Packet",					"<control>Home",				NULL,				G_CALLBACK(goto_top_frame_cb) },
    { "/Go/LastPacket",				GTK_STOCK_GOTO_BOTTOM,	"_Last Packet",						"<control>End",					NULL,				G_CALLBACK(goto_bottom_frame_cb) },
-   { "/Go/PreviousPacketInConversation",			GTK_STOCK_GO_UP,		"Previous Packet In Conversation",					"<control>bracketleft",					NULL,				G_CALLBACK(goto_previous_frame_conversation_cb) },
-   { "/Go/NextPacketInConversation",				GTK_STOCK_GO_DOWN,		"Next Packet In Conversation",						"<control>bracketright",				NULL,				G_CALLBACK(goto_next_frame_conversation_cb) },
+   { "/Go/PreviousPacketInConversation",			GTK_STOCK_GO_UP,		"Previous Packet In Conversation",					"<control>comma",					NULL,				G_CALLBACK(goto_previous_frame_conversation_cb) },
+   { "/Go/NextPacketInConversation",				GTK_STOCK_GO_DOWN,		"Next Packet In Conversation",						"<control>period",				NULL,				G_CALLBACK(goto_next_frame_conversation_cb) },
 
 #ifdef HAVE_LIBPCAP
    { "/Capture/Interfaces",			WIRESHARK_STOCK_CAPTURE_INTERFACES,	"_Interfaces...",		"<control>I",					NULL,				G_CALLBACK(capture_if_cb) },
@@ -1969,9 +1969,9 @@ static GtkItemFactoryEntry menu_items[] =
                              GTK_MENU_FUNC(goto_top_frame_cb), 0, "<StockItem>", GTK_STOCK_GOTO_TOP,},
     {"/Go/_Last Packet", "<control>End",
                              GTK_MENU_FUNC(goto_bottom_frame_cb), 0, "<StockItem>", GTK_STOCK_GOTO_BOTTOM,},
-    {"/Go/Previous Packet In Conversation", "<control>bracketleft",
+    {"/Go/Previous Packet In Conversation", "<control>comma",
                              GTK_MENU_FUNC(goto_previous_frame_conversation_cb), 0, NULL, NULL,},
-    {"/Go/Next Packet In Conversation", "<control>bracketright",
+    {"/Go/Next Packet In Conversation", "<control>period",
                              GTK_MENU_FUNC(goto_next_frame_conversation_cb), 0, NULL, NULL,},
 #ifdef HAVE_LIBPCAP
     {"/_Capture", NULL, NULL, 0, "<Branch>", NULL,},
