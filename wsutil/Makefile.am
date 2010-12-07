@@ -22,8 +22,6 @@
 
 ACLOCAL_AMFLAGS = `../aclocal-flags`
 
-include ../Makefile.am.inc
-
 include Makefile.common
 
 if HAVE_WARNINGS_AS_ERRORS
@@ -42,7 +40,7 @@ wsutil_optional_objects =	\
 	@STRPTIME_LO@
 
 lib_LTLIBRARIES = libwsutil.la
-libwsutil_la_LDFLAGS = -version-info 0:0:0 -export-symbols libwsutil.sym @LDFLAGS_SHAREDLIB@
+libwsutil_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
 
 INCLUDES = -I$(srcdir)/..
 
@@ -65,8 +63,7 @@ EXTRA_libwsutil_la_SOURCES=	\
 	wsgetopt.h
 
 libwsutil_la_DEPENDENCIES=	\
-	$(wsutil_optional_objects) \
-	libwsutil.sym
+	$(wsutil_optional_objects)
 
 libwsutil_la_LIBADD =		\
 	@GLIB_LIBS@		\
@@ -84,7 +81,6 @@ EXTRA_DIST =		\
 CLEANFILES = \
 	libwsutil.a	\
 	libwsutil.la	\
-	libwsutil.sym	\
 	*~
 
 MAINTAINERCLEANFILES = \
