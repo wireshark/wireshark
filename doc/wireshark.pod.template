@@ -1109,6 +1109,12 @@ that packet number has been put into the packet details.
 
 Go to the previous / next / first / last packet in the capture.
 
+=item Go:Previous Packet In Conversation
+
+=item Go:Next Packet In Conversation
+
+Go to the previous / next packet of the converation (TCP, UDP or IP)
+
 =item Capture:Interfaces
 
 Shows a dialog box with all currently known interfaces and displaying the

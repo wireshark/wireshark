@@ -183,14 +183,14 @@
 		    </para></entry>
 		</row>
 		<row>
-		  <entry>Ctrl+]</entry>
+		  <entry>Ctrl+.</entry>
 		  <entry><para>
 		      Move to the next packet of the conversation
                       (TCP, UDP or IP)
 		    </para></entry>
 		</row>
 		<row>
-		  <entry>Ctrl+[</entry>
+		  <entry>Ctrl+,</entry>
 		  <entry><para>
 		      Move to the previous packet of the conversation
                       (TCP, UDP or IP)
