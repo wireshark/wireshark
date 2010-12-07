@@ -70,9 +70,8 @@ EXTRA_DIST = \
 	$(GENERATOR_FILES) 	\
 	$(GENERATED_FILES)
 
-libwiretap_la_DEPENDENCIES = wtap.sym
-
 libwiretap_la_LIBADD = libwiretap_generated.la ${top_builddir}/wsutil/libwsutil.la $(GLIB_LIBS)
+libwiretap_la_DEPENDENCIES = libwiretap_generated.la ${top_builddir}/wsutil/libwsutil.la wtap.sym
 
 RUNLEX = $(top_srcdir)/tools/runlex.sh
 
