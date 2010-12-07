@@ -23,3 +23,6 @@
 
 .l.c:
 	$(RUNLEX) "$(LEX)" -o$@ $<
+
+.def.sym:
+	$(AWK) '/^EXPORTS$$/ {next;}; /^[^;]/ { print $$1;}' < $< > $@

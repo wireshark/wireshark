@@ -29,7 +29,7 @@ include Makefile.common
 
 noinst_LTLIBRARIES = libwiretap_generated.la
 lib_LTLIBRARIES = libwiretap.la
-libwiretap_la_LDFLAGS = -version-info 0:1:0 @LDFLAGS_SHAREDLIB@
+libwiretap_la_LDFLAGS = -version-info 0:1:0 -export-symbols wtap.sym @LDFLAGS_SHAREDLIB@
 
 if HAVE_WARNINGS_AS_ERRORS
 AM_NON_GENERATED_CFLAGS = -Werror
@@ -42,6 +42,7 @@ CLEANFILES = \
 	libwiretap.la		\
 	libwiretap_generated.a	\
 	libwiretap_generated.la	\
+	wtap.sym		\
 	*~
 
 MAINTAINERCLEANFILES = \
@@ -68,6 +69,8 @@ EXTRA_DIST = \
 	wtap.def		\
 	$(GENERATOR_FILES) 	\
 	$(GENERATED_FILES)
+
+libwiretap_la_DEPENDENCIES = wtap.sym
 
 libwiretap_la_LIBADD = libwiretap_generated.la ${top_builddir}/wsutil/libwsutil.la $(GLIB_LIBS)
 

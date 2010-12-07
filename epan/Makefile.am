@@ -54,7 +54,7 @@ ACLOCAL_AMFLAGS = `../aclocal-flags`
 
 noinst_LTLIBRARIES = libwireshark_generated.la libwireshark_asmopt.la
 lib_LTLIBRARIES = libwireshark.la
-libwireshark_la_LDFLAGS = -version-info 0:1:0 @LDFLAGS_SHAREDLIB@
+libwireshark_la_LDFLAGS = -version-info 0:1:0 -export-symbols libwireshark.sym @LDFLAGS_SHAREDLIB@
 
 include Makefile.common
 
@@ -113,6 +113,7 @@ CLEANFILES = \
 	libwireshark_generated.la 	\
 	libwireshark_asmopt.a 		\
 	libwireshark_asmopt.la 		\
+	libwireshark.sym		\
 	*~
 
 DISTCLEANFILES = \
@@ -145,7 +146,8 @@ libwireshark_la_DEPENDENCIES = \
 	ftypes/libftypes.la dfilter/libdfilter.la dissectors/libdissectors.la \
 	dissectors/libdirtydissectors.la $(wslua_lib) $(wspython_lib) \
 	${top_builddir}/wsutil/libwsutil.la \
-	${top_builddir}/wiretap/libwiretap.la
+	${top_builddir}/wiretap/libwiretap.la \
+	libwireshark.sym
 
 #EXTRA_PROGRAMS = reassemble_test
 #reassemble_test_LDADD = $(GLIB_LIBS)
