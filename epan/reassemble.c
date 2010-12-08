@@ -211,14 +211,22 @@ reassembled_hash(gconstpointer k)
 /*
  * For a fragment hash table entry, free the address data to which the key
  * refers and the fragment data to which the value refers.
- * (The actual key and value structures get freed by "reassemble_cleanup()".)
+ * If slices are used (GLIB >= 2.10) the keys are freed when fragment_free_key()
+ * is called and the values are freed herein.
+ * If mem_chunks are used, the the actual key and value structures get freed
+ * by "reassemble_cleanup()".)
  */
 static gboolean
 free_all_fragments(gpointer key_arg, gpointer value, gpointer user_data _U_)
 {
 	fragment_key *key = key_arg;
-	fragment_data *fd_head;
+	fragment_data *fd_head, *tmp_fd;
 
+#if GLIB_CHECK_VERSION(2,10,0)
+	/* If Glib version => 2.10 we do g_hash_table_new_full() and supply a function
+	 * to free the key and the addresses.
+	 */
+#else
 	/*
 	 * Grr.  I guess the theory here is that freeing
 	 * something sure as heck modifies it, so you
@@ -236,10 +244,15 @@ free_all_fragments(gpointer key_arg, gpointer value, gpointer user_data _U_)
 	 */
 	g_free((gpointer)key->src.data);
 	g_free((gpointer)key->dst.data);
+#endif
+	for (fd_head = value; fd_head != NULL; fd_head = tmp_fd) {
+		tmp_fd=fd_head->next;
 
-	for (fd_head = value; fd_head != NULL; fd_head = fd_head->next) {
 		if(fd_head->data && !(fd_head->flags&FD_NOT_MALLOCED))
 			g_free(fd_head->data);
+#if GLIB_CHECK_VERSION(2,10,0)
+		g_slice_free(fragment_data, fd_head);
+#endif
 	}
 
 	return TRUE;
@@ -292,6 +305,21 @@ free_all_reassembled_fragments(gpointer key_arg _U_, gpointer value,
 	return TRUE;
 }
 
+static void
+fragment_free_key(void *ptr)
+{
+	fragment_key *key = (fragment_key *)ptr;
+
+	if(key){
+/*
+		 * Free up the copies of the addresses from the old key.
+		 */
+		g_free((gpointer)key->src.data);
+		g_free((gpointer)key->dst.data);
+
+		g_slice_free(fragment_key, key);
+	}
+}
 /*
  * Initialize a fragment table.
  */
@@ -303,15 +331,24 @@ fragment_table_init(GHashTable **fragment_table)
 		 * The fragment hash table exists.
 		 *
 		 * Remove all entries and free fragment data for
-		 * each entry.	(The key and value data is freed
-		 * by "reassemble_cleanup()".)
+		 * each entry.	If slices are used (GLIB >= 2.10)
+		 * the keys are freed by calling fragment_free_key
+		 * and the values are freed in free_all_fragments().
+		 * If mem_chunks are used, the key and value data
+		 * are freed by "reassemble_cleanup()".
 		 */
 		g_hash_table_foreach_remove(*fragment_table,
 				free_all_fragments, NULL);
 	} else {
+#if GLIB_CHECK_VERSION(2,10,0)
+		/* The fragment table does not exist. Create it */
+		*fragment_table = g_hash_table_new_full(fragment_hash,
+							fragment_equal, fragment_free_key, NULL);
+#else
 		/* The fragment table does not exist. Create it */
 		*fragment_table = g_hash_table_new(fragment_hash,
 				fragment_equal);
+#endif
 	}
 }
 
@@ -323,15 +360,23 @@ dcerpc_fragment_table_init(GHashTable **fragment_table)
 			* The fragment hash table exists.
 			*
 			* Remove all entries and free fragment data for
-			* each entry.  (The key and value data is freed
-			* by "reassemble_cleanup()".)
+		 * each entry.	If slices are used (GLIB >= 2.10)
+		 * the keys are freed by calling fragment_free_key
+		 * and the values are freed in free_all_fragments().
+		 * If mem_chunks are used, the key and value data
 			*/
 		   g_hash_table_foreach_remove(*fragment_table,
 						   free_all_fragments, NULL);
 	} else {
+#if GLIB_CHECK_VERSION(2,10,0)
 		   /* The fragment table does not exist. Create it */
+		*fragment_table = g_hash_table_new_full(dcerpc_fragment_hash,
+							dcerpc_fragment_equal, fragment_free_key, NULL);
+#else
+		/* The fragment table does not exist. Create it */
 		   *fragment_table = g_hash_table_new(dcerpc_fragment_hash,
 						   dcerpc_fragment_equal);
+#endif
 	}
 }
 
@@ -602,6 +647,8 @@ fragment_set_partial_reassembly(const packet_info *pinfo, const guint32 id, GHas
  * This function gets rid of an entry from a fragment table, given
  * a pointer to the key for that entry; it also frees up the key
  * and the addresses in it.
+ * Note: If we use slices keys are freed by fragment_free_key() being called
+ *       during g_hash_table_remove().
  */
 static void
 fragment_unhash(GHashTable *fragment_table, fragment_key *key)
@@ -612,17 +659,16 @@ fragment_unhash(GHashTable *fragment_table, fragment_key *key)
 	g_hash_table_remove(fragment_table, key);
 
 	/*
+	 * Free the key itself.
+	 */
+#if GLIB_CHECK_VERSION(2,10,0)
+#else
+	/*
 	 * Free up the copies of the addresses from the old key.
 	 */
 	g_free((gpointer)key->src.data);
 	g_free((gpointer)key->dst.data);
 
-	/*
-	 * Free the key itself.
-	 */
-#if GLIB_CHECK_VERSION(2,10,0)
-	g_slice_free(fragment_key, key);
-#else
 	g_mem_chunk_free(fragment_key_chunk, key);
 #endif
 }
@@ -1076,6 +1122,10 @@ fragment_add_check(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
 	key.dst = pinfo->dst;
 	key.id	= id;
 
+	/* Looks up a key in the GHashTable, returning the original key and the associated value
+	 * and a gboolean which is TRUE if the key was found. This is useful if you need to free
+	 * the memory allocated for the original key, for example before calling g_hash_table_remove()
+	 */
 	if (!g_hash_table_lookup_extended(fragment_table, &key,
 					  &orig_key, &value)) {
 		/* not found, this must be the first snooped fragment for this
