@@ -305,6 +305,7 @@ free_all_reassembled_fragments(gpointer key_arg _U_, gpointer value,
 	return TRUE;
 }
 
+#if GLIB_CHECK_VERSION(2,10,0)
 static void
 fragment_free_key(void *ptr)
 {
@@ -320,6 +321,7 @@ fragment_free_key(void *ptr)
 		g_slice_free(fragment_key, key);
 	}
 }
+#endif
 /*
  * Initialize a fragment table.
  */
