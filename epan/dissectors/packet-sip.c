@@ -2733,7 +2733,7 @@ separator_found2:
 						}
 
 						/* Parse each individual parameter in the line */
-						comma_offset = tvb_pbrk_guint8(tvb, value_offset, line_end_offset - value_offset, " \t\r\n");
+						comma_offset = tvb_pbrk_guint8(tvb, value_offset, line_end_offset - value_offset, " \t\r\n", NULL);
 
 						/* Authentication-Info does not begin with the scheme name */
 						if (hf_index != POS_AUTHENTICATION_INFO)
