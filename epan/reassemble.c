@@ -217,7 +217,7 @@ reassembled_hash(gconstpointer k)
  * by "reassemble_cleanup()".)
  */
 static gboolean
-free_all_fragments(gpointer key_arg, gpointer value, gpointer user_data _U_)
+free_all_fragments(gpointer key_arg _U_, gpointer value, gpointer user_data _U_)
 {
 	fragment_data *fd_head, *tmp_fd;
 
