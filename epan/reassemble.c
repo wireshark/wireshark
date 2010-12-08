@@ -219,7 +219,6 @@ reassembled_hash(gconstpointer k)
 static gboolean
 free_all_fragments(gpointer key_arg, gpointer value, gpointer user_data _U_)
 {
-	fragment_key *key = key_arg;
 	fragment_data *fd_head, *tmp_fd;
 
 #if GLIB_CHECK_VERSION(2,10,0)
@@ -227,6 +226,7 @@ free_all_fragments(gpointer key_arg, gpointer value, gpointer user_data _U_)
 	 * to free the key and the addresses.
 	 */
 #else
+	fragment_key *key = key_arg;
 	/*
 	 * Grr.  I guess the theory here is that freeing
 	 * something sure as heck modifies it, so you
