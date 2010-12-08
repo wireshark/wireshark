@@ -28,10 +28,12 @@ if HAVE_LIBLUA
 wslua_lib = wslua/libwslua.la
 wslua_dir = wslua
 wslua_dist_dir =
+wslua_filter_symbols = 
 else            # HAVE_LIBLUA
 wslua_lib =
 wslua_dir =
 wslua_dist_dir = wslua
+wslua_filter_symbols = /^wlua_plugin_list$$/{next;};
 endif           # HAVE_LIBLUA
 
 if HAVE_LIBPY
@@ -148,6 +150,10 @@ libwireshark_la_DEPENDENCIES = \
 	${top_builddir}/wsutil/libwsutil.la \
 	${top_builddir}/wiretap/libwiretap.la \
 	libwireshark.sym
+
+# filter out undefined symbols
+libwireshark.sym: libwireshark.def
+	$(AWK) '/^EXPORTS$$/ {next;};${wslua_filter_symbols}/^[^;]/ { print $$1;}' < $< > $@
 
 #EXTRA_PROGRAMS = reassemble_test
 #reassemble_test_LDADD = $(GLIB_LIBS)
