@@ -5473,7 +5473,7 @@ proto_register_dcerpc (void)
     };
     module_t *dcerpc_module;
 
-    proto_dcerpc = proto_register_protocol ("DCE RPC", "DCERPC", "dcerpc");
+    proto_dcerpc = proto_register_protocol ("Distributed Computing Environment / Remote Procedure Call (DCE/RPC)", "DCERPC", "dcerpc");
     proto_register_field_array (proto_dcerpc, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
     register_init_routine (dcerpc_init_protocol);
