@@ -55,6 +55,14 @@ extern void register_all_plugin_tap_listeners(void);
 extern void register_all_wiretap_modules(void);
 extern void register_all_codecs(void);
 
+typedef struct _wslua_plugin {
+    gchar       *name;            /**< plugin name */
+    gchar       *version;         /**< plugin version */
+    struct _wslua_plugin *next;
+} wslua_plugin;
+
+WS_VAR_IMPORT wslua_plugin *wslua_plugin_list;
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -29,9 +29,6 @@
 #include <gtk/gtk.h>
 
 #include "epan/plugins.h"
-#ifdef HAVE_LUA_5_1
-#include "epan/wslua/init_wslua.h"
-#endif
 
 #include "gtk/dlg_utils.h"
 #include "gtk/gui_utils.h"

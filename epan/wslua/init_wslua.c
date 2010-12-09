@@ -32,9 +32,9 @@
 #include <math.h>
 #include <epan/expert.h>
 #include <epan/ex-opt.h>
+#include <epan/plugins.h>
 #include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
-#include "init_wslua.h"
 
 static lua_State* L = NULL;
 
