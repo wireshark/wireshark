@@ -431,7 +431,6 @@ time_secs_to_str_buf_unsigned(guint32 time, guint32 frac, gboolean is_nsecs,
 			 emem_strbuf_t *buf)
 {
   int hours, mins, secs;
-  const gchar *msign = "";
   gboolean do_comma = FALSE;
 
   secs = time % 60;
@@ -442,25 +441,25 @@ time_secs_to_str_buf_unsigned(guint32 time, guint32 frac, gboolean is_nsecs,
   time /= 24;
 
   if (time != 0) {
-    ep_strbuf_append_printf(buf, "%s%u day%s", msign, time, PLURALIZE(time));
+    ep_strbuf_append_printf(buf, "%u day%s", time, PLURALIZE(time));
     do_comma = TRUE;
   }
   if (hours != 0) {
-    ep_strbuf_append_printf(buf, "%s%s%u hour%s", COMMA(do_comma), msign, hours, PLURALIZE(hours));
+    ep_strbuf_append_printf(buf, "%s%u hour%s", COMMA(do_comma), hours, PLURALIZE(hours));
     do_comma = TRUE;
   }
   if (mins != 0) {
-    ep_strbuf_append_printf(buf, "%s%s%u minute%s", COMMA(do_comma), msign, mins, PLURALIZE(mins));
+    ep_strbuf_append_printf(buf, "%s%u minute%s", COMMA(do_comma), mins, PLURALIZE(mins));
     do_comma = TRUE;
   }
   if (secs != 0 || frac != 0) {
     if (frac != 0) {
       if (is_nsecs)
-        ep_strbuf_append_printf(buf, "%s%s%u.%09u seconds", COMMA(do_comma), msign, secs, frac);
+        ep_strbuf_append_printf(buf, "%s%u.%09u seconds", COMMA(do_comma), secs, frac);
       else
-        ep_strbuf_append_printf(buf, "%s%s%u.%03u seconds", COMMA(do_comma), msign, secs, frac);
+        ep_strbuf_append_printf(buf, "%s%u.%03u seconds", COMMA(do_comma), secs, frac);
     } else
-      ep_strbuf_append_printf(buf, "%s%s%u second%s", COMMA(do_comma), msign, secs, PLURALIZE(secs));
+      ep_strbuf_append_printf(buf, "%s%u second%s", COMMA(do_comma), secs, PLURALIZE(secs));
   }
 }
 
@@ -584,42 +583,45 @@ void
 display_signed_time(gchar *buf, int buflen, gint32 sec, gint32 frac,
     time_res_t units)
 {
-	const char *sign;
-
 	/* If the fractional part of the time stamp is negative,
 	   print its absolute value and, if the seconds part isn't
 	   (the seconds part should be zero in that case), stick
 	   a "-" in front of the entire time stamp. */
-	sign = "";
 	if (frac < 0) {
 		frac = -frac;
-		if (sec >= 0)
-			sign = "-";
+		if (sec >= 0) {
+			if (buflen < 1) {
+			  return;
+			}
+			buf[0] = '-';
+			buf++;
+			buflen--;
+		}
 	}
 	switch (units) {
 
 	case SECS:
-		g_snprintf(buf, buflen, "%s%d", sign, sec);
+		g_snprintf(buf, buflen, "%d", sec);
 		break;
 
 	case DSECS:
-		g_snprintf(buf, buflen, "%s%d.%01d", sign, sec, frac);
+		g_snprintf(buf, buflen, "%d.%01d", sec, frac);
 		break;
 
 	case CSECS:
-		g_snprintf(buf, buflen, "%s%d.%02d", sign, sec, frac);
+		g_snprintf(buf, buflen, "%d.%02d", sec, frac);
 		break;
 
 	case MSECS:
-		g_snprintf(buf, buflen, "%s%d.%03d", sign, sec, frac);
+		g_snprintf(buf, buflen, "%d.%03d", sec, frac);
 		break;
 
 	case USECS:
-		g_snprintf(buf, buflen, "%s%d.%06d", sign, sec, frac);
+		g_snprintf(buf, buflen, "%d.%06d", sec, frac);
 		break;
 
 	case NSECS:
-		g_snprintf(buf, buflen, "%s%d.%09d", sign, sec, frac);
+		g_snprintf(buf, buflen, "%d.%09d", sec, frac);
 		break;
 	}
 }
@@ -629,7 +631,6 @@ void
 display_epoch_time(gchar *buf, int buflen, time_t sec, gint32 frac,
     time_res_t units)
 {
-	const char *sign;
 	double elapsed_secs;
 
 	elapsed_secs = difftime(sec,(time_t)0);
@@ -640,36 +641,41 @@ display_epoch_time(gchar *buf, int buflen, time_t sec, gint32 frac,
 	   print its absolute value and, if the seconds part isn't
 	   (the seconds part should be zero in that case), stick
 	   a "-" in front of the entire time stamp. */
-	sign = "";
 	if (frac < 0) {
 		frac = -frac;
-		if (elapsed_secs >= 0)
-			sign = "-";
+		if (elapsed_secs >= 0) {
+			if (buflen < 1) {
+			  return;
+			}
+			buf[0] = '-';
+			buf++;
+			buflen--;
+		}
 	}
 	switch (units) {
 
 	case SECS:
-		g_snprintf(buf, buflen, "%s%0.0f", sign, elapsed_secs);
+		g_snprintf(buf, buflen, "%0.0f", elapsed_secs);
 		break;
 
 	case DSECS:
-		g_snprintf(buf, buflen, "%s%0.0f.%01d", sign, elapsed_secs, frac);
+		g_snprintf(buf, buflen, "%0.0f.%01d", elapsed_secs, frac);
 		break;
 
 	case CSECS:
-		g_snprintf(buf, buflen, "%s%0.0f.%02d", sign, elapsed_secs, frac);
+		g_snprintf(buf, buflen, "%0.0f.%02d", elapsed_secs, frac);
 		break;
 
 	case MSECS:
-		g_snprintf(buf, buflen, "%s%0.0f.%03d", sign, elapsed_secs, frac);
+		g_snprintf(buf, buflen, "%0.0f.%03d", elapsed_secs, frac);
 		break;
 
 	case USECS:
-		g_snprintf(buf, buflen, "%s%0.0f.%06d", sign, elapsed_secs, frac);
+		g_snprintf(buf, buflen, "%0.0f.%06d", elapsed_secs, frac);
 		break;
 
 	case NSECS:
-		g_snprintf(buf, buflen, "%s%0.0f.%09d", sign, elapsed_secs, frac);
+		g_snprintf(buf, buflen, "%0.0f.%09d", elapsed_secs, frac);
 		break;
 	}
 }
@@ -948,6 +954,7 @@ decode_numeric_bitfield(guint32 val, guint32 mask, int width,
    that "col_set_addr()" need know nothing whatsoever about particular
    address types */
 /* convert an address struct into a printable string */
+
 gchar*
 address_to_str(const address *addr)
 {
@@ -956,6 +963,16 @@ address_to_str(const address *addr)
   str=ep_alloc(MAX_ADDR_STR_LEN);
   address_to_str_buf(addr, str, MAX_ADDR_STR_LEN);
   return str;
+}
+
+/* The called routines use ep_alloc:ed memory */
+gchar*
+se_address_to_str(const address *addr)
+{
+  gchar *str;
+
+  str = address_to_str(addr);
+  return se_strdup(str);
 }
 
 void

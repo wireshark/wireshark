@@ -113,7 +113,7 @@ const gchar *get_addr_name(address *addr);
 /* the result which is always NUL ('\0') terminated. The buffer should be large enough to */
 /* contain size characters including the terminator */
 
-void get_addr_name_buf(address *addr, gchar *buf, guint size);
+void get_addr_name_buf(address *addr, gchar *buf, gsize size);
 
 
 /*
