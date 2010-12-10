@@ -57,6 +57,9 @@
 /* linked list of all plugins */
 plugin *plugin_list = NULL;
 
+/* linked list of Lua plugins */
+wslua_plugin *wslua_plugin_list = NULL;
+
 /*
  * add a new plugin to the list
  * returns :

@@ -43,7 +43,6 @@ struct _wslua_treeitem* lua_tree;
 tvbuff_t* lua_tvb;
 int lua_malformed;
 int lua_dissectors_table_ref;
-wslua_plugin *wslua_plugin_list = NULL;
 
 dissector_handle_t lua_data_handle;
 
