@@ -184,6 +184,7 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
     export WIRESHARK_DEBUG_SE_USE_CANARY=
     export WIRESHARK_EP_VERIFY_POINTERS=
     export WIRESHARK_SE_VERIFY_POINTERS=
+    export G_SLICE=debug-blocks             # since GLib 2.13
     export MALLOC_CHECK_=3
     "$TSHARK" $TSHARK_ARGS $TMP_DIR/$TMP_FILE \
         > /dev/null 2> $TMP_DIR/$ERR_FILE
