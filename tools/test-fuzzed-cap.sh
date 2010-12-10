@@ -37,6 +37,7 @@ export WIRESHARK_DEBUG_SCRUB_MEMORY=
 export WIRESHARK_DEBUG_SE_USE_CANARY=
 export WIRESHARK_EP_VERIFY_POINTERS=
 export WIRESHARK_SE_VERIFY_POINTERS=
+export G_SLICE=debug-blocks             # since GLib 2.13
 export MALLOC_CHECK_=3
 
 $BIN_DIR/tshark -nVxr $1 > /dev/null
