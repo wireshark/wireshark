@@ -400,7 +400,6 @@
 #define AL_OBJ_AIFC_FLTT   0x2107   /* 33 07 32-Bit Floating Point Frozen Change Event w/ Time*/
 #define AL_OBJ_AIFC_DBLT   0x2108   /* 33 08 64-Bit Floating Point Frozen Change Event w/ Time*/
 
-
 /* Analog Input Quality Flags */
 #define AL_OBJ_AI_FLAG0    0x0001   /* Point Online (0=Offline; 1=Online) */
 #define AL_OBJ_AI_FLAG1    0x0002   /* Restart (0=Normal; 1=Restart) */
@@ -410,6 +409,11 @@
 #define AL_OBJ_AI_FLAG5    0x0020   /* Over-Range (0=Normal; 1=Over-Range) */
 #define AL_OBJ_AI_FLAG6    0x0040   /* Reference Check (0=Normal; 1=Error) */
 #define AL_OBJ_AI_FLAG7    0x0080   /* Reserved */
+
+#define AL_OBJ_AIDB_ALL    0x2200   /* 34 00 Analog Input Deadband Default Variation */
+#define AL_OBJ_AIDB_16     0x2201   /* 34 01 16-Bit Analog Input Deadband */
+#define AL_OBJ_AIDB_32     0x2202   /* 34 02 32-Bit Analog Input Deadband */
+#define AL_OBJ_AIDB_FLT    0x2203   /* 34 03 Floating Point Analog Input Deadband */
 
 /***************************************************************************/
 /* Analog Output Objects */
@@ -807,6 +811,10 @@ static const value_string dnp3_al_obj_vals[] = {
   { AL_OBJ_AIFC_DBLNT, "64-Bit Floating Point Frozen Change Event w/o Time (Obj:33, Var:06)" },
   { AL_OBJ_AIFC_FLTT,  "32-Bit Floating Point Frozen Change Event w/ Time (Obj:33, Var:07)" },
   { AL_OBJ_AIFC_DBLT,  "64-Bit Floating Point Frozen Change Event w/ Time (Obj:33, Var:08)" },
+  { AL_OBJ_AIDB_ALL,   "Analog Input Deadband Default Variation (Obj:34, Var:Default)" },
+  { AL_OBJ_AIDB_16,    "16-Bit Analog Input Deadband (Obj:34, Var:01)" },
+  { AL_OBJ_AIDB_32,    "32-Bit Analog Input Deadband (Obj:34, Var:02)" },
+  { AL_OBJ_AIDB_FLT,   "32-Bit Floating Point Analog Input Deadband (Obj:34, Var:03)" },
   { AL_OBJ_AO_ALL,     "Analog Output Default Variation (Obj:40, Var:Default)" },
   { AL_OBJ_AO_32,      "32-Bit Analog Output Status (Obj:40, Var:01)" },
   { AL_OBJ_AO_16,      "16-Bit Analog Output Status (Obj:40, Var:02)" },
@@ -1464,6 +1472,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
           case AL_OBJ_CTRC_ALL:    /* Binary Counter Change Default Variation (Obj:22 Var:Default) */
           case AL_OBJ_AI_ALL:      /* Analog Input Default Variation (Obj:30, Var:Default) */
           case AL_OBJ_AIC_ALL:     /* Analog Input Change Default Variation (Obj:32 Var:Default) */
+          case AL_OBJ_AIDB_ALL:    /* Analog Input Deadband Default Variation (Obj:34, Var:Default) */
 
             offset = data_pos;
             break;
@@ -1872,12 +1881,18 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
           case AL_OBJ_AIFC_DBLNT:   /* 64-Bit Floating Point Frozen Change Event w/o Time (Obj:33, Var:06) */
           case AL_OBJ_AIFC_FLTT:    /* 32-Bit Floating Point Frozen Change Event w/ Time (Obj:33, Var:07) */
           case AL_OBJ_AIFC_DBLT:    /* 64-Bit Floating Point Frozen Change Event w/ Time (Obj:33, Var:08) */
+          case AL_OBJ_AIDB_16:      /* 16-Bit Analog Input Deadband (Obj:34, Var:01) */
+          case AL_OBJ_AIDB_32:      /* 32-Bit Analog Input Deadband (Obj:34, Var:02) */
+          case AL_OBJ_AIDB_FLT:     /* 32-Bit Floating Point Analog Input Deadband (Obj:34, Var:03) */
 
             /* Get Point Flags for those types that have them */
             switch (al_obj)
             {
               case AL_OBJ_AI_32NF:
               case AL_OBJ_AI_16NF:
+              case AL_OBJ_AIDB_16:
+              case AL_OBJ_AIDB_32:
+              case AL_OBJ_AIDB_FLT:
                 break;
 
               default:
@@ -1893,6 +1908,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
               case AL_OBJ_AI_32NF:
               case AL_OBJ_AIC_32NT:
               case AL_OBJ_AIC_32T:
+              case AL_OBJ_AIDB_32:
 
                 al_val32 = tvb_get_letohl(tvb, data_pos);
                 proto_item_append_text(point_item, ", Value: %u", al_val32);
@@ -1904,6 +1920,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
               case AL_OBJ_AI_16NF:
               case AL_OBJ_AIC_16NT:
               case AL_OBJ_AIC_16T:
+              case AL_OBJ_AIDB_16:
 
                 al_val16 = tvb_get_letohs(tvb, data_pos);
                 proto_item_append_text(point_item, ", Value: %u", al_val16);
@@ -1917,6 +1934,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
               case AL_OBJ_AIC_FLTT:
               case AL_OBJ_AIFC_FLTNT:
               case AL_OBJ_AIFC_FLTT:
+              case AL_OBJ_AIDB_FLT:
 
                 al_valflt = tvb_get_letohieee_float(tvb, data_pos);
                 proto_item_append_text(point_item, ", Value: %g", al_valflt);
