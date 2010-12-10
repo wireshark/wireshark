@@ -99,196 +99,208 @@
 #include "packet-scsi-ssc.h"
 #include "packet-scsi-smc.h"
 
-static int proto_scsi                    = -1;
-static int hf_scsi_inq_control_vendor_specific = -1;
-static int hf_scsi_inq_control_reserved  = -1;
-static int hf_scsi_inq_control_naca      = -1;
-static int hf_scsi_inq_control_obs1      = -1;
-static int hf_scsi_inq_control_obs2      = -1;
-static int hf_scsi_inq_control           = -1;
-static int hf_scsi_control_vendor_specific = -1;
-static int hf_scsi_control_reserved      = -1;
-static int hf_scsi_control_naca          = -1;
-static int hf_scsi_control_obs1          = -1;
-static int hf_scsi_control_obs2          = -1;
-       int hf_scsi_control               = -1;
-       int hf_scsi_alloclen16            = -1;
-static int hf_scsi_alloclen32            = -1;
-static int hf_scsi_time                  = -1;
-static int hf_scsi_request_frame         = -1;
-static int hf_scsi_response_frame        = -1;
-static int hf_scsi_lun                   = -1;
-static int hf_scsi_status                = -1;
-static int hf_scsi_spcopcode             = -1;
-static int hf_scsi_inquiry_flags         = -1;
-static int hf_scsi_inquiry_evpd_page     = -1;
-static int hf_scsi_inquiry_cmdt_page     = -1;
-static int hf_scsi_alloclen              = -1;
-static int hf_scsi_paramlen              = -1;
-static int hf_scsi_paramlen16            = -1;
-static int hf_scsi_modesel_flags         = -1;
-static int hf_scsi_modesns_pc            = -1;
-static int hf_scsi_spcpagecode           = -1;
-static int hf_scsi_sbcpagecode           = -1;
-static int hf_scsi_sscpagecode           = -1;
-static int hf_scsi_smcpagecode           = -1;
-static int hf_scsi_mmcpagecode           = -1;
-static int hf_scsi_modesns_flags         = -1;
-static int hf_scsi_persresvin_svcaction  = -1;
-static int hf_scsi_persresvout_svcaction = -1;
-static int hf_scsi_persresv_scope        = -1;
-static int hf_scsi_persresv_type         = -1;
-static int hf_scsi_release_flags         = -1;
-static int hf_scsi_release_thirdpartyid  = -1;
-static int hf_scsi_select_report         = -1;
-static int hf_scsi_inq_add_len           = -1;
-static int hf_scsi_inq_peripheral        = -1;
-static int hf_scsi_inq_qualifier         = -1;
-static int hf_scsi_inq_vendor_id         = -1;
-static int hf_scsi_inq_product_id        = -1;
-static int hf_scsi_inq_product_rev       = -1;
-static int hf_scsi_inq_vendor_specific   = -1;
-static int hf_scsi_inq_reserved          = -1;
-static int hf_scsi_inq_version_desc      = -1;
-static int hf_scsi_inq_devtype           = -1;
-static int hf_scsi_inq_rmb		 = -1;
-static int hf_scsi_inq_version           = -1;
-static int hf_scsi_rluns_lun             = -1;
-static int hf_scsi_rluns_multilun        = -1;
-static int hf_scsi_modesns_errrep        = -1;
-static int hf_scsi_modesns_tst           = -1;
-static int hf_scsi_modesns_qmod          = -1;
-static int hf_scsi_modesns_qerr          = -1;
-static int hf_scsi_modesns_rac           = -1;
-static int hf_scsi_modesns_tas           = -1;
-static int hf_scsi_protocol              = -1;
-static int hf_scsi_sns_errtype           = -1;
-static int hf_scsi_snskey                = -1;
-static int hf_scsi_snsinfo               = -1;
-static int hf_scsi_addlsnslen            = -1;
-static int hf_scsi_asc                   = -1;
-static int hf_scsi_ascascq               = -1;
-static int hf_scsi_ascq                  = -1;
-static int hf_scsi_fru                   = -1;
-static int hf_scsi_sksv                  = -1;
-static int hf_scsi_inq_reladrflags       = -1;
-static int hf_scsi_inq_sync              = -1;
-static int hf_scsi_inq_reladr            = -1;
-static int hf_scsi_inq_linked            = -1;
-static int hf_scsi_inq_cmdque            = -1;
-static int hf_scsi_inq_bqueflags         = -1;
-static int hf_scsi_inq_bque              = -1;
-static int hf_scsi_inq_encserv           = -1;
-static int hf_scsi_inq_multip            = -1;
-static int hf_scsi_inq_mchngr            = -1;
-static int hf_scsi_inq_sccsflags         = -1;
-static int hf_scsi_inq_sccs              = -1;
-static int hf_scsi_inq_acc               = -1;
-static int hf_scsi_inq_tpc               = -1;
-static int hf_scsi_inq_protect           = -1;
-static int hf_scsi_inq_tpgs              = -1;
-static int hf_scsi_inq_acaflags          = -1;
-static int hf_scsi_inq_rmbflags          = -1;
-static int hf_scsi_inq_normaca           = -1;
-static int hf_scsi_inq_hisup             = -1;
-static int hf_scsi_inq_aerc              = -1;
-static int hf_scsi_inq_trmtsk            = -1;
-static int hf_scsi_inq_rdf               = -1;
-static int hf_scsi_persresv_key          = -1;
-static int hf_scsi_persresv_scopeaddr    = -1;
-static int hf_scsi_add_cdblen = -1;
-static int hf_scsi_svcaction = -1;
-static int hf_scsi_wb_mode = -1;
-static int hf_scsi_wb_bufferid = -1;
-static int hf_scsi_wb_bufoffset = -1;
-static int hf_scsi_paramlen24 = -1;
-static int hf_scsi_senddiag_st_code = -1;
-static int hf_scsi_senddiag_pf = -1;
-static int hf_scsi_senddiag_st = -1;
-static int hf_scsi_senddiag_devoff = -1;
-static int hf_scsi_senddiag_unitoff = -1;
-static int hf_scsi_fragments = -1;
-static int hf_scsi_fragment = -1;
-static int hf_scsi_fragment_overlap = -1;
-static int hf_scsi_fragment_overlap_conflict = -1;
-static int hf_scsi_fragment_multiple_tails = -1;
-static int hf_scsi_fragment_too_long_fragment = -1;
-static int hf_scsi_fragment_error = -1;
-static int hf_scsi_reassembled_in = -1;
-static int hf_scsi_reassembled_length = -1;
-static int hf_scsi_log_ppc_flags	= -1;
-static int hf_scsi_log_pc_flags		= -1;
-static int hf_scsi_log_ppc		= -1;
-static int hf_scsi_log_pcr		= -1;
-static int hf_scsi_log_sp		= -1;
-static int hf_scsi_log_pagecode		= -1;
-static int hf_scsi_log_pc		= -1;
-static int hf_scsi_log_page_length	= -1;
-static int hf_scsi_log_parameter_code	= -1;
-static int hf_scsi_log_param_len	= -1;
-static int hf_scsi_log_param_flags	= -1;
-static int hf_scsi_log_param_data	= -1;
-static int hf_scsi_log_pf_du		= -1;
-static int hf_scsi_log_pf_ds		= -1;
-static int hf_scsi_log_pf_tsd		= -1;
-static int hf_scsi_log_pf_etc		= -1;
-static int hf_scsi_log_pf_tmc		= -1;
-static int hf_scsi_log_pf_lbin		= -1;
-static int hf_scsi_log_pf_lp		= -1;
-static int hf_scsi_log_ta_rw		= -1;
-static int hf_scsi_log_ta_ww		= -1;
-static int hf_scsi_log_ta_he		= -1;
-static int hf_scsi_log_ta_media		= -1;
-static int hf_scsi_log_ta_rf		= -1;
-static int hf_scsi_log_ta_wf		= -1;
-static int hf_scsi_log_ta_ml		= -1;
-static int hf_scsi_log_ta_ndg		= -1;
-static int hf_scsi_log_ta_wp		= -1;
-static int hf_scsi_log_ta_nr		= -1;
-static int hf_scsi_log_ta_cm		= -1;
-static int hf_scsi_log_ta_uf		= -1;
-static int hf_scsi_log_ta_rmcf		= -1;
-static int hf_scsi_log_ta_umcf		= -1;
-static int hf_scsi_log_ta_mcicf		= -1;
-static int hf_scsi_log_ta_fe		= -1;
-static int hf_scsi_log_ta_rof		= -1;
-static int hf_scsi_log_ta_tdcol		= -1;
-static int hf_scsi_log_ta_nml		= -1;
-static int hf_scsi_log_ta_cn		= -1;
-static int hf_scsi_log_ta_cp		= -1;
-static int hf_scsi_log_ta_ecm		= -1;
-static int hf_scsi_log_ta_ict		= -1;
-static int hf_scsi_log_ta_rr		= -1;
-static int hf_scsi_log_ta_dpie		= -1;
-static int hf_scsi_log_ta_cff		= -1;
-static int hf_scsi_log_ta_psf		= -1;
-static int hf_scsi_log_ta_pc		= -1;
-static int hf_scsi_log_ta_dm		= -1;
-static int hf_scsi_log_ta_hwa		= -1;
-static int hf_scsi_log_ta_hwb		= -1;
-static int hf_scsi_log_ta_if		= -1;
-static int hf_scsi_log_ta_em		= -1;
-static int hf_scsi_log_ta_dwf		= -1;
-static int hf_scsi_log_ta_drhu		= -1;
-static int hf_scsi_log_ta_drtm		= -1;
-static int hf_scsi_log_ta_drvo		= -1;
-static int hf_scsi_log_ta_pefa		= -1;
-static int hf_scsi_log_ta_dire		= -1;
-static int hf_scsi_log_ta_lost		= -1;
-static int hf_scsi_log_ta_tduau		= -1;
-static int hf_scsi_log_ta_tsawf		= -1;
-static int hf_scsi_log_ta_tsarf		= -1;
-static int hf_scsi_log_ta_nsod		= -1;
-static int hf_scsi_log_ta_lofa		= -1;
-static int hf_scsi_log_ta_uuf		= -1;
-static int hf_scsi_log_ta_aif		= -1;
-static int hf_scsi_log_ta_fwf		= -1;
-static int hf_scsi_log_ta_wmicf		= -1;
-static int hf_scsi_log_ta_wmoa		= -1;
+static int proto_scsi                           = -1;
+static int hf_scsi_inq_control_vendor_specific  = -1;
+static int hf_scsi_inq_control_reserved         = -1;
+static int hf_scsi_inq_control_naca             = -1;
+static int hf_scsi_inq_control_obs1             = -1;
+static int hf_scsi_inq_control_obs2             = -1;
+static int hf_scsi_inq_control                  = -1;
+static int hf_scsi_control_vendor_specific      = -1;
+static int hf_scsi_control_reserved             = -1;
+static int hf_scsi_control_naca                 = -1;
+static int hf_scsi_control_obs1                 = -1;
+static int hf_scsi_control_obs2                 = -1;
+       int hf_scsi_control                      = -1;
+       int hf_scsi_alloclen16                   = -1;
+static int hf_scsi_alloclen32                   = -1;
+static int hf_scsi_time                         = -1;
+static int hf_scsi_request_frame                = -1;
+static int hf_scsi_response_frame               = -1;
+static int hf_scsi_lun                          = -1;
+static int hf_scsi_status                       = -1;
+static int hf_scsi_spcopcode                    = -1;
+static int hf_scsi_inquiry_flags                = -1;
+static int hf_scsi_inquiry_evpd_page            = -1;
+static int hf_scsi_inquiry_cmdt_page            = -1;
+static int hf_scsi_alloclen                     = -1;
+static int hf_scsi_paramlen                     = -1;
+static int hf_scsi_paramlen16                   = -1;
+static int hf_scsi_modesel_flags                = -1;
+static int hf_scsi_modesns_pc                   = -1;
+static int hf_scsi_spcpagecode                  = -1;
+static int hf_scsi_sbcpagecode                  = -1;
+static int hf_scsi_sscpagecode                  = -1;
+static int hf_scsi_smcpagecode                  = -1;
+static int hf_scsi_mmcpagecode                  = -1;
+static int hf_scsi_modesns_flags                = -1;
+static int hf_scsi_persresvin_svcaction         = -1;
+static int hf_scsi_persresvout_svcaction        = -1;
+static int hf_scsi_persresv_scope               = -1;
+static int hf_scsi_persresv_type                = -1;
+static int hf_scsi_persresvout_reskey           = -1;
+static int hf_scsi_persresvout_sareskey         = -1;
+static int hf_scsi_persresvout_obsolete         = -1;
+static int hf_scsi_persresvout_control          = -1;
+static int hf_scsi_persresv_control_rsvd        = -1;
+static int hf_scsi_persresv_control_rsvd1       = -1;
+static int hf_scsi_persresv_control_rsvd2       = -1;
+static int hf_scsi_persresv_control_spec_i_pt   = -1;
+static int hf_scsi_persresv_control_all_tg_pt   = -1;
+static int hf_scsi_persresv_control_aptpl       = -1;
+static int hf_scsi_persresv_control_unreg       = -1;
+static int hf_scsi_release_flags                = -1;
+static int hf_scsi_release_thirdpartyid         = -1;
+static int hf_scsi_select_report                = -1;
+static int hf_scsi_inq_add_len                  = -1;
+static int hf_scsi_inq_peripheral               = -1;
+static int hf_scsi_inq_qualifier                = -1;
+static int hf_scsi_inq_vendor_id                = -1;
+static int hf_scsi_inq_product_id               = -1;
+static int hf_scsi_inq_product_rev              = -1;
+static int hf_scsi_inq_vendor_specific          = -1;
+static int hf_scsi_inq_reserved                 = -1;
+static int hf_scsi_inq_version_desc             = -1;
+static int hf_scsi_inq_devtype                  = -1;
+static int hf_scsi_inq_rmb                      = -1;
+static int hf_scsi_inq_version                  = -1;
+static int hf_scsi_rluns_lun                    = -1;
+static int hf_scsi_rluns_multilun               = -1;
+static int hf_scsi_modesns_errrep               = -1;
+static int hf_scsi_modesns_tst                  = -1;
+static int hf_scsi_modesns_qmod                 = -1;
+static int hf_scsi_modesns_qerr                 = -1;
+static int hf_scsi_modesns_rac                  = -1;
+static int hf_scsi_modesns_tas                  = -1;
+static int hf_scsi_protocol                     = -1;
+static int hf_scsi_sns_errtype                  = -1;
+static int hf_scsi_snskey                       = -1;
+static int hf_scsi_snsinfo                      = -1;
+static int hf_scsi_addlsnslen                   = -1;
+static int hf_scsi_asc                          = -1;
+static int hf_scsi_ascascq                      = -1;
+static int hf_scsi_ascq                         = -1;
+static int hf_scsi_fru                          = -1;
+static int hf_scsi_sksv                         = -1;
+static int hf_scsi_inq_reladrflags              = -1;
+static int hf_scsi_inq_sync                     = -1;
+static int hf_scsi_inq_reladr                   = -1;
+static int hf_scsi_inq_linked                   = -1;
+static int hf_scsi_inq_cmdque                   = -1;
+static int hf_scsi_inq_bqueflags                = -1;
+static int hf_scsi_inq_bque                     = -1;
+static int hf_scsi_inq_encserv                  = -1;
+static int hf_scsi_inq_multip                   = -1;
+static int hf_scsi_inq_mchngr                   = -1;
+static int hf_scsi_inq_sccsflags                = -1;
+static int hf_scsi_inq_sccs                     = -1;
+static int hf_scsi_inq_acc                      = -1;
+static int hf_scsi_inq_tpc                      = -1;
+static int hf_scsi_inq_protect                  = -1;
+static int hf_scsi_inq_tpgs                     = -1;
+static int hf_scsi_inq_acaflags                 = -1;
+static int hf_scsi_inq_rmbflags                 = -1;
+static int hf_scsi_inq_normaca                  = -1;
+static int hf_scsi_inq_hisup                    = -1;
+static int hf_scsi_inq_aerc                     = -1;
+static int hf_scsi_inq_trmtsk                   = -1;
+static int hf_scsi_inq_rdf                      = -1;
+static int hf_scsi_persresv_key                 = -1;
+static int hf_scsi_persresv_scopeaddr           = -1;
+static int hf_scsi_add_cdblen                   = -1;
+static int hf_scsi_svcaction                    = -1;
+static int hf_scsi_wb_mode                      = -1;
+static int hf_scsi_wb_bufferid                  = -1;
+static int hf_scsi_wb_bufoffset                 = -1;
+static int hf_scsi_paramlen24                   = -1;
+static int hf_scsi_senddiag_st_code             = -1;
+static int hf_scsi_senddiag_pf                  = -1;
+static int hf_scsi_senddiag_st                  = -1;
+static int hf_scsi_senddiag_devoff              = -1;
+static int hf_scsi_senddiag_unitoff             = -1;
+static int hf_scsi_fragments                    = -1;
+static int hf_scsi_fragment                     = -1;
+static int hf_scsi_fragment_overlap             = -1;
+static int hf_scsi_fragment_overlap_conflict    = -1;
+static int hf_scsi_fragment_multiple_tails      = -1;
+static int hf_scsi_fragment_too_long_fragment   = -1;
+static int hf_scsi_fragment_error               = -1;
+static int hf_scsi_reassembled_in               = -1;
+static int hf_scsi_reassembled_length           = -1;
+static int hf_scsi_log_ppc_flags                = -1;
+static int hf_scsi_log_pc_flags                 = -1;
+static int hf_scsi_log_parameter_ptr            = -1;
+static int hf_scsi_log_ppc                      = -1;
+static int hf_scsi_log_pcr                      = -1;
+static int hf_scsi_log_sp                       = -1;
+static int hf_scsi_log_pagecode                 = -1;
+static int hf_scsi_log_pc                       = -1;
+static int hf_scsi_log_page_length              = -1;
+static int hf_scsi_log_parameter_code           = -1;
+static int hf_scsi_log_param_len                = -1;
+static int hf_scsi_log_param_flags              = -1;
+static int hf_scsi_log_param_data               = -1;
+static int hf_scsi_log_pf_du                    = -1;
+static int hf_scsi_log_pf_ds                    = -1;
+static int hf_scsi_log_pf_tsd                   = -1;
+static int hf_scsi_log_pf_etc                   = -1;
+static int hf_scsi_log_pf_tmc                   = -1;
+static int hf_scsi_log_pf_lbin                  = -1;
+static int hf_scsi_log_pf_lp                    = -1;
+static int hf_scsi_log_ta_rw                    = -1;
+static int hf_scsi_log_ta_ww                    = -1;
+static int hf_scsi_log_ta_he                    = -1;
+static int hf_scsi_log_ta_media                 = -1;
+static int hf_scsi_log_ta_rf                    = -1;
+static int hf_scsi_log_ta_wf                    = -1;
+static int hf_scsi_log_ta_ml                    = -1;
+static int hf_scsi_log_ta_ndg                   = -1;
+static int hf_scsi_log_ta_wp                    = -1;
+static int hf_scsi_log_ta_nr                    = -1;
+static int hf_scsi_log_ta_cm                    = -1;
+static int hf_scsi_log_ta_uf                    = -1;
+static int hf_scsi_log_ta_rmcf                  = -1;
+static int hf_scsi_log_ta_umcf                  = -1;
+static int hf_scsi_log_ta_mcicf                 = -1;
+static int hf_scsi_log_ta_fe                    = -1;
+static int hf_scsi_log_ta_rof                   = -1;
+static int hf_scsi_log_ta_tdcol                 = -1;
+static int hf_scsi_log_ta_nml                   = -1;
+static int hf_scsi_log_ta_cn                    = -1;
+static int hf_scsi_log_ta_cp                    = -1;
+static int hf_scsi_log_ta_ecm                   = -1;
+static int hf_scsi_log_ta_ict                   = -1;
+static int hf_scsi_log_ta_rr                    = -1;
+static int hf_scsi_log_ta_dpie                  = -1;
+static int hf_scsi_log_ta_cff                   = -1;
+static int hf_scsi_log_ta_psf                   = -1;
+static int hf_scsi_log_ta_pc                    = -1;
+static int hf_scsi_log_ta_dm                    = -1;
+static int hf_scsi_log_ta_hwa                   = -1;
+static int hf_scsi_log_ta_hwb                   = -1;
+static int hf_scsi_log_ta_if                    = -1;
+static int hf_scsi_log_ta_em                    = -1;
+static int hf_scsi_log_ta_dwf                   = -1;
+static int hf_scsi_log_ta_drhu                  = -1;
+static int hf_scsi_log_ta_drtm                  = -1;
+static int hf_scsi_log_ta_drvo                  = -1;
+static int hf_scsi_log_ta_pefa                  = -1;
+static int hf_scsi_log_ta_dire                  = -1;
+static int hf_scsi_log_ta_lost                  = -1;
+static int hf_scsi_log_ta_tduau                 = -1;
+static int hf_scsi_log_ta_tsawf                 = -1;
+static int hf_scsi_log_ta_tsarf                 = -1;
+static int hf_scsi_log_ta_nsod                  = -1;
+static int hf_scsi_log_ta_lofa                  = -1;
+static int hf_scsi_log_ta_uuf                   = -1;
+static int hf_scsi_log_ta_aif                   = -1;
+static int hf_scsi_log_ta_fwf                   = -1;
+static int hf_scsi_log_ta_wmicf                 = -1;
+static int hf_scsi_log_ta_wmoa                  = -1;
 
 
-static gint ett_scsi         = -1;
-static gint ett_scsi_page    = -1;
+static gint ett_scsi = -1;
+static gint ett_scsi_page = -1;
        gint ett_scsi_control = -1;
 static gint ett_scsi_inq_control = -1;
 static gint ett_scsi_inq_peripheral = -1;
@@ -302,7 +314,8 @@ static gint ett_scsi_log_ppc = -1;
 static gint ett_scsi_log_pc = -1;
 static gint ett_scsi_log_param = -1;
 static gint ett_scsi_fragments = -1;
-static gint ett_scsi_fragment  = -1;
+static gint ett_scsi_fragment = -1;
+static gint ett_persresv_control = -1;
 
 static int scsi_tap = -1;
 
@@ -403,7 +416,7 @@ static const value_string log_flags_tmc_vals[] = {
 };
 
 static const value_string scsi_select_report_val[] = {
-    {0,	"Select All LUNs" },
+    {0, "Select All LUNs" },
     {1, "Select Well-Known LUNs" },
     {2, "Select All LUNs accessible to this I_T nexus" },
     {0, NULL},
@@ -796,12 +809,12 @@ log_parameter_2e_003c(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 typedef void (*log_parameter_dissector)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 typedef struct _log_page_parameters_t {
-    guint32	number;
-    char	*name;
+    guint32 number;
+    char *name;
     log_parameter_dissector dissector;
 } log_page_parameters_t;
 static const log_page_parameters_t tape_alert_log_parameters[] = {
-    {0x0001,	"Read Warning", log_parameter_2e_0001},
+    {0x0001,    "Read Warning", log_parameter_2e_0001},
     {0x0002,    "write warning", log_parameter_2e_0002},
     {0x0003,    "hard error", log_parameter_2e_0003},
     {0x0004,    "media", log_parameter_2e_0004},
@@ -855,12 +868,12 @@ static const log_page_parameters_t tape_alert_log_parameters[] = {
 };
 
 typedef struct _log_pages_t {
-    guint32	page;
+    guint32 page;
     const log_page_parameters_t *parameters;
 } log_pages_t;
 
 
-#define LOG_PAGE_TAPE_ALERT		0x2e
+#define LOG_PAGE_TAPE_ALERT     0x2e
 static const value_string scsi_log_page_val[] = {
     {0x00, "Supported Log Pages"},
     {0x01, "Buffer Overrun/Underrun Page"},
@@ -884,8 +897,8 @@ static const value_string scsi_log_page_val[] = {
 };
 
 static const log_pages_t log_pages[] = {
-    {LOG_PAGE_TAPE_ALERT,	tape_alert_log_parameters},
-    {0,NULL}
+    {LOG_PAGE_TAPE_ALERT, tape_alert_log_parameters},
+    {0, NULL}
 };
 
 
@@ -1351,8 +1364,8 @@ static const value_string scsi_cmdt_supp_val[] = {
     {0, NULL},
 };
 
-#define CODESET_BINARY	1
-#define CODESET_ASCII	2
+#define CODESET_BINARY  1
+#define CODESET_ASCII   2
 
 const value_string scsi_devid_codeset_val[] = {
     {0,              "Reserved"},
@@ -1402,6 +1415,21 @@ static const value_string scsi_modesns_qmod_val[] = {
 static const true_false_string scsi_modesns_qerr_val = {
     "All blocked tasks shall be aborted on CHECK CONDITION",
     "Blocked tasks shall resume after ACA/CA is cleared",
+};
+
+static const true_false_string scsi_spec_i_pt_tfs = {
+    "Specify Initiator Ports is set",
+    "Specify Initiator Ports is not set"
+};
+
+static const true_false_string scsi_all_tg_pt_tfs = {
+    "All Target Ports is set",
+    "All Target Ports is not set"
+};
+
+static const true_false_string scsi_aptpl_tfs = {
+    "Active Persist Through Power Loss is set",
+    "Active Persist Through Power Loss is not set" 
 };
 
 static const true_false_string scsi_naca_tfs = {
@@ -2091,10 +2119,10 @@ dissect_scsi_cmddt (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 
-#define SCSI_INQ_ACAFLAGS_AERC		0x80
-#define SCSI_INQ_ACAFLAGS_TRMTSK	0x40
-#define SCSI_INQ_ACAFLAGS_NORMACA	0x20
-#define SCSI_INQ_ACAFLAGS_HISUP		0x10
+#define SCSI_INQ_ACAFLAGS_AERC      0x80
+#define SCSI_INQ_ACAFLAGS_TRMTSK    0x40
+#define SCSI_INQ_ACAFLAGS_NORMACA   0x20
+#define SCSI_INQ_ACAFLAGS_HISUP     0x10
 
 static const value_string inq_rdf_vals[] = {
     { 2, "SPC-2/SPC-3" },
@@ -2102,10 +2130,10 @@ static const value_string inq_rdf_vals[] = {
 };
 
 
-#define SCSI_INQ_SCCSFLAGS_SCCS		0x80
-#define SCSI_INQ_SCCSFLAGS_ACC		0x40
-#define SCSI_INQ_SCCSFLAGS_TPC		0x08
-#define SCSI_INQ_SCCSFLAGS_PROTECT	0x01
+#define SCSI_INQ_SCCSFLAGS_SCCS     0x80
+#define SCSI_INQ_SCCSFLAGS_ACC      0x40
+#define SCSI_INQ_SCCSFLAGS_TPC      0x08
+#define SCSI_INQ_SCCSFLAGS_PROTECT  0x01
 
 static const value_string inq_tpgs_vals[] = {
     { 0, "Asymmetric LU Access not supported" },
@@ -2167,10 +2195,10 @@ dissect_spc_inq_sccsflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 }
 
 
-#define SCSI_INQ_BQUEFLAGS_BQUE		0x80
-#define SCSI_INQ_BQUEFLAGS_ENCSERV	0x40
-#define SCSI_INQ_BQUEFLAGS_MULTIP	0x10
-#define SCSI_INQ_BQUEFLAGS_MCHNGR	0x08
+#define SCSI_INQ_BQUEFLAGS_BQUE     0x80
+#define SCSI_INQ_BQUEFLAGS_ENCSERV  0x40
+#define SCSI_INQ_BQUEFLAGS_MULTIP   0x10
+#define SCSI_INQ_BQUEFLAGS_MCHNGR   0x08
 
 /* This dissects byte 6 of the SPC-3 standard INQ data (SPC-3 6.4.2) */
 static int
@@ -2219,10 +2247,10 @@ dissect_spc_inq_bqueflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
     return offset;
 }
 
-#define SCSI_INQ_RELADRFLAGS_RELADR		0x80
-#define SCSI_INQ_RELADRFLAGS_SYNC		0x10
-#define SCSI_INQ_RELADRFLAGS_LINKED		0x08
-#define SCSI_INQ_RELADRFLAGS_CMDQUE		0x02
+#define SCSI_INQ_RELADRFLAGS_RELADR     0x80
+#define SCSI_INQ_RELADRFLAGS_SYNC       0x10
+#define SCSI_INQ_RELADRFLAGS_LINKED     0x08
+#define SCSI_INQ_RELADRFLAGS_CMDQUE     0x02
 
 /* This dissects byte 7 of the SPC-3 standard INQ data (SPC-3 6.4.2) */
 static int
@@ -2273,9 +2301,9 @@ dissect_spc_inq_reladrflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 
 void
 dissect_spc_inquiry (tvbuff_t *tvb, packet_info *pinfo,
-		     proto_tree *tree, guint offset, gboolean isreq,
-		     gboolean iscdb, guint32 payload_len,
-		     scsi_task_data_t *cdata)
+                     proto_tree *tree, guint offset, gboolean isreq,
+                     gboolean iscdb, guint32 payload_len,
+                     scsi_task_data_t *cdata)
 {
     guint8 flags, i;
     tvbuff_t *volatile tvb_v = tvb;
@@ -2295,8 +2323,8 @@ dissect_spc_inquiry (tvbuff_t *tvb, packet_info *pinfo,
             NULL
     };
     static const int *aca_fields[] = {
-        &hf_scsi_inq_aerc,	/* obsolete in spc3 and forward */
-            &hf_scsi_inq_trmtsk,	/* obsolete in spc2 and forward */
+        &hf_scsi_inq_aerc,      /* obsolete in spc3 and forward */
+            &hf_scsi_inq_trmtsk,/* obsolete in spc2 and forward */
             &hf_scsi_inq_normaca,
             &hf_scsi_inq_hisup,
             &hf_scsi_inq_rdf,
@@ -2341,7 +2369,6 @@ dissect_spc_inquiry (tvbuff_t *tvb, packet_info *pinfo,
         if(cdata){
             cdata->itlq->alloc_len=tvb_get_guint8(tvb_v, offset_v+3);
         }
-
         proto_tree_add_bitmask(tree, tvb_v, offset_v+4, hf_scsi_inq_control,
             ett_scsi_inq_control, inq_control_fields, FALSE);
     } else if (!isreq) {
@@ -2611,8 +2638,8 @@ dissect_spc_logsense (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             ett_scsi_log_ppc, ppcflags_fields, FALSE);
         proto_tree_add_bitmask(tree, tvb, offset+1, hf_scsi_log_pc_flags,
             ett_scsi_log_pc, pcflags_fields, FALSE);
-        proto_tree_add_text (tree, tvb, offset+4, 2, "Parameter Pointer: 0x%04x",
-                             tvb_get_ntohs (tvb, offset+4));
+        proto_tree_add_item (tree, hf_scsi_log_parameter_ptr, tvb, offset+4,
+            2, 0);
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+6, 2, 0);
         proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
             ett_scsi_control, cdb_control_fields, FALSE);
@@ -3385,7 +3412,7 @@ dissect_scsi_modepage (tvbuff_t *tvb, packet_info *pinfo,
             hf_pagecode = hf_scsi_spcpagecode;
             dissect_modepage = dissect_scsi_spc_modepage;
             break;
-	}
+        }
     } else {
         modepage_val = scsi_spc_modepage_val;
         hf_pagecode = hf_scsi_spcpagecode;
@@ -3583,7 +3610,7 @@ dissect_spc_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             return;
         longlba = tvb_get_guint8 (tvb, offset) & 0x1;
         proto_tree_add_text (tree, tvb, offset, 1, "LongLBA: %u", longlba);
-        offset += 2;	/* skip LongLBA byte and reserved byte */
+        offset += 2;    /* skip LongLBA byte and reserved byte */
         payload_len -= 2;
 
         if (payload_len < 1)
@@ -3814,7 +3841,7 @@ dissect_spc_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             return;
         longlba = tvb_get_guint8 (tvb, offset) & 0x1;
         proto_tree_add_text (tree, tvb, offset, 1, "LongLBA: %u", longlba);
-        offset += 2;	/* skip LongLBA byte and reserved byte */
+        offset += 2;    /* skip LongLBA byte and reserved byte */
         tot_len -= 2;
 
         if (tot_len < 1)
@@ -3935,6 +3962,43 @@ dissect_spc_persistentreserveout (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         proto_tree_add_item (tree, hf_scsi_paramlen16, tvb, offset+6, 2, 0);
         proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
             ett_scsi_control, cdb_control_fields, FALSE);
+        /* We store the service action since we want to interpret the params */
+        cdata->itlq->flags = tvb_get_guint8 (tvb, offset);
+    }
+    else if (isreq && !iscdb) {
+        proto_tree_add_bytes (tree, hf_scsi_persresvout_reskey, tvb, offset,
+                              8, tvb_get_ptr(tvb, 0, 8));
+        proto_tree_add_bytes (tree, hf_scsi_persresvout_sareskey, tvb,
+                              offset +8, 8, tvb_get_ptr(tvb, offset + 8, 8));
+        if (cdata->itlq->flags == 0x07) {
+            const int *persresv_fields[] = {
+                &hf_scsi_persresv_control_rsvd,
+                &hf_scsi_persresv_control_unreg,
+                &hf_scsi_persresv_control_aptpl,
+                NULL
+            };
+            proto_tree_add_bytes (tree, hf_scsi_persresvout_obsolete, tvb,
+                offset+16, 1, tvb_get_ptr(tvb, offset+16, 1));
+            proto_tree_add_bitmask(tree, tvb, offset+17, 
+                hf_scsi_persresvout_control, ett_persresv_control,
+                persresv_fields, FALSE);
+        }
+        else {
+            const int *persresv_fields[] = {
+                &hf_scsi_persresv_control_rsvd1,
+                &hf_scsi_persresv_control_spec_i_pt,
+                &hf_scsi_persresv_control_all_tg_pt,
+                &hf_scsi_persresv_control_rsvd2,
+                &hf_scsi_persresv_control_aptpl,
+                NULL
+            };
+
+            proto_tree_add_bytes (tree, hf_scsi_persresvout_obsolete, tvb,
+                             offset+16, 4, tvb_get_ptr(tvb, offset+16, 4));
+            proto_tree_add_bitmask(tree, tvb, offset+20, 
+                hf_scsi_persresvout_control, ett_persresv_control,
+                persresv_fields, FALSE);
+        }
     }
     else {
     }
@@ -3991,9 +4055,9 @@ proto_tree *tree _U_,
 
 void
 dissect_spc_reportluns (tvbuff_t *tvb, packet_info *pinfo _U_,
-			proto_tree *tree, guint offset,
-			gboolean isreq, gboolean iscdb, guint payload_len _U_,
-			scsi_task_data_t *cdata _U_)
+                        proto_tree *tree, guint offset,
+                        gboolean isreq, gboolean iscdb, guint payload_len _U_,
+                        scsi_task_data_t *cdata _U_)
 {
     gint listlen;
     tvbuff_t *volatile tvb_v = tvb;
@@ -5029,6 +5093,36 @@ proto_register_scsi (void)
         { &hf_scsi_persresv_type,
           {"Reservation Type", "scsi.persresv.type", FT_UINT8, BASE_HEX,
            VALS (scsi_persresv_type_val), 0x0F, NULL, HFILL}},
+        { &hf_scsi_persresvout_reskey,
+          {"Reservation Key", "scsi.persresv.reskey", FT_BYTES, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
+        { &hf_scsi_persresvout_sareskey,
+          {"Service Action Reservation Key", "scsi.persresv.sareskey", FT_BYTES,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        { &hf_scsi_persresvout_obsolete,
+          {"Obsolete", "scsi.presresv.obs", FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}},
+        { &hf_scsi_persresvout_control,
+          {"Control", "scsi.presresv.control", FT_UINT8, BASE_HEX, NULL, 0x0,
+           NULL, HFILL}},
+        { &hf_scsi_persresv_control_rsvd,
+          {"Reserved", "scsi.persresv.control.reserved", FT_UINT8, BASE_HEX,
+           NULL, 0xFC, NULL, HFILL}},
+        { &hf_scsi_persresv_control_rsvd1,
+          {"Reserved", "scsi.persresv.control.reserved1", FT_UINT8, BASE_HEX,
+          NULL, 0xF0, NULL, HFILL}},
+        { &hf_scsi_persresv_control_rsvd2,
+          {"Reserved", "scsi.persresv.control.reserved2", FT_UINT8, BASE_HEX,
+          NULL, 0x02, NULL, HFILL}},
+        { &hf_scsi_persresv_control_spec_i_pt,
+          {"SPEC_I_PT", "scsi.persresv.control.spec_i_pt", FT_BOOLEAN, 8,
+          TFS(&scsi_spec_i_pt_tfs), 0x08, NULL, HFILL}},
+        { &hf_scsi_persresv_control_all_tg_pt,
+          {"ALL_TG_PT", "scsi.persresv.control.all_tg_pt", FT_BOOLEAN, 8,
+          TFS(&scsi_all_tg_pt_tfs), 0x04, NULL, HFILL}},
+        { &hf_scsi_persresv_control_aptpl,
+          {"aptpl", "scsi.persresv.control.aptpl", FT_BOOLEAN, 8,
+          TFS(&scsi_aptpl_tfs), 0x01, NULL, HFILL}},
         { &hf_scsi_release_flags,
           {"Release Flags", "scsi.release.flags", FT_UINT8, BASE_HEX, NULL,
            0x0, NULL, HFILL}},
@@ -5267,16 +5361,16 @@ proto_register_scsi (void)
           { "SCSI Fragments", "scsi.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
            NULL, HFILL }},
         { &hf_scsi_fragment_overlap,
-          { "Fragment overlap",	"scsi.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+          { "Fragment overlap", "scsi.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
            "Fragment overlaps with other fragments", HFILL }},
         { &hf_scsi_fragment_overlap_conflict,
-          { "Conflicting data in fragment overlap",	"scsi.fragment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+          { "Conflicting data in fragment overlap", "scsi.fragment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
            "Overlapping fragments contained conflicting data", HFILL }},
         { &hf_scsi_fragment_multiple_tails,
-          { "Multiple tail fragments found",	"scsi.fragment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+          { "Multiple tail fragments found", "scsi.fragment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
            "Several tails were found when defragmenting the packet", HFILL }},
         { &hf_scsi_fragment_too_long_fragment,
-          { "Fragment too long",	"scsi.fragment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+          { "Fragment too long", "scsi.fragment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
            "Fragment contained data past end of packet", HFILL }},
         { &hf_scsi_fragment_error,
           { "Defragmentation error", "scsi.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
@@ -5305,6 +5399,9 @@ proto_register_scsi (void)
         { &hf_scsi_log_pc_flags,
           {"PC Flags", "scsi.log.pc.flags", FT_UINT8, BASE_HEX, NULL, 0,
            NULL, HFILL}},
+        { &hf_scsi_log_parameter_ptr,
+          {"Parameter Pointer", "scsi.log.param_ptr", FT_UINT8, BASE_HEX, NULL,
+           0, NULL, HFILL}},
         { &hf_scsi_log_page_length,
           {"Page Length", "scsi.log.page_length", FT_UINT16, BASE_DEC, NULL, 0,
            NULL, HFILL}},
@@ -5511,6 +5608,7 @@ proto_register_scsi (void)
         &ett_scsi_log_param,
         &ett_scsi_fragments,
         &ett_scsi_fragment,
+        &ett_persresv_control
     };
     module_t *scsi_module;
 
