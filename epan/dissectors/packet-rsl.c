@@ -94,6 +94,7 @@ static int hf_rsl_key				= -1;
 static int hf_rsl_cause				= -1;
 static int hf_rsl_rel_mode			= -1;
 static int hf_rsl_interf_band		= -1;
+static int hf_rsl_interf_band_reserved = -1;
 static int hf_rsl_meas_res_no		= -1;
 static int hf_rsl_extension_bit		= -1;
 static int hf_rsl_dtxd				= -1;
@@ -491,21 +492,21 @@ C5	C4	C3	C2	C1
 1	0	0	1	0	Downlink CCCH (PCH + AGCH)
 */
 static const value_string rsl_ch_no_Cbits_vals[] = {
-	{  0x01,	"Bm + ACCH's" },
-	{  0x03,	"Lm + ACCH's" },
-	{  0x03,	"Lm + ACCH's" },
-	{  0x04,	"SDCCH/4 + ACCH" },
-	{  0x05,	"SDCCH/4 + ACCH" },
-	{  0x06,	"SDCCH/4 + ACCH" },
-	{  0x07,	"SDCCH/4 + ACCH" },
-	{  0x08,	"SDCCH/8 + ACCH" },
-	{  0x09,	"SDCCH/8 + ACCH" },
-	{  0x0a,	"SDCCH/8 + ACCH" },
-	{  0x0b,	"SDCCH/8 + ACCH" },
-	{  0x0c,	"SDCCH/8 + ACCH" },
-	{  0x0d,	"SDCCH/8 + ACCH" },
-	{  0x0e,	"SDCCH/8 + ACCH" },
-	{  0x0f,	"SDCCH/8 + ACCH" },
+	{  0x01,	"Bm + ACCH" },
+	{  0x02,	"Lm + ACCH (sub-chan 0)" },
+	{  0x03,	"Lm + ACCH (sub-chan 1)" },
+	{  0x04,	"SDCCH/4 + ACCH (sub-chan 0)" },
+	{  0x05,	"SDCCH/4 + ACCH (sub-chan 1)" },
+	{  0x06,	"SDCCH/4 + ACCH (sub-chan 2)" },
+	{  0x07,	"SDCCH/4 + ACCH (sub-chan 3)" },
+	{  0x08,	"SDCCH/8 + ACCH (sub-chan 0)" },
+	{  0x09,	"SDCCH/8 + ACCH (sub-chan 1)" },
+	{  0x0a,	"SDCCH/8 + ACCH (sub-chan 2)" },
+	{  0x0b,	"SDCCH/8 + ACCH (sub-chan 3)" },
+	{  0x0c,	"SDCCH/8 + ACCH (sub-chan 4)" },
+	{  0x0d,	"SDCCH/8 + ACCH (sub-chan 5)" },
+	{  0x0e,	"SDCCH/8 + ACCH (sub-chan 6)" },
+	{  0x0f,	"SDCCH/8 + ACCH (sub-chan 7)" },
 	{  0x10,	"BCCH" },
 	{  0x11,	"Uplink CCCH (RACH)" },
 	{  0x12,	"Downlink CCCH (PCH + AGCH)" },
@@ -1539,6 +1540,8 @@ dissect_rsl_ie_resource_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		/* Interference level (1) */
 		/* Interf Band */
 		proto_tree_add_item(ie_tree, hf_rsl_interf_band, tvb, offset, 1, FALSE);
+		/* Interf Band reserved bits */
+		proto_tree_add_item(ie_tree, hf_rsl_interf_band_reserved, tvb, offset, 1, FALSE);
 		offset++;
 		length = length - 2;
 	}
@@ -3818,6 +3821,11 @@ void proto_register_rsl(void)
 		{ &hf_rsl_interf_band,
 			{ "Interf Band",           "rsl.interf_band",
 			FT_UINT8, BASE_DEC, NULL, 0xe0,
+			NULL, HFILL }
+		},
+		{ &hf_rsl_interf_band_reserved,
+			{ "Interf Band reserved bits",           "rsl.interf_band_reserved",
+			FT_UINT8, BASE_DEC, NULL, 0x1f,
 			NULL, HFILL }
 		},
 		{ &hf_rsl_meas_res_no,
