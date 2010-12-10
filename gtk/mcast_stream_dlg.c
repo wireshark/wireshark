@@ -69,7 +69,7 @@ extern guint16 burstint;
 extern guint32 trigger;
 extern guint32 bufferalarm;
 extern gint32 emptyspeed;
-extern gint32 cumulemptyspeed; 
+extern gint32 cumulemptyspeed;
 
 static const gchar FWD_LABEL_TEXT[] = "Select a stream with left mouse button";
 static const gchar PAR_LABEL_TEXT[] = "\nBurst int: ms   Burst alarm: pps    Buffer alarm: KB    Stream empty speed: Mbps    Total empty speed: Mbps\n";
@@ -132,13 +132,13 @@ static void add_to_clist(mcast_stream_info_t* strinfo)
 	/* Update the top label with the number of detected streams */
 	g_snprintf(label_text, sizeof(label_text),
 	        "Detected %d Multicast streams,   Average Bw: %.1f Mbps   Max Bw: %.1f Mbps   Max burst: %d / %dms   Max buffer: %.1f KB",
-	        ++streams_nb, 
-		mcaststream_get_info()->allstreams->average_bw, mcaststream_get_info()->allstreams->element.maxbw, 
-		mcaststream_get_info()->allstreams->element.topburstsize, burstint, 
+	        ++streams_nb,
+		mcaststream_get_info()->allstreams->average_bw, mcaststream_get_info()->allstreams->element.maxbw,
+		mcaststream_get_info()->allstreams->element.topburstsize, burstint,
 		(float)(mcaststream_get_info()->allstreams->element.topbuffusage)/1000);
 	 gtk_label_set_text(GTK_LABEL(top_label), label_text);
 
-         g_snprintf(label_text, sizeof(label_text), "\nBurst int: %u ms   Burst alarm: %u pps   Buffer alarm: %u Bytes   Stream empty speed: %u Kbps   Total empty speed: %u Kbps\n", 
+         g_snprintf(label_text, sizeof(label_text), "\nBurst int: %u ms   Burst alarm: %u pps   Buffer alarm: %u Bytes   Stream empty speed: %u Kbps   Total empty speed: %u Kbps\n",
 		burstint, trigger, bufferalarm, emptyspeed, cumulemptyspeed);
 	gtk_label_set_text(GTK_LABEL(label_par), label_text);
 }
@@ -192,17 +192,17 @@ mcaststream_on_filter                    (GtkButton       *button _U_,
 	{
 		if (selected_stream_fwd->src_addr.type==AT_IPv6){
                     g_strlcpy(ip_version,"v6",sizeof(ip_version));
-		}		
+		}
 		else{
 			ip_version[0] = '\0';
 		}
 		filter_string_fwd = g_strdup_printf(
 			"(ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u)",
 			ip_version,
-			address_to_str(&(selected_stream_fwd->src_addr)),
+			ep_address_to_str(&(selected_stream_fwd->src_addr)),
 			selected_stream_fwd->src_port,
 			ip_version,
-			address_to_str(&(selected_stream_fwd->dest_addr)),
+			ep_address_to_str(&(selected_stream_fwd->dest_addr)),
 			selected_stream_fwd->dest_port);
         filter_string = filter_string_fwd;
 	}
@@ -378,7 +378,7 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 	if ( (p == fnumber_text || *p != '\0') || (fnumber <=0) || (fnumber > 10000000) ){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The total empty speed should be between 1 and 10000000");
 		return; }
-	cumulemptyspeed = fnumber; 
+	cumulemptyspeed = fnumber;
 
 	window_destroy(GTK_WIDGET(parent_w));
 
@@ -407,12 +407,12 @@ mcast_on_params                      (GtkButton       *button _U_,
                 return;
         }
 
-	mcast_params_dlg = dlg_window_new("Wireshark: Set parameters for Multicast Stream Analysis");  
+	mcast_params_dlg = dlg_window_new("Wireshark: Set parameters for Multicast Stream Analysis");
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(mcast_params_dlg), TRUE);
         gtk_window_set_default_size(GTK_WINDOW(mcast_params_dlg), 210, 210);
 
         gtk_widget_show(mcast_params_dlg);
-	
+
         /* Container for each row of widgets */
         main_vb = gtk_vbox_new(FALSE, 3);
         gtk_container_set_border_width(GTK_CONTAINER(main_vb), 2);
@@ -465,7 +465,7 @@ mcast_on_params                      (GtkButton       *button _U_,
 	GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
 	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_END);
 	gtk_box_set_spacing (GTK_BOX (hbuttonbox), 0);
-        
+
 	g_signal_connect(mcast_params_dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
         g_signal_connect(mcast_params_dlg, "destroy", G_CALLBACK(mcast_params_destroy_cb), NULL);
 	g_signal_connect(ok_bt, "clicked", G_CALLBACK(mcast_params_ok_cb), mcast_params_dlg);

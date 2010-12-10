@@ -498,15 +498,12 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gboolean need_desegmentation;
     SslDecryptSession* ssl_session;
     guint* conv_version;
-    Ssl_private_key_t * private_key;
-    guint32 port;
 
     ti = NULL;
     ssl_tree   = NULL;
     offset = 0;
     first_record_in_frame = TRUE;
     ssl_session = NULL;
-    port = 0;
 
 
     ssl_debug_printf("\ndissect_ssl enter frame #%u (%s)\n", pinfo->fd->num, (pinfo->fd->flags.visited)?"already visited":"first time");
@@ -540,64 +537,15 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (conv_data != NULL)
         ssl_session = conv_data;
     else {
-        SslService dummy;
-        char ip_addr_any[] = {0,0,0,0};
-
         ssl_session = se_alloc0(sizeof(SslDecryptSession));
         ssl_session_init(ssl_session);
         ssl_session->version = SSL_VER_UNKNOWN;
         conversation_add_proto_data(conversation, proto_ssl, ssl_session);
-
-        /* we need to know which side of the conversation is speaking */
-        if (ssl_packet_from_server(ssl_associations, pinfo->srcport, pinfo->ptype == PT_TCP)) {
-            dummy.addr = pinfo->src;
-            dummy.port = port = pinfo->srcport;
-        } else {
-            dummy.addr = pinfo->dst;
-            dummy.port = port = pinfo->destport;
-        }
-        ssl_debug_printf("dissect_ssl server %s:%u\n",
-            address_to_str(&dummy.addr),dummy.port);
-
-        /* try to retrieve private key for this service. Do it now 'cause pinfo
-         * is not always available
-         * Note that with HAVE_LIBGNUTLS undefined private_key is allways 0
-         * and thus decryption never engaged*/
-
-
-        ssl_session->private_key = 0;
-        private_key = g_hash_table_lookup(ssl_key_hash, &dummy);
-
-        if (!private_key) {
-            ssl_debug_printf("dissect_ssl can't find private key for this server! Try it again with universal port 0\n");
-
-            dummy.port = 0;
-            private_key = g_hash_table_lookup(ssl_key_hash, &dummy);
-        }
-
-        if (!private_key) {
-            ssl_debug_printf("dissect_ssl can't find private key for this server (universal port)! Try it again with universal address 0.0.0.0\n");
-
-            dummy.addr.type = AT_IPv4;
-            dummy.addr.len = 4;
-            dummy.addr.data = ip_addr_any;
-
-            dummy.port = port;
-            private_key = g_hash_table_lookup(ssl_key_hash, &dummy);
-        }
-
-        if (!private_key) {
-            ssl_debug_printf("dissect_ssl can't find any private key!\n");
-        } else {
-            ssl_session->private_key = private_key->sexp_pkey;
-        }
-
     }
     conv_version =& ssl_session->version;
 
     /* try decryption only the first time we see this packet
-     * (to keep cipher synchronized) and only if we have
-     * the server private key*/
+     * (to keep cipher synchronized) */
     if (pinfo->fd->flags.visited)
          ssl_session = NULL;
 
@@ -606,13 +554,9 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Initialize the protocol column; we'll set it later when we
      * figure out what flavor of SSL it is (assuming we don't
      * throw an exception before we get the chance to do so). */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSL");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSL");
     /* clear the the info column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
     /* TCP packets and SSL records are orthogonal.
      * A tcp packet may contain multiple ssl records and an ssl
@@ -762,7 +706,7 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
      * add decrypted data to this packet info */
     ssl_debug_printf("decrypt_ssl3_record: app_data len %d ssl, state 0x%02X\n",
         record_length, ssl->state);
-    direction = ssl_packet_from_server(ssl_associations, pinfo->srcport, pinfo->ptype == PT_TCP);
+    direction = ssl_packet_from_server(ssl, ssl_associations, pinfo);
 
     /* retrieve decoder for this packet direction */
     if (direction != 0) {
@@ -1163,12 +1107,8 @@ again:
 			 * of the payload, and that's 0).
 			 * Just mark this as SSL.
 			 */
-			if (check_col(pinfo->cinfo, COL_PROTOCOL)){
-				col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSL");
-			}
-			if (check_col(pinfo->cinfo, COL_INFO)){
-				col_set_str(pinfo->cinfo, COL_INFO, "[SSL segment of a reassembled PDU]");
-			}
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSL");
+			col_set_str(pinfo->cinfo, COL_INFO, "[SSL segment of a reassembled PDU]");
 		}
 
 		/*
@@ -1508,7 +1448,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             col_append_str(pinfo->cinfo, COL_INFO, "Change Cipher Spec");
         dissect_ssl3_change_cipher_spec(tvb, ssl_record_tree,
                                         offset, conv_version, content_type);
-        if (ssl) ssl_change_cipher(ssl, ssl_packet_from_server(ssl_associations, pinfo->srcport, pinfo->ptype == PT_TCP));
+        if (ssl) ssl_change_cipher(ssl, ssl_packet_from_server(ssl, ssl_associations, pinfo));
         break;
     case SSL_ID_ALERT:
     {
@@ -2089,6 +2029,11 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
     cipher_suite_length = 0;
     compression_methods_length = 0;
     start_offset = offset;
+
+    if (ssl) {
+      ssl_set_server(ssl, &pinfo->dst, pinfo->ptype, pinfo->destport);
+      ssl_find_private_key(ssl, ssl_key_hash, ssl_associations, pinfo);
+    }
 
     if (tree || ssl)
     {
@@ -2811,6 +2756,11 @@ dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
         return;
     }
 
+    if (ssl) {
+      ssl_set_server(ssl, &pinfo->dst, pinfo->ptype, pinfo->destport);
+      ssl_find_private_key(ssl, ssl_key_hash, ssl_associations, pinfo);
+    }
+
     if (tree || ssl)
     {
         /* show the version */
@@ -2922,7 +2872,7 @@ dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
                 tvb_memcpy(tvb, &ssl->client_random.data[32 - max], offset, max);
                 ssl->client_random.data_len = 32;
                 ssl->state |= SSL_CLIENT_RANDOM;
-
+                ssl_debug_printf("dissect_ssl2_hnd_client_hello found CLIENT RANDOM -> state 0x%02X\n", ssl->state);
             }
             offset += challenge_length;
         }
@@ -3502,6 +3452,8 @@ void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_c
 
   ssl_debug_printf("  conversation = %p, ssl_session = %p\n", (void *)conversation, (void *)ssl);
 
+  ssl_set_server(ssl, addr_srv, ptype, port_srv);
+
   /* version */
   if ((ssl->version==SSL_VER_UNKNOWN) && (version!=SSL_VER_UNKNOWN)) {
     switch (version) {
@@ -3952,13 +3904,13 @@ proto_register_ssl(void)
         },
         { &hf_ssl_record_appdata,
           { "Encrypted Application Data", "ssl.app_data",
-            FT_BYTES, BASE_HEX, NULL, 0x0,
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             "Payload is encrypted application data", HFILL }
         },
 
         { &hf_ssl2_record,
           { "SSLv2/PCT Record Header", "ssl.record",
-            FT_NONE, BASE_DEC, NULL, 0x0,
+            FT_NONE, BASE_NONE, NULL, 0x0,
             "SSLv2/PCT record data", HFILL }
         },
         { &hf_ssl2_record_is_escape,
@@ -4018,12 +3970,12 @@ proto_register_ssl(void)
         },
         { &hf_ssl_handshake_random_time,
           { "gmt_unix_time", "ssl.handshake.random_time",
-            FT_ABSOLUTE_TIME, 0, NULL, 0x0,
+            FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
             "Unix time field of random structure", HFILL }
         },
         { &hf_ssl_handshake_random_bytes,
           { "random_bytes", "ssl.handshake.random_bytes",
-            FT_BYTES, 0, NULL, 0x0,
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             "Random challenge used to authenticate server", HFILL }
         },
         { &hf_ssl_handshake_cipher_suites_len,
@@ -4064,7 +4016,7 @@ proto_register_ssl(void)
         { &hf_ssl_handshake_comp_method,
           { "Compression Method", "ssl.handshake.comp_method",
             FT_UINT8, BASE_DEC, VALS(ssl_31_compression_method), 0x0,
-            "Compression Method", HFILL }
+            NULL, HFILL }
         },
         { &hf_ssl_handshake_extensions_len,
           { "Extensions Length", "ssl.handshake.extensions_length",
@@ -4099,7 +4051,7 @@ proto_register_ssl(void)
         { &hf_ssl_handshake_certificate,
           { "Certificate", "ssl.handshake.certificate",
             FT_NONE, BASE_NONE, NULL, 0x0,
-            "Certificate", HFILL }
+            NULL, HFILL }
         },
         { &hf_ssl_handshake_certificate_len,
           { "Certificate Length", "ssl.handshake.certificate_length",
@@ -4119,7 +4071,7 @@ proto_register_ssl(void)
         { &hf_ssl_handshake_cert_type,
           { "Certificate type", "ssl.handshake.cert_type",
             FT_UINT8, BASE_DEC, VALS(ssl_31_client_certificate_type), 0x0,
-            "Certificate type", HFILL }
+            NULL, HFILL }
         },
         { &hf_ssl_handshake_finished,
           { "Verify Data", "ssl.handshake.verify_data",
@@ -4219,7 +4171,7 @@ proto_register_ssl(void)
         { &hf_ssl2_handshake_cert_type,
           { "Certificate Type", "ssl.handshake.cert_type",
             FT_UINT8, BASE_DEC, VALS(ssl_20_certificate_type), 0x0,
-            "Certificate Type", HFILL }
+            NULL, HFILL }
         },
         { &hf_ssl2_handshake_connection_id_len,
           { "Connection ID Length", "ssl.handshake.connection_id_length",
@@ -4279,7 +4231,7 @@ proto_register_ssl(void)
         { &hf_pct_msg_error_type,
           { "PCT Error Code", "pct.msg_error_code",
                 FT_UINT16, BASE_HEX, VALS(pct_error_code), 0x0,
-                "PCT Error Code", HFILL }
+                NULL, HFILL }
         },
         { &hf_pct_handshake_server_cert,
           { "Server Cert", "pct.handshake.server_cert",
@@ -4308,7 +4260,7 @@ proto_register_ssl(void)
 
 		{ &hf_ssl_segment,
 		{ "SSL Segment", "ssl.segment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-			"SSL Segment", HFILL }},
+			NULL, HFILL }},
 
 		{ &hf_ssl_segments,
 		{ "Reassembled SSL Segments", "ssl.segments", FT_NONE, BASE_NONE, NULL, 0x0,

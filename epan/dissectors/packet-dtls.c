@@ -201,7 +201,7 @@ dtls_init(void)
 {
   ssl_common_init(&dtls_session_hash, &dtls_decrypted_data, &dtls_compressed_data);
   fragment_table_init (&dtls_fragment_table);
-  reassembled_table_init(&dtls_reassembled_table);  
+  reassembled_table_init(&dtls_reassembled_table);
 }
 
 /* parse dtls related preferences (private keys and ports association strings) */
@@ -366,7 +366,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     conversation_add_proto_data(conversation, proto_dtls, ssl_session);
 
     /* we need to know witch side of conversation is speaking */
-    if (ssl_packet_from_server(dtls_associations, pinfo->srcport, pinfo->ptype == PT_TCP)) {
+    if (ssl_packet_from_server(ssl_session, dtls_associations, pinfo)) {
       dummy.addr = pinfo->src;
       dummy.port = pinfo->srcport;
     }
@@ -375,7 +375,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       dummy.port = pinfo->destport;
     }
     ssl_debug_printf("dissect_dtls server %s:%d\n",
-		     address_to_str(&dummy.addr),dummy.port);
+		     ep_address_to_str(&dummy.addr),dummy.port);
 
     /* try to retrive private key for this service. Do it now 'cause pinfo
      * is not always available
@@ -396,14 +396,10 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Initialize the protocol column; we'll set it later when we
    * figure out what flavor of DTLS it is (actually only one
    version exists). */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    {
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTLS");
-    }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTLS");
 
   /* clear the the info column */
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   /* Create display subtree for SSL as a whole */
   if (tree)
@@ -456,10 +452,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			     "Continuation Data");
 
 	    /* Set the protocol column */
-	    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	      {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL,"DTLS");
-	      }
+	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTLS");
 	  }
 	break;
       }
@@ -491,7 +484,7 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
   }
 
   /* retrive decoder for this packet direction */
-  if ((direction = ssl_packet_from_server(dtls_associations, pinfo->srcport, pinfo->ptype == PT_TCP)) != 0) {
+  if ((direction = ssl_packet_from_server(ssl, dtls_associations, pinfo)) != 0) {
     ssl_debug_printf("decrypt_dtls_record: using server decoder\n");
     decoder = ssl->server;
   }
@@ -591,7 +584,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   record_length = tvb_get_ntohs(tvb, offset + 11);
 
   if(ssl){
-    if(ssl_packet_from_server(dtls_associations, pinfo->srcport, pinfo->ptype == PT_TCP)){
+    if(ssl_packet_from_server(ssl, dtls_associations, pinfo)){
      if (ssl->server) {
       ssl->server->seq=(guint32)sequence_number;
       ssl->server->epoch=epoch;
@@ -613,10 +606,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
       col_append_str(pinfo->cinfo, COL_INFO, "Continuation Data");
 
     /* Set the protocol column */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-      {
-	col_set_str(pinfo->cinfo, COL_PROTOCOL,"DTLS");
-      }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTLS");
     return offset + 13 + record_length;
   }
 
@@ -1971,12 +1961,12 @@ proto_register_dtls(void)
     { &hf_dtls_record_epoch,
       { "Epoch", "dtls.record.epoch",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"Epoch", HFILL }
+	NULL, HFILL }
     },
     { &hf_dtls_record_sequence_number,
       { "Sequence Number", "dtls.record.sequence_number",
-	FT_DOUBLE, BASE_DEC, NULL, 0x0,
-	"Sequence Number", HFILL }
+	FT_DOUBLE, BASE_NONE, NULL, 0x0,
+	NULL, HFILL }
     },
     { &hf_dtls_record_length,
       { "Length", "dtls.record.length",
@@ -1985,7 +1975,7 @@ proto_register_dtls(void)
     },
     { &hf_dtls_record_appdata,
       { "Encrypted Application Data", "dtls.app_data",
-	FT_BYTES, BASE_HEX, NULL, 0x0,
+	FT_BYTES, BASE_NONE, NULL, 0x0,
 	"Payload is encrypted application data", HFILL }
     },
     { &hf_dtls_change_cipher_spec,
@@ -2081,7 +2071,7 @@ proto_register_dtls(void)
     { &hf_dtls_handshake_cookie,
       { "Cookie", "dtls.handshake.cookie",
 	FT_BYTES, BASE_NONE, NULL, 0x0,
-	"Cookie", HFILL }
+	NULL, HFILL }
     },
     { &hf_dtls_handshake_session_id,
       { "Session ID", "dtls.handshake.session_id",
@@ -2101,7 +2091,7 @@ proto_register_dtls(void)
     { &hf_dtls_handshake_comp_method,
       { "Compression Method", "dtls.handshake.comp_method",
 	FT_UINT8, BASE_DEC, VALS(ssl_31_compression_method), 0x0,
-	"Compression Method", HFILL }
+	NULL, HFILL }
     },
     { &hf_dtls_handshake_extensions_len,
       { "Extensions Length", "dtls.handshake.extensions_length",
@@ -2136,7 +2126,7 @@ proto_register_dtls(void)
     { &hf_dtls_handshake_certificate,
       { "Certificate", "dtls.handshake.certificate",
 	FT_BYTES, BASE_NONE, NULL, 0x0,
-	"Certificate", HFILL }
+	NULL, HFILL }
     },
     { &hf_dtls_handshake_certificate_len,
       { "Certificate Length", "dtls.handshake.certificate_length",
@@ -2156,7 +2146,7 @@ proto_register_dtls(void)
     { &hf_dtls_handshake_cert_type,
       { "Certificate type", "dtls.handshake.cert_type",
 	FT_UINT8, BASE_DEC, VALS(ssl_31_client_certificate_type), 0x0,
-	"Certificate type", HFILL }
+	NULL, HFILL }
     },
     { &hf_dtls_handshake_finished,
       { "Verify Data", "dtls.handshake.verify_data",
@@ -2208,21 +2198,21 @@ proto_register_dtls(void)
     },
     { &hf_dtls_fragment_overlap,
       { "Message fragment overlap", "dtls.fragment.overlap",
-	FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_dtls_fragment_overlap_conflicts,
       { "Message fragment overlapping with conflicting data",
 	"dtls.fragment.overlap.conflicts",
-       FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
+       FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_dtls_fragment_multiple_tails,
       { "Message has multiple tail fragments",
-	"dtls.fragment.multiple_tails", 
-	FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
+	"dtls.fragment.multiple_tails",
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_dtls_fragment_too_long_fragment,
       { "Message fragment too long", "dtls.fragment.too_long_fragment",
-	FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_dtls_fragment_error,
       { "Message defragmentation error", "dtls.fragment.error",

@@ -223,9 +223,9 @@ sctpstat_draw(void *phs)
 
 	for(tmp = list ; tmp ; tmp=tmp->next) {
 
-		g_snprintf(str[0],  sizeof(char[256]),"%s", address_to_str(&tmp->src));
+		g_snprintf(str[0],  sizeof(char[256]),"%s", ep_address_to_str(&tmp->src));
 		g_snprintf(str[1],  sizeof(char[256]),"%u", tmp->sport);
-		g_snprintf(str[2],  sizeof(char[256]),"%s", address_to_str(&tmp->dst));
+		g_snprintf(str[2],  sizeof(char[256]),"%s", ep_address_to_str(&tmp->dst));
 		g_snprintf(str[3],  sizeof(char[256]),"%u", tmp->dport);
 		g_snprintf(str[4],  sizeof(char[256]),"%u", tmp->chunk_count[SCTP_DATA_CHUNK_ID]);
 		g_snprintf(str[5],  sizeof(char[256]),"%u", tmp->chunk_count[SCTP_SACK_CHUNK_ID]);

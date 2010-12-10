@@ -81,20 +81,20 @@ iousers_udpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 
 	if(udph->uh_sport>udph->uh_dport){
 		direction=0;
-		g_snprintf(name1,256,"%s:%s",address_to_str(&udph->ip_src),get_udp_port(udph->uh_sport));
-		g_snprintf(name2,256,"%s:%s",address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
+		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&udph->ip_src),get_udp_port(udph->uh_sport));
+		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
 	} else if(udph->uh_sport<udph->uh_dport){
 		direction=1;
-		g_snprintf(name2,256,"%s:%s",address_to_str(&udph->ip_src),get_udp_port(udph->uh_sport));
-		g_snprintf(name1,256,"%s:%s",address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
+		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&udph->ip_src),get_udp_port(udph->uh_sport));
+		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
 	} else if(CMP_ADDRESS(&udph->ip_src, &udph->ip_dst)>0){
 		direction=0;
-		g_snprintf(name1,256,"%s:%s",address_to_str(&udph->ip_src),get_udp_port(udph->uh_sport));
-		g_snprintf(name2,256,"%s:%s",address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
+		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&udph->ip_src),get_udp_port(udph->uh_sport));
+		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
 	} else {
 		direction=1;
-		g_snprintf(name2,256,"%s:%s",address_to_str(&udph->ip_src),get_udp_port(udph->uh_sport));
-		g_snprintf(name1,256,"%s:%s",address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
+		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&udph->ip_src),get_udp_port(udph->uh_sport));
+		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
 	}
 
 	for(iui=iu->items;iui;iui=iui->next){
@@ -144,16 +144,16 @@ iousers_sctp_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 
 	if(sctph->sport > sctph->dport) {
 		direction=0;
-		g_snprintf(name1,256,"%s:%s",address_to_str(&sctph->ip_src),s_sport);
-		g_snprintf(name2,256,"%s:%s",address_to_str(&sctph->ip_dst),s_dport);
+		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&sctph->ip_src),s_sport);
+		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&sctph->ip_dst),s_dport);
 	} else if(sctph->sport < sctph->dport) {
 		direction=1;
-		g_snprintf(name1,256,"%s:%s",address_to_str(&sctph->ip_src),s_sport);
-		g_snprintf(name2,256,"%s:%s",address_to_str(&sctph->ip_dst),s_dport);
+		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&sctph->ip_src),s_sport);
+		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&sctph->ip_dst),s_dport);
 	} else {
 		direction=0;
-		g_snprintf(name1,256,"%s:%s",address_to_str(&sctph->ip_src),s_sport);
-		g_snprintf(name2,256,"%s:%s",address_to_str(&sctph->ip_dst),s_dport);
+		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&sctph->ip_src),s_sport);
+		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&sctph->ip_dst),s_dport);
 	}
 
 	for(iui=iu->items;iui;iui=iui->next){
@@ -200,20 +200,20 @@ iousers_tcpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 
 	if(tcph->th_sport>tcph->th_dport){
 		direction=0;
-		g_snprintf(name1,256,"%s:%s",address_to_str(&tcph->ip_src),get_tcp_port(tcph->th_sport));
-		g_snprintf(name2,256,"%s:%s",address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
+		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&tcph->ip_src),get_tcp_port(tcph->th_sport));
+		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
 	} else if(tcph->th_sport<tcph->th_dport){
 		direction=1;
-		g_snprintf(name2,256,"%s:%s",address_to_str(&tcph->ip_src),get_tcp_port(tcph->th_sport));
-		g_snprintf(name1,256,"%s:%s",address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
+		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&tcph->ip_src),get_tcp_port(tcph->th_sport));
+		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
 	} else if(CMP_ADDRESS(&tcph->ip_src, &tcph->ip_dst)>0){
 		direction=0;
-		g_snprintf(name1,256,"%s:%s",address_to_str(&tcph->ip_src),get_tcp_port(tcph->th_sport));
-		g_snprintf(name2,256,"%s:%s",address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
+		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&tcph->ip_src),get_tcp_port(tcph->th_sport));
+		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
 	} else {
 		direction=1;
-		g_snprintf(name2,256,"%s:%s",address_to_str(&tcph->ip_src),get_tcp_port(tcph->th_sport));
-		g_snprintf(name1,256,"%s:%s",address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
+		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&tcph->ip_src),get_tcp_port(tcph->th_sport));
+		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
 	}
 
 	for(iui=iu->items;iui;iui=iui->next){
@@ -277,9 +277,9 @@ iousers_ip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 		iui->next=iu->items;
 		iu->items=iui;
 		COPY_ADDRESS(&iui->addr1, addr1);
-		iui->name1=g_strdup(address_to_str(addr1));
+		iui->name1=g_strdup(ep_address_to_str(addr1));
 		COPY_ADDRESS(&iui->addr2, addr2);
-		iui->name2=g_strdup(address_to_str(addr2));
+		iui->name2=g_strdup(ep_address_to_str(addr2));
 		iui->frames1=0;
 		iui->frames2=0;
 		iui->bytes1=0;
@@ -325,9 +325,9 @@ iousers_ipx_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 		iui->next=iu->items;
 		iu->items=iui;
 		COPY_ADDRESS(&iui->addr1, addr1);
-		iui->name1=g_strdup(address_to_str(addr1));
+		iui->name1=g_strdup(ep_address_to_str(addr1));
 		COPY_ADDRESS(&iui->addr2, addr2);
-		iui->name2=g_strdup(address_to_str(addr2));
+		iui->name2=g_strdup(ep_address_to_str(addr2));
 		iui->frames1=0;
 		iui->frames2=0;
 		iui->bytes1=0;
@@ -373,9 +373,9 @@ iousers_fc_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 		iui->next=iu->items;
 		iu->items=iui;
 		COPY_ADDRESS(&iui->addr1, addr1);
-		iui->name1=g_strdup(address_to_str(addr1));
+		iui->name1=g_strdup(ep_address_to_str(addr1));
 		COPY_ADDRESS(&iui->addr2, addr2);
-		iui->name2=g_strdup(address_to_str(addr2));
+		iui->name2=g_strdup(ep_address_to_str(addr2));
 		iui->frames1=0;
 		iui->frames2=0;
 		iui->bytes1=0;
@@ -421,9 +421,9 @@ iousers_eth_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 		iui->next=iu->items;
 		iu->items=iui;
 		COPY_ADDRESS(&iui->addr1, addr1);
-		iui->name1=g_strdup(address_to_str(addr1));
+		iui->name1=g_strdup(ep_address_to_str(addr1));
 		COPY_ADDRESS(&iui->addr2, addr2);
-		iui->name2=g_strdup(address_to_str(addr2));
+		iui->name2=g_strdup(ep_address_to_str(addr2));
 		iui->frames1=0;
 		iui->frames2=0;
 		iui->bytes1=0;
@@ -469,9 +469,9 @@ iousers_fddi_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 		iui->next=iu->items;
 		iu->items=iui;
 		COPY_ADDRESS(&iui->addr1, addr1);
-		iui->name1=g_strdup(address_to_str(addr1));
+		iui->name1=g_strdup(ep_address_to_str(addr1));
 		COPY_ADDRESS(&iui->addr2, addr2);
-		iui->name2=g_strdup(address_to_str(addr2));
+		iui->name2=g_strdup(ep_address_to_str(addr2));
 		iui->frames1=0;
 		iui->frames2=0;
 		iui->bytes1=0;
@@ -517,9 +517,9 @@ iousers_tr_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 		iui->next=iu->items;
 		iu->items=iui;
 		COPY_ADDRESS(&iui->addr1, addr1);
-		iui->name1=g_strdup(address_to_str(addr1));
+		iui->name1=g_strdup(ep_address_to_str(addr1));
 		COPY_ADDRESS(&iui->addr2, addr2);
-		iui->name2=g_strdup(address_to_str(addr2));
+		iui->name2=g_strdup(ep_address_to_str(addr2));
 		iui->frames1=0;
 		iui->frames2=0;
 		iui->bytes1=0;

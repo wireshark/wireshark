@@ -41,6 +41,7 @@
 #include "epan/value_string.h"
 #include "register.h"
 #include <epan/dissectors/packet-sctp.h>
+#include <epan/to_str.h>
 
 typedef struct sctp_ep {
 	struct sctp_ep* next;
@@ -84,10 +85,6 @@ typedef struct _sctpstat_t {
 
 #define CHUNK_TYPE_OFFSET 0
 #define CHUNK_TYPE(x)(tvb_get_guint8((x), CHUNK_TYPE_OFFSET))
-
-
-extern gchar* address_to_str(const address *);
-
 
 static void
 sctpstat_reset(void *phs)
@@ -202,8 +199,8 @@ sctpstat_draw(void *phs)
 	
 	for(tmp = list ; tmp ; tmp=tmp->next) {
 		printf("|%15s|%5u|%15s|%5u|%8u|%8u|%8u|%8u|%8u|%8u|%8u|%8u|%8u|%8u|\n",
-		       address_to_str(&tmp->src),tmp->sport,
-		       address_to_str(&tmp->dst),tmp->dport,
+		       ep_address_to_str(&tmp->src),tmp->sport,
+		       ep_address_to_str(&tmp->dst),tmp->dport,
 		       tmp->chunk_count[SCTP_DATA_CHUNK_ID],
 		       tmp->chunk_count[SCTP_SACK_CHUNK_ID],
 		       tmp->chunk_count[SCTP_HEARTBEAT_CHUNK_ID],

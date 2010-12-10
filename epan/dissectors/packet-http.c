@@ -359,7 +359,7 @@ http_reqs_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* 
 
 
 	if (v->request_method) {
-		g_snprintf(ip_str,sizeof(ip_str),"%s",address_to_str(&pinfo->dst));
+		g_snprintf(ip_str,sizeof(ip_str),"%s",ep_address_to_str(&pinfo->dst));
 
 		tick_stat_node(st, st_str_reqs, 0, FALSE);
 		tick_stat_node(st, st_str_reqs_by_srv_addr, st_node_reqs, TRUE);
@@ -376,7 +376,7 @@ http_reqs_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* 
 		return 1;
 
 	} else if (i != 0) {
-		g_snprintf(ip_str,sizeof(ip_str),"%s",address_to_str(&pinfo->src));
+		g_snprintf(ip_str,sizeof(ip_str),"%s",ep_address_to_str(&pinfo->src));
 
 		tick_stat_node(st, st_str_resps_by_srv_addr, 0, FALSE);
 		resps_by_this_addr = tick_stat_node(st, ip_str, st_node_resps_by_srv_addr, TRUE);

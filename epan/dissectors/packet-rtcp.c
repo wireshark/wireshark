@@ -55,7 +55,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "packet-rtcp.h"
@@ -279,6 +279,17 @@ static const value_string rtcp_app_poc1_qsresp_priority_vals[] =
 	{  3,	"Pre-emptive priority"},
 	{  0,	NULL }
 };
+
+/* 3GPP 29.414 RTP Multiplexing */
+static const value_string rtcp_app_mux_selection_vals[] =
+{
+	{  0,   "No multiplexing applied"},
+	{  1,   "Multiplexing without RTP header compression applied"},
+	{  2,   "Multiplexing with RTP header compression applied"},
+	{  3,   "Reserved"},
+	{  0,   NULL}
+};
+
 /* RFC 4585 */
 static const value_string rtcp_rtpfb_fmt_vals[] =
 {
@@ -362,6 +373,11 @@ static int hf_rtcp_app_poc1_conn_content[5] = { -1, -1, -1, -1, -1 };
 static int hf_rtcp_app_poc1_conn_session_type	= -1;
 static int hf_rtcp_app_poc1_conn_add_ind_mao	= -1;
 static int hf_rtcp_app_poc1_conn_sdes_items[5] = { -1, -1, -1, -1, -1 };
+static int hf_rtcp_app_mux           = -1;
+static int hf_rtcp_app_mux_mux       = -1;
+static int hf_rtcp_app_mux_cp        = -1;
+static int hf_rtcp_app_mux_selection = -1;
+static int hf_rtcp_app_mux_localmuxport = -1;
 static int hf_rtcp_xr_block_type     = -1;
 static int hf_rtcp_xr_block_specific = -1;
 static int hf_rtcp_xr_block_length   = -1;
@@ -458,6 +474,7 @@ static gint ett_ssrc_ext_high		= -1;
 static gint ett_sdes			= -1;
 static gint ett_sdes_item		= -1;
 static gint ett_PoC1			= -1;
+static gint ett_mux 			= -1;
 static gint ett_rtcp_setup		= -1;
 static gint ett_rtcp_roundtrip_delay	= -1;
 static gint ett_xr_block                = -1;
@@ -652,7 +669,7 @@ static int
 dissect_rtcp_nack( tvbuff_t *tvb, int offset, proto_tree *tree )
 {
 	/* Packet type = FIR (H261) */
-	proto_tree_add_uint( tree, hf_rtcp_rc, tvb, offset, 1, tvb_get_guint8( tvb, offset ) );
+	proto_tree_add_item( tree, hf_rtcp_rc, tvb, offset, 1, FALSE );
 	offset++;
 	/* Packet type, 8 bits  = APP */
 	proto_tree_add_item( tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
@@ -662,15 +679,15 @@ dissect_rtcp_nack( tvbuff_t *tvb, int offset, proto_tree *tree )
 	offset = dissect_rtcp_length_field(tree, tvb, offset);
 
 	/* SSRC  */
-	proto_tree_add_uint( tree, hf_rtcp_ssrc_source, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+	proto_tree_add_item( tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE );
 	offset += 4;
 
 	/* FSN, 16 bits */
-	proto_tree_add_uint( tree, hf_rtcp_fsn, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
+	proto_tree_add_item( tree, hf_rtcp_fsn, tvb, offset, 2, FALSE );
 	offset += 2;
 
 	/* BLP, 16 bits */
-	proto_tree_add_uint( tree, hf_rtcp_blp, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
+	proto_tree_add_item( tree, hf_rtcp_blp, tvb, offset, 2, FALSE );
 	offset += 2;
 
 	return offset;
@@ -705,13 +722,11 @@ dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item
     offset = dissect_rtcp_length_field(rtcp_tree, tvb, offset);
 
     /* SSRC of packet sender, 32 bits */
-    proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4,
-			 tvb_get_ntohl( tvb, offset ) );
+    proto_tree_add_item( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, FALSE );
     offset += 4;
 
     /* SSRC of media source, 32 bits */
-    proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4,
-			 tvb_get_ntohl( tvb, offset ) );
+    proto_tree_add_item( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, FALSE );
     offset += 4;
 
     /* Transport-Layer Feedback Message Elements */
@@ -785,13 +800,11 @@ dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,
     offset = dissect_rtcp_length_field(rtcp_tree, tvb, offset);
 
     /* SSRC of packet sender, 32 bits */
-    proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4,
-			 tvb_get_ntohl( tvb, offset ) );
+    proto_tree_add_item( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, FALSE );
     offset += 4;
 
     /* SSRC of media source, 32 bits */
-    proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, 
-			 tvb_get_ntohl( tvb, offset ) );
+    proto_tree_add_item( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, FALSE );
     offset += 4;
 
     /* Feedback Control Information (FCI) */
@@ -807,7 +820,7 @@ static int
 dissect_rtcp_fir( tvbuff_t *tvb, int offset, proto_tree *tree )
 {
 	/* Packet type = FIR (H261) */
-	proto_tree_add_uint( tree, hf_rtcp_rc, tvb, offset, 1, tvb_get_guint8( tvb, offset ) );
+	proto_tree_add_item( tree, hf_rtcp_rc, tvb, offset, 1, FALSE );
 	offset++;
 	/* Packet type, 8 bits  = APP */
 	proto_tree_add_item( tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
@@ -817,7 +830,7 @@ dissect_rtcp_fir( tvbuff_t *tvb, int offset, proto_tree *tree )
 	offset = dissect_rtcp_length_field(tree, tvb, offset);
 
 	/* SSRC  */
-	proto_tree_add_uint( tree, hf_rtcp_ssrc_source, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+	proto_tree_add_item( tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE );
 	offset += 4;
 
 	return offset;
@@ -837,10 +850,11 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 
 	/* XXX If more application types are to be dissected it may be useful to use a table like in packet-sip.c */
 	static const char poc1_app_name_str[] = "PoC1";
+	static const char mux_app_name_str[] = "3GPP";
 
 
 	/* SSRC / CSRC */
-	proto_tree_add_uint( tree, hf_rtcp_ssrc_source, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+	proto_tree_add_item( tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE );
 	offset += 4;
 	packet_len -= 4;
 
@@ -860,9 +874,8 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 		proto_item *item;
 		item = proto_tree_add_uint( tree, hf_rtcp_app_poc1_subtype, tvb, offset - 8, 1, rtcp_subtype );
 		PROTO_ITEM_SET_GENERATED(item);
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_fstr(pinfo->cinfo, COL_INFO,"(%s) %s",ascii_name,
-			             val_to_str(rtcp_subtype,rtcp_app_poc1_floor_cnt_type_vals,"unknown (%u)") );
+		col_add_fstr(pinfo->cinfo, COL_INFO,"(%s) %s",ascii_name,
+		             val_to_str(rtcp_subtype,rtcp_app_poc1_floor_cnt_type_vals,"unknown (%u)") );
 		offset += 4;
 		packet_len -= 4;
 		app_length = app_length -8;
@@ -916,14 +929,11 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 					offset += 2;
 					packet_len -= 2;
 
-					if (check_col(pinfo->cinfo, COL_INFO))
-					{
-						col_append_fstr(pinfo->cinfo, COL_INFO,
-						               " \"%s\"",
-						               val_to_str(priority,
-						                          rtcp_app_poc1_qsresp_priority_vals,
-						                          "Unknown"));
-					}
+					col_append_fstr(pinfo->cinfo, COL_INFO,
+					               " \"%s\"",
+					               val_to_str(priority,
+					                          rtcp_app_poc1_qsresp_priority_vals,
+					                          "Unknown"));
 
 					/* Look for (optional) next code */
 					if (tvb_reported_length_remaining( tvb, offset) == 0)
@@ -953,10 +963,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 					offset += 8;
 					packet_len -=8;
 
-					if (check_col(pinfo->cinfo, COL_INFO))
-					{
-						col_append_fstr(pinfo->cinfo, COL_INFO, " ts=\"%s\"", buff);
-					}
+					col_append_fstr(pinfo->cinfo, COL_INFO, " ts=\"%s\"", buff);
 				}
 				}
 				break;
@@ -999,11 +1006,8 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				offset += item_len;
 				packet_len -= item_len;
 
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_fstr(pinfo->cinfo, COL_INFO, " stop-talking-time=%u",
-					                stop_talking_time);
-				}
+				col_append_fstr(pinfo->cinfo, COL_INFO, " stop-talking-time=%u",
+				                stop_talking_time);
 
 				/* Participants (optional) */
 				if (tvb_reported_length_remaining( tvb, offset) == 0)
@@ -1040,12 +1044,8 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				offset += item_len;
 				packet_len -= item_len;
 
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_fstr(pinfo->cinfo, COL_INFO, " participants=%u",
-					                participants);
-				}
-
+				col_append_fstr(pinfo->cinfo, COL_INFO, " participants=%u",
+				                participants);
 				}
 				break;
 
@@ -1077,10 +1077,8 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				                    tvb, offset, 1, FALSE );
 				offset++;
 
-				if (check_col(pinfo->cinfo, COL_INFO)) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, " CNAME=\"%s\"",
-					                tvb_get_ephemeral_string(tvb, offset, item_len));
-				}
+				col_append_fstr(pinfo->cinfo, COL_INFO, " CNAME=\"%s\"",
+				                tvb_get_ephemeral_string(tvb, offset, item_len));
 				
 				offset += item_len;
 				packet_len = packet_len - item_len - 1;
@@ -1110,10 +1108,8 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 					                    tvb, offset, 1, FALSE);
 					offset++;
 
-					if (check_col(pinfo->cinfo, COL_INFO)) {
-						col_append_fstr(pinfo->cinfo, COL_INFO, " DISPLAY-NAME=\"%s\"",
-						                tvb_get_ephemeral_string(tvb, offset, item_len));
-					}
+					col_append_fstr(pinfo->cinfo, COL_INFO, " DISPLAY-NAME=\"%s\"",
+					                tvb_get_ephemeral_string(tvb, offset, item_len));
 
 					offset += item_len;
 					packet_len = packet_len - item_len - 1;
@@ -1162,11 +1158,8 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 						break;
 				}
 
-				if (check_col(pinfo->cinfo, COL_INFO)) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, " Participants=%u",
-					                participants);
-				}
-
+				col_append_fstr(pinfo->cinfo, COL_INFO, " Participants=%u",
+				                participants);
 				offset += item_len;
 				packet_len -= item_len;
 				}
@@ -1182,13 +1175,10 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				offset++;
 				packet_len--;
 
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_fstr(pinfo->cinfo, COL_INFO, " reason-code=\"%s\"",
-					                val_to_str(reason_code,
-					                           rtcp_app_poc1_reason_code1_vals,
-					                           "Unknown"));
-				}
+				col_append_fstr(pinfo->cinfo, COL_INFO, " reason-code=\"%s\"",
+				                val_to_str(reason_code,
+				                           rtcp_app_poc1_reason_code1_vals,
+				                           "Unknown"));
 
 				/* Reason phrase */
 				item_len = tvb_get_guint8( tvb, offset );
@@ -1214,11 +1204,8 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_ignore_seq_no, tvb, offset, 2, FALSE );
 				ignore_last_seq_no = (tvb_get_ntohs(tvb, offset) & 0x8000);
 
-				if (!ignore_last_seq_no && check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_fstr(pinfo->cinfo, COL_INFO, " last_rtp_seq_no=%u",
-					                last_seq_no);
-				}
+				col_append_fstr(pinfo->cinfo, COL_INFO, " last_rtp_seq_no=%u",
+				                last_seq_no);
 
 				/* 15 bits of padding follows */
 
@@ -1254,13 +1241,10 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 							break;
 					}
 
-					if (check_col(pinfo->cinfo, COL_INFO))
-					{
-						col_append_fstr(pinfo->cinfo, COL_INFO, " reason-code=\"%s\"",
-						                val_to_str(reason_code,
-						                           rtcp_app_poc1_reason_code2_vals,
-						                           "Unknown"));
-					}
+					col_append_fstr(pinfo->cinfo, COL_INFO, " reason-code=\"%s\"",
+					                val_to_str(reason_code,
+					                           rtcp_app_poc1_reason_code2_vals,
+					                           "Unknown"));
 					offset += 4;
 					packet_len-=4;
 				}
@@ -1274,13 +1258,10 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				subtype = (tvb_get_guint8(tvb, offset) & 0xf8) >> 3;
 				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_ack_subtype, tvb, offset, 1, FALSE );
 
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_fstr(pinfo->cinfo, COL_INFO, " (for %s)",
-					                val_to_str(subtype,
-					                           rtcp_app_poc1_floor_cnt_type_vals,
-					                           "Unknown"));
-				}
+				col_append_fstr(pinfo->cinfo, COL_INFO, " (for %s)",
+				                val_to_str(subtype,
+				                           rtcp_app_poc1_floor_cnt_type_vals,
+				                           "Unknown"));
 
 				/* Reason code only seen if subtype was Connect */
 				if (subtype == TBCP_CONNECT)
@@ -1317,10 +1298,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 					proto_item_append_text(ti, " (position not available)");
 				}
 
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_fstr(pinfo->cinfo, COL_INFO, " position=%u", position);
-				}
+				col_append_fstr(pinfo->cinfo, COL_INFO, " position=%u", position);
 
 				/* 1 bytes of padding  follows */
 
@@ -1394,11 +1372,44 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 		offset += packet_len;
 		return offset;
 	}
+	else if ( g_ascii_strncasecmp(ascii_name, mux_app_name_str,4 ) == 0 )
+	{
+		/* 3GPP Nb protocol extension (3GPP 29.414) for RTP Multiplexing */
+		col_append_fstr(pinfo->cinfo, COL_INFO,"( %s ) subtype=%u",ascii_name, rtcp_subtype);
+		offset += 4;
+		packet_len -= 4;
+		/* Applications specific data */
+		if ( padding ) {
+			/* If there's padding present, we have to remove that from the data part
+			* The last octet of the packet contains the length of the padding
+			*/
+			packet_len -= tvb_get_guint8( tvb, offset + packet_len - 1 );
+		}
+		if (packet_len == 4)
+		{
+			guint16 local_port = 0;
+
+			proto_item* mux_item = proto_tree_add_item(tree, hf_rtcp_app_mux, tvb, offset, packet_len, FALSE);
+			proto_tree* mux_tree = proto_item_add_subtree( mux_item, ett_mux );
+			proto_tree_add_item( mux_tree, hf_rtcp_app_mux_mux, tvb, offset, 1, FALSE );
+			proto_tree_add_item( mux_tree, hf_rtcp_app_mux_cp, tvb, offset, 1, FALSE );
+			proto_tree_add_item( mux_tree, hf_rtcp_app_mux_selection, tvb, offset, 1, FALSE );
+			local_port = tvb_get_ntohs( tvb, offset+2 );
+			proto_tree_add_uint( mux_tree, hf_rtcp_app_mux_localmuxport, tvb, offset+2, 2, local_port*2 );
+		}
+		else
+		{
+			/* fall back to just showing the data if it's the wrong length */
+			proto_tree_add_item( tree, hf_rtcp_app_data, tvb, offset, packet_len, FALSE );
+		}
+		offset += packet_len;
+
+		return offset;
+	}
 	else
 	{
 		/* Unhandled application type, just show app name and raw data */
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO,"( %s ) subtype=%u",ascii_name, rtcp_subtype);
+		col_append_fstr(pinfo->cinfo, COL_INFO,"( %s ) subtype=%u",ascii_name, rtcp_subtype);
 		offset += 4;
 		packet_len -= 4;
 		/* Applications specific data */
@@ -1500,7 +1511,7 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 		sdes_tree = proto_item_add_subtree( sdes_item, ett_sdes );
 
 		/* SSRC_n source identifier, 32 bits */
-		proto_tree_add_uint( sdes_tree, hf_rtcp_ssrc_source, tvb, offset, 4, ssrc );
+		proto_tree_add_item( sdes_tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE );
 		offset += 4;
 
 		/* Create a subtree for the SDES items; we don't yet know
@@ -1588,18 +1599,18 @@ static void parse_xr_type_specific_field(tvbuff_t *tvb, gint offset, guint block
     case RTCP_XR_LOSS_RLE:
     case RTCP_XR_DUP_RLE:
     case RTCP_XR_PKT_RXTIMES:
-        proto_tree_add_uint(tree, hf_rtcp_xr_thinning, tvb, offset, 1, flags);
+        proto_tree_add_item(tree, hf_rtcp_xr_thinning, tvb, offset, 1, FALSE);
         break;
         
     case RTCP_XR_STATS_SUMRY:
         proto_tree_add_boolean(tree, hf_rtcp_xr_stats_loss_flag, tvb, offset, 1, flags);
         proto_tree_add_boolean(tree, hf_rtcp_xr_stats_dup_flag, tvb, offset, 1, flags);
         proto_tree_add_boolean(tree, hf_rtcp_xr_stats_jitter_flag, tvb, offset, 1, flags);
-        proto_tree_add_uint(tree, hf_rtcp_xr_stats_ttl, tvb, offset, 1, flags);
+        proto_tree_add_item(tree, hf_rtcp_xr_stats_ttl, tvb, offset, 1, FALSE);
         break;
 
     default:
-        proto_tree_add_uint(tree, hf_rtcp_xr_block_specific, tvb, offset, 1, flags);
+        proto_tree_add_item(tree, hf_rtcp_xr_block_specific, tvb, offset, 1, FALSE);
         break;
     }
 }
@@ -1686,7 +1697,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
             
         switch (block_type) {
         case RTCP_XR_VOIP_METRCS: {
-            guint fraction_rate, value;
+            guint fraction_rate;
             
             /* Identifier */
             proto_tree_add_item(content_tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE);
@@ -1763,10 +1774,9 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
             offset++;
             
             /* PLC, JB Adaptive, JB Rate */
-            value = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint(content_tree, hf_rtcp_xr_voip_metrics_plc, tvb, offset, 1, value);
-            proto_tree_add_uint(content_tree, hf_rtcp_xr_voip_metrics_jbadaptive, tvb, offset, 1, value);
-            proto_tree_add_uint(content_tree, hf_rtcp_xr_voip_metrics_jbrate, tvb, offset, 1, value);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_plc, tvb, offset, 1, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_jbadaptive, tvb, offset, 1, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_jbrate, tvb, offset, 1, FALSE);
             offset += 2; /* skip over reseved bit */
             
             /* JB Nominal */
@@ -1891,7 +1901,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
 
             /* Begin Seq */
             begin = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_uint(content_tree, hf_rtcp_xr_beginseq, tvb, offset, 2, begin);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_beginseq, tvb, offset, 2, FALSE);
             offset += 2;
 
             /* End Seq */
@@ -1920,7 +1930,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
 
             /* Begin Seq */
             begin = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_uint(content_tree, hf_rtcp_xr_beginseq, tvb, offset, 2, begin);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_beginseq, tvb, offset, 2, FALSE);
             offset += 2;
 
             /* End Seq */
@@ -2019,7 +2029,6 @@ dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 	proto_tree *high_sec_tree = (proto_tree*) NULL;
 	proto_item *ti = (proto_item*) NULL;
 	guint8 rr_flt;
-	unsigned int cum_nr = 0;
 	int rr_offset = offset; 
 
 	while ( counter <= count ) {
@@ -2044,17 +2053,16 @@ dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 		offset++;
 
 		/* Cumulative number of packets lost, 24 bits */
-		cum_nr = tvb_get_ntohl( tvb, offset ) >> 8;
-		proto_tree_add_uint( ssrc_sub_tree, hf_rtcp_ssrc_cum_nr, tvb,
-		    offset, 3, cum_nr );
+		proto_tree_add_item( ssrc_sub_tree, hf_rtcp_ssrc_cum_nr, tvb,
+		    offset, 3, FALSE );
 		offset += 3;
 
 		/* Extended highest sequence nr received, 32 bits
 		 * Just for the sake of it, let's add another subtree
 		 * because this might be a little clearer
 		 */
-		ti = proto_tree_add_uint( ssrc_tree, hf_rtcp_ssrc_ext_high_seq,
-		    tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+		ti = proto_tree_add_item( ssrc_tree, hf_rtcp_ssrc_ext_high_seq,
+		    tvb, offset, 4, FALSE );
 		high_sec_tree = proto_item_add_subtree( ti, ett_ssrc_ext_high );
 		/* Sequence number cycles */
 		proto_tree_add_item( high_sec_tree, hf_rtcp_ssrc_high_cycles,
@@ -2072,14 +2080,14 @@ dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 
 		/* Last SR timestamp */
 		lsr = tvb_get_ntohl( tvb, offset );
-		proto_tree_add_uint( ssrc_tree, hf_rtcp_ssrc_lsr, tvb,
-		                     offset, 4, lsr );
+		proto_tree_add_item( ssrc_tree, hf_rtcp_ssrc_lsr, tvb,
+		                     offset, 4, FALSE );
 		offset += 4;
 
 		/* Delay since last SR timestamp */
 		dlsr = tvb_get_ntohl( tvb, offset );
-		ti = proto_tree_add_uint( ssrc_tree, hf_rtcp_ssrc_dlsr, tvb,
-		                          offset, 4, dlsr );
+		ti = proto_tree_add_item( ssrc_tree, hf_rtcp_ssrc_dlsr, tvb,
+		                          offset, 4, FALSE );
 		proto_item_append_text(ti, " (%d milliseconds)",
 		                       (int)(((double)dlsr/(double)65536) * 1000.0));
 		offset += 4;
@@ -2127,13 +2135,13 @@ dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 	offset += 8;
 
 	/* RTP timestamp, 32 bits */
-	proto_tree_add_uint( tree, hf_rtcp_rtp_timestamp, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+	proto_tree_add_item( tree, hf_rtcp_rtp_timestamp, tvb, offset, 4, FALSE );
 	offset += 4;
 	/* Sender's packet count, 32 bits */
-	proto_tree_add_uint( tree, hf_rtcp_sender_pkt_cnt, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+	proto_tree_add_item( tree, hf_rtcp_sender_pkt_cnt, tvb, offset, 4, FALSE );
 	offset += 4;
 	/* Sender's octet count, 32 bits */
-	proto_tree_add_uint( tree, hf_rtcp_sender_oct_cnt, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+	proto_tree_add_item( tree, hf_rtcp_sender_oct_cnt, tvb, offset, 4, FALSE );
 	offset += 4;
 
 	/* Record the time of this packet in the sender's conversation */
@@ -2487,12 +2495,9 @@ static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	}
 
 	/* Report delay in INFO column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-		                " (roundtrip delay <-> %s = %dms, using frame %u)  ",
-		                address_to_str(&pinfo->net_src), delay, frame);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO,
+	                " (roundtrip delay <-> %s = %dms, using frame %u)  ",
+	                address_to_str(&pinfo->net_src), delay, frame);
 }
 
 static int
@@ -2541,9 +2546,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
     guint32 srtcp_offset = 0;
     guint32 srtcp_index  = 0;
 
-    if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
-        col_set_str( pinfo->cinfo, COL_PROTOCOL, "RTCP" );
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTCP");
 
     /* first see if this conversation is encrypted SRTP, and if so do not try to dissect the payload(s) */
     p_conv = find_conversation(pinfo->fd->num, &pinfo->net_src, &pinfo->net_dst,
@@ -2589,11 +2592,8 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
         if ( ( packet_type < 192 ) || ( packet_type >  207 ) )
             break;
 
-        if (check_col(pinfo->cinfo, COL_INFO))
-        {
-            col_add_fstr(pinfo->cinfo, COL_INFO, "%s   ",
-                         val_to_str(packet_type, rtcp_packet_type_vals, "Unknown"));
-        }
+         col_add_fstr(pinfo->cinfo, COL_INFO, "%s   ",
+                      val_to_str(packet_type, rtcp_packet_type_vals, "Unknown"));
 
         /*
          * get the packet-length for the complete RTCP packet
@@ -2618,8 +2618,8 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
         temp_byte = tvb_get_guint8( tvb, offset );
 
-        proto_tree_add_uint( rtcp_tree, hf_rtcp_version, tvb,
-                             offset, 1, temp_byte);
+        proto_tree_add_item( rtcp_tree, hf_rtcp_version, tvb,
+                             offset, 1, FALSE);
         padding_set = RTCP_PADDING( temp_byte );
         padding_offset = offset + packet_length - 1;
 
@@ -2639,7 +2639,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                 /* Packet length in 32 bit words MINUS one, 16 bits */
                 offset = dissect_rtcp_length_field(rtcp_tree, tvb, offset);
                 /* Sender Synchronization source, 32 bits */
-                proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+                proto_tree_add_item( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, FALSE );
                 offset += 4;
 
                 if (srtcp_encrypted) { /* rest of the payload is encrypted - do not try to dissect */
@@ -2797,7 +2797,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_version_vals),
 				0xC0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2809,7 +2809,7 @@ proto_register_rtcp(void)
 				8,
 				NULL,
 				0x20,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2821,7 +2821,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x1F,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2833,7 +2833,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x1F,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2845,7 +2845,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS( rtcp_packet_type_vals ),
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2869,7 +2869,7 @@ proto_register_rtcp(void)
 				BASE_HEX_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2881,7 +2881,7 @@ proto_register_rtcp(void)
 				BASE_DEC_HEX,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2893,7 +2893,7 @@ proto_register_rtcp(void)
 				BASE_DEC_HEX,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2905,7 +2905,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2917,7 +2917,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2929,7 +2929,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2941,7 +2941,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2953,7 +2953,7 @@ proto_register_rtcp(void)
 				BASE_HEX_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2965,7 +2965,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2973,11 +2973,11 @@ proto_register_rtcp(void)
 			{
 				"Cumulative number of packets lost",
 				"rtcp.ssrc.cum_nr",
-				FT_UINT32,
+				FT_INT24,
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -2989,7 +2989,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3001,7 +3001,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3013,7 +3013,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3025,7 +3025,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3037,7 +3037,7 @@ proto_register_rtcp(void)
 				BASE_DEC_HEX,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3049,7 +3049,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3061,7 +3061,7 @@ proto_register_rtcp(void)
 				BASE_HEX_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3073,7 +3073,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS( rtcp_sdes_type_vals ),
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3085,7 +3085,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3097,7 +3097,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3109,7 +3109,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3121,7 +3121,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3133,7 +3133,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3145,7 +3145,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3157,7 +3157,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3169,7 +3169,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3181,7 +3181,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_app_poc1_floor_cnt_type_vals),
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3193,7 +3193,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3205,7 +3205,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3217,7 +3217,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_app_poc1_qsresp_priority_vals),
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3229,7 +3229,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3241,7 +3241,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3253,7 +3253,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3265,7 +3265,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3277,7 +3277,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3289,7 +3289,7 @@ proto_register_rtcp(void)
 				BASE_HEX,
 				NULL,
 				0x8000,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3301,7 +3301,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_app_poc1_reason_code1_vals),
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3313,7 +3313,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3325,7 +3325,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_app_poc1_reason_code2_vals),
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3349,7 +3349,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_app_poc1_floor_cnt_type_vals),
 				0xf8,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3361,7 +3361,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_app_poc1_reason_code_ack_vals),
 				0x07ff,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3373,7 +3373,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_app_poc1_qsresp_priority_vals),
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3385,7 +3385,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3397,7 +3397,7 @@ proto_register_rtcp(void)
 				16,
 				NULL,
 				0x8000,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3409,7 +3409,7 @@ proto_register_rtcp(void)
 				16,
 				NULL,
 				0x4000,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3421,7 +3421,7 @@ proto_register_rtcp(void)
 				16,
 				NULL,
 				0x2000,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3433,7 +3433,7 @@ proto_register_rtcp(void)
 				16,
 				NULL,
 				0x1000,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3445,7 +3445,7 @@ proto_register_rtcp(void)
 				16,
 				NULL,
 				0x0800,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3457,7 +3457,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_app_poc1_conn_sess_type_vals),
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3469,7 +3469,7 @@ proto_register_rtcp(void)
 				8,
 				NULL,
 				0x80,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3481,7 +3481,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3493,7 +3493,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3505,7 +3505,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3517,7 +3517,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3529,7 +3529,67 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_mux,
+			{
+				"RtpMux Application specific data",
+				"rtcp.app.mux",
+				FT_NONE,
+				BASE_NONE,
+				NULL,
+				0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_mux_mux,
+			{
+				"Multiplexing supported",
+				"rtcp.app.mux.mux",
+				FT_BOOLEAN,
+				BASE_NONE,
+				NULL,
+				0x80,
+				NULL, HFILL
+			}
+                },
+		{
+			&hf_rtcp_app_mux_cp,
+			{
+				"Header compression supported",
+				"rtcp.app.mux.cp",
+				FT_BOOLEAN,
+				BASE_NONE,
+				NULL,
+				0x40,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_mux_selection,
+			{
+				"Multiplexing selection",
+				"rtcp.app.mux.selection",
+				FT_UINT8,
+				BASE_DEC,
+				VALS(rtcp_app_mux_selection_vals),
+				0x30,
+				NULL, HFILL
+			}
+		},
+                {
+            		&hf_rtcp_app_mux_localmuxport,
+			{
+				"Local Mux Port",
+				"rtcp.app.mux.muxport",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x0,
+				NULL, HFILL
 			}
 		},
 		{
@@ -3541,7 +3601,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3553,7 +3613,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3565,7 +3625,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3577,7 +3637,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3589,7 +3649,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"Profile-specific extension", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3721,7 +3781,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3733,7 +3793,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3745,7 +3805,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3757,7 +3817,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3769,7 +3829,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3781,7 +3841,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3817,7 +3877,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3829,7 +3889,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3862,7 +3922,7 @@ proto_register_rtcp(void)
 				"MOS - Listening Quality",
 				"rtcp.xr.voipmetrics.moslq",
 				FT_FLOAT,
-				BASE_DEC,
+				BASE_NONE,
 				NULL,
 				0x0,
 				"MOS is in the range of 1 to 5; 127 indicates this parameter is unavailable", HFILL
@@ -3874,7 +3934,7 @@ proto_register_rtcp(void)
 				"MOS - Conversational Quality",
 				"rtcp.xr.voipmetrics.moscq",
 				FT_FLOAT,
-				BASE_DEC,
+				BASE_NONE,
 				NULL,
 				0x0,
 				"MOS is in the range of 1 to 5; 127 indicates this parameter is unavailable", HFILL
@@ -3889,7 +3949,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_xr_plc_algo_vals),
 				0xC0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3901,7 +3961,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_xr_jb_adaptive_vals),
 				0x30,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3913,7 +3973,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0F,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3925,7 +3985,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3937,7 +3997,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3949,7 +4009,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3961,7 +4021,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
                                 NULL,
 				0x0F,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3973,7 +4033,7 @@ proto_register_rtcp(void)
 				8,
 				NULL,
 				0x80,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3985,7 +4045,7 @@ proto_register_rtcp(void)
 				8,
 				NULL,
 				0x40,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -3997,7 +4057,7 @@ proto_register_rtcp(void)
 				8,
 				NULL,
 				0x20,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4009,7 +4069,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_xr_ip_ttl_vals),
 				0x18,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4021,7 +4081,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4033,7 +4093,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4045,7 +4105,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4057,7 +4117,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4069,7 +4129,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4081,7 +4141,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4093,7 +4153,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4105,7 +4165,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4117,7 +4177,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4129,7 +4189,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4141,7 +4201,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4153,7 +4213,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4165,7 +4225,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4177,7 +4237,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4189,7 +4249,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"RTCP frame length check", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4213,7 +4273,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_rtpfb_fmt_vals),
 				0x1f,
-				"RTCP Feedback message type (FMT)", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4225,7 +4285,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				VALS(rtcp_psfb_fmt_vals),
 				0x1f,
-				"RTCP Feedback message type (FMT)", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4237,7 +4297,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"RTCP Transport Feedback NACK", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4249,7 +4309,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"RTCP Transport Feedback NACK BLP", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4261,7 +4321,7 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"Feedback Control Information (FCI)", HFILL
+				NULL, HFILL
 			}
 		},
 
@@ -4286,7 +4346,7 @@ proto_register_rtcp(void)
 				BASE_DEC_HEX,
 				NULL,
 				0x7fffffff,
-				"SRTCP Index", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4323,7 +4383,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4335,7 +4395,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4347,7 +4407,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4359,7 +4419,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4371,7 +4431,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4383,7 +4443,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4395,7 +4455,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4404,10 +4464,10 @@ proto_register_rtcp(void)
 				"Spare/reserved bits",
 				"rtcp.xr.btxnq.spare",
 				FT_STRING,
-				BASE_DEC,
+				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4419,7 +4479,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4431,7 +4491,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4443,7 +4503,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -4455,7 +4515,7 @@ proto_register_rtcp(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
 	};
@@ -4479,6 +4539,7 @@ proto_register_rtcp(void)
 		&ett_sdes,
 		&ett_sdes_item,
 		&ett_PoC1,
+                &ett_mux,
 		&ett_rtcp_setup,
 		&ett_rtcp_roundtrip_delay,
 		&ett_xr_block,
@@ -4492,7 +4553,7 @@ proto_register_rtcp(void)
 	module_t *rtcp_module;
 
 	proto_rtcp = proto_register_protocol("Real-time Transport Control Protocol",
-	    "RTCP", "rtcp");
+                                             "RTCP", "rtcp");
 	proto_register_field_array(proto_rtcp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 

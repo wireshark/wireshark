@@ -53,7 +53,9 @@ typedef enum {
 
 struct     e_in6_addr;
 
-extern gchar*	address_to_str(const address *);
+/* !!Deprecated!! - use ep_address_to_str() */
+#define address_to_str ep_address_to_str
+extern gchar*	ep_address_to_str(const address *);
 extern gchar*	se_address_to_str(const address *);
 extern void     address_to_str_buf(const address *addr, gchar *buf, int buf_len);
 extern gchar*   bytestring_to_str(const guint8 *, guint32, char);

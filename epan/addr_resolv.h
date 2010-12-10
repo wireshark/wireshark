@@ -23,8 +23,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-/* The buffers returned by these functions are all allocated with a 
- * packet lifetime and does not have have to be freed. 
+/* The buffers returned by these functions are all allocated with a
+ * packet lifetime and does not have have to be freed.
  * However, take into account that when the packet dissection
  * completes, these buffers will be automatically reclaimed/freed.
  * If you need the buffer to remain for a longer scope than packet lifetime
@@ -102,7 +102,7 @@ extern gchar *get_sctp_port(guint port);
 /*  - if the address is of a type that can be translated into a name, and the user */
 /*    has activated name resolution, the translated name */
 /*  - if the address is of type AT_NONE, a pointer to the string "NONE" */
-/*  - if the address is of any other type, the result of address_to_str on the argument, */
+/*  - if the address is of any other type, the result of ep_address_to_str on the argument, */
 /*    which should be a string representation for the answer -e.g. "10.10.10.10" for IPv4 */
 /*    address 10.10.10.10 */
 
