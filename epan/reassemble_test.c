@@ -6,6 +6,28 @@
  * hopefully they will inspire people to write additional tests, and provide a
  * useful basis on which to do so.
  *
+ * December 2010:
+ * 1. reassemble_test can be run under valgrind to detect any memory leaks in the
+ *    Wireshark reassembly code.
+ *    Specifically: code has been added to free dynamically allocated memory
+ *     after each test (or at program completion) so that valgrind will report
+ *     only actual memory leaks.
+ *    The following command can be used to run reassemble_test under valgrind:
+ *      env                               \
+ *        G_DEBUG=gc-friendly             \
+ *        G_SLICE=always-malloc           \
+ *        WIRESHARK_DEBUG_EP_NO_CHUNKS=1  \
+ *        WIRESHARK_DEBUG_SE_NO_CHUNKS=1  \
+ *        WIRESHARK_DEBUG_SE_USE_CANARY=1 \
+ *        WIRESHARK_EP_VERIFY_POINTERS=1  \
+ *        WIRESHARK_SE_VERIFY_POINTERS=1  \
+ *      valgrind --leak-check=full --show-reachable=yes ./reassemble_test
+ *
+ *  2. Debug functions have been added which will print information
+ *     about the fd-chains associated with the fragment_table and the
+ *     reassembled table.
+ *     #define debug  to enable the code.
+ *
  * $Id$
  *
  * Copyright (c) 2007 MX Telecom Ltd. <richardv@mxtelecom.com>
@@ -84,8 +106,108 @@ static packet_info pinfo;
 /* fragment_table maps from datagram ids to head of fragment_data list
    reassembled_table maps from <packet number,datagram id> to head of
    fragment_data list */
-static GHashTable *fragment_table;
-static GHashTable *reassembled_table;
+static GHashTable *fragment_table = NULL;
+static GHashTable *reassembled_table = NULL;
+
+#ifdef debug
+/*************************************************
+ * Util fcns to display
+ *   fragment_table & reassembled_table fd-chains
+ ************************************************/
+
+/* Must match the typedef in reassemble.c */
+typedef struct _fragment_key {
+	address src;
+	address dst;
+	guint32 id;
+} fragment_key;
+
+/* Must match the typedef in reassemble.c */
+typedef struct _reassembled_key {
+	guint32 id;
+	guint32 frame;
+} reassembled_key;
+
+static struct _fd_flags {
+    guint32 flag;
+    gchar  *flag_name;
+} fd_flags[] = {
+    {FD_DEFRAGMENTED         ,"DF"},
+    {FD_DATALEN_SET          ,"DS"},
+    {FD_NOT_MALLOCED         ,"NM"},
+    {FD_BLOCKSEQUENCE        ,"BS"},
+    {FD_DATA_NOT_PRESENT     ,"NP"},
+    {FD_PARTIAL_REASSEMBLY   ,"PR"},
+    {FD_OVERLAP              ,"OL"},
+    {FD_OVERLAPCONFLICT      ,"OC"},
+    {FD_MULTIPLETAILS        ,"MT"},
+    {FD_TOOLONGFRAGMENT      ,"TL"},
+};
+#define N_FD_FLAGS (signed)(sizeof(fd_flags)/sizeof(struct _fd_flags))
+
+static void
+print_fd(fragment_data *fd, gboolean is_head) {
+    int i;
+
+    g_assert(fd != NULL);
+    printf("        %08x %08x %3d %3d %3d", fd, fd->next, fd->frame, fd->offset, fd->len);
+    if (is_head) {
+        printf(" %3d %3d", fd->datalen, fd->reassembled_in);
+    } else {
+        printf( "        ");
+    }
+    printf(" 0x%08x", fd->data);
+    for (i=0; i<N_FD_FLAGS; i++) {
+        printf(" %s", (fd->flags & fd_flags[i].flag) ? fd_flags[i].flag_name : "  ");
+    }
+    printf("\n");
+}
+
+static void
+print_fd_chain(fragment_data *fd_head) {
+    fragment_data *fdp;
+
+    g_assert(fd_head != NULL);
+    print_fd(fd_head, TRUE);
+    for (fdp=fd_head->next; fdp != NULL; fdp=fdp->next) {
+        print_fd(fdp, FALSE);
+    }
+}
+
+static void
+print_fragment_table_chain(gpointer k, gpointer v, gpointer ud) {
+    fragment_key  *key     = (fragment_key*)k;
+    fragment_data *fd_head = (fragment_data *)v;
+    printf("  --> FT: %3d 0x%08x 0x%08x\n", key->id, *(guint32 *)(key->src.data), *(guint32 *)(key->dst.data));
+    print_fd_chain(fd_head);
+}
+
+static void
+print_fragment_table(void) {
+    printf("\n Fragment Table -------\n");
+    g_hash_table_foreach(fragment_table, print_fragment_table_chain, NULL);
+}
+
+static void
+print_reassembled_table_chain(gpointer k, gpointer v, gpointer ud) {
+    reassembled_key  *key  = (reassembled_key*)k;
+    fragment_data *fd_head = (fragment_data *)v;
+    printf("  --> RT: %5d %5d\n", key->id, key->frame);
+    print_fd_chain(fd_head);
+}
+
+static void
+print_reassembled_table(void) {
+    printf("\n Reassembled Table ----\n");
+    g_hash_table_foreach(reassembled_table, print_reassembled_table_chain, NULL);
+}
+
+static void
+print_tables(void) {
+    print_fragment_table();
+    print_reassembled_table();
+}
+#endif
 
 /**********************************************************************************
  *
@@ -97,6 +219,13 @@ static GHashTable *reassembled_table;
  * Adds three fragments (out of order, with one for a different datagram in between),
  * and checks that they are reassembled correctly.
  */
+/*   visit  id  frame  frag  len  more  tvb_offset
+       0    12     1     0    50   T      10
+       1    12     1     0    60   T       5
+       0    13     2     0    60   T      15
+       0    12     3     2    60   F       5
+       0    12     4     1    60   F      15
+*/
 static void
 test_simple_fragment_add_seq(void)
 {
@@ -180,6 +309,10 @@ test_simple_fragment_add_seq(void)
     ASSERT(!memcmp(fd_head->data+50,data+15,60));
     ASSERT(!memcmp(fd_head->data+110,data+5,60));
 
+#if 0
+    print_fragment_table();
+#endif
+
     /* what happens if we revisit the packets now? */
     fdh0 = fd_head;
     pinfo.fd->flags.visited = 1;
@@ -202,6 +335,10 @@ test_simple_fragment_add_seq(void)
     fd_head=fragment_add_seq(tvb, 15, &pinfo, 12, fragment_table,
                              1, 60, TRUE);
     ASSERT_EQ(fdh0,fd_head);
+
+#if 0
+    print_fragment_table();
+#endif
 }
 
 /* XXX ought to have some tests for overlapping fragments */
@@ -558,6 +695,15 @@ test_fragment_add_dcerpc_dg(void)
  *
  * Adds a couple of out-of-order fragments and checks their reassembly.
  */
+
+/*   visit  id  frame  frag  len  more  tvb_offset
+       0    12     1     0    50   T      10
+       0    13     2     0    60   T      15
+       0    12     3     2    60   F       5
+       0    12     4     1    60   F      15
+*/
+
+
 static void
 test_fragment_add_seq_check_work(fragment_data *(*fn)(tvbuff_t *, const int,
 				 const packet_info *, const guint32, GHashTable *,
@@ -635,6 +781,10 @@ test_fragment_add_seq_check_work(fragment_data *(*fn)(tvbuff_t *, const int,
     ASSERT(!memcmp(fd_head->data,data+10,50));
     ASSERT(!memcmp(fd_head->data+50,data+15,60));
     ASSERT(!memcmp(fd_head->data+110,data+5,60));
+
+#if 0
+    print_tables();
+#endif
 }
 
 /* Simple test case for fragment_add_seq_check
@@ -750,6 +900,73 @@ static void test_fragment_add_seq_802_11_1(void)
 
 /**********************************************************************************
  *
+ * fragment_add_seq_check_multiple
+ *
+ *********************************************************************************/
+
+/* Test 2 partial frags from 2 diff datagrams in the same frame */
+/*
+   datagram #1: frame 1 + first part of frame 2
+   datagram #1: last part of frame 2 + frame 3
+
+   Is this a valid scenario ?
+
+   The result of calling fragment_add_seq_check() for these
+   fragments is a reassembled_table with:
+    id, frame 1 => first_datagram;  ["reassembled in" frame 2]
+    id, frame 2 => second_datagram; ["reassembled in" frame 3]
+    id, frame 3 => second_datagram;
+
+    Note that the id, frame 2 => first datagram was overwritten
+     by the entry for the second datagram.
+   Is this OK ? IE: When dissected/displayed
+      will the reassembled datagram 1 appear with frame 2 ??
+*/
+
+/*   visit  id  frame  frag  len  more  tvb_offset
+       0    12     1     0    50   T      10
+       0    12     2     1    20   F       5
+       0    12     2     0    25   T      25
+       0    12     3     1    60   F       0
+*/
+
+/*
+   Is this a valid scenario ?
+   Is this OK ? IE: When dissected/displayed:
+      Will the reassembled datagram 1 appear with frame 2 ??
+*/
+#if 0
+static void
+test_fragment_add_seq_check_multiple(void) {
+    fragment_data *fd_head;
+
+    pinfo.fd -> num = 1;
+    fd_head=fragment_add_seq_check(tvb, 10, &pinfo, 12, fragment_table,
+                                   reassembled_table, 0, 50, TRUE);
+
+    /* add the terminal fragment of the first datagram */
+    pinfo.fd->num = 2;
+    fd_head=fragment_add_seq_check(tvb, 5, &pinfo, 12, fragment_table,
+                                   reassembled_table, 1, 20, FALSE);
+
+    print_tables();
+
+    /* Now: start a second datagram with the first fragment in frame #2 */
+    pinfo.fd->num = 2;
+    fd_head=fragment_add_seq_check(tvb, 25, &pinfo, 12, fragment_table,
+               reassembled_table, 0, 25, TRUE);
+
+    /* add the terminal fragment of the second datagram */
+    pinfo.fd->num = 3;
+    fd_head=fragment_add_seq_check(tvb, 0, &pinfo, 12, fragment_table,
+                                   reassembled_table, 1, 60, FALSE);
+
+    print_tables();
+}
+#endif
+
+/**********************************************************************************
+ *
  * fragment_add_seq_next
  *
  *********************************************************************************/
@@ -766,7 +983,7 @@ test_simple_fragment_add_seq_next(void)
     printf("Starting test test_simple_fragment_add_seq_next\n");
 
     pinfo.fd->num = 1;
-    fd_head=fragment_add_seq_next(tvb, 10, &pinfo, 12, fragment_table,
+    fd_head= fragment_add_seq_next(tvb, 10, &pinfo, 12, fragment_table,
                                   reassembled_table, 50, TRUE);
 
     ASSERT_EQ(1,g_hash_table_size(fragment_table));
@@ -1018,17 +1235,20 @@ main(int argc _U_, char **argv _U_)
     char src[] = {1,2,3,4}, dst[] = {5,6,7,8};
     unsigned int i;
     void (*tests[])(void) = {
-        test_simple_fragment_add_seq,
+        test_simple_fragment_add_seq,              /* frag table only   */
         test_fragment_add_seq_partial_reassembly,
         test_fragment_add_dcerpc_dg,
-        test_fragment_add_seq_check,
+        test_fragment_add_seq_check,               /* frag + reassemble */
         test_fragment_add_seq_check_1,
         test_fragment_add_seq_802_11_0,
         test_fragment_add_seq_802_11_1,
         test_simple_fragment_add_seq_next,
         test_missing_data_fragment_add_seq_next,
         test_missing_data_fragment_add_seq_next_2,
-        test_missing_data_fragment_add_seq_next_3
+        test_missing_data_fragment_add_seq_next_3,
+#if 0
+        test_fragment_add_seq_check_multiple
+#endif
     };
 
     /* initialise stuff */
@@ -1062,7 +1282,21 @@ main(int argc _U_, char **argv _U_)
         pinfo.fd->flags.visited = FALSE;
 
         tests[i]();
+
+        /* Free memory used by the tables */
+        fragment_table_init(&fragment_table);
+        g_hash_table_destroy(fragment_table);
+        fragment_table = NULL;
+
+        reassembled_table_init(&reassembled_table);
+        g_hash_table_destroy(reassembled_table);
+        reassembled_table = NULL;
     }
+
+    tvb_free(tvb);
+    tvb = NULL;
+    g_free(data);
+    data = NULL;
 
     printf(failure?"FAILURE\n":"SUCCESS\n");
     return failure;
