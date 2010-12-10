@@ -1236,7 +1236,7 @@ fWhoHas (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
  * @return modified offset
  */
 static guint
-fWhoIsRequest  (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fWhoIsRequest  (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * BACnet-Error ::= CHOICE {
@@ -1812,6 +1812,9 @@ fRecipient (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
  */
 static guint
 fRecipientProcess (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+
+static guint
+fCOVSubscription (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 #if 0
 /**
@@ -4446,6 +4449,7 @@ fProcessId (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
 			"Process Identifier - %u octets (Signed)", lvt);
 	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
+	fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 	offset += tag_len + lvt;
 
 	return offset;
@@ -4871,19 +4875,85 @@ fRecipientProcess (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
 	guint lastoffset = 0;
 	guint8  tag_no, tag_info;
 	guint32 lvt;
+	proto_tree* orgtree = tree;
+	proto_item* tt;
+	proto_tree* subtree;
+
+	/* beginning of new item - indent and label */
+	tt = proto_tree_add_text(orgtree, tvb, offset, 1, "Recipient Process" );	
+	tree = proto_item_add_subtree(tt, ett_bacapp_value);
 
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 
 		switch (fTagNo(tvb, offset)) {
 		case 0:	/* recipient */
-			offset += fTagHeaderTree (tvb, tree, offset, &tag_no, &tag_info, &lvt);
-			offset = fRecipient (tvb, pinfo, tree, offset);
-			offset += fTagHeaderTree (tvb, tree, offset, &tag_no, &tag_info, &lvt);
+			offset += fTagHeaderTree(tvb, tree, offset, &tag_no, &tag_info, &lvt); /* show context open */
+			tt = proto_tree_add_text(tree, tvb, offset, 1, "Recipient");	/* add tree label and indent */
+			subtree = proto_item_add_subtree(tt, ett_bacapp_value);
+			offset = fRecipient (tvb, pinfo, subtree, offset);
+			offset += fTagHeaderTree (tvb, tree, offset, &tag_no, &tag_info, &lvt);	/* show context close */
 			break;
 		case 1:	/* processId */
 			offset = fProcessId (tvb, tree, offset);
 			lastoffset = offset;
+			break;
+		default:
+			break;
+		}
+		if (offset == lastoffset) break;     /* nothing happened, exit loop */
+	}
+	return offset;
+}
+
+static guint
+fCOVSubscription (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+	guint lastoffset = 0, len;
+	guint8  tag_no, tag_info;
+	guint32 lvt;
+	proto_tree* subtree;
+	proto_item *tt;
+	proto_tree* orgtree = tree;
+	guint itemno = 1;
+
+	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
+		lastoffset = offset;
+		len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		if (tag_is_closing(tag_info) ) {
+			return offset;
+		}
+		switch (tag_no) {
+
+		case 0:	/* recipient */
+				/* beginning of new item in list */
+				tt = proto_tree_add_text(orgtree, tvb, offset, 1, "Subscription %d",itemno);	/* add tree label and indent */
+				itemno = itemno + 1;
+				tree = proto_item_add_subtree(tt, ett_bacapp_value);
+
+				tt = proto_tree_add_text(tree, tvb, offset, 1, "Recipient");	/* add tree label and indent */
+				subtree = proto_item_add_subtree(tt, ett_bacapp_value);
+				offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt); /* show context open */
+				offset = fRecipientProcess (tvb, pinfo, subtree, offset);	
+				offset += fTagHeaderTree (tvb, subtree, offset,	&tag_no, &tag_info, &lvt);	/* show context close */
+				subtree = tree;	/* done with this level - return to previous tree */
+			break;
+		case 1: /* MonitoredPropertyReference */
+				tt = proto_tree_add_text(tree, tvb, offset, 1, "Monitored Property Reference");
+				subtree = proto_item_add_subtree(tt, ett_bacapp_value);
+				offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt);
+				offset = fBACnetObjectPropertyReference (tvb, pinfo, subtree, offset);
+				offset += fTagHeaderTree (tvb, subtree, offset,	&tag_no, &tag_info, &lvt);
+				subtree = tree;
+			break;
+		case 2: /* IssueConfirmedNotifications - boolean */
+			offset = fBooleanTag (tvb, tree, offset, "Issue Confirmed Notifications: ");
+			break;
+		case 3:	/* TimeRemaining */
+			offset = fUnsignedTag (tvb, tree, offset, "Time Remaining: ");
+			break;
+		case 4: /* COVIncrement */
+			offset = fRealTag (tvb, tree, offset, "COV Increment: ");
 			break;
 		default:
 			break;
@@ -5495,6 +5565,9 @@ fAbstractSyntaxNType (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 		case 214: /* expected-shed-level */
 		case 218: /* requested-shed-level */
 			offset = fShedLevel (tvb, tree, offset);
+			break;
+		case 152: /* active-cov-subscriptions */
+			offset = fCOVSubscription (tvb, pinfo, tree, offset);
 			break;
 		default:
 			if (tag_info)
@@ -7853,7 +7926,7 @@ fReadAccessResult (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
 			break;
 		case 5:	/* propertyAccessError */
 			if (tag_is_opening(tag_info)) {
-				tt = proto_tree_add_text(tree, tvb, offset, 1, "propertyAccessError");
+				tt = proto_tree_add_text(subtree, tvb, offset, 1, "propertyAccessError");
 				subtree = proto_item_add_subtree(tt, ett_bacapp_value);
 				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 				/* Error Code follows */
@@ -8300,17 +8373,33 @@ fIHaveRequest  (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
 }
 
 static guint
-fWhoIsRequest  (tvbuff_t *tvb, proto_tree *tree, guint offset)
+fWhoIsRequest  (tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint offset)
 {
 	guint lastoffset = 0;
+	guint val;
+	guint8 tag_len;
+
+	guint8 tag_no, tag_info;
+	guint32 lvt;
 
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
-		switch (fTagNo(tvb, offset)) {
+
+		tag_len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+
+		switch (tag_no) {
 		case 0:	/* DeviceInstanceRangeLowLimit Optional */
+			fUnsigned32(tvb, offset+tag_len, lvt, &val);
+			if (col_get_writable(pinfo->cinfo))
+				col_append_fstr(pinfo->cinfo, COL_INFO, "%d ", val);
+
 			offset = fUnsignedTag (tvb, tree, offset, "Device Instance Range Low Limit: ");
 			break;
 		case 1:	/* DeviceInstanceRangeHighLimit Optional but required if DeviceInstanceRangeLowLimit is there */
+			fUnsigned32(tvb, offset+tag_len, lvt, &val);
+			if (col_get_writable(pinfo->cinfo))
+				col_append_fstr(pinfo->cinfo, COL_INFO, "%d ", val);
+
 			offset = fUnsignedTag (tvb, tree, offset, "Device Instance Range High Limit: ");
 			break;
 		default:
@@ -8353,7 +8442,7 @@ fUnconfirmedServiceRequest  (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		offset = fWhoHas (tvb, pinfo, tree, offset);
 		break;
 	case 8: /* who-Is */
-		offset = fWhoIsRequest  (tvb, tree, offset);
+		offset = fWhoIsRequest  (tvb, pinfo, tree, offset);
 		break;
 	case 9: /* utcTimeSynchronization */
 		offset = fUTCTimeSynchronizationRequest  (tvb, tree, offset);
