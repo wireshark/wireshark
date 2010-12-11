@@ -312,13 +312,29 @@ fragment_free_key(void *ptr)
 	fragment_key *key = (fragment_key *)ptr;
 
 	if(key){
-/*
+		/*
 		 * Free up the copies of the addresses from the old key.
 		 */
 		g_free((gpointer)key->src.data);
 		g_free((gpointer)key->dst.data);
 
 		g_slice_free(fragment_key, key);
+	}
+}
+
+static void
+dcerpc_fragment_free_key(void *ptr)
+{
+	dcerpc_fragment_key *key = (dcerpc_fragment_key *)ptr;
+
+	if(key){
+		/*
+		 * Free up the copies of the addresses from the old key.
+		 */
+		g_free((gpointer)key->src.data);
+		g_free((gpointer)key->dst.data);
+
+		g_slice_free(dcerpc_fragment_key, key);
 	}
 }
 #endif
@@ -373,7 +389,7 @@ dcerpc_fragment_table_init(GHashTable **fragment_table)
 #if GLIB_CHECK_VERSION(2,10,0)
 		   /* The fragment table does not exist. Create it */
 		*fragment_table = g_hash_table_new_full(dcerpc_fragment_hash,
-							dcerpc_fragment_equal, fragment_free_key, NULL);
+							dcerpc_fragment_equal, dcerpc_fragment_free_key, NULL);
 #else
 		/* The fragment table does not exist. Create it */
 		   *fragment_table = g_hash_table_new(dcerpc_fragment_hash,
