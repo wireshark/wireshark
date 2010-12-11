@@ -209,12 +209,14 @@ reassembled_hash(gconstpointer k)
 }
 
 /*
- * For a fragment hash table entry, free the address data to which the key
- * refers and the fragment data to which the value refers.
- * If slices are used (GLIB >= 2.10) the keys are freed when fragment_free_key()
- * is called and the values are freed herein.
- * If mem_chunks are used, the the actual key and value structures get freed
- * by "reassemble_cleanup()".)
+ * For a fragment hash table entry, free the associated fragments.
+ * If slices are used (GLIB >= 2.10) the entry value (fd_chain) is
+ * freed herein and the entry is freed when fragment_free_key()
+ * [or dcerpc_fragment_free_key()] is called (as a consequence of
+ * returning TRUE from this function).
+ * If mem_chunks are used, free the address data to which the key
+ * refers; the the actual key and value structures get freed
+ * by "reassemble_cleanup()").
  */
 static gboolean
 free_all_fragments(gpointer key_arg _U_, gpointer value, gpointer user_data _U_)
@@ -348,12 +350,15 @@ fragment_table_init(GHashTable **fragment_table)
 		/*
 		 * The fragment hash table exists.
 		 *
-		 * Remove all entries and free fragment data for
-		 * each entry.	If slices are used (GLIB >= 2.10)
-		 * the keys are freed by calling fragment_free_key
+		 * Remove all entries and free fragment data for each entry.
+		 *
+		 * If slices are used (GLIB >= 2.10)
+		 * the keys are freed by calling fragment_free_key()
 		 * and the values are freed in free_all_fragments().
+		 *
 		 * If mem_chunks are used, the key and value data
-		 * are freed by "reassemble_cleanup()".
+		 * are freed by "reassemble_cleanup()". free_all_fragments()
+		 * will free the adrress data associated with the key
 		 */
 		g_hash_table_foreach_remove(*fragment_table,
 				free_all_fragments, NULL);
@@ -374,15 +379,19 @@ void
 dcerpc_fragment_table_init(GHashTable **fragment_table)
 {
 	if (*fragment_table != NULL) {
-		   /*
-			* The fragment hash table exists.
-			*
-			* Remove all entries and free fragment data for
-		 * each entry.	If slices are used (GLIB >= 2.10)
-		 * the keys are freed by calling fragment_free_key
+		/*
+		 * The fragment hash table exists.
+		 *
+		 * Remove all entries and free fragment data for each entry.
+		 *
+		 * If slices are used (GLIB >= 2.10)
+		 * the keys are freed by calling dcerpc_fragment_free_key()
 		 * and the values are freed in free_all_fragments().
+		 *
 		 * If mem_chunks are used, the key and value data
-			*/
+		 * are freed by "reassemble_cleanup()". free_all_fragments()
+		 * will free the adrress data associated with the key
+		 */
 		   g_hash_table_foreach_remove(*fragment_table,
 						   free_all_fragments, NULL);
 	} else {
@@ -665,7 +674,8 @@ fragment_set_partial_reassembly(const packet_info *pinfo, const guint32 id, GHas
  * This function gets rid of an entry from a fragment table, given
  * a pointer to the key for that entry; it also frees up the key
  * and the addresses in it.
- * Note: If we use slices keys are freed by fragment_free_key() being called
+ * Note: If we use slices keys are freed by fragment_free_key()
+         [or dcerpc_fragment_free_key()] being called
  *       during g_hash_table_remove().
  */
 static void
