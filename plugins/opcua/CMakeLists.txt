@@ -34,6 +34,7 @@ set(DISSECTOR_SUPPORT_SRC
 	opcua_enumparser.c
 	opcua_simpletypes.c
 	opcua_servicetable.c
+	opcua_extensionobjecttable.c
 	opcua_hfindeces.c
 )
 
