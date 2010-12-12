@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2010-12-05)
+(last updated 2010-12-10)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -615,8 +615,8 @@ Decimal
       tstader&concord.com
 150
   University of Washington
-    David Richardson
-      uw-noc&cac.washington.edu
+    Richard J. Letts
+      netops&uw.edu
 151
   Develcon
     Sheri Mayhew
@@ -33082,9 +33082,9 @@ Decimal
     Qi Wang
       myshadow&263.net
 8282
-  Tenix Defence Systems - Systems Adelaide
-    Matthew Leske
-      matthew.leske&tenix.com
+  BAE Systems Defence Pty Ltd (previous was 'Tenix Defence Systems - Systems Adelaide')
+    David Boschma
+      au.ilsupport&baesystems.com
 8283
   TSMT - Magic Touch Ltd
     Markku Järvinen
@@ -48218,9 +48218,9 @@ Decimal
     Massimo Santin
       msantin&santineassociati.com
 12166
-  Scan-Plus GmbH
-    Joerg Wendland
-      wendland&scan-plus.de
+  ScanPlus GmbH
+    Konrad Naumann
+      domains&scanplus.de
 12167
   Sequitur Systems
     Chip Yamasaki
@@ -77858,8 +77858,8 @@ Servicos
       msheng&sansay.com
 19576
   Slovanet a.s.
-    Jozef Kutej
-      jozef.kutej&slovanet.net
+    Peter Farkas
+      peter.farkas&slovanet.net
 19577
   ACE electronics N.V.
     Koenraad Lelong
@@ -128256,7 +128256,7 @@ Decentralization / Helenic Public Administra
 32168
   Fiber-Span
     James Stewart
-      jims&fiber-span.com
+      jstewart&fiber-span.com
 32169
   Turkcell Teknoloji Arastirma ve Gelistirme A.S.
     Ender ULUSOY
@@ -140423,9 +140423,9 @@ Decentralization / Helenic Public Administra
     Antonio Collar Alberola
       ACollar&fcc.es
 35210
-  Bechtle IT Systemhaus GmbH Düsseldrf
-    Benjamin Diel
-      benjamin.diel&bechtle.com
+  Bechtle AG
+    Florian Zahn
+      florian.zahn&bechtle.com
 35211
   North Point Technology LLC
     Bryan Bell
@@ -147635,6 +147635,202 @@ Decentralization / Helenic Public Administra
   Bestgo.pl Sp. Z O.O.
     Kamil Kurzyk
       admin&bestgo.pl
+37013
+  eoswan
+    Juan Manuel Martinez
+      info&eoswan.com
+37014
+  Hanming Technology Co., Ltd
+    He Jianhui
+      flashrainy&163.com
+37015
+  Harms Consulting Pty Ltd
+    Josh Levy
+      support&harmsconsulting.com
+37016
+  Unicredit S.P.A.
+    Francesco Oliva
+      francesco.oliva1&unicreditgroup.eu
+37017
+  NATION Technologies Group, Inc
+    Rod Meli
+      VP.Technology&nationtechnologies.com
+37018
+  Phabrix
+    Pete Fraser
+      pete&phabrix.com
+37019
+  LANOS Computer GmbH & Cie KG
+    Hans-Juergen Fockel
+      hansjuergen.fockel&lanos.de
+37020
+  Dichotomia
+    Jerome Herman
+      jherman&dichotomia.fr
+37021
+  ScandFibre Logistics AB
+    Mats Berlin
+      mats.berlin&scandfibre.se
+37022
+  Scientific and Production Company Granch Ltd.
+    Michael Y. Gluhovchenko
+      gluhovchenko&granch.ru
+37023
+  KazTransCom JSC
+    Azamat T. Shymbolat
+      a.shymbolat&kaztranscom.kz
+37024
+  edv neubrand
+    martin neubrand
+      neu.brand&gmx.de
+37025
+  Maverick Wireless Solutions Private Limited
+    Shyamal Kumar
+      shyamal.kumar&mavericknets.com
+37026
+  Mylab Oy
+    Petri Heikkilä
+      admin&mylab.fi
+37027
+  rc-tec GmbH
+    Christoph Reichl
+      c.reichl&rc-tec.at
+37028
+  Fernwaerme Ulm GmbH
+    Werner Straehle
+      it-service&fernwaerme-ulm.de
+37029
+  Technology On Demand, Inc.
+    Ed Mana
+      emana&technologyondemand.com
+37030
+  G4S Technology Limited
+    Kevin Hollingworth
+      kevin.hollingworth&usa.g4s.com
+37031
+  Studio MekTek, Inc
+    Vince McMullin
+      vincem&mektekdev.com
+37032
+  RR Donnelley Europe Sp. z o.o. 
+    Krzysztof Bar
+      krzysztof.bar&rrd.com
+37033
+  Eden Rock Communications
+    Beesun Liou
+      beesun.liou&edenrockcomm.com
+37034
+  Goatrace Ltd
+    Keith Young
+      goatraceltd&gmail.com
+37035
+  Kitami Institute of Technology
+    Hiroshi Masui
+      hgmasui&mail.kitami-it.ac.jp
+37036
+  Geekerati
+    Eric Fehr
+      eric&regolith.net
+37037
+  America First Federal Credit Union
+    Doug Youngberg
+      dyoungberg&americafirst.com
+37038
+  ComplexNet Ltd.
+    Tamas Gergely Peter
+      info&complexnet.hu
+37039
+  EtherWorks Pty. Ltd.
+    Terry Hoppitt
+      dns&etherworks.com.au
+37040
+  GoldCard spol. s r. o.
+    Antonin Hanacek
+      hanacek&goldcard.cz
+37041
+  Thales Alenia Space España
+    Ana Yun García
+      ana.yungarcia&thalesaleniaspace.com
+37042
+  Bee Software Inc.
+    Jilei Xie
+      xjl&99jsj.com
+37043
+  Irkutsk regional clinical hospital
+    Alexander Puschenko
+      puschenko_aa&iokb.ru
+37044
+  DINEC International
+    Luc Van Walleghem
+      lvw&dinec.be
+37045
+  LexisNexis Univentio B.V.
+    Daniel Knippers
+      dknippers&univentio.com
+37046
+  Fjord Technology UG (haftungsbeschränkt)
+    Martin Hoppe
+      info&fjord-technology.com
+37047
+  InterCard Kartensyteme GmbH
+    Chris Bartl
+      c.bartl&intercard.org
+37048
+  Tetra Tech Inc.
+    Bill Purrier
+      bill.purrier&tetratech.com
+37049
+  UFCSPA
+    Klaus Engelmann
+      klaus&ufcspa.edu.br
+37050
+  Techyond Inc.
+    Frank Lafitte
+      frank.lafitte&techyond.com
+37051
+  Oliver Roll
+    Oliver Roll
+      mail&oliver-roll.com
+37052
+  and One Inc.
+    Makoto Dei
+      support&andone.co.jp
+37053
+  MMR Network Management Science & Technology Co., Ltd 
+    ShiHaoQing
+      mr_shq&163.com
+37054
+  AirP Systems LLC
+    Randy Prakken
+      randy&airpsystems.com
+37055
+  JM Properties
+    Jerome Kaidor
+      jerry&jm-properties.com
+37056
+  ATM Japan, Ltd.
+    Ohtsuka, Mitsuo
+      ohtsukamo&atmj.co.jp
+37057
+  MPS Quickpay
+    Andrew Kochetkov
+      a.kochetkov&quickpay.ru
+37058
+  thockar IT consulting
+    Thomas Eckardt
+      Thomas.Eckardt&thockar.com
+37059
+  Command and Control Systems
+    Mike Hall
+      mike.hall&ultra-ccs.com
+37060
+  Silicon & Software Systems Ltd.
+    Conor O'Donoghue
+      conor.odonoghue&s3group.com
+37061
+  Sargento Foods Inc.
+    Tim Melis
+      msadmins&sargento.com
 
 
 End of Document
