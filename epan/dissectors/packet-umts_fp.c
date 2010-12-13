@@ -53,6 +53,10 @@ static int hf_fp_release_month = -1;
 static int hf_fp_channel_type = -1;
 static int hf_fp_division = -1;
 static int hf_fp_direction = -1;
+static int hf_fp_ddi_config = -1;
+static int hf_fp_ddi_config_ddi = -1;
+static int hf_fp_ddi_config_macd_pdu_size = -1;
+
 static int hf_fp_header_crc = -1;
 static int hf_fp_ft = -1;
 static int hf_fp_cfn = -1;
@@ -169,6 +173,7 @@ static int ett_fp = -1;
 static int ett_fp_release = -1;
 static int ett_fp_data = -1;
 static int ett_fp_crcis = -1;
+static int ett_fp_ddi_config = -1;
 static int ett_fp_edch_subframe_header = -1;
 static int ett_fp_edch_subframe = -1;
 static int ett_fp_edch_maces = -1;
@@ -3001,6 +3006,33 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
     }
 
+    /* Show DDI config info */
+    if (p_fp_info->no_ddi_entries > 0) {
+        int n;
+        proto_item *ddi_config_ti;
+        proto_tree *ddi_config_tree;
+
+        ddi_config_ti = proto_tree_add_string_format(fp_tree, hf_fp_ddi_config, tvb, offset, 0,
+                                                     "", "DDI Config (");
+        PROTO_ITEM_SET_GENERATED(ddi_config_ti);
+        ddi_config_tree = proto_item_add_subtree(ddi_config_ti, ett_fp_ddi_config);
+
+        /* Add each entry */
+        for (n=0; n < p_fp_info->no_ddi_entries; n++) {
+            proto_item_append_text(ddi_config_ti, "%s%u->%ubits",
+                                   (n==0) ? "" : "  ",
+                                   p_fp_info->edch_ddi[n], p_fp_info->edch_macd_pdu_size[n]);
+            ti = proto_tree_add_uint(ddi_config_tree, hf_fp_ddi_config_ddi, tvb, 0, 0,
+                                p_fp_info->edch_ddi[n]);
+            PROTO_ITEM_SET_GENERATED(ti);
+            ti = proto_tree_add_uint(ddi_config_tree, hf_fp_ddi_config_macd_pdu_size, tvb, 0, 0,
+                                p_fp_info->edch_macd_pdu_size[n]);
+            PROTO_ITEM_SET_GENERATED(ti);
+
+        }
+        proto_item_append_text(ddi_config_ti, ")");
+    }
+
     /*************************************/
     /* Dissect according to channel type */
     switch (p_fp_info->channel)
@@ -3132,6 +3164,26 @@ void proto_register_fp(void)
               "Link direction", HFILL
             }
         },
+        { &hf_fp_ddi_config,
+            { "DDI Config",
+              "fp.ddi-config", FT_STRING, BASE_NONE, NULL, 0x0,
+              "DDI Config (for E-DCH)", HFILL
+            }
+        },
+        { &hf_fp_ddi_config_ddi,
+            { "DDI",
+              "fp.ddi-config.ddi", FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_fp_ddi_config_macd_pdu_size,
+            { "MACd PDU Size",
+              "fp.ddi-config.macd-pdu-size", FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+
+
         { &hf_fp_header_crc,
             { "Header CRC",
               "fp.header-crc", FT_UINT8, BASE_HEX, NULL, 0xfe,
@@ -3929,6 +3981,7 @@ void proto_register_fp(void)
         &ett_fp,
         &ett_fp_data,
         &ett_fp_crcis,
+        &ett_fp_ddi_config,
         &ett_fp_edch_subframe_header,
         &ett_fp_edch_subframe,
         &ett_fp_edch_maces,
