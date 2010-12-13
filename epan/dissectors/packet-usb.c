@@ -49,6 +49,8 @@ static int hf_usb_urb_id = -1;
 static int hf_usb_urb_type = -1;
 static int hf_usb_transfer_type = -1;
 static int hf_usb_endpoint_number = -1;
+static int hf_usb_endpoint_direction = -1;
+static int hf_usb_endpoint_number_value = -1;
 static int hf_usb_device_address = -1;
 static int hf_usb_bus_id = -1;
 static int hf_usb_setup_flag = -1;
@@ -135,12 +137,18 @@ static int hf_usb_request_in = -1;
 static gint usb_hdr = -1;
 static gint usb_setup_hdr = -1;
 static gint usb_isodesc = -1;
+static gint ett_usb_endpoint = -1;
 static gint ett_usb_setup_bmrequesttype = -1;
 static gint ett_descriptor_device = -1;
 static gint ett_configuration_bmAttributes = -1;
 static gint ett_configuration_bEndpointAddress = -1;
 static gint ett_endpoint_bmAttributes = -1;
 
+static const int *usb_endpoint_fields[] = {
+    &hf_usb_endpoint_direction,
+    &hf_usb_endpoint_number_value,
+    NULL
+};
 
 static int usb_tap = -1;
 
@@ -327,6 +335,14 @@ static const value_string usb_interfaceclass_vals[] = {
 
 
 static const value_string usb_transfer_type_vals[] = {
+    {URB_CONTROL, "URB_CONTROL"},
+    {URB_ISOCHRONOUS,"URB_ISOCHRONOUS"},
+    {URB_INTERRUPT,"URB_INTERRUPT"},
+    {URB_BULK,"URB_BULK"},
+    {0, NULL}
+};
+
+static const value_string usb_transfer_type_and_direction_vals[] = {
     {URB_CONTROL, "URB_CONTROL out"},
     {URB_ISOCHRONOUS,"URB_ISOCHRONOUS out"},
     {URB_INTERRUPT,"URB_INTERRUPT out"},
@@ -335,6 +351,12 @@ static const value_string usb_transfer_type_vals[] = {
     {URB_ISOCHRONOUS | URB_TRANSFER_IN,"URB_ISOCHRONOUS in"},
     {URB_INTERRUPT | URB_TRANSFER_IN,"URB_INTERRUPT in"},
     {URB_BULK | URB_TRANSFER_IN,"URB_BULK in"},
+    {0, NULL}
+};
+
+static const value_string usb_endpoint_direction_vals[] = {
+    {0, "OUT"},
+    {1, "IN"},
     {0, NULL}
 };
 
@@ -1755,6 +1777,8 @@ static void
 dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8 transfer_type;
+    guint8 endpoint_number;
+    guint8 transfer_type_and_direction;
     const gchar* val_str;
     guint8 type, flag;
     guint16 val16;
@@ -1774,11 +1798,13 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
         transfer_type = tvb_get_guint8(tvb, 9);
+        endpoint_number = tvb_get_guint8(tvb, 10);
+        transfer_type_and_direction = (transfer_type & 0x7F) | (endpoint_number & 0x80);
         col_append_str(pinfo->cinfo, COL_INFO,
-                       val_to_str(transfer_type, usb_transfer_type_vals, "Unknown type %x"));
+                       val_to_str(transfer_type_and_direction, usb_transfer_type_and_direction_vals, "Unknown type %x"));
     }
 
-    proto_tree_add_item(tree, hf_usb_endpoint_number, tvb, 10, 1, FALSE);
+    proto_tree_add_bitmask(tree, tvb, 10, hf_usb_endpoint_number, ett_usb_endpoint, usb_endpoint_fields, FALSE);
     proto_tree_add_item(tree, hf_usb_device_address, tvb, 11, 1, FALSE);
 
     tvb_memcpy(tvb, (guint8 *)&val16, 12, 2);
@@ -1963,7 +1989,6 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
     switch(type){
     case URB_BULK:
-    case URB_BULK | URB_TRANSFER_IN:
         {
         proto_item *item;
 
@@ -1992,7 +2017,6 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         }
         break;
     case URB_CONTROL:
-    case URB_CONTROL | URB_TRANSFER_IN:
         {
         const usb_setup_dissector_table_t *tmp;
         usb_setup_dissector dissector;
@@ -2358,6 +2382,16 @@ proto_register_usb(void)
         { "Endpoint", "usb.endpoint_number", FT_UINT8, BASE_HEX, NULL, 0x0,
                 "USB endpoint number", HFILL }},
 
+        { &hf_usb_endpoint_direction,
+        { "Direction", "usb.endpoint_number.direction", FT_UINT8, BASE_DEC,
+                VALS(usb_endpoint_direction_vals), 0x80,
+                "USB endpoint direction", HFILL }},
+
+        { &hf_usb_endpoint_number_value,
+        { "Endpoint value", "usb.endpoint_number.endpoint", FT_UINT8, BASE_DEC,
+                NULL, 0x7F,
+                "USB endpoint value", HFILL }},
+
         { &hf_usb_device_address,
         { "Device", "usb.device_address", FT_UINT8, BASE_DEC, NULL, 0x0,
                 "USB device address", HFILL }},
@@ -2694,6 +2728,7 @@ proto_register_usb(void)
         &usb_hdr,
         &usb_setup_hdr,
         &usb_isodesc,
+        &ett_usb_endpoint,
         &ett_usb_setup_bmrequesttype,
         &ett_descriptor_device,
         &ett_configuration_bmAttributes,
