@@ -4640,9 +4640,9 @@ dissect_mmie(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 tag_len)
 
   proto_tree_add_item(tree, hf_ieee80211_tag_mmie_keyid, tvb, offset, 2, TRUE);
   proto_tree_add_item(tree, hf_ieee80211_tag_mmie_ipn, tvb, offset + 2, 6,
-		      TRUE);
+                      TRUE);
   proto_tree_add_item(tree, hf_ieee80211_tag_mmie_mic, tvb, offset + 8, 8,
-		      FALSE);
+                      FALSE);
 }
 
 static void
@@ -5483,7 +5483,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       break;
 
     case TAG_DS_PARAMETER:
-		/* The length of the dot11CurrentChannelNumber parameter is 1 octet */
+      /* The length of the dot11CurrentChannelNumber parameter is 1 octet */
       if (tag_len != 1)
       {
         proto_tree_add_text (tree, tvb, offset + 2, tag_len, "Tag length %u wrong, must be = 1",
@@ -6124,14 +6124,14 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 #endif /* MESH_OVERRIDES */
 
     case TAG_SUPPORTED_CHANNELS:
-		/* 7.3.2.19 Supported Channels element */
+      /* 7.3.2.19 Supported Channels element */
       {
         proto_item *chan_item;
         proto_tree *chan_tree;
         guint i;
 
         offset += 2;
-		if (tag_len % 2 == 1) {
+        if (tag_len % 2 == 1) {
           proto_tree_add_text (tree, tvb, offset -1, 1,
                                "Supported Channels: Error: Tag length %u must be even",tag_len);
         }
@@ -6727,7 +6727,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
     {
       guint tag_offset;
       guint8 current_field;
-	  guint i;
+      guint i;
 
       if (tag_len < 2) {
         proto_tree_add_text (tree, tvb, offset + 2, tag_len,
@@ -7680,8 +7680,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
 #ifdef MESH_OVERRIDES
       if (tree &&
-	  (FCF_ADDR_SELECTOR(fcf) == DATA_ADDR_T4 ||
-	   FCF_ADDR_SELECTOR(fcf) == DATA_ADDR_T2))
+          (FCF_ADDR_SELECTOR(fcf) == DATA_ADDR_T4 ||
+           FCF_ADDR_SELECTOR(fcf) == DATA_ADDR_T2))
       {
         proto_item *msh_fields;
         proto_tree *msh_tree;
@@ -8713,12 +8713,6 @@ wlan_defragment_init(void)
 }
 
 /* ------------- */
-static gboolean
-free_all(gpointer key_arg _U_, gpointer value _U_, gpointer user_data _U_)
-{
-  return TRUE;
-}
-
 static guint
 retransmit_hash(gconstpointer k)
 {
@@ -8766,13 +8760,11 @@ static void
 wlan_retransmit_init(void)
 {
   if ( fc_analyse_retransmit_table ){
-      g_hash_table_foreach_remove(fc_analyse_retransmit_table,free_all, NULL);
       g_hash_table_destroy(fc_analyse_retransmit_table);
       fc_analyse_retransmit_table = NULL;
   }
 
   if( fc_first_frame_table ){
-      g_hash_table_foreach_remove(fc_first_frame_table,free_all, NULL);
       g_hash_table_destroy(fc_first_frame_table);
       fc_first_frame_table = NULL;
   }

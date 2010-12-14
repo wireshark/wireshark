@@ -1443,7 +1443,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 						ip_to_str(tvb_get_ptr(tvb, i, 4)));
 				}
 			}
-        	}
+		}
 	        break;
 
 	case 94: {	/* Client network interface identifier */
@@ -1951,7 +1951,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 
 		if (vs != NULL) {
 			proto_item_append_text(vti, " = %s",
-                            val_to_str(vd, vs, "Unknown (%u)"));
+					       val_to_str(vd, vs, "Unknown (%u)"));
 		} else
 			proto_item_append_text(vti, " = %u", vd);
 
@@ -2231,7 +2231,7 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 
 	if (subopt == 0) {
 		proto_tree_add_text(v_tree, tvb, optoff, 1, "Padding");
-                return (suboptoff);
+		return (suboptoff);
 	} else if (subopt == 255) {	/* End Option */
 		proto_tree_add_text(v_tree, tvb, optoff, 1, "End PXEClient option");
 		/* Make sure we skip any junk left this option */
@@ -2551,7 +2551,7 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 
 	if (subopt == 0) {
 		proto_tree_add_text(v_tree, tvb, optoff, 1, "Padding");
-                return (suboptoff);
+		return (suboptoff);
 	} else if (subopt == 255) {	/* End Option */
 		proto_tree_add_text(v_tree, tvb, optoff, 1, "End CableLabs option");
 		/* Make sure we skip any junk left this option */
@@ -2595,7 +2595,7 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 				} else {
 					proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
 						"Suboption %d: suboption length isn't 3 or 6", subopt);
-                                }
+				}
 				break;
 			} else if ( subopt == 11 ) { /* Address Realm */
 				if (subopt_len != 1) {
@@ -2931,8 +2931,8 @@ dissect_vendor_tr111_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 	guint8 subopt_len;
 
 	/* Reference: TR-111 DHCP Option 125 Sub-Option Data Fields
-           Page 10.
-         */
+	   Page 10.
+	*/
 
 	static struct opt_info o125_tr111_opt[]= {
 		/* 0 */ {"nop", special, NULL},	/* dummy */
@@ -3695,310 +3695,310 @@ static const value_string docs_cm_ussymrate_vals[] = {
 static void
 display_uint_with_range_checking(proto_item *ti, guint8 val_byte, guint16 val_uint16, int min_value, int max_value)
 {
-  guint16 value;
+	guint16 value;
 
-  if (0 != val_byte)
-  {
-    value = val_byte;
-  }
-  else
-  {
-    value = val_uint16;
-  }
-  proto_item_append_text(ti, "%i", value);
-  if ((value < min_value) ||
-      (value > max_value))
-  {
-    proto_item_append_text(ti, " (Value Out-of-Range [%i..%i])", min_value, max_value);
-  }
+	if (0 != val_byte)
+	{
+		value = val_byte;
+	}
+	else
+	{
+		value = val_uint16;
+	}
+	proto_item_append_text(ti, "%i", value);
+	if ((value < min_value) ||
+	    (value > max_value))
+	{
+		proto_item_append_text(ti, " (Value Out-of-Range [%i..%i])", min_value, max_value);
+	}
 }
 
 static void get_opt125_tlv(tvbuff_t *tvb, guint off, guint8 *tlvtype, guint8 *tlvlen, guint8 **value)
 {
-  /* Type */
-  *tlvtype = tvb_get_guint8(tvb, off);
-  /* Length */
-  *tlvlen  = tvb_get_guint8(tvb, off+1);
-  /* Value */
-  *value = ep_tvb_memdup(tvb, off + 2, *tlvlen);
+	/* Type */
+	*tlvtype = tvb_get_guint8(tvb, off);
+	/* Length */
+	*tlvlen  = tvb_get_guint8(tvb, off+1);
+	/* Value */
+	*value = ep_tvb_memdup(tvb, off + 2, *tlvlen);
 }
 
 static void get_opt60_tlv(tvbuff_t *tvb, guint off, guint8 *tlvtype, guint8 *tlvlen, guint8 **value)
 {
-  guint  i;
-  guint8  *val_asc;
-  val_asc = (guint8 *)ep_alloc0(4);
-  /* Type */
-  tvb_memcpy(tvb, val_asc, off, 2);
-  *tlvtype = (guint8)strtoul((gchar*)val_asc, NULL, 16);
-  /* Length */
-  tvb_memcpy(tvb, val_asc, off + 2, 2);
-  *tlvlen = (guint8)strtoul((gchar*)val_asc, NULL, 16);
-  /* Value */
-  *value = (guint8 *)ep_alloc0(*tlvlen);
-  for (i=0; i<*tlvlen; i++)
-  {
-    memset(val_asc, 0, sizeof (val_asc));
-    tvb_memcpy(tvb, val_asc, off + ((i*2) + 4), 2);
-    (*value)[i] = (guint8)strtoul((gchar*)val_asc, NULL, 16);
-  }
+	guint  i;
+	guint8  *val_asc;
+	val_asc = (guint8 *)ep_alloc0(4);
+	/* Type */
+	tvb_memcpy(tvb, val_asc, off, 2);
+	*tlvtype = (guint8)strtoul((gchar*)val_asc, NULL, 16);
+	/* Length */
+	tvb_memcpy(tvb, val_asc, off + 2, 2);
+	*tlvlen = (guint8)strtoul((gchar*)val_asc, NULL, 16);
+	/* Value */
+	*value = (guint8 *)ep_alloc0(*tlvlen);
+	for (i=0; i<*tlvlen; i++)
+	{
+		memset(val_asc, 0, sizeof (val_asc));
+		tvb_memcpy(tvb, val_asc, off + ((i*2) + 4), 2);
+		(*value)[i] = (guint8)strtoul((gchar*)val_asc, NULL, 16);
+	}
 }
 
 static void
 dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboolean opt125)
 {
-        guint8 *asc_val;
-        guint i;
-        proto_item *ti;
-        proto_tree *subtree;
-        char bit_fld[64];
-        guint8 tlv_type;
-        guint8 tlv_len;
-        guint8 val_byte = 0;
-        guint16 val_uint16 = 0;
-        guint8 *val_other = NULL;
-        guint off = voff;
+	guint8 *asc_val;
+	guint i;
+	proto_item *ti;
+	proto_tree *subtree;
+	char bit_fld[64];
+	guint8 tlv_type;
+	guint8 tlv_len;
+	guint8 val_byte = 0;
+	guint16 val_uint16 = 0;
+	guint8 *val_other = NULL;
+	guint off = voff;
 
-        asc_val = ep_alloc0(4);
+	asc_val = ep_alloc0(4);
 
-        if (opt125)
-        {
-          /* Option 125 is formatted as uint8's */
-          /* Type */
-          tlv_type = tvb_get_guint8(tvb, off);
-          /* Length */
-          tlv_len  = tvb_get_guint8(tvb, off+1);
-          proto_tree_add_uint_format_value(v_tree, hf_bootp_docsis_cmcap_len, tvb, off+1, 1,
-            tlv_len, "%d", tlv_len);
-        }
-        else
-        {
-         /* Option 60 is formatted as an ascii string.
-            Since the capabilities are the same for both options
-            I am converting the Option 60 values from ascii to
-            uint8s to allow the same parser to work for both */
-          off += DOCS_CM_TLV_OFF;
-          tvb_memcpy (tvb, asc_val, off, 2);
-          tlv_len = (guint8)strtoul((gchar*)asc_val, NULL, 16);
-          proto_tree_add_uint_format_value(v_tree, hf_bootp_docsis_cmcap_len, tvb, off+2, 2,
-            tlv_len, "%d", tlv_len);
-        }
+	if (opt125)
+	{
+		/* Option 125 is formatted as uint8's */
+		/* Type */
+		tlv_type = tvb_get_guint8(tvb, off);
+		/* Length */
+		tlv_len	 = tvb_get_guint8(tvb, off+1);
+		proto_tree_add_uint_format_value(v_tree, hf_bootp_docsis_cmcap_len, tvb, off+1, 1,
+						 tlv_len, "%d", tlv_len);
+	}
+	else
+	{
+		/* Option 60 is formatted as an ascii string.
+		   Since the capabilities are the same for both options
+		   I am converting the Option 60 values from ascii to
+		   uint8s to allow the same parser to work for both */
+		off += DOCS_CM_TLV_OFF;
+		tvb_memcpy (tvb, asc_val, off, 2);
+		tlv_len = (guint8)strtoul((gchar*)asc_val, NULL, 16);
+		proto_tree_add_uint_format_value(v_tree, hf_bootp_docsis_cmcap_len, tvb, off+2, 2,
+						 tlv_len, "%d", tlv_len);
+	}
 
-        off+=2;
+	off+=2;
 
-        while (off - ((guint) voff) < ((guint) len))
-        {
-          tlv_type = 0;
-          tlv_len = 0;
-          val_byte = 0;
-          val_uint16 = 0;
+	while (off - ((guint) voff) < ((guint) len))
+	{
+		tlv_type = 0;
+		tlv_len = 0;
+		val_byte = 0;
+		val_uint16 = 0;
 
-          if (opt125)
-          {
-            get_opt125_tlv(tvb, off, &tlv_type, &tlv_len, &val_other);
-            ti = proto_tree_add_text(v_tree, tvb, off,
-                                     tlv_len + 2,
-                                     "0x%02x: %s = ",
-                                     tlv_type,
-                                     val_to_str(tlv_type, docs_cm_type_vals, "unknown"));
-          }
-          else
-          {
-           /* Option 60 is formatted as an ascii string.  Since the capabilities
-              are the same for both options I am converting the Option 60 values
-              from ascii to uint8s to allow the same parser to work for both */
-            get_opt60_tlv(tvb, off, &tlv_type, &tlv_len, &val_other);
-            ti = proto_tree_add_text(v_tree, tvb, off,
-                                     (tlv_len * 2) + 4,
-                                     "0x%02x: %s = ",
-                                     tlv_type,
-                                     val_to_str(tlv_type, docs_cm_type_vals, "unknown"));
-          }
-
-          if (tlv_len == 1)
-          {
-            /* The value refers to a byte. */
-            val_byte = val_other[0];
-          }
-          else
-          {
-            if (tlv_len == 2)
-            {
-              /* The value refers to a uint16. */
-              val_uint16 = (val_other[0] << 8) + val_other[1];
-            }
-          }
-
-	  switch (tlv_type)
-	  {
-	    case DOCS_CM_CONCAT_SUP:
-	    case DOCS_CM_FRAG_SUP:
-	    case DOCS_CM_PHS_SUP:
-	    case DOCS_CM_IGMP_SUP:
-	    case DOCS_CM_DCC_SUP:
-	    case DOCS_CM_EXPUNI_SPACE:
-	    case DOCS_CM_DUTFILT_SUP:
-	    case DOCS_CM_SACM2_SUP:
-	    case DOCS_CM_SACM2HOP_SUP:
-	    case DOCS_CM_IPV6_SUP:
-		proto_item_append_text(ti,
-		    "%s",
-		    val_to_str(val_byte, docs_cm_supported_vals, "Reserved"));
-		break;
-	    case DOCS_CM_DOCSIS_VER:
-		proto_item_append_text(ti,
-		    "%s",
-		    val_to_str(val_byte, docs_cm_version_vals, "Reserved"));
-		break;
-	    case DOCS_CM_PRIV_SUP:
-		proto_item_append_text(ti,
-		    "%s",
-		    val_to_str(val_byte, docs_cm_privacy_vals, "Reserved"));
-		break;
-	    case DOCS_CM_FILT_SUP:
-		proto_item_append_text(ti,
-		    "%s",
-		    val_to_str(val_byte, docs_cm_filt_vals, "Reserved"));
-		break;
-	    case DOCS_CM_L2VPN_SUP:
-		proto_item_append_text(ti,
-		    "%s",
-		    val_to_str(val_byte, docs_cm_l2vpn_vals, "Reserved"));
-		break;
-	    case DOCS_CM_L2VPN_HOST_SUP:
-		proto_item_append_text(ti,
-		    "eSAFE ifIndex %s (%i)/eSAFE MAC %2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x",
-		    val_to_str(val_other[0], docs_cm_map_l2vpn_esafe_index_support_vals, "Reserved"),
-		    val_other[0],
-		    val_other[1],
-		    val_other[2],
-		    val_other[3],
-		    val_other[4],
-		    val_other[5],
-		    val_other[6]);
-		break;
-	     case DOCS_CM_USFREQRNG_SUP:
-		proto_item_append_text(ti,
-		    "%s",
-		    val_to_str(val_byte, docs_cm_usfreqrng_vals, "Reserved"));
-		break;
-	     case DOCS_CM_MAPUCDRECEIPT_SUP:
-		proto_item_append_text(ti,
-		    "%s",
-		    val_to_str(val_byte, docs_cm_map_ucd_receipt_vals, "Reserved"));
-		break;
-	     case DOCS_CM_DPV_SUP:
-		proto_item_append_text(ti,
-		    "%s",
-		    val_to_str(val_byte, docs_cm_map_dpv_support_vals, "Reserved"));
-		break;
-	     case DOCS_CM_DSAID_SUP:
-	     case DOCS_CM_MULTTXCHAN_SUP:
-	     case DOCS_CM_512USTXCHAN_SUP:
-	     case DOCS_CM_256USTXCHAN_SUP:
-	     case DOCS_CM_TOTALSIDCLU_SUP:
-	     case DOCS_CM_MULTRXCHAN_SUP:
-	     case DOCS_CM_UGSPERUSFLOW_SUP:
-		display_uint_with_range_checking(ti, val_byte, val_uint16, 0, 255);
-		break;
-	     case DOCS_CM_USID_SUP:
-		display_uint_with_range_checking(ti, val_byte, val_uint16,1, 255);
-		break;
-	     case DOCS_CM_RESEQDSID_SUP:
-	     case DOCS_CM_MULTDSID_SUP:
-		display_uint_with_range_checking(ti, val_byte, val_uint16, 16, 255);
-		break;
-	     case DOCS_CM_SIDCLUPERSF_SUP:
-		display_uint_with_range_checking(ti, val_byte, val_uint16, 2, 8);
-		break;
-	     case DOCS_CM_TOTALDSID_SUP:
-		display_uint_with_range_checking(ti, val_byte, val_uint16, 3, 255);
-		break;
-	     case DOCS_CM_TET:
-		display_uint_with_range_checking(ti, val_byte, val_uint16, 8, 64);
-		break;
-	     case DOCS_CM_TET_MI:
-		if ((val_byte == 1) ||
-		    (val_byte == 2) ||
-		    (val_byte == 4))
+		if (opt125)
 		{
-		  proto_item_append_text(ti,
-			" %i",
-			val_byte);
+			get_opt125_tlv(tvb, off, &tlv_type, &tlv_len, &val_other);
+			ti = proto_tree_add_text(v_tree, tvb, off,
+						 tlv_len + 2,
+						 "0x%02x: %s = ",
+						 tlv_type,
+						 val_to_str(tlv_type, docs_cm_type_vals, "unknown"));
 		}
 		else
 		{
-		  proto_item_append_text(ti,
-			 " (Invalid Value %i : Should be [1,2,4]",
-			 val_byte);
+			/* Option 60 is formatted as an ascii string.  Since the capabilities
+			   are the same for both options I am converting the Option 60 values
+			   from ascii to uint8s to allow the same parser to work for both */
+			get_opt60_tlv(tvb, off, &tlv_type, &tlv_len, &val_other);
+			ti = proto_tree_add_text(v_tree, tvb, off,
+						 (tlv_len * 2) + 4,
+						 "0x%02x: %s = ",
+						 tlv_type,
+						 val_to_str(tlv_type, docs_cm_type_vals, "unknown"));
 		}
-		break;
-	    case DOCS_CM_IPFILT_SUP:
-	    case DOCS_CM_USDROPCLASSIF_SUP:
-		display_uint_with_range_checking(ti, val_byte, val_uint16, 64, 65535);
-		break;
-	    case DOCS_CM_LLCFILT_SUP:
-		display_uint_with_range_checking(ti, val_byte, val_uint16, 10, 65535);
-		break;
-	    case DOCS_CM_RNGHLDOFF_SUP:
-		proto_item_append_text(ti,
-			"Ranging ID ");
-		proto_item_append_text(ti,
-			"(0x%04x)", (val_other[0] << sizeof(guint8)) + val_other[1]);
-		proto_item_append_text(ti,
-			" Component Bit Mask ");
-		proto_item_append_text(ti,
-			"(0x%04x)", (val_other[2] << sizeof(guint8)) + val_other[3]);
-		break;
-	    case DOCS_CM_USSYMRATE_SUP:
-		proto_item_append_text(ti,
-			"0x%02x", val_byte);
-		break;
-	    case DOCS_CM_FCTF_SUP:
-		proto_item_append_text(ti,
-			"%s",
-			val_to_str(val_byte, docs_cm_map_fctfc_support_vals, "Reserved"));
-		break;
-	    case DOCS_CM_MULTDSIDFW_SUP:
-		proto_item_append_text(ti,
-			"%s",
-			val_to_str(val_byte, docs_cm_map_multDsidForward_support_vals, "Reserved"));
-		break;
-	  }
 
-     subtree = proto_item_add_subtree(ti, ett_bootp_option);
-     if (tlv_type == DOCS_CM_RNGHLDOFF_SUP)
-     {
-       for (i = 0 ; i < 4; i++)
-       {
-         decode_bitfield_value(bit_fld,
-                               (val_other[2] << sizeof(guint8)) + val_other[3],
-                               docs_cm_ranging_hold_off_vals[i].value,
-                               16);
-         proto_tree_add_text(subtree, tvb, off + 1, 4, "%s%s",
-                               bit_fld, docs_cm_ranging_hold_off_vals[i].strptr);
-       }
-     }
-     if (tlv_type == DOCS_CM_USSYMRATE_SUP)
-     {
-       for (i = 0 ; i < 6; i++)
-       {
-         decode_bitfield_value(bit_fld, val_byte,docs_cm_ussymrate_vals[i].value, 16);
-         proto_tree_add_text(subtree, tvb, off + 1, 4, "%s%s",
-                             bit_fld, docs_cm_ussymrate_vals[i].strptr);
+		if (tlv_len == 1)
+		{
+			/* The value refers to a byte. */
+			val_byte = val_other[0];
+		}
+		else
+		{
+			if (tlv_len == 2)
+			{
+				/* The value refers to a uint16. */
+				val_uint16 = (val_other[0] << 8) + val_other[1];
+			}
+		}
 
-       }
-     }
-     if (opt125)
-     {
-       off += (tlv_len) + 2;
-     }
-     else
-     {
-       off += (tlv_len *2) + 4;
-     }
+		switch (tlv_type)
+		{
+		case DOCS_CM_CONCAT_SUP:
+		case DOCS_CM_FRAG_SUP:
+		case DOCS_CM_PHS_SUP:
+		case DOCS_CM_IGMP_SUP:
+		case DOCS_CM_DCC_SUP:
+		case DOCS_CM_EXPUNI_SPACE:
+		case DOCS_CM_DUTFILT_SUP:
+		case DOCS_CM_SACM2_SUP:
+		case DOCS_CM_SACM2HOP_SUP:
+		case DOCS_CM_IPV6_SUP:
+			proto_item_append_text(ti,
+					       "%s",
+					       val_to_str(val_byte, docs_cm_supported_vals, "Reserved"));
+			break;
+		case DOCS_CM_DOCSIS_VER:
+			proto_item_append_text(ti,
+					       "%s",
+					       val_to_str(val_byte, docs_cm_version_vals, "Reserved"));
+			break;
+		case DOCS_CM_PRIV_SUP:
+			proto_item_append_text(ti,
+					       "%s",
+					       val_to_str(val_byte, docs_cm_privacy_vals, "Reserved"));
+			break;
+		case DOCS_CM_FILT_SUP:
+			proto_item_append_text(ti,
+					       "%s",
+					       val_to_str(val_byte, docs_cm_filt_vals, "Reserved"));
+			break;
+		case DOCS_CM_L2VPN_SUP:
+			proto_item_append_text(ti,
+					       "%s",
+					       val_to_str(val_byte, docs_cm_l2vpn_vals, "Reserved"));
+			break;
+		case DOCS_CM_L2VPN_HOST_SUP:
+			proto_item_append_text(ti,
+					       "eSAFE ifIndex %s (%i)/eSAFE MAC %2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x",
+					       val_to_str(val_other[0], docs_cm_map_l2vpn_esafe_index_support_vals, "Reserved"),
+					       val_other[0],
+					       val_other[1],
+					       val_other[2],
+					       val_other[3],
+					       val_other[4],
+					       val_other[5],
+					       val_other[6]);
+			break;
+		case DOCS_CM_USFREQRNG_SUP:
+			proto_item_append_text(ti,
+					       "%s",
+					       val_to_str(val_byte, docs_cm_usfreqrng_vals, "Reserved"));
+			break;
+		case DOCS_CM_MAPUCDRECEIPT_SUP:
+			proto_item_append_text(ti,
+					       "%s",
+					       val_to_str(val_byte, docs_cm_map_ucd_receipt_vals, "Reserved"));
+			break;
+		case DOCS_CM_DPV_SUP:
+			proto_item_append_text(ti,
+					       "%s",
+					       val_to_str(val_byte, docs_cm_map_dpv_support_vals, "Reserved"));
+			break;
+		case DOCS_CM_DSAID_SUP:
+		case DOCS_CM_MULTTXCHAN_SUP:
+		case DOCS_CM_512USTXCHAN_SUP:
+		case DOCS_CM_256USTXCHAN_SUP:
+		case DOCS_CM_TOTALSIDCLU_SUP:
+		case DOCS_CM_MULTRXCHAN_SUP:
+		case DOCS_CM_UGSPERUSFLOW_SUP:
+			display_uint_with_range_checking(ti, val_byte, val_uint16, 0, 255);
+			break;
+		case DOCS_CM_USID_SUP:
+			display_uint_with_range_checking(ti, val_byte, val_uint16,1, 255);
+			break;
+		case DOCS_CM_RESEQDSID_SUP:
+		case DOCS_CM_MULTDSID_SUP:
+			display_uint_with_range_checking(ti, val_byte, val_uint16, 16, 255);
+			break;
+		case DOCS_CM_SIDCLUPERSF_SUP:
+			display_uint_with_range_checking(ti, val_byte, val_uint16, 2, 8);
+			break;
+		case DOCS_CM_TOTALDSID_SUP:
+			display_uint_with_range_checking(ti, val_byte, val_uint16, 3, 255);
+			break;
+		case DOCS_CM_TET:
+			display_uint_with_range_checking(ti, val_byte, val_uint16, 8, 64);
+			break;
+		case DOCS_CM_TET_MI:
+			if ((val_byte == 1) ||
+			    (val_byte == 2) ||
+			    (val_byte == 4))
+			{
+				proto_item_append_text(ti,
+						       " %i",
+						       val_byte);
+			}
+			else
+			{
+				proto_item_append_text(ti,
+						       " (Invalid Value %i : Should be [1,2,4]",
+						       val_byte);
+			}
+			break;
+		case DOCS_CM_IPFILT_SUP:
+		case DOCS_CM_USDROPCLASSIF_SUP:
+			display_uint_with_range_checking(ti, val_byte, val_uint16, 64, 65535);
+			break;
+		case DOCS_CM_LLCFILT_SUP:
+			display_uint_with_range_checking(ti, val_byte, val_uint16, 10, 65535);
+			break;
+		case DOCS_CM_RNGHLDOFF_SUP:
+			proto_item_append_text(ti,
+					       "Ranging ID ");
+			proto_item_append_text(ti,
+					       "(0x%04x)", (val_other[0] << sizeof(guint8)) + val_other[1]);
+			proto_item_append_text(ti,
+					       " Component Bit Mask ");
+			proto_item_append_text(ti,
+					       "(0x%04x)", (val_other[2] << sizeof(guint8)) + val_other[3]);
+			break;
+		case DOCS_CM_USSYMRATE_SUP:
+			proto_item_append_text(ti,
+					       "0x%02x", val_byte);
+			break;
+		case DOCS_CM_FCTF_SUP:
+			proto_item_append_text(ti,
+					       "%s",
+					       val_to_str(val_byte, docs_cm_map_fctfc_support_vals, "Reserved"));
+			break;
+		case DOCS_CM_MULTDSIDFW_SUP:
+			proto_item_append_text(ti,
+					       "%s",
+					       val_to_str(val_byte, docs_cm_map_multDsidForward_support_vals, "Reserved"));
+			break;
+		}
 
-   }
+		subtree = proto_item_add_subtree(ti, ett_bootp_option);
+		if (tlv_type == DOCS_CM_RNGHLDOFF_SUP)
+		{
+			for (i = 0 ; i < 4; i++)
+			{
+				decode_bitfield_value(bit_fld,
+						      (val_other[2] << sizeof(guint8)) + val_other[3],
+						      docs_cm_ranging_hold_off_vals[i].value,
+						      16);
+				proto_tree_add_text(subtree, tvb, off + 1, 4, "%s%s",
+						    bit_fld, docs_cm_ranging_hold_off_vals[i].strptr);
+			}
+		}
+		if (tlv_type == DOCS_CM_USSYMRATE_SUP)
+		{
+			for (i = 0 ; i < 6; i++)
+			{
+				decode_bitfield_value(bit_fld, val_byte,docs_cm_ussymrate_vals[i].value, 16);
+				proto_tree_add_text(subtree, tvb, off + 1, 4, "%s%s",
+						    bit_fld, docs_cm_ussymrate_vals[i].strptr);
+
+			}
+		}
+		if (opt125)
+		{
+			off += (tlv_len) + 2;
+		}
+		else
+		{
+			off += (tlv_len *2) + 4;
+		}
+
+	}
 }
 
 /* Definitions specific to PKT-SP-PROV-I05-021127 begin with "PKT_CCC_I05".
@@ -4707,7 +4707,7 @@ bootp_init_protocol(void)
 		if (bootp_opt[ii].ftype == special) continue;    /* don't mess with specials.  Go again       */
 		bootp_opt[ii].text = se_strdup(optiondetail[1]); /* store a permanent ("seasonal") copy       */
 		type = optiondetail[2];                          /* A string to be converted to an ftype enum */
-		/* XXX This if statement could be extended to allow for additinonal types */
+		/* XXX This if statement could be extended to allow for additional types */
 		if (g_ascii_strcasecmp(type,"string") == 0)
 		{
 			bootp_opt[ii].ftype = string;
@@ -4727,223 +4727,223 @@ bootp_init_protocol(void)
 void
 proto_register_bootp(void)
 {
-    static hf_register_info hf[] = {
-        { &hf_bootp_dhcp,
-          { "Frame is DHCP",            "bootp.dhcp",    FT_BOOLEAN,
-            BASE_NONE,			NULL,		 0x0,
-            NULL, HFILL }},
+	static hf_register_info hf[] = {
+		{ &hf_bootp_dhcp,
+		  { "Frame is DHCP",            "bootp.dhcp",    FT_BOOLEAN,
+		    BASE_NONE,			NULL,		 0x0,
+		    NULL, HFILL }},
 
-        { &hf_bootp_type,
-          { "Message type",		"bootp.type",	 FT_UINT8,
-            BASE_DEC, 			VALS(op_vals),   0x0,
-            NULL, HFILL }},
+		{ &hf_bootp_type,
+		  { "Message type",		"bootp.type",	 FT_UINT8,
+		    BASE_DEC, 			VALS(op_vals),   0x0,
+		    NULL, HFILL }},
 
-        { &hf_bootp_hw_type,
-          { "Hardware type",	       	"bootp.hw.type", FT_UINT8,
-            BASE_HEX,			NULL,		 0x0,
-            NULL, HFILL }},
+		{ &hf_bootp_hw_type,
+		  { "Hardware type",	       	"bootp.hw.type", FT_UINT8,
+		    BASE_HEX,			NULL,		 0x0,
+		    NULL, HFILL }},
 
-        { &hf_bootp_hw_len,
-          { "Hardware address length",	"bootp.hw.len",  FT_UINT8,
-            BASE_DEC,			NULL,		 0x0,
-            NULL, HFILL }},
+		{ &hf_bootp_hw_len,
+		  { "Hardware address length",	"bootp.hw.len",  FT_UINT8,
+		    BASE_DEC,			NULL,		 0x0,
+		    NULL, HFILL }},
 
-        { &hf_bootp_hops,
-          { "Hops",		       	"bootp.hops",	 FT_UINT8,
-            BASE_DEC,			NULL,		 0x0,
-            NULL, HFILL }},
+		{ &hf_bootp_hops,
+		  { "Hops",		       	"bootp.hops",	 FT_UINT8,
+		    BASE_DEC,			NULL,		 0x0,
+		    NULL, HFILL }},
 
-        { &hf_bootp_id,
-          { "Transaction ID",	       	"bootp.id",	 FT_UINT32,
-            BASE_HEX,			 NULL,		 0x0,
-            NULL, HFILL }},
+		{ &hf_bootp_id,
+		  { "Transaction ID",	       	"bootp.id",	 FT_UINT32,
+		    BASE_HEX,			 NULL,		 0x0,
+		    NULL, HFILL }},
 
-        { &hf_bootp_secs,
-          { "Seconds elapsed",	       	"bootp.secs",	 FT_UINT16,
-            BASE_DEC,			 NULL,		 0x0,
-            NULL, HFILL }},
+		{ &hf_bootp_secs,
+		  { "Seconds elapsed",	       	"bootp.secs",	 FT_UINT16,
+		    BASE_DEC,			 NULL,		 0x0,
+		    NULL, HFILL }},
 
-        { &hf_bootp_flags,
-          { "Bootp flags",	       	"bootp.flags",   FT_UINT16,
-            BASE_HEX,			NULL,		 0x0,
-            NULL, HFILL }},
+		{ &hf_bootp_flags,
+		  { "Bootp flags",	       	"bootp.flags",   FT_UINT16,
+		    BASE_HEX,			NULL,		 0x0,
+		    NULL, HFILL }},
 
-        { &hf_bootp_flags_broadcast,
-          { "Broadcast flag",	       	"bootp.flags.bc", FT_BOOLEAN,
-            16,			TFS(&flag_set_broadcast), BOOTP_BC,
-            NULL, HFILL }},
+		{ &hf_bootp_flags_broadcast,
+		  { "Broadcast flag",	       	"bootp.flags.bc", FT_BOOLEAN,
+		    16,			TFS(&flag_set_broadcast), BOOTP_BC,
+		    NULL, HFILL }},
 
-        { &hf_bootp_flags_reserved,
-          { "Reserved flags",	       	"bootp.flags.reserved", FT_UINT16,
-            BASE_HEX,			NULL,		BOOTP_MBZ,
-            NULL, HFILL }},
+		{ &hf_bootp_flags_reserved,
+		  { "Reserved flags",	       	"bootp.flags.reserved", FT_UINT16,
+		    BASE_HEX,			NULL,		BOOTP_MBZ,
+		    NULL, HFILL }},
 
-        { &hf_bootp_ip_client,
-          { "Client IP address",	"bootp.ip.client",FT_IPv4,
-            BASE_NONE,			NULL,		  0x0,
-            NULL, HFILL }},
+		{ &hf_bootp_ip_client,
+		  { "Client IP address",	"bootp.ip.client",FT_IPv4,
+		    BASE_NONE,			NULL,		  0x0,
+		    NULL, HFILL }},
 
-        { &hf_bootp_ip_your,
-          { "Your (client) IP address",	"bootp.ip.your",  FT_IPv4,
-            BASE_NONE,			NULL,		  0x0,
-            NULL, HFILL }},
+		{ &hf_bootp_ip_your,
+		  { "Your (client) IP address",	"bootp.ip.your",  FT_IPv4,
+		    BASE_NONE,			NULL,		  0x0,
+		    NULL, HFILL }},
 
-        { &hf_bootp_ip_server,
-          { "Next server IP address",	"bootp.ip.server",FT_IPv4,
-            BASE_NONE,			NULL,		  0x0,
-            NULL, HFILL }},
+		{ &hf_bootp_ip_server,
+		  { "Next server IP address",	"bootp.ip.server",FT_IPv4,
+		    BASE_NONE,			NULL,		  0x0,
+		    NULL, HFILL }},
 
-        { &hf_bootp_ip_relay,
-          { "Relay agent IP address",	"bootp.ip.relay", FT_IPv4,
-            BASE_NONE,			NULL,		  0x0,
-            NULL, HFILL }},
+		{ &hf_bootp_ip_relay,
+		  { "Relay agent IP address",	"bootp.ip.relay", FT_IPv4,
+		    BASE_NONE,			NULL,		  0x0,
+		    NULL, HFILL }},
 
-        { &hf_bootp_hw_addr,
-          { "Client hardware address",	"bootp.hw.addr", FT_BYTES,
-            BASE_NONE,			NULL,		 0x0,
-            NULL, HFILL }},
+		{ &hf_bootp_hw_addr,
+		  { "Client hardware address",	"bootp.hw.addr", FT_BYTES,
+		    BASE_NONE,			NULL,		 0x0,
+		    NULL, HFILL }},
 
-        { &hf_bootp_hw_addr_padding,
-          { "Client hardware address padding",	"bootp.hw.addr_padding", FT_BYTES,
-            BASE_NONE,			NULL,		 0x0,
-            NULL, HFILL }},
+		{ &hf_bootp_hw_addr_padding,
+		  { "Client hardware address padding",	"bootp.hw.addr_padding", FT_BYTES,
+		    BASE_NONE,			NULL,		 0x0,
+		    NULL, HFILL }},
 
-        { &hf_bootp_hw_ether_addr,
-          { "Client MAC address",	"bootp.hw.mac_addr", FT_ETHER,
-            BASE_NONE,			NULL,		 0x0,
-            NULL, HFILL }},
+		{ &hf_bootp_hw_ether_addr,
+		  { "Client MAC address",	"bootp.hw.mac_addr", FT_ETHER,
+		    BASE_NONE,			NULL,		 0x0,
+		    NULL, HFILL }},
 
-        { &hf_bootp_server,
-          { "Server host name",		"bootp.server",  FT_STRING,
-            BASE_NONE,			NULL,		 0x0,
-            NULL, HFILL }},
+		{ &hf_bootp_server,
+		  { "Server host name",		"bootp.server",  FT_STRING,
+		    BASE_NONE,			NULL,		 0x0,
+		    NULL, HFILL }},
 
-        { &hf_bootp_file,
-          { "Boot file name",		"bootp.file",	 FT_STRING,
-            BASE_NONE,			NULL,		 0x0,
-            NULL, HFILL }},
+		{ &hf_bootp_file,
+		  { "Boot file name",		"bootp.file",	 FT_STRING,
+		    BASE_NONE,			NULL,		 0x0,
+		    NULL, HFILL }},
 
-        { &hf_bootp_cookie,
-          { "Magic cookie",		"bootp.cookie",	 FT_IPv4,
-            BASE_NONE,			NULL,		 0x0,
-            NULL, HFILL }},
+		{ &hf_bootp_cookie,
+		  { "Magic cookie",		"bootp.cookie",	 FT_IPv4,
+		    BASE_NONE,			NULL,		 0x0,
+		    NULL, HFILL }},
 
-        { &hf_bootp_vendor,
-          { "Bootp Vendor Options",	"bootp.vendor",  FT_BYTES,
-            BASE_NONE,			NULL,		 0x0,
-            NULL, HFILL }},
+		{ &hf_bootp_vendor,
+		  { "Bootp Vendor Options",	"bootp.vendor",  FT_BYTES,
+		    BASE_NONE,			NULL,		 0x0,
+		    NULL, HFILL }},
 
-        { &hf_bootp_fqdn_s,
-          { "Server",			"bootp.fqdn.s",	 FT_BOOLEAN,
-            8,			TFS(&tfs_fqdn_s),	F_FQDN_S,
-            "If true, server should do DDNS update", HFILL }},
+		{ &hf_bootp_fqdn_s,
+		  { "Server",			"bootp.fqdn.s",	 FT_BOOLEAN,
+		    8,			TFS(&tfs_fqdn_s),	F_FQDN_S,
+		    "If true, server should do DDNS update", HFILL }},
 
-        { &hf_bootp_fqdn_o,
-          { "Server overrides",		"bootp.fqdn.o",  FT_BOOLEAN,
-            8,			      TFS(&tfs_fqdn_o),  F_FQDN_O,
-            "If true, server insists on doing DDNS update", HFILL }},
+		{ &hf_bootp_fqdn_o,
+		  { "Server overrides",		"bootp.fqdn.o",  FT_BOOLEAN,
+		    8,			      TFS(&tfs_fqdn_o),  F_FQDN_O,
+		    "If true, server insists on doing DDNS update", HFILL }},
 
-        { &hf_bootp_fqdn_e,
-          { "Encoding",			"bootp.fqdn.e",  FT_BOOLEAN,
-            8,			      TFS(&tfs_fqdn_e),	 F_FQDN_E,
-            "If true, name is binary encoded", HFILL }},
+		{ &hf_bootp_fqdn_e,
+		  { "Encoding",			"bootp.fqdn.e",  FT_BOOLEAN,
+		    8,			      TFS(&tfs_fqdn_e),	 F_FQDN_E,
+		    "If true, name is binary encoded", HFILL }},
 
-        { &hf_bootp_fqdn_n,
-          { "Server DDNS",		"bootp.fqdn.n",  FT_BOOLEAN,
-            8,			      TFS(&tfs_fqdn_n),  F_FQDN_N,
-            "If true, server should not do any DDNS updates", HFILL }},
+		{ &hf_bootp_fqdn_n,
+		  { "Server DDNS",		"bootp.fqdn.n",  FT_BOOLEAN,
+		    8,			      TFS(&tfs_fqdn_n),  F_FQDN_N,
+		    "If true, server should not do any DDNS updates", HFILL }},
 
-        { &hf_bootp_fqdn_mbz,
-          { "Reserved flags",		"bootp.fqdn.mbz",FT_UINT8,
-            BASE_HEX,			NULL,		 F_FQDN_MBZ,
-            NULL, HFILL }},
+		{ &hf_bootp_fqdn_mbz,
+		  { "Reserved flags",		"bootp.fqdn.mbz",FT_UINT8,
+		    BASE_HEX,			NULL,		 F_FQDN_MBZ,
+		    NULL, HFILL }},
 
-        { &hf_bootp_fqdn_rcode1,
-          { "A-RR result",	       	"bootp.fqdn.rcode1", FT_UINT8,
-            BASE_DEC,			NULL,		 0x0,
-            "Result code of A-RR update", HFILL }},
+		{ &hf_bootp_fqdn_rcode1,
+		  { "A-RR result",	       	"bootp.fqdn.rcode1", FT_UINT8,
+		    BASE_DEC,			NULL,		 0x0,
+		    "Result code of A-RR update", HFILL }},
 
-        { &hf_bootp_fqdn_rcode2,
-          { "PTR-RR result",       	"bootp.fqdn.rcode2", FT_UINT8,
-            BASE_DEC,			NULL,		 0x0,
-            "Result code of PTR-RR update", HFILL }},
+		{ &hf_bootp_fqdn_rcode2,
+		  { "PTR-RR result",       	"bootp.fqdn.rcode2", FT_UINT8,
+		    BASE_DEC,			NULL,		 0x0,
+		    "Result code of PTR-RR update", HFILL }},
 
-        { &hf_bootp_fqdn_name,
-          { "Client name",		"bootp.fqdn.name", FT_STRING,
-            BASE_NONE,			NULL,		 0x0,
-            "Name to register via DDNS", HFILL }},
+		{ &hf_bootp_fqdn_name,
+		  { "Client name",		"bootp.fqdn.name", FT_STRING,
+		    BASE_NONE,			NULL,		 0x0,
+		    "Name to register via DDNS", HFILL }},
 
-        { &hf_bootp_fqdn_asciiname,
-          { "Client name",		"bootp.fqdn.name", FT_STRING,
-            BASE_NONE,			NULL,		 0x0,
-            "Name to register via DDNS", HFILL }},
+		{ &hf_bootp_fqdn_asciiname,
+		  { "Client name",		"bootp.fqdn.name", FT_STRING,
+		    BASE_NONE,			NULL,		 0x0,
+		    "Name to register via DDNS", HFILL }},
 
-        { &hf_bootp_pkt_mtacap_len,
-          { "MTA DC Length",		"bootp.vendor.pktc.mtacap_len", FT_UINT8,
-            BASE_DEC,			 NULL,		 0x0,
-            "PacketCable MTA Device Capabilities Length", HFILL }},
+		{ &hf_bootp_pkt_mtacap_len,
+		  { "MTA DC Length",		"bootp.vendor.pktc.mtacap_len", FT_UINT8,
+		    BASE_DEC,			 NULL,		 0x0,
+		    "PacketCable MTA Device Capabilities Length", HFILL }},
 
-        { &hf_bootp_docsis_cmcap_len,
-          { "CM DC Length",		"bootp.vendor.docsis.cmcap_len", FT_UINT8,
-            BASE_DEC,			NULL,		 0x0,
-            "DOCSIS Cable Modem Device Capabilities Length", HFILL }},
+		{ &hf_bootp_docsis_cmcap_len,
+		  { "CM DC Length",		"bootp.vendor.docsis.cmcap_len", FT_UINT8,
+		    BASE_DEC,			NULL,		 0x0,
+		    "DOCSIS Cable Modem Device Capabilities Length", HFILL }},
 
-        { &hf_bootp_alu_vid,
-          { "Voice VLAN ID",	"bootp.vendor.alu.vid", FT_UINT16,
-            BASE_DEC, 			NULL,		 0x0,
-            NULL, HFILL }},
+		{ &hf_bootp_alu_vid,
+		  { "Voice VLAN ID",	"bootp.vendor.alu.vid", FT_UINT16,
+		    BASE_DEC, 			NULL,		 0x0,
+		    NULL, HFILL }},
 
-        { &hf_bootp_alu_tftp1,
-          { "Spatial Redundancy TFTP1",	"bootp.vendor.alu.tftp1", FT_IPv4,
-            BASE_NONE,			NULL,		 0x0,
-            NULL, HFILL }},
+		{ &hf_bootp_alu_tftp1,
+		  { "Spatial Redundancy TFTP1",	"bootp.vendor.alu.tftp1", FT_IPv4,
+		    BASE_NONE,			NULL,		 0x0,
+		    NULL, HFILL }},
 
-        { &hf_bootp_alu_tftp2,
-          { "Spatial Redundancy TFTP2",	"bootp.vendor.alu.tftp2", FT_IPv4,
-            BASE_NONE,			NULL,		 0x0,
-            NULL, HFILL }},
+		{ &hf_bootp_alu_tftp2,
+		  { "Spatial Redundancy TFTP2",	"bootp.vendor.alu.tftp2", FT_IPv4,
+		    BASE_NONE,			NULL,		 0x0,
+		    NULL, HFILL }},
 
-        { &hf_bootp_alu_app_type,
-          { "Application Type",	"bootp.vendor.alu.app_type", FT_UINT8,
-            BASE_DEC,			NULL,		 0x0,
-            NULL, HFILL }},
+		{ &hf_bootp_alu_app_type,
+		  { "Application Type",	"bootp.vendor.alu.app_type", FT_UINT8,
+		    BASE_DEC,			NULL,		 0x0,
+		    NULL, HFILL }},
 
-        { &hf_bootp_alu_sip_url,
-          { "SIP URL",			"bootp.vendor.alu.sip_url", FT_STRING,
-            BASE_NONE,			NULL,		 0x0,
-            NULL, HFILL }},
+		{ &hf_bootp_alu_sip_url,
+		  { "SIP URL",			"bootp.vendor.alu.sip_url", FT_STRING,
+		    BASE_NONE,			NULL,		 0x0,
+		    NULL, HFILL }},
 
-        { &hf_bootp_client_identifier_uuid,
-          { "Client Identifier (UUID)",	"bootp.client_id_uuid", FT_GUID,
-            BASE_NONE,			NULL,		 0x0,
-            "Client Machine Identifier (UUID)", HFILL }},
+		{ &hf_bootp_client_identifier_uuid,
+		  { "Client Identifier (UUID)",	"bootp.client_id_uuid", FT_GUID,
+		    BASE_NONE,			NULL,		 0x0,
+		    "Client Machine Identifier (UUID)", HFILL }},
 
-        { &hf_bootp_client_network_id_major_ver,
-          { "Client Network ID Major Version", "bootp.client_network_id_major", FT_UINT8,
-            BASE_DEC, 			NULL,		 0x0,
-            "Client Machine Identifier, Major Version", HFILL }},
+		{ &hf_bootp_client_network_id_major_ver,
+		  { "Client Network ID Major Version", "bootp.client_network_id_major", FT_UINT8,
+		    BASE_DEC, 			NULL,		 0x0,
+		    "Client Machine Identifier, Major Version", HFILL }},
 
-        { &hf_bootp_client_network_id_minor_ver,
-          { "Client Network ID Minor Version", "bootp.client_network_id_minor", FT_UINT8,
-            BASE_DEC, 			NULL,		 0x0,
-            "Client Machine Identifier, Major Version", HFILL }},
+		{ &hf_bootp_client_network_id_minor_ver,
+		  { "Client Network ID Minor Version", "bootp.client_network_id_minor", FT_UINT8,
+		    BASE_DEC, 			NULL,		 0x0,
+		    "Client Machine Identifier, Major Version", HFILL }},
 
-        { &hf_bootp_option_type,
-          { "Option",	"bootp.option.type", FT_UINT8,
-            BASE_DEC,			 NULL,		 0x0,
-            "Bootp/Dhcp option type", HFILL }},
+		{ &hf_bootp_option_type,
+		  { "Option",	"bootp.option.type", FT_UINT8,
+		    BASE_DEC,			 NULL,		 0x0,
+		    "Bootp/Dhcp option type", HFILL }},
 
-        { &hf_bootp_option_length,
-          { "Length",	"bootp.option.length", FT_UINT8,
-            BASE_DEC, 			NULL,		 0x0,
-            "Bootp/Dhcp option length", HFILL }},
+		{ &hf_bootp_option_length,
+		  { "Length",	"bootp.option.length", FT_UINT8,
+		    BASE_DEC, 			NULL,		 0x0,
+		    "Bootp/Dhcp option length", HFILL }},
 
-        { &hf_bootp_option_value,
-          { "Value",	"bootp.option.value", FT_BYTES,
-            BASE_NONE, 			NULL,		 0x0,
-            "Bootp/Dhcp option value", HFILL }},
+		{ &hf_bootp_option_value,
+		  { "Value",	"bootp.option.value", FT_BYTES,
+		    BASE_NONE, 			NULL,		 0x0,
+		    "Bootp/Dhcp option value", HFILL }},
 
-    };
+	};
 
 	static gint *ett[] = {
 		&ett_bootp,

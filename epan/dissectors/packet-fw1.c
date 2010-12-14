@@ -111,16 +111,16 @@ static int hf_fw1_trailer = -1;
 /* Initialize the subtree pointers */
 static gint ett_fw1 = -1;
 
-#define ETH_HEADER_SIZE	14
+#define ETH_HEADER_SIZE 14
 
-#define	MAX_INTERFACES	20
-static char	*p_interfaces[MAX_INTERFACES];
-static int	interface_anzahl=0;
+#define MAX_INTERFACES  20
+static char     *p_interfaces[MAX_INTERFACES];
+static int      interface_anzahl=0;
 
 static void
 fw1_init(void)
 {
-  int		i;
+  int           i;
 
   for (i=0; i<interface_anzahl; i++) {
     g_free(p_interfaces[i]);
@@ -134,15 +134,15 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Set up structures needed to add the protocol subtree and manage it */
   proto_item    *ti;
   proto_tree    *volatile fh_tree = NULL;
-  char		direction;
-  char	chain;
-  char		*interface_name;
-  guint32	iface_len = 10;
-  guint16	etype;
-  emem_strbuf_t	*header;
-  int		i;
-  gboolean	found;
-  static const char	fw1_header[] = "FW1 Monitor";
+  char          direction;
+  char  chain;
+  char          *interface_name;
+  guint32       iface_len = 10;
+  guint16       etype;
+  emem_strbuf_t *header;
+  int           i;
+  gboolean      found;
+  static const char     fw1_header[] = "FW1 Monitor";
 
   header = ep_strbuf_new_label(fw1_header);
 
@@ -157,12 +157,12 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   direction = tvb_get_guint8(tvb, 0);
 
   if (!fw1_iflist_with_chain)
-  	chain = ' ';
+    chain = ' ';
   else
-  	chain = tvb_get_guint8(tvb, 1);
+    chain = tvb_get_guint8(tvb, 1);
 
   if (fw1_with_uuid)
-  	iface_len = 6;
+    iface_len = 6;
 
   interface_name=ep_alloc(iface_len+1);
   tvb_get_nstringz0(tvb, 2, iface_len+1, interface_name);
@@ -183,15 +183,15 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* display all interfaces always in the same order */
   for (i=0; i<interface_anzahl; i++) {
     if ( strcmp(p_interfaces[i], interface_name) == 0 ) {
-       	ep_strbuf_append_printf(header, "  %c%c %s %c%c",
- 			direction == 'i' ? 'i' : (direction == 'O' ? 'O' : ' '),
-			(direction == 'i' || direction == 'O') ? chain : ' ',
-			p_interfaces[i],
-			direction == 'I' ? 'I' : (direction == 'o' ? 'o' : ' '),
-			(direction == 'I' || direction == 'o') ? chain : ' '
-		);
+      ep_strbuf_append_printf(header, "  %c%c %s %c%c",
+                              direction == 'i' ? 'i' : (direction == 'O' ? 'O' : ' '),
+                              (direction == 'i' || direction == 'O') ? chain : ' ',
+                              p_interfaces[i],
+                              direction == 'I' ? 'I' : (direction == 'o' ? 'o' : ' '),
+                              (direction == 'I' || direction == 'o') ? chain : ' '
+        );
     } else {
-    	ep_strbuf_append_printf(header, "    %s  ", p_interfaces[i]);
+      ep_strbuf_append_printf(header, "    %s  ", p_interfaces[i]);
     }
   }
 
@@ -227,28 +227,29 @@ void
 proto_register_fw1(void)
 {
   static hf_register_info hf[] = {
-	{ &hf_fw1_direction,
-	{ "Direction",	"fw1.direction", FT_STRING, BASE_NONE, NULL, 0x0,
-		NULL, HFILL }},
-	{ &hf_fw1_chain,
-	{ "Chain Position",	"fw1.chain", FT_STRING, BASE_NONE, NULL, 0x0,
-		NULL, HFILL }},
-	{ &hf_fw1_interface,
-	{ "Interface",	"fw1.interface", FT_STRING, BASE_NONE, NULL, 0x0,
-		NULL, HFILL }},
-	{ &hf_fw1_uuid,
-	{ "UUID",	"fw1.uuid", FT_UINT32, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }},
-		/* registered here but handled in ethertype.c */
-	{ &hf_fw1_type,
-	{ "Type",		"fw1.type", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
-		NULL, HFILL }},
+    { &hf_fw1_direction,
+      { "Direction",    "fw1.direction", FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_fw1_chain,
+      { "Chain Position",       "fw1.chain", FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_fw1_interface,
+      { "Interface",    "fw1.interface", FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_fw1_uuid,
+      { "UUID", "fw1.uuid", FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    /* registered here but handled in ethertype.c */
+    { &hf_fw1_type,
+      { "Type",         "fw1.type", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
+        NULL, HFILL }},
   };
   /* Setup protocol subtree array */
   static gint *ett[] = {
-	&ett_fw1,
+    &ett_fw1,
   };
   module_t *fw1_module;
+  int       i;
 
   /* Register the protocol name and description */
   proto_fw1 = proto_register_protocol("Checkpoint FW-1", "FW-1", "fw1");
@@ -259,19 +260,22 @@ proto_register_fw1(void)
   /* Register configuration preferences */
   fw1_module = prefs_register_protocol(proto_fw1, NULL);
   prefs_register_bool_preference(fw1_module, "summary_in_tree",
-            "Show FireWall-1 summary in protocol tree",
-	    "Whether the FireWall-1 summary line should be shown in the protocol tree",
-            &fw1_summary_in_tree);
+                                 "Show FireWall-1 summary in protocol tree",
+                                 "Whether the FireWall-1 summary line should be shown in the protocol tree",
+                                 &fw1_summary_in_tree);
   prefs_register_bool_preference(fw1_module, "with_uuid",
-            "Monitor file includes UUID",
-	    "Whether the Firewall-1 monitor file includes UUID information",
-            &fw1_with_uuid);
+                                 "Monitor file includes UUID",
+                                 "Whether the Firewall-1 monitor file includes UUID information",
+                                 &fw1_with_uuid);
   prefs_register_bool_preference(fw1_module, "iflist_with_chain",
-            "Interface list includes chain position",
-	    "Whether the interface list includes the chain position",
-            &fw1_iflist_with_chain);
+                                 "Interface list includes chain position",
+                                 "Whether the interface list includes the chain position",
+                                 &fw1_iflist_with_chain);
 
   register_dissector("fw1", dissect_fw1, proto_fw1);
 
+  for (i=0; i<interface_anzahl; i++) {
+    p_interfaces[i] = NULL;
+  }
   register_init_routine(fw1_init);
 }

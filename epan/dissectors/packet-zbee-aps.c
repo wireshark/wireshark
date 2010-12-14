@@ -598,13 +598,13 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /*  Get the FCF */
     fcf = tvb_get_guint8(tvb, offset);
-    packet.type         = zbee_get_bit_field(fcf, ZBEE_APS_FCF_FRAME_TYPE);
-    packet.delivery     = zbee_get_bit_field(fcf, ZBEE_APS_FCF_DELIVERY_MODE);
+    packet.type          = zbee_get_bit_field(fcf, ZBEE_APS_FCF_FRAME_TYPE);
+    packet.delivery      = zbee_get_bit_field(fcf, ZBEE_APS_FCF_DELIVERY_MODE);
     packet.indirect_mode = zbee_get_bit_field(fcf, ZBEE_APS_FCF_INDIRECT_MODE);
-    packet.ack_format   = zbee_get_bit_field(fcf, ZBEE_APS_FCF_ACK_FORMAT);
-    packet.security     = zbee_get_bit_field(fcf, ZBEE_APS_FCF_SECURITY);
-    packet.ack_req      = zbee_get_bit_field(fcf, ZBEE_APS_FCF_ACK_REQ);
-    packet.ext_header   = zbee_get_bit_field(fcf, ZBEE_APS_FCF_EXT_HEADER);
+    packet.ack_format    = zbee_get_bit_field(fcf, ZBEE_APS_FCF_ACK_FORMAT);
+    packet.security      = zbee_get_bit_field(fcf, ZBEE_APS_FCF_SECURITY);
+    packet.ack_req       = zbee_get_bit_field(fcf, ZBEE_APS_FCF_ACK_REQ);
+    packet.ext_header    = zbee_get_bit_field(fcf, ZBEE_APS_FCF_EXT_HEADER);
 
     /* Display the frame type to the proto root and info column. */
     if (tree) {
@@ -1169,7 +1169,7 @@ dissect_zbee_aps_transport_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 {
     guint8              key_type;
     guint8              key[ZBEE_APS_CMD_KEY_LENGTH];
-    GSList            **nwk_keyring; 
+    GSList            **nwk_keyring;
     key_record_t        key_record;
     zbee_nwk_hints_t   *nwk_hints;
     guint               i;
@@ -1191,16 +1191,16 @@ dissect_zbee_aps_transport_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         proto_tree_add_item(tree, hf_zbee_aps_cmd_key, tvb, offset, ZBEE_APS_CMD_KEY_LENGTH, ENC_BIG_ENDIAN);
     }
     offset += ZBEE_APS_CMD_KEY_LENGTH;
-    
+
     /* Update the key ring for this pan */
     if ( !pinfo->fd->flags.visited && (nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(pinfo->fd,
                                                 proto_get_id_by_filter_name(ZBEE_PROTOABBREV_NWK)))) {
 
         nwk_keyring = (GSList **)g_hash_table_lookup(zbee_table_nwk_keyring, &nwk_hints->src_pan);
         if ( !nwk_keyring ) {
-            /* Create an empty key ring for this pan. Use g_alloc() because we must free
-             * GSLists after a capture is closed and wireshark freed seasonal memory
-             * with se_free_all()
+            /* Create an empty key ring for this pan. Use g_malloc0() because we must free
+             * GSLists after a capture is closed and wireshark frees seasonal memory
+             * with se_free_all() before calling the registered init routine.
              */
             nwk_keyring = (GSList **)g_malloc0(sizeof(GSList**));
             g_hash_table_insert(zbee_table_nwk_keyring,

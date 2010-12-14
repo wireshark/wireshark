@@ -398,10 +398,10 @@ static const value_string message_type[] = {
     {GTP_MSG_NODE_ALIVE_RESP,     "Node alive response"},
     {GTP_MSG_REDIR_REQ,           "Redirection request"},
     {GTP_MSG_REDIR_RESP,          "Redirection response"},
-	/*
-	 * 8-15 For future use. Shall not be sent. If received,
-	 * shall be treated as an Unknown message.
-	 */
+    /*
+     * 8-15 For future use. Shall not be sent. If received,
+     * shall be treated as an Unknown message.
+     */
 #if 0
     {   8,                        "Unknown message(For future use)"},
     {   9,                        "Unknown message(For future use)"},
@@ -412,7 +412,7 @@ static const value_string message_type[] = {
     {  14,                        "Unknown message(For future use)"},
     {  15,                        "Unknown message(For future use)"},
 #endif
-	{GTP_MSG_CREATE_PDP_REQ,      "Create PDP context request"},
+    {GTP_MSG_CREATE_PDP_REQ,      "Create PDP context request"},
     {GTP_MSG_CREATE_PDP_RESP,     "Create PDP context response"},
     {GTP_MSG_UPDATE_PDP_REQ,      "Update PDP context request"},
     {GTP_MSG_UPDATE_PDP_RESP,     "Update PDP context response"},
@@ -434,9 +434,9 @@ static const value_string message_type[] = {
     {GTP_MSG_FAIL_REP_RESP,       "Failure report response"},
     {GTP_MSG_MS_PRESENT_REQ,      "Note MS GPRS present request"},
     {GTP_MSG_MS_PRESENT_RESP,     "Note MS GPRS present response"},
-	/* 38-47 For future use. Shall not be sent. If received,
-	 * shall be treated as an Unknown message.
-	 */
+    /* 38-47 For future use. Shall not be sent. If received,
+     * shall be treated as an Unknown message.
+     */
 #if 0
     {  38,                        "Unknown message(For future use)"},
     {  39,                        "Unknown message(For future use)"},
@@ -462,9 +462,9 @@ static const value_string message_type[] = {
     {GTP_MSG_FORW_SRNS_CNTXT,     "Forward SRNS context"},
     {GTP_MSG_FORW_RELOC_ACK,      "Forward relocation complete acknowledge"},
     {GTP_MSG_FORW_SRNS_CNTXT_ACK, "Forward SRNS context acknowledge"},
-	/* 61-69 For future use. Shall not be sent. If received,
-	 * shall be treated as an Unknown message.
-	 */
+    /* 61-69 For future use. Shall not be sent. If received,
+     * shall be treated as an Unknown message.
+     */
 #if 0
     {  61,                        "Unknown message(For future use)"},
     {  62,                        "Unknown message(For future use)"},
@@ -477,9 +477,9 @@ static const value_string message_type[] = {
     {  69,                        "Unknown message(For future use)"},
 #endif
     {GTP_MSG_RAN_INFO_RELAY,      "RAN Information Relay"},
-	/* 71-95 For future use. Shall not be sent. If received,
-	 * shall be treated as an Unknown message.
-	 */
+    /* 71-95 For future use. Shall not be sent. If received,
+     * shall be treated as an Unknown message.
+     */
 #if 0
     {  71,                        "Unknown message(For future use)"},
     {  72,                        "Unknown message(For future use)"},
@@ -517,9 +517,9 @@ static const value_string message_type[] = {
     {GTP_UPD_MBMS_CNTXT_RES,      "Update MBMS Context Response"},
     {GTP_DEL_MBMS_CNTXT_REQ,      "Delete MBMS Context Request"},
     {GTP_DEL_MBMS_CNTXT_RES,      "Delete MBMS Context Response"},
-	/* 106 - 111 For future use. Shall not be sent. If received,
-	 * shall be treated as an Unknown message.
-	 */
+    /* 106 - 111 For future use. Shall not be sent. If received,
+     * shall be treated as an Unknown message.
+     */
     {GTP_MBMS_REG_REQ,            "MBMS Registration Request"},
     {GTP_MBMS_REG_RES,            "MBMS Registration Response"},
     {GTP_MBMS_DE_REG_REQ,         "MBMS De-Registration Request"},
@@ -536,13 +536,13 @@ static const value_string message_type[] = {
     {GTP_MS_INFO_CNG_NOT_REQ,     "MS Info Change Notification Request"},
     {GTP_MS_INFO_CNG_NOT_RES,     "MS Info Change Notification Response"},
     /* 130-239 For future use. Shall not be sent. If received,
-	 * shall be treated as an Unknown message.
-	 */
+     * shall be treated as an Unknown message.
+     */
     {GTP_MSG_DATA_TRANSF_REQ,     "Data record transfer request"},
     {GTP_MSG_DATA_TRANSF_RESP,    "Data record transfer response"},
-	/* 242-253 For future use. Shall not be sent. If received,
-	 * shall be treated as an Unknown message.
-	 */
+    /* 242-253 For future use. Shall not be sent. If received,
+     * shall be treated as an Unknown message.
+     */
     {GTP_MSG_END_MARKER,          "End Marker"},
     {GTP_MSG_TPDU,                "T-PDU"},
     {0, NULL}
@@ -887,26 +887,26 @@ static const value_string cause_type[] = {
     {  3, "No identity needed"},
     {  4, "MS refuses"},
     {  5, "MS is not GPRS responding"},
-	/* For future use 6-48 */
-	/* Cause values reserved for GPRS charging
-	 * protocol use (see GTP' in 3GPP TS 32.295 [33])
-	 * 49-63
-	 */
+    /* For future use 6-48 */
+    /* Cause values reserved for GPRS charging
+     * protocol use (see GTP' in 3GPP TS 32.295 [33])
+     * 49-63
+     */
     { 59, "System failure"}, /* charging */
     { 60, "The transmit buffers are becoming full"}, /* charging */
     { 61, "The receive buffers are becoming full"},  /* charging */
     { 62, "Another node is about to go down"},       /* charging */
     { 63, "This node is about to go down"},          /* charging */
-	/* For future use 64-127 */
+    /* For future use 64-127 */
     {128, "Request accepted"},
     {129, "New PDP type due to network preference"},
     {130, "New PDP type due to single address bearer only"},
-	/* For future use 131-176 */
-	/* Cause values reserved for GPRS charging
-	 * protocol use (see GTP' in 3GPP TS 32.295 [33])
-	 * 177-191
-	 */
-	{192, "Non-existent"},
+    /* For future use 131-176 */
+    /* Cause values reserved for GPRS charging
+     * protocol use (see GTP' in 3GPP TS 32.295 [33])
+     * 177-191
+     */
+    {192, "Non-existent"},
     {193, "Invalid message format"},
     {194, "IMSI not known"},
     {195, "MS is GPRS detached"},
@@ -943,11 +943,11 @@ static const value_string cause_type[] = {
     {226, "MBMS Bearer Context Superseded"},
     {227, "Bearer Control Mode violation"},
     {228, "Collision with network initiated request"},
-	/* For future use 229-240 */
-	/* Cause values reserved for GPRS charging
-	 * protocol use (see GTP' in 3GPP TS 32.295 [33])
-	 * 241-255
-	 */
+    /* For future use 229-240 */
+    /* Cause values reserved for GPRS charging
+     * protocol use (see GTP' in 3GPP TS 32.295 [33])
+     * 241-255
+     */
     {252, "Request related to possibly duplicated packets already fulfilled"},  /* charging */
     {253, "Request already fulfilled"}, /* charging */
     {254, "Sequence numbers of released/cancelled packets IE incorrect"},   /* charging */
@@ -2738,7 +2738,7 @@ typedef struct gtp_conv_info_t {
     GHashTable *matched;
 } gtp_conv_info_t;
 
-static gtp_conv_info_t *gtp_info_items;
+static gtp_conv_info_t *gtp_info_items = NULL;
 
 static guint gtp_sn_hash(gconstpointer k)
 {
@@ -6476,18 +6476,18 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
         tf = proto_tree_add_uint(gtp_tree, hf_gtp_flags, tvb, 0, 1, gtp_hdr.flags);
         flags_tree = proto_item_add_subtree(tf, ett_gtp_flags);
 
-		if(gtp_prime==0){
-	        proto_tree_add_uint(flags_tree, hf_gtp_flags_ver, tvb, 0, 1, gtp_hdr.flags);
-		}else{
-	        proto_tree_add_uint(flags_tree, hf_gtp_prime_flags_ver, tvb, 0, 1, gtp_hdr.flags);
-		}
+        if(gtp_prime==0){
+            proto_tree_add_uint(flags_tree, hf_gtp_flags_ver, tvb, 0, 1, gtp_hdr.flags);
+        }else{
+            proto_tree_add_uint(flags_tree, hf_gtp_prime_flags_ver, tvb, 0, 1, gtp_hdr.flags);
+        }
 
         proto_tree_add_uint(flags_tree, hf_gtp_flags_pt, tvb, 0, 1, gtp_hdr.flags);
 
         if((gtp_prime==1)||(gtp_version==0)){
             proto_tree_add_uint(flags_tree, hf_gtp_flags_spare1, tvb, 0, 1, gtp_hdr.flags);
             proto_tree_add_boolean(flags_tree, hf_gtp_flags_snn, tvb, 0, 1, gtp_hdr.flags);
-		}else{
+        }else{
             proto_tree_add_uint(flags_tree, hf_gtp_flags_spare2, tvb, 0, 1, gtp_hdr.flags);
             proto_tree_add_boolean(flags_tree, hf_gtp_flags_e, tvb, 0, 1, gtp_hdr.flags);
             proto_tree_add_boolean(flags_tree, hf_gtp_flags_s, tvb, 0, 1, gtp_hdr.flags);
@@ -6690,31 +6690,31 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
 static void dissect_gtpprim(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
 
-	dissect_gtp_common(tvb, pinfo, tree);
+    dissect_gtp_common(tvb, pinfo, tree);
 }
 
 static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-	guint8 version;
-        /*
-         * If this is GTPv2-C call the gtpv2 dissector if present
-         * Should this be moved to after the conversation stuff to retain that functionality for GTPv2 ???
-         */
-        version = tvb_get_guint8(tvb,0)>>5;
-        if (version==2) {
-                /* GTPv2-C 3GPP TS 29.274 */
-                if (gtpv2_handle) {
-                        call_dissector(gtpv2_handle, tvb, pinfo, tree);
-                        return;
-                }
+    guint8 version;
+    /*
+     * If this is GTPv2-C call the gtpv2 dissector if present
+     * Should this be moved to after the conversation stuff to retain that functionality for GTPv2 ???
+     */
+    version = tvb_get_guint8(tvb,0)>>5;
+    if (version==2) {
+        /* GTPv2-C 3GPP TS 29.274 */
+        if (gtpv2_handle) {
+            call_dissector(gtpv2_handle, tvb, pinfo, tree);
+            return;
         }
-        if(version>2){
-                proto_tree_add_text(tree, tvb, 0, -1, "No WS dissector for GTP version %u %s", version,
-                                    val_to_str_const(version, ver_types, "Unknown"));
-                return;
-        }
+    }
+    if(version>2){
+        proto_tree_add_text(tree, tvb, 0, -1, "No WS dissector for GTP version %u %s", version,
+                            val_to_str_const(version, ver_types, "Unknown"));
+        return;
+    }
 
-		dissect_gtp_common(tvb, pinfo, tree);
+    dissect_gtp_common(tvb, pinfo, tree);
 
 }
 
@@ -6781,7 +6781,7 @@ void proto_register_gtp(void)
          {"Version", "gtp.prim.flags.version",
           FT_UINT8, BASE_DEC,NULL, GTP_VER_MASK,
           "GTP' Version", HFILL}
-		},
+        },
         {&hf_gtp_flags_pt,
          {"Protocol type", "gtp.flags.payload",
           FT_UINT8, BASE_DEC, VALS(pt_types), GTP_PT_MASK,
@@ -7218,7 +7218,7 @@ void proto_reg_handoff_gtp(void)
 
     if (!Initialized) {
         gtp_handle = find_dissector("gtp");
-		gtp_prim_handle = find_dissector("gtpprim");
+        gtp_prim_handle = find_dissector("gtpprim");
         ppp_subdissector_table = find_dissector_table("ppp.protocol");
 
         radius_register_avp_dissector(VENDOR_THE3GPP, 5, dissect_radius_qos_umts);
