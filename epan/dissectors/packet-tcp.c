@@ -147,6 +147,40 @@ static int hf_tcp_option_ccnew = -1;
 static int hf_tcp_option_ccecho = -1;
 static int hf_tcp_option_md5 = -1;
 static int hf_tcp_option_qs = -1;
+
+static int hf_tcp_option_rvbd_probe = -1;
+static int hf_tcp_option_rvbd_probe_version1 = -1;
+static int hf_tcp_option_rvbd_probe_version2 = -1;
+static int hf_tcp_option_rvbd_probe_type1 = -1;
+static int hf_tcp_option_rvbd_probe_type2 = -1;
+static int hf_tcp_option_rvbd_probe_optlen = -1;
+static int hf_tcp_option_rvbd_probe_prober = -1;
+static int hf_tcp_option_rvbd_probe_proxy = -1;
+static int hf_tcp_option_rvbd_probe_client = -1;
+static int hf_tcp_option_rvbd_probe_proxy_port = -1;
+static int hf_tcp_option_rvbd_probe_appli_ver = -1;
+static int hf_tcp_option_rvbd_probe_storeid = -1;
+static int hf_tcp_option_rvbd_probe_flags = -1;
+static int hf_tcp_option_rvbd_probe_flag_last_notify = -1;
+static int hf_tcp_option_rvbd_probe_flag_server_connected = -1;
+static int hf_tcp_option_rvbd_probe_flag_not_cfe = -1;
+static int hf_tcp_option_rvbd_probe_flag_sslcert = -1;
+static int hf_tcp_option_rvbd_probe_flag_probe_cache = -1;
+
+static int hf_tcp_option_rvbd_trpy = -1;
+static int hf_tcp_option_rvbd_trpy_flags = -1;
+static int hf_tcp_option_rvbd_trpy_flag_mode = -1;
+static int hf_tcp_option_rvbd_trpy_flag_oob = -1;
+static int hf_tcp_option_rvbd_trpy_flag_chksum = -1;
+static int hf_tcp_option_rvbd_trpy_flag_fw_rst = -1;
+static int hf_tcp_option_rvbd_trpy_flag_fw_rst_inner = -1;
+static int hf_tcp_option_rvbd_trpy_flag_fw_rst_probe = -1;
+static int hf_tcp_option_rvbd_trpy_src = -1;
+static int hf_tcp_option_rvbd_trpy_dst = -1;
+static int hf_tcp_option_rvbd_trpy_src_port = -1;
+static int hf_tcp_option_rvbd_trpy_dst_port = -1;
+static int hf_tcp_option_rvbd_trpy_client_port = -1;
+
 static int hf_tcp_ts_relative = -1;
 static int hf_tcp_ts_delta = -1;
 static int hf_tcp_option_scps = -1;
@@ -196,6 +230,11 @@ static gint ett_tcp_segment  = -1;
 static gint ett_tcp_checksum = -1;
 static gint ett_tcp_process_info = -1;
 
+static gint ett_tcp_opt_rvbd_probe = -1;
+static gint ett_tcp_opt_rvbd_probe_flags = -1;
+static gint ett_tcp_opt_rvbd_trpy = -1;
+static gint ett_tcp_opt_rvbd_trpy_flags = -1;
+
 /*
  *  TCP option
  */
@@ -220,6 +259,9 @@ static gint ett_tcp_process_info = -1;
 #define TCPOPT_MOOD             25      /* RFC5841 TCP Packet Mood */
 #define TCPOPT_QS               27      /* RFC4782 */
 #define TCPOPT_USER_TO          28      /* RFC5482 */
+/* Non IANA registered option numbers */
+#define TCPOPT_RVBD_PROBE       76      /* Riverbed probe option */
+#define TCPOPT_RVBD_TRPY        78      /* Riverbed transparency option */
 
 /*
  *     TCP option lengths
@@ -243,6 +285,8 @@ static gint ett_tcp_process_info = -1;
 #define TCPOLEN_MOOD_MIN       2
 #define TCPOLEN_QS             8
 #define TCPOLEN_USER_TO        4
+#define TCPOLEN_RVBD_PROBE_MIN 3
+#define TCPOLEN_RVBD_TRPY_MIN 16
 
 static const true_false_string tcp_option_user_to_granularity = {
   "Minutes", "Seconds"
@@ -2719,6 +2763,393 @@ dissect_tcpopt_mood(const ip_tcp_opt _U_*optp, tvbuff_t *tvb,
     expert_add_info_format(pinfo, mood_item, PI_PROTOCOL, PI_NOTE, "The packet Mood is %s (%s) (RFC 5841)", mood, str_to_str(mood, mood_type, "Unknown"));
 
 }
+
+enum
+{
+    PROBE_VERSION_UNSPEC = 0,
+    PROBE_VERSION_1      = 1,
+    PROBE_VERSION_2      = 2,
+    PROBE_VERSION_MAX
+};
+
+/* Probe type definition. */
+enum
+{
+    PROBE_QUERY          = 0,
+    PROBE_RESPONSE       = 1,
+    PROBE_INTERNAL       = 2,
+    PROBE_TRACE          = 3,
+    PROBE_QUERY_SH       = 4,
+    PROBE_RESPONSE_SH    = 5,
+    PROBE_QUERY_INFO     = 6,
+    PROBE_RESPONSE_INFO  = 7,
+    PROBE_QUERY_INFO_SH  = 8,
+    PROBE_QUERY_INFO_SID = 9,
+    PROBE_RST            = 10,
+    PROBE_TYPE_MAX
+};
+
+static const value_string rvbd_probe_type_vs[] = {
+    { PROBE_QUERY,          "Probe Query" },
+    { PROBE_RESPONSE,       "Probe Response" },
+    { PROBE_INTERNAL,       "Probe Internal" },
+    { PROBE_TRACE,          "Probe Trace" },
+    { PROBE_QUERY_SH,       "Probe Query SH" },
+    { PROBE_RESPONSE_SH,    "Probe Response SH" },
+    { PROBE_QUERY_INFO,     "Probe Query Info" },
+    { PROBE_RESPONSE_INFO,  "Probe Response Info" },
+    { PROBE_QUERY_INFO_SH,  "Probe Query Info SH" },
+    { PROBE_QUERY_INFO_SID, "Probe Query Info Store ID" },
+    { PROBE_RST,            "Probe Reset" },
+    { 0, NULL }
+};
+
+
+#define PROBE_OPTLEN_OFFSET            1
+
+#define PROBE_VERSION_TYPE_OFFSET      2
+#define PROBE_V1_RESERVED_OFFSET       3
+#define PROBE_V1_PROBER_OFFSET         4
+#define PROBE_V1_APPLI_VERSION_OFFSET  8
+#define PROBE_V1_PROXY_ADDR_OFFSET     8
+#define PROBE_V1_PROXY_PORT_OFFSET    12
+#define PROBE_V1_SH_CLIENT_ADDR_OFFSET 8
+#define PROBE_V1_SH_PROXY_ADDR_OFFSET 12
+#define PROBE_V1_SH_PROXY_PORT_OFFSET 16
+
+#define PROBE_V2_INFO_OFFSET           3
+
+#define PROBE_V2_INFO_CLIENT_ADDR_OFFSET 4
+#define PROBE_V2_INFO_STOREID_OFFSET   4
+
+#define PROBE_VERSION_MASK          0x01
+
+/* Probe Query Extra Info flags */
+#define RVBD_FLAGS_PROBE_LAST       0x01
+#define RVBD_FLAGS_PROBE_NCFE       0x04
+
+/* Probe Response Extra Info flags */
+#define RVBD_FLAGS_PROBE_SERVER     0x01
+#define RVBD_FLAGS_PROBE_SSLCERT    0x02
+#define RVBD_FLAGS_PROBE            0x10
+
+static void
+rvbd_probe_decode_version_type(const guint8 vt, guint8 *ver, guint8 *type)
+{
+    if (vt & PROBE_VERSION_MASK) {
+        *ver = PROBE_VERSION_1;
+        *type = vt >> 4;
+    } else {
+        *ver = PROBE_VERSION_2;
+        *type = vt >> 1;
+    }
+}
+
+static void
+rvbd_probe_resp_add_info(proto_item *pitem, packet_info *pinfo, guint32 ip, guint16 port)
+{
+    proto_item_append_text(pitem, ", Server Steelhead: %s:%u", ip_to_str((guint8 *)&ip), port);
+
+    col_prepend_fstr(pinfo->cinfo, COL_INFO, "SA+, ");
+}
+
+static void
+dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+                          guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+{
+    guint8 ver, type;
+    proto_tree *field_tree;
+    proto_item *pitem;
+
+    rvbd_probe_decode_version_type(
+        tvb_get_guint8(tvb, offset + PROBE_VERSION_TYPE_OFFSET),
+        &ver, &type);
+
+    pitem = proto_tree_add_boolean_format_value(
+        opt_tree, hf_tcp_option_rvbd_probe, tvb, offset, optlen, 1,
+        "%s", val_to_str(type, rvbd_probe_type_vs, "Probe Unknown"));
+
+    if (type >= PROBE_TYPE_MAX)
+        return;
+
+    /* optlen, type, ver are common for all probes */
+    field_tree = proto_item_add_subtree(pitem, ett_tcp_opt_rvbd_probe);
+    proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_optlen, tvb,
+                        offset + PROBE_OPTLEN_OFFSET, 1, FALSE);
+
+    if (ver == PROBE_VERSION_1) {
+        guint32 ip;
+        guint16 port;
+
+        proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_type1, tvb,
+                            offset + PROBE_VERSION_TYPE_OFFSET, 1, FALSE);
+        proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_version1, tvb,
+                            offset + PROBE_VERSION_TYPE_OFFSET, 1, FALSE);
+
+        if (type == PROBE_INTERNAL)
+            return;
+          
+        proto_tree_add_text(field_tree, tvb, offset + PROBE_V1_RESERVED_OFFSET,
+                            1, "Reserved");
+
+        ip = tvb_get_ipv4(tvb, offset + PROBE_V1_PROBER_OFFSET);
+        proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_prober, tvb,
+                            offset + PROBE_V1_PROBER_OFFSET, 4, FALSE);
+
+        switch (type) {
+
+        case PROBE_QUERY:
+        case PROBE_QUERY_SH:
+        case PROBE_TRACE:
+            proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_appli_ver, tvb,
+                                offset + PROBE_V1_APPLI_VERSION_OFFSET, 2,
+                                FALSE);
+
+            proto_item_append_text(pitem, ", CSH IP: %s", ip_to_str((guint8 *)&ip));
+
+            if (check_col(pinfo->cinfo, COL_INFO)) {
+                /* Small look-ahead hack to distinguish S+ from S+* */
+#define PROBE_V1_QUERY_LEN    10
+                const guint8 qinfo_hdr[] = { 0x4c, 0x04, 0x0c };
+                int not_cfe = 0;
+                /* tvb_memeql seems to be the only API that doesn't throw
+                   an exception in case of an error */
+                if (tvb_memeql(tvb, offset + PROBE_V1_QUERY_LEN,
+                               qinfo_hdr, sizeof(qinfo_hdr)) == 0) {
+                        not_cfe = tvb_get_guint8(tvb, offset + PROBE_V1_QUERY_LEN +
+                                                 sizeof(qinfo_hdr)) & RVBD_FLAGS_PROBE_NCFE;
+                }
+                col_prepend_fstr(pinfo->cinfo, COL_INFO, "S%s, ",
+                                 type == PROBE_TRACE ? "#" :
+                                 not_cfe ? "+*" : "+");
+           }
+           break;
+
+        case PROBE_RESPONSE:
+            ip = tvb_get_ipv4(tvb, offset + PROBE_V1_PROXY_ADDR_OFFSET);
+            proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_proxy, tvb,
+                                offset + PROBE_V1_PROXY_ADDR_OFFSET, 4, FALSE);
+
+            port = tvb_get_ntohs(tvb, offset + PROBE_V1_PROXY_PORT_OFFSET);
+            proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_proxy_port, tvb,
+                                offset + PROBE_V1_PROXY_PORT_OFFSET, 2, FALSE);
+
+            rvbd_probe_resp_add_info(pitem, pinfo, ip, port);
+            break;
+
+        case PROBE_RESPONSE_SH:
+            proto_tree_add_item(field_tree,
+                                hf_tcp_option_rvbd_probe_client, tvb,
+                                offset + PROBE_V1_SH_CLIENT_ADDR_OFFSET, 4,
+                                FALSE);
+
+            ip = tvb_get_ipv4(tvb, offset + PROBE_V1_SH_PROXY_ADDR_OFFSET);
+            proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_proxy, tvb,
+                                offset + PROBE_V1_SH_PROXY_ADDR_OFFSET, 4, FALSE);
+
+            port = tvb_get_ntohs(tvb, offset + PROBE_V1_SH_PROXY_PORT_OFFSET);
+            proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_proxy_port, tvb,
+                                offset + PROBE_V1_SH_PROXY_PORT_OFFSET, 2, FALSE);
+
+            rvbd_probe_resp_add_info(pitem, pinfo, ip, port);
+            break;
+        }
+    }
+    else if (ver == PROBE_VERSION_2) {
+        proto_item *ver_pi;
+        proto_item *flag_pi;
+        proto_tree *flag_tree;
+        guint8 flags;
+
+        proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_type2, tvb,
+                            offset + PROBE_VERSION_TYPE_OFFSET, 1, FALSE);
+
+        proto_tree_add_uint_format_value(
+            field_tree, hf_tcp_option_rvbd_probe_version2, tvb,
+            offset + PROBE_VERSION_TYPE_OFFSET, 1, ver, "%u", ver);
+        /* Use version1 for filtering purposes because version2 packet
+           value is 0, but filtering is usually done for value 2 */
+        ver_pi = proto_tree_add_uint(field_tree, hf_tcp_option_rvbd_probe_version1, tvb,
+                                     offset + PROBE_VERSION_TYPE_OFFSET, 1, ver);
+        PROTO_ITEM_SET_HIDDEN(ver_pi);
+
+        switch (type) {
+
+        case PROBE_QUERY_INFO:
+        case PROBE_QUERY_INFO_SH:
+        case PROBE_QUERY_INFO_SID:
+            flags = tvb_get_guint8(tvb, offset + PROBE_V2_INFO_OFFSET);
+            flag_pi = proto_tree_add_uint(field_tree, hf_tcp_option_rvbd_probe_flags,
+                                          tvb, offset + PROBE_V2_INFO_OFFSET,
+                                          1, flags);
+
+            flag_tree = proto_item_add_subtree(flag_pi, ett_tcp_opt_rvbd_probe_flags);
+            proto_tree_add_item(flag_tree,
+                                hf_tcp_option_rvbd_probe_flag_not_cfe,
+                                tvb, offset + PROBE_V2_INFO_OFFSET, 1, FALSE);
+            proto_tree_add_item(flag_tree,
+                                hf_tcp_option_rvbd_probe_flag_last_notify,
+                                tvb, offset + PROBE_V2_INFO_OFFSET, 1, FALSE);
+
+            if (type == PROBE_QUERY_INFO_SH)
+                proto_tree_add_item(flag_tree,
+                                    hf_tcp_option_rvbd_probe_client, tvb,
+                                    offset + PROBE_V2_INFO_CLIENT_ADDR_OFFSET,
+                                    4, FALSE);
+            else if (type == PROBE_QUERY_INFO_SID)
+                proto_tree_add_item(flag_tree,
+                                    hf_tcp_option_rvbd_probe_storeid, tvb,
+                                    offset + PROBE_V2_INFO_STOREID_OFFSET,
+                                    4, FALSE);
+
+            if (type != PROBE_QUERY_INFO_SID &&
+                check_col(pinfo->cinfo, COL_INFO) &&
+                (tvb_get_guint8(tvb, 13) & (TH_SYN|TH_ACK)) == (TH_SYN|TH_ACK) &&
+                (flags & RVBD_FLAGS_PROBE_LAST)) {
+                col_prepend_fstr(pinfo->cinfo, COL_INFO, "SA++, ");
+            }
+
+            break;
+
+        case PROBE_RESPONSE_INFO:
+            flag_pi = proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_flags,
+                                          tvb, offset + PROBE_V2_INFO_OFFSET,
+                                          1, FALSE);
+
+            flag_tree = proto_item_add_subtree(flag_pi, ett_tcp_opt_rvbd_probe_flags);
+            proto_tree_add_item(flag_tree,
+                                hf_tcp_option_rvbd_probe_flag_probe_cache,
+                                tvb, offset + PROBE_V2_INFO_OFFSET, 1, FALSE);
+            proto_tree_add_item(flag_tree,
+                                hf_tcp_option_rvbd_probe_flag_sslcert,
+                                tvb, offset + PROBE_V2_INFO_OFFSET, 1, FALSE);
+            proto_tree_add_item(flag_tree,
+                                hf_tcp_option_rvbd_probe_flag_server_connected,
+                                tvb, offset + PROBE_V2_INFO_OFFSET, 1, FALSE);
+            break;
+
+        case PROBE_RST:
+            flag_pi = proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_flags,
+                                  tvb, offset + PROBE_V2_INFO_OFFSET,
+                                  1, FALSE);
+            break;
+        }
+    }
+}
+
+enum {
+    TRPY_OPTNUM_OFFSET        = 0,
+    TRPY_OPTLEN_OFFSET        = 1,
+
+    TRPY_OPTIONS_OFFSET       = 2,
+    TRPY_SRC_ADDR_OFFSET      = 4,
+    TRPY_DST_ADDR_OFFSET      = 8,
+    TRPY_SRC_PORT_OFFSET      = 12,
+    TRPY_DST_PORT_OFFSET      = 14,
+    TRPY_CLIENT_PORT_OFFSET   = 16,
+};
+
+/* Trpy Flags */
+#define RVBD_FLAGS_TRPY_MODE         0x0001
+#define RVBD_FLAGS_TRPY_OOB          0x0002
+#define RVBD_FLAGS_TRPY_CHKSUM       0x0004
+#define RVBD_FLAGS_TRPY_FW_RST       0x0100
+#define RVBD_FLAGS_TRPY_FW_RST_INNER 0x0200
+#define RVBD_FLAGS_TRPY_FW_RST_PROBE 0x0400
+
+static const true_false_string trpy_mode_str = {
+    "Port Transparency",
+    "Full Transparency"
+};
+
+static void
+dissect_tcpopt_rvbd_trpy(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
+                        int offset, guint optlen, packet_info *pinfo,
+                        proto_tree *opt_tree)
+{
+    proto_tree *field_tree;
+    proto_tree *flag_tree;
+    proto_item *pitem;
+    proto_item *flag_pi;
+    guint32 src, dst;
+    guint16 sport, dport, flags;
+    static dissector_handle_t sport_handle = NULL;
+
+    col_prepend_fstr(pinfo->cinfo, COL_INFO, "TRPY, ");
+
+    pitem = proto_tree_add_boolean_format_value(
+        opt_tree, hf_tcp_option_rvbd_trpy, tvb, offset, optlen, 1,
+        "%s", "");
+
+    field_tree = proto_item_add_subtree(pitem, ett_tcp_opt_rvbd_trpy);
+    proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_optlen, tvb,
+                        offset + PROBE_OPTLEN_OFFSET, 1, FALSE);
+
+    flags = tvb_get_ntohs(tvb, offset + TRPY_OPTIONS_OFFSET);
+    flag_pi = proto_tree_add_item(field_tree, hf_tcp_option_rvbd_trpy_flags,
+                                  tvb, offset + TRPY_OPTIONS_OFFSET,
+                                  2, FALSE);
+
+    flag_tree = proto_item_add_subtree(flag_pi, ett_tcp_opt_rvbd_trpy_flags);
+    proto_tree_add_item(flag_tree, hf_tcp_option_rvbd_trpy_flag_fw_rst_probe,
+                        tvb, offset + TRPY_OPTIONS_OFFSET, 2, FALSE);
+    proto_tree_add_item(flag_tree, hf_tcp_option_rvbd_trpy_flag_fw_rst_inner,
+                        tvb, offset + TRPY_OPTIONS_OFFSET, 2, FALSE);
+    proto_tree_add_item(flag_tree, hf_tcp_option_rvbd_trpy_flag_fw_rst,
+                        tvb, offset + TRPY_OPTIONS_OFFSET, 2, FALSE);
+    proto_tree_add_item(flag_tree, hf_tcp_option_rvbd_trpy_flag_chksum,
+                        tvb, offset + TRPY_OPTIONS_OFFSET, 2, FALSE);
+    proto_tree_add_item(flag_tree, hf_tcp_option_rvbd_trpy_flag_oob,
+                        tvb, offset + TRPY_OPTIONS_OFFSET, 2, FALSE);
+    proto_tree_add_item(flag_tree, hf_tcp_option_rvbd_trpy_flag_mode,
+                        tvb, offset + TRPY_OPTIONS_OFFSET, 2, FALSE);
+
+    src = tvb_get_ipv4(tvb, offset + TRPY_SRC_ADDR_OFFSET);
+    proto_tree_add_item(field_tree, hf_tcp_option_rvbd_trpy_src,
+                        tvb, offset + TRPY_SRC_ADDR_OFFSET, 4, FALSE);
+
+    dst = tvb_get_ipv4(tvb, offset + TRPY_DST_ADDR_OFFSET);
+    proto_tree_add_item(field_tree, hf_tcp_option_rvbd_trpy_dst,
+                        tvb, offset + TRPY_DST_ADDR_OFFSET, 4, FALSE);
+
+    sport = tvb_get_ntohs(tvb, offset + TRPY_SRC_PORT_OFFSET);
+    proto_tree_add_item(field_tree, hf_tcp_option_rvbd_trpy_src_port,
+                        tvb, offset + TRPY_SRC_PORT_OFFSET, 2, FALSE);
+
+    dport = tvb_get_ntohs(tvb, offset + TRPY_DST_PORT_OFFSET);
+    proto_tree_add_item(field_tree, hf_tcp_option_rvbd_trpy_dst_port,
+                        tvb, offset + TRPY_DST_PORT_OFFSET, 2, FALSE);
+
+    proto_item_append_text(pitem, "%s:%u -> %s:%u",
+                           ip_to_str((guint8 *)&src), sport,
+                           ip_to_str((guint8 *)&dst), dport);
+
+    /* Client port only set on SYN: optlen == 18 */
+    if ((flags & RVBD_FLAGS_TRPY_OOB) && (optlen > TCPOLEN_RVBD_TRPY_MIN))
+        proto_tree_add_item(field_tree, hf_tcp_option_rvbd_trpy_client_port,
+                            tvb, offset + TRPY_CLIENT_PORT_OFFSET, 2, FALSE);
+
+    /* We need to map this TCP session on our own dissector instead of what
+       Wireshark thinks runs on these ports */
+    if (sport_handle == NULL) {
+        sport_handle = find_dissector("sport");
+    }
+    if (sport_handle != NULL) {
+        conversation_t *conversation;
+        conversation = find_conversation(pinfo->fd->num,
+            &pinfo->src, &pinfo->dst, pinfo->ptype,
+            pinfo->srcport, pinfo->destport, 0);
+        if (conversation == NULL) {
+            conversation = conversation_new(pinfo->fd->num,
+                &pinfo->src, &pinfo->dst, pinfo->ptype,
+                pinfo->srcport, pinfo->destport, 0);
+        }
+        if (conversation->dissector_handle != sport_handle) {
+            conversation_set_dissector(conversation, sport_handle);
+        }
+    }
+}
+
 static const ip_tcp_opt tcpopts[] = {
     {
         TCPOPT_EOL,
@@ -2879,7 +3310,23 @@ static const ip_tcp_opt tcpopts[] = {
         FIXED_LENGTH,
         TCPOLEN_USER_TO,
         dissect_tcpopt_user_to
-    }
+  },
+  {
+        TCPOPT_RVBD_PROBE,
+        "Riverbed Probe",
+        NULL,
+        VARIABLE_LENGTH,
+        TCPOLEN_RVBD_PROBE_MIN,
+        dissect_tcpopt_rvbd_probe
+  },
+  {
+        TCPOPT_RVBD_TRPY,
+        "Riverbed Transparency",
+        NULL,
+        FIXED_LENGTH,
+        TCPOLEN_RVBD_TRPY_MIN,
+        dissect_tcpopt_rvbd_trpy
+        }
 };
 
 #define N_TCP_OPTS  (sizeof tcpopts / sizeof tcpopts[0])
@@ -4203,6 +4650,149 @@ proto_register_tcp(void)
           { "User Timeout", "tcp.options.user_to_val", FT_UINT16,
             BASE_DEC, NULL, 0x7FFF, "TCP User Timeout Value", HFILL}},
 
+        { &hf_tcp_option_rvbd_probe,
+          { "Riverbed Probe", "tcp.options.rvbd.probe", FT_BOOLEAN,
+            BASE_NONE, NULL, 0x0, "RVBD TCP Probe Option", HFILL }},
+
+        { &hf_tcp_option_rvbd_probe_type1,
+          { "Type", "tcp.options.rvbd.probe.type1",
+            FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
+
+        { &hf_tcp_option_rvbd_probe_type2,
+          { "Type", "tcp.options.rvbd.probe.type2",
+            FT_UINT8, BASE_DEC, NULL, 0xFE, NULL, HFILL }},
+
+        { &hf_tcp_option_rvbd_probe_version1,
+          { "Version", "tcp.options.rvbd.probe.version",
+            FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }},
+
+        { &hf_tcp_option_rvbd_probe_version2,
+          { "Version", "tcp.options.rvbd.probe.version_raw",
+            FT_UINT8, BASE_DEC, NULL, 0x01, "Version 2 Raw Value", HFILL }},
+
+        { &hf_tcp_option_rvbd_probe_optlen,
+          { "Length", "tcp.options.rvbd.probe.len",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_tcp_option_rvbd_probe_prober,
+          { "CSH IP", "tcp.options.rvbd.probe.prober",
+            FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_tcp_option_rvbd_probe_proxy,
+          { "SSH IP", "tcp.options.rvbd.probe.proxy.ip",
+            FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_tcp_option_rvbd_probe_proxy_port,
+          { "SSH Port", "tcp.options.rvbd.probe.proxy.port",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_tcp_option_rvbd_probe_appli_ver,
+          { "Application Version", "tcp.options.rvbd.probe.appli_ver",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_tcp_option_rvbd_probe_client,
+          { "Client IP", "tcp.options.rvbd.probe.client.ip",
+            FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_tcp_option_rvbd_probe_storeid,
+          { "CFE Store ID", "tcp.options.rvbd.probe.storeid",
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_tcp_option_rvbd_probe_flags,
+          { "Probe Flags", "tcp.options.rvbd.probe.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_tcp_option_rvbd_probe_flag_not_cfe,
+          { "Not CFE", "tcp.options.rvbd.probe.flags.notcfe",
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), RVBD_FLAGS_PROBE_NCFE,
+            NULL, HFILL }},
+
+        { &hf_tcp_option_rvbd_probe_flag_last_notify,
+          { "Last Notify", "tcp.options.rvbd.probe.flags.last",
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), RVBD_FLAGS_PROBE_LAST,
+            NULL, HFILL }},
+
+        { &hf_tcp_option_rvbd_probe_flag_probe_cache,
+          { "Disable Probe Cache on CSH", "tcp.options.rvbd.probe.flags.probe",
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), RVBD_FLAGS_PROBE,
+            NULL, HFILL }},
+
+        { &hf_tcp_option_rvbd_probe_flag_sslcert,
+          { "SSL Enabled", "tcp.options.rvbd.probe.flags.ssl",
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), RVBD_FLAGS_PROBE_SSLCERT,
+            NULL, HFILL }},
+
+        { &hf_tcp_option_rvbd_probe_flag_server_connected,
+          { "SSH outer to server established", "tcp.options.rvbd.probe.flags.server",
+            FT_BOOLEAN, 8, TFS(&tfs_set_notset), RVBD_FLAGS_PROBE_SERVER,
+            NULL, HFILL }},
+
+        { &hf_tcp_option_rvbd_trpy,
+          { "Riverbed Transparency", "tcp.options.rvbd.trpy",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "RVBD TCP Transparency Option", HFILL }},
+
+        { &hf_tcp_option_rvbd_trpy_flags,
+          { "Transparency Options", "tcp.options.rvbd.trpy.flags",
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_tcp_option_rvbd_trpy_flag_fw_rst_probe,
+          { "Enable FW traversal feature", "tcp.options.rvbd.trpy.flags.fw_rst_probe",
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset),
+            RVBD_FLAGS_TRPY_FW_RST_PROBE,
+            "Reset state created by probe on the nexthop firewall",
+            HFILL }},
+
+        { &hf_tcp_option_rvbd_trpy_flag_fw_rst_inner,
+          { "Enable Inner FW feature on All FWs", "tcp.options.rvbd.trpy.flags.fw_rst_inner",
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset),
+            RVBD_FLAGS_TRPY_FW_RST_INNER,
+            "Reset state created by transparent inner on all firewalls"
+            " before passing connection through",
+            HFILL }},
+
+        { &hf_tcp_option_rvbd_trpy_flag_fw_rst,
+          { "Enable Transparency FW feature on All FWs", "tcp.options.rvbd.trpy.flags.fw_rst",
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset),
+            RVBD_FLAGS_TRPY_FW_RST,
+            "Reset state created by probe on all firewalls before "
+            "establishing transparent inner connection", HFILL }},
+
+        { &hf_tcp_option_rvbd_trpy_flag_chksum,
+          { "Reserved", "tcp.options.rvbd.trpy.flags.chksum",
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset),
+            RVBD_FLAGS_TRPY_CHKSUM, NULL, HFILL }},
+
+        { &hf_tcp_option_rvbd_trpy_flag_oob,
+          { "Out of band connection", "tcp.options.rvbd.trpy.flags.oob",
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset),
+            RVBD_FLAGS_TRPY_OOB, NULL, HFILL }},
+
+        { &hf_tcp_option_rvbd_trpy_flag_mode,
+          { "Transparency Mode", "tcp.options.rvbd.trpy.flags.mode",
+            FT_BOOLEAN, 16, TFS(&trpy_mode_str),
+            RVBD_FLAGS_TRPY_MODE, NULL, HFILL }},
+
+        { &hf_tcp_option_rvbd_trpy_src,
+          { "CSH IP Addr", "tcp.options.rvbd.trpy.src.ip",
+            FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_tcp_option_rvbd_trpy_dst,
+          { "SSH IP Addr", "tcp.options.rvbd.trpy.dst.ip",
+            FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_tcp_option_rvbd_trpy_src_port,
+          { "CSH Inner Port", "tcp.options.rvbd.trpy.src.port",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_tcp_option_rvbd_trpy_dst_port,
+          { "SSH Inner Port", "tcp.options.rvbd.trpy.dst.port",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_tcp_option_rvbd_trpy_client_port,
+          { "Out of band connection Client Port", "tcp.options.rvbd.trpy.client.port",
+            FT_UINT16, BASE_DEC, NULL , 0x0, NULL, HFILL }},
+
         { &hf_tcp_pdu_time,
           { "Time until the last segment of this PDU", "tcp.pdu.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
             "How long time has passed until the last frame of this PDU", HFILL}},
@@ -4266,6 +4856,10 @@ proto_register_tcp(void)
         &ett_tcp_option_scps,
         &ett_tcp_option_scps_extended,
         &ett_tcp_option_user_to,
+        &ett_tcp_opt_rvbd_probe,
+        &ett_tcp_opt_rvbd_probe_flags,
+        &ett_tcp_opt_rvbd_trpy,
+        &ett_tcp_opt_rvbd_trpy_flags,
         &ett_tcp_analysis_faults,
         &ett_tcp_analysis,
         &ett_tcp_timestamps,
