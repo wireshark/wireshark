@@ -24,13 +24,13 @@
  *
  * See
  *
- *    http://www.netscape.com/eng/security/SSL_2.html
+ *    http://www.mozilla.org/projects/security/pki/nss/ssl/draft02.html
  *
  * for SSL 2.0 specs.
  *
  * See
  *
- *    http://www.netscape.com/eng/ssl3/
+ *    http://www.mozilla.org/projects/security/pki/nss/ssl/draft302.txt
  *
  * for SSL 3.0 specs.
  *
@@ -4472,7 +4472,7 @@ proto_register_ssl(void)
     };
 
     /* Register the protocol name and description */
-    proto_ssl = proto_register_protocol("Secure Socket Layer",
+    proto_ssl = proto_register_protocol("Secure Sockets Layer",
                                         "SSL", "ssl");
 
     /* Required function calls to register the header fields and
