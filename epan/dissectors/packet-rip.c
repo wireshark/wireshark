@@ -1,6 +1,6 @@
 /* packet-rip.c
  * Routines for RIPv1 and RIPv2 packet disassembly
- * RFC1058, RFC2453
+ * RFC1058 (STD 34), RFC1388, RFC1723, RFC2453 (STD 56)
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
  * RFC2082 ( Keyed Message Digest Algorithm )
@@ -32,6 +32,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/emem.h>
+#include <epan/prefs.h>
 
 #define UDP_PORT_RIP    520
 
@@ -76,6 +77,10 @@ static const value_string rip_auth_type[] = {
 #define RIP_HEADER_LENGTH 4
 #define RIP_ENTRY_LENGTH 20
 #define MD5_AUTH_DATA_LEN 16
+
+static gboolean pref_display_routing_domain = FALSE;
+
+void proto_reg_handoff_rip(void);
 
 static int proto_rip = -1;
 static int hf_rip_command = -1;
@@ -132,7 +137,7 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	proto_tree_add_uint(rip_tree, hf_rip_command, tvb, 0, 1, command);
 	proto_tree_add_uint(rip_tree, hf_rip_version, tvb, 1, 1, version);
-	if (version == RIPv2)
+	if (version == RIPv2 && pref_display_routing_domain == TRUE)
 	    proto_tree_add_uint(rip_tree, hf_rip_routing_domain, tvb, 2, 2,
 			tvb_get_ntohs(tvb, 2));
 
@@ -379,10 +384,16 @@ proto_register_rip(void)
 		&ett_auth_vec,
 	};
 
+	module_t *rip_module;
+
 	proto_rip = proto_register_protocol("Routing Information Protocol",
 				"RIP", "rip");
 	proto_register_field_array(proto_rip, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	rip_module = prefs_register_protocol(proto_rip, proto_reg_handoff_rip);
+
+	prefs_register_bool_preference(rip_module, "display_routing_domain", "Display Routing Domain field", "Display the third and forth bytes of the RIPv2 header as the Routing Domain field (introduced in RFC 1388 [January 1993] and obsoleted as of RFC 1723 [November 1994])", &pref_display_routing_domain);
 }
 
 void
