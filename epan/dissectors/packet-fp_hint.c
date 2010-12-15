@@ -306,7 +306,7 @@ static void assign_fph_dch(tvbuff_t *tvb, packet_info *pinfo, guint16 offset, fp
 		pi = proto_tree_add_item(tree, hf_fph_tf, tvb, offset, 4, TRUE);
 		subtree = proto_item_add_subtree(pi, ett_fph_rb);
 		hdr = tvb_get_ptr(tvb, offset, 4);
-		dch_id = hdr[0] & 0x1f;
+		dch_id = (hdr[0] & 0x1f) + 1;
 
 		N = ((hdr[1] & 0x3f)<<3) | (hdr[0] >> 5);
 		size = ((hdr[3] & 0x07)<<10) | (hdr[2] << 2) | ((hdr[1] & 0xc0)>>6);
@@ -316,7 +316,7 @@ static void assign_fph_dch(tvbuff_t *tvb, packet_info *pinfo, guint16 offset, fp
 		fpi->chan_num_tbs[i] = N;
 
 		if (subtree) {
-			proto_tree_add_bits_item(subtree, hf_fph_dchid, tvb, offset*8+3, 5, TRUE);
+			proto_tree_add_uint(subtree, hf_fph_dchid, tvb, offset, 1, dch_id);
 			proto_tree_add_uint(subtree, hf_fph_tf_n, tvb, offset, 2, N);
 			if (size)
 				proto_tree_add_uint(subtree, hf_fph_tf_size, tvb, offset + 1, 3, size);
