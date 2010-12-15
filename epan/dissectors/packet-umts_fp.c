@@ -331,7 +331,25 @@ static const value_string segmentation_status_vals[] = {
     { 0,   NULL }
 };
 
-
+static const value_string lchid_vals[] = {
+    { 0,    "Logical Channel 1" },
+    { 1,    "Logical Channel 2" },
+    { 2,    "Logical Channel 3" },
+    { 3,    "Logical Channel 4" },
+    { 4,    "Logical Channel 5" },
+    { 5,    "Logical Channel 6" },
+    { 6,    "Logical Channel 7" },
+    { 7,    "Logical Channel 8" },
+    { 8,    "Logical Channel 9" },
+    { 9,    "Logical Channel 10" },
+    { 10,   "Logical Channel 11" },
+    { 11,   "Logical Channel 12" },
+    { 12,   "Logical Channel 13" },
+    { 13,   "Logical Channel 14" },
+    { 14,   "CCCH (SRB0)" },
+    { 15,   "E-RNTI being included (FDD only)" },
+    { 0,   NULL }
+};
 
 /* Dedicated control types */
 #define DCH_OUTER_LOOP_POWER_CONTROL            1
@@ -2770,8 +2788,8 @@ static void dissect_e_dch_t2_channel_info(tvbuff_t *tvb, packet_info *pinfo _U_,
                                          offset,
                                          subframes[n].mac_is_length[pdu_no][sdu_no],
                                          FALSE);
-                proto_item_append_text(ti, " (LCH-ID=%u Len=%u): ",
-                                       subframes[n].mac_is_lchid[pdu_no][sdu_no],
+                proto_item_append_text(ti, " (%s Len=%u): ",
+                                       val_to_str_const(subframes[n].mac_is_lchid[pdu_no][sdu_no], lchid_vals, "Unknown"),
                                        subframes[n].mac_is_length[pdu_no][sdu_no]);
 
                 /* Show bytes too.  There must be a nicer way of doing this! */
@@ -3742,7 +3760,7 @@ void proto_register_fp(void)
         },
         { &hf_fp_edch_macis_lchid,
             { "LCH-ID",
-              "fp.edch.mac-is.lchid", FT_UINT8, BASE_HEX, 0, 0xf0,
+              "fp.edch.mac-is.lchid", FT_UINT8, BASE_HEX, VALS(lchid_vals), 0xf0,
               NULL, HFILL
             }
         },
@@ -3847,7 +3865,7 @@ void proto_register_fp(void)
         },
         { &hf_fp_lchid,
             { "Logical Channel ID",
-              "fp.lchid", FT_UINT8, BASE_DEC, 0, 0x0,
+              "fp.lchid", FT_UINT8, BASE_DEC, NULL, 0x0,
               NULL, HFILL
             }
         },
