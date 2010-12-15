@@ -2623,6 +2623,8 @@ static void dissect_e_dch_t2_channel_info(tvbuff_t *tvb, packet_info *pinfo _U_,
     static struct edch_t2_subframe_info subframes[16];
     guint64 total_macis_sdus;
     guint16 macis_sdus_found = 0;
+    guint16 macis_pdus = 0;
+    guint32 total_bytes = 0;
     gboolean F;
     proto_item *subframe_macis_descriptors_ti = NULL;
 
@@ -2663,6 +2665,7 @@ static void dissect_e_dch_t2_channel_info(tvbuff_t *tvb, packet_info *pinfo _U_,
         subframes[n].number_of_mac_is_pdus = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
         proto_tree_add_item(subframe_header_tree, hf_fp_edch_number_of_mac_is_pdus,
                             tvb, offset, 1, FALSE);
+        macis_pdus += subframes[n].number_of_mac_is_pdus;
 
         /* Next 4 bits are spare */
 
@@ -2734,7 +2737,7 @@ static void dissect_e_dch_t2_channel_info(tvbuff_t *tvb, packet_info *pinfo _U_,
         for (pdu_no=0; pdu_no < subframes[n].number_of_mac_is_pdus; pdu_no++) {
             int sdu_no;
             guint8 ss, tsn;
-            guint32 total_bytes = 0;
+            guint32 subframe_bytes = 0;
             proto_item *ti;
 
             proto_item *macis_pdu_ti;
@@ -2742,7 +2745,7 @@ static void dissect_e_dch_t2_channel_info(tvbuff_t *tvb, packet_info *pinfo _U_,
     
             /* Add subframe header subtree */
             macis_pdu_ti = proto_tree_add_string_format(tree, hf_fp_edch_subframe_header, tvb, offset, 0,
-                                                        "", "MAC-is PDU (SFN=%u #%u)",
+                                                        "", "MAC-is PDU (SFN=%u PDU %u)",
                                                         subframes[n].subframe_number, pdu_no+1);
             macis_pdu_tree = proto_item_add_subtree(macis_pdu_ti, ett_fp_edch_macis_pdu);
 
@@ -2759,23 +2762,42 @@ static void dissect_e_dch_t2_channel_info(tvbuff_t *tvb, packet_info *pinfo _U_,
 
             /* MAC-is SDUs (i.e. MACd PDUs) */
             for (sdu_no=0; sdu_no < subframes[n].number_of_mac_is_sdus[pdu_no]; sdu_no++) {
+                const guint8 *pdu_data;
+                int i;
+                char buff[64];
 
                 ti = proto_tree_add_item(macis_pdu_tree, hf_fp_edch_macis_sdu, tvb,
                                          offset,
                                          subframes[n].mac_is_length[pdu_no][sdu_no],
                                          FALSE);
-                proto_item_append_text(ti, " (LCH-ID=%u Len=%u)",
+                proto_item_append_text(ti, " (LCH-ID=%u Len=%u): ",
                                        subframes[n].mac_is_lchid[pdu_no][sdu_no],
                                        subframes[n].mac_is_length[pdu_no][sdu_no]);
 
+                /* Show bytes too.  There must be a nicer way of doing this! */
+                pdu_data = tvb_get_ptr(tvb, offset, subframes[n].mac_is_length[pdu_no][sdu_no]);
+                for (i=0; i < subframes[n].mac_is_length[pdu_no][sdu_no]; i++) {
+                    g_snprintf(buff+(i*2), 3, "%02x",  pdu_data[i]);
+                    if (i >= 30) {
+                        g_snprintf(buff+(i*2), 4, "...");
+                        break;
+                    }
+                }
+                proto_item_append_text(ti, "%s", buff);
+
                 offset += subframes[n].mac_is_length[pdu_no][sdu_no];
-                total_bytes += subframes[n].mac_is_length[pdu_no][sdu_no];
+                subframe_bytes += subframes[n].mac_is_length[pdu_no][sdu_no];
             }
 
             proto_item_append_text(macis_pdu_ti, " - SS=%u TSN=%u (%u bytes in %u SDUs)",
-                                   ss, tsn, total_bytes, subframes[n].number_of_mac_is_sdus[pdu_no]);
+                                   ss, tsn, subframe_bytes, subframes[n].number_of_mac_is_sdus[pdu_no]);
+            total_bytes += subframe_bytes;
         }
     }
+
+    /* Add data summary to info column */
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (%u bytes in %u SDUs in %u MAC-is PDUs in %u subframes)",
+                    total_bytes, macis_sdus_found, macis_pdus, number_of_subframes);;
 
     /* Spare extension and payload CRC (optional) */
     dissect_spare_extension_and_crc(tvb, pinfo, tree,
