@@ -143,6 +143,7 @@ typedef struct _sample_t {
 #define S_DROP_BY_JITT 1
 #define S_WRONG_SEQ 2
 #define S_WRONG_TIMESTAMP 3 /* The timestamp does not reflect the number of samples - samples have been dropped or silence inserted to match timestamp */
+#define S_SILENCE 4 /* Silence inserted by Wireshark, rather than contained in a packet */
 
 /* Display channels constants */
 #define MULT 80
@@ -1252,8 +1253,10 @@ static void channel_draw(rtp_channel_info_t* rci)
 	GdkGC *gc;
 	GdkGC *red_gc;
 	GdkGC *amber_gc;
+	GdkGC *white_gc;
 	GdkColor red_color = {0, 65535, 0, 0};
 	GdkColor amber_color = {0, 65535, 49152, 0};
+	GdkColor white_color = {0, 65535, 65535, 65535};
 
 	if (GDK_IS_DRAWABLE(rci->pixmap)) {
 		/* Clear out old plot */
@@ -1290,6 +1293,8 @@ static void channel_draw(rtp_channel_info_t* rci)
 		gdk_gc_set_rgb_fg_color(red_gc, &red_color);
 		amber_gc = gdk_gc_new(rci->draw_area->window);
 		gdk_gc_set_rgb_fg_color(amber_gc, &amber_color);
+		white_gc = gdk_gc_new(rci->draw_area->window);
+		gdk_gc_set_rgb_fg_color(white_gc, &white_color);
 
 		for (i=0; i< imax; i++) {
 			sample.val = 0;
@@ -1313,21 +1318,45 @@ static void channel_draw(rtp_channel_info_t* rci)
 				min = MIN(min, sample.val);
 				if (sample.status == S_DROP_BY_JITT) status = S_DROP_BY_JITT;
 				if (sample.status == S_WRONG_TIMESTAMP) status = S_WRONG_TIMESTAMP;
+				if (sample.status == S_SILENCE) status = S_SILENCE;
 			}
 
 			if (status == S_DROP_BY_JITT) {
 				gc = red_gc;
 			} else if (status == S_WRONG_TIMESTAMP) {
 				gc = amber_gc;
+			} else if (status == S_SILENCE) {
+				gc = white_gc;
 			} else {
 				gc = rci->draw_area->style->black_gc;
 			}
 
-			gdk_draw_line(rci->pixmap, gc,
-				i,
-				(gint)(( (0x7FFF+min) * (rci->draw_area->allocation.height-HEIGHT_TIME_LABEL))/0xFFFF),
-				i,
-				(gint)(( (0x7FFF+max) * (rci->draw_area->allocation.height-HEIGHT_TIME_LABEL))/0xFFFF));
+			/* if silence added by Wireshark, graphically show it with letter to indicate why */
+			if ((status == S_DROP_BY_JITT) || (status == S_WRONG_TIMESTAMP) || (status == S_SILENCE)) {
+				gdk_draw_line(rci->pixmap, gc,
+					i,
+					0,
+					i,
+					(gint) (rci->draw_area->allocation.height-HEIGHT_TIME_LABEL)-1);
+
+				if (status == S_DROP_BY_JITT) g_snprintf(label_string, MAX_TIME_LABEL,"D");
+				if (status == S_WRONG_TIMESTAMP) g_snprintf(label_string, MAX_TIME_LABEL, "W");
+				if (status == S_SILENCE) g_snprintf(label_string, MAX_TIME_LABEL, "S");
+
+				pango_layout_set_text(small_layout, label_string, -1);
+				pango_layout_get_pixel_size(small_layout, &label_width, &label_height);
+				gdk_draw_layout(rci->pixmap,
+					gc,
+					i,
+					0,
+					small_layout);
+			} else {
+				gdk_draw_line(rci->pixmap, gc,
+					i,
+					(gint)(( (0x7FFF+min) * (rci->draw_area->allocation.height-HEIGHT_TIME_LABEL))/0xFFFF),
+					i,
+					(gint)(( (0x7FFF+max) * (rci->draw_area->allocation.height-HEIGHT_TIME_LABEL))/0xFFFF));
+			}
 
 			/*draw the time label and grid */
 			if ( !((i*MULT)%(SAMPLE_RATE)) ) {
