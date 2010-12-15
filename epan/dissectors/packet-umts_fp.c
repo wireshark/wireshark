@@ -96,6 +96,19 @@ static int hf_fp_edch_number_of_mac_d_pdus = -1;
 static int hf_fp_edch_pdu_padding = -1;
 static int hf_fp_edch_tsn = -1;
 static int hf_fp_edch_mac_es_pdu = -1;
+
+static int hf_fp_edch_user_buffer_size = -1;
+static int hf_fp_edch_no_macid_sdus = -1;
+static int hf_fp_edch_number_of_mac_is_pdus = -1;
+
+static int hf_fp_edch_macis_descriptors = -1;
+static int hf_fp_edch_macis_lchid = -1;
+static int hf_fp_edch_macis_length = -1;
+static int hf_fp_edch_macis_flag = -1;
+static int hf_fp_edch_macis_tsn = -1;
+static int hf_fp_edch_macis_ss = -1;
+static int hf_fp_edch_macis_sdu = -1;
+
 static int hf_fp_frame_seq_nr = -1;
 static int hf_fp_hsdsch_pdu_block_header = -1;
 static int hf_fp_hsdsch_pdu_block = -1;
@@ -177,6 +190,8 @@ static int ett_fp_ddi_config = -1;
 static int ett_fp_edch_subframe_header = -1;
 static int ett_fp_edch_subframe = -1;
 static int ett_fp_edch_maces = -1;
+static int ett_fp_edch_macis_descriptors = -1;
+static int ett_fp_edch_macis_pdu = -1;
 static int ett_fp_hsdsch_new_ie_flags = -1;
 static int ett_fp_rach_new_ie_flags = -1;
 static int ett_fp_hsdsch_pdu_block_header = -1;
@@ -195,14 +210,25 @@ static gboolean preferences_call_mac_dissectors = TRUE;
 static gboolean preferences_show_release_info = TRUE;
 
 
-/* E-DCH channel header information */
-struct subframe_info
+/* E-DCH (T1) channel header information */
+struct edch_t1_subframe_info
 {
     guint8  subframe_number;
     guint8  number_of_mac_es_pdus;
     guint8  ddi[64];
     guint16 number_of_mac_d_pdus[64];
 };
+
+/* E-DCH (T2) channel header information */
+struct edch_t2_subframe_info
+{
+    guint8  subframe_number;
+    guint8  number_of_mac_is_pdus;
+    guint8  number_of_mac_is_sdus[16];
+    guint8  mac_is_lchid[16][16];
+    guint16 mac_is_length[16][16];
+};
+
 
 static const value_string channel_type_vals[] =
 {
@@ -295,6 +321,16 @@ static const value_string hsdshc_mac_entity_vals[] = {
     { ehs,                     "MAC-ehs" },
     { 0,   NULL }
 };
+
+/* TODO: add and use */
+static const value_string segmentation_status_vals[] = {
+    { 0,    "" },
+    { 1,    "" },
+    { 2,    "" },
+    { 3,    "" },
+    { 0,   NULL }
+};
+
 
 
 /* Dedicated control types */
@@ -457,6 +493,10 @@ static void dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 /* Dissect dedicated channels */
 static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                        int offset, struct fp_info *p_fp_info);
+
+static void dissect_e_dch_t2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                          int offset, struct fp_info *p_fp_info,
+                                          int number_of_subframes);
 
 /* Main dissection function */
 static void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -2285,7 +2325,11 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
     guint8   number_of_subframes;
     guint8   cfn;
     int      n;
-    struct   subframe_info subframes[16];
+    struct   edch_t1_subframe_info subframes[16];
+
+    if (p_fp_info->edch_type == 1) {
+        col_append_str(pinfo->cinfo, COL_INFO, " (T2)");
+    }
 
     /* Header CRC */
     proto_tree_add_item(tree, hf_fp_edch_header_crc, tvb, offset, 2, FALSE);
@@ -2339,6 +2383,13 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
         cfn = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, FALSE);
         offset++;
+
+        /* Remainder of T2 data frame differs here... */
+        if (p_fp_info->edch_type == 1) {
+            dissect_e_dch_t2_channel_info(tvb, pinfo, tree, offset, p_fp_info,
+                                          number_of_subframes);
+            return;
+        }
 
         /* EDCH subframe header list */
         for (n=0; n < number_of_subframes; n++)
@@ -2560,6 +2611,175 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
         dissect_spare_extension_and_crc(tvb, pinfo, tree,
                                         p_fp_info->dch_crc_present, offset);
     }
+}
+
+/* Dissect the remainder of the T2 frame that differs from T1 */
+static void dissect_e_dch_t2_channel_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                                          int offset, struct fp_info *p_fp_info _U_,
+                                          int number_of_subframes)
+{
+    int n;
+    int pdu_no;
+    static struct edch_t2_subframe_info subframes[16];
+    guint64 total_macis_sdus;
+    guint16 macis_sdus_found = 0;
+    gboolean F;
+    proto_item *subframe_macis_descriptors_ti = NULL;
+
+    /* User Buffer size */
+    proto_tree_add_bits_item(tree, hf_fp_edch_user_buffer_size, tvb, offset*8,
+                             18, FALSE);
+    offset += 2;
+
+    /* Spare is in-between... */
+
+    /* Total number of MAC-is SDUs */
+    proto_tree_add_bits_ret_val(tree, hf_fp_edch_no_macid_sdus, tvb, offset*8+4,
+                                12, &total_macis_sdus, FALSE);
+    offset += 2;
+
+    /* EDCH subframe header list */
+    for (n=0; n < number_of_subframes; n++) {
+
+        proto_item *subframe_header_ti;
+        proto_tree *subframe_header_tree;
+
+        /* Add subframe header subtree */
+        subframe_header_ti = proto_tree_add_string_format(tree, hf_fp_edch_subframe_header, tvb, offset, 0,
+                                                          "", "Subframe");
+        subframe_header_tree = proto_item_add_subtree(subframe_header_ti, ett_fp_edch_subframe_header);
+
+        /* Number of HARQ Retransmissions */
+        proto_tree_add_item(subframe_header_tree, hf_fp_edch_harq_retransmissions, tvb,
+                            offset, 1, FALSE);
+
+        /* Subframe number */
+        subframes[n].subframe_number = (tvb_get_guint8(tvb, offset) & 0x07);
+        proto_tree_add_item(subframe_header_tree, hf_fp_edch_subframe_number, tvb,
+                            offset, 1, FALSE);
+        offset++;
+
+        /* Number of MAC-is PDUs */
+        subframes[n].number_of_mac_is_pdus = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
+        proto_tree_add_item(subframe_header_tree, hf_fp_edch_number_of_mac_is_pdus,
+                            tvb, offset, 1, FALSE);
+
+        /* Next 4 bits are spare */
+
+        offset++;
+
+        /* Show summary in root */
+        proto_item_append_text(subframe_header_ti, " (SFN %u, %u MAC-is PDUs)",
+                               subframes[n].subframe_number, subframes[n].number_of_mac_is_pdus);
+        proto_item_set_len(subframe_header_ti, 2);
+    }
+
+
+    /* MAC-is PDU descriptors for each subframe follow */
+    for (n=0; n < number_of_subframes; n++) {
+        proto_tree *subframe_macis_descriptors_tree;
+
+        /* Add subframe header subtree */
+        subframe_macis_descriptors_ti = proto_tree_add_string_format(tree, hf_fp_edch_macis_descriptors, tvb, offset, 0,
+                                                                     "", "MAC-is descriptors (SFN %u)", subframes[n].subframe_number);
+        proto_item_set_len(subframe_macis_descriptors_ti, subframes[n].number_of_mac_is_pdus*2);
+        subframe_macis_descriptors_tree = proto_item_add_subtree(subframe_macis_descriptors_ti,
+                                                                 ett_fp_edch_macis_descriptors);
+
+        /* Find a sequence of descriptors for each MAC-is PDU in this subframe */
+        for (pdu_no=0; pdu_no < subframes[n].number_of_mac_is_pdus; pdu_no++) {
+            proto_item *f_ti = NULL;
+
+            subframes[n].number_of_mac_is_sdus[pdu_no] = 0;
+
+            do {
+                /* Check we haven't gone past the limit */
+                if (macis_sdus_found++ > total_macis_sdus) {
+                    expert_add_info_format(pinfo, f_ti, PI_MALFORMED, PI_ERROR,
+                                           "Found too many (%u) MAC-is SDUs - header said there were %u",
+                                           macis_sdus_found, (guint16)total_macis_sdus);
+                }
+
+                /* LCH-ID */
+                subframes[n].mac_is_lchid[pdu_no][subframes[n].number_of_mac_is_sdus[pdu_no]] = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
+                proto_tree_add_item(subframe_macis_descriptors_tree, hf_fp_edch_macis_lchid, tvb, offset, 1, FALSE);
+
+                /* Length */
+                subframes[n].mac_is_length[pdu_no][subframes[n].number_of_mac_is_sdus[pdu_no]] = (tvb_get_ntohs(tvb, offset) & 0x0ffe) >> 1;
+                proto_tree_add_item(subframe_macis_descriptors_tree, hf_fp_edch_macis_length, tvb, offset, 2, FALSE);
+                offset++;
+
+                /* Flag */
+                F = tvb_get_guint8(tvb, offset) & 0x01;
+                f_ti = proto_tree_add_item(subframe_macis_descriptors_tree, hf_fp_edch_macis_flag, tvb, offset, 1, FALSE);
+
+                subframes[n].number_of_mac_is_sdus[pdu_no]++;
+
+                offset++;
+            } while (F);
+        }
+    }
+
+    /* Check overall count of MAC-is SDUs */
+    if (macis_sdus_found != total_macis_sdus) {
+        expert_add_info_format(pinfo, subframe_macis_descriptors_ti, PI_MALFORMED, PI_ERROR,
+                               "Frame contains %u MAC-is SDUs - header said there would be %u!",
+                               macis_sdus_found, (guint16)total_macis_sdus);
+    }
+
+    /* Now PDUs */
+    for (n=0; n < number_of_subframes; n++) {
+
+        /* MAC-is PDU */
+        for (pdu_no=0; pdu_no < subframes[n].number_of_mac_is_pdus; pdu_no++) {
+            int sdu_no;
+            guint8 ss, tsn;
+            guint32 total_bytes = 0;
+            proto_item *ti;
+
+            proto_item *macis_pdu_ti;
+            proto_tree *macis_pdu_tree;
+    
+            /* Add subframe header subtree */
+            macis_pdu_ti = proto_tree_add_string_format(tree, hf_fp_edch_subframe_header, tvb, offset, 0,
+                                                        "", "MAC-is PDU (SFN=%u #%u)",
+                                                        subframes[n].subframe_number, pdu_no+1);
+            macis_pdu_tree = proto_item_add_subtree(macis_pdu_ti, ett_fp_edch_macis_pdu);
+
+
+            /* SS */
+            ss = (tvb_get_guint8(tvb, offset) & 0xc0) >> 6;
+            proto_tree_add_item(macis_pdu_tree, hf_fp_edch_macis_ss, tvb, offset, 1, FALSE);
+
+            /* TSN */
+            tsn = tvb_get_guint8(tvb, offset) & 0x03;
+            proto_tree_add_item(macis_pdu_tree, hf_fp_edch_macis_tsn, tvb, offset, 1, FALSE);
+
+            offset++;
+
+            /* MAC-is SDUs (i.e. MACd PDUs) */
+            for (sdu_no=0; sdu_no < subframes[n].number_of_mac_is_sdus[pdu_no]; sdu_no++) {
+
+                ti = proto_tree_add_item(macis_pdu_tree, hf_fp_edch_macis_sdu, tvb,
+                                         offset,
+                                         subframes[n].mac_is_length[pdu_no][sdu_no],
+                                         FALSE);
+                proto_item_append_text(ti, " (LCH-ID=%u Len=%u)",
+                                       subframes[n].mac_is_lchid[pdu_no][sdu_no],
+                                       subframes[n].mac_is_length[pdu_no][sdu_no]);
+
+                offset += subframes[n].mac_is_length[pdu_no][sdu_no];
+                total_bytes += subframes[n].mac_is_length[pdu_no][sdu_no];
+            }
+
+            proto_item_append_text(macis_pdu_ti, " - SS=%u TSN=%u (%u bytes in %u SDUs)",
+                                   ss, tsn, total_bytes, subframes[n].number_of_mac_is_sdus[pdu_no]);
+        }
+    }
+
+    /* Spare extension and payload CRC (optional) */
+    dissect_spare_extension_and_crc(tvb, pinfo, tree,
+                                    p_fp_info->dch_crc_present, offset);
 }
 
 
@@ -3472,6 +3692,71 @@ void proto_register_fp(void)
               NULL, HFILL
             }
         },
+
+        { &hf_fp_edch_user_buffer_size,
+            { "User Buffer Size",
+              "fp.edch.user-buffer-size", FT_UINT24, BASE_DEC, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_fp_edch_no_macid_sdus,
+            { "No of MAC-is SDUs",
+              "fp.edch.no-macis-sdus", FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_fp_edch_number_of_mac_is_pdus,
+            { "Number of Mac-is PDUs",
+              "fp.edch.number-of-mac-is-pdus", FT_UINT8, BASE_DEC, 0, 0xf0,
+              NULL, HFILL
+            }
+        },
+
+        { &hf_fp_edch_macis_descriptors,
+            { "MAC-is Descriptors",
+              "fp.edch.mac-is.descriptors", FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_fp_edch_macis_lchid,
+            { "LCH-ID",
+              "fp.edch.mac-is.lchid", FT_UINT8, BASE_HEX, 0, 0xf0,
+              NULL, HFILL
+            }
+        },
+        { &hf_fp_edch_macis_length,
+            { "Length",
+              "fp.edch.mac-is.length", FT_UINT16, BASE_DEC, 0, 0x0ffe,
+              NULL, HFILL
+            }
+        },
+        { &hf_fp_edch_macis_flag,
+            { "Flag",
+              "fp.edch.mac-is.lchid", FT_UINT8, BASE_HEX, 0, 0x01,
+              "Indicates if another entry follows", HFILL
+            }
+        },
+        { &hf_fp_edch_macis_ss,
+            { "SS",
+              /* TODO: VALS */
+              "fp.edch.mac-is.tsn", FT_UINT8, BASE_HEX, 0, 0xc0,
+              "Segmentation Status", HFILL
+            }
+        },
+        { &hf_fp_edch_macis_tsn,
+            { "TSN",
+              "fp.edch.mac-is.tsn", FT_UINT8, BASE_HEX, 0, 0x3f,
+              "Transmission Sequence Number", HFILL
+            }
+        },
+        { &hf_fp_edch_macis_sdu,
+            { "MAC-is SDU",
+              "fp.edch.mac-is.sdu", FT_NONE, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+
+
         { &hf_fp_frame_seq_nr,
             { "Frame Seq Nr",
               "fp.frame-seq-nr", FT_UINT8, BASE_DEC, 0, 0xf0,
@@ -3985,6 +4270,8 @@ void proto_register_fp(void)
         &ett_fp_edch_subframe_header,
         &ett_fp_edch_subframe,
         &ett_fp_edch_maces,
+        &ett_fp_edch_macis_descriptors,
+        &ett_fp_edch_macis_pdu,
         &ett_fp_hsdsch_new_ie_flags,
         &ett_fp_rach_new_ie_flags,
         &ett_fp_hsdsch_pdu_block_header,

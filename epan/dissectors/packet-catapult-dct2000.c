@@ -1099,6 +1099,7 @@ static dissector_handle_t look_for_dissector(char *protocol_name)
         (strcmp(protocol_name, "fp_r5") == 0) ||
         (strcmp(protocol_name, "fp_r6") == 0) ||
         (strcmp(protocol_name, "fp_r7") == 0) ||
+        (strcmp(protocol_name, "fp_r8") == 0) ||
         (strcmp(protocol_name, "fpiur_r5") == 0)) {
 
         return find_dissector("fp");
@@ -1231,6 +1232,9 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
     else if (strcmp(protocol_name, "fp_r7") == 0) {
         p_fp_info->release = 7;
     }
+    else if (strcmp(protocol_name, "fp_r8") == 0) {
+        p_fp_info->release = 8;
+    }
     else if (strcmp(protocol_name, "fpiur_r5") == 0) {
         p_fp_info->release = 5;
     }
@@ -1271,6 +1275,12 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
             p_fp_info->release_year = 2008;
             p_fp_info->release_month = 3;
             break;
+
+        case 8:
+            p_fp_info->release_year = 2010;
+            p_fp_info->release_month = 6;
+            break;
+
 
         default:
             p_fp_info->release_year = 0;
@@ -1359,6 +1369,13 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
         /* Corresponding MAC-d sizes */
         for (n=0; n < p_fp_info->no_ddi_entries; n++) {
             p_fp_info->edch_macd_pdu_size[n] = outhdr_values[i++];
+        }
+
+        if (strcmp(protocol_name, "fp_r8") == 0) {
+            p_fp_info->edch_type = outhdr_values[i++];
+        }
+        else {
+            p_fp_info->edch_type = 0;
         }
     }
 
@@ -1810,6 +1827,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         (strcmp(protocol_name, "fp_r5") == 0) ||
         (strcmp(protocol_name, "fp_r6") == 0) ||
         (strcmp(protocol_name, "fp_r7") == 0) ||
+        (strcmp(protocol_name, "fp_r8") == 0) ||
         (strcmp(protocol_name, "fpiur_r5") == 0)) {
 
         parse_outhdr_string(tvb_get_ptr(tvb, outhdr_start, outhdr_length));

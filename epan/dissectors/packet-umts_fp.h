@@ -94,6 +94,7 @@ typedef struct fp_info
     gint   no_ddi_entries;
     guint8 edch_ddi[MAX_EDCH_DDIS];
     guint  edch_macd_pdu_size[MAX_EDCH_DDIS];
+    guint8 edch_type;  /* 1 means T2 */
 
     gint cur_tb;	/* current transport block (required for dissecting of single TBs */
     gint cur_chan;  /* current channel, required to retrieve the correct channel configuration for UMTS MAC */
