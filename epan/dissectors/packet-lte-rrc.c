@@ -2015,132 +2015,132 @@ static int dissect_UECapabilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *p
 static int dissect_UE_EUTRA_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
 
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_1_val = {
-  "Intra-subframe freq hopping for PUSCH scheduled by UL grant; DCI format 3a; Multi-user MIMO for PDSCH; Aperiodic CQI/PMI/RI report on PUSCH: Mode 2-0; Aperiodic CQI/PMI/RI report on PUSCH: Mode 2-2",
-  "Not supported"
+  "Intra-subframe freq hopping for PUSCH scheduled by UL grant; DCI format 3a; Multi-user MIMO for PDSCH; Aperiodic CQI/PMI/RI report on PUSCH: Mode 2-0 and 2-2 - Supported",
+  "Intra-subframe freq hopping for PUSCH scheduled by UL grant; DCI format 3a; Multi-user MIMO for PDSCH; Aperiodic CQI/PMI/RI report on PUSCH: Mode 2-0 and 2-2 - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_2_val = {
-  "Simultaneous CQI and ACK/NACK on PUCCH (format 2a/2b); Absolute TPC command for PUSCH; Resource alloc type 1 for PDSCH; Periodic CQI/PMI/RI report on PUCCH: Mode 2-0; Periodic CQI/PMI/RI report on PUCCH: Mode 2-1",
-  "Not supported"
+  "Simultaneous CQI and ACK/NACK on PUCCH (format 2a/2b); Absolute TPC command for PUSCH; Resource alloc type 1 for PDSCH; Periodic CQI/PMI/RI report on PUCCH: Mode 2-0 and 2-1 - Supported",
+  "Simultaneous CQI and ACK/NACK on PUCCH (format 2a/2b); Absolute TPC command for PUSCH; Resource alloc type 1 for PDSCH; Periodic CQI/PMI/RI report on PUCCH: Mode 2-0 and 2-1 - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_3_val = {
-  "Semi-persistent scheduling; TTI bundling; 5bit RLC UM SN; 7bit PDCP SN",
-  "Not supported"
+  "Semi-persistent scheduling; TTI bundling; 5bit RLC UM SN; 7bit PDCP SN - Supported",
+  "Semi-persistent scheduling; TTI bundling; 5bit RLC UM SN; 7bit PDCP SN - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_4_val = {
-  "Short DRX cycle",
-  "Not supported"
+  "Short DRX cycle - Supported",
+  "Short DRX cycle - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_5_val = {
-  "Long DRX cycle; DRX command MAC control element",
-  "Not supported"
+  "Long DRX cycle; DRX command MAC control element - Supported",
+  "Long DRX cycle; DRX command MAC control element - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_6_val = {
-  "Prioritised bit rate",
-  "Not supported"
+  "Prioritised bit rate - Supported",
+  "Prioritised bit rate - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_7_val = {
-  "RLC UM",
-  "Not supported"
+  "RLC UM - Supported",
+  "RLC UM - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_8_val = {
-  "EUTRA RRC_CONNECTED to UTRA CELL_DCH PS handover",
-  "Not supported"
+  "EUTRA RRC_CONNECTED to UTRA CELL_DCH PS handover - Supported",
+  "EUTRA RRC_CONNECTED to UTRA CELL_DCH PS handover - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_9_val = {
-  "EUTRA RRC_CONNECTED to GERAN GSM_Dedicated handover",
-  "Not supported"
+  "EUTRA RRC_CONNECTED to GERAN GSM_Dedicated handover - Supported",
+  "EUTRA RRC_CONNECTED to GERAN GSM_Dedicated handover - Not Supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_10_val = {
-  "EUTRA RRC_CONNECTED to GERAN (Packet_) Idle by Cell Change Order; EUTRA RRC_CONNECTED to GERAN (Packet_) Idle by Cell Change Order with NACC",
-  "Not supported"
+  "EUTRA RRC_CONNECTED to GERAN (Packet_) Idle by Cell Change Order; EUTRA RRC_CONNECTED to GERAN (Packet_) Idle by Cell Change Order with NACC - Supported",
+  "EUTRA RRC_CONNECTED to GERAN (Packet_) Idle by Cell Change Order; EUTRA RRC_CONNECTED to GERAN (Packet_) Idle by Cell Change Order with NACC - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_11_val = {
-  "EUTRA RRC_CONNECTED to CDMA2000 1xRTT CS Active handover",
-  "Not supported"
+  "EUTRA RRC_CONNECTED to CDMA2000 1xRTT CS Active handover - Supported",
+  "EUTRA RRC_CONNECTED to CDMA2000 1xRTT CS Active handover - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_12_val = {
-  "EUTRA RRC_CONNECTED to CDMA2000 HRPD Active handover",
-  "Not supported"
+  "EUTRA RRC_CONNECTED to CDMA2000 HRPD Active handover - Supported",
+  "EUTRA RRC_CONNECTED to CDMA2000 HRPD Active handover - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_13_val = {
-  "Inter-frequency handover",
-  "Not supported"
+  "Inter-frequency handover - Supported",
+  "Inter-frequency handover - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_14_val = {
-  "Measurement reporting event: Event A4 - Neighbour > threshold; Measurement reporting event: Event A5 - Serving < threshold1 & Neighbour > threshold2",
-  "Not supported"
+  "Measurement reporting event: Event A4 - Neighbour > threshold; Measurement reporting event: Event A5 - Serving < threshold1 & Neighbour > threshold2 - Supported",
+  "Measurement reporting event: Event A4 - Neighbour > threshold; Measurement reporting event: Event A5 - Serving < threshold1 & Neighbour > threshold2 - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_15_val = {
-  "Measurement reporting event: Event B1 - Neighbour > threshold",
-  "Not supported"
+  "Measurement reporting event: Event B1 - Neighbour > threshold - Supported",
+  "Measurement reporting event: Event B1 - Neighbour > threshold - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_16_val = {
-  "Periodical measurement reporting for non-ANR related measurements",
-  "Not supported"
+  "Periodical measurement reporting for non-ANR related measurements - Supported",
+  "Periodical measurement reporting for non-ANR related measurements - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_17_val = {
-  "Periodical measurement reporting for SON / ANR; ANR related intra-frequency measurement reporting events",
-  "Not supported"
+  "Periodical measurement reporting for SON / ANR; ANR related intra-frequency measurement reporting events - Supported",
+  "Periodical measurement reporting for SON / ANR; ANR related intra-frequency measurement reporting events - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_18_val = {
-  "ANR related inter-frequency measurement reporting events",
-  "Not supported"
+  "ANR related inter-frequency measurement reporting events - Supported",
+  "ANR related inter-frequency measurement reporting events - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_19_val = {
-  "ANR related inter-RAT measurement reporting events",
-  "Not supported"
+  "ANR related inter-RAT measurement reporting events - Supported",
+  "ANR related inter-RAT measurement reporting events - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_20_val = {
-  "SRB1 and SRB2 for DCCH + 8x AM DRB; SRB1 and SRB2 for DCCH + 5x AM DRB + 3x UM DRB (if indicator 7 is supported)",
-  "Not supported"
+  "SRB1 and SRB2 for DCCH + 8x AM DRB; SRB1 and SRB2 for DCCH + 5x AM DRB + 3x UM DRB (if indicator 7 is supported) - Supported",
+  "SRB1 and SRB2 for DCCH + 8x AM DRB; SRB1 and SRB2 for DCCH + 5x AM DRB + 3x UM DRB (if indicator 7 is supported) - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_21_val = {
-  "Predefined intra- and inter-subframe frequency hopping for PUSCH with N_sb > 1; Predefined inter-subframe frequency hopping for PUSCH with N_sb > 1",
-  "Not supported"
+  "Predefined intra- and inter-subframe frequency hopping for PUSCH with N_sb > 1; Predefined inter-subframe frequency hopping for PUSCH with N_sb > 1 - Supported",
+  "Predefined intra- and inter-subframe frequency hopping for PUSCH with N_sb > 1; Predefined inter-subframe frequency hopping for PUSCH with N_sb > 1 - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_22_val = {
-  "UTRAN measurements, reporting and measurement reporting event B2 in E-UTRA connected mode",
-  "Not supported"
+  "UTRAN measurements, reporting and measurement reporting event B2 in E-UTRA connected mode - Supported",
+  "UTRAN measurements, reporting and measurement reporting event B2 in E-UTRA connected mode - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_23_val = {
-  "GERAN measurements, reporting and measurement reporting event B2 in E-UTRA connected mode",
-  "Not supported"
+  "GERAN measurements, reporting and measurement reporting event B2 in E-UTRA connected mode - Supported",
+  "GERAN measurements, reporting and measurement reporting event B2 in E-UTRA connected mode - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_24_val = {
-  "1xRTT measurements, reporting and measurement reporting event B2 in E-UTRA connected mode",
-  "Not supported"
+  "1xRTT measurements, reporting and measurement reporting event B2 in E-UTRA connected mode - Supported",
+  "1xRTT measurements, reporting and measurement reporting event B2 in E-UTRA connected mode - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_25_val = {
-  "Inter-frequency measurements and reporting in E-UTRA connected mode",
-  "Not supported"
+  "Inter-frequency measurements and reporting in E-UTRA connected mode - Supported",
+  "Inter-frequency measurements and reporting in E-UTRA connected mode - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_26_val = {
-  "HRPD measurements, reporting and measurement reporting event B2 in E-UTRA connected mode",
-  "Not supported"
+  "HRPD measurements, reporting and measurement reporting event B2 in E-UTRA connected mode - Supported",
+  "HRPD measurements, reporting and measurement reporting event B2 in E-UTRA connected mode - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_27_val = {
-  "EUTRA RRC_CONNECTED to UTRA CELL_DCH CS handover",
-  "Not supported"
+  "EUTRA RRC_CONNECTED to UTRA CELL_DCH CS handover - Supported",
+  "EUTRA RRC_CONNECTED to UTRA CELL_DCH CS handover - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_28_val = {
-  "Undefined",
-  "Not supported"
+  "Undefined - Supported",
+  "Undefined - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_29_val = {
-  "Undefined",
-  "Not supported"
+  "Undefined - Supported",
+  "Undefined - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_30_val = {
-  "Undefined",
-  "Not supported"
+  "Undefined - Supported",
+  "Undefined - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_31_val = {
-  "Undefined",
-  "Not supported"
+  "Undefined - Supported",
+  "Undefined - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_32_val = {
-  "Undefined",
-  "Not supported"
+  "Undefined - Supported",
+  "Undefined - Not supported"
 };
 
 /*--- Included file: packet-lte-rrc-fn.c ---*/
