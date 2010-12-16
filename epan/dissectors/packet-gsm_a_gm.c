@@ -3989,8 +3989,9 @@ de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 	guint32	curr_offset;
 
 	curr_offset = offset;
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, offset << 3, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_sm_packet_flow_id, tvb, offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset << 3, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_sm_packet_flow_id, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
 
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
