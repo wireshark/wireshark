@@ -171,6 +171,8 @@ static const value_string mdd_tlv_vals[] = {
 	 {CM_STATUS_EVENT_CONTROL  , "CM-STATUS Event Control"},
 	 {UPSTREAM_TRANSMIT_POWER_REPORTING  , "Upstream Transmit Power Reporting"},
 	 {DSG_DA_TO_DSID_ASSOCIATION_ENTRY  , "DSG DA-to-DSID Association Entry"},
+	 {CM_STATUS_EVENT_ENABLE_NON_CHANNEL_SPECIFIC_EVENTS  , 
+		"CM-STATUS Event Enable for Non-Channel-Specific-Events"},
 	{0, NULL}
 };
 
@@ -516,9 +518,11 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					break;
 				case CM_STATUS_EVENT_ENABLE_NON_CHANNEL_SPECIFIC_EVENTS:
 					subpos = pos + 2;
-					proto_tree_add_item (tlv_tree, hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_sequence_out_of_range, tvb, subpos + 2 , 2,FALSE);
-					proto_tree_add_item (tlv_tree, hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_cm_operating_on_battery_backup, tvb, subpos + 2 , 2,FALSE);
-					proto_tree_add_item (tlv_tree, hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_cm_returned_to_ac_power, tvb, subpos + 2 , 2,FALSE);
+					tlv_sub_item = proto_tree_add_text (tlv_tree, tvb, subpos, 2, "CM-STATUS Event Enable Bitmask for Non-Channel-Specific Events");
+					tlv_sub_tree = proto_item_add_subtree (tlv_sub_item, ett_sub_tlv);
+					proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_sequence_out_of_range, tvb, subpos, 2,FALSE);
+					proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_cm_operating_on_battery_backup, tvb, subpos , 2,FALSE);
+					proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_cm_returned_to_ac_power, tvb, subpos , 2,FALSE);
 					break;
 			}
 			pos += length + 2;
@@ -725,6 +729,7 @@ void proto_register_docsis_mdd (void)
 		FT_UINT16, BASE_DEC, NULL, 0x0400,
 		"CM-STATUS event non-channel-event Cm returned to AC power", HFILL}
 		},
+
 	};
 
 	/* Setup protocol subtree array */

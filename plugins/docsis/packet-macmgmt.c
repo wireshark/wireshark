@@ -59,7 +59,21 @@
 #define MGT_UP_DIS 28
 #define MGT_TYPE29UCD 29
 #define MGT_INIT_RNG_REQ 30
+#define MGT_TEST_REQ 31
+#define MGT_DS_CH_DESC 32
+#define MGT_MDD 33
 #define MGT_B_INIT_RNG_REQ 34
+#define MGT_TYPE35UCD 35
+#define MGT_DBC_REQ 36
+#define MGT_DBC_RSP 37
+#define MGT_DBC_ACK 38
+#define MGT_DPV_REQ 39
+#define MGT_DPV_RSP 40
+#define MGT_CM_STATUS 41
+#define MGT_CM_CTRL_REQ 42
+#define MGT_CM_CTRL_RSP 43
+#define MGT_REG_REQ_MP 44
+#define MGT_REG_RSP_MP 45
 
 
 /* Initialize the protocol and registered fields */
@@ -86,6 +100,7 @@ static const value_string mgmt_type_vals[] = {
   {MGT_SYNC, "Timing Synchronisation"},
   {MGT_UCD, "Upstream Channel Descriptor"},
   {MGT_TYPE29UCD, "Upstream Channel Descriptor Type 29"},
+  {MGT_TYPE35UCD, "Upstream Channel Descriptor Type 35"},
   {MGT_MAP, "Upstream Bandwidth Allocation"},
   {MGT_RNG_REQ, "Ranging Request"},
   {MGT_RNG_RSP, "Ranging Response"},
@@ -113,7 +128,20 @@ static const value_string mgmt_type_vals[] = {
   {MGT_DCI_RSP, "Device Class Identification Response"},
   {MGT_UP_DIS, "Upstream Channel Disable"},
   {MGT_INIT_RNG_REQ, "Initial Ranging Request"},
+  {MGT_TEST_REQ, "Test Request Message"},
+  {MGT_DS_CH_DESC, "Downstream Channel Descriptor"},
+  {MGT_MDD, "MAC Domain Descriptor"},
   {MGT_B_INIT_RNG_REQ, "Bonded Initial Ranging Request"},
+  {MGT_DBC_REQ, "Dynamic Bonding Change Request"},
+  {MGT_DBC_RSP, "Dynamic Bonding Change Response"},
+  {MGT_DBC_ACK, "Dynamic Bonding Change Acknowledge"},
+  {MGT_DPV_REQ, "DOCSIS Path Verify Request"},
+  {MGT_DPV_RSP, "DOCSIS Path Verify Response"},
+  {MGT_CM_STATUS, "CM Status Report"},
+  {MGT_CM_CTRL_REQ, "CM Control Request"},
+  {MGT_CM_CTRL_RSP, "CM Control Response"},
+  {MGT_REG_REQ_MP, "Multipart Registration Request"},
+  {MGT_REG_RSP_MP, "Multipart Registration Response"},
   {0, NULL}
 };
 
@@ -177,8 +205,6 @@ dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     return;
   else
     call_dissector (data_handle, payload_tvb, pinfo, tree);
-
-
 }
 
 

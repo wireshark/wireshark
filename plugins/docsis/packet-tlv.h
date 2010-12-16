@@ -66,7 +66,34 @@
 #define TLV_SUBS_MGMT_CTRL 35
 #define TLV_SUBS_MGMT_CPE 36
 #define TLV_SUBS_MGMT_FLTR 37
-#define TLV_VENDOR_SPEC 43
+#define TLV_SNMPV3_NTFY_RCVR 38
+#define TLV_ENABLE_20_MODE 39
+#define TLV_ENABLE_TEST_MODES 40
+#define TLV_DS_CH_LIST 41
+#define TLV_MC_MAC_ADDRESS 42
+#define TLV_VENDOR_SPEC 43 /* Vendor Specific is actually 44 ? */
+#define TLV_DUT_FILTER 45
+#define TLV_TCC 46
+#define TLV_SID_CL 47
+#define TLV_RCP 48
+#define TLV_RCC 49
+#define TLV_DSID 50
+#define TLV_SEC_ASSOC 51
+#define TLV_INIT_CH_TIMEOUT 52
+#define TLV_SNMPV1V2_COEX 53
+#define TLV_SNMPV3_ACC_VIEW 54
+#define TLV_SNMP_CPE_ACC_CTRL 55
+#define TLV_CH_ASGN 56
+#define TLV_CM_INIT_REASON 57
+#define TLV_SW_UPG_SRVR_IPV6 58
+#define TLV_TFTP_PROV_CM_IPV6_ADDR 59
+#define TLV_US_DROP_CLFY 60
+#define TLV_SUBS_MGMT_IPV6_LST 61
+#define TLV_US_DROP_CLFY_GROUP_ID 62
+#define TLV_SUBS_MGMT_CTRL_MAX_CPE_IPV6 63
+#define TLV_CMTS_MC_SESS_ENC 64
+#define TLV_L2VPN_MAC_AGING 65
+#define TLV_MGMT_EVENT_CTRL 66
 #define TLV_END 255
 
 /* Define DOCSIS 1.0 Class Of Service Configuration Types
@@ -225,5 +252,188 @@
 #define PHS_ERR_PARAM 1
 #define PHS_ERR_CODE 2
 #define PHS_ERR_MSG 3
+
+
+/* Define DS Channel List sub-types
+ * These are subtypes of TLV_DS_CHANNEL_LIST (41)
+ */
+#define DS_CH_LIST_SINGLE 1
+#define DS_CH_LIST_RANGE 2
+#define DS_CH_LIST_DEFAULT_TIMEOUT 3
+
+/* Define Singe Downstream Channel sub-types
+ * These are subtypes of DS_CH_LIST_SINGLE (41.1)
+ */
+#define SINGLE_CH_TIMEOUT 1
+#define SINGLE_CH_FREQ 2
+
+/* Define Singe Downstream Channel sub-types
+ * These are subtypes of DS_CH_LIST_RANGE (41.2)
+ */
+#define FREQ_RNG_TIMEOUT 1
+#define FREQ_RNG_START 2
+#define FREQ_RNG_END 3
+#define FREQ_RNG_STEP 4
+
+/* Define DUT sub-types
+ * These are subtypes of TLV_DUT_FILTER (45)
+ */
+#define DUT_CONTROL 1
+#define DUT_CMIM 2
+
+/* Define TCC sub-types
+ * These are subtypes of TLV_TCC (46)
+ */
+#define TLV_TCC_REFID 1
+#define TLV_TCC_US_CH_ACTION 2
+#define TLV_TCC_US_CH_ID 3
+#define TLV_TCC_NEW_US_CH_ID 4
+#define TLV_TCC_UCD 5
+#define TLV_TCC_RNG_SID 6
+#define TLV_TCC_INIT_TECH 7
+#define TLV_TCC_RNG_PARMS 8
+#define TLV_TCC_DYN_RNG_WIN 9
+#define TLV_TCC_ERR 254
+
+/* Define TLV_TCC_RNG_PARMS sub-types
+ * These are subtypes of TLV_TCC_RNG_PARMS (46.8)
+ */
+#define RNG_PARMS_US_CH_ID 1
+#define RNG_PARMS_TIME_OFF_INT 2
+#define RNG_PARMS_TIME_OFF_FRAC 3
+#define RNG_PARMS_POWER_OFF 4
+#define RNG_PARMS_FREQ_OFF 5
+
+/* Define TLV_TCC_ERR sub-types
+ * These are subtypes of TLV_TCC_ERR (46.254)
+ */
+#define TCC_ERR_SUBTYPE 1
+#define TCC_ERR_CODE 2
+#define TCC_ERR_MSG 3
+
+/* Define TLV_SID_CLUSTER sub-types
+ * These are subtypes of TLV_SID_CLUSTER (47)
+ */
+#define SID_CL_SF_ID 1
+#define SID_CL_ENC 2
+#define SID_CL_SO_CRIT 3
+
+/* Define SID_CL_ENC sub-types
+ * These are subtypes of SID_CL_ENC (47.2)
+ */
+#define SID_CL_ENC_ID 1
+#define SID_CL_ENC_MAP 2
+
+/* Define SID_CL_ENC_MAP sub-types
+ * These are subtypes of SID_CL_ENC_MAP (47.2.2)
+ */
+#define SID_CL_MAP_US_CH_ID 1
+#define SID_CL_MAP_SID 2
+#define SID_CL_MAP_ACTION 3
+
+/* Define SID_CL_SO_CRIT sub-types
+ * These are subtypes of SID_CL_SO_CRIT (47.3)
+ */
+#define SID_CL_SO_MAX_REQ 1
+#define SID_CL_SO_MAX_OUT_BYTES 2
+#define SID_CL_SO_MAX_REQ_BYTES 3
+#define SID_CL_SO_MAX_TIME 4
+
+/* Define TLV_RCP sub-types
+ * These are subtypes of TLV_RCP (48)
+ */
+#define TLV_RCP_ID 1
+#define TLV_RCP_NAME 2
+#define TLV_RCP_FREQ_SPC 3
+#define TLV_RCP_RCV_MOD_ENC 4
+#define TLV_RCP_RCV_CH 5
+#define TLV_RCP_VEN_SPEC 43
+#define TLV_RCC_ERR 254
+
+/* Define TLV_RCP_RCV_MOD_ENC sub-types
+ * These are subtypes of TLV_RCP_RCV_MOD_ENC (48.4)
+ */
+#define RCV_MOD_ENC_IDX 1
+#define RCV_MOD_ENC_ADJ_CH 2
+#define RCV_MOD_ENC_CH_BL_RNG 3
+#define RCV_MOD_ENC_CTR_FREQ_ASGN 4
+#define RCV_MOD_ENC_RSQ_CH_SUBS_CAP 5
+#define RCV_MOD_ENC_CONN 6
+#define RCV_MOD_ENC_PHY_LAYR_PARMS 7
+
+/* Define RCV_MOD_ENC_CH_BL_RNG sub-types
+ * These are subtypes of RCV_MOD_ENC_CH_BL_RNG (48.4.3)
+ */
+#define CH_BL_RNG_MIN_CTR_FREQ 1
+#define CH_BL_RNG_MAX_CTR_FREQ 2
+
+/* Define TLV_RCP_RCV_CH sub-types
+ * These are subtypes of TLV_RCP_RCV_CH (48.5)
+ */
+#define RCV_CH_IDX 1
+#define RCV_CH_CONN 2
+#define RCV_CH_CONN_OFF 3
+#define RCV_CH_CTR_FREQ_ASGN 4
+#define RCV_CH_PRIM_DS_CH_IND 5
+
+/* Define TLV_RCC_ERR sub-types
+ * These are subtypes of TLV_RCC_ERR (49.254)
+ */
+#define RCC_ERR_MOD_OR_CH 1
+#define RCC_ERR_IDX 2
+#define RCC_ERR_PARAM 3
+#define RCC_ERR_CODE 4
+#define RCC_ERR_MSG 5
+
+
+/* Define TLV_DSID sub-types
+ * These are subtypes of TLV_DSID (50)
+ */
+#define TLV_DSID_ID 1
+#define TLV_DSID_ACTION 2
+#define TLV_DSID_DS_RESEQ 3
+#define TLV_DSID_MC 4
+
+/* Define TLV_DSID_DS_RESEQ sub-types
+ * These are subtypes of TLV_DSID_DS_RESEQ (50.3)
+ */
+#define DS_RESEQ_DSID 1
+#define DS_RESEQ_CH_LST 2
+#define DS_RESEQ_WAIT_TIME 3
+#define DS_RESEQ_WARN_THRESH 4
+#define DS_RESEQ_HO_TIMER 5
+
+/* Define TLV_DSID_MC sub-types
+ * These are subtypes of TLV_DSID_DS_MC (50.4)
+ */
+
+#define TLV_DSID_MC_ADDR 1
+#define TLV_DSID_MC_CMIM 2
+#define TLV_DSID_MC_GROUP 3
+#define TLV_DSID_MC_PHS 26
+
+/* Define TLV_DSID_MC_ADDR sub-types
+ * These are subtypes of TLV_DSID_MC_ADDR (50.4.1)
+ */
+#define MC_ADDR_ACTION 1
+#define MC_ADDR_ADDR 2
+
+/* Define TLV_SEC_ASSOC sub-types
+ * These are subtypes of TLV_SEC_ASSOC (51)
+ */
+#define TLV_SEC_ASSOC_ACTION 1
+#define TLV_SEC_ASSOC_DESC 2
+
+/* Define TLV_CH_ASGN sub-types
+ * These are subtypes of TLV_CH_ASGN (56)
+ */
+#define TLV_CH_ASGN_US_CH_ID 1
+#define TLV_CH_ASGN_RX_FREQ 2
+
+/* Define TLV_CMTS_MC_SESS_ENC sub-types
+ * These are subtypes of TLV_CMTS_MC_SESS_ENC (64)
+ */
+#define CMTS_MC_SESS_ENC_GRP 1
+#define CMTS_MC_SESS_ENC_SRC 2
 
 #endif

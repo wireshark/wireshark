@@ -39,6 +39,7 @@
 
 /* Initialize the protocol and registered fields */
 static dissector_handle_t docsis_vsif_handle;
+static dissector_handle_t docsis_ucd_handle;
 
 
 static int proto_docsis_tlv = -1;
@@ -85,6 +86,28 @@ static int hf_docsis_tlv_subs_mgmt_ctrl = -1;
 static int hf_docsis_tlv_subs_mgmt_ip_table = -1;
 static int hf_docsis_tlv_subs_mgmt_ip_entry = -1;
 static int hf_docsis_tlv_subs_mgmt_filter_grps = -1;
+static int hf_docsis_tlv_snmpv3_ntfy_rcvr = -1;
+static int hf_docsis_tlv_enable_20_mode = -1;
+static int hf_docsis_tlv_enable_test_modes = -1;
+static int hf_docsis_tlv_ds_ch_list = -1;
+static int hf_docsis_tlv_mc_mac_address = -1;
+static int hf_docsis_tlv_dut_filter = -1;
+static int hf_docsis_tlv_tcc = -1;
+static int hf_docsis_tlv_sid_cl = -1;
+static int hf_docsis_tlv_rcp = -1;
+static int hf_docsis_tlv_rcc = -1;
+static int hf_docsis_tlv_dsid = -1;
+static int hf_docsis_tlv_sec_assoc = -1;
+static int hf_docsis_tlv_init_ch_timeout = -1;
+static int hf_docsis_tlv_ch_asgn = -1;
+static int hf_docsis_tlv_cm_init_reason = -1;
+static int hf_docsis_tlv_sw_upg_srvr_ipv6 = -1;
+static int hf_docsis_tlv_tftp_prov_cm_ipv6_addr = -1;
+static int hf_docsis_tlv_us_drop_clfy = -1;
+static int hf_docsis_tlv_subs_mgmt_ipv6_lst = -1;
+static int hf_docsis_tlv_us_drop_clfy_group_id = -1;
+static int hf_docsis_tlv_subs_mgmt_ctrl_max_cpe_ipv6 = -1;
+static int hf_docsis_tlv_cmts_mc_sess_enc = -1;
 
 static int hf_docsis_tlv_cos_id = -1;
 static int hf_docsis_tlv_cos_sid = -1;
@@ -194,6 +217,131 @@ static int hf_docsis_tlv_phs_err_param = -1;
 static int hf_docsis_tlv_phs_err_code = -1;
 static int hf_docsis_tlv_phs_err_msg = -1;
 
+static int hf_docsis_tlv_ds_ch_list_single = -1;
+static int hf_docsis_tlv_ds_ch_list_range = -1;
+static int hf_docsis_tlv_ds_ch_list_default_timeout = -1;
+
+static int hf_docsis_tlv_single_ch_timeout = -1;
+static int hf_docsis_tlv_single_ch_freq = -1;
+
+static int hf_docsis_tlv_freq_rng_timeout = -1;
+static int hf_docsis_tlv_freq_rng_start = -1;
+static int hf_docsis_tlv_freq_rng_end = -1;
+static int hf_docsis_tlv_freq_rng_step = -1;
+
+static int hf_docsis_tlv_dut_filter_control = -1;
+static int hf_docsis_tlv_dut_filter_cmim = -1;
+
+static int hf_docsis_tlv_tcc_refid = -1;
+static int hf_docsis_tlv_tcc_us_ch_action= -1;
+static int hf_docsis_tlv_tcc_us_ch_id= -1;
+static int hf_docsis_tlv_tcc_new_us_ch_id= -1;
+static int hf_docsis_tlv_tcc_ucd = -1;
+static int hf_docsis_tlv_tcc_rng_sid= -1;
+static int hf_docsis_tlv_tcc_init_tech= -1;
+static int hf_docsis_tlv_tcc_rng_parms= -1;
+static int hf_docsis_tlv_tcc_dyn_rng_win= -1;
+static int hf_docsis_tlv_tcc_err = -1;
+
+static int hf_docsis_rng_parms_us_ch_id = -1;
+static int hf_docsis_rng_parms_time_off_int = -1;
+static int hf_docsis_rng_parms_time_off_frac = -1;
+static int hf_docsis_rng_parms_power_off = -1;
+static int hf_docsis_rng_parms_freq_off = -1;
+
+static int hf_docsis_tcc_err_subtype = -1;
+static int hf_docsis_tcc_err_code = -1;
+static int hf_docsis_tcc_err_msg = -1;
+
+static int hf_docsis_sid_cl_sf_id = -1;
+static int hf_docsis_sid_cl_enc = -1;
+static int hf_docsis_sid_cl_so_crit = -1;
+
+static int hf_docsis_sid_cl_enc_id = -1;
+static int hf_docsis_sid_cl_enc_map = -1;
+
+static int hf_docsis_sid_cl_map_us_ch_id = -1;
+static int hf_docsis_sid_cl_map_sid = -1;
+static int hf_docsis_sid_cl_map_action = -1;
+
+static int hf_docsis_sid_cl_so_max_req = -1;
+static int hf_docsis_sid_cl_so_max_out_bytes = -1;
+static int hf_docsis_sid_cl_so_max_req_bytes = -1;
+static int hf_docsis_sid_cl_so_max_time = -1;
+
+static int hf_docsis_tlv_rcp_id = -1;
+static int hf_docsis_tlv_rcp_name = -1;
+static int hf_docsis_tlv_rcp_freq_spc = -1;
+static int hf_docsis_tlv_rcp_rcv_mod_enc = -1;
+static int hf_docsis_tlv_rcp_rcv_ch = -1;
+static int hf_docsis_tlv_rcp_ven_spec = -1; 
+
+static int hf_docsis_rcv_mod_enc_idx = -1;
+static int hf_docsis_rcv_mod_enc_adj_ch = -1;
+static int hf_docsis_rcv_mod_enc_ch_bl_rng = -1;
+static int hf_docsis_rcv_mod_enc_ctr_freq_asgn = -1;
+static int hf_docsis_rcv_mod_enc_rsq_ch_subs_cap = -1;
+static int hf_docsis_rcv_mod_enc_conn = -1;
+static int hf_docsis_rcv_mod_enc_phy_layr_parms = -1;
+
+static int hf_docsis_rcc_rcv_mod_enc_idx = -1;
+static int hf_docsis_rcc_rcv_mod_enc_ctr_freq_asgn = -1;
+static int hf_docsis_rcc_rcv_mod_enc_conn = -1;
+
+static int hf_docsis_ch_bl_rng_min_ctr_freq = -1;
+static int hf_docsis_ch_bl_rng_max_ctr_freq = -1;
+
+static int hf_docsis_rcv_ch_idx = -1;
+static int hf_docsis_rcv_ch_conn = -1;
+static int hf_docsis_rcv_ch_conn_off = -1;
+static int hf_docsis_rcv_ch_prim_ds_ch_ind = -1;
+
+static int hf_docsis_rcc_rcv_ch_idx = -1;
+static int hf_docsis_rcc_rcv_ch_conn = -1;
+static int hf_docsis_rcc_rcv_ch_ctr_freq_asgn = -1;
+static int hf_docsis_rcc_rcv_ch_prim_ds_ch_ind = -1;
+
+static int hf_docsis_tlv_rcc_id = -1;
+static int hf_docsis_tlv_rcc_rcv_mod_enc = -1;
+static int hf_docsis_tlv_rcc_rcv_ch = -1;
+static int hf_docsis_tlv_rcc_part_serv_ds_ch = -1;
+static int hf_docsis_tlv_rcc_ven_spec = -1; 
+static int hf_docsis_tlv_rcc_err = -1; 
+
+static int hf_docsis_tlv_rcc_err_mod_or_ch = -1;
+static int hf_docsis_tlv_rcc_err_idx = -1;
+static int hf_docsis_tlv_rcc_err_param = -1;
+static int hf_docsis_tlv_rcc_err_code = -1;
+static int hf_docsis_tlv_rcc_err_msg = -1;
+
+static int hf_docsis_tlv_dsid_id = -1;
+static int hf_docsis_tlv_dsid_action = -1;
+static int hf_docsis_tlv_dsid_ds_reseq = -1;
+static int hf_docsis_tlv_dsid_mc = -1;
+
+static int hf_docsis_ds_reseq_dsid = -1;
+static int hf_docsis_ds_reseq_ch_lst = -1;
+static int hf_docsis_ds_reseq_wait_time = -1;
+static int hf_docsis_ds_reseq_warn_thresh = -1;
+static int hf_docsis_ds_reseq_ho_timer = -1;
+
+static int hf_docsis_tlv_dsid_mc_addr = -1;
+static int hf_docsis_tlv_dsid_mc_cmim = -1;
+static int hf_docsis_tlv_dsid_mc_group = -1;
+static int hf_docsis_tlv_dsid_mc_phs = -1;
+
+static int hf_docsis_mc_addr_action = -1;
+static int hf_docsis_mc_addr_addr = -1;
+
+static int hf_docsis_tlv_sec_assoc_action = -1;
+static int hf_docsis_tlv_sec_assoc_desc = -1;
+
+static int hf_docsis_ch_asgn_us_ch_id = -1;
+static int hf_docsis_ch_asgn_rx_freq = -1;
+
+static int hf_docsis_cmts_mc_sess_enc_grp = -1;
+static int hf_docsis_cmts_mc_sess_enc_src = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_docsis_tlv = -1;
 static gint ett_docsis_tlv_cos = -1;
@@ -209,6 +357,33 @@ static gint ett_docsis_tlv_reqxmitpol = -1;
 static gint ett_docsis_tlv_sflow_err = -1;
 static gint ett_docsis_tlv_svc_unavail = -1;
 static gint ett_docsis_tlv_snmpv3_kick = -1;
+static gint ett_docsis_tlv_ds_ch_list = -1;
+static gint ett_docsis_tlv_ds_ch_list_single = -1;
+static gint ett_docsis_tlv_ds_ch_list_range = -1;
+static gint ett_docsis_tlv_dut_filter = -1;
+static gint ett_docsis_tlv_tcc = -1;
+static gint ett_docsis_tlv_tcc_ucd = -1;
+static gint ett_docsis_tlv_tcc_rng_parms = -1;
+static gint ett_docsis_tlv_tcc_err = -1;
+static gint ett_docsis_tlv_sid_cl = -1;
+static gint ett_docsis_tlv_sid_cl_enc = -1;
+static gint ett_docsis_tlv_sid_cl_enc_map = -1;
+static gint ett_docsis_tlv_sid_cl_so = -1;
+static gint ett_docsis_tlv_rcp = -1;
+static gint ett_docsis_tlv_rcp_rcv_mod_enc = -1;
+static gint ett_docsis_tlv_rcp_ch_bl_rng = -1;
+static gint ett_docsis_tlv_rcp_rcv_ch = -1;
+static gint ett_docsis_tlv_rcc = -1;
+static gint ett_docsis_tlv_rcc_rcv_mod_enc = -1;
+static gint ett_docsis_tlv_rcc_rcv_ch = -1;
+static gint ett_docsis_tlv_rcc_err = -1;
+static gint ett_docsis_tlv_dsid = -1;
+static gint ett_docsis_tlv_dsid_ds_reseq = -1;
+static gint ett_docsis_tlv_dsid_mc = -1;
+static gint ett_docsis_tlv_dsid_mc_addr = -1;
+static gint ett_docsis_tlv_sec_assoc = -1;
+static gint ett_docsis_tlv_ch_asgn = -1;
+static gint ett_docsis_cmts_mc_sess_enc = -1;
 
 static const true_false_string on_off_tfs = {
   "On",
@@ -334,7 +509,78 @@ const value_string docsis_conf_code[] = {
   {0, NULL}
 };
 
+static const value_string us_ch_action_vals[] = {
+  {0, "No Action"},
+  {1, "Add"},
+  {2, "Change"},
+  {3, "Delete"},
+  {4, "Replace"},
+  {5, "Re-range"},
+  {0, NULL},
+};
 
+static const value_string init_tech_vals[] = {
+  {0, "reserved"},
+  {1, "Perform broadcast initial ranging before normal ops"},
+  {2, "Perform unicast ranging before normal ops"},
+  {3, "Perform either broadcast or unicast ranging before normal ops"},
+  {4, "Use new channel directly without reinitializing or ranging"},
+  {0, NULL},
+};
+
+static const value_string sid_ch_map_vals[] = {
+  {0, "reserved"},
+  {1, "Add"},
+  {2, "Delete"},
+  {0, NULL},
+};
+
+static const value_string mod_or_ch_vals[] = {
+  {0, "reserved"},
+  {1, "reserved"},
+  {2, "reserved"},
+  {3, "reserved"},
+  {4, "Receive Module"},
+  {5, "Receive Channel"},
+  {0, NULL},
+};
+
+static const value_string dsid_action_vals[] = {
+  {0, "Add"},
+  {1, "Change"},
+  {2, "Delete"},
+  {0, NULL},
+};
+
+static const value_string add_del_vals[] = {
+  {0, "Add"},
+  {1, "Delete"},
+  {0, NULL},
+};
+
+static const value_string init_reason_vals[] = {
+  {0, "reserved"},
+  {1, "Power On"},
+  {2, "T17 Lost Sync"},
+  {3, "All Upstream Failed"},
+  {4, "Bad DHCP Ack"},
+  {5, "Link Local Address in use"},
+  {6, "T6 Expired"},
+  {7, "REG-RSP not ok"},
+  {8, "BAD RCC/TCC"},
+  {9, "Failed Primary Downstream"},
+  {10, "TCS failed on all upstreams"},
+  {11, "reserved"},
+  {12, "reserved"},
+  {13, "reserved"},
+  {14, "reserved"},
+  {15, "MTCM Change"},
+  {16, "T4 Expired"},
+  {17, "No Primary SF on US Channel"},
+  {18, "CM Control Init"},
+  {19, "Dynamic Range Window Violation"},
+  {0, NULL},
+};
 
 /* Code to actually dissect the packets */
 static void
@@ -1766,6 +2012,1509 @@ dissect_snmpv3_kickstart(tvbuff_t * tvb, proto_tree *tree, int start, guint16 le
 }
 
 static void
+dissect_ds_ch_list_single (tvbuff_t * tvb, proto_tree * tree, 
+		                   int start, guint16 len)
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *single_tree;
+  int pos = start;
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			 "1 Single Downstream Channel (Length = %u)", len);
+  single_tree = proto_item_add_subtree (it, ett_docsis_tlv_ds_ch_list_single);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+	case SINGLE_CH_TIMEOUT:
+	  if (length == 2)
+	    {
+	      proto_tree_add_item (single_tree, hf_docsis_tlv_single_ch_timeout, tvb,
+				   pos, length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	case SINGLE_CH_FREQ:
+	  if (length == 4)
+	    {
+	      proto_tree_add_item (single_tree, hf_docsis_tlv_single_ch_freq, tvb,
+				   pos, length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    }  /* switch */
+      pos = pos + length;
+  }				/* while */
+}
+
+static void
+dissect_ds_ch_list_range (tvbuff_t * tvb, proto_tree * tree, 
+		                   int start, guint16 len)
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *range_tree;
+  int pos = start;
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			 "2 Downstream Frequency Range (Length = %u)", len);
+  range_tree = proto_item_add_subtree (it, ett_docsis_tlv_ds_ch_list_range);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+	case FREQ_RNG_TIMEOUT:
+	  if (length == 2)
+	    {
+	      proto_tree_add_item (range_tree, hf_docsis_tlv_freq_rng_timeout, tvb,
+				   pos, length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	case FREQ_RNG_START:
+	  if (length == 4)
+	    {
+	      proto_tree_add_item (range_tree, hf_docsis_tlv_freq_rng_start, tvb,
+				   pos, length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	case FREQ_RNG_END:
+	  if (length == 4)
+	    {
+	      proto_tree_add_item (range_tree, hf_docsis_tlv_freq_rng_end, tvb,
+				   pos, length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	case FREQ_RNG_STEP:
+	  if (length == 4)
+	    {
+	      proto_tree_add_item (range_tree, hf_docsis_tlv_freq_rng_step, tvb,
+				   pos, length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    }				/* switch */
+      pos = pos + length;
+  }				/* while */
+}
+
+static void
+dissect_dut_filter (tvbuff_t * tvb, proto_tree * tree, 
+		                   int start, guint16 len)
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *dut_tree;
+  int pos = start;
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			 "Downstream Unencrypted Traffic (Length = %u)", len);
+  dut_tree = proto_item_add_subtree (it, ett_docsis_tlv_dut_filter);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+	case DUT_CONTROL:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (dut_tree, hf_docsis_tlv_dut_filter_control, tvb,
+				   pos, length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	case DUT_CMIM:
+	  proto_tree_add_item (dut_tree, hf_docsis_tlv_dut_filter_cmim, tvb,
+				   pos, length, FALSE);
+	  break;
+    }				/* switch */
+      pos = pos + length;
+  }				/* while */
+}
+
+static void
+dissect_ds_ch_list(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *dschlst_tree;
+  int pos = start;
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			 "41 Downstream Channel List (Length = %u)", len);
+  dschlst_tree = proto_item_add_subtree (it, ett_docsis_tlv_ds_ch_list);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+	case DS_CH_LIST_SINGLE:
+      dissect_ds_ch_list_single(tvb, dschlst_tree, pos, length);
+	  break;
+	case DS_CH_LIST_RANGE:
+      dissect_ds_ch_list_range(tvb, dschlst_tree, pos, length);
+	  break;
+	case DS_CH_LIST_DEFAULT_TIMEOUT:
+	  if (length == 2)
+	    {
+	      proto_tree_add_item (dschlst_tree,
+				   hf_docsis_tlv_ds_ch_list_default_timeout, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	}			/* switch */
+      pos = pos + length;
+    }				/* while */
+}
+
+static void
+dissect_tcc_err(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *tccerr_tree;
+  int pos = start;
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			 "TCC Error Encodings (Length = %u)", len);
+  tccerr_tree = proto_item_add_subtree (it, ett_docsis_tlv_tcc_err);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+	case TCC_ERR_SUBTYPE:
+      proto_tree_add_item (tccerr_tree,
+	       hf_docsis_tcc_err_subtype, tvb,
+		   pos, length, FALSE);
+	  break;
+	case TCC_ERR_CODE:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (tccerr_tree,
+				   hf_docsis_tcc_err_code, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	case TCC_ERR_MSG:
+      proto_tree_add_item (tccerr_tree,
+	       hf_docsis_tcc_err_msg, tvb,
+		   pos, length, FALSE);
+	  break;
+	}			/* switch */
+      pos = pos + length;
+    }				/* while */
+}
+
+static void
+dissect_tcc_rng_parms(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *rngparm_tree;
+  int pos = start;
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			 "Ranging Parameters (Length = %u)", len);
+  rngparm_tree = proto_item_add_subtree (it, ett_docsis_tlv_tcc_rng_parms);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+    case RNG_PARMS_US_CH_ID:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (rngparm_tree,
+				   hf_docsis_rng_parms_us_ch_id, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	case RNG_PARMS_TIME_OFF_INT:
+	  if (length == 4)
+	    {
+	      proto_tree_add_item (rngparm_tree,
+				   hf_docsis_rng_parms_time_off_int, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	case RNG_PARMS_TIME_OFF_FRAC:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (rngparm_tree,
+				   hf_docsis_rng_parms_time_off_frac, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	case RNG_PARMS_POWER_OFF:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (rngparm_tree,
+				   hf_docsis_rng_parms_power_off, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	case RNG_PARMS_FREQ_OFF:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (rngparm_tree,
+				   hf_docsis_rng_parms_freq_off, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	}			/* switch */
+      pos = pos + length;
+    }				/* while */
+}
+
+static void
+dissect_sid_cl_so_crit(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *crit_tree;
+  int pos = start;
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			 "SID Cluster Switchover Criteria (Length = %u)", len);
+  crit_tree = proto_item_add_subtree (it, ett_docsis_tlv_sid_cl_so);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+    case SID_CL_SO_MAX_REQ:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (crit_tree,
+				   hf_docsis_sid_cl_so_max_req, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    case SID_CL_SO_MAX_OUT_BYTES:
+	  if (length == 4)
+	    {
+	      proto_tree_add_item (crit_tree,
+				   hf_docsis_sid_cl_so_max_out_bytes, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    case SID_CL_SO_MAX_REQ_BYTES:
+	  if (length == 4)
+	    {
+	      proto_tree_add_item (crit_tree,
+				   hf_docsis_sid_cl_so_max_req_bytes, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    case SID_CL_SO_MAX_TIME:
+	  if (length == 2)
+	    {
+	      proto_tree_add_item (crit_tree,
+				   hf_docsis_sid_cl_so_max_time, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	}			/* switch */
+      pos = pos + length;
+    }				/* while */
+}
+
+static void
+dissect_sid_cl_enc_map(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *map_tree;
+  int pos = start;
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			 "SID-to-Channel Mapping (Length = %u)", len);
+  map_tree = proto_item_add_subtree (it, ett_docsis_tlv_sid_cl_enc_map);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+    case SID_CL_MAP_US_CH_ID:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (map_tree,
+				   hf_docsis_sid_cl_map_us_ch_id, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    case SID_CL_MAP_SID:
+	  if (length == 2)
+	    {
+	      proto_tree_add_item (map_tree,
+				   hf_docsis_sid_cl_map_sid, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    case SID_CL_MAP_ACTION:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (map_tree,
+				   hf_docsis_sid_cl_map_action, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	}			/* switch */
+      pos = pos + length;
+    }				/* while */
+}
+
+static void
+dissect_sid_cl_enc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *enc_tree;
+  int pos = start;
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			 "SID Cluster Encoding (Length = %u)", len);
+  enc_tree = proto_item_add_subtree (it, ett_docsis_tlv_sid_cl_enc);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+    case SID_CL_ENC_ID:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (enc_tree,
+				   hf_docsis_sid_cl_enc_id, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    case SID_CL_ENC_MAP:
+	  if (length == 10)
+	     dissect_sid_cl_enc_map(tvb, enc_tree, pos, length);
+	  else
+	      THROW (ReportedBoundsError);
+	  break;
+	}			/* switch */
+      pos = pos + length;
+    }				/* while */
+}
+
+static void
+dissect_sid_cl(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *sid_tree;
+  int pos = start;
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			 "47 Service Flow SID Cluster Assignments (Length = %u)", len);
+  sid_tree = proto_item_add_subtree (it, ett_docsis_tlv_sid_cl);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+    case SID_CL_SF_ID:
+	  if (length == 4)
+	    {
+	      proto_tree_add_item (sid_tree,
+				   hf_docsis_sid_cl_sf_id, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    case SID_CL_ENC:
+	  dissect_sid_cl_enc(tvb, sid_tree, pos, length);
+	  break;
+    case SID_CL_SO_CRIT:
+	  dissect_sid_cl_so_crit(tvb, sid_tree, pos, length);
+	  break;
+	}			/* switch */
+      pos = pos + length;
+    }				/* while */
+}
+
+static void
+dissect_tcc(tvbuff_t * tvb, packet_info * pinfo _U_, 
+		    proto_tree *tree, int start, guint16 len) 
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *tcc_tree;
+  int pos = start;
+  tvbuff_t *ucd_tvb;
+
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			 "46 Transmit Channel Configuration (Length = %u)", len);
+  tcc_tree = proto_item_add_subtree (it, ett_docsis_tlv_tcc);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+	case TLV_TCC_REFID:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (tcc_tree,
+				   hf_docsis_tlv_tcc_refid, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	case TLV_TCC_US_CH_ACTION:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (tcc_tree,
+				   hf_docsis_tlv_tcc_us_ch_action, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	case TLV_TCC_US_CH_ID:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (tcc_tree,
+				   hf_docsis_tlv_tcc_us_ch_id, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	case TLV_TCC_NEW_US_CH_ID:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (tcc_tree,
+				   hf_docsis_tlv_tcc_new_us_ch_id, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	case TLV_TCC_UCD:
+	  ucd_tvb = tvb_new_subset (tvb, pos, length, length);
+	  call_dissector (docsis_ucd_handle, ucd_tvb, pinfo, tcc_tree);
+	  break;
+	case TLV_TCC_RNG_SID:
+	  if (length == 2)
+	    {
+	      proto_tree_add_item (tcc_tree,
+				   hf_docsis_tlv_tcc_rng_sid, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	case TLV_TCC_INIT_TECH:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (tcc_tree,
+				   hf_docsis_tlv_tcc_init_tech, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	case TLV_TCC_RNG_PARMS:
+	  dissect_tcc_rng_parms(tvb, tcc_tree, pos, length);
+	  break;
+	case TLV_TCC_DYN_RNG_WIN:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (tcc_tree,
+				   hf_docsis_tlv_tcc_dyn_rng_win, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	case TLV_TCC_ERR:
+	  dissect_tcc_err(tvb, tcc_tree, pos, length);
+	  break;
+	}			/* switch */
+      pos = pos + length;
+    }				/* while */
+}
+
+static void
+dissect_ch_bl_rng(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *chblrng_tree;
+  int pos = start;
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			 "Receive Module Channel Block Range (Length = %u)", len);
+  chblrng_tree = proto_item_add_subtree (it, ett_docsis_tlv_rcp_ch_bl_rng);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+    case CH_BL_RNG_MIN_CTR_FREQ:
+	  if (length == 4)
+	    {
+	      proto_tree_add_item (chblrng_tree,
+				   hf_docsis_ch_bl_rng_min_ctr_freq, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    case CH_BL_RNG_MAX_CTR_FREQ:
+	  if (length == 4)
+	    {
+	      proto_tree_add_item (chblrng_tree,
+				   hf_docsis_ch_bl_rng_max_ctr_freq, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	}			/* switch */
+      pos = pos + length;
+    }				/* while */
+}
+
+static void
+dissect_rcp_rcv_mod(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *rcvmod_tree;
+  int pos = start;
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			 "Receive Module Capability (Length = %u)", len);
+  rcvmod_tree = proto_item_add_subtree (it, ett_docsis_tlv_rcp_rcv_mod_enc);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+    case RCV_MOD_ENC_IDX:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (rcvmod_tree,
+				   hf_docsis_rcv_mod_enc_idx, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    case RCV_MOD_ENC_CH_BL_RNG:
+	  dissect_ch_bl_rng(tvb, rcvmod_tree, pos, length);
+	  break;
+	case RCV_MOD_ENC_CTR_FREQ_ASGN:
+	  if (length == 4)
+	    {
+	      proto_tree_add_item (rcvmod_tree,
+				   hf_docsis_rcv_mod_enc_ctr_freq_asgn, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	case RCV_MOD_ENC_RSQ_CH_SUBS_CAP:
+	  proto_tree_add_item (rcvmod_tree,
+		   hf_docsis_rcv_mod_enc_rsq_ch_subs_cap, tvb, pos,
+		   length, FALSE);
+	  break;
+	case RCV_MOD_ENC_CONN:
+	  proto_tree_add_item (rcvmod_tree,
+		   hf_docsis_rcv_mod_enc_conn, tvb, pos,
+		   length, FALSE);
+	  break;
+	case RCV_MOD_ENC_PHY_LAYR_PARMS:
+	  proto_tree_add_item (rcvmod_tree,
+		   hf_docsis_rcv_mod_enc_phy_layr_parms, tvb, pos,
+		   length, FALSE);
+	  break;
+	}			/* switch */
+      pos = pos + length;
+    }				/* while */
+}
+
+static void
+dissect_rcp_rcv_ch(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *rcvch_tree;
+  int pos = start;
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			 "Receive Channels (Length = %u)", len);
+  rcvch_tree = proto_item_add_subtree (it, ett_docsis_tlv_rcp_rcv_ch);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+    case RCV_CH_IDX:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (rcvch_tree,
+				   hf_docsis_rcv_ch_idx, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    case RCV_CH_CONN:
+	  proto_tree_add_item (rcvch_tree,
+			   hf_docsis_rcv_ch_conn, tvb, pos,
+			   length, FALSE);
+	  break;
+    case RCV_CH_CONN_OFF:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (rcvch_tree,
+				   hf_docsis_rcv_ch_conn_off, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    case RCV_CH_PRIM_DS_CH_IND:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (rcvch_tree,
+				   hf_docsis_rcv_ch_prim_ds_ch_ind, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	}			/* switch */
+      pos = pos + length;
+    }				/* while */
+}
+
+
+static void
+dissect_rcp(tvbuff_t * tvb, packet_info * pinfo _U_, 
+		        proto_tree *tree, int start, guint16 len) 
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *rcp_tree;
+  int pos = start;
+  tvbuff_t *vsif_tvb;
+
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			  "48 Receive Channel Profile (Length = %u)", len);
+  rcp_tree = proto_item_add_subtree (it, ett_docsis_tlv_rcp);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+	case TLV_RCP_ID:
+	  if (length == 5)
+	    {
+	      proto_tree_add_item (rcp_tree,
+				   hf_docsis_tlv_rcp_id, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	case TLV_RCP_NAME:
+	  if (length <= 15)
+	    {
+	      proto_tree_add_item (rcp_tree,
+				   hf_docsis_tlv_rcp_name, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	case TLV_RCP_FREQ_SPC:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (rcp_tree,
+				   hf_docsis_tlv_rcp_freq_spc, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	case TLV_RCP_RCV_MOD_ENC:
+	  dissect_rcp_rcv_mod(tvb, rcp_tree, pos, length);
+	  break;
+	case TLV_RCP_RCV_CH:
+	  dissect_rcp_rcv_ch(tvb, rcp_tree, pos, length);
+	  break;
+	case TLV_RCP_VEN_SPEC:
+	  vsif_tvb = tvb_new_subset (tvb, pos, length, length);
+	  call_dissector (docsis_vsif_handle, vsif_tvb, pinfo, rcp_tree);
+	  break;
+	}			/* switch */
+      pos = pos + length;
+    }				/* while */
+}
+
+static void
+dissect_rcc_rcv_mod(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *rcvmod_tree;
+  int pos = start;
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			 "Receive Module Assignment (Length = %u)", len);
+  rcvmod_tree = proto_item_add_subtree (it, ett_docsis_tlv_rcc_rcv_mod_enc);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+    case RCV_MOD_ENC_IDX:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (rcvmod_tree,
+				   hf_docsis_rcc_rcv_mod_enc_idx, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	case RCV_MOD_ENC_CTR_FREQ_ASGN:
+	  if (length == 4)
+	    {
+	      proto_tree_add_item (rcvmod_tree,
+				   hf_docsis_rcc_rcv_mod_enc_ctr_freq_asgn, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	case RCV_MOD_ENC_CONN:
+	  proto_tree_add_item (rcvmod_tree,
+		   hf_docsis_rcc_rcv_mod_enc_conn, tvb, pos,
+		   length, FALSE);
+	  break;
+	}			/* switch */
+      pos = pos + length;
+    }				/* while */
+}
+
+static void
+dissect_rcc_rcv_ch(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *rcvch_tree;
+  int pos = start;
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			 "Receive Channels (Length = %u)", len);
+  rcvch_tree = proto_item_add_subtree (it, ett_docsis_tlv_rcc_rcv_ch);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+    case RCV_CH_IDX:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (rcvch_tree,
+				   hf_docsis_rcc_rcv_ch_idx, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    case RCV_CH_CONN:
+	  proto_tree_add_item (rcvch_tree,
+			   hf_docsis_rcc_rcv_ch_conn, tvb, pos,
+			   length, FALSE);
+	  break;
+    case RCV_CH_CTR_FREQ_ASGN:
+	  if (length == 4)
+	    {
+	      proto_tree_add_item (rcvch_tree,
+				   hf_docsis_rcc_rcv_ch_ctr_freq_asgn, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    case RCV_CH_PRIM_DS_CH_IND:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (rcvch_tree,
+				   hf_docsis_rcc_rcv_ch_prim_ds_ch_ind, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	}			/* switch */
+      pos = pos + length;
+    }				/* while */
+}
+
+static void
+dissect_rcc_err(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *err_tree;
+  int pos = start;
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			 "RCC Error Encodings (Length = %u)", len);
+  err_tree = proto_item_add_subtree (it, ett_docsis_tlv_rcc_rcv_ch);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+    case RCC_ERR_MOD_OR_CH:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (err_tree,
+				   hf_docsis_tlv_rcc_err_mod_or_ch, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    case RCC_ERR_IDX:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (err_tree,
+				   hf_docsis_tlv_rcc_err_idx, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    case RCC_ERR_PARAM:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (err_tree,
+				   hf_docsis_tlv_rcc_err_param, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    case RCC_ERR_CODE:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (err_tree,
+				   hf_docsis_tlv_rcc_err_code, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    case RCC_ERR_MSG:
+      proto_tree_add_item (err_tree,
+			   hf_docsis_tlv_rcc_err_msg, tvb, pos,
+			   length, FALSE);
+	  break;
+	}			/* switch */
+      pos = pos + length;
+    }				/* while */
+}
+
+static void
+dissect_rcc(tvbuff_t * tvb, packet_info * pinfo _U_, 
+		        proto_tree *tree, int start, guint16 len) 
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *rcc_tree;
+  int pos = start;
+  tvbuff_t *vsif_tvb;
+
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			  "49 Receive Channel Configuration (Length = %u)", len);
+  rcc_tree = proto_item_add_subtree (it, ett_docsis_tlv_rcc);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+	case TLV_RCP_ID:
+	  if (length == 5)
+	    {
+	      proto_tree_add_item (rcc_tree,
+				   hf_docsis_tlv_rcc_id, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	case TLV_RCP_RCV_MOD_ENC:
+	  dissect_rcc_rcv_mod(tvb, rcc_tree, pos, length);
+	  break;
+	case TLV_RCP_RCV_CH:
+	  dissect_rcc_rcv_ch(tvb, rcc_tree, pos, length);
+	  break;
+	case TLV_RCP_VEN_SPEC:
+	  vsif_tvb = tvb_new_subset (tvb, pos, length, length);
+	  call_dissector (docsis_vsif_handle, vsif_tvb, pinfo, rcc_tree);
+	  break;
+	case TLV_RCC_ERR:
+	  dissect_rcc_err(tvb, rcc_tree, pos, length);
+	  break;
+	}			/* switch */
+      pos = pos + length;
+    }				/* while */
+}
+
+static void
+dissect_dsid_ds_reseq(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *dsid_tree;
+  int pos = start;
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			 "Resequencing DSID (Length = %u)", len);
+  dsid_tree = proto_item_add_subtree (it, ett_docsis_tlv_dsid_ds_reseq);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+    case DS_RESEQ_DSID:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (dsid_tree,
+				   hf_docsis_ds_reseq_dsid, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    case DS_RESEQ_CH_LST:
+	  proto_tree_add_item (dsid_tree,
+			   hf_docsis_ds_reseq_ch_lst, tvb, pos,
+			   length, FALSE);
+	  break;
+    case DS_RESEQ_WAIT_TIME:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (dsid_tree,
+				   hf_docsis_ds_reseq_wait_time, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    case DS_RESEQ_WARN_THRESH:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (dsid_tree,
+				   hf_docsis_ds_reseq_warn_thresh, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    case DS_RESEQ_HO_TIMER:
+	  if (length == 2)
+	    {
+	      proto_tree_add_item (dsid_tree,
+				   hf_docsis_ds_reseq_ho_timer, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	}			/* switch */
+      pos = pos + length;
+    }				/* while */
+}
+
+static void
+dissect_dsid_mc_addr(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *dsid_tree;
+  int pos = start;
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			 "Client MAC Address Encodings (Length = %u)", len);
+  dsid_tree = proto_item_add_subtree (it, ett_docsis_tlv_dsid_mc_addr);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+    case MC_ADDR_ACTION:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (dsid_tree,
+				   hf_docsis_mc_addr_action, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	case MC_ADDR_ADDR:
+	  if (length == 6)
+	    {
+	      proto_tree_add_item (dsid_tree,
+				   hf_docsis_mc_addr_addr, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	}			/* switch */
+      pos = pos + length;
+    }				/* while */
+}
+
+static void
+dissect_dsid_mc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *dsid_tree;
+  int pos = start;
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			 "Multicast Encodings (Length = %u)", len);
+  dsid_tree = proto_item_add_subtree (it, ett_docsis_tlv_dsid_mc);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+    case TLV_DSID_MC_ADDR:
+	  dissect_dsid_mc_addr(tvb, dsid_tree, pos, length);
+	  break;
+    case TLV_DSID_MC_CMIM:
+	  proto_tree_add_item (dsid_tree,
+			   hf_docsis_tlv_dsid_mc_cmim, tvb, pos,
+			   length, FALSE);
+	  break;
+    case TLV_DSID_MC_GROUP:
+	  proto_tree_add_item (dsid_tree,
+			   hf_docsis_tlv_dsid_mc_group, tvb, pos,
+			   length, FALSE);
+	  break;
+    case TLV_DSID_MC_PHS:
+	  dissect_phs(tvb, dsid_tree, pos, length);
+	  break;
+	}			/* switch */
+      pos = pos + length;
+    }				/* while */
+}
+
+static void
+dissect_dsid(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *dsid_tree;
+  int pos = start;
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			 "50 DSID Encodings (Length = %u)", len);
+  dsid_tree = proto_item_add_subtree (it, ett_docsis_tlv_dsid);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+    case TLV_DSID_ID:
+	  if (length == 3)
+	    {
+	      proto_tree_add_item (dsid_tree,
+				   hf_docsis_tlv_dsid_id, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    case TLV_DSID_ACTION:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (dsid_tree,
+				   hf_docsis_tlv_dsid_action, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    case TLV_DSID_DS_RESEQ:
+	  dissect_dsid_ds_reseq(tvb, dsid_tree, pos, length);
+	  break;
+    case TLV_DSID_MC:
+	  dissect_dsid_mc(tvb, dsid_tree, pos, length);
+	  break;
+	}			/* switch */
+      pos = pos + length;
+    }				/* while */
+}
+
+static void
+dissect_sec_assoc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *sec_tree;
+  int pos = start;
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			 "51 Security Association Encodings (Length = %u)", len);
+  sec_tree = proto_item_add_subtree (it, ett_docsis_tlv_dsid);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+    case TLV_SEC_ASSOC_ACTION:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (sec_tree,
+				   hf_docsis_tlv_sec_assoc_action, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    case TLV_SEC_ASSOC_DESC:
+	  if (length == 14)
+	    {
+	      proto_tree_add_item (sec_tree,
+				   hf_docsis_tlv_sec_assoc_desc, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	}			/* switch */
+      pos = pos + length;
+    }				/* while */
+}
+
+static void
+dissect_ch_asgn(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *asgn_tree;
+  int pos = start;
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			 "56 Channel Assignment Configuration Settings (Length = %u)", len);
+  asgn_tree = proto_item_add_subtree (it, ett_docsis_tlv_ch_asgn);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+    case TLV_CH_ASGN_US_CH_ID:
+	  if (length == 1)
+	    {
+	      proto_tree_add_item (asgn_tree,
+				   hf_docsis_ch_asgn_us_ch_id, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    case TLV_CH_ASGN_RX_FREQ:
+	  if (length == 4)
+	    {
+	      proto_tree_add_item (asgn_tree,
+				   hf_docsis_ch_asgn_rx_freq, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	}			/* switch */
+      pos = pos + length;
+    }				/* while */
+}
+
+static void
+dissect_cmts_mc_sess_enc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len) 
+{
+  guint8 type, length;
+  proto_item *it;
+  proto_tree *mc_tree;
+  int pos = start;
+  it =
+    proto_tree_add_text (tree, tvb, start, len,
+			 "64 CMTS Static Multicast Session Encoding (Length = %u)", len);
+  mc_tree = proto_item_add_subtree (it, ett_docsis_cmts_mc_sess_enc);
+
+  while (pos < (start + len))
+    {
+      type = tvb_get_guint8 (tvb, pos++);
+      length = tvb_get_guint8 (tvb, pos++);
+      switch (type)
+	{
+    case CMTS_MC_SESS_ENC_GRP:
+	  if (length == 4 || length == 16)
+	    {
+	      proto_tree_add_item (mc_tree,
+				   hf_docsis_cmts_mc_sess_enc_grp, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+    case CMTS_MC_SESS_ENC_SRC:
+	  if (length == 4 || length == 16)
+	    {
+	      proto_tree_add_item (mc_tree,
+				   hf_docsis_cmts_mc_sess_enc_src, tvb, pos,
+				   length, FALSE);
+	    }
+	  else
+	    {
+	      THROW (ReportedBoundsError);
+	    }
+	  break;
+	}			/* switch */
+      pos = pos + length;
+    }				/* while */
+}
+
+
+static void
 dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
 {
 
@@ -2058,10 +3807,145 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
 			           hf_docsis_tlv_subs_mgmt_filter_grps,
 		                   tvb, pos, length, FALSE);
 	      break;
+		case TLV_SNMPV3_NTFY_RCVR:
+		  proto_tree_add_item(tlv_tree,
+				  hf_docsis_tlv_snmpv3_ntfy_rcvr,
+				  tvb, pos, length, FALSE);
+		  break;
+	    case TLV_ENABLE_20_MODE:
+	      if (length == 1)
+		{
+		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_enable_20_mode,
+				       tvb, pos, length, FALSE);
+		}
+	      else
+		{
+		  THROW (ReportedBoundsError);
+		}
+	      break;
+	    case TLV_ENABLE_TEST_MODES:
+	      if (length == 1)
+		{
+		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_enable_test_modes,
+				       tvb, pos, length, FALSE);
+		}
+	      else
+		{
+		  THROW (ReportedBoundsError);
+		}
+	      break;
+		case TLV_DS_CH_LIST:
+		  dissect_ds_ch_list(tvb, tlv_tree, pos, length);
+		  break;
+		case TLV_MC_MAC_ADDRESS:
+	      if (length == 6)
+	      {
+		    proto_tree_add_item(tlv_tree, hf_docsis_tlv_mc_mac_address,
+				  tvb, pos, length, FALSE);
+	      }
+	      else
+	      {
+	        THROW (ReportedBoundsError);
+	      }
+		  break;
 	    case TLV_VENDOR_SPEC:
 	      vsif_tvb = tvb_new_subset (tvb, pos, length, length);
 	      call_dissector (docsis_vsif_handle, vsif_tvb, pinfo, tlv_tree);
 	      break;
+		case TLV_DUT_FILTER:
+		  dissect_dut_filter(tvb, tlv_tree, pos, length);
+		  break;
+		case TLV_TCC:
+		  dissect_tcc(tvb, pinfo, tlv_tree, pos, length);
+		  break;
+		case TLV_SID_CL:
+		  dissect_sid_cl(tvb, tlv_tree, pos, length);
+		  break;
+		case TLV_RCP:
+		  dissect_rcp(tvb, pinfo, tlv_tree, pos, length);
+		  break;
+		case TLV_RCC:
+		  dissect_rcc(tvb, pinfo, tlv_tree, pos, length);
+		  break;
+		case TLV_DSID:
+		  dissect_dsid(tvb, tlv_tree, pos, length);
+		  break;
+		case TLV_SEC_ASSOC:
+		  dissect_sec_assoc(tvb, tlv_tree, pos, length);
+		  break;
+		case TLV_INIT_CH_TIMEOUT:
+	      if (length == 2)
+	      {
+		    proto_tree_add_item(tlv_tree, hf_docsis_tlv_init_ch_timeout,
+				  tvb, pos, length, FALSE);
+	      }
+	      else
+	      {
+	        THROW (ReportedBoundsError);
+	      }
+		  break;
+		case TLV_CH_ASGN:
+		  dissect_ch_asgn(tvb, tlv_tree, pos, length);
+		  break;
+		case TLV_CM_INIT_REASON:
+	      if (length == 1)
+	      {
+		    proto_tree_add_item(tlv_tree, hf_docsis_tlv_cm_init_reason,
+				  tvb, pos, length, FALSE);
+	      }
+	      else
+	      {
+	        THROW (ReportedBoundsError);
+	      }
+		  break;
+	    case TLV_SW_UPG_SRVR_IPV6:
+	      if (length == 16)
+		{
+		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_sw_upg_srvr_ipv6,
+				       tvb, pos, length, FALSE);
+		}
+	      else
+		{
+		  THROW (ReportedBoundsError);
+		}
+	      break;
+	    case TLV_TFTP_PROV_CM_IPV6_ADDR:
+	      if (length == 16)
+		{
+		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_tftp_prov_cm_ipv6_addr,
+				       tvb, pos, length, FALSE);
+		}
+	      else
+		{
+		  THROW (ReportedBoundsError);
+		}
+	      break;
+		case TLV_US_DROP_CLFY:
+		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_us_drop_clfy,
+				       tvb, pos, length, FALSE);
+		  break;
+		case TLV_SUBS_MGMT_IPV6_LST:
+		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_subs_mgmt_ipv6_lst,
+				       tvb, pos, length, FALSE);
+		  break;
+		case TLV_US_DROP_CLFY_GROUP_ID:
+		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_us_drop_clfy_group_id,
+				       tvb, pos, length, FALSE);
+		  break;
+		case TLV_SUBS_MGMT_CTRL_MAX_CPE_IPV6:
+	      if (length == 2)
+		{
+		  proto_tree_add_item (tlv_tree, hf_docsis_tlv_subs_mgmt_ctrl_max_cpe_ipv6,
+				       tvb, pos, length, FALSE);
+		}
+	      else
+		{
+		  THROW (ReportedBoundsError);
+		}
+		  break;
+		case TLV_CMTS_MC_SESS_ENC:
+		  dissect_cmts_mc_sess_enc(tvb, tlv_tree, pos, length);
+		  break;
 	    case TLV_END:
 	      break;
 	    }			/* switch(type) */
@@ -2781,6 +4665,76 @@ proto_register_docsis_tlv (void)
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Subscriber Management Filter Groups", HFILL}
      },
+    {&hf_docsis_tlv_snmpv3_ntfy_rcvr,
+     {"38 SNMPv3 Notification Receiver", "docsis_tlv.snmpv3ntfy",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "SNMPv3 Notification Receiver", HFILL}
+     },
+    {&hf_docsis_tlv_enable_20_mode,
+     {"39 Enable 2.0 Mode", "docsis_tlv.enable20mode",
+      FT_BOOLEAN, BASE_NONE, TFS (&ena_dis_tfs), 0x0,
+      "Enable 2.0 Mode", HFILL}
+     },
+    {&hf_docsis_tlv_enable_test_modes,
+     {"40 Enable Test Modes", "docsis_tlv.enabletestmodes",
+      FT_BOOLEAN, BASE_NONE, TFS (&ena_dis_tfs), 0x0,
+      "Enable Test Modes", HFILL}
+     },
+    {&hf_docsis_tlv_ds_ch_list,
+     {"41 Downstream Channel List", "docsis_tlv.dschlist",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
+     },
+    {&hf_docsis_tlv_ds_ch_list_single,
+     {".1 Single Downstream Channel", "docsis_tlv.dschlist.single",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
+     },
+    {&hf_docsis_tlv_single_ch_timeout,
+     {"..1 Timeout", "docsis_tlv.dschlist.single.timeout",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      "Timeout", HFILL}
+     },
+    {&hf_docsis_tlv_single_ch_freq,
+     {"..2 Timeout", "docsis_tlv.dschlist.single.freq",
+      FT_UINT32, BASE_DEC, NULL, 0x0,
+      "Timeout", HFILL}
+     },
+    {&hf_docsis_tlv_ds_ch_list_range,
+     {".2 Downstream Frequency Range", "docsis_tlv.dschlist.range",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
+     },
+    {&hf_docsis_tlv_freq_rng_timeout,
+     {"..1 Timeout", "docsis_tlv.dschlist.range.timeout",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      "Timeout", HFILL}
+     },
+    {&hf_docsis_tlv_freq_rng_start,
+     {"..2 Frequency Start", "docsis_tlv.dschlist.range.start",
+      FT_UINT32, BASE_DEC, NULL, 0x0,
+      "Frequency Start", HFILL}
+     },
+    {&hf_docsis_tlv_freq_rng_end,
+     {"..3 Frequency Start", "docsis_tlv.dschlist.range.end",
+      FT_UINT32, BASE_DEC, NULL, 0x0,
+      "Frequency End", HFILL}
+     },
+    {&hf_docsis_tlv_freq_rng_step,
+     {"..4 Frequency Step Size", "docsis_tlv.dschlist.range.step",
+      FT_UINT32, BASE_DEC, NULL, 0x0,
+      "Frequency Step Size", HFILL}
+     },
+    {&hf_docsis_tlv_ds_ch_list_default_timeout,
+     {".3 Default Scanning Timeout", "docsis_tlv.dschlist.defaulttimeout",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      "Default Scanning Timeout", HFILL}
+     },
+    {&hf_docsis_tlv_mc_mac_address,
+     {"42 Static Multicast MAC Address", "docsis_tlv.mcmac",
+      FT_ETHER, BASE_NONE, NULL, 0x0,
+      "Static Multicast MAC Address", HFILL}
+     },
     {&hf_docsis_tlv_vendor_spec,
      {"43 Vendor Specific Encodings", "docsis_tlv.vendorspec",
       FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -2790,6 +4744,601 @@ proto_register_docsis_tlv (void)
      {"Ranging Technique", "docsis_tlv.rng_tech",
       FT_UINT8, BASE_DEC, VALS (rng_tech_vals), 0x0,
       NULL, HFILL}
+     },
+    {&hf_docsis_tlv_dut_filter,
+     {"45 Downstream Unencrypted Traffic Filtering Encoding", 
+		"docsis_tlv.dut",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Downstream Unencrypted Traffic Filtering Encoding", HFILL}
+     },
+    {&hf_docsis_tlv_dut_filter_control,
+     {".1 DUT Control", "docsis_tlv.dut.control",
+      FT_BOOLEAN, BASE_NONE, TFS (&ena_dis_tfs), 0x0,
+      "DUT Control", HFILL}
+     },
+    {&hf_docsis_tlv_dut_filter_cmim,
+     {".2 DUT CMIM", "docsis_tlv.dut.cmim",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "DUT CMIM", HFILL}
+     },
+    {&hf_docsis_tlv_tcc,
+     {"46 Transmit Channel Configuration", 
+		"docsis_tlv.tcc",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Transmit Channel Configuration", HFILL}
+     },
+    {&hf_docsis_tlv_tcc_refid,
+     {".1 TCC Reference ID", "docsis_tlv.tcc.refid",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "TCC Reference ID", HFILL}
+     },
+    {&hf_docsis_tlv_tcc_us_ch_action,
+     {".2 Upstream Channel Action", "docsis_tlv.tcc.uschact",
+      FT_UINT8, BASE_DEC, VALS (us_ch_action_vals), 0x0,
+      "Upstream Channel Action", HFILL}
+     },
+    {&hf_docsis_tlv_tcc_us_ch_id,
+     {".3 Upstream Channel ID", "docsis_tlv.tcc.uschid",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Upstream Channel ID", HFILL}
+     },
+    {&hf_docsis_tlv_tcc_new_us_ch_id,
+     {".4 New Upstream Channel ID", "docsis_tlv.tcc.newuschid",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "New Upstream Channel ID", HFILL}
+     },
+    {&hf_docsis_tlv_tcc_ucd,
+     {".5 Upstream Channel Decsriptor", "docsis_tlv.tcc.ucd",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Upstream Channel Descriptor", HFILL}
+     },
+    {&hf_docsis_tlv_tcc_rng_sid,
+     {".6 Ranging SID", "docsis_tlv.tcc.rngsid",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      "Ranging SID", HFILL}
+     },
+    {&hf_docsis_tlv_tcc_init_tech,
+     {".7 Initialization Technique", "docsis_tlv.tcc.inittech",
+      FT_UINT8, BASE_DEC, VALS (init_tech_vals), 0x0,
+      "Initialization Technique", HFILL}
+     },
+    {&hf_docsis_tlv_tcc_rng_parms,
+     {".8 Ranging Parameters", "docsis_tlv.tcc.rngparms",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Ranging Parameters", HFILL}
+     },
+    {&hf_docsis_rng_parms_us_ch_id,
+     {"..1 Ranging Reference Channel ID", "docsis_tlv.tcc.rngparms.uschid",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Upstream Channel ID", HFILL}
+     },
+    {&hf_docsis_rng_parms_time_off_int,
+     {"..2 Timing Offset, Integer Part", "docsis_tlv.tcc.rngparms.timeoffint",
+      FT_UINT32, BASE_DEC, NULL, 0x0,
+      "Timing Offset, Integer Part", HFILL}
+     },
+    {&hf_docsis_rng_parms_time_off_frac,
+     {"..3 Timing Offset, Fractional Part", "docsis_tlv.tcc.rngparms.timeofffrac",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Timing Offset, Fractional Part", HFILL}
+     },
+    {&hf_docsis_rng_parms_power_off,
+     {"..4 Power Offset", "docsis_tlv.tcc.rngparms.poweroff",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Power Offset", HFILL}
+     },
+    {&hf_docsis_rng_parms_freq_off,
+     {"..5 Frequency Offset", "docsis_tlv.tcc.rngparms.freqoff",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      "Frequency Offset", HFILL}
+     },
+    {&hf_docsis_tlv_tcc_dyn_rng_win,
+     {".9 Dynamic Range Window", "docsis_tlv.tcc.dynrngwin",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Dynamic Range Window", HFILL}
+     },
+    {&hf_docsis_tlv_tcc_err,
+     {".10 TCC Error Encodings", "docsis_tlv.tcc.err",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "TCC Error Encodings", HFILL}
+     },
+    {&hf_docsis_tcc_err_subtype,
+     {"..1 TCC Subtype", "docsis_tlv.tcc.err.subtype",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "TCC Subtype", HFILL}
+     },
+    {&hf_docsis_tcc_err_code,
+     {"..2 Error Code", "docsis_tlv.tcc.err.code",
+      FT_UINT8, BASE_DEC, VALS(docsis_conf_code), 0x0,
+      "Error Code", HFILL}
+     },
+    {&hf_docsis_tcc_err_msg,
+     {"..3 Error Message", "docsis_tlv.tcc.err.msg",
+      FT_STRINGZ, BASE_NONE, NULL, 0x0,
+      "Error Message", HFILL}
+     },
+    {&hf_docsis_tlv_sid_cl,
+     {"47 Service Flow SID Cluster Assignments", 
+		"docsis_tlv.sid",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Service Flow SID Cluster Assignments", HFILL}
+     },
+    {&hf_docsis_sid_cl_sf_id,
+     {".1 Service Flow ID", "docsis_tlv.sid.sfid",
+      FT_UINT32, BASE_DEC, NULL, 0x0,
+      "Upstream Channel ID", HFILL}
+     },
+    {&hf_docsis_sid_cl_enc,
+     {".2 SID Cluster Encodings", 
+		"docsis_tlv.sid.enc",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "SID Cluster Encodings", HFILL}
+     },
+    {&hf_docsis_sid_cl_enc_id,
+     {"..1 SID Cluster ID", 
+		"docsis_tlv.sid.enc.id",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "SID Cluster ID", HFILL}
+     },
+    {&hf_docsis_sid_cl_enc_map,
+     {"..2 SID-to-Channel Mapping", 
+		"docsis_tlv.sid.enc.map",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "SID Cluster ID", HFILL}
+     },
+    {&hf_docsis_sid_cl_map_us_ch_id,
+     {"...1 Upstraem Channel ID", 
+		"docsis_tlv.sid.enc.map.uschid",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Upstream Channel ID", HFILL}
+     },
+    {&hf_docsis_sid_cl_map_sid,
+     {"...2 SID", 
+		"docsis_tlv.sid.enc.map.sid",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      "SID", HFILL}
+     },
+    {&hf_docsis_sid_cl_map_action,
+     {"...3 SID-to-Channel Mapping Action", 
+		"docsis_tlv.sid.enc.map.action",
+      FT_UINT8, BASE_DEC, VALS (sid_ch_map_vals), 0x0,
+      "SID-to-Channel Mapping Action", HFILL}
+     },
+    {&hf_docsis_sid_cl_so_crit,
+     {".3 SID Cluster Switchover Criteria", 
+		"docsis_tlv.sid.socrit",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "SID Cluster Switchover Criteria", HFILL}
+     },
+    {&hf_docsis_sid_cl_so_max_req,
+     {"..1 Maximum Requests per SID Cluster", 
+		"docsis_tlv.sid.socrit.maxreq",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Maximum Requests per SID Cluster", HFILL}
+     },
+    {&hf_docsis_sid_cl_so_max_out_bytes,
+     {"..2 Maximum Outstanding Bytes per SID Cluster", 
+		"docsis_tlv.sid.socrit.maxoutbytes",
+      FT_UINT32, BASE_DEC, NULL, 0x0,
+      "Maximum Outstanding Bytes per SID Cluster", HFILL}
+     },
+    {&hf_docsis_sid_cl_so_max_req_bytes,
+     {"..3 Maximum Total Bytes Requested per SID Cluster", 
+		"docsis_tlv.sid.socrit.maxreqbytes",
+      FT_UINT32, BASE_DEC, NULL, 0x0,
+      "Maximum Total Bytes Requested per SID Cluster", HFILL}
+     },
+    {&hf_docsis_sid_cl_so_max_time,
+     {"..4 Maximum Time in the SID Cluster", 
+		"docsis_tlv.sid.socrit.maxtime",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      "Maximum Time in the SID Cluster", HFILL}
+     },
+    {&hf_docsis_tlv_rcp,
+     {"48 Receive Channel Profile", 
+		"docsis_tlv.rcp",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Receive Channel Profile", HFILL}
+     },
+    {&hf_docsis_tlv_rcp_id,
+     {".1 RCP-ID", "docsis_tlv.rcp.id",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "RCP-ID", HFILL}
+     },
+    {&hf_docsis_tlv_rcp_name,
+     {".2 RCP Name", "docsis_tlv.rcp.name",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "RCP Name", HFILL}
+     },
+    {&hf_docsis_tlv_rcp_freq_spc,
+     {".3 RCP Center Frequency Spacing", "docsis_tlv.rcp.freq_spc",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "RCP Center Frequency Spacing", HFILL}
+     },
+    {&hf_docsis_tlv_rcp_rcv_mod_enc,
+     {".4 Receive Module Capability", "docsis_tlv.rcp.rcv_mod_enc",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Receive Module Encoding", HFILL}
+     },
+    {&hf_docsis_rcv_mod_enc_idx,
+     {"..1 Receive Module Index", "docsis_tlv.rcp.rcv_mod_enc.idx",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Receive Module Index", HFILL}
+     },
+    {&hf_docsis_rcv_mod_enc_adj_ch,
+     {"..2 Adjacent Channels", "docsis_tlv.rcp.rcv_mod_enc.adj_ch",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Adjacent Channels", HFILL}
+     },
+    {&hf_docsis_rcv_mod_enc_ch_bl_rng,
+     {"..3 Channel Block Range", "docsis_tlv.rcp.rcv_mod_enc.ch_bl_rng",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Channel Block Range", HFILL}
+     },
+    {&hf_docsis_ch_bl_rng_min_ctr_freq,
+     {"...1 Minimum Center Frequency", 
+      "docsis_tlv.rcp.rcv_mod_enc.ch_bl_rng.min_ctr_freq",
+      FT_UINT32, BASE_DEC, NULL, 0x0,
+      "Minimum Center Frequency", HFILL}
+     },
+    {&hf_docsis_ch_bl_rng_max_ctr_freq,
+     {"...2 Maximum Center Frequency", 
+      "docsis_tlv.rcp.rcv_mod_enc.ch_bl_rng.max_ctr_freq",
+      FT_UINT32, BASE_DEC, NULL, 0x0,
+      "Maximum Center Frequency", HFILL}
+     },
+    {&hf_docsis_rcv_mod_enc_rsq_ch_subs_cap ,
+     {"..5 Resequencing Channel Subset Capability", 
+      "docsis_tlv.rcp.rcv_mod_enc.rsq_ch_subs_cap",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Resequencing Channel Subset Capability", HFILL}
+     },
+    {&hf_docsis_rcv_mod_enc_conn ,
+     {"..6 Receive Module Connectivity", 
+      "docsis_tlv.rcp.rcv_mod_enc.conn",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Receive Module Connectivity", HFILL}
+     },
+    {&hf_docsis_rcv_mod_enc_phy_layr_parms,
+     {"..7 Physical Layer Parameter", 
+      "docsis_tlv.rcp.rcv_mod_enc.phy_layr_parms",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Physical Layer Parameter", HFILL}
+     },
+    {&hf_docsis_tlv_rcp_rcv_ch,
+     {".5 Receive Channel", "docsis_tlv.rcp.rcv_ch",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Receive Channel", HFILL}
+     },
+    {&hf_docsis_rcv_ch_idx,
+     {"..1 Receive Channel Index", "docsis_tlv.rcp.rcv_ch.idx",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Receive Channel Index", HFILL}
+     },
+    {&hf_docsis_rcv_ch_conn,
+     {"..2 Receive Channel Connectivity", "docsis_tlv.rcp.rcv_ch.conn",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Receive Channel Connectivity", HFILL}
+     },
+    {&hf_docsis_rcv_ch_conn_off,
+     {"..3 Receive Channel Connected Offset", 
+      "docsis_tlv.rcp.rcv_ch.conn_off",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Receive Channel Connected Offset", HFILL}
+     },
+    {&hf_docsis_rcv_ch_prim_ds_ch_ind,
+     {"..5 Primary Downstream Channel Indicator", 
+      "docsis_tlv.rcp.rcv_ch.prim_ds_ch_ind",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Primary Downstream Channel Indicator", HFILL}
+     },
+    {&hf_docsis_tlv_rcp_ven_spec,
+     {".43 Vendor Specific Encodings", "docsis_tlv.rcp.vendorspec",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Vendor Specific Encodings", HFILL}
+     },
+    {&hf_docsis_tlv_rcc,
+     {"49 Receive Channel Configuration", 
+		"docsis_tlv.rcc",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Receive Channel Configuration", HFILL}
+     },
+    {&hf_docsis_tlv_rcc_id,
+     {".1 Assigned RCP-ID", "docsis_tlv.rcc.id",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Assigned RCP-ID", HFILL}
+     },
+    {&hf_docsis_tlv_rcc_rcv_mod_enc,
+     {".4 Receive Module Assignment", "docsis_tlv.rcc.rcv_mod_enc",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Receive Module Assignment", HFILL}
+     },
+    {&hf_docsis_rcc_rcv_mod_enc_idx,
+     {"..1 Receive Module Index", "docsis_tlv.rcc.rcc_rcv_mod_enc.idx",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Receive Module Index", HFILL}
+     },
+    {&hf_docsis_rcc_rcv_mod_enc_ctr_freq_asgn,
+     {"..4 First Channel Center Frequency Assignment", 
+      "docsis_tlv.rcc.rcv_mod_enc.ctr_freq_asgn",
+      FT_UINT32, BASE_DEC, NULL, 0x0,
+      "First Channel Center Frequency Assignment", HFILL}
+     },
+    {&hf_docsis_rcc_rcv_mod_enc_conn ,
+     {"..6 Receive Module Connectivity", 
+      "docsis_tlv.rcc.rcv_mod_enc.conn",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Receive Module Connectivity", HFILL}
+     },
+    {&hf_docsis_tlv_rcc_rcv_ch,
+     {".5 Receive Channel", "docsis_tlv.rcc.rcv_ch",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Receive Channel", HFILL}
+     },
+    {&hf_docsis_rcc_rcv_ch_idx,
+     {"..1 Receive Channel Index", "docsis_tlv.rcc.rcv_ch.idx",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Receive Channel Index", HFILL}
+     },
+    {&hf_docsis_rcc_rcv_ch_conn,
+     {"..2 Receive Channel Connectivity", "docsis_tlv.rcc.rcv_ch.conn",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Receive Channel Connectivity", HFILL}
+     },
+    {&hf_docsis_rcc_rcv_ch_ctr_freq_asgn,
+     {"..4 Receive Channel Center Frequency Assignment", 
+      "docsis_tlv.rcc.rcv_ch.ctr_freq_asgn",
+      FT_UINT32, BASE_DEC, NULL, 0x0,
+      "Receive Channel Center Frequency Assignment", HFILL}
+     },
+    {&hf_docsis_rcc_rcv_ch_prim_ds_ch_ind,
+     {"..5 Primary Downstream Channel Indicator", 
+      "docsis_tlv.rcc.rcv_ch.prim_ds_ch_ind",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Primary Downstream Channel Indicator", HFILL}
+     },
+    {&hf_docsis_tlv_rcc_part_serv_ds_ch,
+     {".6 Partial Service Downstream Channels", 
+      "docsis_tlv.rcc.part_serv_ds_ch",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Partial Service Downstream Channels", HFILL}
+     },
+    {&hf_docsis_tlv_rcc_ven_spec,
+     {".43 Vendor Specific Encodings", "docsis_tlv.rcc.vendorspec",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Vendor Specific Encodings", HFILL}
+     },
+    {&hf_docsis_tlv_rcc_err,
+     {".254 RCC Error Encodings", "docsis_tlv.rcc.err",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "RCC Error Encodings", HFILL}
+     },
+    {&hf_docsis_tlv_rcc_err_mod_or_ch,
+     {".1 Receive Modul or Receive Channel", 
+      "docsis_tlv.rcc.err.mod_or_ch",
+      FT_UINT8, BASE_DEC, VALS (mod_or_ch_vals), 0x0,
+      "Receive Modul or Receive Channel", HFILL}
+     },
+    {&hf_docsis_tlv_rcc_err_idx,
+     {".2 Receive Modul/Channel Index", 
+      "docsis_tlv.rcc.err.idx",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Receive Modul/Channel Index", HFILL}
+     },
+    {&hf_docsis_tlv_rcc_err_param,
+     {".3 Reported Parameter", 
+      "docsis_tlv.rcc.err.param",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Reported Parameter", HFILL}
+     },
+    {&hf_docsis_tlv_rcc_err_code,
+     {".4 Error Code", 
+      "docsis_tlv.rcc.err.code",
+      FT_UINT8, BASE_DEC, VALS (docsis_conf_code), 0x0,
+      "Error Code", HFILL}
+     },
+    {&hf_docsis_tlv_rcc_err_msg,
+     {".5 Error Message", 
+      "docsis_tlv.rcc.err.msg",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Error Message", HFILL}
+     },
+    {&hf_docsis_tlv_dsid,
+     {"50 DSID Encodings", 
+		"docsis_tlv.dsid",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "DSID Encodings", HFILL}
+     },
+    {&hf_docsis_tlv_dsid_id,
+     {".1 Downstream Service Identifier (DSID)", 
+      "docsis_tlv.dsid.id",
+      FT_UINT24, BASE_DEC, NULL, 0x0,
+      "Downstream Service Identifier (DSID)", HFILL}
+     },
+    {&hf_docsis_tlv_dsid_action,
+     {".2 DSID Action", 
+      "docsis_tlv.dsid.action",
+      FT_UINT8, BASE_DEC, VALS (dsid_action_vals), 0x0,
+      "DSID Action", HFILL}
+     },
+    {&hf_docsis_tlv_dsid_ds_reseq,
+     {".3 Downstream Resequencing Encodings", 
+		"docsis_tlv.dsid.ds_reseq",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Downstream Resequencing Encodings", HFILL}
+     },
+    {&hf_docsis_ds_reseq_dsid,
+     {"..1 Resequencing DSID", 
+      "docsis_tlv.dsid.ds_reseq.dsid",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Resequencing DSID", HFILL}
+     },
+    {&hf_docsis_ds_reseq_ch_lst,
+     {"..2 Downstream Resequencing Channel List", 
+      "docsis_tlv.dsid.ds_reseq.ch_lst",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Downstream Resequencing Channel List", HFILL}
+     },
+    {&hf_docsis_ds_reseq_wait_time,
+     {"..3 Downstream Resequencing Wait Time", 
+      "docsis_tlv.dsid.ds_reseq.wait_time",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Downstream Resequencing Wait Time", HFILL}
+     },
+    {&hf_docsis_ds_reseq_warn_thresh,
+     {"..4 Resequencing Warn Threshold", 
+      "docsis_tlv.dsid.ds_reseq.warn_thresh",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Resequencing Warn Threshold", HFILL}
+     },
+    {&hf_docsis_ds_reseq_ho_timer,
+     {"..5 CM-Status max. Event Hold-Off Timer (Out-of-Range Events)", 
+      "docsis_tlv.dsid.ds_reseq.ho_timer",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      "CM-Status max. Event Hold-Off Timer (Out-of-Range Events)", HFILL}
+     },
+    {&hf_docsis_tlv_dsid_mc,
+     {".4 Multicast Encodings", 
+		"docsis_tlv.dsid.mc",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Multicast Encodings", HFILL}
+     },
+    {&hf_docsis_tlv_dsid_mc_addr,
+     {"..1 Client MAC Address Encodings",
+		"docsis_tlv.dsid.mc.addr",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Client MAC Address Encodings", HFILL}
+     },
+    {&hf_docsis_mc_addr_action,
+     {"...1 Client MAC Address Action",
+		"docsis_tlv.dsid.mc.addr.action",
+      FT_UINT8, BASE_DEC, VALS (add_del_vals), 0x0,
+      "Client MAC Address Action", HFILL}
+     },
+    {&hf_docsis_mc_addr_addr,
+     {"...2 Client MAC Address",
+		"docsis_tlv.dsid.mc.addr.addr",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Client MAC Address", HFILL}
+     },
+    {&hf_docsis_tlv_dsid_mc_cmim,
+     {"..2 Multicast CM Interface Mask",
+		"docsis_tlv.dsid.mc.cmim",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Multicast CM Interface Mask", HFILL}
+     },
+    {&hf_docsis_tlv_dsid_mc_group,
+     {"..3 Multicast Group MAC Addresses",
+		"docsis_tlv.dsid.mc.group",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Multicast Group MAC Addresses", HFILL}
+     },
+    {&hf_docsis_tlv_dsid_mc_phs,
+     {"..26 Payload Header Suppression Encodings",
+		"docsis_tlv.dsid.mc.phs",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Payload Header Suppression Encodings", HFILL}
+     },
+    {&hf_docsis_tlv_sec_assoc,
+     {"51 Security Association Encodings", 
+		"docsis_tlv.sec_assoc",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Security Association Encodings", HFILL}
+     },
+    {&hf_docsis_tlv_sec_assoc_action,
+     {".1 SA Action", 
+		"docsis_tlv.sec_assoc.action",
+      FT_UINT8, BASE_DEC, VALS (add_del_vals), 0x0,
+      "SA Action", HFILL}
+     },
+    {&hf_docsis_tlv_sec_assoc_desc,
+     {".23 SA Descriptor", 
+		"docsis_tlv.sec_assoc.desc",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "SA Descriptor", HFILL}
+     },
+    {&hf_docsis_tlv_init_ch_timeout,
+     {"52 Intializing Channel Timeout", 
+		"docsis_tlv.init_ch_timeout",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      "Intializing Channel Timeout", HFILL}
+     },
+    {&hf_docsis_tlv_ch_asgn,
+     {"56 Channel Assignment Configuration Settings", 
+		"docsis_tlv.ch_asgn",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Channel Assignment Configuration Settings", HFILL}
+     },
+    {&hf_docsis_ch_asgn_us_ch_id,
+     {".1 Upstream Channel ID", 
+		"docsis_tlv.ch_asgn.us_ch_id",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Upstream Channel ID", HFILL}
+     },
+    {&hf_docsis_ch_asgn_rx_freq,
+     {".2 Rx Frequency", 
+		"docsis_tlv.ch_asgn.rx_freq",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      "Rx Frequency", HFILL}
+     },
+    {&hf_docsis_tlv_cm_init_reason,
+     {"57 CM Initialization Reason", 
+		"docsis_tlv.cm_init_reason",
+      FT_UINT16, BASE_DEC, VALS (init_reason_vals), 0x0,
+      "CM Initialization Reason", HFILL}
+     },
+    {&hf_docsis_tlv_sw_upg_srvr_ipv6,
+     {"58 Software Upgrade Server IPv6", "docsis_tlv.sw_upg_srvr_ipv6",
+      FT_IPv6, BASE_NONE, NULL, 0x0,
+      "Software Upgrade Server IPv6", HFILL}
+     },
+    {&hf_docsis_tlv_tftp_prov_cm_ipv6_addr,
+     {"59 TFTP Server Provisioned Modem IPv6 Address", 
+      "docsis_tlv.tftp_prov_cm_ipv6_addr",
+      FT_IPv6, BASE_NONE, NULL, 0x0,
+      "TFTP Server Provisioned Modem IPv6 Address", HFILL}
+     },
+    {&hf_docsis_tlv_us_drop_clfy,
+     {"60 Upstream Drop Packet Classification Encoding", 
+      "docsis_tlv.us_drop_clfy",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Upstream Drop Packet Classification Encoding", HFILL}
+     },
+    {&hf_docsis_tlv_subs_mgmt_ipv6_lst,
+     {"61 Subscriber Management CPE IPv6 Prefix List", 
+      "docsis_tlv.subs_mgmt_ipv6_lst",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Subscriber Management CPE IPv6 Prefix List", HFILL}
+     },
+    {&hf_docsis_tlv_us_drop_clfy_group_id,
+     {"62 Upstream Drop Classifier Group ID", 
+      "docsis_tlv.us_drop_clfy_group_id",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Upstream Drop Classifier Group ID", HFILL}
+     },
+    {&hf_docsis_tlv_subs_mgmt_ctrl_max_cpe_ipv6,
+     {"63 Subscriber Management Control Max CPE IPv6 Prefix", 
+      "docsis_tlv.subs_mgmt_ctrl_max_cpe_ipv6",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      "Subscriber Management Control Max CPE IPv6 Prefix", HFILL}
+     },
+    {&hf_docsis_tlv_cmts_mc_sess_enc,
+     {"64 CMTS Static Multicast Session Encoding", 
+      "docsis_tlv.cmts_mc_sess_enc",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "CMTS Static Multicast Session Encoding", HFILL}
+     },
+    {&hf_docsis_cmts_mc_sess_enc_grp,
+     {".1 Multicast Group Address", 
+      "docsis_tlv.cmts_mc_sess_enc.grp",
+      FT_IPXNET, BASE_NONE, NULL, 0x0,
+      "Multicast Group Address", HFILL}
+     },
+    {&hf_docsis_cmts_mc_sess_enc_src,
+     {".2 Source IP Address", 
+      "docsis_tlv.cmts_mc_sess_enc.src",
+      FT_IPXNET, BASE_NONE, NULL, 0x0,
+      "Source IP Address", HFILL}
      },
   };
 
@@ -2809,6 +5358,32 @@ proto_register_docsis_tlv (void)
     &ett_docsis_tlv_phs_err,
     &ett_docsis_tlv_svc_unavail,
     &ett_docsis_tlv_snmpv3_kick,
+	&ett_docsis_tlv_ds_ch_list,
+	&ett_docsis_tlv_ds_ch_list_single,
+	&ett_docsis_tlv_ds_ch_list_range,
+	&ett_docsis_tlv_tcc,
+	&ett_docsis_tlv_tcc_ucd,
+	&ett_docsis_tlv_tcc_rng_parms,
+	&ett_docsis_tlv_tcc_err,
+    &ett_docsis_tlv_sid_cl,
+    &ett_docsis_tlv_sid_cl_enc,
+    &ett_docsis_tlv_sid_cl_enc_map,
+    &ett_docsis_tlv_sid_cl_so,
+    &ett_docsis_tlv_rcp,
+    &ett_docsis_tlv_rcp_rcv_mod_enc,
+    &ett_docsis_tlv_rcp_ch_bl_rng,
+    &ett_docsis_tlv_rcp_rcv_ch,
+    &ett_docsis_tlv_rcc,
+    &ett_docsis_tlv_rcc_rcv_mod_enc,
+    &ett_docsis_tlv_rcc_rcv_ch,
+    &ett_docsis_tlv_rcc_err,
+    &ett_docsis_tlv_dsid,
+    &ett_docsis_tlv_dsid_ds_reseq,
+    &ett_docsis_tlv_dsid_mc,
+    &ett_docsis_tlv_dsid_mc_addr,
+    &ett_docsis_tlv_sec_assoc,
+    &ett_docsis_tlv_ch_asgn,
+	&ett_docsis_cmts_mc_sess_enc,
   };
 
 /* Register the protocol name and description */
@@ -2834,6 +5409,7 @@ proto_reg_handoff_docsis_tlv (void)
 
   docsis_tlv_handle = find_dissector ("docsis_tlv");
   docsis_vsif_handle = find_dissector("docsis_vsif");
+  docsis_ucd_handle = find_dissector("docsis_ucd");
 
   dissector_add ("docsis", 0xFF, docsis_tlv_handle);
 

@@ -26,11 +26,18 @@ set(DISSECTOR_SRC
 	packet-bpkmattr.c
 	packet-bpkmreq.c
 	packet-bpkmrsp.c
+	packet-cmctrlreq.c
+	packet-cmctrlrsp.c
 	packet-intrngreq.c
+	packet-dbcreq.c
+	packet-dbcrsp.c
+	packet-dbcack.c
 	packet-dccack.c
 	packet-dccreq.c
 	packet-dccrsp.c
 	packet-dcd.c
+	packet-dpvreq.c
+	packet-dpvrsp.c
 	packet-docsis.c
 	packet-dsaack.c
 	packet-dsareq.c
@@ -52,6 +59,7 @@ set(DISSECTOR_SRC
 	packet-rngrsp.c
 	packet-sync.c
 	packet-tlv.c
+	packet-tlv-cmctrl.c
 	packet-type29ucd.c
 	packet-uccreq.c
 	packet-uccrsp.c
