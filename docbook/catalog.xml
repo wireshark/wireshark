@@ -6,6 +6,9 @@ See the Readme.txt file for instructions.
 
 Please note that if you shift any files in the directory structure you MUST adjust this catalog.
 
+2010/12/16: AFAICT this file is *not* referenced on either Windows or *nix during the process of generating
+            Wireshark documentation.
+            (The catalogs referenced seem to be those in the "usual places": /etc/xml/... )
 -->
 <!DOCTYPE catalog
    PUBLIC "-//OASIS/DTD Entity Resolution XML Catalog V1.0//EN"
@@ -21,7 +24,7 @@ Please note that if you shift any files in the directory structure you MUST adju
         systemIdStartString="http://www.oasis-open.org/docbook/xml/4.2/"
         rewritePrefix="/usr/share/xml/docbook/4.2/" />
         <!-- Debian: rewritePrefix="/usr/share/xml/docbook/schema/dtd/4.2/" /> -->
-    
+
     <!-- Resolve stylesheet URL to local file -->
     <!-- if you need to change this, don't forget to change it in the Makefile too -->
     <rewriteURI
@@ -50,7 +53,7 @@ Please note that if you shift any files in the directory structure you MUST adju
     <system
         systemId="EtherealThreePane1"
         uri="./graphics/wireshark-main.jpg" />
-    <uri 
+    <uri
         name="chunk.xsl"
         uri="docbook-xsl-1.62.1/html/chunk.xsl" />
     <uri
