@@ -612,9 +612,11 @@ static int hf_gsm_a_rr_tdd_multirat_reporting = -1;
 static int hf_gsm_a_rr_qsearch_p = -1;
 static int hf_gsm_a_rr_3g_search_prio = -1;
 static int hf_gsm_a_rr_fdd_reporting_offset = -1;
-static int hf_gsm_a_rr_fdd_reporting_threshold = -1;
+static int hf_gsm_a_rr_fdd_reporting_threshold_rscp = -1;
+static int hf_gsm_a_rr_fdd_reporting_threshold_ecn0 = -1;
 static int hf_gsm_a_rr_tdd_reporting_offset = -1;
-static int hf_gsm_a_rr_tdd_reporting_threshold = -1;
+static int hf_gsm_a_rr_tdd_reporting_threshold_rscp = -1;
+static int hf_gsm_a_rr_tdd_reporting_threshold_ecn0 = -1;
 static int hf_gsm_a_rr_fdd_reporting_threshold_2 = -1;
 static int hf_gsm_a_rr_3g_ccn_active = -1;
 static int hf_gsm_a_rr_700_reporting_offset = -1;
@@ -714,10 +716,12 @@ static int hf_gsm_a_rr_eutran_stop = -1;
 static int hf_gsm_a_rr_qsearch_c_eutran_initial = -1;
 static int hf_gsm_a_rr_eutran_rep_quant = -1;
 static int hf_gsm_a_rr_eutran_multirat_reporting = -1;
-static int hf_gsm_a_rr_eutran_fdd_reporting_threshold = -1;
+static int hf_gsm_a_rr_eutran_fdd_reporting_threshold_rsrp = -1;
+static int hf_gsm_a_rr_eutran_fdd_reporting_threshold_rsrq = -1;
 static int hf_gsm_a_rr_eutran_fdd_reporting_threshold_2 = -1;
 static int hf_gsm_a_rr_eutran_fdd_reporting_offset = -1;
-static int hf_gsm_a_rr_eutran_tdd_reporting_threshold = -1;
+static int hf_gsm_a_rr_eutran_tdd_reporting_threshold_rsrp = -1;
+static int hf_gsm_a_rr_eutran_tdd_reporting_threshold_rsrq = -1;
 static int hf_gsm_a_rr_eutran_tdd_reporting_threshold_2 = -1;
 static int hf_gsm_a_rr_eutran_tdd_reporting_offset = -1;
 static int hf_gsm_a_rr_eutran_fdd_measurement_report_offset = -1;
@@ -4050,14 +4054,70 @@ static const value_string gsm_a_rr_xxx_reporting_offset_vals[] = {
     { 0, NULL }
 };
 
-static const value_string gsm_a_rr_xxx_reporting_threshold_vals[] = {
-    { 0, "Apply priority reporting if the reported value is above 0 dB"},
-    { 1, "Apply priority reporting if the reported value is above 6 dB"},
-    { 2, "Apply priority reporting if the reported value is above 12 dB"},
-    { 3, "Apply priority reporting if the reported value is above 18 dB"},
-    { 4, "Apply priority reporting if the reported value is above 24 dB"},
-    { 5, "Apply priority reporting if the reported value is above 30 dB"},
-    { 6, "Apply priority reporting if the reported value is above 36 dB"},
+/* The TS 45.008 is not that clear, but it should be understood: threshold = minimum reported value + 6 * resolution 
+ * The minimum reported value, resolution is, for the different access technologies:
+ *  GSM:        -111 dBm, 1 dBm
+ *  WCDMA/RSCP: -116 dBm, 1 dBm
+ *  WCDMA/EcN0: -24.5 dB, 0.5 dB
+ *  LTE/RSRP:   -140 dBm, 1 dB
+ *  LTE/RSRQ:   -19.5 dB, 0.5 dB
+ */
+static const value_string gsm_a_rr_gsm_reporting_threshold_vals[] = {
+    { 0, "Apply priority reporting if the reported value is above -111 dBm"},
+    { 1, "Apply priority reporting if the reported value is above -105 dBm"},
+    { 2, "Apply priority reporting if the reported value is above -99 dBm"},
+    { 3, "Apply priority reporting if the reported value is above -93 dBm"},
+    { 4, "Apply priority reporting if the reported value is above -87 dBm"},
+    { 5, "Apply priority reporting if the reported value is above -81 dBm"},
+    { 6, "Apply priority reporting if the reported value is above -75 dBm"},
+    { 7, "Never apply priority reporting"},
+    { 0, NULL }
+};
+
+static const value_string gsm_a_rr_wcdma_rscp_reporting_threshold_vals[] = {
+    { 0, "Apply priority reporting if the reported value is above -116 dBm"},
+    { 1, "Apply priority reporting if the reported value is above -110 dBm"},
+    { 2, "Apply priority reporting if the reported value is above -104 dBm"},
+    { 3, "Apply priority reporting if the reported value is above -98 dBm"},
+    { 4, "Apply priority reporting if the reported value is above -92 dBm"},
+    { 5, "Apply priority reporting if the reported value is above -86 dBm"},
+    { 6, "Apply priority reporting if the reported value is above -80 dBm"},
+    { 7, "Never apply priority reporting"},
+    { 0, NULL }
+};
+
+static const value_string gsm_a_rr_wcdma_ecn0_reporting_threshold_vals[] = {
+    { 0, "Apply priority reporting if the reported value is above -24.5 dB"},
+    { 1, "Apply priority reporting if the reported value is above -21.5 dB"},
+    { 2, "Apply priority reporting if the reported value is above -17.5 dB"},
+    { 3, "Apply priority reporting if the reported value is above -14.5 dB"},
+    { 4, "Apply priority reporting if the reported value is above -11.5 dB"},
+    { 5, "Apply priority reporting if the reported value is above -8.5 dB"},
+    { 6, "Apply priority reporting if the reported value is above -5.5 dB"},
+    { 7, "Never apply priority reporting"},
+    { 0, NULL }
+};
+
+static const value_string gsm_a_rr_lte_rsrp_reporting_threshold_vals[] = {
+    { 0, "Apply priority reporting if the reported value is above -140 dBm"},
+    { 1, "Apply priority reporting if the reported value is above -134 dBm"},
+    { 2, "Apply priority reporting if the reported value is above -128 dBm"},
+    { 3, "Apply priority reporting if the reported value is above -122 dBm"},
+    { 4, "Apply priority reporting if the reported value is above -116 dBm"},
+    { 5, "Apply priority reporting if the reported value is above -110 dBm"},
+    { 6, "Apply priority reporting if the reported value is above -104 dBm"},
+    { 7, "Never apply priority reporting"},
+    { 0, NULL }
+};
+
+static const value_string gsm_a_rr_lte_rsrq_reporting_threshold_vals[] = {
+    { 0, "Apply priority reporting if the reported value is above -19.5 dB"},
+    { 1, "Apply priority reporting if the reported value is above -16.5 dB"},
+    { 2, "Apply priority reporting if the reported value is above -13.5 dB"},
+    { 3, "Apply priority reporting if the reported value is above -10.5 dB"},
+    { 4, "Apply priority reporting if the reported value is above -7.5 dB"},
+    { 5, "Apply priority reporting if the reported value is above -4.5 dB"},
+    { 6, "Apply priority reporting if the reported value is above -1.5 dB"},
     { 7, "Never apply priority reporting"},
     { 0, NULL }
 };
@@ -5065,7 +5125,7 @@ de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_of
 {
   gint curr_bit_offset;
   proto_item *item;
-  gint rep_quant_rsrq;
+  guint8 rep_quant;
 
   curr_bit_offset = bit_offset;
 
@@ -5073,7 +5133,7 @@ de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_of
   proto_tree_add_bits_item(tree, hf_gsm_a_rr_qsearch_c_eutran_initial, tvb, curr_bit_offset, 4, FALSE);
   curr_bit_offset += 4;
   proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_rep_quant, tvb, curr_bit_offset, 1, FALSE);
-  rep_quant_rsrq = tvb_get_bits8(tvb,curr_bit_offset,1);
+  rep_quant = tvb_get_bits8(tvb,curr_bit_offset,1);
   curr_bit_offset += 1;
   proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_multirat_reporting, tvb, curr_bit_offset, 2, FALSE);
   curr_bit_offset += 2;
@@ -5083,16 +5143,27 @@ de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_of
   {
     if (tvb_get_bits8(tvb,curr_bit_offset++,1))
     {
-      item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_threshold, tvb, curr_bit_offset, 3, FALSE);
-      if (!rep_quant_rsrq) proto_item_append_text(item, " (%d dBm)", 6 * tvb_get_bits8(tvb,curr_bit_offset,3) - 111);
-      else proto_item_append_text(item, "TBD Conversion");
+      if (rep_quant == 0)
+      {
+        proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_rsrp, tvb, curr_bit_offset, 3, FALSE);
+      }
+      else
+      {
+        proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_rsrq, tvb, curr_bit_offset, 3, FALSE);
+      }
       curr_bit_offset += 3;
 
       if (tvb_get_bits8(tvb,curr_bit_offset++,1))
       {
         item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_2, tvb, curr_bit_offset, 6, FALSE);
-        if (!rep_quant_rsrq) proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
-        else proto_item_append_text(item, " (%.1f dB)", tvb_get_bits8(tvb,curr_bit_offset,6) - 19.5);
+        if (rep_quant == 0)
+        {
+          proto_item_append_text(item, " (%.1f dB)", (gfloat)tvb_get_bits8(tvb,curr_bit_offset,6)/2 - 19.5);
+        }
+        else
+        {
+          proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
+        }
         curr_bit_offset += 6;
       }
       if (tvb_get_bits8(tvb,curr_bit_offset++,1))
@@ -5105,16 +5176,27 @@ de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_of
 
     if (tvb_get_bits8(tvb,curr_bit_offset++,1))
     {
-      item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_threshold, tvb, curr_bit_offset, 3, FALSE);
-      if (!rep_quant_rsrq) proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
-      else proto_item_append_text(item, "TBD Conversion");
+      if (rep_quant == 0)
+      {
+        proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_rsrp, tvb, curr_bit_offset, 3, FALSE);
+      }
+      else
+      {
+        proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_rsrq, tvb, curr_bit_offset, 3, FALSE);
+      }
       curr_bit_offset += 3;
 
       if (tvb_get_bits8(tvb,curr_bit_offset++,1))
       {
         item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_2, tvb, curr_bit_offset, 6, FALSE);
-        if (!rep_quant_rsrq) proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
-        else proto_item_append_text(item, " (%.1f dB)", tvb_get_bits8(tvb,curr_bit_offset,6) - 19.5);
+        if (rep_quant == 0)
+        {
+          proto_item_append_text(item, " (%.1f dB)", (gfloat)tvb_get_bits8(tvb,curr_bit_offset,6)/2 - 19.5);
+        }
+        else
+        {
+          proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
+        }
         curr_bit_offset += 6;
       }
       if (tvb_get_bits8(tvb,curr_bit_offset++,1))
@@ -5129,15 +5211,27 @@ de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_of
     if (tvb_get_bits8(tvb,curr_bit_offset++,1))
     {
       item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_measurement_report_offset, tvb, curr_bit_offset, 6, FALSE);
-      if (!rep_quant_rsrq) proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
-      else proto_item_append_text(item, " (%.1f dB)", tvb_get_bits8(tvb,curr_bit_offset,6) - 19.5);
+      if (rep_quant == 0) 
+      {
+        proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
+      }
+      else
+      {
+        proto_item_append_text(item, " (%.1f dB)", (gfloat)tvb_get_bits8(tvb,curr_bit_offset,6)/2 - 19.5);
+      }
       curr_bit_offset += 6;
 
       if (tvb_get_bits8(tvb,curr_bit_offset++,1))
       {
         item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_2, tvb, curr_bit_offset, 6, FALSE);
-        if (!rep_quant_rsrq) proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
-        else proto_item_append_text(item, " (%.1f dB)", tvb_get_bits8(tvb,curr_bit_offset,6) - 19.5);
+        if (rep_quant == 0) 
+        {
+          proto_item_append_text(item, " (%.1f dB)", (gfloat)tvb_get_bits8(tvb,curr_bit_offset,6)/2 - 19.5);
+        }
+        else
+        {
+          proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
+        }
         curr_bit_offset += 6;
       }
       if (tvb_get_bits8(tvb,curr_bit_offset++,1))
@@ -5150,15 +5244,27 @@ de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_of
     if (tvb_get_bits8(tvb,curr_bit_offset++,1))
     {
       item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_measurement_report_offset, tvb, curr_bit_offset, 6, FALSE);
-      if (!rep_quant_rsrq) proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
-      else proto_item_append_text(item, " (%.1f dB)", tvb_get_bits8(tvb,curr_bit_offset,6) - 19.5);
+      if (rep_quant == 0)
+      {
+        proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
+      }
+      else
+      {
+        proto_item_append_text(item, " (%.1f dB)", (gfloat)tvb_get_bits8(tvb,curr_bit_offset,6)/2 - 19.5);
+      }
       curr_bit_offset += 6;
 
       if (tvb_get_bits8(tvb,curr_bit_offset++,1))
       {
         item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_2, tvb, curr_bit_offset, 6, FALSE);
-        if (!rep_quant_rsrq) proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
-        else proto_item_append_text(item, " (%.1f dB)", tvb_get_bits8(tvb,curr_bit_offset,6) - 19.5);
+        if (rep_quant == 0)
+        {
+          proto_item_append_text(item, " (%.1f dB)", (gfloat)tvb_get_bits8(tvb,curr_bit_offset,6)/2 - 19.5);
+        }
+        else
+        {
+          proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
+        }
         curr_bit_offset += 6;
       }
       if (tvb_get_bits8(tvb,curr_bit_offset++,1))
@@ -5169,9 +5275,14 @@ de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_of
     }
   }
   item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_reporting_granularity, tvb, curr_bit_offset, 1, FALSE);
-  if (!rep_quant_rsrq) proto_item_append_text(item, " (%d dB step)", 2 + tvb_get_bits8(tvb,curr_bit_offset,1));
-  else proto_item_append_text(item, " (%d dB step)", 1 + tvb_get_bits8(tvb,curr_bit_offset,1));
-
+  if (rep_quant == 0) 
+  {
+    proto_item_append_text(item, " (%d dB step)", 2 + tvb_get_bits8(tvb,curr_bit_offset,1));
+  }
+  else
+  {
+    proto_item_append_text(item, " (%d dB step)", 1 + tvb_get_bits8(tvb,curr_bit_offset,1));
+  }
   curr_bit_offset += 1;
  
   return(curr_bit_offset - bit_offset);
@@ -5183,7 +5294,7 @@ de_rr_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
   proto_tree *subtree;
   proto_item *item;
   gint curr_bit_offset;
-  gint rep_quant_rsrq;
+  guint8 rep_quant = 0;
 
   curr_bit_offset = bit_offset;
   item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_PARAM_DESC].strptr);
@@ -5208,23 +5319,34 @@ de_rr_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_qsearch_p_eutran, tvb, curr_bit_offset, 4, FALSE);
     curr_bit_offset += 4;
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_rep_quant, tvb, curr_bit_offset, 1, FALSE);
-    rep_quant_rsrq = tvb_get_bits8(tvb,curr_bit_offset,1);
+    rep_quant = tvb_get_bits8(tvb,curr_bit_offset,1);
     curr_bit_offset += 1;
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_multirat_reporting, tvb, curr_bit_offset, 2, FALSE);
     curr_bit_offset += 2;
 
     if (tvb_get_bits8(tvb,curr_bit_offset++,1))
     {
-      item = proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_fdd_reporting_threshold, tvb, curr_bit_offset, 3, FALSE);
-      if (!rep_quant_rsrq) proto_item_append_text(item, " (%d dBm)", 6 * tvb_get_bits8(tvb,curr_bit_offset,3) - 111);
-      else proto_item_append_text(item, "TBD Conversion");
+      if (rep_quant == 0)
+      {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_rsrp, tvb, curr_bit_offset, 3, FALSE);
+      }
+      else
+      {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_rsrq, tvb, curr_bit_offset, 3, FALSE);
+      }
       curr_bit_offset += 3;
 
       if (tvb_get_bits8(tvb,curr_bit_offset++,1))
       {
-        item = proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_2, tvb, curr_bit_offset, 6, FALSE);
-        if (!rep_quant_rsrq) proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
-        else proto_item_append_text(item, " (%.1f dB)", tvb_get_bits8(tvb,curr_bit_offset,6) - 19.5);
+        item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_2, tvb, curr_bit_offset, 6, FALSE);
+        if (rep_quant == 0) 
+        {
+          proto_item_append_text(item, " (%.1f dB)", (gfloat)tvb_get_bits8(tvb,curr_bit_offset,6)/2 - 19.5);
+        }
+        else
+        {
+          proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
+        }
         curr_bit_offset += 6;
       }
       if (tvb_get_bits8(tvb,curr_bit_offset++,1))
@@ -5236,16 +5358,27 @@ de_rr_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 
     if (tvb_get_bits8(tvb,curr_bit_offset++,1))
     {
-      item = proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_tdd_reporting_threshold, tvb, curr_bit_offset, 3, FALSE);
-      if (!rep_quant_rsrq) proto_item_append_text(item, " (%d dBm)", 6 * tvb_get_bits8(tvb,curr_bit_offset,3) - 111);
-      else proto_item_append_text(item, "TBD Conversion");
+      if (rep_quant == 0)
+      {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_rsrp, tvb, curr_bit_offset, 3, FALSE);
+      }
+      else
+      {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_rsrq, tvb, curr_bit_offset, 3, FALSE);
+      }
       curr_bit_offset += 3;
 
       if (tvb_get_bits8(tvb,curr_bit_offset++,1))
       {
-        item = proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_2, tvb, curr_bit_offset, 6, FALSE);
-        if (!rep_quant_rsrq) proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
-        else proto_item_append_text(item, " (%.1f dB)", tvb_get_bits8(tvb,curr_bit_offset,6) - 19.5);
+        item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_2, tvb, curr_bit_offset, 6, FALSE);
+        if (rep_quant == 0) 
+        {
+          proto_item_append_text(item, " (%.1f dB)", (gfloat)tvb_get_bits8(tvb,curr_bit_offset,6)/2 - 19.5);
+        }
+        else
+        {
+          proto_item_append_text(item, " (%d dBm)", tvb_get_bits8(tvb,curr_bit_offset,6) - 140);
+        }
         curr_bit_offset += 6;
       }
       if (tvb_get_bits8(tvb,curr_bit_offset++,1))
@@ -5761,6 +5894,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
     bit_offset += 1;
     if (value)
     { /* GPRS 3G Measurement Parameters Description */
+        guint8 reporting_quant = 0;
         bit_offset_sav = bit_offset;
         item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_3G_MEAS_PARAM_DESC].strptr);
         subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_GPRS_3G_MEAS_PARAM_DESC]);
@@ -5773,6 +5907,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
         if (value)
         {
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_fdd_rep_quant, tvb, bit_offset, 1, FALSE);
+            reporting_quant = tvb_get_bits8(tvb,bit_offset,1);
             bit_offset += 1;
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_fdd_multirat_reporting, tvb, bit_offset, 2, FALSE);
             bit_offset += 2;
@@ -5783,7 +5918,14 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
         {
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_fdd_reporting_offset, tvb, bit_offset, 3, FALSE);
             bit_offset += 3;
-            proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_fdd_reporting_threshold, tvb, bit_offset, 3, FALSE);
+            if (reporting_quant == 0)
+            {
+              proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_fdd_reporting_threshold_rscp, tvb, bit_offset, 3, FALSE);
+            }
+            else
+            {
+              proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_fdd_reporting_threshold_ecn0, tvb, bit_offset, 3, FALSE);
+            }
             bit_offset += 3;
         }
         value = tvb_get_bits8(tvb,bit_offset,1);
@@ -5799,7 +5941,14 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
         {
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_tdd_reporting_offset, tvb, bit_offset, 3, FALSE);
             bit_offset += 3;
-            proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_tdd_reporting_threshold, tvb, bit_offset, 3, FALSE);
+            if (reporting_quant == 0)
+            {
+              proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_tdd_reporting_threshold_rscp, tvb, bit_offset, 3, FALSE);
+            }
+            else
+            {
+              proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_tdd_reporting_threshold_ecn0, tvb, bit_offset, 3, FALSE);
+            }
             bit_offset += 3;
         }
         proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
@@ -9200,6 +9349,7 @@ sacch_rr_meas_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
     bit_offset += 1;
     if (value)
     { /* 3G Measurement Parameters Description */
+        guint8 reporting_quant = 0;
         bit_offset_sav = bit_offset;
         item = proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_MEAS_PARAM_DESC].strptr);
         subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_3G_MEAS_PARAM_DESC]);
@@ -9208,6 +9358,7 @@ sacch_rr_meas_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_search_prio, tvb, bit_offset, 1, FALSE);
         bit_offset += 1;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_fdd_rep_quant, tvb, bit_offset, 1, FALSE);
+        reporting_quant = tvb_get_bits8(tvb,bit_offset,1);
         bit_offset += 1;
         value = tvb_get_bits8(tvb,bit_offset,1);
         bit_offset += 1;
@@ -9222,7 +9373,14 @@ sacch_rr_meas_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_fdd_reporting_offset, tvb, bit_offset, 3, FALSE);
             bit_offset += 3;
-            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_fdd_reporting_threshold, tvb, bit_offset, 3, FALSE);
+            if (reporting_quant == 0)
+            {
+              proto_tree_add_bits_item(subtree, hf_gsm_a_rr_fdd_reporting_threshold_rscp, tvb, bit_offset, 3, FALSE);
+            }
+            else
+            {
+              proto_tree_add_bits_item(subtree, hf_gsm_a_rr_fdd_reporting_threshold_ecn0, tvb, bit_offset, 3, FALSE);
+            }
             bit_offset += 3;
         }
         value = tvb_get_bits8(tvb,bit_offset,1);
@@ -9238,7 +9396,14 @@ sacch_rr_meas_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tdd_reporting_offset, tvb, bit_offset, 3, FALSE);
             bit_offset += 3;
-            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tdd_reporting_threshold, tvb, bit_offset, 3, FALSE);
+            if (reporting_quant == 0)
+            {
+              proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tdd_reporting_threshold_rscp, tvb, bit_offset, 3, FALSE);
+            }
+            else
+            {
+              proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tdd_reporting_threshold_ecn0, tvb, bit_offset, 3, FALSE);
+            }
             bit_offset += 3;
         }
         value = tvb_get_bits8(tvb,bit_offset,1);
@@ -10733,7 +10898,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_900_reporting_threshold,
               { "900 Reporting Threshold", "gsm_a.rr.900_reporting_threshold",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_xxx_reporting_threshold_vals), 0x00,
+		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_gsm_reporting_threshold_vals), 0x00,
 		"Apply priority reporting if the reported value is above threshold for GSM frequency band 900 (900 Reporting Threshold)", HFILL }
             },
             { &hf_gsm_a_rr_1800_reporting_offset,
@@ -10743,7 +10908,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_1800_reporting_threshold,
               { "1800 Reporting Threshold", "gsm_a.rr.1800_reporting_threshold",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_xxx_reporting_threshold_vals), 0x00,
+		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_gsm_reporting_threshold_vals), 0x00,
 		"Apply priority reporting if the reported value is above threshold for GSM frequency band 1800 (1800 Reporting Threshold)", HFILL }
             },
             { &hf_gsm_a_rr_400_reporting_offset,
@@ -10753,7 +10918,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_400_reporting_threshold,
               { "400 Reporting Threshold", "gsm_a.rr.400_reporting_threshold",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_xxx_reporting_threshold_vals), 0x00,
+		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_gsm_reporting_threshold_vals), 0x00,
 		"Apply priority reporting if the reported value is above threshold for GSM frequency band 400 (400 Reporting Threshold)", HFILL }
             },
             { &hf_gsm_a_rr_1900_reporting_offset,
@@ -10763,7 +10928,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_1900_reporting_threshold,
               { "1900 Reporting Threshold", "gsm_a.rr.1900_reporting_threshold",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_xxx_reporting_threshold_vals), 0x00,
+		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_gsm_reporting_threshold_vals), 0x00,
 		"Apply priority reporting if the reported value is above threshold for GSM frequency band 1900 (1900 Reporting Threshold)", HFILL }
             },
             { &hf_gsm_a_rr_850_reporting_offset,
@@ -10773,7 +10938,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_850_reporting_threshold,
               { "850 Reporting Threshold", "gsm_a.rr.900_reporting_threshold",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_xxx_reporting_threshold_vals), 0x00,
+		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_gsm_reporting_threshold_vals), 0x00,
 		"Apply priority reporting if the reported value is above threshold for GSM frequency band 850 (850 Reporting Threshold)", HFILL }
             },
             { &hf_gsm_a_rr_network_control_order,
@@ -10832,7 +10997,7 @@ proto_register_gsm_a_rr(void)
 		"Search for 3G cells if signal level below threshold (Qsearch P)", HFILL }
             },
             { &hf_gsm_a_rr_3g_search_prio,
-              { "3G Search Prio", "gsm_a.rr.3g_search_prio",
+              { "3G Search Prio (ignored in Rel-8)", "gsm_a.rr.3g_search_prio",
 		FT_BOOLEAN, BASE_NONE,  TFS(&gsm_a_rr_3g_search_prio_value), 0x0,
 		NULL, HFILL }
             },
@@ -10841,9 +11006,14 @@ proto_register_gsm_a_rr(void)
 		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_xxx_reporting_offset_vals), 0x00,
 		"Offset to the reported value when prioritising the cells for reporting for FDD access technology (FDD Reporting Offset)", HFILL }
             },
-            { &hf_gsm_a_rr_fdd_reporting_threshold,
-              { "FDD Reporting Threshold", "gsm_a.rr.fdd_reporting_threshold",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_xxx_reporting_threshold_vals), 0x00,
+            { &hf_gsm_a_rr_fdd_reporting_threshold_rscp,
+              { "FDD Reporting Threshold RSCP", "gsm_a.rr.fdd_reporting_threshold_rscp",
+		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_wcdma_rscp_reporting_threshold_vals), 0x00,
+		"Apply priority reporting if the reported value is above threshold for FDD access technology (FDD Reporting Threshold)", HFILL }
+            },
+            { &hf_gsm_a_rr_fdd_reporting_threshold_ecn0,
+              { "FDD Reporting Threshold EcN0", "gsm_a.rr.fdd_reporting_threshold_ecn0",
+		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_wcdma_ecn0_reporting_threshold_vals), 0x00,
 		"Apply priority reporting if the reported value is above threshold for FDD access technology (FDD Reporting Threshold)", HFILL }
             },
             { &hf_gsm_a_rr_tdd_reporting_offset,
@@ -10851,9 +11021,14 @@ proto_register_gsm_a_rr(void)
 		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_xxx_reporting_offset_vals), 0x00,
 		"Offset to the reported value when prioritising the cells for reporting for TDD access technology (TDD Reporting Offset)", HFILL }
             },
-            { &hf_gsm_a_rr_tdd_reporting_threshold,
-              { "TDD Reporting Threshold", "gsm_a.rr.tdd_reporting_threshold",
-		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_xxx_reporting_threshold_vals), 0x00,
+            { &hf_gsm_a_rr_tdd_reporting_threshold_rscp,
+              { "TDD Reporting Threshold RSCP", "gsm_a.rr.tdd_reporting_threshold_rscp",
+		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_wcdma_rscp_reporting_threshold_vals), 0x00,
+		"Apply priority reporting if the reported value is above threshold for TDD access technology (TDD Reporting Threshold)", HFILL }
+            },
+            { &hf_gsm_a_rr_tdd_reporting_threshold_ecn0,
+              { "TDD Reporting Threshold EcN0", "gsm_a.rr.tdd_reporting_threshold_ecn0",
+		FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_wcdma_ecn0_reporting_threshold_vals), 0x00,
 		"Apply priority reporting if the reported value is above threshold for TDD access technology (TDD Reporting Threshold)", HFILL }
             },
             { &hf_gsm_a_rr_fdd_reporting_threshold_2,
@@ -10873,7 +11048,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_700_reporting_threshold,
               { "700 Reporting Threshold", "gsm_a.rr.700_reporting_threshold",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_xxx_reporting_threshold_vals), 0x00,
+		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_gsm_reporting_threshold_vals), 0x00,
 		"Apply priority reporting if the reported value is above threshold for GSM frequency band 700 (700 Reporting Threshold)", HFILL }
             },
             { &hf_gsm_a_rr_810_reporting_offset,
@@ -10883,7 +11058,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_810_reporting_threshold,
               { "810 Reporting Threshold", "gsm_a.rr.810_reporting_threshold",
-		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_xxx_reporting_threshold_vals), 0x00,
+		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_gsm_reporting_threshold_vals), 0x00,
 		"Apply priority reporting if the reported value is above threshold for GSM frequency band 810 (810 Reporting Threshold)", HFILL }
             },
             { &hf_gsm_a_rr_cbq,
@@ -11346,9 +11521,14 @@ proto_register_gsm_a_rr(void)
 		FT_UINT8, BASE_DEC, NULL, 0x00,
 		NULL, HFILL }
             },
-            { &hf_gsm_a_rr_eutran_fdd_reporting_threshold,
-              { "E-UTRAN_FDD_REPORTING_THRESHOLD", "gsm_a.rr.eutran_fdd_reporting_threshold",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
+            { &hf_gsm_a_rr_eutran_fdd_reporting_threshold_rsrp,
+              { "E-UTRAN_FDD_REPORTING_THRESHOLD", "gsm_a.rr.eutran_fdd_reporting_threshold_rsrp",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_lte_rsrp_reporting_threshold_vals), 0x00,
+		NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_eutran_fdd_reporting_threshold_rsrq,
+              { "E-UTRAN_FDD_REPORTING_THRESHOLD", "gsm_a.rr.eutran_fdd_reporting_threshold_rsrq",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_lte_rsrq_reporting_threshold_vals), 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_fdd_reporting_threshold_2,
@@ -11361,9 +11541,14 @@ proto_register_gsm_a_rr(void)
 		FT_UINT8, BASE_DEC, NULL, 0x00,
 		NULL, HFILL }
             },
-            { &hf_gsm_a_rr_eutran_tdd_reporting_threshold,
-              { "E-UTRAN_TDD_REPORTING_THRESHOLD", "gsm_a.rr.eutran_tdd_reporting_threshold",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
+            { &hf_gsm_a_rr_eutran_tdd_reporting_threshold_rsrp,
+              { "E-UTRAN_TDD_REPORTING_THRESHOLD", "gsm_a.rr.eutran_tdd_reporting_threshold_rsrp",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_lte_rsrp_reporting_threshold_vals), 0x00,
+		NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_eutran_tdd_reporting_threshold_rsrq,
+              { "E-UTRAN_TDD_REPORTING_THRESHOLD", "gsm_a.rr.eutran_tdd_reporting_threshold_rsrq",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_lte_rsrq_reporting_threshold_vals), 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_tdd_reporting_threshold_2,
