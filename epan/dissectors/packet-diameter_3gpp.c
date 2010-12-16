@@ -136,7 +136,14 @@ dissect_diameter_3gpp_msisdn(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 
 }
 
-/* AVP Code: 702 User-Data */
+/* AVP Code: 702 User-Data 
+ * TGPPSh.xml
+ * The AVP codes from 709 to799 are reserved for TS 29.329
+ */
+/* AVP Code: 606 User-Data 
+ * imscxdx.xml
+ * IMS Cx Dx AVPS 3GPP TS 29.229
+ */
 static int
 dissect_diameter_3gpp_user_data(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
 
@@ -464,6 +471,8 @@ proto_reg_handoff_diameter_3gpp(void)
 	 * Registered by packet-gtpv2.c
 	 */
 
+	/* AVP Code: 706 User-Data */
+	dissector_add("diameter.3gpp", 606, new_create_dissector_handle(dissect_diameter_3gpp_user_data, proto_diameter_3gpp));
 
 	/* AVP Code: 701 MSISDN */
 	dissector_add("diameter.3gpp", 701, new_create_dissector_handle(dissect_diameter_3gpp_msisdn, proto_diameter_3gpp));
