@@ -851,6 +851,10 @@ static const value_string aruba_mgt_typevals[] = {
 #define FT_ACTION_CONFIRM               3
 #define FT_ACTION_ACK                   4
 
+/* SA Query Action frame codes (IEEE 802.11w-2009, 7.4.9) */
+#define SA_QUERY_REQUEST                0
+#define SA_QUERY_RESPONSE               1
+
 #ifdef MESH_OVERRIDES
 #define MESH_PL_PEER_LINK_OPEN                      0
 #define MESH_PL_PEER_LINK_CONFIRM                   1
@@ -1137,6 +1141,9 @@ static int hf_ieee80211_ff_query_response = -1;
 static int hf_ieee80211_ff_anqp_info_id = -1;
 static int hf_ieee80211_ff_anqp_info_length = -1;
 static int hf_ieee80211_ff_anqp_info = -1;
+
+static int hf_ieee80211_ff_sa_query_action_code = -1;
+static int hf_ieee80211_ff_transaction_id = -1;
 
 /* Vendor specific */
 static int ff_marvell_action_type = -1;
@@ -3730,6 +3737,31 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                 break;
               }
 
+            case CAT_SA_QUERY:
+              {
+                guint start = offset;
+                guint8 code;
+                offset += add_fixed_field(action_tree, tvb, offset,
+                                          FIELD_CATEGORY_CODE);
+                code = tvb_get_guint8(tvb, offset);
+                offset += add_fixed_field(action_tree, tvb, offset,
+                                          FIELD_SA_QUERY_ACTION_CODE);
+
+                switch (code) {
+                case SA_QUERY_REQUEST:
+                  offset += add_fixed_field(action_tree, tvb, offset,
+                                            FIELD_TRANSACTION_ID);
+                  break;
+                case SA_QUERY_RESPONSE:
+                  offset += add_fixed_field(action_tree, tvb, offset,
+                                            FIELD_TRANSACTION_ID);
+                  break;
+                }
+
+                length += offset - start;  /* Size of fixed fields */
+                break;
+              }
+
 #ifdef MESH_OVERRIDES
             case CAT_MESH_PEER_LINK:
               /* Non-IE fixed fields here.  edit TAG_MESH_* for IE fields */
@@ -3977,6 +4009,18 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       proto_tree_add_item(tree, hf_ieee80211_ff_more_gas_fragments,
                           tvb, offset, 1, FALSE);
       length += 1;
+      break;
+
+    case FIELD_SA_QUERY_ACTION_CODE:
+      proto_tree_add_item(tree, hf_ieee80211_ff_sa_query_action_code, tvb,
+                          offset, 1, FALSE);
+      length += 1;
+      break;
+
+    case FIELD_TRANSACTION_ID:
+      proto_tree_add_item(tree, hf_ieee80211_ff_transaction_id,
+                          tvb, offset, 2, TRUE);
+      length += 2;
       break;
   }
   return length;
@@ -10126,6 +10170,12 @@ proto_register_ieee80211 (void)
     {0, NULL}
   };
 
+  static const value_string sa_query_action_codes[] ={
+    {SA_QUERY_REQUEST, "SA Query Request"},
+    {SA_QUERY_RESPONSE, "SA Query Response"},
+    {0, NULL}
+  };
+
   static hf_register_info hf[] = {
     {&hf_mactime,
      {"MAC timestamp", "wlan.mactime", FT_UINT64, BASE_DEC, NULL, 0x0,
@@ -11828,6 +11878,15 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_ff_dls_timeout,
      {"DLS timeout", "wlan_mgt.fixed.dls_timeout",
       FT_UINT16, BASE_HEX, NULL, 0, "DLS timeout value", HFILL }},
+
+    {&hf_ieee80211_ff_sa_query_action_code,
+     {"Action code", "wlan_mgt.fixed.action_code",
+      FT_UINT8, BASE_DEC, VALS(&sa_query_action_codes), 0,
+      "Management action code", HFILL }},
+
+    {&hf_ieee80211_ff_transaction_id,
+     {"Transaction Id", "wlan_mgt.fixed.transaction_id",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&tag_number,
      {"Tag", "wlan_mgt.tag.number",
