@@ -74,5 +74,4 @@ DISSECTOR_SRC = \
 
 # corresponding headers
 DISSECTOR_INCLUDES =	\
-	packet-tlv.h \
-	exceptions.h
+	packet-tlv.h
