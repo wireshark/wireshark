@@ -40,6 +40,8 @@
 static dissector_handle_t ipa_handle;
 static range_t *global_ipa_tcp_ports = NULL;
 static range_t *global_ipa_udp_ports = NULL;
+static gboolean global_ipa_in_root = FALSE;
+static gboolean global_ipa_in_info = FALSE;
 
 /* Initialize the protocol and registered fields */
 static int proto_ipa = -1;
@@ -47,6 +49,7 @@ static int proto_ipaccess = -1;
 
 static int hf_ipa_data_len = -1;
 static int hf_ipa_protocol = -1;
+static int hf_ipa_hsl_debug = -1;
 
 static int hf_ipaccess_msgtype = -1;
 static int hf_ipaccess_attr_tag = -1;
@@ -69,6 +72,7 @@ enum {
 static dissector_handle_t sub_handles[SUB_MAX];
 
 #define ABISIP_RSL_MAX	0x20
+#define HSL_DEBUG	0xdd
 #define IPA_MGCP	0xfc
 #define AIP_SCCP	0xfd
 #define ABISIP_IPACCESS	0xfe
@@ -76,6 +80,7 @@ static dissector_handle_t sub_handles[SUB_MAX];
 
 static const value_string ipa_protocol_vals[] = {
 	{ 0x00,		"RSL" },
+	{ 0xdd,		"HSL Debug" },
 	{ 0xfc,		"MGCP" },
 	{ 0xfd,		"SCCP" },
 	{ 0xfe,		"IPA" },
@@ -187,7 +192,7 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	while ((remaining = tvb_reported_length_remaining(tvb, offset)) > 0) {
 		proto_item *ti;
-		proto_tree *ipa_tree;
+		proto_tree *ipa_tree = NULL;
 		guint16 len, msg_type;
 		tvbuff_t *next_tvb;
 
@@ -241,6 +246,18 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* hand this off to the standard MGCP dissector */
 			call_dissector(sub_handles[SUB_MGCP], next_tvb, pinfo, tree);
 			break;
+		case HSL_DEBUG:
+			if (tree) {
+				proto_tree_add_item(ipa_tree, hf_ipa_hsl_debug,
+						    next_tvb, 0, len, FALSE);
+				if (global_ipa_in_root == TRUE)
+					proto_tree_add_item(tree, hf_ipa_hsl_debug,
+							    next_tvb, 0, len, FALSE);
+			}
+			if (global_ipa_in_info == TRUE)
+				col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+						tvb_get_stringz(next_tvb, 0, NULL));
+			break;
 		default:
 			if (msg_type < ABISIP_RSL_MAX) {
 				/* hand this off to the standard A-bis RSL dissector */
@@ -269,6 +286,11 @@ void proto_register_ipa(void)
 		  FT_UINT8, BASE_HEX, VALS(ipa_protocol_vals), 0x0,
 		  "The IPA Sub-Protocol", HFILL}
 		 },
+		{&hf_ipa_hsl_debug,
+		 {"Debug Message", "ipa.hsl_debug",
+		  FT_STRING, BASE_NONE, NULL, 0,
+		  "Hay Systems Limited debug message", HFILL}
+		},
 	};
 	static hf_register_info hf_ipa[] = {
 		{&hf_ipaccess_msgtype,
@@ -321,6 +343,13 @@ void proto_register_ipa(void)
 					"Set the port(s) for ip.access IPA"
 					" (default: " IPA_UDP_PORTS ")",
 					&global_ipa_udp_ports, MAX_UDP_PORT);
+
+	prefs_register_bool_preference(ipa_module, "hsl_debug_in_root_tree",
+					"HSL Debug messages in root protocol tree",
+					NULL, &global_ipa_in_root);
+	prefs_register_bool_preference(ipa_module, "hsl_debug_in_info",
+					"HSL Debug messages in INFO column",
+					NULL, &global_ipa_in_info);
 }
 
 static void ipa_tcp_delete_callback(guint32 port)
