@@ -471,7 +471,7 @@ proto_reg_handoff_diameter_3gpp(void)
 	 * Registered by packet-gtpv2.c
 	 */
 
-	/* AVP Code: 706 User-Data */
+	/* AVP Code: 606 User-Data */
 	dissector_add("diameter.3gpp", 606, new_create_dissector_handle(dissect_diameter_3gpp_user_data, proto_diameter_3gpp));
 
 	/* AVP Code: 701 MSISDN */
