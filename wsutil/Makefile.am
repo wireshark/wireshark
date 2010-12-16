@@ -22,25 +22,68 @@
 
 ACLOCAL_AMFLAGS = `../aclocal-flags`
 
+# Optional objects that I know how to build. These will be
+# linked into libwsutil.
+wsutil_optional_objects =
+
+# filters for symbols to be omitted from libwsutil.sym
+# symbols defined only on windows
+def_sym_filter_symbols = /^getenv_utf8/ || /^ws_stdio/ || /^ws_init_dll_search_path/ || /^ws_load_library/ || /^ws_module_open/
+
+if NEED_GETOPT_LO
+wsutil_optional_objects += @GETOPT_LO@
+else
+def_sym_filter_symbols += || /^getopt/ || /^optarg/ || /^optind/ || /^opterr/ || /^optopt/
+endif
+ 
+if NEED_INET_ATON_LO
+wsutil_optional_objects += @INET_ATON_LO@
+else
+def_sym_filter_symbols += || /^inet_aton/
+endif
+ 
+if NEED_INET_NTOP_LO
+wsutil_optional_objects += @INET_NTOP_LO@
+else
+def_sym_filter_symbols += || /^ws_inet_ntop/
+endif
+ 
+if NEED_INET_PTON_LO
+wsutil_optional_objects += @INET_PTON_LO@
+else
+def_sym_filter_symbols += || /^ws_inet_pton/
+endif
+
+if NEED_STRERROR_LO
+wsutil_optional_objects += @STRERROR_LO@
+else
+def_sym_filter_symbols += || /^strerror/
+endif
+
+if NEED_STRNCASECMP_LO
+wsutil_optional_objects += @STRNCASECMP_LO@
+else
+def_sym_filter_symbols += || /^strncasecmp/
+endif
+
+if NEED_STRPTIME_LO
+wsutil_optional_objects += @STRPTIME_LO@
+else
+def_sym_filter_symbols += || /^strptime/
+endif
+
+def_sym_filter_symbols += {next;};
+
+include ../Makefile.am.inc
+
 include Makefile.common
 
 if HAVE_WARNINGS_AS_ERRORS
 AM_CFLAGS = -Werror
 endif
 
-# Optional objects that I know how to build. These will be
-# linked into libwsutil.
-wsutil_optional_objects =	\
-	@GETOPT_LO@ 		\
-	@INET_ATON_LO@		\
-	@INET_NTOP_LO@		\
-	@INET_PTON_LO@		\
-	@STRERROR_LO@		\
-	@STRNCASECMP_LO@	\
-	@STRPTIME_LO@
-
 lib_LTLIBRARIES = libwsutil.la
-libwsutil_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
+libwsutil_la_LDFLAGS = -version-info 0:0:0 -export-symbols libwsutil.sym @LDFLAGS_SHAREDLIB@
 
 INCLUDES = -I$(srcdir)/..
 
@@ -63,7 +106,8 @@ EXTRA_libwsutil_la_SOURCES=	\
 	wsgetopt.h
 
 libwsutil_la_DEPENDENCIES=	\
-	$(wsutil_optional_objects)
+	$(wsutil_optional_objects) \
+	libwsutil.sym
 
 libwsutil_la_LIBADD =		\
 	@GLIB_LIBS@		\
@@ -81,6 +125,7 @@ EXTRA_DIST =		\
 CLEANFILES = \
 	libwsutil.a	\
 	libwsutil.la	\
+	libwsutil.sym	\
 	*~
 
 MAINTAINERCLEANFILES = \

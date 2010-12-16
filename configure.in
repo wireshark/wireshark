@@ -1591,6 +1591,7 @@ AC_CHECK_FUNC(getopt,
 if test "$ac_cv_func_getopt" = no ; then
   GETOPT_LO="wsgetopt.lo"
 fi
+AM_CONDITIONAL(NEED_GETOPT_LO, test "x$ac_cv_func_getopt" = "xno")
 AC_SUBST(GETOPT_LO)
 
 AC_CHECK_FUNC(strerror, STRERROR_LO="",
@@ -1600,6 +1601,7 @@ AC_CHECK_FUNC(strerror, STRERROR_LO="",
 if test "$ac_cv_func_strerror" = no ; then
   STRERROR_LO="strerror.lo"
 fi
+AM_CONDITIONAL(NEED_STRERROR_LO, test "x$ac_cv_func_strerror" = "xno")
 AC_SUBST(STRERROR_LO)
 
 AC_CHECK_FUNC(strncasecmp, STRNCASECMP_LO="",
@@ -1607,6 +1609,7 @@ AC_CHECK_FUNC(strncasecmp, STRNCASECMP_LO="",
 if test "$ac_cv_func_strncasecmp" = no ; then
   STRNCASECMP_LO="strncasecmp.lo"
 fi
+AM_CONDITIONAL(NEED_STRNCASECMP_LO, test "x$ac_cv_func_strncasecmp" = "xno")
 AC_SUBST(STRNCASECMP_LO)
 
 AC_CHECK_FUNCS(mkstemp mkdtemp)
@@ -1619,6 +1622,7 @@ if test "$have_inet_aton" = no; then
 else
   INET_ATON_LO=""
 fi
+AM_CONDITIONAL(NEED_INET_ATON_LO, test "x$have_inet_aton" = "xno")
 AC_SUBST(INET_ATON_LO)
 
 AC_SEARCH_LIBS(inet_pton, [socket nsl], [
@@ -1647,6 +1651,7 @@ if test "$have_inet_pton" = no; then
 else
   INET_PTON_LO=""
 fi
+AM_CONDITIONAL(NEED_INET_PTON_LO, test "x$have_inet_pton" = "xno")
 AC_SUBST(INET_PTON_LO)
 
 AC_SEARCH_LIBS(inet_ntop, [socket nsl], [
@@ -1676,6 +1681,7 @@ extern const char *inet_ntop(int, const void *, char *, socklen_t);],, [
   INET_NTOP_LO="inet_ntop.lo"
   AC_DEFINE(NEED_INET_V6DEFS_H, 1,
   [Define if inet/v6defs.h needs to be included])])
+AM_CONDITIONAL(NEED_INET_NTOP_LO, test "x$INET_NTOP_LO" != "x")
 AC_SUBST(INET_NTOP_LO)
 
 AC_CHECK_FUNC(strptime, STRPTIME_LO="",
@@ -1686,6 +1692,7 @@ if test "$ac_cv_func_strptime" = no ; then
   STRPTIME_LO="strptime.lo"
 fi
 AC_SUBST(STRPTIME_C)
+AM_CONDITIONAL(NEED_STRPTIME_LO, test "x$ac_cv_func_strptime" = "no")
 AC_SUBST(STRPTIME_LO)
 
 AC_CHECK_FUNCS(getprotobynumber gethostbyname2)

@@ -25,4 +25,4 @@
 	$(RUNLEX) "$(LEX)" -o$@ $<
 
 .def.sym:
-	$(AWK) '/^EXPORTS$$/ {next;}; /^[^;]/ { print $$1;}' < $< > $@
+	$(AWK) '/^EXPORTS$$/ {next;}; ${def_sym_filter_symbols} /^[^;]/ { print $$1;}' < $< > $@
