@@ -330,10 +330,14 @@ const gchar *get_conn_cfilter(void) {
 			host_ip_af(phostname), phostname);
 		g_free(phostname);
 		return filter_str->str;
+#ifndef _WIN32
+	}
+#else /* _WIN32 */
 	} else if (GetSystemMetrics(SM_REMOTESESSION)) {
 		/* We have a remote session: http://msdn.microsoft.com/en-us/library/aa380798%28VS.85%29.aspx */
 		g_string_printf(filter_str, "not tcp port 3389");
 		return filter_str->str;
 	}
+#endif /* _WIN32 */
 	return "";
 }
