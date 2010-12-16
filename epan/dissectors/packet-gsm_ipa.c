@@ -32,6 +32,14 @@
 
 #include <epan/packet.h>
 #include <epan/ipproto.h>
+#include <epan/prefs.h>
+
+#define IPA_TCP_PORTS "3002,3003,3006,5000"
+#define IPA_UDP_PORTS "3006"
+
+static dissector_handle_t ipa_handle;
+static range_t *global_ipa_tcp_ports = NULL;
+static range_t *global_ipa_udp_ports = NULL;
 
 /* Initialize the protocol and registered fields */
 static int proto_ipa = -1;
@@ -59,11 +67,6 @@ enum {
 };
 
 static dissector_handle_t sub_handles[SUB_MAX];
-
-#define TCP_PORT_ABISIP_PRIM	 3002
-#define TCP_PORT_ABISIP_SEC	 3003
-#define TCP_PORT_ABISIP_INST	 3006
-#define TCP_PORT_AIP_PRIM	 5000
 
 #define ABISIP_RSL_MAX	0x20
 #define IPA_MGCP	0xfc
@@ -249,8 +252,12 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
+void proto_reg_handoff_gsm_ipa(void);
+
 void proto_register_ipa(void)
 {
+	module_t *ipa_module;
+
 	static hf_register_info hf[] = {
 		{&hf_ipa_data_len,
 		 {"DataLen", "ipa.data_len",
@@ -298,21 +305,71 @@ void proto_register_ipa(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("gsm_ipa", dissect_ipa, proto_ipa);
+
+	range_convert_str(&global_ipa_tcp_ports, IPA_TCP_PORTS, MAX_TCP_PORT);
+	range_convert_str(&global_ipa_udp_ports, IPA_UDP_PORTS, MAX_UDP_PORT);
+	ipa_module = prefs_register_protocol(proto_ipa,
+					     proto_reg_handoff_gsm_ipa);
+
+	prefs_register_range_preference(ipa_module, "tcp_ports",
+					"GSM IPA TCP Port(s)",
+					"Set the port(s) for ip.access IPA"
+					" (default: " IPA_TCP_PORTS ")",
+					&global_ipa_tcp_ports, MAX_TCP_PORT);
+	prefs_register_range_preference(ipa_module, "udp_ports",
+					"GSM IPA UDP Port(s)",
+					"Set the port(s) for ip.access IPA"
+					" (default: " IPA_UDP_PORTS ")",
+					&global_ipa_udp_ports, MAX_UDP_PORT);
+}
+
+static void ipa_tcp_delete_callback(guint32 port)
+{
+	if (port)
+		dissector_delete("tcp.port", port, ipa_handle);
+}
+
+static void ipa_udp_delete_callback(guint32 port)
+{
+	if (port)
+		dissector_delete("udp.port", port, ipa_handle);
+}
+
+static void ipa_tcp_add_callback(guint32 port)
+{
+	if (port)
+		dissector_add("tcp.port", port, ipa_handle);
+}
+
+static void ipa_udp_add_callback(guint32 port)
+{
+	if (port)
+		dissector_add("udp.port", port, ipa_handle);
 }
 
 void proto_reg_handoff_gsm_ipa(void)
 {
-	dissector_handle_t ipa_handle;
+	static gboolean ipa_initialized = FALSE;
+	static range_t *ipa_tcp_ports, *ipa_udp_ports;
 
-	sub_handles[SUB_RSL] = find_dissector("gsm_abis_rsl");
-	sub_handles[SUB_OML] = find_dissector("gsm_abis_oml");
-	sub_handles[SUB_SCCP] = find_dissector("sccp");
-	sub_handles[SUB_MGCP] = find_dissector("mgcp");
+	if (!ipa_initialized) {
+		sub_handles[SUB_RSL] = find_dissector("gsm_abis_rsl");
+		sub_handles[SUB_OML] = find_dissector("gsm_abis_oml");
+		sub_handles[SUB_SCCP] = find_dissector("sccp");
+		sub_handles[SUB_MGCP] = find_dissector("mgcp");
 
-	ipa_handle = create_dissector_handle(dissect_ipa, proto_ipa);
-	dissector_add("tcp.port", TCP_PORT_ABISIP_PRIM, ipa_handle);
-	dissector_add("tcp.port", TCP_PORT_ABISIP_SEC, ipa_handle);
-	dissector_add("tcp.port", TCP_PORT_ABISIP_INST, ipa_handle);
-	dissector_add("tcp.port", TCP_PORT_AIP_PRIM, ipa_handle);
-	dissector_add("udp.port", TCP_PORT_ABISIP_INST, ipa_handle);
+		ipa_handle = create_dissector_handle(dissect_ipa, proto_ipa);
+		ipa_initialized = TRUE;
+	} else {
+		range_foreach(ipa_tcp_ports, ipa_tcp_delete_callback);
+		g_free(ipa_tcp_ports);
+		range_foreach(ipa_udp_ports, ipa_udp_delete_callback);
+		g_free(ipa_udp_ports);
+	}
+
+	ipa_tcp_ports = range_copy(global_ipa_tcp_ports);
+	ipa_udp_ports = range_copy(global_ipa_udp_ports);
+
+	range_foreach(ipa_tcp_ports, ipa_tcp_add_callback);
+	range_foreach(ipa_udp_ports, ipa_udp_add_callback);
 }
