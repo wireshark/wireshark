@@ -37,6 +37,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef HAVE_WINDOWS_H
+#include <windows.h>
+#endif
+
 #include <epan/address.h>
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
@@ -326,21 +330,10 @@ const gchar *get_conn_cfilter(void) {
 			host_ip_af(phostname), phostname);
 		g_free(phostname);
 		return filter_str->str;
-	} else if ((env = getenv("SESSIONNAME")) != NULL) {
-		/* Apparently the KB article at
-		 * http://technet2.microsoft.com/WindowsServer/en/library/6caf87bf-3d70-4801-9485-87e9ec3df0171033.mspx?mfr=true
-		 * is incorrect.  There are _plenty_ of cases where CLIENTNAME
-		 * and SESSIONNAME are set outside of a Terminal Terver session.
-		 * It looks like Terminal Server sets SESSIONNAME to RDP-TCP#<number>
-		 * for "real" sessions.
-		 *
-		 * XXX - There's a better way to do this described at
-		 * http://www.microsoft.com/technet/archive/termsrv/maintain/featusability/tsrvapi.mspx?mfr=true
-		 */
-		if (g_ascii_strncasecmp(env, "rdp", 3) == 0) {
-			g_string_printf(filter_str, "not tcp port 3389");
-			return filter_str->str;
-		}
+	} else if (GetSystemMetrics(SM_REMOTESESSION)) {
+		/* We have a remote session: http://msdn.microsoft.com/en-us/library/aa380798%28VS.85%29.aspx */
+		g_string_printf(filter_str, "not tcp port 3389");
+		return filter_str->str;
 	}
 	return "";
 }
