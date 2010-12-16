@@ -482,6 +482,9 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define FIELD_GAS_FRAGMENT_ID           0x38
 #define FIELD_SA_QUERY_ACTION_CODE      0x39
 #define FIELD_TRANSACTION_ID            0x3A
+#define FIELD_TDLS_ACTION_CODE          0x3B
+#define FIELD_TARGET_CHANNEL            0x3C
+#define FIELD_REGULATORY_CLASS          0x3D
 
 
 /* ************************************************************************* */
@@ -518,6 +521,7 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define TAG_RSN_IE                   0x30
 /* Reserved 49 */
 #define TAG_EXT_SUPP_RATES           0x32
+#define TAG_AP_CHANNEL_REPORT        0x33
 /* 0x34 below */
 #define TAG_MOBILITY_DOMAIN          0x36  /* IEEE Std 802.11r-2008 */
 /* 0x37 below */
@@ -533,6 +537,11 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define TAG_OVERLAP_BSS_SCAN_PAR     0x49   /* IEEE P802.11n/D6.0 */
 #define TAG_RIC_DESCRIPTOR           0x4B  /* IEEE Std 802.11r-2008 */
 #define TAG_MMIE                     0x4C  /* IEEE Std 802.11w-2009 */
+#define TAG_LINK_IDENTIFIER          0x65  /* IEEE Std 802.11z-2010 */
+#define TAG_WAKEUP_SCHEDULE          0x66  /* IEEE Std 802.11z-2010 */
+#define TAG_CHANNEL_SWITCH_TIMING    0x68  /* IEEE Std 802.11z-2010 */
+#define TAG_PTI_CONTROL              0x69  /* IEEE Std 802.11z-2010 */
+#define TAG_PU_BUFFER_STATUS         0x6A  /* IEEE Std 802.11z-2010 */
 #define TAG_ADVERTISEMENT_PROTOCOL   0x6C  /* IEEE P802.11u/D10.0 */
 #define TAG_EXTENDED_CAPABILITIES    0X7F   /* IEEE Stc 802.11n/D1.10/D2.0 */
 #define TAG_AGERE_PROPRIETARY        0x80
@@ -584,6 +593,7 @@ static const value_string tag_num_vals[] = {
   { TAG_ERP_INFO_OLD,         "ERP Information" },
   { TAG_RSN_IE,               "RSN Information" },
   { TAG_EXT_SUPP_RATES,       "Extended Supported Rates" },
+  { TAG_AP_CHANNEL_REPORT,    "AP Channel Report" },
   { TAG_CISCO_CCX1_CKIP,      "Cisco CCX1 CKIP + Device Name" },
   { TAG_CISCO_UNKNOWN_88,     "Cisco Unknown 88" },
   { TAG_CISCO_UNKNOWN_95,     "Cisco Unknown 95" },
@@ -633,6 +643,11 @@ static const value_string tag_num_vals[] = {
   { TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT, "Extended Channel Switch Announcement"},
   { TAG_RIC_DESCRIPTOR,           "RIC Descriptor"},
   { TAG_MMIE,                     "Management MIC"},
+  { TAG_LINK_IDENTIFIER,          "Link Identifier"},
+  { TAG_WAKEUP_SCHEDULE,          "Wakeup Schedule"},
+  { TAG_CHANNEL_SWITCH_TIMING,    "Channel Switch Timing"},
+  { TAG_PTI_CONTROL,              "PTI Control"},
+  { TAG_PU_BUFFER_STATUS,         "PU Buffer Status"},
   { TAG_ADVERTISEMENT_PROTOCOL,   "Advertisement Protocol"},
 #ifdef MESH_OVERRIDES
   { TAG_MESH_ID,                 "Mesh ID"},
@@ -788,6 +803,7 @@ static const value_string aruba_mgt_typevals[] = {
 #define CAT_HT                  7
 #define CAT_SA_QUERY            8
 #define CAT_PUBLIC_PROTECTED    9
+#define CAT_TDLS                12
 #define CAT_MGMT_NOTIFICATION   17
 #define CAT_VENDOR_SPECIFIC_PROTECTED 126
 #define CAT_VENDOR_SPECIFIC     127
@@ -834,6 +850,7 @@ static const value_string aruba_mgt_typevals[] = {
 #define PA_GAS_INITIAL_RESPONSE            11
 #define PA_GAS_COMEBACK_REQUEST            12
 #define PA_GAS_COMEBACK_RESPONSE           13
+#define PA_TDLS_DISCOVERY_RESPONSE         14
 
 #define HT_ACTION_NOTIFY_CHAN_WIDTH           0
 #define HT_ACTION_SM_PWR_SAVE                 1
@@ -854,6 +871,19 @@ static const value_string aruba_mgt_typevals[] = {
 /* SA Query Action frame codes (IEEE 802.11w-2009, 7.4.9) */
 #define SA_QUERY_REQUEST                0
 #define SA_QUERY_RESPONSE               1
+
+/* IEEE Std 802.11z-2010, 7.4.11, Table 7-57v1 */
+#define TDLS_SETUP_REQUEST              0
+#define TDLS_SETUP_RESPONSE             1
+#define TDLS_SETUP_CONFIRM              2
+#define TDLS_TEARDOWN                   3
+#define TDLS_PEER_TRAFFIC_INDICATION    4
+#define TDLS_CHANNEL_SWITCH_REQUEST     5
+#define TDLS_CHANNEL_SWITCH_RESPONSE    6
+#define TDLS_PEER_PSM_REQUEST           7
+#define TDLS_PEER_PSM_RESPONSE          8
+#define TDLS_PEER_TRAFFIC_RESPONSE      9
+#define TDLS_DISCOVERY_REQUEST          10
 
 #ifdef MESH_OVERRIDES
 #define MESH_PL_PEER_LINK_OPEN                      0
@@ -1141,6 +1171,9 @@ static int hf_ieee80211_ff_query_response = -1;
 static int hf_ieee80211_ff_anqp_info_id = -1;
 static int hf_ieee80211_ff_anqp_info_length = -1;
 static int hf_ieee80211_ff_anqp_info = -1;
+static int hf_ieee80211_ff_tdls_action_code = -1;
+static int hf_ieee80211_ff_target_channel = -1;
+static int hf_ieee80211_ff_regulatory_class = -1;
 
 static int hf_ieee80211_ff_sa_query_action_code = -1;
 static int hf_ieee80211_ff_transaction_id = -1;
@@ -1548,6 +1581,16 @@ static int hf_tag_extended_capabilities_b0 = -1;
 static int hf_tag_extended_capabilities_b1 = -1;
 static int hf_tag_extended_capabilities_b2 = -1;
 static int hf_tag_extended_capabilities_b3 = -1;
+static int hf_tag_extended_capabilities_b4 = -1;
+static int hf_tag_extended_capabilities_b6 = -1;
+static int hf_tag_extended_capabilities_b28 = -1;
+static int hf_tag_extended_capabilities_b29 = -1;
+static int hf_tag_extended_capabilities_b30 = -1;
+static int hf_tag_extended_capabilities_b37 = -1;
+static int hf_tag_extended_capabilities_b38 = -1;
+static int hf_tag_extended_capabilities_b39 = -1;
+static int hf_tag_extended_capabilities_b40 = -1;
+static int hf_tag_extended_capabilities_serv_int_granularity = -1;
 
 static int hf_tag_neighbor_report_bssid = -1;
 static int hf_tag_neighbor_report_bssid_info = -1;
@@ -1728,6 +1771,39 @@ static int cf_aruba_mtu = -1;
 
 static int hf_ieee80211_tag_vendor_oui_type = -1;
 
+/* IEEE Std 802.11z-2010 7.3.2.62 */
+static int hf_ieee80211_tag_link_id_bssid = -1;
+static int hf_ieee80211_tag_link_id_init_sta = -1;
+static int hf_ieee80211_tag_link_id_resp_sta = -1;
+
+/* IEEE Std 802.11z-2010 7.3.2.63 */
+static int hf_ieee80211_tag_wakeup_schedule_offset = -1;
+static int hf_ieee80211_tag_wakeup_schedule_interval = -1;
+static int hf_ieee80211_tag_wakeup_schedule_awake_window_slots = -1;
+static int hf_ieee80211_tag_wakeup_schedule_max_awake_dur = -1;
+static int hf_ieee80211_tag_wakeup_schedule_idle_count = -1;
+
+/* IEEE Std 802.11z-2010 7.3.2.64 */
+static int hf_ieee80211_tag_channel_switch_timing_switch_time = -1;
+static int hf_ieee80211_tag_channel_switch_timing_switch_timeout = -1;
+
+/* IEEE Std 802.11z-2010 7.3.2.65 */
+static int hf_ieee80211_tag_pti_control_tid = -1;
+static int hf_ieee80211_tag_pti_control_sequence_control = -1;
+
+/* IEEE Std 802.11z-2010 7.3.2.66 */
+static int hf_ieee80211_tag_pu_buffer_status_ac_bk = -1;
+static int hf_ieee80211_tag_pu_buffer_status_ac_be = -1;
+static int hf_ieee80211_tag_pu_buffer_status_ac_vi = -1;
+static int hf_ieee80211_tag_pu_buffer_status_ac_vo = -1;
+
+/* IEEE Std 802.11r-2008 7.3.2.49 */
+static int hf_ieee80211_tag_timeout_int_type = -1;
+static int hf_ieee80211_tag_timeout_int_value = -1;
+
+/* Ethertype 89-0d */
+static int hf_ieee80211_data_encap_payload_type = -1;
+
 /* ************************************************************************* */
 /*                               Protocol trees                              */
 /* ************************************************************************* */
@@ -1867,6 +1943,29 @@ static const value_string adv_proto_id_vals[] =
   {3, "Emergency Alert System (EAS)"},
   {4, "Location-to-Service Translation Protocol"},
   {221, "Vendor Specific"},
+  {0, NULL}
+};
+
+static const value_string timeout_int_types[] =
+{
+  {1, "Reassociation deadline interval (TUs)"},
+  {2, "Key lifetime interval (seconds)"},
+  {3, "Association Comeback time (TUs)"},
+  {0, NULL}
+};
+
+static const value_string tdls_action_codes[] ={
+  {TDLS_SETUP_REQUEST, "TDLS Setup Request"},
+  {TDLS_SETUP_RESPONSE, "TDLS Setup Response"},
+  {TDLS_SETUP_CONFIRM, "TDLS Setup Confirm"},
+  {TDLS_TEARDOWN, "TDLS Teardown"},
+  {TDLS_PEER_TRAFFIC_INDICATION, "TDLS Peer Traffic Indication"},
+  {TDLS_CHANNEL_SWITCH_REQUEST, "TDLS Channel Switch Request"},
+  {TDLS_CHANNEL_SWITCH_RESPONSE, "TDLS Channel Switch Response"},
+  {TDLS_PEER_PSM_REQUEST, "TDLS Peer PSM Request"},
+  {TDLS_PEER_PSM_RESPONSE, "TDLS Peer PSM Response"},
+  {TDLS_PEER_TRAFFIC_RESPONSE, "TDLS Peer Traffic Response"},
+  {TDLS_DISCOVERY_REQUEST, "TDLS Discovery Request"},
   {0, NULL}
 };
 
@@ -3683,6 +3782,15 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                                                               anqp, frag);
                       break;
                     }
+                    case PA_TDLS_DISCOVERY_RESPONSE:
+                      col_set_str(g_pinfo->cinfo, COL_PROTOCOL, "TDLS");
+                      col_set_str(g_pinfo->cinfo, COL_INFO,
+                                  "TDLS Discovery Response");
+                      offset += add_fixed_field(action_tree, tvb, offset,
+                                                FIELD_DIALOG_TOKEN);
+                      offset += add_fixed_field(action_tree, tvb, offset,
+                                                FIELD_CAP_INFO);
+                      break;
                   }
                 length += offset - start;  /* Size of fixed fields */
                 break;
@@ -3846,6 +3954,79 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                 }
               break;
 #endif /* MESH_OVERRIDES */
+
+          case CAT_TDLS:
+          {
+            guint8 code;
+            guint start = offset;
+
+            offset += add_fixed_field(action_tree, tvb, offset,
+                                      FIELD_CATEGORY_CODE);
+            code = tvb_get_guint8(tvb, offset);
+            offset += add_fixed_field(action_tree, tvb, offset,
+                                      FIELD_TDLS_ACTION_CODE);
+            switch (code) {
+            case TDLS_SETUP_REQUEST:
+              offset += add_fixed_field(action_tree, tvb, offset,
+                                        FIELD_DIALOG_TOKEN);
+              offset += add_fixed_field(action_tree, tvb, offset,
+                                        FIELD_CAP_INFO);
+              break;
+            case TDLS_SETUP_RESPONSE:
+              offset += add_fixed_field(action_tree, tvb, offset,
+                                        FIELD_STATUS_CODE);
+              offset += add_fixed_field(action_tree, tvb, offset,
+                                        FIELD_DIALOG_TOKEN);
+              offset += add_fixed_field(action_tree, tvb, offset,
+                                        FIELD_CAP_INFO);
+              break;
+            case TDLS_SETUP_CONFIRM:
+              offset += add_fixed_field(action_tree, tvb, offset,
+                                        FIELD_STATUS_CODE);
+              offset += add_fixed_field(action_tree, tvb, offset,
+                                        FIELD_DIALOG_TOKEN);
+              break;
+            case TDLS_TEARDOWN:
+              offset += add_fixed_field(action_tree, tvb, offset,
+                                        FIELD_REASON_CODE);
+              break;
+            case TDLS_PEER_TRAFFIC_INDICATION:
+              offset += add_fixed_field(action_tree, tvb, offset,
+                                        FIELD_DIALOG_TOKEN);
+              break;
+            case TDLS_CHANNEL_SWITCH_REQUEST:
+              offset += add_fixed_field(action_tree, tvb, offset,
+                                        FIELD_TARGET_CHANNEL);
+              offset += add_fixed_field(action_tree, tvb, offset,
+                                        FIELD_REGULATORY_CLASS);
+              break;
+            case TDLS_CHANNEL_SWITCH_RESPONSE:
+              offset += add_fixed_field(action_tree, tvb, offset,
+                                        FIELD_STATUS_CODE);
+              break;
+            case TDLS_PEER_PSM_REQUEST:
+              offset += add_fixed_field(action_tree, tvb, offset,
+                                        FIELD_DIALOG_TOKEN);
+              break;
+            case TDLS_PEER_PSM_RESPONSE:
+              offset += add_fixed_field(action_tree, tvb, offset,
+                                        FIELD_DIALOG_TOKEN);
+              offset += add_fixed_field(action_tree, tvb, offset,
+                                        FIELD_STATUS_CODE);
+              break;
+            case TDLS_PEER_TRAFFIC_RESPONSE:
+              offset += add_fixed_field(action_tree, tvb, offset,
+                                        FIELD_DIALOG_TOKEN);
+              break;
+            case TDLS_DISCOVERY_REQUEST:
+              offset += add_fixed_field(action_tree, tvb, offset,
+                                        FIELD_DIALOG_TOKEN);
+              break;
+            }
+
+            length = offset - start;  /* Size of fixed fields */
+            break;
+          }
 
             case CAT_MGMT_NOTIFICATION:  /* Management notification frame */
               {
@@ -4022,6 +4203,31 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                           tvb, offset, 2, TRUE);
       length += 2;
       break;
+
+    case FIELD_TDLS_ACTION_CODE:
+    {
+      guint8 code;
+      code = tvb_get_guint8(tvb, offset);
+      col_set_str(g_pinfo->cinfo, COL_INFO,
+                  val_to_str_const(code, tdls_action_codes,
+                                   "Unknown TDLS Action"));
+      proto_tree_add_item(tree, hf_ieee80211_ff_tdls_action_code, tvb, offset,
+                          1, FALSE);
+      length += 1;
+      break;
+    }
+
+    case FIELD_TARGET_CHANNEL:
+      proto_tree_add_item(tree, hf_ieee80211_ff_target_channel, tvb, offset, 1,
+                          FALSE);
+      length += 1;
+      break;
+
+    case FIELD_REGULATORY_CLASS:
+      proto_tree_add_item(tree, hf_ieee80211_ff_regulatory_class, tvb, offset,
+                          1, FALSE);
+      length += 1;
+      break;
   }
   return length;
 }
@@ -4035,6 +4241,7 @@ static const value_string wpa_cipher_vals[] =
   {4, "AES (CCM)"},
   {5, "WEP (104-bit)"},
   {6, "BIP"},
+  {7, "Group addressed traffic not allowed"},
   {0, NULL}
 };
 
@@ -4047,6 +4254,7 @@ static const value_string wpa_keymgmt_vals[] =
   {4, "FT using PSK"},
   {5, "WPA (SHA256)"},
   {6, "PSK (SHA256)"},
+  {7, "TDLS / TPK Handshake"},
   {0, NULL}
 };
 
@@ -4687,6 +4895,136 @@ dissect_mmie(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 tag_len)
                       TRUE);
   proto_tree_add_item(tree, hf_ieee80211_tag_mmie_mic, tvb, offset + 8, 8,
                       FALSE);
+}
+
+static void
+dissect_link_identifier(proto_tree *tree, tvbuff_t *tvb, int offset,
+                        guint32 tag_len)
+{
+  if (tag_len < 18) {
+    proto_tree_add_string(tree, tag_interpretation, tvb, offset, tag_len,
+                          "Link Identifier content length must be at least "
+                          "18 bytes");
+    return;
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_link_id_bssid, tvb,
+                      offset, 6, FALSE);
+  proto_tree_add_item(tree, hf_ieee80211_tag_link_id_init_sta, tvb,
+                      offset + 6, 6, FALSE);
+  proto_tree_add_item(tree, hf_ieee80211_tag_link_id_resp_sta, tvb,
+                      offset + 12, 6, FALSE);
+}
+
+static void
+dissect_wakeup_schedule(proto_tree *tree, tvbuff_t *tvb, int offset,
+                        guint32 tag_len)
+{
+  if (tag_len < 18) {
+    proto_tree_add_string(tree, tag_interpretation, tvb, offset, tag_len,
+                          "Wakeup Schedule content length must be at least "
+                          "18 bytes");
+    return;
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_wakeup_schedule_offset, tvb,
+                      offset, 4, TRUE);
+  offset += 4;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_wakeup_schedule_interval, tvb,
+                      offset, 4, TRUE);
+  offset += 4;
+
+  proto_tree_add_item(tree,
+                      hf_ieee80211_tag_wakeup_schedule_awake_window_slots, tvb,
+                      offset, 4, TRUE);
+  offset += 4;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_wakeup_schedule_max_awake_dur,
+                      tvb, offset, 4, TRUE);
+  offset += 4;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_wakeup_schedule_idle_count, tvb,
+                      offset, 2, TRUE);
+}
+
+static void
+dissect_channel_switch_timing(proto_tree *tree, tvbuff_t *tvb, int offset,
+                              guint32 tag_len)
+{
+  if (tag_len < 4) {
+    proto_tree_add_string(tree, tag_interpretation, tvb, offset, tag_len,
+                          "Channel Switch Timing content length must be at "
+                          "least 4 bytes");
+    return;
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_channel_switch_timing_switch_time,
+                      tvb, offset, 2, TRUE);
+  offset += 2;
+
+  proto_tree_add_item(tree,
+                      hf_ieee80211_tag_channel_switch_timing_switch_timeout,
+                      tvb, offset, 2, TRUE);
+}
+
+static void
+dissect_pti_control(proto_tree *tree, tvbuff_t *tvb, int offset,
+                    guint32 tag_len)
+{
+  if (tag_len < 3) {
+    proto_tree_add_string(tree, tag_interpretation, tvb, offset, tag_len,
+                          "PTI Control content length must be at least "
+                          "3 bytes");
+    return;
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_pti_control_tid, tvb,
+                      offset, 1, FALSE);
+  offset++;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_pti_control_sequence_control, tvb,
+                      offset, 2, TRUE);
+}
+
+static void
+dissect_pu_buffer_status(proto_tree *tree, tvbuff_t *tvb, int offset,
+                         guint32 tag_len)
+{
+  if (tag_len < 1) {
+    proto_tree_add_string(tree, tag_interpretation, tvb, offset, tag_len,
+                          "PU Buffer Status content length must be at least "
+                          "1 byte");
+    return;
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_pu_buffer_status_ac_bk, tvb,
+                      offset, 1, FALSE);
+  proto_tree_add_item(tree, hf_ieee80211_tag_pu_buffer_status_ac_be, tvb,
+                      offset, 1, FALSE);
+  proto_tree_add_item(tree, hf_ieee80211_tag_pu_buffer_status_ac_vi, tvb,
+                      offset, 1, FALSE);
+  proto_tree_add_item(tree, hf_ieee80211_tag_pu_buffer_status_ac_vo, tvb,
+                      offset, 1, FALSE);
+}
+
+static void
+dissect_timeout_interval(proto_tree *tree, tvbuff_t *tvb, int offset,
+                         guint32 tag_len)
+{
+  proto_item *pi;
+
+  pi = proto_tree_add_item(tree, hf_ieee80211_tag_timeout_int_type, tvb,
+                           offset, 1, FALSE);
+  if (tag_len < 5) {
+    expert_add_info_format(g_pinfo, pi, PI_MALFORMED, PI_ERROR,
+                           "Timeout Interval content length must be at least "
+                          "5 bytes");
+    return;
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_timeout_int_value, tvb,
+                      offset + 1, 4, TRUE);
 }
 
 static void
@@ -6003,6 +6341,30 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       dissect_mmie(tree, tvb, offset + 2, tag_len);
       break;
 
+    case TAG_TIMEOUT_INTERVAL:
+      dissect_timeout_interval(tree, tvb, offset + 2, tag_len);
+      break;
+
+    case TAG_LINK_IDENTIFIER:
+      dissect_link_identifier(tree, tvb, offset + 2, tag_len);
+      break;
+
+    case TAG_WAKEUP_SCHEDULE:
+      dissect_wakeup_schedule(tree, tvb, offset + 2, tag_len);
+      break;
+
+    case TAG_CHANNEL_SWITCH_TIMING:
+      dissect_channel_switch_timing(tree, tvb, offset + 2, tag_len);
+      break;
+
+    case TAG_PTI_CONTROL:
+      dissect_pti_control(tree, tvb, offset + 2, tag_len);
+      break;
+
+    case TAG_PU_BUFFER_STATUS:
+      dissect_pu_buffer_status(tree, tvb, offset + 2, tag_len);
+      break;
+
     case TAG_HT_CAPABILITY:
       dissect_ht_capability_ie(tree, tvb, offset + 2, tag_len, FALSE);
       break;
@@ -6614,6 +6976,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       offset+=2;
       tag_offset = offset;
 
+      /* Extended Capability octet 0 */
       info_exchange = tvb_get_guint8 (tvb, offset);
       tii = proto_tree_add_item (tree, hf_tag_extended_capabilities, tvb, offset, 1, FALSE);
       ex_cap_tree = proto_item_add_subtree (tii, ett_tag_ex_cap);
@@ -6621,6 +6984,60 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       proto_tree_add_item (ex_cap_tree, hf_tag_extended_capabilities_b1, tvb, offset, 1, FALSE);
       proto_tree_add_item (ex_cap_tree, hf_tag_extended_capabilities_b2, tvb, offset, 1, FALSE);
       proto_tree_add_item (ex_cap_tree, hf_tag_extended_capabilities_b3, tvb, offset, 1, FALSE);
+      proto_tree_add_item (ex_cap_tree, hf_tag_extended_capabilities_b4, tvb, offset, 1, FALSE);
+      proto_tree_add_item (ex_cap_tree, hf_tag_extended_capabilities_b6, tvb, offset, 1, FALSE);
+      offset++;
+
+      if (tag_len > offset - tag_offset) {
+        /* Extended Capability octet 1 */
+        offset++;
+      }
+
+      if (tag_len > offset - tag_offset) {
+        /* Extended Capability octet 2 */
+        offset++;
+      }
+
+      if (tag_len > offset - tag_offset) {
+        /* Extended Capability octet 3 */
+        tii = proto_tree_add_item(tree, hf_tag_extended_capabilities, tvb,
+                                  offset, 1, FALSE);
+        ex_cap_tree = proto_item_add_subtree(tii, ett_tag_ex_cap);
+        proto_tree_add_item(ex_cap_tree, hf_tag_extended_capabilities_b28,
+                            tvb, offset, 1, FALSE);
+        proto_tree_add_item(ex_cap_tree, hf_tag_extended_capabilities_b29,
+                            tvb, offset, 1, FALSE);
+        proto_tree_add_item(ex_cap_tree, hf_tag_extended_capabilities_b30,
+                            tvb, offset, 1, FALSE);
+        offset++;
+      }
+
+      if (tag_len > offset - tag_offset) {
+        /* Extended Capability octet 4 */
+        tii = proto_tree_add_item(tree, hf_tag_extended_capabilities, tvb,
+                                  offset, 1, FALSE);
+        ex_cap_tree = proto_item_add_subtree(tii, ett_tag_ex_cap);
+        proto_tree_add_item(ex_cap_tree, hf_tag_extended_capabilities_b37,
+                            tvb, offset, 1, FALSE);
+        proto_tree_add_item(ex_cap_tree, hf_tag_extended_capabilities_b38,
+                            tvb, offset, 1, FALSE);
+        proto_tree_add_item(ex_cap_tree, hf_tag_extended_capabilities_b39,
+                            tvb, offset, 1, FALSE);
+        offset++;
+      }
+
+      if (tag_len > offset - tag_offset) {
+        /* Extended Capability octet 5 */
+        tii = proto_tree_add_item(tree, hf_tag_extended_capabilities, tvb,
+                                  offset, 1, FALSE);
+        ex_cap_tree = proto_item_add_subtree(tii, ett_tag_ex_cap);
+        proto_tree_add_item(ex_cap_tree, hf_tag_extended_capabilities_b40,
+                            tvb, offset, 1, FALSE);
+        proto_tree_add_item(ex_cap_tree,
+                            hf_tag_extended_capabilities_serv_int_granularity,
+                            tvb, offset, 1, FALSE);
+        offset++;
+      }
 
       if (tag_len > (offset - tag_offset))
       {
@@ -9748,6 +10165,7 @@ proto_register_ieee80211 (void)
     {PA_GAS_INITIAL_RESPONSE, "GAS Initial Response"},
     {PA_GAS_COMEBACK_REQUEST, "GAS Comeback Request"},
     {PA_GAS_COMEBACK_RESPONSE, "GAS Comeback Response"},
+    {PA_TDLS_DISCOVERY_RESPONSE, "TDLS Discovery Response"},
     {0x00, NULL}
   };
 
@@ -9782,6 +10200,9 @@ proto_register_ieee80211 (void)
     {0x16, "Invalid RSN IE Capabilities"},
     {0x17, "IEEE 802.1X Authentication failed"},
     {0x18, "Cipher suite is rejected per security policy"},
+    {0x19, "TDLS direct-link teardown due to TDLS peer STA unreachable via "
+     "the TDLS direct link"},
+    {0x1A, "TDLS direct-link teardown for unspecified reason"},
     {0x20, "Disassociated for unspecified, QoS-related reason"},
     {0x21, "Disassociated because QoS AP lacks sufficient bandwidth for this QoS STA"},
     {0x22, "Disassociated because of excessive number of frames that need to be "
@@ -9802,6 +10223,11 @@ proto_register_ieee80211 (void)
   static const value_string status_codes[] = {
     {0x00, "Successful"},
     {0x01, "Unspecified failure"},
+    {0x02, "TDLS wakeup schedule rejected but alternative schedule provided"},
+    {0x03, "TDLS wakeup schedule rejected"},
+    {0x05, "Security disabled"},
+    {0x06, "Unacceptable lifetime"},
+    {0x07, "Not in same BSS"},
     {0x0A, "Cannot support all requested capabilities in the "
      "Capability information field"},
     {0x0B, "Reassociation denied due to inability to confirm that "
@@ -9881,6 +10307,7 @@ proto_register_ieee80211 (void)
     {0x43, "Request refused due to permissions received via SSPN interface"},
     {0x44, "Request refused because AP does not support unauthenticated "
      "access"},
+    {0x48, "Invalid contents of RSNIE"},
     {0x00, NULL}
   };
 
@@ -9919,6 +10346,8 @@ proto_register_ieee80211 (void)
     {0x80 | CAT_SA_QUERY, "SA Query (error)"},
     {CAT_PUBLIC_PROTECTED, "Protected Dual of Public Action"},
     {0x80 | CAT_PUBLIC_PROTECTED, "Protected Dual of Public Action (error)"},
+    {CAT_TDLS, "TDLS"},
+    {0x80 | CAT_TDLS, "TDLS (error)"},
     {CAT_MGMT_NOTIFICATION, "Management Notification"},
     {0x80 | CAT_MGMT_NOTIFICATION, "Management Notification (error)"},
     {CAT_VENDOR_SPECIFIC_PROTECTED, "Vendor-specific Protected"},
@@ -10173,6 +10602,12 @@ proto_register_ieee80211 (void)
   static const value_string sa_query_action_codes[] ={
     {SA_QUERY_REQUEST, "SA Query Request"},
     {SA_QUERY_RESPONSE, "SA Query Response"},
+    {0, NULL}
+  };
+
+  static const value_string hf_ieee80211_data_encap_payload_types[] = {
+    {1, "Remote Request/Response"},
+    {2, "TDLS"},
     {0, NULL}
   };
 
@@ -10610,7 +11045,25 @@ proto_register_ieee80211 (void)
 
     {&hf_block_ack_bitmap,
      {"Block Ack Bitmap", "wlan.ba.bm",
-      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }}
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_data_encap_payload_type,
+     {"Payload Type", "wlan.data_encap.payload_type",
+      FT_UINT8, BASE_DEC, VALS(hf_ieee80211_data_encap_payload_types), 0, NULL,
+      HFILL }},
+
+    {&hf_ieee80211_ff_tdls_action_code,
+     {"Action code", "wlan_mgt.fixed.action_code",
+      FT_UINT8, BASE_DEC, VALS(&tdls_action_codes), 0,
+      "Management action code", HFILL }},
+
+    {&hf_ieee80211_ff_target_channel,
+     {"Target Channel", "wlan_mgt.fixed.target_channel",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_regulatory_class,
+     {"Regulatory Class", "wlan_mgt.fixed.regulatory_class",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }}
 
 #ifdef MESH_OVERRIDES
     ,
@@ -11190,6 +11643,18 @@ proto_register_ieee80211 (void)
     {0x00, "Frames may be transmitted before the channel switch has been completed"},
     {0x01, "No more frames are to be transmitted until the channel switch has been completed"},
     {0x00, NULL}
+  };
+
+  static const value_string service_interval_granularity_vals[] = {
+    { 0, "5 ms" },
+    { 1, "10 ms" },
+    { 2, "15 ms" },
+    { 3, "20 ms" },
+    { 4, "25 ms" },
+    { 5, "30 ms" },
+    { 6, "35 ms" },
+    { 7, "40 ms" },
+    { 0x00, NULL }
   };
 
   static hf_register_info ff[] = {
@@ -12742,6 +13207,7 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     /* P802.11n/D6.0 */
+    /* Extended Capability octet 0 */
     {&hf_tag_extended_capabilities_b0,
      {"20/40 BSS Coexistence Management Support", "wlan_mgt.extcap.infoexchange.b0",
       FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0001, "HT Information Exchange Support", HFILL }},
@@ -12760,6 +13226,50 @@ proto_register_ieee80211 (void)
       FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0008, NULL, HFILL }},
     /*End: P802.11p/D4.0 */
 
+    {&hf_tag_extended_capabilities_b4,
+     {"PSMP Capability", "wlan_mgt.extcap.infoexchange.b4",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0010, NULL, HFILL }},
+
+    {&hf_tag_extended_capabilities_b6,
+     {"S-PSMP Support", "wlan_mgt.extcap.infoexchange.b6",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0040, NULL, HFILL }},
+
+    /* Extended Capability octet 3 */
+    {&hf_tag_extended_capabilities_b28,
+     {"Peer U-APSD Buffer STA Support", "wlan_mgt.extcap.infoexchange.b28",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0010, NULL, HFILL }},
+
+    {&hf_tag_extended_capabilities_b29,
+     {"TDLS Peer PSM Support", "wlan_mgt.extcap.infoexchange.b29",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0020, NULL, HFILL }},
+
+    {&hf_tag_extended_capabilities_b30,
+     {"TDLS channel switching", "wlan_mgt.extcap.infoexchange.b30",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0040, NULL, HFILL }},
+
+    /* Extended Capability octet 4 */
+    {&hf_tag_extended_capabilities_b37,
+     {"TDLS support", "wlan_mgt.extcap.infoexchange.b37",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0020, NULL, HFILL }},
+
+    {&hf_tag_extended_capabilities_b38,
+     {"TDLS Prohibited", "wlan_mgt.extcap.infoexchange.b38",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0040, NULL, HFILL }},
+
+    {&hf_tag_extended_capabilities_b39,
+     {"TDLS Channel Switching Prohibited", "wlan_mgt.extcap.infoexchange.b39",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0080, NULL, HFILL }},
+
+    /* Extended Capability octet 5 */
+    {&hf_tag_extended_capabilities_b40,
+     {"Reject Unadmitted Frame", "wlan_mgt.extcap.infoexchange.b40",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0001, NULL, HFILL }},
+
+    {&hf_tag_extended_capabilities_serv_int_granularity,
+     {"Service Interval Granularity",
+      "wlan_mgt.extcap.infoexchange.serv_int_granularity",
+      FT_UINT8, BASE_NONE, VALS(service_interval_granularity_vals), 0x000e,
+      NULL, HFILL }},
 
     {&hf_tag_neighbor_report_bssid,
      {"BSSID", "wlan_mgt.nreport.bssid",
@@ -13292,7 +13802,74 @@ proto_register_ieee80211 (void)
       "Pre-Association Message Xchange BSSID Independent (PAME-BI)", HFILL }},
     {&hf_ieee80211_tag_adv_proto_id,
      {"Advertisement Protocol ID", "wlan_mgt.adv_proto.id",
-      FT_UINT8, BASE_DEC, VALS(adv_proto_id_vals), 0, NULL, HFILL }}
+      FT_UINT8, BASE_DEC, VALS(adv_proto_id_vals), 0, NULL, HFILL }},
+
+    /* Timeout Interval */
+    {&hf_ieee80211_tag_timeout_int_type,
+     {"Timeout Interval Type", "wlan_mgt.timeout_int.type",
+      FT_UINT8, BASE_DEC, VALS(timeout_int_types), 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_timeout_int_value,
+     {"Timeout Interval Value", "wlan_mgt.timeout_int.value",
+      FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    /* Link Identifier */
+    {&hf_ieee80211_tag_link_id_bssid,
+     {"BSSID", "wlan_mgt.link_id.bssid",
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_link_id_init_sta,
+     {"TDLS initiator STA Address", "wlan_mgt.link_id.init_sta",
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_link_id_resp_sta,
+     {"TDLS responder STA Address", "wlan_mgt.link_id.resp_sta",
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    /* Wakeup Schedule */
+    {&hf_ieee80211_tag_wakeup_schedule_offset,
+     {"Offset", "wlan_mgt.wakeup_schedule.offset",
+      FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_wakeup_schedule_interval,
+     {"Interval", "wlan_mgt.wakeup_schedule.interval",
+      FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_wakeup_schedule_awake_window_slots,
+     {"Awake Window Slots", "wlan_mgt.wakeup_schedule.awake_window_slots",
+      FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_wakeup_schedule_max_awake_dur,
+     {"Maximum Awake Window Duration",
+      "wlan_mgt.wakeup_schedule.max_awake_dur",
+      FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_wakeup_schedule_idle_count,
+     {"Idle Count", "wlan_mgt.wakeup_schedule.idle_count",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    /* Channel Switch Timing */
+    {&hf_ieee80211_tag_channel_switch_timing_switch_time,
+     {"Switch Time", "wlan_mgt.channel_switch_timing.switch_time",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_channel_switch_timing_switch_timeout,
+     {"Switch Timeout", "wlan_mgt.channel_switch_timing.switch_timeout",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    /* PTI Control */
+    {&hf_ieee80211_tag_pti_control_tid,
+     {"TID", "wlan_mgt.pti_control.tid",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_pti_control_sequence_control,
+     {"Sequence Control", "wlan_mgt.pti_control.sequence_control",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    /* PU Buffer Status */
+    {&hf_ieee80211_tag_pu_buffer_status_ac_bk,
+     {"AC_BK traffic available", "wlan_mgt.pu_buffer_status.ac_bk",
+      FT_UINT8, BASE_DEC, NULL, 0x01, NULL, HFILL }},
+    {&hf_ieee80211_tag_pu_buffer_status_ac_be,
+     {"AC_BE traffic available", "wlan_mgt.pu_buffer_status.ac_be",
+      FT_UINT8, BASE_DEC, NULL, 0x02, NULL, HFILL }},
+    {&hf_ieee80211_tag_pu_buffer_status_ac_vi,
+     {"AC_VI traffic available", "wlan_mgt.pu_buffer_status.ac_vi",
+      FT_UINT8, BASE_DEC, NULL, 0x04, NULL, HFILL }},
+    {&hf_ieee80211_tag_pu_buffer_status_ac_vo,
+     {"AC_VO traffic available", "wlan_mgt.pu_buffer_status.ac_vo",
+      FT_UINT8, BASE_DEC, NULL, 0x08, NULL, HFILL }}
   };
 
   static hf_register_info aggregate_fields[] = {
@@ -13501,11 +14078,46 @@ proto_register_ieee80211 (void)
 #endif
 }
 
+static void
+dissect_data_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  int offset = 0;
+  guint8 type;
+  int tagged_parameter_tree_len;
+  proto_tree *tagged_tree;
+
+  g_pinfo = pinfo;
+
+  type = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(tree, hf_ieee80211_data_encap_payload_type, tvb, offset,
+                      1, FALSE);
+  offset++;
+  switch (type) {
+  case 1:
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RRB");
+    /* TODO: IEEE 802.11r */
+    break;
+  case 2:
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "TDLS");
+    col_clear(pinfo->cinfo, COL_INFO);
+    offset += add_fixed_field(tree, tvb, offset, FIELD_ACTION);
+    tagged_parameter_tree_len = tvb_reported_length_remaining(tvb, offset);
+    if (tagged_parameter_tree_len != 0) {
+      tagged_tree = get_tagged_parameter_tree(tree, tvb, offset,
+                                              tagged_parameter_tree_len);
+      ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree,
+                                       tagged_parameter_tree_len);
+    }
+    break;
+  }
+}
+
 void
 proto_reg_handoff_ieee80211(void)
 {
   dissector_handle_t radio_handle;
   dissector_handle_t prism_handle;
+  dissector_handle_t data_encap_handle;
 
   /*
    * Get handles for the LLC, IPX and Ethernet  dissectors.
@@ -13554,6 +14166,10 @@ proto_reg_handoff_ieee80211(void)
   dissector_add("gre.proto", GRE_ARUBA_8350, ieee80211_handle);
   dissector_add("gre.proto", GRE_ARUBA_8360, ieee80211_handle);
   dissector_add("gre.proto", GRE_ARUBA_8370, ieee80211_handle);
+
+  data_encap_handle = create_dissector_handle(dissect_data_encap, proto_wlan);
+  dissector_add("ethertype", ETHERTYPE_IEEE80211_DATA_ENCAP,
+                data_encap_handle);
 }
 
 #ifdef HAVE_AIRPDCAP

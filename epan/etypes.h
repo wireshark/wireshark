@@ -437,6 +437,10 @@
 #define ETHERTYPE_FCOE			0x8906	/* Fibre Channel over Ethernet */
 #endif
 
+#ifndef ETHERTYPE_IEEE80211_DATA_ENCAP
+#define ETHERTYPE_IEEE80211_DATA_ENCAP	0x890d	/* IEEE 802.11 data encapsulation */
+#endif
+
 #ifndef ETHERTYPE_LINX
 #define ETHERTYPE_LINX          	0x8911  /* ENEA LINX IPC protocol over Ethernet */
 #endif
