@@ -101,6 +101,7 @@ static int hf_fp_edch_user_buffer_size = -1;
 static int hf_fp_edch_no_macid_sdus = -1;
 static int hf_fp_edch_number_of_mac_is_pdus = -1;
 
+static int hf_fp_edch_e_rnti = -1;
 static int hf_fp_edch_macis_descriptors = -1;
 static int hf_fp_edch_macis_lchid = -1;
 static int hf_fp_edch_macis_length = -1;
@@ -510,11 +511,13 @@ static void dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 /* Dissect dedicated channels */
 static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                       int offset, struct fp_info *p_fp_info);
+                                       int offset, struct fp_info *p_fp_info,
+                                       gboolean is_common);
 
-static void dissect_e_dch_t2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                          int offset, struct fp_info *p_fp_info,
-                                          int number_of_subframes);
+static void dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                                    int offset, struct fp_info *p_fp_info,
+                                                    int number_of_subframes,
+                                                    gboolean is_common);
 
 /* Main dissection function */
 static void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -2337,7 +2340,8 @@ static void dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 /**********************************/
 /* Dissect an E-DCH channel       */
 static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                       int offset, struct fp_info *p_fp_info)
+                                       int offset, struct fp_info *p_fp_info,
+                                       gboolean is_common)
 {
     gboolean is_control_frame;
     guint8   number_of_subframes;
@@ -2402,10 +2406,10 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
         proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, FALSE);
         offset++;
 
-        /* Remainder of T2 data frame differs here... */
+        /* Remainder of T2 or common data frames differ here... */
         if (p_fp_info->edch_type == 1) {
-            dissect_e_dch_t2_channel_info(tvb, pinfo, tree, offset, p_fp_info,
-                                          number_of_subframes);
+            dissect_e_dch_t2_or_common_channel_info(tvb, pinfo, tree, offset, p_fp_info,
+                                                    number_of_subframes, is_common);
             return;
         }
 
@@ -2428,8 +2432,8 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
 
             /* Subframe number */
             subframes[n].subframe_number = (tvb_get_guint8(tvb, offset) & 0x07);
-            proto_tree_add_item(subframe_header_tree, hf_fp_edch_subframe_number, tvb,
-                                offset, 1, FALSE);
+            proto_tree_add_bits_item(subframe_header_tree, hf_fp_edch_subframe_number, tvb,
+                                     offset*8+5, 1, FALSE);
             offset++;
 
             /* Number of MAC-es PDUs */
@@ -2631,10 +2635,11 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
     }
 }
 
-/* Dissect the remainder of the T2 frame that differs from T1 */
-static void dissect_e_dch_t2_channel_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                                          int offset, struct fp_info *p_fp_info _U_,
-                                          int number_of_subframes)
+/* Dissect the remainder of the T2 or common frame that differs from T1 */
+static void dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                                                    int offset, struct fp_info *p_fp_info _U_,
+                                                    int number_of_subframes,
+                                                    gboolean is_common)
 {
     int n;
     int pdu_no;
@@ -2643,8 +2648,9 @@ static void dissect_e_dch_t2_channel_info(tvbuff_t *tvb, packet_info *pinfo _U_,
     guint16 macis_sdus_found = 0;
     guint16 macis_pdus = 0;
     guint32 total_bytes = 0;
-    gboolean F;
+    gboolean F = TRUE;  /* We want to continue loop if get E-RNTI indication... */
     proto_item *subframe_macis_descriptors_ti = NULL;
+    gint bit_offset;
 
     /* User Buffer size */
     proto_tree_add_bits_item(tree, hf_fp_edch_user_buffer_size, tvb, offset*8,
@@ -2658,9 +2664,17 @@ static void dissect_e_dch_t2_channel_info(tvbuff_t *tvb, packet_info *pinfo _U_,
                                 12, &total_macis_sdus, FALSE);
     offset += 2;
 
+    if (is_common) {
+        /* E-RNTI */
+        proto_tree_add_item(tree, hf_fp_edch_e_rnti, tvb, offset, 2, FALSE);
+        offset += 2;
+    }
+
+    bit_offset = offset*8;
     /* EDCH subframe header list */
     for (n=0; n < number_of_subframes; n++) {
-
+        guint64    subframe_number;
+        guint64    no_of_macis_pdus;
         proto_item *subframe_header_ti;
         proto_tree *subframe_header_tree;
 
@@ -2669,31 +2683,40 @@ static void dissect_e_dch_t2_channel_info(tvbuff_t *tvb, packet_info *pinfo _U_,
                                                           "", "Subframe");
         subframe_header_tree = proto_item_add_subtree(subframe_header_ti, ett_fp_edch_subframe_header);
 
-        /* Number of HARQ Retransmissions */
-        proto_tree_add_item(subframe_header_tree, hf_fp_edch_harq_retransmissions, tvb,
-                            offset, 1, FALSE);
+        /* Spare bit */
+        bit_offset++;
+
+        if (!is_common) {
+            /* Number of HARQ Retransmissions */
+            proto_tree_add_item(subframe_header_tree, hf_fp_edch_harq_retransmissions, tvb,
+                                bit_offset/8, 1, FALSE);
+            bit_offset += 4;
+        }
 
         /* Subframe number */
-        subframes[n].subframe_number = (tvb_get_guint8(tvb, offset) & 0x07);
-        proto_tree_add_item(subframe_header_tree, hf_fp_edch_subframe_number, tvb,
-                            offset, 1, FALSE);
-        offset++;
+        proto_tree_add_bits_ret_val(subframe_header_tree, hf_fp_edch_subframe_number, tvb,
+                                    bit_offset, 3, &subframe_number, FALSE);
+        subframes[n].subframe_number = (guint8)subframe_number;
+        bit_offset += 3;
 
         /* Number of MAC-is PDUs */
-        subframes[n].number_of_mac_is_pdus = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
-        proto_tree_add_item(subframe_header_tree, hf_fp_edch_number_of_mac_is_pdus,
-                            tvb, offset, 1, FALSE);
+        proto_tree_add_bits_ret_val(subframe_header_tree, hf_fp_edch_number_of_mac_is_pdus, tvb,
+                                    bit_offset, 4, &no_of_macis_pdus, FALSE);
+        bit_offset += 4;
+        subframes[n].number_of_mac_is_pdus = (guint8)no_of_macis_pdus;
         macis_pdus += subframes[n].number_of_mac_is_pdus;
 
-        /* Next 4 bits are spare */
-
-        offset++;
+        /* Next 4 bits are spare for T2*/
+        if (!is_common) {
+            bit_offset += 4;
+        }
 
         /* Show summary in root */
         proto_item_append_text(subframe_header_ti, " (SFN %u, %u MAC-is PDUs)",
                                subframes[n].subframe_number, subframes[n].number_of_mac_is_pdus);
-        proto_item_set_len(subframe_header_ti, 2);
+        proto_item_set_len(subframe_header_ti, is_common ? 1 : 2);
     }
+    offset = bit_offset / 8;
 
 
     /* MAC-is PDU descriptors for each subframe follow */
@@ -2724,6 +2747,31 @@ static void dissect_e_dch_t2_channel_info(tvbuff_t *tvb, packet_info *pinfo _U_,
                 /* LCH-ID */
                 subframes[n].mac_is_lchid[pdu_no][subframes[n].number_of_mac_is_sdus[pdu_no]] = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
                 proto_tree_add_item(subframe_macis_descriptors_tree, hf_fp_edch_macis_lchid, tvb, offset, 1, FALSE);
+                if (subframes[n].mac_is_lchid[pdu_no][subframes[n].number_of_mac_is_sdus[pdu_no]] == 15) {
+                    proto_item *ti;
+
+                    /* 4 bits of spare */
+                    offset++;
+
+                    /* E-RNTI */
+                    ti = proto_tree_add_item(tree, hf_fp_edch_e_rnti, tvb, offset, 2, FALSE);
+                    offset += 2;
+
+                    /* This is only allowed if:
+                       - its the common case AND
+                       - its the first descriptor */
+                    if (!is_common) {
+                        expert_add_info_format(pinfo, ti,
+                                               PI_MALFORMED, PI_ERROR,
+                                               "E-RNTI not supposed to appear for T2 EDCH frames");
+                    }
+                    if (subframes[n].number_of_mac_is_sdus[pdu_no] > 0) {
+                        expert_add_info_format(pinfo, ti,
+                                               PI_MALFORMED, PI_ERROR,
+                                               "E-RNTI must be first entry among descriptors");
+                    }
+                    continue;
+                }
 
                 /* Length */
                 subframes[n].mac_is_length[pdu_no][subframes[n].number_of_mac_is_sdus[pdu_no]] = (tvb_get_ntohs(tvb, offset) & 0x0ffe) >> 1;
@@ -3356,9 +3404,6 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case CHANNEL_HSDSCH_COMMON_T3:
             /* TODO: */
             break;
-        case CHANNEL_EDCH_COMMON:
-            /* TODO: */
-            break;
         case CHANNEL_IUR_CPCHF:
             /* TODO: */
             break;
@@ -3369,7 +3414,9 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             dissect_iur_dsch_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info);
             break;
         case CHANNEL_EDCH:
-            dissect_e_dch_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info);
+        case CHANNEL_EDCH_COMMON:
+            dissect_e_dch_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info,
+                                       p_fp_info->channel == CHANNEL_EDCH_COMMON);
             break;
 
         default:
@@ -3680,7 +3727,7 @@ void proto_register_fp(void)
         },
         { &hf_fp_edch_subframe_number,
             { "Subframe number",
-              "fp.edch.subframe-number", FT_UINT8, BASE_DEC, 0, 0x07,
+              "fp.edch.subframe-number", FT_UINT8, BASE_DEC, 0, 0x0,
               "E-DCH Subframe number", HFILL
             }
         },
@@ -3747,7 +3794,13 @@ void proto_register_fp(void)
         },
         { &hf_fp_edch_number_of_mac_is_pdus,
             { "Number of Mac-is PDUs",
-              "fp.edch.number-of-mac-is-pdus", FT_UINT8, BASE_DEC, 0, 0xf0,
+              "fp.edch.number-of-mac-is-pdus", FT_UINT8, BASE_DEC, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_fp_edch_e_rnti,
+            { "E-RNTI",
+              "fp.edch.e-rnti", FT_UINT16, BASE_DEC, 0, 0x0,
               NULL, HFILL
             }
         },
