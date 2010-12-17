@@ -9590,7 +9590,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                 pvalues[1].bit15hfname = hf_bit15rflags;
                 pvalues[1].bit16 = "Not Defined";
                 pvalues[1].bit16hfname = hf_bit16rflags;
-                if((pvalues[1].vvalue&&0xf000) == 0xc000)
+                if((pvalues[1].vvalue & 0xf000) == 0xc000)
                 {
                     pvalues[2].vtype = VTYPE_STRING;
                     pvalues[2].vdesc = "Name Type: %s";
@@ -9662,7 +9662,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                 pvalues[1].bit15hfname = hf_bit15rflags;
                 pvalues[1].bit16 = "Not Defined";
                 pvalues[1].bit16hfname = hf_bit16rflags;
-                if((pvalues[1].vvalue&&0xf000) == 0xc000)
+                if((pvalues[1].vvalue & 0xf000) == 0xc000)
                 {
                     pvalues[2].vtype = VTYPE_STRING;
                     pvalues[2].vdesc = "Name Type: %s";
