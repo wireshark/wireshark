@@ -6862,11 +6862,11 @@ elem_rev_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 
                     str = ansi_a_so_int_to_str(value);
                     proto_tree_add_text(subtree2, tvb, curr_offset, 2,
-                        "Service Option:  %s (%hu)",
+                        "Service Option:  %s (%u)",
                         str,
                         value);
 
-                    proto_item_append_text(item, " - (%hu) %s", value, str);
+                    proto_item_append_text(item, " - (%u) %s", value, str);
 
                     i++;
                     curr_offset += 2;
