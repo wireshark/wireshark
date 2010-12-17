@@ -444,7 +444,7 @@ dissect_tcp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		int field_length;
 
 		if((conv_hdr &
-			~(TCP_CONVERGENCE_TYPE_MASK || TCP_CONVERGENCE_SHUTDOWN_FLAGS)) != 0) {
+			~(TCP_CONVERGENCE_TYPE_MASK | TCP_CONVERGENCE_SHUTDOWN_FLAGS)) != 0) {
 		    proto_tree_add_text(conv_tree, tvb, frame_offset,
 						-1, "Invalid Convergence Layer Shutdown Packet");
 		    return;
