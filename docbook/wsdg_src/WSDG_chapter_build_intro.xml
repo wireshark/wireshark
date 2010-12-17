@@ -3,67 +3,1041 @@
 
 <chapter id="ChapterBuildIntro">
   <title>Introduction</title>
-  
+
   <section id="ChCodeOverview">
-	<title>Source overview</title>
-	<para>
-	Wireshark consists of the following major parts:
-	<itemizedlist>
-	<listitem><para>
-	Packet dissection - in the /epan/dissector and /plugin/* directory
-	</para></listitem>
-	<listitem><para>
-	File I/O - using Wireshark's own wiretap library
-	</para></listitem>
-	<listitem><para>
-	Capture - using the libpcap/winpcap library, in /wiretap
-	</para></listitem>
-	<listitem><para>
-	User interface - using the GTK+ (and corresponding) libraries
-	</para></listitem>
-	<listitem><para>
-	Help - using an external webbrowser and GTK text output
-	</para></listitem>
-	</itemizedlist>
-	Beside this, some other minor parts and additional helpers exist.
-	</para>
-	<para>
-	Currently there's no clean separation of the modules in the code. 
-	However, as the development team switched from Concurrent Versions System
-	(CVS) to Subversion (SVN) some time ago,
-	directory cleanup is much easier now. So there's a chance that
-	the directory structure will become clean in the future.
-	</para>
+    <title>Source overview</title>
+    <para>
+      Wireshark consists of the following major parts:
+      <itemizedlist>
+        <listitem>
+          <para>
+            Packet dissection - in the /epan/dissector and /plugin/* directory
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            File I/O - using Wireshark&#8217;s own wiretap library
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            Capture - using the libpcap/winpcap library, in /wiretap
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            User interface - using the GTK+ (and corresponding) libraries
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            Help - using an external webbrowser and GTK text output
+          </para>
+        </listitem>
+      </itemizedlist>
+      Beside this, some other minor parts and additional helpers exist.
+    </para>
   </section>
 
   <section id="ChCodeStyle">
-	<title>Coding styleguides</title>
-	<para>
-	The coding styleguides for Wireshark can be found in the "Code style" 
-	section of the file <filename>doc/README.developer</filename>.
-	</para>
-  </section>
+    <title>Coding Styleguide</title>
+    <section id="ChCodeStylePortability">
+      <title>Portability</title>
+      <simpara>
+        Wireshark runs on many platforms, and can be compiled with a number of
+        different compilers; here are some rules for writing code that will work
+        on multiple platforms.
+      </simpara>
+      <itemizedlist>
+        <listitem>
+          <simpara>
+            Don&#8217;t use C++ style comments (comments beginning with <literal>//</literal> and running
+            to the end of the line); Wireshark&#8217;s dissectors are written in C, and
+            thus run through C rather than C++ compilers, and not all C compilers
+            support C++ style comments (GCC does, but IBM&#8217;s C compiler for AIX, for
+            example, doesn&#8217;t do so by default).
+          </simpara>
+        </listitem>
+        <listitem>
+          <simpara>
+            In general, don&#8217;t use C99 features since some C compilers used to compile
+            Wireshark don&#8217;t support C99 (e.g., Microsoft C).
+          </simpara>
+        </listitem>
+        <listitem>
+          <simpara>
+            Don&#8217;t initialize variables in their declaration with non-constant
+            values. Not all compilers support this. E.g., don&#8217;t use
+          </simpara>
 
-  <section id="ChCodeGLib">
-	<title>The GLib library</title>
-	<para>
-	Glib is used as a basic platform abstraction library, it's not related to
-	GUI things. 
-	</para>
-	<para>
-	To quote the Glib documentation: <quote>GLib is a general-purpose utility 
-	library, which provides many useful 
-	data types, macros, type conversions, string utilities, file utilities, 
-	a main loop abstraction, and so on. It works on many UNIX-like platforms, 
-	Windows, OS/2 and BeOS. GLib is released under the GNU Library General 
-	Public License (GNU LGPL).</quote>
-	</para>
-	<para>
-	GLib contains lot's of useful things for platform independent development.
-	See <ulink url="http://developer.gnome.org/doc/API/2.0/glib/index.html"/> 
-	for details about GLib.
-	</para>
-  </section>
+<programlisting>    guint32 i = somearray[2];</programlisting>
+
+          <simpara>use</simpara>
+
+<programlisting>    guint32 i;
+    i = somearray[2];</programlisting>
+
+          <simpara>instead.</simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              Don&#8217;t use zero-length arrays; not all compilers support them.  If an
+              array would have no members, just leave it out.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              Don&#8217;t declare variables in the middle of executable code; not all C
+              compilers support that.  Variables should be declared outside a
+              function, or at the beginning of a function or compound statement.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              Don&#8217;t use anonymous unions; not all compilers support them.
+              Example:
+            </simpara>
+
+<programlisting>typedef struct foo {
+    guint32 foo;
+    union {
+        guint32 foo_l;
+        guint16 foo_s;
+    } u;  /* have a name here */
+} foo_t;</programlisting>
+
+          </listitem>
+          <listitem>
+            <simpara>
+              Don&#8217;t use <literal>uchar</literal>, <literal>u_char</literal>,
+              <literal>ushort</literal>, <literal>u_short</literal>, <literal>uint</literal>,
+              <literal>u_int</literal>,
+              <literal>ulong</literal>, <literal>u_long</literal> or
+              <literal>boolean</literal>; they aren&#8217;t defined on all platforms.
+              If you want an 8-bit unsigned quantity, use <literal>guint8</literal>; if you want an
+              8-bit character value with the 8th bit not interpreted as a sign bit,
+              use <literal>guchar</literal>; if you want a 16-bit unsigned quantity,
+              use <literal>guint16</literal>;
+              if you want a 32-bit unsigned quantity, use <literal>guint32</literal>; and if you want
+              an <literal>int-sized</literal> unsigned quantity,
+              use <literal>guint</literal>; if you want a boolean,
+              use <literal>gboolean</literal>.  Use <literal>%d</literal>, <literal>%u</literal>,
+              <literal>%x</literal>, and <literal>%o</literal> to print those types;
+              don&#8217;t use <literal>%ld</literal>, <literal>%lu</literal>,
+              <literal>%lx</literal>, or <literal>%lo</literal>, as longs are 64 bits long on
+              many platforms, but <literal>guint32</literal> is 32 bits long.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              Don&#8217;t use <literal>long</literal> to mean signed 32-bit integer, and don&#8217;t use
+              <literal>unsigned long</literal> to mean unsigned 32-bit integer;
+              <literal>long</literal>&#8217;s are 64 bits
+              long on many platforms.  Use <literal>gint32</literal> for signed 32-bit integers and use
+              <literal>guint32</literal> for unsigned 32-bit integers.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              Don&#8217;t use <literal>long</literal> to mean signed 64-bit integer
+              and don&#8217;t use <literal>unsigned
+              long</literal> to mean unsigned 64-bit integer; A <literal>long</literal> is 32 bits long on
+              many other platforms.  Don&#8217;t use <literal>long long</literal> or
+              <literal>unsigned long long</literal>,
+              either, as not all platforms support them; use <literal>gint64</literal> or
+              <literal>guint64</literal>,
+              which will be defined as the appropriate types for 64-bit signed and
+              unsigned integers.
+            </simpara>
+            <simpara>
+              On LLP64 data model systems (notably 64-bit Windows), <literal>int</literal> and
+              <literal>long</literal>
+              are 32 bits while <literal>size_t</literal> and <literal>ptrdiff_t</literal> are 64 bits.
+              This means that
+              the following will generate a compiler warning:
+            </simpara>
+
+<programlisting>    int i;
+    i = strlen("hello, sailor");  /* Compiler warning */</programlisting>
+            <simpara>
+              Normally, you&#8217;d just make it a <literal>size_t</literal>. However, many GLib and Wireshark
+              functions won&#8217;t accept a <literal>size_t</literal> on LLP64:
+            </simpara>
+<programlisting>    size_t i;
+
+    char greeting[] = "hello, sailor";
+    guint byte_after_greet;
+
+    i = strlen(greeting);
+    byte_after_greet = tvb_get_guint8(tvb, i); /* Compiler warning */</programlisting>
+            <simpara>
+              Try to use the appropriate data type when you can. When you can&#8217;t, you
+              will have to cast to a compatible data type, e.g.,
+            </simpara>
+
+<programlisting>    size_t i;
+    char greeting[] = "hello, sailor";
+    guint byte_after_greet;
+
+    i = strlen(greeting);
+    byte_after_greet = tvb_get_guint8(tvb, (gint) i); /* OK */</programlisting>
+
+            <simpara>or</simpara>
+
+<programlisting>    gint i;
+    char greeting[] = "hello, sailor";
+    guint byte_after_greet;
+
+    i = (gint) strlen(greeting);
+    byte_after_greet = tvb_get_guint8(tvb, i); /* OK */</programlisting>
+
+            <simpara>
+              See <ulink url="http://www.unix.org/version2/whatsnew/lp64_wp.html"/> for more
+              information on the sizes of common types in different data models.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              When printing or displaying the values of 64-bit integral data types,
+              don&#8217;t use <literal>%lld</literal>, <literal>%llu</literal>,
+              <literal>%llx</literal>, or <literal>%llo</literal> &#8212; not all platforms
+              support <literal>%ll</literal> for printing 64-bit integral data types.  Instead, for
+              GLib routines, and routines that use them, such as all the routines in
+              Wireshark that take format arguments, use <literal>G_GINT64_MODIFIER</literal>,
+              for example:
+            </simpara>
+
+<programlisting>    proto_tree_add_text(tree, tvb, offset, 8,
+                "Sequence Number: %" G_GINT64_MODIFIER "u",
+                sequence_number);</programlisting>
+
+          </listitem>
+          <listitem>
+            <simpara>
+              When specifying an integral constant that doesn&#8217;t fit in 32 bits, don&#8217;t
+              use <literal>LL</literal> at the end of the constant &#8212; not all compilers use
+              <literal>LL</literal> for
+              that.  Instead, put the constant in a call to the <literal>G_GINT64_CONSTANT()</literal>
+              macro, e.g.,
+            </simpara>
+
+<programlisting>    G_GINT64_CONSTANT(11644473600U)</programlisting>
+
+            <simpara>rather than</simpara>
+
+<programlisting>    11644473600ULL</programlisting>
+
+          </listitem>
+          <listitem>
+            <simpara>
+              Don&#8217;t assume that you can scan through a <literal>va_list</literal>
+              initialized by <literal>va_start()</literal>
+              more than once without closing it with <literal>va_end()</literal> and re-initalizing it with
+              <literal>va_start()</literal>.  This applies even if you&#8217;re not scanning through it yourself,
+              but are calling a routine that scans through it, such as <literal>vfprintf()</literal> or
+              one of the routines in Wireshark that takes a format and a <literal>va_list</literal> as an
+              argument.  You must do
+            </simpara>
+
+<programlisting>    va_start(ap, format);
+    call_routine1(xxx, format, ap);
+    va_end(ap);
+    va_start(ap, format);
+    call_routine2(xxx, format, ap);
+    va_end(ap);</programlisting>
+
+            <simpara>rather than</simpara>
+
+<programlisting>    va_start(ap, format);
+    call_routine1(xxx, format, ap);
+    call_routine2(xxx, format, ap);
+    va_end(ap);</programlisting>
+
+          </listitem>
+          <listitem>
+            <simpara>
+              Don&#8217;t use a label without a statement following it.  For example,
+              something such as
+            </simpara>
+
+<programlisting>    if (...) {
+
+        ...
+
+done:
+    }</programlisting>
+
+            <simpara>will not work with all compilers &#8212; you have to do</simpara>
+
+<programlisting>    if (...) {
+
+        ...
+
+done:
+        ;
+    }</programlisting>
+
+            <simpara>with some statement, even if it&#8217;s a null statement, after the label.</simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              Don&#8217;t use <literal>bzero()</literal>, <literal>bcopy()</literal>,
+              or <literal>bcmp()</literal>; instead, use the ANSI C
+              routines
+            </simpara>
+            <itemizedlist>
+              <listitem>
+                <simpara>
+                  <literal>memset()</literal> (with zero as the second argument, so that it sets
+                  all the bytes to zero);
+                </simpara>
+              </listitem>
+              <listitem>
+                <simpara>
+                  <literal>memcpy()</literal> or <literal>memmove()</literal> (note that the first and second
+                  arguments to <literal>memcpy()</literal> are in the reverse order to the
+                  arguments to <literal>bcopy()</literal>; note also that <literal>bcopy()</literal> is typically
+                  guaranteed to work on overlapping memory regions, while
+                  <literal>memcpy()</literal> isn&#8217;t, so if you may be copying from one region to a
+                  region that overlaps it, use <literal>memmove()</literal>,
+                  not <literal>memcpy()</literal> &#8212; but
+                  <literal>memcpy()</literal> might be faster as a result of not guaranteeing
+                  correct operation on overlapping memory regions);
+                </simpara>
+              </listitem>
+              <listitem>
+                <simpara>
+                  <literal>memcmp()</literal> (note that <literal>memcmp()</literal> returns 0, 1, or -1, doing
+                  an ordered comparison, rather than just returning 0 for equal
+                  and 1 for not equal, as <literal>bcmp()</literal> does).
+                </simpara>
+              </listitem>
+            </itemizedlist>
+            <simpara>
+              Not all platforms necessarily have
+              <literal>bzero()</literal>/<literal>bcopy()</literal>/<literal>bcmp()</literal>, and
+              those that do might not declare them in the header file on which they&#8217;re
+              declared on your platform.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              Don&#8217;t use <literal>index()</literal> or <literal>rindex()</literal>;
+              instead, use the ANSI C equivalents,
+              <literal>strchr()</literal> and <literal>strrchr()</literal>.  Not all platforms necessarily have
+              <literal>index()</literal> or <literal>rindex()</literal>,
+              and those that do might not declare them in the
+              header file on which they&#8217;re declared on your platform.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              Don&#8217;t fetch data from packets by getting a pointer to data in the packet
+              with <literal>tvb_get_ptr()</literal>, casting that pointer to a pointer to a structure,
+              and dereferencing that pointer.  That pointer won&#8217;t necessarily be aligned
+              on the proper boundary, which can cause crashes on some platforms (even
+              if it doesn&#8217;t crash on an x86-based PC); furthermore, the data in a
+              packet is not necessarily in the byte order of the machine on which
+              Wireshark is running.  Use the tvbuff routines to extract individual
+              items from the packet, or use <literal>proto_tree_add_item()</literal> and let it extract
+              the items for you.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              Don&#8217;t use structures that overlay packet data, or into which you copy
+              packet data; the C programming language does not guarantee any
+              particular alignment of fields within a structure, and even the
+              extensions that try to guarantee that are compiler-specific and not
+              necessarily supported by all compilers used to build Wireshark.  Using
+              bitfields in those structures is even worse; the order of bitfields
+              is not guaranteed.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              Don&#8217;t use <literal>ntohs()</literal>, <literal>ntohl()</literal>,
+              <literal>htons()</literal>, or <literal>htonl()</literal>; the header
+              files required to define or declare them differ between platforms, and
+              you might be able to get away with not including the appropriate header
+              file on your platform but that might not work on other platforms.
+              Instead, use <literal>g_ntohs()</literal>, <literal>g_ntohl()</literal>,
+              <literal>g_htons()</literal>, and <literal>g_htonl()</literal>;
+              those are declared by <literal>&lt;glib.h&gt;</literal>, and you&#8217;ll
+              need to include that anyway,
+              as Wireshark header files that all dissectors must include use stuff from
+              &lt;glib.h&gt;.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              Don&#8217;t fetch a little-endian value using <literal>tvb_get_ntohs()</literal> or
+              <literal>tvb_get_ntohl()</literal> and then using <literal>g_ntohs()</literal>,
+              <literal>g_htons()</literal>, <literal>g_ntohl()</literal>,
+              or <literal>g_htonl()</literal> on the resulting value &#8212; the <literal>g_</literal>
+              routines in question
+              convert between network byte order (big-endian) and
+              <emphasis role="strong">host</emphasis> byte order,
+              not <emphasis role="strong">little-endian</emphasis> byte order;
+              not all machines on which Wireshark runs
+              are little-endian, even though PCs are.  Fetch those values using
+              <literal>tvb_get_letohs()</literal> and <literal>tvb_get_letohl()</literal>.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              Don&#8217;t put a comma after the last element of an
+              <literal>enum</literal> &#8212; some compilers may
+              either warn about it (producing extra noise) or refuse to accept it.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              Don&#8217;t include <literal>&lt;unistd.h&gt;</literal> without protecting it with
+            </simpara>
+
+<programlisting>#ifdef HAVE_UNISTD_H
+
+...
+
+#endif</programlisting>
+
+            <simpara>
+              and, if you&#8217;re including it to get routines such
+              as <literal>close()</literal>,
+              <literal>read()</literal>, and <literal>write()</literal>
+              declared, also <literal>#include &lt;io.h&gt;</literal> if present:
+            </simpara>
+
+<programlisting>#ifdef HAVE_IO_H
+#include &lt;io.h&gt;
+#endif</programlisting>
+
+            <simpara>
+              in order to declare the Windows C library routines
+              <literal>_close()</literal>, <literal>_read()</literal>,
+              and <literal>_write()</literal>.
+            </simpara>
+            <simpara>Your file must include <literal>&lt;glib.h&gt;</literal> &#8212; which
+            many of the Wireshark header files include, so you might not have
+            to include it explicitly &#8212; in order to get <literal>close()</literal>,
+            <literal>read()</literal>, <literal>write()</literal>, etc. mapped
+            to <literal>_close()</literal>, <literal>_read()</literal>,
+            <literal>_write()</literal>, etc.</simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              Do not use <literal>open()</literal>, <literal>rename()</literal>,
+              <literal>mkdir()</literal>, <literal>stat()</literal>,
+              <literal>unlink()</literal>, <literal>remove()</literal>,
+              <literal>fopen()</literal>, <literal>freopen()</literal> directly.
+              Instead, use <literal>ws_open()</literal>, <literal>ws_rename()</literal>,
+              <literal>ws_mkdir()</literal>, <literal>ws_stat()</literal>,
+              <literal>ws_unlink()</literal>, <literal>ws_remove()</literal>,
+              <literal>ws_fopen()</literal>,
+              <literal>ws_freopen()</literal>; these wrapper functions change
+              the path and file name from
+              UTF8 to UTF16 on Windows allowing the functions to work correctly when the
+              path or file name contain non-ASCII characters.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              When opening a file with <literal>ws_fopen()</literal>,
+              <literal>ws_freopen()</literal>, or <literal>ws_fdopen()</literal>, if
+              the file contains ASCII text, use <literal>&quot;r&quot;</literal>,
+              <literal>&quot;w&quot;</literal>, <literal>&quot;a&quot;</literal>,
+              and so on as the open mode;
+              if it contains binary data, use <literal>&quot;rb&quot;</literal>,
+              <literal>&quot;wb&quot;</literal>, and so on.  On
+              Windows, if a file is opened in a text mode, writing a byte with the
+              value of octal 12 (newline) to the file causes two bytes, one with the
+              value octal 15 (carriage return) and one with the value octal 12, to be
+              written to the file, and causes bytes with the value octal 15 to be
+              discarded when reading the file (to translate between C&#8217;s UNIX-style
+              lines that end with newline and Windows&#8217; DEC-style lines that end with
+              carriage return/line feed).
+            </simpara>
+            <simpara>
+              In addition, that also means that when opening or creating a binary
+              file, you must use <literal>ws_open()</literal>
+              (with <literal>O_CREAT</literal> and possibly <literal>O_TRUNC</literal> if the
+              file is to be created if it doesn&#8217;t exist),
+              and OR in the <literal>O_BINARY</literal> flag.
+              That flag is not present on most, if not all, UNIX systems, so you must
+              also do
+            </simpara>
+
+<programlisting>#ifndef O_BINARY
+#define O_BINARY    0
+#endif</programlisting>
+
+            <simpara>to properly define it for UNIX (it&#8217;s not necessary on UNIX).</simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              Don&#8217;t use forward declarations of static arrays without a specified size
+              in a fashion such as this:
+            </simpara>
+
+<programlisting>static const value_string foo_vals[];
+
+...
+
+static const value_string foo_vals[] = {
+    { 0,        "Red" },
+    { 1,        "Green" },
+    { 2,        "Blue" },
+    { 0,        NULL }
+};</programlisting>
+
+            <simpara>
+              as some compilers will reject the first of those statements.  Instead,
+              initialize the array at the point at which it&#8217;s first declared, so that
+              the size is known.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              Don&#8217;t put a comma after the last tuple of an initializer of an array.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              For <literal>#define</literal> names and <literal>enum</literal> member names,
+              prefix the names with a tag so
+              as to avoid collisions with other names &#8212; this might be more of an issue
+              on Windows, as it appears to <literal>#define</literal> names such as
+              <literal>DELETE</literal> and
+              <literal>OPTIONAL</literal>.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              Don&#8217;t use the &#8220;numbered argument&#8221; feature that
+              many UNIX <literal>printf</literal>&#8217;s
+              implement, e.g.,
+            </simpara>
+
+<programlisting>    g_snprintf(add_string, 30, " - (%1$d) (0x%1$04x)", value);</programlisting>
+
+            <simpara>
+              as not all UNIX <literal>printf</literal>&#8217;s implement it,
+              and Windows <literal>printf</literal> doesn&#8217;t appear
+              to implement it.  Use something like
+            </simpara>
+
+<programlisting>    g_snprintf(add_string, 30, " - (%d) (0x%04x)", value, value);</programlisting>
+
+            <simpara>instead.</simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              Don&#8217;t use &#8220;variadic macros&#8221;, such as
+            </simpara>
+
+<programlisting>#define DBG(format, args...)    fprintf(stderr, format, ## args)</programlisting>
+
+            <simpara>
+              as not all C compilers support them.  Use macros that take a fixed
+              number of arguments, such as
+            </simpara>
+
+<programlisting>#define DBG0(format)        fprintf(stderr, format)
+#define DBG1(format, arg1)  fprintf(stderr, format, arg1)
+#define DBG2(format, arg1, arg2) fprintf(stderr, format, arg1, arg2)
+        ...</programlisting>
+
+            <simpara>or something such as</simpara>
+
+<programlisting>#define DBG(args)       printf args</programlisting>
+
+          </listitem>
+          <listitem>
+            <simpara>
+              Don&#8217;t use
+            </simpara>
+
+<programlisting>    case N ... M:</programlisting>
+
+            <simpara>as that&#8217;s not supported by all compilers.</simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              Use <literal>g_snprintf()</literal> instead of <literal>snprintf()</literal>.
+              <literal>snprintf()</literal> is not available on all platforms,
+              so it&#8217;s a good idea to use the
+              <literal>g_snprintf()</literal> function declared by &lt;glib.h&gt; instead.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              Use <literal>mkstemp()</literal> instead of <literal>tmpnam()</literal>.
+              <literal>tmpnam()</literal> is insecure and should not be used
+              any more. Wireshark brings its
+              own <literal>mkstemp()</literal> implementation for use on platforms
+              that lack <literal>mkstemp()</literal>.
+              Note: <literal>mkstemp()</literal> does not accept <literal>NULL</literal>
+              as a parameter.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              The pointer returned by a call to <literal>tvb_get_ptr()</literal>
+              is not guaranteed to be
+              aligned on any particular byte boundary; this means that you cannot
+              safely cast it to any data type other than a pointer to <literal>char</literal>,
+              <literal>unsigned char</literal>, <literal>guint8</literal>,
+              or other one-byte data types.  You cannot,
+              for example, safely cast it to a pointer to a structure, and then access
+              the structure members directly; on some systems, unaligned accesses to
+              integral data types larger than 1 byte, and floating-point data types,
+              cause a trap, which will, at best, result in the OS slowly performing an
+              unaligned access for you, and will, on at least some platforms, cause
+              the program to be terminated.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              Wireshark supports platforms with GLib 2.4[.x]/GTK+ 2.4[.x] or newer.
+              If a Glib/GTK+ mechanism is available only in Glib/GTK+ versions
+              newer than 2.4/2.4 then use <literal>#if GTK_CHECK_VERSION(...)</literal>
+              to conditionally
+              compile code using that mechanism.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              When different code must be used on UN*X and Win32, use a
+              <literal>#if</literal> or <literal>#ifdef</literal>
+              that tests <literal>_WIN32</literal>, not <literal>WIN32</literal>.
+              Try to write code portably whenever
+              possible, however; note that there are some routines in Wireshark with
+              platform-dependent implementations and platform-independent APIs, such
+              as the routines in <filename>epan/filesystem.c</filename>,
+              allowing the code that calls it to
+              be written portably without <literal>#ifdefs</literal>.
+            </simpara>
+          </listitem>
+        </itemizedlist>
+      </section>
+      <section id="ChCodeStyleStringHandling">
+        <title>String handling</title>
+        <itemizedlist>
+          <listitem>
+            <simpara>
+              Do not use functions such as <literal>strcat()</literal> or <literal>strcpy()</literal>.
+              A lot of work has been done to remove the existing calls to these functions and
+              we do not want any new callers of these functions.
+            </simpara>
+            <simpara>
+              Instead, use <literal>g_snprintf()</literal> since that
+              function will, if used correctly, prevent
+              buffer overflows for large strings.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              When using a buffer to create a string, do not use a buffer stored on the stack.
+              I.e., do not use a buffer declared as
+            </simpara>
+
+<programlisting>    char buffer[1024];</programlisting>
+
+            <simpara>
+              instead, allocate a buffer dynamically using the string-specific
+              or plain <literal>emem</literal>
+              routines (see <filename>doc/README.malloc</filename>) such as
+            </simpara>
+
+<programlisting>    emem_strbuf_t *strbuf;
+    strbuf = ep_strbuf_new_label("");
+    ep_strbuf_append_printf(strbuf, ...</programlisting>
+
+            <simpara>or</simpara>
+
+<programlisting>    char *buffer=NULL;
+    ...
+
+#define MAX_BUFFER 1024
+
+    buffer=ep_alloc(MAX_BUFFER);
+    buffer[0]='\0';
+    ...
+    g_snprintf(buffer, MAX_BUFFER, ...</programlisting>
+
+            <simpara>
+              This avoids corrupting the stack in case there is a bug in your code
+              that accidentally writes beyond the end of the buffer.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              If you write a routine that will create and return a pointer to a filled-in
+              string and if that buffer will not be further processed or appended to after
+              the routine returns (except being added to the proto tree),
+              do not preallocate the buffer to fill in and pass as a parameter. Instead,
+              pass a pointer to a pointer to the function and return a pointer to an
+              <literal>emem</literal> allocated buffer that will be automatically freed.
+              (see <filename>doc/README.malloc</filename>)
+            </simpara>
+            <simpara>I.e., do not write code such as</simpara>
+
+<programlisting>static void
+foo_to_str(char *string, ... ) {
+    &lt;fill in string&gt;
+}
+    ...
+    char buffer[1024];
+    ...
+    foo_to_str(buffer, ...
+    proto_tree_add_text(... buffer ...</programlisting>
+
+            <simpara>instead, write the code as</simpara>
+
+<programlisting>static void
+foo_to_str(char **buffer, ...) {
+
+#define MAX_BUFFER x
+
+    *buffer=ep_alloc(MAX_BUFFER);
+    &lt;fill in *buffer&gt;
+}
+    ...
+    char *buffer;
+    ...
+    foo_to_str(&amp;buffer, ...
+    proto_tree_add_text(... *buffer ...);</programlisting>
+
+          </listitem>
+          <listitem>
+            <simpara>
+              Allocate buffers by using <literal>ep_alloc()</literal>.
+              These buffers are very fast and nice. They are all
+              automatically freed by calling <literal>g_free()</literal> when
+              the dissection of the current packet ends so you
+              don&#8217;t have to worry about doing so
+              explicitly in order to not leak memory.
+              Please read <filename>doc/README.malloc</filename>.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              Don&#8217;t use non-ASCII characters in source files; not all compiler
+              environments will be using the same encoding for non-ASCII characters,
+              and at least one compiler (Microsoft&#8217;s Visual C) will, in environments
+              with double-byte character encodings, such as many Asian environments,
+              fail if it sees a byte sequence in a source file that doesn&#8217;t correspond
+              to a valid character.  This causes source files using either an ISO
+              8859/n single-byte character encoding or UTF-8 to fail to compile.  Even
+              if the compiler doesn&#8217;t fail, there is no guarantee that the compiler,
+              or a developer&#8217;s text editor, will interpret the characters the way you
+              intend them to be interpreted.
+            </simpara>
+          </listitem>
+        </itemizedlist>
+      </section>
+      <section id="ChCodeStyleRobustness">
+        <title>Robustness</title>
+        <simpara>
+          Wireshark is not guaranteed to read only network traces that contain
+          correctly-formed packets. Wireshark is commonly used to track down networking
+          problems, and the problems might be due to a buggy protocol implementation
+          sending out bad packets.
+        </simpara>
+        <simpara>
+          Therefore, protocol dissectors not only have to be able to handle
+          correctly-formed packets without, for example, crashing or looping
+          infinitely, they also have to be able to handle
+          <emphasis role="strong">incorrectly</emphasis>-formed
+          packets without crashing or looping infinitely.
+        </simpara>
+        <simpara>
+          Here are some suggestions for making dissectors more robust in the face
+          of incorrectly-formed packets:
+        </simpara>
+        <itemizedlist>
+          <listitem>
+            <simpara>
+              Do <emphasis role="strong">NOT</emphasis> use <literal>g_assert()</literal>
+              or <literal>g_assert_not_reached()</literal> in dissectors.
+            </simpara>
+            <simpara>
+              <emphasis role="strong">NO</emphasis> value in a packet&#8217;s data
+              should be considered &#8220;wrong&#8221; in the sense
+              that it&#8217;s a problem with the dissector if found; if it cannot do
+              anything else with a particular value from a packet&#8217;s data, the
+              dissector should put into the protocol tree an indication that the
+              value is invalid, and should return.  The &#8220;expert&#8221; mechanism should be
+              used for that purpose.
+            </simpara>
+            <simpara>
+              If there is a case where you are checking not for an invalid data item
+              in the packet, but for a bug in the dissector (for example, an
+              assumption being made at a particular point in the code about the
+              internal state of the dissector), use the <literal>DISSECTOR_ASSERT()</literal>
+              macro for
+              that purpose; this will put into the protocol tree an indication that
+              the dissector has a bug in it, and will not crash the application.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              If you are allocating a chunk of memory to contain data from a packet,
+              or to contain information derived from data in a packet, and the size of
+              the chunk of memory is derived from a size field in the packet, make
+              sure all the data is present in the packet before allocating the buffer.
+              Doing so means that:
+            </simpara>
+            <orderedlist numeration="arabic">
+              <listitem>
+                <simpara>
+                  Wireshark won&#8217;t leak that chunk of memory if an attempt to
+                  fetch data not present in the packet throws an exception.
+                </simpara>
+              </listitem>
+              <listitem>
+                <simpara>
+                  Wireshark won&#8217;t crash trying to allocate an absurdly-large chunk of
+                  memory if the size field has a bogus large value.
+                </simpara>
+              </listitem>
+            </orderedlist>
+            <simpara>
+              If you&#8217;re fetching into such a chunk of memory a string from the buffer,
+              and the string has a specified size, you can use <literal>tvb_get_*_string()</literal>,
+              which will check whether the entire string is present before allocating
+              a buffer for the string, and will also put a trailing <literal>'\0'</literal> at the end of
+              the buffer.
+            </simpara>
+            <simpara>
+              If you&#8217;re fetching into such a chunk of memory a 2-byte Unicode string
+              from the buffer, and the string has a specified size, you can use
+              <literal>tvb_get_ephemeral_faked_unicode()</literal>, which will check whether the entire
+              string is present before allocating a buffer for the string, and will also
+              put a trailing <literal>'\0'</literal> at the end of the buffer.  The resulting string will be
+              a sequence of single-byte characters; the only Unicode characters that
+              will be handled correctly are those in the ASCII range.  (Wireshark&#8217;s
+              ability to handle non-ASCII strings is limited; it needs to be
+              improved).
+            </simpara>
+            <simpara>
+              If you&#8217;re fetching into such a chunk of memory a sequence of bytes from
+              the buffer, and the sequence has a specified size, you can use
+              <literal>tvb_memdup()</literal>, which will check whether the entire sequence is present
+              before allocating a buffer for it.
+            </simpara>
+            <simpara>
+              Otherwise, you can check whether the data is present by using
+              <literal>tvb_ensure_bytes_exist()</literal> or by getting a pointer to the data by using
+              <literal>tvb_get_ptr()</literal>, although note that there might be problems with using
+              the pointer from <literal>tvb_get_ptr()</literal> (see the item on this in the
+              Portability section above, and the next item below).
+            </simpara>
+            <simpara>
+              Note also that you should only fetch string data into a fixed-length
+              buffer if the code ensures that no more bytes than will fit into the
+              buffer are fetched (&#8220;the protocol ensures&#8221; isn&#8217;t good enough, as
+              protocol specifications can&#8217;t ensure only packets that conform to the
+              specification will be transmitted or that only packets for the protocol
+              in question will be interpreted as packets for that protocol by
+              Wireshark).  If there&#8217;s no maximum length of string data to be fetched,
+              routines such as <literal>tvb_get_*_string()</literal> are safer, as they allocate a buffer
+              large enough to hold the string.  (Note that some variants of this call
+              require you to free the string once you&#8217;re finished with it).
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              If you have gotten a pointer using <literal>tvb_get_ptr()</literal>, you must make sure
+              that you do not refer to any data past the length passed as the last
+              argument to <literal>tvb_get_ptr()</literal>&#59; while the various
+              <literal>tvb_get...()</literal> routines
+              perform bounds checking and throw an exception if you refer to data not
+              available in the tvbuff, direct references through a pointer gotten from
+              <literal>tvb_get_ptr()</literal> do not do any bounds checking.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              If you have a loop that dissects a sequence of items, each of which has
+              a length field, with the offset in the tvbuff advanced by the length of
+              the item, then, if the length field is the total length of the item, and
+              thus can be zero, you <emphasis role="strong">MUST</emphasis>
+              check for a zero-length item and abort the
+              loop if you see one.  Otherwise, a zero-length item could cause the
+              dissector to loop infinitely.  You should also check that the offset,
+              after having the length added to it, is greater than the offset before
+              the length was added to it, if the length field is greater than 24 bits
+              long, so that, if the length value is <emphasis role="strong">very</emphasis>
+              large and adding it to the
+              offset causes an overflow, that overflow is detected.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              If you have a
+            </simpara>
+
+<programlisting>    for (i = {start}; i &lt; {end}; i++)</programlisting>
+
+            <simpara>
+              loop, make sure that the type of the loop index variable is large enough
+              to hold the maximum {end} variable plus 1; Otherwise the loop index variable
+              can overflow before it ever reaches its maximum value.  In
+              particular, be very careful when using <literal>gint8</literal>,
+              <literal>guint8</literal>, <literal>gint16</literal>, or <literal>guint16</literal>
+              variables as loop indices; you almost always want to use an
+              <literal>int</literal>/<literal>gint</literal>
+              or <literal>unsigned int</literal>/<literal>guint</literal>
+              as the loop index rather than a shorter type.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              If you are fetching a length field from the buffer, corresponding to the
+              length of a portion of the packet, and subtracting from that length a
+              value corresponding to the length of, for example, a header in the
+              packet portion in question, <emphasis role="strong">ALWAYS</emphasis>
+              check that the value of the length
+              field is greater than or equal to the length you&#8217;re subtracting from it,
+              and report an error in the packet and stop dissecting the packet if it&#8217;s
+              less than the length you&#8217;re subtracting from it.  Otherwise, the
+              resulting length value will be negative, which will either cause errors
+              in the dissector or routines called by the dissector, or, if the value
+              is interpreted as an unsigned integer, will cause the value to be
+              interpreted as a very large positive value.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              Any tvbuff offset that is added to as processing is done on a packet
+              should be stored in a 32-bit variable, such as an <literal>int</literal>; if you store it
+              in an 8-bit or 16-bit variable, you run the risk of the variable
+              overflowing.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              Use <literal>g_snprintf()</literal> instead of <literal>sprintf()</literal>.
+              Prevent yourself from using the <literal>sprintf()</literal>
+              function, as it does not test the
+              length of the given output buffer and might be writing into unintended memory
+              areas. This function is one of the main causes of security problems like buffer
+              exploits and many other bugs that are very hard to find. It&#8217;s much better to
+              use the <literal>g_snprintf()</literal> function declared by
+              <literal>&lt;glib.h&gt;</literal> instead.
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
+              You should test your dissector against incorrectly-formed packets.
+            </simpara>
+            <simpara>
+              This can be done using the randpkt and editcap utilities that come with the
+              Wireshark distribution.  Testing using randpkt can be done by generating
+              output at the same layer as your protocol, and forcing Wireshark/TShark
+              to decode it as your protocol, e.g., if your protocol sits on top of UDP:
+            </simpara>
+
+<programlisting>randpkt -c 50000 -t dns randpkt.pcap
+tshark -nVr randpkt.pcap -d udp.port==53,&lt;myproto&gt;</programlisting>
+
+            <simpara>
+              Testing using editcap can be done using preexisting capture files and the
+              &#8220;-E&#8221; flag, which introduces errors in a capture file.  E.g.,
+            </simpara>
+
+<programlisting>editcap -E 0.03 infile.pcap outfile.pcap
+tshark -nVr outfile.pcap</programlisting>
+
+            <simpara>
+              The script <literal>tools/fuzz-test.sh</literal> is available to help
+              automate these tests.
+            </simpara>
+          </listitem>
+        </itemizedlist>
+      </section>
+      <section id="ChCodeStyleNamingConvention">
+        <title>Naming convention</title>
+        <simpara>
+          Wireshark uses the underscore_convention rather than the InterCapConvention for
+          function names, so new code should probably use underscores rather than
+          intercaps for functions and variable names. This is especially important if you
+          are writing code that will be called from outside your code.  We are just
+          trying to keep things consistent for other developers.
+        </simpara>
+      </section>
+      <section id="ChCodeStyleWhiteSpaceConvention">
+        <title>White space convention</title>
+        <simpara>
+          Please avoid using tab expansions different from 8 column widths, as not all
+          text editors in use by the developers support this. For a detailed
+          discussion of tabs, spaces, and indentation,
+          see <ulink url="http://www.jwz.org/doc/tabs-vs-spaces.html"/>
+        </simpara>
+        <simpara>
+          When creating a new file, you are free to choose an indentation logic.
+          Most of the files in Wireshark tend to use 2-space or 4-space
+          indentation. You are encouraged to write a short comment on the
+          indentation logic at the beginning (or end) of this new file.
+          The tabs-vs-spaces document above provides
+          examples of Emacs and vi modelines for this purpose.
+        </simpara>
+        <simpara>
+          See <ulink url="http://www.wireshark.org/tools/modelines.html">Editor Modeline Generator</ulink>
+          for a form which can be used to generate modeline blurbs to your taste that
+          you can copy and paste into the file that you&#8217;re editing.
+        </simpara>
+        <simpara>
+          When editing an existing file, try following the existing indentation
+          logic and even if it very tempting, never ever use a restyler/reindenter
+          utility on an existing file.  If you run across wildly varying
+          indentation styles within the same file, it might be helpful to send a
+          note to wireshark-dev for guidance.
+        </simpara>
+      </section>
+      <section id="ChCodeStyleCompilerWarnings">
+        <title>Compiler warnings</title>
+        <simpara>
+          You should write code that is free of compiler warnings. Such warnings will
+          often indicate questionable code and sometimes even real bugs, so it&#8217;s best
+          to avoid warnings at all.
+        </simpara>
+        <simpara>
+          The compiler flags in the Makefiles are set to &#8220;treat warnings as errors&#8221;,
+          so your code won&#8217;t even compile when warnings occur.
+        </simpara>
+      </section>
+    </section>
+
+    <section id="ChCodeGLib">
+      <title>The GLib library</title>
+      <para>
+        Glib is used as a basic platform abstraction library; it&#8217;s not related to
+        GUI things.
+      </para>
+      <para>
+        To quote the Glib documentation: 
+        <blockquote>
+          <simpara>
+            <quote>
+              GLib is a general-purpose utility
+              library, which provides many useful
+              data types, macros, type conversions, string utilities, file utilities,
+              a main loop abstraction, and so on. It works on many UNIX-like platforms,
+              Windows, OS/2 and BeOS. GLib is released under the GNU Library General
+              Public License (GNU LGPL).
+            </quote>
+          </simpara>
+        </blockquote>
+      </para>
+      <para>
+        GLib contains lots of useful things for platform independent development.
+        See <ulink url="http://library.gnome.org/devel/glib/stable/"/>
+        for details about GLib.
+      </para>
+    </section>
 
 </chapter>
 <!-- End of WSDG Chapter Build Introduction -->
