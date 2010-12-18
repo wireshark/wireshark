@@ -70,7 +70,653 @@ add to the protocol tree, and work with registered header fields.
 
 1.1 Code style.
 
-[[ This section has been moved to the Wireshark Developer's Guide ]]
+1.1.1 Portability.
+
+Wireshark runs on many platforms, and can be compiled with a number of
+different compilers; here are some rules for writing code that will work
+on multiple platforms.
+
+Don't use C++-style comments (comments beginning with "//" and running
+to the end of the line); Wireshark's dissectors are written in C, and
+thus run through C rather than C++ compilers, and not all C compilers
+support C++-style comments (GCC does, but IBM's C compiler for AIX, for
+example, doesn't do so by default).
+
+In general, don't use C99 features since some C compilers used to compile
+Wireshark don't support C99 (E.G. Microsoft C).
+
+Don't initialize variables in their declaration with non-constant
+values. Not all compilers support this. E.g. don't use
+	guint32 i = somearray[2];
+use
+	guint32 i;
+	i = somearray[2];
+instead.
+
+Don't use zero-length arrays; not all compilers support them.  If an
+array would have no members, just leave it out.
+
+Don't declare variables in the middle of executable code; not all C
+compilers support that.  Variables should be declared outside a
+function, or at the beginning of a function or compound statement.
+
+Don't use anonymous unions; not all compilers support them.
+Example:
+
+	typedef struct foo {
+	  guint32 foo;
+	  union {
+	    guint32 foo_l;
+	    guint16 foo_s;
+	  } u;  /* have a name here */
+	} foo_t;
+
+Don't use "uchar", "u_char", "ushort", "u_short", "uint", "u_int",
+"ulong", "u_long" or "boolean"; they aren't defined on all platforms.
+If you want an 8-bit unsigned quantity, use "guint8"; if you want an
+8-bit character value with the 8th bit not interpreted as a sign bit,
+use "guchar"; if you want a 16-bit unsigned quantity, use "guint16";
+if you want a 32-bit unsigned quantity, use "guint32"; and if you want
+an "int-sized" unsigned quantity, use "guint"; if you want a boolean,
+use "gboolean".  Use "%d", "%u", "%x", and "%o" to print those types;
+don't use "%ld", "%lu", "%lx", or "%lo", as longs are 64 bits long on
+many platforms, but "guint32" is 32 bits long.
+
+Don't use "long" to mean "signed 32-bit integer", and don't use
+"unsigned long" to mean "unsigned 32-bit integer"; "long"s are 64 bits
+long on many platforms.  Use "gint32" for signed 32-bit integers and use
+"guint32" for unsigned 32-bit integers.
+
+Don't use "long" to mean "signed 64-bit integer" and don't use "unsigned
+long" to mean "unsigned 64-bit integer"; "long"s are 32 bits long on
+many other platforms.  Don't use "long long" or "unsigned long long",
+either, as not all platforms support them; use "gint64" or "guint64",
+which will be defined as the appropriate types for 64-bit signed and
+unsigned integers.
+
+On LLP64 data model systems (notably 64-bit Windows), "int" and "long"
+are 32 bits while "size_t" and "ptrdiff_t" are 64 bits. This means that
+the following will generate a compiler warning:
+
+	int i;
+	i = strlen("hello, sailor");  /* Compiler warning */
+
+Normally, you'd just make "i" a size_t. However, many GLib and Wireshark
+functions won't accept a size_t on LLP64:
+
+	size_t i;
+	char greeting[] = "hello, sailor";
+	guint byte_after_greet;
+
+	i = strlen(greeting);
+	byte_after_greet = tvb_get_guint8(tvb, i); /* Compiler warning */
+
+Try to use the appropriate data type when you can. When you can't, you
+will have to cast to a compatible data type, e.g.
+
+	size_t i;
+	char greeting[] = "hello, sailor";
+	guint byte_after_greet;
+
+	i = strlen(greeting);
+	byte_after_greet = tvb_get_guint8(tvb, (gint) i); /* OK */
+
+or
+
+	gint i;
+	char greeting[] = "hello, sailor";
+	guint byte_after_greet;
+
+	i = (gint) strlen(greeting);
+	byte_after_greet = tvb_get_guint8(tvb, i); /* OK */
+
+See http://www.unix.org/version2/whatsnew/lp64_wp.html for more
+information on the sizes of common types in different data models.
+
+When printing or displaying the values of 64-bit integral data types,
+don't use "%lld", "%llu", "%llx", or "%llo" - not all platforms
+support "%ll" for printing 64-bit integral data types.  Instead, for
+GLib routines, and routines that use them, such as all the routines in
+Wireshark that take format arguments, use G_GINT64_MODIFIER, for example:
+
+    proto_tree_add_text(tree, tvb, offset, 8,
+			"Sequence Number: %" G_GINT64_MODIFIER "u",
+			sequence_number);
+
+When specifying an integral constant that doesn't fit in 32 bits, don't
+use "LL" at the end of the constant - not all compilers use "LL" for
+that.  Instead, put the constant in a call to the "G_GINT64_CONSTANT()"
+macro, e.g.
+
+	G_GINT64_CONSTANT(11644473600U)
+
+rather than
+
+	11644473600ULL
+
+Don't assume that you can scan through a va_list initialized by va_start
+more than once without closing it with va_end and re-initalizing it with
+va_start.  This applies even if you're not scanning through it yourself,
+but are calling a routine that scans through it, such as vfprintf() or
+one of the routines in Wireshark that takes a format and a va_list as an
+argument.  You must do
+
+	va_start(ap, format);
+	call_routine1(xxx, format, ap);
+	va_end(ap);
+	va_start(ap, format);
+	call_routine2(xxx, format, ap);
+	va_end(ap);
+
+rather
+	va_start(ap, format);
+	call_routine1(xxx, format, ap);
+	call_routine2(xxx, format, ap);
+	va_end(ap);
+
+Don't use a label without a statement following it.  For example,
+something such as
+
+	if (...) {
+
+		...
+
+	done:
+	}
+
+will not work with all compilers - you have to do
+
+	if (...) {
+
+		...
+
+	done:
+		;
+	}
+
+with some statement, even if it's a null statement, after the label.
+
+Don't use "bzero()", "bcopy()", or "bcmp()"; instead, use the ANSI C
+routines
+
+	"memset()" (with zero as the second argument, so that it sets
+	all the bytes to zero);
+
+	"memcpy()" or "memmove()" (note that the first and second
+	arguments to "memcpy()" are in the reverse order to the
+	arguments to "bcopy()"; note also that "bcopy()" is typically
+	guaranteed to work on overlapping memory regions, while
+	"memcpy()" isn't, so if you may be copying from one region to a
+	region that overlaps it, use "memmove()", not "memcpy()" - but
+	"memcpy()" might be faster as a result of not guaranteeing
+	correct operation on overlapping memory regions);
+
+	and "memcmp()" (note that "memcmp()" returns 0, 1, or -1, doing
+	an ordered comparison, rather than just returning 0 for "equal"
+	and 1 for "not equal", as "bcmp()" does).
+
+Not all platforms necessarily have "bzero()"/"bcopy()"/"bcmp()", and
+those that do might not declare them in the header file on which they're
+declared on your platform.
+
+Don't use "index()" or "rindex()"; instead, use the ANSI C equivalents,
+"strchr()" and "strrchr()".  Not all platforms necessarily have
+"index()" or "rindex()", and those that do might not declare them in the
+header file on which they're declared on your platform.
+
+Don't fetch data from packets by getting a pointer to data in the packet
+with "tvb_get_ptr()", casting that pointer to a pointer to a structure,
+and dereferencing that pointer.  That pointer won't necessarily be aligned
+on the proper boundary, which can cause crashes on some platforms (even
+if it doesn't crash on an x86-based PC); furthermore, the data in a
+packet is not necessarily in the byte order of the machine on which
+Wireshark is running.  Use the tvbuff routines to extract individual
+items from the packet, or use "proto_tree_add_item()" and let it extract
+the items for you.
+
+Don't use structures that overlay packet data, or into which you copy
+packet data; the C programming language does not guarantee any
+particular alignment of fields within a structure, and even the
+extensions that try to guarantee that are compiler-specific and not
+necessarily supported by all compilers used to build Wireshark.  Using
+bitfields in those structures is even worse; the order of bitfields
+is not guaranteed.
+
+Don't use "ntohs()", "ntohl()", "htons()", or "htonl()"; the header
+files required to define or declare them differ between platforms, and
+you might be able to get away with not including the appropriate header
+file on your platform but that might not work on other platforms.
+Instead, use "g_ntohs()", "g_ntohl()", "g_htons()", and "g_htonl()";
+those are declared by <glib.h>, and you'll need to include that anyway,
+as Wireshark header files that all dissectors must include use stuff from
+<glib.h>.
+
+Don't fetch a little-endian value using "tvb_get_ntohs() or
+"tvb_get_ntohl()" and then using "g_ntohs()", "g_htons()", "g_ntohl()",
+or "g_htonl()" on the resulting value - the g_ routines in question
+convert between network byte order (big-endian) and *host* byte order,
+not *little-endian* byte order; not all machines on which Wireshark runs
+are little-endian, even though PCs are.  Fetch those values using
+"tvb_get_letohs()" and "tvb_get_letohl()".
+
+Don't put a comma after the last element of an enum - some compilers may
+either warn about it (producing extra noise) or refuse to accept it.
+
+Don't include <unistd.h> without protecting it with
+
+	#ifdef HAVE_UNISTD_H
+
+		...
+
+	#endif
+
+and, if you're including it to get routines such as "open()", "close()",
+"read()", and "write()" declared, also include <io.h> if present:
+
+	#ifdef HAVE_IO_H
+	#include <io.h>
+	#endif
+
+in order to declare the Windows C library routines "_open()",
+"_close()", "_read()", and "_write()".  Your file must include <glib.h>
+- which many of the Wireshark header files include, so you might not have
+to include it explicitly - in order to get "open()", "close()",
+"read()", "write()", etc. mapped to "_open()", "_close()", "_read()",
+"_write()", etc..
+
+Do not use "open()", "rename()", "mkdir()", "stat()", "unlink()", "remove()",
+"fopen()", "freopen()" directly.  Instead use "ws_open()", "ws_rename()",
+"ws_mkdir()", "ws_stat()", "ws_unlink()", "ws_remove()", "ws_fopen()",
+"ws_freopen()": these wrapper functions change the path and file name from
+UTF8 to UTF16 on Windows allowing the functions to work correctly when the
+path or file name contain non-ASCII characters.
+
+When opening a file with "ws_fopen()", "ws_freopen()", or "ws_fdopen()", if
+the file contains ASCII text, use "r", "w", "a", and so on as the open mode
+- but if it contains binary data, use "rb", "wb", and so on.  On
+Windows, if a file is opened in a text mode, writing a byte with the
+value of octal 12 (newline) to the file causes two bytes, one with the
+value octal 15 (carriage return) and one with the value octal 12, to be
+written to the file, and causes bytes with the value octal 15 to be
+discarded when reading the file (to translate between C's UNIX-style
+lines that end with newline and Windows' DEC-style lines that end with
+carriage return/line feed).
+
+In addition, that also means that when opening or creating a binary
+file, you must use "ws_open()" (with O_CREAT and possibly O_TRUNC if the
+file is to be created if it doesn't exist), and OR in the O_BINARY flag.
+That flag is not present on most, if not all, UNIX systems, so you must
+also do
+
+	#ifndef O_BINARY
+	#define O_BINARY	0
+	#endif
+
+to properly define it for UNIX (it's not necessary on UNIX).
+
+Don't use forward declarations of static arrays without a specified size
+in a fashion such as this:
+
+	static const value_string foo_vals[];
+
+		...
+
+	static const value_string foo_vals[] = {
+		{ 0,		"Red" },
+		{ 1,		"Green" },
+		{ 2,		"Blue" },
+		{ 0,		NULL }
+	};
+
+as some compilers will reject the first of those statements.  Instead,
+initialize the array at the point at which it's first declared, so that
+the size is known.
+
+Don't put a comma after the last tuple of an initializer of an array.
+
+For #define names and enum member names, prefix the names with a tag so
+as to avoid collisions with other names - this might be more of an issue
+on Windows, as it appears to #define names such as DELETE and
+OPTIONAL.
+
+Don't use the "numbered argument" feature that many UNIX printf's
+implement, e.g.:
+
+	g_snprintf(add_string, 30, " - (%1$d) (0x%1$04x)", value);
+
+as not all UNIX printf's implement it, and Windows printf doesn't appear
+to implement it.  Use something like
+
+	g_snprintf(add_string, 30, " - (%d) (0x%04x)", value, value);
+
+instead.
+
+Don't use "variadic macros", such as
+
+	#define DBG(format, args...)	fprintf(stderr, format, ## args)
+
+as not all C compilers support them.  Use macros that take a fixed
+number of arguments, such as
+
+	#define DBG0(format)		fprintf(stderr, format)
+	#define DBG1(format, arg1)	fprintf(stderr, format, arg1)
+	#define DBG2(format, arg1, arg2) fprintf(stderr, format, arg1, arg2)
+
+		...
+
+or something such as
+
+	#define DBG(args)		printf args
+
+Don't use
+
+	case N ... M:
+
+as that's not supported by all compilers.
+
+snprintf() -> g_snprintf()
+snprintf() is not available on all platforms, so it's a good idea to use the
+g_snprintf() function declared by <glib.h> instead.
+
+tmpnam() -> mkstemp()
+tmpnam is insecure and should not be used any more. Wireshark brings its
+own mkstemp implementation for use on platforms that lack mkstemp.
+Note: mkstemp does not accept NULL as a parameter.
+
+The pointer returned by a call to "tvb_get_ptr()" is not guaranteed to be
+aligned on any particular byte boundary; this means that you cannot
+safely cast it to any data type other than a pointer to "char",
+"unsigned char", "guint8", or other one-byte data types.  You cannot,
+for example, safely cast it to a pointer to a structure, and then access
+the structure members directly; on some systems, unaligned accesses to
+integral data types larger than 1 byte, and floating-point data types,
+cause a trap, which will, at best, result in the OS slowly performing an
+unaligned access for you, and will, on at least some platforms, cause
+the program to be terminated.
+
+Wireshark supports platforms with GLib 2.4[.x]/GTK+ 2.4[.x] or newer.
+If a Glib/GTK+ mechanism is available only in Glib/GTK+ versions
+newer than 2.4/2.4 then use "#if GTK_CHECK_VERSION(...)" to conditionally
+compile code using that mechanism.
+
+When different code must be used on UN*X and Win32, use a #if or #ifdef
+that tests _WIN32, not WIN32.  Try to write code portably whenever
+possible, however; note that there are some routines in Wireshark with
+platform-dependent implementations and platform-independent APIs, such
+as the routines in epan/filesystem.c, allowing the code that calls it to
+be written portably without #ifdefs.
+
+1.1.2 String handling
+
+Do not use functions such as strcat() or strcpy().
+A lot of work has been done to remove the existing calls to these functions and
+we do not want any new callers of these functions.
+
+Instead use g_snprintf() since that function will if used correctly prevent
+buffer overflows for large strings.
+
+When using a buffer to create a string, do not use a buffer stored on the stack.
+I.e. do not use a buffer declared as
+
+   char buffer[1024];
+
+instead allocate a buffer dynamically using the string-specific or plain emem
+routines (see README.malloc) such as
+
+   emem_strbuf_t *strbuf;
+   strbuf = ep_strbuf_new_label("");
+   ep_strbuf_append_printf(strbuf, ...
+
+or
+
+   char *buffer=NULL;
+   ...
+   #define MAX_BUFFER 1024
+   buffer=ep_alloc(MAX_BUFFER);
+   buffer[0]='\0';
+   ...
+   g_snprintf(buffer, MAX_BUFFER, ...
+
+This avoids the stack from being corrupted in case there is a bug in your code
+that accidentally writes beyond the end of the buffer.
+
+
+If you write a routine that will create and return a pointer to a filled in
+string and if that buffer will not be further processed or appended to after
+the routine returns (except being added to the proto tree),
+do not preallocate the buffer to fill in and pass as a parameter instead
+pass a pointer to a pointer to the function and return a pointer to an
+emem allocated buffer that will be automatically freed. (see README.malloc)
+
+I.e. do not write code such as
+  static void
+  foo_to_str(char *string, ... ){
+     <fill in string>
+  }
+  ...
+     char buffer[1024];
+     ...
+     foo_to_str(buffer, ...
+     proto_tree_add_text(... buffer ...
+
+instead write the code as
+  static void
+  foo_to_str(char **buffer, ...
+    #define MAX_BUFFER x
+    *buffer=ep_alloc(MAX_BUFFER);
+    <fill in *buffer>
+  }
+  ...
+    char *buffer;
+    ...
+    foo_to_str(&buffer, ...
+    proto_tree_add_text(... *buffer ...
+
+Use ep_ allocated buffers. They are very fast and nice. These buffers are all
+automatically free()d when the dissection of the current packet ends so you
+don't have to worry about free()ing them explicitly in order to not leak memory.
+Please read README.malloc.
+
+Don't use non-ASCII characters in source files; not all compiler
+environments will be using the same encoding for non-ASCII characters,
+and at least one compiler (Microsoft's Visual C) will, in environments
+with double-byte character encodings, such as many Asian environments,
+fail if it sees a byte sequence in a source file that doesn't correspond
+to a valid character.  This causes source files using either an ISO
+8859/n single-byte character encoding or UTF-8 to fail to compile.  Even
+if the compiler doesn't fail, there is no guarantee that the compiler,
+or a developer's text editor, will interpret the characters the way you
+intend them to be interpreted.
+
+1.1.3 Robustness.
+
+Wireshark is not guaranteed to read only network traces that contain correctly-
+formed packets. Wireshark is commonly used to track down networking
+problems, and the problems might be due to a buggy protocol implementation
+sending out bad packets.
+
+Therefore, protocol dissectors not only have to be able to handle
+correctly-formed packets without, for example, crashing or looping
+infinitely, they also have to be able to handle *incorrectly*-formed
+packets without crashing or looping infinitely.
+
+Here are some suggestions for making dissectors more robust in the face
+of incorrectly-formed packets:
+
+Do *NOT* use "g_assert()" or "g_assert_not_reached()" in dissectors.
+*NO* value in a packet's data should be considered "wrong" in the sense
+that it's a problem with the dissector if found; if it cannot do
+anything else with a particular value from a packet's data, the
+dissector should put into the protocol tree an indication that the
+value is invalid, and should return.  The "expert" mechanism should be
+used for that purpose.
+
+If there is a case where you are checking not for an invalid data item
+in the packet, but for a bug in the dissector (for example, an
+assumption being made at a particular point in the code about the
+internal state of the dissector), use the DISSECTOR_ASSERT macro for
+that purpose; this will put into the protocol tree an indication that
+the dissector has a bug in it, and will not crash the application.
+
+If you are allocating a chunk of memory to contain data from a packet,
+or to contain information derived from data in a packet, and the size of
+the chunk of memory is derived from a size field in the packet, make
+sure all the data is present in the packet before allocating the buffer.
+Doing so means that:
+
+	1) Wireshark won't leak that chunk of memory if an attempt to
+	   fetch data not present in the packet throws an exception.
+
+and
+
+	2) it won't crash trying to allocate an absurdly-large chunk of
+	   memory if the size field has a bogus large value.
+
+If you're fetching into such a chunk of memory a string from the buffer,
+and the string has a specified size, you can use "tvb_get_*_string()",
+which will check whether the entire string is present before allocating
+a buffer for the string, and will also put a trailing '\0' at the end of
+the buffer.
+
+If you're fetching into such a chunk of memory a 2-byte Unicode string
+from the buffer, and the string has a specified size, you can use
+"tvb_get_ephemeral_faked_unicode()", which will check whether the entire
+string is present before allocating a buffer for the string, and will also
+put a trailing '\0' at the end of the buffer.  The resulting string will be
+a sequence of single-byte characters; the only Unicode characters that
+will be handled correctly are those in the ASCII range.  (Wireshark's
+ability to handle non-ASCII strings is limited; it needs to be
+improved.)
+
+If you're fetching into such a chunk of memory a sequence of bytes from
+the buffer, and the sequence has a specified size, you can use
+"tvb_memdup()", which will check whether the entire sequence is present
+before allocating a buffer for it.
+
+Otherwise, you can check whether the data is present by using
+"tvb_ensure_bytes_exist()" or by getting a pointer to the data by using
+"tvb_get_ptr()", although note that there might be problems with using
+the pointer from "tvb_get_ptr()" (see the item on this in the
+Portability section above, and the next item below).
+
+Note also that you should only fetch string data into a fixed-length
+buffer if the code ensures that no more bytes than will fit into the
+buffer are fetched ("the protocol ensures" isn't good enough, as
+protocol specifications can't ensure only packets that conform to the
+specification will be transmitted or that only packets for the protocol
+in question will be interpreted as packets for that protocol by
+Wireshark).  If there's no maximum length of string data to be fetched,
+routines such as "tvb_get_*_string()" are safer, as they allocate a buffer
+large enough to hold the string.  (Note that some variants of this call
+require you to free the string once you're finished with it.)
+
+If you have gotten a pointer using "tvb_get_ptr()", you must make sure
+that you do not refer to any data past the length passed as the last
+argument to "tvb_get_ptr()"; while the various "tvb_get" routines
+perform bounds checking and throw an exception if you refer to data not
+available in the tvbuff, direct references through a pointer gotten from
+"tvb_get_ptr()" do not do any bounds checking.
+
+If you have a loop that dissects a sequence of items, each of which has
+a length field, with the offset in the tvbuff advanced by the length of
+the item, then, if the length field is the total length of the item, and
+thus can be zero, you *MUST* check for a zero-length item and abort the
+loop if you see one.  Otherwise, a zero-length item could cause the
+dissector to loop infinitely.  You should also check that the offset,
+after having the length added to it, is greater than the offset before
+the length was added to it, if the length field is greater than 24 bits
+long, so that, if the length value is *very* large and adding it to the
+offset causes an overflow, that overflow is detected.
+
+If you have a
+
+	for (i = {start}; i < {end}; i++)
+
+loop, make sure that the type of the loop index variable is large enough
+to hold the maximum {end} value plus 1; otherwise, the loop index
+variable can overflow before it ever reaches its maximum value.  In
+particular, be very careful when using gint8, guint8, gint16, or guint16
+variables as loop indices; you almost always want to use an "int"/"gint"
+or "unsigned int"/"guint" as the loop index rather than a shorter type.
+
+If you are fetching a length field from the buffer, corresponding to the
+length of a portion of the packet, and subtracting from that length a
+value corresponding to the length of, for example, a header in the
+packet portion in question, *ALWAYS* check that the value of the length
+field is greater than or equal to the length you're subtracting from it,
+and report an error in the packet and stop dissecting the packet if it's
+less than the length you're subtracting from it.  Otherwise, the
+resulting length value will be negative, which will either cause errors
+in the dissector or routines called by the dissector, or, if the value
+is interpreted as an unsigned integer, will cause the value to be
+interpreted as a very large positive value.
+
+Any tvbuff offset that is added to as processing is done on a packet
+should be stored in a 32-bit variable, such as an "int"; if you store it
+in an 8-bit or 16-bit variable, you run the risk of the variable
+overflowing.
+
+sprintf() -> g_snprintf()
+Prevent yourself from using the sprintf() function, as it does not test the
+length of the given output buffer and might be writing into unintended memory
+areas. This function is one of the main causes of security problems like buffer
+exploits and many other bugs that are very hard to find. It's much better to
+use the g_snprintf() function declared by <glib.h> instead.
+
+You should test your dissector against incorrectly-formed packets.  This
+can be done using the randpkt and editcap utilities that come with the
+Wireshark distribution.  Testing using randpkt can be done by generating
+output at the same layer as your protocol, and forcing Wireshark/TShark
+to decode it as your protocol, e.g. if your protocol sits on top of UDP:
+
+    randpkt -c 50000 -t dns randpkt.pcap
+    tshark -nVr randpkt.pcap -d udp.port==53,<myproto>
+
+Testing using editcap can be done using preexisting capture files and the
+"-E" flag, which introduces errors in a capture file.  E.g.:
+
+    editcap -E 0.03 infile.pcap outfile.pcap
+    tshark -nVr outfile.pcap
+
+The script fuzz-test.sh is available to help automate these tests.
+
+1.1.4 Name convention.
+
+Wireshark uses the underscore_convention rather than the InterCapConvention for
+function names, so new code should probably use underscores rather than
+intercaps for functions and variable names. This is especially important if you
+are writing code that will be called from outside your code.  We are just
+trying to keep things consistent for other developers.
+
+1.1.5 White space convention.
+
+Avoid using tab expansions different from 8 column widths, as not all
+text editors in use by the developers support this. For a detailed
+discussion of tabs, spaces, and indentation, see
+
+    http://www.jwz.org/doc/tabs-vs-spaces.html
+
+When creating a new file, you are free to choose an indentation logic.
+Most of the files in Wireshark tend to use 2-space or 4-space
+indentation. You are encouraged to write a short comment on the
+indentation logic at the beginning of this new file, especially if
+you're using non-mod-8 tabs.  The tabs-vs-spaces document above provides
+examples of Emacs and vi modelines for this purpose.
+
+When editing an existing file, try following the existing indentation
+logic and even if it very tempting, never ever use a restyler/reindenter
+utility on an existing file.  If you run across wildly varying
+indentation styles within the same file, it might be helpful to send a
+note to wireshark-dev for guidance.
+
+1.1.6 Compiler warnings
+
+You should write code that is free of compiler warnings. Such warnings will
+often indicate questionable code and sometimes even real bugs, so it's best
+to avoid warnings at all.
+
+The compiler flags in the Makefiles are set to "treat warnings as errors",
+so your code won't even compile when warnings occur.
 
 1.2 Skeleton code.
 
