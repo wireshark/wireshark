@@ -885,6 +885,25 @@ const value_string tls_hello_extension_types[] = {
     { 0, NULL }
 };
 
+/* RFC 5246 7.4.1.4.1 */
+const value_string tls_hash_algorithm[] = {
+    { 0, "None" },
+    { 1, "MD5" },
+    { 2, "SHA1" },
+    { 3, "SHA224" },
+    { 4, "SHA256" },
+    { 5, "SHA384" },
+    { 6, "SHA512" },
+    { 0, NULL }
+};
+
+const value_string tls_signature_algorithm[] = {
+    { 0, "Anonymous" },
+    { 1, "RSA" },
+    { 2, "DSA" },
+    { 3, "ECDSA" },
+    { 0, NULL }
+};
 
 /* we keep this internal to packet-ssl-utils, as there should be
    no need to access it any other way.

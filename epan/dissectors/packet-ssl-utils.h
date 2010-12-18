@@ -174,6 +174,8 @@ extern const value_string pct_sig_type[];
 extern const value_string pct_exch_type[];
 extern const value_string pct_error_code[];
 extern const value_string tls_hello_extension_types[];
+extern const value_string tls_hash_algorithm[];
+extern const value_string tls_signature_algorithm[];
 extern const value_string ssl_extension_curves[];
 extern const value_string ssl_extension_ec_point_formats[];
 

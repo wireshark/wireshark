@@ -187,6 +187,11 @@ static gint hf_ssl_handshake_certificate_len  = -1;
 static gint hf_ssl_handshake_cert_types_count = -1;
 static gint hf_ssl_handshake_cert_types       = -1;
 static gint hf_ssl_handshake_cert_type        = -1;
+static gint hf_ssl_handshake_sig_hash_alg_len = -1;
+static gint hf_ssl_handshake_sig_hash_algs    = -1;
+static gint hf_ssl_handshake_sig_hash_alg     = -1;
+static gint hf_ssl_handshake_sig_hash_hash    = -1;
+static gint hf_ssl_handshake_sig_hash_sig     = -1;
 static gint hf_ssl_handshake_finished         = -1;
 static gint hf_ssl_handshake_md5_hash         = -1;
 static gint hf_ssl_handshake_sha_hash         = -1;
@@ -243,6 +248,8 @@ static gint ett_ssl_extension_curves  = -1;
 static gint ett_ssl_extension_curves_point_formats = -1;
 static gint ett_ssl_certs             = -1;
 static gint ett_ssl_cert_types        = -1;
+static gint ett_ssl_sig_hash_algs     = -1;
+static gint ett_ssl_sig_hash_alg      = -1;
 static gint ett_ssl_dnames            = -1;
 static gint ett_ssl_random            = -1;
 static gint ett_pct_cipher_suites     = -1;
@@ -424,7 +431,8 @@ static void dissect_ssl3_hnd_cert(tvbuff_t *tvb,
 
 static void dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
                                       proto_tree *tree,
-                                      guint32 offset, packet_info *pinfo);
+                                      guint32 offset, packet_info *pinfo,
+                                      const guint* conv_version);
 
 static void dissect_ssl3_hnd_finished(tvbuff_t *tvb,
                                       proto_tree *tree,
@@ -1809,7 +1817,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_CERT_REQUEST:
-                dissect_ssl3_hnd_cert_req(tvb, ssl_hand_tree, offset, pinfo);
+                dissect_ssl3_hnd_cert_req(tvb, ssl_hand_tree, offset, pinfo, conv_version);
                 break;
 
             case SSL_HND_SVR_HELLO_DONE:
@@ -2443,7 +2451,8 @@ dissect_ssl3_hnd_cert(tvbuff_t *tvb,
 
 static void
 dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
-                          proto_tree *tree, guint32 offset, packet_info *pinfo)
+                          proto_tree *tree, guint32 offset, packet_info *pinfo,
+                          const guint* conv_version)
 {
     /*
      *    enum {
@@ -2458,10 +2467,47 @@ dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
      *        DistinguishedName certificate_authorities<3..2^16-1>;
      *    } CertificateRequest;
      *
+     *
+     * As per TLSv1.2 (RFC 5246) the format has changed to:
+     *
+     *    enum {
+     *        rsa_sign(1), dss_sign(2), rsa_fixed_dh(3), dss_fixed_dh(4),
+     *        rsa_ephemeral_dh_RESERVED(5), dss_ephemeral_dh_RESERVED(6),
+     *        fortezza_dms_RESERVED(20), (255)
+     *    } ClientCertificateType;
+     *
+     *    enum {
+     *        none(0), md5(1), sha1(2), sha224(3), sha256(4), sha384(5),
+     *        sha512(6), (255)
+     *    } HashAlgorithm;
+     *
+     *    enum { anonymous(0), rsa(1), dsa(2), ecdsa(3), (255) }
+     *      SignatureAlgorithm;
+     *
+     *    struct {
+     *          HashAlgorithm hash;
+     *          SignatureAlgorithm signature;
+     *    } SignatureAndHashAlgorithm;
+     *
+     *    SignatureAndHashAlgorithm
+     *      supported_signature_algorithms<2..2^16-2>;
+     *
+     *    opaque DistinguishedName<1..2^16-1>;
+     *
+     *    struct {
+     *        ClientCertificateType certificate_types<1..2^8-1>;
+     *        SignatureAndHashAlgorithm
+     *          supported_signature_algorithms<2^16-1>;
+     *        DistinguishedName certificate_authorities<0..2^16-1>;
+     *    } CertificateRequest;
+     *
      */
     proto_tree *ti;
     proto_tree *subtree;
+    proto_tree *saved_subtree;
     guint8      cert_types_count;
+    gint        sh_alg_length;
+    guint16     sig_hash_alg;
     gint        dnames_length;
     asn1_ctx_t  asn1_ctx;
 
@@ -2495,6 +2541,67 @@ dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
                 offset++;
                 cert_types_count--;
             }
+        }
+
+        switch(*conv_version) {
+        case SSL_VER_TLSv1DOT2:
+            sh_alg_length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(tree, hf_ssl_handshake_sig_hash_alg_len,
+                                tvb, offset, 2, sh_alg_length);
+            offset += 2;
+
+            if (sh_alg_length > 0)
+            {
+                ti = proto_tree_add_none_format(tree,
+                                                hf_ssl_handshake_sig_hash_algs,
+                                                tvb, offset, sh_alg_length,
+                                                "Signature Hash Algorithms (%u algorithm%s)",
+                                                sh_alg_length/2,
+                                                plurality(sh_alg_length/2, "", "s"));
+                subtree = proto_item_add_subtree(ti, ett_ssl_sig_hash_algs);
+                if (!subtree)
+                {
+                    subtree = tree;
+                }
+                
+                if (sh_alg_length % 2) {
+                    proto_tree_add_text(tree, tvb, offset, 2,
+                        "Invalid Signature Hash Algorithm length: %d", sh_alg_length);
+                    expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR,
+                        "Signature Hash Algorithm length (%d) must be a multiple of 2",
+                        sh_alg_length);
+                    return;
+                }
+
+
+                while (sh_alg_length > 0)
+                {
+                    saved_subtree = subtree;
+
+                    sig_hash_alg = tvb_get_ntohs(tvb, offset);
+                    ti = proto_tree_add_uint(subtree, hf_ssl_handshake_sig_hash_alg,
+                                        tvb, offset, 2, sig_hash_alg);
+                    subtree = proto_item_add_subtree(ti, ett_ssl_sig_hash_alg);
+                    if (!subtree)
+                    {
+                        subtree = saved_subtree;
+                    }
+
+                    proto_tree_add_item(subtree, hf_ssl_handshake_sig_hash_hash,
+                                    tvb, offset, 1, FALSE);
+                    proto_tree_add_item(subtree, hf_ssl_handshake_sig_hash_sig,
+                                    tvb, offset+1, 1, FALSE);
+
+                    subtree = saved_subtree;
+
+                    offset += 2;
+                    sh_alg_length -= 2;
+                }
+            }
+            break;
+
+        default:
+            break;
         }
 
         dnames_length = tvb_get_ntohs(tvb, offset);
@@ -4237,6 +4344,31 @@ proto_register_ssl(void)
             FT_UINT8, BASE_DEC, VALS(ssl_31_client_certificate_type), 0x0,
             NULL, HFILL }
         },
+        { &hf_ssl_handshake_sig_hash_alg_len,
+          { "Signature Hash Algorithms Length", "ssl.handshake.sig_hash_alg_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of Signature Hash Algorithms", HFILL }
+        },
+        { &hf_ssl_handshake_sig_hash_algs,
+          { "Signature Hash Algorithms", "ssl.handshake.sig_hash_algs",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            "List of Signature Hash Algorithms", HFILL }
+        },
+        { &hf_ssl_handshake_sig_hash_alg,
+          { "Signature Hash Algorithm", "ssl.handshake.sig_hash_alg",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ssl_handshake_sig_hash_hash,
+          { "Signature Hash Algorithm Hash", "ssl.handshake.sig_hash_hash",
+            FT_UINT8, BASE_DEC, VALS(tls_hash_algorithm), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ssl_handshake_sig_hash_sig,
+          { "Signature Hash Algorithm Signature", "ssl.handshake.sig_hash_sig",
+            FT_UINT8, BASE_DEC, VALS(tls_signature_algorithm), 0x0,
+            NULL, HFILL }
+        },
         { &hf_ssl_handshake_finished,
           { "Verify Data", "ssl.handshake.verify_data",
             FT_NONE, BASE_NONE, NULL, 0x0,
@@ -4461,6 +4593,8 @@ proto_register_ssl(void)
         &ett_ssl_extension_curves_point_formats,
         &ett_ssl_certs,
         &ett_ssl_cert_types,
+        &ett_ssl_sig_hash_algs,
+        &ett_ssl_sig_hash_alg,
         &ett_ssl_dnames,
         &ett_ssl_random,
         &ett_pct_cipher_suites,
