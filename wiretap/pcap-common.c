@@ -358,6 +358,10 @@ static const struct {
 	{ 226,		WTAP_ENCAP_IPNET },
 	/* SocketCAN frame */
 	{ 227,		WTAP_ENCAP_SOCKETCAN },
+	/* Raw IPv4 */
+	{ 228,		WTAP_ENCAP_RAW_IP4 },
+	/* Raw IPv6 */
+	{ 229,		WTAP_ENCAP_RAW_IP6 },
 	/* IEEE 802.15.4 Wireless PAN no fcs */
 	{ 230,          WTAP_ENCAP_IEEE802_15_4_NOFCS },
 

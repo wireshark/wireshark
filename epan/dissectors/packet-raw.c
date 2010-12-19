@@ -120,6 +120,14 @@ dissect_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_text(fh_tree, tvb, 0, 0, "No link information available");
   }
 
+  if (pinfo->fd->lnk_t == WTAP_ENCAP_RAW_IP4) {
+    call_dissector(ip_handle, tvb, pinfo, tree);
+  }
+  else if (pinfo->fd->lnk_t == WTAP_ENCAP_RAW_IP6) {
+    call_dissector(ipv6_handle, tvb, pinfo, tree);
+  }
+  else
+
   /* So far, the only time we get raw connection types are with Linux and
    * Irix PPP connections.  We can't tell what type of data is coming down
    * the line, so our safest bet is IP. - GCC
@@ -198,4 +206,6 @@ proto_reg_handoff_raw(void)
   ppp_hdlc_handle = find_dissector("ppp_hdlc");
   raw_handle = create_dissector_handle(dissect_raw, proto_raw);
   dissector_add("wtap_encap", WTAP_ENCAP_RAW_IP, raw_handle);
+  dissector_add("wtap_encap", WTAP_ENCAP_RAW_IP4, raw_handle);
+  dissector_add("wtap_encap", WTAP_ENCAP_RAW_IP6, raw_handle);
 }
