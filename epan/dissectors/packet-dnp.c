@@ -268,6 +268,9 @@
 #define AL_OBJ_BO_ALL      0x0A00   /* 10 00 Binary Output Default Variation */
 #define AL_OBJ_BO          0x0A01   /* 10 01 Binary Output */
 #define AL_OBJ_BO_STAT     0x0A02   /* 10 02 Binary Output Status */
+#define AL_OBJ_BOC_ALL     0x0B00   /* 11 00 Binary Output Change Default Variation */
+#define AL_OBJ_BOC_NOTIME  0x0B01   /* 11 01 Binary Output Change Without Time */
+#define AL_OBJ_BOC_TIME    0x0B02   /* 11 02 Binary Output Change With Time */
 #define AL_OBJ_CTLOP_BLK   0x0C01   /* 12 01 Control Relay Output Block */
                         /* 0x0C02      12 02 Pattern Control Block */
                         /* 0x0C03      12 03 Pattern Mask */
@@ -748,6 +751,9 @@ static const value_string dnp3_al_obj_vals[] = {
   { AL_OBJ_BO_ALL,     "Binary Output Default Variation (Obj:10, Var:Default)" },
   { AL_OBJ_BO,         "Binary Output (Obj:10, Var:01)" },
   { AL_OBJ_BO_STAT,    "Binary Output Status (Obj:10, Var:02)" },
+  { AL_OBJ_BOC_ALL,    "Binary Output Change Default Variation (Obj:11, Var:Default)" },
+  { AL_OBJ_BOC_NOTIME, "Binary Output Change Without Time (Obj:11, Var:01)" },
+  { AL_OBJ_BOC_TIME,   "Binary Output Change With Time (Obj:11, Var:02)" },
   { AL_OBJ_CTLOP_BLK,  "Control Relay Output Block (Obj:12, Var:01)" },
   { AL_OBJ_CTR_ALL,    "Binary Counter Default Variation (Obj:20, Var:Default)" },
   { AL_OBJ_CTR_32,     "32-Bit Binary Counter (Obj:20, Var:01)" },
@@ -1472,6 +1478,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
           case AL_OBJ_CTRC_ALL:    /* Binary Counter Change Default Variation (Obj:22 Var:Default) */
           case AL_OBJ_AI_ALL:      /* Analog Input Default Variation (Obj:30, Var:Default) */
           case AL_OBJ_AIC_ALL:     /* Analog Input Change Default Variation (Obj:32 Var:Default) */
+          case AL_OBJ_BOC_ALL:     /* Binary Output Change Default Variation (Obj:11, Var:Default) */
           case AL_OBJ_AIDB_ALL:    /* Analog Input Deadband Default Variation (Obj:34, Var:Default) */
 
             offset = data_pos;
@@ -1531,6 +1538,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
           case AL_OBJ_BI_STAT:    /* Binary Input With Status (Obj:01, Var:02) */
           case AL_OBJ_BIC_NOTIME: /* Binary Input Change Without Time (Obj:02, Var:01) */
           case AL_OBJ_BO_STAT:    /* Binary Output Status (Obj:10, Var:02) */
+          case AL_OBJ_BOC_NOTIME: /* Binary Output Change Without Time (Obj:11, Var:01) */
 
             /* Get Point Flags */
             al_ptflags = tvb_get_guint8(tvb, data_pos);
@@ -1541,6 +1549,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
                 dnp3_al_obj_quality(tvb, data_pos, al_ptflags, point_tree, point_item, BIN_IN);
                 break;
               case AL_OBJ_BO_STAT:
+              case AL_OBJ_BOC_NOTIME:
                 dnp3_al_obj_quality(tvb, data_pos, al_ptflags, point_tree, point_item, BIN_OUT);
                 break;
             }
@@ -1570,10 +1579,18 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
             break;
 
           case AL_OBJ_BIC_TIME:   /* Binary Input Change w/ Time (Obj:02, Var:02)  */
+          case AL_OBJ_BOC_TIME:   /* Binary Output Change w/ Time (Obj:11, Var:02)  */
 
             /* Get Point Flags */
             al_ptflags = tvb_get_guint8(tvb, data_pos);
-            dnp3_al_obj_quality(tvb, data_pos, al_ptflags, point_tree, point_item, BIN_IN);
+            switch (al_obj) {
+              case AL_OBJ_BIC_TIME:
+                dnp3_al_obj_quality(tvb, data_pos, al_ptflags, point_tree, point_item, BIN_IN);
+                break;
+              case AL_OBJ_BOC_TIME:
+                dnp3_al_obj_quality(tvb, data_pos, al_ptflags, point_tree, point_item, BIN_OUT);
+                break;
+            }
             data_pos += 1;
 
 
