@@ -58,12 +58,14 @@ typedef struct commview_header {
 	guint8		seconds;
 	guint32		usecs;
 	guint8		flags;		/* Bit-field positions defined below */
-	guint8		signal_level;
+	guint8		signal_level_percent;
 	guint8		rate;
 	guint8		band;
 	guint8		channel;
-	guint8		direction;	/* Not applicable to WiFi packets */
-	guint16		reserved;	/* Unused bytes */
+	guint8		direction;	/* Or for WiFi, high order byte of
+					 * packet rate. */
+	guint8		signal_level_dbm;
+	guint8		noise_level;	/* In dBm (WiFi only) */
 } commview_header_t;
 
 #define COMMVIEW_HEADER_SIZE 24
@@ -107,14 +109,11 @@ int commview_open(wtap *wth, int *err, gchar **err_info _U_)
 	   cv_hdr.hours > 23 ||
 	   cv_hdr.minutes > 59 ||
 	   cv_hdr.seconds > 60 ||
-	   cv_hdr.signal_level > 100 ||
-	   (cv_hdr.direction != 0x00 && cv_hdr.direction != 0x01 &&
-	    cv_hdr.direction != 0x02) ||
+	   cv_hdr.signal_level_percent > 100 ||
 	   (cv_hdr.flags & FLAGS_RESERVED) != 0 ||
 	   ((cv_hdr.flags & FLAGS_MEDIUM) != MEDIUM_ETHERNET &&
 	    (cv_hdr.flags & FLAGS_MEDIUM) != MEDIUM_WIFI &&
-	    (cv_hdr.flags & FLAGS_MEDIUM) != MEDIUM_TOKEN_RING) ||
-	   cv_hdr.reserved != 0)
+	    (cv_hdr.flags & FLAGS_MEDIUM) != MEDIUM_TOKEN_RING))
 		return 0; /* Not our kind of file */
 
 	/* No file header. Reset the fh to 0 so we can read the first packet */
@@ -225,7 +224,7 @@ commview_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 		pseudo_header->ieee_802_11.fcs_len = -1; /* Unknown */
 		pseudo_header->ieee_802_11.channel = cv_hdr.channel;
 		pseudo_header->ieee_802_11.data_rate = cv_hdr.rate;
-		pseudo_header->ieee_802_11.signal_level = cv_hdr.signal_level;
+		pseudo_header->ieee_802_11.signal_level = cv_hdr.signal_level_percent;
 	}
 
 	bytes_read = file_read(pd, 1, cv_hdr.data_len, wth->random_fh);
@@ -256,12 +255,13 @@ commview_read_header(commview_header_t *cv_hdr, FILE_T fh, int *err)
 	bytes_read += file_read(&cv_hdr->seconds, 1, 1, fh);
 	bytes_read += file_read(&cv_hdr->usecs, 4, 1, fh);
 	bytes_read += file_read(&cv_hdr->flags, 1, 1, fh);
-	bytes_read += file_read(&cv_hdr->signal_level, 1, 1, fh);
+	bytes_read += file_read(&cv_hdr->signal_level_percent, 1, 1, fh);
 	bytes_read += file_read(&cv_hdr->rate, 1, 1, fh);
 	bytes_read += file_read(&cv_hdr->band, 1, 1, fh);
 	bytes_read += file_read(&cv_hdr->channel, 1, 1, fh);
 	bytes_read += file_read(&cv_hdr->direction, 1, 1, fh);
-	bytes_read += file_read(&cv_hdr->reserved, 2, 1, fh);
+	bytes_read += file_read(&cv_hdr->signal_level_dbm, 1, 1, fh);
+	bytes_read += file_read(&cv_hdr->noise_level, 1, 1, fh);
 
 	/* Convert multi-byte values from little endian to host endian format */
 	cv_hdr->data_len = GUINT16_FROM_LE(cv_hdr->data_len);
@@ -363,7 +363,7 @@ static gboolean commview_dump(wtap_dumper *wdh,
 
 		cv_hdr.channel = pseudo_header->ieee_802_11.channel;
 		cv_hdr.rate = pseudo_header->ieee_802_11.data_rate;
-		cv_hdr.signal_level = pseudo_header->ieee_802_11.signal_level;
+		cv_hdr.signal_level_percent = pseudo_header->ieee_802_11.signal_level;
 
 		break;
 
@@ -397,7 +397,7 @@ static gboolean commview_dump(wtap_dumper *wdh,
 		return FALSE;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.flags, 1, err))
 		return FALSE;
-	if (!wtap_dump_file_write(wdh, &cv_hdr.signal_level, 1, err))
+	if (!wtap_dump_file_write(wdh, &cv_hdr.signal_level_percent, 1, err))
 		return FALSE;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.rate, 1, err))
 		return FALSE;
@@ -407,7 +407,9 @@ static gboolean commview_dump(wtap_dumper *wdh,
 		return FALSE;
 	if (!wtap_dump_file_write(wdh, &cv_hdr.direction, 1, err))
 		return FALSE;
-	if (!wtap_dump_file_write(wdh, &cv_hdr.reserved, 2, err))
+	if (!wtap_dump_file_write(wdh, &cv_hdr.signal_level_dbm, 2, err))
+		return FALSE;
+	if (!wtap_dump_file_write(wdh, &cv_hdr.noise_level, 2, err))
 		return FALSE;
 	wdh->bytes_dumped += COMMVIEW_HEADER_SIZE;
 
