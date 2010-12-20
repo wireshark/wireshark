@@ -50,8 +50,31 @@ static int hf_pim_type = -1;
 static int hf_pim_code = -1;
 static int hf_pim_cksum = -1;
 static int hf_pim_res_bytes = -1;
+/* PIM Hello options (RFC 4601, section 4.9.2 and RFC 3973, section 4.7.5) */
+static int hf_pim_optiontype = -1;
+static int hf_pim_optionlength = -1;
+static int hf_pim_optionvalue = -1;
+static int hf_pim_mode = -1;
+static int hf_pim_holdtime = -1;
+static int hf_pim_numgroups = -1;
+static int hf_pim_numjoins = -1;
+static int hf_pim_numprunes = -1;
+static int hf_pim_t = -1;
+static int hf_pim_propagation_delay = -1;
+static int hf_pim_override_interval = -1;
+static int hf_pim_dr_priority = -1;
+static int hf_pim_generation_id = -1;
+static int hf_pim_state_refresh_version = -1;
+static int hf_pim_state_refresh_interval = -1;
+static int hf_pim_state_refresh_reserved = -1;
+/* Assert fields */
+static int hf_pim_rpt = -1;
+static int hf_pim_metric_pref = -1;
+static int hf_pim_metric = -1;
 
 static gint ett_pim = -1;
+static gint ett_pim_opts = -1;
+static gint ett_pim_opt = -1;
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
@@ -60,6 +83,10 @@ static dissector_handle_t ipv6_handle;
  * For PIM v1, see
  *
  *      ftp://ftp.usc.edu/pub/csinfo/tech-reports/papers/95-599.ps.Z
+ * 
+ * NOTE: There is still some doubt that this is THE definitive PIMv1
+ *       specification.  Of note, the type1vals entry, { 8, "Mode" }, does
+ *       not appear as a valid code in the referenced document above.
  */
 static const char *
 dissect_pimv1_addr(tvbuff_t *tvb, int offset) {
@@ -88,6 +115,13 @@ static const value_string type1vals[] = {
     { 7, "Graft-Ack" },
     { 8, "Mode" },
     { 0, NULL },
+};
+
+static const value_string pimv1_modevals[] = {
+    { 0, "Dense" },
+    { 1, "Sparse" },
+    { 2, "Sparse-Dense" },
+    { 0, NULL }
 };
 
 /* This function is only called from the IGMP dissector */
@@ -198,9 +232,8 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 3;        /* skip reserved stuff */
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
-        tiopt = proto_tree_add_text(pim_tree, tvb, offset, -1,
-                                    "PIM parameters");
-        pimopt_tree = proto_item_add_subtree(tiopt, ett_pim);
+        tiopt = proto_tree_add_text(pim_tree, tvb, offset, -1, "PIM options");
+        pimopt_tree = proto_item_add_subtree(tiopt, ett_pim_opts);
     } else
         goto done;
 
@@ -208,24 +241,16 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     switch (pim_type) {
     case 0:     /* query */
     {
-        guint8 mode;
         guint16 holdtime;
-        static const value_string pimv1_modevals[] = {
-            { 0, "Dense" },
-            { 1, "Sparse" },
-            { 2, "Sparse-Dense" },
-            { 0, NULL },
-        };
 
-        mode = tvb_get_guint8(tvb, offset) >> 4;
-        proto_tree_add_text(pimopt_tree, tvb, offset, 1,
-                            "Mode: %s",
-                            val_to_str(mode, pimv1_modevals, "Unknown (%u)"));
+        proto_tree_add_item(pimopt_tree, hf_pim_mode, tvb, offset, 1, FALSE);
         offset += 2;
+
         holdtime = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_text(pimopt_tree, tvb, offset, 2,
-                            "Holdtime: %u%s", holdtime,
-                            holdtime == 0xffff ? " (infty)" : "");
+        proto_tree_add_uint_format(pimopt_tree, hf_pim_holdtime, tvb,
+                                   offset, 2, holdtime,
+                                   "Holdtime: %us %s", holdtime,
+                                   holdtime == 0xffff ? "(infinity)": "");
         offset += 2;
         break;
     }
@@ -334,9 +359,10 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 2;    /* skip reserved stuff */
 
         holdtime = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_text(pimopt_tree, tvb, offset, 2,
-                            "Holdtime: %u%s", holdtime,
-                            holdtime == 0xffff ? " (infty)" : "");
+        proto_tree_add_uint_format(pimopt_tree, hf_pim_holdtime, tvb,
+                                   offset, 2, holdtime,
+                                   "Holdtime: %us %s", holdtime,
+                                   holdtime == 0xffff ? "(infinity)": "");
         offset += 2;
 
         offset += 1;    /* skip reserved stuff */
@@ -352,8 +378,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 1;
 
         ngroup = tvb_get_guint8(tvb, offset);
-        proto_tree_add_text(pimopt_tree, tvb, offset, 1,
-                            "Groups: %u", ngroup);
+        proto_tree_add_item(pimopt_tree, hf_pim_numgroups, tvb, offset, 1, FALSE);
         offset += 1;
 
         for (i = 0; i < ngroup; i++) {
@@ -374,9 +399,8 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             njoin = tvb_get_ntohs(tvb, offset);
             nprune = tvb_get_ntohs(tvb, offset + 2);
-
-            tisub = proto_tree_add_text(grouptree, tvb, offset, 2,
-                                        "Join: %d", njoin);
+            tisub = proto_tree_add_item(grouptree, hf_pim_numjoins, tvb,
+                                        offset, 2, FALSE);
             subtree = proto_item_add_subtree(tisub, ett_pim);
             off = offset + 4;
             for (j = 0; j < njoin; j++) {
@@ -386,8 +410,8 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 off += 6;
             }
 
-            tisub = proto_tree_add_text(grouptree, tvb, offset + 2, 2,
-                                        "Prune: %d", nprune);
+            tisub = proto_tree_add_item(grouptree, hf_pim_numprunes, tvb, 
+                                        offset + 2, 2, FALSE);
             subtree = proto_item_add_subtree(tisub, ett_pim);
             for (j = 0; j < nprune; j++) {
                 s = dissect_pimv1_addr(tvb, off);
@@ -422,15 +446,18 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 2;    /* skip reserved stuff */
 
         holdtime = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_text(pimopt_tree, tvb, offset, 2,
-                            "Holdtime: %u%s", holdtime,
-                            holdtime == 0xffff ? " (infty)" : "");
+        proto_tree_add_uint_format(pimopt_tree, hf_pim_holdtime, tvb,
+                                   offset, 2, holdtime,
+                                   "Holdtime: %us %s", holdtime,
+                                   holdtime == 0xffff ? "(infinity)": "");
         offset += 2;
         break;
     }
 
     case 5:     /* assert */
     {
+        guint32 pref;
+
         proto_tree_add_text(pimopt_tree, tvb, offset, 4,
                             "Group Address: %s",
                             ip_to_str(tvb_get_ptr(tvb, offset, 4)));
@@ -441,16 +468,15 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             ip_to_str(tvb_get_ptr(tvb, offset, 4)));
         offset += 4;
 
-        proto_tree_add_text(pimopt_tree, tvb, offset, 1, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset), 0x80, 8,
-                                                    "RP Tree", "Not RP Tree"));
-        proto_tree_add_text(pimopt_tree, tvb, offset, 4, "Preference: %u",
-                            tvb_get_ntohl(tvb, offset) & 0x7fffffff);
+        proto_tree_add_item(pimopt_tree, hf_pim_rpt, tvb, offset, 1, FALSE);
+        pref = tvb_get_ntohl(tvb, offset) & 0x7fffffff;
+        proto_tree_add_uint_format(pimopt_tree, hf_pim_metric_pref, tvb,
+                                   offset, 4, pref,
+                                   "Metric Preference: %u", pref);
         offset += 4;
 
-        proto_tree_add_text(pimopt_tree, tvb, offset, 4, "Metric: %u",
-                            tvb_get_ntohl(tvb, offset));
-
+        proto_tree_add_item(pimopt_tree, hf_pim_metric, tvb, offset, 4, FALSE);
+        offset += 4;
         break;
     }
 
@@ -574,6 +600,19 @@ static const value_string type2vals[] = {
     { 8, "Candidate-RP-Advertisement" },
     { 9, "State-Refresh" },
     { 0, NULL }
+};
+
+static const value_string pim_opt_vals[] = {
+    {1, "Hold Time"},
+    {2, "LAN Prune Delay"},
+    {18, "Deprecated and should not be used"},
+    {19, "DR Priority"},
+    {20, "Generation ID"},
+    {21, "State Refresh Capable"},
+    {22, "Bidir Capable"},
+    {24, "Address List"},
+    {65001, "Address List"},    /* old implementation */
+    {0, NULL}
 };
 
 /*
@@ -705,9 +744,8 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     offset += 4;
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
-        tiopt = proto_tree_add_text(pim_tree, tvb, offset, -1,
-                                    "PIM parameters");
-        pimopt_tree = proto_item_add_subtree(tiopt, ett_pim);
+        tiopt = proto_tree_add_text(pim_tree, tvb, offset, -1, "PIM options");
+        pimopt_tree = proto_item_add_subtree(tiopt, ett_pim_opts);
     } else
         goto done;
 
@@ -718,66 +756,64 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     switch (PIM_TYPE(pim_typever)) {
     case 0:     /*hello*/
     {
+        int opt_count = 0;
+
         while (tvb_reported_length_remaining(tvb, offset) >= 2) {
             guint16 hello_opt, opt_len;
-            guint16 holdtime;
-            guint16 lan_delay;
-            guint16 override_interval;
-            guint32 priority;
-            guint32 opt_value = 0;
+            guint16 opt_value;
+            proto_item *opt_item;
+            proto_tree *opt_tree;
 
+            opt_count++;
             hello_opt = tvb_get_ntohs(tvb, offset);
             opt_len = tvb_get_ntohs(tvb, offset + 2);
-
-            if(opt_len == 2)
-                opt_value = tvb_get_ntohs(tvb, offset + 4);
-            if(opt_len == 4)
-                opt_value = tvb_get_ntohl(tvb, offset + 4);
+            opt_item = proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len,
+                                           "Option %u: %s", hello_opt,
+                                           match_strval(hello_opt, pim_opt_vals));
+            opt_tree = proto_item_add_subtree(opt_item, ett_pim_opt);
+            proto_tree_add_item(opt_tree, hf_pim_optiontype, tvb, offset, 2, FALSE);
+            proto_tree_add_item(opt_tree, hf_pim_optionlength, tvb, offset + 2, 2, FALSE);
 
             switch(hello_opt) {
-            case 1: /* holdtime */
-                holdtime = opt_value;
-                proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len,
-                                    "Holdtime (%u): %us %s", hello_opt, holdtime,
-                                    holdtime == 0xffff ? " (infty)" : "");
+            case 1: /* Hello Hold Time Option */
+                opt_value = tvb_get_ntohs(tvb, offset + 4);
+                proto_tree_add_uint_format(opt_tree, hf_pim_holdtime, tvb,
+                                           offset + 4, opt_len, opt_value,
+                                           "Holdtime: %us %s", opt_value, opt_value == 0 ? "(goodbye)" :
+                                           opt_value == 0xffff ? "(infinity)": "");
+                proto_item_append_text(opt_item, ": %us %s", opt_value,
+                                       opt_value == 0 ? "(goodbye)" :
+                                       opt_value == 0xffff ? "(infinity)": "");
                 break;
-            case 2: /* LAN prune delay
-                     *
-                     * 0                   1                   2                   3
-                     * 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-                     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-                     * |            Type = 2           |           Length = 4          |
-                     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-                     * |T|       LAN Prune Delay       |       Override Interval       |
-                     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-                     */
-            {
-                proto_tree *sub_tree = NULL;
-                proto_item *landelay_option;
 
-                landelay_option = proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len,
-                                                      "LAN Prune Delay (%u)", hello_opt);
-                sub_tree = proto_item_add_subtree(landelay_option, ett_pim);
+            case 2: /* LAN Prune Delay Option */
+                proto_tree_add_item(opt_tree, hf_pim_t, tvb, offset + 4, 1, FALSE);
+                proto_tree_add_item(opt_tree, hf_pim_propagation_delay, tvb, offset + 4, 2, FALSE);
+                proto_tree_add_item(opt_tree, hf_pim_override_interval, tvb, offset + 6, 2, FALSE);
+                proto_item_append_text(opt_item,
+                                       ": T = %u, Propagation Delay = %ums, Override Interval = %ums",
+                                       tvb_get_guint8(tvb, offset + 4) & 0x80 ? 1 : 0,
+                                       tvb_get_ntohs(tvb, offset + 4) & 0x7fff,
+                                       tvb_get_ntohs(tvb, offset + 6));
+                break;
 
-                lan_delay = (opt_value & 0x7fff0000) >> 16;
-                override_interval = opt_value & 0x0000ffff;
-                proto_tree_add_text(sub_tree, tvb, offset + 4, 1,
-                                    "T bit is %s",
-                                    (opt_value & 0x80000000) ? "set" : "not set");
-                proto_tree_add_text(sub_tree, tvb, offset + 4, 2,
-                                    "LAN Delay: %ums", lan_delay);
-                proto_tree_add_text(sub_tree, tvb, offset + 6, 2,
-                                    "Override Interval: %ums", override_interval);
+            case 19: /* DR priority */
+                proto_tree_add_item(opt_tree, hf_pim_dr_priority, tvb, offset + 4, 4, FALSE);
+                proto_item_append_text(opt_item, ": %lu", tvb_get_ntohl(tvb, offset + 4));
                 break;
-            }
-            case 19: /* priority */
-                priority = opt_value;
-                proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len,
-                                    "DR Priority (%u): %u", hello_opt, priority);
+
+            case 20: /* Generation ID */
+                proto_tree_add_item(opt_tree, hf_pim_generation_id, tvb, offset + 4, 4, FALSE);
+                proto_item_append_text(opt_item, ": %lu", tvb_get_ntohl(tvb, offset + 4));
                 break;
-            case 20: /* generation ID */
-                proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len,
-                                    "Generation ID (%u): %d", hello_opt, opt_value);
+
+            case 21: /* State Refresh Capable Option */
+                proto_tree_add_item(opt_tree, hf_pim_state_refresh_version, tvb, offset + 4, 1, FALSE);
+                proto_tree_add_item(opt_tree, hf_pim_state_refresh_interval, tvb, offset + 5, 1, FALSE);
+                proto_tree_add_item(opt_tree, hf_pim_state_refresh_reserved, tvb, offset + 6, 2, FALSE);
+                proto_item_append_text(opt_item, ": Version = %u, Interval = %us",
+                                       tvb_get_guint8(tvb, offset + 4),
+                                       tvb_get_guint8(tvb, offset + 5));
                 break;
 
             case 24: /* address list */
@@ -787,12 +823,11 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 proto_tree *sub_tree = NULL;
                 proto_item *addrlist_option;
 
-                addrlist_option = proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len,
+                addrlist_option = proto_tree_add_text(opt_tree, tvb, offset, 4 + opt_len,
                                                       "%sAddress List (%u)",
                                                       hello_opt == 65001 ? "old " : "",
                                                       hello_opt);
-                sub_tree = proto_item_add_subtree(addrlist_option, ett_pim);
-
+                sub_tree = proto_item_add_subtree(addrlist_option, ett_pim_opt);
                 for (i = offset + 4; i < offset + 4 + opt_len; ) {
                     int advance;
                     const char *s;
@@ -800,20 +835,22 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                     s = dissect_pim_addr(tvb, i, pimv2_unicast, &advance);
                     if (s == NULL)
                         break;
-                    proto_tree_add_text(sub_tree, tvb, offset, 
+                    proto_tree_add_text(sub_tree, tvb, offset,
                                         advance, "Address: %s", s);
                     i += advance;
                 }
                 break;
             }
+
             default:
-                proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len,
-                                    "Unknown option (%u), length: %u, value: 0x%x",
-                                    hello_opt, opt_len, opt_value);
+                if (opt_len)
+                    proto_tree_add_item(opt_tree, hf_pim_optionvalue, tvb,
+                                        offset + 4, opt_len, FALSE);
                 break;
             }
             offset += 4 + opt_len;
         }
+        proto_item_append_text(tiopt, ": %u", opt_count);
         break;
     }
 
@@ -938,18 +975,18 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                             "Upstream-neighbor: %s", s);
         offset += advance;
 
+        proto_tree_add_item(pimopt_tree, hf_pim_res_bytes, tvb, offset, 1, FALSE);
         offset += 1;    /* skip reserved field */
 
         ngroup = tvb_get_guint8(tvb, offset);
-        proto_tree_add_text(pimopt_tree, tvb, offset, 1,
-                            "Groups: %u", ngroup);
+        proto_tree_add_item(pimopt_tree, hf_pim_numgroups, tvb, offset, 1, FALSE);
         offset += 1;
 
         holdtime = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_text(pimopt_tree, tvb, offset, 2,
-                            "Holdtime: %u%s", holdtime,
-                            holdtime == 0xffff ? " (infty)" : "");
-
+        proto_tree_add_uint_format(pimopt_tree, hf_pim_holdtime, tvb,
+                                   offset, 2, holdtime,
+                                   "Holdtime: %us %s", holdtime,
+                                   holdtime == 0xffff ? "(infinity)": "");
         offset += 2;
 
         for (i = 0; i < ngroup; i++) {
@@ -963,14 +1000,12 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
             njoin = tvb_get_ntohs(tvb, offset);
             nprune = tvb_get_ntohs(tvb, offset + 2);
-
-            tisub = proto_tree_add_text(grouptree, tvb, offset, 2,
-                                        "Join: %d", njoin);
+            tisub = proto_tree_add_item(grouptree, hf_pim_numjoins, tvb,
+                                        offset, 2, FALSE);
             subtree = proto_item_add_subtree(tisub, ett_pim);
             off = offset + 4;
             for (j = 0; j < njoin; j++) {
-                s = dissect_pim_addr(tvb, off, pimv2_source,
-                                     &advance);
+                s = dissect_pim_addr(tvb, off, pimv2_source, &advance);
                 if (s == NULL)
                     goto breakbreak3;
                 proto_tree_add_text(subtree, tvb, off, advance,
@@ -978,12 +1013,11 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 off += advance;
             }
 
-            tisub = proto_tree_add_text(grouptree, tvb, offset + 2, 2,
-                                        "Prune: %d", nprune);
+            tisub = proto_tree_add_item(grouptree, hf_pim_numprunes, tvb, 
+                                        offset + 2, 2, FALSE);
             subtree = proto_item_add_subtree(tisub, ett_pim);
             for (j = 0; j < nprune; j++) {
-                s = dissect_pim_addr(tvb, off, pimv2_source,
-                                     &advance);
+                s = dissect_pim_addr(tvb, off, pimv2_source, &advance);
                 if (s == NULL)
                     goto breakbreak3;
                 proto_tree_add_text(subtree, tvb, off, advance,
@@ -1049,9 +1083,10 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 offset += advance;
 
                 holdtime = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_text(grouptree, tvb, offset, 2,
-                                    "Holdtime: %u%s", holdtime,
-                                    holdtime == 0xffff ? " (infty)" : "");
+                proto_tree_add_uint_format(grouptree, hf_pim_holdtime, tvb,
+                                   offset, 2, holdtime,
+                                   "Holdtime: %us %s", holdtime,
+                                   holdtime == 0xffff ? "(infinity)": "");
                 offset += 2;
                 proto_tree_add_text(grouptree, tvb, offset, 1,
                                     "Priority: %u", tvb_get_guint8(tvb, offset));
@@ -1067,6 +1102,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     {
         const char *s;
         int advance;
+        guint32 pref;
 
         s = dissect_pim_addr(tvb, offset, pimv2_group, &advance);
         if (s == NULL)
@@ -1080,16 +1116,15 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         proto_tree_add_text(pimopt_tree, tvb, offset, advance, "Source: %s", s);
         offset += advance;
 
-        proto_tree_add_text(pimopt_tree, tvb, offset, 1, "%s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset), 0x80, 8,
-                                                    "RP Tree", "Not RP Tree"));
-        proto_tree_add_text(pimopt_tree, tvb, offset, 4, "Preference: %u",
-                            tvb_get_ntohl(tvb, offset) & 0x7fffffff);
+        proto_tree_add_item(pimopt_tree, hf_pim_rpt, tvb, offset, 1, FALSE);
+        pref = tvb_get_ntohl(tvb, offset) & 0x7fffffff;
+        proto_tree_add_uint_format(pimopt_tree, hf_pim_metric_pref, tvb,
+                                   offset, 4, pref,
+                                   "Metric Preference: %u", pref);
         offset += 4;
 
-        proto_tree_add_text(pimopt_tree, tvb, offset, 4, "Metric: %u",
-                            tvb_get_ntohl(tvb, offset));
-
+        proto_tree_add_item(pimopt_tree, hf_pim_metric, tvb, offset, 4, FALSE);
+        offset += 4;
         break;
     }
 
@@ -1109,9 +1144,10 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                             "Priority: %u", tvb_get_guint8(tvb, offset));
         offset += 1;
         holdtime = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_text(pimopt_tree, tvb, offset, 2,
-                            "Holdtime: %u%s", holdtime,
-                            holdtime == 0xffff ? " (infty)" : "");
+        proto_tree_add_uint_format(pimopt_tree, hf_pim_holdtime, tvb,
+                                   offset, 2, holdtime,
+                                   "Holdtime: %us %s", holdtime,
+                                   holdtime == 0xffff ? "(infinity)": "");
         offset += 2;
 
         s = dissect_pim_addr(tvb, offset, pimv2_unicast, &advance);
@@ -1136,6 +1172,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     {
         const char *s;
         int advance;
+        guint32 pref;
 
         s = dissect_pim_addr(tvb, offset, pimv2_group, &advance);
         if (s == NULL)
@@ -1158,15 +1195,14 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                             "Originator: %s", s);
         offset += advance;
 
-        proto_tree_add_text(pimopt_tree, tvb, offset, 1, "Rendezvous Point Tree %s",
-                            decode_boolean_bitfield(tvb_get_guint8(tvb, offset), 1, 1,
-                                                    "set", "clear"));
-        proto_tree_add_text(pimopt_tree, tvb, offset, 4,
-                            "Metric Preference: %u", tvb_get_ntohl(tvb, offset) & 0x7FFFFFFF);
+        proto_tree_add_item(pimopt_tree, hf_pim_rpt, tvb, offset, 1, FALSE);
+        pref = tvb_get_ntohl(tvb, offset) & 0x7fffffff;
+        proto_tree_add_uint_format(pimopt_tree, hf_pim_metric_pref, tvb,
+                                   offset, 4, pref,
+                                   "Metric Preference: %u", pref);
         offset += 4;
 
-        proto_tree_add_text(pimopt_tree, tvb, offset, 4,
-                            "Metric: %u", tvb_get_ntohl(tvb, offset));
+        proto_tree_add_item(pimopt_tree, hf_pim_metric, tvb, offset, 4, FALSE);
         offset += 4;
 
         proto_tree_add_text(pimopt_tree, tvb, offset, 1,
@@ -1231,9 +1267,111 @@ proto_register_pim(void)
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
             },
+            { &hf_pim_optiontype,
+              { "Type", "pim.optiontype",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_optionlength,
+              { "Length", "pim.optionlength",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_optionvalue,
+              { "Unknown", "pim.optionvalue",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_mode,
+              { "Mode", "pim.mode",
+                FT_UINT8, BASE_DEC, VALS(pimv1_modevals), 0xf0,
+                NULL, HFILL }
+            },
+            { &hf_pim_holdtime,
+              { "Holdtime", "pim.holdtime",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "The amount of time a receiver must keep the neighbor "
+                "reachable, in seconds.", HFILL }
+            },
+            { &hf_pim_numgroups,
+              { "Num Groups", "pim.numgroups",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Number of multicast group sets contained in the message.",
+                HFILL }
+            },
+            { &hf_pim_numjoins,
+              { "Num Joins", "pim.numjoins",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Number of joined sources.", HFILL }
+            },
+            { &hf_pim_numprunes,
+              { "Num Prunes", "pim.numprunes",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Number of pruned sources.", HFILL }
+            },
+            { &hf_pim_t,
+              { "T", "pim.t",
+                FT_BOOLEAN, 8, NULL, 0x80,
+                "Specifies the ability of the sending router to disable joins "
+                "suppression.", HFILL }
+            },
+            { &hf_pim_propagation_delay,
+              { "Propagation Delay", "pim.propagation_delay",
+                FT_UINT16, BASE_DEC, NULL, 0x07fff,
+                "Units are milli-seconds", HFILL }
+            },
+            { &hf_pim_override_interval,
+              { "Override Interval", "pim.override_interval",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Units are milli-seconds", HFILL }
+            },
+            { &hf_pim_dr_priority,
+              { "DR Priority", "pim.dr_priority",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_generation_id,
+              { "Generation ID", "pim.generation_id",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_state_refresh_version,
+              { "Version", "pim.state_refresh_version",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_state_refresh_interval,
+              { "Interval", "pim.state_refresh_interval",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Units in seconds.", HFILL }
+            },
+            { &hf_pim_state_refresh_reserved,
+              { "Reserved", "pim.state_refresh_reserved",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_pim_rpt,
+              { "RP Tree", "pim.rpt",
+                FT_BOOLEAN, 8, NULL, 0x80,
+                "Set to 1 for assert(*,G) messages and 0 for assert(S,G) "
+                "messages.", HFILL }
+            },
+            { &hf_pim_metric_pref ,
+              { "Metric Preference", "pim.metric_pref",
+                FT_UINT32, BASE_DEC, NULL, 0x7fffffff,
+                NULL, HFILL }
+            },
+            { &hf_pim_metric ,
+              { "Metric", "pim.metric",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
         };
+
     static gint *ett[] = {
         &ett_pim,
+        &ett_pim_opts,  /* Tree for all options */
+        &ett_pim_opt    /* Tree for each option */
     };
 
     proto_pim = proto_register_protocol("Protocol Independent Multicast",
