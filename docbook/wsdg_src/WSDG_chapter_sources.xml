@@ -485,7 +485,7 @@ make
 	<para>
 	Additional traps can be set on GLib by setting the <varname>G_DEBUG</varname>
 	environment variable:<command>G_DEBUG=fatal_criticals libtool --mode=execute
-	ddd wireshark</command>. 
+	ddd wireshark</command>.
 	See <ulink url="http://library.gnome.org/devel/glib/stable/glib-running.html"/>
 	</para>
 	</section>
@@ -863,7 +863,7 @@ Index: file.h
 	  </para>
 	  </listitem>
 	  <listitem><para>
-	  <command>Verify that your dissector code does not use prohibited or deprecated APIs</command> 
+	  <command>Verify that your dissector code does not use prohibited or deprecated APIs</command>
 	  This can be done as follows:
 	  </para>
 	  <para>
@@ -904,12 +904,19 @@ Index: file.h
 	  testing, please say so in the description.
 	  </para></listitem>
 	  <listitem><para>
-	  Once the bug has been created, select <guibutton>Create a New Attachment</guibutton> 
-	  and upload your patch or patches.  Set the <command>review_for_checkin</command> flag to <command>?</command>.
+	  Once the bug has been created, select <guibutton>Create a New Attachment</guibutton>
+	  and upload your patch or patches.  Set the <command>review_for_checkin</command>
+	  flag to <command>?</command>.  If you skip this step, your patch won't show up in the
+	  patch request queue.
 	  </para></listitem>
 	  <listitem><para>
 	  If possible and applicable, attach a capture file that demonstrates
 	  your new feature or protocol.
+	  </para></listitem>
+	  <listitem><para>
+	  Don't set the bug's status to ASSIGNED and don't assign the bug to
+	  yourself--if you do the latter, the core developers won't see the
+	  updates made to the bug.
 	  </para></listitem>
 	</itemizedlist>
 	</para>
@@ -941,11 +948,14 @@ Index: file.h
 	  another patch.
 	  </para></listitem>
 	  <listitem><para>
-	  You don't get any response to your patch (even after a few days or so).
-	  Possible reason: your patch might simply get lost, as all core
-	  maintainers were busy at that time and forgot to look at your patch.
-	  Simply send a mail asking if the patch was forgotten or if someone is
-	  still looking at it.
+	  You don't get any response to your patch.
+	  Possible reason: Don't worry, if your patch is in the bug tracker, it
+	  won't get lost.  But it may be that all the core developers are busy
+	  (e.g., with their day jobs or family or...) and haven't had time to
+	  look at your patch.  If you're concerned, feel free to add a comment
+	  to the patch or send an email to the developer's list asking for
+	  status.  But please be patient: most if not all of us do this in our
+	  "spare" time.
 	  </para></listitem>
 	</itemizedlist>
 	</para>
@@ -1105,9 +1115,9 @@ $Id&#36;
 	<section id="ChSrcDeb">
 	<title>Debian: .deb packages</title>
 	<para>
-	The Debian Package is built using dpkg-buildpackage, based on information 
-	found in the source tree under <filename>debian</filename>. See 
-	<ulink url="http://www.debian-administration.org/articles/336"/> for a 
+	The Debian Package is built using dpkg-buildpackage, based on information
+	found in the source tree under <filename>debian</filename>. See
+	<ulink url="http://www.debian-administration.org/articles/336"/> for a
 	more in-depth discussion of the build process.
 	</para>
 	<para>
