@@ -223,6 +223,7 @@ static const value_string  message_id[] = {
   {0x013C, "AuditConferenceReqMessage"},
   {0x013D, "AuditParticipantReqMessage"},
   {0x013F, "UserToDeviceDataVersion1Message"},
+  {0x015A, "XMLAlarmMessage"},
 
   {0     , NULL}	/* terminator */
 };
@@ -1065,7 +1066,7 @@ static int hf_skinny_detectInterval = -1;
 static int hf_skinny_microphoneMode = -1;
 static int hf_skinny_headsetMode = -1;
 static int hf_skinny_unknown = -1;
-static int hf_skinny_data = -1;
+static int hf_skinny_xmlData = -1;
 static int hf_skinny_activeForward = -1;
 static int hf_skinny_forwardAllActive = -1;
 static int hf_skinny_forwardBusyActive = -1;
@@ -1186,6 +1187,10 @@ static int hf_cast_lastRedirectingReason = -1;
 static int hf_cast_callInstance = -1;
 static int hf_cast_callSecurityStatus = -1;
 
+/* Skinny content type and internet media type used by other dissectors
+ *  * are the same.  List of media types from IANA at:
+ *   * http://www.iana.org/assignments/media-types/index.html */
+static dissector_table_t media_type_dissector_table;
 
 /* Initialize the subtree pointers */
 static gint ett_skinny          = -1;
@@ -1221,6 +1226,24 @@ static guint get_skinny_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offse
    * add that in.
    */
   return hdr_data_length + 8;
+}
+
+static void
+dissect_skinny_xml(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, const gint start, gint length)
+{
+  proto_item *item = NULL;
+  proto_tree *subtree = NULL;
+  tvbuff_t *next_tvb;
+  dissector_handle_t handle;
+
+  item = proto_tree_add_item(tree, hf_skinny_xmlData, tvb, start, length, TRUE);
+  subtree = proto_item_add_subtree(item, 0);
+  next_tvb = tvb_new_subset(tvb, start, length, -1);
+  handle = dissector_get_string_handle(media_type_dissector_table, "text/xml");
+  if (handle != NULL) {
+    gboolean dissected;
+    dissected = call_dissector(handle, next_tvb, pinfo, subtree);
+   }
 }
 
 /* Dissect a single SCCP PDU */
@@ -1543,7 +1566,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_transactionID, tvb, offset+24, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_data_length, tvb, offset+28, 4, TRUE);
       count = tvb_get_letohl( tvb, offset+28);
-      proto_tree_add_uint(skinny_tree, hf_skinny_data, tvb, offset+30, 1, count);
+      dissect_skinny_xml(skinny_tree, tvb, pinfo, offset+30, count);
       si->lineId = tvb_get_letohl(tvb, offset+16);
       si->callId = tvb_get_letohl(tvb, offset+20);
       break;
@@ -1555,7 +1578,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_transactionID, tvb, offset+24, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_data_length, tvb, offset+28, 4, TRUE);
       count = tvb_get_letohl( tvb, offset+28);
-      proto_tree_add_uint(skinny_tree, hf_skinny_data, tvb, offset+30, 1, count);
+      dissect_skinny_xml(skinny_tree, tvb, pinfo, offset+30, count);
       si->lineId = tvb_get_letohl(tvb, offset+12);
       si->callId = tvb_get_letohl(tvb, offset+16);
       break;
@@ -1788,7 +1811,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+38, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_appInstanceID, tvb, offset+42, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_routingID, tvb, offset+46, 4, TRUE);
-      proto_tree_add_uint(skinny_tree, hf_skinny_data, tvb, offset+50, 1, count);
+      dissect_skinny_xml(skinny_tree, tvb, pinfo, offset+50, count);
       si->lineId = tvb_get_letohl(tvb, offset+16);
       si->callId = tvb_get_letohl(tvb, offset+20);
       break;
@@ -1805,7 +1828,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+38, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_appInstanceID, tvb, offset+42, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_routingID, tvb, offset+46, 4, TRUE);
-      proto_tree_add_uint(skinny_tree, hf_skinny_data, tvb, offset+50, 1, count);
+      dissect_skinny_xml(skinny_tree, tvb, pinfo, offset+50, count);
       si->lineId = tvb_get_letohl(tvb, offset+16);
       si->callId = tvb_get_letohl(tvb, offset+20);
       break;
@@ -2297,7 +2320,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_transactionID, tvb, offset+24, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_data_length, tvb, offset+28, 4, TRUE);
       count = tvb_get_letohl( tvb, offset+28);
-      proto_tree_add_uint(skinny_tree, hf_skinny_data, tvb, offset+30, 1, count);
+      dissect_skinny_xml(skinny_tree, tvb, pinfo, offset+30, count);
       si->lineId = tvb_get_letohl(tvb, offset+16);
       si->callId = tvb_get_letohl(tvb, offset+20);
       break;
@@ -2709,9 +2732,13 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_conferenceID, tvb, offset+38, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_appInstanceID, tvb, offset+42, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_routingID, tvb, offset+46, 4, TRUE);
-      proto_tree_add_uint(skinny_tree, hf_skinny_data, tvb, offset+50, 1, count);
+      dissect_skinny_xml(skinny_tree, tvb, pinfo, offset+50, count);
       si->lineId = tvb_get_letohl(tvb, offset+16);
       si->callId = tvb_get_letohl(tvb, offset+20);
+      break;
+
+    case 0x15A : /* XMLAlarmMessage */
+      dissect_skinny_xml(skinny_tree, tvb, pinfo, offset+12, hdr_data_length-4);
       break;
 
 
@@ -3701,10 +3728,10 @@ proto_register_skinny(void)
 	HFILL }
     },
 
-    { &hf_skinny_data,
-      { "Data", "skinny.data",
-	FT_UINT8, BASE_HEX, NULL, 0x0,
-	"dataPlace holder for unknown data.",
+    { &hf_skinny_xmlData,
+      { "XmlData", "skinny.xmlData",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	"dataPlace holder for XML data.",
 	HFILL }
     },
 
@@ -4447,11 +4474,17 @@ proto_register_skinny(void)
 void
 proto_reg_handoff_skinny(void)
 {
+  static gboolean skinny_prefs_initialized = FALSE;
   dissector_handle_t skinny_handle;
-
-  rtp_handle = find_dissector("rtp");
-  skinny_handle = new_create_dissector_handle(dissect_skinny, proto_skinny);
-  dissector_add_uint("tcp.port", TCP_PORT_SKINNY, skinny_handle);
+  
+  if (!skinny_prefs_initialized) {
+    rtp_handle = find_dissector("rtp");
+    /* Skinny content type and internet media type used by other dissectors are the same */
+    media_type_dissector_table = find_dissector_table("media_type");
+    skinny_handle = new_create_dissector_handle(dissect_skinny, proto_skinny);
+    dissector_add_uint("tcp.port", TCP_PORT_SKINNY, skinny_handle);
+    skinny_prefs_initialized = TRUE;
+  }
 }
 
 /*
