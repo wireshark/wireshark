@@ -1414,7 +1414,7 @@ static guint32 dissect_iax2_command(tvbuff_t * tvb, guint32 offset,
 
   /* if this is a data call, set up a subdissector for the circuit */
   if(iax_call && ie_data.dataformat != (guint32)-1 && iax_call -> subdissector == NULL) {
-    iax_call -> subdissector = dissector_get_port_handle(iax2_dataformat_dissector_table, ie_data.dataformat );
+    iax_call -> subdissector = dissector_get_uint_handle(iax2_dataformat_dissector_table, ie_data.dataformat );
     iax_call -> dataformat = ie_data.dataformat;
   }
 
@@ -1976,7 +1976,7 @@ static void process_iax_pdu( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
   if( !video && iax_call && iax_call->subdissector ) {
     call_dissector(iax_call->subdissector, tvb, pinfo, tree);
-  }else if( codec != 0 && dissector_try_port(iax2_codec_dissector_table, codec, tvb, pinfo, tree )) {
+  }else if( codec != 0 && dissector_try_uint(iax2_codec_dissector_table, codec, tvb, pinfo, tree )) {
     /* codec dissector handled our data */
   }else {
     /* we don't know how to dissect our data: dissect it as data */
@@ -2808,10 +2808,10 @@ proto_reg_handoff_iax2 (void)
 {
   dissector_handle_t v110_handle = NULL;
 
-  dissector_add("udp.port", IAX2_PORT, find_dissector("iax2"));
+  dissector_add_uint("udp.port", IAX2_PORT, find_dissector("iax2"));
   v110_handle =  find_dissector("v110");
   if(v110_handle)
-	  dissector_add("iax2.dataformat", AST_DATAFORMAT_V110, v110_handle);
+	  dissector_add_uint("iax2.dataformat", AST_DATAFORMAT_V110, v110_handle);
   data_handle = find_dissector("data");
 }
 

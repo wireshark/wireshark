@@ -116,10 +116,10 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				call_dissector(ethnofcs_handle, next_tvb, pinfo, tree);
 			} else {
 				guint8 nlpid = tvb_get_guint8(tvb, dataoff);
-				if(dissector_try_port(osinl_subdissector_table, nlpid, next_tvb, pinfo, tree))
+				if(dissector_try_uint(osinl_subdissector_table, nlpid, next_tvb, pinfo, tree))
 					break;
 				next_tvb = tvb_new_subset_remaining(tvb, dataoff+1);
-				if(dissector_try_port(osinl_excl_subdissector_table, nlpid, next_tvb, pinfo, tree))
+				if(dissector_try_uint(osinl_excl_subdissector_table, nlpid, next_tvb, pinfo, tree))
 					break;
 				next_tvb = tvb_new_subset_remaining(tvb, dataoff);
 				call_dissector(data_handle, next_tvb, pinfo, tree);
@@ -221,7 +221,7 @@ proto_reg_handoff_redback(void)
 	ppphdlc_handle = find_dissector("ppp_hdlc");
 
 	redback_handle = create_dissector_handle(dissect_redback, proto_redback);
-	dissector_add("wtap_encap", WTAP_ENCAP_REDBACK, redback_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_REDBACK, redback_handle);
 }
 
 

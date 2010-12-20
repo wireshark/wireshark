@@ -1297,10 +1297,10 @@ proto_reg_handoff_lwres(void)
     lwres_prefs_initialized = TRUE;
   }
   else {
-    dissector_delete("udp.port", lwres_port, lwres_handle);
+    dissector_delete_uint("udp.port", lwres_port, lwres_handle);
   }
 
-  dissector_add("udp.port", global_lwres_port, lwres_handle);
+  dissector_add_uint("udp.port", global_lwres_port, lwres_handle);
   lwres_port = global_lwres_port;
 
 }

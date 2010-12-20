@@ -235,7 +235,7 @@ proto_reg_handoff_auto_rp(void)
 
 	auto_rp_handle = create_dissector_handle(dissect_auto_rp,
 	    proto_auto_rp);
-	dissector_add("udp.port", UDP_PORT_PIM_RP_DISC, auto_rp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_PIM_RP_DISC, auto_rp_handle);
 }
 
 /*

@@ -245,7 +245,7 @@ void proto_reg_handoff_egd(void)
   dissector_handle_t egd_handle;
 
   egd_handle = create_dissector_handle(dissect_egd, proto_egd);
-  dissector_add("udp.port", EGD_PORT, egd_handle);
+  dissector_add_uint("udp.port", EGD_PORT, egd_handle);
 
   /* find data dissector */
   data_handle = find_dissector("data");

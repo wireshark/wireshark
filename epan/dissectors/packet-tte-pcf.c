@@ -221,7 +221,7 @@ proto_reg_handoff_tte_pcf(void)
     /* initialize the pcf handle */
     tte_pcf_handle = find_dissector("tte_pcf");
 
-    dissector_add("ethertype", ETHERTYPE_TTE_PCF, tte_pcf_handle);
+    dissector_add_uint("ethertype", ETHERTYPE_TTE_PCF, tte_pcf_handle);
 
 }
 

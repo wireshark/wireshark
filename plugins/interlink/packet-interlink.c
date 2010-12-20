@@ -157,7 +157,7 @@ dissect_interlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 	/* Probably a sub-dissector exists for this type/version combination. */
-	handle = dissector_get_port_handle(subdissector_table, type_version);
+	handle = dissector_get_uint_handle(subdissector_table, type_version);
 
 	/* Without a proper sub-dissector, we use "data". */
 	if (handle == NULL) handle = data_handle;

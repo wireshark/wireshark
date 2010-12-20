@@ -547,13 +547,13 @@ proto_reg_handoff_cpfi(void)
   }
   else
   {
-    dissector_delete("udp.port", cpfi_udp_port, cpfi_handle);
-    dissector_delete("udp.port", cpfi_ttot_udp_port, ttot_handle);
+    dissector_delete_uint("udp.port", cpfi_udp_port, cpfi_handle);
+    dissector_delete_uint("udp.port", cpfi_ttot_udp_port, ttot_handle);
   }
 
   cpfi_udp_port      = gbl_cpfi_udp_port;
   cpfi_ttot_udp_port = gbl_cpfi_ttot_udp_port;
 
-  dissector_add("udp.port", cpfi_udp_port, cpfi_handle);
-  dissector_add("udp.port", cpfi_ttot_udp_port, ttot_handle);
+  dissector_add_uint("udp.port", cpfi_udp_port, cpfi_handle);
+  dissector_add_uint("udp.port", cpfi_ttot_udp_port, ttot_handle);
 }

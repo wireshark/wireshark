@@ -5101,42 +5101,42 @@ static void
 register_tcp_port(guint32 port)
 {
   if (port != 0)
-    dissector_add("tcp.port", port, asn1_handle);
+    dissector_add_uint("tcp.port", port, asn1_handle);
 }
 
 static void
 unregister_tcp_port(guint32 port)
 {
   if (port != 0)
-    dissector_delete("tcp.port", port, asn1_handle);
+    dissector_delete_uint("tcp.port", port, asn1_handle);
 }
 
 static void
 register_udp_port(guint32 port)
 {
   if (port != 0)
-    dissector_add("udp.port", port, asn1_handle);
+    dissector_add_uint("udp.port", port, asn1_handle);
 }
 
 static void
 unregister_udp_port(guint32 port)
 {
   if (port != 0)
-    dissector_delete("udp.port", port, asn1_handle);
+    dissector_delete_uint("udp.port", port, asn1_handle);
 }
 
 static void
 register_sctp_port(guint32 port)
 {
   if (port != 0)
-    dissector_add("sctp.port", port, asn1_handle);
+    dissector_add_uint("sctp.port", port, asn1_handle);
 }
 
 static void
 unregister_sctp_port(guint32 port)
 {
   if (port != 0)
-    dissector_delete("sctp.port", port, asn1_handle);
+    dissector_delete_uint("sctp.port", port, asn1_handle);
 }
 
 void

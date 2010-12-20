@@ -118,5 +118,5 @@ proto_reg_handoff_docsis_cmctrlreq (void)
 
   docsis_cmctrlreq_handle = find_dissector ("docsis_cmctrlreq");
   cmctrl_tlv_handle = find_dissector ("cmctrl_tlv");
-  dissector_add ("docsis_mgmt", 0x2A, docsis_cmctrlreq_handle);
+  dissector_add_uint ("docsis_mgmt", 0x2A, docsis_cmctrlreq_handle);
 }

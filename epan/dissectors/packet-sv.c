@@ -558,5 +558,5 @@ void proto_reg_handoff_sv(void) {
 	dissector_handle_t sv_handle;
 	sv_handle = find_dissector("sv");
 
-	dissector_add("ethertype", ETHERTYPE_IEC61850_SV, sv_handle);
+	dissector_add_uint("ethertype", ETHERTYPE_IEC61850_SV, sv_handle);
 }

@@ -202,5 +202,5 @@ proto_reg_handoff_pingpongprotocol(void)
   dissector_handle_t pingpongprotocol_handle;
 
   pingpongprotocol_handle = new_create_dissector_handle(dissect_pingpongprotocol, proto_pingpongprotocol);
-  dissector_add("sctp.ppi", PINGPONGPROTOCOL_PAYLOAD_PROTOCOL_ID, pingpongprotocol_handle);
+  dissector_add_uint("sctp.ppi", PINGPONGPROTOCOL_PAYLOAD_PROTOCOL_ID, pingpongprotocol_handle);
 }

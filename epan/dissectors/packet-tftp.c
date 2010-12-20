@@ -531,12 +531,12 @@ proto_register_tftp(void)
 
 static void range_delete_callback (guint32 port)
 {
-    dissector_delete ("udp.port", port, tftp_handle);
+    dissector_delete_uint ("udp.port", port, tftp_handle);
 }
 
 static void range_add_callback (guint32 port)
 {
-    dissector_add ("udp.port", port, tftp_handle);
+    dissector_add_uint ("udp.port", port, tftp_handle);
 }
 
 void

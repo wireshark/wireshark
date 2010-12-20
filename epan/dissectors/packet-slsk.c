@@ -2619,8 +2619,8 @@ proto_reg_handoff_slsk(void)
 	dissector_handle_t slsk_handle;
 
 	slsk_handle = create_dissector_handle(dissect_slsk, proto_slsk);
-	dissector_add("tcp.port", TCP_PORT_SLSK_1, slsk_handle);
-	dissector_add("tcp.port", TCP_PORT_SLSK_2, slsk_handle);
-	dissector_add("tcp.port", TCP_PORT_SLSK_3, slsk_handle);
+	dissector_add_uint("tcp.port", TCP_PORT_SLSK_1, slsk_handle);
+	dissector_add_uint("tcp.port", TCP_PORT_SLSK_2, slsk_handle);
+	dissector_add_uint("tcp.port", TCP_PORT_SLSK_3, slsk_handle);
 }
 

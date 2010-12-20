@@ -296,6 +296,6 @@ proto_reg_handoff_udld(void)
 
     data_handle = find_dissector("data");
     udld_handle = create_dissector_handle(dissect_udld, proto_udld);
-    dissector_add("llc.cisco_pid", 0x0111, udld_handle);
-    dissector_add("chdlctype", 0x0111, udld_handle);
+    dissector_add_uint("llc.cisco_pid", 0x0111, udld_handle);
+    dissector_add_uint("chdlctype", 0x0111, udld_handle);
 }

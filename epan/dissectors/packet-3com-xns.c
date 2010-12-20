@@ -87,7 +87,7 @@ dissect_3com_xns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	} else {
 		proto_tree_add_uint(subtree, hf_3com_xns_type_ethertype,
 		    tvb, 0, 2, type);
-		if (!dissector_try_port(ethertype_subdissector_table,
+		if (!dissector_try_uint(ethertype_subdissector_table,
 		    type, next_tvb, pinfo, tree))
 			call_dissector(data_handle, next_tvb, pinfo, tree);
 	}
@@ -127,5 +127,5 @@ proto_reg_handoff_3com_xns(void)
 	ethertype_subdissector_table = find_dissector_table("ethertype");
 
 	our_xns_handle = create_dissector_handle(dissect_3com_xns, proto_3com_xns);
-	dissector_add("llc.dsap", 0x80, our_xns_handle);
+	dissector_add_uint("llc.dsap", 0x80, our_xns_handle);
 }

@@ -3124,8 +3124,8 @@ proto_reg_handoff_tds(void)
     tds_tcp_handle = create_dissector_handle(dissect_tds_tcp, proto_tds);
 
     /* Initial TDS ports: MS SQL default ports */
-    dissector_add("tcp.port", 1433, tds_tcp_handle);
-    dissector_add("tcp.port", 2433, tds_tcp_handle);
+    dissector_add_uint("tcp.port", 1433, tds_tcp_handle);
+    dissector_add_uint("tcp.port", 2433, tds_tcp_handle);
 
     heur_dissector_add("tcp", dissect_tds_tcp_heur, proto_tds);
 

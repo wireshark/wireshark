@@ -1448,9 +1448,9 @@ proto_reg_handoff_adwin(void)
 		adwin_handle = new_create_dissector_handle(dissect_adwin, proto_adwin);
 		adwin_prefs_initialized = TRUE;
 	} else {
-		dissector_delete("udp.port", udp_port, adwin_handle);
+		dissector_delete_uint("udp.port", udp_port, adwin_handle);
 	}
 
 	udp_port = global_adwin_udp_port;
-	dissector_add("udp.port", global_adwin_udp_port, adwin_handle);
+	dissector_add_uint("udp.port", global_adwin_udp_port, adwin_handle);
 }

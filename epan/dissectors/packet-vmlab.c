@@ -181,5 +181,5 @@ proto_reg_handoff_vmlab(void)
 
     vmlab_handle = create_dissector_handle(dissect_vmlab, proto_vmlab);
 
-    dissector_add("ethertype", ETHERTYPE_VMLAB, vmlab_handle);
+    dissector_add_uint("ethertype", ETHERTYPE_VMLAB, vmlab_handle);
 }

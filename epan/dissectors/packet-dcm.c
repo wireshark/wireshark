@@ -6651,11 +6651,11 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 }
 
 static void range_delete_dcm_tcp_callback(guint32 port) {
-    dissector_delete("tcp.port", port, dcm_handle);
+    dissector_delete_uint("tcp.port", port, dcm_handle);
 }
 
 static void range_add_dcm_tcp_callback(guint32 port) {
-    dissector_add("tcp.port", port, dcm_handle);
+    dissector_add_uint("tcp.port", port, dcm_handle);
 }
 
 static void dcm_apply_settings(void) {

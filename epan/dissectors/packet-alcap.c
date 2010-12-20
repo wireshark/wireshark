@@ -1798,5 +1798,5 @@ proto_reg_handoff_alcap(void)
 {
     dissector_handle_t alcap_handle = create_dissector_handle(dissect_alcap, proto_alcap);
 
-    dissector_add("mtp3.service_indicator", ALCAP_SI, alcap_handle);
+    dissector_add_uint("mtp3.service_indicator", ALCAP_SI, alcap_handle);
 }

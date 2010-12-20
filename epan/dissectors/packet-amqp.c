@@ -5237,6 +5237,6 @@ proto_register_amqp(void)
 void
 proto_reg_handoff_amqp(void)
 {
-    dissector_add("tcp.port", amqp_port,
+    dissector_add_uint("tcp.port", amqp_port,
         create_dissector_handle(dissect_amqp, proto_amqp));
 }

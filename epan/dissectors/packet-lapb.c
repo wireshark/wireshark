@@ -235,5 +235,5 @@ proto_reg_handoff_lapb(void)
     x25_handle = find_dissector("x.25");
 
     lapb_handle = find_dissector("lapb");
-    dissector_add("wtap_encap", WTAP_ENCAP_LAPB, lapb_handle);
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_LAPB, lapb_handle);
 }

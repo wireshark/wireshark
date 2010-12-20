@@ -243,13 +243,13 @@ static void dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 static void register_tcp_port(guint32 port)
 {
   if (port != 0)
-    dissector_add("tcp.port", port, opcua_handle);
+    dissector_add_uint("tcp.port", port, opcua_handle);
 }
 
 static void unregister_tcp_port(guint32 port)
 {
   if (port != 0)
-    dissector_delete("tcp.port", port, opcua_handle);
+    dissector_delete_uint("tcp.port", port, opcua_handle);
 }
 
 void proto_reg_handoff_opcua(void)

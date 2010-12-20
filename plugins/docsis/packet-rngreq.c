@@ -136,6 +136,6 @@ proto_reg_handoff_docsis_rngreq (void)
   dissector_handle_t docsis_rngreq_handle;
 
   docsis_rngreq_handle = find_dissector ("docsis_rngreq");
-  dissector_add ("docsis_mgmt", 0x04, docsis_rngreq_handle);
+  dissector_add_uint ("docsis_mgmt", 0x04, docsis_rngreq_handle);
 
 }

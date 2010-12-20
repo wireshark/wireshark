@@ -274,6 +274,6 @@ proto_reg_handoff_docsis_rngrsp (void)
   dissector_handle_t docsis_rngrsp_handle;
 
   docsis_rngrsp_handle = find_dissector ("docsis_rngrsp");
-  dissector_add ("docsis_mgmt", 0x05, docsis_rngrsp_handle);
+  dissector_add_uint ("docsis_mgmt", 0x05, docsis_rngrsp_handle);
 
 }

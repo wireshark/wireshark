@@ -419,11 +419,11 @@ proto_reg_handoff_fcgi(void)
       dissector_add_handle("tcp.port", fcgi_handle);  /* for "decode as" */
       initialized = TRUE;
    } else if (saved_tcp_port != 0) {
-      dissector_delete("tcp.port", saved_tcp_port, fcgi_handle);
+      dissector_delete_uint("tcp.port", saved_tcp_port, fcgi_handle);
    }
 
    if (tcp_port != 0) {
-      dissector_add("tcp.port", tcp_port, fcgi_handle);
+      dissector_add_uint("tcp.port", tcp_port, fcgi_handle);
    }
 
    saved_tcp_port = tcp_port;

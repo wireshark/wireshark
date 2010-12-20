@@ -1132,7 +1132,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_protocol_discriminator, tvb, ie_offset, 1, FALSE);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_Message, tvb, ie_offset, ie_len, FALSE);
 		l3_tvb = tvb_new_subset(tvb, ie_offset,ie_len, ie_len );
-		if  (!dissector_try_port(bssap_pdu_type_table,BSSAP_PDU_TYPE_DTAP, l3_tvb, pinfo, urr_ie_tree))
+		if  (!dissector_try_uint(bssap_pdu_type_table,BSSAP_PDU_TYPE_DTAP, l3_tvb, pinfo, urr_ie_tree))
 		   		call_dissector(data_handle, l3_tvb, pinfo, urr_ie_tree);
 		break;
 	case 27:
@@ -1176,7 +1176,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_Message, tvb, ie_offset, ie_len, FALSE);
 		/* XXX the dissector to call should depend on the RAT type ??? */
 		l3_tvb = tvb_new_subset(tvb, ie_offset,ie_len, ie_len );
-		if  (!dissector_try_port(bssap_pdu_type_table,BSSAP_PDU_TYPE_DTAP, l3_tvb, pinfo, urr_ie_tree))
+		if  (!dissector_try_uint(bssap_pdu_type_table,BSSAP_PDU_TYPE_DTAP, l3_tvb, pinfo, urr_ie_tree))
 		   		call_dissector(data_handle, l3_tvb, pinfo, urr_ie_tree);
 		break;
 	case 33:		
@@ -1820,13 +1820,13 @@ dissect_uma_urlc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 range_delete_callback(guint32 port)
 {
-    dissector_delete("tcp.port", port, uma_tcp_handle);
+    dissector_delete_uint("tcp.port", port, uma_tcp_handle);
 }
 
 static void
 range_add_callback(guint32 port)
 {
-    dissector_add("tcp.port", port, uma_tcp_handle);
+    dissector_add_uint("tcp.port", port, uma_tcp_handle);
 }
 
 /* Register the protocol with Wireshark */

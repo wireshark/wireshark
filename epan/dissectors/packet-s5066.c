@@ -807,10 +807,10 @@ proto_reg_handoff_s5066(void)
 		data_handle = find_dissector("data");
 		Initialized = TRUE;
 	} else {
-		dissector_delete("tcp.port", saved_s5066_port, s5066_tcp_handle);
+		dissector_delete_uint("tcp.port", saved_s5066_port, s5066_tcp_handle);
 	}
 
-	dissector_add("tcp.port", global_s5066_port, s5066_tcp_handle);
+	dissector_add_uint("tcp.port", global_s5066_port, s5066_tcp_handle);
 	saved_s5066_port = global_s5066_port;
 
 	if (!s5066_edition_one) {

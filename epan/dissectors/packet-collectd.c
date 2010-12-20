@@ -1457,10 +1457,10 @@ void proto_reg_handoff_collectd (void)
 	/* Change the dissector registration if the preferences have been
 	 * changed. */
 	if (registered_udp_port != -1)
-		dissector_delete ("udp.port", registered_udp_port,
+		dissector_delete_uint ("udp.port", registered_udp_port,
 				  collectd_handle);
 
-	dissector_add ("udp.port", collectd_udp_port, collectd_handle);
+	dissector_add_uint ("udp.port", collectd_udp_port, collectd_handle);
 	registered_udp_port = collectd_udp_port;
 
 	if (first_run)

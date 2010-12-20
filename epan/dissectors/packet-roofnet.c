@@ -361,8 +361,8 @@ void proto_reg_handoff_roofnet(void)
   roofnet_handle = create_dissector_handle(dissect_roofnet, proto_roofnet);
   /* I did not put the type numbers in the ethertypes.h as they only are
    * experimental and not official */
-  dissector_add("ethertype", 0x0641, roofnet_handle);
-  dissector_add("ethertype", 0x0643, roofnet_handle);
-  dissector_add("ethertype", 0x0644, roofnet_handle);
-  dissector_add("ethertype", 0x0645, roofnet_handle);
+  dissector_add_uint("ethertype", 0x0641, roofnet_handle);
+  dissector_add_uint("ethertype", 0x0643, roofnet_handle);
+  dissector_add_uint("ethertype", 0x0644, roofnet_handle);
+  dissector_add_uint("ethertype", 0x0645, roofnet_handle);
 }

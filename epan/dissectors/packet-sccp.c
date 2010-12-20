@@ -1408,7 +1408,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
       /* Get the dissector handle of the dissector registered for this ssn
        * And print it's name.
        */
-      ssn_dissector = dissector_get_port_handle(sccp_ssn_dissector_table, ssn);
+      ssn_dissector = dissector_get_uint_handle(sccp_ssn_dissector_table, ssn);
 
       if (ssn_dissector) {
 	ssn_dissector_short_name = dissector_handle_get_short_name(ssn_dissector);
@@ -1784,11 +1784,11 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
    }
 
-    if (ssn != INVALID_SSN && dissector_try_port(sccp_ssn_dissector_table, ssn, tvb, pinfo, tree)) {
+    if (ssn != INVALID_SSN && dissector_try_uint(sccp_ssn_dissector_table, ssn, tvb, pinfo, tree)) {
 		return;
     }
 
-    if (other_ssn != INVALID_SSN && dissector_try_port(sccp_ssn_dissector_table, other_ssn, tvb, pinfo, tree)) {
+    if (other_ssn != INVALID_SSN && dissector_try_uint(sccp_ssn_dissector_table, other_ssn, tvb, pinfo, tree)) {
 		return;
     }
 
@@ -3441,8 +3441,8 @@ proto_reg_handoff_sccp(void)
   if (!initialised) {
     sccp_handle = find_dissector("sccp");
 
-    dissector_add("wtap_encap", WTAP_ENCAP_SCCP, sccp_handle);
-    dissector_add("mtp3.service_indicator", SCCP_SI, sccp_handle);
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_SCCP, sccp_handle);
+    dissector_add_uint("mtp3.service_indicator", SCCP_SI, sccp_handle);
     dissector_add_string("tali.opcode", "sccp", sccp_handle);
 
     data_handle = find_dissector("data");

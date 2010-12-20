@@ -1494,7 +1494,7 @@ void proto_reg_handoff_radiotap(void)
 
 	radiotap_handle = find_dissector("radiotap");
 
-	dissector_add("wtap_encap", WTAP_ENCAP_IEEE_802_11_WLAN_RADIOTAP,
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_WLAN_RADIOTAP,
 		      radiotap_handle);
 }
 

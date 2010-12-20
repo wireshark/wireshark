@@ -2578,11 +2578,11 @@ proto_reg_handoff_bundle(void)
 	Initialized = TRUE;
     }
     else {
-	dissector_delete("tcp.port", tcp_port, tcp_bundle_handle);
-	dissector_delete("udp.port", udp_port, udp_bundle_handle);
+	dissector_delete_uint("tcp.port", tcp_port, tcp_bundle_handle);
+	dissector_delete_uint("udp.port", udp_port, udp_bundle_handle);
     }
     tcp_port = bundle_tcp_port;
     udp_port = bundle_udp_port;
-    dissector_add("tcp.port", tcp_port, tcp_bundle_handle);
-    dissector_add("udp.port", udp_port, udp_bundle_handle);
+    dissector_add_uint("tcp.port", tcp_port, tcp_bundle_handle);
+    dissector_add_uint("udp.port", udp_port, udp_bundle_handle);
 }

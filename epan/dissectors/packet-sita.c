@@ -194,7 +194,7 @@ dissect_sita(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 
-	if (!dissector_try_port(sita_dissector_table, pinfo->pseudo_header->sita.proto, tvb, pinfo, tree)) {		/* try to find and run an applicable dissector */
+	if (!dissector_try_uint(sita_dissector_table, pinfo->pseudo_header->sita.proto, tvb, pinfo, tree)) {		/* try to find and run an applicable dissector */
 		if (check_col(pinfo->cinfo, COL_PROTOCOL))																/* if one can't be found... tell them we don't */
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "UKNOWN");													/* know how to decode this protocol */
 		if (check_col(pinfo->cinfo, COL_INFO))
@@ -295,10 +295,10 @@ proto_reg_handoff_sita(void)
 	sita_handle 		= find_dissector("sita");
 	data_handle		= find_dissector("data");
 
-	dissector_add("sita.proto", SITA_PROTO_BOP_LAPB,	lapb_handle);
-	dissector_add("sita.proto", SITA_PROTO_BOP_FRL,		frame_relay_handle);
-	dissector_add("sita.proto", SITA_PROTO_UTS,		uts_handle);
-	dissector_add("sita.proto", SITA_PROTO_ALC,		ipars_handle);
-	dissector_add("wtap_encap", WTAP_ENCAP_SITA,		sita_handle);
+	dissector_add_uint("sita.proto", SITA_PROTO_BOP_LAPB,	lapb_handle);
+	dissector_add_uint("sita.proto", SITA_PROTO_BOP_FRL,		frame_relay_handle);
+	dissector_add_uint("sita.proto", SITA_PROTO_UTS,		uts_handle);
+	dissector_add_uint("sita.proto", SITA_PROTO_ALC,		ipars_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_SITA,		sita_handle);
 }
 

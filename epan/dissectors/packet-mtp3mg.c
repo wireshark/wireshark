@@ -1537,12 +1537,12 @@ proto_reg_handoff_mtp3mg(void)
 
     mtp3mg_handle = find_dissector("mtp3mg");
 
-    dissector_add("mtp3.service_indicator", MTP3MG_SI, mtp3mg_handle);
+    dissector_add_uint("mtp3.service_indicator", MTP3MG_SI, mtp3mg_handle);
 
     /*  SI 1 is unused in ANSI and SI 2 is unused in ITU, so it's okay for us
      *  to grab both (regardless of mtp3.standard setting) here.
      */
-    dissector_add("mtp3.service_indicator", MTP3MG_ITU_TEST_SI, mtp3mg_handle);
-    dissector_add("mtp3.service_indicator", MTP3MG_ANSI_TEST_SI, mtp3mg_handle);
+    dissector_add_uint("mtp3.service_indicator", MTP3MG_ITU_TEST_SI, mtp3mg_handle);
+    dissector_add_uint("mtp3.service_indicator", MTP3MG_ANSI_TEST_SI, mtp3mg_handle);
 }
 

@@ -1594,6 +1594,6 @@ proto_reg_handoff_iec104(void)
 	iec104apci_handle = create_dissector_handle(dissect_iec104reas, proto_iec104apci);
 	iec104asdu_handle = create_dissector_handle(dissect_iec104asdu, proto_iec104asdu);
 
-	dissector_add("tcp.port", iec104port, iec104apci_handle);
+	dissector_add_uint("tcp.port", iec104port, iec104apci_handle);
 }
 

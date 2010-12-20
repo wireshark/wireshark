@@ -411,7 +411,7 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* XXX perhaps this code should be reconsidered */
         /* non-standard extension, therefore controlled by option*/
         /* appeared in revision 10862 from Carlos M. Pignataro */
-        if (!dissector_try_port(ppp_subdissector_table, channel_type,
+        if (!dissector_try_uint(ppp_subdissector_table, channel_type,
                             next_tvb, pinfo, tree)) {
             call_dissector(dissector_data, next_tvb, pinfo, tree);
         }
@@ -764,7 +764,7 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-    if ( !dissector_try_port(mpls_subdissector_table, label, next_tvb, pinfo, tree))
+    if ( !dissector_try_uint(mpls_subdissector_table, label, next_tvb, pinfo, tree))
     {
         switch ( mpls_default_payload )
         {
@@ -973,18 +973,18 @@ proto_reg_handoff_mpls(void)
 		ppp_subdissector_table = find_dissector_table("ppp.protocol");
 
 		mpls_handle = find_dissector("mpls");
-		dissector_add("ethertype", ETHERTYPE_MPLS, mpls_handle);
-		dissector_add("ethertype", ETHERTYPE_MPLS_MULTI, mpls_handle);
-		dissector_add("ppp.protocol", PPP_MPLS_UNI, mpls_handle);
-		dissector_add("ppp.protocol", PPP_MPLS_MULTI, mpls_handle);
-		dissector_add("chdlctype", ETHERTYPE_MPLS, mpls_handle);
-		dissector_add("chdlctype", ETHERTYPE_MPLS_MULTI, mpls_handle);
-		dissector_add("gre.proto", ETHERTYPE_MPLS, mpls_handle);
-		dissector_add("gre.proto", ETHERTYPE_MPLS_MULTI, mpls_handle);
-		dissector_add("ip.proto", IP_PROTO_MPLS_IN_IP, mpls_handle);
+		dissector_add_uint("ethertype", ETHERTYPE_MPLS, mpls_handle);
+		dissector_add_uint("ethertype", ETHERTYPE_MPLS_MULTI, mpls_handle);
+		dissector_add_uint("ppp.protocol", PPP_MPLS_UNI, mpls_handle);
+		dissector_add_uint("ppp.protocol", PPP_MPLS_MULTI, mpls_handle);
+		dissector_add_uint("chdlctype", ETHERTYPE_MPLS, mpls_handle);
+		dissector_add_uint("chdlctype", ETHERTYPE_MPLS_MULTI, mpls_handle);
+		dissector_add_uint("gre.proto", ETHERTYPE_MPLS, mpls_handle);
+		dissector_add_uint("gre.proto", ETHERTYPE_MPLS_MULTI, mpls_handle);
+		dissector_add_uint("ip.proto", IP_PROTO_MPLS_IN_IP, mpls_handle);
 
 		mpls_handle = find_dissector("mplspwcw");
-		dissector_add( "mpls.label", LABEL_INVALID, mpls_handle );
+		dissector_add_uint( "mpls.label", LABEL_INVALID, mpls_handle );
 
 		dissector_data 			= find_dissector("data");
 		dissector_ipv6 			= find_dissector("ipv6");

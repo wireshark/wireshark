@@ -1353,6 +1353,6 @@ void proto_reg_handoff_pnrp(void)
 {
 	dissector_handle_t pnrp_handle;
 	pnrp_handle = new_create_dissector_handle(dissect_pnrp, proto_pnrp);
-	dissector_add("udp.port",PNRP_PORT,pnrp_handle);
+	dissector_add_uint("udp.port",PNRP_PORT,pnrp_handle);
 }
 

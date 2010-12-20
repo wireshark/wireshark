@@ -363,7 +363,7 @@ void proto_reg_handoff_prp(void)
         dissector_handle_t prp_redundancy_control_trailer_handle;
 
         prp_supervision_frame_handle = create_dissector_handle(dissect_prp_supervision_frame, proto_prp);
-        dissector_add("ethertype", ETHERTYPE_PRP, prp_supervision_frame_handle);
+        dissector_add_uint("ethertype", ETHERTYPE_PRP, prp_supervision_frame_handle);
 
         prp_redundancy_control_trailer_handle = create_dissector_handle(dissect_prp_redundancy_control_trailer, proto_prp);
         register_postdissector(prp_redundancy_control_trailer_handle);

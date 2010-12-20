@@ -1001,5 +1001,5 @@ proto_reg_handoff_aodv(void)
 
     aodv_handle = new_create_dissector_handle(dissect_aodv,
 					      proto_aodv);
-    dissector_add("udp.port", UDP_PORT_AODV, aodv_handle);
+    dissector_add_uint("udp.port", UDP_PORT_AODV, aodv_handle);
 }

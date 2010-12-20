@@ -3565,16 +3565,16 @@ proto_reg_handoff_sna(void)
 
 	sna_handle = find_dissector("sna");
 	sna_xid_handle = find_dissector("sna_xid");
-	dissector_add("llc.dsap", SAP_SNA_PATHCTRL, sna_handle);
-	dissector_add("llc.dsap", SAP_SNA1, sna_handle);
-	dissector_add("llc.dsap", SAP_SNA2, sna_handle);
-	dissector_add("llc.dsap", SAP_SNA3, sna_handle);
-	dissector_add("llc.xid_dsap", SAP_SNA_PATHCTRL, sna_xid_handle);
-	dissector_add("llc.xid_dsap", SAP_SNA1, sna_xid_handle);
-	dissector_add("llc.xid_dsap", SAP_SNA2, sna_xid_handle);
-	dissector_add("llc.xid_dsap", SAP_SNA3, sna_xid_handle);
+	dissector_add_uint("llc.dsap", SAP_SNA_PATHCTRL, sna_handle);
+	dissector_add_uint("llc.dsap", SAP_SNA1, sna_handle);
+	dissector_add_uint("llc.dsap", SAP_SNA2, sna_handle);
+	dissector_add_uint("llc.dsap", SAP_SNA3, sna_handle);
+	dissector_add_uint("llc.xid_dsap", SAP_SNA_PATHCTRL, sna_xid_handle);
+	dissector_add_uint("llc.xid_dsap", SAP_SNA1, sna_xid_handle);
+	dissector_add_uint("llc.xid_dsap", SAP_SNA2, sna_xid_handle);
+	dissector_add_uint("llc.xid_dsap", SAP_SNA3, sna_xid_handle);
 	/* RFC 2043 */
-	dissector_add("ppp.protocol", PPP_SNA, sna_handle);
+	dissector_add_uint("ppp.protocol", PPP_SNA, sna_handle);
 	data_handle = find_dissector("data");
 
 }

@@ -1023,12 +1023,12 @@ proto_reg_handoff_mp4ves(void)
 		}
 	}else{
 		if ( dynamic_payload_type > 95 )
-			dissector_delete("rtp.pt", dynamic_payload_type, mp4ves_handle);
+			dissector_delete_uint("rtp.pt", dynamic_payload_type, mp4ves_handle);
 	}
 	dynamic_payload_type = global_dynamic_payload_type;
 
 	if ( dynamic_payload_type > 95 ){
-		dissector_add("rtp.pt", dynamic_payload_type, mp4ves_handle);
+		dissector_add_uint("rtp.pt", dynamic_payload_type, mp4ves_handle);
 	}
 }
 

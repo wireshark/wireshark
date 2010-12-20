@@ -178,5 +178,5 @@ proto_reg_handoff_docsis_dpvreq (void)
   dissector_handle_t docsis_dpvreq_handle;
 
   docsis_dpvreq_handle = find_dissector ("docsis_dpvreq");
-  dissector_add ("docsis_mgmt", 0x27, docsis_dpvreq_handle);
+  dissector_add_uint ("docsis_mgmt", 0x27, docsis_dpvreq_handle);
 }

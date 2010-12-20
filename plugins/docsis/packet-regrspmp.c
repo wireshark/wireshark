@@ -144,5 +144,5 @@ proto_reg_handoff_docsis_regrspmp (void)
 	
 	docsis_tlv_handle = find_dissector ("docsis_tlv");
 	docsis_regrspmp_handle = find_dissector ("docsis_regrspmp");
-	dissector_add ("docsis_mgmt", 45, docsis_regrspmp_handle);
+	dissector_add_uint ("docsis_mgmt", 45, docsis_regrspmp_handle);
 }

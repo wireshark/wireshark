@@ -259,6 +259,6 @@ proto_reg_handoff_docsis_dccrsp (void)
   dissector_handle_t docsis_dccrsp_handle;
 
   docsis_dccrsp_handle = find_dissector ("docsis_dccrsp");
-  dissector_add ("docsis_mgmt", 0x18, docsis_dccrsp_handle);
+  dissector_add_uint ("docsis_mgmt", 0x18, docsis_dccrsp_handle);
 
 }

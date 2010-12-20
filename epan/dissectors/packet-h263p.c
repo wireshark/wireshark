@@ -215,12 +215,12 @@ proto_reg_handoff_h263P(void)
 	  }
 	else {
 		if ( dynamic_payload_type > 95 )
-			dissector_delete("rtp.pt", dynamic_payload_type, h263P_handle);
+			dissector_delete_uint("rtp.pt", dynamic_payload_type, h263P_handle);
 	}
 	dynamic_payload_type = temp_dynamic_payload_type;
 
 	if ( dynamic_payload_type > 95 ){
-		dissector_add("rtp.pt", dynamic_payload_type, h263P_handle);
+		dissector_add_uint("rtp.pt", dynamic_payload_type, h263P_handle);
 	}
 }
 

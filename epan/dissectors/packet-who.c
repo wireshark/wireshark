@@ -301,5 +301,5 @@ proto_reg_handoff_who(void)
 	dissector_handle_t who_handle;
 
 	who_handle = create_dissector_handle(dissect_who, proto_who);
-	dissector_add("udp.port", UDP_PORT_WHO, who_handle);
+	dissector_add_uint("udp.port", UDP_PORT_WHO, who_handle);
 }

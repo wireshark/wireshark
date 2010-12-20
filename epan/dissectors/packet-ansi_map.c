@@ -5490,10 +5490,10 @@ dissect_ansi_map_ServiceIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 			switch(ServiceIndicator){
 				case 1: /* CDMA OTASP Service */
 				case 3: /* CDMA OTAPA Service */
-					dissector_try_port(is683_dissector_table, ansi_map_is_invoke ? 0 : 1, SMS_BearerData_tvb, g_pinfo, g_tree);
+					dissector_try_uint(is683_dissector_table, ansi_map_is_invoke ? 0 : 1, SMS_BearerData_tvb, g_pinfo, g_tree);
 					break;
 				case 4: /* CDMA Position Determination Service */
-					dissector_try_port(is801_dissector_table, ansi_map_is_invoke ? 0 : 1, SMS_BearerData_tvb, g_pinfo, g_tree);
+					dissector_try_uint(is801_dissector_table, ansi_map_is_invoke ? 0 : 1, SMS_BearerData_tvb, g_pinfo, g_tree);
 					break;
 				default:
 					break;
@@ -10655,17 +10655,17 @@ dissect_ansi_map_SMS_BearerData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 		}
 		if (ansi_map_sms_tele_id != -1)
 		{
-			dissector_try_port(is637_tele_id_dissector_table, ansi_map_sms_tele_id, SMS_BearerData_tvb, g_pinfo, g_tree);
+			dissector_try_uint(is637_tele_id_dissector_table, ansi_map_sms_tele_id, SMS_BearerData_tvb, g_pinfo, g_tree);
 		}
 		else
 		{
 			switch(ServiceIndicator){
 				case 1: /* CDMA OTASP Service */
 				case 3: /* CDMA OTAPA Service */
-					dissector_try_port(is683_dissector_table, ansi_map_is_invoke ? 0 : 1, SMS_BearerData_tvb, g_pinfo, g_tree);
+					dissector_try_uint(is683_dissector_table, ansi_map_is_invoke ? 0 : 1, SMS_BearerData_tvb, g_pinfo, g_tree);
 					break;
 				case 4: /* CDMA Position Determination Service */
-					dissector_try_port(is801_dissector_table, ansi_map_is_invoke ? 0 : 1, SMS_BearerData_tvb, g_pinfo, g_tree);
+					dissector_try_uint(is801_dissector_table, ansi_map_is_invoke ? 0 : 1, SMS_BearerData_tvb, g_pinfo, g_tree);
 					break;
 				default:
 					break;
@@ -10703,7 +10703,7 @@ dissect_ansi_map_SMS_TeleserviceIdentifier(gboolean implicit_tag _U_, tvbuff_t *
 		ansi_map_sms_tele_id = tvb_get_ntohs(tvb,0);
 		if ((ansi_map_sms_tele_id != -1)&&(SMS_BearerData_tvb !=NULL))
 		{
-		    dissector_try_port(is637_tele_id_dissector_table, ansi_map_sms_tele_id, SMS_BearerData_tvb, g_pinfo, g_tree);
+		    dissector_try_uint(is637_tele_id_dissector_table, ansi_map_sms_tele_id, SMS_BearerData_tvb, g_pinfo, g_tree);
 		}
 	}
 

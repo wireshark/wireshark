@@ -750,6 +750,6 @@ proto_reg_handoff_btrfcomm(void)
 	btobex_handle = find_dissector("btobex");
 
     btrfcomm_handle = find_dissector("btrfcomm");
-	dissector_add("btl2cap.psm", BTL2CAP_PSM_RFCOMM, btrfcomm_handle);
+	dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_RFCOMM, btrfcomm_handle);
 }
 

@@ -174,7 +174,7 @@ proto_reg_handoff_tsp(void)
 	dissector_handle_t	tsp_handle;
 
 	tsp_handle = create_dissector_handle(dissect_tsp, proto_tsp);
-	dissector_add("udp.port", UDP_PORT_TIMED, tsp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_TIMED, tsp_handle);
 }
 
 

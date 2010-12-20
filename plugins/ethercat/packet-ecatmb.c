@@ -2039,7 +2039,7 @@ void proto_reg_handoff_ecat_mailbox(void)
 
    /* Register this dissector as a sub dissector to E88A4 based on ether type. */
    ecat_mailbox_handle = find_dissector("ecat_mailbox");
-   dissector_add("ecatf.type", 5, ecat_mailbox_handle);
+   dissector_add_uint("ecatf.type", 5, ecat_mailbox_handle);
 
    eth_handle = find_dissector("eth_withoutfcs");
    ams_handle = find_dissector("ams");

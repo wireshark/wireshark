@@ -566,6 +566,6 @@ proto_reg_handoff_docsis_bpkmattr (void)
   dissector_handle_t docsis_bpkmattr_handle;
 
   docsis_bpkmattr_handle = find_dissector ("docsis_bpkmattr");
-  dissector_add ("docsis", 0xFE, docsis_bpkmattr_handle);
+  dissector_add_uint ("docsis", 0xFE, docsis_bpkmattr_handle);
 
 }

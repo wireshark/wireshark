@@ -1877,7 +1877,7 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ipv6_tvb = tvb_new_subset_remaining(tvb, len + 8);
 
 		/* Call the IPv6 dissector */
-		dissector_try_port(ip_dissector_table, pproto, ipv6_tvb, pinfo, tree);
+		dissector_try_uint(ip_dissector_table, pproto, ipv6_tvb, pinfo, tree);
 
 		col_set_str(pinfo->cinfo, COL_INFO, "Fast Neighbor Advertisement[Fast Binding Update]");
 	}
@@ -2206,7 +2206,7 @@ proto_reg_handoff_mip6(void)
 
 	/* mip6_handle = find_dissector("mipv6"); */
 	mip6_handle = create_dissector_handle(dissect_mip6, proto_mip6);
-	dissector_add("ip.proto", IP_PROTO_MIPV6_OLD, mip6_handle);
-	dissector_add("ip.proto", IP_PROTO_MIPV6, mip6_handle);
+	dissector_add_uint("ip.proto", IP_PROTO_MIPV6_OLD, mip6_handle);
+	dissector_add_uint("ip.proto", IP_PROTO_MIPV6, mip6_handle);
 	ip_dissector_table = find_dissector_table("ip.proto");
 }

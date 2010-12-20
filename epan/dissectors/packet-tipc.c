@@ -1563,7 +1563,7 @@ call_tipc_v2_data_subdissectors(tvbuff_t *data_tvb, packet_info *pinfo, guint32 
 		}
 		/* This triggers if a dissectors if
 		 * tipc.user is just set to a TIPC user holding data */
-		if (dissector_try_port(tipc_user_dissector, user, data_tvb, pinfo, top_tree))
+		if (dissector_try_uint(tipc_user_dissector, user, data_tvb, pinfo, top_tree))
 			return;
 		/* The Name Type is not always explicitly set in a TIPC Data
 		 * Message.
@@ -1597,7 +1597,7 @@ call_tipc_v2_data_subdissectors(tvbuff_t *data_tvb, packet_info *pinfo, guint32 
 		 * some kind of static function which port name type a message
 		 * is going to, if it is not specified explicitly in a message */
 		if (name_type_p)
-			if (dissector_try_port(tipc_type_dissector, *name_type_p, data_tvb, pinfo, top_tree))
+			if (dissector_try_uint(tipc_type_dissector, *name_type_p, data_tvb, pinfo, top_tree))
 				return;
 		/* check for heuristic dissectors if specified in the
 		 * preferences not to try them first */
@@ -2957,16 +2957,16 @@ proto_reg_handoff_tipc(void)
 		ip_handle = find_dissector("ip");
 		data_handle = find_dissector("data");
 
-		dissector_add("ethertype", ETHERTYPE_TIPC, tipc_handle);
+		dissector_add_uint("ethertype", ETHERTYPE_TIPC, tipc_handle);
 
 		inited = TRUE;
 	} else {
 		/* change TIPC-over-TCP port if changed in the preferences */
 		if (tipc_alternate_tcp_port != tipc_alternate_tcp_port_prev) {
 			if (tipc_alternate_tcp_port_prev != 0)
-				dissector_delete("tcp.port", tipc_alternate_tcp_port_prev, tipc_tcp_handle);
+				dissector_delete_uint("tcp.port", tipc_alternate_tcp_port_prev, tipc_tcp_handle);
 			if (tipc_alternate_tcp_port != 0)
-				dissector_add("tcp.port", tipc_alternate_tcp_port, tipc_tcp_handle);
+				dissector_add_uint("tcp.port", tipc_alternate_tcp_port, tipc_tcp_handle);
 			tipc_alternate_tcp_port_prev = tipc_alternate_tcp_port;
 		}
 	}

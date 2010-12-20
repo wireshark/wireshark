@@ -819,7 +819,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	/* if we don't found, it is static OR could be set static from the preferences */
-	if (!found_match && !dissector_try_port(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree))
+	if (!found_match && !dissector_try_uint(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree))
 		proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, FALSE );
 
 }
@@ -1712,12 +1712,12 @@ proto_reg_handoff_pkt_ccc(void)
 		initialized = TRUE;
 	} else {
 		if (saved_pkt_ccc_udp_port != 0) {
-			dissector_delete("udp.port", saved_pkt_ccc_udp_port, pkt_ccc_handle);
+			dissector_delete_uint("udp.port", saved_pkt_ccc_udp_port, pkt_ccc_handle);
 		}
 	}
 
 	if (global_pkt_ccc_udp_port != 0) {
-		dissector_add("udp.port", global_pkt_ccc_udp_port, pkt_ccc_handle);
+		dissector_add_uint("udp.port", global_pkt_ccc_udp_port, pkt_ccc_handle);
 	}
 	saved_pkt_ccc_udp_port = global_pkt_ccc_udp_port;
 }
@@ -2190,9 +2190,9 @@ proto_reg_handoff_rtp(void)
 
 		rtp_prefs_initialized = TRUE;
 	} else {
-		dissector_delete("rtp.pt", rtp_saved_rfc2198_pt, rtp_rfc2198_handle);
+		dissector_delete_uint("rtp.pt", rtp_saved_rfc2198_pt, rtp_rfc2198_handle);
 	}
-	dissector_add("rtp.pt", rtp_rfc2198_pt, rtp_rfc2198_handle);
+	dissector_add_uint("rtp.pt", rtp_rfc2198_pt, rtp_rfc2198_handle);
 	rtp_saved_rfc2198_pt = rtp_rfc2198_pt;
 }
 

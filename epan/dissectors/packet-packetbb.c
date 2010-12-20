@@ -717,11 +717,11 @@ void proto_reg_handoff_packetbb(void) {
     packetbb_prefs_initialized = TRUE;
   }
   else {
-    dissector_delete("udp.port", global_packetbb_port, packetbb_handle);
+    dissector_delete_uint("udp.port", global_packetbb_port, packetbb_handle);
   }
 
   packetbb_udp_port = global_packetbb_port;
-  dissector_add("udp.port", packetbb_udp_port, packetbb_handle);
+  dissector_add_uint("udp.port", packetbb_udp_port, packetbb_handle);
 }
 
 void proto_register_packetbb(void) {

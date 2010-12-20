@@ -80,7 +80,7 @@ static void dissect_bctp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 	proto_tree_add_item(pt, hf_bctp_tpei, tvb,0,2, FALSE);
 	proto_tree_add_item(pt, hf_bctp_tpi, tvb,0,2, FALSE);
 	
-	if ( dissector_try_port(bctp_dissector_table, tpi, sub_tvb, pinfo, tree) ) {
+	if ( dissector_try_uint(bctp_dissector_table, tpi, sub_tvb, pinfo, tree) ) {
 		return;
 	} else if (tpi <= 0x22) {
 		call_dissector(data_handle,sub_tvb, pinfo, tree);

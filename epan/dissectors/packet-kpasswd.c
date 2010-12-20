@@ -353,7 +353,7 @@ proto_reg_handoff_kpasswd(void)
 
 	kpasswd_handle_udp = create_dissector_handle(dissect_kpasswd_udp, proto_kpasswd);
         kpasswd_handle_tcp = create_dissector_handle(dissect_kpasswd_tcp, proto_kpasswd);
-	dissector_add("udp.port", UDP_PORT_KPASSWD, kpasswd_handle_udp);
-        dissector_add("tcp.port", TCP_PORT_KPASSWD, kpasswd_handle_tcp);
+	dissector_add_uint("udp.port", UDP_PORT_KPASSWD, kpasswd_handle_udp);
+        dissector_add_uint("tcp.port", TCP_PORT_KPASSWD, kpasswd_handle_tcp);
 
 }

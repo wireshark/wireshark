@@ -5983,7 +5983,7 @@ fConfirmedPrivateTransferRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	offset = fVendorIdentifier (tvb, pinfo, subtree, offset);
 
 	next_tvb = tvb_new_subset_remaining(tvb,offset);
-	if (dissector_try_port(bacapp_dissector_table,
+	if (dissector_try_uint(bacapp_dissector_table,
 	    vendor_identifier, next_tvb, pinfo, tree))
 	{
 		/* we parsed it so skip over length and we are done */

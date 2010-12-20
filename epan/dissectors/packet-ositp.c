@@ -1890,7 +1890,7 @@ proto_reg_handoff_cotp(void)
   dissector_handle_t ositp_handle;
 
   ositp_handle = find_dissector("ositp");
-  dissector_add("ip.proto", IP_PROTO_TP, ositp_handle);
+  dissector_add_uint("ip.proto", IP_PROTO_TP, ositp_handle);
 
   data_handle = find_dissector("data");
 

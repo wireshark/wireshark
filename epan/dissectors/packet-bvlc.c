@@ -304,7 +304,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	npdu_length = packet_length - bvlc_length;
 	next_tvb = tvb_new_subset(tvb,bvlc_length,-1,npdu_length);
 	/* Code from Guy Harris */
-	if (!dissector_try_port(bvlc_dissector_table,
+	if (!dissector_try_uint(bvlc_dissector_table,
 	    bvlc_function, next_tvb, pinfo, tree)) {
 		/* Unknown function - dissect the paylod as data */
 		call_dissector(data_handle,next_tvb, pinfo, tree);
@@ -428,19 +428,19 @@ proto_reg_handoff_bvlc(void)
 	if (!bvlc_initialized)
 	{
 		bvlc_handle = find_dissector("bvlc");
-		dissector_add("udp.port", 0xBAC0, bvlc_handle);
+		dissector_add_uint("udp.port", 0xBAC0, bvlc_handle);
 		data_handle = find_dissector("data");
 		bvlc_initialized = TRUE;
 	}
 	else
 	{
 		if (additional_bvlc_udp_port != 0) {
-			dissector_delete("udp.port", additional_bvlc_udp_port, bvlc_handle);
+			dissector_delete_uint("udp.port", additional_bvlc_udp_port, bvlc_handle);
 		}
 	}
 
 	if (global_additional_bvlc_udp_port != 0) {
-		dissector_add("udp.port", global_additional_bvlc_udp_port, bvlc_handle);
+		dissector_add_uint("udp.port", global_additional_bvlc_udp_port, bvlc_handle);
 	}
 	additional_bvlc_udp_port = global_additional_bvlc_udp_port;
 }

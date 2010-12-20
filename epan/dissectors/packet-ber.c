@@ -4840,7 +4840,7 @@ proto_reg_handoff_ber(void)
 	oid_add_from_string("basic-encoding","2.1.1");
 
 	ber_handle = create_dissector_handle(dissect_ber, proto_ber);
-	dissector_add("wtap_encap", WTAP_ENCAP_BER, ber_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_BER, ber_handle);
 
 	ber_decode_as_foreach(ber_add_syntax_name, &i);
 

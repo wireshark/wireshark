@@ -100,6 +100,6 @@ proto_reg_handoff_lapbether(void)
 
   lapbether_handle = create_dissector_handle(dissect_lapbether,
 					     proto_lapbether);
-  dissector_add("ethertype", ETHERTYPE_DEC, lapbether_handle);
+  dissector_add_uint("ethertype", ETHERTYPE_DEC, lapbether_handle);
 
 }

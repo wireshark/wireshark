@@ -532,7 +532,7 @@ proto_reg_handoff_nbipx(void)
 	dissector_handle_t nbipx_handle;
 
 	nbipx_handle = create_dissector_handle(dissect_nbipx, proto_nbipx);
-	dissector_add("ipx.socket", IPX_SOCKET_NETBIOS, nbipx_handle);
+	dissector_add_uint("ipx.socket", IPX_SOCKET_NETBIOS, nbipx_handle);
 }
 
 /*
@@ -790,8 +790,8 @@ proto_reg_handoff_nmpi(void)
 	dissector_handle_t nmpi_handle;
 
 	nmpi_handle = create_dissector_handle(dissect_nmpi, proto_nmpi);
-	dissector_add("ipx.socket", IPX_SOCKET_NWLINK_SMB_NAMEQUERY,
+	dissector_add_uint("ipx.socket", IPX_SOCKET_NWLINK_SMB_NAMEQUERY,
 	    nmpi_handle);
-	dissector_add("ipx.socket", IPX_SOCKET_NWLINK_SMB_MAILSLOT,
+	dissector_add_uint("ipx.socket", IPX_SOCKET_NWLINK_SMB_MAILSLOT,
 	    nmpi_handle);
 }

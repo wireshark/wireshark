@@ -2021,10 +2021,10 @@ proto_reg_handoff_atm(void)
   fp_handle = find_dissector("fp");
 
   atm_handle = create_dissector_handle(dissect_atm, proto_atm);
-  dissector_add("wtap_encap", WTAP_ENCAP_ATM_PDUS, atm_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_ATM_PDUS, atm_handle);
 
   atm_untruncated_handle = create_dissector_handle(dissect_atm_untruncated,
                                                    proto_atm);
-  dissector_add("wtap_encap", WTAP_ENCAP_ATM_PDUS_UNTRUNCATED,
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_ATM_PDUS_UNTRUNCATED,
                 atm_untruncated_handle);
 }

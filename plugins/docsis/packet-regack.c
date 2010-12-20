@@ -133,6 +133,6 @@ proto_reg_handoff_docsis_regack (void)
 
   docsis_regack_handle = find_dissector ("docsis_regack");
   docsis_tlv_handle = find_dissector ("docsis_tlv");
-  dissector_add ("docsis_mgmt", 0x0e, docsis_regack_handle);
+  dissector_add_uint ("docsis_mgmt", 0x0e, docsis_regack_handle);
 
 }

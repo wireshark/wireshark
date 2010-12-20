@@ -1293,11 +1293,11 @@ static void init_xml_names(void) {
 }
 
 static void range_delete_xml_tcp_callback(guint32 port) {
-	dissector_delete("tcp.port", port, xml_handle);
+	dissector_delete_uint("tcp.port", port, xml_handle);
 }
 
 static void range_add_xml_tcp_callback(guint32 port) {
-	dissector_add("tcp.port", port, xml_handle);
+	dissector_add_uint("tcp.port", port, xml_handle);
 }
 
 static void apply_prefs(void) {

@@ -472,50 +472,50 @@ proto_reg_handoff_diameter_3gpp(void)
 	 */
 
 	/* AVP Code: 606 User-Data */
-	dissector_add("diameter.3gpp", 606, new_create_dissector_handle(dissect_diameter_3gpp_user_data, proto_diameter_3gpp));
+	dissector_add_uint("diameter.3gpp", 606, new_create_dissector_handle(dissect_diameter_3gpp_user_data, proto_diameter_3gpp));
 
 	/* AVP Code: 701 MSISDN */
-	dissector_add("diameter.3gpp", 701, new_create_dissector_handle(dissect_diameter_3gpp_msisdn, proto_diameter_3gpp));
+	dissector_add_uint("diameter.3gpp", 701, new_create_dissector_handle(dissect_diameter_3gpp_msisdn, proto_diameter_3gpp));
 
 	/* AVP Code: 702 User-Data */
-	dissector_add("diameter.3gpp", 702, new_create_dissector_handle(dissect_diameter_3gpp_user_data, proto_diameter_3gpp));
+	dissector_add_uint("diameter.3gpp", 702, new_create_dissector_handle(dissect_diameter_3gpp_user_data, proto_diameter_3gpp));
 
 	/* AVP Code: 900 TMGI */
-	dissector_add("diameter.3gpp", 900, new_create_dissector_handle(dissect_diameter_3gpp_tmgi, proto_diameter_3gpp));
+	dissector_add_uint("diameter.3gpp", 900, new_create_dissector_handle(dissect_diameter_3gpp_tmgi, proto_diameter_3gpp));
 
 	/* AVP Code: 904 MBMS-Session-Duration */
 	/* AVP Code: 911 MBMS-Time-To-Data-Transfer */
 	/* Registered by packet-gtp.c */
 
 	/* AVP Code: 913 MBMS-Required-QoS */
-	dissector_add("diameter.3gpp", 913, new_create_dissector_handle(dissect_diameter_3gpp_mbms_required_qos, proto_diameter_3gpp));
+	dissector_add_uint("diameter.3gpp", 913, new_create_dissector_handle(dissect_diameter_3gpp_mbms_required_qos, proto_diameter_3gpp));
 
 	/* AVP Code: 918 MBMS-BMSC-SSM-IP-Address */
-	dissector_add("diameter.3gpp", 918, new_create_dissector_handle(dissect_diameter_3gpp_ipaddr, proto_diameter_3gpp));
+	dissector_add_uint("diameter.3gpp", 918, new_create_dissector_handle(dissect_diameter_3gpp_ipaddr, proto_diameter_3gpp));
 
 	/* AVP Code: 1405 ULR-Flags */
-	dissector_add("diameter.3gpp", 1405, new_create_dissector_handle(dissect_diameter_3gpp_ulr_flags, proto_diameter_3gpp));
+	dissector_add_uint("diameter.3gpp", 1405, new_create_dissector_handle(dissect_diameter_3gpp_ulr_flags, proto_diameter_3gpp));
 
 	/* AVP Code: 1406 ULA-Flags */
-	dissector_add("diameter.3gpp", 1406, new_create_dissector_handle(dissect_diameter_3gpp_ula_flags, proto_diameter_3gpp));
+	dissector_add_uint("diameter.3gpp", 1406, new_create_dissector_handle(dissect_diameter_3gpp_ula_flags, proto_diameter_3gpp));
 
 	/* AVP Code: 1421 DSR-Flags */
-	dissector_add("diameter.3gpp", 1421, new_create_dissector_handle(dissect_diameter_3gpp_dsr_flags, proto_diameter_3gpp));
+	dissector_add_uint("diameter.3gpp", 1421, new_create_dissector_handle(dissect_diameter_3gpp_dsr_flags, proto_diameter_3gpp));
 
 	/* AVP Code: 1422 DSA-Flags */
-	dissector_add("diameter.3gpp", 1422, new_create_dissector_handle(dissect_diameter_3gpp_dsa_flags, proto_diameter_3gpp));
+	dissector_add_uint("diameter.3gpp", 1422, new_create_dissector_handle(dissect_diameter_3gpp_dsa_flags, proto_diameter_3gpp));
 
 	/* AVP Code: 1441 IDA-Flags */
-	dissector_add("diameter.3gpp", 1441, new_create_dissector_handle(dissect_diameter_3gpp_ida_flags, proto_diameter_3gpp));
+	dissector_add_uint("diameter.3gpp", 1441, new_create_dissector_handle(dissect_diameter_3gpp_ida_flags, proto_diameter_3gpp));
 
 	/* AVP Code: 1442 PUA-Flags */
-	dissector_add("diameter.3gpp", 1442, new_create_dissector_handle(dissect_diameter_3gpp_pua_flags, proto_diameter_3gpp));
+	dissector_add_uint("diameter.3gpp", 1442, new_create_dissector_handle(dissect_diameter_3gpp_pua_flags, proto_diameter_3gpp));
 
 	/* AVP Code: 1443 NOR-Flags */
-	dissector_add("diameter.3gpp", 1443, new_create_dissector_handle(dissect_diameter_3gpp_nor_flags, proto_diameter_3gpp));
+	dissector_add_uint("diameter.3gpp", 1443, new_create_dissector_handle(dissect_diameter_3gpp_nor_flags, proto_diameter_3gpp));
 
 	/* AVP Code: 1490 IDR-Flags */
-	dissector_add("diameter.3gpp", 1490, new_create_dissector_handle(dissect_diameter_3gpp_idr_flags, proto_diameter_3gpp));
+	dissector_add_uint("diameter.3gpp", 1490, new_create_dissector_handle(dissect_diameter_3gpp_idr_flags, proto_diameter_3gpp));
 
 	xml_handle = find_dissector("xml");
 }

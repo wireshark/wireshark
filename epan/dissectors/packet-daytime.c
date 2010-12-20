@@ -49,7 +49,7 @@ dissect_daytime(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_add_fstr(pinfo->cinfo, COL_INFO, "DAYTIME %s",
-		 pinfo->srcport == pinfo->match_port ? "Response":"Request");
+		 pinfo->srcport == pinfo->match_uint ? "Response":"Request");
   }
 
   if (tree) {
@@ -90,6 +90,6 @@ proto_reg_handoff_daytime(void)
   dissector_handle_t daytime_handle;
 
   daytime_handle = create_dissector_handle(dissect_daytime, proto_daytime);
-  dissector_add("udp.port", DAYTIME_PORT, daytime_handle);
-  dissector_add("tcp.port", DAYTIME_PORT, daytime_handle);
+  dissector_add_uint("udp.port", DAYTIME_PORT, daytime_handle);
+  dissector_add_uint("tcp.port", DAYTIME_PORT, daytime_handle);
 }

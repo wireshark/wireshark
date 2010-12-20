@@ -313,28 +313,28 @@ dissect_rpc_uint64
 dissect_tpkt_encap
 dissect_unknown_ber
 dissect_xdlc_control
-dissector_add
 dissector_add_handle
 dissector_add_string
+dissector_add_uint
 dissector_all_tables_foreach_changed
 dissector_all_tables_foreach_table
-dissector_change
 dissector_change_string
-dissector_delete
+dissector_change_uint
 dissector_delete_string
+dissector_delete_uint
 dissector_dump_decodes
 dissector_filter_list           DATA
-dissector_get_port_handle
 dissector_get_string_handle
+dissector_get_uint_handle
 dissector_handle_get_protocol_index
 dissector_handle_get_short_name
-dissector_reset
 dissector_reset_string
+dissector_reset_uint
 dissector_table_foreach
 dissector_table_foreach_handle
 dissector_try_heuristic
-dissector_try_port
 dissector_try_string
+dissector_try_uint
 draw_tap_listeners
 dscp_vals                                               DATA
 dtbl_entry_get_handle

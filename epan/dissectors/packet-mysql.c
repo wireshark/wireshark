@@ -568,7 +568,7 @@ void proto_reg_handoff_mysql(void)
 {
 	dissector_handle_t mysql_handle;
 	mysql_handle = create_dissector_handle(dissect_mysql, proto_mysql);
-	dissector_add("tcp.port", TCP_PORT_MySQL, mysql_handle);
+	dissector_add_uint("tcp.port", TCP_PORT_MySQL, mysql_handle);
 }
 
 /* protocol registration */
@@ -1207,7 +1207,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MySQL");
 
-	if (pinfo->destport == pinfo->match_port) {
+	if (pinfo->destport == pinfo->match_uint) {
 		is_response= FALSE;
 	} else {
 		is_response= TRUE;

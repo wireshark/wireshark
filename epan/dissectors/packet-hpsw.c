@@ -301,5 +301,5 @@ proto_reg_handoff_hpsw(void)
 
 	hpsw_handle = find_dissector("hpsw");
 
-	dissector_add("hpext.dxsap", HPEXT_HPSW, hpsw_handle);
+	dissector_add_uint("hpext.dxsap", HPEXT_HPSW, hpsw_handle);
 }

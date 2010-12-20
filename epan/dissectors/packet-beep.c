@@ -1095,7 +1095,7 @@ proto_reg_handoff_beep(void)
   }
   else {
 
-    dissector_delete("tcp.port", beep_tcp_port, beep_handle);
+    dissector_delete_uint("tcp.port", beep_tcp_port, beep_handle);
 
   }
 
@@ -1103,6 +1103,6 @@ proto_reg_handoff_beep(void)
 
   beep_tcp_port = global_beep_tcp_port;
 
-  dissector_add("tcp.port", global_beep_tcp_port, beep_handle);
+  dissector_add_uint("tcp.port", global_beep_tcp_port, beep_handle);
 
 }

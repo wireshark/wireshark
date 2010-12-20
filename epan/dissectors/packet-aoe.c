@@ -499,6 +499,6 @@ proto_reg_handoff_aoe(void)
   dissector_handle_t aoe_handle;
 
   aoe_handle = find_dissector("aoe");
-  dissector_add("ethertype", ETHERTYPE_AOE, aoe_handle);
+  dissector_add_uint("ethertype", ETHERTYPE_AOE, aoe_handle);
 
 }

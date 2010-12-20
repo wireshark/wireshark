@@ -94,7 +94,7 @@ static void dissect_ethercat_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       handle the rest of the PDU. */
    next_tvb = tvb_new_subset_remaining (tvb, offset);
 
-   if (!dissector_try_port(ethercat_frame_dissector_table, hdr.v.protocol,
+   if (!dissector_try_uint(ethercat_frame_dissector_table, hdr.v.protocol,
        next_tvb, pinfo, tree))
    {
       col_add_fstr (pinfo->cinfo, COL_PROTOCOL, "0x%04x", hdr.v.protocol);
@@ -150,8 +150,8 @@ void proto_reg_handoff_ethercat_frame(void)
    dissector_handle_t ethercat_frame_handle;
 
    ethercat_frame_handle = find_dissector("ecatf");
-   dissector_add("ethertype", ETHERTYPE_ECATF, ethercat_frame_handle);
-   dissector_add("udp.port", ETHERTYPE_ECATF, ethercat_frame_handle);
-   dissector_add("tcp.port", ETHERTYPE_ECATF, ethercat_frame_handle);
+   dissector_add_uint("ethertype", ETHERTYPE_ECATF, ethercat_frame_handle);
+   dissector_add_uint("udp.port", ETHERTYPE_ECATF, ethercat_frame_handle);
+   dissector_add_uint("tcp.port", ETHERTYPE_ECATF, ethercat_frame_handle);
    ethercat_frame_data_handle = find_dissector("data");
 }

@@ -535,7 +535,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 * Try the regular LLC subdissector table
 				 * with the DSAP.
 				 */
-				if (!dissector_try_port(dsap_subdissector_table,
+				if (!dissector_try_uint(dsap_subdissector_table,
 				    dsap, next_tvb, pinfo, tree)) {
 					call_dissector(data_handle, next_tvb,
 					    pinfo, tree);
@@ -554,7 +554,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 * Try the XID LLC subdissector table
 				 * with the DSAP.
 				 */
-				    if (!dissector_try_port(
+				    if (!dissector_try_uint(
 					xid_subdissector_table, dsap, next_tvb,
 					pinfo, tree)) {
 					    call_dissector(data_handle,
@@ -609,7 +609,7 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_uint(snap_tree, hf, tvb, offset+3, 2, etype);
 		next_tvb = tvb_new_subset_remaining(tvb, offset+5);
 
-		if(!dissector_try_port(hpteam_subdissector_table,etype, next_tvb, pinfo, tree))
+		if(!dissector_try_uint(hpteam_subdissector_table,etype, next_tvb, pinfo, tree))
 	 		call_dissector(data_handle, next_tvb, pinfo, tree);
 		break;
 
@@ -629,7 +629,7 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 				    tvb, offset+3, 2, etype);
 			}
 			next_tvb = tvb_new_subset_remaining(tvb, offset+5);
-			if (!dissector_try_port(ethertype_subdissector_table,
+			if (!dissector_try_uint(ethertype_subdissector_table,
 			    etype, next_tvb, pinfo, tree))
 				call_dissector(data_handle, next_tvb, pinfo,
 				    tree);
@@ -727,7 +727,7 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			mesh_header_len = call_dissector(mesh_handle,
 			    next_tvb, pinfo, tree);
 			next_tvb = tvb_new_subset_remaining(tvb, offset+5+mesh_header_len);
-			if (!dissector_try_port(ethertype_subdissector_table,
+			if (!dissector_try_uint(ethertype_subdissector_table,
 			    etype, next_tvb, pinfo, tree))
 				call_dissector(data_handle, next_tvb, pinfo,
 				    tree);
@@ -764,7 +764,7 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		if (XDLC_IS_INFORMATION(control)) {
 			if (subdissector_table != NULL) {
 				/* do lookup with the subdissector table */
-				if (dissector_try_port(subdissector_table,
+				if (dissector_try_uint(subdissector_table,
 				    etype, next_tvb, pinfo, tree))
 					break;
 			}
@@ -954,25 +954,25 @@ proto_reg_handoff_llc(void)
 	hpteam_subdissector_table = find_dissector_table("llc.hpteam_pid");
 
 	llc_handle = find_dissector("llc");
-	dissector_add("wtap_encap", WTAP_ENCAP_ATM_RFC1483, llc_handle);
-	dissector_add("sll.ltype", LINUX_SLL_P_802_2, llc_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_ATM_RFC1483, llc_handle);
+	dissector_add_uint("sll.ltype", LINUX_SLL_P_802_2, llc_handle);
 	/* RFC 2043 */
-	dissector_add("ppp.protocol", PPP_LLC, llc_handle);
+	dissector_add_uint("ppp.protocol", PPP_LLC, llc_handle);
 	/* RFC 2353 */
-	dissector_add("udp.port", UDP_PORT_LLC1, llc_handle);
-	dissector_add("udp.port", UDP_PORT_LLC2, llc_handle);
-	dissector_add("udp.port", UDP_PORT_LLC3, llc_handle);
-	dissector_add("udp.port", UDP_PORT_LLC4, llc_handle);
-	dissector_add("udp.port", UDP_PORT_LLC5, llc_handle);
+	dissector_add_uint("udp.port", UDP_PORT_LLC1, llc_handle);
+	dissector_add_uint("udp.port", UDP_PORT_LLC2, llc_handle);
+	dissector_add_uint("udp.port", UDP_PORT_LLC3, llc_handle);
+	dissector_add_uint("udp.port", UDP_PORT_LLC4, llc_handle);
+	dissector_add_uint("udp.port", UDP_PORT_LLC5, llc_handle);
 	/* IP-over-FC when we have the full FC frame */
-	dissector_add("fc.ftype", FC_FTYPE_IP, llc_handle);
+	dissector_add_uint("fc.ftype", FC_FTYPE_IP, llc_handle);
 
 	/*
 	 * BACNET-over-ARCNET is really BACNET-over-802.2 LLC-over-ARCNET,
 	 * apparently.
 	 */
-	dissector_add("arcnet.protocol_id", ARCNET_PROTO_BACNET, llc_handle);
-	dissector_add("ethertype", ETHERTYPE_JUMBO_LLC, llc_handle);
+	dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_BACNET, llc_handle);
+	dissector_add_uint("ethertype", ETHERTYPE_JUMBO_LLC, llc_handle);
 
 	/*
 	 * Register all the fields for PIDs for various OUIs.

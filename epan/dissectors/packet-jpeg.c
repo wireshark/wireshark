@@ -278,5 +278,5 @@ proto_reg_handoff_jpeg(void)
 	dissector_handle_t jpeg_handle;
 
 	jpeg_handle = create_dissector_handle(dissect_jpeg, proto_jpeg);
-	dissector_add("rtp.pt", PT_JPEG, jpeg_handle);
+	dissector_add_uint("rtp.pt", PT_JPEG, jpeg_handle);
 }

@@ -657,11 +657,11 @@ proto_reg_handoff_mongo(void)
 	} else {
 
 
-		dissector_delete("tcp.port", currentPort, mongo_handle);
+		dissector_delete_uint("tcp.port", currentPort, mongo_handle);
 	}
 
 	currentPort = global_mongo_tcp_port;
 
-	dissector_add("tcp.port", currentPort, mongo_handle);
+	dissector_add_uint("tcp.port", currentPort, mongo_handle);
 
 }

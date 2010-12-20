@@ -270,10 +270,10 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     high_port = uh_dport;
   }
   if (low_port != 0 &&
-      dissector_try_port(udp_dissector_table, low_port, next_tvb, pinfo, tree))
+      dissector_try_uint(udp_dissector_table, low_port, next_tvb, pinfo, tree))
     return;
   if (high_port != 0 &&
-      dissector_try_port(udp_dissector_table, high_port, next_tvb, pinfo, tree))
+      dissector_try_uint(udp_dissector_table, high_port, next_tvb, pinfo, tree))
     return;
 
   if (!try_heuristic_first) {
@@ -725,9 +725,9 @@ proto_reg_handoff_udp(void)
 	dissector_handle_t udplite_handle;
 
 	udp_handle = find_dissector("udp");
-	dissector_add("ip.proto", IP_PROTO_UDP, udp_handle);
+	dissector_add_uint("ip.proto", IP_PROTO_UDP, udp_handle);
 	udplite_handle = create_dissector_handle(dissect_udplite, proto_udplite);
-	dissector_add("ip.proto", IP_PROTO_UDPLITE, udplite_handle);
+	dissector_add_uint("ip.proto", IP_PROTO_UDPLITE, udplite_handle);
 	data_handle = find_dissector("data");
 	udp_tap = register_tap("udp");
 	udp_follow_tap = register_tap("udp_follow");

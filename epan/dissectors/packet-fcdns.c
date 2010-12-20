@@ -2001,8 +2001,8 @@ proto_reg_handoff_fcdns (void)
     dissector_handle_t dns_handle;
 
     dns_handle = create_dissector_handle (dissect_fcdns, proto_fcdns);
-    dissector_add("fcct.server", FCCT_GSRVR_DNS, dns_handle);
-    dissector_add("fcct.server", FCCT_GSRVR_UNS, dns_handle);
+    dissector_add_uint("fcct.server", FCCT_GSRVR_DNS, dns_handle);
+    dissector_add_uint("fcct.server", FCCT_GSRVR_UNS, dns_handle);
 
     data_handle = find_dissector ("data");
 }

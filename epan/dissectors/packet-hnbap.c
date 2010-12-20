@@ -1986,12 +1986,12 @@ static void dissect_HNBAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port_new(hnbap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint_new(hnbap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port_new(hnbap_extension_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint_new(hnbap_extension_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
 }
 #if 0
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -2015,17 +2015,17 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port_new(hnbap_proc_imsg_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint_new(hnbap_proc_imsg_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port_new(hnbap_proc_sout_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint_new(hnbap_proc_sout_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port_new(hnbap_proc_uout_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint_new(hnbap_proc_uout_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
 }
 
 static void
@@ -2555,52 +2555,52 @@ proto_reg_handoff_hnbap(void)
 
         if (!initialized) {
                 hnbap_handle = find_dissector("hnbap");
-                dissector_add("sctp.ppi", HNBAP_PAYLOAD_PROTOCOL_ID, hnbap_handle);
+                dissector_add_uint("sctp.ppi", HNBAP_PAYLOAD_PROTOCOL_ID, hnbap_handle);
                 initialized = TRUE;
 
 /*--- Included file: packet-hnbap-dis-tab.c ---*/
 #line 1 "packet-hnbap-dis-tab.c"
-  dissector_add("hnbap.ies", id_Cause, new_create_dissector_handle(dissect_Cause_PDU, proto_hnbap));
-  dissector_add("hnbap.ies", id_CriticalityDiagnostics, new_create_dissector_handle(dissect_CriticalityDiagnostics_PDU, proto_hnbap));
-  dissector_add("hnbap.ies", id_HNB_Identity, new_create_dissector_handle(dissect_HNB_Identity_PDU, proto_hnbap));
-  dissector_add("hnbap.ies", id_Context_ID, new_create_dissector_handle(dissect_Context_ID_PDU, proto_hnbap));
-  dissector_add("hnbap.ies", id_UE_Identity, new_create_dissector_handle(dissect_UE_Identity_PDU, proto_hnbap));
-  dissector_add("hnbap.ies", id_LAC, new_create_dissector_handle(dissect_LAC_PDU, proto_hnbap));
-  dissector_add("hnbap.ies", id_RAC, new_create_dissector_handle(dissect_RAC_PDU, proto_hnbap));
-  dissector_add("hnbap.ies", id_HNB_Location_Information, new_create_dissector_handle(dissect_HNB_Location_Information_PDU, proto_hnbap));
-  dissector_add("hnbap.ies", id_PLMNidentity, new_create_dissector_handle(dissect_PLMNidentity_PDU, proto_hnbap));
-  dissector_add("hnbap.ies", id_SAC, new_create_dissector_handle(dissect_SAC_PDU, proto_hnbap));
-  dissector_add("hnbap.ies", id_CellIdentity, new_create_dissector_handle(dissect_CellIdentity_PDU, proto_hnbap));
-  dissector_add("hnbap.ies", id_Registration_Cause, new_create_dissector_handle(dissect_Registration_Cause_PDU, proto_hnbap));
-  dissector_add("hnbap.ies", id_UE_Capabilities, new_create_dissector_handle(dissect_UE_Capabilities_PDU, proto_hnbap));
-  dissector_add("hnbap.ies", id_RNC_ID, new_create_dissector_handle(dissect_RNC_ID_PDU, proto_hnbap));
-  dissector_add("hnbap.ies", id_CSG_ID, new_create_dissector_handle(dissect_CSG_ID_PDU, proto_hnbap));
-  dissector_add("hnbap.ies", id_BackoffTimer, new_create_dissector_handle(dissect_BackoffTimer_PDU, proto_hnbap));
-  dissector_add("hnbap.ies", id_CSGMembershipStatus, new_create_dissector_handle(dissect_CSGMembershipStatus_PDU, proto_hnbap));
-  dissector_add("hnbap.extension", id_HNB_Internet_Information, new_create_dissector_handle(dissect_IP_Address_PDU, proto_hnbap));
-  dissector_add("hnbap.extension", id_HNB_Cell_Access_Mode, new_create_dissector_handle(dissect_HNB_Cell_Access_Mode_PDU, proto_hnbap));
-  dissector_add("hnbap.extension", id_MuxPortNumber, new_create_dissector_handle(dissect_MuxPortNumber_PDU, proto_hnbap));
-  dissector_add("hnbap.extension", id_CSGMembershipStatus, new_create_dissector_handle(dissect_CSGMembershipStatus_PDU, proto_hnbap));
-  dissector_add("hnbap.proc.imsg", id_HNBRegister, new_create_dissector_handle(dissect_HNBRegisterRequest_PDU, proto_hnbap));
-  dissector_add("hnbap.proc.sout", id_HNBRegister, new_create_dissector_handle(dissect_HNBRegisterAccept_PDU, proto_hnbap));
-  dissector_add("hnbap.proc.uout", id_HNBRegister, new_create_dissector_handle(dissect_HNBRegisterReject_PDU, proto_hnbap));
-  dissector_add("hnbap.proc.imsg", id_UERegister, new_create_dissector_handle(dissect_UERegisterRequest_PDU, proto_hnbap));
-  dissector_add("hnbap.proc.sout", id_UERegister, new_create_dissector_handle(dissect_UERegisterAccept_PDU, proto_hnbap));
-  dissector_add("hnbap.proc.uout", id_UERegister, new_create_dissector_handle(dissect_UERegisterReject_PDU, proto_hnbap));
-  dissector_add("hnbap.proc.imsg", id_UEDe_Register, new_create_dissector_handle(dissect_UEDe_Register_PDU, proto_hnbap));
-  dissector_add("hnbap.proc.imsg", id_HNBDe_Register, new_create_dissector_handle(dissect_HNBDe_Register_PDU, proto_hnbap));
-  dissector_add("hnbap.proc.imsg", id_ErrorIndication, new_create_dissector_handle(dissect_ErrorIndication_PDU, proto_hnbap));
-  dissector_add("hnbap.proc.imsg", id_CSGMembershipUpdate, new_create_dissector_handle(dissect_CSGMembershipUpdate_PDU, proto_hnbap));
-  dissector_add("hnbap.proc.imsg", id_privateMessage, new_create_dissector_handle(dissect_PrivateMessage_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.ies", id_Cause, new_create_dissector_handle(dissect_Cause_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.ies", id_CriticalityDiagnostics, new_create_dissector_handle(dissect_CriticalityDiagnostics_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.ies", id_HNB_Identity, new_create_dissector_handle(dissect_HNB_Identity_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.ies", id_Context_ID, new_create_dissector_handle(dissect_Context_ID_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.ies", id_UE_Identity, new_create_dissector_handle(dissect_UE_Identity_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.ies", id_LAC, new_create_dissector_handle(dissect_LAC_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.ies", id_RAC, new_create_dissector_handle(dissect_RAC_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.ies", id_HNB_Location_Information, new_create_dissector_handle(dissect_HNB_Location_Information_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.ies", id_PLMNidentity, new_create_dissector_handle(dissect_PLMNidentity_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.ies", id_SAC, new_create_dissector_handle(dissect_SAC_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.ies", id_CellIdentity, new_create_dissector_handle(dissect_CellIdentity_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.ies", id_Registration_Cause, new_create_dissector_handle(dissect_Registration_Cause_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.ies", id_UE_Capabilities, new_create_dissector_handle(dissect_UE_Capabilities_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.ies", id_RNC_ID, new_create_dissector_handle(dissect_RNC_ID_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.ies", id_CSG_ID, new_create_dissector_handle(dissect_CSG_ID_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.ies", id_BackoffTimer, new_create_dissector_handle(dissect_BackoffTimer_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.ies", id_CSGMembershipStatus, new_create_dissector_handle(dissect_CSGMembershipStatus_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.extension", id_HNB_Internet_Information, new_create_dissector_handle(dissect_IP_Address_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.extension", id_HNB_Cell_Access_Mode, new_create_dissector_handle(dissect_HNB_Cell_Access_Mode_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.extension", id_MuxPortNumber, new_create_dissector_handle(dissect_MuxPortNumber_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.extension", id_CSGMembershipStatus, new_create_dissector_handle(dissect_CSGMembershipStatus_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.proc.imsg", id_HNBRegister, new_create_dissector_handle(dissect_HNBRegisterRequest_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.proc.sout", id_HNBRegister, new_create_dissector_handle(dissect_HNBRegisterAccept_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.proc.uout", id_HNBRegister, new_create_dissector_handle(dissect_HNBRegisterReject_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.proc.imsg", id_UERegister, new_create_dissector_handle(dissect_UERegisterRequest_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.proc.sout", id_UERegister, new_create_dissector_handle(dissect_UERegisterAccept_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.proc.uout", id_UERegister, new_create_dissector_handle(dissect_UERegisterReject_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.proc.imsg", id_UEDe_Register, new_create_dissector_handle(dissect_UEDe_Register_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.proc.imsg", id_HNBDe_Register, new_create_dissector_handle(dissect_HNBDe_Register_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.proc.imsg", id_ErrorIndication, new_create_dissector_handle(dissect_ErrorIndication_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.proc.imsg", id_CSGMembershipUpdate, new_create_dissector_handle(dissect_CSGMembershipUpdate_PDU, proto_hnbap));
+  dissector_add_uint("hnbap.proc.imsg", id_privateMessage, new_create_dissector_handle(dissect_PrivateMessage_PDU, proto_hnbap));
 
 
 /*--- End of included file: packet-hnbap-dis-tab.c ---*/
 #line 198 "packet-hnbap-template.c"
 
         } else {
-                dissector_delete("sctp.port", sctp_port, hnbap_handle);
+                dissector_delete_uint("sctp.port", sctp_port, hnbap_handle);
         }
         /* Set our port number for future use */
         sctp_port = global_sctp_port;
-        dissector_add("sctp.port", sctp_port, hnbap_handle);
+        dissector_add_uint("sctp.port", sctp_port, hnbap_handle);
 }

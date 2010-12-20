@@ -554,11 +554,11 @@ proto_reg_handoff_evrc(void)
     }
     else
     {
-        dissector_delete("rtp.pt", 60, evrc_legacy_handle);
+        dissector_delete_uint("rtp.pt", 60, evrc_legacy_handle);
     }
 
     if (legacy_pt_60)
     {
-        dissector_add("rtp.pt", 60, evrc_legacy_handle);
+        dissector_add_uint("rtp.pt", 60, evrc_legacy_handle);
     }
 }

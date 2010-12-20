@@ -130,7 +130,7 @@ proto_reg_handoff_cimetrics(void)
 	dissector_handle_t mstp_handle;
 
 	mstp_handle = find_dissector("cimetrics");
-	dissector_add("llc.cimetrics_pid", 1, mstp_handle);
+	dissector_add_uint("llc.cimetrics_pid", 1, mstp_handle);
 	bacnet_handle = find_dissector("bacnet");
 	data_handle = find_dissector("data");
 }

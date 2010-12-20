@@ -1848,14 +1848,14 @@ proto_reg_handoff_simulcrypt(void)
 		initialized = TRUE;
 	}
 	else {
-		dissector_delete("tcp.port", tcp_port, simulcrypt_handle);
-		dissector_delete("udp.port", udp_port, simulcrypt_handle);
+		dissector_delete_uint("tcp.port", tcp_port, simulcrypt_handle);
+		dissector_delete_uint("udp.port", udp_port, simulcrypt_handle);
 	}
 	if (global_simulcrypt_tcp_port != 0) {
-		dissector_add("tcp.port", global_simulcrypt_tcp_port, simulcrypt_handle);
+		dissector_add_uint("tcp.port", global_simulcrypt_tcp_port, simulcrypt_handle);
 	}
 	if (global_simulcrypt_udp_port != 0) {
-		dissector_add("udp.port", global_simulcrypt_udp_port, simulcrypt_handle);
+		dissector_add_uint("udp.port", global_simulcrypt_udp_port, simulcrypt_handle);
 	}
 	tcp_port = global_simulcrypt_tcp_port;
 	udp_port = global_simulcrypt_udp_port;

@@ -342,9 +342,9 @@ void proto_reg_handoff_2dparityfec(void)
    }
 
    if (dissect_fec) {
-      dissector_add("rtp.pt", fec_rtp_payload_type, handle_2dparityfec);
+      dissector_add_uint("rtp.pt", fec_rtp_payload_type, handle_2dparityfec);
    } else {
-      dissector_delete("rtp.pt", fec_rtp_payload_type, handle_2dparityfec);
+      dissector_delete_uint("rtp.pt", fec_rtp_payload_type, handle_2dparityfec);
    }
 }
 

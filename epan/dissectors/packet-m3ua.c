@@ -1192,7 +1192,7 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
   }
 
   payload_tvb = tvb_new_subset(parameter_tvb, DATA_ULP_OFFSET, ulp_length, ulp_length);
-  if (!dissector_try_port(si_dissector_table, tvb_get_guint8(parameter_tvb, DATA_SI_OFFSET), payload_tvb, pinfo, tree))
+  if (!dissector_try_uint(si_dissector_table, tvb_get_guint8(parameter_tvb, DATA_SI_OFFSET), payload_tvb, pinfo, tree))
     call_dissector(data_handle, payload_tvb, pinfo, tree);
 }
 
@@ -2096,8 +2096,8 @@ proto_reg_handoff_m3ua(void)
   mtp3_handle = find_dissector("mtp3");
   data_handle = find_dissector("data");
   m3ua_handle = find_dissector("m3ua");
-  dissector_add("sctp.ppi",  M3UA_PAYLOAD_PROTOCOL_ID, m3ua_handle);
-  dissector_add("sctp.port", SCTP_PORT_M3UA, m3ua_handle);
+  dissector_add_uint("sctp.ppi",  M3UA_PAYLOAD_PROTOCOL_ID, m3ua_handle);
+  dissector_add_uint("sctp.port", SCTP_PORT_M3UA, m3ua_handle);
 
   si_dissector_table = find_dissector_table("mtp3.service_indicator");
 }

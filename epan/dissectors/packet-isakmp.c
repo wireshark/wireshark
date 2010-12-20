@@ -5924,6 +5924,6 @@ proto_reg_handoff_isakmp(void)
 
   isakmp_handle = find_dissector("isakmp");
   eap_handle = find_dissector("eap");
-  dissector_add("udp.port", UDP_PORT_ISAKMP, isakmp_handle);
-  dissector_add("tcp.port", TCP_PORT_ISAKMP, isakmp_handle);
+  dissector_add_uint("udp.port", UDP_PORT_ISAKMP, isakmp_handle);
+  dissector_add_uint("tcp.port", TCP_PORT_ISAKMP, isakmp_handle);
 }

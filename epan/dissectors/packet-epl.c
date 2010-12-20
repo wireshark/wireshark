@@ -1511,7 +1511,7 @@ proto_reg_handoff_epl(void)
     dissector_handle_t epl_handle;
 
     epl_handle = new_create_dissector_handle(dissect_epl, proto_epl);
-    dissector_add("ethertype", ETHERTYPE_EPL_V2, epl_handle);
-    dissector_add("udp.port", UDP_PORT_EPL, epl_handle);
+    dissector_add_uint("ethertype", ETHERTYPE_EPL_V2, epl_handle);
+    dissector_add_uint("udp.port", UDP_PORT_EPL, epl_handle);
 }
 

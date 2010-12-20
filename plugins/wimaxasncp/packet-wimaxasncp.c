@@ -3533,12 +3533,12 @@ proto_reg_handoff_wimaxasncp(void)
     if (currentPort != -1)
     {
         /* Remove any previous registered port */
-        dissector_delete("udp.port", currentPort, wimaxasncp_handle);
+        dissector_delete_uint("udp.port", currentPort, wimaxasncp_handle);
     }
 
     /* Add the new one from preferences */
     currentPort = global_wimaxasncp_udp_port;
-    dissector_add("udp.port", currentPort, wimaxasncp_handle);
+    dissector_add_uint("udp.port", currentPort, wimaxasncp_handle);
 
     /* Find the EAP dissector */
     eap_handle = find_dissector("eap");

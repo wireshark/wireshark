@@ -402,5 +402,5 @@ proto_reg_handoff_rip(void)
 	dissector_handle_t rip_handle;
 
 	rip_handle = create_dissector_handle(dissect_rip, proto_rip);
-	dissector_add("udp.port", UDP_PORT_RIP, rip_handle);
+	dissector_add_uint("udp.port", UDP_PORT_RIP, rip_handle);
 }

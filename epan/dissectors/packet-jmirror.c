@@ -214,11 +214,11 @@ proto_reg_handoff_jmirror(void)
 		jmirror_inited = TRUE;
 	} else {
 		/* Unregister from the old UDP port */
-		dissector_delete("udp.port", jmirror_udp_port, jmirror_handle);
+		dissector_delete_uint("udp.port", jmirror_udp_port, jmirror_handle);
 	}
 
 	jmirror_udp_port = global_jmirror_udp_port;
 
 	/* Register as a normal IP dissector with default UDP port 30030 */
-	dissector_add("udp.port", jmirror_udp_port, jmirror_handle);
+	dissector_add_uint("udp.port", jmirror_udp_port, jmirror_handle);
 }

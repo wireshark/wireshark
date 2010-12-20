@@ -121,5 +121,5 @@ void proto_reg_handoff_hpteam(void)
 	data_handle   = find_dissector("data");
 	hpteam_handle = find_dissector("hpteam");
 	/* Register dissector to key off of known PID / OUI combination */
-	dissector_add("llc.hpteam_pid", 0x0002, hpteam_handle);
+	dissector_add_uint("llc.hpteam_pid", 0x0002, hpteam_handle);
 }

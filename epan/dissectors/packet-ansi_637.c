@@ -1843,7 +1843,7 @@ trans_param_bearer_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offs
      */
     tele_tvb = tvb_new_subset(tvb, offset, len, len);
 
-    dissector_try_port(tele_dissector_table, ansi_637_trans_tele_id,
+    dissector_try_uint(tele_dissector_table, ansi_637_trans_tele_id,
 	tele_tvb, g_pinfo, g_tree);
 }
 
@@ -1967,7 +1967,7 @@ dissect_ansi_637_tele(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (tree)
     {
-	value = pinfo->match_port;
+	value = pinfo->match_uint;
 
 	/*
 	 * create the ansi_637 protocol tree
@@ -2045,7 +2045,7 @@ dissect_ansi_637_tele(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		"%s - %s (%d)",
 		ansi_proto_name_tele,
 		str,
-		pinfo->match_port);
+		pinfo->match_uint);
 
 	ansi_637_tree =
 	    proto_item_add_subtree(ansi_637_item, ett_ansi_637_tele);
@@ -2351,18 +2351,18 @@ proto_reg_handoff_ansi_637(void)
 	/*
 	 * ANSI MAP dissector will push out teleservice ids
 	 */
-	dissector_add("ansi_map.tele_id", ansi_tele_id_strings[i].value, ansi_637_tele_handle);
+	dissector_add_uint("ansi_map.tele_id", ansi_tele_id_strings[i].value, ansi_637_tele_handle);
 
 	/*
 	 * we will push out teleservice ids after Transport layer decode
 	 */
-	dissector_add("ansi_637.tele_id", ansi_tele_id_strings[i].value, ansi_637_tele_handle);
+	dissector_add_uint("ansi_637.tele_id", ansi_tele_id_strings[i].value, ansi_637_tele_handle);
     }
 
     /*
      * ANSI A-interface will push out transport layer data
      */
-    dissector_add("ansi_a.sms", 0, ansi_637_trans_handle);
+    dissector_add_uint("ansi_a.sms", 0, ansi_637_trans_handle);
 
     /* data_handle = find_dissector("data"); */
 }

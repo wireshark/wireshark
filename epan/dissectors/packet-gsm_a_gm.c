@@ -3217,7 +3217,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 				break;
 			default:
 			{
-				handle = dissector_get_port_handle ( gprs_sm_pco_subdissector_table , prot );
+				handle = dissector_get_uint_handle ( gprs_sm_pco_subdissector_table , prot );
 				if ( handle != NULL )
 				{
 					proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Protocol: %s (%u)" ,

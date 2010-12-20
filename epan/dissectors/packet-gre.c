@@ -489,7 +489,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;	/* no payload */
     }
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    if (!dissector_try_port(gre_dissector_table, type, next_tvb, pinfo, tree))
+    if (!dissector_try_uint(gre_dissector_table, type, next_tvb, pinfo, tree))
       call_dissector(data_handle,next_tvb, pinfo, gre_tree);
   }
 }
@@ -679,6 +679,6 @@ proto_reg_handoff_gre(void)
 	dissector_handle_t gre_handle;
 
 	gre_handle = create_dissector_handle(dissect_gre, proto_gre);
-	dissector_add("ip.proto", IP_PROTO_GRE, gre_handle);
+	dissector_add_uint("ip.proto", IP_PROTO_GRE, gre_handle);
 	data_handle = find_dissector("data");
 }

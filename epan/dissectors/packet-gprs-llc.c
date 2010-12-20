@@ -774,7 +774,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			{
 				/* otherwise - call a subdissector */
 				next_tvb = tvb_new_subset(tvb, offset, (llc_data_length-offset), -1);
-   				if (!dissector_try_port(llcgprs_subdissector_table,sapi, next_tvb, pinfo, tree))
+   				if (!dissector_try_uint(llcgprs_subdissector_table,sapi, next_tvb, pinfo, tree))
 				/* if no subdissector is found, call the data dissector */
 				{
 	   				call_dissector(data_handle, next_tvb, pinfo, tree);
@@ -906,7 +906,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			{
 				/* otherwise - call a subdissector */
 				next_tvb = tvb_new_subset(tvb, offset, (llc_data_length-offset), -1 );
-				if (!dissector_try_port(llcgprs_subdissector_table,sapi, next_tvb, pinfo, tree))
+				if (!dissector_try_uint(llcgprs_subdissector_table,sapi, next_tvb, pinfo, tree))
 				{
 					call_dissector(data_handle, next_tvb, pinfo, tree);
 				}
@@ -1015,7 +1015,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				else if (llc_data_length>offset)
 				{
 					/* otherwise - call a subdissector */
-					if (!dissector_try_port(llcgprs_subdissector_table, sapi, next_tvb, pinfo, tree))
+					if (!dissector_try_uint(llcgprs_subdissector_table, sapi, next_tvb, pinfo, tree))
 					{
 						call_dissector(data_handle, next_tvb, pinfo, tree);
 					}
@@ -1312,7 +1312,7 @@ proto_reg_handoff_llcgprs(void)
 
 	/* make sure that the top level can call this dissector */
 	gprs_llc_handle = find_dissector("llcgprs");
-	dissector_add("wtap_encap", WTAP_ENCAP_GPRS_LLC, gprs_llc_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_GPRS_LLC, gprs_llc_handle);
 
 	data_handle = find_dissector("data");
 	sndcp_xid_handle  = find_dissector("sndcpxid");

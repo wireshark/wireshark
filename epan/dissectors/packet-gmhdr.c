@@ -318,7 +318,7 @@ proto_reg_handoff_gmhdr(void)
   dissector_handle_t gmhdr_handle;
 
   gmhdr_handle = create_dissector_handle(dissect_gmhdr, proto_gmhdr);
-  dissector_add("ethertype", ETHERTYPE_GIGAMON, gmhdr_handle);
+  dissector_add_uint("ethertype", ETHERTYPE_GIGAMON, gmhdr_handle);
   heur_dissector_add("eth.trailer", dissect_gmtrailer, proto_gmhdr);
 }
 

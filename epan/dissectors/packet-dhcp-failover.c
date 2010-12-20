@@ -1205,9 +1205,9 @@ proto_reg_handoff_dhcpfo(void)
 		dhcpfo_handle = create_dissector_handle(dissect_dhcpfo, proto_dhcpfo);
 		initialized = TRUE;
 	} else {
-		dissector_delete("tcp.port", saved_tcp_port, dhcpfo_handle);
+		dissector_delete_uint("tcp.port", saved_tcp_port, dhcpfo_handle);
 	}
-	dissector_add("tcp.port", tcp_port_pref, dhcpfo_handle);
+	dissector_add_uint("tcp.port", tcp_port_pref, dhcpfo_handle);
 	saved_tcp_port = tcp_port_pref;
 }
 

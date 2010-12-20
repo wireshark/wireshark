@@ -1963,9 +1963,9 @@ proto_reg_handoff_dhcpv6(void)
 
     dhcpv6_handle = create_dissector_handle(dissect_dhcpv6_downstream,
                                             proto_dhcpv6);
-    dissector_add("udp.port", UDP_PORT_DHCPV6_DOWNSTREAM, dhcpv6_handle);
+    dissector_add_uint("udp.port", UDP_PORT_DHCPV6_DOWNSTREAM, dhcpv6_handle);
     dhcpv6_handle = create_dissector_handle(dissect_dhcpv6_upstream,
                                             proto_dhcpv6);
-    dissector_add("udp.port", UDP_PORT_DHCPV6_UPSTREAM, dhcpv6_handle);
+    dissector_add_uint("udp.port", UDP_PORT_DHCPV6_UPSTREAM, dhcpv6_handle);
 }
 

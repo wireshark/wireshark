@@ -549,5 +549,5 @@ proto_reg_handoff_xdmcp(void)
   dissector_handle_t xdmcp_handle;
 
   xdmcp_handle = create_dissector_handle(dissect_xdmcp, proto_xdmcp);
-  dissector_add("udp.port", UDP_PORT_XDMCP, xdmcp_handle);
+  dissector_add_uint("udp.port", UDP_PORT_XDMCP, xdmcp_handle);
 }

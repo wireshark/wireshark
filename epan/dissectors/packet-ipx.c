@@ -398,11 +398,11 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tap_queue_packet(ipx_tap, pinfo, ipxh);
 
 	if (second_socket != IPX_SOCKET_NWLINK_SMB_NAMEQUERY) {
-		if (dissector_try_port(ipx_socket_dissector_table, first_socket,
+		if (dissector_try_uint(ipx_socket_dissector_table, first_socket,
 		    next_tvb, pinfo, tree))
 			return;
 	}
-	if (dissector_try_port(ipx_socket_dissector_table, second_socket,
+	if (dissector_try_uint(ipx_socket_dissector_table, second_socket,
 	    next_tvb, pinfo, tree))
 		return;
 
@@ -410,7 +410,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * Neither of them are known; try the packet type, which will
 	 * at least let us, for example, dissect SPX packets as SPX.
 	 */
-	if (dissector_try_port(ipx_type_dissector_table, ipxh->ipx_type, next_tvb,
+	if (dissector_try_uint(ipx_type_dissector_table, ipxh->ipx_type, next_tvb,
 	    pinfo, tree))
 		return;
 
@@ -813,13 +813,13 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		pinfo->private_data = &spx_infox;
 
 		next_tvb = tvb_new_subset_remaining(tvb, SPX_HEADER_LEN);
-		if (dissector_try_port(spx_socket_dissector_table, low_socket,
+		if (dissector_try_uint(spx_socket_dissector_table, low_socket,
 		    next_tvb, pinfo, tree))
 		{
 			pinfo->private_data = pd_save;
 			return;
 		}
-		if (dissector_try_port(spx_socket_dissector_table, high_socket,
+		if (dissector_try_uint(spx_socket_dissector_table, high_socket,
 		    next_tvb, pinfo, tree))
 		{
 			pinfo->private_data = pd_save;
@@ -1522,35 +1522,35 @@ proto_reg_handoff_ipx(void)
 	dissector_handle_t serialization_handle, ipxmsg_handle;
 
 	ipx_handle = find_dissector("ipx");
-	dissector_add("udp.port", UDP_PORT_IPX, ipx_handle);
-	dissector_add("ethertype", ETHERTYPE_IPX, ipx_handle);
-	dissector_add("chdlctype", ETHERTYPE_IPX, ipx_handle);
-	dissector_add("ppp.protocol", PPP_IPX, ipx_handle);
-	dissector_add("llc.dsap", SAP_NETWARE1, ipx_handle);
-	dissector_add("llc.dsap", SAP_NETWARE2, ipx_handle);
-	dissector_add("sll.ltype", LINUX_SLL_P_802_3, ipx_handle);
-	dissector_add("null.type", BSD_AF_IPX, ipx_handle);
-	dissector_add("gre.proto", ETHERTYPE_IPX, ipx_handle);
-	dissector_add("arcnet.protocol_id", ARCNET_PROTO_IPX, ipx_handle);
-	dissector_add("arcnet.protocol_id", ARCNET_PROTO_NOVELL_EC, ipx_handle);
+	dissector_add_uint("udp.port", UDP_PORT_IPX, ipx_handle);
+	dissector_add_uint("ethertype", ETHERTYPE_IPX, ipx_handle);
+	dissector_add_uint("chdlctype", ETHERTYPE_IPX, ipx_handle);
+	dissector_add_uint("ppp.protocol", PPP_IPX, ipx_handle);
+	dissector_add_uint("llc.dsap", SAP_NETWARE1, ipx_handle);
+	dissector_add_uint("llc.dsap", SAP_NETWARE2, ipx_handle);
+	dissector_add_uint("sll.ltype", LINUX_SLL_P_802_3, ipx_handle);
+	dissector_add_uint("null.type", BSD_AF_IPX, ipx_handle);
+	dissector_add_uint("gre.proto", ETHERTYPE_IPX, ipx_handle);
+	dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_IPX, ipx_handle);
+	dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_NOVELL_EC, ipx_handle);
 
 	spx_handle = create_dissector_handle(dissect_spx, proto_spx);
-	dissector_add("ipx.packet_type", IPX_PACKET_TYPE_SPX, spx_handle);
+	dissector_add_uint("ipx.packet_type", IPX_PACKET_TYPE_SPX, spx_handle);
 
 	ipxsap_handle = find_dissector("ipxsap");
-	dissector_add("ipx.socket", IPX_SOCKET_SAP, ipxsap_handle);
+	dissector_add_uint("ipx.socket", IPX_SOCKET_SAP, ipxsap_handle);
 
 	ipxrip_handle = create_dissector_handle(dissect_ipxrip, proto_ipxrip);
-	dissector_add("ipx.socket", IPX_SOCKET_IPXRIP, ipxrip_handle);
+	dissector_add_uint("ipx.socket", IPX_SOCKET_IPXRIP, ipxrip_handle);
 
 	serialization_handle = create_dissector_handle(dissect_serialization,
 	    proto_serialization);
-	dissector_add("ipx.socket", IPX_SOCKET_SERIALIZATION,
+	dissector_add_uint("ipx.socket", IPX_SOCKET_SERIALIZATION,
 	    serialization_handle);
 
 	ipxmsg_handle = create_dissector_handle(dissect_ipxmsg, proto_ipxmsg);
-	dissector_add("ipx.socket", IPX_SOCKET_IPX_MESSAGE, ipxmsg_handle);
-	dissector_add("ipx.socket", IPX_SOCKET_IPX_MESSAGE1, ipxmsg_handle);
+	dissector_add_uint("ipx.socket", IPX_SOCKET_IPX_MESSAGE, ipxmsg_handle);
+	dissector_add_uint("ipx.socket", IPX_SOCKET_IPX_MESSAGE1, ipxmsg_handle);
 
 	data_handle = find_dissector("data");
 }

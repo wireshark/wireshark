@@ -603,7 +603,7 @@ dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     }
   }
   offset += 2;
-  dissector_try_port(af_dissector_table, pt, next_tvb, pinfo, tree);
+  dissector_try_uint(af_dissector_table, pt, next_tvb, pinfo, tree);
 }
 
 /** Dissect the Tag Packet Layer.
@@ -675,7 +675,7 @@ proto_reg_handoff_dcp_etsi (void)
   dissector_add_string("dcp-etsi.sync", "AF", af_handle);
   dissector_add_string("dcp-etsi.sync", "PF", pft_handle);
   /* if there are ever other payload types ...*/
-  dissector_add("dcp-af.pt", 'T', tpl_handle);
+  dissector_add_uint("dcp-af.pt", 'T', tpl_handle);
 }
 
 void

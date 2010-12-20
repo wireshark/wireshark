@@ -2214,7 +2214,7 @@ void proto_reg_handoff_rdt(void)
         /* Undo any current port registrations */
         if (rdt_register_udp_port)
         {
-            dissector_delete("udp.port", rdt_udp_port, rdt_handle);
+            dissector_delete_uint("udp.port", rdt_udp_port, rdt_handle);
         }
     }
 
@@ -2228,7 +2228,7 @@ void proto_reg_handoff_rdt(void)
         rdt_udp_port = global_rdt_udp_port;
 
         /* And register with this port */
-        dissector_add("udp.port", global_rdt_udp_port, rdt_handle);
+        dissector_add_uint("udp.port", global_rdt_udp_port, rdt_handle);
     }
 }
 

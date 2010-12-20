@@ -381,5 +381,5 @@ proto_reg_handoff_mpeg1(void)
 	dissector_handle_t mpeg1_handle;
 
 	mpeg1_handle = create_dissector_handle(dissect_mpeg1, proto_mpg);
-	dissector_add("rtp.pt", PT_MPV, mpeg1_handle);
+	dissector_add_uint("rtp.pt", PT_MPV, mpeg1_handle);
 }

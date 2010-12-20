@@ -206,5 +206,5 @@ proto_reg_handoff_ddtp(void)
     dissector_handle_t ddtp_handle;
 
     ddtp_handle = new_create_dissector_handle(dissect_ddtp, proto_ddtp);
-    dissector_add("udp.port", UDP_PORT_DDTP, ddtp_handle);
+    dissector_add_uint("udp.port", UDP_PORT_DDTP, ddtp_handle);
 }

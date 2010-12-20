@@ -751,7 +751,7 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 						 * the protocol type should
 						 * be the Ethertype, but....
 						 */
-						dissected = dissector_try_port(
+						dissected = dissector_try_uint(
 						    ethertype_subdissector_table,
 						    hdr->ar_pro_type_pid,
 						    sub_tvb, pinfo, ind_tree);
@@ -762,7 +762,7 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 						 * just dissect as data.
 						 */
 						if (oui_info != NULL) {
-							dissected = dissector_try_port(
+							dissected = dissector_try_uint(
 							    oui_info->table,
 							    hdr->ar_pro_type_pid,
 							    sub_tvb, pinfo,
@@ -774,11 +774,11 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 					/*
 					 * Dissect based on the NLPID.
 					 */
-					dissected = dissector_try_port(
+					dissected = dissector_try_uint(
 					    osinl_subdissector_table,
 					    hdr->ar_pro_type, sub_tvb, pinfo,
 					    ind_tree) ||
-					            dissector_try_port(
+					            dissector_try_uint(
 					    osinl_excl_subdissector_table,
 					    hdr->ar_pro_type, sub_tvb, pinfo,
 					    ind_tree);
@@ -793,7 +793,7 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 				/* Experimental/Local use */
 				dissected = FALSE;
 			} else {
-				dissected = dissector_try_port(
+				dissected = dissector_try_uint(
 				    ethertype_subdissector_table,
 				    hdr->ar_pro_type, sub_tvb, pinfo, ind_tree);
 			}
@@ -1201,7 +1201,7 @@ proto_reg_handoff_nhrp(void)
 	ethertype_subdissector_table = find_dissector_table("ethertype");
 
 	nhrp_handle = create_dissector_handle(dissect_nhrp, proto_nhrp);
-	dissector_add("ip.proto", IP_PROTO_NARP, nhrp_handle);
-	dissector_add("gre.proto", GRE_NHRP, nhrp_handle);
-	dissector_add("llc.iana_pid", IANA_PID_MARS_NHRP_CONTROL, nhrp_handle);
+	dissector_add_uint("ip.proto", IP_PROTO_NARP, nhrp_handle);
+	dissector_add_uint("gre.proto", GRE_NHRP, nhrp_handle);
+	dissector_add_uint("llc.iana_pid", IANA_PID_MARS_NHRP_CONTROL, nhrp_handle);
 }

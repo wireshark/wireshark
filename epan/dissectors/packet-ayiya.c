@@ -132,7 +132,7 @@ dissect_ayiya(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	switch (opcode) {
 	case OPCODE_FORWARD:
 		payload = tvb_new_subset_remaining(tvb, offset);
-		dissector_try_port(ip_dissector_table, next_header, payload, pinfo, tree);
+		dissector_try_uint(ip_dissector_table, next_header, payload, pinfo, tree);
 		break;
 	}
 }
@@ -209,7 +209,7 @@ proto_reg_handoff_ayiya(void)
 	dissector_handle_t ayiya_handle;
 
 	ayiya_handle = find_dissector("ayiya");
-	dissector_add("udp.port", UDP_PORT_AYIYA, ayiya_handle);
+	dissector_add_uint("udp.port", UDP_PORT_AYIYA, ayiya_handle);
 
 	ip_dissector_table = find_dissector_table("ip.proto");
 }

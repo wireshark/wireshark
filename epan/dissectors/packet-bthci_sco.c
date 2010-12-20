@@ -109,8 +109,8 @@ proto_reg_handoff_btsco(void)
 	dissector_handle_t bthci_sco_handle;
 
 	bthci_sco_handle = find_dissector("bthci_sco");
-	dissector_add("hci_h4.type", HCI_H4_TYPE_SCO, bthci_sco_handle);
-	dissector_add("hci_h1.type", BTHCI_CHANNEL_SCO, bthci_sco_handle);
+	dissector_add_uint("hci_h4.type", HCI_H4_TYPE_SCO, bthci_sco_handle);
+	dissector_add_uint("hci_h1.type", BTHCI_CHANNEL_SCO, bthci_sco_handle);
 }
 
 

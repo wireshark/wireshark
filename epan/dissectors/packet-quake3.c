@@ -616,9 +616,9 @@ proto_reg_handoff_quake3(void)
 		initialized=TRUE;
 	} else {
 		for (i=0;i<4;i++)
-			dissector_delete("udp.port", server_port+i, quake3_handle);
+			dissector_delete_uint("udp.port", server_port+i, quake3_handle);
 		for (i=0;i<4;i++)
-			dissector_delete("udp.port", master_port+i, quake3_handle);
+			dissector_delete_uint("udp.port", master_port+i, quake3_handle);
 	}
 
         /* set port for future deletes */
@@ -627,10 +627,10 @@ proto_reg_handoff_quake3(void)
 
 	/* add dissectors */
 	for (i=0;i<4;i++)
-		dissector_add("udp.port", gbl_quake3_server_port + i,
+		dissector_add_uint("udp.port", gbl_quake3_server_port + i,
 			quake3_handle);
 	for (i=0;i<4;i++)
-		dissector_add("udp.port", gbl_quake3_master_port + i,
+		dissector_add_uint("udp.port", gbl_quake3_master_port + i,
 			quake3_handle);
 }
 

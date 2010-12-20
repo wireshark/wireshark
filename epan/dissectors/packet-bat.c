@@ -931,15 +931,15 @@ void proto_reg_handoff_bat(void)
 
 		inited = TRUE;
 	} else {
-		dissector_delete("udp.port", batman_udp_port, batman_handle);
-		dissector_delete("udp.port", gw_udp_port, gw_handle);
-		dissector_delete("udp.port", vis_udp_port, vis_handle);
+		dissector_delete_uint("udp.port", batman_udp_port, batman_handle);
+		dissector_delete_uint("udp.port", gw_udp_port, gw_handle);
+		dissector_delete_uint("udp.port", vis_udp_port, vis_handle);
 	}
 
 	batman_udp_port = global_bat_batman_udp_port;
 	gw_udp_port = global_bat_gw_udp_port;
 	vis_udp_port = global_bat_vis_udp_port;
-	dissector_add("udp.port", batman_udp_port, batman_handle);
-	dissector_add("udp.port", gw_udp_port, gw_handle);
-	dissector_add("udp.port", vis_udp_port, vis_handle);
+	dissector_add_uint("udp.port", batman_udp_port, batman_handle);
+	dissector_add_uint("udp.port", gw_udp_port, gw_handle);
+	dissector_add_uint("udp.port", vis_udp_port, vis_handle);
 }

@@ -2168,8 +2168,8 @@ proto_reg_handoff_memcache (void)
   memcache_tcp_handle = find_dissector ("memcache.tcp");
   memcache_udp_handle = find_dissector ("memcache.udp");
 
-  dissector_add ("tcp.port", MEMCACHE_PORT, memcache_tcp_handle);
-  dissector_add ("udp.port", MEMCACHE_PORT, memcache_udp_handle);
+  dissector_add_uint ("tcp.port", MEMCACHE_PORT, memcache_tcp_handle);
+  dissector_add_uint ("udp.port", MEMCACHE_PORT, memcache_udp_handle);
 }
 
 /*

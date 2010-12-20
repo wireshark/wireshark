@@ -560,7 +560,7 @@ dissect_pktc_mtafqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_add_fstr(pinfo->cinfo, COL_INFO, "MTA FQDN %s",
-                    pinfo->srcport == pinfo->match_port ? "Reply":"Request");
+                    pinfo->srcport == pinfo->match_uint ? "Reply":"Request");
     }
 
 
@@ -743,7 +743,7 @@ proto_reg_handoff_pktc(void)
     dissector_handle_t pktc_handle;
 
     pktc_handle = create_dissector_handle(dissect_pktc, proto_pktc);
-    dissector_add("udp.port", PKTC_PORT, pktc_handle);
+    dissector_add_uint("udp.port", PKTC_PORT, pktc_handle);
 }
 
 
@@ -792,5 +792,5 @@ proto_reg_handoff_pktc_mtafqdn(void)
     dissector_handle_t pktc_mtafqdn_handle;
 
     pktc_mtafqdn_handle = create_dissector_handle(dissect_pktc_mtafqdn, proto_pktc);
-    dissector_add("udp.port", PKTC_MTAFQDN_PORT, pktc_mtafqdn_handle);
+    dissector_add_uint("udp.port", PKTC_MTAFQDN_PORT, pktc_mtafqdn_handle);
 }

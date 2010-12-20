@@ -430,7 +430,7 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
 
       next_tvb = tvb_new_subset_remaining(tvb, 4);
-      if (!dissector_try_port(ethertype_dissector_table,
+      if (!dissector_try_uint(ethertype_dissector_table,
             (guint16) null_header, next_tvb, pinfo, tree))
 	call_dissector(data_handle, next_tvb, pinfo, tree);
     } else {
@@ -443,7 +443,7 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
 
       next_tvb = tvb_new_subset_remaining(tvb, 4);
-      if (!dissector_try_port(null_dissector_table, null_header,
+      if (!dissector_try_uint(null_dissector_table, null_header,
 	    next_tvb, pinfo, tree)) {
         /* No sub-dissector found.  Label rest of packet as "Data" */
         call_dissector(data_handle,next_tvb, pinfo, tree);
@@ -494,5 +494,5 @@ proto_reg_handoff_null(void)
 	ethertype_dissector_table = find_dissector_table("ethertype");
 
 	null_handle = create_dissector_handle(dissect_null, proto_null);
-	dissector_add("wtap_encap", WTAP_ENCAP_NULL, null_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_NULL, null_handle);
 }

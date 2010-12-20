@@ -5724,8 +5724,8 @@ void proto_register_r3 (void)
 void proto_reg_handoff_r3 (void)
 {
   dissector_handle_t r3_handle = find_dissector ("r3");
-  dissector_add ("tcp.port", 2571, r3_handle);
-  dissector_add ("tcp.port", 8023, r3_handle);
+  dissector_add_uint ("tcp.port", 2571, r3_handle);
+  dissector_add_uint ("tcp.port", 8023, r3_handle);
 }
 
 

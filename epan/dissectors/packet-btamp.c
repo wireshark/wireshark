@@ -636,6 +636,6 @@ proto_reg_handoff_btamp(void)
     dissector_handle_t btamp_handle;
 
     btamp_handle = find_dissector("btamp");
-    dissector_add("btl2cap.cid", BTL2CAP_FIXED_CID_AMP_MAN, btamp_handle);
+    dissector_add_uint("btl2cap.cid", BTL2CAP_FIXED_CID_AMP_MAN, btamp_handle);
 }
 

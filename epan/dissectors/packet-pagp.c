@@ -572,5 +572,5 @@ proto_reg_handoff_pagp(void)
   dissector_handle_t pagp_handle;
 
   pagp_handle = create_dissector_handle(dissect_pagp, proto_pagp);
-  dissector_add("llc.cisco_pid", 0x0104, pagp_handle);
+  dissector_add_uint("llc.cisco_pid", 0x0104, pagp_handle);
 }

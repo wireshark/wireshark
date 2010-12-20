@@ -346,7 +346,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			if ((force_docsis_encap) && (docsis_handle)) {
 				call_dissector(docsis_handle, tvb, pinfo, parent_tree);
 			} else {
-				if (!dissector_try_port(wtap_encap_dissector_table, pinfo->fd->lnk_t,
+				if (!dissector_try_uint(wtap_encap_dissector_table, pinfo->fd->lnk_t,
 							tvb, pinfo, parent_tree)) {
 
 					col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");

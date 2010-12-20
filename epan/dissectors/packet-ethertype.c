@@ -256,7 +256,7 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 	saved_proto = pinfo->current_proto;
 	pd_save = pinfo->private_data;
 	TRY {
-		dissector_found = dissector_try_port(ethertype_dissector_table,
+		dissector_found = dissector_try_uint(ethertype_dissector_table,
 		    etype, next_tvb, pinfo, tree);
 	}
 	CATCH(BoundsError) {

@@ -116,7 +116,7 @@ static void dissect_packetlogger (tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     proto_item_set_len (ti, 1);
 
     col_add_fstr (pinfo->cinfo, COL_INFO, "%s", val_to_str(pl_type, type_vals, "Unknown 0x%02x"));
-    if (!dissector_try_port (hci_h1_table, pinfo->pseudo_header->bthci.channel, next_tvb, pinfo, tree)) {
+    if (!dissector_try_uint (hci_h1_table, pinfo->pseudo_header->bthci.channel, next_tvb, pinfo, tree)) {
       call_dissector (data_handle, next_tvb, pinfo, tree);
     }
   } else {
@@ -163,7 +163,7 @@ void proto_reg_handoff_packetlogger (void)
   packetlogger_handle = find_dissector (PFNAME);
   hci_h1_table = find_dissector_table("hci_h1.type");
   data_handle = find_dissector("data");
-  dissector_add ("wtap_encap", WTAP_ENCAP_PACKETLOGGER, packetlogger_handle);
+  dissector_add_uint ("wtap_encap", WTAP_ENCAP_PACKETLOGGER, packetlogger_handle);
 }
 
 /*

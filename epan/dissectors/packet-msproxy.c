@@ -1254,5 +1254,5 @@ proto_reg_handoff_msproxy(void) {
 
 	msproxy_handle = create_dissector_handle(dissect_msproxy,
 	    proto_msproxy);
-	dissector_add("udp.port", UDP_PORT_MSPROXY, msproxy_handle);
+	dissector_add_uint("udp.port", UDP_PORT_MSPROXY, msproxy_handle);
 }

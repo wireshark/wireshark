@@ -1245,14 +1245,14 @@ proto_reg_handoff_dlm3(void)
     dlm3_tcp_handle = new_create_dissector_handle(dissect_dlm3, proto_dlm3);
     dissector_registered = TRUE;
   } else {
-    dissector_delete("tcp.port",  tcp_port,  dlm3_tcp_handle);
-    dissector_delete("sctp.port", sctp_port, dlm3_sctp_handle);
+    dissector_delete_uint("tcp.port",  tcp_port,  dlm3_tcp_handle);
+    dissector_delete_uint("sctp.port", sctp_port, dlm3_sctp_handle);
   }
 
   tcp_port  = dlm3_tcp_port;
   sctp_port = dlm3_sctp_port;
-  dissector_add("tcp.port",  tcp_port,  dlm3_tcp_handle);
-  dissector_add("sctp.port", sctp_port, dlm3_sctp_handle);
+  dissector_add_uint("tcp.port",  tcp_port,  dlm3_tcp_handle);
+  dissector_add_uint("sctp.port", sctp_port, dlm3_sctp_handle);
 }
 
 /* packet-dlm3.c ends here. */

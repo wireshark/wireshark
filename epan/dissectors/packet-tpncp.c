@@ -722,10 +722,10 @@ void proto_reg_handoff_tpncp(void) {
         tpncp_prefs_initialized = TRUE;
     }
     else {
-        dissector_delete("tcp.port", trunkpack_tcp_port, tpncp_tcp_handle);
-        dissector_delete("udp.port", trunkpack_udp_port, tpncp_udp_handle);
-        dissector_delete("tcp.port", host_tcp_port,      tpncp_tcp_handle);
-        dissector_delete("udp.port", host_udp_port,      tpncp_udp_handle);
+        dissector_delete_uint("tcp.port", trunkpack_tcp_port, tpncp_tcp_handle);
+        dissector_delete_uint("udp.port", trunkpack_udp_port, tpncp_udp_handle);
+        dissector_delete_uint("tcp.port", host_tcp_port,      tpncp_tcp_handle);
+        dissector_delete_uint("udp.port", host_udp_port,      tpncp_udp_handle);
     }
 
     trunkpack_tcp_port = global_tpncp_trunkpack_tcp_port;
@@ -734,8 +734,8 @@ void proto_reg_handoff_tpncp(void) {
     host_tcp_port = global_tpncp_host_tcp_port;
     host_udp_port = global_tpncp_host_udp_port;
 
-    dissector_add("tcp.port", global_tpncp_trunkpack_tcp_port, tpncp_tcp_handle);
-    dissector_add("udp.port", global_tpncp_trunkpack_udp_port, tpncp_udp_handle);
+    dissector_add_uint("tcp.port", global_tpncp_trunkpack_tcp_port, tpncp_tcp_handle);
+    dissector_add_uint("udp.port", global_tpncp_trunkpack_udp_port, tpncp_udp_handle);
 }
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/

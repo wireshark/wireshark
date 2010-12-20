@@ -641,7 +641,7 @@ dissect_mtp3_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_set_str(pinfo->cinfo, COL_INFO, "DATA ");
 
-  if (!dissector_try_port(mtp3_sio_dissector_table, service_indicator, payload_tvb, pinfo, tree))
+  if (!dissector_try_uint(mtp3_sio_dissector_table, service_indicator, payload_tvb, pinfo, tree))
     call_dissector(data_handle, payload_tvb, pinfo, tree);
 }
 
@@ -847,7 +847,7 @@ proto_reg_handoff_mtp3(void)
   dissector_handle_t mtp3_handle;        
          
   mtp3_handle = find_dissector("mtp3");               
-  dissector_add("wtap_encap", WTAP_ENCAP_MTP3, mtp3_handle);     
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_MTP3, mtp3_handle);     
   dissector_add_string("tali.opcode", "mtp3", mtp3_handle);
                  
   data_handle = find_dissector("data");

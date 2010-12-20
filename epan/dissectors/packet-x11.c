@@ -2867,7 +2867,7 @@ guess_byte_ordering(tvbuff_t *tvb, packet_info *pinfo,
       else if (state->byte_order == BYTE_ORDER_LE)
             return TRUE;        /* known to be little-endian */
 
-      if (pinfo->srcport == pinfo->match_port) {
+      if (pinfo->srcport == pinfo->match_uint) {
             /*
              * This is a reply or event; we don't try to guess the
              * byte order on it for now.
@@ -5583,7 +5583,7 @@ dissect_x11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "X11");
 
-      if (pinfo->match_port == pinfo->srcport)
+      if (pinfo->match_uint == pinfo->srcport)
             dissect_x11_replies(tvb, pinfo, tree);
       else
             dissect_x11_requests(tvb, pinfo, tree);
@@ -5664,8 +5664,8 @@ proto_reg_handoff_x11(void)
       dissector_handle_t x11_handle;
 
       x11_handle = create_dissector_handle(dissect_x11, proto_x11);
-      dissector_add("tcp.port", TCP_PORT_X11, x11_handle);
-      dissector_add("tcp.port", TCP_PORT_X11_2, x11_handle);
-      dissector_add("tcp.port", TCP_PORT_X11_3, x11_handle);
+      dissector_add_uint("tcp.port", TCP_PORT_X11, x11_handle);
+      dissector_add_uint("tcp.port", TCP_PORT_X11_2, x11_handle);
+      dissector_add_uint("tcp.port", TCP_PORT_X11_3, x11_handle);
 }
 

@@ -831,10 +831,10 @@ void proto_reg_handoff_dis(void)
     }
     else
     {
-        dissector_delete("udp.port", saved_dis_udp_port, dis_dissector_handle);
+        dissector_delete_uint("udp.port", saved_dis_udp_port, dis_dissector_handle);
     }
 
-    dissector_add("udp.port", dis_udp_port, dis_dissector_handle);
+    dissector_add_uint("udp.port", dis_udp_port, dis_dissector_handle);
     saved_dis_udp_port = dis_udp_port;
 }
 

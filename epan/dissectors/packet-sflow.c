@@ -3364,14 +3364,14 @@ proto_register_sflow(void) {
 static void
 sflow_245_delete_callback(guint32 port) {
     if (port) {
-        dissector_delete("udp.port", port, sflow_handle);
+        dissector_delete_uint("udp.port", port, sflow_handle);
     }
 }
 
 static void
 sflow_245_add_callback(guint32 port) {
     if (port) {
-        dissector_add("udp.port", port, sflow_handle);
+        dissector_add_uint("udp.port", port, sflow_handle);
     }
 }
 

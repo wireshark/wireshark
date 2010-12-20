@@ -126,7 +126,7 @@ dissect_idp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * Hand off to the dissector for the packet type.
 	 */
-	if (dissector_try_port(idp_type_dissector_table, type, next_tvb,
+	if (dissector_try_uint(idp_type_dissector_table, type, next_tvb,
 	    pinfo, tree))
 		return;
 
@@ -206,8 +206,8 @@ proto_reg_handoff_idp(void)
 	dissector_handle_t idp_handle;
 
 	idp_handle = create_dissector_handle(dissect_idp, proto_idp);
-	dissector_add("ethertype", ETHERTYPE_XNS_IDP, idp_handle);
-	dissector_add("chdlctype", ETHERTYPE_XNS_IDP, idp_handle);
+	dissector_add_uint("ethertype", ETHERTYPE_XNS_IDP, idp_handle);
+	dissector_add_uint("chdlctype", ETHERTYPE_XNS_IDP, idp_handle);
 
 	data_handle = find_dissector("data");
 }

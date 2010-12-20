@@ -3181,7 +3181,7 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 
         /* Decode the rejected packet. */
         next_tvb = tvb_new_subset(tvb, offset, length, length);
-        if (!dissector_try_port(ppp_subdissector_table, protocol,
+        if (!dissector_try_uint(ppp_subdissector_table, protocol,
                                 next_tvb, pinfo, fh_tree)) {
           call_dissector(data_handle, next_tvb, pinfo, fh_tree);
         }
@@ -3258,7 +3258,7 @@ dissect_ppp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   next_tvb = tvb_new_subset_remaining(tvb, proto_len);
 
   /* do lookup with the subdissector table */
-  if (!dissector_try_port(ppp_subdissector_table, ppp_prot, next_tvb, pinfo, tree)) {
+  if (!dissector_try_uint(ppp_subdissector_table, ppp_prot, next_tvb, pinfo, tree)) {
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
       col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x", ppp_prot);
     if (check_col(pinfo->cinfo, COL_INFO))
@@ -3372,7 +3372,7 @@ dissect_vsnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   next_tvb = tvb_new_subset(tvb, 1, -1, -1);
 
   /* do lookup with the subdissector table */
-  if (!dissector_try_port(ppp_subdissector_table, PPP_IP, next_tvb, pinfo, tree))
+  if (!dissector_try_uint(ppp_subdissector_table, PPP_IP, next_tvb, pinfo, tree))
   {
     col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x", PPP_IP);
 
@@ -3725,7 +3725,7 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       next_tvb = tvb_new_subset(tvb,offset,length,length);
 
-      if (!dissector_try_port(ppp_subdissector_table, pid, next_tvb, pinfo, info_tree)) {
+      if (!dissector_try_uint(ppp_subdissector_table, pid, next_tvb, pinfo, info_tree)) {
         call_dissector(data_handle, next_tvb, pinfo, info_tree);
       }
       offset += length;
@@ -3863,7 +3863,7 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     add_new_data_source(pinfo, next_tvb, "Decompressed Data");
     tvb_set_free_cb(next_tvb, g_free);
 
-    if (!dissector_try_port(ppp_subdissector_table, PPP_IP, next_tvb, pinfo, info_tree)) {
+    if (!dissector_try_uint(ppp_subdissector_table, PPP_IP, next_tvb, pinfo, info_tree)) {
       call_dissector_only(data_handle, next_tvb, pinfo, info_tree);
     }
   } /* if tree */
@@ -4428,13 +4428,13 @@ proto_reg_handoff_ppp_raw_hdlc(void)
   dissector_handle_t ppp_usb_handle;
 
   ppp_raw_hdlc_handle = create_dissector_handle(dissect_ppp_raw_hdlc, proto_ppp);
-  dissector_add("gre.proto", ETHERTYPE_CDMA2000_A10_UBS, ppp_raw_hdlc_handle);
-  dissector_add("gre.proto", ETHERTYPE_3GPP2, ppp_raw_hdlc_handle);
+  dissector_add_uint("gre.proto", ETHERTYPE_CDMA2000_A10_UBS, ppp_raw_hdlc_handle);
+  dissector_add_uint("gre.proto", ETHERTYPE_3GPP2, ppp_raw_hdlc_handle);
 
   ppp_usb_handle = create_dissector_handle(dissect_ppp_usb, proto_ppp);
-  dissector_add("usb.bulk", IF_CLASS_UNKNOWN, ppp_usb_handle);
-  dissector_add("usb.bulk", IF_CLASS_VENDOR_SPECIFIC, ppp_usb_handle);
-  dissector_add("usb.bulk", IF_CLASS_CDC_DATA, ppp_usb_handle);
+  dissector_add_uint("usb.bulk", IF_CLASS_UNKNOWN, ppp_usb_handle);
+  dissector_add_uint("usb.bulk", IF_CLASS_VENDOR_SPECIFIC, ppp_usb_handle);
+  dissector_add_uint("usb.bulk", IF_CLASS_CDC_DATA, ppp_usb_handle);
 }
 
 /*
@@ -4751,14 +4751,14 @@ proto_reg_handoff_ppp(void)
   data_handle = find_dissector("data");
 
   ppp_handle = find_dissector("ppp");
-  dissector_add("fr.ietf", NLPID_PPP, ppp_handle);
+  dissector_add_uint("fr.ietf", NLPID_PPP, ppp_handle);
 
   ppp_hdlc_handle = find_dissector("ppp_hdlc");
-  dissector_add("wtap_encap", WTAP_ENCAP_PPP, ppp_hdlc_handle);
-  dissector_add("wtap_encap", WTAP_ENCAP_PPP_WITH_PHDR, ppp_hdlc_handle);
-  dissector_add("sll.ltype", LINUX_SLL_P_PPPHDLC, ppp_hdlc_handle);
-  dissector_add("osinl.excl", NLPID_PPP, ppp_handle);
-  dissector_add("gre.proto", ETHERTYPE_PPP, ppp_hdlc_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_PPP, ppp_hdlc_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_PPP_WITH_PHDR, ppp_hdlc_handle);
+  dissector_add_uint("sll.ltype", LINUX_SLL_P_PPPHDLC, ppp_hdlc_handle);
+  dissector_add_uint("osinl.excl", NLPID_PPP, ppp_handle);
+  dissector_add_uint("gre.proto", ETHERTYPE_PPP, ppp_hdlc_handle);
 }
 
 void
@@ -4808,7 +4808,7 @@ proto_reg_handoff_mp(void)
   dissector_handle_t mp_handle;
 
   mp_handle = create_dissector_handle(dissect_mp, proto_mp);
-  dissector_add("ppp.protocol", PPP_MP, mp_handle);
+  dissector_add_uint("ppp.protocol", PPP_MP, mp_handle);
 }
 
 void
@@ -4837,7 +4837,7 @@ proto_reg_handoff_lcp(void)
   dissector_handle_t lcp_handle;
 
   lcp_handle = create_dissector_handle(dissect_lcp, proto_lcp);
-  dissector_add("ppp.protocol", PPP_LCP, lcp_handle);
+  dissector_add_uint("ppp.protocol", PPP_LCP, lcp_handle);
 
   /*
    * NDISWAN on Windows translates Ethernet frames from higher-level
@@ -4855,12 +4855,12 @@ proto_reg_handoff_lcp(void)
    * "ethertype" dissector table as well as the PPP protocol dissector
    * table.
    */
-  dissector_add("ethertype", PPP_LCP, lcp_handle);
+  dissector_add_uint("ethertype", PPP_LCP, lcp_handle);
 
   /*
    * for GSM-A / MobileL3 / GPRS SM / PCO
    */
-  dissector_add("sm_pco.protocol", PPP_LCP, lcp_handle);
+  dissector_add_uint("sm_pco.protocol", PPP_LCP, lcp_handle);
 
 }
 
@@ -4883,7 +4883,7 @@ proto_reg_handoff_vsncp(void)
   dissector_handle_t vsncp_handle;
 
   vsncp_handle = create_dissector_handle(dissect_vsncp, proto_vsncp);
-  dissector_add("ppp.protocol", PPP_VSNCP, vsncp_handle);
+  dissector_add_uint("ppp.protocol", PPP_VSNCP, vsncp_handle);
 }
 
 void
@@ -4913,7 +4913,7 @@ proto_reg_handoff_vsnp(void)
   dissector_handle_t vsnp_handle;
 
   vsnp_handle = create_dissector_handle(dissect_vsnp, proto_vsnp);
-  dissector_add("ppp.protocol", PPP_VSNP, vsnp_handle);
+  dissector_add_uint("ppp.protocol", PPP_VSNP, vsnp_handle);
 }
 
 void
@@ -4937,18 +4937,18 @@ proto_reg_handoff_ipcp(void)
   dissector_handle_t ipcp_handle;
 
   ipcp_handle = create_dissector_handle(dissect_ipcp, proto_ipcp);
-  dissector_add("ppp.protocol", PPP_IPCP, ipcp_handle);
+  dissector_add_uint("ppp.protocol", PPP_IPCP, ipcp_handle);
 
   /*
    * See above comment about NDISWAN for an explanation of why we're
    * registering with the "ethertype" dissector table.
    */
-  dissector_add("ethertype", PPP_IPCP, ipcp_handle);
+  dissector_add_uint("ethertype", PPP_IPCP, ipcp_handle);
 
   /*
    * for GSM-A / MobileL3 / GPRS SM / PCO
    */
-  dissector_add("sm_pco.protocol", PPP_IPCP, ipcp_handle);
+  dissector_add_uint("sm_pco.protocol", PPP_IPCP, ipcp_handle);
 
 }
 
@@ -5013,7 +5013,7 @@ proto_reg_handoff_bcp(void)
   eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
 
   bcp_handle = create_dissector_handle(dissect_bcp, proto_bcp);
-  dissector_add("ppp.protocol", PPP_BCP, bcp_handle);
+  dissector_add_uint("ppp.protocol", PPP_BCP, bcp_handle);
 }
 
 void
@@ -5022,13 +5022,13 @@ proto_reg_handoff_osicp(void)
   dissector_handle_t osicp_handle;
 
   osicp_handle = create_dissector_handle(dissect_osicp, proto_osicp);
-  dissector_add("ppp.protocol", PPP_OSICP, osicp_handle);
+  dissector_add_uint("ppp.protocol", PPP_OSICP, osicp_handle);
 
   /*
    * See above comment about NDISWAN for an explanation of why we're
    * registering with the "ethertype" dissector table.
    */
-  dissector_add("ethertype", PPP_OSICP, osicp_handle);
+  dissector_add_uint("ethertype", PPP_OSICP, osicp_handle);
 }
 
 void
@@ -5056,13 +5056,13 @@ proto_reg_handoff_ccp(void)
   dissector_handle_t ccp_handle;
 
   ccp_handle = create_dissector_handle(dissect_ccp, proto_ccp);
-  dissector_add("ppp.protocol", PPP_CCP, ccp_handle);
+  dissector_add_uint("ppp.protocol", PPP_CCP, ccp_handle);
 
   /*
    * See above comment about NDISWAN for an explanation of why we're
    * registering with the "ethertype" dissector table.
    */
-  dissector_add("ethertype", PPP_CCP, ccp_handle);
+  dissector_add_uint("ethertype", PPP_CCP, ccp_handle);
 }
 
 void
@@ -5086,13 +5086,13 @@ proto_reg_handoff_cbcp(void)
   dissector_handle_t cbcp_handle;
 
   cbcp_handle = create_dissector_handle(dissect_cbcp, proto_cbcp);
-  dissector_add("ppp.protocol", PPP_CBCP, cbcp_handle);
+  dissector_add_uint("ppp.protocol", PPP_CBCP, cbcp_handle);
 
   /*
    * See above comment about NDISWAN for an explanation of why we're
    * registering with the "ethertype" dissector table.
    */
-  dissector_add("ethertype", PPP_CBCP, cbcp_handle);
+  dissector_add_uint("ethertype", PPP_CBCP, cbcp_handle);
 }
 
 void
@@ -5115,13 +5115,13 @@ proto_reg_handoff_bacp(void)
   dissector_handle_t bacp_handle;
 
   bacp_handle = create_dissector_handle(dissect_bacp, proto_bacp);
-  dissector_add("ppp.protocol", PPP_BACP, bacp_handle);
+  dissector_add_uint("ppp.protocol", PPP_BACP, bacp_handle);
 
   /*
    * See above comment about NDISWAN for an explanation of why we're
    * registering with the "ethertype" dissector table.
    */
-  dissector_add("ethertype", PPP_BACP, bacp_handle);
+  dissector_add_uint("ethertype", PPP_BACP, bacp_handle);
 }
 
 void
@@ -5147,13 +5147,13 @@ proto_reg_handoff_bap(void)
   dissector_handle_t bap_handle;
 
   bap_handle = create_dissector_handle(dissect_bap, proto_bap);
-  dissector_add("ppp.protocol", PPP_BAP, bap_handle);
+  dissector_add_uint("ppp.protocol", PPP_BAP, bap_handle);
 
   /*
    * See above comment about NDISWAN for an explanation of why we're
    * registering with the "ethertype" dissector table.
    */
-  dissector_add("ethertype", PPP_BAP, bap_handle);
+  dissector_add_uint("ethertype", PPP_BAP, bap_handle);
 }
 
 void
@@ -5175,13 +5175,13 @@ proto_reg_handoff_comp_data(void)
 
   comp_data_handle = create_dissector_handle(dissect_comp_data,
                                              proto_comp_data);
-  dissector_add("ppp.protocol", PPP_COMP, comp_data_handle);
+  dissector_add_uint("ppp.protocol", PPP_COMP, comp_data_handle);
 
   /*
    * See above comment about NDISWAN for an explanation of why we're
    * registering with the "ethertype" dissector table.
    */
-  dissector_add("ethertype", PPP_COMP, comp_data_handle);
+  dissector_add_uint("ethertype", PPP_COMP, comp_data_handle);
 }
 
 void
@@ -5252,18 +5252,18 @@ proto_reg_handoff_pap(void)
   dissector_handle_t pap_handle;
 
   pap_handle = create_dissector_handle(dissect_pap, proto_pap);
-  dissector_add("ppp.protocol", PPP_PAP, pap_handle);
+  dissector_add_uint("ppp.protocol", PPP_PAP, pap_handle);
 
   /*
    * See above comment about NDISWAN for an explanation of why we're
    * registering with the "ethertype" dissector table.
    */
-  dissector_add("ethertype", PPP_PAP, pap_handle);
+  dissector_add_uint("ethertype", PPP_PAP, pap_handle);
 
   /*
    * for GSM-A / MobileL3 / GPRS SM / PCO
    */
-  dissector_add("sm_pco.protocol", PPP_PAP, pap_handle);
+  dissector_add_uint("sm_pco.protocol", PPP_PAP, pap_handle);
 }
 
 void
@@ -5329,18 +5329,18 @@ void
 proto_reg_handoff_chap(void)
 {
   dissector_handle_t chap_handle = create_dissector_handle(dissect_chap, proto_chap);
-  dissector_add("ppp.protocol", PPP_CHAP, chap_handle);
+  dissector_add_uint("ppp.protocol", PPP_CHAP, chap_handle);
 
   /*
    * See above comment about NDISWAN for an explanation of why we're
    * registering with the "ethertype" dissector table.
    */
-  dissector_add("ethertype", PPP_CHAP, chap_handle);
+  dissector_add_uint("ethertype", PPP_CHAP, chap_handle);
 
   /*
    * for GSM-A / MobileL3 / GPRS SM / PCO
    */
-  dissector_add("sm_pco.protocol", PPP_CHAP, chap_handle);
+  dissector_add_uint("sm_pco.protocol", PPP_CHAP, chap_handle);
 }
 
 void
@@ -5364,13 +5364,13 @@ proto_reg_handoff_pppmuxcp(void)
   dissector_handle_t muxcp_handle;
 
   muxcp_handle = create_dissector_handle(dissect_pppmuxcp, proto_pppmuxcp);
-  dissector_add("ppp.protocol", PPP_MUXCP, muxcp_handle);
+  dissector_add_uint("ppp.protocol", PPP_MUXCP, muxcp_handle);
 
   /*
    * See above comment about NDISWAN for an explanation of why we're
    * registering with the "ethertype" dissector table.
    */
-  dissector_add("ethertype", PPP_MUXCP, muxcp_handle);
+  dissector_add_uint("ethertype", PPP_MUXCP, muxcp_handle);
 }
 
 
@@ -5406,13 +5406,13 @@ proto_reg_handoff_pppmux(void)
   dissector_handle_t pppmux_handle;
 
   pppmux_handle = create_dissector_handle(dissect_pppmux, proto_pppmux);
-  dissector_add("ppp.protocol", PPP_MUX, pppmux_handle);
+  dissector_add_uint("ppp.protocol", PPP_MUX, pppmux_handle);
 
   /*
    * See above comment about NDISWAN for an explanation of why we're
    * registering with the "ethertype" dissector table.
    */
-  dissector_add("ethertype", PPP_MUX, pppmux_handle);
+  dissector_add_uint("ethertype", PPP_MUX, pppmux_handle);
 }
 
 void
@@ -5434,13 +5434,13 @@ proto_reg_handoff_mplscp(void)
   dissector_handle_t mplscp_handle;
 
   mplscp_handle = create_dissector_handle(dissect_mplscp, proto_mplscp);
-  dissector_add("ppp.protocol", PPP_MPLSCP, mplscp_handle);
+  dissector_add_uint("ppp.protocol", PPP_MPLSCP, mplscp_handle);
 
   /*
    * See above comment about NDISWAN for an explanation of why we're
    * registering with the "ethertype" dissector table.
    */
-  dissector_add("ethertype", PPP_MPLSCP, mplscp_handle);
+  dissector_add_uint("ethertype", PPP_MPLSCP, mplscp_handle);
 }
 
 void
@@ -5462,13 +5462,13 @@ proto_reg_handoff_cdpcp(void)
   dissector_handle_t cdpcp_handle;
 
   cdpcp_handle = create_dissector_handle(dissect_cdpcp, proto_cdpcp);
-  dissector_add("ppp.protocol", PPP_CDPCP, cdpcp_handle);
+  dissector_add_uint("ppp.protocol", PPP_CDPCP, cdpcp_handle);
 
   /*
    * See above comment about NDISWAN for an explanation of why we're
    * registering with the "ethertype" dissector table.
    */
-  dissector_add("ethertype", PPP_CDPCP, cdpcp_handle);
+  dissector_add_uint("ethertype", PPP_CDPCP, cdpcp_handle);
 }
 
 void
@@ -5492,13 +5492,13 @@ proto_reg_handoff_ipv6cp(void)
   dissector_handle_t ipv6cp_handle;
 
   ipv6cp_handle = create_dissector_handle(dissect_ipv6cp, proto_ipv6cp);
-  dissector_add("ppp.protocol", PPP_IPV6CP, ipv6cp_handle);
+  dissector_add_uint("ppp.protocol", PPP_IPV6CP, ipv6cp_handle);
 
   /*
    * See above comment about NDISWAN for an explanation of why we're
    * registering with the "ethertype" dissector table.
    */
-  dissector_add("ethertype", PPP_IPV6CP, ipv6cp_handle);
+  dissector_add_uint("ethertype", PPP_IPV6CP, ipv6cp_handle);
 }
 
 void
@@ -5568,23 +5568,23 @@ proto_reg_handoff_iphc_crtp(void)
   dissector_handle_t cs_handle;
 
   fh_handle = create_dissector_handle(dissect_iphc_crtp_fh, proto_iphc_crtp);
-  dissector_add("ppp.protocol", PPP_RTP_FH, fh_handle);
+  dissector_add_uint("ppp.protocol", PPP_RTP_FH, fh_handle);
 
   cudp16_handle = create_dissector_handle(dissect_iphc_crtp_cudp16, proto_iphc_crtp);
-  dissector_add("ppp.protocol", PPP_RTP_CUDP16, cudp16_handle);
+  dissector_add_uint("ppp.protocol", PPP_RTP_CUDP16, cudp16_handle);
 
   cudp8_handle = create_dissector_handle(dissect_iphc_crtp_cudp8, proto_iphc_crtp);
-  dissector_add("ppp.protocol", PPP_RTP_CUDP8, cudp16_handle);
+  dissector_add_uint("ppp.protocol", PPP_RTP_CUDP8, cudp16_handle);
 
   cs_handle = create_dissector_handle(dissect_iphc_crtp_cs, proto_iphc_crtp);
-  dissector_add("ppp.protocol", PPP_RTP_CS, cs_handle);
+  dissector_add_uint("ppp.protocol", PPP_RTP_CS, cs_handle);
 
   /*
    * See above comment about NDISWAN for an explanation of why we're
    * registering with the "ethertype" dissector table.
    */
-  dissector_add("ethertype", PPP_RTP_FH, fh_handle);
-  dissector_add("ethertype", PPP_RTP_CUDP16, cudp16_handle);
-  dissector_add("ethertype", PPP_RTP_CUDP8, cudp16_handle);
-  dissector_add("ethertype", PPP_RTP_CS, cs_handle);
+  dissector_add_uint("ethertype", PPP_RTP_FH, fh_handle);
+  dissector_add_uint("ethertype", PPP_RTP_CUDP16, cudp16_handle);
+  dissector_add_uint("ethertype", PPP_RTP_CUDP8, cudp16_handle);
+  dissector_add_uint("ethertype", PPP_RTP_CS, cs_handle);
 }

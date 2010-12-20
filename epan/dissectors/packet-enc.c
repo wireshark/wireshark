@@ -194,5 +194,5 @@ proto_reg_handoff_enc(void)
   data_handle = find_dissector("data");
 
   enc_handle = create_dissector_handle(dissect_enc, proto_enc);
-  dissector_add("wtap_encap", WTAP_ENCAP_ENC, enc_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_ENC, enc_handle);
 }

@@ -3274,7 +3274,7 @@ proto_reg_handoff_mq(void)
 	heur_dissector_add("tcp", dissect_mq_heur_tcp, proto_mq);
 	heur_dissector_add("netbios", dissect_mq_heur_netbios, proto_mq);
 	heur_dissector_add("http", dissect_mq_heur_http, proto_mq);
-	dissector_add("spx.socket", MQ_SOCKET_SPX, mq_spx_handle);
+	dissector_add_uint("spx.socket", MQ_SOCKET_SPX, mq_spx_handle);
 	data_handle = find_dissector("data");
 
 }

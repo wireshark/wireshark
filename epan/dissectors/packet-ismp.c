@@ -881,5 +881,5 @@ proto_reg_handoff_ismp(void)
 
 	ismp_handle = create_dissector_handle(dissect_ismp,
 	    proto_ismp);
-	dissector_add("ethertype", ETHERTYPE_ISMP, ismp_handle);
+	dissector_add_uint("ethertype", ETHERTYPE_ISMP, ismp_handle);
 }

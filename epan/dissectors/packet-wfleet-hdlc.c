@@ -113,7 +113,7 @@ proto_reg_handoff_wfleet_hdlc(void)
   dissector_handle_t wfleet_hdlc_handle;
 
   wfleet_hdlc_handle = find_dissector("wfleet_hdlc");
-  dissector_add("wtap_encap", WTAP_ENCAP_WFLEET_HDLC, wfleet_hdlc_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_WFLEET_HDLC, wfleet_hdlc_handle);
 
   /* 
    * Find the eth dissector and save a ref to it

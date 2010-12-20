@@ -1988,6 +1988,6 @@ proto_reg_handoff_isns(void)
     isns_tcp_handle = new_create_dissector_handle(dissect_isns_tcp,proto_isns);
     isns_udp_handle = new_create_dissector_handle(dissect_isns_udp,proto_isns);
 
-    dissector_add("tcp.port",ISNS_TCP_PORT,isns_tcp_handle);
-    dissector_add("udp.port",ISNS_UDP_PORT,isns_udp_handle);
+    dissector_add_uint("tcp.port",ISNS_TCP_PORT,isns_tcp_handle);
+    dissector_add_uint("udp.port",ISNS_UDP_PORT,isns_udp_handle);
 }

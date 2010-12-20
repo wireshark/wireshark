@@ -711,6 +711,6 @@ proto_reg_handoff_mbtcp(void)
 	dissector_handle_t mbtcp_handle;
 
 	mbtcp_handle = new_create_dissector_handle(dissect_mbtcp, proto_mbtcp);
-	dissector_add("tcp.port", PORT_MBTCP, mbtcp_handle);
-	dissector_add("udp.port", PORT_MBTCP, mbtcp_handle);
+	dissector_add_uint("tcp.port", PORT_MBTCP, mbtcp_handle);
+	dissector_add_uint("udp.port", PORT_MBTCP, mbtcp_handle);
 }

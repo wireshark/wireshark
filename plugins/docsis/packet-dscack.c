@@ -135,6 +135,6 @@ proto_reg_handoff_docsis_dscack (void)
 
   docsis_dscack_handle = find_dissector ("docsis_dscack");
   docsis_tlv_handle = find_dissector ("docsis_tlv");
-  dissector_add ("docsis_mgmt", 0x14, docsis_dscack_handle);
+  dissector_add_uint ("docsis_mgmt", 0x14, docsis_dscack_handle);
 
 }

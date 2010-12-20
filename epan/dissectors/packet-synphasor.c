@@ -1409,14 +1409,14 @@ void proto_reg_handoff_synphasor(void)
 	}
 	else {
 		/* update preferences */
-		dissector_delete("udp.port", current_udp_port, synphasor_udp_handle);
-		dissector_delete("tcp.port", current_tcp_port, synphasor_tcp_handle);
+		dissector_delete_uint("udp.port", current_udp_port, synphasor_udp_handle);
+		dissector_delete_uint("tcp.port", current_tcp_port, synphasor_tcp_handle);
 	}
 
 	current_udp_port = global_pref_udp_port;
 	current_tcp_port = global_pref_tcp_port;
 
-	dissector_add("udp.port", current_udp_port, synphasor_udp_handle);
-	dissector_add("tcp.port", current_tcp_port, synphasor_tcp_handle);
+	dissector_add_uint("udp.port", current_udp_port, synphasor_udp_handle);
+	dissector_add_uint("tcp.port", current_tcp_port, synphasor_tcp_handle);
 } /* proto_reg_handoff_synphasor() */
 

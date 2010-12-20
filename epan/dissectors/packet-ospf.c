@@ -3452,6 +3452,6 @@ proto_reg_handoff_ospf(void)
     dissector_handle_t ospf_handle;
 
     ospf_handle = create_dissector_handle(dissect_ospf, proto_ospf);
-    dissector_add("ip.proto", IP_PROTO_OSPF, ospf_handle);
+    dissector_add_uint("ip.proto", IP_PROTO_OSPF, ospf_handle);
     data_handle = find_dissector("data");
 }

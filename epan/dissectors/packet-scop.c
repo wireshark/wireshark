@@ -414,15 +414,15 @@ void proto_reg_handoff_scop(void)
         data_handle         = find_dissector("data");
         inited = TRUE;
     } else {
-        dissector_delete("udp.port", lastPort, scop_udp_handle);
-        dissector_delete("tcp.port", lastPort, scop_tcp_handle);
-        dissector_delete("udp.port", lastPort_secured, scop_udp_handle);
-        dissector_delete("tcp.port", lastPort_secured, scop_tcp_handle);
+        dissector_delete_uint("udp.port", lastPort, scop_udp_handle);
+        dissector_delete_uint("tcp.port", lastPort, scop_tcp_handle);
+        dissector_delete_uint("udp.port", lastPort_secured, scop_udp_handle);
+        dissector_delete_uint("tcp.port", lastPort_secured, scop_tcp_handle);
     }
-    dissector_add("udp.port", gPREF_scop_port, scop_udp_handle);
-    dissector_add("tcp.port", gPREF_scop_port, scop_tcp_handle);
-    dissector_add("udp.port", gPREF_scop_port_secured, scop_udp_handle);
-    dissector_add("tcp.port", gPREF_scop_port_secured, scop_tcp_handle);
+    dissector_add_uint("udp.port", gPREF_scop_port, scop_udp_handle);
+    dissector_add_uint("tcp.port", gPREF_scop_port, scop_tcp_handle);
+    dissector_add_uint("udp.port", gPREF_scop_port_secured, scop_udp_handle);
+    dissector_add_uint("tcp.port", gPREF_scop_port_secured, scop_tcp_handle);
 
     lastPort         = gPREF_scop_port;
     lastPort_secured = gPREF_scop_port_secured;

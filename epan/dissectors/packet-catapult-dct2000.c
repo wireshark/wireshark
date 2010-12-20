@@ -2350,7 +2350,7 @@ void proto_reg_handoff_catapult_dct2000(void)
 {
     dissector_handle_t catapult_dct2000_handle = find_dissector("dct2000");
 
-    dissector_add("wtap_encap", WTAP_ENCAP_CATAPULT_DCT2000, catapult_dct2000_handle);
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_CATAPULT_DCT2000, catapult_dct2000_handle);
 
     mac_lte_handle = find_dissector("mac-lte");
     rlc_lte_handle = find_dissector("rlc-lte");

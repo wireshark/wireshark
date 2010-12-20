@@ -660,7 +660,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * PPP interfaces, with LEAP traffic on all of them?  How can we
    * keep them separate?  (Or is that not going to happen?)
    */
-  if (pinfo->destport == pinfo->match_port) {
+  if (pinfo->destport == pinfo->match_uint) {
     conversation = find_conversation(pinfo->fd->num, &pinfo->dst, &pinfo->src,
 				     pinfo->ptype, pinfo->destport,
 				     0, NO_PORT_B);
@@ -670,7 +670,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				     0, NO_PORT_B);
   }
   if (conversation == NULL) {
-    if (pinfo->destport == pinfo->match_port) {
+    if (pinfo->destport == pinfo->match_uint) {
       conversation = conversation_new(pinfo->fd->num, &pinfo->dst, &pinfo->src,
 				      pinfo->ptype, pinfo->destport,
 				      0, NO_PORT2);
@@ -1297,5 +1297,5 @@ proto_reg_handoff_eap(void)
   ssl_handle = find_dissector("ssl");
 
   eap_handle = find_dissector("eap");
-  dissector_add("ppp.protocol", PPP_EAP, eap_handle);
+  dissector_add_uint("ppp.protocol", PPP_EAP, eap_handle);
 }

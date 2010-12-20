@@ -3430,11 +3430,11 @@ void proto_reg_handoff_edonkey(void) {
     edonkey_tcp_handle = find_dissector("edonkey.tcp");
     edonkey_udp_handle = find_dissector("edonkey.udp");
 
-    dissector_add("tcp.port", 4661, edonkey_tcp_handle);
-    dissector_add("tcp.port", 4662, edonkey_tcp_handle);
-    dissector_add("tcp.port", 4663, edonkey_tcp_handle);
-    dissector_add("udp.port", 4665, edonkey_udp_handle);
-    dissector_add("udp.port", 4672, edonkey_udp_handle);
+    dissector_add_uint("tcp.port", 4661, edonkey_tcp_handle);
+    dissector_add_uint("tcp.port", 4662, edonkey_tcp_handle);
+    dissector_add_uint("tcp.port", 4663, edonkey_tcp_handle);
+    dissector_add_uint("udp.port", 4665, edonkey_udp_handle);
+    dissector_add_uint("udp.port", 4672, edonkey_udp_handle);
 
 }
 

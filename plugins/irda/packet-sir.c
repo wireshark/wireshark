@@ -180,7 +180,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root)
 void
 proto_reg_handoff_irsir(void)
 {
-	dissector_add("tcp.port", TCP_PORT_SIR, find_dissector("sir"));
+	dissector_add_uint("tcp.port", TCP_PORT_SIR, find_dissector("sir"));
 
 	data_handle = find_dissector("data");
 	irda_handle = find_dissector("irda");

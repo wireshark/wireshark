@@ -842,5 +842,5 @@ proto_reg_handoff_tnef(void)
   /* X.400 file transfer bodypart */
   register_ber_oid_dissector("1.2.840.113556.3.10.1", dissect_tnef, proto_tnef, "id-et-tnef");
 
-  dissector_add("wtap_encap", WTAP_ENCAP_TNEF, tnef_file_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_TNEF, tnef_file_handle);
 }

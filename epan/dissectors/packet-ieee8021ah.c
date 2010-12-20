@@ -435,14 +435,14 @@ proto_reg_handoff_ieee8021ah(void)
 						    proto_ieee8021ah);
 	ieee8021ad_handle = create_dissector_handle(dissect_ieee8021ad,
 						    proto_ieee8021ad);
-	dissector_add("ethertype", ETHERTYPE_IEEE_802_1AD, ieee8021ad_handle);
+	dissector_add_uint("ethertype", ETHERTYPE_IEEE_802_1AD, ieee8021ad_handle);
 	prefs_initialized = TRUE;
     }
     else {
-	dissector_delete("ethertype", old_ieee8021ah_ethertype, ieee8021ah_handle);
+	dissector_delete_uint("ethertype", old_ieee8021ah_ethertype, ieee8021ah_handle);
     }
 
     old_ieee8021ah_ethertype = ieee8021ah_ethertype;
-    dissector_add("ethertype", ieee8021ah_ethertype, ieee8021ah_handle);
+    dissector_add_uint("ethertype", ieee8021ah_ethertype, ieee8021ah_handle);
 
 }

@@ -1745,7 +1745,7 @@ this_was_not_normal_ldap:
 	  guint32 old_start_tls_frame;
 
 	  /* temporarily dissect this port as SSL */
-	  dissector_delete("tcp.port", tcp_port, ldap_handle);
+	  dissector_delete_uint("tcp.port", tcp_port, ldap_handle);
 	  ssl_dissector_add(tcp_port, "ldap", TRUE);
 
 	  old_start_tls_frame = ldap_info->start_tls_frame;
@@ -1758,7 +1758,7 @@ this_was_not_normal_ldap:
 	  ssl_dissector_delete(tcp_port, "ldap", TRUE);
 
 	  /* restore ldap as the dissector for this port */
-	  dissector_add("tcp.port", tcp_port, ldap_handle);
+	  dissector_add_uint("tcp.port", tcp_port, ldap_handle);
 
 	  /* we are done */
 	  return;
@@ -2130,10 +2130,10 @@ proto_reg_handoff_ldap(void)
 	dissector_handle_t cldap_handle;
 	ldap_handle = find_dissector("ldap");
 
-	dissector_add("tcp.port", TCP_PORT_GLOBALCAT_LDAP, ldap_handle);
+	dissector_add_uint("tcp.port", TCP_PORT_GLOBALCAT_LDAP, ldap_handle);
 
 	cldap_handle = create_dissector_handle(dissect_mscldap, proto_cldap);
-	dissector_add("udp.port", UDP_PORT_CLDAP, cldap_handle);
+	dissector_add_uint("udp.port", UDP_PORT_CLDAP, cldap_handle);
 
 	gssapi_handle = find_dissector("gssapi");
 	gssapi_wrap_handle = find_dissector("gssapi_verf");
@@ -2205,13 +2205,13 @@ prefs_register_ldap(void)
 
   if(tcp_port != global_ldap_tcp_port) {
     if(tcp_port)
-      dissector_delete("tcp.port", tcp_port, ldap_handle);
+      dissector_delete_uint("tcp.port", tcp_port, ldap_handle);
 
     /* Set our port number for future use */
     tcp_port = global_ldap_tcp_port;
 
     if(tcp_port)
-      dissector_add("tcp.port", tcp_port, ldap_handle);
+      dissector_add_uint("tcp.port", tcp_port, ldap_handle);
 
   }
 

@@ -2013,7 +2013,7 @@ proto_reg_handoff_telnet(void)
 	dissector_handle_t telnet_handle;
 
 	telnet_handle = create_dissector_handle(dissect_telnet, proto_telnet);
-	dissector_add("tcp.port", TCP_PORT_TELNET, telnet_handle);
+	dissector_add_uint("tcp.port", TCP_PORT_TELNET, telnet_handle);
 	tn3270_handle = find_dissector("tn3270");
     tn5250_handle = find_dissector("tn5250");
 }

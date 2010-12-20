@@ -50,7 +50,7 @@ dissect_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_add_fstr(pinfo->cinfo, COL_INFO, "TIME %s",
-		 pinfo->srcport == pinfo->match_port ? "Response":"Request");
+		 pinfo->srcport == pinfo->match_uint ? "Response":"Request");
   }
 
   if (tree) {
@@ -95,6 +95,6 @@ proto_reg_handoff_time(void)
   dissector_handle_t time_handle;
 
   time_handle = create_dissector_handle(dissect_time, proto_time);
-  dissector_add("udp.port", TIME_PORT, time_handle);
-  dissector_add("tcp.port", TIME_PORT, time_handle);
+  dissector_add_uint("udp.port", TIME_PORT, time_handle);
+  dissector_add_uint("tcp.port", TIME_PORT, time_handle);
 }

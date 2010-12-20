@@ -1219,5 +1219,5 @@ proto_reg_handoff_igmp(void)
 	dissector_handle_t igmp_handle;
 
 	igmp_handle = create_dissector_handle(dissect_igmp, proto_igmp);
-	dissector_add("ip.proto", IP_PROTO_IGMP, igmp_handle);
+	dissector_add_uint("ip.proto", IP_PROTO_IGMP, igmp_handle);
 }

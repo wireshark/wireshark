@@ -3971,8 +3971,8 @@ proto_reg_handoff_ldp(void)
     }
     else {
 
-        dissector_delete("tcp.port", tcp_port, ldp_tcp_handle);
-        dissector_delete("udp.port", udp_port, ldp_handle);
+        dissector_delete_uint("tcp.port", tcp_port, ldp_tcp_handle);
+        dissector_delete_uint("udp.port", udp_port, ldp_handle);
 
     }
 
@@ -3981,7 +3981,7 @@ proto_reg_handoff_ldp(void)
     tcp_port = global_ldp_tcp_port;
     udp_port = global_ldp_udp_port;
 
-    dissector_add("tcp.port", global_ldp_tcp_port, ldp_tcp_handle);
-    dissector_add("udp.port", global_ldp_udp_port, ldp_handle);
+    dissector_add_uint("tcp.port", global_ldp_tcp_port, ldp_tcp_handle);
+    dissector_add_uint("udp.port", global_ldp_udp_port, ldp_handle);
 
 }

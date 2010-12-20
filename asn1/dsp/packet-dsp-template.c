@@ -331,12 +331,12 @@ prefs_register_dsp(void)
   /* de-register the old port */
   /* port 102 is registered by TPKT - don't undo this! */
   if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
-    dissector_delete("tcp.port", tcp_port, tpkt_handle);
+    dissector_delete_uint("tcp.port", tcp_port, tpkt_handle);
 
   /* Set our port number for future use */
   tcp_port = global_dsp_tcp_port;
 
   if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
-    dissector_add("tcp.port", global_dsp_tcp_port, tpkt_handle);
+    dissector_add_uint("tcp.port", global_dsp_tcp_port, tpkt_handle);
 
 }

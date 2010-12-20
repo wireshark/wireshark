@@ -881,6 +881,6 @@ proto_reg_handoff_pptp(void)
   dissector_handle_t pptp_handle;
 
   pptp_handle = create_dissector_handle(dissect_pptp, proto_pptp);
-  dissector_add("tcp.port", TCP_PORT_PPTP, pptp_handle);
+  dissector_add_uint("tcp.port", TCP_PORT_PPTP, pptp_handle);
   data_handle = find_dissector("data");
 }

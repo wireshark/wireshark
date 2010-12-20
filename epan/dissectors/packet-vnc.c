@@ -3263,10 +3263,10 @@ proto_reg_handoff_vnc(void)
 	if(!inited) {
 		vnc_handle = create_dissector_handle(dissect_vnc, proto_vnc);
 
-		dissector_add("tcp.port", 5500, vnc_handle);
-		dissector_add("tcp.port", 5501, vnc_handle);
-		dissector_add("tcp.port", 5900, vnc_handle);
-		dissector_add("tcp.port", 5901, vnc_handle);
+		dissector_add_uint("tcp.port", 5500, vnc_handle);
+		dissector_add_uint("tcp.port", 5501, vnc_handle);
+		dissector_add_uint("tcp.port", 5900, vnc_handle);
+		dissector_add_uint("tcp.port", 5901, vnc_handle);
 
 		heur_dissector_add("tcp", test_vnc_protocol, proto_vnc);
 		/* We don't register a port for the VNC HTTP server because
@@ -3282,7 +3282,7 @@ proto_reg_handoff_vnc(void)
 		   vnc_preference_alternate_port != 5900 &&
 		   vnc_preference_alternate_port != 5901) {
 			if (vnc_preference_alternate_port_last != 0) {
-				dissector_delete("tcp.port",
+				dissector_delete_uint("tcp.port",
 						 vnc_preference_alternate_port_last,
 						 vnc_handle);
 			}
@@ -3292,7 +3292,7 @@ proto_reg_handoff_vnc(void)
 
 			/* Register the new port setting */
 			if (vnc_preference_alternate_port != 0) {
-				dissector_add("tcp.port",
+				dissector_add_uint("tcp.port",
 					      vnc_preference_alternate_port,
 					      vnc_handle);
 			}

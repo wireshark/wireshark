@@ -79,7 +79,7 @@ dissect_irc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
 		col_set_str(pinfo->cinfo, COL_INFO,
-		    (pinfo->match_port == pinfo->destport) ? "Request" : "Response");
+		    (pinfo->match_uint == pinfo->destport) ? "Request" : "Response");
 	}
 
 	if (tree)
@@ -110,7 +110,7 @@ dissect_irc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			if (linelen != 0)
 			{
-				if (pinfo->match_port == pinfo->destport)
+				if (pinfo->match_uint == pinfo->destport)
 				{
 					dissect_irc_request(irc_tree, tvb, offset, linelen);
 				}
@@ -153,6 +153,6 @@ proto_reg_handoff_irc(void)
 	dissector_handle_t irc_handle;
 
 	irc_handle = create_dissector_handle(dissect_irc, proto_irc);
-	dissector_add("tcp.port", TCP_PORT_IRC, irc_handle);
-	dissector_add("tcp.port", TCP_PORT_DIRCPROXY, irc_handle);
+	dissector_add_uint("tcp.port", TCP_PORT_IRC, irc_handle);
+	dissector_add_uint("tcp.port", TCP_PORT_DIRCPROXY, irc_handle);
 }

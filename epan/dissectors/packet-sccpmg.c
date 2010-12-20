@@ -369,6 +369,6 @@ proto_reg_handoff_sccpmg(void)
 	sccpmg_handle = create_dissector_handle(dissect_sccpmg, proto_sccpmg);
 
 	/* Register for SCCP SSN=1 messages */
-	dissector_add("sccp.ssn", SCCPMG_SSN, sccpmg_handle);
+	dissector_add_uint("sccp.ssn", SCCPMG_SSN, sccpmg_handle);
 }
 

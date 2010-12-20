@@ -1471,7 +1471,7 @@ dissect_h225_NonStandardIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 			nsp_handle = dissector_get_string_handle(nsp_object_dissector_table, nsiOID);
 			break;
 		case 1 :  /* h221NonStandard */
-			nsp_handle = dissector_get_port_handle(nsp_h221_dissector_table, h221NonStandard);
+			nsp_handle = dissector_get_uint_handle(nsp_h221_dissector_table, h221NonStandard);
 			break;
 		default :
 			nsp_handle = NULL;
@@ -11009,8 +11009,8 @@ proto_reg_handoff_h225(void)
 
 	if (!h225_prefs_initialized) {
 		h225ras_handle=find_dissector("h225.ras");
-		dissector_add("udp.port", UDP_PORT_RAS1, h225ras_handle);
-		dissector_add("udp.port", UDP_PORT_RAS2, h225ras_handle);
+		dissector_add_uint("udp.port", UDP_PORT_RAS1, h225ras_handle);
+		dissector_add_uint("udp.port", UDP_PORT_RAS2, h225ras_handle);
 
 		h245_handle = find_dissector("h245");
 		h245dg_handle = find_dissector("h245dg");

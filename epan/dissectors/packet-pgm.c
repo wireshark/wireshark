@@ -784,12 +784,12 @@ decode_pgm_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   next_tvb = tvb_new_subset_remaining(tvb, offset);
 
   /* do lookup with the subdissector table */
-  found = dissector_try_port(subdissector_table, pgmhdr_sport,
+  found = dissector_try_uint(subdissector_table, pgmhdr_sport,
 			next_tvb, pinfo, tree);
   if (found)
 	return;
 
-  found = dissector_try_port(subdissector_table, pgmhdr_dport,
+  found = dissector_try_uint(subdissector_table, pgmhdr_dport,
 			next_tvb, pinfo, tree);
   if (found)
 	return;
@@ -1445,23 +1445,23 @@ proto_reg_handoff_pgm(void)
   if (! initialized) {
     pgm_handle = create_dissector_handle(dissect_pgm, proto_pgm);
     dissector_add_handle("udp.port", pgm_handle);  /* for 'decode-as' */
-    dissector_add("ip.proto", IP_PROTO_PGM, pgm_handle);
+    dissector_add_uint("ip.proto", IP_PROTO_PGM, pgm_handle);
     data_handle = find_dissector("data");
     initialized = TRUE;
   } else {
     if (old_udp_encap_ucast_port != 0) {
-      dissector_delete("udp.port", old_udp_encap_ucast_port, pgm_handle);
+      dissector_delete_uint("udp.port", old_udp_encap_ucast_port, pgm_handle);
     }
     if (old_udp_encap_mcast_port != 0) {
-      dissector_delete("udp.port", old_udp_encap_mcast_port, pgm_handle);
+      dissector_delete_uint("udp.port", old_udp_encap_mcast_port, pgm_handle);
     }
   }
 
   if (udp_encap_ucast_port != 0) {
-    dissector_add("udp.port", udp_encap_ucast_port, pgm_handle);
+    dissector_add_uint("udp.port", udp_encap_ucast_port, pgm_handle);
   }
   if (udp_encap_mcast_port != 0) {
-    dissector_add("udp.port", udp_encap_mcast_port, pgm_handle);
+    dissector_add_uint("udp.port", udp_encap_mcast_port, pgm_handle);
   }
   old_udp_encap_ucast_port = udp_encap_ucast_port;
   old_udp_encap_mcast_port = udp_encap_mcast_port;

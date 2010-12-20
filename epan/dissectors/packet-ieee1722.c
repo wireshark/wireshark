@@ -380,5 +380,5 @@ void proto_reg_handoff_1722(void)
     dissector_handle_t avbtp_handle;
 
     avbtp_handle = create_dissector_handle(dissect_1722, proto_1722);
-    dissector_add("ethertype", ETHERTYPE_AVBTP, avbtp_handle);
+    dissector_add_uint("ethertype", ETHERTYPE_AVBTP, avbtp_handle);
 }

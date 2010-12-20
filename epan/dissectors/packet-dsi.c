@@ -898,7 +898,7 @@ proto_reg_handoff_dsi(void)
 	dissector_handle_t dsi_handle;
 
 	dsi_handle = create_dissector_handle(dissect_dsi, proto_dsi);
-	dissector_add("tcp.port", TCP_PORT_DSI, dsi_handle);
+	dissector_add_uint("tcp.port", TCP_PORT_DSI, dsi_handle);
 
 	data_handle = find_dissector("data");
 	afp_handle = find_dissector("afp");

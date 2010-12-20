@@ -205,6 +205,6 @@ proto_reg_handoff_hyperscsi(void)
   dissector_handle_t hs_handle;
 
   hs_handle = find_dissector("hyperscsi");
-  dissector_add("ethertype", ETHERTYPE_HYPERSCSI, hs_handle);
+  dissector_add_uint("ethertype", ETHERTYPE_HYPERSCSI, hs_handle);
 
 }

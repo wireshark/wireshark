@@ -831,12 +831,12 @@ void proto_reg_handoff_actrace(void)
 	}
 	else
 	{
-		dissector_delete("udp.port", actrace_udp_port, actrace_handle);
+		dissector_delete_uint("udp.port", actrace_udp_port, actrace_handle);
 	}
 
 	/* Set our port number for future use */
 	actrace_udp_port = global_actrace_udp_port;
 
-	dissector_add("udp.port", global_actrace_udp_port, actrace_handle);
+	dissector_add_uint("udp.port", global_actrace_udp_port, actrace_handle);
 }
 

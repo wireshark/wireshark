@@ -549,5 +549,5 @@ proto_reg_handoff_cpha(void)
   dissector_handle_t cpha_handle;
 
   cpha_handle = new_create_dissector_handle(dissect_cpha, proto_cphap);
-  dissector_add("udp.port", UDP_PORT_CPHA, cpha_handle);
+  dissector_add_uint("udp.port", UDP_PORT_CPHA, cpha_handle);
 }

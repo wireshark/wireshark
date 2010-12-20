@@ -2278,5 +2278,5 @@ proto_reg_handoff_q933(void)
 	dissector_handle_t q933_handle;
 
 	q933_handle = find_dissector("q933");
-	dissector_add("fr.osinl", NLPID_Q_933, q933_handle);
+	dissector_add_uint("fr.osinl", NLPID_Q_933, q933_handle);
 }

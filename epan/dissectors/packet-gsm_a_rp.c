@@ -161,7 +161,7 @@ de_rp_user_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 	 */
 	tpdu_tvb = tvb_new_subset(tvb, curr_offset, len, len);
 
-	dissector_try_port(sms_dissector_table, 0, tpdu_tvb, g_pinfo, g_tree);
+	dissector_try_uint(sms_dissector_table, 0, tpdu_tvb, g_pinfo, g_tree);
 
 	curr_offset += len;
 

@@ -661,10 +661,10 @@ dissect_juniper_payload_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   case PROTO_CLNP:
   case PROTO_MPLS_CLNP:
     nlpid = tvb_get_guint8(tvb, offset);
-    if(dissector_try_port(osinl_subdissector_table, nlpid, next_tvb, pinfo, tree))
+    if(dissector_try_uint(osinl_subdissector_table, nlpid, next_tvb, pinfo, tree))
       return 0;
     next_tvb = tvb_new_subset_remaining(tvb, offset+1);
-    if(dissector_try_port(osinl_excl_subdissector_table, nlpid, next_tvb, pinfo, tree))
+    if(dissector_try_uint(osinl_excl_subdissector_table, nlpid, next_tvb, pinfo, tree))
       return 0;
     break;
   case PROTO_Q933:
@@ -1482,17 +1482,17 @@ proto_reg_handoff_juniper(void)
   juniper_ggsn_handle = create_dissector_handle(dissect_juniper_ggsn, proto_juniper);
   juniper_vp_handle = create_dissector_handle(dissect_juniper_vp, proto_juniper);
     
-  dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_ATM2, juniper_atm2_handle);
-  dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_ATM1, juniper_atm1_handle);
-  dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_PPPOE, juniper_pppoe_handle);
-  dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_MLPPP, juniper_mlppp_handle);
-  dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_MLFR, juniper_mlfr_handle);
-  dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_ETHER, juniper_ether_handle);
-  dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_PPP, juniper_ppp_handle);
-  dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_FRELAY, juniper_frelay_handle);
-  dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_CHDLC, juniper_chdlc_handle);
-  dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_GGSN, juniper_ggsn_handle);
-  dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_VP, juniper_vp_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_ATM2, juniper_atm2_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_ATM1, juniper_atm1_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_PPPOE, juniper_pppoe_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_MLPPP, juniper_mlppp_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_MLFR, juniper_mlfr_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_ETHER, juniper_ether_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_PPP, juniper_ppp_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_FRELAY, juniper_frelay_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_CHDLC, juniper_chdlc_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_GGSN, juniper_ggsn_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_VP, juniper_vp_handle);
 
 }
 

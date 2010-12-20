@@ -1184,13 +1184,13 @@ proto_reg_handoff_dtpt(void)
 		data_handle = find_dissector("data");
 		Initialized=TRUE;
 	} else {
-		dissector_delete("tcp.port", ServerPort, dtpt_handle);
+		dissector_delete_uint("tcp.port", ServerPort, dtpt_handle);
 	}
 
 	/* set port for future deletes */
 	ServerPort=gbl_dtptServerPort;
 
-	dissector_add("tcp.port", gbl_dtptServerPort, dtpt_handle);
+	dissector_add_uint("tcp.port", gbl_dtptServerPort, dtpt_handle);
 }
 
 

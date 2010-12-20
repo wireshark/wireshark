@@ -410,7 +410,7 @@ initialize_handles_once(void)
 void proto_reg_handoff_k12(void)
 {
 	initialize_handles_once();
-	dissector_add("wtap_encap", WTAP_ENCAP_K12, k12_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_K12, k12_handle);
 }
 
 void

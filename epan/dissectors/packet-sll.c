@@ -241,7 +241,7 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(fh_tree, hf_sll_ltype, tvb, 14, 2,
 		    protocol);
 
-		if(!dissector_try_port(sll_linux_dissector_table, protocol,
+		if(!dissector_try_uint(sll_linux_dissector_table, protocol,
 			next_tvb, pinfo, tree)) {
 			call_dissector(data_handle, next_tvb, pinfo, tree);
 		}
@@ -250,7 +250,7 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case ARPHRD_IPGRE:
 			proto_tree_add_uint(fh_tree, hf_sll_gretype, tvb, 14, 2,
 			    protocol);
-			dissector_try_port(gre_dissector_table,
+			dissector_try_uint(gre_dissector_table,
 					   protocol, next_tvb, pinfo, tree);
 			break;
 		default:
@@ -341,5 +341,5 @@ proto_reg_handoff_sll(void)
 	data_handle = find_dissector("data");
 
 	sll_handle = create_dissector_handle(dissect_sll, proto_sll);
-	dissector_add("wtap_encap", WTAP_ENCAP_SLL, sll_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_SLL, sll_handle);
 }

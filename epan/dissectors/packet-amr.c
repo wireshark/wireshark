@@ -648,18 +648,18 @@ proto_reg_handoff_amr(void)
 				dissector_add_string("h245.gef.content", ftr->id, new_create_dissector_handle(ftr->content_pdu, proto_amr));
 		}
 		/*	Activate the next line for testing with the randpkt tool
-			dissector_add("udp.port", 55555, amr_handle); 
+			dissector_add_uint("udp.port", 55555, amr_handle); 
 		*/
 		amr_prefs_initialized = TRUE;
 	} else {
 		if ( dynamic_payload_type > 95 )
-			dissector_delete("rtp.pt", dynamic_payload_type, amr_handle);
+			dissector_delete_uint("rtp.pt", dynamic_payload_type, amr_handle);
 	}
 
 	dynamic_payload_type = temp_dynamic_payload_type;
 
 	if ( dynamic_payload_type > 95 ){
-		dissector_add("rtp.pt", dynamic_payload_type, amr_handle);
+		dissector_add_uint("rtp.pt", dynamic_payload_type, amr_handle);
 	}
 	
 }

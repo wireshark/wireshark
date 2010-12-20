@@ -444,5 +444,5 @@ proto_reg_handoff_esis(void)
   dissector_handle_t esis_handle;
 
   esis_handle = find_dissector("esis");
-  dissector_add("osinl", NLPID_ISO9542_ESIS, esis_handle);
+  dissector_add_uint("osinl", NLPID_ISO9542_ESIS, esis_handle);
 }

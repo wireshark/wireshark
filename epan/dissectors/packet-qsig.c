@@ -16325,8 +16325,8 @@ void proto_reg_handoff_qsig(void) {
   qsig_arg_handle = new_create_dissector_handle(dissect_qsig_arg, proto_qsig);
   qsig_res_handle = new_create_dissector_handle(dissect_qsig_res, proto_qsig);
   for (i=0; i<(int)array_length(qsig_op_tab); i++) {
-    dissector_add("q932.ros.local.arg", qsig_op_tab[i].opcode, qsig_arg_handle);
-    dissector_add("q932.ros.local.res", qsig_op_tab[i].opcode, qsig_res_handle);
+    dissector_add_uint("q932.ros.local.arg", qsig_op_tab[i].opcode, qsig_arg_handle);
+    dissector_add_uint("q932.ros.local.res", qsig_op_tab[i].opcode, qsig_res_handle);
     key = qsig_op_tab[i].opcode;
     oid = g_hash_table_lookup(qsig_opcode2oid_hashtable, &key);
     if (oid) {
@@ -16336,16 +16336,16 @@ void proto_reg_handoff_qsig(void) {
   }
   qsig_err_handle = new_create_dissector_handle(dissect_qsig_err, proto_qsig);
   for (i=0; i<(int)array_length(qsig_err_tab); i++) {
-    dissector_add("q932.ros.local.err", qsig_err_tab[i].errcode, qsig_err_handle);
+    dissector_add_uint("q932.ros.local.err", qsig_err_tab[i].errcode, qsig_err_handle);
   }
 
   qsig_ie_handle = create_dissector_handle(dissect_qsig_ie_cs4, proto_qsig);
   /* QSIG-TC - Transit counter */
-  dissector_add("q931.ie", CS4 | QSIG_IE_TRANSIT_COUNTER, qsig_ie_handle);
+  dissector_add_uint("q931.ie", CS4 | QSIG_IE_TRANSIT_COUNTER, qsig_ie_handle);
 
   qsig_ie_handle = create_dissector_handle(dissect_qsig_ie_cs5, proto_qsig);
   /* SSIG-BC - Party category */
-  dissector_add("q931.ie", CS5 | QSIG_IE_PARTY_CATEGORY, qsig_ie_handle);
+  dissector_add_uint("q931.ie", CS5 | QSIG_IE_PARTY_CATEGORY, qsig_ie_handle);
 
   /* RFC 3204, 3.2 QSIG Media Type */
   dissector_add_string("media_type", "application/qsig", q931_handle);

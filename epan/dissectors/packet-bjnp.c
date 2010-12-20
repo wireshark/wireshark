@@ -178,10 +178,10 @@ void proto_reg_handoff_bjnp (void)
   dissector_handle_t bjnp_handle;
 
   bjnp_handle = find_dissector (PFNAME);
-  dissector_add ("udp.port", BJNP_PORT1, bjnp_handle);
-  dissector_add ("udp.port", BJNP_PORT2, bjnp_handle);
-  dissector_add ("udp.port", BJNP_PORT3, bjnp_handle);
-  dissector_add ("udp.port", BJNP_PORT4, bjnp_handle);
+  dissector_add_uint ("udp.port", BJNP_PORT1, bjnp_handle);
+  dissector_add_uint ("udp.port", BJNP_PORT2, bjnp_handle);
+  dissector_add_uint ("udp.port", BJNP_PORT3, bjnp_handle);
+  dissector_add_uint ("udp.port", BJNP_PORT4, bjnp_handle);
 }
 
 /*

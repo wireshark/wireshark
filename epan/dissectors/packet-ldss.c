@@ -1006,8 +1006,8 @@ proto_reg_handoff_ldss (void)
 		ldss_initialized = TRUE;
 	}
 	else {
-		dissector_delete("udp.port", saved_udp_port_ldss, ldss_handle);
+		dissector_delete_uint("udp.port", saved_udp_port_ldss, ldss_handle);
 	}
-	dissector_add("udp.port", global_udp_port_ldss, ldss_handle);
+	dissector_add_uint("udp.port", global_udp_port_ldss, ldss_handle);
 	saved_udp_port_ldss = global_udp_port_ldss;
 }

@@ -4022,12 +4022,12 @@ proto_reg_handoff_unistim(void) {
       initialized=TRUE;
    } else {
       if (unistim_port != 0) {
-         dissector_delete("udp.port",unistim_port,unistim_handle);
+         dissector_delete_uint("udp.port",unistim_port,unistim_handle);
       }
    }
 
    if (global_unistim_port != 0) {
-      dissector_add("udp.port",global_unistim_port,unistim_handle);
+      dissector_add_uint("udp.port",global_unistim_port,unistim_handle);
    }
    unistim_port = global_unistim_port;
 }

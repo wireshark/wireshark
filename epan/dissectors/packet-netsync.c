@@ -778,10 +778,10 @@ proto_reg_handoff_netsync(void)
 		netsync_handle = create_dissector_handle(dissect_netsync, proto_netsync);
 		initialized = TRUE;
 	} else {
-		dissector_delete("tcp.port", tcp_port_netsync, netsync_handle);
+		dissector_delete_uint("tcp.port", tcp_port_netsync, netsync_handle);
 	}
 
 	tcp_port_netsync = global_tcp_port_netsync;
-	dissector_add("tcp.port", global_tcp_port_netsync, netsync_handle);
+	dissector_add_uint("tcp.port", global_tcp_port_netsync, netsync_handle);
 }
 

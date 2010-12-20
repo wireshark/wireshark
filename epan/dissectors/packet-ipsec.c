@@ -1392,7 +1392,7 @@ dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* do lookup with the subdissector table */
-  if (!dissector_try_port(ip_dissector_table, nxt, next_tvb, pinfo, tree)) {
+  if (!dissector_try_uint(ip_dissector_table, nxt, next_tvb, pinfo, tree)) {
     call_dissector(data_handle,next_tvb, pinfo, next_tree);
   }
 }
@@ -2502,7 +2502,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			      /* Get the encapsulated protocol */
 			      encapsulated_protocol = tvb_get_guint8(tvb_decrypted, decrypted_len - esp_iv_len - esp_auth_len - 1);
 
-			      if(dissector_try_port(ip_dissector_table,
+			      if(dissector_try_uint(ip_dissector_table,
 						    encapsulated_protocol,
 						    tvb_new_subset(tvb_decrypted, 0,
 								   decrypted_len - esp_auth_len - esp_pad_len - esp_iv_len - 2,
@@ -2615,7 +2615,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    {
 	      esp_pad_len = tvb_get_guint8(tvb, len - 14);
 	      encapsulated_protocol = tvb_get_guint8(tvb, len - 13);
-	      if(dissector_try_port(ip_dissector_table,
+	      if(dissector_try_uint(ip_dissector_table,
 				    encapsulated_protocol,
 				    tvb_new_subset(tvb,
 						   sizeof(struct newesp),
@@ -2724,7 +2724,7 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     decomp = tvb_uncompress(data, 0, tvb_length(data));
     if (decomp) {
         add_new_data_source(pinfo, decomp, "IPcomp inflated data");
-        if (!dissector_try_port(ip_dissector_table, ipcomp.comp_nxt, decomp, pinfo, tree))
+        if (!dissector_try_uint(ip_dissector_table, ipcomp.comp_nxt, decomp, pinfo, tree))
             call_dissector(data_handle, decomp, pinfo, tree);
     }
   }
@@ -2978,11 +2978,11 @@ proto_reg_handoff_ipsec(void)
 
   data_handle = find_dissector("data");
   ah_handle = find_dissector("ah");
-  dissector_add("ip.proto", IP_PROTO_AH, ah_handle);
+  dissector_add_uint("ip.proto", IP_PROTO_AH, ah_handle);
   esp_handle = find_dissector("esp");
-  dissector_add("ip.proto", IP_PROTO_ESP, esp_handle);
+  dissector_add_uint("ip.proto", IP_PROTO_ESP, esp_handle);
   ipcomp_handle = create_dissector_handle(dissect_ipcomp, proto_ipcomp);
-  dissector_add("ip.proto", IP_PROTO_IPCOMP, ipcomp_handle);
+  dissector_add_uint("ip.proto", IP_PROTO_IPCOMP, ipcomp_handle);
 
   ip_dissector_table = find_dissector_table("ip.proto");
 }

@@ -384,5 +384,5 @@ proto_reg_handoff_cups(void)
 	dissector_handle_t cups_handle;
 
 	cups_handle = create_dissector_handle(dissect_cups, proto_cups);
-	dissector_add("udp.port", UDP_PORT_CUPS, cups_handle);
+	dissector_add_uint("udp.port", UDP_PORT_CUPS, cups_handle);
 }

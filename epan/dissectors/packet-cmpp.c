@@ -981,8 +981,8 @@ proto_reg_handoff_cmpp(void)
 	dissector_handle_t cmpp_handle;
 
 	cmpp_handle = new_create_dissector_handle(dissect_cmpp, proto_cmpp);
-	dissector_add("tcp.port", CMPP_SP_LONG_PORT, cmpp_handle);
-	dissector_add("tcp.port", CMPP_SP_SHORT_PORT, cmpp_handle);
-	dissector_add("tcp.port", CMPP_ISMG_LONG_PORT, cmpp_handle);
-	dissector_add("tcp.port", CMPP_ISMG_SHORT_PORT, cmpp_handle);
+	dissector_add_uint("tcp.port", CMPP_SP_LONG_PORT, cmpp_handle);
+	dissector_add_uint("tcp.port", CMPP_SP_SHORT_PORT, cmpp_handle);
+	dissector_add_uint("tcp.port", CMPP_ISMG_LONG_PORT, cmpp_handle);
+	dissector_add_uint("tcp.port", CMPP_ISMG_SHORT_PORT, cmpp_handle);
 }

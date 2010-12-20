@@ -259,12 +259,12 @@ dissect_banana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 static void
 range_delete_banana_tcp_callback(guint32 port) {
-      dissector_delete("tcp.port", port, banana_handle);
+      dissector_delete_uint("tcp.port", port, banana_handle);
 }
 
 static void
 range_add_banana_tcp_callback(guint32 port) {
-    dissector_add("tcp.port", port, banana_handle);
+    dissector_add_uint("tcp.port", port, banana_handle);
 }
 
 static void

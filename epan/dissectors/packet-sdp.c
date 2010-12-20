@@ -2085,5 +2085,5 @@ proto_reg_handoff_sdp(void)
 
   sdp_handle = find_dissector("sdp");
   dissector_add_string("media_type", "application/sdp", sdp_handle);
-  dissector_add("bctp.tpi", 0x20, sdp_handle);
+  dissector_add_uint("bctp.tpi", 0x20, sdp_handle);
 }

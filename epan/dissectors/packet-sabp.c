@@ -1686,27 +1686,27 @@ static int dissect_SABP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port(sabp_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint(sabp_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port(sabp_extension_dissector_table, ProtocolExtensionID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint(sabp_extension_dissector_table, ProtocolExtensionID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port(sabp_proc_imsg_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint(sabp_proc_imsg_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port(sabp_proc_sout_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint(sabp_proc_sout_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port(sabp_proc_uout_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint(sabp_proc_uout_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
 static guint
@@ -2179,53 +2179,53 @@ proto_reg_handoff_sabp(void)
 
   sabp_handle = find_dissector("sabp");
   sabp_tcp_handle = find_dissector("sabp.tcp");
-  dissector_add("udp.port", 3452, sabp_handle);
-  dissector_add("tcp.port", 3452, sabp_tcp_handle);
-  dissector_add("sctp.ppi", SABP_PAYLOAD_PROTOCOL_ID,   sabp_handle);
+  dissector_add_uint("udp.port", 3452, sabp_handle);
+  dissector_add_uint("tcp.port", 3452, sabp_tcp_handle);
+  dissector_add_uint("sctp.ppi", SABP_PAYLOAD_PROTOCOL_ID,   sabp_handle);
 
 
 /*--- Included file: packet-sabp-dis-tab.c ---*/
 #line 1 "packet-sabp-dis-tab.c"
-  dissector_add("sabp.ies", id_Message_Identifier, new_create_dissector_handle(dissect_Message_Identifier_PDU, proto_sabp));
-  dissector_add("sabp.ies", id_New_Serial_Number, new_create_dissector_handle(dissect_New_Serial_Number_PDU, proto_sabp));
-  dissector_add("sabp.ies", id_Old_Serial_Number, new_create_dissector_handle(dissect_Old_Serial_Number_PDU, proto_sabp));
-  dissector_add("sabp.ies", id_Service_Areas_List, new_create_dissector_handle(dissect_Service_Areas_List_PDU, proto_sabp));
-  dissector_add("sabp.ies", id_Category, new_create_dissector_handle(dissect_Category_PDU, proto_sabp));
-  dissector_add("sabp.ies", id_Repetition_Period, new_create_dissector_handle(dissect_Repetition_Period_PDU, proto_sabp));
-  dissector_add("sabp.ies", id_Number_of_Broadcasts_Requested, new_create_dissector_handle(dissect_Number_of_Broadcasts_Requested_PDU, proto_sabp));
-  dissector_add("sabp.ies", id_Data_Coding_Scheme, new_create_dissector_handle(dissect_Data_Coding_Scheme_PDU, proto_sabp));
-  dissector_add("sabp.ies", id_Broadcast_Message_Content, new_create_dissector_handle(dissect_Broadcast_Message_Content_PDU, proto_sabp));
-  dissector_add("sabp.ies", id_Number_of_Broadcasts_Completed_List, new_create_dissector_handle(dissect_Number_of_Broadcasts_Completed_List_PDU, proto_sabp));
-  dissector_add("sabp.ies", id_Criticality_Diagnostics, new_create_dissector_handle(dissect_Criticality_Diagnostics_PDU, proto_sabp));
-  dissector_add("sabp.ies", id_Failure_List, new_create_dissector_handle(dissect_Failure_List_PDU, proto_sabp));
-  dissector_add("sabp.ies", id_Radio_Resource_Loading_List, new_create_dissector_handle(dissect_Radio_Resource_Loading_List_PDU, proto_sabp));
-  dissector_add("sabp.ies", id_Recovery_Indication, new_create_dissector_handle(dissect_Recovery_Indication_PDU, proto_sabp));
-  dissector_add("sabp.ies", id_Serial_Number, new_create_dissector_handle(dissect_Serial_Number_PDU, proto_sabp));
-  dissector_add("sabp.ies", id_Cause, new_create_dissector_handle(dissect_Cause_PDU, proto_sabp));
-  dissector_add("sabp.extension", id_MessageStructure, new_create_dissector_handle(dissect_MessageStructure_PDU, proto_sabp));
-  dissector_add("sabp.extension", id_TypeOfError, new_create_dissector_handle(dissect_TypeOfError_PDU, proto_sabp));
-  dissector_add("sabp.extension", id_Paging_ETWS_Indicator, new_create_dissector_handle(dissect_Paging_ETWS_Indicator_PDU, proto_sabp));
-  dissector_add("sabp.extension", id_Warning_Type, new_create_dissector_handle(dissect_Warning_Type_PDU, proto_sabp));
-  dissector_add("sabp.extension", id_WarningSecurityInfo, new_create_dissector_handle(dissect_WarningSecurityInfo_PDU, proto_sabp));
-  dissector_add("sabp.extension", id_Broadcast_Message_Content_Validity_Indicator, new_create_dissector_handle(dissect_Broadcast_Message_Content_Validity_Indicator_PDU, proto_sabp));
-  dissector_add("sabp.proc.imsg", id_Write_Replace, new_create_dissector_handle(dissect_Write_Replace_PDU, proto_sabp));
-  dissector_add("sabp.proc.sout", id_Write_Replace, new_create_dissector_handle(dissect_Write_Replace_Complete_PDU, proto_sabp));
-  dissector_add("sabp.proc.uout", id_Write_Replace, new_create_dissector_handle(dissect_Write_Replace_Failure_PDU, proto_sabp));
-  dissector_add("sabp.proc.imsg", id_Kill, new_create_dissector_handle(dissect_Kill_PDU, proto_sabp));
-  dissector_add("sabp.proc.sout", id_Kill, new_create_dissector_handle(dissect_Kill_Complete_PDU, proto_sabp));
-  dissector_add("sabp.proc.uout", id_Kill, new_create_dissector_handle(dissect_Kill_Failure_PDU, proto_sabp));
-  dissector_add("sabp.proc.imsg", id_Load_Status_Enquiry, new_create_dissector_handle(dissect_Load_Query_PDU, proto_sabp));
-  dissector_add("sabp.proc.sout", id_Load_Status_Enquiry, new_create_dissector_handle(dissect_Load_Query_Complete_PDU, proto_sabp));
-  dissector_add("sabp.proc.uout", id_Load_Status_Enquiry, new_create_dissector_handle(dissect_Load_Query_Failure_PDU, proto_sabp));
-  dissector_add("sabp.proc.imsg", id_Message_Status_Query, new_create_dissector_handle(dissect_Message_Status_Query_PDU, proto_sabp));
-  dissector_add("sabp.proc.sout", id_Message_Status_Query, new_create_dissector_handle(dissect_Message_Status_Query_Complete_PDU, proto_sabp));
-  dissector_add("sabp.proc.uout", id_Message_Status_Query, new_create_dissector_handle(dissect_Message_Status_Query_Failure_PDU, proto_sabp));
-  dissector_add("sabp.proc.imsg", id_Reset, new_create_dissector_handle(dissect_Reset_PDU, proto_sabp));
-  dissector_add("sabp.proc.sout", id_Reset, new_create_dissector_handle(dissect_Reset_Complete_PDU, proto_sabp));
-  dissector_add("sabp.proc.uout", id_Reset, new_create_dissector_handle(dissect_Reset_Failure_PDU, proto_sabp));
-  dissector_add("sabp.proc.imsg", id_Restart_Indication, new_create_dissector_handle(dissect_Restart_PDU, proto_sabp));
-  dissector_add("sabp.proc.imsg", id_Failure_Indication, new_create_dissector_handle(dissect_Failure_PDU, proto_sabp));
-  dissector_add("sabp.proc.imsg", id_Error_Indication, new_create_dissector_handle(dissect_Error_Indication_PDU, proto_sabp));
+  dissector_add_uint("sabp.ies", id_Message_Identifier, new_create_dissector_handle(dissect_Message_Identifier_PDU, proto_sabp));
+  dissector_add_uint("sabp.ies", id_New_Serial_Number, new_create_dissector_handle(dissect_New_Serial_Number_PDU, proto_sabp));
+  dissector_add_uint("sabp.ies", id_Old_Serial_Number, new_create_dissector_handle(dissect_Old_Serial_Number_PDU, proto_sabp));
+  dissector_add_uint("sabp.ies", id_Service_Areas_List, new_create_dissector_handle(dissect_Service_Areas_List_PDU, proto_sabp));
+  dissector_add_uint("sabp.ies", id_Category, new_create_dissector_handle(dissect_Category_PDU, proto_sabp));
+  dissector_add_uint("sabp.ies", id_Repetition_Period, new_create_dissector_handle(dissect_Repetition_Period_PDU, proto_sabp));
+  dissector_add_uint("sabp.ies", id_Number_of_Broadcasts_Requested, new_create_dissector_handle(dissect_Number_of_Broadcasts_Requested_PDU, proto_sabp));
+  dissector_add_uint("sabp.ies", id_Data_Coding_Scheme, new_create_dissector_handle(dissect_Data_Coding_Scheme_PDU, proto_sabp));
+  dissector_add_uint("sabp.ies", id_Broadcast_Message_Content, new_create_dissector_handle(dissect_Broadcast_Message_Content_PDU, proto_sabp));
+  dissector_add_uint("sabp.ies", id_Number_of_Broadcasts_Completed_List, new_create_dissector_handle(dissect_Number_of_Broadcasts_Completed_List_PDU, proto_sabp));
+  dissector_add_uint("sabp.ies", id_Criticality_Diagnostics, new_create_dissector_handle(dissect_Criticality_Diagnostics_PDU, proto_sabp));
+  dissector_add_uint("sabp.ies", id_Failure_List, new_create_dissector_handle(dissect_Failure_List_PDU, proto_sabp));
+  dissector_add_uint("sabp.ies", id_Radio_Resource_Loading_List, new_create_dissector_handle(dissect_Radio_Resource_Loading_List_PDU, proto_sabp));
+  dissector_add_uint("sabp.ies", id_Recovery_Indication, new_create_dissector_handle(dissect_Recovery_Indication_PDU, proto_sabp));
+  dissector_add_uint("sabp.ies", id_Serial_Number, new_create_dissector_handle(dissect_Serial_Number_PDU, proto_sabp));
+  dissector_add_uint("sabp.ies", id_Cause, new_create_dissector_handle(dissect_Cause_PDU, proto_sabp));
+  dissector_add_uint("sabp.extension", id_MessageStructure, new_create_dissector_handle(dissect_MessageStructure_PDU, proto_sabp));
+  dissector_add_uint("sabp.extension", id_TypeOfError, new_create_dissector_handle(dissect_TypeOfError_PDU, proto_sabp));
+  dissector_add_uint("sabp.extension", id_Paging_ETWS_Indicator, new_create_dissector_handle(dissect_Paging_ETWS_Indicator_PDU, proto_sabp));
+  dissector_add_uint("sabp.extension", id_Warning_Type, new_create_dissector_handle(dissect_Warning_Type_PDU, proto_sabp));
+  dissector_add_uint("sabp.extension", id_WarningSecurityInfo, new_create_dissector_handle(dissect_WarningSecurityInfo_PDU, proto_sabp));
+  dissector_add_uint("sabp.extension", id_Broadcast_Message_Content_Validity_Indicator, new_create_dissector_handle(dissect_Broadcast_Message_Content_Validity_Indicator_PDU, proto_sabp));
+  dissector_add_uint("sabp.proc.imsg", id_Write_Replace, new_create_dissector_handle(dissect_Write_Replace_PDU, proto_sabp));
+  dissector_add_uint("sabp.proc.sout", id_Write_Replace, new_create_dissector_handle(dissect_Write_Replace_Complete_PDU, proto_sabp));
+  dissector_add_uint("sabp.proc.uout", id_Write_Replace, new_create_dissector_handle(dissect_Write_Replace_Failure_PDU, proto_sabp));
+  dissector_add_uint("sabp.proc.imsg", id_Kill, new_create_dissector_handle(dissect_Kill_PDU, proto_sabp));
+  dissector_add_uint("sabp.proc.sout", id_Kill, new_create_dissector_handle(dissect_Kill_Complete_PDU, proto_sabp));
+  dissector_add_uint("sabp.proc.uout", id_Kill, new_create_dissector_handle(dissect_Kill_Failure_PDU, proto_sabp));
+  dissector_add_uint("sabp.proc.imsg", id_Load_Status_Enquiry, new_create_dissector_handle(dissect_Load_Query_PDU, proto_sabp));
+  dissector_add_uint("sabp.proc.sout", id_Load_Status_Enquiry, new_create_dissector_handle(dissect_Load_Query_Complete_PDU, proto_sabp));
+  dissector_add_uint("sabp.proc.uout", id_Load_Status_Enquiry, new_create_dissector_handle(dissect_Load_Query_Failure_PDU, proto_sabp));
+  dissector_add_uint("sabp.proc.imsg", id_Message_Status_Query, new_create_dissector_handle(dissect_Message_Status_Query_PDU, proto_sabp));
+  dissector_add_uint("sabp.proc.sout", id_Message_Status_Query, new_create_dissector_handle(dissect_Message_Status_Query_Complete_PDU, proto_sabp));
+  dissector_add_uint("sabp.proc.uout", id_Message_Status_Query, new_create_dissector_handle(dissect_Message_Status_Query_Failure_PDU, proto_sabp));
+  dissector_add_uint("sabp.proc.imsg", id_Reset, new_create_dissector_handle(dissect_Reset_PDU, proto_sabp));
+  dissector_add_uint("sabp.proc.sout", id_Reset, new_create_dissector_handle(dissect_Reset_Complete_PDU, proto_sabp));
+  dissector_add_uint("sabp.proc.uout", id_Reset, new_create_dissector_handle(dissect_Reset_Failure_PDU, proto_sabp));
+  dissector_add_uint("sabp.proc.imsg", id_Restart_Indication, new_create_dissector_handle(dissect_Restart_PDU, proto_sabp));
+  dissector_add_uint("sabp.proc.imsg", id_Failure_Indication, new_create_dissector_handle(dissect_Failure_PDU, proto_sabp));
+  dissector_add_uint("sabp.proc.imsg", id_Error_Indication, new_create_dissector_handle(dissect_Error_Indication_PDU, proto_sabp));
 
 
 /*--- End of included file: packet-sabp-dis-tab.c ---*/

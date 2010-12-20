@@ -1178,5 +1178,5 @@ proto_reg_handoff_wai(void)
 
     data_handle = find_dissector("data");
     wai_handle  = find_dissector("wai");
-    dissector_add("ethertype", ETHERTYPE_WAI, wai_handle);
+    dissector_add_uint("ethertype", ETHERTYPE_WAI, wai_handle);
 }

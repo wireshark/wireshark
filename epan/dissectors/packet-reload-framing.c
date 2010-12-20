@@ -407,8 +407,8 @@ proto_reg_handoff_reload_framing(void)
 
   reload_handle = find_dissector("reload");
 
-  dissector_add("tcp.port", TCP_PORT_RELOAD, reload_framing_tcp_handle);
-  dissector_add("udp.port", UDP_PORT_RELOAD, reload_framing_udp_handle);
+  dissector_add_uint("tcp.port", TCP_PORT_RELOAD, reload_framing_tcp_handle);
+  dissector_add_uint("udp.port", UDP_PORT_RELOAD, reload_framing_udp_handle);
 
   heur_dissector_add("udp", dissect_reload_framing_heur, proto_reload_framing);
   heur_dissector_add("tcp", dissect_reload_framing_heur, proto_reload_framing);

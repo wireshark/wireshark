@@ -69,7 +69,7 @@ typedef struct _packet_info {
   port_type ptype;		/* type of the following two port numbers */
   guint32 srcport;		/* source port */
   guint32 destport;		/* destination port */
-  guint32 match_port;           /* matched port for calling subdissector from table */
+  guint32 match_uint;           /* matched uint for calling subdissector from table */
   const char *match_string;	/* matched string for calling subdissector from table */
   guint16 can_desegment;	/* >0 if this segment could be desegmented.
 				   A dissector that can offer this API (e.g.
@@ -200,5 +200,8 @@ typedef struct _packet_info {
 							 *
 							 */
 } packet_info;
+
+/* For old code that hasn't yet been changed. */
+#define match_port	match_uint
 
 #endif /* __PACKET_INFO_H__ */

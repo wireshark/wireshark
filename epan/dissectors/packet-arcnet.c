@@ -241,7 +241,7 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
   next_tvb = tvb_new_subset_remaining (tvb, offset);
 
-  if (!dissector_try_port (arcnet_dissector_table, protID,
+  if (!dissector_try_uint (arcnet_dissector_table, protID,
 			   next_tvb, pinfo, tree))
     {
       if (check_col (pinfo->cinfo, COL_PROTOCOL))
@@ -362,10 +362,10 @@ proto_reg_handoff_arcnet (void)
   dissector_handle_t arcnet_handle, arcnet_linux_handle;
 
   arcnet_handle = create_dissector_handle (dissect_arcnet, proto_arcnet);
-  dissector_add ("wtap_encap", WTAP_ENCAP_ARCNET, arcnet_handle);
+  dissector_add_uint ("wtap_encap", WTAP_ENCAP_ARCNET, arcnet_handle);
 
   arcnet_linux_handle = create_dissector_handle (dissect_arcnet_linux,
 						 proto_arcnet);
-  dissector_add ("wtap_encap", WTAP_ENCAP_ARCNET_LINUX, arcnet_linux_handle);
+  dissector_add_uint ("wtap_encap", WTAP_ENCAP_ARCNET_LINUX, arcnet_linux_handle);
   data_handle = find_dissector ("data");
 }

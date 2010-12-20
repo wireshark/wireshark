@@ -204,11 +204,11 @@ dissect_nasdaq_soup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Register the protocol with Wireshark */
 static void range_delete_nasdaq_soup_tcp_callback(guint32 port) {
-    dissector_delete("tcp.port", port, nasdaq_soup_handle);
+    dissector_delete_uint("tcp.port", port, nasdaq_soup_handle);
 }
 
 static void range_add_nasdaq_soup_tcp_callback(guint32 port) {
-    dissector_add("tcp.port", port, nasdaq_soup_handle);
+    dissector_add_uint("tcp.port", port, nasdaq_soup_handle);
 }
 
 static void nasdaq_soup_prefs(void) 

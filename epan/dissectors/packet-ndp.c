@@ -383,9 +383,9 @@ proto_reg_handoff_ndp(void)
 
 	ndp_handle = find_dissector("ndp");
 
-	dissector_add("llc.nortel_pid", 0x01a1, ndp_handle); /* flatnet hello */
-	dissector_add("llc.nortel_pid", 0x01a2, ndp_handle); /* Segment hello */ 
+	dissector_add_uint("llc.nortel_pid", 0x01a1, ndp_handle); /* flatnet hello */
+	dissector_add_uint("llc.nortel_pid", 0x01a2, ndp_handle); /* Segment hello */ 
 	/* not got round to adding this but its really old, so I'm not sure people will see it */
 	/* it uses a different packet format */
-	/*      dissector_add("llc.nortel_pid", 0x01a3, ndp_handle); */ /* Bridge hello */
+	/*      dissector_add_uint("llc.nortel_pid", 0x01a3, ndp_handle); */ /* Bridge hello */
 }

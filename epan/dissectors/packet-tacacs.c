@@ -313,7 +313,7 @@ proto_reg_handoff_tacacs(void)
 	dissector_handle_t tacacs_handle;
 
 	tacacs_handle = create_dissector_handle(dissect_tacacs, proto_tacacs);
-	dissector_add("udp.port", UDP_PORT_TACACS, tacacs_handle);
+	dissector_add_uint("udp.port", UDP_PORT_TACACS, tacacs_handle);
 }
 
 static int proto_tacplus = -1;
@@ -955,7 +955,7 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 tvb, 0, -1, "TACACS+");
 
 		tacplus_tree = proto_item_add_subtree(ti, ett_tacplus);
-		if (pinfo->match_port == pinfo->destport)
+		if (pinfo->match_uint == pinfo->destport)
 		{
 			hidden_item = proto_tree_add_boolean(tacplus_tree,
 			    hf_tacplus_request, tvb, 0, 0, TRUE);
@@ -1111,7 +1111,7 @@ proto_reg_handoff_tacplus(void)
 
 	tacplus_handle = create_dissector_handle(dissect_tacplus,
 	    proto_tacplus);
-	dissector_add("tcp.port", TCP_PORT_TACACS, tacplus_handle);
+	dissector_add_uint("tcp.port", TCP_PORT_TACACS, tacplus_handle);
 }
 
 

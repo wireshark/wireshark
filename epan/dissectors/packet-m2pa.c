@@ -618,18 +618,18 @@ proto_reg_handoff_m2pa(void)
     m2pa_handle   = find_dissector("m2pa");
     mtp3_handle   = find_dissector("mtp3");
 
-    dissector_add("sctp.ppi", M2PA_PAYLOAD_PROTOCOL_ID, m2pa_handle);
+    dissector_add_uint("sctp.ppi", M2PA_PAYLOAD_PROTOCOL_ID, m2pa_handle);
 
     prefs_initialized = TRUE;
 
   } else {
 
-    dissector_delete("sctp.port", sctp_port, m2pa_handle);
+    dissector_delete_uint("sctp.port", sctp_port, m2pa_handle);
 
   }
 
   /* Set our port number for future use */
   sctp_port = global_sctp_port;
 
-  dissector_add("sctp.port", sctp_port, m2pa_handle);
+  dissector_add_uint("sctp.port", sctp_port, m2pa_handle);
 }

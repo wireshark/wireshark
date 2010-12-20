@@ -2017,9 +2017,9 @@ static void
 lmp_prefs_applied (void)
 {
     if (lmp_udp_port != lmp_udp_port_config) {
-	dissector_delete("udp.port", lmp_udp_port, lmp_handle);
+	dissector_delete_uint("udp.port", lmp_udp_port, lmp_handle);
 	lmp_udp_port = lmp_udp_port_config;
-	dissector_add("udp.port", lmp_udp_port, lmp_handle);
+	dissector_add_uint("udp.port", lmp_udp_port, lmp_handle);
     }
 }
 
@@ -2709,5 +2709,5 @@ void
 proto_reg_handoff_lmp(void)
 {
     lmp_handle = new_create_dissector_handle(dissect_lmp, proto_lmp);
-    dissector_add("udp.port", lmp_udp_port, lmp_handle);
+    dissector_add_uint("udp.port", lmp_udp_port, lmp_handle);
 }

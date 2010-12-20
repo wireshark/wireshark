@@ -1645,7 +1645,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	msg_type = tvb_get_guint8(tvb, offset);
 
-	if (pinfo->match_port == TCP_PORT_CIFS) {
+	if (pinfo->match_uint == TCP_PORT_CIFS) {
 		/*
 		 * Windows 2000 CIFS clients can dispense completely
 		 * with the NETBIOS encapsulation and directly use CIFS
@@ -1985,10 +1985,10 @@ proto_reg_handoff_nbt(void)
   dissector_handle_t nbns_handle, nbdgm_handle, nbss_handle;
 
   nbns_handle = create_dissector_handle(dissect_nbns, proto_nbns);
-  dissector_add("udp.port", UDP_PORT_NBNS, nbns_handle);
+  dissector_add_uint("udp.port", UDP_PORT_NBNS, nbns_handle);
   nbdgm_handle = create_dissector_handle(dissect_nbdgm, proto_nbdgm);
-  dissector_add("udp.port", UDP_PORT_NBDGM, nbdgm_handle);
+  dissector_add_uint("udp.port", UDP_PORT_NBDGM, nbdgm_handle);
   nbss_handle = create_dissector_handle(dissect_nbss, proto_nbss);
-  dissector_add("tcp.port", TCP_PORT_NBSS, nbss_handle);
-  dissector_add("tcp.port", TCP_PORT_CIFS, nbss_handle);
+  dissector_add_uint("tcp.port", TCP_PORT_NBSS, nbss_handle);
+  dissector_add_uint("tcp.port", TCP_PORT_CIFS, nbss_handle);
 }

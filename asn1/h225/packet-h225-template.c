@@ -298,8 +298,8 @@ proto_reg_handoff_h225(void)
 
 	if (!h225_prefs_initialized) {
 		h225ras_handle=find_dissector("h225.ras");
-		dissector_add("udp.port", UDP_PORT_RAS1, h225ras_handle);
-		dissector_add("udp.port", UDP_PORT_RAS2, h225ras_handle);
+		dissector_add_uint("udp.port", UDP_PORT_RAS1, h225ras_handle);
+		dissector_add_uint("udp.port", UDP_PORT_RAS2, h225ras_handle);
 
 		h245_handle = find_dissector("h245");
 		h245dg_handle = find_dissector("h245dg");

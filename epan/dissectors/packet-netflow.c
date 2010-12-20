@@ -7625,7 +7625,7 @@ static void
 netflow_delete_callback(guint32 port)
 {
 	if ( port ) {
-		dissector_delete("udp.port", port, netflow_handle);
+		dissector_delete_uint("udp.port", port, netflow_handle);
 	}
 }
 
@@ -7633,7 +7633,7 @@ static void
 netflow_add_callback(guint32 port)
 {
 	if ( port ) {
-		dissector_add("udp.port", port, netflow_handle);
+		dissector_add_uint("udp.port", port, netflow_handle);
 	}
 }
 
@@ -7641,9 +7641,9 @@ static void
 ipfix_delete_callback(guint32 port)
 {
 	if ( port ) {
-		dissector_delete("udp.port", port, netflow_handle);
-		dissector_delete("tcp.port", port, netflow_handle);
-		dissector_delete("sctp.port", port, netflow_handle);
+		dissector_delete_uint("udp.port", port, netflow_handle);
+		dissector_delete_uint("tcp.port", port, netflow_handle);
+		dissector_delete_uint("sctp.port", port, netflow_handle);
 	}
 }
 
@@ -7651,9 +7651,9 @@ static void
 ipfix_add_callback(guint32 port)
 {
 	if ( port ) {
-		dissector_add("udp.port", port, netflow_handle);
-		dissector_add("tcp.port", port, netflow_handle);
-		dissector_add("sctp.port", port, netflow_handle);
+		dissector_add_uint("udp.port", port, netflow_handle);
+		dissector_add_uint("tcp.port", port, netflow_handle);
+		dissector_add_uint("sctp.port", port, netflow_handle);
 	}
 }
 
@@ -7667,7 +7667,7 @@ proto_reg_handoff_netflow(void)
 	if (!netflow_prefs_initialized) {
 		netflow_handle = new_create_dissector_handle(dissect_netflow, proto_netflow);
 		netflow_prefs_initialized = TRUE;
-		dissector_add("wtap_encap", WTAP_ENCAP_RAW_IPFIX, netflow_handle);
+		dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IPFIX, netflow_handle);
 	} else {
 		range_foreach(netflow_ports, netflow_delete_callback);
 		g_free(netflow_ports);

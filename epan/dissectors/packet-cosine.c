@@ -184,5 +184,5 @@ proto_reg_handoff_cosine(void)
   data_handle = find_dissector("data");
 
   cosine_handle = create_dissector_handle(dissect_cosine, proto_cosine);
-  dissector_add("wtap_encap", WTAP_ENCAP_COSINE, cosine_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_COSINE, cosine_handle);
 }

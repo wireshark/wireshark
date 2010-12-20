@@ -1278,7 +1278,7 @@ proto_reg_handoff_mip(void)
 
 	mip_handle = find_dissector("mip");
 	ip_handle = find_dissector("ip");
-	dissector_add("udp.port", UDP_PORT_MIP, mip_handle);
+	dissector_add_uint("udp.port", UDP_PORT_MIP, mip_handle);
 }
 
 

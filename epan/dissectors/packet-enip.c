@@ -749,7 +749,7 @@ dissect_cpf( enip_request_key_t *request_key, int command, tvbuff_t *tvb, packet
                /* Call dissector for interface */
                next_tvb = tvb_new_subset( tvb, offset+6, item_length, item_length );
                p_add_proto_data(pinfo->fd, proto_enip, request_info);
-               if( tvb_length_remaining(next_tvb, 0) == 0 || !dissector_try_port(subdissector_srrd_table, ifacehndl, next_tvb, pinfo, g_tree) )
+               if( tvb_length_remaining(next_tvb, 0) == 0 || !dissector_try_uint(subdissector_srrd_table, ifacehndl, next_tvb, pinfo, g_tree) )
                {
                   /* Show the undissected payload */
                    if( tvb_length_remaining(tvb, offset) > 0 )
@@ -783,7 +783,7 @@ dissect_cpf( enip_request_key_t *request_key, int command, tvbuff_t *tvb, packet
                   /* Call dissector for interface */
                   next_tvb = tvb_new_subset (tvb, offset+8, item_length-2, item_length-2);
                   p_add_proto_data(pinfo->fd, proto_enip, request_info);
-                  if( tvb_length_remaining(next_tvb, 0) == 0 || !dissector_try_port(subdissector_sud_table, ifacehndl, next_tvb, pinfo, g_tree) )
+                  if( tvb_length_remaining(next_tvb, 0) == 0 || !dissector_try_uint(subdissector_sud_table, ifacehndl, next_tvb, pinfo, g_tree) )
                   {
                      /* Show the undissected payload */
                       if( tvb_length_remaining(tvb, offset) > 0 )
@@ -1716,21 +1716,21 @@ proto_reg_handoff_enip(void)
 
    /* Register for EtherNet/IP, using TCP */
    enip_tcp_handle = new_create_dissector_handle(dissect_enip_tcp, proto_enip);
-   dissector_add("tcp.port", ENIP_ENCAP_PORT, enip_tcp_handle);
+   dissector_add_uint("tcp.port", ENIP_ENCAP_PORT, enip_tcp_handle);
 
    /* Register for EtherNet/IP, using UDP */
    enip_udp_handle = new_create_dissector_handle(dissect_enip_udp, proto_enip);
-   dissector_add("udp.port", ENIP_ENCAP_PORT, enip_udp_handle);
+   dissector_add_uint("udp.port", ENIP_ENCAP_PORT, enip_udp_handle);
 
    /* Register for EtherNet/IP IO data (UDP) */
    enipio_handle = create_dissector_handle(dissect_enipio, proto_enip);
-   dissector_add("udp.port", ENIP_IO_PORT, enipio_handle);
+   dissector_add_uint("udp.port", ENIP_IO_PORT, enipio_handle);
 
    /* Find dissector for data packet */
    data_handle = find_dissector("data");
 
    /* Register for EtherNet/IP Device Level Ring protocol */
    dlr_handle = new_create_dissector_handle(dissect_dlr, proto_dlr);
-   dissector_add("ethertype", ETHERTYPE_DLR, dlr_handle);
+   dissector_add_uint("ethertype", ETHERTYPE_DLR, dlr_handle);
 
 } /* end of proto_reg_handoff_enip() */

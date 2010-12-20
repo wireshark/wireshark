@@ -171,6 +171,6 @@ proto_reg_handoff_docsis_dccack (void)
   dissector_handle_t docsis_dccack_handle;
 
   docsis_dccack_handle = find_dissector ("docsis_dccack");
-  dissector_add ("docsis_mgmt", 0x19, docsis_dccack_handle);
+  dissector_add_uint ("docsis_mgmt", 0x19, docsis_dccack_handle);
 
 }

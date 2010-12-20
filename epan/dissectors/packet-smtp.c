@@ -333,7 +333,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* Is this a request or a response? */
-  request = pinfo->destport == pinfo->match_port;
+  request = pinfo->destport == pinfo->match_uint;
 
   /*
    * Is there any data attached to this frame?
@@ -961,9 +961,9 @@ proto_reg_handoff_smtp(void)
   dissector_handle_t smtp_handle;
 
   smtp_handle = find_dissector("smtp");
-  dissector_add("tcp.port", TCP_PORT_SMTP, smtp_handle);
+  dissector_add_uint("tcp.port", TCP_PORT_SMTP, smtp_handle);
   ssl_dissector_add(TCP_PORT_SSL_SMTP, "smtp", TRUE);
-  dissector_add("tcp.port", TCP_PORT_SUBMISSION, smtp_handle);
+  dissector_add_uint("tcp.port", TCP_PORT_SUBMISSION, smtp_handle);
 
   /* find the IMF dissector */
   imf_handle = find_dissector("imf");

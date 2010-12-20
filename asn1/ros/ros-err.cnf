@@ -12,7 +12,7 @@
   actx->rose_ctx->d.pdu = 3;
 
   if ((actx->rose_ctx->d.code == 0) && actx->rose_ctx->err_local_dissector_table) {
-    err_handle = dissector_get_port_handle(actx->rose_ctx->err_local_dissector_table, actx->rose_ctx->d.code_local);
+    err_handle = dissector_get_uint_handle(actx->rose_ctx->err_local_dissector_table, actx->rose_ctx->d.code_local);
   } else if ((actx->rose_ctx->d.code == 1) && actx->rose_ctx->err_global_dissector_table) {
     err_handle = dissector_get_string_handle(actx->rose_ctx->err_global_dissector_table, actx->rose_ctx->d.code_global);
   } else {

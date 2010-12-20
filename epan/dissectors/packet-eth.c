@@ -749,14 +749,14 @@ proto_reg_handoff_eth(void)
 	fw1_handle = find_dissector("fw1");
 
 	eth_maybefcs_handle = find_dissector("eth");
-	dissector_add("wtap_encap", WTAP_ENCAP_ETHERNET, eth_maybefcs_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_ETHERNET, eth_maybefcs_handle);
 
 	eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
-	dissector_add("ethertype", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
-	dissector_add("chdlctype", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
-	dissector_add("gre.proto", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
+	dissector_add_uint("ethertype", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
+	dissector_add_uint("chdlctype", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
+	dissector_add_uint("gre.proto", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);
 
-	dissector_add("sll.ltype", LINUX_SLL_P_ETHERNET, eth_withoutfcs_handle);
+	dissector_add_uint("sll.ltype", LINUX_SLL_P_ETHERNET, eth_withoutfcs_handle);
 
 	/*
 	 * This is to handle the output for the Cisco CMTS "cable intercept"

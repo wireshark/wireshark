@@ -1063,12 +1063,12 @@ proto_reg_handoff_PROTOABBREV(void)
 		  function (proto_reg_handoff).
 		*/
 
-		dissector_delete("tcp.port", currentPort, PROTOABBREV_handle);
+		dissector_delete_uint("tcp.port", currentPort, PROTOABBREV_handle);
 	}
 
 	currentPort = gPORT_PREF;
 
-	dissector_add("tcp.port", currentPort, PROTOABBREV_handle);
+	dissector_add_uint("tcp.port", currentPort, PROTOABBREV_handle);
 
 }
 
@@ -1088,7 +1088,7 @@ proto_reg_handoff_PROTOABBREV(void)
  */
 	PROTOABBREV_handle = new_create_dissector_handle(dissect_PROTOABBREV,
 							 proto_PROTOABBREV);
-	dissector_add("PARENT_SUBFIELD", ID_VALUE, PROTOABBREV_handle);
+	dissector_add_uint("PARENT_SUBFIELD", ID_VALUE, PROTOABBREV_handle);
 }
 #endif
 
@@ -3661,10 +3661,10 @@ example, stolen from packet-dns.c:
 	mdns_udp_handle = create_dissector_handle(dissect_mdns_udp,
 	    proto_dns);
 
-	dissector_add("udp.port", UDP_PORT_DNS, dns_udp_handle);
-	dissector_add("tcp.port", TCP_PORT_DNS, dns_tcp_handle);
-	dissector_add("udp.port", UDP_PORT_MDNS, mdns_udp_handle);
-	dissector_add("tcp.port", TCP_PORT_MDNS, dns_tcp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_DNS, dns_udp_handle);
+	dissector_add_uint("tcp.port", TCP_PORT_DNS, dns_tcp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_MDNS, mdns_udp_handle);
+	dissector_add_uint("tcp.port", TCP_PORT_MDNS, dns_tcp_handle);
 
 The dissect_dns_udp function does very little work and calls
 dissect_dns_common, while dissect_dns_tcp calls tcp_dissect_pdus with a

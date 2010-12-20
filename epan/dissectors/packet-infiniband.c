@@ -2529,7 +2529,7 @@ static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
             pd_save = pinfo->private_data;
 
             TRY {
-                dissector_found = dissector_try_port(ethertype_dissector_table,
+                dissector_found = dissector_try_uint(ethertype_dissector_table,
                                      etype, next_tvb, pinfo, top_tree);
             }
             CATCH(BoundsError) {
@@ -2708,7 +2708,7 @@ static void parse_RWH(proto_tree *ah_tree, tvbuff_t *tvb, gint *offset, packet_i
     }
 
     next_tvb = tvb_new_subset(tvb, *offset, captured_length, reported_length);
-    if (!dissector_try_port(ethertype_dissector_table, ether_type,
+    if (!dissector_try_uint(ethertype_dissector_table, ether_type,
             next_tvb, pinfo, top_tree))
        call_dissector(data_handle, next_tvb, pinfo, top_tree);
 
@@ -7443,5 +7443,5 @@ void proto_reg_handoff_infiniband(void)
 
     /* create and announce an anonymous RoCE dissector */
     roce_handle = create_dissector_handle(dissect_roce, proto_infiniband);
-    dissector_add("ethertype", ETHERTYPE_ROCE, roce_handle);
+    dissector_add_uint("ethertype", ETHERTYPE_ROCE, roce_handle);
 }

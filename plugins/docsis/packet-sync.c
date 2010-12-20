@@ -106,5 +106,5 @@ proto_reg_handoff_docsis_sync (void)
 	dissector_handle_t docsis_sync_handle;
 
 	docsis_sync_handle = find_dissector ("docsis_sync");
-	dissector_add ("docsis_mgmt", 1, docsis_sync_handle);
+	dissector_add_uint ("docsis_mgmt", 1, docsis_sync_handle);
 }

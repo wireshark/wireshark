@@ -359,14 +359,14 @@ static void dissect_sscop(tvbuff_t* tvb, packet_info* pinfo,proto_tree* tree)
 static void range_delete_callback(guint32 port)
 {
     if (port) {
-	dissector_delete("udp.port", port, sscop_handle);
+	dissector_delete_uint("udp.port", port, sscop_handle);
     }
 }
 
 static void range_add_callback(guint32 port)
 {
     if (port) {
-	dissector_add("udp.port", port, sscop_handle);
+	dissector_add_uint("udp.port", port, sscop_handle);
     }
 }
 

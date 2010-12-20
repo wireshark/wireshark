@@ -750,5 +750,5 @@ void proto_reg_handoff_gnutella(void) {
 
 	gnutella_handle = create_dissector_handle(dissect_gnutella,
 			proto_gnutella);
-	dissector_add("tcp.port", GNUTELLA_TCP_PORT, gnutella_handle);
+	dissector_add_uint("tcp.port", GNUTELLA_TCP_PORT, gnutella_handle);
 }

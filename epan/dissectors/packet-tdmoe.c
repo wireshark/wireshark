@@ -166,7 +166,7 @@ proto_reg_handoff_tdmoe(void)
 	dissector_handle_t tdmoe_handle;
 
 	tdmoe_handle = new_create_dissector_handle(dissect_tdmoe, proto_tdmoe);
-	dissector_add("ethertype", ETHERTYPE_TDMOE, tdmoe_handle);
+	dissector_add_uint("ethertype", ETHERTYPE_TDMOE, tdmoe_handle);
 
 	data_handle = find_dissector("data");
 }

@@ -330,7 +330,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	ftp_ip_address = pinfo->src;
 
-	if (pinfo->match_port == pinfo->destport)
+	if (pinfo->match_uint == pinfo->destport)
 		is_request = TRUE;
 	else
 		is_request = FALSE;
@@ -748,7 +748,7 @@ proto_reg_handoff_ftp(void)
   dissector_handle_t ftp_handle;
 
   ftpdata_handle = find_dissector("ftp-data");
-  dissector_add("tcp.port", TCP_PORT_FTPDATA, ftpdata_handle);
+  dissector_add_uint("tcp.port", TCP_PORT_FTPDATA, ftpdata_handle);
   ftp_handle = find_dissector("ftp");
-  dissector_add("tcp.port", TCP_PORT_FTP, ftp_handle);
+  dissector_add_uint("tcp.port", TCP_PORT_FTP, ftp_handle);
 }

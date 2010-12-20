@@ -60,7 +60,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IMAP");
 
 
-	if (pinfo->match_port == pinfo->destport)
+	if (pinfo->match_uint == pinfo->destport)
 		is_request = TRUE;
 	else
 		is_request = FALSE;
@@ -189,6 +189,6 @@ proto_reg_handoff_imap(void)
   dissector_handle_t imap_handle;
 
   imap_handle = create_dissector_handle(dissect_imap, proto_imap);
-  dissector_add("tcp.port", TCP_PORT_IMAP, imap_handle);
+  dissector_add_uint("tcp.port", TCP_PORT_IMAP, imap_handle);
   ssl_dissector_add(TCP_PORT_SSL_IMAP, "imap", TRUE);
 }

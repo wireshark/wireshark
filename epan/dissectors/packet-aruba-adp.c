@@ -153,7 +153,7 @@ proto_reg_handoff_aruba_adp(void)
   dissector_handle_t adp_handle;
 
   adp_handle = create_dissector_handle(dissect_aruba_adp, proto_aruba_adp);
-  dissector_add("udp.port", UDP_PORT_ADP, adp_handle);
+  dissector_add_uint("udp.port", UDP_PORT_ADP, adp_handle);
 }
 
 

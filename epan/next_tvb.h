@@ -34,7 +34,7 @@
 
 typedef enum {
   NTVB_HANDLE,
-  NTVB_PORT,
+  NTVB_UINT,
   NTVB_STRING
 } next_tvb_call_e;
 
@@ -44,7 +44,7 @@ typedef struct next_tvb_item {
   next_tvb_call_e type;
   dissector_handle_t handle;
   dissector_table_t table;
-  guint32 port;
+  guint32 uint_val;
   const gchar *string;
   tvbuff_t *tvb;
   proto_tree *tree;
@@ -58,7 +58,7 @@ typedef struct {
 
 extern void next_tvb_init(next_tvb_list_t *list);
 extern void next_tvb_add_handle(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_handle_t handle);
-extern void next_tvb_add_port(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_table_t table, guint32 port);
+extern void next_tvb_add_uint(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_table_t table, guint32 uint_val);
 extern void next_tvb_add_string(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_table_t table, const gchar *string);
 extern void next_tvb_call(next_tvb_list_t *list, packet_info *pinfo, proto_tree *tree, dissector_handle_t handle, dissector_handle_t data_handle);
 

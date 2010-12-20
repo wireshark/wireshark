@@ -151,10 +151,10 @@ proto_reg_handoff_pcli(void) {
     ip_handle = find_dissector("ip");
     pcli_initialized = TRUE;
   } else {
-    dissector_delete("udp.port",udp_port_pcli,pcli_handle);
+    dissector_delete_uint("udp.port",udp_port_pcli,pcli_handle);
   }
 
   udp_port_pcli = global_udp_port_pcli;
   
-  dissector_add("udp.port",global_udp_port_pcli,pcli_handle);
+  dissector_add_uint("udp.port",global_udp_port_pcli,pcli_handle);
 }

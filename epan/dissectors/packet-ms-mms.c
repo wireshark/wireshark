@@ -1941,8 +1941,8 @@ void proto_reg_handoff_msmms_command(void)
 {
     msmms_handle = find_dissector("msmms");
     /* Control commands using TCP port */
-    dissector_add("tcp.port", MSMMS_PORT, msmms_handle);
+    dissector_add_uint("tcp.port", MSMMS_PORT, msmms_handle);
     /* Data command(s) using UDP port */
-    dissector_add("udp.port", MSMMS_PORT, msmms_handle);
+    dissector_add_uint("udp.port", MSMMS_PORT, msmms_handle);
 }
 

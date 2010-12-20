@@ -460,6 +460,6 @@ proto_reg_handoff_gvcp(void)
   dissector_handle_t gvcp_handle;
 
   gvcp_handle = new_create_dissector_handle(dissect_gvcp, proto_gvcp);
-  dissector_add("udp.port", GVCP_PORT, gvcp_handle);
+  dissector_add_uint("udp.port", GVCP_PORT, gvcp_handle);
 }
 

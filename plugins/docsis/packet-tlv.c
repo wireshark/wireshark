@@ -5411,6 +5411,6 @@ proto_reg_handoff_docsis_tlv (void)
   docsis_vsif_handle = find_dissector("docsis_vsif");
   docsis_ucd_handle = find_dissector("docsis_ucd");
 
-  dissector_add ("docsis", 0xFF, docsis_tlv_handle);
+  dissector_add_uint ("docsis", 0xFF, docsis_tlv_handle);
 
 }

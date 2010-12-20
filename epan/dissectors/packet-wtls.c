@@ -334,7 +334,7 @@ dissect_wtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	{
-		switch ( pinfo->match_port )
+		switch ( pinfo->match_uint )
 		{
 			case UDP_PORT_WTLS_WSP:
 				col_set_str(pinfo->cinfo, COL_PROTOCOL, "WTLS+WSP" );
@@ -1598,7 +1598,7 @@ proto_reg_handoff_wtls(void)
 	dissector_handle_t wtls_handle;
 
 	wtls_handle = create_dissector_handle(dissect_wtls, proto_wtls);
-	dissector_add("udp.port", UDP_PORT_WTLS_WSP,     wtls_handle);
-	dissector_add("udp.port", UDP_PORT_WTLS_WTP_WSP, wtls_handle);
-	dissector_add("udp.port", UDP_PORT_WTLS_WSP_PUSH,wtls_handle);
+	dissector_add_uint("udp.port", UDP_PORT_WTLS_WSP,     wtls_handle);
+	dissector_add_uint("udp.port", UDP_PORT_WTLS_WTP_WSP, wtls_handle);
+	dissector_add_uint("udp.port", UDP_PORT_WTLS_WSP_PUSH,wtls_handle);
 }

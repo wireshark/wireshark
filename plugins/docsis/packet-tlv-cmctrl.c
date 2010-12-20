@@ -350,6 +350,6 @@ proto_reg_handoff_cmctrl_tlv (void)
 
   cmctrl_tlv_handle = find_dissector ("cmctrl_tlv");
 
-  dissector_add ("docsis", 0xFE, cmctrl_tlv_handle);
+  dissector_add_uint ("docsis", 0xFE, cmctrl_tlv_handle);
 }
 

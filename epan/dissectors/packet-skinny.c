@@ -4451,7 +4451,7 @@ proto_reg_handoff_skinny(void)
 
   rtp_handle = find_dissector("rtp");
   skinny_handle = new_create_dissector_handle(dissect_skinny, proto_skinny);
-  dissector_add("tcp.port", TCP_PORT_SKINNY, skinny_handle);
+  dissector_add_uint("tcp.port", TCP_PORT_SKINNY, skinny_handle);
 }
 
 /*

@@ -425,13 +425,13 @@ dissect_bssap_data_param(tvbuff_t *tvb, packet_info *pinfo,
             }
             else
             {
-                if (dissector_try_port(bssap_dissector_table, pdu_type, tvb, pinfo, tree)) return;
+                if (dissector_try_uint(bssap_dissector_table, pdu_type, tvb, pinfo, tree)) return;
             }
         }
         else
         {
             /* BSAP */
-            if (dissector_try_port(bsap_dissector_table, pdu_type, tvb, pinfo, tree))
+            if (dissector_try_uint(bsap_dissector_table, pdu_type, tvb, pinfo, tree))
                 return;
         }
     }
@@ -2563,9 +2563,9 @@ proto_reg_handoff_bssap(void)
         rrlp_handle = find_dissector("rrlp");
         initialized = TRUE;
     } else {
-        dissector_delete("sccp.ssn", old_bssap_ssn, bssap_plus_handle); 
+        dissector_delete_uint("sccp.ssn", old_bssap_ssn, bssap_plus_handle); 
     }
 
-    dissector_add("sccp.ssn", global_bssap_ssn, bssap_plus_handle);
+    dissector_add_uint("sccp.ssn", global_bssap_ssn, bssap_plus_handle);
     old_bssap_ssn = global_bssap_ssn;
 }

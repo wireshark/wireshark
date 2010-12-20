@@ -1538,7 +1538,7 @@ WSLUA_METHOD DissectorTable_add (lua_State *L) {
         dissector_add_string(dt->name, pattern,handle);
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
         int port = luaL_checkint(L, WSLUA_ARG_DissectorTable_add_PATTERN);
-        dissector_add(dt->name, port, handle);
+        dissector_add_uint(dt->name, port, handle);
     } else {
         luaL_error(L,"Strange type %d for a DissectorTable",type);
     }
@@ -1575,7 +1575,7 @@ WSLUA_METHOD DissectorTable_remove (lua_State *L) {
         dissector_delete_string(dt->name, pattern,handle);
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
         int port = luaL_checkint(L, 2);
-        dissector_delete(dt->name, port, handle);
+        dissector_delete_uint(dt->name, port, handle);
     }
 
     return 0;
@@ -1613,7 +1613,7 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
         } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
           int port = luaL_checkint(L, 2);
 
-          if (dissector_try_port(dt->table,port,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree))
+          if (dissector_try_uint(dt->table,port,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree))
               return 0;
 
         } else {
@@ -1655,7 +1655,7 @@ WSLUA_METHOD DissectorTable_get_dissector (lua_State *L) {
         handle = dissector_get_string_handle(dt->table,pattern);
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
         int port = luaL_checkint(L, WSLUA_ARG_DissectorTable_try_PATTERN);
-        handle = dissector_get_port_handle(dt->table,port);
+        handle = dissector_get_uint_handle(dt->table,port);
     }
 
     if (handle) {

@@ -271,5 +271,5 @@ proto_reg_handoff_x29(void)
 	dissector_handle_t x29_handle;
 
 	x29_handle = create_dissector_handle(dissect_x29, proto_x29);
-	dissector_add("x.25.spi", NLPID_SPI_X_29, x29_handle);
+	dissector_add_uint("x.25.spi", NLPID_SPI_X_29, x29_handle);
 }

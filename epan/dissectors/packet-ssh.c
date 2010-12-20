@@ -273,7 +273,7 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /*
  *	end of attaching data
  */
-	if (pinfo->destport == pinfo->match_port) {
+	if (pinfo->destport == pinfo->match_uint) {
 	  	is_response=FALSE;
 		if(!this_data) {
 			this_data = se_alloc(sizeof(struct ssh_pdu_data));
@@ -1265,5 +1265,5 @@ proto_reg_handoff_ssh(void)
 
 	ssh_handle = create_dissector_handle(dissect_ssh, proto_ssh);
 
-	dissector_add("tcp.port", TCP_PORT_SSH, ssh_handle);
+	dissector_add_uint("tcp.port", TCP_PORT_SSH, ssh_handle);
 }

@@ -281,7 +281,7 @@ dissect_q932_ros_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   actx->rose_ctx->d.pdu = 1;
 
   if ((actx->rose_ctx->d.code == 0) && actx->rose_ctx->arg_local_dissector_table) {
-    arg_handle = dissector_get_port_handle(actx->rose_ctx->arg_local_dissector_table, actx->rose_ctx->d.code_local);
+    arg_handle = dissector_get_uint_handle(actx->rose_ctx->arg_local_dissector_table, actx->rose_ctx->d.code_local);
   } else if ((actx->rose_ctx->d.code == 1) && actx->rose_ctx->arg_global_dissector_table) {
     arg_handle = dissector_get_string_handle(actx->rose_ctx->arg_global_dissector_table, actx->rose_ctx->d.code_global);
   } else {
@@ -374,7 +374,7 @@ dissect_q932_ros_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
   actx->rose_ctx->d.pdu = 2;
 
   if ((actx->rose_ctx->d.code == 0) && actx->rose_ctx->res_local_dissector_table) {
-    res_handle = dissector_get_port_handle(actx->rose_ctx->res_local_dissector_table, actx->rose_ctx->d.code_local);
+    res_handle = dissector_get_uint_handle(actx->rose_ctx->res_local_dissector_table, actx->rose_ctx->d.code_local);
   } else if ((actx->rose_ctx->d.code == 1) && actx->rose_ctx->res_global_dissector_table) {
     res_handle = dissector_get_string_handle(actx->rose_ctx->res_global_dissector_table, actx->rose_ctx->d.code_global);
   } else {
@@ -454,7 +454,7 @@ dissect_q932_ros_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
   actx->rose_ctx->d.pdu = 3;
 
   if ((actx->rose_ctx->d.code == 0) && actx->rose_ctx->err_local_dissector_table) {
-    err_handle = dissector_get_port_handle(actx->rose_ctx->err_local_dissector_table, actx->rose_ctx->d.code_local);
+    err_handle = dissector_get_uint_handle(actx->rose_ctx->err_local_dissector_table, actx->rose_ctx->d.code_local);
   } else if ((actx->rose_ctx->d.code == 1) && actx->rose_ctx->err_global_dissector_table) {
     err_handle = dissector_get_string_handle(actx->rose_ctx->err_global_dissector_table, actx->rose_ctx->d.code_global);
   } else {

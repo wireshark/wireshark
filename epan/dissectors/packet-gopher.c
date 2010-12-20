@@ -208,12 +208,12 @@ dissect_gopher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 /* Preference callbacks */
 static void
 range_delete_gopher_tcp_callback(guint32 port) {
-      dissector_delete("tcp.port", port, gopher_handle);
+      dissector_delete_uint("tcp.port", port, gopher_handle);
 }
 
 static void
 range_add_gopher_tcp_callback(guint32 port) {
-    dissector_add("tcp.port", port, gopher_handle);
+    dissector_add_uint("tcp.port", port, gopher_handle);
 }
 
 static void

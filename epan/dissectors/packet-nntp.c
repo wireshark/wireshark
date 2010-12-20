@@ -49,7 +49,7 @@ dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint		next_offset;
 	int		linelen;
 
-        if (pinfo->match_port == pinfo->destport)
+        if (pinfo->match_uint == pinfo->destport)
         	type = "Request";
         else
         	type = "Response";
@@ -76,7 +76,7 @@ dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    FALSE);
 		nntp_tree = proto_item_add_subtree(ti, ett_nntp);
 
-		if (pinfo->match_port == pinfo->destport) {
+		if (pinfo->match_uint == pinfo->destport) {
 			ti = proto_tree_add_boolean(nntp_tree,
 			    hf_nntp_request, tvb, 0, 0, TRUE);
 		} else {
@@ -141,5 +141,5 @@ proto_reg_handoff_nntp(void)
 	dissector_handle_t nntp_handle;
 
 	nntp_handle = create_dissector_handle(dissect_nntp, proto_nntp);
-	dissector_add("tcp.port", TCP_PORT_NNTP, nntp_handle);
+	dissector_add_uint("tcp.port", TCP_PORT_NNTP, nntp_handle);
 }

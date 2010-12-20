@@ -206,7 +206,7 @@ proto_reg_handoff_igrp(void)
   dissector_handle_t igrp_handle;
 
   igrp_handle = create_dissector_handle(dissect_igrp, proto_igrp);
-  dissector_add("ip.proto", IP_PROTO_IGRP, igrp_handle);
+  dissector_add_uint("ip.proto", IP_PROTO_IGRP, igrp_handle);
 }
 
 /*	IGRP Packet structure:

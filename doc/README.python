@@ -76,7 +76,7 @@ CLASSES
      |  
      |  protocol_ids(self)
      |      defined a list of tuples containing three values. Each tuple is defining
-     |      the parameters of dissector_add(). This function MUST be defined when
+     |      the parameters of dissector_add_uint(). This function MUST be defined when
      |      implementing the dissector of a specific protocol.
      |  
      |  register_handoff(self)

@@ -309,7 +309,7 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* Reassembled into this packet
              */
             if (fd_m && pinfo->fd->num == fd_m->reassembled_in) {
-                    if (!dissector_try_port(lapdm_sapi_dissector_table, sapi,
+                    if (!dissector_try_uint(lapdm_sapi_dissector_table, sapi,
                                 reassembled, pinfo, tree))
                         call_dissector(data_handle, reassembled, pinfo, tree);
             }
@@ -329,7 +329,7 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Whole packet
            If we have some data, try and dissect it (only happens for UI, SABM, UA or I frames)
          */
-        if (!dissector_try_port(lapdm_sapi_dissector_table, sapi,
+        if (!dissector_try_uint(lapdm_sapi_dissector_table, sapi,
                 payload, pinfo, tree))
             call_dissector(data_handle,payload, pinfo, tree);
     }

@@ -133,7 +133,7 @@ proto_reg_handoff_ipfc (void)
     dissector_handle_t ipfc_handle;
 
     ipfc_handle = create_dissector_handle (dissect_ipfc, proto_ipfc);
-    dissector_add("wtap_encap", WTAP_ENCAP_IP_OVER_FC, ipfc_handle);
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_IP_OVER_FC, ipfc_handle);
 
     llc_handle = find_dissector ("llc");
 }

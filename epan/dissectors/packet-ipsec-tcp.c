@@ -242,10 +242,10 @@ proto_reg_handoff_tcpencap(void)
 		udp_handle = find_dissector("udp");
 		initialized = TRUE;
 	} else {
-		dissector_delete("tcp.port", tcpencap_tcp_port, tcpencap_handle);
+		dissector_delete_uint("tcp.port", tcpencap_tcp_port, tcpencap_handle);
 	}
 
 	tcpencap_tcp_port = global_tcpencap_tcp_port;
-	dissector_add("tcp.port", global_tcpencap_tcp_port, tcpencap_handle);
+	dissector_add_uint("tcp.port", global_tcpencap_tcp_port, tcpencap_handle);
 }
 

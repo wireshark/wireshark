@@ -250,11 +250,11 @@ static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   nlpid = tvb_get_guint8(tvb, 0);
 
   /* try lookup with the subdissector tables that includes the nlpid */
-  if (dissector_try_port(osinl_subdissector_table, nlpid, tvb, pinfo, tree))
+  if (dissector_try_uint(osinl_subdissector_table, nlpid, tvb, pinfo, tree))
     return;
   /* try lookup with the subdissector tables that excludes the nlpid */
   new_tvb = tvb_new_subset_remaining(tvb, 1);
-  if (dissector_try_port(osinl_excl_subdissector_table, nlpid, new_tvb, pinfo, tree))
+  if (dissector_try_uint(osinl_excl_subdissector_table, nlpid, new_tvb, pinfo, tree))
     return;
 
   switch (nlpid) {
@@ -288,15 +288,15 @@ proto_reg_handoff_osi(void)
 
   if (!osi_prefs_initialized) {
     osi_handle = create_dissector_handle(dissect_osi, proto_osi);
-    dissector_add("llc.dsap", SAP_OSINL1, osi_handle);
-    dissector_add("llc.dsap", SAP_OSINL2, osi_handle);
-    dissector_add("llc.dsap", SAP_OSINL3, osi_handle);
-    dissector_add("llc.dsap", SAP_OSINL4, osi_handle);
-    dissector_add("llc.dsap", SAP_OSINL5, osi_handle);
-    dissector_add("ppp.protocol", PPP_OSI, osi_handle);
-    dissector_add("chdlctype", CHDLCTYPE_OSI, osi_handle);
-    dissector_add("null.type", BSD_AF_ISO, osi_handle);
-    dissector_add("gre.proto", SAP_OSINL5, osi_handle);
+    dissector_add_uint("llc.dsap", SAP_OSINL1, osi_handle);
+    dissector_add_uint("llc.dsap", SAP_OSINL2, osi_handle);
+    dissector_add_uint("llc.dsap", SAP_OSINL3, osi_handle);
+    dissector_add_uint("llc.dsap", SAP_OSINL4, osi_handle);
+    dissector_add_uint("llc.dsap", SAP_OSINL5, osi_handle);
+    dissector_add_uint("ppp.protocol", PPP_OSI, osi_handle);
+    dissector_add_uint("chdlctype", CHDLCTYPE_OSI, osi_handle);
+    dissector_add_uint("null.type", BSD_AF_ISO, osi_handle);
+    dissector_add_uint("gre.proto", SAP_OSINL5, osi_handle);
     data_handle = find_dissector("data");
     ppp_handle  = find_dissector("ppp");
 
@@ -305,12 +305,12 @@ proto_reg_handoff_osi(void)
     osi_prefs_initialized = TRUE;
   } else {
     if (tcp_port_osi_over_tpkt != 0) {
-      dissector_delete("tcp.port", tcp_port_osi_over_tpkt, osi_tpkt_handle);
+      dissector_delete_uint("tcp.port", tcp_port_osi_over_tpkt, osi_tpkt_handle);
     }
   }
 
   if (global_tcp_port_osi_over_tpkt != 0) {
-    dissector_add("tcp.port", global_tcp_port_osi_over_tpkt, osi_tpkt_handle);
+    dissector_add_uint("tcp.port", global_tcp_port_osi_over_tpkt, osi_tpkt_handle);
   }
   tcp_port_osi_over_tpkt = global_tcp_port_osi_over_tpkt;
 }

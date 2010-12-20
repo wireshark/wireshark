@@ -848,6 +848,6 @@ proto_reg_handoff_docsis_dcd (void)
   dissector_handle_t docsis_dcd_handle;
 
   docsis_dcd_handle = find_dissector ("docsis_dcd");
-  dissector_add ("docsis_mgmt", 0x20, docsis_dcd_handle);
+  dissector_add_uint ("docsis_mgmt", 0x20, docsis_dcd_handle);
 
 }

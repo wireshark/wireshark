@@ -546,13 +546,13 @@ proto_reg_handoff_enttec(void) {
 		enttec_handle = create_dissector_handle(dissect_enttec,proto_enttec);
 		enttec_initialized = TRUE;
 	} else {
-		dissector_delete("udp.port",udp_port_enttec,enttec_handle);
-		dissector_delete("tcp.port",tcp_port_enttec,enttec_handle);
+		dissector_delete_uint("udp.port",udp_port_enttec,enttec_handle);
+		dissector_delete_uint("tcp.port",tcp_port_enttec,enttec_handle);
 	}
 
 	udp_port_enttec = global_udp_port_enttec;
 	tcp_port_enttec = global_tcp_port_enttec;  
 
-	dissector_add("udp.port",global_udp_port_enttec,enttec_handle);
-	dissector_add("tcp.port",global_tcp_port_enttec,enttec_handle);
+	dissector_add_uint("udp.port",global_udp_port_enttec,enttec_handle);
+	dissector_add_uint("tcp.port",global_tcp_port_enttec,enttec_handle);
 }

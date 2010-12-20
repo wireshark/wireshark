@@ -573,11 +573,11 @@ dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   if (ver == 1) {
     type_str = match_strval(type, rtmac_type_vals);
     if (!type_str) {
-      dissector = dissector_get_port_handle(ethertype_table, type);
+      dissector = dissector_get_uint_handle(ethertype_table, type);
     }
   } else {
     if (flags & RTMAC_FLAG_TUNNEL) {
-      dissector = dissector_get_port_handle(ethertype_table, type);
+      dissector = dissector_get_uint_handle(ethertype_table, type);
     }
   }
   if (!dissector)
@@ -1338,7 +1338,7 @@ proto_reg_handoff_rtmac(void) {
   dissector_handle_t rtmac_handle;
 
   rtmac_handle = create_dissector_handle(dissect_rtmac, proto_rtmac);
-  dissector_add("ethertype", ETHERTYPE_RTMAC, rtmac_handle);
+  dissector_add_uint("ethertype", ETHERTYPE_RTMAC, rtmac_handle);
   ethertype_table = find_dissector_table("ethertype");
 }
 
@@ -1348,5 +1348,5 @@ proto_reg_handoff_rtcfg(void) {
 
   data_handle = find_dissector("data");
   rtcfg_handle = create_dissector_handle(dissect_rtcfg, proto_rtcfg);
-  dissector_add("ethertype", ETHERTYPE_RTCFG, rtcfg_handle);
+  dissector_add_uint("ethertype", ETHERTYPE_RTCFG, rtcfg_handle);
 }

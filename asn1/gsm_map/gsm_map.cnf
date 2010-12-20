@@ -287,7 +287,7 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 
         if (!actx->value_ptr)
                 return offset;
-        dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+        dissector_try_uint(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
 
 #.FN_BODY ForwardSM-Arg
 
@@ -296,7 +296,7 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 
 	if (!actx->value_ptr)
 		return offset;
-	dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+	dissector_try_uint(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
 
 #.FN_BODY MO-ForwardSM-Arg
 
@@ -305,7 +305,7 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 
 	if (!actx->value_ptr)
 		return offset;
-	dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+	dissector_try_uint(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
 
 #.FN_BODY MO-ForwardSM-Res
 
@@ -314,7 +314,7 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 
         if (!actx->value_ptr)
                 return offset;
-        dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+        dissector_try_uint(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
 
 #.FN_BODY MT-ForwardSM-Arg
 
@@ -323,7 +323,7 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 
 	if (!actx->value_ptr)
 		return offset;
-	dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+	dissector_try_uint(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
 
 #.FN_BODY MT-ForwardSM-Res
 
@@ -332,7 +332,7 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 
         if (!actx->value_ptr)
                 return offset;
-        dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+        dissector_try_uint(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
 
 #.FN_BODY MT-ForwardSM-VGCS-Arg
 
@@ -341,7 +341,7 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 
         if (!actx->value_ptr)
                 return offset;
-        dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+        dissector_try_uint(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
 
 #.FN_BODY MT-ForwardSM-VGCS-Res
 
@@ -350,7 +350,7 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 
         if (!actx->value_ptr)
                 return offset;
-        dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+        dissector_try_uint(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
 
 #.FN_BODY SS-Status VAL_PTR = &parameter_tvb
 

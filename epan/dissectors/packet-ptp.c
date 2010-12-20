@@ -5600,7 +5600,7 @@ proto_reg_handoff_ptp(void)
     general_port_ptp_handle = create_dissector_handle(dissect_ptp, proto_ptp);
     ethertype_ptp_handle = create_dissector_handle(dissect_ptp_oE, proto_ptp);
 
-    dissector_add("udp.port", EVENT_PORT_PTP, event_port_ptp_handle);
-    dissector_add("udp.port", GENERAL_PORT_PTP, general_port_ptp_handle);
-    dissector_add("ethertype", ETHERTYPE_PTP, ethertype_ptp_handle);
+    dissector_add_uint("udp.port", EVENT_PORT_PTP, event_port_ptp_handle);
+    dissector_add_uint("udp.port", GENERAL_PORT_PTP, general_port_ptp_handle);
+    dissector_add_uint("ethertype", ETHERTYPE_PTP, ethertype_ptp_handle);
 }

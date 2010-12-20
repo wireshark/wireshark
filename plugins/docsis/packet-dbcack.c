@@ -113,5 +113,5 @@ proto_reg_handoff_docsis_dbcack (void)
 
   docsis_dbcack_handle = find_dissector ("docsis_dbcack");
   docsis_tlv_handle = find_dissector ("docsis_tlv");
-  dissector_add ("docsis_mgmt", 0x26, docsis_dbcack_handle);
+  dissector_add_uint ("docsis_mgmt", 0x26, docsis_dbcack_handle);
 }

@@ -510,7 +510,7 @@ proto_reg_handoff_meta(void)
 	dissector_handle_t meta_handle;
 	meta_handle = find_dissector("meta");
 	/* enable once WTAP_ENCAP_META exists
-	dissector_add("wtap_encap", WTAP_ENCAP_META, meta_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_META, meta_handle);
 	*/
 
 	data_handle = find_dissector("data");

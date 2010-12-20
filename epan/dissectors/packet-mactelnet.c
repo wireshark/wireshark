@@ -338,9 +338,9 @@ proto_reg_handoff_mactelnet(void)
 		data_handle = find_dissector("data");
 		initialized = TRUE;
 	} else {
-		dissector_delete("udp.port", current_port, mactelnet_handle);
+		dissector_delete_uint("udp.port", current_port, mactelnet_handle);
 	}
 
 	current_port = global_mactelnet_port;
-	dissector_add("udp.port", current_port, mactelnet_handle);
+	dissector_add_uint("udp.port", current_port, mactelnet_handle);
 }

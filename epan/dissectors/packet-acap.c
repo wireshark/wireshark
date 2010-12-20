@@ -68,7 +68,7 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 	line = tvb_get_ptr(tvb, offset, linelen);
 
-	if (pinfo->match_port == pinfo->destport)
+	if (pinfo->match_uint == pinfo->destport)
 		is_request = TRUE;
 	else
 		is_request = FALSE;
@@ -187,5 +187,5 @@ proto_reg_handoff_acap(void)
 	dissector_handle_t acap_handle;
 
 	acap_handle = create_dissector_handle(dissect_acap, proto_acap);
-	dissector_add("tcp.port", TCP_PORT_ACAP, acap_handle);
+	dissector_add_uint("tcp.port", TCP_PORT_ACAP, acap_handle);
 }

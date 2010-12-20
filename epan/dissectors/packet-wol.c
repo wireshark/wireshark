@@ -342,8 +342,8 @@ proto_reg_handoff_wol(void)
      * Unless anyone has a better idea, just register with only those that
      * are in "common usage" and grow this list as needed.  Yeah, I'm sure
      * we'll miss some, but how else to do this ... add a thousand of
-     * these dissector_add()'s and heur_dissector_add()'s??? */
-    dissector_add("ethertype", ETHERTYPE_WOL, wol_handle);
+     * these dissector_add_uint()'s and heur_dissector_add()'s??? */
+    dissector_add_uint("ethertype", ETHERTYPE_WOL, wol_handle);
     heur_dissector_add("udp", dissect_wol, proto_wol);
 }
 

@@ -60,14 +60,14 @@ void next_tvb_add_handle(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree,
   list->count++;
 }
 
-void next_tvb_add_port(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_table_t table, guint32 port) {
+void next_tvb_add_uint(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_table_t table, guint32 uint_val) {
   next_tvb_item_t *item;
 
   item = ep_alloc(sizeof(next_tvb_item_t));
 
-  item->type = NTVB_PORT;
+  item->type = NTVB_UINT;
   item->table = table;
-  item->port = port;
+  item->uint_val = uint_val;
   item->tvb = tvb;
   item->tree = tree;
 
@@ -114,8 +114,8 @@ void next_tvb_call(next_tvb_list_t *list, packet_info *pinfo, proto_tree *tree, 
         case NTVB_HANDLE:
           call_dissector((item->handle) ? item->handle : ((handle) ? handle : data_handle), item->tvb, pinfo, (item->tree) ? item->tree : tree);
           break;
-        case NTVB_PORT:
-          dissector_try_port(item->table, item->port, item->tvb, pinfo, (item->tree) ? item->tree : tree);
+        case NTVB_UINT:
+          dissector_try_uint(item->table, item->uint_val, item->tvb, pinfo, (item->tree) ? item->tree : tree);
           break;
         case NTVB_STRING:
           dissector_try_string(item->table, item->string, item->tvb, pinfo, (item->tree) ? item->tree : tree);

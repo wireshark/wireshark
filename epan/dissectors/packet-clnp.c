@@ -667,7 +667,7 @@ proto_reg_handoff_clnp(void)
   data_handle = find_dissector("data");
 
   clnp_handle = create_dissector_handle(dissect_clnp, proto_clnp);
-  dissector_add("osinl", NLPID_ISO8473_CLNP, clnp_handle);
-  dissector_add("osinl", NLPID_NULL, clnp_handle); /* Inactive subset */
-  dissector_add("x.25.spi", NLPID_ISO8473_CLNP, clnp_handle);
+  dissector_add_uint("osinl", NLPID_ISO8473_CLNP, clnp_handle);
+  dissector_add_uint("osinl", NLPID_NULL, clnp_handle); /* Inactive subset */
+  dissector_add_uint("x.25.spi", NLPID_ISO8473_CLNP, clnp_handle);
 }

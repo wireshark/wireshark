@@ -87,12 +87,12 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port(rnsap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint(rnsap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port(rnsap_extension_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint(rnsap_extension_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -173,7 +173,7 @@ proto_reg_handoff_rnsap(void)
 	rnsap_handle = find_dissector("rnsap");
 	rrc_dl_dcch_handle = find_dissector("rrc.dl.dcch");
 
-	dissector_add("sccp.ssn", SCCP_SSN_RNSAP, rnsap_handle);
+	dissector_add_uint("sccp.ssn", SCCP_SSN_RNSAP, rnsap_handle);
 	/* Add heuristic dissector
 	 * Perhaps we want a preference whether the heuristic dissector
 	 * is or isn't enabled

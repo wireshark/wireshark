@@ -261,6 +261,6 @@ proto_reg_handoff_rmp(void)
 	data_handle = find_dissector("data");
 
 	rmp_handle = find_dissector("rmp");
-	dissector_add("hpext.dxsap", HPEXT_DXSAP, rmp_handle);
-	dissector_add("hpext.dxsap", HPEXT_SXSAP, rmp_handle);
+	dissector_add_uint("hpext.dxsap", HPEXT_DXSAP, rmp_handle);
+	dissector_add_uint("hpext.dxsap", HPEXT_SXSAP, rmp_handle);
 }

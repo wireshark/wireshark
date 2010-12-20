@@ -3840,9 +3840,9 @@ proto_reg_handoff_rpc(void)
 	   to match some port for which we have a dissector)
 	*/
 	rpc_tcp_handle = find_dissector("rpc-tcp");
-	dissector_add("tcp.port", 111, rpc_tcp_handle);
+	dissector_add_uint("tcp.port", 111, rpc_tcp_handle);
 	rpc_handle = find_dissector("rpc");
-	dissector_add("udp.port", 111, rpc_handle);
+	dissector_add_uint("udp.port", 111, rpc_handle);
 
 	heur_dissector_add("tcp", dissect_rpc_tcp_heur, proto_rpc);
 	heur_dissector_add("udp", dissect_rpc_heur, proto_rpc);

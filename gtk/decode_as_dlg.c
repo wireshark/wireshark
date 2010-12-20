@@ -407,7 +407,8 @@ decode_clear_all(void)
         case FT_UINT16:
         case FT_UINT24:
         case FT_UINT32:
-            dissector_reset(item->ddi_table_name, item->ddi_selector.sel_uint);
+            dissector_reset_uint(item->ddi_table_name,
+                                 item->ddi_selector.sel_uint);
             break;
 
         case FT_STRING:
@@ -649,9 +650,9 @@ decode_change_one_dissector(gchar *table_name, guint selector, GtkWidget *list)
     }
 
     if (abbrev != NULL && strcmp(abbrev, "(default)") == 0) {
-        dissector_reset(table_name, selector);
+        dissector_reset_uint(table_name, selector);
     } else {
-        dissector_change(table_name, selector, handle);
+        dissector_change_uint(table_name, selector, handle);
     }
     g_free(abbrev);
 }

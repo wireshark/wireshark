@@ -142,5 +142,5 @@ proto_reg_handoff_l1_events(void)
 	dissector_handle_t l1_events_handle;
 
 	l1_events_handle = find_dissector("data-l1-events");
-        dissector_add("wtap_encap", WTAP_ENCAP_LAYER1_EVENT, l1_events_handle); /* for text msgs from trace files */
+        dissector_add_uint("wtap_encap", WTAP_ENCAP_LAYER1_EVENT, l1_events_handle); /* for text msgs from trace files */
 }

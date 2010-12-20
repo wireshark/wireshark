@@ -602,6 +602,6 @@ proto_reg_handoff_docsis_dccreq (void)
   dissector_handle_t docsis_dccreq_handle;
 
   docsis_dccreq_handle = find_dissector ("docsis_dccreq");
-  dissector_add ("docsis_mgmt", 0x17, docsis_dccreq_handle);
+  dissector_add_uint ("docsis_mgmt", 0x17, docsis_dccreq_handle);
 
 }

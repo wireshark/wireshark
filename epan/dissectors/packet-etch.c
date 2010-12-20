@@ -972,11 +972,11 @@ void proto_reg_handoff_etch(void)
   }
 
   if(old_etch_port != 0 && old_etch_port != gbl_etch_port){
-    dissector_delete("tcp.port", old_etch_port, etch_handle);
+    dissector_delete_uint("tcp.port", old_etch_port, etch_handle);
   }
 
   if(gbl_etch_port != 0 && old_etch_port != gbl_etch_port) {
-    dissector_add("tcp.port", gbl_etch_port, etch_handle);
+    dissector_add_uint("tcp.port", gbl_etch_port, etch_handle);
   }
 
   old_etch_port = gbl_etch_port;

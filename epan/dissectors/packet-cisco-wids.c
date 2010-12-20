@@ -210,11 +210,11 @@ proto_reg_handoff_cwids(void)
 		initialized = TRUE;
 	} else {
 		if (saved_udp_port != 0) {
-			dissector_delete("udp.port", saved_udp_port, cwids_handle);
+			dissector_delete_uint("udp.port", saved_udp_port, cwids_handle);
 		}
 	}
 	if (global_udp_port != 0) {
-		dissector_add("udp.port", global_udp_port, cwids_handle);
+		dissector_add_uint("udp.port", global_udp_port, cwids_handle);
 	}
 	saved_udp_port = global_udp_port;
 }

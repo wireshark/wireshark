@@ -221,7 +221,7 @@ dissect_fcct (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * chain since the fc_ct header is common to the sub-protocols.
      */
     next_tvb = tvb_new_subset_remaining (tvb, 0);
-    if (!dissector_try_port (fcct_gserver_table, server, next_tvb, pinfo,
+    if (!dissector_try_uint (fcct_gserver_table, server, next_tvb, pinfo,
                              tree)) {
         call_dissector (data_handle, next_tvb, pinfo, tree);
     }
@@ -301,7 +301,7 @@ proto_reg_handoff_fcct (void)
     dissector_handle_t fcct_handle;
 
     fcct_handle = create_dissector_handle (dissect_fcct, proto_fcct);
-    dissector_add("fc.ftype", FC_FTYPE_FCCT, fcct_handle);
+    dissector_add_uint("fc.ftype", FC_FTYPE_FCCT, fcct_handle);
 
     data_handle = find_dissector ("data");
 }

@@ -1736,7 +1736,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
      even be labelled as an IP frame; ideally, if a frame being dissected
      throws an exception, it'll be labelled as a mangled frame of the
      type in question. */
-  } else if (!dissector_try_port(ip_dissector_table, nxt, next_tvb, pinfo, parent_tree)) {
+  } else if (!dissector_try_uint(ip_dissector_table, nxt, next_tvb, pinfo, parent_tree)) {
     /* Unknown protocol */
     if (update_col_info) {
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%02x)", ipprotostr(iph->ip_p), iph->ip_p);
@@ -2059,19 +2059,19 @@ proto_reg_handoff_ip(void)
 	tapa_handle = find_dissector("tapa");
         data_handle = find_dissector("data");
 
-	dissector_add("ethertype", ETHERTYPE_IP, ip_handle);
-	dissector_add("ppp.protocol", PPP_IP, ip_handle);
-	dissector_add("ppp.protocol", ETHERTYPE_IP, ip_handle);
-	dissector_add("gre.proto", ETHERTYPE_IP, ip_handle);
-	dissector_add("gre.proto", GRE_WCCP, ip_handle);
-	dissector_add("llc.dsap", SAP_IP, ip_handle);
-	dissector_add("ip.proto", IP_PROTO_IPIP, ip_handle);
-	dissector_add("null.type", BSD_AF_INET, ip_handle);
-	dissector_add("chdlctype", ETHERTYPE_IP, ip_handle);
-	dissector_add("osinl.excl", NLPID_IP, ip_handle);
-	dissector_add("fr.ietf", NLPID_IP, ip_handle);
-	dissector_add("x.25.spi", NLPID_IP, ip_handle);
-	dissector_add("arcnet.protocol_id", ARCNET_PROTO_IP_1051, ip_handle);
-	dissector_add("arcnet.protocol_id", ARCNET_PROTO_IP_1201, ip_handle);
+	dissector_add_uint("ethertype", ETHERTYPE_IP, ip_handle);
+	dissector_add_uint("ppp.protocol", PPP_IP, ip_handle);
+	dissector_add_uint("ppp.protocol", ETHERTYPE_IP, ip_handle);
+	dissector_add_uint("gre.proto", ETHERTYPE_IP, ip_handle);
+	dissector_add_uint("gre.proto", GRE_WCCP, ip_handle);
+	dissector_add_uint("llc.dsap", SAP_IP, ip_handle);
+	dissector_add_uint("ip.proto", IP_PROTO_IPIP, ip_handle);
+	dissector_add_uint("null.type", BSD_AF_INET, ip_handle);
+	dissector_add_uint("chdlctype", ETHERTYPE_IP, ip_handle);
+	dissector_add_uint("osinl.excl", NLPID_IP, ip_handle);
+	dissector_add_uint("fr.ietf", NLPID_IP, ip_handle);
+	dissector_add_uint("x.25.spi", NLPID_IP, ip_handle);
+	dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_IP_1051, ip_handle);
+	dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_IP_1201, ip_handle);
 	dissector_add_handle("udp.port", ip_handle);
 }

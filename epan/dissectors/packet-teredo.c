@@ -207,7 +207,7 @@ decode_teredo_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,proto_tree *tr
 
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-	if (dissector_try_port(teredo_dissector_table, th_header, next_tvb, pinfo, tree))
+	if (dissector_try_uint(teredo_dissector_table, th_header, next_tvb, pinfo, tree))
 		return;
 
 	call_dissector(data_handle,next_tvb, pinfo, tree);  
@@ -423,7 +423,7 @@ proto_reg_handoff_teredo(void)
 	data_handle   = find_dissector("ipv6");
 	teredo_tap    = register_tap("teredo");
 
-	dissector_add("udp.port", UDP_PORT_TEREDO, teredo_handle);
+	dissector_add_uint("udp.port", UDP_PORT_TEREDO, teredo_handle);
 	heur_dissector_add("udp", dissect_teredo_heur, proto_teredo);
 }
 

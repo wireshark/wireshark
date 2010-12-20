@@ -2209,7 +2209,7 @@ void proto_register_gtpv2(void)
     proto_register_field_array(proto_gtpv2, hf_gtpv2, array_length(hf_gtpv2));
     proto_register_subtree_array(ett_gtpv2_array, array_length(ett_gtpv2_array));
     /* AVP Code: 22 3GPP-User-Location-Info */
-    dissector_add("diameter.3gpp", 22, new_create_dissector_handle(dissect_diameter_3gpp_uli, proto_gtpv2));
+    dissector_add_uint("diameter.3gpp", 22, new_create_dissector_handle(dissect_diameter_3gpp_uli, proto_gtpv2));
 
     register_dissector("gtpv2", dissect_gtpv2, proto_gtpv2);
 }

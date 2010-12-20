@@ -1248,7 +1248,7 @@ proto_reg_handoff_pim(void)
     dissector_handle_t pim_handle;
 
     pim_handle = create_dissector_handle(dissect_pim, proto_pim);
-    dissector_add("ip.proto", IP_PROTO_PIM, pim_handle);
+    dissector_add_uint("ip.proto", IP_PROTO_PIM, pim_handle);
 
     /*
      * Get handles for the IPv4 and IPv6 dissectors.

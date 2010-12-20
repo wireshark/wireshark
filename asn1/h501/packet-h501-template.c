@@ -145,15 +145,15 @@ void proto_reg_handoff_h501(void)
     h501_tcp_handle = new_create_dissector_handle(dissect_h501_tcp, proto_h501);
     h501_prefs_initialized = TRUE;
   } else {
-    dissector_delete("udp.port", saved_h501_udp_port, h501_udp_handle);
-    dissector_delete("tcp.port", saved_h501_tcp_port, h501_tcp_handle);
+    dissector_delete_uint("udp.port", saved_h501_udp_port, h501_udp_handle);
+    dissector_delete_uint("tcp.port", saved_h501_tcp_port, h501_tcp_handle);
   }
 
   /* Set our port number for future use */
   saved_h501_udp_port = h501_udp_port;
-  dissector_add("udp.port", saved_h501_udp_port, h501_udp_handle);
+  dissector_add_uint("udp.port", saved_h501_udp_port, h501_udp_handle);
   saved_h501_tcp_port = h501_tcp_port;
-  dissector_add("tcp.port", saved_h501_tcp_port, h501_tcp_handle);
+  dissector_add_uint("tcp.port", saved_h501_tcp_port, h501_tcp_handle);
 
 }
 

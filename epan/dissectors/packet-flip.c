@@ -789,7 +789,7 @@ proto_reg_handoff_flip(void)
 
     if (flip_prefs_initialized == FALSE) {
         flip_handle = new_create_dissector_handle(dissect_flip, proto_flip);
-        dissector_add("ethertype", ETHERTYPE_FLIP, flip_handle);
+        dissector_add_uint("ethertype", ETHERTYPE_FLIP, flip_handle);
 
         rtp_handle  = find_dissector("rtp");
         rtcp_handle = find_dissector("rtcp");

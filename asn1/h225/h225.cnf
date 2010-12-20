@@ -597,7 +597,7 @@ NonStandardIdentifier/object  FN_VARIANT = _str  VAL_PTR = &nsiOID
 			nsp_handle = dissector_get_string_handle(nsp_object_dissector_table, nsiOID);
 			break;
 		case 1 :  /* h221NonStandard */
-			nsp_handle = dissector_get_port_handle(nsp_h221_dissector_table, h221NonStandard);
+			nsp_handle = dissector_get_uint_handle(nsp_h221_dissector_table, h221NonStandard);
 			break;
 		default :
 			nsp_handle = NULL;

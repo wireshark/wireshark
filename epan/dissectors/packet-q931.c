@@ -2762,11 +2762,11 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 			 * Check for subdissectors for this IE or
 			 * for all IEs in this codeset.
 			 */
-			if (dissector_get_port_handle(codeset_dissector_table, codeset) ||
-			    dissector_get_port_handle(ie_dissector_table, (codeset << 8) | (info_element & Q931_IE_SO_IDENTIFIER_MASK))) {
+			if (dissector_get_uint_handle(codeset_dissector_table, codeset) ||
+			    dissector_get_uint_handle(ie_dissector_table, (codeset << 8) | (info_element & Q931_IE_SO_IDENTIFIER_MASK))) {
 				next_tvb = tvb_new_subset (tvb, offset, 1, 1);
-				if (dissector_try_port(ie_dissector_table, (codeset << 8) | (info_element & Q931_IE_SO_IDENTIFIER_MASK), next_tvb, pinfo, q931_tree) ||
-				    dissector_try_port(codeset_dissector_table, codeset, next_tvb, pinfo, q931_tree)) {
+				if (dissector_try_uint(ie_dissector_table, (codeset << 8) | (info_element & Q931_IE_SO_IDENTIFIER_MASK), next_tvb, pinfo, q931_tree) ||
+				    dissector_try_uint(codeset_dissector_table, codeset, next_tvb, pinfo, q931_tree)) {
 					offset += 1;
 					codeset = locked_codeset;
 					continue;
@@ -2920,11 +2920,11 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 			 * Check for subdissectors for this IE or
 			 * for all IEs in this codeset.
 			 */
-			if (dissector_get_port_handle(codeset_dissector_table, codeset) ||
-			    dissector_get_port_handle(ie_dissector_table, (codeset << 8) | info_element)) {
+			if (dissector_get_uint_handle(codeset_dissector_table, codeset) ||
+			    dissector_get_uint_handle(ie_dissector_table, (codeset << 8) | info_element)) {
 				next_tvb = tvb_new_subset (tvb, offset, info_element_len + 2, info_element_len + 2);
-				if (dissector_try_port(ie_dissector_table, (codeset << 8) | info_element, next_tvb, pinfo, q931_tree) ||
-				    dissector_try_port(codeset_dissector_table, codeset, next_tvb, pinfo, q931_tree)) {
+				if (dissector_try_uint(ie_dissector_table, (codeset << 8) | info_element, next_tvb, pinfo, q931_tree) ||
+				    dissector_try_uint(codeset_dissector_table, codeset, next_tvb, pinfo, q931_tree)) {
 					offset += 2 + info_element_len;
 					codeset = locked_codeset;
 					continue;
@@ -3592,10 +3592,10 @@ proto_reg_handoff_q931(void)
 	dissector_handle_t q931_over_ip_handle;
 
 	q931_handle = find_dissector("q931");
-	dissector_add("lapd.sapi", LAPD_SAPI_Q931, q931_handle);
+	dissector_add_uint("lapd.sapi", LAPD_SAPI_Q931, q931_handle);
 
 	q931_over_ip_handle = find_dissector("q931.over_ip");
-	dissector_add("sctp.ppi", H323_PAYLOAD_PROTOCOL_ID, q931_over_ip_handle);
+	dissector_add_uint("sctp.ppi", H323_PAYLOAD_PROTOCOL_ID, q931_over_ip_handle);
 
 	/*
 	 * Attempt to get a handle for the H.225 dissector.

@@ -2212,7 +2212,7 @@ dissect_x411_T_extension_attribute_value(gboolean implicit_tag _U_, tvbuff_t *tv
 #line 575 "x411.cnf"
 
 	proto_item_append_text(tree, " (%s)", val_to_str(extension_id, x411_ExtensionAttributeType_vals, "extension-attribute-type %d")); 
-	if (dissector_try_port(x411_extension_attribute_dissector_table, extension_id, tvb, actx->pinfo, tree)) {
+	if (dissector_try_uint(x411_extension_attribute_dissector_table, extension_id, tvb, actx->pinfo, tree)) {
 		offset =tvb_length(tvb);
 	} else {
 		proto_item *item = NULL;
@@ -3032,7 +3032,7 @@ dissect_x411_ExtensionValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 	if(extension_id != -1) {
 		proto_item_append_text(tree, " (%s)", val_to_str(extension_id, x411_StandardExtension_vals, "standard-extension %d")); 
-  		if (dissector_try_port(x411_extension_dissector_table, extension_id, tvb, actx->pinfo, tree)) {
+  		if (dissector_try_uint(x411_extension_dissector_table, extension_id, tvb, actx->pinfo, tree)) {
 			offset = tvb_length(tvb);
 		} else {
 			proto_item *item = NULL;
@@ -7195,7 +7195,7 @@ dissect_x411_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 #line 1235 "x411.cnf"
 
 	proto_item_append_text(tree, " (%s)", val_to_str(extension_id, x411_TokenDataType_vals, "tokendata-type %d")); 
-	if (dissector_try_port(x411_tokendata_dissector_table, extension_id, tvb, actx->pinfo, tree)) {
+	if (dissector_try_uint(x411_tokendata_dissector_table, extension_id, tvb, actx->pinfo, tree)) {
 		offset = tvb_length(tvb);
 	} else {
 		proto_item *item = NULL;
@@ -10906,92 +10906,92 @@ void proto_reg_handoff_x411(void) {
 
 /*--- Included file: packet-x411-dis-tab.c ---*/
 #line 1 "packet-x411-dis-tab.c"
-  dissector_add("x411.extension", 1, create_dissector_handle(dissect_RecipientReassignmentProhibited_PDU, proto_x411));
-  dissector_add("x411.extension", 2, create_dissector_handle(dissect_OriginatorRequestedAlternateRecipient_PDU, proto_x411));
-  dissector_add("x411.extension", 3, create_dissector_handle(dissect_DLExpansionProhibited_PDU, proto_x411));
-  dissector_add("x411.extension", 4, create_dissector_handle(dissect_ConversionWithLossProhibited_PDU, proto_x411));
-  dissector_add("x411.extension", 5, create_dissector_handle(dissect_LatestDeliveryTime_PDU, proto_x411));
-  dissector_add("x411.extension", 6, create_dissector_handle(dissect_RequestedDeliveryMethod_PDU, proto_x411));
-  dissector_add("x411.extension", 7, create_dissector_handle(dissect_PhysicalForwardingProhibited_PDU, proto_x411));
-  dissector_add("x411.extension", 8, create_dissector_handle(dissect_PhysicalForwardingAddressRequest_PDU, proto_x411));
-  dissector_add("x411.extension", 9, create_dissector_handle(dissect_PhysicalDeliveryModes_PDU, proto_x411));
-  dissector_add("x411.extension", 10, create_dissector_handle(dissect_RegisteredMailType_PDU, proto_x411));
-  dissector_add("x411.extension", 11, create_dissector_handle(dissect_RecipientNumberForAdvice_PDU, proto_x411));
-  dissector_add("x411.extension", 12, create_dissector_handle(dissect_PhysicalRenditionAttributes_PDU, proto_x411));
-  dissector_add("x411.extension", 13, create_dissector_handle(dissect_OriginatorReturnAddress_PDU, proto_x411));
-  dissector_add("x411.extension", 14, create_dissector_handle(dissect_PhysicalDeliveryReportRequest_PDU, proto_x411));
-  dissector_add("x411.extension", 15, create_dissector_handle(dissect_OriginatorCertificate_PDU, proto_x411));
-  dissector_add("x411.extension", 16, create_dissector_handle(dissect_MessageToken_PDU, proto_x411));
-  dissector_add("x411.extension", 17, create_dissector_handle(dissect_ContentConfidentialityAlgorithmIdentifier_PDU, proto_x411));
-  dissector_add("x411.extension", 18, create_dissector_handle(dissect_ContentIntegrityCheck_PDU, proto_x411));
-  dissector_add("x411.extension", 19, create_dissector_handle(dissect_MessageOriginAuthenticationCheck_PDU, proto_x411));
-  dissector_add("x411.extension", 20, create_dissector_handle(dissect_MessageSecurityLabel_PDU, proto_x411));
-  dissector_add("x411.extension", 21, create_dissector_handle(dissect_ProofOfSubmissionRequest_PDU, proto_x411));
-  dissector_add("x411.extension", 22, create_dissector_handle(dissect_ProofOfDeliveryRequest_PDU, proto_x411));
-  dissector_add("x411.extension", 23, create_dissector_handle(dissect_ContentCorrelator_PDU, proto_x411));
-  dissector_add("x411.extension", 24, create_dissector_handle(dissect_ProbeOriginAuthenticationCheck_PDU, proto_x411));
-  dissector_add("x411.extension", 25, create_dissector_handle(dissect_RedirectionHistory_PDU, proto_x411));
-  dissector_add("x411.extension", 26, create_dissector_handle(dissect_DLExpansionHistory_PDU, proto_x411));
-  dissector_add("x411.extension", 27, create_dissector_handle(dissect_PhysicalForwardingAddress_PDU, proto_x411));
-  dissector_add("x411.extension", 28, create_dissector_handle(dissect_RecipientCertificate_PDU, proto_x411));
-  dissector_add("x411.extension", 29, create_dissector_handle(dissect_ProofOfDelivery_PDU, proto_x411));
-  dissector_add("x411.extension", 30, create_dissector_handle(dissect_OriginatorAndDLExpansionHistory_PDU, proto_x411));
-  dissector_add("x411.extension", 31, create_dissector_handle(dissect_ReportingDLName_PDU, proto_x411));
-  dissector_add("x411.extension", 32, create_dissector_handle(dissect_ReportingMTACertificate_PDU, proto_x411));
-  dissector_add("x411.extension", 33, create_dissector_handle(dissect_ReportOriginAuthenticationCheck_PDU, proto_x411));
-  dissector_add("x411.extension", 35, create_dissector_handle(dissect_ProofOfSubmission_PDU, proto_x411));
-  dissector_add("x411.extension", 37, create_dissector_handle(dissect_TraceInformation_PDU, proto_x411));
-  dissector_add("x411.extension", 38, create_dissector_handle(dissect_InternalTraceInformation_PDU, proto_x411));
-  dissector_add("x411.extension", 39, create_dissector_handle(dissect_ReportingMTAName_PDU, proto_x411));
-  dissector_add("x411.extension", 40, create_dissector_handle(dissect_ExtendedCertificates_PDU, proto_x411));
-  dissector_add("x411.extension", 42, create_dissector_handle(dissect_DLExemptedRecipients_PDU, proto_x411));
-  dissector_add("x411.extension", 45, create_dissector_handle(dissect_CertificateSelectors_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 1, create_dissector_handle(dissect_CommonName_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 2, create_dissector_handle(dissect_TeletexCommonName_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 3, create_dissector_handle(dissect_TeletexOrganizationName_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 4, create_dissector_handle(dissect_TeletexPersonalName_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 5, create_dissector_handle(dissect_TeletexOrganizationalUnitNames_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 6, create_dissector_handle(dissect_TeletexDomainDefinedAttributes_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 7, create_dissector_handle(dissect_PDSName_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 8, create_dissector_handle(dissect_PhysicalDeliveryCountryName_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 9, create_dissector_handle(dissect_PostalCode_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 10, create_dissector_handle(dissect_PhysicalDeliveryOfficeName_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 11, create_dissector_handle(dissect_PhysicalDeliveryOfficeNumber_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 12, create_dissector_handle(dissect_ExtensionORAddressComponents_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 13, create_dissector_handle(dissect_PhysicalDeliveryPersonalName_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 14, create_dissector_handle(dissect_PhysicalDeliveryOrganizationName_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 15, create_dissector_handle(dissect_ExtensionPhysicalDeliveryAddressComponents_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 16, create_dissector_handle(dissect_UnformattedPostalAddress_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 17, create_dissector_handle(dissect_StreetAddress_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 18, create_dissector_handle(dissect_PostOfficeBoxAddress_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 19, create_dissector_handle(dissect_PosteRestanteAddress_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 20, create_dissector_handle(dissect_UniquePostalName_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 21, create_dissector_handle(dissect_LocalPostalAttributes_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 22, create_dissector_handle(dissect_ExtendedNetworkAddress_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 23, create_dissector_handle(dissect_TerminalType_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 24, create_dissector_handle(dissect_UniversalCommonName_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 25, create_dissector_handle(dissect_UniversalOrganizationName_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 26, create_dissector_handle(dissect_UniversalPersonalName_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 27, create_dissector_handle(dissect_UniversalOrganizationalUnitNames_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 28, create_dissector_handle(dissect_UniversalDomainDefinedAttributes_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 29, create_dissector_handle(dissect_UniversalPhysicalDeliveryOfficeName_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 30, create_dissector_handle(dissect_UniversalPhysicalDeliveryOfficeNumber_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 31, create_dissector_handle(dissect_UniversalExtensionORAddressComponents_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 32, create_dissector_handle(dissect_UniversalPhysicalDeliveryPersonalName_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 33, create_dissector_handle(dissect_UniversalPhysicalDeliveryOrganizationName_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 34, create_dissector_handle(dissect_UniversalExtensionPhysicalDeliveryAddressComponents_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 35, create_dissector_handle(dissect_UniversalUnformattedPostalAddress_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 36, create_dissector_handle(dissect_UniversalStreetAddress_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 37, create_dissector_handle(dissect_UniversalPostOfficeBoxAddress_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 38, create_dissector_handle(dissect_UniversalPosteRestanteAddress_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 39, create_dissector_handle(dissect_UniversalUniquePostalName_PDU, proto_x411));
-  dissector_add("x411.extension-attribute", 40, create_dissector_handle(dissect_UniversalLocalPostalAttributes_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 1, create_dissector_handle(dissect_RecipientReassignmentProhibited_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 2, create_dissector_handle(dissect_OriginatorRequestedAlternateRecipient_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 3, create_dissector_handle(dissect_DLExpansionProhibited_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 4, create_dissector_handle(dissect_ConversionWithLossProhibited_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 5, create_dissector_handle(dissect_LatestDeliveryTime_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 6, create_dissector_handle(dissect_RequestedDeliveryMethod_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 7, create_dissector_handle(dissect_PhysicalForwardingProhibited_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 8, create_dissector_handle(dissect_PhysicalForwardingAddressRequest_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 9, create_dissector_handle(dissect_PhysicalDeliveryModes_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 10, create_dissector_handle(dissect_RegisteredMailType_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 11, create_dissector_handle(dissect_RecipientNumberForAdvice_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 12, create_dissector_handle(dissect_PhysicalRenditionAttributes_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 13, create_dissector_handle(dissect_OriginatorReturnAddress_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 14, create_dissector_handle(dissect_PhysicalDeliveryReportRequest_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 15, create_dissector_handle(dissect_OriginatorCertificate_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 16, create_dissector_handle(dissect_MessageToken_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 17, create_dissector_handle(dissect_ContentConfidentialityAlgorithmIdentifier_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 18, create_dissector_handle(dissect_ContentIntegrityCheck_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 19, create_dissector_handle(dissect_MessageOriginAuthenticationCheck_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 20, create_dissector_handle(dissect_MessageSecurityLabel_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 21, create_dissector_handle(dissect_ProofOfSubmissionRequest_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 22, create_dissector_handle(dissect_ProofOfDeliveryRequest_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 23, create_dissector_handle(dissect_ContentCorrelator_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 24, create_dissector_handle(dissect_ProbeOriginAuthenticationCheck_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 25, create_dissector_handle(dissect_RedirectionHistory_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 26, create_dissector_handle(dissect_DLExpansionHistory_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 27, create_dissector_handle(dissect_PhysicalForwardingAddress_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 28, create_dissector_handle(dissect_RecipientCertificate_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 29, create_dissector_handle(dissect_ProofOfDelivery_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 30, create_dissector_handle(dissect_OriginatorAndDLExpansionHistory_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 31, create_dissector_handle(dissect_ReportingDLName_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 32, create_dissector_handle(dissect_ReportingMTACertificate_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 33, create_dissector_handle(dissect_ReportOriginAuthenticationCheck_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 35, create_dissector_handle(dissect_ProofOfSubmission_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 37, create_dissector_handle(dissect_TraceInformation_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 38, create_dissector_handle(dissect_InternalTraceInformation_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 39, create_dissector_handle(dissect_ReportingMTAName_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 40, create_dissector_handle(dissect_ExtendedCertificates_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 42, create_dissector_handle(dissect_DLExemptedRecipients_PDU, proto_x411));
+  dissector_add_uint("x411.extension", 45, create_dissector_handle(dissect_CertificateSelectors_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 1, create_dissector_handle(dissect_CommonName_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 2, create_dissector_handle(dissect_TeletexCommonName_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 3, create_dissector_handle(dissect_TeletexOrganizationName_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 4, create_dissector_handle(dissect_TeletexPersonalName_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 5, create_dissector_handle(dissect_TeletexOrganizationalUnitNames_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 6, create_dissector_handle(dissect_TeletexDomainDefinedAttributes_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 7, create_dissector_handle(dissect_PDSName_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 8, create_dissector_handle(dissect_PhysicalDeliveryCountryName_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 9, create_dissector_handle(dissect_PostalCode_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 10, create_dissector_handle(dissect_PhysicalDeliveryOfficeName_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 11, create_dissector_handle(dissect_PhysicalDeliveryOfficeNumber_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 12, create_dissector_handle(dissect_ExtensionORAddressComponents_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 13, create_dissector_handle(dissect_PhysicalDeliveryPersonalName_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 14, create_dissector_handle(dissect_PhysicalDeliveryOrganizationName_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 15, create_dissector_handle(dissect_ExtensionPhysicalDeliveryAddressComponents_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 16, create_dissector_handle(dissect_UnformattedPostalAddress_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 17, create_dissector_handle(dissect_StreetAddress_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 18, create_dissector_handle(dissect_PostOfficeBoxAddress_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 19, create_dissector_handle(dissect_PosteRestanteAddress_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 20, create_dissector_handle(dissect_UniquePostalName_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 21, create_dissector_handle(dissect_LocalPostalAttributes_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 22, create_dissector_handle(dissect_ExtendedNetworkAddress_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 23, create_dissector_handle(dissect_TerminalType_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 24, create_dissector_handle(dissect_UniversalCommonName_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 25, create_dissector_handle(dissect_UniversalOrganizationName_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 26, create_dissector_handle(dissect_UniversalPersonalName_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 27, create_dissector_handle(dissect_UniversalOrganizationalUnitNames_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 28, create_dissector_handle(dissect_UniversalDomainDefinedAttributes_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 29, create_dissector_handle(dissect_UniversalPhysicalDeliveryOfficeName_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 30, create_dissector_handle(dissect_UniversalPhysicalDeliveryOfficeNumber_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 31, create_dissector_handle(dissect_UniversalExtensionORAddressComponents_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 32, create_dissector_handle(dissect_UniversalPhysicalDeliveryPersonalName_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 33, create_dissector_handle(dissect_UniversalPhysicalDeliveryOrganizationName_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 34, create_dissector_handle(dissect_UniversalExtensionPhysicalDeliveryAddressComponents_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 35, create_dissector_handle(dissect_UniversalUnformattedPostalAddress_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 36, create_dissector_handle(dissect_UniversalStreetAddress_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 37, create_dissector_handle(dissect_UniversalPostOfficeBoxAddress_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 38, create_dissector_handle(dissect_UniversalPosteRestanteAddress_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 39, create_dissector_handle(dissect_UniversalUniquePostalName_PDU, proto_x411));
+  dissector_add_uint("x411.extension-attribute", 40, create_dissector_handle(dissect_UniversalLocalPostalAttributes_PDU, proto_x411));
   register_ber_oid_dissector("2.6.3.6.0", dissect_AsymmetricToken_PDU, proto_x411, "id-tok-asymmetricToken");
   register_ber_oid_dissector("2.6.5.6.0", dissect_MTANameAndOptionalGDI_PDU, proto_x411, "id-on-mtaName");
-  dissector_add("x411.tokendata", 1, create_dissector_handle(dissect_BindTokenSignedData_PDU, proto_x411));
-  dissector_add("x411.tokendata", 2, create_dissector_handle(dissect_MessageTokenSignedData_PDU, proto_x411));
-  dissector_add("x411.tokendata", 3, create_dissector_handle(dissect_MessageTokenEncryptedData_PDU, proto_x411));
-  dissector_add("x411.tokendata", 4, create_dissector_handle(dissect_BindTokenEncryptedData_PDU, proto_x411));
+  dissector_add_uint("x411.tokendata", 1, create_dissector_handle(dissect_BindTokenSignedData_PDU, proto_x411));
+  dissector_add_uint("x411.tokendata", 2, create_dissector_handle(dissect_MessageTokenSignedData_PDU, proto_x411));
+  dissector_add_uint("x411.tokendata", 3, create_dissector_handle(dissect_MessageTokenEncryptedData_PDU, proto_x411));
+  dissector_add_uint("x411.tokendata", 4, create_dissector_handle(dissect_BindTokenEncryptedData_PDU, proto_x411));
   register_ber_oid_dissector("2.6.5.2.0", dissect_ContentLength_PDU, proto_x411, "id-at-mhs-maximum-content-length");
   register_ber_oid_dissector("2.6.5.2.1", dissect_ExtendedContentType_PDU, proto_x411, "id-at-mhs-deliverable-content-types");
   register_ber_oid_dissector("2.6.5.2.2", dissect_ExtendedEncodedInformationType_PDU, proto_x411, "id-at-mhs-exclusively-acceptable-eits");
@@ -11107,12 +11107,12 @@ prefs_register_x411(void)
   /* de-register the old port */
   /* port 102 is registered by TPKT - don't undo this! */
   if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
-    dissector_delete("tcp.port", tcp_port, tpkt_handle);
+    dissector_delete_uint("tcp.port", tcp_port, tpkt_handle);
 
   /* Set our port number for future use */
   tcp_port = global_x411_tcp_port;
 
   if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
-    dissector_add("tcp.port", tcp_port, tpkt_handle);
+    dissector_add_uint("tcp.port", tcp_port, tpkt_handle);
 
 }

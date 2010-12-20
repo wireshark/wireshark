@@ -17367,9 +17367,9 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	offset += 2;
 
 	if (pinfo->ptype == PT_IPX &&
-	    (pinfo->match_port == IPX_SOCKET_NWLINK_SMB_SERVER ||
-	     pinfo->match_port == IPX_SOCKET_NWLINK_SMB_REDIR ||
-	     pinfo->match_port == IPX_SOCKET_NWLINK_SMB_MESSENGER)) {
+	    (pinfo->match_uint == IPX_SOCKET_NWLINK_SMB_SERVER ||
+	     pinfo->match_uint == IPX_SOCKET_NWLINK_SMB_REDIR ||
+	     pinfo->match_uint == IPX_SOCKET_NWLINK_SMB_MESSENGER)) {
 		/*
 		 * This is SMB-over-IPX.
 		 * XXX - do we have to worry about "sequenced commands",
@@ -19990,8 +19990,8 @@ proto_reg_handoff_smb(void)
 	heur_dissector_add("vines_spp", dissect_smb_heur, proto_smb);
 
 	smb_handle = find_dissector("smb");
-	dissector_add("ipx.socket", IPX_SOCKET_NWLINK_SMB_SERVER, smb_handle);
-	dissector_add("ipx.socket", IPX_SOCKET_NWLINK_SMB_REDIR, smb_handle);
-	dissector_add("ipx.socket", IPX_SOCKET_NWLINK_SMB_MESSENGER, smb_handle);
-	dissector_add("spp.socket", IDP_SOCKET_SMB, smb_handle);
+	dissector_add_uint("ipx.socket", IPX_SOCKET_NWLINK_SMB_SERVER, smb_handle);
+	dissector_add_uint("ipx.socket", IPX_SOCKET_NWLINK_SMB_REDIR, smb_handle);
+	dissector_add_uint("ipx.socket", IPX_SOCKET_NWLINK_SMB_MESSENGER, smb_handle);
+	dissector_add_uint("spp.socket", IDP_SOCKET_SMB, smb_handle);
 }

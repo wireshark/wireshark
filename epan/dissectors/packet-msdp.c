@@ -570,7 +570,7 @@ proto_reg_handoff_msdp(void)
 	dissector_handle_t msdp_handle;
 
 	msdp_handle = create_dissector_handle(dissect_msdp, proto_msdp);
-        dissector_add("tcp.port", 639, msdp_handle);
+        dissector_add_uint("tcp.port", 639, msdp_handle);
 
         ip_handle = find_dissector("ip");
 

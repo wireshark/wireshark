@@ -598,8 +598,8 @@ static const value_string HI2Operations_IP_value_vals[] = {
 };
 
 static const ber_choice_t IP_value_choice[] = {
-  {   1, &hf_HI2Operations_iPBinaryAddress, BER_CLASS_CON, 1, 0, dissect_HI2Operations_OCTET_STRING_SIZE_4_16 },
-  {   2, &hf_HI2Operations_iPTextAddress, BER_CLASS_CON, 2, 0, dissect_HI2Operations_IA5String_SIZE_7_45 },
+  {   1, &hf_HI2Operations_iPBinaryAddress, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_4_16 },
+  {   2, &hf_HI2Operations_iPTextAddress, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_IA5String_SIZE_7_45 },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -631,9 +631,9 @@ dissect_HI2Operations_T_iP_assignment(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
 
 static const ber_sequence_t IPAddress_sequence[] = {
-  { &hf_HI2Operations_iP_type, BER_CLASS_CON, 1, 0, dissect_HI2Operations_T_iP_type },
-  { &hf_HI2Operations_iP_value, BER_CLASS_CON, 2, BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_IP_value },
-  { &hf_HI2Operations_iP_assignment, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_HI2Operations_T_iP_assignment },
+  { &hf_HI2Operations_iP_type, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_iP_type },
+  { &hf_HI2Operations_iP_value, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_IP_value },
+  { &hf_HI2Operations_iP_assignment, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_iP_assignment },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -656,11 +656,11 @@ static const value_string HI2Operations_Network_Element_Identifier_vals[] = {
 };
 
 static const ber_choice_t Network_Element_Identifier_choice[] = {
-  {   1, &hf_HI2Operations_e164_Format, BER_CLASS_CON, 1, 0, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
-  {   2, &hf_HI2Operations_x25_Format, BER_CLASS_CON, 2, 0, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
-  {   3, &hf_HI2Operations_iP_Format, BER_CLASS_CON, 3, 0, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
-  {   4, &hf_HI2Operations_dNS_Format, BER_CLASS_CON, 4, 0, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
-  {   5, &hf_HI2Operations_iP_Address, BER_CLASS_CON, 5, 0, dissect_HI2Operations_IPAddress },
+  {   1, &hf_HI2Operations_e164_Format, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
+  {   2, &hf_HI2Operations_x25_Format, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
+  {   3, &hf_HI2Operations_iP_Format, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
+  {   4, &hf_HI2Operations_dNS_Format, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
+  {   5, &hf_HI2Operations_iP_Address, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_HI2Operations_IPAddress },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -675,8 +675,8 @@ dissect_HI2Operations_Network_Element_Identifier(gboolean implicit_tag _U_, tvbu
 
 
 static const ber_sequence_t Network_Identifier_sequence[] = {
-  { &hf_HI2Operations_operator_Identifier, BER_CLASS_CON, 0, 0, dissect_HI2Operations_OCTET_STRING_SIZE_1_5 },
-  { &hf_HI2Operations_network_Element_Identifier, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_Network_Element_Identifier },
+  { &hf_HI2Operations_operator_Identifier, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_5 },
+  { &hf_HI2Operations_network_Element_Identifier, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_Network_Element_Identifier },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -690,8 +690,8 @@ dissect_HI2Operations_Network_Identifier(gboolean implicit_tag _U_, tvbuff_t *tv
 
 
 static const ber_sequence_t CommunicationIdentifier_sequence[] = {
-  { &hf_HI2Operations_communication_Identity_Number, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_HI2Operations_OCTET_STRING_SIZE_1_8 },
-  { &hf_HI2Operations_network_Identifier, BER_CLASS_CON, 1, 0, dissect_HI2Operations_Network_Identifier },
+  { &hf_HI2Operations_communication_Identity_Number, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_8 },
+  { &hf_HI2Operations_network_Identifier, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_Network_Identifier },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -731,8 +731,8 @@ dissect_HI2Operations_T_winterSummerIndication(gboolean implicit_tag _U_, tvbuff
 
 
 static const ber_sequence_t LocalTimeStamp_sequence[] = {
-  { &hf_HI2Operations_generalizedTime, BER_CLASS_CON, 0, 0, dissect_HI2Operations_GeneralizedTime },
-  { &hf_HI2Operations_winterSummerIndication, BER_CLASS_CON, 1, 0, dissect_HI2Operations_T_winterSummerIndication },
+  { &hf_HI2Operations_generalizedTime, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_GeneralizedTime },
+  { &hf_HI2Operations_winterSummerIndication, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_winterSummerIndication },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -761,8 +761,8 @@ static const value_string HI2Operations_TimeStamp_vals[] = {
 };
 
 static const ber_choice_t TimeStamp_choice[] = {
-  {   0, &hf_HI2Operations_localTime, BER_CLASS_CON, 0, 0, dissect_HI2Operations_LocalTimeStamp },
-  {   1, &hf_HI2Operations_utcTime, BER_CLASS_CON, 1, 0, dissect_HI2Operations_UTCTime },
+  {   0, &hf_HI2Operations_localTime, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_LocalTimeStamp },
+  {   1, &hf_HI2Operations_utcTime, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_UTCTime },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -871,10 +871,10 @@ dissect_HI2Operations_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 static const ber_sequence_t T_ms_Loc_sequence[] = {
-  { &hf_HI2Operations_mcc   , BER_CLASS_CON, 1, 0, dissect_HI2Operations_INTEGER_0_1023 },
-  { &hf_HI2Operations_mnc   , BER_CLASS_CON, 2, 0, dissect_HI2Operations_INTEGER_0_16383 },
-  { &hf_HI2Operations_lai   , BER_CLASS_CON, 3, 0, dissect_HI2Operations_INTEGER_0_65535 },
-  { &hf_HI2Operations_ci    , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_HI2Operations_INTEGER },
+  { &hf_HI2Operations_mcc   , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER_0_1023 },
+  { &hf_HI2Operations_mnc   , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER_0_16383 },
+  { &hf_HI2Operations_lai   , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER_0_65535 },
+  { &hf_HI2Operations_ci    , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -894,8 +894,8 @@ static const value_string HI2Operations_TetraLocation_vals[] = {
 };
 
 static const ber_choice_t TetraLocation_choice[] = {
-  {   1, &hf_HI2Operations_ms_Loc, BER_CLASS_CON, 1, 0, dissect_HI2Operations_T_ms_Loc },
-  {   2, &hf_HI2Operations_ls_Loc, BER_CLASS_CON, 2, 0, dissect_HI2Operations_INTEGER },
+  {   1, &hf_HI2Operations_ms_Loc, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_ms_Loc },
+  {   2, &hf_HI2Operations_ls_Loc, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -969,10 +969,10 @@ dissect_HI2Operations_INTEGER_0_359(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 static const ber_sequence_t T_geoCoordinates_sequence[] = {
-  { &hf_HI2Operations_latitude, BER_CLASS_CON, 1, 0, dissect_HI2Operations_PrintableString_SIZE_7_10 },
-  { &hf_HI2Operations_longitude, BER_CLASS_CON, 2, 0, dissect_HI2Operations_PrintableString_SIZE_8_11 },
-  { &hf_HI2Operations_mapDatum, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_HI2Operations_MapDatum },
-  { &hf_HI2Operations_azimuth, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_HI2Operations_INTEGER_0_359 },
+  { &hf_HI2Operations_latitude, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_PrintableString_SIZE_7_10 },
+  { &hf_HI2Operations_longitude, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_PrintableString_SIZE_8_11 },
+  { &hf_HI2Operations_mapDatum, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_MapDatum },
+  { &hf_HI2Operations_azimuth, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER_0_359 },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1008,10 +1008,10 @@ dissect_HI2Operations_PrintableString_SIZE_7(gboolean implicit_tag _U_, tvbuff_t
 
 
 static const ber_sequence_t T_utmCoordinates_sequence[] = {
-  { &hf_HI2Operations_utm_East, BER_CLASS_CON, 1, 0, dissect_HI2Operations_PrintableString_SIZE_10 },
-  { &hf_HI2Operations_utm_North, BER_CLASS_CON, 2, 0, dissect_HI2Operations_PrintableString_SIZE_7 },
-  { &hf_HI2Operations_mapDatum, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_HI2Operations_MapDatum },
-  { &hf_HI2Operations_azimuth, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_HI2Operations_INTEGER_0_359 },
+  { &hf_HI2Operations_utm_East, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_PrintableString_SIZE_10 },
+  { &hf_HI2Operations_utm_North, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_PrintableString_SIZE_7 },
+  { &hf_HI2Operations_mapDatum, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_MapDatum },
+  { &hf_HI2Operations_azimuth, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER_0_359 },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1036,8 +1036,8 @@ dissect_HI2Operations_PrintableString_SIZE_13(gboolean implicit_tag _U_, tvbuff_
 
 
 static const ber_sequence_t T_utmRefCoordinates_sequence[] = {
-  { &hf_HI2Operations_utmref_string, BER_CLASS_CON, 2, 0, dissect_HI2Operations_PrintableString_SIZE_13 },
-  { &hf_HI2Operations_mapDatum, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_HI2Operations_MapDatum },
+  { &hf_HI2Operations_utmref_string, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_PrintableString_SIZE_13 },
+  { &hf_HI2Operations_mapDatum, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_MapDatum },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1069,10 +1069,10 @@ static const value_string HI2Operations_GSMLocation_vals[] = {
 };
 
 static const ber_choice_t GSMLocation_choice[] = {
-  {   1, &hf_HI2Operations_geoCoordinates, BER_CLASS_CON, 1, 0, dissect_HI2Operations_T_geoCoordinates },
-  {   2, &hf_HI2Operations_utmCoordinates, BER_CLASS_CON, 2, 0, dissect_HI2Operations_T_utmCoordinates },
-  {   3, &hf_HI2Operations_utmRefCoordinates, BER_CLASS_CON, 3, 0, dissect_HI2Operations_T_utmRefCoordinates },
-  {   4, &hf_HI2Operations_wGS84Coordinates, BER_CLASS_CON, 4, 0, dissect_HI2Operations_OCTET_STRING },
+  {   1, &hf_HI2Operations_geoCoordinates, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_geoCoordinates },
+  {   2, &hf_HI2Operations_utmCoordinates, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_utmCoordinates },
+  {   3, &hf_HI2Operations_utmRefCoordinates, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_utmRefCoordinates },
+  {   4, &hf_HI2Operations_wGS84Coordinates, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -1123,9 +1123,9 @@ dissect_HI2Operations_INTEGER_M8388608_8388607(gboolean implicit_tag _U_, tvbuff
 
 
 static const ber_sequence_t GeographicalCoordinates_sequence[] = {
-  { &hf_HI2Operations_latitudeSign, BER_CLASS_CON, 0, 0, dissect_HI2Operations_T_latitudeSign },
-  { &hf_HI2Operations_latitude_01, BER_CLASS_CON, 1, 0, dissect_HI2Operations_INTEGER_0_8388607 },
-  { &hf_HI2Operations_longitude_01, BER_CLASS_CON, 2, 0, dissect_HI2Operations_INTEGER_M8388608_8388607 },
+  { &hf_HI2Operations_latitudeSign, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_latitudeSign },
+  { &hf_HI2Operations_latitude_01, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER_0_8388607 },
+  { &hf_HI2Operations_longitude_01, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER_M8388608_8388607 },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1139,7 +1139,7 @@ dissect_HI2Operations_GeographicalCoordinates(gboolean implicit_tag _U_, tvbuff_
 
 
 static const ber_sequence_t GA_Point_sequence[] = {
-  { &hf_HI2Operations_geographicalCoordinates, BER_CLASS_CON, 0, 0, dissect_HI2Operations_GeographicalCoordinates },
+  { &hf_HI2Operations_geographicalCoordinates, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_GeographicalCoordinates },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1163,8 +1163,8 @@ dissect_HI2Operations_INTEGER_0_127(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 static const ber_sequence_t GA_PointWithUnCertainty_sequence[] = {
-  { &hf_HI2Operations_geographicalCoordinates, BER_CLASS_CON, 0, 0, dissect_HI2Operations_GeographicalCoordinates },
-  { &hf_HI2Operations_uncertaintyCode, BER_CLASS_CON, 1, 0, dissect_HI2Operations_INTEGER_0_127 },
+  { &hf_HI2Operations_geographicalCoordinates, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_GeographicalCoordinates },
+  { &hf_HI2Operations_uncertaintyCode, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER_0_127 },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1178,7 +1178,7 @@ dissect_HI2Operations_GA_PointWithUnCertainty(gboolean implicit_tag _U_, tvbuff_
 
 
 static const ber_sequence_t GA_Polygon_item_sequence[] = {
-  { &hf_HI2Operations_geographicalCoordinates, BER_CLASS_CON, 0, 0, dissect_HI2Operations_GeographicalCoordinates },
+  { &hf_HI2Operations_geographicalCoordinates, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_GeographicalCoordinates },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1212,9 +1212,9 @@ static const value_string HI2Operations_UMTSLocation_vals[] = {
 };
 
 static const ber_choice_t UMTSLocation_choice[] = {
-  {   1, &hf_HI2Operations_point , BER_CLASS_CON, 1, 0, dissect_HI2Operations_GA_Point },
-  {   2, &hf_HI2Operations_pointWithUnCertainty, BER_CLASS_CON, 2, 0, dissect_HI2Operations_GA_PointWithUnCertainty },
-  {   3, &hf_HI2Operations_polygon, BER_CLASS_CON, 3, 0, dissect_HI2Operations_GA_Polygon },
+  {   1, &hf_HI2Operations_point , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_GA_Point },
+  {   2, &hf_HI2Operations_pointWithUnCertainty, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_GA_PointWithUnCertainty },
+  {   3, &hf_HI2Operations_polygon, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_HI2Operations_GA_Polygon },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -1239,14 +1239,14 @@ dissect_HI2Operations_OCTET_STRING_SIZE_7(gboolean implicit_tag _U_, tvbuff_t *t
 
 
 static const ber_sequence_t Location_sequence[] = {
-  { &hf_HI2Operations_e164_Number, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
-  { &hf_HI2Operations_globalCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_HI2Operations_OCTET_STRING_SIZE_5_7 },
-  { &hf_HI2Operations_tetraLocation, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_TetraLocation },
-  { &hf_HI2Operations_rAI   , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_HI2Operations_OCTET_STRING_SIZE_6 },
-  { &hf_HI2Operations_gsmLocation, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_GSMLocation },
-  { &hf_HI2Operations_umtsLocation, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_UMTSLocation },
-  { &hf_HI2Operations_sAI   , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL, dissect_HI2Operations_OCTET_STRING_SIZE_7 },
-  { &hf_HI2Operations_oldRAI, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL, dissect_HI2Operations_OCTET_STRING_SIZE_6 },
+  { &hf_HI2Operations_e164_Number, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
+  { &hf_HI2Operations_globalCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_5_7 },
+  { &hf_HI2Operations_tetraLocation, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_TetraLocation },
+  { &hf_HI2Operations_rAI   , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_6 },
+  { &hf_HI2Operations_gsmLocation, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_GSMLocation },
+  { &hf_HI2Operations_umtsLocation, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_UMTSLocation },
+  { &hf_HI2Operations_sAI   , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_7 },
+  { &hf_HI2Operations_oldRAI, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_6 },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1315,9 +1315,9 @@ static const value_string HI2Operations_CallingPartyNumber_vals[] = {
 };
 
 static const ber_choice_t CallingPartyNumber_choice[] = {
-  {   1, &hf_HI2Operations_iSUP_Format, BER_CLASS_CON, 1, 0, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
-  {   2, &hf_HI2Operations_dSS1_Format, BER_CLASS_CON, 2, 0, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
-  {   3, &hf_HI2Operations_mAP_Format, BER_CLASS_CON, 3, 0, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
+  {   1, &hf_HI2Operations_iSUP_Format, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
+  {   2, &hf_HI2Operations_dSS1_Format, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
+  {   3, &hf_HI2Operations_mAP_Format, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -1339,9 +1339,9 @@ static const value_string HI2Operations_CalledPartyNumber_vals[] = {
 };
 
 static const ber_choice_t CalledPartyNumber_choice[] = {
-  {   1, &hf_HI2Operations_iSUP_Format, BER_CLASS_CON, 1, 0, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
-  {   2, &hf_HI2Operations_mAP_Format, BER_CLASS_CON, 2, 0, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
-  {   3, &hf_HI2Operations_dSS1_Format, BER_CLASS_CON, 3, 0, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
+  {   1, &hf_HI2Operations_iSUP_Format, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
+  {   2, &hf_HI2Operations_mAP_Format, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
+  {   3, &hf_HI2Operations_dSS1_Format, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -1366,15 +1366,15 @@ dissect_HI2Operations_OCTET_STRING_SIZE_1_9(gboolean implicit_tag _U_, tvbuff_t 
 
 
 static const ber_sequence_t T_partyIdentity_sequence[] = {
-  { &hf_HI2Operations_imei  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_HI2Operations_OCTET_STRING_SIZE_8 },
-  { &hf_HI2Operations_tei   , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_HI2Operations_OCTET_STRING_SIZE_1_15 },
-  { &hf_HI2Operations_imsi  , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_HI2Operations_OCTET_STRING_SIZE_3_8 },
-  { &hf_HI2Operations_callingPartyNumber, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_CallingPartyNumber },
-  { &hf_HI2Operations_calledPartyNumber, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_CalledPartyNumber },
-  { &hf_HI2Operations_msISDN, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL, dissect_HI2Operations_OCTET_STRING_SIZE_1_9 },
-  { &hf_HI2Operations_e164_Format, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
-  { &hf_HI2Operations_sip_uri, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL, dissect_HI2Operations_OCTET_STRING },
-  { &hf_HI2Operations_tel_url, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL, dissect_HI2Operations_OCTET_STRING },
+  { &hf_HI2Operations_imei  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_8 },
+  { &hf_HI2Operations_tei   , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_15 },
+  { &hf_HI2Operations_imsi  , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_3_8 },
+  { &hf_HI2Operations_callingPartyNumber, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_CallingPartyNumber },
+  { &hf_HI2Operations_calledPartyNumber, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_CalledPartyNumber },
+  { &hf_HI2Operations_msISDN, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_9 },
+  { &hf_HI2Operations_e164_Format, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_25 },
+  { &hf_HI2Operations_sip_uri, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING },
+  { &hf_HI2Operations_tel_url, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1437,9 +1437,9 @@ dissect_HI2Operations_MAP_parameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 
 static const ber_sequence_t Services_Information_sequence[] = {
-  { &hf_HI2Operations_iSUP_parameters, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_HI2Operations_ISUP_parameters },
-  { &hf_HI2Operations_dSS1_parameters_codeset_0, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_HI2Operations_DSS1_parameters_codeset_0 },
-  { &hf_HI2Operations_mAP_parameters, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_HI2Operations_MAP_parameters },
+  { &hf_HI2Operations_iSUP_parameters, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_ISUP_parameters },
+  { &hf_HI2Operations_dSS1_parameters_codeset_0, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_DSS1_parameters_codeset_0 },
+  { &hf_HI2Operations_mAP_parameters, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_MAP_parameters },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1570,15 +1570,15 @@ dissect_HI2Operations_MAP_SS_Invoke_Components(gboolean implicit_tag _U_, tvbuff
 
 
 static const ber_sequence_t Standard_Supplementary_Services_sequence[] = {
-  { &hf_HI2Operations_iSUP_SS_parameters, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_HI2Operations_ISUP_SS_parameters },
-  { &hf_HI2Operations_dSS1_SS_parameters_codeset_0, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_HI2Operations_DSS1_SS_parameters_codeset_0 },
-  { &hf_HI2Operations_dSS1_SS_parameters_codeset_4, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_HI2Operations_DSS1_SS_parameters_codeset_4 },
-  { &hf_HI2Operations_dSS1_SS_parameters_codeset_5, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_HI2Operations_DSS1_SS_parameters_codeset_5 },
-  { &hf_HI2Operations_dSS1_SS_parameters_codeset_6, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL, dissect_HI2Operations_DSS1_SS_parameters_codeset_6 },
-  { &hf_HI2Operations_dSS1_SS_parameters_codeset_7, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL, dissect_HI2Operations_DSS1_SS_parameters_codeset_7 },
-  { &hf_HI2Operations_dSS1_SS_Invoke_components, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL, dissect_HI2Operations_DSS1_SS_Invoke_Components },
-  { &hf_HI2Operations_mAP_SS_Parameters, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL, dissect_HI2Operations_MAP_SS_Parameters },
-  { &hf_HI2Operations_mAP_SS_Invoke_Components, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL, dissect_HI2Operations_MAP_SS_Invoke_Components },
+  { &hf_HI2Operations_iSUP_SS_parameters, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_ISUP_SS_parameters },
+  { &hf_HI2Operations_dSS1_SS_parameters_codeset_0, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_DSS1_SS_parameters_codeset_0 },
+  { &hf_HI2Operations_dSS1_SS_parameters_codeset_4, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_DSS1_SS_parameters_codeset_4 },
+  { &hf_HI2Operations_dSS1_SS_parameters_codeset_5, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_DSS1_SS_parameters_codeset_5 },
+  { &hf_HI2Operations_dSS1_SS_parameters_codeset_6, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_DSS1_SS_parameters_codeset_6 },
+  { &hf_HI2Operations_dSS1_SS_parameters_codeset_7, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_DSS1_SS_parameters_codeset_7 },
+  { &hf_HI2Operations_dSS1_SS_Invoke_components, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_DSS1_SS_Invoke_Components },
+  { &hf_HI2Operations_mAP_SS_Parameters, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_MAP_SS_Parameters },
+  { &hf_HI2Operations_mAP_SS_Invoke_Components, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_MAP_SS_Invoke_Components },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1629,8 +1629,8 @@ static const value_string HI2Operations_Non_Standard_Supplementary_Services_item
 };
 
 static const ber_choice_t Non_Standard_Supplementary_Services_item_choice[] = {
-  {   1, &hf_HI2Operations_simpleIndication, BER_CLASS_CON, 1, 0, dissect_HI2Operations_SimpleIndication },
-  {   2, &hf_HI2Operations_sciData, BER_CLASS_CON, 2, 0, dissect_HI2Operations_SciDataMode },
+  {   1, &hf_HI2Operations_simpleIndication, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_SimpleIndication },
+  {   2, &hf_HI2Operations_sciData, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_SciDataMode },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -1671,9 +1671,9 @@ dissect_HI2Operations_Other_Services(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 
 static const ber_sequence_t Supplementary_Services_sequence[] = {
-  { &hf_HI2Operations_standard_Supplementary_Services, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_HI2Operations_Standard_Supplementary_Services },
-  { &hf_HI2Operations_non_Standard_Supplementary_Services, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_HI2Operations_Non_Standard_Supplementary_Services },
-  { &hf_HI2Operations_other_Services, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_HI2Operations_Other_Services },
+  { &hf_HI2Operations_standard_Supplementary_Services, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_Standard_Supplementary_Services },
+  { &hf_HI2Operations_non_Standard_Supplementary_Services, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_Non_Standard_Supplementary_Services },
+  { &hf_HI2Operations_other_Services, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_Other_Services },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1703,8 +1703,8 @@ static const value_string HI2Operations_DataNodeAddress_vals[] = {
 };
 
 static const ber_choice_t DataNodeAddress_choice[] = {
-  {   1, &hf_HI2Operations_ipAddress, BER_CLASS_CON, 1, 0, dissect_HI2Operations_IPAddress },
-  {   2, &hf_HI2Operations_x25Address, BER_CLASS_CON, 2, 0, dissect_HI2Operations_X25Address },
+  {   1, &hf_HI2Operations_ipAddress, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_IPAddress },
+  {   2, &hf_HI2Operations_x25Address, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_X25Address },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -1739,9 +1739,9 @@ dissect_HI2Operations_OCTET_STRING_SIZE_2(gboolean implicit_tag _U_, tvbuff_t *t
 
 
 static const ber_sequence_t GPRS_parameters_sequence[] = {
-  { &hf_HI2Operations_pDP_address_allocated_to_the_target, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_DataNodeAddress },
-  { &hf_HI2Operations_aPN   , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_HI2Operations_OCTET_STRING_SIZE_1_100 },
-  { &hf_HI2Operations_pDP_type, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_HI2Operations_OCTET_STRING_SIZE_2 },
+  { &hf_HI2Operations_pDP_address_allocated_to_the_target, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_DataNodeAddress },
+  { &hf_HI2Operations_aPN   , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_100 },
+  { &hf_HI2Operations_pDP_type, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_2 },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1755,7 +1755,7 @@ dissect_HI2Operations_GPRS_parameters(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
 
 static const ber_sequence_t Services_Data_Information_sequence[] = {
-  { &hf_HI2Operations_gPRS_parameters, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_HI2Operations_GPRS_parameters },
+  { &hf_HI2Operations_gPRS_parameters, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_GPRS_parameters },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1769,11 +1769,11 @@ dissect_HI2Operations_Services_Data_Information(gboolean implicit_tag _U_, tvbuf
 
 
 static const ber_sequence_t PartyInformation_sequence[] = {
-  { &hf_HI2Operations_party_Qualifier, BER_CLASS_CON, 0, 0, dissect_HI2Operations_T_party_Qualifier },
-  { &hf_HI2Operations_partyIdentity, BER_CLASS_CON, 1, 0, dissect_HI2Operations_T_partyIdentity },
-  { &hf_HI2Operations_services_Information, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_HI2Operations_Services_Information },
-  { &hf_HI2Operations_supplementary_Services_Information, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_HI2Operations_Supplementary_Services },
-  { &hf_HI2Operations_services_Data_Information, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_HI2Operations_Services_Data_Information },
+  { &hf_HI2Operations_party_Qualifier, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_party_Qualifier },
+  { &hf_HI2Operations_partyIdentity, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_partyIdentity },
+  { &hf_HI2Operations_services_Information, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_Services_Information },
+  { &hf_HI2Operations_supplementary_Services_Information, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_Supplementary_Services },
+  { &hf_HI2Operations_services_Data_Information, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_Services_Data_Information },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1818,10 +1818,10 @@ dissect_HI2Operations_CCLink_State(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 
 static const ber_sequence_t CallContentLinkCharacteristics_sequence[] = {
-  { &hf_HI2Operations_cCLink_State, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_HI2Operations_CCLink_State },
-  { &hf_HI2Operations_release_Time, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_TimeStamp },
-  { &hf_HI2Operations_release_Reason, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_HI2Operations_OCTET_STRING_SIZE_2 },
-  { &hf_HI2Operations_lEMF_Address, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_CalledPartyNumber },
+  { &hf_HI2Operations_cCLink_State, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_CCLink_State },
+  { &hf_HI2Operations_release_Time, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_TimeStamp },
+  { &hf_HI2Operations_release_Reason, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_2 },
+  { &hf_HI2Operations_lEMF_Address, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_CalledPartyNumber },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1835,8 +1835,8 @@ dissect_HI2Operations_CallContentLinkCharacteristics(gboolean implicit_tag _U_, 
 
 
 static const ber_sequence_t T_callContentLinkInformation_sequence[] = {
-  { &hf_HI2Operations_cCLink1Characteristics, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_HI2Operations_CallContentLinkCharacteristics },
-  { &hf_HI2Operations_cCLink2Characteristics, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_HI2Operations_CallContentLinkCharacteristics },
+  { &hf_HI2Operations_cCLink1Characteristics, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_CallContentLinkCharacteristics },
+  { &hf_HI2Operations_cCLink2Characteristics, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_CallContentLinkCharacteristics },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1932,10 +1932,10 @@ dissect_HI2Operations_OCTET_STRING_SIZE_1_270(gboolean implicit_tag _U_, tvbuff_
 
 
 static const ber_sequence_t T_sMS_Contents_sequence[] = {
-  { &hf_HI2Operations_initiator, BER_CLASS_CON, 1, 0, dissect_HI2Operations_T_initiator },
-  { &hf_HI2Operations_transfer_status, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_HI2Operations_T_transfer_status },
-  { &hf_HI2Operations_other_message, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_HI2Operations_T_other_message },
-  { &hf_HI2Operations_content, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_HI2Operations_OCTET_STRING_SIZE_1_270 },
+  { &hf_HI2Operations_initiator, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_initiator },
+  { &hf_HI2Operations_transfer_status, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_transfer_status },
+  { &hf_HI2Operations_other_message, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_other_message },
+  { &hf_HI2Operations_content, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_270 },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1949,9 +1949,9 @@ dissect_HI2Operations_T_sMS_Contents(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 
 static const ber_sequence_t SMS_report_sequence[] = {
-  { &hf_HI2Operations_communicationIdentifier, BER_CLASS_CON, 1, 0, dissect_HI2Operations_CommunicationIdentifier },
-  { &hf_HI2Operations_timeStamp, BER_CLASS_CON, 2, BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_TimeStamp },
-  { &hf_HI2Operations_sMS_Contents, BER_CLASS_CON, 3, 0, dissect_HI2Operations_T_sMS_Contents },
+  { &hf_HI2Operations_communicationIdentifier, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CommunicationIdentifier },
+  { &hf_HI2Operations_timeStamp, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_TimeStamp },
+  { &hf_HI2Operations_sMS_Contents, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_sMS_Contents },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2036,8 +2036,8 @@ static const value_string HI2Operations_UmtsQos_vals[] = {
 };
 
 static const ber_choice_t UmtsQos_choice[] = {
-  {   1, &hf_HI2Operations_qosMobileRadio, BER_CLASS_CON, 1, 0, dissect_HI2Operations_OCTET_STRING },
-  {   2, &hf_HI2Operations_qosGn , BER_CLASS_CON, 2, 0, dissect_HI2Operations_OCTET_STRING },
+  {   1, &hf_HI2Operations_qosMobileRadio, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING },
+  {   2, &hf_HI2Operations_qosGn , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -2126,8 +2126,8 @@ static const value_string HI2Operations_LocationType_vals[] = {
 };
 
 static const ber_choice_t LocationType_choice[] = {
-  {   0, &hf_HI2Operations_geodeticData, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_BIT_STRING },
-  {   1, &hf_HI2Operations_nameAddress, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_PrintableString_SIZE_1_100 },
+  {   0, &hf_HI2Operations_geodeticData, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_BIT_STRING },
+  {   1, &hf_HI2Operations_nameAddress, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_PrintableString_SIZE_1_100 },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -2245,8 +2245,8 @@ dissect_HI2Operations_VisibleString_SIZE_1_15_(gboolean implicit_tag _U_, tvbuff
 
 
 static const ber_sequence_t CallId_sequence[] = {
-  { &hf_HI2Operations_sequencenumber, BER_CLASS_CON, 0, 0, dissect_HI2Operations_VisibleString_SIZE_1_25_ },
-  { &hf_HI2Operations_systemidentity, BER_CLASS_CON, 1, 0, dissect_HI2Operations_VisibleString_SIZE_1_15_ },
+  { &hf_HI2Operations_sequencenumber, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_25_ },
+  { &hf_HI2Operations_systemidentity, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_15_ },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2291,25 +2291,25 @@ dissect_HI2Operations_VisibleString_SIZE_1_48_(gboolean implicit_tag _U_, tvbuff
 
 
 static const ber_sequence_t PartyId_sequence[] = {
-  { &hf_HI2Operations_reserved0, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_HI2Operations_NULL },
-  { &hf_HI2Operations_reserved1, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_HI2Operations_NULL },
-  { &hf_HI2Operations_reserved2, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_HI2Operations_NULL },
-  { &hf_HI2Operations_reserved3, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_HI2Operations_NULL },
-  { &hf_HI2Operations_reserved4, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_HI2Operations_NULL },
-  { &hf_HI2Operations_reserved5, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL, dissect_HI2Operations_NULL },
-  { &hf_HI2Operations_dn    , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL, dissect_HI2Operations_VisibleString_SIZE_1_15_ },
-  { &hf_HI2Operations_userProvided, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL, dissect_HI2Operations_VisibleString_SIZE_1_15_ },
-  { &hf_HI2Operations_reserved6, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL, dissect_HI2Operations_NULL },
-  { &hf_HI2Operations_reserved7, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL, dissect_HI2Operations_NULL },
-  { &hf_HI2Operations_ipAddress_01, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL, dissect_HI2Operations_VisibleString_SIZE_1_32_ },
-  { &hf_HI2Operations_reserved8, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL, dissect_HI2Operations_NULL },
-  { &hf_HI2Operations_trunkId, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL, dissect_HI2Operations_VisibleString_SIZE_1_32_ },
-  { &hf_HI2Operations_reserved9, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL, dissect_HI2Operations_NULL },
-  { &hf_HI2Operations_genericAddress, BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL, dissect_HI2Operations_VisibleString_SIZE_1_32_ },
-  { &hf_HI2Operations_genericDigits, BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL, dissect_HI2Operations_VisibleString_SIZE_1_32_ },
-  { &hf_HI2Operations_genericName, BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL, dissect_HI2Operations_VisibleString_SIZE_1_48_ },
-  { &hf_HI2Operations_port  , BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL, dissect_HI2Operations_VisibleString_SIZE_1_32_ },
-  { &hf_HI2Operations_context, BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL, dissect_HI2Operations_VisibleString_SIZE_1_32_ },
+  { &hf_HI2Operations_reserved0, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_NULL },
+  { &hf_HI2Operations_reserved1, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_NULL },
+  { &hf_HI2Operations_reserved2, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_NULL },
+  { &hf_HI2Operations_reserved3, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_NULL },
+  { &hf_HI2Operations_reserved4, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_NULL },
+  { &hf_HI2Operations_reserved5, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_NULL },
+  { &hf_HI2Operations_dn    , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_15_ },
+  { &hf_HI2Operations_userProvided, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_15_ },
+  { &hf_HI2Operations_reserved6, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_NULL },
+  { &hf_HI2Operations_reserved7, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_NULL },
+  { &hf_HI2Operations_ipAddress_01, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_32_ },
+  { &hf_HI2Operations_reserved8, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_NULL },
+  { &hf_HI2Operations_trunkId, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_32_ },
+  { &hf_HI2Operations_reserved9, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_NULL },
+  { &hf_HI2Operations_genericAddress, BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_32_ },
+  { &hf_HI2Operations_genericDigits, BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_32_ },
+  { &hf_HI2Operations_genericName, BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_48_ },
+  { &hf_HI2Operations_port  , BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_32_ },
+  { &hf_HI2Operations_context, BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_32_ },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2323,11 +2323,11 @@ dissect_HI2Operations_PartyId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 static const ber_sequence_t Answer_sequence[] = {
-  { &hf_HI2Operations_caseId, BER_CLASS_CON, 0, 0, dissect_HI2Operations_CaseId },
-  { &hf_HI2Operations_accessingElementId, BER_CLASS_CON, 1, 0, dissect_HI2Operations_AccessingElementId },
-  { &hf_HI2Operations_eventTime, BER_CLASS_CON, 2, 0, dissect_HI2Operations_EventTime },
-  { &hf_HI2Operations_callId, BER_CLASS_CON, 3, 0, dissect_HI2Operations_CallId },
-  { &hf_HI2Operations_answering, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_HI2Operations_PartyId },
+  { &hf_HI2Operations_caseId, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CaseId },
+  { &hf_HI2Operations_accessingElementId, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_AccessingElementId },
+  { &hf_HI2Operations_eventTime, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_EventTime },
+  { &hf_HI2Operations_callId, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CallId },
+  { &hf_HI2Operations_answering, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_PartyId },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2352,8 +2352,8 @@ dissect_HI2Operations_VisibleString_SIZE_1_20_(gboolean implicit_tag _U_, tvbuff
 
 
 static const ber_sequence_t T_sepCCCpair_sequence[] = {
-  { &hf_HI2Operations_sepXmitCCC, BER_CLASS_CON, 0, 0, dissect_HI2Operations_VisibleString_SIZE_1_20_ },
-  { &hf_HI2Operations_sepRecvCCC, BER_CLASS_CON, 1, 0, dissect_HI2Operations_VisibleString_SIZE_1_20_ },
+  { &hf_HI2Operations_sepXmitCCC, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_20_ },
+  { &hf_HI2Operations_sepRecvCCC, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_20_ },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2373,8 +2373,8 @@ static const value_string HI2Operations_CCCId_vals[] = {
 };
 
 static const ber_choice_t CCCId_choice[] = {
-  {   0, &hf_HI2Operations_combCCC, BER_CLASS_CON, 0, 0, dissect_HI2Operations_VisibleString_SIZE_1_20_ },
-  {   1, &hf_HI2Operations_sepCCCpair, BER_CLASS_CON, 1, 0, dissect_HI2Operations_T_sepCCCpair },
+  {   0, &hf_HI2Operations_combCCC, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_20_ },
+  {   1, &hf_HI2Operations_sepCCCpair, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_sepCCCpair },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -2406,11 +2406,11 @@ dissect_HI2Operations_FlowDirection(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 static const ber_sequence_t CCClose_sequence[] = {
-  { &hf_HI2Operations_caseId, BER_CLASS_CON, 0, 0, dissect_HI2Operations_CaseId },
-  { &hf_HI2Operations_accessingElementId, BER_CLASS_CON, 1, 0, dissect_HI2Operations_AccessingElementId },
-  { &hf_HI2Operations_eventTime, BER_CLASS_CON, 2, 0, dissect_HI2Operations_EventTime },
+  { &hf_HI2Operations_caseId, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CaseId },
+  { &hf_HI2Operations_accessingElementId, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_AccessingElementId },
+  { &hf_HI2Operations_eventTime, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_EventTime },
   { &hf_HI2Operations_cCCId , BER_CLASS_CON, 3, BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_CCCId },
-  { &hf_HI2Operations_flowDirection, BER_CLASS_CON, 4, 0, dissect_HI2Operations_FlowDirection },
+  { &hf_HI2Operations_flowDirection, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_HI2Operations_FlowDirection },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2443,8 +2443,8 @@ static const value_string HI2Operations_T_ccOpenOption_vals[] = {
 };
 
 static const ber_choice_t T_ccOpenOption_choice[] = {
-  {   3, &hf_HI2Operations_ccOpenTime, BER_CLASS_CON, 3, 0, dissect_HI2Operations_SEQUENCE_OF_CallId },
-  {   4, &hf_HI2Operations_reserved0, BER_CLASS_CON, 4, 0, dissect_HI2Operations_NULL },
+  {   3, &hf_HI2Operations_ccOpenTime, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_HI2Operations_SEQUENCE_OF_CallId },
+  {   4, &hf_HI2Operations_reserved0, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_HI2Operations_NULL },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -2470,14 +2470,14 @@ dissect_HI2Operations_SDP(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 
 static const ber_sequence_t CCOpen_sequence[] = {
-  { &hf_HI2Operations_caseId, BER_CLASS_CON, 0, 0, dissect_HI2Operations_CaseId },
-  { &hf_HI2Operations_accessingElementId, BER_CLASS_CON, 1, 0, dissect_HI2Operations_AccessingElementId },
-  { &hf_HI2Operations_eventTime, BER_CLASS_CON, 2, 0, dissect_HI2Operations_EventTime },
+  { &hf_HI2Operations_caseId, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CaseId },
+  { &hf_HI2Operations_accessingElementId, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_AccessingElementId },
+  { &hf_HI2Operations_eventTime, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_EventTime },
   { &hf_HI2Operations_ccOpenOption, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_T_ccOpenOption },
   { &hf_HI2Operations_cCCId , BER_CLASS_CON, 5, BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_CCCId },
-  { &hf_HI2Operations_subject, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL, dissect_HI2Operations_SDP },
-  { &hf_HI2Operations_associate, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL, dissect_HI2Operations_SDP },
-  { &hf_HI2Operations_flowDirection, BER_CLASS_CON, 8, 0, dissect_HI2Operations_FlowDirection },
+  { &hf_HI2Operations_subject, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_SDP },
+  { &hf_HI2Operations_associate, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_SDP },
+  { &hf_HI2Operations_flowDirection, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_HI2Operations_FlowDirection },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2497,8 +2497,8 @@ static const value_string HI2Operations_T_input_vals[] = {
 };
 
 static const ber_choice_t T_input_choice[] = {
-  {   6, &hf_HI2Operations_userinput, BER_CLASS_CON, 6, 0, dissect_HI2Operations_VisibleString_SIZE_1_32_ },
-  {   7, &hf_HI2Operations_translationinput, BER_CLASS_CON, 7, 0, dissect_HI2Operations_VisibleString_SIZE_1_32_ },
+  {   6, &hf_HI2Operations_userinput, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_32_ },
+  {   7, &hf_HI2Operations_translationinput, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_32_ },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -2524,15 +2524,15 @@ dissect_HI2Operations_TransitCarrierId(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 
 static const ber_sequence_t Origination_sequence[] = {
-  { &hf_HI2Operations_caseId, BER_CLASS_CON, 0, 0, dissect_HI2Operations_CaseId },
-  { &hf_HI2Operations_accessingElementId, BER_CLASS_CON, 1, 0, dissect_HI2Operations_AccessingElementId },
-  { &hf_HI2Operations_eventTime, BER_CLASS_CON, 2, 0, dissect_HI2Operations_EventTime },
-  { &hf_HI2Operations_callId, BER_CLASS_CON, 3, 0, dissect_HI2Operations_CallId },
-  { &hf_HI2Operations_calling, BER_CLASS_CON, 4, 0, dissect_HI2Operations_PartyId },
-  { &hf_HI2Operations_called, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL, dissect_HI2Operations_PartyId },
+  { &hf_HI2Operations_caseId, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CaseId },
+  { &hf_HI2Operations_accessingElementId, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_AccessingElementId },
+  { &hf_HI2Operations_eventTime, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_EventTime },
+  { &hf_HI2Operations_callId, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CallId },
+  { &hf_HI2Operations_calling, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_HI2Operations_PartyId },
+  { &hf_HI2Operations_called, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_PartyId },
   { &hf_HI2Operations_input , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_T_input },
-  { &hf_HI2Operations_reserved0, BER_CLASS_CON, 8, 0, dissect_HI2Operations_NULL },
-  { &hf_HI2Operations_transitCarrierId, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL, dissect_HI2Operations_TransitCarrierId },
+  { &hf_HI2Operations_reserved0, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_HI2Operations_NULL },
+  { &hf_HI2Operations_transitCarrierId, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_TransitCarrierId },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2546,16 +2546,16 @@ dissect_HI2Operations_Origination(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 static const ber_sequence_t Redirection_sequence[] = {
-  { &hf_HI2Operations_caseId, BER_CLASS_CON, 0, 0, dissect_HI2Operations_CaseId },
-  { &hf_HI2Operations_accessingElementId, BER_CLASS_CON, 1, 0, dissect_HI2Operations_AccessingElementId },
-  { &hf_HI2Operations_eventTime, BER_CLASS_CON, 2, 0, dissect_HI2Operations_EventTime },
-  { &hf_HI2Operations_old   , BER_CLASS_CON, 3, 0, dissect_HI2Operations_CallId },
-  { &hf_HI2Operations_redirectedto, BER_CLASS_CON, 4, 0, dissect_HI2Operations_PartyId },
-  { &hf_HI2Operations_transitCarrierId, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL, dissect_HI2Operations_TransitCarrierId },
-  { &hf_HI2Operations_reserved0, BER_CLASS_CON, 6, 0, dissect_HI2Operations_NULL },
-  { &hf_HI2Operations_reserved1, BER_CLASS_CON, 7, 0, dissect_HI2Operations_NULL },
-  { &hf_HI2Operations_new   , BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL, dissect_HI2Operations_CallId },
-  { &hf_HI2Operations_redirectedfrom, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL, dissect_HI2Operations_PartyId },
+  { &hf_HI2Operations_caseId, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CaseId },
+  { &hf_HI2Operations_accessingElementId, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_AccessingElementId },
+  { &hf_HI2Operations_eventTime, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_EventTime },
+  { &hf_HI2Operations_old   , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CallId },
+  { &hf_HI2Operations_redirectedto, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_HI2Operations_PartyId },
+  { &hf_HI2Operations_transitCarrierId, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_TransitCarrierId },
+  { &hf_HI2Operations_reserved0, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_HI2Operations_NULL },
+  { &hf_HI2Operations_reserved1, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_HI2Operations_NULL },
+  { &hf_HI2Operations_new   , BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_CallId },
+  { &hf_HI2Operations_redirectedfrom, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_PartyId },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2569,10 +2569,10 @@ dissect_HI2Operations_Redirection(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 static const ber_sequence_t Release_sequence[] = {
-  { &hf_HI2Operations_caseId, BER_CLASS_CON, 0, 0, dissect_HI2Operations_CaseId },
-  { &hf_HI2Operations_accessingElementId, BER_CLASS_CON, 1, 0, dissect_HI2Operations_AccessingElementId },
-  { &hf_HI2Operations_eventTime, BER_CLASS_CON, 2, 0, dissect_HI2Operations_EventTime },
-  { &hf_HI2Operations_callId, BER_CLASS_CON, 3, 0, dissect_HI2Operations_CallId },
+  { &hf_HI2Operations_caseId, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CaseId },
+  { &hf_HI2Operations_accessingElementId, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_AccessingElementId },
+  { &hf_HI2Operations_eventTime, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_EventTime },
+  { &hf_HI2Operations_callId, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CallId },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2596,9 +2596,9 @@ dissect_HI2Operations_INTEGER_1_100_(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 
 static const ber_sequence_t RedirectedFromInfo_sequence[] = {
-  { &hf_HI2Operations_lastRedirecting, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_HI2Operations_PartyId },
-  { &hf_HI2Operations_originalCalled, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_HI2Operations_PartyId },
-  { &hf_HI2Operations_numRedirections, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_HI2Operations_INTEGER_1_100_ },
+  { &hf_HI2Operations_lastRedirecting, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_PartyId },
+  { &hf_HI2Operations_originalCalled, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_PartyId },
+  { &hf_HI2Operations_numRedirections, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER_1_100_ },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2612,14 +2612,14 @@ dissect_HI2Operations_RedirectedFromInfo(gboolean implicit_tag _U_, tvbuff_t *tv
 
 
 static const ber_sequence_t TerminationAttempt_sequence[] = {
-  { &hf_HI2Operations_caseId, BER_CLASS_CON, 0, 0, dissect_HI2Operations_CaseId },
-  { &hf_HI2Operations_accessingElementId, BER_CLASS_CON, 1, 0, dissect_HI2Operations_AccessingElementId },
-  { &hf_HI2Operations_eventTime, BER_CLASS_CON, 2, 0, dissect_HI2Operations_EventTime },
-  { &hf_HI2Operations_callId, BER_CLASS_CON, 3, 0, dissect_HI2Operations_CallId },
-  { &hf_HI2Operations_calling, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_HI2Operations_PartyId },
-  { &hf_HI2Operations_called, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL, dissect_HI2Operations_PartyId },
-  { &hf_HI2Operations_reserved0, BER_CLASS_CON, 6, 0, dissect_HI2Operations_NULL },
-  { &hf_HI2Operations_redirectedFromInfo, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL, dissect_HI2Operations_RedirectedFromInfo },
+  { &hf_HI2Operations_caseId, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CaseId },
+  { &hf_HI2Operations_accessingElementId, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_AccessingElementId },
+  { &hf_HI2Operations_eventTime, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_EventTime },
+  { &hf_HI2Operations_callId, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CallId },
+  { &hf_HI2Operations_calling, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_PartyId },
+  { &hf_HI2Operations_called, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_PartyId },
+  { &hf_HI2Operations_reserved0, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_HI2Operations_NULL },
+  { &hf_HI2Operations_redirectedFromInfo, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_RedirectedFromInfo },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2649,15 +2649,15 @@ dissect_HI2Operations_ResourceState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 static const ber_sequence_t CCChange_sequence[] = {
-  { &hf_HI2Operations_caseId, BER_CLASS_CON, 0, 0, dissect_HI2Operations_CaseId },
-  { &hf_HI2Operations_accessingElementId, BER_CLASS_CON, 1, 0, dissect_HI2Operations_AccessingElementId },
-  { &hf_HI2Operations_eventTime, BER_CLASS_CON, 2, 0, dissect_HI2Operations_EventTime },
-  { &hf_HI2Operations_callId, BER_CLASS_CON, 3, 0, dissect_HI2Operations_CallId },
+  { &hf_HI2Operations_caseId, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CaseId },
+  { &hf_HI2Operations_accessingElementId, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_AccessingElementId },
+  { &hf_HI2Operations_eventTime, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_EventTime },
+  { &hf_HI2Operations_callId, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CallId },
   { &hf_HI2Operations_cCCId , BER_CLASS_CON, 4, BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_CCCId },
-  { &hf_HI2Operations_subject, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL, dissect_HI2Operations_SDP },
-  { &hf_HI2Operations_associate, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL, dissect_HI2Operations_SDP },
-  { &hf_HI2Operations_flowDirection, BER_CLASS_CON, 7, 0, dissect_HI2Operations_FlowDirection },
-  { &hf_HI2Operations_resourceState, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL, dissect_HI2Operations_ResourceState },
+  { &hf_HI2Operations_subject, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_SDP },
+  { &hf_HI2Operations_associate, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_SDP },
+  { &hf_HI2Operations_flowDirection, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_HI2Operations_FlowDirection },
+  { &hf_HI2Operations_resourceState, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_ResourceState },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2759,15 +2759,15 @@ dissect_HI2Operations_VisibleString_SIZE_1_40_(gboolean implicit_tag _U_, tvbuff
 
 
 static const ber_sequence_t TerminalDisplayInfo_sequence[] = {
-  { &hf_HI2Operations_generalDisplay, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_HI2Operations_VisibleString_SIZE_1_80_ },
-  { &hf_HI2Operations_calledNumber, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_HI2Operations_VisibleString_SIZE_1_40_ },
-  { &hf_HI2Operations_callingNumber, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_HI2Operations_VisibleString_SIZE_1_40_ },
-  { &hf_HI2Operations_callingName, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_HI2Operations_VisibleString_SIZE_1_40_ },
-  { &hf_HI2Operations_originalCalledNumber, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_HI2Operations_VisibleString_SIZE_1_40_ },
-  { &hf_HI2Operations_lastRedirectingNumber, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL, dissect_HI2Operations_VisibleString_SIZE_1_40_ },
-  { &hf_HI2Operations_redirectingName, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL, dissect_HI2Operations_VisibleString_SIZE_1_40_ },
-  { &hf_HI2Operations_redirectingReason, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL, dissect_HI2Operations_VisibleString_SIZE_1_40_ },
-  { &hf_HI2Operations_messageWaitingNotif, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL, dissect_HI2Operations_VisibleString_SIZE_1_40_ },
+  { &hf_HI2Operations_generalDisplay, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_80_ },
+  { &hf_HI2Operations_calledNumber, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_40_ },
+  { &hf_HI2Operations_callingNumber, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_40_ },
+  { &hf_HI2Operations_callingName, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_40_ },
+  { &hf_HI2Operations_originalCalledNumber, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_40_ },
+  { &hf_HI2Operations_lastRedirectingNumber, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_40_ },
+  { &hf_HI2Operations_redirectingName, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_40_ },
+  { &hf_HI2Operations_redirectingReason, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_40_ },
+  { &hf_HI2Operations_messageWaitingNotif, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_40_ },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2792,14 +2792,14 @@ dissect_HI2Operations_VisibleString_SIZE_1_128_(gboolean implicit_tag _U_, tvbuf
 
 
 static const ber_sequence_t NetworkSignal_sequence[] = {
-  { &hf_HI2Operations_caseId, BER_CLASS_CON, 0, 0, dissect_HI2Operations_CaseId },
-  { &hf_HI2Operations_accessingElementId, BER_CLASS_CON, 1, 0, dissect_HI2Operations_AccessingElementId },
-  { &hf_HI2Operations_eventTime, BER_CLASS_CON, 2, 0, dissect_HI2Operations_EventTime },
-  { &hf_HI2Operations_callId, BER_CLASS_CON, 3, 0, dissect_HI2Operations_CallId },
-  { &hf_HI2Operations_alertingSignal, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_HI2Operations_AlertingSignal },
-  { &hf_HI2Operations_subjectAudibleSignal, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL, dissect_HI2Operations_AudibleSignal },
-  { &hf_HI2Operations_terminalDisplayInfo, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL, dissect_HI2Operations_TerminalDisplayInfo },
-  { &hf_HI2Operations_other , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL, dissect_HI2Operations_VisibleString_SIZE_1_128_ },
+  { &hf_HI2Operations_caseId, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CaseId },
+  { &hf_HI2Operations_accessingElementId, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_AccessingElementId },
+  { &hf_HI2Operations_eventTime, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_EventTime },
+  { &hf_HI2Operations_callId, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CallId },
+  { &hf_HI2Operations_alertingSignal, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_AlertingSignal },
+  { &hf_HI2Operations_subjectAudibleSignal, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_AudibleSignal },
+  { &hf_HI2Operations_terminalDisplayInfo, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_TerminalDisplayInfo },
+  { &hf_HI2Operations_other , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_128_ },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2813,10 +2813,10 @@ dissect_HI2Operations_NetworkSignal(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 static const ber_sequence_t T_signal_sequence[] = {
-  { &hf_HI2Operations_switchhookFlash, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_HI2Operations_VisibleString_SIZE_1_128_ },
-  { &hf_HI2Operations_dialedDigits, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_HI2Operations_VisibleString_SIZE_1_128_ },
-  { &hf_HI2Operations_featureKey, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_HI2Operations_VisibleString_SIZE_1_128_ },
-  { &hf_HI2Operations_otherSignalingInformation, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_HI2Operations_VisibleString_SIZE_1_128_ },
+  { &hf_HI2Operations_switchhookFlash, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_128_ },
+  { &hf_HI2Operations_dialedDigits, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_128_ },
+  { &hf_HI2Operations_featureKey, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_128_ },
+  { &hf_HI2Operations_otherSignalingInformation, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_128_ },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2830,11 +2830,11 @@ dissect_HI2Operations_T_signal(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 
 static const ber_sequence_t SubjectSignal_sequence[] = {
-  { &hf_HI2Operations_caseId, BER_CLASS_CON, 0, 0, dissect_HI2Operations_CaseId },
-  { &hf_HI2Operations_accessingElementId, BER_CLASS_CON, 1, 0, dissect_HI2Operations_AccessingElementId },
-  { &hf_HI2Operations_eventTime, BER_CLASS_CON, 2, 0, dissect_HI2Operations_EventTime },
-  { &hf_HI2Operations_callId, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_HI2Operations_CallId },
-  { &hf_HI2Operations_signal, BER_CLASS_CON, 4, 0, dissect_HI2Operations_T_signal },
+  { &hf_HI2Operations_caseId, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CaseId },
+  { &hf_HI2Operations_accessingElementId, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_AccessingElementId },
+  { &hf_HI2Operations_eventTime, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_EventTime },
+  { &hf_HI2Operations_callId, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_CallId },
+  { &hf_HI2Operations_signal, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_signal },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2848,12 +2848,12 @@ dissect_HI2Operations_SubjectSignal(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 static const ber_sequence_t MediaReport_sequence[] = {
-  { &hf_HI2Operations_caseId, BER_CLASS_CON, 0, 0, dissect_HI2Operations_CaseId },
-  { &hf_HI2Operations_accessingElementId, BER_CLASS_CON, 1, 0, dissect_HI2Operations_AccessingElementId },
-  { &hf_HI2Operations_eventTime, BER_CLASS_CON, 2, 0, dissect_HI2Operations_EventTime },
-  { &hf_HI2Operations_callId, BER_CLASS_CON, 3, 0, dissect_HI2Operations_CallId },
-  { &hf_HI2Operations_subject, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_HI2Operations_SDP },
-  { &hf_HI2Operations_associate, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL, dissect_HI2Operations_SDP },
+  { &hf_HI2Operations_caseId, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CaseId },
+  { &hf_HI2Operations_accessingElementId, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_AccessingElementId },
+  { &hf_HI2Operations_eventTime, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_EventTime },
+  { &hf_HI2Operations_callId, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CallId },
+  { &hf_HI2Operations_subject, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_SDP },
+  { &hf_HI2Operations_associate, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_SDP },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2867,16 +2867,16 @@ dissect_HI2Operations_MediaReport(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 static const ber_sequence_t ServiceInstance_sequence[] = {
-  { &hf_HI2Operations_caseId, BER_CLASS_CON, 0, 0, dissect_HI2Operations_CaseId },
-  { &hf_HI2Operations_accessingElementId, BER_CLASS_CON, 1, 0, dissect_HI2Operations_AccessingElementId },
-  { &hf_HI2Operations_eventTime, BER_CLASS_CON, 2, 0, dissect_HI2Operations_EventTime },
-  { &hf_HI2Operations_callId, BER_CLASS_CON, 3, 0, dissect_HI2Operations_CallId },
-  { &hf_HI2Operations_relatedCallId, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_HI2Operations_CallId },
-  { &hf_HI2Operations_serviceName, BER_CLASS_CON, 5, 0, dissect_HI2Operations_VisibleString_SIZE_1_128_ },
-  { &hf_HI2Operations_firstCallCalling, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL, dissect_HI2Operations_PartyId },
-  { &hf_HI2Operations_secondCallCalling, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL, dissect_HI2Operations_PartyId },
-  { &hf_HI2Operations_called, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL, dissect_HI2Operations_PartyId },
-  { &hf_HI2Operations_calling, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL, dissect_HI2Operations_PartyId },
+  { &hf_HI2Operations_caseId, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CaseId },
+  { &hf_HI2Operations_accessingElementId, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_AccessingElementId },
+  { &hf_HI2Operations_eventTime, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_EventTime },
+  { &hf_HI2Operations_callId, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CallId },
+  { &hf_HI2Operations_relatedCallId, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_CallId },
+  { &hf_HI2Operations_serviceName, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_HI2Operations_VisibleString_SIZE_1_128_ },
+  { &hf_HI2Operations_firstCallCalling, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_PartyId },
+  { &hf_HI2Operations_secondCallCalling, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_PartyId },
+  { &hf_HI2Operations_called, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_PartyId },
+  { &hf_HI2Operations_calling, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_PartyId },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2913,25 +2913,25 @@ static const value_string HI2Operations_Message_vals[] = {
 };
 
 static const ber_choice_t Message_choice[] = {
-  {   1, &hf_HI2Operations_answer, BER_CLASS_CON, 1, 0, dissect_HI2Operations_Answer },
-  {   2, &hf_HI2Operations_ccclose, BER_CLASS_CON, 2, 0, dissect_HI2Operations_CCClose },
-  {   3, &hf_HI2Operations_ccopen, BER_CLASS_CON, 3, 0, dissect_HI2Operations_CCOpen },
-  {   4, &hf_HI2Operations_reserved0, BER_CLASS_CON, 4, 0, dissect_HI2Operations_NULL },
-  {   5, &hf_HI2Operations_origination, BER_CLASS_CON, 5, 0, dissect_HI2Operations_Origination },
-  {   6, &hf_HI2Operations_reserved1, BER_CLASS_CON, 6, 0, dissect_HI2Operations_NULL },
-  {   7, &hf_HI2Operations_redirection, BER_CLASS_CON, 7, 0, dissect_HI2Operations_Redirection },
-  {   8, &hf_HI2Operations_release, BER_CLASS_CON, 8, 0, dissect_HI2Operations_Release },
-  {   9, &hf_HI2Operations_reserved2, BER_CLASS_CON, 9, 0, dissect_HI2Operations_NULL },
-  {  10, &hf_HI2Operations_terminationattempt, BER_CLASS_CON, 10, 0, dissect_HI2Operations_TerminationAttempt },
-  {  11, &hf_HI2Operations_reserved, BER_CLASS_CON, 11, 0, dissect_HI2Operations_NULL },
-  {  12, &hf_HI2Operations_ccchange, BER_CLASS_CON, 12, 0, dissect_HI2Operations_CCChange },
-  {  13, &hf_HI2Operations_reserved3, BER_CLASS_CON, 13, 0, dissect_HI2Operations_NULL },
-  {  14, &hf_HI2Operations_reserved4, BER_CLASS_CON, 14, 0, dissect_HI2Operations_NULL },
-  {  15, &hf_HI2Operations_reserved5, BER_CLASS_CON, 15, 0, dissect_HI2Operations_NULL },
-  {  16, &hf_HI2Operations_networksignal, BER_CLASS_CON, 16, 0, dissect_HI2Operations_NetworkSignal },
-  {  17, &hf_HI2Operations_subjectsignal, BER_CLASS_CON, 17, 0, dissect_HI2Operations_SubjectSignal },
-  {  18, &hf_HI2Operations_mediareport, BER_CLASS_CON, 18, 0, dissect_HI2Operations_MediaReport },
-  {  19, &hf_HI2Operations_serviceinstance, BER_CLASS_CON, 19, 0, dissect_HI2Operations_ServiceInstance },
+  {   1, &hf_HI2Operations_answer, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_Answer },
+  {   2, &hf_HI2Operations_ccclose, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CCClose },
+  {   3, &hf_HI2Operations_ccopen, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CCOpen },
+  {   4, &hf_HI2Operations_reserved0, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_HI2Operations_NULL },
+  {   5, &hf_HI2Operations_origination, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_HI2Operations_Origination },
+  {   6, &hf_HI2Operations_reserved1, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_HI2Operations_NULL },
+  {   7, &hf_HI2Operations_redirection, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_HI2Operations_Redirection },
+  {   8, &hf_HI2Operations_release, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_HI2Operations_Release },
+  {   9, &hf_HI2Operations_reserved2, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_HI2Operations_NULL },
+  {  10, &hf_HI2Operations_terminationattempt, BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_HI2Operations_TerminationAttempt },
+  {  11, &hf_HI2Operations_reserved, BER_CLASS_CON, 11, BER_FLAGS_IMPLTAG, dissect_HI2Operations_NULL },
+  {  12, &hf_HI2Operations_ccchange, BER_CLASS_CON, 12, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CCChange },
+  {  13, &hf_HI2Operations_reserved3, BER_CLASS_CON, 13, BER_FLAGS_IMPLTAG, dissect_HI2Operations_NULL },
+  {  14, &hf_HI2Operations_reserved4, BER_CLASS_CON, 14, BER_FLAGS_IMPLTAG, dissect_HI2Operations_NULL },
+  {  15, &hf_HI2Operations_reserved5, BER_CLASS_CON, 15, BER_FLAGS_IMPLTAG, dissect_HI2Operations_NULL },
+  {  16, &hf_HI2Operations_networksignal, BER_CLASS_CON, 16, BER_FLAGS_IMPLTAG, dissect_HI2Operations_NetworkSignal },
+  {  17, &hf_HI2Operations_subjectsignal, BER_CLASS_CON, 17, BER_FLAGS_IMPLTAG, dissect_HI2Operations_SubjectSignal },
+  {  18, &hf_HI2Operations_mediareport, BER_CLASS_CON, 18, BER_FLAGS_IMPLTAG, dissect_HI2Operations_MediaReport },
+  {  19, &hf_HI2Operations_serviceinstance, BER_CLASS_CON, 19, BER_FLAGS_IMPLTAG, dissect_HI2Operations_ServiceInstance },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -2946,8 +2946,8 @@ dissect_HI2Operations_Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 static const ber_sequence_t CdcPdu_sequence[] = {
-  { &hf_HI2Operations_protocolVersion, BER_CLASS_CON, 0, 0, dissect_HI2Operations_ProtocolVersion },
-  { &hf_HI2Operations_message, BER_CLASS_CON, 1, BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_Message },
+  { &hf_HI2Operations_protocolVersion, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_ProtocolVersion },
+  { &hf_HI2Operations_message, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_Message },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2968,9 +2968,9 @@ static const value_string HI2Operations_UserSignalType_vals[] = {
 };
 
 static const ber_choice_t UserSignalType_choice[] = {
-  {   0, &hf_HI2Operations_copySignal, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_BIT_STRING },
-  {   1, &hf_HI2Operations_interpretedSignal, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_INTEGER },
-  {   2, &hf_HI2Operations_cdcPdu, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_CdcPdu },
+  {   0, &hf_HI2Operations_copySignal, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_BIT_STRING },
+  {   1, &hf_HI2Operations_interpretedSignal, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER },
+  {   2, &hf_HI2Operations_cdcPdu, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CdcPdu },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -2985,15 +2985,15 @@ dissect_HI2Operations_UserSignalType(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 
 static const ber_sequence_t TARGETACTIVITYMONITOR_1_sequence[] = {
-  { &hf_HI2Operations_version, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_HI2Operations_INTEGER },
-  { &hf_HI2Operations_lIInstanceid, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_LIIDType },
-  { &hf_HI2Operations_timestamp, BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_UTCTime },
-  { &hf_HI2Operations_targetLocation, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_LocationType },
-  { &hf_HI2Operations_direction, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_DirectionType },
-  { &hf_HI2Operations_iRITransaction, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_HI2Operations_IRITransactionType },
-  { &hf_HI2Operations_iRITransactionNumber, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_INTEGER },
-  { &hf_HI2Operations_userSignal, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_UserSignalType },
-  { &hf_HI2Operations_cryptoCheckSum, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_HI2Operations_BIT_STRING },
+  { &hf_HI2Operations_version, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER },
+  { &hf_HI2Operations_lIInstanceid, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_LIIDType },
+  { &hf_HI2Operations_timestamp, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_UTCTime },
+  { &hf_HI2Operations_targetLocation, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_LocationType },
+  { &hf_HI2Operations_direction, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_HI2Operations_DirectionType },
+  { &hf_HI2Operations_iRITransaction, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_IRITransactionType },
+  { &hf_HI2Operations_iRITransactionNumber, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER },
+  { &hf_HI2Operations_userSignal, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_UserSignalType },
+  { &hf_HI2Operations_cryptoCheckSum, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_BIT_STRING },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3036,8 +3036,8 @@ dissect_HI2Operations_T_cc(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 
 static const ber_sequence_t IRI_to_CC_Correlation_sequence[] = {
-  { &hf_HI2Operations_cc    , BER_CLASS_CON, 0, 0, dissect_HI2Operations_T_cc },
-  { &hf_HI2Operations_iri   , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_HI2Operations_OCTET_STRING },
+  { &hf_HI2Operations_cc    , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_cc },
+  { &hf_HI2Operations_iri   , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3061,8 +3061,8 @@ dissect_HI2Operations_IRI_to_IRI_Correlation(gboolean implicit_tag _U_, tvbuff_t
 
 
 static const ber_sequence_t T_both_IRI_CC_sequence[] = {
-  { &hf_HI2Operations_iri_CC, BER_CLASS_CON, 0, 0, dissect_HI2Operations_IRI_to_CC_Correlation },
-  { &hf_HI2Operations_iri_IRI, BER_CLASS_CON, 1, 0, dissect_HI2Operations_IRI_to_IRI_Correlation },
+  { &hf_HI2Operations_iri_CC, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_IRI_to_CC_Correlation },
+  { &hf_HI2Operations_iri_IRI, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_IRI_to_IRI_Correlation },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3083,9 +3083,9 @@ static const value_string HI2Operations_CorrelationValues_vals[] = {
 };
 
 static const ber_choice_t CorrelationValues_choice[] = {
-  {   0, &hf_HI2Operations_iri_to_CC, BER_CLASS_CON, 0, 0, dissect_HI2Operations_IRI_to_CC_Correlation },
-  {   1, &hf_HI2Operations_iri_to_iri, BER_CLASS_CON, 1, 0, dissect_HI2Operations_IRI_to_IRI_Correlation },
-  {   2, &hf_HI2Operations_both_IRI_CC, BER_CLASS_CON, 2, 0, dissect_HI2Operations_T_both_IRI_CC },
+  {   0, &hf_HI2Operations_iri_to_CC, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_IRI_to_CC_Correlation },
+  {   1, &hf_HI2Operations_iri_to_iri, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_IRI_to_IRI_Correlation },
+  {   2, &hf_HI2Operations_both_IRI_CC, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_both_IRI_CC },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -3155,10 +3155,10 @@ dissect_HI2Operations_CellIdType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 
 static const ber_sequence_t TETRACGIType_sequence[] = {
-  { &hf_HI2Operations_mcc_01, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_MCCType },
-  { &hf_HI2Operations_mnc_01, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_MNCType },
-  { &hf_HI2Operations_lai_01, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_LocationAreaType },
-  { &hf_HI2Operations_cI    , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_HI2Operations_CellIdType },
+  { &hf_HI2Operations_mcc_01, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_MCCType },
+  { &hf_HI2Operations_mnc_01, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_MNCType },
+  { &hf_HI2Operations_lai_01, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_LocationAreaType },
+  { &hf_HI2Operations_cI    , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_CellIdType },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3183,9 +3183,9 @@ dissect_HI2Operations_SSIType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 static const ber_sequence_t TSIType_sequence[] = {
-  { &hf_HI2Operations_mcc_01, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_MCCType },
-  { &hf_HI2Operations_mnc_01, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_MNCType },
-  { &hf_HI2Operations_ssi   , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_SSIType },
+  { &hf_HI2Operations_mcc_01, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_MCCType },
+  { &hf_HI2Operations_mnc_01, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_MNCType },
+  { &hf_HI2Operations_ssi   , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_SSIType },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3253,12 +3253,12 @@ static const value_string HI2Operations_TETRAAddressType_vals[] = {
 };
 
 static const ber_choice_t TETRAAddressType_choice[] = {
-  {   0, &hf_HI2Operations_tETRAaddress, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_TSIType },
-  {   1, &hf_HI2Operations_pISNaddress, BER_CLASS_UNI, BER_UNI_TAG_NumericString, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_NumericString_SIZE_20 },
-  {   2, &hf_HI2Operations_iP4address, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_BIT_STRING_SIZE_32 },
-  {   3, &hf_HI2Operations_iP6address, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_BIT_STRING_SIZE_128 },
-  {   4, &hf_HI2Operations_e164address, BER_CLASS_UNI, BER_UNI_TAG_NumericString, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_NumericString_SIZE_20 },
-  {   5, &hf_HI2Operations_tEI   , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_TEIType },
+  {   0, &hf_HI2Operations_tETRAaddress, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_TSIType },
+  {   1, &hf_HI2Operations_pISNaddress, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_NumericString_SIZE_20 },
+  {   2, &hf_HI2Operations_iP4address, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_BIT_STRING_SIZE_32 },
+  {   3, &hf_HI2Operations_iP6address, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_HI2Operations_BIT_STRING_SIZE_128 },
+  {   4, &hf_HI2Operations_e164address, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_HI2Operations_NumericString_SIZE_20 },
+  {   5, &hf_HI2Operations_tEI   , BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_HI2Operations_TEIType },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -3279,8 +3279,8 @@ static const value_string HI2Operations_LocationType_en301040_vals[] = {
 };
 
 static const ber_choice_t LocationType_en301040_choice[] = {
-  {   0, &hf_HI2Operations_mSLoc , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_TETRACGIType },
-  {   1, &hf_HI2Operations_lSLoc , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_TETRAAddressType },
+  {   0, &hf_HI2Operations_mSLoc , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_TETRACGIType },
+  {   1, &hf_HI2Operations_lSLoc , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_TETRAAddressType },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -3454,12 +3454,12 @@ dissect_HI2Operations_SSType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 
 static const ber_sequence_t ActivityType_sequence[] = {
-  { &hf_HI2Operations_cctivity, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_ActivityClassType },
-  { &hf_HI2Operations_callRelation, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_T_callRelation },
-  { &hf_HI2Operations_direction_01, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_HI2Operations_T_direction },
-  { &hf_HI2Operations_scope , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_HI2Operations_T_scope },
-  { &hf_HI2Operations_cPlaneData, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_HI2Operations_BIT_STRING },
-  { &hf_HI2Operations_sStype, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_HI2Operations_SSType },
+  { &hf_HI2Operations_cctivity, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_ActivityClassType },
+  { &hf_HI2Operations_callRelation, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_callRelation },
+  { &hf_HI2Operations_direction_01, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_direction },
+  { &hf_HI2Operations_scope , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_scope },
+  { &hf_HI2Operations_cPlaneData, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_BIT_STRING },
+  { &hf_HI2Operations_sStype, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_SSType },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3486,8 +3486,8 @@ dissect_HI2Operations_SEQUENCE_OF_TETRAAddressType(gboolean implicit_tag _U_, tv
 
 
 static const ber_sequence_t AddressType_sequence[] = {
-  { &hf_HI2Operations_tSI   , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_TSIType },
-  { &hf_HI2Operations_supplementaryAddress, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_HI2Operations_SEQUENCE_OF_TETRAAddressType },
+  { &hf_HI2Operations_tSI   , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_TSIType },
+  { &hf_HI2Operations_supplementaryAddress, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_SEQUENCE_OF_TETRAAddressType },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3527,13 +3527,13 @@ dissect_HI2Operations_SEQUENCE_OF_LocationType_en301040(gboolean implicit_tag _U
 
 
 static const ber_sequence_t TARGETACTIVITYMONITORind_sequence[] = {
-  { &hf_HI2Operations_tLIInstanceid, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_TLIIdType },
-  { &hf_HI2Operations_timestamp, BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_UTCTime },
-  { &hf_HI2Operations_targetLocation_01, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_LocationType_en301040 },
-  { &hf_HI2Operations_targetAction, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_ActivityType },
-  { &hf_HI2Operations_supplementaryTargetaddress, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_HI2Operations_AddressType },
-  { &hf_HI2Operations_cotargetaddress, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_HI2Operations_SEQUENCE_OF_AddressType },
-  { &hf_HI2Operations_cotargetlocation, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_HI2Operations_SEQUENCE_OF_LocationType_en301040 },
+  { &hf_HI2Operations_tLIInstanceid, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_TLIIdType },
+  { &hf_HI2Operations_timestamp, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_UTCTime },
+  { &hf_HI2Operations_targetLocation_01, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_LocationType_en301040 },
+  { &hf_HI2Operations_targetAction, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_HI2Operations_ActivityType },
+  { &hf_HI2Operations_supplementaryTargetaddress, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_AddressType },
+  { &hf_HI2Operations_cotargetaddress, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_SEQUENCE_OF_AddressType },
+  { &hf_HI2Operations_cotargetlocation, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_SEQUENCE_OF_LocationType_en301040 },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3571,13 +3571,13 @@ dissect_HI2Operations_SEQUENCE_OF_CircuitIdType(gboolean implicit_tag _U_, tvbuf
 
 
 static const ber_sequence_t TARGETCOMMSMONITORind_sequence[] = {
-  { &hf_HI2Operations_tLIInstanceid, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_TLIIdType },
-  { &hf_HI2Operations_timestamp, BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_UTCTime },
-  { &hf_HI2Operations_targetlocation, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_LocationType_en301040 },
-  { &hf_HI2Operations_supplementaryTargetaddress, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_HI2Operations_AddressType },
-  { &hf_HI2Operations_targetcommsid, BER_CLASS_UNI, BER_UNI_TAG_NumericString, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_CircuitIdType },
-  { &hf_HI2Operations_cotargetaddress, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_HI2Operations_SEQUENCE_OF_AddressType },
-  { &hf_HI2Operations_cotargetcommsid, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_HI2Operations_SEQUENCE_OF_CircuitIdType },
+  { &hf_HI2Operations_tLIInstanceid, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_TLIIdType },
+  { &hf_HI2Operations_timestamp, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_UTCTime },
+  { &hf_HI2Operations_targetlocation, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_LocationType_en301040 },
+  { &hf_HI2Operations_supplementaryTargetaddress, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_AddressType },
+  { &hf_HI2Operations_targetcommsid, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CircuitIdType },
+  { &hf_HI2Operations_cotargetaddress, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_SEQUENCE_OF_AddressType },
+  { &hf_HI2Operations_cotargetcommsid, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_SEQUENCE_OF_CircuitIdType },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3591,8 +3591,8 @@ dissect_HI2Operations_TARGETCOMMSMONITORind(gboolean implicit_tag _U_, tvbuff_t 
 
 
 static const ber_sequence_t TTRAFFICind_sequence[] = {
-  { &hf_HI2Operations_tLIInstanceid, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_TLIIdType },
-  { &hf_HI2Operations_trafficPacket, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_BIT_STRING },
+  { &hf_HI2Operations_tLIInstanceid, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_TLIIdType },
+  { &hf_HI2Operations_trafficPacket, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_BIT_STRING },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3606,8 +3606,8 @@ dissect_HI2Operations_TTRAFFICind(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 static const ber_sequence_t CTTRAFFICind_sequence[] = {
-  { &hf_HI2Operations_tLIInstanceid, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_TLIIdType },
-  { &hf_HI2Operations_trafficPacket, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_HI2Operations_BIT_STRING },
+  { &hf_HI2Operations_tLIInstanceid, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_TLIIdType },
+  { &hf_HI2Operations_trafficPacket, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_BIT_STRING },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3632,7 +3632,7 @@ dissect_HI2Operations_PrintableString_SIZE_2(gboolean implicit_tag _U_, tvbuff_t
 
 
 static const ber_sequence_t National_HI2_ASN1parameters_sequence[] = {
-  { &hf_HI2Operations_countryCode, BER_CLASS_CON, 1, 0, dissect_HI2Operations_PrintableString_SIZE_2 },
+  { &hf_HI2Operations_countryCode, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_PrintableString_SIZE_2 },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3646,45 +3646,45 @@ dissect_HI2Operations_National_HI2_ASN1parameters(gboolean implicit_tag _U_, tvb
 
 
 static const ber_sequence_t IRI_Parameters_sequence[] = {
-  { &hf_HI2Operations_domainID, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_HI2Operations_OBJECT_IDENTIFIER },
-  { &hf_HI2Operations_iRIversion, BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL, dissect_HI2Operations_T_iRIversion },
-  { &hf_HI2Operations_lawfulInterceptionIdentifier, BER_CLASS_CON, 1, 0, dissect_HI2Operations_LawfulInterceptionIdentifier },
-  { &hf_HI2Operations_communicationIdentifier, BER_CLASS_CON, 2, 0, dissect_HI2Operations_CommunicationIdentifier },
-  { &hf_HI2Operations_timeStamp, BER_CLASS_CON, 3, BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_TimeStamp },
-  { &hf_HI2Operations_intercepted_Call_Direct, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_HI2Operations_T_intercepted_Call_Direct },
-  { &hf_HI2Operations_intercepted_Call_State, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL, dissect_HI2Operations_Intercepted_Call_State },
-  { &hf_HI2Operations_ringingDuration, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL, dissect_HI2Operations_OCTET_STRING_SIZE_3 },
-  { &hf_HI2Operations_conversationDuration, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL, dissect_HI2Operations_OCTET_STRING_SIZE_3 },
-  { &hf_HI2Operations_locationOfTheTarget, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL, dissect_HI2Operations_Location },
-  { &hf_HI2Operations_partyInformation, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL, dissect_HI2Operations_SET_SIZE_1_10_OF_PartyInformation },
-  { &hf_HI2Operations_callContentLinkInformation, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL, dissect_HI2Operations_T_callContentLinkInformation },
-  { &hf_HI2Operations_release_Reason_Of_Intercepted_Call, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL, dissect_HI2Operations_OCTET_STRING_SIZE_2 },
-  { &hf_HI2Operations_nature_Of_The_intercepted_call, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL, dissect_HI2Operations_T_nature_Of_The_intercepted_call },
-  { &hf_HI2Operations_serverCenterAddress, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL, dissect_HI2Operations_PartyInformation },
-  { &hf_HI2Operations_sMS   , BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL, dissect_HI2Operations_SMS_report },
-  { &hf_HI2Operations_cC_Link_Identifier, BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL, dissect_HI2Operations_CC_Link_Identifier },
-  { &hf_HI2Operations_national_Parameters, BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL, dissect_HI2Operations_National_Parameters },
-  { &hf_HI2Operations_gPRSCorrelationNumber, BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL, dissect_HI2Operations_GPRSCorrelationNumber },
-  { &hf_HI2Operations_gPRSevent, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL, dissect_HI2Operations_GPRSEvent },
-  { &hf_HI2Operations_sgsnAddress, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_DataNodeAddress },
-  { &hf_HI2Operations_gPRSOperationErrorCode, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL, dissect_HI2Operations_GPRSOperationErrorCode },
-  { &hf_HI2Operations_ggsnAddress, BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_DataNodeAddress },
-  { &hf_HI2Operations_qOS   , BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_UmtsQos },
-  { &hf_HI2Operations_networkIdentifier, BER_CLASS_CON, 26, BER_FLAGS_OPTIONAL, dissect_HI2Operations_Network_Identifier },
-  { &hf_HI2Operations_sMSOriginatingAddress, BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_DataNodeAddress },
-  { &hf_HI2Operations_sMSTerminatingAddress, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_DataNodeAddress },
-  { &hf_HI2Operations_iMSevent, BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL, dissect_HI2Operations_IMSevent },
-  { &hf_HI2Operations_sIPMessage, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL, dissect_HI2Operations_OCTET_STRING },
-  { &hf_HI2Operations_servingSGSN_number, BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL, dissect_HI2Operations_OCTET_STRING_SIZE_1_20 },
-  { &hf_HI2Operations_servingSGSN_address, BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL, dissect_HI2Operations_OCTET_STRING_SIZE_5_17 },
-  { &hf_HI2Operations_tARGETACTIVITYMONITOR, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL, dissect_HI2Operations_TARGETACTIVITYMONITOR_1 },
-  { &hf_HI2Operations_ldiEvent, BER_CLASS_CON, 34, BER_FLAGS_OPTIONAL, dissect_HI2Operations_LDIevent },
-  { &hf_HI2Operations_correlation, BER_CLASS_CON, 35, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_CorrelationValues },
-  { &hf_HI2Operations_tARGETACTIVITYMONITORind, BER_CLASS_CON, 36, BER_FLAGS_OPTIONAL, dissect_HI2Operations_TARGETACTIVITYMONITORind },
-  { &hf_HI2Operations_tARGETCOMMSMONITORind, BER_CLASS_CON, 37, BER_FLAGS_OPTIONAL, dissect_HI2Operations_TARGETCOMMSMONITORind },
-  { &hf_HI2Operations_tTRAFFICind, BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL, dissect_HI2Operations_TTRAFFICind },
-  { &hf_HI2Operations_cTTRAFFICind, BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL, dissect_HI2Operations_CTTRAFFICind },
-  { &hf_HI2Operations_national_HI2_ASN1parameters, BER_CLASS_CON, 255, BER_FLAGS_OPTIONAL, dissect_HI2Operations_National_HI2_ASN1parameters },
+  { &hf_HI2Operations_domainID, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OBJECT_IDENTIFIER },
+  { &hf_HI2Operations_iRIversion, BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_iRIversion },
+  { &hf_HI2Operations_lawfulInterceptionIdentifier, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_LawfulInterceptionIdentifier },
+  { &hf_HI2Operations_communicationIdentifier, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_CommunicationIdentifier },
+  { &hf_HI2Operations_timeStamp, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_TimeStamp },
+  { &hf_HI2Operations_intercepted_Call_Direct, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_intercepted_Call_Direct },
+  { &hf_HI2Operations_intercepted_Call_State, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_Intercepted_Call_State },
+  { &hf_HI2Operations_ringingDuration, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_3 },
+  { &hf_HI2Operations_conversationDuration, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_3 },
+  { &hf_HI2Operations_locationOfTheTarget, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_Location },
+  { &hf_HI2Operations_partyInformation, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_SET_SIZE_1_10_OF_PartyInformation },
+  { &hf_HI2Operations_callContentLinkInformation, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_callContentLinkInformation },
+  { &hf_HI2Operations_release_Reason_Of_Intercepted_Call, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_2 },
+  { &hf_HI2Operations_nature_Of_The_intercepted_call, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_nature_Of_The_intercepted_call },
+  { &hf_HI2Operations_serverCenterAddress, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_PartyInformation },
+  { &hf_HI2Operations_sMS   , BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_SMS_report },
+  { &hf_HI2Operations_cC_Link_Identifier, BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_CC_Link_Identifier },
+  { &hf_HI2Operations_national_Parameters, BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_National_Parameters },
+  { &hf_HI2Operations_gPRSCorrelationNumber, BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_GPRSCorrelationNumber },
+  { &hf_HI2Operations_gPRSevent, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_GPRSEvent },
+  { &hf_HI2Operations_sgsnAddress, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_DataNodeAddress },
+  { &hf_HI2Operations_gPRSOperationErrorCode, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_GPRSOperationErrorCode },
+  { &hf_HI2Operations_ggsnAddress, BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_DataNodeAddress },
+  { &hf_HI2Operations_qOS   , BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_UmtsQos },
+  { &hf_HI2Operations_networkIdentifier, BER_CLASS_CON, 26, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_Network_Identifier },
+  { &hf_HI2Operations_sMSOriginatingAddress, BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_DataNodeAddress },
+  { &hf_HI2Operations_sMSTerminatingAddress, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_DataNodeAddress },
+  { &hf_HI2Operations_iMSevent, BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_IMSevent },
+  { &hf_HI2Operations_sIPMessage, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING },
+  { &hf_HI2Operations_servingSGSN_number, BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_20 },
+  { &hf_HI2Operations_servingSGSN_address, BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_5_17 },
+  { &hf_HI2Operations_tARGETACTIVITYMONITOR, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_TARGETACTIVITYMONITOR_1 },
+  { &hf_HI2Operations_ldiEvent, BER_CLASS_CON, 34, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_LDIevent },
+  { &hf_HI2Operations_correlation, BER_CLASS_CON, 35, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_HI2Operations_CorrelationValues },
+  { &hf_HI2Operations_tARGETACTIVITYMONITORind, BER_CLASS_CON, 36, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_TARGETACTIVITYMONITORind },
+  { &hf_HI2Operations_tARGETCOMMSMONITORind, BER_CLASS_CON, 37, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_TARGETCOMMSMONITORind },
+  { &hf_HI2Operations_tTRAFFICind, BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_TTRAFFICind },
+  { &hf_HI2Operations_cTTRAFFICind, BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_CTTRAFFICind },
+  { &hf_HI2Operations_national_HI2_ASN1parameters, BER_CLASS_CON, 255, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_National_HI2_ASN1parameters },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3706,10 +3706,10 @@ static const value_string HI2Operations_IRIContent_vals[] = {
 };
 
 static const ber_choice_t IRIContent_choice[] = {
-  {   1, &hf_HI2Operations_iRI_Begin_record, BER_CLASS_CON, 1, 0, dissect_HI2Operations_IRI_Parameters },
-  {   2, &hf_HI2Operations_iRI_End_record, BER_CLASS_CON, 2, 0, dissect_HI2Operations_IRI_Parameters },
-  {   3, &hf_HI2Operations_iRI_Continue_record, BER_CLASS_CON, 3, 0, dissect_HI2Operations_IRI_Parameters },
-  {   4, &hf_HI2Operations_iRI_Report_record, BER_CLASS_CON, 4, 0, dissect_HI2Operations_IRI_Parameters },
+  {   1, &hf_HI2Operations_iRI_Begin_record, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_IRI_Parameters },
+  {   2, &hf_HI2Operations_iRI_End_record, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_IRI_Parameters },
+  {   3, &hf_HI2Operations_iRI_Continue_record, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_HI2Operations_IRI_Parameters },
+  {   4, &hf_HI2Operations_iRI_Report_record, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_HI2Operations_IRI_Parameters },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -3743,8 +3743,8 @@ static const value_string HI2Operations_IRIsContent_vals[] = {
 };
 
 static const ber_choice_t IRIsContent_choice[] = {
-  {   0, &hf_HI2Operations_iRIContent, BER_CLASS_CON, 0, 0, dissect_HI2Operations_IRIContent },
-  {   1, &hf_HI2Operations_iRISequence, BER_CLASS_CON, 1, 0, dissect_HI2Operations_IRISequence },
+  {   0, &hf_HI2Operations_iRIContent, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_IRIContent },
+  {   1, &hf_HI2Operations_iRISequence, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_IRISequence },
   { 0, NULL, 0, 0, 0, NULL }
 };
 

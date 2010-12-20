@@ -618,6 +618,6 @@ proto_reg_handoff_tapa(void)
 	dissector_handle_t tapa_handle;
 
 	tapa_handle = find_dissector("tapa");
-	dissector_add("udp.port", PORT_TAPA, tapa_handle);
+	dissector_add_uint("udp.port", PORT_TAPA, tapa_handle);
 }
 

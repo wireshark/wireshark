@@ -84,7 +84,7 @@ dissect_hpext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tvb_length_remaining(tvb, 7) > 0) {
 		next_tvb = tvb_new_subset_remaining(tvb, 7);
-		if (!dissector_try_port(subdissector_table,
+		if (!dissector_try_uint(subdissector_table,
 		    dxsap, next_tvb, pinfo, tree)) {
 			call_dissector(data_handle, next_tvb, pinfo, tree);
 		}
@@ -127,5 +127,5 @@ proto_reg_handoff_hpext(void)
 	data_handle = find_dissector("data");
 
 	hpext_handle = find_dissector("hpext");
-	dissector_add("llc.dsap", SAP_HPEXT, hpext_handle);
+	dissector_add_uint("llc.dsap", SAP_HPEXT, hpext_handle);
 }

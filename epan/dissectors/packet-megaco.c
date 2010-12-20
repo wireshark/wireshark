@@ -3376,13 +3376,13 @@ proto_reg_handoff_megaco(void)
 		megaco_text_handle = find_dissector("megaco");
 		megaco_text_tcp_handle = create_dissector_handle(dissect_megaco_text_tcp, proto_megaco);
 
-		dissector_add("sctp.ppi", H248_PAYLOAD_PROTOCOL_ID,   megaco_text_handle);
+		dissector_add_uint("sctp.ppi", H248_PAYLOAD_PROTOCOL_ID,   megaco_text_handle);
 
 		megaco_prefs_initialized = TRUE;
 	}
 	else {
-		dissector_delete("tcp.port", txt_tcp_port, megaco_text_tcp_handle);
-		dissector_delete("udp.port", txt_udp_port, megaco_text_handle);
+		dissector_delete_uint("tcp.port", txt_tcp_port, megaco_text_tcp_handle);
+		dissector_delete_uint("udp.port", txt_udp_port, megaco_text_handle);
 	}
 
 	/* Set our port number for future use */
@@ -3390,8 +3390,8 @@ proto_reg_handoff_megaco(void)
 	txt_tcp_port = global_megaco_txt_tcp_port;
 	txt_udp_port = global_megaco_txt_udp_port;
 
-	dissector_add("tcp.port", global_megaco_txt_tcp_port, megaco_text_tcp_handle);
-	dissector_add("udp.port", global_megaco_txt_udp_port, megaco_text_handle);
+	dissector_add_uint("tcp.port", global_megaco_txt_tcp_port, megaco_text_tcp_handle);
+	dissector_add_uint("udp.port", global_megaco_txt_udp_port, megaco_text_handle);
 
 }
 

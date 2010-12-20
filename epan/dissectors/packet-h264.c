@@ -2060,12 +2060,12 @@ dissect_h264_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree)
 
 static void range_delete_h264_rtp_pt_callback(guint32 rtp_pt) {
   if (rtp_pt >= 96 && rtp_pt <= 127)
-     dissector_delete("rtp.pt", rtp_pt, h264_handle);
+     dissector_delete_uint("rtp.pt", rtp_pt, h264_handle);
 }
 
 static void range_add_h264_rtp_pt_callback(guint32 rtp_pt) {
   if (rtp_pt >= 96 && rtp_pt <= 127)
-     dissector_add("rtp.pt", rtp_pt, h264_handle);
+     dissector_add_uint("rtp.pt", rtp_pt, h264_handle);
 }
 
 

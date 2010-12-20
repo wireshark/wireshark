@@ -2254,17 +2254,17 @@ void proto_reg_handoff_snmp(void) {
 
 	snmp_handle = find_dissector("snmp");
 
-	dissector_add("udp.port", UDP_PORT_SNMP, snmp_handle);
-	dissector_add("udp.port", UDP_PORT_SNMP_TRAP, snmp_handle);
-	dissector_add("udp.port", UDP_PORT_SNMP_PATROL, snmp_handle);
-	dissector_add("ethertype", ETHERTYPE_SNMP, snmp_handle);
-	dissector_add("ipx.socket", IPX_SOCKET_SNMP_AGENT, snmp_handle);
-	dissector_add("ipx.socket", IPX_SOCKET_SNMP_SINK, snmp_handle);
-	dissector_add("hpext.dxsap", HPEXT_SNMP, snmp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_SNMP, snmp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_SNMP_TRAP, snmp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_SNMP_PATROL, snmp_handle);
+	dissector_add_uint("ethertype", ETHERTYPE_SNMP, snmp_handle);
+	dissector_add_uint("ipx.socket", IPX_SOCKET_SNMP_AGENT, snmp_handle);
+	dissector_add_uint("ipx.socket", IPX_SOCKET_SNMP_SINK, snmp_handle);
+	dissector_add_uint("hpext.dxsap", HPEXT_SNMP, snmp_handle);
 
 	snmp_tcp_handle = create_dissector_handle(dissect_snmp_tcp, proto_snmp);
-	dissector_add("tcp.port", TCP_PORT_SNMP, snmp_tcp_handle);
-	dissector_add("tcp.port", TCP_PORT_SNMP_TRAP, snmp_tcp_handle);
+	dissector_add_uint("tcp.port", TCP_PORT_SNMP, snmp_tcp_handle);
+	dissector_add_uint("tcp.port", TCP_PORT_SNMP_TRAP, snmp_tcp_handle);
 
 	data_handle = find_dissector("data");
 
@@ -2307,5 +2307,5 @@ proto_reg_handoff_smux(void)
 	dissector_handle_t smux_handle;
 
 	smux_handle = create_dissector_handle(dissect_smux, proto_smux);
-	dissector_add("tcp.port", TCP_PORT_SMUX, smux_handle);
+	dissector_add_uint("tcp.port", TCP_PORT_SMUX, smux_handle);
 }

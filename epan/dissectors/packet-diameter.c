@@ -479,13 +479,13 @@ dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset)
 	/* Call subdissectors for AVP:s */
 	switch (vendorid){
 	case 0:
-		dissector_try_port(diameter_dissector_table, code, subtvb, c->pinfo, avp_tree);
+		dissector_try_uint(diameter_dissector_table, code, subtvb, c->pinfo, avp_tree);
 		break;
 	case VENDOR_ERICSSON:
-		dissector_try_port(diameter_ericsson_avp_dissector_table, code, subtvb, c->pinfo, avp_tree);
+		dissector_try_uint(diameter_ericsson_avp_dissector_table, code, subtvb, c->pinfo, avp_tree);
 		break;
 	case VENDOR_THE3GPP:
-		dissector_try_port(diameter_3gpp_avp_dissector_table, code, subtvb, c->pinfo, avp_tree);
+		dissector_try_uint(diameter_3gpp_avp_dissector_table, code, subtvb, c->pinfo, avp_tree);
 		break;
 	default:
 		break;
@@ -1405,25 +1405,25 @@ dictionary_load(void)
 static void
 tcp_range_delete_callback(guint32 port)
 {
-	dissector_delete("tcp.port", port, diameter_tcp_handle);
+	dissector_delete_uint("tcp.port", port, diameter_tcp_handle);
 }
 
 static void
 tcp_range_add_callback(guint32 port)
 {
-	dissector_add("tcp.port", port, diameter_tcp_handle);
+	dissector_add_uint("tcp.port", port, diameter_tcp_handle);
 }
 
 static void
 sctp_range_delete_callback(guint32 port)
 {
-	dissector_delete("sctp.port", port, diameter_sctp_handle);
+	dissector_delete_uint("sctp.port", port, diameter_sctp_handle);
 }
 
 static void
 sctp_range_add_callback(guint32 port)
 {
-	dissector_add("sctp.port", port, diameter_sctp_handle);
+	dissector_add_uint("sctp.port", port, diameter_sctp_handle);
 }
 
 /* registration with the filtering engine */
@@ -1633,13 +1633,13 @@ proto_reg_handoff_diameter(void)
 		eap_handle = find_dissector("eap");
 		/* Register special decoding for some AVP:s */
 		/* AVP Code: 266 Vendor-Id */
-		dissector_add("diameter.base", 266,
+		dissector_add_uint("diameter.base", 266,
 				new_create_dissector_handle(dissect_diameter_vedor_id, proto_diameter));
 		/* AVP Code: 462 EAP-Payload */
-		dissector_add("diameter.base", 462,
+		dissector_add_uint("diameter.base", 462,
 			new_create_dissector_handle(dissect_diameter_eap_payload, proto_diameter));
 		/* AVP Code: 463 EAP-Reissued-Payload */
-		dissector_add("diameter.base", 463,
+		dissector_add_uint("diameter.base", 463,
 			new_create_dissector_handle(dissect_diameter_eap_payload, proto_diameter));
 
 		Initialized=TRUE;

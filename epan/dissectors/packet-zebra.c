@@ -439,7 +439,7 @@ dissect_zebra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZEBRA");
 
-	request = (pinfo->destport == pinfo->match_port);
+	request = (pinfo->destport == pinfo->match_uint);
 	left = tvb_reported_length(tvb);
 	offset = 0;
 
@@ -613,5 +613,5 @@ proto_reg_handoff_zebra(void)
   dissector_handle_t zebra_handle;
 
   zebra_handle = create_dissector_handle(dissect_zebra, proto_zebra);
-  dissector_add("tcp.port", TCP_PORT_ZEBRA, zebra_handle);
+  dissector_add_uint("tcp.port", TCP_PORT_ZEBRA, zebra_handle);
 }

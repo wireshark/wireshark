@@ -160,6 +160,6 @@ proto_reg_handoff_docsis_bpkmrsp (void)
 
   docsis_bpkmrsp_handle = find_dissector ("docsis_bpkmrsp");
   attrs_handle = find_dissector ("docsis_bpkmattr");
-  dissector_add ("docsis_mgmt", 0x0D, docsis_bpkmrsp_handle);
+  dissector_add_uint ("docsis_mgmt", 0x0D, docsis_bpkmrsp_handle);
 
 }

@@ -162,5 +162,5 @@ proto_reg_handoff_ascend(void)
   ppp_hdlc_handle = find_dissector("ppp_hdlc");
 
   ascend_handle = create_dissector_handle(dissect_ascend, proto_ascend);
-  dissector_add("wtap_encap", WTAP_ENCAP_ASCEND, ascend_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_ASCEND, ascend_handle);
 }

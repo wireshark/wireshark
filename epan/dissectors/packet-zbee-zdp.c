@@ -1785,5 +1785,5 @@ void proto_reg_handoff_zbee_zdp(void)
 
     /* Register our dissector with the ZigBee application dissectors. */
     zdp_handle = find_dissector("zbee.zdp");
-    dissector_add("zbee.profile", ZBEE_ZDP_PROFILE, zdp_handle);
+    dissector_add_uint("zbee.profile", ZBEE_ZDP_PROFILE, zdp_handle);
 } /* proto_reg_handoff_zbee_zdp */

@@ -394,5 +394,5 @@ proto_reg_handoff_gsmtap(void)
 	sub_handles[GSMTAP_SUB_UM_LAPDM] = find_dissector("lapdm");
 	sub_handles[GSMTAP_SUB_ABIS] = find_dissector("gsm_a_dtap");
 	gsmtap_handle = create_dissector_handle(dissect_gsmtap, proto_gsmtap);
-	dissector_add("udp.port", GSMTAP_UDP_PORT, gsmtap_handle);
+	dissector_add_uint("udp.port", GSMTAP_UDP_PORT, gsmtap_handle);
 }

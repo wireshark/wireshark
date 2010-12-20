@@ -447,15 +447,15 @@ proto_reg_handoff_lsc(void)
     initialized = TRUE;
   } else {
     if (saved_lsc_port != 0) {
-      dissector_delete("udp.port", saved_lsc_port, lsc_udp_handle);
-      dissector_delete("tcp.port", saved_lsc_port, lsc_tcp_handle);
+      dissector_delete_uint("udp.port", saved_lsc_port, lsc_udp_handle);
+      dissector_delete_uint("tcp.port", saved_lsc_port, lsc_tcp_handle);
     }
   }
 
   /* Set the port number */
   if (global_lsc_port != 0) {
-    dissector_add("udp.port", global_lsc_port, lsc_udp_handle);
-    dissector_add("tcp.port", global_lsc_port, lsc_tcp_handle);
+    dissector_add_uint("udp.port", global_lsc_port, lsc_udp_handle);
+    dissector_add_uint("tcp.port", global_lsc_port, lsc_tcp_handle);
   }
   saved_lsc_port = global_lsc_port;
 }

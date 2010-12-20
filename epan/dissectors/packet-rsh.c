@@ -89,7 +89,7 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = next_offset;
 		}
 
-		if (pinfo->match_port == pinfo->destport) {
+		if (pinfo->match_uint == pinfo->destport) {
 			hidden_item = proto_tree_add_boolean(rsh_tree,
 			    hf_rsh_request, tvb, 0, 0, 1);
                 } else {
@@ -130,5 +130,5 @@ proto_reg_handoff_rsh(void)
 	dissector_handle_t rsh_handle;
 
 	rsh_handle = create_dissector_handle(dissect_rsh, proto_rsh);
-	dissector_add("tcp.port", TCP_PORT_RSH, rsh_handle);
+	dissector_add_uint("tcp.port", TCP_PORT_RSH, rsh_handle);
 }

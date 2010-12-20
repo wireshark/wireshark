@@ -1004,10 +1004,10 @@ proto_reg_handoff_ltp(void)
 		ltp_handle = new_create_dissector_handle(dissect_ltp, proto_ltp);
 		initialized = TRUE;
 	} else {
-		dissector_delete("udp.port", currentPort, ltp_handle);
+		dissector_delete_uint("udp.port", currentPort, ltp_handle);
 	}
 
 	currentPort = ltp_port;
 
-	dissector_add("udp.port", currentPort, ltp_handle);
+	dissector_add_uint("udp.port", currentPort, ltp_handle);
 }

@@ -550,5 +550,5 @@ proto_reg_handoff_epl_v1(void)
     dissector_handle_t epl_v1_handle;
 
     epl_v1_handle = new_create_dissector_handle(dissect_epl_v1, proto_epl_v1);
-    dissector_add("ethertype", ETHERTYPE_EPL_V1, epl_v1_handle);
+    dissector_add_uint("ethertype", ETHERTYPE_EPL_V1, epl_v1_handle);
 }

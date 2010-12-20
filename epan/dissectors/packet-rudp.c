@@ -258,12 +258,12 @@ proto_reg_handoff_rudp(void) {
 		initialized = TRUE;
 	} else {
 		if (saved_udp_port != 0) {
-			dissector_delete("udp.port", saved_udp_port, rudp_handle);
+			dissector_delete_uint("udp.port", saved_udp_port, rudp_handle);
 		}
 	}
 
 	if (udp_port != 0) {
-		dissector_add("udp.port", udp_port, rudp_handle);
+		dissector_add_uint("udp.port", udp_port, rudp_handle);
 	}
 	saved_udp_port = udp_port;
 }

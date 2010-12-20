@@ -1833,7 +1833,10 @@ class EthCtx:
       if (pdu['new']): new_prefix = 'new_'
       if (reg['rtype'] in ('NUM', 'STR')):
         rstr = ''
-        if (reg['rtype'] == 'STR'): rstr = '_string'
+        if (reg['rtype'] == 'STR'):
+	  rstr = 'string'
+        else:
+	  rstr = 'uint'
         if (pdu['reg']):
           dis = self.proto
           if (pdu['reg'] != '.'): dis += '.' + pdu['reg']
@@ -1844,7 +1847,7 @@ class EthCtx:
         else:
           hnd = '%screate_dissector_handle(dissect_%s, proto_%s)' % (new_prefix, f, self.eproto)
         rport = self.value_get_eth(reg['rport'])
-        fx.write('  dissector_add%s("%s", %s, %s);\n' % (rstr, reg['rtable'], rport, hnd))
+        fx.write('  dissector_add_%s("%s", %s, %s);\n' % (rstr, reg['rtable'], rport, hnd))
       elif (reg['rtype'] in ('BER', 'PER')):
         roid = self.value_get_eth(reg['roid'])
         fx.write('  %sregister_%s_oid_dissector(%s, dissect_%s, proto_%s, %s);\n' % (new_prefix, reg['rtype'].lower(), roid, f, self.eproto, reg['roidname']))

@@ -8857,11 +8857,11 @@ proto_reg_handoff_ulp(void)
 		rrlp_handle = find_dissector("rrlp");
 		initialized = TRUE;
 	} else {
-		dissector_delete("tcp.port", local_ulp_port, ulp_handle);
+		dissector_delete_uint("tcp.port", local_ulp_port, ulp_handle);
 	}
 
 	local_ulp_port = gbl_ulp_port;
-	dissector_add("tcp.port", gbl_ulp_port, ulp_handle);
+	dissector_add_uint("tcp.port", gbl_ulp_port, ulp_handle);
 
 	/* application/oma-supl-ulp */
 

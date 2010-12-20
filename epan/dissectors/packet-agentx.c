@@ -1161,9 +1161,9 @@ proto_reg_handoff_agentx(void)
 		agentx_prefs_initialized = TRUE;
 	}
 	else {
-		dissector_delete("tcp.port", agentx_tcp_port, agentx_handle);
+		dissector_delete_uint("tcp.port", agentx_tcp_port, agentx_handle);
 	}
 
 	agentx_tcp_port = global_agentx_tcp_port;
-	dissector_add("tcp.port", agentx_tcp_port, agentx_handle);
+	dissector_add_uint("tcp.port", agentx_tcp_port, agentx_handle);
 }

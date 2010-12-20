@@ -355,25 +355,25 @@ void proto_register_ipa(void)
 static void ipa_tcp_delete_callback(guint32 port)
 {
 	if (port)
-		dissector_delete("tcp.port", port, ipa_handle);
+		dissector_delete_uint("tcp.port", port, ipa_handle);
 }
 
 static void ipa_udp_delete_callback(guint32 port)
 {
 	if (port)
-		dissector_delete("udp.port", port, ipa_handle);
+		dissector_delete_uint("udp.port", port, ipa_handle);
 }
 
 static void ipa_tcp_add_callback(guint32 port)
 {
 	if (port)
-		dissector_add("tcp.port", port, ipa_handle);
+		dissector_add_uint("tcp.port", port, ipa_handle);
 }
 
 static void ipa_udp_add_callback(guint32 port)
 {
 	if (port)
-		dissector_add("udp.port", port, ipa_handle);
+		dissector_add_uint("udp.port", port, ipa_handle);
 }
 
 void proto_reg_handoff_gsm_ipa(void)

@@ -227,23 +227,23 @@ static void dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 
 extern void add_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector) {
     g_hash_table_insert(ansi_sub_dissectors,GUINT_TO_POINTER(ssn),dissector);
-    dissector_add("sccp.ssn",ssn,tcap_handle);
+    dissector_add_uint("sccp.ssn",ssn,tcap_handle);
 }
 
 extern void add_itu_tcap_subdissector(guint32 ssn, dissector_handle_t dissector) {
     g_hash_table_insert(itu_sub_dissectors,GUINT_TO_POINTER(ssn),dissector);
-    dissector_add("sccp.ssn",ssn,tcap_handle);
+    dissector_add_uint("sccp.ssn",ssn,tcap_handle);
 }
 
 extern void delete_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector _U_) {
     g_hash_table_remove(ansi_sub_dissectors,GUINT_TO_POINTER(ssn));
     if (!get_itu_tcap_subdissector(ssn))
-      dissector_delete("sccp.ssn",ssn,tcap_handle);
+      dissector_delete_uint("sccp.ssn",ssn,tcap_handle);
 }
 extern void delete_itu_tcap_subdissector(guint32 ssn, dissector_handle_t dissector _U_) {
     g_hash_table_remove(itu_sub_dissectors,GUINT_TO_POINTER(ssn));
     if (!get_ansi_tcap_subdissector(ssn))
-      dissector_delete("sccp.ssn", ssn,tcap_handle);
+      dissector_delete_uint("sccp.ssn", ssn,tcap_handle);
 }
 
 dissector_handle_t get_ansi_tcap_subdissector(guint32 ssn) {
@@ -1996,14 +1996,14 @@ proto_register_tcap(void)
 static void range_delete_callback(guint32 ssn)
 {
     if ( ssn && !get_ansi_tcap_subdissector(ssn) && !get_itu_tcap_subdissector(ssn) ) {
-        dissector_delete("sccp.ssn", ssn, tcap_handle);
+        dissector_delete_uint("sccp.ssn", ssn, tcap_handle);
     }
 }
 
 static void range_add_callback(guint32 ssn)
 {
     if (ssn && !get_ansi_tcap_subdissector(ssn) && !get_itu_tcap_subdissector(ssn) ) {
-        dissector_add("sccp.ssn", ssn, tcap_handle);
+        dissector_add_uint("sccp.ssn", ssn, tcap_handle);
     }
 }
 
@@ -2160,7 +2160,7 @@ dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 				  p_tcap_context->subdissector_present=TRUE;
 			  } else {
 			    /* Not found, so try to find a subdissector according to SSN */
-			    if ( (subdissector_handle = get_itu_tcap_subdissector(actx->pinfo->match_port))) {
+			    if ( (subdissector_handle = get_itu_tcap_subdissector(actx->pinfo->match_uint))) {
 			      /* Found according to SSN */
 			      p_tcap_context->subdissector_handle=subdissector_handle;
 			      p_tcap_context->subdissector_present=TRUE;
@@ -2206,7 +2206,7 @@ dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
       } else {
 		  /* Search if we can found the sub protocol according to the SSN table */
 		  if ( (subdissector_handle
-			  = get_itu_tcap_subdissector(actx->pinfo->match_port))) {
+			  = get_itu_tcap_subdissector(actx->pinfo->match_uint))) {
 			  /* Found according to SSN */
 			  is_subdissector=TRUE;
 		  } else {
@@ -2217,7 +2217,7 @@ dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 	  } /* ACN */
 	} else {
 		/* There is no A.C.N for this transaction, so search in the SSN table */
-		if ( (subdissector_handle = get_itu_tcap_subdissector(actx->pinfo->match_port))) {
+		if ( (subdissector_handle = get_itu_tcap_subdissector(actx->pinfo->match_uint))) {
 			/* Found according to SSN */
 			is_subdissector=TRUE;
 		} else {

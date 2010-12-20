@@ -137,6 +137,6 @@ proto_reg_handoff_docsis_dsdreq (void)
 
   docsis_dsdreq_handle = find_dissector ("docsis_dsdreq");
   docsis_tlv_handle = find_dissector ("docsis_tlv");
-  dissector_add ("docsis_mgmt", 0x15, docsis_dsdreq_handle);
+  dissector_add_uint ("docsis_mgmt", 0x15, docsis_dsdreq_handle);
 
 }

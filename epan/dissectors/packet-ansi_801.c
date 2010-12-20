@@ -2147,12 +2147,12 @@ dissect_ansi_801(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_protocol_format(tree, proto_ansi_801, tvb, 0, -1,
 		"%s %s Link",
 		ansi_proto_name,
-		(pinfo->match_port == ANSI_801_FORWARD) ? "Forward" : "Reverse");
+		(pinfo->match_uint == ANSI_801_FORWARD) ? "Forward" : "Reverse");
 
 	ansi_801_tree =
 		proto_item_add_subtree(ansi_801_item, ett_ansi_801);
 
-	if (pinfo->match_port == ANSI_801_FORWARD)
+	if (pinfo->match_uint == ANSI_801_FORWARD)
 	{
 		dissect_ansi_801_for_message(tvb, ansi_801_tree);
 	}
@@ -2409,10 +2409,10 @@ proto_reg_handoff_ansi_801(void)
 
 	ansi_801_handle = create_dissector_handle(dissect_ansi_801, proto_ansi_801);
 
-	dissector_add("ansi_map.pld", ANSI_801_FORWARD, ansi_801_handle);
-	dissector_add("ansi_map.pld", ANSI_801_REVERSE, ansi_801_handle);
-	dissector_add("ansi_a.pld", ANSI_801_FORWARD, ansi_801_handle);
-	dissector_add("ansi_a.pld", ANSI_801_REVERSE, ansi_801_handle);
+	dissector_add_uint("ansi_map.pld", ANSI_801_FORWARD, ansi_801_handle);
+	dissector_add_uint("ansi_map.pld", ANSI_801_REVERSE, ansi_801_handle);
+	dissector_add_uint("ansi_a.pld", ANSI_801_FORWARD, ansi_801_handle);
+	dissector_add_uint("ansi_a.pld", ANSI_801_REVERSE, ansi_801_handle);
 
 	data_handle = find_dissector("data");
 }

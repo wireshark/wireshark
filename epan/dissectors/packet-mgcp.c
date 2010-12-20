@@ -934,10 +934,10 @@ void proto_reg_handoff_mgcp(void)
 	}
 	else
 	{
-		dissector_delete("tcp.port", gateway_tcp_port, mgcp_tpkt_handle);
-		dissector_delete("udp.port", gateway_udp_port, mgcp_handle);
-		dissector_delete("tcp.port", callagent_tcp_port, mgcp_tpkt_handle);
-		dissector_delete("udp.port", callagent_udp_port, mgcp_handle);
+		dissector_delete_uint("tcp.port", gateway_tcp_port, mgcp_tpkt_handle);
+		dissector_delete_uint("udp.port", gateway_udp_port, mgcp_handle);
+		dissector_delete_uint("tcp.port", callagent_tcp_port, mgcp_tpkt_handle);
+		dissector_delete_uint("udp.port", callagent_udp_port, mgcp_handle);
 	}
 
 	/* Set our port number for future use */
@@ -947,10 +947,10 @@ void proto_reg_handoff_mgcp(void)
 	callagent_tcp_port = global_mgcp_callagent_tcp_port;
 	callagent_udp_port = global_mgcp_callagent_udp_port;
 
-	dissector_add("tcp.port", global_mgcp_gateway_tcp_port, mgcp_tpkt_handle);
-	dissector_add("udp.port", global_mgcp_gateway_udp_port, mgcp_handle);
-	dissector_add("tcp.port", global_mgcp_callagent_tcp_port, mgcp_tpkt_handle);
-	dissector_add("udp.port", global_mgcp_callagent_udp_port, mgcp_handle);
+	dissector_add_uint("tcp.port", global_mgcp_gateway_tcp_port, mgcp_tpkt_handle);
+	dissector_add_uint("udp.port", global_mgcp_gateway_udp_port, mgcp_handle);
+	dissector_add_uint("tcp.port", global_mgcp_callagent_tcp_port, mgcp_tpkt_handle);
+	dissector_add_uint("udp.port", global_mgcp_callagent_udp_port, mgcp_handle);
 }
 
 /*

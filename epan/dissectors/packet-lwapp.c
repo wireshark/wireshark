@@ -581,14 +581,14 @@ proto_reg_handoff_lwapp(void)
 
     /* Obsoleted LWAPP via encapsulated 802.3 over UDP */
 
-    dissector_add("udp.port", 12220, lwapp_l3_handle);
+    dissector_add_uint("udp.port", 12220, lwapp_l3_handle);
 
     /* new-style lwapp directly over UDP: L3-lwapp*/
-    dissector_add("udp.port", 12222, lwapp_handle);
-    dissector_add("udp.port", 12223, lwapp_handle);
+    dissector_add_uint("udp.port", 12222, lwapp_handle);
+    dissector_add_uint("udp.port", 12223, lwapp_handle);
 
     /* Lwapp over L2 */
-    dissector_add("ethertype", 0x88bb, lwapp_handle);
-    dissector_add("ethertype", 0xbbbb, lwapp_handle);
+    dissector_add_uint("ethertype", 0x88bb, lwapp_handle);
+    dissector_add_uint("ethertype", 0xbbbb, lwapp_handle);
 
 }

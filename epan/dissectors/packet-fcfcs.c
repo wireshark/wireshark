@@ -1126,7 +1126,7 @@ proto_reg_handoff_fcfcs (void)
 
     fcs_handle = create_dissector_handle (dissect_fcfcs, proto_fcfcs);
 
-    dissector_add("fcct.server", FCCT_GSRVR_FCS, fcs_handle);
+    dissector_add_uint("fcct.server", FCCT_GSRVR_FCS, fcs_handle);
 
     data_handle = find_dissector ("data");
 }

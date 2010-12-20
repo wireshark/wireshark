@@ -889,7 +889,7 @@ dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
 		col_set_str(pinfo->cinfo, COL_INFO,
-			(pinfo->match_port == pinfo->destport) ? "Request" : "Response");
+			(pinfo->match_uint == pinfo->destport) ? "Request" : "Response");
 	}
 
 	if (tree)
@@ -897,7 +897,7 @@ dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_tns, tvb, 0, -1, FALSE);
 		tns_tree = proto_item_add_subtree(ti, ett_tns);
 
-		if (pinfo->match_port == pinfo->destport)
+		if (pinfo->match_uint == pinfo->destport)
 		{
 			hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_request,
 					   tvb, offset, 0, TRUE);
@@ -1333,6 +1333,6 @@ proto_reg_handoff_tns(void)
 	dissector_handle_t tns_handle;
 
 	tns_handle = new_create_dissector_handle(dissect_tns, proto_tns);
-	dissector_add("tcp.port", TCP_PORT_TNS, tns_handle);
+	dissector_add_uint("tcp.port", TCP_PORT_TNS, tns_handle);
 	data_handle = find_dissector("data");
 }

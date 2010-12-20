@@ -415,5 +415,5 @@ proto_reg_handoff_rpl(void)
 
 	data_handle = find_dissector("data");
 	rpl_handle = find_dissector("rpl");
-	dissector_add("llc.dsap", SAP_RPL, rpl_handle);
+	dissector_add_uint("llc.dsap", SAP_RPL, rpl_handle);
 }

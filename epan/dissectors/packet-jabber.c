@@ -69,7 +69,7 @@ dissect_jabber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 	line = tvb_get_ptr(tvb, offset, linelen);
 
-	if (pinfo->match_port == pinfo->destport)
+	if (pinfo->match_uint == pinfo->destport)
 		is_request = TRUE;
 	else
 		is_request = FALSE;
@@ -136,5 +136,5 @@ proto_reg_handoff_jabber(void)
   xml_handle = find_dissector("xml");
 
   jabber_handle = create_dissector_handle(dissect_jabber, proto_jabber);
-  dissector_add("tcp.port", TCP_PORT_JABBER, jabber_handle);
+  dissector_add_uint("tcp.port", TCP_PORT_JABBER, jabber_handle);
 }

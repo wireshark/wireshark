@@ -426,8 +426,8 @@ proto_reg_handoff_distcc(void)
 		 * of "distcc_tcp_port"; we might be changing the TCP port
 		 * number, so remove that registration.
 		 */
-		dissector_delete("tcp.port", distcc_tcp_port, distcc_handle);
+		dissector_delete_uint("tcp.port", distcc_tcp_port, distcc_handle);
 	}
 	distcc_tcp_port = glb_distcc_tcp_port;
-	dissector_add("tcp.port", distcc_tcp_port, distcc_handle);
+	dissector_add_uint("tcp.port", distcc_tcp_port, distcc_handle);
 }

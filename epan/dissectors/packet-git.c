@@ -161,5 +161,5 @@ proto_reg_handoff_git(void)
   dissector_handle_t git_handle;
 
   git_handle = find_dissector("git");
-  dissector_add("tcp.port", TCP_PORT_GIT, git_handle);
+  dissector_add_uint("tcp.port", TCP_PORT_GIT, git_handle);
 }

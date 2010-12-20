@@ -582,5 +582,5 @@ proto_reg_handoff_synergy(void)
 
 	dissector_handle_t synergy_handle;
 	synergy_handle = find_dissector("synergy");
-	dissector_add("tcp.port",24800, synergy_handle);
+	dissector_add_uint("tcp.port",24800, synergy_handle);
 }

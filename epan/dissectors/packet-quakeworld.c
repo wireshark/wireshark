@@ -865,12 +865,12 @@ proto_reg_handoff_quakeworld(void)
 		data_handle = find_dissector("data");
 		Initialized=TRUE;
 	} else {
-		dissector_delete("udp.port", ServerPort, quakeworld_handle);
+		dissector_delete_uint("udp.port", ServerPort, quakeworld_handle);
 	}
 
         /* set port for future deletes */
         ServerPort=gbl_quakeworldServerPort;
 
-	dissector_add("udp.port", gbl_quakeworldServerPort, quakeworld_handle);
+	dissector_add_uint("udp.port", gbl_quakeworldServerPort, quakeworld_handle);
 }
 

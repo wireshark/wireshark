@@ -1352,9 +1352,9 @@ proto_reg_handoff_arp(void)
 
   arp_handle = find_dissector("arp");
 
-  dissector_add("ethertype", ETHERTYPE_ARP, arp_handle);
-  dissector_add("ethertype", ETHERTYPE_REVARP, arp_handle);
-  dissector_add("arcnet.protocol_id", ARCNET_PROTO_ARP_1051, arp_handle);
-  dissector_add("arcnet.protocol_id", ARCNET_PROTO_ARP_1201, arp_handle);
-  dissector_add("arcnet.protocol_id", ARCNET_PROTO_RARP_1201, arp_handle);
+  dissector_add_uint("ethertype", ETHERTYPE_ARP, arp_handle);
+  dissector_add_uint("ethertype", ETHERTYPE_REVARP, arp_handle);
+  dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_ARP_1051, arp_handle);
+  dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_ARP_1201, arp_handle);
+  dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_RARP_1201, arp_handle);
 }

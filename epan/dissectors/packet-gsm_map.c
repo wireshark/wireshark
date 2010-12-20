@@ -4824,7 +4824,7 @@ dissect_gsm_map_er_SM_DeliveryFailureCause(gboolean implicit_tag _U_, tvbuff_t *
 
         if (!actx->value_ptr)
                 return offset;
-        dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+        dissector_try_uint(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
 
 
 
@@ -5778,7 +5778,7 @@ dissect_gsm_map_sm_MO_ForwardSM_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 	if (!actx->value_ptr)
 		return offset;
-	dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+	dissector_try_uint(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
 
 
 
@@ -5803,7 +5803,7 @@ dissect_gsm_map_sm_MO_ForwardSM_Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
         if (!actx->value_ptr)
                 return offset;
-        dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+        dissector_try_uint(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
 
 
 
@@ -5831,7 +5831,7 @@ dissect_gsm_map_sm_MT_ForwardSM_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 	if (!actx->value_ptr)
 		return offset;
-	dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+	dissector_try_uint(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
 
 
 
@@ -5856,7 +5856,7 @@ dissect_gsm_map_sm_MT_ForwardSM_Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
         if (!actx->value_ptr)
                 return offset;
-        dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+        dissector_try_uint(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
 
 
 
@@ -6039,7 +6039,7 @@ dissect_gsm_map_sm_MT_ForwardSM_VGCS_Arg(gboolean implicit_tag _U_, tvbuff_t *tv
 
         if (!actx->value_ptr)
                 return offset;
-        dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+        dissector_try_uint(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
 
 
 
@@ -6079,7 +6079,7 @@ dissect_gsm_map_sm_MT_ForwardSM_VGCS_Res(gboolean implicit_tag _U_, tvbuff_t *tv
 
         if (!actx->value_ptr)
                 return offset;
-        dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+        dissector_try_uint(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
 
 
 
@@ -15982,7 +15982,7 @@ dissect_gsm_old_ForwardSM_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 	if (!actx->value_ptr)
 		return offset;
-	dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+	dissector_try_uint(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
 
 
 

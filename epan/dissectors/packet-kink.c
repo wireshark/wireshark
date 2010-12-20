@@ -974,7 +974,7 @@ void proto_reg_handoff_kink(void) {
   
   kink_handle = create_dissector_handle(dissect_kink, proto_kink);
 
-  dissector_add("udp.port", KINK_PORT, kink_handle);
+  dissector_add_uint("udp.port", KINK_PORT, kink_handle);
 
 }
 

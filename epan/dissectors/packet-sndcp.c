@@ -573,10 +573,10 @@ proto_reg_handoff_sndcp(void)
 
   /* Register SNDCP dissector with LLC layer for SAPI 3,5,9 and 11 
    */
-  dissector_add("llcgprs.sapi",  3, sndcp_handle);
-  dissector_add("llcgprs.sapi",  5, sndcp_handle);
-  dissector_add("llcgprs.sapi",  9, sndcp_handle);
-  dissector_add("llcgprs.sapi", 11, sndcp_handle);
+  dissector_add_uint("llcgprs.sapi",  3, sndcp_handle);
+  dissector_add_uint("llcgprs.sapi",  5, sndcp_handle);
+  dissector_add_uint("llcgprs.sapi",  9, sndcp_handle);
+  dissector_add_uint("llcgprs.sapi", 11, sndcp_handle);
 
   /* Find IP and data handle for upper layer dissectors 
    */

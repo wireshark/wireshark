@@ -928,10 +928,10 @@ proto_reg_handoff_sametime(void)
 				    sametime_stats_tree_init, NULL );
 		initialized = TRUE;
 	} else {
-	        dissector_delete("tcp.port", saved_sametime_tcp_port, sametime_handle);
+	        dissector_delete_uint("tcp.port", saved_sametime_tcp_port, sametime_handle);
 	}
 
-	dissector_add("tcp.port", global_sametime_port, sametime_handle);
+	dissector_add_uint("tcp.port", global_sametime_port, sametime_handle);
 	saved_sametime_tcp_port = global_sametime_port;
 }
 

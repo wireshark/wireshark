@@ -133,12 +133,12 @@ proto_reg_handoff_newmail(void)
 		inited = TRUE;
 	} else {
                 if (preference_default_port_last != 0) {
-                        dissector_delete("udp.port", preference_default_port_last, newmail_handle);
+                        dissector_delete_uint("udp.port", preference_default_port_last, newmail_handle);
                 }
         }	
 
 	if(preference_default_port != 0) {	
-		dissector_add("udp.port", preference_default_port, newmail_handle);
+		dissector_add_uint("udp.port", preference_default_port, newmail_handle);
 	}
         preference_default_port_last = preference_default_port;
 }

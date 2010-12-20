@@ -105,7 +105,7 @@ dissect_hci_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	PROTO_ITEM_SET_GENERATED(ti);
 
 	next_tvb = tvb_new_subset_remaining(tvb, 0);
-	if(!dissector_try_port(hci_h1_table, type, next_tvb, pinfo, tree)) {
+	if(!dissector_try_uint(hci_h1_table, type, next_tvb, pinfo, tree)) {
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 	}
 }
@@ -150,7 +150,7 @@ proto_reg_handoff_hci_h1(void)
 
 	data_handle = find_dissector("data");
 	hci_h1_handle = find_dissector("hci_h1");
-	dissector_add("wtap_encap", WTAP_ENCAP_BLUETOOTH_HCI, hci_h1_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_BLUETOOTH_HCI, hci_h1_handle);
 }
 
 

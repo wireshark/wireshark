@@ -276,6 +276,6 @@ proto_reg_handoff_docsis_map (void)
   dissector_handle_t docsis_map_handle;
 
   docsis_map_handle = find_dissector ("docsis_map");
-  dissector_add ("docsis_mgmt", 0x03, docsis_map_handle);
+  dissector_add_uint ("docsis_mgmt", 0x03, docsis_map_handle);
 
 }

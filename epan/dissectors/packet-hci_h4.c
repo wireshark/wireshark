@@ -85,7 +85,7 @@ dissect_hci_h4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tvb, 0, 1, TRUE);
 
 	next_tvb = tvb_new_subset_remaining(tvb, 1);
-	if(!dissector_try_port(hci_h4_table, type, next_tvb, pinfo, tree)) {
+	if(!dissector_try_uint(hci_h4_table, type, next_tvb, pinfo, tree)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 						pinfo->p2p_dir==P2P_DIR_SENT ? "Sent" : "Rcvd",
 						val_to_str(type, hci_h4_type_vals, "Unknown HCI packet type 0x%02x"));
@@ -134,8 +134,8 @@ proto_reg_handoff_hci_h4(void)
 
 	data_handle = find_dissector("data");
 	hci_h4_handle = find_dissector("hci_h4");
-	dissector_add("wtap_encap", WTAP_ENCAP_BLUETOOTH_H4, hci_h4_handle);
-	dissector_add("wtap_encap", WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR, hci_h4_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_BLUETOOTH_H4, hci_h4_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR, hci_h4_handle);
 }
 
 

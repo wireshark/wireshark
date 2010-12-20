@@ -249,8 +249,8 @@ proto_reg_handoff_db_lsp (void)
   db_lsp_tcp_handle = find_dissector ("db-lsp.tcp");
   db_lsp_udp_handle = find_dissector ("db-lsp.udp");
 
-  dissector_add ("tcp.port", DB_LSP_PORT, db_lsp_tcp_handle);
-  dissector_add ("udp.port", DB_LSP_PORT, db_lsp_udp_handle);
+  dissector_add_uint ("tcp.port", DB_LSP_PORT, db_lsp_tcp_handle);
+  dissector_add_uint ("udp.port", DB_LSP_PORT, db_lsp_udp_handle);
 }
 
 /*

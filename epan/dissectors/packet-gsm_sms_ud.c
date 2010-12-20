@@ -394,9 +394,9 @@ parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
 				if ( port_number_udh_means_wsp ) {
 					call_dissector (wsp_handle, sm_tvb, pinfo, top_tree);
 				} else {
-					if (! dissector_try_port(gsm_sms_dissector_table, p_src,
+					if (! dissector_try_uint(gsm_sms_dissector_table, p_src,
 								sm_tvb, pinfo, top_tree)) {
-						if (! dissector_try_port(gsm_sms_dissector_table, p_dst,
+						if (! dissector_try_uint(gsm_sms_dissector_table, p_dst,
 									sm_tvb, pinfo, top_tree)) {
 							if (sm_tree) { /* Only display if needed */
 								proto_tree_add_text (sm_tree, sm_tvb, 0, -1,

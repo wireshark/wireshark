@@ -322,6 +322,6 @@ proto_reg_handoff_isis(void)
     dissector_handle_t isis_handle;
 
     isis_handle = create_dissector_handle(dissect_isis, proto_isis);
-    dissector_add("osinl", NLPID_ISO10589_ISIS, isis_handle);
-    dissector_add("ethertype", ETHERTYPE_L2ISIS, isis_handle);
+    dissector_add_uint("osinl", NLPID_ISO10589_ISIS, isis_handle);
+    dissector_add_uint("ethertype", ETHERTYPE_L2ISIS, isis_handle);
 }

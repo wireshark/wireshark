@@ -260,6 +260,6 @@ proto_reg_handoff_tivoconnect(void)
     dissector_handle_t tivoconnect_handle;
 
     tivoconnect_handle = new_create_dissector_handle(dissect_tivoconnect, proto_tivoconnect);
-    dissector_add("udp.port", 2190, tivoconnect_handle);
-    dissector_add("tcp.port", 2190, tivoconnect_handle);
+    dissector_add_uint("udp.port", 2190, tivoconnect_handle);
+    dissector_add_uint("tcp.port", 2190, tivoconnect_handle);
 }

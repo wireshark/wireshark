@@ -1110,5 +1110,5 @@ proto_reg_handoff_icmp(void)
   icmp_handle = find_dissector("icmp");
   data_handle = find_dissector("data");
 
-  dissector_add("ip.proto", IP_PROTO_ICMP, icmp_handle);
+  dissector_add_uint("ip.proto", IP_PROTO_ICMP, icmp_handle);
 }

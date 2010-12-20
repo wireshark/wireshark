@@ -769,8 +769,8 @@ proto_reg_handoff_pn_rt(void)
 
   pn_rt_handle = create_dissector_handle(dissect_pn_rt, proto_pn_rt);
 
-  dissector_add("ethertype", ETHERTYPE_PROFINET, pn_rt_handle);
-  dissector_add("udp.port", 0x8892, pn_rt_handle);
+  dissector_add_uint("ethertype", ETHERTYPE_PROFINET, pn_rt_handle);
+  dissector_add_uint("udp.port", 0x8892, pn_rt_handle);
 
   heur_dissector_add("pn_rt", dissect_CSF_SDU_heur, proto_pn_rt);
   heur_dissector_add("pn_rt", dissect_FRAG_PDU_heur, proto_pn_rt);  

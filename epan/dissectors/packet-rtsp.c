@@ -1324,12 +1324,12 @@ proto_reg_handoff_rtsp(void)
 		rtsp_prefs_initialized = TRUE;
 	}
 	else {
-		dissector_delete("tcp.port", saved_rtsp_tcp_port, rtsp_handle);
-		dissector_delete("tcp.port", saved_rtsp_tcp_alternate_port, rtsp_handle);
+		dissector_delete_uint("tcp.port", saved_rtsp_tcp_port, rtsp_handle);
+		dissector_delete_uint("tcp.port", saved_rtsp_tcp_alternate_port, rtsp_handle);
 	}
 	/* Set our port number for future use */
-	dissector_add("tcp.port", global_rtsp_tcp_port, rtsp_handle);
-	dissector_add("tcp.port", global_rtsp_tcp_alternate_port, rtsp_handle);
+	dissector_add_uint("tcp.port", global_rtsp_tcp_port, rtsp_handle);
+	dissector_add_uint("tcp.port", global_rtsp_tcp_alternate_port, rtsp_handle);
 
 	saved_rtsp_tcp_port = global_rtsp_tcp_port;
 	saved_rtsp_tcp_alternate_port = global_rtsp_tcp_alternate_port;

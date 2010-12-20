@@ -530,11 +530,11 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (XDLC_IS_INFORMATION(control)) {
 		/* call next protocol */
 		if(global_lapd_gsm_sapis){
-			if (!dissector_try_port(lapd_gsm_sapi_dissector_table, sapi,
+			if (!dissector_try_uint(lapd_gsm_sapi_dissector_table, sapi,
 				next_tvb, pinfo, tree))
 				call_dissector(data_handle,next_tvb, pinfo, tree);
 		}else{
-			if (!dissector_try_port(lapd_sapi_dissector_table, sapi,
+			if (!dissector_try_uint(lapd_sapi_dissector_table, sapi,
 				next_tvb, pinfo, tree))
 				call_dissector(data_handle,next_tvb, pinfo, tree);
 		}
@@ -694,7 +694,7 @@ proto_reg_handoff_lapd(void)
 		dissector_handle_t lapd_handle;
 
 		lapd_handle = find_dissector("lapd");
-		dissector_add("wtap_encap", WTAP_ENCAP_LINUX_LAPD, lapd_handle);
+		dissector_add_uint("wtap_encap", WTAP_ENCAP_LINUX_LAPD, lapd_handle);
 
 		lapd_bitstream_handle = create_dissector_handle(dissect_lapd_bitstream, proto_lapd);
 		data_handle = find_dissector("data");
@@ -702,11 +702,11 @@ proto_reg_handoff_lapd(void)
 		init = TRUE;
 	} else {
 		if ((lapd_rtp_payload_type > 95) && (lapd_rtp_payload_type < 128))
-			dissector_delete("rtp.pt", lapd_rtp_payload_type, lapd_bitstream_handle);
+			dissector_delete_uint("rtp.pt", lapd_rtp_payload_type, lapd_bitstream_handle);
 	}
 
 	lapd_rtp_payload_type = pref_lapd_rtp_payload_type;
 	if ((lapd_rtp_payload_type > 95) && (lapd_rtp_payload_type < 128))
-		dissector_add("rtp.pt", lapd_rtp_payload_type, lapd_bitstream_handle);
+		dissector_add_uint("rtp.pt", lapd_rtp_payload_type, lapd_bitstream_handle);
 }
 

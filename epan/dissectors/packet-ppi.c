@@ -1003,7 +1003,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (is_ht) { /* We didn't hit the reassembly code */
         call_dissector(ieee80211_ht_handle, next_tvb, pinfo, tree);
     } else {
-        dissector_try_port(wtap_encap_dissector_table,
+        dissector_try_uint(wtap_encap_dissector_table,
             wtap_pcap_encap_to_wtap_encap(dlt), next_tvb, pinfo, tree);
     }
 }
@@ -1364,7 +1364,7 @@ proto_reg_handoff_ppi(void)
     ppi_harris_test_handle = find_dissector("ppi_harris_test");
     ppi_antenna_handle = find_dissector("ppi_antenna");
 
-    dissector_add("wtap_encap", WTAP_ENCAP_PPI, ppi_handle);
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_PPI, ppi_handle);
 }
 
 /*

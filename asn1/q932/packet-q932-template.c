@@ -324,9 +324,9 @@ void proto_reg_handoff_q932(void) {
 
   q932_ie_handle = create_dissector_handle(dissect_q932_ie, proto_q932);
   /* Facility */
-  dissector_add("q931.ie", (0x00 << 8) | Q932_IE_FACILITY, q932_ie_handle); 
+  dissector_add_uint("q931.ie", (0x00 << 8) | Q932_IE_FACILITY, q932_ie_handle); 
   /* Notification indicator */
-  dissector_add("q931.ie", (0x00 << 8) | Q932_IE_NOTIFICATION_INDICATOR, q932_ie_handle); 
+  dissector_add_uint("q931.ie", (0x00 << 8) | Q932_IE_NOTIFICATION_INDICATOR, q932_ie_handle); 
 
   q932_ros_handle = find_dissector("q932.ros");
 }

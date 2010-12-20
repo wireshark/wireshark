@@ -503,5 +503,5 @@ proto_reg_handoff_iapp(void)
 	dissector_handle_t iapp_handle;
 
 	iapp_handle = create_dissector_handle(dissect_iapp, proto_iapp);
-	dissector_add("udp.port", UDP_PORT_IAPP, iapp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_IAPP, iapp_handle);
 }

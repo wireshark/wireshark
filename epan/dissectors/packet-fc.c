@@ -1222,7 +1222,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
             void *saved_private_data;
             saved_private_data = pinfo->private_data;
             pinfo->private_data = &fchdr;
-            if (!dissector_try_port (fcftype_dissector_table, ftype,
+            if (!dissector_try_uint (fcftype_dissector_table, ftype,
                                 next_tvb, pinfo, tree)) {
                 call_dissector (data_handle, next_tvb, pinfo, tree);
             }
@@ -1584,10 +1584,10 @@ proto_reg_handoff_fc (void)
     dissector_handle_t fcsof_handle;
 
     fc_handle = find_dissector("fc");
-    dissector_add("wtap_encap", WTAP_ENCAP_FIBRE_CHANNEL_FC2, fc_handle);
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_FIBRE_CHANNEL_FC2, fc_handle);
 
     fcsof_handle = find_dissector("fcsof");
-    dissector_add("wtap_encap", WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS, fcsof_handle);
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS, fcsof_handle);
 
     data_handle = find_dissector("data");
 }

@@ -4581,27 +4581,27 @@ static void dissect_X2AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port(x2ap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint(x2ap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port(x2ap_extension_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint(x2ap_extension_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port(x2ap_proc_imsg_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint(x2ap_proc_imsg_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port(x2ap_proc_sout_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint(x2ap_proc_sout_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port(x2ap_proc_uout_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint(x2ap_proc_uout_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
 static void
@@ -5880,112 +5880,112 @@ proto_reg_handoff_x2ap(void)
 	x2ap_handle = find_dissector("x2ap");
 	if (!Initialized) {
 		dissector_add_handle("sctp.port", x2ap_handle);  /* for "decode-as" */
-		dissector_add("sctp.ppi", X2AP_PAYLOAD_PROTOCOL_ID, x2ap_handle);
+		dissector_add_uint("sctp.ppi", X2AP_PAYLOAD_PROTOCOL_ID, x2ap_handle);
 		Initialized=TRUE;
 
 /*--- Included file: packet-x2ap-dis-tab.c ---*/
 #line 1 "packet-x2ap-dis-tab.c"
-  dissector_add("x2ap.ies", id_E_RABs_Admitted_Item, new_create_dissector_handle(dissect_E_RABs_Admitted_Item_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_E_RABs_Admitted_List, new_create_dissector_handle(dissect_E_RABs_Admitted_List_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_E_RAB_Item, new_create_dissector_handle(dissect_E_RAB_Item_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_E_RABs_NotAdmitted_List, new_create_dissector_handle(dissect_E_RAB_List_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_E_RABs_ToBeSetup_Item, new_create_dissector_handle(dissect_E_RABs_ToBeSetup_Item_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_Cause, new_create_dissector_handle(dissect_Cause_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_CellInformation, new_create_dissector_handle(dissect_CellInformation_List_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_CellInformation_Item, new_create_dissector_handle(dissect_CellInformation_Item_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_New_eNB_UE_X2AP_ID, new_create_dissector_handle(dissect_UE_X2AP_ID_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_Old_eNB_UE_X2AP_ID, new_create_dissector_handle(dissect_UE_X2AP_ID_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_TargetCell_ID, new_create_dissector_handle(dissect_ECGI_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_TargeteNBtoSource_eNBTransparentContainer, new_create_dissector_handle(dissect_TargeteNBtoSource_eNBTransparentContainer_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_TraceActivation, new_create_dissector_handle(dissect_TraceActivation_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_UE_ContextInformation, new_create_dissector_handle(dissect_UE_ContextInformation_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_UE_HistoryInformation, new_create_dissector_handle(dissect_UE_HistoryInformation_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_UE_X2AP_ID, new_create_dissector_handle(dissect_UE_X2AP_ID_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_CriticalityDiagnostics, new_create_dissector_handle(dissect_CriticalityDiagnostics_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_E_RABs_SubjectToStatusTransfer_List, new_create_dissector_handle(dissect_E_RABs_SubjectToStatusTransfer_List_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_E_RABs_SubjectToStatusTransfer_Item, new_create_dissector_handle(dissect_E_RABs_SubjectToStatusTransfer_Item_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_ServedCells, new_create_dissector_handle(dissect_ServedCells_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_GlobalENB_ID, new_create_dissector_handle(dissect_GlobalENB_ID_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_TimeToWait, new_create_dissector_handle(dissect_TimeToWait_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_GUMMEI_ID, new_create_dissector_handle(dissect_GUMMEI_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_GUGroupIDList, new_create_dissector_handle(dissect_GUGroupIDList_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_ServedCellsToAdd, new_create_dissector_handle(dissect_ServedCells_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_ServedCellsToModify, new_create_dissector_handle(dissect_ServedCellsToModify_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_ServedCellsToDelete, new_create_dissector_handle(dissect_Old_ECGIs_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_Registration_Request, new_create_dissector_handle(dissect_Registration_Request_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_CellToReport, new_create_dissector_handle(dissect_CellToReport_List_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_ReportingPeriodicity, new_create_dissector_handle(dissect_ReportingPeriodicity_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_CellToReport_Item, new_create_dissector_handle(dissect_CellToReport_Item_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_CellMeasurementResult, new_create_dissector_handle(dissect_CellMeasurementResult_List_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_CellMeasurementResult_Item, new_create_dissector_handle(dissect_CellMeasurementResult_Item_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_GUGroupIDToAddList, new_create_dissector_handle(dissect_GUGroupIDList_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_GUGroupIDToDeleteList, new_create_dissector_handle(dissect_GUGroupIDList_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_SRVCCOperationPossible, new_create_dissector_handle(dissect_SRVCCOperationPossible_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_ReportCharacteristics, new_create_dissector_handle(dissect_ReportCharacteristics_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_ENB1_Measurement_ID, new_create_dissector_handle(dissect_Measurement_ID_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_ENB2_Measurement_ID, new_create_dissector_handle(dissect_Measurement_ID_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_ENB1_Cell_ID, new_create_dissector_handle(dissect_ECGI_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_ENB2_Cell_ID, new_create_dissector_handle(dissect_ECGI_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_ENB2_Proposed_Mobility_Parameters, new_create_dissector_handle(dissect_MobilityParametersInformation_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_ENB1_Mobility_Parameters, new_create_dissector_handle(dissect_MobilityParametersInformation_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_ENB2_Mobility_Parameters_Modification_Range, new_create_dissector_handle(dissect_MobilityParametersModificationRange_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_FailureCellPCI, new_create_dissector_handle(dissect_PCI_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_Re_establishmentCellECGI, new_create_dissector_handle(dissect_ECGI_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_FailureCellCRNTI, new_create_dissector_handle(dissect_CRNTI_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_ShortMAC_I, new_create_dissector_handle(dissect_ShortMAC_I_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_SourceCellECGI, new_create_dissector_handle(dissect_ECGI_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_FailureCellECGI, new_create_dissector_handle(dissect_ECGI_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_HandoverReportType, new_create_dissector_handle(dissect_HandoverReportType_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_UE_RLF_Report_Container, new_create_dissector_handle(dissect_UE_RLF_Report_Container_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_ServedCellsToActivate, new_create_dissector_handle(dissect_ServedCellsToActivate_PDU, proto_x2ap));
-  dissector_add("x2ap.ies", id_ActivatedCellList, new_create_dissector_handle(dissect_ActivatedCellList_PDU, proto_x2ap));
-  dissector_add("x2ap.extension", id_Number_of_Antennaports, new_create_dissector_handle(dissect_Number_of_Antennaports_PDU, proto_x2ap));
-  dissector_add("x2ap.extension", id_CompositeAvailableCapacityGroup, new_create_dissector_handle(dissect_CompositeAvailableCapacityGroup_PDU, proto_x2ap));
-  dissector_add("x2ap.extension", id_PRACH_Configuration, new_create_dissector_handle(dissect_PRACH_Configuration_PDU, proto_x2ap));
-  dissector_add("x2ap.extension", id_MBSFN_Subframe_Info, new_create_dissector_handle(dissect_MBSFN_Subframe_Infolist_PDU, proto_x2ap));
-  dissector_add("x2ap.extension", id_DeactivationIndication, new_create_dissector_handle(dissect_DeactivationIndication_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.imsg", id_handoverPreparation, new_create_dissector_handle(dissect_HandoverRequest_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.sout", id_handoverPreparation, new_create_dissector_handle(dissect_HandoverRequestAcknowledge_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.uout", id_handoverPreparation, new_create_dissector_handle(dissect_HandoverPreparationFailure_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.imsg", id_snStatusTransfer, new_create_dissector_handle(dissect_SNStatusTransfer_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.imsg", id_uEContextRelease, new_create_dissector_handle(dissect_UEContextRelease_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.imsg", id_handoverCancel, new_create_dissector_handle(dissect_HandoverCancel_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.imsg", id_errorIndication, new_create_dissector_handle(dissect_ErrorIndication_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.imsg", id_reset, new_create_dissector_handle(dissect_ResetRequest_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.sout", id_reset, new_create_dissector_handle(dissect_ResetResponse_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.imsg", id_x2Setup, new_create_dissector_handle(dissect_X2SetupRequest_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.sout", id_x2Setup, new_create_dissector_handle(dissect_X2SetupResponse_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.uout", id_x2Setup, new_create_dissector_handle(dissect_X2SetupFailure_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.imsg", id_loadIndication, new_create_dissector_handle(dissect_LoadInformation_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.imsg", id_eNBConfigurationUpdate, new_create_dissector_handle(dissect_ENBConfigurationUpdate_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.sout", id_eNBConfigurationUpdate, new_create_dissector_handle(dissect_ENBConfigurationUpdateAcknowledge_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.uout", id_eNBConfigurationUpdate, new_create_dissector_handle(dissect_ENBConfigurationUpdateFailure_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.imsg", id_resourceStatusReportingInitiation, new_create_dissector_handle(dissect_ResourceStatusRequest_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.sout", id_resourceStatusReportingInitiation, new_create_dissector_handle(dissect_ResourceStatusResponse_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.uout", id_resourceStatusReportingInitiation, new_create_dissector_handle(dissect_ResourceStatusFailure_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.imsg", id_resourceStatusReporting, new_create_dissector_handle(dissect_ResourceStatusUpdate_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.imsg", id_privateMessage, new_create_dissector_handle(dissect_PrivateMessage_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.imsg", id_handoverReport, new_create_dissector_handle(dissect_HandoverReport_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.imsg", id_rLFIndication, new_create_dissector_handle(dissect_RLFIndication_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.imsg", id_mobilitySettingsChange, new_create_dissector_handle(dissect_MobilityChangeRequest_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.sout", id_mobilitySettingsChange, new_create_dissector_handle(dissect_MobilityChangeAcknowledge_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.uout", id_mobilitySettingsChange, new_create_dissector_handle(dissect_MobilityChangeFailure_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.imsg", id_cellActivation, new_create_dissector_handle(dissect_CellActivationRequest_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.sout", id_cellActivation, new_create_dissector_handle(dissect_CellActivationResponse_PDU, proto_x2ap));
-  dissector_add("x2ap.proc.uout", id_cellActivation, new_create_dissector_handle(dissect_CellActivationFailure_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_E_RABs_Admitted_Item, new_create_dissector_handle(dissect_E_RABs_Admitted_Item_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_E_RABs_Admitted_List, new_create_dissector_handle(dissect_E_RABs_Admitted_List_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_E_RAB_Item, new_create_dissector_handle(dissect_E_RAB_Item_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_E_RABs_NotAdmitted_List, new_create_dissector_handle(dissect_E_RAB_List_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_E_RABs_ToBeSetup_Item, new_create_dissector_handle(dissect_E_RABs_ToBeSetup_Item_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_Cause, new_create_dissector_handle(dissect_Cause_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_CellInformation, new_create_dissector_handle(dissect_CellInformation_List_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_CellInformation_Item, new_create_dissector_handle(dissect_CellInformation_Item_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_New_eNB_UE_X2AP_ID, new_create_dissector_handle(dissect_UE_X2AP_ID_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_Old_eNB_UE_X2AP_ID, new_create_dissector_handle(dissect_UE_X2AP_ID_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_TargetCell_ID, new_create_dissector_handle(dissect_ECGI_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_TargeteNBtoSource_eNBTransparentContainer, new_create_dissector_handle(dissect_TargeteNBtoSource_eNBTransparentContainer_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_TraceActivation, new_create_dissector_handle(dissect_TraceActivation_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_UE_ContextInformation, new_create_dissector_handle(dissect_UE_ContextInformation_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_UE_HistoryInformation, new_create_dissector_handle(dissect_UE_HistoryInformation_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_UE_X2AP_ID, new_create_dissector_handle(dissect_UE_X2AP_ID_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_CriticalityDiagnostics, new_create_dissector_handle(dissect_CriticalityDiagnostics_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_E_RABs_SubjectToStatusTransfer_List, new_create_dissector_handle(dissect_E_RABs_SubjectToStatusTransfer_List_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_E_RABs_SubjectToStatusTransfer_Item, new_create_dissector_handle(dissect_E_RABs_SubjectToStatusTransfer_Item_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_ServedCells, new_create_dissector_handle(dissect_ServedCells_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_GlobalENB_ID, new_create_dissector_handle(dissect_GlobalENB_ID_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_TimeToWait, new_create_dissector_handle(dissect_TimeToWait_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_GUMMEI_ID, new_create_dissector_handle(dissect_GUMMEI_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_GUGroupIDList, new_create_dissector_handle(dissect_GUGroupIDList_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_ServedCellsToAdd, new_create_dissector_handle(dissect_ServedCells_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_ServedCellsToModify, new_create_dissector_handle(dissect_ServedCellsToModify_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_ServedCellsToDelete, new_create_dissector_handle(dissect_Old_ECGIs_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_Registration_Request, new_create_dissector_handle(dissect_Registration_Request_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_CellToReport, new_create_dissector_handle(dissect_CellToReport_List_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_ReportingPeriodicity, new_create_dissector_handle(dissect_ReportingPeriodicity_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_CellToReport_Item, new_create_dissector_handle(dissect_CellToReport_Item_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_CellMeasurementResult, new_create_dissector_handle(dissect_CellMeasurementResult_List_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_CellMeasurementResult_Item, new_create_dissector_handle(dissect_CellMeasurementResult_Item_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_GUGroupIDToAddList, new_create_dissector_handle(dissect_GUGroupIDList_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_GUGroupIDToDeleteList, new_create_dissector_handle(dissect_GUGroupIDList_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_SRVCCOperationPossible, new_create_dissector_handle(dissect_SRVCCOperationPossible_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_ReportCharacteristics, new_create_dissector_handle(dissect_ReportCharacteristics_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_ENB1_Measurement_ID, new_create_dissector_handle(dissect_Measurement_ID_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_ENB2_Measurement_ID, new_create_dissector_handle(dissect_Measurement_ID_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_ENB1_Cell_ID, new_create_dissector_handle(dissect_ECGI_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_ENB2_Cell_ID, new_create_dissector_handle(dissect_ECGI_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_ENB2_Proposed_Mobility_Parameters, new_create_dissector_handle(dissect_MobilityParametersInformation_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_ENB1_Mobility_Parameters, new_create_dissector_handle(dissect_MobilityParametersInformation_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_ENB2_Mobility_Parameters_Modification_Range, new_create_dissector_handle(dissect_MobilityParametersModificationRange_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_FailureCellPCI, new_create_dissector_handle(dissect_PCI_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_Re_establishmentCellECGI, new_create_dissector_handle(dissect_ECGI_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_FailureCellCRNTI, new_create_dissector_handle(dissect_CRNTI_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_ShortMAC_I, new_create_dissector_handle(dissect_ShortMAC_I_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_SourceCellECGI, new_create_dissector_handle(dissect_ECGI_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_FailureCellECGI, new_create_dissector_handle(dissect_ECGI_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_HandoverReportType, new_create_dissector_handle(dissect_HandoverReportType_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_UE_RLF_Report_Container, new_create_dissector_handle(dissect_UE_RLF_Report_Container_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_ServedCellsToActivate, new_create_dissector_handle(dissect_ServedCellsToActivate_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_ActivatedCellList, new_create_dissector_handle(dissect_ActivatedCellList_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.extension", id_Number_of_Antennaports, new_create_dissector_handle(dissect_Number_of_Antennaports_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.extension", id_CompositeAvailableCapacityGroup, new_create_dissector_handle(dissect_CompositeAvailableCapacityGroup_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.extension", id_PRACH_Configuration, new_create_dissector_handle(dissect_PRACH_Configuration_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.extension", id_MBSFN_Subframe_Info, new_create_dissector_handle(dissect_MBSFN_Subframe_Infolist_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.extension", id_DeactivationIndication, new_create_dissector_handle(dissect_DeactivationIndication_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.imsg", id_handoverPreparation, new_create_dissector_handle(dissect_HandoverRequest_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.sout", id_handoverPreparation, new_create_dissector_handle(dissect_HandoverRequestAcknowledge_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.uout", id_handoverPreparation, new_create_dissector_handle(dissect_HandoverPreparationFailure_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.imsg", id_snStatusTransfer, new_create_dissector_handle(dissect_SNStatusTransfer_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.imsg", id_uEContextRelease, new_create_dissector_handle(dissect_UEContextRelease_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.imsg", id_handoverCancel, new_create_dissector_handle(dissect_HandoverCancel_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.imsg", id_errorIndication, new_create_dissector_handle(dissect_ErrorIndication_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.imsg", id_reset, new_create_dissector_handle(dissect_ResetRequest_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.sout", id_reset, new_create_dissector_handle(dissect_ResetResponse_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.imsg", id_x2Setup, new_create_dissector_handle(dissect_X2SetupRequest_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.sout", id_x2Setup, new_create_dissector_handle(dissect_X2SetupResponse_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.uout", id_x2Setup, new_create_dissector_handle(dissect_X2SetupFailure_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.imsg", id_loadIndication, new_create_dissector_handle(dissect_LoadInformation_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.imsg", id_eNBConfigurationUpdate, new_create_dissector_handle(dissect_ENBConfigurationUpdate_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.sout", id_eNBConfigurationUpdate, new_create_dissector_handle(dissect_ENBConfigurationUpdateAcknowledge_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.uout", id_eNBConfigurationUpdate, new_create_dissector_handle(dissect_ENBConfigurationUpdateFailure_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.imsg", id_resourceStatusReportingInitiation, new_create_dissector_handle(dissect_ResourceStatusRequest_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.sout", id_resourceStatusReportingInitiation, new_create_dissector_handle(dissect_ResourceStatusResponse_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.uout", id_resourceStatusReportingInitiation, new_create_dissector_handle(dissect_ResourceStatusFailure_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.imsg", id_resourceStatusReporting, new_create_dissector_handle(dissect_ResourceStatusUpdate_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.imsg", id_privateMessage, new_create_dissector_handle(dissect_PrivateMessage_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.imsg", id_handoverReport, new_create_dissector_handle(dissect_HandoverReport_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.imsg", id_rLFIndication, new_create_dissector_handle(dissect_RLFIndication_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.imsg", id_mobilitySettingsChange, new_create_dissector_handle(dissect_MobilityChangeRequest_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.sout", id_mobilitySettingsChange, new_create_dissector_handle(dissect_MobilityChangeAcknowledge_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.uout", id_mobilitySettingsChange, new_create_dissector_handle(dissect_MobilityChangeFailure_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.imsg", id_cellActivation, new_create_dissector_handle(dissect_CellActivationRequest_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.sout", id_cellActivation, new_create_dissector_handle(dissect_CellActivationResponse_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.proc.uout", id_cellActivation, new_create_dissector_handle(dissect_CellActivationFailure_PDU, proto_x2ap));
 
 
 /*--- End of included file: packet-x2ap-dis-tab.c ---*/
 #line 203 "packet-x2ap-template.c"
 	} else {
 		if (SctpPort != 0) {
-			dissector_delete("sctp.port", SctpPort, x2ap_handle);
+			dissector_delete_uint("sctp.port", SctpPort, x2ap_handle);
 		}
 	}
 
 	SctpPort=gbl_x2apSctpPort;
 	if (SctpPort != 0) {
-		dissector_add("sctp.port", SctpPort, x2ap_handle);
+		dissector_add_uint("sctp.port", SctpPort, x2ap_handle);
 	}
 
 }

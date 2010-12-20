@@ -455,5 +455,5 @@ proto_reg_handoff_krb4(void)
   dissector_handle_t krb4_handle;
 
   krb4_handle = find_dissector("krb4");
-  dissector_add("udp.port", UDP_PORT_KRB4, krb4_handle);
+  dissector_add_uint("udp.port", UDP_PORT_KRB4, krb4_handle);
 }

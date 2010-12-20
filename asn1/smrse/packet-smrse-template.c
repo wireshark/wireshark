@@ -183,6 +183,6 @@ void proto_reg_handoff_smrse(void) {
   dissector_handle_t smrse_handle;
 
   smrse_handle = new_create_dissector_handle(dissect_smrse, proto_smrse);
-  dissector_add("tcp.port",TCP_PORT_SMRSE, smrse_handle);
+  dissector_add_uint("tcp.port",TCP_PORT_SMRSE, smrse_handle);
 }
 

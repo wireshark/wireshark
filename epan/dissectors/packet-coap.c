@@ -508,11 +508,11 @@ proto_reg_handoff_coap(void)
 		media_type_dissector_table = find_dissector_table("media_type");
 		coap_prefs_initialized = TRUE;
 	} else {
-		dissector_delete("udp.port", coap_port_number, coap_handle);
-		dissector_delete("tcp.port", coap_port_number, coap_handle);
+		dissector_delete_uint("udp.port", coap_port_number, coap_handle);
+		dissector_delete_uint("tcp.port", coap_port_number, coap_handle);
 	}
 
 	coap_port_number = global_coap_port_number;
-	dissector_add("udp.port", coap_port_number, coap_handle);
-	dissector_add("tcp.port", coap_port_number, coap_handle);
+	dissector_add_uint("udp.port", coap_port_number, coap_handle);
+	dissector_add_uint("tcp.port", coap_port_number, coap_handle);
 }

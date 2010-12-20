@@ -6267,8 +6267,8 @@ proto_reg_handoff_rsvp(void)
     dissector_handle_t rsvp_handle;
 
     rsvp_handle = create_dissector_handle(dissect_rsvp, proto_rsvp);
-    dissector_add("ip.proto", IP_PROTO_RSVP, rsvp_handle);
-    dissector_add("ip.proto", IP_PROTO_RSVPE2EI, rsvp_handle);
-    dissector_add("udp.port", UDP_PORT_PRSVP, rsvp_handle);
+    dissector_add_uint("ip.proto", IP_PROTO_RSVP, rsvp_handle);
+    dissector_add_uint("ip.proto", IP_PROTO_RSVPE2EI, rsvp_handle);
+    dissector_add_uint("udp.port", UDP_PORT_PRSVP, rsvp_handle);
     rsvp_tap = register_tap("rsvp");
 }

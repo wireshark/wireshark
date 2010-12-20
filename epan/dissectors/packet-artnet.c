@@ -2696,10 +2696,10 @@ proto_reg_handoff_artnet(void) {
     rdm_handle = find_dissector("rdm");
     artnet_initialized = TRUE;
   } else {
-    dissector_delete("udp.port",udp_port_artnet,artnet_handle);
+    dissector_delete_uint("udp.port",udp_port_artnet,artnet_handle);
   }
 
   udp_port_artnet = global_udp_port_artnet;
 
-  dissector_add("udp.port",global_udp_port_artnet,artnet_handle);
+  dissector_add_uint("udp.port",global_udp_port_artnet,artnet_handle);
 }

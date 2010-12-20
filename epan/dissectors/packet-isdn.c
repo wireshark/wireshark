@@ -206,5 +206,5 @@ proto_reg_handoff_isdn(void)
 
 	isdn_handle = create_dissector_handle(dissect_isdn, proto_isdn);
 
-	dissector_add("wtap_encap", WTAP_ENCAP_ISDN, isdn_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_ISDN, isdn_handle);
 }

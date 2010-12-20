@@ -1426,6 +1426,6 @@ proto_reg_handoff_netbios(void)
 
 	netbios_handle = create_dissector_handle(dissect_netbios,
 	    proto_netbios);
-	dissector_add("llc.dsap", SAP_NETBIOS, netbios_handle);
+	dissector_add_uint("llc.dsap", SAP_NETBIOS, netbios_handle);
 	data_handle = find_dissector("data");
 }

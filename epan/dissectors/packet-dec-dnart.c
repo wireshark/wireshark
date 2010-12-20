@@ -1545,8 +1545,8 @@ proto_reg_handoff_dec_rt(void)
 
   dec_rt_handle = create_dissector_handle(dissect_dec_rt,
                         proto_dec_rt);
-  dissector_add("ethertype", ETHERTYPE_DNA_RT, dec_rt_handle);
-  dissector_add("chdlctype", ETHERTYPE_DNA_RT, dec_rt_handle);
-  dissector_add("ppp.protocol", PPP_DEC4, dec_rt_handle);
-/*  dissector_add("ppp.protocol", PPP_DECNETCP, dec_rt_handle);*/
+  dissector_add_uint("ethertype", ETHERTYPE_DNA_RT, dec_rt_handle);
+  dissector_add_uint("chdlctype", ETHERTYPE_DNA_RT, dec_rt_handle);
+  dissector_add_uint("ppp.protocol", PPP_DEC4, dec_rt_handle);
+/*  dissector_add_uint("ppp.protocol", PPP_DECNETCP, dec_rt_handle);*/
 }

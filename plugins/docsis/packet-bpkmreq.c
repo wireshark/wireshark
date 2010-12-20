@@ -161,6 +161,6 @@ proto_reg_handoff_docsis_bpkmreq (void)
 
   docsis_bpkmreq_handle = find_dissector ("docsis_bpkmreq");
   attrs_handle = find_dissector ("docsis_bpkmattr");
-  dissector_add ("docsis_mgmt", 0x0C, docsis_bpkmreq_handle);
+  dissector_add_uint ("docsis_mgmt", 0x0C, docsis_bpkmreq_handle);
 
 }

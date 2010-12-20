@@ -752,5 +752,5 @@ proto_reg_handoff_tr(void)
 	data_handle = find_dissector("data");
 
 	tr_handle = find_dissector("tr");
-	dissector_add("wtap_encap", WTAP_ENCAP_TOKEN_RING, tr_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_TOKEN_RING, tr_handle);
 }

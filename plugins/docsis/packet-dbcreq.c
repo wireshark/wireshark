@@ -129,5 +129,5 @@ proto_reg_handoff_docsis_dbcreq (void)
 
   docsis_dbcreq_handle = find_dissector ("docsis_dbcreq");
   docsis_tlv_handle = find_dissector ("docsis_tlv");
-  dissector_add ("docsis_mgmt", 0x24, docsis_dbcreq_handle);
+  dissector_add_uint ("docsis_mgmt", 0x24, docsis_dbcreq_handle);
 }

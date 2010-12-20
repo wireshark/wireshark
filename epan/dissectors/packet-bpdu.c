@@ -1184,8 +1184,8 @@ proto_reg_handoff_bpdu(void)
   data_handle = find_dissector("data");
 
   bpdu_handle = find_dissector("bpdu");
-  dissector_add("llc.dsap", SAP_BPDU, bpdu_handle);
-  dissector_add("chdlctype", CHDLCTYPE_BPDU, bpdu_handle);
-  dissector_add("llc.cisco_pid", 0x010b, bpdu_handle);
-  dissector_add("ethertype", ETHERTYPE_STP, bpdu_handle);
+  dissector_add_uint("llc.dsap", SAP_BPDU, bpdu_handle);
+  dissector_add_uint("chdlctype", CHDLCTYPE_BPDU, bpdu_handle);
+  dissector_add_uint("llc.cisco_pid", 0x010b, bpdu_handle);
+  dissector_add_uint("ethertype", ETHERTYPE_STP, bpdu_handle);
 }

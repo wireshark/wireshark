@@ -1056,5 +1056,5 @@ proto_reg_handoff_usb_hid(void) {
 	dissector_handle_t usb_hid_control_handle;
 
 	usb_hid_control_handle = new_create_dissector_handle(dissect_usb_hid_control, proto_usb_hid);
-	dissector_add("usb.control", IF_CLASS_HID, usb_hid_control_handle);
+	dissector_add_uint("usb.control", IF_CLASS_HID, usb_hid_control_handle);
 }

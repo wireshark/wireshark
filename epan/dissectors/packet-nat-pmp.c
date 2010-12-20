@@ -218,8 +218,8 @@ void proto_reg_handoff_nat_pmp (void)
   dissector_handle_t nat_pmp_handle;
 
   nat_pmp_handle = find_dissector (PFNAME);
-  dissector_add ("udp.port", NAT_PMP_STATUS_PORT, nat_pmp_handle);
-  dissector_add ("udp.port", NAT_PMP_PORT, nat_pmp_handle);
+  dissector_add_uint ("udp.port", NAT_PMP_STATUS_PORT, nat_pmp_handle);
+  dissector_add_uint ("udp.port", NAT_PMP_PORT, nat_pmp_handle);
 }
 
 /*

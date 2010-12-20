@@ -480,9 +480,9 @@ proto_reg_handoff_itdm(void)
 		data_handle = find_dissector("data");
 		Initialized=TRUE;
 	} else {
-		dissector_delete("mpls.label", ItdmMPLSLabel, itdm_handle);
+		dissector_delete_uint("mpls.label", ItdmMPLSLabel, itdm_handle);
 	}
 
 	ItdmMPLSLabel = gbl_ItdmMPLSLabel;
-	dissector_add("mpls.label", gbl_ItdmMPLSLabel, itdm_handle);
+	dissector_add_uint("mpls.label", gbl_ItdmMPLSLabel, itdm_handle);
 }

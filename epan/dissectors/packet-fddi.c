@@ -497,9 +497,9 @@ proto_reg_handoff_fddi(void)
 	data_handle = find_dissector("data");
 
 	fddi_handle = find_dissector("fddi");
-	dissector_add("wtap_encap", WTAP_ENCAP_FDDI, fddi_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_FDDI, fddi_handle);
 	fddi_bitswapped_handle =
 	    create_dissector_handle(dissect_fddi_bitswapped, proto_fddi);
-	dissector_add("wtap_encap", WTAP_ENCAP_FDDI_BITSWAPPED,
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_FDDI_BITSWAPPED,
 	    fddi_bitswapped_handle);
 }

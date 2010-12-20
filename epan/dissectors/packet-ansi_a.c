@@ -5359,7 +5359,7 @@ elem_adds_user_part(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
     case ADDS_APP_SMS:
         adds_tvb = tvb_new_subset(tvb, curr_offset, len - 1, len - 1);
 
-        dissector_try_port(is637_dissector_table,
+        dissector_try_uint(is637_dissector_table,
             0, adds_tvb, g_pinfo, g_tree);
 
         curr_offset += (len - 1);
@@ -5368,7 +5368,7 @@ elem_adds_user_part(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
     case ADDS_APP_OTA:
         adds_tvb = tvb_new_subset(tvb, curr_offset, len - 1, len - 1);
 
-        dissector_try_port(is683_dissector_table,
+        dissector_try_uint(is683_dissector_table,
             (g_pinfo->p2p_dir == P2P_DIR_RECV), adds_tvb, g_pinfo, g_tree);
 
         curr_offset += (len - 1);
@@ -5377,7 +5377,7 @@ elem_adds_user_part(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
     case ADDS_APP_PDS:
         adds_tvb = tvb_new_subset(tvb, curr_offset, len - 1, len - 1);
 
-        dissector_try_port(is801_dissector_table,
+        dissector_try_uint(is801_dissector_table,
             (g_pinfo->p2p_dir == P2P_DIR_RECV), adds_tvb, g_pinfo, g_tree);
 
         curr_offset += (len - 1);
@@ -12233,8 +12233,8 @@ proto_reg_handoff_ansi_a(void)
         data_handle = find_dissector("data");
         rtp_handle = find_dissector("rtp");
 
-        dissector_add("bsap.pdu_type",  BSSAP_PDU_TYPE_BSMAP, bsmap_handle);
-        dissector_add("bsap.pdu_type",  BSSAP_PDU_TYPE_DTAP, dtap_handle);
+        dissector_add_uint("bsap.pdu_type",  BSSAP_PDU_TYPE_BSMAP, bsmap_handle);
+        dissector_add_uint("bsap.pdu_type",  BSSAP_PDU_TYPE_DTAP, dtap_handle);
 
         ansi_a_prefs_initialized = TRUE;
     }

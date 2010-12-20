@@ -1455,14 +1455,14 @@ proto_reg_handoff_t38(void)
 		t38_prefs_initialized = TRUE;
 	}
 	else {
-		dissector_delete("tcp.port", tcp_port, t38_tcp_handle);
-		dissector_delete("udp.port", udp_port, t38_udp_handle);
+		dissector_delete_uint("tcp.port", tcp_port, t38_tcp_handle);
+		dissector_delete_uint("udp.port", udp_port, t38_udp_handle);
 	}
 	tcp_port = global_t38_tcp_port;
 	udp_port = global_t38_udp_port;
 
-	dissector_add("tcp.port", tcp_port, t38_tcp_handle);
-	dissector_add("udp.port", udp_port, t38_udp_handle);
+	dissector_add_uint("tcp.port", tcp_port, t38_tcp_handle);
+	dissector_add_uint("udp.port", udp_port, t38_udp_handle);
 
 }
 

@@ -330,6 +330,6 @@ void proto_reg_handoff_armagetronad(void)
 
 	armagetronad_handle = find_dissector("armagetronad");
 
-	dissector_add("udp.port", UDP_PORT_ARMAGETRONAD, armagetronad_handle);
-	dissector_add("udp.port", UDP_PORT_MASTER, armagetronad_handle);
+	dissector_add_uint("udp.port", UDP_PORT_ARMAGETRONAD, armagetronad_handle);
+	dissector_add_uint("udp.port", UDP_PORT_MASTER, armagetronad_handle);
 }

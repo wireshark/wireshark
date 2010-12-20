@@ -1363,27 +1363,27 @@ static void dissect_RUA_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port_new(rua_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint_new(rua_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port_new(rua_extension_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint_new(rua_extension_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port_new(rua_proc_imsg_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint_new(rua_proc_imsg_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port_new(rua_proc_sout_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint_new(rua_proc_sout_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port_new(rua_proc_uout_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint_new(rua_proc_uout_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
 }
 
 static void
@@ -1767,34 +1767,34 @@ proto_reg_handoff_rua(void)
         if (!initialized) {
                 rua_handle = find_dissector("rua");
                 ranap_handle = find_dissector("ranap");
-                dissector_add("sctp.ppi", RUA_PAYLOAD_PROTOCOL_ID, rua_handle);
+                dissector_add_uint("sctp.ppi", RUA_PAYLOAD_PROTOCOL_ID, rua_handle);
                 initialized = TRUE;
 
 /*--- Included file: packet-rua-dis-tab.c ---*/
 #line 1 "packet-rua-dis-tab.c"
-  dissector_add("rua.ies", id_Cause, new_create_dissector_handle(dissect_Cause_PDU, proto_rua));
-  dissector_add("rua.ies", id_CriticalityDiagnostics, new_create_dissector_handle(dissect_CriticalityDiagnostics_PDU, proto_rua));
-  dissector_add("rua.ies", id_Context_ID, new_create_dissector_handle(dissect_Context_ID_PDU, proto_rua));
-  dissector_add("rua.ies", id_RANAP_Message, new_create_dissector_handle(dissect_RANAP_Message_PDU, proto_rua));
-  dissector_add("rua.ies", id_IntraDomainNasNodeSelector, new_create_dissector_handle(dissect_IntraDomainNasNodeSelector_PDU, proto_rua));
-  dissector_add("rua.ies", id_Establishment_Cause, new_create_dissector_handle(dissect_Establishment_Cause_PDU, proto_rua));
-  dissector_add("rua.ies", id_CN_DomainIndicator, new_create_dissector_handle(dissect_CN_DomainIndicator_PDU, proto_rua));
-  dissector_add("rua.extension", id_CSGMembershipStatus, new_create_dissector_handle(dissect_CSGMembershipStatus_PDU, proto_rua));
-  dissector_add("rua.proc.imsg", id_Connect, new_create_dissector_handle(dissect_Connect_PDU, proto_rua));
-  dissector_add("rua.proc.imsg", id_DirectTransfer, new_create_dissector_handle(dissect_DirectTransfer_PDU, proto_rua));
-  dissector_add("rua.proc.imsg", id_Disconnect, new_create_dissector_handle(dissect_Disconnect_PDU, proto_rua));
-  dissector_add("rua.proc.imsg", id_ConnectionlessTransfer, new_create_dissector_handle(dissect_ConnectionlessTransfer_PDU, proto_rua));
-  dissector_add("rua.proc.imsg", id_ErrorIndication, new_create_dissector_handle(dissect_ErrorIndication_PDU, proto_rua));
-  dissector_add("rua.proc.imsg", id_privateMessage, new_create_dissector_handle(dissect_PrivateMessage_PDU, proto_rua));
+  dissector_add_uint("rua.ies", id_Cause, new_create_dissector_handle(dissect_Cause_PDU, proto_rua));
+  dissector_add_uint("rua.ies", id_CriticalityDiagnostics, new_create_dissector_handle(dissect_CriticalityDiagnostics_PDU, proto_rua));
+  dissector_add_uint("rua.ies", id_Context_ID, new_create_dissector_handle(dissect_Context_ID_PDU, proto_rua));
+  dissector_add_uint("rua.ies", id_RANAP_Message, new_create_dissector_handle(dissect_RANAP_Message_PDU, proto_rua));
+  dissector_add_uint("rua.ies", id_IntraDomainNasNodeSelector, new_create_dissector_handle(dissect_IntraDomainNasNodeSelector_PDU, proto_rua));
+  dissector_add_uint("rua.ies", id_Establishment_Cause, new_create_dissector_handle(dissect_Establishment_Cause_PDU, proto_rua));
+  dissector_add_uint("rua.ies", id_CN_DomainIndicator, new_create_dissector_handle(dissect_CN_DomainIndicator_PDU, proto_rua));
+  dissector_add_uint("rua.extension", id_CSGMembershipStatus, new_create_dissector_handle(dissect_CSGMembershipStatus_PDU, proto_rua));
+  dissector_add_uint("rua.proc.imsg", id_Connect, new_create_dissector_handle(dissect_Connect_PDU, proto_rua));
+  dissector_add_uint("rua.proc.imsg", id_DirectTransfer, new_create_dissector_handle(dissect_DirectTransfer_PDU, proto_rua));
+  dissector_add_uint("rua.proc.imsg", id_Disconnect, new_create_dissector_handle(dissect_Disconnect_PDU, proto_rua));
+  dissector_add_uint("rua.proc.imsg", id_ConnectionlessTransfer, new_create_dissector_handle(dissect_ConnectionlessTransfer_PDU, proto_rua));
+  dissector_add_uint("rua.proc.imsg", id_ErrorIndication, new_create_dissector_handle(dissect_ErrorIndication_PDU, proto_rua));
+  dissector_add_uint("rua.proc.imsg", id_privateMessage, new_create_dissector_handle(dissect_PrivateMessage_PDU, proto_rua));
 
 
 /*--- End of included file: packet-rua-dis-tab.c ---*/
 #line 185 "packet-rua-template.c"
 
         } else {
-                dissector_delete("sctp.port", sctp_port, rua_handle);
+                dissector_delete_uint("sctp.port", sctp_port, rua_handle);
         }
         /* Set our port number for future use */
         sctp_port = global_sctp_port;
-        dissector_add("sctp.port", sctp_port, rua_handle);
+        dissector_add_uint("sctp.port", sctp_port, rua_handle);
 }

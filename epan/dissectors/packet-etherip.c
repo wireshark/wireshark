@@ -120,5 +120,5 @@ proto_reg_handoff_etherip(void)
 
   eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
   etherip_handle = find_dissector("etherip");
-  dissector_add("ip.proto", IP_PROTO_ETHERIP, etherip_handle);
+  dissector_add_uint("ip.proto", IP_PROTO_ETHERIP, etherip_handle);
 }

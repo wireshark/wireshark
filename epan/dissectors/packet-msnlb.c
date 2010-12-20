@@ -186,5 +186,5 @@ proto_reg_handoff_msnlb(void)
   dissector_handle_t msnlb_handle;
 
   msnlb_handle = create_dissector_handle(dissect_msnlb, proto_msnlb);
-  dissector_add("ethertype", ETHERTYPE_MS_NLB_HEARTBEAT, msnlb_handle);
+  dissector_add_uint("ethertype", ETHERTYPE_MS_NLB_HEARTBEAT, msnlb_handle);
 }

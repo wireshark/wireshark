@@ -124,6 +124,6 @@ proto_reg_handoff_docsis_uccreq (void)
 
   docsis_uccreq_handle = find_dissector ("docsis_uccreq");
   docsis_tlv_handle = find_dissector ("docsis_tlv");
-  dissector_add ("docsis_mgmt", 0x08, docsis_uccreq_handle);
+  dissector_add_uint ("docsis_mgmt", 0x08, docsis_uccreq_handle);
 
 }

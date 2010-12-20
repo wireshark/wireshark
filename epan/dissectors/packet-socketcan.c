@@ -195,8 +195,8 @@ proto_reg_handoff_socketcan(void)
 	data_handle = find_dissector("data");
 
 	can_handle = create_dissector_handle(dissect_socketcan, proto_can);
-	dissector_add("wtap_encap", WTAP_ENCAP_SOCKETCAN, can_handle);
-	dissector_add("sll.ltype", LINUX_SLL_P_CAN, can_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_SOCKETCAN, can_handle);
+	dissector_add_uint("sll.ltype", LINUX_SLL_P_CAN, can_handle);
 }
 
 

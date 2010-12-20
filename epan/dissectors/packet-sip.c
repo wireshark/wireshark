@@ -3546,13 +3546,13 @@ guint sip_find_invite(packet_info *pinfo,
 static void
 tcp_range_add_callback(guint32 port)
 {
-	dissector_add("tcp.port", port, sip_tcp_handle);
+	dissector_add_uint("tcp.port", port, sip_tcp_handle);
 }
 
 static void
 tcp_range_delete_callback(guint32 port)
 {
-	dissector_delete("tcp.port", port, sip_tcp_handle);
+	dissector_delete_uint("tcp.port", port, sip_tcp_handle);
 }
 
 /* Register the protocol with Wireshark */
@@ -4644,7 +4644,7 @@ proto_reg_handoff_sip(void)
 		/* SIP content type and internet media type used by other dissectors are the same */
 		media_type_dissector_table = find_dissector_table("media_type");
 
-		dissector_add("udp.port", UDP_PORT_SIP, sip_handle);
+		dissector_add_uint("udp.port", UDP_PORT_SIP, sip_handle);
 		dissector_add_string("media_type", "message/sip", sip_handle);
 
 		heur_dissector_add("udp", dissect_sip_heur, proto_sip);

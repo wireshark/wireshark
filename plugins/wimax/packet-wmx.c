@@ -903,12 +903,12 @@ proto_reg_handoff_wimax(void)
                 wimax_handle = create_dissector_handle(dissect_wimax, proto_wimax);
                 wimax_prefs_initialized = TRUE;
         } else {
-                dissector_delete("wimax.max_basic_cid", global_cid_max_basic, wimax_handle);
-                dissector_delete("wimax.corrigendum_2_version", include_cor2_changes, wimax_handle);
+                dissector_delete_uint("wimax.max_basic_cid", global_cid_max_basic, wimax_handle);
+                dissector_delete_uint("wimax.corrigendum_2_version", include_cor2_changes, wimax_handle);
 
         }
 
-	dissector_add("wimax.max_basic_cid", global_cid_max_basic, wimax_handle);
-	dissector_add("wimax.corrigendum_2_version", include_cor2_changes, wimax_handle);
+	dissector_add_uint("wimax.max_basic_cid", global_cid_max_basic, wimax_handle);
+	dissector_add_uint("wimax.corrigendum_2_version", include_cor2_changes, wimax_handle);
 #endif
 }

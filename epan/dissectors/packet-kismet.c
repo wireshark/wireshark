@@ -106,7 +106,7 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	/*
 	 * Check if it is request, reply or continuation.
 	 */
-	if (pinfo->match_port == pinfo->destport) {
+	if (pinfo->match_uint == pinfo->destport) {
 		is_request = TRUE;
 		is_continuation = FALSE;
 	} else {
@@ -324,11 +324,11 @@ proto_reg_handoff_kismet(void)
 		data_handle = find_dissector("data");
 		kismet_prefs_initialized = TRUE;
 	} else {
-		dissector_delete("tcp.port", tcp_port, kismet_handle);
+		dissector_delete_uint("tcp.port", tcp_port, kismet_handle);
 	}
 
 	/* Set our port number for future use */
 	tcp_port = global_kismet_tcp_port;
 
-	dissector_add("tcp.port", global_kismet_tcp_port, kismet_handle);
+	dissector_add_uint("tcp.port", global_kismet_tcp_port, kismet_handle);
 }

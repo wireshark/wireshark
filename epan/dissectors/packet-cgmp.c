@@ -135,6 +135,6 @@ proto_reg_handoff_cgmp(void)
 	dissector_handle_t cgmp_handle;
 
 	cgmp_handle = create_dissector_handle(dissect_cgmp, proto_cgmp);
-	dissector_add("llc.cisco_pid", 0x2001, cgmp_handle);
-	dissector_add("ethertype", 0x2001, cgmp_handle);
+	dissector_add_uint("llc.cisco_pid", 0x2001, cgmp_handle);
+	dissector_add_uint("ethertype", 0x2001, cgmp_handle);
 }

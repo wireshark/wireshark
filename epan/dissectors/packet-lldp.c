@@ -2859,5 +2859,5 @@ proto_reg_handoff_lldp(void)
 	dissector_handle_t lldp_handle;
 
 	lldp_handle = create_dissector_handle(dissect_lldp,proto_lldp);
-	dissector_add("ethertype", ETHERTYPE_LLDP, lldp_handle);
+	dissector_add_uint("ethertype", ETHERTYPE_LLDP, lldp_handle);
 }

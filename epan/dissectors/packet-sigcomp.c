@@ -2274,10 +2274,10 @@ proto_reg_handoff_sigcomp(void)
 		sip_handle = find_dissector("sip");
 		Initialized=TRUE;
 	}else{
-		dissector_delete("udp.port", udp_port1, sigcomp_handle);
-		dissector_delete("udp.port", udp_port2, sigcomp_handle);
-		dissector_delete("tcp.port", tcp_port1, sigcomp_tcp_handle);
-		dissector_delete("tcp.port", tcp_port2, sigcomp_tcp_handle);
+		dissector_delete_uint("udp.port", udp_port1, sigcomp_handle);
+		dissector_delete_uint("udp.port", udp_port2, sigcomp_handle);
+		dissector_delete_uint("tcp.port", tcp_port1, sigcomp_tcp_handle);
+		dissector_delete_uint("tcp.port", tcp_port2, sigcomp_tcp_handle);
 	}
 
 	udp_port1 = SigCompUDPPort1;
@@ -2286,10 +2286,10 @@ proto_reg_handoff_sigcomp(void)
 	tcp_port2 = SigCompTCPPort2;
 
 
-	dissector_add("udp.port", SigCompUDPPort1, sigcomp_handle);
-	dissector_add("udp.port", SigCompUDPPort2, sigcomp_handle);
-	dissector_add("tcp.port", SigCompTCPPort1, sigcomp_tcp_handle);
-	dissector_add("tcp.port", SigCompTCPPort2, sigcomp_tcp_handle);
+	dissector_add_uint("udp.port", SigCompUDPPort1, sigcomp_handle);
+	dissector_add_uint("udp.port", SigCompUDPPort2, sigcomp_handle);
+	dissector_add_uint("tcp.port", SigCompTCPPort1, sigcomp_tcp_handle);
+	dissector_add_uint("tcp.port", SigCompTCPPort2, sigcomp_tcp_handle);
 
 }
 

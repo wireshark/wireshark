@@ -248,11 +248,11 @@ decode_dccp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 		high_port = dport;
 	}
 	if (low_port != 0 &&
-	    dissector_try_port(dccp_subdissector_table, low_port, next_tvb, pinfo, tree)) {
+	    dissector_try_uint(dccp_subdissector_table, low_port, next_tvb, pinfo, tree)) {
 		return;
 	}
 	if (high_port != 0 &&
-	    dissector_try_port(dccp_subdissector_table, high_port, next_tvb, pinfo, tree)) {
+	    dissector_try_uint(dccp_subdissector_table, high_port, next_tvb, pinfo, tree)) {
 		return;
 	}
 
@@ -1157,7 +1157,7 @@ void proto_reg_handoff_dccp(void)
 	dissector_handle_t dccp_handle;
 
 	dccp_handle = create_dissector_handle(dissect_dccp, proto_dccp);
-	dissector_add("ip.proto", IP_PROTO_DCCP, dccp_handle);
+	dissector_add_uint("ip.proto", IP_PROTO_DCCP, dccp_handle);
 	data_handle = find_dissector("data");
 	dccp_tap = register_tap("dccp");
 }

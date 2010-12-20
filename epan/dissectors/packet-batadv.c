@@ -2074,9 +2074,9 @@ void proto_reg_handoff_batadv(void)
 
 		inited = TRUE;
 	} else {
-		dissector_delete("ethertype", old_batadv_ethertype, batman_handle);
+		dissector_delete_uint("ethertype", old_batadv_ethertype, batman_handle);
 	}
 
 	old_batadv_ethertype = batadv_ethertype;
-	dissector_add("ethertype", batadv_ethertype, batman_handle);
+	dissector_add_uint("ethertype", batadv_ethertype, batman_handle);
 }

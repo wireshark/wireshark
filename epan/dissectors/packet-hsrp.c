@@ -832,6 +832,6 @@ proto_reg_handoff_hsrp(void)
 
 	data_handle = find_dissector("data");
 	hsrp_handle = new_create_dissector_handle(dissect_hsrp, proto_hsrp);
-	dissector_add("udp.port", UDP_PORT_HSRP, hsrp_handle);
-	dissector_add("udp.port", UDP_PORT_HSRP2_V6, hsrp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_HSRP, hsrp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_HSRP2_V6, hsrp_handle);
 }

@@ -300,7 +300,7 @@ dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (encapsulation != 0) {
 		wtap_encap = tzsp_encap_to_wtap_encap(encapsulation);
 		if (wtap_encap != -1 &&
-		    (encap_dissector = dissector_get_port_handle(encap_dissector_table, wtap_encap))) {
+		    (encap_dissector = dissector_get_uint_handle(encap_dissector_table, wtap_encap))) {
 			encap_name = dissector_handle_get_short_name(encap_dissector);
 		}
 		else {
@@ -339,7 +339,7 @@ dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		next_tvb = tvb_new_subset_remaining(tvb, pos);
 		if (encapsulation != 0
 		    && (wtap_encap == -1
-			|| !dissector_try_port(encap_dissector_table, wtap_encap,
+			|| !dissector_try_uint(encap_dissector_table, wtap_encap,
 				next_tvb, pinfo, tree))) {
 
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
@@ -507,13 +507,13 @@ proto_reg_handoff_tzsp(void)
 	dissector_handle_t tzsp_handle;
 
 	tzsp_handle = create_dissector_handle(dissect_tzsp, proto_tzsp);
-	dissector_add("udp.port", UDP_PORT_TZSP, tzsp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_TZSP, tzsp_handle);
 
 	/* Get the data dissector for handling unknown encapsulation types. */
 	data_handle = find_dissector("data");
 
 	/* Register this protocol as an ecapsulation type. */
-	dissector_add("wtap_encap", WTAP_ENCAP_TZSP, tzsp_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_TZSP, tzsp_handle);
 
 	encap_dissector_table = find_dissector_table("wtap_encap");
 }

@@ -2148,5 +2148,5 @@ proto_reg_handoff_a11(void)
     dissector_handle_t a11_handle;
 
     a11_handle = find_dissector("a11");
-    dissector_add("udp.port", UDP_PORT_3GA11, a11_handle);
+    dissector_add_uint("udp.port", UDP_PORT_3GA11, a11_handle);
 }

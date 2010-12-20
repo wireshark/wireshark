@@ -152,5 +152,5 @@ proto_reg_handoff_docsis_bintrngreq (void)
   dissector_handle_t docsis_bintrngreq_handle;
 
   docsis_bintrngreq_handle = find_dissector ("docsis_bintrngreq");
-  dissector_add ("docsis_mgmt", 0x22, docsis_bintrngreq_handle);
+  dissector_add_uint ("docsis_mgmt", 0x22, docsis_bintrngreq_handle);
 }

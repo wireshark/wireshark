@@ -1204,13 +1204,13 @@ proto_register_nsip(void)
 static void
 range_delete_callback(guint32 port)
 {
-    dissector_delete("udp.port", port, nsip_handle);
+    dissector_delete_uint("udp.port", port, nsip_handle);
 }
 
 static void
 range_add_callback(guint32 port)
 {
-    dissector_add("udp.port", port, nsip_handle);
+    dissector_add_uint("udp.port", port, nsip_handle);
 }
 
 void

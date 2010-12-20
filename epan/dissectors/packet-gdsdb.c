@@ -1841,5 +1841,5 @@ proto_reg_handoff_gdsdb(void)
 
 	gdsdb_handle = new_create_dissector_handle(dissect_gdsdb,
 								 proto_gdsdb);
-	dissector_add("tcp.port", TCP_PORT, gdsdb_handle);
+	dissector_add_uint("tcp.port", TCP_PORT, gdsdb_handle);
 }

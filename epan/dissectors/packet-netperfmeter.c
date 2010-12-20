@@ -437,6 +437,6 @@ proto_reg_handoff_npmp(void)
   dissector_handle_t npmp_handle;
 
   npmp_handle = new_create_dissector_handle(dissect_npmp, proto_npmp);
-  dissector_add("sctp.ppi", PPID_NETPERFMETER_CONTROL, npmp_handle);
-  dissector_add("sctp.ppi", PPID_NETPERFMETER_DATA,    npmp_handle);
+  dissector_add_uint("sctp.ppi", PPID_NETPERFMETER_CONTROL, npmp_handle);
+  dissector_add_uint("sctp.ppi", PPID_NETPERFMETER_DATA,    npmp_handle);
 }

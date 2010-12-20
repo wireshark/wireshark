@@ -4773,12 +4773,12 @@ dissect_ansi_683(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_protocol_format(tree, proto_ansi_683, tvb, 0, -1,
 		"%s %s Link",
 		ansi_proto_name,
-		(pinfo->match_port == ANSI_683_FORWARD) ? "Forward" : "Reverse");
+		(pinfo->match_uint == ANSI_683_FORWARD) ? "Forward" : "Reverse");
 
 	ansi_683_tree =
 	    proto_item_add_subtree(ansi_683_item, ett_ansi_683);
 
-	if (pinfo->match_port == ANSI_683_FORWARD)
+	if (pinfo->match_uint == ANSI_683_FORWARD)
 	{
 	    dissect_ansi_683_for_message(tvb, ansi_683_tree);
 	}
@@ -4865,10 +4865,10 @@ proto_reg_handoff_ansi_683(void)
 
     ansi_683_handle = create_dissector_handle(dissect_ansi_683, proto_ansi_683);
 
-    dissector_add("ansi_map.ota", ANSI_683_FORWARD, ansi_683_handle);
-    dissector_add("ansi_map.ota", ANSI_683_REVERSE, ansi_683_handle);
-    dissector_add("ansi_a.ota", ANSI_683_FORWARD, ansi_683_handle);
-    dissector_add("ansi_a.ota", ANSI_683_REVERSE, ansi_683_handle);
+    dissector_add_uint("ansi_map.ota", ANSI_683_FORWARD, ansi_683_handle);
+    dissector_add_uint("ansi_map.ota", ANSI_683_REVERSE, ansi_683_handle);
+    dissector_add_uint("ansi_a.ota", ANSI_683_FORWARD, ansi_683_handle);
+    dissector_add_uint("ansi_a.ota", ANSI_683_REVERSE, ansi_683_handle);
 
     data_handle = find_dissector("data");
 }

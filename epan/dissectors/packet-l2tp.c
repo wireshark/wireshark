@@ -2148,10 +2148,10 @@ proto_reg_handoff_l2tp(void)
 	dissector_handle_t l2tp_ip_handle;
 
 	l2tp_udp_handle = new_create_dissector_handle(dissect_l2tp_udp, proto_l2tp);
-	dissector_add("udp.port", UDP_PORT_L2TP, l2tp_udp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_L2TP, l2tp_udp_handle);
 
 	l2tp_ip_handle = create_dissector_handle(dissect_l2tp_ip, proto_l2tp);
-	dissector_add("ip.proto", IP_PROTO_L2TP, l2tp_ip_handle);
+	dissector_add_uint("ip.proto", IP_PROTO_L2TP, l2tp_ip_handle);
 
 	/*
 	 * Get a handle for the PPP-in-HDLC-like-framing dissector.

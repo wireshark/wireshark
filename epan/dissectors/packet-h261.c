@@ -253,6 +253,6 @@ proto_reg_handoff_h261(void)
 	dissector_handle_t h261_handle;
 
 	h261_handle = create_dissector_handle(dissect_h261, proto_h261);
-	dissector_add("rtp.pt", PT_H261, h261_handle);
-	dissector_add("iax2.codec", AST_FORMAT_H261, h261_handle);
+	dissector_add_uint("rtp.pt", PT_H261, h261_handle);
+	dissector_add_uint("iax2.codec", AST_FORMAT_H261, h261_handle);
 }

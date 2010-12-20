@@ -4347,12 +4347,12 @@ void proto_register_dmp (void)
 
 static void range_delete_callback (guint32 port)
 {
-    dissector_delete ("udp.port", port, dmp_handle);
+    dissector_delete_uint ("udp.port", port, dmp_handle);
 }
 
 static void range_add_callback (guint32 port)
 {
-    dissector_add ("udp.port", port, dmp_handle);
+    dissector_add_uint ("udp.port", port, dmp_handle);
 }
 
 void proto_reg_handoff_dmp (void)

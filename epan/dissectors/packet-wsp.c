@@ -7374,16 +7374,16 @@ proto_reg_handoff_wsp(void)
 	wbxml_uaprof_handle = find_dissector("wbxml-uaprof");
 
 	/* Only connection-less WSP has no previous handler */
-	dissector_add("udp.port", UDP_PORT_WSP, wsp_fromudp_handle);
-	dissector_add("udp.port", UDP_PORT_WSP_PUSH, wsp_fromudp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_WSP, wsp_fromudp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_WSP_PUSH, wsp_fromudp_handle);
 
 	/* GSM SMS UD dissector can also carry WSP */
-	dissector_add("gsm-sms-ud.udh.port", UDP_PORT_WSP, wsp_fromudp_handle);
-	dissector_add("gsm-sms-ud.udh.port", UDP_PORT_WSP_PUSH, wsp_fromudp_handle);
+	dissector_add_uint("gsm-sms-ud.udh.port", UDP_PORT_WSP, wsp_fromudp_handle);
+	dissector_add_uint("gsm-sms-ud.udh.port", UDP_PORT_WSP_PUSH, wsp_fromudp_handle);
 
 	/* GSM SMS dissector can also carry WSP */
-	dissector_add("gsm-sms.udh.port", UDP_PORT_WSP, wsp_fromudp_handle);
-	dissector_add("gsm-sms.udh.port", UDP_PORT_WSP_PUSH, wsp_fromudp_handle);
+	dissector_add_uint("gsm-sms.udh.port", UDP_PORT_WSP, wsp_fromudp_handle);
+	dissector_add_uint("gsm-sms.udh.port", UDP_PORT_WSP_PUSH, wsp_fromudp_handle);
 
 	/* As the media types for WSP and HTTP are the same, the WSP dissector
 	 * uses the same string dissector table as the HTTP protocol. */

@@ -878,10 +878,10 @@ proto_reg_handoff_vj(void)
   dissector_handle_t vjuc_handle;
 
   vjc_handle = create_dissector_handle(dissect_vjc, proto_vj);
-  dissector_add("ppp.protocol", PPP_VJC_COMP, vjc_handle);
+  dissector_add_uint("ppp.protocol", PPP_VJC_COMP, vjc_handle);
 
   vjuc_handle = create_dissector_handle(dissect_vjuc, proto_vj);
-  dissector_add("ppp.protocol", PPP_VJC_UNCOMP, vjuc_handle);
+  dissector_add_uint("ppp.protocol", PPP_VJC_UNCOMP, vjuc_handle);
 
   ip_handle = find_dissector("ip");
   data_handle = find_dissector("data");

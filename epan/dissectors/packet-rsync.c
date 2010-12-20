@@ -320,9 +320,9 @@ proto_reg_handoff_rsync(void)
         rsync_handle = create_dissector_handle(dissect_rsync, proto_rsync);
         initialized = TRUE;
     } else {
-        dissector_delete("tcp.port", saved_rsync_tcp_port, rsync_handle);
+        dissector_delete_uint("tcp.port", saved_rsync_tcp_port, rsync_handle);
     }
 
-    dissector_add("tcp.port", glb_rsync_tcp_port, rsync_handle);
+    dissector_add_uint("tcp.port", glb_rsync_tcp_port, rsync_handle);
     saved_rsync_tcp_port = glb_rsync_tcp_port;
 }

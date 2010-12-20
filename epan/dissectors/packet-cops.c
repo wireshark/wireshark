@@ -2540,15 +2540,15 @@ void proto_reg_handoff_cops(void)
 
   if (!cops_prefs_initialized) {
     cops_handle = find_dissector("cops");
-    dissector_add("tcp.port", TCP_PORT_PKTCABLE_COPS, cops_handle);
-    dissector_add("tcp.port", TCP_PORT_PKTCABLE_MM_COPS, cops_handle);
+    dissector_add_uint("tcp.port", TCP_PORT_PKTCABLE_COPS, cops_handle);
+    dissector_add_uint("tcp.port", TCP_PORT_PKTCABLE_MM_COPS, cops_handle);
     cops_prefs_initialized = TRUE;
   } else {
-    dissector_delete("tcp.port",cops_tcp_port,cops_handle);
+    dissector_delete_uint("tcp.port",cops_tcp_port,cops_handle);
   }
   cops_tcp_port = global_cops_tcp_port;
 
-  dissector_add("tcp.port", cops_tcp_port, cops_handle);
+  dissector_add_uint("tcp.port", cops_tcp_port, cops_handle);
 }
 
 

@@ -2376,7 +2376,7 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			real_length=tvb_length_remaining(tvb, offset);
 		}
 		fh_tvb=tvb_new_subset(tvb, offset, real_length, fhlen);
-		if(!dissector_try_port(nfs_fhandle_table, default_nfs_fhandle_type, fh_tvb, pinfo, tree)){
+		if(!dissector_try_uint(nfs_fhandle_table, default_nfs_fhandle_type, fh_tvb, pinfo, tree)){
 			dissect_fhandle_data_unknown(fh_tvb, pinfo, tree);
 		}
 	}
@@ -12396,29 +12396,29 @@ proto_reg_handoff_nfs(void)
 	rpc_init_proc_table(NFS_PROGRAM, 4, nfs4_proc, hf_nfs_procedure_v4);
 
 	fhandle_handle=create_dissector_handle(dissect_fhandle_data_SVR4, proto_nfs);
-	dissector_add("nfs_fhandle.type", FHT_SVR4, fhandle_handle);
+	dissector_add_uint("nfs_fhandle.type", FHT_SVR4, fhandle_handle);
 
 	fhandle_handle=create_dissector_handle(dissect_fhandle_data_LINUX_KNFSD_LE, proto_nfs);
-	dissector_add("nfs_fhandle.type", FHT_LINUX_KNFSD_LE, fhandle_handle);
+	dissector_add_uint("nfs_fhandle.type", FHT_LINUX_KNFSD_LE, fhandle_handle);
 
 	fhandle_handle=create_dissector_handle(dissect_fhandle_data_LINUX_NFSD_LE, proto_nfs);
-	dissector_add("nfs_fhandle.type", FHT_LINUX_NFSD_LE, fhandle_handle);
+	dissector_add_uint("nfs_fhandle.type", FHT_LINUX_NFSD_LE, fhandle_handle);
 
 	fhandle_handle=create_dissector_handle(dissect_fhandle_data_LINUX_KNFSD_NEW, proto_nfs);
-	dissector_add("nfs_fhandle.type", FHT_LINUX_KNFSD_NEW, fhandle_handle);
+	dissector_add_uint("nfs_fhandle.type", FHT_LINUX_KNFSD_NEW, fhandle_handle);
 
 	fhandle_handle=create_dissector_handle(dissect_fhandle_data_NETAPP, proto_nfs);
-	dissector_add("nfs_fhandle.type", FHT_NETAPP, fhandle_handle);
+	dissector_add_uint("nfs_fhandle.type", FHT_NETAPP, fhandle_handle);
 
 	fhandle_handle=create_dissector_handle(dissect_fhandle_data_NETAPP_V4, proto_nfs);
-	dissector_add("nfs_fhandle.type", FHT_NETAPP_V4, fhandle_handle);
+	dissector_add_uint("nfs_fhandle.type", FHT_NETAPP_V4, fhandle_handle);
 
 	fhandle_handle=create_dissector_handle(dissect_fhandle_data_NETAPP_GX_v3, proto_nfs);
-	dissector_add("nfs_fhandle.type", FHT_NETAPP_GX_V3, fhandle_handle);
+	dissector_add_uint("nfs_fhandle.type", FHT_NETAPP_GX_V3, fhandle_handle);
 
 	fhandle_handle=create_dissector_handle(dissect_fhandle_data_CELERRA, proto_nfs);
-	dissector_add("nfs_fhandle.type", FHT_CELERRA, fhandle_handle);
+	dissector_add_uint("nfs_fhandle.type", FHT_CELERRA, fhandle_handle);
 
 	fhandle_handle=create_dissector_handle(dissect_fhandle_data_unknown, proto_nfs);
-	dissector_add("nfs_fhandle.type", FHT_UNKNOWN, fhandle_handle);
+	dissector_add_uint("nfs_fhandle.type", FHT_UNKNOWN, fhandle_handle);
 }

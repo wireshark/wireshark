@@ -771,6 +771,6 @@ proto_reg_handoff_sqloracle(void)
     dissector_handle_t sqloracle_handle;
 
     sqloracle_handle = find_dissector("sqloracle");
-    dissector_add("tns.port", TCP_PORT_TNS, sqloracle_handle);
+    dissector_add_uint("tns.port", TCP_PORT_TNS, sqloracle_handle);
 }
 

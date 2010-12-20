@@ -198,12 +198,12 @@ static GHashTable* itu_sub_dissectors = NULL;
 
   extern void add_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector) {
     g_hash_table_insert(ansi_sub_dissectors,GUINT_TO_POINTER(ssn),dissector);
-    dissector_add("sccp.ssn",ssn,tcap_handle);
+    dissector_add_uint("sccp.ssn",ssn,tcap_handle);
 }
 
 extern void delete_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector _U_) {
     g_hash_table_remove(ansi_sub_dissectors,GUINT_TO_POINTER(ssn));
-    dissector_delete("sccp.ssn",ssn,tcap_handle);
+    dissector_delete_uint("sccp.ssn",ssn,tcap_handle);
 }
 
 dissector_handle_t get_ansi_tcap_subdissector(guint32 ssn) {

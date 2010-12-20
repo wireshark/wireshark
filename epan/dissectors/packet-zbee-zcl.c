@@ -2179,14 +2179,14 @@ void proto_reg_handoff_zbee_zcl(void)
 
     /* Register our dissector for the appropriate profiles. */
     zbee_zcl_handle = find_dissector("zbee.zcl");
-    dissector_add("zbee.profile", ZBEE_PROFILE_IPM,   zbee_zcl_handle);
-    dissector_add("zbee.profile", ZBEE_PROFILE_T1,    zbee_zcl_handle);
-    dissector_add("zbee.profile", ZBEE_PROFILE_HA,    zbee_zcl_handle);
-    dissector_add("zbee.profile", ZBEE_PROFILE_CBA,   zbee_zcl_handle);
-    dissector_add("zbee.profile", ZBEE_PROFILE_WSN,   zbee_zcl_handle);
-    dissector_add("zbee.profile", ZBEE_PROFILE_TA,    zbee_zcl_handle);
-    dissector_add("zbee.profile", ZBEE_PROFILE_HC,    zbee_zcl_handle);
-    dissector_add("zbee.profile", ZBEE_PROFILE_SE,    zbee_zcl_handle);
+    dissector_add_uint("zbee.profile", ZBEE_PROFILE_IPM,   zbee_zcl_handle);
+    dissector_add_uint("zbee.profile", ZBEE_PROFILE_T1,    zbee_zcl_handle);
+    dissector_add_uint("zbee.profile", ZBEE_PROFILE_HA,    zbee_zcl_handle);
+    dissector_add_uint("zbee.profile", ZBEE_PROFILE_CBA,   zbee_zcl_handle);
+    dissector_add_uint("zbee.profile", ZBEE_PROFILE_WSN,   zbee_zcl_handle);
+    dissector_add_uint("zbee.profile", ZBEE_PROFILE_TA,    zbee_zcl_handle);
+    dissector_add_uint("zbee.profile", ZBEE_PROFILE_HC,    zbee_zcl_handle);
+    dissector_add_uint("zbee.profile", ZBEE_PROFILE_SE,    zbee_zcl_handle);
 
-    dissector_add("zbee.profile", ZBEE_PROFILE_C4_CL, zbee_zcl_handle);
+    dissector_add_uint("zbee.profile", ZBEE_PROFILE_C4_CL, zbee_zcl_handle);
 } /* proto_reg_handoff_zbee_zcl */

@@ -466,6 +466,6 @@ proto_reg_handoff_eapol(void)
   data_handle = find_dissector("data");
 
   eapol_handle = create_dissector_handle(dissect_eapol, proto_eapol);
-  dissector_add("ethertype", ETHERTYPE_EAPOL, eapol_handle);
-  dissector_add("ethertype", ETHERTYPE_RSN_PREAUTH, eapol_handle);
+  dissector_add_uint("ethertype", ETHERTYPE_EAPOL, eapol_handle);
+  dissector_add_uint("ethertype", ETHERTYPE_RSN_PREAUTH, eapol_handle);
 }

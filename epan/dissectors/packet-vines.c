@@ -180,11 +180,11 @@ proto_reg_handoff_vines_frp(void)
 
 	vines_frp_handle = create_dissector_handle(dissect_vines_frp,
 	    proto_vines_frp);
-	dissector_add("ip.proto", IP_PROTO_VINES, vines_frp_handle);
+	dissector_add_uint("ip.proto", IP_PROTO_VINES, vines_frp_handle);
 
 	/* XXX: AFAIK, src and dst port must be the same; should
 	   the dissector check for that? */
-	dissector_add("udp.port", UDP_PORT_VINES, vines_frp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_VINES, vines_frp_handle);
 }
 
 static dissector_table_t vines_llc_dissector_table;
@@ -227,7 +227,7 @@ dissect_vines_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	next_tvb = tvb_new_subset_remaining(tvb, 1);
-	if (!dissector_try_port(vines_llc_dissector_table, ptype,
+	if (!dissector_try_uint(vines_llc_dissector_table, ptype,
 	    next_tvb, pinfo, tree))
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 }
@@ -255,7 +255,7 @@ proto_reg_handoff_vines_llc(void)
 
 	vines_llc_handle = create_dissector_handle(dissect_vines_llc,
 	    proto_vines_llc);
-	dissector_add("llc.dsap", SAP_VINES2, vines_llc_handle);
+	dissector_add_uint("llc.dsap", SAP_VINES2, vines_llc_handle);
 }
 
 static dissector_table_t vines_ip_dissector_table;
@@ -385,7 +385,7 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	offset += 18;
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
-	if (!dissector_try_port(vines_ip_dissector_table, viph.vip_proto,
+	if (!dissector_try_uint(vines_ip_dissector_table, viph.vip_proto,
 	    next_tvb, pinfo, tree))
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 }
@@ -421,11 +421,11 @@ proto_register_vines_ip(void)
 void
 proto_reg_handoff_vines_ip(void)
 {
-	dissector_add("ethertype", ETHERTYPE_VINES_IP, vines_ip_handle);
-	dissector_add("ppp.protocol", PPP_VINES, vines_ip_handle);
-	dissector_add("arcnet.protocol_id", ARCNET_PROTO_BANYAN,
+	dissector_add_uint("ethertype", ETHERTYPE_VINES_IP, vines_ip_handle);
+	dissector_add_uint("ppp.protocol", PPP_VINES, vines_ip_handle);
+	dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_BANYAN,
 	    vines_ip_handle);
-	dissector_add("vines_llc.ptype", VINES_LLC_IP, vines_ip_handle);
+	dissector_add_uint("vines_llc.ptype", VINES_LLC_IP, vines_ip_handle);
 	data_handle = find_dissector("data");
 }
 
@@ -465,8 +465,8 @@ proto_reg_handoff_vines_echo(void)
 
 	vines_echo_handle = create_dissector_handle(dissect_vines_echo,
 	    proto_vines_echo);
-	dissector_add("vines_llc.ptype", VINES_LLC_ECHO, vines_echo_handle);
-	dissector_add("ethertype", ETHERTYPE_VINES_ECHO, vines_echo_handle);
+	dissector_add_uint("vines_llc.ptype", VINES_LLC_ECHO, vines_echo_handle);
+	dissector_add_uint("ethertype", ETHERTYPE_VINES_ECHO, vines_echo_handle);
 }
 
 static const value_string pkttype_vals[] = {
@@ -695,7 +695,7 @@ proto_reg_handoff_vines_ipc(void)
 
 	vines_ipc_handle = create_dissector_handle(dissect_vines_ipc,
 	    proto_vines_ipc);
-	dissector_add("vines_ip.protocol", VIP_PROTO_IPC, vines_ipc_handle);
+	dissector_add_uint("vines_ip.protocol", VIP_PROTO_IPC, vines_ipc_handle);
 }
 
 static heur_dissector_list_t vines_spp_heur_subdissector_list;
@@ -822,7 +822,7 @@ proto_reg_handoff_vines_spp(void)
 
 	vines_spp_handle = create_dissector_handle(dissect_vines_spp,
 	    proto_vines_spp);
-	dissector_add("vines_ip.protocol", VIP_PROTO_SPP, vines_spp_handle);
+	dissector_add_uint("vines_ip.protocol", VIP_PROTO_SPP, vines_spp_handle);
 }
 
 #define VINES_VERS_PRE_5_5	0x00
@@ -969,7 +969,7 @@ proto_reg_handoff_vines_arp(void)
 
 	vines_arp_handle = create_dissector_handle(dissect_vines_arp,
 	    proto_vines_arp);
-	dissector_add("vines_ip.protocol", VIP_PROTO_ARP, vines_arp_handle);
+	dissector_add_uint("vines_ip.protocol", VIP_PROTO_ARP, vines_arp_handle);
 }
 
 #define VRTP_OP_REQUEST		0x01
@@ -1515,7 +1515,7 @@ proto_reg_handoff_vines_rtp(void)
 
 	vines_rtp_handle = create_dissector_handle(dissect_vines_rtp,
 	    proto_vines_rtp);
-	dissector_add("vines_ip.protocol", VIP_PROTO_RTP, vines_rtp_handle);
+	dissector_add_uint("vines_ip.protocol", VIP_PROTO_RTP, vines_rtp_handle);
 }
 
 #define VICP_EXCEPTION_NOTIFICATION	0x0000
@@ -1633,5 +1633,5 @@ proto_reg_handoff_vines_icp(void)
 
 	vines_icp_handle = create_dissector_handle(dissect_vines_icp,
 	    proto_vines_icp);
-	dissector_add("vines_ip.protocol", VIP_PROTO_ICP, vines_icp_handle);
+	dissector_add_uint("vines_ip.protocol", VIP_PROTO_ICP, vines_icp_handle);
 }

@@ -948,15 +948,15 @@ proto_reg_handoff_bittorrent(void)
 {
    dissector_handle = find_dissector("bittorrent.tcp");
 #if 0
-   dissector_add("tcp.port", 6881, dissector_handle);
-   dissector_add("tcp.port", 6882, dissector_handle);
-   dissector_add("tcp.port", 6883, dissector_handle);
-   dissector_add("tcp.port", 6884, dissector_handle);
-   dissector_add("tcp.port", 6885, dissector_handle);
-   dissector_add("tcp.port", 6886, dissector_handle);
-   dissector_add("tcp.port", 6887, dissector_handle);
-   dissector_add("tcp.port", 6888, dissector_handle);
-   dissector_add("tcp.port", 6889, dissector_handle);
+   dissector_add_uint("tcp.port", 6881, dissector_handle);
+   dissector_add_uint("tcp.port", 6882, dissector_handle);
+   dissector_add_uint("tcp.port", 6883, dissector_handle);
+   dissector_add_uint("tcp.port", 6884, dissector_handle);
+   dissector_add_uint("tcp.port", 6885, dissector_handle);
+   dissector_add_uint("tcp.port", 6886, dissector_handle);
+   dissector_add_uint("tcp.port", 6887, dissector_handle);
+   dissector_add_uint("tcp.port", 6888, dissector_handle);
+   dissector_add_uint("tcp.port", 6889, dissector_handle);
 #endif
    heur_dissector_add("tcp", test_bittorrent_packet, proto_bittorrent);
 }

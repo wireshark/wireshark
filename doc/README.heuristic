@@ -205,7 +205,7 @@ proto_reg_handoff_PROTOABBREV(void)
         /* register as normal dissector for IP as well */
         PROTOABBREV_handle = new_create_dissector_handle(dissect_PROTOABBREV,
             proto_PROTOABBREV);
-        dissector_add("ip.proto", IP_PROTO_PROTOABBREV, PROTOABBREV_handle);
+        dissector_add_uint("ip.proto", IP_PROTO_PROTOABBREV, PROTOABBREV_handle);
         PROTOABBREV_inited = TRUE;
     }
 }

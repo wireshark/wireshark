@@ -822,5 +822,5 @@ proto_reg_handoff_btsdp(void)
 	dissector_handle_t btsdp_handle;
 
 	btsdp_handle = find_dissector("btsdp");
-	dissector_add("btl2cap.psm", BTL2CAP_PSM_SDP, btsdp_handle);
+	dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_SDP, btsdp_handle);
 }

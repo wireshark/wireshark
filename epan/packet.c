@@ -623,19 +623,21 @@ struct dtbl_entry {
  *
  * "hash_table" is a hash table, indexed by port number, supplying
  * a "struct dtbl_entry"; it records what dissector is assigned to
- * that port number in that table.
+ * that uint or string value in that table.
  *
  * "dissector_handles" is a list of all dissectors that *could* be
  * used in that table; not all of them are necessarily in the table,
- * as they may be for protocols that don't have a fixed port number.
+ * as they may be for protocols that don't have a fixed uint value,
+ * e.g. for TCP or UDP port number tables and protocols with no fixed
+ * port number.
  *
  * "ui_name" is the name the dissector table has in the user interface.
  *
- * "type" is a field type giving the width of the port number for that
- * dissector table.
+ * "type" is a field type giving the width of the uint value for that
+ * dissector table, if it's a uint dissector table.
  *
- * "base" is the base in which to display the port number for that
- * dissector table.
+ * "base" is the base in which to display the uint value for that
+ * dissector table, if it's a uint dissector table.
  */
 struct dissector_table {
 	GHashTable	*hash_table;
@@ -666,13 +668,13 @@ find_uint_dtbl_entry(dissector_table_t sub_dissectors, const guint32 pattern)
 	case FT_UINT24:
 	case FT_UINT32:
 		/*
-		 * You can do a port lookup in these tables.
+		 * You can do a uint lookup in these tables.
 		 */
 		break;
 
 	default:
 		/*
-		 * But you can't do a port lookup in any other types
+		 * But you can't do a uint lookup in any other types
 		 * of tables.
 		 */
 		g_assert_not_reached();
@@ -687,7 +689,7 @@ find_uint_dtbl_entry(dissector_table_t sub_dissectors, const guint32 pattern)
 
 #if 0
 static void
-dissector_add_sanity_check(const char *name, guint32 pattern, dissector_handle_t handle, dissector_table_t sub_dissectors)
+dissector_add_uint_sanity_check(const char *name, guint32 pattern, dissector_handle_t handle, dissector_table_t sub_dissectors)
 {
 	dtbl_entry_t *dtbl_entry;
 
@@ -707,7 +709,7 @@ dissector_add_sanity_check(const char *name, guint32 pattern, dissector_handle_t
 
 /* Add an entry to a uint dissector table. */
 void
-dissector_add(const char *name, const guint32 pattern, dissector_handle_t handle)
+dissector_add_uint(const char *name, const guint32 pattern, dissector_handle_t handle)
 {
 	dissector_table_t sub_dissectors;
 	dtbl_entry_t *dtbl_entry;
@@ -723,20 +725,20 @@ dissector_add(const char *name, const guint32 pattern, dissector_handle_t handle
 	case FT_UINT24:
 	case FT_UINT32:
 		/*
-		 * You can do a port lookup in these tables.
+		 * You can do a uint lookup in these tables.
 		 */
 		break;
 
 	default:
 		/*
-		 * But you can't do a port lookup in any other types
+		 * But you can't do a uint lookup in any other types
 		 * of tables.
 		 */
 		g_assert_not_reached();
 	}
 
 #if 0
-	dissector_add_sanity_check(name, pattern, handle, sub_dissectors);
+	dissector_add_uint_sanity_check(name, pattern, handle, sub_dissectors);
 #endif
 
 	dtbl_entry = g_malloc(sizeof (dtbl_entry_t));
@@ -758,12 +760,12 @@ dissector_add(const char *name, const guint32 pattern, dissector_handle_t handle
    with a particular pattern. */
 
 /* NOTE: this doesn't use the dissector call variable. It is included to */
-/*	be consistant with the dissector_add and more importantly to be used */
+/*	be consistant with the dissector_add_uint and more importantly to be used */
 /*	if the technique of adding a temporary dissector is implemented.  */
 /*	If temporary dissectors are deleted, then the original dissector must */
 /*	be available. */
 void
-dissector_delete(const char *name, const guint32 pattern,
+dissector_delete_uint(const char *name, const guint32 pattern,
 	dissector_handle_t handle _U_)
 {
 	dissector_table_t sub_dissectors = find_dissector_table( name);
@@ -794,7 +796,7 @@ dissector_delete(const char *name, const guint32 pattern,
 /* Change the entry for a dissector in a uint dissector table
    with a particular pattern to use a new dissector handle. */
 void
-dissector_change(const char *name, const guint32 pattern, dissector_handle_t handle)
+dissector_change_uint(const char *name, const guint32 pattern, dissector_handle_t handle)
 {
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 	dtbl_entry_t *dtbl_entry;
@@ -830,7 +832,7 @@ dissector_change(const char *name, const guint32 pattern, dissector_handle_t han
 
 /* Reset an entry in a uint dissector table to its initial value. */
 void
-dissector_reset(const char *name, const guint32 pattern)
+dissector_reset_uint(const char *name, const guint32 pattern)
 {
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 	dtbl_entry_t *dtbl_entry;
@@ -863,15 +865,15 @@ dissector_reset(const char *name, const guint32 pattern)
    otherwise return FALSE. */
 
 gboolean
-dissector_try_port_new(dissector_table_t sub_dissectors, const guint32 port,
+dissector_try_uint_new(dissector_table_t sub_dissectors, const guint32 uint_val,
 		       tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const gboolean add_proto_name)
 {
 	dtbl_entry_t *dtbl_entry;
 	struct dissector_handle *handle;
-	guint32 saved_match_port;
+	guint32 saved_match_uint;
 	int ret;
 
-	dtbl_entry = find_uint_dtbl_entry(sub_dissectors, port);
+	dtbl_entry = find_uint_dtbl_entry(sub_dissectors, uint_val);
 	if (dtbl_entry != NULL) {
 		/*
 		 * Is there currently a dissector handle for this entry?
@@ -887,14 +889,14 @@ dissector_try_port_new(dissector_table_t sub_dissectors, const guint32 port,
 		}
 
 		/*
-		 * Save the current value of "pinfo->match_port",
-		 * set it to the port that matched, call the
-		 * dissector, and restore "pinfo->match_port".
+		 * Save the current value of "pinfo->match_uint",
+		 * set it to the uint_val that matched, call the
+		 * dissector, and restore "pinfo->match_uint".
 		 */
-		saved_match_port = pinfo->match_port;
-		pinfo->match_port = port;
+		saved_match_uint = pinfo->match_uint;
+		pinfo->match_uint = uint_val;
 		ret = call_dissector_work(handle, tvb, pinfo, tree, add_proto_name);
-		pinfo->match_port = saved_match_port;
+		pinfo->match_uint = saved_match_uint;
 
 		/*
 		 * If a new-style dissector returned 0, it means that
@@ -915,20 +917,21 @@ dissector_try_port_new(dissector_table_t sub_dissectors, const guint32 port,
 }
 
 gboolean
-dissector_try_port(dissector_table_t sub_dissectors, const guint32 port,
+dissector_try_uint(dissector_table_t sub_dissectors, const guint32 uint_val,
 		   tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-	return dissector_try_port_new(sub_dissectors, port, tvb, pinfo, tree, TRUE);
+	return dissector_try_uint_new(sub_dissectors, uint_val, tvb, pinfo, tree, TRUE);
 }
+
 /* Look for a given value in a given uint dissector table and, if found,
    return the dissector handle for that value. */
 dissector_handle_t
-dissector_get_port_handle(dissector_table_t const sub_dissectors, const guint32 port)
+dissector_get_uint_handle(dissector_table_t const sub_dissectors, const guint32 uint_val)
 {
 	dtbl_entry_t *dtbl_entry;
 
-	dtbl_entry = find_uint_dtbl_entry(sub_dissectors, port);
+	dtbl_entry = find_uint_dtbl_entry(sub_dissectors, uint_val);
 	if (dtbl_entry != NULL)
 		return dtbl_entry->current;
 	else

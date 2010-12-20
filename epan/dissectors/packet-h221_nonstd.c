@@ -134,7 +134,7 @@ proto_reg_handoff_nonstd(void)
   ms_nonstd_handle = create_dissector_handle(dissect_ms_nonstd, proto_nonstd);
 
 
-  dissector_add("h245.nsp.h221",0xb500534c, ms_nonstd_handle);
-  dissector_add("h225.nsp.h221",0xb500534c, ms_nonstd_handle);
+  dissector_add_uint("h245.nsp.h221",0xb500534c, ms_nonstd_handle);
+  dissector_add_uint("h225.nsp.h221",0xb500534c, ms_nonstd_handle);
 
 }

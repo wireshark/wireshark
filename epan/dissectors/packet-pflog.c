@@ -269,7 +269,7 @@ proto_reg_handoff_pflog(void)
   data_handle = find_dissector("data");
 
   pflog_handle = create_dissector_handle(dissect_pflog, proto_pflog);
-  dissector_add("wtap_encap", WTAP_ENCAP_PFLOG, pflog_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_PFLOG, pflog_handle);
 }
 
 static void
@@ -390,6 +390,6 @@ proto_reg_handoff_old_pflog(void)
   data_handle = find_dissector("data");
 
   pflog_handle = create_dissector_handle(dissect_old_pflog, proto_old_pflog);
-  dissector_add("wtap_encap", WTAP_ENCAP_OLD_PFLOG, pflog_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_OLD_PFLOG, pflog_handle);
 }
 

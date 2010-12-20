@@ -291,6 +291,6 @@ proto_reg_handoff_manolito(void)
 
 	manolito_handle = create_dissector_handle(dissect_manolito,
 	    proto_manolito);
-	dissector_add("udp.port", 41170, manolito_handle);
+	dissector_add_uint("udp.port", 41170, manolito_handle);
 }
 

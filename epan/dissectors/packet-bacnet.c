@@ -633,11 +633,11 @@ proto_reg_handoff_bacnet(void)
 	dissector_handle_t bacnet_handle;
 
 	bacnet_handle = find_dissector("bacnet");
-	dissector_add("bvlc.function", 0x04, bacnet_handle);
-	dissector_add("bvlc.function", 0x09, bacnet_handle);
-	dissector_add("bvlc.function", 0x0a, bacnet_handle);
-	dissector_add("bvlc.function", 0x0b, bacnet_handle);
-	dissector_add("llc.dsap", SAP_BACNET, bacnet_handle);
+	dissector_add_uint("bvlc.function", 0x04, bacnet_handle);
+	dissector_add_uint("bvlc.function", 0x09, bacnet_handle);
+	dissector_add_uint("bvlc.function", 0x0a, bacnet_handle);
+	dissector_add_uint("bvlc.function", 0x0b, bacnet_handle);
+	dissector_add_uint("llc.dsap", SAP_BACNET, bacnet_handle);
 	bacapp_handle = find_dissector("bacapp");
 	data_handle = find_dissector("data");
 }

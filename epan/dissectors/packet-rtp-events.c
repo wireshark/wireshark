@@ -273,8 +273,8 @@ proto_reg_handoff_rtp_events(void)
 		rtp_events_prefs_initialized = TRUE;
 	}
 	else {
-		dissector_delete("rtp.pt", saved_payload_type_value, rtp_events_handle);
-		dissector_delete("rtp.pt", saved_cisco_nse_pt_value, rtp_events_handle);
+		dissector_delete_uint("rtp.pt", saved_payload_type_value, rtp_events_handle);
+		dissector_delete_uint("rtp.pt", saved_cisco_nse_pt_value, rtp_events_handle);
 	}
 
 	saved_payload_type_value = rtp_event_payload_type_value;
@@ -282,6 +282,6 @@ proto_reg_handoff_rtp_events(void)
 	saved_cisco_nse_pt_value = cisco_nse_pt_value;
 	/* cisco_nse_pt_value is set from preferences */
 
-	dissector_add("rtp.pt", saved_payload_type_value, rtp_events_handle);
-	dissector_add("rtp.pt", saved_cisco_nse_pt_value, rtp_events_handle);
+	dissector_add_uint("rtp.pt", saved_payload_type_value, rtp_events_handle);
+	dissector_add_uint("rtp.pt", saved_cisco_nse_pt_value, rtp_events_handle);
 }

@@ -5001,6 +5001,6 @@ proto_reg_handoff_bootp(void)
 	dissector_handle_t bootp_handle;
 
 	bootp_handle = create_dissector_handle(dissect_bootp, proto_bootp);
-	dissector_add("udp.port", UDP_PORT_BOOTPS, bootp_handle);
-	dissector_add("udp.port", UDP_PORT_BOOTPC, bootp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_BOOTPS, bootp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_BOOTPC, bootp_handle);
 }

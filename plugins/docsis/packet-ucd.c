@@ -821,6 +821,6 @@ proto_reg_handoff_docsis_ucd (void)
    dissector_handle_t docsis_ucd_handle;
    
    docsis_ucd_handle = find_dissector ("docsis_ucd");
-   dissector_add ("docsis_mgmt", 0x02, docsis_ucd_handle);
+   dissector_add_uint ("docsis_mgmt", 0x02, docsis_ucd_handle);
    
 }

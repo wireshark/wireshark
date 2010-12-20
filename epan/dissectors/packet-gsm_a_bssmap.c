@@ -6864,7 +6864,7 @@ proto_reg_handoff_gsm_a_bssmap(void)
     dissector_handle_t bssmap_handle;
 
     bssmap_handle = find_dissector("gsm_a_bssmap");
-    dissector_add("bssap.pdu_type",  BSSAP_PDU_TYPE_BSSMAP, bssmap_handle);
+    dissector_add_uint("bssap.pdu_type",  BSSAP_PDU_TYPE_BSSMAP, bssmap_handle);
 
     dtap_handle = find_dissector("gsm_a_dtap");
     gsm_bsslap_handle = find_dissector("gsm_bsslap");

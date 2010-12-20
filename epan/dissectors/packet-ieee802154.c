@@ -2788,13 +2788,13 @@ void proto_reg_handoff_ieee802154(void)
         ieee802154_nofcs_handle = find_dissector("wpan_nofcs");
         data_handle         = find_dissector("data");
 
-        dissector_add("wtap_encap", WTAP_ENCAP_IEEE802_15_4, ieee802154_handle);
-        dissector_add("wtap_encap", WTAP_ENCAP_IEEE802_15_4_NONASK_PHY, ieee802154_nonask_phy_handle);
-        dissector_add("wtap_encap", WTAP_ENCAP_IEEE802_15_4_NOFCS, ieee802154_nofcs_handle);
+        dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE802_15_4, ieee802154_handle);
+        dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE802_15_4_NONASK_PHY, ieee802154_nonask_phy_handle);
+        dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE802_15_4_NOFCS, ieee802154_nofcs_handle);
 
         prefs_initialized = TRUE;
     } else {
-        dissector_delete("ethertype", old_ieee802154_ethertype, ieee802154_handle);
+        dissector_delete_uint("ethertype", old_ieee802154_ethertype, ieee802154_handle);
     }
 
     old_ieee802154_ethertype = ieee802154_ethertype;
@@ -2809,7 +2809,7 @@ void proto_reg_handoff_ieee802154(void)
     g_byte_array_free(bytes, TRUE);
 
     /* Register dissector handles. */
-    dissector_add("ethertype", ieee802154_ethertype, ieee802154_handle);
+    dissector_add_uint("ethertype", ieee802154_ethertype, ieee802154_handle);
 } /* proto_reg_handoff_ieee802154 */
 
 /*FUNCTION:------------------------------------------------------

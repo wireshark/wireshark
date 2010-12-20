@@ -745,7 +745,7 @@ proto_reg_handoff_docsis (void)
 
   docsis_handle = find_dissector ("docsis");
   data_handle = find_dissector ("data");
-  dissector_add ("wtap_encap", WTAP_ENCAP_DOCSIS, docsis_handle);
+  dissector_add_uint ("wtap_encap", WTAP_ENCAP_DOCSIS, docsis_handle);
 
   docsis_mgmt_handle = find_dissector ("docsis_mgmt");
   eth_withoutfcs_handle = find_dissector ("eth_withoutfcs");

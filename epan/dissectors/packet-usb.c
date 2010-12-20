@@ -2010,7 +2010,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
             pinfo->usb_conv_info=usb_conv_info;
             next_tvb=tvb_new_subset_remaining(tvb, offset);
-            if(dissector_try_port(usb_bulk_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, parent)){
+            if(dissector_try_uint(usb_bulk_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, parent)){
                 return;
             }
         }
@@ -2084,7 +2084,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 case RQT_SETUP_TYPE_CLASS:
                     /* Try to find a class specific dissector */
                     next_tvb=tvb_new_subset_remaining(tvb, offset);
-                    if(dissector_try_port(usb_control_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, tree)){
+                    if(dissector_try_uint(usb_control_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, tree)){
                         return;
                     }
                     /* Else no class dissector, just display generic fields */
@@ -2137,7 +2137,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             if(usb_trans_info){
                 /* Try to find a class specific dissector */
                 next_tvb=tvb_new_subset_remaining(tvb, offset);
-                if(dissector_try_port(usb_control_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, tree)){
+                if(dissector_try_uint(usb_control_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, tree)){
                     return;
                 }
 
@@ -2759,6 +2759,6 @@ proto_reg_handoff_usb(void)
     linux_usb_mmapped_handle = create_dissector_handle(dissect_linux_usb_mmapped,
                                                        proto_usb);
 
-    dissector_add("wtap_encap", WTAP_ENCAP_USB_LINUX, linux_usb_handle);
-    dissector_add("wtap_encap", WTAP_ENCAP_USB_LINUX_MMAPPED, linux_usb_mmapped_handle);
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_USB_LINUX, linux_usb_handle);
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_USB_LINUX_MMAPPED, linux_usb_mmapped_handle);
 }

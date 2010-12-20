@@ -222,11 +222,11 @@ proto_reg_handoff_pw_eth(void)
         eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
 
         pw_eth_handle_cw = find_dissector("pw_eth_cw");
-        dissector_add("mpls.label", LABEL_INVALID, pw_eth_handle_cw);
+        dissector_add_uint("mpls.label", LABEL_INVALID, pw_eth_handle_cw);
 
         pw_eth_handle_nocw = find_dissector("pw_eth_nocw");
-        dissector_add("mpls.label", LABEL_INVALID, pw_eth_handle_nocw);
+        dissector_add_uint("mpls.label", LABEL_INVALID, pw_eth_handle_nocw);
 
         pw_eth_handle_heuristic = find_dissector("pw_eth_heuristic");
-        dissector_add("mpls.label", LABEL_INVALID, pw_eth_handle_heuristic);
+        dissector_add_uint("mpls.label", LABEL_INVALID, pw_eth_handle_heuristic);
 }

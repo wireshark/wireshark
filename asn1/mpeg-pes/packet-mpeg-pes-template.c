@@ -708,6 +708,6 @@ proto_reg_handoff_mpeg_pes(void)
 {
 	dissector_handle_t mpeg_handle = find_dissector("mpeg");
 
-	dissector_add("wtap_encap", WTAP_ENCAP_MPEG, mpeg_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_MPEG, mpeg_handle);
 	heur_dissector_add("mpeg", dissect_mpeg_pes, proto_mpeg_pes);
 }

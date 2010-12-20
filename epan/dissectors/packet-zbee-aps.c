@@ -747,7 +747,7 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Get and display the profile ID. */
     packet.profile = tvb_get_letohs(tvb, offset);
-    profile_handle = dissector_get_port_handle(zbee_aps_dissector_table, packet.profile);
+    profile_handle = dissector_get_uint_handle(zbee_aps_dissector_table, packet.profile);
     if (tree) {
         ti = proto_tree_add_uint(aps_tree, hf_zbee_aps_profile, tvb, offset,2,
                 packet.profile);

@@ -222,12 +222,12 @@ void proto_reg_handoff_netdump(void)
 		initalized = TRUE;
 	} else {
 		if (CurrentPort != 0)
-			dissector_delete("udp.port", CurrentPort, netdump_handle);
+			dissector_delete_uint("udp.port", CurrentPort, netdump_handle);
 	}
 
 	CurrentPort = gPORT_PREF;
 
 	if (CurrentPort != 0)
-		dissector_add("udp.port", CurrentPort, netdump_handle);
+		dissector_add_uint("udp.port", CurrentPort, netdump_handle);
 }
 

@@ -13176,32 +13176,32 @@ static int dissect_PCAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port(pcap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint(pcap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port(pcap_extension_dissector_table, ProtocolExtensionID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint(pcap_extension_dissector_table, ProtocolExtensionID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port(pcap_proc_imsg_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint(pcap_proc_imsg_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port(pcap_proc_sout_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint(pcap_proc_sout_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port(pcap_proc_uout_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint(pcap_proc_uout_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_OutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  return (dissector_try_port(pcap_proc_out_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_uint(pcap_proc_out_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
 static void
@@ -13224,14 +13224,14 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void range_delete_callback(guint32 ssn)
 {
     if ( ssn ) {
-        dissector_delete("sccp.ssn", ssn, pcap_handle);
+        dissector_delete_uint("sccp.ssn", ssn, pcap_handle);
     }
 }
 
 static void range_add_callback(guint32 ssn)
 {
     if (ssn) {
-        dissector_add("sccp.ssn", ssn, pcap_handle);
+        dissector_add_uint("sccp.ssn", ssn, pcap_handle);
     }
 }
 
@@ -13249,125 +13249,125 @@ proto_reg_handoff_pcap(void)
 
 /*--- Included file: packet-pcap-dis-tab.c ---*/
 #line 1 "packet-pcap-dis-tab.c"
-  dissector_add("pcap.ies", id_Cause, new_create_dissector_handle(dissect_Cause_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_CriticalityDiagnostics, new_create_dissector_handle(dissect_CriticalityDiagnostics_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_GPS_UTRAN_TRU, new_create_dissector_handle(dissect_GPS_UTRAN_TRU_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_InformationExchangeID, new_create_dissector_handle(dissect_InformationExchangeID_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_InformationExchangeObjectType_InfEx_Rprt, new_create_dissector_handle(dissect_InformationExchangeObjectType_InfEx_Rprt_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_InformationExchangeObjectType_InfEx_Rqst, new_create_dissector_handle(dissect_InformationExchangeObjectType_InfEx_Rqst_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_InformationExchangeObjectType_InfEx_Rsp, new_create_dissector_handle(dissect_InformationExchangeObjectType_InfEx_Rsp_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_InformationReportCharacteristics, new_create_dissector_handle(dissect_InformationReportCharacteristics_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_InformationType, new_create_dissector_handle(dissect_InformationType_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_GPS_MeasuredResultsList, new_create_dissector_handle(dissect_MeasuredResultsList_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_UE_PositionEstimate, new_create_dissector_handle(dissect_UE_PositionEstimate_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_CellId_MeasuredResultsSets, new_create_dissector_handle(dissect_CellId_MeasuredResultsSets_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_OTDOA_MeasurementGroup, new_create_dissector_handle(dissect_OTDOA_MeasurementGroup_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_AccuracyFulfilmentIndicator, new_create_dissector_handle(dissect_AccuracyFulfilmentIndicator_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_HorizontalAccuracyCode, new_create_dissector_handle(dissect_HorizontalAccuracyCode_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_VerticalAccuracyCode, new_create_dissector_handle(dissect_VerticalAccuracyCode_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_UTDOA_Group, new_create_dissector_handle(dissect_UTDOA_Group_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_RequestType, new_create_dissector_handle(dissect_RequestType_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_UE_PositioningCapability, new_create_dissector_handle(dissect_UE_PositioningCapability_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_UC_id, new_create_dissector_handle(dissect_UC_ID_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_ResponseTime, new_create_dissector_handle(dissect_ResponseTime_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_PositioningPriority, new_create_dissector_handle(dissect_PositioningPriority_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_ClientType, new_create_dissector_handle(dissect_ClientType_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_PositioningMethod, new_create_dissector_handle(dissect_PositioningMethod_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_UTDOAPositioning, new_create_dissector_handle(dissect_UTDOAPositioning_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_GPSPositioning, new_create_dissector_handle(dissect_GPSPositioning_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_OTDOAAssistanceData, new_create_dissector_handle(dissect_OTDOAAssistanceData_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_Positioning_ResponseTime, new_create_dissector_handle(dissect_Positioning_ResponseTime_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_EnvironmentCharacterisation, new_create_dissector_handle(dissect_EnvironmentCharacterisation_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_PositionData, new_create_dissector_handle(dissect_PositionData_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_VelocityEstimate, new_create_dissector_handle(dissect_VelocityEstimate_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_UC_ID_InfEx_Rqst, new_create_dissector_handle(dissect_UC_ID_InfEx_Rqst_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_UE_PositionEstimateInfo, new_create_dissector_handle(dissect_UE_PositionEstimateInfo_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_OTDOA_MeasuredResultsSets, new_create_dissector_handle(dissect_OTDOA_MeasuredResultsSets_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_PeriodicPosCalcInfo, new_create_dissector_handle(dissect_PeriodicPosCalcInfo_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_PeriodicLocationInfo, new_create_dissector_handle(dissect_PeriodicLocationInfo_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_MeasInstructionsUsed, new_create_dissector_handle(dissect_MeasInstructionsUsed_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_PeriodicTerminationCause, new_create_dissector_handle(dissect_PeriodicTerminationCause_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_IncludeVelocity, new_create_dissector_handle(dissect_IncludeVelocity_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_AmountOfReporting, new_create_dissector_handle(dissect_AmountOfReporting_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_CellIDPositioning, new_create_dissector_handle(dissect_CellIDPositioning_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_GANSSPositioning, new_create_dissector_handle(dissect_GANSSPositioning_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_RRCstateChange, new_create_dissector_handle(dissect_RRCstateChange_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_GANSS_MeasuredResultsList, new_create_dissector_handle(dissect_GANSS_MeasuredResultsList_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_GANSS_UTRAN_TRU, new_create_dissector_handle(dissect_GANSS_UTRAN_TRU_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_AdditionalGPSAssistDataRequired, new_create_dissector_handle(dissect_AdditionalGPSAssistDataRequired_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_AdditionalGanssAssistDataRequired, new_create_dissector_handle(dissect_AdditionalGanssAssistDataRequired_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_rxTimingDeviation768Info, new_create_dissector_handle(dissect_RxTimingDeviation768Info_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_rxTimingDeviation384extInfo, new_create_dissector_handle(dissect_RxTimingDeviation384extInfo_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_roundTripTimeInfoWithType1, new_create_dissector_handle(dissect_RoundTripTimeInfoWithType1_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_AddMeasurementInfo, new_create_dissector_handle(dissect_AddMeasurementInfo_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_angleOfArrivalLCR, new_create_dissector_handle(dissect_AngleOfArrivalLCR_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_extendedTimingAdvanceLCR, new_create_dissector_handle(dissect_ExtendedTimingAdvanceLCR_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_GANSS_PositioningDataSet, new_create_dissector_handle(dissect_GANSS_PositioningDataSet_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_GANSS_CommonAssistanceData, new_create_dissector_handle(dissect_GANSS_CommonAssistanceData_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_GANSS_GenericAssistanceDataList, new_create_dissector_handle(dissect_GANSS_GenericAssistanceDataList_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_GPS_ReferenceLocation, new_create_dissector_handle(dissect_GPS_ReferenceLocation_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_UTRAN_GPS_DriftRate, new_create_dissector_handle(dissect_UTRAN_GPS_DriftRate_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_GPSReferenceTimeUncertainty, new_create_dissector_handle(dissect_GPSReferenceTimeUncertainty_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_OTDOA_AddMeasuredResultsInfo, new_create_dissector_handle(dissect_OTDOA_AddMeasuredResultsInfo_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_Extended_RNC_ID, new_create_dissector_handle(dissect_Extended_RNC_ID_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_additionalMeasurementInforLCR, new_create_dissector_handle(dissect_AdditionalMeasurementInforLCR_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_GNSS_PositioningMethod, new_create_dissector_handle(dissect_GNSS_PositioningMethod_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_NetworkAssistedGANSSSuport, new_create_dissector_handle(dissect_NetworkAssistedGANSSSupport_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_UTRAN_GPSReferenceTime, new_create_dissector_handle(dissect_UTRAN_GPSReferenceTime_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_GANSS_AddIonoModelReq, new_create_dissector_handle(dissect_GANSS_AddIonoModelReq_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_GANSS_EarthOrientParaReq, new_create_dissector_handle(dissect_GANSS_EarthOrientParaReq_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_GANSS_Additional_Ionospheric_Model, new_create_dissector_handle(dissect_GANSS_Additional_Ionospheric_Model_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_GANSS_Earth_Orientation_Parameters, new_create_dissector_handle(dissect_GANSS_Earth_Orientation_Parameters_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_GANSS_Additional_Time_Models, new_create_dissector_handle(dissect_GANSS_Additional_Time_Models_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_GANSS_Additional_Navigation_Models, new_create_dissector_handle(dissect_GANSS_Additional_Navigation_Models_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_GANSS_Additional_UTC_Models, new_create_dissector_handle(dissect_GANSS_Additional_UTC_Models_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_GANSS_Auxiliary_Information, new_create_dissector_handle(dissect_GANSS_Auxiliary_Information_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_GANSS_SBAS_ID, new_create_dissector_handle(dissect_GANSS_SBAS_ID_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_GANSS_SBAS_IDs, new_create_dissector_handle(dissect_GANSS_SBAS_IDs_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_GANSS_Signal_IDs, new_create_dissector_handle(dissect_GANSS_Signal_IDs_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_GANSS_alm_keplerianNAVAlmanac, new_create_dissector_handle(dissect_GANSS_ALM_NAVKeplerianSet_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_GANSS_alm_keplerianReducedAlmanac, new_create_dissector_handle(dissect_GANSS_ALM_ReducedKeplerianSet_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_GANSS_alm_keplerianMidiAlmanac, new_create_dissector_handle(dissect_GANSS_ALM_MidiAlmanacSet_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_GANSS_alm_keplerianGLONASS, new_create_dissector_handle(dissect_GANSS_ALM_GlonassAlmanacSet_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_GANSS_alm_ecefSBASAlmanac, new_create_dissector_handle(dissect_GANSS_ALM_ECEFsbasAlmanacSet_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_UTRAN_GANSSReferenceTimeResult, new_create_dissector_handle(dissect_UTRAN_GANSSReferenceTimeResult_PDU, proto_pcap));
-  dissector_add("pcap.ies", id_GANSS_Reference_Time_Only, new_create_dissector_handle(dissect_GANSS_Reference_Time_Only_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_GANSS_AddADchoices, new_create_dissector_handle(dissect_GANSS_AddADchoices_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_supportGANSSNonNativeADchoices, new_create_dissector_handle(dissect_SupportGANSSNonNativeADchoices_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_PositionDataUEbased, new_create_dissector_handle(dissect_PositionDataUEbased_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_ganssCodePhaseAmbiguityExt, new_create_dissector_handle(dissect_GanssCodePhaseAmbiguityExt_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_ganssIntegerCodePhaseExt, new_create_dissector_handle(dissect_GanssIntegerCodePhaseExt_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_GANSScarrierPhaseRequested, new_create_dissector_handle(dissect_GANSScarrierPhaseRequested_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_GANSSMultiFreqMeasRequested, new_create_dissector_handle(dissect_GANSSMultiFreqMeasRequested_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_ganssReq_AddIonosphericModel, new_create_dissector_handle(dissect_GANSSReq_AddIonosphericModel_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_ganssReq_EarthOrientPara, new_create_dissector_handle(dissect_GANSSReq_EarthOrientPara_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_ganssAddNavigationModel_req, new_create_dissector_handle(dissect_GANSS_AddNavigationModel_Req_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_ganssAddUTCModel_req, new_create_dissector_handle(dissect_GANSS_AddUTCModel_Req_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_ganssAuxInfo_req, new_create_dissector_handle(dissect_GANSS_AuxInfo_req_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_OTDOA_ReferenceCellInfo, new_create_dissector_handle(dissect_OTDOA_ReferenceCellInfoSAS_centric_PDU, proto_pcap));
-  dissector_add("pcap.extension", id_DGNSS_ValidityPeriod, new_create_dissector_handle(dissect_DGNSS_ValidityPeriod_PDU, proto_pcap));
-  dissector_add("pcap.proc.imsg", id_PositionCalculation, new_create_dissector_handle(dissect_PositionCalculationRequest_PDU, proto_pcap));
-  dissector_add("pcap.proc.sout", id_PositionCalculation, new_create_dissector_handle(dissect_PositionCalculationResponse_PDU, proto_pcap));
-  dissector_add("pcap.proc.uout", id_PositionCalculation, new_create_dissector_handle(dissect_PositionCalculationFailure_PDU, proto_pcap));
-  dissector_add("pcap.proc.imsg", id_InformationExchangeInitiation, new_create_dissector_handle(dissect_InformationExchangeInitiationRequest_PDU, proto_pcap));
-  dissector_add("pcap.proc.sout", id_InformationExchangeInitiation, new_create_dissector_handle(dissect_InformationExchangeInitiationResponse_PDU, proto_pcap));
-  dissector_add("pcap.proc.uout", id_InformationExchangeInitiation, new_create_dissector_handle(dissect_InformationExchangeInitiationFailure_PDU, proto_pcap));
-  dissector_add("pcap.proc.imsg", id_PositionInitiation, new_create_dissector_handle(dissect_PositionInitiationRequest_PDU, proto_pcap));
-  dissector_add("pcap.proc.sout", id_PositionInitiation, new_create_dissector_handle(dissect_PositionInitiationResponse_PDU, proto_pcap));
-  dissector_add("pcap.proc.uout", id_PositionInitiation, new_create_dissector_handle(dissect_PositionInitiationFailure_PDU, proto_pcap));
-  dissector_add("pcap.proc.imsg", id_PositionActivation, new_create_dissector_handle(dissect_PositionActivationRequest_PDU, proto_pcap));
-  dissector_add("pcap.proc.sout", id_PositionActivation, new_create_dissector_handle(dissect_PositionActivationResponse_PDU, proto_pcap));
-  dissector_add("pcap.proc.uout", id_PositionActivation, new_create_dissector_handle(dissect_PositionActivationFailure_PDU, proto_pcap));
-  dissector_add("pcap.proc.imsg", id_InformationReporting, new_create_dissector_handle(dissect_InformationReport_PDU, proto_pcap));
-  dissector_add("pcap.proc.imsg", id_InformationExchangeTermination, new_create_dissector_handle(dissect_InformationExchangeTerminationRequest_PDU, proto_pcap));
-  dissector_add("pcap.proc.imsg", id_InformationExchangeFailure, new_create_dissector_handle(dissect_InformationExchangeFailureIndication_PDU, proto_pcap));
-  dissector_add("pcap.proc.imsg", id_ErrorIndication, new_create_dissector_handle(dissect_ErrorIndication_PDU, proto_pcap));
-  dissector_add("pcap.proc.imsg", id_privateMessage, new_create_dissector_handle(dissect_PrivateMessage_PDU, proto_pcap));
-  dissector_add("pcap.proc.imsg", id_PositionParameterModification, new_create_dissector_handle(dissect_PositionParameterModification_PDU, proto_pcap));
-  dissector_add("pcap.proc.imsg", id_Abort, new_create_dissector_handle(dissect_Abort_PDU, proto_pcap));
-  dissector_add("pcap.proc.imsg", id_PositionPeriodicReport, new_create_dissector_handle(dissect_PositionPeriodicReport_PDU, proto_pcap));
-  dissector_add("pcap.proc.imsg", id_PositionPeriodicResult, new_create_dissector_handle(dissect_PositionPeriodicResult_PDU, proto_pcap));
-  dissector_add("pcap.proc.imsg", id_PositionPeriodicTermination, new_create_dissector_handle(dissect_PositionPeriodicTermination_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_Cause, new_create_dissector_handle(dissect_Cause_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_CriticalityDiagnostics, new_create_dissector_handle(dissect_CriticalityDiagnostics_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_GPS_UTRAN_TRU, new_create_dissector_handle(dissect_GPS_UTRAN_TRU_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_InformationExchangeID, new_create_dissector_handle(dissect_InformationExchangeID_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_InformationExchangeObjectType_InfEx_Rprt, new_create_dissector_handle(dissect_InformationExchangeObjectType_InfEx_Rprt_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_InformationExchangeObjectType_InfEx_Rqst, new_create_dissector_handle(dissect_InformationExchangeObjectType_InfEx_Rqst_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_InformationExchangeObjectType_InfEx_Rsp, new_create_dissector_handle(dissect_InformationExchangeObjectType_InfEx_Rsp_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_InformationReportCharacteristics, new_create_dissector_handle(dissect_InformationReportCharacteristics_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_InformationType, new_create_dissector_handle(dissect_InformationType_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_GPS_MeasuredResultsList, new_create_dissector_handle(dissect_MeasuredResultsList_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_UE_PositionEstimate, new_create_dissector_handle(dissect_UE_PositionEstimate_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_CellId_MeasuredResultsSets, new_create_dissector_handle(dissect_CellId_MeasuredResultsSets_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_OTDOA_MeasurementGroup, new_create_dissector_handle(dissect_OTDOA_MeasurementGroup_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_AccuracyFulfilmentIndicator, new_create_dissector_handle(dissect_AccuracyFulfilmentIndicator_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_HorizontalAccuracyCode, new_create_dissector_handle(dissect_HorizontalAccuracyCode_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_VerticalAccuracyCode, new_create_dissector_handle(dissect_VerticalAccuracyCode_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_UTDOA_Group, new_create_dissector_handle(dissect_UTDOA_Group_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_RequestType, new_create_dissector_handle(dissect_RequestType_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_UE_PositioningCapability, new_create_dissector_handle(dissect_UE_PositioningCapability_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_UC_id, new_create_dissector_handle(dissect_UC_ID_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_ResponseTime, new_create_dissector_handle(dissect_ResponseTime_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_PositioningPriority, new_create_dissector_handle(dissect_PositioningPriority_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_ClientType, new_create_dissector_handle(dissect_ClientType_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_PositioningMethod, new_create_dissector_handle(dissect_PositioningMethod_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_UTDOAPositioning, new_create_dissector_handle(dissect_UTDOAPositioning_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_GPSPositioning, new_create_dissector_handle(dissect_GPSPositioning_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_OTDOAAssistanceData, new_create_dissector_handle(dissect_OTDOAAssistanceData_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_Positioning_ResponseTime, new_create_dissector_handle(dissect_Positioning_ResponseTime_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_EnvironmentCharacterisation, new_create_dissector_handle(dissect_EnvironmentCharacterisation_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_PositionData, new_create_dissector_handle(dissect_PositionData_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_VelocityEstimate, new_create_dissector_handle(dissect_VelocityEstimate_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_UC_ID_InfEx_Rqst, new_create_dissector_handle(dissect_UC_ID_InfEx_Rqst_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_UE_PositionEstimateInfo, new_create_dissector_handle(dissect_UE_PositionEstimateInfo_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_OTDOA_MeasuredResultsSets, new_create_dissector_handle(dissect_OTDOA_MeasuredResultsSets_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_PeriodicPosCalcInfo, new_create_dissector_handle(dissect_PeriodicPosCalcInfo_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_PeriodicLocationInfo, new_create_dissector_handle(dissect_PeriodicLocationInfo_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_MeasInstructionsUsed, new_create_dissector_handle(dissect_MeasInstructionsUsed_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_PeriodicTerminationCause, new_create_dissector_handle(dissect_PeriodicTerminationCause_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_IncludeVelocity, new_create_dissector_handle(dissect_IncludeVelocity_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_AmountOfReporting, new_create_dissector_handle(dissect_AmountOfReporting_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_CellIDPositioning, new_create_dissector_handle(dissect_CellIDPositioning_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_GANSSPositioning, new_create_dissector_handle(dissect_GANSSPositioning_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_RRCstateChange, new_create_dissector_handle(dissect_RRCstateChange_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_GANSS_MeasuredResultsList, new_create_dissector_handle(dissect_GANSS_MeasuredResultsList_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_GANSS_UTRAN_TRU, new_create_dissector_handle(dissect_GANSS_UTRAN_TRU_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_AdditionalGPSAssistDataRequired, new_create_dissector_handle(dissect_AdditionalGPSAssistDataRequired_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_AdditionalGanssAssistDataRequired, new_create_dissector_handle(dissect_AdditionalGanssAssistDataRequired_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_rxTimingDeviation768Info, new_create_dissector_handle(dissect_RxTimingDeviation768Info_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_rxTimingDeviation384extInfo, new_create_dissector_handle(dissect_RxTimingDeviation384extInfo_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_roundTripTimeInfoWithType1, new_create_dissector_handle(dissect_RoundTripTimeInfoWithType1_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_AddMeasurementInfo, new_create_dissector_handle(dissect_AddMeasurementInfo_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_angleOfArrivalLCR, new_create_dissector_handle(dissect_AngleOfArrivalLCR_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_extendedTimingAdvanceLCR, new_create_dissector_handle(dissect_ExtendedTimingAdvanceLCR_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_GANSS_PositioningDataSet, new_create_dissector_handle(dissect_GANSS_PositioningDataSet_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_GANSS_CommonAssistanceData, new_create_dissector_handle(dissect_GANSS_CommonAssistanceData_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_GANSS_GenericAssistanceDataList, new_create_dissector_handle(dissect_GANSS_GenericAssistanceDataList_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_GPS_ReferenceLocation, new_create_dissector_handle(dissect_GPS_ReferenceLocation_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_UTRAN_GPS_DriftRate, new_create_dissector_handle(dissect_UTRAN_GPS_DriftRate_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_GPSReferenceTimeUncertainty, new_create_dissector_handle(dissect_GPSReferenceTimeUncertainty_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_OTDOA_AddMeasuredResultsInfo, new_create_dissector_handle(dissect_OTDOA_AddMeasuredResultsInfo_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_Extended_RNC_ID, new_create_dissector_handle(dissect_Extended_RNC_ID_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_additionalMeasurementInforLCR, new_create_dissector_handle(dissect_AdditionalMeasurementInforLCR_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_GNSS_PositioningMethod, new_create_dissector_handle(dissect_GNSS_PositioningMethod_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_NetworkAssistedGANSSSuport, new_create_dissector_handle(dissect_NetworkAssistedGANSSSupport_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_UTRAN_GPSReferenceTime, new_create_dissector_handle(dissect_UTRAN_GPSReferenceTime_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_GANSS_AddIonoModelReq, new_create_dissector_handle(dissect_GANSS_AddIonoModelReq_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_GANSS_EarthOrientParaReq, new_create_dissector_handle(dissect_GANSS_EarthOrientParaReq_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_GANSS_Additional_Ionospheric_Model, new_create_dissector_handle(dissect_GANSS_Additional_Ionospheric_Model_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_GANSS_Earth_Orientation_Parameters, new_create_dissector_handle(dissect_GANSS_Earth_Orientation_Parameters_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_GANSS_Additional_Time_Models, new_create_dissector_handle(dissect_GANSS_Additional_Time_Models_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_GANSS_Additional_Navigation_Models, new_create_dissector_handle(dissect_GANSS_Additional_Navigation_Models_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_GANSS_Additional_UTC_Models, new_create_dissector_handle(dissect_GANSS_Additional_UTC_Models_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_GANSS_Auxiliary_Information, new_create_dissector_handle(dissect_GANSS_Auxiliary_Information_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_GANSS_SBAS_ID, new_create_dissector_handle(dissect_GANSS_SBAS_ID_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_GANSS_SBAS_IDs, new_create_dissector_handle(dissect_GANSS_SBAS_IDs_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_GANSS_Signal_IDs, new_create_dissector_handle(dissect_GANSS_Signal_IDs_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_GANSS_alm_keplerianNAVAlmanac, new_create_dissector_handle(dissect_GANSS_ALM_NAVKeplerianSet_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_GANSS_alm_keplerianReducedAlmanac, new_create_dissector_handle(dissect_GANSS_ALM_ReducedKeplerianSet_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_GANSS_alm_keplerianMidiAlmanac, new_create_dissector_handle(dissect_GANSS_ALM_MidiAlmanacSet_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_GANSS_alm_keplerianGLONASS, new_create_dissector_handle(dissect_GANSS_ALM_GlonassAlmanacSet_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_GANSS_alm_ecefSBASAlmanac, new_create_dissector_handle(dissect_GANSS_ALM_ECEFsbasAlmanacSet_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_UTRAN_GANSSReferenceTimeResult, new_create_dissector_handle(dissect_UTRAN_GANSSReferenceTimeResult_PDU, proto_pcap));
+  dissector_add_uint("pcap.ies", id_GANSS_Reference_Time_Only, new_create_dissector_handle(dissect_GANSS_Reference_Time_Only_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_GANSS_AddADchoices, new_create_dissector_handle(dissect_GANSS_AddADchoices_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_supportGANSSNonNativeADchoices, new_create_dissector_handle(dissect_SupportGANSSNonNativeADchoices_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_PositionDataUEbased, new_create_dissector_handle(dissect_PositionDataUEbased_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_ganssCodePhaseAmbiguityExt, new_create_dissector_handle(dissect_GanssCodePhaseAmbiguityExt_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_ganssIntegerCodePhaseExt, new_create_dissector_handle(dissect_GanssIntegerCodePhaseExt_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_GANSScarrierPhaseRequested, new_create_dissector_handle(dissect_GANSScarrierPhaseRequested_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_GANSSMultiFreqMeasRequested, new_create_dissector_handle(dissect_GANSSMultiFreqMeasRequested_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_ganssReq_AddIonosphericModel, new_create_dissector_handle(dissect_GANSSReq_AddIonosphericModel_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_ganssReq_EarthOrientPara, new_create_dissector_handle(dissect_GANSSReq_EarthOrientPara_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_ganssAddNavigationModel_req, new_create_dissector_handle(dissect_GANSS_AddNavigationModel_Req_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_ganssAddUTCModel_req, new_create_dissector_handle(dissect_GANSS_AddUTCModel_Req_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_ganssAuxInfo_req, new_create_dissector_handle(dissect_GANSS_AuxInfo_req_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_OTDOA_ReferenceCellInfo, new_create_dissector_handle(dissect_OTDOA_ReferenceCellInfoSAS_centric_PDU, proto_pcap));
+  dissector_add_uint("pcap.extension", id_DGNSS_ValidityPeriod, new_create_dissector_handle(dissect_DGNSS_ValidityPeriod_PDU, proto_pcap));
+  dissector_add_uint("pcap.proc.imsg", id_PositionCalculation, new_create_dissector_handle(dissect_PositionCalculationRequest_PDU, proto_pcap));
+  dissector_add_uint("pcap.proc.sout", id_PositionCalculation, new_create_dissector_handle(dissect_PositionCalculationResponse_PDU, proto_pcap));
+  dissector_add_uint("pcap.proc.uout", id_PositionCalculation, new_create_dissector_handle(dissect_PositionCalculationFailure_PDU, proto_pcap));
+  dissector_add_uint("pcap.proc.imsg", id_InformationExchangeInitiation, new_create_dissector_handle(dissect_InformationExchangeInitiationRequest_PDU, proto_pcap));
+  dissector_add_uint("pcap.proc.sout", id_InformationExchangeInitiation, new_create_dissector_handle(dissect_InformationExchangeInitiationResponse_PDU, proto_pcap));
+  dissector_add_uint("pcap.proc.uout", id_InformationExchangeInitiation, new_create_dissector_handle(dissect_InformationExchangeInitiationFailure_PDU, proto_pcap));
+  dissector_add_uint("pcap.proc.imsg", id_PositionInitiation, new_create_dissector_handle(dissect_PositionInitiationRequest_PDU, proto_pcap));
+  dissector_add_uint("pcap.proc.sout", id_PositionInitiation, new_create_dissector_handle(dissect_PositionInitiationResponse_PDU, proto_pcap));
+  dissector_add_uint("pcap.proc.uout", id_PositionInitiation, new_create_dissector_handle(dissect_PositionInitiationFailure_PDU, proto_pcap));
+  dissector_add_uint("pcap.proc.imsg", id_PositionActivation, new_create_dissector_handle(dissect_PositionActivationRequest_PDU, proto_pcap));
+  dissector_add_uint("pcap.proc.sout", id_PositionActivation, new_create_dissector_handle(dissect_PositionActivationResponse_PDU, proto_pcap));
+  dissector_add_uint("pcap.proc.uout", id_PositionActivation, new_create_dissector_handle(dissect_PositionActivationFailure_PDU, proto_pcap));
+  dissector_add_uint("pcap.proc.imsg", id_InformationReporting, new_create_dissector_handle(dissect_InformationReport_PDU, proto_pcap));
+  dissector_add_uint("pcap.proc.imsg", id_InformationExchangeTermination, new_create_dissector_handle(dissect_InformationExchangeTerminationRequest_PDU, proto_pcap));
+  dissector_add_uint("pcap.proc.imsg", id_InformationExchangeFailure, new_create_dissector_handle(dissect_InformationExchangeFailureIndication_PDU, proto_pcap));
+  dissector_add_uint("pcap.proc.imsg", id_ErrorIndication, new_create_dissector_handle(dissect_ErrorIndication_PDU, proto_pcap));
+  dissector_add_uint("pcap.proc.imsg", id_privateMessage, new_create_dissector_handle(dissect_PrivateMessage_PDU, proto_pcap));
+  dissector_add_uint("pcap.proc.imsg", id_PositionParameterModification, new_create_dissector_handle(dissect_PositionParameterModification_PDU, proto_pcap));
+  dissector_add_uint("pcap.proc.imsg", id_Abort, new_create_dissector_handle(dissect_Abort_PDU, proto_pcap));
+  dissector_add_uint("pcap.proc.imsg", id_PositionPeriodicReport, new_create_dissector_handle(dissect_PositionPeriodicReport_PDU, proto_pcap));
+  dissector_add_uint("pcap.proc.imsg", id_PositionPeriodicResult, new_create_dissector_handle(dissect_PositionPeriodicResult_PDU, proto_pcap));
+  dissector_add_uint("pcap.proc.imsg", id_PositionPeriodicTermination, new_create_dissector_handle(dissect_PositionPeriodicTermination_PDU, proto_pcap));
 
 
 /*--- End of included file: packet-pcap-dis-tab.c ---*/

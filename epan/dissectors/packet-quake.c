@@ -647,13 +647,13 @@ proto_reg_handoff_quake(void)
 		data_handle = find_dissector("data");
 		Initialized=TRUE;
 	} else {
-		dissector_delete("udp.port", ServerPort, quake_handle);
+		dissector_delete_uint("udp.port", ServerPort, quake_handle);
 	}
 
 	/* set port for future deletes */
 	ServerPort=gbl_quakeServerPort;
 
-	dissector_add("udp.port", gbl_quakeServerPort, quake_handle);
+	dissector_add_uint("udp.port", gbl_quakeServerPort, quake_handle);
 }
 
 

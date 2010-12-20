@@ -1005,5 +1005,5 @@ void proto_reg_handoff_olsr(void) {
   dissector_handle_t olsr_handle;
 
   olsr_handle = new_create_dissector_handle(dissect_olsr, proto_olsr);
-  dissector_add("udp.port", UDP_PORT_OLSR, olsr_handle);
+  dissector_add_uint("udp.port", UDP_PORT_OLSR, olsr_handle);
 }

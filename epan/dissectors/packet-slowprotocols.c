@@ -3566,6 +3566,6 @@ proto_reg_handoff_slow_protocols(void)
     dissector_handle_t slow_protocols_handle;
 
     slow_protocols_handle = create_dissector_handle(dissect_slow_protocols, proto_slow);
-    dissector_add("ethertype", ETHERTYPE_SLOW_PROTOCOLS, slow_protocols_handle);
+    dissector_add_uint("ethertype", ETHERTYPE_SLOW_PROTOCOLS, slow_protocols_handle);
     dh_data = find_dissector("data");
 }

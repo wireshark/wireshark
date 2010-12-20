@@ -154,5 +154,5 @@ void proto_reg_handoff_goose(void) {
 	dissector_handle_t goose_handle;
 	goose_handle = find_dissector("goose");
 	
-	dissector_add("ethertype", ETHERTYPE_IEC61850_GOOSE, goose_handle);
+	dissector_add_uint("ethertype", ETHERTYPE_IEC61850_GOOSE, goose_handle);
 }

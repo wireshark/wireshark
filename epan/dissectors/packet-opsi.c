@@ -889,5 +889,5 @@ proto_reg_handoff_opsi(void)
 {
 	dissector_handle_t opsi_handle;
 	opsi_handle = create_dissector_handle(dissect_opsi, proto_opsi);
-	dissector_add("tcp.port", TCP_PORT_OPSI, opsi_handle);
+	dissector_add_uint("tcp.port", TCP_PORT_OPSI, opsi_handle);
 }

@@ -175,7 +175,7 @@ dissect_pgsql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PGSQL");
     if (check_col(pinfo->cinfo, COL_INFO))
         col_set_str(pinfo->cinfo, COL_INFO,
-                    (pinfo->match_port == pinfo->destport) ?
+                    (pinfo->match_uint == pinfo->destport) ?
                      ">" : "<");
 
     tcp_dissect_pdus(tvb, pinfo, tree, pgsql_desegment, 5,
@@ -216,7 +216,7 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     const char *typestr;
     guint length;
     gboolean info = check_col(pinfo->cinfo, COL_INFO);
-    gboolean fe = (pinfo->match_port == pinfo->destport);
+    gboolean fe = (pinfo->match_uint == pinfo->destport);
 
     n = 0;
     type = tvb_get_guint8(tvb, 0);
@@ -856,10 +856,10 @@ proto_reg_handoff_pgsql(void)
         pgsql_handle = create_dissector_handle(dissect_pgsql, proto_pgsql);
         initialized = TRUE;
     } else {
-        dissector_delete("tcp.port", saved_pgsql_port, pgsql_handle);
+        dissector_delete_uint("tcp.port", saved_pgsql_port, pgsql_handle);
     }
 
-    dissector_add("tcp.port", pgsql_port, pgsql_handle);
+    dissector_add_uint("tcp.port", pgsql_port, pgsql_handle);
     saved_pgsql_port = pgsql_port;
 }
 

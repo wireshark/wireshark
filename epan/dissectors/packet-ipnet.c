@@ -152,5 +152,5 @@ proto_reg_handoff_ipnet(void)
   ipv6_handle = find_dissector("ipv6");
 
   ipnet_handle = create_dissector_handle(dissect_ipnet, proto_ipnet);
-  dissector_add("wtap_encap", WTAP_ENCAP_IPNET, ipnet_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_IPNET, ipnet_handle);
 }

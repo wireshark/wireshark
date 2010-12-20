@@ -140,7 +140,7 @@ dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		next_tvb = tvb_new_subset_remaining(tvb, 4);
 
-		if (!dissector_try_port(rmcp_dissector_table, class, next_tvb, pinfo,
+		if (!dissector_try_uint(rmcp_dissector_table, class, next_tvb, pinfo,
 			tree)) {
 			len = call_dissector(data_handle, next_tvb, pinfo, tree);
 			if (len < tvb_length(next_tvb)) {
@@ -251,7 +251,7 @@ proto_reg_handoff_rmcp(void)
 	data_handle = find_dissector("data");
 
 	rmcp_handle = new_create_dissector_handle(dissect_rmcp, proto_rmcp);
-	dissector_add("udp.port", UDP_PORT_RMCP, rmcp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_RMCP, rmcp_handle);
 }
 
 void
@@ -260,5 +260,5 @@ proto_reg_handoff_rsp(void)
 	dissector_handle_t rsp_handle;
 
 	rsp_handle = new_create_dissector_handle(dissect_rsp, proto_rsp);
-	dissector_add("udp.port", UDP_PORT_RMCP_SECURE, rsp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_RMCP_SECURE, rsp_handle);
 }

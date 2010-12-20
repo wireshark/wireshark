@@ -2691,7 +2691,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
                      classid = tvb_get_letohl( tvb, offset + 4 );
                   break;
                }
-               dissector = dissector_get_port_handle( subdissector_class_table, classid );
+               dissector = dissector_get_uint_handle( subdissector_class_table, classid );
                if ( preq_info )
                   preq_info->dissector = dissector;
                break;
@@ -2699,7 +2699,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
             break;
 
          case CI_DATA_SEGMENT:
-            dissector = dissector_get_port_handle( subdissector_symbol_table, segment );
+            dissector = dissector_get_uint_handle( subdissector_symbol_table, segment );
             if ( preq_info )
                preq_info->dissector = dissector;
             break;
@@ -3042,23 +3042,23 @@ proto_reg_handoff_cip(void)
    /* Register for UCMM CIP data, using EtherNet/IP SendRRData service*/
    /* Register for Connected CIP data, using EtherNet/IP SendUnitData service*/
    cip_handle = new_create_dissector_handle( dissect_cip, proto_cip );
-   dissector_add( "enip.srrd.iface", ENIP_CIP_INTERFACE, cip_handle );
-   dissector_add( "enip.sud.iface", ENIP_CIP_INTERFACE, cip_handle );
+   dissector_add_uint( "enip.srrd.iface", ENIP_CIP_INTERFACE, cip_handle );
+   dissector_add_uint( "enip.sud.iface", ENIP_CIP_INTERFACE, cip_handle );
 
    /* Create and register dissector handle for generic class */
    cip_class_generic_handle = new_create_dissector_handle( dissect_cip_class_generic, proto_cip_class_generic );
-   dissector_add( "cip.class.iface", 0, cip_class_generic_handle );
+   dissector_add_uint( "cip.class.iface", 0, cip_class_generic_handle );
 
    /* Create and register dissector handle for Message Router */
    cip_class_mr_handle = new_create_dissector_handle( dissect_cip_class_mr, proto_cip_class_mr );
-   dissector_add( "cip.class.iface", CI_CLS_MR, cip_class_mr_handle );
+   dissector_add_uint( "cip.class.iface", CI_CLS_MR, cip_class_mr_handle );
 
    /* Create and register dissector handle for Connection Manager */
    cip_class_cm_handle = new_create_dissector_handle( dissect_cip_class_cm, proto_cip_class_cm );
-   dissector_add( "cip.class.iface", CI_CLS_CM, cip_class_cm_handle );
+   dissector_add_uint( "cip.class.iface", CI_CLS_CM, cip_class_cm_handle );
 
    /* Create and register dissector handle for Connection Configuration Object */
    cip_class_cco_handle = new_create_dissector_handle( dissect_cip_class_cco, proto_cip_class_cco );
-   dissector_add( "cip.class.iface", CI_CLS_CCO, cip_class_cco_handle );
+   dissector_add_uint( "cip.class.iface", CI_CLS_CCO, cip_class_cco_handle );
 
 } /* end of proto_reg_handoff_cip() */

@@ -3316,7 +3316,7 @@ proto_reg_handoff_icmpv6(void)
     dissector_handle_t icmpv6_handle;
 
     icmpv6_handle = create_dissector_handle(dissect_icmpv6, proto_icmpv6);
-    dissector_add("ip.proto", IP_PROTO_ICMPV6, icmpv6_handle);
+    dissector_add_uint("ip.proto", IP_PROTO_ICMPV6, icmpv6_handle);
 
     /*
      * Get a handle for the IPv6 dissector.

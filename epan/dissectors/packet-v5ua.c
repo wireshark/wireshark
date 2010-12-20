@@ -1721,7 +1721,7 @@ proto_reg_handoff_v5ua(void)
 	q931_handle = find_dissector("q931");
 	v52_handle = find_dissector("v52");
 
-	dissector_add("sctp.port", SCTP_PORT_V5UA_DRAFT, v5ua_handle);
-	dissector_add("sctp.port", SCTP_PORT_V5UA_RFC, v5ua_handle);
-	dissector_add("sctp.ppi",  V5UA_PAYLOAD_PROTOCOL_ID, v5ua_handle);
+	dissector_add_uint("sctp.port", SCTP_PORT_V5UA_DRAFT, v5ua_handle);
+	dissector_add_uint("sctp.port", SCTP_PORT_V5UA_RFC, v5ua_handle);
+	dissector_add_uint("sctp.ppi",  V5UA_PAYLOAD_PROTOCOL_ID, v5ua_handle);
 }

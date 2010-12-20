@@ -231,11 +231,11 @@ void proto_reg_handoff_alc(void)
 	} else {
 
 		if (preferences_old.use_default_udp_port)
-			dissector_delete("udp.port", preferences_old.default_udp_port, handle);
+			dissector_delete_uint("udp.port", preferences_old.default_udp_port, handle);
 	}
 
 	if (preferences.use_default_udp_port)
-		dissector_add("udp.port", preferences.default_udp_port, handle);
+		dissector_add_uint("udp.port", preferences.default_udp_port, handle);
 
 	alc_prefs_save(&preferences, &preferences_old);
 

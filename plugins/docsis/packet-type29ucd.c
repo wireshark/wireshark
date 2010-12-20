@@ -1061,6 +1061,6 @@ proto_reg_handoff_docsis_type29ucd (void)
   dissector_handle_t docsis_type29ucd_handle;
 
   docsis_type29ucd_handle = find_dissector ("docsis_type29ucd");
-  dissector_add ("docsis_mgmt", 0x1D, docsis_type29ucd_handle);
+  dissector_add_uint ("docsis_mgmt", 0x1D, docsis_type29ucd_handle);
 
 }

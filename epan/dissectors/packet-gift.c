@@ -60,7 +60,7 @@ dissect_gift(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "giFT");
 
 	/* determine whether it is a request to or response from the server */
-	if (pinfo->match_port == pinfo->destport)
+	if (pinfo->match_uint == pinfo->destport)
 		is_request = TRUE;
 	else
 		is_request = FALSE;
@@ -150,5 +150,5 @@ proto_reg_handoff_gift(void)
 	dissector_handle_t gift_handle;
 
 	gift_handle = create_dissector_handle(dissect_gift, proto_gift);
-	dissector_add("tcp.port", TCP_PORT_GIFT, gift_handle);
+	dissector_add_uint("tcp.port", TCP_PORT_GIFT, gift_handle);
 }

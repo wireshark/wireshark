@@ -772,7 +772,7 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
 
   new_tvb = tvb_new_subset (tvb, offset, caplen, tvb_length_remaining (tvb, offset));
   if (decode_content && linktype != WTAP_ENCAP_UNKNOWN) {
-    dissector_try_port(wtap_encap_dissector_table, linktype, new_tvb, pinfo, top_tree);
+    dissector_try_uint(wtap_encap_dissector_table, linktype, new_tvb, pinfo, top_tree);
 
     if (!info_added) {
       /* Only indicate when not added before */

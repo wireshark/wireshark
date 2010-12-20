@@ -3690,14 +3690,14 @@ proto_reg_handoff_dns(void)
   mdns_udp_handle = create_dissector_handle(dissect_mdns_udp, proto_dns);
   llmnr_udp_handle = create_dissector_handle(dissect_llmnr_udp, proto_dns);
 
-  dissector_add("udp.port", UDP_PORT_DNS, dns_udp_handle);
-  dissector_add("tcp.port", TCP_PORT_DNS, dns_tcp_handle);
-  dissector_add("udp.port", UDP_PORT_MDNS, mdns_udp_handle);
-  dissector_add("tcp.port", TCP_PORT_MDNS, dns_tcp_handle);
-  dissector_add("udp.port", UDP_PORT_LLMNR, llmnr_udp_handle);
-  dissector_add("sctp.port", SCTP_PORT_DNS, dns_sctp_handle);
+  dissector_add_uint("udp.port", UDP_PORT_DNS, dns_udp_handle);
+  dissector_add_uint("tcp.port", TCP_PORT_DNS, dns_tcp_handle);
+  dissector_add_uint("udp.port", UDP_PORT_MDNS, mdns_udp_handle);
+  dissector_add_uint("tcp.port", TCP_PORT_MDNS, dns_tcp_handle);
+  dissector_add_uint("udp.port", UDP_PORT_LLMNR, llmnr_udp_handle);
+  dissector_add_uint("sctp.port", SCTP_PORT_DNS, dns_sctp_handle);
 #if 0
-  dissector_add("sctp.ppi",  DNS_PAYLOAD_PROTOCOL_ID, dns_sctp_handle);
+  dissector_add_uint("sctp.ppi",  DNS_PAYLOAD_PROTOCOL_ID, dns_sctp_handle);
 #endif
 
   gssapi_handle = find_dissector("gssapi");

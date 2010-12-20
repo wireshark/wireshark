@@ -967,6 +967,6 @@ proto_reg_handoff_iua(void)
   q931_handle = find_dissector("q931");
   x25_handle  = find_dissector("x.25");
 
-  dissector_add("sctp.port", SCTP_PORT_IUA,           iua_handle);
-  dissector_add("sctp.ppi",  IUA_PAYLOAD_PROTOCOL_ID, iua_handle);
+  dissector_add_uint("sctp.port", SCTP_PORT_IUA,           iua_handle);
+  dissector_add_uint("sctp.ppi",  IUA_PAYLOAD_PROTOCOL_ID, iua_handle);
 }

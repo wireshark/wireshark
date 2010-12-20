@@ -256,7 +256,7 @@ void proto_reg_handoff_ipsictl(void)
 
   ipsictl_handle = create_dissector_handle(dissect_ipsictl, proto_ipsictl);
 
-  dissector_add("tcp.port", IPSICTL_PORT, ipsictl_handle);
+  dissector_add_uint("tcp.port", IPSICTL_PORT, ipsictl_handle);
 
 }
 

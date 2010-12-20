@@ -762,5 +762,5 @@ proto_reg_handoff_docsis_mdd (void)
 	dissector_handle_t docsis_mdd_handle;
 
 	docsis_mdd_handle = find_dissector ("docsis_mdd");
-	dissector_add ("docsis_mgmt", 33, docsis_mdd_handle);
+	dissector_add_uint ("docsis_mgmt", 33, docsis_mdd_handle);
 }

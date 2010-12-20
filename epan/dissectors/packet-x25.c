@@ -1936,7 +1936,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		     * Is there a dissector handle for this SPI?
 		     * If so, assign it to this virtual circuit.
 		     */
-		    dissect = dissector_get_port_handle(x25_subdissector_table, spi);
+		    dissect = dissector_get_uint_handle(x25_subdissector_table, spi);
 		    if (dissect != NULL)
 			x25_hash_add_proto_start(vc, pinfo->fd->num, dissect);
 		}
@@ -2735,5 +2735,5 @@ proto_reg_handoff_x25(void)
     data_handle = find_dissector("data");
 
     x25_handle = find_dissector("x.25");
-    dissector_add("llc.dsap", SAP_X25, x25_handle);
+    dissector_add_uint("llc.dsap", SAP_X25, x25_handle);
 }

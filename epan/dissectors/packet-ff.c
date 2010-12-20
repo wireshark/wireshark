@@ -16817,15 +16817,15 @@ proto_reg_handoff_ff(void)
 	 *
 	 * - Device Annunciation
 	 */
-	dissector_add("udp.port", UDP_PORT_FF_ANNUNC, ff_udp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_FF_ANNUNC, ff_udp_handle);
 
 	/*
 	 * 4.8.4.2. Use
 	 *
 	 * - Client / Server
 	 */
-	dissector_add("udp.port", UDP_PORT_FF_FMS, ff_udp_handle);
-	dissector_add("tcp.port", TCP_PORT_FF_FMS, ff_tcp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_FF_FMS, ff_udp_handle);
+	dissector_add_uint("tcp.port", TCP_PORT_FF_FMS, ff_tcp_handle);
 
 	/*
 	 * 4.8.4.2. Use
@@ -16834,14 +16834,14 @@ proto_reg_handoff_ff(void)
 	 * - SM Identify
 	 * - SM Find Tag
 	 */
-	dissector_add("udp.port", UDP_PORT_FF_SM, ff_udp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_FF_SM, ff_udp_handle);
 
 	/*
 	 * 4.8.4.2. Use
 	 *
 	 * - LAN Redundancy Get and Put Information
 	 */
-	dissector_add("udp.port", UDP_PORT_FF_LR_PORT, ff_udp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_FF_LR_PORT, ff_udp_handle);
 
 	return;
 }

@@ -195,10 +195,10 @@ dissect_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		next_tvb = tvb_new_subset_remaining(tvb, SPP_HEADER_LEN);
-		if (dissector_try_port(spp_socket_dissector_table, low_socket,
+		if (dissector_try_uint(spp_socket_dissector_table, low_socket,
 		    next_tvb, pinfo, tree))
 			return;
-		if (dissector_try_port(spp_socket_dissector_table, high_socket,
+		if (dissector_try_uint(spp_socket_dissector_table, high_socket,
 		    next_tvb, pinfo, tree))
 			return;
 		call_dissector(data_handle, next_tvb, pinfo, tree);
@@ -291,7 +291,7 @@ proto_reg_handoff_spp(void)
 	dissector_handle_t spp_handle;
 
 	spp_handle = create_dissector_handle(dissect_spp, proto_spp);
-	dissector_add("idp.packet_type", IDP_PACKET_TYPE_SPP, spp_handle);
+	dissector_add_uint("idp.packet_type", IDP_PACKET_TYPE_SPP, spp_handle);
 
 	data_handle = find_dissector("data");
 }

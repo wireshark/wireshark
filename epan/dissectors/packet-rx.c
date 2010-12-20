@@ -792,6 +792,6 @@ proto_reg_handoff_rx(void)
 	   are all used for various AFS services. */
 	rx_handle = new_create_dissector_handle(dissect_rx, proto_rx);
 	for (port = UDP_PORT_RX_LOW; port <= UDP_PORT_RX_HIGH; port++)
-		dissector_add("udp.port", port, rx_handle);
-	dissector_add("udp.port", UDP_PORT_RX_AFS_BACKUPS, rx_handle);
+		dissector_add_uint("udp.port", port, rx_handle);
+	dissector_add_uint("udp.port", UDP_PORT_RX_AFS_BACKUPS, rx_handle);
 }

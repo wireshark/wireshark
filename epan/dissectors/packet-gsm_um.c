@@ -293,6 +293,6 @@ proto_reg_handoff_gsm_um(void)
 
 	gsm_um_handle = create_dissector_handle(dissect_gsm_um, proto_gsm_um);
 
-	dissector_add("wtap_encap", WTAP_ENCAP_GSM_UM, gsm_um_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_GSM_UM, gsm_um_handle);
 }
 

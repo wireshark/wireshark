@@ -200,7 +200,7 @@ dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   msg_len = tvb_get_ntohs (tvb, 12);
   payload_tvb = tvb_new_subset (tvb, 20, msg_len - 6, msg_len - 6);
 
-  if (dissector_try_port
+  if (dissector_try_uint
       (docsis_mgmt_dissector_table, type, payload_tvb, pinfo, tree))
     return;
   else
@@ -305,5 +305,5 @@ proto_reg_handoff_docsis_mgmt (void)
   docsis_mgmt_handle = find_dissector ("docsis_mgmt");
   data_handle = find_dissector ("data");
 
-  dissector_add ("docsis", 0x03, docsis_mgmt_handle);
+  dissector_add_uint ("docsis", 0x03, docsis_mgmt_handle);
 }

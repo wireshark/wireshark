@@ -1915,6 +1915,6 @@ void proto_reg_handoff_cfm(void)
 {
 	dissector_handle_t cfm_handle;
 	cfm_handle = create_dissector_handle(dissect_cfm, proto_cfm);
-	dissector_add("ethertype", ETHERTYPE_CFM, cfm_handle);
+	dissector_add_uint("ethertype", ETHERTYPE_CFM, cfm_handle);
 }
 

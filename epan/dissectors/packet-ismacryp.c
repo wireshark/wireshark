@@ -1026,13 +1026,13 @@ void proto_reg_handoff_ismacryp(void)
 	else { /* ismacryp_prefs_initialized = TRUE */
 		/* delete existing association of ismacryp with payload_type */
 		if ( dynamic_payload_type > 95 ){
-			dissector_delete("rtp.pt", dynamic_payload_type, ismacryp_handle);
+			dissector_delete_uint("rtp.pt", dynamic_payload_type, ismacryp_handle);
 		}
 	}
 	/* always do the following */
 	dynamic_payload_type = pref_dynamic_payload_type; /*update payload_type to new value */
 	if ( dynamic_payload_type > 95 ){
-		dissector_add("rtp.pt", dynamic_payload_type, ismacryp_handle);
+		dissector_add_uint("rtp.pt", dynamic_payload_type, ismacryp_handle);
 	}
 	
 }

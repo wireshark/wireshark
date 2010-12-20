@@ -94,7 +94,7 @@ dissect_ap1394(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree)
     proto_tree_add_uint(fh_tree, hf_ap1394_type, tvb, 16, 2, etype);
   next_tvb = tvb_new_subset_remaining(tvb, 18);
-  if (!dissector_try_port(ethertype_subdissector_table, etype, next_tvb,
+  if (!dissector_try_uint(ethertype_subdissector_table, etype, next_tvb,
 		pinfo, tree))
     call_dissector(data_handle, next_tvb, pinfo, tree);
 }
@@ -133,5 +133,5 @@ proto_reg_handoff_ap1394(void)
   ethertype_subdissector_table = find_dissector_table("ethertype");
 
   ap1394_handle = create_dissector_handle(dissect_ap1394, proto_ap1394);
-  dissector_add("wtap_encap", WTAP_ENCAP_APPLE_IP_OVER_IEEE1394, ap1394_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_APPLE_IP_OVER_IEEE1394, ap1394_handle);
 }

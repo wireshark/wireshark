@@ -107,5 +107,5 @@ proto_reg_handoff_snaeth(void)
 	llc_handle = find_dissector("llc");
 
 	snaeth_handle = create_dissector_handle(dissect_snaeth, proto_snaeth);
-	dissector_add("ethertype", ETHERTYPE_SNA, snaeth_handle);
+	dissector_add_uint("ethertype", ETHERTYPE_SNA, snaeth_handle);
 }

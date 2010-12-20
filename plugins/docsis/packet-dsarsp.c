@@ -136,6 +136,6 @@ proto_reg_handoff_docsis_dsarsp (void)
 
   docsis_dsarsp_handle = find_dissector ("docsis_dsarsp");
   docsis_tlv_handle = find_dissector ("docsis_tlv");
-  dissector_add ("docsis_mgmt", 0x10, docsis_dsarsp_handle);
+  dissector_add_uint ("docsis_mgmt", 0x10, docsis_dsarsp_handle);
 
 }

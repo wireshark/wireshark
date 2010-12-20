@@ -123,12 +123,12 @@ proto_reg_handoff_hp_erm(void)
         initialized = TRUE;
     } else {
         if (hp_erm_udp_port != 0)
-            dissector_delete("udp.port", hp_erm_udp_port, hp_erm_handle);
+            dissector_delete_uint("udp.port", hp_erm_udp_port, hp_erm_handle);
     }
 
     hp_erm_udp_port = global_hp_erm_udp_port;
 
     if (hp_erm_udp_port != 0)
-        dissector_add("udp.port", hp_erm_udp_port, hp_erm_handle);
+        dissector_add_uint("udp.port", hp_erm_udp_port, hp_erm_handle);
 }
 

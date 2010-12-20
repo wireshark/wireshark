@@ -137,7 +137,7 @@ dissect_ieee802a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	next_tvb = tvb_new_subset_remaining(tvb, offset+5);
 	if (subdissector_table != NULL) {
 		/* do lookup with the subdissector table */
-		if (dissector_try_port(subdissector_table, etype, next_tvb,
+		if (dissector_try_uint(subdissector_table, etype, next_tvb,
 		    pinfo, tree))
 			return;
 	}
@@ -182,7 +182,7 @@ proto_reg_handoff_ieee802a(void)
 
 	ieee802a_handle = create_dissector_handle(dissect_ieee802a,
 	    proto_ieee802a);
-	dissector_add("ethertype", ETHERTYPE_IEEE802_OUI_EXTENDED,
+	dissector_add_uint("ethertype", ETHERTYPE_IEEE802_OUI_EXTENDED,
 	    ieee802a_handle);
 
 	/*

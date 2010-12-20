@@ -1702,7 +1702,7 @@ again:
        * whether it is a known protocol. If not, then it
        * is an unknown IPv6 option
        */
-      if (!dissector_get_port_handle(ip_dissector_table, nxt)) {
+      if (!dissector_get_uint_handle(ip_dissector_table, nxt)) {
         advance = dissect_unknown_option(tvb, offset, ipv6_tree);
         nxt = tvb_get_guint8(tvb, offset);
         poffset = offset;
@@ -1749,7 +1749,7 @@ again:
 
 
   /* do lookup with the subdissector table */
-  if (!dissector_try_port(ip_dissector_table, nxt, next_tvb, pinfo, tree)) {
+  if (!dissector_try_uint(ip_dissector_table, nxt, next_tvb, pinfo, tree)) {
     /* Unknown protocol.
        Handle "no next header" specially. */
     if (nxt == IP_PROTO_NONE) {
@@ -2274,19 +2274,19 @@ proto_reg_handoff_ipv6(void)
 
   data_handle = find_dissector("data");
   ipv6_handle = find_dissector("ipv6");
-  dissector_add("ethertype", ETHERTYPE_IPv6, ipv6_handle);
-  dissector_add("ppp.protocol", PPP_IPV6, ipv6_handle);
-  dissector_add("ppp.protocol", ETHERTYPE_IPv6, ipv6_handle);
-  dissector_add("gre.proto", ETHERTYPE_IPv6, ipv6_handle);
-  dissector_add("ip.proto", IP_PROTO_IPV6, ipv6_handle);
-  dissector_add("null.type", BSD_AF_INET6_BSD, ipv6_handle);
-  dissector_add("null.type", BSD_AF_INET6_FREEBSD, ipv6_handle);
-  dissector_add("null.type", BSD_AF_INET6_DARWIN, ipv6_handle);
-  dissector_add("chdlctype", ETHERTYPE_IPv6, ipv6_handle);
-  dissector_add("fr.ietf", NLPID_IP6, ipv6_handle);
-  dissector_add("osinl.excl", NLPID_IP6, ipv6_handle);
-  dissector_add("x.25.spi", NLPID_IP6, ipv6_handle);
-  dissector_add("arcnet.protocol_id", ARCNET_PROTO_IPv6, ipv6_handle);
+  dissector_add_uint("ethertype", ETHERTYPE_IPv6, ipv6_handle);
+  dissector_add_uint("ppp.protocol", PPP_IPV6, ipv6_handle);
+  dissector_add_uint("ppp.protocol", ETHERTYPE_IPv6, ipv6_handle);
+  dissector_add_uint("gre.proto", ETHERTYPE_IPv6, ipv6_handle);
+  dissector_add_uint("ip.proto", IP_PROTO_IPV6, ipv6_handle);
+  dissector_add_uint("null.type", BSD_AF_INET6_BSD, ipv6_handle);
+  dissector_add_uint("null.type", BSD_AF_INET6_FREEBSD, ipv6_handle);
+  dissector_add_uint("null.type", BSD_AF_INET6_DARWIN, ipv6_handle);
+  dissector_add_uint("chdlctype", ETHERTYPE_IPv6, ipv6_handle);
+  dissector_add_uint("fr.ietf", NLPID_IP6, ipv6_handle);
+  dissector_add_uint("osinl.excl", NLPID_IP6, ipv6_handle);
+  dissector_add_uint("x.25.spi", NLPID_IP6, ipv6_handle);
+  dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_IPv6, ipv6_handle);
 
   ip_dissector_table = find_dissector_table("ip.proto");
 }

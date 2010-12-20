@@ -422,7 +422,7 @@ proto_reg_handoff_ipdc(void)
 	static dissector_handle_t ipdc_tcp_handle = NULL;
 
 	if (ipdc_tcp_handle) {
-		dissector_delete("tcp.port", last_ipdc_port_pref,
+		dissector_delete_uint("tcp.port", last_ipdc_port_pref,
 			ipdc_tcp_handle);
 	} else {
 		ipdc_tcp_handle =
@@ -431,5 +431,5 @@ proto_reg_handoff_ipdc(void)
 	}
 
 	last_ipdc_port_pref = ipdc_port_pref;
-	dissector_add("tcp.port", ipdc_port_pref, ipdc_tcp_handle);
+	dissector_add_uint("tcp.port", ipdc_port_pref, ipdc_tcp_handle);
 }

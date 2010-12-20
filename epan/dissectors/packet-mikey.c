@@ -1800,12 +1800,12 @@ proto_reg_handoff_mikey(void)
 		dissector_add_string("key_mgmt", "mikey", mikey_handle);
 		inited = TRUE;
 	} else {
-		dissector_delete("udp.port", mikey_udp_port, mikey_handle);
-		dissector_delete("tcp.port", mikey_tcp_port, mikey_handle);
+		dissector_delete_uint("udp.port", mikey_udp_port, mikey_handle);
+		dissector_delete_uint("tcp.port", mikey_tcp_port, mikey_handle);
 	}
 
-	dissector_add("udp.port", global_mikey_udp_port, mikey_handle);
-	dissector_add("tcp.port", global_mikey_tcp_port, mikey_handle);
+	dissector_add_uint("udp.port", global_mikey_udp_port, mikey_handle);
+	dissector_add_uint("tcp.port", global_mikey_tcp_port, mikey_handle);
 
 	mikey_udp_port = global_mikey_udp_port;
 	mikey_tcp_port = global_mikey_tcp_port;

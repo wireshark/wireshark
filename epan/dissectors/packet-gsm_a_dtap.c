@@ -6785,12 +6785,12 @@ proto_reg_handoff_gsm_a_dtap(void)
 	dissector_handle_t dtap_handle;
 
 	dtap_handle = find_dissector("gsm_a_dtap");
-	dissector_add("bssap.pdu_type", BSSAP_PDU_TYPE_DTAP, dtap_handle);
-	dissector_add("ranap.nas_pdu", BSSAP_PDU_TYPE_DTAP, dtap_handle);
-	dissector_add("llcgprs.sapi", 1 , dtap_handle); /* GPRS Mobility Management */
-	dissector_add("llcgprs.sapi", 7 , dtap_handle); /* SMS */
-	dissector_add("lapdm.sapi", 0 , dtap_handle); /* LAPDm: CC/RR/MM */
-	dissector_add("lapdm.sapi", 3 , dtap_handle); /* LAPDm: SMS/SS */
+	dissector_add_uint("bssap.pdu_type", BSSAP_PDU_TYPE_DTAP, dtap_handle);
+	dissector_add_uint("ranap.nas_pdu", BSSAP_PDU_TYPE_DTAP, dtap_handle);
+	dissector_add_uint("llcgprs.sapi", 1 , dtap_handle); /* GPRS Mobility Management */
+	dissector_add_uint("llcgprs.sapi", 7 , dtap_handle); /* SMS */
+	dissector_add_uint("lapdm.sapi", 0 , dtap_handle); /* LAPDm: CC/RR/MM */
+	dissector_add_uint("lapdm.sapi", 3 , dtap_handle); /* LAPDm: SMS/SS */
 
 	data_handle = find_dissector("data");
 	gsm_map_handle = find_dissector("gsm_map");

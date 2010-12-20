@@ -240,7 +240,7 @@ dissect_nettl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             call_dissector(tr_handle, tvb, pinfo, tree);
             break;
          case WTAP_ENCAP_NETTL_FDDI:
-            if (!dissector_try_port(wtap_dissector_table,
+            if (!dissector_try_uint(wtap_dissector_table,
 			WTAP_ENCAP_FDDI_BITSWAPPED, tvb, pinfo, tree))
 	            call_dissector(data_handle, tvb, pinfo, tree);
             break;
@@ -250,17 +250,17 @@ dissect_nettl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	            call_dissector(data_handle, tvb, pinfo, tree);
             else if (pinfo->pseudo_header->nettl.subsys == NETTL_SUBSYS_NS_LS_SCTP )
                     call_dissector(sctp_handle, tvb, pinfo, tree);
-            else if (!dissector_try_port(wtap_dissector_table,
+            else if (!dissector_try_uint(wtap_dissector_table,
 			WTAP_ENCAP_RAW_IP, tvb, pinfo, tree))
 	            call_dissector(data_handle, tvb, pinfo, tree);
             break;
          case WTAP_ENCAP_NETTL_RAW_ICMP:
-            if (!dissector_try_port(ip_proto_dissector_table,
+            if (!dissector_try_uint(ip_proto_dissector_table,
 			IP_PROTO_ICMP, tvb, pinfo, tree))
 	            call_dissector(data_handle, tvb, pinfo, tree);
             break;
          case WTAP_ENCAP_NETTL_RAW_ICMPV6:
-            if (!dissector_try_port(ip_proto_dissector_table,
+            if (!dissector_try_uint(ip_proto_dissector_table,
 	                IP_PROTO_ICMPV6, tvb, pinfo, tree))
 	            call_dissector(data_handle, tvb, pinfo, tree);
             break;
@@ -275,7 +275,7 @@ dissect_nettl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             	call_dissector(x25_handle, tvb, pinfo, tree);
             break;
          case WTAP_ENCAP_NETTL_RAW_TELNET:
-            if (!dissector_try_port(tcp_subdissector_table,
+            if (!dissector_try_uint(tcp_subdissector_table,
 	                TCP_PORT_TELNET, tvb, pinfo, tree))
 	            call_dissector(data_handle, tvb, pinfo, tree);
             break;
@@ -359,14 +359,14 @@ proto_reg_handoff_nettl(void)
   tcp_subdissector_table = find_dissector_table("tcp.port");
 
   nettl_handle = create_dissector_handle(dissect_nettl, proto_nettl);
-  dissector_add("wtap_encap", WTAP_ENCAP_NETTL_ETHERNET, nettl_handle);
-  dissector_add("wtap_encap", WTAP_ENCAP_NETTL_TOKEN_RING, nettl_handle);
-  dissector_add("wtap_encap", WTAP_ENCAP_NETTL_FDDI, nettl_handle);
-  dissector_add("wtap_encap", WTAP_ENCAP_NETTL_RAW_IP, nettl_handle);
-  dissector_add("wtap_encap", WTAP_ENCAP_NETTL_RAW_ICMP, nettl_handle);
-  dissector_add("wtap_encap", WTAP_ENCAP_NETTL_RAW_ICMPV6, nettl_handle);
-  dissector_add("wtap_encap", WTAP_ENCAP_NETTL_RAW_TELNET, nettl_handle);
-  dissector_add("wtap_encap", WTAP_ENCAP_NETTL_X25, nettl_handle);
-  dissector_add("wtap_encap", WTAP_ENCAP_NETTL_UNKNOWN, nettl_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_NETTL_ETHERNET, nettl_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_NETTL_TOKEN_RING, nettl_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_NETTL_FDDI, nettl_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_NETTL_RAW_IP, nettl_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_NETTL_RAW_ICMP, nettl_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_NETTL_RAW_ICMPV6, nettl_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_NETTL_RAW_TELNET, nettl_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_NETTL_X25, nettl_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_NETTL_UNKNOWN, nettl_handle);
 
 }

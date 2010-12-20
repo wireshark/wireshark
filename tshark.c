@@ -658,7 +658,7 @@ add_decode_as(const gchar *cl_param)
   case FT_UINT24:
   case FT_UINT32:
     /* The selector for this table is an unsigned number. */
-    dissector_change(table_name, selector, dissector_matching);
+    dissector_change_uint(table_name, selector, dissector_matching);
     break;
 
   case FT_STRING:

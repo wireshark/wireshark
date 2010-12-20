@@ -1480,9 +1480,9 @@ proto_reg_handoff_mpls_echo(void)
                 proto_mpls_echo);
             mpls_echo_prefs_initialized = TRUE;
         } else {
-            dissector_delete("udp.port", mpls_echo_udp_port, mpls_echo_handle);
+            dissector_delete_uint("udp.port", mpls_echo_udp_port, mpls_echo_handle);
         }
 
         mpls_echo_udp_port = global_mpls_echo_udp_port;
-        dissector_add("udp.port", global_mpls_echo_udp_port, mpls_echo_handle);
+        dissector_add_uint("udp.port", global_mpls_echo_udp_port, mpls_echo_handle);
 }

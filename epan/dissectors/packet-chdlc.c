@@ -146,7 +146,7 @@ chdlctype(guint16 chdlc_type, tvbuff_t *tvb, int offset_after_chdlctype,
   }
 
   /* do lookup with the subdissector table */
-  if (!dissector_try_port(subdissector_table, chdlc_type, next_tvb, pinfo, tree)) {
+  if (!dissector_try_uint(subdissector_table, chdlc_type, next_tvb, pinfo, tree)) {
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
       col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x", chdlc_type);
     call_dissector(data_handle,next_tvb, pinfo, tree);
@@ -245,8 +245,8 @@ proto_reg_handoff_chdlc(void)
 
   data_handle = find_dissector("data");
   chdlc_handle = find_dissector("chdlc");
-  dissector_add("wtap_encap", WTAP_ENCAP_CHDLC, chdlc_handle);
-  dissector_add("wtap_encap", WTAP_ENCAP_CHDLC_WITH_PHDR, chdlc_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_CHDLC, chdlc_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_CHDLC_WITH_PHDR, chdlc_handle);
 }
 
 #define SLARP_REQUEST	0
@@ -363,5 +363,5 @@ proto_reg_handoff_slarp(void)
   dissector_handle_t slarp_handle;
 
   slarp_handle = create_dissector_handle(dissect_slarp, proto_slarp);
-  dissector_add("chdlctype", CISCO_SLARP, slarp_handle);
+  dissector_add_uint("chdlctype", CISCO_SLARP, slarp_handle);
 }

@@ -2710,9 +2710,9 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 	{
 	    /*proto_tree_add_text(subtree, tvb , offset , length, "%s",
 	      tvb_format_text(tvb, offset, length));				*/
-	    if (! dissector_try_port(gsm_sms_dissector_tbl, g_port_src, sm_tvb, g_pinfo, subtree))
+	    if (! dissector_try_uint(gsm_sms_dissector_tbl, g_port_src, sm_tvb, g_pinfo, subtree))
 	    {
-		if (! dissector_try_port(gsm_sms_dissector_tbl, g_port_dst,sm_tvb, g_pinfo, subtree))
+		if (! dissector_try_uint(gsm_sms_dissector_tbl, g_port_dst,sm_tvb, g_pinfo, subtree))
 		{
 		    if (subtree)
 		    { /* Only display if needed */
@@ -3767,6 +3767,6 @@ proto_reg_handoff_gsm_sms(void)
 
     gsm_sms_handle = create_dissector_handle(dissect_gsm_sms, proto_gsm_sms);
 
-    dissector_add("gsm_a.sms_tpdu", 0, gsm_sms_handle);
-    dissector_add("gsm_map.sms_tpdu", 0, gsm_sms_handle);
+    dissector_add_uint("gsm_a.sms_tpdu", 0, gsm_sms_handle);
+    dissector_add_uint("gsm_map.sms_tpdu", 0, gsm_sms_handle);
 }

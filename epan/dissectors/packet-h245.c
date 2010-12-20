@@ -2553,7 +2553,7 @@ dissect_h245_NonStandardIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 			nsp_handle = dissector_get_string_handle(nsp_object_dissector_table, nsiOID);
 			break;
 		case 1 :  /* h221NonStandard */
-			nsp_handle = dissector_get_port_handle(nsp_h221_dissector_table, h221NonStandard);
+			nsp_handle = dissector_get_uint_handle(nsp_h221_dissector_table, h221NonStandard);
 			break;
 		default :
 			nsp_handle = NULL;

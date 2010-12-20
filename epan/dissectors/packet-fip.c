@@ -728,6 +728,6 @@ proto_reg_handoff_fip(void)
     dissector_handle_t fip_handle;
 
     fip_handle = create_dissector_handle(dissect_fip, proto_fip);
-    dissector_add("ethertype", ETHERTYPE_FIP, fip_handle);
+    dissector_add_uint("ethertype", ETHERTYPE_FIP, fip_handle);
     fc_handle = find_dissector("fc");
 }

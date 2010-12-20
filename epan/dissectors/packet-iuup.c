@@ -861,14 +861,14 @@ void proto_reg_handoff_iuup(void) {
         iuup_prefs_initialized = TRUE;
     } else {
         if ( saved_dynamic_payload_type > 95 ) {
-            dissector_delete("rtp.pt", saved_dynamic_payload_type, iuup_handle);
+            dissector_delete_uint("rtp.pt", saved_dynamic_payload_type, iuup_handle);
         }
     }
 
     saved_dynamic_payload_type = global_dynamic_payload_type;
 
     if ( global_dynamic_payload_type > 95 ) {
-        dissector_add("rtp.pt", global_dynamic_payload_type, iuup_handle);
+        dissector_add_uint("rtp.pt", global_dynamic_payload_type, iuup_handle);
     }
 }
 

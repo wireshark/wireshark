@@ -356,7 +356,7 @@ proto_reg_handoff_mdshdr(void)
          * Channel handles.
          */
         mdshdr_handle = create_dissector_handle (dissect_mdshdr, proto_mdshdr);
-        dissector_add ("ethertype", ETHERTYPE_FCFT, mdshdr_handle);
+        dissector_add_uint ("ethertype", ETHERTYPE_FCFT, mdshdr_handle);
         data_handle = find_dissector ("data");
         fc_dissector_handle = find_dissector ("fc");
         mdshdr_prefs_initialized = TRUE;
@@ -373,7 +373,7 @@ proto_reg_handoff_mdshdr(void)
          * do so.
          */
         if (!registered_for_zero_etype) {
-            dissector_add ("ethertype", ETHERTYPE_UNK, mdshdr_handle);
+            dissector_add_uint ("ethertype", ETHERTYPE_UNK, mdshdr_handle);
             registered_for_zero_etype = TRUE;
         }
     } else {
@@ -383,7 +383,7 @@ proto_reg_handoff_mdshdr(void)
          * undo that registration.
          */
         if (registered_for_zero_etype) {
-            dissector_delete ("ethertype", ETHERTYPE_UNK, mdshdr_handle);
+            dissector_delete_uint ("ethertype", ETHERTYPE_UNK, mdshdr_handle);
             registered_for_zero_etype = FALSE;
         }
     }

@@ -6969,26 +6969,26 @@ void proto_reg_handoff_h248(void) {
     if (!initialized) {
         h248_handle = find_dissector("h248");
         h248_tpkt_handle = find_dissector("h248.tpkt");
-        dissector_add("mtp3.service_indicator", GATEWAY_CONTROL_PROTOCOL_USER_ID, h248_handle);
+        dissector_add_uint("mtp3.service_indicator", GATEWAY_CONTROL_PROTOCOL_USER_ID, h248_handle);
         h248_term_handle = find_dissector("h248term");
         initialized = TRUE;
     } else {
         if (udp_port != 0)
-            dissector_delete("udp.port", udp_port, h248_handle);
+            dissector_delete_uint("udp.port", udp_port, h248_handle);
 
         if (tcp_port != 0)
-            dissector_delete("tcp.port", tcp_port, h248_tpkt_handle);
+            dissector_delete_uint("tcp.port", tcp_port, h248_tpkt_handle);
     }
 
     udp_port = global_udp_port;
     tcp_port = global_tcp_port;
 
     if (udp_port != 0) {
-        dissector_add("udp.port", udp_port, h248_handle);
+        dissector_add_uint("udp.port", udp_port, h248_handle);
     }
 
     if (tcp_port != 0) {
-        dissector_add("tcp.port", tcp_port, h248_tpkt_handle);
+        dissector_add_uint("tcp.port", tcp_port, h248_tpkt_handle);
     }
 }
 

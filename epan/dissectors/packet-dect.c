@@ -2515,6 +2515,6 @@ proto_reg_handoff_dect(void)
 	dissector_handle_t dect_handle;
 
 	dect_handle = create_dissector_handle(dissect_dect, proto_dect);
-	dissector_add("ethertype", ETHERTYPE_DECT , dect_handle);
+	dissector_add_uint("ethertype", ETHERTYPE_DECT , dect_handle);
 }
 

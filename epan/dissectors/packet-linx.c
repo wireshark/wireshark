@@ -738,6 +738,6 @@ proto_reg_handoff_linx(void)
 	dissector_handle_t linx_handle;
 
 	linx_handle = create_dissector_handle(dissect_linx, proto_linx);
-	dissector_add("ethertype", ETHERTYPE_LINX, linx_handle);
+	dissector_add_uint("ethertype", ETHERTYPE_LINX, linx_handle);
 }
 

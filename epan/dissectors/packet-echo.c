@@ -117,8 +117,8 @@ void proto_reg_handoff_echo(void)
 
   echo_handle = create_dissector_handle(dissect_echo, proto_echo);
 
-  dissector_add("udp.port", ECHO_PORT, echo_handle);
-  dissector_add("tcp.port", ECHO_PORT, echo_handle);
+  dissector_add_uint("udp.port", ECHO_PORT, echo_handle);
+  dissector_add_uint("tcp.port", ECHO_PORT, echo_handle);
 
 }
 

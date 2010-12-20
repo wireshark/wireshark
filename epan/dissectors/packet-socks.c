@@ -1250,5 +1250,5 @@ proto_reg_handoff_socks(void) {
 	socks_udp_handle = create_dissector_handle(socks_udp_dissector, proto_socks);
 	socks_handle = create_dissector_handle(dissect_socks, proto_socks);
 
- 	dissector_add("tcp.port", TCP_PORT_SOCKS, socks_handle);
+ 	dissector_add_uint("tcp.port", TCP_PORT_SOCKS, socks_handle);
 }

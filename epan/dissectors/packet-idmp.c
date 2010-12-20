@@ -1008,12 +1008,12 @@ prefs_register_idmp(void)
   /* de-register the old port */
   /* port 102 is registered by TPKT - don't undo this! */
   if(idmp_handle)
-    dissector_delete("tcp.port", tcp_port, idmp_handle);
+    dissector_delete_uint("tcp.port", tcp_port, idmp_handle);
 
   /* Set our port number for future use */
   tcp_port = global_idmp_tcp_port;
 
   if((tcp_port > 0) && idmp_handle)
-    dissector_add("tcp.port", global_idmp_tcp_port, idmp_handle);
+    dissector_add_uint("tcp.port", global_idmp_tcp_port, idmp_handle);
 
 }

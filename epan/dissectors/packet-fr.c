@@ -732,9 +732,9 @@ static void dissect_fr_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo,
    * Either that, or it's Q.933 iff the DLCI is 0.
    */
   next_tvb = tvb_new_subset_remaining(tvb,offset);
-  if (dissector_try_port(osinl_subdissector_table, fr_nlpid, next_tvb,
+  if (dissector_try_uint(osinl_subdissector_table, fr_nlpid, next_tvb,
 			 pinfo, tree) ||
-      dissector_try_port(fr_osinl_subdissector_table, fr_nlpid, next_tvb,
+      dissector_try_uint(fr_osinl_subdissector_table, fr_nlpid, next_tvb,
 			 pinfo, tree)) {
 	/*
 	 * Yes, we got a match.  Add the NLPID as a hidden item,
@@ -777,7 +777,7 @@ static void dissect_fr_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_item_set_end(ti, tvb, offset);
 	}
 	next_tvb = tvb_new_subset_remaining(tvb,offset);
-	if (!dissector_try_port(fr_subdissector_table,fr_nlpid,
+	if (!dissector_try_uint(fr_subdissector_table,fr_nlpid,
 				next_tvb, pinfo, tree))
 		call_dissector(data_handle,next_tvb, pinfo, tree);
 	break;
@@ -937,11 +937,11 @@ void proto_reg_handoff_fr(void)
   dissector_handle_t fr_handle, fr_phdr_handle;
 
   fr_handle = find_dissector("fr");
-  dissector_add("gre.proto", ETHERTYPE_RAW_FR, fr_handle);
-  dissector_add("wtap_encap", WTAP_ENCAP_FRELAY, fr_handle);
+  dissector_add_uint("gre.proto", ETHERTYPE_RAW_FR, fr_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_FRELAY, fr_handle);
 
   fr_phdr_handle = create_dissector_handle(dissect_fr_phdr, proto_fr);
-  dissector_add("wtap_encap", WTAP_ENCAP_FRELAY_WITH_PHDR, fr_phdr_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_FRELAY_WITH_PHDR, fr_phdr_handle);
 
   eth_withfcs_handle = find_dissector("eth_withfcs");
   gprs_ns_handle = find_dissector("gprs_ns");

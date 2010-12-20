@@ -655,7 +655,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	stat_info->request_uri = NULL;
 	stat_info->http_host = NULL;
 
-	switch (pinfo->match_port) {
+	switch (pinfo->match_uint) {
 
 	case TCP_PORT_SSDP:	/* TCP_PORT_SSDP = UDP_PORT_SSDP */
 		proto = PROTO_SSDP;
@@ -1204,8 +1204,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * be called if something was on some particular port.
 		 */
 
-		handle = dissector_get_port_handle(port_subdissector_table,
-		    pinfo->match_port);
+		handle = dissector_get_uint_handle(port_subdissector_table,
+		    pinfo->match_uint);
 		if (handle == NULL && headers.content_type != NULL) {
 			/*
 			 * We didn't find any subdissector that
@@ -2333,12 +2333,12 @@ dissect_http_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void
 range_delete_http_tcp_callback(guint32 port) {
-	dissector_delete("tcp.port", port, http_handle);
+	dissector_delete_uint("tcp.port", port, http_handle);
 }
 
 static void
 range_add_http_tcp_callback(guint32 port) {
-	dissector_add("tcp.port", port, http_handle);
+	dissector_add_uint("tcp.port", port, http_handle);
 }
 
 static void
@@ -2658,12 +2658,12 @@ http_dissector_add(guint32 port, dissector_handle_t handle)
 	 * Register ourselves as the handler for that port number
 	 * over TCP.
 	 */
-	dissector_add("tcp.port", port, http_handle);
+	dissector_add_uint("tcp.port", port, http_handle);
 
 	/*
 	 * And register them in *our* table for that port.
 	 */
-	dissector_add("http.port", port, handle);
+	dissector_add_uint("http.port", port, handle);
 }
 
 void
@@ -2679,7 +2679,7 @@ proto_reg_handoff_http(void)
 	 * request or reply?  I.e., should there be an SSDP dissector?
 	 */
 	http_udp_handle = create_dissector_handle(dissect_http_udp, proto_http);
-	dissector_add("udp.port", UDP_PORT_SSDP, http_udp_handle);
+	dissector_add_uint("udp.port", UDP_PORT_SSDP, http_udp_handle);
 
 	ntlmssp_handle = find_dissector("ntlmssp");
 	gssapi_handle = find_dissector("gssapi");

@@ -3415,12 +3415,12 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
         high_port = dst_port;
     }
     if (low_port != 0 &&
-        dissector_try_port(subdissector_table, low_port, next_tvb, pinfo, tree)){
+        dissector_try_uint(subdissector_table, low_port, next_tvb, pinfo, tree)){
         pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
         return TRUE;
     }
     if (high_port != 0 &&
-        dissector_try_port(subdissector_table, high_port, next_tvb, pinfo, tree)){
+        dissector_try_uint(subdissector_table, high_port, next_tvb, pinfo, tree)){
         pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
         return TRUE;
     }
@@ -4932,7 +4932,7 @@ proto_reg_handoff_tcp(void)
     dissector_handle_t tcp_handle;
 
     tcp_handle = create_dissector_handle(dissect_tcp, proto_tcp);
-    dissector_add("ip.proto", IP_PROTO_TCP, tcp_handle);
+    dissector_add_uint("ip.proto", IP_PROTO_TCP, tcp_handle);
     data_handle = find_dissector("data");
     tcp_tap = register_tap("tcp");
 }

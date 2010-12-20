@@ -683,7 +683,7 @@ static int Pinfo_match(lua_State *L) {
     if (pinfo->ws_pinfo->match_string) {
         lua_pushstring(L,pinfo->ws_pinfo->match_string);
     } else {
-        lua_pushnumber(L,(lua_Number)(pinfo->ws_pinfo->match_port));
+        lua_pushnumber(L,(lua_Number)(pinfo->ws_pinfo->match_uint));
     }
 
     return 1;

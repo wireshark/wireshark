@@ -791,10 +791,10 @@ proto_reg_handoff_njack(void)
 	dissector_handle_t njack_handle;
 
 	njack_handle = new_create_dissector_handle(dissect_njack_static, proto_njack);
-	dissector_add("udp.port", PORT_NJACK_PC, njack_handle);
-	/* dissector_add("tcp.port", PORT_NJACK_PC, njack_handle); */
-	dissector_add("udp.port", PORT_NJACK_SWITCH, njack_handle);
-	/* dissector_add("tcp.port", PORT_NJACK_SWITCH, njack_handle); */
+	dissector_add_uint("udp.port", PORT_NJACK_PC, njack_handle);
+	/* dissector_add_uint("tcp.port", PORT_NJACK_PC, njack_handle); */
+	dissector_add_uint("udp.port", PORT_NJACK_SWITCH, njack_handle);
+	/* dissector_add_uint("tcp.port", PORT_NJACK_SWITCH, njack_handle); */
 
         heur_dissector_add("udp", dissect_njack_heur, proto_njack);
         /* heur_dissector_add("tcp", dissect_njack_heur, proto_njack); */

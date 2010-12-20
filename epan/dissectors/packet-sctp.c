@@ -1923,7 +1923,7 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, gui
 
        XXX - we ignore port numbers of 0, as some dissectors use a port
        number of 0 to disable the port. */
-    if (dissector_try_port(sctp_ppi_dissector_table, ppi, payload_tvb, pinfo, tree))
+    if (dissector_try_uint(sctp_ppi_dissector_table, ppi, payload_tvb, pinfo, tree))
       return TRUE;
     if (pinfo->srcport > pinfo->destport) {
       low_port = pinfo->destport;
@@ -1933,10 +1933,10 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, gui
       high_port = pinfo->destport;
     }
     if (low_port != 0 &&
-        dissector_try_port(sctp_port_dissector_table, low_port, payload_tvb, pinfo, tree))
+        dissector_try_uint(sctp_port_dissector_table, low_port, payload_tvb, pinfo, tree))
       return TRUE;
     if (high_port != 0 &&
-        dissector_try_port(sctp_port_dissector_table, high_port, payload_tvb, pinfo, tree))
+        dissector_try_uint(sctp_port_dissector_table, high_port, payload_tvb, pinfo, tree))
       return TRUE;
 
     if (!try_heuristic_first) {
@@ -4109,6 +4109,6 @@ proto_reg_handoff_sctp(void)
 
   data_handle = find_dissector("data");
   sctp_handle = find_dissector("sctp");
-  dissector_add("ip.proto", IP_PROTO_SCTP, sctp_handle);
-  dissector_add("udp.port", UDP_TUNNELING_PORT, sctp_handle);
+  dissector_add_uint("ip.proto", IP_PROTO_SCTP, sctp_handle);
+  dissector_add_uint("udp.port", UDP_TUNNELING_PORT, sctp_handle);
 }

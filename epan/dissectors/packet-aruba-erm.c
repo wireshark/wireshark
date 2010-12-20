@@ -129,12 +129,12 @@ proto_register_aruba_erm(void)
 
 static void range_delete_callback (guint32 port)
 {
-    dissector_delete("udp.port", port, aruba_erm_handle);
+    dissector_delete_uint("udp.port", port, aruba_erm_handle);
 }
 
 static void range_add_callback (guint32 port)
 {
-    dissector_add("udp.port", port, aruba_erm_handle);
+    dissector_add_uint("udp.port", port, aruba_erm_handle);
 }
 
 void

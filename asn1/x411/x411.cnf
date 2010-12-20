@@ -535,7 +535,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 
 	if(extension_id != -1) {
 		proto_item_append_text(tree, " (%%s)", val_to_str(extension_id, x411_StandardExtension_vals, "standard-extension %%d")); 
-  		if (dissector_try_port(x411_extension_dissector_table, extension_id, tvb, actx->pinfo, tree)) {
+  		if (dissector_try_uint(x411_extension_dissector_table, extension_id, tvb, actx->pinfo, tree)) {
 			offset = tvb_length(tvb);
 		} else {
 			proto_item *item = NULL;
@@ -574,7 +574,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 #.FN_BODY ExtensionAttribute/extension-attribute-value
 
 	proto_item_append_text(tree, " (%%s)", val_to_str(extension_id, x411_ExtensionAttributeType_vals, "extension-attribute-type %%d")); 
-	if (dissector_try_port(x411_extension_attribute_dissector_table, extension_id, tvb, actx->pinfo, tree)) {
+	if (dissector_try_uint(x411_extension_attribute_dissector_table, extension_id, tvb, actx->pinfo, tree)) {
 		offset =tvb_length(tvb);
 	} else {
 		proto_item *item = NULL;
@@ -1234,7 +1234,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 #.FN_BODY TokenData/value
 
 	proto_item_append_text(tree, " (%%s)", val_to_str(extension_id, x411_TokenDataType_vals, "tokendata-type %%d")); 
-	if (dissector_try_port(x411_tokendata_dissector_table, extension_id, tvb, actx->pinfo, tree)) {
+	if (dissector_try_uint(x411_tokendata_dissector_table, extension_id, tvb, actx->pinfo, tree)) {
 		offset = tvb_length(tvb);
 	} else {
 		proto_item *item = NULL;

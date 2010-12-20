@@ -148,7 +148,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
   line = tvb_get_ptr(tvb, offset, linelen);
 
-  if (pinfo->match_port == pinfo->destport) {
+  if (pinfo->match_uint == pinfo->destport) {
     is_request = TRUE;
     is_continuation = FALSE;
   } else {
@@ -450,7 +450,7 @@ proto_reg_handoff_pop(void)
   dissector_handle_t pop_handle;
 
   pop_handle = find_dissector("pop");
-  dissector_add("tcp.port", TCP_PORT_POP, pop_handle);
+  dissector_add_uint("tcp.port", TCP_PORT_POP, pop_handle);
   ssl_dissector_add(TCP_PORT_SSL_POP, "pop", TRUE);
   data_handle = find_dissector("data");
 

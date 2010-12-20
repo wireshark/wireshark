@@ -808,7 +808,7 @@ dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 		PROTO_ITEM_SET_GENERATED(psm_item);
 
 		/* call next dissector */
-		if (!dissector_try_port(l2cap_psm_dissector_table, (guint32) psm,
+		if (!dissector_try_uint(l2cap_psm_dissector_table, (guint32) psm,
 					next_tvb, pinfo, tree)) {
 			/* unknown protocol. declare as data */
 			proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, TRUE);
@@ -942,7 +942,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 			PROTO_ITEM_SET_GENERATED(psm_item);
 
 			/* call next dissector */
-			if (!dissector_try_port(l2cap_psm_dissector_table, (guint32) psm,
+			if (!dissector_try_uint(l2cap_psm_dissector_table, (guint32) psm,
 						next_tvb, pinfo, tree)) {
 				/* unknown protocol. declare as data */
 				proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, next_tvb, 0, tvb_length(next_tvb), TRUE);
@@ -1181,7 +1181,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), length);
 
 		/* call next dissector */
-		if(!dissector_try_port(l2cap_psm_dissector_table, (guint32) psm,
+		if(!dissector_try_uint(l2cap_psm_dissector_table, (guint32) psm,
 					next_tvb, pinfo, tree)){
 			/* unknown protocol. declare as data */
 			proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, TRUE);
@@ -1219,7 +1219,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), length);
 		}
 		/* call next dissector */
-		if(next_tvb && !dissector_try_port(l2cap_cid_dissector_table, (guint32) cid,
+		if(next_tvb && !dissector_try_uint(l2cap_cid_dissector_table, (guint32) cid,
 					next_tvb, pinfo, tree)){
 			/* unknown protocol. declare as data */
 			proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, TRUE);

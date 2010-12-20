@@ -2209,11 +2209,11 @@ proto_reg_handoff_capwap(void)
 
 		inited = TRUE;
 	} else {
-		dissector_delete("udp.port", capwap_control_udp_port, capwap_control_handle);
-		dissector_delete("udp.port", capwap_data_udp_port, capwap_data_handle);
+		dissector_delete_uint("udp.port", capwap_control_udp_port, capwap_control_handle);
+		dissector_delete_uint("udp.port", capwap_data_udp_port, capwap_data_handle);
 	}
-	dissector_add("udp.port", global_capwap_control_udp_port, capwap_control_handle);
-	dissector_add("udp.port", global_capwap_data_udp_port, capwap_data_handle);
+	dissector_add_uint("udp.port", global_capwap_control_udp_port, capwap_control_handle);
+	dissector_add_uint("udp.port", global_capwap_data_udp_port, capwap_data_handle);
 
 	capwap_control_udp_port = global_capwap_control_udp_port;
 	capwap_data_udp_port    = global_capwap_data_udp_port;

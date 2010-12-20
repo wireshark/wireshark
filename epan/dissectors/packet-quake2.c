@@ -891,13 +891,13 @@ proto_reg_handoff_quake2(void)
 		data_handle = find_dissector("data");
 		Initialized=TRUE;
 	} else {
-		dissector_delete("udp.port", ServerPort, quake2_handle);
+		dissector_delete_uint("udp.port", ServerPort, quake2_handle);
 	}
 
         /* set port for future deletes */
         ServerPort=gbl_quake2ServerPort;
 
-	dissector_add("udp.port", gbl_quake2ServerPort, quake2_handle);
+	dissector_add_uint("udp.port", gbl_quake2ServerPort, quake2_handle);
 }
 
 

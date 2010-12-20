@@ -1987,9 +1987,9 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
   {
     /* Try subdissectors (if we found a valid SSN on the current message) */
     if ((dest_ssn == INVALID_SSN ||
-       !dissector_try_port(sccp_ssn_dissector_table, dest_ssn, data_tvb, pinfo, tree))
+       !dissector_try_uint(sccp_ssn_dissector_table, dest_ssn, data_tvb, pinfo, tree))
        && (source_ssn == INVALID_SSN ||
-       !dissector_try_port(sccp_ssn_dissector_table, source_ssn, data_tvb, pinfo, tree)))
+       !dissector_try_uint(sccp_ssn_dissector_table, source_ssn, data_tvb, pinfo, tree)))
     {
 		/* try heuristic subdissector list to see if there are any takers */
 		if (dissector_try_heuristic(heur_subdissector_list, data_tvb, pinfo, tree)) {
@@ -2200,8 +2200,8 @@ proto_reg_handoff_sua(void)
   dissector_handle_t sua_handle;
 
   sua_handle = find_dissector("sua");
-  dissector_add("sctp.ppi",  SUA_PAYLOAD_PROTOCOL_ID, sua_handle);
-  dissector_add("sctp.port", SCTP_PORT_SUA,           sua_handle);
+  dissector_add_uint("sctp.ppi",  SUA_PAYLOAD_PROTOCOL_ID, sua_handle);
+  dissector_add_uint("sctp.port", SCTP_PORT_SUA,           sua_handle);
 
   data_handle = find_dissector("data");
   sccp_ssn_dissector_table = find_dissector_table("sccp.ssn");

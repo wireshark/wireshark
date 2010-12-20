@@ -1743,7 +1743,7 @@ dissect_rtmpt_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          *  likely easily confused.
          */
 
-        cdir = pinfo->srcport==pinfo->match_port;
+        cdir = pinfo->srcport==pinfo->match_uint;
 
         if (cdir) {
                 conv = find_conversation(pinfo->fd->num, &pinfo->dst, &pinfo->src, pinfo->ptype, 0, pinfo->srcport, 0);
@@ -2056,7 +2056,7 @@ proto_reg_handoff_rtmpt(void)
 /*	heur_dissector_add("tcp", dissect_rtmpt_heur, proto_rtmpt); */
 	rtmpt_tcp_handle = create_dissector_handle(dissect_rtmpt_tcp, proto_rtmpt);
 /*	dissector_add_handle("tcp.port", rtmpt_tcp_handle); */
-	dissector_add("tcp.port", RTMP_PORT, rtmpt_tcp_handle);
+	dissector_add_uint("tcp.port", RTMP_PORT, rtmpt_tcp_handle);
 
 	rtmpt_http_handle = create_dissector_handle(dissect_rtmpt_http, proto_rtmpt);
 	dissector_add_string("media_type", "application/x-fcs", rtmpt_http_handle);

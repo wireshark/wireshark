@@ -382,11 +382,11 @@ void proto_reg_handoff_zep(void)
     } else {
         /* If we were already registered, de-register our dissector
          * to free the port. */
-        dissector_delete("udp.port", lastPort, zep_handle);
+        dissector_delete_uint("udp.port", lastPort, zep_handle);
     }
 
     /* Register our dissector. */
-    dissector_add("udp.port", gPREF_zep_udp_port, zep_handle);
+    dissector_add_uint("udp.port", gPREF_zep_udp_port, zep_handle);
     lastPort = gPREF_zep_udp_port;
 } /* proto_reg_handoff_zep */
 

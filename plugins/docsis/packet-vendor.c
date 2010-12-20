@@ -294,6 +294,6 @@ proto_reg_handoff_docsis_vsif (void)
   dissector_handle_t docsis_vsif_handle;
 
   docsis_vsif_handle = find_dissector ("docsis_vsif");
-  dissector_add ("docsis", 0xFD, docsis_vsif_handle);
+  dissector_add_uint ("docsis", 0xFD, docsis_vsif_handle);
 
 }

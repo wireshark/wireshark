@@ -94,7 +94,7 @@ dissect_symantec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				6, 2, etypev2);
 		}
 		next_tvb = tvb_new_subset_remaining(tvb, 44);
-		dissector_try_port(ethertype_dissector_table, etypev2, next_tvb, pinfo,
+		dissector_try_uint(ethertype_dissector_table, etypev2, next_tvb, pinfo,
 			tree);
 	}
 
@@ -117,7 +117,7 @@ dissect_symantec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * tagging.
 		 */
 		next_tvb = tvb_new_subset_remaining(tvb, 56);
-		dissector_try_port(ethertype_dissector_table, etypev3, next_tvb, pinfo,
+		dissector_try_uint(ethertype_dissector_table, etypev3, next_tvb, pinfo,
 			tree);
 	}
 }
@@ -152,5 +152,5 @@ proto_reg_handoff_symantec(void)
 
 	symantec_handle = create_dissector_handle(dissect_symantec,
 	    proto_symantec);
-	dissector_add("wtap_encap", WTAP_ENCAP_SYMANTEC, symantec_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_SYMANTEC, symantec_handle);
 }

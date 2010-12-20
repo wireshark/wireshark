@@ -3802,7 +3802,7 @@ static int decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _
     if (con_len > 0) {
 
         l3_tvb = tvb_new_subset(tvb, offset, con_len, con_len);
-        if (!dissector_try_port(bssap_pdu_type_table, BSSAP_PDU_TYPE_DTAP, l3_tvb, pinfo, ext_tree_mm))
+        if (!dissector_try_uint(bssap_pdu_type_table, BSSAP_PDU_TYPE_DTAP, l3_tvb, pinfo, ext_tree_mm))
             call_dissector(data_handle, l3_tvb, pinfo, ext_tree_mm);
     }
 
@@ -4468,7 +4468,7 @@ int decode_gtp_proto_conf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto
              * data as, for example, IP?
              */
             next_tvb = tvb_new_subset(tvb, offset + 3, proto_len, proto_len);
-            if (!dissector_try_port(ppp_subdissector_table, proto_id, next_tvb, pinfo, ext_tree_proto)) {
+            if (!dissector_try_uint(ppp_subdissector_table, proto_id, next_tvb, pinfo, ext_tree_proto)) {
                 call_dissector(data_handle, next_tvb, pinfo, ext_tree_proto);
             }
 
@@ -7236,22 +7236,22 @@ void proto_reg_handoff_gtp(void)
         gtpv2_handle = find_dissector("gtpv2");
         bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");
         /* AVP Code: 5 3GPP-GPRS Negotiated QoS profile */
-        dissector_add("diameter.3gpp", 5, new_create_dissector_handle(dissect_diameter_3gpp_qosprofile, proto_gtp));
+        dissector_add_uint("diameter.3gpp", 5, new_create_dissector_handle(dissect_diameter_3gpp_qosprofile, proto_gtp));
         /* AVP Code: 904 MBMS-Session-Duration */
-        dissector_add("diameter.3gpp", 904, new_create_dissector_handle(dissect_gtp_mbms_ses_dur, proto_gtp));
+        dissector_add_uint("diameter.3gpp", 904, new_create_dissector_handle(dissect_gtp_mbms_ses_dur, proto_gtp));
         /* AVP Code: 911 MBMS-Time-To-Data-Transfer */
-        dissector_add("diameter.3gpp", 911, new_create_dissector_handle(dissect_gtp_mbms_time_to_data_tr, proto_gtp));
+        dissector_add_uint("diameter.3gpp", 911, new_create_dissector_handle(dissect_gtp_mbms_time_to_data_tr, proto_gtp));
 
         Initialized = TRUE;
     } else {
-        dissector_delete("udp.port", gtpv0_port, gtp_prim_handle);
-        dissector_delete("udp.port", gtpv1c_port, gtp_handle);
-        dissector_delete("udp.port", gtpv1u_port, gtp_handle);
+        dissector_delete_uint("udp.port", gtpv0_port, gtp_prim_handle);
+        dissector_delete_uint("udp.port", gtpv1c_port, gtp_handle);
+        dissector_delete_uint("udp.port", gtpv1u_port, gtp_handle);
 
         if (gtp_over_tcp) {
-            dissector_delete("tcp.port", gtpv0_port, gtp_prim_handle);
-            dissector_delete("tcp.port", gtpv1c_port, gtp_handle);
-            dissector_delete("tcp.port", gtpv1u_port, gtp_handle);
+            dissector_delete_uint("tcp.port", gtpv0_port, gtp_prim_handle);
+            dissector_delete_uint("tcp.port", gtpv1c_port, gtp_handle);
+            dissector_delete_uint("tcp.port", gtpv1u_port, gtp_handle);
         }
     }
 
@@ -7260,14 +7260,14 @@ void proto_reg_handoff_gtp(void)
     gtpv1c_port  = g_gtpv1c_port;
     gtpv1u_port  = g_gtpv1u_port;
 
-    dissector_add("udp.port", g_gtpv0_port, gtp_prim_handle);
-    dissector_add("udp.port", g_gtpv1c_port, gtp_handle);
-    dissector_add("udp.port", g_gtpv1u_port, gtp_handle);
+    dissector_add_uint("udp.port", g_gtpv0_port, gtp_prim_handle);
+    dissector_add_uint("udp.port", g_gtpv1c_port, gtp_handle);
+    dissector_add_uint("udp.port", g_gtpv1u_port, gtp_handle);
 
     if (g_gtp_over_tcp) {
-        dissector_add("tcp.port", g_gtpv0_port, gtp_prim_handle);
-        dissector_add("tcp.port", g_gtpv1c_port, gtp_handle);
-        dissector_add("tcp.port", g_gtpv1u_port, gtp_handle);
+        dissector_add_uint("tcp.port", g_gtpv0_port, gtp_prim_handle);
+        dissector_add_uint("tcp.port", g_gtpv1c_port, gtp_handle);
+        dissector_add_uint("tcp.port", g_gtpv1u_port, gtp_handle);
     }
 }
 

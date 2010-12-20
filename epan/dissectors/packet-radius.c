@@ -2003,22 +2003,22 @@ proto_reg_handoff_radius(void)
 
 	if (!initialized) {
 		radius_handle = find_dissector("radius");
-		dissector_add("udp.port", UDP_PORT_RADIUS, radius_handle);
-		dissector_add("udp.port", UDP_PORT_RADIUS_NEW, radius_handle);
-		dissector_add("udp.port", UDP_PORT_RADACCT, radius_handle);
-		dissector_add("udp.port", UDP_PORT_RADACCT_NEW, radius_handle);
-		dissector_add("udp.port", UDP_PORT_DAE, radius_handle);
+		dissector_add_uint("udp.port", UDP_PORT_RADIUS, radius_handle);
+		dissector_add_uint("udp.port", UDP_PORT_RADIUS_NEW, radius_handle);
+		dissector_add_uint("udp.port", UDP_PORT_RADACCT, radius_handle);
+		dissector_add_uint("udp.port", UDP_PORT_RADACCT_NEW, radius_handle);
+		dissector_add_uint("udp.port", UDP_PORT_DAE, radius_handle);
 
 		eap_handle = find_dissector("eap");
 
 		initialized = TRUE;
 	} else {
 		if (alt_port != 0)
-			dissector_delete("udp.port", alt_port, radius_handle);
+			dissector_delete_uint("udp.port", alt_port, radius_handle);
 	}
 
 	if (alt_port_pref != 0)
-		dissector_add("udp.port", alt_port_pref, radius_handle);
+		dissector_add_uint("udp.port", alt_port_pref, radius_handle);
 
 	alt_port = alt_port_pref;
 }
