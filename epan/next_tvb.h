@@ -38,6 +38,9 @@ typedef enum {
   NTVB_STRING
 } next_tvb_call_e;
 
+/* For old code that hasn't yet been changed. */
+#define NTVB_PORT	NTVB_UINT
+
 typedef struct next_tvb_item {
   struct next_tvb_item *next;
   struct next_tvb_item *previous;
