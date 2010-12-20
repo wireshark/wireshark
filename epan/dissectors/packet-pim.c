@@ -87,6 +87,9 @@ static dissector_handle_t ipv6_handle;
  * NOTE: There is still some doubt that this is THE definitive PIMv1
  *       specification.  Of note, the type1vals entry, { 8, "Mode" }, does
  *       not appear as a valid code in the referenced document above.
+ * 
+ *       This one is likely closer to the last PIMv1 spec:
+ *       http://tools.ietf.org/id/draft-ietf-idmr-pim-spec-02.txt
  */
 static const char *
 dissect_pimv1_addr(tvbuff_t *tvb, int offset) {
@@ -799,12 +802,12 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
             case 19: /* DR priority */
                 proto_tree_add_item(opt_tree, hf_pim_dr_priority, tvb, offset + 4, 4, FALSE);
-                proto_item_append_text(opt_item, ": %lu", tvb_get_ntohl(tvb, offset + 4));
+                proto_item_append_text(opt_item, ": %u", tvb_get_ntohl(tvb, offset + 4));
                 break;
 
             case 20: /* Generation ID */
                 proto_tree_add_item(opt_tree, hf_pim_generation_id, tvb, offset + 4, 4, FALSE);
-                proto_item_append_text(opt_item, ": %lu", tvb_get_ntohl(tvb, offset + 4));
+                proto_item_append_text(opt_item, ": %u", tvb_get_ntohl(tvb, offset + 4));
                 break;
 
             case 21: /* State Refresh Capable Option */
