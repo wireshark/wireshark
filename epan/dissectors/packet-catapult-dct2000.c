@@ -906,6 +906,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
        case RLC_UM_DATA_REQ:
        case RLC_TR_DATA_REQ:
            p_pdcp_lte_info->direction = DIRECTION_UPLINK;
+           break;
 
        default:
            p_pdcp_lte_info->direction = DIRECTION_DOWNLINK;
