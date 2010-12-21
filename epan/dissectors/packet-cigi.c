@@ -912,6 +912,7 @@ static int hf_cigi3_2_ig_control = -1;
 static int hf_cigi3_2_ig_control_db_number = -1;
 static int hf_cigi3_2_ig_control_ig_mode = -1;
 static int hf_cigi3_2_ig_control_timestamp_valid = -1;
+static int hf_cigi3_2_ig_control_minor_version = -1;
 static int hf_cigi3_2_ig_control_host_frame_number = -1;
 static int hf_cigi3_2_ig_control_timestamp = -1;
 static int hf_cigi3_2_ig_control_last_ig_frame_number = -1;
@@ -2092,6 +2093,7 @@ static int hf_cigi3_2_start_of_frame_ig_status = -1;
 static int hf_cigi3_2_start_of_frame_ig_mode = -1;
 static int hf_cigi3_2_start_of_frame_timestamp_valid = -1;
 static int hf_cigi3_2_start_of_frame_earth_reference_model = -1;
+static int hf_cigi3_2_start_of_frame_minor_version = -1;
 static int hf_cigi3_2_start_of_frame_ig_frame_number = -1;
 static int hf_cigi3_2_start_of_frame_timestamp = -1;
 static int hf_cigi3_2_start_of_frame_last_host_frame_number = -1;
@@ -3010,9 +3012,15 @@ cigi3_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
         /* If we have the start of frame or IG Control packet set the version */
         if ( ( packet_id == CIGI3_PACKET_ID_IG_CONTROL || packet_id == CIGI3_PACKET_ID_START_OF_FRAME ) && global_cigi_version == CIGI_VERSION_FROM_PACKET ) {
             cigi_version = tvb_get_guint8(tvb, 2);
-            if ( packet_size == CIGI3_2_PACKET_SIZE_IG_CONTROL || packet_size == CIGI3_2_PACKET_SIZE_START_OF_FRAME ) {
+
+            /* CIGI Minor Version first appeared in CIGI 3.2. Note: It is in a
+             * different location in IG Control vs Start of Frame. */
+            if ( packet_size == CIGI3_2_PACKET_SIZE_IG_CONTROL && packet_id == CIGI3_PACKET_ID_IG_CONTROL ) {
                cigi_minor_version = tvb_get_guint8(tvb, 4) >> 4;
+            } else if ( packet_size == CIGI3_2_PACKET_SIZE_START_OF_FRAME && packet_id == CIGI3_PACKET_ID_START_OF_FRAME ) {
+               cigi_minor_version = tvb_get_guint8(tvb, 5) >> 4;
             } else {
+               /* CIGI version prior to 3.2 */
                cigi_minor_version = 0;
             }
         }
@@ -4193,6 +4201,7 @@ cigi3_2_add_ig_control(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
     proto_tree_add_item(tree, hf_cigi3_2_ig_control_ig_mode, tvb, offset, 1, cigi_byte_order);
     proto_tree_add_item(tree, hf_cigi3_2_ig_control_timestamp_valid, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_2_ig_control_minor_version, tvb, offset, 1, cigi_byte_order);
     offset += 2;
 
     /* Get the Byte Swap in Big-Endian so that we can display whether the value
@@ -5819,6 +5828,7 @@ cigi3_2_add_start_of_frame(tvbuff_t *tvb, proto_tree *tree, gint offset)
     proto_tree_add_item(tree, hf_cigi3_2_start_of_frame_ig_mode, tvb, offset, 1, cigi_byte_order);
     proto_tree_add_item(tree, hf_cigi3_2_start_of_frame_timestamp_valid, tvb, offset, 1, cigi_byte_order);
     proto_tree_add_item(tree, hf_cigi3_2_start_of_frame_earth_reference_model, tvb, offset, 1, cigi_byte_order);
+    proto_tree_add_item(tree, hf_cigi3_2_start_of_frame_minor_version, tvb, offset, 1, cigi_byte_order);
     offset++;
 
     /* Get the Byte Swap in Big-Endian so that we can display whether the value
@@ -6555,6 +6565,11 @@ proto_register_cigi(void)
                 FT_BOOLEAN, 8, TFS(&cigi_valid_tfs), 0x04,
                 "Indicates whether the timestamp contains a valid value", HFILL }
         },
+        { &hf_cigi3_2_ig_control_minor_version,
+            { "Minor Version", "cigi.ig_control.minor_version",
+                FT_UINT8, BASE_DEC, NULL, 0xF0,
+                "Indicates the minor version of the CIGI interface", HFILL }
+        },
         { &hf_cigi3_2_ig_control_host_frame_number,
             { "Host Frame Number", "cigi.ig_control.host_frame_number",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -6598,7 +6613,7 @@ proto_register_cigi(void)
                 "Indicates whether any dead reckoning is enabled.", HFILL }
         },
         { &hf_cigi3_3_ig_control_minor_version,
-            { "Minor Version", "cigi.ig_control.extrapolation_enable",
+            { "Minor Version", "cigi.ig_control.minor_version",
                 FT_UINT8, BASE_DEC, NULL, 0xF0,
                 "Indicates the minor version of the CIGI interface", HFILL }
         },
@@ -10759,6 +10774,11 @@ proto_register_cigi(void)
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 "Indicates the error status of the IG", HFILL }
         },
+        { &hf_cigi3_2_start_of_frame_minor_version,
+            { "Minor Version", "cigi.sof.minor_version",
+                FT_UINT8, BASE_DEC, NULL, 0xF0,
+                "Indicates the minor version of the CIGI interface", HFILL }
+        },
         { &hf_cigi3_2_start_of_frame_ig_mode,
             { "IG Mode", "cigi.sof.ig_mode",
                 FT_UINT8, BASE_DEC, VALS(cigi3_2_start_of_frame_ig_mode_vals), 0x03,
@@ -10785,7 +10805,7 @@ proto_register_cigi(void)
                 "Indicates the number of 10 microsecond \"ticks\" since some initial reference time", HFILL }
         },
         { &hf_cigi3_2_start_of_frame_last_host_frame_number,
-            { "Last Host Frane Number", "cigi.sof.last_host_frame_number",
+            { "Last Host Frame Number", "cigi.sof.last_host_frame_number",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 "Contains the value of the Host Frame parameter in the last IG Control packet received from the Host.", HFILL }
         },
