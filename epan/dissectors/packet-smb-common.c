@@ -126,60 +126,60 @@ int display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_i
 
 static int dissect_ms_compressed_string_internal(tvbuff_t *tvb, int offset, char *str, int maxlen, gboolean prepend_dot)
 {
-  guint8 len;
+	guint8 len;
 
-  len=tvb_get_guint8(tvb, offset);
-  offset+=1;
-  *str=0;
+	len=tvb_get_guint8(tvb, offset);
+	offset+=1;
+	*str=0;
 
-  /* XXX: Reserve 4 chars for "...\0" */
-  while(len){
-    /* add potential field separation dot */
-    if(prepend_dot){
-      if(maxlen<=4){
-        *str=0;
-        return offset;
-      }
-      maxlen--;
-      *str++='.';
-      *str=0;
-    }
+	/* XXX: Reserve 4 chars for "...\0" */
+	while(len){
+		/* add potential field separation dot */
+		if(prepend_dot){
+			if(maxlen<=4){
+				*str=0;
+				return offset;
+			}
+			maxlen--;
+			*str++='.';
+			*str=0;
+		}
 
-    if(len==0xc0){
-      int new_offset;
-      /* ops its a mscldap compressed string */
+		if(len==0xc0){
+			int new_offset;
+			/* ops its a mscldap compressed string */
 
-      new_offset=tvb_get_guint8(tvb, offset);
-      if (new_offset == offset - 1)
-        THROW(ReportedBoundsError);
-      offset+=1;
+			new_offset=tvb_get_guint8(tvb, offset);
+			if (new_offset == offset - 1)
+				THROW(ReportedBoundsError);
+			offset+=1;
 
-      dissect_ms_compressed_string_internal(tvb, new_offset, str, maxlen, FALSE);
+			dissect_ms_compressed_string_internal(tvb, new_offset, str, maxlen, FALSE);
 
-      return offset;
-    }
+			return offset;
+		}
 
-    prepend_dot=TRUE;
+		prepend_dot=TRUE;
 
-    if(len>(maxlen-4)){
-      *str++='.';
-      *str++='.';
-      *str++='.';
-      *str=0;
-      return offset; /* will mess up offset in caller, is unlikely */
-    }
-    tvb_memcpy(tvb, str, offset, len);
-    str+=len;
-    *str=0;
-    maxlen-=len;
-    offset+=len;
+		if(len>(maxlen-4)){
+			*str++='.';
+			*str++='.';
+			*str++='.';
+			*str=0;
+			return offset; /* will mess up offset in caller, is unlikely */
+		}
+		tvb_memcpy(tvb, str, offset, len);
+		str+=len;
+		*str=0;
+		maxlen-=len;
+		offset+=len;
 
 
-    len=tvb_get_guint8(tvb, offset);
-    offset+=1;
-  }
-  *str=0;
-  return offset;
+		len=tvb_get_guint8(tvb, offset);
+		offset+=1;
+	}
+	*str=0;
+	return offset;
 }
 
 /* Max string length for displaying Unicode strings.  */
@@ -215,59 +215,66 @@ int dissect_ms_compressed_string(tvbuff_t *tvb, proto_tree *tree, int offset, in
 */
 static gchar *
 unicode_to_str(tvbuff_t *tvb, int offset, int *us_lenp, gboolean exactlen,
-		   guint16 bc)
+	       guint16 bc)
 {
-  gchar *cur;
-  gchar        *p;
-  guint16       uchar;
-  int           len;
-  int           us_len;
-  gboolean      overflow = FALSE;
+	gchar *cur;
+	gchar        *p;
+	guint16       uchar;
+	int           len;
+	int           us_len;
+	gboolean      overflow = FALSE;
 
-  cur=ep_alloc(MAX_UNICODE_STR_LEN+3+1);
-  p = cur;
-  len = MAX_UNICODE_STR_LEN;
-  us_len = 0;
-  for (;;) {
-    if (bc == 0)
-      break;
-    if (bc == 1) {
-      /* XXX - explain this */
-      if (!exactlen)
-        us_len += 1;	/* this is a one-byte null terminator */
-      break;
-    }
-    uchar = tvb_get_letohs(tvb, offset);
-    if (uchar == 0) {
-      us_len += 2;	/* this is a two-byte null terminator */
-      break;
-    }
-    if (len > 0) {
-      if ((uchar & 0xFF00) == 0)
-        *p++ = (gchar) uchar;	/* ISO 8859-1 */
-      else
-        *p++ = '?';	/* not 8859-1 */
-      len--;
-    } else
-      overflow = TRUE;
-    offset += 2;
-    bc -= 2;
-    us_len += 2;
-    if(exactlen){
-      if(us_len>= *us_lenp){
-        break;
-      }
-    }
-  }
-  if (overflow) {
-    /* Note that we're not showing the full string.  */
-    *p++ = '.';
-    *p++ = '.';
-    *p++ = '.';
-  }
-  *p = '\0';
-  *us_lenp = us_len;
-  return cur;
+	cur=ep_alloc(MAX_UNICODE_STR_LEN+3+1);
+	p = cur;
+	len = MAX_UNICODE_STR_LEN;
+	us_len = 0;
+	for (;;) {
+		if (bc == 0)
+			break;
+
+		if (bc == 1) {
+			/* XXX - explain this */
+			if (!exactlen)
+				us_len += 1;	/* this is a one-byte null terminator */
+			break;
+		}
+
+		uchar = tvb_get_letohs(tvb, offset);
+		if (uchar == 0) {
+			us_len += 2;	/* this is a two-byte null terminator */
+			break;
+		}
+
+		if (len > 0) {
+			if ((uchar & 0xFF00) == 0)
+				*p++ = (gchar) uchar;	/* ISO 8859-1 */
+			else
+				*p++ = '?';	/* not 8859-1 */
+			len--;
+		} else
+			overflow = TRUE;
+
+		offset += 2;
+		bc -= 2;
+		us_len += 2;
+
+		if(exactlen){
+			if(us_len>= *us_lenp){
+				break;
+			}
+		}
+	}
+	if (overflow) {
+		/* Note that we're not showing the full string.  */
+		*p++ = '.';
+		*p++ = '.';
+		*p++ = '.';
+	}
+
+	*p = '\0';
+	*us_lenp = us_len;
+
+	return cur;
 }
 
 /* nopad == TRUE : Do not add any padding before this string
@@ -277,67 +284,79 @@ unicode_to_str(tvbuff_t *tvb, int offset, int *us_lenp, gboolean exactlen,
  */
 const gchar *
 get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
-    gboolean useunicode, int *len, gboolean nopad, gboolean exactlen,
-    guint16 *bcp)
+			    gboolean useunicode, int *len, gboolean nopad, gboolean exactlen,
+			    guint16 *bcp)
 {
-  gchar *cur;
-  const gchar *string;
-  int string_len = 0;
-  int copylen;
-  gboolean overflow = FALSE;
+	gchar *cur;
+	const gchar *string;
+	int string_len = 0;
+	int copylen;
+	gboolean overflow = FALSE;
 
-  if (*bcp == 0) {
-    /* Not enough data in buffer */
-    return NULL;
-  }
-  if (useunicode) {
-    if ((!nopad) && (*offsetp % 2)) {
-      (*offsetp)++;   /* Looks like a pad byte there sometimes */
-      (*bcp)--;
-      if (*bcp == 0) {
-        /* Not enough data in buffer */
-        return NULL;
-      }
-    }
-    if(exactlen){
-      string_len = *len;
-      if (string_len < 0) {
-        /* This probably means it's a very large unsigned number; just set
-           it to the largest signed number, so that we throw the appropriate
-           exception. */
-        string_len = INT_MAX;
-      }
-    }
-    string = unicode_to_str(tvb, *offsetp, &string_len, exactlen, *bcp);
-  } else {
-    if(exactlen){
-      /*
-       * The string we return must be null-terminated.
-       */
-      cur=ep_alloc(MAX_UNICODE_STR_LEN+3+1);
-      copylen = *len;
-      if (copylen < 0) {
-        /* This probably means it's a very large unsigned number; just set
-           it to the largest signed number, so that we throw the appropriate
-           exception. */
-        copylen = INT_MAX;
-      }
-      tvb_ensure_bytes_exist(tvb, *offsetp, copylen);
-      if (copylen > MAX_UNICODE_STR_LEN) {
-        copylen = MAX_UNICODE_STR_LEN;
-        overflow = TRUE;
-      }
-      tvb_memcpy(tvb, (guint8 *)cur, *offsetp, copylen);
-      cur[copylen] = '\0';
-      if (overflow)
-        g_strlcat(cur, "...",MAX_UNICODE_STR_LEN+3+1);
-      string_len = *len;
-      string = cur;
-    } else {
-      string_len = tvb_strsize(tvb, *offsetp);
-      string = tvb_get_ptr(tvb, *offsetp, string_len);
-    }
-  }
-  *len = string_len;
-  return string;
+	if (*bcp == 0) {
+		/* Not enough data in buffer */
+		return NULL;
+	}
+
+	if (useunicode) {
+		if ((!nopad) && (*offsetp % 2)) {
+			(*offsetp)++;   /* Looks like a pad byte there sometimes */
+			(*bcp)--;
+
+			if (*bcp == 0) {
+				/* Not enough data in buffer */
+				return NULL;
+			}
+		}
+
+		if(exactlen){
+			string_len = *len;
+			if (string_len < 0) {
+				/* This probably means it's a very large unsigned number; just set
+				   it to the largest signed number, so that we throw the appropriate
+				   exception. */
+				string_len = INT_MAX;
+			}
+		}
+
+		string = unicode_to_str(tvb, *offsetp, &string_len, exactlen, *bcp);
+
+	} else {
+		if(exactlen){
+			/*
+			 * The string we return must be null-terminated.
+			 */
+			cur=ep_alloc(MAX_UNICODE_STR_LEN+3+1);
+			copylen = *len;
+
+			if (copylen < 0) {
+				/* This probably means it's a very large unsigned number; just set
+				   it to the largest signed number, so that we throw the appropriate
+				   exception. */
+				copylen = INT_MAX;
+			}
+
+			tvb_ensure_bytes_exist(tvb, *offsetp, copylen);
+
+			if (copylen > MAX_UNICODE_STR_LEN) {
+				copylen = MAX_UNICODE_STR_LEN;
+				overflow = TRUE;
+			}
+
+			tvb_memcpy(tvb, (guint8 *)cur, *offsetp, copylen);
+			cur[copylen] = '\0';
+
+			if (overflow)
+				g_strlcat(cur, "...",MAX_UNICODE_STR_LEN+3+1);
+
+			string_len = *len;
+			string = cur;
+		} else {
+			string_len = tvb_strsize(tvb, *offsetp);
+			string = tvb_get_ptr(tvb, *offsetp, string_len);
+		}
+	}
+
+	*len = string_len;
+	return string;
 }
