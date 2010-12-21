@@ -504,6 +504,9 @@ static const gchar *get_zonename(struct tm *tmp) {
 	{
 		static char *ws_tzname[2] = {NULL, NULL};
 
+		/* The g_malloc'd value returned from g_locale_to_utf8() is   */
+		/*  cached for all further use so there's no need to ever     */
+		/*  g_free() that value.                                      */
 		if (ws_tzname[tmp->tm_isdst] == NULL) {
 			ws_tzname[tmp->tm_isdst] = g_locale_to_utf8(_tzname[tmp->tm_isdst], -1, NULL, NULL, NULL);
 			if (ws_tzname[tmp->tm_isdst] == NULL) {
