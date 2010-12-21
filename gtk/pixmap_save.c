@@ -103,6 +103,10 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 	GSList *file_formats,*ffp;
 	GdkWindow *parent;
 
+	gchar *format_name;
+	guint format_index = 0;
+	guint default_index = 0;
+	
 	pixbuf = gdk_pixbuf_get_from_drawable(NULL, GDK_DRAWABLE(pixmap), NULL,
 					      0, 0, 0, 0, -1, -1);
 
@@ -148,16 +152,20 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 	file_formats = gdk_pixbuf_get_formats();
 	ffp = file_formats;
 	while(ffp) {
-		if (gdk_pixbuf_format_is_writable(ffp->data)) {
-			pixbuf_format = ffp->data;
+		pixbuf_format = ffp->data;
+		if (gdk_pixbuf_format_is_writable(pixbuf_format)) {
+			format_name = gdk_pixbuf_format_get_name(pixbuf_format);
 			gtk_combo_box_append_text(GTK_COMBO_BOX(type_cm),
-						  gdk_pixbuf_format_get_name(pixbuf_format));
+						  format_name);
+			if (!(g_ascii_strcasecmp(format_name, "png")))
+				default_index = format_index;
+			format_index++;
 		}
 		ffp = g_slist_next(ffp);
 	}
 	g_slist_free(file_formats);
 
-	gtk_combo_box_set_active(GTK_COMBO_BOX(type_cm), 0);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(type_cm), default_index);
 	g_object_set_data(G_OBJECT(save_as_w), "type_cm", type_cm);
 	gtk_widget_show(type_cm);
 
