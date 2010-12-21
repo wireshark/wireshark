@@ -615,6 +615,7 @@ static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
     dissector_handle_t protocol_handle = 0;
     gboolean isUplink = FALSE;
     LogicalChannelType logicalChannelType;
+    guint16  cell_id;
     guint8   bcch_transport = 0;
     tvbuff_t *rrc_tvb;
 
@@ -692,15 +693,21 @@ static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
             /* Cell-id */
             proto_tree_add_item(tree, hf_catapult_dct2000_lte_cellid,
                                 tvb, offset, 2, FALSE);
+            cell_id = tvb_get_ntohs(tvb, offset);
             offset += 2;
 
             /* Logical channel type */
             proto_tree_add_item(tree, hf_catapult_dct2000_lte_rlc_channel_type,
                                 tvb, offset, 1, FALSE);
-            logicalChannelType = (LogicalChannelType)tvb_get_guint8(tvb, offset++);
-            col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+            logicalChannelType = (LogicalChannelType)tvb_get_guint8(tvb, offset);
+            offset++;
+
+            /* Won't be seen if RRC decoder is called... */
+            col_append_fstr(pinfo->cinfo, COL_INFO, " cell-id=%u %s",
+                            cell_id,
                             val_to_str_const(logicalChannelType, rlc_logical_channel_vals,
                                              "UNKNOWN-CHANNEL"));
+
 
             switch (logicalChannelType) {
                 case Channel_BCCH:
