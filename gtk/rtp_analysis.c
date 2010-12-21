@@ -115,17 +115,19 @@ enum
 #define MAX_YSCALE 16
 #define AUTO_MAX_YSCALE_INDEX 0
 #define AUTO_MAX_YSCALE 0
-#define MAX_GRAPHS 4
+#define MAX_GRAPHS 6
 #define GRAPH_FWD_JITTER 0
 #define GRAPH_FWD_DIFF 1
-#define GRAPH_REV_JITTER 2
-#define GRAPH_REV_DIFF 3
+#define GRAPH_FWD_DELTA 2
+#define GRAPH_REV_JITTER 3
+#define GRAPH_REV_DIFF 4
+#define GRAPH_REV_DELTA 5
 static guint32 yscale_max[MAX_YSCALE] = {AUTO_MAX_YSCALE, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000, 20000000, 50000000};
 
 #define MAX_PIXELS_PER_TICK 4
 #define DEFAULT_PIXELS_PER_TICK_INDEX 1
 static guint32 pixels_per_tick[MAX_PIXELS_PER_TICK] = {1, 2, 5, 10};
-static const char *graph_descr[4] = {"Fwd Jitter", "Fwd Difference", "Rvr Jitter", "Rvr Difference"};
+static const char *graph_descr[MAX_GRAPHS] = {"Fwd Jitter", "Fwd Difference", "Fwd Delta", "Rvr Jitter", "Rvr Difference", "Rvr Delta"};
 /* unit is in ms */
 #define MAX_TICK_VALUES 5
 #define DEFAULT_TICK_INTERVAL_VALUES_INDEX 1
@@ -486,6 +488,9 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_FWD_DIFF]),
 			&(user_data->forward.statinfo), pinfo,
 			(guint32)(user_data->forward.statinfo.diff*1000));
+		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_FWD_DELTA]),
+			&(user_data->forward.statinfo), pinfo,
+			(guint32)(user_data->forward.statinfo.delta*1000));
 		rtp_packet_add_info(user_data->dlg.list_fwd, user_data,
 			&(user_data->forward.statinfo), pinfo, rtpinfo);
 		rtp_packet_save_payload(&(user_data->forward.saveinfo),
@@ -505,6 +510,9 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_REV_DIFF]),
 			&(user_data->reversed.statinfo), pinfo,
 			(guint32)(user_data->reversed.statinfo.diff*1000));
+		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_REV_DELTA]),
+			&(user_data->reversed.statinfo), pinfo,
+			(guint32)(user_data->reversed.statinfo.delta*1000));
 		rtp_packet_add_info(user_data->dlg.list_rev, user_data,
 			&(user_data->reversed.statinfo), pinfo, rtpinfo);
 		rtp_packet_save_payload(&(user_data->reversed.saveinfo),
@@ -846,7 +854,7 @@ static void dialog_graph_reset(user_data_t* user_data)
 	/* create the color titles near the filter buttons */
 	for(i=0;i<MAX_GRAPHS;i++){
 		/* it is forward */
-		if (i<2){
+		if (i<(MAX_GRAPHS/2)){
 			g_snprintf(user_data->dlg.dialog_graph.graph[i].title,
 				   sizeof(user_data->dlg.dialog_graph.graph[0].title),
 				   "%s: %s:%u to %s:%u (SSRC=0x%X)",
@@ -3543,6 +3551,8 @@ void rtp_analysis(
 		{0,     0x0000, 0x0000, 0x0000},
 		{0,     0xffff, 0x0000, 0x0000},
 		{0,     0x0000, 0xffff, 0x0000},
+		{0,		0xdddd, 0xcccc, 0x6666},
+		{0,		0x6666, 0xcccc, 0xdddd},
 		{0,     0x0000, 0x0000, 0xffff}
 	};
 	char *tempname;
