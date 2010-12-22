@@ -42,6 +42,8 @@
  * SSH versions under 2 were never officially standardized.
  */
 
+/* "SSH" prefixes are for version 2, whereas "SSH1" is for version 1 */
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -57,38 +59,38 @@
 #include <epan/prefs.h>
 
 /* get from openssh ssh2.h */
-#define SSH2_MSG_DISCONNECT				1
-#define SSH2_MSG_IGNORE					2
-#define SSH2_MSG_UNIMPLEMENTED				3
-#define SSH2_MSG_DEBUG					4
-#define SSH2_MSG_SERVICE_REQUEST			5
-#define SSH2_MSG_SERVICE_ACCEPT				6
+#define SSH_MSG_DISCONNECT				1
+#define SSH_MSG_IGNORE					2
+#define SSH_MSG_UNIMPLEMENTED				3
+#define SSH_MSG_DEBUG					4
+#define SSH_MSG_SERVICE_REQUEST			5
+#define SSH_MSG_SERVICE_ACCEPT				6
 
 /* transport layer: alg negotiation */
 
-#define SSH2_MSG_KEXINIT				20
-#define SSH2_MSG_NEWKEYS				21
+#define SSH_MSG_KEXINIT				20
+#define SSH_MSG_NEWKEYS				21
 
 /* transport layer: kex specific messages, can be reused */
 
-#define SSH2_MSG_KEXDH_INIT				30
-#define SSH2_MSG_KEXDH_REPLY				31
+#define SSH_MSG_KEXDH_INIT				30
+#define SSH_MSG_KEXDH_REPLY				31
 
 /*
-#define SSH2_MSG_KEX_DH_GEX_REQUEST_OLD			30
-#define SSH2_MSG_KEX_DH_GEX_GROUP			31
+#define SSH_MSG_KEX_DH_GEX_REQUEST_OLD			30
+#define SSH_MSG_KEX_DH_GEX_GROUP			31
 */
-#define SSH2_MSG_KEX_DH_GEX_INIT			32
-#define SSH2_MSG_KEX_DH_GEX_REPLY			33
-#define SSH2_MSG_KEX_DH_GEX_REQUEST			34
+#define SSH_MSG_KEX_DH_GEX_INIT			32
+#define SSH_MSG_KEX_DH_GEX_REPLY			33
+#define SSH_MSG_KEX_DH_GEX_REQUEST			34
 
 /* SSH Version 1 definition , from openssh ssh1.h */
 
-#define SSH_MSG_NONE				0	/* no message */
-#define SSH_MSG_DISCONNECT			1	/* cause (string) */
-#define SSH_SMSG_PUBLIC_KEY			2	/* ck,msk,srvk,hostk */
-#define SSH_CMSG_SESSION_KEY			3	/* key (BIGNUM) */
-#define SSH_CMSG_USER				4	/* user (string) */
+#define SSH1_MSG_NONE				0	/* no message */
+#define SSH1_MSG_DISCONNECT			1	/* cause (string) */
+#define SSH1_SMSG_PUBLIC_KEY			2	/* ck,msk,srvk,hostk */
+#define SSH1_CMSG_SESSION_KEY			3	/* key (BIGNUM) */
+#define SSH1_CMSG_USER				4	/* user (string) */
 
 
 #define SSH_VERSION_UNKNOWN 	0
@@ -177,28 +179,28 @@ static gboolean ssh_desegment = TRUE;
 #define TCP_PORT_SSH  22
 
 static const value_string ssh2_msg_vals[] = {
-	{SSH2_MSG_DISCONNECT, "Disconnect"},
-	{SSH2_MSG_IGNORE, "Ignore"},
-	{SSH2_MSG_UNIMPLEMENTED, "Unimplemented"},
-	{SSH2_MSG_DEBUG, "Debug"},
-	{SSH2_MSG_SERVICE_REQUEST, "Service Request"},
-	{SSH2_MSG_SERVICE_ACCEPT, "Service Accept"},
-	{SSH2_MSG_KEXINIT, "Key Exchange Init"},
-	{SSH2_MSG_NEWKEYS, "New Keys"},
-	{SSH2_MSG_KEXDH_INIT, "Diffie-Hellman Key Exchange Init"},
-	{SSH2_MSG_KEXDH_REPLY, "Diffie-Hellman Key Exchange Reply"},
-	{SSH2_MSG_KEX_DH_GEX_INIT, "Diffie-Hellman GEX Init"},
-	{SSH2_MSG_KEX_DH_GEX_REPLY, "Diffie-Hellman GEX Reply"},
-	{SSH2_MSG_KEX_DH_GEX_REQUEST, "Diffie-Hellman GEX Request"},
+	{SSH_MSG_DISCONNECT, "Disconnect"},
+	{SSH_MSG_IGNORE, "Ignore"},
+	{SSH_MSG_UNIMPLEMENTED, "Unimplemented"},
+	{SSH_MSG_DEBUG, "Debug"},
+	{SSH_MSG_SERVICE_REQUEST, "Service Request"},
+	{SSH_MSG_SERVICE_ACCEPT, "Service Accept"},
+	{SSH_MSG_KEXINIT, "Key Exchange Init"},
+	{SSH_MSG_NEWKEYS, "New Keys"},
+	{SSH_MSG_KEXDH_INIT, "Diffie-Hellman Key Exchange Init"},
+	{SSH_MSG_KEXDH_REPLY, "Diffie-Hellman Key Exchange Reply"},
+	{SSH_MSG_KEX_DH_GEX_INIT, "Diffie-Hellman GEX Init"},
+	{SSH_MSG_KEX_DH_GEX_REPLY, "Diffie-Hellman GEX Reply"},
+	{SSH_MSG_KEX_DH_GEX_REQUEST, "Diffie-Hellman GEX Request"},
   	{ 0,          NULL }
 };
 
 static const value_string ssh1_msg_vals[] = {
-	{SSH_MSG_NONE,"No Message"},
-	{SSH_MSG_DISCONNECT, "Disconnect"},
-	{SSH_SMSG_PUBLIC_KEY,"Public Key"},
-	{SSH_CMSG_SESSION_KEY,"Session Key"},
-	{SSH_CMSG_USER,"User"},
+	{SSH1_MSG_NONE,"No Message"},
+	{SSH1_MSG_DISCONNECT, "Disconnect"},
+	{SSH1_SMSG_PUBLIC_KEY,"Public Key"},
+	{SSH1_CMSG_SESSION_KEY,"Session Key"},
+	{SSH1_CMSG_USER,"User"},
 	{0, NULL}
 };
 
@@ -709,7 +711,7 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 	offset+= padding_length;
 
 	/* MAC , if there is still bytes, treat it as 16bytes MAC*/
-	if(msg_code == SSH2_MSG_KEX_DH_GEX_REPLY) {
+	if(msg_code == SSH_MSG_KEX_DH_GEX_REPLY) {
 		len = tvb_reported_length_remaining(tvb,offset);
 		if(len == 16) {
 			if(tree) {
