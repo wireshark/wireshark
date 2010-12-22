@@ -104,12 +104,10 @@ dissect_git_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (git_tree)
   {
-	  tvbuff_t *subtvb;
 	  proto_tree_add_uint(git_tree, hf_git_packet_len, tvb, offset,
 								4, plen);
 
-	  subtvb = tvb_new_subset(tvb, offset+4, plen-4, plen-4);
-	  proto_tree_add_item(git_tree, hf_git_packet_data, subtvb, offset+4, 
+	  proto_tree_add_item(git_tree, hf_git_packet_data, tvb, offset+4, 
 								plen-4, FALSE);
 	}
 }
