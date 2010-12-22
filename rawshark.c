@@ -1648,15 +1648,6 @@ cmdarg_err_cont(const char *fmt, ...)
 }
 
 
-/****************************************************************************************************************/
-/* other "dummies" */
-void
-cf_mark_frame(capture_file *cf _U_, frame_data *frame _U_)
-{
-    /* shouldn't happen */
-    g_assert_not_reached();
-}
-
 /*
  * Editor modelines
  *

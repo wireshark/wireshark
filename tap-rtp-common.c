@@ -294,9 +294,7 @@ int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			rtp_write_sample(&sample, tapinfo->save_file);
 		}
 	}
-	/* TODO: This doesn't belong here. We really shouldn't refer to cf_mark_frame()
-	 * which only make sense if we're using the GTK UI backend. This effectively forces
-	 * tshark/rawshark to implement a cf_mark_frame() stub */
+#ifdef __GTK_H__
 	else if (tapinfo->mode == TAP_MARK) {
 		if (rtp_stream_info_cmp(&tmp_strinfo, tapinfo->filter_stream_fwd)==0
 			|| rtp_stream_info_cmp(&tmp_strinfo, tapinfo->filter_stream_rev)==0)
@@ -304,7 +302,7 @@ int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			cf_mark_frame(&cfile, pinfo->fd);
 		}
 	}
-
+#endif
 	return 0;
 }
 

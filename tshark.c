@@ -185,12 +185,6 @@ static void write_failure_message(const char *filename, int err);
 
 capture_file cfile;
 
-void
-cf_mark_frame(capture_file *cf _U_, frame_data *frame _U_)
-{
-  g_assert_not_reached();
-}
-
 static void list_capture_types(void) {
   int i;
 
