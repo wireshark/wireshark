@@ -428,13 +428,13 @@ rtpstream_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 			selected_stream_rev->ssrc);
 
 		filter_string = filter_string_rev;
+	}
 
-		if (selected_stream_fwd)
-		{
-			filter_string = g_strdup_printf("%s || %s", filter_string, filter_string_rev);
-			g_free(filter_string_fwd);
-			g_free(filter_string_rev);
-		}
+	if ((selected_stream_fwd) && (selected_stream_rev))
+	{
+		filter_string = g_strdup_printf("%s || %s", filter_string_fwd, filter_string_rev);
+		g_free(filter_string_fwd);
+		g_free(filter_string_rev);
 	}
 
 	gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), filter_string);
