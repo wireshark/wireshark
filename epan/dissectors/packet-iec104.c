@@ -72,7 +72,7 @@ struct apciheader {
 /* asdu value time stamp structure */
 typedef struct
 {
-  guint8 cp56t_ms;
+  guint16 cp56t_ms;
   guint8 cp56t_s;
   guint8 cp56t_min;
   guint8 cp56t_h;
@@ -123,6 +123,9 @@ typedef struct {
 typedef struct {
 	gboolean OFF;
 	gboolean ON;
+
+	gboolean UP;  
+	gboolean DOWN;
 
 	/* QOC qualifier-bits */
 	guint16  QU;      /* qualifier-value */
@@ -475,8 +478,9 @@ static int hf_ioa  = -1;
 static int hf_numix  = -1;
 static int hf_sq  = -1;
 
-static gint hf_iec104_asdufloat = -1;
-static gint hf_iec104_asdunormval = -1;
+static gint hf_asdu_bitstring = -1;
+static gint hf_asdu_float = -1;
+static gint hf_asdu_normval = -1;
 
 static gint ett_apci = -1;
 static gint ett_asdu = -1;
@@ -668,13 +672,22 @@ static void get_QDP( td_ValueInfo *value _U_, tvbuff_t *tvb _U_, guint8 *offset 
 /* ====================================================================
     VTI: Value with transient state indication
    ==================================================================== */
-#if 0
 static void get_VTI( td_ValueInfo *value _U_, tvbuff_t *tvb _U_, guint8 *offset _U_, proto_tree *iec104_header_tree _U_ )
 {
-	/* todo */
+  guint8 vti;
+  vti = tvb_get_guint8(tvb, *offset);
 
+  value->MV.VTI= vti & 0x7F;
+  value->TRANSIENT = (vti & 0x80) != 0;
+
+  if( iec104_header_tree != NULL )
+  {
+    proto_tree_add_text( iec104_header_tree, tvb, *offset, 1, "Value: %d - Status: %s",
+		value->MV.VTI, value->TRANSIENT?"Transient":"Not transient" );
+  }
+
+  (*offset)++;
 }
-#endif
 
 /* ====================================================================
     NVA: Normalized value
@@ -686,7 +699,7 @@ static void get_NVA( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_t
 
 	if ( iec104_header_tree != NULL )
 	{
-  		proto_tree_add_int(iec104_header_tree, hf_iec104_asdunormval,
+  		proto_tree_add_int(iec104_header_tree, hf_asdu_normval,
   								tvb, *offset, 2, value->MV.NVA);
 			/* todo ... presentation as float +/- 1 (val/32767) ... */
 	}
@@ -702,7 +715,7 @@ static void get_NVAspt( td_SpInfo *spt, tvbuff_t *tvb, guint8 *offset,
 
 	if ( iec104_header_tree != NULL )
 	{
-  		proto_tree_add_int(iec104_header_tree, hf_iec104_asdunormval,
+  		proto_tree_add_int(iec104_header_tree, hf_asdu_normval,
   								tvb, *offset, 2, spt->SP.NVA);
 			/* todo ... presentation as float +/- 1 */
 	}
@@ -719,7 +732,7 @@ static void get_SVA( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_t
 	value->MV.SVA = tvb_get_letohs(tvb, *offset);
 	if ( iec104_header_tree != NULL )
 	{
-  		proto_tree_add_int(iec104_header_tree, hf_iec104_asdunormval,
+  		proto_tree_add_int(iec104_header_tree, hf_asdu_normval,
   								tvb, *offset, 2, value->MV.SVA);
 	}
 	(*offset) += 2;
@@ -733,7 +746,7 @@ static void get_SVAspt( td_SpInfo *spt, tvbuff_t *tvb, guint8 *offset,
 	spt->SP.SVA = tvb_get_letohs(tvb, *offset);
 	if ( iec104_header_tree != NULL )
 	{
-  		proto_tree_add_int(iec104_header_tree, hf_iec104_asdunormval,
+  		proto_tree_add_int(iec104_header_tree, hf_asdu_normval,
   								tvb, *offset, 2, spt->SP.SVA);
 	}
 	(*offset) += 2;
@@ -750,7 +763,7 @@ static void get_FLT( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_t
 
 	if ( iec104_header_tree != NULL )
 	{
-  		proto_tree_add_float(iec104_header_tree, hf_iec104_asdufloat,
+  		proto_tree_add_float(iec104_header_tree, hf_asdu_float,
   				tvb, *offset, 4, value->MV.FLT);
 	}
 	(*offset) += 4;
@@ -765,11 +778,36 @@ static void get_FLTspt( td_SpInfo *spt, tvbuff_t *tvb, guint8 *offset, proto_tre
 
 	if ( iec104_header_tree != NULL )
 	{
-  		proto_tree_add_float(iec104_header_tree, hf_iec104_asdufloat,
+  		proto_tree_add_float(iec104_header_tree, hf_asdu_float,
   				tvb, *offset, 4, spt->SP.FLT);
 	}
 	(*offset) += 4;
 
+
+}
+
+/* ====================================================================
+    "BSI": Binary state information, 32 bit
+   ==================================================================== */
+static void get_BSI( td_ValueInfo *value _U_, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+{
+	if ( iec104_header_tree != NULL )
+	{
+		proto_tree_add_bits_item(iec104_header_tree, hf_asdu_bitstring,
+				tvb, *offset*8, 32, ENC_BIG_ENDIAN);
+	}
+	(*offset) += 4;
+
+}
+
+static void get_BSIspt( td_ValueInfo *value _U_, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+{
+	if ( iec104_header_tree != NULL )
+	{
+		proto_tree_add_bits_item(iec104_header_tree, hf_asdu_bitstring,
+				tvb, *offset*8, 32, ENC_BIG_ENDIAN);
+	}
+	(*offset) += 4;
 
 }
 
@@ -933,6 +971,54 @@ static void get_DCO( td_CmdInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tre
   (*offset)++;
 
 }
+
+/* ====================================================================
+    RCO: Regulating step command (IEV 371-03-13)
+   ==================================================================== */
+static void get_RCO( td_CmdInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+{
+  guint8 data;
+  /* Up/Down */
+  data = tvb_get_guint8(tvb, *offset);
+  value->UP = FALSE;
+  value->DOWN = FALSE;
+  switch ( data & 0x03 )
+  {
+  case 1:
+    value->DOWN = TRUE;
+    break;
+  case 2:
+    value->UP = TRUE;
+    break;
+  default:
+    ;
+    break;
+  }
+
+  /* QOC */
+  get_QOC( value, data );
+
+
+  if( iec104_header_tree != NULL )
+  {
+	  if ( value->QU < 4 )
+	  {
+		  proto_tree_add_text( iec104_header_tree, tvb, *offset, 1, "Command: %s%s%s, Qualifier: %s%s%s%s, %s",
+			value->UP?"UP":"", value->DOWN?"DOWN":"", (value->UP | value->DOWN)?"":"Error: On/Off not defined",
+			value->ZeroP?"No pulse defined":"", value->ShortP?"Short Pulse":"",
+			value->LongP?"Long Pulse":"", value->Persist?"Persistent Output":"",
+			value->SE?"Select":"Execute");
+	  } else {
+		  proto_tree_add_text( iec104_header_tree, tvb, *offset, 1, "Command: %s%s%s, Qualifier: QU=%d, %s",
+			value->UP?"UP":"", value->DOWN?"DOWN":"", (value->UP | value->DOWN)?"":"Error: On/Off not defined",
+			value->QU,
+			value->SE?"Select":"Execute");
+  	  }
+  }
+
+  (*offset)++;
+
+}
 /* .... end Misc. functions for dissection of signal values */
 
 
@@ -1060,8 +1146,12 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	switch (asduh->TypeId) {
 		case M_SP_NA_1:
 		case M_DP_NA_1:
+		case M_ST_NA_1:
+		case M_BO_NA_1:
 		case M_SP_TB_1:
 		case M_DP_TB_1:
+		case M_ST_TB_1:
+		case M_BO_TB_1:
 		case M_ME_NA_1:
 		case M_ME_NB_1:
 		case M_ME_NC_1:
@@ -1071,14 +1161,18 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		case M_ME_TF_1:
 		case C_SC_NA_1:
 		case C_DC_NA_1:
+		case C_RC_NA_1:
 		case C_SE_NA_1:
 		case C_SE_NB_1:
 		case C_SE_NC_1:
+		case C_BO_NA_1:
 		case C_SC_TA_1:
 		case C_DC_TA_1:
+		case C_RC_TA_1:
 		case C_SE_TA_1:
 		case C_SE_TB_1:
 		case C_SE_TC_1:
+		case C_BO_TA_1:
 		case C_CS_NA_1:
 
 			/* create subtree for the signal values ... */
@@ -1143,6 +1237,24 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 					}
 					get_DIQ( &value, tvb, &offset, trSignal );
 					break;
+				case M_ST_NA_1: /* 5	Step position information */
+					/* check length */
+					if( Len < (guint)(offset+2) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_VTI( &value, tvb, &offset, trSignal );
+					get_QDS( &value, tvb, &offset, trSignal );
+					break;
+				case M_BO_NA_1: /* 7	Bitstring of 32 bits */
+					/* check length */
+					if( Len < (guint)(offset+5) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_BSI( &value, tvb, &offset, trSignal );
+					get_QDS( &value, tvb, &offset, trSignal );
+					break;
 				case M_ME_NA_1: /* 9	Measured value, normalized value */
 					/* check length */
 					if( Len < (guint)(offset+3) ) {
@@ -1196,6 +1308,26 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 					get_DIQ( &value, tvb, &offset, trSignal );
 					get_CP56Time( &cp56t, tvb, &offset, trSignal );
 					break;
+				case M_ST_TB_1: /* 32	Step position information with time tag CP56Time2a */
+					/* check length */
+					if( Len < (guint)(offset+9) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_VTI( &value, tvb, &offset, trSignal );
+					get_QDS( &value, tvb, &offset, trSignal );
+					get_CP56Time( &cp56t, tvb, &offset, trSignal );
+					break;
+				case M_BO_TB_1: /* 33	bitstring of 32 bit with time tag CP56Time2a */
+					/* check length */
+					if( Len < (guint)(offset+12) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_BSI( &value, tvb, &offset, trSignal );
+					get_QDS( &value, tvb, &offset, trSignal );
+					get_CP56Time( &cp56t, tvb, &offset, trSignal );
+					break;
 				case M_ME_TD_1: /* 34    Measured value, normalized value with time tag CP56Time2a */
 					/* check length */
 					if( Len < (guint)(offset+10) ) {
@@ -1242,6 +1374,14 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 					}
 					get_DCO( &cmd, tvb, &offset, trSignal );
 					break;
+				case C_RC_NA_1: /* 47	Regulating step command */
+					/* check length */
+					if( Len < (guint)(offset+1) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_RCO( &cmd, tvb, &offset, trSignal );
+					break;
 				case C_SE_NA_1: /*  48    Set point command, normalized value */
 					/* check length */
 					if( Len < (guint)(offset+3) ) {
@@ -1269,6 +1409,14 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 					get_FLTspt( &spt, tvb, &offset, trSignal );
 					get_QOS( &spt, tvb, &offset, trSignal );
 					break;
+				case C_BO_NA_1: /* 51    Bitstring of 32 bits */
+					/* check length */
+					if( Len < (guint)(offset+4) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_BSIspt( &value, tvb, &offset, trSignal );
+				    break;
 				case C_SC_TA_1: /* 58    Single command with time tag CP56Time2a */
 					/* check length */
 					if( Len < (guint)(offset+8) ) {
@@ -1285,6 +1433,15 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 						return;
 					}
 					get_DCO( &cmd, tvb, &offset, trSignal );
+					get_CP56Time( &cp56t, tvb, &offset, trSignal );
+					break;
+				case C_RC_TA_1: /* 60    Regulating step command with time tag CP56Time2a */
+					/* check length */
+					if( Len < (guint)(offset+8) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_RCO( &cmd, tvb, &offset, trSignal );
 					get_CP56Time( &cp56t, tvb, &offset, trSignal );
 					break;
 				case C_SE_TA_1: /* 61    Set point command, normalized value with time tag CP56Time2a */
@@ -1315,6 +1472,15 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 					}
 					get_FLTspt( &spt, tvb, &offset, trSignal );
 					get_QOS( &spt, tvb, &offset, trSignal );
+					get_CP56Time( &cp56t, tvb, &offset, trSignal );
+					break;
+				case C_BO_TA_1: /* 64    Bitstring of 32 bits with time tag CP56Time2a */
+					/* check length */
+					if( Len < (guint)(offset+11) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_BSIspt( &value, tvb, &offset, trSignal );
 					get_CP56Time( &cp56t, tvb, &offset, trSignal );
 					break;
 				case C_CS_NA_1: /* 103    clock synchronization command  */
@@ -1559,12 +1725,16 @@ proto_register_iec104asdu(void)
 		  { "SQ", "104asdu.sq", FT_BOOLEAN, 8, NULL, F_SQ,
 		    "Sequence", HFILL }},
 
-		{ &hf_iec104_asdufloat,
-		{ "Object value", "iec104.asdu_float", FT_FLOAT, BASE_NONE, NULL, 0x0,
+		{ &hf_asdu_bitstring,
+		{ "Object value", "104asdu.bitstring", FT_UINT32, BASE_HEX, NULL, 0x0,
 		 NULL, HFILL }},
 
-		{ &hf_iec104_asdunormval,
-		{ "Object value", "iec104.asdu_asdunormval", FT_INT16, BASE_DEC, NULL, 0x0,
+		{ &hf_asdu_float,
+		{ "Object value", "104asdu.float", FT_FLOAT, BASE_NONE, NULL, 0x0,
+		 NULL, HFILL }},
+
+		{ &hf_asdu_normval,
+		{ "Object value", "104asdu.normval", FT_INT16, BASE_DEC, NULL, 0x0,
 		 NULL, HFILL }},
 
 	};
