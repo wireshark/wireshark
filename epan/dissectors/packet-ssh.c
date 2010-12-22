@@ -58,34 +58,7 @@
 #include "packet-tcp.h"
 #include <epan/prefs.h>
 
-/* get from openssh ssh2.h */
-#define SSH_MSG_DISCONNECT				1
-#define SSH_MSG_IGNORE					2
-#define SSH_MSG_UNIMPLEMENTED				3
-#define SSH_MSG_DEBUG					4
-#define SSH_MSG_SERVICE_REQUEST			5
-#define SSH_MSG_SERVICE_ACCEPT				6
-
-/* transport layer: alg negotiation */
-
-#define SSH_MSG_KEXINIT				20
-#define SSH_MSG_NEWKEYS				21
-
-/* transport layer: kex specific messages, can be reused */
-
-#define SSH_MSG_KEXDH_INIT				30
-#define SSH_MSG_KEXDH_REPLY				31
-
-/*
-#define SSH_MSG_KEX_DH_GEX_REQUEST_OLD			30
-#define SSH_MSG_KEX_DH_GEX_GROUP			31
-*/
-#define SSH_MSG_KEX_DH_GEX_INIT			32
-#define SSH_MSG_KEX_DH_GEX_REPLY			33
-#define SSH_MSG_KEX_DH_GEX_REQUEST			34
-
 /* SSH Version 1 definition , from openssh ssh1.h */
-
 #define SSH1_MSG_NONE				0	/* no message */
 #define SSH1_MSG_DISCONNECT			1	/* cause (string) */
 #define SSH1_SMSG_PUBLIC_KEY			2	/* ck,msk,srvk,hostk */
@@ -178,21 +151,89 @@ static gboolean ssh_desegment = TRUE;
 
 #define TCP_PORT_SSH  22
 
+/* Message Numbers (from RFC 4250) (1-255) */
+
+/* Transport layer protocol: generic (1-19) */
+#define SSH_MSG_DISCONNECT			1
+#define SSH_MSG_IGNORE				2
+#define SSH_MSG_UNIMPLEMENTED			3
+#define SSH_MSG_DEBUG				4
+#define SSH_MSG_SERVICE_REQUEST			5
+#define SSH_MSG_SERVICE_ACCEPT			6
+
+/* Transport layer protocol: Algorithm negotiation (20-29) */
+#define SSH_MSG_KEXINIT				20
+#define SSH_MSG_NEWKEYS				21
+
+/* Transport layer: Key exchange method specific (reusable) (30-49) */
+#define SSH_MSG_KEXDH_INIT			30
+#define SSH_MSG_KEXDH_REPLY			31
+#define SSH_MSG_KEX_DH_GEX_INIT			32
+#define SSH_MSG_KEX_DH_GEX_REPLY		33
+#define SSH_MSG_KEX_DH_GEX_REQUEST		34
+
+/* User authentication protocol: generic (50-59) */
+#define SSH_MSG_USERAUTH_REQUEST		50
+#define SSH_MSG_USERAUTH_FAILURE		51
+#define SSH_MSG_USERAUTH_SUCCESS		52
+#define SSH_MSG_USERAUTH_BANNER			53
+
+/* User authentication protocol: method specific (reusable) (50-79) */
+
+/* Connection protocol: generic (80-89) */
+#define SSH_MSG_GLOBAL_REQUEST			80
+#define SSH_MSG_REQUEST_SUCCESS			81
+#define SSH_MSG_REQUEST_FAILURE			82
+
+/* Connection protocol: channel related messages (90-127) */
+#define SSH_MSG_CHANNEL_OPEN			90
+#define SSH_MSG_CHANNEL_OPEN_CONFIRMATION	91
+#define SSH_MSG_CHANNEL_OPEN_FAILURE		92
+#define SSH_MSG_CHANNEL_WINDOW_ADJUST		93
+#define SSH_MSG_CHANNEL_DATA			94
+#define SSH_MSG_CHANNEL_EXTENDED_DATA		95
+#define SSH_MSG_CHANNEL_EOF			96
+#define SSH_MSG_CHANNEL_CLOSE			97
+#define SSH_MSG_CHANNEL_REQUEST			98
+#define SSH_MSG_CHANNEL_SUCCESS			99
+#define SSH_MSG_CHANNEL_FAILURE			100
+
+/* 128-191 reserved for client protocols */
+/* 192-255 local extensions */
+
 static const value_string ssh2_msg_vals[] = {
-	{SSH_MSG_DISCONNECT, "Disconnect"},
-	{SSH_MSG_IGNORE, "Ignore"},
-	{SSH_MSG_UNIMPLEMENTED, "Unimplemented"},
-	{SSH_MSG_DEBUG, "Debug"},
-	{SSH_MSG_SERVICE_REQUEST, "Service Request"},
-	{SSH_MSG_SERVICE_ACCEPT, "Service Accept"},
-	{SSH_MSG_KEXINIT, "Key Exchange Init"},
-	{SSH_MSG_NEWKEYS, "New Keys"},
-	{SSH_MSG_KEXDH_INIT, "Diffie-Hellman Key Exchange Init"},
-	{SSH_MSG_KEXDH_REPLY, "Diffie-Hellman Key Exchange Reply"},
-	{SSH_MSG_KEX_DH_GEX_INIT, "Diffie-Hellman GEX Init"},
-	{SSH_MSG_KEX_DH_GEX_REPLY, "Diffie-Hellman GEX Reply"},
-	{SSH_MSG_KEX_DH_GEX_REQUEST, "Diffie-Hellman GEX Request"},
-  	{ 0,          NULL }
+	{ SSH_MSG_DISCONNECT, "Disconnect" },
+	{ SSH_MSG_IGNORE, "Ignore" },
+	{ SSH_MSG_UNIMPLEMENTED, "Unimplemented" },
+	{ SSH_MSG_DEBUG, "Debug" },
+	{ SSH_MSG_SERVICE_REQUEST, "Service Request" },
+	{ SSH_MSG_SERVICE_ACCEPT, "Service Accept" },
+	{ SSH_MSG_KEXINIT, "Key Exchange Init" },
+	{ SSH_MSG_NEWKEYS, "New Keys" },
+	{ SSH_MSG_KEXDH_INIT, "Diffie-Hellman Key Exchange Init" },
+	{ SSH_MSG_KEXDH_REPLY, "Diffie-Hellman Key Exchange Reply" },
+	{ SSH_MSG_KEX_DH_GEX_INIT, "Diffie-Hellman GEX Init" },
+	{ SSH_MSG_KEX_DH_GEX_REPLY, "Diffie-Hellman GEX Reply" },
+	{ SSH_MSG_KEX_DH_GEX_REQUEST, "Diffie-Hellman GEX Request" },
+	{ SSH_MSG_USERAUTH_REQUEST, "User Authentication Request" },
+	{ SSH_MSG_USERAUTH_FAILURE, "User Authentication Failure" },
+	{ SSH_MSG_USERAUTH_SUCCESS, "User Authentication Success" },
+	{ SSH_MSG_USERAUTH_BANNER, "User Authentication Banner" },
+	{ SSH_MSG_GLOBAL_REQUEST, "Global Request" },
+	{ SSH_MSG_REQUEST_SUCCESS, "Request Success" },
+	{ SSH_MSG_REQUEST_FAILURE, "Request Failure" },
+	{ SSH_MSG_CHANNEL_OPEN, "Channel Open" },
+	{ SSH_MSG_CHANNEL_OPEN_CONFIRMATION, "Channel Open Confirmation" },
+	{ SSH_MSG_CHANNEL_OPEN_FAILURE, "Channel Open Failure" },
+	{ SSH_MSG_CHANNEL_WINDOW_ADJUST, "Window Adjust" },
+	{ SSH_MSG_CHANNEL_DATA, "Channel Data" },
+	{ SSH_MSG_CHANNEL_EXTENDED_DATA, "Channel Extended Data" },
+	{ SSH_MSG_CHANNEL_EOF, "Channel EOF" },
+	{ SSH_MSG_CHANNEL_CLOSE, "Channel Close" },
+	{ SSH_MSG_CHANNEL_REQUEST, "Channel Request" },
+	{ SSH_MSG_CHANNEL_SUCCESS, "Channel Success" },
+	{ SSH_MSG_CHANNEL_FAILURE, "Channel Failure" },
+  	{ 0, NULL }
 };
 
 static const value_string ssh1_msg_vals[] = {
