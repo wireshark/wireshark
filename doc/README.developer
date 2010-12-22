@@ -3563,7 +3563,7 @@ Where: module - Returned by the prefs_register_protocol routine
 		    the preference file will already have it
 	 title    - Field title in the preferences dialog
 	 description - Comments added to the preference file above the
-		       preference value
+		       preference value and shown as tooltip in the GUI, or NULL
 	 var	  - pointer to the storage location that is updated when the
 		    field is changed in the preference dialog box.  Note that
 		    with string preferences the given pointer is overwritten

@@ -2763,7 +2763,8 @@ write_pref(gpointer data, gpointer user_data)
 	 * Make multiple line descriptions appear as
 	 * multiple commented lines in prefs file.
 	 */
-	if (g_ascii_strncasecmp(pref->description,"", 2) != 0) {
+	if (pref->description &&
+            (g_ascii_strncasecmp(pref->description,"", 2) != 0)) {
 		desc_lines = g_strsplit(pref->description,"\n",0);
 		for (i = 0; desc_lines[i] != NULL; ++i) {
 			fprintf(arg->pf, "\n# %s", desc_lines[i]);
