@@ -73,7 +73,14 @@ extern void new_packet_list_set_font(PangoFontDescription *font);
  */
 extern void new_packet_list_mark_frame_cb(GtkWidget *widget, gpointer data);
 
-/** Mark/unmark all displayed packets.
+/** Toggle Mark on all displayed packets.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void new_packet_list_toggle_mark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_);
+
+/** Mark all displayed packets.
  *
  * @param widget parent widget (unused)
  * @param data unused
@@ -85,7 +92,7 @@ extern void new_packet_list_mark_all_displayed_frames_cb(GtkWidget *w _U_, gpoin
  * @param widget parent widget (unused)
  * @param data unused
  */
-extern void new_packet_list_unmark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_);
+extern void new_packet_list_unmark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_);
 
 /** Ignore the currently selected packet.
  *

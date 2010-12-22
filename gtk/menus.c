@@ -1422,10 +1422,11 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 
 #ifdef NEW_PACKET_LIST
    { "/Edit/MarkPacket",				NULL,				"_Mark Packet (toggle)",				"<control>M",			NULL,			G_CALLBACK(new_packet_list_mark_frame_cb) },
+   { "/Edit/ToggleMarkingOfAllDisplayedPackets",	NULL,				"Toggle Marking Of All Displayed Packets",	"<shift><alt><control>M",			NULL,			G_CALLBACK(new_packet_list_toggle_mark_all_displayed_frames_cb) },
+   { "/Edit/MarkAllDisplayedPackets",	NULL,				"Mark All Displayed Packets",	"<shift><control>M",			NULL,			G_CALLBACK(new_packet_list_mark_all_displayed_frames_cb) },
+   { "/Edit/UnmarkAllDisplayedPackets",			NULL,				"_Unmark All Displayed Packets",					"<alt><control>M",			NULL,			G_CALLBACK(new_packet_list_unmark_all_displayed_frames_cb) },
    { "/Edit/FindNextMark",				NULL,				"Find Next Mark",						"<shift><control>N",	NULL,			G_CALLBACK(find_next_mark_cb) },
    { "/Edit/FindPreviousMark",			NULL,				"Find Next Mark",						"<shift><control>B",	NULL,			G_CALLBACK(find_prev_mark_cb) },
-   { "/Edit/MarkAllDisplayedPackets",	NULL,				"Mark All Displayed Packets (toggle)",	"<control>A",			NULL,			G_CALLBACK(new_packet_list_mark_all_displayed_frames_cb) },
-   { "/Edit/UnmarkAllPackets",			NULL,				"_Unmark All Packets",					"<control>D",			NULL,			G_CALLBACK(new_packet_list_unmark_all_frames_cb) },
 
   { "/Edit/IgnorePacket",				NULL,				"_Ignore Packet (toggle)",				"<control>X",			NULL,			G_CALLBACK(new_packet_list_ignore_frame_cb) },
     /*
@@ -1794,8 +1795,9 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 #ifdef NEW_PACKET_LIST
     {"/Edit/_Mark Packet (toggle)",                       "<control>M", GTK_MENU_FUNC(new_packet_list_mark_frame_cb),0, NULL, NULL,},
-    {"/Edit/Mark All Displayed Packets (toggle)",  "<shift><control>M", GTK_MENU_FUNC(new_packet_list_mark_all_displayed_frames_cb), 0, NULL, NULL,},
-    {"/Edit/Unmark All Packets",                     "<alt><control>M", GTK_MENU_FUNC(new_packet_list_unmark_all_frames_cb), 0, NULL, NULL,},
+    {"/Edit/Toggle Marking Of All Displayed Packets",        "<shift><alt><control>M", GTK_MENU_FUNC(new_packet_list_toggle_mark_all_displayed_frames_cb), 0, NULL, NULL,},
+    {"/Edit/Mark All Displayed Packets",                  "<shift><control>M", GTK_MENU_FUNC(new_packet_list_mark_all_displayed_frames_cb), 0, NULL, NULL,},
+    {"/Edit/Unmark All Displayed Packets",                "<alt><control>M", GTK_MENU_FUNC(new_packet_list_unmark_all_displayed_frames_cb), 0, NULL, NULL,},
     {"/Edit/Find Next Mark",                       "<shift><control>N", GTK_MENU_FUNC(find_next_mark_cb), 0, NULL, NULL,},
     {"/Edit/Find Previous Mark",                   "<shift><control>B", GTK_MENU_FUNC(find_prev_mark_cb), 0, NULL, NULL,},
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
@@ -1818,12 +1820,12 @@ static GtkItemFactoryEntry menu_items[] =
      */
     {"/Edit/_Mark Packet (toggle)", "<control>M", GTK_MENU_FUNC(packet_list_mark_frame_cb),
                        0, NULL, NULL,},
+    {"/Edit/Mark _All Displayed Packets", "<shift><control>M", GTK_MENU_FUNC(packet_list_mark_all_frames_cb), 0, NULL, NULL,},
+    {"/Edit/_Unmark All Displayed Packets", "<alt><control>M", GTK_MENU_FUNC(packet_list_unmark_all_frames_cb), 0, NULL, NULL,},
     {"/Edit/Find Next Mark", "<shift><control>N", GTK_MENU_FUNC(find_next_mark_cb),
                        0, NULL, NULL,},
     {"/Edit/Find Previous Mark", "<shift><control>B", GTK_MENU_FUNC(find_prev_mark_cb),
                        0, NULL, NULL,},
-    {"/Edit/Mark _All Displayed Packets (toggle)", "<shift><control>M", GTK_MENU_FUNC(packet_list_mark_all_frames_cb), 0, NULL, NULL,},
-    {"/Edit/_Unmark All Packets", "<alt><control>M", GTK_MENU_FUNC(packet_list_unmark_all_frames_cb), 0, NULL, NULL,},
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Edit/_Ignore Packet (toggle)", "<control>D", GTK_MENU_FUNC(packet_list_ignore_frame_cb),
                        0, NULL, NULL,},

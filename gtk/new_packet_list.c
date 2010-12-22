@@ -1470,28 +1470,32 @@ mark_all_displayed_frames(gboolean set)
 void
 new_packet_list_mark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-	if (cf_find_packet_marked(&cfile, SD_FORWARD)) {
-		mark_all_displayed_frames(FALSE);
-	}else {
-		mark_all_displayed_frames(TRUE);
-	}
+        mark_all_displayed_frames(TRUE);
+        mark_frames_ready();
+}
+
+void
+new_packet_list_unmark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_)
+{
+        mark_all_displayed_frames(FALSE);
 	mark_frames_ready();
 }
 
 static void
-unmark_all_frames()
+toggle_mark_all_displayed_frames()
 {
 	/* XXX: we might need a progressbar here */
 	frame_data *fdata;
-	for (fdata = cfile.plist_start; fdata != NULL && cfile.marked_count > 0; fdata = fdata->next) {
-		set_frame_mark(FALSE, fdata);
+	for (fdata = cfile.plist_start; fdata != NULL; fdata = fdata->next) {
+		if( fdata->flags.passed_dfilter )
+			set_frame_mark(!fdata->flags.marked, fdata);
 	}
 }
 
 void
-new_packet_list_unmark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
+new_packet_list_toggle_mark_all_displayed_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-	unmark_all_frames();
+	toggle_mark_all_displayed_frames();
 	mark_frames_ready();
 }
 
