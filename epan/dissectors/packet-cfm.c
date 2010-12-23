@@ -430,7 +430,8 @@ static int dissect_cfm_ccm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	proto_tree_add_item(cfm_ccm_maid_tree, hf_cfm_maid_ma_name_length, tvb, maid_offset, 1, FALSE);
 	cfm_maid_ma_name_length = tvb_get_guint8(tvb, maid_offset);
 	maid_offset += 1;
-	if (cfm_maid_ma_name_format == 2) {
+	if ((cfm_maid_ma_name_format == 2) ||
+	    (cfm_maid_ma_name_format == 32)) {
 		proto_tree_add_item(cfm_ccm_maid_tree, hf_cfm_maid_ma_name_string,
 			tvb, maid_offset, cfm_maid_ma_name_length, FALSE);
 	} else {
