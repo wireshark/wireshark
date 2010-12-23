@@ -1965,7 +1965,7 @@ tvb_unicode_strsize(tvbuff_t *tvb, const gint offset)
 		i += 2;
 	} while(uchar != 0);
 
-	return i;
+	return i; /* Number of *UTF-16* characters */
 }
 
 /* Find length of string by looking for end of string ('\0'), up to
@@ -2410,7 +2410,7 @@ tvb_get_ephemeral_unicode_stringz(tvbuff_t *tvb, const gint offset, gint *length
 	}
 
 	if(lengthp)
-		*lengthp = i;
+		*lengthp = i; /* Number of *bytes* processed */
 
 	return strbuf->str;
 }
