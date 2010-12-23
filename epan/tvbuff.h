@@ -515,12 +515,15 @@ extern guint8 *tvb_get_seasonal_string(tvbuff_t *tvb, const gint offset, const g
  *                   instead it will automatically be freed once the next
  *                   packet is dissected.
  *
+ * tvb_get_ephemeral_unicode_stringz() Unicode (UTF-16) version of above
+ *
  * tvb_get_seasonal_stringz() returns a string that does not need to be freed,
  *                   instead it will automatically be freed when a new capture
  *                   or file is opened.
  */
 extern guint8 *tvb_get_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
 extern guint8 *tvb_get_ephemeral_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
+extern gchar  *tvb_get_ephemeral_unicode_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
 extern guint8 *tvb_get_seasonal_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
 
 /** Looks for a stringz (NUL-terminated string) in tvbuff and copies

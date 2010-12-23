@@ -1949,6 +1949,25 @@ tvb_strsize(tvbuff_t *tvb, const gint offset)
 	return (nul_offset - abs_offset) + 1;
 }
 
+/* Unicode (UTF-16) version of tvb_strsize */
+/* Returns number of *UTF-16 characters* (not bytes) excluding the null terminator */
+guint
+tvb_unicode_strsize(tvbuff_t *tvb, const gint offset)
+{
+	guint      i = 0;
+	gunichar2  uchar;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	do {
+		/* Endianness doesn't matter when looking for null */
+		uchar = tvb_get_ntohs(tvb, offset + i);
+		i += 2;
+	} while(uchar != 0);
+
+	return i;
+}
+
 /* Find length of string by looking for end of string ('\0'), up to
  * 'maxlength' characters'; if 'maxlength' is -1, searches to end
  * of tvbuff.
@@ -2342,6 +2361,55 @@ tvb_get_ephemeral_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
 	if (lengthp)
 		*lengthp = size;
 	return strptr;
+}
+
+/*
+ * Unicode (UTF-16) version of tvb_get_ephemeral_stringz()
+ * 
+ * Encoding paramter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
+ *
+ * Returns an ep_ allocated UTF-8 string
+ */
+gchar *
+tvb_get_ephemeral_unicode_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
+{
+	gchar *tmpbuf = NULL;
+	gunichar2 uchar;
+	gint size; /* Number of UTF-16 characters */
+	gint i; /* Byte counter for tvbuff */
+	gint tmpbuf_len;
+	emem_strbuf_t *strbuf = NULL;
+
+	strbuf = ep_strbuf_new(NULL);
+
+	size = tvb_unicode_strsize(tvb, offset);
+
+	for(i = 0; i < size; i += 2) { /* XXX - make <= ??? */
+
+		if(encoding == ENC_BIG_ENDIAN)
+			uchar = tvb_get_ntohs(tvb, offset + i);
+		else
+			uchar = tvb_get_letohs(tvb, offset + i);
+
+		/* Calculate how much space is needed to store UTF-16 character in UTF-8 */
+		tmpbuf_len = g_unichar_to_utf8(uchar, NULL);
+
+		tmpbuf = g_malloc(tmpbuf_len + 1); /* + 1 to make room for null terminator */
+
+		g_unichar_to_utf8(uchar, tmpbuf);
+
+		/* NULL terminate the tmpbuf so ep_strbuf_append knows where to stop */
+		tmpbuf[tmpbuf_len] = '\0';
+
+		ep_strbuf_append(strbuf, tmpbuf);
+
+		g_free(tmpbuf);
+	}
+
+	if(lengthp)
+		*lengthp = i;
+
+	return strbuf->str;
 }
 
 /*
