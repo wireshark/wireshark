@@ -2,6 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas[AT]webspan.net>
  * Copyright 2003, Tim Potter <tpot[AT]samba.org>
+ * Copyright 2010, Julien Kerihuel <j.kerihuel[AT]openchange.org>
  *
  * $Id$
  *
@@ -47,6 +48,7 @@
 #include <epan/dissectors/packet-dcerpc-nt.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
+#include <epan/addr_resolv.h>
 
 static int dcerpc_tap = -1;
 
@@ -78,6 +80,7 @@ static const value_string pckt_vals[] = {
     { PDU_SHUTDOWN,   "Shutdown"},
     { PDU_CO_CANCEL,  "Co_cancel"},
     { PDU_ORPHANED,   "Orphaned"},
+    { PDU_RTS,        "RPC-over-HTTP RTS"},
     { 0,              NULL }
 };
 
@@ -335,6 +338,81 @@ static const value_string reject_status_vals[] = {
 };
 
 
+/*
+ * RTS Flags
+ */
+#define RTS_FLAG_NONE             0x0000
+#define RTS_FLAG_PING             0x0001
+#define RTS_FLAG_OTHER_CMD        0x0002
+#define RTS_FLAG_RECYCLE_CHANNEL  0x0004
+#define RTS_FLAG_IN_CHANNEL       0x0008
+#define RTS_FLAG_OUT_CHANNEL      0x0010
+#define RTS_FLAG_EOF              0x0020
+#define RTS_FLAG_ECHO             0x0040
+
+/*
+ * RTS Commands
+ */
+
+#define RTS_CMD_RECEIVEWINDOWSIZE     0x0
+#define RTS_CMD_FLOWCONTROLACK        0x1
+#define RTS_CMD_CONNECTIONTIMEOUT     0x2
+#define RTS_CMD_COOKIE                0x3
+#define RTS_CMD_CHANNELLIFETIME       0x4
+#define RTS_CMD_CLIENTKEEPALIVE       0x5
+#define RTS_CMD_VERSION               0x6
+#define RTS_CMD_EMPTY                 0x7
+#define RTS_CMD_PADDING               0x8
+#define RTS_CMD_NEGATIVEANCE          0x9
+#define RTS_CMD_ANCE                  0xA
+#define RTS_CMD_CLIENTADDRESS         0xB
+#define RTS_CMD_ASSOCIATIONGROUPID    0xC
+#define RTS_CMD_DESTINATION           0xD
+#define RTS_CMD_PINGTRAFFICSENTNOTIFY 0xE
+
+static const value_string rts_command_vals[] = {
+     { RTS_CMD_RECEIVEWINDOWSIZE,     "ReceiveWindowSize" },
+     { RTS_CMD_FLOWCONTROLACK,        "FlowControlAck" },
+     { RTS_CMD_CONNECTIONTIMEOUT,     "ConnectionTimeOut" },
+     { RTS_CMD_COOKIE,                "Cookie" },
+     { RTS_CMD_CHANNELLIFETIME,       "ChannelLifetime" },
+     { RTS_CMD_CLIENTKEEPALIVE,       "ClientKeepalive" },
+     { RTS_CMD_VERSION,               "Version" },
+     { RTS_CMD_EMPTY,                 "Empty" },
+     { RTS_CMD_PADDING,               "Padding" },
+     { RTS_CMD_NEGATIVEANCE,          "NegativeANCE" },
+     { RTS_CMD_ANCE,                  "ANCE" },
+     { RTS_CMD_CLIENTADDRESS,         "ClientAddress" },
+     { RTS_CMD_ASSOCIATIONGROUPID,    "AssociationGroupId" },
+     { RTS_CMD_DESTINATION,           "Destination" },
+     { RTS_CMD_PINGTRAFFICSENTNOTIFY, "PingTrafficSentNotify" },
+     { 0x0, NULL }
+};
+
+/*
+ * RTS client address type
+ */
+#define RTS_IPV4 0
+#define RTS_IPV6 1
+
+static const value_string rts_addresstype_vals[] = {
+     { RTS_IPV4, "IPV4" },
+     { RTS_IPV6, "IPV6" },
+     { 0x0, NULL }
+};
+
+/*
+ * RTS Forward destination
+ */
+
+static const value_string rts_forward_destination_vals[] = {
+     { 0x0, "FDClient" },
+     { 0x1, "FDInProxy" },
+     { 0x2, "FDServer" },
+     { 0x3, "FDOutProxy" },
+     { 0x0, NULL }
+};
+
 /* we need to keep track of what transport were used, ie what handle we came
  * in through so we know what kind of pinfo->dce_smb_fid was passed to us.
  */
@@ -397,6 +475,32 @@ static int hf_dcerpc_cn_protocol_ver_minor = -1;
 static int hf_dcerpc_cn_cancel_count = -1;
 static int hf_dcerpc_cn_status = -1;
 static int hf_dcerpc_cn_deseg_req = -1;
+static int hf_dcerpc_cn_rts_flags = -1;
+static int hf_dcerpc_cn_rts_flags_none = -1;
+static int hf_dcerpc_cn_rts_flags_ping = -1;
+static int hf_dcerpc_cn_rts_flags_other_cmd = -1;
+static int hf_dcerpc_cn_rts_flags_recycle_channel = -1;
+static int hf_dcerpc_cn_rts_flags_in_channel = -1;
+static int hf_dcerpc_cn_rts_flags_out_channel = -1;
+static int hf_dcerpc_cn_rts_flags_eof = -1;
+static int hf_dcerpc_cn_rts_flags_echo = -1;
+static int hf_dcerpc_cn_rts_commands_nb = -1;
+static int hf_dcerpc_cn_rts_command = -1;
+static int hf_dcerpc_cn_rts_command_receivewindowsize = -1;
+static int hf_dcerpc_cn_rts_command_fack_bytesreceived = -1;
+static int hf_dcerpc_cn_rts_command_fack_availablewindow = -1;
+static int hf_dcerpc_cn_rts_command_fack_channelcookie = -1;
+static int hf_dcerpc_cn_rts_command_connectiontimeout = -1;
+static int hf_dcerpc_cn_rts_command_cookie = -1;
+static int hf_dcerpc_cn_rts_command_channellifetime = -1;
+static int hf_dcerpc_cn_rts_command_clientkeepalive = -1;
+static int hf_dcerpc_cn_rts_command_version = -1;
+static int hf_dcerpc_cn_rts_command_conformancecount = -1;
+static int hf_dcerpc_cn_rts_command_padding = -1;
+static int hf_dcerpc_cn_rts_command_addrtype = -1;
+static int hf_dcerpc_cn_rts_command_associationgroupid = -1;
+static int hf_dcerpc_cn_rts_command_forwarddestination = -1;
+static int hf_dcerpc_cn_rts_command_pingtrafficsentnotify = -1;
 static int hf_dcerpc_auth_type = -1;
 static int hf_dcerpc_auth_level = -1;
 static int hf_dcerpc_auth_pad_len = -1;
@@ -470,6 +574,9 @@ static gint ett_dcerpc_cn_flags = -1;
 static gint ett_dcerpc_cn_ctx = -1;
 static gint ett_dcerpc_cn_iface = -1;
 static gint ett_dcerpc_cn_trans_syntax = -1;
+static gint ett_dcerpc_cn_rts_flags = -1;
+static gint ett_dcerpc_cn_rts_command = -1;
+static gint ett_dcerpc_cn_rts_pdu = -1;
 static gint ett_dcerpc_drep = -1;
 static gint ett_dcerpc_dg_flags1 = -1;
 static gint ett_dcerpc_dg_flags2 = -1;
@@ -3915,6 +4022,317 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
 }
 
+static void
+dissect_dcerpc_cn_rts (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                       proto_tree *dcerpc_tree, e_dce_cn_common_hdr_t *hdr)
+{
+    proto_item *tf = NULL;
+    proto_tree *cn_rts_pdu_tree = NULL;
+    guint16 rts_flags;
+    guint16 commands_nb = 0;
+    guint32 *cmd;
+    guint32 i;
+    const char *info_str = NULL;
+
+    /* Dissect specific RTS header */
+    rts_flags = dcerpc_tvb_get_ntohs (tvb, offset, hdr->drep);
+    if (dcerpc_tree) {
+        proto_tree *cn_rts_flags_tree;
+
+        tf = proto_tree_add_uint (dcerpc_tree, hf_dcerpc_cn_rts_flags, tvb, offset, 2, rts_flags);
+        cn_rts_flags_tree = proto_item_add_subtree(tf, ett_dcerpc_cn_rts_flags);
+        proto_tree_add_boolean (cn_rts_flags_tree, hf_dcerpc_cn_rts_flags_none, tvb, offset, 1, rts_flags);
+        proto_tree_add_boolean (cn_rts_flags_tree, hf_dcerpc_cn_rts_flags_ping, tvb, offset, 1, rts_flags);
+        proto_tree_add_boolean (cn_rts_flags_tree, hf_dcerpc_cn_rts_flags_other_cmd, tvb, offset, 1, rts_flags);
+        proto_tree_add_boolean (cn_rts_flags_tree, hf_dcerpc_cn_rts_flags_recycle_channel, tvb, offset, 1, rts_flags);
+        proto_tree_add_boolean (cn_rts_flags_tree, hf_dcerpc_cn_rts_flags_in_channel, tvb, offset, 1, rts_flags);
+        proto_tree_add_boolean (cn_rts_flags_tree, hf_dcerpc_cn_rts_flags_out_channel, tvb, offset, 1, rts_flags);
+        proto_tree_add_boolean (cn_rts_flags_tree, hf_dcerpc_cn_rts_flags_eof, tvb, offset, 1, rts_flags);
+    }
+    offset += 2;
+
+    offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
+                                    hf_dcerpc_cn_rts_commands_nb, &commands_nb);
+
+    /* Create the RTS PDU tree - we do not yet know its name */
+    tf = proto_tree_add_text(dcerpc_tree, tvb, offset, tvb_length_remaining(tvb, offset), "RTS PDU: %u commands", commands_nb);
+    cn_rts_pdu_tree = proto_item_add_subtree(tf, ett_dcerpc_cn_rts_pdu);
+
+    cmd = ep_alloc(sizeof (guint32) * (commands_nb + 1));
+
+    /* Dissect commands */
+    for (i = 0; i < (int) commands_nb; ++i) {
+        proto_tree *cn_rts_command_tree = NULL;
+        const guint32 command = dcerpc_tvb_get_ntohl (tvb, offset, hdr->drep);
+        cmd[i] = command;
+        tf = proto_tree_add_uint (cn_rts_pdu_tree, hf_dcerpc_cn_rts_command, tvb, offset, 4, command);
+        cn_rts_command_tree = proto_item_add_subtree(tf, ett_dcerpc_cn_rts_command);
+        offset += 4;
+        switch (command) {
+        case RTS_CMD_RECEIVEWINDOWSIZE:
+            offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, cn_rts_command_tree, hdr->drep, hf_dcerpc_cn_rts_command_receivewindowsize, NULL);
+            break;
+        case RTS_CMD_FLOWCONTROLACK:
+            offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, cn_rts_command_tree, hdr->drep, hf_dcerpc_cn_rts_command_fack_bytesreceived, NULL);
+            offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, cn_rts_command_tree, hdr->drep, hf_dcerpc_cn_rts_command_fack_availablewindow, NULL);
+            offset = dissect_dcerpc_uuid_t (tvb, offset, pinfo, cn_rts_command_tree, hdr->drep, hf_dcerpc_cn_rts_command_fack_channelcookie, NULL);
+            break;
+        case RTS_CMD_CONNECTIONTIMEOUT:
+            offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, cn_rts_command_tree, hdr->drep, hf_dcerpc_cn_rts_command_connectiontimeout, NULL);
+            break;
+        case RTS_CMD_COOKIE:
+            offset = dissect_dcerpc_uuid_t (tvb, offset, pinfo, cn_rts_command_tree, hdr->drep, hf_dcerpc_cn_rts_command_cookie, NULL);
+            break;
+        case RTS_CMD_CHANNELLIFETIME:
+            offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, cn_rts_command_tree, hdr->drep, hf_dcerpc_cn_rts_command_channellifetime, NULL);
+            break;
+        case RTS_CMD_CLIENTKEEPALIVE:
+            offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, cn_rts_command_tree, hdr->drep, hf_dcerpc_cn_rts_command_clientkeepalive, NULL);
+            break;
+        case RTS_CMD_VERSION:
+            offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, cn_rts_command_tree, hdr->drep, hf_dcerpc_cn_rts_command_version, NULL);
+            break;
+        case RTS_CMD_EMPTY:
+            break;
+        case RTS_CMD_PADDING: {
+            guint8 *padding;
+            const guint32 conformance_count = dcerpc_tvb_get_ntohl (tvb, offset, hdr->drep);
+            proto_tree_add_uint (cn_rts_command_tree, hf_dcerpc_cn_rts_command_conformancecount, tvb, offset, 4, conformance_count);
+            offset += 4;
+            padding = tvb_memdup(tvb, offset, conformance_count);
+            proto_tree_add_bytes (cn_rts_command_tree, hf_dcerpc_cn_rts_command_padding, tvb, offset, conformance_count, padding);
+            offset += conformance_count;
+        } break;
+        case RTS_CMD_NEGATIVEANCE:
+            break;
+        case RTS_CMD_ANCE:
+            break;
+        case RTS_CMD_CLIENTADDRESS: {
+            guint8 *padding;
+            const guint32 addrtype = dcerpc_tvb_get_ntohl (tvb, offset, hdr->drep);
+            proto_tree_add_uint (cn_rts_command_tree, hf_dcerpc_cn_rts_command_addrtype, tvb, offset, 4, addrtype);
+            offset += 4;
+            switch (addrtype) {
+            case RTS_IPV4: {
+               const guint32 addr4 = tvb_get_ipv4(tvb, offset);
+               proto_tree_add_text(cn_rts_command_tree, tvb, offset, 4, "%s", (const char *)get_hostname(addr4));
+               offset += 4;
+            } break;
+            case RTS_IPV6: {
+               struct e_in6_addr addr6;
+               tvb_get_ipv6(tvb, offset, &addr6);
+               proto_tree_add_text(cn_rts_command_tree, tvb, offset, 16, "%s", (const char *)get_hostname6(&addr6));
+               offset += 16;
+            } break;
+            }
+            padding = tvb_memdup(tvb, offset, 12);
+            proto_tree_add_bytes (cn_rts_command_tree, hf_dcerpc_cn_rts_command_padding, tvb, offset, 12, padding);
+            offset += 12;
+        } break;
+        case RTS_CMD_ASSOCIATIONGROUPID:
+            offset = dissect_dcerpc_uuid_t (tvb, offset, pinfo, cn_rts_command_tree, hdr->drep, hf_dcerpc_cn_rts_command_associationgroupid, NULL);
+            break;
+        case RTS_CMD_DESTINATION:
+            offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, cn_rts_command_tree, hdr->drep, hf_dcerpc_cn_rts_command_forwarddestination, NULL);
+            break;
+        case RTS_CMD_PINGTRAFFICSENTNOTIFY:
+            offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, cn_rts_command_tree, hdr->drep, hf_dcerpc_cn_rts_command_pingtrafficsentnotify, NULL);
+            break;
+        default:
+            proto_tree_add_text(cn_rts_command_tree, tvb, offset, 0, "unknown RTS command number");
+            break;
+        }
+    }
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPCH");
+
+    if (! check_col(pinfo->cinfo, COL_INFO))
+        return;
+
+    /* Define which PDU Body we are dealing with */
+    info_str = "unknown RTS PDU";
+
+    switch (rts_flags) {
+    case RTS_FLAG_NONE:
+        switch (commands_nb) {
+        case 1:
+            if (cmd[0] == 0x2) {
+                info_str = "CONN/A3";
+            } else if (cmd[0] == 0x3) {
+                info_str = "IN_R1/A5,IN_R1/A6,IN_R2/A2,IN_R2/A5,OUT_R2/A4";
+            } else if (cmd[0] == 0x7) {
+                info_str = "IN_R1/B1";
+            } else if (cmd[0] == 0x0) {
+                info_str = "IN_R1/B2";
+            } else if (cmd[0] == 0xD) {
+                info_str = "IN_R2/A3,IN_R2/A4";
+            } else if (cmd[0] == 0xA) {
+                info_str = "OUT_R1/A9,OUT_R1/A10,OUT_R1/A11,OUT_R2/B1,OUT_R2/B2";
+            }
+            break;
+        case 2:
+            if ((cmd[0] == 0x0) && (cmd[1] == 0x6)) {
+                info_str = "CONN/B3";
+            } else if ((cmd[0] == 0xD) && (cmd[1] == 0xA)) {
+                info_str = "OUT_R2/A5,OUT_R2/A6";
+            }
+            break;
+        case 3:
+            if ((cmd[0] == 0x6) && (cmd[1] == 0x0) && (cmd[2] == 0x2)) {
+                info_str = "CONN/C1,CONN/C2";
+            }
+            break;
+        case 4:
+            if ((cmd[0] == 0x6) && (cmd[1] == 0x3) && (cmd[2] == 0x3) && (cmd[3] == 0x0)) {
+                info_str = "CONN/A1";
+            } else if ((cmd[0] == 0xD) && (cmd[1] == 0x6) && (cmd[2] == 0x0) && (cmd[3] == 0x2)) {
+                info_str = "IN_R1/A3,IN_R1/A4";
+            }
+            break;
+        case 6:
+            if ((cmd[0] == 0x6) && (cmd[1] == 0x3) && (cmd[2] == 0x3) && (cmd[3] == 0x4) && (cmd[4] == 0x5) && (cmd[5] == 0xC)) {
+               info_str = "CONN/B1";
+            }
+            break;
+        default:
+            break;    
+        }
+        break;
+     case RTS_FLAG_PING:
+        switch (commands_nb) {
+        case 0:
+            info_str = "Ping";
+            break;
+        case 1:
+            if ((cmd[0] == 0x7) || (cmd[0] == 0x8)) {
+                info_str = "OUT_R2/C1";
+            }
+            break;
+        default:
+            break;
+        }
+        break;
+     case RTS_FLAG_OTHER_CMD:
+        switch (commands_nb) {
+        case 1:
+            if (cmd[0] == 0x5) {
+                info_str = "Keep-Alive";
+            } else if (cmd[0] == 0xE) {
+                info_str = "PingTrafficSentNotify";
+            } else if (cmd[0] == 0x1) {
+                info_str = "FlowControlAck";
+            }
+            break;
+        case 2:
+            if ((cmd[0] == 0xD) && (cmd[1] == 0x1)) {
+                info_str = "FlowControlAckWithDestination";
+            }
+            break;
+        default:
+            break;
+        }
+        break;
+     case RTS_FLAG_RECYCLE_CHANNEL:
+        switch(commands_nb) {
+        case 1:
+            if (cmd[0] == 0xD) {
+                info_str = "OUT_R1/A1,OUT_R1/A2,OUT_R2/A1,OUT_R2/A2";
+            }
+            break;
+        case 4:
+            if ((cmd[0] == 0x6) && (cmd[1] == 0x3) && (cmd[2] == 0x3) && (cmd[3] == 0x3)) {
+                info_str = "IN_R1/A1,IN_R2/A1";
+            }
+            break;
+        case 5:
+            if ((cmd[0] == 0x6) && (cmd[1] == 0x3) && (cmd[2] == 0x3) && (cmd[3] == 0x3) && (cmd[4] == 0x0)) {
+                info_str = "OUT_R1/A3,OUT_R2/A3";
+            }
+            break;
+        default:
+            break;
+        }
+        break;
+     case RTS_FLAG_IN_CHANNEL|RTS_FLAG_RECYCLE_CHANNEL:
+        switch (commands_nb) {
+        case 6:
+            if ((cmd[0] == 0x6) && (cmd[1] == 0x3) && (cmd[2] == 0x3) && (cmd[3] == 0x3) && (cmd[4] == 0x0) && (cmd[5] == 0x2)) {
+                info_str = "IN_R1/A2";
+            }
+            break;
+        default:
+            break;
+        }
+     case RTS_FLAG_IN_CHANNEL:
+        switch (commands_nb) {
+        case 7:
+            if ((cmd[0] == 0x6) && (cmd[1] == 0x3) && (cmd[2] == 0x3) && (cmd[3] == 0x0) && (cmd[4] == 0x2) && (cmd[5] == 0xC) && (cmd[6] == 0xB)) {
+                info_str = "CONN/B2";
+            }
+            break;
+        default:
+            break;
+        }
+     case RTS_FLAG_OUT_CHANNEL|RTS_FLAG_RECYCLE_CHANNEL:
+        switch (commands_nb) {
+        case 7:
+            if ((cmd[0] == 0x6) && (cmd[1] == 0x3) && (cmd[2] == 0x3) && (cmd[3] == 0x3) && (cmd[4] == 0x4) && (cmd[5] == 0) && (cmd[6] == 0x2)) {
+                info_str = "OUT_R1/A4";
+            }
+            break;
+        default:
+            break;
+        }
+        break;
+     case RTS_FLAG_OUT_CHANNEL:
+        switch (commands_nb) {
+        case 2:
+            if ((cmd[0] == 0xD) && (cmd[1] == 0x3)) {
+                info_str = "OUT_R1/A7,OUT_R1/A8,OUT_R2/A8";
+            }
+            break;
+        case 3:
+            if ((cmd[0] == 0xD) && (cmd[1] == 0x6) && (cmd[2] == 0x2)) {
+                info_str = "OUT_R1/A5,OUT_R1/A6";
+            } else if ((cmd[0] == 0xD) && (cmd[1] == 0x3) && (cmd[2] == 0x6)) {
+                info_str = "OUT_R2/A7";
+            }
+            break;
+        case 5:
+            if ((cmd[0] == 0x6) && (cmd[1] == 0x3) && (cmd[2] == 0x3) && (cmd[3] == 0x4) && (cmd[4] == 0x0)) {
+                info_str = "CONN/A2";
+            }
+            break;
+        default:
+            break;
+        }
+    case RTS_FLAG_EOF:
+        switch (commands_nb) {
+        case 1:
+            if (cmd[0] == 0xA) {
+                info_str = "OUT_R2/B3";
+            }
+            break;
+        default:
+            break;
+        }
+        break;
+    case RTS_FLAG_ECHO:
+        switch (commands_nb) {
+        case 0:
+            info_str = "Echo";
+            break;
+        default:
+            break;
+        }
+        break;
+    default:
+        break;
+    }
+
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s", info_str);
+}
+
 /*
  * DCERPC dissector for connection oriented calls.
  * We use transport type to later multiplex between what kind of
@@ -3967,7 +4385,7 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (hdr.rpc_ver_minor != 0 && hdr.rpc_ver_minor != 1)
         return FALSE;
     hdr.ptype = tvb_get_guint8 (tvb, offset++);
-    if (hdr.ptype > 19)
+    if (hdr.ptype > PDU_RTS)
         return FALSE;
 
     hdr.flags = tvb_get_guint8 (tvb, offset++);
@@ -4174,6 +4592,9 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
          * verifier.
          */
         break;
+    case PDU_RTS:
+      dissect_dcerpc_cn_rts (fragment_tvb, offset, pinfo, dcerpc_tree, &hdr);
+      break;
 
     default:
         /* might as well dissect the auth info */
@@ -5455,6 +5876,59 @@ proto_register_dcerpc (void)
 
         { &hf_dcerpc_unknown_if_id,
           { "Unknown DCERPC interface id", "dcerpc.unknown_if_id", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_dcerpc_cn_rts_flags,
+          { "RTS Flags", "dcerpc.cn_rts_flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_dcerpc_cn_rts_flags_none,
+          {"None", "dcerpc.cn_rts_flags.none", FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTS_FLAG_NONE, NULL, HFILL }},
+        { &hf_dcerpc_cn_rts_flags_ping,
+          { "Ping", "dcerpc.cn_rts.flags.ping", FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTS_FLAG_PING, NULL, HFILL }},
+        { &hf_dcerpc_cn_rts_flags_other_cmd,
+          { "Other Cmd", "dcerpc.cn_rts_flags.other_cmd", FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTS_FLAG_OTHER_CMD, NULL, HFILL }},
+        { &hf_dcerpc_cn_rts_flags_recycle_channel,
+          { "Recycle Channel", "dcerpc.cn_rts_flags.recycle_channel", FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTS_FLAG_RECYCLE_CHANNEL, NULL, HFILL }},
+        { &hf_dcerpc_cn_rts_flags_in_channel,
+          { "In Channel", "dcerpc.cn_rts_flags.in_channel", FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTS_FLAG_IN_CHANNEL, NULL, HFILL }},
+        { &hf_dcerpc_cn_rts_flags_out_channel,
+          { "Out Channel", "dcerpc.cn_rts_flags.out_channel", FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTS_FLAG_OUT_CHANNEL, NULL, HFILL }},
+        { &hf_dcerpc_cn_rts_flags_eof,
+          { "EOF", "dcerpc.cn_rts_flags.eof", FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTS_FLAG_EOF, NULL, HFILL }},
+        { &hf_dcerpc_cn_rts_flags_echo,
+          { "Echo", "dcerpc.cn_rts_flags.echo", FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTS_FLAG_ECHO, NULL, HFILL }},
+        { &hf_dcerpc_cn_rts_commands_nb,
+          { "RTS Number of Commands", "dcerpc.cn_rts_commands_nb", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_dcerpc_cn_rts_command,
+          { "RTS Command", "dcerpc_cn_rts_command", FT_UINT32, BASE_HEX, VALS(rts_command_vals), 0x0, NULL, HFILL }},
+        { &hf_dcerpc_cn_rts_command_receivewindowsize,
+          {"Receive Window Size", "dcerpc_cn_rts_command.receivewindowsize", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_dcerpc_cn_rts_command_fack_bytesreceived,
+          {"Bytes Received", "dcerpc_cn_rts_command.fack.bytesreceived", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_dcerpc_cn_rts_command_fack_availablewindow,
+          {"Available Window", "dcerpc_cn_rts_command.fack.availablewindow", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_dcerpc_cn_rts_command_fack_channelcookie,
+          {"Channel Cookie", "dcerpc_cn_rts_command.fack.channelcookie", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_dcerpc_cn_rts_command_connectiontimeout,
+          {"Connection Timeout", "dcerpc_cn_rts_command.connectiontimeout", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_dcerpc_cn_rts_command_cookie,
+          {"Cookie", "dcerpc_cn_rts_command.cookie", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_dcerpc_cn_rts_command_channellifetime,
+          {"Channel Lifetime", "dcerpc_cn_rts_command.channellifetime", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_dcerpc_cn_rts_command_clientkeepalive,
+          {"Client Keepalive", "dcerpc_cn_rts_command.clientkeepalive", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_dcerpc_cn_rts_command_version,
+          {"Version", "dcerpc_cn_rts_command.version", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_dcerpc_cn_rts_command_conformancecount,
+          {"Conformance Count", "dcerpc_cn_rts_command.padding.conformancecount", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_dcerpc_cn_rts_command_padding,
+          { "Padding", "dcerpc_cn_rts_command.padding.padding", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        { &hf_dcerpc_cn_rts_command_addrtype,
+          { "Address Type", "dcerpc_cn_rts_command.addrtype", FT_UINT32, BASE_DEC, VALS(rts_addresstype_vals), 0x0, NULL, HFILL }},
+        { &hf_dcerpc_cn_rts_command_associationgroupid,
+          {"Association Group ID", "dcerpc_cn_rts_command.associationgroupid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_dcerpc_cn_rts_command_forwarddestination,
+          {"Forward Destination", "dcerpc_cn_rts_command.forwarddestination", FT_UINT32, BASE_DEC, VALS(rts_forward_destination_vals), 0x0, NULL, HFILL }},
+        { &hf_dcerpc_cn_rts_command_pingtrafficsentnotify,
+          {"Ping Traffic Sent Notify", "dcerpc_cn_rts_command.pingtrafficsentnotify", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     };
     static gint *ett[] = {
         &ett_dcerpc,
@@ -5462,6 +5936,9 @@ proto_register_dcerpc (void)
         &ett_dcerpc_cn_ctx,
         &ett_dcerpc_cn_iface,
         &ett_dcerpc_cn_trans_syntax,
+        &ett_dcerpc_cn_rts_flags,
+        &ett_dcerpc_cn_rts_command,
+        &ett_dcerpc_cn_rts_pdu,
         &ett_dcerpc_drep,
         &ett_dcerpc_dg_flags1,
         &ett_dcerpc_dg_flags2,

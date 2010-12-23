@@ -113,7 +113,7 @@ typedef struct _dcerpc_auth_info {
 #define PDU_SHUTDOWN   17
 #define PDU_CO_CANCEL  18
 #define PDU_ORPHANED   19
-
+#define PDU_RTS        20
 
 /*
  * helpers for packet-dcerpc.c and packet-dcerpc-ndr.c

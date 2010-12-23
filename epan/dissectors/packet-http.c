@@ -1789,13 +1789,19 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 			break;
 
 		case 11:
-			if (strncmp(data, "MKWORKSPACE", indx) == 0) {  /* RFC 3253 6.3 */
+			if (strncmp(data, "MKWORKSPACE", indx) == 0 || /* RFC 3253 6.3 */
+			    strncmp(data, "RPC_CONNECT", indx) == 0 || /* [MS-RPCH] 2.1.1.1.1 */
+			    strncmp(data, "RPC_IN_DATA", indx) == 0) { /* [MS-RPCH] 2.1.2.1.1 */
 				*type = HTTP_REQUEST;
 				isHttpRequestOrReply = TRUE;
 			} else if (strncmp(data, "UNSUBSCRIBE", indx) == 0) {
 				*type = HTTP_NOTIFICATION;
 				isHttpRequestOrReply = TRUE;
-			} else if (strncmp(data, "RPC_CONNECT", indx) == 0) {
+			}
+			break;
+
+		case 12:
+			if (strncmp(data, "RPC_OUT_DATA", indx) == 0) { /* [MS-RPCH] 2.1.2.1.2 */
 				*type = HTTP_REQUEST;
 				isHttpRequestOrReply = TRUE;
 			}
