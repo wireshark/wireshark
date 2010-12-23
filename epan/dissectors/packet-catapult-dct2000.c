@@ -1478,6 +1478,8 @@ static void attach_mac_lte_info(packet_info *pinfo)
             p_mac_lte_info->detailed_phy_info.ul_info.tbs_index = outhdr_values[i++];
             p_mac_lte_info->detailed_phy_info.ul_info.resource_block_length = outhdr_values[i++];
             p_mac_lte_info->detailed_phy_info.ul_info.resource_block_start = outhdr_values[i++];
+            /* Skip retx flag */
+            i++;
             if (outhdr_values_found > 15) {
                 p_mac_lte_info->detailed_phy_info.ul_info.harq_id = outhdr_values[i++];
                 p_mac_lte_info->detailed_phy_info.ul_info.ndi = outhdr_values[i++];
