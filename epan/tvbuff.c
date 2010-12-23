@@ -2384,21 +2384,24 @@ tvb_get_ephemeral_unicode_stringz(tvbuff_t *tvb, const gint offset, gint *length
 
 	size = tvb_unicode_strsize(tvb, offset);
 
-	for(i = 0; i < size; i += 2) { /* XXX - make <= ??? */
+	for(i = 0; i < size; i += 2) {
 
 		if(encoding == ENC_BIG_ENDIAN)
 			uchar = tvb_get_ntohs(tvb, offset + i);
 		else
 			uchar = tvb_get_letohs(tvb, offset + i);
 
-		/* Calculate how much space is needed to store UTF-16 character in UTF-8 */
+		/* Calculate how much space is needed to store UTF-16 character
+		 * in UTF-8 */
 		tmpbuf_len = g_unichar_to_utf8(uchar, NULL);
 
-		tmpbuf = g_malloc(tmpbuf_len + 1); /* + 1 to make room for null terminator */
+		tmpbuf = g_malloc(tmpbuf_len + 1); /* + 1 to make room for null
+						    * terminator */
 
 		g_unichar_to_utf8(uchar, tmpbuf);
 
-		/* NULL terminate the tmpbuf so ep_strbuf_append knows where to stop */
+		/* NULL terminate the tmpbuf so ep_strbuf_append knows where
+		 * to stop */
 		tmpbuf[tmpbuf_len] = '\0';
 
 		ep_strbuf_append(strbuf, tmpbuf);
