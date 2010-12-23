@@ -443,7 +443,7 @@ class Ctx:
         if ident in self.assignments:
             raise DuplicateError("assignment", ident)
         if ident in self.defined_dict:
-            raise "cross-module duplicates for " + ident
+            raise Exception("cross-module duplicates for %s" % ident)
         self.defined_dict [ident] = 1
         self.assignments[ident] = val
         self.dependencies [ident] = dependencies
@@ -843,7 +843,7 @@ class EthCtx:
   def dummy_import_type(self, ident):
     # dummy imported
     if ident in self.type:
-        raise "Try to dummy import for existing type :" + ident
+        raise Exception("Try to dummy import for existing type :%s" % ident)
     ethtype = asn2c(ident)
     self.type[ident] = {'import'  : 'xxx', 'proto' : 'xxx',
                         'ethname' : ethtype }
