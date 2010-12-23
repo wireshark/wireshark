@@ -1480,16 +1480,19 @@ static void attach_mac_lte_info(packet_info *pinfo)
             p_mac_lte_info->detailed_phy_info.ul_info.resource_block_start = outhdr_values[i++];
             /* Skip retx flag */
             i++;
-            if (outhdr_values_found > 15) {
+
+            if (outhdr_values_found == 16) {
+                p_mac_lte_info->subframeNumberOfGrantPresent = TRUE;
+                p_mac_lte_info->subframeNumberOfGrant = outhdr_values[i++];
+            }
+            if (outhdr_values_found > 16) {
                 p_mac_lte_info->detailed_phy_info.ul_info.harq_id = outhdr_values[i++];
                 p_mac_lte_info->detailed_phy_info.ul_info.ndi = outhdr_values[i++];
+
+                p_mac_lte_info->subframeNumberOfGrantPresent = TRUE;
+                p_mac_lte_info->subframeNumberOfGrant = outhdr_values[i++];
             }
         }
-    }
-
-    if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
-        p_mac_lte_info->subframeNumberOfGrantPresent = TRUE;
-        p_mac_lte_info->subframeNumberOfGrant = outhdr_values[i++];
     }
 
     /* Store info in packet */
