@@ -181,11 +181,13 @@ struct bgp_attr {
 #define BGP_EXT_COM_RO_0        0x0003  /* Route Origin,Format AS(2bytes):AN(4bytes) */
 #define BGP_EXT_COM_RO_1        0x0103  /* Route Origin,Format IP address:AN(2bytes) */
 #define BGP_EXT_COM_RO_2        0x0203  /* Route Origin,Format AS(2bytes):AN(4bytes) */
-#define BGP_EXT_COM_LINKBAND    0x0004  /* Link Bandwidth,Format AS(2B):Bandwidth(4B) */
+#define BGP_EXT_COM_LINKBAND    ((BGP_ATTR_FLAG_TRANSITIVE << 8) | 0x0004)
+                                        /* Link Bandwidth,Format AS(2bytes):
+					 * Bandwidth(4bytes) */
                                         /* -2 version of the draft */
 #define BGP_EXT_COM_VPN_ORIGIN  0x0005  /* OSPF Domin ID / VPN of Origin  */
                                         /* draft-rosen-vpns-ospf-bgp-mpls */
-#define BGP_EXT_COM_OSPF_RTYPE  0X8000  /* OSPF Route Type,Format Area(4B):RouteType(1B):Options(1B) */
+#define BGP_EXT_COM_OSPF_RTYPE  0x8000  /* OSPF Route Type,Format Area(4B):RouteType(1B):Options(1B) */
 #define BGP_EXT_COM_OSPF_RID    0x8001  /* OSPF Router ID,Format RouterID(4B):Unused(2B) */
 #define BGP_EXT_COM_L2INFO      0x800a  /* draft-kompella-ppvpn-l2vpn */
 

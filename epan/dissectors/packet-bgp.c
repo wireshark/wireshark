@@ -1490,6 +1490,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
     guint16	    ssa_len;			/* SSA TLV Length */
     guint8	    ssa_v3_len;			/* SSA L2TPv3 Cookie Length */
     gfloat	    linkband;			/* Link bandwidth           */
+    guint16	    as_num;                     /* Autonomous System Number */
 
     hlen = tvb_get_ntohs(tvb, BGP_MARKER_SIZE);
     o = BGP_HEADER_SIZE;
@@ -2375,8 +2376,9 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                         break;
                                     case BGP_EXT_COM_LINKBAND:
                                         is_extended_type = TRUE;
-                                        linkband = tvb_get_ntohieee_float(tvb,q+2);
-                                        ep_strbuf_append_printf(junk_emstr, ": %.3f Mbps", linkband*8/1000000);
+                                        as_num = tvb_get_ntohs(tvb,q+2);
+                                        linkband = tvb_get_ntohieee_float(tvb,q+4);
+                                        ep_strbuf_append_printf(junk_emstr, ": ASN %u, %.3f Mbps", as_num,linkband*8/1000000);
                                         proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_emstr->str);
                                         break;
                                     case BGP_EXT_COM_L2INFO:
