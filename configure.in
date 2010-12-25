@@ -38,6 +38,25 @@ AC_DEFUN([AC_PROVIDE_AC_LIBTOOL_DLOPEN], )
 AC_LIBTOOL_DLOPEN
 AC_PROG_LIBTOOL
 AC_PATH_PROG(PERL, perl)
+#
+# XXX - should autogen.sh check for YACC/Bison and Flex?  A user building
+# from a distribution tarball shouldn't have to have YACC/Bison or Flex,
+# as the tarball should contain the results of running YACC/Bison on .y
+# files and running Flex on .l files, but a user building from SVN
+# will have to run YACC/Bison and Flex to process those files.
+#
+# On the other hand, what about users who use a distribution tarball to
+# do development?  They *shouldn't* - that's what the SVN repository is
+# for - but they might.  They'd get errors if they modify a .y or .l
+# file and try to do a build - but the error should tell them that they
+# need to get YACC/Bison and/or Flex.
+#
+# Then again, getting them shouldn't be too big of a burden.
+#
+# XXX - is the same true of pod2man and pod2html, or are they needed
+# even when building from a distribution tarball?
+#
+#
 AC_PROG_YACC
 AC_PATH_PROG(YACCDUMMY, $YACC)
 if test "x$YACCDUMMY" = x
