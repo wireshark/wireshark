@@ -638,7 +638,6 @@ static guint mac_lte_rnti_hash_func(gconstpointer v)
 }
 
 
-
 typedef enum ContentionResolutionStatus {
     NoMsg3,
     Msg3Match,
@@ -674,6 +673,8 @@ static guint mac_lte_framenum_hash_func(gconstpointer v)
 /****************************************************************/
 /* Keeping track of last DL frames per C-RNTI so can guess when */
 /* there has been a HARQ retransmission                         */
+/* TODO: this should be simplified now that harq-id & ndi are   */
+/* being logged!                                                */
 
 /* Could be bigger, but more than enough to flag suspected resends */
 #define MAX_EXPECTED_PDU_LENGTH 2048
@@ -2097,8 +2098,10 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         TrackReportedULHARQResend(pinfo, tvb, offset, tree, p_mac_lte_info, retx_ti);
     }
 
-    /* For uplink grants, update SR status */
-    if ((direction == DIRECTION_UPLINK) && global_mac_lte_track_sr) {
+    /* For uplink grants, update SR status.  N.B. only newTx grant should stop SR */
+    if ((direction == DIRECTION_UPLINK) && (p_mac_lte_info->reTxCount == 0) &&
+        global_mac_lte_track_sr) {
+
         TrackSRInfo(SR_Grant, pinfo, tree, tvb, p_mac_lte_info->rnti, NULL);
     }
 
