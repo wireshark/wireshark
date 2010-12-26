@@ -942,6 +942,9 @@ const char* get_gsm_a_msg_string(int pdu_type, int idx)
 	case NAS_PDU_TYPE_ESM:
 		msg_string = nas_esm_elem_strings[idx].strptr;
 		break;
+	case SGSAP_PDU_TYPE:
+		msg_string = sgsap_elem_strings[idx].strptr;
+		break;
 	default:
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
@@ -986,6 +989,9 @@ static int get_hf_elem_id(int pdu_type)
 		break;
 	case NAS_PDU_TYPE_ESM:
 		hf_elem_id = hf_nas_eps_esm_elem_id;
+		break;
+	case SGSAP_PDU_TYPE:
+		hf_elem_id = hf_sgsap_elem_id;
 		break;
 	default:
 		DISSECTOR_ASSERT_NOT_REACHED();

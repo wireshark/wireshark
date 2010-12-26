@@ -140,6 +140,11 @@ extern gint ett_nas_eps_esm_elem[];
 extern elem_fcn esm_elem_fcn[];
 extern int hf_nas_eps_esm_elem_id;
 
+extern const value_string sgsap_elem_strings[];
+extern gint ett_sgsap_elem[];
+extern elem_fcn sgsap_elem_fcn[];
+extern int hf_sgsap_elem_id;
+
 extern sccp_msg_info_t* sccp_msg;
 extern sccp_assoc_info_t* sccp_assoc;
 
@@ -167,17 +172,18 @@ extern int hf_gsm_a_lac;
 
 /* flags for the packet-gsm_a_common routines */
 #define GSM_A_PDU_TYPE_BSSMAP		0  /* BSSAP_PDU_TYPE_BSSMAP i.e. 0 - until split complete at least! */
-#define GSM_A_PDU_TYPE_DTAP		1  /* BSSAP_PDU_TYPE_DTAP i.e. 1   - until split complete at least! */
-#define GSM_A_PDU_TYPE_RP		2
-#define GSM_A_PDU_TYPE_RR		3
+#define GSM_A_PDU_TYPE_DTAP			1  /* BSSAP_PDU_TYPE_DTAP i.e. 1   - until split complete at least! */
+#define GSM_A_PDU_TYPE_RP			2
+#define GSM_A_PDU_TYPE_RR			3
 #define GSM_A_PDU_TYPE_COMMON		4
-#define GSM_A_PDU_TYPE_GM		5
+#define GSM_A_PDU_TYPE_GM			5
 #define GSM_A_PDU_TYPE_BSSLAP		6
 #define GSM_A_PDU_TYPE_SACCH		7
 #define GSM_PDU_TYPE_BSSMAP_LE		8
-#define NAS_PDU_TYPE_COMMON		9
-#define NAS_PDU_TYPE_EMM		10
-#define NAS_PDU_TYPE_ESM		11
+#define NAS_PDU_TYPE_COMMON			9
+#define NAS_PDU_TYPE_EMM			10
+#define NAS_PDU_TYPE_ESM			11
+#define SGSAP_PDU_TYPE				12
 
 extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 
@@ -286,6 +292,11 @@ extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 		SEV_elem_names = nas_esm_elem_strings; \
 		SEV_elem_ett = ett_nas_eps_esm_elem; \
 		SEV_elem_funcs = esm_elem_fcn; \
+		break; \
+	case SGSAP_PDU_TYPE: \
+		SEV_elem_names = sgsap_elem_strings; \
+		SEV_elem_ett = ett_sgsap_elem; \
+		SEV_elem_funcs = sgsap_elem_fcn; \
 		break; \
 	default: \
 		proto_tree_add_text(tree, \

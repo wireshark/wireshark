@@ -61,6 +61,10 @@ const value_string gsm_a_bssmap_msg_strings[] = {
     { 0x01, "Assignment Request" },
     { 0x02, "Assignment Complete" },
     { 0x03, "Assignment Failure" },
+    { 0x04, "VGCS/VBS Setup" },
+    { 0x05, "VGCS/VBS Setup Ack" },
+    { 0x06, "VGCS/VBS Setup Refuse" },
+    { 0x07, "VGCS/VBS Assignment Request" },
     { 0x08, "Channel Modify request" },
     { 0x10, "Handover Request" },
     { 0x11, "Handover Required" },
@@ -85,6 +89,7 @@ const value_string gsm_a_bssmap_msg_strings[] = {
     { 0x24, "Reserved" },
     { 0x25, "SAPI 'n' Reject" },
     { 0x26, "Confusion" },
+    { 0x27, "Uplink Request Acknowledge" },
     { 0x28, "Suspend" },
     { 0x29, "Resume" },
     { 0x2a, "Connection Oriented Information" },
@@ -113,6 +118,11 @@ const value_string gsm_a_bssmap_msg_strings[] = {
     { 0x46, "Circuit Group Unblock" },
     { 0x47, "Circuit Group Unblocking Acknowledge" },
     { 0x48, "Unequipped Circuit" },
+    { 0x49, "Uplink Request Confirmation" },
+    { 0x4a, "Uplink Release Indication" },
+    { 0x4b, "Uplink Reject Command" },
+    { 0x4c, "Uplink Release Command" },
+    { 0x4d, "Uplink Seized Command" },
     { 0x4e, "Change Circuit" },
     { 0x4f, "Change Circuit Acknowledge" },
     { 0x50, "Resource Request" },
@@ -126,20 +136,10 @@ const value_string gsm_a_bssmap_msg_strings[] = {
     { 0x58, "Classmark Request" },
     { 0x59, "Cipher Mode Reject" },
     { 0x5a, "Load Indication" },
-    { 0x04, "VGCS/VBS Setup" },
-    { 0x05, "VGCS/VBS Setup Ack" },
-    { 0x06, "VGCS/VBS Setup Refuse" },
-    { 0x07, "VGCS/VBS Assignment Request" },
     { 0x1c, "VGCS/VBS Assignment Result" },
     { 0x1d, "VGCS/VBS Assignment Failure" },
     { 0x1e, "VGCS/VBS Queuing Indication" },
     { 0x1f, "Uplink Request" },
-    { 0x27, "Uplink Request Acknowledge" },
-    { 0x49, "Uplink Request Confirmation" },
-    { 0x4a, "Uplink Release Indication" },
-    { 0x4b, "Uplink Reject Command" },
-    { 0x4c, "Uplink Release Command" },
-    { 0x4d, "Uplink Seized Command" },
     { 0x50, "VGCS Additional Information" },
     { 0x51, "VGCS SMS" },
     { 0x52, "Notification Data" },
@@ -6127,92 +6127,92 @@ bssmap_reset_res_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 static gint ett_gsm_bssmap_msg[NUM_GSM_BSSMAP_MSG];
 
 static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
-    bssmap_ass_req, /* Assignment Request */
-    bssmap_ass_complete,    /* Assignment Complete */
-    bssmap_ass_failure, /* Assignment Failure */
-    bssmap_chan_mod_req,            /* Channel Modify request */
-    bssmap_ho_req,  /* Handover Request */
-    bssmap_ho_reqd, /* Handover Required */
-    bssmap_ho_req_ack,  /* Handover Request Acknowledge */
-    bssmap_ho_cmd,  /* Handover Command */
-    bssmap_ho_complete, /* Handover Complete */
-    bssmap_ho_succ ,    /* Handover Succeeded */
-    bssmap_ho_failure,  /* Handover Failure */
-    bssmap_ho_performed,    /* Handover Performed */
-    bssmap_ho_cand_enq, /* Handover Candidate Enquire */
-    bssmap_ho_cand_resp,    /* Handover Candidate Response */
-    bssmap_ho_reqd_rej, /* Handover Required Reject */
-    bssmap_ho_det,  /* Handover Detect */
-    bssmap_int_ho_req,  /* Internal Handover Required */
-    bssmap_int_ho_req_rej,  /* Internal Handover Required Reject */
-    bssmap_int_ho_cmd,  /* Internal Handover Command */
-    bssmap_int_ho_enq,  /* Internal Handover Enquiry */
-    bssmap_clear_cmd,   /* Clear Command */
-    NULL /* no associated data */,  /* Clear Complete */
-    bssmap_clear_req,   /* Clear Request */
-    NULL,   /* Reserved */
-    NULL,   /* Reserved */
-    bssmap_sapi_rej,    /* SAPI 'n' Reject */
-    bssmap_confusion,   /* Confusion */
-    bssmap_sus, /* Suspend */
-    bssmap_res, /* Resume */
-    bssmap_conn_oriented,   /* Connection Oriented Information */
-    bssmap_perf_loc_req,    /* Perform Location Request */
-    bssmap_lsa_info,    /* LSA Information */
-    bssmap_perf_loc_res,    /* Perform Location Response */
-    bssmap_perf_loc_abort,  /* Perform Location Abort */
-    bssmap_common_id,   /* Common Id */
-    bssmap_reset,   /* Reset */
-    NULL /* no associated data */,  /* Reset Acknowledge */
-    bssmap_overload,    /* Overload */
-    NULL,   /* Reserved */
-    bssmap_reset_cct,   /* Reset Circuit */
-    bssmap_reset_cct_ack,   /* Reset Circuit Acknowledge */
-    bssmap_msc_invoke_trace,    /* MSC Invoke Trace */
-    bssmap_bss_invoke_trace,    /* BSS Invoke Trace */
-    NULL,   /* Connectionless Information */
-    bssmap_reset_res,   /* Reset Resource */
-    bssmap_reset_res_ack,   /* Reset Resource Acknowledge */
-    bssmap_block,   /* Block */
-    bssmap_block_ack,   /* Blocking Acknowledge */
-    bssmap_unblock, /* Unblock */
-    bssmap_unblock_ack, /* Unblocking Acknowledge */
-    bssmap_cct_group_block, /* Circuit Group Block */
-    bssmap_cct_group_block_ack, /* Circuit Group Blocking Acknowledge */
-    bssmap_cct_group_unblock,   /* Circuit Group Unblock */
-    bssmap_cct_group_unblock_ack,   /* Circuit Group Unblocking Acknowledge */
-    bssmap_unequipped_cct,  /* Unequipped Circuit */
-    bssmap_change_cct,  /* Change Circuit */
-    bssmap_change_cct_ack,  /* Change Circuit Acknowledge */
-    bssmap_res_req, /* Resource Request */
-    bssmap_res_ind, /* Resource Indication */
-    bssmap_paging,  /* Paging */
-    bssmap_ciph_mode_cmd,   /* Cipher Mode Command */
-    bssmap_cm_upd,  /* Classmark Update */
-    bssmap_ciph_mode_complete,  /* Cipher Mode Complete */
-    NULL /* no associated data */,  /* Queuing Indication */
-    bssmap_cl3_info,    /* Complete Layer 3 Information */
-    bssmap_cls_m_req /* no associated data */,  /* Classmark Request */
-    bssmap_ciph_mode_rej,   /* Cipher Mode Reject */
-    bssmap_load_ind,    /* Load Indication */
-    bssmap_vgcs_vbs_setup,  /* VGCS/VBS Setup */
+    bssmap_ass_req,				/* Assignment Request */
+    bssmap_ass_complete,		/* Assignment Complete */
+    bssmap_ass_failure,			/* Assignment Failure */
+    bssmap_vgcs_vbs_setup,		/* VGCS/VBS Setup */
     bssmap_vgcs_vbs_setup_ack,  /* VGCS/VBS Setup Ack */
     bssmap_vgcs_vbs_setup_refuse,   /* VGCS/VBS Setup Refuse */
     bssmap_vgcs_vbs_ass_req,    /* VGCS/VBS Assignment Request */
+    bssmap_chan_mod_req,        /* Channel Modify request */
+    bssmap_ho_req,				/* Handover Request */
+    bssmap_ho_reqd,				/* Handover Required */
+    bssmap_ho_req_ack,			/* Handover Request Acknowledge */
+    bssmap_ho_cmd,				/* Handover Command */
+    bssmap_ho_complete,			/* Handover Complete */
+    bssmap_ho_succ ,			/* Handover Succeeded */
+    bssmap_ho_failure,			/* Handover Failure */
+    bssmap_ho_performed,		/* Handover Performed */
+    bssmap_ho_cand_enq,			/* Handover Candidate Enquire */
+    bssmap_ho_cand_resp,		/* Handover Candidate Response */
+    bssmap_ho_reqd_rej,			/* Handover Required Reject */
+    bssmap_ho_det,				/* Handover Detect */
+    bssmap_int_ho_req,			/* Internal Handover Required */
+    bssmap_int_ho_req_rej,		/* Internal Handover Required Reject */
+    bssmap_int_ho_cmd,			/* Internal Handover Command */
+    bssmap_int_ho_enq,			/* Internal Handover Enquiry */
+    bssmap_clear_cmd,			/* Clear Command */
+    NULL /* no associated data */,  /* Clear Complete */
+    bssmap_clear_req,			/* Clear Request */
+    NULL,						/* Reserved */
+    NULL,						/* Reserved */
+    bssmap_sapi_rej,			/* SAPI 'n' Reject */
+    bssmap_confusion,			/* Confusion */
+    bssmap_uplink_req_ack,		/* Uplink Request Acknowledge */
+    bssmap_sus,					/* Suspend */
+    bssmap_res,					/* Resume */
+    bssmap_conn_oriented,		/* Connection Oriented Information */
+    bssmap_perf_loc_req,		/* Perform Location Request */
+    bssmap_lsa_info,			/* LSA Information */
+    bssmap_perf_loc_res,		/* Perform Location Response */
+    bssmap_perf_loc_abort,		/* Perform Location Abort */
+    bssmap_common_id,			/* Common Id */
+    bssmap_reset,				/* Reset */
+    NULL /* no associated data */,  /* Reset Acknowledge */
+    bssmap_overload,			/* Overload */
+    NULL,						/* Reserved */
+    bssmap_reset_cct,			/* Reset Circuit */
+    bssmap_reset_cct_ack,		/* Reset Circuit Acknowledge */
+    bssmap_msc_invoke_trace,    /* MSC Invoke Trace */
+    bssmap_bss_invoke_trace,    /* BSS Invoke Trace */
+    NULL,						/* Connectionless Information */
+    bssmap_reset_res,			/* Reset Resource */
+    bssmap_reset_res_ack,		/* Reset Resource Acknowledge */
+    bssmap_block,				/* Block */
+    bssmap_block_ack,			/* Blocking Acknowledge */
+    bssmap_unblock,				/* Unblock */
+    bssmap_unblock_ack,			/* Unblocking Acknowledge */
+    bssmap_cct_group_block,		/* Circuit Group Block */
+    bssmap_cct_group_block_ack, /* Circuit Group Blocking Acknowledge */
+    bssmap_cct_group_unblock,   /* Circuit Group Unblock */
+    bssmap_cct_group_unblock_ack,   /* Circuit Group Unblocking Acknowledge */
+    bssmap_unequipped_cct,		/* Unequipped Circuit */
+    bssmap_uplink_req_conf,		/* Uplink Request Confirmation */
+    bssmap_uplink_rel_ind,		/* Uplink Release Indication */
+    bssmap_uplink_rej_cmd,		/* Uplink Reject Command */
+    bssmap_uplink_rel_cmd,		/* Uplink Release Command */
+    bssmap_uplink_seized_cmd,   /* Uplink Seized Command */
+    bssmap_change_cct,			/* Change Circuit */
+    bssmap_change_cct_ack,		/* Change Circuit Acknowledge */
+    bssmap_res_req,				/* Resource Request */
+    bssmap_res_ind,				/* Resource Indication */
+    bssmap_paging,				/* Paging */
+    bssmap_ciph_mode_cmd,		/* Cipher Mode Command */
+    bssmap_cm_upd,				/* Classmark Update */
+    bssmap_ciph_mode_complete,  /* Cipher Mode Complete */
+    NULL /* no associated data */,  /* Queuing Indication */
+    bssmap_cl3_info,			/* Complete Layer 3 Information */
+    bssmap_cls_m_req /* no associated data */,  /* Classmark Request */
+    bssmap_ciph_mode_rej,		/* Cipher Mode Reject */
+    bssmap_load_ind,			/* Load Indication */
     bssmap_vgcs_vbs_ass_res,    /* VGCS/VBS Assignment Result */
     bssmap_vgcs_vbs_ass_fail,   /* VGCS/VBS Assignment Failure */
-    NULL,   /* No dsta VGCS/VBS Queuing Indication */
-    bssmap_uplink_req,  /* Uplink Request */
-    bssmap_uplink_req_ack,  /* Uplink Request Acknowledge */
-    bssmap_uplink_req_conf, /* Uplink Request Confirmation */
-    bssmap_uplink_rel_ind,  /* Uplink Release Indication */
-    bssmap_uplink_rej_cmd,  /* Uplink Reject Command */
-    bssmap_uplink_rel_cmd,  /* Uplink Release Command */
-    bssmap_uplink_seized_cmd,   /* Uplink Seized Command */
-    bssmap_vgcs_add_inf,    /* VGCS Additional Information */
-    bssmap_vgcs_sms,    /* VGCS SMS */
+    NULL,						/* No dsta VGCS/VBS Queuing Indication */
+    bssmap_uplink_req,			/* Uplink Request */
+    bssmap_vgcs_add_inf,		/* VGCS Additional Information */
+    bssmap_vgcs_sms,			/* VGCS SMS */
     bssmap_notification_data,   /* Notification Data*/
-    bssmap_uplink_app_data, /* Uplink Application Data */
+    bssmap_uplink_app_data,		/* Uplink Application Data */
     NULL,   /* NONE */
 };
 
