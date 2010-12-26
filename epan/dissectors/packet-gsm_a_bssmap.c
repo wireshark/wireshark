@@ -107,8 +107,8 @@ const value_string gsm_a_bssmap_msg_strings[] = {
     { 0x36, "MSC Invoke Trace" },
     { 0x37, "BSS Invoke Trace" },
     { 0x3a, "Connectionless Information" },
-    { 0x3c, "Reset Resource" },
-    { 0x3d, "Reset Resource Acknowledge" },
+    { 0x3c, "Reset IP Resource" },
+    { 0x3d, "Reset IP Resource Acknowledge" },
     { 0x40, "Block" },
     { 0x41, "Blocking Acknowledge" },
     { 0x42, "Unblock" },
@@ -6085,10 +6085,10 @@ bssmap_int_ho_enq(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 /*
- * 3.2.1.87 RESET RESOURCE
+ * 3.2.1.87 RESET IP RESOURCE
  */
 static void
-bssmap_reset_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssmap_reset_ip_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6105,10 +6105,10 @@ bssmap_reset_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 /*
- * 3.2.1.88 RESET RESOURCE ACKNOWLEDGE
+ * 3.2.1.88 RESET IP RESOURCE ACKNOWLEDGE
  */
 static void
-bssmap_reset_res_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssmap_reset_ip_res_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6176,8 +6176,8 @@ static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
     bssmap_msc_invoke_trace,    /* MSC Invoke Trace */
     bssmap_bss_invoke_trace,    /* BSS Invoke Trace */
     NULL,						/* Connectionless Information */
-    bssmap_reset_res,			/* Reset Resource */
-    bssmap_reset_res_ack,		/* Reset Resource Acknowledge */
+    bssmap_reset_ip_res,		/* 3.2.1.87 RESET IP RESOURCE */
+    bssmap_reset_ip_res_ack,	/* 3.2.1.88 RESET IP RESOURCE ACKNOWLEDGE */
     bssmap_block,				/* Block */
     bssmap_block_ack,			/* Blocking Acknowledge */
     bssmap_unblock,				/* Unblock */
