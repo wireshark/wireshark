@@ -233,6 +233,7 @@ static int hf_gtp_time_2_dta_tr = -1;
 static int hf_gtp_ext_ei = -1;
 static int hf_gtp_ext_gcsi = -1;
 static int hf_gtp_ext_dti = -1;
+static int hf_gtp_ra_prio_lcs = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_gtp = -1;
@@ -3530,8 +3531,8 @@ static int decode_gtp_ra_prio_lcs(tvbuff_t * tvb, int offset, packet_info * pinf
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
     offset = offset + 2;
-    /* TODO add decoding of data */
-    proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
+
+	proto_tree_add_item(ext_tree, hf_gtp_ra_prio_lcs, tvb, offset, 1, FALSE);
 
     return 3 + length;
 
@@ -4238,7 +4239,7 @@ static void decode_apn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * 
 static int decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
 
-    guint8 ggsn_addr_len, apn_len, trans_id, vaa, order, nsapi, sapi, pdu_send_no, pdu_rec_no, pdp_cntxt_id, pdp_type_org, pdp_type_num, pdp_addr_len;
+    guint8 ggsn_addr_len, apn_len, trans_id, vaa, asi, order, nsapi, sapi, pdu_send_no, pdu_rec_no, pdp_cntxt_id, pdp_type_org, pdp_type_num, pdp_addr_len;
     guint16 length, sn_down, sn_up, up_flow;
     guint32 addr_ipv4;
     struct e_in6_addr addr_ipv6;
@@ -4251,11 +4252,13 @@ static int decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo 
     ext_tree_pdp = proto_item_add_subtree(te, ett_gtp_pdp);
 
     vaa = (tvb_get_guint8(tvb, offset + 3) >> 6) & 0x01;
+	asi = (tvb_get_guint8(tvb, offset + 3) >> 5) & 0x01;
     order = (tvb_get_guint8(tvb, offset + 3) >> 4) & 0x01;
     nsapi = tvb_get_guint8(tvb, offset + 3) & 0x0F;
     sapi = tvb_get_guint8(tvb, offset + 4) & 0x0F;
 
     proto_tree_add_text(ext_tree_pdp, tvb, offset + 3, 1, "VPLMN address allowed: %s", yesno[vaa]);
+	proto_tree_add_text(ext_tree_pdp, tvb, offset + 3, 1, "Activity Status Indicator: %s", yesno[asi]);
     proto_tree_add_text(ext_tree_pdp, tvb, offset + 3, 1, "Reordering required: %s", yesno[order]);
     proto_tree_add_text(ext_tree_pdp, tvb, offset + 3, 1, "NSAPI: %u", nsapi);
     proto_tree_add_text(ext_tree_pdp, tvb, offset + 4, 1, "SAPI: %u", sapi);
@@ -7091,6 +7094,12 @@ void proto_register_gtp(void)
            FT_UINT8, BASE_DEC, NULL, 0x01,
            NULL, HFILL}
         },
+		{ &hf_gtp_ra_prio_lcs,
+		  {"Radio Priority LCS", "gtp.raplcs",
+		   FT_UINT8, BASE_DEC, NULL, 0x07,
+		   NULL, HFILL}
+		},
+
     };
 
     static gint *ett_gtp_array[] = {
