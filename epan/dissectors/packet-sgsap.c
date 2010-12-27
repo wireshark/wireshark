@@ -383,6 +383,7 @@ de_sgsap_sgs_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
  * 9.4.20	TMSI
  * See subclause 18.4.23 in 3GPP TS 29.018 [16].
  */
+#if 0
 static guint16
 de_sgsap_tmsi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -395,6 +396,8 @@ de_sgsap_tmsi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 
 	return(curr_offset - offset);
 }
+#endif /* 0 */
+
 /*
  * 9.4.21	TMSI status
  *
