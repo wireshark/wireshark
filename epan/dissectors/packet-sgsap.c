@@ -60,7 +60,6 @@ int hf_sgsap_elem_id = -1;
 static int hf_sgsap_eps_location_update_type = -1;
 static int hf_sgsap_service_indicator_value = -1;
 static int hf_sgsap_sgs_cause = -1;
-static int hf_sgsap_tmsi = -1;
 static int hf_sgsap_ue_emm_mode = -1;
 static int hf_sgsap_eci	= -1;
 static int hf_sgsap_imsi_det_eps = -1;
@@ -382,21 +381,8 @@ de_sgsap_sgs_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 /*
  * 9.4.20	TMSI
  * See subclause 18.4.23 in 3GPP TS 29.018 [16].
+ * (packet-gsm_a_bssmap.c)
  */
-#if 0
-static guint16
-de_sgsap_tmsi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
-{
-	guint32	curr_offset;
-
-	curr_offset = offset;
-
-	proto_tree_add_item(tree, hf_sgsap_tmsi, tvb, offset, 4, FALSE);
-	curr_offset+=4;
-
-	return(curr_offset - offset);
-}
-#endif /* 0 */
 
 /*
  * 9.4.21	TMSI status
@@ -914,7 +900,7 @@ sgsap_paging_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* Service indicator	Service indicator 9.4.17	M	TLV	3 */
 	ELEM_MAND_TLV(0x20, SGSAP_PDU_TYPE, DE_SGSAP_SERV_INDIC, NULL);
 	/* TMSI	TMSI 9.4.20	O	TLV	6 */
-	ELEM_OPT_TLV(0x03, GSM_A_PDU_TYPE_BSSMAP, BE_IMSI, NULL);
+	ELEM_OPT_TLV(0x03, GSM_A_PDU_TYPE_BSSMAP, BE_TMSI, NULL);
 	/* CLI	CLI 9.4.1	O	TLV	3-14 */
 	ELEM_OPT_TLV(0x1c, GSM_A_PDU_TYPE_DTAP, DE_CLG_PARTY_BCD_NUM, " - CLI");
 	/* Location area identifier	Location area identifier 9.4.11	O	TLV	7 */
@@ -1364,11 +1350,6 @@ void proto_register_sgsap(void) {
 	{ &hf_sgsap_sgs_cause,
 		{ "SGs cause",	"sgsap.sgs_cause",
 		FT_UINT8, BASE_DEC|BASE_EXT_STRING, &sgsap_sgs_cause_values_ext,0x0,
-		NULL, HFILL }
-	},
-	{ &hf_sgsap_tmsi,
-		{ "TMSI",	"sgsap.tmsi",
-		FT_UINT32, BASE_HEX, NULL, 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_sgsap_ue_emm_mode,
