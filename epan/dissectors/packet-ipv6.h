@@ -407,52 +407,6 @@ struct nd_redirect {		/* redirect */
 };
 
 
-/* http://www.iana.org/assignments/icmpv6-parameters */
-#define ND_OPT_SOURCE_LINKADDR		1
-#define ND_OPT_TARGET_LINKADDR		2
-#define ND_OPT_PREFIX_INFORMATION	3
-#define ND_OPT_REDIRECTED_HEADER	4
-#define ND_OPT_MTU					5
-#define ND_OPT_ADVINTERVAL			7
-#define ND_OPT_HOMEAGENT_INFO		8
-#define ND_OPT_SOURCE_ADDRLIST		9
-#define ND_OPT_TARGET_ADDRLIST		10
-
-#define ND_OPT_CGA					11
-#define ND_OPT_RSA					12
-#define ND_OPT_TIMESTAMP			13
-#define ND_OPT_NONCE				14
-#define ND_OPT_TRUST_ANCHOR			15
-#define ND_OPT_CERTIFICATE			16
-
-/*
-17      IP Address Option                       [RFC4068]
-18      New Router Prefix Information Option    [RFC4068]
-19      Link-layer Address Option               [RFC4068]
-20      Neighbor Advertisement Acknowledgment   [RFC4068]
-        Option
-21      CARD Request option                     [RFC4065]
-22      CARD Reply option                       [RFC4065]
-23      MAP Option                              [RFC4140]
-*/
-#define ND_OPT_MAP			23 /*	[RFC4140] */
-#define ND_OPT_ROUTE_INFO		24 /* Route Information Option                [RFC4191] */
-#define ND_OPT_RECURSIVE_DNS_SERVER	25 /* Recursive DNS Server Option             [RFC5006] */
-/*
-26      RA Flags Extension Option               [RFC5075]
-27      Handover Key Request Option             [RFC-ietf-mipshop-handover-key-03.txt]
-28      Handover Key Reply Option               [RFC-ietf-mipshop-handover-key-03.txt]
-*/
-/* draft-6lowpan-nd types, pending IANA assignment */
-#define ND_OPT_ADDR_RESOLUTION 		31
-#define ND_OPT_6LOWPAN_CONTEXT 		32
-#define ND_OPT_AUTH_BORDER_ROUTER  	33
-/*
-34-252  Unassigned
-253     RFC3692-style Experiment 1 (*)          [RFC4727]
-254     RFC3692-style Experiment 2 (*)          [RFC4727]
-*/
-
 #define ND_OPT_PI_FLAG_ONLINK		0x80
 #define ND_OPT_PI_FLAG_AUTO		0x40
 #define ND_OPT_PI_FLAG_ROUTER		0x20
@@ -649,10 +603,6 @@ struct fmip6_hack {
 #define fmip6_hack_reserved	fmip6_hack_hdr.icmp6_data8[1]
 #define fmip6_hack_id		fmip6_hack_hdr.icmp6_data16[1]
 
-#define FMIP6_OPT_IP_ADDRESS             17 /* IP Address Option                            */
-#define FMIP6_OPT_NEW_ROUTER_PREFIX_INFO 18 /* New Router Prefix Information Option         */
-#define FMIP6_OPT_LINK_LAYER_ADDRESS     19 /* Link-Layer Address Option                    */
-#define FMIP6_OPT_NEIGHBOR_ADV_ACK       20 /* Neighbor Advertisement Acknowledgment Option */
 
 struct fmip6_opt_hdr {
     guint8 fmip6_opt_type;
@@ -660,101 +610,7 @@ struct fmip6_opt_hdr {
     guint8 fmip6_opt_optcode; /* Option-Code see the definition below              */
 };
 
-/* IP Address Option */
-struct fmip6_opt_ip_address {
-    guint8 fmip6_opt_type;                   /* Type = 17                                         */
-    guint8 fmip6_opt_len;                    /* size of this option in 8 octets including opt_hdr */
-    guint8 fmip6_opt_optcode;                /* Option-Code see the definition below              */
-    guint8 fmip6_opt_prefix_len;             /* Prefix length for the address                     */
-    guint32 fmip6_opt_reserved;              /* Reserved                                          */
-    struct e_in6_addr fmip6_opt_ip6_address; /* IP address                                        */
-};
 
-#define FMIP6_OPT_IP_ADDRESS_OPTCODE_PCOA 1 /* Old Care-of Address                                 */
-#define FMIP6_OPT_IP_ADDRESS_OPTCODE_NCOA 2 /* New Care-of Address                                 */
-#define FMIP6_OPT_IP_ADDRESS_OPTCODE_NAR  3 /* NAR's IP address                                    */
-#define FMIP6_OPT_IP_ADDRESS_LEN          3 /* Length of this option in 8 octets including opt_hdr */
-
-/* New Router Prefix Information Option */
-struct fmip6_opt_new_router_prefix_info {
-	guint8 fmip6_opt_type;              /* Type = 18 */
-	guint8 fmip6_opt_len;               /* size of this option in 8 octets including opt_hdr */
-	guint8 fmip6_opt_optcode;           /* Opt-Code see the definition below */
-	guint8 fmip6_opt_prefix_len;        /* Prefix length for the address */
-	guint32 fmip6_opt_reserved;         /* Reserved */
-	struct e_in6_addr fmip6_opt_prefix; /* Could be either IPaddr or Prefix, if prefix left should be zero cleared */
-};
-
-#define FMIP6_OPT_NEW_ROUTER_PREFIX_INFO_OPTCODE 0 /* Currently no other sub-type                         */
-#define FMIP6_OPT_NEW_ROUTER_PREFIX_INFO_LEN     3 /* Length of this option in 8 octets including opt_hdr */
-
-/* Link-layer Address (LLA) Option */
-struct fmip6_opt_link_layer_address {
-    guint8 fmip6_opt_type;    /* Type = 19                                         */
-    guint8 fmip6_opt_len;     /* size of this option in 8 octets including opt_hdr */
-    guint8 fmip6_opt_optcode; /* Opt-Code see the definition below                 */
-    guchar fmip6_opt_lla[6];  /* The variable length link-layer address            */
-};
-
-#define FMIP6_OPT_LINK_LAYER_ADDRESS_OPTCODE_WILDCARD	0	/* wildcard requesting resolution for all nearby access points */
-#define FMIP6_OPT_LINK_LAYER_ADDRESS_OPTCODE_NAP	1	/* Link-layer Address of the New Access Point */
-#define FMIP6_OPT_LINK_LAYER_ADDRESS_OPTCODE_MN		2	/* Link-layer Address of the MN */
-#define FMIP6_OPT_LINK_LAYER_ADDRESS_OPTCODE_NAR	3	/* Link-layer Address of the NAR (i.e., Proxied Originator) */
-#define FMIP6_OPT_LINK_LAYER_ADDRESS_OPTCODE_SRC	4	/* Link-layer Address of the source of RtSolPr or PrRtAdv message */
-#define FMIP6_OPT_LINK_LAYER_ADDRESS_OPTCODE_CURROUTER	5	/* The access point identified by the LLA belongs to the current interface of the router */
-#define FMIP6_OPT_LINK_LAYER_ADDRESS_OPTCODE_NOPREFIX	6	/* No prefix information available for the access point identified by the LLA */
-#define FMIP6_OPT_LINK_LAYER_ADDRESS_OPTCODE_NOSUPPORT	7	/* No fast handovers support available for the access point identified by the LLA */
-/* Length of this option in 8 octets including opt_hdr, is variable */
-
-
-/* RPL: draft-ietf-roll-rpl-12.txt: Routing over Low-Power and Lossy Networks. */
-/* Pending IANA Assignment */
-/* RPL ICMPv6 Codes */
-#define ICMP6_RPL_DIS       0   /* DODAG Information Solicitation */
-#define ICMP6_RPL_DIO       1   /* DODAG Information Object */
-#define ICMP6_RPL_DAO       2   /* Destination Advertisement Object */
-#define ICMP6_RPL_DAOACK    3   /* Destination Advertisement Object Ack */
-
-/* RPL Option Types */
-/* Pending IANA Assignment */
-#define RPL_OPT_PAD1        0   /* 1-byte padding */
-#define RPL_OPT_PADN        1   /* n-byte padding */
-#define RPL_OPT_METRIC      2   /* DAG metric container */
-#define RPL_OPT_ROUTING     3   /* Routing Information */
-#define RPL_OPT_CONFIG      4   /* DAG configuration */
-#define RPL_OPT_TARGET      5   /* RPL Target */
-#define RPL_OPT_TRANSIT     6   /* Transit */
-#define RPL_OPT_SOLICITED   7   /* Solicited Information */
-#define RPL_OPT_PREFIX      8   /* Destination prefix */
-#define RPL_OPT_TARGETDESC  9   /* RPL Target Descriptor */
-
-/* RPL DIO Flags */
-#define RPL_DIO_FLAG_GROUNDED           0x80
-#define RPL_DIO_FLAG_ZERO               0x40
-#define RPL_DIO_FLAG_MOP                0x38
-#define RPL_DIO_FLAG_PREFERENCE         0x07
-
-/* RPL DAO Flags */
-#define RPL_DAO_FLAG_K                  0x80
-#define RPL_DAO_FLAG_D                  0x40
-#define RPL_DAO_FLAG_RESERVED           0x3F
-
-/* RPL DAO ACK Flags */
-#define RPL_DAOACK_FLAG_D               0x80
-#define RPL_DAOACK_FLAG_RESERVED        0x7F
-
-/* RPL Option Bitfields */
-#define RPL_OPT_PREFIX_L                0x80
-#define RPL_OPT_PREFIX_A                0x40
-#define RPL_OPT_PREFIX_R                0x20
-#define RPL_OPT_ROUTE_PREFERENCE        0x18
-#define RPL_OPT_CONFIG_FLAG_AUTH        0x08
-#define RPL_OPT_CONFIG_FLAG_PCS         0x07
-#define RPL_OPT_TRANSIT_E               0x80
-#define RPL_OPT_TRANSIT_FLAGS           0x7F
-#define RPL_OPT_SOLICITED_V             0x80
-#define RPL_OPT_SOLICITED_I             0x40
-#define RPL_OPT_SOLICITED_D             0x20
 
 void capture_ipv6(const guchar *, int, int, packet_counts *);
 
