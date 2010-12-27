@@ -40,10 +40,10 @@
     and a link-layer packet was cut short by that, so not all of the
     data in the link-layer packet was available.
 **/
-#define BoundsError		1	
+#define BoundsError		1
 
 /**
-    Index is beyond reported length (not cap_len) 
+    Index is beyond reported length (not cap_len)
     An attempt was made to read past the logical end of a buffer. This
     differs from a BoundsError in that the parent protocol established a
     limit past which this dissector should not process in the buffer and that
@@ -63,7 +63,7 @@
 #define ReportedBoundsError	2
 
 /**
-    During dfilter parsing 
+    During dfilter parsing
 **/
 #define TypeError		3
 
@@ -76,7 +76,7 @@
 
     Instead, use the DISSECTOR_ASSERT(), etc. macros in epan/proto.h.
 **/
-#define DissectorError		4	
+#define DissectorError		4
 
 /**
     Index is out of range.
@@ -87,11 +87,11 @@
     to get the "size" of lun list back after which the initiator will
     reissue the command with an allocation_length that is big enough.
 **/
-#define ScsiBoundsError		5	
+#define ScsiBoundsError		5
 
 /**
     Running out of memory.
-    A dissector tried to allocate memory but that failed. 
+    A dissector tried to allocate memory but that failed.
 **/
 #define OutOfMemoryError	6
 
@@ -265,7 +265,7 @@
 	 * desired effect.			    \
 	 *					    \
 	 * Note also that THROW and RETHROW should provide much the same \
-	 * functionality in terms of which blocks to enter, so any messing \ 
+	 * functionality in terms of which blocks to enter, so any messing \
 	 * about with except_state in here would indicate that THROW is \
 	 * doing the wrong thing.                   \
 	 */					    \
