@@ -1366,7 +1366,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 					(int) (i - offset),
 					rci->draw_area->allocation.height-HEIGHT_TIME_LABEL+4);
 
-				g_snprintf(label_string, MAX_TIME_LABEL, "%.0f", floor(rci->start_time/1000) + i*MULT/SAMPLE_RATE);
+				g_snprintf(label_string, MAX_TIME_LABEL, "%.0f s", floor(rci->start_time/1000) + i*MULT/SAMPLE_RATE);
 
 				pango_layout_set_text(small_layout, label_string, -1);
 				pango_layout_get_pixel_size(small_layout, &label_width, &label_height);
