@@ -563,62 +563,71 @@ const value_string nas_emm_elem_strings[] = {
 #define NUM_NAS_EMM_ELEM (sizeof(nas_emm_elem_strings)/sizeof(value_string))
 gint ett_nas_eps_emm_elem[NUM_NAS_EMM_ELEM];
 
+#if 0
+This enum has been moved to packet-gsm_a_common to
+make it possible to use element dissecton from this dissector
+in other dissectors.
+It is left here as a comment for easier reference.
+
+Note this enum must be of the same size as the element decoding list
+
 typedef enum
 {
-    /* 9.9.3    EPS Mobility Management (EMM) information elements */
-    DE_EMM_ADD_UPD_RES,         /* 9.9.3.0A Additional update result */
-    DE_EMM_ADD_UPD_TYPE,        /* 9.9.3.0B Additional update type */
-    DE_EMM_AUTH_FAIL_PAR,       /* 9.9.3.1  Authentication failure parameter (dissected in packet-gsm_a_dtap.c)*/
-    DE_EMM_AUTN,                /* 9.9.3.2  Authentication parameter AUTN */
-    DE_EMM_AUTH_PAR_RAND,       /* 9.9.3.3  Authentication parameter RAND */
-    DE_EMM_AUTH_RESP_PAR,       /* 9.9.3.4  Authentication response parameter */
-    DE_EMM_CSFB_RESP,           /* 9.9.3.5  CSFB response */
-    DE_EMM_DAYL_SAV_T,          /* 9.9.3.6  Daylight saving time */
-    DE_EMM_DET_TYPE,            /* 9.9.3.7  Detach type */
-    DE_EMM_DRX_PAR,             /* 9.9.3.8  DRX parameter (dissected in packet-gsm_a_gm.c)*/
-    DE_EMM_CAUSE,               /* 9.9.3.9  EMM cause */
-    DE_EMM_ATT_RES,             /* 9.9.3.10 EPS attach result (Coded inline */
-    DE_EMM_ATT_TYPE,            /* 9.9.3.11 EPS attach type (Coded Inline)*/
-    DE_EMM_EPS_MID,             /* 9.9.3.12 EPS mobile identity */
-    DE_EMM_EPS_NET_FEATURE_SUP, /* 9.9.3.12A EPS network feature support */
-    DE_EMM_EPS_UPD_RES,         /* 9.9.3.13 EPS update result ( Coded inline)*/
-    DE_EMM_EPS_UPD_TYPE,        /* 9.9.3.14 EPS update type */
-    DE_EMM_ESM_MSG_CONT,        /* 9.9.3.15 ESM message conta */
-    DE_EMM_GPRS_TIMER,          /* 9.9.3.16 GPRS timer ,See subclause 10.5.7.3 in 3GPP TS 24.008 [6]. */
-    DE_EMM_ID_TYPE_2,           /* 9.9.3.17 Identity type 2 ,See subclause 10.5.5.9 in 3GPP TS 24.008 [6]. */
-    DE_EMM_IMEISV_REQ,          /* 9.9.3.18 IMEISV request ,See subclause 10.5.5.10 in 3GPP TS 24.008 [6]. */
-    DE_EMM_KSI_AND_SEQ_NO,      /* 9.9.3.19 KSI and sequence number */
-    DE_EMM_MS_NET_CAP,          /* 9.9.3.20 MS network capability ,See subclause 10.5.5.12 in 3GPP TS 24.008 [6]. */
-    DE_EMM_NAS_KEY_SET_ID,      /* 9.9.3.21 NAS key set identifier (coded inline)*/
-    DE_EMM_NAS_MSG_CONT,        /* 9.9.3.22 NAS message container */
-    DE_EMM_NAS_SEC_ALGS,        /* 9.9.3.23 NAS security algorithms */
-    DE_EMM_NET_NAME,            /* 9.9.3.24 Network name, See subclause 10.5.3.5a in 3GPP TS 24.008 [6]. */
-    DE_EMM_NONCE,               /* 9.9.3.25 Nonce */
-    DE_EMM_PAGING_ID,           /* 9.9.3.25A Paging identity */
-    DE_EMM_P_TMSI_SIGN,         /* 9.9.3.26 P-TMSI signature, See subclause 10.5.5.8 in 3GPP TS 24.008 [6]. */
-    DE_EMM_SERV_TYPE,           /* 9.9.3.27 Service type */
-    DE_EMM_SHORT_MAC,           /* 9.9.3.28 Short MAC */
-    DE_EMM_TZ,                  /* 9.9.3.29 Time zone, See subclause 10.5.3.8 in 3GPP TS 24.008 [6]. */
-    DE_EMM_TZ_AND_T,            /* 9.9.3.30 Time zone and time, See subclause 10.5.3.9 in 3GPP TS 24.008 [6]. */
-    DE_EMM_TMSI_STAT,           /* 9.9.3.31 TMSI status, See subclause 10.5.5.4 in 3GPP TS 24.008 [6]. */
-    DE_EMM_TRAC_AREA_ID,        /* 9.9.3.32 Tracking area identity */
-    DE_EMM_TRAC_AREA_ID_LST,    /* 9.9.3.33 Tracking area identity list */
-    DE_EMM_UE_NET_CAP,          /* 9.9.3.34 UE network capability */
-    DE_EMM_UE_RA_CAP_INF_UPD_NEED,  /* 9.9.3.35 UE radio capability information update needed */
-    DE_EMM_UE_SEC_CAP,          /* 9.9.3.36 UE security capability */
-    DE_EMM_EMERG_NUM_LST,       /* 9.9.3.37 Emergency Number List */
-    DE_EMM_CLI,                 /* 9.9.3.38 CLI */
-    DE_EMM_SS_CODE,             /* 9.9.3.39 SS Code */
-    DE_EMM_LCS_IND,             /* 9.9.3.40 LCS indicator */
-    DE_EMM_LCS_CLIENT_ID,       /* 9.9.3.41 LCS client identity */
-    DE_EMM_GEN_MSG_CONT_TYPE,   /* 9.9.3.42 Generic message container type */
-    DE_EMM_GEN_MSG_CONT,        /* 9.9.3.43 Generic message container */
-    DE_EMM_VOICE_DMN_PREF,      /* 9.9.3.44 Voice domain preference and UE's usage setting */
-    DE_EMM_NONE                 /* NONE */
+    /. 9.9.3    EPS Mobility Management (EMM) information elements ./
+    DE_EMM_ADD_UPD_RES,         /. 9.9.3.0A Additional update result ./
+    DE_EMM_ADD_UPD_TYPE,        /. 9.9.3.0B Additional update type ./
+    DE_EMM_AUTH_FAIL_PAR,       /. 9.9.3.1  Authentication failure parameter (dissected in packet-gsm_a_dtap.c)./
+    DE_EMM_AUTN,                /. 9.9.3.2  Authentication parameter AUTN ./
+    DE_EMM_AUTH_PAR_RAND,       /. 9.9.3.3  Authentication parameter RAND ./
+    DE_EMM_AUTH_RESP_PAR,       /. 9.9.3.4  Authentication response parameter ./
+    DE_EMM_CSFB_RESP,           /. 9.9.3.5  CSFB response ./
+    DE_EMM_DAYL_SAV_T,          /. 9.9.3.6  Daylight saving time ./
+    DE_EMM_DET_TYPE,            /. 9.9.3.7  Detach type ./
+    DE_EMM_DRX_PAR,             /. 9.9.3.8  DRX parameter (dissected in packet-gsm_a_gm.c)./
+    DE_EMM_CAUSE,               /. 9.9.3.9  EMM cause ./
+    DE_EMM_ATT_RES,             /. 9.9.3.10 EPS attach result (Coded inline ./
+    DE_EMM_ATT_TYPE,            /. 9.9.3.11 EPS attach type (Coded Inline)./
+    DE_EMM_EPS_MID,             /. 9.9.3.12 EPS mobile identity ./
+    DE_EMM_EPS_NET_FEATURE_SUP, /. 9.9.3.12A EPS network feature support ./
+    DE_EMM_EPS_UPD_RES,         /. 9.9.3.13 EPS update result ( Coded inline)./
+    DE_EMM_EPS_UPD_TYPE,        /. 9.9.3.14 EPS update type ./
+    DE_EMM_ESM_MSG_CONT,        /. 9.9.3.15 ESM message conta ./
+    DE_EMM_GPRS_TIMER,          /. 9.9.3.16 GPRS timer ,See subclause 10.5.7.3 in 3GPP TS 24.008 [6]. ./
+    DE_EMM_ID_TYPE_2,           /. 9.9.3.17 Identity type 2 ,See subclause 10.5.5.9 in 3GPP TS 24.008 [6]. ./
+    DE_EMM_IMEISV_REQ,          /. 9.9.3.18 IMEISV request ,See subclause 10.5.5.10 in 3GPP TS 24.008 [6]. ./
+    DE_EMM_KSI_AND_SEQ_NO,      /. 9.9.3.19 KSI and sequence number ./
+    DE_EMM_MS_NET_CAP,          /. 9.9.3.20 MS network capability ,See subclause 10.5.5.12 in 3GPP TS 24.008 [6]. ./
+    DE_EMM_NAS_KEY_SET_ID,      /. 9.9.3.21 NAS key set identifier (coded inline)./
+    DE_EMM_NAS_MSG_CONT,        /. 9.9.3.22 NAS message container ./
+    DE_EMM_NAS_SEC_ALGS,        /. 9.9.3.23 NAS security algorithms ./
+    DE_EMM_NET_NAME,            /. 9.9.3.24 Network name, See subclause 10.5.3.5a in 3GPP TS 24.008 [6]. ./
+    DE_EMM_NONCE,               /. 9.9.3.25 Nonce ./
+    DE_EMM_PAGING_ID,           /. 9.9.3.25A Paging identity ./
+    DE_EMM_P_TMSI_SIGN,         /. 9.9.3.26 P-TMSI signature, See subclause 10.5.5.8 in 3GPP TS 24.008 [6]. ./
+    DE_EMM_SERV_TYPE,           /. 9.9.3.27 Service type ./
+    DE_EMM_SHORT_MAC,           /. 9.9.3.28 Short MAC ./
+    DE_EMM_TZ,                  /. 9.9.3.29 Time zone, See subclause 10.5.3.8 in 3GPP TS 24.008 [6]. ./
+    DE_EMM_TZ_AND_T,            /. 9.9.3.30 Time zone and time, See subclause 10.5.3.9 in 3GPP TS 24.008 [6]. ./
+    DE_EMM_TMSI_STAT,           /. 9.9.3.31 TMSI status, See subclause 10.5.5.4 in 3GPP TS 24.008 [6]. ./
+    DE_EMM_TRAC_AREA_ID,        /. 9.9.3.32 Tracking area identity ./
+    DE_EMM_TRAC_AREA_ID_LST,    /. 9.9.3.33 Tracking area identity list ./
+    DE_EMM_UE_NET_CAP,          /. 9.9.3.34 UE network capability ./
+    DE_EMM_UE_RA_CAP_INF_UPD_NEED,  /. 9.9.3.35 UE radio capability information update needed ./
+    DE_EMM_UE_SEC_CAP,          /. 9.9.3.36 UE security capability ./
+    DE_EMM_EMERG_NUM_LST,       /. 9.9.3.37 Emergency Number List ./
+    DE_EMM_CLI,                 /. 9.9.3.38 CLI ./
+    DE_EMM_SS_CODE,             /. 9.9.3.39 SS Code ./
+    DE_EMM_LCS_IND,             /. 9.9.3.40 LCS indicator ./
+    DE_EMM_LCS_CLIENT_ID,       /. 9.9.3.41 LCS client identity ./
+    DE_EMM_GEN_MSG_CONT_TYPE,   /. 9.9.3.42 Generic message container type ./
+    DE_EMM_GEN_MSG_CONT,        /. 9.9.3.43 Generic message container ./
+    DE_EMM_VOICE_DMN_PREF,      /. 9.9.3.44 Voice domain preference and UE's usage setting ./
+    DE_EMM_NONE                 /. NONE ./
 
 }
 nas_emm_elem_idx_t;
 
+#endif
 /* TODO: Update to latest spec */
 /* 9.9.3    EPS Mobility Management (EMM) information elements
  */
