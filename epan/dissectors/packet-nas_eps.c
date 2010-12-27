@@ -621,7 +621,7 @@ typedef enum
     DE_EMM_LCS_CLIENT_ID,       /. 9.9.3.41 LCS client identity ./
     DE_EMM_GEN_MSG_CONT_TYPE,   /. 9.9.3.42 Generic message container type ./
     DE_EMM_GEN_MSG_CONT,        /. 9.9.3.43 Generic message container ./
-    DE_EMM_VOICE_DMN_PREF,      /. 9.9.3.44 Voice domain preference and UE's usage setting ./
+    DE_EMM_VOICE_DMN_PREF,      /. 9.9.3.44 Voice domain preference and UEs usage setting ./
     DE_EMM_NONE                 /. NONE ./
 
 }
