@@ -1351,6 +1351,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 					0,
 					small_layout);
 			} else {
+				/* Draw a graphical representation of the sample */
 				gdk_draw_line(rci->pixmap, gc,
 					i,
 					(gint)(( (0x7FFF+min) * (rci->draw_area->allocation.height-HEIGHT_TIME_LABEL))/0xFFFF),
@@ -1358,7 +1359,9 @@ static void channel_draw(rtp_channel_info_t* rci)
 					(gint)(( (0x7FFF+max) * (rci->draw_area->allocation.height-HEIGHT_TIME_LABEL))/0xFFFF));
 			}
 
-			/*draw the time label and grid */
+			/* Draw the x-axis (seconds since beginning of packet flow for this call) */
+
+			/* Draw tick mark and put a number for each whole second */
 			if ( !((i*MULT)%(SAMPLE_RATE)) ) {
 				gdk_draw_line(rci->pixmap, rci->draw_area->style->black_gc,
 					(int) (i - offset),
@@ -1375,7 +1378,8 @@ static void channel_draw(rtp_channel_info_t* rci)
 					(int) (i - offset - label_width/2),
 					rci->draw_area->allocation.height - label_height,
 					small_layout);
-			/* draw the 1/2 sec grid */
+
+			/* Draw only a tick mark for half second intervals */
 			} else if ( !((i*MULT)%(SAMPLE_RATE/2)) ) {
 				gdk_draw_line(rci->pixmap, rci->draw_area->style->black_gc,
 					(int) (i - offset),
