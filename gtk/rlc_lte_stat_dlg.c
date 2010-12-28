@@ -1452,7 +1452,8 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
     hs->dct_error_substring_te = gtk_entry_new();
     gtk_box_pack_start(GTK_BOX(sn_filter_hb), hs->dct_error_substring_te, FALSE, FALSE, 0);
     gtk_widget_show(hs->dct_error_substring_te);
-
+    gtk_tooltips_set_tip(tooltips, hs->dct_error_substring_te,
+                         "If given, only match error strings containing this substring", NULL);
 
     /* Allow filtering of a particular sequence number */
     hs->sn_filter_te = gtk_entry_new();
