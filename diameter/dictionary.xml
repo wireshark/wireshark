@@ -4294,7 +4294,7 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 		</avp>
 		<avp name="Trigger" code="1264" vendor-bit="must" vendor-id="TGPP">
 					<grouped>
-					<gavp name="Trigger-Type_3GPP"/>
+					<gavp name="Trigger-Type"/>
 					</grouped>
 		</avp>
 		<avp name="Base-Time-Interval" code="1265" vendor-bit="must" vendor-id="TGPP">
@@ -5638,7 +5638,9 @@ http://www.3gcn.org/TGPP2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
 	</application>
 	<application id="16777224" name="3GPP Gx" uri="http://www.3gpp.org/ftp/Specs/html-info/29210.htm">
 	</application>
-	<application id="16777238" name="3GPP Gx" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">
+  <application id="16777232" name="Ericsson Charging-CIP" uri="http://www.3gpp.org/ftp/Specs/html-info/29210.htm">
+  </application>
+  <application id="16777238" name="3GPP Gx" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">
 	</application>
 	<application id="16777251" name="3GPP S6a/S6d" uri="http://www.ietf.org/rfc/rfc5516.txt?number=5516">
 	</application>
