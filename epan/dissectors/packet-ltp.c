@@ -431,12 +431,12 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 	}
 
 	rcpt_clm_cnt = evaluate_sdnv(tvb,frame_offset + segment_offset, &rcpt_clm_cnt_size);
-	if (rcpt_clm_cnt < 0){
-		expert_add_info_format(pinfo, ltp_tree, PI_UNDECODED, PI_ERROR, "Negative reception claim count: %d", rcpt_clm_cnt);
-		return 0;
-	}
 	segment_offset += rcpt_clm_cnt_size;
 	if((unsigned)(frame_offset + segment_offset) > tvb_length(tvb)){
+		return 0;
+	}
+	if ((rcpt_clm_cnt < 0) || (rcpt_clm_cnt > (tvb_reported_length_remaining(tvb, frame_offset + segment_offset) / 2))){
+		expert_add_info_format(pinfo, ltp_tree, PI_UNDECODED, PI_ERROR, "Non-sensical reception claim count: %d", rcpt_clm_cnt);
 		return 0;
 	}
 
