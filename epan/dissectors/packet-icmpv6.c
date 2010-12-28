@@ -65,7 +65,7 @@
  *
  * and
  *
- *      draft-ietf-ipngwg-icmp-name-lookups-08.txt
+ *     rfc4620.txt
  *
  * and
  *
@@ -277,16 +277,27 @@ static int hf_icmpv6_opt_6co_context_prefix  = -1;
 static int hf_icmpv6_opt_abro_version = -1;
 static int hf_icmpv6_opt_abro_6lbr_address = -1;
 
+static int hf_icmpv6_ni_qtype = -1;
+static int hf_icmpv6_ni_flag = -1;
+static int hf_icmpv6_ni_flag_g = -1;
+static int hf_icmpv6_ni_flag_s = -1;
+static int hf_icmpv6_ni_flag_l = -1;
+static int hf_icmpv6_ni_flag_c = -1;
+static int hf_icmpv6_ni_flag_a = -1;
+static int hf_icmpv6_ni_flag_t = -1;
+static int hf_icmpv6_ni_flag_rsv = -1;
+static int hf_icmpv6_ni_nonce = -1;
+static int hf_icmpv6_ni_query_subject_ipv6 = -1;
+static int hf_icmpv6_ni_query_subject_fqdn = -1;
+static int hf_icmpv6_ni_query_subject_ipv4 = -1;
+static int hf_icmpv6_ni_reply_node_ttl = -1;
+static int hf_icmpv6_ni_reply_node_name = -1;
+static int hf_icmpv6_ni_reply_node_address = -1;
+static int hf_icmpv6_ni_reply_ipv4_address = -1;
+
 static gint ett_icmpv6 = -1;
 static gint ett_icmpv6opt = -1;
 static gint ett_icmpv6flag = -1;
-static gint ett_nodeinfo_flag = -1;
-static gint ett_nodeinfo_subject4 = -1;
-static gint ett_nodeinfo_subject6 = -1;
-static gint ett_nodeinfo_node4 = -1;
-static gint ett_nodeinfo_node6 = -1;
-static gint ett_nodeinfo_nodebitmap = -1;
-static gint ett_nodeinfo_nodedns = -1;
 static gint ett_multicastRR = -1;
 static gint ett_icmpv6opt_name = -1;
 static gint ett_cga_param_name = -1;
@@ -368,13 +379,35 @@ static const value_string icmpv6_router_renum_code_str[] = {
     { 0, NULL }
 };
 
-static const value_string names_nodeinfo_qtype[] = {
+/*
+    RFC4620 - IPv6 Node Information Queries
+*/
+
+#define NI_QTYPE_NOOP		0 /* NOOP  */
+#define NI_QTYPE_SUPTYPES	1 /* Supported Qtypes (Obso) */
+#define NI_QTYPE_NODENAME	2 /* Node Name */
+#define NI_QTYPE_NODEADDR	3 /* Node Addresses */
+#define NI_QTYPE_IPV4ADDR	4 /* IPv4 Addresses */
+
+static const value_string ni_qtype_val[] = {
     { NI_QTYPE_NOOP,            "NOOP" },
-    { NI_QTYPE_SUPTYPES,        "Supported query types" },
-    { NI_QTYPE_DNSNAME,         "DNS name" },
+    { NI_QTYPE_SUPTYPES,        "Supported query types (Obsolete)" },
+    { NI_QTYPE_NODENAME,        "Node Name" },
     { NI_QTYPE_NODEADDR,        "Node addresses" },
     { NI_QTYPE_IPV4ADDR,        "IPv4 node addresses" },
     { 0,                        NULL }
+};
+#define NI_FLAG_G	0x0020
+#define NI_FLAG_S	0x0010
+#define NI_FLAG_L	0x0008
+#define NI_FLAG_C	0x0004
+#define NI_FLAG_A	0x0002
+#define NI_FLAG_T	0x0001
+#define NI_FLAG_RSV     0xFFC0
+
+static const true_false_string tfs_ni_flag_a = {
+    "All unicast address",
+    "Unicast addresses on the queried interface"
 };
 
 static const value_string names_rrenum_matchcode[] = {
@@ -1532,7 +1565,6 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	/* there are more options */
 
 	/* ICMPv6 RPL Option */
-	/*opt_len = tvb_get_guint8(tvb, offset + 1);*/ 
 	ti = proto_tree_add_item(tree, hf_icmpv6_rpl_opt, tvb, offset, 1, FALSE);
 	icmp6opt_tree = proto_item_add_subtree(ti, ett_icmpv6opt);
         opt_offset = offset;
@@ -1835,325 +1867,114 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 }
 
 /*
- * draft-ietf-ipngwg-icmp-name-lookups-07.txt
- * Note that the packet format was changed several times in the past.
+ * RFC 4620 : IPv6 Node Information Queries
  */
 
 static void
-bitrange0(guint32 v, int s, emem_strbuf_t *strbuf)
+dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint8 icmp6_type, guint8 icmp6_code)
 {
-    guint32 v0;
-    int off;
-    int i;
+    proto_tree *flag_tree;
+    proto_item *ti;
+    guint16 qtype;
+    int ni_offset = offset + 4;
 
-    v0 = v;
-    off = 0;
-    while (off < 32) {
-        /* shift till we have 0x01 */
-        if ((v & 0x01) == 0) {
-            switch (v & 0x0f) {
-            case 0x00:
-                v >>= 4; off += 4; continue;
-            case 0x08:
-                v >>= 3; off += 3; continue;
-            case 0x04: case 0x0c:
-                v >>= 2; off += 2; continue;
-            default:
-                v >>= 1; off += 1; continue;
-            }
-        }
+    /* Qtype */
+    proto_tree_add_item(tree, hf_icmpv6_ni_qtype, tvb, ni_offset, 2, FALSE);
+    qtype = tvb_get_ntohs(tvb, ni_offset);
+    ni_offset += 2;
 
-        /* we have 0x01 with us */
-        for (i = 0; i < 32 - off; i++) {
-            if ((v & (0x01 << i)) == 0)
-                break;
-        }
-        if (i == 1)
-            ep_strbuf_append_printf(strbuf, ",%d", s + off);
-        else {
-            ep_strbuf_append_printf(strbuf, ",%d-%d", s + off,
-                                    s + off + i - 1);
-        }
-        v >>= i; off += i;
+    /* Flags */
+    ti = proto_tree_add_item(tree, hf_icmpv6_ni_flag, tvb, ni_offset, 2, FALSE);
+    flag_tree = proto_item_add_subtree(ti, ett_icmpv6flag);
+    proto_tree_add_item(flag_tree, hf_icmpv6_ni_flag_g, tvb, ni_offset, 2, FALSE);
+    proto_tree_add_item(flag_tree, hf_icmpv6_ni_flag_s, tvb, ni_offset, 2, FALSE);
+    proto_tree_add_item(flag_tree, hf_icmpv6_ni_flag_l, tvb, ni_offset, 2, FALSE);
+    proto_tree_add_item(flag_tree, hf_icmpv6_ni_flag_c, tvb, ni_offset, 2, FALSE);
+    proto_tree_add_item(flag_tree, hf_icmpv6_ni_flag_a, tvb, ni_offset, 2, FALSE);
+    proto_tree_add_item(flag_tree, hf_icmpv6_ni_flag_t, tvb, ni_offset, 2, FALSE);
+    proto_tree_add_item(flag_tree, hf_icmpv6_ni_flag_rsv, tvb, ni_offset, 2, FALSE);
+    ni_offset += 2;
+         
+    /* Nonce */
+    proto_tree_add_item(tree, hf_icmpv6_ni_nonce, tvb, ni_offset, 8, FALSE);
+    ni_offset += 8;
+    
+    /* Data ? */
+    if(tvb_reported_length_remaining(tvb, ni_offset) == 0){
+        return;
     }
-}
 
-static const char *
-bitrange(tvbuff_t *tvb, int offset, int l, int s)
-{
-    emem_strbuf_t *strbuf;
-    int i;
-
-    strbuf = ep_strbuf_new_label(NULL);
-    for (i = 0; i < l; i++)
-        bitrange0(tvb_get_ntohl(tvb, offset + i * 4), s + i * 4, strbuf);
-
-    return strbuf->str + 1;     /* skip initial "," */
-}
-
-#define NI_SIZE 16
-#define NI_FLAGS_SIZE 2
-#define NI_FLAGS_OFFSET 6
-#define NI_NONCE_SIZE 8
-#define NI_NONCE_OFFSET 8
-static void
-dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-    proto_tree *field_tree;
-    proto_item *tf;
-    struct icmp6_nodeinfo icmp6_nodeinfo, *ni;
-    int off;
-    unsigned int j;
-    int i, n, l, p;
-    guint16 flags;
-    const guchar *dname;
-    guint32 ipaddr;
-
-    ni = &icmp6_nodeinfo;
-    tvb_memcpy(tvb, (guint8 *)ni, offset, sizeof *ni);
-    /* flags */
-    flags = pntohs(&ni->ni_flags);
-    tf = proto_tree_add_text(tree, tvb,
-                             offset + NI_FLAGS_OFFSET,
-                             NI_FLAGS_SIZE, "Flags: 0x%04x", flags);
-    field_tree = proto_item_add_subtree(tf, ett_nodeinfo_flag);
-    switch (pntohs(&ni->ni_qtype)) {
-    case NI_QTYPE_SUPTYPES:
-        if (ni->ni_type == ICMP6_NI_QUERY) {
-            proto_tree_add_text(field_tree, tvb,
-                                offset + NI_FLAGS_OFFSET,
-                                NI_FLAGS_SIZE, "%s",
-                                decode_boolean_bitfield(flags, NI_SUPTYPE_FLAG_COMPRESS, sizeof(flags) * 8,
-                                                        "Compressed reply supported",
-                                                        "No compressed reply support"));
-        } else {
-            proto_tree_add_text(field_tree, tvb,
-                                offset + NI_FLAGS_OFFSET,
-                                NI_FLAGS_SIZE, "%s",
-                                decode_boolean_bitfield(flags, NI_SUPTYPE_FLAG_COMPRESS, sizeof(flags) * 8,
-                                                        "Compressed", "Not compressed"));
+    if(icmp6_type == ICMP6_NI_QUERY){
+        switch(icmp6_code){
+        case ICMP6_NI_SUBJ_IPV6: {
+            proto_tree_add_item(tree, hf_icmpv6_ni_query_subject_ipv6, tvb, ni_offset, 16, FALSE);
+            ni_offset += 16;
+        break;
         }
+        case ICMP6_NI_SUBJ_FQDN: {
+            int fqdn_len;
+            const guchar *fqdn_name;
+            fqdn_len = get_dns_name(tvb, ni_offset, 0, ni_offset, &fqdn_name);
+            proto_tree_add_string(tree, hf_icmpv6_ni_query_subject_fqdn, tvb, ni_offset, fqdn_len, fqdn_name);
+            ni_offset += fqdn_len;
         break;
-    case NI_QTYPE_DNSNAME:
-        if (ni->ni_type == ICMP6_NI_REPLY) {
-            proto_tree_add_text(field_tree, tvb,
-                                offset + NI_FLAGS_OFFSET,
-                                NI_FLAGS_SIZE, "%s",
-                                decode_boolean_bitfield(flags, NI_FQDN_FLAG_VALIDTTL, sizeof(flags) * 8,
-                                                        "Valid TTL field", "Meaningless TTL field"));
         }
+        case ICMP6_NI_SUBJ_IPV4: {
+            proto_tree_add_item(tree, hf_icmpv6_ni_query_subject_ipv4, tvb, ni_offset, 4, FALSE);
+            ni_offset += 4;
         break;
-    case NI_QTYPE_NODEADDR:
-        proto_tree_add_text(field_tree, tvb,
-                            offset + NI_FLAGS_OFFSET,
-                            NI_FLAGS_SIZE, "%s",
-                            decode_boolean_bitfield(flags, NI_NODEADDR_FLAG_GLOBAL, sizeof(flags) * 8,
-                                                    "Global address",
-                                                    "Not global address"));
-        proto_tree_add_text(field_tree, tvb,
-                            offset + NI_FLAGS_OFFSET,
-                            NI_FLAGS_SIZE, "%s",
-                            decode_boolean_bitfield(flags, NI_NODEADDR_FLAG_SITELOCAL, sizeof(flags) * 8,
-                                                    "Site-local address",
-                                                    "Not site-local address"));
-        proto_tree_add_text(field_tree, tvb,
-                            offset + NI_FLAGS_OFFSET,
-                            NI_FLAGS_SIZE, "%s",
-                            decode_boolean_bitfield(flags, NI_NODEADDR_FLAG_LINKLOCAL, sizeof(flags) * 8,
-                                                    "Link-local address",
-                                                    "Not link-local address"));
-        proto_tree_add_text(field_tree, tvb,
-                            offset + NI_FLAGS_OFFSET,
-                            NI_FLAGS_SIZE, "%s",
-                            decode_boolean_bitfield(flags, NI_NODEADDR_FLAG_COMPAT, sizeof(flags) * 8,
-                                                    "IPv4 compatible/mapped address",
-                                                    "Not IPv4 compatible/mapped address"));
-        /* fall through */
-    case NI_QTYPE_IPV4ADDR:
-        proto_tree_add_text(field_tree, tvb,
-                            offset + NI_FLAGS_OFFSET,
-                            NI_FLAGS_SIZE, "%s",
-                            decode_boolean_bitfield(flags, NI_NODEADDR_FLAG_ALL, sizeof(flags) * 8,
-                                                    "All unicast address",
-                                                    "Unicast addresses on the queried interface"));
-        proto_tree_add_text(field_tree, tvb,
-                            offset + NI_FLAGS_OFFSET,
-                            NI_FLAGS_SIZE, "%s",
-                            decode_boolean_bitfield(flags, NI_NODEADDR_FLAG_TRUNCATE, sizeof(flags) * 8,
-                                                    "Truncated", "Not truncated"));
-        break;
-    } /* switch (pntohs(&ni->ni_qtype)) */
-
-    /* nonce */
-    proto_tree_add_text(tree, tvb,
-                        offset + NI_NONCE_OFFSET,
-                        NI_NONCE_SIZE, "Nonce: 0x%08x%08x",
-                        pntohl(&ni->icmp6_ni_nonce[0]), pntohl(&ni->icmp6_ni_nonce[4]));
-
-    /* offset for "the rest of data" */
-    off = NI_SIZE;
-
-    /* rest of data */
-    if (!tvb_bytes_exist(tvb, offset, sizeof(*ni)))
-        goto nodata;
-    if (ni->ni_type == ICMP6_NI_QUERY) {
-        switch (ni->ni_code) {
-        case ICMP6_NI_SUBJ_IPV6:
-            n = tvb_reported_length_remaining(tvb, offset + sizeof(*ni));
-            n /= sizeof(struct e_in6_addr);
-            tf = proto_tree_add_text(tree, tvb,
-                                     offset + sizeof(*ni), -1, "IPv6 subject addresses");
-            field_tree = proto_item_add_subtree(tf, ett_nodeinfo_subject6);
-            p = offset + sizeof *ni;
-            for (i = 0; i < n; i++) {
-                struct e_in6_addr e_in6_addr;
-                tvb_get_ipv6(tvb, p, &e_in6_addr);
-                proto_tree_add_text(field_tree, tvb,
-                                    p, sizeof(struct e_in6_addr),
-                                    "%s", ip6_to_str(&e_in6_addr));
-                p += sizeof(struct e_in6_addr);
-            }
-            off = tvb_length_remaining(tvb, offset);
-            break;
-        case ICMP6_NI_SUBJ_FQDN:
-            /* XXX Fix data length */
-            l = get_dns_name(tvb, offset + sizeof(*ni), 0,
-                             offset + sizeof(*ni), &dname);
-            if (tvb_bytes_exist(tvb, offset + sizeof(*ni) + l, 1) &&
-                tvb_get_guint8(tvb, offset + sizeof(*ni) + l) == 0) {
-                l++;
-                proto_tree_add_text(tree, tvb, offset + sizeof(*ni), l,
-                                    "DNS label: %s (truncated)", dname);
-            } else {
-                proto_tree_add_text(tree, tvb, offset + sizeof(*ni), l,
-                                    "DNS label: %s", dname);
-            }
-            off = tvb_length_remaining(tvb, offset + sizeof(*ni) + l);
-            break;
-        case ICMP6_NI_SUBJ_IPV4:
-            n = tvb_reported_length_remaining(tvb, offset + sizeof(*ni));
-            n /= sizeof(guint32);
-            tf = proto_tree_add_text(tree, tvb,
-                                     offset + sizeof(*ni), -1, "IPv4 subject addresses");
-            field_tree = proto_item_add_subtree(tf, ett_nodeinfo_subject4);
-            p = offset + sizeof *ni;
-            for (i = 0; i < n; i++) {
-                ipaddr = tvb_get_ipv4(tvb, p);
-                proto_tree_add_text(field_tree, tvb,
-                                    p, sizeof(guint32), "%s", ip_to_str((guint8 *)&ipaddr));
-                p += sizeof(guint32);
-            }
-            off = tvb_length_remaining(tvb, offset);
-            break;
-        } /* switch (ni->ni_code) */
-    } else {
-        switch (pntohs(&ni->ni_qtype)) {
+        }
+        }
+    } else { /* It is ICMP6_NI_REPLY */
+        switch(qtype){
         case NI_QTYPE_NOOP:
-            break;
-        case NI_QTYPE_SUPTYPES:
-            p = offset + sizeof *ni;
-            tf = proto_tree_add_text(tree, tvb,
-                                     offset + sizeof(*ni), -1,
-                                     "Supported type bitmap%s",
-                                     (flags & 0x0001) ? ", compressed" : "");
-            field_tree = proto_item_add_subtree(tf,
-                                                ett_nodeinfo_nodebitmap);
-            n = 0;
-            while (tvb_bytes_exist(tvb, p, sizeof(guint32))) { /* XXXX Check what? */
-                if ((flags & 0x0001) == 0) {
-                    l = tvb_reported_length_remaining(tvb, offset + sizeof(*ni));
-                    l /= sizeof(guint32);
-                    i = 0;
-                } else {
-                    l = tvb_get_ntohs(tvb, p);
-                    i = tvb_get_ntohs(tvb, p + sizeof(guint16));        /*skip*/
-                }
-                if (n + l * 32 > (1 << 16))
+        break;
+        case NI_QTYPE_NODENAME: {
+            int node_len;
+            const guchar *node_name;
+            /* TTL */
+            proto_tree_add_item(tree, hf_icmpv6_ni_reply_node_ttl, tvb, ni_offset, 4, FALSE);
+            ni_offset += 4;
+            /* Data ? */
+            if(tvb_reported_length_remaining(tvb, ni_offset) == 0){
+                return;
+            }
+            while(ni_offset < (int)tvb_reported_length(tvb) ) {
+                
+                if(tvb_get_guint8(tvb, ni_offset) == 0){ /* if Zero there is padding, skip the loop */
                     break;
-                if (n + (l + i) * 32 > (1 << 16))
-                    break;
-                if ((flags & 0x0001) == 0) {
-                    proto_tree_add_text(field_tree, tvb, p,
-                                        l * 4, "Bitmap (%d to %d): %s", n, n + l * 32 - 1,
-                                        bitrange(tvb, p, l, n));
-                    p += l * 4;
-                } else {
-                    proto_tree_add_text(field_tree, tvb, p,
-                                        4 + l * 4, "Bitmap (%d to %d): %s", n, n + l * 32 - 1,
-                                        bitrange(tvb, p + 4, l, n));
-                    p += (4 + l * 4);
                 }
-                n += l * 32 + i * 32;
+                /* Node Name */
+                node_len = get_dns_name(tvb, ni_offset, 0, ni_offset, &node_name);
+                proto_tree_add_string(tree, hf_icmpv6_ni_reply_node_name, tvb, ni_offset, node_len, node_name);
+                ni_offset += node_len;
             }
-            off = tvb_length_remaining(tvb, offset);
-            break;
-        case NI_QTYPE_DNSNAME:
-            proto_tree_add_text(tree, tvb, offset + sizeof(*ni),
-                                sizeof(gint32), "TTL: %d", (gint32)tvb_get_ntohl(tvb, offset + sizeof *ni));
-            tf = proto_tree_add_text(tree, tvb,
-                                     offset + sizeof(*ni) + sizeof(guint32),    -1,
-                                     "DNS labels");
-            field_tree = proto_item_add_subtree(tf, ett_nodeinfo_nodedns);
-            j = offset + sizeof (*ni) + sizeof(guint32);
-            while (j < tvb_reported_length(tvb)) {
-                /* XXX Fix data length */
-                l = get_dns_name(tvb, j, 0,
-                                 offset + sizeof (*ni) + sizeof(guint32),
-                                 &dname);
-                if (tvb_bytes_exist(tvb, j + l, 1) &&
-                    tvb_get_guint8(tvb, j + l) == 0) {
-                    l++;
-                    proto_tree_add_text(field_tree, tvb, j, l,
-                                        "DNS label: %s (truncated)", dname);
-                } else {
-                    proto_tree_add_text(field_tree, tvb, j, l,
-                                        "DNS label: %s", dname);
-                }
-                j += l;
+        break;
+        }
+        case NI_QTYPE_NODEADDR: {
+            while(ni_offset < (int)tvb_reported_length(tvb) ) {  
+                /* TTL */
+                proto_tree_add_item(tree, hf_icmpv6_ni_reply_node_ttl, tvb, ni_offset, 4, FALSE);
+                ni_offset += 4;
+                /* Node Addresses */
+                proto_tree_add_item(tree, hf_icmpv6_ni_reply_node_address, tvb, ni_offset, 16, FALSE);
+                ni_offset += 16;
             }
-            off = tvb_length_remaining(tvb, offset);
-            break;
-        case NI_QTYPE_NODEADDR:
-            n = tvb_reported_length_remaining(tvb, offset + sizeof(*ni));
-            n /= sizeof(gint32) + sizeof(struct e_in6_addr);
-            tf = proto_tree_add_text(tree, tvb,
-                                     offset + sizeof(*ni), -1, "IPv6 node addresses");
-            field_tree = proto_item_add_subtree(tf, ett_nodeinfo_node6);
-            p = offset + sizeof (*ni);
-            for (i = 0; i < n; i++) {
-                struct e_in6_addr e_in6_addr;
-                gint32 ttl;
-                ttl = (gint32)tvb_get_ntohl(tvb, p);
-                tvb_get_ipv6(tvb, p + sizeof ttl, &e_in6_addr);
-                proto_tree_add_text(field_tree, tvb,
-                                    p, sizeof(struct e_in6_addr) + sizeof(gint32),
-                                    "%s (TTL %d)", ip6_to_str(&e_in6_addr), ttl);
-                p += sizeof(struct e_in6_addr) + sizeof(gint32);
+        break;
+        }   
+        case NI_QTYPE_IPV4ADDR: {
+            while(ni_offset < (int)tvb_reported_length(tvb) ) {  
+                /* TTL */ 
+                proto_tree_add_item(tree, hf_icmpv6_ni_reply_node_ttl, tvb, ni_offset, 4, FALSE);
+                ni_offset += 4;
+                /* IPv4 Address */
+                proto_tree_add_item(tree, hf_icmpv6_ni_reply_ipv4_address, tvb, ni_offset, 4, FALSE);
+                ni_offset += 4;
             }
-            off = tvb_length_remaining(tvb, offset);
-            break;
-        case NI_QTYPE_IPV4ADDR:
-            n = tvb_reported_length_remaining(tvb, offset + sizeof(*ni));
-            n /= sizeof(gint32) + sizeof(guint32);
-            tf = proto_tree_add_text(tree, tvb,
-                                     offset + sizeof(*ni), -1, "IPv4 node addresses");
-            field_tree = proto_item_add_subtree(tf, ett_nodeinfo_node4);
-            p = offset + sizeof *ni;
-            for (i = 0; i < n; i++) {
-                ipaddr = tvb_get_ipv4(tvb, sizeof(gint32) + p);
-                proto_tree_add_text(field_tree, tvb,
-                                    p, sizeof(guint32), "%s (TTL %d)",
-                                    ip_to_str((guint8 *)&ipaddr), tvb_get_ntohl(tvb, p));
-                p += sizeof(gint32) + sizeof(guint32);
-            }
-            off = tvb_length_remaining(tvb, offset);
-            break;
-        } /* switch (pntohs(&ni->ni_qtype)) */
+        break;
+        }          
+        }
     }
-nodata:;
-
-    /* the rest of data */
-    call_dissector(data_handle,tvb_new_subset_remaining(tvb, offset + off), pinfo, tree);
 }
 
 #define RR_SIZE 16
@@ -2491,7 +2312,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             }
         }
-        colcodename = val_to_str(pntohs(&ni->ni_qtype), names_nodeinfo_qtype, "Unknown");
+        colcodename = val_to_str(pntohs(&ni->ni_qtype), ni_qtype_val, "Unknown");
         len = sizeof(struct icmp6_nodeinfo);
         break;
     }
@@ -2904,18 +2725,10 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case ICMP6_ROUTER_RENUMBERING:
             dissect_rrenum(tvb, offset, pinfo, icmp6_tree);
             break;
-#define NI_QTYPE_OFFSET 4
         case ICMP6_NI_QUERY:
         case ICMP6_NI_REPLY:
         {
-            struct icmp6_nodeinfo *ni = (struct icmp6_nodeinfo *)dp;
-            proto_tree_add_text(icmp6_tree, tvb,
-                                offset + NI_QTYPE_OFFSET,
-                                sizeof(ni->ni_qtype),
-                                "Query type: 0x%04x (%s)", pntohs(&ni->ni_qtype),
-                                val_to_str(pntohs(&ni->ni_qtype), names_nodeinfo_qtype,
-                                           "Unknown"));
-            dissect_nodeinfo(tvb, offset, pinfo, icmp6_tree);
+            dissect_nodeinfo(tvb, offset, pinfo, icmp6_tree, dp->icmp6_type, dp->icmp6_code);
             break;
         }
         case ICMP6_MIP6_DHAAD_REQUEST:
@@ -3790,20 +3603,64 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_rpl_opt_targetdesc,
            { "Descriptor",         "icmpv6.rpl.opt.targetdesc.descriptor", FT_UINT32, BASE_HEX, NULL, 0x0,
              "Opaque Data", HFILL }},
-
+        /* RFC 4620 IPv6 Node Information Queries */
+        { &hf_icmpv6_ni_qtype,
+           { "Qtype",         "icmpv6.ni.qtype", FT_UINT16, BASE_DEC, VALS(ni_qtype_val), 0x0,
+             "Designates the type of information", HFILL }},
+        { &hf_icmpv6_ni_flag,
+           { "Flags",         "icmpv6.ni.flag", FT_UINT16, BASE_HEX, NULL, 0x0,
+             "Qtype-specific flags that may be defined for certain Query types and their Replies", HFILL }},
+        { &hf_icmpv6_ni_flag_g,
+           { "Global-scope addresses",         "icmpv6.ni.flag.g", FT_BOOLEAN, 16, TFS(&tfs_set_notset), NI_FLAG_G,
+             "Global-scope addresses are requested", HFILL }},
+        { &hf_icmpv6_ni_flag_s,
+           { "Site-local addresses",         "icmpv6.ni.flag.s", FT_BOOLEAN, 16, TFS(&tfs_set_notset), NI_FLAG_S,
+             "Site-local addresses are requested", HFILL }},
+        { &hf_icmpv6_ni_flag_l,
+           { "Link-local addresses",         "icmpv6.ni.flag.l", FT_BOOLEAN, 16, TFS(&tfs_set_notset), NI_FLAG_L,
+             "Link-local addresses are requested", HFILL }},
+        { &hf_icmpv6_ni_flag_c,
+           { "Compression",         "icmpv6.ni.flag.c", FT_BOOLEAN, 16, TFS(&tfs_set_notset), NI_FLAG_C,
+             "IPv4-compatible (now deprecated) and IPv4-mapped addresses are requested", HFILL }},
+        { &hf_icmpv6_ni_flag_a,
+           { "Unicast Addresses",         "icmpv6.ni.flag.a", FT_BOOLEAN, 16, TFS(&tfs_ni_flag_a), NI_FLAG_A,
+             "Responder's unicast addresses", HFILL }},
+        { &hf_icmpv6_ni_flag_t,
+           { "Truncated",         "icmpv6.ni.flag.t", FT_BOOLEAN, 16, TFS(&tfs_set_notset), NI_FLAG_T,
+             "Defined in a Reply only, indicates that the set of addresses is incomplete for space reasons", HFILL }},
+        { &hf_icmpv6_ni_flag_rsv,
+           { "Reserved",         "icmpv6.ni.flag.rsv", FT_UINT16, BASE_HEX, NULL, NI_FLAG_RSV,
+             "Must be Zero", HFILL }},
+        { &hf_icmpv6_ni_nonce,
+           { "Nonce",         "icmpv6.ni.nonce", FT_UINT64, BASE_HEX, NULL, 0x0,
+             "An opaque 64-bit field", HFILL }},
+        { &hf_icmpv6_ni_query_subject_ipv6,
+           { "IPv6 subject address",         "icmpv6.ni.query.subject_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_ni_query_subject_fqdn,
+           { "FQDN subject",         "icmpv6.ni.query.subject_fqdn", FT_STRING, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_ni_query_subject_ipv4,
+           { "IPv4 subject address",         "icmpv6.ni.query.subject_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_ni_reply_node_ttl,
+           { "TTL",         "icmpv6.ni.query.subject_ipv4", FT_UINT32, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_ni_reply_node_name,
+           { "Name Node",         "icmpv6.ni.query.node_name", FT_STRING, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_ni_reply_node_address,
+           { "IPv6 Node address",         "icmpv6.ni.query.node_address", FT_IPv6, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_ni_reply_ipv4_address,
+           { "IPv4 Node address",         "icmpv6.ni.query.ipv4_address", FT_IPv4, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }},
     };
 
     static gint *ett[] = {
         &ett_icmpv6,
         &ett_icmpv6opt,
         &ett_icmpv6flag,
-        &ett_nodeinfo_flag,
-        &ett_nodeinfo_subject4,
-        &ett_nodeinfo_subject6,
-        &ett_nodeinfo_node4,
-        &ett_nodeinfo_node6,
-        &ett_nodeinfo_nodebitmap,
-        &ett_nodeinfo_nodedns,
         &ett_multicastRR,
         &ett_icmpv6opt_name,
         &ett_cga_param_name,

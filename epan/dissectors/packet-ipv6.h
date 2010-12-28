@@ -438,29 +438,6 @@ struct icmp6_nodeinfo {
 #define ni_qtype	icmp6_ni_hdr.icmp6_data16[0]
 #define ni_flags	icmp6_ni_hdr.icmp6_data16[1]
 
-#define NI_QTYPE_NOOP		0 /* NOOP  */
-#define NI_QTYPE_SUPTYPES	1 /* Supported Qtypes */
-#define NI_QTYPE_FQDN		2 /* FQDN (draft 04) */
-#define NI_QTYPE_DNSNAME	2 /* DNS Name */
-#define NI_QTYPE_NODEADDR	3 /* Node Addresses */
-#define NI_QTYPE_IPV4ADDR	4 /* IPv4 Addresses */
-
-#define NI_SUPTYPE_FLAG_COMPRESS	0x1
-#define NI_FQDN_FLAG_VALIDTTL		0x1
-
-#define NI_NODEADDR_FLAG_TRUNCATE	0x1
-#define NI_NODEADDR_FLAG_ALL		0x2
-#define NI_NODEADDR_FLAG_COMPAT		0x4
-#define NI_NODEADDR_FLAG_LINKLOCAL	0x8
-#define NI_NODEADDR_FLAG_SITELOCAL	0x10
-#define NI_NODEADDR_FLAG_GLOBAL		0x20
-#define NI_NODEADDR_FLAG_ANYCAST	0x40 /* just experimental. not in spec */
-
-struct ni_reply_fqdn {
-	guint32	ni_fqdn_ttl;	/* TTL */
-	guint8	ni_fqdn_namelen; /* length in octets of the FQDN */
-	guint8	ni_fqdn_name[3]; /* XXX: alignment */
-};
 
 /*
  * Router Renumbering. as router-renum-05.txt
