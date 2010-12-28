@@ -409,15 +409,13 @@ again:
 	   may still cause a seek and a read of the underlying file,
 	   so we don't want to do it unconditionally).
 
-	   If the beginning of the current record is *before* the
-	   current position, that's an error. */
+	   Yes, the current record could be before the previous
+	   record.  At least some captures put the trailer record
+	   with statistics as the first physical record in the
+	   file, but set the frame table up so it's the last
+	   record in sequence. */
 	rec_offset = netmon->frame_table[netmon->current_frame];
 	if (wth->data_offset != rec_offset) {
-		if (rec_offset < wth->data_offset) {
-			*err = WTAP_ERR_BAD_RECORD;
-			*err_info = g_strdup("netmon: Record offset is in the middle of an earlier record");
-			return FALSE;
-		}
 		wth->data_offset = rec_offset;
 		if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1)
 			return FALSE;
