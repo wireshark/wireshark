@@ -636,6 +636,7 @@ static const value_string eapwps_tlv_response_type_vals[] = {
 static const value_string eapwps_tlv_rf_bands_vals[] = {
   { 0x01, "2.4 GHz" },
   { 0x02, "5 GHz" },
+  { 0x03, "2.4 and 5 GHz" },
   { 0, NULL }
 };
 
