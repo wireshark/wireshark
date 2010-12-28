@@ -108,6 +108,7 @@ static GtkWidget *channels_vb;
 static GtkWidget *main_scrolled_window = NULL;
 static GtkWidget *jitter_spinner;
 static GtkWidget *cb_use_rtp_timestamp;
+static GtkWidget *cb_view_as_time_of_day;
 static GtkWidget *bt_decode;
 static GtkWidget *bt_play;
 static GtkWidget *bt_pause;
@@ -168,6 +169,7 @@ typedef struct _rtp_stream_info {
 	guint32 ssrc;
 	guint32 first_frame_number; /* first RTP frame for the stream */
 	double start_time;			/* RTP stream start time in ms */
+	nstime_t start_time_abs;
 	gboolean play;
 	guint16 call_num;
 	GList*  rtp_packets_list; /* List of RTP packets in the stream */
@@ -178,6 +180,7 @@ typedef struct _rtp_stream_info {
 /* defines the RTP streams to be played in an audio channel */
 typedef struct _rtp_channel_info {
 	double start_time;			/* RTP stream start time in ms */
+	nstime_t start_time_abs;
 	double end_time;			/* RTP stream end time in ms */
 	GArray *samples;			/* the array with decoded audio */
 	guint16 call_num;
@@ -379,6 +382,7 @@ add_rtp_packet(const struct _rtp_info *rtp_info, packet_info *pinfo)
 		stream_info->rtp_packets_list = NULL;
 		stream_info->first_frame_number = pinfo->fd->num;
 		stream_info->start_time = nstime_to_msec(&pinfo->fd->rel_ts);
+		stream_info->start_time_abs = pinfo->fd->abs_ts;
 		stream_info->call_num = 0;
 		stream_info->play = FALSE;
 		stream_info->num_packets = 0;
@@ -644,6 +648,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 		rci = g_malloc(sizeof(rtp_channel_info_t));
 		rci->call_num = rsi->call_num;
 		rci->start_time = rsi->start_time;
+		rci->start_time_abs = rsi->start_time_abs;
 		rci->end_time = rsi->start_time;
 		rci->selected = FALSE;
 		rci->frame_index = 0;
@@ -1257,6 +1262,8 @@ static void channel_draw(rtp_channel_info_t* rci)
 	GdkColor red_color = {0, 65535, 0, 0};
 	GdkColor amber_color = {0, 65535, 49152, 0};
 	GdkColor white_color = {0, 65535, 65535, 65535};
+	time_t seconds;
+	struct tm *timestamp;
 
 	if (GDK_IS_DRAWABLE(rci->pixmap)) {
 		/* Clear out old plot */
@@ -1369,7 +1376,13 @@ static void channel_draw(rtp_channel_info_t* rci)
 					(int) (i - offset),
 					rci->draw_area->allocation.height-HEIGHT_TIME_LABEL+4);
 
-				g_snprintf(label_string, MAX_TIME_LABEL, "%.0f s", floor(rci->start_time/1000) + i*MULT/SAMPLE_RATE);
+				if(GTK_TOGGLE_BUTTON(cb_view_as_time_of_day)->active) {
+					seconds = nstime_to_sec(&rci->start_time_abs) + i * MULT / SAMPLE_RATE;
+					timestamp = localtime(&seconds);
+					g_snprintf(label_string, MAX_TIME_LABEL, "%02d:%02d:%02d", timestamp->tm_hour, timestamp->tm_min, timestamp->tm_sec);
+				} else {
+					g_snprintf(label_string, MAX_TIME_LABEL, "%.0f s", floor(rci->start_time/1000) + i*MULT/SAMPLE_RATE);
+				}
 
 				pango_layout_set_text(small_layout, label_string, -1);
 				pango_layout_get_pixel_size(small_layout, &label_width, &label_height);
@@ -2009,6 +2022,14 @@ decode_streams(void)
 
 /****************************************************************************/
 static void
+on_cb_view_as_time_of_day_clicked(GtkButton *button _U_, gpointer user_data _U_)
+{
+	/* Decode the streams again as if the decode button was pushed to update the time display */
+	decode_streams();
+}
+
+/****************************************************************************/
+static void
 on_cb_use_rtp_clicked(GtkToggleButton  *button _U_, gpointer user_data _U_)
 {
 	/* set the sensitive state of the buttons (decode, play, pause, stop) */
@@ -2091,6 +2112,7 @@ rtp_player_dlg_create(void)
 {
 	GtkWidget *main_vb;
 	GtkWidget *hbuttonbox;
+	GtkWidget *timestamp_hb;
 	GtkWidget *h_jitter_buttons_box;
 	GtkWidget *bt_close;
 	GtkAdjustment *jitter_spinner_adj;
@@ -2124,6 +2146,14 @@ rtp_player_dlg_create(void)
 	gtk_container_set_border_width (GTK_CONTAINER (channels_vb), 2);
 	gtk_scrolled_window_add_with_viewport((GtkScrolledWindow *) main_scrolled_window, channels_vb);
 
+	timestamp_hb = gtk_hbox_new(FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(main_vb), timestamp_hb, FALSE, FALSE, 0);
+	cb_view_as_time_of_day = gtk_check_button_new_with_label("View as time of day");
+	gtk_box_pack_start(GTK_BOX(timestamp_hb), cb_view_as_time_of_day, TRUE, FALSE, 0); /* Centered */
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cb_view_as_time_of_day), FALSE);
+	gtk_tooltips_set_tip(tooltips, cb_view_as_time_of_day, "View the timestamps as time of day instead of seconds since beginning of capture", NULL);
+	g_signal_connect(cb_view_as_time_of_day, "toggled", G_CALLBACK(on_cb_view_as_time_of_day_clicked), NULL);
+
 	h_jitter_buttons_box = gtk_hbox_new (FALSE, 0);
 	gtk_container_set_border_width (GTK_CONTAINER (h_jitter_buttons_box), 10);
 	gtk_box_pack_start (GTK_BOX(main_vb), h_jitter_buttons_box, FALSE, FALSE, 0);
@@ -2135,7 +2165,6 @@ rtp_player_dlg_create(void)
 	gtk_box_pack_start(GTK_BOX(h_jitter_buttons_box), jitter_spinner, FALSE, FALSE, 0);
 	gtk_tooltips_set_tip (tooltips, jitter_spinner, "The simulated jitter buffer in [ms]", NULL);
 	g_signal_connect(GTK_OBJECT (jitter_spinner_adj), "value_changed", G_CALLBACK(jitter_spinner_value_changed), NULL);
-
 
 	cb_use_rtp_timestamp = gtk_check_button_new_with_label("Use RTP timestamp");
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cb_use_rtp_timestamp), FALSE);
