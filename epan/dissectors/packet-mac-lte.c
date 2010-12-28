@@ -1247,12 +1247,13 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 
+#define MAX_RAR_PDUS 64
 /* Dissect Random Access Reponse (RAR) PDU */
 static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *pdu_ti,
                         gint offset, mac_lte_info *p_mac_lte_info, mac_lte_tap_info *tap_info)
 {
     gint     number_of_rars = 0;   /* No of RAR bodies expected following headers */
-    guint8   rapids[64];
+    guint8   *rapids = ep_alloc(MAX_RAR_PDUS * sizeof(guint8));
     gboolean backoff_indicator_seen = FALSE;
     guint8   backoff_indicator = 0;
     guint8   extension;
@@ -1354,7 +1355,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
         /* Finalise length of header tree selection */
         proto_item_set_len(rar_header_ti, offset - start_header_offset);
 
-    } while (extension);
+    } while (extension && number_of_rars < MAX_RAR_PDUS);
 
     /* Append summary to headers root */
     proto_item_append_text(rar_headers_ti, " (%u RARs", number_of_rars);
