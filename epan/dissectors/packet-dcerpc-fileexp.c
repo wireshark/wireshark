@@ -464,7 +464,7 @@ dissect_afsConnParams (tvbuff_t * tvb, int offset,
 			hf_afsconnparams_values, &Values[7]);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_afsconnparams_values, &Values[9]);
+			hf_afsconnparams_values, &Values[8]);
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_afsconnparams_values, &Values[9]);
