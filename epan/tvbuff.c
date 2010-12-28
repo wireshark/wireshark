@@ -2901,6 +2901,71 @@ tvb_bytes_to_str_punct(tvbuff_t *tvb, const gint offset, const gint len, const g
 	return bytes_to_str_punct(tvb_get_ptr(tvb, offset, len), len, punct);
 }
 
+
+/*
+ * Given a tvbuff, an offset into the tvbuff, and a length that starts
+ * at that offset (which may be -1 for "all the way to the end of the
+ * tvbuff"), fetch BCD encoded digits from a tvbuff starting from either 
+ * the low or high half byte, formating the digits according to an input digit set, 
+ * if NUll a default digit set of 0-9 returning "?" for overdecadic digits will be used.
+ * A pointer to the EP allocated string will be returned.
+ * Note a tvbuff content of 0xf is considered a 'filler' and will end the conversion.
+ */
+static dgt_set_t Dgt1_9_bcd = {
+    {
+  /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
+     '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?'
+    }
+};
+gchar *
+tvb_bcd_dig_to_ep_str(tvbuff_t *tvb, const gint offset, const gint len, dgt_set_t *dgt, gboolean skip_first)
+{
+	int length;
+	guint8 octet;
+	int i=0;
+	char *digit_str;
+	gint t_offset = offset;
+
+	if (!dgt)
+		dgt = &Dgt1_9_bcd;
+
+	if( len == -1){
+		length = tvb_length(tvb);
+		if (length < offset){
+			return "";
+		}
+	}else{
+		length = offset + len;
+	}
+	digit_str = ep_alloc((length - offset)*2+1);
+
+	while ( t_offset < length ){
+
+		octet = tvb_get_guint8(tvb,t_offset);
+		if (!skip_first){
+			digit_str[i] = dgt->out[octet & 0x0f]; 
+			i++;
+		}
+		skip_first = FALSE;
+
+		/*
+		 * unpack second value in byte
+		 */
+		octet = octet >> 4;
+
+		if (octet == 0x0f)	/* odd number bytes - hit filler */
+			break;
+
+		digit_str[i] = dgt->out[octet & 0x0f]; 
+		i++;
+		t_offset++;
+
+	}
+	digit_str[i]= '\0';
+	return digit_str;
+
+}
+
 /*
  * Format a bunch of data from a tvbuff as bytes, returning a pointer
  * to the string with the formatted data.

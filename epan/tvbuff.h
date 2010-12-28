@@ -644,11 +644,28 @@ extern gint tvb_memeql(tvbuff_t *tvb, const gint offset, const guint8 *str,
 extern gchar *tvb_bytes_to_str_punct(tvbuff_t *tvb, const gint offset, const gint len,
     const gchar punct);
 
-/*
+/**
  * Format a bunch of data from a tvbuff as bytes, returning a pointer
  * to the string with the formatted data.
  */
 extern gchar *tvb_bytes_to_str(tvbuff_t *tvb, const gint offset, const gint len);
+
+/**
+ * Given a tvbuff, an offset into the tvbuff, and a length that starts
+ * at that offset (which may be -1 for "all the way to the end of the
+ * tvbuff"), fetch BCD encoded digits from a tvbuff starting from either 
+ * the low or high half byte, formating the digits according to an input digit set, 
+ * if NUll a default digit set of 0-9 returning "?" for overdecadic digits will be used.
+ * A pointer to the EP allocated string will be returned.
+ * Note a tvbuff content of 0xf is considered a 'filler' and will end the conversion.
+ */
+typedef struct dgt_set_t
+{
+	const unsigned char out[15];
+}
+dgt_set_t;
+
+extern gchar *tvb_bcd_dig_to_ep_str(tvbuff_t *tvb, const gint offset, const gint len, dgt_set_t *dgt, gboolean skip_first);
 
 #define TVB_GET_DS_TVB(tvb)		\
 	(tvb->ds_tvb)
