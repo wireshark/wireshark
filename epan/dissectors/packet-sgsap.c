@@ -48,6 +48,7 @@
 
 
 /* Global variables */
+static dissector_handle_t gsm_a_dtap_handle;
 static packet_info *gpinfo;
 static guint gbl_sgsapSctpPort=SCTP_PORT_SGSAP;
 
@@ -285,20 +286,24 @@ de_sgsap_mme_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
  */
 /*
  * 9.4.15	NAS message container
- * Octets 3 to 253 contain the SMS message (i.e. CP DATA, CP ACK or CP ERROR) as defined in subclause 7.2 of 3GPP TS 24.011 [10]
+ * Octets 3 to 253 contain the SMS message (i.e. CP DATA, CP ACK or CP ERROR)
+ * as defined in subclause 7.2 of 3GPP TS 24.011 [10]
  */
 static guint16
 de_sgsap_nas_msg_container(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
+	tvbuff_t *new_tvb;
 	guint32	curr_offset;
 
 	curr_offset = offset;
 
 	/* Octets 3 to 253 contain the SMS message (i.e. CP DATA, CP ACK or CP ERROR) 
 	 * as defined in subclause 7.2 of 3GPP TS 24.011 [10]
-	 * XXX call packet-gsm_sms.c here ? 
 	 */
-	proto_tree_add_text(tree, tvb, curr_offset, len, "IE data not dissected yet");
+	new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
+	if(gsm_a_dtap_handle){
+		call_dissector(gsm_a_dtap_handle,new_tvb,gpinfo, tree);
+	}
 
 	return(len);
 }
@@ -1418,6 +1423,7 @@ proto_reg_handoff_sgsap(void)
 	static guint SctpPort;
 
 	sgsap_handle = find_dissector("sgsap");
+	gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
 
 	if (!Initialized) {
 		dissector_add_handle("sctp.port", sgsap_handle);   /* for "decode-as"  */
