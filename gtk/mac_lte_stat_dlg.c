@@ -176,6 +176,8 @@ typedef struct mac_lte_stat_t {
     GtkWidget  *filter_bt;
 
     GtkWidget  *show_dct_errors_cb;
+    GtkWidget  *dct_error_substring_lb;
+    GtkWidget  *dct_error_substring_te;
 
     /* Common stats */
     mac_lte_common_stats common_stats;
@@ -584,6 +586,8 @@ mac_lte_ue_details(mac_lte_ep_t *mac_stat_ep, mac_lte_stat_t *hs)
     /* Enable/disable filter controls */
     gtk_widget_set_sensitive(hs->filter_bt, mac_stat_ep != NULL);
     gtk_widget_set_sensitive(hs->show_dct_errors_cb, mac_stat_ep != NULL);
+    gtk_widget_set_sensitive(hs->dct_error_substring_lb, mac_stat_ep != NULL);
+    gtk_widget_set_sensitive(hs->dct_error_substring_te, mac_stat_ep != NULL);
 }
 
 
@@ -745,8 +749,15 @@ static void filter_clicked(GtkWindow *win _U_, mac_lte_stat_t* hs)
 
         /* Errors */
         if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb))) {
+            if (strlen(gtk_entry_get_text(GTK_ENTRY(hs->dct_error_substring_te))) > 0) {
+                offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
+                                     "(dct2000.error-comment and (dct2000.comment contains \"%s\")) or (",
+                                     gtk_entry_get_text(GTK_ENTRY(hs->dct_error_substring_te)));
+            }
+            else {
                 offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
                                      "dct2000.error-comment or (");
+            }
         }
 
         /* Filter expression */
@@ -1043,7 +1054,7 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     /**************************************/
     mac_lte_stat_filters_lb = gtk_frame_new("Filter on UE");
 
-    /* Horizontal row of filter buttons */
+    /* Horizontal row of filter controls */
     filter_buttons_hb = gtk_hbox_new(FALSE, 6);
     gtk_container_add(GTK_CONTAINER(mac_lte_stat_filters_lb), filter_buttons_hb);
     gtk_container_set_border_width(GTK_CONTAINER(filter_buttons_hb), 2);
@@ -1070,6 +1081,20 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
                          "include DCT2000 error strings", NULL);
     /* Initially disabled */
     gtk_widget_set_sensitive(hs->show_dct_errors_cb, FALSE);
+
+    /* ... optionally limited by a substring */
+    hs->dct_error_substring_lb = gtk_label_new("...containing");
+    gtk_box_pack_start(GTK_BOX(filter_buttons_hb), hs->dct_error_substring_lb, FALSE, FALSE, 0);
+    gtk_widget_show(hs->dct_error_substring_lb);
+    gtk_widget_set_sensitive(hs->dct_error_substring_lb, FALSE);
+
+    hs->dct_error_substring_te = gtk_entry_new();
+    gtk_box_pack_start(GTK_BOX(filter_buttons_hb), hs->dct_error_substring_te, FALSE, FALSE, 0);
+    gtk_widget_show(hs->dct_error_substring_te);
+    gtk_widget_set_sensitive(hs->dct_error_substring_te, FALSE);
+    gtk_tooltips_set_tip(tooltips, hs->dct_error_substring_te,
+                         "If given, only match error strings containing this substring", NULL);
+
 
     /**********************************************/
     /* Register the tap listener                  */
