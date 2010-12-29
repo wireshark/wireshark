@@ -26,11 +26,11 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
  * Please refer to the following specs for protocol detail:
- * - draft-ietf-behave-rfc3489bis-17
- * - draft-ietf-mmusic-ice-19
- * - draft-ietf-behave-nat-behavior-discovery-03
- * - draft-ietf-behave-turn-10
- * - draft-ietf-behave-turn-ipv6-03
+ * - RFC 5389, formerly draft-ietf-behave-rfc3489bis-18
+ * - RFC 5245, formerly draft-ietf-mmusic-ice-19
+ * - RFC 5780, formerly draft-ietf-behave-nat-behavior-discovery-08
+ * - RFC 5766, formerly draft-ietf-behave-turn-16
+ * - draft-ietf-behave-turn-ipv6-11
  */
 
 #ifdef HAVE_CONFIG_H
