@@ -189,11 +189,10 @@ wireshark -i eth0 -k
 	  <varlistentry><term><command>IP</command></term>
 	    <listitem>
 	      <para>
-		  The first IP address Wireshark could resolve from this interface. 
-		  If no address could be resolved (e.g. no DHCP server available), 
-		  "unknown" will be displayed. If more than one IP address could be 
-		  resolved, only the first is shown (unpredictable which one in that 
-		  case).
+		  The first IP address Wireshark could find for this interface.
+		  You can click on the address to cycle through other addresses
+		  assigned to it, if available.
+		  If no address could be found "unknown" will be displayed.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -335,13 +334,21 @@ wireshark -i eth0 -k
 	      </para>
 	    </listitem>
 	  </varlistentry>
-	  <varlistentry><term><command>Remote setting (Windows only)</command></term>
+	  <varlistentry><term><command>Wireless settings (Windows only)</command></term>
+	    <listitem>
+	      <para>
+		Here you can set the settings for wireless capture using the AirPCap adapter.
+		For a detailed description, see the AirPCap Users Guide.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Remote settings (Windows only)</command></term>
 	    <listitem>
 	      <para>
 		Here you can set the settings for remote capture.
 		For a detailed description, see  <xref linkend="ChCapInterfaceRemoteSection"/>
 	      </para>
-      </listitem>
+	    </listitem>
 	  </varlistentry>
 	  <varlistentry><term><command>Buffer size: n megabyte(s)</command></term>
 	    <listitem>
@@ -351,10 +358,6 @@ wireshark -i eth0 -k
 		  they are written to disk. If you encounter packet drops, try 
 		  increasing this value.
 	      </para>
-	      <note>
-		  <title>Note</title>
-		  <para>This option is only available on Windows platforms.</para>
-	      </note>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
@@ -383,6 +386,27 @@ wireshark -i eth0 -k
 		Even in promiscuous mode you still won't necessarily see all packets 
 		on your LAN segment, see <ulink url="&WiresharkFAQPromiscPage;"/> for 
 		some more explanations.
+		</para>
+	      </note>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>
+	      <command>Capture packets in monitor mode (Unix/Linux only)</command>
+	    </term>
+	    <listitem>
+	      <para>
+		This checkbox allows you to setup the Wireless interface to capture
+		all traffic it can recieve, not just the traffic on the BSS to which
+		it is associated, which can happen even when you set promiscuous mode.
+		Also it might be necessary to turn this option on in order to see
+		IEEE 802.11 headers and/or radio information from the captured frames.
+	      </para>
+	      <note>
+		<title>Note</title>
+		<para>
+		  In monitor mode the adapter might disassociate itself from the network
+		  it was associated to.
 		</para>
 	      </note>
 	    </listitem>
