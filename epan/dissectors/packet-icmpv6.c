@@ -3321,7 +3321,7 @@ proto_register_icmpv6(void)
           { "HAI-Length", "icmpv6.opt.hai.length", FT_UINT8, BASE_DEC, NULL, 0x0,
             "The size of the HAI-Value field in octets", HFILL }},
         { &hf_icmpv6_opt_hai_value,
-          { "HAI-Value", "icmpv6.opt.mn.value", FT_BYTES, BASE_NONE, NULL, 0x0,
+          { "HAI-Value", "icmpv6.opt.hai.value", FT_BYTES, BASE_NONE, NULL, 0x0,
             "The value specified by the Option-Code", HFILL }},
         { &hf_icmpv6_opt_mn_option_code,
           { "Option-Code", "icmpv6.opt.mn.option_code", FT_UINT8, BASE_DEC, VALS(nd_opt_mn_option_code_val), 0x0,
