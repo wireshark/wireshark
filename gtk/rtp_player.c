@@ -1377,7 +1377,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 					rci->draw_area->allocation.height-HEIGHT_TIME_LABEL+4);
 
 				if(GTK_TOGGLE_BUTTON(cb_view_as_time_of_day)->active) {
-					seconds = nstime_to_sec(&rci->start_time_abs) + i * MULT / SAMPLE_RATE;
+					seconds = rci->start_time_abs.secs + i * MULT / SAMPLE_RATE;
 					timestamp = localtime(&seconds);
 					g_snprintf(label_string, MAX_TIME_LABEL, "%02d:%02d:%02d", timestamp->tm_hour, timestamp->tm_min, timestamp->tm_sec);
 				} else {
