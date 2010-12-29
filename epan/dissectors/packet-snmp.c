@@ -3038,8 +3038,8 @@ snmp_usm_password_to_key_md5(const guint8 *password, guint passwordlen,
 	/*****************************************************/
 	/* Now localize the key with the engineID and pass   */
 	/* through MD5 to produce final key                  */
-	/* May want to ensure that engineLength <= 32,       */
-	/* otherwise need to use a buffer larger than 64     */
+	/* We ignore invalid engineLengths here. More strict */
+	/* checking is done in snmp_users_update_cb.         */
 	/*****************************************************/
 
 	md5_init(&MD);
@@ -3064,7 +3064,7 @@ snmp_usm_password_to_key_sha1(const guint8 *password, guint passwordlen,
 			      guint8 *key)
 {
 	sha1_context     SH;
-	guint8     *cp, password_buf[72];
+	guint8     *cp, password_buf[64];
 	guint32      password_index = 0;
 	guint32      count = 0, i;
 
@@ -3090,15 +3090,14 @@ snmp_usm_password_to_key_sha1(const guint8 *password, guint passwordlen,
 	/*****************************************************/
 	/* Now localize the key with the engineID and pass   */
 	/* through SHA to produce final key                  */
-	/* May want to ensure that engineLength <= 32,       */
-	/* otherwise need to use a buffer larger than 72     */
+	/* We ignore invalid engineLengths here. More strict */
+	/* checking is done in snmp_users_update_cb.         */
 	/*****************************************************/
-	memcpy(password_buf, key, 20);
-	memcpy(password_buf+20, engineID, engineLength);
-	memcpy(password_buf+20+engineLength, key, 20);
 
 	sha1_starts(&SH);
-	sha1_update(&SH, password_buf, 40+engineLength);
+	sha1_update(&SH, key, 20);
+	sha1_update(&SH, engineID, engineLength);
+	sha1_update(&SH, key, 20);
 	sha1_finish(&SH, key);
 	return;
  }
@@ -3175,6 +3174,11 @@ snmp_users_update_cb(void* p _U_, const char** err)
 	for (i=0; i<num_ueas-1; i++) {
 		snmp_ue_assoc_t* u = &(ueas[i]);
 
+		/* RFC 3411 section 5 */
+		if (u->engine.len < 5 || u->engine.len > 32) {
+			g_string_append_printf(es, "Invalid engineId length (%u). Must be between 5 and 32 (10 and 64 hex digits)\n", u->engine.len);
+		}
+
 
 		if ( u->user.userName.len == ue->user.userName.len
 			&& u->engine.len == ue->engine.len ) {
@@ -3182,13 +3186,13 @@ snmp_users_update_cb(void* p _U_, const char** err)
 			if (u->engine.len > 0 && memcmp( u->engine.data,   ue->engine.data,  u->engine.len ) == 0) {
 				if ( memcmp( u->user.userName.data, ue->user.userName.data, ue->user.userName.len ) == 0 ) {
 					/* XXX: make a string for the engineId */
-					g_string_append_printf(es,"duplicate key (userName='%s')\n",ue->user.userName.data);
+					g_string_append_printf(es,"Duplicate key (userName='%s')\n",ue->user.userName.data);
 				}
 			}
 
 			if (u->engine.len == 0) {
 				if ( memcmp( u->user.userName.data, ue->user.userName.data, ue->user.userName.len ) == 0 ) {
-					g_string_append_printf(es,"duplicate key (userName='%s' engineId=NONE)\n",ue->user.userName.data);
+					g_string_append_printf(es,"Duplicate key (userName='%s' engineId=NONE)\n",ue->user.userName.data);
 				}
 			}
 		}
@@ -3618,7 +3622,7 @@ void proto_register_snmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2133 "packet-snmp-template.c"
+#line 2137 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3658,7 +3662,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2149 "packet-snmp-template.c"
+#line 2153 "packet-snmp-template.c"
   };
   module_t *snmp_module;
 
