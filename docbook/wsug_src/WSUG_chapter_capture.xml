@@ -482,6 +482,15 @@ wireshark -i eth0 -k
 	      </para>
 	    </listitem>
 	  </varlistentry>
+	  <varlistentry><term><command>Compile BPF</command></term>
+	    <listitem>
+	      <para>
+		This button allows you to compile the capture filter into BPF code and
+		pop up a window showing you the resulting pseudo code. This can help in 
+		understanding the working of the capture filter you created.
+	      </para>
+	    </listitem>
+	  </varlistentry>
 	</variablelist>
 	</section>
 	<section><title>Capture File(s) frame</title>
