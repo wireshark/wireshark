@@ -661,7 +661,17 @@ TEXTIFY=$(SH) $(TOOLS_DIR)/textify.sh
 # If you don't have NSIS, comment this line out, so that MAKENSIS
 # isn't defined.
 #
-MAKENSIS="$(PROGRAM_FILES)\nsis\makensis.exe"
+MAKENSIS="$(PROGRAM_FILES)\NSIS\makensis.exe"
+
+#
+# Optional: To build the NSIS PortableApps installer.
+#
+# If you have the NSIS Unicode package, set this to the NSIS Unicode executable.
+#
+# If you don't have NSIS Unicode, comment this line out, so that
+# MAKENSIS_UNICODE isn't defined.
+#
+MAKENSIS_UNICODE="$(PROGRAM_FILES)\NSIS\Unicode\makensis.exe"
 
 #
 # Optional: To build the developers API documentation with doxygen and dot.
