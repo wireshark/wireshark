@@ -3199,7 +3199,7 @@ snmp_users_update_cb(void* p _U_, const char** err)
 	}
 
 	if (es->len) {
-		g_string_truncate(es,es->len-2);
+		g_string_truncate(es,es->len-1);
 		*err = ep_strdup(es->str);
 	}
 
