@@ -16,18 +16,16 @@ In order to build, install yapp, then do
 
 	perl Makefile.PL && make && && make install
 
-Yapp can be found in CPAN; search for Yapp at
-
-	http://search.cpan.org/
-
-(unfortunately, it appears that the URL for the entry for Yapp includes
-a version number, so it's subject to change).  If you are using Linux,
-there may be a package for Yapp for your distribution; on SUSE, the
-package is an rpm named perl-Parse-Yapp.
-
 This will build and install the binaries and the manpage (pidl.1).
 
-run  pidl with:
+Yapp can be found in CPAN at
+
+	http://search.cpan.org/~fdesar/Parse-Yapp/
+
+If you are using Linux, there may be a package for Yapp for your
+distribution; on SUSE, the package is an rpm named perl-Parse-Yapp.
+
+Run pidl with:
 
 	pidl --ws-parser -- <idl-file>  (don't forget the "--")
 
