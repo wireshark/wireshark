@@ -147,6 +147,11 @@ de_sgsap_ecgi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
  * 9.4.4	Global CN-Id
  *
  * See subclause 18.4.27 in 3GPP TS 29.018 [16].
+ * 18.4.27 Global CN-Id
+ * The Global CN-Id consists of a PLMN-Id and a CN-Id, see 3GPP TS 23.003. The PLMN-Id consists of MCC and MNC
+ * coded according to Location Area Identification in 3GPP TS 24.008. The CN-Id is an integer defined by O&M. The
+ * least significant bit of the CN-Id field is bit 1 of octet 7 and the most significant bit is bit 8 of octet 6. If the CN-Id does
+ * not fill the field reserved for it, the rest of the bits are set to '0'.
  */
 /*
  * 9.4.5	IMEISV
