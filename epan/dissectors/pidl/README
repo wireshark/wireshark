@@ -8,9 +8,10 @@ The tree tools/pidl is a direct extract from
 to allow building Wireshark pidl dissectors without having to
 *explicitly* access a remote svn repository.
 
-Don't do changes here, do them at the samba tree! Changes to this tree will
-be overwritten the next time the sources from the samba tree are updated,
-which is basically every time you do an svn up in the Wireshark toplevel dir.
+Don't do changes in the tools/pidl directory, do them at the samba tree!
+Changes to this tree will be overwritten the next time the sources from
+the samba tree are updated, which is basically every time you do an svn
+up in the Wireshark toplevel dir.
 
 In order to build, install yapp, then do
 
