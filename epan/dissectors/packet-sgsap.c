@@ -1378,7 +1378,7 @@ void proto_register_sgsap(void) {
 		NULL, HFILL }
 	},
 	{ &hf_sgsap_lcs_indic,
-		{ "LCS indicator ",	"sgsap.imsi_det_eps",
+		{ "LCS indicator",	"sgsap.lcs_indicator",
 		FT_UINT8, BASE_DEC, VALS(sgsap_lcs_indic_values),0x0,
 		NULL, HFILL }
 	},
