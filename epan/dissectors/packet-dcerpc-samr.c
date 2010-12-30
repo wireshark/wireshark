@@ -480,6 +480,7 @@ static gint hf_samr_samr_UserInfo5_home_drive = -1;
 static gint hf_samr_samr_RemoveMemberFromForeignDomain_sid = -1;
 static gint hf_samr_samr_FieldsPresent_SAMR_FIELD_FORCE_PWD_CHANGE = -1;
 static gint hf_samr_samr_FieldsPresent_SAMR_FIELD_LAST_LOGOFF = -1;
+static gint hf_samr_samr_RidWithAttributeArray_rids = -1;
 static gint hf_samr_samr_Password_hash = -1;
 static gint hf_samr_samr_FieldsPresent_SAMR_FIELD_OWF_PWD = -1;
 static gint hf_samr_samr_UserInfo_info25 = -1;
@@ -7378,7 +7379,7 @@ samr_dissect_element_RidWithAttributeArray_count(tvbuff_t *tvb _U_, int offset _
 static int
 samr_dissect_element_RidWithAttributeArray_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_RidWithAttributeArray_rids_, NDR_POINTER_UNIQUE, "Pointer to Rids (samr_RidWithAttribute)",hf_samr_rid);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_RidWithAttributeArray_rids_, NDR_POINTER_UNIQUE, "Pointer to Rids (samr_RidWithAttribute)",hf_samr_samr_RidWithAttributeArray_rids);
 
 	return offset;
 }
@@ -7394,7 +7395,7 @@ samr_dissect_element_RidWithAttributeArray_rids_(tvbuff_t *tvb _U_, int offset _
 static int
 samr_dissect_element_RidWithAttributeArray_rids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = samr_dissect_struct_RidWithAttribute(tvb,offset,pinfo,tree,drep,hf_samr_rid,0);
+	offset = samr_dissect_struct_RidWithAttribute(tvb,offset,pinfo,tree,drep,hf_samr_samr_RidWithAttributeArray_rids,0);
 
 	return offset;
 }
@@ -16048,6 +16049,8 @@ void proto_register_dcerpc_samr(void)
 	  { "Samr Field Force Pwd Change", "samr.samr_FieldsPresent.SAMR_FIELD_FORCE_PWD_CHANGE", FT_BOOLEAN, 32, TFS(&samr_FieldsPresent_SAMR_FIELD_FORCE_PWD_CHANGE_tfs), ( 0x00020000 ), NULL, HFILL }},
 	{ &hf_samr_samr_FieldsPresent_SAMR_FIELD_LAST_LOGOFF, 
 	  { "Samr Field Last Logoff", "samr.samr_FieldsPresent.SAMR_FIELD_LAST_LOGOFF", FT_BOOLEAN, 32, TFS(&samr_FieldsPresent_SAMR_FIELD_LAST_LOGOFF_tfs), ( 0x00001000 ), NULL, HFILL }},
+	{ &hf_samr_samr_RidWithAttributeArray_rids, 
+	  { "Rids", "samr.samr_RidWithAttributeArray.rids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_Password_hash, 
 	  { "Hash", "samr.samr_Password.hash", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_FieldsPresent_SAMR_FIELD_OWF_PWD, 
