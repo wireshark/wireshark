@@ -46,9 +46,8 @@
 
 
 /* TODO:
-   - Update to latest version of 36.323
    - Complete ROHC support for RTP and extend to other profiles (including ROHCv2)
-   - Support for decryption
+   - Support for deciphering
    - Verify MAC authentication bytes
 */
 
@@ -228,13 +227,26 @@ static const value_string rohc_mode_vals[] = {
 };
 
 
-/* TODO: add more */
+/* Values taken from:
+   http://www.iana.org/assignments/rohc-pro-ids/rohc-pro-ids.txt */
 static const value_string rohc_profile_vals[] = {
-    { 0,   "Uncompressed" },
-    { 1,   "RTP" },
-    { 2,   "UDP" },
-    { 3,   "ESP/IP" },
-    { 0,   NULL }
+         { 0x0000,   "ROHC uncompressed" },      /* [RFC5795] */
+         { 0x0001,   "ROHC RTP" },               /* [RFC3095] */
+         { 0x0101,   "ROHCv2 RTP" },             /* [RFC5225] */
+         { 0x0002,   "ROHC UDP" },               /* [RFC3095] */
+         { 0x0102,   "ROHCv2 UDP" },             /* [RFC5225] */
+         { 0x0003,   "ROHC ESP" },               /* [RFC3095] */
+         { 0x0103,   "ROHCv2 ESP" },             /* [RFC5225] */
+         { 0x0004,   "ROHC IP" },                /* [RFC3843] */
+         { 0x0104,   "ROHCv2 IP" },              /* [RFC5225] */
+         { 0x0005,   "ROHC LLA" },               /* [RFC4362] */
+         { 0x0105,   "ROHC LLA with R-mode" },   /* [RFC3408] */
+         { 0x0006,   "ROHC TCP" },               /* [RFC4996] */
+         { 0x0007,   "ROHC RTP/UDP-Lite" },      /* [RFC4019] */
+         { 0x0107,   "ROHCv2 RTP/UDP-Lite" },    /* [RFC5225] */
+         { 0x0008,   "ROHC UDP-Lite" },          /* [RFC4019] */
+         { 0x0108,   "ROHCv2 UDP-Lite" },        /* [RFC5225] */
+         { 0,   NULL }
 };
 
 static const value_string pdu_type_vals[] = {
