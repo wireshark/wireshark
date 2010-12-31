@@ -4133,7 +4133,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* A FIN packet might complete reassembly so we need to explicitly
      * check for this here.
      */
-    if(tcpd && (tcph->th_flags & TH_FIN)
+    if(tcph->th_have_seglen && tcpd && (tcph->th_flags & TH_FIN)
        && (tcpd->fwd->flags&TCP_FLOW_REASSEMBLE_UNTIL_FIN) ){
         struct tcp_multisegment_pdu *msp;
 
