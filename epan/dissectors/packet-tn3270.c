@@ -14,7 +14,6 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -28,7 +27,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -1300,7 +1298,7 @@ static int hf_tn3270_sf_outbound_id=-1;
 static int hf_tn3270_sf_inbound_id=-1;
 static int hf_tn3270_sf_inbound_outbound_id=-1;
 static int hf_tn3270_sf_length=-1;
-static int hf_tn3270_sf_query_replies=-1;
+static int hf_tn3270_sf_query_reply=-1;
 static int hf_tn3270_sld=-1;
 static int hf_tn3270_spd=-1;
 static int hf_tn3270_start_line=-1;
@@ -1521,6 +1519,7 @@ static gint ett_tn3270_color_flags=-1;
 static gint ett_tn3270_dc_dir_flags=-1;
 static gint ett_tn3270_ccc=-1;
 static gint ett_tn3270_msr_state_mask=-1;
+static gint ett_tn3270_query_list=-1;
 
 static tn3270_conv_info_t *tn3270_info_items;
 
@@ -2082,6 +2081,9 @@ dissect_read_partition(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
 {
   int start=offset;
   int type;
+  proto_item *ti;
+  proto_tree *query_list_tree;
+  gint qcode_list_len, i;
 
   proto_tree_add_item(tn3270_tree,
                           hf_tn3270_partition_id,
@@ -2111,12 +2113,18 @@ dissect_read_partition(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
                             FALSE);
     offset++;
 
-    proto_tree_add_item(tn3270_tree,
-                            hf_tn3270_sf_query_replies,
-                            tvb, offset,
-                            (sf_length - 6),
-                            FALSE);
-    offset+=(sf_length - 6);
+    if (sf_length > 6) {
+      qcode_list_len = sf_length - 6;
+      ti = proto_tree_add_text(tn3270_tree, tvb, offset, qcode_list_len,
+                               "Query List");
+      query_list_tree = proto_item_add_subtree(ti, ett_tn3270_query_list);
+      for (i = 0; i < qcode_list_len; i++) {
+        proto_tree_add_item(tn3270_tree,
+                            hf_tn3270_sf_query_reply,
+                            tvb, offset, 1, FALSE);
+        offset++;
+      }
+    }
   }
   return (offset - start);
 }
@@ -3905,7 +3913,7 @@ dissect_query_reply_summary(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
       return (offset - start);
     }
     proto_tree_add_item(tn3270_tree,
-                            hf_tn3270_sf_query_replies,
+                            hf_tn3270_sf_query_reply,
                             tvb, offset,
                             1,
                             FALSE);
@@ -6565,7 +6573,7 @@ proto_register_tn3270(void)
         {  "Structured Field", "tn3270.sf_inbound_outbound_id",
             FT_UINT8, BASE_HEX, VALS(vals_outbound_inbound_structured_fields), 0x0,
             NULL, HFILL }},
-    { &hf_tn3270_sf_query_replies,
+    { &hf_tn3270_sf_query_reply,
         {  "Query Reply", "tn3270.sf_query_reply",
             FT_UINT8, BASE_HEX, VALS(vals_query_replies), 0x0,
             NULL, HFILL }},
@@ -6617,7 +6625,8 @@ proto_register_tn3270(void)
     &ett_tn3270_dc_dir_flags,
     &ett_tn3270_wcc,
     &ett_tn3270_ccc,
-    &ett_tn3270_msr_state_mask
+    &ett_tn3270_msr_state_mask,
+    &ett_tn3270_query_list
   };
 
   proto_tn3270 = proto_register_protocol("TN3270 Protocol", "TN3270", "tn3270");
