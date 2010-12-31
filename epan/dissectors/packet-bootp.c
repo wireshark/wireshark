@@ -37,18 +37,20 @@
  * BOOTP and DHCP Parameters
  *     http://www.iana.org/assignments/bootp-dhcp-parameters
  * DOCSIS(TM) 2.0 Radio Frequency Interface Specification
- *     http://www.cablemodem.com/downloads/specs/CM-SP-RFI2.0-I10-051209.pdf
+ *     http://www.cablelabs.com/specifications/CM-SP-RFI2.0-I11-060602.pdf
  * PacketCable(TM) 1.0 MTA Device Provisioning Specification
- *     http://www.packetcable.com/downloads/specs/PKT-SP-PROV-I11-050812.pdf
+ *     http://www.cablelabs.com/packetcable/downloads/specs/PKT-SP-PROV-I11-050812.pdf
  *     http://www.cablelabs.com/specifications/archives/PKT-SP-PROV-I05-021127.pdf (superseded by above)
  * PacketCable(TM) 1.5 MTA Device Provisioning Specification
- *     http://www.packetcable.com/downloads/specs/PKT-SP-PROV1.5-I02-050812.pdf
+ *     http://www.cablelabs.com/packetcable/downloads/specs/PKT-SP-PROV1.5-I02-050812.pdf
  * PacketCable(TM) 2.0 EUE Device Provisioning Specification
- *     www.cablelabs.com/specifications/PKT-SP-EUE-DATA-I03-090528.pdf
+ *     http://www.cablelabs.com/specifications/PKT-SP-EUE-DATA-I03-090528.pdf
+ * Business Services over DOCSIS(R) Layer 2 Virtual Private Networks
+ *     http://www.cablelabs.com/specifications/CM-SP-L2VPN-I09-100611.pdf
  * CableHome(TM) 1.1 Specification
  *     http://www.cablelabs.com/projects/cablehome/downloads/specs/CH-SP-CH1.1-I11-060407.pdf
- * DSL Forum TR-111
- *     http://www.dslforum.org/techwork/tr/TR-111.pdf
+ * Broadband Forum TR-111
+ *     http://www.broadband-forum.org/technical/download/TR-111.pdf
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -3866,16 +3868,22 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 					       val_to_str(val_byte, docs_cm_l2vpn_vals, "Reserved"));
 			break;
 		case DOCS_CM_L2VPN_HOST_SUP:
-			proto_item_append_text(ti,
-					       "eSAFE ifIndex %s (%i)/eSAFE MAC %2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x",
-					       val_to_str(val_other[0], docs_cm_map_l2vpn_esafe_index_support_vals, "Reserved"),
-					       val_other[0],
-					       val_other[1],
-					       val_other[2],
-					       val_other[3],
-					       val_other[4],
-					       val_other[5],
-					       val_other[6]);
+			if (tlv_len == 7) {
+				proto_item_append_text(ti,
+						       "eSAFE ifIndex %s (%i)/eSAFE MAC %2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x",
+						       val_to_str(val_other[0], docs_cm_map_l2vpn_esafe_index_support_vals, "Reserved"),
+						       val_other[0],
+						       val_other[1],
+						       val_other[2],
+						       val_other[3],
+						       val_other[4],
+						       val_other[5],
+						       val_other[6]);
+			} else {
+				proto_item_append_text(ti,
+						       "Invalid (length should be 7, is %d)",
+						       tlv_len);
+			}
 			break;
 		case DOCS_CM_USFREQRNG_SUP:
 			proto_item_append_text(ti,
