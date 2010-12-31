@@ -451,7 +451,7 @@ static int cond_one_of(tvbparse_t* tt, const int offset, const tvbparse_wanted_t
         int curr_len;
 
         if ( offset + w->len > tt->end_offset )
-            return -1;
+            continue;
 
         curr_len = w->condition(tt, offset, w,  &new);
 
@@ -503,12 +503,12 @@ static int cond_hash(tvbparse_t* tt, const int offset, const tvbparse_wanted_t* 
     int value_len;
     tvbparse_elem_t* value_elem = NULL;
     int tot_len;
+    tvbparse_elem_t* ret_tok;
 
 #ifdef TVBPARSE_DEBUG
     if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_HASH) g_warning("cond_hash: START");
 #endif
 
-    tvbparse_elem_t* ret_tok;
     if ( offset > tt->end_offset )
         return -1;
 
@@ -682,7 +682,7 @@ static int cond_some(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wante
         return -1;
 
     if ( wanted->min == 0 ) {
-        ret_tok = new_tok(tt,wanted->id,tt->offset,0,wanted);
+        ret_tok = new_tok(tt,wanted->id,offset,0,wanted);
     }
 
     while (got_so_far < wanted->max) {

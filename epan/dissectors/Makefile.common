@@ -601,6 +601,7 @@ DISSECTOR_SRC = \
 	packet-jabber.c		\
 	packet-jmirror.c	\
 	packet-jpeg.c 		\
+	packet-json.c		\
 	packet-juniper.c 	\
 	packet-jxta.c		\
 	packet-k12.c 		\
