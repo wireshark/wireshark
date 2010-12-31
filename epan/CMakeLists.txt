@@ -241,7 +241,6 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-s1ap.c
 	dissectors/packet-s4406.c
 	dissectors/packet-sabp.c
-	dissectors/packet-sgsap.c
 	dissectors/packet-smrse.c
 	dissectors/packet-spnego.c
 	dissectors/packet-sv.c
@@ -936,6 +935,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-sebek.c
 	dissectors/packet-ses.c
 	dissectors/packet-sflow.c
+	dissectors/packet-sgsap.c
 	dissectors/packet-simulcrypt.c
 	dissectors/packet-sip.c
 	dissectors/packet-sigcomp.c
