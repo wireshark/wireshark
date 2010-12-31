@@ -241,6 +241,7 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-s1ap.c
 	dissectors/packet-s4406.c
 	dissectors/packet-sabp.c
+	dissectors/packet-sgsap.c
 	dissectors/packet-smrse.c
 	dissectors/packet-spnego.c
 	dissectors/packet-sv.c
