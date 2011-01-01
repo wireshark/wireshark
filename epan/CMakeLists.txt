@@ -627,7 +627,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-iana-oui.c
 	dissectors/packet-iapp.c
 	dissectors/packet-iax2.c
-       dissectors/packet-infiniband_sdp.c
+	dissectors/packet-infiniband_sdp.c
 	dissectors/packet-icap.c
 	dissectors/packet-icep.c
 	dissectors/packet-icmp.c
@@ -690,6 +690,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-jabber.c
 	dissectors/packet-jmirror.c
 	dissectors/packet-jpeg.c
+	dissectors/packet-json.c
 	dissectors/packet-juniper.c
 	dissectors/packet-jxta.c
 	dissectors/packet-k12.c
