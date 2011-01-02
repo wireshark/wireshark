@@ -576,6 +576,14 @@ ber_add_bad_length_error(packet_info *pinfo, proto_tree *tree,
  * This is for use when a field that's nominally an OCTET STRING but
  * where we want the string further interpreted, e.g. as a number or
  * a network address or a UN*X-style time stamp.
+ *
+ * XXX - this duplicates the length checking in proto_tree_add_item()
+ * and the routines it calls; that should really be done in one
+ * place.  We *do* want to report a dissector bug in proto_tree_add_item()
+ * if the dissector explicitly says, for example, "this IPv4 address is
+ * 7 bytes long", but we don't want to report a dissector bug if the
+ * *packet* says "this IPv4 address is 7 bytes long", we want to report
+ * a malformed packet.
  */
 static proto_item *
 ber_proto_tree_add_item(packet_info *pinfo, proto_tree *tree,
