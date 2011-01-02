@@ -551,6 +551,114 @@ printf("dissect_ber_tagged_type(%s) entered\n",name);
  return offset;
 }
 
+/*
+ * Add a "length bogus" error.
+ */
+static proto_item *
+ber_add_bad_length_error(packet_info *pinfo, proto_tree *tree,
+                         const char *name, tvbuff_t *tvb, const gint start,
+                         gint length)
+{
+	proto_item *ti;
+
+	ti = proto_tree_add_text(tree, tvb, start, length,
+	    "%s: length of item (%d) is not valid", name, length);
+	expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
+	    "Length of item (%d) is not valid", length);
+	return ti;
+}
+
+/*
+ * Like proto_tree_add_item(), but checks whether the length of the item
+ * being added is appropriate for the type of the item being added, so
+ * if it's not, we report an error rather than a dissector bug.
+ *
+ * This is for use when a field that's nominally an OCTET STRING but
+ * where we want the string further interpreted, e.g. as a number or
+ * a network address or a UN*X-style time stamp.
+ */
+static proto_item *
+ber_proto_tree_add_item(packet_info *pinfo, proto_tree *tree,
+                        const int hfindex, tvbuff_t *tvb, const gint start,
+                        gint length, const guint encoding)
+{
+	header_field_info *hfinfo;
+
+	hfinfo = proto_registrar_get_nth((guint)hfindex);
+	if (hfinfo != NULL) {
+		switch (hfinfo->type) {
+
+		case FT_BOOLEAN:
+		case FT_UINT8:
+		case FT_UINT16:
+		case FT_UINT24:
+		case FT_UINT32:
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT24:
+		case FT_INT32:
+			if (length != 1 && length != 2 && length != 3 &&
+			    length != 4)
+				return ber_add_bad_length_error(pinfo, tree,
+				    hfinfo->name, tvb, start, length);
+			break;
+
+		case FT_IPv4:
+			if (length != FT_IPv4_LEN)
+				return ber_add_bad_length_error(pinfo, tree,
+				    hfinfo->name, tvb, start, length);
+			break;
+
+		case FT_IPXNET:
+			if (length != FT_IPXNET_LEN)
+				return ber_add_bad_length_error(pinfo, tree,
+				    hfinfo->name, tvb, start, length);
+			break;
+
+		case FT_IPv6:
+			if (length < 0 || length > FT_IPv6_LEN)
+				return ber_add_bad_length_error(pinfo, tree,
+				    hfinfo->name, tvb, start, length);
+			break;
+
+		case FT_ETHER:
+			if (length != FT_ETHER_LEN)
+				return ber_add_bad_length_error(pinfo, tree,
+				    hfinfo->name, tvb, start, length);
+			break;
+
+		case FT_GUID:
+			if (length != FT_GUID_LEN)
+				return ber_add_bad_length_error(pinfo, tree,
+				    hfinfo->name, tvb, start, length);
+			break;
+
+		case FT_FLOAT:
+			if (length != 4)
+				return ber_add_bad_length_error(pinfo, tree,
+				    hfinfo->name, tvb, start, length);
+			break;
+
+		case FT_DOUBLE:
+			if (length != 8)
+				return ber_add_bad_length_error(pinfo, tree,
+				    hfinfo->name, tvb, start, length);
+			break;
+
+		case FT_ABSOLUTE_TIME:
+		case FT_RELATIVE_TIME:
+			if (length != 4 && length != 8)
+				return ber_add_bad_length_error(pinfo, tree,
+				    hfinfo->name, tvb, start, length);
+			break;
+
+		default:
+			break;
+		}
+	}
+	return proto_tree_add_item(tree, hfindex, tvb, start, length, encoding);
+}
+
 static int
 try_dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, volatile int offset, proto_tree *tree, gint nest_level)
 {
@@ -590,7 +698,7 @@ try_dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, volatile int offset, 
 		  offset=dissect_ber_identifier(pinfo, tree, tvb, start_offset, &class, &pc, &tag);
 		  offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
 	        }
-		cause = proto_tree_add_text(tree, tvb, offset, len, "BER Error: length:%u longer than tvb_length_ramaining:%d",len, tvb_length_remaining(tvb, offset));
+		cause = proto_tree_add_text(tree, tvb, offset, len, "BER Error: length:%u longer than tvb_length_remaining:%d",len, tvb_length_remaining(tvb, offset));
 		expert_add_info_format(pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error length");
 		return tvb_length(tvb);
 	}
@@ -637,7 +745,7 @@ try_dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, volatile int offset, 
 						offset = dissect_ber_identifier(pinfo, tree, tvb, start_offset, NULL, NULL, NULL);
 						offset = dissect_ber_length(pinfo, tree, tvb, offset, NULL, NULL);
 					}
-					item = proto_tree_add_item(tree, hf_ber_unknown_BER_OCTETSTRING, tvb, offset, len, FALSE);
+					item = ber_proto_tree_add_item(pinfo, tree, hf_ber_unknown_BER_OCTETSTRING, tvb, offset, len, FALSE);
 					next_tree = proto_item_add_subtree(item, ett_ber_octet_string);
 					offset = try_dissect_unknown_ber(pinfo, tvb, offset, next_tree, nest_level+1);
 				}
@@ -1300,7 +1408,10 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 			end_offset -= 2;
 			ind = FALSE;
 	  } else if (len_remain < len) {
-			/* error - short frame */
+			/*
+			 * error - short frame, or this item runs past the
+			 * end of the item containing it
+			 */
 		  cause = proto_tree_add_text(tree, tvb, offset, len, "BER Error: length:%u longer than tvb_length_remaining:%d", len, len_remain);
 		  expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error length");
 		  return end_offset;
@@ -1328,7 +1439,7 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 			length_remaining=len;
 		}
 		if(hf_id >= 0) {
-			it = proto_tree_add_item(tree, hf_id, tvb, offset, length_remaining, FALSE);
+			it = ber_proto_tree_add_item(actx->pinfo, tree, hf_id, tvb, offset, length_remaining, FALSE);
 			actx->created_item = it;
 			ber_check_length(length_remaining, min_len, max_len, actx, it, FALSE);
 		} else {
