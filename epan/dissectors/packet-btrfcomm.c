@@ -1,5 +1,10 @@
 /* packet-btrfcomm.c
  * Routines for Bluetooth RFCOMM protocol dissection
+ * and RFCOMM based profile dissection:
+ *    - Handsfree Profile (HFP)
+ *    - Dial-Up Networking (DUN) Profile
+ *    - Serial Port Profile (SPP)
+ *
  * Copyright 2002, Wolfgang Hansmann <hansmann@cs.uni-bonn.de>
  *
  * Refactored for wireshark checkin
@@ -38,6 +43,8 @@
 #include <etypes.h>
 #include <epan/emem.h>
 #include <epan/expert.h>
+#include <epan/tap.h>
+#include "packet-btsdp.h"
 #include "packet-btl2cap.h"
 #include "packet-btrfcomm.h"
 
@@ -70,9 +77,15 @@ static int hf_msc_l = -1;
 
 static int hf_fcs = -1;
 
+static int hf_at_cmd = -1;
+static int hf_dun_at_cmd = -1;
+static int hf_data = -1;
+
 /* Initialize the protocol and registered fields */
 static int proto_btrfcomm = -1;
-
+static int proto_bthf = -1;
+static int proto_btdun = -1;
+static int proto_btspp = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_btrfcomm = -1;
@@ -83,7 +96,14 @@ static gint ett_mcc = -1;
 static gint ett_ctrl_pn_ci = -1;
 static gint ett_ctrl_pn_v24 = -1;
 
+static gint ett_bthf = -1;
+static gint ett_btdun = -1;
+static gint ett_btspp = -1;
+
 static emem_tree_t *dlci_table;
+
+/* Initialize dissector table */
+dissector_table_t rfcomm_service_dissector_table;
 
 typedef struct _dlci_stream_t {
 	int len;
@@ -94,11 +114,12 @@ typedef struct _dlci_stream_t {
 } dlci_stream_t;
 
 typedef struct _dlci_state_t {
+	guint32 service;
 	char do_credit_fc;
-	dlci_stream_t direction[2];
 } dlci_state_t;
 
-static dissector_handle_t btobex_handle;
+static dissector_handle_t data_handle;
+static dissector_handle_t ppp_handle;
 
 static const value_string vs_ctl_pn_i[] = {
 	{0x0, "use UIH Frames"},
@@ -266,12 +287,17 @@ dissect_ctrl_pn(packet_info *pinfo, proto_tree *t, tvbuff_t *tvb, int offset, in
 	offset++;
 
 	if(!pinfo->fd->flags.visited){
-		dlci_state=se_tree_lookup32(dlci_table, dlci);
+		guint32 token;
+		
+		if( pinfo->p2p_dir == cr_flag )
+			token = dlci | 0x01; /* local service */
+		else
+			token = dlci;
+			
+		dlci_state=se_tree_lookup32(dlci_table, token);
 		if(!dlci_state){
 			dlci_state=se_alloc0(sizeof(dlci_state_t));
-			dlci_state->direction[0].current=-1;
-			dlci_state->direction[1].current=-1;
-			se_tree_insert32(dlci_table, dlci, dlci_state);
+			se_tree_insert32(dlci_table, token, dlci_state);
 		}
 
 		if(!cl){
@@ -480,7 +506,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 dlci, cr_flag, ea_flag;
 	guint8 frame_type, pf_flag;
 	guint16 frame_len;
-	dlci_state_t *dlci_state;
+	dlci_state_t *dlci_state = NULL;
 
 	ti = proto_tree_add_item(tree, proto_btrfcomm, tvb, offset, -1, TRUE);
 	rfcomm_tree = proto_item_add_subtree(ti, ett_btrfcomm);
@@ -493,28 +519,31 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* flags and dlci */
 	offset=dissect_btrfcomm_Address(tvb, offset, rfcomm_tree, &ea_flag, &cr_flag, &dlci);
-
-
-	dlci_state=se_tree_lookup32(dlci_table, dlci);
-	if(!dlci_state){
-		dlci_state=se_alloc0(sizeof(dlci_state_t));
-		dlci_state->direction[0].current=-1;
-		dlci_state->direction[1].current=-1;
-		se_tree_insert32(dlci_table, dlci, dlci_state);
-	}
-
 	/* pf and frame type */
 	offset=dissect_btrfcomm_Control(tvb, offset, rfcomm_tree, &pf_flag, &frame_type);
-
-
-	if ((check_col(pinfo->cinfo, COL_INFO))){
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s DLCI=%d ", val_to_str(frame_type, vs_frame_type_short, "Unknown"), dlci);
-	}
-
-
 	/* payload length */
 	offset=dissect_btrfcomm_PayloadLen(tvb, offset, rfcomm_tree, &frame_len);
+	
+	if (dlci && (frame_len || (frame_type == 0xef) || (frame_type == 0x2f) )) {
+		guint32 token;
+		
+		if( pinfo->p2p_dir == cr_flag )
+			token = dlci | 0x01; /* local service */
+		else
+			token = dlci;
 
+		dlci_state=se_tree_lookup32(dlci_table, token);
+		if(!dlci_state){
+			dlci_state=se_alloc0(sizeof(dlci_state_t));
+			se_tree_insert32(dlci_table, token, dlci_state);
+		}
+	}
+	
+	if ((check_col(pinfo->cinfo, COL_INFO))){
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s DLCI=%d ", val_to_str(frame_type, vs_frame_type_short, "Unknown"), dlci);
+		if(dlci && (frame_type == 0x2f))
+			col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ", val_to_str(dlci_state->service, vs_service_classes, "Unknown"));
+	}
 
 	/* UID frame */
 	if(frame_type==0xef && dlci && pf_flag) {
@@ -570,8 +599,11 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item_set_len(mcc_ti, offset-start_offset);
 	}
 
-	/* dissect everything as OBEX for now */
-	if(dlci && frame_len && btobex_handle){
+
+	/* try to find a higher layer dissector that has registered to handle data
+	 * for this kind of service, if none is found dissect it as raw "data"
+	 */
+	if(dlci&&frame_len){
 		tvbuff_t *next_tvb;
 		btl2cap_data_t *l2cap_data;
 		btrfcomm_data_t rfcomm_data;
@@ -583,7 +615,12 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		rfcomm_data.chandle = l2cap_data->chandle;
 		rfcomm_data.cid = l2cap_data->cid;
 		rfcomm_data.dlci = dlci;
-		call_dissector(btobex_handle, next_tvb, pinfo, tree);
+
+		if(!dissector_try_uint(rfcomm_service_dissector_table, dlci_state->service, 
+					next_tvb, pinfo, tree)){
+			/* unknown service, let the data dissector handle it */
+			call_dissector(data_handle, next_tvb, pinfo, tree);
+		}
 	}
 
 	proto_tree_add_item(rfcomm_tree, hf_fcs, tvb, fcs_offset, 1, TRUE);
@@ -730,7 +767,7 @@ proto_register_btrfcomm(void)
 	};
 
 	/* Register the protocol name and description */
-	proto_btrfcomm = proto_register_protocol("Bluetooth RFCOMM Packet", "RFCOMM", "btrfcomm");
+	proto_btrfcomm = proto_register_protocol("Bluetooth RFCOMM Protocol", "RFCOMM", "btrfcomm");
 
 	register_dissector("btrfcomm", dissect_btrfcomm, proto_btrfcomm);
 
@@ -738,18 +775,241 @@ proto_register_btrfcomm(void)
 	proto_register_field_array(proto_btrfcomm, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	rfcomm_service_dissector_table = register_dissector_table("btrfcomm.service", "RFCOMM SERVICE", FT_UINT16, BASE_HEX);
+	
 	dlci_table=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "RFCOMM dlci table");
 }
 
+static int
+btrfcomm_sdp_tap_packet(void *arg _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *arg2)
+{
+	btsdp_data_t *sdp_data = (btsdp_data_t *) arg2;
+
+	if( sdp_data->protocol == BTSDP_RFCOMM_PROTOCOL_UUID ) {
+		guint32 token;
+		dlci_state_t *dlci_state;
+
+		/* rfcomm channel * 2 = dlci */
+		token = (sdp_data->channel<<1) | (sdp_data->flags & BTSDP_LOCAL_SERVICE_FLAG_MASK);
+
+		dlci_state=se_tree_lookup32(dlci_table, token);
+		if(!dlci_state){
+			dlci_state=se_alloc0(sizeof(dlci_state_t));
+			se_tree_insert32(dlci_table, token, dlci_state);
+		}
+		dlci_state->service = sdp_data->service;
+	}
+	return 0;
+}
 
 void
 proto_reg_handoff_btrfcomm(void)
 {
 	dissector_handle_t btrfcomm_handle;
 
-	btobex_handle = find_dissector("btobex");
-
-    btrfcomm_handle = find_dissector("btrfcomm");
+	btrfcomm_handle = find_dissector("btrfcomm");
 	dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_RFCOMM, btrfcomm_handle);
+
+	data_handle = find_dissector("data");
+	
+	/* tap into the btsdp dissector to look for rfcomm channel infomation that
+	   helps us determine the type of rfcomm payload, i.e. which service is
+	   using the channels so we know which sub-dissector to call */
+	register_tap_listener("btsdp", NULL, NULL, 0, NULL, btrfcomm_sdp_tap_packet, NULL);
 }
+
+/* Bluetooth Handsfree (HF) profile dissection */
+static void
+dissect_bthf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item *ti;
+	proto_tree *st;
+
+	guint length = tvb_length(tvb);
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "HANDSFREE");
+
+	ti = proto_tree_add_item(tree, proto_bthf, tvb, 0, -1, FALSE);
+	st = proto_item_add_subtree(ti, ett_bthf);
+
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s \"%s\"",
+				pinfo->p2p_dir==P2P_DIR_SENT?"Sent":"Rcvd", tvb_format_text(tvb, 0, length));
+
+	proto_tree_add_item(st, hf_at_cmd, tvb, 0, -1, TRUE);
+}
+
+void
+proto_register_bthf(void)
+{
+	static hf_register_info hf[] = {
+		{&hf_at_cmd,
+		{"AT Cmd", "bthf.atcmd",
+		FT_STRING, BASE_NONE, NULL, 0,
+		"AT Command", HFILL}
+		},
+	};
+
+	/* Setup protocol subtree array */
+	static gint *ett[] = {
+		&ett_bthf,
+	};
+
+	proto_bthf = proto_register_protocol("Bluetooth Handsfree Packet", "BTHF", "bthf");
+
+	/* Required function calls to register the header fields and subtrees used */
+	proto_register_field_array(proto_bthf, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_bthf(void)
+{
+	dissector_handle_t bthf_handle;
+	
+	bthf_handle = create_dissector_handle(dissect_bthf, proto_bthf);
+	
+	dissector_add_uint("btrfcomm.service", BTSDP_HFP_SERVICE_UUID, bthf_handle);
+	dissector_add_uint("btrfcomm.service", BTSDP_HFP_GW_SERVICE_UUID, bthf_handle);
+}
+
+/* Bluetooth Dial-Up Networking (DUN) profile dissection */
+static void
+dissect_btdun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item *ti;
+	proto_tree *st;
+	gboolean is_at_cmd;
+	guint i, length;
+
+	length = tvb_length(tvb);
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DUN");
+
+	ti = proto_tree_add_item(tree, proto_btdun, tvb, 0, -1, FALSE);
+	st = proto_item_add_subtree(ti, ett_btdun);
+
+	is_at_cmd = TRUE;
+	for(i=0;i<length && is_at_cmd;i++) {
+		is_at_cmd = tvb_get_guint8(tvb, i) < 0x7d;
+	}
+
+	if( is_at_cmd) {
+		/* presumably an AT command */
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s \"%s\"",
+	                pinfo->p2p_dir==P2P_DIR_SENT?"Sent":"Rcvd", tvb_format_text(tvb, 0, length));
+
+	       proto_tree_add_item(st, hf_dun_at_cmd, tvb, 0, -1, TRUE);
+	}
+	else {
+		/* ... or raw PPP */
+		if( ppp_handle ) 
+			call_dissector(ppp_handle, tvb, pinfo, tree); 
+		else {
+			/* TODO: remove the above 'if' and this 'else-body' when "ppp_raw_hdlc" is available, requires that it is
+			    made non-anonymous in ppp dissector to use */
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP");
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s <PPP frame>", pinfo->p2p_dir==P2P_DIR_SENT?"Sent":"Rcvd");
+	                
+			call_dissector(data_handle, tvb, pinfo, tree);
+		}
+	}
+}
+
+void
+proto_register_btdun(void)
+{
+	static hf_register_info hf[] = {
+		{&hf_dun_at_cmd,
+		{"AT Cmd", "btdun.atcmd",
+		FT_STRING, BASE_NONE, NULL, 0,
+		"AT Command", HFILL}
+		},
+	};
+
+	/* Setup protocol subtree array */
+	static gint *ett[] = {
+		&ett_btdun,
+	};
+
+	proto_btdun = proto_register_protocol("Bluetooth DUN Packet", "BTDUN", "btdun");
+
+	/* Required function calls to register the header fields and subtrees used */
+	proto_register_field_array(proto_bthf, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_btdun(void)
+{
+	dissector_handle_t btdun_handle;
+	
+	btdun_handle = create_dissector_handle(dissect_btdun, proto_btdun);
+	
+	dissector_add_uint("btrfcomm.service", BTSDP_DUN_SERVICE_UUID, btdun_handle);
+
+	ppp_handle = find_dissector("ppp_raw_hdlc"); 
+}
+
+/* Bluetooth Serial Port profile (SPP) dissection */
+static void
+dissect_btspp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item *ti;
+	proto_tree *st;
+	gboolean ascii_only;
+	guint i, length = tvb_length(tvb);
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPP");
+
+	ti = proto_tree_add_item(tree, proto_btspp, tvb, 0, -1, FALSE);
+	st = proto_item_add_subtree(ti, ett_btspp);
+	
+	length = MIN(length,60);
+	ascii_only = TRUE;
+	for(i=0;i<length && ascii_only;i++) {
+		ascii_only = tvb_get_guint8(tvb, i) < 0x80;
+	}
+
+	if(ascii_only) {
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s \"%s%s\"",
+		                pinfo->p2p_dir==P2P_DIR_SENT?"Sent":"Rcvd",
+		                tvb_format_text(tvb, 0, length),
+		                tvb_length(tvb) > length ? "...":"");
+	}
+
+	proto_tree_add_item(st, hf_data, tvb, 0, -1, TRUE);
+}
+
+void
+proto_register_btspp(void)
+{
+	static hf_register_info hf[] = {
+	{&hf_data,
+		{"Data", "btspp.data",
+		FT_BYTES, BASE_NONE, NULL, 0,
+		NULL, HFILL}},
+	};
+
+	/* Setup protocol subtree array */
+	static gint *ett[] = {
+		&ett_btspp,
+	};
+
+	proto_btspp = proto_register_protocol("Bluetooth SPP Packet", "BTSPP", "btspp");
+
+	/* Required function calls to register the header fields and subtrees used */
+	proto_register_field_array(proto_bthf, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_btspp(void)
+{
+	dissector_handle_t btspp_handle;
+	
+	btspp_handle = create_dissector_handle(dissect_btspp, proto_btspp);
+	
+	dissector_add_uint("btrfcomm.service", BTSDP_SPP_SERVICE_UUID, btspp_handle);
+}
+
 

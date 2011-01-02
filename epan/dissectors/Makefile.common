@@ -1030,6 +1030,7 @@ DISSECTOR_INCLUDES =	\
 	packet-bthci_acl.h	\
 	packet-btl2cap.h	\
 	packet-btrfcomm.h	\
+	packet-btsdp.h	\
 	packet-camel.h	\
 	packet-chdlc.h	\
 	packet-cdt.h	\
