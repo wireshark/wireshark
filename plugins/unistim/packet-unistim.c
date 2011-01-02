@@ -2409,18 +2409,18 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
          break;
       case 0x3b:
    /*Resolve Port Mapping*/
-         proto_tree_add_item(msg_tree,hf_audio_resolve_phone_port,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_audio_resolve_phone_port,tvb,offset,2,FALSE);
          offset+=2;msg_len-=2;
-         proto_tree_add_item(msg_tree,hf_audio_far_end_echo_port,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_audio_far_end_echo_port,tvb,offset,2,FALSE);
          offset+=2;msg_len-=2;
-         proto_tree_add_item(msg_tree,hf_audio_far_end_ip_address,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_audio_far_end_ip_address,tvb,offset,4,FALSE);
          offset+=4;msg_len-=4;
          break;
       case 0x3c:
-   /*Port Mpping Discovery Ack*/
-         proto_tree_add_item(msg_tree,hf_audio_nat_port,tvb,offset,1,FALSE);
+   /*Port Mapping Discovery Ack*/
+         proto_tree_add_item(msg_tree,hf_audio_nat_port,tvb,offset,2,FALSE);
          offset+=2;msg_len-=2;
-         proto_tree_add_item(msg_tree,hf_audio_nat_ip_address,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_audio_nat_ip_address,tvb,offset,4,FALSE);
          offset+=4;msg_len-=4;
          break;
       case 0x3d:
@@ -2485,7 +2485,7 @@ dissect_audio_phone(proto_tree *msg_tree,
          break;
       case 0x07:
    /*Audio Manager Attributes Info*/
-       proto_tree_add_item(msg_tree,hf_audio_hf_support,tvb,1,msg_len,FALSE);
+         proto_tree_add_item(msg_tree,hf_audio_hf_support,tvb,offset,1,FALSE);
          offset+=1;msg_len-=1;
          while(msg_len>0){
           proto_tree_add_item(msg_tree,hf_rx_vocoder_type,tvb,offset,1,FALSE);
