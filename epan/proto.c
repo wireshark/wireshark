@@ -1442,7 +1442,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			proto_tree_set_string(new_fi, string);
 			break;
 
-			case FT_EBCDIC:
+		case FT_EBCDIC:
 			proto_tree_set_ebcdic_string_tvb(new_fi, tvb, start, length);
 			break;
 
