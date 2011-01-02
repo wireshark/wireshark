@@ -15174,7 +15174,7 @@
 00:A0:8B	AstonElect             # ASTON ELECTRONIC DESIGNS LTD.
 00:A0:8C	Multimedia             # MultiMedia LANs, Inc.
 00:A0:8D	Jacomo                 # JACOMO CORPORATION
-00:A0:8E	NokiaInter             # Nokia Internet Communications
+00:A0:8E	CheckPoint             # Check Point Software Technologies
 00:A0:8F	Desknet                # DESKNET SYSTEMS, INC.
 00:A0:90	Timestep               # TimeStep Corporation
 00:A0:91	ApplicomIn             # APPLICOM INTERNATIONAL
@@ -16159,6 +16159,7 @@
 04:2F:56	AtocsShenz             # ATOCS (Shenzhen) LTD
 04:36:04	GyeyoungI&             # Gyeyoung I&T
 04:4F:AA	RuckusWire             # Ruckus Wireless
+04:55:CA	BriviewXia             # BriView (Xiamen) Corp.
 04:5D:56	CamtronInd             # camtron industrial inc.
 04:70:BC	Globalstar             # Globalstar Inc.
 04:74:A1	AligeraEqu             # Aligera Equipamentos Digitais Ltda
@@ -16177,6 +16178,7 @@
 04:E0:C4	Triumph-Ad             # TRIUMPH-ADLER AG
 04:E2:F8	AepSrl                 # AEP srl
 04:E5:48	CohdaWirel             # Cohda Wireless Pty Ltd
+04:E6:62	Acroname               # Acroname Inc.
 04:FE:7F	Cisco                  # Cisco Systems
 04:FF:51	NovamediaI             # NOVAMEDIA INNOVISION SP. Z O.O.
 08:00:01	Computervi             # COMPUTERVISION CORPORATION
@@ -16417,6 +16419,7 @@
 10:E8:EE	Phasespace
 11:00:AA	Private
 14:1B:BD	Volex                  # Volex Inc.
+14:35:B3	FutureDesi             # Future Designs, Inc.
 14:4C:1A	MaxCommuni             # Max Communication GmbH
 14:54:12	Entis                  # Entis Co., Ltd.
 14:6E:0A	Private
@@ -17120,9 +17123,11 @@
 7C:3B:D5	ImagoGroup             # Imago Group
 7C:3E:9D	Patech
 7C:4A:A8	MindtreeWi             # MindTree Wireless PVT Ltd
+7C:4F:B5	ArcadyanTe             # Arcadyan Technology Corporation
 7C:55:E7	Ysi                    # YSI, Inc.
 7C:61:93	Htc                    # HTC Corporation
 7C:6A:DB	SafetoneTe             # SafeTone Technology Co.,Ltd
+7C:6C:39	PixsysSrl              # PIXSYS SRL
 7C:6C:8F	AmsNeve                # AMS NEVE LTD
 7C:6D:62	Apple                  # Apple, Inc
 7C:6F:06	Caterpilla             # Caterpillar Trimble Control Technologies
@@ -17452,6 +17457,7 @@ AC:81:12	GemtekTech             # Gemtek Technology Co., Ltd.
 AC:83:17	ShenzhenFu             # Shenzhen Furtunetel Communication Co., Ltd
 AC:83:F0	MagentaVid             # Magenta Video Networks
 AC:86:7E	CreateNewT             # Create New Technology (HK) Limited Company
+AC:93:2F	Nokia                  # Nokia Corporation
 AC:9A:96	LantiqDeut             # Lantiq Deutschland GmbH
 AC:9B:84	SmakTecnol             # Smak Tecnologia e Automacao
 AC:A0:16	Cisco                  # Cisco Systems
@@ -17464,6 +17470,7 @@ AC:DE:48	Private
 AC:E3:48	Madgetech              # MadgeTech, Inc
 AC:E9:AA	Hay                    # Hay Systems Ltd
 AC:EA:6A	GenixInfoc             # GENIX INFOCOMM CO., LTD.
+B0:38:29	Siliconwar             # Siliconware Precision Industries Co., Ltd.
 B0:51:8E	HollTechno             # Holl technology CO.Ltd.
 B0:5B:1F	ThermoFish             # THERMO FISHER SCIENTIFIC S.P.A.
 B0:65:63	ShanghaiRa             # Shanghai Railway Communication Factory
@@ -17617,7 +17624,7 @@ C8:3E:A7	Kunbus                 # KUNBUS GmbH
 C8:48:F5	MedisonXra             # MEDISON Xray Co., Ltd
 C8:4C:75	Cisco                  # Cisco Systems
 C8:6C:1E	Display                # Display Systems Ltd
-C8:6C:87	ZyxelCommu             # ZyXEL Communications Corporation
+C8:6C:87	MitrastarT             # Mitrastar Technology
 C8:6C:B6	Optcom                 # Optcom Co., Ltd.
 C8:72:48	AplicomOy              # Aplicom Oy
 C8:7E:75	SamsungEle             # Samsung Electronics Co.,Ltd
@@ -17697,6 +17704,7 @@ D4:4C:24	Vuppalamri             # Vuppalamritha Magnetic Components LTD
 D4:4C:A7	Informtekh             # Informtekhnika & Communication, LLC
 D4:4F:80	KemperDigi             # Kemper Digital GmbH
 D4:52:97	NstreamsTe             # nSTREAMS Technologies, Inc.
+D4:5D:42	Nokia                  # Nokia Corporation
 D4:66:A8	RiedoNetwo             # Riedo Networks GmbH
 D4:6C:BF	GoodrichIs             # Goodrich ISR
 D4:6C:DA	Csm                    # CSM GmbH
@@ -18006,6 +18014,7 @@ FC:E1:92	SichuanJin             # Sichuan Jinwangtong Electronic Science&Technol
 FC:E2:3F	ClayPakySp             # CLAY PAKY SPA
 FC:E5:57	Nokia                  # Nokia Corporation
 FC:ED:B9	Arrayent
+FC:F1:CD	Optex-Fa               # OPTEX-FA CO.,LTD.
 FC:FA:F7	ShanghaiBa             # Shanghai Baud Data Communication Co.,Ltd.
 FC:FB:FB	Cisco                  # Cisco Systems
 
