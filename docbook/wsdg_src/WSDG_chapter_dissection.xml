@@ -25,8 +25,9 @@
 	</para>
 	<para>
 	There is little difference in having your dissector as either a plugin
-	or built-in. On the Win32 platform you have limited function access
-	through what's listed in libwireshark.def, but that is mostly complete.
+	or built-in. On the Windows platform you have limited function access
+	through what's listed in <filename>libwireshark.def</filename>,
+	but that is mostly complete.
 	</para>
 	<para>
 	The big plus is that your rebuild cycle for a plugin is much shorter
@@ -116,8 +117,9 @@ proto_register_foo(void)
 
 	</para>
 	<para>
-	First we'll call the proto_register_protocol function which registers the protocol.
-	We can give it three names that	will be used for display in various places.
+	First we'll call the <function>proto_register_protocol()</function> function
+	which registers the protocol.
+	We can give it three names that will be used for display in various places.
 	The full and short name are used in e.g. the "Preferences" and "Enabled protocols"
 	dialogs as well as the generated field name list in the documentation.
 	The abbreviation is used as the display filter name.
@@ -144,8 +146,9 @@ proto_reg_handoff_foo(void)
 	so that the main program will know to call us when it gets UDP traffic on that port.
 	</para>
 	<para>
-	The stardard Wireshark dissector convention is to put proto_register_foo and
-	proto_reg_handoff_foo as the last two functions in the dissector source.
+	The stardard Wireshark dissector convention is to put
+	<function>proto_register_foo()</function> and <function>proto_reg_handoff_foo()</function>
+	as the last two functions in the dissector source.
 	</para>
 	<para>
 	Now at last we get to write some dissecting code. For the moment we'll
@@ -172,9 +175,8 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	</para>
 	<para>
 	For now we'll do the minimum we can get away with.
-	The first two lines check to see if the Protocol column is being displayed in
-	the UI. If it is, we set the text of this to our protocol, so everyone
-	can see it's been recognised.
+	In the first line we set the text of this to our protocol, so everyone
+	can see it's being recognised.
 	The only other thing we do is to clear out any data in the INFO column
 	if it's being displayed.
 	</para>
@@ -184,7 +186,7 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	</para>
 	<para>
 	In order to compile this dissector and create a plugin a couple of support files
-	are required, besides the dissector source in packet-foo.c:
+	are required, besides the dissector source in <filename>packet-foo.c</filename>:
 	<itemizedlist>
 	<listitem><para>
 	Makefile.am - This is the UNIX/Linux makefile template
@@ -208,9 +210,11 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	plugin.rc.in - This contains the DLL resource template for Windows
 	</para></listitem>
 	</itemizedlist>
-	You can find a good example for these files in the interlink plugin directory. Makefile.common
-	and Makefile.am have to be modified to reflect the relevant files and dissector name.
-	moduleinfo.h and moduleinfo.nmake have to be filled in with the version information.
+	You can find a good example for these files in the interlink plugin directory.
+	<filename>Makefile.common</filename> and <filename>Makefile.am</filename> have to
+	be modified to reflect the relevant files and dissector name.
+	<filename>moduleinfo.h</filename> and <filename>moduleinfo.nmake</filename> have
+	to be filled in with the version information.
 	Compile the dissector to a DLL or shared library and copy it into the plugin
 	directory of the installation.
 	</para>
@@ -230,7 +234,7 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	   it is called to get a summary of the packet, in the other case it is
 	   called to look into details of the packet. These two cases can be
 	   distinguished by the tree pointer. If the tree pointer is NULL, then
-	   we are being asked for a summary. If it is non null, we can pick apart
+	   we are being asked for a summary. If it is non NULL, we can pick apart
 	   the protocol for display. So with that in mind, let's enhance our dissector.
 	   </para>
 	   <example><title>Plugin Packet Dissection.</title>
@@ -258,8 +262,8 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	We are also marking the area of data that is being consumed by this
 	protocol. In our case it's all that has been passed to us, as we're assuming
 	this protocol does not encapsulate another.
-	Therefore, we add the new tree node with proto_tree_add_item, adding
-	it to the passed in tree, label it with the protocol, use the passed in
+	Therefore, we add the new tree node with <function>proto_tree_add_item()</function>,
+	adding it to the passed in tree, label it with the protocol, use the passed in
 	tvb buffer as the data, and consume from 0 to the end (-1) of this data.
 	The FALSE we'll ignore for now.
 	</para>
@@ -270,11 +274,13 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	<para>
 	Now let's go to the next step and add some protocol dissection.
 	For this step we'll need to construct a couple of tables that help with dissection.
-	This needs some additions to the proto_register_foo function shown previously.
+	This needs some additions to the <function>proto_register_foo()</function>
+	function shown previously.
 	</para>
 	<para>
-	Two statically allocated arrays are added at the beginning of proto_register_foo. The
-	arrays are then registered after the call to proto_register_protocol.
+	Two statically allocated arrays are added at the beginning of
+	<function>proto_register_foo()</function>. The arrays are then registered after
+	the call to <function>proto_register_protocol()</function>.
 	</para>
 	   <example><title>Registering data structures.</title>
    <programlisting>
@@ -306,8 +312,8 @@ proto_register_foo(void)
 }]]>
    </programlisting></example>
    	<para>
-   	The variables hf_foo_pdu_type and ett_foo also need to be declared
-   	somewhere near the top of the file.
+   	The variables <varname>hf_foo_pdu_type</varname> and <varname>ett_foo</varname>
+   	also need to be declared somewhere near the top of the file.
    	</para>
 	   <example><title>Dissector data structure globals.</title>
    <programlisting>
@@ -335,20 +341,21 @@ static gint ett_foo = -1;]]>
 	that defines the packet type for foo protocol.
 	</para>
 	<para>
-	The proto_item_add_subtree call has added a child node to the protocol tree
-	which is where we will do our detail dissection. The expansion of this
-	node is controlled by the ett_foo variable. This remembers if the node should
-	be expanded or not as you move between packets.
-	All subsequent dissection will be added to this tree, as you can see from the next call.
-	A call to proto_tree_add_item in the foo_tree, this time using the
-	hf_foo_pdu_type to control the formatting of the item. The pdu type
-	is one byte of data, starting at 0. We assume it is in network order,
-	so that is why we use FALSE. Although for 1 byte there is no order issue
-	it's best to keep this correct.
+	The <function>proto_item_add_subtree()</function> call has added a child node
+	to the protocol tree which is where we will do our detail dissection.
+	The expansion of this node is controlled by the <varname>ett_foo</varname>
+	variable. This remembers if the node should be expanded or not as you move
+	between packets. All subsequent dissection will be added to this tree,
+	as you can see from the next call.
+	A call to <function>proto_tree_add_item()</function> in the <varname>foo_tree</varname>,
+	this time using the <varname>hf_foo_pdu_type</varname> to control the formatting
+	of the item. The pdu type is one byte of data, starting at 0. We assume it is
+	in network order, so that is why we use FALSE. Although for 1 byte there is
+	no order issue it's best to keep this correct.
 	</para>
 	<para>
-	If we look in detail at the hf_foo_pdu_type declaration in the static array
-	we can see the details of the definition.
+	If we look in detail at the <varname>hf_foo_pdu_type</varname> declaration in
+	the static array we can see the details of the definition.
 	</para>
 	<itemizedlist>
 	<listitem><para>
@@ -367,7 +374,7 @@ static gint ett_foo = -1;]]>
 	</para></listitem>
 	<listitem><para>
 	BASE_DEC - for an integer type, this tells it to be printed as a decimal
-	number. It could be BASE_HEX or BASE_OCT if that made more sense.
+	number. It could be hexdecimal (BASE_HEX) or octal (BASE_OCT) if that made more sense.
 	</para></listitem>
 	</itemizedlist>
 	<para>
@@ -379,7 +386,7 @@ static gint ett_foo = -1;]]>
 	</para>
 	<para>
 	Now let's finish off dissecting the simple protocol. We need to add a few
-	more variables to the hf array, and a couple more procedure calls.
+	more variables to the <varname>hf</varname> array, and a couple more procedure calls.
 	</para>
 	   <example><title>Wrapping up the packet dissection.</title>
    <programlisting>
@@ -439,8 +446,8 @@ proto_register_foo(void) {
    </programlisting></example>
    <para>
    This dissects all the bits of this simple hypothetical protocol. We've introduced a new
-   variable offset into the mix to help keep track of where we are in the packet dissection.
-   With these extra bits in place, the whole protocol is now dissected.
+   variable <varname>offset</varname> into the mix to help keep track of where we are in
+   the packet dissection. With these extra bits in place, the whole protocol is now dissected.
    </para>
    </section>
    <section><title>Improving the dissection information</title>
@@ -450,7 +457,7 @@ proto_register_foo(void) {
    There is some useful support for this sort of thing by adding a couple of extra things.
    First we add a simple table of type to name.
    </para>
-	   <example><title>Naming the packet types.</title>
+   <example><title>Naming the packet types.</title>
    <programlisting>
 <![CDATA[static const value_string packettypenames[] = {
     { 1, "Initialise" },
@@ -465,7 +472,7 @@ proto_register_foo(void) {
    do that, as the support code already has that added in. We just have to give
    these details to the appropriate part of the data, using the VALS macro.
    </para>
-	   <example><title>Adding Names to the protocol.</title>
+   <example><title>Adding Names to the protocol.</title>
    <programlisting>
 <![CDATA[   { &hf_foo_pdu_type,
         { "FOO PDU Type", "foo.type",
@@ -478,7 +485,7 @@ proto_register_foo(void) {
     This helps in deciphering the packets, and we can do a similar thing for the
     flags structure. For this we need to add some more data to the table though.
     </para>
-	   <example><title>Adding Flags to the protocol.</title>
+   <example><title>Adding Flags to the protocol.</title>
    <programlisting>
 <![CDATA[#define FOO_START_FLAG 0x01
 #define FOO_END_FLAG        0x02
@@ -542,13 +549,13 @@ proto_register_foo(void) {
    shows the packets as "Foo Protocol" which whilst correct is a little uninformative.
    We can enhance this by adding a little more detail.
    First, let's get hold of the actual value of the protocol type. We can use the handy
-   function tvb_get_guint8 to do this.
+   function <function>tvb_get_guint8()</function> to do this.
    With this value in hand, there are a couple of things we can do.
    First we can set the INFO column of the non-detailed view to show what sort of
    PDU it is - which is extremely helpful when looking at protocol traces.
    Second, we can also display this information in the dissection window.
    </para>
-	   <example><title>Enhancing the display.</title>
+   <example><title>Enhancing the display.</title>
    <programlisting>
 <![CDATA[static void
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -577,8 +584,8 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    </programlisting></example>
    <para>
    So here, after grabbing the value of the first 8 bits, we use it with one of the
-   built-in utility routines val_to_str, to lookup the value. If the value isn't
-   found we provide a fallback which just prints the value in hex.
+   built-in utility routines <function>val_to_str()</function>, to lookup the value.
+   If the value isn't found we provide a fallback which just prints the value in hex.
    We use this twice, once in the INFO field of the columns - if it's displayed, and
    similarly we append this data to the base of our dissecting tree.
    </para>
@@ -642,27 +649,27 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    	<para>
    	So armed with the size, a buffer is allocated to receive the uncompressed
    	data using g_malloc, and the packet is decompressed into it.
-   	The tvb_get_ptr function is useful to get a pointer to the raw data of
-   	the packet from the offset onwards. In this case the
+   	The <function>tvb_get_ptr()</function> function is useful to get a pointer
+   	to the raw data of the packet from the offset onwards. In this case the
    	decompression routine also needs to know the length, which is
-   	given by the tvb_length_remaining function.
+   	given by the <function>tvb_length_remaining()</function> function.
    	</para>
    	<para>
-   	Next we build a new tvb buffer from this data, using the tvb_new_real_data
+   	Next we build a new tvb buffer from this data, using the <function>tvb_new_real_data()</function>
    	call. This data is a child of our original data, so we acknowledge that
-   	in the next call to tvb_set_child_real_data_tvbuff.
+   	in the next call to <function>tvb_set_child_real_data_tvbuff</function>.
    	Finally we add this data as a new data source, so that
    	the detailed display can show the decompressed bytes as well as the original.
    	One procedural step is to add a handler to free the data when it's no longer needed.
-   	In this case as g_malloc was used to allocate the memory, g_free is the appropriate
-   	function.
+   	In this case as <function>g_malloc()</function> was used to allocate the
+   	memory, <function>g_free()</function> is the appropriate function.
    	</para>
 	<para>
 	After this has been set up the remainder of the dissector can dissect the
 	buffer next_tvb, as it's a new buffer the offset needs to be 0 as we start
 	again from the beginning of this buffer. To make the rest of the dissector
 	work regardless of whether compression was involved or not, in the case that
-	compression was not signaled, we use the tvb_new_subset to deliver us
+	compression was not signaled, we use the <function>tvb_new_subset()</function> to deliver us
 	a new buffer based on the old one but starting at the current offset, and
 	extending to the end. This makes dissecting the packet from this point on
 	exactly the same regardless of compression.
@@ -736,7 +743,7 @@ if (flags & FL_FRAGMENT) { /* fragmented */
 	We start by saving the fragmented state of this packet, so we can restore it later.
 	Next comes some protocol specific stuff, to dig the fragment data
 	out of the stream if it's present. Having decided it is present, we
-	let the function fragment_add_seq_check do its work.
+	let the function <function>fragment_add_seq_check()</function> do its work.
 	We need to provide this with a certain amount of data.
 	</para>
 	<itemizedlist>
@@ -813,7 +820,7 @@ pinfo->fragmented = save_fragmented;
 	   the first packet in the sequence can be partially decoded though if you wish.
 	   </para>
 	   <para>
-	   Now the mysterious data we passed into the fragment_add_seq_check.
+	   Now the mysterious data we passed into the <function>fragment_add_seq_check()</function>.
 	   </para>
 	   <example><title>Reassembling fragments - Initialisation</title>
 	   <programlisting>
@@ -884,18 +891,18 @@ static hf_register_info hf[] =
     FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
 {&hf_msg_fragment_overlap,
     {"Message fragment overlap", "msg.fragment.overlap",
-    FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+    FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
 {&hf_msg_fragment_overlap_conflicts,
     {"Message fragment overlapping with conflicting data",
     "msg.fragment.overlap.conflicts",
-    FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+    FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
 {&hf_msg_fragment_multiple_tails,
     {"Message has multiple tail fragments",
     "msg.fragment.multiple_tails",
-    FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+    FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
 {&hf_msg_fragment_too_long_fragment,
     {"Message fragment too long", "msg.fragment.too_long_fragment",
-    FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+    FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
 {&hf_msg_fragment_error,
     {"Message defragmentation error", "msg.fragment.error",
     FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -1109,12 +1116,12 @@ G_MODULE_EXPORT void plugin_register_tap_listener(void)
    </programlisting></example>
    	<para>
    	Working from the bottom up, first the plugin interface entry point is defined,
-   	plugin_register_tap_listener. This simply calls the initialisation function
-   	register_foo_stat_trees.
+   	<function>plugin_register_tap_listener()</function>. This simply calls the
+   	initialisation function <function>register_foo_stat_trees()</function>.
    	</para>
 	<para>
-	This in turn calls the stats_tree_register function, which takes
-	three strings, and three functions.
+	This in turn calls the <function>stats_tree_register()</function> function,
+	which takes three strings, and three functions.
 	</para>
 	<orderedlist>
 	<listitem><para>
@@ -1181,7 +1188,7 @@ static void foo_stats_tree_init(stats_tree* st)
 	<title>How to use conversations</title>
 	<para>
 	Some info about how to use conversations in a dissector can be
-	found in the file doc/README.developer chapter 2.2.
+	found in the file <filename>doc/README.developer</filename> chapter 2.2.
 	</para>
   </section>
 
