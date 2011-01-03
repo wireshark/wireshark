@@ -265,6 +265,11 @@ get_sdp_type(tvbuff_t *tvb, int offset, guint16 id, guint8 *type, guint8 **val, 
 	*type = (byte0>>3) & 0x1f;
 	size_index = byte0 & 0x07;
 
+	/* Initialize the rest of the outputs */
+	*val = NULL;
+	*service = 0;
+	*service_val = 0;
+
 	start_offset=offset;
 	offset = get_type_length(tvb, offset, &size);
 	type_size = offset - start_offset + size;
@@ -364,8 +369,6 @@ get_sdp_type(tvbuff_t *tvb, int offset, guint16 id, guint8 *type, guint8 **val, 
 		}
 		break;
 	}
-	default:
-		*val = NULL;
 	}
 
 	return type_size;
@@ -582,7 +585,7 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset, packe
 				tap_queue_packet(btsdp_tap, NULL, (void *) service_item);
 			}
 		}
-    }
+	}
 
 	proto_item_set_len(ti_sa, size + 3);
 	proto_item_set_len(ti_av, size);
