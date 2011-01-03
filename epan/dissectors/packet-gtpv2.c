@@ -788,7 +788,7 @@ dissect_gtpv2_ip_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     if (length==4)
     {
         proto_tree_add_item(tree, hf_gtpv2_ip_address_ipv4, tvb, offset, length, FALSE);
-		proto_item_append_text(item, ", IPv4 %s", tvb_get_ipv4(tvb, offset));
+		/*proto_item_append_text(item, ", IPv4 %s", tvb_get_ipv4(tvb, offset));*/
     }
     else if (length==16)
     {
