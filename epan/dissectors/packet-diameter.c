@@ -619,13 +619,14 @@ simple_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 static const char*
 integer32_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 {
-	char* label = ep_alloc(ITEM_LABEL_LENGTH+1);
+	char* label;
 	proto_item* pi;
 
 	/* Verify length before adding */
 	gint length = tvb_length_remaining(tvb,0);
 	if (length == 4) {
 		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),FALSE);
+		label = ep_alloc(ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
 	}
@@ -637,6 +638,7 @@ integer32_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
 				       "Bad Integer32 Length (%u)", length);
 		PROTO_ITEM_SET_GENERATED(pi);
+		label = NULL;
 	}
 	return label;
 }
@@ -644,13 +646,14 @@ integer32_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 static const char*
 integer64_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 {
-	char* label = ep_alloc(ITEM_LABEL_LENGTH+1);
+	char* label;
 	proto_item* pi;
 
 	/* Verify length before adding */
 	gint length = tvb_length_remaining(tvb,0);
 	if (length == 8) {
 		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),FALSE);
+		label = ep_alloc(ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
 	}
@@ -662,6 +665,7 @@ integer64_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
 				       "Bad Integer64 Length (%u)", length);
 		PROTO_ITEM_SET_GENERATED(pi);
+		label = NULL;
 	}
 	return label;
 }
@@ -669,13 +673,14 @@ integer64_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 static const char*
 unsigned32_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 {
-	char* label = ep_alloc(ITEM_LABEL_LENGTH+1);
+	char* label;
 	proto_item* pi;
 
 	/* Verify length before adding */
 	gint length = tvb_length_remaining(tvb,0);
 	if (length == 4) {
 		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),FALSE);
+		label = ep_alloc(ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
 	}
@@ -687,6 +692,7 @@ unsigned32_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
 				       "Bad Unsigned32 Length (%u)", length);
 		PROTO_ITEM_SET_GENERATED(pi);
+		label = NULL;
 	}
 	return label;
 }
@@ -694,13 +700,14 @@ unsigned32_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 static const char*
 unsigned64_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 {
-	char* label = ep_alloc(ITEM_LABEL_LENGTH+1);
+	char* label;
 	proto_item* pi;
 
 	/* Verify length before adding */
 	gint length = tvb_length_remaining(tvb,0);
 	if (length == 8) {
 		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),FALSE);
+		label = ep_alloc(ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
 	}
@@ -712,6 +719,7 @@ unsigned64_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
 				       "Bad Unsigned64 Length (%u)", length);
 		PROTO_ITEM_SET_GENERATED(pi);
+		label = NULL;
 	}
 	return label;
 }
@@ -719,13 +727,14 @@ unsigned64_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 static const char*
 float32_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 {
-	char* label = ep_alloc(ITEM_LABEL_LENGTH+1);
+	char* label;
 	proto_item* pi;
 
 	/* Verify length before adding */
 	gint length = tvb_length_remaining(tvb,0);
 	if (length == 4) {
 		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),FALSE);
+		label = ep_alloc(ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
 	}
@@ -737,6 +746,7 @@ float32_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
 				       "Bad Float32 Length (%u)", length);
 		PROTO_ITEM_SET_GENERATED(pi);
+		label = NULL;
 	}
 	return label;
 }
@@ -744,13 +754,14 @@ float32_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 static const char*
 float64_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 {
-	char* label = ep_alloc(ITEM_LABEL_LENGTH+1);
+	char* label;
 	proto_item* pi;
 
 	/* Verify length before adding */
 	gint length = tvb_length_remaining(tvb,0);
 	if (length == 8) {
 		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),FALSE);
+		label = ep_alloc(ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
 	}
@@ -762,6 +773,7 @@ float64_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
 				       "Bad Float64 Length (%u)", length);
 		PROTO_ITEM_SET_GENERATED(pi);
+		label = NULL;
 	}
 	return label;
 }
