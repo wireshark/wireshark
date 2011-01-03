@@ -1160,25 +1160,26 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
 static void
 dissect_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
 {
-	proto_item	*flags_item:
+	proto_item	*flags_item;
+	proto_tree	*flag_tree;
     int offset = 0;
     guint flags;
 
     flags_item = proto_tree_add_text(tree, tvb, offset, 1, "Flags");
     flag_tree = proto_item_add_subtree(flags_item, ett_gtpv2_uli_flags);
     flags = tvb_get_guint8(tvb,offset)&0x1f;
-	proto_tree_add_bits_item(tree, hf_gtpv2_spare_bits,	tvb, offset>>3, 3, FALSE);
+	proto_tree_add_bits_item(flag_tree, hf_gtpv2_spare_bits,	tvb, offset>>3, 3, FALSE);
     
 	/* ECGI B5 */
-    proto_tree_add_item(tree, hf_gtpv2_uli_ecgi_flg, tvb, offset, 1, FALSE);
+    proto_tree_add_item(flag_tree, hf_gtpv2_uli_ecgi_flg, tvb, offset, 1, FALSE);
     /* TAI B4  */
-    proto_tree_add_item(tree, hf_gtpv2_uli_tai_flg, tvb, offset, 1, FALSE);
+    proto_tree_add_item(flag_tree, hf_gtpv2_uli_tai_flg, tvb, offset, 1, FALSE);
     /* RAI B3  */
-    proto_tree_add_item(tree, hf_gtpv2_uli_rai_flg, tvb, offset, 1, FALSE);
+    proto_tree_add_item(flag_tree, hf_gtpv2_uli_rai_flg, tvb, offset, 1, FALSE);
     /* SAI B2  */
-    proto_tree_add_item(tree, hf_gtpv2_uli_sai_flg, tvb, offset, 1, FALSE);
+    proto_tree_add_item(flag_tree, hf_gtpv2_uli_sai_flg, tvb, offset, 1, FALSE);
     /* CGI B1  */
-    proto_tree_add_item(tree, hf_gtpv2_uli_cgi_flg, tvb, offset, 1, FALSE);
+    proto_tree_add_item(flag_tree, hf_gtpv2_uli_cgi_flg, tvb, offset, 1, FALSE);
 
     decode_gtpv2_uli(tvb, pinfo, tree, item, length, instance, flags);
 
