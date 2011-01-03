@@ -289,8 +289,10 @@ static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
 #else
     offset = file_tell(wth->fh);
 #endif
-    if (offset < 1)
+    if (offset < 1) {
+        *err = file_error(wth->fh);
         return FALSE;
+    }
 
     /* Parse the header */
     pkt_len = parse_vms_rec_hdr(wth, wth->fh, err, err_info);
@@ -488,9 +490,20 @@ parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err,
         }
     }
     /* Avoid TCPIPTRACE-W-BUFFERSFUL, TCPIPtrace could not save n packets.
-     * errors. */
-    if (!file_gets(line, VMS_LINE_LENGTH, fh))
+     * errors.
+     *
+     * XXX - when we support packet drop report information in the
+     * Wiretap API, we should parse those lines and return "n" as
+     * a packet drop count. */
+    if (!file_gets(line, VMS_LINE_LENGTH, fh)) {
+        *err = file_error(fh);
+        if (*err == 0) {
+            /* There is no next line, so there's no "TCPIPtrace could not
+             * save n packets" line; not an error. */
+            return TRUE;
+        }
         return FALSE;
+    }
     return TRUE;
 }
 
