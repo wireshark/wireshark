@@ -227,11 +227,11 @@ dissect_attribute_id_list(proto_tree *t, tvbuff_t *tvb, int offset, packet_info 
 			bytes_to_go-=3;
 
 			col_append_fstr(pinfo->cinfo, COL_INFO, " (%s) ", att_name);
-			
+
 		} else if (byte0 == 0x0a) { /* 32 bit attribute range */
 			col_append_fstr(pinfo->cinfo, COL_INFO, " (0x%04x - 0x%04x) ",
 							tvb_get_ntohs(tvb, offset + 1), tvb_get_ntohs(tvb, offset + 3));
-			
+
 			proto_tree_add_text(st, tvb, offset, 5, "0x%04x - 0x%04x",
 					    tvb_get_ntohs(tvb, offset + 1),
 					    tvb_get_ntohs(tvb, offset + 3));
@@ -268,7 +268,7 @@ get_sdp_type(tvbuff_t *tvb, int offset, guint16 id, guint8 *type, guint8 **val, 
 	start_offset=offset;
 	offset = get_type_length(tvb, offset, &size);
 	type_size = offset - start_offset + size;
-			
+
 	switch (*type) {
 	case 0: { /* null */
 		*val = NULL;
@@ -324,10 +324,10 @@ get_sdp_type(tvbuff_t *tvb, int offset, guint16 id, guint8 *type, guint8 **val, 
 			offset += size;
 			bytes_to_go -= size;
 
-			if( len == 1 ) { 
+			if( len == 1 ) {
 				value = *((guint8 *) *val);
 			}
-			else if( len == 2 ) { 
+			else if( len == 2 ) {
 				value = *((guint16 *) *val);
 			}
 			else if ( len == 4 ) {
@@ -364,6 +364,8 @@ get_sdp_type(tvbuff_t *tvb, int offset, guint16 id, guint8 *type, guint8 **val, 
 		}
 		break;
 	}
+	default:
+		*val = NULL;
 	}
 
 	return type_size;
@@ -426,12 +428,12 @@ dissect_sdp_type(proto_tree *t, tvbuff_t *tvb, int offset, char **attr_val)
 		if(size == 2){
 			id = tvb_get_ntohs(tvb, offset);
 		} else {
-			id = tvb_get_ntohl(tvb, offset);		
+			id = tvb_get_ntohl(tvb, offset);
 		}
 		uuid_name = val_to_str(id, vs_service_classes, "Unknown service");
 
 		proto_tree_add_text(t, tvb, start_offset, type_size, "%s (0x%s) ", uuid_name, ptr);
-		
+
 		if(strpos<MAX_SDP_LEN){
 			strpos+=g_snprintf(str+strpos, MAX_SDP_LEN-strpos, ": %s", uuid_name);
 		}
@@ -576,8 +578,8 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset, packe
 			}
 
 			if( service_item->service != 0 && service_item->channel != 0 ) {
-			service_item->flags |= token >>15; /* set flag when local service */
-			tap_queue_packet(btsdp_tap, NULL, (void *) service_item);
+				service_item->flags |= token >>15; /* set flag when local service */
+				tap_queue_packet(btsdp_tap, NULL, (void *) service_item);
 			}
 		}
     }
@@ -677,11 +679,11 @@ dissect_sdp_service_search_attribute_request(proto_tree *t, tvbuff_t *tvb, int o
 			service_item->channel = 0;
 			service_item->service = 0;
 		}
-		
+
 		size = dissect_sdp_type(st, tvb, offset, &str);
 		proto_item_append_text(st, " %s", str);
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s", str);
-		
+
 		if (size < 1) {
 			break;
 		}
@@ -743,7 +745,7 @@ dissect_sdp_service_search_request(proto_tree *t, tvbuff_t *tvb, int offset, pac
 	proto_tree *st;
 
 	start_offset=offset;
-	
+
 	ti = proto_tree_add_text(t, tvb, offset, 2, "Service Search Pattern");
 	st = proto_item_add_subtree(ti, ett_btsdp_service_search_pattern);
 
@@ -757,9 +759,9 @@ dissect_sdp_service_search_request(proto_tree *t, tvbuff_t *tvb, int offset, pac
 		if (pinfo->fd->flags.visited == 0)  {
 			guint32 service, service_val;
 			guint8 type, *val = NULL;
-		
+
 			service_item=se_tree_lookup32(service_table, token);
-	        
+
 			if(service_item == NULL) {
 				service_item=se_alloc(sizeof(btsdp_data_t));
 				se_tree_insert32(service_table, token, service_item);
@@ -768,17 +770,17 @@ dissect_sdp_service_search_request(proto_tree *t, tvbuff_t *tvb, int offset, pac
 			service_item->service = 0;
 
 			get_sdp_type(tvb, offset, 4, &type, &val,  &service, &service_val);
-			
+
 			if( type==3 && val != NULL)
 				service_item->service = *((guint32 *) val);
 		}
-		
+
 		size = dissect_sdp_type(st, tvb, offset, &str);
 
 		proto_item_append_text(st, " %s", str);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s", str);
-		
+
 		if (size < 1) {
 			break;
 		}
@@ -869,7 +871,7 @@ dissect_btsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		token = acl_handle | ((pinfo->p2p_dir != P2P_DIR_RECV)?0x8000:0x0000);
 	else
 		token = acl_handle | ((pinfo->p2p_dir == P2P_DIR_RECV)?0x8000:0x0000);
-		
+
 	switch(pdu) {
 	case 0x1:
 		offset=dissect_sdp_error_response(st, tvb, offset);
