@@ -617,7 +617,7 @@ simple_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 }
 
 static const char*
-unsigned32_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
+integer32_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 {
 	char* label = ep_alloc(ITEM_LABEL_LENGTH+1);
 	proto_item* pi;
@@ -636,6 +636,131 @@ unsigned32_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 						"Error!  Bad Integer32 Length");
 		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
 				       "Bad Integer32 Length (%u)", length);
+		PROTO_ITEM_SET_GENERATED(pi);
+	}
+	return label;
+}
+
+static const char*
+integer64_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
+{
+	char* label = ep_alloc(ITEM_LABEL_LENGTH+1);
+	proto_item* pi;
+
+	/* Verify length before adding */
+	gint length = tvb_length_remaining(tvb,0);
+	if (length == 8) {
+		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),FALSE);
+		proto_item_fill_label(PITEM_FINFO(pi), label);
+		label = strstr(label,": ")+2;
+	}
+	else {
+		pi = proto_tree_add_bytes_format(c->tree, hf_diameter_avp_data_wrong_length,
+						 tvb, 0, length,
+						 tvb_get_ptr(tvb, 0, length),
+						"Error!  Bad Integer64 Length");
+		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
+				       "Bad Integer64 Length (%u)", length);
+		PROTO_ITEM_SET_GENERATED(pi);
+	}
+	return label;
+}
+
+static const char*
+unsigned32_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
+{
+	char* label = ep_alloc(ITEM_LABEL_LENGTH+1);
+	proto_item* pi;
+
+	/* Verify length before adding */
+	gint length = tvb_length_remaining(tvb,0);
+	if (length == 4) {
+		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),FALSE);
+		proto_item_fill_label(PITEM_FINFO(pi), label);
+		label = strstr(label,": ")+2;
+	}
+	else {
+		pi = proto_tree_add_bytes_format(c->tree, hf_diameter_avp_data_wrong_length,
+						 tvb, 0, length,
+						 tvb_get_ptr(tvb, 0, length),
+						"Error!  Bad Unsigned32 Length");
+		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
+				       "Bad Unsigned32 Length (%u)", length);
+		PROTO_ITEM_SET_GENERATED(pi);
+	}
+	return label;
+}
+
+static const char*
+unsigned64_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
+{
+	char* label = ep_alloc(ITEM_LABEL_LENGTH+1);
+	proto_item* pi;
+
+	/* Verify length before adding */
+	gint length = tvb_length_remaining(tvb,0);
+	if (length == 8) {
+		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),FALSE);
+		proto_item_fill_label(PITEM_FINFO(pi), label);
+		label = strstr(label,": ")+2;
+	}
+	else {
+		pi = proto_tree_add_bytes_format(c->tree, hf_diameter_avp_data_wrong_length,
+						 tvb, 0, length,
+						 tvb_get_ptr(tvb, 0, length),
+						"Error!  Bad Unsigned64 Length");
+		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
+				       "Bad Unsigned64 Length (%u)", length);
+		PROTO_ITEM_SET_GENERATED(pi);
+	}
+	return label;
+}
+
+static const char*
+float32_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
+{
+	char* label = ep_alloc(ITEM_LABEL_LENGTH+1);
+	proto_item* pi;
+
+	/* Verify length before adding */
+	gint length = tvb_length_remaining(tvb,0);
+	if (length == 4) {
+		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),FALSE);
+		proto_item_fill_label(PITEM_FINFO(pi), label);
+		label = strstr(label,": ")+2;
+	}
+	else {
+		pi = proto_tree_add_bytes_format(c->tree, hf_diameter_avp_data_wrong_length,
+						 tvb, 0, length,
+						 tvb_get_ptr(tvb, 0, length),
+						"Error!  Bad Float32 Length");
+		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
+				       "Bad Float32 Length (%u)", length);
+		PROTO_ITEM_SET_GENERATED(pi);
+	}
+	return label;
+}
+
+static const char*
+float64_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
+{
+	char* label = ep_alloc(ITEM_LABEL_LENGTH+1);
+	proto_item* pi;
+
+	/* Verify length before adding */
+	gint length = tvb_length_remaining(tvb,0);
+	if (length == 8) {
+		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),FALSE);
+		proto_item_fill_label(PITEM_FINFO(pi), label);
+		label = strstr(label,": ")+2;
+	}
+	else {
+		pi = proto_tree_add_bytes_format(c->tree, hf_diameter_avp_data_wrong_length,
+						 tvb, 0, length,
+						 tvb_get_ptr(tvb, 0, length),
+						"Error!  Bad Float64 Length");
+		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
+				       "Bad Float64 Length (%u)", length);
 		PROTO_ITEM_SET_GENERATED(pi);
 	}
 	return label;
@@ -1159,19 +1284,19 @@ build_simple_avp(const avp_type_t* type, guint32 code, const diam_vnd_t* vendor,
 static const avp_type_t basic_types[] = {
 	{"octetstring"				, simple_avp	, simple_avp	, FT_BYTES			, BASE_NONE	, build_simple_avp  },
 	{"utf8string"				, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE	, build_simple_avp  },
-	{"grouped"					, grouped_avp	, grouped_avp	, FT_BYTES			, BASE_NONE	, build_simple_avp  },
-	{"integer32"				, simple_avp	, simple_avp	, FT_INT32			, BASE_DEC	, build_simple_avp  },
+	{"grouped"				, grouped_avp	, grouped_avp	, FT_BYTES			, BASE_NONE	, build_simple_avp  },
+	{"integer32"				, integer32_avp	, integer32_avp	, FT_INT32			, BASE_DEC	, build_simple_avp  },
 	{"unsigned32"				, unsigned32_avp, unsigned32_avp, FT_UINT32			, BASE_DEC	, build_simple_avp  },
-	{"integer64"				, simple_avp	, simple_avp	, FT_INT64			, BASE_DEC	, build_simple_avp  },
-	{"unsigned64"				, simple_avp	, simple_avp	, FT_UINT64			, BASE_DEC	, build_simple_avp  },
-	{"float32"					, simple_avp	, simple_avp	, FT_FLOAT			, BASE_NONE	, build_simple_avp  },
-	{"float64"					, simple_avp	, simple_avp	, FT_DOUBLE			, BASE_NONE	, build_simple_avp  },
-	{"ipaddress"				,  NULL			, NULL			, FT_NONE			, BASE_NONE	, build_address_avp },
+	{"integer64"				, integer64_avp	, integer64_avp	, FT_INT64			, BASE_DEC	, build_simple_avp  },
+	{"unsigned64"				, unsigned64_avp, unsigned64_avp	, FT_UINT64			, BASE_DEC	, build_simple_avp  },
+	{"float32"				, float32_avp	, float32_avp	, FT_FLOAT			, BASE_NONE	, build_simple_avp  },
+	{"float64"				, float64_avp	, float64_avp	, FT_DOUBLE			, BASE_NONE	, build_simple_avp  },
+	{"ipaddress"				,  NULL		, NULL			, FT_NONE			, BASE_NONE	, build_address_avp },
 	{"diameteruri"				, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE	, build_simple_avp  },
 	{"diameteridentity"			, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE	, build_simple_avp  },
 	{"ipfilterrule"				, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE	, build_simple_avp  },
 	{"qosfilterrule"			, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE	, build_simple_avp  },
-	{"time"						, time_avp		, time_avp	, FT_UINT32			, BASE_DEC	, build_simple_avp  },
+	{"time"					, time_avp	, time_avp	, FT_UINT32			, BASE_DEC	, build_simple_avp  },
 	{NULL, NULL, NULL, FT_NONE, BASE_NONE, NULL }
 };
 
