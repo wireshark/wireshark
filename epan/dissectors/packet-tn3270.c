@@ -676,6 +676,15 @@ static const value_string vals_oc_type[] = {
 	{ 0x00, NULL }
 };
 
+/* 5.19 Read Partition */
+static const value_string vals_reqtype[] = {
+	{ 0x00, "QCODE List" },
+	{ 0x01, "Equivalent + QCODE List" },
+	{ 0x02, "All" },
+	{ 0x00, NULL }
+};
+
+
 /* 6.1 Inbound Structured Fields */
 
 #define EXCEPTION_OR_STATUS                                      0x0F22
@@ -2119,7 +2128,7 @@ dissect_read_partition(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
                                "Query List");
       query_list_tree = proto_item_add_subtree(ti, ett_tn3270_query_list);
       for (i = 0; i < qcode_list_len; i++) {
-        proto_tree_add_item(tn3270_tree,
+        proto_tree_add_item(query_list_tree,
                             hf_tn3270_sf_query_reply,
                             tvb, offset, 1, FALSE);
         offset++;
@@ -5504,7 +5513,7 @@ proto_register_tn3270(void)
     /* 5.19 - Read Partition */
     { &hf_tn3270_reqtyp,
         {  "Request Type", "tn3270.reqtyp",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
+            FT_UINT8, BASE_HEX, VALS(vals_reqtype), 0xC0,
             NULL, HFILL }},
     /* End - 5.19 - Read Partition */
 
@@ -6635,4 +6644,3 @@ proto_register_tn3270(void)
   proto_register_subtree_array(ett, array_length(ett));
 
 }
-
