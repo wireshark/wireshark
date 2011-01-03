@@ -1727,12 +1727,8 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     if (size_is == sizeof(guint16)) {
         /* XXX - use drep to determine the byte order? */
-        s = tvb_fake_unicode(tvb, offset, buffer_len / 2, TRUE);
-        /*
-         * XXX - we don't support a string type with Unicode
-         * characters, so if this is a string item, we make
-         * its value be the "fake Unicode" string.
-         */
+        s = tvb_get_unicode_string(tvb, offset, buffer_len, ENC_LITTLE_ENDIAN);
+
         if (tree && buffer_len) {
             hfinfo = proto_registrar_get_nth(hfindex);
             tvb_ensure_bytes_exist(tvb, offset, buffer_len);
