@@ -105,6 +105,8 @@ static int hf_gtpv2_cng_rep_act = -1;
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
 static gint ett_gtpv2_ie = -1;
+static gint ett_gtpv2_uli_flags = -1;
+static gint ett_gtpv2_uli_field = -1;
 static gint ett_gtpv2_bearer_ctx = -1;
 static gint ett_gtpv2_PDN_conn = -1;
 static gint ett_gtpv2_mm_context_flag = -1; 
@@ -884,7 +886,9 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
 
 /*
  * 8.13 Protocol Configuration Options (PCO)
- * Editor's note: PCO will be defined in 3GPP TS 23.003 and its coding in TS 24.301
+ * Protocol Configuration Options (PCO) is transferred via GTP tunnels. The sending entity copies the value part of the
+ * PCO into the Value field of the PCO IE. The detailed coding of the PCO field from octets 5 to (n+4) shall be specified
+ * as per clause 10.5.6.3 of 3GPP TS 24.008 [5], starting with octet 3.
  * Dissected in packet-gsm_a_gm.c
  */
 static void
@@ -1067,14 +1071,18 @@ static void
 decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_, guint flags)
 {
     int offset = 1;
+    proto_item	*fi;
+	proto_tree	*part_tree;
 
     /* 8.22.1 CGI field  */
     if (flags & GTPv2_ULI_CGI_MASK)
     {
-        dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
+		fi = proto_tree_add_text(tree, tvb, offset + 1, 7, "Cell Global Identity (CGI)");
+		part_tree = proto_item_add_subtree(fi, ett_gtpv2_uli_field);
+        dissect_e212_mcc_mnc(tvb, pinfo, part_tree, offset, TRUE);
         offset+=3;
-        proto_tree_add_item(tree, hf_gtpv2_uli_cgi_lac, tvb, offset, 2, FALSE);
-        proto_tree_add_item(tree, hf_gtpv2_uli_cgi_ci, tvb, offset, 2, FALSE);
+        proto_tree_add_item(part_tree, hf_gtpv2_uli_cgi_lac, tvb, offset, 2, FALSE);
+        proto_tree_add_item(part_tree, hf_gtpv2_uli_cgi_ci, tvb, offset, 2, FALSE);
         offset+=4;
         if(offset==length)
             return;
@@ -1083,10 +1091,12 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
     /* 8.22.2 SAI field  */
     if (flags & GTPv2_ULI_SAI_MASK)
     {
-        dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
+        fi = proto_tree_add_text(tree, tvb, offset + 1, 7, "Service Area Identity (SAI)");
+        part_tree = proto_item_add_subtree(fi, ett_gtpv2_uli_field);
+        dissect_e212_mcc_mnc(tvb, pinfo, part_tree, offset, TRUE);
         offset+=3;
-        proto_tree_add_item(tree, hf_gtpv2_uli_sai_lac, tvb, offset, 2, FALSE);
-        proto_tree_add_item(tree, hf_gtpv2_uli_sai_sac, tvb, offset, 2, FALSE);
+        proto_tree_add_item(part_tree, hf_gtpv2_uli_sai_lac, tvb, offset, 2, FALSE);
+        proto_tree_add_item(part_tree, hf_gtpv2_uli_sai_sac, tvb, offset, 2, FALSE);
         offset+=4;
         if(offset==length)
             return;
@@ -1094,10 +1104,12 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
     /* 8.22.3 RAI field  */
     if (flags & GTPv2_ULI_RAI_MASK)
     {
-        dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
+        fi = proto_tree_add_text(tree, tvb, offset + 1, 7, "Routeing Area Identity (RAI)");
+        part_tree = proto_item_add_subtree(fi, ett_gtpv2_uli_field);
+        dissect_e212_mcc_mnc(tvb, pinfo, part_tree, offset, TRUE);
         offset+=3;
-        proto_tree_add_item(tree, hf_gtpv2_uli_rai_lac, tvb, offset, 2, FALSE);
-        proto_tree_add_item(tree, hf_gtpv2_uli_rai_rac, tvb, offset, 2, FALSE);
+        proto_tree_add_item(part_tree, hf_gtpv2_uli_rai_lac, tvb, offset, 2, FALSE);
+        proto_tree_add_item(part_tree, hf_gtpv2_uli_rai_rac, tvb, offset, 2, FALSE);
         offset+=4;
         if(offset==length)
             return;
@@ -1105,9 +1117,11 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
     /* 8.22.4 TAI field  */
     if (flags & GTPv2_ULI_TAI_MASK)
     {
-        dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
+        fi = proto_tree_add_text(tree, tvb, offset + 1, 7, "Tracking Area Identity (TAI)");
+        part_tree = proto_item_add_subtree(fi, ett_gtpv2_uli_field);
+        dissect_e212_mcc_mnc(tvb, pinfo, part_tree, offset, TRUE);
         offset+=3;
-        proto_tree_add_item(tree, hf_gtpv2_uli_tai_tac, tvb, offset, 2, FALSE);
+        proto_tree_add_item(part_tree, hf_gtpv2_uli_tai_tac, tvb, offset, 2, FALSE);
         offset+=2;
         if(offset==length)
             return;
@@ -1119,7 +1133,10 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
         guint32 octet4;
         guint8 spare;
         guint32 ECGI;
-        dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
+
+        fi = proto_tree_add_text(tree, tvb, offset + 1, 7, "E-UTRAN Cell Global Identifier (ECGI)");
+        part_tree = proto_item_add_subtree(fi, ett_gtpv2_uli_field);
+        dissect_e212_mcc_mnc(tvb, pinfo, part_tree, offset, TRUE);
         offset+=3;
         /* The bits 8 through 5, of octet e+3 (Fig 8.21.5-1 in TS 29.274 V8.2.0) are spare
          * and hence they would not make any difference to the hex string following it, 
@@ -1130,8 +1147,8 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
         spare = octet & 0xF0;
         octet4 = tvb_get_ntohl(tvb,offset);
         ECGI = octet4 & 0x0FFFFFFF;
-        proto_tree_add_uint(tree, hf_gtpv2_uli_ecgi_eci_spare, tvb, offset, 1, spare);
-        proto_tree_add_uint(tree, hf_gtpv2_uli_ecgi_eci, tvb, offset, 4, ECGI);
+        proto_tree_add_uint(part_tree, hf_gtpv2_uli_ecgi_eci_spare, tvb, offset, 1, spare);
+        proto_tree_add_uint(part_tree, hf_gtpv2_uli_ecgi_eci, tvb, offset, 4, ECGI);
         /*proto_tree_add_item(tree, hf_gtpv2_uli_ecgi_eci, tvb, offset, 4, FALSE);*/
         offset+=4;
         if(offset==length)
@@ -1143,10 +1160,16 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
 static void
 dissect_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
 {
+	proto_item	*flags_item:
     int offset = 0;
     guint flags;
+
+    flags_item = proto_tree_add_text(tree, tvb, offset, 1, "Flags");
+    flag_tree = proto_item_add_subtree(flags_item, ett_gtpv2_uli_flags);
     flags = tvb_get_guint8(tvb,offset)&0x1f;
-    /* ECGI B5 */
+	proto_tree_add_bits_item(tree, hf_gtpv2_spare_bits,	tvb, offset>>3, 3, FALSE);
+    
+	/* ECGI B5 */
     proto_tree_add_item(tree, hf_gtpv2_uli_ecgi_flg, tvb, offset, 1, FALSE);
     /* TAI B4  */
     proto_tree_add_item(tree, hf_gtpv2_uli_tai_flg, tvb, offset, 1, FALSE);
@@ -2923,6 +2946,8 @@ void proto_register_gtpv2(void)
         &ett_gtpv2,
         &ett_gtpv2_flags,
         &ett_gtpv2_ie,
+		&ett_gtpv2_uli_flags,
+		&ett_gtpv2_uli_field,
         &ett_gtpv2_bearer_ctx,
 		&ett_gtpv2_PDN_conn,
 		&ett_gtpv2_mm_context_flag,
