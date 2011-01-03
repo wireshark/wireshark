@@ -2254,6 +2254,55 @@ tvb_get_string(tvbuff_t *tvb, const gint offset, const gint length)
 	strbuf[length] = '\0';
 	return strbuf;
 }
+
+/*
+ * Unicode (UTF-16) version of tvb_get_string()
+ * 
+ * Encoding paramter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
+ *
+ * Specify length in bytes
+ * 
+ * Returns an UTF-8 string that must be freed by the caller
+ */
+gchar *
+tvb_get_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
+{
+	gchar *tmpbuf = NULL;
+	gunichar2 uchar;
+	gint i; /* Byte counter for tvbuff */
+	gint tmpbuf_len;
+	GString *strbuf = NULL;
+
+	strbuf = g_string_new(NULL);
+
+	for(i = 0; i < length; i += 2) {
+
+		if(encoding == ENC_BIG_ENDIAN)
+			uchar = tvb_get_ntohs(tvb, offset + i);
+		else
+			uchar = tvb_get_letohs(tvb, offset + i);
+
+		/* Calculate how much space is needed to store UTF-16 character
+		 * in UTF-8 */
+		tmpbuf_len = g_unichar_to_utf8(uchar, NULL);
+
+		tmpbuf = g_malloc(tmpbuf_len + 1); /* + 1 to make room for null
+						    * terminator */
+
+		g_unichar_to_utf8(uchar, tmpbuf);
+
+		/* NULL terminate the tmpbuf so g_string_append knows where
+		 * to stop */
+		tmpbuf[tmpbuf_len] = '\0';
+
+		g_string_append(strbuf, tmpbuf);
+
+		g_free(tmpbuf);
+	}
+
+	return g_string_free(strbuf, FALSE);
+}
+
 /*
  * Given a tvbuff, an offset, and a length, allocate a buffer big enough
  * to hold a non-null-terminated string of that length at that offset,
@@ -2283,6 +2332,54 @@ tvb_get_ephemeral_string(tvbuff_t *tvb, const gint offset, const gint length)
 	}
 	strbuf[length] = '\0';
 	return strbuf;
+}
+
+/*
+ * Unicode (UTF-16) version of tvb_get_ephemeral_string()
+ * 
+ * Encoding paramter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
+ *
+ * Specify length in bytes
+ * 
+ * Returns an ep_ allocated UTF-8 string
+ */
+gchar *
+tvb_get_ephemeral_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
+{
+	gchar *tmpbuf = NULL;
+	gunichar2 uchar;
+	gint i; /* Byte counter for tvbuff */
+	gint tmpbuf_len;
+	emem_strbuf_t *strbuf = NULL;
+
+	strbuf = ep_strbuf_new(NULL);
+
+	for(i = 0; i < length; i += 2) {
+
+		if(encoding == ENC_BIG_ENDIAN)
+			uchar = tvb_get_ntohs(tvb, offset + i);
+		else
+			uchar = tvb_get_letohs(tvb, offset + i);
+
+		/* Calculate how much space is needed to store UTF-16 character
+		 * in UTF-8 */
+		tmpbuf_len = g_unichar_to_utf8(uchar, NULL);
+
+		tmpbuf = g_malloc(tmpbuf_len + 1); /* + 1 to make room for null
+						    * terminator */
+
+		g_unichar_to_utf8(uchar, tmpbuf);
+
+		/* NULL terminate the tmpbuf so ep_strbuf_append knows where
+		 * to stop */
+		tmpbuf[tmpbuf_len] = '\0';
+
+		ep_strbuf_append(strbuf, tmpbuf);
+
+		g_free(tmpbuf);
+	}
+
+	return strbuf->str;
 }
 
 /*
@@ -2368,7 +2465,7 @@ tvb_get_ephemeral_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
  * 
  * Encoding paramter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
  *
- * Returns an ep_ allocated UTF-8 string
+ * Returns an ep_ allocated UTF-8 string and updates lengthp pointer with length of string (in bytes)
  */
 gchar *
 tvb_get_ephemeral_unicode_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)

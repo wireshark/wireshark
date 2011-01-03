@@ -486,16 +486,22 @@ extern gchar *tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset, const 
  *                   MUST be g_free() by the caller in order not to leak
  *                   memory.
  *
+ * tvb_get_unicode_string() Unicode (UTF-16) version of above
+ *
  * tvb_get_ephemeral_string() returns a string that does not need to be freed,
  *                   instead it will automatically be freed once the next
  *                   packet is dissected.
+ *
+ * tvb_get_ephemeral_unicode_string() Unicode (UTF-16) version of above
  *
  * tvb_get_seasonal_string() returns a string that does not need to be freed,
  *                   instead it will automatically be freed when a new capture
  *                   or file is opened.
  */
 extern guint8 *tvb_get_string(tvbuff_t *tvb, const gint offset, const gint length);
+extern gchar  *tvb_get_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding);
 extern guint8 *tvb_get_ephemeral_string(tvbuff_t *tvb, const gint offset, const gint length);
+extern gchar  *tvb_get_ephemeral_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding);
 extern guint8 *tvb_get_seasonal_string(tvbuff_t *tvb, const gint offset, const gint length);
 
 
