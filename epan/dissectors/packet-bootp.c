@@ -3258,7 +3258,7 @@ static const value_string pkt_mdc_t38_ec_vals[] = {
 static const value_string pkt_mdc_mib_orgs[] = {
 	{ 0x3030,	"CableLabs" },
 	{ 0x3031,	"IETF" },
-	{ 0x3032,	"Reserved" },
+	{ 0x3032,	"EuroCableLabs" },
 	{ 0x3033,	"Reserved" },
 	{ 0x3034,	"Reserved" },
 	{ 0x3035,	"Reserved" },
@@ -3297,6 +3297,19 @@ static const value_string pkt_mdc_ietf_mib_vals[] = {
 	{ 1 << 3, "Reserved" },
 	{ 1 << 4, "Reserved" },
 	{ 1 << 5, "Reserved" },
+	{ 1 << 6, "Reserved" },
+	{ 1 << 7, "Reserved" },
+	{ 0, NULL }
+};
+
+#define PKT_MDC_MIB_EURO 0x3032
+static const value_string pkt_mdc_euro_mib_vals[] = {
+	{ 1 << 0, "PacketCable 1.5 MTA MIB" },
+	{ 1 << 1, "PacketCable 1.5 Signaling MIB" },
+	{ 1 << 2, "PacketCable 1.5 Management Event MIB" },
+	{ 1 << 3, "PacketCable 1.5 MTA Extension MIB" },
+	{ 1 << 4, "PacketCable 1.5 Signaling Extension MIB" },
+	{ 1 << 5, "PacketCable 1.5 MEM Extension MIB" },
 	{ 1 << 6, "Reserved" },
 	{ 1 << 7, "Reserved" },
 	{ 0, NULL }
@@ -3501,6 +3514,18 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 								decode_bitfield_value(bit_fld, mib_val, pkt_mdc_ietf_mib_vals[i].value, 8);
 								proto_tree_add_text(subtree2, tvb, subopt_off, 2,
 										    "%s%s", bit_fld, pkt_mdc_ietf_mib_vals[i].strptr);
+							}
+						}
+						break;
+
+					case PKT_MDC_MIB_EURO:
+						subtree2 = proto_item_add_subtree(mib_ti, ett_bootp_option);
+
+						for (i = 0; i < 8; i++) {
+							if (mib_val & pkt_mdc_euro_mib_vals[i].value) {
+								decode_bitfield_value(bit_fld, mib_val, pkt_mdc_euro_mib_vals[i].value, 8);
+								proto_tree_add_text(subtree2, tvb, subopt_off, 2,
+										    "%s%s", bit_fld, pkt_mdc_euro_mib_vals[i].strptr);
 							}
 						}
 						break;
