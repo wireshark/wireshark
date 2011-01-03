@@ -1242,7 +1242,9 @@ void tvb_get_letohguid(tvbuff_t *, gint offset, e_guid_t *guid);
 String accessors:
 
 guint8 *tvb_get_string(tvbuff_t*, gint offset, gint length);
+gchar  *tvb_get_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding);
 guint8 *tvb_get_ephemeral_string(tvbuff_t*, gint offset, gint length);
+gchar  *tvb_get_ephemeral_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding);
 guint8 *tvb_get_seasonal_string(tvbuff_t*, gint offset, gint length);
 
 Returns a null-terminated buffer containing data from the specified
@@ -1254,10 +1256,20 @@ tvb_get_string() returns a buffer allocated by g_malloc() so you must
 g_free() it when you are finished with the string. Failure to g_free() this
 buffer will lead to memory leaks.
 
+tvb_get_unicode_string() is a unicode (UTF-16) version of above.  This
+is intended for reading UTF-16 unicode strings out of a tvbuff and
+returning them as a UTF-8 string for use in Wireshark.  The offset and
+returned length pointer are in bytes, not UTF-16 characters.
+
 tvb_get_ephemeral_string() returns a buffer allocated from a special heap
 with a lifetime until the next packet is dissected. You do not need to
 free() this buffer, it will happen automatically once the next packet is
 dissected.
+
+tvb_get_ephemeral_unicode_string() is a unicode (UTF-16) version of above.
+This is intended for reading UTF-16 unicode strings out of a tvbuff and
+returning them as a UTF-8 string for use in Wireshark.  The offset and
+returned length pointer are in bytes, not UTF-16 characters.
 
 tvb_get_seasonal_string() returns a buffer allocated from a special heap
 with a lifetime of the current capture session. You do not need to
