@@ -1516,7 +1516,7 @@ dissect_gtpv2_mm_context_gsm_t(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 }
 
 static void
-dissect_gtpv2_mm_context_utms_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_mm_context_utms_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
 	proto_item 	*flag;
 	proto_tree	*flag_tree;
@@ -1566,7 +1566,7 @@ dissect_gtpv2_mm_context_gsm_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 }
 
 static void
-dissect_gtpv2_mm_context_utms_q(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_mm_context_utms_q(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
 	proto_item 	*flag;
 	proto_tree	*flag_tree;
@@ -1593,7 +1593,7 @@ dissect_gtpv2_mm_context_utms_q(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 /* EPS Security Context and Quadruplets */
 static void
-dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
 	proto_item 	*flag/*, *auth_qua, *net_cap*/;
 	proto_tree	*flag_tree/*, *auth_qua_tree, *net_cap_tree*/;
