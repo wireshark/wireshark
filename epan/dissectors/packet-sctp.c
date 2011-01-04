@@ -1384,13 +1384,13 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *chunk
 
   type           = tvb_get_ntohs(parameter_tvb, PARAMETER_TYPE_OFFSET);
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  padding_length = tvb_length(parameter_tvb) - length;
+  padding_length = tvb_reported_length(parameter_tvb) - length;
 
   if (!(chunk_tree || (dissecting_init_init_ack_chunk && (type == IPV4ADDRESS_PARAMETER_ID || type == IPV6ADDRESS_PARAMETER_ID))))
     return;
 
   if (chunk_tree) {
-    parameter_item = proto_tree_add_text(chunk_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s parameter", val_to_str(type, parameter_identifier_values, "Unknown"));
+    parameter_item = proto_tree_add_text(chunk_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_reported_length(parameter_tvb), "%s parameter", val_to_str(type, parameter_identifier_values, "Unknown"));
     parameter_tree = proto_item_add_subtree(parameter_item, ett_sctp_chunk_parameter);
 
     type_item = proto_tree_add_item(parameter_tree, hf_parameter_type,   parameter_tvb, PARAMETER_TYPE_OFFSET,   PARAMETER_TYPE_LENGTH,   ENC_BIG_ENDIAN);
@@ -1398,6 +1398,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *chunk
     proto_tree_add_item(type_tree, hf_parameter_bit_1,  parameter_tvb, PARAMETER_TYPE_OFFSET,  PARAMETER_TYPE_LENGTH,  ENC_BIG_ENDIAN);
     proto_tree_add_item(type_tree, hf_parameter_bit_2,  parameter_tvb, PARAMETER_TYPE_OFFSET,  PARAMETER_TYPE_LENGTH,  ENC_BIG_ENDIAN);
     proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, ENC_BIG_ENDIAN);
+    /* XXX - add expert info if length is bogus? */
   } else {
     parameter_item = NULL;
     parameter_tree = NULL;
@@ -1491,20 +1492,28 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *chunk
 static void
 dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tree, proto_item *additional_item, gboolean dissecting_init_init_ack_chunk)
 {
-  gint offset, length, total_length, remaining_length;
+  gint offset, length, total_length, remaining_length, captured_total_length;
   tvbuff_t *parameter_tvb;
 
   offset = 0;
-  while((remaining_length = tvb_length_remaining(parameters_tvb, offset))) {
+  while((remaining_length = tvb_reported_length_remaining(parameters_tvb, offset))) {
     if ((offset > 0) && additional_item)
       proto_item_append_text(additional_item, " ");
+
     length       = tvb_get_ntohs(parameters_tvb, offset + PARAMETER_LENGTH_OFFSET);
     total_length = ADD_PADDING(length);
-    if (remaining_length >= length)
-      total_length = MIN(total_length, remaining_length);
+
+    /*  If we have less bytes than we need, throw an exception while dissecting
+     *  the parameter--not when generating the parameter_tvb below.
+     */
+    total_length = MIN(total_length, remaining_length);
+    captured_total_length = MIN(total_length, tvb_length_remaining(parameters_tvb, offset));
+
     /* create a tvb for the parameter including the padding bytes */
-    parameter_tvb  = tvb_new_subset(parameters_tvb, offset, total_length, total_length);
+    parameter_tvb  = tvb_new_subset(parameters_tvb, offset, captured_total_length, total_length);
+
     dissect_parameter(parameter_tvb, pinfo, tree, additional_item, dissecting_init_init_ack_chunk);
+
     /* get rid of the handled parameter */
     offset += total_length;
   }
@@ -1793,13 +1802,14 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_t
 
   code           = tvb_get_ntohs(cause_tvb, CAUSE_CODE_OFFSET);
   length         = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
-  padding_length = tvb_length(cause_tvb) - length;
+  padding_length = tvb_reported_length(cause_tvb) - length;
 
-  cause_item = proto_tree_add_text(chunk_tree, cause_tvb, CAUSE_HEADER_OFFSET, tvb_length(cause_tvb), "%s cause", val_to_str(code, cause_code_values, "Unknown"));
+  cause_item = proto_tree_add_text(chunk_tree, cause_tvb, CAUSE_HEADER_OFFSET, tvb_reported_length(cause_tvb), "%s cause", val_to_str(code, cause_code_values, "Unknown"));
   cause_tree = proto_item_add_subtree(cause_item, ett_sctp_chunk_cause);
 
   proto_tree_add_item(cause_tree, hf_cause_code, cause_tvb,   CAUSE_CODE_OFFSET,   CAUSE_CODE_LENGTH,   ENC_BIG_ENDIAN);
   proto_tree_add_item(cause_tree, hf_cause_length, cause_tvb, CAUSE_LENGTH_OFFSET, CAUSE_LENGTH_LENGTH, ENC_BIG_ENDIAN);
+  /* XXX - add expert info if length is bogus? */
 
   switch(code) {
   case INVALID_STREAM_IDENTIFIER:
@@ -1868,18 +1878,25 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_t
 static void
 dissect_error_causes(tvbuff_t *causes_tvb, packet_info *pinfo, proto_tree *tree)
 {
-  gint offset, length, total_length, remaining_length;
+  gint offset, length, total_length, remaining_length, captured_total_length;
   tvbuff_t *cause_tvb;
 
   offset = 0;
   while((remaining_length = tvb_length_remaining(causes_tvb, offset))) {
     length       = tvb_get_ntohs(causes_tvb, offset + CAUSE_LENGTH_OFFSET);
     total_length = ADD_PADDING(length);
-    if (remaining_length >= length)
-      total_length = MIN(total_length, remaining_length);
+
+    /*  If we have less bytes than we need, throw an exception while dissecting
+     *  the cause--not when generating the causes_tvb below.
+     */
+    total_length = MIN(total_length, remaining_length);
+    captured_total_length = MIN(total_length, tvb_length_remaining(causes_tvb, offset));
+
     /* create a tvb for the parameter including the padding bytes */
-    cause_tvb    = tvb_new_subset(causes_tvb, offset, total_length, total_length);
+    cause_tvb    = tvb_new_subset(causes_tvb, offset, captured_total_length, total_length);
+
     dissect_error_cause(cause_tvb, pinfo, tree);
+
     /* get rid of the handled cause */
     offset += total_length;
   }
@@ -2788,6 +2805,7 @@ dissect_init_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo
                            INIT_CHUNK_FIXED_PARAMTERS_LENGTH);
     return;
   }
+
   if (chunk_tree) {
     /* handle fixed parameters */
     proto_tree_add_item(chunk_tree, hf_init_chunk_initiate_tag,               chunk_tvb, INIT_CHUNK_INITIATE_TAG_OFFSET,               INIT_CHUNK_INITIATE_TAG_LENGTH,               ENC_BIG_ENDIAN);
@@ -2802,6 +2820,7 @@ dissect_init_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo
                            tvb_get_ntohs(chunk_tvb, INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET),
                            tvb_get_ntohs(chunk_tvb, INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET));
   }
+
   /* handle variable parameters */
   chunk_length -= INIT_CHUNK_FIXED_PARAMTERS_LENGTH;
   parameters_tvb = tvb_new_subset(chunk_tvb, INIT_CHUNK_VARIABLE_LENGTH_PARAMETER_OFFSET, chunk_length, chunk_length);
@@ -3482,7 +3501,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
                    gboolean useinfo)
 {
   guint8 type, flags;
-  guint16 length, padding_length;
+  guint16 length, padding_length, reported_length;
   gboolean result;
   proto_item *flags_item;
   proto_item *chunk_item;
@@ -3496,14 +3515,15 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
   type           = tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET);
   flags          = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET);
   length         = tvb_get_ntohs(chunk_tvb, CHUNK_LENGTH_OFFSET);
-  padding_length = tvb_length(chunk_tvb) - length;
+  padding_length = tvb_reported_length(chunk_tvb) - length;
+  reported_length = tvb_reported_length(chunk_tvb);
 
  if (useinfo)
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, chunk_type_values, "RESERVED"));
 
   if (tree) {
     /* create proto_tree stuff */
-    chunk_item   = proto_tree_add_text(sctp_tree, chunk_tvb, CHUNK_HEADER_OFFSET, tvb_length(chunk_tvb), "%s chunk", val_to_str(type, chunk_type_values, "RESERVED"));
+    chunk_item   = proto_tree_add_text(sctp_tree, chunk_tvb, CHUNK_HEADER_OFFSET, tvb_reported_length(chunk_tvb), "%s chunk", val_to_str(type, chunk_type_values, "RESERVED"));
     chunk_tree   = proto_item_add_subtree(chunk_item, ett_sctp_chunk);
 
     /* then insert the chunk header components into the protocol tree */
@@ -3531,8 +3551,16 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
       result = TRUE;
     return result;
   }
+
   if (tree) {
-    proto_tree_add_uint(chunk_tree, hf_chunk_length, chunk_tvb, CHUNK_LENGTH_OFFSET, CHUNK_LENGTH_LENGTH, length);
+    proto_item *pi;
+    pi = proto_tree_add_uint(chunk_tree, hf_chunk_length, chunk_tvb, CHUNK_LENGTH_OFFSET, CHUNK_LENGTH_LENGTH, length);
+    if (length > reported_length) {
+      /* We'll almost certainly throw an exception shortly... */
+      expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
+			     "Chunk length (%d) is longer than remaining data (%d) in the packet",
+			     length, reported_length);
+    }
   }
   /*
   length -= CHUNK_HEADER_LENGTH;
@@ -3632,7 +3660,7 @@ dissect_sctp_chunks(tvbuff_t *tvb,
                     gboolean encapsulated)
 {
   tvbuff_t *chunk_tvb;
-  guint16 length, total_length, remaining_length;
+  guint16 length, total_length, remaining_length, captured_total_length;
   gint last_offset, offset;
   gboolean sctp_item_length_set;
 
@@ -3641,14 +3669,19 @@ dissect_sctp_chunks(tvbuff_t *tvb,
   offset = COMMON_HEADER_LENGTH;
   sctp_item_length_set = FALSE;
 
-  while((remaining_length = tvb_length_remaining(tvb, offset))) {
+  while((remaining_length = tvb_reported_length_remaining(tvb, offset))) {
     /* extract the chunk length and compute number of padding bytes */
     length         = tvb_get_ntohs(tvb, offset + CHUNK_LENGTH_OFFSET);
     total_length   = ADD_PADDING(length);
-    if (remaining_length >= length)
-      total_length = MIN(total_length, remaining_length);
+
+    /*  If we have less bytes than we need, throw an exception while dissecting
+     *  the chunk--not when generating the chunk_tvb below.
+     */
+    total_length = MIN(total_length, remaining_length);
+    captured_total_length = MIN(total_length, tvb_length_remaining(tvb, offset));
+
     /* create a tvb for the chunk including the padding bytes */
-    chunk_tvb    = tvb_new_subset(tvb, offset, total_length, total_length);
+    chunk_tvb = tvb_new_subset(tvb, offset, captured_total_length, total_length);
 
     /* save it in the sctp_info structure */
     if (!encapsulated) {
