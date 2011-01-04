@@ -1165,13 +1165,13 @@ while ($_ = $ARGV[0])
 		print STDERR "Warning: ".$filename." does not have an SVN Id tag.\n";
 	}
 
+	# Remove all the C-comments and strings
+	$fileContents =~ s {$commentAndStringRegex} []xog;
+
 	# optionally check the hf entries
 	if ($check_hf) {
 		$errorCount += check_hf_entries(\$fileContents, $filename)
 	}
-
-	# Remove all the C-comments and strings
-	$fileContents =~ s {$commentAndStringRegex} []xog;
 
 	if ($fileContents =~ m{ // }xo)
 	{
