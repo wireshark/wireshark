@@ -2216,14 +2216,20 @@ static int hf_E212_msin						= -1;
  * |  MNC digit 3  |  MNC digit 2  |  octet x+2
  * +---------------+---------------+
  */
-int
-dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean little_endian){
+
+/*
+ * Return MCC MNC in a ep allocated string that can be used in labels.
+ */
+gchar *
+dissect_e212_mcc_mnc_ep_str(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean little_endian)
+{
 
 	int			start_offset;
 	guint8		octet;
 	guint16		mcc, mnc;
 	guint8		mcc1, mcc2, mcc3, mnc1, mnc2, mnc3;
 	proto_item	*item;
+	gchar		*mcc_mnc_str;
 
 	start_offset = offset;
 	/* Mobile country code MCC */
@@ -2252,24 +2258,47 @@ dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 	if ((mcc1 > 9) || (mcc2 > 9) || (mcc3 > 9))
 		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "MCC contains non-decimal digits");
 
-	if(mnc3 != 0x0f)
+	if(mnc3 != 0x0f){
 		item = proto_tree_add_uint_format(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
 				   "Mobile Network Code (MNC): %s (%03u)",
 				   val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_codes_ext, "Unknown"),
 				   mnc);
-	else
+		/* Preapre a string with the MCC and MNC including the country and Operator if
+		 * known, do NOT print unknown.
+		 */
+		mcc_mnc_str = ep_strdup_printf("MCC %u %s, MNC %03u %s",
+			mcc, 
+			val_to_str_ext_const(mcc,&E212_codes_ext,""),
+			mnc,
+			val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_codes_ext, ""));
+	}else{
 		item = proto_tree_add_uint_format(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
 				   "Mobile Network Code (MNC): %s (%02u)",
 				   val_to_str_ext_const(mcc * 1000 + 10 * mnc, &mcc_mnc_codes_ext, "Unknown"),
 				   mnc);
+		/* Preapre a string with the MCC and MNC including the country and Operator if
+		 * known, do NOT print unknown.
+		 */
+		mcc_mnc_str = ep_strdup_printf("MCC %u %s, MNC %02u %s",
+			mcc, 
+			val_to_str_ext_const(mcc,&E212_codes_ext,""),
+			mnc,
+			val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_codes_ext, ""));
+	}
 
 	if ((mnc1 > 9) || (mnc2 > 9) || ((mnc3 > 9) && (mnc3 != 0x0f)))
 		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "MNC contains non-decimal digits");
 
 	offset++;
-	return offset;
+	return mcc_mnc_str;
 }
 
+int
+dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean little_endian)
+{
+	dissect_e212_mcc_mnc_ep_str(tvb, pinfo, tree, offset, little_endian);
+	return offset +3;
+}
 
 /*
  * When we want to decode the MCC/MNC pair in an address that is encoded according to E.212
