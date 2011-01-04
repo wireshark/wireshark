@@ -978,7 +978,7 @@ sub check_hf_entries($$)
 				  \{\s*
 				  ("[A-Z0-9 '\./\(\)_:-]+")	# name
 				  \s*,\s*
-				  ("[A-Z0-9_\.-]+")		# abbrev
+				  (NULL|"[A-Z0-9_\.-]*")	# abbrev
 				  \s*,\s*
 				  (FT_[A-Z0-9_]+)		# field type
 				  \s*,\s*
@@ -1000,6 +1000,10 @@ sub check_hf_entries($$)
 
 		#print "name=$name, abbrev=$abbrev, ft=$ft, display=$display, convert=$convert, bitmask=$bitmask, blurb=$blurb\n";
 
+		if ($abbrev eq '""' || $abbrev eq "NULL") {
+			print STDERR "Error: field $name does not have an abbreviation in $filename\n";
+			$errorCount++;
+		}
 		if ($name eq $abbrev) {
 			print STDERR "Error: the abbreviation for field $name matches the field name in $filename\n";
 			$errorCount++;
