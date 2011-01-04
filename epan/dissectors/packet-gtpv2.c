@@ -109,7 +109,7 @@ static gint ett_gtpv2_uli_flags = -1;
 static gint ett_gtpv2_uli_field = -1;
 static gint ett_gtpv2_bearer_ctx = -1;
 static gint ett_gtpv2_PDN_conn = -1;
-static gint ett_gtpv2_mm_context_flag = -1; 
+static gint ett_gtpv2_mm_context_flag = -1;
 
 static int hf_gtpv2_selec_mode= -1;
 
@@ -499,8 +499,8 @@ dissect_gtpv2_imsi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
     int offset= 0;
     const gchar *imsi_str;
 
-    /* Fetch the BCD encoded digits from tvb low half byte, formating the digits according to 
-     * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the EP 
+    /* Fetch the BCD encoded digits from tvb low half byte, formating the digits according to
+     * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the EP
      * allocated string will be returned.
      */
     imsi_str = tvb_bcd_dig_to_ep_str( tvb, offset, length, NULL, FALSE);
@@ -675,13 +675,13 @@ dissect_gtpv2_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pro
 	*/
     if ( length == 2 ){
         return;
-	} 
+	}
 	/*
 	 * If the rejection is due to a mandatory IE or a verifiable conditional IE is faulty
 	 * or missing, the offending IE shall be included within an additional field "a(n+1)
 	 * to a(n+4)". Only Type and Instance fields of the offending IE that caused the
 	 * rejection have a meaning. The length in the Octet 8-9 and spare bits in the Octet 10
-	 * shall be set to "0". In this case, the value of "n" shall be "6". 
+	 * shall be set to "0". In this case, the value of "n" shall be "6".
 	 * Otherwise, the value of "n" is equal to "2".
 	 */
 
@@ -801,12 +801,12 @@ dissect_gtpv2_ip_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 }
 /*
  * 8.10 Mobile Equipment Identity (MEI)
- * The ME Identity field contains either the IMEI or the IMEISV 
+ * The ME Identity field contains either the IMEI or the IMEISV
  * as defined in clause 6.2 of 3GPP TS 23.003 [2]. It is encoded
  * as specified in clause 7.7.53 of 3GPP TS 29.060 [4], beginning
  * with octet 4 of Figure 7.7.53.1. The IMEI(SV) digits are encoded
  * using BCD coding where IMEI is 15 BCD digits and IMEISV is 16 BCD
- * digits. For IMEI, bits 5 to 8 of the last octet shall be filled 
+ * digits. For IMEI, bits 5 to 8 of the last octet shall be filled
  * with an end mark coded as '1111'.
  */
 
@@ -816,8 +816,8 @@ dissect_gtpv2_mei(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
     int offset= 0;
     const gchar *mei_str;
 
-    /* Fetch the BCD encoded digits from tvb low half byte, formating the digits according to 
-     * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the EP 
+    /* Fetch the BCD encoded digits from tvb low half byte, formating the digits according to
+     * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the EP
      * allocated string will be returned.
      */
     mei_str = tvb_bcd_dig_to_ep_str( tvb, 0, length, NULL, FALSE);
@@ -838,17 +838,17 @@ dissect_gtpv2_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
     const char     *digit_str;
 
 	/* Octets 5 to (n+4) represent the MSISDN value is in international number format
-	 * as described in ITU-T Rec E.164 [25] and 3GPP TS 29.002 [41]. 
+	 * as described in ITU-T Rec E.164 [25] and 3GPP TS 29.002 [41].
 	 * MSISDN value contains only the actual MSISDN number (does not contain the "nature of
-	 * address indicator" octet, which indicates "international number" 
-	 * as in 3GPP TS 29.002 [41]) and is encoded as TBCD digits, i.e. 
-	 * digits from 0 through 9 are encoded "0000" to "1001". 
-	 * When there is an odd number of digits, bits 8 to 5 of the last octet are encoded with 
+	 * address indicator" octet, which indicates "international number"
+	 * as in 3GPP TS 29.002 [41]) and is encoded as TBCD digits, i.e.
+	 * digits from 0 through 9 are encoded "0000" to "1001".
+	 * When there is an odd number of digits, bits 8 to 5 of the last octet are encoded with
 	 * the filler "1111".
 	 */
     dissect_e164_cc(tvb, tree, 0, TRUE);
-    /* Fetch the BCD encoded digits from tvb low half byte, formating the digits according to 
-     * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the EP 
+    /* Fetch the BCD encoded digits from tvb low half byte, formating the digits according to
+     * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the EP
      * allocated string will be returned.
      */
     digit_str = tvb_bcd_dig_to_ep_str( tvb, 0, length, NULL, FALSE);
@@ -1147,7 +1147,7 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
         dissect_e212_mcc_mnc(tvb, pinfo, part_tree, offset, TRUE);
         offset+=3;
         /* The bits 8 through 5, of octet e+3 (Fig 8.21.5-1 in TS 29.274 V8.2.0) are spare
-         * and hence they would not make any difference to the hex string following it, 
+         * and hence they would not make any difference to the hex string following it,
 		 * thus we directly read 4 bytes from the tvb
 		 */
 
@@ -1177,7 +1177,7 @@ dissect_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
     flag_tree = proto_item_add_subtree(flags_item, ett_gtpv2_uli_flags);
     flags = tvb_get_guint8(tvb,offset)&0x1f;
 	proto_tree_add_bits_item(flag_tree, hf_gtpv2_spare_bits,	tvb, offset>>3, 3, FALSE);
-    
+
 	/* ECGI B5 */
     proto_tree_add_item(flag_tree, hf_gtpv2_uli_ecgi_flg, tvb, offset, 1, FALSE);
     /* TAI B4  */
@@ -1438,7 +1438,7 @@ dissect_gtpv2_bearer_flag(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	/* Octet 5 Spare VB PPC */
     proto_tree_add_item(tree, hf_gtpv2_bearer_flag_ppc, tvb, offset, length, FALSE);
     proto_tree_add_item(tree, hf_gtpv2_bearer_flag_vb, tvb, offset, length, FALSE);
-	
+
 }
 /*
  * 8.34 PDN Type
@@ -1465,7 +1465,7 @@ dissect_gtpv2_pdn_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
 }
 
-/* 
+/*
  * 8.31 Trace Information
  */
 /*
@@ -1650,17 +1650,17 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	flag = proto_tree_add_text(tree, tvb, offset, 3, "MM Context flags");
 	flag_tree = proto_item_add_subtree(flag, ett_gtpv2_mm_context_flag);
 
-	/* Octet 5 
+	/* Octet 5
 	 * Bits
 	 * 8      7     6     5     4      3      2      1
-	 * Security Mode    | NHI | DRXI | KSIASME 
+	 * Security Mode    | NHI | DRXI | KSIASME
 	 */
 	proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_sm, tvb, offset, 1, FALSE);
 	proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_nhi, tvb, offset, 1, FALSE);
-	/* If NHI (Next Hop Indicator), bit 5 of octet 5, is set to "1", 
+	/* If NHI (Next Hop Indicator), bit 5 of octet 5, is set to "1",
 	 * then the optional parameters NH (Next Hop) and NCC (Next
 	 * Hop Chaining Count) are both present, otherwise their octets are not present.
-	 */ 
+	 */
 	proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_drxi, tvb, offset, 1, FALSE);
 	proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_ksi_a, tvb, offset, 1, FALSE);
 	offset += 1;
@@ -1715,7 +1715,7 @@ dissect_gtpv2_PDN_conn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _
  * 8.43 Hop Counter
  */
 
-/* 
+/*
  * 8.44 UE Time Zone
  */
 
@@ -1776,7 +1776,7 @@ dissect_gtpv2_guti(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
     int offset = 0;
 
 	offset = 0;
-	
+
 	dissect_e212_mcc_mnc(tvb, pinfo, tree, 0, TRUE);
 	offset += 3;
 
@@ -1825,12 +1825,12 @@ dissect_gtpv2_F_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
 				break;
 		}
 	}
-	/* 7.3.2 Forward Relocation Response 
-	 * E-UTRAN Transparent Container 
+	/* 7.3.2 Forward Relocation Response
+	 * E-UTRAN Transparent Container
 	 * This IE is conditionally included only during a handover to
 	 * E-UTRAN and contains the radio-related and core network
 	 * information. If the Cause IE contains the value "Request
-	 * accepted", this IE shall be included.  
+	 * accepted", this IE shall be included.
 	 */
 	proto_tree_add_text(tree, tvb, offset, length-offset, "Not dissected yet");
 
@@ -1868,12 +1868,12 @@ dissect_gtpv2_F_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
     int offset = 0;
 	guint8 cause_type;
 
-	/* The value of Instance field of the F-Cause IE in a GTPv2 message shall indicate 
-	 * whether the F-Cause field contains RANAP Cause, BSSGP Cause or RAN Cause. 
-	 * If the F-Cause field contains RAN Cause, the Cause Type field shall contain 
+	/* The value of Instance field of the F-Cause IE in a GTPv2 message shall indicate
+	 * whether the F-Cause field contains RANAP Cause, BSSGP Cause or RAN Cause.
+	 * If the F-Cause field contains RAN Cause, the Cause Type field shall contain
 	 * the RAN cause subcategory as specified in 3GPP TS 36.413 [10] and it shall be
-	 * encoded as in Table 8.49-1. 
-	 * If the F-Cause field contains BSSGP Cause or RANAP Cause, 
+	 * encoded as in Table 8.49-1.
+	 * If the F-Cause field contains BSSGP Cause or RANAP Cause,
 	 * the Cause Type field shall be ignored by the receiver.
 	 */
 	if(message_type == GTPV2_FORWARD_RELOCATION_REQ){
@@ -1970,7 +1970,7 @@ dissect_gtpv2_target_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 			tvb_new = tvb_new_subset_remaining(tvb, offset);
 			dissect_e212_mcc_mnc(tvb_new, pinfo, tree, 0, TRUE);
 			offset+=3;
-			/* The Macro eNodeB ID consists of 20 bits. 
+			/* The Macro eNodeB ID consists of 20 bits.
 			 * Bit 4 of Octet 4 is the most significant bit and bit 1 of Octet 6 is the least significant bit.
 			 */
 			proto_tree_add_item(tree, hf_gtpv2_macro_enodeb_id, tvb, offset, 3, FALSE);
@@ -2017,7 +2017,7 @@ dissect_gtpv2_apn_rest(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     proto_item_append_text(item, "value %u", type_value);
 }
 
-/* 
+/*
  * 8.58 Selection Mode
  */
 static const value_string gtpv2_selec_mode_vals[] = {
@@ -2040,7 +2040,7 @@ dissect_gtpv2_selec_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 }
 
 
-/* 
+/*
  * 8.59 Source Identification
  */
 #if 0
@@ -2070,7 +2070,7 @@ dissect_gtpv2_source_ident(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 }
 #endif
- /* 
+ /*
   * 8.60 Bearer Control Mode
   */
 
@@ -2119,7 +2119,7 @@ dissect_gtpv2_cng_rep_act(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
     /* Add Action to tree */
     action = tvb_get_guint8(tvb, 0);
-    proto_tree_add_item(tree, hf_gtpv2_cng_rep_act, tvb, 0, 1, FALSE); 
+    proto_tree_add_item(tree, hf_gtpv2_cng_rep_act, tvb, 0, 1, FALSE);
 
     proto_item_append_text(tree, "%s", val_to_str(action, gtpv2_cng_rep_act_vals, "Unknown"));
 }
@@ -2155,7 +2155,7 @@ dissect_gtpv2_node_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 }
 
- /* 
+ /*
   * 8.66 Fully Qualified Domain Name (FQDN)
   */
 static void
@@ -2228,7 +2228,7 @@ static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_IE_BEARER_CTX,dissect_gtpv2_bearer_ctx},                /* 93, Bearer Context  8.31 */
     {GTPV2_IE_CHAR_ID, dissect_gtpv2_charging_id},                 /* 94, Charging Id */
     {GTPV2_IE_CHAR_CHAR, dissect_gtpv2_char_char},                 /* 95 Charging Characteristic */
-     
+
     {GTPV2_BEARER_FLAG, dissect_gtpv2_bearer_flag},                /* 97, Bearer Flag */
     {GTPV2_IE_PDN_TYPE, dissect_gtpv2_pdn_type},                   /* 99, PDN Type */
     {GTPV2_IE_PTI, dissect_gtpv2_pti},                             /* 100, Procedure Transaction Id */
@@ -2239,7 +2239,7 @@ static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_IE_MM_CONTEXT_EPS_QQ, dissect_gtpv2_mm_context_eps_qq},   /* 107, MM Context 8.38 */
     /*{GTPV2_IE_MM_CONTEXT_UTMS_QQ, dissect_gtp_v2_mm_context_utms_qq},*/ /* 108, MM Context 8.38 */
 
-	{GTPV2_IE_PDN_CONNECTION, dissect_gtpv2_PDN_conn},			    /* 109, PDN Connection */                         
+	{GTPV2_IE_PDN_CONNECTION, dissect_gtpv2_PDN_conn},			    /* 109, PDN Connection */
     {GTPV2_IE_UE_TIME_ZONE, dissect_gtpv2_ue_time_zone},            /* 114, UE Time Zone */
     {GTPV2_IE_COMPLETE_REQUEST_MSG, dissect_complete_request_msg},  /* 116, Complete Request message 8.46 */
 
@@ -2399,13 +2399,13 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 void proto_register_gtpv2(void)
 {
     static hf_register_info hf_gtpv2[] = {
-		{ &hf_gtpv2_spare_half_octet, 
-			{"Spare half octet", "",
+		{ &hf_gtpv2_spare_half_octet,
+			{"Spare half octet", "gtpv2.spare_half_octet",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
 				NULL, HFILL }
 		},
 		{ &hf_gtpv2_spare_bits,
-			{"Spare bit(s)", "",
+			{"Spare bit(s)", "gtpv2.spare_bits",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
 				NULL, HFILL }
 		},
@@ -2423,7 +2423,7 @@ void proto_register_gtpv2(void)
         {"P", "gtpv2.p",
         FT_UINT8, BASE_DEC, NULL, 0x10,
         "If Piggybacked message is present or not", HFILL}
-        },        
+        },
         { &hf_gtpv2_t,
         {"T", "gtpv2.t",
         FT_UINT8, BASE_DEC, NULL, 0x08,
