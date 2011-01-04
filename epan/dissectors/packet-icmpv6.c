@@ -2199,7 +2199,7 @@ dissect_rrenum(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
         rm_tree = proto_item_add_subtree(ti_rm, ett_icmpv6opt);
 
         /* Flags */
-        ti = proto_tree_add_item(mp_tree, hf_icmpv6_rr_rm_flag, tvb, rr_offset, 2, FALSE);
+        ti = proto_tree_add_item(rm_tree, hf_icmpv6_rr_rm_flag, tvb, rr_offset, 2, FALSE);
         flag_tree = proto_item_add_subtree(ti, ett_icmpv6flag);
         proto_tree_add_item(flag_tree, hf_icmpv6_rr_rm_flag_b, tvb, rr_offset, 2, FALSE);
         proto_tree_add_item(flag_tree, hf_icmpv6_rr_rm_flag_f, tvb, rr_offset, 2, FALSE);
