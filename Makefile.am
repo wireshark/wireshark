@@ -402,7 +402,7 @@ mergecap_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@
-mergecap_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
+mergecap_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # Libraries with which to link capinfos.
 capinfos_LDADD = \
@@ -410,14 +410,14 @@ capinfos_LDADD = \
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@			\
 	@LIBGCRYPT_LIBS@
-capinfos_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
+capinfos_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # Libraries with which to link editcap.
 editcap_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@
-editcap_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
+editcap_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # Libraries with which to link randpkt.
 randpkt_LDADD = \
@@ -429,7 +429,7 @@ randpkt_LDADD = \
 	@NSL_LIBS@			\
 	@C_ARES_LIBS@			\
 	@ADNS_LIBS@
-randpkt_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
+randpkt_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # Libraries and plugin flags with which to link dftest.
 dftest_LDADD = \
@@ -460,7 +460,7 @@ dumpcap_LDADD = \
 	@NSL_LIBS@			\
 	@CORESERVICES_FRAMEWORKS@	\
 	@LIBCAP_LIBS@
-dumpcap_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
+dumpcap_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # Common headers
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap \

@@ -156,8 +156,7 @@ dumpcap_LIBS= \
 	wsock32.lib user32.lib \
 	wsutil\libwsutil.lib \
 	$(GLIB_LIBS) \
-	$(GTHREAD_LIBS) \
-	$(PYTHON_LIBS)
+	$(GTHREAD_LIBS)
 
 dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
@@ -341,7 +340,7 @@ randpkt.exe	: $(randpkt_OBJECTS)
 	mt.exe -nologo -manifest "randpkt.exe.manifest" -outputresource:randpkt.exe;1
 !ENDIF
 
-dumpcap.exe	: $(LIBS_CHECK) config.h $(dumpcap_OBJECTS) wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\dumpcap.res
+dumpcap.exe	: $(LIBS_CHECK) config.h $(dumpcap_OBJECTS) wsutil\libwsutil.lib image\dumpcap.res
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:dumpcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dumpcap_LIBS) $(dumpcap_OBJECTS) image\dumpcap.res
