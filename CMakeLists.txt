@@ -807,7 +807,6 @@ endif()
 
 if(BUILD_dumpcap)
 	set(dumpcap_LIBS
-		wiretap
 #		@INET_NTOP_LO@
 		${PCAP_LIBRARIES}
 		${CAP_LIBRARIES}

@@ -243,8 +243,8 @@ typedef struct _loop_data {
 #ifdef USE_THREADS
   char *         cap_pipe_buf;          /* Pointer to the data buffer we read into */
 #endif /* USE_THREADS */
-  int   cap_pipe_bytes_to_read;/* Used by cap_pipe_dispatch */
-  int   cap_pipe_bytes_read;   /* Used by cap_pipe_dispatch */
+  int            cap_pipe_bytes_to_read;/* Used by cap_pipe_dispatch */
+  int            cap_pipe_bytes_read;   /* Used by cap_pipe_dispatch */
   enum {
          STATE_EXPECT_REC_HDR,
          STATE_READ_REC_HDR,
@@ -258,7 +258,6 @@ typedef struct _loop_data {
   int            save_file_fd;
   int            linktype;
   int            file_snaplen;
-  gint           wtap_linktype;
   long           bytes_written;
   guint32        autostop_files;
 } loop_data;
@@ -2420,16 +2419,6 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
     /* XXX - use cf_open_error_message from tshark instead? */
     switch (err) {
 
-    case WTAP_ERR_CANT_OPEN:
-      g_snprintf(errmsg, errmsg_len, "The file to which the capture would be saved"
-               " couldn't be created for some unknown reason.");
-      break;
-
-    case WTAP_ERR_SHORT_WRITE:
-      g_snprintf(errmsg, errmsg_len, "A full header couldn't be written to the file"
-               " to which the capture would be saved.");
-      break;
-
     default:
       if (err < 0) {
         g_snprintf(errmsg, errmsg_len,
@@ -2879,7 +2868,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     global_ld.packet_max        = 0;	/* no limit */
   global_ld.inpkts_to_sync_pipe = 0;
   global_ld.err                 = 0;	/* no error seen yet */
-  global_ld.wtap_linktype       = WTAP_ENCAP_UNKNOWN;
   global_ld.pcap_err            = FALSE;
   global_ld.from_cap_pipe       = FALSE;
   global_ld.pdh                 = NULL;
@@ -3083,7 +3071,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   /* did we had a pcap (input) error? */
   if (global_ld.pcap_err) {
     /* On Linux, if an interface goes down while you're capturing on it,
-       you'll get a "recvfrom: Network is down" error (ENETDOWN).
+       you'll get a "recvfrom: Network is down" or
+       "The interface went down" error (ENETDOWN).
        (At least you will if strerror() doesn't show a local translation
        of the error.)
 
@@ -3098,6 +3087,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
     cap_err_str = pcap_geterr(global_ld.pcap_h);
     if (strcmp(cap_err_str, "recvfrom: Network is down") == 0 ||
+        strcmp(cap_err_str, "The interface went down") == 0 ||
         strcmp(cap_err_str, "read: Device not configured") == 0 ||
         strcmp(cap_err_str, "read: I/O error") == 0 ||
         strcmp(cap_err_str, "read error: PacketReceivePacket failed") == 0) {
@@ -3124,7 +3114,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   }
 
   if (capture_opts->saving_to_file) {
-    /* close the wiretap (output) file */
+    /* close the output file */
     close_ok = capture_loop_close_output(capture_opts, &global_ld, &err_close);
   } else
     close_ok = TRUE;
@@ -3249,32 +3239,18 @@ capture_loop_get_errmsg(char *errmsg, int errmsglen, const char *fname,
   break;
 #endif
 
-  case WTAP_ERR_CANT_CLOSE:
-    g_snprintf(errmsg, errmsglen,
-		"The file to which the capture was being saved"
-		" couldn't be closed for some unknown reason.");
-    break;
-
-  case WTAP_ERR_SHORT_WRITE:
-    g_snprintf(errmsg, errmsglen,
-		"Not all the packets could be written to the file"
-		" to which the capture was being saved\n"
-		"(\"%s\").",
-		fname);
-    break;
-
   default:
     if (is_close) {
       g_snprintf(errmsg, errmsglen,
 		"The file to which the capture was being saved\n"
 		"(\"%s\") could not be closed: %s.",
-		fname, wtap_strerror(err));
+		fname, strerror(err));
     } else {
       g_snprintf(errmsg, errmsglen,
 		"An error occurred while writing to the file"
 		" to which the capture was being saved\n"
 		"(\"%s\"): %s.",
-		fname, wtap_strerror(err));
+		fname, strerror(err));
     }
     break;
   }

@@ -152,11 +152,11 @@ text2pcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsutil\libwsutil.lib \
 	$(GLIB_LIBS)
 
-dumpcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
+dumpcap_LIBS= \
 	wsock32.lib user32.lib \
 	wsutil\libwsutil.lib \
 	$(GLIB_LIBS) \
-        $(GTHREAD_LIBS) \
+	$(GTHREAD_LIBS) \
 	$(PYTHON_LIBS)
 
 dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \

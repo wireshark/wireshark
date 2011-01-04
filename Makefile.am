@@ -453,7 +453,6 @@ dftest_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
 # Libraries with which to link dumpcap.
 dumpcap_LDADD = \
-	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
