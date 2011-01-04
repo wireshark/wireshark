@@ -21,8 +21,10 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- * Protocol ref:
- * http://www.ietf.org/rfc/rfc5326.txt?number=5326
+ */
+
+/*
+ * Licklider Transmission Protocol - RFC 5326.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -386,16 +388,16 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 	guint64 upper_bound;
 	guint64 lower_bound;
 	int rcpt_clm_cnt;
-	guint64 *offset;
-	guint64 *length;
+	guint64 offset;
+	guint64 length;
 	
 	int rpt_sno_size;
 	int chkp_sno_size;
 	int upper_bound_size;
 	int lower_bound_size;
 	int rcpt_clm_cnt_size;
-	int *offset_size;
-	int *length_size;
+	int offset_size;
+	int length_size;
 
 	int segment_offset = 0;
 	int i;
@@ -405,92 +407,54 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 	
 	proto_tree *ltp_rpt_tree;
 	proto_tree *ltp_rpt_clm_tree;
-	/* Extract the report segment info */
-	rpt_sno = evaluate_sdnv_64(tvb,frame_offset, &rpt_sno_size);
-	segment_offset+= rpt_sno_size;
-	if((unsigned)(frame_offset + segment_offset) >= tvb_length(tvb)){
-		return 0;
-	}
 
-	chkp_sno = evaluate_sdnv_64(tvb,frame_offset + segment_offset, &chkp_sno_size);
-	segment_offset+=chkp_sno_size;
-	if((unsigned)(frame_offset + segment_offset) >= tvb_length(tvb)){
-		return 0;
-	}
-
-	upper_bound = evaluate_sdnv(tvb,frame_offset + segment_offset, &upper_bound_size);
-	segment_offset += upper_bound_size;
-	if((unsigned)(frame_offset + segment_offset) >= tvb_length(tvb)){
-		return 0;
-	}
-
-	lower_bound = evaluate_sdnv(tvb,frame_offset + segment_offset, &lower_bound_size);
-	segment_offset += lower_bound_size;
-	if((unsigned)(frame_offset + segment_offset) >= tvb_length(tvb)){
-		return 0;
-	}
-
-	rcpt_clm_cnt = evaluate_sdnv(tvb,frame_offset + segment_offset, &rcpt_clm_cnt_size);
-	segment_offset += rcpt_clm_cnt_size;
-	if((unsigned)(frame_offset + segment_offset) > tvb_length(tvb)){
-		return 0;
-	}
-	if ((rcpt_clm_cnt < 0) || (rcpt_clm_cnt > (tvb_reported_length_remaining(tvb, frame_offset + segment_offset) / 2))){
-		expert_add_info_format(pinfo, ltp_tree, PI_UNDECODED, PI_ERROR, "Non-sensical reception claim count: %d", rcpt_clm_cnt);
-		return 0;
-	}
-
-	offset = ep_alloc(sizeof(guint64) * rcpt_clm_cnt);
-	offset_size = ep_alloc(sizeof(int) * rcpt_clm_cnt);
-	length = ep_alloc(sizeof(guint64) * rcpt_clm_cnt);
-	length_size = ep_alloc(sizeof(int) * rcpt_clm_cnt);
-
-	for(i = 0; i<rcpt_clm_cnt; i++){
-		*(offset + i) = evaluate_sdnv(tvb,frame_offset + segment_offset, offset_size + i);
-		segment_offset += *(offset_size + i);
-		if((unsigned)(frame_offset + segment_offset) > tvb_length(tvb)){
-			return 0;
-		}
-
-		*(length + i ) = evaluate_sdnv(tvb,frame_offset + segment_offset, length_size + i);
-		segment_offset += *(length_size + i );
-		if((unsigned)(frame_offset + segment_offset) > tvb_length(tvb)){
-			return 0;
-		}
-	}
-	
 	/* Create the subtree for report segment under the main LTP tree and all the report segment fields under it */
-	ltp_rpt_item = proto_tree_add_text(ltp_tree, tvb,frame_offset, segment_offset, "Report Segment");
+	ltp_rpt_item = proto_tree_add_text(ltp_tree, tvb, frame_offset, -1, "Report Segment");
 	ltp_rpt_tree = proto_item_add_subtree(ltp_rpt_item, ett_rpt_segm);
 	
-	proto_tree_add_uint64(ltp_rpt_tree, hf_ltp_rpt_sno, tvb, frame_offset,rpt_sno_size, rpt_sno);
-	frame_offset += rpt_sno_size;
+	/* Extract the report segment info */
+	rpt_sno = evaluate_sdnv_64(tvb, frame_offset, &rpt_sno_size);
+	proto_tree_add_uint64(ltp_rpt_tree, hf_ltp_rpt_sno, tvb, frame_offset + segment_offset, rpt_sno_size, rpt_sno);
+	segment_offset += rpt_sno_size;
 
-	proto_tree_add_uint64(ltp_rpt_tree, hf_ltp_rpt_chkp, tvb, frame_offset,chkp_sno_size, chkp_sno);
-	frame_offset += chkp_sno_size;
+	chkp_sno = evaluate_sdnv_64(tvb, frame_offset + segment_offset, &chkp_sno_size);
+	proto_tree_add_uint64(ltp_rpt_tree, hf_ltp_rpt_chkp, tvb, frame_offset + segment_offset, chkp_sno_size, chkp_sno);
+	segment_offset += chkp_sno_size;
 
-	proto_tree_add_uint64(ltp_rpt_tree, hf_ltp_rpt_ub, tvb, frame_offset,upper_bound_size, upper_bound);
-	frame_offset += upper_bound_size;
+	upper_bound = evaluate_sdnv(tvb, frame_offset + segment_offset, &upper_bound_size);
+	proto_tree_add_uint64(ltp_rpt_tree, hf_ltp_rpt_ub, tvb, frame_offset + segment_offset, upper_bound_size, upper_bound);
+	segment_offset += upper_bound_size;
 
-	proto_tree_add_uint64(ltp_rpt_tree, hf_ltp_rpt_lb, tvb, frame_offset,lower_bound_size, lower_bound);
-	frame_offset += lower_bound_size;
+	lower_bound = evaluate_sdnv(tvb, frame_offset + segment_offset, &lower_bound_size);
+	proto_tree_add_uint64(ltp_rpt_tree, hf_ltp_rpt_lb, tvb, frame_offset + segment_offset, lower_bound_size, lower_bound);
+	segment_offset += lower_bound_size;
 
-	proto_tree_add_uint(ltp_rpt_tree, hf_ltp_rpt_clm_cnt, tvb, frame_offset,rcpt_clm_cnt_size, rcpt_clm_cnt);
-	frame_offset += rcpt_clm_cnt_size;
+	rcpt_clm_cnt = evaluate_sdnv(tvb, frame_offset + segment_offset, &rcpt_clm_cnt_size);
+	if (rcpt_clm_cnt < 0){
+		proto_item_set_end(ltp_rpt_item, tvb, frame_offset + segment_offset);
+		expert_add_info_format(pinfo, ltp_tree, PI_UNDECODED, PI_ERROR, "Negative reception claim count: %d", rcpt_clm_cnt);
+		return 0;
+	}
+	proto_tree_add_uint(ltp_rpt_tree, hf_ltp_rpt_clm_cnt, tvb, frame_offset + segment_offset, rcpt_clm_cnt_size, rcpt_clm_cnt);
+	segment_offset += rcpt_clm_cnt_size;
 
-	ltp_rpt_clm_item = proto_tree_add_text(ltp_rpt_tree, tvb,frame_offset, segment_offset - frame_offset, "Reception claims");
+	ltp_rpt_clm_item = proto_tree_add_text(ltp_rpt_tree, tvb, frame_offset + segment_offset, -1, "Reception claims");
 	ltp_rpt_clm_tree = proto_item_add_subtree(ltp_rpt_clm_item, ett_rpt_clm);
 
 	/* There can be multiple reception claims in the same report segment */
 	for(i = 0; i<rcpt_clm_cnt; i++){
-		proto_tree_add_uint64_format(ltp_rpt_clm_tree, hf_ltp_rpt_clm_off, tvb, frame_offset,*(offset_size + i), *(offset + i),
-				"Offset[%d] : %"G_GINT64_MODIFIER"d", i, *(offset + i));
-		frame_offset += *(offset_size + i);
+		offset = evaluate_sdnv(tvb,frame_offset + segment_offset, &offset_size);
+		proto_tree_add_uint64_format(ltp_rpt_clm_tree, hf_ltp_rpt_clm_off, tvb, frame_offset + segment_offset, offset_size, offset,
+				"Offset[%d] : %"G_GINT64_MODIFIER"d", i, offset);
+		segment_offset += offset_size;
 
-		proto_tree_add_uint64_format(ltp_rpt_clm_tree, hf_ltp_rpt_clm_len, tvb, frame_offset,*(length_size + i), *(length + i),
-				"Length[%d] : %"G_GINT64_MODIFIER"d",i, *(length + i));
-		frame_offset += *(length_size + i);
+		length = evaluate_sdnv(tvb,frame_offset + segment_offset, &length_size);
+		proto_tree_add_uint64_format(ltp_rpt_clm_tree, hf_ltp_rpt_clm_len, tvb, frame_offset + segment_offset, length_size, length,
+				"Length[%d] : %"G_GINT64_MODIFIER"d",i, length);
+		segment_offset += length_size;
 	}
+	proto_item_set_end(ltp_rpt_clm_item, tvb, frame_offset + segment_offset);
+	proto_item_set_end(ltp_rpt_item, tvb, frame_offset + segment_offset);
 	return segment_offset;
 }
 
