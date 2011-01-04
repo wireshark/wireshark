@@ -365,10 +365,10 @@ struct nd_router_advert {	/* router advertisement */
 #define ND_RA_FLAG_RTPREF_MASK	0x18 /* 00011000 */
 #define ND_RA_FLAG_RESERV_MASK	0xE7 /* 11100111 */
 
-#define ND_RA_FLAG_RTPREF_HIGH		0x01 
-#define ND_RA_FLAG_RTPREF_MEDIUM	0x00 
-#define ND_RA_FLAG_RTPREF_LOW		0x03 
-#define ND_RA_FLAG_RTPREF_RSV		0x02 
+#define ND_RA_FLAG_RTPREF_HIGH		0x01
+#define ND_RA_FLAG_RTPREF_MEDIUM	0x00
+#define ND_RA_FLAG_RTPREF_LOW		0x03
+#define ND_RA_FLAG_RTPREF_RSV		0x02
 
 #define ND_RA_FLAG_ND_PROXY     0x04 /* RFC 4389 */
 
@@ -437,70 +437,6 @@ struct icmp6_nodeinfo {
 #define ni_cksum	icmp6_ni_hdr.icmp6_cksum
 #define ni_qtype	icmp6_ni_hdr.icmp6_data16[0]
 #define ni_flags	icmp6_ni_hdr.icmp6_data16[1]
-
-
-/*
- * Router Renumbering. as router-renum-05.txt
- */
-struct icmp6_router_renum {	/* router rnd_opt_route_infoenumbering header */
-	struct icmp6_hdr	rr_hdr;
-	guint8		rr_segnum;
-	guint8		rr_flags;
-	guint16		rr_maxdelay;
-	guint32		rr_reserved;
-};
-
-#define rr_type			rr_hdr.icmp6_type
-#define rr_code			rr_hdr.icmp6_code
-#define rr_cksum		rr_hdr.icmp6_cksum
-#define rr_seqnum 		rr_hdr.icmp6_data32[0]
-
-struct rr_pco_match {		/* match prefix part */
-	guint8	rpm_code;
-	guint8	rpm_len;
-	guint8	rpm_ordinal;
-	guint8	rpm_matchlen;
-	guint8	rpm_minlen;
-	guint8	rpm_maxlen;
-	guint16	rpm_reserved;
-	struct e_in6_addr	rpm_prefix;
-};
-
-#define RPM_PCO_ADD		1
-#define RPM_PCO_CHANGE		2
-#define RPM_PCO_SETGLOBAL	3
-#define RPM_PCO_MAX		4
-
-struct rr_pco_use {		/* use prefix part */
-	guint8	rpu_uselen;
-	guint8	rpu_keeplen;
-	guint8	rpu_ramask;
-	guint8	rpu_raflags;
-	guint32	rpu_vltime;
-	guint32	rpu_pltime;
-	guint32	rpu_flags;
-	struct e_in6_addr rpu_prefix;
-};
-
-#define ICMP6_RR_PCOUSE_RAFLAGS_ONLINK  0x80
-#define ICMP6_RR_PCOUSE_RAFLAGS_AUTO    0x40
-
-/* network endian */
-#define ICMP6_RR_PCOUSE_FLAGS_DECRVLTIME	0x80000000
-#define ICMP6_RR_PCOUSE_FLAGS_DECRPLTIME	0x40000000
-
-struct rr_result {		/* router renumbering result message */
-	guint16	rrr_flags;
-	guint8	rrr_ordinal;
-	guint8	rrr_matchedlen;
-	guint32	rrr_ifid;
-	struct e_in6_addr rrr_prefix;
-};
-
-/* network endian */
-#define ICMP6_RR_RESULT_FLAGS_OOB		0x0002
-#define ICMP6_RR_RESULT_FLAGS_FORBIDDEN		0x0001
-
 
 /*
  * FMIPv6
