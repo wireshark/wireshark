@@ -113,8 +113,8 @@ static gint ett_gtpv2_mm_context_flag = -1;
 
 static int hf_gtpv2_selec_mode= -1;
 
-static int hf_gtpv2_f_teid_v4= -1;
-static int hf_gtpv2_f_teid_v6= -1;
+static int hf_gtpv2_f_teid_v4 = -1;
+static int hf_gtpv2_f_teid_v6 = -1;
 static int hf_gtpv2_f_teid_interface_type= -1;
 static int hf_gtpv2_f_teid_gre_key= -1;
 static int hf_gtpv2_f_teid_ipv4= -1;
@@ -133,23 +133,24 @@ static int hf_gtpv2_ti = -1;
 static int hf_gtpv2_bearer_qos_pvi= -1;
 static int hf_gtpv2_bearer_qos_pl= -1;
 static int hf_gtpv2_bearer_qos_pci= -1;
-static int hf_gtpv2_bearer_qos_label_qci= -1;
-static int hf_gtpv2_bearer_qos_mbr_up= -1;
-static int hf_gtpv2_bearer_qos_mbr_down= -1;
-static int hf_gtpv2_bearer_qos_gbr_up= -1;
-static int hf_gtpv2_bearer_qos_gbr_down= -1;
-static int hf_gtpv2_flow_qos_label_qci= -1;
-static int hf_gtpv2_flow_qos_mbr_up= -1;
-static int hf_gtpv2_flow_qos_mbr_down= -1;
-static int hf_gtpv2_flow_qos_gbr_up= -1;
-static int hf_gtpv2_flow_qos_gbr_down= -1;
+static int hf_gtpv2_bearer_qos_label_qci = -1;
+static int hf_gtpv2_bearer_qos_mbr_up = -1;
+static int hf_gtpv2_bearer_qos_mbr_down = -1;
+static int hf_gtpv2_bearer_qos_gbr_up = -1;
+static int hf_gtpv2_bearer_qos_gbr_down = -1;
+static int hf_gtpv2_flow_qos_label_qci = -1;
+static int hf_gtpv2_flow_qos_mbr_up = -1;
+static int hf_gtpv2_flow_qos_mbr_down = -1;
+static int hf_gtpv2_flow_qos_gbr_up = -1;
+static int hf_gtpv2_flow_qos_gbr_down = -1;
 
-static int hf_gtpv2_delay_value= -1;
-static int hf_gtpv2_charging_id= -1;
-static int hf_gtpv2_charging_characteristic= -1;
-static int hf_gtpv2_bearer_flag= -1;
-static int hf_gtpv2_ue_time_zone= -1;
-static int hf_gtpv2_ue_time_zone_dst= -1;
+static int hf_gtpv2_delay_value = -1;
+static int hf_gtpv2_charging_id = -1;
+static int hf_gtpv2_charging_characteristic = -1;
+static int hf_gtpv2_bearer_flag_ppc = -1;
+static int hf_gtpv2_bearer_flag_vb = -1;
+static int hf_gtpv2_ue_time_zone = -1;
+static int hf_gtpv2_ue_time_zone_dst = -1;
 static int hf_gtpv2_complete_req_msg_type = -1;
 static int hf_gtpv2_mme_grp_id = -1;
 static int hf_gtpv2_mme_code = -1;
@@ -353,7 +354,8 @@ static const value_string gtpv2_message_type_vals[] = {
 #define GTPV2_IE_F_CAUSE		        119
 #define GTPV2_IE_TARGET_ID			    121
 #define GTPV2_APN_RESTRICTION           127
-#define GTPV2_SELEC_MODE                128
+#define GTPV2_IE_SEL_MODE                128
+#define GTPV2_IE_SOURCE_IDENT           129
 #define GTPV2_BEARER_CONTROL_MODE       130
 #define GTPV2_CNG_REP_ACT               131
 #define GTPV2_NODE_TYPE                 135
@@ -640,12 +642,10 @@ static const value_string gtpv2_cause_vals[] = {
 
 static value_string_ext gtpv2_cause_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_cause_vals);
 
-
 /* Table 8.4-1: CS (Cause Source) */
-static const value_string gtpv2_cause_cs[] = {
-    {0, "Originated by node sending the message"},
-    {1, "Originated by remote node"},
-    {0, NULL}
+static const true_false_string gtpv2_cause_cs = {
+	"Originated by remote node",
+	"Originated by node sending the message",
 };
 
 static void
@@ -1280,6 +1280,16 @@ static const value_string gtpv2_f_teid_interface_type_vals[] = {
 };
 static value_string_ext gtpv2_f_teid_interface_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_f_teid_interface_type_vals);
 
+static const true_false_string gtpv2_f_teid_v4_vals = {
+	"IPv4 address present",
+	"IPv4 address not present",
+};
+
+static const true_false_string gtpv2_f_teid_v6_vals = {
+	"IPv6 address present",
+	"IPv6 address not present",
+};
+
 static void
 dissect_gtpv2_f_teid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
 {
@@ -1417,9 +1427,10 @@ dissect_gtpv2_bearer_flag(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
     int offset = 0;
 
-    proto_tree_add_item(tree, hf_gtpv2_bearer_flag, tvb, offset, length, FALSE);
-
-
+	/* Octet 5 Spare VB PPC */
+    proto_tree_add_item(tree, hf_gtpv2_bearer_flag_ppc, tvb, offset, length, FALSE);
+    proto_tree_add_item(tree, hf_gtpv2_bearer_flag_vb, tvb, offset, length, FALSE);
+	
 }
 /*
  * 8.34 PDN Type
@@ -1443,7 +1454,6 @@ dissect_gtpv2_pdn_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     pdn = tvb_get_guint8(tvb, offset)& 0x7;
     proto_tree_add_item(tree, hf_gtpv2_pdn_type, tvb, offset, length, FALSE);
     proto_item_append_text(tree, "%s", val_to_str(pdn, gtpv2_pdn_type_vals, "Unknown"));
-
 
 }
 
@@ -1480,8 +1490,8 @@ static const value_string gtpv2_mm_context_security_mode[] = {
 };
 
 static const true_false_string gtpv2_nhi_vals = {
-	"NH (Next Hop) and NCC (Next Hop Chaining Count) are both present,",
-	"NH (Next Hop) and NCC (Next Hop Chaining Count) not present,",
+	"NH (Next Hop) and NCC (Next Hop Chaining Count) are both present",
+	"NH (Next Hop) and NCC (Next Hop Chaining Count) not present",
 };
 
 /* Table 8.38-2: Used NAS Cipher Values */
@@ -2025,7 +2035,33 @@ dissect_gtpv2_selec_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 /* 
  * 8.59 Source Identification
  */
+#if 0
+static const value_string gtpv2_source_ident_types[] = {
+	{0, "Cell ID"},
+	{1, "RNC ID"},
+	{2, "eNodeB ID"},
+	{0,	NULL}
+};
+static void
+dissect_gtpv2_source_ident(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    int          offset=0;
 
+    /* Octet 5 to 12 Target Cell ID */
+	de_cell_id(tvb, tree, offset, 8, NULL, 0);
+    /* Octet 13 Source Type */
+	proto_tree_add_item(tree, hf_gtpv2_source_type, tvb, offset, 1, FALSE);
+    /* Octet 14 to (n+4) Source ID */
+    /* The Source Type is Cell ID for PS handover from GERAN A/Gb mode. In this case the coding of the Source ID field
+     * shall be same as the Octets 3 to 10 of the Cell Identifier IEI in 3GPP TS 48.018 [34].
+     */
+    /* The Source Type is RNC ID for PS handover from GERAN Iu mode or for inter-RAT handover from UTRAN. In this
+     * case the Source ID field shall be encoded as as the Source RNC-ID part of the "Source ID" parameter in 3GPP TS
+     * 25.413 [33].
+     */
+
+}
+#endif
  /* 
   * 8.60 Bearer Control Mode
   */
@@ -2036,11 +2072,23 @@ dissect_gtpv2_selec_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     {2, "Selected Bearer Control Mode-'MS/NW'"},
     {0, NULL}
 };
+ static const value_string gtpv2_bearer_control_mode_short_vals[] = {
+    {0, "MS_only"},
+    {1, "Network_only"},
+    {2, "MS/NW"},
+    {0, NULL}
+};
 
 static void
 dissect_gtpv2_bearer_control_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
 {
+    guint8		bcm;
+
     proto_tree_add_item(tree, hf_gtpv2_bearer_control_mode, tvb, 0, 1, FALSE);
+    /* Add Bearer Control Mode to tree */
+    bcm = tvb_get_guint8(tvb, 0);
+    proto_item_append_text(tree, "%s", val_to_str(bcm, gtpv2_bearer_control_mode_short_vals, "Unknown"));
+
 }
 /*
  * 8.61 Change Reporting Action
@@ -2090,7 +2138,13 @@ static void
 dissect_gtpv2_node_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
 {
 
+    guint8		node_type;
+
     proto_tree_add_item(tree, hf_gtpv2_node_type, tvb, 0, 1, FALSE);
+	/* Append Node Type to tree */
+    node_type = tvb_get_guint8(tvb, 0);
+    proto_item_append_text(tree, "%s", val_to_str(node_type, gtpv2_node_type_vals, "Unknown"));
+
 }
 
  /* 
@@ -2186,8 +2240,10 @@ static const gtpv2_ie_t gtpv2_ies[] = {
 	{GTPV2_IE_F_CAUSE, dissect_gtpv2_F_cause},				        /* 119, Fully Qualified Cause (F-Cause) */
 	{GTPV2_IE_TARGET_ID, dissect_gtpv2_target_id},			        /* 121, Target Identification */
     {GTPV2_APN_RESTRICTION, dissect_gtpv2_apn_rest},                /* 127, APN Restriction */
-    
-    {GTPV2_SELEC_MODE,dissect_gtpv2_selec_mode},					/* 128 Selection Mode */
+    {GTPV2_IE_SEL_MODE,dissect_gtpv2_selec_mode},					/* 128 Selection Mode */
+#if 0
+    {GTPV2_IE_SOURCE_IDENT, dissect_gtpv2_source_ident},            /* 129, Source Identification 8.59 */
+#endif
     {GTPV2_BEARER_CONTROL_MODE,dissect_gtpv2_bearer_control_mode},	/* 130 Bearer Control Mode*/
     {GTPV2_CNG_REP_ACT ,dissect_gtpv2_cng_rep_act},					/* 131 Change Reporting Action 8.61 */
     {GTPV2_NODE_TYPE ,dissect_gtpv2_node_type},						/* 135 Node Type 8.65 */
@@ -2422,7 +2478,7 @@ void proto_register_gtpv2(void)
         },
         {&hf_gtpv2_cause_cs,
         {"CS (Cause Source)","gtpv2.cs",
-        FT_BOOLEAN, 8, VALS(gtpv2_cause_cs), 0x01,
+        FT_BOOLEAN, 8, TFS(&gtpv2_cause_cs), 0x01,
         NULL, HFILL}
         },
 		{ &hf_gtpv2_cause_bce,
@@ -2690,13 +2746,13 @@ void proto_register_gtpv2(void)
         NULL, HFILL}
         },
         {&hf_gtpv2_f_teid_v4,
-        {"V4 (True-IPV4 address field Exists,False-Doesn't Exist in F-TEID)", "gtpv2.f_teid_v4",
-        FT_BOOLEAN, 8, NULL, 0x80,
+        {"V4", "gtpv2.f_teid_v4",
+        FT_BOOLEAN, 8, TFS(&gtpv2_f_teid_v4_vals), 0x80,
         NULL, HFILL}
         },
         {&hf_gtpv2_f_teid_v6,
-        {"V6 (True-IPV6 address field Exists,False-Doesn't Exist in F-TEID)", "gtpv2.f_teid_v6",
-        FT_BOOLEAN, 8, NULL, 0x40,
+        {"V6", "gtpv2.f_teid_v6",
+        FT_BOOLEAN, 8, TFS(&gtpv2_f_teid_v6_vals), 0x40,
         NULL, HFILL}
         },
         {&hf_gtpv2_f_teid_interface_type,
@@ -2736,13 +2792,17 @@ void proto_register_gtpv2(void)
         },
         {&hf_gtpv2_charging_characteristic,
         {"Charging Characteristic", "gtpv2.charging_characteristic",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_HEX, NULL, 0xffff,
         NULL, HFILL}
         },
-        {&hf_gtpv2_bearer_flag,
-        {"Bearer Flags(PPC(Prohibit Payload Compression) True-SGSN attempts to compress the payload, False-SGSN doesn't attempt to compress the payload)",
-        "gtpv2.bearer_flag",
-        FT_BOOLEAN, 8, NULL, 0x01,
+        {&hf_gtpv2_bearer_flag_ppc,
+            {"PPC (Prohibit Payload Compression)", "gtpv2.bearer_flag.ppc",
+				FT_BOOLEAN, 8, NULL, 0x01,
+				NULL, HFILL}
+        },
+        {&hf_gtpv2_bearer_flag_vb,
+        {"VB (Voice Bearer)", "gtpv2.bearer_flag.vb",
+        FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL}
         },
         {&hf_gtpv2_pti,
