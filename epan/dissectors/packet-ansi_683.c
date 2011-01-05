@@ -647,7 +647,6 @@ for_param_block_systag(guint8 block_type)
     case 2: str = "Specific Tag List"; break;
     case 3: str = "Call Prompt List"; break;
     default:
-	str = "Reserved"; break;
 	if ((block_type >= 4) && (block_type <= 127)) { str = "Reserved for future standardization"; break; }
 	else if ((block_type >= 128) && (block_type <= 254)) { str = "Available for manufacturer-specific parameter block definitions"; break; }
 	else { str = "Reserved"; break; }
