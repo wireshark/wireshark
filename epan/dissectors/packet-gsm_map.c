@@ -18219,7 +18219,6 @@ dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
   col_add_str(actx->pinfo->cinfo, COL_INFO, val_to_str(gsmmap_pdu_type, gsm_old_Component_vals, "Unknown GSM-MAP PDU (%u)"));
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
   offset = dissect_gsm_old_Component(FALSE, tvb, 0, actx, tree, hf_gsm_map_old_Component_PDU);
-  return offset;
 /*
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               GSMMAPPDU_choice, hf_index, ett_gsm_map_GSMMAPPDU, NULL);
@@ -24459,7 +24458,7 @@ void proto_register_gsm_map(void) {
         "LCS_QoS", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2441 "packet-gsm_map-template.c"
+#line 2440 "packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -25063,7 +25062,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2469 "packet-gsm_map-template.c"
+#line 2468 "packet-gsm_map-template.c"
   };
 
   /* Register protocol */
@@ -25139,7 +25138,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 2487 "packet-gsm_map-template.c"
+#line 2486 "packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );
