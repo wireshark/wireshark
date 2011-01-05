@@ -1877,7 +1877,7 @@ be_l3_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
         call_dissector(dtap_handle, l3_tvb, g_pinfo, g_tree);
     }
     else if ((cell_discriminator & 0x0f) < 13) {
-  
+
         /* UMTS or CDMA 2000 */
         dissect_rrc_HandoverToUTRANCommand_PDU(l3_tvb, g_pinfo, g_tree);
     }
@@ -2749,7 +2749,7 @@ be_ass_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
  * (bit 3 to 1 of octet 5) in the Descriptive group or broadcast call reference information element as
  * defined in 3GPP TS 24.008.
  */
-static const value_string gsm_a_bssmap_call_priority_vals[] = { 
+static const value_string gsm_a_bssmap_call_priority_vals[] = {
     { 0x00, "No priority applied" },
     { 0x01, "Call priority level 4" },
     { 0x02, "Call priority level 3" },
@@ -3728,8 +3728,6 @@ be_speech_codec(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
         }
     }
     proto_item_set_len(item, consumed);
-    return(len);
-
     return(len);
 }
 /*
