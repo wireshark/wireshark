@@ -119,6 +119,7 @@ static int hf_gtpv2_f_teid_interface_type= -1;
 static int hf_gtpv2_f_teid_gre_key= -1;
 static int hf_gtpv2_f_teid_ipv4= -1;
 static int hf_gtpv2_f_teid_ipv6= -1;
+static int hf_gtpv2_tmsi = -1;
 static int hf_gtpv2_hsgw_addr_f_len = -1;
 static int hf_gtpv2_imsi= -1;
 
@@ -331,6 +332,7 @@ static const value_string gtpv2_message_type_vals[] = {
 #define GTPV2_IE_TAD            85
 #define GTPV2_IE_ULI            86
 #define GTPV2_IE_F_TEID         87
+#define GTPV2_IE_TMSI           88
 #define GTPV2_IE_GLOBAL_CNID    89
 #define GTPV2_IE_S103PDF        90
 #define GTPV2_IE_DEL_VAL        92
@@ -790,13 +792,13 @@ dissect_gtpv2_ip_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     if (length==4)
     {
         proto_tree_add_item(tree, hf_gtpv2_ip_address_ipv4, tvb, offset, length, FALSE);
-		/*proto_item_append_text(item, ", IPv4 %s", tvb_get_ipv4(tvb, offset));*/
+		proto_item_append_text(item, "IPv4 %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
     }
     else if (length==16)
     {
         proto_tree_add_item(tree, hf_gtpv2_ip_address_ipv6, tvb, offset, length, FALSE);
 		tvb_get_ipv6(tvb, offset, &ipv6_addr);
-		proto_item_append_text(item, ", IPv6 %s", ip6_to_str(&ipv6_addr));
+		proto_item_append_text(item, "IPv6 %s", ip6_to_str(&ipv6_addr));
     }
 }
 /*
@@ -1302,32 +1304,43 @@ static void
 dissect_gtpv2_f_teid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
 {
     int offset = 0;
-    guint8 v4, v6;
+    guint8       flags;
 
-    v4 = tvb_get_guint8(tvb,offset)& 0x80;
-    v6 = tvb_get_guint8(tvb,offset)& 0x40;
+	flags = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_f_teid_v4, tvb, offset, 1, FALSE);
     proto_tree_add_item(tree, hf_gtpv2_f_teid_v6, tvb, offset, 1, FALSE);
     proto_tree_add_item(tree, hf_gtpv2_f_teid_interface_type, tvb, offset, 1, FALSE);
 
     offset++;
     proto_tree_add_item(tree, hf_gtpv2_f_teid_gre_key, tvb, offset, 4, FALSE);
+    proto_item_append_text(tree, "%s, TEID/GRE Key: %s", val_to_str_ext_const((flags & 0x1f), &gtpv2_f_teid_interface_type_vals_ext, "Unknown"),
+        tvb_bytes_to_str(tvb, offset, 4));
 
     offset= offset+4;
-    if (v4)
+    if (flags&0x80)
     {
         proto_tree_add_item(tree, hf_gtpv2_f_teid_ipv4, tvb, offset, 4, FALSE);
+		proto_item_append_text(item, ", IPv4 %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
         offset= offset+4;
     }
-    if (v6)
+    if (flags&0x40)
     {
+		struct e_in6_addr ipv6_addr;
         proto_tree_add_item(tree, hf_gtpv2_f_teid_ipv6, tvb, offset, 16, FALSE);
+		tvb_get_ipv6(tvb, offset, &ipv6_addr);
+		proto_item_append_text(item, ", IPv6 %s", ip6_to_str(&ipv6_addr));
         offset= offset+16;
     }
 }
 /*
  * 8.23 TMSI
  */
+static void
+dissect_gtpv2_tmsi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
+{
+	proto_tree_add_item(tree, hf_gtpv2_tmsi, tvb, 0, 4, FALSE);
+	proto_tree_add_text(item, tvb, 0, length, "TMSI: %s", tvb_bytes_to_str(tvb, 0, 4));
+}
 /*
  * 8.24 Global CN-Id
  */
@@ -1470,6 +1483,7 @@ dissect_gtpv2_pdn_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
  */
 /*
  * 8.33 Paging Cause
+ * 8.33 Void (TS 129 274 V9.4.0 (2010-10))
  */
 
 /* 8.35 Procedure Transaction ID (PTI) */
@@ -2222,6 +2236,7 @@ static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_IE_TAD, dissect_gtpv2_tad},                             /* 85, Traffic Aggregate Description 8.20 */
     {GTPV2_IE_ULI, dissect_gtpv2_uli},                             /* 86, User Location Info (ULI) 8.22 */
     {GTPV2_IE_F_TEID, dissect_gtpv2_f_teid},                       /* 87, Fully Qualified Tunnel Endpoint Identifier (F-TEID) 8.23 */
+    {GTPV2_IE_TMSI, dissect_gtpv2_tmsi},                           /* 88, TMSI 8.23 */
     {GTPV2_IE_GLOBAL_CNID, dissect_gtpv2_g_cn_id},                 /* 89, Global CN-Id 8.25 */
     {GTPV2_IE_S103PDF, dissect_gtpv2_s103pdf},                     /* 90, S103 PDN Data Forwarding Info (S103PDF) 8.25 */
     {GTPV2_IE_DEL_VAL, dissect_gtpv2_delay_value},                 /* 92, Delay Value 8.29 */
@@ -2599,7 +2614,7 @@ void proto_register_gtpv2(void)
         NULL, HFILL}
         },
         { &hf_gtpv2_pdn_ipv4,
-        {"PDN IPv4", "gtpv2.pdn_ipv4",
+        {"PDN Address and Prefix(IPv4)", "gtpv2.pdn_addr_and_prefix.ipv4",
         FT_IPv4, BASE_NONE, NULL, 0x0,
         NULL, HFILL}
         },
@@ -2609,8 +2624,8 @@ void proto_register_gtpv2(void)
         NULL, HFILL}
         },
         { &hf_gtpv2_pdn_ipv6,
-        {"PDN IPv6", "gtpv2.pdn_ipv6",
-        FT_IPv6, BASE_NONE, NULL, 0x0,
+        {"PDN Address and Prefix(IPv6)", "gtpv2.pdn_addr_and_prefix.ipv6",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL}
         },
         {&hf_gtpv2_bearer_qos_pvi,
@@ -2781,6 +2796,11 @@ void proto_register_gtpv2(void)
         { &hf_gtpv2_f_teid_ipv6,
         {"F-TEID IPv6", "gtpv2.f_teid_ipv6",
         FT_IPv6, BASE_NONE, NULL, 0x0,
+        NULL, HFILL}
+        },
+		{ &hf_gtpv2_tmsi,
+        {"TMSI", "gtpv2.tmsi",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL}
         },
 		{ &hf_gtpv2_hsgw_addr_f_len,
