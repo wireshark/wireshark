@@ -1208,12 +1208,12 @@ static const char *ui_desc_menubar =
 "    <menu name= 'ToolsMenu' action='/Tools'>\n"
 "      <menuitem name='FirewallACLRules' action='/Tools/FirewallACLRules'/>\n"
 "    </menu>\n"
-"    <menu name= 'WSinternalMenu' action='/WSinternal'>\n"
-"      <menuitem name='Dissectortables' action='/WSinternal/Dissectortables'/>\n"
+"    <menu name= 'InternalsMenu' action='/Internals'>\n"
+"      <menuitem name='Dissectortables' action='/Internals/Dissectortables'/>\n"
+"      <menuitem name='SupportedProtocols' action='/Internals/SupportedProtocols'/>\n"
 "    </menu>\n"
 "    <menu name= 'HelpMenu' action='/Help'>\n"
 "      <menuitem name='Contents' action='/Help/Contents'/>\n"
-"      <menuitem name='FAQs' action='/Help/FAQs'/>\n"
 "      <menu name= 'ManualPages' action='/Help/ManualPages'>\n"
 "        <menuitem name='Wireshark' action='/Help/ManualPages/Wireshark'/>\n"
 "        <menuitem name='WiresharkFilter' action='/Help/ManualPages/WiresharkFilter'/>\n"
@@ -1227,11 +1227,11 @@ static const char *ui_desc_menubar =
 "      </menu>\n"
 "      <separator/>\n"
 "      <menuitem name='Website' action='/Help/Website'/>\n"
+"      <menuitem name='FAQs' action='/Help/FAQs'/>\n"
+"      <separator/>\n"
 "      <menuitem name='Wiki' action='/Help/Wiki'/>\n"
 "      <menuitem name='Downloads' action='/Help/Downloads'/>\n"
 "      <menuitem name='SampleCaptures' action='/Help/SampleCaptures'/>\n"
-"      <separator/>\n"
-"      <menuitem name='SupportedProtocols' action='/Help/SupportedProtocols'/>\n"
 "      <separator/>\n"
 "      <menuitem name='AboutWireshark' action='/Help/AboutWireshark'/>\n"
 "    </menu>\n"
@@ -1307,7 +1307,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
   { "/Statistics",				NULL,							"_Statistics",		NULL,					NULL,			NULL },
   { "/Telephony",				NULL,							"Telephon_y",		NULL,					NULL,			NULL },
   { "/Tools",					NULL,							"_Tools",			NULL,					NULL,			NULL },
-  { "/WSinternal",				NULL,							"WS internal",		NULL,					NULL,			NULL },
+  { "/Internals",				NULL,							"_Internals",		NULL,					NULL,			NULL },
   { "/Help",					NULL,							"_Help",			NULL,					NULL,			NULL },
 
   { "/File/Open",				GTK_STOCK_OPEN,					"_Open...",			"<control>O",			"Open a file",	G_CALLBACK(file_open_cmd_cb) },
@@ -1538,13 +1538,13 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 
    { "/Tools/FirewallACLRules",		NULL,							"Firewall ACL Rules",	NULL,							NULL,				G_CALLBACK(firewall_rule_cb) },
 
-   { "/WSinternal/Dissectortables",	NULL,							"Dissector tables",		NULL,							NULL,				G_CALLBACK(dissector_tables_dlg_cb) },
-
+   { "/Internals/Dissectortables",	NULL,							"_Dissector tables",	NULL,							NULL,				G_CALLBACK(dissector_tables_dlg_cb) },
+   { "/Internals/SupportedProtocols", NULL,					"_Supported Protocols (slow!)",	NULL,							NULL,				G_CALLBACK(supported_cb) },
+   
    { "/Help/Contents",				GTK_STOCK_HELP,					"_Contents",			"F1",							NULL,				G_CALLBACK(help_menu_cont_cb) },
-   { "/Help/FAQs",                  NULL,                           "FAQ's",                NULL,                           NULL,               G_CALLBACK(help_menu_faq_cb) },
-   { "/Help/ManualPages",           NULL,                           "ManualPages",          NULL,                           NULL,               NULL },
-   { "/Help/ManualPages/Wireshark", NULL,                           "Wireshark",            NULL,                           NULL,               G_CALLBACK(help_menu_wireshark_cb) },
-   { "/Help/ManualPages/WiresharkFilter", NULL,                     "Wireshark Filter",     NULL,                           NULL,               G_CALLBACK(help_menu_wireshark_flt_cb) },
+   { "/Help/ManualPages",			NULL,							"ManualPages",			NULL,							NULL,				NULL },
+   { "/Help/ManualPages/Wireshark", NULL,							"Wireshark",			NULL,							NULL,				G_CALLBACK(help_menu_wireshark_cb) },
+   { "/Help/ManualPages/WiresharkFilter", NULL,						"Wireshark Filter",		NULL,							NULL,				G_CALLBACK(help_menu_wireshark_flt_cb) },
    { "/Help/ManualPages/TShark",	NULL,							"Wireshark",			NULL,							NULL,				G_CALLBACK(help_menu_Tshark_cb) },
    { "/Help/ManualPages/RawShark",	NULL,							"RawShark",				NULL,							NULL,				G_CALLBACK(help_menu_RawShark_cb) },
    { "/Help/ManualPages/Dumpcap",	NULL,							"Dumpcap",				NULL,							NULL,				G_CALLBACK(help_menu_Dumpcap_cb) },
@@ -1553,10 +1553,10 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Help/ManualPages/Text2pcap",	NULL,							"Text2pcap",			NULL,							NULL,				G_CALLBACK(help_menu_Text2pcap_cb) },
 
    { "/Help/Website",				GTK_STOCK_HOME,					"Website",				NULL,							NULL,				G_CALLBACK(help_menu_Website_cb) },
+   { "/Help/FAQs",					NULL,							"FAQ's",				NULL,							NULL,				G_CALLBACK(help_menu_faq_cb) },
    { "/Help/Wiki",					WIRESHARK_STOCK_WIKI,			"Wiki",					NULL,							NULL,				G_CALLBACK(help_menu_Wiki_cb) },
    { "/Help/Downloads",				NULL,							"Downloads",			NULL,							NULL,				G_CALLBACK(help_menu_Downloads_cb) },
    { "/Help/SampleCaptures",		NULL,							"Sample Captures",		NULL,							NULL,				G_CALLBACK(help_menu_SampleCaptures_cb) },
-   { "/Help/SupportedProtocols",	NULL,					"_Supported Protocols (slow!)",	NULL,							NULL,				G_CALLBACK(supported_cb) },
    { "/Help/AboutWireshark",		WIRESHARK_STOCK_ABOUT,			"_About Wireshark",		NULL,							NULL,				G_CALLBACK(about_wireshark_cb) },
 };
 
@@ -2048,12 +2048,11 @@ static GtkItemFactoryEntry menu_items[] =
     {"/_Tools", NULL, NULL, 0, "<Branch>", NULL,},
     {"/Tools/Firewall ACL Rules", NULL,
                        firewall_rule_cb, 0, NULL, NULL,},
-    {"/WS internal", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/WS internal/Dissector tables", NULL, GTK_MENU_FUNC(dissector_tables_dlg_cb),
-                         0, NULL, NULL,},
+    {"/_Internals", NULL, NULL, 0, "<Branch>", NULL,},
+    {"/Internals/_Dissector tables", NULL, GTK_MENU_FUNC(dissector_tables_dlg_cb), 0, NULL, NULL,},
+    {"/Internals/_Supported Protocols (slow!)", NULL, GTK_MENU_FUNC(supported_cb), 0, NULL, NULL,},
     {"/_Help", NULL, NULL, 0, "<Branch>", NULL,},
     {"/Help/_Contents", "F1", GTK_MENU_FUNC(topic_menu_cb), HELP_CONTENT, "<StockItem>", GTK_STOCK_HELP,},
-    {"/Help/FAQ's", NULL, GTK_MENU_FUNC(topic_menu_cb), ONLINEPAGE_FAQ, NULL, NULL,},
     {"/Help/Manual Pages", NULL, NULL, 0, "<Branch>", NULL,},
     {"/Help/Manual Pages/Wireshark", NULL, GTK_MENU_FUNC(topic_menu_cb), LOCALPAGE_MAN_WIRESHARK, NULL, NULL,},
     {"/Help/Manual Pages/Wireshark Filter", NULL, GTK_MENU_FUNC(topic_menu_cb), LOCALPAGE_MAN_WIRESHARK_FILTER, NULL, NULL,},
@@ -2066,11 +2065,11 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Help/Manual Pages/Text2pcap", NULL, GTK_MENU_FUNC(topic_menu_cb), LOCALPAGE_MAN_TEXT2PCAP, NULL, NULL,},
     {"/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Help/Website", NULL, GTK_MENU_FUNC(topic_menu_cb), ONLINEPAGE_HOME, "<StockItem>", GTK_STOCK_HOME,},
+    {"/Help/FAQ's", NULL, GTK_MENU_FUNC(topic_menu_cb), ONLINEPAGE_FAQ, NULL, NULL,},
+    {"/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Help/Wiki", NULL, GTK_MENU_FUNC(topic_menu_cb), ONLINEPAGE_WIKI, "<StockItem>", WIRESHARK_STOCK_WIKI,},
     {"/Help/Downloads", NULL, GTK_MENU_FUNC(topic_menu_cb), ONLINEPAGE_DOWNLOAD, NULL, NULL,},
     {"/Help/Sample Captures", NULL, GTK_MENU_FUNC(topic_menu_cb), ONLINEPAGE_SAMPLE_FILES, NULL, NULL,},
-    {"/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/Help/_Supported Protocols (slow!)", NULL, GTK_MENU_FUNC(supported_cb), 0, NULL, NULL,},
     {"/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Help/_About Wireshark", NULL, GTK_MENU_FUNC(about_wireshark_cb),
                        0, "<StockItem>", WIRESHARK_STOCK_ABOUT}
