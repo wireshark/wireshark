@@ -994,7 +994,7 @@ dissect_hostname_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, 
 
   hostname_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   proto_tree_add_item(parameter_tree, hf_hostname, parameter_tvb, HOSTNAME_OFFSET, hostname_length, ENC_BIG_ENDIAN);
-  proto_item_append_text(parameter_item, " (Hostname: %.*s)", hostname_length, (const char *)tvb_get_ptr(parameter_tvb, HOSTNAME_OFFSET, hostname_length));
+  proto_item_append_text(parameter_item, " (Hostname: %.*s)", hostname_length, tvb_get_ephemeral_string(parameter_tvb, HOSTNAME_OFFSET, hostname_length));
 
 }
 
