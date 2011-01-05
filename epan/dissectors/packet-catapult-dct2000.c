@@ -844,13 +844,13 @@ static void dissect_ccpri_lte(tvbuff_t *tvb, gint offset,
 
     /* Channel ID */
     proto_tree_add_item(tree, hf_catapult_dct2000_lte_ccpri_channel,
-			            tvb, offset, 1, FALSE);
+                        tvb, offset, 1, FALSE);
     offset++;
 
+    /* Data tag must follow */
     tag = tvb_get_guint8(tvb, offset++);
     if (tag != 2) {
-    	printf("looking for payload tag, got %u\n", tag);
-    	return;
+        return;
     }
 
     /* Skip length */
