@@ -2237,6 +2237,7 @@ dissect_amqp_0_10_array(tvbuff_t *tvb,
 
         case AMQP_0_10_TYPE_STRUCT32:
             typename = "struct32";
+            value = "structure";
             externally_formatted = 1;
             struct_length = tvb_get_ntohl(tvb, offset);
             AMQP_INCREMENT(offset, 4, bound);
