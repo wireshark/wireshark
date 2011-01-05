@@ -2337,6 +2337,7 @@ Francesco Fondelli	<francesco.fondelli [AT] gmail.com> {
 	    (draft-ietf-ccamp-gmpls-g-694-lambda-labels-05).  Add related
 	    user preference option.
 	RSVP IF_ID ERROR_STRING TLV support, RFC 4783
+	Support for Vendor Private objects, RFC 3936
 }
 
 Artem Tamazov           <artem.tamazov [AT] tellabs.com> {

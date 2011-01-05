@@ -75,8 +75,11 @@
  * (RFC 4328), G.694 format for lambda label (draft-ietf-ccamp-gmpls-g-694-lamb
  * da-labels-05).  Add related user preference option.
  * (FF) <francesco.fondelli[AT]gmail.com>
+ *
+ * Dec 3, 2010: add support for vendor private class object and ERO/RRO 
+ * sub-object (see RFC 3936).
+ * (FF) <francesco.fondelli[AT]gmail.com>
  */
-
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -100,6 +103,7 @@
 #include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
+#include <epan/sminmpec.h>
 
 #include "packet-rsvp.h"
 #include "packet-ip.h"
@@ -269,6 +273,7 @@ enum {
     TT_DIFFSERV_MAP,
     TT_DIFFSERV_MAP_PHBID,
     TT_CLASSTYPE,
+    TT_PRIVATE_CLASS,
     TT_UNKNOWN_CLASS,
 
     TT_MAX
@@ -343,10 +348,10 @@ static const value_string message_type_vals[] = {
 };
 
 /*
- * RSVP classes
+ * FF: please keep this list in sync with
+ * http://www.iana.org/assignments/rsvp-parameters
+ * Registry Name: 'Class'
  */
-#define MAX_RSVP_CLASS 15
-
 enum rsvp_classes {
     RSVP_CLASS_NULL=0,
     RSVP_CLASS_SESSION,
@@ -404,6 +409,11 @@ enum rsvp_classes {
 
     /* 68-127  Unassigned */
 
+    RSVP_CLASS_VENDOR_PRIVATE_1=124,
+    RSVP_CLASS_VENDOR_PRIVATE_2=125,
+    RSVP_CLASS_VENDOR_PRIVATE_3=126,
+    RSVP_CLASS_VENDOR_PRIVATE_4=127,
+
     RSVP_CLASS_NODE_CHAR = 128,
     RSVP_CLASS_SUGGESTED_LABEL,
     RSVP_CLASS_ACCEPTABLE_LABEL_SET,
@@ -413,16 +423,21 @@ enum rsvp_classes {
 
     /* 166-191 Unassigned */
 
+    RSVP_CLASS_VENDOR_PRIVATE_5=188,
+    RSVP_CLASS_VENDOR_PRIVATE_6=189,
+    RSVP_CLASS_VENDOR_PRIVATE_7=190,
+    RSVP_CLASS_VENDOR_PRIVATE_8=191,
+
     RSVP_CLASS_SESSION_ASSOC = 192,
     RSVP_CLASS_LSP_TUNNEL_IF_ID,
     /* 194 Unassigned */
     RSVP_CLASS_NOTIFY_REQUEST = 195,
     RSVP_CLASS_ADMIN_STATUS,
     RSVP_CLASS_LSP_ATTRIBUTES,
-    /* IANA has this as 198  ALARM_SPEC ??? */
-    RSVP_CLASS_ASSOCIATION = 198,
 
-    /* 199-204  Unassigned */
+    RSVP_CLASS_ASSOCIATION = 199,
+
+    /* 203-204  Unassigned */
     RSVP_CLASS_FAST_REROUTE = 205,
     /* 206 Unassigned */
     RSVP_CLASS_SESSION_ATTRIBUTE = 207,
@@ -432,6 +447,7 @@ enum rsvp_classes {
       RSVP will silently ignore, but FORWARD an object with a Class Number
       in this range that it does not understand.
     */
+
     /* 224  Unassigned */
     RSVP_CLASS_DCLASS = 225,
     RSVP_CLASS_PACKETCABLE_EXTENSIONS,
@@ -439,10 +455,14 @@ enum rsvp_classes {
     RSVP_CLASS_CALL_OPS,
     RSVP_CLASS_GENERALIZED_UNI,
     RSVP_CLASS_CALL_ID,
-    RSVP_CLASS_3GPP2_OBJECT
-    /* 232-254 Unassigned */
-    /* 255  Reserved */
+    RSVP_CLASS_3GPP2_OBJECT,
 
+    /* 232-255 Unassigned */
+
+    RSVP_CLASS_VENDOR_PRIVATE_9=252,
+    RSVP_CLASS_VENDOR_PRIVATE_10=253,
+    RSVP_CLASS_VENDOR_PRIVATE_11=254,
+    RSVP_CLASS_VENDOR_PRIVATE_12=255
 };
 
 static const value_string rsvp_class_vals[] = {
@@ -490,6 +510,30 @@ static const value_string rsvp_class_vals[] = {
     {RSVP_CLASS_CALL_ID, "CALL-ID object"},
     {RSVP_CLASS_DETOUR, "DETOUR object"},
     {RSVP_CLASS_FAST_REROUTE, "FAST-REROUTE object"},
+    {RSVP_CLASS_VENDOR_PRIVATE_1, "VENDOR PRIVATE object (0bbbbbbb: "
+                                  "reject if unknown)"},
+    {RSVP_CLASS_VENDOR_PRIVATE_2, "VENDOR PRIVATE object (0bbbbbbb: "
+                                  "reject if unknown)"},
+    {RSVP_CLASS_VENDOR_PRIVATE_3, "VENDOR PRIVATE object (0bbbbbbb: "
+                                  "reject if unknown)"},
+    {RSVP_CLASS_VENDOR_PRIVATE_4, "VENDOR PRIVATE object (0bbbbbbb: "
+                                  "reject if unknown)"},
+    {RSVP_CLASS_VENDOR_PRIVATE_5, "VENDOR PRIVATE object (10bbbbbb: "
+                                  "ignore if unknown)"},
+    {RSVP_CLASS_VENDOR_PRIVATE_6, "VENDOR PRIVATE object (10bbbbbb: "
+                                  "ignore if unknown)"},
+    {RSVP_CLASS_VENDOR_PRIVATE_7, "VENDOR PRIVATE object (10bbbbbb: "
+                                  "ignore if unknown)"},
+    {RSVP_CLASS_VENDOR_PRIVATE_8, "VENDOR PRIVATE object (10bbbbbb: "
+                                  "ignore if unknown)"},
+    {RSVP_CLASS_VENDOR_PRIVATE_9, "VENDOR PRIVATE object (11bbbbbb: "
+                                  "forward if unknown)"},
+    {RSVP_CLASS_VENDOR_PRIVATE_10, "VENDOR PRIVATE object (11bbbbbb: "
+                                   "forward if unknown)"},
+    {RSVP_CLASS_VENDOR_PRIVATE_11, "VENDOR PRIVATE object (11bbbbbb: "
+                                   "forward if unknown)"},
+    {RSVP_CLASS_VENDOR_PRIVATE_12, "VENDOR PRIVATE object (11bbbbbb: "
+                                   "forward if unknown)"},
     {0, NULL}
 };
 
@@ -1084,11 +1128,15 @@ enum hf_rsvp_filter_keys {
     RSVPF_CALL_ID_SRC_ADDR_IPV4,
     RSVPF_CALL_ID_SRC_ADDR_IPV6,
 
+    /* Vendor Private objects */
+    RSVPF_PRIVATE_OBJ,
+    RSVPF_ENT_CODE,
+
     /* Sentinel */
     RSVPF_MAX
 };
 
-static int hf_rsvp_filter[RSVPF_MAX];
+static int hf_rsvp_filter[RSVPF_MAX] = { -1 };
 
 /* RSVP Conversation related Hash functions */
 
@@ -1297,6 +1345,20 @@ static inline int rsvp_class_to_filter_num(int classnum)
     case RSVP_CLASS_LSP_TUNNEL_IF_ID :
 	return RSVPF_LSP_TUNNEL_IF_ID;
 
+    case RSVP_CLASS_VENDOR_PRIVATE_1:
+    case RSVP_CLASS_VENDOR_PRIVATE_2:
+    case RSVP_CLASS_VENDOR_PRIVATE_3:
+    case RSVP_CLASS_VENDOR_PRIVATE_4:
+    case RSVP_CLASS_VENDOR_PRIVATE_5:
+    case RSVP_CLASS_VENDOR_PRIVATE_6:
+    case RSVP_CLASS_VENDOR_PRIVATE_7:
+    case RSVP_CLASS_VENDOR_PRIVATE_8:
+    case RSVP_CLASS_VENDOR_PRIVATE_9:
+    case RSVP_CLASS_VENDOR_PRIVATE_10:
+    case RSVP_CLASS_VENDOR_PRIVATE_11:
+    case RSVP_CLASS_VENDOR_PRIVATE_12:
+	return RSVPF_PRIVATE_OBJ;
+
     default:
 	return RSVPF_UNKNOWN_OBJ;
     }
@@ -1380,6 +1442,19 @@ static inline int rsvp_class_to_tree_type(int classnum)
 	return TT_DCLASS;
     case RSVP_CLASS_LSP_TUNNEL_IF_ID :
 	return TT_LSP_TUNNEL_IF_ID;
+    case RSVP_CLASS_VENDOR_PRIVATE_1:
+    case RSVP_CLASS_VENDOR_PRIVATE_2:
+    case RSVP_CLASS_VENDOR_PRIVATE_3:
+    case RSVP_CLASS_VENDOR_PRIVATE_4:
+    case RSVP_CLASS_VENDOR_PRIVATE_5:
+    case RSVP_CLASS_VENDOR_PRIVATE_6:
+    case RSVP_CLASS_VENDOR_PRIVATE_7:
+    case RSVP_CLASS_VENDOR_PRIVATE_8:
+    case RSVP_CLASS_VENDOR_PRIVATE_9:
+    case RSVP_CLASS_VENDOR_PRIVATE_10:
+    case RSVP_CLASS_VENDOR_PRIVATE_11:
+    case RSVP_CLASS_VENDOR_PRIVATE_12:
+        return TT_PRIVATE_CLASS;
     default:
 	return TT_UNKNOWN_CLASS;
     }
@@ -3998,13 +4073,80 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 
 	    break;
 
+        case 124:
+        case 125:
+        case 126:
+        case 127:
+          /* 
+           * FF: Types 124 through 127 are to be reserved for Vendor 
+           * Private Use (see RFC 3936, Section 2.3.1) in case of 
+           * EXPLICIT_ROUTE (aka ERO).
+           */
+          if (class == RSVP_CLASS_RECORD_ROUTE) 
+            goto defaultsub;
+          else
+            goto privatesub;
+          break;
+
+        case 252:
+        case 253:
+        case 254:
+        case 255:
+          /* 
+           * FF: Types 252 through 255 are to be reserved for Vendor 
+           * Private Use (see RFC 3936, Section 2.3.1) in case of 
+           * RECORD_ROUTE (aka RRO).
+           */
+          if (class == RSVP_CLASS_EXPLICIT_ROUTE) 
+            goto defaultsub;
+          else
+            goto privatesub;
+          break;
+
+        privatesub: /* Private subobject */
+          /*
+           * FF: The first four octets of the sub-object contents of 
+           * a Vendor Private sub-object of an EXPLICIT_ROUTE or 
+           * RECORD_ROUTE object MUST be that vendor's SMI enterprise 
+           * code in network octet order.
+           */
+          {
+            guint8 private_so_len = tvb_get_guint8(tvb, offset+l+1);
+            k = tvb_get_guint8(tvb, offset+l) & 0x80;
+            ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+                                      offset+l,
+                                      tvb_get_guint8(tvb, offset+l+1),
+                                      "Private Subobject: %d", j);
+            rsvp_ro_subtree =
+              proto_item_add_subtree(ti2, tree_type);
+            proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
+                                k ? "Loose Hop " : "Strict Hop");
+            proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
+                                "Type: %u (Private)", j);
+            proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+1, 1,
+                                "Length: %u",
+                                private_so_len);
+            
+            proto_tree_add_item(rsvp_ro_subtree,
+                                hf_rsvp_filter[RSVPF_ENT_CODE],
+                                tvb, offset+l+4, 4, FALSE);
+            if (private_so_len > 8) {
+              /* some private data */
+              proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+8, 
+                                  private_so_len - 8,
+                                  "Data (%d bytes)", 
+                                  private_so_len - 8);
+            }
+          }
+          break;
+
 	default: /* Unknown subobject */
 	defaultsub:
 	    k = tvb_get_guint8(tvb, offset+l) & 0x80;
 	    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
 				      offset+l,
 				      tvb_get_guint8(tvb, offset+l+1),
-				      "Unknown subobject: %d", j);
+				      "Unknown Subobject: %d", j);
 	    rsvp_ro_subtree =
 		proto_item_add_subtree(ti2, tree_type);
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
@@ -4014,7 +4156,6 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+1, 1,
 				"Length: %u",
 				tvb_get_guint8(tvb, offset+l+1));
-
 	}
 
 	if (tvb_get_guint8(tvb, offset+l+1) < 1) {
@@ -4041,11 +4182,6 @@ dissect_rsvp_explicit_route (proto_item *ti, proto_tree *rsvp_object_tree,
 			     int offset, int obj_length,
 			     int class, int type)
 {
-    /* int offset2 = offset + 4; */
-    /* int mylen, i, j, k, l; */
-    /* proto_tree *ti2, *rsvp_ero_subtree; */
-
-    /* mylen = obj_length - 4; */
     switch(type) {
     case 1:
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
@@ -4075,12 +4211,8 @@ dissect_rsvp_record_route (proto_item *ti, proto_tree *rsvp_object_tree,
 			   int offset, int obj_length,
 			   int class, int type)
 {
-    /* int offset2 = offset + 4; */
-    /* int mylen, i, j, l; */
-    /* proto_tree *ti2, *rsvp_rro_subtree; */
-
     proto_item_set_text(ti, "RECORD ROUTE: ");
-    /* mylen = obj_length - 4; */
+
     switch(type) {
     case 1:
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
@@ -5436,6 +5568,44 @@ dissect_rsvp_diffserv_aware_te(proto_tree *ti, proto_tree *rsvp_object_tree,
     }
 }
 
+/*----------------------------------------------------------------------------
+ * VENDOR PRIVATE USE
+ *---------------------------------------------------------------------------*/
+static void
+dissect_rsvp_vendor_private_use(proto_tree *ti _U_, 
+                                proto_tree *rsvp_object_tree,
+                                tvbuff_t *tvb,
+                                int offset, int obj_length,
+                                int class _U_, int type)
+{
+    /*
+     * FF: from Section 2, RFC 3936
+     *
+     * "Organization/Vendor Private" ranges refer to values that are
+     * enterprise-specific;  these MUST NOT be registered with IANA.  For
+     * Vendor Private values, the first 4-octet word of the data field MUST
+     * be an enterprise code [ENT: www.iana.org/assignments/enterprise-numbers]
+     * (network order) as registered with the IANA SMI Network Management 
+     * Private Enterprise Codes, and the rest of the data thereafter is for 
+     * the private use of the registered enterprise.
+     */
+    proto_item *hidden_item = NULL;
+    guint32 enterprise_code = 0;
+
+    hidden_item = proto_tree_add_item(rsvp_object_tree,
+                                      hf_rsvp_filter[RSVPF_PRIVATE_OBJ],
+                                      tvb, offset, obj_length, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset + 3, 1, 
+                        "C-type: %u", type);
+    enterprise_code = tvb_get_ntohl(tvb, offset + 4);
+    proto_tree_add_item(rsvp_object_tree,
+                        hf_rsvp_filter[RSVPF_ENT_CODE],
+                        tvb, offset + 4, 4, FALSE);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset + 8, obj_length - 8,
+                        "Data (%d bytes)", obj_length - 8);
+}
+
 /*------------------------------------------------------------------------------
  * Dissect a single RSVP message in a tree
  *------------------------------------------------------------------------------*/
@@ -5739,6 +5909,21 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	case RSVP_CLASS_CLASSTYPE:
 	    dissect_rsvp_diffserv_aware_te(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
+
+        case RSVP_CLASS_VENDOR_PRIVATE_1:
+        case RSVP_CLASS_VENDOR_PRIVATE_2:
+        case RSVP_CLASS_VENDOR_PRIVATE_3:
+        case RSVP_CLASS_VENDOR_PRIVATE_4:
+        case RSVP_CLASS_VENDOR_PRIVATE_5:
+        case RSVP_CLASS_VENDOR_PRIVATE_6:
+        case RSVP_CLASS_VENDOR_PRIVATE_7:
+        case RSVP_CLASS_VENDOR_PRIVATE_8:
+        case RSVP_CLASS_VENDOR_PRIVATE_9:
+        case RSVP_CLASS_VENDOR_PRIVATE_10:
+        case RSVP_CLASS_VENDOR_PRIVATE_11:
+        case RSVP_CLASS_VENDOR_PRIVATE_12:
+            dissect_rsvp_vendor_private_use(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+            break;
 
 	case RSVP_CLASS_NULL:
 	default:
@@ -6138,6 +6323,10 @@ proto_register_rsvp(void)
          { "CALL ID", "rsvp.call_id", FT_NONE, BASE_NONE, NULL, 0x0,
            NULL, HFILL }},
 
+        {&hf_rsvp_filter[RSVPF_PRIVATE_OBJ],
+         { "Private object", "rsvp.obj_private", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
         {&hf_rsvp_filter[RSVPF_UNKNOWN_OBJ],
          { "Unknown object", "rsvp.obj_unknown", FT_NONE, BASE_NONE, NULL, 0x0,
            NULL, HFILL }},
@@ -6238,7 +6427,17 @@ proto_register_rsvp(void)
 
         {&hf_rsvp_filter[RSVPF_CALL_ID_SRC_ADDR_IPV6],
          { "Source Transport Network Address", "rsvp.callid.srcaddr.ipv6", FT_IPv6,
-           BASE_NONE, NULL, 0x0, NULL, HFILL }}
+           BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        /* 
+         * FF: Vendor Private object field, please see 
+         * http://www.iana.org/assignments/enterprise-numbers
+         */
+        {&hf_rsvp_filter[RSVPF_ENT_CODE],
+         { "Enterprise Code",
+           "rsvp.obj_private.enterprise", FT_UINT32, 
+           BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0x0, 
+           "IANA Network Management Private Enterprise Code", HFILL }}
     };
 
     gint *ett_tree[TT_MAX];
