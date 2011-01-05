@@ -3213,6 +3213,10 @@ Emil Wojak <emil [AT] wojak.eu>
 	TDS dissector improvements
 }
 
+Steve Huston <shuston [AT] riverace.com>
+	AMQP 0-10 support
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
