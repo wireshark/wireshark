@@ -784,10 +784,8 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 gboolean read_new_line(FILE_T fh, gint64 *offset, gint *length,
                        gchar *linebuff, size_t linebuffsize)
 {
-    char *result;
-
     /* Read in a line */
-    result = file_gets(linebuff, (int)linebuffsize - 1, fh);
+    char *result = file_gets(linebuff, (int)linebuffsize - 1, fh);
     if (result == NULL) {
         /* No characters found, or error */
         return FALSE;
@@ -866,10 +864,10 @@ static gboolean parse_line(gchar *linebuff, gint line_length,
         return FALSE;
     }
 
-    /* Reset strings (that won't be set be comments) */
-    g_strlcpy(variant_name, "0", MAX_VARIANT_DIGITS);
-    g_strlcpy(outhdr_name, "", MAX_OUTHDR_NAME);
-    g_strlcpy(port_number_string, "0", MAX_PORT_DIGITS);
+    /* Reset strings (that won't be set by comments) */
+    variant_name[0] = '\0';
+    outhdr_name[0] = '\0';
+    port_number_string[0] = '\0';
 
     if (!(*is_comment)) {
         /* '.' must follow context name */
@@ -993,7 +991,8 @@ static gboolean parse_line(gchar *linebuff, gint line_length,
         (strcmp(protocol_name, "fp_r4") == 0) ||
         (strcmp(protocol_name, "fp_r5") == 0) ||
         (strcmp(protocol_name, "fp_r6") == 0) ||
-        (strcmp(protocol_name, "fp_r7") == 0)) {
+        (strcmp(protocol_name, "fp_r7") == 0) ||
+        (strcmp(protocol_name, "fp_r8") == 0)) {
 
         if ((variant > 256) && (variant % 256 == 3)) {
             /* FP over udp is contained in IPPrim... */
