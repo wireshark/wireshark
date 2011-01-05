@@ -2280,13 +2280,10 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                  if (!((p_pdcp_info->rohc_ip_version == 4) &&
                       (!p_pdcp_info->rnd))) {
                     offset = dissect_pdcp_uo_1_packet(rohc_tree, rohc_ti, tvb, offset, p_pdcp_info, pinfo);
-                    return;
-                 }
-                else {
+                 } else {
                     /* Whether its UO-1-ID or UO-1-TS depends upon T bit */
                     dissect_pdcp_uo_1_ts_or_id_packet(rohc_tree, rohc_ti, tvb, offset, p_pdcp_info, pinfo);
-                    return;
-                }
+                 }
 
                 return;
 
