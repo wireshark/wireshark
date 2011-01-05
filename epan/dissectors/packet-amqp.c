@@ -178,7 +178,7 @@ static guint
 get_amqp_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
 
 static void
-dissect_amqp_field_table(tvbuff_t *tvb, int offset, int length, proto_item *item);
+dissect_amqp_field_table(tvbuff_t *tvb, int offset, guint length, proto_item *item);
 
 static void
 dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -1015,7 +1015,7 @@ get_amqp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 /*  Dissection routine for AMQP field tables  */
 
 static void
-dissect_amqp_field_table(tvbuff_t *tvb, int offset, int length, proto_item *item)
+dissect_amqp_field_table(tvbuff_t *tvb, int offset, guint length, proto_item *item)
 {
     proto_item *field_table_tree;
     guint namelen, vallen;
@@ -1027,41 +1027,55 @@ dissect_amqp_field_table(tvbuff_t *tvb, int offset, int length, proto_item *item
 
     field_table_tree = proto_item_add_subtree(item, ett_amqp);
 
-    while (length > 0) {
+    while (length != 0) {
         field_start = offset;
         namelen = tvb_get_guint8(tvb, offset);
         offset += 1;
         length -= 1;
+        if (length < namelen)
+            goto too_short;
         name = (char*) tvb_get_ephemeral_string(tvb, offset, namelen);
         offset += namelen;
         length -= namelen;
+        if (length < 1)
+            goto too_short;
         type = tvb_get_guint8(tvb, offset);
         offset += 1;
         length -= 1;
         switch (type) {
         case 'S':
             typename = "string";
+            if (length < 4)
+                goto too_short;
             vallen = tvb_get_ntohl(tvb, offset);
             offset += 4;
             length -= 4;
+            if (length < vallen)
+                goto too_short;
             value = (char*) tvb_get_ephemeral_string(tvb, offset, vallen);
             offset += vallen;
             length -= vallen;
             break;
         case 'I':
             typename = "integer";
+            if (length < 4)
+                goto too_short;
             value = ep_strdup_printf("%d", tvb_get_ntohl(tvb, offset));
             offset += 4;
             length -= 4;
             break;
         case 'D':
             typename = "decimal";
+            if (length < 5)
+                goto too_short;
             value = "...";
             offset += 5;
             length -= 5;
             break;
         case 'T':
             typename =  "timestamp";
+            if (length < 8)
+                goto too_short;
             value = "...";
             offset += 8;
             length -= 8;
@@ -1069,27 +1083,45 @@ dissect_amqp_field_table(tvbuff_t *tvb, int offset, int length, proto_item *item
         case 'F':
             /*  TODO: make it recursive here  */
             typename =  "field table";
+            if (length < 4)
+                goto too_short;
             vallen = tvb_get_ntohl(tvb, offset);
             offset += 4;
             length -= 4;
             value = "...";
+            if (length < vallen)
+                goto too_short;
             offset += vallen;
             length -= vallen;
             break;
         case 'V':
             typename = "void";
             value = "";
+            break;
         default:
-            proto_tree_add_none_format(field_table_tree, hf_amqp_field, tvb,
-                field_start, offset - field_start, "%s (unknown type %c): ...",
-		name, type);
-            return;
+            typename = "";
+            value = NULL;
+            break;
         }
 
-        proto_tree_add_none_format(field_table_tree, hf_amqp_field, tvb,
-            field_start, offset - field_start, "%s (%s): %s", name, typename,
-            value);
+        if (value != NULL)
+            proto_tree_add_none_format(field_table_tree, hf_amqp_field, tvb,
+                                       field_start, offset - field_start,
+                                       "%s (%s): %s", name, typename,
+                                       value);
+        else
+            proto_tree_add_none_format(field_table_tree, hf_amqp_field, tvb,
+                                       field_start, offset - field_start,
+                                       "%s: unknown type %x (%c)",
+                                       name, type, type);
     }
+    return;
+
+too_short:
+    proto_tree_add_text(field_table_tree, tvb, field_start,
+                        offset - field_start,
+                        "Field is cut off by the end of the field table");
+    return;
 }
 
 /*  Dissection routine for AMQP frames  */
