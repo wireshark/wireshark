@@ -102,7 +102,7 @@ static guint32 ProtocolExtensionID;
  *	&UnsuccessfulOutcome				OPTIONAL,
  *	&Outcome					OPTIONAL,
  *
- * Only these two needed currently 
+ * Only these two needed currently
  */
 #define IMSG (1<<16)
 #define SOUT (2<<16)
@@ -140,7 +140,8 @@ void proto_reg_handoff_ranap(void);
 
 #include "packet-ranap-fn.c"
 
-static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
   int ret = 0;
@@ -167,41 +168,54 @@ static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto
   return ret;
 }
 
-static int dissect_ProtocolIEFieldPairFirstValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ProtocolIEFieldPairFirstValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   return (dissector_try_uint_new(ranap_ies_p1_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
 }
 
-static int dissect_ProtocolIEFieldPairSecondValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ProtocolIEFieldPairSecondValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   return (dissector_try_uint_new(ranap_ies_p2_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
 }
 
-static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   return (dissector_try_uint_new(ranap_extension_dissector_table, ProtocolExtensionID, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
 }
 
-static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+  gboolean ret;
+
   pdu_type = IMSG;
-  return (dissector_try_uint_new(ranap_proc_imsg_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
+  ret = dissector_try_uint_new(ranap_proc_imsg_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE);
   pdu_type = 0;
+  return ret ? tvb_length(tvb) : 0;
 }
 
-static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+  gboolean ret;
+
   pdu_type = SOUT;
-  return (dissector_try_uint_new(ranap_proc_sout_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
+  ret = dissector_try_uint_new(ranap_proc_sout_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE);
   pdu_type = 0;
+  return ret ? tvb_length(tvb) : 0;
 }
 
-static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   return (dissector_try_uint_new(ranap_proc_uout_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
 }
 
-static int dissect_OutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_OutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   return (dissector_try_uint_new(ranap_proc_out_dissector_table, ProcedureCode, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
 }
@@ -263,7 +277,7 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset = dissect_per_length_determinant(tvb, LENGTH_OFFSET<<3, &asn1_ctx, tree, -1, &length);
 	offset = offset>>3;
 	if (length!= (tvb_length(tvb) - offset)){
-		return FALSE; 
+		return FALSE;
 	}
 
     temp = tvb_get_guint8(tvb, MSG_TYPE_OFFSET);
@@ -358,8 +372,8 @@ proto_reg_handoff_ranap(void)
 	* Perhaps we want a preference whether the heuristic dissector
 	* is or isn't enabled
 	*/
-	heur_dissector_add("sccp", dissect_sccp_ranap_heur, proto_ranap); 
-	heur_dissector_add("sua", dissect_sccp_ranap_heur, proto_ranap); 
+	heur_dissector_add("sccp", dissect_sccp_ranap_heur, proto_ranap);
+	heur_dissector_add("sua", dissect_sccp_ranap_heur, proto_ranap);
 }
 
 
