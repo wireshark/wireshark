@@ -971,7 +971,7 @@ decrypt_arcfour(packet_info *pinfo,
 	rc4_state_struct rc4_state;
 
 	crypt_rc4_init(&rc4_state, k6_data, sizeof(k6_data));
-	memcpy(SND_SEQ, (unsigned char *)tvb_get_ptr(pinfo->gssapi_wrap_tvb, 8, 8), 8);
+	tvb_memcpy(pinfo->gssapi_wrap_tvb, SND_SEQ, 8, 8);
 	crypt_rc4(&rc4_state, (unsigned char *)SND_SEQ, 8);
 
 	memset(k6_data, 0, sizeof(k6_data));
@@ -1001,14 +1001,12 @@ decrypt_arcfour(packet_info *pinfo,
 	rc4_state_struct rc4_state;
 
 	crypt_rc4_init(&rc4_state, k6_data, sizeof(k6_data));
-	memcpy(Confounder, (unsigned char *)tvb_get_ptr(pinfo->gssapi_wrap_tvb, 24, 8), 8);
+	tvb_memcpy(pinfo->gssapi_wrap_tvb, Confounder, 24, 8);
 	crypt_rc4(&rc4_state, Confounder, 8);
 	memcpy(output_message_buffer, input_message_buffer, datalen);
 	crypt_rc4(&rc4_state, output_message_buffer, datalen);
     } else {
-	memcpy(Confounder,
-		tvb_get_ptr(pinfo->gssapi_wrap_tvb, 24, 8),
-		8); /* Confounder */
+	tvb_memcpy(pinfo->gssapi_wrap_tvb, Confounder, 24, 8);
 	memcpy(output_message_buffer,
 		input_message_buffer,
 	        datalen);
@@ -1037,9 +1035,7 @@ decrypt_arcfour(packet_info *pinfo,
 	    return -10;
 	}
 
-	cmp = memcmp(cksum_data,
-	    tvb_get_ptr(pinfo->gssapi_wrap_tvb, 16, 8),
-	    8); /* SGN_CKSUM */
+	cmp = tvb_memeql(pinfo->gssapi_wrap_tvb, 16, cksum_data, 8); /* SGN_CKSUM */
 	if (cmp) {
 	    return -11;
 	}
