@@ -133,7 +133,7 @@ static GtkAccelGroup *grp;
 typedef struct _menu_item {
     char    *name;
     gint    group;
-	const char	*label;
+    const char *label;
     const char *stock_id;
     gboolean enabled;
     GtkItemFactoryCallback callback;
@@ -447,7 +447,7 @@ colorize_conversation_cb(GtkWidget * w _U_, gpointer data _U_, int action)
 static void
 goto_conversation_frame(gboolean dir)
 {
-	gchar *filter;
+        gchar *filter;
         dfilter_t *dfcode = NULL;
         gboolean found_packet=FALSE;
 
@@ -457,7 +457,7 @@ goto_conversation_frame(gboolean dir)
         if( filter == NULL )
             filter = build_conversation_filter(CONV_IP,FALSE);
         if( filter == NULL ) {
-	    statusbar_push_temporary_msg("Unable to build conversation filter.");
+            statusbar_push_temporary_msg("Unable to build conversation filter.");
             g_free(filter);
             return;
         }
@@ -1428,7 +1428,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Edit/FindNextMark",				NULL,				"Find Next Mark",						"<shift><control>N",	NULL,			G_CALLBACK(find_next_mark_cb) },
    { "/Edit/FindPreviousMark",			NULL,				"Find Next Mark",						"<shift><control>B",	NULL,			G_CALLBACK(find_prev_mark_cb) },
 
-  { "/Edit/IgnorePacket",				NULL,				"_Ignore Packet (toggle)",				"<control>X",			NULL,			G_CALLBACK(new_packet_list_ignore_frame_cb) },
+   { "/Edit/IgnorePacket",				NULL,				"_Ignore Packet (toggle)",				"<control>X",			NULL,			G_CALLBACK(new_packet_list_ignore_frame_cb) },
     /*
      * XXX - this next one overrides /Edit/Copy/Description
      */
@@ -2297,69 +2297,66 @@ static void
 packet_list_menu_color_conv_ethernet_color1_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */, user_data, CONV_ETHER+1*256);
-
 }
 
 static void
 packet_list_menu_color_conv_ethernet_color2_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL/* widget _U_ */ , user_data, CONV_ETHER+1*256);
-
 }
+
 static void
 packet_list_menu_color_conv_ethernet_color3_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER+3*256);
-
 }
+
 static void
 packet_list_menu_color_conv_ethernet_color4_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER+4*256);
-
 }
+
 static void
 packet_list_menu_color_conv_ethernet_color5_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER+5*256);
-
 }
+
 static void
 packet_list_menu_color_conv_ethernet_color6_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER+6*256);
-
 }
+
 static void
 packet_list_menu_color_conv_ethernet_color7_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER+7*256);
-
 }
+
 static void
 packet_list_menu_color_conv_ethernet_color8_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER+8*256);
-
 }
+
 static void
 packet_list_menu_color_conv_ethernet_color9_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER+9*256);
-
 }
+
 static void
 packet_list_menu_color_conv_ethernet_color10_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER+10*256);
-
 }
 
 static void
 packet_list_menu_color_conv_ethernet_new_rule_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER);
-
 }
 
 /* IP */
@@ -2368,209 +2365,202 @@ static void
 packet_list_menu_color_conv_ip_color1_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+1*256);
-
 }
 
 static void
 packet_list_menu_color_conv_ip_color2_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+1*256);
-
 }
+
 static void
 packet_list_menu_color_conv_ip_color3_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+3*256);
-
 }
+
 static void
 packet_list_menu_color_conv_ip_color4_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+4*256);
-
 }
+
 static void
 packet_list_menu_color_conv_ip_color5_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+5*256);
-
 }
+
 static void
 packet_list_menu_color_conv_ip_color6_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+6*256);
-
 }
+
 static void
 packet_list_menu_color_conv_ip_color7_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+7*256);
-
 }
+
 static void
 packet_list_menu_color_conv_ip_color8_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+8*256);
-
 }
+
 static void
 packet_list_menu_color_conv_ip_color9_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+9*256);
-
 }
+
 static void
 packet_list_menu_color_conv_ip_color10_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+10*256);
-
 }
 
 static void
 packet_list_menu_color_conv_ip_new_rule_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP);
-
 }
 
 /* TCP */
+
 static void
 packet_list_menu_color_conv_tcp_color1_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+1*256);
-
 }
 
 static void
 packet_list_menu_color_conv_tcp_color2_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+1*256);
-
 }
+
 static void
 packet_list_menu_color_conv_tcp_color3_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+3*256);
-
 }
+
 static void
 packet_list_menu_color_conv_tcp_color4_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+4*256);
-
 }
+
 static void
 packet_list_menu_color_conv_tcp_color5_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+5*256);
-
 }
+
 static void
 packet_list_menu_color_conv_tcp_color6_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+6*256);
-
 }
+
 static void
 packet_list_menu_color_conv_tcp_color7_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+7*256);
-
 }
+
 static void
 packet_list_menu_color_conv_tcp_color8_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+8*256);
-
 }
+
 static void
 packet_list_menu_color_conv_tcp_color9_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+9*256);
-
 }
+
 static void
 packet_list_menu_color_conv_tcp_color10_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+10*256);
-
 }
 
 static void
 packet_list_menu_color_conv_tcp_new_rule_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP);
-
 }
 
 /* UDP */
+
 static void
 packet_list_menu_color_conv_udp_color1_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+1*256);
-
 }
 
 static void
 packet_list_menu_color_conv_udp_color2_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+1*256);
-
 }
+
 static void
 packet_list_menu_color_conv_udp_color3_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+3*256);
-
 }
+
 static void
 packet_list_menu_color_conv_udp_color4_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+4*256);
-
 }
+
 static void
 packet_list_menu_color_conv_udp_color5_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+5*256);
-
 }
+
 static void
 packet_list_menu_color_conv_udp_color6_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+6*256);
-
 }
+
 static void
 packet_list_menu_color_conv_udp_color7_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+7*256);
-
 }
+
 static void
 packet_list_menu_color_conv_udp_color8_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+8*256);
-
 }
+
 static void
 packet_list_menu_color_conv_udp_color9_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+9*256);
-
 }
+
 static void
 packet_list_menu_color_conv_udp_color10_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+10*256);
-
 }
 
 static void
 packet_list_menu_color_conv_udp_new_rule_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP);
-
 }
 
 /* CONV_CBA */
@@ -2579,54 +2569,56 @@ static void
 packet_list_menu_color_conv_cba_color1_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+1*256);
-
 }
 
 static void
 packet_list_menu_color_conv_cba_color2_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+1*256);
-
 }
+
 static void
 packet_list_menu_color_conv_cba_color3_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+3*256);
-
 }
+
 static void
 packet_list_menu_color_conv_cba_color4_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+4*256);
-
 }
+
 static void
 packet_list_menu_color_conv_cba_color5_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+5*256);
-
 }
+
 static void
 packet_list_menu_color_conv_cba_color6_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+6*256);
-
 }
+
 static void
 packet_list_menu_color_conv_cba_color7_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+7*256);
 }
+
 static void
 packet_list_menu_color_conv_cba_color8_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+8*256);
 }
+
 static void
 packet_list_menu_color_conv_cba_color9_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+9*256);
 }
+
 static void
 packet_list_menu_color_conv_cba_color10_cb(GtkAction *action _U_, gpointer user_data)
 {
@@ -2687,114 +2679,105 @@ static void
 packet_list_menu_copy_bytes_text_cb(GtkAction *action _U_, gpointer user_data)
 {
 	copy_hex_cb( NULL /* widget _U_ */ , user_data, CD_TEXTONLY | CD_FLAGS_SELECTEDONLY);
-
 }
 
 static void
 packet_list_menu_copy_bytes_hex_strm_cb(GtkAction *action _U_, gpointer user_data)
 {
 	copy_hex_cb( NULL /* widget _U_ */ , user_data,  CD_HEX | CD_FLAGS_SELECTEDONLY);
-
 }
 
 static void
 packet_list_menu_copy_bytes_bin_strm_cb(GtkAction *action _U_, gpointer user_data)
 {
 	copy_hex_cb( NULL /* widget _U_ */ , user_data, CD_BINARY | CD_FLAGS_SELECTEDONLY);
-
 }
 
 /* tree */
-
 
 static void
 tree_view_menu_color_with_flt_color1_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_selected_ptree_cb( NULL /* widget _U_ */ , user_data, 1);
-
 }
 
 static void
 tree_view_menu_color_with_flt_color2_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_selected_ptree_cb( NULL /* widget _U_ */ , user_data, 2);
-
 }
+
 static void
 tree_view_menu_color_with_flt_color3_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_selected_ptree_cb( NULL /* widget _U_ */ , user_data, 3);
-
 }
+
 static void
 tree_view_menu_color_with_flt_color4_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_selected_ptree_cb( NULL /* widget _U_ */ , user_data, 4);
-
 }
+
 static void
 tree_view_menu_color_with_flt_color5_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_selected_ptree_cb( NULL /* widget _U_ */ , user_data, 5);
-
 }
+
 static void
 tree_view_menu_color_with_flt_color6_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_selected_ptree_cb( NULL /* widget _U_ */ , user_data, 6);
-
 }
+
 static void
 tree_view_menu_color_with_flt_color7_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_selected_ptree_cb( NULL /* widget _U_ */ , user_data, 7);
-
 }
+
 static void
 tree_view_menu_color_with_flt_color8_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_selected_ptree_cb( NULL /* widget _U_ */ , user_data, 8);
-
 }
+
 static void
 tree_view_menu_color_with_flt_color9_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_selected_ptree_cb( NULL /* widget _U_ */ , user_data, 9);
-
 }
+
 static void
 tree_view_menu_color_with_flt_color10_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_selected_ptree_cb( NULL /* widget _U_ */ , user_data, 10);
-
 }
 
 static void
 tree_view_menu_color_with_flt_new_rule_cb(GtkAction *action _U_, gpointer user_data)
 {
 	colorize_selected_ptree_cb( NULL /* widget _U_ */ , user_data, 0);
-
 }
+
 
 static void
 tree_view_menu_copy_desc(GtkAction *action _U_, gpointer user_data)
 {
 	copy_selected_plist_cb( NULL /* widget _U_ */ , user_data, COPY_SELECTED_DESCRIPTION);
-
 }
 
 static void
 tree_view_menu_copy_field(GtkAction *action _U_, gpointer user_data)
 {
 	copy_selected_plist_cb( NULL /* widget _U_ */ , user_data, COPY_SELECTED_FIELDNAME);
-
 }
 
 static void
 tree_view_menu_copy_value(GtkAction *action _U_, gpointer user_data)
 {
 	copy_selected_plist_cb( NULL /* widget _U_ */ , user_data, COPY_SELECTED_VALUE);
-
 }
 
 static void
@@ -2802,7 +2785,6 @@ tree_view_menu_copy_as_flt(GtkAction *action _U_, gpointer user_data)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/Copy/AsFilter");
 	match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
-
 }
 
 static const char *ui_desc_packet_list_heading_menu_popup =
@@ -3456,7 +3438,7 @@ menus_init(void) {
         *statusbar_profiles_action_group;
     GError *error = NULL;
 #ifdef MAIN_MENU_USE_UIMANAGER
-	guint merge_id;
+    guint merge_id;
 #endif /* MAIN_MENU_USE_UIMANAGER */
 
 
@@ -3584,7 +3566,7 @@ menus_init(void) {
             error = NULL;
         }
 
-		g_object_unref(packet_list_byte_menu_action_group);
+        g_object_unref(packet_list_byte_menu_action_group);
 
         g_object_set_data(G_OBJECT(popup_menu_object), PM_BYTES_VIEW_KEY,
                         gtk_ui_manager_get_widget(ui_manager_bytes_menu, "/BytesMenuPopup"));
@@ -3630,18 +3612,17 @@ menus_init(void) {
             g_error_free (error); 
             error = NULL; 
         }
-		g_object_unref(main_menu_bar_action_group);
-	    gtk_window_add_accel_group (GTK_WINDOW(top_level),
+        g_object_unref(main_menu_bar_action_group);
+        gtk_window_add_accel_group (GTK_WINDOW(top_level),
                                 gtk_ui_manager_get_accel_group(ui_manager_main_menubar));
 
 
-		
-	    /* Add the recent files items to the menu
-	     * use place holders and
-	     * gtk_ui_manager_add_ui().
-	     */
-	    merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
-	    add_recent_items (merge_id, ui_manager_main_menubar);
+        /* Add the recent files items to the menu
+         * use place holders and
+         * gtk_ui_manager_add_ui().
+         */
+        merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
+        add_recent_items (merge_id, ui_manager_main_menubar);
 #else /* MAIN_MENU_USE_UIMANAGER */
         main_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", grp);
         gtk_item_factory_create_items_ac(main_menu_factory, nmenu_items, menu_items, NULL, 2);
@@ -3668,7 +3649,7 @@ menus_init(void) {
             error = NULL;
         }
 
-		g_object_unref(statusbar_profiles_action_group);
+        g_object_unref(statusbar_profiles_action_group);
 
         g_object_set_data(G_OBJECT(popup_menu_object), PM_STATUSBAR_PROFILES_KEY,
                        gtk_ui_manager_get_widget(ui_manager_statusbar_profiles_menu, "/ProfilesMenuPopup"));
@@ -3716,7 +3697,7 @@ static gint tap_menu_item_add_compare(gconstpointer a, gconstpointer b)
 static GList * tap_menu_item_add(
     char *name,
     gint group,
-	const char *label,
+    const char *label,
     const char *stock_id,
     GtkItemFactoryCallback callback,
     gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data),
@@ -3731,7 +3712,7 @@ static GList * tap_menu_item_add(
     child = g_malloc(sizeof (menu_item_t));
     child->name             = name;
     child->group            = group;
-	child->label			= label;
+    child->label            = label;
     child->stock_id         = stock_id;
     child->callback         = callback;
     child->selected_packet_enabled = selected_packet_enabled;
@@ -3949,15 +3930,15 @@ register_stat_menu_item(
 static guint merge_tap_menus_layered(GList *node, gint group) {
     GtkItemFactoryEntry *entry;
 #if 0
-	gchar *p;
+    gchar *p;
 #endif
-	GtkAction *action;
-	guint merge_id;
-	GtkActionGroup *action_group;
+    GtkAction *action;
+    guint merge_id;
+    GtkActionGroup *action_group;
     GList       *child;
     guint       added = 0;
     menu_item_t *node_data = node->data;
-	gchar		*action_grp_name;
+    gchar       *action_grp_name;
 
     /*
      * Is this a leaf node or an interior node?
@@ -4025,48 +4006,48 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
          * has a null name pointer.
          */
         if (node_data->name != NULL && group == node_data->group) {
-			gchar *dup;
-			gchar *dest;
+            gchar *dup;
+            gchar *dest;
 
-			/* the underscore character regularly confuses things, as it will prevent finding
-			 * the menu_item, so it has to be removed first
-			 */
-			dup = g_strdup(node_data->name);
-			dest = dup;
-			while(*node_data->name) {
-				if (*node_data->name != '_') {
-					*dest = *node_data->name;
-					dest++;
-				}
-				node_data->name++;
-			}
-			*dest = '\0';
+            /* the underscore character regularly confuses things, as it will prevent finding
+             * the menu_item, so it has to be removed first
+             */
+            dup = g_strdup(node_data->name);
+            dest = dup;
+            while(*node_data->name) {
+                if (*node_data->name != '_') {
+                    *dest = *node_data->name;
+                    dest++;
+                }
+                node_data->name++;
+            }
+            *dest = '\0';
 
             entry = g_malloc0(sizeof (GtkItemFactoryEntry));
             entry->path = node_data->name;
             entry->item_type = "<Branch>";
-			/* use the node_data->name(path) with the slashes replaced by "-" as the action group name */
-			action_grp_name = g_strdup(dup+1);
-			g_strdelimit(action_grp_name, "/", '-');
+            /* use the node_data->name(path) with the slashes replaced by "-" as the action group name */
+            action_grp_name = g_strdup(dup+1);
+            g_strdelimit(action_grp_name, "/", '-');
 
-			g_warning("<Branch> %s",action_grp_name);
+            g_warning("<Branch> %s",action_grp_name);
 
 
-			action_group = gtk_action_group_new (action_grp_name);
+            action_group = gtk_action_group_new (action_grp_name);
             switch(group) {
             case(REGISTER_STAT_GROUP_UNSORTED):
-				merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
-				gtk_ui_manager_insert_action_group (ui_manager_main_menubar, action_group, 0);
-				g_object_set_data (G_OBJECT (ui_manager_main_menubar),
-					"Menubar-StatisticsMenu-merge-id", GUINT_TO_POINTER (merge_id));
+                merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
+                gtk_ui_manager_insert_action_group (ui_manager_main_menubar, action_group, 0);
+                g_object_set_data (G_OBJECT (ui_manager_main_menubar),
+                    "Menubar-StatisticsMenu-merge-id", GUINT_TO_POINTER (merge_id));
 
-				action = gtk_action_new(node_data->name,				/* name */
+                action = gtk_action_new(node_data->name,				/* name */
                            strrchr(node_data->name,'/'),				/* label */
                            NULL,										/* tooltip */
                            node_data->stock_id);						/* stock_id */
 
-				gtk_action_group_add_action (action_group, action);
-				g_object_unref (action);
+                gtk_action_group_add_action (action_group, action);
+                g_object_unref (action);
 
                 gtk_ui_manager_add_ui (ui_manager_main_menubar, merge_id,
                            "/Menubar/StatisticsMenu",            /* path */
@@ -4076,11 +4057,10 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
                            FALSE);                               /* "top" if TRUE, the UI element is added before its siblings */
 
 
-				g_warning("<Stat unsorted> %s",action_grp_name);
-				g_warning("label %s",node_data->label);
+                g_warning("<Stat unsorted> %s",action_grp_name);
+                g_warning("label %s",node_data->label);
                 break;
             case(REGISTER_STAT_GROUP_GENERIC):
-                break;
                 break;
             case(REGISTER_STAT_GROUP_ENDPOINT_LIST):
                 break;
@@ -4093,15 +4073,15 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
             case(REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER):
                 break;
             case(REGISTER_TOOLS_GROUP_UNSORTED):
-				g_warning("<Tools> %s",action_grp_name);
-				g_warning("label %s",node_data->label);
+                g_warning("<Tools> %s",action_grp_name);
+                g_warning("label %s",node_data->label);
                 break;
             default:
                 g_assert_not_reached();
             }
 
 #if 0
-			gtk_item_factory_create_item(main_menu_factory, entry,
+            gtk_item_factory_create_item(main_menu_factory, entry,
                 NULL, 2);
             set_menu_sensitivity_old(main_menu_factory, node_data->name,
                 FALSE);    /* no children yet */
@@ -4195,7 +4175,7 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
             entry->path = node_data->name;
             entry->item_type = "<Branch>";
 
-			gtk_item_factory_create_item(main_menu_factory, entry,
+            gtk_item_factory_create_item(main_menu_factory, entry,
                 NULL, 2);
             set_menu_sensitivity_old(node_data->name, FALSE);    /* no children yet */
             added++;
@@ -4231,7 +4211,7 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
                   node_data->callback_data);
 
 test code
-			g_warning("Group: %s", node_data->name);
+            g_warning("Group: %s", node_data->name);
             p = strrchr(node_data->name,'/');
             if(p){
                 p++;
@@ -4567,32 +4547,32 @@ GList *li;
 gchar *widget_cf_name;
 
     for (li = g_list_first(recent_files_list); li; li = li->next) {
-		widget_cf_name = li->data;
+        widget_cf_name = li->data;
         if (
 #ifdef _WIN32
             /* do a case insensitive compare on win32 */
-			g_ascii_strncasecmp(widget_cf_name, cf_name, 1000) == 0){
+            g_ascii_strncasecmp(widget_cf_name, cf_name, 1000) == 0){
 #else   /* _WIN32 */
             /* do a case sensitive compare on unix */
-			strncmp(widget_cf_name, cf_name, 1000) == 0 ){
+            strncmp(widget_cf_name, cf_name, 1000) == 0 ){
 #endif
             recent_files_list = g_list_remove(recent_files_list,widget_cf_name);
         }
     }
 
-	return recent_files_list;
+    return recent_files_list;
 }
-		
+
 static void
 recent_changed_cb (GtkUIManager *ui_manager,
-			   gpointer          user_data _U_)
+                   gpointer          user_data _U_)
 {
   guint merge_id;
   GList *action_groups, *l;
 
 
   merge_id = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT (ui_manager),
-  						  "recent-files-merge-id"));
+                               "recent-files-merge-id"));
   
   /* remove the UI */
   gtk_ui_manager_remove_ui (ui_manager, merge_id);
@@ -4603,14 +4583,14 @@ recent_changed_cb (GtkUIManager *ui_manager,
    */
   action_groups = gtk_ui_manager_get_action_groups (ui_manager);
   for (l = action_groups; l != NULL; l = l->next)
-    {
+  {
       GtkActionGroup *group = l->data;
 
       if (strcmp (gtk_action_group_get_name (group), "recent-files-group") == 0){
-		  /* this unrefs the action group and all of its actions */
-	      gtk_ui_manager_remove_action_group (ui_manager, group);
-	      break;
-	  }
+          /* this unrefs the action group and all of its actions */
+          gtk_ui_manager_remove_action_group (ui_manager, group);
+          break;
+      }
   }
 
   /* generate a new merge id and re-add everything */
@@ -4644,12 +4624,12 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
     GtkAction *action;
     GtkWidget *submenu_recent_files;
     GList *items, *l;
-	gchar *name;
-	gchar *action_name;
-	guint i;
+    gchar *name;
+    gchar *action_name;
+    guint i;
 
-	/* Reset the recent files list in the welcome screen */
-	main_welcome_reset_recent_capture_files();
+    /* Reset the recent files list in the welcome screen */
+    main_welcome_reset_recent_capture_files();
 
     action_group = gtk_action_group_new ("recent-files-group");
 
@@ -4667,19 +4647,19 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
     if (!items){
 
       action = g_object_new (GTK_TYPE_ACTION,
-      			 "name", "recent-info-empty",
-			     "label", "No recently used files",
-			     "sensitive", FALSE,
-			     NULL);
+                 "name", "recent-info-empty",
+                 "label", "No recently used files",
+                 "sensitive", FALSE,
+                 NULL);
       gtk_action_group_add_action (action_group, action);
       g_object_unref (action);
 
       gtk_ui_manager_add_ui (ui_manager, merge_id,
-  			     "/Menubar/FileMenu/OpenRecent/RecentFiles",
-			     "recent-info-empty",
-			     "recent-info-empty",
-			     GTK_UI_MANAGER_MENUITEM,
-			     FALSE);
+                 "/Menubar/FileMenu/OpenRecent/RecentFiles",
+                 "recent-info-empty",
+                 "recent-info-empty",
+                 GTK_UI_MANAGER_MENUITEM,
+                 FALSE);
       
       return;
     }
@@ -4688,60 +4668,60 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
        i < prefs.gui_recent_files_count_max && l != NULL;
        i +=1, l = l->next)
     {
-	  gchar *item_name = l->data;
+      gchar *item_name = l->data;
       name = g_strdup_printf ("recent-info-%u", i);
       action_name = g_strdup (name);
 
       action = g_object_new (GTK_TYPE_ACTION,
-      			 "name", action_name,
-			     "label", item_name,
-			     "stock_id", WIRESHARK_STOCK_FILE,
-			     NULL);
+                 "name", action_name,
+                 "label", item_name,
+                 "stock_id", WIRESHARK_STOCK_FILE,
+                 NULL);
       g_signal_connect (action, "activate",
                         G_CALLBACK (menu_open_recent_file_cmd_cb), NULL);
       gtk_action_group_add_action (action_group, action);
       g_object_unref (action);
 
       gtk_ui_manager_add_ui (ui_manager, merge_id,
-  			     "/Menubar/FileMenu/OpenRecent/RecentFiles",
-			     name,
-			     action_name,
-			     GTK_UI_MANAGER_MENUITEM,
-			     FALSE);
+                 "/Menubar/FileMenu/OpenRecent/RecentFiles",
+                 name,
+                 action_name,
+                 GTK_UI_MANAGER_MENUITEM,
+                 FALSE);
 
-	  /* Add the file name to the recent files list on the Welcome screen */
-	  main_welcome_add_recent_capture_files(item_name);
+      /* Add the file name to the recent files list on the Welcome screen */
+      main_welcome_add_recent_capture_files(item_name);
 
       g_free (action_name);
       g_free (name);
     }
     /* Add a Separator */
     gtk_ui_manager_add_ui (ui_manager, merge_id,
-		     "/Menubar/FileMenu/OpenRecent/RecentFiles",
-		     "separator-recent-info",
-		     NULL,
-		     GTK_UI_MANAGER_SEPARATOR,
-		     FALSE);
+             "/Menubar/FileMenu/OpenRecent/RecentFiles",
+             "separator-recent-info",
+             NULL,
+             GTK_UI_MANAGER_SEPARATOR,
+             FALSE);
 
-	/* Add a clear Icon */
+    /* Add a clear Icon */
     action = g_object_new (GTK_TYPE_ACTION,
-  			 "name", "clear-recent-info",
+             "name", "clear-recent-info",
              "label", "Clear the recent files list",
-			 "stock_id", GTK_STOCK_CLEAR,
-		     NULL);
+             "stock_id", GTK_STOCK_CLEAR,
+             NULL);
 
-	g_signal_connect (action, "activate",
+    g_signal_connect (action, "activate",
                         G_CALLBACK (recent_clear_cb), NULL);
 
     gtk_action_group_add_action (action_group, action);
     g_object_unref (action);
 
     gtk_ui_manager_add_ui (ui_manager, merge_id,
-		     "/Menubar/FileMenu/OpenRecent/RecentFiles",
-		     "clear-recent-info",
-		     "clear-recent-info",
-		     GTK_UI_MANAGER_MENUITEM,
-		     FALSE);
+             "/Menubar/FileMenu/OpenRecent/RecentFiles",
+             "clear-recent-info",
+             "clear-recent-info",
+             GTK_UI_MANAGER_MENUITEM,
+             FALSE);
   
 }
 #endif /* MAIN_MENU_USE_UIMANAGER */
@@ -4769,26 +4749,26 @@ menu_open_filename(gchar *cf_name)
     GtkWidget *submenu_recent_files;
     int       err;
 #ifdef MAIN_MENU_USE_UIMANAGER
-	GList *recent_files_list;
+    GList *recent_files_list;
 
 
     submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
     if(!submenu_recent_files){
         g_warning("menu_open_filename: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
     }
-	recent_files_list = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
+    recent_files_list = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
     /* XXX: ask user to remove item, it's maybe only a temporary problem */
     /* open and read the capture file (this will close an existing file) */
     if (cf_open(&cfile, cf_name, FALSE, &err) == CF_OK) {
         cf_read(&cfile, FALSE);
-	}else{
-		recent_files_list = remove_present_file_name(recent_files_list, cf_name);
-		g_object_set_data(G_OBJECT(submenu_recent_files), "recent-files-list", recent_files_list);
-		/* Calling recent_changed_cb will rebuild the GUI call add_recent_items which will in turn call 
-		 * main_welcome_reset_recent_capture_files
-		 */
-		recent_changed_cb(ui_manager_main_menubar, NULL);
-	}
+    }else{
+        recent_files_list = remove_present_file_name(recent_files_list, cf_name);
+        g_object_set_data(G_OBJECT(submenu_recent_files), "recent-files-list", recent_files_list);
+        /* Calling recent_changed_cb will rebuild the GUI call add_recent_items which will in turn call
+         * main_welcome_reset_recent_capture_files
+         */
+        recent_changed_cb(ui_manager_main_menubar, NULL);
+    }
 #else
     submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH_OLD);
     /* open and read the capture file (this will close an existing file) */
@@ -4808,27 +4788,27 @@ menu_open_filename(gchar *cf_name)
 void
 menu_open_recent_file_cmd(GtkAction *action)
 {
-	GtkWidget *submenu_recent_files;
-	GList *recent_files_list;
-	const gchar *cf_name;
+    GtkWidget *submenu_recent_files;
+    GList *recent_files_list;
+    const gchar *cf_name;
     int         err;
 
-	cf_name = gtk_action_get_label(action);
+    cf_name = gtk_action_get_label(action);
 
     /* open and read the capture file (this will close an existing file) */
     if (cf_open(&cfile, cf_name, FALSE, &err) == CF_OK) {
         cf_read(&cfile, FALSE);
-	} else{
-		submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
-		recent_files_list = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
+    } else {
+        submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
+        recent_files_list = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
 
-		recent_files_list = remove_present_file_name(recent_files_list, cf_name);
-		g_object_set_data(G_OBJECT(submenu_recent_files), "recent-files-list", recent_files_list);
-		/* Calling recent_changed_cb will rebuild the GUI call add_recent_items which will in turn call 
-		 * main_welcome_reset_recent_capture_files
-		 */
-		recent_changed_cb(ui_manager_main_menubar, NULL);
-	}
+        recent_files_list = remove_present_file_name(recent_files_list, cf_name);
+        g_object_set_data(G_OBJECT(submenu_recent_files), "recent-files-list", recent_files_list);
+        /* Calling recent_changed_cb will rebuild the GUI call add_recent_items which will in turn call
+         * main_welcome_reset_recent_capture_files
+         */
+        recent_changed_cb(ui_manager_main_menubar, NULL);
+    }
 }
 #else
 /* callback, if the user pushed a recent file submenu item */
@@ -4843,7 +4823,7 @@ menu_open_recent_file_cmd(GtkWidget *w)
 
     submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH_OLD);
 
-	/* get capture filename from the menu item label */
+    /* get capture filename from the menu item label */
     menu_item_child = (GTK_BIN(w))->child;
     cf_name = gtk_label_get_text(GTK_LABEL(menu_item_child));
 
@@ -4935,12 +4915,12 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
     submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
     if(!submenu_recent_files){
         g_warning("add_menu_recent_capture_file_absolute: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
-		return;
+        return;
     }
-	recent_files_list = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
+    recent_files_list = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
     cnt = 1;
     for (li = g_list_first(recent_files_list); li; li = li->next, cnt++) {
-		widget_cf_name = li->data;
+        widget_cf_name = li->data;
         if (
 #ifdef _WIN32
             /* do a case insensitive compare on win32 */
@@ -4954,9 +4934,9 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
             cnt--;
         }
     }
-	recent_files_list = g_list_prepend(recent_files_list, normalized_cf_name);
-	g_object_set_data(G_OBJECT(submenu_recent_files), "recent-files-list", recent_files_list);
-	recent_changed_cb( ui_manager_main_menubar, NULL);
+    recent_files_list = g_list_prepend(recent_files_list, normalized_cf_name);
+    g_object_set_data(G_OBJECT(submenu_recent_files), "recent-files-list", recent_files_list);
+    recent_changed_cb( ui_manager_main_menubar, NULL);
 }
 
 #else /* MAIN_MENU_USE_UIMANAGER */
@@ -4992,7 +4972,7 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
         /* if this element string is one of our special items (seperator, ...) or
          * already in the list or
          * this element is above maximum count (too old), remove it
-		 */
+         */
         if (!widget_cf_name ||
 #ifdef _WIN32
             /* do a case insensitive compare on win32 */
@@ -5009,7 +4989,7 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 
     g_list_free(menu_item_list_old);
 
-	/* add new item at latest position */
+    /* add new item at latest position */
     menu_item = gtk_menu_item_new_with_label(normalized_cf_name);
     g_object_set_data(G_OBJECT(menu_item), MENU_RECENT_FILES_KEY, normalized_cf_name);
     gtk_menu_shell_prepend (GTK_MENU_SHELL(submenu_recent_files), menu_item);
@@ -5068,26 +5048,26 @@ menu_recent_file_write_all(FILE *rf) {
     GList       *child;
     gchar       *cf_name;
 #ifdef MAIN_MENU_USE_UIMANAGER
-	GList       *recent_files_list, *list;
+    GList       *recent_files_list, *list;
 
     submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
     if(!submenu_recent_files){
         g_warning("menu_recent_file_write_all: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
     }
-	recent_files_list = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
-	list =  g_list_last(recent_files_list);
-	while(list != NULL) {
-		cf_name = list->data;
-		if (cf_name) {
-			if(u3_active())
-				fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", u3_contract_device_path(cf_name));
-			else
-				fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", cf_name);
-		}
-		list = g_list_previous(list);
-	}
-	g_list_free(recent_files_list);
-	return;
+    recent_files_list = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
+    list =  g_list_last(recent_files_list);
+    while(list != NULL) {
+        cf_name = list->data;
+        if (cf_name) {
+            if(u3_active())
+                fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", u3_contract_device_path(cf_name));
+            else
+                fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", cf_name);
+        }
+        list = g_list_previous(list);
+    }
+    g_list_free(recent_files_list);
+    return;
 
 #else
     submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH_OLD);
