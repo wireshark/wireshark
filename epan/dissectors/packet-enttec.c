@@ -221,6 +221,9 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 					offset, 2, FALSE);
 	offset += 2;
 
+	/*
+	 * XXX - we should handle a too-long length better.
+	 */
 	if (length > 512)
 		length = 512;
 
