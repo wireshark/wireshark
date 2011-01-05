@@ -1973,6 +1973,25 @@ dis_iei_csm16(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
                          tvb, offset, 1, g_frag);
 }
 
+static const value_string text_color_values[] = {
+  { 0x00,	"Black" },
+  { 0x01,	"Dark Grey" },
+  { 0x02,	"Dark Red" },
+  { 0x03,	"Dark Yellow" },
+  { 0x04,	"Dark Green" },
+  { 0x05,	"Dark Cyan" },
+  { 0x06,	"Dark Blue" },
+  { 0x07,	"Dark Magenta" },
+  { 0x08,	"Grey" },
+  { 0x09,	"White" },
+  { 0x0A,	"Bright Red" },
+  { 0x0B,	"Bright Yellow" },
+  { 0x0C,	"Bright Green" },
+  { 0x0D,	"Bright Cyan" },
+  { 0x0E,	"Bright Blue" },
+  { 0x0F,	"Bright Magenta" },
+  { 0,		NULL } };
+
 /* 9.2.3.24.10.1.1 */
 static void
 dis_iei_tf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
@@ -1988,26 +2007,19 @@ dis_iei_tf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
     EXACT_DATA_CHECK(length, 4);
     oct = tvb_get_guint8(tvb, offset);
 
-    proto_tree_add_text(tree,
-                        tvb, offset, 1,
-                        "Start position of the text formatting: %d",
+    proto_tree_add_text(tree, tvb, offset, 1,
+                        "Start position of the text formatting: %d", oct);
+    offset++;
+
+    oct = tvb_get_guint8(tvb, offset);
+
+    proto_tree_add_text(tree, tvb, offset, 1, "Text formatting length: %d",
                         oct);
     offset++;
 
     oct = tvb_get_guint8(tvb, offset);
 
-    proto_tree_add_text(tree,
-                        tvb, offset, 1,
-                        "Text formatting length: %d",
-                        oct);
-    offset++;
-
-    oct = tvb_get_guint8(tvb, offset);
-
-    item =
-        proto_tree_add_text(tree,
-                            tvb, offset, 1,
-                            "formatting mode");
+    item = proto_tree_add_text(tree, tvb, offset, 1, "formatting mode");
 
     subtree = proto_item_add_subtree(item, ett_udh_tfm);
     switch(oct & 0x03)
@@ -2026,9 +2038,7 @@ dis_iei_tf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
             break;
     }
 
-    proto_tree_add_text(subtree,
-                        tvb, offset, 1,
-                        "Alignment : %d %s",
+    proto_tree_add_text(subtree, tvb, offset, 1, "Alignment : %d %s",
                         oct & 0x03 , str);
 
     switch((oct >> 2) & 0x03)
@@ -2047,139 +2057,56 @@ dis_iei_tf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
             break;
     }
 
-    proto_tree_add_text(subtree,
-                        tvb, offset, 1,
-                        "Font Size : %d %s",
+    proto_tree_add_text(subtree, tvb, offset, 1, "Font Size : %d %s",
                         (oct >> 2) & 0x03 , str);
 
     if(oct & 0x10)
         str = "on";
     else
         str = "off";
-    proto_tree_add_text(subtree,
-                        tvb, offset, 1,
-                        "Style bold : %d %s",
+    proto_tree_add_text(subtree, tvb, offset, 1, "Style bold : %d %s",
                         oct & 0x10 , str);
 
     if(oct & 0x20)
         str = "on";
     else
         str = "off";
-    proto_tree_add_text(subtree,
-                        tvb, offset, 1,
-                        "Style Italic : %d %s",
+    proto_tree_add_text(subtree, tvb, offset, 1, "Style Italic : %d %s",
                         oct & 0x20 , str);
 
     if(oct & 0x40)
         str = "on";
     else
         str = "off";
-    proto_tree_add_text(subtree,
-                        tvb, offset, 1,
-                        "Style Underlined : %d %s",
+    proto_tree_add_text(subtree, tvb, offset, 1, "Style Underlined : %d %s",
                         oct & 0x40 , str);
 
     if(oct & 0x80)
         str = "on";
     else
         str = "off";
-    proto_tree_add_text(subtree,
-                        tvb, offset, 1,
-                        "Style Strikethrough : %d %s",
+    proto_tree_add_text(subtree, tvb, offset, 1, "Style Strikethrough : %d %s",
                         oct & 0x80 , str);
 
     offset++;
     oct = tvb_get_guint8(tvb, offset);
-    item_colour =
-        proto_tree_add_text(tree,
-                            tvb, offset, 1,
-                            "Text Colour");
+    item_colour = proto_tree_add_text(tree, tvb, offset, 1, "Text Colour");
 
     subtree_colour = proto_item_add_subtree(item_colour, ett_udh_tfc);
-    switch(oct & 0x0f)
-    {
-        case 0x00:
-            str = "Dark Grey";
-            break;
-        case 0x01:
-            str = "Dark Red";
-            break;
-            str = "Dark Yellow";
-            break;
-            str = "Dark Green";
-            break;
-            str = "Dark Cyan";
-            break;
-            str = "Dark Blue";
-            break;
-            str = "Dark Magenta";
-            break;
-            str = "Grey";
-            break;
-            str = "White";
-            break;
-            str = "Bright Red";
-            break;
-            str = "Bright Yellow";
-            break;
-            str = "Bright Green";
-            break;
-            str = "Bright Cyan";
-            break;
-            str = "Bright Blue";
-            break;
-            str = "Bright Magenta";
-            break;
-    }
 
-    proto_tree_add_text(subtree_colour,
-                        tvb, offset, 1,
-                        "Foreground Colour : %d %s",
+
+    str = val_to_str(oct & 0x0f, text_color_values, "Unknown");
+    proto_tree_add_text(subtree_colour, tvb, offset, 1,
+                        "Foreground Colour : 0x%x %s",
                         oct & 0x0f , str);
 
-    switch((oct >> 4) & 0x0f)
-    {
-        case 0x00:
-            str = "Dark Grey";
-            break;
-        case 0x01:
-            str = "Dark Red";
-            break;
-            str = "Dark Yellow";
-            break;
-            str = "Dark Green";
-            break;
-            str = "Dark Cyan";
-            break;
-            str = "Dark Blue";
-            break;
-            str = "Dark Magenta";
-            break;
-            str = "Grey";
-            break;
-            str = "White";
-            break;
-            str = "Bright Red";
-            break;
-            str = "Bright Yellow";
-            break;
-            str = "Bright Green";
-            break;
-            str = "Bright Cyan";
-            break;
-            str = "Bright Blue";
-            break;
-            str = "Bright Magenta";
-            break;
-    }
-
+    str = val_to_str((oct >> 4) & 0x0f, text_color_values, "Unknown");
     proto_tree_add_text(subtree_colour,
                         tvb, offset, 1,
-                        "Background Colour : %d %s",
+                        "Background Colour : 0x%x %s",
                         (oct >> 4) & 0x0f , str);
 
 }
-
 
 /* 9.2.3.24.10.1.2 */
 static void
