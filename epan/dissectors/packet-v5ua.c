@@ -202,7 +202,7 @@ dissect_text_interface_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree 
 
   proto_tree_add_item(parameter_tree, hf_text_if_id, parameter_tvb, TEXT_IF_ID_VALUE_OFFSET, if_id_length, FALSE);
   proto_item_append_text(parameter_item, " (0x%.*s)", if_id_length,
-                         (const char *)tvb_get_ptr(parameter_tvb, TEXT_IF_ID_VALUE_OFFSET, if_id_length));
+                         tvb_get_ephemeral_string(parameter_tvb, TEXT_IF_ID_VALUE_OFFSET, if_id_length));
 }
 /*----------------------Text Interface Identifier (RFC)------------------------*/
 
@@ -527,7 +527,7 @@ dissect_asp_msg_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, p
 
   proto_tree_add_item(parameter_tree, hf_adaptation_layer_id, parameter_tvb, PARAMETER_VALUE_OFFSET, adaptation_layer_id_length, FALSE);
   proto_item_append_text(parameter_item, " (%.*s)", adaptation_layer_id_length,
-                         (const char *)tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET, adaptation_layer_id_length));
+                         tvb_get_ephemeral_string(parameter_tvb, PARAMETER_VALUE_OFFSET, adaptation_layer_id_length));
 }
 
 static void
@@ -536,7 +536,7 @@ dissect_scn_protocol_id_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter
   guint16 id_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   proto_tree_add_item(parameter_tree, hf_scn_protocol_id, parameter_tvb, PARAMETER_VALUE_OFFSET, id_length, FALSE);
   proto_item_append_text(parameter_item, " (%.*s)", id_length,
-                         (const char *)tvb_get_ptr(parameter_tvb, PARAMETER_VALUE_OFFSET, id_length));
+                         tvb_get_ephemeral_string(parameter_tvb, PARAMETER_VALUE_OFFSET, id_length));
 }
 
 /*----------------------ASP (Draft)--------------------------------------------*/
@@ -842,7 +842,7 @@ dissect_info_string_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
 	info_string_length -= PARAMETER_HEADER_LENGTH;
 	proto_tree_add_item(parameter_tree, hf_info_string, parameter_tvb, INFO_STRING_OFFSET, info_string_length, FALSE);
 	proto_item_append_text(parameter_item, " (%.*s)", info_string_length,
-		(const char *)tvb_get_ptr(parameter_tvb, INFO_STRING_OFFSET, info_string_length));
+			       tvb_get_ephemeral_string(parameter_tvb, INFO_STRING_OFFSET, info_string_length));
   }
 }
 

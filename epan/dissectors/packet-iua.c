@@ -112,13 +112,13 @@ dissect_int_interface_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *
   number_of_ids= (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) / INT_INTERFACE_ID_LENGTH;
   offset = PARAMETER_VALUE_OFFSET;
 
-  proto_item_append_text(parameter_item, " ("); 
+  proto_item_append_text(parameter_item, " (");
   for (id_number = 1; id_number <= number_of_ids; id_number++) {
     proto_tree_add_item(parameter_tree, hf_int_interface_id, parameter_tvb, offset, INT_INTERFACE_ID_LENGTH, ENC_BIG_ENDIAN);
     proto_item_append_text(parameter_item, (id_number > 1) ? ", %d" : "%d", tvb_get_ntohl(parameter_tvb, offset));
     offset += INT_INTERFACE_ID_LENGTH;
   }
-  proto_item_append_text(parameter_item, ")"); 
+  proto_item_append_text(parameter_item, ")");
 }
 
 #define TEXT_INTERFACE_ID_OFFSET PARAMETER_VALUE_OFFSET
@@ -132,7 +132,7 @@ dissect_text_interface_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree 
 
   proto_tree_add_item(parameter_tree, hf_text_interface_id, parameter_tvb, TEXT_INTERFACE_ID_OFFSET, interface_id_length, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%.*s)", interface_id_length,
-                         (const char *)tvb_get_ptr(parameter_tvb, TEXT_INTERFACE_ID_OFFSET, interface_id_length));
+                         tvb_get_ephemeral_string(parameter_tvb, TEXT_INTERFACE_ID_OFFSET, interface_id_length));
 }
 
 #define INFO_STRING_OFFSET PARAMETER_VALUE_OFFSET
@@ -145,7 +145,7 @@ dissect_info_string_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
   info_string_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   proto_tree_add_item(parameter_tree, hf_info_string, parameter_tvb, INFO_STRING_OFFSET, info_string_length, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%.*s)", info_string_length,
-                         (const char *)tvb_get_ptr(parameter_tvb, INFO_STRING_OFFSET, info_string_length));
+                         tvb_get_ephemeral_string(parameter_tvb, INFO_STRING_OFFSET, info_string_length));
 }
 
 #define DLCI_SAPI_LENGTH  1
@@ -186,7 +186,7 @@ dissect_dlci_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
   proto_tree_add_item(parameter_tree, hf_dlci_zero_bit,  parameter_tvb, DLCI_SAPI_OFFSET,  DLCI_SAPI_LENGTH,  ENC_BIG_ENDIAN);
   proto_tree_add_item(parameter_tree, hf_dlci_spare_bit, parameter_tvb, DLCI_SAPI_OFFSET,  DLCI_SAPI_LENGTH,  ENC_BIG_ENDIAN);
   /* Add the SAPI + some explanatory text, store the SAPI value so that we can later how to
-   * dissect the protocol data */ 
+   * dissect the protocol data */
   sapi_item = proto_tree_add_item(parameter_tree, hf_dlci_sapi, parameter_tvb, DLCI_SAPI_OFFSET,  DLCI_SAPI_LENGTH,  ENC_BIG_ENDIAN);
   sapi_val = (tvb_get_guint8(parameter_tvb, DLCI_SAPI_OFFSET) & SAPI_MASK) >> SAPI_SHIFT;
   proto_item_append_text(sapi_item, " (%s)", val_to_str( sapi_val, sapi_values, "Unknown/reserved"));
@@ -222,7 +222,7 @@ dissect_integer_range_interface_identifier_parameter(tvbuff_t *parameter_tvb, pr
 
   number_of_ranges = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) / INTERVAL_LENGTH;
   offset = PARAMETER_VALUE_OFFSET;
-  proto_item_append_text(parameter_item, " ("); 
+  proto_item_append_text(parameter_item, " (");
   for (range_number = 1; range_number <= number_of_ranges; range_number++) {
     proto_tree_add_item(parameter_tree, hf_interface_range_start, parameter_tvb, offset + START_OFFSET, START_LENGTH, ENC_BIG_ENDIAN);
     proto_tree_add_item(parameter_tree, hf_interface_range_end,   parameter_tvb, offset + END_OFFSET,   END_LENGTH,   ENC_BIG_ENDIAN);
