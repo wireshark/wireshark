@@ -1734,11 +1734,16 @@ Anders Broman           <anders.broman [AT] ericsson.com> {
 	S1AP by asn2wrs
 	X2AP by asn2wrs
 	RRC by asn2wrs
+	ANSI TCAP by asn2wrs
+	CAMEL by asn2wrs
+	INAP by asn2wrs
+	PCAP by asn2wrs
 	H264 dissection
 	AMR dissection
 	MP4V-ES dissection
 	NAS EPS dissection
 	GTPv2 dissection
+	SGsAP dissection
 	Work on the initial version of the new packet list
 	Miscellaneous enhancements and fixes
 }
