@@ -387,9 +387,20 @@ dissect_mip_extensions(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 	  break;
 	default:
-	  g_warning("Unknown type(%u)!  I hope the length is right (%u)",
-				type, length);
-	  offset += length + 2;
+	  /* type */
+	  proto_tree_add_item(mip_tree, hf_icmp_mip_type, tvb, offset,
+						  1, FALSE);
+	  offset++;
+	  /* length */
+	  proto_tree_add_item(mip_tree, hf_icmp_mip_length, tvb, offset,
+						  1, FALSE);
+	  offset++;
+	  /* data, if any */
+	  if (length != 0) {
+	    proto_tree_add_text(mip_tree, tvb, offset, length, "Contents");
+	    offset+=length;
+	  }
+
 	  break;
 	} /* switch type */
   } /* end while */
