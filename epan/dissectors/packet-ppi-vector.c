@@ -890,7 +890,7 @@ dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case  PPI_VECTOR_DESCSTR:
             if (length_remaining < 32)
                 break;
-            proto_tree_add_string(ppi_vector_tree, hf_ppi_vector_descstr, tvb, offset, 32, ENC_NA);
+            proto_tree_add_item(ppi_vector_tree, hf_ppi_vector_descstr, tvb, offset, 32, ENC_NA);
             offset+=32;
             length_remaining-=32;
             break;
