@@ -169,7 +169,6 @@ static int hf_mscldap_nb_hostname = -1;
 static int hf_mscldap_username = -1;
 static int hf_mscldap_sitename = -1;
 static int hf_mscldap_clientsitename = -1;
-static int hf_mscldap_netlogon_version = -1;
 static int hf_mscldap_netlogon_lm_token = -1;
 static int hf_mscldap_netlogon_nt_token = -1;
 static int hf_ldap_sid = -1;
@@ -1179,8 +1178,8 @@ static const true_false_string tfs_ads_timeserv = {
 	"This dc is NOT running time services (ntp)"
 };
 static const true_false_string tfs_ads_closest = {
-	"This is the CLOSEST dc",
-	"This is NOT the closest dc"
+	"This server is in the same site as the client",
+	"This server is NOT in the same site as the client"
 };
 static const true_false_string tfs_ads_writable = {
 	"This dc is WRITABLE",
@@ -1389,12 +1388,12 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 			offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
 			proto_tree_add_string(tree, hf_mscldap_hostname, tvb, old_offset, offset-old_offset, str);
 
-			/* NetBios Domain */
+			/* NetBIOS Domain */
 			old_offset=offset;
 			offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
 			proto_tree_add_string(tree, hf_mscldap_nb_domain, tvb, old_offset, offset-old_offset, str);
 
-			/* NetBios Hostname */
+			/* NetBIOS Hostname */
 			old_offset=offset;
 			offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
 			proto_tree_add_string(tree, hf_mscldap_nb_hostname, tvb, old_offset, offset-old_offset, str);
@@ -1471,9 +1470,8 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
   offset = len-8;
 
-  /* Version */
-  proto_tree_add_item(tree, hf_mscldap_netlogon_version, tvb, offset, 4, TRUE);
-  offset += 4;
+  /* NETLOGON_NT_VERISON Options (MS-ADTS 7.3.1.1) */
+  offset = dissect_mscldap_ntver_flags(tree, tvb, offset);
 
   /* LM Token */
   proto_tree_add_item(tree, hf_mscldap_netlogon_lm_token, tvb, offset, 2, TRUE);
@@ -1843,11 +1841,6 @@ void proto_register_ldap(void) {
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "NetLogon Response type", HFILL }},
 
-    { &hf_mscldap_netlogon_version,
-      { "Version", "mscldap.netlogon.version",
-        FT_UINT32, BASE_DEC, NULL, 0x0,
-        NULL, HFILL }},
-
     { &hf_mscldap_netlogon_ipaddress_family,
       { "Family", "mscldap.netlogon.ipaddress.family",
         FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -1871,12 +1864,12 @@ void proto_register_ldap(void) {
     { &hf_mscldap_netlogon_lm_token,
       { "LM Token", "mscldap.netlogon.lm_token",
         FT_UINT16, BASE_HEX, NULL, 0x0,
-        NULL, HFILL }},
+        "MUST be set to 0xFFFF", HFILL }},
 
     { &hf_mscldap_netlogon_nt_token,
       { "NT Token", "mscldap.netlogon.nt_token",
         FT_UINT16, BASE_HEX, NULL, 0x0,
-        NULL, HFILL }},
+        "MUST be set to 0xFFFF", HFILL }},
 
     { &hf_mscldap_netlogon_flags,
       { "Flags", "mscldap.netlogon.flags",
@@ -1884,9 +1877,9 @@ void proto_register_ldap(void) {
         "Netlogon flags describing the DC properties", HFILL }},
 
     { &hf_mscldap_ntver_flags,
-      { "Search Flags", "mscldap.ntver.searchflags",
+      { "Version Flags", "mscldap.ntver.flags",
         FT_UINT32, BASE_HEX, NULL, 0x0,
-        "cldap Netlogon request flags", HFILL }},
+        "NETLOGON_NT_VERSION Options Bits", HFILL }},
 
     { &hf_mscldap_domain_guid,
       { "Domain GUID", "mscldap.domain.guid",
@@ -1909,12 +1902,12 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
     { &hf_mscldap_nb_domain,
-      { "NetBios Domain", "mscldap.nb_domain",
+      { "NetBIOS Domain", "mscldap.nb_domain",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "NetBios Domainname", HFILL }},
+        "NetBIOS Domainname", HFILL }},
 
     { &hf_mscldap_nb_hostname,
-      { "NetBios Hostname", "mscldap.nb_hostname",
+      { "NetBIOS Hostname", "mscldap.nb_hostname",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 

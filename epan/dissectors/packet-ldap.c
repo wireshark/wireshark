@@ -177,7 +177,6 @@ static int hf_mscldap_nb_hostname = -1;
 static int hf_mscldap_username = -1;
 static int hf_mscldap_sitename = -1;
 static int hf_mscldap_clientsitename = -1;
-static int hf_mscldap_netlogon_version = -1;
 static int hf_mscldap_netlogon_lm_token = -1;
 static int hf_mscldap_netlogon_nt_token = -1;
 static int hf_ldap_sid = -1;
@@ -339,7 +338,7 @@ static int hf_ldap_graceAuthNsRemaining = -1;     /* INTEGER_0_maxInt */
 static int hf_ldap_error = -1;                    /* T_error */
 
 /*--- End of included file: packet-ldap-hf.c ---*/
-#line 187 "packet-ldap-template.c"
+#line 186 "packet-ldap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ldap = -1;
@@ -411,7 +410,7 @@ static gint ett_ldap_PasswordPolicyResponseValue = -1;
 static gint ett_ldap_T_warning = -1;
 
 /*--- End of included file: packet-ldap-ett.c ---*/
-#line 198 "packet-ldap-template.c"
+#line 197 "packet-ldap-template.c"
 
 static dissector_table_t ldap_name_dissector_table=NULL;
 static const char *object_identifier_id = NULL; /* LDAP OID */
@@ -3594,7 +3593,7 @@ static void dissect_PasswordPolicyResponseValue_PDU(tvbuff_t *tvb _U_, packet_in
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 715 "packet-ldap-template.c"
+#line 714 "packet-ldap-template.c"
 
 static void
 dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
@@ -4062,8 +4061,8 @@ static const true_false_string tfs_ads_timeserv = {
 	"This dc is NOT running time services (ntp)"
 };
 static const true_false_string tfs_ads_closest = {
-	"This is the CLOSEST dc",
-	"This is NOT the closest dc"
+	"This server is in the same site as the client",
+	"This server is NOT in the same site as the client"
 };
 static const true_false_string tfs_ads_writable = {
 	"This dc is WRITABLE",
@@ -4272,12 +4271,12 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 			offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
 			proto_tree_add_string(tree, hf_mscldap_hostname, tvb, old_offset, offset-old_offset, str);
 
-			/* NetBios Domain */
+			/* NetBIOS Domain */
 			old_offset=offset;
 			offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
 			proto_tree_add_string(tree, hf_mscldap_nb_domain, tvb, old_offset, offset-old_offset, str);
 
-			/* NetBios Hostname */
+			/* NetBIOS Hostname */
 			old_offset=offset;
 			offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
 			proto_tree_add_string(tree, hf_mscldap_nb_hostname, tvb, old_offset, offset-old_offset, str);
@@ -4354,9 +4353,8 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
   offset = len-8;
 
-  /* Version */
-  proto_tree_add_item(tree, hf_mscldap_netlogon_version, tvb, offset, 4, TRUE);
-  offset += 4;
+  /* NETLOGON_NT_VERISON Options (MS-ADTS 7.3.1.1) */
+  offset = dissect_mscldap_ntver_flags(tree, tvb, offset);
 
   /* LM Token */
   proto_tree_add_item(tree, hf_mscldap_netlogon_lm_token, tvb, offset, 2, TRUE);
@@ -4726,11 +4724,6 @@ void proto_register_ldap(void) {
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "NetLogon Response type", HFILL }},
 
-    { &hf_mscldap_netlogon_version,
-      { "Version", "mscldap.netlogon.version",
-        FT_UINT32, BASE_DEC, NULL, 0x0,
-        NULL, HFILL }},
-
     { &hf_mscldap_netlogon_ipaddress_family,
       { "Family", "mscldap.netlogon.ipaddress.family",
         FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -4754,12 +4747,12 @@ void proto_register_ldap(void) {
     { &hf_mscldap_netlogon_lm_token,
       { "LM Token", "mscldap.netlogon.lm_token",
         FT_UINT16, BASE_HEX, NULL, 0x0,
-        NULL, HFILL }},
+        "MUST be set to 0xFFFF", HFILL }},
 
     { &hf_mscldap_netlogon_nt_token,
       { "NT Token", "mscldap.netlogon.nt_token",
         FT_UINT16, BASE_HEX, NULL, 0x0,
-        NULL, HFILL }},
+        "MUST be set to 0xFFFF", HFILL }},
 
     { &hf_mscldap_netlogon_flags,
       { "Flags", "mscldap.netlogon.flags",
@@ -4767,9 +4760,9 @@ void proto_register_ldap(void) {
         "Netlogon flags describing the DC properties", HFILL }},
 
     { &hf_mscldap_ntver_flags,
-      { "Search Flags", "mscldap.ntver.searchflags",
+      { "Version Flags", "mscldap.ntver.flags",
         FT_UINT32, BASE_HEX, NULL, 0x0,
-        "cldap Netlogon request flags", HFILL }},
+        "NETLOGON_NT_VERSION Options Bits", HFILL }},
 
     { &hf_mscldap_domain_guid,
       { "Domain GUID", "mscldap.domain.guid",
@@ -4792,12 +4785,12 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
     { &hf_mscldap_nb_domain,
-      { "NetBios Domain", "mscldap.nb_domain",
+      { "NetBIOS Domain", "mscldap.nb_domain",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "NetBios Domainname", HFILL }},
+        "NetBIOS Domainname", HFILL }},
 
     { &hf_mscldap_nb_hostname,
-      { "NetBios Hostname", "mscldap.nb_hostname",
+      { "NetBIOS Hostname", "mscldap.nb_hostname",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
@@ -5530,7 +5523,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2074 "packet-ldap-template.c"
+#line 2067 "packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5604,7 +5597,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2087 "packet-ldap-template.c"
+#line 2080 "packet-ldap-template.c"
   };
 
     module_t *ldap_module;
@@ -5735,7 +5728,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2201 "packet-ldap-template.c"
+#line 2194 "packet-ldap-template.c"
 
 
 }
