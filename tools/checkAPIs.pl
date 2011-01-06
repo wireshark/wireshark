@@ -64,6 +64,8 @@ my %APIs = (
 		'htons',
 		'strdup',
 		'strndup',
+		# Windows doesn't have this; use g_ascii_strtoull() instead
+		'strtoull',
 		### non-ANSI C
 		# use memset, memcpy, memcmp instead of these:
 		'bzero',
@@ -129,7 +131,7 @@ my %APIs = (
 		#  Some of the entries are commented out since they are currently
 		#  being used in Wireshark and since the replacement functionality
 		#  is not available in all the GLib versions that Wireshark
-		#  currently supports (ie: versions starting with GLib 2.4).
+		#  currently supports (ie: versions starting with GLib 2.4)).
 		'G_ALLOC_AND_FREE',
 		'G_ALLOC_ONLY',
 		'g_allocator_free',			# "use slice allocator" (avail since 2.10,2.14)
