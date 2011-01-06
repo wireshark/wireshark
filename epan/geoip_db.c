@@ -62,7 +62,9 @@ value_string geoip_type_name_vals[] = {
 	{ GEOIP_ASNUM_EDITION,			"AS Number" },
 	{ GEOIP_NETSPEED_EDITION,		"Speed" },
 	{ GEOIP_DOMAIN_EDITION,			"Domain" },
+#ifdef GEOIP_COUNTRY_EDITION_V6
 	{ GEOIP_COUNTRY_EDITION_V6,		"Country" },
+#endif
 	{ WS_LAT_FAKE_EDITION,			"Latitude" },	/* fake database */
 	{ WS_LON_FAKE_EDITION,			"Longitude" },	/* fake database */
 	{ 0, NULL }
