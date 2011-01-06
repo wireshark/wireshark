@@ -3,12 +3,13 @@
   <title>Lua Support in Wireshark</title>
   <section id="wsluarm_intro">
 	<title>Introduction</title>
-    <para>
-      Wireshark has an embedded Lua interpreter. Lua is a powerful light-weight
+	<para>
+	  Wireshark has an embedded Lua interpreter. Lua is a powerful light-weight
 	  programming language designed for extending applications. Lua is designed
 	  and implemented by a team at PUC-Rio, the Pontifical Catholic University
 	  of Rio de Janeiro in Brazil. Lua was born and raised at Tecgraf, the
-	  Computer Graphics Technology Group of PUC-Rio, and is now housed at Lua.org.
+	  Computer Graphics Technology Group of PUC-Rio, and is now housed at
+	  <ulink url="http://www.lua.org">Lua.org</ulink>.
 	  Both Tecgraf and Lua.org are laboratories of the Department of Computer Science.
 	</para>
 	<para>
@@ -58,7 +59,7 @@ do
         local f_dir = ProtoField.uint8("multi.direction","Direction",base.DEC,{ [1] = "incoming", [0] = "outgoing"})
         local f_text = ProtoField.string("multi.text","Text")
 
-	p_multi.fields = { f_proto, f_dir, f_text }
+        p_multi.fields = { f_proto, f_dir, f_text }
 
         local data_dis = Dissector.get("data")
 
@@ -103,7 +104,7 @@ do
         wtap_encap_table:add(wtap.USER12,p_multi)
         udp_encap_table:add(7555,p_multi)
 end
-	</programlisting>
+    </programlisting>
   </section>
   <section id="wslua_tap_example">
   <title>Example of Listener written in Lua</title>
@@ -159,16 +160,16 @@ do
 	-- to be called when the user selects the Tools->Test->Packets menu
 	register_menu("Test/Packets", menuable_tap, MENU_TOOLS)
 end
-	</programlisting>
+    </programlisting>
   </section>
   <section id="wsluarm_modules">
   <title>Wireshark's Lua API Reference Manual</title>
-    <para>
-      This Part of the User Guide describes the Wireshark specific functions in the embedded Lua.
+	<para>
+	  This Part of the User Guide describes the Wireshark specific functions in the embedded Lua.
 	</para>
-    &WsLuaDumper;
-    &WsLuaField;
-    &WsLuaGui;
+	&WsLuaDumper;
+	&WsLuaField;
+	&WsLuaGui;
 	&WsLuaListener;
 	&WsLuaPinfo;
 	&WsLuaProto;
