@@ -219,6 +219,7 @@ my %APIs = (
 	# APIs that print to the terminal. Dissectors shouldn't call these
 	'termoutput' => { 'count_errors' => 0, 'functions' => [
 		'printf',
+		'g_warning',
 		] },
 
 	# Deprecated GTK APIs
