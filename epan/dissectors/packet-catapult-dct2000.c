@@ -1714,15 +1714,15 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item  *ti = NULL;
     gint        offset = 0;
     gint        context_length;
+    const char  *context_name;
     guint8      port_number;
-    gint        protocol_start;
     gint        protocol_length;
-    gint        timestamp_start;
     gint        timestamp_length;
-    gint        variant_start;
+    const char  *timestamp_string;
     gint        variant_length;
-    gint        outhdr_start;
+    const char  *variant_string;
     gint        outhdr_length;
+    const char  *outhdr_string;
     guint8      direction;
     tvbuff_t    *next_tvb;
     int         encap;
@@ -1749,7 +1749,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* by the wiretap module                                             */
 
     /* Context Name */
-    context_length = tvb_strsize(tvb, offset);
+    context_name = tvb_get_ephemeral_stringz(tvb, offset, &context_length);
     if (dct2000_tree) {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_context, tvb,
                             offset, context_length, FALSE);
@@ -1765,33 +1765,29 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset++;
 
     /* Timestamp in file */
-    timestamp_start = offset;
-    timestamp_length = tvb_strsize(tvb, offset);
+    timestamp_string = tvb_get_ephemeral_stringz(tvb, offset, &timestamp_length);
     if (dct2000_tree) {
         /* TODO: this is *very* slow, but float version adds trailing digits when
                  displayed as a custom column... */
         proto_tree_add_double(dct2000_tree, hf_catapult_dct2000_timestamp, tvb,
                               offset, timestamp_length,
-                              atof(tvb_get_ptr(tvb, offset, timestamp_length)));
+                              atof(timestamp_string));
     }
     offset += timestamp_length;
 
 
     /* DCT2000 protocol name */
-    protocol_start = offset;
-    protocol_length = tvb_strsize(tvb, offset);
+    protocol_name = tvb_get_ephemeral_stringz(tvb, offset, &protocol_length);
     if (dct2000_tree) {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_protocol, tvb,
                             offset, protocol_length, FALSE);
     }
-    protocol_name = (char*)tvb_get_ptr(tvb, protocol_start, protocol_length);
     is_comment = (strcmp(protocol_name, "comment") == 0);
     offset += protocol_length;
 
 
     /* Protocol Variant */
-    variant_start = offset;
-    variant_length = tvb_strsize(tvb, offset);
+    variant_string = tvb_get_ephemeral_stringz(tvb, offset, &variant_length);
     if (!is_comment) {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_variant, tvb,
                             offset, variant_length, FALSE);
@@ -1799,8 +1795,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += variant_length;
 
     /* Outhdr (shown as string) */
-    outhdr_start = offset;
-    outhdr_length = tvb_strsize(tvb, offset);
+    outhdr_string = tvb_get_ephemeral_stringz(tvb, offset, &outhdr_length);
     if (!is_comment && (outhdr_length > 1)) {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_outhdr, tvb,
                             offset, outhdr_length, FALSE);
@@ -1825,12 +1820,12 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Add useful details to protocol tree label */
     proto_item_append_text(ti, "   context=%s.%u   t=%s   %c   prot=%s (v=%s)",
-                           tvb_get_ptr(tvb, 0, context_length),
+                           context_name,
                            port_number,
-                           tvb_get_ptr(tvb, timestamp_start, timestamp_length),
+                           timestamp_string,
                            (direction == 0) ? 'S' : 'R',
                            protocol_name,
-                           tvb_get_ptr(tvb, variant_start, variant_length));
+                           variant_string);
 
 
 
@@ -1843,26 +1838,25 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         (strcmp(protocol_name, "fp_r8") == 0) ||
         (strcmp(protocol_name, "fpiur_r5") == 0)) {
 
-        parse_outhdr_string(tvb_get_ptr(tvb, outhdr_start, outhdr_length));
-        attach_fp_info(pinfo, direction, protocol_name,
-                       atoi((char*)tvb_get_ptr(tvb, variant_start, variant_length)));
+        parse_outhdr_string(outhdr_string);
+        attach_fp_info(pinfo, direction, protocol_name, atoi(variant_string));
     }
 
     /* LTE MAC needs info attached */
     else if (strcmp(protocol_name, "mac_r8_lte") == 0) {
-        parse_outhdr_string(tvb_get_ptr(tvb, outhdr_start, outhdr_length));
+        parse_outhdr_string(outhdr_string);
         attach_mac_lte_info(pinfo);
     }
 
     /* LTE RLC needs info attached */
     else if (strcmp(protocol_name, "rlc_r8_lte") == 0) {
-        parse_outhdr_string(tvb_get_ptr(tvb, outhdr_start, outhdr_length));
+        parse_outhdr_string(outhdr_string);
         attach_rlc_lte_info(pinfo);
     }
 
     /* LTE PDCP needs info attached */
     else if (strcmp(protocol_name, "pdcp_r8_lte") == 0) {
-        parse_outhdr_string(tvb_get_ptr(tvb, outhdr_start, outhdr_length));
+        parse_outhdr_string(outhdr_string);
         attach_pdcp_lte_info(pinfo);
     }
 
@@ -1922,14 +1916,14 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (direction == 0) {
                 col_add_fstr(pinfo->cinfo, COL_DEF_SRC,
                              "%s.%u",
-                             tvb_get_ptr(tvb, 0, context_length),
+                             context_name,
                              port_number);
             }
             else
             if (direction == 1) {
                 col_add_fstr(pinfo->cinfo, COL_DEF_DST,
                              "%s.%u",
-                             tvb_get_ptr(tvb, 0, context_length),
+                             context_name,
                              port_number);
             }
 
@@ -2336,12 +2330,12 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         col_add_fstr(pinfo->cinfo, COL_INFO,
                      "Not dissected  (context=%s.%u   t=%s   %c   prot=%s (v=%s))",
-                     tvb_get_ptr(tvb, 0, context_length),
+                     context_name,
                      port_number,
-                     tvb_get_ptr(tvb, timestamp_start, timestamp_length),
+                     timestamp_string,
                      (direction == 0) ? 'S' : 'R',
-                     tvb_get_ptr(tvb, protocol_start, protocol_length),
-                     tvb_get_ptr(tvb, variant_start, variant_length));
+                     protocol_name,
+                     variant_string);
     }
     else {
         /* Show number of dissected bytes */
