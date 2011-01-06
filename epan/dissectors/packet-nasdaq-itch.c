@@ -220,7 +220,7 @@ price(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int id, i
 
   if (nasdaq_itch_tree || col_info) {
       const char *str_value = tvb_get_ephemeral_string(tvb, offset, size);
-      gdouble value = guint64_to_gdouble(strtoull(str_value, NULL, 10))/((big)?1000000.0:10000.0);
+      gdouble value = guint64_to_gdouble(g_ascii_strtoull(str_value, NULL, 10))/((big)?1000000.0:10000.0);
 
       proto_tree_add_double(nasdaq_itch_tree, id, tvb, offset, size, value);
       if (col_info) {
