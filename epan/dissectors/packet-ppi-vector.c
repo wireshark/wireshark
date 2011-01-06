@@ -24,6 +24,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -154,7 +155,9 @@ static gint ett_ppi_vectorchars= -1;
 
 static void dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-void proto_register_ppi_vector(void) {
+void
+proto_register_ppi_vector(void)
+{
     /* The following array initializes those header fields declared above to the values displayed */
     static hf_register_info hf[] = {
         { &hf_ppi_vector_version,
@@ -503,7 +506,10 @@ void proto_register_ppi_vector(void) {
     register_dissector("ppi_vector", dissect_ppi_vector, proto_ppi_vector);
 
 }
-void dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+
+void
+dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
     proto_tree *ppi_vector_tree = NULL;
     proto_tree *vectorflags_tree = NULL;
     proto_tree *vectorchars_tree = NULL;
@@ -525,7 +531,6 @@ void dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     gdouble vel_r, vel_f, vel_u, vel_t;
     gdouble acc_r, acc_f, acc_u, acc_t = 0;
     gdouble err_rot, err_off, err_vel, err_acc;
-    char *curr_str; /* for description str */
     guint32  appsecific_num; /* appdata parser should add a subtree based on this value */
     guint32 flags=0, chars=0;
 
@@ -885,10 +890,7 @@ void dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         case  PPI_VECTOR_DESCSTR:
             if (length_remaining < 32)
                 break;
-            if (tree) {
-                curr_str= (char *)  tvb_get_ptr(tvb, offset, 32);
-                proto_tree_add_string(ppi_vector_tree, hf_ppi_vector_descstr, tvb, offset, 32, curr_str);
-            }
+            proto_tree_add_string(ppi_vector_tree, hf_ppi_vector_descstr, tvb, offset, 32, ENC_NA);
             offset+=32;
             length_remaining-=32;
             break;
