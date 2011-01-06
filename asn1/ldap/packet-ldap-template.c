@@ -131,13 +131,14 @@ static int hf_mscldap_ntver_flags = -1;
 static int hf_mscldap_ntver_flags_v1 = -1;
 static int hf_mscldap_ntver_flags_v5 = -1;
 static int hf_mscldap_ntver_flags_v5ex = -1;
-static int hf_mscldap_ntver_flags_v5ip = -1;
-static int hf_mscldap_ntver_flags_v5cs = -1;
-static int hf_mscldap_ntver_flags_nt4 = -1;
-static int hf_mscldap_ntver_flags_pdc = -1;
-static int hf_mscldap_ntver_flags_local = -1;
-static int hf_mscldap_ntver_flags_ip = -1;
-static int hf_mscldap_ntver_flags_gc = -1;
+static int hf_mscldap_ntver_flags_v5ep = -1;
+static int hf_mscldap_ntver_flags_vcs = -1;
+static int hf_mscldap_ntver_flags_vnt4 = -1;
+static int hf_mscldap_ntver_flags_vpdc = -1;
+static int hf_mscldap_ntver_flags_vip = -1;
+static int hf_mscldap_ntver_flags_vl = -1;
+static int hf_mscldap_ntver_flags_vgc = -1;
+
 static int hf_mscldap_netlogon_ipaddress_family = -1;
 static int hf_mscldap_netlogon_ipaddress_port = -1;
 static int hf_mscldap_netlogon_ipaddress = -1;
@@ -322,47 +323,48 @@ ldap_info_equal_unmatched(gconstpointer k1, gconstpointer k2)
  */
 
 static const true_false_string tfs_ntver_v1 = {
-	"Client requested V1 netlogon response",
-	"V1 netlogon response not requested"
+	"Client requested version 1 netlogon response",
+	"Version 1 netlogon response not requested"
 };
 
 static const true_false_string tfs_ntver_v5 = {
-	"Client requested V5 netlogon response",
-	"V5 netlogon response not requested"
+	"Client requested version 5 netlogon response",
+	"Version 5 netlogon response not requested"
 };
 static const true_false_string tfs_ntver_v5ex = {
-	"Client requested V5 extended netlogon response",
-	"V5 extended response not requested"
+	"Client requested version 5 extended netlogon response",
+	"Version 5 extended response not requested"
 };
-static const true_false_string tfs_ntver_v5ip = {
-	"Client has requested IP information of the DC",
-	"IP information not requested"
+static const true_false_string tfs_ntver_v5ep = {
+	"Client has requested IP address of the server",
+	"IP address of server not requested"
 };
-static const true_false_string tfs_ntver_v5cs = {
+static const true_false_string tfs_ntver_vcs = {
 	"Client has asked for the closest site information",
 	"Closest site information not requested"
 };
-static const true_false_string tfs_ntver_nt4 = {
-	"Client has set Neutralize NT4 emulation",
+static const true_false_string tfs_ntver_vnt4 = {
+	"Client is requesting server to avoid NT4 emulation",
 	"Only full AD DS requested"
 };
-static const true_false_string tfs_ntver_pdc = {
-	"Client has requested the PDC server",
-	"PDC server not requested"
+static const true_false_string tfs_ntver_vpdc = {
+	"Client has requested the Primary Domain Controller",
+	"Primary Domain Controller not requested"
 };
-static const true_false_string tfs_ntver_local = {
-	"Client indicated that it is the local machine",
-	"Client is not local"
-};
-static const true_false_string tfs_ntver_ip = {
+static const true_false_string tfs_ntver_vip = {
 	"Client has requested IP details (obsolete)",
-	"IP details not requested"
-};static const true_false_string tfs_ntver_gc = {
+	"IP details not requested (obsolete)"
+};
+static const true_false_string tfs_ntver_vl = {
+	"Client indicated that it is the local machine",
+	"Client is not the local machine"
+};static const true_false_string tfs_ntver_vgc = {
 	"Client has requested a Global Catalog server",
 	"Global Catalog not requested"
 };
 
 
+/* MS-ADTS specification, section 7.3.1.1, NETLOGON_NT_VERSION Options Bits */
 static int dissect_mscldap_ntver_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
   guint32 flags;
@@ -372,13 +374,13 @@ static int dissect_mscldap_ntver_flags(proto_tree *parent_tree, tvbuff_t *tvb, i
 		     hf_mscldap_ntver_flags_v1,
 		     hf_mscldap_ntver_flags_v5,
 		     hf_mscldap_ntver_flags_v5ex,
-		     hf_mscldap_ntver_flags_v5ip,
-		     hf_mscldap_ntver_flags_v5cs,
-		     hf_mscldap_ntver_flags_nt4,
-		     hf_mscldap_ntver_flags_pdc,
-			 hf_mscldap_ntver_flags_ip,
-		     hf_mscldap_ntver_flags_local,
-		     hf_mscldap_ntver_flags_gc,
+		     hf_mscldap_ntver_flags_v5ep,
+		     hf_mscldap_ntver_flags_vcs,
+		     hf_mscldap_ntver_flags_vnt4,
+		     hf_mscldap_ntver_flags_vpdc,
+		     hf_mscldap_ntver_flags_vip,
+		     hf_mscldap_ntver_flags_vl,
+		     hf_mscldap_ntver_flags_vgc,
 		     0 };
 
   guint  *field;
@@ -1936,45 +1938,46 @@ void proto_register_ldap(void) {
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
-    { &hf_mscldap_ntver_flags_v5cs,
-      { "V5CS", "mscldap.ntver.searchflags.v5cs", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_v5cs), 0x00000010, NULL, HFILL }},
-
-    { &hf_mscldap_ntver_flags_v5ip,
-      { "V5IP", "mscldap.ntver.searchflags.v5ip", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_v5ip), 0x00000008, NULL, HFILL }},
-
-    { &hf_mscldap_ntver_flags_v5ex,
-      { "V5EX", "mscldap.ntver.searchflags.v5ex", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_v5ex), 0x00000004, NULL, HFILL }},
+    { &hf_mscldap_ntver_flags_v1,
+      { "V1", "mscldap.ntver.searchflags.v1", FT_BOOLEAN, 32,
+        TFS(&tfs_ntver_v1), 0x00000001, "See section 7.3.1.1 of MS-ADTS specification", HFILL }},
 
     { &hf_mscldap_ntver_flags_v5,
       { "V5", "mscldap.ntver.searchflags.v5", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_v5), 0x00000002, NULL, HFILL }},
+        TFS(&tfs_ntver_v5), 0x00000002, "See section 7.3.1.1 of MS-ADTS specification", HFILL }},
 
-    { &hf_mscldap_ntver_flags_v1,
-      { "V1", "mscldap.ntver.searchflags.v1", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_v1), 0x00000001, NULL, HFILL }},
+    { &hf_mscldap_ntver_flags_v5ex,
+      { "V5EX", "mscldap.ntver.searchflags.v5ex", FT_BOOLEAN, 32,
+        TFS(&tfs_ntver_v5ex), 0x00000004, "See section 7.3.1.1 of MS-ADTS specification", HFILL }},
 
-    { &hf_mscldap_ntver_flags_gc,
-      { "GC", "mscldap.ntver.searchflags.gc", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_gc), 0x80000000, NULL, HFILL }},
+    { &hf_mscldap_ntver_flags_v5ep,
+      { "V5EP", "mscldap.ntver.searchflags.v5ep", FT_BOOLEAN, 32,
+        TFS(&tfs_ntver_v5ep), 0x00000008, "See section 7.3.1.1 of MS-ADTS specification", HFILL }},
 
-    { &hf_mscldap_ntver_flags_local,
-      { "Local", "mscldap.ntver.searchflags.local", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_local), 0x40000000, NULL, HFILL }},
+    { &hf_mscldap_ntver_flags_vcs,
+      { "VCS", "mscldap.ntver.searchflags.vcs", FT_BOOLEAN, 32,
+        TFS(&tfs_ntver_vcs), 0x00000010, "See section 7.3.1.1 of MS-ADTS specification", HFILL }},
 
-    { &hf_mscldap_ntver_flags_ip,
-      { "IP", "mscldap.ntver.searchflags.ip", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_ip), 0x20000000, NULL, HFILL }},
+    { &hf_mscldap_ntver_flags_vnt4,
+      { "VNT4", "mscldap.ntver.searchflags.vnt4", FT_BOOLEAN, 32,
+        TFS(&tfs_ntver_vnt4), 0x01000000, "See section 7.3.1.1 of MS-ADTS specification", HFILL }},
 
-    { &hf_mscldap_ntver_flags_pdc,
-      { "PDC", "mscldap.ntver.searchflags.pdc", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_pdc), 0x10000000, NULL, HFILL }},
+    { &hf_mscldap_ntver_flags_vpdc,
+      { "VPDC", "mscldap.ntver.searchflags.vpdc", FT_BOOLEAN, 32,
+        TFS(&tfs_ntver_vpdc), 0x10000000, "See section 7.3.1.1 of MS-ADTS specification", HFILL }},
 
-    { &hf_mscldap_ntver_flags_nt4,
-      { "NT4", "mscldap.ntver.searchflags.nt4", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_nt4), 0x01000000, NULL, HFILL }},
+    { &hf_mscldap_ntver_flags_vip,
+      { "VIP", "mscldap.ntver.searchflags.vip", FT_BOOLEAN, 32,
+        TFS(&tfs_ntver_vip), 0x20000000, "See section 7.3.1.1 of MS-ADTS specification", HFILL }},
+
+    { &hf_mscldap_ntver_flags_vl,
+      { "VL", "mscldap.ntver.searchflags.vl", FT_BOOLEAN, 32,
+        TFS(&tfs_ntver_vl), 0x40000000, "See section 7.3.1.1 of MS-ADTS specification", HFILL }},
+
+    { &hf_mscldap_ntver_flags_vgc,
+      { "VGC", "mscldap.ntver.searchflags.vgc", FT_BOOLEAN, 32,
+        TFS(&tfs_ntver_vgc), 0x80000000, "See section 7.3.1.1 of MS-ADTS specification", HFILL }},
+
 
     { &hf_mscldap_netlogon_flags_pdc,
       { "PDC", "mscldap.netlogon.flags.pdc", FT_BOOLEAN, 32,
@@ -2077,8 +2080,8 @@ void proto_register_ldap(void) {
     &ett_ldap_sasl_blob,
     &ett_ldap_msg,
     &ett_mscldap_netlogon_flags,
-	&ett_mscldap_ntver_flags,
-	&ett_mscldap_ipdetails,
+    &ett_mscldap_ntver_flags,
+    &ett_mscldap_ipdetails,
 
 #include "packet-ldap-ettarr.c"
   };
