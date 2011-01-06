@@ -78,6 +78,9 @@ static int hf_dns_qry_type = -1;
 static int hf_dns_qry_class = -1;
 static int hf_dns_qry_class_mdns = -1;
 static int hf_dns_qry_qu = -1;
+static int hf_dns_srv_service = -1;
+static int hf_dns_srv_proto = -1;
+static int hf_dns_srv_name = -1;
 static int hf_dns_rr_name = -1;
 static int hf_dns_rr_type = -1;
 static int hf_dns_rr_class = -1;
@@ -973,10 +976,32 @@ add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
   guint ttl, gushort data_len, gboolean is_mdns)
 {
   proto_tree *rr_tree;
+  gchar **srv_rr_info;
 
   rr_tree = proto_item_add_subtree(trr, rr_type);
-  proto_tree_add_string(rr_tree, hf_dns_rr_name, tvb, offset, namelen, name);
+
+  if(type == T_SRV) {
+	  srv_rr_info = g_strsplit(name, ".", 3);
+
+	  /* The + 1 on the strings is to skip the leading '_' */
+	  
+	  proto_tree_add_string(rr_tree, hf_dns_srv_service, tvb, offset,
+				namelen, srv_rr_info[0]+1);
+
+	  proto_tree_add_string(rr_tree, hf_dns_srv_proto, tvb, offset,
+				namelen, srv_rr_info[1]+1);
+
+	  proto_tree_add_string(rr_tree, hf_dns_srv_name, tvb, offset,
+				namelen, srv_rr_info[2]);
+
+	  g_strfreev(srv_rr_info);
+  } else {
+	  proto_tree_add_string(rr_tree, hf_dns_rr_name, tvb, offset,
+				namelen, name);
+  }
+
   offset += namelen;
+
   proto_tree_add_uint_format(rr_tree, hf_dns_rr_type, tvb, offset, 2, type,
 		"Type: %s", dns_type_description(type));
   offset += 2;
@@ -3482,6 +3507,18 @@ proto_register_dns(void)
       { "Cache flush", 	"dns.resp.cache_flush",
 	FT_BOOLEAN, 16, NULL, C_FLUSH,
 	"Cache flush flag", HFILL }},
+    { &hf_dns_srv_service,
+      { "Service", "dns.srv.service",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	"Desired service", HFILL }},
+    { &hf_dns_srv_proto,
+      { "Protocol", "dns.srv.proto",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	"Desired protocol", HFILL }},
+    { &hf_dns_srv_name,
+      { "Name", "dns.srv.name",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	"Domain this resource record refers to", HFILL }},
     { &hf_dns_rr_name,
       { "Name",      	"dns.resp.name",
 	FT_STRING, BASE_NONE, NULL, 0x0,
