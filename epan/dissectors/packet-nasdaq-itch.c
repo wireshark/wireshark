@@ -117,7 +117,7 @@ static gint ett_nasdaq_itch = -1;
 
 static int hf_nasdaq_itch_version = -1;
 
-static int hf_nasdaq_itch_message_type = -1; 
+static int hf_nasdaq_itch_message_type = -1;
 static int hf_nasdaq_itch_market_category = -1;
 static int hf_nasdaq_itch_financial_status = -1;
 static int hf_nasdaq_itch_stock = -1;
@@ -128,15 +128,15 @@ static int hf_nasdaq_itch_system_event = -1;
 static int hf_nasdaq_itch_second = -1;
 static int hf_nasdaq_itch_millisecond = -1;
 
-static int hf_nasdaq_itch_message = -1; 
+static int hf_nasdaq_itch_message = -1;
 
-static int hf_nasdaq_itch_trading_state = -1; 
-static int hf_nasdaq_itch_reserved = -1; 
-static int hf_nasdaq_itch_reason = -1; 
-static int hf_nasdaq_itch_order_reference = -1; 
-static int hf_nasdaq_itch_buy_sell = -1; 
-static int hf_nasdaq_itch_shares = -1; 
-static int hf_nasdaq_itch_price = -1; 
+static int hf_nasdaq_itch_trading_state = -1;
+static int hf_nasdaq_itch_reserved = -1;
+static int hf_nasdaq_itch_reason = -1;
+static int hf_nasdaq_itch_order_reference = -1;
+static int hf_nasdaq_itch_buy_sell = -1;
+static int hf_nasdaq_itch_shares = -1;
+static int hf_nasdaq_itch_price = -1;
 static int hf_nasdaq_itch_attribution = -1;
 static int hf_nasdaq_itch_executed = -1;
 static int hf_nasdaq_itch_match = -1;
@@ -147,52 +147,15 @@ static int hf_nasdaq_itch_cross = -1;
 
 #define PINFO_COL(a) (check_col((a)->cinfo, COL_INFO))
 
-/* atou(ll) like functions for NOT 0 terminated string
-   assume it doesn't overflow
-*/
-
-static guint32 nasdaq_itch_atou(const char *str_value, int size)
-{
-  int i;
-  const char *ptr = str_value;
-  guint32 value = 0;
-
-  for (i = 0; i < size && *ptr == ' '; i++, ptr++) {
-      continue;
-  }
-
-  for (; i < size; i++, ptr++) {
-      value = value*10 + *ptr - '0';
-  }
-  return value;
-}
-
-/* ---------------------- */
-static guint64 nasdaq_itch_atoull(const char *str_value, int size)
-{
-  int i;
-  const char *ptr = str_value;
-  guint64 value = 0;
-
-  for (i = 0; i < size && *ptr == ' '; i++, ptr++) {
-      continue;
-  }
-
-  for (; i < size; i++, ptr++) {
-      value = value*10 + *ptr - '0';
-  }
-  return value;
-}
-
 /* ---------------------- */
 static int
 order_ref_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int offset)
 {
   gint col_info = PINFO_COL(pinfo);
-  const char *str_value = tvb_get_ptr(tvb, offset, 9);
 
   if (nasdaq_itch_tree || col_info) {
-      guint32 value = nasdaq_itch_atou(str_value, 9);
+      const char *str_value = tvb_get_ephemeral_string(tvb, offset, 9);
+      guint32 value = strtoul(str_value, NULL, 10);
 
       proto_tree_add_uint(nasdaq_itch_tree, hf_nasdaq_itch_order_reference, tvb, offset, 9, value);
       if (col_info) {
@@ -206,13 +169,13 @@ order_ref_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree
 static int
 time_stamp(tvbuff_t *tvb, proto_tree *nasdaq_itch_tree, int id, int offset, int size)
 {
-  const char *str_value = tvb_get_ptr(tvb, offset, size);
 
   if (nasdaq_itch_tree) {
       guint32 ms, val;
       const char *display = "";
+      const char *str_value = tvb_get_ephemeral_string(tvb, offset, size);
 
-      ms = val = nasdaq_itch_atou(str_value, size);
+      ms = val = strtoul(str_value, NULL, 10);
       switch (size) {
       case 3:
           display = ep_strdup_printf(" %03u" , val);
@@ -235,10 +198,10 @@ number_of_shares(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree
 {
   gint col_info = PINFO_COL(pinfo);
   gint size = (big)?10:6;
-  const char *str_value = tvb_get_ptr(tvb, offset, size);
 
   if (nasdaq_itch_tree || col_info) {
-      guint32 value = nasdaq_itch_atou(str_value, size);
+      const char *str_value = tvb_get_ephemeral_string(tvb, offset, size);
+      guint32 value = strtoul(str_value, NULL, 10);
 
       proto_tree_add_uint(nasdaq_itch_tree, id, tvb, offset, size, value);
       if (col_info) {
@@ -256,8 +219,8 @@ price(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int id, i
   gint size = (big)?19:10;
 
   if (nasdaq_itch_tree || col_info) {
-      const char *str_value = tvb_get_ptr(tvb, offset, size);
-      gdouble value = guint64_to_gdouble(nasdaq_itch_atoull(str_value, size))/((big)?1000000.0:10000.0);
+      const char *str_value = tvb_get_ephemeral_string(tvb, offset, size);
+      gdouble value = guint64_to_gdouble(strtoull(str_value, NULL, 10))/((big)?1000000.0:10000.0);
 
       proto_tree_add_double(nasdaq_itch_tree, id, tvb, offset, size, value);
       if (col_info) {
@@ -273,7 +236,7 @@ stock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int offse
 {
   gint col_info = PINFO_COL(pinfo);
   if (nasdaq_itch_tree || col_info) {
-      char *stock_p = tvb_get_ephemeral_string(tvb, offset, 6); 
+      char *stock_p = tvb_get_ephemeral_string(tvb, offset, 6);
 
       proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_stock, tvb, offset, 6, FALSE);
       if (col_info) {
