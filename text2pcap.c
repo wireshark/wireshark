@@ -138,6 +138,11 @@
 #include "text2pcap.h"
 #include "svnversion.h"
 
+#ifdef _WIN32
+#include <windows.h>
+#include <shellapi.h>
+#endif /* _WIN32 */
+
 /*--- Options --------------------------------------------------------------------*/
 
 /* Debug level */
@@ -1108,6 +1113,20 @@ parse_options (int argc, char *argv[])
 {
     int c;
     char *p;
+#ifdef _WIN32
+    LPWSTR *wc_argv;
+    int wc_argc, i;
+#endif  /* _WIN32 */
+
+#ifdef _WIN32
+    /* Convert our arg list to UTF-8. */
+    wc_argv = CommandLineToArgvW(GetCommandLineW(), &wc_argc);
+    if (wc_argv && wc_argc == argc) {
+	for (i = 0; i < argc; i++) {
+	    argv[i] = g_utf16_to_utf8(wc_argv[i], -1, NULL, NULL, NULL);
+	}
+    } /* XXX else bail because something is horribly, horribly wrong? */
+#endif /* _WIN32 */
 
     /* Scan CLI parameters */
     while ((c = getopt(argc, argv, "dhqe:i:l:m:o:u:s:S:t:T:")) != -1) {
@@ -1351,7 +1370,8 @@ parse_options (int argc, char *argv[])
     }
 }
 
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
     parse_options(argc, argv);
 

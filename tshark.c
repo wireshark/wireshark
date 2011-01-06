@@ -96,6 +96,7 @@
 #ifdef _WIN32
 #include "capture-wpcap.h"
 #include "capture_errs.h"
+#include <shellapi.h>
 #endif /* _WIN32 */
 #include "capture_sync.h"
 #endif /* HAVE_LIBPCAP */
@@ -765,6 +766,8 @@ main(int argc, char *argv[])
 
 #ifdef _WIN32
   WSADATA              wsaData;
+  LPWSTR              *wc_argv;
+  int                  wc_argc, i;
 #endif  /* _WIN32 */
 
   char                *gpf_path, *pf_path;
@@ -815,6 +818,16 @@ main(int argc, char *argv[])
 #define OPTSTRING "a:b:" OPTSTRING_B "c:C:d:De:E:f:F:G:hi:" OPTSTRING_I "K:lLnN:o:pPqr:R:s:St:T:u:vVw:xX:y:z:"
 
   static const char    optstring[] = OPTSTRING;
+
+#ifdef _WIN32
+  /* Convert our arg list to UTF-8. */
+  wc_argv = CommandLineToArgvW(GetCommandLineW(), &wc_argc);
+  if (wc_argv && wc_argc == argc) {
+    for (i = 0; i < argc; i++) {
+      argv[i] = g_utf16_to_utf8(wc_argv[i], -1, NULL, NULL, NULL);
+    }
+  } /* XXX else bail because something is horribly, horribly wrong? */
+#endif /* _WIN32 */
 
   /*
    * Get credential information for later use.

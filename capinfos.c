@@ -85,6 +85,10 @@
 #include "wsutil/wsgetopt.h"
 #endif
 
+#ifdef _WIN32
+#include <shellapi.h>
+#endif /* _WIN32 */
+
 #include "svnversion.h"
 
 /*
@@ -802,6 +806,13 @@ main(int argc, char *argv[])
   int err;
   gchar *err_info;
   int opt;
+
+#ifdef _WIN32
+  WSADATA 	       wsaData;
+  LPWSTR              *wc_argv;
+  int                  wc_argc, i;
+#endif  /* _WIN32 */
+
   int status = 0;
 #ifdef HAVE_PLUGINS
   char* init_progfile_dir_error;
@@ -812,6 +823,16 @@ main(int argc, char *argv[])
   gcry_md_hd_t hd = NULL;
   size_t hash_bytes;
 #endif
+
+#ifdef _WIN32
+  /* Convert our arg list to UTF-8. */
+  wc_argv = CommandLineToArgvW(GetCommandLineW(), &wc_argc);
+  if (wc_argv && wc_argc == argc) {
+    for (i = 0; i < argc; i++) {
+      argv[i] = g_utf16_to_utf8(wc_argv[i], -1, NULL, NULL, NULL);
+    }
+  } /* XXX else bail because something is horribly, horribly wrong? */
+#endif /* _WIN32 */
 
   /*
    * Get credential information for later use.

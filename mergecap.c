@@ -41,6 +41,11 @@
 #include <fcntl.h>
 #endif
 
+#ifdef _WIN32
+#include <windows.h>
+#include <shellapi.h>
+#endif /* _WIN32 */
+
 static int
 get_natural_int(const char *string, const char *name)
 {
@@ -143,6 +148,12 @@ int
 main(int argc, char *argv[])
 {
   int          opt;
+
+#ifdef _WIN32
+  LPWSTR              *wc_argv;
+  int                  wc_argc;
+#endif  /* _WIN32 */
+
   gboolean     do_append     = FALSE;
   gboolean     verbose       = FALSE;
   int          in_file_count = 0;
@@ -161,6 +172,16 @@ main(int argc, char *argv[])
   char        *out_filename = NULL;
   gboolean     got_read_error = FALSE, got_write_error = FALSE;
   int          count;
+
+#ifdef _WIN32
+  /* Convert our arg list to UTF-8. */
+  wc_argv = CommandLineToArgvW(GetCommandLineW(), &wc_argc);
+  if (wc_argv && wc_argc == argc) {
+    for (i = 0; i < argc; i++) {
+      argv[i] = g_utf16_to_utf8(wc_argv[i], -1, NULL, NULL, NULL);
+    }
+  } /* XXX else bail because something is horribly, horribly wrong? */
+#endif /* _WIN32 */
 
   /* Process the options first */
   while ((opt = getopt(argc, argv, "hvas:T:F:w:")) != -1) {

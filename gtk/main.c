@@ -118,7 +118,6 @@
 #include "../capture-wpcap.h"
 #include "../capture_wpcap_packet.h"
 #include <tchar.h> /* Needed for Unicode */
-#include <wsutil/unicode-utils.h>
 #include <commctrl.h>
 #include <shellapi.h>
 #endif /* _WIN32 */
@@ -2098,7 +2097,7 @@ main(int argc, char *argv[])
   wc_argv = CommandLineToArgvW(GetCommandLineW(), &wc_argc);
   if (wc_argv && wc_argc == argc) {
     for (i = 0; i < argc; i++) {
-      argv[i] = g_strdup(utf_16to8(wc_argv[i]));
+      argv[i] = g_utf16_to_utf8(wc_argv[i], -1, NULL, NULL, NULL);
     }
   } /* XXX else bail because something is horribly, horribly wrong? */
 #endif /* _WIN32 */

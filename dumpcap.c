@@ -85,6 +85,7 @@
 #include "pcapio.h"
 
 #ifdef _WIN32
+#include <shellapi.h>
 #include "capture-wpcap.h"
 #include <wsutil/unicode-utils.h>
 #endif
@@ -3305,6 +3306,8 @@ main(int argc, char *argv[])
 
 #ifdef _WIN32
   WSADATA              wsaData;
+  LPWSTR              *wc_argv;
+  int                  wc_argc;
 #else
   struct sigaction action, oldaction;
 #endif
@@ -3325,6 +3328,16 @@ main(int argc, char *argv[])
 #if defined(__APPLE__) && defined(__LP64__)
   struct utsname       osinfo;
 #endif
+
+#ifdef _WIN32
+  /* Convert our arg list to UTF-8. */
+  wc_argv = CommandLineToArgvW(GetCommandLineW(), &wc_argc);
+  if (wc_argv && wc_argc == argc) {
+    for (i = 0; i < argc; i++) {
+      argv[i] = g_utf16_to_utf8(wc_argv[i], -1, NULL, NULL, NULL);
+    }
+  } /* XXX else bail because something is horribly, horribly wrong? */
+#endif /* _WIN32 */
 
 #ifdef _WIN32
   /*

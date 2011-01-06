@@ -50,6 +50,11 @@
 #include <glib.h>
 #include "wiretap/wtap.h"
 
+#ifdef _WIN32
+#include <windows.h>
+#include <shellapi.h>
+#endif /* _WIN32 */
+
 #define array_length(x)	(sizeof x / sizeof x[0])
 
 /* Types of produceable packets */
@@ -502,11 +507,28 @@ main(int argc, char **argv)
 	guint8			buffer[65536];
 
 	int			opt;
+
+#ifdef _WIN32
+	LPWSTR              *wc_argv;
+	int                  wc_argc;
+#endif  /* _WIN32 */
+	
+
 	int			produce_count = 1000; /* number of pkts to produce */
 	int			produce_type = PKT_ETHERNET;
 	char			*produce_filename = NULL;
 	int			produce_max_bytes = 5000;
 	pkt_example		*example;
+
+#ifdef _WIN32
+	/* Convert our arg list to UTF-8. */
+	wc_argv = CommandLineToArgvW(GetCommandLineW(), &wc_argc);
+	if (wc_argv && wc_argc == argc) {
+		for (i = 0; i < argc; i++) {
+			argv[i] = g_utf16_to_utf8(wc_argv[i], -1, NULL, NULL, NULL);
+		}
+	} /* XXX else bail because something is horribly, horribly wrong? */
+#endif /* _WIN32 */
 
 	while ((opt = getopt(argc, argv, "b:c:ht:")) != -1) {
 		switch (opt) {

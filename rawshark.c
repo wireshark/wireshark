@@ -117,6 +117,10 @@
 #endif /* HAVE_LIBPCAP */
 #include "log.h"
 
+#ifdef _WIN32
+#include <shellapi.h>
+#endif /* _WIN32 */
+
 /*
  * This is the template for the decode as option; it is shared between the
  * various functions that output the usage for this parameter.
@@ -430,7 +434,9 @@ main(int argc, char *argv[])
     gboolean             arg_error = FALSE;
 
 #ifdef _WIN32
-    WSADATA       wsaData;
+    WSADATA              wsaData;
+    LPWSTR              *wc_argv;
+    int                  wc_argc;
 #endif  /* _WIN32 */
 
     char                *gpf_path, *pf_path;
@@ -452,6 +458,16 @@ main(int argc, char *argv[])
 #define OPTSTRING_INIT "d:F:hlnN:o:pr:R:sS:t:v"
 
     static const char    optstring[] = OPTSTRING_INIT;
+
+#ifdef _WIN32
+    /* Convert our arg list to UTF-8. */
+    wc_argv = CommandLineToArgvW(GetCommandLineW(), &wc_argc);
+    if (wc_argv && wc_argc == argc) {
+        for (i = 0; i < argc; i++) {
+            argv[i] = g_utf16_to_utf8(wc_argv[i], -1, NULL, NULL, NULL);
+        }
+    } /* XXX else bail because something is horribly, horribly wrong? */
+#endif /* _WIN32 */
 
     /*
      * Get credential information for later use.
