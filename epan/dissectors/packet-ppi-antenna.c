@@ -325,7 +325,6 @@ void dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     guint32 t_hbw, t_vbw, t_pgain, t_appspecific_num; /* temporary conversions */
     gdouble horizbw, vertbw, pgain;
     guint32 flags;
-    char  *curr_str; /* used for modelname, serialnum, etc */
 
     int offset = 0;
 
@@ -471,10 +470,7 @@ void dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         case  PPI_ANTENNA_SERIALNUM:
             if (length_remaining < 32)
                 break;
-            if (tree) {
-                curr_str= (char *)  tvb_get_ptr(tvb, offset, 32);
-                proto_tree_add_string(ppi_antenna_tree, hf_ppi_antenna_serialnum, tvb, offset, 32, curr_str);;
-            }
+            proto_tree_add_item(ppi_antenna_tree, hf_ppi_antenna_serialnum, tvb, offset, 32, ENC_NA);;
             offset+=32;
             length_remaining-=32;
             break;
@@ -482,20 +478,14 @@ void dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         case  PPI_ANTENNA_MODELSTR:
             if (length_remaining < 32)
                 break;
-            if (tree) {
-                curr_str = (char *)  tvb_get_ptr(tvb, offset, 32);
-                proto_tree_add_string(ppi_antenna_tree, hf_ppi_antenna_modelname, tvb, offset, 32,  curr_str);
-            }
+            proto_tree_add_item(ppi_antenna_tree, hf_ppi_antenna_modelname, tvb, offset, 32, ENC_NA);
             offset+=32;
             length_remaining-=32;
             break;
         case  PPI_ANTENNA_DESCSTR:
             if (length_remaining < 32)
                 break;
-            if (tree) {
-                curr_str= (char *)  tvb_get_ptr(tvb, offset, 32);
-                proto_tree_add_string(ppi_antenna_tree, hf_ppi_antenna_descstr, tvb, offset, 32, curr_str);
-            }
+            proto_tree_add_item(ppi_antenna_tree, hf_ppi_antenna_descstr, tvb, offset, 32, ENC_NA);
             offset+=32;
             length_remaining-=32;
             break;
