@@ -96,6 +96,7 @@ Wireshark Info
   <!ENTITY WiresharkWikiColoringRulesPage "&WiresharkWikiPage;/ColoringRules">
   <!ENTITY WiresharkWikiPreferencesPage "&WiresharkWikiPage;/Preferences">
   <!ENTITY WiresharkWikiPcapNgPage "&WiresharkWikiPage;/Development/PcapNg">
+  <!ENTITY WiresharkQASite "http://ask.wireshark.org">
 
   <!ENTITY WiresharkDevMailList "wireshark-dev[AT]wireshark.org">
   <!ENTITY WiresharkUsersMailList "wireshark-users[AT]wireshark.org">
