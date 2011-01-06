@@ -143,7 +143,7 @@ static int hf_mscldap_netlogon_ipaddress_family = -1;
 static int hf_mscldap_netlogon_ipaddress_port = -1;
 static int hf_mscldap_netlogon_ipaddress = -1;
 static int hf_mscldap_netlogon_ipaddress_ipv4 = -1;
-static int hf_mscldap_netlogon_type = -1;
+static int hf_mscldap_netlogon_opcode = -1;
 static int hf_mscldap_netlogon_flags = -1;
 static int hf_mscldap_netlogon_flags_pdc = -1;
 static int hf_mscldap_netlogon_flags_gc = -1;
@@ -253,6 +253,29 @@ static const value_string ldap_ProtocolOp_choice_vals[] = {
   {  20, "intermediateResponse" },
   { 0, NULL }
 };
+
+#define LOGON_PRIMARY_QUERY             7
+#define LOGON_PRIMARY_RESPONSE         12
+#define LOGON_SAM_LOGON_REQUEST        18
+#define LOGON_SAM_LOGON_RESPONSE       19
+#define LOGON_SAM_PAUSE_RESPONSE       20
+#define LOGON_SAM_USER_UNKNOWN         21
+#define LOGON_SAM_LOGON_RESPONSE_EX    23
+#define LOGON_SAM_PAUSE_RESPONSE_EX    24
+#define LOGON_SAM_USER_UNKNOWN_EX      25
+
+static const value_string netlogon_opcode_vals[] = {
+	{ LOGON_PRIMARY_QUERY,         "LOGON_PRIMARY_QUERY" },
+	{ LOGON_PRIMARY_RESPONSE,      "LOGON_PRIMARY_RESPONSE" },
+	{ LOGON_SAM_LOGON_REQUEST,     "LOGON_SAM_LOGON_REQUEST" },
+	{ LOGON_SAM_LOGON_RESPONSE,    "LOGON_SAM_LOGON_RESPONSE" },
+	{ LOGON_SAM_PAUSE_RESPONSE,    "LOGON_SAM_PAUSE_RESPONSE" },
+	{ LOGON_SAM_LOGON_RESPONSE_EX, "LOGON_SAM_LOGON_RESPONSE_EX" },
+	{ LOGON_SAM_PAUSE_RESPONSE_EX, "LOGON_SAM_PAUSE_RESPONSE_EX" },
+	{ LOGON_SAM_USER_UNKNOWN_EX,   "LOGON_SAM_USER_UNKNOWN_EX" },
+	{ 0, NULL }
+};
+
 /*
  * Data structure attached to a conversation, giving authentication
  * information from a bind request.
@@ -1292,7 +1315,9 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
   if (len < 10) return;
 
   /* Type */
+  proto_tree_add_item(tree, hf_mscldap_netlogon_opcode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   itype = tvb_get_letohs(tvb, offset);
+  offset += 2;
 
   /* get the version number from the end of the buffer, as the
      length is variable and the version determines what fields
@@ -1303,10 +1328,6 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
   switch(itype){
 
 		case LOGON_SAM_LOGON_RESPONSE:
-			/* Type */
-			proto_tree_add_uint_format(tree, hf_mscldap_netlogon_type, tvb,offset, 2, itype,"Type: LOGON_SAM_LOGON_RESPONSE (19)" );
-			offset = 2;
-
 			/* logon server name */
 			fn = get_unicode_or_ascii_string(tvb,&offset,TRUE,&fn_len,FALSE,FALSE,&bc);
 			proto_tree_add_string(tree, hf_mscldap_nb_hostname, tvb,offset, fn_len, fn);
@@ -1360,11 +1381,8 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 			break;
 
 		case LOGON_SAM_LOGON_RESPONSE_EX:
-
-			/* Type */
-			proto_tree_add_uint_format(tree, hf_mscldap_netlogon_type, tvb, offset, 2, itype,"Type: LOGON_SAM_LOGON_RESPONSE_EX (23)" );
-			offset += 4;
-
+			/* MS-ADTS 7.3.1.9 */
+			offset += 2; /* Skip over "Sbz" field (MUST be set to 0) */
 
 			/* Flags */
 			offset = dissect_mscldap_netlogon_flags(tree, tvb, offset);
@@ -1403,7 +1421,7 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 			offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
 			proto_tree_add_string(tree, hf_mscldap_username, tvb, old_offset, offset-old_offset, str);
 
-			/* Site */
+			/* Server Site */
 			old_offset=offset;
 			offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
 			proto_tree_add_string(tree, hf_mscldap_sitename, tvb, old_offset, offset-old_offset, str);
@@ -1415,8 +1433,6 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 			/* include the extra fields for version 5 with IP s */
 			if ((version & NETLOGON_NT_VERSION_5EX_WITH_IP) == NETLOGON_NT_VERSION_5EX_WITH_IP){
-
-
 				/* The ip address is returned as a sockaddr_in structure
 				 *
 				 *  This section may need to be updated if the base Windows APIs
@@ -1459,10 +1475,6 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 			}
 
 			break;
-
-		default:
-			proto_tree_add_uint_format(tree, hf_mscldap_netlogon_type, tvb, offset, 2, itype,"Type: Unknown type (%d)", itype );
-
   }
 
 
@@ -1836,10 +1848,10 @@ void proto_register_ldap(void) {
         FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
         "The time between the Call and the Reply", HFILL }},
 
-    { &hf_mscldap_netlogon_type,
-      { "Type", "mscldap.netlogon.type",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        "NetLogon Response type", HFILL }},
+    { &hf_mscldap_netlogon_opcode,
+      { "Operation code", "mscldap.netlogon.opcode",
+        FT_UINT16, BASE_DEC, VALS(netlogon_opcode_vals), 0x0,
+        "LDAP ping operation code", HFILL }},
 
     { &hf_mscldap_netlogon_ipaddress_family,
       { "Family", "mscldap.netlogon.ipaddress.family",
@@ -1883,48 +1895,48 @@ void proto_register_ldap(void) {
 
     { &hf_mscldap_domain_guid,
       { "Domain GUID", "mscldap.domain.guid",
-        FT_BYTES, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }},
+        FT_GUID, BASE_NONE, NULL, 0x0,
+        "Value of the NC's GUID attribute", HFILL }},
 
     { &hf_mscldap_forest,
       { "Forest", "mscldap.forest",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }},
+        "DNS name of the forest", HFILL }},
 
     { &hf_mscldap_domain,
       { "Domain", "mscldap.domain",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "Domainname", HFILL }},
+        "DNS name of the NC", HFILL }},
 
     { &hf_mscldap_hostname,
       { "Hostname", "mscldap.hostname",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }},
+        "DNS name of server", HFILL }},
 
     { &hf_mscldap_nb_domain,
       { "NetBIOS Domain", "mscldap.nb_domain",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "NetBIOS Domainname", HFILL }},
+        "NetBIOS name of the NC", HFILL }},
 
     { &hf_mscldap_nb_hostname,
       { "NetBIOS Hostname", "mscldap.nb_hostname",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }},
+        "NetBIOS name of the server", HFILL }},
 
     { &hf_mscldap_username,
       { "Username", "mscldap.username",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "User name", HFILL }},
+        "User specified in client's request", HFILL }},
 
     { &hf_mscldap_sitename,
-      { "Site", "mscldap.sitename",
+      { "Server Site", "mscldap.sitename",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "Site name", HFILL }},
+        "Site name of the server", HFILL }},
 
     { &hf_mscldap_clientsitename,
       { "Client Site", "mscldap.clientsitename",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "Client Site name", HFILL }},
+        "Site name of the client", HFILL }},
 
     { &hf_ldap_sid,
       { "Sid", "ldap.sid",
