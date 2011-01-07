@@ -484,6 +484,7 @@ static const value_string gtpv2_message_type_vals[] = {
 #define GTPV2_IE_SOURCE_IDENT           129
 #define GTPV2_IE_BEARER_CONTROL_MODE    130
 #define GTPV2_IE_CNG_REP_ACT            131
+#define GTPV2_IE_CHANNEL_NEEDED         133
 #define GTPV2_IE_NODE_TYPE              135
 #define GTPV2_IE_FQDN				    136
 #define GTPV2_IE_TI                     137
@@ -1525,7 +1526,7 @@ dissect_gtpv2_s103pdf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
 			/* Error */
 
             expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length %u, should be 4 or 16",m);
-            expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_ERROR, "Wrong length %u, should be 4 or 16");
+            expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_ERROR, "Wrong length %u, should be 4 or 16",m);
             PROTO_ITEM_SET_GENERATED(expert_item);
 			return;
 	}
@@ -1584,7 +1585,7 @@ dissect_gtpv2_s1udf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pro
 			/* Error */
 
             expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length %u, should be 4 or 16",m);
-            expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_ERROR, "Wrong length %u, should be 4 or 16");
+            expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_ERROR, "Wrong length %u, should be 4 or 16",m);
             PROTO_ITEM_SET_GENERATED(expert_item);
 			return;
 	}
@@ -2228,7 +2229,7 @@ dissect_gtpv2_PDN_conn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _
  * 8.40 PDU Numbers
  */
 static void
-dissect_gtpv2_pdn_numbers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_pdn_numbers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
 	proto_item	*nsapi_ti;
 	proto_tree	*nsapi_tree;
@@ -2263,7 +2264,7 @@ dissect_gtpv2_pdn_numbers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
  * 8.41 Packet TMSI (P-TMSI)
  */
 static void
-dissect_gtpv2_p_tmsi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_p_tmsi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
 	int				offset = 0;
 
@@ -2276,7 +2277,7 @@ dissect_gtpv2_p_tmsi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
  * 8.42 P-TMSI Signature
  */
 static void
-dissect_gtpv2_p_tmsi_sig(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_p_tmsi_sig(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
 	int				offset = 0;
 	
@@ -2289,7 +2290,7 @@ dissect_gtpv2_p_tmsi_sig(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
  * 8.43 Hop Counter
  */
 static void
-dissect_gtpv2_hop_counter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_hop_counter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
 	int 		offset = 0;
 	guint8	hop_counter;
@@ -2327,7 +2328,7 @@ dissect_gtpv2_ue_time_zone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
  * 8.45 Trace Reference
  */
 static void
-dissect_gtpv2_trace_reference(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_trace_reference(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
     int         offset = 0;
     guint32	    trace_id;
@@ -2534,7 +2535,7 @@ dissect_gtpv2_F_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
  * -3 digits from MNC (in case of a 3 digit MNC).
  */
 static void
-dissect_gtpv2_sel_plmn_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_sel_plmn_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
     gchar		*mcc_mnc_str;
 
@@ -2740,6 +2741,16 @@ dissect_gtpv2_cng_rep_act(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 /*
  * 8.63 Channel needed
  */
+static void
+dissect_gtpv2_channel_needed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
+{
+
+	/* The Channel needed shall be coded as depicted in Figure 8.63-1. Channel needed is coded as the IEI part and the value
+	 * part of the Channel Needed IE defined in 3GPP TS 44.018[28]
+	 */
+	de_rr_chnl_needed(tvb, tree, 0, length, NULL, 0);
+}
+
 /*
  * 8.64 eMLPP Priority
  */
@@ -2874,10 +2885,11 @@ static const gtpv2_ie_t gtpv2_ies[] = {
 #endif
     {GTPV2_IE_BEARER_CONTROL_MODE,dissect_gtpv2_bearer_control_mode},	 /* 130 Bearer Control Mode*/
     {GTPV2_IE_CNG_REP_ACT ,dissect_gtpv2_cng_rep_act},					 /* 131 Change Reporting Action 8.61 */
+    {GTPV2_IE_CHANNEL_NEEDED, dissect_gtpv2_channel_needed},             /* 133, Channel Needed 8.63 */
     {GTPV2_IE_NODE_TYPE ,dissect_gtpv2_node_type},						 /* 135 Node Type 8.65 */
 	{GTPV2_IE_FQDN, dissect_gtpv2_fqdn},								 /* 136 8.66 Fully Qualified Domain Name (FQDN) */
 	{GTPV2_IE_TI, dissect_gtpv2_ti},									 /* 137 8.68	Transaction Identifier (TI) */
-																	 /* 137-254 Spare. For future use. FFS */
+																	     /* 137-254 Spare. For future use. FFS */
 	{GTPV2_IE_PRIVATE_EXT,dissect_gtpv2_private_ext},
 
 
