@@ -981,23 +981,25 @@ add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
   rr_tree = proto_item_add_subtree(trr, rr_type);
 
   if(type == T_SRV) {
-	  srv_rr_info = g_strsplit(name, ".", 3);
+    srv_rr_info = g_strsplit(name, ".", 3);
 
-	  /* The + 1 on the strings is to skip the leading '_' */
-	  
-	  proto_tree_add_string(rr_tree, hf_dns_srv_service, tvb, offset,
-				namelen, srv_rr_info[0]+1);
+    /* The + 1 on the strings is to skip the leading '_' */
 
-	  proto_tree_add_string(rr_tree, hf_dns_srv_proto, tvb, offset,
-				namelen, srv_rr_info[1]+1);
+    proto_tree_add_string(rr_tree, hf_dns_srv_service, tvb, offset,
+			  namelen, srv_rr_info[0]+1);
 
-	  proto_tree_add_string(rr_tree, hf_dns_srv_name, tvb, offset,
-				namelen, srv_rr_info[2]);
+    if (srv_rr_info[1]) {
+      proto_tree_add_string(rr_tree, hf_dns_srv_proto, tvb, offset,
+			    namelen, srv_rr_info[1]+1);
 
-	  g_strfreev(srv_rr_info);
+      if (srv_rr_info[2])
+	proto_tree_add_string(rr_tree, hf_dns_srv_name, tvb, offset,
+			      namelen, srv_rr_info[2]);
+    }
+
+    g_strfreev(srv_rr_info);
   } else {
-	  proto_tree_add_string(rr_tree, hf_dns_rr_name, tvb, offset,
-				namelen, name);
+    proto_tree_add_string(rr_tree, hf_dns_rr_name, tvb, offset, namelen, name);
   }
 
   offset += namelen;
