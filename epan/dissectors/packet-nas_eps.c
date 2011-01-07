@@ -1501,7 +1501,7 @@ static const true_false_string  nas_eps_emm_1xsrvcc_cap_flg = {
 	"SRVCC from E-UTRAN to cdma2000 1x CS not supported"
 };
 
-static guint16
+guint16
 de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
