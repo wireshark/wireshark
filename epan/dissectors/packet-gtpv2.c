@@ -114,7 +114,7 @@ static gint ett_gtpv2_uli_field = -1;
 static gint ett_gtpv2_bearer_ctx = -1;
 static gint ett_gtpv2_PDN_conn = -1;
 static gint ett_gtpv2_mm_context_flag = -1;
-static gint ett_gtpv2_pdn_numbers_nsapi = -1; 
+static gint ett_gtpv2_pdn_numbers_nsapi = -1;
 static gint ett_gtpv2_tra_info_trigg = -1;
 static gint ett_gtpv2_tra_info_trigg_msc_server = -1;
 static gint ett_gtpv2_tra_info_trigg_mgw = -1;
@@ -1509,7 +1509,7 @@ dissect_gtpv2_s103pdf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
 	m = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_gtpv2_hsgw_addr_f_len, tvb, offset, 1, FALSE);
 	offset++;
-	
+
 	/* 6 to (m+5) HSGW Address for forwarding [4..16] */
 	switch(m){
 		case 4:
@@ -1548,7 +1548,7 @@ dissect_gtpv2_s103pdf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
 		proto_tree_add_item(tree, hf_gtpv2_ebi, tvb, offset, 1, FALSE);
 		offset++;
 	}
-		
+
 
 }
 /*
@@ -1833,9 +1833,9 @@ dissect_gtpv2_tra_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	offset += 1;
 
 	/* Trace Depth List
-		 Will be displayed if length of Trace Depth Length is > 0 
+		 Will be displayed if length of Trace Depth Length is > 0
 		 The list will only contains UTF8String, RAW DATA	*/
-	
+
 	proto_tree_add_text(tree, tvb, offset, tdl, "Trace Depth List: %s", tvb_bytes_to_str(tvb, offset, tdl));
 	offset += tdl;
 
@@ -2280,7 +2280,7 @@ static void
 dissect_gtpv2_p_tmsi_sig(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
 	int				offset = 0;
-	
+
 	/* The P-TMSI Signature consists of 3 octets and may be allocated by the SGSN. */
 	proto_tree_add_item(tree, hf_gtpv2_p_tmsi_sig,	tvb, offset, 3, FALSE);
 	proto_item_append_text(tree, "%s", tvb_bytes_to_str(tvb, offset, 3));
@@ -3120,7 +3120,7 @@ void proto_register_gtpv2(void)
 			{"IPv4 Address", "gtpv2.ipv4_addr",
 				FT_IPv4, BASE_NONE, NULL, 0x0,
 				NULL, HFILL}
-		}, 
+		},
         { &hf_gtpv2_cause,
         {"Cause", "gtpv2.cause",
         FT_UINT8, BASE_DEC|BASE_EXT_STRING, &gtpv2_cause_vals_ext, 0x0,
@@ -3253,7 +3253,7 @@ void proto_register_gtpv2(void)
         },
 		{ &hf_gtpv2_tra_info,
 			{"Trace ID","gtpv2.tra_info",
-				FT_STRING, BASE_DEC, NULL, 0x0,
+				FT_STRING, BASE_NONE, NULL, 0x0,
 				NULL, HFILL}
 		},
 		{ &hf_gtpv2_tra_info_msc_momt_calls,
@@ -3640,11 +3640,6 @@ void proto_register_gtpv2(void)
 			{"Uu","gtpv2.tra_info_lenb_uu",
 				FT_UINT8, BASE_DEC, NULL, 0x04,
 				"eNB", HFILL}
-		},
-		{ &hf_gtpv2_pti,
-			{"Procedure Transaction ID", "gtpv2.pti",
-				FT_UINT8, BASE_DEC, NULL, 0x0,
-				NULL, HFILL}
 		},
         { &hf_gtpv2_pdn_ipv4,
         {"PDN Address and Prefix(IPv4)", "gtpv2.pdn_addr_and_prefix.ipv4",
