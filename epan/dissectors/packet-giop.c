@@ -2910,6 +2910,7 @@ dissect_reply_body (tvbuff_t *tvb, guint offset, packet_info *pinfo,
   guint sequence_length;
   gboolean exres = FALSE;               /* result of trying explicit dissectors */
   gchar * repoid = NULL;        /* Repositor ID looked up from  objkey */
+  gint reply_body_length;
 
   /*
    * comp_req_list stuff
@@ -3052,8 +3053,11 @@ dissect_reply_body (tvbuff_t *tvb, guint offset, packet_info *pinfo,
   }
 
   default:
-
-    g_warning("giop: Unknown reply status %i request_id = %u\n",reply_status, header->req_id);
+    reply_body_length = tvb_reported_length_remaining(tvb, offset);
+    if (reply_body_length >0)
+      proto_tree_add_text(tree, tvb, offset, -1,
+                          "Reply body (%d byte%s)", reply_body_length,
+                          plurality(reply_body_length, "", "s"));
 
     break;
 
