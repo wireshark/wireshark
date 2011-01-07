@@ -325,6 +325,32 @@ static guint tbl_types_wireshark[] = {
 		       /* 19 */ FT_NONE,	/* TBL_INVALID */
 };
 
+/* conversion from snacc type to appropriate wireshark display type */
+static guint tbl_display_wireshark[] = {
+		       /*  0 */	BASE_DEC,	/* TBL_BOOLEAN */
+		       /*  1 */	BASE_DEC_HEX,	/* TBL_INTEGER */
+		       /*  2 */	BASE_HEX,	/* TBL_BITSTRING */
+		       /*  2 */	BASE_NONE,	/* TBL_OCTETSTRING */
+		       /*  4 */	BASE_NONE,	/* TBL_NULL */
+		       /*  5 */	BASE_DEC,	/* TBL_OID */
+		       /*  6 */	BASE_DEC,	/* TBL_REAL */
+		       /*  7 */	BASE_DEC,	/* TBL_ENUMERATED */
+		       /*  8 */	BASE_NONE,	/* TBL_SEQUENCE */
+		       /*  9 */	BASE_NONE,	/* TBL_SET */
+		       /* 10 */	BASE_NONE,	/* TBL_SEQUENCEOF */
+		       /* 11 */	BASE_NONE,	/* TBL_SETOF */
+		       /* 12 */	BASE_NONE,	/* TBL_CHOICE */
+		       /* 13 */	BASE_NONE,	/* TBL_TYPEREF */
+
+		       /* 14 */ BASE_NONE,	/* TBL_SEQUENCEOF_start */
+		       /* 15 */ BASE_NONE,	/* TBL_TYPEREF_nopop */
+		       /* 16 */ BASE_NONE,	/* TBL_CHOICE_done */
+		       /* 17 */ BASE_NONE,	/* TBL_reserved */
+		       /* 18 */ BASE_NONE,	/* TBL_CHOICE_immediate */
+
+		       /* 19 */ BASE_NONE,	/* TBL_INVALID */
+};
+
 static const char *tbl_types_wireshark_txt[] = {
 		       /*  0 */	"FT_BOOLEAN",	/* TBL_BOOLEAN */
 		       /*  1 */	"FT_UINT32",	/* TBL_INTEGER */
@@ -3034,6 +3060,7 @@ tbl_typeref(gint n, GNode *pdu, GNode *tree, guint fullindex)
 		if (asn1_verbose) g_message("%*s*collection T %s", n*2, empty, p->name);
 			/* read the enumeration [save min-max somewhere ?] */
 		p->value_hf.hfinfo.type = tbl_types_wireshark[p->type]; /* XXX change field type... */
+		p->value_hf.hfinfo.display = tbl_display_wireshark[p->type];
 
 		proto_register_field_array(proto_asn1, &(p->value_hf) , 1);
 
@@ -3077,6 +3104,7 @@ tbl_typeref(gint n, GNode *pdu, GNode *tree, guint fullindex)
 	case TBL_CHOICE:
 		if (p->value_id == -1) { /* not yet registered ..... */
 			p->value_hf.hfinfo.type = tbl_types_wireshark[p->type];
+			p->value_hf.hfinfo.display = tbl_display_wireshark[p->type];
 			proto_register_field_array(proto_asn1, &(p->value_hf) , 1);
 
 			save_reference(p);
@@ -3093,6 +3121,7 @@ tbl_typeref(gint n, GNode *pdu, GNode *tree, guint fullindex)
 	default:
 		if (p->value_id == -1) { /* not yet registered ..... */
 			p->value_hf.hfinfo.type = tbl_types_wireshark[p->type];
+			p->value_hf.hfinfo.display = tbl_display_wireshark[p->type];
 			proto_register_field_array(proto_asn1, &(p->value_hf) , 1);
 
 			save_reference(p);
@@ -3175,7 +3204,7 @@ tbl_type(gint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sourc
 			p->value_hf.hfinfo.name = p->fullname;
 			p->value_hf.hfinfo.abbrev = p->fullname;
 			p->value_hf.hfinfo.type = tbl_types_wireshark[p->type];
-			p->value_hf.hfinfo.display = BASE_DEC;
+			p->value_hf.hfinfo.display = tbl_display_wireshark[p->type];
 			p->value_hf.hfinfo.blurb = p->fullname;
 			/* all the other fields are already 0 ! */
 
@@ -3482,7 +3511,7 @@ build_pdu_tree(const char *pduname)
 	info->value_hf.hfinfo.name = info->fullname;
 	info->value_hf.hfinfo.abbrev = info->fullname;
 	info->value_hf.hfinfo.type = tbl_types_wireshark[info->type];
-	info->value_hf.hfinfo.display = BASE_DEC;
+	info->value_hf.hfinfo.display = tbl_display_wireshark[info->type];
 	info->value_hf.hfinfo.blurb = info->fullname;
 
 	anonCount = 0; /* anonymous types counter */
@@ -3530,7 +3559,7 @@ build_pdu_tree(const char *pduname)
 			info->value_hf.hfinfo.name = info->fullname;
 			info->value_hf.hfinfo.abbrev = info->fullname;
 			info->value_hf.hfinfo.type = tbl_types_wireshark[info->type];
-			info->value_hf.hfinfo.display = BASE_DEC;
+			info->value_hf.hfinfo.display = tbl_display_wireshark[info->type];
 			info->value_hf.hfinfo.blurb = info->fullname;
 
 			tr->typetree = g_node_new(info);

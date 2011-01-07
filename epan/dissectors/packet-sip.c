@@ -851,11 +851,11 @@ sip_init_protocol(void)
 	if (sip_hash)
 		g_hash_table_destroy(sip_hash);
 
-	/* Now create them over */
+	/* Now create them again */
 	sip_hash = g_hash_table_new(g_str_hash , sip_equal);
-	/* Create a hastable with the SIP headers it will be used to find the related hf entry (POS_x)
-	 * this is faster than the previously used for loop
-	 * There is no g_hash_table_destroy as the liftime is the same as the lifetime of Wireshark
+	/* Create a hashtable with the SIP headers; it will be used to find the related hf entry (POS_x).
+	 * This is faster than the previously used for loop.
+	 * There is no g_hash_table_destroy as the lifetime is the same as the lifetime of Wireshark.
 	 */
 	if(!sip_headers_hash){
 		sip_headers_hash = g_hash_table_new(g_str_hash , g_str_equal);
@@ -1423,7 +1423,6 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
 	gboolean ipv6_address;
 	guchar c;
 	gchar *param_name = NULL;
-	return;
 
 	current_offset = start_offset;
 

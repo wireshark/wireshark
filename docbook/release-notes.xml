@@ -54,22 +54,6 @@ Wireshark Info
 -->
         </listitem>
 
-        <listitem>
-          <para>
-            The ZigBee ZCL dissector could go into an infinite loop.
-            <!-- Fixed in trunk: r34575 -->
-            <!-- Fixed in trunk-1.4: r34889 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5303">Bug
-            5303</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.1.</para>
-<!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
-          </para>
--->
-        </listitem>
-
       </itemizedlist>
 
     </para>
@@ -89,105 +73,81 @@ Wireshark Info
 -->
 
         <listitem><para>
-          File-Open Display Filter is overwritten by Save-As Filename.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3894">Bug
-          3894</ulink>)
+          Wrong length calculation in new_octet_aligned_subset_bits() (PER dissector).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5393">Bug
+          5393</ulink>)
         </para></listitem>
 
         <listitem><para>
-          Wireshark crashes with "Gtk-ERROR **: Byte index 6 is off the end of the line" if click on last PDU.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5285">Bug
-          5285</ulink>)
+          Function dissect_per_bit_string_display might read more bytes than available (PER dissector).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5394">Bug
+          5394</ulink>)
         </para></listitem>
 
         <listitem><para>
-          GTK-ERROR can occur in packets when there are multiple Netbios/SMB headers in a single frame.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5289">Bug
-          5289</ulink>)
+          Cannot load wpcap.dll &amp; packet.dll from Wireshark program directory.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5420">Bug
+          5420</ulink>)
         </para></listitem>
 
         <listitem><para>
-          "Tshark -G values" crashes on Windows.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5296">Bug
-          5296</ulink>)
+          Wireshark crashes with Copy -> Description on date/time fields.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5421">Bug
+          5421</ulink>)
         </para></listitem>
 
         <listitem><para>
-          PROFINET I&amp;M0FilterData packet not fully decoded.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5299">Bug
-          5299</ulink>)
+          DHCPv6 OPTION_CLIENT_FQDN parse error.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5426">Bug
+          5426</ulink>)
         </para></listitem>
 
         <listitem><para>
-          PROFINET MRP linkup/linkdown decoding incorrect.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5300">Bug
-          5300</ulink>)
+          Information element Error for supported channels.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5430">Bug
+          5430</ulink>)
         </para></listitem>
 
         <listitem><para>
-          [lua] Dumper:close() will cause a segfault due later GC of the Dumper.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5320">Bug
-          5320</ulink>)
+          Assert when using ASN.1 dissector with loading a 'type table'.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5447">Bug
+          5447</ulink>)
         </para></listitem>
 
         <listitem><para>
-          Network Instruments' trace files sometimes cannot be read with an error message of "Observer: bad record: Invalid magic number".
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5330">Bug
-          5330</ulink>)
+          Bug with RWH parsing in Infiniband dissector.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5444">Bug
+          5444</ulink>)
         </para></listitem>
 
         <listitem><para>
-          IO Graph Time of Day times incorrect for filtered data.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5340">Bug
-          5340</ulink>)
+          Help->About Wireshark mis-reports OS.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5453">Bug
+          5453</ulink>)
         </para></listitem>
 
         <listitem><para>
-          Wireshark tools do not detect and read some ERF files correctly.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5344">Bug
-          5344</ulink>)
+          .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
+          </ulink>)
         </para></listitem>
 
         <listitem><para>
-          "editcap -h" sends some lines to stderr and others to stdout.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5353">Bug
-          5353</ulink>)
+          .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
+          </ulink>)
         </para></listitem>
 
         <listitem><para>
-          IP Timestamp Option: "flag=3" variant (prespecified) not displayed correctly.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5357">Bug
-          5357</ulink>)
+          .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
+          </ulink>)
         </para></listitem>
 
         <listitem><para>
-          AgentX PDU Header 'hex field highlighting' incorrectly spans extra bytes.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5364">Bug
-          5364</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          AgentX dissector cannot handle null OID in Open-PDU.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5368">Bug
-          5368</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Crash with "Gtk-ERROR **: Byte index 6 is off the end of the line".
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5374">Bug
-          5374</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          ANCP Portmanagment TLV wrong decoded.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5388">Bug
-          5388</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Crash during startup because of Python SyntaxError in wspy_libws.py.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5389">Bug
-          5389</ulink>)
+          .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
+          </ulink>)
         </para></listitem>
 
       </itemizedlist>

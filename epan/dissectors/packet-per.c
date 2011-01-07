@@ -204,7 +204,7 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 boffset, asn1_ctx
   /* The bits can be contained in two "extra octets" .... .xxx [xxxx]*n xx... ....*/
   tvb_bits = (boffset & 7)+ no_of_bits;
   check_length = tvb_bits/8;
-  remainderval = no_of_bits % 8;
+  remainderval = tvb_bits % 8; /* not no_of_bits % 8 */
   if(remainderval){
 	  check_length++;
   }
@@ -2032,16 +2032,34 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 		}
 		}
 		
-		if (length<=64) {
-			if (length<=8)
-				value = tvb_get_bits8(tvb, offset, length);
-			else if (length<=16)
-				value = tvb_get_bits16(tvb, offset, length, FALSE);
-			else if (length<=32)
-				value = tvb_get_bits32(tvb, offset, length, FALSE);
-			else
-				value = tvb_get_bits64(tvb, offset, length, FALSE);
-			
+		if (length<=64) { /* if read into 64 bits also handle length <= 24, 40, 48, 56 bits */
+			if (length<=8) {
+				value = tvb_get_bits8(out_tvb, 0, length);
+			}else if (length<=16) {
+				value = tvb_get_bits16(out_tvb, 0, length, FALSE);
+			}else if (length<=24) { /* first read 16 and then the remaining bits */
+				value = tvb_get_bits16(out_tvb, 0, 16, FALSE);
+				value <<= 8;
+				value |= tvb_get_bits8(out_tvb, 16, length - 16);
+			}else if (length<=32) {
+				value = tvb_get_bits32(out_tvb, 0, length, FALSE);
+			}else if (length<=40) { /* first read 32 and then the remaining bits */
+				value = tvb_get_bits32(out_tvb, 0, 32, FALSE);
+				value <<= 8;
+				value |= tvb_get_bits8(out_tvb, 32, length - 32);
+			}else if (length<=48) { /* first read 32 and then the remaining bits */
+				value = tvb_get_bits32(out_tvb, 0, 32, FALSE);
+				value <<= 16;
+				value |= tvb_get_bits16(out_tvb, 32, length - 32, FALSE);
+			}else if (length<=56) { /* first read 32 and 16 then the remaining bits */
+				value = tvb_get_bits32(out_tvb, 0, 32, FALSE);
+				value <<= 16;
+				value |= tvb_get_bits16(out_tvb, 32, 16, FALSE);
+				value <<= 8;
+				value |= tvb_get_bits8(out_tvb, 48, length - 48);
+			}else {
+				value = tvb_get_bits64(out_tvb, 0, length, FALSE);
+			}
 			if (actx->aligned){
 				proto_item_append_text(actx->created_item, ", %s decimal value %" G_GINT64_MODIFIER "u", 
 					decode_bits_in_field(pad_length, length, value), value);

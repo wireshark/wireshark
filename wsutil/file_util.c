@@ -447,26 +447,30 @@ ws_stdio_freopen (const gchar *filename,
 /* DLL loading */
 static gboolean
 init_dll_load_paths() {
-      TCHAR path_pfx[MAX_PATH];
+      TCHAR path_w[MAX_PATH];
 
       if (program_path && system_path)
 	    return TRUE;
 
       /* XXX - Duplicate code in filesystem.c:init_progfile_dir */
-      if (GetModuleFileName(NULL, path_pfx, MAX_PATH) == 0 || GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+      if (GetModuleFileName(NULL, path_w, MAX_PATH) == 0 || GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
 	    return FALSE;
       }
 
       if (!program_path) {
-	    program_path = g_utf16_to_utf8(path_pfx, -1, NULL, NULL, NULL);
+	    gchar *app_path;
+	    app_path = g_utf16_to_utf8(path_w, -1, NULL, NULL, NULL);
+	    /* We could use PathRemoveFileSpec here but we'd have to link to Shlwapi.dll */
+	    program_path = g_path_get_dirname(app_path);
+	    g_free(app_path);
       }
 
-      if (GetSystemDirectory(path_pfx, MAX_PATH) == 0) {
+      if (GetSystemDirectory(path_w, MAX_PATH) == 0) {
 	    return FALSE;
       }
 
       if (!system_path) {
-	    system_path = g_utf16_to_utf8(path_pfx, -1, NULL, NULL, NULL);
+	    system_path = g_utf16_to_utf8(path_w, -1, NULL, NULL, NULL);
       }
 
       if (program_path && system_path)

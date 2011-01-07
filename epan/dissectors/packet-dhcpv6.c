@@ -257,21 +257,19 @@ static const value_string duidtype_vals[] =
     { 0, NULL }
 };
 
-/* This FQDN draft is a mess, I've tried to understand,
-   but N,O,S bit descriptions are really cryptic */
 static const true_false_string fqdn_n = {
-/*    "Client doesn't want server to perform DNS update", "" */
-    "N bit set","N bit cleared"
+  "Server should not perform DNS updates",
+  "Server should perform DNS updates"
 };
 
 static const true_false_string fqdn_o = {
-    "O bit set", "O bit cleared"
+  "Server has overridden client's S bit preference",
+  "Server has not overridden client's S bit preference"
 };
 
 static const true_false_string fqdn_s = {
-/*    "Forward mapping (FQDN-to-IPv6, AAAA) performed by client",
-      "Forward mapping (FQDN-to-IPv6, AAAA) performed by server" */
-    "S bit set", "S bit cleared"
+  "Server should perform forward DNS updates",
+  "Server should not perform forward DNS updates"
 };
 
 /* CableLabs Common Vendor Specific Options */
@@ -1623,7 +1621,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             proto_tree_add_item(subtree, hf_clientfqdn_o, tvb, off, 1, FALSE);
             proto_tree_add_item(subtree, hf_clientfqdn_s, tvb, off, 1, FALSE);
 
-            dhcpv6_domain(subtree, tvb, off-1, optlen-1);
+            dhcpv6_domain(subtree, tvb, off+1, optlen-1);
         }
         break;
     case OPTION_PANA_AGENT:
@@ -1926,11 +1924,11 @@ proto_register_dhcpv6(void)
         { &hf_clientfqdn_reserved,
           { "Reserved", "dhcpv6.clientfqdn.reserved", FT_UINT8, BASE_HEX, NULL, 0xF8, NULL, HFILL}},
         { &hf_clientfqdn_n,
-          { "N", "dhcpv6.clientfqdn.n", FT_BOOLEAN, 8, TFS(&fqdn_n), 0x4, NULL, HFILL}},
+          { "N bit", "dhcpv6.clientfqdn.n", FT_BOOLEAN, 8, TFS(&fqdn_n), 0x4, "Whether the server SHOULD NOT perform any DNS updates", HFILL}},
         { &hf_clientfqdn_o,
-          { "O", "dhcpv6.clientfqdn.o", FT_BOOLEAN, 8, TFS(&fqdn_o), 0x2, NULL, HFILL}},
+          { "O bit", "dhcpv6.clientfqdn.o", FT_BOOLEAN, 8, TFS(&fqdn_o), 0x2, "Whether the server has overridden the client's preference for the S bit.  Must be 0 when sent from client", HFILL}},
         { &hf_clientfqdn_s,
-          { "S", "dhcpv6.clientfqdn.s", FT_BOOLEAN, 8, TFS(&fqdn_s), 0x1, NULL, HFILL}},
+          { "S bit", "dhcpv6.clientfqdn.s", FT_BOOLEAN, 8, TFS(&fqdn_s), 0x1, "Whether the server SHOULD or SHOULD NOT perform the AAAA RR (FQDN-to-address) DNS updates", HFILL}},
         { &hf_remoteid_enterprise,
           { "Enterprise ID", "dhvpv6.remoteid.enterprise", FT_UINT32, BASE_DEC,  VALS(sminmpec_values), 0, "RemoteID Enterprise Number", HFILL }},
         { &hf_vendoropts_enterprise,

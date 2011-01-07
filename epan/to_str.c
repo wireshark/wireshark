@@ -472,6 +472,53 @@ static const char *mon_names[12] = {
 	"Dec"
 };
 
+static gchar *get_zonename(struct tm *tmp) {
+#if defined(HAVE_TM_ZONE)
+	return tmp->tm_zone;
+#else
+	if ((tmp->tm_isdst != 0) && (tmp->tm_isdst != 1)) {
+		return "???";
+	}
+# if defined(HAVE_TZNAME)
+	return tzname[tmp->tm_isdst];
+
+# elif defined(_WIN32)
+	/* Windows C Runtime:                                                 */
+	/*   _tzname is encoded using the "system default ansi code page"     */
+	/*     ("which is not necessarily the same as the C library locale"). */
+	/*     So: _tzname must be converted to UTF8 before use.              */
+	/*   Alternative: use Windows GetTimeZoneInformation() to get the     */
+        /*     timezone name in UTF16 and convert same to UTF8.               */
+	/*   XXX: the result is that the timezone name will be based upon the */
+	/*    system code page (iow: the charset of the system).              */
+	/*    Since Wireshark is not internationalized, it would seem more    */
+	/*    correct to show the timezone name in English, no matter what    */
+        /*    the system code page, but I don't how to do that (or if it's    */
+        /*    really even possible).                                          */
+        /*    In any case converting to UTF8 presumably at least keeps GTK    */
+        /*    happy. (A bug was reported wherein Wireshark crashed in GDK     */
+        /*    on a "Japanese version of Windows XP" when trying to copy       */
+        /*    the date/time string (containing a copy of _tz_name) to the     */
+        /*    clipboard).                                                     */
+
+	{
+		static char *ws_tzname[2] = {NULL, NULL};
+
+		if (ws_tzname[tmp->tm_isdst] == NULL) {
+			ws_tzname[tmp->tm_isdst] = g_locale_to_utf8(_tzname[tmp->tm_isdst], -1, NULL, NULL, NULL);
+			if (ws_tzname[tmp->tm_isdst] == NULL) {
+				ws_tzname[tmp->tm_isdst] = "???";
+			}
+		}
+		return ws_tzname[tmp->tm_isdst];
+	}
+# else
+	return tmp->tm_isdst ? "?DT" : "?ST";
+
+# endif
+#endif
+}
+
 gchar *
 abs_time_to_str(const nstime_t *abs_time, const absolute_time_display_e fmt,
    gboolean show_zone)
@@ -499,15 +546,7 @@ abs_time_to_str(const nstime_t *abs_time, const absolute_time_display_e fmt,
 	case ABSOLUTE_TIME_LOCAL:
                 tmp = localtime(&abs_time->secs);
                 if (tmp) {
-#if defined(HAVE_TM_ZONE)
-                        zonename = tmp->tm_zone;
-#elif defined(HAVE_TZNAME)
-                        zonename = tzname[tmp->tm_isdst];
-#elif _WIN32
-                        zonename = _tzname[tmp->tm_isdst];
-#else
-                        zonename = tmp->tm_isdst ? "?ST" : "?DT";
-#endif
+			zonename = get_zonename(tmp);
                 }
                 break;
         }
@@ -591,15 +630,7 @@ abs_time_secs_to_str(const time_t abs_time, const absolute_time_display_e fmt,
 	case ABSOLUTE_TIME_LOCAL:
                 tmp = localtime(&abs_time);
                 if (tmp) {
-#if defined(HAVE_TM_ZONE)
-                        zonename = tmp->tm_zone;
-#elif defined(HAVE_TZNAME)
-                        zonename = tzname[tmp->tm_isdst];
-#elif _WIN32
-                        zonename = _tzname[tmp->tm_isdst];
-#else
-                        zonename = tmp->tm_isdst ? "?ST" : "?DT";
-#endif
+			zonename = get_zonename(tmp);
                 }
                 break;
         }
