@@ -3032,7 +3032,7 @@ void proto_register_gtpv2(void)
 {
     static hf_register_info hf_gtpv2[] = {
 		{ &hf_gtpv2_reserved,
-			{"Reserved bit(s)", "",
+			{"Reserved bit(s)", "gtpv2.reserved",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
 				"Reserved", HFILL }
 		},
@@ -3118,7 +3118,7 @@ void proto_register_gtpv2(void)
         },
 		{ &hf_gtpv2_ipv4_addr,
 			{"IPv4 Address", "gtpv2.ipv4_addr",
-				FT_IPv4, BASE_DEC, NULL, 0x0,
+				FT_IPv4, BASE_NONE, NULL, 0x0,
 				NULL, HFILL}
 		}, 
         { &hf_gtpv2_cause,
