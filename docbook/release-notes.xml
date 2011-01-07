@@ -73,6 +73,12 @@ Wireshark Info
 -->
 
         <listitem><para>
+          Reassemble.c leaks memory for GLIB > 2.8.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4141">Bug
+          4141</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Wrong length calculation in new_octet_aligned_subset_bits() (PER dissector).
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5393">Bug
           5393</ulink>)
@@ -127,9 +133,45 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-          .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
-          </ulink>)
+          Delegated-IPv6-Prefix(123) is shown incorrect as X-Ascend-Call-Attempt-Limit(123).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5455">Bug
+          5455</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          "tshark -r file -T fields" is truncating exported data.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5463">Bug
+          5463</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          gsm_a_dtap: incorrect "Extraneous Data" when decoding Packet Flow Identifier.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5475">Bug
+          5475</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Improper decode of TLS 1.2 packet containing both CertificateRequest and ServerHelloDone messages.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5485">Bug
+          5485</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          LTE-PDCP UL and DL problem.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5505">Bug
+          5505</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          CIGI 3.2/3.3 support broken.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5510">Bug
+          5510</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Prepare Filter in RTP Streams dialog does not work correctly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5513">Bug
+          5513</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -175,19 +217,18 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
     <para>
 
-AgentX,
-ANCP,
-DIAMETER,
-HTTP,
-IP,
-LDSS,
-MIME,
-NBNS,
-PROFINET,
+ASN.1 PER,
+CIGI,
+DHCPv6,
+GSM A GM,
+IEEE 802.11,
+InfiniBand,
+LTE-PDCP
+MP2T,
+RADIUS,
+SCCP,
 SIP,
-TCP,
-Telnet,
-ZigBee
+TLS,
 
     </para>
     </section>
@@ -195,7 +236,7 @@ ZigBee
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-Endace ERF, Network Instruments Observer.
+Endace ERF.
 
     </para>
     </section>
