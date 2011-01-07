@@ -58,9 +58,9 @@ libwireshark_la_LDFLAGS = -version-info 0:1:0 -export-symbols libwireshark.sym @
 
 include Makefile.common
 
-INCLUDES = -I$(srcdir)/.. -I$(srcdir)/$(LEMON) @LUA_INCLUDES@ \
-	$(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS) $(LIBSMI_CFLAGS) \
-	$(LIBGEOIP_CFLAGS)
+INCLUDES = -I$(srcdir)/.. -I$(srcdir)/$(LEMON) -I$(builddir)/wslua \
+	@LUA_INCLUDES@ $(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS) \
+	$(LIBSMI_CFLAGS) $(LIBGEOIP_CFLAGS)
 
 
 if HAVE_WARNINGS_AS_ERRORS
