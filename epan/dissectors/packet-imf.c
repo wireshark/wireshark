@@ -632,6 +632,8 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_text(text_tree, tvb, start_offset, end_offset - start_offset,
                           "%s",
                           tvb_format_text_wsp(tvb, start_offset, end_offset - start_offset));
+      col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
+                         tvb_format_text_wsp(tvb, start_offset, end_offset - start_offset));
 
       /*
        * Step to the next line.
