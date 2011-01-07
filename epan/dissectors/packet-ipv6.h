@@ -268,7 +268,7 @@ struct icmp6_hdr {
 #define ICMP6_NI_REPLY				140	/* node information reply */
 #define ICMP6_IND_SOLICIT			141	/* Inverse ND Solicitation */
 #define ICMP6_IND_ADVERT			142	/* Inverse ND advertisement */
-#define ICMP6_MLDV2_REPORT			143	/* MLD v2 report message : draft-vida-mld-v2-08.txt */
+#define ICMP6_MLDV2_REPORT			143	/* MLD v2 report message : [RFC3810] */
 
 #define ICMP6_MIP6_DHAAD_REQUEST	144	/* Mobile IPv6 DHAAD */
 #define ICMP6_MIP6_DHAAD_REPLY		145	/* Mobile IPv6 DHAAD */
@@ -315,19 +315,6 @@ struct icmp6_hdr {
 #define ICMP6_ROUTER_RENUMBERING_RESULT   1	/* rr result */
 #define ICMP6_ROUTER_RENUMBERING_SEQNUM_RESET   255	/* rr seq num reset */
 
-/*
- * Multicast Listener Discovery
- */
-struct mld6_hdr {
-	struct icmp6_hdr	mld6_hdr;
-	struct e_in6_addr		mld6_addr; /* multicast address */
-};
-
-#define mld6_type	mld6_hdr.icmp6_type
-#define mld6_code	mld6_hdr.icmp6_code
-#define mld6_cksum	mld6_hdr.icmp6_cksum
-#define mld6_maxdelay	mld6_hdr.icmp6_data16[0]
-#define mld6_reserved	mld6_hdr.icmp6_data16[1]
 
 /*
  * Neighbor Discovery

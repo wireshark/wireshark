@@ -61,7 +61,9 @@
 /*
  * The information used comes from:
  * RFC 2461: Neighbor Discovery for IP Version 6 (IPv6)
+ * RFC 2710: Multicast Listener Discovery for IPv6
  * RFC 2894: Router Renumbering for IPv6
+ * RFC 3810: Multicast Listener Discovery Version 2 (MLDv2) for IPv6
  * RFC 4068: Fast Handovers for Mobile IPv6
  * RFC 4620: IPv6 Node Information Queries
  * RFC 4861: Neighbor Discovery for IP version 6 (IPv6)
@@ -76,7 +78,29 @@ static int hf_icmpv6_code = -1;
 static int hf_icmpv6_checksum = -1;
 static int hf_icmpv6_checksum_bad = -1;
 static int hf_icmpv6_reserved = -1;
-static int hf_icmpv6_nor = -1;
+
+/* RFC 2710: Multicast Listener Discovery for IPv6 */
+static int hf_icmpv6_mld_mrd = -1;
+static int hf_icmpv6_mld_multicast_address = -1;
+
+/* RFC 3810: Multicast Listener Discovery Version 2 (MLDv2) for IPv6 */ 
+static int hf_icmpv6_mld_mrc = -1;
+static int hf_icmpv6_mld_flag = -1;
+static int hf_icmpv6_mld_flag_s = -1;
+static int hf_icmpv6_mld_flag_qrv = -1;
+static int hf_icmpv6_mld_flag_rsv = -1;
+static int hf_icmpv6_mld_qqi = -1;
+static int hf_icmpv6_mld_nb_sources = -1;
+static int hf_icmpv6_mld_source_address = -1;
+static int hf_icmpv6_mldr_nb_mcast_records = -1;
+static int hf_icmpv6_mldr_mar = -1;
+static int hf_icmpv6_mldr_mar_record_type = -1;
+static int hf_icmpv6_mldr_mar_aux_data_len = -1;
+static int hf_icmpv6_mldr_mar_nb_sources = -1;
+static int hf_icmpv6_mldr_mar_multicast_address = -1;
+static int hf_icmpv6_mldr_mar_source_address = -1;
+static int hf_icmpv6_mldr_mar_auxiliary_data = -1;
+
 static int hf_icmpv6_haad_ha_addrs = -1;
 static int hf_icmpv6_ra_cur_hop_limit = -1;
 static int hf_icmpv6_ra_router_lifetime = -1;
@@ -268,6 +292,7 @@ static int hf_icmpv6_opt_6co_context_prefix  = -1;
 static int hf_icmpv6_opt_abro_version = -1;
 static int hf_icmpv6_opt_abro_6lbr_address = -1;
 
+/* RFC 4620: IPv6 Node Information Queries */
 static int hf_icmpv6_ni_qtype = -1;
 static int hf_icmpv6_ni_flag = -1;
 static int hf_icmpv6_ni_flag_g = -1;
@@ -286,6 +311,7 @@ static int hf_icmpv6_ni_reply_node_name = -1;
 static int hf_icmpv6_ni_reply_node_address = -1;
 static int hf_icmpv6_ni_reply_ipv4_address = -1;
 
+/* RFC 2894: Router Renumbering for IPv6 */
 static int hf_icmpv6_rr_sequencenumber = -1;
 static int hf_icmpv6_rr_segmentnumber = -1;
 static int hf_icmpv6_rr_flag = -1;
@@ -335,7 +361,7 @@ static int hf_icmpv6_rr_rm_matchedprefix = -1;
 static gint ett_icmpv6 = -1;
 static gint ett_icmpv6opt = -1;
 static gint ett_icmpv6flag = -1;
-static gint ett_multicastRR = -1;
+static gint ett_icmpv6mar = -1;
 static gint ett_icmpv6opt_name = -1;
 static gint ett_cga_param_name = -1;
 static gint ett_dao_rr_stack = -1;
@@ -463,6 +489,27 @@ static const value_string rr_pco_mp_opcode_val[] = {
     { 2,    "Change" },
     { 3,    "Set Global" },
     { 0,    NULL }
+};
+
+
+/*
+ * RFC3810 - Multicast Listener Discovery Version 2 (MLDv2) for IPv6
+ */
+
+#define MLDV2_PACKET_MINLEN 28
+
+#define MLD_FLAG_S      0x08
+#define MLD_FLAG_QRV    0x07
+#define MLD_FLAG_RSV    0xF0
+
+static const value_string mldr_record_type_val[] = {
+    { 1, "Include" },
+    { 2, "Exclude" },
+    { 3, "Changed to include" },
+    { 4, "Changed to exclude" },
+    { 5, "Allow new sources" },
+    { 6, "Block old sources" },
+    { 0, NULL }
 };
 
 static const value_string names_router_pref[] = {
@@ -2232,79 +2279,78 @@ dissect_rrenum(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
 
 }
 
-/*
- * See I-D draft-vida-mld-v2-08
- */
-static const value_string mldrv2ModesNames[] = {
-    { 1, "Include" },
-    { 2, "Exclude" },
-    { 3, "Changed to include" },
-    { 4, "Changed to exclude" },
-    { 5, "Allow new sources" },
-    { 6, "Block old sources" },
-    { 0, NULL }
-};
 
 static void
-dissect_mldrv2( tvbuff_t *tvb, guint32 offset, guint16 count, proto_tree *tree )
+dissect_mldrv2( tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tree *tree )
 {
-    proto_tree *sub_tree;
-    proto_item *tf;
+    proto_tree *mar_tree;
+    proto_item *ti_mar;
+    guint16 nb_mcast_records;
+    int mldr_offset = offset;
+    /* Reserved */
+    proto_tree_add_item(tree, hf_icmpv6_reserved, tvb, mldr_offset, 2, FALSE );
+    mldr_offset += 2;
 
-    guint8 recordType, auxDataLen;
-    guint32 sourceNb, recordSize, localOffset;
-    struct e_in6_addr addr;
+    /* Nr of Mcast Address Records (M) */
+    proto_tree_add_item(tree, hf_icmpv6_mldr_nb_mcast_records, tvb, mldr_offset, 2, FALSE );
+    nb_mcast_records = tvb_get_ntohs(tvb, mldr_offset);
+    mldr_offset += 2;
 
-    for( ; count; count--, offset += recordSize ) {
-        localOffset = offset;
-        recordType = tvb_get_guint8( tvb, localOffset );
-        localOffset += 1;
-        auxDataLen = tvb_get_guint8( tvb, localOffset );
-        localOffset += 1;
-        sourceNb = tvb_get_ntohs( tvb, localOffset );
-        localOffset += 2;
-        recordSize = 4 + 16 + (16 * sourceNb) + (auxDataLen * 4);
+    /* Multicast Address Record */
+    while(mldr_offset < (int)tvb_reported_length(tvb) ) {
+        guint8 aux_data_len, record_type;
+        guint16 i, nb_sources;
+        struct e_in6_addr multicast_address;
 
-        tvb_get_ipv6(tvb, localOffset, &addr);
-        tf = proto_tree_add_text( tree, tvb, offset, recordSize,
-                                  "%s: %s (%s)", val_to_str(recordType, mldrv2ModesNames,"Unknown mode"),
-                                  get_hostname6(&addr), ip6_to_str(&addr)
-            );
-        sub_tree = proto_item_add_subtree(tf, ett_multicastRR);
+        ti_mar = proto_tree_add_item(tree, hf_icmpv6_mldr_mar, tvb, mldr_offset, -1, FALSE);
+        mar_tree = proto_item_add_subtree(ti_mar, ett_icmpv6mar);
+        
+        /* Record Type */
+        proto_tree_add_item(mar_tree, hf_icmpv6_mldr_mar_record_type, tvb, mldr_offset, 1, FALSE);
+        record_type = tvb_get_guint8(tvb, mldr_offset);
+        mldr_offset += 1;
 
-        proto_tree_add_text( sub_tree, tvb, offset,   1, "Mode: %s (%u)",
-                             val_to_str(recordType, mldrv2ModesNames,"Unknown mode"), recordType );
-        proto_tree_add_text( sub_tree, tvb, offset+1, 1, "Aux data len: %u", auxDataLen * 4);
-        proto_tree_add_text( sub_tree, tvb, offset+2, 2, "Number of Sources: %u", sourceNb);
-        proto_tree_add_text( sub_tree, tvb, localOffset, 16, "Multicast Address: %s", ip6_to_str(&addr) );
-        localOffset += 16;
+        /* Aux Data Len */
+        proto_tree_add_item(mar_tree, hf_icmpv6_mldr_mar_aux_data_len, tvb, mldr_offset, 1, FALSE);
+        aux_data_len = tvb_get_guint8(tvb, mldr_offset);
+        mldr_offset += 1;
 
-        for( ; sourceNb; sourceNb--, localOffset += 16 ) {
-            tvb_get_ipv6(tvb, localOffset, &addr);
-            proto_tree_add_text( sub_tree, tvb, localOffset, 16,
-                                 "Source Address: %s (%s)", get_hostname6(&addr), ip6_to_str(&addr)
-                );
+        /* Number of Sources (N) */
+        proto_tree_add_item(mar_tree, hf_icmpv6_mldr_mar_nb_sources, tvb, mldr_offset, 2, FALSE);
+        nb_sources = tvb_get_ntohs(tvb, mldr_offset);
+        mldr_offset += 2;
+
+        /* Multicast Address */
+        proto_tree_add_item(mar_tree, hf_icmpv6_mldr_mar_multicast_address, tvb, mldr_offset, 16, FALSE);
+        tvb_get_ipv6(tvb, mldr_offset, &multicast_address);
+        mldr_offset += 16;
+        
+        /* Source Address */
+        for (i=1; i <= nb_sources; i++){ 
+            proto_tree_add_item(mar_tree, hf_icmpv6_mldr_mar_source_address, tvb, mldr_offset, 16, FALSE);
+            mldr_offset += 16;
         }
+        
+        /* Auxiliary Data ? */
+        if(aux_data_len)
+        {
+            proto_tree_add_item(mar_tree, hf_icmpv6_mldr_mar_auxiliary_data, tvb, mldr_offset, aux_data_len * 4, FALSE);
+            mldr_offset += aux_data_len * 4;
+        }
+
+        /* Multicast Address Record Length */
+        proto_item_set_len(ti_mar, 4 + 16 + (16 * nb_sources) + (aux_data_len * 4));
+        proto_item_append_text(ti_mar, " %s: %s", val_to_str(record_type, mldr_record_type_val,"Unknown Record Type (%d)"), ip6_to_str(&multicast_address));
+
     }
 }
 
-static void
-dissect_mldqv2(tvbuff_t *tvb, guint32 offset, guint16 count, proto_tree *tree)
-{
-    struct e_in6_addr addr;
-
-    for ( ; count; count--, offset += 16) {
-        tvb_get_ipv6(tvb, offset, &addr);
-        proto_tree_add_text(tree, tvb, offset, 16,
-                            "Source Address: %s (%s)", get_hostname6(&addr), ip6_to_str(&addr));
-    }
-}
 
 static void
 dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree *icmp6_tree, *field_tree;
-    proto_item *ti, *hidden_item, *tf = NULL;
+    proto_tree *icmp6_tree, *field_tree, *flag_tree;
+    proto_item *ti, *hidden_item, *tf, *ti_flag = NULL;
     struct icmp6_hdr icmp6_hdr, *dp;
     const char *codename, *typename;
     const char *colcodename, *coltypename;
@@ -2586,75 +2632,75 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case ICMP6_MEMBERSHIP_QUERY:
         case ICMP6_MEMBERSHIP_REPORT:
         case ICMP6_MEMBERSHIP_REDUCTION:
-#define MLDV2_MINLEN 28
-#define MLDV1_MINLEN 24
-            if (dp->icmp6_type == ICMP6_MEMBERSHIP_QUERY) {
-                if (length >= MLDV2_MINLEN) {
-                    guint32 mrc;
-                    guint16 qqi;
-                    guint8 flag;
-                    guint16 nsrcs;
+            offset += 4;
+            /* It is MLDv2 packet ? (the min length for a MLDv2 packet is 28) */
+            if ((dp->icmp6_type == ICMP6_MEMBERSHIP_QUERY) && (length >= MLDV2_PACKET_MINLEN)) {
+                guint32 mrc;
+                guint16 qqi, i, nb_sources;
 
-                    mrc = g_ntohs(dp->icmp6_maxdelay);
-                    flag = tvb_get_guint8(tvb, offset + sizeof(*dp) + 16);
-                    qqi = tvb_get_guint8(tvb, offset + sizeof(*dp) + 16 + 1);
-                    nsrcs = tvb_get_ntohs(tvb, offset + sizeof(*dp) + 16 + 2);
-
-                    if (mrc >= 32768)
-                        mrc = ((mrc & 0x0fff) | 0x1000) <<
-                            (((mrc & 0x7000) >> 12) + 3);
-                    proto_tree_add_text(icmp6_tree, tvb,
-                                        offset + ICMP6_DATA_OFFSET, 2,
-                                        "Maximum response delay[ms]: %u", mrc);
-
-                    proto_tree_add_text(icmp6_tree, tvb, offset + sizeof(*dp),
-                                        16, "Multicast Address: %s",
-                                        ip6_to_str((const struct e_in6_addr *)(tvb_get_ptr(tvb,
-                                                                                           offset + sizeof *dp, sizeof (struct e_in6_addr)))));
-
-                    proto_tree_add_text(icmp6_tree, tvb,
-                                        offset + sizeof(*dp) + 16, 1, "S Flag: %s",
-                                        flag & 0x08 ? "ON" : "OFF");
-                    proto_tree_add_text(icmp6_tree, tvb,
-                                        offset + sizeof(*dp) + 16, 1, "Robustness: %d",
-                                        flag & 0x07);
-                    if (qqi >= 128)
-                        qqi = ((qqi & 0x0f) | 0x10) << (((qqi & 0x70) >> 4) + 3);
-                    proto_tree_add_text(icmp6_tree, tvb,
-                                        offset + sizeof(*dp) + 17, 1, "QQI: %d", qqi);
-
-                    dissect_mldqv2(tvb, offset + sizeof(*dp) + 20, nsrcs,
-                                   icmp6_tree);
-                    break;
-                } else if (length > MLDV1_MINLEN) {
-                    next_tvb = tvb_new_subset(tvb, offset + sizeof(*dp), -1, -1);
-                    call_dissector(data_handle,next_tvb, pinfo, tree);
-                    break;
+                /* Maximum Response Code */
+                mrc = tvb_get_ntohs(tvb, offset);
+                 if (mrc >= 32768){
+                    mrc = ((mrc & 0x0fff) | 0x1000) << (((mrc & 0x7000) >> 12) + 3);
                 }
-                /* MLDv1 Query -> FALLTHOUGH */
-            } /* if (dp->icmp6_type == ICMP6_MEMBERSHIP_QUERY) */
-#undef MLDV2_MINLEN
-#undef MLDV1_MINLEN
-            proto_tree_add_text(icmp6_tree, tvb,
-                                offset + ICMP6_DATA_OFFSET, 2,
-                                "Maximum response delay: %u",
-                                (guint16)g_ntohs(dp->icmp6_maxdelay));
-            proto_tree_add_text(icmp6_tree, tvb, offset + sizeof(*dp), 16,
-                                "Multicast Address: %s",
-                                ip6_to_str((const struct e_in6_addr *)(tvb_get_ptr(tvb, offset + sizeof *dp, sizeof (struct e_in6_addr)))));
+                proto_tree_add_uint(icmp6_tree, hf_icmpv6_mld_mrc, tvb, offset, 2, mrc);
+                offset += 2;
+
+                /* Reserved */
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 2, FALSE);
+                offset += 2;
+
+                /* Multicast Address */
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_mld_multicast_address, tvb, offset, 16, FALSE);
+                offset += 16;        
+
+                /* Flag */
+                ti_flag = proto_tree_add_item(icmp6_tree, hf_icmpv6_mld_flag, tvb, offset, 1, FALSE);
+                flag_tree = proto_item_add_subtree(ti_flag, ett_icmpv6flag);
+                proto_tree_add_item(flag_tree, hf_icmpv6_mld_flag_s, tvb, offset, 1, FALSE);
+                proto_tree_add_item(flag_tree, hf_icmpv6_mld_flag_qrv, tvb, offset, 1, FALSE);
+                proto_tree_add_item(flag_tree, hf_icmpv6_mld_flag_rsv, tvb, offset, 1, FALSE);
+                offset += 1;      
+                
+                /* QQI */   
+                qqi = tvb_get_guint8(tvb, offset);
+                if (qqi >= 128){
+                    qqi = ((qqi & 0x0f) | 0x10) << (((qqi & 0x70) >> 4) + 3);
+                }
+                proto_tree_add_uint(icmp6_tree, hf_icmpv6_mld_qqi, tvb, offset, 1, qqi);
+                offset += 1;   
+
+                /* Number of Sources */
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_mld_nb_sources, tvb, offset, 2, FALSE);
+                nb_sources = tvb_get_ntohs(tvb, offset);
+                offset += 2; 
+
+                /* Source Address */
+                for (i=1; i <= nb_sources; i++){ 
+                    proto_tree_add_item(icmp6_tree, hf_icmpv6_mld_source_address, tvb, offset, 16, FALSE);
+                    offset += 16;
+                }
+            
+            }else{ /* It is a MLDv1 Packet */
+
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_mld_mrd, tvb, offset, 2, FALSE);
+                offset += 2;
+
+                /* Reserved */
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 2, FALSE);
+                offset += 2;
+
+                /* Multicast Address */
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_mld_multicast_address, tvb, offset, 16, FALSE);
+                offset += 16;     
+            }
             break;
         case ND_ROUTER_SOLICIT:
             dissect_icmpv6ndopt(tvb, offset + sizeof(*dp), pinfo, icmp6_tree);
             break;
         case ICMP6_MLDV2_REPORT:
         {
-            guint16 nbRecords;
-
-            nbRecords = tvb_get_ntohs( tvb, offset+4+2 );
-            proto_tree_add_text( icmp6_tree, tvb, offset+4, 2, "Reserved: %d (Should always be zero)",
-                                 tvb_get_ntohs (tvb, offset+4) );
-            proto_tree_add_item( icmp6_tree, hf_icmpv6_nor, tvb, offset+4+2, 2, FALSE );
-            dissect_mldrv2( tvb, offset+4+2+2, nbRecords, icmp6_tree );
+            dissect_mldrv2( tvb, offset+4, pinfo, icmp6_tree );
             break;
         }
 #define ND_RA_CURHOPLIMIT_OFFSET 4
@@ -3124,9 +3170,62 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_reserved,
           { "Reserved",           "icmpv6.reserved",    FT_BYTES,  BASE_NONE, NULL, 0x0,
             "Must be Zero", HFILL }},
-        { &hf_icmpv6_nor,
-          { "Number of records", "icmpv6.nor", FT_UINT16, BASE_DEC, NULL, 0x0,
+        /* RFC2710:  Multicast Listener Discovery for IPv6 */
+        { &hf_icmpv6_mld_mrd,
+          { "Maximum Response Delay [ms]", "icmpv6.mld.maximum_response_delay", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Specifies the maximum allowed delay before sending a responding Report, in units of milliseconds", HFILL }},
+        { &hf_icmpv6_mld_multicast_address,
+          { "Multicast Address", "icmpv6.mld.multicast_address", FT_IPv6, BASE_NONE, NULL, 0x0,
+            "Specific IPv6 multicast address", HFILL }},
+        /* RFC3810: Multicast Listener Discovery Version 2 (MLDv2) for IPv6 */
+        { &hf_icmpv6_mld_mrc,
+          { "Maximum Response Code", "icmpv6.mld.maximum_response_code", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Specifies the maximum allowed delay before sending a responding Report", HFILL }},
+       { &hf_icmpv6_mld_flag,
+          { "Flags", "icmpv6.mld.flag", FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
+       { &hf_icmpv6_mld_flag_s,
+          { "Suppress Router-Side Processing", "icmpv6.mld.flag.s", FT_BOOLEAN, 8, NULL, MLD_FLAG_S,
+            "Indicates to any receiving multicast routers that they have to suppress the normal timer updates they perform upon hearing a Query", HFILL }},
+       { &hf_icmpv6_mld_flag_qrv,
+          { "QRV (Querier's Robustness Variable)", "icmpv6.mld.flag.qrv", FT_UINT8, BASE_DEC, NULL, MLD_FLAG_QRV,
+            "Contains the RV (Robustness Variable) value used by the Querier", HFILL }},
+       { &hf_icmpv6_mld_flag_rsv,
+          { "Reserved", "icmpv6.mld.flag.reserved", FT_UINT8, BASE_DEC, NULL, MLD_FLAG_RSV,
+            "Must Be Zero", HFILL }},
+       { &hf_icmpv6_mld_qqi,
+          { "QQIC (Querier's Query Interval Code)", "icmpv6.mld.qqi", FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Specifies the QI (Query Interval) used by the Querier", HFILL }},
+       { &hf_icmpv6_mld_nb_sources,
+          { "Number of Sources", "icmpv6.mld.nb_sources", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Specifies how many source addresses are present in the Query", HFILL }},
+       { &hf_icmpv6_mld_source_address,
+          { "Source Address", "icmpv6.mld.source_address", FT_IPv6, BASE_NONE, NULL, 0x0,
+            "The Source Address fields are a vector of unicast addresses", HFILL }},
+        { &hf_icmpv6_mldr_nb_mcast_records,
+          { "Number of Multicast Address Records", "icmpv6.mldr.nb_mcast_records", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Specifies how many Multicast Address Records are present in this Report", HFILL }},
+        { &hf_icmpv6_mldr_mar,
+          { "Multicast Address Record", "icmpv6.mldr.mar", FT_NONE, BASE_NONE, NULL, 0x0,
+            "Each Multicast Address Record is a block of fields that contain information on the sender listening to a single multicast address on the interface from which the Report is sent", HFILL }},
+        { &hf_icmpv6_mldr_mar_record_type,
+          { "Record Type", "icmpv6.mldr.mar.record_type", FT_UINT8, BASE_DEC, VALS(mldr_record_type_val), 0x0,
+            "It specifies the type of the Multicast Address Record", HFILL }},
+        { &hf_icmpv6_mldr_mar_aux_data_len,
+          { "Aux Data Len", "icmpv6.mldr.mar.aux_data_len", FT_UINT8, BASE_DEC, NULL, 0x0,
+            "The Aux Data Len field contains the length (in units of 32-bit words) of the Auxiliary Data Field in this Multicast Address Record", HFILL }},
+        { &hf_icmpv6_mldr_mar_nb_sources,
+          { "Number of Sources", "icmpv6.mldr.mar.nb_sources", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "The Number of Sources field specifies how many source addresses are present in this Multicast Address Record", HFILL }},
+        { &hf_icmpv6_mldr_mar_multicast_address,
+          { "Multicast Address", "icmpv6.mldr.mar.multicast_address", FT_IPv6, BASE_NONE, NULL, 0x0,
+            "The Multicast Address field contains the multicast address to which this Multicast Address Record pertains", HFILL }},
+        { &hf_icmpv6_mldr_mar_source_address,
+          { "Source Address", "icmpv6.mldr.mar.source_address", FT_IPv6, BASE_NONE, NULL, 0x0,
+            "The Source Address fields are a vector of unicast addresses", HFILL }},
+        { &hf_icmpv6_mldr_mar_auxiliary_data,
+          { "Auxiliary Data", "icmpv6.mldr.mar.auxiliary_data", FT_BYTES, BASE_NONE, NULL, 0x0,
+            "Contains additional information that pertain to this Multicast Address Record", HFILL }},
         { &hf_icmpv6_haad_ha_addrs,
           { "Home Agent Addresses", "icmpv6.haad.ha_addrs", FT_IPv6, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
@@ -3888,7 +3987,7 @@ proto_register_icmpv6(void)
         &ett_icmpv6,
         &ett_icmpv6opt,
         &ett_icmpv6flag,
-        &ett_multicastRR,
+        &ett_icmpv6mar,
         &ett_icmpv6opt_name,
         &ett_cga_param_name,
         &ett_dao_rr_stack
