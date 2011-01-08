@@ -86,7 +86,9 @@ static int hf_tcp_flags_push = -1;
 static int hf_tcp_flags_reset = -1;
 static int hf_tcp_flags_syn = -1;
 static int hf_tcp_flags_fin = -1;
+static int hf_tcp_window_size_value = -1;
 static int hf_tcp_window_size = -1;
+static int hf_tcp_window_size_scalefactor = -1;
 static int hf_tcp_checksum = -1;
 static int hf_tcp_checksum_bad = -1;
 static int hf_tcp_checksum_good = -1;
@@ -327,7 +329,6 @@ static dissector_handle_t data_handle;
  * **************************************************************************/
 static gboolean tcp_analyze_seq           = TRUE;
 static gboolean tcp_relative_seq          = TRUE;
-static gboolean tcp_window_scaling        = TRUE;
 static gboolean tcp_track_bytes_in_flight = TRUE;
 static gboolean tcp_calculate_ts          = FALSE;
 
@@ -637,19 +638,37 @@ pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nx
     return msp;
 }
 
-/* This is called for SYN+ACK packets and the purpose is to verify that we
- * have seen window scaling in both directions.
+/* This is called for SYN and SYN+ACK packets and the purpose is to verify
+ * that we have seen window scaling in both directions.
  * If we cant find window scaling being set in both directions
  * that means it was present in the SYN but not in the SYN+ACK
  * (or the SYN was missing) and then we disable the window scaling
  * for this tcp session.
  */
 static void
-verify_tcp_window_scaling(struct tcp_analysis *tcpd)
+verify_tcp_window_scaling(gboolean is_synack, struct tcp_analysis *tcpd)
 {
-    if( tcpd && ((tcpd->flow1.win_scale==-1) || (tcpd->flow2.win_scale==-1)) ){
-        tcpd->flow1.win_scale=-1;
-        tcpd->flow2.win_scale=-1;
+    if( tcpd->fwd->win_scale==-1 ) {
+        /* We know window scaling will not be used as:
+         * a) this is the SYN and it does not have the WS option
+         *    (we set the reverse win_scale also in case we miss
+         *    the SYN/ACK)
+         * b) this is the SYN/ACK and either the SYN packet has not
+         *    been seen or it did have the WS option. As the SYN/ACK
+         *    does not have the WS option, window scaling will not be used.
+         *
+         * Setting win_scale to -2 to indicate that we can
+         * trust the window_size value in the TCP header.
+         */
+        tcpd->fwd->win_scale = -2;
+        tcpd->rev->win_scale = -2;
+
+    } else if( is_synack && tcpd->rev->win_scale==-2 ) {
+        /* The SYN/ACK has the WS option, while the SYN did not,
+         * this should not happen, but the endpoints will not 
+         * have used window scaling, so we will neither
+         */
+        tcpd->fwd->win_scale = -2;
     }
 }
 
@@ -661,21 +680,6 @@ pdu_store_window_scale_option(guint8 ws, struct tcp_analysis *tcpd)
     if (tcpd)
         tcpd->fwd->win_scale=ws;
 }
-
-static void
-tcp_get_relative_seq_ack(guint32 *seq, guint32 *ack, guint32 *win, struct tcp_analysis *tcpd)
-{
-    if (tcpd) {
-        if (tcp_relative_seq) {
-            (*seq) -= tcpd->fwd->base_seq;
-            (*ack) -= tcpd->rev->base_seq;
-        }
-        if ((tcp_window_scaling) && (tcpd->fwd->win_scale!=-1)) {
-            (*win)<<=tcpd->fwd->win_scale;
-        }
-    }
-}
-
 
 /* when this function returns, it will (if createflag) populate the ta pointer.
  */
@@ -838,9 +842,8 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
      */
 /*QQQ tested*/
     if( seglen>0
-    &&  tcpd->fwd->win_scale!=-1
     &&  tcpd->rev->win_scale!=-1
-    &&  (seq+seglen)==(tcpd->rev->lastack+(tcpd->rev->window<<tcpd->rev->win_scale))
+    &&  (seq+seglen)==(tcpd->rev->lastack+(tcpd->rev->window<<(tcpd->rev->win_scale==-2?0:tcpd->rev->win_scale)))
     &&  (flags&(TH_SYN|TH_FIN|TH_RST))==0 ){
         if(!tcpd->ta){
             tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
@@ -2252,7 +2255,7 @@ dissect_tcpopt_wscale(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
 
     tcp_info_append_uint(pinfo, "WS", 1 << shift);
 
-    if(!pinfo->fd->flags.visited && tcp_analyze_seq && tcp_window_scaling){
+    if(!pinfo->fd->flags.visited){
         pdu_store_window_scale_option(shift, tcpd);
     }
 }
@@ -3736,11 +3739,16 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if(!(pinfo->fd->flags.visited)){
                     tcp_analyze_sequence_number(pinfo, tcph->th_seq, tcph->th_ack, tcph->th_seglen, tcph->th_flags, tcph->th_win, tcpd);
                 }
-                if(tcp_relative_seq || tcp_window_scaling){
-                    tcp_get_relative_seq_ack(&(tcph->th_seq), &(tcph->th_ack), &(tcph->th_win), tcpd);
-                    if ((tcph->th_flags&TH_SYN)) {   /* SYNs are never scaled */
-                        tcph->th_win = real_window;
-                    }
+                if(tcpd && tcp_relative_seq) {
+                    (tcph->th_seq) -= tcpd->fwd->base_seq;
+                    (tcph->th_ack) -= tcpd->rev->base_seq;
+                }
+            }
+
+            /* re-calculate window size, based on scaling factor */
+            if (!(tcph->th_flags&TH_SYN)) {   /* SYNs are never scaled */
+                if (tcpd && (tcpd->fwd->win_scale>=0)) {
+                    (tcph->th_win)<<=tcpd->fwd->win_scale;
                 }
             }
 
@@ -3842,19 +3850,31 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         tf_rst = proto_tree_add_boolean(field_tree, hf_tcp_flags_reset, tvb, offset + 13, 1, tcph->th_flags);
         tf_syn = proto_tree_add_boolean(field_tree, hf_tcp_flags_syn, tvb, offset + 13, 1, tcph->th_flags);
         tf_fin = proto_tree_add_boolean(field_tree, hf_tcp_flags_fin, tvb, offset + 13, 1, tcph->th_flags);
-        proto_tree_add_uint(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, real_window);
 
-        /* Using hf_tcp_window_size for both the segment's window size and
-         * the scaled window size (if applicable) is probably more useful
-         * than separating them.  But if the scaled window size isn't below
-         * the normal window size in the source code as it is here, then
-         * things like columns won't get the [preferred when available]
-         * scaled window size. */
+        /* As discussed in bug 5541, it is better to use two separate 
+         * fields for the real and calculated window size. 
+         */
+        proto_tree_add_uint(tcp_tree, hf_tcp_window_size_value, tvb, offset + 14, 2, real_window);
+        scaled_pi = proto_tree_add_uint(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, tcph->th_win);
+        PROTO_ITEM_SET_GENERATED(scaled_pi);
 
-        if(tcp_window_scaling && tcph->th_win!=real_window) {
-            scaled_pi = proto_tree_add_uint_format(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, tcph->th_win, "Window size: %u (scaled)", tcph->th_win);
+        if( !(tcph->th_flags&TH_SYN) && tcpd ) {
+            switch (tcpd->fwd->win_scale) {
 
-            PROTO_ITEM_SET_GENERATED(scaled_pi);
+            case -1:
+                scaled_pi = proto_tree_add_int_format(tcp_tree, hf_tcp_window_size_scalefactor, tvb, offset + 14, 2, tcpd->fwd->win_scale, "Window size scaling factor: %d (unknown)", tcpd->fwd->win_scale);
+                PROTO_ITEM_SET_GENERATED(scaled_pi);
+                break;
+
+            case -2:
+                scaled_pi = proto_tree_add_int_format(tcp_tree, hf_tcp_window_size_scalefactor, tvb, offset + 14, 2, tcpd->fwd->win_scale, "Window size scaling factor: %d (no window scaling used)", tcpd->fwd->win_scale);
+                PROTO_ITEM_SET_GENERATED(scaled_pi);
+                break;
+
+            default:
+                scaled_pi = proto_tree_add_int_format(tcp_tree, hf_tcp_window_size_scalefactor, tvb, offset + 14, 2, 1<<tcpd->fwd->win_scale, "Window size scaling factor: %d", 1<<tcpd->fwd->win_scale);
+                PROTO_ITEM_SET_GENERATED(scaled_pi);
+            }
         }
     }
 
@@ -4076,13 +4096,13 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if(!pinfo->fd->flags.visited){
-        if((tcph->th_flags & (TH_SYN|TH_ACK))==(TH_SYN|TH_ACK)) {
-            /* If there was window scaling in the SYN packet but none in the SYN+ACK
-             * then we should just forget about the windowscaling completely.
+        if((tcph->th_flags & TH_SYN)==TH_SYN) {
+            /* Check the validity of the window scale value
              */
-            if(tcp_analyze_seq && tcp_window_scaling){
-                verify_tcp_window_scaling(tcpd);
-            }
+            verify_tcp_window_scaling((tcph->th_flags&TH_ACK)==TH_ACK,tcpd);
+        }
+
+        if((tcph->th_flags & (TH_SYN|TH_ACK))==(TH_SYN|TH_ACK)) {
             /* If the SYN or the SYN+ACK offered SCPS capabilities,
              * validate the flow's bidirectional scps capabilities.
              * The or protects against broken implementations offering
@@ -4313,10 +4333,18 @@ proto_register_tcp(void)
         { "Fin",            "tcp.flags.fin", FT_BOOLEAN, 12, TFS(&tfs_set_notset), TH_FIN,
             NULL, HFILL }},
 
+        { &hf_tcp_window_size_value,
+        { "Window size value",        "tcp.window_size_value", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "The window size value from the TCP header", HFILL }},
+
         /* 32 bits so we can present some values adjusted to window scaling */
         { &hf_tcp_window_size,
-        { "Window size",        "tcp.window_size", FT_UINT32, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
+        { "Calculated window size",        "tcp.window_size", FT_UINT32, BASE_DEC, NULL, 0x0,
+            "The scaled window size (if scaling has been used)", HFILL }},
+
+        { &hf_tcp_window_size_scalefactor,
+        { "Window size scaling factor", "tcp.window_size_scalefactor", FT_INT32, BASE_DEC, NULL, 0x0,
+            "The window size scaling factor (-1 when unknown, -2 when no scaling is used)", HFILL }},
 
         { &hf_tcp_checksum,
         { "Checksum",           "tcp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -4903,11 +4931,12 @@ proto_register_tcp(void)
         "Make the TCP dissector use relative sequence numbers instead of absolute ones. "
         "To use this option you must also enable \"Analyze TCP sequence numbers\". ",
         &tcp_relative_seq);
-    prefs_register_bool_preference(tcp_module, "window_scaling",
-        "Window scaling",
-        "Try to track and adjust the window field according to any TCP window scaling options seen."
-        "To use this option you must also enable \"Analyze TCP sequence numbers\". ",
-        &tcp_window_scaling);
+
+    /* We now have tcp.window_size_value and tcp.window_size, so no need
+     * anymore for the preference window_scaling
+     */
+    prefs_register_obsolete_preference(tcp_module, "window_scaling");
+
     prefs_register_bool_preference(tcp_module, "track_bytes_in_flight",
         "Track number of bytes in flight",
         "Make the TCP dissector track the number on un-ACKed bytes of data are in flight per packet. "
