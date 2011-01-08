@@ -57,6 +57,7 @@
 
 /* PROTOTYPES/FORWARDS */
 
+/* TS 48.008 3.2.2.1 Message Type */
 const value_string gsm_a_bssmap_msg_strings[] = {
     { 0x01, "Assignment Request" },
     { 0x02, "Assignment Complete" },
@@ -74,10 +75,12 @@ const value_string gsm_a_bssmap_msg_strings[] = {
     { 0x19, "Handover Candidate Response" },
     { 0x1a, "Handover Required Reject" },
     { 0x1b, "Handover Detect" },
-    { 0x1c, "Internal Handover Required" },
-    { 0x1d, "Internal Handover Required Reject" },
-    { 0x1e, "Internal Handover Command" },
-    { 0x1f, "Internal Handover Enquiry" },
+
+    { 0x1c, "VGCS/VBS Assignment Result" },
+    { 0x1d, "VGCS/VBS Assignment Failure" },
+    { 0x1e, "VGCS/VBS Queuing Indication" },
+    { 0x1f, "Uplink Request" },
+
     { 0x20, "Clear Command" },
     { 0x21, "Clear Complete" },
     { 0x22, "Clear Request" },
@@ -87,7 +90,8 @@ const value_string gsm_a_bssmap_msg_strings[] = {
     { 0x26, "Confusion" },
     { 0x28, "Suspend" },
     { 0x29, "Resume" },
-    { 0x2a, "Connection Oriented Information" },
+	/* This value (2a) was allocated in an earlier phase of the protocol and shall not be used in the future. */
+    { 0x2a, "Connection Oriented Information(Obsolete)" },
     { 0x2b, "Perform Location Request" },
     { 0x2c, "LSA Information" },
     { 0x2d, "Perform Location Response" },
@@ -102,8 +106,12 @@ const value_string gsm_a_bssmap_msg_strings[] = {
     { 0x36, "MSC Invoke Trace" },
     { 0x37, "BSS Invoke Trace" },
     { 0x3a, "Connectionless Information" },
-    { 0x3c, "Reset Resource" },
-    { 0x3d, "Reset Resource Acknowledge" },
+
+    { 0x3b, "VGCS/VBS Assignment Status" },
+    { 0x3c, "VGCS/VBS Area Cell Info" },
+
+    { 0x3d, "Reset IP Resource" },
+    { 0x3e, "Reset IP Resource Acknowledge" },
     { 0x40, "Block" },
     { 0x41, "Blocking Acknowledge" },
     { 0x42, "Unblock" },
@@ -130,20 +138,16 @@ const value_string gsm_a_bssmap_msg_strings[] = {
     { 0x05, "VGCS/VBS Setup Ack" },
     { 0x06, "VGCS/VBS Setup Refuse" },
     { 0x07, "VGCS/VBS Assignment Request" },
-    { 0x1c, "VGCS/VBS Assignment Result" },
-    { 0x1d, "VGCS/VBS Assignment Failure" },
-    { 0x1e, "VGCS/VBS Queuing Indication" },
-    { 0x1f, "Uplink Request" },
-    { 0x27, "Uplink Request Acknowledge" },
-    { 0x49, "Uplink Request Confirmation" },
-    { 0x4a, "Uplink Release Indication" },
-    { 0x4b, "Uplink Reject Command" },
-    { 0x4c, "Uplink Release Command" },
-    { 0x4d, "Uplink Seized Command" },
-    { 0x50, "VGCS Additional Information" },
-    { 0x51, "VGCS SMS" },
-    { 0x52, "Notification Data" },
-    { 0x53, "Uplink Application Data" },
+
+    { 0x60, "VGCS Additional Information" },
+    { 0x61, "VGCS SMS" },
+    { 0x62, "Notification Data" },
+    { 0x63, "Uplink Application Data" },
+
+    { 0x70, "Internal Handover Required" },
+    { 0x71, "Internal Handover Required Reject" },
+    { 0x72, "Internal Handover Command" },
+    { 0x73, "Internal Handover Enquiry" },
 
     { 0, NULL }
 };
@@ -6055,10 +6059,10 @@ bssmap_int_ho_enq(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 /*
- * 3.2.1.87 RESET RESOURCE
+ * 3.2.1.87 RESET IP RESOURCE
  */
 static void
-bssmap_reset_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssmap_reset_ip_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6075,10 +6079,10 @@ bssmap_reset_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 /*
- * 3.2.1.88 RESET RESOURCE ACKNOWLEDGE
+ * 3.2.1.88 RESET IP RESOURCE ACKNOWLEDGE
  */
 static void
-bssmap_reset_res_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssmap_reset_ip_res_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
     guint32 curr_offset;
     guint32 consumed;
@@ -6112,12 +6116,14 @@ static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
     bssmap_ho_cand_enq, /* Handover Candidate Enquire */
     bssmap_ho_cand_resp,    /* Handover Candidate Response */
     bssmap_ho_reqd_rej, /* Handover Required Reject */
-    bssmap_ho_det,  /* Handover Detect */
-    bssmap_int_ho_req,  /* Internal Handover Required */
-    bssmap_int_ho_req_rej,  /* Internal Handover Required Reject */
-    bssmap_int_ho_cmd,  /* Internal Handover Command */
-    bssmap_int_ho_enq,  /* Internal Handover Enquiry */
-    bssmap_clear_cmd,   /* Clear Command */
+    bssmap_ho_det,				/* 0x1b Handover Detect */
+
+    bssmap_vgcs_vbs_ass_res,    /* 0x1c VGCS/VBS Assignment Result */
+    bssmap_vgcs_vbs_ass_fail,   /* 0x1d VGCS/VBS Assignment Failure */
+    NULL,						/* 0x1e No dsta VGCS/VBS Queuing Indication */
+    bssmap_uplink_req,			/* 0x1f Uplink Request */
+
+    bssmap_clear_cmd,			/* 0x20 Clear Command */
     NULL /* no associated data */,  /* Clear Complete */
     bssmap_clear_req,   /* Clear Request */
     NULL,   /* Reserved */
@@ -6140,9 +6146,11 @@ static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
     bssmap_reset_cct_ack,   /* Reset Circuit Acknowledge */
     bssmap_msc_invoke_trace,    /* MSC Invoke Trace */
     bssmap_bss_invoke_trace,    /* BSS Invoke Trace */
-    NULL,   /* Connectionless Information */
-    bssmap_reset_res,   /* Reset Resource */
-    bssmap_reset_res_ack,   /* Reset Resource Acknowledge */
+    NULL,						/* 0x3a Connectionless Information */
+	NULL,						/* 0x3b VGCS/VBS ASSIGNMENT STATUS */
+	NULL,						/* 0x3c VGCS/VBS AREA CELL INFO */
+    bssmap_reset_ip_res,		/* 0x3d 3.2.1.87 RESET IP RESOURCE */
+    bssmap_reset_ip_res_ack,	/* 0x3e 3.2.1.88 RESET IP RESOURCE ACKNOWLEDGE */
     bssmap_block,   /* Block */
     bssmap_block_ack,   /* Blocking Acknowledge */
     bssmap_unblock, /* Unblock */
@@ -6164,25 +6172,17 @@ static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
     bssmap_cl3_info,    /* Complete Layer 3 Information */
     bssmap_cls_m_req /* no associated data */,  /* Classmark Request */
     bssmap_ciph_mode_rej,   /* Cipher Mode Reject */
-    bssmap_load_ind,    /* Load Indication */
-    bssmap_vgcs_vbs_setup,  /* VGCS/VBS Setup */
-    bssmap_vgcs_vbs_setup_ack,  /* VGCS/VBS Setup Ack */
-    bssmap_vgcs_vbs_setup_refuse,   /* VGCS/VBS Setup Refuse */
-    bssmap_vgcs_vbs_ass_req,    /* VGCS/VBS Assignment Request */
-    bssmap_vgcs_vbs_ass_res,    /* VGCS/VBS Assignment Result */
-    bssmap_vgcs_vbs_ass_fail,   /* VGCS/VBS Assignment Failure */
-    NULL,   /* No dsta VGCS/VBS Queuing Indication */
-    bssmap_uplink_req,  /* Uplink Request */
-    bssmap_uplink_req_ack,  /* Uplink Request Acknowledge */
-    bssmap_uplink_req_conf, /* Uplink Request Confirmation */
-    bssmap_uplink_rel_ind,  /* Uplink Release Indication */
-    bssmap_uplink_rej_cmd,  /* Uplink Reject Command */
-    bssmap_uplink_rel_cmd,  /* Uplink Release Command */
-    bssmap_uplink_seized_cmd,   /* Uplink Seized Command */
-    bssmap_vgcs_add_inf,    /* VGCS Additional Information */
-    bssmap_vgcs_sms,    /* VGCS SMS */
-    bssmap_notification_data,   /* Notification Data*/
-    bssmap_uplink_app_data, /* Uplink Application Data */
+    bssmap_load_ind,			/* 0x5a Load Indication */
+    bssmap_vgcs_add_inf,		/* 0x60 VGCS Additional Information */
+    bssmap_vgcs_sms,			/* 0x61 VGCS SMS */
+    bssmap_notification_data,   /* 0x62 Notification Data*/
+    bssmap_uplink_app_data,		/* 0x63 Uplink Application Data */
+
+    bssmap_int_ho_req,			/* 0x70 Internal Handover Required */
+    bssmap_int_ho_req_rej,		/* 0x71 Internal Handover Required Reject */
+    bssmap_int_ho_cmd,			/* 0x72 Internal Handover Command */
+    bssmap_int_ho_enq,			/* 0x73 Internal Handover Enquiry */
+
     NULL,   /* NONE */
 };
 

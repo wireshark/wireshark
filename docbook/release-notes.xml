@@ -38,15 +38,14 @@ Wireshark Info
 
         <listitem>
           <para>
-            Nephi Johnson of BreakingPoint discovered that the LDSS dissector
-            could overflow a buffer.
+            FRAsse discovered that the MAC-LTE dissector could overflow a buffer.
             <!-- Fixed in trunk: r34581 -->
-            <!-- Fixed in trunk-1.4: r34889 -->
-            <!-- Fixed in trunk-1.2: r34941 -->
+            <!-- Fixed in trunk-1.4: r -->
+            <!-- Fixed in trunk-1.2: r -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5318">Bug
             5318</ulink>)
           </para>
-          <para>Versions affected: 1.2.0 to 1.2.12 and 1.4.0 to 1.4.1.</para>
+          <para>Versions affected: 1.2.? to 1.2.13 and 1.4.? to 1.4.2.</para>
 <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
@@ -175,21 +174,21 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-          .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
-          </ulink>)
+          Wrong decode at ethernet OAM Y.1731 ETH-CC.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5517">Bug
+          5517</ulink>)
         </para></listitem>
 
         <listitem><para>
-          .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
-          </ulink>)
+          WPS: RF bands decryption.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5523">Bug
+          5523</ulink>)
         </para></listitem>
 
         <listitem><para>
-          .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=">Bug
-          </ulink>)
+          Incorrect LTP SDNV value handling.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5521">Bug
+          5521</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -218,17 +217,20 @@ There are no new protocols in this release.
     <para>
 
 ASN.1 PER,
+CFM,
 CIGI,
 DHCPv6,
 GSM A GM,
 IEEE 802.11,
 InfiniBand,
 LTE-PDCP
+LTP,
 MP2T,
 RADIUS,
 SCCP,
 SIP,
 TLS,
+WPS
 
     </para>
     </section>
@@ -236,7 +238,7 @@ TLS,
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-Endace ERF.
+Endace ERF, Microsoft Network Monitor.
 
     </para>
     </section>
