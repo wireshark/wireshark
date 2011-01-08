@@ -52,6 +52,9 @@
 #include "gtk/capture_globals.h"
 #endif
 
+#ifdef HAVE_GTKOSXAPPLICATION
+#include <igemacintegration/gtkosxapplication.h>
+#endif
 
 enum { DND_TARGET_STRING, DND_TARGET_ROOTWIN, DND_TARGET_URL };
 
@@ -306,7 +309,7 @@ dnd_save_file_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
 /* (as we only registered to "text/uri-list", we will only get a file list here) */
 static void
 dnd_data_received(GtkWidget *widget _U_, GdkDragContext *dc _U_, gint x _U_, gint y _U_,
-GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
+                  GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
 {
     gpointer  dialog;
     gchar *cf_names_freeme;
@@ -361,6 +364,29 @@ GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
     }
 }
 
+#ifdef HAVE_GTKOSXAPPLICATION
+gboolean
+gtk_osx_openFile (GtkOSXApplication *app, gchar *path, gpointer user_data)
+{
+    GtkSelectionData selection_data;
+    int length = strlen(path);
+	
+    selection_data.length = length + 3;
+    selection_data.data = g_malloc(length + 3);
+    memcpy(selection_data.data, path, length);
+	
+    selection_data.data[length] = '\r';
+    selection_data.data[length + 1] = '\n';
+    selection_data.data[length + 2] = '\0';
+	
+    dnd_data_received(NULL, NULL, 0, 0, &selection_data, DND_TARGET_URL, 0, 0);
+	
+    g_free(selection_data.data);
+	
+    return TRUE;
+}
+#endif
+
 /* init the drag and drop functionality */
 void
 dnd_init(GtkWidget *w)
@@ -380,6 +406,9 @@ dnd_init(GtkWidget *w)
 
     /* get notified, if some dnd coming in */
     g_signal_connect(w, "drag_data_received", G_CALLBACK(dnd_data_received), NULL);
+#ifdef HAVE_GTKOSXAPPLICATION	
+    g_signal_connect(g_object_new(GTK_TYPE_OSX_APPLICATION, NULL), "NSApplicationOpenFile", G_CALLBACK(gtk_osx_openFile), NULL);
+#endif
 }
 
 
