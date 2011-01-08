@@ -175,6 +175,7 @@ function(_GTK2_FIND_INCLUDE_DIR _var _hdr)
             /opt/local/include
             /opt/local/lib
             /opt/local/lib/gtk-2.0/include
+            /opt/local/include/gdk-pixbuf-2.0/
             $ENV{GTKMM_BASEPATH}/include
             $ENV{GTKMM_BASEPATH}/lib
             [HKEY_CURRENT_USER\\SOFTWARE\\gtkmm\\2.4;Path]/include
