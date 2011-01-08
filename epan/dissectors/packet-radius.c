@@ -1935,8 +1935,8 @@ static void register_radius_fields(const char* unused _U_) {
 		 radius_load_dictionary(dict,dir,"dictionary",&dict_err_str);
 
 		 if (dict_err_str) {
-				g_warning("radius: %s",dict_err_str);
-				g_free(dict_err_str);
+		 	report_failure("radius: %s",dict_err_str);
+			g_free(dict_err_str);
 		 }
 
 		 g_hash_table_foreach(dict->attrs_by_id,register_attrs,&ri);
