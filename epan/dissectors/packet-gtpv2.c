@@ -134,8 +134,8 @@ static gint ett_gtpv2_tra_info_interfaces_lsgw = -1;
 static gint ett_gtpv2_tra_info_interfaces_lpdn_gw = -1;
 static gint ett_gtpv2_tra_info_interfaces_lpdn_lenb = -1;
 
-static int hf_gtpv2_selec_mode= -1;
-
+static int hf_gtpv2_selec_mode = -1;
+static int hf_gtpv2_source_type = -1;
 static int hf_gtpv2_f_teid_v4 = -1;
 static int hf_gtpv2_f_teid_v6 = -1;
 static int hf_gtpv2_f_teid_interface_type= -1;
@@ -265,6 +265,11 @@ static int hf_gtpv2_bearer_flag_ppc = -1;
 static int hf_gtpv2_bearer_flag_vb = -1;
 static int hf_gtpv2_ue_time_zone = -1;
 static int hf_gtpv2_ue_time_zone_dst = -1;
+static int hf_gtpv2_fq_csid_type = -1;
+static int hf_gtpv2_fq_csid_nr = -1;
+static int hf_gtpv2_fq_csid_ipv4 = -1;
+static int hf_gtpv2_fq_csid_ipv6 = -1;
+static int hf_gtpv2_fq_csid_id = -1;
 static int hf_gtpv2_complete_req_msg_type = -1;
 static int hf_gtpv2_mme_grp_id = -1;
 static int hf_gtpv2_mme_code = -1;
@@ -307,6 +312,7 @@ static int hf_gtpv2_uli_rai_rac= -1;
 static int hf_gtpv2_uli_tai_tac= -1;
 static int hf_gtpv2_uli_ecgi_eci= -1;
 static int hf_gtpv2_uli_ecgi_eci_spare= -1;
+static int hf_gtpv2_nsapi = -1;
 static int hf_gtpv2_bearer_control_mode= -1;
 
 /* Definition of User Location Info (AVP 22) masks */
@@ -455,6 +461,7 @@ static const value_string gtpv2_message_type_vals[] = {
 #define GTPV2_IE_CHAR_CHAR               95
 #define GTPV2_IE_TRA_INFO		         96
 #define GTPV2_BEARER_FLAG                97
+/* define GTPV2_IE_PAGING_CAUSE          98 (void) */
 #define GTPV2_IE_PDN_TYPE                99
 #define GTPV2_IE_PTI                    100
 #define GTPV2_IE_DRX_PARAM              101
@@ -479,14 +486,20 @@ static const value_string gtpv2_message_type_vals[] = {
 #define GTPV2_IE_SEL_PLMN_ID            120
 #define GTPV2_IE_TARGET_ID              121
 /* GTPV2_IE_NSAPI                       122 */
-#define GTPV2_APN_RESTRICTION           127
+#define GTPV2_IE_PKT_FLOW_ID            123
+#define GTPV2_IE_RAB_CONTEXT            124
+#define GTPV2_IE_S_RNC_PDCP_CTX_INFO    125
+#define GTPV2_IE_UDP_S_PORT_NR          126
+#define GTPV2_IE_APN_RESTRICTION           127
 #define GTPV2_IE_SEL_MODE               128
 #define GTPV2_IE_SOURCE_IDENT           129
 #define GTPV2_IE_BEARER_CONTROL_MODE    130
 #define GTPV2_IE_CNG_REP_ACT            131
+#define GTPV2_IE_FQ_CSID                132
 #define GTPV2_IE_CHANNEL_NEEDED         133
+#define GTPV2_IE_EMLPP_PRI              134
 #define GTPV2_IE_NODE_TYPE              135
-#define GTPV2_IE_FQDN				    136
+#define GTPV2_IE_FQDN                   136
 #define GTPV2_IE_TI                     137
 #define GTPV2_IE_PRIVATE_EXT            255
 
@@ -2242,7 +2255,7 @@ dissect_gtpv2_pdn_numbers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	nsapi_tree = proto_item_add_subtree(nsapi_ti, ett_gtpv2_pdn_numbers_nsapi);
 	proto_tree_add_item(nsapi_tree, hf_gtpv2_spare_bits,	tvb, offset<<3, 4, FALSE);
 	proto_tree_add_item(nsapi_tree, hf_gtpv2_pdn_numbers_nsapi, tvb, offset, 1, FALSE);
-	proto_item_append_text(tree, "NSAPI: %d", nsapi);
+	proto_item_append_text(tree, "NSAPI: %u", nsapi);
 	offset++;
 
 	dlgtpu_seq = tvb_get_ntohs(tvb, offset);
@@ -2610,12 +2623,75 @@ dissect_gtpv2_target_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 /*
  * 8.52 Void
+ */
+/*
  * 8.53 Packet Flow ID
+ */
+static void
+dissect_gtpv2_pkt_flow_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+	int offset = 0;
+
+	/* Octet 5 Spare EBI */
+	proto_tree_add_bits_item(tree, hf_gtpv2_spare_bits, tvb, offset<<3, 4, FALSE);
+	proto_tree_add_item(tree, hf_gtpv2_ebi, tvb, offset, 2, FALSE);
+	offset++;
+
+	/* Packet Flow ID */
+	proto_tree_add_text(tree, tvb, offset, length, "Packet Flow ID: %s", tvb_bytes_to_str(tvb, offset, length-1));
+
+}
+/*
  * 8.54 RAB Context
+ */
+dissect_gtpv2_rab_context(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+	int offset = 0;
+	guint16			dlgtpu_seq, ulgtpu_seq, dl_pdcp_seq, ul_pdcp_seq;
+
+	/* 5 Spare NSAPI */
+	proto_tree_add_bits_item(tree, hf_gtpv2_spare_bits, tvb, offset<<3, 4, FALSE);
+	proto_tree_add_item(tree, hf_gtpv2_nsapi, tvb, offset, 1, FALSE);
+
+	/* 6 to 7 DL GTP-U Sequence Number */
+	dlgtpu_seq = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 2, "DL GTP-U Sequence Number: %d", dlgtpu_seq);
+	offset += 2;
+
+	/* 8 to 9 UL GTP-U Sequence Number */
+	ulgtpu_seq = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 2, "UL GTP-U Sequence Number: %d", ulgtpu_seq);
+	offset += 2;
+
+	/* 10 to 11 DL PDCP Sequence Number */
+	dl_pdcp_seq = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 2, "DL PDCP Sequence Number: %d", dl_pdcp_seq);
+	offset += 2;
+
+	/* 12 to 13 UL PDCP Sequence Number */
+	ul_pdcp_seq = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 2, "UL PDCP Sequence Number: %d", ul_pdcp_seq);
+
+
+}
+/*
  * 8.55 Source RNC PDCP context info
+ */
+static void
+dissect_gtpv2_s_rnc_pdcp_ctx_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
+{
+	proto_tree_add_text(tree, tvb, 0, length, "RRC Container");
+}
+
+/*
  * 8.56 UDP Source Port Number
  */
-
+static void
+dissect_udp_s_port_nr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
+{
+	proto_tree_add_text(tree, tvb, 0, 2, "UPD Source Port Number: %u", tvb_get_ntohs(tvb, 0));
+	proto_item_append_text(tree, "%u", tvb_get_ntohs(tvb, 0));
+}
 /*
  * 8.57 APN Restriction
  */
@@ -2655,33 +2731,52 @@ dissect_gtpv2_selec_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 /*
  * 8.59 Source Identification
  */
-#if 0
 static const value_string gtpv2_source_ident_types[] = {
 	{0, "Cell ID"},
 	{1, "RNC ID"},
-	{2, "eNodeB ID"},
+	{2, "eNodeB ID(Reserved, used in erlier v of proto.)"},
 	{0,	NULL}
 };
 static void
 dissect_gtpv2_source_ident(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
+	proto_item *expert_item;
     int          offset=0;
+	guint8       source_type;
 
     /* Octet 5 to 12 Target Cell ID */
 	de_cell_id(tvb, tree, offset, 8, NULL, 0);
+	offset+=8;
     /* Octet 13 Source Type */
+	source_type = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_gtpv2_source_type, tvb, offset, 1, FALSE);
+	offset++;
     /* Octet 14 to (n+4) Source ID */
-    /* The Source Type is Cell ID for PS handover from GERAN A/Gb mode. In this case the coding of the Source ID field
-     * shall be same as the Octets 3 to 10 of the Cell Identifier IEI in 3GPP TS 48.018 [34].
-     */
-    /* The Source Type is RNC ID for PS handover from GERAN Iu mode or for inter-RAT handover from UTRAN. In this
-     * case the Source ID field shall be encoded as as the Source RNC-ID part of the "Source ID" parameter in 3GPP TS
-     * 25.413 [33].
-     */
+	switch(source_type){
+		case 0:
+			/* The Source Type is Cell ID for PS handover from GERAN A/Gb mode. In this case the coding of the Source ID field
+             * shall be same as the Octets 3 to 10 of the Cell Identifier IEI in 3GPP TS 48.018 [34].
+             */
+            de_cell_id(tvb, tree, offset, 8, NULL, 0);
+            offset+=8;
+			break;
+		case 1:
+			/* The Source Type is RNC ID for PS handover from GERAN Iu mode or for inter-RAT handover from UTRAN. In this
+             * case the Source ID field shall be encoded as as the Source RNC-ID part of the "Source ID" parameter in 3GPP TS
+             * 25.413 [33].
+             */
+			/* RNC-ID M INTEGER (0..4095) */
+			break;
+		case 2:
+			break;
+		default:
+            expert_item = proto_tree_add_text(tree, tvb, offset-1, 1, "Unknown source type");
+            expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_ERROR, "Unknown source type");
+            PROTO_ITEM_SET_GENERATED(expert_item);
+			break;
+	}
 
 }
-#endif
  /*
   * 8.60 Bearer Control Mode
   */
@@ -2738,6 +2833,74 @@ dissect_gtpv2_cng_rep_act(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 /*
  * 8.62 Fully qualified PDN Connection Set Identifier (FQ-CSID)
  */
+static const value_string gtpv2_fq_csid_type_vals[] = {
+    {0, "Global unicast IPv4 address"},
+    {1, "Global unicast IPv6 address"},
+    {2, "4 octets long field"},
+    {0, NULL}
+};
+
+
+static void
+dissect_gtpv2_fq_csid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
+{
+	proto_item *expert_item;
+	int      offset = 0;
+	guint8	 octet,node_id_type, csids;
+	guint32  node_id, node_id_mcc_mnc;
+
+	/* Octet 5 Node-ID Type Number of CSIDs= m */
+
+	octet = tvb_get_guint8(tvb, offset);
+	node_id_type = octet >> 4;
+	csids = octet & 0x0f;
+	proto_tree_add_item(tree, hf_gtpv2_fq_csid_type, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gtpv2_fq_csid_nr, tvb, offset, 1, FALSE);
+	offset++;
+
+	switch(node_id_type){
+		case 0:
+			/* Indicates that Node-ID is a global unicast IPv4 address and p = 9 */
+			proto_tree_add_item(tree, hf_gtpv2_fq_csid_ipv4, tvb, offset, 4, FALSE);
+			offset += 4;
+			break;
+		case 1:
+			/* Indicates that Node-ID is a global unicast IPv6 address and p = 21 */
+			proto_tree_add_item(tree, hf_gtpv2_fq_csid_ipv6, tvb, offset, 16, FALSE);
+			offset += 16;
+			break;
+		case 2:
+            /* Node-ID is a 4 octets long field with a 32 bit value stored in network order, and p= 9. The coding
+             * of the field is specified below:
+			 * - Most significant 20 bits are the binary encoded value of (MCC * 1000 + MNC).
+			 * - Least significant 12 bits is a 12 bit integer assigned by an operator to an MME, SGW or PGW. Other values of
+             *   Node-ID Type are reserved.
+			 */
+			node_id = tvb_get_ntohl(tvb, offset);
+			node_id_mcc_mnc = node_id >> 12;
+			node_id = node_id & 0xfff;
+			proto_tree_add_text(tree, tvb, offset, 4, "Node-ID: MCC+MNC %u, Id: %u",node_id_mcc_mnc, node_id);
+			offset+=4;
+			break;
+		default:
+            expert_item = proto_tree_add_text(tree, tvb, offset-1, 1, "Wrong Node-ID Type %u, should be 0-2(Or tis is a newer spec)",node_id_type);
+            expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_ERROR, "Wrong Node-ID Type %u, should be 0-2(Or tis is a newer spec)",node_id_type);
+            PROTO_ITEM_SET_GENERATED(expert_item);
+			return;
+	}
+
+	/* First PDN Connection Set Identifier (CSID)
+	 * Second PDN Connection Set Identifier (CSID)
+	 *  :
+	 * m-th PDN Connection Set Identifier (CSID)
+	 */
+	while ( csids-- )
+	{
+		proto_tree_add_item(tree, hf_gtpv2_fq_csid_id, tvb, offset, 2, FALSE);
+		offset += 2;
+	}
+
+}
 /*
  * 8.63 Channel needed
  */
@@ -2753,8 +2916,17 @@ dissect_gtpv2_channel_needed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 /*
  * 8.64 eMLPP Priority
+ * The eMLPP-Priority shall be coded as depicted in Figure 8.64-1. The eMLPP Priority is coded as the value part of the
+ * eMLPP-Priority IE defined in 3GPP TS 48.008 [29] (not including 3GPP TS 48.008 IEI and 3GPP TS 48.008 [29]
+ * length indicator).
  */
+static void
+dissect_gtpv2_emlpp_pri(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
+{
 
+	be_emlpp_prio(tvb, tree, 0, length, NULL, 0);
+
+}
 /*
  * 8.65 Node Type
  */
@@ -2854,6 +3026,7 @@ static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_IE_CHAR_CHAR, dissect_gtpv2_char_char},                   /* 95 Charging Characteristic */
     {GTPV2_IE_TRA_INFO, dissect_gtpv2_tra_info},                     /* 96, Trace Information 8.31 */
     {GTPV2_BEARER_FLAG, dissect_gtpv2_bearer_flag},                  /* 97, Bearer Flag */
+                                                                     /* 98, Void 8.33 */
     {GTPV2_IE_PDN_TYPE, dissect_gtpv2_pdn_type},                     /* 99, PDN Type */
     {GTPV2_IE_PTI, dissect_gtpv2_pti},                               /* 100, Procedure Transaction Id */
     /* Void */                                                       /* 101, DRX Parameter 8.36 */
@@ -2878,14 +3051,19 @@ static const gtpv2_ie_t gtpv2_ies[] = {
 	{GTPV2_IE_F_CAUSE, dissect_gtpv2_F_cause},				         /* 119, Fully Qualified Cause (F-Cause) */
     {GTPV2_IE_SEL_PLMN_ID, dissect_gtpv2_sel_plmn_id},               /* 120, Selected PLMN ID 8.50 */
 	{GTPV2_IE_TARGET_ID, dissect_gtpv2_target_id},			         /* 121, Target Identification */
-    {GTPV2_APN_RESTRICTION, dissect_gtpv2_apn_rest},                 /* 127, APN Restriction */
-    {GTPV2_IE_SEL_MODE,dissect_gtpv2_selec_mode},					 /* 128 Selection Mode */
-#if 0
-    {GTPV2_IE_SOURCE_IDENT, dissect_gtpv2_source_ident},             /* 129, Source Identification 8.59 */
-#endif
+                                                                     /* 122, Void 8.52 */
+    {GTPV2_IE_PKT_FLOW_ID, dissect_gtpv2_pkt_flow_id},               /* 123, Packet Flow ID 8.53 */
+    {GTPV2_IE_RAB_CONTEXT, dissect_gtpv2_rab_context},               /* 124, RAB Context 8.54 */
+    {GTPV2_IE_S_RNC_PDCP_CTX_INFO, dissect_gtpv2_s_rnc_pdcp_ctx_info},   /* 125, Source RNC PDCP context info 8.55 */
+    {GTPV2_IE_UDP_S_PORT_NR, dissect_udp_s_port_nr},                     /* 126, UDP Source Port Number 8.56 */
+    {GTPV2_IE_APN_RESTRICTION, dissect_gtpv2_apn_rest},                  /* 127, APN Restriction */
+    {GTPV2_IE_SEL_MODE,dissect_gtpv2_selec_mode},					     /* 128 Selection Mode */
+    {GTPV2_IE_SOURCE_IDENT, dissect_gtpv2_source_ident},                 /* 129, Source Identification 8.59 */
     {GTPV2_IE_BEARER_CONTROL_MODE,dissect_gtpv2_bearer_control_mode},	 /* 130 Bearer Control Mode*/
     {GTPV2_IE_CNG_REP_ACT ,dissect_gtpv2_cng_rep_act},					 /* 131 Change Reporting Action 8.61 */
+    {GTPV2_IE_FQ_CSID, dissect_gtpv2_fq_csid},                           /* 132, Fully Qualified PDN Connection Set Identifier (FQ-CSID) 8.62 */
     {GTPV2_IE_CHANNEL_NEEDED, dissect_gtpv2_channel_needed},             /* 133, Channel Needed 8.63 */
+    {GTPV2_IE_EMLPP_PRI, dissect_gtpv2_emlpp_pri},	                     /* 134, eMLPP Priority 8.64 */
     {GTPV2_IE_NODE_TYPE ,dissect_gtpv2_node_type},						 /* 135 Node Type 8.65 */
 	{GTPV2_IE_FQDN, dissect_gtpv2_fqdn},								 /* 136 8.66 Fully Qualified Domain Name (FQDN) */
 	{GTPV2_IE_TI, dissect_gtpv2_ti},									 /* 137 8.68	Transaction Identifier (TI) */
@@ -3796,6 +3974,11 @@ void proto_register_gtpv2(void)
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL}
         },
+		{ &hf_gtpv2_nsapi,
+        {"NSAPI", "gtpv2.nsapi",
+        FT_UINT8, BASE_DEC, NULL, 0x0f,
+        NULL, HFILL}
+        },
         {&hf_gtpv2_f_teid_v4,
         {"V4", "gtpv2.f_teid_v4",
         FT_BOOLEAN, 8, TFS(&gtpv2_f_teid_v4_vals), 0x80,
@@ -3981,6 +4164,31 @@ void proto_register_gtpv2(void)
         FT_UINT8, BASE_DEC, VALS(gtpv2_ue_time_zone_dst_vals),0x03,
         NULL, HFILL}
         },
+		{ &hf_gtpv2_fq_csid_type,
+			{"Node-ID Type", "gtpv2.fq_csid_type",
+				FT_UINT8, BASE_DEC, NULL, 0xf0,
+				NULL, HFILL}
+		},
+		{ &hf_gtpv2_fq_csid_nr,
+			{"Number of CSIDs", "gtpv2.fq_csid_nr",
+				FT_UINT8, BASE_DEC, NULL, 0x0f,
+				NULL, HFILL}
+		},
+		{ &hf_gtpv2_fq_csid_ipv4,
+			{"Node-ID (IPv4)", "gtpv2.fq_csid_ipv4",
+				FT_IPv4, BASE_NONE, NULL, 0x0,
+				NULL, HFILL}
+		},
+		{ &hf_gtpv2_fq_csid_ipv6,
+			{"Node-ID (IPv6)", "gtpv2.fq_csid_ipv6",
+				FT_IPv6, BASE_NONE, NULL, 0x0,
+				NULL, HFILL}
+		},
+		{ &hf_gtpv2_fq_csid_id,
+			{"CSID", "",
+				FT_UINT16, BASE_DEC, NULL, 0x0,
+				NULL, HFILL}
+		},
 		{ &hf_gtpv2_complete_req_msg_type,
         {"Complete Request Message Type","gtpv2.complete_req_msg_type",
         FT_UINT8, BASE_DEC, VALS(gtpv2_complete_req_msg_type_vals),0x0,
@@ -4054,6 +4262,11 @@ void proto_register_gtpv2(void)
         {&hf_gtpv2_selec_mode,
         {"Selection Mode","gtpv2.selec_mode",
         FT_UINT8, BASE_DEC, VALS(gtpv2_selec_mode_vals),0x03,
+        NULL, HFILL}
+        },
+		{ &hf_gtpv2_source_type,
+        {"Source Type", "gtpv2.source_type",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL}
         },
         {&hf_gtpv2_bearer_control_mode,
