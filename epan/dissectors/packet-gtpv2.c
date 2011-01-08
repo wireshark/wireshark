@@ -2644,6 +2644,7 @@ dissect_gtpv2_pkt_flow_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 /*
  * 8.54 RAB Context
  */
+static void
 dissect_gtpv2_rab_context(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
 	int offset = 0;
@@ -2687,7 +2688,7 @@ dissect_gtpv2_s_rnc_pdcp_ctx_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
  * 8.56 UDP Source Port Number
  */
 static void
-dissect_udp_s_port_nr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
+dissect_udp_s_port_nr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
 	proto_tree_add_text(tree, tvb, 0, 2, "UPD Source Port Number: %u", tvb_get_ntohs(tvb, 0));
 	proto_item_append_text(tree, "%u", tvb_get_ntohs(tvb, 0));
@@ -2842,7 +2843,7 @@ static const value_string gtpv2_fq_csid_type_vals[] = {
 
 
 static void
-dissect_gtpv2_fq_csid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_fq_csid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
 	proto_item *expert_item;
 	int      offset = 0;

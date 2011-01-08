@@ -2761,7 +2761,7 @@ static const value_string gsm_a_bssmap_call_priority_vals[] = {
     { 0, NULL }
 };
 
-static guint16
+guint16
 be_emlpp_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, offset << 3, 5, FALSE);
