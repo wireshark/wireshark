@@ -191,6 +191,7 @@ FILE SECTION
   <!ENTITY WiresharkTelephonyMenu SYSTEM "./wsug_graphics/ws-telephony-menu.png" NDATA PNG>
   <!ENTITY WiresharkToolsMenu SYSTEM "./wsug_graphics/ws-tools-menu.png" NDATA PNG>
   <!ENTITY WiresharkHelpMenu SYSTEM "./wsug_graphics/ws-help-menu.png" NDATA PNG>
+  <!ENTITY WiresharkColumnHeaderPopupMenu SYSTEM "./wsug_graphics/ws-column-header-popup-menu.png" NDATA PNG>
   <!ENTITY WiresharkPacketPanePopupMenu SYSTEM "./wsug_graphics/ws-packet-pane-popup-menu.png" NDATA PNG>
   <!ENTITY WiresharkDetailsPanePopupMenu SYSTEM "./wsug_graphics/ws-details-pane-popup-menu.png" NDATA PNG>
   <!ENTITY WiresharkBytesPanePopupMenu SYSTEM "./wsug_graphics/ws-bytes-pane-popup-menu.png" NDATA PNG>
