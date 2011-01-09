@@ -61,8 +61,10 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-choose-color-rule.png
 	wsug_graphics/ws-coloring-fields.png
 	wsug_graphics/ws-coloring-rules-dialog.png
+	wsug_graphics/ws-column-header-popup-menu.png
 	wsug_graphics/ws-decode-as-show.png
 	wsug_graphics/ws-decode-as.png
+	wsug_graphics/ws-column-header-popup-menu.png
 	wsug_graphics/ws-details-pane-popup-menu.png
 	wsug_graphics/ws-details-pane.png
 	wsug_graphics/ws-display-filter-tcp.png
@@ -131,7 +133,9 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-statusbar-empty.png
 	wsug_graphics/ws-statusbar-loaded.png
 	wsug_graphics/ws-statusbar-selected.png
+	wsug_graphics/ws-telephony-menu.png
 	wsug_graphics/ws-time-reference.png
+	wsug_graphics/ws-tools-menu.png
 	wsug_graphics/ws-view-menu.png
 	wsug_graphics/note.png
 	wsug_graphics/tip.png
