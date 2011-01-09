@@ -129,9 +129,13 @@ typedef enum {
 	MIP6_IPV4HAREP = 37,	/* 37 IPv4 Home Address Reply [RFC5844] */
 	MIP6_IPV4DRA   = 38,	/* 38 IPv4 Default-Router Address [RFC5844] */
 	MIP6_IPV4DSM   = 39,	/* 39 IPv4 DHCP Support Mode [RFC5844] */
-	MIP6_CR        = 40,	/* 40 Context Request Option [RFC-ietf-mipshop-pfmipv6-14] */
-	MIP6_LMAA      = 41,	/* 41 Local Mobility Anchor Address Option [RFC-ietf-mipshop-pfmipv6-14] */
-	MIP6_MNLLAII   = 42,	/* 42 Mobile Node Link-local Address Interface Identifier Option [RFC-ietf-mipshop-pfmipv6-14] */
+	MIP6_CR        = 40,	/* 40 Context Request Option [RFC5949] */
+	MIP6_LMAA      = 41,	/* 41 Local Mobility Anchor Address Option [RFC5949] */
+	MIP6_MNLLAII   = 42,	/* 42 Mobile Node Link-local Address Interface Identifier Option [RFC5949] */
+	MIP6_TB        = 43,	/* 43 Transient Binding [RFC-ietf-mipshop-transient-bce-pmipv6-07] */
+	MIP6_FS        = 44,	/* 44 Flow Summary Mobility Option [RFC-ietf-mext-flow-binding-11] */
+	MIP6_FI        = 45,	/* 45 Flow Identification Mobility Option [RFC-ietf-mext-flow-binding-11]] */ 
+
 } optTypes;
 
 /* Binding Update flag description */
@@ -180,10 +184,19 @@ static const true_false_string pmip6_bu_t_flag_value = {
 	"No TLV-header format"
 };
 
-/* Binding Acknowledgement status values */
+/* Binding Acknowledgement status values 
+ * http://www.iana.org/assignments/mobility-parameters/mobility-parameters.xhtml
+ */
 static const value_string mip6_ba_status_value[] = {
 	{   0, "Binding Update accepted" },
 	{   1, "Accepted but prefix discovery necessary" },
+	{   2, "GRE_KEY_OPTION_NOT_REQUIRED" },					/* [RFC5845] */
+	{   3, "GRE_TUNNELING_BUT_TLV_HEADER_NOT_SUPPORTED" },  /* [RFC5845] */
+	{   4, "MCOA NOTCOMPLETE" }, [RFC5648] 
+	{   5, "MCOA RETURNHOME WO/NDP" }, [RFC5648] 
+	{   6, "PBU_ACCEPTED_TB_IGNORED_SETTINGSMISMATCH" },	/* [RFC-ietf-mipshop-transient-bce-pmipv6-07] */
+	/* 7-127 Unassigned */  
+
 	{ 128, "Reason unspecified" },
 	{ 129, "Administratively prohibited" },
 	{ 130, "Insufficient resources" },
@@ -204,6 +217,32 @@ static const value_string mip6_ba_status_value[] = {
 	{ 146, "Proxy Registrations from this MAG not allowed" },
 	{ 147, "No home address for this NAI" },
 	{ 148, "Invalid Time Stamp Option" },
+	{ 149, "Permanent home keygen token exists" },					/* [RFC4866] */
+	{ 150, "Non-null home nonce index expected" },					/* [RFC4866] */
+	{ 151, "SERVICE_AUTHORIZATION_FAILED" },						/* [RFC5149] */
+	{ 152, "PROXY_REG_NOT_ENABLED" },								/* [RFC5213] */
+	{ 153, "NOT_LMA_FOR_THIS_MOBILE_NODE" },						/* [RFC5213] */
+	{ 154, "MAG_NOT_AUTHORIZED_FOR_PROXY_REG" },					/* [RFC5213] */
+	{ 155, "NOT_AUTHORIZED_FOR_HOME_NETWORK_PREFIX" },				/* [RFC5213] */
+	{ 156, "TIMESTAMP_MISMATCH" },									/* [RFC5213] */
+	{ 157, "TIMESTAMP_LOWER_THAN_PREV_ACCEPTED" },					/* [RFC5213] */
+	{ 158, "MISSING_HOME_NETWORK_PREFIX_OPTION" },					/* [RFC5213] */
+	{ 159, "BCE_PBU_PREFIX_SET_DO_NOT_MATCH" },						/* [RFC5213] */
+	{ 160, "MISSING_MN_IDENTIFIER_OPTION" },						/* [RFC5213] */
+	{ 161, "MISSING_HANDOFF_INDICATOR_OPTION" },					/* [RFC5213] */
+	{ 162, "MISSING_ACCESS_TECH_TYPE_OPTION" },						/* [RFC5213] */
+	{ 163, "GRE_KEY_OPTION_REQUIRED" },								/* [RFC5845] */
+	{ 164, "MCOA MALFORMED" },										/* [RFC5648] */
+	{ 165, "MCOA NON-MCOA BINDING EXISTS" },						/* [RFC5648] */
+	{ 166, "MCOA PROHIBITED" },										/* [RFC5648] */
+	{ 167, "MCOA UNKNOWN COA" },									/* [RFC5648] */
+	{ 168, "MCOA BULK REGISTRATION PROHIBITED" },					/* [RFC5648] */
+	{ 169, "MCOA SIMULTANEOUS HOME AND FOREIGN PROHIBITED" },		/* [RFC5648] */
+	{ 170, "NOT_AUTHORIZED_FOR_IPV4_MOBILITY_SERVICE" },			/* [RFC5844] */
+	{ 171, "NOT_AUTHORIZED_FOR_IPV4_HOME_ADDRESS" },				/* [RFC5844] */
+	{ 172, "NOT_AUTHORIZED_FOR_IPV6_MOBILITY_SERVICE" },			/* [RFC5844] */
+	{ 173, "MULTIPLE_IPV4_HOME_ADDRESS_ASSIGNMENT_NOT_SUPPORTED" },	/* [RFC5844] */
+
 	{   0, NULL }
 };
 
@@ -333,26 +372,32 @@ static const value_string pmip6_att_opttype_value[] = {
 
 /* PMIP6 BRI R. Trigger values */
 static const value_string pmip6_bri_rtrigger[] = {
-	{ 0x00,	"Reserved"},
-	{ 0x01, "Unspecified"},
-	{ 0x02,	"Administrative Reason"},
-	{ 0x03,	"Inter-MAG Handover over same Access Types"},
-	{ 0x04,	"Inter-MAG Handover over different Access Types"},
-	{ 0x05,	"Per-Peer Policy"},
-	{ 0x06,	"Local Policy"},
+	{ 0x00, "Unspecified"},
+	{ 0x01,	"Administrative Reason"},
+	{ 0x02,	"Inter-MAG Handover - same Access Type"},
+	{ 0x03,	"Inter-MAG Handover - different Access Type"},
+	{ 0x04,	"Inter-MAG Handover - Unknown"},
+	{ 0x05,	"User Initiated Session(s) Termination"},
+	{ 0x06,	"Access Network Session(s) Termination"},
+	{ 0x07,	"Possible Out-of Sync BCE State"},
+	/* 8-127 Unassigned  */
+	{ 0x128,	"Per-Peer Policy"},
+	{ 0x129,	"Revoking Mobility Node Local Policy"},
+	/* 130-249 Unassigned  */
+	/* 250-255 Reserved for Testing Purposes Only */
 	{ 0,	NULL},
 };
 
 /* PMIP6 BRI Status values */
 static const value_string pmip6_bri_status[] = {
-	{ 0x00,	"Success"				},
-	{ 0x01,	"Partial Success"			},
-	{ 0x02,	"Binding Does NOT Exist"		},
-	{ 0x03,	"IPv4 HoA Binding Does NOT Exist"	},
-	{ 0x04,	"Global Revocation NOT Authorized"	},
-	{ 0x05,	"CAN NOT Identify Binding"		},
-	{ 0x06,	"Revocation Failed, MN is Attached"	},
-	{ 0,	NULL					}
+	{ 0x00,	"Success"},
+	{ 0x01,	"Partial Success"},
+	{ 0x02,	"Binding Does NOT Exist"},
+	{ 0x03,	"IPv4 HoA Binding Does NOT Exist"},
+	{ 0x04,	"Global Revocation NOT Authorized"},
+	{ 0x05,	"CAN NOT Identify Binding"},
+	{ 0x06,	"Revocation Failed, MN is Attached"},
+	{ 0,	NULL},
 };
 
 /* Handoff Indicator values */
@@ -372,49 +417,53 @@ static const range_string handoff_indicator[] = {
  */
 
 static const value_string mip6_mobility_options[] = {
-	{ MIP6_PAD1,   "Pad1"},						/* RFC3775 */
-	{ MIP6_PADN,   "PadN"},						/* RFC3775 */
-	{ MIP6_BRA,	   "Binding Refresh Advice"},				/* RFC3775 */
-	{ MIP6_ACOA,   "Alternate Care-of Address"},				/* RFC3775 */
-	{ MIP6_NI,     "Nonce Indices"},					/* RFC3775 */
-	{ MIP6_AUTD,   "Authorization Data"},				/* RFC3775 */
-	{ MIP6_MNP,	   "Mobile Network Prefix Option"},			/* RFC3963 */
-	{ MIP6_MHLLA,  "Mobility Header Link-Layer Address option"},		/* RFC5568 */
-	{ MIP6_MNID,   "MN-ID-OPTION-TYPE"},					/* RFC4283 */
-	{ MIP6_AUTH,   "AUTH-OPTION-TYPE"},					/* RFC4285 */
-	{ MIP6_MESGID, "MESG-ID-OPTION-TYPE"},				/* RFC4285 */
-	{ MIP6_CGAPR,  "CGA Parameters Request"},				/* RFC4866 */
-	{ MIP6_CGAR,   "CGA Parameters"},					/* RFC4866 */
-	{ MIP6_SIGN,   "Signature"},						/* RFC4866 */
-	{ MIP6_PHKT,   "Permanent Home Keygen Token"},			/* RFC4866 */
-	{ MIP6_MOCOTI, "Care-of Test Init"},					/* RFC4866 */
-	{ MIP6_MOCOT,  "Care-of Test"},					/* RFC4866 */
-	{ MIP6_DNSU,   "DNS-UPDATE-TYPE"},					/* RFC5026 */
-	{ MIP6_EM,     "Experimental Mobility Option"},			/* RFC5096 */
-	{ MIP6_VSM,	   "Vendor Specific Mobility Option"},			/* RFC5094 */
+	{ MIP6_PAD1,   "Pad1"},											/* RFC3775 */
+	{ MIP6_PADN,   "PadN"},											/* RFC3775 */
+	{ MIP6_BRA,	   "Binding Refresh Advice"},						/* RFC3775 */
+	{ MIP6_ACOA,   "Alternate Care-of Address"},					/* RFC3775 */
+	{ MIP6_NI,     "Nonce Indices"},								/* RFC3775 */
+	{ MIP6_AUTD,   "Authorization Data"},							/* RFC3775 */
+	{ MIP6_MNP,	   "Mobile Network Prefix Option"},					/* RFC3963 */
+	{ MIP6_MHLLA,  "Mobility Header Link-Layer Address option"},	/* RFC5568 */
+	{ MIP6_MNID,   "MN-ID-OPTION-TYPE"},							/* RFC4283 */
+	{ MIP6_AUTH,   "AUTH-OPTION-TYPE"},								/* RFC4285 */
+	{ MIP6_MESGID, "MESG-ID-OPTION-TYPE"},							/* RFC4285 */
+	{ MIP6_CGAPR,  "CGA Parameters Request"},						/* RFC4866 */
+	{ MIP6_CGAR,   "CGA Parameters"},								/* RFC4866 */
+	{ MIP6_SIGN,   "Signature"},									/* RFC4866 */
+	{ MIP6_PHKT,   "Permanent Home Keygen Token"},					/* RFC4866 */
+	{ MIP6_MOCOTI, "Care-of Test Init"},							/* RFC4866 */
+	{ MIP6_MOCOT,  "Care-of Test"},									/* RFC4866 */
+	{ MIP6_DNSU,   "DNS-UPDATE-TYPE"},								/* RFC5026 */
+	{ MIP6_EM,     "Experimental Mobility Option"},					/* RFC5096 */
+	{ MIP6_VSM,	   "Vendor Specific Mobility Option"},				/* RFC5094 */
 	{ MIP6_SSM,	   "Service Selection Mobility Option"},			/* RFC5149 */
 	{ MIP6_BADFF,  "Binding Authorization Data for FMIPv6 (BADF)"},	/* RFC5568 */
-	{ MIP6_HNP,    "Home Network Prefix Option"},			/* RFC5213 */
-	{ MIP6_MOHI,   "Handoff Indicator Option"},				/* RFC5213 */
-	{ MIP6_ATT,	   "Access Technology Type Option"},			/* RFC5213 */
+	{ MIP6_HNP,    "Home Network Prefix Option"},					/* RFC5213 */
+	{ MIP6_MOHI,   "Handoff Indicator Option"},						/* RFC5213 */
+	{ MIP6_ATT,	   "Access Technology Type Option"},				/* RFC5213 */
 	{ MIP6_MNLLI,  "Mobile Node Link-layer Identifier Option"},		/* RFC5213 */
-	{ MIP6_LLA,	   "Link-local Address Option"},				/* RFC5213 */
-	{ MIP6_TS,	   "Timestamp Option"},					/* RFC5213 */
-	{ MIP6_RC,	   "Restart Counter"},					/* RFC5847 */
-	{ MIP6_IPV4HA, "IPv4 Home Address"},					/* RFC5555 */
-	{ MIP6_IPV4AA, "IPv4 Address Acknowledgement"},			/* RFC5555 */
-	{ MIP6_NATD,   "NAT Detection"},					/* RFC5555 */
-	{ MIP6_IPV4COA,"IPv4 Care-of Address"},				/* RFC5555 */
-	{ MIP6_GREK,   "GRE Key Option"},					/* RFC5845 */
+	{ MIP6_LLA,	   "Link-local Address Option"},					/* RFC5213 */
+	{ MIP6_TS,	   "Timestamp Option"},								/* RFC5213 */
+	{ MIP6_RC,	   "Restart Counter"},								/* RFC5847 */
+	{ MIP6_IPV4HA, "IPv4 Home Address"},							/* RFC5555 */
+	{ MIP6_IPV4AA, "IPv4 Address Acknowledgement"},					/* RFC5555 */
+	{ MIP6_NATD,   "NAT Detection"},								/* RFC5555 */
+	{ MIP6_IPV4COA,"IPv4 Care-of Address"},							/* RFC5555 */
+	{ MIP6_GREK,   "GRE Key Option"},								/* RFC5845 */
 	{ MIP6_MHIPV6AP,  "Mobility Header IPv6 Address/Prefix"},		/* RFC5568 */
-	{ MIP6_BI,        "Binding Identifier"},				/* RFC5648 */
-	{ MIP6_IPV4HAREQ, "IPv4 Home Address Request"},				/* RFC5844 */
-	{ MIP6_IPV4HAREP, "IPv4 Home Address Reply"},				/* RFC5844 */
-	{ MIP6_IPV4DRA,   "IPv4 Default-Router Address"},			/* RFC5844 */
-	{ MIP6_IPV4DSM,   "IPv4 DHCP Support Mode"},				/* RFC5844 */
-	{ MIP6_CR,        "Context Request Option"},				/* RFC-ietf-mipshop-pfmipv6-14 */
-	{ MIP6_LMAA,      "Local Mobility Anchor Address Option"},		/* RFC-ietf-mipshop-pfmipv6-14 */
-	{ MIP6_MNLLAII,	  "Mobile Node Link-local Address Interface Identifier Option"}, /* RFC-ietf-mipshop-pfmipv6-14 */
+	{ MIP6_BI,        "Binding Identifier"},						/* RFC5648 */
+	{ MIP6_IPV4HAREQ, "IPv4 Home Address Request"},					/* RFC5844 */
+	{ MIP6_IPV4HAREP, "IPv4 Home Address Reply"},					/* RFC5844 */
+	{ MIP6_IPV4DRA,   "IPv4 Default-Router Address"},				/* RFC5844 */
+	{ MIP6_IPV4DSM,   "IPv4 DHCP Support Mode"},					/* RFC5844 */
+	{ MIP6_CR,        "Context Request Option"},					/* RFC5949 */
+	{ MIP6_LMAA,      "Local Mobility Anchor Address Option"},		/* RFC5949 */
+	{ MIP6_MNLLAII,	  "Mobile Node Link-local Address Interface Identifier Option"}, /* RFC5949 */
+	{ MIP6_TB,	      "Transient Binding"},							/* [RFC-ietf-mipshop-transient-bce-pmipv6-07] */
+	{ MIP6_FS,	      "Flow Summary"},								/* [RFC-ietf-mext-flow-binding-11] */
+	{ MIP6_FI,	      "Flow Identification"},						/* [RFC-ietf-mext-flow-binding-11]] */ 
+
 	{ 0, NULL }
 };
 
