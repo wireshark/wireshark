@@ -191,9 +191,9 @@ static const value_string mip6_ba_status_value[] = {
 	{   0, "Binding Update accepted" },
 	{   1, "Accepted but prefix discovery necessary" },
 	{   2, "GRE_KEY_OPTION_NOT_REQUIRED" },					/* [RFC5845] */
-	{   3, "GRE_TUNNELING_BUT_TLV_HEADER_NOT_SUPPORTED" },  /* [RFC5845] */
-	{   4, "MCOA NOTCOMPLETE" }, [RFC5648] 
-	{   5, "MCOA RETURNHOME WO/NDP" }, [RFC5648] 
+	{   3, "GRE_TUNNELING_BUT_TLV_HEADER_NOT_SUPPORTED" },	/* [RFC5845] */
+	{   4, "MCOA NOTCOMPLETE" },							/* [RFC5648] */
+	{   5, "MCOA RETURNHOME WO/NDP" },						/* [RFC5648] */
 	{   6, "PBU_ACCEPTED_TB_IGNORED_SETTINGSMISMATCH" },	/* [RFC-ietf-mipshop-transient-bce-pmipv6-07] */
 	/* 7-127 Unassigned */  
 
