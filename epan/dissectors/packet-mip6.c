@@ -2335,7 +2335,7 @@ proto_register_mip6(void)
 				      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
 	{ &hf_pmip6_opt_lila_lla,       { "Link-local Address", "pmip6.lila_lla",
-	                                FT_IPv6, BASE_HEX, NULL, 0x0, "", HFILL }},
+	                                FT_IPv6, BASE_NONE, NULL, 0x0, "", HFILL }},
 
 	{ &hf_pmip6_rc,             { "Restart Counter", "pmip6.rc",
 				      FT_UINT32, BASE_DEC, NULL, 0x0,
