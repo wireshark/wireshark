@@ -3148,8 +3148,7 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
     /* message type is in octet 2 */
     message_type = tvb_get_guint8(tvb,1);
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_str(pinfo->cinfo, COL_INFO, val_to_str(message_type, gtpv2_message_type_vals, "Unknown"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(message_type, gtpv2_message_type_vals, "Unknown"));
 
 
     proto_tree_add_item(tree, proto_gtpv2, tvb, offset, -1, FALSE);
