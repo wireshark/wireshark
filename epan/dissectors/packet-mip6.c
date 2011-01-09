@@ -798,8 +798,6 @@ static int hf_pmip6_bri_ia_flag = -1;
 static int hf_pmip6_bri_ig_flag = -1;
 static int hf_pmip6_bri_ag_flag = -1;
 static int hf_pmip6_bri_res = -1;
-static int hf_pmip6_opt_ipack = -1;
-static int hf_pmip6_opt_ipack_res = -1;
 
 static int hf_pmip6_opt_lila_lla = -1;
 
