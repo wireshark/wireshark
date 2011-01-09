@@ -2169,7 +2169,7 @@ proto_register_mip6(void)
 	                              0x0400, NULL,
 	                              HFILL }},
 	{ &hf_pmip6_bu_p_flag,      { "Proxy Registration (P) flag",
-	                              "pmip6.bu.p_flag",
+	                              "mip6.bu.p_flag",
 	                              FT_BOOLEAN, 16, TFS(&pmip6_bu_p_flag_value),
 	                              0x0200, NULL,
 	                              HFILL }},
@@ -2179,7 +2179,7 @@ proto_register_mip6(void)
 	                              0x0100, NULL,
 	                              HFILL }},
 	{ &hf_pmip6_bu_t_flag,      { "TLV-header format (T) flag",
-	                              "pmip6.bu.t_flag",
+	                              "mip6.bu.t_flag",
 	                              FT_BOOLEAN, 16, TFS(&pmip6_bu_t_flag_value),
 	                              0x0080, NULL,
 	                              HFILL }},
@@ -2202,12 +2202,12 @@ proto_register_mip6(void)
 	                              0x40, NULL,
 	                              HFILL }},
 	{ &hf_pmip6_ba_p_flag,      { "Proxy Registration (P) flag",
-	                              "pmip6.ba.p_flag",
+	                              "mip6.ba.p_flag",
 	                              FT_BOOLEAN, 8, TFS(&pmip6_bu_p_flag_value),
 	                              0x20, NULL,
 	                              HFILL }},
 	{ &hf_pmip6_ba_t_flag,      { "TLV-header format (T) flag",
-	                              "pmip6.ba.t_flag",
+	                              "mip6.ba.t_flag",
 	                              FT_BOOLEAN, 8, TFS(&pmip6_bu_t_flag_value),
 	                              0x10, NULL,
 	                              HFILL }},
@@ -2323,21 +2323,21 @@ proto_register_mip6(void)
 				       FT_UINT8, BASE_DEC, VALS(mip6_vsm_subtype_3gpp_value), 0,
 				       NULL, HFILL }},
 
-	{ &hf_pmip6_hi_opttype,     { "Handoff Indicator Option type", "pmip6.hi",
+	{ &hf_pmip6_hi_opttype,     { "Handoff Indicator Option type", "mip6.hi",
 				      FT_UINT8, BASE_DEC, VALS(pmip6_hi_opttype_value), 0,
 				      NULL, HFILL }},
 
-	{ &hf_pmip6_att_opttype,    { "Access Technology Type Option type", "pmip6.att",
+	{ &hf_pmip6_att_opttype,    { "Access Technology Type Option type", "mip6.att",
 				      FT_UINT8, BASE_DEC, VALS(pmip6_att_opttype_value), 0,
 				      NULL, HFILL }},
 
-	{ &hf_pmip6_timestamp,      { "Timestamp", "pmip6.timestamp",
+	{ &hf_pmip6_timestamp,      { "Timestamp", "mip6.timestamp",
 				      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
-	{ &hf_pmip6_opt_lila_lla,       { "Link-local Address", "pmip6.lila_lla",
+	{ &hf_pmip6_opt_lila_lla,       { "Link-local Address", "mip6.lila_lla",
 	                                FT_IPv6, BASE_NONE, NULL, 0x0, "", HFILL }},
 
-	{ &hf_pmip6_rc,             { "Restart Counter", "pmip6.rc",
+	{ &hf_pmip6_rc,             { "Restart Counter", "mip6.rc",
 				      FT_UINT32, BASE_DEC, NULL, 0x0,
 				      NULL, HFILL}},
 
@@ -2357,7 +2357,7 @@ proto_register_mip6(void)
 				      FT_UINT8, BASE_DEC, NULL, 0x0,
 				      NULL, HFILL}},
 
-	{ &hf_pmip6_gre_key,        { "GRE Key", "pmip6.gre_key",
+	{ &hf_pmip6_gre_key,        { "GRE Key", "mip6.gre_key",
 				      FT_UINT32, BASE_DEC, NULL, 0x0,
 				      NULL, HFILL}},
 
@@ -2365,43 +2365,43 @@ proto_register_mip6(void)
 					FT_IPv4, BASE_NONE, NULL, 0x0,
 					NULL, HFILL }},
 
-	{ &hf_mip6_mobility_opt,    { "Mobility Options", "pmip6.mobility_opt",
+	{ &hf_mip6_mobility_opt,    { "Mobility Options", "mip6..mobility_opt",
 				      FT_UINT8, BASE_DEC, VALS(mip6_mobility_options), 0,
 				      NULL, HFILL }},
-	{ &hf_pmip6_bri_brtype,		{ "B.R. Type",	"pmip6_bri_br.type",
+	{ &hf_pmip6_bri_brtype,		{ "B.R. Type",	"mip6.bri_br.type",
 					FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 						
-	{ &hf_pmip6_bri_rtrigger,	{ "R. Trigger", "pmip6_bri_r.trigger",
+	{ &hf_pmip6_bri_rtrigger,	{ "R. Trigger", "mip6.bri_r.trigger",
 					FT_UINT8, BASE_DEC, VALS(pmip6_bri_rtrigger), 0x0, NULL, HFILL }},
 
-	{ &hf_pmip6_bri_status,		{ "Status", "pmip6_bri_status",
+	{ &hf_pmip6_bri_status,		{ "Status", "mip6.bri_status",
 					FT_UINT8, BASE_DEC, VALS(pmip6_bri_status), 0x0, NULL, HFILL }},
 
-	{ &hf_pmip6_bri_seqnr,		{ "Sequence Number", "pmip6_bri_seqnr",
+	{ &hf_pmip6_bri_seqnr,		{ "Sequence Number", "mip6._bri_seqnr",
 					FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-	{ &hf_pmip6_bri_ip_flag,	{ "Proxy Binding (P) Flag", "pmip6_bri_ip",
+	{ &hf_pmip6_bri_ip_flag,	{ "Proxy Binding (P) Flag", "mip6.bri_ip",
 					FT_BOOLEAN, 8, TFS(&tfs_set_notset),
 					0x80, NULL, HFILL }},
 
-	{ &hf_pmip6_bri_ia_flag,	{ "Acknowledge (A) Flag", "pmip6_bri_ia",
+	{ &hf_pmip6_bri_ia_flag,	{ "Acknowledge (A) Flag", "mip6.bri_ia",
 					FT_BOOLEAN, 8, TFS(&tfs_set_notset),
 					0x40, NULL, HFILL }},
 
-	{ &hf_pmip6_bri_ig_flag,	{ "Global (G) Flag", "pmip6_bri_ig",
+	{ &hf_pmip6_bri_ig_flag,	{ "Global (G) Flag", "mip6.bri_ig",
 					FT_BOOLEAN, 8, TFS(&tfs_set_notset),
 					0x20, NULL, HFILL }},
 
-	{ &hf_pmip6_bri_ap_flag,	{ "Proxy Binding (P) Flag", "pmip6_bri_ap",
+	{ &hf_pmip6_bri_ap_flag,	{ "Proxy Binding (P) Flag", "mip6.bri_ap",
 					FT_BOOLEAN, 8, TFS(&tfs_set_notset),
 					0x80, NULL, HFILL }},
 
-	{ &hf_pmip6_bri_ag_flag,	{ "Global (G) Flag", "pmip_bri_ag",
+	{ &hf_pmip6_bri_ag_flag,	{ "Global (G) Flag", "mip6.bri_ag",
 					FT_BOOLEAN, 8, TFS(&tfs_set_notset),
 					0x40, NULL, HFILL }},
 
-	{ &hf_pmip6_bri_res,		{ "Reserved: 1 byte", "pmip_bri_res",
-					FT_NONE, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+	{ &hf_pmip6_bri_res,		{ "Reserved: 1 byte", "mip6.bri_res",
+					FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	};
 
