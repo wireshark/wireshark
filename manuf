@@ -14255,6 +14255,7 @@
 00:50:FE	PctvnetA               # PCTVnet ASA
 00:50:FF	HakkoEle               # HAKKO ELECTRONICS CO., LTD.
 00:52:18	WuxiKebo               # Wuxi Keboda Electron Co.Ltd
+00:54:AF	Continen               # Continental Automotive Systems Inc.
 00:55:00	Xerox
 00:60:00	Xycom                  # XYCOM INC.
 00:60:01	Innosys                # InnoSys, Inc.
@@ -16421,6 +16422,7 @@
 10:E6:AE	SourceTe               # Source Technologies, LLC
 10:E8:EE	Phasespa               # PhaseSpace
 11:00:AA	Private
+14:14:4B	FujianSt               # FUJIAN STAR-NET COMMUNICATION CO.,LTD
 14:1B:BD	Volex                  # Volex Inc.
 14:35:B3	FutureDe               # Future Designs, Inc.
 14:4C:1A	MaxCommu               # Max Communication GmbH
@@ -16537,6 +16539,7 @@
 28:34:10	EnigmaDi               # Enigma Diagnostics Limited
 28:48:46	Gridcent               # GridCentric Inc.
 28:4C:53	IntuneNe               # Intune Networks
+28:5F:DB	HuaweiDe               # Huawei Device Co., Ltd
 28:60:46	LantechC               # Lantech Communications Global, Inc.
 28:6E:D4	HuaweiTe               # HUAWEI TECHNOLOGIES CO.,LTD
 28:72:C5	Smartmat               # Smartmatic Corp
@@ -16680,6 +16683,7 @@
 40:40:22	Ziv
 40:40:6B	Icomera
 40:4A:03	ZyxelCom               # ZyXEL Communications Corporation
+40:4D:8E	HuaweiDe               # Huawei Device Co., Ltd
 40:52:0D	PicoTech               # Pico Technology
 40:5A:9B	Anovo
 40:5F:BE	Rim
@@ -16742,6 +16746,7 @@
 44:D6:3D	TalariNe               # Talari Networks
 44:DC:CB	Semindia               # SEMINDIA SYSTEMS PVT LTD
 44:E4:9A	Omnitron               # OMNITRONICS PTY LTD
+44:E4:D9	Cisco                  # Cisco Systems
 44:ED:57	Longicor               # Longicorn, inc.
 44:F4:59	SamsungE               # Samsung Electronics
 47:54:43	GtcNotRe               # GTC (Not registered!)		(This number is a multicast!)
@@ -17634,6 +17639,7 @@ C8:3A:35	TendaTec               # Tenda Technology Co., Ltd.
 C8:3E:A7	Kunbus                 # KUNBUS GmbH
 C8:48:F5	MedisonX               # MEDISON Xray Co., Ltd
 C8:4C:75	Cisco                  # Cisco Systems
+C8:64:C7	Zte                    # zte corporation
 C8:6C:1E	Display                # Display Systems Ltd
 C8:6C:87	Mitrasta               # Mitrastar Technology
 C8:6C:B6	Optcom                 # Optcom Co., Ltd.
@@ -17756,6 +17762,7 @@ D8:75:33	Nokia                  # Nokia Corporation
 D8:76:0A	Escort                 # Escort, Inc.
 D8:79:88	HonHaiPr               # Hon Hai Precision Ind. Co., Ltd.
 D8:95:2F	TexasIns               # Texas Instruments
+D8:9D:B9	Emegatec               # eMegatech International Corp.
 D8:A2:5E	Apple
 D8:AE:90	ItibiaTe               # Itibia Technologies
 D8:B1:2A	Panasoni               # Panasonic Mobile Communications Co., Ltd.
@@ -17861,6 +17868,7 @@ E8:28:D5	CotsTech               # Cots Technology
 E8:39:DF	AskeyCom               # Askey Computer
 E8:3A:97	OczTechn               # OCZ Technology Group
 E8:3E:B6	Rim
+E8:40:40	Cisco                  # Cisco Systems
 E8:4E:CE	Nintendo               # Nintendo Co., Ltd.
 E8:5B:5B	LgElectr               # LG ELECTRONICS INC
 E8:5E:53	Infratec               # Infratec Datentechnik GmbH
