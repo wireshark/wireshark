@@ -555,9 +555,10 @@ static const vsff nfsacl3_proc[] = {
 	{ 0,	NULL,	NULL,	NULL }
 };
 static const value_string nfsacl3_proc_vals[] = {
-	{ NFSACLPROC_NULL,	"NULL" },
-	{ NFSACLPROC3_GETACL,	"GETACL" },
-	{ NFSACLPROC3_SETACL,	"SETACL" },
+	{ NFSACLPROC_NULL,		 "NULL" },
+	{ NFSACLPROC3_GETACL,		 "GETACL" },
+	{ NFSACLPROC3_SETACL,		 "SETACL" },
+	{ NFSACLPROC3_GETXATTRDIR,	 "GETXATTRDIR" },
 	{ 0,	NULL }
 };
 
