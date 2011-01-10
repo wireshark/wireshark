@@ -1742,12 +1742,12 @@ proto_register_mikey(void)
 
 /*
 		{ &hf_mikey[POS_SP_PARAM],
-		  { "Policy param", "",
+		  { "Policy param", "mikey.policy_param",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_mikey[POS_PAYLOAD],
-		  { "Payload", "",
+		  { "Payload", "mikey.payload",
 		    FT_BYTES, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL }},
 */
