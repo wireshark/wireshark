@@ -1396,10 +1396,10 @@ static const value_string gtpv2_f_teid_interface_type_vals[] = {
     {5, "S5/S8 PGW GTP-U interface"},
     {6, "S5/S8 SGW GTP-C interface"},
     {7, "S5/S8 PGW GTP-C interface"},
-    {8, "S5/S8 SGW PMIPv6 interface (the 32 bit GRE key is encoded in 32 bit TEID field "
-        "and since alternate CoA is not used the control plane and user plane addresses are the same for PMIPv6)"},
-    {9, "S5/S8 PGW PMIPv6 interface (the 32 bit GRE key is encoded in 32 bit TEID field "
-        "and the control plane and user plane addresses are the same for PMIPv6)"},
+    {8, "S5/S8 SGW PMIPv6 interface"},/* (the 32 bit GRE key is encoded in 32 bit TEID field "
+        "and since alternate CoA is not used the control plane and user plane addresses are the same for PMIPv6)"}, */
+    {9, "S5/S8 PGW PMIPv6 interface"},/* (the 32 bit GRE key is encoded in 32 bit TEID field "
+        "and the control plane and user plane addresses are the same for PMIPv6)"}, */
     {10, "S11 MME GTP-C interface"},
     {11, "S11/S4 SGW GTP-C interface"},
     {12, "S10 MME GTP-C interface"},
