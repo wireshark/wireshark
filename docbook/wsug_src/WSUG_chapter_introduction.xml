@@ -491,6 +491,17 @@
 	</para>
 	</section>
 
+	<section id="ChIntroQA"><title>Q&amp;A Forum</title>
+	<para>
+	The Wireshark Q and A forum at
+	<ulink url="&WiresharkQASite;">&WiresharkQASite;</ulink> offers a resource
+	where questions and answers come together. You have the option to search
+	what questions were asked before and what answers were given by people who
+	knew about the issue. Answers are graded, so you can pick out the best ones
+	easily. If your issue isn't discussed before you can post one yourself.
+	</para>
+	</section>
+
 	<section id="ChIntroFAQ"><title>FAQ</title>
     <para>
 	The "Frequently Asked Questions" will list often asked questions and

@@ -496,75 +496,14 @@
 		<entry></entry>
 	      </row>
 	      <row>
-		<entry><command>Export > as "Plain Text" file...</command></entry>
+		<entry><command>Export > File...</command></entry>
 		<entry></entry>
 		<entry><para>
 		    This menu item allows you to export all (or some) of the packets in
-		    the capture file to a plain ASCII text file.
+		    the capture file to file.
 			It pops up the Wireshark Export dialog box (which is discussed further in
-		    <xref linkend="ChIOExportPlainDialog"/>).
+		    <xref linkend="ChIOExportSection"/>).
 		  </para></entry>
-	      </row>
-	      <row>
-		<entry><command>Export > as "PostScript" file...</command></entry>
-		<entry></entry>
-		<entry><para>
-		    This menu item allows you to export all (or some) of the packets in
-		    the capture file to a PostScript file.
-			It pops up the Wireshark Export dialog box (which is discussed further in
-		    <xref linkend="ChIOExportPSDialog"/>).
-		  </para></entry>
-	      </row>
-	      <row>
-		<entry><command>Export > as "CSV" (Comma Separated Values packet summary) file...</command></entry>
-		<entry></entry>
-		<entry><para>
-		    This menu item allows you to export all (or some) of the packet summaries in
-		    the capture file to a .csv file (e.g. used by spreadsheet programs).
-			It pops up the Wireshark Export dialog box (which is discussed further in
-		    <xref linkend="ChIOExportCSVDialog"/>).
-		  </para></entry>
-	      </row>
-	      <row>
-		<entry><command>Export > as "C Arrays" (packet bytes) file...</command></entry>
-		<entry></entry>
-		<entry><para>
-		      This menu item allows you to export all (or some) of the packet bytes in 
-		      the capture file to a .c file so you can import the stream data into your
-		      own C program.
-			It pops up the Wireshark Export dialog box (which is discussed further in
-		    <xref linkend="ChIOExportCArraysDialog"/>).
-		</para></entry>
-	      </row>
-	      <row>
-		<entry><command>------</command></entry>
-		<entry></entry>
-		<entry></entry>
-	      </row>
-	      <row>
-		<entry><command>Export > as "PSML" file...</command></entry>
-		<entry></entry>
-		<entry><para>
-		    This menu item allows you to export all (or some) of the packets in
-		    the capture file to a PSML (packet summary markup language) XML file.
-			It pops up the Wireshark Export dialog box (which is discussed further in
-		    <xref linkend="ChIOExportPSMLDialog"/>).
-		  </para></entry>
-	      </row>
-	      <row>
-		<entry><command>Export > as "PDML" file...</command></entry>
-		<entry></entry>
-		<entry><para>
-		    This menu item allows you to export all (or some) of the packets in
-		    the capture file to a PDML (packet details markup language) XML file.
-			It pops up the Wireshark Export dialog box (which is discussed further in
-		    <xref linkend="ChIOExportPDMLDialog"/>).
-		  </para></entry>
-	      </row>
-	      <row>
-		<entry><command>------</command></entry>
-		<entry></entry>
-		<entry></entry>
 	      </row>
 	      <row>
 		<entry><command>Export > Selected Packet Bytes...</command></entry>
@@ -577,11 +516,20 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><command>Objects > HTTP</command></entry>
+		<entry><command>Export > Objects > HTTP</command></entry>
 		<entry></entry>
 		<entry><para>
 		    This menu item allows you to export all or some of the captured HTTP objects
 		    into local files. It pops up the Wireshark HTTP object list (which is discussed
+		    further in <xref linkend="ChIOExportObjectsDialog"/>)
+		</para></entry>
+	      </row>
+	      <row>
+		<entry><command>Export > Objects > DICOM</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item allows you to export all or some of the captured DICOM objects
+		    into local files. It pops up the Wireshark DICOM object list (which is discussed
 		    further in <xref linkend="ChIOExportObjectsDialog"/>)
 		</para></entry>
 	      </row>
@@ -869,6 +817,14 @@
 		  </para></entry>
 	      </row>
 	      <row>
+		<entry><command>Wireless Toolbar (Windows only)</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item hides or shows the wireless toolbar. See
+		    the AirPcap documentation for more information.
+		  </para></entry>
+	      </row>
+	      <row>
 		<entry><command>Statusbar</command></entry>
 		<entry></entry>
 		<entry><para>
@@ -937,6 +893,15 @@
 		  </para></entry>
 	      </row>
 	      <row>
+		<entry><command>Time Display Format > Seconds Since Epoch (1970-01-01):  1234567890.123456</command></entry>
+		<entry></entry>
+		<entry><para>
+	      Selecting this tells Wireshark to display time stamps in
+	      seconds since 1970-01-01 00:00:00, see
+		  <xref linkend="ChWorkTimeFormatsSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
 		<entry><command>Time Display Format > Seconds Since Beginning of Capture:  123.123456</command></entry>
 		<entry></entry>
 		<entry><para>
@@ -960,15 +925,6 @@
 		<entry><para>
 	      Selecting this tells Wireshark to display time stamps in
 	      seconds since previous displayed packet format, see
-		  <xref linkend="ChWorkTimeFormatsSection"/>.
-		  </para></entry>
-	      </row>
-	      <row>
-		<entry><command>Time Display Format > Seconds Since Epoch (1970-01-01):  1234567890.123456</command></entry>
-		<entry></entry>
-		<entry><para>
-	      Selecting this tells Wireshark to display time stamps in
-	      seconds since 1970-01-01 00:00:00, see
 		  <xref linkend="ChWorkTimeFormatsSection"/>.
 		  </para></entry>
 	      </row>
@@ -1003,8 +959,17 @@
 		<entry><command>Time Display Format > ...seconds:  0....</command></entry>
 		<entry></entry>
 		<entry><para>
-	      Selecting this tells Wireshark to display time stamps with a precision of one second, decisecond, centisecond, millisecond, microsecond or nanosecond, see
+	      Selecting this tells Wireshark to display time stamps with a precision of one second,
+	      decisecond, centisecond, millisecond, microsecond or nanosecond, see
 		  <xref linkend="ChWorkTimeFormatsSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Time Display Format > Display Seconds with hours and minutes</command></entry>
+		<entry></entry>
+		<entry><para>
+	      Selecting this tells Wireshark to display time stamps in seconds,
+	      with hours and minutes.
 		  </para></entry>
 	      </row>
 	      <row>
@@ -1101,6 +1066,15 @@
 		  Resizing may take a significant amount of time, especially if a
 		  large capture file is loaded.
 		  </para></note>
+		  </entry>
+	      </row>
+	      <row>
+		<entry><command>Displayed Columns</command></entry>
+		<entry></entry>
+		<entry><para>
+		  This menu items folds out with a list of all configured columns.
+		  These columns can now be shown or hidden in the packet list.
+		  </para>
 		  </entry>
 	      </row>
 	      <row>
@@ -1437,6 +1411,19 @@
 		  </para></entry>
 	      </row>
 	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Apply as Column</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item adds the selected protocol item in the packet details
+		    pane as a column to the packet list.
+		  </para></entry>
+	      </row>
+	      <row>
 		<entry><command>Apply as Filter > ...</command></entry>
 		<entry></entry>
 		<entry><para>
@@ -1658,7 +1645,17 @@
 		<entry></entry>
 	      </row>
 	      <row>
+		<entry><command>ANCP...</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
 		<entry><command>BOOTP-DHCP...</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>Colledtd...</command></entry>
 		<entry></entry>
 		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
 	      </row>
@@ -1689,11 +1686,6 @@
 	      </row>
 	      <row>
 		<entry><command>IP Protocol Types...</command></entry>
-		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
-	      </row>
-	      <row>
-		<entry><command>ISUP Messages</command></entry>
 		<entry></entry>
 		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
 	      </row>
@@ -1749,12 +1741,22 @@
 	    </thead>
 	    <tbody>
 	      <row>
-		<entry><command>ANSI</command></entry>
+		<entry><command>IAX2</command></entry>
 		<entry></entry>
 		<entry><para>See <xref linkend="ChTelXXX"/></para></entry>
 	      </row>
 	      <row>
-		<entry><command>Fax T38 Analysis...</command></entry>
+		<entry><command>SMPP Operations...</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChTelXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>SCTP</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChTelXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>ANSI</command></entry>
 		<entry></entry>
 		<entry><para>See <xref linkend="ChTelXXX"/></para></entry>
 	      </row>
@@ -1765,11 +1767,6 @@
 	      </row>
 	      <row>
 		<entry><command>H.225...</command></entry>
-		<entry></entry>
-		<entry><para>See <xref linkend="ChTelXXX"/></para></entry>
-	      </row>
-	      <row>
-		<entry><command>IAX2</command></entry>
 		<entry></entry>
 		<entry><para>See <xref linkend="ChTelXXX"/></para></entry>
 	      </row>
@@ -1799,17 +1796,7 @@
 		<entry><para>See <xref linkend="ChTelRTPAnalysis"/></para></entry>
 	      </row>
 	      <row>
-		<entry><command>SCTP</command></entry>
-		<entry></entry>
-		<entry><para>See <xref linkend="ChTelXXX"/></para></entry>
-	      </row>
-	      <row>
 		<entry><command>SIP...</command></entry>
-		<entry></entry>
-		<entry><para>See <xref linkend="ChTelXXX"/></para></entry>
-	      </row>
-	      <row>
-		<entry><command>SMPP Operations...</command></entry>
 		<entry></entry>
 		<entry><para>See <xref linkend="ChTelXXX"/></para></entry>
 	      </row>
@@ -1838,12 +1825,10 @@
       The Wireshark Tools menu contains the fields shown in
       <xref linkend="ChUseTools"/>.
     </para>
-<!--
     <figure id="ChUseWiresharkToolsMenu">
       <title>The "Tools" Menu</title>
       <graphic entityref="WiresharkToolsMenu" format="PNG"/>
     </figure>
--->
     <table id="ChUseTools" frame="none">
       <title>Tools menu items</title>
       <tgroup cols="3">
@@ -1868,6 +1853,14 @@
 			supported.
 			</para><para>
 			It is assumed that the rules will be applied to an outside interface.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Lua</command></entry>
+		<entry></entry>
+		<entry><para>
+		    These options allow you to work with the Lua interpreter optionally
+		    build into Wireshark, see <xref linkend="wsluarm_intro"/>.
 		  </para></entry>
 	      </row>
 	    </tbody>
