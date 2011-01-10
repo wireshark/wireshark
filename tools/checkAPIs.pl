@@ -1076,10 +1076,7 @@ my $SingleQuotedStr = qr{ (?: \' (?: \\. | [^\'\\])* [']) }x;
 # 4. Wireshark is strictly a C program so don't take out C++ style comments
 #    since they shouldn't be there anyway...
 #    Also: capturing the comment isn't necessary.
-#my $commentAndStringRegex = qr{ (?: $DoubleQuotedStr | $SingleQuotedStr | $CComment) }x;
-
-# 4. But we need to take out the comments separately from the strings
-my $StringRegex = qr{ (?: $DoubleQuotedStr | $SingleQuotedStr ) }x;
+my $commentAndStringRegex = qr{ (?: $DoubleQuotedStr | $SingleQuotedStr | $CComment) }x;
 
 #### Regex for use when searching for value-string definitions
 my $StaticRegex		    = qr/ static \s+								/xs;
@@ -1171,16 +1168,13 @@ while ($_ = $ARGV[0])
 		print STDERR "Warning: ".$filename." does not have an SVN Id tag.\n";
 	}
 
-	# Remove all the C-comments
-	$fileContents =~ s {$CComment} []xog;
-
 	# optionally check the hf entries
 	if ($check_hf) {
 		$errorCount += check_hf_entries(\$fileContents, $filename)
 	}
 
-	# Remove all the strings
-	$fileContents =~ s {$StringRegex} []xog;
+	# Remove all the C-comments and strings
+	$fileContents =~ s {$commentAndStringRegex} []xog;
 
 	if ($fileContents =~ m{ // }xo)
 	{
