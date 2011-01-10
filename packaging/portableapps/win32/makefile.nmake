@@ -102,14 +102,14 @@ findprocdll:
 
 
 WiresharkPortable-$(VERSION).paf.exe : dirs appinfo nsis-bits pack source Files/WiresharkPortable.exe Installer.nsi
-	$(MAKENSIS_UNICODE) \
+	$(MAKENSIS) \
 	/DVERSION=$(PAPPS_VERSION) \
 	/DWSVERSION=$(VERSION) \
 	/DEXTRA_PLUGINS="$(WIRESHARK_LIBS)\$(NSIS_PLUGINS)" \
 	Installer.nsi
 
 Files/WiresharkPortable.exe : WiresharkPortable.nsi findprocdll
-	$(MAKENSIS_UNICODE) \
+	$(MAKENSIS) \
 	/DVERSION=$(PAPPS_VERSION) \
 	/DWSVERSION=$(VERSION) \
 	/DEXTRA_PLUGINS="$(WIRESHARK_LIBS)\$(NSIS_PLUGINS)" \
