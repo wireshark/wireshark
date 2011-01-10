@@ -4185,7 +4185,7 @@ void proto_register_gtpv2(void)
 				NULL, HFILL}
 		},
 		{ &hf_gtpv2_fq_csid_id,
-			{"CSID", "",
+			{"CSID", "gtpv2.fq_csid_id",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
 				NULL, HFILL}
 		},
