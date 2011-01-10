@@ -219,7 +219,7 @@ static gboolean http_decompress_body = FALSE;
  * tcp and ssl ports
  */
 
-#define TCP_DEFAULT_RANGE "80,3128,3132,5985,8080,8088,11371,1900"
+#define TCP_DEFAULT_RANGE "80,3128,3132,5985,8080,8088,11371,1900,2869"
 #define SSL_DEFAULT_RANGE "443"
 
 static range_t *global_http_tcp_range = NULL;
