@@ -47,10 +47,167 @@
   
   <section id="ChWorkDisplayPopUpSection"><title>Pop-up menus</title>
     <para>
-      You can bring up a pop-up menu over either the "Packet List" or 
+      You can bring up a pop-up menu over either the "Packet List", its
+      column header, or
       "Packet Details" pane by clicking your right mouse button at the
       corresponding pane.
     </para>	
+
+  <section id="ChWorkColumnHeaderPopUpMenuSection">
+    <title>Pop-up menu of the "Packet List" column header</title>
+    <para>
+      <figure id="ChWorkColumnHeaderPopUpMenu">
+	<title>Pop-up menu of the "Packet List" column header</title>
+	<graphic entityref="WiresharkColumnHeaderPopupMenu" format="PNG"/>
+      </figure>
+	</para>
+	  <para>
+	  The following table gives an overview of which functions are available
+	  in this header, where to find the corresponding function in the main menu,
+	  and a short description of each item.
+	  </para>
+	<table id="ColumnHeaderPopupMenuTable">
+	  <title>The menu items of the "Packet List" column header pop-up menu</title>
+	  <tgroup cols="3">
+		<colspec colnum="1" colwidth="80pt"/>
+		<colspec colnum="2" colwidth="80pt"/>
+	    <thead>
+	      <row>
+		<entry>Item</entry>
+		<entry>Identical to main menu's item:</entry>
+		<entry>Description</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry><command>Sort Ascending</command></entry>
+		<entry></entry>
+		<entry>
+	    <para>
+	      Sort the packet list in ascending order based on this column.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Sort Descending</command></entry>
+		<entry></entry>
+		<entry>
+	    <para>
+	      Sort the packet list in descending order based on this column.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>No Sort</command></entry>
+		<entry></entry>
+		<entry>
+	    <para>
+	      Remove sorting order based on this column.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>-----</entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Align Left</command></entry>
+		<entry></entry>
+		<entry>
+	    <para>
+		  Set left alignment of the values in this column.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Align Center</command></entry>
+		<entry></entry>
+		<entry>
+	    <para>
+		  Set center alignment of the values in this column.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Align Right</command></entry>
+		<entry></entry>
+		<entry>
+	    <para>
+		  Set right alignment of the values in this column.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>-----</entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Column Preferences...</command></entry>
+		<entry></entry>
+		<entry>
+	    <para>
+		  Open the Preferences dialog box on the column tab.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Resize Column</command></entry>
+		<entry></entry>
+		<entry>
+	    <para>
+	      Resize the column to fit the values.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Rename Column Title</command></entry>
+		<entry></entry>
+		<entry>
+	    <para>
+	      Allows you to change the title of the column header.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>-----</entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Displayed Column</command></entry>
+		<entry>View</entry>
+		<entry>
+	    <para>
+	      This menu items folds out with a list of all configured columns.
+	      These columns can now be shown or hidden in the packet list.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Hide Column</command></entry>
+		<entry></entry>
+		<entry>
+	    <para>
+	      Allows you to hide the column from the packet list.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Remove Column</command></entry>
+		<entry></entry>
+		<entry>
+	    <para>
+	      Allows you to remove the column from the packet list.
+	    </para>
+		</entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</table>
+  </section>
+  
   <section id="ChWorkPacketListPanePopUpMenuSection">
     <title>Pop-up menu of the "Packet List" pane</title>
     <para>
@@ -87,11 +244,29 @@
 		</entry>
 	      </row>
 	      <row>
+		<entry><command>Ignore Packet (toggle)</command></entry>
+		<entry>Edit</entry>
+		<entry>
+	    <para>
+	      Ignore or inspect this packet while dissecting the capture file.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
 		<entry><command>Set Time Reference (toggle)</command></entry>
 		<entry>Edit</entry>
 		<entry>
 	    <para>
 	      Set/reset a time reference.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Manually Resolve Address</command></entry>
+		<entry></entry>
+		<entry>
+	    <para>
+	      Allows you to enter a name to resolve for the selected address.
 	    </para>
 		</entry>
 	      </row>
@@ -147,7 +322,7 @@
 		<entry>-</entry>
 		<entry>
 	    <para>
-		  XXX - add an explanation of this.
+	      Allows you to analyze and prepare a filter for this SCTP association.
 	    </para>
 		</entry>
 	      </row>
@@ -157,6 +332,16 @@
 		<entry>
 	    <para>
 		  Allows you to view all the data on a TCP 
+	      stream between a pair of nodes.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Follow UDP Stream</command></entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>
+		  Allows you to view all the data on a UDP datagram
 	      stream between a pair of nodes.
 	    </para>
 		</entry>
@@ -195,14 +380,14 @@
 		</entry>
 		  </row>
 		  <row>
-		    <entry><command>Copy/ As Filter</command></entry>
-		    <entry></entry>
-	 	    <entry>
-	            <para>
-	 	      Prepare a display filter based on the currently selected item
-		      and copy that filter to the clipboard.
-	            </para>
-	 	    </entry>
+		<entry><command>Copy/ As Filter</command></entry>
+		<entry></entry>
+		<entry>
+		<para>
+		  Prepare a display filter based on the currently selected item
+		  and copy that filter to the clipboard.
+		</para>
+		</entry>
 		  </row>
 		  <row>
 		<entry><command>Copy/ Bytes (Offset Hex Text)</command></entry>
@@ -249,16 +434,6 @@
 		  clipboard as MIME-type "application/octet-stream".</para>
 		</entry>
 		  </row>
-	      <row>
-		<entry><command>Export Selected Packet Bytes...</command></entry>
-		<entry>File</entry>
-		<entry>
-	    <para>
-	      This menu item is the same as the File menu item of the same 
-	      name. It allows you to export raw packet bytes to a binary file.
-	    </para>
-		</entry>
-	      </row>
 	      <row>
 		<entry>-----</entry>
 		<entry></entry>
@@ -349,6 +524,84 @@
 	      expanded, and uses it to ensure that the correct subtrees 
 	      are expanded when you display a packet. This menu item 
 	      collapses the tree view of all packets in the capture list.  
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>-----</entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Apply as Column</command></entry>
+		<entry></entry>
+		<entry>
+		<para>
+		  Use the selected protocol item to create a new column in the packet list.
+		</para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>-----</entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Apply as Filter</command></entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>
+		  Prepare and apply a display filter based on the currently selected
+		  item.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Prepare a Filter</command></entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>
+		  Prepare a display filter based on the currently selected item.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Colorize with Filter</command></entry>
+		<entry>-</entry>
+		<entry>
+	    <para>
+	      This menu item uses a display filter with the information
+		  from the selected protocol item to build a new colorizing rule.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Follow TCP Stream</command></entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>
+		  Allows you to view all the data on a TCP
+	      stream between a pair of nodes.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Follow UDP Stream</command></entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>
+		  Allows you to view all the data on a UDP datagram
+	      stream between a pair of nodes.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Follow SSL Stream</command></entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>
+	      Same as "Follow TCP Stream" but for SSL.
+		  XXX - add a new section describing this better.
 	    </para>
 		</entry>
 	      </row>
@@ -466,60 +719,6 @@
 		<entry></entry>
 	      </row>
 	      <row>
-		<entry><command>Apply as Filter</command></entry>
-		<entry>Analyze</entry>
-		<entry>
-	    <para>
-	      Prepare and apply a display filter based on the currently 
-			selected item. 
-	    </para>
-		</entry>
-	      </row>
-	      <row>
-		<entry><command>Prepare a Filter</command></entry>
-		<entry>Analyze</entry>
-		<entry>
-	    <para>
-		  Prepare a display filter based on the currently selected item. 
-	    </para>
-		</entry>
-	      </row>
-	      <row>
-		<entry><command>Colorize with Filter</command></entry>
-		<entry>-</entry>
-		<entry>
-	    <para>
-		  Prepare a display filter based on the currently selected item
-          and use it to prepare a new colorize rule.
-	    </para>
-		</entry>
-	      </row>
-	      <row>
-		<entry><command>Follow TCP Stream</command></entry>
-		<entry>Analyze</entry>
-		<entry>
-	    <para>
-		  Allows you to view all the data on a TCP stream between a pair 
-		  of nodes.
-		</para>
-		</entry>
-	      </row>
-	      <row>
-		<entry><command>Follow SSL Stream</command></entry>
-		<entry>Analyze</entry>
-		<entry>
-	    <para>
-	      Same as "Follow TCP Stream" but for SSL.
-		  XXX - add a new section describing this better.
-	    </para>
-		</entry>
-	      </row>
-	      <row>
-		<entry>-----</entry>
-		<entry></entry>
-		<entry></entry>
-	      </row>
-	      <row>
 		<entry><command>Wiki Protocol Page</command></entry>
 		<entry>-</entry>
 		<entry>
@@ -564,6 +763,16 @@
 	    <para>
 		  Change or apply a new relation between two dissectors. 
 	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Disable Protocol</command></entry>
+		<entry></entry>
+		<entry>
+		<para>
+		  Allows you to temporarily disable a protocol dissector, which may
+		  be blocking the legitimate dissector.
+		</para>
 		</entry>
 	      </row>
 	      <row>
