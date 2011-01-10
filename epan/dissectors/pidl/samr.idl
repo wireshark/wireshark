@@ -137,9 +137,9 @@
 		SAMR_GROUP_ACCESS_REMOVE_MEMBER   = 0x00000008,
 		SAMR_GROUP_ACCESS_GET_MEMBERS     = 0x00000010
 	} samr_GroupAccessMask;
-	// these bits are invalid and return ACCESS_DENIED
+	/* these bits are invalid and return ACCESS_DENIED */
 	const int SAMR_GROUP_ACCESS_MASK_INVALID  = 0x0000ffe0; 
-	// generic access
+	/* generic access */
 	const int SAMR_GROUP_ACCESS_ALL_ACCESS	  = 0x000f001f;
 	const int SAMR_GROUP_ACCESS_ALL_READ	  = 0x00020010;
 	const int SAMR_GROUP_ACCESS_ALL_WRITE	  = 0x0002000e;

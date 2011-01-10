@@ -87,9 +87,21 @@ Wireshark Info
 -->
 
         <listitem><para>
+          AMQP failed assertion.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4048">Bug
+          4048</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Reassemble.c leaks memory for GLIB > 2.8.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4141">Bug
           4141</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Fuzz testing reports possible dissector bug: TCP.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4211">Bug
+          4211</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -207,6 +219,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          LTP bug found by randpkt.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5323">Bug
+          5323</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Buffer overflow in SNMP EngineID preferences.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5530">Bug
           5530</ulink>)
@@ -236,20 +254,30 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
     <para>
 
+AMQP,
+ASN.1 BER,
 ASN.1 PER,
 CFM,
 CIGI,
 DHCPv6,
+Diameter,
+ENTTEC,
 GSM A GM,
 IEEE 802.11,
 InfiniBand,
 LTE-PDCP
 LTP,
+MAC-LTE,
 MP2T,
 RADIUS,
+SAMR,
 SCCP,
 SIP,
+SNMP,
+TCP,
 TLS,
+TN3270,
+UNISTIM,
 WPS
 
     </para>
