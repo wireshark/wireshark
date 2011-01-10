@@ -115,7 +115,7 @@ extern const gchar* str_to_str(const gchar *val, const string_string *vs, const 
  */
 /* --------------------------------------------------------------------*/
 struct _value_string_ext;
-typedef const char *(*_value_string_match_t)(const guint32, const struct _value_string_ext *);
+typedef const char *(*_value_string_match_t)(const guint32, const struct _value_string_ext *, gint *idx);
 
 typedef struct _value_string_ext {
   _value_string_match_t _vs_match;
@@ -149,6 +149,13 @@ extern value_string_ext *value_string_ext_new(value_string *vs, guint vs_tot_num
  * Returns the associated string ptr on a match or NULL on failure.
  */
 extern const gchar* match_strval_ext(const guint32 val, const value_string_ext *vse);
+
+/* Tries to match val against each element in the value_string array vs.
+ *  Returns the associated string ptr, and sets "*idx" to the index in
+ *  that table, on a match, and returns NULL, and sets "*idx" to -1,
+ *  on failure.
+ */
+extern const gchar* match_strval_idx_ext(const guint32 val, value_string_ext *vse, gint *idx);
 
 /* Similar to match_strval_ext except that on failure
  * Formats val with fmt, and returns the resulting string

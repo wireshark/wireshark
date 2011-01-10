@@ -153,9 +153,23 @@ value_string_ext_new(value_string *vs, guint vs_tot_num_entries, gchar *vs_name)
  */
 const gchar*
 match_strval_ext(const guint32 val, const value_string_ext *vse) {
+	gint ignore_me;
     if (vse)
-      return vse->_vs_match(val, vse);
+      return vse->_vs_match(val, vse, &ignore_me);
     return NULL;
+}
+
+/* Tries to match val against each element in the value_string array vs.
+ *  Returns the associated string ptr, and sets "*idx" to the index in
+ *  that table, on a match, and returns NULL, and sets "*idx" to -1,
+ *  on failure.
+ */
+
+const gchar*
+match_strval_idx_ext(const guint32 val, value_string_ext *vse, gint *idx) {
+    if (vse)
+      return vse->_vs_match(val, vse, idx);
+	return NULL;
 }
 
 /* Similar to match_strval_ext except that on failure
@@ -191,45 +205,55 @@ val_to_str_ext_const(const guint32 val, const value_string_ext *vse, const char 
 }
 
 static const gchar *
-_match_strval_linear(const guint32 val, const value_string_ext *vse)
+_match_strval_linear(const guint32 val, const value_string_ext *vse, gint *idx)
 {
   const value_string *vs_p = vse->_vs_p;
   guint i;
   for (i=0; i<vse->_vs_num_entries; i++) {
     if (vs_p[i].value == val) {
+		*idx = i;
       return vs_p[i].strptr;
     }
   }
+  *idx = -1;
   return NULL;
 }
 
 static const gchar *
-_match_strval_index(const guint32 val, const value_string_ext *vse)
+_match_strval_index(const guint32 val, const value_string_ext *vse, gint *idx)
 {
-  if ((val - vse->_vs_first_value) < vse->_vs_num_entries) {
-    g_assert (val == vse->_vs_p[val - vse->_vs_first_value].value);
-    return vse->_vs_p[val - vse->_vs_first_value].strptr;
+  guint i;
+
+  i = val - vse->_vs_first_value;
+  if (i < vse->_vs_num_entries) {
+    g_assert (val == vse->_vs_p[i].value);
+	*idx = i;
+    return vse->_vs_p[i].strptr;
   }
+  *idx = -1;
   return NULL;
 }
 
 static const gchar *
-_match_strval_bsearch(const guint32 val, const value_string_ext *vse)
+_match_strval_bsearch(const guint32 val, const value_string_ext *vse, gint *idx)
 {
-  guint low, idx, max;
+  guint low, i, max;
   guint32 item;
 
   for (low = 0, max = vse->_vs_num_entries; low < max; ) {
-    idx = (low + max) / 2;
-    item = vse->_vs_p[idx].value;
+    i = (low + max) / 2;
+    item = vse->_vs_p[i].value;
 
     if (val < item)
-      max = idx;
+      max = i;
     else if (val > item)
-      low = idx + 1;
-    else
-      return vse->_vs_p[idx].strptr;
+      low = i + 1;
+	else{
+      *idx = i;
+      return vse->_vs_p[i].strptr;
+    }
   }
+  *idx = -1;
   return NULL;
 }
 
@@ -244,6 +268,7 @@ _match_strval_bsearch(const guint32 val, const value_string_ext *vse)
 const gchar *
 _match_strval_ext_init(const guint32 val, value_string_ext *vse)
 {
+  gint ignore_me;
   const value_string *vs_p           = vse->_vs_p;
   const guint         vs_num_entries = vse->_vs_num_entries;
 
@@ -281,8 +306,6 @@ _match_strval_ext_init(const guint32 val, value_string_ext *vse)
   switch (type) {
   case VS_SEARCH:
     vse->_vs_match = _match_strval_linear;
-    g_warning("Extended value string: %s not sorted; accessing linearly (%0x/%0x)",
-              vse->_vs_name, prev_value, vs_p[i].value);
     break;
   case VS_BIN_TREE:
     vse->_vs_match = _match_strval_bsearch;
@@ -295,7 +318,7 @@ _match_strval_ext_init(const guint32 val, value_string_ext *vse)
     break;
   }
 
-  return vse->_vs_match(val, vse);
+  return vse->_vs_match(val, vse, &ignore_me);
 }
 
 /* (Fcns for use by proto_registrar_dump_values() [See proto.c]) */
