@@ -196,17 +196,17 @@ DISSECTOR_SRC = \
 	packet-6lowpan.c	\
 	packet-9p.c		\
 	packet-aarp.c		\
-	packet-adwin.c		\
-	packet-adwin-config.c	\
 	packet-acap.c		\
 	packet-acn.c		\
 	packet-actrace.c	\
+	packet-adwin.c		\
+	packet-adwin-config.c	\
 	packet-afp.c		\
 	packet-afs.c		\
 	packet-agentx.c 	\
 	packet-aim.c		\
-	packet-aim-adverts.c	\
 	packet-aim-admin.c 	\
+	packet-aim-adverts.c	\
 	packet-aim-bos.c 	\
 	packet-aim-buddylist.c	\
 	packet-aim-chat.c	\
@@ -398,11 +398,11 @@ DISSECTOR_SRC = \
 	packet-dhcpv6.c		\
 	packet-diameter.c	\
 	packet-diameter_3gpp.c	\
+	packet-diffserv-mpls-common.c	\
 	packet-dis.c		\
 	packet-dis-enums.c	\
 	packet-dis-fields.c	\
 	packet-dis-pdus.c	\
-	packet-diffserv-mpls-common.c	\
 	packet-distcc.c		\
 	packet-dlm3.c		\
 	packet-dlsw.c		\
@@ -495,9 +495,9 @@ DISSECTOR_SRC = \
 	packet-gsm_a_gm.c	\
 	packet-gsm_a_rp.c	\
 	packet-gsm_a_rr.c	\
-	packet-gsm_ipa.c	\
 	packet-gsm_bsslap.c	\
 	packet-gsm_bssmap_le.c	\
+	packet-gsm_ipa.c	\
 	packet-gsm_sms.c	\
 	packet-gsm_sms_ud.c	\
 	packet-gsm_um.c		\
@@ -510,11 +510,11 @@ DISSECTOR_SRC = \
 	packet-h1.c		\
 	packet-h221_nonstd.c	\
 	packet-h223.c		\
-	packet-h248_annex_c.c 	\
-	packet-h248_annex_e.c 	\
 	packet-h248_3gpp.c 	\
 	packet-h248_7.c 	\
 	packet-h248_10.c 	\
+	packet-h248_annex_c.c 	\
+	packet-h248_annex_e.c 	\
 	packet-h248_q1950.c	\
 	packet-h261.c		\
 	packet-h263.c		\
@@ -537,7 +537,6 @@ DISSECTOR_SRC = \
 	packet-iana-oui.c	\
 	packet-iapp.c		\
 	packet-iax2.c		\
-	packet-infiniband_sdp.c \
 	packet-icap.c		\
 	packet-icep.c		\
 	packet-icmp.c		\
@@ -562,8 +561,9 @@ DISSECTOR_SRC = \
 	packet-imap.c		\
 	packet-imf.c		\
 	packet-infiniband.c	\
-	packet-ipars.c		\
+	packet-infiniband_sdp.c \
 	packet-ip.c		\
+	packet-ipars.c		\
 	packet-ipdc.c		\
 	packet-ipfc.c		\
 	packet-ipmi.c		\
@@ -608,11 +608,12 @@ DISSECTOR_SRC = \
 	packet-kdp.c		\
 	packet-kerberos.c	\
 	packet-kerberos4.c	\
-	packet-klm.c		\
 	packet-kingfisher.c	\
 	packet-kink.c		\
 	packet-kismet.c		\
+	packet-klm.c		\
 	packet-kpasswd.c	\
+	packet-l1-events.c	\
 	packet-l2tp.c		\
 	packet-lanforge.c	\
 	packet-lapb.c		\
@@ -620,7 +621,6 @@ DISSECTOR_SRC = \
 	packet-lapd.c		\
 	packet-lapdm.c		\
 	packet-laplink.c	\
-	packet-l1-events.c	\
 	packet-ldp.c		\
 	packet-ldss.c		\
 	packet-lge_monitor.c	\
@@ -641,8 +641,8 @@ DISSECTOR_SRC = \
 	packet-m2ua.c		\
 	packet-m3ua.c		\
 	packet-mac-lte.c		\
-	packet-mactelnet.c	\
 	packet-maccontrol.c	\
+	packet-mactelnet.c	\
 	packet-manolito.c	\
 	packet-mbtcp.c		\
 	packet-mdshdr.c		\
@@ -656,7 +656,6 @@ DISSECTOR_SRC = \
 	packet-miop.c		\
 	packet-mip.c		\
 	packet-mip6.c		\
-	packet-ms-mms.c		\
 	packet-mmse.c		\
 	packet-mongo.c		\
 	packet-mount.c		\
@@ -669,10 +668,11 @@ DISSECTOR_SRC = \
 	packet-mq-pcf.c		\
 	packet-mrdisc.c		\
 	packet-mrp-msrp.c	\
+	packet-ms-mms.c		\
 	packet-msdp.c		\
-	packet-msnlb.c		\
 	packet-msn-messenger.c	\
 	packet-msnip.c		\
+	packet-msnlb.c		\
 	packet-msproxy.c	\
 	packet-msrp.c		\
 	packet-mstp.c		\
@@ -683,6 +683,7 @@ DISSECTOR_SRC = \
 	packet-mysql.c		\
 	packet-nas_eps.c	\
 	packet-nasdaq-itch.c	\
+	packet-nasdaq-soup.c	\
 	packet-nat-pmp.c	\
 	packet-nb_rtpmux.c	\
 	packet-nbd.c		\
@@ -712,9 +713,9 @@ DISSECTOR_SRC = \
 	packet-nlm.c		\
 	packet-nlsp.c		\
 	packet-nntp.c		\
-	packet-nstrace.c	\
 	packet-nsip.c		\
 	packet-nsrp.c		\
+	packet-nstrace.c	\
 	packet-nt-oui.c		\
 	packet-nt-tpcp.c	\
 	packet-ntlmssp.c	\
@@ -742,14 +743,14 @@ DISSECTOR_SRC = \
 	packet-per.c		\
 	packet-pflog.c		\
 	packet-pgm.c		\
+	packet-pgsql.c		\
 	packet-pim.c		\
 	packet-pingpongprotocol.c	\
-	packet-pktgen.c		\
 	packet-pktc.c		\
+	packet-pktgen.c		\
 	packet-pnrp.c		\
 	packet-pop.c		\
 	packet-portmap.c	\
-	packet-pgsql.c		\
 	packet-ppi.c		\
 	packet-ppi-antenna.c	\
 	packet-ppi-geolocation-common.c	\
@@ -762,11 +763,11 @@ DISSECTOR_SRC = \
 	packet-ptp.c		\
 	packet-pvfs2.c		\
 	packet-pw-common.c	\
-	packet-pw-eth.c   	\
-	packet-pw-hdlc.c	\
-	packet-pw-fr.c		\
 	packet-pw-atm.c		\
 	packet-pw-cesopsn.c	\
+	packet-pw-eth.c   	\
+	packet-pw-fr.c		\
+	packet-pw-hdlc.c	\
 	packet-pw-satop.c	\
 	packet-q2931.c		\
 	packet-q708.c		\
@@ -777,10 +778,10 @@ DISSECTOR_SRC = \
 	packet-quake2.c		\
 	packet-quake3.c		\
 	packet-quakeworld.c	\
-	packet-radius.c		\
-	packet-radius_packetcable.c	\
 	packet-radiotap.c	\
 	packet-radiotap-iter.c	\
+	packet-radius.c		\
+	packet-radius_packetcable.c	\
 	packet-raw.c		\
 	packet-rdm.c		\
 	packet-rdt.c		\
@@ -835,6 +836,7 @@ DISSECTOR_SRC = \
 	packet-sccp.c		\
 	packet-sccpmg.c		\
 	packet-scop.c		\
+	packet-scriptingservice.c \
 	packet-scsi.c		\
 	packet-scsi-mmc.c	\
 	packet-scsi-osd.c	\
@@ -848,9 +850,9 @@ DISSECTOR_SRC = \
 	packet-ses.c		\
 	packet-sflow.c		\
 	packet-sgsap.c		\
+	packet-sigcomp.c	\
 	packet-simulcrypt.c	\
 	packet-sip.c		\
-	packet-sigcomp.c	\
 	packet-sipfrag.c	\
 	packet-sita.c		\
 	packet-skinny.c		\
@@ -874,14 +876,12 @@ DISSECTOR_SRC = \
 	packet-sndcp-xid.c	\
 	packet-socketcan.c	\
 	packet-socks.c		\
-	packet-nasdaq-soup.c	\
 	packet-spp.c		\
 	packet-spray.c		\
 	packet-srp.c		\
-	packet-sscf-nni.c	\
 	packet-srvloc.c		\
+	packet-sscf-nni.c	\
 	packet-sscop.c		\
-	packet-scriptingservice.c \
 	packet-ssh.c		\
 	packet-ssl.c		\
 	packet-ssl-utils.c	\
@@ -904,19 +904,19 @@ DISSECTOR_SRC = \
 	packet-tds.c		\
 	packet-teamspeak2.c	\
 	packet-teimanagement.c	\
+	packet-teklink.c	\
+	packet-telkonet.c	\
 	packet-telnet.c		\
 	packet-teredo.c		\
 	packet-text-media.c	\
-	packet-telkonet.c	\
-	packet-teklink.c	\
 	packet-tftp.c		\
 	packet-time.c		\
 	packet-tipc.c		\
 	packet-tivoconnect.c	\
-	packet-tnef.c		\
-	packet-tns.c		\
 	packet-tn3270.c		\
 	packet-tn5250.c		\
+	packet-tnef.c		\
+	packet-tns.c		\
 	packet-tpkt.c		\
 	packet-tpncp.c		\
 	packet-tr.c		\
@@ -931,19 +931,19 @@ DISSECTOR_SRC = \
 	packet-tzsp.c		\
 	packet-ucp.c		\
 	packet-udld.c		\
-	packet-uma.c		\
 	packet-udp.c		\
-	packet-usb.c		\
-	packet-usb-masstorage.c	\
-	packet-usb-hid.c	\
-	packet-usb-hub.c	\
+	packet-uma.c		\
 	packet-umts_fp.c	\
 	packet-umts_mac.c	\
+	packet-usb.c		\
+	packet-usb-hid.c	\
+	packet-usb-hub.c	\
+	packet-usb-masstorage.c	\
 	packet-user_encap.c	\
 	packet-uts.c		\
 	packet-v120.c		\
-	packet-v5ua.c		\
 	packet-v52.c		\
+	packet-v5ua.c		\
 	packet-vcdu.c		\
 	packet-vicp.c		\
 	packet-vines.c		\
@@ -988,8 +988,8 @@ DISSECTOR_SRC = \
 	packet-ypserv.c		\
 	packet-ypxfr.c		\
 	packet-zbee-aps.c	\
-	packet-zbee-security.c	\
 	packet-zbee-nwk.c	\
+	packet-zbee-security.c	\
 	packet-zbee-zcl.c	\
 	packet-zbee-zdp.c	\
 	packet-zbee-zdp-binding.c	\
@@ -1032,9 +1032,9 @@ DISSECTOR_INCLUDES =	\
 	packet-btrfcomm.h	\
 	packet-btsdp.h	\
 	packet-camel.h	\
-	packet-chdlc.h	\
 	packet-cdt.h	\
 	packet-charging_ase.h	\
+	packet-chdlc.h	\
 	packet-cimd.h	\
 	packet-cip.h	\
 	packet-clearcase.h	\
@@ -1047,6 +1047,7 @@ DISSECTOR_INCLUDES =	\
 	packet-data.h	\
 	packet-dcc.h	\
 	packet-dccp.h	\
+	packet-dcerpc.h	\
 	packet-dcerpc-browser.h	\
 	packet-dcerpc-budb.h	\
 	packet-dcerpc-butc.h	\
@@ -1065,7 +1066,6 @@ DISSECTOR_INCLUDES =	\
 	packet-dcerpc-spoolss.h	\
 	packet-dcerpc-svcctl.h	\
 	packet-dcerpc-tapi.h	\
-	packet-dcerpc.h	\
 	packet-dcom.h	\
 	packet-dcom-dispatch.h	\
 	packet-dcm.h	\
@@ -1154,11 +1154,11 @@ DISSECTOR_INCLUDES =	\
 	packet-ipv6.h	\
 	packet-ipx.h	\
 	packet-isakmp.h	\
+	packet-isis.h	\
 	packet-isis-clv.h	\
 	packet-isis-hello.h	\
 	packet-isis-lsp.h	\
 	packet-isis-snp.h	\
-	packet-isis.h	\
 	packet-isl.h	\
 	packet-isup.h	\
 	packet-jxta.h	\
@@ -1196,8 +1196,8 @@ DISSECTOR_INCLUDES =	\
 	packet-ntp.h	\
 	packet-null.h	\
 	packet-ocsp.h	\
-	packet-osi-options.h	\
 	packet-osi.h	\
+	packet-osi-options.h	\
 	packet-p7.h \
 	packet-pcnfsd.h	\
 	packet-pdcp-lte.h	\
@@ -1284,17 +1284,17 @@ DISSECTOR_INCLUDES =	\
 	packet-sscop.h \
 	packet-ssl.h	\
 	packet-ssl-utils.h	\
-	packet-stat-notify.h	\
 	packet-stat.h	\
+	packet-stat-notify.h	\
 	packet-sv.h	\
 	packet-t30.h	\
 	packet-t38.h	\
 	packet-tacacs.h	\
 	packet-tcap.h	\
 	packet-tcp.h	\
-	packet-tns.h	\
 	packet-tn3270.h	\
 	packet-tn5250.h	\
+	packet-tns.h	\
 	packet-tpkt.h	\
 	packet-tr.h	\
 	packet-tte.h \
@@ -1335,8 +1335,8 @@ DISSECTOR_INCLUDES =	\
 	packet-ypxfr.h	\
 	packet-zbee.h	\
 	packet-zbee-aps.h	\
-	packet-zbee-security.h	\
 	packet-zbee-nwk.h	\
+	packet-zbee-security.h	\
 	packet-zbee-zcl.h	\
 	packet-zbee-zdp.h	\
 	packet-zep.h	\
