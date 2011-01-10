@@ -39,11 +39,11 @@ Wireshark Info
         <listitem>
           <para>
             FRAsse discovered that the MAC-LTE dissector could overflow a buffer.
-            <!-- Fixed in trunk: r34581 -->
-            <!-- Fixed in trunk-1.4: r -->
+            <!-- Fixed in trunk: r35292 -->
+            <!-- Fixed in trunk-1.4: r35457 -->
             <!-- Fixed in trunk-1.2: r -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5318">Bug
-            5318</ulink>)
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5530">Bug
+            5530</ulink>)
           </para>
           <para>Versions affected: 1.2.? to 1.2.13 and 1.4.? to 1.4.2.</para>
 <!--
@@ -51,6 +51,21 @@ Wireshark Info
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
           </para>
 -->
+        </listitem>
+
+        <listitem>
+          <para>
+            FRAsse discovered that the ENTTEC dissector could overflow a buffer.
+            <!-- Fixed in trunk: r35318 -->
+            <!-- Fixed in trunk-1.4: r -->
+            <!-- Fixed in trunk-1.2: r -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5539">Bug
+            5539</ulink>)
+          </para>
+          <para>Versions affected: 1.2.? to 1.2.13 and 1.4.? to 1.4.2.</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-4538">CVE-2010-4538</ulink>
+          </para>
         </listitem>
 
       </itemizedlist>
