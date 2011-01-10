@@ -38,6 +38,7 @@
 
 #include <epan/ipproto.h>
 #include <epan/ip_opts.h>
+#include <epan/expert.h>
 #include <epan/sminmpec.h>
 #include "packet-ntp.h"
 
@@ -1950,8 +1951,11 @@ dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
 			} else {
 				ti = proto_tree_add_item(opt_tree, hf_mip6_mobility_opt, tvb, offset, 1, FALSE);
 				if (optp == NULL) {
+					proto_item *expert_item;
 					proto_item_append_text(ti, "(%u byte%s)",len, plurality(len, "", "s"));
-					proto_tree_add_text(opt_tree, tvb, offset+2,len,"[Not disseted yet]");
+					expert_item = proto_tree_add_text(opt_tree, tvb,  offset+2, len, "IE data not dissected yet");
+					expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+					PROTO_ITEM_SET_GENERATED(expert_item);
 				} else {
 					if (dissect != NULL) {
 						/* Option has a dissector. */
