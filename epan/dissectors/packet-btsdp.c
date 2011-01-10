@@ -569,11 +569,11 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset, packe
 				service_item->service = service;
 			}
 			else if(id == 0x200) { /* GOEP L2CAP PSM? */
-				guint16 *psm;
+				guint8 *psm;
 
-				get_sdp_type(tvb, offset+ 3, id, &type, (guint8 **) &psm,  &service, &service_val);
+				get_sdp_type(tvb, offset+ 3, id, &type, &psm,  &service, &service_val);
 
-				if( (type == 1) && (*psm > 0x1000) && (*psm & 0x1) ) {
+				if( (type == 1) && (*psm & 0x1) ) {
 					service_item->channel = *psm;
 					service_item->protocol = BTSDP_L2CAP_PROTOCOL_UUID;
 					service_item->flags = 0;
