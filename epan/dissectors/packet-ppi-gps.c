@@ -128,7 +128,8 @@ proto_register_ppi_gps(void) {
             "Length of header including version, pad, length and data fields", HFILL } },
         { &hf_ppi_gps_present, /* these flag fields are composed of a uint32 on the display */
           { "Present", "ppi_gps.present",
-            FT_UINT32, BASE_HEX, NULL, 0x0, "Bitmask indicating which fields are present", HFILL } },
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            "Bitmask indicating which fields are present", HFILL } },
 
 #define PPI_GPS_MASK_GPSFLAGS       0x00000001
 #define PPI_GPS_MASK_LAT            0x00000002
@@ -224,7 +225,8 @@ proto_register_ppi_gps(void) {
 
         { &hf_ppi_gps_gpsflags_flags,
           { "GPSFlags", "ppi_gps.gpsflags",
-            FT_UINT32, BASE_HEX, NULL, 0x0, "Bitmask indicating GPS/INS/manual fix", HFILL } },
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            "Bitmask indicating GPS/INS/manual fix", HFILL } },
         { &hf_ppi_gps_lat,
           { "Latitude", "ppi_gps.lat",
             FT_DOUBLE, BASE_NONE, NULL, 0x0,
@@ -272,7 +274,7 @@ proto_register_ppi_gps(void) {
         { &hf_ppi_gps_appspecific_data,
           { "Application specific data", "ppi_gps.appdata",
             FT_BYTES, BASE_NONE, NULL, 0x0,
-            "Application-specific data", HFILL } },
+            NULL, HFILL } },
 
         /* --- moving on to the 'FixType' flags --- */
 #define PPI_GPS_GPSFLAGS_FLAG0_NOFIX     0x00000001
@@ -287,11 +289,11 @@ proto_register_ppi_gps(void) {
         { &hf_ppi_gps_gpsflags_flag0_nofix, /* no fix available */
           { "No fix available", "ppi_gps.gpsflagss.nofix",
             FT_BOOLEAN, 32, NULL, PPI_GPS_GPSFLAGS_FLAG0_NOFIX,
-            "No GPS fix available", HFILL } },
+            NULL, HFILL } },
         { &hf_ppi_gps_gpsflags_flag1_gpsfix, /* GPSfix available */
           { "GPS provided fix", "ppi_gps.gpsflagss.gps",
             FT_BOOLEAN, 32, NULL, PPI_GPS_GPSFLAGS_FLAG1_GPS,
-            "GPS provided fix", HFILL } },
+            NULL, HFILL } },
         { &hf_ppi_gps_gpsflags_flag2_diffgps, /* Differential GPS fix  available */
           { "Differential GPS provided fix", "ppi_gps.gpsflagss.diffgps",
             FT_BOOLEAN, 32, NULL, PPI_GPS_GPSFLAGS_FLAG2_DIFFGPS,
@@ -299,27 +301,27 @@ proto_register_ppi_gps(void) {
         { &hf_ppi_gps_gpsflags_flag3_PPS, /* PPS fix  */
           { "PPS fix", "ppi_gps.gpsflagss.pps",
             FT_BOOLEAN, 32, NULL, PPI_GPS_GPSFLAGS_FLAG3_PPS,
-            "PPS fix", HFILL } },
+            NULL, HFILL } },
         { &hf_ppi_gps_gpsflags_flag4_RTK, /* RTK fix*/
           { "RTK fix", "ppi_gps.gpsflagss.rtk",
             FT_BOOLEAN, 32, NULL, PPI_GPS_GPSFLAGS_FLAG4_RTK,
-            "RTK fix", HFILL } },
+            NULL, HFILL } },
         { &hf_ppi_gps_gpsflags_flag5_floatRTK, /*float RTK */
           { "floatRTK fix", "ppi_gps.gpsflagss.frtk",
             FT_BOOLEAN, 32, NULL, PPI_GPS_GPSFLAGS_FLAG5_FLOATRTK,
-            "floatRTK fix", HFILL } },
+            NULL, HFILL } },
         { &hf_ppi_gps_gpsflags_flag6_dead_reck, /*dead reckoning */
           { "dead reckoning fix", "ppi_gps.gpsflagss.dead_reck",
             FT_BOOLEAN, 32, NULL, PPI_GPS_GPSFLAGS_FLAG6_DEAD_RECK,
-            "dead reckoning fix", HFILL } },
+            NULL, HFILL } },
         { &hf_ppi_gps_gpsflags_flag7_manual, /* manual */
           { "manual fix", "ppi_gps.gpsflagss.manual",
             FT_BOOLEAN, 32, NULL, PPI_GPS_GPSFLAGS_FLAG7_MANUAL,
-            "manual fix available", HFILL } },
+            NULL, HFILL } },
         { &hf_ppi_gps_gpsflags_flag8_sim, /* simulation */
           { "simulated fix", "ppi_gps.gpsflagss.simulation",
             FT_BOOLEAN, 32, NULL, PPI_GPS_GPSFLAGS_FLAG8_SIM,
-            "simulated fix", HFILL } },
+            NULL, HFILL } },
 
     };
     static gint *ett[] = {
