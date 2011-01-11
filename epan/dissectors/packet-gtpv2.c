@@ -263,7 +263,6 @@ static int hf_gtpv2_charging_id = -1;
 static int hf_gtpv2_charging_characteristic = -1;
 static int hf_gtpv2_bearer_flag_ppc = -1;
 static int hf_gtpv2_bearer_flag_vb = -1;
-static int hf_gtpv2_ue_time_zone = -1;
 static int hf_gtpv2_ue_time_zone_dst = -1;
 static int hf_gtpv2_fq_csid_type = -1;
 static int hf_gtpv2_fq_csid_nr = -1;
@@ -2330,8 +2329,12 @@ dissect_gtpv2_ue_time_zone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 {
     int offset = 0;
 
-    proto_tree_add_item(tree, hf_gtpv2_ue_time_zone, tvb, offset, 1, FALSE);
-
+	/*
+	 * UE Time Zone is used to indicate the offset between universal time and local time in steps of 15 minutes of where the
+	 * UE currently resides. The "Time Zone" field uses the same format as the "Time Zone" IE in 3GPP TS 24.008 [5].
+	 * (packet-gsm_a_dtap.c)
+	 */
+	de_time_zone(tvb, tree, offset, 1, NULL, 0);
     offset= offset+ 1;
     proto_tree_add_item(tree, hf_gtpv2_ue_time_zone_dst, tvb, offset, 1, FALSE);
 
@@ -4153,12 +4156,6 @@ void proto_register_gtpv2(void)
 				FT_UINT8, BASE_DEC, NULL, 0x1c,
 				NULL, HFILL}
 		},
-
-		{&hf_gtpv2_ue_time_zone,
-        {"Time Zone","gtpv2.ue_time_zone",
-        FT_UINT8, BASE_DEC, NULL,0x0,
-        NULL, HFILL}
-        },
         {&hf_gtpv2_ue_time_zone_dst,
         {"Daylight Saving Time","gtpv2.ue_time_zone_dst",
         FT_UINT8, BASE_DEC, VALS(gtpv2_ue_time_zone_dst_vals),0x03,
