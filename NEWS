@@ -1,4 +1,4 @@
-Wireshark 1.2.13 Release Notes
+Wireshark 1.2.14 Release Notes
 
    ------------------------------------------------------------------
 
@@ -15,21 +15,32 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o Nephi Johnson of BreakingPoint discovered that the LDSS
-       dissector could overflow a buffer. (Bug 5318)
+     o FRAsse discovered that the MAC-LTE dissector could overflow a
+       buffer. (Bug 5530)
 
-       Versions affected: 1.2.0 to 1.2.12 and 1.4.0 to 1.4.1.
+       Versions affected: 1.2.0 to 1.2.13 and 1.4.0 to 1.4.2.
+
+     o FRAsse discovered that the ENTTEC dissector could overflow a
+       buffer. (Bug 5539)
+
+       Versions affected: 1.2.0 to 1.2.13 and 1.4.0 to 1.4.2.
+
+       CVE-2010-4538
 
    The following bugs have been fixed:
 
-     o File-Open Display Filter is overwritten by Save-As Filename.
-       (Bug 3894)
+     o Menu and Title bars inaccessible using GTK2 (non-legacy) with
+       two monitors. (Bug 553)
 
-     o GTK-ERROR can occur in packets when there are multiple
-       Netbios/SMB headers in a single frame. (Bug 5289)
+     o AMQP failed assertion. (Bug 4048)
 
-     o IO Graph Time of Day times incorrect for filtered data. (Bug
-       5340)
+     o Reassemble.c leaks memory for GLIB > 2.8. (Bug 4141)
+
+     o Fuzz testing reports possible dissector bug: TCP. (Bug 4211)
+
+     o LTE-PDCP UL and DL problem. (Bug 5505)
+
+     o Buffer overflow in SNMP EngineID preferences. (Bug 5530)
 
   New and Updated Features
 
@@ -41,11 +52,12 @@ What's New
 
   Updated Protocol Support
 
-   BOOTP, LDSS
+   AMQP, ASN.1 BER, Diameter, ENTTEC, LTE-PDCP, MAC-LTE, SAMR, SNMP,
+   TCP, UNISTIM
 
   Updated Capture File Support
 
-   There are no new or updated capture file formats in this release.
+   VMS TCPtrace.
 
 Getting Wireshark
 
@@ -68,9 +80,6 @@ File Locations
    About->Folders to find the default locations on your system.
 
 Known Problems
-
-   Wireshark may appear offscreen on multi-monitor Windows systems.
-   (Bug 553)
 
    Wireshark might make your system disassociate from a wireless
    network on OS X. (Bug 1315)

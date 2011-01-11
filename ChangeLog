@@ -1,29 +1,4 @@
 ------------------------------------------------------------------------
-r34484 | gerald | 2010-10-11 14:46:59 -0700 (Mon, 11 Oct 2010) | 2 lines
-Changed paths:
-   M /trunk-1.2/config.nmake
-   M /trunk-1.2/configure.in
-   M /trunk-1.2/debian/changelog
-   M /trunk-1.2/docbook/release-notes.xml
-   M /trunk-1.2/version.conf
-
-1.2.12 → 1.2.13.
-
-------------------------------------------------------------------------
-r34510 | etxrab | 2010-10-14 00:59:29 -0700 (Thu, 14 Oct 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/diameter/dictionary.xml
-
-AVP corrections.
-------------------------------------------------------------------------
-r34545 | gerald | 2010-10-17 10:07:23 -0700 (Sun, 17 Oct 2010) | 1 line
-Changed paths:
-   M /trunk-1.2/epan/enterprise-numbers
-   M /trunk-1.2/manuf
-   M /trunk-1.2/services
-
-[Automatic manuf, services and enterprise-numbers update for 2010-10-17]
-------------------------------------------------------------------------
 r34637 | gerald | 2010-10-24 10:05:03 -0700 (Sun, 24 Oct 2010) | 1 line
 Changed paths:
    M /trunk-1.2/epan/enterprise-numbers
@@ -303,5 +278,415 @@ Changed paths:
 Copy GDK pixbuf loaders libs to the Wireshark.app.
 ------------------------------------------------------------------------
 
+
+------------------------------------------------------------------------
+r34951 | gerald | 2010-11-18 10:18:02 -0800 (Thu, 18 Nov 2010) | 2 lines
+Changed paths:
+   M /trunk-1.2/ChangeLog
+   M /trunk-1.2/NEWS
+   M /trunk-1.2/docbook/release-notes.xml
+
+Update the release notes / NEWS and ChangeLog.
+
+------------------------------------------------------------------------
+r34953 | gerald | 2010-11-18 10:19:26 -0800 (Thu, 18 Nov 2010) | 2 lines
+Changed paths:
+   M /trunk-1.2/version.conf
+
+Build 1.2.13.
+
+------------------------------------------------------------------------
+r34958 | gerald | 2010-11-18 13:16:49 -0800 (Thu, 18 Nov 2010) | 2 lines
+Changed paths:
+   M /trunk-1.2/NEWS
+   M /trunk-1.2/docbook/release-notes.xml
+
+Fix version info.
+
+------------------------------------------------------------------------
+r34960 | gerald | 2010-11-18 13:21:10 -0800 (Thu, 18 Nov 2010) | 2 lines
+Changed paths:
+   M /trunk-1.2/NEWS
+   M /trunk-1.2/docbook/release-notes.xml
+
+More release note fixes.
+
+------------------------------------------------------------------------
+r34980 | gerald | 2010-11-19 11:47:01 -0800 (Fri, 19 Nov 2010) | 2 lines
+Changed paths:
+   M /trunk-1.2/config.nmake
+   M /trunk-1.2/configure.in
+   M /trunk-1.2/debian/changelog
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/version.conf
+
+1.2.13 → 1.2.14.
+
+------------------------------------------------------------------------
+r34994 | gerald | 2010-11-21 10:05:07 -0800 (Sun, 21 Nov 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf, services and enterprise-numbers update for 2010-11-21]
+------------------------------------------------------------------------
+r35053 | gerald | 2010-11-28 10:05:13 -0800 (Sun, 28 Nov 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf, services and enterprise-numbers update for 2010-11-28]
+------------------------------------------------------------------------
+r35124 | gerald | 2010-12-05 11:33:48 -0800 (Sun, 05 Dec 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf, services and enterprise-numbers update for 2010-12-05]
+------------------------------------------------------------------------
+r35157 | gerald | 1998-09-15 19:39:18 -0700 (Tue, 15 Sep 1998) | 2 lines
+Changed paths:
+   M /trunk-1.2/epan/dissectors/packet-gsm_a_rr.c
+   M /trunk-1.2/epan/tvbuff.c
+   M /trunk-1.2/epan/tvbuff.h
+
+Initial import.  Ethereal version: 0.3.15.
+
+------------------------------------------------------------------------
+r35158 | etxrab | 2010-12-08 12:14:57 -0800 (Wed, 08 Dec 2010) | 2 lines
+Changed paths:
+   M /trunk-1.2/epan/dissectors/packet-cups.c
+   M /trunk-1.2/epan/dissectors/packet-sdp.c
+   M /trunk-1.2/epan/dissectors/packet-sip.c
+   M /trunk-1.2/epan/tvbuff.c
+
+Copy over r32144 from trunk
+Make tvb_pbrk_guint8() return the found nedle
+------------------------------------------------------------------------
+r35159 | etxrab | 2010-12-08 14:48:31 -0800 (Wed, 08 Dec 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/tvbuff.h
+
+Remove a patch not due yet.
+------------------------------------------------------------------------
+r35161 | etxrab | 2010-12-09 06:29:39 -0800 (Thu, 09 Dec 2010) | 9 lines
+Changed paths:
+   M /trunk-1.2/epan/addr_resolv.c
+   M /trunk-1.2/epan/addr_resolv.h
+   M /trunk-1.2/epan/to_str.c
+   M /trunk-1.2/epan/to_str.h
+
+Copy over:
+r 28842 Unsigned does not have msign.
+r 29130 Optimize column fill path.
+r 29133 Fix an ep buffer overrun introduced in r29130.
+r 29146 Fix regressions in r29130 and r29133
+In r29130 formating for DSECS was changed. (old: %01d now: %02d)
+In r29133 adding sign was removed (old: buf[0] = '-' now: buf[0] = '\0')
+
+Manly to make future bug fixing easier.
+------------------------------------------------------------------------
+r35168 | etxrab | 2010-12-10 04:13:53 -0800 (Fri, 10 Dec 2010) | 4 lines
+Changed paths:
+   M /trunk-1.2/asn1/ansi-tcap/packet-ansi_tcap-template.c
+   M /trunk-1.2/asn1/ansi_map/packet-ansi_map-template.c
+   M /trunk-1.2/asn1/h245/packet-h245-template.c
+   M /trunk-1.2/epan/addr_resolv.c
+   M /trunk-1.2/epan/addr_resolv.h
+   M /trunk-1.2/epan/dissectors/packet-acn.c
+   M /trunk-1.2/epan/dissectors/packet-ansi_map.c
+   M /trunk-1.2/epan/dissectors/packet-ansi_tcap.c
+   M /trunk-1.2/epan/dissectors/packet-dtls.c
+   M /trunk-1.2/epan/dissectors/packet-h245.c
+   M /trunk-1.2/epan/dissectors/packet-http.c
+   M /trunk-1.2/epan/dissectors/packet-iax2.c
+   M /trunk-1.2/epan/dissectors/packet-ieee802154.c
+   M /trunk-1.2/epan/dissectors/packet-ipx.c
+   M /trunk-1.2/epan/dissectors/packet-jxta.c
+   M /trunk-1.2/epan/dissectors/packet-pagp.c
+   M /trunk-1.2/epan/dissectors/packet-rtcp.c
+   M /trunk-1.2/epan/dissectors/packet-rtp.c
+   M /trunk-1.2/epan/dissectors/packet-sccp.c
+   M /trunk-1.2/epan/dissectors/packet-ssl-utils.c
+   M /trunk-1.2/epan/dissectors/packet-ssl-utils.h
+   M /trunk-1.2/epan/dissectors/packet-ssl.c
+   M /trunk-1.2/epan/dissectors/packet-tacacs.c
+   M /trunk-1.2/epan/gcp.c
+   M /trunk-1.2/epan/libwireshark.def
+   M /trunk-1.2/epan/tcap-persistentdata.c
+   M /trunk-1.2/epan/to_str.c
+   M /trunk-1.2/epan/to_str.h
+   M /trunk-1.2/gtk/compare_stat.c
+   M /trunk-1.2/gtk/conversations_table.c
+   M /trunk-1.2/gtk/hostlist_table.c
+   M /trunk-1.2/gtk/mcast_stream_dlg.c
+   M /trunk-1.2/gtk/rtp_stream_dlg.c
+   M /trunk-1.2/gtk/sctp_chunk_stat.c
+   M /trunk-1.2/gtk/tcp_graph.c
+   M /trunk-1.2/gtk/wlan_stat_dlg.c
+   M /trunk-1.2/plugins/stats_tree/pinfo_stats_tree.c
+   M /trunk-1.2/tap-iousers.c
+   M /trunk-1.2/tap-sctpchunkstat.c
+
+Copy over:
+r 29747 Rename address_to_str() to ep_address_to_str().
+
+Manly to make future bug fixing easier.
+------------------------------------------------------------------------
+r35174 | etxrab | 2010-12-10 07:56:20 -0800 (Fri, 10 Dec 2010) | 4 lines
+Changed paths:
+   M /trunk-1.2/epan/to_str.c
+
+Copy over:
+Revision 29753 Reorder file to group related functionality
+
+Manly to make future bug fixing easier.
+------------------------------------------------------------------------
+r35180 | gerald | 2010-12-12 10:05:14 -0800 (Sun, 12 Dec 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf, services and enterprise-numbers update for 2010-12-12]
+------------------------------------------------------------------------
+r35222 | gerald | 2010-12-19 10:04:53 -0800 (Sun, 19 Dec 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf, services and enterprise-numbers update for 2010-12-19]
+------------------------------------------------------------------------
+r35265 | gerald | 2010-12-26 10:05:07 -0800 (Sun, 26 Dec 2010) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf, services and enterprise-numbers update for 2010-12-26]
+------------------------------------------------------------------------
+r35327 | gerald | 2011-01-02 10:05:06 -0800 (Sun, 02 Jan 2011) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf, services and enterprise-numbers update for 2011-01-02]
+------------------------------------------------------------------------
+r35437 | gerald | 2011-01-09 10:05:00 -0800 (Sun, 09 Jan 2011) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf, services and enterprise-numbers update for 2011-01-09]
+------------------------------------------------------------------------
+r35469 | gerald | 2011-01-10 16:27:42 -0800 (Mon, 10 Jan 2011) | 13 lines
+Changed paths:
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/epan/dissectors/packet-mac-lte.c
+
+Copy over r35292 by hand.
+
+------------------------------------------------------------------------
+r35292 | gerald | 2010-12-28 12:47:48 -0800 (Tue, 28 Dec 2010) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-mac-lte.c
+
+From non-customers via bug 5530: Fix a buffer overflow in the MAC LTE
+dissector.  From me: Add a define, ep_allocate the buffer.
+------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r35470 | gerald | 2011-01-10 16:33:23 -0800 (Mon, 10 Jan 2011) | 13 lines
+Changed paths:
+   M /trunk-1.2/asn1/snmp/packet-snmp-template.c
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/epan/dissectors/packet-snmp.c
+
+Copy over r35298 by hand.
+
+------------------------------------------------------------------------
+r35298 | gerald | 2010-12-29 12:09:27 -0800 (Wed, 29 Dec 2010) | 2 lines
+Changed paths:
+   M /trunk/asn1/snmp/packet-snmp-template.c
+   M /trunk/epan/dissectors/packet-snmp.c
+
+Fix a buffer overflow in the engineId preferences. Fixes bug 5530.
+------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r35471 | gerald | 2011-01-10 16:37:43 -0800 (Mon, 10 Jan 2011) | 17 lines
+Changed paths:
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/epan/dissectors/packet-enttec.c
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r35318 | gerald | 2010-12-31 14:24:06 -0800 (Fri, 31 Dec 2010) | 7 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-enttec.c
+
+From FRAsse via bug 5539:
+
+There's a buffer overflow in ENTTEC DMX Data RLE, leading to crashes and
+potential code execution.
+
+From me: ep_allocate our buffers.
+------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r35473 | gerald | 2011-01-10 18:00:26 -0800 (Mon, 10 Jan 2011) | 131 lines
+Changed paths:
+   M /trunk-1.2/docbook/release-notes.xml
+   M /trunk-1.2/epan/dissectors/packet-amqp.c
+   M /trunk-1.2/epan/dissectors/packet-ber.c
+   M /trunk-1.2/epan/dissectors/packet-catapult-dct2000.c
+   M /trunk-1.2/epan/dissectors/packet-dcerpc-samr.c
+   M /trunk-1.2/epan/dissectors/packet-diameter.c
+   M /trunk-1.2/epan/dissectors/packet-tcp.c
+   M /trunk-1.2/epan/dissectors/pidl/samr.cnf
+   M /trunk-1.2/epan/dissectors/pidl/samr.idl
+   M /trunk-1.2/epan/ftypes/ftypes.h
+   M /trunk-1.2/epan/reassemble.c
+   M /trunk-1.2/gtk/gui_utils.c
+   M /trunk-1.2/packaging/macosx/Info.plist.in
+   M /trunk-1.2/plugins/unistim/packet-unistim.c
+   M /trunk-1.2/version_info.c
+   M /trunk-1.2/wiretap/vms.c
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r34265 | sfisher | 2010-09-27 13:02:54 -0700 (Mon, 27 Sep 2010) | 1 line
+Changed paths:
+   M /trunk/gtk/gui_utils.c
+
+Fix bug #553 by ensuring that the upper-left corner of Wireshark is within the viewable area of the monitor.
+------------------------------------------------------------------------
+r35154 | etxrab | 2010-12-08 00:26:40 -0800 (Wed, 08 Dec 2010) | 1 line
+Changed paths:
+   M /trunk/epan/reassemble.c
+
+fragment_free_key to be used only if Glib >= 2.10
+------------------------------------------------------------------------
+r35156 | etxrab | 2010-12-08 03:25:22 -0800 (Wed, 08 Dec 2010) | 2 lines
+Changed paths:
+   M /trunk/epan/reassemble.c
+
+Mark parameter as unused.
+reassemble.c:220: warning: unused parameter 'key_arg'
+------------------------------------------------------------------------
+r35175 | wmeier | 2010-12-10 19:22:09 -0800 (Fri, 10 Dec 2010) | 4 lines
+Changed paths:
+   M /trunk/epan/reassemble.c
+
+Fix bug #5477: fuzz-test failure found by using G_SLICE=debug-blocks.
+Essentially: doing g_slice_free with the wrong 'type' for the data to be freed.
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5477
+------------------------------------------------------------------------
+r35228 | martinm | 2010-12-20 03:26:50 -0800 (Mon, 20 Dec 2010) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-catapult-dct2000.c
+
+From Papan Kumar Singh (bug 5504 & 5505):
+Add missing break so that PDCP-LTE direction is set properly.
+------------------------------------------------------------------------
+r35313 | guy | 2010-12-30 16:02:54 -0800 (Thu, 30 Dec 2010) | 4 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-tcp.c
+
+It's not a good idea to use tcph->th_seglen if you haven't set it.
+
+Fixes bug 4211.
+------------------------------------------------------------------------
+r35322 | stig | 2011-01-01 04:23:21 -0800 (Sat, 01 Jan 2011) | 2 lines
+Changed paths:
+   M /trunk/packaging/macosx/Info.plist.in
+   M /trunk/version_info.c
+
+New Year.
+------------------------------------------------------------------------
+r35328 | guy | 2011-01-02 11:39:24 -0800 (Sun, 02 Jan 2011) | 2 lines
+Changed paths:
+   M /trunk/plugins/unistim/packet-unistim.c
+
+Fix some cut-and-pasteos and other typoes.
+------------------------------------------------------------------------
+
+
+Copy over by hand:
+
+------------------------------------------------------------------------
+r35153 | etxrab | 2010-12-07 22:32:04 -0800 (Tue, 07 Dec 2010) | 2 lines
+Changed paths:
+   M /trunk/epan/reassemble.c
+
+Reassemble.c leaks memory for GLIB > 2.8
+Free fragment data and fragment keys in fragment_table when neccessary. reassembled_table remains to be fixed.
+------------------------------------------------------------------------
+r35155 | etxrab | 2010-12-08 01:12:03 -0800 (Wed, 08 Dec 2010) | 2 lines
+Changed paths:
+   M /trunk/epan/reassemble.c
+
+reassemble.c: In function 'free_all_fragments':
+reassemble.c:222: warning: unused variable 'key'
+------------------------------------------------------------------------
+r35176 | wmeier | 2010-12-10 20:11:31 -0800 (Fri, 10 Dec 2010) | 2 lines
+Changed paths:
+   M /trunk/epan/reassemble.c
+
+Rework some comments.
+------------------------------------------------------------------------
+r35304 | guy | 2010-12-29 18:56:51 -0800 (Wed, 29 Dec 2010) | 9 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-dcerpc-samr.c
+   M /trunk/epan/dissectors/pidl/samr.cnf
+   M /trunk/epan/dissectors/pidl/samr.idl
+
+The rids argument to samr_GetGroupsForUser() is *not* a single RID, it's
+an array of samr_RidWithAttributeArray structures.  Don't equate it to
+hf_samr_rid; that causes hf_samr_rid to be added as an item with a
+length of -1, but, as hf_samr_rid is an FT_UINT32 field, that causes a
+dissector bug error.
+
+The version of Yapp I was using, at least, didn't like C++-style
+comments in the IDL file; replace them with C-style comments.
+------------------------------------------------------------------------
+r35330 | guy | 2011-01-02 13:27:57 -0800 (Sun, 02 Jan 2011) | 12 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ber.c
+
+For those cases where we interpret the contents of an OCTET STRING,
+which could be of arbitrary length - even if it's not supposed to be! -
+as a value of some other type, by adding them as a registered field,
+first check to make sure the length of the field is appropriate for the
+type and, if not, show a dissection error, rather than showing a
+dissector-bug assertion when we call proto_tree_add_item().
+
+This fixes a bunch of dissector-bug assertions that show up with
+malformed BER-encoded packets.
+
+Also, fix a typo, and expand a comment.
+------------------------------------------------------------------------
+r35357 | guy | 2011-01-04 00:04:27 -0800 (Tue, 04 Jan 2011) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-amqp.c
+
+Don't use DISSECTOR_ASSERT() to catch malformed packets.  Fixes bug
+4048.
+------------------------------------------------------------------------
+r35369 | guy | 2011-01-04 22:11:10 -0800 (Tue, 04 Jan 2011) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-amqp.c
+
+Put end-of-field-table checks back into dissect_amqp_field_table().
+------------------------------------------------------------------------
+
+
+Update the release notes.
 
 ------------------------------------------------------------------------
