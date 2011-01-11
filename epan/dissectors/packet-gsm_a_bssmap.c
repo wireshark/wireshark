@@ -6345,7 +6345,7 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     str = match_strval_idx_ext((guint32) oct, &gsm_a_bssmap_msg_strings_ext, &idx);
 
     if (sccp_msg_p && !sccp_msg_p->data.co.label) {
-        sccp_msg_p->data.co.label = se_strdup(val_to_str((guint32) oct, gsm_a_bssmap_msg_strings, "BSSMAP (0x%02x)"));
+        sccp_msg_p->data.co.label = se_strdup(val_to_str_ext((guint32) oct, &gsm_a_bssmap_msg_strings_ext, "BSSMAP (0x%02x)"));
     }
 
     /*
@@ -6422,7 +6422,7 @@ proto_register_gsm_a_bssmap(void)
     {
     { &hf_gsm_a_bssmap_msg_type,
         { "BSSMAP Message Type",    "gsm_a.bssmap_msgtype",
-        FT_UINT8, BASE_HEX, VALS(gsm_a_bssmap_msg_strings), 0x0,
+        FT_UINT8, BASE_HEX|BASE_EXT_STRING, &gsm_a_bssmap_msg_strings_ext, 0x0,
         NULL, HFILL }
     },
     { &hf_gsm_a_bssmap_elem_id,
