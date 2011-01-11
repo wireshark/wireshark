@@ -87,6 +87,36 @@ Wireshark Info
 -->
 
         <listitem><para>
+          Menu and Title bars inaccessible using GTK2 (non-legacy) with two monitors.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=553">Bug
+          553</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          AMQP failed assertion.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4048">Bug
+          4048</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Reassemble.c leaks memory for GLIB > 2.8.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4141">Bug
+          4141</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Fuzz testing reports possible dissector bug: TCP.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4211">Bug
+          4211</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          LTE-PDCP UL and DL problem.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5505">Bug
+          5505</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Buffer overflow in SNMP EngineID preferences.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5530">Bug
           5530</ulink>)
@@ -117,9 +147,16 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
     <para>
 
+AMQP,
+ASN.1 BER,
+Diameter,
 ENTTEC,
+LTE-PDCP,
 MAC-LTE,
+SAMR,
 SNMP,
+TCP,
+UNISTIM
 
     </para>
     </section>
@@ -127,7 +164,7 @@ SNMP,
     <section id="NewCapture"><title>Updated Capture File Support</title>
     <para>
 
-There are no new or updated capture file formats in this release.
+VMS TCPtrace.
 
     </para>
     </section>
