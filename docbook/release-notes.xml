@@ -54,6 +54,21 @@ Wireshark Info
 -->
         </listitem>
 
+        <listitem>
+          <para>
+            FRAsse discovered that the ENTTEC dissector could overflow a buffer.
+            <!-- Fixed in trunk: r35318 -->
+            <!-- Fixed in trunk-1.4: r35458 -->
+            <!-- Fixed in trunk-1.2: r35471 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5539">Bug
+            5539</ulink>)
+          </para>
+          <para>Versions affected: 1.2.0 to 1.2.13 and 1.4.0 to 1.4.2.</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-4538">CVE-2010-4538</ulink>
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -102,7 +117,9 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
     <para>
 
+ENTTEC,
 MAC-LTE,
+SNMP,
 
     </para>
     </section>
