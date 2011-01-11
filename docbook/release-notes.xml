@@ -281,7 +281,7 @@ ENTTEC,
 GSM A GM,
 IEEE 802.11,
 InfiniBand,
-LTE-PDCP
+LTE-PDCP,
 LTP,
 MAC-LTE,
 MP2T,
@@ -302,7 +302,7 @@ WPS
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-Endace ERF, Microsoft Network Monitor.
+Endace ERF, Microsoft Network Monitor, VMS TCPtrace.
 
     </para>
     </section>

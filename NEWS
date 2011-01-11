@@ -1,4 +1,4 @@
-Wireshark 1.4.2 Release Notes
+Wireshark 1.4.3 Release Notes
 
    ------------------------------------------------------------------
 
@@ -15,65 +15,84 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o Nephi Johnson of BreakingPoint discovered that the LDSS
-       dissector could overflow a buffer. (Bug 5318)
+     o FRAsse discovered that the MAC-LTE dissector could overflow a
+       buffer. (Bug 5530)
 
-       Versions affected: 1.2.0 to 1.2.12 and 1.4.0 to 1.4.1.
+       Versions affected: 1.2.0 to 1.2.13 and 1.4.0 to 1.4.2.
 
-     o The ZigBee ZCL dissector could go into an infinite loop. (Bug
-       5303)
+     o FRAsse discovered that the ENTTEC dissector could overflow a
+       buffer. (Bug 5539)
 
-       Versions affected: 1.4.0 to 1.4.1.
+       Versions affected: 1.2.0 to 1.2.13 and 1.4.0 to 1.4.2.
+
+       CVE-2010-4538
+
+     o The ASN.1 BER dissector could assert and make Wireshark exit
+       prematurely. (Bug 5537)
+
+       Versions affected: 1.4.0 to 1.4.2.
+
+       CVE-2010-4538
 
    The following bugs have been fixed:
 
-     o File-Open Display Filter is overwritten by Save-As Filename.
-       (Bug 3894)
+     o AMQP failed assertion. (Bug 4048)
 
-     o Wireshark crashes with "Gtk-ERROR **: Byte index 6 is off the
-       end of the line" if click on last PDU. (Bug 5285)
+     o Reassemble.c leaks memory for GLIB > 2.8. (Bug 4141)
 
-     o GTK-ERROR can occur in packets when there are multiple
-       Netbios/SMB headers in a single frame. (Bug 5289)
+     o Fuzz testing reports possible dissector bug: TCP. (Bug 4211)
 
-     o "Tshark -G values" crashes on Windows. (Bug 5296)
+     o Wrong length calculation in new_octet_aligned_subset_bits()
+       (PER dissector). (Bug 5393)
 
-     o PROFINET I&M0FilterData packet not fully decoded. (Bug 5299)
+     o Function dissect_per_bit_string_display might read more bytes
+       than available (PER dissector). (Bug 5394)
 
-     o PROFINET MRP linkup/linkdown decoding incorrect. (Bug 5300)
+     o Cannot load wpcap.dll & packet.dll from Wireshark program
+       directory. (Bug 5420)
 
-     o [lua] Dumper:close() will cause a segfault due later GC of the
-       Dumper. (Bug 5320)
+     o Wireshark crashes with Copy -> Description on date/time
+       fields. (Bug 5421)
 
-     o Network Instruments' trace files sometimes cannot be read with
-       an error message of "Observer: bad record: Invalid magic
-       number". (Bug 5330)
+     o DHCPv6 OPTION_CLIENT_FQDN parse error. (Bug 5426)
 
-     o IO Graph Time of Day times incorrect for filtered data. (Bug
-       5340)
+     o Information element Error for supported channels. (Bug 5430)
 
-     o Wireshark tools do not detect and read some ERF files
-       correctly. (Bug 5344)
+     o Assert when using ASN.1 dissector with loading a 'type table'.
+       (Bug 5447)
 
-     o "editcap -h" sends some lines to stderr and others to stdout.
-       (Bug 5353)
+     o Bug with RWH parsing in Infiniband dissector. (Bug 5444)
 
-     o IP Timestamp Option: "flag=3" variant (prespecified) not
-       displayed correctly. (Bug 5357)
+     o Help->About Wireshark mis-reports OS. (Bug 5453)
 
-     o AgentX PDU Header 'hex field highlighting' incorrectly spans
-       extra bytes. (Bug 5364)
+     o Delegated-IPv6-Prefix(123) is shown incorrect as
+       X-Ascend-Call-Attempt-Limit(123). (Bug 5455)
 
-     o AgentX dissector cannot handle null OID in Open-PDU. (Bug
-       5368)
+     o "tshark -r file -T fields" is truncating exported data. (Bug
+       5463)
 
-     o Crash with "Gtk-ERROR **: Byte index 6 is off the end of the
-       line". (Bug 5374)
+     o gsm_a_dtap: incorrect "Extraneous Data" when decoding Packet
+       Flow Identifier. (Bug 5475)
 
-     o ANCP Portmanagment TLV wrong decoded. (Bug 5388)
+     o Improper decode of TLS 1.2 packet containing both
+       CertificateRequest and ServerHelloDone messages. (Bug 5485)
 
-     o Crash during startup because of Python SyntaxError in
-       wspy_libws.py. (Bug 5389)
+     o LTE-PDCP UL and DL problem. (Bug 5505)
+
+     o CIGI 3.2/3.3 support broken. (Bug 5510)
+
+     o Prepare Filter in RTP Streams dialog does not work correctly.
+       (Bug 5513)
+
+     o Wrong decode at ethernet OAM Y.1731 ETH-CC. (Bug 5517)
+
+     o WPS: RF bands decryption. (Bug 5523)
+
+     o Incorrect LTP SDNV value handling. (Bug 5521)
+
+     o LTP bug found by randpkt. (Bug 5323)
+
+     o Buffer overflow in SNMP EngineID preferences. (Bug 5530)
 
   New and Updated Features
 
@@ -85,12 +104,13 @@ What's New
 
   Updated Protocol Support
 
-   AgentX, ANCP, DIAMETER, HTTP, IP, LDSS, MIME, NBNS, PROFINET, SIP,
-   TCP, Telnet, ZigBee
+   AMQP, ASN.1 BER, ASN.1 PER, CFM, CIGI, DHCPv6, Diameter, ENTTEC,
+   GSM A GM, IEEE 802.11, InfiniBand, LTE-PDCP, LTP, MAC-LTE, MP2T,
+   RADIUS, SAMR, SCCP, SIP, SNMP, TCP, TLS, TN3270, UNISTIM, WPS
 
   New and Updated Capture File Support
 
-   Endace ERF, Network Instruments Observer.
+   Endace ERF, Microsoft Network Monitor, VMS TCPtrace.
 
 Getting Wireshark
 
