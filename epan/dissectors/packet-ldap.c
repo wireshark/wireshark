@@ -3280,6 +3280,7 @@ dissect_ldap_DirSyncFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 	gint32 tag;
 	guint32 len;
 	gint32 val;
+	header_field_info *hfinfo;
 
 	int otheroffset = offset;
 	if(!implicit_tag){
@@ -3292,7 +3293,6 @@ dissect_ldap_DirSyncFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, -1, &val);
 
-	header_field_info *hfinfo;
 	hfinfo = proto_registrar_get_nth(hf_index);
 
 	if (val >0) {
