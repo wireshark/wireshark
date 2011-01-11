@@ -71,6 +71,12 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+          Buffer overflow in SNMP EngineID preferences.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5530">Bug
+          5530</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
