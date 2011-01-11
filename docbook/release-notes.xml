@@ -39,15 +39,14 @@ Wireshark Info
 
         <listitem>
           <para>
-            Nephi Johnson of BreakingPoint discovered that the LDSS dissector
-            could overflow a buffer.
-            <!-- Fixed in trunk: r34581 -->
-            <!-- Fixed in trunk-1.4: r34889 -->
-            <!-- Fixed in trunk-1.2: r34941 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5318">Bug
-            5318</ulink>)
+            FRAsse discovered that the MAC-LTE dissector could overflow a buffer.
+            <!-- Fixed in trunk: r35292 -->
+            <!-- Fixed in trunk-1.4: r35457 -->
+            <!-- Fixed in trunk-1.2: r35469 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5530">Bug
+            5530</ulink>)
           </para>
-          <para>Versions affected: 1.2.0 to 1.2.12 and 1.4.0 to 1.4.1.</para>
+          <para>Versions affected: 1.2.0 to 1.2.13 and 1.4.0 to 1.4.2.</para>
 <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
@@ -71,24 +70,6 @@ Wireshark Info
           0000</ulink>)
         </para></listitem>
 -->
-
-        <listitem><para>
-          File-Open Display Filter is overwritten by Save-As Filename.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3894">Bug
-          3894</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          GTK-ERROR can occur in packets when there are multiple Netbios/SMB headers in a single frame.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5289">Bug
-          5289</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          IO Graph Time of Day times incorrect for filtered data.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5340">Bug
-          5340</ulink>)
-        </para></listitem>
 
       </itemizedlist>
 
@@ -115,8 +96,7 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
     <para>
 
-BOOTP,
-LDSS
+MAC-LTE,
 
     </para>
     </section>
@@ -166,12 +146,6 @@ There are no new or updated capture file formats in this release.
   </section>
 
   <section id="KnownProblems"><title>Known Problems</title>
-
-    <para>
-      Wireshark may appear offscreen on multi-monitor Windows systems.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=553">Bug
-      553</ulink>)
-    </para>
 
     <para>
       Wireshark might make your system disassociate from a wireless network
