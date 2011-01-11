@@ -78,9 +78,11 @@ Wireshark Info
             5537</ulink>)
           </para>
           <para>Versions affected: 1.4.0 to 1.4.2.</para>
+<!--
           <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-4538">CVE-2010-4538</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
           </para>
+-->
         </listitem>
 
       </itemizedlist>

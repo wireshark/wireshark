@@ -32,8 +32,6 @@ What's New
 
        Versions affected: 1.4.0 to 1.4.2.
 
-       CVE-2010-4538
-
    The following bugs have been fixed:
 
      o AMQP failed assertion. (Bug 4048)
