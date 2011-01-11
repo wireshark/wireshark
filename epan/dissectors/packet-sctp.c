@@ -2194,16 +2194,18 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
     }
   }
 
+  /* There is no point in storing a fragment with no data in it */
+  if (tvb_length(tvb) == 0)
+    return NULL;
+
   /* create new fragment */
   fragment = g_malloc (sizeof (sctp_fragment));
   fragment->frame_num = pinfo->fd->num;
   fragment->tsn = tsn;
   fragment->len = tvb_length(tvb);
   fragment->next = NULL;
-  if (fragment->len) {
-    fragment->data = g_malloc (fragment->len);
-    tvb_memcpy(tvb, fragment->data, 0, fragment->len);
-  }
+  fragment->data = g_malloc (fragment->len);
+  tvb_memcpy(tvb, fragment->data, 0, fragment->len);
 
   /* add new fragment to linked list. sort ascending by tsn */
   if (!msg->fragments)
@@ -3549,18 +3551,18 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
   result = FALSE;
 
   /* first extract the chunk header */
-  type           = tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET);
-  flags          = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET);
-  length         = tvb_get_ntohs(chunk_tvb, CHUNK_LENGTH_OFFSET);
-  padding_length = tvb_reported_length(chunk_tvb) - length;
+  type            = tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET);
+  flags           = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET);
+  length          = tvb_get_ntohs(chunk_tvb, CHUNK_LENGTH_OFFSET);
   reported_length = tvb_reported_length(chunk_tvb);
+  padding_length  = reported_length - length;
 
  if (useinfo)
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, chunk_type_values, "RESERVED"));
 
   if (tree) {
     /* create proto_tree stuff */
-    chunk_item   = proto_tree_add_text(sctp_tree, chunk_tvb, CHUNK_HEADER_OFFSET, tvb_reported_length(chunk_tvb), "%s chunk", val_to_str(type, chunk_type_values, "RESERVED"));
+    chunk_item   = proto_tree_add_text(sctp_tree, chunk_tvb, CHUNK_HEADER_OFFSET, reported_length, "%s chunk", val_to_str(type, chunk_type_values, "RESERVED"));
     chunk_tree   = proto_item_add_subtree(chunk_item, ett_sctp_chunk);
 
     /* then insert the chunk header components into the protocol tree */
