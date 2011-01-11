@@ -34,7 +34,7 @@ AssertionValue TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
 SearchControlValue 		B "1.2.840.113556.1.4.319" "pagedResultsControl"
 SortKeyList	   			B "1.2.840.113556.1.4.473" "sortKeyList"
 SortResult				B "1.2.840.113556.1.4.474" "sortResult"
-ReplControlValue		B "1.2.840.113556.1.4.841" "replControlValue"
+DirSyncControlValue		B "1.2.840.113556.1.4.841" "dirsync"
 #RFC 3062
 PasswdModifyRequestValue	B "1.3.6.1.4.1.4203.1.11.1" "passwdModifyOID"
 #RFC 3909
@@ -761,6 +761,49 @@ offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &v
 		%(DEFAULT_BODY)s
 	}
 
+#.FN_BODY DirSyncFlags
+	gint8 class;
+	gboolean pc;
+	gint32 tag;
+	guint32 len;
+	gint32 val;
+
+	int otheroffset = offset;
+	if(!implicit_tag){
+		otheroffset=dissect_ber_identifier(actx->pinfo, tree, tvb, otheroffset, &class, &pc, &tag);
+		otheroffset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
+	} else {
+		gint32 remaining=tvb_length_remaining(tvb, offset);
+		len=remaining>0 ? remaining : 0;
+	}
+
+	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, -1, &val);
+
+	header_field_info *hfinfo;
+	hfinfo = proto_registrar_get_nth(hf_index);
+
+	if (val >0) {
+		proto_tree *subtree = NULL;
+		proto_item *item = NULL;
+		item = proto_tree_add_text(tree, tvb, otheroffset+1, len, "%s: 0x%08x", hfinfo->name, val);
+		subtree = proto_item_add_subtree(item, ett_ldap_DirSyncFlagsSubEntry);
+
+		if (val & 0x1) {
+			proto_tree_add_text(subtree, tvb, otheroffset+1, len, "Flag Object_Security");
+		}
+		if (val & 0x800) {
+			proto_tree_add_text(subtree, tvb, otheroffset+1, len, "Flag Ancestor_First");
+		}
+		if (val & 0x2000) {
+			proto_tree_add_text(subtree, tvb, otheroffset+1, len, "Flag Public_Data_Only");
+		}
+		if (val & 0x80000000) {
+			proto_tree_add_text(subtree, tvb, otheroffset+1, len, "Flag Incremental_Value");
+		}
+	} else {
+		proto_tree_add_text(tree, tvb, otheroffset+len, len, "%s: 0", hfinfo->name);
+	}
+
 #.FN_BODY SearchResultReference
 
  %(DEFAULT_BODY)s
@@ -773,7 +816,6 @@ offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &v
  %(DEFAULT_BODY)s
 
  ldap_do_protocolop(actx->pinfo);
-
 
 #.NO_EMIT
 AttributeType

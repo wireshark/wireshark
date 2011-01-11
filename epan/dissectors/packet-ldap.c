@@ -197,7 +197,7 @@ static int hf_ldap_LDAPMessage_PDU = -1;          /* LDAPMessage */
 static int hf_ldap_SearchControlValue_PDU = -1;   /* SearchControlValue */
 static int hf_ldap_SortKeyList_PDU = -1;          /* SortKeyList */
 static int hf_ldap_SortResult_PDU = -1;           /* SortResult */
-static int hf_ldap_ReplControlValue_PDU = -1;     /* ReplControlValue */
+static int hf_ldap_DirSyncControlValue_PDU = -1;  /* DirSyncControlValue */
 static int hf_ldap_PasswdModifyRequestValue_PDU = -1;  /* PasswdModifyRequestValue */
 static int hf_ldap_CancelRequestValue_PDU = -1;   /* CancelRequestValue */
 static int hf_ldap_SyncRequestValue_PDU = -1;     /* SyncRequestValue */
@@ -313,8 +313,9 @@ static int hf_ldap_attributeType = -1;            /* AttributeDescription */
 static int hf_ldap_orderingRule = -1;             /* MatchingRuleId */
 static int hf_ldap_reverseOrder = -1;             /* BOOLEAN */
 static int hf_ldap_sortResult = -1;               /* T_sortResult */
-static int hf_ldap_parentsFirst = -1;             /* INTEGER */
-static int hf_ldap_maxReturnLength = -1;          /* INTEGER */
+static int hf_ldap_value = -1;                    /* INTEGER */
+static int hf_ldap_flags = -1;                    /* DirSyncFlags */
+static int hf_ldap_maxBytes = -1;                 /* INTEGER */
 static int hf_ldap_userIdentity = -1;             /* OCTET_STRING */
 static int hf_ldap_oldPasswd = -1;                /* OCTET_STRING */
 static int hf_ldap_newPasswd = -1;                /* OCTET_STRING */
@@ -394,7 +395,8 @@ static gint ett_ldap_SearchControlValue = -1;
 static gint ett_ldap_SortKeyList = -1;
 static gint ett_ldap_SortKeyList_item = -1;
 static gint ett_ldap_SortResult = -1;
-static gint ett_ldap_ReplControlValue = -1;
+static gint ett_ldap_DirSyncFlagsSubEntry = -1;
+static gint ett_ldap_DirSyncControlValue = -1;
 static gint ett_ldap_PasswdModifyRequestValue = -1;
 static gint ett_ldap_PasswdModifyResponseValue = -1;
 static gint ett_ldap_CancelRequestValue = -1;
@@ -2404,7 +2406,7 @@ dissect_ldap_SEQUENCE_OF_LDAPURL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_ldap_SearchResultReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 765 "ldap.cnf"
+#line 808 "ldap.cnf"
 
    offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 19, TRUE, dissect_ldap_SEQUENCE_OF_LDAPURL);
@@ -2681,14 +2683,13 @@ dissect_ldap_CompareResponse(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_ldap_AbandonRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 772 "ldap.cnf"
+#line 815 "ldap.cnf"
 
    offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 16, TRUE, dissect_ldap_MessageID);
 
 
  ldap_do_protocolop(actx->pinfo);
-
 
 
 
@@ -3256,17 +3257,83 @@ dissect_ldap_SortResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-static const ber_sequence_t ReplControlValue_sequence[] = {
-  { &hf_ldap_parentsFirst   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_ldap_INTEGER },
-  { &hf_ldap_maxReturnLength, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_ldap_INTEGER },
+static const ber_sequence_t DirSyncFlagsSubEntry_sequence[] = {
+  { &hf_ldap_value          , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ldap_INTEGER },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ldap_DirSyncFlagsSubEntry(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   DirSyncFlagsSubEntry_sequence, hf_index, ett_ldap_DirSyncFlagsSubEntry);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ldap_DirSyncFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 765 "ldap.cnf"
+	gint8 class;
+	gboolean pc;
+	gint32 tag;
+	guint32 len;
+	gint32 val;
+
+	int otheroffset = offset;
+	if(!implicit_tag){
+		otheroffset=dissect_ber_identifier(actx->pinfo, tree, tvb, otheroffset, &class, &pc, &tag);
+		otheroffset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
+	} else {
+		gint32 remaining=tvb_length_remaining(tvb, offset);
+		len=remaining>0 ? remaining : 0;
+	}
+
+	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, -1, &val);
+
+	header_field_info *hfinfo;
+	hfinfo = proto_registrar_get_nth(hf_index);
+
+	if (val >0) {
+		proto_tree *subtree = NULL;
+		proto_item *item = NULL;
+		item = proto_tree_add_text(tree, tvb, otheroffset+1, len, "%s: 0x%08x", hfinfo->name, val);
+		subtree = proto_item_add_subtree(item, ett_ldap_DirSyncFlagsSubEntry);
+
+		if (val & 0x1) {
+			proto_tree_add_text(subtree, tvb, otheroffset+1, len, "Flag Object_Security");
+		}
+		if (val & 0x800) {
+			proto_tree_add_text(subtree, tvb, otheroffset+1, len, "Flag Ancestor_First");
+		}
+		if (val & 0x2000) {
+			proto_tree_add_text(subtree, tvb, otheroffset+1, len, "Flag Public_Data_Only");
+		}
+		if (val & 0x80000000) {
+			proto_tree_add_text(subtree, tvb, otheroffset+1, len, "Flag Incremental_Value");
+		}
+	} else {
+		proto_tree_add_text(tree, tvb, otheroffset+len, len, "%s: 0", hfinfo->name);
+	}
+
+
+
+  return offset;
+}
+
+
+static const ber_sequence_t DirSyncControlValue_sequence[] = {
+  { &hf_ldap_flags          , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_ldap_DirSyncFlags },
+  { &hf_ldap_maxBytes       , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_ldap_INTEGER },
   { &hf_ldap_cookie         , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ldap_OCTET_STRING },
   { NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_ldap_ReplControlValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ldap_DirSyncControlValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ReplControlValue_sequence, hf_index, ett_ldap_ReplControlValue);
+                                   DirSyncControlValue_sequence, hf_index, ett_ldap_DirSyncControlValue);
 
   return offset;
 }
@@ -3573,10 +3640,10 @@ static void dissect_SortResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_ldap_SortResult(FALSE, tvb, 0, &asn1_ctx, tree, hf_ldap_SortResult_PDU);
 }
-static void dissect_ReplControlValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static void dissect_DirSyncControlValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_ldap_ReplControlValue(FALSE, tvb, 0, &asn1_ctx, tree, hf_ldap_ReplControlValue_PDU);
+  dissect_ldap_DirSyncControlValue(FALSE, tvb, 0, &asn1_ctx, tree, hf_ldap_DirSyncControlValue_PDU);
 }
 static void dissect_PasswdModifyRequestValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
@@ -4977,8 +5044,8 @@ void proto_register_ldap(void) {
       { "SortResult", "ldap.SortResult",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_ldap_ReplControlValue_PDU,
-      { "ReplControlValue", "ldap.ReplControlValue",
+    { &hf_ldap_DirSyncControlValue_PDU,
+      { "DirSyncControlValue", "ldap.DirSyncControlValue",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_ldap_PasswdModifyRequestValue_PDU,
@@ -5441,12 +5508,16 @@ void proto_register_ldap(void) {
       { "sortResult", "ldap.sortResult",
         FT_UINT32, BASE_DEC, VALS(ldap_T_sortResult_vals), 0,
         NULL, HFILL }},
-    { &hf_ldap_parentsFirst,
-      { "parentsFirst", "ldap.parentsFirst",
+    { &hf_ldap_value,
+      { "value", "ldap.value",
         FT_INT32, BASE_DEC, NULL, 0,
         "INTEGER", HFILL }},
-    { &hf_ldap_maxReturnLength,
-      { "maxReturnLength", "ldap.maxReturnLength",
+    { &hf_ldap_flags,
+      { "flags", "ldap.flags",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "DirSyncFlags", HFILL }},
+    { &hf_ldap_maxBytes,
+      { "maxBytes", "ldap.maxBytes",
         FT_INT32, BASE_DEC, NULL, 0,
         "INTEGER", HFILL }},
     { &hf_ldap_userIdentity,
@@ -5593,7 +5664,8 @@ void proto_register_ldap(void) {
     &ett_ldap_SortKeyList,
     &ett_ldap_SortKeyList_item,
     &ett_ldap_SortResult,
-    &ett_ldap_ReplControlValue,
+    &ett_ldap_DirSyncFlagsSubEntry,
+    &ett_ldap_DirSyncControlValue,
     &ett_ldap_PasswdModifyRequestValue,
     &ett_ldap_PasswdModifyResponseValue,
     &ett_ldap_CancelRequestValue,
@@ -5729,7 +5801,7 @@ proto_reg_handoff_ldap(void)
   register_ber_oid_dissector("1.2.840.113556.1.4.319", dissect_SearchControlValue_PDU, proto_ldap, "pagedResultsControl");
   register_ber_oid_dissector("1.2.840.113556.1.4.473", dissect_SortKeyList_PDU, proto_ldap, "sortKeyList");
   register_ber_oid_dissector("1.2.840.113556.1.4.474", dissect_SortResult_PDU, proto_ldap, "sortResult");
-  register_ber_oid_dissector("1.2.840.113556.1.4.841", dissect_ReplControlValue_PDU, proto_ldap, "replControlValue");
+  register_ber_oid_dissector("1.2.840.113556.1.4.841", dissect_DirSyncControlValue_PDU, proto_ldap, "dirsync");
   register_ber_oid_dissector("1.3.6.1.4.1.4203.1.11.1", dissect_PasswdModifyRequestValue_PDU, proto_ldap, "passwdModifyOID");
   register_ber_oid_dissector("1.3.6.1.1.8", dissect_CancelRequestValue_PDU, proto_ldap, "cancelRequestOID");
   register_ber_oid_dissector("1.3.6.1.4.1.4203.1.9.1.1", dissect_SyncRequestValue_PDU, proto_ldap, "syncRequestOID");

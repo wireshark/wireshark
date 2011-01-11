@@ -422,10 +422,16 @@ SortResult ::= SEQUENCE {
 
 
 -- Draft RFC - but used in some implementations
+-- Normaly it's an integer but we want to generate a subitem
+DirSyncFlagsSubEntry ::= SEQUENCE {
+  value [0] INTEGER
+}
 
-ReplControlValue ::= SEQUENCE {
-  parentsFirst  	INTEGER,
-  maxReturnLength	INTEGER,
+DirSyncFlags ::= INTEGER
+
+DirSyncControlValue ::= SEQUENCE {
+  flags  DirSyncFlags,
+  maxBytes	INTEGER,
   cookie		OCTET STRING
 }
 
