@@ -41,7 +41,7 @@ Wireshark Info
             FRAsse discovered that the MAC-LTE dissector could overflow a buffer.
             <!-- Fixed in trunk: r35292 -->
             <!-- Fixed in trunk-1.4: r35457 -->
-            <!-- Fixed in trunk-1.2: r -->
+            <!-- Fixed in trunk-1.2: r35469 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5530">Bug
             5530</ulink>)
           </para>
@@ -58,7 +58,7 @@ Wireshark Info
             FRAsse discovered that the ENTTEC dissector could overflow a buffer.
             <!-- Fixed in trunk: r35318 -->
             <!-- Fixed in trunk-1.4: r35458 -->
-            <!-- Fixed in trunk-1.2: r -->
+            <!-- Fixed in trunk-1.2: r35471 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5539">Bug
             5539</ulink>)
           </para>
@@ -70,14 +70,14 @@ Wireshark Info
 
         <listitem>
           <para>
-            The ASN.1 BER dissector could abort.
+            The ASN.1 BER dissector could assert and make Wireshark exit
+            prematurely.
             <!-- Fixed in trunk: r35342 -->
             <!-- Fixed in trunk-1.4: r35464 -->
-            <!-- Fixed in trunk-1.2: r -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5537">Bug
             5537</ulink>)
           </para>
-          <para>Versions affected: 1.2.0 to 1.2.13 and 1.4.0 to 1.4.2.</para>
+          <para>Versions affected: 1.4.0 to 1.4.2.</para>
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-4538">CVE-2010-4538</ulink>
           </para>
@@ -244,6 +244,7 @@ Wireshark Info
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5530">Bug
           5530</ulink>)
         </para></listitem>
+
       </itemizedlist>
 
     </para>
