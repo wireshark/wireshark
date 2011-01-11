@@ -2604,6 +2604,13 @@ dissect_fragmented_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree
   sctp_fragment* fragment;
   tvbuff_t* new_tvb = NULL;
 
+  /*
+   * If this is a short frame, then we can't, and don't, do
+   * reassembly on it.  We just give up.
+   */
+  if (tvb_reported_length(payload_tvb) > tvb_length(payload_tvb))
+    return TRUE;
+
   /* add fragement to list of known fragments. returns NULL if segment is a duplicate */
   fragment = add_fragment(payload_tvb, pinfo, chunk_tree, tsn, stream_id, stream_seq_num, b_bit, e_bit);
 
