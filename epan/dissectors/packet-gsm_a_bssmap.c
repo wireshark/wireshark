@@ -67,6 +67,15 @@ const value_string gsm_a_bssmap_msg_strings[] = {
     { 0x06, "VGCS/VBS Setup Refuse" },
     { 0x07, "VGCS/VBS Assignment Request" },
     { 0x08, "Channel Modify request" },
+
+    { 0x09, "Unallocated" },
+    { 0x0a, "Unallocated" },
+    { 0x0b, "Unallocated" },
+    { 0x0c, "Unallocated" },
+    { 0x0d, "Unallocated" },
+    { 0x0e, "Unallocated" },
+    { 0x0f, "Unallocated" },
+
     { 0x10, "Handover Request" },
     { 0x11, "Handover Required" },
     { 0x12, "Handover Request Acknowledge" },
@@ -79,12 +88,10 @@ const value_string gsm_a_bssmap_msg_strings[] = {
     { 0x19, "Handover Candidate Response" },
     { 0x1a, "Handover Required Reject" },
     { 0x1b, "Handover Detect" },
-
     { 0x1c, "VGCS/VBS Assignment Result" },
     { 0x1d, "VGCS/VBS Assignment Failure" },
     { 0x1e, "VGCS/VBS Queuing Indication" },
     { 0x1f, "Uplink Request" },
-
     { 0x20, "Clear Command" },
     { 0x21, "Clear Complete" },
     { 0x22, "Clear Request" },
@@ -110,13 +117,18 @@ const value_string gsm_a_bssmap_msg_strings[] = {
     { 0x35, "Reset Circuit Acknowledge" },
     { 0x36, "MSC Invoke Trace" },
     { 0x37, "BSS Invoke Trace" },
-    { 0x3a, "Connectionless Information" },
 
+	{ 0x38, "Unallocated" },
+	{ 0x39, "Unallocated" },
+
+    { 0x3a, "Connectionless Information" },
     { 0x3b, "VGCS/VBS Assignment Status" },
     { 0x3c, "VGCS/VBS Area Cell Info" },
-
     { 0x3d, "Reset IP Resource" },
     { 0x3e, "Reset IP Resource Acknowledge" },
+
+	{ 0x3f, "Unallocated" },
+
     { 0x40, "Block" },
     { 0x41, "Blocking Acknowledge" },
     { 0x42, "Unblock" },
@@ -145,10 +157,29 @@ const value_string gsm_a_bssmap_msg_strings[] = {
     { 0x59, "Cipher Mode Reject" },
     { 0x5a, "Load Indication" },
 
+	{ 0x5b, "Unallocated" },
+	{ 0x5c, "Unallocated" },
+	{ 0x5d, "Unallocated" },
+	{ 0x5e, "Unallocated" },
+	{ 0x5f, "Unallocated" },
+
 	{ 0x60, "VGCS Additional Information" },
     { 0x61, "VGCS SMS" },
     { 0x62, "Notification Data" },
     { 0x63, "Uplink Application Data" },
+
+	{ 0x64, "Unallocated" },
+	{ 0x65, "Unallocated" },
+	{ 0x66, "Unallocated" },
+	{ 0x67, "Unallocated" },
+	{ 0x68, "Unallocated" },
+	{ 0x69, "Unallocated" },
+	{ 0x6a, "Unallocated" },
+	{ 0x6b, "Unallocated" },
+	{ 0x6c, "Unallocated" },
+	{ 0x6d, "Unallocated" },
+	{ 0x6e, "Unallocated" },
+	{ 0x6f, "Unallocated" },
 
 	{ 0x70, "Internal Handover Required" },
     { 0x71, "Internal Handover Required Reject" },
@@ -157,6 +188,8 @@ const value_string gsm_a_bssmap_msg_strings[] = {
 
     { 0, NULL }
 };
+
+static value_string_ext gsm_a_bssmap_msg_strings_ext = VALUE_STRING_EXT_INIT(gsm_a_bssmap_msg_strings);
 
 const value_string gsm_bssmap_elem_strings[] = {
     { 0x01, "Circuit Identity Code" },
@@ -328,6 +361,7 @@ static const value_string gsm_a_be_cell_id_disc_vals[] = {
     { 15,       "Reserved"},
     { 0,    NULL }
 };
+static value_string_ext gsm_a_be_cell_id_disc_vals_ext = VALUE_STRING_EXT_INIT(gsm_a_be_cell_id_disc_vals);
 
 static const value_string gsm_a_rr_channel_needed_vals[] = {
     { 0x00,     "Any channel"},
@@ -6142,8 +6176,15 @@ static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
     bssmap_vgcs_vbs_setup_ack,  /* VGCS/VBS Setup Ack */
     bssmap_vgcs_vbs_setup_refuse,   /* VGCS/VBS Setup Refuse */
     bssmap_vgcs_vbs_ass_req,    /* VGCS/VBS Assignment Request */
-    bssmap_chan_mod_req,        /* Channel Modify request */
-    bssmap_ho_req,				/* Handover Request */
+    bssmap_chan_mod_req,        /* 0x08 Channel Modify request */
+	NULL,						/* Unallocated */
+	NULL,						/* Unallocated */
+	NULL,						/* Unallocated */
+	NULL,						/* Unallocated */
+	NULL,						/* Unallocated */
+	NULL,						/* Unallocated */
+	NULL,						/* Unallocated */
+    bssmap_ho_req,				/* 0x10 Handover Request */
     bssmap_ho_reqd,				/* Handover Required */
     bssmap_ho_req_ack,			/* Handover Request Acknowledge */
     bssmap_ho_cmd,				/* Handover Command */
@@ -6155,7 +6196,6 @@ static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
     bssmap_ho_cand_resp,		/* Handover Candidate Response */
     bssmap_ho_reqd_rej,			/* Handover Required Reject */
     bssmap_ho_det,				/* 0x1b Handover Detect */
-
     bssmap_vgcs_vbs_ass_res,    /* 0x1c VGCS/VBS Assignment Result */
     bssmap_vgcs_vbs_ass_fail,   /* 0x1d VGCS/VBS Assignment Failure */
     NULL,						/* 0x1e No dsta VGCS/VBS Queuing Indication */
@@ -6184,12 +6224,17 @@ static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
     bssmap_reset_cct,			/* Reset Circuit */
     bssmap_reset_cct_ack,		/* Reset Circuit Acknowledge */
     bssmap_msc_invoke_trace,    /* MSC Invoke Trace */
-    bssmap_bss_invoke_trace,    /* BSS Invoke Trace */
-    NULL,						/* 0x3a Connectionless Information */
+    bssmap_bss_invoke_trace,    /* 0x37 BSS Invoke Trace */
+
+    NULL,						/* 0x38 unallocated */
+    NULL,						/* 0x39 unallocated */
+    
+	NULL,						/* 0x3a Connectionless Information */
 	NULL,						/* 0x3b VGCS/VBS ASSIGNMENT STATUS */
 	NULL,						/* 0x3c VGCS/VBS AREA CELL INFO */
     bssmap_reset_ip_res,		/* 0x3d 3.2.1.87 RESET IP RESOURCE */
     bssmap_reset_ip_res_ack,	/* 0x3e 3.2.1.88 RESET IP RESOURCE ACKNOWLEDGE */
+	NULL,						/* 0x3f VGCS/VBS AREA CELL INFO */
     bssmap_block,				/* Block */
     bssmap_block_ack,			/* Blocking Acknowledge */
     bssmap_unblock,				/* Unblock */
@@ -6217,10 +6262,30 @@ static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
     bssmap_cls_m_req /* no associated data */,  /* Classmark Request */
     bssmap_ciph_mode_rej,		/* Cipher Mode Reject */
     bssmap_load_ind,			/* 0x5a Load Indication */
+
+    NULL,						/* 0x5b unallocated */
+    NULL,						/* 0x5c unallocated */
+    NULL,						/* 0x5d unallocated */
+    NULL,						/* 0x5e unallocated */
+    NULL,						/* 0x5f unallocated */
+
     bssmap_vgcs_add_inf,		/* 0x60 VGCS Additional Information */
     bssmap_vgcs_sms,			/* 0x61 VGCS SMS */
     bssmap_notification_data,   /* 0x62 Notification Data*/
     bssmap_uplink_app_data,		/* 0x63 Uplink Application Data */
+
+	NULL,						/* 0x64 unallocated */
+	NULL,						/* 0x65 unallocated */
+	NULL,						/* 0x66 unallocated */
+	NULL,						/* 0x67 unallocated */
+	NULL,						/* 0x68 unallocated */
+	NULL,						/* 0x69 unallocated */
+	NULL,						/* 0x6a unallocated */
+	NULL,						/* 0x6b unallocated */
+    NULL,						/* 0x6c unallocated */
+    NULL,						/* 0x6d unallocated */
+    NULL,						/* 0x6e unallocated */
+    NULL,						/* 0x6f unallocated */
 
 	bssmap_int_ho_req,			/* 0x70 Internal Handover Required */
     bssmap_int_ho_req_rej,		/* 0x71 Internal Handover Required Reject */
@@ -6277,7 +6342,7 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     oct = tvb_get_guint8(tvb, offset++);
 
-    str = match_strval_idx((guint32) oct, gsm_a_bssmap_msg_strings, &idx);
+    str = match_strval_idx_ext((guint32) oct, &gsm_a_bssmap_msg_strings_ext, &idx);
 
     if (sccp_msg_p && !sccp_msg_p->data.co.label) {
         sccp_msg_p->data.co.label = se_strdup(val_to_str((guint32) oct, gsm_a_bssmap_msg_strings, "BSSMAP (0x%02x)"));
@@ -6412,7 +6477,7 @@ proto_register_gsm_a_bssmap(void)
     },
     { &hf_gsm_a_bssmap_be_cell_id_disc,
         { "Cell identification discriminator","gsm_a.be.cell_id_disc",
-        FT_UINT8,BASE_DEC,  VALS(gsm_a_be_cell_id_disc_vals), 0x0f,
+        FT_UINT8,BASE_DEC|BASE_EXT_STRING,  &gsm_a_be_cell_id_disc_vals_ext, 0x0f,
         NULL, HFILL }
     },
     { &hf_gsm_a_bssmap_lsa_only,

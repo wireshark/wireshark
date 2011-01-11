@@ -810,7 +810,7 @@ de_rej_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
 /*
  * [3] 10.5.3.8 Time Zone
  */
-static guint16
+guint16
 de_time_zone(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
