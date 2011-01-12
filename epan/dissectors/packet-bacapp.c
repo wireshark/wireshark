@@ -3932,6 +3932,8 @@ static int hf_bacapp_window_size = -1;
 static int hf_bacapp_service = -1;
 static int hf_bacapp_NAK = -1;
 static int hf_bacapp_SRV = -1;
+static int hf_Device_Instance_Range_Low_Limit = -1;
+static int hf_Device_Instance_Range_High_Limit = -1;
 static int hf_BACnetRejectReason = -1;
 static int hf_BACnetAbortReason = -1;
 static int hf_BACnetApplicationTagNumber = -1;
@@ -4324,6 +4326,23 @@ fUnsignedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 	else
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
 			"%s - %u octets (Unsigned)", label, lvt);
+	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
+	fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
+
+	return offset+tag_len+lvt;
+}
+
+static guint
+fDevice_Instance (tvbuff_t *tvb, proto_tree *tree, guint offset, int hf)
+{
+	guint8 tag_no, tag_info;
+	guint32 lvt;
+	guint tag_len;
+	proto_item *ti;
+	proto_tree *subtree;
+
+	tag_len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+	ti = proto_tree_add_item(tree, hf, tvb, offset+tag_len, lvt, TRUE);
 	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
 	fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 
@@ -4880,7 +4899,7 @@ fRecipientProcess (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
 	proto_tree* subtree;
 
 	/* beginning of new item - indent and label */
-	tt = proto_tree_add_text(orgtree, tvb, offset, 1, "Recipient Process" );	
+	tt = proto_tree_add_text(orgtree, tvb, offset, 1, "Recipient Process" );
 	tree = proto_item_add_subtree(tt, ett_bacapp_value);
 
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
@@ -4934,7 +4953,7 @@ fCOVSubscription (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 				tt = proto_tree_add_text(tree, tvb, offset, 1, "Recipient");	/* add tree label and indent */
 				subtree = proto_item_add_subtree(tt, ett_bacapp_value);
 				offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt); /* show context open */
-				offset = fRecipientProcess (tvb, pinfo, subtree, offset);	
+				offset = fRecipientProcess (tvb, pinfo, subtree, offset);
 				offset += fTagHeaderTree (tvb, subtree, offset,	&tag_no, &tag_info, &lvt);	/* show context close */
 				subtree = tree;	/* done with this level - return to previous tree */
 			break;
@@ -8388,19 +8407,22 @@ fWhoIsRequest  (tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint offse
 		tag_len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 
 		switch (tag_no) {
-		case 0:	/* DeviceInstanceRangeLowLimit Optional */
+		case 0:
+			/* DeviceInstanceRangeLowLimit Optional */
 			fUnsigned32(tvb, offset+tag_len, lvt, &val);
 			if (col_get_writable(pinfo->cinfo))
 				col_append_fstr(pinfo->cinfo, COL_INFO, "%d ", val);
-
-			offset = fUnsignedTag (tvb, tree, offset, "Device Instance Range Low Limit: ");
+			offset = fDevice_Instance (tvb, tree, offset,
+				hf_Device_Instance_Range_Low_Limit);
 			break;
-		case 1:	/* DeviceInstanceRangeHighLimit Optional but required if DeviceInstanceRangeLowLimit is there */
+		case 1:
+			/* DeviceInstanceRangeHighLimit Optional but
+				required if DeviceInstanceRangeLowLimit is there */
 			fUnsigned32(tvb, offset+tag_len, lvt, &val);
 			if (col_get_writable(pinfo->cinfo))
 				col_append_fstr(pinfo->cinfo, COL_INFO, "%d ", val);
-
-			offset = fUnsignedTag (tvb, tree, offset, "Device Instance Range High Limit: ");
+			offset = fDevice_Instance (tvb, tree, offset,
+				hf_Device_Instance_Range_High_Limit);
 			break;
 		default:
 			return offset;
@@ -9222,6 +9244,14 @@ proto_register_bacapp(void)
 		{ &hf_bacapp_SRV,
 			{ "SRV",           "bacapp.SRV",
 			FT_BOOLEAN, 8, NULL, 0x01, "Server", HFILL }
+		},
+		{ &hf_Device_Instance_Range_Low_Limit,
+			{ "Device Instance Range Low Limit", "bacapp.who_is.low_limit",
+			FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+		},
+		{ &hf_Device_Instance_Range_High_Limit,
+			{ "Device Instance Range High Limit", "bacapp.who_is.high_limit",
+			FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_BACnetRejectReason,
 			{ "Reject Reason",           "bacapp.reject_reason",
