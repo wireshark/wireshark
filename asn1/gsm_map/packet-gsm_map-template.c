@@ -426,13 +426,13 @@ other values reserved for future use
 
 /* TS 23 032 Table 2a: Coding of Type of Shape */
 static const value_string type_of_shape_vals[] = {
-	{ ELLIPSOID_POINT,		"Ellipsoid Point"},
-	{ ELLIPSOID_POINT_WITH_UNCERT_CIRC,		"Ellipsoid point with uncertainty Circle"},
-	{ ELLIPSOID_POINT_WITH_UNCERT_ELLIPSE,		"Ellipsoid point with uncertainty Ellipse"},
-	{ POLYGON,		"Polygon"},
-	{ ELLIPSOID_POINT_WITH_ALT,		"Ellipsoid point with altitude"},
-	{ ELLIPSOID_POINT_WITH_ALT_AND_UNCERT_ELLIPSOID,		"Ellipsoid point with altitude and uncertainty Ellipsoid"},
-	{ ELLIPSOID_ARC,		"Ellipsoid Arc"},
+	{ ELLIPSOID_POINT,									"Ellipsoid Point"},
+	{ ELLIPSOID_POINT_WITH_UNCERT_CIRC,					"Ellipsoid point with uncertainty Circle"},
+	{ ELLIPSOID_POINT_WITH_UNCERT_ELLIPSE,				"Ellipsoid point with uncertainty Ellipse"},
+	{ POLYGON,											"Polygon"},
+	{ ELLIPSOID_POINT_WITH_ALT,							"Ellipsoid point with altitude"},
+	{ ELLIPSOID_POINT_WITH_ALT_AND_UNCERT_ELLIPSOID,	"Ellipsoid point with altitude and uncertainty Ellipsoid"},
+	{ ELLIPSOID_ARC,									"Ellipsoid Arc"},
 	{ 0,	NULL }
 };
 
@@ -468,6 +468,8 @@ static const value_string gsm_map_cbs_data_coding_scheme_coding_grp_vals[] = {
 	{ 15,"Data coding / message handling" },
 	{ 0, NULL}
 };
+static value_string_ext gsm_map_cbs_data_coding_scheme_coding_grp_vals_ext = VALUE_STRING_EXT_INIT(gsm_map_cbs_data_coding_scheme_coding_grp_vals);
+
 /* Coding group 0
  * Bits 3..0 indicate the language:
  */
@@ -490,6 +492,7 @@ static const value_string gsm_map_cbs_coding_grp0_lang_vals[] = {
 	{ 15, "Language unspecified"},
 	{ 0,	NULL }
 };
+static value_string_ext gsm_map_cbs_coding_grp0_lang_vals_ext = VALUE_STRING_EXT_INIT(gsm_map_cbs_coding_grp0_lang_vals);
 
 static const value_string gsm_map_cbs_coding_grp1_lang_vals[] = {
 	{ 0, "GSM 7 bit default alphabet; message preceded by language indication"},
@@ -510,6 +513,8 @@ static const value_string gsm_map_cbs_coding_grp1_lang_vals[] = {
 	{ 15, "Reserved"},
 	{ 0,	NULL }
 };
+static value_string_ext gsm_map_cbs_coding_grp1_lang_vals_ext = VALUE_STRING_EXT_INIT(gsm_map_cbs_coding_grp1_lang_vals);
+
 static const value_string gsm_map_cbs_coding_grp2_lang_vals[] = {
 	{ 0, "Czech"},
 	{ 1, "Hebrew"},
@@ -529,6 +534,8 @@ static const value_string gsm_map_cbs_coding_grp2_lang_vals[] = {
 	{ 15, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
 	{ 0,	NULL }
 };
+static value_string_ext gsm_map_cbs_coding_grp2_lang_vals_ext = VALUE_STRING_EXT_INIT(gsm_map_cbs_coding_grp2_lang_vals);
+
 static const value_string gsm_map_cbs_coding_grp3_lang_vals[] = {
 	{ 0, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
 	{ 1, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
@@ -548,6 +555,7 @@ static const value_string gsm_map_cbs_coding_grp3_lang_vals[] = {
 	{ 15, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
 	{ 0,	NULL }
 };
+static value_string_ext gsm_map_cbs_coding_grp3_lang_vals_ext = VALUE_STRING_EXT_INIT(gsm_map_cbs_coding_grp3_lang_vals);
 
 static const true_false_string gsm_map_cbs_coding_grp4_7_comp_vals = {
   "The text is compressed using the compression algorithm defined in 3GPP TS 23.042",
@@ -774,6 +782,8 @@ static const value_string gsm_map_nature_of_number_values[] = {
 	{   0x07,	"Reserved for extension" },
 	{ 0, NULL }
 };
+static value_string_ext gsm_map_nature_of_number_values_ext = VALUE_STRING_EXT_INIT(gsm_map_nature_of_number_values);
+
 static const value_string gsm_map_number_plan_values[] = {
 	{   0x00,	"unknown" },
 	{   0x01,	"ISDN/Telephony Numbering (Rec ITU-T E.164)" },
@@ -788,6 +798,7 @@ static const value_string gsm_map_number_plan_values[] = {
 	{   0x0f,	"Reserved for extension" },
 	{ 0, NULL }
 };
+static value_string_ext gsm_map_number_plan_values_ext = VALUE_STRING_EXT_INIT(gsm_map_number_plan_values);
 
 static const true_false_string gsm_map_Ss_Status_q_bit_values = {
   "Quiescent",
@@ -2204,11 +2215,11 @@ void proto_register_gsm_map(void) {
           NULL, HFILL }},
       { &hf_gsm_map_nature_of_number,
         { "Nature of number", "gsm_map.nature_of_number",
-          FT_UINT8, BASE_HEX, VALS(gsm_map_nature_of_number_values), 0x70,
+          FT_UINT8, BASE_HEX|BASE_EXT_STRING, &gsm_map_nature_of_number_values_ext, 0x70,
           NULL, HFILL }},
       { &hf_gsm_map_number_plan,
         { "Number plan", "gsm_map.number_plan",
-          FT_UINT8, BASE_HEX, VALS(gsm_map_number_plan_values), 0x0f,
+          FT_UINT8, BASE_HEX|BASE_EXT_STRING, &gsm_map_number_plan_values_ext, 0x0f,
           NULL, HFILL }},
       { &hf_gsm_map_isdn_address_digits,
         { "ISDN Address digits", "gsm_map.isdn.address.digits",
@@ -2361,27 +2372,27 @@ void proto_register_gsm_map(void) {
           "gsm_map.ss.SS_UserData", HFILL }},
       { &hf_gsm_map_cbs_coding_grp,
         { "Coding Group","gsm_map.cbs.coding_grp",
-          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_data_coding_scheme_coding_grp_vals), 0xf0,
+          FT_UINT8,BASE_DEC|BASE_EXT_STRING, &gsm_map_cbs_data_coding_scheme_coding_grp_vals_ext, 0xf0,
           NULL, HFILL }
       },
       { &hf_gsm_map_cbs_coding_grp0_lang,
         { "Language","gsm_map.cbs.coding_grp0_lang",
-          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp0_lang_vals), 0x0f,
+          FT_UINT8,BASE_DEC|BASE_EXT_STRING, &gsm_map_cbs_coding_grp0_lang_vals_ext, 0x0f,
           NULL, HFILL }
       },
       { &hf_gsm_map_cbs_coding_grp1_lang,
         { "Language","gsm_map.cbs.coding_grp1_lang",
-          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp1_lang_vals), 0x0f,
+          FT_UINT8,BASE_DEC|BASE_EXT_STRING, &gsm_map_cbs_coding_grp1_lang_vals_ext, 0x0f,
           NULL, HFILL }
       },
       { &hf_gsm_map_cbs_coding_grp2_lang,
         { "Language","gsm_map.cbs.coding_grp2_lang",
-          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp2_lang_vals), 0x0f,
+          FT_UINT8,BASE_DEC|BASE_EXT_STRING, &gsm_map_cbs_coding_grp2_lang_vals_ext, 0x0f,
           NULL, HFILL }
       },
       { &hf_gsm_map_cbs_coding_grp3_lang,
         { "Language","gsm_map.cbs.coding_grp3_lang",
-          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp3_lang_vals), 0x0f,
+          FT_UINT8,BASE_DEC|BASE_EXT_STRING, &gsm_map_cbs_coding_grp3_lang_vals_ext, 0x0f,
           NULL, HFILL }
       },
       { &hf_gsm_map_cbs_coding_grp4_7_comp,

@@ -2438,13 +2438,13 @@ other values reserved for future use
 
 /* TS 23 032 Table 2a: Coding of Type of Shape */
 static const value_string type_of_shape_vals[] = {
-	{ ELLIPSOID_POINT,		"Ellipsoid Point"},
-	{ ELLIPSOID_POINT_WITH_UNCERT_CIRC,		"Ellipsoid point with uncertainty Circle"},
-	{ ELLIPSOID_POINT_WITH_UNCERT_ELLIPSE,		"Ellipsoid point with uncertainty Ellipse"},
-	{ POLYGON,		"Polygon"},
-	{ ELLIPSOID_POINT_WITH_ALT,		"Ellipsoid point with altitude"},
-	{ ELLIPSOID_POINT_WITH_ALT_AND_UNCERT_ELLIPSOID,		"Ellipsoid point with altitude and uncertainty Ellipsoid"},
-	{ ELLIPSOID_ARC,		"Ellipsoid Arc"},
+	{ ELLIPSOID_POINT,									"Ellipsoid Point"},
+	{ ELLIPSOID_POINT_WITH_UNCERT_CIRC,					"Ellipsoid point with uncertainty Circle"},
+	{ ELLIPSOID_POINT_WITH_UNCERT_ELLIPSE,				"Ellipsoid point with uncertainty Ellipse"},
+	{ POLYGON,											"Polygon"},
+	{ ELLIPSOID_POINT_WITH_ALT,							"Ellipsoid point with altitude"},
+	{ ELLIPSOID_POINT_WITH_ALT_AND_UNCERT_ELLIPSOID,	"Ellipsoid point with altitude and uncertainty Ellipsoid"},
+	{ ELLIPSOID_ARC,									"Ellipsoid Arc"},
 	{ 0,	NULL }
 };
 
@@ -2480,6 +2480,8 @@ static const value_string gsm_map_cbs_data_coding_scheme_coding_grp_vals[] = {
 	{ 15,"Data coding / message handling" },
 	{ 0, NULL}
 };
+static value_string_ext gsm_map_cbs_data_coding_scheme_coding_grp_vals_ext = VALUE_STRING_EXT_INIT(gsm_map_cbs_data_coding_scheme_coding_grp_vals);
+
 /* Coding group 0
  * Bits 3..0 indicate the language:
  */
@@ -2502,6 +2504,7 @@ static const value_string gsm_map_cbs_coding_grp0_lang_vals[] = {
 	{ 15, "Language unspecified"},
 	{ 0,	NULL }
 };
+static value_string_ext gsm_map_cbs_coding_grp0_lang_vals_ext = VALUE_STRING_EXT_INIT(gsm_map_cbs_coding_grp0_lang_vals);
 
 static const value_string gsm_map_cbs_coding_grp1_lang_vals[] = {
 	{ 0, "GSM 7 bit default alphabet; message preceded by language indication"},
@@ -2522,6 +2525,8 @@ static const value_string gsm_map_cbs_coding_grp1_lang_vals[] = {
 	{ 15, "Reserved"},
 	{ 0,	NULL }
 };
+static value_string_ext gsm_map_cbs_coding_grp1_lang_vals_ext = VALUE_STRING_EXT_INIT(gsm_map_cbs_coding_grp1_lang_vals);
+
 static const value_string gsm_map_cbs_coding_grp2_lang_vals[] = {
 	{ 0, "Czech"},
 	{ 1, "Hebrew"},
@@ -2541,6 +2546,8 @@ static const value_string gsm_map_cbs_coding_grp2_lang_vals[] = {
 	{ 15, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
 	{ 0,	NULL }
 };
+static value_string_ext gsm_map_cbs_coding_grp2_lang_vals_ext = VALUE_STRING_EXT_INIT(gsm_map_cbs_coding_grp2_lang_vals);
+
 static const value_string gsm_map_cbs_coding_grp3_lang_vals[] = {
 	{ 0, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
 	{ 1, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
@@ -2560,6 +2567,7 @@ static const value_string gsm_map_cbs_coding_grp3_lang_vals[] = {
 	{ 15, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
 	{ 0,	NULL }
 };
+static value_string_ext gsm_map_cbs_coding_grp3_lang_vals_ext = VALUE_STRING_EXT_INIT(gsm_map_cbs_coding_grp3_lang_vals);
 
 static const true_false_string gsm_map_cbs_coding_grp4_7_comp_vals = {
   "The text is compressed using the compression algorithm defined in 3GPP TS 23.042",
@@ -16805,7 +16813,7 @@ dissect_gsm_ss_LCS_PeriodicLocationCancellationArg(gboolean implicit_tag _U_, tv
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 745 "packet-gsm_map-template.c"
+#line 753 "packet-gsm_map-template.c"
 
 /* Specific translation for MAP V3 */
 const value_string gsm_map_V1V2_opr_code_strings[] = {
@@ -17017,7 +17025,7 @@ const value_string gsm_map_opr_code_strings[] = {
 	{ 109, "lcs_PeriodicLocationCancellation" },
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 756 "packet-gsm_map-template.c"
+#line 764 "packet-gsm_map-template.c"
   { 0, NULL }
 };
 static const value_string gsm_map_err_code_string_vals[] = {
@@ -17222,7 +17230,7 @@ static const value_string gsm_map_err_code_string_vals[] = {
 	{ 109, "lcs_PeriodicLocationCancellation" },
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 760 "packet-gsm_map-template.c"
+#line 768 "packet-gsm_map-template.c"
     { 0, NULL }
 };
 static const true_false_string gsm_map_extension_value = {
@@ -17240,6 +17248,8 @@ static const value_string gsm_map_nature_of_number_values[] = {
 	{   0x07,	"Reserved for extension" },
 	{ 0, NULL }
 };
+static value_string_ext gsm_map_nature_of_number_values_ext = VALUE_STRING_EXT_INIT(gsm_map_nature_of_number_values);
+
 static const value_string gsm_map_number_plan_values[] = {
 	{   0x00,	"unknown" },
 	{   0x01,	"ISDN/Telephony Numbering (Rec ITU-T E.164)" },
@@ -17254,6 +17264,7 @@ static const value_string gsm_map_number_plan_values[] = {
 	{   0x0f,	"Reserved for extension" },
 	{ 0, NULL }
 };
+static value_string_ext gsm_map_number_plan_values_ext = VALUE_STRING_EXT_INIT(gsm_map_number_plan_values);
 
 static const true_false_string gsm_map_Ss_Status_q_bit_values = {
   "Quiescent",
@@ -18670,11 +18681,11 @@ void proto_register_gsm_map(void) {
           NULL, HFILL }},
       { &hf_gsm_map_nature_of_number,
         { "Nature of number", "gsm_map.nature_of_number",
-          FT_UINT8, BASE_HEX, VALS(gsm_map_nature_of_number_values), 0x70,
+          FT_UINT8, BASE_HEX|BASE_EXT_STRING, &gsm_map_nature_of_number_values_ext, 0x70,
           NULL, HFILL }},
       { &hf_gsm_map_number_plan,
         { "Number plan", "gsm_map.number_plan",
-          FT_UINT8, BASE_HEX, VALS(gsm_map_number_plan_values), 0x0f,
+          FT_UINT8, BASE_HEX|BASE_EXT_STRING, &gsm_map_number_plan_values_ext, 0x0f,
           NULL, HFILL }},
       { &hf_gsm_map_isdn_address_digits,
         { "ISDN Address digits", "gsm_map.isdn.address.digits",
@@ -18827,27 +18838,27 @@ void proto_register_gsm_map(void) {
           "gsm_map.ss.SS_UserData", HFILL }},
       { &hf_gsm_map_cbs_coding_grp,
         { "Coding Group","gsm_map.cbs.coding_grp",
-          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_data_coding_scheme_coding_grp_vals), 0xf0,
+          FT_UINT8,BASE_DEC|BASE_EXT_STRING, &gsm_map_cbs_data_coding_scheme_coding_grp_vals_ext, 0xf0,
           NULL, HFILL }
       },
       { &hf_gsm_map_cbs_coding_grp0_lang,
         { "Language","gsm_map.cbs.coding_grp0_lang",
-          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp0_lang_vals), 0x0f,
+          FT_UINT8,BASE_DEC|BASE_EXT_STRING, &gsm_map_cbs_coding_grp0_lang_vals_ext, 0x0f,
           NULL, HFILL }
       },
       { &hf_gsm_map_cbs_coding_grp1_lang,
         { "Language","gsm_map.cbs.coding_grp1_lang",
-          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp1_lang_vals), 0x0f,
+          FT_UINT8,BASE_DEC|BASE_EXT_STRING, &gsm_map_cbs_coding_grp1_lang_vals_ext, 0x0f,
           NULL, HFILL }
       },
       { &hf_gsm_map_cbs_coding_grp2_lang,
         { "Language","gsm_map.cbs.coding_grp2_lang",
-          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp2_lang_vals), 0x0f,
+          FT_UINT8,BASE_DEC|BASE_EXT_STRING, &gsm_map_cbs_coding_grp2_lang_vals_ext, 0x0f,
           NULL, HFILL }
       },
       { &hf_gsm_map_cbs_coding_grp3_lang,
         { "Language","gsm_map.cbs.coding_grp3_lang",
-          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp3_lang_vals), 0x0f,
+          FT_UINT8,BASE_DEC|BASE_EXT_STRING, &gsm_map_cbs_coding_grp3_lang_vals_ext, 0x0f,
           NULL, HFILL }
       },
       { &hf_gsm_map_cbs_coding_grp4_7_comp,
@@ -24458,7 +24469,7 @@ void proto_register_gsm_map(void) {
         "LCS_QoS", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2440 "packet-gsm_map-template.c"
+#line 2451 "packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -25062,7 +25073,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2468 "packet-gsm_map-template.c"
+#line 2479 "packet-gsm_map-template.c"
   };
 
   /* Register protocol */
@@ -25138,7 +25149,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 2486 "packet-gsm_map-template.c"
+#line 2497 "packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );
