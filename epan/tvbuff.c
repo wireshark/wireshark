@@ -2452,7 +2452,7 @@ tvb_get_const_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
 	const guint8 *strptr;
 
 	size = tvb_strsize(tvb, offset);
-	strptr = tvb_get_ptr(tvb, offset, size);
+	strptr = ensure_contiguous(tvb, offset, size);
 	if (lengthp)
 		*lengthp = size;
 	return strptr;
@@ -3020,7 +3020,7 @@ gint tvb_skip_wsp_return(tvbuff_t* tvb, const gint offset){
 gchar *
 tvb_bytes_to_str_punct(tvbuff_t *tvb, const gint offset, const gint len, const gchar punct)
 {
-	return bytes_to_str_punct(tvb_get_ptr(tvb, offset, len), len, punct);
+	return bytes_to_str_punct(ensure_contiguous(tvb, offset, len), len, punct);
 }
 
 
@@ -3095,7 +3095,7 @@ tvb_bcd_dig_to_ep_str(tvbuff_t *tvb, const gint offset, const gint len, dgt_set_
 gchar *
 tvb_bytes_to_str(tvbuff_t *tvb, const gint offset, const gint len)
 {
-	return bytes_to_str(tvb_get_ptr(tvb, offset, len), len);
+	return bytes_to_str(ensure_contiguous(tvb, offset, len), len);
 }
 
 /* Find a needle tvbuff within a haystack tvbuff. */
@@ -3115,8 +3115,8 @@ tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb, const gint haystack_o
 	}
 
 	/* Get pointers to the tvbuffs' data. */
-	haystack_data = tvb_get_ptr(haystack_tvb, 0, -1);
-	needle_data = tvb_get_ptr(needle_tvb, 0, -1);
+	haystack_data = ensure_contiguous(haystack_tvb, 0, -1);
+	needle_data = ensure_contiguous(needle_tvb, 0, -1);
 
 	check_offset_length(haystack_tvb->length, haystack_tvb->reported_length, haystack_offset, -1,
 			&haystack_abs_offset, &haystack_abs_length);
