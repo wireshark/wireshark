@@ -1025,6 +1025,7 @@ timestamp_set_type
 timestamp_set_seconds_type
 trans2_cmd_vals_ext             DATA
 tree_is_expanded                DATA
+tvb_bcd_dig_to_ep_str
 tvb_bytes_exist
 tvb_bytes_to_str
 tvb_bytes_to_str_punct
