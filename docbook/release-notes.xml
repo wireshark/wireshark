@@ -50,95 +50,38 @@ Wireshark Info
     <section id="NewFeatures"><title>New and Updated Features</title>
     <para>
       The following features are new (or have been significantly updated)
-      since version 1.2:
+      since version 1.4:
 
       <itemizedlist>
 
         <listitem>
           <para>
-            The packet list internals have been rewritten and are now more
-            efficient.
+            Wireshark can import text dumps, similar to text2pcap.
           </para>
         </listitem>
 
         <listitem>
           <para>
-            Columns are easier to use. You can add a protocol field as a column
-            by right-clicking on its packet detail item, and you can adjust
-            some column preferences by right-clicking the column header.
+            You can now view Wireshark's dissector tables (for example the
+            TCP port to dissector mappings) from the main window.
           </para>
         </listitem>
 
         <listitem>
           <para>
-            Preliminary Python scripting support has been added.
+            Wireshark can now export SMB objects.
           </para>
         </listitem>
 
         <listitem>
           <para>
-            Many memory leaks have been fixed.
+            dftest and randpkt now have manual pages.
           </para>
         </listitem>
 
         <listitem>
           <para>
-            Wireshark no longer supports Windows 2000. Please use
-            Wireshark 1.2 or 1.0 on those systems.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Packets can now be ignored (excluded from dissection), similar to
-            the way they can be marked.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Manual IP address resolution is now supported.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Columns with seconds can now be displayed as hours, minutes and
-            seconds.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            You can now set the capture buffer size on UNIX and Linux if you have
-            libpcap 1.0.0 or greater.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            TShark no longer needs elevated privileges on UNIX or Linux to list
-            interfaces. Only dumpcap requires privileges now.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Wireshark and TShark can enable 802.11 monitor mode directly if you
-            have libpcap 1.0.0 or greater.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Play the RTP stream directly from the RTP Analysis.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Capinfos and editcap now respectively support time order checking
-            and forcing.
+            TShark can now display iSCSI service response times.
           </para>
         </listitem>
 
@@ -150,6 +93,34 @@ Wireshark Info
     <section id="NewProtocols"><title>New Protocol Support</title>
     <para>
 
+ADwin,
+ADwin-Config,
+Apache Etch,
+Aruba PAPI,
+Constrained Application Protocol (COAP),
+Digium TDMoE,
+Ether-S-I/O,
+FastCGI,
+Fibre Channel over InfiniBand (FCoIB),
+Gopher,
+Gigamon GMHDR,
+IDMP,
+Infiniband Socket Direct Protocol (SDP),
+JSON,
+MikroTik MAC-Telnet,
+Mongo Wire Protocol,
+Network Monitor 802.11 radio header,
+OPC UA ExtensionObjects,
+PPI-GEOLOCATION-GPS,
+ReLOAD,
+ReLOAD Framing,
+SAMETIME,
+SCoP,
+SGSAP,
+Tektronix Teklink,
+WAI authentication,
+Wi-Fi P2P (Wi-Fi Direct)
+
     </para>
     </section>
 
@@ -160,6 +131,8 @@ Wireshark Info
 
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
+
+IPFIX (the file format, not the protocol)
 
     </para>
     </section>
@@ -197,7 +170,7 @@ Wireshark Info
       Wireshark and TShark look in several different locations for
       preference files, plugins, SNMP MIBS, and RADIUS dictionaries.
       These locations vary from platform to platform.  You can use
-      About->Folders to find the default locations on your system.
+      About→Folders to find the default locations on your system.
     </para>
   </section>
 
@@ -235,10 +208,9 @@ Wireshark Info
     </para>
 
     <para>
-      The 64-bit Windows installer does not ship with the same libraries as the
-      32-bit installer.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3610">Bug
-      3610</ulink>)
+      The 64-bit Windows installer does not ship with libsmi.
+      (<ulink url="http://wiki.wireshark.org/Development/Win64">Win64
+      development page</ulink>)
     </para>
 
     <para>
@@ -281,10 +253,6 @@ Wireshark Info
     Subscription information and archives for all of Wireshark's mailing
     lists can be found on <ulink url="http://www.wireshark.org/lists/">the
     web site</ulink>.
-    </para>
-    <para>
-    Commercial support, training, and development services are available
-    from <ulink url="http://www.cacetech.com/">CACE Technologies</ulink>.
     </para>
     <para>
     Training is available from
