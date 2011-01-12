@@ -239,6 +239,7 @@ static int hf_gsm_a_gm_acc_cap_struct_len = -1;
 static int hf_gsm_a_gm_sms_value = -1;
 static int hf_gsm_a_gm_sm_value = -1;
 static int hf_gsm_a_gm_sm_ext = -1;
+static int hf_gsm_a_gm_link_dir = -1;
 static int hf_gsm_a_gm_cause = -1;
 
 static int hf_gsm_a_gm_fop = -1;
@@ -255,6 +256,7 @@ static int hf_gsm_a_gm_tmsi_flag = -1;
 static int hf_gsm_a_gm_update_type = -1;
 static int hf_gsm_a_gm_gprs_timer_unit = -1;
 static int hf_gsm_a_gm_gprs_timer_value = -1;
+static int hf_gsm_a_gm_pco_pid = -1;
 static int hf_gsm_a_gm_type_of_identity = -1;
 static int hf_gsm_a_gm_rac = -1;
 static int hf_gsm_a_gm_apc = -1;
@@ -3103,11 +3105,10 @@ de_sm_nsapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 /*
  * [7] 10.5.6.3 Protocol configuration options
  */
-#if 0
 static const value_string gsm_a_sm_pco_ms2net_prot_vals[] = {
-	{ 0x01, "P-CSCF Address Request" },
+	{ 0x01, "P-CSCF IPv6 Address Request" },
 	{ 0x02, "IM CN Subsystem Signaling Flag" },
-	{ 0x03, "DNS Server Address Request" },
+	{ 0x03, "DNS Server IPv6 Address Request" },
 	{ 0x04, "Not Supported" },
 	{ 0x05, "MS Support of Network Requested Bearer Control indicator" },
 	{ 0x06,	"Reserved" },
@@ -3122,9 +3123,9 @@ static const value_string gsm_a_sm_pco_ms2net_prot_vals[] = {
 	{ 0, NULL }
 };
 static const value_string gsm_a_sm_pco_net2ms_prot_vals[] = {
-	{ 0x01, "P-CSCF Address" },
+	{ 0x01, "P-CSCF IPv6 Address" },
 	{ 0x02, "IM CN Subsystem Signaling Flag" },
-	{ 0x03, "DNS Server Address" },
+	{ 0x03, "DNS Server IPv6 Address" },
 	{ 0x04, "Policy Control rejection code" },
 	{ 0x05, "Selected Bearer Control Mode" },
 	{ 0x06,	"Reserved" },
@@ -3138,21 +3139,44 @@ static const value_string gsm_a_sm_pco_net2ms_prot_vals[] = {
 	{ 0x0e,	"MSISDN" },
 	{ 0, NULL }
 };
-#endif
+
+static const value_string gsm_a_gm_link_dir_vals[] = {
+	{ -1, "Unknown" },
+	{ 0x0, "MS to network" },
+	{ 0x1, "Network to MS" },
+	{ 0, NULL }
+};
+
 guint16
 de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
+	proto_item   *generated_item = NULL;
 	guint32	curr_offset;
 	guint	curr_len;
 	guchar	oct;
 	struct e_in6_addr ipv6_addr;
+	int     link_dir;
 
 	curr_len = len;
 	curr_offset = offset;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
+	link_dir = gsm_a_dtap_pinfo->link_dir;
+	generated_item =proto_tree_add_int(tree, hf_gsm_a_gm_link_dir, tvb, curr_offset, 0, link_dir);
+	PROTO_ITEM_SET_GENERATED(generated_item);
+
+
+	/* 1 ext 0 0 0 0 Spare  Configuration protocol */
 	proto_tree_add_item(tree, hf_gsm_a_gm_sm_ext, tvb, curr_offset, 1, FALSE);
+	/* Configuration protocol (octet 3)
+	 * Bits
+	 * 3 2 1
+	 * 0 0 0 PPP for use with IP PDP type or IP PDN type (see 3GPP TS 24.301 [120])
+	 *
+	 * All other values are interpreted as PPP in this version of the protocol.
+	 * (3GPP TS 24.008 version 9.4.0 Release 9)
+	 */
 	proto_tree_add_text(tree,tvb, curr_offset, 1, "Configuration Protocol: PPP (%u)",oct&0x07);
 	curr_len--;
 	curr_offset++;
@@ -3164,22 +3188,31 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 		tvbuff_t *l3_tvb;
 		dissector_handle_t handle = NULL;
 
+		/* Protocol ID 1                    octet 4
+		 *                                  octet 5
+		 * Length of protocol ID 1 contents octet 6
+		 * Protocol ID 1 contents           octet 7
+		 */
+
 		prot = tvb_get_ntohs(tvb,curr_offset);
-		e_len = tvb_get_guint8(tvb, curr_offset+2);
-		curr_len-=3;
-		curr_offset+=3;
+		proto_tree_add_uint_format(tree, hf_gsm_a_gm_pco_pid, tvb, curr_offset, 2, (guint32)prot,
+				"Protocol ID: %s (%u)",
+				link_dir ?
+					val_to_str_const((guint32)prot, gsm_a_sm_pco_net2ms_prot_vals, "Unknown ") :
+					val_to_str_const((guint32)prot, gsm_a_sm_pco_ms2net_prot_vals, "Unknown "),
+				(guint32)prot);
+
+		curr_len-=2;
+		curr_offset+=2;
+		e_len = tvb_get_guint8(tvb, curr_offset);
+		proto_tree_add_text(tree,tvb, curr_offset, 1, "Length: 0x%02x (%u)", e_len , e_len);
+		curr_len-=1;
+		curr_offset+=1;
 
 		switch ( prot )
 		{
 			case 0x0001:
 			{
-				if (e_len == 0) {
-					proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Parameter: (%u) P-CSCF Address Request" , prot );
-				} else {
-					proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Parameter: (%u) P-CSCF Address" , prot );
-				}
-				proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
-
 				if (e_len > 0) {
 					tvb_get_ipv6(tvb, curr_offset, &ipv6_addr);
 					proto_tree_add_text(tree,
@@ -3189,18 +3222,9 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 				break;
 			}
 			case 0x0002:
-				proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Parameter: (%u) IM CN Subsystem Signaling Flag" , prot );
-				proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
 				break;
 			case 0x0003:
 			{
-				if (e_len == 0) {
-					proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Parameter: (%u) DNS Server Address Request" , prot );
-				} else {
-					proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Parameter: (%u) DNS Server Address" , prot );
-				}
-				proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
-
 				if (e_len > 0) {
 					tvb_get_ipv6(tvb, curr_offset, &ipv6_addr);
 					proto_tree_add_text(tree,
@@ -3210,8 +3234,6 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 				break;
 			}
 			case 0x0004:
-				proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Parameter: (%u) Policy Control rejection code" , prot );
-				proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
 				oct = tvb_get_guint8(tvb, curr_offset);
 				proto_tree_add_text(tree,tvb, curr_offset, 1, "Reject Code: 0x%02x (%u)", e_len , e_len);
 				break;
@@ -3220,9 +3242,6 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 				handle = dissector_get_uint_handle ( gprs_sm_pco_subdissector_table , prot );
 				if ( handle != NULL )
 				{
-					proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Protocol: %s (%u)" ,
-					val_to_str_ext_const(prot, &ppp_vals_ext, "Unknown"), prot);
-					proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
 					/*
 					 * dissect the embedded message
 					 */
@@ -3231,8 +3250,6 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 				}
 				else
 				{
-					proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Protocol/Parameter: (%u) unknown" , prot );
-					proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
 					/*
 					* dissect the embedded DATA message
 					*/
@@ -6097,6 +6114,11 @@ proto_register_gsm_a_gm(void)
 		  FT_UINT8, BASE_HEX, NULL, 0x80,
 		NULL, HFILL }
 	},
+	{ &hf_gsm_a_gm_link_dir,
+		{ "Link direction", "gsm_a.gm.link_dir",
+		  FT_INT32, BASE_DEC, VALS(gsm_a_gm_link_dir_vals), 0x0,
+		NULL, HFILL }
+	},
 	{ &hf_gsm_a_gm_cause,
 		{ "gmm Cause", "gsm_a.gm.cause",
 		  FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gmm_cause_vals), 0x0,
@@ -6170,6 +6192,11 @@ proto_register_gsm_a_gm(void)
 	{ &hf_gsm_a_gm_gprs_timer_value,
 		{ "Timer value", "gsm_a.gm.gprs_timer_value",
 		FT_UINT8, BASE_DEC, NULL, 0x1f,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_pco_pid,
+		{ "Protocol ID", "gsm_a.gm.pco_pid",
+		FT_UINT16, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_gm_type_of_identity,
