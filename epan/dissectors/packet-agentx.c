@@ -270,8 +270,9 @@ static const value_string resp_errors[] = {
   { 0, NULL }
 };
 
+/* OID usage indicators */
 
-
+enum OID_USAGE { OID_START_RANGE, OID_END_RANGE, OID_EXACT };
 
 /* PDU Header flags */
 
@@ -280,6 +281,8 @@ static const value_string resp_errors[] = {
 #define ANY_INDEX		0x04
 #define NON_DEFAULT_CONTEXT	0x08
 #define NETWORK_BYTE_ORDER	0x10
+
+#define OID_IS_INCLUSIVE 	0x01
 
 #define PDU_HDR_LEN	20
 #define PADDING(x) ((((x) + 3) >> 2) << 2)
@@ -335,7 +338,7 @@ convert_oid_to_str(guint32 *oid, int len, char* str, int slen, char prefix)
 }
 
 static int
-dissect_object_id(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
+dissect_object_id(tvbuff_t *tvb, proto_tree *tree, int offset, char flags, enum OID_USAGE oid_usage)
 {
 	guint8 n_subid;
 	guint8 prefix;
@@ -362,25 +365,32 @@ dissect_object_id(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
 		slen = g_snprintf(&str_oid[0], 2048, "(null)");
 
 	if(tree) {
+		char *range = "";
+		char *inclusion = (include) ? " (Inclusive)" : " (Exclusive)";
+		switch (oid_usage) {
+			case OID_START_RANGE:	range = "(Range Start) ";	break;
+			case OID_END_RANGE:	range = "  (Range End) ";	break;
+			default:		inclusion = "";			break;
+			}
 		item = proto_tree_add_text(tree, tvb, offset, 4 + (n_subid * 4) ,
-				"Object Identifier: (%s) %s", (include) ? "Start" : "End" , str_oid);
+				"Object Identifier: %s%s%s", range, str_oid, inclusion);
 		subtree = proto_item_add_subtree(item, ett_obj_ident);
 	} else return offset;
 
 	proto_tree_add_uint(subtree, hf_oid_sub, tvb, offset, 1, n_subid);
 	proto_tree_add_uint(subtree, hf_oid_prefix, tvb, offset + 1, 1, prefix);
-	proto_tree_add_uint(subtree, hf_oid_include, tvb, offset + 2, 1, include);
-	proto_tree_add_string(subtree, hf_oid_str, tvb, offset + 4, slen, str_oid);
+	proto_tree_add_boolean(subtree, hf_oid_include, tvb, offset + 2, 1, include);
+	proto_tree_add_string(subtree, hf_oid_str, tvb, offset + 4, (n_subid * 4), str_oid);
 
 	return 4 + (n_subid * 4);
 }
 
 static int
-dissect_search_range(tvbuff_t *tvb, proto_tree *tree, int start_offset, char flags)
+dissect_search_range(tvbuff_t *tvb, proto_tree *tree, int start_offset, char flags, guint8 pdu_type)
 {
 	int offset = start_offset;
-	offset += dissect_object_id(tvb, tree, offset, flags);
-	offset += dissect_object_id(tvb, tree, offset, flags);
+	offset += dissect_object_id(tvb, tree, offset, flags, (pdu_type == AGENTX_GET_PDU) ? OID_EXACT : OID_START_RANGE);
+	offset += dissect_object_id(tvb, tree, offset, flags, (pdu_type == AGENTX_GET_PDU) ? OID_EXACT : OID_END_RANGE);
 
 	return (offset - start_offset);
 }
@@ -422,12 +432,12 @@ dissect_varbind(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char flags
 	} else return len;
 
 	proto_tree_add_uint(subtree, hf_vtag, tvb, offset, 2, vtag);
-	tlen = dissect_object_id(tvb, subtree, offset + 4, flags);
+	tlen = dissect_object_id(tvb, subtree, offset + 4, flags, OID_EXACT);
 
 	switch(vtag)
 	{
 		case  VB_OID:
-			tlen += dissect_object_id(tvb, subtree, offset + tlen + 4, flags);
+			tlen += dissect_object_id(tvb, subtree, offset + tlen + 4, flags, OID_EXACT);
 			break;
 
 		case  VB_OPAQUE:
@@ -498,7 +508,7 @@ dissect_getnext_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char f
 
 	len += PDU_HDR_LEN;
 	while(len > offset) {
-		offset += dissect_search_range(tvb, subtree, offset, flags);
+		offset += dissect_search_range(tvb, subtree, offset, flags, 0);
 	}
 }
 
@@ -518,7 +528,7 @@ dissect_get_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char flags
 
 	len += PDU_HDR_LEN;
 	while(len > offset) {
-		offset += dissect_search_range(tvb, subtree, offset, flags);
+		offset += dissect_search_range(tvb, subtree, offset, flags, AGENTX_GET_PDU);
 	}
 }
 
@@ -542,7 +552,7 @@ dissect_getbulk_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char f
 	offset+=4;
 
 	while(len >= offset) {
-		offset += dissect_search_range(tvb, subtree, offset, flags);
+		offset += dissect_search_range(tvb, subtree, offset, flags, 0);
 	}
 }
 
@@ -563,7 +573,7 @@ dissect_open_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char flag
 	offset+=4;
 
 	/* Search Range */
-	offset += dissect_object_id(tvb, subtree, offset, flags);
+	offset += dissect_object_id(tvb, subtree, offset, flags, OID_EXACT);
 
 	/* Octet string */
 	offset += dissect_octet_string(tvb, subtree, offset, flags);
@@ -610,7 +620,7 @@ dissect_register_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char 
 
 	/* Region */
 
-	offset += dissect_object_id(tvb, subtree, offset, flags);
+	offset += dissect_object_id(tvb, subtree, offset, flags, OID_EXACT);
 
 	if(len > offset) {
 		/* Upper bound (opt) */
@@ -641,7 +651,7 @@ dissect_unregister_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, cha
 	offset+=4;
 
 	/* Region */
-	offset += dissect_object_id(tvb, subtree, offset, flags);
+	offset += dissect_object_id(tvb, subtree, offset, flags, OID_EXACT);
 
 	if(len > offset) {
 		/* Upper bound (opt) */
@@ -756,7 +766,7 @@ dissect_add_caps_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char 
 		offset += dissect_octet_string(tvb, subtree, offset, flags);
 	}
 
-	offset += dissect_object_id(tvb, subtree, offset, flags);
+	offset += dissect_object_id(tvb, subtree, offset, flags, OID_EXACT);
 
 	offset += dissect_octet_string(tvb, subtree, offset, flags);
 }
@@ -775,7 +785,7 @@ dissect_rem_caps_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char 
 		offset += dissect_octet_string(tvb, subtree, offset, flags);
 	}
 
-	offset += dissect_object_id(tvb, subtree, offset, flags);
+	offset += dissect_object_id(tvb, subtree, offset, flags, OID_EXACT);
 }
 
 
@@ -943,6 +953,7 @@ dissect_agentx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 dissect_agentx_pdu);
 }
 
+static const true_false_string tfs_agentx_include	= { "Yes",			"No"	};
 static const true_false_string tfs_agentx_register	= { "Yes",			"No"	};
 static const true_false_string tfs_agentx_newindex	= { "Yes",			"No"	};
 static const true_false_string tfs_agentx_anyindex	= { "Yes",			"No"	};
@@ -1019,8 +1030,8 @@ proto_register_agentx(void)
 		    NULL, HFILL }},
 
 		{ &hf_oid_include,
-		  { "OID include", "agentx.oid_include", FT_UINT8, BASE_DEC, NULL, 0x0,
-		    NULL, HFILL }},
+		  { "OID include", "agentx.oid_include", FT_BOOLEAN, 8, TFS(&tfs_agentx_include),
+		    OID_IS_INCLUSIVE, NULL, HFILL }},
 
 		{ &hf_oid_str,
 		  { "OID", "agentx.oid", FT_STRING, BASE_NONE, NULL, 0x0,
