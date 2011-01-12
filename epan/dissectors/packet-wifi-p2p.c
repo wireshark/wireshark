@@ -301,6 +301,7 @@ static int hf_p2p_attr_extended_listen_timing_period = -1;
 static int hf_p2p_attr_extended_listen_timing_interval = -1;
 static int hf_p2p_attr_p2p_group_id_dev_addr = -1;
 static int hf_p2p_attr_p2p_group_id_ssid = -1;
+static int hf_p2p_attr_p2p_group_bssid = -1;
 
 static int hf_p2p_attr_noa_index = -1;
 static int hf_p2p_attr_noa_params = -1;
@@ -658,6 +659,27 @@ static void dissect_wifi_p2p_group_id(proto_item *tlv_root,
                       s_offset, offset + 3 + slen - s_offset, FALSE);
 }
 
+static void dissect_wifi_p2p_group_bssid(packet_info *pinfo,
+	                              proto_item *tlv_root,
+                                      proto_item *tlv_item, tvbuff_t *tvb,
+                                      int offset, guint16 slen)
+{
+  int s_offset;
+  guint8 addr[6];
+
+  if (slen != 6) {
+    expert_add_info_format(pinfo, tlv_item, PI_MALFORMED, PI_ERROR,
+                           "Invalid ethernet address");
+    return;
+  }
+
+  s_offset = offset + 3;
+  proto_tree_add_item(tlv_root, hf_p2p_attr_p2p_group_bssid, tvb,
+                      s_offset, 6, FALSE);
+  tvb_memcpy(tvb, addr, offset + 3, 6);
+  proto_item_append_text(tlv_item, ": %s", ether_to_str(addr));
+}
+
 static void dissect_notice_of_absence(packet_info *pinfo, proto_item *tlv_root,
                                       proto_item *tlv_item,
                                       tvbuff_t *tvb, int offset, guint16 slen)
@@ -919,6 +941,9 @@ void dissect_wifi_p2p_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
       break;
     case P2P_ATTR_P2P_GROUP_ID:
       dissect_wifi_p2p_group_id(tlv_root, tlv_item, tvb, offset, slen);
+      break;
+    case P2P_ATTR_P2P_GROUP_BSSID:
+      dissect_wifi_p2p_group_bssid(pinfo, tlv_root, tlv_item, tvb, offset, slen);
       break;
     case P2P_ATTR_NOTICE_OF_ABSENCE:
       dissect_notice_of_absence(pinfo, tlv_root, tlv_item, tvb, offset, slen);
@@ -1258,6 +1283,9 @@ proto_register_p2p(void)
     { &hf_p2p_attr_p2p_group_id_ssid,
       { "SSID", "wifi_p2p.p2p_group_id.ssid",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_p2p_attr_p2p_group_bssid,
+      { "BSSID", "wifi_p2p.p2p_group_bssid",
+        FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_p2p_attr_noa_index,
       { "Index", "wifi_p2p.noa.index",
