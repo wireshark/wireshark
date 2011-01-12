@@ -100,6 +100,7 @@ static int hf_gtpv2_p_tmsi_sig = -1;
 
 static int hf_gtpv2_rat_type = -1;
 static int hf_gtpv2_uli_ecgi_flg = -1;
+static int hf_gtpv2_uli_lai_flg = -1;
 static int hf_gtpv2_uli_tai_flg = -1;
 static int hf_gtpv2_uli_rai_flg = -1;
 static int hf_gtpv2_uli_sai_flg = -1;
@@ -284,6 +285,7 @@ static int hf_gtpv2_target_type = -1;
 static int hf_gtpv2_macro_enodeb_id = -1;
 
 static int hf_gtpv2_node_type= -1;
+static int hf_gtpv2_fqdn = -1;
 static int hf_gtpv2_enterprise_id = -1;
 static int hf_gtpv2_apn_rest= -1;
 static int hf_gtpv2_pti= -1;
@@ -310,6 +312,7 @@ static int hf_gtpv2_uli_rai_lac= -1;
 static int hf_gtpv2_uli_rai_rac= -1;
 static int hf_gtpv2_uli_tai_tac= -1;
 static int hf_gtpv2_uli_ecgi_eci= -1;
+static int hf_gtpv2_uli_lai_lac = -1;
 static int hf_gtpv2_uli_ecgi_eci_spare= -1;
 static int hf_gtpv2_nsapi = -1;
 static int hf_gtpv2_bearer_control_mode= -1;
@@ -320,7 +323,10 @@ static int hf_gtpv2_bearer_control_mode= -1;
 #define GTPv2_ULI_RAI_MASK			0x04
 #define GTPv2_ULI_TAI_MASK			0x08
 #define GTPv2_ULI_ECGI_MASK			0x10
+#define GTPv2_ULI_LAI_MASK			0x20
 
+#define GTPV2_CREATE_SESSION_REQUEST     32
+#define GTPV2_CREATE_SESSION_RESPONSE    33
 #define GTPV2_FORWARD_RELOCATION_REQ	133
 #define GTPV2_FORWARD_CTX_NOTIFICATION	137
 static void dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, gint offset, guint8 message_type);
@@ -489,7 +495,7 @@ static const value_string gtpv2_message_type_vals[] = {
 #define GTPV2_IE_RAB_CONTEXT            124
 #define GTPV2_IE_S_RNC_PDCP_CTX_INFO    125
 #define GTPV2_IE_UDP_S_PORT_NR          126
-#define GTPV2_IE_APN_RESTRICTION           127
+#define GTPV2_IE_APN_RESTRICTION        127
 #define GTPV2_IE_SEL_MODE               128
 #define GTPV2_IE_SOURCE_IDENT           129
 #define GTPV2_IE_BEARER_CONTROL_MODE    130
@@ -855,6 +861,10 @@ dissect_gtpv2_recovery(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
 /*
  * 8.6 Access Point Name (APN)
+ * The encoding the APN field follows 3GPP TS 23.003 [2] subclause 9.1. 
+ * The content of the APN field shall be the full APN with both the APN Network Identifier
+ * and APN Operator Identifier being present as specified in 3GPP TS 23.003 [2] 
+ * subclauses 9.1.1 and 9.1.2, 3GPP TS 23.060 [35] Annex A and 3GPP TS 23.401 [3] subclauses 4.3.8.1. 
  */
 static void
 dissect_gtpv2_apn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
@@ -1035,7 +1045,21 @@ dissect_gtpv2_pco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
 {
     /* pinfo needed */
     gsm_a_dtap_pinfo = pinfo;
+	switch(message_type){
+		case GTPV2_CREATE_SESSION_REQUEST:
+			/* PCO options as MS to network direction */
+			gsm_a_dtap_pinfo->link_dir = P2P_DIR_UL;
+			break;
+		case GTPV2_CREATE_SESSION_RESPONSE:
+			/* PCO options as Network to MS direction: */
+			gsm_a_dtap_pinfo->link_dir = P2P_DIR_DL;
+			break;
+		default:
+			break;
+	}
     de_sm_pco(tvb, tree, 0, length, NULL, 0);
+	/* Restore previous values */
+	gsm_a_dtap_pinfo = pinfo;
 }
 
 /*
@@ -1066,6 +1090,11 @@ dissect_gtpv2_paa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
         break;
     case 2:
         /* IPv6*/
+		/* If PDN type value indicates IPv6, octet 6 contains the IPv6 Prefix Length.
+		 * Octets 7 through 22 contain an IPv6 Prefix and Interface Identifier. 
+		 * Bit 8 of octet 7 represents the most significant bit of the IPv6 Prefix
+		 * and Interface Identifier and bit 1 of octet 22 the least significant bit.
+		 */
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6_len, tvb, offset, 1, FALSE);
         offset++;
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6, tvb, offset, 16, FALSE);
@@ -1073,6 +1102,14 @@ dissect_gtpv2_paa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
         break;
     case 3:
         /* IPv4/IPv6 */
+		/* If PDN type value indicates IPv4v6, octet 6 contains the IPv6 Prefix Length. 
+		 * Octets 7 through 22 contain an IPv6 Prefix and Interface Identifier. 
+		 * Bit 8 of octet 7 represents the most significant bit of the IPv6 Prefix 
+		 * and Interface Identifier and bit 1 of octet 22 the least significant bit. 
+		 * Octets 23 through 26 contain an IPv4 address. Bit 8 of octet 23 represents 
+		 * the most significant bit of the IPv4 address and bit 1 of octet 26 the least 
+		 * significant bit.
+		 */
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6_len, tvb, offset, 1, FALSE);
         offset++;
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6, tvb, offset, 16, FALSE);
@@ -1216,7 +1253,7 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
     proto_item	*fi;
 	proto_tree	*part_tree;
 
-    /* 8.22.1 CGI field  */
+    /* 8.21.1 CGI field  */
     if (flags & GTPv2_ULI_CGI_MASK)
     {
         proto_item_append_text(item, "CGI ");
@@ -1231,7 +1268,7 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
             return;
     }
 
-    /* 8.22.2 SAI field  */
+    /* 8.21.2 SAI field  */
     if (flags & GTPv2_ULI_SAI_MASK)
     {
         proto_item_append_text(item, "SAI ");
@@ -1245,7 +1282,7 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
         if(offset==length)
             return;
     }
-    /* 8.22.3 RAI field  */
+    /* 8.21.3 RAI field  */
     if (flags & GTPv2_ULI_RAI_MASK)
     {
         proto_item_append_text(item, "RAI ");
@@ -1259,7 +1296,7 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
         if(offset==length)
             return;
     }
-    /* 8.22.4 TAI field  */
+    /* 8.21.4 TAI field  */
     if (flags & GTPv2_ULI_TAI_MASK)
     {
         proto_item_append_text(item, "TAI ");
@@ -1272,7 +1309,7 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
         if(offset==length)
             return;
     }
-    /* 8.22.5 ECGI field */
+    /* 8.21.5 ECGI field */
     if (flags & GTPv2_ULI_ECGI_MASK)
     {
         guint8 octet;
@@ -1295,6 +1332,9 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
         octet4 = tvb_get_ntohl(tvb,offset);
         ECGI = octet4 & 0x0FFFFFFF;
         proto_tree_add_uint(part_tree, hf_gtpv2_uli_ecgi_eci_spare, tvb, offset, 1, spare);
+		/* The coding of the E-UTRAN cell identifier is the responsibility of each administration. 
+		 * Coding using full hexadecimal representation shall be used.
+		 */
         proto_tree_add_uint(part_tree, hf_gtpv2_uli_ecgi_eci, tvb, offset, 4, ECGI);
         /*proto_tree_add_item(tree, hf_gtpv2_uli_ecgi_eci, tvb, offset, 4, FALSE);*/
         offset+=4;
@@ -1302,6 +1342,24 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
             return;
 
     }
+	/* 8.21.6	LAI field */
+    if (flags & GTPv2_ULI_LAI_MASK)
+    {
+        proto_item_append_text(item, "LAI ");
+        fi = proto_tree_add_text(tree, tvb, offset + 1, 5, "LAI (Location Area Identifier)");
+        part_tree = proto_item_add_subtree(fi, ett_gtpv2_uli_field);
+        dissect_e212_mcc_mnc(tvb, pinfo, part_tree, offset, TRUE);
+        offset+=3;
+
+		/* The Location Area Code (LAC) consists of 2 octets. Bit 8 of Octet f+3 is the most significant bit
+		 * and bit 1 of Octet f+4 the least significant bit. The coding of the location area code is the 
+		 * responsibility of each administration. Coding using full hexadecimal representation shall be used.
+		 */
+		proto_tree_add_item(part_tree, hf_gtpv2_uli_lai_lac, tvb, offset, 2, FALSE);
+		offset+=2;
+
+	}
+	
 }
 
 static void
@@ -1314,9 +1372,11 @@ dissect_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
 
     flags_item = proto_tree_add_text(tree, tvb, offset, 1, "Flags");
     flag_tree = proto_item_add_subtree(flags_item, ett_gtpv2_uli_flags);
-    flags = tvb_get_guint8(tvb,offset)&0x1f;
-	proto_tree_add_bits_item(flag_tree, hf_gtpv2_spare_bits,	tvb, offset>>3, 3, FALSE);
+    flags = tvb_get_guint8(tvb,offset)&0x3f;
+	proto_tree_add_bits_item(flag_tree, hf_gtpv2_spare_bits,	tvb, offset>>3, 2, FALSE);
 
+	/* LAI B6 */
+    proto_tree_add_item(flag_tree, hf_gtpv2_uli_lai_flg, tvb, offset, 1, FALSE);
 	/* ECGI B5 */
     proto_tree_add_item(flag_tree, hf_gtpv2_uli_ecgi_flg, tvb, offset, 1, FALSE);
     /* TAI B4  */
@@ -1450,7 +1510,7 @@ dissect_gtpv2_f_teid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
 
     offset++;
     proto_tree_add_item(tree, hf_gtpv2_f_teid_gre_key, tvb, offset, 4, FALSE);
-    proto_item_append_text(tree, "%s, TEID/GRE Key: %s", val_to_str_ext_const((flags & 0x1f), &gtpv2_f_teid_interface_type_vals_ext, "Unknown"),
+    proto_item_append_text(tree, "%s, TEID/GRE Key: 0x%s", val_to_str_ext_const((flags & 0x1f), &gtpv2_f_teid_interface_type_vals_ext, "Unknown"),
         tvb_bytes_to_str(tvb, offset, 4));
 
     offset= offset+4;
@@ -2001,6 +2061,14 @@ dissect_gtpv2_pti(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
 /*
  * 8.36 DRX Parameter
  */
+static void
+dissect_gtpv2_drx_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
+{
+	int 	offset = 0;
+	
+	/* 36.413 : 9.2.1.17	Paging Cause, void */
+  proto_tree_add_text(tree, tvb, offset, length, "DRX parameter: %s", tvb_bytes_to_str(tvb, offset, (length )));
+}
 
 /*
  * 8.37 UE Network Capability
@@ -2221,6 +2289,29 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	proto_tree_add_text(flag_tree, tvb, offset, -1, "The rest of the IE not dissected yet");
 
 }
+static void
+dissect_gtpv2_mm_context_utms_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
+{
+	proto_item 	*flag;
+	proto_tree	*flag_tree;
+	guint32			offset;
+
+	offset = 0;
+	flag = proto_tree_add_text(tree, tvb, offset, 3, "MM Context flags");
+	flag_tree = proto_item_add_subtree(flag, ett_gtpv2_mm_context_flag);
+
+	proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_sm, tvb, offset, 1, FALSE);
+
+	proto_tree_add_item(flag_tree, hf_gtpv2_spare_bits,	tvb, ((offset<<3)+3), 1, FALSE);
+	proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_drxi, tvb, offset, 1, FALSE);
+	proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_ksi_a, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_nr_qui, tvb, offset, 1, FALSE);
+	proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_nr_qua, tvb, offset, 1, FALSE);
+	proto_tree_add_item(flag_tree, hf_gtpv2_spare_bits,	tvb, offset<<3, 2, FALSE);
+
+}
+
 /*
   * 8.39 PDN Connection (grouped IE)
  */
@@ -2959,12 +3050,31 @@ dissect_gtpv2_node_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 static void
 dissect_gtpv2_fqdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
 {
+	int         offset = 0, name_len, tmp;
+	guint8 		*fqdn = NULL;
 	/* The FQDN field encoding shall be identical to the encoding of
 	 * a FQDN within a DNS message of section 3.1 of IETF
 	 * RFC 1035 [31] but excluding the trailing zero byte.
 	 */
+	if (length > 0) {
+		name_len = tvb_get_guint8(tvb, offset);
 
-    proto_tree_add_text(tree, tvb, 0, length, "Not dissected yet");
+		if (name_len < 0x20) {
+			fqdn = tvb_get_ephemeral_string(tvb, offset + 1, length - 1);
+			for (;;) {
+				if (name_len >= length - 1)
+					break;
+				tmp = name_len;
+				name_len = name_len + fqdn[tmp] + 1;
+				fqdn[tmp] = '.';
+			}
+		} else{
+			fqdn = tvb_get_ephemeral_string(tvb, offset, length);
+		}
+		proto_tree_add_string(tree, hf_gtpv2_fqdn, tvb, offset, length, fqdn);
+		proto_item_append_text(item, "%s", fqdn);
+	}
+
 }
 /*
  * 8.67 Private Extension
@@ -3033,15 +3143,14 @@ static const gtpv2_ie_t gtpv2_ies[] = {
                                                                      /* 98, Void 8.33 */
     {GTPV2_IE_PDN_TYPE, dissect_gtpv2_pdn_type},                     /* 99, PDN Type */
     {GTPV2_IE_PTI, dissect_gtpv2_pti},                               /* 100, Procedure Transaction Id */
-    /* Void */                                                       /* 101, DRX Parameter 8.36 */
+    {GTPV2_IE_DRX_PARAM, dissect_gtpv2_drx_param},                   /* 101, DRX Parameter 8.36 */
     {GTPV2_IE_UE_NET_CAPABILITY, dissect_gtpv2_ue_net_capability},   /* 102, UE network capability 8.37 */
     {GTPV2_IE_MM_CONTEXT_GSM_T, dissect_gtpv2_mm_context_gsm_t},     /* 103, MM Context 8.38 GSM Key and Triplets */
     {GTPV2_IE_MM_CONTEXT_UTMS_CQ, dissect_gtpv2_mm_context_utms_cq}, /* 104, MM Context 8.38 */
     {GTPV2_IE_MM_CONTEXT_GSM_CQ, dissect_gtpv2_mm_context_gsm_cq},   /* 105, MM Context 8.38 */
     {GTPV2_IE_MM_CONTEXT_UTMS_Q, dissect_gtpv2_mm_context_utms_q},   /* 106, MM Context 8.38 */
     {GTPV2_IE_MM_CONTEXT_EPS_QQ, dissect_gtpv2_mm_context_eps_qq},   /* 107, MM Context 8.38 */
-    /*{GTPV2_IE_MM_CONTEXT_UTMS_QQ, dissect_gtp_v2_mm_context_utms_qq},*/ /* 108, MM Context 8.38 */
-
+    {GTPV2_IE_MM_CONTEXT_UTMS_QQ, dissect_gtpv2_mm_context_utms_qq}, /* 108, MM Context 8.38 */
 	{GTPV2_IE_PDN_CONNECTION, dissect_gtpv2_PDN_conn},			     /* 109, PDN Connection */
     {GTPV2_IE_PDN_NUMBERS, dissect_gtpv2_pdn_numbers},               /* 110, PDN Numbers 8.40 */
     {GTPV2_IE_P_TMSI, dissect_gtpv2_p_tmsi},                         /* 111, P-TMSI 8.41 */
@@ -3912,6 +4021,11 @@ void proto_register_gtpv2(void)
         FT_BOOLEAN, 8, NULL, GTPv2_ULI_ECGI_MASK,
         NULL, HFILL}
         },
+		{ &hf_gtpv2_uli_lai_flg,
+        {"LAI Present Flag)", "gtpv2.uli_lai_flg",
+        FT_BOOLEAN, 8, NULL, GTPv2_ULI_LAI_MASK,
+        NULL, HFILL}
+        },
         { &hf_gtpv2_uli_tai_flg,
         {"TAI Present Flag)", "gtpv2.uli_tai_flg",
         FT_BOOLEAN, 8, NULL, GTPv2_ULI_TAI_MASK,
@@ -3969,7 +4083,12 @@ void proto_register_gtpv2(void)
         },
         {&hf_gtpv2_uli_ecgi_eci,
         {"ECI (E-UTRAN Cell Identifier)", "gtpv2.uli_ecgi_eci",
-        FT_UINT32, BASE_DEC, NULL, 0x0,
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL}
+        },
+		{&hf_gtpv2_uli_lai_lac,
+        {"Location Area Code (LAC)", "gtpv2.uli_lai_lac",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL}
         },
         {&hf_gtpv2_uli_ecgi_eci_spare,
@@ -4279,6 +4398,11 @@ void proto_register_gtpv2(void)
         { &hf_gtpv2_node_type,
         {"Node Type", "gtpv2.node_type",
         FT_UINT8, BASE_DEC, VALS(gtpv2_node_type_vals), 0x0,
+        NULL, HFILL}
+        },
+		{&hf_gtpv2_fqdn,
+        {"FQDN", "gtpv2.fqdn",
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL}
         },
         { &hf_gtpv2_enterprise_id,
