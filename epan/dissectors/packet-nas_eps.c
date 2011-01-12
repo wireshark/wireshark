@@ -288,6 +288,7 @@ static const value_string security_header_type_vals[] = {
     { 15,   "These values are not used in this version of the protocol. If received they shall be interpreted as \"1100\""},
     { 0,    NULL }
 };
+static value_string_ext security_header_type_vals_ext = VALUE_STRING_EXT_INIT(security_header_type_vals);
 
 const value_string nas_eps_common_elem_strings[] = {
     { 0x00, "EPS bearer context status" },              /* 9.9.2.1  EPS bearer context status */
@@ -792,7 +793,8 @@ static const value_string nas_eps_emm_type_of_dtatch_DL_vals[] = {
  */
 static const value_string nas_eps_emm_cause_values[] = {
     { 0x2,  "IMSI unknown in HLR"},
-    { 0x3,  "Illegal MS"},
+    { 0x3,  "Illegal UE"},
+    { 0x5,  "IMEI not accepted"},
     { 0x6,  "Illegal ME"},
     { 0x7,  "EPS services not allowed"},
     { 0x8,  "EPS services and non-EPS services not allowed"},
@@ -815,7 +817,7 @@ static const value_string nas_eps_emm_cause_values[] = {
     { 0x19, "Not authorized for this CSG"},
     { 0x1a, "Non-EPS authentication unacceptable"},
     { 0x26, "CS fallback call establishment not allowed"},
-    { 0x27, "CS domain temporarily not available"},
+    { 0x27, "CS service temporarily not available"},
     { 0x28, "No EPS bearer context activated"},
     { 0x5f, "Semantically incorrect message"},
     { 0x60, "Invalid mandatory information"},
@@ -4481,7 +4483,7 @@ void proto_register_nas_eps(void) {
 	},
 	{ &hf_nas_eps_security_header_type,
 		{ "Security header type","nas_eps.security_header_type",
-		FT_UINT8,BASE_DEC, VALS(security_header_type_vals), 0xf0,
+		FT_UINT8,BASE_DEC|BASE_EXT_STRING, &security_header_type_vals_ext, 0xf0,
 		NULL, HFILL }
 	},
 	{ &hf_nas_eps_msg_auth_code,
