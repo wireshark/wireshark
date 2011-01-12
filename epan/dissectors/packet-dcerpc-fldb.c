@@ -342,9 +342,8 @@ dissect_vlconf_cell (tvbuff_t * tvb, int offset,
     }
 
   /* byte name[MAXVLCELLCHARS];          Cell name */
-  proto_tree_add_string (tree, hf_fldb_vlconf_cell_name, tvb, offset, 114,
-			 tvb_get_ptr (tvb, offset, MAXVLCELLCHARS));
-  name = tvb_get_ptr (tvb, offset, MAXVLCELLCHARS);
+  proto_tree_add_item (tree, hf_fldb_vlconf_cell_name, tvb, offset, 114, ENC_NA);
+  name = tvb_get_ephemeral_string (tvb, offset, MAXVLCELLCHARS); /* XXX why 114 above and 128 here?? */
   offset += MAXVLCELLCHARS;	/* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " Name: %s", name);
@@ -381,9 +380,9 @@ dissect_vlconf_cell (tvbuff_t * tvb, int offset,
 
   for (i = 0; i < MAXVLHOSTSPERCELL; i++)
     {
-      proto_tree_add_string (tree, hf_fldb_vlconf_cell_hostname, tvb, offset,
-			     64, tvb_get_ptr (tvb, offset, 64));
-      hostname = tvb_get_ptr (tvb, offset, 64);
+      proto_tree_add_item (tree, hf_fldb_vlconf_cell_hostname, tvb, offset,
+			     64, ENC_NA);
+      hostname = tvb_get_ephemeral_string (tvb, offset, 64);
       offset += 64;		/* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
       if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO, " hostName: %s", hostname);
@@ -472,12 +471,10 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
   if (string_size < AFS_NAMEMAX)
     {
 /* proto_tree_add_string(tree, id, tvb, start, length, value_ptr); */
-      proto_tree_add_string (tree,
+      proto_tree_add_item (tree,
 			     hf_fldb_afsNameString_t_principalName_string,
-			     tvb, offset, string_size, tvb_get_ptr (tvb,
-								    offset,
-								    string_size));
-      namestring = tvb_get_ptr (tvb, offset, string_size);
+			     tvb, offset, string_size, ENC_NA);
+      namestring = tvb_get_ephemeral_string (tvb, offset, string_size);
       offset += string_size;
       if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO, " Principal:%s", namestring);
@@ -701,9 +698,9 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
 
 /*    byte            name[114];      Volume name  */
 
-  proto_tree_add_string (tree, hf_fldb_vldbentry_volumename, tvb, offset, 114,
-			 tvb_get_ptr (tvb, offset, 114));
-  volumename = tvb_get_ptr (tvb, offset, 114);
+  proto_tree_add_item (tree, hf_fldb_vldbentry_volumename, tvb, offset, 114,
+		       ENC_NA);
+  volumename = tvb_get_ephemeral_string (tvb, offset, 114);
   offset += 110;		/* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " Name: %s", volumename);
@@ -725,7 +722,7 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
   /* afsNetAddr      siteAddr[MAXNSERVERS]; 16 */
   for (i = 0; i < MAXNSERVERS; i++)
     {
-      /* if (check_col (pinfo->cinfo, COL_INFO))   
+      /* if (check_col (pinfo->cinfo, COL_INFO))
          col_append_fstr (pinfo->cinfo, COL_INFO, " Site:%u", i); */
 
       offset = dissect_afsnetaddr (tvb, offset, pinfo, tree, drep);
@@ -769,9 +766,9 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
   /* kerb_princ_name sitePrincipal[MAXNSERVERS];      principal  */
   for (i = 0; i < MAXNSERVERS; i++)
     {
-      proto_tree_add_string (tree, hf_fldb_vldbentry_siteprincipal, tvb,
-			     offset, 64, tvb_get_ptr (tvb, offset, 64));
-      siteprincipal = tvb_get_ptr (tvb, offset, 64);
+      proto_tree_add_item (tree, hf_fldb_vldbentry_siteprincipal, tvb,
+			   offset, 64, ENC_NA);
+      siteprincipal = tvb_get_ephemeral_string (tvb, offset, 64);
       offset += 64;
       if (check_col (pinfo->cinfo, COL_INFO))
 	col_append_fstr (pinfo->cinfo, COL_INFO, " Princ: %s", siteprincipal);
@@ -813,7 +810,7 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
 
 
   /* afsHyper        VolIDs[MAXVOLTYPES]; */
-  /* XXX for these hypers, I will skip trying to use non portable guint64, and just read both, and use only low. 
+  /* XXX for these hypers, I will skip trying to use non portable guint64, and just read both, and use only low.
      never seen a case of a volid going anywhere the overflow of the 32 low; */
   for (i = 0; i < MAXVOLTYPES; i++)
     {
@@ -947,18 +944,17 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
 
 
   /* byte            LockerName[MAXLOCKNAMELEN]; */
-  proto_tree_add_string (tree, hf_fldb_vldbentry_lockername, tvb, offset,
-			 MAXLOCKNAMELEN, tvb_get_ptr (tvb, offset,
-						      MAXLOCKNAMELEN));
-  lockername = tvb_get_ptr (tvb, offset, MAXLOCKNAMELEN);
+  proto_tree_add_item (tree, hf_fldb_vldbentry_lockername, tvb, offset,
+		       MAXLOCKNAMELEN, ENC_NA);
+  lockername = tvb_get_ephemeral_string (tvb, offset, MAXLOCKNAMELEN);
   offset += MAXLOCKNAMELEN;	/* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " LockerName: %s", lockername);
 
   /*     byte            charSpares[50]; */
-  proto_tree_add_string (tree, hf_fldb_vldbentry_charspares, tvb, offset, 50,
-			 tvb_get_ptr (tvb, offset, 50));
-  charspares = tvb_get_ptr (tvb, offset, 50);
+  proto_tree_add_item (tree, hf_fldb_vldbentry_charspares, tvb, offset, 50,
+		       ENC_NA);
+  charspares = tvb_get_ephemeral_string (tvb, offset, 50);
   offset += 50;			/* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " charSpares:%s", charspares);
@@ -1027,7 +1023,7 @@ fldb_dissect_getentrybyname_resp (tvbuff_t * tvb, int offset,
 				  guint8 * drep)
 {
   /*
-     [out] vldbentry *entry     
+     [out] vldbentry *entry
    */
   dcerpc_info *di;
 
@@ -1060,7 +1056,7 @@ fldb_dissect_getsiteinfo_rqst (tvbuff_t * tvb, int offset,
 
   /*
    *   [in] afsNetAddr *OldAddr,
-   *   
+   *
    */
 
   offset = dissect_afsnetaddr (tvb, offset, pinfo, tree, drep);
@@ -1115,8 +1111,8 @@ fldb_dissect_getsiteinfo_resp (tvbuff_t * tvb, int offset,
 
   offset += 48;			/* part of kerbprin before name... */
 
-  proto_tree_add_string (tree, hf_fldb_namestring, tvb, offset, hf_fldb_namestring_size, tvb_get_ptr (tvb, offset, 64));
-  namestring = tvb_get_ptr (tvb, offset, 64);
+  proto_tree_add_item (tree, hf_fldb_namestring, tvb, offset, 64, ENC_NA);
+  namestring = tvb_get_ephemeral_string (tvb, offset, 64);
   offset += 64;
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " %s", namestring);
@@ -1421,7 +1417,7 @@ fldb_dissect_getentrybyid_rqst (tvbuff_t * tvb, int offset,
 
 
 /*
-		[in] afsHyper *Volid, 
+		[in] afsHyper *Volid,
 		[in] unsigned32 voltype,
 */
 
