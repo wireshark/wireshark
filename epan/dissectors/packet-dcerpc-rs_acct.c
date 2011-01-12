@@ -4,7 +4,7 @@
  * Copyright 2002, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/rs_acct.idl
- *      
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -65,14 +65,14 @@ rs_acct_dissect_lookup_rqst (tvbuff_t *tvb, int offset,
 	guint32 key_size;
 	const char *keyx_t = NULL;
 
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, 
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_rs_acct_lookup_rqst_var, NULL);
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, 
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_rs_acct_lookup_rqst_key_size, &key_size);
 
 	if (key_size){ /* Not able to yet decipher the OTHER versions of this call just yet. */
-		proto_tree_add_string (tree, hf_rs_acct_lookup_rqst_key_t, tvb, offset, hf_rs_acct_lookup_rqst_key_size, tvb_get_ptr (tvb, offset, key_size));
-		keyx_t = (const char *)tvb_get_ptr(tvb,offset,key_size);
+		proto_tree_add_item (tree, hf_rs_acct_lookup_rqst_key_t, tvb, offset, key_size, ENC_NA);
+		keyx_t = tvb_get_ephemeral_string(tvb, offset, key_size);
 		offset += key_size;
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -80,7 +80,7 @@ rs_acct_dissect_lookup_rqst (tvbuff_t *tvb, int offset,
 				" Request for: %s ", keyx_t);
 		}
 	} else {
-		col_append_str(pinfo->cinfo, COL_INFO, 
+		col_append_str(pinfo->cinfo, COL_INFO,
 				" Request (other)");
 	}
 
@@ -96,19 +96,18 @@ rs_acct_dissect_get_projlist_rqst (tvbuff_t *tvb, int offset,
 	guint32 key_size;
 	const char *keyx_t = NULL;
 
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, 
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_rs_acct_get_projlist_rqst_var1, NULL);
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, 
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_rs_acct_get_projlist_rqst_key_size, &key_size);
 
-	proto_tree_add_string (tree, hf_rs_acct_get_projlist_rqst_key_t, 
-			tvb, offset, hf_rs_acct_get_projlist_rqst_key_size, 
-			tvb_get_ptr (tvb, offset, key_size));
-	keyx_t = (const char *)tvb_get_ptr(tvb,offset,key_size);
+	proto_tree_add_item (tree, hf_rs_acct_get_projlist_rqst_key_t,
+			     tvb, offset, key_size, ENC_NA);
+	keyx_t = tvb_get_ephemeral_string(tvb, offset, key_size);
 	offset += key_size;
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, 
+		col_append_fstr(pinfo->cinfo, COL_INFO,
 			" Request for: %s", keyx_t);
 	}
 

@@ -4,7 +4,7 @@
  * Copyright 2002, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/rs_misc.idl
- *      
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -62,15 +62,15 @@ rs_misc_dissect_login_get_info_rqst (tvbuff_t *tvb, int offset,
 	guint32 key_size;
 	const char *key_t1 = NULL;
 
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, 
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_rs_misc_login_get_info_rqst_var, NULL);
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_rs_misc_login_get_info_rqst_key_size, &key_size);
 
 	if (key_size){ /* Not able to yet decipher the OTHER versions of this call just yet. */
 
-		proto_tree_add_string (tree, hf_rs_misc_login_get_info_rqst_key_t, tvb, offset, hf_rs_misc_login_get_info_rqst_key_size, tvb_get_ptr (tvb, offset, key_size));
-		key_t1 = (const char *)tvb_get_ptr(tvb,offset,key_size);
+		proto_tree_add_item (tree, hf_rs_misc_login_get_info_rqst_key_t, tvb, offset, key_size, ENC_NA);
+		key_t1 = tvb_get_ephemeral_string(tvb, offset, key_size);
 		offset += key_size;
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -78,7 +78,7 @@ rs_misc_dissect_login_get_info_rqst (tvbuff_t *tvb, int offset,
 				"rs_login_get_info Request for: %s ", key_t1);
 		}
 	} else {
-		col_append_str(pinfo->cinfo, COL_INFO, 
+		col_append_str(pinfo->cinfo, COL_INFO,
 				"rs_login_get_info Request (other)");
 	}
 
