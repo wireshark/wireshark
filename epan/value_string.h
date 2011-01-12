@@ -109,7 +109,7 @@ extern const gchar* str_to_str(const gchar *val, const string_string *vs, const 
  *
  *    Extended value strings can be created at runtime by calling
  *      value_string_ext_new(<ptr to value_string array>,
- *                           <total number of entries in the value_string_array>, 
+ *                           <total number of entries in the value_string_array>,
  *                           <value_string_name>);
  *      Note: <total number of entries in the value_string_array> should include the {0, NULL} entry
  */
@@ -136,7 +136,7 @@ gboolean value_string_ext_validate(value_string_ext *vse);
 gchar *value_string_ext_match_type_str(value_string_ext *vse);
 /* --- --- */
 
-extern const gchar *_match_strval_ext_init(const guint32 val, value_string_ext *vse);
+extern const gchar *_match_strval_ext_init(const guint32 val, const value_string_ext *vse, gint *idx);
 #define VALUE_STRING_EXT_INIT(x) { (_value_string_match_t) _match_strval_ext_init, 0, array_length(x)-1, x, #x }
 
 /* Create a value_string_ext given a ptr to a value_string array and the total number of entries. */

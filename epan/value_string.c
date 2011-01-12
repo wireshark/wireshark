@@ -142,7 +142,7 @@ value_string_ext_new(value_string *vs, guint vs_tot_num_entries, gchar *vs_name)
     vse->_vs_p           = vs;
     vse->_vs_num_entries = vs_tot_num_entries - 1; /* remember the actual number of entries */
     vse->_vs_first_value = 0;                      /* initialized in _match_strval_ext_init */
-    vse->_vs_match       = (_value_string_match_t) _match_strval_ext_init;
+    vse->_vs_match       = _match_strval_ext_init;
     vse->_vs_name        = vs_name;
     return vse;
 }
@@ -211,7 +211,7 @@ _match_strval_linear(const guint32 val, const value_string_ext *vse, gint *idx)
   guint i;
   for (i=0; i<vse->_vs_num_entries; i++) {
     if (vs_p[i].value == val) {
-		*idx = i;
+      *idx = i;
       return vs_p[i].strptr;
     }
   }
@@ -227,7 +227,7 @@ _match_strval_index(const guint32 val, const value_string_ext *vse, gint *idx)
   i = val - vse->_vs_first_value;
   if (i < vse->_vs_num_entries) {
     g_assert (val == vse->_vs_p[i].value);
-	*idx = i;
+    *idx = i;
     return vse->_vs_p[i].strptr;
   }
   *idx = -1;
@@ -266,9 +266,17 @@ _match_strval_bsearch(const guint32 val, const value_string_ext *vse, gint *idx)
       by {0, NULL};
 */
 const gchar *
-_match_strval_ext_init(const guint32 val, value_string_ext *vse)
+_match_strval_ext_init(const guint32 val, const value_string_ext *a_vse, gint *idx)
 {
-  gint ignore_me;
+  /*  Cast away the constness!
+   *  It's better if the prototype for this function matches the other
+   *  _match_strval_* functions (so we don't have to cast it when storing it
+   *  in _match_strval so the compiler will notice if the prototypes get out
+   *  of sync), but the init function is unique in that it does actually
+   *  modify the vse.
+   */
+  value_string_ext    *vse            = (value_string_ext *)a_vse;
+
   const value_string *vs_p           = vse->_vs_p;
   const guint         vs_num_entries = vse->_vs_num_entries;
 
@@ -318,7 +326,7 @@ _match_strval_ext_init(const guint32 val, value_string_ext *vse)
     break;
   }
 
-  return vse->_vs_match(val, vse, &ignore_me);
+  return vse->_vs_match(val, vse, idx);
 }
 
 /* (Fcns for use by proto_registrar_dump_values() [See proto.c]) */
@@ -326,7 +334,7 @@ gboolean
 value_string_ext_validate(value_string_ext *vse) {
     if (vse == NULL)
         return FALSE;
-    if ((vse->_vs_match == (_value_string_match_t) _match_strval_ext_init) ||
+    if ((vse->_vs_match == _match_strval_ext_init) ||
         (vse->_vs_match == _match_strval_linear)   ||
         (vse->_vs_match == _match_strval_bsearch)  ||
         (vse->_vs_match == _match_strval_index))
@@ -433,7 +441,7 @@ decode_enumerated_bitfield_shifted(const guint32 val, const guint32 mask, const 
 /* Tries to match val against each range in the range_string array rs.
    Returns the associated string ptr on a match.
    Formats val with fmt, and returns the resulting string, on failure. */
-const gchar *rval_to_str(const guint32 val, const range_string *rs, const char *fmt) 
+const gchar *rval_to_str(const guint32 val, const range_string *rs, const char *fmt)
 {
   const gchar *ret = NULL;
 
