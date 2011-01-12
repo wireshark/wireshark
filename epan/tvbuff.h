@@ -517,6 +517,11 @@ extern guint8 *tvb_get_seasonal_string(tvbuff_t *tvb, const gint offset, const g
  *                   MUST be g_free() by the caller in order not to leak
  *                   memory.
  *
+ * tvb_get_const_stringz() returns a constant (unmodifiable) string that does
+ *                   not need to be freed, instead it will automatically be
+ *                   freed once the next packet is dissected.  It is slightly
+ *                   more efficient than the other routines.
+ *
  * tvb_get_ephemeral_stringz() returns a string that does not need to be freed,
  *                   instead it will automatically be freed once the next
  *                   packet is dissected.
@@ -528,6 +533,7 @@ extern guint8 *tvb_get_seasonal_string(tvbuff_t *tvb, const gint offset, const g
  *                   or file is opened.
  */
 extern guint8 *tvb_get_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
+extern const guint8 *tvb_get_const_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
 extern guint8 *tvb_get_ephemeral_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
 extern gchar  *tvb_get_ephemeral_unicode_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
 extern guint8 *tvb_get_seasonal_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
@@ -659,8 +665,8 @@ extern gchar *tvb_bytes_to_str(tvbuff_t *tvb, const gint offset, const gint len)
 /**
  * Given a tvbuff, an offset into the tvbuff, and a length that starts
  * at that offset (which may be -1 for "all the way to the end of the
- * tvbuff"), fetch BCD encoded digits from a tvbuff starting from either 
- * the low or high half byte, formating the digits according to an input digit set, 
+ * tvbuff"), fetch BCD encoded digits from a tvbuff starting from either
+ * the low or high half byte, formating the digits according to an input digit set,
  * if NUll a default digit set of 0-9 returning "?" for overdecadic digits will be used.
  * A pointer to the EP allocated string will be returned.
  * Note a tvbuff content of 0xf is considered a 'filler' and will end the conversion.

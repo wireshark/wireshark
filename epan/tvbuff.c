@@ -2257,11 +2257,11 @@ tvb_get_string(tvbuff_t *tvb, const gint offset, const gint length)
 
 /*
  * Unicode (UTF-16) version of tvb_get_string()
- * 
+ *
  * Encoding paramter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
  *
  * Specify length in bytes
- * 
+ *
  * Returns an UTF-8 string that must be freed by the caller
  */
 gchar *
@@ -2336,11 +2336,11 @@ tvb_get_ephemeral_string(tvbuff_t *tvb, const gint offset, const gint length)
 
 /*
  * Unicode (UTF-16) version of tvb_get_ephemeral_string()
- * 
+ *
  * Encoding paramter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
  *
  * Specify length in bytes
- * 
+ *
  * Returns an ep_ allocated UTF-8 string
  */
 gchar *
@@ -2435,6 +2435,31 @@ tvb_get_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
 /*
  * Given a tvbuff and an offset, with the offset assumed to refer to
  * a null-terminated string, find the length of that string (and throw
+ * an exception if the tvbuff ends before we find the null), ensure that
+ * the TVB is flat, and return a pointer to the string (in the TVB).
+ * Also return the length of the string (including the terminating null)
+ * through a pointer.
+ *
+ * As long as we aren't using composite TVBs, this saves the cycles used
+ * (often unnecessariliy) in allocating a buffer and copying the string into
+ * it.  (If we do start using composite TVBs, we may want to replace this
+ * function with the _ephemeral versoin.)
+ */
+const guint8 *
+tvb_get_const_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
+{
+	guint size;
+	const guint8 *strptr;
+
+	size = tvb_strsize(tvb, offset);
+	strptr = tvb_get_ptr(tvb, offset, size);
+	if (lengthp)
+		*lengthp = size;
+	return strptr;
+}
+/*
+ * Given a tvbuff and an offset, with the offset assumed to refer to
+ * a null-terminated string, find the length of that string (and throw
  * an exception if the tvbuff ends before we find the null), allocate
  * a buffer big enough to hold the string, copy the string into it,
  * and return a pointer to the string.	Also return the length of the
@@ -2462,7 +2487,7 @@ tvb_get_ephemeral_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
 
 /*
  * Unicode (UTF-16) version of tvb_get_ephemeral_stringz()
- * 
+ *
  * Encoding paramter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
  *
  * Returns an ep_ allocated UTF-8 string and updates lengthp pointer with length of string (in bytes)
@@ -3002,8 +3027,8 @@ tvb_bytes_to_str_punct(tvbuff_t *tvb, const gint offset, const gint len, const g
 /*
  * Given a tvbuff, an offset into the tvbuff, and a length that starts
  * at that offset (which may be -1 for "all the way to the end of the
- * tvbuff"), fetch BCD encoded digits from a tvbuff starting from either 
- * the low or high half byte, formating the digits according to an input digit set, 
+ * tvbuff"), fetch BCD encoded digits from a tvbuff starting from either
+ * the low or high half byte, formating the digits according to an input digit set,
  * if NUll a default digit set of 0-9 returning "?" for overdecadic digits will be used.
  * A pointer to the EP allocated string will be returned.
  * Note a tvbuff content of 0xf is considered a 'filler' and will end the conversion.
@@ -3040,7 +3065,7 @@ tvb_bcd_dig_to_ep_str(tvbuff_t *tvb, const gint offset, const gint len, dgt_set_
 
 		octet = tvb_get_guint8(tvb,t_offset);
 		if (!skip_first){
-			digit_str[i] = dgt->out[octet & 0x0f]; 
+			digit_str[i] = dgt->out[octet & 0x0f];
 			i++;
 		}
 		skip_first = FALSE;
@@ -3053,7 +3078,7 @@ tvb_bcd_dig_to_ep_str(tvbuff_t *tvb, const gint offset, const gint len, dgt_set_
 		if (octet == 0x0f)	/* odd number bytes - hit filler */
 			break;
 
-		digit_str[i] = dgt->out[octet & 0x0f]; 
+		digit_str[i] = dgt->out[octet & 0x0f];
 		i++;
 		t_offset++;
 
