@@ -1843,19 +1843,22 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* LTE MAC needs info attached */
-    else if (strcmp(protocol_name, "mac_r8_lte") == 0) {
+    else if ((strcmp(protocol_name, "mac_r8_lte") == 0) ||
+             (strcmp(protocol_name, "mac_r9_lte") == 0)) {
         parse_outhdr_string(outhdr_string);
         attach_mac_lte_info(pinfo);
     }
 
     /* LTE RLC needs info attached */
-    else if (strcmp(protocol_name, "rlc_r8_lte") == 0) {
+    else if ((strcmp(protocol_name, "rlc_r8_lte") == 0) ||
+             (strcmp(protocol_name, "rlc_r9_lte") == 0)) {
         parse_outhdr_string(outhdr_string);
         attach_rlc_lte_info(pinfo);
     }
 
     /* LTE PDCP needs info attached */
-    else if (strcmp(protocol_name, "pdcp_r8_lte") == 0) {
+    else if ((strcmp(protocol_name, "pdcp_r8_lte") == 0) ||
+             (strcmp(protocol_name, "pdcp_r9_lte") == 0)) {
         parse_outhdr_string(outhdr_string);
         attach_pdcp_lte_info(pinfo);
     }
