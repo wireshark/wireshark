@@ -25,6 +25,10 @@
 #ifndef __GLOBALS_H__
 #define __GLOBALS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #include "file.h"
 #include <epan/timestamp.h>
 
@@ -34,4 +38,8 @@ extern capture_file cfile;
 extern gboolean     auto_scroll_live;
 #endif
 
-#endif
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __GLOBALS_H__ */
