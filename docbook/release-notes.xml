@@ -69,6 +69,19 @@ Wireshark Info
 
         <listitem>
           <para>
+            Custom columns can show a specific occurrence of a field.
+          </para>
+        </listitem>
+
+
+        <listitem>
+          <para>
+            You can hide columns in the packet list.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
             Wireshark can now export SMB objects.
           </para>
         </listitem>
@@ -82,6 +95,25 @@ Wireshark Info
         <listitem>
           <para>
             TShark can now display iSCSI service response times.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Syntax checking is done for capture filters.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            You can display the compiled BPF code for capture filters in the
+            Capture Options dialog.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Packet length is (finally) a default column.
           </para>
         </listitem>
 
@@ -132,7 +164,16 @@ Wi-Fi P2P (Wi-Fi Direct)
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-IPFIX (the file format, not the protocol)
+Apple PacketLogger,
+Catapult DCT2000,
+Daintree SNA,
+Endace ERF,
+IPFIX (the file format, not the protocol),
+Lucent/Ascend debug,
+Microsoft Network Monitor,
+Network Instruments,
+TamoSoft CommView,
+VMS TCPTrace,
 
     </para>
     </section>
@@ -241,6 +282,12 @@ IPFIX (the file format, not the protocol)
       Summary pane selected frame highlighting not maintained.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4445">Bug
       4445</ulink>)
+    </para>
+
+    <para>
+      Character echo pauses in Capture Filter field in Capture Options.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5356">Bug
+      5356</ulink>)
     </para>
 
   </section>
