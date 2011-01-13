@@ -41,6 +41,11 @@ Wireshark Info
           1759</ulink>)
         </para></listitem>
 
+	<listitem><para>
+	  Ring buffers are no longer turned on by default when using multiple
+	  capture files.
+	</para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -142,6 +147,26 @@ Wireshark Info
             TCP window size is now avaiable both scaled and unscaled.
           </para>
         </listitem>
+
+	<listitem>
+	  <para>
+	    802.1q VLAN tags are now shown by the Ethernet II dissector.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    Various dissectors now display some UTF-16 strings as proper Unicode
+	    including the DCE/RPC and SMB dissectors.
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    The RTP player now has an option to show the time of day in the
+	    graph in addition to the seconds since beginning of capture.
+	  </para>
+	</listitem>
 
       </itemizedlist>
 
