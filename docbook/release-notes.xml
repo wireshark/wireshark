@@ -147,7 +147,8 @@ Wireshark Info
 
         <listitem>
           <para>
-            TCP window size is now avaiable both scaled and unscaled.
+            TCP window size is now avaiable both scaled and unscaled. A TCP
+            window scaling graph is available in the GUI.
           </para>
         </listitem>
 
