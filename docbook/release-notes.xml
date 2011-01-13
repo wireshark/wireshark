@@ -84,7 +84,6 @@ Wireshark Info
           </para>
         </listitem>
 
-
         <listitem>
           <para>
             You can hide columns in the packet list.
@@ -132,7 +131,11 @@ Wireshark Info
         <listitem>
           <para>
             You can now navigate backwards and forwards through TCP and UDP
-            sessions.
+            sessions using
+              <shortcut><keycombo><keycap>Ctrl</keycap><keycap>,</keycap></keycombo></shortcut>
+            and
+              <shortcut><keycombo><keycap>Ctrl</keycap><keycap>.</keycap></keycombo></shortcut>
+            .
           </para>
         </listitem>
 
