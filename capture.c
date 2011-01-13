@@ -581,6 +581,7 @@ capture_input_closed(capture_options *capture_opts, gchar *msg)
           /* Exit by leaving the main loop, so that any quit functions
              we registered get called. */
           main_window_quit();
+	  break;
         }
 
     } else {
