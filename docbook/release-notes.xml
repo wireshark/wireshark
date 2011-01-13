@@ -168,6 +168,12 @@ Wireshark Info
 	  </para>
 	</listitem>
 
+        <listitem>
+          <para>
+            The RTP player now shows why media interruptions occur.
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
