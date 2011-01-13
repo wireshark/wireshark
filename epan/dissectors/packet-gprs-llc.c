@@ -471,7 +471,6 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint length;
 	guint32 fcs=0;
 	guint32 fcs_calc=0;
-	guint8 truncated=0;
 	fcs_status_t fcs_status;
 
 	/* MLT CHANGES - additional variables */
