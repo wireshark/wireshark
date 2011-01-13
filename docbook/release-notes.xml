@@ -69,6 +69,12 @@ Wireshark Info
 
         <listitem>
           <para>
+           TShark can show a specific occurrence of a field when using '-T fields'.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
             Custom columns can show a specific occurrence of a field.
           </para>
         </listitem>
@@ -98,6 +104,13 @@ Wireshark Info
           </para>
         </listitem>
 
+
+        <listitem>
+          <para>
+            Dumpcap can now save files with a user-specified group id.
+          </para>
+        </listitem>
+
         <listitem>
           <para>
             Syntax checking is done for capture filters.
@@ -113,7 +126,20 @@ Wireshark Info
 
         <listitem>
           <para>
+            You can now navigate backwards and forwards through TCP and UDP
+            sessions.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
             Packet length is (finally) a default column.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            TCP window size is now avaiable both scaled and unscaled.
           </para>
         </listitem>
 
