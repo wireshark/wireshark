@@ -229,12 +229,12 @@ Apple PacketLogger,
 Catapult DCT2000,
 Daintree SNA,
 Endace ERF,
+HP OpenVMS TCPTrace,
 IPFIX (the file format, not the protocol),
 Lucent/Ascend debug,
 Microsoft Network Monitor,
 Network Instruments,
-TamoSoft CommView,
-VMS TCPTrace,
+TamoSoft CommView
 
     </para>
     </section>
