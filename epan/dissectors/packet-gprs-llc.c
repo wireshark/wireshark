@@ -153,6 +153,7 @@ static const value_string sapi_t[] = {
 	{ 15, "Reserved" },
 	{  0, NULL },
 };
+static value_string_ext sapi_t_ext = VALUE_STRING_EXT_INIT(sapi_t);
 
 static const value_string sapi_abrv[] = {
 	{  0, "Reserved 0"},
@@ -173,6 +174,8 @@ static const value_string sapi_abrv[] = {
 	{ 15, "Reserved 15" },
 	{ 0, NULL }
 };
+static value_string_ext sapi_abrv_ext = VALUE_STRING_EXT_INIT(sapi_abrv);
+
 static const true_false_string a_bit = {
 	"To solicit an acknowledgement from the peer LLE. ",
 	"The peer LLE is not requested to send an acknowledgment."
@@ -220,6 +223,7 @@ static const value_string xid_param_type_str[] = {
 	{0xC, "Reset"},
 	{0, NULL}
 };
+static value_string_ext xid_param_type_str_ext = VALUE_STRING_EXT_INIT(xid_param_type_str);
 
 static const value_string tompd_formats[] = {
 	{0x0, "Not specified"},
@@ -418,13 +422,13 @@ static void llc_gprs_dissect_xid(tvbuff_t *tvb,
 				}
 				uinfo_field = proto_tree_add_text(xid_tree, tvb, location, item_len,
 					"XID Parameter Type: %s - Value: %u",
-					val_to_str(tmp, xid_param_type_str,"Reserved Type:%X"),value);
+					val_to_str_ext_const(tmp, &xid_param_type_str_ext,"Reserved Type:%X"),value);
 			}
 			else
 			{
 				uinfo_field = proto_tree_add_text(xid_tree, tvb, location, item_len,
 					"XID Parameter Type: %s",
-					val_to_str(tmp, xid_param_type_str,"Reserved Type:%X"));
+					val_to_str_ext_const(tmp, &xid_param_type_str_ext,"Reserved Type:%X"));
 			}
 			uinfo_tree = proto_item_add_subtree(uinfo_field, ett_ui);
 			proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_xl, tvb, location,
@@ -498,7 +502,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	sapi = addr_fld & 0xF;
 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "SAPI: %s", val_to_str(sapi,sapi_abrv, "Unknown (%d)"));
+	col_add_fstr(pinfo->cinfo, COL_INFO, "SAPI: %s", val_to_str_ext_const(sapi, &sapi_abrv_ext, "Unknown (%d)"));
 
 	ctrl_fld_fb = tvb_get_guint8(tvb,offset);
 	if (ctrl_fld_fb < 0xC0)
@@ -590,7 +594,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		ti = proto_tree_add_protocol_format(tree, proto_llcgprs, tvb, 0, -1,
 						    "MS-SGSN LLC (Mobile Station - Serving GPRS Support Node Logical Link Control)  SAPI: %s",
-						    val_to_str(sapi,sapi_t, "Unknown (%d)"));
+						    val_to_str_ext_const(sapi, &sapi_t_ext, "Unknown (%u)"));
 
 		llcgprs_tree = proto_item_add_subtree(ti, ett_llcgprs);
 
@@ -620,7 +624,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		addres_field_item = proto_tree_add_uint_format(llcgprs_tree,hf_llcgprs_sapi,
-		     tvb, 0,1, sapi, "Address field  SAPI: %s", val_to_str(sapi,sapi_abrv, "Unknown (%d)"));
+		     tvb, 0,1, sapi, "Address field  SAPI: %s", val_to_str_ext_const(sapi,&sapi_abrv_ext, "Unknown (%d)"));
 
 		ad_f_tree = proto_item_add_subtree(addres_field_item, ett_llcgprs_adf);
         proto_tree_add_boolean(ad_f_tree, hf_llcgprs_pd, tvb, 0, 1, addr_fld );
@@ -1156,7 +1160,7 @@ proto_register_llcgprs(void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
 		{ &hf_llcgprs_sapi,
-			{ "SAPI", "llcgprs.sapi", FT_UINT8, BASE_DEC, VALS(sapi_abrv), 0x0,"Service Access Point Identifier", HFILL }},
+			{ "SAPI", "llcgprs.sapi", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &sapi_abrv_ext, 0x0,"Service Access Point Identifier", HFILL }},
 		{ &hf_llcgprs_pd,
 			{ "Protocol Discriminator_bit", "llcgprs.pd", FT_BOOLEAN,8, TFS(&pd_bit), 0x80, "Protocol Discriminator bit (should be 0)", HFILL }},
 		{&hf_llcgprs_sjsd,
@@ -1164,7 +1168,7 @@ proto_register_llcgprs(void)
 		{ &hf_llcgprs_cr,
 			{ "Command/Response bit", "llcgprs.cr", FT_BOOLEAN, 8, TFS(&cr_bit), 0x40, NULL, HFILL}},
 		{ &hf_llcgprs_sapib,
-			{ "SAPI", "llcgprs.sapib", FT_UINT8, BASE_DEC , VALS(sapi_t), 0xf, "Service Access Point Identifier",HFILL }},
+			{ "SAPI", "llcgprs.sapib", FT_UINT8, BASE_DEC|BASE_EXT_STRING , &sapi_t_ext, 0xf, "Service Access Point Identifier",HFILL }},
 		{ &hf_llcgprs_U_fmt,
 			{ "UI format", "llcgprs.ui", FT_UINT16, BASE_HEX, NULL, UI_MASK_FMT, "UI frame format",HFILL}},
 		{ &hf_llcgprs_Un,
