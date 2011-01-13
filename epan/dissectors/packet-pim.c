@@ -83,11 +83,11 @@ static dissector_handle_t ipv6_handle;
  * For PIM v1, see
  *
  *      ftp://ftp.usc.edu/pub/csinfo/tech-reports/papers/95-599.ps.Z
- * 
+ *
  * NOTE: There is still some doubt that this is THE definitive PIMv1
  *       specification.  Of note, the type1vals entry, { 8, "Mode" }, does
  *       not appear as a valid code in the referenced document above.
- * 
+ *
  *       This one is likely closer to the last PIMv1 spec:
  *       http://tools.ietf.org/id/draft-ietf-idmr-pim-spec-02.txt
  */
@@ -413,7 +413,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 off += 6;
             }
 
-            tisub = proto_tree_add_item(grouptree, hf_pim_numprunes, tvb, 
+            tisub = proto_tree_add_item(grouptree, hf_pim_numprunes, tvb,
                                         offset + 2, 2, FALSE);
             subtree = proto_item_add_subtree(tisub, ett_pim);
             for (j = 0; j < nprune; j++) {
@@ -772,7 +772,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             opt_len = tvb_get_ntohs(tvb, offset + 2);
             opt_item = proto_tree_add_text(pimopt_tree, tvb, offset, 4 + opt_len,
                                            "Option %u: %s", hello_opt,
-                                           match_strval(hello_opt, pim_opt_vals));
+                                           val_to_str(hello_opt, pim_opt_vals, "Unknown: %u"));
             opt_tree = proto_item_add_subtree(opt_item, ett_pim_opt);
             proto_tree_add_item(opt_tree, hf_pim_optiontype, tvb, offset, 2, FALSE);
             proto_tree_add_item(opt_tree, hf_pim_optionlength, tvb, offset + 2, 2, FALSE);
@@ -1016,7 +1016,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 off += advance;
             }
 
-            tisub = proto_tree_add_item(grouptree, hf_pim_numprunes, tvb, 
+            tisub = proto_tree_add_item(grouptree, hf_pim_numprunes, tvb,
                                         offset + 2, 2, FALSE);
             subtree = proto_item_add_subtree(tisub, ett_pim);
             for (j = 0; j < nprune; j++) {
