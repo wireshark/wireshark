@@ -3196,10 +3196,10 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 
 		prot = tvb_get_ntohs(tvb,curr_offset);
 		proto_tree_add_uint_format(tree, hf_gsm_a_gm_pco_pid, tvb, curr_offset, 2, (guint32)prot,
-				"Protocol ID: %s (%u)",
+				"Protocol or Container ID: %s (%u)",
 				link_dir ?
-					val_to_str_const((guint32)prot, gsm_a_sm_pco_net2ms_prot_vals, "Unknown ") :
-					val_to_str_const((guint32)prot, gsm_a_sm_pco_ms2net_prot_vals, "Unknown "),
+					val_to_str_const((guint32)prot, gsm_a_sm_pco_net2ms_prot_vals, val_to_str_ext_const(prot, &ppp_vals_ext, "Unknown")) :
+					val_to_str_const((guint32)prot, gsm_a_sm_pco_ms2net_prot_vals, val_to_str_ext_const(prot, &ppp_vals_ext, "Unknown")),
 				(guint32)prot);
 
 		curr_len-=2;
@@ -6195,7 +6195,7 @@ proto_register_gsm_a_gm(void)
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_gm_pco_pid,
-		{ "Protocol ID", "gsm_a.gm.pco_pid",
+		{ "Protocol or Container ID", "gsm_a.gm.pco_pid",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 	},
