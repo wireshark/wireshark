@@ -62,6 +62,8 @@
 #define	META_ID_NSAPI			1028
 #define	META_ID_APN				1029
 #define	META_ID_RAT				1030
+#define	META_ID_CALLING			1031
+#define	META_ID_CALLED			1032
 
 enum meta_direction {
 	META_DIR_UP,

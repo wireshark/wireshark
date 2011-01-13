@@ -58,10 +58,17 @@ static int hf_meta_item_imsi = -1;
 static int hf_meta_item_imei = -1;
 static int hf_meta_item_signaling = -1;
 static int hf_meta_item_incomplete = -1;
+static int hf_meta_item_deciphered = -1;
 static int hf_meta_item_apn = -1;
 static int hf_meta_item_rat = -1;
 static int hf_meta_item_aal5proto = -1;
 static int hf_meta_item_cell = -1;
+static int hf_meta_item_localdevid = -1;
+static int hf_meta_item_remotedevid = -1;
+static int hf_meta_item_tapgroupid = -1;
+static int hf_meta_item_tlli = -1;
+static int hf_meta_item_calling = -1;
+static int hf_meta_item_called = -1;
 
 /* subtrees */
 static gint ett_meta = -1;
@@ -126,6 +133,8 @@ static const value_string meta_id_vals[] = {
 	{ META_ID_NSAPI,		"NSAPI" },
 	{ META_ID_APN,			"APN" },
 	{ META_ID_RAT,			"RAT" },
+	{ META_ID_CALLING,		"Calling Station ID" },
+	{ META_ID_CALLED,		"Called Station ID" },
 	{ 0, NULL }
 };
 
@@ -234,8 +243,9 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
 	proto_tree *item_tree;
 	proto_item *subti;
 	/* field values */
-	guint8 dir, nsapi, rat, aal5proto, *apn;
-	guint16 phylinkid;
+	guint8 dir, nsapi, rat, aal5proto, *apn, *calling, *called;
+	guint16 phylinkid, localdevid, remotedevid, tapgroupid;
+	guint32 tlli;
 	guint64 ts, imsi, imei, cell;
 	sscop_payload_info *p_sscop_info;
 
@@ -299,6 +309,10 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
 			proto_tree_add_boolean(meta_tree, hf_meta_item_incomplete, tvb,
 				offs, 0, 1);
 			break;
+		case META_ID_DECIPHERED:
+			proto_tree_add_boolean(meta_tree, hf_meta_item_deciphered, tvb,
+				offs, 0, 1);
+			break;
 		case META_ID_AAL5PROTO:
 			aal5proto = tvb_get_guint8(tvb, offs);
 			p_sscop_info = p_get_proto_data(pinfo->fd, proto_sscop);
@@ -323,6 +337,36 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
 			}
 			proto_tree_add_uint(meta_tree, hf_meta_item_aal5proto, tvb,
 				offs, 1, aal5proto);
+			break;
+		case META_ID_LOCALDEVID:
+			localdevid = tvb_get_letohs(tvb, offs);
+			proto_tree_add_uint(meta_tree, hf_meta_item_localdevid, tvb,
+				offs, 2, localdevid);
+			break;
+		case META_ID_REMOTEDEVID:
+			remotedevid = tvb_get_letohs(tvb, offs);
+			proto_tree_add_uint(meta_tree, hf_meta_item_remotedevid, tvb,
+				offs, 2, remotedevid);
+			break;
+		case META_ID_TAPGROUPID:
+			tapgroupid = tvb_get_letohs(tvb, offs);
+			proto_tree_add_uint(meta_tree, hf_meta_item_tapgroupid, tvb,
+				offs, 2, tapgroupid);
+			break;
+		case META_ID_TLLI:
+			tlli = tvb_get_letohs(tvb, offs);
+			proto_tree_add_uint(meta_tree, hf_meta_item_tlli, tvb,
+				offs, 4, tlli);
+			break;
+		case META_ID_CALLING:
+			calling = tvb_get_string(tvb, offs, len);
+			proto_tree_add_string(meta_tree, hf_meta_item_calling, tvb,
+				offs, len, calling);
+			break;
+		case META_ID_CALLED:
+			called = tvb_get_string(tvb, offs, len);
+			proto_tree_add_string(meta_tree, hf_meta_item_called, tvb,
+				offs, len, called);
 			break;
 		default:
 			subti = proto_tree_add_item(meta_tree, hf_meta_item, tvb, offs - 4,
@@ -486,10 +530,18 @@ proto_register_meta(void)
 		{ &hf_meta_item_imei, { "IMEI", "meta.imei", FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL } },
 		{ &hf_meta_item_signaling, { "Signaling", "meta.signaling", FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL } },
 		{ &hf_meta_item_incomplete, { "Incomplete", "meta.incomplete", FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL } },
+		{ &hf_meta_item_deciphered, { "Deciphered", "meta.deciphered", FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL } },
 		{ &hf_meta_item_apn, { "APN", "meta.apn", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL } },
 		{ &hf_meta_item_rat, { "RAT", "meta.rat", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 		{ &hf_meta_item_aal5proto, { "AAL5 Protocol Type", "meta.aal5proto", FT_UINT8, BASE_DEC, VALS(meta_aal5proto_vals), 0, NULL, HFILL } },
 		{ &hf_meta_item_cell, { "Cell", "meta.cell", FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL } },
+
+		{ &hf_meta_item_localdevid, { "Local Device ID", "meta.localdevid", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_meta_item_remotedevid, { "Remote Device ID", "meta.remotedevid", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_meta_item_tapgroupid, { "Tap Group ID", "meta.tapgroupid", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_meta_item_tlli, { "TLLI", "meta.tlli", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_meta_item_calling, { "Calling Station ID", "meta.calling", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL } },
+		{ &hf_meta_item_called, { "Called Station ID", "meta.called", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL } },
 	};
 
 	static gint *ett[] = {
