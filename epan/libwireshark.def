@@ -614,8 +614,10 @@ InfoRequestNakReason_vals       DATA
 init_dissection
 init_progfile_dir
 ip6_to_str
+tvb_ip6_to_str
 in_cksum
 ip_to_str
+tvb_ip_to_str
 ipprotostr
 ipv4_get_net_order_addr
 is_big_endian

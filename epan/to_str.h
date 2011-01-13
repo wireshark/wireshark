@@ -50,10 +50,12 @@ extern void     address_to_str_buf(const address *addr, gchar *buf, int buf_len)
 extern gchar*   bytestring_to_str(const guint8 *, const guint32, const char);
 extern gchar*	ether_to_str(const guint8 *);
 extern const gchar*	ip_to_str(const guint8 *);
+extern const gchar*	tvb_ip_to_str(tvbuff_t *tvb, const gint offset);
 extern void	ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len);
 extern gchar*	fc_to_str(const guint8 *);
 extern gchar*	fcwwn_to_str (const guint8 *);
 extern gchar*	ip6_to_str(const struct e_in6_addr *);
+extern gchar*	tvb_ip6_to_str(tvbuff_t *tvb, const gint offset);
 extern void	ip6_to_str_buf(const struct e_in6_addr *, gchar *);
 extern gchar*	ipx_addr_to_str(const guint32, const guint8 *);
 extern gchar*	ipxnet_to_string(const guint8 *ad);

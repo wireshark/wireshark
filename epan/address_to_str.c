@@ -104,6 +104,17 @@ ip_to_str(const guint8 *ad) {
   return buf;
 }
 
+#define IPV4_LENGTH 4
+const gchar *
+tvb_ip_to_str(tvbuff_t *tvb, const gint offset)
+{
+  gchar *buf;
+
+  buf=ep_alloc(MAX_IP_STR_LEN);
+  ip_to_str_buf(tvb_get_ptr(tvb, offset, IPV4_LENGTH), buf, MAX_IP_STR_LEN);
+  return buf;
+}
+
 /* XXX FIXME
 remove this one later when every call has been converted to ep_address_to_str()
 */
@@ -112,12 +123,23 @@ ip6_to_str(const struct e_in6_addr *ad) {
 #ifndef INET6_ADDRSTRLEN
 #define INET6_ADDRSTRLEN 46
 #endif
-  static gchar *str;
+  gchar *str;
 
   str=ep_alloc(INET6_ADDRSTRLEN+1);
 
   ip6_to_str_buf(ad, str);
   return str;
+}
+
+#define IPV6_LENGTH 16
+gchar *
+tvb_ip6_to_str(tvbuff_t *tvb, const gint offset)
+{
+  gchar *buf;
+
+  buf=ep_alloc(INET6_ADDRSTRLEN+1);
+  ip6_to_str_buf((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, IPV6_LENGTH), buf);
+  return buf;
 }
 
 void

@@ -724,7 +724,7 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
                 case ATTR_TYPE_IPV4:
                     proto_tree_add_text(radius_tree, tvb, offset + radius_offset,
                                         attribute_len, "3GPP2: %s (%s)", attrs[attribute_type].attrname,
-                                        ip_to_str(tvb_get_ptr(tvb,offset + radius_offset + 2,4)));
+                                        tvb_ip_to_str(tvb, offset + radius_offset + 2));
                     break;
                 case ATTR_TYPE_TYPE:
                     proto_tree_add_text(radius_tree, tvb, offset + radius_offset,
@@ -883,8 +883,8 @@ static void dissect_fwd_qosinfo(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
     guint8 flow_index;
     guint8 dscp_enabled = 0;
 
-    /* 
-     * Starts with a length field 
+    /*
+     * Starts with a length field
      * http://www.3gpp2.org/Public_html/specs/A.S0009-C_v1.0_070801.pdf
      */
     proto_tree_add_item(ext_tree, hf_a11_fqi_length, tvb, offset+clen, 2, FALSE);
@@ -967,8 +967,8 @@ static void dissect_rev_qosinfo(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
     guint8 flow_count;
     guint8 flow_index;
 
-    /* 
-     * Starts with a length field 
+    /*
+     * Starts with a length field
      * http://www.3gpp2.org/Public_html/specs/A.S0009-C_v1.0_070801.pdf
      */
     proto_tree_add_item(ext_tree, hf_a11_fqi_length, tvb, offset+clen, 2, FALSE);
@@ -1400,8 +1400,8 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch (type) {
     case REGISTRATION_REQUEST:
         col_add_fstr(pinfo->cinfo, COL_INFO, "Reg Request: PDSN=%s PCF=%s",
-                     ip_to_str(tvb_get_ptr(tvb, 8, 4)),
-                     ip_to_str(tvb_get_ptr(tvb,12,4)));
+                     tvb_ip_to_str(tvb, 8),
+                     tvb_ip_to_str(tvb, 12));
 
         if (tree) {
             ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, FALSE);
@@ -1453,7 +1453,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
     case REGISTRATION_REPLY:
         col_add_fstr(pinfo->cinfo, COL_INFO, "Reg Reply:   PDSN=%s, Code=%u",
-                      ip_to_str(tvb_get_ptr(tvb,8,4)), tvb_get_guint8(tvb,1));
+                      tvb_ip_to_str(tvb, 8), tvb_get_guint8(tvb,1));
 
         if (tree) {
             /* Add Subtree */
@@ -1493,7 +1493,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
     case REGISTRATION_UPDATE:
         col_add_fstr(pinfo->cinfo, COL_INFO,"Reg Update:  PDSN=%s",
-                     ip_to_str(tvb_get_ptr(tvb,8,4)));
+                     tvb_ip_to_str(tvb, 8));
         if (tree) {
             /* Add Subtree */
             ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, FALSE);
@@ -1527,7 +1527,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
     case REGISTRATION_ACK:
         col_add_fstr(pinfo->cinfo, COL_INFO, "Reg Ack:     PCF=%s Status=%u",
-                     ip_to_str(tvb_get_ptr(tvb, 8, 4)),
+                     tvb_ip_to_str(tvb, 8),
                      tvb_get_guint8(tvb,3));
         if (tree) {
             /* Add Subtree */
@@ -1566,7 +1566,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
     case SESSION_UPDATE: /* IOS4.3 */
         col_add_fstr(pinfo->cinfo, COL_INFO,"Ses Update:  PDSN=%s",
-                     ip_to_str(tvb_get_ptr(tvb,8,4)));
+                     tvb_ip_to_str(tvb, 8));
         if (tree) {
             /* Add Subtree */
             ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, FALSE);
@@ -1600,7 +1600,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
     case SESSION_ACK: /* IOS4.3 */
         col_add_fstr(pinfo->cinfo, COL_INFO, "Ses Upd Ack: PCF=%s, Status=%u",
-                     ip_to_str(tvb_get_ptr(tvb, 8, 4)),
+                     tvb_ip_to_str(tvb, 8),
                      tvb_get_guint8(tvb,3));
         if (tree) {
             /* Add Subtree */
@@ -1639,8 +1639,8 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
     case CAPABILITIES_INFO: /* IOS5.1 */
         col_add_fstr(pinfo->cinfo, COL_INFO, "Cap Info: PDSN=%s, PCF=%s",
-                     ip_to_str(tvb_get_ptr(tvb, 8, 4)),
-                     ip_to_str(tvb_get_ptr(tvb,12,4)));
+                     tvb_ip_to_str(tvb, 8),
+                     tvb_ip_to_str(tvb, 12));
         if (tree) {
             /* Add Subtree */
             ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, FALSE);
@@ -1678,7 +1678,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
     case CAPABILITIES_INFO_ACK: /* IOS5.1 */
         col_add_fstr(pinfo->cinfo, COL_INFO, "Cap Info Ack: PCF=%s",
-                     ip_to_str(tvb_get_ptr(tvb, 8, 4)));
+                     tvb_ip_to_str(tvb, 8));
         if (tree) {
             /* Add Subtree */
             ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, FALSE);

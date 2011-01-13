@@ -172,7 +172,7 @@ static gboolean dissect_wccp2_security_info(tvbuff_t *tvb, int offset,
     int length, packet_info *pinfo _U_, proto_tree *info_tree);
 static gboolean dissect_wccp2_service_info(tvbuff_t *tvb, int offset,
     int length, packet_info *pinfo, proto_tree *info_tree);
-static gboolean dissect_wccp2_router_identity_info(tvbuff_t *tvb, int offset, 
+static gboolean dissect_wccp2_router_identity_info(tvbuff_t *tvb, int offset,
     int length, packet_info *pinfo _U_, proto_tree *info_tree);
 static gboolean dissect_wccp2_wc_identity_info(tvbuff_t *tvb, int offset,
     int length, packet_info *pinfo _U_, proto_tree *info_tree);
@@ -724,7 +724,7 @@ dissect_wccp2_router_identity_element(tvbuff_t *tvb, int offset,
     proto_tree *tree)
 {
 	proto_tree_add_text(tree, tvb, offset, 4,
-	    "IP Address: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	    "IP Address: %s", tvb_ip_to_str(tvb, offset));
 	proto_tree_add_text(tree, tvb, offset + 4, 4,
 	    "Receive ID: %u", tvb_get_ntohl(tvb, offset + 4));
 }
@@ -747,14 +747,14 @@ dissect_wccp2_router_identity_info(tvbuff_t *tvb, int offset, int length,
 
 	te = proto_tree_add_text(info_tree, tvb, offset, 8,
 	    "Router Identity Element: IP address %s",
-	    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	    tvb_ip_to_str(tvb, offset));
 	element_tree = proto_item_add_subtree(te,
 	    ett_router_identity_element);
 	dissect_wccp2_router_identity_element(tvb, offset, element_tree);
 	offset += 8;
 
 	proto_tree_add_text(info_tree, tvb, offset, 4,
-	    "Sent To IP Address: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	    "Sent To IP Address: %s", tvb_ip_to_str(tvb, offset));
 	offset += 4;
 
 	n_received_from = tvb_get_ntohl(tvb, offset);
@@ -765,7 +765,7 @@ dissect_wccp2_router_identity_info(tvbuff_t *tvb, int offset, int length,
 	for (i = 0; i < n_received_from; i++) {
 		proto_tree_add_text(info_tree, tvb, offset, 4,
 		    "Received From IP Address %d: %s", i,
-		    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+		    tvb_ip_to_str(tvb, offset));
 		offset += 4;
 	}
 
@@ -788,7 +788,7 @@ dissect_wccp2_web_cache_identity_element(tvbuff_t *tvb, int offset,
 	int n;
 
 	proto_tree_add_text(tree, tvb, offset, 4,
-	    "Web-Cache IP Address: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	    "Web-Cache IP Address: %s", tvb_ip_to_str(tvb, offset));
 	offset += 4;
 
 	proto_tree_add_text(tree, tvb, offset, 2,
@@ -843,7 +843,7 @@ dissect_wccp2_wc_identity_info(tvbuff_t *tvb, int offset, int length,
 
 	te = proto_tree_add_text(info_tree, tvb, offset, 4+2+2+32+2+2,
 	    "Web-Cache Identity Element: IP address %s",
-	    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	    tvb_ip_to_str(tvb, offset));
 	element_tree = proto_item_add_subtree(te, ett_wc_identity_element);
 	if (!dissect_wccp2_web_cache_identity_element(tvb, offset,
 	    element_tree))
@@ -860,7 +860,7 @@ dissect_wccp2_assignment_key(tvbuff_t *tvb, int offset,
 {
 	proto_tree_add_text(info_tree, tvb, offset, 4,
 	    "Assignment Key IP Address: %s",
-	    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	    tvb_ip_to_str(tvb, offset));
 	proto_tree_add_text(info_tree, tvb, offset + 4, 4,
 	    "Assignment Key Change Number: %u", tvb_get_ntohl(tvb, offset + 4));
 }
@@ -897,7 +897,7 @@ dissect_wccp2_router_view_info(tvbuff_t *tvb, int offset, int length,
 	for (i = 0; i < n_routers; i++) {
 		proto_tree_add_text(info_tree, tvb, offset, 4,
 		    "Router %d IP Address: %s", i,
-		    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+		    tvb_ip_to_str(tvb, offset));
 		offset += 4;
 	}
 
@@ -909,7 +909,7 @@ dissect_wccp2_router_view_info(tvbuff_t *tvb, int offset, int length,
 	for (i = 0; i < n_web_caches; i++) {
 		te = proto_tree_add_text(info_tree, tvb, offset, WC_ID_INFO_LEN,
 		    "Web-Cache Identity Element %d: IP address %s", i,
-		    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+		    tvb_ip_to_str(tvb, offset));
 		element_tree = proto_item_add_subtree(te,
 		    ett_wc_identity_element);
 		if (!dissect_wccp2_web_cache_identity_element(tvb,
@@ -952,7 +952,7 @@ dissect_wccp2_wc_view_info(tvbuff_t *tvb, int offset, int length,
 	for (i = 0; i < n_routers; i++) {
 		te = proto_tree_add_text(info_tree, tvb, offset, 8,
 		    "Router %d Identity Element: IP address %s", i,
-		    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+		    tvb_ip_to_str(tvb, offset));
 		element_tree = proto_item_add_subtree(te,
 		    ett_router_identity_element);
 		dissect_wccp2_router_identity_element(tvb, offset, element_tree);
@@ -967,7 +967,7 @@ dissect_wccp2_wc_view_info(tvbuff_t *tvb, int offset, int length,
 	for (i = 0; i < n_web_caches; i++) {
 		proto_tree_add_text(info_tree, tvb, offset, 4,
 		    "Web-Cache %d: IP address %s", i,
-		    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+		    tvb_ip_to_str(tvb, offset));
 		offset += 4;
 	}
 
@@ -981,7 +981,7 @@ dissect_wccp2_router_assignment_element(tvbuff_t *tvb, int offset,
     proto_tree *tree)
 {
 	proto_tree_add_text(tree, tvb, offset, 4,
-	    "IP Address: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	    "IP Address: %s", tvb_ip_to_str(tvb, offset));
 	proto_tree_add_text(tree, tvb, offset + 4, 4,
 	    "Receive ID: %u", tvb_get_ntohl(tvb, offset + 4));
 	proto_tree_add_text(tree, tvb, offset + 8, 4,
@@ -1030,7 +1030,7 @@ dissect_wccp2_assignment_info(tvbuff_t *tvb, int offset, int length,
 	for (i = 0; i < n_routers; i++) {
 		te = proto_tree_add_text(info_tree, tvb, offset, 4,
 		    "Router %d Assignment Element: IP address %s", i,
-		    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+		    tvb_ip_to_str(tvb, offset));
 		element_tree = proto_item_add_subtree(te,
 		    ett_router_assignment_element);
 		dissect_wccp2_router_assignment_element(tvb, offset,
@@ -1046,7 +1046,7 @@ dissect_wccp2_assignment_info(tvbuff_t *tvb, int offset, int length,
 	for (i = 0; i < n_web_caches; i++) {
 		proto_tree_add_text(info_tree, tvb, offset, 4,
 		    "Web-Cache %d: IP address %s", i,
-		    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+		    tvb_ip_to_str(tvb, offset));
 		offset += 4;
 	}
 
@@ -1077,7 +1077,7 @@ dissect_wccp2_router_query_info(tvbuff_t *tvb, int offset, int length,
 	}
 
 	proto_tree_add_text(info_tree, tvb, offset, 4,
-	    "Router IP Address: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	    "Router IP Address: %s", tvb_ip_to_str(tvb, offset));
 	offset += 4;
 
 	proto_tree_add_text(info_tree, tvb, offset, 4,
@@ -1085,11 +1085,11 @@ dissect_wccp2_router_query_info(tvbuff_t *tvb, int offset, int length,
 	offset += 4;
 
 	proto_tree_add_text(info_tree, tvb, offset, 4,
-	    "Sent To IP Address: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	    "Sent To IP Address: %s", tvb_ip_to_str(tvb, offset));
 	offset += 4;
 
 	proto_tree_add_text(info_tree, tvb, offset, 4,
-	    "Target IP Address: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	    "Target IP Address: %s", tvb_ip_to_str(tvb, offset));
 
 	return TRUE;
 }
@@ -1289,15 +1289,15 @@ dissect_wccp2_value_element(tvbuff_t *tvb, int offset, int idx, proto_tree *info
 	tl = proto_tree_add_text(info_tree, tvb, offset, 16, "Value Element(%u)", idx);
 	element_tree = proto_item_add_subtree(tl, ett_value_element);
 
-	proto_tree_add_text(element_tree, tvb, offset, 4, "Source Address value: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	proto_tree_add_text(element_tree, tvb, offset, 4, "Source Address value: %s", tvb_ip_to_str(tvb, offset));
 	offset += 4;
-	proto_tree_add_text(element_tree, tvb, offset, 4, "Destination Address value: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	proto_tree_add_text(element_tree, tvb, offset, 4, "Destination Address value: %s", tvb_ip_to_str(tvb, offset));
 	offset += 4;
 	proto_tree_add_text(element_tree, tvb, offset, 2, "Source Port value: %u", tvb_get_ntohs(tvb, offset));
 	offset += 2;
 	proto_tree_add_text(element_tree, tvb, offset, 2, "Source Port value: %u", tvb_get_ntohs(tvb, offset));
 	offset += 2;
-	proto_tree_add_text(element_tree, tvb, offset, 4, "Web Cache Address: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	proto_tree_add_text(element_tree, tvb, offset, 4, "Web Cache Address: %s", tvb_ip_to_str(tvb, offset));
 }
 
 static guint
@@ -1312,9 +1312,9 @@ dissect_wccp2_mask_value_set_element(tvbuff_t *tvb, int offset, int idx, proto_t
 	    "Mask/Value Set Element(%d)", idx);
 	element_tree = proto_item_add_subtree(tl, ett_mv_set_element);
 
-	proto_tree_add_text(element_tree, tvb, offset, 4, "Source Address Mask: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	proto_tree_add_text(element_tree, tvb, offset, 4, "Source Address Mask: %s", tvb_ip_to_str(tvb, offset));
 	offset += 4;
-	proto_tree_add_text(element_tree, tvb, offset, 4, "Destination Address Mask: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	proto_tree_add_text(element_tree, tvb, offset, 4, "Destination Address Mask: %s", tvb_ip_to_str(tvb, offset));
 	offset += 4;
 	proto_tree_add_text(element_tree, tvb, offset, 2, "Source Port Mask: %04x", tvb_get_ntohs(tvb, offset));
 	offset += 2;
