@@ -1603,6 +1603,11 @@ static int DetectIfDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int 
     DLHARQResult *result = NULL;
     proto_item *result_ti;
 
+    /* If out-of-range just give up */
+    if (p_mac_lte_info->subframeNumber > 9) {
+        return FALSE;
+    }
+
     /* TDD may not work... */
 
     if (!pinfo->fd->flags.visited) {
@@ -1737,6 +1742,11 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
 
     /* FDD only for now! */
     if (p_mac_lte_info->radioType != FDD_RADIO) {
+        return;
+    }
+
+    /* If out-of-range just give up */
+    if (p_mac_lte_info->subframeNumber > 9) {
         return;
     }
 
@@ -3029,9 +3039,11 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                              tvb, 0, 0, p_mac_lte_info->subframeNumber);
     PROTO_ITEM_SET_GENERATED(ti);
     if (p_mac_lte_info->subframeNumber > 9) {
+        /* N.B. if we set it to avlid value, it won't trigger when we rescan
+           (at least with DCT2000 files where the context struct isn't re-read). */
         expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                               "Subframe number was out of range - using max (9) instead");
-        p_mac_lte_info->subframeNumber = 9;
+                               "Subframe number (%u) was out of range - valid range is 0-9",
+                               p_mac_lte_info->subframeNumber);
     }
 
     if (p_mac_lte_info->subframeNumberOfGrantPresent) {
