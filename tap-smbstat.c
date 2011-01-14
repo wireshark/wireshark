@@ -40,6 +40,9 @@
 #include <epan/dissectors/packet-smb.h>
 #include "timestats.h"
 
+#define MICROSECS_PER_SEC   1000000
+#define NANOSECS_PER_SEC    1000000000
+
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _smbstat_t {
 	char *filter;
@@ -103,10 +106,10 @@ smbstat_draw(void *pss)
 	guint32 i;
 	guint64 td;
 	printf("\n");
-	printf("===================================================================\n");
-	printf("SMB RTT Statistics:\n");
+	printf("=================================================================\n");
+	printf("SMB SRT Statistics:\n");
 	printf("Filter: %s\n",ss->filter?ss->filter:"");
-	printf("Commands                   Calls   Min RTT   Max RTT   Avg RTT\n");
+	printf("Commands                   Calls    Min SRT    Max SRT    Avg SRT\n");
 	for(i=0;i<256;i++){
 		/* nothing seen, nothing to do */
 		if(ss->proc[i].num==0){
@@ -123,77 +126,62 @@ smbstat_draw(void *pss)
 			continue;
 		}
 
-		/* scale it to units of 10us.*/
-		td=ss->proc[i].tot.secs;
-		td=td*100000+(int)ss->proc[i].tot.nsecs/10000;
-		if(ss->proc[i].num){
-			td/=ss->proc[i].num;
-		} else {
-			td=0;
-		}
+		/* Scale the average SRT in units of 1us and round to the nearest us. */
+		td = ((guint64)(ss->proc[i].tot.secs)) * NANOSECS_PER_SEC + ss->proc[i].tot.nsecs;
 
-		printf("%-25s %6d %3d.%05d %3d.%05d %3" G_GINT64_MODIFIER "u.%05" G_GINT64_MODIFIER "u\n",
+		td = ((td / ss->proc[i].num) + 500) / 1000;
+
+		printf("%-25s %6d %3d.%06d %3d.%06d %3" G_GINT64_MODIFIER "u.%06" G_GINT64_MODIFIER "u\n",
 			val_to_str_ext(i, &smb_cmd_vals_ext, "Unknown (0x%02x)"),
 			ss->proc[i].num,
-			(int)ss->proc[i].min.secs,ss->proc[i].min.nsecs/10000,
-			(int)ss->proc[i].max.secs,ss->proc[i].max.nsecs/10000,
-			td/100000, td%100000
+			(int)(ss->proc[i].min.secs),(ss->proc[i].min.nsecs+500)/1000,
+			(int)(ss->proc[i].max.secs),(ss->proc[i].max.nsecs+500)/1000,
+			td/MICROSECS_PER_SEC, td%MICROSECS_PER_SEC
 		);
 	}
 
 	printf("\n");
-	printf("Transaction2 Commands      Calls   Min RTT   Max RTT   Avg RTT\n");
+	printf("Transaction2 Commands      Calls    Min SRT    Max SRT    Avg SRT\n");
 	for(i=0;i<256;i++){
 		/* nothing seen, nothing to do */
 		if(ss->trans2[i].num==0){
 			continue;
 		}
 
-		/* scale it to units of 10us.*/
-		td=ss->trans2[i].tot.secs;
-		td=td*100000+(int)ss->trans2[i].tot.nsecs/10000;
-		if(ss->trans2[i].num){
-			td/=ss->trans2[i].num;
-		} else {
-			td=0;
-		}
+		/* Scale the average SRT in units of 1us and round to the nearest us. */
+		td = ((guint64)(ss->trans2[i].tot.secs)) * NANOSECS_PER_SEC + ss->trans2[i].tot.nsecs;
+		td = ((td / ss->trans2[i].num) + 500) / 1000;
 
-		printf("%-25s %6d %3d.%05d %3d.%05d %3" G_GINT64_MODIFIER "u.%05" G_GINT64_MODIFIER "u\n",
+		printf("%-25s %6d %3d.%06d %3d.%06d %3" G_GINT64_MODIFIER "u.%06" G_GINT64_MODIFIER "u\n",
 			val_to_str_ext(i, &trans2_cmd_vals_ext, "Unknown (0x%02x)"),
 			ss->trans2[i].num,
-			(int)ss->trans2[i].min.secs,ss->trans2[i].min.nsecs/10000,
-			(int)ss->trans2[i].max.secs,ss->trans2[i].max.nsecs/10000,
-			td/100000, td%100000
+			(int)(ss->trans2[i].min.secs),(ss->trans2[i].min.nsecs+500)/1000,
+			(int)(ss->trans2[i].max.secs),(ss->trans2[i].max.nsecs+500)/1000,
+			td/MICROSECS_PER_SEC, td%MICROSECS_PER_SEC
 		);
 	}
 
 	printf("\n");
-	printf("NT Transaction Commands    Calls   Min RTT   Max RTT   Avg RTT\n");
+	printf("NT Transaction Commands    Calls    Min SRT    Max SRT    Avg SRT\n");
 	for(i=0;i<256;i++){
 		/* nothing seen, nothing to do */
 		if(ss->nt_trans[i].num==0){
 			continue;
 		}
+		/* Scale the average SRT in units of 1us and round to the nearest us. */
+		td = ((guint64)(ss->nt_trans[i].tot.secs)) * NANOSECS_PER_SEC + ss->nt_trans[i].tot.nsecs;
+		td = ((td / ss->nt_trans[i].num) + 500) / 1000;
 
-		/* scale it to units of 10us.*/
-		td=ss->nt_trans[i].tot.secs;
-		td=td*100000+(int)ss->nt_trans[i].tot.nsecs/10000;
-		if(ss->nt_trans[i].num){
-			td/=ss->nt_trans[i].num;
-		} else {
-			td=0;
-		}
-
-		printf("%-25s %6d %3d.%05d %3d.%05d %3" G_GINT64_MODIFIER "u.%05" G_GINT64_MODIFIER "u\n",
+		printf("%-25s %6d %3d.%06d %3d.%06d %3" G_GINT64_MODIFIER "u.%06" G_GINT64_MODIFIER "u\n",
 			val_to_str_ext(i, &nt_cmd_vals_ext, "Unknown (0x%02x)"),
 			ss->nt_trans[i].num,
-			(int)ss->nt_trans[i].min.secs,ss->nt_trans[i].min.nsecs/10000,
-			(int)ss->nt_trans[i].max.secs,ss->nt_trans[i].max.nsecs/10000,
-			td/100000, td%100000
+			(int)(ss->nt_trans[i].min.secs),(ss->nt_trans[i].min.nsecs+500)/1000,
+			(int)(ss->nt_trans[i].max.secs),(ss->nt_trans[i].max.nsecs+500)/1000,
+			td/MICROSECS_PER_SEC, td%MICROSECS_PER_SEC
 		);
 	}
 
-	printf("===================================================================\n");
+	printf("=================================================================\n");
 }
 
 

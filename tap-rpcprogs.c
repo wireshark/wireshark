@@ -42,6 +42,9 @@
 #include <epan/stat_cmd_args.h>
 #include <epan/dissectors/packet-rpc.h>
 
+#define MICROSECS_PER_SEC   1000000
+#define NANOSECS_PER_SEC    1000000000
+
 /* used to keep track of statistics for a specific program/version */
 typedef struct _rpc_program_t {
 	struct _rpc_program_t *next;
@@ -164,8 +167,8 @@ rpcprogs_packet(void *dummy1 _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 
 	rp->tot.secs += delta.secs;
 	rp->tot.nsecs += delta.nsecs;
-	if(rp->tot.nsecs>1000000000){
-		rp->tot.nsecs-=1000000000;
+	if(rp->tot.nsecs > NANOSECS_PER_SEC){
+		rp->tot.nsecs -= NANOSECS_PER_SEC;
 		rp->tot.secs++;
 	}
 	rp->num++;
@@ -182,27 +185,26 @@ rpcprogs_draw(void *dummy _U_)
 	char str[64];
 
 	printf("\n");
-	printf("===================================================================\n");
+	printf("==========================================================\n");
 	printf("ONC-RPC Program Statistics:\n");
-	printf("Program    Version  Calls   Min SRT   Max SRT   Avg SRT\n");
+	printf("Program    Version  Calls    Min SRT    Max SRT    Avg SRT\n");
 	for(rp=prog_list;rp;rp=rp->next){
-		/* scale it to units of 10us.*/
-		td=rp->tot.secs;
-		td=td*100000+(int)rp->tot.nsecs/10000;
-		if(rp->num){
-			td/=rp->num;
-		} else {
-			td=0;
+		/* Only display procs with non-zero calls */
+		if(rp->num==0){
+			continue;
 		}
+		/* Scale the average SRT in units of 1us and round to the nearest us. */
+		td = ((guint64)(rp->tot.secs)) * NANOSECS_PER_SEC + rp->tot.nsecs;
+		td = ((td / rp->num) + 500) / 1000;
 
 		g_snprintf(str, sizeof(str), "%s(%d)",rpc_prog_name(rp->program),rp->program);
-		printf("%-15s %2d %6d %3d.%05d %3d.%05d %3" G_GINT64_MODIFIER "u.%05" G_GINT64_MODIFIER "u\n",
+		printf("%-15s %2d %6d %3d.%06d %3d.%06d %3" G_GINT64_MODIFIER "u.%06" G_GINT64_MODIFIER "u\n",
 			str,
 			rp->version,
 			rp->num,
-			(int)rp->min.secs,rp->min.nsecs/10000,
-			(int)rp->max.secs,rp->max.nsecs/10000,
-			td/100000, td%100000
+			(int)(rp->min.secs),(rp->min.nsecs+500)/1000,
+			(int)(rp->max.secs),(rp->max.nsecs+500)/1000,
+			td/MICROSECS_PER_SEC, td%MICROSECS_PER_SEC
 		);
 	}
 	printf("===================================================================\n");

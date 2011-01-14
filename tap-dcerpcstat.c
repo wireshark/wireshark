@@ -38,6 +38,9 @@
 #include <epan/stat_cmd_args.h>
 #include <epan/dissectors/packet-dcerpc.h>
 
+#define MICROSECS_PER_SEC   1000000
+#define NANOSECS_PER_SEC    1000000000
+
 /* used to keep track of statistics for a specific procedure */
 typedef struct _rpc_procedure_t {
 	const char *proc;
@@ -131,8 +134,8 @@ dcerpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 
 	rp->tot.secs += delta.secs;
 	rp->tot.nsecs += delta.nsecs;
-	if(rp->tot.nsecs>1000000000){
-		rp->tot.nsecs-=1000000000;
+	if(rp->tot.nsecs > NANOSECS_PER_SEC){
+		rp->tot.nsecs -= NANOSECS_PER_SEC;
 		rp->tot.secs++;
 	}
 
@@ -148,29 +151,29 @@ dcerpcstat_draw(void *prs)
 	guint32 i;
 	guint64 td;
 	printf("\n");
-	printf("===================================================================\n");
-	printf("%s Major Version %u RTT Statistics:\n", rs->prog, rs->ver);
+	printf("=======================================================================\n");
+	printf("%s Major Version %u SRT Statistics:\n", rs->prog, rs->ver);
 	printf("Filter: %s\n",rs->filter?rs->filter:"");
-	printf("Procedure                  Calls   Min RTT   Max RTT   Avg RTT\n");
+	printf("Procedure                        Calls    Min SRT    Max SRT    Avg SRT\n");
+	
 	for(i=0;i<rs->num_procedures;i++){
-		/* scale it to units of 10us.*/
-		td=rs->procedures[i].tot.secs;
-		td=td*100000+(int)rs->procedures[i].tot.nsecs/10000;
-		if(rs->procedures[i].num){
-			td/=rs->procedures[i].num;
-		} else {
-			td=0;
+		/* Only display procs with non-zero calls */
+		if(rs->procedures[i].num==0){
+			continue;
 		}
+		/* Scale the average SRT in units of 1us and round to the nearest us. */
+		td = ((guint64)(rs->procedures[i].tot.secs)) * NANOSECS_PER_SEC + rs->procedures[i].tot.nsecs;
+		td = ((td / rs->procedures[i].num) + 500) / 1000;
 
-		printf("%-25s %6d %3d.%05d %3d.%05d %3" G_GINT64_MODIFIER "u.%05" G_GINT64_MODIFIER "u\n",
+		printf("%-31s %6d %3d.%06d %3d.%06d %3" G_GINT64_MODIFIER "u.%06" G_GINT64_MODIFIER "u\n",
 			rs->procedures[i].proc,
 			rs->procedures[i].num,
-			(int)rs->procedures[i].min.secs,rs->procedures[i].min.nsecs/10000,
-			(int)rs->procedures[i].max.secs,rs->procedures[i].max.nsecs/10000,
-			td/100000, td%100000
+			(int)(rs->procedures[i].min.secs),(rs->procedures[i].min.nsecs+500)/1000,
+			(int)(rs->procedures[i].max.secs),(rs->procedures[i].max.nsecs+500)/1000,
+			td/MICROSECS_PER_SEC, td%MICROSECS_PER_SEC
 		);
 	}
-	printf("===================================================================\n");
+	printf("=======================================================================\n");
 }
 
 
