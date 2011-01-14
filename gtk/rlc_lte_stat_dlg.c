@@ -1529,6 +1529,6 @@ static tap_dfilter_dlg rlc_lte_stat_dlg = {
 void
 register_tap_listener_rlc_lte_stat(void)
 {
-    register_dfilter_stat(&rlc_lte_stat_dlg, "L_TE RLC", REGISTER_STAT_GROUP_TELEPHONY);
+    register_dfilter_stat(&rlc_lte_stat_dlg, "_LTE/_RLC", REGISTER_STAT_GROUP_TELEPHONY);
 }
 
