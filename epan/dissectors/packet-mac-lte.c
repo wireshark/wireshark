@@ -42,7 +42,7 @@
 
 
 /* TODO:
-   - add a preference so that padding can be verified against an expected pattern?
+   - ??
 */
 
 /* Initialize the protocol and registered fields. */
@@ -682,18 +682,18 @@ static guint mac_lte_framenum_hash_func(gconstpointer v)
 typedef struct LastFrameData {
     gboolean inUse;
     guint32  framenum;
-    guint    subframeNumber;
+    gboolean ndi;
     nstime_t received_time;
     gint     length;
     guint8   data[MAX_EXPECTED_PDU_LENGTH];
 } LastFrameData;
 
-typedef struct LastFrameDataAllSubframes {
-    LastFrameData subframe[10];
-} LastFrameDataAllSubframes;
+typedef struct DLHarqBuffers {
+    LastFrameData harqid[2][8];  /* 2 blocks (1 for each antenna) needed for DL */
+} DLHarqBuffers;
 
 
-/* This table stores (RNTI -> LastFrameDataAllSubframes*).  Will be populated when
+/* This table stores (RNTI -> DLHARQBuffers*).  Will be populated when
    DL frames are first read.  */
 static GHashTable *mac_lte_dl_harq_hash = NULL;
 
@@ -702,7 +702,7 @@ typedef struct DLHARQResult {
 } DLHARQResult;
 
 
-/* This table stores (FrameNumber -> DLHARQResult).  It is assigned during the first
+/* This table stores (FrameNumber -> *DLHARQResult).  It is assigned during the first
    pass and used thereafter */
 static GHashTable *mac_lte_dl_harq_result_hash = NULL;
 
@@ -713,7 +713,12 @@ static GHashTable *mac_lte_dl_harq_result_hash = NULL;
 /* Keeping track of last UL frames per C-RNTI so can verify when */
 /* told that a frame is a retx                                   */
 
-/* This table stores (RNTI -> LastFrameDataAllSubframes*).  Will be populated when
+typedef struct ULHarqBuffers {
+    LastFrameData harqid[8];
+} ULHarqBuffers;
+
+
+/* This table stores (RNTI -> ULHarqBuffers*).  Will be populated when
    UL frames are first read.  */
 static GHashTable *mac_lte_ul_harq_hash = NULL;
 
@@ -1603,8 +1608,8 @@ static int DetectIfDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int 
     DLHARQResult *result = NULL;
     proto_item *result_ti;
 
-    /* If out-of-range just give up */
-    if (p_mac_lte_info->subframeNumber > 9) {
+    /* If don't have detailed DL PHy info, just give up */
+    if (!p_mac_lte_info->detailed_phy_info.dl_info.present) {
         return FALSE;
     }
 
@@ -1615,45 +1620,49 @@ static int DetectIfDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int 
         LastFrameData *lastData = NULL;
         LastFrameData *thisData = NULL;
 
+        DLHarqBuffers *ueData;
+
+        /* Read these for convenience */
+        guint8 harq_id = p_mac_lte_info->detailed_phy_info.dl_info.harq_id;
+        guint8 transport_block = p_mac_lte_info->detailed_phy_info.dl_info.transport_block;
+
+        /* Check harq-id bounds, give up if invalid */
+        if ((harq_id >= 8) || (transport_block < 1) || (transport_block > 3)) {
+            return FALSE;
+        }
+
         /* Look up entry for this UE/RNTI */
-        LastFrameDataAllSubframes *ueData =
-            g_hash_table_lookup(mac_lte_dl_harq_hash, GUINT_TO_POINTER((guint)p_mac_lte_info->rnti));
+        ueData = g_hash_table_lookup(mac_lte_dl_harq_hash, GUINT_TO_POINTER((guint)p_mac_lte_info->rnti));
+
         if (ueData != NULL) {
 
-            /* Looking for a frame sent 8 or 9 subframes previously.
-               TODO: have seen retx >=10 SFs later... */
-            gboolean found_match = FALSE;
-            gint     SFs_ago;
+            /* Get previous info for this harq-id */
+            lastData = &(ueData->harqid[transport_block-1][harq_id]);
+            if (lastData->inUse) {
+                /* Compare time, ndi, data to see if this looks like a retx */
+                if ((tvb_length_remaining(tvb, offset) == lastData->length) &&
+                    (p_mac_lte_info->detailed_phy_info.dl_info.ndi == lastData->ndi) &&
+                    (memcmp(lastData->data,
+                            tvb_get_ptr(tvb, offset, lastData->length),
+                            MIN(lastData->length, MAX_EXPECTED_PDU_LENGTH)) == 0)) {
 
-            for (SFs_ago=8; (SFs_ago <= 9) && !found_match; SFs_ago++) {
-                /* Check 8 SFs ago */
-                lastData = &(ueData->subframe[(p_mac_lte_info->subframeNumber+(10-SFs_ago)) % 10]);
-                if (lastData->inUse) {
-                    /* Compare time, sf, data to see if this looks like a retx */
-                    if ((tvb_length_remaining(tvb, offset) == lastData->length) &&
-                        (memcmp(lastData->data,
-                                tvb_get_ptr(tvb, offset, lastData->length),
-                                MIN(lastData->length, MAX_EXPECTED_PDU_LENGTH)) == 0)) {
+                    /* Work out gap between frames */
+                    gint seconds_between_packets = (gint)
+                          (pinfo->fd->abs_ts.secs - lastData->received_time.secs);
+                    gint nseconds_between_packets =
+                          pinfo->fd->abs_ts.nsecs - lastData->received_time.nsecs;
 
-                        /* Work out gap between frames */
-                        gint seconds_between_packets = (gint)
-                              (pinfo->fd->abs_ts.secs - lastData->received_time.secs);
-                        gint nseconds_between_packets =
-                              pinfo->fd->abs_ts.nsecs - lastData->received_time.nsecs;
+                    /* Round difference to nearest millisecond */
+                    gint total_gap = (seconds_between_packets*1000) +
+                                     ((nseconds_between_packets+500000) / 1000000);
 
-                        /* Round difference to nearest millisecond */
-                        gint total_gap = (seconds_between_packets*1000) +
-                                         ((nseconds_between_packets+500000) / 1000000);
+                    /* Expect to be within (say) 8-13 subframes since previous */
+                    if ((total_gap >= 8) && (total_gap <= 13)) {
 
-                        /* Should be equal to number of subframes - allow some leeway */
-                        if ((total_gap >= (SFs_ago-1)) && (total_gap <= (SFs_ago+1))) {
-                            found_match = TRUE;
-
-                            /* Resend detected!!! Store result */
-                            result = se_alloc(sizeof(DLHARQResult));
-                            result->previousFrameNum = lastData->framenum;
-                            g_hash_table_insert(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num), result);
-                        }
+                        /* Resend detected!!! Store result */
+                        result = se_alloc(sizeof(DLHARQResult));
+                        result->previousFrameNum = lastData->framenum;
+                        g_hash_table_insert(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num), result);
                     }
                 }
             }
@@ -1668,18 +1677,18 @@ static int DetectIfDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int 
         }
         else {
             /* Allocate entry in table for this UE/RNTI */
-            ueData = se_alloc0(sizeof(LastFrameDataAllSubframes));
+            ueData = se_alloc0(sizeof(DLHarqBuffers));
             g_hash_table_insert(mac_lte_dl_harq_hash, GUINT_TO_POINTER((guint)p_mac_lte_info->rnti), ueData);
         }
 
         /* Store this frame's details in table */
-        thisData = &(ueData->subframe[p_mac_lte_info->subframeNumber]);
+        thisData = &(ueData->harqid[transport_block-1][harq_id]);
         thisData->inUse = TRUE;
         thisData->length = tvb_length_remaining(tvb, offset);
         memcpy(thisData->data,
                tvb_get_ptr(tvb, offset, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH)),
                MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH));
-        thisData->subframeNumber = p_mac_lte_info->subframeNumber;
+        thisData->ndi = p_mac_lte_info->detailed_phy_info.dl_info.ndi;
         thisData->framenum = pinfo->fd->num;
         thisData->received_time = pinfo->fd->abs_ts;
     }
@@ -1740,13 +1749,13 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
 {
     ULHARQResult *result = NULL;
 
-    /* FDD only for now! */
-    if (p_mac_lte_info->radioType != FDD_RADIO) {
+    /* If don't have detailed DL PHY info, just give up */
+    if (!p_mac_lte_info->detailed_phy_info.ul_info.present) {
         return;
     }
 
-    /* If out-of-range just give up */
-    if (p_mac_lte_info->subframeNumber > 9) {
+    /* Give up if harqid is out of range */
+    if (p_mac_lte_info->detailed_phy_info.ul_info.harq_id >= 8) {
         return;
     }
 
@@ -1756,16 +1765,17 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
         LastFrameData *thisData = NULL;
 
         /* Look up entry for this UE/RNTI */
-        LastFrameDataAllSubframes *ueData =
+        ULHarqBuffers *ueData =
             g_hash_table_lookup(mac_lte_ul_harq_hash, GUINT_TO_POINTER((guint)p_mac_lte_info->rnti));
         if (ueData != NULL) {
 
             if (p_mac_lte_info->reTxCount >= 1) {
-                /* Looking for a frame sent 8 subframes previously */
-                lastData = &(ueData->subframe[(p_mac_lte_info->subframeNumber+2) % 10]);
+                /* Looking for frame previously on this harq-id */
+                lastData = &(ueData->harqid[p_mac_lte_info->detailed_phy_info.ul_info.harq_id]);
                 if (lastData->inUse) {
                     /* Compare time, sf, data to see if this looks like a retx */
                     if ((tvb_length_remaining(tvb, offset) == lastData->length) &&
+                        (p_mac_lte_info->detailed_phy_info.ul_info.ndi == lastData->ndi) &&
                         (memcmp(lastData->data,
                                 tvb_get_ptr(tvb, offset, lastData->length),
                                 MIN(lastData->length, MAX_EXPECTED_PDU_LENGTH)) == 0)) {
@@ -1780,7 +1790,7 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
                         gint total_gap = (seconds_between_packets*1000) +
                                          ((nseconds_between_packets+500000) / 1000000);
 
-                        /* Should be 8 ms apart - allow some leeway */
+                        /* Should be 8 ms apart for FDD, TDD has more spread */
                         if ((total_gap >= 7) && (total_gap <= 9)) {
                             /* Original detected!!! Store result */
                             result = se_alloc(sizeof(ULHARQResult));
@@ -1793,18 +1803,18 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
         }
         else {
             /* Allocate entry in table for this UE/RNTI */
-            ueData = se_alloc0(sizeof(LastFrameDataAllSubframes));
+            ueData = se_alloc0(sizeof(ULHarqBuffers));
             g_hash_table_insert(mac_lte_ul_harq_hash, GUINT_TO_POINTER((guint)p_mac_lte_info->rnti), ueData);
         }
 
         /* Store this frame's details in table */
-        thisData = &(ueData->subframe[p_mac_lte_info->subframeNumber]);
+        thisData = &(ueData->harqid[p_mac_lte_info->detailed_phy_info.ul_info.harq_id]);
         thisData->inUse = TRUE;
         thisData->length = tvb_length_remaining(tvb, offset);
         memcpy(thisData->data,
                tvb_get_ptr(tvb, offset, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH)),
                MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH));
-        thisData->subframeNumber = p_mac_lte_info->subframeNumber;
+        thisData->ndi = p_mac_lte_info->detailed_phy_info.ul_info.ndi;
         thisData->framenum = pinfo->fd->num;
         thisData->received_time = pinfo->fd->abs_ts;
     }

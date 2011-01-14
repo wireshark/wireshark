@@ -130,7 +130,7 @@ typedef struct mac_lte_info
             mac_lte_crc_status crc_status;
             guint8 harq_id;
             gboolean ndi;
-            guint8   transport_block;  /* 1-4 */
+            guint8   transport_block;  /* 1-2 */
         } dl_info;
     } detailed_phy_info;
     
