@@ -138,8 +138,7 @@ dissect_unknown_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *c
   length            = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
   cause_info_length = length - CAUSE_HEADER_LENGTH;
   if (cause_info_length > 0)
-    proto_tree_add_bytes(cause_tree, hf_cause_info, cause_tvb, CAUSE_INFO_OFFSET, cause_info_length,
-                         tvb_get_ptr(cause_tvb, CAUSE_INFO_OFFSET, cause_info_length));
+    proto_tree_add_item(cause_tree, hf_cause_info, cause_tvb, CAUSE_INFO_OFFSET, cause_info_length, ENC_NA);
   proto_item_append_text(cause_item, " (code %u and %u byte%s information)", code, cause_info_length, plurality(cause_info_length, "", "s"));
 }
 
@@ -259,7 +258,7 @@ static void
 dissect_ipv4_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_tree_add_item(parameter_tree, hf_parameter_ipv4_address, parameter_tvb, IPV4_ADDRESS_OFFSET, IPV4_ADDRESS_LENGTH, ENC_BIG_ENDIAN);
-  proto_item_append_text(parameter_item, " (%s)", ip_to_str((const guint8 *)tvb_get_ptr(parameter_tvb, IPV4_ADDRESS_OFFSET, IPV4_ADDRESS_LENGTH)));
+  proto_item_append_text(parameter_item, " (%s)", tvb_ip_to_str(parameter_tvb, IPV4_ADDRESS_OFFSET));
 }
 
 #define IPV6_ADDRESS_LENGTH 16
@@ -269,7 +268,7 @@ static void
 dissect_ipv6_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_tree_add_item(parameter_tree, hf_parameter_ipv6_address, parameter_tvb, IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH, ENC_BIG_ENDIAN);
-  proto_item_append_text(parameter_item, " (%s)", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(parameter_tvb, IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH)));
+  proto_item_append_text(parameter_item, " (%s)", tvb_ip6_to_str(parameter_tvb, IPV6_ADDRESS_OFFSET));
 }
 
 #define DCCP_PORT_LENGTH         2
@@ -478,8 +477,7 @@ dissect_pool_member_selection_policy_parameter(tvbuff_t *parameter_tvb, proto_tr
   default:
     length = tvb_length(parameter_tvb) - POLICY_VALUE_OFFSET;
     if (length > 0) {
-      proto_tree_add_bytes(parameter_tree, hf_policy_value, parameter_tvb, POLICY_VALUE_OFFSET, length,
-                           tvb_get_ptr(parameter_tvb, POLICY_VALUE_OFFSET, length));
+      proto_tree_add_item(parameter_tree, hf_policy_value, parameter_tvb, POLICY_VALUE_OFFSET, length, ENC_NA);
     }
     break;
   }

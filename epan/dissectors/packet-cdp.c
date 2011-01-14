@@ -83,7 +83,7 @@ dissect_address_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
 static void
 dissect_capabilities(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
 static void
-dissect_nrgyz_tlv(tvbuff_t *tvb, int offset, guint16 length, guint16 num, 
+dissect_nrgyz_tlv(tvbuff_t *tvb, int offset, guint16 length, guint16 num,
   proto_tree *tree);
 static void
 add_multi_line_string_to_tree(proto_tree *tree, tvbuff_t *tvb, gint start,
@@ -209,7 +209,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Checksum display & verification code */
     packet_checksum = tvb_get_ntohs(tvb, offset);
-    
+
     data_length = tvb_reported_length(tvb);
 
     /* CDP doesn't adhere to RFC 1071 section 2. (B). It incorrectly assumes
@@ -260,7 +260,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 packet_checksum,
 	 in_cksum_shouldbe(packet_checksum, computed_checksum));
     }
-    
+
     checksum_tree = proto_item_add_subtree(checksum_item, ett_cdp_checksum);
     checksum_item = proto_tree_add_boolean(checksum_tree, hf_cdp_checksum_good,
 					   tvb, offset, 2, checksum_good);
@@ -268,9 +268,9 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     checksum_item = proto_tree_add_boolean(checksum_tree, hf_cdp_checksum_bad,
 					   tvb, offset, 2, checksum_bad);
     PROTO_ITEM_SET_GENERATED(checksum_item);
-    
+
     offset += 2;
-    
+
     while (tvb_reported_length_remaining(tvb, offset) != 0) {
       type = tvb_get_ntohs(tvb, offset + TLV_TYPE);
       length = tvb_get_ntohs(tvb, offset + TLV_LENGTH);
@@ -325,7 +325,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  tvb_format_stringzpad(tvb, offset + 4,
 					length - 4));
 
-	if (tree) { 
+	if (tree) {
 	  tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
 				     real_length, "Port ID: %s",
 				     tvb_format_text(tvb, offset + 4, real_length - 4));
@@ -362,12 +362,12 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    break;
 	  offset += addr_length;
 	  length -= addr_length;
-		
+
 	  naddresses--;
 	}
 	offset += length;
 	break;
-	      
+
       case TYPE_CAPABILITIES:
 	if (tree) {
 	  tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
@@ -381,7 +381,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_capabilities(tvb, offset, length, tlv_tree);
 	offset += length;
 	break;
-	      
+
       case TYPE_IOS_VERSION:
 	if (tree) {
 	  tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
@@ -415,16 +415,16 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  if (tree) {
 	    tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
 				       length, "ODR Default gateway: %s",
-				       ip_to_str(tvb_get_ptr(tvb, offset+4, 4)));
+				       tvb_ip_to_str(tvb, offset+4));
 	    tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
 		proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, FALSE);
 	    proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, FALSE);
 	    proto_tree_add_text(tlv_tree, tvb, offset+4, 4,
 				"ODR Default gateway = %s",
-				ip_to_str(tvb_get_ptr(tvb, offset+4, 4)));
+				tvb_ip_to_str(tvb, offset+4));
 	  }
 	  offset += 8;
-	} else {  
+	} else {
 	  if (tree) {
 	    tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
 				       length, "IP Prefixes: %d",length/5);
@@ -443,7 +443,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    if (tree) {
 	      proto_tree_add_text(tlv_tree, tvb, offset, 5,
 				  "IP Prefix = %s/%u",
-				  ip_to_str(tvb_get_ptr(tvb, offset, 4)),
+				  tvb_ip_to_str(tvb, offset),
 				  tvb_get_guint8(tvb,offset+4));
 	    }
 	    offset += 5;
@@ -566,7 +566,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       case TYPE_VOIP_VLAN_REPLY:
 	if (tree) {
 	  if (length >= 7) {
-	    tlvi = proto_tree_add_text(cdp_tree, tvb, offset, length, 
+	    tlvi = proto_tree_add_text(cdp_tree, tvb, offset, length,
 				       "VoIP VLAN Reply: %u", tvb_get_ntohs(tvb, offset + 5));
 	  } else {
 	    /*
@@ -736,12 +736,12 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    break;
 	  offset += addr_length;
 	  length -= addr_length;
-		
+
 	  naddresses--;
 	}
 	offset += length;
 	break;
-	      
+
       case TYPE_LOCATION:
 	if (tree) {
 	  tlvi = proto_tree_add_text(cdp_tree, tvb,
@@ -759,7 +759,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	offset += length;
 	break;
-	      
+
       case TYPE_POWER_REQUESTED:
 	if (tree) {
 	  tlvi = proto_tree_add_text(cdp_tree, tvb,
@@ -801,7 +801,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  }
 	}
 	break;
-	      
+
       case TYPE_POWER_AVAILABLE:
 	if (tree) {
 	  tlvi = proto_tree_add_text(cdp_tree, tvb,
@@ -1001,7 +1001,7 @@ dissect_address_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
             if (address_length == 4) {
                 /* The address is an IP address. */
                 address_type_str = "IP address";
-                address_str = ip_to_str(tvb_get_ptr(tvb, offset, 4));
+                address_str = tvb_ip_to_str(tvb, offset);
             }
             break;
         }
@@ -1062,7 +1062,7 @@ dissect_capabilities(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 
 static void
 dissect_nrgyz_tlv(tvbuff_t *tvb, int offset, guint16 length, guint16 num,
-		  proto_tree *tree) 
+		  proto_tree *tree)
 {
     guint32 tlvt, tlvl, ip_addr;
     proto_item *it = NULL;
@@ -1202,11 +1202,11 @@ proto_register_cdp(void)
 	{ &hf_cdp_checksum_good,
 	  { "Good",       "cdp.checksum_good", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 	    "True: checksum matches packet content; False: doesn't match content or not checked", HFILL }},
-	
+
 	{ &hf_cdp_checksum_bad,
 	  { "Bad",       "cdp.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 	    "True: checksum doesn't match packet content; False: matches content or not checked", HFILL }},
-	
+
 	{ &hf_cdp_tlvtype,
 	{ "Type",		"cdp.tlv.type", FT_UINT16, BASE_HEX, VALS(type_vals), 0x0,
 	  NULL, HFILL }},
@@ -1215,15 +1215,15 @@ proto_register_cdp(void)
 	{ "Length",		"cdp.tlv.len", FT_UINT16, BASE_DEC, NULL, 0x0,
 	  NULL, HFILL }},
 
-	{ &hf_cdp_deviceid, 
+	{ &hf_cdp_deviceid,
 	{"Device ID", "cdp.deviceid", FT_STRING, BASE_NONE,
 	 NULL, 0, NULL, HFILL }},
 
-	{ &hf_cdp_platform, 
+	{ &hf_cdp_platform,
 	{"Platform", "cdp.platform", FT_STRING, BASE_NONE,
 	 NULL, 0, NULL, HFILL }},
 
-	{ &hf_cdp_portid, 
+	{ &hf_cdp_portid,
 	{"Sent through Interface", "cdp.portid", FT_STRING, BASE_NONE,
 		NULL, 0, NULL, HFILL }}
     };

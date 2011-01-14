@@ -1,4 +1,4 @@
-/* packet-igmp.c   
+/* packet-igmp.c
  * Routines for IGMP packet disassembly
  * 2001 Ronnie Sahlberg
  * 2007 Thomas Morin
@@ -502,12 +502,12 @@ dissect_v3_group_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
                case IGMP_V3_MODE_IS_INCLUDE:
                case IGMP_V3_CHANGE_TO_INCLUDE_MODE:
                    col_append_fstr(pinfo->cinfo, COL_INFO, " / Leave group %s",
-                                   ip_to_str((guint8*)&maddr) ); 
+                                   ip_to_str((guint8*)&maddr) );
                    break;
 	       case IGMP_V3_MODE_IS_EXCLUDE:
                case IGMP_V3_CHANGE_TO_EXCLUDE_MODE:
                    col_append_fstr(pinfo->cinfo, COL_INFO, " / Join group %s for any sources",
-                                   ip_to_str((guint8*)&maddr) ); 
+                                   ip_to_str((guint8*)&maddr) );
                    break;
                case IGMP_V3_ALLOW_NEW_SOURCES:
                    col_append_fstr(pinfo->cinfo, COL_INFO, " / Group %s, ALLOW_NEW_SOURCES but no source specified (?)",
@@ -527,23 +527,23 @@ dissect_v3_group_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
                case IGMP_V3_CHANGE_TO_INCLUDE_MODE:
                    col_append_fstr(pinfo->cinfo, COL_INFO, " / Join group %s for source%s {",
                                    ip_to_str((guint8*)&maddr),
-                                   (num>1) ? "s in" : "" ); 
+                                   (num>1) ? "s in" : "" );
                    break;
 	       case IGMP_V3_MODE_IS_EXCLUDE:
                case IGMP_V3_CHANGE_TO_EXCLUDE_MODE:
                    col_append_fstr(pinfo->cinfo, COL_INFO, " / Join group %s, for source%s {",
                                    ip_to_str((guint8*)&maddr),
-                                   (num>1) ? "s not in" : " not" ); 
+                                   (num>1) ? "s not in" : " not" );
                    break;
                case IGMP_V3_ALLOW_NEW_SOURCES:
                    col_append_fstr(pinfo->cinfo, COL_INFO, " / Group %s, new source%s {",
-                                   ip_to_str((guint8*)&maddr), 
-                                   (num>1) ? "s" : "" ); 
+                                   ip_to_str((guint8*)&maddr),
+                                   (num>1) ? "s" : "" );
                    break;
                case IGMP_V3_BLOCK_OLD_SOURCES:
                    col_append_fstr(pinfo->cinfo, COL_INFO, " / Group %s, block source%s {",
                                    ip_to_str((guint8*)&maddr),
-                                   (num>1) ? "s" : "" ); 
+                                   (num>1) ? "s" : "" );
                    break;
                default:
                    col_append_fstr(pinfo->cinfo, COL_INFO, " / Group %s, unknown record type (?), sources {",
@@ -556,7 +556,7 @@ dissect_v3_group_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	while(num--){
                 if (check_col(pinfo->cinfo, COL_INFO)) {
                    col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s",
-                                         ip_to_str(tvb_get_ptr(tvb, offset, 4)),
+                                         tvb_ip_to_str(tvb, offset),
                                          (num?", ":"}")
                                   );
                 }
@@ -595,9 +595,9 @@ dissect_igmp_v3_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 	/* number of group records */
 	num = tvb_get_ntohs(tvb, offset);
-	if (check_col(pinfo->cinfo, COL_INFO)) {			
+	if (check_col(pinfo->cinfo, COL_INFO)) {
           if (!num) {
-              col_append_fstr(pinfo->cinfo, COL_INFO, " - General query" ); 
+              col_append_fstr(pinfo->cinfo, COL_INFO, " - General query" );
           }
         }
 	proto_tree_add_uint(tree, hf_num_grp_recs, tvb, offset, 2, num);
@@ -630,9 +630,9 @@ dissect_igmp_v3_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int t
 	proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, FALSE);
 
 	maddr = tvb_get_ipv4(tvb, offset);
-	if (check_col(pinfo->cinfo, COL_INFO)) {			
+	if (check_col(pinfo->cinfo, COL_INFO)) {
            if (! maddr) {
-               col_append_fstr(pinfo->cinfo, COL_INFO, ", general" ); 
+               col_append_fstr(pinfo->cinfo, COL_INFO, ", general" );
            } else {
                col_append_fstr(pinfo->cinfo, COL_INFO, ", specific for group %s"
                    , ip_to_str((guint8*)&maddr) );
@@ -658,7 +658,7 @@ dissect_igmp_v3_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int t
 
 	while(num--){
 	        if (check_col(pinfo->cinfo, COL_INFO))
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s", ip_to_str(tvb_get_ptr(tvb, offset, 4)), (num?", ":"}"));
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s", tvb_ip_to_str(tvb, offset), (num?", ":"}"));
 		proto_tree_add_item(tree, hf_saddr, tvb, offset, 4, FALSE);
 		offset += 4;
 	}
@@ -689,7 +689,7 @@ dissect_igmp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, i
 	proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, FALSE);
 
 	maddr = tvb_get_ipv4(tvb, offset);
-	if (check_col(pinfo->cinfo, COL_INFO)) {			
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 		if (! maddr) {
 		    col_append_fstr(pinfo->cinfo, COL_INFO, ", general" );
 		} else {
@@ -842,8 +842,8 @@ dissect_igmp_mtrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int typ
 
                 bi = proto_tree_add_text(tree, tvb, offset, IGMP_TRACEROUTE_RSP_LEN,
                                          "Response data block: %s -> %s,  Proto: %s,  Forwarding Code: %s",
-                                         ip_to_str(tvb_get_ptr(tvb, offset + 4, 4)),
-                                         ip_to_str(tvb_get_ptr(tvb, offset + 8, 4)),
+                                         tvb_ip_to_str(tvb, offset + 4),
+                                         tvb_ip_to_str(tvb, offset + 8),
                                          val_to_str(tvb_get_guint8(tvb, offset + 28), mtrace_rtg_vals, "Unknown"),
                                          val_to_str(tvb_get_guint8(tvb, offset + 31), mtrace_fwd_code_vals, "Unknown"));
                 block_tree = proto_item_add_subtree(bi, ett_mtrace_block);

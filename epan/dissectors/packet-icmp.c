@@ -881,8 +881,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (addr_entry_size == 2) {
 	  for (i = 0; i < num_addrs; i++) {
 	    proto_tree_add_text(icmp_tree, tvb, 8 + (i*8), 4,
-	      "Router address: %s",
-	      ip_to_str(tvb_get_ptr(tvb, 8 + (i*8), 4)));
+	      "Router address: %s", tvb_ip_to_str(tvb, 8 + (i*8)));
 	    proto_tree_add_text(icmp_tree, tvb, 12 + (i*8), 4,
 	      "Preference level: %d", tvb_get_ntohl(tvb, 12 + (i*8)));
 	  }
@@ -908,7 +907,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case ICMP_MASKREQ:
     case ICMP_MASKREPLY:
 	proto_tree_add_text(icmp_tree, tvb, 8, 4, "Address mask: %s (0x%08x)",
-	  ip_to_str(tvb_get_ptr(tvb, 8, 4)), tvb_get_ntohl(tvb, 8));
+	  tvb_ip_to_str(tvb, 8), tvb_get_ntohl(tvb, 8));
 	break;
   }
 }

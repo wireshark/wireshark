@@ -236,8 +236,7 @@ append_authval_str(proto_item *ti, int type, int len, tvbuff_t *tvb, int offset)
 			proto_item_append_text(ti, "%d seconds", val);
 			break;
 		case IAPP_AUTH_IPADDR:
-			proto_item_append_text(ti, "%s",
-				ip_to_str(tvb_get_ptr(tvb, offset + 3, 4)));
+			proto_item_append_text(ti, "%s", tvb_ip_to_str(tvb, offset + 3));
 			break;
 		case IAPP_AUTH_TRAILER:
 			for (z = 0; z < len; z++)

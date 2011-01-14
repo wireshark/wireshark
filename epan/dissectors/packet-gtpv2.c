@@ -861,10 +861,10 @@ dissect_gtpv2_recovery(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
 /*
  * 8.6 Access Point Name (APN)
- * The encoding the APN field follows 3GPP TS 23.003 [2] subclause 9.1. 
+ * The encoding the APN field follows 3GPP TS 23.003 [2] subclause 9.1.
  * The content of the APN field shall be the full APN with both the APN Network Identifier
- * and APN Operator Identifier being present as specified in 3GPP TS 23.003 [2] 
- * subclauses 9.1.1 and 9.1.2, 3GPP TS 23.060 [35] Annex A and 3GPP TS 23.401 [3] subclauses 4.3.8.1. 
+ * and APN Operator Identifier being present as specified in 3GPP TS 23.003 [2]
+ * subclauses 9.1.1 and 9.1.2, 3GPP TS 23.060 [35] Annex A and 3GPP TS 23.401 [3] subclauses 4.3.8.1.
  */
 static void
 dissect_gtpv2_apn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
@@ -939,7 +939,7 @@ dissect_gtpv2_ip_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     if (length==4)
     {
         proto_tree_add_item(tree, hf_gtpv2_ip_address_ipv4, tvb, offset, length, FALSE);
-		proto_item_append_text(item, "IPv4 %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+		proto_item_append_text(item, "IPv4 %s", tvb_ip_to_str(tvb, offset));
     }
     else if (length==16)
     {
@@ -1091,7 +1091,7 @@ dissect_gtpv2_paa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
     case 2:
         /* IPv6*/
 		/* If PDN type value indicates IPv6, octet 6 contains the IPv6 Prefix Length.
-		 * Octets 7 through 22 contain an IPv6 Prefix and Interface Identifier. 
+		 * Octets 7 through 22 contain an IPv6 Prefix and Interface Identifier.
 		 * Bit 8 of octet 7 represents the most significant bit of the IPv6 Prefix
 		 * and Interface Identifier and bit 1 of octet 22 the least significant bit.
 		 */
@@ -1102,12 +1102,12 @@ dissect_gtpv2_paa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
         break;
     case 3:
         /* IPv4/IPv6 */
-		/* If PDN type value indicates IPv4v6, octet 6 contains the IPv6 Prefix Length. 
-		 * Octets 7 through 22 contain an IPv6 Prefix and Interface Identifier. 
-		 * Bit 8 of octet 7 represents the most significant bit of the IPv6 Prefix 
-		 * and Interface Identifier and bit 1 of octet 22 the least significant bit. 
-		 * Octets 23 through 26 contain an IPv4 address. Bit 8 of octet 23 represents 
-		 * the most significant bit of the IPv4 address and bit 1 of octet 26 the least 
+		/* If PDN type value indicates IPv4v6, octet 6 contains the IPv6 Prefix Length.
+		 * Octets 7 through 22 contain an IPv6 Prefix and Interface Identifier.
+		 * Bit 8 of octet 7 represents the most significant bit of the IPv6 Prefix
+		 * and Interface Identifier and bit 1 of octet 22 the least significant bit.
+		 * Octets 23 through 26 contain an IPv4 address. Bit 8 of octet 23 represents
+		 * the most significant bit of the IPv4 address and bit 1 of octet 26 the least
 		 * significant bit.
 		 */
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6_len, tvb, offset, 1, FALSE);
@@ -1332,7 +1332,7 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
         octet4 = tvb_get_ntohl(tvb,offset);
         ECGI = octet4 & 0x0FFFFFFF;
         proto_tree_add_uint(part_tree, hf_gtpv2_uli_ecgi_eci_spare, tvb, offset, 1, spare);
-		/* The coding of the E-UTRAN cell identifier is the responsibility of each administration. 
+		/* The coding of the E-UTRAN cell identifier is the responsibility of each administration.
 		 * Coding using full hexadecimal representation shall be used.
 		 */
         proto_tree_add_uint(part_tree, hf_gtpv2_uli_ecgi_eci, tvb, offset, 4, ECGI);
@@ -1352,14 +1352,14 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
         offset+=3;
 
 		/* The Location Area Code (LAC) consists of 2 octets. Bit 8 of Octet f+3 is the most significant bit
-		 * and bit 1 of Octet f+4 the least significant bit. The coding of the location area code is the 
+		 * and bit 1 of Octet f+4 the least significant bit. The coding of the location area code is the
 		 * responsibility of each administration. Coding using full hexadecimal representation shall be used.
 		 */
 		proto_tree_add_item(part_tree, hf_gtpv2_uli_lai_lac, tvb, offset, 2, FALSE);
 		offset+=2;
 
 	}
-	
+
 }
 
 static void
@@ -1503,7 +1503,7 @@ dissect_gtpv2_f_teid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
     int offset = 0;
     guint8       flags;
 
-	flags = tvb_get_guint8(tvb, offset);
+    flags = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_f_teid_v4, tvb, offset, 1, FALSE);
     proto_tree_add_item(tree, hf_gtpv2_f_teid_v6, tvb, offset, 1, FALSE);
     proto_tree_add_item(tree, hf_gtpv2_f_teid_interface_type, tvb, offset, 1, FALSE);
@@ -1517,15 +1517,13 @@ dissect_gtpv2_f_teid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
     if (flags&0x80)
     {
         proto_tree_add_item(tree, hf_gtpv2_f_teid_ipv4, tvb, offset, 4, FALSE);
-		proto_item_append_text(item, ", IPv4 %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+	proto_item_append_text(item, ", IPv4 %s", tvb_ip_to_str(tvb, offset));
         offset= offset+4;
     }
     if (flags&0x40)
     {
-		struct e_in6_addr ipv6_addr;
-        proto_tree_add_item(tree, hf_gtpv2_f_teid_ipv6, tvb, offset, 16, FALSE);
-		tvb_get_ipv6(tvb, offset, &ipv6_addr);
-		proto_item_append_text(item, ", IPv6 %s", ip6_to_str(&ipv6_addr));
+	proto_tree_add_item(tree, hf_gtpv2_f_teid_ipv6, tvb, offset, 16, FALSE);
+	proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(tvb, offset));
         offset= offset+16;
     }
 }
@@ -2065,7 +2063,7 @@ static void
 dissect_gtpv2_drx_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
 	int 	offset = 0;
-	
+
 	/* 36.413 : 9.2.1.17	Paging Cause, void */
   proto_tree_add_text(tree, tvb, offset, length, "DRX parameter: %s", tvb_bytes_to_str(tvb, offset, (length )));
 }

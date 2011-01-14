@@ -795,7 +795,7 @@ static const value_string transform_attr_auth_type[] = {
   { 12, "AES-192-GMAC" },		/* [RFC4543][Errata1821] */
   { 13, "AES-256-GMAC" },		/* [RFC4543][Errata1821] */
 
-/*           
+/*
 	Values 11-61439 are reserved to IANA.  Values 61440-65535 are
 	for private use.
 */
@@ -3534,7 +3534,7 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
   switch (id_type) {
     case IKE_ID_IPV4_ADDR:
       proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_addr, tvb, offset, 4, FALSE);
-      proto_item_append_text(idit, "%s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+      proto_item_append_text(idit, "%s", tvb_ip_to_str(tvb, offset));
       break;
     case IKE_ID_FQDN:
       proto_tree_add_item(idtree, hf_isakmp_id_data_fqdn, tvb, offset, length, FALSE);
@@ -3547,26 +3547,26 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
     case IKE_ID_IPV4_ADDR_SUBNET:
       proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_addr, tvb, offset, 4, FALSE);
       proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_subnet, tvb, offset+4, 4, FALSE);
-      proto_item_append_text(idit, "%s/%s", ip_to_str(tvb_get_ptr(tvb, offset, 4)),ip_to_str(tvb_get_ptr(tvb, offset+4, 4)));
+      proto_item_append_text(idit, "%s/%s", tvb_ip_to_str(tvb, offset), tvb_ip_to_str(tvb, offset+4));
       break;
     case IKE_ID_IPV4_ADDR_RANGE:
       proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_range_start, tvb, offset, 4, FALSE);
       proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_range_end, tvb, offset+4, 4, FALSE);
-      proto_item_append_text(idit, "%s/%s", ip_to_str(tvb_get_ptr(tvb, offset, 4)),ip_to_str(tvb_get_ptr(tvb, offset+4, 4)));
+      proto_item_append_text(idit, "%s/%s", tvb_ip_to_str(tvb, offset), tvb_ip_to_str(tvb, offset+4));
       break;
     case IKE_ID_IPV6_ADDR:
       proto_tree_add_item(idtree, hf_isakmp_id_data_ipv6_addr, tvb, offset, 16, FALSE);
-      proto_item_append_text(idit, "%s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, 16)));
+      proto_item_append_text(idit, "%s", tvb_ip6_to_str(tvb, offset));
       break;
     case IKE_ID_IPV6_ADDR_SUBNET:
       proto_tree_add_item(idtree, hf_isakmp_id_data_ipv6_addr, tvb, offset, 16, FALSE);
       proto_tree_add_item(idtree, hf_isakmp_id_data_ipv6_subnet, tvb, offset+16, 16, FALSE);
-      proto_item_append_text(idit, "%s/%s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, 16)), ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset+16, 16)));
+      proto_item_append_text(idit, "%s/%s", tvb_ip6_to_str(tvb, offset), tvb_ip6_to_str(tvb, offset+16));
       break;
     case IKE_ID_IPV6_ADDR_RANGE:
       proto_tree_add_item(idtree, hf_isakmp_id_data_ipv6_range_start, tvb, offset, 16, FALSE);
       proto_tree_add_item(idtree, hf_isakmp_id_data_ipv6_range_end, tvb, offset+16, 16, FALSE);
-      proto_item_append_text(idit, "%s/%s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, 16)), ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset+16, 16)));
+      proto_item_append_text(idit, "%s/%s", tvb_ip6_to_str(tvb, offset), tvb_ip6_to_str(tvb, offset+16));
       break;
     case IKE_ID_KEY_ID:
       proto_tree_add_item(idtree, hf_isakmp_id_data_key_id, tvb, offset, length, FALSE);

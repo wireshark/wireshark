@@ -13,12 +13,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -219,10 +219,10 @@ static const true_false_string is_set = {
 static void
 dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp_tree)
 {
-	/* local variables used for EDP dissection */ 
+	/* local variables used for EDP dissection */
 	int neighbors_count = 0;
 	int tuples_count = 0;
-	guint16 device_type = 0; 
+	guint16 device_type = 0;
 	guint32	options = 0;
 	guint16 num_neighbors = 0;
 	guint16 num_tuples = 0;
@@ -234,7 +234,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *edp_ti;
 	proto_tree *edp_tree;
-	
+
 	proto_item *edp_options_ti;
 	proto_tree *edp_options_tree;
 
@@ -261,7 +261,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 		edp_tree = proto_item_add_subtree(edp_ti, ett_ismp_edp);
 
 		col_add_fstr(pinfo->cinfo, COL_INFO, "MIP %s, MMAC %s, ifIdx %d",
-			ip_to_str(tvb_get_ptr(tvb, offset+2, 4)),
+			tvb_ip_to_str(tvb, offset+2),
 			ether_to_str(tvb_get_ptr(tvb, offset+6, 6)),
 			tvb_get_ntohl(tvb, offset+12));
 
@@ -352,7 +352,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 				break;
 		}
 		offset += 4;
-		
+
 		/* determine the number of neighbors and create EDP neighbors subtree */
 		num_neighbors = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(edp_tree, hf_ismp_edp_num_neighbors, tvb, offset, 2, FALSE);
@@ -363,13 +363,13 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 			if (tvb_reported_length_remaining(tvb, offset) >= (num_neighbors *10))
 			{
 				neighbors_ptr = tvb_get_ptr( tvb, offset, (num_neighbors*10) );
-				edp_neighbors_ti = proto_tree_add_bytes_format(edp_tree, hf_ismp_edp_neighbors, tvb, 
+				edp_neighbors_ti = proto_tree_add_bytes_format(edp_tree, hf_ismp_edp_neighbors, tvb,
 					offset, num_neighbors*10, neighbors_ptr, "Neighbors:");
 			}
 			else
 			{
 				neighbors_ptr = tvb_get_ptr( tvb, offset, tvb_reported_length_remaining(tvb, offset) );
-				edp_neighbors_ti = proto_tree_add_bytes_format(edp_tree, hf_ismp_edp_neighbors, tvb, 
+				edp_neighbors_ti = proto_tree_add_bytes_format(edp_tree, hf_ismp_edp_neighbors, tvb,
 					offset, num_neighbors *10, neighbors_ptr, "Neighbors:");
 			}
 			edp_neighbors_tree = proto_item_add_subtree(edp_neighbors_ti, ett_ismp_edp_neighbors);
@@ -393,18 +393,18 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 				return;
 			}
 		}
-		
+
 		/* determine data remains, if so, count tuples
 		   and create EDP tuples subtree */
-		if (tvb_reported_length_remaining(tvb, offset) != 0 && 
-			tvb_reported_length_remaining(tvb, offset) >= 2) 
+		if (tvb_reported_length_remaining(tvb, offset) != 0 &&
+			tvb_reported_length_remaining(tvb, offset) >= 2)
 		{
 			num_tuples = tvb_get_ntohs(tvb, offset);
 			proto_tree_add_item(edp_tree, hf_ismp_edp_num_tuples, tvb, offset, 2, FALSE);
 			offset += 2;
 		}
 		else if (tvb_reported_length_remaining(tvb, offset) > 0) {
-			proto_tree_add_text(edp_tree, tvb, offset, 
+			proto_tree_add_text(edp_tree, tvb, offset,
 				tvb_reported_length_remaining(tvb, offset), "MALFORMED PACKET");
 			return;
 		}
@@ -437,12 +437,12 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 				proto_tree_add_text(edp_tuples_leaf_tree, tvb, offset, 2,
 					"Tuple Length: %d", tuple_length);
 				offset += 2;
-				
+
 				if (tvb_reported_length_remaining(tvb, offset) >= tuple_length)
 				{
 					tvb_ensure_bytes_exist(tvb, offset, tuple_length);
 					switch (tuple_type)
-					{						
+					{
 						case EDP_TUPLE_HOLD:
 							proto_tree_add_text(edp_tuples_leaf_tree, tvb, offset, tuple_length,
 								"Hold Time = %d", tvb_get_ntohs(tvb, offset));
@@ -459,8 +459,8 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 							break;
 						case EDP_TUPLE_IPX_ADDR:
 							proto_tree_add_text(edp_tuples_leaf_tree, tvb, offset, tuple_length,
-								"Interface IPX_address = %s", 
-								ipx_addr_to_str(tvb_get_ntohl(tvb, offset), 
+								"Interface IPX_address = %s",
+								ipx_addr_to_str(tvb_get_ntohl(tvb, offset),
 								tvb_get_ptr(tvb, offset+4, tuple_length-4)));
 							break;
 						case EDP_TUPLE_UNKNOWN:
@@ -468,17 +468,17 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 							proto_tree_add_text(edp_tuples_leaf_tree, tvb, offset, tuple_length,
 								"Unknown Tuple Data %s", tvb_format_text(tvb, offset, tuple_length));
 							break;
-					}  
+					}
 				}
 				offset += tuple_length;
 
 				tuples_count++;
 				tuple_type = 0;
 				tuple_length = 0;
-			} 
+			}
 			if (tuples_count != num_tuples)
 			{
-				proto_tree_add_text(edp_tree, tvb, offset, 
+				proto_tree_add_text(edp_tree, tvb, offset,
 					tvb_reported_length_remaining(tvb, offset), "MALFORMED PACKET");
 				return;
 			}
@@ -487,9 +487,9 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 				return;
 			}
 		}
-			
+
 	}
-		
+
 
 }
 
@@ -539,7 +539,7 @@ dissect_ismp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 1;
 		proto_tree_add_item(ismp_tree, hf_ismp_auth_data, tvb, offset, code_length, FALSE);
 		offset += code_length;
-		
+
 		/* if Enterasys Discover Protocol, dissect it */
 		if(message_type == ISMPTYPE_EDP)
 			dissect_ismp_edp(tvb, pinfo, offset, tree);
@@ -551,7 +551,7 @@ dissect_ismp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Register this protocol with Wireshark */
 void
 proto_register_ismp(void)
-{                 
+{
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
@@ -564,7 +564,7 @@ proto_register_ismp(void)
 #endif
 		{ &hf_ismp_version,
 			{ "Version",           "ismp.version",
-			FT_UINT16, BASE_DEC, NULL, 0x0,          
+			FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_message_type,
@@ -581,7 +581,7 @@ proto_register_ismp(void)
 			{ "Auth Code Length", "ismp.codelen",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
-		}, 
+		},
 		{ &hf_ismp_auth_data,
 			{ "Auth Data", "ismp.authdata",
 			FT_BYTES, BASE_NONE, NULL, 0x0,

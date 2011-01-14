@@ -992,8 +992,8 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		if (optlen == 8) {
 			/* one IP address pair */
 			proto_item_append_text(vti, " = %s/%s",
-				ip_to_str(tvb_get_ptr(tvb, optoff, 4)),
-				ip_to_str(tvb_get_ptr(tvb, optoff+4, 4)));
+				tvb_ip_to_str(tvb, optoff),
+				tvb_ip_to_str(tvb, optoff+4));
 		} else {
 			/* > 1 IP address pair. Let's make a sub-tree */
 			for (i = optoff, optleft = optlen;
@@ -1004,8 +1004,8 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 					break;
 				}
 				proto_tree_add_text(v_tree, tvb, i, 8, "IP Address/Mask: %s/%s",
-					ip_to_str(tvb_get_ptr(tvb, i, 4)),
-					ip_to_str(tvb_get_ptr(tvb, i+4, 4)));
+					tvb_ip_to_str(tvb, i),
+					tvb_ip_to_str(tvb, i+4));
 			}
 		}
 		break;
@@ -1014,8 +1014,8 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		if (optlen == 8) {
 			/* one IP address pair */
 			proto_item_append_text(vti, " = %s/%s",
-				ip_to_str(tvb_get_ptr(tvb, optoff, 4)),
-				ip_to_str(tvb_get_ptr(tvb, optoff+4, 4)));
+				tvb_ip_to_str(tvb, optoff),
+				tvb_ip_to_str(tvb, optoff+4));
 		} else {
 			/* > 1 IP address pair. Let's make a sub-tree */
 			for (i = optoff, optleft = optlen; optleft > 0;
@@ -1027,8 +1027,8 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				}
 				proto_tree_add_text(v_tree, tvb, i, 8,
 					"Destination IP Address/Router: %s/%s",
-					ip_to_str(tvb_get_ptr(tvb, i, 4)),
-					ip_to_str(tvb_get_ptr(tvb, i+4, 4)));
+					tvb_ip_to_str(tvb, i),
+					tvb_ip_to_str(tvb, i+4));
 			}
 		}
 		break;
@@ -1371,7 +1371,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				break;
 			}
 			proto_tree_add_text(v_tree, tvb, i, 4, "SLPDA Address: %s",
-			    ip_to_str(tvb_get_ptr(tvb, i, 4)));
+			    tvb_ip_to_str(tvb, i));
 		}
 		break;
 
@@ -1431,7 +1431,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			if (optlen == 4) {
 				/* one IP address */
 				proto_item_append_text(vti, " = %s",
-					ip_to_str(tvb_get_ptr(tvb, optoff, 4)));
+					tvb_ip_to_str(tvb, optoff));
 			} else {
 				/* > 1 IP addresses. Let's make a sub-tree */
 				for (i = optoff, optleft = optlen; optleft > 0;
@@ -1442,7 +1442,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 						break;
 					}
 					proto_tree_add_text(v_tree, tvb, i, 4, "IP Address: %s",
-						ip_to_str(tvb_get_ptr(tvb, i, 4)));
+						tvb_ip_to_str(tvb, i));
 				}
 			}
 		}
@@ -1661,8 +1661,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 					proto_item_append_text(vti, ".0");
 				proto_item_append_text(vti, "/%d", mask_width);
 			}
-			proto_item_append_text(vti, "-%s",
-			    ip_to_str(tvb_get_ptr(tvb, optoff, 4)));
+			proto_item_append_text(vti, "-%s", tvb_ip_to_str(tvb, optoff));
 			optoff += 4;
 		}
 		break;
@@ -1873,15 +1872,13 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			    " - length isn't 4");
 			break;
 		}
-		proto_item_append_text(vti, " = %s",
-			ip_to_str(tvb_get_ptr(tvb, optoff, 4)));
+		proto_item_append_text(vti, " = %s", tvb_ip_to_str(tvb, optoff));
 		break;
 
 	case ipv4_list:
 		if (optlen == 4) {
 			/* one IP address */
-			proto_item_append_text(vti, " = %s",
-				ip_to_str(tvb_get_ptr(tvb, optoff, 4)));
+			proto_item_append_text(vti, " = %s", tvb_ip_to_str(tvb, optoff));
 		} else {
 			/* > 1 IP addresses. Let's make a sub-tree */
 			for (i = optoff, optleft = optlen; optleft > 0;
@@ -1892,7 +1889,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 					break;
 				}
 				proto_tree_add_text(v_tree, tvb, i, 4, "IP Address: %s",
-					ip_to_str(tvb_get_ptr(tvb, i, 4)));
+					tvb_ip_to_str(tvb, i));
 			}
 		}
 		break;
@@ -2080,7 +2077,7 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 	case 5: /* 5   Link selection Sub-option              [RFC3527] */
 		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 				    "Link selection: %s",
-					ip_to_str(tvb_get_ptr(tvb, suboptoff, subopt_len)));
+				     tvb_ip_to_str(tvb, suboptoff));
 		break;
 
 	case 6: /*Subscriber-ID Suboption                [RFC3993] */
@@ -2175,7 +2172,7 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 		if (subopt_len == 4) {
 			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 				"Server ID Override: %s",
-				ip_to_str(tvb_get_ptr(tvb, suboptoff, 4)));
+				tvb_ip_to_str(tvb, suboptoff));
 		} else {
 			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 				"Server ID Override: Invalid length (%d instead of 4)",
@@ -2283,7 +2280,7 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 				proto_tree_add_text(v_tree, tvb, optoff, 6,
 				    "Suboption %d : %s = %s",
 				    subopt, o43pxeclient_opt[subopt].text,
-				    ip_to_str(tvb_get_ptr(tvb, suboptoff, 4)));
+				    tvb_ip_to_str(tvb, suboptoff));
 			} else {
 				/* > 1 IP addresses. Let's make a sub-tree */
 				vti = proto_tree_add_text(v_tree, tvb, optoff,
@@ -2300,7 +2297,7 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 					}
 					proto_tree_add_text(o43pxeclient_v_tree,
 					    tvb, suboptoff, 4, "IP Address: %s",
-					    ip_to_str(tvb_get_ptr(tvb, suboptoff, 4)));
+					    tvb_ip_to_str(tvb, suboptoff));
 				}
 			}
 			break;
@@ -2723,7 +2720,7 @@ dissect_vendor_alcatel_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 		vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
 		    "Alcatel-Lucent-Specific Suboption %d: %s = %s",
 		    subopt, "Spatial Redundancy TFTP1",
-		    ip_to_str(tvb_get_ptr(tvb, optoff+2, 4)));
+		    tvb_ip_to_str(tvb, optoff+2));
 		subtree = proto_item_add_subtree(vti, ett_bootp_option);
 		proto_tree_add_ipv4(subtree, hf_bootp_alu_tftp1, tvb, optoff+2, 4,
 			tvb_get_ipv4(tvb, optoff+2));
@@ -2736,7 +2733,7 @@ dissect_vendor_alcatel_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 		vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
 		    "Alcatel-Lucent-Specific Suboption %d: %s = %s",
 		    subopt, "Spatial Redundancy TFTP2",
-		    ip_to_str(tvb_get_ptr(tvb, optoff+2, 4)));
+		    tvb_ip_to_str(tvb, optoff+2));
 		subtree = proto_item_add_subtree(vti, ett_bootp_option);
 		proto_tree_add_ipv4(subtree, hf_bootp_alu_tftp2, tvb, optoff+2, 4,
 			tvb_get_ipv4(tvb, optoff+2));
@@ -2840,7 +2837,7 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 			proto_tree_add_text(v_tree, tvb, optoff, 6,
 			    "Suboption %d: %s = %s" ,
 			    subopt, o63_opt[subopt].text,
-			    ip_to_str(tvb_get_ptr(tvb, suboptoff, 4)));
+			    tvb_ip_to_str(tvb, suboptoff));
 			break;
 
 		case ipv4_list:
@@ -2849,7 +2846,7 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 				proto_tree_add_text(v_tree, tvb, optoff, 6,
 				    "Suboption %d : %s = %s",
 				    subopt, o63_opt[subopt].text,
-				    ip_to_str(tvb_get_ptr(tvb, suboptoff, 4)));
+				    tvb_ip_to_str(tvb, suboptoff));
 			} else {
 				/* > 1 IP addresses. Let's make a sub-tree */
 				vti = proto_tree_add_text(v_tree, tvb, optoff,
@@ -2865,7 +2862,7 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 						break;
 					}
 					proto_tree_add_text(o63_v_tree, tvb, suboptoff, 4, "IP Address: %s",
-					    ip_to_str(tvb_get_ptr(tvb, suboptoff, 4)));
+					    tvb_ip_to_str(tvb, suboptoff));
 				}
 			}
 			break;
@@ -3071,7 +3068,7 @@ dissect_vendor_cl_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 				subtree = proto_item_add_subtree(ti, ett_bootp_option);
 				for (i = 0; i < subopt_len; i+=4) {
 						proto_tree_add_text(subtree, tvb, suboptoff+i, 4, "IP Address: %s",
-							ip_to_str(tvb_get_ptr(tvb, (suboptoff+i), 4)));
+							tvb_ip_to_str(tvb, (suboptoff+i)));
 				}
 			}
 			break;

@@ -661,7 +661,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
 			if (opcode != OPCODE_WACK) {
 				col_append_fstr(cinfo, COL_INFO, " %s %s",
 				    type_name,
-				    ip_to_str(tvb_get_ptr(tvb, data_offset+2, 4)));
+				    tvb_ip_to_str(tvb, data_offset+2));
 			}
 		}
 		if (nbns_tree == NULL)
@@ -709,7 +709,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
 				}
 				proto_tree_add_text(rr_tree, tvb, cur_offset, 4,
 				    "Addr: %s",
-				    ip_to_str(tvb_get_ptr(tvb, cur_offset, 4)));
+				    tvb_ip_to_str(tvb, cur_offset));
 				cur_offset += 4;
 				data_len -= 4;
 			}
@@ -1564,7 +1564,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	  if (tree)
 	    proto_tree_add_text(nbss_tree, tvb, offset, 4,
 				"Retarget IP address: %s",
-				ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+				tvb_ip_to_str(tvb, offset));
 
 	  offset += 4;
 

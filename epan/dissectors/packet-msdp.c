@@ -271,9 +271,9 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo,
                         return;
                 }
                 ei = proto_tree_add_text(tree, tvb, *offset, 12, "(S,G) block: %s/%u -> %s",
-                                         ip_to_str(tvb_get_ptr(tvb, *offset + 8, 4)),
+                                         tvb_ip_to_str(tvb, *offset + 8),
                                          tvb_get_guint8(tvb, *offset + 3),
-                                         ip_to_str(tvb_get_ptr(tvb, *offset + 4, 4)));
+                                         tvb_ip_to_str(tvb, *offset + 4));
                 entry_tree = proto_item_add_subtree(ei, ett_msdp_sa_entry);
 
                 proto_tree_add_item(entry_tree, hf_msdp_sa_reserved, tvb, *offset, 3, FALSE);

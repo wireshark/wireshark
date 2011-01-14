@@ -524,8 +524,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    "assigned ip address is not 4 bytes long");
 				break;
 			}
-			assigned_ip_address_str = ip_to_str(
-			    tvb_get_ptr(tvb, offset, 4));
+			assigned_ip_address_str = tvb_ip_to_str(tvb, offset);
 
 			proto_item_append_text(oi, ", %s ",
 			    assigned_ip_address_str);
@@ -542,7 +541,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    "sending server ip address is not 4 bytes long");
 				break;
 			}
-			sending_server_ip_address_str = ip_to_str(tvb_get_ptr(tvb,offset,option_length));
+			sending_server_ip_address_str = tvb_ip_to_str(tvb, offset);
 
 			proto_item_append_text(oi, ", %s ",
 			    sending_server_ip_address_str);
@@ -588,8 +587,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 			}
 			htype = tvb_get_guint8(tvb, offset);
-			chaddr = tvb_get_ptr(tvb, offset+1,
-			    option_length-1);
+			chaddr = tvb_get_ptr(tvb, offset+1, option_length-1);
 			htype_str = arphrdtype_to_str(htype, "Unknown (0x%02x)");
 			chaddr_str = arphrdaddr_to_str(chaddr, option_length-1,
 			    htype);

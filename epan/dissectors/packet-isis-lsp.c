@@ -561,7 +561,7 @@ dissect_lsp_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 			  ti = proto_tree_add_text ( tree, tvb, offset, 12,
 				"IPv4 prefix: %s mask %s",
 				ip_to_str((guint8*)&src),
-				ip_to_str(tvb_get_ptr(tvb, offset+8, 4)));
+				tvb_ip_to_str(tvb, offset+8));
 			};
 
 			ntree = proto_item_add_subtree(ti,
@@ -627,7 +627,7 @@ dissect_ipreach_subclv(tvbuff_t *tvb, proto_tree *tree, int offset, int clv_code
                         proto_tree_add_text(tree, tvb, offset, 4,
                                     "32-Bit Administrative tag: 0x%08x (=%u)",
                                     tvb_get_ntohl(tvb, offset),
-                                    tvb_get_ntohl(tvb, offset));                
+                                    tvb_get_ntohl(tvb, offset));
                         offset+=4;
                         clv_len-=4;
                 }
@@ -740,7 +740,7 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree,
                         while (i < subclvs_len) {
 				clv_code = tvb_get_guint8(tvb, offset+len+1); /* skip the total subtlv len indicator */
 				clv_len  = tvb_get_guint8(tvb, offset+len+2);
-                                
+
                                 /*
                                  * we pass on now the raw data to the ipreach_subtlv dissector
                                  * therefore we need to skip 3 bytes
@@ -933,7 +933,7 @@ static void
 dissect_lsp_hostname_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int id_length _U_, int length)
 {
-        isis_dissect_hostname_clv(tvb, tree, offset, length, 
+        isis_dissect_hostname_clv(tvb, tree, offset, length,
 		hf_isis_lsp_hostname);
 }
 
@@ -1461,11 +1461,11 @@ dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb, proto_tree *tree,
 					break;
 				case 6 :
 					proto_tree_add_text (ntree, tvb, offset+11+i, 6,
-						"IPv4 interface address: %s", ip_to_str (tvb_get_ptr(tvb, offset+13+i, 4)) );
+						"IPv4 interface address: %s", tvb_ip_to_str(tvb, offset+13+i));
 					break;
 				case 8 :
 					proto_tree_add_text (ntree, tvb, offset+11+i, 6,
-						"IPv4 neighbor address: %s", ip_to_str (tvb_get_ptr(tvb, offset+13+i, 4)) );
+						"IPv4 neighbor address: %s", tvb_ip_to_str(tvb, offset+13+i));
 					break;
 				case 9 :
 					dissect_subclv_max_bw (tvb, ntree, offset+13+i);
@@ -1727,7 +1727,7 @@ dissect_lsp_prefix_neighbors_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	}
 }
 
-static void isis_lsp_checkum_additional_info(tvbuff_t * tvb, packet_info * pinfo, 
+static void isis_lsp_checkum_additional_info(tvbuff_t * tvb, packet_info * pinfo,
     proto_item * it_cksum, int offset, gboolean is_cksum_correct)
 {
 	proto_tree * checksum_tree;
@@ -1790,7 +1790,7 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 	offset += 2;
 
 	if (tree) {
-		proto_tree_add_item(lsp_tree, hf_isis_lsp_remaining_life, 
+		proto_tree_add_item(lsp_tree, hf_isis_lsp_remaining_life,
 			tvb, offset, 2, FALSE);
 	}
 	lifetime = tvb_get_ntohs(tvb, offset);
@@ -1798,9 +1798,9 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 	offset_checksum = offset;
 
 	if (tree) {
-	        char* value = print_system_id( tvb_get_ptr(tvb, offset, id_length+2), 
+	        char* value = print_system_id( tvb_get_ptr(tvb, offset, id_length+2),
 				    id_length+2);
-		proto_tree_add_string_format(lsp_tree, hf_isis_lsp_lsp_id, 
+		proto_tree_add_string_format(lsp_tree, hf_isis_lsp_lsp_id,
 			tvb, offset, id_length + 2,
                         value, "LSP-ID: %s", value);
 	}
@@ -1812,7 +1812,7 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 	offset += id_length + 2;
 
 	if (tree) {
-		proto_tree_add_item(lsp_tree, hf_isis_lsp_sequence_number, 
+		proto_tree_add_item(lsp_tree, hf_isis_lsp_sequence_number,
 			tvb, offset, 4, FALSE);
 	}
 	if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -1944,7 +1944,7 @@ isis_register_lsp(int proto_isis) {
 		{ &hf_isis_lsp_checksum,
 		{ "Checksum",		"isis.lsp.checksum",FT_UINT16,
 		  BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		  
+
 		{ &hf_isis_lsp_checksum_good,
 		{ "Good Checksum", "isis.lsp.checksum_good", FT_BOOLEAN, BASE_NONE,
 			NULL, 0x0, "Good IS-IS LSP Checksum", HFILL }},

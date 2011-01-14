@@ -1261,14 +1261,14 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
   case T_A:
     {
-      const guint8 *addr;
+      const char *addr;
       guint32 addr_int;
 
-      addr = tvb_get_ptr(tvb, cur_offset, 4);
+      addr = tvb_ip_to_str(tvb, cur_offset);
       if (cinfo != NULL)
-	col_append_fstr(cinfo, COL_INFO, " %s", ip_to_str(addr));
+	col_append_fstr(cinfo, COL_INFO, " %s", addr);
 
-	proto_item_append_text(trr, ", addr %s", ip_to_str(addr));
+	proto_item_append_text(trr, ", addr %s", addr);
 	proto_tree_add_item(rr_tree, hf_dns_rr_addr, tvb, cur_offset, 4, FALSE);
 
       if ((class & 0x7f) == C_IN) {
@@ -1388,7 +1388,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   case T_WKS:
     {
       int rr_len = data_len;
-      const guint8 *wks_addr;
+      const char *wks_addr;
       guint8 protocol;
       guint8 bits;
       int mask;
@@ -1401,13 +1401,12 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	  goto bad_rr;
 	break;
       }
-      wks_addr = tvb_get_ptr(tvb, cur_offset, 4);
+      wks_addr = tvb_ip_to_str(tvb, cur_offset);
       if (cinfo != NULL)
-	col_append_fstr(cinfo, COL_INFO, " %s", ip_to_str(wks_addr));
+	col_append_fstr(cinfo, COL_INFO, " %s", wks_addr);
 
-	proto_item_append_text(trr, ", addr %s", ip_to_str(wks_addr));
-	proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Addr: %s",
-		     ip_to_str(wks_addr));
+	proto_item_append_text(trr, ", addr %s", wks_addr);
+	proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Addr: %s", wks_addr);
 	cur_offset += 4;
 	rr_len -= 4;
 
@@ -1463,17 +1462,17 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     {
       int cpu_offset;
       int cpu_len;
-      const guint8 *cpu;
+      const char *cpu;
       int os_offset;
       int os_len;
-      const guint8 *os;
+      const char *os;
 
       cpu_offset = cur_offset;
       cpu_len = tvb_get_guint8(tvb, cpu_offset);
-      cpu = tvb_get_ptr(tvb, cpu_offset + 1, cpu_len);
+      cpu = tvb_get_ephemeral_string(tvb, cpu_offset + 1, cpu_len);
       os_offset = cpu_offset + 1 + cpu_len;
       os_len = tvb_get_guint8(tvb, os_offset);
-      os = tvb_get_ptr(tvb, os_offset + 1, os_len);
+      os = tvb_get_ephemeral_string(tvb, os_offset + 1, os_len);
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %.*s %.*s", cpu_len, cpu,
 	    os_len, os);
@@ -1522,7 +1521,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	while (rr_len != 0) {
 	  txt_len = tvb_get_guint8(tvb, txt_offset);
 	  proto_tree_add_text(rr_tree, tvb, txt_offset, 1 + txt_len,
-	   "Text: %.*s", txt_len, tvb_get_ptr(tvb, txt_offset + 1, txt_len));
+	   "Text: %.*s", txt_len, tvb_get_ephemeral_string(tvb, txt_offset + 1, txt_len));
 	  txt_offset += 1 + txt_len;
 	  rr_len -= 1 + txt_len;
 	}
@@ -1743,7 +1742,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     {
       int rr_len = data_len;
       guint8 gw_type, algo;
-      const guint8 *addr;
       const guchar *gw;
       int gw_name_len;
       static const value_string gw_algo[] = {
@@ -1776,17 +1774,15 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	     proto_tree_add_text(rr_tree, tvb, cur_offset, 0, "Gateway: no gateway");
 	     break;
 	   case 1:
-	     addr = tvb_get_ptr(tvb, cur_offset, 4);
 	     proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Gateway: %s",
-				 ip_to_str(addr) );
+				 tvb_ip_to_str(tvb, cur_offset) );
 
 	     cur_offset += 4;
 	     rr_len -= 4;
 	     break;
 	   case 2:
-	     addr = tvb_get_ptr(tvb, cur_offset, 16);
 	     proto_tree_add_text(rr_tree, tvb, cur_offset, 16, "Gateway: %s",
-				 ip6_to_str((const struct e_in6_addr *)addr));
+				 tvb_ip6_to_str(tvb, cur_offset));
 
 	     cur_offset += 16;
 	     rr_len -= 16;
@@ -1812,22 +1808,19 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
   case T_AAAA:
     {
-      const guint8 *addr6;
+      const char *addr6;
       struct e_in6_addr addr_in6;
 
-      addr6 = tvb_get_ptr(tvb, cur_offset, 16);
+      addr6 = tvb_ip6_to_str(tvb, cur_offset);
       if (cinfo != NULL) {
-	col_append_fstr(cinfo, COL_INFO, " %s",
-			ip6_to_str((const struct e_in6_addr *)addr6));
+	col_append_fstr(cinfo, COL_INFO, " %s", addr6);
       }
 
-	proto_item_append_text(trr, ", addr %s",
-		     ip6_to_str((const struct e_in6_addr *)addr6));
-	proto_tree_add_text(rr_tree, tvb, cur_offset, 16, "Addr: %s",
-		     ip6_to_str((const struct e_in6_addr *)addr6));
+	proto_item_append_text(trr, ", addr %s", addr6);
+	proto_tree_add_text(rr_tree, tvb, cur_offset, 16, "Addr: %s", addr6);
 
       if ((class & 0x7f) == C_IN) {
-	memcpy(&addr_in6, addr6, sizeof(addr_in6));
+	tvb_memcpy(tvb, &addr_in6, cur_offset, sizeof(addr_in6));
 	add_ipv6_name(&addr_in6, name);
       }
     }
@@ -2473,7 +2466,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	    goto bad_rr;
 
 	    proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "WINS server address: %s",
-		     ip_to_str(tvb_get_ptr(tvb, cur_offset, 4)));
+		     tvb_ip_to_str(tvb, cur_offset));
 
 	  cur_offset += 4;
 	  rr_len -= 4;
@@ -2814,15 +2807,15 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         if (data_len < 1)
            goto bad_rr;
         long_len = tvb_get_guint8(tvb, cur_offset);
-        proto_tree_add_text(rr_tree, tvb, cur_offset + 1, long_len, "Longitude: %.*s", long_len, tvb_get_ptr(tvb, cur_offset +1 , long_len));
+        proto_tree_add_text(rr_tree, tvb, cur_offset + 1, long_len, "Longitude: %.*s", long_len, tvb_get_ephemeral_string(tvb, cur_offset +1 , long_len));
         cur_offset += 1 + long_len;
 
         lat_len = tvb_get_guint8(tvb, cur_offset);
-        proto_tree_add_text(rr_tree, tvb, cur_offset + 1, lat_len, "Latitude: %.*s", lat_len, tvb_get_ptr(tvb, cur_offset + 1, lat_len));
+        proto_tree_add_text(rr_tree, tvb, cur_offset + 1, lat_len, "Latitude: %.*s", lat_len, tvb_get_ephemeral_string(tvb, cur_offset + 1, lat_len));
         cur_offset += 1 + lat_len;
 
         alt_len = tvb_get_guint8(tvb, cur_offset);
-        proto_tree_add_text(rr_tree, tvb, cur_offset + 1, alt_len, "Altitude: %.*s", alt_len, tvb_get_ptr(tvb, cur_offset + 1, alt_len));
+        proto_tree_add_text(rr_tree, tvb, cur_offset + 1, alt_len, "Altitude: %.*s", alt_len, tvb_get_ephemeral_string(tvb, cur_offset + 1, alt_len));
       }
     break;
 
@@ -2874,7 +2867,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         if (data_len < 1)
            goto bad_rr;
         x25_len = tvb_get_guint8(tvb, cur_offset);
-        proto_tree_add_text(rr_tree, tvb, cur_offset, x25_len + 1, "PSDN-Address: %.*s", x25_len, tvb_get_ptr(tvb, cur_offset +1, x25_len));
+        proto_tree_add_text(rr_tree, tvb, cur_offset, x25_len + 1, "PSDN-Address: %.*s", x25_len, tvb_get_ephemeral_string(tvb, cur_offset +1, x25_len));
       }
     break;
 
@@ -2888,13 +2881,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         if (rr_len < 1)
            goto bad_rr;
         isdn_address_len = tvb_get_guint8(tvb, cur_offset);
-        proto_tree_add_text(rr_tree, tvb, cur_offset, isdn_address_len + 1, "ISDN Address: %.*s", isdn_address_len, tvb_get_ptr(tvb, cur_offset +1, isdn_address_len));
+        proto_tree_add_text(rr_tree, tvb, cur_offset, isdn_address_len + 1, "ISDN Address: %.*s", isdn_address_len, tvb_get_ephemeral_string(tvb, cur_offset +1, isdn_address_len));
         cur_offset += 1 + isdn_address_len;
         rr_len -= 1 + isdn_address_len;
 
         if (rr_len > 1)   /* ISDN SA is optional */ {
            isdn_sa_len = tvb_get_guint8(tvb, cur_offset);
-           proto_tree_add_text(rr_tree, tvb, cur_offset, isdn_sa_len + 1, "Subaddress: %.*s", isdn_sa_len, tvb_get_ptr(tvb, cur_offset +1, isdn_sa_len));
+           proto_tree_add_text(rr_tree, tvb, cur_offset, isdn_sa_len + 1, "Subaddress: %.*s", isdn_sa_len, tvb_get_ephemeral_string(tvb, cur_offset +1, isdn_sa_len));
         }
       }
     break;

@@ -3,7 +3,7 @@
  * Copyright 2000, Stefan Raab <sraab@cisco.com>
  * Copyright 2007, Ville Nuorvala <Ville.Nuorvala@secgo.com>
  * Copyright 2009, Ohuchi Munenori <ohuchi_at_iij.ad.jp>
- * Copyright 2010, Yi Ren          <yi_ren1@agilent.com> 
+ * Copyright 2010, Yi Ren          <yi_ren1@agilent.com>
  *
  * $Id$
  *
@@ -389,11 +389,11 @@ static const value_string mip_pmipv4skipext_accesstechnology_types[]= {
 };
 
 static const value_string mip_cvse_verizon_cvse_types[]= {
-  {0, "Reserved"},	
+  {0, "Reserved"},
   {1, "MIP Key Request"},
-  {2, "MIP Key Data"}, 
-  {3, "AAA Authenticator"},   
-  {4, "Public Key Invalid"},  
+  {2, "MIP Key Data"},
+  {3, "AAA Authenticator"},
+  {4, "Public Key Invalid"},
   {0, NULL}
 };
 
@@ -419,7 +419,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
   guint32       cvse_vendor_id;
   guint16       cvse_vendor_type;
   int           cvse_local_offset= 0;
-  
+
   /* None of this really matters if we don't have a tree */
   if (!tree) return;
 
@@ -447,7 +447,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	   * the length field
 	  */
 	  ext_len = tvb_get_ntohs(tvb, offset + 2);
-	  hdrLen = 4;	  
+	  hdrLen = 4;
 	}
 	else {
 	  ext_len = tvb_get_guint8(tvb, offset + 1);
@@ -462,7 +462,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 	proto_tree_add_item(ext_tree, hf_mip_ext_type, tvb, offset, 1, ext_type);
 	offset++;
-	if (ext_type != GEN_AUTH_EXT && 
+	if (ext_type != GEN_AUTH_EXT &&
 		ext_type != PMIPv4_NON_SKIP_EXT &&
 		ext_type != CVSE_EXT) {
 	  /* Another nasty hack since GEN_AUTH_EXT and PMIPv4_NON_SKIP_EXT broke everything */
@@ -506,7 +506,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	  tf = proto_tree_add_uint(ext_tree, hf_mip_rext_flags, tvb, offset, 2, flags);
 	  ext_flags_tree = proto_item_add_subtree(tf, ett_mip_flags);
 	  proto_tree_add_boolean(ext_flags_tree, hf_mip_rext_i, tvb, offset, 2, flags);
-	  
+
 	  /* reserved */
 	  proto_tree_add_uint(ext_flags_tree, hf_mip_rext_reserved, tvb, offset, 2, flags);
 	  /* registration revocation timestamp */
@@ -530,7 +530,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	  proto_tree_add_item(ext_tree, hf_mip_utrqext_stype, tvb, offset, 1, FALSE);
 
 	  /* reserved 1 */
-	  proto_tree_add_item(ext_tree, hf_mip_utrqext_reserved1, tvb, offset + 1, 1, FALSE);	  
+	  proto_tree_add_item(ext_tree, hf_mip_utrqext_reserved1, tvb, offset + 1, 1, FALSE);
 
 	  /* flags */
 	  flags = tvb_get_guint8(tvb, offset + 2);
@@ -540,19 +540,19 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	  proto_tree_add_boolean(ext_flags_tree, hf_mip_utrqext_r, tvb, offset + 2, 1, flags);
 
 	  /* reserved 2 */
-	  proto_tree_add_uint(ext_flags_tree, hf_mip_utrqext_reserved2, tvb, offset + 2, 1, flags);	  
+	  proto_tree_add_uint(ext_flags_tree, hf_mip_utrqext_reserved2, tvb, offset + 2, 1, flags);
 	  /* encapsulation */
 	  proto_tree_add_item(ext_tree, hf_mip_utrqext_encap_type, tvb, offset + 3, 1, FALSE);
 
 	  /* reserved 3 */
-	  proto_tree_add_item(ext_tree, hf_mip_utrqext_reserved3, tvb, offset + 4, 2, FALSE);	  
+	  proto_tree_add_item(ext_tree, hf_mip_utrqext_reserved3, tvb, offset + 4, 2, FALSE);
 	  break;
 	case UDP_TUN_REP_EXT:   /* RFC 3519 */
 	  /* sub-type */
 	  proto_tree_add_item(ext_tree, hf_mip_utrpext_stype, tvb, offset, 1, FALSE);
 
 	  /* code */
-	  proto_tree_add_item(ext_tree, hf_mip_utrpext_code, tvb, offset + 1, 1, FALSE);	  
+	  proto_tree_add_item(ext_tree, hf_mip_utrpext_code, tvb, offset + 1, 1, FALSE);
 
 	  /* flags */
 	  flags = tvb_get_ntohs(tvb, offset+2);
@@ -561,7 +561,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	  proto_tree_add_boolean(ext_flags_tree, hf_mip_utrpext_f, tvb, offset + 2, 2, flags);
 
 	  /* reserved */
-	  proto_tree_add_uint(ext_flags_tree, hf_mip_utrpext_reserved, tvb, offset + 2, 2, flags);	  
+	  proto_tree_add_uint(ext_flags_tree, hf_mip_utrpext_reserved, tvb, offset + 2, 2, flags);
 
 	  /* keepalive interval */
 	  proto_tree_add_item(ext_tree, hf_mip_utrpext_keepalive, tvb, offset + 4, 2, FALSE);
@@ -571,9 +571,9 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	  proto_tree_add_item(ext_tree, hf_mip_pmipv4nonskipext_stype, tvb, offset, 1, ext_subtype);
 	  offset++;
           /* len */
-	  proto_tree_add_item(ext_tree, hf_mip_ext_len, tvb, offset, 2, ext_len);	  
+	  proto_tree_add_item(ext_tree, hf_mip_ext_len, tvb, offset, 2, ext_len);
 	  offset+=2;
-	  if(ext_subtype == 1){     
+	  if(ext_subtype == 1){
 	    /* Sub-type == 1 : PMIPv4 Per-Node Authentication Method */
 	    proto_tree_add_item(ext_tree, hf_mip_pmipv4nonskipext_pernodeauthmethod, tvb, offset, 1, FALSE);
 	  }
@@ -581,12 +581,12 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	case PMIPv4_SKIP_EXT:   /* draft-leung-mip4-proxy-mode */
 	  /* sub-type */
 	  ext_subtype = tvb_get_guint8(tvb, offset);
-	  tp = proto_tree_add_text(ext_tree, tvb, offset, ext_len, 
+	  tp = proto_tree_add_text(ext_tree, tvb, offset, ext_len,
 				   "PMIPv4 Sub-Type: %s",
 				   val_to_str(ext_subtype, mip_pmipv4skipext_stypes, "Unknown Sub-Type %u"));
 	  pmipv4_tree = proto_item_add_subtree(tp, ett_mip_pmipv4_ext);
 	  proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_stype, tvb, offset, 1, ext_subtype);
-	  
+
 	  if (ext_subtype == PMIPv4_SKIPEXT_STYPE_INTERFACE_ID) {
 	    proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_interfaceid, tvb, offset + 1, ext_len-1, FALSE);
 	  } else if (ext_subtype == PMIPv4_SKIPEXT_STYPE_DEVICE_ID) {
@@ -594,13 +594,13 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	    proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_deviceid_type, tvb, offset + 1, 1, pmipv4skipext_type);
 	    proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_deviceid_id, tvb, offset + 2, ext_len - 2, FALSE);
 	  } else if (ext_subtype == PMIPv4_SKIPEXT_STYPE_SUBSCRIBER_ID) {
-	    pmipv4skipext_type = tvb_get_guint8(tvb, offset + 1);	    
+	    pmipv4skipext_type = tvb_get_guint8(tvb, offset + 1);
 	    proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_subscriberid_type, tvb, offset + 1, 1, pmipv4skipext_type);
-	    if (pmipv4skipext_type == 1) {     
+	    if (pmipv4skipext_type == 1) {
 	      proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_subscriberid_id, tvb, offset + 2, ext_len - 2, FALSE);
 	    }
 	  } else if (ext_subtype == PMIPv4_SKIPEXT_STYPE_ACCESS_TECHNOLOGY) {
-	    pmipv4skipext_type = tvb_get_guint8(tvb, offset + 1);	    
+	    pmipv4skipext_type = tvb_get_guint8(tvb, offset + 1);
 	    proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_accesstechnology_type, tvb, offset + 1, 1, pmipv4skipext_type);
 	  }
 	  break;
@@ -616,26 +616,26 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	  offset+=2;
 	  /* Vendor/Org ID */
 	  /*Vendor ID & cvse type & cvse value are included in ext_len, so do not increment offset for them here.*/
-	  cvse_local_offset = offset; 
-      proto_tree_add_item(ext_tree, hf_mip_cvse_vendor_org_id, tvb, cvse_local_offset, 4, FALSE);	  
+	  cvse_local_offset = offset;
+      proto_tree_add_item(ext_tree, hf_mip_cvse_vendor_org_id, tvb, cvse_local_offset, 4, FALSE);
 	  cvse_vendor_id = tvb_get_ntohl(tvb, cvse_local_offset);
 	  cvse_local_offset+=4;
 	  /*Vendor CVSE Type*/
 	  if( cvse_vendor_id == VENDOR_VERIZON ){
- 	    /*Verizon CVSE type*/	
-           proto_tree_add_item(ext_tree, hf_mip_cvse_verizon_cvse_type, tvb, cvse_local_offset, 2, FALSE);	
+ 	    /*Verizon CVSE type*/
+           proto_tree_add_item(ext_tree, hf_mip_cvse_verizon_cvse_type, tvb, cvse_local_offset, 2, FALSE);
 	  }
 	  else{
 	    /*CVSE Type of Other vendor, just show raw numbers currently*/
 	    cvse_vendor_type = tvb_get_ntohs(tvb, cvse_local_offset);
-	    proto_tree_add_uint(ext_tree, hf_mip_cvse_vendor_cvse_type, tvb, cvse_local_offset, 2, cvse_vendor_type);	    
+	    proto_tree_add_uint(ext_tree, hf_mip_cvse_vendor_cvse_type, tvb, cvse_local_offset, 2, cvse_vendor_type);
 	  }
 	  cvse_local_offset+=2;
 	  /* Vendor-CVSE-Value */
 	  /* Vendor CVSE Type+Vendor/Org ID = 6 bytes*/
-	  proto_tree_add_item(ext_tree, hf_mip_cvse_vendor_cvse_value, tvb, cvse_local_offset, ext_len - 6, FALSE);	  	
+	  proto_tree_add_item(ext_tree, hf_mip_cvse_vendor_cvse_value, tvb, cvse_local_offset, ext_len - 6, FALSE);
 	  break;
-	  
+
 	case OLD_CVSE_EXT:      /* RFC 3115 */
 	case OLD_NVSE_EXT:      /* RFC 3115 */
 	case NVSE_EXT:          /* RFC 3115 */
@@ -676,9 +676,9 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case MIP_REGISTRATION_REQUEST:
 	col_add_fstr(pinfo->cinfo, COL_INFO,
 		       "Reg Request: HoA=%s HA=%s CoA=%s",
-		       ip_to_str(tvb_get_ptr(tvb,4,4)),
-		       ip_to_str(tvb_get_ptr(tvb,8,4)),
-		       ip_to_str(tvb_get_ptr(tvb,12,4)));
+		       tvb_ip_to_str(tvb, 4),
+		       tvb_ip_to_str(tvb, 8),
+		       tvb_ip_to_str(tvb, 12));
 
 	if (tree) {
 	  ti = proto_tree_add_item(tree, proto_mip, tvb, offset, -1, FALSE);
@@ -731,8 +731,8 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case MIP_REGISTRATION_REPLY:
 	col_add_fstr(pinfo->cinfo, COL_INFO,
 		       "Reg Reply: HoA=%s HA=%s, Code=%u",
-		       ip_to_str(tvb_get_ptr(tvb,4,4)), 
-		       ip_to_str(tvb_get_ptr(tvb,8,4)), 
+		       tvb_ip_to_str(tvb, 4),
+		       tvb_ip_to_str(tvb, 8),
 		       tvb_get_guint8(tvb,1));
 
 	if (tree) {
@@ -801,9 +801,9 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case MIP_REGISTRATION_REVOCATION:
 	col_add_fstr(pinfo->cinfo, COL_INFO,
 		       "Reg Revocation: HoA=%s HDA=%s FDA=%s",
-		       ip_to_str(tvb_get_ptr(tvb,4,4)),
-		       ip_to_str(tvb_get_ptr(tvb,8,4)),
-		       ip_to_str(tvb_get_ptr(tvb,12,4)));
+		       tvb_ip_to_str(tvb, 4),
+		       tvb_ip_to_str(tvb, 8),
+		       tvb_ip_to_str(tvb, 12));
 
 	if (tree) {
 	  ti = proto_tree_add_item(tree, proto_mip, tvb, offset, -1, FALSE);
@@ -847,7 +847,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
   case MIP_REGISTRATION_REVOCATION_ACK:
 	  col_add_fstr(pinfo->cinfo, COL_INFO, "Reg Revocation Ack: HoA=%s",
-		       ip_to_str(tvb_get_ptr(tvb,4,4)));
+		       tvb_ip_to_str(tvb, 4));
 
 	if (tree) {
 	  ti = proto_tree_add_item(tree, proto_mip, tvb, offset, -1, FALSE);
@@ -1032,7 +1032,7 @@ void proto_register_mip(void)
 			"Revocation Timestamp of Sending Agent", HFILL }
           },
 	  { &hf_mip_rev_reserved,
-		 { "Reserved",                 "mip.rev.reserved", 
+		 { "Reserved",                 "mip.rev.reserved",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
 			NULL, HFILL}
 	  },
@@ -1047,7 +1047,7 @@ void proto_register_mip(void)
 			"Inform Mobile Node", HFILL }
           },
 	  { &hf_mip_rev_reserved2,
-		 { "Reserved",                 "mip.rev.reserved2", 
+		 { "Reserved",                 "mip.rev.reserved2",
 			FT_UINT16, BASE_HEX, NULL, 0x3fff,
 			NULL, HFILL}},
           { &hf_mip_hda,
@@ -1066,7 +1066,7 @@ void proto_register_mip(void)
 			"Revocation Identifier of Initiating Agent", HFILL }
           },
 	  { &hf_mip_ack_reserved,
-		 { "Reserved",                 "mip.ack.reserved", 
+		 { "Reserved",                 "mip.ack.reserved",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
 			NULL, HFILL}
 	  },
@@ -1076,7 +1076,7 @@ void proto_register_mip(void)
 			"Inform Mobile Node", HFILL }
           },
 	  { &hf_mip_ack_reserved2,
-		 { "Reserved",                 "mip.ack.reserved2", 
+		 { "Reserved",                 "mip.ack.reserved2",
 			FT_UINT16, BASE_HEX, NULL, 0x7fff,
 			NULL, HFILL}},
 	  { &hf_mip_dhaext_stype,
@@ -1228,27 +1228,27 @@ void proto_register_mip(void)
 		 { "CVSE Reserved",                "mip.ext.cvse.reserved",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }
-	  },	  
+	  },
          { &hf_mip_cvse_vendor_org_id,
 		 { "CVSE Vendor/org ID",                "mip.ext.cvse.vendor_id",
                         FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0,
 			NULL, HFILL }
-         },	  
+         },
          { &hf_mip_cvse_verizon_cvse_type ,
 		 { "Verizon CVSE Type",                "mip.ext.cvse.verizon_type",
 			FT_UINT16, BASE_DEC, VALS(mip_cvse_verizon_cvse_types), 0,
 			NULL, HFILL }
-         },	  
+         },
          { &hf_mip_cvse_vendor_cvse_type ,
 		 { "Vendor CVSE Type",                "mip.ext.cvse.vendor_type",
 			FT_UINT16, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }
-         },          
+         },
          { &hf_mip_cvse_vendor_cvse_value ,
 		 { "Vendor CVSE Value",                "mip.ext.cvse.vendor_value",
 			FT_BYTES, BASE_NONE, NULL, 0,
 			NULL, HFILL }
-         }         
+         }
 	};
 
 	/* Setup protocol subtree array */

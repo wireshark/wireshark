@@ -93,13 +93,13 @@ static void dissect_icp_payload(tvbuff_t *tvb, int offset,
 	 	/* 4 byte requester host address */
 		proto_tree_add_text(pload_tree, tvb,offset,4,
 			"Requester Host Address %s",
-			ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+			tvb_ip_to_str(tvb, offset));
 		offset += 4;
 
 		/* null terminated URL */
 		stringlength = tvb_strsize(tvb, offset);
 		proto_tree_add_text(pload_tree, tvb, offset, stringlength,
-			"URL: %s", tvb_get_ptr(tvb, offset, stringlength));
+			"URL: %s", tvb_get_ephemeral_string(tvb, offset, stringlength));
 		break;
 
 	case CODE_ICP_OP_SECHO:
@@ -111,14 +111,14 @@ static void dissect_icp_payload(tvbuff_t *tvb, int offset,
 	case CODE_ICP_OP_DENIED:
 		stringlength = tvb_strsize(tvb, offset);
 		proto_tree_add_text(pload_tree, tvb, offset, stringlength,
-			"URL: %s", tvb_get_ptr(tvb, offset, stringlength));
+			"URL: %s", tvb_get_ephemeral_string(tvb, offset, stringlength));
 		break;
 
 	case CODE_ICP_OP_HIT_OBJ:
 		/* null terminated URL */
 		stringlength = tvb_strsize(tvb, offset);
 		proto_tree_add_text(pload_tree, tvb, offset, stringlength,
-			"URL: %s", tvb_get_ptr(tvb, offset, stringlength));
+			"URL: %s", tvb_get_ephemeral_string(tvb, offset, stringlength));
 		offset += stringlength;
 
 		/* 2 byte object size */
@@ -200,7 +200,7 @@ static void dissect_icp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	proto_tree_add_text(icp_tree, tvb, 16, 4,
 			"Sender Host IP address %s",
-			ip_to_str(tvb_get_ptr(tvb, 16, 4)));
+			tvb_ip_to_str(tvb, 16));
 
         payloadtf = proto_tree_add_text(icp_tree, tvb,
                         20, message_length - 20,

@@ -999,7 +999,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    tvb, 4, 4, FALSE);
 	areaid=tvb_get_ntohl(tvb,8);
 	proto_tree_add_text(ospf_header_tree, tvb, 8, 4, "Area ID: %s%s",
-			       ip_to_str(tvb_get_ptr(tvb, 8, 4)), areaid == 0 ? " (Backbone)" : "");
+			    tvb_ip_to_str(tvb, 8), areaid == 0 ? " (Backbone)" : "");
 
 	/*
 	 * Quit at this point if it's an unknown OSPF version.
@@ -1327,7 +1327,7 @@ dissect_ospfv3_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
         while (orig_offset + length >= offset) {
             proto_tree_add_text(ospf_lls_tlv_tree, tvb, offset, 4,
                                 "Dropped Neighbor: %s",
-                                ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+                                tvb_ip_to_str(tvb, offset));
             offset += 4;
         }
         offset = orig_offset;
@@ -1342,7 +1342,7 @@ dissect_ospfv3_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
         while (orig_offset + length >= offset) {
             ti = proto_tree_add_text(ospf_lls_tlv_tree, tvb, offset, 4,
                                 "Neighbor: %s",
-                                ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+                                tvb_ip_to_str(tvb, offset));
             if (relays_added > 0) {
                 proto_item_append_text(ti, " Added");
             } else {
@@ -1363,7 +1363,7 @@ dissect_ospfv3_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
         while (orig_offset + length >= offset) {
             proto_tree_add_text(ospf_lls_tlv_tree, tvb, offset, 4,
                                 "Request From: %s",
-                                ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+                                tvb_ip_to_str(tvb, offset));
             offset += 4;
         }
         offset = orig_offset;
@@ -1373,7 +1373,7 @@ dissect_ospfv3_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
         while (orig_offset + length >= offset) {
             proto_tree_add_text(ospf_lls_tlv_tree, tvb, offset, 4,
                                 "Full State For: %s",
-                                ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+                                tvb_ip_to_str(tvb, offset));
             offset += 4;
         }
         offset = orig_offset;
@@ -1431,7 +1431,7 @@ dissect_ospf_hello(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
     switch (version ) {
         case OSPF_VERSION_2:
             proto_tree_add_text(ospf_hello_tree, tvb, offset, 4, "Network Mask: %s",
-			ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+			tvb_ip_to_str(tvb, offset));
             proto_tree_add_text(ospf_hello_tree, tvb, offset + 4, 2,
 			"Hello Interval: %u seconds",
 			tvb_get_ntohs(tvb, offset + 4));
@@ -1442,15 +1442,15 @@ dissect_ospf_hello(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
             proto_tree_add_text(ospf_hello_tree, tvb, offset + 8, 4, "Router Dead Interval: %u seconds",
 			tvb_get_ntohl(tvb, offset + 8));
             proto_tree_add_text(ospf_hello_tree, tvb, offset + 12, 4, "Designated Router: %s",
-			ip_to_str(tvb_get_ptr(tvb, offset + 12, 4)));
+			tvb_ip_to_str(tvb, offset + 12));
             proto_tree_add_text(ospf_hello_tree, tvb, offset + 16, 4, "Backup Designated Router: %s",
-			ip_to_str(tvb_get_ptr(tvb, offset + 16, 4)));
+			tvb_ip_to_str(tvb, offset + 16));
 
             offset += 20;
             while (orig_offset + length > offset) {
 	        proto_tree_add_text(ospf_hello_tree, tvb, offset, 4,
 			    "Active Neighbor: %s",
-			    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+			    tvb_ip_to_str(tvb, offset));
 	        offset += 4;
             }
             break;
@@ -1466,14 +1466,14 @@ dissect_ospf_hello(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
             proto_tree_add_text(ospf_hello_tree, tvb, offset + 10, 2, "Router Dead Interval: %u seconds",
 			tvb_get_ntohs(tvb, offset + 10));
             proto_tree_add_text(ospf_hello_tree, tvb, offset + 12, 4, "Designated Router: %s",
-			ip_to_str(tvb_get_ptr(tvb, offset + 12, 4)));
+			tvb_ip_to_str(tvb, offset + 12));
             proto_tree_add_text(ospf_hello_tree, tvb, offset + 16, 4, "Backup Designated Router: %s",
-			ip_to_str(tvb_get_ptr(tvb, offset + 16, 4)));
+			tvb_ip_to_str(tvb, offset + 16));
             offset += 20;
             while (orig_offset + length > offset) {
 	        proto_tree_add_text(ospf_hello_tree, tvb, offset, 4,
 			    "Active Neighbor: %s",
-			    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+			    tvb_ip_to_str(tvb, offset));
 	        offset += 4;
             }
 
@@ -1582,7 +1582,7 @@ dissect_ospf_ls_req(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
 
 
 	proto_tree_add_text(ospf_lsr_tree, tvb, offset + 4, 4, "Link State ID: %s",
-			    ip_to_str(tvb_get_ptr(tvb, offset + 4, 4)));
+			    tvb_ip_to_str(tvb, offset + 4));
 	proto_tree_add_item(ospf_lsr_tree, hf_ospf_filter[OSPFF_ADV_ROUTER],
 			    tvb, offset + 8, 4, FALSE);
 
@@ -1756,7 +1756,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 	case MPLS_TLV_ROUTER:
 	    ti = proto_tree_add_text(mpls_tree, tvb, offset, tlv_length+4,
 				     "Router Address: %s",
-				     ip_to_str(tvb_get_ptr(tvb, offset+4, 4)));
+				     tvb_ip_to_str(tvb, offset+4));
 	    tlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_router);
 	    proto_tree_add_text(tlv_tree, tvb, offset, 2, "TLV Type: 1 - Router Address");
 	    proto_tree_add_text(tlv_tree, tvb, offset+2, 2, "TLV Length: %u",
@@ -1799,7 +1799,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 		case MPLS_LINK_ID:
 		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
 					     "%s: %s", stlv_name,
-					     ip_to_str(tvb_get_ptr(tvb, stlv_offset + 4, 4)));
+					     tvb_ip_to_str(tvb, stlv_offset + 4));
 		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
 					"TLV Type: %u: %s", stlv_type, stlv_name);
@@ -2054,7 +2054,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 		case OIF_LOCAL_NODE_ID:
 		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
 					     "%s: %s", stlv_name,
-					     ip_to_str(tvb_get_ptr(tvb, stlv_offset + 4, 4)));
+					     tvb_ip_to_str(tvb, stlv_offset + 4));
 		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
 					"TLV Type: %u: %s", stlv_type, stlv_name);
@@ -2068,7 +2068,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 		case OIF_REMOTE_NODE_ID:
 		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
 					     "%s: %s", stlv_name,
-					     ip_to_str(tvb_get_ptr(tvb, stlv_offset + 4, 4)));
+					     tvb_ip_to_str(tvb, stlv_offset + 4));
 		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
 					"TLV Type: %u: %s", stlv_type, stlv_name);
@@ -2137,20 +2137,20 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 		case OIF_NODE_ID:
 		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
 					     "%s: %s", stlv_name,
-					     ip_to_str(tvb_get_ptr(tvb, stlv_offset + 4, 4)));
+					     tvb_ip_to_str(tvb, stlv_offset + 4));
 		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_oif_tna_stlv);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
 					"TLV Type: %u: %s", stlv_type, stlv_name);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
 		    			stlv_len);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 4, "%s: %s", stlv_name,
-					ip_to_str(tvb_get_ptr(tvb, stlv_offset + 4, 4)));
+					tvb_ip_to_str(tvb, stlv_offset + 4));
 		    break;
 
 		case OIF_TNA_IPv4_ADDRESS:
 		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
 					     "%s (IPv4): %s", stlv_name,
-					     ip_to_str(tvb_get_ptr(tvb, stlv_offset + 8, 4)));
+					     tvb_ip_to_str(tvb, stlv_offset + 8));
 		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_oif_tna_stlv);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
 					"TLV Type: %u: %s (IPv4)", stlv_type, stlv_name);
@@ -2158,14 +2158,13 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 1, "Addr Length: %u",
 					tvb_get_guint8 (tvb, stlv_offset+4));
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+8, stlv_len - 4, "TNA Addr: %s",
-					ip_to_str(tvb_get_ptr(tvb, stlv_offset + 8, 4)));
+					tvb_ip_to_str(tvb, stlv_offset + 8));
 		    break;
 
 		case OIF_TNA_IPv6_ADDRESS:
 		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
 					     "%s (IPv6): %s", stlv_name,
-					     ip6_to_str((const struct e_in6_addr *)
-							 tvb_get_ptr(tvb, stlv_offset + 8, 16)));
+					     tvb_ip6_to_str(tvb, stlv_offset + 8));
 		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_oif_tna_stlv);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
 					"TLV Type: %u: %s (IPv6)", stlv_type, stlv_name);
@@ -2173,8 +2172,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 1, "Addr Length: %u",
 					tvb_get_guint8 (tvb, stlv_offset+4));
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+8, stlv_len - 4, "TNA Addr: %s",
-					ip6_to_str((const struct e_in6_addr *)
-						    tvb_get_ptr(tvb, stlv_offset + 8, 16)));
+					tvb_ip6_to_str(tvb, stlv_offset + 8));
 		    break;
 
 		case OIF_TNA_NSAP_ADDRESS:
@@ -2396,7 +2394,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
     } else {
 	ls_id_type = 0;
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset + 4, 4, "Link State ID: %s",
-			    ip_to_str(tvb_get_ptr(tvb, offset + 4, 4)));
+			    tvb_ip_to_str(tvb, offset + 4));
     }
 
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_ADV_ROUTER],
@@ -2481,18 +2479,18 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
             ti_local = proto_tree_add_text(ospf_lsa_tree, tvb, offset, 12 + 4 * nr_metric,
                                      "Type: %-8s ID: %-15s Data: %-15s Metric: %d",
                                      link_type_short_str,
-                                     ip_to_str(tvb_get_ptr(tvb, offset, 4)),
-                                     ip_to_str(tvb_get_ptr(tvb, offset + 4, 4)),
+                                     tvb_ip_to_str(tvb, offset),
+                                     tvb_ip_to_str(tvb, offset + 4),
                                      tvb_get_ntohs(tvb, offset + 10));
 
             ospf_lsa_router_link_tree = proto_item_add_subtree(ti_local, ett_ospf_lsa_router_link);
 
 	    proto_tree_add_text(ospf_lsa_router_link_tree, tvb, offset, 4, "%s: %s", link_id,
-				ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+				tvb_ip_to_str(tvb, offset));
 
 	    /* link_data should be specified in detail (e.g. network mask) (depends on link type)*/
 	    proto_tree_add_text(ospf_lsa_router_link_tree, tvb, offset + 4, 4, "Link Data: %s",
-				ip_to_str(tvb_get_ptr(tvb, offset + 4, 4)));
+				tvb_ip_to_str(tvb, offset + 4));
 
 	    proto_tree_add_text(ospf_lsa_router_link_tree, tvb, offset + 8, 1, "Link Type: %u - %s",
 				link_type, link_type_str);
@@ -2519,12 +2517,12 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
     case OSPF_LSTYPE_NETWORK:
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "Netmask: %s",
-				ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+				tvb_ip_to_str(tvb, offset));
 	offset += 4;
 
 	while (offset < end_offset) {
 	    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "Attached Router: %s",
-				ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+				tvb_ip_to_str(tvb, offset));
 	    offset += 4;
 	}
 	break;
@@ -2533,7 +2531,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
     /* Type 3 and 4 LSAs have the same format */
     case OSPF_LSTYPE_ASBR:
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "Netmask: %s",
-			    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+			    tvb_ip_to_str(tvb, offset));
 	offset += 4;
 
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "Metric: %u",
@@ -2553,7 +2551,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
     case OSPF_LSTYPE_ASEXT:
     case OSPF_LSTYPE_ASEXT7:
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "Netmask: %s",
-			    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+			    tvb_ip_to_str(tvb, offset));
 	offset += 4;
 
 	options = tvb_get_guint8(tvb, offset);
@@ -2570,7 +2568,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 	offset += 4;
 
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "Forwarding Address: %s",
-			    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+			    tvb_ip_to_str(tvb, offset));
 	offset += 4;
 
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "External Route Tag: %u",
@@ -2593,7 +2591,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 	    offset += 4;
 
 	    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "Forwarding Address: %s",
-				ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+				tvb_ip_to_str(tvb, offset));
 	    offset += 4;
 
 	    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "External Route Tag: %u",
@@ -2674,7 +2672,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 			ls_type, val_to_str(ls_type, v3_ls_type_vals,"Unkown"));
 
     proto_tree_add_text(ospf_lsa_tree, tvb, offset + 4, 4, "Link State ID: %s",
-			    ip_to_str(tvb_get_ptr(tvb, offset + 4, 4)));
+			tvb_ip_to_str(tvb, offset + 4));
 
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_ADV_ROUTER],
 			tvb, offset + 8, 4, FALSE);
@@ -2761,7 +2759,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 	    /* Neighbor Router ID */
             proto_tree_add_text(ospf_lsa_tree, tvb, offset + 12, 4, "Neighbor Router ID: %s",
-		ip_to_str(tvb_get_ptr(tvb, offset + 12, 4)));
+			tvb_ip_to_str(tvb, offset + 12));
 
             /* skip to the (possible) next entry */
             offset+=16;
@@ -2785,7 +2783,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 	while (ls_length > 0 ) {
 	    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "Attached Router: %s",
-				ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+				tvb_ip_to_str(tvb, offset));
             ls_length-=4;
 	    offset += 4;
 	}
@@ -2846,7 +2844,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 	/* Destination Router ID */
         proto_tree_add_text(ospf_lsa_tree, tvb, offset + 8, 4, "Destination Router ID: %s",
-		ip_to_str(tvb_get_ptr(tvb, offset + 8, 4)));
+			    tvb_ip_to_str(tvb, offset + 8));
 
 	offset+=12;
 	break;
@@ -2886,11 +2884,11 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
         /* Forwarding Address (optional - only if F-flag is on) */
         if ( (offset < end_offset) && (flags & OSPF_V3_AS_EXTERNAL_FLAG_F) ) {
             if (address_family == OSPF_AF_6) {
-	    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 16,"Forwarding Address: %s",
-              ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, 16)));
+		proto_tree_add_text(ospf_lsa_tree, tvb, offset, 16,"Forwarding Address: %s",
+				    tvb_ip6_to_str(tvb, offset));
             } else {
                 proto_tree_add_text(ospf_lsa_tree, tvb, offset, 16,"Forwarding Address: %s",
-                                    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+                                    tvb_ip_to_str(tvb, offset));
             }
 
 	    offset+=16;
@@ -2908,7 +2906,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
         /* Referenced Link State ID (optional - only if Referenced LS type is non-zero */
         if ( (offset < end_offset) && (referenced_ls_type != 0) ) {
 	    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "Referenced Link State ID: %s",
-			    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+			    tvb_ip_to_str(tvb, offset));
 	    offset+=4;
         }
 
@@ -2926,10 +2924,10 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
         /* Link-local Interface Address */
         if (address_family == OSPF_AF_6) {
             proto_tree_add_text(ospf_lsa_tree, tvb, offset + 4, 16, "Link-local Interface Address: %s",
-                                ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset + 4, 16)));
+                                tvb_ip6_to_str(tvb, offset + 4));
         } else {
             proto_tree_add_text(ospf_lsa_tree, tvb, offset + 4, 16, "Link-local Interface Address: %s",
-                                ip_to_str(tvb_get_ptr(tvb, offset + 4, 4)));
+                                tvb_ip_to_str(tvb, offset + 4));
         }
         /* Number prefixes */
         number_prefixes=tvb_get_ntohl(tvb, offset + 20);
@@ -2976,11 +2974,11 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
         /* Referenced Link State ID */
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset + 4, 4, "Referenced Link State ID: %s",
-			    ip_to_str(tvb_get_ptr(tvb, offset + 4, 4)));
+			    tvb_ip_to_str(tvb, offset + 4));
 
         /* Referenced Advertising Router */
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset + 8, 4, "Referenced Advertising Router: %s",
-			    ip_to_str(tvb_get_ptr(tvb, offset + 8, 4)));
+			    tvb_ip_to_str(tvb, offset + 8));
 
         offset+=12;
 
@@ -3049,7 +3047,7 @@ static void dissect_ospf_v3_address_prefix(tvbuff_t *tvb, int offset, int prefix
                             "Address Prefix: %s", ip6_to_str(&prefix));
     } else {
         proto_tree_add_text(tree, tvb, offset, bytes_to_process,
-                            "Address Prefix: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+                            "Address Prefix: %s", tvb_ip_to_str(tvb, offset));
     }
 
 }

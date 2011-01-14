@@ -12,12 +12,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -324,7 +324,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
 
             length = tvb_get_ntohs(tvb, offset + 2);
             ti = proto_tree_add_text(tree, tvb, offset, length + 4, "FEC Element %u: %s",
-                     idx, val_to_str(type, mpls_echo_tlv_fec_names, 
+                     idx, val_to_str(type, mpls_echo_tlv_fec_names,
                      "Unknown FEC type (0x%04X)"));
             tlv_fec_tree = proto_item_add_subtree(ti, ett_mpls_echo_tlv_fec);
             if(tlv_fec_tree == NULL) return;
@@ -347,9 +347,9 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
             /* FEC sub-TLV Value */
             switch (type) {
             case TLV_FEC_STACK_LDP_IPv4:
-                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_ldp_ipv4, 
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_ldp_ipv4,
                     tvb, offset + 4, 4, FALSE);
-                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_ldp_ipv4_mask, 
+                proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_ldp_ipv4_mask,
                     tvb, offset + 8, 1, FALSE);
                 if (length == 8)
                     proto_tree_add_text(tlv_fec_tree, tvb, offset + 9, 3, "Padding");
@@ -376,7 +376,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
 		    tvb, offset + 10, 2, FALSE);
 		proto_tree_add_text(tlv_fec_tree, tvb, offset + 12, 4,
 		    "Extended Tunnel ID: 0x%08X (%s)", tvb_get_ntohl(tvb, offset + 12),
-		    ip_to_str(tvb_get_ptr(tvb, offset + 12, 4)));
+		    tvb_ip_to_str(tvb, offset + 12));
 		hidden_item = proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv4_ext_tunnel_id,
 		    tvb, offset + 12, 4, FALSE);
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -402,7 +402,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
                 proto_tree_add_text(tlv_fec_tree, tvb, offset + 24, 16,
                     "Extended Tunnel ID: 0x%s (%s)",
 		    tvb_bytes_to_str(tvb, offset + 24, 16),
-                    ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset + 24, 16)));
+                    tvb_ip6_to_str(tvb, offset + 24));
                 hidden_item = proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv6_ext_tunnel_id,
                     tvb, offset + 24, 16, FALSE);
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -849,7 +849,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
 			    val_to_str(type, mpls_echo_tlv_type_names, "Unknown TLV type"), saved_type);
 		} else {
 			proto_tree_add_uint_format(mpls_echo_tlv_tree, hf_mpls_echo_tlv_type, tvb,
-			    offset, 2, saved_type, "Type: %s (%u)", 
+			    offset, 2, saved_type, "Type: %s (%u)",
 			    val_to_str(type, mpls_echo_tlv_type_names, "Unknown TLV type"), saved_type);
 		}
                 proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_len, tvb, offset + 2, 2, FALSE);
@@ -898,7 +898,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
                                         length);
                                 break;
                         }
-                        proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_rto_ipv4, 
+                        proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_rto_ipv4,
                             tvb, offset + 4, 4, FALSE);
 			break;
 		case TLV_RTO_IPv6:
@@ -908,7 +908,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
                                         length);
                                 break;
                         }
-                        proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_rto_ipv6,    
+                        proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_rto_ipv6,
                             tvb, offset + 4, 16, FALSE);
 			break;
 		case TLV_VENDOR_PRIVATE_START:
@@ -985,7 +985,7 @@ dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPLS ECHO");
-    
+
         rem = tvb_reported_length_remaining(tvb, offset);
 
         /* Get the message type and fill in the Column info */
@@ -1079,7 +1079,7 @@ dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_mpls_echo(void)
-{                 
+{
 
         static hf_register_info hf[] = {
                 { &hf_mpls_echo_version,
