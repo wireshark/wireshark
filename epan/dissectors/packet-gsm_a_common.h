@@ -146,6 +146,11 @@ extern gint ett_sgsap_elem[];
 extern elem_fcn sgsap_elem_fcn[];
 extern int hf_sgsap_elem_id;
 
+extern const value_string bssgp_elem_strings[];
+extern gint ett_bssgp_elem[];
+extern elem_fcn bssgp_elem_fcn[];
+extern int hf_bssgp_elem_id;
+
 extern sccp_msg_info_t* sccp_msg;
 extern sccp_assoc_info_t* sccp_assoc;
 
@@ -185,6 +190,7 @@ extern int hf_gsm_a_lac;
 #define NAS_PDU_TYPE_EMM			10
 #define NAS_PDU_TYPE_ESM			11
 #define SGSAP_PDU_TYPE				12
+#define BSSGP_PDU_TYPE				13
 
 extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 
@@ -299,6 +305,11 @@ extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 		SEV_elem_ett = ett_sgsap_elem; \
 		SEV_elem_funcs = sgsap_elem_fcn; \
 		break; \
+	case BSSGP_PDU_TYPE: \
+		SEV_elem_names = bssgp_elem_strings; \
+		SEV_elem_ett = ett_bssgp_elem; \
+		SEV_elem_funcs = bssgp_elem_fcn; \
+		break; \
 	default: \
 		proto_tree_add_text(tree, \
 			tvb, curr_offset, -1, \
@@ -310,6 +321,11 @@ extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
  * Type Length Value (TLV) element dissector
  */
 extern guint16 elem_tlv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add);
+
+/*
+ * Type Extendable Length Value (TLVE) element dissector
+ */
+extern guint16 elem_telv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add);
 
 /*
  * Type Length Value (TLV-E) element dissector
@@ -394,6 +410,31 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 	} \
 	if ((signed)curr_len <= 0) return;      \
 }
+/* This is a version where the length field can be one or two octets depending 
+ * if the extension bit is set or not (TS 48.016 p 10.1.2).
+ *         8        7 6 5 4 3 2 1
+ * octet 2 0/1 ext  length
+ * octet 2a length
+ */
+#define ELEM_MAND_TELV(EMT_iei, EMT_pdu_type, EMT_elem_idx, EMT_elem_name_addition) \
+{\
+	if ((consumed = elem_telv(tvb, tree, (guint8) EMT_iei, EMT_pdu_type, EMT_elem_idx, curr_offset, curr_len, EMT_elem_name_addition)) > 0) \
+	{ \
+		curr_offset += consumed; \
+		curr_len -= consumed; \
+	} \
+	else \
+	{ \
+		proto_tree_add_text(tree, \
+			tvb, curr_offset, 0, \
+			"Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
+			EMT_iei, \
+			get_gsm_a_msg_string(EMT_pdu_type, EMT_elem_idx), \
+			(EMT_elem_name_addition == NULL) ? "" : EMT_elem_name_addition \
+			); \
+	} \
+	if ((signed)curr_len <= 0) return;      \
+}
 
 #define ELEM_MAND_TLV_E(EMT_iei, EMT_pdu_type, EMT_elem_idx, EMT_elem_name_addition) \
 {\
@@ -417,6 +458,16 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 #define ELEM_OPT_TLV(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
 {\
 	if ((consumed = elem_tlv(tvb, tree, (guint8) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, curr_len, EOT_elem_name_addition)) > 0) \
+	{ \
+		curr_offset += consumed; \
+		curr_len -= consumed; \
+	} \
+        if ((signed)curr_len <= 0) return;      \
+}
+
+#define ELEM_OPT_TELV(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
+{\
+	if ((consumed = elem_telv(tvb, tree, (guint8) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, curr_len, EOT_elem_name_addition)) > 0) \
 	{ \
 		curr_offset += consumed; \
 		curr_len -= consumed; \

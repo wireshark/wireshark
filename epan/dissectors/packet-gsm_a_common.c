@@ -536,6 +536,7 @@ static int proto_a_common = -1;
 int gsm_a_tap = -1;
 
 int hf_gsm_a_common_elem_id = -1;
+static int hf_gsm_a_l_ext = -1;
 static int hf_gsm_a_imsi = -1;
 int hf_gsm_a_tmsi = -1;
 static int hf_gsm_a_imei = -1;
@@ -945,6 +946,9 @@ const char* get_gsm_a_msg_string(int pdu_type, int idx)
 	case SGSAP_PDU_TYPE:
 		msg_string = sgsap_elem_strings[idx].strptr;
 		break;
+	case BSSGP_PDU_TYPE:
+		msg_string = bssgp_elem_strings[idx].strptr;
+		break;
 	default:
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
@@ -992,6 +996,9 @@ static int get_hf_elem_id(int pdu_type)
 		break;
 	case SGSAP_PDU_TYPE:
 		hf_elem_id = hf_sgsap_elem_id;
+		break;
+	case BSSGP_PDU_TYPE:
+		hf_elem_id = hf_bssgp_elem_id;
 		break;
 	default:
 		DISSECTOR_ASSERT_NOT_REACHED();
@@ -1051,6 +1058,95 @@ guint16 elem_tlv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int
 					"Element Value");
 				/* See ASSERT above */
 				consumed = (guint8)parm_len;
+			}
+			else
+			{
+				gchar *a_add_string;
+
+				a_add_string=ep_alloc(1024);
+				a_add_string[0] = '\0';
+				consumed =
+				(*elem_funcs[idx])(tvb, subtree, curr_offset + 2,
+					parm_len, a_add_string, 1024);
+
+				if (a_add_string[0] != '\0')
+				{
+					proto_item_append_text(item, "%s", a_add_string);
+				}
+			}
+		}
+
+		consumed += 1 + lengt_length;
+	}
+
+	return(consumed);
+}
+
+/*
+ * Type Extendable Length Value (TELV) element dissector
+ * This is a version where the length field can be one or two octets depending 
+ * if the extension bit is set or not (TS 48.016 p 10.1.2).
+ *         8        7 6 5 4 3 2 1
+ * octet 2 0/1 ext  length
+ * octet 2a length
+ */
+guint16 elem_telv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len _U_, const gchar *name_add)
+{
+	guint8		oct;
+	guint16		parm_len;
+	guint8		lengt_length = 1;
+	guint16		consumed;
+	guint32		curr_offset;
+	proto_tree		*subtree;
+	proto_item		*item;
+	const value_string	*elem_names;
+	gint		*elem_ett;
+	guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
+
+	curr_offset = offset;
+	consumed = 0;
+
+	SET_ELEM_VARS(pdu_type, elem_names, elem_ett, elem_funcs);
+
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	if (oct == iei){
+		parm_len = tvb_get_guint8(tvb, curr_offset + 1);
+		if((parm_len&0x80)==0){
+			/* length in 2 octets */
+			parm_len = tvb_get_ntohs(tvb, curr_offset + 1);
+			lengt_length = 2;
+		}else{
+			parm_len = parm_len & 0x7f;
+		}
+
+		item =
+		proto_tree_add_text(tree,
+			tvb, curr_offset, parm_len + 1 + lengt_length,
+			"%s%s",
+			elem_names[idx].strptr,
+			(name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
+
+		subtree = proto_item_add_subtree(item, elem_ett[idx]);
+
+		proto_tree_add_uint(subtree,
+			get_hf_elem_id(pdu_type), tvb,
+			curr_offset, 1, oct);
+
+		proto_tree_add_item(subtree, hf_gsm_a_l_ext, tvb, curr_offset+1, 1, FALSE);
+
+		proto_tree_add_uint(subtree, hf_gsm_a_length, tvb,
+			curr_offset + 1, lengt_length, parm_len);
+
+		if (parm_len > 0)
+		{
+			if (elem_funcs[idx] == NULL)
+			{
+				proto_tree_add_text(subtree,
+					tvb, curr_offset + 1 + lengt_length, parm_len,
+					"Element Value");
+				/* See ASSERT above */
+				consumed = parm_len;
 			}
 			else
 			{
@@ -1462,6 +1558,8 @@ guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 
 {
 	guint16		consumed;
 	guint32		curr_offset;
+	proto_tree		*subtree;
+	proto_item		*item;
 	const value_string	*elem_names;
 	gint		*elem_ett;
 	guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
@@ -1485,9 +1583,22 @@ guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 
 	{
 		gchar *a_add_string;
 
+		item =
+			proto_tree_add_text(tree,
+				tvb, curr_offset, 0,
+				"%s",
+				elem_names[idx].strptr);
+
+		subtree = proto_item_add_subtree(item, elem_ett[idx]);
+
 		a_add_string=ep_alloc(1024);
 		a_add_string[0] = '\0';
-		consumed = (*elem_funcs[idx])(tvb, tree, curr_offset, -1, a_add_string, 1024);
+		consumed = (*elem_funcs[idx])(tvb, subtree, curr_offset, -1, a_add_string, 1024);
+		if (a_add_string[0] != '\0')
+		{
+			proto_item_append_text(item, "%s", a_add_string);
+		}
+		proto_item_set_len(item, consumed);
 	}
 
 	return(consumed);
@@ -2998,6 +3109,11 @@ proto_register_gsm_a_common(void)
 	{ &hf_gsm_a_common_elem_id,
 		{ "Element ID",	"gsm_a_common.elem_id",
 		FT_UINT8, BASE_DEC, NULL, 0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_l_ext,
+		{ "ext",	"gsm_a_common.l_ext",
+		FT_UINT8, BASE_DEC, NULL, 0x80,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_imsi,
