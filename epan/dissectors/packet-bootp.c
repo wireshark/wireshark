@@ -1667,7 +1667,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		break;
 	}
 
-	case 123: /* coordinate based location RFC 3825 */
+	case 123: /* coordinate based location RFC 3825 or CableLabs DSS_ID  */
 		if (optlen == 16) {
 			int c;
 			unsigned char lci[16];
@@ -1695,18 +1695,33 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				proto_tree_add_text(v_tree, tvb, optoff+10, 1, "Altitude type: %s (%d)", val_to_str(location.altitude_type, altitude_type_values, "Unknown"), location.altitude_type);
 				proto_tree_add_text(v_tree, tvb, optoff+15, 1, "Map Datum: %s (%d)", val_to_str(location.datum_type, map_datum_type_values, "Unknown"), location.datum_type);
 			}
-		} else if (optlen == 34) {
+		} else if ((optlen < 69)) { /* CableLabs DSS_ID */
 			s_option = tvb_get_guint8(tvb, optoff);
 			s_len = tvb_get_guint8(tvb, optoff+1);
-			if (s_option == 1) {
-				proto_tree_add_text(v_tree, tvb, optoff, optlen, "Suboption 1: Primary DSS_ID = \"%s\"",
+			
+			if (s_option == 1) { /*First DSS_ID*/
+				proto_tree_add_text(v_tree, tvb, optoff+2, s_len, "Suboption 1: Primary DSS_ID = \"%s\"",
 					tvb_format_stringzpad(tvb, optoff+2, s_len));
 			} else if (s_option == 2) {
-				proto_tree_add_text(v_tree, tvb, optoff, optlen, "Suboption 2: Secondary DSS_ID = \"%s\"",
+				proto_tree_add_text(v_tree, tvb, optoff+2, s_len, "Suboption 2: Secondary DSS_ID = \"%s\"",
 					tvb_format_stringzpad(tvb, optoff+2, s_len));
 			} else {
-				proto_tree_add_text(v_tree, tvb, optoff, optlen, "Unknown");
+				proto_tree_add_text(v_tree, tvb, optoff, s_len, "Unknown");
 			}
+			
+			if (optlen > s_len+2) { /* Second DSS_ID*/
+				s_option = tvb_get_guint8(tvb, optoff+2+s_len);
+				s_len = tvb_get_guint8(tvb, optoff+1+2+s_len);
+				if (s_option == 1) {
+					proto_tree_add_text(v_tree, tvb, optoff+2+s_len+2, s_len, "Suboption 1: Primary DSS_ID = \"%s\"",
+						tvb_format_stringzpad(tvb, optoff+2+s_len+2, s_len));
+				} else if (s_option == 2) {
+					proto_tree_add_text(v_tree, tvb, optoff+2+s_len+2, s_len, "Suboption 2: Secondary DSS_ID = \"%s\"",
+						tvb_format_stringzpad(tvb, optoff+2+s_len+2, s_len));
+				} else {
+					proto_tree_add_text(v_tree, tvb, optoff+s_len+2, s_len, "Unknown");
+				}
+			} 
 		} else {
 			proto_tree_add_text(v_tree, tvb, optoff, optlen, "Error: Invalid length of DHCP option!");
 		}
