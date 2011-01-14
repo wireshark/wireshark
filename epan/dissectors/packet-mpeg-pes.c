@@ -601,21 +601,9 @@ static const value_string mpeg_pes_TrickModeFrequencyTruncation_vals[] = {
   {   0, NULL }
 };
 
-static guint64 tvb_get_ntoh40(tvbuff_t *tvb, unsigned offset)
-{
-	return (guint64)tvb_get_guint8(tvb, offset) << 32
-		| tvb_get_ntohl(tvb, offset + 1);
-}
-
-static guint64 tvb_get_ntoh48(tvbuff_t *tvb, unsigned offset)
-{
-	return (guint64)tvb_get_ntohs(tvb, offset) << 32
-		| tvb_get_ntohl(tvb, offset + 2);
-}
-
 #define TSHZ 90000
 
-static guint64 decode_time_stamp(tvbuff_t *tvb, unsigned offset, nstime_t *nst)
+static guint64 decode_time_stamp(tvbuff_t *tvb, gint offset, nstime_t *nst)
 {
 	guint64 bytes = tvb_get_ntoh40(tvb, offset);
 	guint64 ts =
@@ -630,7 +618,7 @@ static guint64 decode_time_stamp(tvbuff_t *tvb, unsigned offset, nstime_t *nst)
 
 #define SCRHZ 27000000
 
-static guint64 decode_clock_reference(tvbuff_t *tvb, unsigned offset,
+static guint64 decode_clock_reference(tvbuff_t *tvb, gint offset,
 		nstime_t *nst)
 {
 	guint64 bytes = tvb_get_ntoh48(tvb, offset);
@@ -654,7 +642,7 @@ dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
 			0, -1, FALSE);
 	proto_tree *tree = proto_item_add_subtree(item, ett_mpeg_pes_header_data);
 
-	unsigned offset = 0;
+	gint offset = 0;
 	if (flags & PTS_FLAG) {
 		nstime_t nst;
 		decode_time_stamp(tvb, offset, &nst);
@@ -798,8 +786,8 @@ dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
 	}
 }
 
-static unsigned
-dissect_mpeg_pes_pack_header(tvbuff_t *tvb, unsigned offset,
+static gint
+dissect_mpeg_pes_pack_header(tvbuff_t *tvb, gint offset,
 		packet_info *pinfo, proto_tree *root)
 {
 	unsigned program_mux_rate, stuffing_length;
@@ -846,7 +834,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int prefix;
 	int stream;
 	asn1_ctx_t asn1_ctx;
-	unsigned offset = 0;
+	gint offset = 0;
 
 	if (!tvb_bytes_exist(tvb, 0, 3))
 		return FALSE;	/* not enough bytes for a PES prefix */
@@ -1224,7 +1212,7 @@ proto_register_mpeg_pes(void)
         "BIT_STRING_SIZE_16", HFILL }},
 
 /*--- End of included file: packet-mpeg-pes-hfarr.c ---*/
-#line 582 "packet-mpeg-pes-template.c"
+#line 570 "packet-mpeg-pes-template.c"
 		{ &hf_mpeg_pes_pack_header,
 			{ "Pack header", "mpeg-pes.pack",
 				FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -1342,7 +1330,7 @@ proto_register_mpeg_pes(void)
     &ett_mpeg_pes_Picture,
 
 /*--- End of included file: packet-mpeg-pes-ettarr.c ---*/
-#line 689 "packet-mpeg-pes-template.c"
+#line 677 "packet-mpeg-pes-template.c"
 		&ett_mpeg_pes_pack_header,
 		&ett_mpeg_pes_header_data,
 		&ett_mpeg_pes_trick_mode

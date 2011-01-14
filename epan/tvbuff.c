@@ -1181,6 +1181,33 @@ tvb_get_ntohl(tvbuff_t *tvb, const gint offset)
 }
 
 guint64
+tvb_get_ntoh40(tvbuff_t *tvb, const gint offset)
+{
+	const guint8* ptr;
+
+	ptr = fast_ensure_contiguous(tvb, offset, 5);
+	return pntoh40(ptr);
+}
+
+guint64
+tvb_get_ntoh48(tvbuff_t *tvb, const gint offset)
+{
+	const guint8* ptr;
+
+	ptr = fast_ensure_contiguous(tvb, offset, 6);
+	return pntoh48(ptr);
+}
+
+guint64
+tvb_get_ntoh56(tvbuff_t *tvb, const gint offset)
+{
+	const guint8* ptr;
+
+	ptr = fast_ensure_contiguous(tvb, offset, 7);
+	return pntoh56(ptr);
+}
+
+guint64
 tvb_get_ntoh64(tvbuff_t *tvb, const gint offset)
 {
 	const guint8* ptr;
@@ -1417,6 +1444,33 @@ tvb_get_letohl(tvbuff_t *tvb, const gint offset)
 
 	ptr = fast_ensure_contiguous(tvb, offset, sizeof(guint32));
 	return pletohl(ptr);
+}
+
+guint64
+tvb_get_letoh40(tvbuff_t *tvb, const gint offset)
+{
+	const guint8* ptr;
+
+	ptr = fast_ensure_contiguous(tvb, offset, 5);
+	return pletoh40(ptr);
+}
+
+guint64
+tvb_get_letoh48(tvbuff_t *tvb, const gint offset)
+{
+	const guint8* ptr;
+
+	ptr = fast_ensure_contiguous(tvb, offset, 6);
+	return pletoh48(ptr);
+}
+
+guint64
+tvb_get_letoh56(tvbuff_t *tvb, const gint offset)
+{
+	const guint8* ptr;
+
+	ptr = fast_ensure_contiguous(tvb, offset, 7);
+	return pletoh56(ptr);
 }
 
 guint64

@@ -1053,6 +1053,9 @@ tvb_get_guint8
 tvb_get_ipv4
 tvb_get_ipv6
 tvb_get_letoh24
+tvb_get_letoh40
+tvb_get_letoh48
+tvb_get_letoh56
 tvb_get_letoh64
 tvb_get_letohguid
 tvb_get_letohieee_double
@@ -1062,6 +1065,9 @@ tvb_get_letohs
 tvb_get_nstringz
 tvb_get_nstringz0
 tvb_get_ntoh24
+tvb_get_ntoh40
+tvb_get_ntoh48
+tvb_get_ntoh56
 tvb_get_ntoh64
 tvb_get_ntohguid
 tvb_get_ntohieee_double
