@@ -1563,7 +1563,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
     for (item_num = 0; item_num < num_items; item_num++)
     {
       /* Create Point item and Process Index */
-      if (AL_OBJQL_IDX_NI <= al_objq_index && al_objq_index <= AL_OBJQL_IDX_4O)
+      if (al_objq_index <= AL_OBJQL_IDX_4O)
         point_item = proto_tree_add_text(object_tree, tvb, offset, -1, "Point Number");
       else
         point_item = proto_tree_add_text(object_tree, tvb, offset, -1, "Object: Size");
