@@ -103,7 +103,7 @@ dissect_pimv1_addr(tvbuff_t *tvb, int offset) {
                                 flags_masklen & 0x0040 ? "R" : "");
     } else {
         return ep_strdup_printf("%s/%u",
-                                ip_to_str(tvb_get_ptr(tvb, offset + 2, 4)), flags_masklen & 0x3f);
+                                tvb_ip_to_str(tvb, offset + 2), flags_masklen & 0x3f);
     }
 }
 
@@ -282,10 +282,10 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                     "IPv4 dummy header");
                 proto_tree_add_text(pimopt_tree, tvb, offset + 12, 4,
                                     "Source: %s",
-                                    ip_to_str(tvb_get_ptr(tvb, offset + 12, 4)));
+                                    tvb_ip_to_str(tvb, offset + 12));
                 proto_tree_add_text(pimopt_tree, tvb, offset + 16, 4,
                                     "Group: %s",
-                                    ip_to_str(tvb_get_ptr(tvb, offset + 16, 4)));
+                                    tvb_ip_to_str(tvb, offset + 16));
             } else if (pinfo->src.type == AT_IPv6) {
                 struct ip6_hdr ip6_hdr;
                 tvb_memcpy(tvb, (guint8 *)&ip6_hdr, offset,
@@ -330,11 +330,11 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     {
         proto_tree_add_text(pimopt_tree, tvb, offset, 4,
                             "Group: %s",
-                            ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+                            tvb_ip_to_str(tvb, offset));
         offset += 4;
         proto_tree_add_text(pimopt_tree, tvb, offset, 4,
                             "Source: %s",
-                            ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+                            tvb_ip_to_str(tvb, offset));
         offset += 4;
         break;
     }
@@ -356,7 +356,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         proto_tree_add_text(pimopt_tree, tvb, offset, 4,
                             "Upstream-neighbor: %s",
-                            ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+                            tvb_ip_to_str(tvb, offset));
         offset += 4;
 
         offset += 2;    /* skip reserved stuff */
@@ -391,13 +391,13 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
              */
             tigroup = proto_tree_add_text(pimopt_tree, tvb, offset, 4,
                                           "Group %d: %s", i,
-                                          ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+                                          tvb_ip_to_str(tvb, offset));
             grouptree = proto_item_add_subtree(tigroup, ett_pim);
             offset += 4;
 
             proto_tree_add_text(grouptree, tvb, offset, 4,
                                 "Group %d Mask: %s", i,
-                                ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+                                tvb_ip_to_str(tvb, offset));
             offset += 4;
 
             njoin = tvb_get_ntohs(tvb, offset);
@@ -433,17 +433,17 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         proto_tree_add_text(pimopt_tree, tvb, offset, 4,
                             "Group Address: %s",
-                            ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+                            tvb_ip_to_str(tvb, offset));
         offset += 4;
 
         proto_tree_add_text(pimopt_tree, tvb, offset, 4,
                             "Group Mask: %s",
-                            ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+                            tvb_ip_to_str(tvb, offset));
         offset += 4;
 
         proto_tree_add_text(pimopt_tree, tvb, offset, 4,
                             "RP Address: %s",
-                            ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+                            tvb_ip_to_str(tvb, offset));
         offset += 4;
 
         offset += 2;    /* skip reserved stuff */
@@ -463,12 +463,12 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         proto_tree_add_text(pimopt_tree, tvb, offset, 4,
                             "Group Address: %s",
-                            ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+                            tvb_ip_to_str(tvb, offset));
         offset += 4;
 
         proto_tree_add_text(pimopt_tree, tvb, offset, 4,
                             "Group Mask: %s",
-                            ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+                            tvb_ip_to_str(tvb, offset));
         offset += 4;
 
         proto_tree_add_item(pimopt_tree, hf_pim_rpt, tvb, offset, 1, FALSE);
@@ -527,12 +527,12 @@ dissect_pim_addr(tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
         switch (af) {
         case AFNUM_INET:
             len = 4;
-            ep_strbuf_printf(strbuf, "%s", ip_to_str(tvb_get_ptr(tvb, offset + 2, len)));
+            ep_strbuf_printf(strbuf, "%s", tvb_ip_to_str(tvb, offset + 2));
             break;
 
         case AFNUM_INET6:
             len = 16;
-            ep_strbuf_printf(strbuf, "%s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset + 2, len)));
+            ep_strbuf_printf(strbuf, "%s", tvb_ip6_to_str(tvb, offset + 2));
             break;
         }
         if (advance)
@@ -545,13 +545,13 @@ dissect_pim_addr(tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
         case AFNUM_INET:
             len = 4;
             ep_strbuf_printf(strbuf, "%s/%u",
-                             ip_to_str(tvb_get_ptr(tvb, offset + 4, len)), mask_len);
+                             tvb_ip_to_str(tvb, offset + 4), mask_len);
             break;
 
         case AFNUM_INET6:
             len = 16;
             ep_strbuf_printf(strbuf, "%s/%u",
-                             ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset + 4, len)), mask_len);
+                             tvb_ip6_to_str(tvb, offset + 4), mask_len);
             break;
         }
         if (advance)
@@ -565,13 +565,13 @@ dissect_pim_addr(tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
         case AFNUM_INET:
             len = 4;
             ep_strbuf_printf(strbuf, "%s/%u",
-                             ip_to_str(tvb_get_ptr(tvb, offset + 4, len)), mask_len);
+                             tvb_ip_to_str(tvb, offset + 4), mask_len);
             break;
 
         case AFNUM_INET6:
             len = 16;
             ep_strbuf_printf(strbuf, "%s/%u",
-                             ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset + 4, len)), mask_len);
+                             tvb_ip6_to_str(tvb, offset + 4), mask_len);
             break;
         }
         if (flags) {
@@ -896,10 +896,10 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                                     "IPv4 dummy header");
                 proto_tree_add_text(pimopt_tree, tvb, offset + 12, 4,
                                     "Source: %s",
-                                    ip_to_str(tvb_get_ptr(tvb, offset + 12, 4)));
+                                    tvb_ip_to_str(tvb, offset + 12));
                 proto_tree_add_text(pimopt_tree, tvb, offset + 16, 4,
                                     "Group: %s",
-                                    ip_to_str(tvb_get_ptr(tvb, offset + 16, 4)));
+                                    tvb_ip_to_str(tvb, offset + 16));
             } else if (pinfo->src.type == AT_IPv6) {
                 struct ip6_hdr ip6_hdr;
                 tvb_memcpy(tvb, (guint8 *)&ip6_hdr, offset,

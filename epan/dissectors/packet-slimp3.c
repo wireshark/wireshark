@@ -424,7 +424,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 	    i1 = 18;
 	    lcd_strlen = 0;
-	    while (tvb_offset_exists(tvb, offset + i1) && 
+	    while (tvb_offset_exists(tvb, offset + i1) &&
 		    lcd_strlen < MAX_LCD_STR_LEN) {
 		switch (tvb_get_guint8(tvb, offset + i1)) {
 
@@ -554,7 +554,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 	    if (old_protocol) {
 	        proto_tree_add_text(slimp3_tree, tvb, offset, -1,
-				    "Length: %d bytes", 
+				    "Length: %d bytes",
 				    tvb_reported_length_remaining(tvb, offset+18));
 	        proto_tree_add_text(slimp3_tree, tvb, offset+2, 2,
 				    "Buffer offset: %d bytes.",
@@ -565,7 +565,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    val_to_str(tvb_get_guint8(tvb, offset+1),
 				               slimp3_mpg_control, "Unknown (0x%0x)"));
 	        proto_tree_add_text(slimp3_tree, tvb, offset, -1,
-				    "Length: %d bytes", 
+				    "Length: %d bytes",
 				    tvb_reported_length_remaining(tvb, offset+18));
 	        proto_tree_add_text(slimp3_tree, tvb, offset+6, 2,
 				    "Write Pointer: %d",
@@ -578,13 +578,13 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 	    if (old_protocol) {
-	        col_append_fstr(pinfo->cinfo, COL_INFO, 
+	        col_append_fstr(pinfo->cinfo, COL_INFO,
 	        		", Length: %d bytes, Offset: %d bytes.",
 			        tvb_reported_length_remaining(tvb, offset+18),
 			        tvb_get_ntohs(tvb, offset+2) * 2);
 	    }
 	    else {
-	        col_append_fstr(pinfo->cinfo, COL_INFO, 
+	        col_append_fstr(pinfo->cinfo, COL_INFO,
 	        		", %s, %d bytes at %d, Sequence: %d",
 			        val_to_str(tvb_get_guint8(tvb, offset+1),
 				           slimp3_mpg_control, "Unknown (0x%0x)"),
@@ -622,14 +622,14 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 	    proto_tree_add_text(slimp3_tree, tvb, offset+2, 4,
 				"Server Address: %s.",
-				ip_to_str(tvb_get_ptr(tvb, offset+2, 4)));
+				tvb_ip_to_str(tvb, offset+2));
 	    proto_tree_add_text(slimp3_tree, tvb, offset+6, 2,
 				"Server Port: %d", tvb_get_ntohs(tvb, offset + 6));
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Server Address: %s. Server Port: %d",
-			    ip_to_str(tvb_get_ptr(tvb, offset+2, 4)),
+			    tvb_ip_to_str(tvb, offset+2),
 			    tvb_get_ntohs(tvb, offset + 6));
 	}
 	break;
@@ -638,7 +638,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Acknowledge MPEG data
 	*
 	*  [0]       'a'
-	*  [1..5]    
+	*  [1..5]
 	*  [6..7]    Write pointer (in words)
 	*  [8..9]    Read pointer (in words)
 	*  [10..11]  Sequence number

@@ -244,7 +244,7 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   offset += 2;
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_str(pinfo->cinfo, COL_INFO, 
+    col_add_str(pinfo->cinfo, COL_INFO,
                  val_to_str(opcode, opcode_vals, "Unknown (0x%04x)"));
 
   }
@@ -265,12 +265,12 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (alen == 4) {
 	  proto_tree_add_text(xdmcp_tree, tvb, offset, alen+2,
 			      "Client address: %s",
-			      ip_to_str(tvb_get_ptr(tvb, offset+2, 4)));
+			      tvb_ip_to_str(tvb, offset+2));
 	  offset += 6;
 	} else if (alen == 16) {
 	  proto_tree_add_text(xdmcp_tree, tvb, offset, alen+2,
 			      "Client address: %s",
-			      ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset+2, 16)));
+			      tvb_ip6_to_str(tvb, offset+2));
 	  offset += 18;
 	} else {
 	  offset += xdmcp_add_bytes(xdmcp_tree, "Client address", tvb, offset);
@@ -353,9 +353,9 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  caddrs_offset += 2;
 
 	  if ((ctype == 0) && (alen == 4)) {
-	    ip_string = ip_to_str(tvb_get_ptr(tvb, caddrs_offset, 4));
+	    ip_string = tvb_ip_to_str(tvb, caddrs_offset);
 	  } else if ((ctype == 6) && (alen == 16)) {
-	    ip_string = ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, caddrs_offset, 16));
+	    ip_string = tvb_ip6_to_str(tvb, caddrs_offset);
 	  } else {
 	    ip_string = NULL;
 	  }

@@ -2110,7 +2110,7 @@ dissect_lcp_multilink_ep_disc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                             length, plurality(length, "", "s"));
       } else {
         proto_tree_add_text(field_tree, tvb, offset, length,
-                            "Address: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+                            "Address: %s", tvb_ip_to_str(tvb, offset));
       }
       break;
 
@@ -2217,12 +2217,12 @@ dissect_ipcp_addrs_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   length -= 2;
   proto_tree_add_text(field_tree, tvb, offset, 4,
                       "Source IP address: %s",
-                      ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+                      tvb_ip_to_str(tvb, offset));
   offset += 4;
   length -= 4;
   proto_tree_add_text(field_tree, tvb, offset, 4,
                       "Destination IP address: %s",
-                      ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+                      tvb_ip_to_str(tvb, offset));
 }
 
 static void
@@ -2231,7 +2231,7 @@ dissect_ipcp_addr_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                       proto_tree *tree)
 {
   proto_tree_add_text(tree, tvb, offset, length, "%s: %s", optp->name,
-                      ip_to_str(tvb_get_ptr(tvb, offset + 2, 4)));
+                      tvb_ip_to_str(tvb, offset + 2));
 }
 
 static void
@@ -2915,7 +2915,7 @@ dissect_vsncp_pdnaddress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   case 1:
     proto_tree_add_text(field_tree, tvb, offset+3, length-3, "%s: %s",
                         val_to_str_const(pdnaddtype, pdntype_vals, "Unknown"),
-                        ip_to_str(tvb_get_ptr(tvb, offset + 3, 4)));
+                        tvb_ip_to_str(tvb, offset + 3));
     break;
 
   case 2:
@@ -2937,7 +2937,7 @@ dissect_vsncp_pdnaddress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
     proto_tree_add_text(field_tree, tvb, offset+11, length-11, "%s: %s",
                         val_to_str_const(pdnaddtype, pdntype_vals, "Unknown"),
-                        ip_to_str(tvb_get_ptr(tvb, offset + 11, 4)));
+                        tvb_ip_to_str(tvb, offset + 11));
     break;
   }
   default:
@@ -2953,7 +2953,7 @@ dissect_vsncp_ipv4adress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                              proto_tree *tree)
 {
   proto_tree_add_text(tree, tvb, offset, length, "%s: %s", optp->name,
-                      ip_to_str(tvb_get_ptr(tvb, offset + 2, 4)));
+                      tvb_ip_to_str(tvb, offset + 2));
   offset += 2;
 }
 

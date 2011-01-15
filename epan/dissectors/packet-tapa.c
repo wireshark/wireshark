@@ -28,7 +28,7 @@
   TODO:
 
 Specs:
-	
+
 	No specs available.
  */
 
@@ -151,7 +151,7 @@ dissect_tapa_discover_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Switch: %s",
-			ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+			tvb_ip_to_str(tvb, offset));
 
 	offset += 4;
 

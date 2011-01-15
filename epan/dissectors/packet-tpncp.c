@@ -205,7 +205,7 @@ static void dissect_tpncp_data(gint data_id, tvbuff_t *tvb, proto_item *item,
                 }
                 /* Add string representation for ip_address's field (if needed). */
                 if (current_tpncp_data_field_info->tpncp_data_field_is_ip_addr) {
-                    proto_item_append_text(pi, " (%s)", ip_to_str(tvb_get_ptr(tvb, *offset, 4)));
+                    proto_item_append_text(pi, " (%s)", tvb_ip_to_str(tvb, *offset));
                 }
                 (*offset) += 4;
                 break;

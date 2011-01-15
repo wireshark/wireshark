@@ -217,7 +217,7 @@ dissect_ip_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
     metric = tvb_get_ntohl(tvb, offset+16);
     ti = proto_tree_add_text(tree, tvb, offset,
 			     RIP_ENTRY_LENGTH, "IP Address: %s, Metric: %u",
-			     ip_to_str(tvb_get_ptr(tvb, offset+4, 4)), metric);
+			     tvb_ip_to_str(tvb, offset+4), metric);
     rip_vektor_tree = proto_item_add_subtree(ti, ett_rip_vec);
 
     proto_tree_add_item(rip_vektor_tree, hf_rip_family, tvb, offset, 2, FALSE);
