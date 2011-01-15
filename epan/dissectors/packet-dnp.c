@@ -2125,7 +2125,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
               case AL_OBJ_AO_32:     /* 32-Bit Analog Output Status (Obj:40, Var:01) */
 			  case AL_OBJ_AOC_32NT:  /* 32-Bit Analog Output Event w/o Time (Obj:42, Var:01) */
               case AL_OBJ_AOC_32T:   /* 32-Bit Analog Output Event with Time (Obj:42, Var:03) */
- 
+
                 al_val32 = tvb_get_letohl(tvb, data_pos);
                 proto_item_append_text(point_item, ", Value: %u", al_val32);
                 proto_tree_add_item(point_tree, hf_dnp3_al_anaout32, tvb, data_pos, 4, TRUE);
@@ -2176,7 +2176,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
                 data_pos += 6;
                 break;
             }
-			
+
             proto_item_set_len(point_item, data_pos - offset);
             offset = data_pos;
 
@@ -2233,11 +2233,11 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
 
             /* Perms */
             if (al_file_ctrl_mode == AL_OBJ_FILE_MODE_WRITE) {
-            
+
               al_file_perms = tvb_get_letohs(tvb, data_pos);
               perms_item = proto_tree_add_text(point_tree, tvb, offset, 2, "Permissions: %o", al_file_perms);
               perms_tree = proto_item_add_subtree(perms_item, ett_dnp3_al_obj_point_perms);
-            
+
               proto_tree_add_text(perms_tree, tvb, data_pos, 2, "%s",
               decode_boolean_bitfield(al_file_perms, 0400, 16, "Read permission for owner", "no Read permission for owner"));
               proto_tree_add_text(perms_tree, tvb, data_pos, 2, "%s",
@@ -2348,7 +2348,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
 
             offset = data_pos;
             break;
-			
+
 		  case AL_OBJ_FILE_TRAN_ST: /* File Control Tansport Status (Obj:70, Var:06) */
 
             /* File Handle */
@@ -2359,7 +2359,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
             proto_tree_add_item(point_tree, hf_dnp3_al_file_blocknum, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(point_tree, hf_dnp3_al_file_lastblock, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
             data_pos += 4;
-		  
+
             /* Status code */
             proto_tree_add_item(point_tree, hf_dnp3_al_file_status, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
             data_pos += 1;
@@ -2370,7 +2370,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
               proto_tree_add_item(point_tree, hf_dnp3_al_file_data, tvb, data_pos, file_data_size, ENC_NA);
               data_pos += file_data_size;
             }
-			
+
             proto_item_set_len(point_item, data_pos - offset);
 
             offset = data_pos;
@@ -2598,7 +2598,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
     offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, FALSE, &obj_type);
   }
-  
+
   break;
 
   case AL_FUNC_DISSPMSG:   /* Disable Spontaneous Messages Function Code 0x15 */
@@ -2611,7 +2611,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
     offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, FALSE, &obj_type);
   }
-  
+
   break;
 
   case AL_FUNC_DELAYMST:  /* Delay Measurement Function Code 0x17 */
@@ -3258,34 +3258,34 @@ proto_register_dnp3(void)
     { "Control Status", "dnp3.al.ctrlstatus", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &dnp3_al_ctl_status_vals_ext, 0xff, NULL, HFILL }},
 
     { &hf_dnp3_al_file_mode,
-    { "File Control Mode", "dnp3.al.file.mode", FT_UINT16, BASE_DEC, VALS(dnp3_al_file_mode_vals), 0x0, "File Control Mode", HFILL }},
+    { "File Control Mode", "dnp3.al.file.mode", FT_UINT16, BASE_DEC, VALS(dnp3_al_file_mode_vals), 0x0, NULL, HFILL }},
 
     { &hf_dnp3_al_file_auth,
-    { "Auth Key", "dnp3.al.file.auth", FT_UINT32, BASE_HEX, NULL, 0x0, "File Authentication Key", HFILL }},
+    { "File Authentication Key", "dnp3.al.file.auth", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_dnp3_al_file_size,
-    { "File Size", "dnp3.al.file.size", FT_UINT32, BASE_HEX, NULL, 0x0, "File Size", HFILL }},
+    { "File Size", "dnp3.al.file.size", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_dnp3_al_file_maxblk,
-    { "Max Block Size", "dnp3.al.file.maxblock", FT_UINT16, BASE_DEC, NULL, 0x0, "File Maximum Block Size", HFILL }},
+    { "File Max Block Size", "dnp3.al.file.maxblock", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_dnp3_al_file_reqID,
-    { "Request ID", "dnp3.al.file.reqID", FT_UINT16, BASE_DEC, NULL, 0x0, "File Request Identifier", HFILL }},
+    { "File Request Identifier", "dnp3.al.file.reqID", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_dnp3_al_file_status,
-    { "File Control Status", "dnp3.al.file.status", FT_UINT8, BASE_DEC, VALS(dnp3_al_file_status_vals), 0x0, "File Control Status", HFILL }},
+    { "File Control Status", "dnp3.al.file.status", FT_UINT8, BASE_DEC, VALS(dnp3_al_file_status_vals), 0x0, NULL, HFILL }},
 
     { &hf_dnp3_al_file_handle,
-    { "File Handle", "dnp3.al.file.handle", FT_UINT32, BASE_HEX, NULL, 0x0, "File Handle", HFILL }},
+    { "File Handle", "dnp3.al.file.handle", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_dnp3_al_file_blocknum,
-    { "File Block Num", "dnp3.al.file.blocknum", FT_UINT32, BASE_HEX, NULL, 0x7fffffff, "File Block Number", HFILL }},
+    { "File Block Number", "dnp3.al.file.blocknum", FT_UINT32, BASE_HEX, NULL, 0x7fffffff, NULL, HFILL }},
 
     { &hf_dnp3_al_file_lastblock,
-    { "File Last Block", "dnp3.al.file.lastblock", FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x80000000, "File Last Block", HFILL }},
+    { "File Last Block", "dnp3.al.file.lastblock", FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x80000000, NULL, HFILL }},
 
     { &hf_dnp3_al_file_data,
-    { "File Data", "dnp3.al.file.data", FT_BYTES, BASE_NONE, NULL, 0x0, "File Data", HFILL }},
+    { "File Data", "dnp3.al.file.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_dnp3_al_biq_b0,
     { "Online", "dnp3.al.biq.b0", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_BI_FLAG0, NULL, HFILL }},
