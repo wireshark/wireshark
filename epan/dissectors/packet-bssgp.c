@@ -75,6 +75,7 @@
 static int bssgp_decode_nri = 0;
 static guint bssgp_nri_length = 4;
 
+static packet_info *gpinfo;
 static dissector_handle_t llc_handle;
 static dissector_handle_t rrlp_handle;
 static dissector_handle_t data_handle;
@@ -84,7 +85,8 @@ static module_t *bssgp_module;
 /* Initialize the protocol and registered fields */
 static int hf_bssgp_iei_nacc_cause = -1;
 static int proto_bssgp = -1;
-static int hf_bssgp_pdu_type = -1;
+static int hf_bssgp_msg_type = -1;
+int hf_bssgp_elem_id = -1;
 static int hf_bssgp_ie_type = -1;
 static int hf_bssgp_mcc = -1;
 static int hf_bssgp_mnc = -1;
@@ -105,6 +107,13 @@ static int hf_bssgp_tmsi_ptmsi = -1;
 static int hf_bssgp_bvci = -1;
 static int hf_bssgp_nsei = -1;
 static int hf_bssgp_tlli = -1;
+
+static int hf_bssgp_delay_val = -1;
+static int hf_bssgp_peak_rate_gran = -1;
+static int hf_bssgp_cr_bit = -1;
+static int hf_bssgp_t_bit = -1;
+static int hf_bssgp_a_bit = -1;
+static int hf_bssgp_precedence = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bssgp = -1;
@@ -158,6 +167,8 @@ static gint ett_bssgp_tmsi_ptmsi = -1;
 #define BSSGP_PDU_UL_UNITDATA                  0x01
 #define BSSGP_PDU_RA_CAPABILITY                0x02
 #define BSSGP_PDU_PTM_UNITDATA                 0x03
+#define BSSGP_PDU_DL_MBMS_UNITDATA             0x04
+#define BSSGP_PDU_UL_MBMS_UNITDATA             0x05
 #define BSSGP_PDU_PAGING_PS                    0x06
 #define BSSGP_PDU_PAGING_CS                    0x07
 #define BSSGP_PDU_RA_CAPABILITY_UPDATE         0x08
@@ -169,6 +180,7 @@ static gint ett_bssgp_tmsi_ptmsi = -1;
 #define BSSGP_PDU_RESUME                       0x0e
 #define BSSGP_PDU_RESUME_ACK                   0x0f
 #define BSSGP_PDU_RESUME_NACK                  0x10
+
 #define BSSGP_PDU_BVC_BLOCK                    0x20
 #define BSSGP_PDU_BVC_BLOCK_ACK                0x21
 #define BSSGP_PDU_BVC_RESET                    0x22
@@ -184,8 +196,10 @@ static gint ett_bssgp_tmsi_ptmsi = -1;
 #define BSSGP_PDU_LLC_DISCARDED                0x2c
 #define BSSGP_PDU_FLOW_CONTROL_PFC             0x2d
 #define BSSGP_PDU_FLOW_CONTROL_PFC_ACK         0x2e
+
 #define BSSGP_PDU_SGSN_INVOKE_TRACE            0x40
 #define BSSGP_PDU_STATUS                       0x41
+
 #define BSSGP_PDU_DOWNLOAD_BSS_PFC             0x50
 #define BSSGP_PDU_CREATE_BSS_PFC               0x51
 #define BSSGP_PDU_CREATE_BSS_PFC_ACK           0x52
@@ -201,76 +215,109 @@ static gint ett_bssgp_tmsi_ptmsi = -1;
 #define BSSGP_PDU_PS_HANDOVER_REQUEST          0x5c
 #define BSSGP_PDU_PS_HANDOVER_REQUEST_ACK      0x5d
 #define BSSGP_PDU_PS_HANDOVER_REQUEST_NACK     0x5e
+
 #define BSSGP_PDU_PERFORM_LOCATION_REQUEST     0x60
 #define BSSGP_PDU_PERFORM_LOCATION_RESPONSE    0x61
 #define BSSGP_PDU_PERFORM_LOCATION_ABORT       0x62
 #define BSSGP_PDU_POSITION_COMMAND             0x63
 #define BSSGP_PDU_POSITION_RESPONSE            0x64
+
 #define BSSGP_PDU_RAN_INFORMATION              0x70
 #define BSSGP_PDU_RAN_INFORMATION_REQUEST      0x71
 #define BSSGP_PDU_RAN_INFORMATION_ACK          0x72
 #define BSSGP_PDU_RAN_INFORMATION_ERROR        0x73
 #define BSSGP_PDU_RAN_APPLICATION_ERROR        0x74
 
+/*
+0x80 MBMS-SESSION-START-REQUEST
+0x81 MBMS-SESSION-START-RESPONSE
+0x82 MBMS-SESSION-STOP-REQUEST
+0x83 MBMS-SESSION-STOP-RESPONSE
+0x84 MBMS-SESSION-UPDATE-REQUEST
+0x85 MBMS-SESSION-UPDATE-RESPONSE
+*/
+/*
+0x91 PS-HANDOVER-COMPLETE
+0x92 PS-HANDOVER-CANCEL
+0x93 PS-HANDOVER-COMPLETE-ACK
+*/
 static const value_string tab_bssgp_pdu_types[] = {
-  { BSSGP_PDU_DL_UNITDATA,                  "DL-UNITDATA" },
-  { BSSGP_PDU_UL_UNITDATA,                  "UL-UNITDATA" },
-  { BSSGP_PDU_RA_CAPABILITY,                "RA-CAPABILITY" },
-  { BSSGP_PDU_PTM_UNITDATA,                 "PTM-UNITDATA" },
-  { BSSGP_PDU_PAGING_PS,                    "PAGING-PS" },
-  { BSSGP_PDU_PAGING_CS,                    "PAGING-CS" },
-  { BSSGP_PDU_RA_CAPABILITY_UPDATE,         "RA-CAPABILITY-UPDATE" },
-  { BSSGP_PDU_RA_CAPABILITY_UPDATE_ACK,     "RA-CAPABILITY-UPDATE-ACK" },
-  { BSSGP_PDU_RADIO_STATUS,                 "RADIO-STATUS" },
-  { BSSGP_PDU_SUSPEND,                      "SUSPEND" },
-  { BSSGP_PDU_SUSPEND_ACK,                  "SUSPEND-ACK" },
-  { BSSGP_PDU_SUSPEND_NACK,                 "SUSPEND-NACK" },
-  { BSSGP_PDU_RESUME,                       "RESUME" },
-  { BSSGP_PDU_RESUME_ACK,                   "RESUME-ACK" },
-  { BSSGP_PDU_RESUME_NACK,                  "RESUME-NACK" },
-  { BSSGP_PDU_BVC_BLOCK,                    "BVC-BLOCK" },
-  { BSSGP_PDU_BVC_BLOCK_ACK,                "BVC-BLOCK-ACK" },
-  { BSSGP_PDU_BVC_RESET,                    "BVC-RESET" },
-  { BSSGP_PDU_BVC_RESET_ACK,                "BVC-RESET-ACK" },
-  { BSSGP_PDU_BVC_UNBLOCK,                  "UNBLOCK" },
-  { BSSGP_PDU_BVC_UNBLOCK_ACK,              "UNBLOCK-ACK" },
-  { BSSGP_PDU_FLOW_CONTROL_BVC,             "FLOW-CONTROL-BVC" },
-  { BSSGP_PDU_FLOW_CONTROL_BVC_ACK,         "FLOW-CONTROL-BVC-ACK" },
-  { BSSGP_PDU_FLOW_CONTROL_MS,              "FLOW-CONTROL-MS" },
-  { BSSGP_PDU_FLOW_CONTROL_MS_ACK,          "FLOW-CONTROL-MS-ACK" },
-  { BSSGP_PDU_FLUSH_LL,                     "FLUSH-LL" },
-  { BSSGP_PDU_FLUSH_LL_ACK,                 "FLUSH_LL_ACK" },
-  { BSSGP_PDU_LLC_DISCARDED,                "LLC-DISCARDED" },
-  { BSSGP_PDU_FLOW_CONTROL_PFC,             "FLOW-CONTROL-PFC" },
-  { BSSGP_PDU_FLOW_CONTROL_PFC_ACK,         "FLOW-CONTROL-PFC-ACK" },
-  { BSSGP_PDU_SGSN_INVOKE_TRACE,            "SGSN-INVOKE-TRACE" },
-  { BSSGP_PDU_STATUS,                       "STATUS" },
-  { BSSGP_PDU_DOWNLOAD_BSS_PFC,             "DOWNLOAD-BSS-PFC" },
-  { BSSGP_PDU_CREATE_BSS_PFC,               "CREATE-BSS-PFC" },
-  { BSSGP_PDU_CREATE_BSS_PFC_ACK,           "CREATE-BSS-PFC-ACK" },
-  { BSSGP_PDU_CREATE_BSS_PFC_NACK,          "CREATE-BSS-PFC-NACK" },
-  { BSSGP_PDU_MODIFY_BSS_PFC,               "MODIFY-BSS-PFC" },
-  { BSSGP_PDU_MODIFY_BSS_PFC_ACK,           "MODIFY-BSS-PFC-ACK" },
-  { BSSGP_PDU_DELETE_BSS_PFC,               "DELETE-BSS-PFC" },
-  { BSSGP_PDU_DELETE_BSS_PFC_ACK,           "DELETE-BSS-PFC-ACK" },
-  { BSSGP_PDU_DELETE_BSS_PFC_REQ,           "DELETE-BSS-PFC-REQ" },
-  
-  { BSSGP_PDU_PS_HANDOVER_REQUIRED,          "PS-HANDOVER-REQUIRED" },
-  { BSSGP_PDU_PS_HANDOVER_REQUIRED_ACK,      "PS-HANDOVER-REQUIRED-ACK" },
-  { BSSGP_PDU_PS_HANDOVER_REQUIRED_NACK,     "PS-HANDOVER-REQUIRED-NACK" },
-  { BSSGP_PDU_PS_HANDOVER_REQUEST,           "PS-HANDOVER-REQUEST" },
-  { BSSGP_PDU_PS_HANDOVER_REQUEST_ACK,       "PS-HANDOVER-REQUEST-ACK" },
-  { BSSGP_PDU_PS_HANDOVER_REQUEST_NACK,      "PS-HANDOVER-REQUEST-NACK" },
+/* 0x00 */  { BSSGP_PDU_DL_UNITDATA,                  "DL-UNITDATA" },
+/* 0x01 */  { BSSGP_PDU_UL_UNITDATA,                  "UL-UNITDATA" },
+/* 0x02 */  { BSSGP_PDU_RA_CAPABILITY,                "RA-CAPABILITY" },
+/* 0x03 */  { BSSGP_PDU_PTM_UNITDATA,                 "PTM-UNITDATA" },
+/* 0x04 */  { BSSGP_PDU_DL_MBMS_UNITDATA,             "DL-MBMS-UNITDATA" },
+/* 0x05 */  { BSSGP_PDU_UL_MBMS_UNITDATA,             "UL-MBMS-UNITDATA" },
+/* 0x06 */  { BSSGP_PDU_PAGING_PS,                    "PAGING-PS" },
+/* 0x07 */  { BSSGP_PDU_PAGING_CS,                    "PAGING-CS" },
+/* 0x08 */  { BSSGP_PDU_RA_CAPABILITY_UPDATE,         "RA-CAPABILITY-UPDATE" },
+/* 0x09 */  { BSSGP_PDU_RA_CAPABILITY_UPDATE_ACK,     "RA-CAPABILITY-UPDATE-ACK" },
+/* 0x0a */  { BSSGP_PDU_RADIO_STATUS,                 "RADIO-STATUS" },
+/* 0x0b */  { BSSGP_PDU_SUSPEND,                      "SUSPEND" },
+/* 0x0c */  { BSSGP_PDU_SUSPEND_ACK,                  "SUSPEND-ACK" },
+/* 0x0d */  { BSSGP_PDU_SUSPEND_NACK,                 "SUSPEND-NACK" },
+/* 0x0e */  { BSSGP_PDU_RESUME,                       "RESUME" },
+/* 0x0f */  { BSSGP_PDU_RESUME_ACK,                   "RESUME-ACK" },
+/* 0x10 */  { BSSGP_PDU_RESUME_NACK,                  "RESUME-NACK" },
+  /* 0x11 to 0x1f Reserved */
+/* 0x20 */  { BSSGP_PDU_BVC_BLOCK,                    "BVC-BLOCK" },
+/* 0x21 */  { BSSGP_PDU_BVC_BLOCK_ACK,                "BVC-BLOCK-ACK" },
+/* 0x22 */  { BSSGP_PDU_BVC_RESET,                    "BVC-RESET" },
+/* 0x23 */  { BSSGP_PDU_BVC_RESET_ACK,                "BVC-RESET-ACK" },
+/* 0x24 */  { BSSGP_PDU_BVC_UNBLOCK,                  "UNBLOCK" },
+/* 0x25 */  { BSSGP_PDU_BVC_UNBLOCK_ACK,              "UNBLOCK-ACK" },
+/* 0x26 */  { BSSGP_PDU_FLOW_CONTROL_BVC,             "FLOW-CONTROL-BVC" },
+/* 0x27 */  { BSSGP_PDU_FLOW_CONTROL_BVC_ACK,         "FLOW-CONTROL-BVC-ACK" },
+/* 0x28 */  { BSSGP_PDU_FLOW_CONTROL_MS,              "FLOW-CONTROL-MS" },
+/* 0x29 */  { BSSGP_PDU_FLOW_CONTROL_MS_ACK,          "FLOW-CONTROL-MS-ACK" },
+/* 0x2a */  { BSSGP_PDU_FLUSH_LL,                     "FLUSH-LL" },
+/* 0x2b */  { BSSGP_PDU_FLUSH_LL_ACK,                 "FLUSH_LL_ACK" },
+/* 0x2c */  { BSSGP_PDU_LLC_DISCARDED,                "LLC-DISCARDED" },
+/* 0x2d */  { BSSGP_PDU_FLOW_CONTROL_PFC,             "FLOW-CONTROL-PFC" },
+/* 0x2e */  { BSSGP_PDU_FLOW_CONTROL_PFC_ACK,         "FLOW-CONTROL-PFC-ACK" },
+  /* 0x2f to 0x3f Reserved */
 
-  { BSSGP_PDU_PERFORM_LOCATION_REQUEST,     "PERFORM-LOCATION-REQUEST" },
-  { BSSGP_PDU_PERFORM_LOCATION_RESPONSE,    "PERFORM-LOCATION-RESPONSE" },
-  { BSSGP_PDU_PERFORM_LOCATION_ABORT,       "PERFORM-LOCATION-ABORT" },
-  { BSSGP_PDU_POSITION_COMMAND,             "POSITION-COMMAND" },
-  { BSSGP_PDU_POSITION_RESPONSE,            "POSITION-RESPONSE" },
-  { BSSGP_PDU_RAN_INFORMATION,              "RAN-INFORMATION" },
-  { BSSGP_PDU_RAN_INFORMATION_REQUEST,      "RAN-INFORMATION-REQUEST" },
-  { BSSGP_PDU_RAN_INFORMATION_ACK,          "RAN-INFORMATION-ACK" },
-  { BSSGP_PDU_RAN_INFORMATION_ERROR,        "RAN-INFORMATION-ERROR" },
+/* 0x40 */  { BSSGP_PDU_SGSN_INVOKE_TRACE,            "SGSN-INVOKE-TRACE" },
+/* 0x41 */  { BSSGP_PDU_STATUS,                       "STATUS" },
+
+/* 0x50 */  { BSSGP_PDU_DOWNLOAD_BSS_PFC,             "DOWNLOAD-BSS-PFC" },
+/* 0x51 */  { BSSGP_PDU_CREATE_BSS_PFC,               "CREATE-BSS-PFC" },
+/* 0x52 */  { BSSGP_PDU_CREATE_BSS_PFC_ACK,           "CREATE-BSS-PFC-ACK" },
+/* 0x53 */  { BSSGP_PDU_CREATE_BSS_PFC_NACK,          "CREATE-BSS-PFC-NACK" },
+/* 0x54 */  { BSSGP_PDU_MODIFY_BSS_PFC,               "MODIFY-BSS-PFC" },
+/* 0x55 */  { BSSGP_PDU_MODIFY_BSS_PFC_ACK,           "MODIFY-BSS-PFC-ACK" },
+/* 0x56 */  { BSSGP_PDU_DELETE_BSS_PFC,               "DELETE-BSS-PFC" },
+/* 0x57 */  { BSSGP_PDU_DELETE_BSS_PFC_ACK,           "DELETE-BSS-PFC-ACK" },
+/* 0x58 */  { BSSGP_PDU_DELETE_BSS_PFC_REQ,           "DELETE-BSS-PFC-REQ" }, 
+/* 0x59 */  { BSSGP_PDU_PS_HANDOVER_REQUIRED,          "PS-HANDOVER-REQUIRED" },
+/* 0x5a */  { BSSGP_PDU_PS_HANDOVER_REQUIRED_ACK,      "PS-HANDOVER-REQUIRED-ACK" },
+/* 0x5b */  { BSSGP_PDU_PS_HANDOVER_REQUIRED_NACK,     "PS-HANDOVER-REQUIRED-NACK" },
+/* 0x5c */  { BSSGP_PDU_PS_HANDOVER_REQUEST,           "PS-HANDOVER-REQUEST" },
+/* 0x5d */  { BSSGP_PDU_PS_HANDOVER_REQUEST_ACK,       "PS-HANDOVER-REQUEST-ACK" },
+/* 0x5e */  { BSSGP_PDU_PS_HANDOVER_REQUEST_NACK,      "PS-HANDOVER-REQUEST-NACK" },
+
+/* 0x60 */  { BSSGP_PDU_PERFORM_LOCATION_REQUEST,     "PERFORM-LOCATION-REQUEST" },
+/* 0x61 */  { BSSGP_PDU_PERFORM_LOCATION_RESPONSE,    "PERFORM-LOCATION-RESPONSE" },
+/* 0x62 */  { BSSGP_PDU_PERFORM_LOCATION_ABORT,       "PERFORM-LOCATION-ABORT" },
+/* 0x63 */  { BSSGP_PDU_POSITION_COMMAND,             "POSITION-COMMAND" },
+/* 0x64 */  { BSSGP_PDU_POSITION_RESPONSE,            "POSITION-RESPONSE" },
+
+/* 0x70 */  { BSSGP_PDU_RAN_INFORMATION,              "RAN-INFORMATION" },
+/* 0x71 */  { BSSGP_PDU_RAN_INFORMATION_REQUEST,      "RAN-INFORMATION-REQUEST" },
+/* 0x72 */  { BSSGP_PDU_RAN_INFORMATION_ACK,          "RAN-INFORMATION-ACK" },
+/* 0x73 */  { BSSGP_PDU_RAN_INFORMATION_ERROR,        "RAN-INFORMATION-ERROR" },
+/* 0x74 */  { 0x74,                                   "RAN-INFORMATION-APPLICATION-ERROR" },
+
+/* 0x80 */  {0x80,                                   "MBMS-SESSION-START-REQUEST" },
+/* 0x81 */  {0x81,                                   "MBMS-SESSION-START-RESPONSE" },
+/* 0x82 */  {0x82,                                   "MBMS-SESSION-STOP-REQUEST" },
+/* 0x83 */  {0x83,                                   "MBMS-SESSION-STOP-RESPONSE" },
+/* 0x84 */  {0x84,                                   "MBMS-SESSION-UPDATE-REQUEST" },
+/* 0x85 */  {0x85,                                   "MBMS-SESSION-UPDATE-RESPONSE" },
+
+/* 0x91 */  {0x91,                                   "PS-HANDOVER-COMPLETE" },
+/* 0x92 */  {0x92,                                   "PS-HANDOVER-CANCEL" },
+/* 0x93 */  {0x93,                                   "PS-HANDOVER-COMPLETE-ACK" },
   { 0,                                NULL },
 };
 
@@ -6089,6 +6136,456 @@ decode_pdu(build_info_t *bi) {
     ;
   }
 }
+/*
+ * 11.3	Information Element Identifier (IEI)
+ * 11.3.1	Alignment octets
+ */
+/*
+ * 11.3.2	Bmax default MS	123
+ * 11.3.3	BSS Area Indication	123
+ * 11.3.4	Bucket Leak Rate (R)	124
+ * 11.3.5	BVC Bucket Size	124
+ * 11.3.6	BVCI (BSSGP Virtual Connection Identifier)
+ */
+/*
+ * 11.3.7	BVC Measurement
+ */
+/*
+The Delay Value field is coded as a 16-bit integer value in units of centi-seconds (one hundredth of a second). This
+coding provides a range of over 10 minutes in increments of 10 ms. As a special case, the hexadecimal value 0xFFFF
+(decimal 65 535) shall be interpreted as "infinite delay".
+*/
+/*
+ * 11.3.8	Cause
+ */
+/*
+ * 11.3.9	Cell Identifier
+ * 11.3.10	Channel needed
+ * 11.3.11	DRX Parameters
+ * 11.3.12	eMLPP-Priority
+ * 11.3.13	Flush Action
+ * 11.3.14	IMSI
+ * 11.3.15	LLC-PDU
+ * 11.3.16	LLC Frames Discarded
+ * 11.3.17	Location Area
+ * 11.3.18	LSA Identifier List
+ * 11.3.19	LSA Information
+ * 11.3.20	Mobile Id
+ * 11.3.21	MS Bucket Size
+ * 11.3.22	MS Radio Access Capability	130
+ * 11.3.23	OMC Id	130
+ * 11.3.24	PDU In Error
+ */
+/*
+ * 11.3.25 PDU Lifetime
+ */
+static guint16
+de_bssgp_pdu_lifetime(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_item(tree, hf_bssgp_delay_val, tvb, curr_offset, 2, ENC_NA);
+	curr_offset+=2;
+
+	return(curr_offset-offset);
+}
+
+/*
+The Delay Value field is coded as a 16-bit integer value in units of centi-seconds (one hundredth of a second). This
+coding provides a range of over 10 minutes in increments of 10 ms. As a special case, the hexadecimal value 0xFFFF
+(decimal 65 535) shall be interpreted as "infinite delay".
+*/
+/*
+ * 11.3.26	PDU Type
+ */
+/*
+ * 11.3.27	Priority
+ */
+/*
+ * 11.3.28	QoS Profile
+ */
+static const true_false_string  bssgp_a_bit_vals = {
+    "Radio interface uses RLC/MAC-UNITDATA functionality",
+    "Radio interface uses RLC/MAC ARQ functionality"
+};
+
+static const true_false_string  bssgp_t_bit_vals = {
+    "The SDU contains data",
+    "The SDU contains signalling"
+};
+
+static const true_false_string  bssgp_cr_bit_vals = {
+    "The SDU does not contain a LLC ACK or SACK command/response frame type",
+    "The SDU contains a LLC ACK or SACK command/response frame type"
+};
+
+const value_string bssgp_peak_rate_gran_vals[] = {
+	{ 0x0, "100 bits/s increments" },
+    { 0x1, "1000 bits/s increments" },
+    { 0x2, "10000 bits/s increments" },
+    { 0x3, "100000 bits/s increments" },
+  { 0, NULL }
+};
+static guint16
+de_bssgp_qos_profile(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	proto_item *pi;
+	guint32	curr_offset;
+	guint16 peak_bit_rate;
+	guint8  rate_gran;
+
+	curr_offset = offset;
+
+	/* octet 3-4 Peak bit rate provided by the network (note)
+	 * NOTE: The bit rate 0 (zero) shall mean "best effort" in this IE.
+	 */
+	peak_bit_rate = tvb_get_ntohs(tvb, curr_offset);
+	pi = proto_tree_add_text(tree, tvb, curr_offset, 1, "Peak bit rate: ");
+	if (peak_bit_rate == 0) {
+		proto_item_append_text(pi, "Best effort");
+	}else{
+		rate_gran = tvb_get_guint8(tvb, curr_offset+2)&0xc0;
+		switch(rate_gran){
+			case 0:
+				/* 100 bits/s increments */
+				proto_item_append_text(pi, "%u bits/s", peak_bit_rate * 100);
+				break;
+			case 1:
+				/* 1000 bits/s increments */
+				proto_item_append_text(pi, "%u kbits/s", peak_bit_rate);
+				break;
+			case 2:
+				/* 10000 bits/s increments */
+				proto_item_append_text(pi, "%u kbits/s", peak_bit_rate * 10);
+				break;
+			case 3:
+				/* 100000 bits/s increments */
+				proto_item_append_text(pi, "%u kbits/s", peak_bit_rate * 100);
+				break;
+			default:
+				break;
+		}
+	}
+	curr_offset+=2;
+
+	/* octet 5 Peak Bit Rate Granularity C/R T A Precedence */
+	/* If the Gigabit Interface feature has not been negotiated, the "Peak bit rate" 
+	 * field is the binary encoding of the peak bit rate information expressed in 100 bits/s
+	 * increments, starting from 0 x 100 bits/s until 65 535 x 100 bits/s (6 Mbps).
+	 *
+	 * If the Gigabit Interface feature has been negotiated, the "Peak bit rate" field is the 
+	 * binary encoding of the peak bit rate information expressed in increments as defined by 
+	 * the Peak Bit Rate Granularity field.
+	 */
+	proto_tree_add_item(tree, hf_bssgp_peak_rate_gran, tvb, curr_offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_bssgp_cr_bit, tvb, curr_offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_bssgp_t_bit, tvb, curr_offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_bssgp_a_bit, tvb, curr_offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_bssgp_precedence, tvb, curr_offset, 1, ENC_NA);
+	
+	curr_offset++;
+	return(curr_offset-offset);
+}
+/*
+ * 11.3.29	Radio Cause
+ * 11.3.30	RA-Cap-UPD-Cause	135
+ * 11.3.31	Routeing Area	135
+ * 11.3.32	R_default_MS	135
+ * 11.3.33	Suspend Reference Number	136
+ * 11.3.34	Tag	136
+ */
+/*
+ * 11.3.35	Temporary logical link Identity (TLLI)
+ * Rest of element coded as the value part of the TLLI information
+ * element in 3GPP TS 44.018, not including 3GPP TS 44.018 IEI.
+ */
+/*
+ * 11.3.36	Temporary Mobile Subscriber Identity (TMSI)	136
+ * 11.3.37	Trace Reference	137
+ * 11.3.38	Trace Type	137
+ * 11.3.39	Transaction Id	137
+ * 11.3.40	Trigger Id	137
+ * 11.3.41	Number of octets affected	137
+ * 11.3.42	Packet Flow Identifier (PFI)	138
+ * 11.3.42a	(void)	138
+ * 11.3.43	Aggregate BSS QoS Profile	138
+ * 11.3.44	GPRS Timer	138
+ * 11.3.45	Feature Bitmap	139
+ * 11.3.46	Bucket Full Ratio	140
+ * 11.3.47	Service UTRAN CCO	140
+ * 11.3.48	NSEI (Network Service Entity Identifier)	141
+ * 11.3.49	RRLP APDU	141
+ * 11.3.50	LCS QoS	141
+ * 11.3.51	LCS Client Type	142
+ * 11.3.52	Requested GPS Assistance Data	142
+ * 11.3.53	Location Type	142
+ * 11.3.54	Location Estimate	142
+ * 11.3.55	Positioning Data	143
+ * 11.3.56	Deciphering Keys	143
+ * 11.3.57	LCS Priority	143
+ * 11.3.58	LCS Cause	143
+ * 11.3.59	LCS Capability	144
+ * 11.3.60	RRLP Flags	144
+ * 11.3.61	RIM Application Identity	144
+ * 11.3.62	RIM Sequence Number	145
+ * 11.3.62a	RIM Container	145
+ * 11.3.62a.0	General	145
+ * 11.3.62a.1	RAN-INFORMATION-REQUEST RIM Container	145
+ * 11.3.62a.2	RAN-INFORMATION RIM Container	146
+ * 11.3.62a.3	RAN-INFORMATION-ACK RIM Container	146
+ * 11.3.62a.4	RAN-INFORMATION-ERROR RIM Container	147
+ * 11.3.62a.5	RAN-INFORMATION-APPLICATION-ERROR RIM Container	147
+ * 11.3.63	Application Container	148
+ * 11.3.63.1	RAN-INFORMATION-REQUEST Application Container	148
+ * 11.3.63.1.0	General	148
+ * 11.3.63.1.1	RAN-INFORMATION-REQUEST Application Container for the NACC Application	148
+ * 11.3.63.1.2	RAN-INFORMATION-REQUEST Application Container for the SI3 Application	148
+ * 11.3.63.1.3	RAN-INFORMATION-REQUEST Application Container for the MBMS data channel Application	149
+ * 11.3.63.1.4	RAN-INFORMATION-REQUEST Application Container for the SON Transfer Application	149
+ * 11.3.63.2	RAN-INFORMATION Application Container Unit	150
+ * 11.3.63.2.0	General	150
+ * 11.3.63.2.1	RAN-INFORMATION Application Container for the NACC Application	150
+ * 11.3.63.2.2	RAN-INFORMATION Application Container for the SI3 Application	151
+ * 11.3.63.2.3	RAN-INFORMATION Application Container for the MBMS data channel Application	151
+ * 11.3.63.2.4	RAN-INFORMATION Application Container for the SON Transfer Application	153
+ * 11.3.64	Application Error Container	154
+ * 11.3.64.1	Application Error Container layout for the NACC application	154
+ * 11.3.64.2	Application Error Container for the SI3 application	155
+ * 11.3.64.3	Application Error Container for the MBMS data channel application	155
+ * 11.3.64.4	Application Error Container for the SON Transfer Application	156
+ * 11.3.65	RIM PDU Indications	157
+ * 11.3.65.0	General	157
+ * 11.3.65.1	RAN-INFORMATION-REQUEST RIM PDU Indications	157
+ * 11.3.65.2	RAN-INFORMATION RIM PDU Indications	158
+ * 11.3.65.3	RAN-INFORMATION-APPLICATION-ERROR RIM PDU Indications	158
+ * 11.3.66	(void)	158
+ * 11.3.67	RIM Protocol Version Number	158
+ * 11.3.68	PFC Flow Control parameters	159
+ * 11.3.69	Global CN-Id	159
+ * 11.3.70	RIM Routing Information	160
+ * 11.3.71	MBMS Session Identity	161
+ * 11.3.72	MBMS Session Duration	161
+ * 11.3.73	MBMS Service Area Identity List	161
+ * 11.3.74	MBMS Response	162
+ * 11.3.75	MBMS Routing Area List	162
+ * 11.3.76	MBMS Session Information	163
+ * 11.3.77	TMGI (Temporary Mobile Group Identity)	163
+ * 11.3.78	MBMS Stop Cause	164
+ * 11.3.79	Source BSS to Target BSS Transparent Container	164
+ * 11.3.80	Target BSS to Source BSS Transparent Container	165
+ * 11.3.81	NAS container for PS Handover	165
+ * 11.3.82	PFCs to be set-up list	166
+ * 11.3.83	List of set-up PFCs	167
+ * 11.3.84	Extended Feature Bitmap	167
+ * 11.3.85	Source to Target Transparent Container	168
+ * 11.3.86	Target to Source Transparent Container	168
+ * 11.3.87	RNC Identifier	168
+ * 11.3.88	Page Mode	169
+ * 11.3.89	Container ID	169
+ * 11.3.90	Global TFI	170
+ * 11.3.91	IMEI	170
+ * 11.3.92	Time to MBMS Data Transfer	170
+ * 11.3.93	MBMS Session Repetition Number	171
+ * 11.3.94	Inter RAT Handover Info	171
+ * 11.3.95	PS Handover Command	171
+ * 11.3.95a	PS Handover Indications	171
+ * 11.3.95b	SI/PSI Container	172
+ * 11.3.95c	Active PFCs List	173
+ * 11.3.96	Velocity Data	173
+ * 11.3.97	DTM Handover Command	173
+ * 11.3.98	CS Indication	174
+ * 11.3.99	Requested GANSS Assistance Data	174
+ * 11.3.100 	GANSS Location Type	174
+ * 11.3.101 	GANSS Positioning Data	174
+ * 11.3.102 	Flow Control Granularity	175
+ * 11.3.103 	eNB Identifier	175
+ * 11.3.104 	E-UTRAN Inter RAT Handover Info	176
+ * 11.3.105 	Subscriber Profile ID for RAT/Frequency priority	176
+ * 11.3.106 	Request for Inter-RAT Handover Info	176
+ * 11.3.107 	Reliable Inter-RAT Handover Info	177
+ * 11.3.108 	SON Transfer Application Identity	177
+ * 11.3.109 	CSG Identifier	177
+ * 11.3.110 	Tracking Area Code	178
+ * 11.3.111 	Redirect Attempt Flag	178
+ * 11.3.112 	Redirection Indication	178
+ * 11.3.113 	Redirection Completed	179
+
+*/
+const value_string bssgp_elem_strings[] = {
+	{ 0x00, "PDU Lifetime" },					/* 11.3.25 PDU Lifetime */
+    { 0x00, "QoS Profile" },					/* 11.3.28 QoS Profile */
+    { 0x00, "Alignment Octets" },               /* 11.3.1 Alignment octets */
+  { 0, NULL }
+};
+
+#define	NUM_BSSGP_ELEM (sizeof(bssgp_elem_strings)/sizeof(value_string))
+gint ett_bssgp_elem[NUM_BSSGP_ELEM];
+
+typedef enum
+{
+	DE_BSSGP_PDU_LIFETIME,                  /* 11.3.25 PDU Lifetime */
+	DE_BSSGP_QOS_PROFILE,                   /* 11.3.28 QoS Profile */
+	DE_BSSGP_ALIGNMENT_OCTETS,				/* 11.3.1 Alignment octets */
+	DE_BSSGP_COMMON_NONE							/* NONE */
+}
+bssgp_elem_idx_t;
+
+guint16 (*bssgp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
+	de_bssgp_pdu_lifetime,			/* 11.3.25 PDU Lifetime */
+	de_bssgp_qos_profile,           /* 11.3.28 QoS Profile */
+	NULL,							/* 11.3.35 Temporary logical link Identity (TLLI) TS 44.018 */
+	NULL,							/* 11.3.1 Alignment octets */
+	NULL,	/* NONE */
+};
+
+/* MESSAGE FUNCTIONS */
+
+/* 
+ * 10.2	PDU functional definitions and contents at RL and BSSGP SAPs
+ * 10.2.1 DL-UNITDATA
+ */
+static void
+bssap_dl_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* This PDU is sent to the BSS to transfer an LLC-PDU across the radio interface to an MS. */
+	gpinfo->link_dir = P2P_DIR_DL;
+
+	/* TLLI (current) TLLI/11.3.35 M V 4 */
+	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TLLI);
+	/* QoS Profile (note 1) QoS Profile/11.3.28 M V 3 */
+	ELEM_MAND_V(BSSGP_PDU_TYPE, DE_BSSGP_QOS_PROFILE);
+
+	/* PDU Lifetime PDU Lifetime/11.3.25 M TLV 4 */
+	ELEM_MAND_TELV(0x16, BSSGP_PDU_TYPE, DE_BSSGP_PDU_LIFETIME, NULL);
+	/* MS Radio Access Capability (note 2) */
+	/* MS Radio Access Capability/11.3.22 O TLV 7-? */
+	/* Priority (note 3) Priority/11.3.27 O TLV 3 */
+	/* DRX Parameters DRX Parameters/11.3.11 O TLV 4 */
+	/* IMSI IMSI/11.3.14 O TLV 5-10 */
+	/* TLLI (old) TLLI/11.3.35 O TLV 6 */
+	/* PFI PFI/11.3.42 O TLV 3 */
+	/* LSA Information LSA Information/11.3.19 O TLV 7-? */
+	/* Service UTRAN CCO Service UTRAN CCO/11.3.47 O TLV 3 */
+	/* Subscriber Profile ID for RAT/Frequency priority (note 5)
+	 * Subscriber Profile ID for RAT/Frequency priority/11.3.105 O TLV 3
+	 */
+	/* Alignment octets Alignment octets/11.3.1 O TLV 2-5 */
+	/* LLC-PDU (note 4) LLC-PDU/11.3.15 M TLV 2-? */
+
+	/* Remove me */
+	consumed = len;
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+/*
+ * 10.2.2	UL-UNITDATA	94
+ * 10.2.3	RA-CAPABILITY	95
+ * 10.2.4	(void)	95
+ * 10.2.5	DL-MBMS-UNITDATA	95
+ * 10.2.6	UL-MBMS-UNITDATA	96
+ * 10.3	PDU functional definitions and contents at GMM SAP	96
+ * 10.3.1	PAGING PS	96
+ * 10.3.2	PAGING CS	97
+ * 10.3.3	RA-CAPABILITY-UPDATE	97
+ * 10.3.4	RA-CAPABILITY-UPDATE-ACK	98
+ * 10.3.5	RADIO-STATUS	98
+ * 10.3.6	SUSPEND	98
+ * 10.3.7	SUSPEND-ACK	99
+ * 10.3.8	SUSPEND-NACK	99
+ * 10.3.9	RESUME	99
+ * 10.3.10	RESUME-ACK	100
+ * 10.3.11	RESUME-NACK	100
+ * 10.4	PDU functional definitions and contents at NM SAP	100
+ * 10.4.1	FLUSH-LL	100
+ * 10.4.2	FLUSH-LL-ACK	101
+ * 10.4.3	LLC-DISCARDED	101
+ * 10.4.4	FLOW-CONTROL-BVC	102
+ * 10.4.5	FLOW-CONTROL-BVC-ACK	102
+ * 10.4.6	FLOW-CONTROL-MS	102
+ * 10.4.7	FLOW-CONTROL-MS-ACK	103
+ * 10.4.8	BVC-BLOCK	103
+ * 10.4.9	BVC-BLOCK-ACK	103
+ * 10.4.10	BVC-UNBLOCK	103
+ * 10.4.11	BVC-UNBLOCK-ACK	104
+ * 10.4.12	BVC-RESET	104
+ * 10.4.13	BVC-RESET-ACK	104
+ * 10.4.14	STATUS	105
+ * 10.4.14.1	Static conditions for BVCI	105
+ * 10.4.15	SGSN-INVOKE-TRACE	105
+ * 10.4.16	DOWNLOAD-BSS-PFC	106
+ * 10.4.17	CREATE-BSS-PFC	106
+ * 10.4.18	CREATE-BSS-PFC-ACK	107
+ * 10.4.19	CREATE-BSS-PFC-NACK	107
+ * 10.4.20	MODIFY-BSS-PFC	108
+ * 10.4.21	MODIFY-BSS-PFC-ACK	108
+ * 10.4.22	DELETE-BSS-PFC	108
+ * 10.4.23	DELETE-BSS-PFC-ACK	108
+ * 10.4.24	FLOW-CONTROL-PFC	109
+ * 10.4.25	FLOW-CONTROL-PFC-ACK	109
+ * 10.4.26	DELETE-BSS-PFC-REQ	109
+ * 10.4.27	PS-HANDOVER-REQUIRED	110
+ * 10.4.28	PS-HANDOVER-REQUIRED-ACK	110
+ * 10.4.29	PS-HANDOVER-REQUIRED-NACK	111
+ * 10.4.30	PS-HANDOVER-REQUEST	111
+ * 10.4.31	PS-HANDOVER-REQUEST-ACK	112
+ * 10.4.32	PS-HANDOVER-REQUEST-NACK	112
+ * 10.4.33	PS-HANDOVER-COMPLETE	112
+ * 10.4.34	PS-HANDOVER-CANCEL	113
+ * 10.4.35	PS-HANDOVER-COMPLETE-ACK	113
+ * 10.5	PDU functional definitions and contents at LCS SAP	114
+ * 10.5.1	PERFORM-LOCATION-REQUEST	114
+ * 10.5.2	PERFORM-LOCATION-RESPONSE	115
+ * 10.5.3	PERFORM-LOCATION-ABORT	115
+ * 10.5.4	POSITION-COMMAND	115
+ * 10.5.5	POSITION-RESPONSE	116
+ * 10.6	PDU functional definitions and contents at RIM SAP	116
+ * 10.6.1	RAN-INFORMATION-REQUEST	116
+ * 10.6.2	RAN-INFORMATION	117
+ * 10.6.3	RAN-INFORMATION-ACK	117
+ * 10.6.4	RAN-INFORMATION-ERROR	117
+ * 10.6.5	RAN-INFORMATION-APPLICATION-ERROR	118
+ * 10.7	PDU functional definitions and contents at MBMS SAP	118
+ * 10.7.1	MBMS-SESSION-START-REQUEST	118
+ * 10.7.2	MBMS-SESSION-START-RESPONSE	119
+ * 10.7.3	MBMS-SESSION-STOP-REQUEST	119
+ * 10.7.4	MBMS-SESSION-STOP-RESPONSE	119
+ * 10.7.5	MBMS-SESSION-UPDATE-REQUEST	119
+ * 10.7.6	MBMS-SESSION-UPDATE-RESPONSE	120
+*/
+
+static const value_string bssgp_msg_strings[] = {
+/* 0x00 */  { BSSGP_PDU_DL_UNITDATA,                  "DL-UNITDATA" }, /* 10.2.1 DL-UNITDATA */
+	{ 0,	NULL }
+};
+
+#define	NUM_BSSGP_MSG (sizeof(bssgp_msg_strings)/sizeof(value_string))
+static gint ett_bssgp_msg[NUM_BSSGP_MSG];
+static void (*bssgp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
+	bssap_dl_unitdata,			/* UNITDATA */
+
+	NULL,	/* NONE */
+};
+
+void get_bssgp_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn)
+{
+	gint			idx;
+
+	*msg_str = match_strval_idx((guint32) (oct & 0xff), bssgp_msg_strings, &idx);
+	*ett_tree = ett_bssgp_msg[idx];
+	*hf_idx = hf_bssgp_msg_type;
+	*msg_fcn = bssgp_msg_fcn[idx];
+
+	return;
+}
 
 static void
 dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -6097,6 +6594,22 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   proto_item *ti;
   proto_tree *bssgp_tree;
+  /* RAB */
+	//proto_item		*item;
+	//proto_tree		*bssgp_tree;
+	int				offset = 0;
+	guint32			len;
+	const gchar		*msg_str;
+	gint			ett_tree;
+	int				hf_idx;
+	void			(*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
+	guint8			oct;
+
+	/* Save pinfo */
+	gpinfo = pinfo;
+	len = tvb_length(tvb);
+
+/* end */
 
   bi.tvb = tvb;
   bi.pinfo = pinfo;
@@ -6114,11 +6627,16 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
     ti = proto_tree_add_item(tree, proto_bssgp, tvb, 0, -1, ENC_NA);
     bssgp_tree = proto_item_add_subtree(ti, ett_bssgp);
-    proto_tree_add_uint_format_value(bssgp_tree, hf_bssgp_pdu_type, tvb, 0, 1,
-				     bi.pdutype,
-				     "%s (%#02x)",
-				     val_to_str(bi.pdutype, tab_bssgp_pdu_types,
-						"Unknown"), bi.pdutype);
+	proto_tree_add_item(bssgp_tree, hf_bssgp_msg_type, tvb, 0, 1, ENC_NA);
+	/* Messge type IE*/
+	oct = tvb_get_guint8(tvb,offset);
+	msg_fcn = NULL;
+	ett_tree = -1;
+	hf_idx = -1;
+	msg_str = NULL;
+
+	get_bssgp_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn);
+
     bi.bssgp_tree = bssgp_tree;
   }
 
@@ -6126,17 +6644,58 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						   tab_bssgp_pdu_types,
 						   "Unknown PDU type"));
   decode_pdu(&bi);
+  /* Experimental new dissection code */
+  if(oct<1){
+	  proto_tree_add_text(tree, tvb, offset, -1, "BSSGP New dissection");
+
+	  if(msg_str){
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s", msg_str);
+		}else{
+			proto_tree_add_text(tree, tvb, offset, 1,"Unknown message 0x%x",oct);
+			return;
+		}
+
+		/*
+		 * Add SGSAP message name
+		 */
+		proto_tree_add_item(tree, hf_idx, tvb, offset, 1, FALSE);
+		offset++;
+
+
+		/*
+		 * decode elements
+		 */
+		if (msg_fcn == NULL)
+		{
+			proto_tree_add_text(tree, tvb, offset, len - offset, "Message Elements");
+		}
+		else
+		{
+			/* If calling any "gsm" ie dissectors needing pinfo */
+			gsm_a_dtap_pinfo = pinfo;
+			(*msg_fcn)(tvb, tree, offset, len - offset);
+		}
+  }/*End new dissection */
+
 }
 
 void
 proto_register_bssgp(void)
 {
+	guint		i;
+	guint		last_offset;
+
   static hf_register_info hf[] = {
-    { &hf_bssgp_pdu_type,
+    { &hf_bssgp_msg_type,
       { "PDU Type", "bssgp.pdu_type",
 	FT_UINT8, BASE_HEX, VALS(tab_bssgp_pdu_types), 0x0,
 	NULL, HFILL }
     },
+	{ &hf_bssgp_elem_id,
+		{ "Element ID",	"bssgp.elem_id",
+		FT_UINT8, BASE_DEC, NULL, 0,
+		NULL, HFILL }
+	},
     { &hf_bssgp_iei_nacc_cause,
       { "NACC Cause", "bssgp.iei.nacc_cause",
 	FT_UINT8, BASE_HEX, VALS(tab_nacc_cause), 0x0,
@@ -6242,55 +6801,101 @@ proto_register_bssgp(void)
 	FT_UINT16, BASE_DEC, NULL, 0x0,
 	NULL, HFILL }
     },
+	{ &hf_bssgp_delay_val,
+      { "Delay Value (in centi-seconds)", "bssgp.delay_val",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	NULL, HFILL }
+    },
+	{ &hf_bssgp_peak_rate_gran,
+      { "Peak Bit Rate Granularity", "bssgp.peak_rate_gran",
+	FT_UINT8, BASE_DEC, NULL, 0xc0,
+	NULL, HFILL }
+    },
+	{ &hf_bssgp_cr_bit,
+      { "C/R", "bssgp.cr_bit",
+	FT_BOOLEAN, 8, TFS(&bssgp_cr_bit_vals), 0x20,
+	NULL, HFILL }
+    },
+	{ &hf_bssgp_t_bit,
+      { "T", "bssgp.t_bit",
+	FT_BOOLEAN, 8, TFS(&bssgp_t_bit_vals), 0x10,
+	NULL, HFILL }
+    },
+	{ &hf_bssgp_a_bit,
+      { "A", "bssgp.a_bit",
+	FT_BOOLEAN, 8, TFS(&bssgp_a_bit_vals), 0x08,
+	NULL, HFILL }
+    },
+	{ &hf_bssgp_precedence,
+      { "Precedence", "bssgp.a_bit",
+	FT_UINT8, BASE_DEC, NULL, 0x07,
+	NULL, HFILL }
+    },
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
-    &ett_bssgp,
-    &ett_bssgp_qos_profile,
-    &ett_bssgp_gprs_timer,
-    &ett_bssgp_cell_identifier,
-    &ett_bssgp_channel_needed,
-    &ett_bssgp_drx_parameters,
-    &ett_bssgp_mobile_identity,
-    &ett_bssgp_priority,
-    &ett_bssgp_lsa_identifier_list,
-    &ett_bssgp_lsa_information,
-    &ett_bssgp_lsa_information_lsa_identification_and_attributes,
-    &ett_bssgp_abqp,
-    &ett_bssgp_lcs_qos,
-    &ett_bssgp_lcs_client_type,
-    &ett_bssgp_requested_gps_assistance_data,
-    &ett_bssgp_requested_gps_assistance_data_satellite,
-    &ett_bssgp_location_type,
-    &ett_bssgp_positioning_data_positioning_method,
-    &ett_bssgp_lcs_cause,
-    &ett_bssgp_lcs_capability,
-    &ett_bssgp_rrlp_flags,
-    &ett_bssgp_rim_pdu_indications,
-    &ett_bssgp_mcc,
-    &ett_bssgp_mnc,
-    &ett_bssgp_routing_area,
-    &ett_bssgp_location_area,
-    &ett_bssgp_rai_ci,
-    &ett_bssgp_ran_information_request_application_container,
-    &ett_bssgp_rim_routing_information,
-    &ett_bssgp_ran_information_request_container_unit,
-    &ett_bssgp_ran_information_container_unit,
-    &ett_bssgp_pfc_flow_control_parameters,
-    &ett_bssgp_pfc_flow_control_parameters_pfc,
-    &ett_bssgp_global_cn_id,
-    &ett_bssgp_ms_radio_access_capability,
-    &ett_bssgp_feature_bitmap,
-    &ett_bssgp_positioning_data,
-    &ett_bssgp_msrac_value_part,
-    &ett_bssgp_msrac_additional_access_technologies,
-    &ett_bssgp_msrac_access_capabilities,
-    &ett_bssgp_msrac_a5_bits,
-    &ett_bssgp_msrac_multislot_capability,
-    &ett_bssgp_tlli,
-    &ett_bssgp_tmsi_ptmsi,
-  };
+#define	NUM_INDIVIDUAL_ELEMS	44
+	gint *ett[NUM_INDIVIDUAL_ELEMS +
+		  NUM_BSSGP_ELEM +
+		  NUM_BSSGP_MSG];
+	ett[0] = &ett_bssgp;
+    ett[1] = &ett_bssgp_qos_profile;
+    ett[2] = &ett_bssgp_gprs_timer;
+    ett[3] = &ett_bssgp_cell_identifier;
+    ett[4] = &ett_bssgp_channel_needed;
+    ett[5] = &ett_bssgp_drx_parameters;
+    ett[6] = &ett_bssgp_mobile_identity;
+    ett[7] = &ett_bssgp_priority;
+    ett[8] = &ett_bssgp_lsa_identifier_list;
+    ett[9] = &ett_bssgp_lsa_information;
+    ett[10] = &ett_bssgp_lsa_information_lsa_identification_and_attributes;
+    ett[11] = &ett_bssgp_abqp;
+    ett[12] = &ett_bssgp_lcs_qos;
+    ett[13] = &ett_bssgp_lcs_client_type;
+    ett[14] = &ett_bssgp_requested_gps_assistance_data;
+    ett[15] = &ett_bssgp_requested_gps_assistance_data_satellite;
+    ett[16] = &ett_bssgp_location_type;
+    ett[17] = &ett_bssgp_positioning_data_positioning_method;
+    ett[18] = &ett_bssgp_lcs_cause;
+    ett[19] = &ett_bssgp_lcs_capability;
+    ett[20] = &ett_bssgp_rrlp_flags;
+    ett[21] = &ett_bssgp_rim_pdu_indications;
+    ett[22] = &ett_bssgp_mcc;
+    ett[23] = &ett_bssgp_mnc;
+    ett[24] = &ett_bssgp_routing_area;
+    ett[25] = &ett_bssgp_location_area;
+    ett[26] = &ett_bssgp_rai_ci;
+    ett[27] = &ett_bssgp_ran_information_request_application_container;
+    ett[28] = &ett_bssgp_rim_routing_information;
+    ett[29] = &ett_bssgp_ran_information_request_container_unit;
+    ett[30] = &ett_bssgp_ran_information_container_unit;
+    ett[31] = &ett_bssgp_pfc_flow_control_parameters;
+    ett[32] = &ett_bssgp_pfc_flow_control_parameters_pfc;
+    ett[33] = &ett_bssgp_global_cn_id;
+    ett[34] = &ett_bssgp_ms_radio_access_capability;
+    ett[35] = &ett_bssgp_feature_bitmap;
+    ett[36] = &ett_bssgp_positioning_data;
+    ett[37] = &ett_bssgp_msrac_value_part;
+    ett[38] = &ett_bssgp_msrac_additional_access_technologies;
+    ett[39] = &ett_bssgp_msrac_access_capabilities;
+    ett[40] = &ett_bssgp_msrac_a5_bits;
+    ett[41] = &ett_bssgp_msrac_multislot_capability;
+    ett[42] = &ett_bssgp_tlli;
+    ett[43] = &ett_bssgp_tmsi_ptmsi;
+  
+	last_offset = NUM_INDIVIDUAL_ELEMS;
+
+	for (i=0; i < NUM_BSSGP_ELEM; i++, last_offset++)
+	{
+		ett_bssgp_elem[i] = -1;
+		ett[last_offset] = &ett_bssgp_elem[i];
+	}
+
+	for (i=0; i < NUM_BSSGP_MSG; i++, last_offset++)
+	{
+		ett_bssgp_msg[i] = -1;
+		ett[last_offset] = &ett_bssgp_msg[i];
+	}
 
   /* Register the protocol name and description */
   proto_bssgp = proto_register_protocol("Base Station Subsystem GPRS Protocol", "BSSGP", "bssgp");
