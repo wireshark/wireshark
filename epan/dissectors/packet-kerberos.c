@@ -1836,7 +1836,7 @@ static int dissect_krb5_address(proto_tree *tree, tvbuff_t *tvb, int offset, asn
     break;
     case KRB5_ADDR_IPv6:
         it=proto_tree_add_item(tree, hf_krb_address_ipv6, tvb, offset, INET6_ADDRLEN, FALSE);
-        g_snprintf(address_str, ADDRESS_STR_BUFSIZ, "%s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, INET6_ADDRLEN)));
+        g_snprintf(address_str, ADDRESS_STR_BUFSIZ, "%s", tvb_ip6_to_str(tvb, offset));
         break;
     default:
         proto_tree_add_text(tree, tvb, offset, len, "KRB Address: I don't know how to parse this type of address yet");
