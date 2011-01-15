@@ -363,7 +363,6 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const char *msg_method_str;
 	guint16 att_type;
 	guint16 att_length;
-	const char *att_type_str;
 	guint16 offset;
 	guint i;
 	guint magic_cookie_first_word;
@@ -613,7 +612,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ti = proto_tree_add_text(stun_type_tree, tvb, 0, 2, "%s (0x%03x)", msg_method_str, msg_type_method);
 	PROTO_ITEM_SET_GENERATED(ti);
 	proto_tree_add_uint(stun_type_tree, hf_stun_type_method_assignment, tvb, 0, 2, msg_type);
-	ti = proto_tree_add_text(stun_type_tree, tvb, 0, 2, "%s (%d)", match_strval((msg_type & 0x2000) >> 13, assignments), (msg_type & 0x2000) >> 13);
+	ti = proto_tree_add_text(stun_type_tree, tvb, 0, 2, "%s (%d)", val_to_str((msg_type & 0x2000) >> 13, assignments, "Unknown: 0x%x"), (msg_type & 0x2000) >> 13);
 	PROTO_ITEM_SET_GENERATED(ti);
 
 	proto_tree_add_uint(stun_tree, hf_stun_length, tvb, 2, 2, msg_length);
@@ -632,12 +631,9 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		while (msg_length > 0) {
 			att_type = tvb_get_ntohs(tvb, offset); /* Type field in attribute header */
 			att_length = tvb_get_ntohs(tvb, offset+2); /* Length field in attribute header */
-			att_type_str = match_strval(att_type, attributes);
-			if (att_type_str == NULL)
-				att_type_str = "Unknown";
 			ti = proto_tree_add_uint_format(att_all_tree, hf_stun_attr,
 							tvb, offset, ATTR_HDR_LEN+att_length,
-							att_type, "%s", att_type_str);
+							att_type, "%s", val_to_str(att_type, attributes, "Unknown"));
 			att_tree = proto_item_add_subtree(ti, ett_stun_att);
 			ti = proto_tree_add_uint(att_tree, stun_att_type, tvb,
 						 offset, 2, att_type);
