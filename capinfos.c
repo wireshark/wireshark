@@ -808,7 +808,6 @@ main(int argc, char *argv[])
   int opt;
 
 #ifdef _WIN32
-  WSADATA 	       wsaData;
   LPWSTR              *wc_argv;
   int                  wc_argc, i;
 #endif  /* _WIN32 */
