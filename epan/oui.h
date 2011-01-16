@@ -41,6 +41,8 @@
 #define OUI_IANA            0x00005E    /* the IANA */
 #define OUI_NORTEL          0x000081    /* Nortel SONMP */
 #define OUI_CISCO_90        0x0000F8    /* Cisco (IOS 9.0 and above?) */
+#define OUI_CISCO_2         0x000142    /* Cisco */
+#define OUI_CISCO_3         0x000143    /* Cisco */
 #define OUI_FORCE10         0x0001E8    /* Force10 */
 #define OUI_ERICSSON        0x0001EC    /* Ericsson Group */
 #define OUI_CATENA          0x00025A    /* Catena Networks */

@@ -74,6 +74,7 @@ static gint ett_cdp_tlv = -1;
 static gint ett_cdp_nrgyz_tlv = -1;
 static gint ett_cdp_address = -1;
 static gint ett_cdp_capabilities = -1;
+static gint ett_cdp_spare_poe_tlv = -1;
 static gint ett_cdp_checksum = -1;
 
 static dissector_handle_t data_handle;
@@ -85,6 +86,8 @@ dissect_capabilities(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
 static void
 dissect_nrgyz_tlv(tvbuff_t *tvb, int offset, guint16 length, guint16 num,
   proto_tree *tree);
+static void
+dissect_spare_poe_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
 static void
 add_multi_line_string_to_tree(proto_tree *tree, tvbuff_t *tvb, gint start,
   gint len, const gchar *prefix);
@@ -117,6 +120,7 @@ add_multi_line_string_to_tree(proto_tree *tree, tvbuff_t *tvb, gint start,
 #define TYPE_POWER_AVAILABLE    0x001a /* Power Available */
 #define TYPE_PORT_UNIDIR        0x001b /* Port Unidirectional */
 #define TYPE_NRGYZ              0x001d /* EnergyWise over CDP */
+#define TYPE_SPARE_POE          0x001f /* Spare Pair PoE */
 
 static const value_string type_vals[] = {
 	{ TYPE_DEVICE_ID,    	"Device ID" },
@@ -145,6 +149,7 @@ static const value_string type_vals[] = {
 	{ TYPE_POWER_AVAILABLE, "Power Available" },
 	{ TYPE_PORT_UNIDIR,     "Port Unidirectional" },
 	{ TYPE_NRGYZ,           "EnergyWise" },
+	{ TYPE_SPARE_POE,       "Spare PoE" },
 	{ 0,                    NULL }
 };
 
@@ -886,6 +891,21 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += length;
 	break;
 
+      case TYPE_SPARE_POE:
+	if (tree) {
+	  tlvi = proto_tree_add_text(cdp_tree, tvb, offset, length, 
+				     "Spare Pair PoE");
+	  tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+
+	  proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, FALSE);
+	  proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, FALSE);
+	}
+        offset += 4;
+        length -= 4;
+        dissect_spare_poe_tlv(tvb, offset, length, tlv_tree);
+	offset += length;
+	break;
+
       default:
 	if (tree) {
 	  tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
@@ -1156,6 +1176,41 @@ dissect_nrgyz_tlv(tvbuff_t *tvb, int offset, guint16 length, guint16 num,
 }
 
 static void
+dissect_spare_poe_tlv(tvbuff_t *tvb, int offset, int length, 
+		      proto_tree *tree) 
+{
+    proto_item *ti;
+    proto_tree *tlv_tree;
+    guint8 tlv_data;
+
+    if (length == 0) {
+        return;
+    }
+
+    tlv_data = tvb_get_guint8(tvb, offset);
+    ti = proto_tree_add_text(tree, tvb, offset, length, 
+			     "Spare Pair PoE: 0x%02x", tlv_data);
+    tlv_tree = proto_item_add_subtree(ti, ett_cdp_spare_poe_tlv);
+
+    proto_tree_add_text(tlv_tree, tvb, offset, 1, "%s",
+        decode_boolean_bitfield(tlv_data, 0x01, 8,
+	    "PSE Four-Wire PoE Supported",
+	    "PSE Four-Wire PoE Not Supported"));
+    proto_tree_add_text(tlv_tree, tvb, offset, 1, "%s",
+        decode_boolean_bitfield(tlv_data, 0x02, 8,
+	    "PD  Spare Pair Architecture Shared",
+	    "PD  Spare Pair Architecture Independent"));
+    proto_tree_add_text(tlv_tree, tvb, offset, 1, "%s",
+        decode_boolean_bitfield(tlv_data, 0x04, 8,
+	    "PD  Request Spare Pair PoE On",
+	    "PD  Request Spare Pair PoE Off"));
+    proto_tree_add_text(tlv_tree, tvb, offset, 1, "%s",
+        decode_boolean_bitfield(tlv_data, 0x08, 8,
+	    "PSE Spare Pair PoE On",
+	    "PSE Spare Pair PoE Off"));
+}
+
+static void
 add_multi_line_string_to_tree(proto_tree *tree, tvbuff_t *tvb, gint start,
   gint len, const gchar *prefix)
 {
@@ -1233,7 +1288,8 @@ proto_register_cdp(void)
 	&ett_cdp_nrgyz_tlv,
 	&ett_cdp_address,
 	&ett_cdp_capabilities,
-	&ett_cdp_checksum
+	&ett_cdp_checksum,
+	&ett_cdp_spare_poe_tlv
     };
 
     proto_cdp = proto_register_protocol("Cisco Discovery Protocol",

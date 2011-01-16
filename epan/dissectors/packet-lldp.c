@@ -103,6 +103,7 @@ static int hf_profinet_orange_period_begin_valid = -1;
 static int hf_profinet_orange_period_begin_offset = -1;
 static int hf_profinet_green_period_begin_valid = -1;
 static int hf_profinet_green_period_begin_offset = -1;
+static int hf_cisco_subtype = -1;
 static int hf_unknown_subtype = -1;
 
 /* Initialize the subtree pointers */
@@ -126,6 +127,7 @@ static gint ett_802_3_power = -1;
 static gint ett_802_3_aggregation = -1;
 static gint ett_media_capabilities = -1;
 static gint ett_profinet_period = -1;
+static gint ett_cisco_fourwire_tlv = -1;
 
 static const value_string tlv_types[] = {
 	{ END_OF_LLDPDU_TLV_TYPE, 			"End of LLDPDU"},
@@ -177,6 +179,7 @@ static const value_string tlv_oui_subtype_vals[] = {
 	{ OUI_IEEE_802_3,     	"IEEE 802.3" },
 	{ OUI_MEDIA_ENDPOINT,	"TIA" },
 	{ OUI_PROFINET,         "PROFINET" },
+	{ OUI_CISCO_2,          "Cisco" },
 	{ 0, NULL }
 };
 
@@ -246,6 +249,12 @@ static const value_string profinet_subtypes[] = {
 	{ 4, "MRP Port Status" },
 	{ 5, "Chassis MAC" },
 	{ 6, "PTCP Status" },
+	{ 0, NULL }
+};
+
+/* Cisco Subtypes */
+static const value_string cisco_subtypes[] = {
+	{ 1, "Four-wire Power-via-MDI" },
 	{ 0, NULL }
 };
 
@@ -1665,14 +1674,14 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
 		tempOffset++;
 
-		/* Power Value: 1 to 255 expected  */
+		/* Power Value: 1 to 510 expected  */
 		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 2, "PD Requested Power Value: %u.%u Watt", tempShort/10, tempShort%10);
 
 		tempOffset+=2;
 
-		/* Power Value: 1 to 255 expected */
+		/* Power Value: 1 to 510 expected */
 		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 2, "PSE Allocated Power Value: %u.%u Watt", tempShort/10, tempShort%10);
@@ -2403,6 +2412,58 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 	}
 }
 
+/* Dissect Cisco OUI TLVs */
+static void
+dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
+{
+	guint8 subType;
+	guint8 tempByte;
+	guint32 tempOffset = offset;
+
+	proto_tree *fourwire_data = NULL;
+	proto_item *tf = NULL;
+
+	/* Get subtype */
+	subType = tvb_get_guint8(tvb, tempOffset);
+
+	proto_tree_add_item(tree, hf_cisco_subtype, tvb, tempOffset, 1, FALSE);
+
+	tempOffset++;
+
+	switch (subType)
+	{
+	case 0x01: /* Four-Wire Power-via-MDI TLV */
+	  tempByte = tvb_get_guint8(tvb, tempOffset);
+	  if (tree) {
+	    tf = proto_tree_add_text(tree, tvb, tempOffset, 1, "Four-Wire Power-via-MDI: 0x%02x", tempByte);
+	    fourwire_data = proto_item_add_subtree(tf, ett_cisco_fourwire_tlv);
+
+	    proto_tree_add_text(fourwire_data, tvb, tempOffset, 1, "%s",
+				decode_boolean_bitfield(tempByte, 0x01, 8, 
+							"PSE Four-Wire PoE Supported", 
+							"PSE Four-Wire PoE Not Supported"));
+
+	    proto_tree_add_text(fourwire_data, tvb, tempOffset, 1, "%s",
+				decode_boolean_bitfield(tempByte, 0x02, 8, 
+							"PD  Spare Pair Architecture Shared", 
+							"PD  Spare Pair Architecture Independent"));
+
+	    proto_tree_add_text(fourwire_data, tvb, tempOffset, 1, "%s",
+				decode_boolean_bitfield(tempByte, 0x04, 8, 
+							"PD  Request Spare Pair PoE On", 
+							"PD  Request Spare Pair PoE Off"));
+
+	    proto_tree_add_text(fourwire_data, tvb, tempOffset, 1, "%s",
+				decode_boolean_bitfield(tempByte, 0x08, 8, 
+							"PSE Spare Pair PoE On", 
+							"PSE Spare Pair PoE Off"));
+	  }
+	  break;
+	default:
+	  proto_tree_add_item(tree, hf_unknown_subtype, tvb, offset, 1, FALSE);
+	  break;
+	}
+}
 
 /* Dissect Organizational Specific TLV */
 static gint32
@@ -2442,6 +2503,9 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		break;
 	case OUI_PROFINET:
 		subTypeStr = val_to_str(subType, profinet_subtypes, "Reserved (0x%x)");
+		break;
+	case OUI_CISCO_2:
+		subTypeStr = val_to_str(subType, cisco_subtypes, "Unknown subtype (0x%x)");
 		break;
 	default:
 		subTypeStr = "Unknown";
@@ -2485,6 +2549,9 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		break;
 	case OUI_PROFINET:
 		dissect_profinet_tlv(tvb, pinfo, org_tlv_tree, (offset+5), (guint16) (tempLen-3));
+		break;
+	case OUI_CISCO_2:
+		dissect_cisco_tlv(tvb, pinfo, org_tlv_tree, (offset+5));
 		break;
 	default:
 		proto_tree_add_item(org_tlv_tree, hf_unknown_subtype, tvb, (offset+5), (guint16) (tempLen-3), FALSE);
@@ -2812,6 +2879,10 @@ proto_register_lldp(void)
 			{ "GreenPeriodBegin.Offset",	"lldp.profinet.green_period_begin_offset", FT_UINT32, BASE_DEC,
 	   		NULL, 0x7FFFFFFF, "Unrestricted period, offset to cycle begin in nanoseconds", HFILL }
 		},
+		{ &hf_cisco_subtype,
+			{ "Cisco Subtype",	"lldp.cisco.subtype", FT_UINT8, BASE_HEX,
+	   		VALS(cisco_subtypes), 0x0, NULL, HFILL }
+		},
 		{ &hf_unknown_subtype,
 			{ "Unknown Subtype Content","lldp.unknown_subtype", FT_BYTES, BASE_NONE,
 	   		NULL, 0x0, NULL, HFILL }
@@ -2839,7 +2910,8 @@ proto_register_lldp(void)
 		&ett_802_3_power,
 		&ett_802_3_aggregation,
 		&ett_media_capabilities,
-		&ett_profinet_period
+		&ett_profinet_period,
+		&ett_cisco_fourwire_tlv
 	};
 
 	/* Register the protocol name and description */
