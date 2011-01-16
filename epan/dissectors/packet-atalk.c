@@ -981,7 +981,6 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
   proto_tree *adr_tree;
   char *tmp;
-  const guint8 *ip;
   guint16 net;
   guint8  node;
   guint16 port;
@@ -1108,13 +1107,12 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
       type =  tvb_get_guint8(tvb, ofs +1);
       switch (type) {
       case 1:   /* IP */
-        ip = tvb_get_ptr(tvb, ofs+2, 4);
-        ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip %s", ip_to_str(ip));
+        ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip %s", tvb_ip_to_str(tvb, ofs+2));
         break;
       case 2: /* IP + port */
-        ip = tvb_get_ptr(tvb, ofs+2, 4);
         port = tvb_get_ntohs(tvb, ofs+6);
-        ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip %s:%u",ip_to_str(ip),port);
+        ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip %s:%u",
+                                 tvb_ip_to_str(tvb, ofs+2), port);
         break;
       case 3: /* DDP, atalk_addr_to_str want host order not network */
         net  = tvb_get_ntohs(tvb, ofs+2);
@@ -1124,9 +1122,9 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
                                  net, node, port);
         break;
       case 5: /* IP + port ssh tunnel */
-        ip = tvb_get_ptr(tvb, ofs+2, 4);
         port = tvb_get_ntohs(tvb, ofs+6);
-        ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip (ssh tunnel) %s:%u",ip_to_str(ip),port);
+        ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip (ssh tunnel) %s:%u",
+                                 tvb_ip_to_str(tvb, ofs+2), port);
         break;
       case 4: /* DNS */
         if (len > 2) {

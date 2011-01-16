@@ -6631,7 +6631,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
           {
             guint8 regulatory_class, channel_number, measurement_mode, reporting_condition, threshold_offset;
             guint16 rand_interval, duration;
-            const guint8 *bssid = NULL;
 
             regulatory_class = tvb_get_guint8 (tvb, offset);
             proto_tree_add_uint_format(sub_tree, hf_tag_measure_request_regulatory_class, tvb, offset, 1, regulatory_class, "Regulatory Class: 0x%02X", regulatory_class);
@@ -6653,8 +6652,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
             proto_tree_add_uint(sub_tree, hf_tag_measure_request_measurement_mode, tvb, offset, 1, measurement_mode);
 
             offset++;
-            bssid = tvb_get_ptr (tvb, offset, 6);
-            proto_tree_add_ether(sub_tree, hf_tag_measure_request_bssid, tvb, offset, 6, bssid);
+            proto_tree_add_item(sub_tree, hf_tag_measure_request_bssid, tvb, offset, 6, ENC_NA);
 
             offset+=6;
             reporting_condition = tvb_get_guint8 (tvb, offset);
@@ -6683,7 +6681,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
           {
             guint8 regulatory_class, channel_number;
             guint16 rand_interval, duration;
-            const guint8 *mac = NULL;
 
             regulatory_class = tvb_get_guint8 (tvb, offset);
             proto_tree_add_uint_format(sub_tree, hf_tag_measure_request_regulatory_class, tvb, offset, 1, regulatory_class, "Regulatory Class: 0x%02X", regulatory_class);
@@ -6702,8 +6699,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
             offset += 2;
             if (tag_len >= ((offset-tag_offset)+6)){
-              mac = tvb_get_ptr (tvb, offset, 6);
-              proto_tree_add_ether(sub_tree, hf_tag_measure_request_bssid, tvb, offset, 6, mac);
+              proto_tree_add_item(sub_tree, hf_tag_measure_request_bssid, tvb, offset, 6, ENC_NA);
             }
             break;
           }
@@ -6890,7 +6886,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
             guint8 regulatory_class, reported_frame_info, rcpi, rsni, ant_id;
             guint32 parent_tsf;
             proto_tree *sub_tree_frame_info;
-            const guint8 *bssid = NULL;
 
             regulatory_class = tvb_get_guint8 (tvb, offset);
             proto_tree_add_uint(sub_tree, hf_tag_measure_report_regulatory_class, tvb, offset, 1, regulatory_class);
@@ -6923,8 +6918,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
             proto_tree_add_uint_format(sub_tree, hf_tag_measure_report_rsni, tvb, offset, 1, rsni, "Received Signal to Noise Indicator (RSNI): 0x%02X dB", rsni);
 
             offset++;
-            bssid = tvb_get_ptr (tvb, offset, 6);
-            proto_tree_add_ether(sub_tree, hf_tag_measure_request_bssid, tvb, offset, 6, bssid);
+            proto_tree_add_item(sub_tree, hf_tag_measure_request_bssid, tvb, offset, 6, ENC_NA);
 
             offset+=6;
             ant_id = tvb_get_guint8 (tvb, offset);
@@ -7066,7 +7060,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       guint tag_offset;
       guint8 sub_tag_id;
       guint32 bssid_info, info, sub_tag_length;
-      const guint8 *bssid = NULL;
       proto_item *parent_item;
       proto_tree *bssid_info_subtree, *sub_tag_tree;
       tvbuff_t *volatile sub_tag_tvb = NULL;
@@ -7080,8 +7073,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       offset+=2;
       tag_offset = offset;
 
-      bssid = tvb_get_ptr (tvb, offset, 6);
-      proto_tree_add_ether(tree, hf_tag_neighbor_report_bssid, tvb, offset, 6, bssid);
+      proto_tree_add_item(tree, hf_tag_neighbor_report_bssid, tvb, offset, 6, ENC_NA);
 
       /*** Begin: BSSID Information ***/
       offset+=6;
@@ -7722,8 +7714,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         hidden_item = proto_tree_add_ether (hdr_tree, hf_addr, tvb, 10, 6, src);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-        proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 16, 6,
-            tvb_get_ptr (tvb, 16, 6));
+        proto_tree_add_item (hdr_tree, hf_addr_bssid, tvb, 16, 6, ENC_NA);
 
         proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
             frag_number);
@@ -8118,10 +8109,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
             break;
 
           case DATA_ADDR_T4:
-            proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6,
-                tvb_get_ptr (tvb, 4, 6));
-            proto_tree_add_ether (hdr_tree, hf_addr_ta, tvb, 10, 6,
-                tvb_get_ptr (tvb, 10, 6));
+            proto_tree_add_item (hdr_tree, hf_addr_ra, tvb, 4, 6, ENC_NA);
+            proto_tree_add_item (hdr_tree, hf_addr_ta, tvb, 10, 6, ENC_NA);
             proto_tree_add_ether (hdr_tree, hf_addr_da, tvb, 16, 6, dst);
             proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
                frag_number);
@@ -8152,7 +8141,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         guint8 mesh_ttl;
         guint32 mesh_seq_number;
         guint8 mesh_hdr_len;
-        const guint8 *ptr;
 
         mshoff = hdr_len;
         mesh_flags = tvb_get_guint8(tvb, mshoff + 0);
@@ -8163,8 +8151,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 #endif
           break;
         }
-        ptr = tvb_get_ptr(tvb, mshoff, 1);
-        mesh_hdr_len = find_mesh_header_length(ptr, 0, fcf);
+        mesh_hdr_len = find_mesh_header_length(tvb_get_ptr(tvb, mshoff, 1), 0, fcf);
         mesh_ttl = tvb_get_guint8(tvb, mshoff + 1);
         mesh_seq_number = 0xffffff & tvb_get_letohl(tvb, mshoff + 2);
 
@@ -8177,14 +8164,11 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         proto_tree_add_uint (msh_tree, hf_mesh_seq, tvb, mshoff + 2, 4, mesh_seq_number);
         switch (mesh_hdr_len) {
           case 24:
-            ptr = tvb_get_ptr (tvb, mshoff + 18, 6);
-            proto_tree_add_ether(msh_tree, hf_mesh_ae3, tvb, mshoff + 18, 6, ptr);
+            proto_tree_add_item(msh_tree, hf_mesh_ae3, tvb, mshoff + 18, 6, ENC_NA);
           case 18:
-            ptr = tvb_get_ptr (tvb, mshoff + 12, 6);
-            proto_tree_add_ether(msh_tree, hf_mesh_ae2, tvb, mshoff + 12, 6, ptr);
+            proto_tree_add_item(msh_tree, hf_mesh_ae2, tvb, mshoff + 12, 6, ENC_NA);
           case 12:
-            ptr = tvb_get_ptr (tvb, mshoff + 6, 6);
-            proto_tree_add_ether(msh_tree, hf_mesh_ae1, tvb, mshoff + 6, 6, ptr);
+            proto_tree_add_item(msh_tree, hf_mesh_ae1, tvb, mshoff + 6, 6, ENC_NA);
           case 6:
             break;
           default:
@@ -9021,10 +9005,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         octet1 = tvb_get_guint8(next_tvb, 0);
         octet2 = tvb_get_guint8(next_tvb, 1);
         if (octet1 != 0xaa || octet2 != 0xaa) {
-          src = tvb_get_ptr (next_tvb, 6, 6);
-          dst = tvb_get_ptr (next_tvb, 0, 6);
-          if (memcmp(src, pinfo->dl_src.data, 6) == 0 ||
-              memcmp(dst, pinfo->dl_dst.data, 6) == 0)
+          if (tvb_memeql(next_tvb, 6, pinfo->dl_src.data, 6) == 0 ||
+              tvb_memeql(next_tvb, 0, pinfo->dl_dst.data, 6) == 0)
             encap_type = ENCAP_ETHERNET;
           else if (octet1 == 0xff && octet2 == 0xff)
             encap_type = ENCAP_IPX;

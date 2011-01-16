@@ -173,9 +173,9 @@ dissect_hpsw_tlv(tvbuff_t *tvb, int offset, int length,
 
     case HPFOO_IP_ADDR:
         if (length == 4) {
-            const guint8 *ipptr=tvb_get_ptr(tvb,offset,length);
-            proto_item_set_text(ti, "IP Addr: %s", ip_to_str(ipptr));
-            proto_tree_add_text(tree, tvb, offset, length, "IP Addr: %s", ip_to_str(ipptr));
+	    const char *ipstr = tvb_ip_to_str(tvb, offset);
+            proto_item_set_text(ti, "IP Addr: %s", ipstr);
+            proto_tree_add_text(tree, tvb, offset, length, "IP Addr: %s", ipstr);
         } else {
             proto_item_set_text(ti, "IP Addr: Bad length %u", length);
             proto_tree_add_text(tree, tvb, offset, length, "IP Addr: Bad length %u", length);

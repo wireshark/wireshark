@@ -430,15 +430,12 @@ dissect_fmp_extentListEx(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 static int
 dissect_plugInID(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	const guint8 *plugInID;
-
 	if (!tree) {
 		return offset;
 	}
 
-	plugInID = tvb_get_ptr(tvb, offset, FMP_PLUG_IN_ID_SZ);
-	proto_tree_add_bytes(tree, hf_fmp_plugInID, tvb, offset, FMP_PLUG_IN_ID_SZ,
-	                     plugInID);
+	proto_tree_add_item(tree, hf_fmp_plugInID, tvb, offset, FMP_PLUG_IN_ID_SZ,
+	                    ENC_NA);
 	return offset;
 }
 

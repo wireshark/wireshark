@@ -2474,7 +2474,7 @@ dissect_query_afp_login(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	proto_tree_add_item(tree, hf_afp_AFPVersion, tvb, offset, 1,FALSE);
 	offset += len +1;
 	len_uam = tvb_get_guint8(tvb, offset);
-	uam = tvb_get_ptr(tvb, offset +1, len_uam);
+	uam = tvb_get_ephemeral_string(tvb, offset +1, len_uam);
 	proto_tree_add_item(tree, hf_afp_UAM, tvb, offset, 1,FALSE);
 	offset += len_uam +1;
 
@@ -2509,7 +2509,7 @@ dissect_query_afp_login_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	offset += len +1;
 
 	len_uam = tvb_get_guint8(tvb, offset);
-	uam = tvb_get_ptr(tvb, offset +1, len_uam);
+	uam = tvb_get_ephemeral_string(tvb, offset +1, len_uam);
 	proto_tree_add_item(tree, hf_afp_UAM, tvb, offset, 1,FALSE);
 	offset += len_uam +1;
 

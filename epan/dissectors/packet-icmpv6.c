@@ -2886,9 +2886,9 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 for (i = 0; i < ha_num; i++) {
                     suboffset = 16 * i;
-                    proto_tree_add_ipv6(icmp6_tree, hf_icmpv6_haad_ha_addrs,
+                    proto_tree_add_item(icmp6_tree, hf_icmpv6_haad_ha_addrs,
                                         tvb, offset + 8 + suboffset, 16,
-                                        tvb_get_ptr(tvb, offset + 8 + suboffset, 16));
+                                        ENC_NA);
                 }
             }
             break;
