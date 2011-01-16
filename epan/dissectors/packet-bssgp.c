@@ -6624,12 +6624,12 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   bi.pdutype = tvb_get_guint8(tvb, 0);
   bi.offset++;
 
+  oct = tvb_get_guint8(tvb,offset);
   if (tree) {
     ti = proto_tree_add_item(tree, proto_bssgp, tvb, 0, -1, ENC_NA);
     bssgp_tree = proto_item_add_subtree(ti, ett_bssgp);
 	proto_tree_add_item(bssgp_tree, hf_bssgp_msg_type, tvb, 0, 1, ENC_NA);
 	/* Messge type IE*/
-	oct = tvb_get_guint8(tvb,offset);
 	msg_fcn = NULL;
 	ett_tree = -1;
 	hf_idx = -1;
