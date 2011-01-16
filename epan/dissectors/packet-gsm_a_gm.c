@@ -290,6 +290,9 @@ static int hf_gsm_a_sm_tmgi = -1;
 static int hf_gsm_a_sm_enh_nsapi = -1;
 static int hf_gsm_a_sm_req_type = -1;
 static int hf_gsm_a_gm_rel_lev_ind = -1;
+static int hf_gsm_a_gm_rac_geran_feat_pkg = -1;
+static int hf_gsm_a_gm_rac_cdma2000_cap = -1;
+static int hf_gsm_a_gm_rac_umts_fdd_cap = -1;
 
 static int hf_gsm_a_gmm_net_cap_gea1 = -1;
 static int hf_gsm_a_gmm_net_cap_smdch = -1;
@@ -1137,6 +1140,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
 				bits_in_oct -= bits_needed;
+				bit_offset++;
 
 				if (( curr_len*8 + bits_in_oct ) < 11 )
 					break;
@@ -1147,6 +1151,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
 				bits_in_oct -= bits_needed;
+				bit_offset++;
 				break;
 			}
 		}
@@ -1181,6 +1186,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		GET_DATA;
 
 		bits_length = curr_bits_length = oct>>(32-bits_needed);
+		
 		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_acc_cap_struct_len, tvb, bit_offset, 7, FALSE);
 		proto_item_set_len(tf, (bits_length>>3)+1);
 		/* This is already done - length doesn't contain this field
@@ -1464,8 +1470,8 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		/* analyse bits */
 		switch ( oct>>(32-bits_needed) )
 		{
-			case 0x00: str="controlled early Classmark Sending option is not implemented"; break;
-			case 0x01: str="controlled early Classmark Sending option is implemented";     break;
+			case 0x00: str="not implemented"; break;
+			case 0x01: str="implemented";     break;
 			default:   str="This should not happen";
 		}
 
@@ -2037,17 +2043,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		bits_needed = 1;
 		GET_DATA;
 
-		/* analyse bits */
-		switch ( oct>>(32-bits_needed) )
-		{
-			case 0x00: str="UMTS FDD not supported"; break;
-			case 0x01: str="UMTS FDD supported";     break;
-			default:   str="This should not happen";
-		}
-
-		proto_tree_add_text(tf_tree,
-			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"UMTS FDD Radio Access Technology Capability: %s (%u)",str,oct>>(32-bits_needed));
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_umts_fdd_cap, tvb, bit_offset, 1, FALSE);
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -2059,7 +2055,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		bits_needed = 1;
 		GET_DATA;
 
-	/* analyse bits */
+		/* analyse bits */
 		switch ( oct>>(32-bits_needed) )
 		{
 			case 0x00: str="UMTS 3.84 Mcps TDD not supported"; break;
@@ -2081,17 +2077,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		bits_needed = 1;
 		GET_DATA;
 
-		/* analyse bits */
-		switch ( oct>>(32-bits_needed) )
-		{
-			case 0x00: str="CDMA 2000 not supported"; break;
-			case 0x01: str="CDMA 2000 supported";     break;
-			default:   str="This should not happen";
-		}
-
-		proto_tree_add_text(tf_tree,
-			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"CDMA 2000 Radio Access Technology Capability: %s (%u)",str,oct>>(32-bits_needed));
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_cdma2000_cap, tvb, bit_offset, 1, FALSE);
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -2125,25 +2111,19 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		bits_needed = 1;
 		GET_DATA;
 
-		/* analyse bits */
-		switch ( oct>>(32-bits_needed) )
-		{
-			case 0x00: str="GERAN feature package 1 not supported"; break;
-			case 0x01: str="GERAN feature package 1 supported";     break;
-			default:   str="This should not happen";
-		}
-
-		proto_tree_add_text(tf_tree,
-		tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-		"GERAN Feature Package 1: %s (%u)",str,oct>>(32-bits_needed));
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_geran_feat_pkg, tvb, bit_offset, 1, FALSE);
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
 		bits_in_oct -= bits_needed;
 
+		proto_tree_add_text(tf_tree, tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
+			"curr_bits_length < bits_needed, curr_bits_length %u bits_needed %u ",curr_bits_length, bits_needed);
+
 		/*
 		 * Extended DTM (E)GPRS Multi Slot Class
 		 */
+
 		bits_needed = 1;
 		GET_DATA;
 
@@ -2417,6 +2397,8 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 			oct <<= bits_needed;
 			bits_in_oct -= bits_needed;
 		}
+		proto_tree_add_text(tf_tree, tvb, curr_offset, 1, "Remaining bits %u",bit_offset-(curr_offset<<3));
+
 
 	} while ( 1 );
 
@@ -6469,6 +6451,21 @@ proto_register_gsm_a_gm(void)
 	{ &hf_gsm_a_gm_rel_lev_ind,
 		{ "Revision Level Indicator", "gsm_a.gm.rel_lev_ind",
 		   FT_UINT8, BASE_HEX, VALS(gsm_a_gm_revision_level_indicator_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_umts_fdd_cap,
+		{ "UMTS FDD Radio Access Technology Capability", "gsm_a.gm.rac.umts_fdd_cap",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_cdma2000_cap,
+		{ "CDMA 2000 Radio Access Technology Capability", "gsm_a.gm.rac.cdma2000_cap",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_geran_feat_pkg,
+		{ "GERAN Feature Package 1", "gsm_a.gm.rac.geran_feat_pkg",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
 		NULL, HFILL }
 	},
 	};
