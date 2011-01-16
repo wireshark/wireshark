@@ -440,7 +440,7 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 	proto_tree_add_text(tree, parameter_tvb, 0, length, "USSD String: %%s", utf8_text);
 	break;
     case SMS_ENCODING_8BIT:
-	proto_tree_add_text(tree, parameter_tvb , 0, length, "USSD String: %%s", tvb_get_ptr(parameter_tvb, 0, length));
+	proto_tree_add_text(tree, parameter_tvb , 0, length, "USSD String: %%s", tvb_get_ephemeral_string(parameter_tvb, 0, length));
 	break;
     case SMS_ENCODING_UCS2:
     case SMS_ENCODING_UCS2_LANG:
