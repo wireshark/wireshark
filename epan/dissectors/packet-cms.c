@@ -314,7 +314,7 @@ cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff
     /* compare our computed hash with what we have received */
 
     if(tvb_bytes_exist(tvb, offset, buffer_size) &&
-       (memcmp(tvb_get_ptr(tvb, offset, buffer_size), digest_buf, buffer_size) != 0)) {
+       (tvb_memeql(tvb, offset, digest_buf, buffer_size) != 0)) {
       proto_item_append_text(pi, " [incorrect, should be ");
       for(i = 0; i < buffer_size; i++)
 	proto_item_append_text(pi, "%02X", digest_buf[i]);
@@ -342,9 +342,9 @@ dissect_cms_ContentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 	  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
 
-	if(object_identifier_id) {  
+	if(object_identifier_id) {
 		name = oid_resolved_from_string(object_identifier_id);
-		proto_item_append_text(tree, " (%s)", name ? name : object_identifier_id); 
+		proto_item_append_text(tree, " (%s)", name ? name : object_identifier_id);
 	}
 
 
@@ -439,7 +439,7 @@ dissect_cms_T_eContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
   proto_item_set_text(actx->created_item, "eContent (%u bytes)", tvb_length (content_tvb));
 
   call_ber_oid_callback(object_identifier_id, content_tvb, 0, actx->pinfo, top_tree ? top_tree : tree);
-  
+
 
 
   return offset;
@@ -472,7 +472,7 @@ dissect_cms_T_attrType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   if(object_identifier_id) {
     name = oid_resolved_from_string(object_identifier_id);
-    proto_item_append_text(tree, " (%s)", name ? name : object_identifier_id); 
+    proto_item_append_text(tree, " (%s)", name ? name : object_identifier_id);
   }
 
 
@@ -1520,14 +1520,14 @@ dissect_cms_MessageDigest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
- 
+
   pi = actx->created_item;
 
   /* move past TLV */
   old_offset = get_ber_identifier(tvb, old_offset, NULL, NULL, NULL);
   old_offset = get_ber_length(tvb, old_offset, NULL, NULL);
 
-  if(content_tvb) 
+  if(content_tvb)
     cms_verify_msg_digest(pi, content_tvb, x509af_get_last_algorithm_id(), tvb, old_offset);
 
 
@@ -1595,8 +1595,8 @@ dissect_cms_RC2ParameterVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
                                                 &length);
 
 
-  if(cap_tree != NULL) 
-    proto_item_append_text(cap_tree, " (%d bits)", length); 
+  if(cap_tree != NULL)
+    proto_item_append_text(cap_tree, " (%d bits)", length);
 
 
 
@@ -1649,7 +1649,7 @@ dissect_cms_T_capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   if(object_identifier_id) {
     name = oid_resolved_from_string(object_identifier_id);
-    proto_item_append_text(tree, " %s", name ? name : object_identifier_id); 
+    proto_item_append_text(tree, " %s", name ? name : object_identifier_id);
     cap_tree = tree;
   }
 

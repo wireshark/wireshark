@@ -312,7 +312,6 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo)
 	proto_item *handle_item;
 	gint item_length = -1;
 	guint8 hdr_id, i;
-	const guint8 *ptr;
 
 	if(tvb_length_remaining(tvb, offset)>0) {
 		hdrs = proto_tree_add_text(tree, tvb, offset, item_length, "Headers");
@@ -376,9 +375,8 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo)
 				handle_item = proto_tree_add_item(hdr_tree, hf_hdr_val_byte_seq, tvb, offset, item_length - 3, FALSE);
 
 				if( ((hdr_id == 0x46) || (hdr_id == 0x4a)) && (item_length == 19) ) { /* target or who */
-					ptr = tvb_get_ptr(tvb, offset, item_length - 3);
 					for( i=0; target_vals[i].strptr != NULL; i++) {
-						if( memcmp(ptr, target_vals[i].value, 16) == 0 ) {
+						if( tvb_memeql(tvb, offset, target_vals[i].value, 16) == 0 ) {
 							proto_item_append_text(handle_item, ": %s", target_vals[i].strptr);
 							proto_item_append_text(hdr_tree, " (%s)", target_vals[i].strptr);
 							col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", target_vals[i].strptr);
@@ -394,8 +392,8 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo)
 				}
 				else if(is_ascii_str(tvb_get_ptr(tvb, offset,item_length - 3), item_length - 3))
 				{
-					proto_item_append_text(hdr_tree, " (\"%s\")", tvb_get_ptr(tvb, offset,item_length - 3));
-					col_append_fstr(pinfo->cinfo, COL_INFO, " \"%s\"", tvb_get_ptr(tvb, offset,item_length - 3));
+					proto_item_append_text(hdr_tree, " (\"%s\")", tvb_get_ephemeral_string(tvb, offset,item_length - 3));
+					col_append_fstr(pinfo->cinfo, COL_INFO, " \"%s\"", tvb_get_ephemeral_string(tvb, offset,item_length - 3));
 				}
 
 				offset += item_length - 3;
@@ -724,7 +722,7 @@ proto_reg_handoff_btobex(void)
 
 	btobex_handle = find_dissector("btobex");
 
-	/* register in rfcomm and l2cap the profiles/services this dissector should handle */ 
+	/* register in rfcomm and l2cap the profiles/services this dissector should handle */
 	dissector_add_uint("btrfcomm.service", BTSDP_OPP_SERVICE_UUID, btobex_handle);
 	dissector_add_uint("btrfcomm.service", BTSDP_FTP_SERVICE_UUID, btobex_handle);
 	dissector_add_uint("btrfcomm.service", BTSDP_BPP_SERVICE_UUID, btobex_handle);
@@ -754,7 +752,7 @@ proto_reg_handoff_btobex(void)
 	dissector_add_uint("btl2cap.service", BTSDP_MAP_SERVICE_UUID, btobex_handle);
 	dissector_add_uint("btl2cap.service", BTSDP_MAP_ACCESS_SRV_SERVICE_UUID, btobex_handle);
 	dissector_add_uint("btl2cap.service", BTSDP_MAP_NOIYFY_SRV_SERVICE_UUID, btobex_handle);
-	
+
 	xml_handle = find_dissector("xml");
 	data_handle = find_dissector("data");
 }

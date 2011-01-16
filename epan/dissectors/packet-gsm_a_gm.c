@@ -3049,16 +3049,13 @@ de_sm_apn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 {
 	guint32	curr_offset;
 	guint	curr_len;
-	const guint8	*cptr;
 	guint8	  str[MAX_APN_LENGTH+1];
-
-	cptr = tvb_get_ptr(tvb, offset, len);
 
 	curr_offset = offset;
 
 	/* init buffer and copy it */
 	memset ( str , 0 , MAX_APN_LENGTH );
-	memcpy ( str , cptr , len<MAX_APN_LENGTH?len:MAX_APN_LENGTH );
+	tvb_memcpy(tvb, str, offset, len<MAX_APN_LENGTH?len:MAX_APN_LENGTH);
 
 	curr_len = 0;
 	while (( curr_len < len ) && ( curr_len < MAX_APN_LENGTH ))
@@ -5593,7 +5590,7 @@ dtap_sm_mod_pdp_acc_net(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 /*
  * [8] 9.5.13 Modify PDP Context Reject
- * Direction:			both 
+ * Direction:			both
  */
 static void
 dtap_sm_mod_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)

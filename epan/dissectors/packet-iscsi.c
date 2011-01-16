@@ -608,7 +608,7 @@ addTextKeys(packet_info *pinfo, proto_tree *tt, tvbuff_t *tvb, gint offset, guin
 	    len = len + 1;
 	}
 
-	key = ep_strndup(tvb_get_ptr(tvb, offset, len), len);
+	key = tvb_get_ephemeral_string(tvb, offset, len);
 	if (key == NULL) {
 		break;
 	}

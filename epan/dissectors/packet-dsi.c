@@ -405,7 +405,6 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	if (adr_ofs) {
 		proto_tree *adr_tree;
 		unsigned char *tmp;
-		const guint8 *ip;
 		guint16 net;
 		guint8  node;
 		guint16 port;
@@ -422,13 +421,11 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 			type =  tvb_get_guint8(tvb, ofs +1);
 			switch (type) {
 			case 1:	/* IP */
-				ip = tvb_get_ptr(tvb, ofs+2, 4);
-				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip: %s", ip_to_str(ip));
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip: %s", tvb_ip_to_str(tvb, ofs+2));
 				break;
 			case 2: /* IP + port */
-				ip = tvb_get_ptr(tvb, ofs+2, 4);
 				port = tvb_get_ntohs(tvb, ofs+6);
-				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip %s:%d",ip_to_str(ip),port);
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip %s:%d", tvb_ip_to_str(tvb, ofs+2), port);
 				break;
 			case 3: /* DDP, atalk_addr_to_str want host order not network */
 				net  = tvb_get_ntohs(tvb, ofs+2);
@@ -450,15 +447,13 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 				}
 				break;
 			case 6: /* IP6 */
-				ip = tvb_get_ptr(tvb, ofs+2, INET6_ADDRLEN);
 				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip6: %s",
-				                ip6_to_str((const struct e_in6_addr *)ip));
+				                tvb_ip6_to_str(tvb, ofs+2));
 				break;
 			case 7: /* IP6 + 2bytes port */
-				ip = tvb_get_ptr(tvb, ofs+2, INET6_ADDRLEN);
 				port = tvb_get_ntohs(tvb, ofs+ 2+INET6_ADDRLEN);
 				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip6 %s:%d",
-						ip6_to_str((const struct e_in6_addr *)ip),port);
+						tvb_ip6_to_str(tvb, ofs+2), port);
 				break;
 			default:
 				ti = proto_tree_add_text(adr_tree, tvb, ofs, len,"Unknown type : %d", type);

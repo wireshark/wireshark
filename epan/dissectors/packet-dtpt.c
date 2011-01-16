@@ -684,9 +684,8 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (dtpt_blob_tree) {
 				proto_tree_add_uint(dtpt_blob_tree, hf_dtpt_blob_data_length,
 					tvb, offset+0, 4, blob_data_length);
-				proto_tree_add_bytes(dtpt_blob_tree, hf_dtpt_blob_data,
-					tvb, offset+4, blob_data_length,
-					tvb_get_ptr(tvb, offset+4, blob_data_length));
+				proto_tree_add_item(dtpt_blob_tree, hf_dtpt_blob_data,
+					tvb, offset+4, blob_data_length, ENC_NA);
 			}
 		}
 		offset += 4+blob_data_length;

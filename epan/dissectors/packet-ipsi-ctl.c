@@ -51,7 +51,7 @@ static gint ett_ipsictl_pdu = -1;
 
 static void dissect_ipsictl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  
+
   proto_tree   *ipsictl_tree = NULL;
   proto_tree   *pdu_tree = NULL;
   proto_item   *ti;
@@ -68,7 +68,6 @@ static void dissect_ipsictl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16       field1=0;
   guint16       pdu=0;
   int		haspdus=0;
-  const guint8	*data;
 
   remaining_length=tvb_reported_length_remaining(tvb, offset);
 
@@ -118,7 +117,6 @@ static void dissect_ipsictl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       remaining_length-=2;
       llength-=2;
     }
-    data = tvb_get_ptr(tvb, loffset, remaining_length);
 
     if (tree) {
 
@@ -165,7 +163,7 @@ static void dissect_ipsictl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (remaining_length>=2)
     {
       if (tree) {
-        proto_tree_add_bytes(pdu_tree, hf_ipsictl_data, tvb, loffset, llength, data);
+        proto_tree_add_item(pdu_tree, hf_ipsictl_data, tvb, loffset, llength, ENC_NA);
       }
       loffset+=llength; remaining_length-=llength;
     }
@@ -176,10 +174,8 @@ static void dissect_ipsictl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (!haspdus)
   {
-    data = tvb_get_ptr(tvb, offset, remaining_length);
-
     if (tree) {
-      proto_tree_add_bytes(ipsictl_tree, hf_ipsictl_data, tvb, offset, -1, data);
+      proto_tree_add_item(ipsictl_tree, hf_ipsictl_data, tvb, offset, -1, ENC_NA);
     }
   }
 
@@ -204,36 +200,36 @@ static void dissect_ipsictl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 } /* dissect_ipsictl */
 
-void proto_register_ipsictl(void) 
+void proto_register_ipsictl(void)
 {
 
   static hf_register_info hf[] = {
     { &hf_ipsictl_pdu,
-      { "PDU",	"ipsictl.pdu", 
+      { "PDU",	"ipsictl.pdu",
 	FT_UINT16,	BASE_HEX,	NULL,	0x0,
       	"IPSICTL PDU", HFILL }},
     { &hf_ipsictl_magic,
-      { "Magic",	"ipsictl.magic", 
+      { "Magic",	"ipsictl.magic",
 	FT_UINT16,	BASE_HEX,	NULL,	0x0,
       	"IPSICTL Magic", HFILL }},
     { &hf_ipsictl_length,
-      { "Length",	"ipsictl.length", 
+      { "Length",	"ipsictl.length",
 	FT_UINT16,	BASE_HEX,	NULL,	0x0,
       	"IPSICTL Length", HFILL }},
     { &hf_ipsictl_type,
-      { "Type",	"ipsictl.type", 
+      { "Type",	"ipsictl.type",
 	FT_UINT16,	BASE_HEX,	NULL,	0x0,
       	"IPSICTL Type", HFILL }},
     { &hf_ipsictl_sequence,
-      { "Sequence",	"ipsictl.sequence", 
+      { "Sequence",	"ipsictl.sequence",
 	FT_UINT16,	BASE_HEX,	NULL,	0x0,
       	"IPSICTL Sequence", HFILL }},
     { &hf_ipsictl_field1,
-      { "Field1",	"ipsictl.field1", 
+      { "Field1",	"ipsictl.field1",
 	FT_UINT16,	BASE_HEX,	NULL,	0x0,
       	"IPSICTL Field1", HFILL }},
     { &hf_ipsictl_data,
-      { "Data",	"ipsictl.data", 
+      { "Data",	"ipsictl.data",
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
       	"IPSICTL data", HFILL }},
   };
@@ -249,7 +245,7 @@ void proto_register_ipsictl(void)
 
 }
 
-void proto_reg_handoff_ipsictl(void) 
+void proto_reg_handoff_ipsictl(void)
 {
 
   dissector_handle_t ipsictl_handle = NULL;

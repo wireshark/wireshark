@@ -6316,7 +6316,7 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		    pdv->data = g_malloc(next_tvb->length);      /* will be freed in dcm_export_create_object() */
 		    if (pdv->data) {
-			memmove(pdv->data, tvb_get_ptr(next_tvb, 0, next_tvb->length), next_tvb->length);
+			tvb_memcpy(next_tvb, pdv->data, 0, next_tvb->length);
 			pdv->data_len = next_tvb->length;
 		    }
 
@@ -6336,7 +6336,7 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	    pdv->data = g_malloc(pdv_body_len);      /* will be freed in dcm_export_create_object() */
 	    if (pdv->data) {
-		memmove(pdv->data, tvb_get_ptr(tvb, startpos, pdv_body_len), pdv_body_len);
+		tvb_memcpy(tvb, pdv->data, startpos, pdv_body_len);
 		pdv->data_len = pdv_body_len;
 	    }
 

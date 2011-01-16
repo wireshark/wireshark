@@ -46,12 +46,11 @@ static gint ett_echo = -1;
 
 static void dissect_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  
+
   proto_tree   *echo_tree = NULL;
   proto_item   *ti, *hidden_item;
   int           offset = 0;
   gboolean      request = FALSE;
-  const guint8 *data = tvb_get_ptr(tvb, offset, -1);
 
   if (pinfo->destport == ECHO_PORT) {
     request = TRUE;
@@ -60,10 +59,10 @@ static void dissect_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ECHO");
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_set_str(pinfo->cinfo, COL_INFO, 
+    col_set_str(pinfo->cinfo, COL_INFO,
 		 (request) ? "Request" : "Response");
   }
-  
+
   if (tree) {
 
     ti = proto_tree_add_item(tree, proto_echo, tvb, offset, -1, FALSE);
@@ -76,26 +75,26 @@ static void dissect_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-    proto_tree_add_bytes(echo_tree, hf_echo_data, tvb, offset, -1, data);
+    proto_tree_add_item(echo_tree, hf_echo_data, tvb, offset, -1, ENC_NA);
 
   }
 
 } /* dissect_echo */
 
-void proto_register_echo(void) 
+void proto_register_echo(void)
 {
 
   static hf_register_info hf[] = {
     { &hf_echo_data,
-      { "Echo data",	"echo.data", 
+      { "Echo data",	"echo.data",
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
       	NULL, HFILL }},
     { &hf_echo_request,
-      { "Echo request",	"echo.request", 
+      { "Echo request",	"echo.request",
 	FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,
       	"Echo data", HFILL }},
     { &hf_echo_response,
-      { "Echo response","echo.response", 
+      { "Echo response","echo.response",
 	FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,
       	"Echo data", HFILL }}
   };
@@ -110,7 +109,7 @@ void proto_register_echo(void)
 
 }
 
-void proto_reg_handoff_echo(void) 
+void proto_reg_handoff_echo(void)
 {
 
   dissector_handle_t echo_handle;

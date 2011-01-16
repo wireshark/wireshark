@@ -36,7 +36,7 @@
 #include <epan/prefs.h>
 
 #define FCIP_ENCAP_HEADER_LEN                    28
-#define FCIP_MIN_HEADER_LEN                      16 /* upto frame len field */ 
+#define FCIP_MIN_HEADER_LEN                      16 /* upto frame len field */
 #define FCIP_IS_SF(pflags)                       ((pflags & 0x1) == 0x1)
 #define FCIP_IS_CH(pflags)                       ((pflags & 0x80) == 0x80)
 
@@ -165,7 +165,7 @@ get_next_fcip_header_offset (tvbuff_t *tvb, packet_info *pinfo, gint offset)
      *
      * As per the FCIP standard, in addition, at least 3 of the following set
      * of tests must be performed to identify that we've located the start of
-     * an FCIP frame. 
+     * an FCIP frame.
      * a)  Protocol# ones complement field (1 test);
      * b)  Version ones complement field (1 test);
      * c)  Replication of encapsulation word 0 in word 1 (1 test);
@@ -216,7 +216,7 @@ NXT_BYTE: while (bytes_remaining) {
 
         flen = (tvb_get_ntohs (tvb, offset+12)) & 0x03FF;
         frame_len = (tvb_get_ntohs (tvb, offset+12) & 0x03FF)*4;
-        
+
         if ((flen < 15) || (flen > 545)) {
             /* Frame length check failed. Skip byte and try again */
             offset++;
@@ -225,7 +225,7 @@ NXT_BYTE: while (bytes_remaining) {
         }
 
         flen1 = (tvb_get_ntohs (tvb, offset+14)) & 0x03FF;
-        
+
         if ((flen & 0x03FF) != ((~flen1)&0x03FF)) {
             /* frame_len and its one's complement are not the same */
             offset++;
@@ -246,7 +246,7 @@ NXT_BYTE: while (bytes_remaining) {
                 bytes_remaining--;
                 goto NXT_BYTE;
             }
-            
+
             if ((eof != ~eofc) ||
                 (eof != tvb_get_guint8 (tvb, offset+(frame_len-1)*4+1)) ||
                 (eofc != tvb_get_guint8 (tvb, offset+(frame_len-1)*4+3))) {
@@ -255,7 +255,7 @@ NXT_BYTE: while (bytes_remaining) {
                 goto NXT_BYTE;
             }
         }
-        
+
         /* Test d */
         if ((tvb_get_guint8 (tvb, offset+9) != 0) ||
             (tvb_get_guint8 (tvb, offset+11) != 0xFF)) {
@@ -264,7 +264,7 @@ NXT_BYTE: while (bytes_remaining) {
             bytes_remaining--;
             goto NXT_BYTE;
         }
-        
+
         /* Test e */
 
 
@@ -272,10 +272,10 @@ NXT_BYTE: while (bytes_remaining) {
 	 * We dont test this since some implementations actually provide
 	 * a CRC here.
 	 */
-        
+
         if (bytes_remaining >= (frame_len)) {
             if (tvb_bytes_exist (tvb, offset+frame_len, 8)) {
-                /* The start of the next header matches what we wish to see */ 
+                /* The start of the next header matches what we wish to see */
                 if (tvb_memeql (tvb, offset+frame_len, fcip_header_8_bytes,
                                 8) == 0) {
                     return (offset);
@@ -317,7 +317,7 @@ static void
 dissect_fcencap_header (tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     guint8 protocol = tvb_get_guint8 (tvb, offset);
-    
+
     if (tree) {
         proto_tree_add_uint (tree, hf_fcip_protocol, tvb, offset, 1, protocol);
         proto_tree_add_item (tree, hf_fcip_version, tvb, offset+1, 1, 0);
@@ -352,10 +352,10 @@ dissect_fcip_sf (tvbuff_t *tvb, proto_tree *tree, gint offset)
     if (tree) {
         proto_tree_add_string (tree, hf_fcip_src_wwn, tvb, offset, 8,
                                fcwwn_to_str (tvb_get_ptr (tvb, offset, 8)));
-        proto_tree_add_bytes (tree, hf_fcip_src_entity_id, tvb, offset+8, 8,
-                              tvb_get_ptr (tvb, offset+8, 8));
-        proto_tree_add_bytes (tree, hf_fcip_conn_nonce, tvb, offset+16, 8,
-                              tvb_get_ptr (tvb, offset+16, 8));
+        proto_tree_add_item (tree, hf_fcip_src_entity_id, tvb, offset+8, 8,
+                              ENC_NA);
+        proto_tree_add_item (tree, hf_fcip_conn_nonce, tvb, offset+16, 8,
+                              ENC_NA);
         /* XXX - break out these flags */
         proto_tree_add_item (tree, hf_fcip_conn_flags, tvb, offset+24, 1, 0);
         proto_tree_add_item (tree, hf_fcip_conn_code, tvb, offset+26, 2, 0);
@@ -378,7 +378,7 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti;
     proto_tree *fcip_tree = NULL;
     tvbuff_t *next_tvb;
-    
+
     if (bytes_remaining < FCIP_ENCAP_HEADER_LEN) {
         return FALSE;
     }
@@ -389,7 +389,7 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     while (bytes_remaining > FCIP_ENCAP_HEADER_LEN) {
-        if ((offset = get_next_fcip_header_offset (tvb, pinfo, offset)) == -1) { 
+        if ((offset = get_next_fcip_header_offset (tvb, pinfo, offset)) == -1) {
             return FALSE;
         }
         else if (offset == -2) {
@@ -417,9 +417,9 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 return (TRUE);
             }
         }
-        
+
         pflags = tvb_get_guint8 (tvb, start+8);
-        
+
         if (tree) {
             if (FCIP_IS_SF (pflags)) {
                 ti = proto_tree_add_protocol_format (tree, proto_fcip, tvb, 0,
@@ -440,7 +440,7 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
             else {
                 sof = tvb_get_guint8 (tvb, offset+FCIP_ENCAP_HEADER_LEN);
-                
+
                 ti = proto_tree_add_protocol_format (tree, proto_fcip, tvb, 0,
                                                      FCIP_ENCAP_HEADER_LEN,
                                                      "FCIP (%s/%s)",
@@ -459,7 +459,7 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item (fcip_tree, hf_fcip_sof, tvb, offset, 1, 0);
                 proto_tree_add_item (fcip_tree, hf_fcip_sof_c, tvb, offset+2, 1, 0);
                 /* print EOF */
-                
+
                 offset += (frame_len-FCIP_ENCAP_HEADER_LEN-4);
                 if (tvb_bytes_exist (tvb, offset, 4)) {
                     proto_tree_add_item (fcip_tree, hf_fcip_eof, tvb, offset, 1, 0);
@@ -488,7 +488,7 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     pinfo->sof_eof |= PINFO_EOF_INVALID;
                 }
             }
-            
+
             /* Special frame bit is not set */
             next_tvb = tvb_new_subset_remaining (tvb, FCIP_ENCAP_HEADER_LEN+4);
             if (fc_handle) {
@@ -543,7 +543,7 @@ proto_register_fcip (void)
           {"Protocol (1's Complement)", "fcip.protoc", FT_UINT8, BASE_DEC,
            NULL, 0, NULL, HFILL}},
         { &hf_fcip_version,
-          {"Version", "fcip.version", FT_UINT8, BASE_DEC, 
+          {"Version", "fcip.version", FT_UINT8, BASE_DEC,
            NULL, 0, NULL, HFILL}},
         { &hf_fcip_version_c,
           {"Version (1's Complement)", "fcip.versionc", FT_UINT8, BASE_DEC,
@@ -552,7 +552,7 @@ proto_register_fcip (void)
           {"FCIP Encapsulation Word1", "fcip.encap_word1", FT_UINT32, BASE_HEX,
            NULL, 0, NULL, HFILL}},
         { &hf_fcip_flags,
-          {"Flags", "fcip.flags", FT_UINT8, BASE_HEX, 
+          {"Flags", "fcip.flags", FT_UINT8, BASE_HEX,
            NULL, 0xFC, NULL, HFILL}},
         { &hf_fcip_flags_c,
           {"Flags (1's Complement)", "fcip.flagsc", FT_UINT8, BASE_HEX,
@@ -564,25 +564,25 @@ proto_register_fcip (void)
           {"Frame Length (1's Complement)", "fcip.framelenc", FT_UINT16, BASE_DEC,
            NULL, 0x03FF, NULL, HFILL}},
         { &hf_fcip_tsec,
-          {"Time (secs)", "fcip.tsec", FT_UINT32, BASE_DEC, 
+          {"Time (secs)", "fcip.tsec", FT_UINT32, BASE_DEC,
            NULL, 0, NULL, HFILL}},
         { &hf_fcip_tusec,
-          {"Time (fraction)", "fcip.tusec", FT_UINT32, BASE_DEC, 
+          {"Time (fraction)", "fcip.tusec", FT_UINT32, BASE_DEC,
            NULL, 0, NULL, HFILL}},
         { &hf_fcip_encap_crc,
           {"CRC", "fcip.encap_crc", FT_UINT32, BASE_HEX,
            NULL, 0, NULL, HFILL}},
         { &hf_fcip_sof,
-          {"SOF", "fcip.sof", FT_UINT8, BASE_HEX, 
+          {"SOF", "fcip.sof", FT_UINT8, BASE_HEX,
            VALS (&fcip_sof_vals), 0, NULL, HFILL}},
         { &hf_fcip_sof_c,
-          {"SOF (1's Complement)", "fcip.sofc", FT_UINT8, BASE_HEX, 
+          {"SOF (1's Complement)", "fcip.sofc", FT_UINT8, BASE_HEX,
            NULL, 0, NULL, HFILL}},
         { &hf_fcip_eof,
-          {"EOF", "fcip.eof", FT_UINT8, BASE_HEX, 
+          {"EOF", "fcip.eof", FT_UINT8, BASE_HEX,
            VALS (&fcip_eof_vals), 0, NULL, HFILL}},
         { &hf_fcip_eof_c,
-          {"EOF (1's Complement)", "fcip.eofc", FT_UINT8, BASE_HEX, 
+          {"EOF (1's Complement)", "fcip.eofc", FT_UINT8, BASE_HEX,
            NULL, 0, NULL, HFILL}},
         { &hf_fcip_pflags_changed,
           {"Changed Flag", "fcip.pflags.ch", FT_BOOLEAN, 8,
@@ -619,7 +619,7 @@ proto_register_fcip (void)
     static gint *ett[] = {
         &ett_fcip,
     };
-    
+
     module_t *fcip_module;
 
     /* Register the protocol name and description */

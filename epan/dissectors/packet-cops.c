@@ -2704,11 +2704,11 @@ info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octets, const ch
         default:
 
              if (mode==FMT_HEX) {
-                pi = proto_tree_add_bytes(stt, *hf_proto_parameter,
-                   tvb, offset, octets, tvb_get_ptr(tvb, offset,octets));
+                pi = proto_tree_add_item(stt, *hf_proto_parameter,
+                   tvb, offset, octets, ENC_NA);
              } else if (mode==FMT_IPv6 && octets==16) {
-                pi = proto_tree_add_ipv6(stt, *hf_proto_parameter, tvb, offset, octets,
-                   tvb_get_ptr(tvb, offset, octets));
+                pi = proto_tree_add_item(stt, *hf_proto_parameter, tvb, offset, octets,
+                   ENC_NA);
              } else if (mode==FMT_DEC && octets==8) {
                 code64 = tvb_get_ntoh64(tvb, offset);
                 pi = proto_tree_add_uint64_format(stt, *hf_proto_parameter, tvb, offset, octets,

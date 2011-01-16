@@ -1527,15 +1527,12 @@ dissect_tlv_mac(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
     proto_tree   *ti, *val_tree;
     guint8        ix;
-    const guint8 *mac;
 
     ti = proto_tree_add_text(tree, tvb, offset, rem, "MAC addresses");
     val_tree=proto_item_add_subtree(ti, ett_ldp_tlv_val);
 
     for(ix=1; rem >= 6; ix++, offset += 6, rem -= 6) {
-        mac = tvb_get_ptr(tvb, offset, 6);
-        proto_tree_add_ether(val_tree,
-                             hf_ldp_tlv_mac, tvb, offset, 6, mac);
+        proto_tree_add_item(val_tree, hf_ldp_tlv_mac, tvb, offset, 6, FALSE);
     }
     if (rem)
         proto_tree_add_text(val_tree, tvb, offset, rem,
