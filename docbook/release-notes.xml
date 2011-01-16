@@ -132,9 +132,9 @@ Wireshark Info
           <para>
             You can now navigate backwards and forwards through TCP and UDP
             sessions using
-              <shortcut><keycombo><keycap>Ctrl</keycap><keycap>,</keycap></keycombo></shortcut>
+              <keycombo><keycap>Ctrl</keycap><keycap>,</keycap></keycombo>
             and
-              <shortcut><keycombo><keycap>Ctrl</keycap><keycap>.</keycap></keycombo></shortcut>
+              <keycombo><keycap>Ctrl</keycap><keycap>.</keycap></keycombo>
             .
           </para>
         </listitem>
