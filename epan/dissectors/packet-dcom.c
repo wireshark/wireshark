@@ -943,8 +943,7 @@ dissect_dcom_tobedone_data(tvbuff_t *tvb, int offset,
 	proto_item *item;
 
 
-	item = proto_tree_add_bytes(tree, hf_dcom_tobedone, tvb, offset, length,
-		tvb_get_ptr(tvb, offset, length));
+	item = proto_tree_add_item(tree, hf_dcom_tobedone, tvb, offset, length, ENC_NA);
         PROTO_ITEM_SET_GENERATED(item);
 	expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Dissection incomplete");
 
@@ -963,8 +962,7 @@ dissect_dcom_nospec_data(tvbuff_t *tvb, int offset,
 	proto_item *item;
 
 
-	item = proto_tree_add_bytes(tree, hf_dcom_nospec, tvb, offset, length,
-		tvb_get_ptr(tvb, offset, length));
+	item = proto_tree_add_item(tree, hf_dcom_nospec, tvb, offset, length, ENC_NA);
         PROTO_ITEM_SET_GENERATED(item);
 	expert_add_info_format(pinfo, item, PI_UNDECODED, PI_NOTE, "No specification available, dissection not possible");
 

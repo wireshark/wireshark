@@ -183,7 +183,6 @@ dissect    sec_rgy_pname const signed32        sec_rgy_pname_t_size  = 257; * In
           typedef [string] char sec_rgy_pname_t[sec_rgy_pname_t_size];
 */
   guint32 string_size;
-  const guint8 *namestring;
   dcerpc_info *di;
 
   di = pinfo->private_data;
@@ -200,25 +199,21 @@ dissect    sec_rgy_pname const signed32        sec_rgy_pname_t_size  = 257; * In
       tree = proto_item_add_subtree (item, ett_sec_rgy_pname_t);
     }
 
-  offset =
-    dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_sec_rgy_pname_t_size, &string_size);
+  offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+			       hf_sec_rgy_pname_t_size, &string_size);
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " String_size:%u", string_size);
   if (string_size < sec_rgy_pname_t_size)
     {
 /* proto_tree_add_string(tree, id, tvb, start, length, value_ptr); */
 
-      proto_tree_add_string (tree, hf_sec_rgy_pname_t_principalName_string,
-			     tvb, offset, string_size, tvb_get_ptr (tvb,
-								    offset,
-								    string_size));
+      proto_tree_add_item (tree, hf_sec_rgy_pname_t_principalName_string,
+			   tvb, offset, string_size, ENC_NA);
       if (string_size > 1)
 	{
-	  namestring = tvb_get_ptr (tvb, offset, string_size);
 	  if (check_col (pinfo->cinfo, COL_INFO))
 	    col_append_fstr (pinfo->cinfo, COL_INFO, " Principal:%s",
-			     namestring);
+			     tvb_get_ephemeral_string(tvb, offset, string_size));
 	}
       offset += string_size;
     }
@@ -409,7 +404,6 @@ dissect_sec_rgy_name_t (tvbuff_t * tvb, int offset,
 #define    sec_rgy_name_t_size  1025
 /*    typedef [string] char sec_rgy_name_t[sec_rgy_name_t_size]; */
   guint32 string_size;
-  const guint8 *namestring;
   dcerpc_info *di;
 
   di = pinfo->private_data;
@@ -435,16 +429,13 @@ dissect_sec_rgy_name_t (tvbuff_t * tvb, int offset,
     {
 /* proto_tree_add_string(tree, id, tvb, start, length, value_ptr); */
 
-      proto_tree_add_string (tree, hf_sec_rgy_name_t_principalName_string,
-			     tvb, offset, string_size, tvb_get_ptr (tvb,
-								    offset,
-								    string_size));
+      proto_tree_add_item (tree, hf_sec_rgy_name_t_principalName_string,
+			   tvb, offset, string_size, ENC_NA);
       if (string_size > 1)
 	{
-	  namestring = tvb_get_ptr (tvb, offset, string_size);
 	  if (check_col (pinfo->cinfo, COL_INFO))
 	    col_append_fstr (pinfo->cinfo, COL_INFO, " Principal:%s",
-			     namestring);
+			     tvb_get_ephemeral_string (tvb, offset, string_size));
 	}
       offset += string_size;
     }

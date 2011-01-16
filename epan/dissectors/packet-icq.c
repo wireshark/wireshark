@@ -518,7 +518,7 @@ proto_add_icq_attr(proto_tree* tree, /* The tree to add to */
 	return -1;	/* length goes past end of packet */
     proto_tree_add_text(tree, tvb, offset, sizeof(guint16) + len,
 			"%s[%u]: %.*s", descr, len, len,
-			tvb_get_ptr(tvb, offset + sizeof(guint16), len));
+			tvb_get_ephemeral_string(tvb, offset + sizeof(guint16), len));
     return len + sizeof(guint16);
 }
 
@@ -595,7 +595,7 @@ icqv5_decode_msgType(proto_tree* tree, tvbuff_t *tvb, int offset, int size,
 	break;
     case MSG_TEXT:
 	proto_tree_add_text(subtree, tvb, offset, left, "Msg: %.*s", left-1,
-			    tvb_get_ptr(tvb, offset, left));
+			    tvb_get_ephemeral_string(tvb, offset, left));
 	break;
     case MSG_URL:
 	for (n = 0; n < N_URL_FIELDS; n++) {
@@ -608,7 +608,7 @@ icqv5_decode_msgType(proto_tree* tree, tvbuff_t *tvb, int offset, int size,
 		proto_tree_add_text(subtree, tvb, offset, sz, "%s: %.*s",
 				    url_field_descr[n],
 				    sz - 1,
-				    tvb_get_ptr(tvb, offset, sz));
+				    tvb_get_ephemeral_string(tvb, offset, sz));
 	    } else {
 		proto_tree_add_text(subtree, tvb, offset, 0,
 				    "%s: %s", url_field_descr[n], "(empty)");
@@ -628,7 +628,7 @@ icqv5_decode_msgType(proto_tree* tree, tvbuff_t *tvb, int offset, int size,
 		proto_tree_add_text(subtree, tvb, offset, sz, "%s: %.*s",
 				    email_field_descr[n],
 				    sz - 1,
-				    tvb_get_ptr(tvb, offset, sz));
+				    tvb_get_ephemeral_string(tvb, offset, sz));
 	    } else {
 		proto_tree_add_text(subtree, tvb, offset, 0, "%s: %s",
 				    email_field_descr[n], "(empty)");
@@ -662,7 +662,7 @@ icqv5_decode_msgType(proto_tree* tree, tvbuff_t *tvb, int offset, int size,
 	    if (sz != 0) {
 		proto_tree_add_text(subtree, tvb, offset, sz, "%s: %.*s",
 				    auth_req_field_descr[n], sz - 1,
-				    tvb_get_ptr(tvb, offset, sz));
+				    tvb_get_ephemeral_string(tvb, offset, sz));
 	    } else {
 		proto_tree_add_text(subtree, tvb, offset, 0, "%s: %s",
 				    auth_req_field_descr[n], "(empty)");
@@ -681,7 +681,7 @@ icqv5_decode_msgType(proto_tree* tree, tvbuff_t *tvb, int offset, int size,
 	    if (sz != 0) {
 		proto_tree_add_text(subtree, tvb, offset, sz, "%s: %.*s",
 				    user_added_field_descr[n], sz - 1,
-				    tvb_get_ptr(tvb, offset, sz));
+				    tvb_get_ephemeral_string(tvb, offset, sz));
 	    } else {
 		proto_tree_add_text(subtree, tvb, offset, 0, "%s: %s",
 				    user_added_field_descr[n], "(empty)");
@@ -709,7 +709,7 @@ icqv5_decode_msgType(proto_tree* tree, tvbuff_t *tvb, int offset, int size,
 		/* The first element is the number of Nick/UIN pairs follow */
 		proto_tree_add_text(subtree, tvb, offset, sz_local,
 				    "Number of pairs: %.*s", sz_local - 1,
-				    tvb_get_ptr(tvb, offset, sz_local));
+				    tvb_get_ephemeral_string(tvb, offset, sz_local));
 		n_local++;
 	    } else if (!last) {
 		int svsz = sz_local;
@@ -725,8 +725,8 @@ icqv5_decode_msgType(proto_tree* tree, tvbuff_t *tvb, int offset, int size,
 		}
 		proto_tree_add_text(subtree, tvb, offset, sz_local + svsz,
 				    "%.*s: %.*s", svsz - 1,
-				    tvb_get_ptr(tvb, offset, svsz), sz_local - 1,
-				    tvb_get_ptr(tvb, sep_offset_prev + 1, sz_local));
+				    tvb_get_ephemeral_string(tvb, offset, svsz), sz_local - 1,
+				    tvb_get_ephemeral_string(tvb, sep_offset_prev + 1, sz_local));
 		n_local += 2;
 	    }
 
@@ -863,7 +863,7 @@ icqv5_cmd_send_text_code(proto_tree* tree, /* Tree to put the data in */
 	if (tree){
 	    proto_tree_add_text(subtree, tvb, offset + CMD_SEND_TEXT_CODE_TEXT,
 			    len, "Text: %.*s", len,
-			    tvb_get_ptr(tvb, offset + CMD_SEND_TEXT_CODE_TEXT,
+			    tvb_get_ephemeral_string(tvb, offset + CMD_SEND_TEXT_CODE_TEXT,
 			    		len));
 	}
     }
@@ -947,7 +947,6 @@ icqv5_cmd_login(proto_tree* tree, tvbuff_t *tvb, int offset, int size)
     char *aTime;
     guint32 port;
     guint32 passwdLen;
-    const guchar *ipAddrp;
     guint32 status;
 
     if (tree) {
@@ -963,14 +962,11 @@ icqv5_cmd_login(proto_tree* tree, tvbuff_t *tvb, int offset, int size)
 	passwdLen = tvb_get_letohs(tvb, offset + CMD_LOGIN_PASSLEN);
 	proto_tree_add_text(subtree, tvb, offset + CMD_LOGIN_PASSLEN,
 			    2 + passwdLen, "Passwd: %.*s", (int)passwdLen,
-			    tvb_get_ptr(tvb, offset + CMD_LOGIN_PASSWD,
+			    tvb_get_ephemeral_string(tvb, offset + CMD_LOGIN_PASSWD,
 					passwdLen));
-	ipAddrp = tvb_get_ptr(tvb,
-			offset + CMD_LOGIN_PASSWD + passwdLen + CMD_LOGIN_IP,
-			4);
 	proto_tree_add_text(subtree, tvb,
 			    offset + CMD_LOGIN_PASSWD + passwdLen + CMD_LOGIN_IP,
-			    4, "IP: %s", ip_to_str(ipAddrp));
+			    4, "IP: %s", tvb_ip_to_str(tvb, offset + CMD_LOGIN_PASSWD + passwdLen + CMD_LOGIN_IP));
 	status = tvb_get_letohs(tvb,
 				offset + CMD_LOGIN_PASSWD + passwdLen + CMD_LOGIN_STATUS);
 	proto_tree_add_text(subtree, tvb,
@@ -1051,7 +1047,6 @@ icqv5_srv_login_reply(proto_tree* tree,/* Tree to put the data in */
 {
     proto_tree* subtree;
     proto_item* ti;
-    const guchar *ipAddrp;
 
     if (tree) {
 	if (size < SRV_LOGIN_REPLY_IP + 8) {
@@ -1063,9 +1058,8 @@ icqv5_srv_login_reply(proto_tree* tree,/* Tree to put the data in */
 	ti = proto_tree_add_text(tree, tvb, offset, SRV_LOGIN_REPLY_IP + 8,
 				 "Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
-	ipAddrp = tvb_get_ptr(tvb, offset + SRV_LOGIN_REPLY_IP, 4);
 	proto_tree_add_text(subtree, tvb, offset + SRV_LOGIN_REPLY_IP, 4,
-			    "IP: %s", ip_to_str(ipAddrp));
+			    "IP: %s", tvb_ip_to_str(tvb, offset + SRV_LOGIN_REPLY_IP));
     }
 }
 
@@ -1077,8 +1071,6 @@ icqv5_srv_user_online(proto_tree* tree,/* Tree to put the data in */
 {
     proto_tree* subtree;
     proto_item* ti;
-    const guchar *ipAddrp;
-    const guchar *realipAddrp;
     guint32 status;
 
     if (tree) {
@@ -1094,15 +1086,13 @@ icqv5_srv_user_online(proto_tree* tree,/* Tree to put the data in */
 	proto_tree_add_text(subtree, tvb, offset + SRV_USER_ONL_UIN, 4,
 			    "UIN: %u",
 			    tvb_get_letohl(tvb, offset + SRV_USER_ONL_UIN));
-	ipAddrp = tvb_get_ptr(tvb, offset + SRV_USER_ONL_IP, 4);
 	proto_tree_add_text(subtree, tvb, offset + SRV_USER_ONL_IP, 4,
-			    "IP: %s", ip_to_str(ipAddrp));
+			    "IP: %s", tvb_ip_to_str(tvb, offset + SRV_USER_ONL_IP));
 	proto_tree_add_text(subtree, tvb, offset + SRV_USER_ONL_PORT, 4,
 			    "Port: %u",
 			    tvb_get_letohl(tvb, offset + SRV_USER_ONL_PORT));
-	realipAddrp = tvb_get_ptr(tvb, offset + SRV_USER_ONL_REALIP, 4);
 	proto_tree_add_text(subtree, tvb, offset + SRV_USER_ONL_REALIP, 4,
-			    "RealIP: %s", ip_to_str(realipAddrp));
+			    "RealIP: %s", tvb_ip_to_str(tvb, offset + SRV_USER_ONL_REALIP));
 	status = tvb_get_letohs(tvb, offset + SRV_USER_ONL_STATUS);
 	proto_tree_add_text(subtree, tvb, offset + SRV_USER_ONL_STATUS, 2,
 			    "Status: %s", findStatus(status));
@@ -1283,7 +1273,7 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 	    offset+=sizeof(guint16);left-=sizeof(guint16);
 	    proto_tree_add_text(sstree, tvb, offset - sizeof(guint16),
 				sizeof(guint16)+len, "About(%d): %.*s", len,
-				len, tvb_get_ptr(tvb, offset, len));
+				len, tvb_get_ephemeral_string(tvb, offset, len));
 	    offset+=len;left-=len;
 	    break;
 	}
@@ -1332,7 +1322,7 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 		    proto_tree_add_text(sstree, tvb, offset - sizeof(guint16),
 					sizeof(guint16)+len, "%s(%d): %.*s",
 					*d, len, len - 1,
-					tvb_get_ptr(tvb, offset, len - 1));
+					tvb_get_ephemeral_string(tvb, offset, len - 1));
 		    offset+=len;left-=len;
 		}
 		d++;
@@ -1419,9 +1409,7 @@ icqv5_srv_rand_user(proto_tree* tree,      /* Tree to put the data in */
     proto_tree* subtree = NULL;
     proto_item* ti = NULL;
     guint32 uin;
-    const unsigned char* IP = NULL;
     guint32 port;
-    const unsigned char* realIP = NULL;
     guint8 commClass;
     guint32 status;
     guint16 tcpVer;
@@ -1435,18 +1423,16 @@ icqv5_srv_rand_user(proto_tree* tree,      /* Tree to put the data in */
 	proto_tree_add_text(subtree, tvb, offset + SRV_RAND_USER_UIN,
 			    sizeof(guint32), "UIN: %u", uin);
 	/* guint32 IP */
-	IP = tvb_get_ptr(tvb, offset + SRV_RAND_USER_IP, 4);
 	proto_tree_add_text(subtree, tvb, offset + SRV_RAND_USER_IP,
-			    sizeof(guint32), "IP: %s", ip_to_str(IP));
+			    sizeof(guint32), "IP: %s", tvb_ip_to_str(tvb, offset + SRV_RAND_USER_IP));
 	/* guint16 portNum */
 	/* XXX - 16 bits, or 32 bits? */
 	port = tvb_get_letohs(tvb, offset + SRV_RAND_USER_PORT);
 	proto_tree_add_text(subtree, tvb, offset + SRV_RAND_USER_UIN,
 			    sizeof(guint32), "Port: %u", port);
 	/* guint32 realIP */
-	realIP = tvb_get_ptr(tvb, offset + SRV_RAND_USER_REAL_IP, 4);
 	proto_tree_add_text(subtree, tvb, offset + SRV_RAND_USER_REAL_IP,
-			    sizeof(guint32), "RealIP: %s", ip_to_str(realIP));
+			    sizeof(guint32), "RealIP: %s", tvb_ip_to_str(tvb, offset + SRV_RAND_USER_REAL_IP));
 	/* guint8 Communication Class */
 	commClass = tvb_get_guint8(tvb, offset + SRV_RAND_USER_CLASS);
 	proto_tree_add_text(subtree, tvb, offset + SRV_RAND_USER_CLASS,

@@ -320,7 +320,7 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (bitswapped)
     swap_mac_addr(dst, tvb_get_ptr(tvb, FDDI_P_DHOST + FDDI_PADDING, 6));
   else
-    memcpy(dst, tvb_get_ptr(tvb, FDDI_P_DHOST + FDDI_PADDING, 6), sizeof dst);
+    tvb_memcpy(tvb, dst, FDDI_P_DHOST + FDDI_PADDING, sizeof(dst));
   swap_mac_addr(dst_swapped, tvb_get_ptr(tvb, FDDI_P_DHOST + FDDI_PADDING, 6));
 
   /* XXX - copy them to some buffer associated with "pi", rather than
@@ -345,7 +345,7 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (bitswapped)
     swap_mac_addr(src, tvb_get_ptr(tvb, FDDI_P_SHOST + FDDI_PADDING, 6));
   else
-    memcpy(src, tvb_get_ptr(tvb, FDDI_P_SHOST + FDDI_PADDING, 6), sizeof src);
+    tvb_memcpy(tvb, src, FDDI_P_SHOST + FDDI_PADDING, sizeof(src));
   swap_mac_addr(src_swapped, tvb_get_ptr(tvb, FDDI_P_SHOST + FDDI_PADDING, 6));
 
   /* XXX - copy them to some buffer associated with "pi", rather than

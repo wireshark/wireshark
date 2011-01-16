@@ -60,7 +60,7 @@ dissect_aruba_adp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *aruba_adp_tree = NULL;
   guint16 type;
   const guint8 *src_mac;
-  const guint8 *switchip;
+  const gchar *switchip;
 
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ADP");
@@ -76,7 +76,7 @@ dissect_aruba_adp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   type = tvb_get_ntohs(tvb, 2);
 
   if (tree) {
-    proto_tree_add_item(aruba_adp_tree, hf_adp_type, tvb, 2, 2, FALSE); 
+    proto_tree_add_item(aruba_adp_tree, hf_adp_type, tvb, 2, 2, FALSE);
 
     proto_tree_add_item(aruba_adp_tree, hf_adp_id, tvb, 4, 2, FALSE);
   }
@@ -92,21 +92,21 @@ dissect_aruba_adp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       proto_item_append_text(ti, ", Request Src MAC: %s", ether_to_str(src_mac));
       break;
-     
+
     case ADP_RESPONSE:
-       
+
       proto_tree_add_item(aruba_adp_tree, hf_adp_switchip, tvb, 6, 4, FALSE);
-      switchip = tvb_get_ptr(tvb, 6, 4);
-        
+      switchip = tvb_ip_to_str(tvb, 6);
+
       if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "ADP Response Switch IP: %s", ip_to_str(switchip));
-     
-      proto_item_append_text(ti, ", Response Switch IP: %s", ip_to_str(switchip)); 
+        col_add_fstr(pinfo->cinfo, COL_INFO, "ADP Response Switch IP: %s", switchip);
+
+      proto_item_append_text(ti, ", Response Switch IP: %s", switchip);
       break;
-      
+
     default:
         break;
-        
+
   }
 }
 

@@ -14,17 +14,17 @@
  * don't bother with the "Copied from" - you don't even need to put
  * in a "Copied from" if you copied an existing dissector, especially
  * if the bulk of the code in the new dissector is your code)
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -53,17 +53,17 @@
 #include "packet-fc.h"
 
 /* Message Codes */
-#define FC_AUTH_MSG_AUTH_REJECT        0x0A 
-#define FC_AUTH_MSG_AUTH_NEGOTIATE     0x0B 
-#define FC_AUTH_MSG_AUTH_DONE          0x0C 
-#define FC_AUTH_DHCHAP_CHALLENGE       0x10 
-#define FC_AUTH_DHCHAP_REPLY           0x11 
-#define FC_AUTH_DHCHAP_SUCCESS         0x12 
-#define FC_AUTH_FCAP_REQUEST           0x13 
-#define FC_AUTH_FCAP_ACKNOWLEDGE       0x14 
-#define FC_AUTH_FCAP_CONFIRM           0x15 
-#define FC_AUTH_FCPAP_INIT             0x16 
-#define FC_AUTH_FCPAP_ACCEPT           0x17 
+#define FC_AUTH_MSG_AUTH_REJECT        0x0A
+#define FC_AUTH_MSG_AUTH_NEGOTIATE     0x0B
+#define FC_AUTH_MSG_AUTH_DONE          0x0C
+#define FC_AUTH_DHCHAP_CHALLENGE       0x10
+#define FC_AUTH_DHCHAP_REPLY           0x11
+#define FC_AUTH_DHCHAP_SUCCESS         0x12
+#define FC_AUTH_FCAP_REQUEST           0x13
+#define FC_AUTH_FCAP_ACKNOWLEDGE       0x14
+#define FC_AUTH_FCAP_CONFIRM           0x15
+#define FC_AUTH_FCPAP_INIT             0x16
+#define FC_AUTH_FCPAP_ACCEPT           0x17
 #define FC_AUTH_FCPAP_COMPLETE         0x18
 
 #define FC_AUTH_NAME_TYPE_WWN          0x1
@@ -190,11 +190,11 @@ static void dissect_fcsp_dhchap_auth_param (tvbuff_t *tvb, proto_tree *tree,
 {
     guint16 auth_param_tag;
     guint16 param_len = 0, i;
-    
+
     if (tree) {
         auth_param_tag = tvb_get_ntohs (tvb, offset);
         total_len -= 4;
-        
+
         while (total_len > 0) {
             proto_tree_add_item (tree, hf_auth_dhchap_param_tag, tvb, offset,
                                  2, 0);
@@ -237,7 +237,7 @@ static void dissect_fcsp_dhchap_challenge (tvbuff_t *tvb, proto_tree *tree)
     int offset = 12;
     guint16 name_type;
     guint16 param_len, name_len;
-    
+
     if (tree) {
         proto_tree_add_item (tree, hf_auth_responder_name_type, tvb, offset,
                              2, 0);
@@ -247,7 +247,7 @@ static void dissect_fcsp_dhchap_challenge (tvbuff_t *tvb, proto_tree *tree)
                              2, 0);
 
         name_len = tvb_get_ntohs (tvb, offset+2);
-        
+
         if (name_type == FC_AUTH_NAME_TYPE_WWN) {
             proto_tree_add_string (tree, hf_auth_responder_wwn, tvb, offset+4,
                                    8,
@@ -255,11 +255,11 @@ static void dissect_fcsp_dhchap_challenge (tvbuff_t *tvb, proto_tree *tree)
                                                               8)));
         }
         else {
-            proto_tree_add_bytes (tree, hf_auth_responder_name, tvb, offset+4,
-                                  name_len, tvb_get_ptr (tvb, offset+4, name_len));
+            proto_tree_add_item (tree, hf_auth_responder_name, tvb, offset+4,
+                                 name_len, ENC_NA);
         }
         offset += (4+name_len);
-        
+
         proto_tree_add_item (tree, hf_auth_dhchap_hash_type, tvb, offset,
                              4, 0);
         proto_tree_add_item (tree, hf_auth_dhchap_group_type, tvb, offset+4,
@@ -267,18 +267,16 @@ static void dissect_fcsp_dhchap_challenge (tvbuff_t *tvb, proto_tree *tree)
         proto_tree_add_item (tree, hf_auth_dhchap_chal_len, tvb, offset+8,
                              4, 0);
         param_len = tvb_get_ntohl (tvb, offset+8);
-        
-        proto_tree_add_bytes (tree, hf_auth_dhchap_chal_value, tvb, offset+12,
-                              param_len,
-                              tvb_get_ptr (tvb, offset+12, param_len));
+
+        proto_tree_add_item (tree, hf_auth_dhchap_chal_value, tvb, offset+12,
+                             param_len, ENC_NA);
         offset += (param_len + 12);
 
         proto_tree_add_item (tree, hf_auth_dhchap_val_len, tvb, offset, 4, 0);
         param_len = tvb_get_ntohl (tvb, offset);
-        
-        proto_tree_add_bytes (tree, hf_auth_dhchap_dhvalue, tvb, offset+4,
-                              param_len,
-                              tvb_get_ptr (tvb, offset+4, param_len));
+
+        proto_tree_add_item (tree, hf_auth_dhchap_dhvalue, tvb, offset+4,
+                             param_len, ENC_NA);
     }
 }
 
@@ -287,30 +285,27 @@ static void dissect_fcsp_dhchap_reply (tvbuff_t *tvb, proto_tree *tree)
 {
     int offset = 12;
     guint32 param_len;
-    
+
     if (tree) {
         proto_tree_add_item (tree, hf_auth_dhchap_rsp_len, tvb, offset, 4, 0);
         param_len = tvb_get_ntohl (tvb, offset);
 
-        proto_tree_add_bytes (tree, hf_auth_dhchap_rsp_value, tvb, offset+4,
-                              param_len,
-                              tvb_get_ptr (tvb, offset+4, param_len));
+        proto_tree_add_item (tree, hf_auth_dhchap_rsp_value, tvb, offset+4,
+                             param_len, ENC_NA);
         offset += (param_len + 4);
 
         proto_tree_add_item (tree, hf_auth_dhchap_val_len, tvb, offset, 4, 0);
         param_len = tvb_get_ntohl (tvb, offset);
 
-        proto_tree_add_bytes (tree, hf_auth_dhchap_dhvalue, tvb, offset+4,
-                              param_len,
-                              tvb_get_ptr (tvb, offset+4, param_len));
+        proto_tree_add_item (tree, hf_auth_dhchap_dhvalue, tvb, offset+4,
+                             param_len, ENC_NA);
         offset += (param_len + 4);
 
         proto_tree_add_item (tree, hf_auth_dhchap_chal_len, tvb, offset, 4, 0);
         param_len = tvb_get_ntohl (tvb, offset);
 
-        proto_tree_add_bytes (tree, hf_auth_dhchap_chal_value, tvb, offset+4,
-                              param_len,
-                              tvb_get_ptr (tvb, offset+4, param_len));
+        proto_tree_add_item (tree, hf_auth_dhchap_chal_value, tvb, offset+4,
+                             param_len, ENC_NA);
     }
 }
 
@@ -318,14 +313,13 @@ static void dissect_fcsp_dhchap_success (tvbuff_t *tvb, proto_tree *tree)
 {
     int offset = 12;
     guint32 param_len;
-    
+
     if (tree) {
         proto_tree_add_item (tree, hf_auth_dhchap_rsp_len, tvb, offset, 4, 0);
         param_len = tvb_get_ntohl (tvb, offset);
 
-        proto_tree_add_bytes (tree, hf_auth_dhchap_rsp_value, tvb, offset+4,
-                              param_len,
-                              tvb_get_ptr (tvb, offset+4, param_len));
+        proto_tree_add_item (tree, hf_auth_dhchap_rsp_value, tvb, offset+4,
+                             param_len, ENC_NA);
     }
 }
 
@@ -350,9 +344,8 @@ static void dissect_fcsp_auth_negotiate (tvbuff_t *tvb, proto_tree *tree)
                                    fcwwn_to_str (tvb_get_ptr (tvb, offset+4, 8)));
         }
         else {
-            proto_tree_add_bytes (tree, hf_auth_initiator_name, tvb, offset+4,
-                                  name_len, tvb_get_ptr (tvb, offset+4,
-                                                         name_len));
+            proto_tree_add_item (tree, hf_auth_initiator_name, tvb, offset+4,
+                                  name_len, ENC_NA);
         }
 
         offset += (4+name_len);
@@ -360,12 +353,12 @@ static void dissect_fcsp_auth_negotiate (tvbuff_t *tvb, proto_tree *tree)
         proto_tree_add_item (tree, hf_auth_usable_proto, tvb, offset, 4, 0);
         num_protos = tvb_get_ntohl (tvb, offset);
         offset += 4;
-        
+
         for (i = 0; i < num_protos; i++) {
             proto_tree_add_item (tree, hf_auth_proto_param_len, tvb, offset, 4, 0);
             param_len = tvb_get_ntohl (tvb, offset);
             offset += 4;
-            
+
             if (tvb_bytes_exist (tvb, offset, param_len)) {
                 proto_type = tvb_get_ntohl (tvb, offset);
 
@@ -392,7 +385,7 @@ static void dissect_fcsp_auth_done (tvbuff_t *tvb _U_, proto_tree *tree _U_)
 static void dissect_fcsp_auth_rjt (tvbuff_t *tvb, proto_tree *tree)
 {
     int offset = 12;
-    
+
     if (tree) {
         proto_tree_add_item (tree, hf_auth_rjt_code, tvb, offset, 1, 0);
         proto_tree_add_item (tree, hf_auth_rjt_codedet, tvb, offset+1, 1, 0);
@@ -413,7 +406,7 @@ static void dissect_fcsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_add_str (pinfo->cinfo, COL_INFO,
                      val_to_str (opcode, fcauth_msgcode_vals, "0x%x"));
     }
-    
+
     if (tree) {
         ti = proto_tree_add_protocol_format (tree, proto_fcsp, tvb, 0,
                                              tvb_length (tvb), "FC-SP");
@@ -462,7 +455,7 @@ static void dissect_fcsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_fcsp (void)
-{                 
+{
     /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_auth_proto_ver,
@@ -555,7 +548,7 @@ proto_register_fcsp (void)
         { &hf_auth_dhchap_rsp_value,
           {"Response Value", "fcsp.dhchap.rspval", FT_BYTES, BASE_NONE, NULL,
            0x0, NULL, HFILL}},
-          
+
     };
 
 

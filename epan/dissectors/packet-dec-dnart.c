@@ -602,9 +602,8 @@ do_initialization_msg(
     my_offset += 2;
     remainder_count = tvb_get_guint8(tvb, my_offset);
     if (remainder_count != 0) {
-        proto_tree_add_bytes(tree, hf_dec_rt_reserved, tvb,
-            my_offset, remainder_count,
-            tvb_get_ptr(tvb, my_offset, remainder_count));
+        proto_tree_add_item(tree, hf_dec_rt_reserved, tvb,
+            my_offset, remainder_count, ENC_NA);
         my_offset += remainder_count;
     }
     return (my_offset);
@@ -626,9 +625,8 @@ do_verification_msg(
     offset += 2;
     remainder_count = tvb_get_guint8(tvb, my_offset);
     if (remainder_count != 0) {
-        proto_tree_add_bytes(tree, hf_dec_rt_fcnval, tvb,
-            my_offset, remainder_count,
-            tvb_get_ptr(tvb, my_offset, remainder_count));
+        proto_tree_add_item(tree, hf_dec_rt_fcnval, tvb,
+            my_offset, remainder_count, ENC_NA);
         my_offset += remainder_count;
     }
     return (my_offset);
@@ -650,9 +648,8 @@ do_hello_test_msg(
     my_offset += 2;
     remainder_count = tvb_length_remaining(tvb, my_offset);
     if (remainder_count != 0) {
-        proto_tree_add_bytes(tree, hf_dec_rt_test_data, tvb,
-            my_offset, remainder_count,
-            tvb_get_ptr(tvb, my_offset, remainder_count));
+        proto_tree_add_item(tree, hf_dec_rt_test_data, tvb,
+            my_offset, remainder_count, ENC_NA);
         my_offset += remainder_count;
     }
     return (my_offset);
@@ -824,8 +821,8 @@ do_hello_msg(
                     tvb, my_offset, 1, "Router States");
         list_tree = proto_item_add_subtree(ti_locala, ett_dec_rt_list);
         while (image_len > 0) {
-            ti_ether = proto_tree_add_bytes(list_tree, hf_dec_rt_ename, tvb,
-                my_offset, 7, tvb_get_ptr(tvb, my_offset, 7));
+            ti_ether = proto_tree_add_item(list_tree, hf_dec_rt_ename, tvb,
+                my_offset, 7, ENC_NA);
             list_ether = proto_item_add_subtree(ti_ether, ett_dec_rt_rlist);
             my_offset += 7;
             image_len -= 7;
