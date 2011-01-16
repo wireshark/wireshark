@@ -592,9 +592,8 @@ dissect_fcdns_gspnid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
             len = tvb_get_guint8 (tvb, offset);
             proto_tree_add_item (req_tree, hf_fcdns_rply_spnamelen,
                                  tvb, offset, 1, 0);
-            proto_tree_add_string (req_tree, hf_fcdns_rply_spname, tvb,
-                                   offset+1, len,
-                                   tvb_get_ptr (tvb, offset+1, len));
+            proto_tree_add_item (req_tree, hf_fcdns_rply_spname, tvb,
+                                 offset+1, len, ENC_NA);
         }
     }
 }
@@ -1256,7 +1255,7 @@ dissect_fcdns_swils_entries (tvbuff_t *tvb, proto_tree *tree, int offset)
 
             proto_tree_add_item (tree, hf_fcdns_sw2_objfmt, tvb, offset, 1, 0);
             proto_tree_add_string (tree, hf_fcdns_rply_ownerid, tvb, offset+1,
-                                   3, fc_to_str (tvb_get_ptr (tvb, offset+1,
+                                   3, fc_to_str (tvb_get_ephemeral_string (tvb, offset+1,
                                                               3)));
             proto_tree_add_item (tree, hf_fcdns_rply_ptype, tvb, offset+4,
                                  1, 0);
@@ -1443,8 +1442,8 @@ dissect_fcdns_gezn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
             str_len = tvb_get_guint8 (tvb, offset);
             proto_tree_add_text (req_tree, tvb, offset, 1, "Name Length: %d",
                                  str_len);
-            proto_tree_add_string (req_tree, hf_fcdns_zonenm, tvb, offset+3,
-                                   str_len, tvb_get_ptr (tvb, offset+3, str_len));
+            proto_tree_add_item (req_tree, hf_fcdns_zonenm, tvb, offset+3,
+                                 str_len, ENC_NA);
         }
     }
     else {

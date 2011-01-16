@@ -2285,7 +2285,6 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 	guint32 port_tx_delay_local;
 	guint32 port_tx_delay_remote;
 	guint32 cable_delay_local;
-	const guint8 *mac_addr = NULL;
 	e_guid_t * uuid;
 	guint16 mrrt_PortStatus;
 
@@ -2368,16 +2367,14 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 	}
     case 5:     /* LLDP_PNIO_CHASSIS_MAC */
     {
-	mac_addr=tvb_get_ptr(tvb, offset, 6);
-	proto_tree_add_ether(tree, hf_profinet_cm_mac, tvb, offset, 6, mac_addr);
+	proto_tree_add_item(tree, hf_profinet_cm_mac, tvb, offset, 6, ENC_NA);
         offset += 6;
         break;
     }
     case 6:     /* LLDP_PNIO_PTCPSTATUS */
     {
 	    /* MasterSourceAddress */
-	    mac_addr=tvb_get_ptr(tvb, offset, 6);
-	    proto_tree_add_ether(tree, hf_profinet_master_source_address, tvb, offset, 6, mac_addr);
+	    proto_tree_add_item(tree, hf_profinet_master_source_address, tvb, offset, 6, ENC_NA);
 	    offset += 6;
 	    /* SubdomainUUID */
 	    tvb_get_ntohguid (tvb, offset, (e_guid_t *) &uuid);

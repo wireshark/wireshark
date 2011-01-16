@@ -247,7 +247,6 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	char 		*str;
 	guint16		first_socket, second_socket;
 	guint32		ipx_snet, ipx_dnet;
-	const guint8	*ipx_snode, *ipx_dnode;
 	static ipxhdr_t ipxh_arr[4];
 	static int ipx_current=0;
 	ipxhdr_t *ipxh;
@@ -321,11 +320,8 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	hidden_item = proto_tree_add_ipxnet(ipx_tree, hf_ipx_net, tvb, 6, 4,
 		ipx_dnet);
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
-	ipx_dnode = tvb_get_ptr(tvb, 10,  6);
-	proto_tree_add_ether(ipx_tree, hf_ipx_dnode, tvb, 10, 6,
-		ipx_dnode);
-	hidden_item = proto_tree_add_ether(ipx_tree, hf_ipx_node, tvb, 10, 6,
-		ipx_dnode);
+	proto_tree_add_item(ipx_tree, hf_ipx_dnode, tvb, 10, 6, ENC_NA);
+	hidden_item = proto_tree_add_item(ipx_tree, hf_ipx_node, tvb, 10, 6, ENC_NA);
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
 	proto_tree_add_uint(ipx_tree, hf_ipx_dsocket, tvb, 16, 2,
 		ipxh->ipx_dsocket);
@@ -340,11 +336,8 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	hidden_item = proto_tree_add_ipxnet(ipx_tree, hf_ipx_net, tvb, 18, 4,
 		ipx_snet);
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
-	ipx_snode = tvb_get_ptr(tvb, 22, 6);
-	proto_tree_add_ether(ipx_tree, hf_ipx_snode, tvb, 22, 6,
-		ipx_snode);
-	hidden_item = proto_tree_add_ether(ipx_tree, hf_ipx_node, tvb, 22, 6,
-		ipx_snode);
+	proto_tree_add_item(ipx_tree, hf_ipx_snode, tvb, 22, 6, ENC_NA);
+	hidden_item = proto_tree_add_item(ipx_tree, hf_ipx_node, tvb, 22, 6, ENC_NA);
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
 	proto_tree_add_uint(ipx_tree, hf_ipx_ssocket, tvb, 28, 2,
 		ipxh->ipx_ssocket);

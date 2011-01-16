@@ -378,7 +378,7 @@ static const value_string pkt_cccV6_opt_vals[] = {
     { PKT_CCCV6_PROV_TIMER,     "TSP's Provisioning Timer Value" },
     { PKT_CCCV6_IETF_SEC_TKT,   "PacketCable Security Ticket Control" },
     { 0, NULL }
-}; 
+};
 
 static const value_string sec_tcm_vals[] = {
     { 1 << 0, "PacketCable Provisioning Server" },
@@ -624,7 +624,7 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
             "Sub element %d: no room left in option for suboption length",
             subopt);
         return (optend);
-    } 
+    }
 
     vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 4,
         "Sub element %u: %s: ", subopt,
@@ -664,7 +664,7 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
                 }
             } else {
                 proto_item_append_text(vti, "Invalid type: %u (%u byte%s)",
-                    type, subopt_len, plurality(subopt_len, "", "s")); 
+                    type, subopt_len, plurality(subopt_len, "", "s"));
             }
             suboptoff += subopt_len;
             break;
@@ -673,11 +673,11 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
         case PKT_CCCV6_IETF_AP_KRB:
             if (subopt_len == 12) {
                 pkt_s_tree = proto_item_add_subtree(vti, ett_dhcpv6_pkt_option);
-                proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4, 
+                proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4,
                     "Nominal Timeout : %u", tvb_get_ntohl(tvb, suboptoff));
-                proto_tree_add_text(pkt_s_tree, tvb, suboptoff+4, 4, 
+                proto_tree_add_text(pkt_s_tree, tvb, suboptoff+4, 4,
                     "Maximum Timeout : %u", tvb_get_ntohl(tvb, suboptoff+4));
-                proto_tree_add_text(pkt_s_tree, tvb, suboptoff+8, 4, 
+                proto_tree_add_text(pkt_s_tree, tvb, suboptoff+8, 4,
                     "Maximum Retry Count : %u", tvb_get_ntohl(tvb, suboptoff+8));
             } else {
                 proto_item_append_text(vti, "Bogus length: %d", subopt_len);
@@ -690,13 +690,13 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
                 for (i=0; i < subopt_len; i++) {
                     kr_name = tvb_get_guint8(tvb, suboptoff + i);
                     kr_value = (int)kr_name;
-                    if ((kr_value >= 65 && kr_value <= 90) || 
-                        kr_value == 34 || 
-                        kr_value == 44 || 
-                        kr_value == 46 || 
-                        kr_value == 47 || 
-                        kr_value == 58 || 
-                        kr_value == 61 || 
+                    if ((kr_value >= 65 && kr_value <= 90) ||
+                        kr_value == 34 ||
+                        kr_value == 44 ||
+                        kr_value == 46 ||
+                        kr_value == 47 ||
+                        kr_value == 58 ||
+                        kr_value == 61 ||
                         kr_value == 92) {
                     } else if (!kr_fail_flag) {
                         kr_pos = i;
@@ -708,15 +708,15 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
                 if (kr_fail_flag) {
                     proto_item_append_text(vti, " (%u byte%s [Invalid at byte=%d]) ",
                         subopt_len,
-                        plurality(subopt_len, "", "s"),  
+                        plurality(subopt_len, "", "s"),
                         kr_pos);
                 } else {
                     proto_item_append_text(vti, " (%u byte%s%s) ",
                         subopt_len,
-                        plurality(subopt_len, "", "s"),  
+                        plurality(subopt_len, "", "s"),
                         kr_fail_flag != 0 ? " [Invalid]" : "");
                 }
-            } 
+            }
             suboptoff += subopt_len;
             break;
 
@@ -743,7 +743,7 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
             sec_tcm = tvb_get_ntohs(tvb, suboptoff);
             proto_item_append_text(vti, "0x%04x (%u byte%s%s)",
                 sec_tcm, subopt_len, plurality(subopt_len, "", "s"),
-            subopt_len != 2 ? " [Invalid]" : "");     
+            subopt_len != 2 ? " [Invalid]" : "");
 
             if (subopt_len == 2) {
                 pkt_s_tree = proto_item_add_subtree(vti, ett_dhcpv6_pkt_option);
@@ -763,7 +763,7 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
             suboptoff += subopt_len;
             break;
     }
-    
+
     /** Return the number of bytes processed **/
     return (suboptoff - optoff);
 }
@@ -815,7 +815,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, tvbuff_t *tvb, int voff, int
                                        tvb_format_stringzpad(tvb, sub_off, field_len));
                 break;
 
-            case CL_OPTION_VENDOR_OUI :         
+            case CL_OPTION_VENDOR_OUI :
                 /* CableLabs specs treat 17.8 inconsistently
                  * as either binary (3b) or string (6b) */
                 opt_len = tlv_len;
@@ -979,7 +979,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, tvbuff_t *tvb, int voff, int
                 subtree = proto_item_add_subtree(ti, ett_dhcpv6_vendor_option);
                 proto_item_append_text(ti, " (%d bytes)", opt_len);
                 while (field_len < opt_len) {
-                    sub_value = dissect_packetcable_cccV6_option(subtree, tvb, 
+                    sub_value = dissect_packetcable_cccV6_option(subtree, tvb,
                         sub_off, (opt_len - field_len));
                     sub_off += sub_value;
                     field_len += sub_value;
@@ -1828,7 +1828,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             break;
         }
         proto_tree_add_text(subtree, tvb, off, optlen,
-                            "NAI : %s", tvb_get_ptr(tvb, off, optlen - 2));
+                            "NAI : %s", tvb_get_ephemeral_string(tvb, off, optlen - 2));
         break;
     }
 

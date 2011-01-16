@@ -499,8 +499,8 @@ dissect_mipv6_hoa(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset, packet_inf
 	1, tvb_get_guint8(tvb, offset + len));
     len += 1;
 
-    proto_tree_add_ipv6(dstopt_tree, hf_ipv6_mipv6_home_address, tvb,
-	offset + len, 16, tvb_get_ptr(tvb, offset + len, 16));
+    proto_tree_add_item(dstopt_tree, hf_ipv6_mipv6_home_address, tvb,
+			offset + len, 16, ENC_NA);
     SET_ADDRESS(&pinfo->src, AT_IPv6, 16, tvb_get_ptr(tvb, offset + len, 16));
     len += 16;
     return len;
