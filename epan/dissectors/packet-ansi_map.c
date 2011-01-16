@@ -12319,8 +12319,8 @@ dissect_ansi_map_DatabaseKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 
 static const ber_sequence_t ServiceDataAccessElement_sequence[] = {
-  { &hf_ansi_map_dataAccessElementList, BER_CLASS_CON, 250, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DataAccessElementList },
-  { &hf_ansi_map_serviceID  , BER_CLASS_CON, 246, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceID },
+  { &hf_ansi_map_dataAccessElementList, BER_CLASS_CON, 250, BER_FLAGS_IMPLTAG, dissect_ansi_map_DataAccessElementList },
+  { &hf_ansi_map_serviceID  , BER_CLASS_CON, 246, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceID },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -12464,8 +12464,8 @@ dissect_ansi_map_DataUpdateResultList(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
 
 static const ber_sequence_t ServiceDataResult_sequence[] = {
-  { &hf_ansi_map_dataUpdateResultList, BER_CLASS_CON, 255, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DataUpdateResultList },
-  { &hf_ansi_map_serviceID  , BER_CLASS_CON, 246, BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceID },
+  { &hf_ansi_map_dataUpdateResultList, BER_CLASS_CON, 255, BER_FLAGS_IMPLTAG, dissect_ansi_map_DataUpdateResultList },
+  { &hf_ansi_map_serviceID  , BER_CLASS_CON, 246, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServiceID },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -13904,7 +13904,7 @@ dissect_ansi_map_CDMAMobileCapabilities(gboolean implicit_tag _U_, tvbuff_t *tvb
 static const ber_sequence_t CDMAPSMMList_item_set[] = {
   { &hf_ansi_map_cdmaServingOneWayDelay2, BER_CLASS_CON, 347, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAServingOneWayDelay2 },
   { &hf_ansi_map_cdmaTargetMAHOList, BER_CLASS_CON, 136, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMAHOList },
-  { &hf_ansi_map_cdmaTargetMAHOList2, BER_CLASS_CON, 136, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMAHOList },
+  { &hf_ansi_map_cdmaTargetMAHOList2, BER_CLASS_CON, 136, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMAHOList },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -14193,7 +14193,7 @@ static const ber_sequence_t InterSystemPositionRequest_U_set[] = {
   { &hf_ansi_map_pqos_VerticalPosition, BER_CLASS_CON, 377, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_VerticalPosition },
   { &hf_ansi_map_pqos_VerticalVelocity, BER_CLASS_CON, 378, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_VerticalVelocity },
   { &hf_ansi_map_servingCellID, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ServingCellID },
-  { &hf_ansi_map_tdma_MAHORequest, BER_CLASS_CON, 364, BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMA_MAHORequest },
+  { &hf_ansi_map_tdma_MAHORequest, BER_CLASS_CON, 364, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMA_MAHORequest },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -14359,7 +14359,7 @@ static const ber_sequence_t InterSystemPositionRequestForward_U_set[] = {
   { &hf_ansi_map_pqos_ResponseTime, BER_CLASS_CON, 376, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_ResponseTime },
   { &hf_ansi_map_pqos_VerticalPosition, BER_CLASS_CON, 377, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_VerticalPosition },
   { &hf_ansi_map_pqos_VerticalVelocity, BER_CLASS_CON, 378, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PQOS_VerticalVelocity },
-  { &hf_ansi_map_tdma_MAHORequest, BER_CLASS_CON, 364, BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMA_MAHORequest },
+  { &hf_ansi_map_tdma_MAHORequest, BER_CLASS_CON, 364, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TDMA_MAHORequest },
   { NULL, 0, 0, 0, NULL }
 };
 
