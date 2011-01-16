@@ -15,12 +15,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -81,9 +81,9 @@ dissect_ipfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ipfc_tree = proto_item_add_subtree (ti, ett_ipfc);
 
         proto_tree_add_string (ipfc_tree, hf_ipfc_network_da, tvb, offset, 8,
-                               fcwwn_to_str (tvb_get_ptr (tvb, offset, 8)));
+                               tvb_fcwwn_to_str (tvb, offset));
         proto_tree_add_string (ipfc_tree, hf_ipfc_network_sa, tvb, offset+8, 8,
-                               fcwwn_to_str (tvb_get_ptr (tvb, offset+8, 8)));
+                               tvb_fcwwn_to_str (tvb, offset+8));
     }
 
     next_tvb = tvb_new_subset_remaining (tvb, 16);
@@ -98,7 +98,7 @@ dissect_ipfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_ipfc (void)
-{                 
+{
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {

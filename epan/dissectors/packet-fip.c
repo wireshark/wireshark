@@ -461,7 +461,7 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case FIP_DT_MAP_OUI:
             subtree = proto_item_add_subtree(item, ett_fip_dt_map);
             fip_desc_type_len(subtree, desc_tvb);
-            text = fc_to_str(tvb_get_ptr(desc_tvb, 5, 3));
+            text = tvb_fc_to_str(desc_tvb, 5);
             proto_tree_add_string(subtree, hf_fip_desc_map, desc_tvb,
                     5, 3, text);
             proto_item_append_text(item, "%s", text);
@@ -469,7 +469,7 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case FIP_DT_NAME:
             subtree = proto_item_add_subtree(item, ett_fip_dt_name);
             fip_desc_type_len(subtree, desc_tvb);
-            text = fcwwn_to_str(tvb_get_ptr(desc_tvb, 4, 8));
+            text = tvb_fcwwn_to_str(desc_tvb, 4);
             proto_tree_add_string(subtree, hf_fip_desc_name,
                     desc_tvb, 4, 8, text);
             proto_item_append_text(item, "%s", text);
@@ -479,10 +479,10 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             fip_desc_type_len(subtree, desc_tvb);
             proto_tree_add_item(subtree, hf_fip_desc_fab_vfid, desc_tvb,
                     2, 2, FALSE);
-            text = fc_to_str(tvb_get_ptr(desc_tvb, 5, 3));
+            text = tvb_fc_to_str(desc_tvb, 5);
             proto_tree_add_string(subtree, hf_fip_desc_fab_map, desc_tvb,
                     5, 3, text);
-            text = fcwwn_to_str(tvb_get_ptr(desc_tvb, 8, 8));
+            text = tvb_fcwwn_to_str(desc_tvb, 8);
             proto_tree_add_string(subtree, hf_fip_desc_fab_name,
                     desc_tvb, 8, 8, text);
             proto_item_append_text(item, "%s", text);
@@ -511,7 +511,7 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     2, 6, FALSE);
             proto_tree_add_item(subtree, hf_fip_desc_vn_fid, desc_tvb,
                     9, 3, FALSE);
-            text = fcwwn_to_str(tvb_get_ptr(desc_tvb, 12, 8));
+            text = tvb_fcwwn_to_str(desc_tvb, 12);
             proto_tree_add_string(subtree, hf_fip_desc_vn_wwpn,
                     desc_tvb, 12, 8, text);
             proto_item_append_text(item, "MAC %s  FC_ID %6.6x",

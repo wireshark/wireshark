@@ -929,7 +929,7 @@ dissect_swils_efp (tvbuff_t *tvb, proto_tree *efp_tree, guint8 isreq _U_)
             case FC_SWILS_LRECTYPE_DOMAIN:
                 proto_tree_add_item (lrec_tree, hf_swils_efp_dom_id, tvb, offset+1, 1, 0);
                 proto_tree_add_string (lrec_tree, hf_swils_efp_switch_name, tvb, offset+8, 8,
-                                       fcwwn_to_str (tvb_get_ptr(tvb, offset+8, 8)));
+                                       tvb_fcwwn_to_str (tvb, offset+8));
                 break;
 
             case FC_SWILS_LRECTYPE_MCAST:
@@ -949,7 +949,7 @@ dissect_swils_dia (tvbuff_t *tvb, proto_tree *dia_tree, guint8 isreq _U_)
 
     if (dia_tree) {
         proto_tree_add_string (dia_tree, hf_swils_dia_switch_name, tvb, offset+4,
-                               8, fcwwn_to_str (tvb_get_ptr (tvb, offset+4, 8)));
+                               8, tvb_fcwwn_to_str (tvb, offset+4));
     }
 }
 
@@ -965,7 +965,7 @@ dissect_swils_rdi (tvbuff_t *tvb, proto_tree *rdi_tree, guint8 isreq)
 
         proto_tree_add_item (rdi_tree, hf_swils_rdi_payload_len, tvb, offset+2, 2, 0);
         proto_tree_add_string (rdi_tree, hf_swils_rdi_req_sname, tvb, offset+4,
-                               8, fcwwn_to_str (tvb_get_ptr (tvb, offset+4, 8)));
+                               8, tvb_fcwwn_to_str (tvb, offset+4));
 
         /* 12 is the length of the initial header and 4 is the size of each
          * domain request record.
@@ -1033,7 +1033,7 @@ static void
 dissect_swils_fspf_ldrec (tvbuff_t *tvb, proto_tree *tree, int offset)
 {
     proto_tree_add_string (tree, hf_swils_ldrec_linkid, tvb, offset, 4,
-                           fc_to_str (tvb_get_ptr (tvb, offset+1, 3)));
+                           tvb_fc_to_str (tvb, offset+1));
     proto_tree_add_item (tree, hf_swils_ldrec_out_pidx, tvb, offset+5, 3, 0);
     proto_tree_add_item (tree, hf_swils_ldrec_nbr_pidx, tvb, offset+9, 3, 0);
     proto_tree_add_item (tree, hf_swils_ldrec_link_type, tvb, offset+12, 1, 0);
@@ -1176,8 +1176,7 @@ dissect_swils_rscn (tvbuff_t *tvb, proto_tree *rscn_tree, guint8 isreq)
         proto_tree_add_item (rscn_tree, hf_swils_rscn_addrfmt, tvb, offset+4,
                              1, 0);
         proto_tree_add_string (rscn_tree, hf_swils_rscn_affectedport, tvb,
-                               offset+5, 3, fc_to_str (tvb_get_ptr (tvb,
-                                                                    offset+5, 3)));
+                               offset+5, 3, tvb_fc_to_str (tvb, offset+5));
         proto_tree_add_item (rscn_tree, hf_swils_rscn_detectfn, tvb,
                              offset+8, 4, 0);
         numrec = tvb_get_ntohl (tvb, offset+12);
@@ -1198,11 +1197,11 @@ dissect_swils_rscn (tvbuff_t *tvb, proto_tree *rscn_tree, guint8 isreq)
 
             proto_tree_add_item (dev_tree, hf_swils_rscn_portstate, tvb, offset, 1, 0);
             proto_tree_add_string (dev_tree, hf_swils_rscn_portid, tvb, offset+1, 3,
-                                   fc_to_str (tvb_get_ptr (tvb, offset+1, 3)));
+                                   tvb_fc_to_str (tvb, offset+1));
             proto_tree_add_string (dev_tree, hf_swils_rscn_pwwn, tvb, offset+4, 8,
-                                   fcwwn_to_str (tvb_get_ptr (tvb, offset+4, 8)));
+                                   tvb_fcwwn_to_str (tvb, offset+4));
             proto_tree_add_string (dev_tree, hf_swils_rscn_nwwn, tvb, offset+12, 8,
-                                   fcwwn_to_str (tvb_get_ptr (tvb, offset+12, 8)));
+                                   tvb_fcwwn_to_str (tvb, offset+12));
             offset += 20;
         }
     }
@@ -1242,9 +1241,7 @@ dissect_swils_zone_mbr (tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
     case FC_SWILS_ZONEMBR_WWN:
         proto_tree_add_string (zmbr_tree, hf_swils_zone_mbrid, tvb,
                                offset+4, 8,
-                               fcwwn_to_str (tvb_get_ptr (tvb,
-                                                          offset+4,
-                                                          8)));
+                               tvb_fcwwn_to_str (tvb, offset+4));
         break;
     case FC_SWILS_ZONEMBR_DP:
         g_snprintf(dpbuf, sizeof(dpbuf), "0x%08x", tvb_get_ntohl (tvb, offset+4));
@@ -1254,9 +1251,7 @@ dissect_swils_zone_mbr (tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
     case FC_SWILS_ZONEMBR_FCID:
         proto_tree_add_string (zmbr_tree, hf_swils_zone_mbrid, tvb,
                                offset+4, 4,
-                               fc_to_str (tvb_get_ptr (tvb,
-                                                       offset+5,
-                                                       3)));
+                               tvb_fc_to_str (tvb, offset+5));
         break;
     case FC_SWILS_ZONEMBR_ALIAS:
         str = zonenm_to_str (tvb, offset+4);
@@ -1266,9 +1261,7 @@ dissect_swils_zone_mbr (tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
     case FC_SWILS_ZONEMBR_WWN_LUN:
         proto_tree_add_string (zmbr_tree, hf_swils_zone_mbrid, tvb,
                                offset+4, 8,
-                               fcwwn_to_str (tvb_get_ptr (tvb,
-                                                          offset+4,
-                                                          8)));
+                               tvb_fcwwn_to_str (tvb, offset+4));
         proto_tree_add_item (zmbr_tree, hf_swils_zone_mbrid_lun, tvb,
                              offset+12, 8, 0);
         break;
@@ -1282,9 +1275,7 @@ dissect_swils_zone_mbr (tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
     case FC_SWILS_ZONEMBR_FCID_LUN:
         proto_tree_add_string (zmbr_tree, hf_swils_zone_mbrid, tvb,
                                offset+4, 4,
-                               fc_to_str (tvb_get_ptr (tvb,
-                                                       offset+5,
-                                                       3)));
+                               tvb_fc_to_str (tvb, offset+5));
         proto_tree_add_item (zmbr_tree, hf_swils_zone_mbrid_lun, tvb,
                              offset+8, 8, 0);
         break;

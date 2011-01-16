@@ -250,9 +250,7 @@ static void dissect_fcsp_dhchap_challenge (tvbuff_t *tvb, proto_tree *tree)
 
         if (name_type == FC_AUTH_NAME_TYPE_WWN) {
             proto_tree_add_string (tree, hf_auth_responder_wwn, tvb, offset+4,
-                                   8,
-                                   fcwwn_to_str (tvb_get_ptr (tvb, offset+4,
-                                                              8)));
+                                   8, tvb_fcwwn_to_str (tvb, offset+4));
         }
         else {
             proto_tree_add_item (tree, hf_auth_responder_name, tvb, offset+4,
@@ -341,7 +339,7 @@ static void dissect_fcsp_auth_negotiate (tvbuff_t *tvb, proto_tree *tree)
 
         if (name_type == FC_AUTH_NAME_TYPE_WWN) {
             proto_tree_add_string (tree, hf_auth_initiator_wwn, tvb, offset+4, 8,
-                                   fcwwn_to_str (tvb_get_ptr (tvb, offset+4, 8)));
+                                   tvb_fcwwn_to_str (tvb, offset+4));
         }
         else {
             proto_tree_add_item (tree, hf_auth_initiator_name, tvb, offset+4,

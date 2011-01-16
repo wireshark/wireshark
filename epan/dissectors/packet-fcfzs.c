@@ -188,9 +188,7 @@ dissect_fcfzs_zoneset (tvbuff_t *tvb, proto_tree *tree, int offset)
                 case FC_FZS_ZONEMBR_NWWN:
                     proto_tree_add_string (tree, hf_fcfzs_mbrid, tvb,
                                            offset+4, 8,
-                                           fcwwn_to_str (tvb_get_ptr (tvb,
-                                                                      offset+4,
-                                                                      8)));
+                                           tvb_fcwwn_to_str (tvb, offset+4));
                     break;
                 case FC_FZS_ZONEMBR_DP:
                     proto_tree_add_string_format (tree,
@@ -203,16 +201,12 @@ dissect_fcfzs_zoneset (tvbuff_t *tvb, proto_tree *tree, int offset)
                 case FC_FZS_ZONEMBR_FCID:
                     proto_tree_add_string (tree, hf_fcfzs_mbrid, tvb,
                                            offset+4, 4,
-                                           fc_to_str (tvb_get_ptr (tvb,
-                                                                   offset+4,
-                                                                   3)));
+                                           tvb_fc_to_str (tvb, offset+4));
                     break;
                 case FC_FZS_ZONEMBR_PWWN_LUN:
                     proto_tree_add_string (tree, hf_fcfzs_mbrid, tvb,
                                            offset+4, 8,
-                                           fcwwn_to_str (tvb_get_ptr (tvb,
-                                                                      offset+4,
-                                                                      8)));
+                                           tvb_fcwwn_to_str (tvb, offset+4));
                     proto_tree_add_item (tree, hf_fcfzs_mbrid_lun, tvb,
                                          offset+8, 8, 0);
                     break;
@@ -229,9 +223,7 @@ dissect_fcfzs_zoneset (tvbuff_t *tvb, proto_tree *tree, int offset)
                 case FC_FZS_ZONEMBR_FCID_LUN:
                     proto_tree_add_string (tree, hf_fcfzs_mbrid, tvb,
                                            offset+4, 4,
-                                           fc_to_str (tvb_get_ptr (tvb,
-                                                                   offset+4,
-                                                                   3)));
+                                           tvb_fc_to_str (tvb, offset+4));
                     proto_tree_add_item (tree, hf_fcfzs_mbrid_lun, tvb,
                                          offset+4, 8, 0);
                     break;
@@ -429,9 +421,7 @@ dissect_fcfzs_gzm (tvbuff_t *tvb, proto_tree *tree, guint8 isreq)
                 case FC_FZS_ZONEMBR_NWWN:
                     proto_tree_add_string (tree, hf_fcfzs_mbrid, tvb,
                                            offset+4, 8,
-                                           fcwwn_to_str (tvb_get_ptr (tvb,
-                                                                      offset+4,
-                                                                      8)));
+                                           tvb_fcwwn_to_str (tvb, offset+4));
                     break;
                 case FC_FZS_ZONEMBR_DP:
                     proto_tree_add_string_format (tree,
@@ -444,9 +434,7 @@ dissect_fcfzs_gzm (tvbuff_t *tvb, proto_tree *tree, guint8 isreq)
                 case FC_FZS_ZONEMBR_FCID:
                     proto_tree_add_string (tree, hf_fcfzs_mbrid, tvb,
                                            offset+4, 4,
-                                           fc_to_str (tvb_get_ptr (tvb,
-                                                                   offset+4,
-                                                                   3)));
+                                           tvb_fc_to_str (tvb, offset+4));
                     break;
                 default:
                     proto_tree_add_string (tree, hf_fcfzs_mbrid, tvb,
@@ -566,9 +554,7 @@ dissect_fcfzs_arzm (tvbuff_t *tvb, proto_tree *tree, guint8 isreq)
                 case FC_FZS_ZONEMBR_NWWN:
                     proto_tree_add_string (tree, hf_fcfzs_mbrid, tvb,
                                            offset+4, 8,
-                                           fcwwn_to_str (tvb_get_ptr (tvb,
-                                                                      offset+4,
-                                                                      8)));
+                                           tvb_fcwwn_to_str (tvb, offset+4));
                     break;
                 case FC_FZS_ZONEMBR_DP:
                     proto_tree_add_string_format (tree,
@@ -581,9 +567,7 @@ dissect_fcfzs_arzm (tvbuff_t *tvb, proto_tree *tree, guint8 isreq)
                 case FC_FZS_ZONEMBR_FCID:
                     proto_tree_add_string (tree, hf_fcfzs_mbrid, tvb,
                                            offset+4, 4,
-                                           fc_to_str (tvb_get_ptr (tvb,
-                                                                   offset+4,
-                                                                   3)));
+                                           tvb_fc_to_str (tvb, offset+4));
                     break;
                 default:
                     proto_tree_add_string (tree, hf_fcfzs_mbrid, tvb,

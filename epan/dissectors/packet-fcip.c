@@ -351,7 +351,7 @@ dissect_fcip_sf (tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     if (tree) {
         proto_tree_add_string (tree, hf_fcip_src_wwn, tvb, offset, 8,
-                               fcwwn_to_str (tvb_get_ptr (tvb, offset, 8)));
+                               tvb_fcwwn_to_str (tvb, offset));
         proto_tree_add_item (tree, hf_fcip_src_entity_id, tvb, offset+8, 8,
                               ENC_NA);
         proto_tree_add_item (tree, hf_fcip_conn_nonce, tvb, offset+16, 8,
@@ -360,7 +360,7 @@ dissect_fcip_sf (tvbuff_t *tvb, proto_tree *tree, gint offset)
         proto_tree_add_item (tree, hf_fcip_conn_flags, tvb, offset+24, 1, 0);
         proto_tree_add_item (tree, hf_fcip_conn_code, tvb, offset+26, 2, 0);
         proto_tree_add_string (tree, hf_fcip_dst_wwn, tvb, offset+30, 8,
-                               fcwwn_to_str (tvb_get_ptr (tvb, offset+30, 8)));
+                               tvb_fcwwn_to_str (tvb, offset+30));
         proto_tree_add_item (tree, hf_fcip_katov, tvb, offset+38, 4, 0);
     }
 }
