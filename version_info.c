@@ -117,7 +117,7 @@ end_string(GString *str)
  * don't use Portaudio in TShark.
  */
 void
-get_compiled_version_info(GString *str, void (*prepend_info)(GString *), 
+get_compiled_version_info(GString *str, void (*prepend_info)(GString *),
 			  void (*append_info)(GString *))
 {
 	if (sizeof(str) == 4)
@@ -128,7 +128,7 @@ get_compiled_version_info(GString *str, void (*prepend_info)(GString *),
 	if (prepend_info)
 		(*prepend_info)(str);
 
-        /* GLIB */
+	/* GLIB */
 	g_string_append(str, "with ");
 	g_string_append_printf(str,
 #ifdef GLIB_MAJOR_VERSION
@@ -142,7 +142,7 @@ get_compiled_version_info(GString *str, void (*prepend_info)(GString *),
 	g_string_append(str, ", ");
 	get_compiled_pcap_version(str);
 
-        /* LIBZ */
+	/* LIBZ */
 	g_string_append(str, ", ");
 #ifdef HAVE_LIBZ
 	g_string_append(str, "with libz ");
@@ -155,7 +155,7 @@ get_compiled_version_info(GString *str, void (*prepend_info)(GString *),
 	g_string_append(str, "without libz");
 #endif /* HAVE_LIBZ */
 
-        /* LIBCAP */
+	/* LIBCAP */
 	g_string_append(str, ", ");
 #ifdef HAVE_LIBCAP
 	g_string_append(str, "with POSIX capabilities");
@@ -236,10 +236,10 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 	memset(&system_info, '\0', sizeof system_info);
 	/* Look for and use the GetNativeSystemInfo() function if available to get the correct processor
 	 * architecture even when running 32-bit Wireshark in WOW64 (x86 emulation on 64-bit Windows) */
-	nativesi_func = GetProcAddress(GetModuleHandle(_T("kernel32.dll")), "GetNativeSystemInfo");
+	nativesi_func = (nativesi_func_ptr)GetProcAddress(GetModuleHandle(_T("kernel32.dll")), "GetNativeSystemInfo");
 	if(nativesi_func)
 		nativesi_func(&system_info);
-	else    
+	else
 		GetSystemInfo(&system_info);
 
 	switch (info.dwPlatformId) {
@@ -489,9 +489,9 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 	g_string_append(str, ", ");
 	get_runtime_pcap_version(str);
 
-        /* zlib */
+	/* zlib */
 #if defined(HAVE_LIBZ) && !defined(_WIN32)
-        g_string_append_printf(str, ", with libz %s", zlibVersion());
+	g_string_append_printf(str, ", with libz %s", zlibVersion());
 #endif
 
 	/* Additional application-dependent information */
