@@ -263,6 +263,12 @@ fc_to_str(const guint8 *ad)
     return bytestring_to_str (ad, 3, '.');
 }
 
+gchar *
+tvb_fc_to_str(tvbuff_t *tvb, const gint offset)
+{
+    return bytestring_to_str (tvb_get_ptr(tvb, offset, 3), 3, '.');
+}
+
 /* FC Network Header Network Address Authority Identifiers */
 
 #define FC_NH_NAA_IEEE		1	/* IEEE 802.1a */
@@ -315,6 +321,12 @@ fcwwn_to_str (const guint8 *ad)
         break;
     }
     return (ethstr);
+}
+
+gchar *
+tvb_fcwwn_to_str(tvbuff_t *tvb, const gint offset)
+{
+	return fcwwn_to_str (tvb_get_ptr(tvb, offset, 8));
 }
 
 /*XXX FIXME the code below may be called very very frequently in the future.

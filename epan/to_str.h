@@ -54,6 +54,8 @@ extern const gchar*	tvb_ip_to_str(tvbuff_t *tvb, const gint offset);
 extern void	ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len);
 extern gchar*	fc_to_str(const guint8 *);
 extern gchar*	fcwwn_to_str (const guint8 *);
+extern gchar*	tvb_fc_to_str(tvbuff_t *tvb, const gint offset);
+extern gchar*	tvb_fcwwn_to_str (tvbuff_t *tvb, const gint offset);
 extern gchar*	ip6_to_str(const struct e_in6_addr *);
 extern gchar*	tvb_ip6_to_str(tvbuff_t *tvb, const gint offset);
 extern void	ip6_to_str_buf(const struct e_in6_addr *, gchar *);
