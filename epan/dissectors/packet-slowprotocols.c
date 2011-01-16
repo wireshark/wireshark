@@ -1402,7 +1402,7 @@ dissect_lacp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Collector Reserved */
 
-        proto_tree_add_bytes(lacpdu_tree, hf_lacpdu_coll_reserved, tvb,
+        proto_tree_add_item(lacpdu_tree, hf_lacpdu_coll_reserved, tvb,
                 LACPDU_COLL_RESERVED, 12, ENC_NA);
 
         /* Terminator Type */
