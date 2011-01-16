@@ -436,21 +436,8 @@ text2pcap-scanner.obj : text2pcap-scanner.c
 # The following targets will rebuild their respective objs
 # if and when svnversion.h should change.
 #
+text2pcap.obj mergecap.obj capinfos.obj editcap.obj version_info.obj: svnversion.h
 
-text2pcap.obj : $*.c svnversion.h
-	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $*.c
-
-mergecap.obj : $*.c svnversion.h
-	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $*.c
-
-capinfos.obj : $*.c svnversion.h
-	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $*.c
-
-editcap.obj : $*.c svnversion.h
-	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $*.c
-
-version_info.obj : $*.c svnversion.h
-	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $*.c
 
 clean-local: clean-deps
 	rm -f $(wireshark_OBJECTS) $(tshark_OBJECTS) $(dumpcap_OBJECTS) $(rawshark_OBJECTS) \
