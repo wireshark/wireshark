@@ -1200,27 +1200,24 @@ static value_string_ext vals_wbxml1x_global_tokens_ext = VALUE_STRING_EXT_INIT(v
 static char *
 ext_t_0_wml_10(tvbuff_t *tvb, guint32 value, guint32 str_tbl)
 {
-	gint str_len = tvb_strsize (tvb, str_tbl + value);
 	char *str = g_strdup_printf("Variable substitution - escaped: '%s'",
-				    tvb_get_ptr(tvb, str_tbl + value, str_len));
+				    tvb_get_const_stringz(tvb, str_tbl + value, NULL));
 	return str;
 }
 
 static char *
 ext_t_1_wml_10(tvbuff_t *tvb, guint32 value, guint32 str_tbl)
 {
-	gint str_len = tvb_strsize (tvb, str_tbl + value);
 	char *str = g_strdup_printf("Variable substitution - unescaped: '%s'",
-				    tvb_get_ptr(tvb, str_tbl + value, str_len));
+				    tvb_get_const_stringz(tvb, str_tbl + value, NULL));
 	return str;
 }
 
 static char *
 ext_t_2_wml_10(tvbuff_t *tvb, guint32 value, guint32 str_tbl)
 {
-	gint str_len = tvb_strsize (tvb, str_tbl + value);
 	char *str = g_strdup_printf("Variable substitution - no transformation: '%s'",
-				    tvb_get_ptr(tvb, str_tbl + value, str_len));
+				    tvb_get_const_stringz(tvb, str_tbl + value, NULL));
 	return str;
 }
 /*****   Global extension tokens   *****/
@@ -3029,7 +3026,7 @@ static const value_string wbxml_mssyncc10_tags_cp2[] = { /* ActiveSync POOMMAIL 
 	{ 0x0c, "Body" },
 	{ 0x0d, "BodySize" },
 	{ 0x0e, "BodyTruncated" },
-	{ 0x0f, "DateReceived" }, 
+	{ 0x0f, "DateReceived" },
 	{ 0x10, "DisplayName" },
 	{ 0x11, "DisplayTo" },
 	{ 0x12, "Importance" },

@@ -504,7 +504,7 @@ dissect_pktc_mtafqdn_krbsafeuserdata(packet_info *pinfo, tvbuff_t *tvb, proto_tr
     switch(msgtype) {
     case PKTC_MTAFQDN_REQ:
         /* MTA MAC address */
-        proto_tree_add_ether(tree, hf_pktc_mtafqdn_mac, tvb, offset, 6, tvb_get_ptr(tvb, offset, 6));
+        proto_tree_add_item(tree, hf_pktc_mtafqdn_mac, tvb, offset, 6, ENC_NA);
        offset+=6;
 
        /* MTA pub key hash */

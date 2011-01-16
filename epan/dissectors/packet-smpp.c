@@ -1111,8 +1111,7 @@ smpp_handle_string(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 
     len = tvb_strsize(tvb, *offset);
     if (len > 1) {
-        proto_tree_add_string(tree, field, tvb, *offset, len,
-                              (const char *) tvb_get_ptr(tvb, *offset, len));
+        proto_tree_add_item(tree, field, tvb, *offset, len, ENC_NA);
     }
     (*offset) += len;
 }
@@ -1143,8 +1142,7 @@ smpp_handle_string_z(proto_tree *tree, tvbuff_t *tvb, int field, int *offset,
 
     len = tvb_strsize(tvb, *offset);
     if (len > 1) {
-        proto_tree_add_string(tree, field, tvb, *offset, len,
-                (const char *)tvb_get_ptr(tvb, *offset, len));
+        proto_tree_add_item(tree, field, tvb, *offset, len, ENC_NA);
     } else {
         proto_tree_add_string(tree, field, tvb, *offset, len, null_string);
     }
@@ -1321,9 +1319,9 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
         proto_item_add_subtree(sub_tree, ett_opt_param);
         proto_tree_add_uint(sub_tree,hf_smpp_opt_param_tag,tvb,*offset,2,tag);
         proto_tree_add_uint(sub_tree,hf_smpp_opt_param_len,tvb,*offset+2,2,length);
-        
+
         *offset += 4;
-        
+
         switch (tag) {
             case  0x0005:       /* dest_addr_subunit    */
                 smpp_handle_int1(sub_tree, tvb,
@@ -3536,6 +3534,6 @@ proto_reg_handoff_smpp(void)
 
     /* Tapping setup */
     stats_tree_register_with_group("smpp","smpp_commands", "SM_PP Operations", 0,
-                                   smpp_stats_tree_per_packet, smpp_stats_tree_init, 
+                                   smpp_stats_tree_per_packet, smpp_stats_tree_init,
                                    NULL, REGISTER_STAT_GROUP_TELEPHONY);
 }

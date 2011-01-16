@@ -326,7 +326,7 @@ static GHashTable *scsi_fragment_table = NULL;
 static GHashTable *scsi_reassembled_table = NULL;
 
 /*
- * Required by all commands 
+ * Required by all commands
  */
 const int *cdb_control_fields[6] = {
     &hf_scsi_control_vendor_specific,
@@ -1429,7 +1429,7 @@ static const true_false_string scsi_all_tg_pt_tfs = {
 
 static const true_false_string scsi_aptpl_tfs = {
     "Active Persist Through Power Loss is set",
-    "Active Persist Through Power Loss is not set" 
+    "Active Persist Through Power Loss is not set"
 };
 
 static const true_false_string scsi_naca_tfs = {
@@ -3966,10 +3966,10 @@ dissect_spc_persistentreserveout (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         cdata->itlq->flags = tvb_get_guint8 (tvb, offset);
     }
     else if (isreq && !iscdb) {
-        proto_tree_add_bytes (tree, hf_scsi_persresvout_reskey, tvb, offset,
-                              8, tvb_get_ptr(tvb, 0, 8));
-        proto_tree_add_bytes (tree, hf_scsi_persresvout_sareskey, tvb,
-                              offset +8, 8, tvb_get_ptr(tvb, offset + 8, 8));
+        proto_tree_add_item (tree, hf_scsi_persresvout_reskey, tvb, offset,
+                             8, ENC_NA);
+        proto_tree_add_item (tree, hf_scsi_persresvout_sareskey, tvb,
+                             offset +8, 8, ENC_NA);
         if (cdata->itlq->flags == 0x07) {
             const int *persresv_fields[] = {
                 &hf_scsi_persresv_control_rsvd,
@@ -3977,9 +3977,9 @@ dissect_spc_persistentreserveout (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
                 &hf_scsi_persresv_control_aptpl,
                 NULL
             };
-            proto_tree_add_bytes (tree, hf_scsi_persresvout_obsolete, tvb,
-                offset+16, 1, tvb_get_ptr(tvb, offset+16, 1));
-            proto_tree_add_bitmask(tree, tvb, offset+17, 
+            proto_tree_add_item (tree, hf_scsi_persresvout_obsolete, tvb,
+                                 offset+16, 1, ENC_NA);
+            proto_tree_add_bitmask(tree, tvb, offset+17,
                 hf_scsi_persresvout_control, ett_persresv_control,
                 persresv_fields, FALSE);
         }
@@ -3993,9 +3993,9 @@ dissect_spc_persistentreserveout (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
                 NULL
             };
 
-            proto_tree_add_bytes (tree, hf_scsi_persresvout_obsolete, tvb,
-                             offset+16, 4, tvb_get_ptr(tvb, offset+16, 4));
-            proto_tree_add_bitmask(tree, tvb, offset+20, 
+            proto_tree_add_item (tree, hf_scsi_persresvout_obsolete, tvb,
+                                 offset+16, 4, ENC_NA);
+            proto_tree_add_bitmask(tree, tvb, offset+20,
                 hf_scsi_persresvout_control, ett_persresv_control,
                 persresv_fields, FALSE);
         }
@@ -5019,7 +5019,7 @@ proto_register_scsi (void)
           {"Reserved", "scsi.cdb.control.reserved", FT_UINT8, BASE_HEX, NULL,
            0x38, NULL, HFILL}},
         { &hf_scsi_control_naca,
-          {"NACA", "scsi.cdb.control.naca", FT_BOOLEAN, 8, 
+          {"NACA", "scsi.cdb.control.naca", FT_BOOLEAN, 8,
            TFS(&scsi_naca_tfs), 0x04, NULL, HFILL}},
         { &hf_scsi_control_obs1,
           {"Obsolete", "scsi.cdb.control.obs1", FT_UINT8, BASE_HEX,
@@ -5028,7 +5028,7 @@ proto_register_scsi (void)
           {"Obsolete", "scsi.cdb.control.obs2", FT_UINT8, BASE_HEX,
            NULL, 0x01, NULL, HFILL}},
         { &hf_scsi_inq_control,
-          {"Control", "scsi.cdb.inq.control", FT_UINT8, BASE_HEX, NULL, 0x0, 
+          {"Control", "scsi.cdb.inq.control", FT_UINT8, BASE_HEX, NULL, 0x0,
            NULL, HFILL}},
         { &hf_scsi_inquiry_flags,
           {"Inquiry Flags", "scsi.inquiry.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL,
@@ -5226,7 +5226,7 @@ proto_register_scsi (void)
           {"Reserved", "scsi.inquiry.control.reserved", FT_UINT8, BASE_HEX,
            NULL, 0x38, NULL, HFILL}},
         { &hf_scsi_inq_control_naca,
-          {"NACA", "scsi.inquiry.control.naca", FT_BOOLEAN, 8, 
+          {"NACA", "scsi.inquiry.control.naca", FT_BOOLEAN, 8,
            TFS(&scsi_naca_tfs), 0x04, NULL, HFILL}},
         { &hf_scsi_inq_control_obs1,
           {"Obsolete", "scsi.inquiry.control.obs1", FT_UINT8, BASE_HEX,

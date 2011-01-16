@@ -241,7 +241,7 @@ sv_text(tvbuff_t *tvb, int svoff, proto_tree *tree)
 			break;
 
 		case 0x2D: /* Isolating Error Counts */
-			memcpy(errors, tvb_get_ptr(tvb, svoff+2, 6), 6);
+			tvb_memcpy(tvb, errors, svoff+2, 6);
 			ti = proto_tree_add_uint(tree, hf_trmac_errors_iso, tvb, svoff+1, sv_length-1,
 				errors[0] + errors[1] + errors[2] + errors[3] + errors[4]);
 			sv_tree = proto_item_add_subtree(ti, ett_tr_ierr_cnt);
@@ -255,7 +255,7 @@ sv_text(tvbuff_t *tvb, int svoff, proto_tree *tree)
 			break;
 
 		case 0x2E: /* Non-Isolating Error Counts */
-			memcpy(errors, tvb_get_ptr(tvb, svoff+2, 6), 6);
+			tvb_memcpy(tvb, errors, svoff+2, 6);
 			ti = proto_tree_add_uint(tree, hf_trmac_errors_noniso, tvb, svoff+1, sv_length-1,
 				errors[0] + errors[1] + errors[2] + errors[3] + errors[4]);
 			sv_tree = proto_item_add_subtree(ti, ett_tr_nerr_cnt);

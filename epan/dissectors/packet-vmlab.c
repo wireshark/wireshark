@@ -116,16 +116,16 @@ dissect_vmlab(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Not really clear, what the difference between this and the next MAC address is
        Both are usually equal*/
     eth_addr=tvb_get_ptr(tvb, offset, 6);
-    proto_tree_add_ether(vmlab_tree, hf_vmlab_eth_addr, tvb, offset, 6, eth_addr);
+    proto_tree_add_item(vmlab_tree, hf_vmlab_eth_addr, tvb, offset, 6, ENC_NA);
     offset += 6;
 
     dst_addr=tvb_get_ptr(tvb, offset, 6);
-    proto_tree_add_ether(vmlab_tree, hf_vmlab_eth_dst, tvb, offset, 6, dst_addr);
+    proto_tree_add_item(vmlab_tree, hf_vmlab_eth_dst, tvb, offset, 6, ENC_NA);
     offset += 6;
 
     /* Source MAC*/
     src_addr=tvb_get_ptr(tvb, offset, 6);
-    proto_tree_add_ether(vmlab_tree, hf_vmlab_eth_src, tvb, offset, 6, src_addr);
+    proto_tree_add_item(vmlab_tree, hf_vmlab_eth_src, tvb, offset, 6, ENC_NA);
     offset += 6;
 
     proto_item_append_text(ti, ", Src: %s (%s), Dst: %s (%s)",

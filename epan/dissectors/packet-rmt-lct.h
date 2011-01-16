@@ -48,7 +48,6 @@ struct _lct
 	gboolean close_object;
 	guint16 hlen;
 	guint8 codepoint;
-	guint8 *cci;
 	guint64 tsi;
 	guint64 toi;
 	const guint8 *toi_extended;

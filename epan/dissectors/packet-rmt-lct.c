@@ -340,9 +340,8 @@ gboolean lct_dissector(struct _lct_ptr l, struct _fec_ptr f, tvbuff_t *tvb, prot
 
 	/* Congestion Control Information (CCI) */
 	if (l.lct->cci_size > 0) {
-		l.lct->cci = (guint8*) tvb_get_ptr(tvb, *offset, l.lct->cci_size);
 		if (tree)
-			proto_tree_add_bytes(lct_tree, l.hf->cci, tvb, *offset, l.lct->cci_size, l.lct->cci);
+			proto_tree_add_item(lct_tree, l.hf->cci, tvb, *offset, l.lct->cci_size, ENC_NA);
 		*offset += l.lct->cci_size;
 	}
 

@@ -2139,8 +2139,7 @@ dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 		/* XXX - what if this runs past bc? */
 		tvb_ensure_bytes_exist(tvb, offset+1, 1);
-		len = tvb_strsize(tvb, offset+1);
-		str = tvb_get_ptr(tvb, offset+1, len);
+		str = tvb_get_const_stringz(tvb, offset+1, &len);
 
 		if(tr){
 			dit = proto_tree_add_text(tr, tvb, offset, len+1,

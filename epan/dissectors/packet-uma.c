@@ -922,7 +922,6 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	guint8		octet;
 	proto_item	*urr_ie_item;
 	proto_tree	*urr_ie_tree;
-	const guint8	*haddr;
 	char		*string;
 	guint16		GPRS_user_data_transport_UDP_port,UNC_tcp_port,RTP_UDP_port,RTCP_UDP_port, communication_port;
 	guint32		udr;
@@ -972,8 +971,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		octet = tvb_get_guint8(tvb,ie_offset);
 		if (( octet & 0xf) == 0){ /* IEEE MAC-address format */
 			ie_offset++;
-			haddr = tvb_get_ptr(tvb, ie_offset, ie_len);
-			proto_tree_add_ether(urr_ie_tree, hf_uma_urr_radio_id, tvb, ie_offset, ie_len, haddr);
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_radio_id, tvb, ie_offset, ie_len, ENC_NA);
 		}else{
 			proto_tree_add_text(urr_ie_tree, tvb, ie_offset, ie_len,"Unknown format");
 		}
@@ -1052,7 +1050,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		de_rr_cell_dsc(tvb, urr_ie_tree, ie_offset, ie_len, NULL, 0);
 		break;
 	case 14:
-		/* 
+		/*
 		 * 11.2.14 GAN Control Channel Description
 		 */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ECMC, tvb, ie_offset, 1, FALSE);
@@ -1124,8 +1122,8 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_communication_port, tvb, ie_offset, 2, FALSE);
 		break;
 
-	case 26:		
-		/* 11.2.26 L3 Message 
+	case 26:
+		/* 11.2.26 L3 Message
 		 * The L3 Message information element contains the upper layer message to be transported
 		 * using the GA-CSR protocol or the GA-RRC protocol between the MS and the core network.
 		 */
@@ -1179,7 +1177,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		if  (!dissector_try_uint(bssap_pdu_type_table,BSSAP_PDU_TYPE_DTAP, l3_tvb, pinfo, urr_ie_tree))
 		   		call_dissector(data_handle, l3_tvb, pinfo, urr_ie_tree);
 		break;
-	case 33:		
+	case 33:
 		/* 11.2.33 UL Quality Indication */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ULQI, tvb, ie_offset, 1, FALSE);
 		break;
@@ -1359,7 +1357,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* XXX TODO: loop ower the octets */
 		/* Window Size (octet 3 to octet n) Bits 2 1 */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_window_size, tvb, ie_offset, 1, FALSE);
-		/* GAN A/Gb Mode Codec Mode (octet 3 to octet n) Bits 8 7 
+		/* GAN A/Gb Mode Codec Mode (octet 3 to octet n) Bits 8 7
 		 * The GAN A/Gb Mode Codec Mode is coded as in [47] sub-clause 3.4.1
 		 */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uma_codec_mode, tvb, ie_offset, 1, FALSE);
@@ -1480,8 +1478,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		octet = tvb_get_guint8(tvb,ie_offset);
 		if (( octet & 0xf) == 0){ /* IEEE MAC-address format */
 			ie_offset++;
-			haddr = tvb_get_ptr(tvb, ie_offset, ie_len);
-			proto_tree_add_ether(urr_ie_tree, hf_uma_urr_ms_radio_id, tvb, ie_offset, ie_len, haddr);
+			proto_tree_add_ether(urr_ie_tree, hf_uma_urr_ms_radio_id, tvb, ie_offset, ie_len, ENC_NA);
 		}else{
 			proto_tree_add_text(urr_ie_tree, tvb, ie_offset, ie_len,"Unknown format");
 		}
@@ -1502,7 +1499,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 			proto_tree_add_ipv4(urr_ie_tree, hf_uma_urr_unc_ipv4, tvb, ie_offset, 4, unc_ipv4_address);
 		}
 		break;
-	case 98:		
+	case 98:
 		/* UNC Fully Qualified Domain/Host Name */
 		if ( ie_len > 0){
 			string = (gchar*)tvb_get_ephemeral_string(tvb, ie_offset, ie_len);

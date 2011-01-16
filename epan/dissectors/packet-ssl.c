@@ -2037,9 +2037,8 @@ dissect_ssl3_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
         if (session_id_length > 0)
         {
             tvb_ensure_bytes_exist(tvb, offset, session_id_length);
-            proto_tree_add_bytes(tree, hf_ssl_handshake_session_id,
-                                         tvb, offset, session_id_length,
-                                         tvb_get_ptr(tvb, offset, session_id_length));
+            proto_tree_add_item(tree, hf_ssl_handshake_session_id,
+                                tvb, offset, session_id_length, ENC_NA);
         }
 
     }
@@ -2563,7 +2562,7 @@ dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
                 {
                     subtree = tree;
                 }
-                
+
                 if (sh_alg_length % 2) {
                     proto_tree_add_text(tree, tvb, offset, 2,
                         "Invalid Signature Hash Algorithm length: %d", sh_alg_length);

@@ -909,8 +909,7 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		offset += 2;
 
 		/* server name */
-		namelen = tvb_strsize(tvb, offset);
-		host_name = tvb_get_ptr(tvb, offset, namelen);
+		host_name = tvb_get_const_stringz(tvb, offset, &namelen);
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", host_name);
 		}

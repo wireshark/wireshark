@@ -699,7 +699,7 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	ppoll = tvb_get_guint8(tvb, 2);
 	if ((ppoll >= 4) && (ppoll <= 17)) {
 		proto_tree_add_uint_format(ntp_tree, hf_ntp_ppoll, tvb, 2, 1,
-				   ppoll, 
+				   ppoll,
 				   "Peer Polling Interval: %u (%u sec)",
 				   ppoll,
 				   1 << ppoll);
@@ -709,7 +709,7 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 				   "Peer Polling Interval: invalid (%u)",
 				   ppoll);
 	}
-	
+
 	/* Precision, 1byte field indicating the precision of the
 	 * local clock, in seconds to the nearest power of two.
 	 */
@@ -752,9 +752,9 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	buff = ep_alloc(NTP_TS_SIZE);
 	if (stratum <= 1) {
 		g_snprintf (buff, NTP_TS_SIZE, "Unidentified reference source '%.4s'",
-			refid);
+			tvb_get_ephemeral_string(tvb, 12, 4));
 		for (i = 0; primary_sources[i].id; i++) {
-			if (memcmp (refid, primary_sources[i].id, 4) == 0) {
+			if (tvb_memeql(tvb, 12, primary_sources[i].id, 4)) {
 				g_snprintf(buff, NTP_TS_SIZE, "%s",
 					primary_sources[i].data);
 				break;

@@ -122,7 +122,6 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         guint8 vers_flags;
         guint8 auth_len;
         guint16 tmp1;
-        const guint8 *addr;
         guint8 auth_flags;
         tvbuff_t *next_tvb;
 
@@ -168,9 +167,8 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           proto_tree_add_text(sap_tree, tvb, offset, 2, "Message Identifier Hash: 0x%x", tmp1);
           offset +=2;
 
-          addr = tvb_get_ptr(tvb, offset, addr_len);
           proto_tree_add_text(sap_tree, tvb, offset, addr_len, "Originating Source: %s",
-              (is_ipv6) ? ip6_to_str((const struct e_in6_addr*)addr) : ip_to_str(addr));
+              (is_ipv6) ? tvb_ip6_to_str(tvb, offset) : tvb_ip_to_str(tvb, offset));
           offset += addr_len;
 
           /* Authentication data lives in its own subtree */
@@ -264,7 +262,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                   }
                   proto_tree_add_text(sap_tree, tvb, offset, pt_len,
                       "Payload type: %.*s", pt_string_len,
-                      tvb_get_ptr(tvb, offset, pt_string_len));
+                      tvb_get_ephemeral_string(tvb, offset, pt_string_len));
                   offset += pt_len;
           }
 	}

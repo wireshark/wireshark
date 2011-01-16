@@ -152,7 +152,7 @@ dissect_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   /* ...and if the connection is currently down, it sends 10 bytes of zeroes
    * instead of a fake MAC address and PPP header. */
-  else if (memcmp(tvb_get_ptr(tvb, 0, 10), zeroes, 10) == 0) {
+  else if (tvb_memeql(tvb, 0, zeroes,10) == 0) {
 	next_tvb = tvb_new_subset_remaining(tvb, 10);
 	call_dissector(ip_handle, next_tvb, pinfo, tree);
   }

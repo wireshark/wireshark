@@ -1287,8 +1287,8 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 			    proto_tree_add_string_format(mmse_tree,
 				    hf_mmse_ffheader, tvb, offset,
 				    length + length2,
-				    (const char *) tvb_get_ptr(
-					    tvb, offset, length + length2),
+				    tvb_get_ephemeral_string(tvb, offset,
+					    length + length2),
 				    "%s: %s",
 				    format_text(strval, strlen(strval)),
 				    format_text(strval2, strlen(strval2)));

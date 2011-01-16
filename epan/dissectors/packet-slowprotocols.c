@@ -1113,9 +1113,7 @@ dissect_lacp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     guint8  flags;
 
-    const guint8 *a_sys;
     const guint8 *p_sys;
-    const guint8 *resv_bytes;
 
     proto_tree *lacpdu_tree;
     proto_item *lacpdu_item;
@@ -1165,9 +1163,8 @@ dissect_lacp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 LACPDU_ACTOR_SYS_PRIORITY, 2, raw_word);
         /* Actor System */
 
-        a_sys = tvb_get_ptr(tvb, LACPDU_ACTOR_SYSTEM , 6);
-        proto_tree_add_ether(lacpdu_tree, hf_lacpdu_actor_sys, tvb,
-                LACPDU_ACTOR_SYSTEM, 6, a_sys);
+        proto_tree_add_item(lacpdu_tree, hf_lacpdu_actor_sys, tvb,
+                LACPDU_ACTOR_SYSTEM, 6, ENC_NA);
 
         /* Actor Key */
 
@@ -1263,9 +1260,8 @@ dissect_lacp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Actor Reserved */
 
-        resv_bytes = tvb_get_ptr(tvb, LACPDU_ACTOR_RESERVED, 3);
-        proto_tree_add_bytes(lacpdu_tree, hf_lacpdu_actor_reserved, tvb,
-                LACPDU_ACTOR_RESERVED, 3, resv_bytes);
+        proto_tree_add_item(lacpdu_tree, hf_lacpdu_actor_reserved, tvb,
+                LACPDU_ACTOR_RESERVED, 3, ENC_NA);
 
 
         /* Partner Type */
@@ -1384,9 +1380,8 @@ dissect_lacp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Partner Reserved */
 
-        resv_bytes = tvb_get_ptr(tvb, LACPDU_PARTNER_RESERVED, 3);
-        proto_tree_add_bytes(lacpdu_tree, hf_lacpdu_partner_reserved, tvb,
-                LACPDU_PARTNER_RESERVED, 3, resv_bytes);
+        proto_tree_add_item(lacpdu_tree, hf_lacpdu_partner_reserved, tvb,
+                LACPDU_PARTNER_RESERVED, 3, ENC_NA);
 
 
         /* Collector Type */
@@ -1407,9 +1402,8 @@ dissect_lacp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Collector Reserved */
 
-        resv_bytes = tvb_get_ptr(tvb, LACPDU_COLL_RESERVED, 12);
         proto_tree_add_bytes(lacpdu_tree, hf_lacpdu_coll_reserved, tvb,
-                LACPDU_COLL_RESERVED, 12, resv_bytes);
+                LACPDU_COLL_RESERVED, 12, ENC_NA);
 
         /* Terminator Type */
         raw_octet = tvb_get_guint8(tvb, LACPDU_TERM_TYPE);
@@ -1423,9 +1417,8 @@ dissect_lacp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Terminator Reserved */
 
-        resv_bytes = tvb_get_ptr(tvb, LACPDU_TERM_RESERVED, 50);
-        proto_tree_add_bytes(lacpdu_tree, hf_lacpdu_term_reserved, tvb,
-                LACPDU_TERM_RESERVED, 50, resv_bytes);
+        proto_tree_add_item(lacpdu_tree, hf_lacpdu_term_reserved, tvb,
+                LACPDU_TERM_RESERVED, 50, ENC_NA);
     }
 }
 
@@ -1456,8 +1449,6 @@ dissect_marker_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16 raw_word;
     guint32 dword;
     guint32 offset;
-
-    const guint8 *a_sys;
 
     proto_tree *marker_tree;
     proto_item *marker_item;
@@ -1510,9 +1501,8 @@ dissect_marker_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset += 2;
 
             /* Requester System */
-            a_sys = tvb_get_ptr(tvb, offset , 6);
-            proto_tree_add_ether(marker_tree, hf_marker_req_system, tvb,
-                    offset, 6, a_sys);
+            proto_tree_add_item(marker_tree, hf_marker_req_system, tvb,
+                    offset, 6, ENC_NA);
             offset += 6;
 
             /* Requester Transaction ID */
@@ -2123,7 +2113,6 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
     guint32   offset;
     guint16   bytes;
 
-    const guint8 *resv_bytes;
     const guint8 *ptr;
 
     proto_tree *info_tree;
@@ -2241,17 +2230,15 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
 
             offset += OAMPDU_INFO_OAMPDU_CONFIG_SZ;
 
-            resv_bytes = tvb_get_ptr(tvb, offset, 3);
-            oui_item = proto_tree_add_bytes(info_tree, hf_oampdu_info_oui,
-                                            tvb, offset, 3, resv_bytes);
+            oui_item = proto_tree_add_item(info_tree, hf_oampdu_info_oui,
+                                           tvb, offset, 3, ENC_NA);
 
-            APPEND_OUI_NAME(oui_item, ptr, resv_bytes);
+            APPEND_OUI_NAME(oui_item, ptr, tvb_get_ptr(tvb, offset, 3));
 
             offset += OAMPDU_INFO_OUI_SZ;
 
-            resv_bytes = tvb_get_ptr(tvb, offset, 4);
-            proto_tree_add_bytes(info_tree, hf_oampdu_info_vendor,
-                                 tvb, offset, 4, resv_bytes);
+            proto_tree_add_item(info_tree, hf_oampdu_info_vendor,
+                                tvb, offset, 4, ENC_NA);
 
             offset += OAMPDU_INFO_VENDOR_SPECIFIC_SZ;
         }
@@ -2264,17 +2251,15 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
 
             offset += OAMPDU_INFO_LENGTH_SZ;
 
-            resv_bytes = tvb_get_ptr(tvb, offset, 3);
-            oui_item = proto_tree_add_bytes(info_tree, hf_oampdu_info_oui,
-                                            tvb, offset, 3, resv_bytes);
+            oui_item = proto_tree_add_item(info_tree, hf_oampdu_info_oui,
+                                            tvb, offset, 3, ENC_NA);
 
-            APPEND_OUI_NAME(oui_item, ptr, resv_bytes);
+            APPEND_OUI_NAME(oui_item, ptr, tvb_get_ptr(tvb, offset, 3));
 
             offset += OAMPDU_INFO_OUI_SZ;
 
-            resv_bytes = tvb_get_ptr(tvb, offset, raw_octet-5);
-            proto_tree_add_bytes(info_tree, hf_oampdu_info_vendor,
-                                 tvb, offset, raw_octet-5, resv_bytes);
+            proto_tree_add_item(info_tree, hf_oampdu_info_vendor,
+                                tvb, offset, raw_octet-5, ENC_NA);
 
             offset += raw_octet-2;
 
@@ -2670,8 +2655,6 @@ dissect_oampdu_variable_response(tvbuff_t *tvb, proto_tree *tree)
     guint8    raw_octet;
     guint32   offset;
 
-    const guint8 *resv_bytes;
-
 
     offset = OAMPDU_HEADER_SIZE;
 
@@ -2742,9 +2725,8 @@ dissect_oampdu_variable_response(tvbuff_t *tvb, proto_tree *tree)
 
             offset+=1;
 
-            resv_bytes = tvb_get_ptr(tvb, offset, raw_octet);
-            proto_tree_add_bytes(tree, hf_oampdu_variable_value,
-                                 tvb, offset, raw_octet, resv_bytes);
+            proto_tree_add_item(tree, hf_oampdu_variable_value,
+                                 tvb, offset, raw_octet, ENC_NA);
 
             offset+=raw_octet;
         }
@@ -2835,7 +2817,6 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, proto_tree *tree)
     guint32   offset;
     guint16   bytes;
 
-    const guint8 *resv_bytes;
     const guint8 *ptr;
 
     proto_item *oui_item;
@@ -2847,11 +2828,10 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, proto_tree *tree)
 
     if (bytes >= 3)
     {
-        resv_bytes = tvb_get_ptr(tvb, offset, 3);
-        oui_item = proto_tree_add_bytes(tree, hf_oampdu_info_oui,
-                                        tvb, offset, 3, resv_bytes);
+        oui_item = proto_tree_add_item(tree, hf_oampdu_info_oui,
+                                        tvb, offset, 3, ENC_NA);
 
-        APPEND_OUI_NAME(oui_item, ptr, resv_bytes);
+        APPEND_OUI_NAME(oui_item, ptr, tvb_get_ptr(tvb, offset, 3));
     }
 }
 

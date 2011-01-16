@@ -1860,8 +1860,7 @@ static guint dissect_zcl_attr_uint16(tvbuff_t *tvb, proto_tree *tree, guint *off
  */
 static void dissect_zcl_attr_bytes(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint length)
 {
-        proto_tree_add_bytes(tree, hf_zbee_zcl_attr_bytes, tvb, *offset, length,
-                    tvb_get_ptr(tvb, *offset, length));
+        proto_tree_add_item(tree, hf_zbee_zcl_attr_bytes, tvb, *offset, length, ENC_NA);
         *offset += length;
 
         return;

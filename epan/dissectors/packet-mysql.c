@@ -1313,7 +1313,7 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " version=%s",
-				tvb_get_ptr(tvb, offset, strlen));
+				tvb_get_ephemeral_string(tvb, offset, strlen));
 	}
 	proto_tree_add_item(greeting_tree, hf_mysql_version, tvb,
 			    offset, strlen, FALSE );
@@ -1410,7 +1410,7 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	strlen= my_tvb_strsize(tvb, offset);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " user=%s",
-				tvb_get_ptr(tvb,offset,strlen));
+				tvb_get_ephemeral_string(tvb,offset,strlen));
 	}
 	proto_tree_add_item(login_tree, hf_mysql_user, tvb,
 			    offset, strlen, FALSE );

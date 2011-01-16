@@ -908,7 +908,7 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
         default:
             break;
     }
-			
+
     /* Read optional fields */
     while (tag != MAC_LTE_PAYLOAD_TAG) {
         /* Process next tag */
@@ -1642,9 +1642,7 @@ static int DetectIfDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int 
                 /* Compare time, ndi, data to see if this looks like a retx */
                 if ((tvb_length_remaining(tvb, offset) == lastData->length) &&
                     (p_mac_lte_info->detailed_phy_info.dl_info.ndi == lastData->ndi) &&
-                    (memcmp(lastData->data,
-                            tvb_get_ptr(tvb, offset, lastData->length),
-                            MIN(lastData->length, MAX_EXPECTED_PDU_LENGTH)) == 0)) {
+		    tvb_memeql(tvb, offset, lastData->data, MIN(lastData->length, MAX_EXPECTED_PDU_LENGTH)) == 0) {
 
                     /* Work out gap between frames */
                     gint seconds_between_packets = (gint)
@@ -1685,9 +1683,7 @@ static int DetectIfDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int 
         thisData = &(ueData->harqid[transport_block-1][harq_id]);
         thisData->inUse = TRUE;
         thisData->length = tvb_length_remaining(tvb, offset);
-        memcpy(thisData->data,
-               tvb_get_ptr(tvb, offset, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH)),
-               MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH));
+	tvb_memcpy(tvb, thisData->data, offset, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH));
         thisData->ndi = p_mac_lte_info->detailed_phy_info.dl_info.ndi;
         thisData->framenum = pinfo->fd->num;
         thisData->received_time = pinfo->fd->abs_ts;
@@ -1776,9 +1772,7 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
                     /* Compare time, sf, data to see if this looks like a retx */
                     if ((tvb_length_remaining(tvb, offset) == lastData->length) &&
                         (p_mac_lte_info->detailed_phy_info.ul_info.ndi == lastData->ndi) &&
-                        (memcmp(lastData->data,
-                                tvb_get_ptr(tvb, offset, lastData->length),
-                                MIN(lastData->length, MAX_EXPECTED_PDU_LENGTH)) == 0)) {
+			tvb_memeql(tvb, offset, lastData->data, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH)) == 0) {
 
                         /* Work out gap between frames */
                         gint seconds_between_packets = (gint)
@@ -1811,9 +1805,7 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
         thisData = &(ueData->harqid[p_mac_lte_info->detailed_phy_info.ul_info.harq_id]);
         thisData->inUse = TRUE;
         thisData->length = tvb_length_remaining(tvb, offset);
-        memcpy(thisData->data,
-               tvb_get_ptr(tvb, offset, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH)),
-               MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH));
+	tvb_memcpy(tvb, thisData->data, offset, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH));
         thisData->ndi = p_mac_lte_info->detailed_phy_info.ul_info.ndi;
         thisData->framenum = pinfo->fd->num;
         thisData->received_time = pinfo->fd->abs_ts;
@@ -2397,7 +2389,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                 crResult->msg3FrameNum = msg3Data->framenum;
 
                                 /* Compare the 6 bytes */
-                                if (memcmp(&msg3Data->data, tvb_get_ptr(tvb, offset, 6), 6) == 0) {
+				if (tvb_memeql(tvb, offset, msg3Data->data, 6) == 0) {
                                     crResult->status = Msg3Match;
                                 }
                                 else {
@@ -2740,7 +2732,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                 /* Fill in data details */
                 data->framenum = pinfo->fd->num;
-                memcpy(&data->data, tvb_get_ptr(tvb, offset, data_length), data_length);
+		tvb_memcpy(tvb, data->data, offset, data_length);
                 data->msg3Time = pinfo->fd->abs_ts;
             }
         }

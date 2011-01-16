@@ -175,8 +175,6 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       struct _address device_id;
 
-      const guint8 *p_sys;
-
       guchar *ch;
 
       proto_tree *pagp_tree = NULL;
@@ -390,9 +388,8 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			   tvb, offset+4, len-4, ch);
 			break;
 		   case PAGP_TLV_AGPORT_MAC:
-			p_sys = tvb_get_ptr(tvb, offset+4, 6);
-			proto_tree_add_ether(tlv_tree, hf_pagp_tlv_agport_mac,
-			   tvb, offset+4, 6, p_sys);
+			proto_tree_add_item(tlv_tree, hf_pagp_tlv_agport_mac,
+			   tvb, offset+4, 6, ENC_NA);
 			break;
 		   case PAGP_TLV_RESERVED:
 			break;

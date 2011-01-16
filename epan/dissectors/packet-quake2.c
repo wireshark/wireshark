@@ -347,7 +347,7 @@ dissect_quake2_client_commands_uinfo(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 	if (tree) {
 		userinfo_item = proto_tree_add_text(tree, tvb, 0, len, "Userinfo: %s",
-			tvb_get_ptr(tvb, 0, len));
+			tvb_get_ephemeral_string(tvb, 0, len));
 	}
 
 	return len;
@@ -364,7 +364,7 @@ dissect_quake2_client_commands_stringcmd(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 	if (tree) {
 		stringcmd_item = proto_tree_add_text(tree, tvb, 0, len, "Command: %s",
-			tvb_get_ptr(tvb, 0, len));
+			tvb_get_ephemeral_string(tvb, 0, len));
 	}
 
 	return len;

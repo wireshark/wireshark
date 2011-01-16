@@ -799,7 +799,7 @@ netshareenum_share_entry(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	if (tree) {
 		return proto_tree_add_text(tree, tvb, offset, -1,
-		    "Share %.13s", tvb_get_ptr(tvb, offset, 13));
+		    "Share %.13s", tvb_get_ephemeral_string(tvb, offset, 13));
 	} else
 		return NULL;
 }
@@ -999,7 +999,7 @@ netserverenum2_server_entry(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	if (tree) {
 		return proto_tree_add_text(tree, tvb, offset, -1,
-			    "Server %.16s", tvb_get_ptr(tvb, offset, 16));
+			    "Server %.16s", tvb_get_ephemeral_string(tvb, offset, 16));
 	} else
 		return NULL;
 }
@@ -2690,10 +2690,9 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		}
 
 		/* parameter descriptor */
-		descriptor_len = tvb_strsize(p_tvb, offset);
+		param_descrip = tvb_get_const_stringz(p_tvb, offset, &descriptor_len);
 		proto_tree_add_item(tree, hf_param_desc, p_tvb, offset,
 		    descriptor_len, TRUE);
-		param_descrip = tvb_get_ptr(p_tvb, offset, descriptor_len);
 		if (!pinfo->fd->flags.visited) {
 			/*
 			 * Save the parameter descriptor for future use.
@@ -2704,10 +2703,9 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		offset += descriptor_len;
 
 		/* return descriptor */
-		descriptor_len = tvb_strsize(p_tvb, offset);
+		data_descrip = tvb_get_const_stringz(p_tvb, offset, &descriptor_len);
 		proto_tree_add_item(tree, hf_return_desc, p_tvb, offset,
 		    descriptor_len, TRUE);
-		data_descrip = tvb_get_ptr(p_tvb, offset, descriptor_len);
 		if (!pinfo->fd->flags.visited) {
 			/*
 			 * Save the return descriptor for future use.
@@ -2730,10 +2728,9 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 			 * There are more parameters left, so the next
 			 * item is the auxiliary data descriptor.
 			 */
-			descriptor_len = tvb_strsize(p_tvb, offset);
+			aux_data_descrip = tvb_get_const_stringz(p_tvb, offset, &descriptor_len);
 			proto_tree_add_item(tree, hf_aux_data_desc, p_tvb, offset,
 			    descriptor_len, TRUE);
-			aux_data_descrip = tvb_get_ptr(p_tvb, offset, descriptor_len);
 			if (!pinfo->fd->flags.visited) {
 				/*
 				 * Save the auxiliary data descriptor for

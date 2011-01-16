@@ -175,8 +175,8 @@ static guint16 skip_item(proto_tree *meta_tree, tvbuff_t *tvb, packet_info *pinf
 	proto_tree_add_uint(item_tree, hf_meta_item_len,
 		tvb, offs - 1, 1, len);
 	if (len > 0)
-		proto_tree_add_bytes(item_tree, hf_meta_item_data,
-			tvb, offs, len, tvb_get_ptr(tvb, offs, len));
+		proto_tree_add_item(item_tree, hf_meta_item_data,
+			tvb, offs, len, ENC_NA);
 
 	return total_len;
 }
@@ -227,8 +227,8 @@ static guint16 evaluate_meta_item_pcap(proto_tree *meta_tree, tvbuff_t *tvb, pac
 			proto_tree_add_uint(item_tree, hf_meta_item_len,
 				tvb, offs - 1, 1, len);
 			if (len > 0)
-				proto_tree_add_bytes(item_tree, hf_meta_item_data,
-					tvb, offs, len, tvb_get_ptr(tvb, offs, len));
+				proto_tree_add_item(item_tree, hf_meta_item_data,
+					tvb, offs, len, ENC_NA);
 	}
 	return total_len;
 }
@@ -322,7 +322,7 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
 			}
 			switch (aal5proto) {
 				case META_AAL5PROTO_MTP3:
-					p_sscop_info->subdissector = sscf_nni_handle; 
+					p_sscop_info->subdissector = sscf_nni_handle;
 					break;
 				case META_AAL5PROTO_ALCAP:
 					p_sscop_info->subdissector = alcap_handle;
@@ -377,8 +377,8 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
 			proto_tree_add_uint(item_tree, hf_meta_item_len,
 				tvb, offs - 1, 1, len);
 			if (len > 0)
-				proto_tree_add_bytes(item_tree, hf_meta_item_data,
-					tvb, offs, len, tvb_get_ptr(tvb, offs, len));
+				proto_tree_add_item(item_tree, hf_meta_item_data,
+					tvb, offs, len, ENC_NA);
 	}
 	return total_len;
 }
@@ -405,7 +405,7 @@ static gint32 evaluate_meta_items(guint16 schema, tvbuff_t *tvb, packet_info *pi
 		}
 		if (item_len < 4) { /* 4 is the minimum length of an item: id + type + length field */
 			proto_item *malformed;
-			malformed = proto_tree_add_protocol_format(meta_tree, 
+			malformed = proto_tree_add_protocol_format(meta_tree,
 				proto_malformed, tvb, offs, -1, "[Malformed Packet: %s]", pinfo->current_proto);
 			expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
 				"Malformed Packet (wrong item encoding)");
@@ -515,7 +515,7 @@ proto_register_meta(void)
 		{ &hf_meta_reserved, { "Reserved", "meta.reserved", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
 
 		/* general meta item */
-		{ &hf_meta_item, { "Unknown Item", "meta.item", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } }, 
+		{ &hf_meta_item, { "Unknown Item", "meta.item", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
 		{ &hf_meta_item_id, { "Item ID", "meta.item.id", FT_UINT16, BASE_HEX, VALS(meta_id_vals), 0x0, NULL, HFILL } },
 		{ &hf_meta_item_type, { "Item Type", "meta.item.type", FT_UINT8, BASE_HEX, VALS(meta_type_vals), 0x0, NULL, HFILL } },
 		{ &hf_meta_item_len, { "Item Length", "meta.item.len", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },

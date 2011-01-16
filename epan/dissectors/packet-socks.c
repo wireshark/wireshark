@@ -546,7 +546,7 @@ display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if ( tvb_offset_exists(tvb, offset)) {
 			proto_tree_add_text( tree, tvb, offset,
 				tvb_strsize(tvb, offset),
-				"User Name: %s", tvb_get_ptr(tvb, offset, -1));
+				"User Name: %s", tvb_get_ephemeral_string(tvb, offset, -1));
 		}
 	}
 }

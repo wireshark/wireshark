@@ -352,8 +352,7 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
 			string_len = *len;
 			string = cur;
 		} else {
-			string_len = tvb_strsize(tvb, *offsetp);
-			string = tvb_get_ptr(tvb, *offsetp, string_len);
+			string = tvb_get_const_stringz(tvb, *offsetp, &string_len);
 		}
 	}
 

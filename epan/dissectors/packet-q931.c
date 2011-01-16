@@ -1398,7 +1398,7 @@ dissect_q931_cause_ie_unsafe(tvbuff_t *tvb, int offset, int len,
 		if (len < 3)
 			return;
 		proto_tree_add_text(tree, tvb, offset, 3,
-		    "Timer: %.3s", tvb_get_ptr(tvb, offset, 3));
+		    "Timer: %.3s", tvb_get_ephemeral_string(tvb, offset, 3));
 		break;
 
 	default:

@@ -683,7 +683,7 @@ dissect_netb_datagram( tvbuff_t *tvb, int offset, proto_tree *tree)
 	/* Weird.  In some datagrams, this is 10 octets of 0, followed
 	   by a MAC address.... */
 
-	if (memcmp( tvb_get_ptr( tvb,offset + NB_SENDER_NAME, 10), zeroes, 10) == 0) {
+	if (tvb_memeql(tvb, offset + NB_SENDER_NAME, zeroes, 10) == 0) {
 		proto_tree_add_text( tree, tvb, offset + NB_SENDER_NAME + 10, 6,
 		    "Sender's MAC Address: %s",
 		    ether_to_str( tvb_get_ptr( tvb,offset + NB_SENDER_NAME + 10, 6)));
@@ -702,7 +702,7 @@ dissect_netb_datagram_bcast( tvbuff_t *tvb, int offset, proto_tree *tree)
 {/* Handle the DATAGRAM BROADCAST command */
 
 	/* We assume the same weirdness can happen here.... */
-	if ( memcmp( tvb_get_ptr( tvb,offset + NB_SENDER_NAME + 10, 6), zeroes, 10) == 0) {
+	if (tvb_memeql(tvb, offset + NB_SENDER_NAME, zeroes, 10) == 0) {
 		proto_tree_add_text( tree, tvb, offset + NB_SENDER_NAME + 10, 6,
 		    "Sender's Node Address: %s",
 		    ether_to_str( tvb_get_ptr( tvb,offset + NB_SENDER_NAME + 10, 6)));
@@ -1141,7 +1141,7 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         break;
 
 		default:
-			col_add_str( pinfo->cinfo, COL_INFO, 
+			col_add_str( pinfo->cinfo, COL_INFO,
 			    command_name);
 			break;
 		}

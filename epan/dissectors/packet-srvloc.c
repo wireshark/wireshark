@@ -448,7 +448,7 @@ add_v1_string(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
 static guint8*
 unicode_to_bytes(tvbuff_t *tvb, int offset, int length, gboolean endianness)
 {
-  const guint8	*ascii_text = tvb_get_ptr(tvb, offset, length);
+  const guint8	*ascii_text = tvb_get_ephemeral_string(tvb, offset, length);
   int	i, j=0;
   guint8	c_char, c_char1;
   guint8	*byte_array;
@@ -632,7 +632,7 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
         break;
 
     case CHARSET_UTF_8:
-        type_len = (int)strcspn(tvb_get_ptr(tvb, offset, length), "=");
+        type_len = (int)strcspn(tvb_get_ephemeral_string(tvb, offset, length), "=");
         attr_type = unicode_to_bytes(tvb, offset+1, type_len-1, FALSE);
         proto_tree_add_string(tree, hf, tvb, offset+1, type_len-1, attr_type);
         i=1;

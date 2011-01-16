@@ -1028,7 +1028,7 @@ dissect_q933_cause_ie(tvbuff_t *tvb, int offset, int len,
 		if (len < 3)
 			return;
 		proto_tree_add_text(tree, tvb, offset, 3,
-		    "Timer: %.3s", tvb_get_ptr(tvb, offset, 3));
+		    "Timer: %.3s", tvb_get_ephemeral_string(tvb, offset, 3));
 		break;
 
 	default:
@@ -1648,7 +1648,7 @@ dissect_q933_number_ie(tvbuff_t *tvb, int offset, int len,
 	proto_tree_add_uint(tree, hf_q933_numbering_plan, tvb, offset, 1, octet);
 	proto_tree_add_uint(tree, hf_q933_number_type, tvb, offset, 1, octet);
 	proto_tree_add_boolean(tree, hf_q933_extension_ind, tvb, offset, 1, octet);
-	
+
 	offset += 1;
 	len -= 1;
 
