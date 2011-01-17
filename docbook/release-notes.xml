@@ -178,6 +178,12 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            Graphs now save as PNG images by default.
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
