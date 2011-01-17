@@ -1974,12 +1974,17 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 		a_bigbuf[0] = Dgt1_9_bcd.out[(oct & 0xf0) >> 4];
 		curr_offset++;
 
+		poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
+
+		my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
+			&Dgt1_9_bcd);
+
 		proto_tree_add_string_format(tree,
 			((oct & 0x07) == 3) ? hf_gsm_a_imeisv : hf_gsm_a_imsi,
 			tvb, curr_offset - 1, len - (curr_offset - offset) + 1,
 			a_bigbuf,
 			"BCD Digits: %s",
-			tvb_bcd_dig_to_ep_str(tvb, curr_offset - 1, -1, NULL, TRUE));
+			a_bigbuf);
 
 		if (sccp_assoc && ! sccp_assoc->calling_party) {
 			sccp_assoc->calling_party = se_strdup_printf(
