@@ -1155,7 +1155,7 @@ guint16 elem_telv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, in
 				a_add_string=ep_alloc(1024);
 				a_add_string[0] = '\0';
 				consumed =
-				(*elem_funcs[idx])(tvb, subtree, curr_offset + 2,
+				(*elem_funcs[idx])(tvb, subtree, curr_offset + 1 + lengt_length,
 					parm_len, a_add_string, 1024);
 
 				if (a_add_string[0] != '\0')
