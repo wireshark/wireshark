@@ -683,7 +683,7 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 
 	g_assert((record->fdata->col_text != NULL)&&(record->fdata->col_text_len != NULL));
 
-	if (record->fdata->col_text && record->fdata->col_text[col] != NULL)
+	if (record->fdata->col_text[col] != NULL)
 		/* TODO: Column already contains a value. Bail out */
 		return;
 
