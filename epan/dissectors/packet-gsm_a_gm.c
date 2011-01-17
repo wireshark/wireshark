@@ -289,10 +289,18 @@ static int hf_gsm_a_sm_packet_flow_id = -1;
 static int hf_gsm_a_sm_tmgi = -1;
 static int hf_gsm_a_sm_enh_nsapi = -1;
 static int hf_gsm_a_sm_req_type = -1;
+static int hf_gsm_a_gm_rac_ctrled_early_cm_sending = -1;
+static int hf_gsm_a_gm_rac_multislot_capability = -1;
+static int hf_gsm_a_gm_rac_single_slt_dtm = -1;
+static int hf_gsm_a_gm_rac_dtm_egprs_multi_slot_cls_pres = -1;
+static int hf_gsm_a_gm_rac_8psk_pow_cap_pres = -1;
+static int hf_gsm_a_gm_rac_comp_int_meas_cap = -1;
 static int hf_gsm_a_gm_rel_lev_ind = -1;
 static int hf_gsm_a_gm_rac_geran_feat_pkg = -1;
-static int hf_gsm_a_gm_rac_cdma2000_cap = -1;
 static int hf_gsm_a_gm_rac_umts_fdd_cap = -1;
+static int hf_gsm_a_gm_rac_umts_384_tdd_ra_cap = -1;
+static int hf_gsm_a_gm_rac_cdma2000_cap = -1;
+static int hf_gsm_a_gm_rac_umts_128_tdd_ra_cap = -1;
 
 static int hf_gsm_a_gmm_net_cap_gea1 = -1;
 static int hf_gsm_a_gmm_net_cap_smdch = -1;
@@ -333,6 +341,7 @@ static gint ett_gmm_context_stat = -1;
 static gint ett_gmm_update_type = -1;
 static gint ett_gmm_radio_cap = -1;
 static gint ett_gmm_network_cap = -1;
+static gint ett_gsm_a_gm_msrac_multislot_capability = -1;
 static gint ett_gmm_rai = -1;
 static gint ett_gmm_gprs_timer = -1;
 
@@ -1028,8 +1037,8 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	guint32      curr_offset;
 	guint        curr_len;
 	int          bit_offset;
-	proto_item  *tf = NULL;
-	proto_tree  *tf_tree = NULL;
+	proto_item  *tf = NULL, *mc_item = NULL;
+	proto_tree  *tf_tree = NULL, *mc_tree = NULL;
 	guint32      oct;
 	guchar       bits_in_oct;
 	guchar       bits_needed;
@@ -1467,17 +1476,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		bits_needed = 1;
 		GET_DATA;
 
-		/* analyse bits */
-		switch ( oct>>(32-bits_needed) )
-		{
-			case 0x00: str="not implemented"; break;
-			case 0x01: str="implemented";     break;
-			default:   str="This should not happen";
-		}
-
-		proto_tree_add_text(tf_tree,
-			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"Controlled early Classmark Sending: %s (%u)",str,oct>>(32-bits_needed));
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_ctrled_early_cm_sending, tvb, bit_offset, 1, FALSE);
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -1555,28 +1554,19 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		bits_needed = 1;
 		GET_DATA;
 
+		value = oct>>(32-bits_needed);
+
+		mc_item = proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_multislot_capability, tvb, bit_offset, 1, FALSE);
+		bit_offset++;
+
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+
 		/* analyse bits */
-		if ((oct>>(32-bits_needed))==0)
+		if (value==1)
 		{
-			proto_tree_add_text(tf_tree,
-				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-				"Multislot capability: Same values apply for parameters as in the immediately preceding Access capabilities field within this IE (%u)",oct>>(32-bits_needed));
-			bit_offset++;
-			curr_bits_length -= bits_needed;
-			oct <<= bits_needed;
-			bits_in_oct -= bits_needed;
-		}
-		else
-		{
-			proto_tree_add_text(tf_tree,
-			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"Multislot capability: Multislot capability struct available (%u)",oct>>(32-bits_needed));
-			bit_offset++;
-
-			curr_bits_length -= bits_needed;
-			oct <<= bits_needed;
-			bits_in_oct -= bits_needed;
-
+			mc_tree = proto_item_add_subtree(mc_item, ett_gsm_a_gm_msrac_multislot_capability);
 			/*
 			 * HSCSD multislot class?
 			 */
@@ -1586,7 +1576,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 			/* analyse bits */
 			if ((oct>>(32-bits_needed))==0)
 			{
-				proto_tree_add_text(tf_tree,
+				proto_tree_add_text(mc_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
 					"HSCSD multislot class: Bits are not available (%u)",oct>>(32-bits_needed));
 				bit_offset++;
@@ -1608,7 +1598,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				GET_DATA;
 
 				/* analyse bits */
-				proto_tree_add_text(tf_tree,
+				proto_tree_add_text(mc_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
 					"HSCSD multislot class: %s (%u)",multi_slot_str[oct>>(32-bits_needed)],oct>>(32-bits_needed));
 				bit_offset+=5;
@@ -1626,7 +1616,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 			/* analyse bits */
 			if ((oct>>(32-bits_needed))==0)
 			{
-				proto_tree_add_text(tf_tree,
+				proto_tree_add_text(mc_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
 					"GPRS multislot class: Bits are not available (%u)",oct>>(32-bits_needed));
 				bit_offset++;
@@ -1648,7 +1638,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				GET_DATA;
 
 				/* analyse bits */
-				proto_tree_add_text(tf_tree,
+				proto_tree_add_text(mc_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
 					"GPRS multislot class: %s (%u)",multi_slot_str[oct>>(32-bits_needed)],oct>>(32-bits_needed));
 				bit_offset+=5;
@@ -1669,7 +1659,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 					case 0x01: str="Extended Dynamic Allocation Capability for GPRS is implemented";     break;
 					default:   str="This should not happen";
 				}
-				proto_tree_add_text(tf_tree,
+				proto_tree_add_text(mc_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
 					"GPRS Extended Dynamic Allocation Capability: %s (%u)",str,oct>>(32-bits_needed));
 				bit_offset++;
@@ -1687,7 +1677,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 			/* analyse bits */
 			if ((oct>>(32-bits_needed))==0)
 			{
-				proto_tree_add_text(tf_tree,
+				proto_tree_add_text(mc_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
 					"SMS/SM values: Bits are not available (%u)",oct>>(32-bits_needed));
 				bit_offset++;
@@ -1709,7 +1699,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				GET_DATA;
 
 				/* analyse bits */
-				proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_sms_value, tvb, bit_offset, 4, FALSE);
+				proto_tree_add_bits_item(mc_tree, hf_gsm_a_gm_sms_value, tvb, bit_offset, 4, FALSE);
 				bit_offset+=4;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1722,7 +1712,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				GET_DATA;
 
 				/* analyse bits */
-				proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_sm_value, tvb, bit_offset, 4, FALSE);
+				proto_tree_add_bits_item(mc_tree, hf_gsm_a_gm_sm_value, tvb, bit_offset, 4, FALSE);
 				bit_offset+=4;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1738,7 +1728,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 			/* analyse bits */
 			if ((oct>>(32-bits_needed))==0)
 			{
-				proto_tree_add_text(tf_tree,
+				proto_tree_add_text(mc_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
 					"ECSD multislot class: Bits are not available (%u)",oct>>(32-bits_needed));
 				bit_offset++;
@@ -1760,7 +1750,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				GET_DATA;
 
 				/* analyse bits */
-				proto_tree_add_text(tf_tree,
+				proto_tree_add_text(mc_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
 					"ECSD multislot class: %s (%u)",multi_slot_str[oct>>(32-bits_needed)],oct>>(32-bits_needed));
 				bit_offset+=5;
@@ -1778,7 +1768,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 			/* analyse bits */
 			if ((oct>>(32-bits_needed))==0)
 			{
-				proto_tree_add_text(tf_tree,
+				proto_tree_add_text(mc_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
 					"EGPRS multislot class: Bits are not available (%u)",oct>>(32-bits_needed));
 				curr_bits_length -= bits_needed;
@@ -1800,7 +1790,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				GET_DATA;
 
 				/* analyse bits */
-				proto_tree_add_text(tf_tree,
+				proto_tree_add_text(mc_tree,
 				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
 				"EGPRS multislot class: %s (%u)",multi_slot_str[oct>>(32-bits_needed)],oct>>(32-bits_needed));
 				bit_offset+=5;
@@ -1821,7 +1811,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 					case 0x01: str="Extended Dynamic Allocation Capability for EGPRS is implemented";     break;
 					default:   str="This should not happen";
 				}
-				proto_tree_add_text(tf_tree,
+				proto_tree_add_text(mc_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
 					"EGPRS Extended Dynamic Allocation Capability: %s (%u)",str, oct>>(32-bits_needed));
 				bit_offset++;
@@ -1839,7 +1829,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 			/* analyse bits */
 			if ((oct>>(32-bits_needed))==0)
 			{
-				proto_tree_add_text(tf_tree,
+				proto_tree_add_text(mc_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
 					"DTM GPRS Multi Slot Class: Bits are not available (%u)",oct>>(32-bits_needed));
 				bit_offset++;
@@ -1872,7 +1862,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 					default: str="This should not happen";
 				}
 
-				proto_tree_add_text(tf_tree,
+				proto_tree_add_text(mc_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
 					"DTM GPRS Multi Slot Class: %s (%u)",str,oct>>(32-bits_needed));
 				bit_offset+=2;
@@ -1886,16 +1876,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				bits_needed = 1;
 				GET_DATA;
 
-				/* analyse bits */
-				switch ( oct>>(32-bits_needed) )
-				{
-					case 0x00: str="Single Slot DTM not supported"; break;
-					case 0x01: str="Single Slot DTM supported";     break;
-					default:   str="This should not happen";
-				}
-				proto_tree_add_text(tf_tree,
-					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"Single Slot DTM: %s (%u)",str,oct>>(32-bits_needed));
+				proto_tree_add_bits_item(mc_tree, hf_gsm_a_gm_rac_single_slt_dtm, tvb, bit_offset, 1, FALSE);
 				bit_offset++;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1909,24 +1890,14 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 				/* analyse bits */
 				dtm_egprs_mslot = oct>>(32-bits_needed);
+				proto_tree_add_bits_item(mc_tree, hf_gsm_a_gm_rac_dtm_egprs_multi_slot_cls_pres, tvb, bit_offset, 1, FALSE);
+				bit_offset++;
+				curr_bits_length -= bits_needed;
+				oct <<= bits_needed;
+ 				bits_in_oct -= bits_needed;
 
-				if ((oct>>(32-bits_needed))==0)
+				if ((oct>>(32-bits_needed))==1)
 				{
-					proto_tree_add_text(tf_tree,
-						tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-						"DTM EGPRS Multi Slot Class: Bits are not available (%u)",oct>>(32-bits_needed));
-					bit_offset++;
-					curr_bits_length -= bits_needed;
-					oct <<= bits_needed;
-   	 				bits_in_oct -= bits_needed;
-				}
-				else
-				{
-					curr_bits_length -= bits_needed;
-					oct <<= bits_needed;
-  	 	 			bits_in_oct -= bits_needed;
-					bit_offset++;
-
 					/*
 					 * DTM EGPRS Multi Slot Class
 					 */
@@ -1943,7 +1914,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 						default: str="This should not happen";
 					}
 
-					proto_tree_add_text(tf_tree,
+					proto_tree_add_text(mc_tree,
 						tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
 						"DTM EGPRS Multi Slot Class: %s (%u)",str,oct>>(32-bits_needed));
 					bit_offset+=2;
@@ -1960,24 +1931,15 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		bits_needed = 1;
 		GET_DATA;
 
-		/* analyse bits */
-		if ((oct>>(32-bits_needed))==0)
-		{
-			proto_tree_add_text(tf_tree,
-				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-				"8PSK Power Capability: Bits are not available (%u)",oct>>(32-bits_needed));
-			bit_offset++;
-			curr_bits_length -= bits_needed;
-			oct <<= bits_needed;
-			bits_in_oct -= bits_needed;
-		}
-		else
-		{
-			curr_bits_length -= bits_needed;
-			oct <<= bits_needed;
-			bits_in_oct -= bits_needed;
-			bit_offset++;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_8psk_pow_cap_pres, tvb, bit_offset, 1, FALSE);
+		bit_offset++;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
 
+		/* analyse bits */
+		if ((oct>>(32-bits_needed))==1)
+		{
 			/*
 			 * 8PSK Power Capability
 			 */
@@ -2009,17 +1971,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		bits_needed = 1;
 		GET_DATA;
 
-		/* analyse bits */
-		switch ( oct>>(32-bits_needed) )
-		{
-			case 0x00: str="COMPACT Interference Measurement Capability is not implemented"; break;
-			case 0x01: str="COMPACT Interference Measurement Capability is implemented";     break;
-			default:   str="This should not happen";
-		}
-
-		proto_tree_add_text(tf_tree,
-			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"COMPACT Interference Measurement Capability: %s (%u)", str, oct>>(32-bits_needed));
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_comp_int_meas_cap, tvb, bit_offset, 1, FALSE);
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -2055,17 +2007,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		bits_needed = 1;
 		GET_DATA;
 
-		/* analyse bits */
-		switch ( oct>>(32-bits_needed) )
-		{
-			case 0x00: str="UMTS 3.84 Mcps TDD not supported"; break;
-			case 0x01: str="UMTS 3.84 Mcps TDD supported";     break;
-			default:   str="This should not happen";
-		}
-
-		proto_tree_add_text(tf_tree,
-			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"UMTS 3.84 Mcps TDD Radio Access Technology Capability: %s (%u)",str,oct>>(32-bits_needed));
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_umts_384_tdd_ra_cap, tvb, bit_offset, 1, FALSE);
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -2089,17 +2031,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		bits_needed = 1;
 		GET_DATA;
 
-		/* analyse bits */
-		switch ( oct>>(32-bits_needed) )
-		{
-			case 0x00: str="UMTS 1.28 Mcps TDD not supported"; break;
-			case 0x01: str="UMTS 1.28 Mcps TDD supported";     break;
-			default:   str="This should not happen";
-		}
-
-		proto_tree_add_text(tf_tree,
-			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"UMTS 1.28 Mcps TDD Radio Access Technology Capability: %s (%u)",str,oct>>(32-bits_needed));
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_umts_128_tdd_ra_cap, tvb, bit_offset, 1, FALSE);
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -2116,9 +2048,6 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
 		bits_in_oct -= bits_needed;
-
-		proto_tree_add_text(tf_tree, tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"curr_bits_length < bits_needed, curr_bits_length %u bits_needed %u ",curr_bits_length, bits_needed);
 
 		/*
 		 * Extended DTM (E)GPRS Multi Slot Class
@@ -2397,7 +2326,6 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 			oct <<= bits_needed;
 			bits_in_oct -= bits_needed;
 		}
-		proto_tree_add_text(tf_tree, tvb, curr_offset, 1, "Remaining bits %u",bit_offset-(curr_offset<<3));
 
 
 	} while ( 1 );
@@ -6448,6 +6376,37 @@ proto_register_gsm_a_gm(void)
 		  FT_UINT8, BASE_DEC, VALS(gsm_a_sm_req_type_vals), 0x07,
 		NULL, HFILL }
 	},
+	{ &hf_gsm_a_gm_rac_ctrled_early_cm_sending,
+		{ "Controlled early Classmark Sending", "gsm_a.gm.rac.comp_int_meas_cap",
+		   FT_BOOLEAN, 8, TFS(&tfs_implemented_not_implemented), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_multislot_capability,
+		{ "Multislot capability struct", "gsm_a.gm.rac.multislot_capability",
+		   FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x0,
+		NULL, HFILL }
+	},
+
+	{ &hf_gsm_a_gm_rac_single_slt_dtm,
+		{ "Single Slot DTM", "gsm_a.gm.rac.single_slt_dtm",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_dtm_egprs_multi_slot_cls_pres,
+		{ "DTM EGPRS Multi Slot Class", "gsm_a.gm.rac.dtm_egprs_multi_slot_cls_pres",
+		   FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_8psk_pow_cap_pres,
+		{ "8PSK Power Capability Bits", "gsm_a.gm.rac.8psk_pow_cap_pres",
+		   FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_comp_int_meas_cap,
+		{ "COMPACT Interference Measurement Capability", "gsm_a.gm.rac.comp_int_meas_cap",
+		   FT_BOOLEAN, 8, TFS(&tfs_implemented_not_implemented), 0x0,
+		NULL, HFILL }
+	},
 	{ &hf_gsm_a_gm_rel_lev_ind,
 		{ "Revision Level Indicator", "gsm_a.gm.rel_lev_ind",
 		   FT_UINT8, BASE_HEX, VALS(gsm_a_gm_revision_level_indicator_vals), 0x0,
@@ -6458,8 +6417,18 @@ proto_register_gsm_a_gm(void)
 		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
 		NULL, HFILL }
 	},
+	{ &hf_gsm_a_gm_rac_umts_384_tdd_ra_cap,
+		{ "UMTS 3.84 Mcps TDD Radio Access Technology Capability", "gsm_a.gm.rac.umts_384_tdd_ra_cap",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+	},
 	{ &hf_gsm_a_gm_rac_cdma2000_cap,
 		{ "CDMA 2000 Radio Access Technology Capability", "gsm_a.gm.rac.cdma2000_cap",
+		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac_umts_128_tdd_ra_cap,
+		{ "UMTS 1.28 Mcps TDD Radio Access Technology Capability", "gsm_a.gm.rac.umts_128_tdd_ra_cap",
 		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
 		NULL, HFILL }
 	},
@@ -6471,7 +6440,7 @@ proto_register_gsm_a_gm(void)
 	};
 
 	/* Setup protocol subtree array */
-#define	NUM_INDIVIDUAL_ELEMS	17
+#define	NUM_INDIVIDUAL_ELEMS	18
 	gint *ett[NUM_INDIVIDUAL_ELEMS +
 		  NUM_GSM_DTAP_MSG_GMM + NUM_GSM_DTAP_MSG_SM +
 		  NUM_GSM_GM_ELEM];
@@ -6493,6 +6462,7 @@ proto_register_gsm_a_gm(void)
 	ett[14] = &ett_sm_tft;
 	ett[15] = &ett_gmm_gprs_timer;
 	ett[16] = &ett_gmm_network_cap;
+	ett[17] = &ett_gsm_a_gm_msrac_multislot_capability;
 
 	last_offset = NUM_INDIVIDUAL_ELEMS;
 

@@ -56,6 +56,7 @@ WS_VAR_IMPORT const true_false_string tfs_restricted_allowed;
 WS_VAR_IMPORT const true_false_string tfs_accept_reject;
 WS_VAR_IMPORT const true_false_string tfs_more_nomore;
 WS_VAR_IMPORT const true_false_string tfs_present_absent;
+WS_VAR_IMPORT const true_false_string tfs_present_not_present;
 WS_VAR_IMPORT const true_false_string tfs_active_inactive;
 WS_VAR_IMPORT const true_false_string tfs_found_not_found;
 WS_VAR_IMPORT const true_false_string tfs_command_response;
@@ -64,5 +65,6 @@ WS_VAR_IMPORT const true_false_string tfs_supported_not_supported;
 WS_VAR_IMPORT const true_false_string tfs_used_notused;
 WS_VAR_IMPORT const true_false_string tfs_high_low;
 WS_VAR_IMPORT const true_false_string tfs_pressed_not_pressed;
+WS_VAR_IMPORT const true_false_string tfs_implemented_not_implemented;
 
 #endif
