@@ -6595,11 +6595,13 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *ti;
   proto_tree *bssgp_tree;
   /* RAB */
-	//proto_item		*item;
-	//proto_tree		*bssgp_tree;
+#if 0  /* previously commented out by C++ style comment */
+	proto_item		*item;
+	proto_tree		*bssgp_tree;
+#endif
 	int				offset = 0;
 	guint32			len;
-	const gchar		*msg_str;
+	const gchar		*msg_str = NULL;
 	gint			ett_tree;
 	int				hf_idx;
 	void			(*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
