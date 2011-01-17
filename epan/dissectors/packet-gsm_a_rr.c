@@ -190,71 +190,71 @@ const value_string gsm_a_dtap_msg_rr_strings[] = {
 const value_string gsm_rr_elem_strings[] = {
     /* Radio Resource Management Information Elements 10.5.2, most are from 10.5.1 */
     { 0x00, "BA Range" },       						/* [3]  10.5.2.1a BA Range */
-    { 0x00, "Cell Channel Description" },     					/* [3]  10.5.2.1b */
+    { 0x00, "Cell Channel Description" },     			/* [3]  10.5.2.1b */
     { 0x00, "BA List Pref" },      						/* [3]  10.5.2.1c BA List Pref */
-    { 0x00, "UTRAN Frequency List" },     					/* [3]  10.5.2.1d UTRAN Frequency List */
+    { 0x00, "UTRAN Frequency List" },     				/* [3]  10.5.2.1d UTRAN Frequency List */
     { 0x00, "Cell Selection Indicator after Release of all TCH and SDCCH" },	/* [3]  10.5.2.1e	Cell selection indicator after release of all TCH and SDCCH IE */
     { 0x00, "Cell Description" },						/* 10.5.2.2  */
-    { 0x00, "Cell Options (BCCH)" },						/* [3]  10.5.2.3	Cell Options (BCCH) */
-    { 0x00, "Cell Options (SACCH)" },						/* [3]  10.5.2.3a	Cell Options (SACCH) */
-    { 0x00, "Cell Selection Parameters" },					/* [3]  10.5.2.4	Cell Selection Parameters */
+    { 0x00, "Cell Options (BCCH)" },					/* [3]  10.5.2.3	Cell Options (BCCH) */
+    { 0x00, "Cell Options (SACCH)" },					/* [3]  10.5.2.3a	Cell Options (SACCH) */
+    { 0x00, "Cell Selection Parameters" },				/* [3]  10.5.2.4	Cell Selection Parameters */
 /* [3]  10.5.2.4a	(void) */
-    { 0x00, "Channel Description" },						/* 10.5.2.5	 */
-    { 0x00, "Channel Description 2" },						/* 10.5.2.5a */
-    { 0x00, "Channel Description 3" },						/* 10.5.2.5c */
+    { 0x00, "Channel Description" },					/* 10.5.2.5	 */
+    { 0x00, "Channel Description 2" },					/* 10.5.2.5a */
+    { 0x00, "Channel Description 3" },					/* 10.5.2.5c */
     { 0x00, "Channel Mode" },							/* [3]  10.5.2.6 */
     { 0x00, "Channel Mode 2" },							/* [3]  10.5.2.7 */
     { 0x00, "UTRAN Classmark" },						/* [3]  10.5.2.7a	*/
 /* [3]  10.5.2.7b	(void) */
-    { 0x00, "Classmark Enquiry Mask" },						/* [3]  10.5.2.7c */
+    { 0x00, "Classmark Enquiry Mask" },					/* [3]  10.5.2.7c */
 /* [3]  10.5.2.7d	GERAN Iu Mode Classmark information element */
     { 0x00, "Channel Needed"},							/* [3]  10.5.2.8	*/
     /* [3]  10.5.2.8a	(void) */
     /* [3]  10.5.2.8b	Channel Request Description 2 */
     /* Pos 20 */
-    { 0x00, "Cipher Mode Setting" },						/* [3]  10.5.2.9	*/
-    { 0x00, "Cipher Mode Response" },			  			/* [3]  10.5.2.10	*/
-    { 0x00, "Control Channel Description" },					/* [3]  10.5.2.11	Control Channel Description */
+    { 0x00, "Cipher Mode Setting" },					/* [3]  10.5.2.9	*/
+    { 0x00, "Cipher Mode Response" },			  		/* [3]  10.5.2.10	*/
+    { 0x00, "Control Channel Description" },			/* [3]  10.5.2.11	Control Channel Description */
 /* [3]  10.5.2.11a	DTM Information Details */
-    { 0x00, "Dynamic ARFCN Mapping" },						/* [3]  10.5.2.11b	*/
-    { 0x00, "Frequency Channel Sequence" },					/* [3]  10.5.2.12	*/
+    { 0x00, "Dynamic ARFCN Mapping" },					/* [3]  10.5.2.11b	*/
+    { 0x00, "Frequency Channel Sequence" },				/* [3]  10.5.2.12	*/
     { 0x00, "Frequency List" },							/* 10.5.2.13		*/
-    { 0x00, "Frequency Short List" },						/* 10.5.2.14		*/
-    { 0x00, "Frequency Short List2" },						/* 10.5.2.14a		*/
+    { 0x00, "Frequency Short List" },					/* 10.5.2.14		*/
+    { 0x00, "Frequency Short List2" },					/* 10.5.2.14a		*/
 /* [3]  10.5.2.14b	Group Channel Description */
     { 0x00, "GPRS Resumption" },						/* [3]  10.5.2.14c	GPRS Resumption */
-    { 0x00, "GPRS Broadcast Information" },					/* [3]  10.5.2.14d	GPRS broadcast information */
+    { 0x00, "GPRS Broadcast Information" },				/* [3]  10.5.2.14d	GPRS broadcast information */
 /* [3]  10.5.2.14e	Enhanced DTM CS Release Indication */
     { 0x00, "Handover Reference" },						/* 10.5.2.15		*/
     { 0x00, "IA Rest Octets" },							/* [3] 10.5.2.16	*/
     { 0x00, "IAR Rest Octets" },						/* [3] 10.5.2.17 IAR Rest Octets */
     { 0x00, "IAX Rest Octets" },						/* [3] 10.5.2.18 IAX Rest Octets */
     { 0x00, "L2 Pseudo Length" },						/* [3] 10.5.2.19	*/
-    { 0x00, "Measurement Results" },						/* [3] 10.5.2.20 Measurement Results */
+    { 0x00, "Measurement Results" },					/* [3] 10.5.2.20 Measurement Results */
 /*
  * [3] 10.5.2.20a GPRS Measurement Results
  */
     { 0x00, "Mobile Allocation" },						/* [3] 10.5.2.21	*/
-    { 0x00, "Mobile Time Difference" },						/* [3] 10.5.2.21a	*/
-    { 0x00, "MultiRate configuration" },					/* [3] 10.5.2.21aa	*/
+    { 0x00, "Mobile Time Difference" },					/* [3] 10.5.2.21a	*/
+    { 0x00, "MultiRate configuration" },				/* [3] 10.5.2.21aa	*/
     /* Pos 30 */
-    { 0x00, "Multislot Allocation" },						/* [3] 10.5.2.21b	*/
+    { 0x00, "Multislot Allocation" },					/* [3] 10.5.2.21b	*/
     /*
      * [3] 10.5.2.21c NC mode
      */
-    { 0x00, "Neighbour Cell Description" },					/* [3] 10.5.2.22 Neighbour Cell Description */
-    { 0x00, "Neighbour Cell Description 2" },					/* [3] 10.5.2.22a Neighbour Cell Description 2 */
+    { 0x00, "Neighbour Cell Description" },				/* [3] 10.5.2.22 Neighbour Cell Description */
+    { 0x00, "Neighbour Cell Description 2" },			/* [3] 10.5.2.22a Neighbour Cell Description 2 */
 /*
  * [3] 10.5.2.22b (void)
  * [3] 10.5.2.22c NT/N Rest Octets */
     { 0x00, "P1 Rest Octets" },							/* [3] 10.5.2.23 P1 Rest Octets */
     { 0x00, "P2 Rest Octets" },							/* [3] 10.5.2.24 P2 Rest Octets */
     { 0x00, "P3 Rest Octets" },							/* [3] 10.5.2.25 P3 Rest Octets */
-    { 0x00, "Packet Channel Description" },					/* [3] 10.5.2.25a	*/
-    { 0x00, "Dedicated mode or TBF" },						/* [3] 10.5.2.25b */
+    { 0x00, "Packet Channel Description" },				/* [3] 10.5.2.25a	*/
+    { 0x00, "Dedicated mode or TBF" },					/* [3] 10.5.2.25b */
     /* [3] 10.5.2.25c RR Packet Uplink Assignment
      * [3] 10.5.2.25d RR Packet Downlink Assignment */
-    { 0x00, "Page Mode" },							/* [3] 10.5.2.26  */
+    { 0x00, "Page Mode" },								/* [3] 10.5.2.26  */
 /*
  * [3] 10.5.2.26a (void)
  * [3] 10.5.2.26b (void)
@@ -263,15 +263,15 @@ const value_string gsm_rr_elem_strings[] = {
  */
     { 0x00, "NCC Permitted" },							/* [3] 10.5.2.27 NCC Permitted */
     { 0x00, "Power Command" },							/* 10.5.2.28 */
-    { 0x00, "Power Command and access type" },					/* 10.5.2.28a */
-    { 0x00, "RACH Control Parameters" },					/* [3] 10.5.2.29 RACH Control Parameters */
+    { 0x00, "Power Command and access type" },			/* 10.5.2.28a */
+    { 0x00, "RACH Control Parameters" },				/* [3] 10.5.2.29 RACH Control Parameters */
     { 0x00, "Request Reference" },						/* [3] 10.5.2.30 Request Reference */
-    { 0x00, "RR Cause" },							/* 10.5.2.31 */
-    { 0x00, "Synchronization Indication" },					/* 10.5.2.39 */
+    { 0x00, "RR Cause" },								/* 10.5.2.31 */
+    { 0x00, "Synchronization Indication" },				/* 10.5.2.39 */
     { 0x00, "SI 1 Rest Octets" },						/* [3] 10.5.2.32 */
 /* [3] 10.5.2.33 SI 2bis Rest Octets */
-    { 0x00, "SI 2ter Rest Octets" },						/* [3] 10.5.2.33a */
-    { 0x00, "SI 2quater Rest Octets" },						/* [3] 10.5.2.33b */
+    { 0x00, "SI 2ter Rest Octets" },					/* [3] 10.5.2.33a */
+    { 0x00, "SI 2quater Rest Octets" },					/* [3] 10.5.2.33b */
     { 0x00, "SI 3 Rest Octets" },						/* [3] 10.5.2.34 */
     { 0x00, "SI 4 Rest Octets" },						/* [3] 10.5.2.35 */
     { 0x00, "SI 6 Rest Octets" },						/* [3] 10.5.2.35a */
@@ -290,20 +290,20 @@ const value_string gsm_rr_elem_strings[] = {
     { 0x00, "Starting Time" },							/* [3] 10.5.2.38 Starting Time	*/
     { 0x00, "Timing Advance" },							/* [3] 10.5.2.40 Timing Advance */
     { 0x00, "Time Difference" },						/* [3] 10.5.2.41 Time Difference */
-    { 0x00, "TLLI" },								/* [3] 10.5.2.41a TLLI	*/
+    { 0x00, "TLLI" },									/* [3] 10.5.2.41a TLLI	*/
     { 0x00, "TMSI/P-TMSI" },							/* [3] 10.5.2.42 TMSI/P-TMSI */
-    { 0x00, "VGCS target mode Indication" },					/* [3] 10.5.2.42a */
+    { 0x00, "VGCS target mode Indication" },			/* [3] 10.5.2.42a */
     /* Pos 40 */
-    { 0x00, "VGCS Ciphering Parameters" },					/* [3] 10.5.2.42b */
+    { 0x00, "VGCS Ciphering Parameters" },				/* [3] 10.5.2.42b */
     { 0x00, "Wait Indication" },						/* [3] 10.5.2.43 Wait Indication */
 /* [3] 10.5.2.44 SI10 rest octets $(ASCI)$ */
-    { 0x00, "Extended Measurement Results" },					/* [3] 10.5.2.45 Extended Measurement Results */
-    { 0x00, "Extended Measurement Frequency List" },				/* [3] 10.5.2.46 Extended Measurement Frequency List */
+    { 0x00, "Extended Measurement Results" },			/* [3] 10.5.2.45 Extended Measurement Results */
+    { 0x00, "Extended Measurement Frequency List" },	/* [3] 10.5.2.46 Extended Measurement Frequency List */
     { 0x00, "Suspension Cause" },						/* [3] 10.5.2.47								*/
-    { 0x00, "APDU ID" },							/* [3] 10.5.2.48 APDU ID */
-    { 0x00, "APDU Flags" },							/* [3] 10.5.2.49 APDU Flags */
-    { 0x00, "APDU Data" },							/* [3] 10.5.2.50 APDU Data */
-    { 0x00, "Handover to UTRAN Command" },					/* [3] 10.5.2.51 Handover To UTRAN Command */
+    { 0x00, "APDU ID" },								/* [3] 10.5.2.48 APDU ID */
+    { 0x00, "APDU Flags" },								/* [3] 10.5.2.49 APDU Flags */
+    { 0x00, "APDU Data" },								/* [3] 10.5.2.50 APDU Data */
+    { 0x00, "Handover to UTRAN Command" },				/* [3] 10.5.2.51 Handover To UTRAN Command */
 /* [3] 10.5.2.52 Handover To cdma2000 Command
  * [3] 10.5.2.53 (void)
  * [3] 10.5.2.54 (void)
@@ -311,7 +311,7 @@ const value_string gsm_rr_elem_strings[] = {
  * [3] 10.5.2.56 3G Target Cell */
     { 0x00, "Service Support" },						/* [3] 10.5.2.57	*/
     /* 10.5.2.58 MBMS p-t-m Channel Description */
-    { 0x00, "Dedicated Service Information" },					/* [3] 10.5.2.59	*/
+    { 0x00, "Dedicated Service Information" },			/* [3] 10.5.2.59	*/
 /*
  * 10.5.2.60 MPRACH Description
  * 10.5.2.61 Restriction Timer
@@ -7289,12 +7289,15 @@ de_rr_time_diff(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 guint16
 de_rr_tlli(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint32	curr_offset;
+    guint32	curr_offset, tlli;
 
     curr_offset = offset;
 
+	tlli = tvb_get_ntohl(tvb, curr_offset);
     proto_tree_add_item(tree, hf_gsm_a_rr_tlli, tvb, curr_offset, 4, FALSE);
     curr_offset = curr_offset + 4;
+	if(add_string)
+		g_snprintf(add_string, string_len, " - 0x%x", tlli);
 
     return(curr_offset - offset);
 }
