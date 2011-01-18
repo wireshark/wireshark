@@ -808,10 +808,12 @@ endif()
 if(BUILD_dumpcap)
 	set(dumpcap_LIBS
 #		@INET_NTOP_LO@
+		wsutil
 		${PCAP_LIBRARIES}
 		${CAP_LIBRARIES}
 #		@SOCKET_LIBS@
 #		@NSL_LIBS@
+		${GLIB2_LIBRARIES}
 		${ZLIB_LIBRARIES}
 		${APPLE_COCOA_LIBRARY}
 	)
