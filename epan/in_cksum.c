@@ -1,6 +1,7 @@
 /* in_cksum.c
  * 4.4-Lite-2 Internet checksum routine, modified to take a vector of
- * pointers/lengths giving the pieces to be checksummed.
+ * pointers/lengths giving the pieces to be checksummed.  Also using
+ * Tahoe/CGI version of ADDCARRY(x) macro instead of from portable version.
  *
  * $Id$
  */
