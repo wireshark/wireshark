@@ -6913,7 +6913,7 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   build_info_t bi = { NULL, 0, NULL, NULL, NULL, FALSE, FALSE, 0 };
 
   proto_item *ti;
-  proto_tree *bssgp_tree;
+  proto_tree *bssgp_tree = NULL;
 	int				offset = 0;
 	guint32			len;
 	const gchar		*msg_str = NULL;
