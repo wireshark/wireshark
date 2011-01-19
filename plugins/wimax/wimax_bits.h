@@ -222,11 +222,5 @@
 #define NIB_TO_BYTE(n)  ((n) / 2)
 #define NIB_TO_BIT(n)   ((n) * 4)
 
-
-
-#ifndef UNREFERENCED_PARAMETER
-#define UNREFERENCED_PARAMETER(x) (x) = (x)
-#endif
-
 #endif
 

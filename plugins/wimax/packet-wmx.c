@@ -619,7 +619,7 @@ static gchar *tlv_val_5byte = "TLV value: %s (0x%08x...)";
 /* return:                                                   */
 /*   pointer to a proto_tree                                 */
 /*************************************************************/
-proto_tree *add_tlv_subtree(tlv_info_t *this, gint idx, proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length, gboolean little_endian)
+proto_tree *add_tlv_subtree(tlv_info_t *this, gint idx, proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length _U_, gboolean little_endian)
 {
 	/* Declare local variables */
 	proto_tree *tlv_tree;
@@ -630,8 +630,6 @@ proto_tree *add_tlv_subtree(tlv_info_t *this, gint idx, proto_tree *tree, int hf
 	guint8 tlv_type;
 	guint32 tlv_value;
 	gchar *hex_fmt;
-
-	UNREFERENCED_PARAMETER(length);
 
 	/* Retrieve the necessary TLV information */
 	tlv_val_offset = get_tlv_value_offset(this);
@@ -794,11 +792,8 @@ proto_tree *add_protocol_subtree(tlv_info_t *this, gint idx, proto_tree *tree, i
 
 
 /* WiMax protocol dissector */
-static void dissect_wimax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_wimax(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_)
 {
-	UNREFERENCED_PARAMETER(tvb);
-	UNREFERENCED_PARAMETER(tree);
-
 	/* display the WiMax protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WiMax");
 	/* Clear out stuff in the info column */

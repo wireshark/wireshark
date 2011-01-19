@@ -189,14 +189,12 @@ void proto_register_mac_mgmt_msg_pmc_rsp(void)
 }
 
 /* Decode PMC-REQ messages. */
-void dissect_mac_mgmt_msg_pmc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+void dissect_mac_mgmt_msg_pmc_req_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint offset = 0;
 	guint tvb_len, payload_type;
 	proto_item *pmc_req_item = NULL;
 	proto_tree *pmc_req_tree = NULL;
-
-	UNREFERENCED_PARAMETER(pinfo);
 
 	/* Ensure the right payload type */
 	payload_type = tvb_get_guint8(tvb, 0);
@@ -229,7 +227,7 @@ void dissect_mac_mgmt_msg_pmc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 }
 
 /* Decode PMC-RSP messages. */
-void dissect_mac_mgmt_msg_pmc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+void dissect_mac_mgmt_msg_pmc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint offset = 0;
 	guint tvb_len, payload_type;
@@ -238,8 +236,6 @@ void dissect_mac_mgmt_msg_pmc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 	guint8 pwr_control_mode;
 	gint8 value;
 	gfloat power_change;
-
-	UNREFERENCED_PARAMETER(pinfo);
 
 	/* Ensure the right payload type */
 	payload_type = tvb_get_guint8(tvb, 0);

@@ -981,14 +981,12 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 /*#define NUM_UL_AMC_SYMBOLS_SHIFT_1    0*/
 
 /* Compact DL-MAP Format Configuration IE (6.3.2.3.43.2) decoder */
-static guint wimax_compact_dlmap_format_configuration_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint offset, guint nibble_offset)
+static guint wimax_compact_dlmap_format_configuration_ie_decoder(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, guint offset, guint nibble_offset)
 {
 	guint length = 0;
 	guint dl_map_type, new_format_ind;
 	guint dl_map_offset;
 	guint32 tvb_value;
-
-	UNREFERENCED_PARAMETER(pinfo);
 
 #ifdef DEBUG
 	/* update the info column */
@@ -1103,12 +1101,10 @@ static guint wimax_compact_dlmap_format_configuration_ie_decoder(proto_tree *tre
 }
 
 /* Compact DL-MAP Reduced CID IE (6.3.2.3.43.3) decoder */
-static guint wimax_compact_dlmap_rcid_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint offset, guint nibble_offset)
+static guint wimax_compact_dlmap_rcid_ie_decoder(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, guint offset, guint nibble_offset)
 {
 	guint length = 0;
 	guint prefix;
-
-	UNREFERENCED_PARAMETER(pinfo);
 
 #ifdef DEBUG
 	/* update the info column */
@@ -1193,11 +1189,9 @@ static guint wimax_compact_dlmap_rcid_ie_decoder(proto_tree *tree, packet_info *
 }
 
 /* Compact DL-MAP HARQ Control IE (6.3.2.3.43.4) decoder */
-static guint wimax_compact_dlmap_harq_control_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint offset, guint nibble_offset)
+static guint wimax_compact_dlmap_harq_control_ie_decoder(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, guint offset, guint nibble_offset)
 {
 	guint byte, prefix, length = 0;
-
-	UNREFERENCED_PARAMETER(pinfo);
 
 #ifdef DEBUG
 	/* update the info column */
@@ -1250,11 +1244,9 @@ static guint wimax_compact_dlmap_harq_control_ie_decoder(proto_tree *tree, packe
 }
 
 /* Compact DL-MAP CQICH Control IE (6.3.2.3.43.5) decoder */
-static guint wimax_compact_dlmap_cqich_control_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint offset, guint nibble_offset)
+static guint wimax_compact_dlmap_cqich_control_ie_decoder(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, guint offset, guint nibble_offset)
 {
 	guint byte, cqich_indicator, length = 0;
-
-	UNREFERENCED_PARAMETER(pinfo);
 
 #ifdef DEBUG
 	/* update the info column */
@@ -1319,11 +1311,9 @@ static guint wimax_compact_dlmap_cqich_control_ie_decoder(proto_tree *tree, pack
 #define HARQ_MODE_SWITCH    1
 
 /* Compact DL-MAP Extension IE (6.3.2.3.43.6.6) decoder */
-static guint wimax_cdlmap_extension_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint offset, guint nibble_offset)
+static guint wimax_cdlmap_extension_ie_decoder(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, guint offset, guint nibble_offset)
 {
 	guint tvb_value, dl_map_type, sub_type, length;
-
-	UNREFERENCED_PARAMETER(pinfo);
 
 #ifdef DEBUG
 	/* update the info column */
@@ -1418,12 +1408,10 @@ static guint wimax_cdlmap_extension_ie_decoder(proto_tree *tree, packet_info *pi
 #define UL_INTERFERENCE_AND_NOISE_LEVEL_IE 15
 
 /* Extended DIUC IE (8.4.5.3.2) */
-guint wimax_extended_diuc_dependent_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint offset, guint nibble_offset)
+guint wimax_extended_diuc_dependent_ie_decoder(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, guint offset, guint nibble_offset)
 {
 	guint ext_diuc, length;
 	guint8 byte;
-
-	UNREFERENCED_PARAMETER(pinfo);
 
 	/* get the first byte */
 	byte =  tvb_get_guint8(tvb, offset);

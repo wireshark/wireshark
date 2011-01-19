@@ -36,10 +36,6 @@
 
 #define MAX_TLV_LEN 64000
 
-#ifndef UNREFERENCED_PARAMETER
-#define UNREFERENCED_PARAMETER(x) (x) = (x)
-#endif
-
 typedef struct
 {
 	guint8   valid;          /* TLV info status: 0=invalid; 1=valid */

@@ -1601,7 +1601,7 @@ void lshift_bits(guint8 *buffer, gint bytes, gint bits)
 
 
 
-gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
+gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, gint length _U_, tvbuff_t *tvb)
 {
     /* decode a single UL-MAP IE and return the
      * length of the IE in nibbles
@@ -1616,8 +1616,6 @@ gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, g
     guint32 data32;
 
     nibble = offset;
-
-    UNREFERENCED_PARAMETER(length);
 
     /* 8.4.5.4 UL-MAP IE format - table 287 */
     cid = NIB_WORD(nibble, bufptr);
@@ -1898,7 +1896,7 @@ gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, g
     return (nibble - offset);
 }
 
-void dissect_mac_mgmt_msg_ulmap_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+void dissect_mac_mgmt_msg_ulmap_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
     /* 6.3.2.3.4 [2] UL-MAP table 18 */
     guint offset = 0;
@@ -1913,8 +1911,6 @@ void dissect_mac_mgmt_msg_ulmap_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
     tvb_len = tvb_reported_length(tvb);
     /* XXX This should be removed, and regular tvb accessors should be used instead. */
     bufptr = tvb_get_ptr(tvb, offset, tvb_len);
-
-    UNREFERENCED_PARAMETER(pinfo);
 
     /* display MAC UL-MAP */
     ti = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_ulmap_decoder, tvb, offset, tvb_len, "UL-MAP (%u bytes)", tvb_len);

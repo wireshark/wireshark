@@ -2029,7 +2029,7 @@ gint dissect_dlmap_ie(proto_tree *ie_tree, const guint8 *bufptr, gint offset, gi
 }
 
 
-void dissect_mac_mgmt_msg_dlmap_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tree)
+void dissect_mac_mgmt_msg_dlmap_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *base_tree)
 {
     /* 6.3.2.3.2 [2] DL-MAP table 16 */
     guint offset = 0;
@@ -2041,8 +2041,6 @@ void dissect_mac_mgmt_msg_dlmap_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
     gint tvb_len           = tvb_reported_length(tvb);
     /* XXX This should be removed, and regular tvb accessors should be used instead. */
     const guint8 *bufptr   = tvb_get_ptr(tvb, offset, tvb_len);
-
-    UNREFERENCED_PARAMETER(pinfo);
 
     INC_CID = 0;
 
@@ -2186,7 +2184,7 @@ extern gint dissect_ulmap_ie(proto_tree *ie_tree,
 extern gint wimax_decode_ulmap_reduced_aas(proto_tree *ie_tree,
     const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb);
 
-gint wimax_decode_sub_dl_ul_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tree)
+gint wimax_decode_sub_dl_ul_map(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *base_tree)
 {
     /* decode a SUB-DL-UL-MAP message 6.3.2.3.60 and return the length in bytes */
     /* first three bits are 0x7, which following a compressed DL map indicates this message */
@@ -2204,8 +2202,6 @@ gint wimax_decode_sub_dl_ul_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *b
     const guint8 * bufptr = tvb_get_ptr(tvb, offset, length);
     gint           nib = 0;
     gint           lennib = BYTE_TO_NIB(length);
-
-    UNREFERENCED_PARAMETER(pinfo);
 
     sub_dl_ul_map = 1; /* set flag */
 
@@ -2278,7 +2274,7 @@ gint wimax_decode_sub_dl_ul_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *b
     return length;
 }
 
-gint wimax_decode_dlmap_reduced_aas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tree)
+gint wimax_decode_dlmap_reduced_aas(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *base_tree)
 {
     /* 8.4.5.8.1 [2] Reduced AAS private DL-MAP */
     /* if there is an appended UL-MAP, also decode that */
@@ -2298,7 +2294,6 @@ gint wimax_decode_dlmap_reduced_aas(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     guint16 calculated_crc;
     gint smcs,cidi,dcdi,phyi,cqci;
 
-    UNREFERENCED_PARAMETER(pinfo);
     length = tvb_len;
 
     /* display MAC Reduced_AAS_Private_DL-MAP and create subtree */
