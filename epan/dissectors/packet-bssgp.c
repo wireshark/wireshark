@@ -33,6 +33,7 @@
 #include <math.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <prefs.h>
 
 #include "packet-bssgp.h"
@@ -76,6 +77,7 @@ static int bssgp_decode_nri = 0;
 static guint bssgp_nri_length = 4;
 
 static packet_info *gpinfo;
+static proto_tree *parent_tree;
 static dissector_handle_t llc_handle;
 static dissector_handle_t rrlp_handle;
 static dissector_handle_t data_handle;
@@ -114,9 +116,13 @@ static int hf_bssgp_cr_bit = -1;
 static int hf_bssgp_t_bit = -1;
 static int hf_bssgp_a_bit = -1;
 static int hf_bssgp_precedence = -1;
+static int hf_bssgp_serv_utran_cco = -1;
+static int hf_bssgp_serv_eutran_cco = -1;
+static int hf_bssgp_sub_prof_id_f_rat_freq_prio = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bssgp = -1;
+static gint ett_bssgp_new = -1;
 static gint ett_bssgp_qos_profile = -1;
 static gint ett_bssgp_gprs_timer = -1;
 static gint ett_bssgp_cell_identifier = -1;
@@ -3499,7 +3505,8 @@ decode_iei_service_utran_cco(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offs
     { 0, "Network initiated cell change order procedure to UTRAN should be performed" },
     { 1, "Network initiated cell change order procedure to UTRAN should not be performed" },
     { 2, "Network initiated cell change order procedure to UTRAN shall not be performed" },
-    { 0,    NULL },
+	{ 3, " If received, shall be interpreted as no information available (bits 4-5 valid)" },
+	{ 0,    NULL },
     /* Otherwise "No information available" */
   };
 
@@ -6138,8 +6145,23 @@ decode_pdu(build_info_t *bi) {
 }
 /*
  * 11.3	Information Element Identifier (IEI)
+ */
+
+/*
  * 11.3.1	Alignment octets
  */
+static guint16
+de_bssgp_aligment_octets(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_text(tree, tvb, curr_offset, len, "%u Spare octet(s)",len);
+	
+	return(len);
+}
+
 /*
  * 11.3.2	Bmax default MS	123
  * 11.3.3	BSS Area Indication	123
@@ -6155,25 +6177,143 @@ The Delay Value field is coded as a 16-bit integer value in units of centi-secon
 coding provides a range of over 10 minutes in increments of 10 ms. As a special case, the hexadecimal value 0xFFFF
 (decimal 65 535) shall be interpreted as "infinite delay".
 */
+static guint16
+de_bssgp_bvc_meas(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_item(tree, hf_bssgp_delay_val, tvb, curr_offset, 2, ENC_NA);
+	curr_offset+=2;
+
+	return(curr_offset-offset);
+}
 /*
  * 11.3.8	Cause
  */
 /*
  * 11.3.9	Cell Identifier
+ */
+/*
+ * octets 3-8 Octets 3 to 8 contain the value part (starting with octet 2) of the
+ * Routing Area Identification IE defined in 3GPP TS 24.008, not
+ * including 3GPP TS 24.008 IEI
+ * Octets 9 and 10 contain the value part (starting with octet 2) of the
+ * Cell Identity IE defined in 3GPP TS 24.008, not including
+ * 3GPP TS 24.008 IEI (10.5.1.1)
+ */
+
+static guint16
+de_bssgp_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+{
+	guint32	curr_offset;
+	guint16 ci;
+
+	curr_offset = offset;
+
+	curr_offset = curr_offset + de_gmm_rai(tvb, tree, curr_offset , 6, add_string, string_len);
+	/*Why doesn't this work? ( add_string will not contain RAI + CI ) 
+	 * curr_offset = curr_offset + de_cell_id(tvb, tree, curr_offset , 2, add_string, string_len);
+	 */
+	ci = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item(tree, hf_bssgp_ci, tvb, offset, 2, ENC_BIG_ENDIAN);
+	curr_offset+=2;
+	if (add_string)
+		g_snprintf(add_string, string_len, " %s, CI %u", add_string, ci);
+
+
+	return(curr_offset-offset);
+}
+/*
  * 11.3.10	Channel needed
+ */
+/* Rest of element coded as the value part of the Channel Needed
+ * PDU defined in 3GPP TS 29.018, not including 3GPP TS 29.018
+ * IEI and 3GPP TS 29.018 length indicator
+ */
+/*
  * 11.3.11	DRX Parameters
+ */
+/*
+ * Rest of element coded as the value part defined in
+ * 3GPP TS 24.008, not including 3GPP TS 24.008 IEI and
+ * 3GPP TS 24.008 octet length indicator
+ */
+/*
  * 11.3.12	eMLPP-Priority
+ */
+/*
  * 11.3.13	Flush Action
+ */
+/*
  * 11.3.14	IMSI
+ */
+/* Octets 3-n contain an IMSI coded as the value part of the Mobile
+ * Identity IE defined in 3GPP TS 24.008
+ * (NOTE 1)
+ * NOTE 1: The Type of identity field in the Mobile Identity IE shall be ignored by
+ * the receiver.
+ */
+/*
  * 11.3.15	LLC-PDU
+ */
+
+static guint16
+de_bssgp_llc_pdu(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	tvbuff_t *next_tvb=NULL;
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+
+
+	if(len > 0){
+		next_tvb = tvb_new_subset_remaining(tvb, curr_offset);
+		proto_tree_add_text(tree, tvb, curr_offset, len, "LLC Data");
+	}
+
+  if(next_tvb){
+    if (llc_handle) {
+      call_dissector(llc_handle, next_tvb, gpinfo, parent_tree);
+    }
+    else if (data_handle) {
+      call_dissector(data_handle, next_tvb, gpinfo, parent_tree);
+    }
+  }
+
+	return(len);
+}
+/*
  * 11.3.16	LLC Frames Discarded
  * 11.3.17	Location Area
  * 11.3.18	LSA Identifier List
+ */
+/* Rest of element coded as in 3GPP TS 48.008, not including
+ * 3GPP TS 48.008 IEI and 3GPP TS 48.008 length indicator
+ */
+/*
  * 11.3.19	LSA Information
+ */
+/* Rest of element coded as in 3GPP TS 48.008, not including
+ * 3GPP TS 48.008 IEI and 3GPP TS 48.008 length indicator
+ */
+/*
  * 11.3.20	Mobile Id
+ */
+/*
  * 11.3.21	MS Bucket Size
- * 11.3.22	MS Radio Access Capability	130
- * 11.3.23	OMC Id	130
+ */
+/*
+ * 11.3.22	MS Radio Access Capability
+ */
+/* Rest of element coded as the value part defined in
+ * 3GPP TS 24.008, not including 3GPP TS 24.008 IEI and
+ * 3GPP TS 24.008 octet length indicator.
+ */
+/*
+ * 11.3.23	OMC Id
  * 11.3.24	PDU In Error
  */
 /*
@@ -6203,6 +6343,10 @@ coding provides a range of over 10 minutes in increments of 10 ms. As a special 
 /*
  * 11.3.27	Priority
  */
+/* Rest of element coded as the value part of the Priority IE defined in
+ * 3GPP TS 48.008, not including 3GPP TS 48.008 IEI and
+ * 3GPP TS 48.008 length indicator
+ */
 /*
  * 11.3.28	QoS Profile
  */
@@ -6228,19 +6372,38 @@ const value_string bssgp_peak_rate_gran_vals[] = {
     { 0x3, "100000 bits/s increments" },
   { 0, NULL }
 };
+  static const value_string bssap_precedence_ul[] = {
+    { 0,   "High priority" },
+    { 1,   "Normal priority" },
+    { 2,   "Low priority" },
+    { 0,   NULL },
+  };
+
+  static const value_string bssap_precedence_dl[] = {
+    { 0,   "Radio priority 1" },
+    { 1,   "Radio priority 2" },
+    { 2,   "Radio priority 3" },
+    { 3,   "Radio priority 4" },
+    { 4,   "Radio priority unknown" },
+    { 0,   NULL },
+  };
+
 static guint16
 de_bssgp_qos_profile(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	proto_item *pi;
+	proto_item *pi, *pre_item;
 	guint32	curr_offset;
 	guint16 peak_bit_rate;
-	guint8  rate_gran;
+	guint8  rate_gran, precedence;
+	int     link_dir;
 
 	curr_offset = offset;
 
 	/* octet 3-4 Peak bit rate provided by the network (note)
 	 * NOTE: The bit rate 0 (zero) shall mean "best effort" in this IE.
 	 */
+	link_dir = gpinfo->link_dir;
+
 	peak_bit_rate = tvb_get_ntohs(tvb, curr_offset);
 	pi = proto_tree_add_text(tree, tvb, curr_offset, 1, "Peak bit rate: ");
 	if (peak_bit_rate == 0) {
@@ -6283,18 +6446,25 @@ de_bssgp_qos_profile(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 	proto_tree_add_item(tree, hf_bssgp_cr_bit, tvb, curr_offset, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_bssgp_t_bit, tvb, curr_offset, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_bssgp_a_bit, tvb, curr_offset, 1, ENC_NA);
-	proto_tree_add_item(tree, hf_bssgp_precedence, tvb, curr_offset, 1, ENC_NA);
+	precedence = tvb_get_guint8(tvb, curr_offset) & 0x7;
+	pre_item = proto_tree_add_item(tree, hf_bssgp_precedence, tvb, curr_offset, 1, ENC_NA);
+	if(link_dir == P2P_DIR_DL){
+		proto_item_append_text(pre_item, " %s", val_to_str_const((guint32)precedence, bssap_precedence_dl, "Radio Priority Unknown(Radio priority 3)"));
+	}else{
+		proto_item_append_text(pre_item, " %s", val_to_str_const((guint32)precedence, bssap_precedence_ul, "Priority Unknown(Low priority)"));
+	}
 	
 	curr_offset++;
+
 	return(curr_offset-offset);
 }
 /*
  * 11.3.29	Radio Cause
- * 11.3.30	RA-Cap-UPD-Cause	135
- * 11.3.31	Routeing Area	135
- * 11.3.32	R_default_MS	135
- * 11.3.33	Suspend Reference Number	136
- * 11.3.34	Tag	136
+ * 11.3.30	RA-Cap-UPD-Cause
+ * 11.3.31	Routeing Area
+ * 11.3.32	R_default_MS
+ * 11.3.33	Suspend Reference Number
+ * 11.3.34	Tag
  */
 /*
  * 11.3.35	Temporary logical link Identity (TLLI)
@@ -6307,16 +6477,75 @@ de_bssgp_qos_profile(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
  * 11.3.38	Trace Type	137
  * 11.3.39	Transaction Id	137
  * 11.3.40	Trigger Id	137
- * 11.3.41	Number of octets affected	137
- * 11.3.42	Packet Flow Identifier (PFI)	138
- * 11.3.42a	(void)	138
- * 11.3.43	Aggregate BSS QoS Profile	138
- * 11.3.44	GPRS Timer	138
- * 11.3.45	Feature Bitmap	139
- * 11.3.46	Bucket Full Ratio	140
- * 11.3.47	Service UTRAN CCO	140
- * 11.3.48	NSEI (Network Service Entity Identifier)	141
- * 11.3.49	RRLP APDU	141
+ * 11.3.41	Number of octets affected
+ */
+/*
+ * 11.3.42	Packet Flow Identifier (PFI)
+ */
+/* Rest of element coded as the value part of the Packet Flow
+ * Identifier information element in 3GPP TS 24.008, not including
+ * 3GPP TS 24.008 IEI
+ */
+/*
+ * 11.3.42a	(void)
+ */
+/*
+ * 11.3.43	Aggregate BSS QoS Profile
+ */
+/*
+ * 11.3.44	GPRS Timer
+ */
+/*
+ * 11.3.45	Feature Bitmap
+ */
+/*
+ * 11.3.46	Bucket Full Ratio
+ */
+
+/*
+ * 11.3.47	Service UTRAN CCO
+ */
+static const value_string bssgp_service_utran_cco_vals[] = {
+    { 0, "Network initiated cell change order procedure to UTRAN should be performed" },
+    { 1, "Network initiated cell change order procedure to UTRAN should not be performed" },
+    { 2, "Network initiated cell change order procedure to UTRAN shall not be performed" },
+	{ 3, " If received, shall be interpreted as no information available (bits 4-5 valid)" },
+	{ 0,    NULL },
+    /* Otherwise "No information available" */
+  };
+
+static const value_string bssgp_service_eutran_cco_vals[] = {
+    { 0, "If received, shall be interpreted as no information available" },
+    { 1, "Network initiated cell change order to E-UTRAN or PS handover to E-UTRAN procedure should be performed" },
+    { 2, "Network initiated cell change order to E-UTRAN or PS handover to E-UTRAN procedure should not be performed" },
+	{ 3, "Network initiated cell change order to E-UTRAN or PS handover to E-UTRAN procedure shall not be performed" },
+	{ 0,    NULL },
+    /* Otherwise "No information available" */
+  };
+
+static guint16
+de_bssgp_serv_utran_cco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	/* Service EUTRAN CCO Value part */
+	proto_tree_add_item(tree, hf_bssgp_serv_eutran_cco, tvb, curr_offset, 1, ENC_NA);
+	/* Service UTRAN CCO Value part */
+	proto_tree_add_item(tree, hf_bssgp_serv_utran_cco, tvb, curr_offset, 1, ENC_NA);
+	curr_offset++;
+
+	return(curr_offset-offset);
+}
+
+/*
+ * 11.3.48	NSEI (Network Service Entity Identifier)
+ */
+/*
+ * 11.3.49	RRLP APDU
+ */
+/*
  * 11.3.50	LCS QoS	141
  * 11.3.51	LCS Client Type	142
  * 11.3.52	Requested GPS Assistance Data	142
@@ -6389,34 +6618,71 @@ de_bssgp_qos_profile(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
  * 11.3.92	Time to MBMS Data Transfer	170
  * 11.3.93	MBMS Session Repetition Number	171
  * 11.3.94	Inter RAT Handover Info	171
- * 11.3.95	PS Handover Command	171
- * 11.3.95a	PS Handover Indications	171
- * 11.3.95b	SI/PSI Container	172
- * 11.3.95c	Active PFCs List	173
- * 11.3.96	Velocity Data	173
- * 11.3.97	DTM Handover Command	173
- * 11.3.98	CS Indication	174
- * 11.3.99	Requested GANSS Assistance Data	174
- * 11.3.100 	GANSS Location Type	174
- * 11.3.101 	GANSS Positioning Data	174
- * 11.3.102 	Flow Control Granularity	175
- * 11.3.103 	eNB Identifier	175
- * 11.3.104 	E-UTRAN Inter RAT Handover Info	176
- * 11.3.105 	Subscriber Profile ID for RAT/Frequency priority	176
- * 11.3.106 	Request for Inter-RAT Handover Info	176
- * 11.3.107 	Reliable Inter-RAT Handover Info	177
- * 11.3.108 	SON Transfer Application Identity	177
- * 11.3.109 	CSG Identifier	177
- * 11.3.110 	Tracking Area Code	178
- * 11.3.111 	Redirect Attempt Flag	178
- * 11.3.112 	Redirection Indication	178
- * 11.3.113 	Redirection Completed	179
+ * 11.3.95	PS Handover Command
+ * 11.3.95a	PS Handover Indications
+ * 11.3.95b	SI/PSI Container
+ * 11.3.95c	Active PFCs List
+ * 11.3.96	Velocity Data
+ * 11.3.97	DTM Handover Command
+ * 11.3.98	CS Indication
+ * 11.3.99	Requested GANSS Assistance Data
+ * 11.3.100 	GANSS Location Type
+ * 11.3.101 	GANSS Positioning Data
+ * 11.3.102 	Flow Control Granularity
+ * 11.3.103 	eNB Identifier
+ * 11.3.104 	E-UTRAN Inter RAT Handover Info
+ */
+/*
+ * 11.3.105 	Subscriber Profile ID for RAT/Frequency priority
+ */
+
+static guint16
+de_bssgp_sub_prof_id_f_rat_freq_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+	guint8 value;
+
+	curr_offset = offset;
+
+	/* Octet 3 contains a number in binary representation ranging from 0 to 255. 
+	 * The Subscriber Profile ID for RAT/Frequency priority is given by 
+	 * the indicated value +1.
+	 */
+	value = tvb_get_guint8(tvb,curr_offset) + 1;
+	proto_tree_add_uint(tree, hf_bssgp_sub_prof_id_f_rat_freq_prio, tvb, curr_offset, 1, value);
+	curr_offset++;
+
+	return(curr_offset-offset);
+}
+/*
+ * 11.3.106 	Request for Inter-RAT Handover Info
+ * 11.3.107 	Reliable Inter-RAT Handover Info
+ * 11.3.108 	SON Transfer Application Identity
+ * 11.3.109 	CSG Identifier
+ * 11.3.110 	Tracking Area Code
+ * 11.3.111 	Redirect Attempt Flag
+ * 11.3.112 	Redirection Indication
+ * 11.3.113 	Redirection Completed
 
 */
 const value_string bssgp_elem_strings[] = {
-	{ 0x00, "PDU Lifetime" },					/* 11.3.25 PDU Lifetime */
-    { 0x00, "QoS Profile" },					/* 11.3.28 QoS Profile */
-    { 0x00, "Alignment Octets" },               /* 11.3.1 Alignment octets */
+    { 0x00, "Alignment Octets" },									/* 11.3.1 Alignment octets */
+ /* 11.3.2	Bmax default MS  */
+ /* 11.3.3	BSS Area Indication	 */
+ /* 11.3.4	Bucket Leak Rate (R) */
+ /* 11.3.5	BVC Bucket Size */
+ /* 11.3.6	BVCI (BSSGP Virtual Connection Identifier)  */
+
+	{ 0x00, "BVC Measurement" },									/* 11.3.7 BVC Measurement */
+ /* 11.3.8	Cause */
+
+	{ 0x00, "Cell Identifier" },									/* 111.3.9	Cell Identifier */
+	{ 0x00, "IMSI" },												/* 11.3.14	IMSI */
+	{ 0x00, "LLC-PDU" },											/* 11.3.15 LLC-PDU */
+	{ 0x00, "PDU Lifetime" },										/* 11.3.25 PDU Lifetime */
+    { 0x00, "QoS Profile" },										/* 11.3.28 QoS Profile */
+	{ 0x00, "Service UTRAN CCO" },									/* 11.3.47 Service UTRAN CCO */
+	{ 0x00, "Subscriber Profile ID for RAT/Frequency priority" },	/* 11.3.105 Subscriber Profile ID for RAT/Frequency priority */
   { 0, NULL }
 };
 
@@ -6425,18 +6691,29 @@ gint ett_bssgp_elem[NUM_BSSGP_ELEM];
 
 typedef enum
 {
+	DE_BSSGP_ALIGNMENT_OCTETS,				/* 11.3.1 Alignment octets */
+	DE_BSSGP_BVC_MEAS,						/* 11.3.7 BVC Measurement */
+	DE_BSSGP_CELL_ID,						/* 11.3.9	Cell Identifier */
+	DE_BSSGP_IMSI,							/* 11.3.14	IMSI */
+	DE_BSSGP_LLC_PDU,						/* 11.3.15 LLC-PDU */
 	DE_BSSGP_PDU_LIFETIME,                  /* 11.3.25 PDU Lifetime */
 	DE_BSSGP_QOS_PROFILE,                   /* 11.3.28 QoS Profile */
-	DE_BSSGP_ALIGNMENT_OCTETS,				/* 11.3.1 Alignment octets */
-	DE_BSSGP_COMMON_NONE							/* NONE */
+	DE_BSSGP_SERV_UTRAN_CCO,				/* 11.3.47 Service UTRAN CCO */
+	DE_BSSGP_SUB_PROF_ID_F_RAT_FRQ_PRIO,	/* 11.3.105 Subscriber Profile ID for RAT/Frequency priority */
+	DE_BSSGP_NONE							/* NONE */
 }
 bssgp_elem_idx_t;
 
 guint16 (*bssgp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
+	de_bssgp_aligment_octets,		/* 11.3.1 Alignment octets */
+	de_bssgp_bvc_meas,				/* 11.3.7 BVC Measurement */
+	de_bssgp_cell_id,				/* 11.3.9	Cell Identifier */
+	de_mid,							/* 11.3.14	IMSI */
+	de_bssgp_llc_pdu,				/* 11.3.15 LLC-PDU */
 	de_bssgp_pdu_lifetime,			/* 11.3.25 PDU Lifetime */
 	de_bssgp_qos_profile,           /* 11.3.28 QoS Profile */
-	NULL,							/* 11.3.35 Temporary logical link Identity (TLLI) TS 44.018 */
-	NULL,							/* 11.3.1 Alignment octets */
+	de_bssgp_serv_utran_cco,		/* 11.3.47 Service UTRAN CCO */
+	de_bssgp_sub_prof_id_f_rat_freq_prio, /* 11.3.105 Subscriber Profile ID for RAT/Frequency priority */
 	NULL,	/* NONE */
 };
 
@@ -6466,52 +6743,93 @@ bssap_dl_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	/* PDU Lifetime PDU Lifetime/11.3.25 M TLV 4 */
 	ELEM_MAND_TELV(0x16, BSSGP_PDU_TYPE, DE_BSSGP_PDU_LIFETIME, NULL);
-	/* MS Radio Access Capability (note 2) */
-	/* MS Radio Access Capability/11.3.22 O TLV 7-? */
+	/* MS Radio Access Capability (note 2) MS Radio Access Capability/11.3.22 O TLV 7-? */
+	ELEM_OPT_TELV(0x13, GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP , NULL);
 	/* Priority (note 3) Priority/11.3.27 O TLV 3 */
+	ELEM_OPT_TELV(0x0b, GSM_A_PDU_TYPE_BSSMAP, BE_PRIO, NULL);
 	/* DRX Parameters DRX Parameters/11.3.11 O TLV 4 */
+	ELEM_OPT_TELV(0x0a , GSM_A_PDU_TYPE_GM, DE_DRX_PARAM , NULL);
 	/* IMSI IMSI/11.3.14 O TLV 5-10 */
+	ELEM_OPT_TELV(0x0d, BSSGP_PDU_TYPE, DE_BSSGP_IMSI , NULL);
 	/* TLLI (old) TLLI/11.3.35 O TLV 6 */
+	ELEM_OPT_TELV(0x1f, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , " - old");
 	/* PFI PFI/11.3.42 O TLV 3 */
+	ELEM_OPT_TELV( 0x28 , GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID , NULL);
 	/* LSA Information LSA Information/11.3.19 O TLV 7-? */
+	ELEM_OPT_TELV(0x27, GSM_A_PDU_TYPE_BSSMAP, BE_LSA_INFO, NULL);
 	/* Service UTRAN CCO Service UTRAN CCO/11.3.47 O TLV 3 */
+	ELEM_OPT_TELV(0x3d, BSSGP_PDU_TYPE, DE_BSSGP_SERV_UTRAN_CCO, NULL);
+	
 	/* Subscriber Profile ID for RAT/Frequency priority (note 5)
 	 * Subscriber Profile ID for RAT/Frequency priority/11.3.105 O TLV 3
 	 */
+	ELEM_OPT_TELV(0x81, BSSGP_PDU_TYPE, DE_BSSGP_SUB_PROF_ID_F_RAT_FRQ_PRIO, NULL);
 	/* Alignment octets Alignment octets/11.3.1 O TLV 2-5 */
+	ELEM_OPT_TELV(0x00, BSSGP_PDU_TYPE, DE_BSSGP_ALIGNMENT_OCTETS, NULL);
 	/* LLC-PDU (note 4) LLC-PDU/11.3.15 M TLV 2-? */
+	ELEM_OPT_TELV(0x0e, BSSGP_PDU_TYPE, DE_BSSGP_LLC_PDU, NULL);
 
-	/* Remove me */
-	consumed = len;
-
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
 }
 /*
- * 10.2.2	UL-UNITDATA	94
- * 10.2.3	RA-CAPABILITY	95
- * 10.2.4	(void)	95
- * 10.2.5	DL-MBMS-UNITDATA	95
- * 10.2.6	UL-MBMS-UNITDATA	96
- * 10.3	PDU functional definitions and contents at GMM SAP	96
- * 10.3.1	PAGING PS	96
- * 10.3.2	PAGING CS	97
- * 10.3.3	RA-CAPABILITY-UPDATE	97
- * 10.3.4	RA-CAPABILITY-UPDATE-ACK	98
- * 10.3.5	RADIO-STATUS	98
- * 10.3.6	SUSPEND	98
- * 10.3.7	SUSPEND-ACK	99
- * 10.3.8	SUSPEND-NACK	99
- * 10.3.9	RESUME	99
- * 10.3.10	RESUME-ACK	100
- * 10.3.11	RESUME-NACK	100
- * 10.4	PDU functional definitions and contents at NM SAP	100
- * 10.4.1	FLUSH-LL	100
- * 10.4.2	FLUSH-LL-ACK	101
- * 10.4.3	LLC-DISCARDED	101
- * 10.4.4	FLOW-CONTROL-BVC	102
- * 10.4.5	FLOW-CONTROL-BVC-ACK	102
- * 10.4.6	FLOW-CONTROL-MS	102
- * 10.4.7	FLOW-CONTROL-MS-ACK	103
+ * 10.2.2	UL-UNITDATA	
+ */
+static void
+bssap_ul_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* This PDU transfers an MS's LLC-PDU and its associated radio interface information across the Gb-interface.
+	 * Direction: BSS to SGSN
+	 */
+	gpinfo->link_dir = P2P_DIR_UL;
+	/* TLLI TLLI/11.3.35 M V 4 */
+	ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TLLI);
+	/* QoS Profile QoS Profile/11.3.28 M V 3 */
+	ELEM_MAND_V(BSSGP_PDU_TYPE, DE_BSSGP_QOS_PROFILE);
+	/* Cell Identifier Cell Identifier/11.3.9 M TLV 10 */
+	ELEM_OPT_TELV(0x08, BSSGP_PDU_TYPE, DE_BSSGP_CELL_ID , NULL);
+	/* PFI PFI/11.3.42 O TLV 3 */
+	ELEM_OPT_TELV(0x28 , GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID , NULL);
+	/* LSA Identifier List LSA Identifier List/11.3.18 O TLV 3-?  */
+	ELEM_OPT_TLV(0x26, GSM_A_PDU_TYPE_BSSMAP, BE_LSA_ID_LIST, NULL);
+	/* Alignment octets Alignment octets/11.3.1 O TLV 2-5  */
+	ELEM_OPT_TELV(0x00, BSSGP_PDU_TYPE, DE_BSSGP_ALIGNMENT_OCTETS, NULL);
+	/* LLC-PDU (note) LLC-PDU/11.3.15 M TLV 2-?  */
+	ELEM_OPT_TELV(0x0e, BSSGP_PDU_TYPE, DE_BSSGP_LLC_PDU, NULL);
+
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+}
+/*
+ * 10.2.3	RA-CAPABILITY
+ * 10.2.4	(void)
+ * 10.2.5	DL-MBMS-UNITDATA
+ * 10.2.6	UL-MBMS-UNITDATA
+ * 10.3	PDU functional definitions and contents at GMM SAP
+ * 10.3.1	PAGING PS
+ * 10.3.2	PAGING CS
+ * 10.3.3	RA-CAPABILITY-UPDATE
+ * 10.3.4	RA-CAPABILITY-UPDATE-ACK
+ * 10.3.5	RADIO-STATUS
+ * 10.3.6	SUSPEND
+ * 10.3.7	SUSPEND-ACK
+ * 10.3.8	SUSPEND-NACK
+ * 10.3.9	RESUME
+ * 10.3.10	RESUME-ACK
+ * 10.3.11	RESUME-NACK
+ * 10.4	PDU functional definitions and contents at NM SAP
+ * 10.4.1	FLUSH-LL
+ * 10.4.2	FLUSH-LL-ACK
+ * 10.4.3	LLC-DISCARDED
+ * 10.4.4	FLOW-CONTROL-BVC
+ * 10.4.5	FLOW-CONTROL-BVC-ACK
+ * 10.4.6	FLOW-CONTROL-MS
+ * 10.4.7	FLOW-CONTROL-MS-ACK
  * 10.4.8	BVC-BLOCK	103
  * 10.4.9	BVC-BLOCK-ACK	103
  * 10.4.10	BVC-UNBLOCK	103
@@ -6564,13 +6882,15 @@ bssap_dl_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 static const value_string bssgp_msg_strings[] = {
 /* 0x00 */  { BSSGP_PDU_DL_UNITDATA,                  "DL-UNITDATA" }, /* 10.2.1 DL-UNITDATA */
+/* 0x01 */  { BSSGP_PDU_UL_UNITDATA,                  "UL-UNITDATA" }, /* 10.2.2 UL-UNITDATA */
 	{ 0,	NULL }
 };
 
 #define	NUM_BSSGP_MSG (sizeof(bssgp_msg_strings)/sizeof(value_string))
 static gint ett_bssgp_msg[NUM_BSSGP_MSG];
 static void (*bssgp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
-	bssap_dl_unitdata,			/* UNITDATA */
+	bssap_dl_unitdata,			/* 10.2.1 DL-UNITDATA */
+	bssap_ul_unitdata,			/* 10.2.2 UL-UNITDATA */
 
 	NULL,	/* NONE */
 };
@@ -6594,11 +6914,6 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   proto_item *ti;
   proto_tree *bssgp_tree;
-  /* RAB */
-#if 0  /* previously commented out by C++ style comment */
-	proto_item		*item;
-	proto_tree		*bssgp_tree;
-#endif
 	int				offset = 0;
 	guint32			len;
 	const gchar		*msg_str = NULL;
@@ -6609,9 +6924,9 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Save pinfo */
 	gpinfo = pinfo;
+	parent_tree = tree;
 	len = tvb_length(tvb);
 
-/* end */
 
   bi.tvb = tvb;
   bi.pinfo = pinfo;
@@ -6630,37 +6945,42 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
     ti = proto_tree_add_item(tree, proto_bssgp, tvb, 0, -1, ENC_NA);
     bssgp_tree = proto_item_add_subtree(ti, ett_bssgp);
-	proto_tree_add_item(bssgp_tree, hf_bssgp_msg_type, tvb, 0, 1, ENC_NA);
-	/* Messge type IE*/
-	msg_fcn = NULL;
-	ett_tree = -1;
-	hf_idx = -1;
-	msg_str = NULL;
-
-	get_bssgp_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn);
-
     bi.bssgp_tree = bssgp_tree;
   }
+
+  /* Messge type IE*/
+  msg_fcn = NULL;
+  ett_tree = -1;
+  hf_idx = -1;
+  msg_str = NULL;
+
+  get_bssgp_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn);
 
   col_add_str(pinfo->cinfo, COL_INFO, val_to_str(bi.pdutype,
 						   tab_bssgp_pdu_types,
 						   "Unknown PDU type"));
-  decode_pdu(&bi);
-  /* Experimental new dissection code */
-  if(oct<1){
-	  proto_tree_add_text(tree, tvb, offset, -1, "BSSGP New dissection");
+
+  /* PDU's with msg no lover than this value are converted to common dissection style */
+  if(oct>2){
+	  proto_tree_add_item(bssgp_tree, hf_bssgp_msg_type, tvb, 0, 1, ENC_NA);
+	  decode_pdu(&bi);
+  }else{
+	/* New dissection code, aligning the dissector with the other GSM/UMTS/LTE dissectors
+	* to make it possible to share IE dissection as IE's are shared between specs.
+	* old code is keept untill transition is complete.
+	*/
 
 	  if(msg_str){
 			col_add_fstr(pinfo->cinfo, COL_INFO, "%s", msg_str);
 		}else{
-			proto_tree_add_text(tree, tvb, offset, 1,"Unknown message 0x%x",oct);
+			proto_tree_add_text(bssgp_tree, tvb, offset, 1,"Unknown message 0x%x",oct);
 			return;
 		}
 
 		/*
-		 * Add SGSAP message name
+		 * Add BSSGP message name
 		 */
-		proto_tree_add_item(tree, hf_idx, tvb, offset, 1, FALSE);
+		proto_tree_add_item(bssgp_tree, hf_idx, tvb, offset, 1, FALSE);
 		offset++;
 
 
@@ -6669,13 +6989,13 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 		if (msg_fcn == NULL)
 		{
-			proto_tree_add_text(tree, tvb, offset, len - offset, "Message Elements");
+			proto_tree_add_text(bssgp_tree, tvb, offset, len - offset, "Message Elements");
 		}
 		else
 		{
 			/* If calling any "gsm" ie dissectors needing pinfo */
 			gsm_a_dtap_pinfo = pinfo;
-			(*msg_fcn)(tvb, tree, offset, len - offset);
+			(*msg_fcn)(tvb, bssgp_tree, offset, len - offset);
 		}
   }/*End new dissection */
 
@@ -6833,10 +7153,25 @@ proto_register_bssgp(void)
 	FT_UINT8, BASE_DEC, NULL, 0x07,
 	NULL, HFILL }
     },
+	{ &hf_bssgp_serv_utran_cco,
+      { "Service UTRAN CCO", "bssgp.serv_utran_cco",
+	FT_UINT8, BASE_DEC, VALS(bssgp_service_utran_cco_vals), 0x07,
+	NULL, HFILL }
+    },
+	{ &hf_bssgp_serv_eutran_cco,
+      { "Service EUTRAN CCO", "bssgp.serv_eutran_cco",
+	FT_UINT8, BASE_DEC, VALS(bssgp_service_eutran_cco_vals), 0x18,
+	NULL, HFILL }
+    },
+	{ &hf_bssgp_sub_prof_id_f_rat_freq_prio,
+      { "Subscriber Profile ID for RAT/Frequency priority", "bssgp.sub_prof_id_f_rat_freq_prio",
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+	NULL, HFILL }
+    },
   };
 
   /* Setup protocol subtree array */
-#define	NUM_INDIVIDUAL_ELEMS	44
+#define	NUM_INDIVIDUAL_ELEMS	45
 	gint *ett[NUM_INDIVIDUAL_ELEMS +
 		  NUM_BSSGP_ELEM +
 		  NUM_BSSGP_MSG];
@@ -6884,6 +7219,7 @@ proto_register_bssgp(void)
     ett[41] = &ett_bssgp_msrac_multislot_capability;
     ett[42] = &ett_bssgp_tlli;
     ett[43] = &ett_bssgp_tmsi_ptmsi;
+	ett[44] = &ett_bssgp_new;
   
 	last_offset = NUM_INDIVIDUAL_ELEMS;
 
