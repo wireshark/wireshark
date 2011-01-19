@@ -4053,7 +4053,7 @@ dissect_dcerpc_cn_rts (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     cmd = ep_alloc(sizeof (guint32) * (commands_nb + 1));
 
     /* Dissect commands */
-    for (i = 0; i < (int) commands_nb; ++i) {
+    for (i = 0; i < commands_nb; ++i) {
         proto_tree *cn_rts_command_tree = NULL;
         const guint32 command = dcerpc_tvb_get_ntohl (tvb, offset, hdr->drep);
         cmd[i] = command;
