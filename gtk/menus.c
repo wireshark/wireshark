@@ -1056,7 +1056,7 @@ static const char *ui_desc_menubar =
 #ifdef NEW_PACKET_LIST
 "        <menuitem name='MarkPacket' action='/Edit/MarkPacket'/>\n"
 "        <menuitem name='MarkAllDisplayedPackets' action='/Edit/MarkAllDisplayedPackets'/>\n"
-"        <menuitem name='UnmarkAllPackets' action='/Edit/UnmarkAllPackets'/>\n"
+"        <menuitem name='UnmarkAllDisplayedPackets' action='/Edit/UnmarkAllDisplayedPackets'/>\n"
 "        <menuitem name='FindNextMark' action='/Edit/FindNextMark'/>\n"
 "        <menuitem name='FindPreviousMark' action='/Edit/FindPreviousMark'/>\n"
 "        <separator/>\n"
@@ -1422,9 +1422,9 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 
 #ifdef NEW_PACKET_LIST
    { "/Edit/MarkPacket",				NULL,				"_Mark Packet (toggle)",				"<control>M",			NULL,			G_CALLBACK(new_packet_list_mark_frame_cb) },
-   { "/Edit/ToggleMarkingOfAllDisplayedPackets",	NULL,				"Toggle Marking Of All Displayed Packets",	"<shift><alt><control>M",			NULL,			G_CALLBACK(new_packet_list_toggle_mark_all_displayed_frames_cb) },
-   { "/Edit/MarkAllDisplayedPackets",	NULL,				"Mark All Displayed Packets",	"<shift><control>M",			NULL,			G_CALLBACK(new_packet_list_mark_all_displayed_frames_cb) },
-   { "/Edit/UnmarkAllDisplayedPackets",			NULL,				"_Unmark All Displayed Packets",					"<alt><control>M",			NULL,			G_CALLBACK(new_packet_list_unmark_all_displayed_frames_cb) },
+   { "/Edit/ToggleMarkingOfAllDisplayedPackets",	NULL,	"Toggle Marking Of All Displayed Packets",	"<shift><alt><control>M",			NULL,			G_CALLBACK(new_packet_list_toggle_mark_all_displayed_frames_cb) },
+   { "/Edit/MarkAllDisplayedPackets",	NULL,				"Mark All Displayed Packets",			"<shift><control>M",	NULL,			G_CALLBACK(new_packet_list_mark_all_displayed_frames_cb) },
+   { "/Edit/UnmarkAllDisplayedPackets",	NULL,				"_Unmark All Displayed Packets",		"<alt><control>M",		NULL,			G_CALLBACK(new_packet_list_unmark_all_displayed_frames_cb) },
    { "/Edit/FindNextMark",				NULL,				"Find Next Mark",						"<shift><control>N",	NULL,			G_CALLBACK(find_next_mark_cb) },
    { "/Edit/FindPreviousMark",			NULL,				"Find Next Mark",						"<shift><control>B",	NULL,			G_CALLBACK(find_prev_mark_cb) },
 
@@ -6100,7 +6100,7 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/MarkAllDisplayedPackets",
                          cf->displayed_count > 0);
     /* Unlike un-ignore, do not allow unmark of all frames when no frames are displayed  */
-    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/UnmarkAllPackets",
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/UnmarkAllDisplayedPackets",
                          have_marked);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/FindNextMark",
                          another_is_marked);
