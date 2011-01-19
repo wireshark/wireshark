@@ -3280,7 +3280,7 @@ class Type (Node):
       for k in list(pars.keys()):
         try:
           pars[k] = pars[k] % pars
-        except (TypeError):
+        except (ValueError,TypeError):
           raise sys.exc_info()[0], "%s\n%s" % (str(pars), sys.exc_info()[1])
     out = '\n'
     out += self.eth_type_default_table(ectx, tname) % pars
