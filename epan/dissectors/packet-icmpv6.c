@@ -48,142 +48,72 @@
 #include <epan/expert.h>
 
 #include "packet-ber.h"
-#include "packet-ipv6.h"
 #include "packet-dns.h"
 #include "packet-x509af.h"
 #include "packet-x509if.h"
 
-
-#ifndef offsetof
-#define offsetof(type, member)  ((size_t)(&((type *)0)->member))
-#endif
-
 /*
  * The information used comes from:
- * RFC 2461: Neighbor Discovery for IP Version 6 (IPv6)
+ * RFC 1885/2463/4443: Internet Control Message Protocol (ICMPv6) for the Internet Protocol Version 6 (IPv6) Specification 
+ * RFC 2461/4861: Neighbor Discovery for IP Version 6 (IPv6)
+ * RFC 2491: IPv6 over Non-Broadcast Multiple Access (NBMA) networks
  * RFC 2710: Multicast Listener Discovery for IPv6
  * RFC 2894: Router Renumbering for IPv6
+ * RFC 3122: Extensions to IPv6 Neighbor Discovery for Inverse Discovery Specification
+ * RFC 3775: Mobility Support in IPv6
  * RFC 3810: Multicast Listener Discovery Version 2 (MLDv2) for IPv6
- * RFC 4068: Fast Handovers for Mobile IPv6
+ * RFC 3971: SEcure Neighbor Discovery (SEND)
+ * RFC 4065: Instructions for Seamoby and Experimental Mobility Protocol IANA Allocations
+ * RFC 4068/5268/5568: Fast Handovers for Mobile IPv6 (Mobile IPv6 Fast Handovers)
+ * RFC 4140/5380: Hierarchical Mobile IPv6 Mobility Management (HMIPv6)
+ * RFC 4191: Default Router Preferences and More-Specific Routes
+ * RFC 4286: Multicast Router Discovery
  * RFC 4620: IPv6 Node Information Queries
- * RFC 4861: Neighbor Discovery for IP version 6 (IPv6)
- * draft-ietf-mobileip-hmipv6-05.txt
- * draft-ieft-roll-rpl-12.txt
+ * RFC 5006/6106: IPv6 Router Advertisement Options for DNS Configuration
+ * RFC 5075/5175 : IPv6 Router Advertisement Flags Option
+ * RFC 5269: Distributing a Symmetric Fast Mobile IPv6 (FMIPv6) Handover Key Using SEcure Neighbor Discovery (SEND)
+ * RFC 5271: Mobile IPv6 Fast Handovers for 3G CDMA Networks
+ * draft-ieft-roll-rpl-17.txt
+ * http://www.iana.org/assignments/icmpv6-parameters (last updated 2010-10-11)
  */
 
-
+/* RFC 1885/2463/4443: Internet Control Message Protocol (ICMPv6) for the Internet Protocol Version 6 (IPv6) Specification */
 static int proto_icmpv6 = -1;
 static int hf_icmpv6_type = -1;
 static int hf_icmpv6_code = -1;
 static int hf_icmpv6_checksum = -1;
 static int hf_icmpv6_checksum_bad = -1;
 static int hf_icmpv6_reserved = -1;
+static int hf_icmpv6_data = -1;
+static int hf_icmpv6_mtu = -1;
+static int hf_icmpv6_pointer = -1;
+static int hf_icmpv6_echo_identifier = -1;
+static int hf_icmpv6_echo_sequence_number = -1;
+static int hf_icmpv6_nonce = -1;
 
-/* RFC 2710: Multicast Listener Discovery for IPv6 */
-static int hf_icmpv6_mld_mrd = -1;
-static int hf_icmpv6_mld_multicast_address = -1;
+/* RFC 2461/4861 : Neighbor Discovery for IP version 6 (IPv6) */ 
+static int hf_icmpv6_nd_ra_cur_hop_limit = -1;
+static int hf_icmpv6_nd_ra_flag = -1;
+static int hf_icmpv6_nd_ra_flag_m = -1;
+static int hf_icmpv6_nd_ra_flag_o = -1;
+static int hf_icmpv6_nd_ra_flag_h = -1;
+static int hf_icmpv6_nd_ra_flag_prf = -1;
+static int hf_icmpv6_nd_ra_flag_p = -1;
+static int hf_icmpv6_nd_ra_flag_rsv = -1;
+static int hf_icmpv6_nd_ra_router_lifetime = -1;
+static int hf_icmpv6_nd_ra_reachable_time = -1;
+static int hf_icmpv6_nd_ra_retrans_timer = -1;
+static int hf_icmpv6_nd_ns_target_address = -1;
+static int hf_icmpv6_nd_na_flag = -1;
+static int hf_icmpv6_nd_na_flag_r = -1;
+static int hf_icmpv6_nd_na_flag_s = -1;
+static int hf_icmpv6_nd_na_flag_o = -1;
+static int hf_icmpv6_nd_na_flag_rsv = -1;
+static int hf_icmpv6_nd_na_target_address = -1;
+static int hf_icmpv6_nd_rd_target_address = -1;
+static int hf_icmpv6_nd_rd_destination_address = -1;
 
-/* RFC 3810: Multicast Listener Discovery Version 2 (MLDv2) for IPv6 */ 
-static int hf_icmpv6_mld_mrc = -1;
-static int hf_icmpv6_mld_flag = -1;
-static int hf_icmpv6_mld_flag_s = -1;
-static int hf_icmpv6_mld_flag_qrv = -1;
-static int hf_icmpv6_mld_flag_rsv = -1;
-static int hf_icmpv6_mld_qqi = -1;
-static int hf_icmpv6_mld_nb_sources = -1;
-static int hf_icmpv6_mld_source_address = -1;
-static int hf_icmpv6_mldr_nb_mcast_records = -1;
-static int hf_icmpv6_mldr_mar = -1;
-static int hf_icmpv6_mldr_mar_record_type = -1;
-static int hf_icmpv6_mldr_mar_aux_data_len = -1;
-static int hf_icmpv6_mldr_mar_nb_sources = -1;
-static int hf_icmpv6_mldr_mar_multicast_address = -1;
-static int hf_icmpv6_mldr_mar_source_address = -1;
-static int hf_icmpv6_mldr_mar_auxiliary_data = -1;
-
-static int hf_icmpv6_haad_ha_addrs = -1;
-static int hf_icmpv6_ra_cur_hop_limit = -1;
-static int hf_icmpv6_ra_router_lifetime = -1;
-static int hf_icmpv6_ra_reachable_time = -1;
-static int hf_icmpv6_ra_retrans_timer = -1;
-
-/* RPL: draft-ietf-roll-rpl-12.txt: Routing over Low-Power and Lossy Networks. */
-static int hf_icmpv6_dis_reserved = -1;
-static int hf_icmpv6_dio_grounded = -1;
-static int hf_icmpv6_dio_preference = -1;
-static int hf_icmpv6_dio_rank = -1;
-static int hf_icmpv6_dio_instance = -1;
-static int hf_icmpv6_dio_version = -1;
-static int hf_icmpv6_dio_zero = -1;
-static int hf_icmpv6_dio_trigger_seqnum = -1;
-static int hf_icmpv6_dio_dagid = -1;
-static int hf_icmpv6_dio_mop = -1;
-static int hf_icmpv6_dao_instance = -1;
-static int hf_icmpv6_dao_seqnum = -1;
-static int hf_icmpv6_dao_reserved = -1;
-static int hf_icmpv6_dao_flag_k = -1;
-static int hf_icmpv6_dao_flag_d = -1;
-static int hf_icmpv6_dao_flag_rsv = -1;
-static int hf_icmpv6_dao_dodagid = -1;
-static int hf_icmpv6_daoack_instance = -1;
-static int hf_icmpv6_daoack_seqnum = -1;
-static int hf_icmpv6_daoack_status = -1;
-static int hf_icmpv6_daoack_flag_d = -1;
-static int hf_icmpv6_daoack_flag_rsv = -1;
-static int hf_icmpv6_daoack_dodagid = -1;
-static int hf_icmpv6_rpl_opt = -1;
-static int hf_icmpv6_rpl_opt_type = -1;
-static int hf_icmpv6_rpl_opt_length = -1;
-static int hf_icmpv6_rpl_opt_reserved = -1;
-static int hf_icmpv6_rpl_opt_padn = -1;
-static int hf_icmpv6_rpl_opt_route_prefix_length = -1;
-static int hf_icmpv6_rpl_opt_route_flag = -1;
-static int hf_icmpv6_rpl_opt_route_pref = -1;
-static int hf_icmpv6_rpl_opt_route_reserved = -1;
-static int hf_icmpv6_rpl_opt_route_lifetime = -1;
-static int hf_icmpv6_rpl_opt_route_prefix = -1;
-static int hf_icmpv6_rpl_opt_config_flag = -1;
-static int hf_icmpv6_rpl_opt_config_reserved = -1;
-static int hf_icmpv6_rpl_opt_config_auth = -1;
-static int hf_icmpv6_rpl_opt_config_pcs = -1;
-static int hf_icmpv6_rpl_opt_config_doublings = -1;
-static int hf_icmpv6_rpl_opt_config_min_interval = -1;
-static int hf_icmpv6_rpl_opt_config_redundancy = -1;
-static int hf_icmpv6_rpl_opt_config_rank_incr = -1;
-static int hf_icmpv6_rpl_opt_config_hop_rank_inc = -1;
-static int hf_icmpv6_rpl_opt_config_ocp = -1;
-static int hf_icmpv6_rpl_opt_config_rsv = -1;
-static int hf_icmpv6_rpl_opt_config_def_lifetime = -1;
-static int hf_icmpv6_rpl_opt_config_lifetime_unit = -1;
-static int hf_icmpv6_rpl_opt_target_flag = -1;
-static int hf_icmpv6_rpl_opt_target_prefix_length = -1;
-static int hf_icmpv6_rpl_opt_target_prefix = -1;
-static int hf_icmpv6_rpl_opt_transit_flag = -1;
-static int hf_icmpv6_rpl_opt_transit_flag_e = -1;
-static int hf_icmpv6_rpl_opt_transit_flag_rsv = -1;
-static int hf_icmpv6_rpl_opt_transit_pathseq = -1;
-static int hf_icmpv6_rpl_opt_transit_pathctl = -1;
-static int hf_icmpv6_rpl_opt_transit_pathlifetime = -1;
-static int hf_icmpv6_rpl_opt_transit_parent = -1;
-static int hf_icmpv6_rpl_opt_solicited_instance = -1;
-static int hf_icmpv6_rpl_opt_solicited_flag = -1;
-static int hf_icmpv6_rpl_opt_solicited_flag_v = -1;
-static int hf_icmpv6_rpl_opt_solicited_flag_i = -1;
-static int hf_icmpv6_rpl_opt_solicited_flag_d = -1;
-static int hf_icmpv6_rpl_opt_solicited_flag_rsv = -1;
-static int hf_icmpv6_rpl_opt_solicited_dodagid = -1;
-static int hf_icmpv6_rpl_opt_solicited_version = -1;
-static int hf_icmpv6_rpl_opt_prefix = -1;
-static int hf_icmpv6_rpl_opt_prefix_flag = -1;
-static int hf_icmpv6_rpl_opt_prefix_flag_l = -1;
-static int hf_icmpv6_rpl_opt_prefix_flag_a = -1;
-static int hf_icmpv6_rpl_opt_prefix_flag_r = -1;
-static int hf_icmpv6_rpl_opt_prefix_flag_rsv = -1;
-static int hf_icmpv6_rpl_opt_prefix_vlifetime = -1;
-static int hf_icmpv6_rpl_opt_prefix_plifetime = -1;
-static int hf_icmpv6_rpl_opt_prefix_length = -1;
-static int hf_icmpv6_rpl_opt_targetdesc = -1;
-
+/* ND Options */
 static int hf_icmpv6_opt = -1;
 static int hf_icmpv6_opt_type = -1;
 static int hf_icmpv6_opt_length = -1;
@@ -240,9 +170,6 @@ static int hf_icmpv6_opt_name_type = -1;
 static int hf_icmpv6_opt_name_x501 = -1;
 static int hf_icmpv6_opt_name_fqdn = -1;
 static int hf_icmpv6_opt_cert_type = -1;
-static int hf_icmpv6_identifier = -1;
-static int hf_icmpv6_all_comp = -1;
-static int hf_icmpv6_comp = -1;
 static int hf_icmpv6_x509if_Name = -1;
 static int hf_icmpv6_x509af_Certificate = -1;
 static int hf_icmpv6_opt_redirected_packet = -1;
@@ -292,24 +219,10 @@ static int hf_icmpv6_opt_6co_context_prefix  = -1;
 static int hf_icmpv6_opt_abro_version = -1;
 static int hf_icmpv6_opt_abro_6lbr_address = -1;
 
-/* RFC 4620: IPv6 Node Information Queries */
-static int hf_icmpv6_ni_qtype = -1;
-static int hf_icmpv6_ni_flag = -1;
-static int hf_icmpv6_ni_flag_g = -1;
-static int hf_icmpv6_ni_flag_s = -1;
-static int hf_icmpv6_ni_flag_l = -1;
-static int hf_icmpv6_ni_flag_c = -1;
-static int hf_icmpv6_ni_flag_a = -1;
-static int hf_icmpv6_ni_flag_t = -1;
-static int hf_icmpv6_ni_flag_rsv = -1;
-static int hf_icmpv6_ni_nonce = -1;
-static int hf_icmpv6_ni_query_subject_ipv6 = -1;
-static int hf_icmpv6_ni_query_subject_fqdn = -1;
-static int hf_icmpv6_ni_query_subject_ipv4 = -1;
-static int hf_icmpv6_ni_reply_node_ttl = -1;
-static int hf_icmpv6_ni_reply_node_name = -1;
-static int hf_icmpv6_ni_reply_node_address = -1;
-static int hf_icmpv6_ni_reply_ipv4_address = -1;
+
+/* RFC 2710: Multicast Listener Discovery for IPv6 */
+static int hf_icmpv6_mld_mrd = -1;
+static int hf_icmpv6_mld_multicast_address = -1;
 
 /* RFC 2894: Router Renumbering for IPv6 */
 static int hf_icmpv6_rr_sequencenumber = -1;
@@ -358,61 +271,292 @@ static int hf_icmpv6_rr_rm_matchedlen = -1;
 static int hf_icmpv6_rr_rm_interfaceindex = -1;
 static int hf_icmpv6_rr_rm_matchedprefix = -1;
 
+/* RFC 3810: Multicast Listener Discovery Version 2 (MLDv2) for IPv6 */ 
+static int hf_icmpv6_mld_mrc = -1;
+static int hf_icmpv6_mld_flag = -1;
+static int hf_icmpv6_mld_flag_s = -1;
+static int hf_icmpv6_mld_flag_qrv = -1;
+static int hf_icmpv6_mld_flag_rsv = -1;
+static int hf_icmpv6_mld_qqi = -1;
+static int hf_icmpv6_mld_nb_sources = -1;
+static int hf_icmpv6_mld_source_address = -1;
+static int hf_icmpv6_mldr_nb_mcast_records = -1;
+static int hf_icmpv6_mldr_mar = -1;
+static int hf_icmpv6_mldr_mar_record_type = -1;
+static int hf_icmpv6_mldr_mar_aux_data_len = -1;
+static int hf_icmpv6_mldr_mar_nb_sources = -1;
+static int hf_icmpv6_mldr_mar_multicast_address = -1;
+static int hf_icmpv6_mldr_mar_source_address = -1;
+static int hf_icmpv6_mldr_mar_auxiliary_data = -1;
+
+/* RFC3775: Mobility Support in IPv6 */
+static int hf_icmpv6_mip6_identifier = -1;
+static int hf_icmpv6_mip6_home_agent_address = -1;
+static int hf_icmpv6_mip6_flag = -1;
+static int hf_icmpv6_mip6_flag_m = -1;
+static int hf_icmpv6_mip6_flag_o = -1;
+static int hf_icmpv6_mip6_flag_rsv = -1;
+
+/* RFC3971: SEcure Neighbor Discovery (SEND) */
+static int hf_icmpv6_send_identifier = -1;
+static int hf_icmpv6_send_all_components = -1;
+static int hf_icmpv6_send_component = -1;
+
+/* RFC 4068/5268/5568: Fast Handovers for Mobile IPv6 ( Mobile IPv6 Fast Handovers ) */
+static int hf_icmpv6_fmip6_subtype = -1;
+static int hf_icmpv6_fmip6_hi_flag = -1;
+static int hf_icmpv6_fmip6_hi_flag_s = -1;
+static int hf_icmpv6_fmip6_hi_flag_u = -1;
+static int hf_icmpv6_fmip6_hi_flag_reserved = -1;
+static int hf_icmpv6_fmip6_identifier = -1;
+
+/* RFC 4286: Multicast Router Discovery */
+static int hf_icmpv6_mcast_ra_query_interval = -1;
+static int hf_icmpv6_mcast_ra_robustness_variable = -1;
+
+/* RFC 4620: IPv6 Node Information Queries */
+static int hf_icmpv6_ni_qtype = -1;
+static int hf_icmpv6_ni_flag = -1;
+static int hf_icmpv6_ni_flag_g = -1;
+static int hf_icmpv6_ni_flag_s = -1;
+static int hf_icmpv6_ni_flag_l = -1;
+static int hf_icmpv6_ni_flag_c = -1;
+static int hf_icmpv6_ni_flag_a = -1;
+static int hf_icmpv6_ni_flag_t = -1;
+static int hf_icmpv6_ni_flag_rsv = -1;
+static int hf_icmpv6_ni_nonce = -1;
+static int hf_icmpv6_ni_query_subject_ipv6 = -1;
+static int hf_icmpv6_ni_query_subject_fqdn = -1;
+static int hf_icmpv6_ni_query_subject_ipv4 = -1;
+static int hf_icmpv6_ni_reply_node_ttl = -1;
+static int hf_icmpv6_ni_reply_node_name = -1;
+static int hf_icmpv6_ni_reply_node_address = -1;
+static int hf_icmpv6_ni_reply_ipv4_address = -1;
+
+/* RPL: draft-ietf-roll-rpl-17.txt: Routing over Low-Power and Lossy Networks. */
+static int hf_icmpv6_rpl_dis_flag = -1;
+static int hf_icmpv6_rpl_dio_instance = -1;
+static int hf_icmpv6_rpl_dio_version = -1;
+static int hf_icmpv6_rpl_dio_rank = -1;
+static int hf_icmpv6_rpl_dio_flag = -1;
+static int hf_icmpv6_rpl_dio_flag_g = -1;
+static int hf_icmpv6_rpl_dio_flag_0 = -1;
+static int hf_icmpv6_rpl_dio_flag_mop = -1;
+static int hf_icmpv6_rpl_dio_flag_prf = -1;
+static int hf_icmpv6_rpl_dio_dtsn = -1;
+static int hf_icmpv6_rpl_dio_dagid = -1;
+static int hf_icmpv6_rpl_dao_instance = -1;
+static int hf_icmpv6_rpl_dao_flag = -1;
+static int hf_icmpv6_rpl_dao_flag_k = -1;
+static int hf_icmpv6_rpl_dao_flag_d = -1;
+static int hf_icmpv6_rpl_dao_flag_rsv = -1;
+static int hf_icmpv6_rpl_dao_sequence = -1;
+static int hf_icmpv6_rpl_dao_dodagid = -1;
+static int hf_icmpv6_rpl_daoack_instance = -1;
+static int hf_icmpv6_rpl_daoack_flag = -1;
+static int hf_icmpv6_rpl_daoack_flag_d = -1;
+static int hf_icmpv6_rpl_daoack_flag_rsv = -1;
+static int hf_icmpv6_rpl_daoack_sequence = -1;
+static int hf_icmpv6_rpl_daoack_status = -1;
+static int hf_icmpv6_rpl_daoack_dodagid = -1;
+static int hf_icmpv6_rpl_cc_instance = -1;
+static int hf_icmpv6_rpl_cc_flag = -1;
+static int hf_icmpv6_rpl_cc_flag_r = -1;
+static int hf_icmpv6_rpl_cc_flag_rsv = -1;
+static int hf_icmpv6_rpl_cc_nonce = -1;
+static int hf_icmpv6_rpl_cc_dodagid = -1;
+static int hf_icmpv6_rpl_cc_destination_counter = -1;
+static int hf_icmpv6_rpl_secure_flag = -1;
+static int hf_icmpv6_rpl_secure_flag_t = -1;
+static int hf_icmpv6_rpl_secure_flag_rsv = -1;
+static int hf_icmpv6_rpl_secure_algorithm = -1;
+static int hf_icmpv6_rpl_secure_algorithm_encryption = -1;
+static int hf_icmpv6_rpl_secure_algorithm_signature = -1;
+static int hf_icmpv6_rpl_secure_kim = -1;
+static int hf_icmpv6_rpl_secure_lvl = -1;
+static int hf_icmpv6_rpl_secure_rsv = -1;
+static int hf_icmpv6_rpl_secure_counter = -1;
+static int hf_icmpv6_rpl_secure_key_source = -1;
+static int hf_icmpv6_rpl_secure_key_index = -1;
+static int hf_icmpv6_rpl_opt = -1;
+static int hf_icmpv6_rpl_opt_type = -1;
+static int hf_icmpv6_rpl_opt_length = -1;
+static int hf_icmpv6_rpl_opt_reserved = -1;
+static int hf_icmpv6_rpl_opt_padn = -1;
+static int hf_icmpv6_rpl_opt_route_prefix_length = -1;
+static int hf_icmpv6_rpl_opt_route_flag = -1;
+static int hf_icmpv6_rpl_opt_route_pref = -1;
+static int hf_icmpv6_rpl_opt_route_reserved = -1;
+static int hf_icmpv6_rpl_opt_route_lifetime = -1;
+static int hf_icmpv6_rpl_opt_route_prefix = -1;
+static int hf_icmpv6_rpl_opt_config_flag = -1;
+static int hf_icmpv6_rpl_opt_config_reserved = -1;
+static int hf_icmpv6_rpl_opt_config_auth = -1;
+static int hf_icmpv6_rpl_opt_config_pcs = -1;
+static int hf_icmpv6_rpl_opt_config_doublings = -1;
+static int hf_icmpv6_rpl_opt_config_min_interval = -1;
+static int hf_icmpv6_rpl_opt_config_redundancy = -1;
+static int hf_icmpv6_rpl_opt_config_rank_incr = -1;
+static int hf_icmpv6_rpl_opt_config_hop_rank_inc = -1;
+static int hf_icmpv6_rpl_opt_config_ocp = -1;
+static int hf_icmpv6_rpl_opt_config_rsv = -1;
+static int hf_icmpv6_rpl_opt_config_def_lifetime = -1;
+static int hf_icmpv6_rpl_opt_config_lifetime_unit = -1;
+static int hf_icmpv6_rpl_opt_target_flag = -1;
+static int hf_icmpv6_rpl_opt_target_prefix_length = -1;
+static int hf_icmpv6_rpl_opt_target_prefix = -1;
+static int hf_icmpv6_rpl_opt_transit_flag = -1;
+static int hf_icmpv6_rpl_opt_transit_flag_e = -1;
+static int hf_icmpv6_rpl_opt_transit_flag_rsv = -1;
+static int hf_icmpv6_rpl_opt_transit_pathseq = -1;
+static int hf_icmpv6_rpl_opt_transit_pathctl = -1;
+static int hf_icmpv6_rpl_opt_transit_pathlifetime = -1;
+static int hf_icmpv6_rpl_opt_transit_parent = -1;
+static int hf_icmpv6_rpl_opt_solicited_instance = -1;
+static int hf_icmpv6_rpl_opt_solicited_flag = -1;
+static int hf_icmpv6_rpl_opt_solicited_flag_v = -1;
+static int hf_icmpv6_rpl_opt_solicited_flag_i = -1;
+static int hf_icmpv6_rpl_opt_solicited_flag_d = -1;
+static int hf_icmpv6_rpl_opt_solicited_flag_rsv = -1;
+static int hf_icmpv6_rpl_opt_solicited_dodagid = -1;
+static int hf_icmpv6_rpl_opt_solicited_version = -1;
+static int hf_icmpv6_rpl_opt_prefix = -1;
+static int hf_icmpv6_rpl_opt_prefix_flag = -1;
+static int hf_icmpv6_rpl_opt_prefix_flag_l = -1;
+static int hf_icmpv6_rpl_opt_prefix_flag_a = -1;
+static int hf_icmpv6_rpl_opt_prefix_flag_r = -1;
+static int hf_icmpv6_rpl_opt_prefix_flag_rsv = -1;
+static int hf_icmpv6_rpl_opt_prefix_vlifetime = -1;
+static int hf_icmpv6_rpl_opt_prefix_plifetime = -1;
+static int hf_icmpv6_rpl_opt_prefix_length = -1;
+static int hf_icmpv6_rpl_opt_targetdesc = -1;
+
 static gint ett_icmpv6 = -1;
-static gint ett_icmpv6opt = -1;
-static gint ett_icmpv6flag = -1;
-static gint ett_icmpv6mar = -1;
-static gint ett_icmpv6opt_name = -1;
-static gint ett_cga_param_name = -1;
-static gint ett_dao_rr_stack = -1;
+static gint ett_icmpv6_opt = -1;
+static gint ett_icmpv6_mar = -1;
+static gint ett_icmpv6_flag_prefix = -1;
+static gint ett_icmpv6_flag_map = -1;
+static gint ett_icmpv6_flag_route_info = -1;
+static gint ett_icmpv6_flag_6lowpan = -1;
+static gint ett_icmpv6_flag_efo = -1;
+static gint ett_icmpv6_rpl_opt = -1;
+static gint ett_icmpv6_rpl_flag_routing = -1;
+static gint ett_icmpv6_rpl_flag_config = -1;
+static gint ett_icmpv6_rpl_flag_transit = -1;
+static gint ett_icmpv6_rpl_flag_solicited = -1;
+static gint ett_icmpv6_rpl_flag_prefix = -1;
+static gint ett_icmpv6_flag_ni = -1;
+static gint ett_icmpv6_flag_rr = -1;
+static gint ett_icmpv6_rr_mp = -1;
+static gint ett_icmpv6_rr_up = -1;
+static gint ett_icmpv6_rr_up_flag_mask = -1;
+static gint ett_icmpv6_rr_up_flag_ra = -1;
+static gint ett_icmpv6_rr_up_flag = -1;
+static gint ett_icmpv6_rr_rm = -1;
+static gint ett_icmpv6_rr_rm_flag = -1;
+static gint ett_icmpv6_flag_mld = -1;
+static gint ett_icmpv6_flag_ra = -1;
+static gint ett_icmpv6_flag_na = -1;
+static gint ett_icmpv6_flag_mip6 = -1;
+static gint ett_icmpv6_flag_fmip6 = -1;
+static gint ett_icmpv6_flag_secure = -1;
+static gint ett_icmpv6_flag_rpl_dio = -1;
+static gint ett_icmpv6_flag_rpl_dao = -1;
+static gint ett_icmpv6_flag_rpl_daoack = -1;
+static gint ett_icmpv6_flag_rpl_cc = -1;
+static gint ett_icmpv6_opt_name = -1;
+static gint ett_icmpv6_cga_param_name = -1;
 
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t data_handle;
 
-static const value_string icmpv6_type_str[] = {
-    { ICMP6_DST_UNREACH,           "Unreachable" },
-    { ICMP6_PACKET_TOO_BIG,        "Too big" },
-    { ICMP6_TIME_EXCEEDED,         "Time exceeded" },
-    { ICMP6_PARAM_PROB,            "Parameter problem" },
-    { 100,                         "Private experimentation" },
-    { 101,                         "Private experimentation" },
-    { 127,                         "Reserved for expansion of ICMPv6 error messages" },
-    { ICMP6_ECHO_REQUEST,          "Echo (ping) request" },
-    { ICMP6_ECHO_REPLY,            "Echo (ping) reply" },
-    { ICMP6_MEMBERSHIP_QUERY,      "Multicast listener query" },
-    { ICMP6_MEMBERSHIP_REPORT,     "Multicast listener report" },
-    { ICMP6_MEMBERSHIP_REDUCTION,  "Multicast listener done" },
-    { ND_ROUTER_SOLICIT,           "Router solicitation" },
-    { ND_ROUTER_ADVERT,            "Router advertisement" },
-    { ND_NEIGHBOR_SOLICIT,         "Neighbor solicitation" },
-    { ND_NEIGHBOR_ADVERT,          "Neighbor advertisement" },
-    { ND_REDIRECT,                 "Redirect" },
-    { ICMP6_ROUTER_RENUMBERING,    "Router renumbering" },
-    { ICMP6_NI_QUERY,              "Node information query" },
-    { ICMP6_NI_REPLY,              "Node information reply" },
-    { ICMP6_IND_SOLICIT,           "Inverse neighbor discovery solicitation" },
-    { ICMP6_IND_ADVERT,            "Inverse neighbor discovery advertisement" },
-    { ICMP6_MLDV2_REPORT,          "Multicast Listener Report Message v2" },
-    { ICMP6_MIP6_DHAAD_REQUEST,    "Dynamic Home Agent Address Discovery Request" },
-    { ICMP6_MIP6_DHAAD_REPLY,      "Dynamic Home Agent Address Discovery Reply" },
-    { ICMP6_MIP6_MPS,              "Mobile Prefix Solicitation" },
-    { ICMP6_MIP6_MPA,              "Mobile Prefix Advertisement" },
-    { ICMP6_CERT_PATH_SOL,         "Certification Path Solicitation" },
-    { ICMP6_CERT_PATH_AD,          "Certification Path Advertisement" },
-    { ICMP6_EXPERIMENTAL_MOBILITY, "Experimental Mobility" },
-    { ICMP6_MCAST_ROUTER_ADVERT,   "Multicast Router Advertisement" },
-    { ICMP6_MCAST_ROUTER_SOLICIT,  "Multicast Router Solicitation" },
-    { ICMP6_MCAST_ROUTER_TERM,     "Multicast Router Termination" },
-    { ICMP6_FMIPV6_MESSAGES,       "FMIPv6 Messages" },
-    { ICMP6_RPL_CONTROL,           "RPL Control Message" },
-    { 200,                         "Private experimentation" },
-    { 201,                         "Private experimentation" },
-    { 255,                         "Reserved for expansion of ICMPv6 informational messages" },
+#define ICMP6_DST_UNREACH		1
+#define ICMP6_PACKET_TOO_BIG		2
+#define ICMP6_TIME_EXCEEDED		3
+#define ICMP6_PARAM_PROB		4
+#define ICMP6_ECHO_REQUEST	        128
+#define ICMP6_ECHO_REPLY		129
+#define ICMP6_MEMBERSHIP_QUERY		130
+#define ICMP6_MEMBERSHIP_REPORT		131
+#define ICMP6_MEMBERSHIP_REDUCTION	132
+#define ICMP6_ND_ROUTER_SOLICIT		133
+#define ICMP6_ND_ROUTER_ADVERT		134
+#define ICMP6_ND_NEIGHBOR_SOLICIT	135
+#define ICMP6_ND_NEIGHBOR_ADVERT	136
+#define ICMP6_ND_REDIRECT		137
+#define ICMP6_ROUTER_RENUMBERING	138
+#define ICMP6_NI_QUERY			139
+#define ICMP6_NI_REPLY			140
+#define ICMP6_IND_SOLICIT		141
+#define ICMP6_IND_ADVERT		142
+#define ICMP6_MLDV2_REPORT		143
+#define ICMP6_MIP6_DHAAD_REQUEST	144
+#define ICMP6_MIP6_DHAAD_REPLY		145
+#define ICMP6_MIP6_MPS			146
+#define ICMP6_MIP6_MPA			147
+#define ICMP6_CERT_PATH_SOL		148
+#define ICMP6_CERT_PATH_AD		149
+#define ICMP6_EXPERIMENTAL_MOBILITY	150
+#define ICMP6_MCAST_ROUTER_ADVERT	151
+#define ICMP6_MCAST_ROUTER_SOLICIT	152
+#define ICMP6_MCAST_ROUTER_TERM		153
+#define ICMP6_FMIPV6_MESSAGES		154
+#define ICMP6_RPL_CONTROL		155
+
+
+static const value_string icmpv6_type_val[] = {
+    { ICMP6_DST_UNREACH,           "Destination Unreachable" },                         /* [RFC4443] */
+    { ICMP6_PACKET_TOO_BIG,        "Packet Too Big" },                                  /* [RFC4443] */
+    { ICMP6_TIME_EXCEEDED,         "Time Exceeded" },                                   /* [RFC4443] */
+    { ICMP6_PARAM_PROB,            "Parameter Problem" },                               /* [RFC4443] */
+    { 100,                         "Private experimentation" },                         /* [RFC4443] */
+    { 101,                         "Private experimentation" },                         /* [RFC4443] */
+    { 127,                         "Reserved for expansion of ICMPv6 error messages" }, /* [RFC4443] */
+    { ICMP6_ECHO_REQUEST,          "Echo (ping) request" },                             /* [RFC4443] */
+    { ICMP6_ECHO_REPLY,            "Echo (ping) reply" },                               /* [RFC4443] */
+    { ICMP6_MEMBERSHIP_QUERY,      "Multicast Listener Query" },                        /* [RFC2710] */
+    { ICMP6_MEMBERSHIP_REPORT,     "Multicast Listener Report" },                       /* [RFC2710] */
+    { ICMP6_MEMBERSHIP_REDUCTION,  "Multicast Listener Done" },                         /* [RFC2710] */
+    { ICMP6_ND_ROUTER_SOLICIT,     "Router Solicitation" },                             /* [RFC4861] */
+    { ICMP6_ND_ROUTER_ADVERT,      "Router Advertisement" },                            /* [RFC4861] */
+    { ICMP6_ND_NEIGHBOR_SOLICIT,   "Neighbor Solicitation" },                           /* [RFC4861] */
+    { ICMP6_ND_NEIGHBOR_ADVERT,    "Neighbor Advertisement" },                          /* [RFC4861] */
+    { ICMP6_ND_REDIRECT,           "Redirect" },                                        /* [RFC4861] */
+    { ICMP6_ROUTER_RENUMBERING,    "Router Renumbering" },                              /* [RFC2894] */
+    { ICMP6_NI_QUERY,              "Node Information Query" },                          /* [RFC4620] */
+    { ICMP6_NI_REPLY,              "Node Information Reply" },                          /* [RFC4620] */
+    { ICMP6_IND_SOLICIT,           "Inverse Neighbor Discovery Solicitation" },         /* [RFC3122] */
+    { ICMP6_IND_ADVERT,            "Inverse Neighbor Discovery Advertisement" },        /* [RFC3122] */
+    { ICMP6_MLDV2_REPORT,          "Multicast Listener Report Message v2" },            /* [RFC3810] */
+    { ICMP6_MIP6_DHAAD_REQUEST,    "Home Agent Address Discovery Request" },            /* [RFC3775] */
+    { ICMP6_MIP6_DHAAD_REPLY,      "Home Agent Address Discovery Reply" },              /* [RFC3775] */
+    { ICMP6_MIP6_MPS,              "Mobile Prefix Solicitation" },                      /* [RFC3775] */
+    { ICMP6_MIP6_MPA,              "Mobile Prefix Advertisement" },                     /* [RFC3775] */
+    { ICMP6_CERT_PATH_SOL,         "Certification Path Solicitation" },                 /* [RFC3971] */
+    { ICMP6_CERT_PATH_AD,          "Certification Path Advertisement" },                /* [RFC3971] */
+    { ICMP6_EXPERIMENTAL_MOBILITY, "Experimental Mobility" },                           /* [RFC4065] */
+    { ICMP6_MCAST_ROUTER_ADVERT,   "Multicast Router Advertisement" },                  /* [RFC4286] */
+    { ICMP6_MCAST_ROUTER_SOLICIT,  "Multicast Router Solicitation" },                   /* [RFC4286] */
+    { ICMP6_MCAST_ROUTER_TERM,     "Multicast Router Termination" },                    /* [RFC4286] */
+    { ICMP6_FMIPV6_MESSAGES,       "FMIPv6" },                                          /* [RFC5568] */
+    { ICMP6_RPL_CONTROL,           "RPL Control" },                                     /* draft-ieft-roll-rpl-17.txt Pending IANA */
+    { 200,                         "Private experimentation" },                         /* [RFC4443] */
+    { 201,                         "Private experimentation" },                         /* [RFC4443] */
+    { 255,                         "Reserved for expansion of ICMPv6 informational messages" }, /* [RFC4443] */
     { 0, NULL }
 };
 
-static const value_string icmpv6_unreach_code_str[] = {
-    { ICMP6_DST_UNREACH_NOROUTE,     "Route unreachable" },
+#define ICMP6_DST_UNREACH_NOROUTE		0	/* no route to destination */
+#define ICMP6_DST_UNREACH_ADMIN	 		1	/* administratively prohibited */
+#define ICMP6_DST_UNREACH_NOTNEIGHBOR	        2	/* not a neighbor(obsolete) */
+#define ICMP6_DST_UNREACH_BEYONDSCOPE	        2	/* beyond scope of source address */
+#define ICMP6_DST_UNREACH_ADDR			3	/* address unreachable */
+#define ICMP6_DST_UNREACH_NOPORT		4	/* port unreachable */
+#define ICMP6_DST_UNREACH_INGR_EGR		5	/* source address failed ingress/egress policy */
+#define ICMP6_DST_UNREACH_REJECT		6	/* reject route to destination */
+
+static const value_string icmpv6_unreach_code_val[] = {
+    { ICMP6_DST_UNREACH_NOROUTE,     "no route to destination" },
     { ICMP6_DST_UNREACH_ADMIN,       "Administratively prohibited" },
     { ICMP6_DST_UNREACH_BEYONDSCOPE, "Beyond scope of source address" },
     { ICMP6_DST_UNREACH_ADDR,        "Address unreachable" },
@@ -422,60 +566,39 @@ static const value_string icmpv6_unreach_code_str[] = {
     { 0, NULL }
 };
 
-static const value_string icmpv6_timeex_code_str[] = {
-    { ICMP6_TIME_EXCEED_TRANSIT,    "In-transit" },
-    { ICMP6_TIME_EXCEED_REASSEMBLY, "Reassembly" },
+#define ICMP6_TIME_EXCEED_TRANSIT 	0	/* ttl==0 in transit */
+#define ICMP6_TIME_EXCEED_REASSEMBLY	1	/* ttl==0 in reass */
+
+static const value_string icmpv6_timeex_code_val[] = {
+    { ICMP6_TIME_EXCEED_TRANSIT,    "hop limit exceeded in transit" },
+    { ICMP6_TIME_EXCEED_REASSEMBLY, "fragment reassembly time exceeded" },
     { 0, NULL }
 };
 
-static const value_string icmpv6_paramprob_code_str[] = {
-    { ICMP6_PARAMPROB_HEADER,     "Header" },
-    { ICMP6_PARAMPROB_NEXTHEADER, "Next header" },
-    { ICMP6_PARAMPROB_OPTION,     "Option" },
+#define ICMP6_PARAMPROB_HEADER 	 		0	/* erroneous header field */
+#define ICMP6_PARAMPROB_NEXTHEADER		1	/* unrecognized next header */
+#define ICMP6_PARAMPROB_OPTION			2	/* unrecognized option */
+
+static const value_string icmpv6_paramprob_code_val[] = {
+    { ICMP6_PARAMPROB_HEADER,     "erroneous header field encountered" },
+    { ICMP6_PARAMPROB_NEXTHEADER, "unrecognized Next Header type encountered" },
+    { ICMP6_PARAMPROB_OPTION,     "unrecognized IPv6 option encountered" },
     { 0, NULL }
 };
 
-static const value_string icmpv6_router_renum_code_str[] = {
+
+/* RFC2894 - Router Renumbering for IPv6 */
+
+#define ICMP6_ROUTER_RENUMBERING_COMMAND  0	/* rr command */
+#define ICMP6_ROUTER_RENUMBERING_RESULT   1	/* rr result */
+#define ICMP6_ROUTER_RENUMBERING_SEQNUM_RESET   255	/* rr seq num reset */
+
+static const value_string icmpv6_rr_code_val[] = {
     { ICMP6_ROUTER_RENUMBERING_COMMAND,      "Command" },
     { ICMP6_ROUTER_RENUMBERING_RESULT,       "Result" },
     { ICMP6_ROUTER_RENUMBERING_SEQNUM_RESET, "Sequence number reset" },
     { 0, NULL }
 };
-
-/*
-    RFC4620 - IPv6 Node Information Queries
-*/
-
-#define NI_QTYPE_NOOP		0 /* NOOP  */
-#define NI_QTYPE_SUPTYPES	1 /* Supported Qtypes (Obso) */
-#define NI_QTYPE_NODENAME	2 /* Node Name */
-#define NI_QTYPE_NODEADDR	3 /* Node Addresses */
-#define NI_QTYPE_IPV4ADDR	4 /* IPv4 Addresses */
-
-static const value_string ni_qtype_val[] = {
-    { NI_QTYPE_NOOP,            "NOOP" },
-    { NI_QTYPE_SUPTYPES,        "Supported query types (Obsolete)" },
-    { NI_QTYPE_NODENAME,        "Node Name" },
-    { NI_QTYPE_NODEADDR,        "Node addresses" },
-    { NI_QTYPE_IPV4ADDR,        "IPv4 node addresses" },
-    { 0,                        NULL }
-};
-#define NI_FLAG_G	0x0020
-#define NI_FLAG_S	0x0010
-#define NI_FLAG_L	0x0008
-#define NI_FLAG_C	0x0004
-#define NI_FLAG_A	0x0002
-#define NI_FLAG_T	0x0001
-#define NI_FLAG_RSV     0xFFC0
-
-static const true_false_string tfs_ni_flag_a = {
-    "All unicast address",
-    "Unicast addresses on the queried interface"
-};
-
-/*
-    RFC2894 - Router Renumbering for IPv6
-*/
 
 #define RR_FLAG_T	0x80
 #define RR_FLAG_R	0x40
@@ -492,9 +615,7 @@ static const value_string rr_pco_mp_opcode_val[] = {
 };
 
 
-/*
- * RFC3810 - Multicast Listener Discovery Version 2 (MLDv2) for IPv6
- */
+/* RFC3810 - Multicast Listener Discovery Version 2 (MLDv2) for IPv6 */
 
 #define MLDV2_PACKET_MINLEN 28
 
@@ -512,166 +633,102 @@ static const value_string mldr_record_type_val[] = {
     { 0, NULL }
 };
 
-static const value_string names_router_pref[] = {
-    { ND_RA_FLAG_RTPREF_HIGH,   "High" },
-    { ND_RA_FLAG_RTPREF_MEDIUM, "Medium" },
-    { ND_RA_FLAG_RTPREF_LOW,    "Low" },
-    { ND_RA_FLAG_RTPREF_RSV,    "Reserved" },
-    { 0, NULL}
-};
+/* RFC 4068/5268/5568: Fast Handovers for Mobile IPv6 ( Mobile IPv6 Fast Handovers ) */
 
-static const value_string names_fmip6_prrtadv_code[] = {
-    { FMIP6_PRRTADV_MNTUP,      "MN should use AP-ID, AR-info tuple" },
-    { FMIP6_PRRTADV_NI_HOVER,   "Network Initiated Handover trigger" },
-    { FMIP6_PRRTADV_NORTINFO,   "No new router information" },
-    { FMIP6_PRRTADV_LIMRTINFO,  "Limited new router information" },
-    { FMIP6_PRRTADV_UNSOL,      "Unsolicited" },
+#define FMIP6_SUBTYPE_RTSOLPR   2   
+#define FMIP6_SUBTYPE_PRRTADV   3   
+#define FMIP6_SUBTYPE_HI        4   
+#define FMIP6_SUBTYPE_HACK      5  
+
+static const value_string fmip6_subtype_val[] = {
+    { FMIP6_SUBTYPE_RTSOLPR,    "Router Solicitation for Proxy Advertisement" },
+    { FMIP6_SUBTYPE_PRRTADV,    "Proxy Router Advertisement" },
+    { FMIP6_SUBTYPE_HI,         "Handover Initiate" },
+    { FMIP6_SUBTYPE_HACK,       "Handover Acknowledge" },
     { 0,                        NULL }
 };
 
-static const value_string names_fmip6_hi_code[] = {
-    { FMIP6_HI_PCOA,    "FBU sent from previous link" },
-    { FMIP6_HI_NOTPCOA, "FBU sent from new link" },
-    { 0,                NULL }
-};
-
-static const value_string names_fmip6_hack_code[] = {
-    { FMIP6_HACK_VALID,         "Handover Accepted, NCoA valid" },
-    { FMIP6_HACK_INVALID,       "Handover Accepted, NCoA not valid" },
-    { FMIP6_HACK_INUSE,         "Handover Accepted, NCoA in use" },
-    { FMIP6_HACK_ASSIGNED,      "Handover Accepted, NCoA assigned" },
-    { FMIP6_HACK_NOTASSIGNED,   "Handover Accepted, NCoA not assigned" },
-    { FMIP6_HACK_NOTACCEPTED,   "Handover Not Accepted, reason unspecified" },
-    { FMIP6_HACK_PROHIBITED,    "Administratively prohibited" },
-    { FMIP6_HACK_INSUFFICIENT,  "Insufficient resources" },
-    { 0,                        NULL }
-};
-
-static const value_string nd_opt_ipa_option_code_val[] = {
-    { 1, "Old Care-of Address" },
-    { 2, "New Care-of Address" },
-    { 3, "NAR's IP address" },
-    { 4, "NAR's Prefix (sent in PrRtAdv)" },
-    { 0, NULL }
-};
-
-static const value_string nd_opt_lla_option_code_val[] = {
-    { 0, "Wildcard" },
-    { 1, "Link-layer Address of the New Access Point" },
-    { 2, "Link-layer Address of the MN" },
-    { 3, "Link-layer Address of the NAR" },
-    { 4, "Link-layer Address of the source" },
-    { 5, "The AP belongs to the current interface of the router" },
-    { 6, "No prefix information available" },
-    { 7, "No fast handovers support available" },
-    { 0, NULL }
-};
-
-static const value_string nd_opt_hai_option_code_val[] = {
-    { 1, "Access Network Identifier (AN ID)" },
-    { 2, "Sector ID" },
-    { 0, NULL }
-};
-
-static const value_string nd_opt_mn_option_code_val[] = {
-    { 1, "NAI" },
-    { 2, "IMSI" },
-    { 0, NULL }
-};
-static const value_string nd_opt_naack_status_val[] = {
-    { 1,    "New CoA is invalid, perform address configuration" },
-    { 2,    "New CoA is invalid, use the supplied CoA" },
-    { 3,    "NCoA is invalid, use NAR's IP address as NCoA in FBU" },
-    { 4,    "PCoA supplied, do not send FBU" },
-    { 128,  "LLA is unrecognized" },
+static const value_string fmip6_prrtadv_code_val[] = {
+    { 0,   "MN should use AP-ID, AR-info tuple" },
+    { 1,   "Network Initiated Handover trigger" },
+    { 2,   "No new router information" },
+    { 3,   "Limited new router information" },
+    { 4,   "Unsolicited" },
     { 0,    NULL }
 };
 
+static const value_string fmip6_hi_code_val[] = {
+    { 0,    "FBU sent from previous link" },
+    { 1,    "FBU sent from new link" },
+    { 0,    NULL }
+};
 
+static const value_string fmip6_hack_code_val[] = {
+    { 0,    "Handover Accepted, NCoA valid" },
+    { 1,    "Handover Accepted, NCoA not valid" },
+    { 2,    "Handover Accepted, NCoA in use" },
+    { 3,    "Handover Accepted, NCoA assigned" },
+    { 4,    "Handover Accepted, NCoA not assigned" },
+    { 128,  "Handover Not Accepted, reason unspecified" },
+    { 129,  "Administratively prohibited" },
+    { 130,  "Insufficient resources" },
+    { 0,    NULL }
+};
 
-static const value_string names_6lowpannd_aro_status_str[] = {
-    { 0, "Success" },
-    { 1, "Duplicate Exists" },
-    { 2, "Neighbor Cache Full" },
+#define FMIP6_HI_FLAG_S     0x80
+#define FMIP6_HI_FLAG_U     0x40
+#define FMIP6_HI_FLAG_RSV   0x3F
+
+/* RFC 4620 - IPv6 Node Information Queries */
+
+#define ICMP6_NI_SUBJ_IPV6	0	/* Query Subject is an IPv6 address */
+#define ICMP6_NI_SUBJ_FQDN	1	/* Query Subject is a Domain name */
+#define ICMP6_NI_SUBJ_IPV4	2	/* Query Subject is an IPv4 address */
+
+#define ICMP6_NI_SUCCESS	0	/* node information successful reply */
+#define ICMP6_NI_REFUSED	1	/* node information request is refused */
+#define ICMP6_NI_UNKNOWN	2	/* unknown Qtype */
+
+#define NI_QTYPE_NOOP		0 /* NOOP  */
+#define NI_QTYPE_SUPTYPES	1 /* Supported Qtypes (Obso) */
+#define NI_QTYPE_NODENAME	2 /* Node Name */
+#define NI_QTYPE_NODEADDR	3 /* Node Addresses */
+#define NI_QTYPE_IPV4ADDR	4 /* IPv4 Addresses */
+
+static const value_string ni_query_code_val[] = {
+    { ICMP6_NI_SUBJ_IPV6,   "Query subject = IPv6 addresses" },
+    { ICMP6_NI_SUBJ_FQDN,   "Query subject = DNS name or empty" },
+    { ICMP6_NI_SUBJ_IPV4,   "Query subject = IPv4 addresses" },
     { 0, NULL }
 };
 
-/* RPL: draft-ietf-roll-rpl-12.txt: Routing over Low-Power and Lossy Networks. */
-/* Pending IANA Assignment */
-/* RPL ICMPv6 Codes */
-#define ICMP6_RPL_DIS       0   /* DODAG Information Solicitation */
-#define ICMP6_RPL_DIO       1   /* DODAG Information Object */
-#define ICMP6_RPL_DAO       2   /* Destination Advertisement Object */
-#define ICMP6_RPL_DAOACK    3   /* Destination Advertisement Object Ack */
-
-/* RPL DIO Flags */
-#define RPL_DIO_FLAG_GROUNDED           0x80
-#define RPL_DIO_FLAG_ZERO               0x40
-#define RPL_DIO_FLAG_MOP                0x38
-#define RPL_DIO_FLAG_PREFERENCE         0x07
-
-/* RPL DAO Flags */
-#define RPL_DAO_FLAG_K                  0x80
-#define RPL_DAO_FLAG_D                  0x40
-#define RPL_DAO_FLAG_RESERVED           0x3F
-
-/* RPL DAO ACK Flags */
-#define RPL_DAOACK_FLAG_D               0x80
-#define RPL_DAOACK_FLAG_RESERVED        0x7F
-
-/* RPL Option Bitfields */
-#define RPL_OPT_PREFIX_FLAG_L           0x80
-#define RPL_OPT_PREFIX_FLAG_A           0x40
-#define RPL_OPT_PREFIX_FLAG_R           0x20
-#define RPL_OPT_PREFIX_FLAG_RSV         0x1F
-#define RPL_OPT_ROUTE_PREFERENCE        0x18
-#define RPL_OPT_ROUTE_RESERVED          0xE7
-#define RPL_OPT_CONFIG_FLAG_AUTH        0x08
-#define RPL_OPT_CONFIG_FLAG_PCS         0x07
-#define RPL_OPT_CONFIG_FLAG_RESERVED    0xF0
-#define RPL_OPT_TRANSIT_FLAG_E          0x80
-#define RPL_OPT_TRANSIT_FLAG_RSV        0x7F
-#define RPL_OPT_SOLICITED_FLAG_V        0x80
-#define RPL_OPT_SOLICITED_FLAG_I        0x40
-#define RPL_OPT_SOLICITED_FLAG_D        0x20
-#define RPL_OPT_SOLICITED_FLAG_RSV      0x1F
-
-static const value_string names_rpl_code[] = {
-    { ICMP6_RPL_DIS,    "DODAG Information Solicitation" },
-    { ICMP6_RPL_DIO,    "DODAG Information Object" },
-    { ICMP6_RPL_DAO,    "Destination Advertisement Object" },
-    { ICMP6_RPL_DAOACK, "Destination Advertisement Object Acknowledgement" },
+static const value_string ni_reply_code_val[] = {
+    { ICMP6_NI_SUCCESS,   "Successful" },
+    { ICMP6_NI_REFUSED,   "Refused" },
+    { ICMP6_NI_UNKNOWN,   "Unknown query type" },
     { 0, NULL }
 };
-
-/* RPL Option Types */
-/* Pending IANA Assignment */
-#define RPL_OPT_PAD1        0   /* 1-byte padding */
-#define RPL_OPT_PADN        1   /* n-byte padding */
-#define RPL_OPT_METRIC      2   /* DAG metric container */
-#define RPL_OPT_ROUTING     3   /* Routing Information */
-#define RPL_OPT_CONFIG      4   /* DAG configuration */
-#define RPL_OPT_TARGET      5   /* RPL Target */
-#define RPL_OPT_TRANSIT     6   /* Transit */
-#define RPL_OPT_SOLICITED   7   /* Solicited Information */
-#define RPL_OPT_PREFIX      8   /* Destination prefix */
-#define RPL_OPT_TARGETDESC  9   /* RPL Target Descriptor */
-
-static const value_string rpl_option_vals[] = {
-    { RPL_OPT_PAD1,     "1-byte padding" },
-    { RPL_OPT_PADN,     "n-byte padding" },
-    { RPL_OPT_METRIC,   "Metric container" },
-    { RPL_OPT_ROUTING,  "Routing"},
-    { RPL_OPT_CONFIG,   "DODAG configuration" },
-    { RPL_OPT_TARGET,   "RPL Target" },
-    { RPL_OPT_TRANSIT,  "Transit Information" },
-    { RPL_OPT_SOLICITED,"Solicited Information"},
-    { RPL_OPT_PREFIX,   "Prefix Information"},
-    { RPL_OPT_TARGETDESC, "RPL Target Descriptor"},
-    { 0, NULL }
+static const value_string ni_qtype_val[] = {
+    { NI_QTYPE_NOOP,            "NOOP" },
+    { NI_QTYPE_SUPTYPES,        "Supported query types (Obsolete)" },
+    { NI_QTYPE_NODENAME,        "Node Name" },
+    { NI_QTYPE_NODEADDR,        "Node addresses" },
+    { NI_QTYPE_IPV4ADDR,        "IPv4 node addresses" },
+    { 0,                        NULL }
 };
 
-/* http://www.iana.org/assignments/icmpv6-parameters */
+#define NI_FLAG_G	0x0020
+#define NI_FLAG_S	0x0010
+#define NI_FLAG_L	0x0008
+#define NI_FLAG_C	0x0004
+#define NI_FLAG_A	0x0002
+#define NI_FLAG_T	0x0001
+#define NI_FLAG_RSV     0xFFC0
+
+static const true_false_string tfs_ni_flag_a = {
+    "All unicast address",
+    "Unicast addresses on the queried interface"
+};
 
 #define ND_OPT_SOURCE_LINKADDR		1
 #define ND_OPT_TARGET_LINKADDR		2
@@ -750,6 +807,77 @@ static const value_string option_vals[] = {
    { 0,                                NULL }
 };
 
+#define ND_RA_FLAG_M	0x80
+#define ND_RA_FLAG_O	0x40
+#define ND_RA_FLAG_H	0x20
+#define ND_RA_FLAG_PRF  0x18
+#define ND_RA_FLAG_P    0x04
+#define ND_RA_FLAG_RSV  0x02
+
+#define ND_NA_FLAG_R    0x80000000
+#define ND_NA_FLAG_S	0x40000000
+#define ND_NA_FLAG_O	0x20000000
+#define ND_NA_FLAG_RSV	0x1FFFFFFF
+
+static const value_string nd_flag_router_pref[] = {
+    { 1, "High" },
+    { 0, "Medium" },
+    { 3, "Low" },
+    { 2, "Reserved" },
+    { 0, NULL}
+};
+
+static const value_string nd_opt_ipa_option_code_val[] = {
+    { 1, "Old Care-of Address" },
+    { 2, "New Care-of Address" },
+    { 3, "NAR's IP address" },
+    { 4, "NAR's Prefix (sent in PrRtAdv)" },
+    { 0, NULL }
+};
+
+static const value_string nd_opt_lla_option_code_val[] = {
+    { 0, "Wildcard" },
+    { 1, "Link-layer Address of the New Access Point" },
+    { 2, "Link-layer Address of the MN" },
+    { 3, "Link-layer Address of the NAR" },
+    { 4, "Link-layer Address of the source" },
+    { 5, "The AP belongs to the current interface of the router" },
+    { 6, "No prefix information available" },
+    { 7, "No fast handovers support available" },
+    { 0, NULL }
+};
+
+static const value_string nd_opt_hai_option_code_val[] = {
+    { 1, "Access Network Identifier (AN ID)" },
+    { 2, "Sector ID" },
+    { 0, NULL }
+};
+
+static const value_string nd_opt_mn_option_code_val[] = {
+    { 1, "NAI" },
+    { 2, "IMSI" },
+    { 0, NULL }
+};
+static const value_string nd_opt_naack_status_val[] = {
+    { 1,    "New CoA is invalid, perform address configuration" },
+    { 2,    "New CoA is invalid, use the supplied CoA" },
+    { 3,    "NCoA is invalid, use NAR's IP address as NCoA in FBU" },
+    { 4,    "PCoA supplied, do not send FBU" },
+    { 128,  "LLA is unrecognized" },
+    { 0,    NULL }
+};
+
+#define ND_OPT_6CO_FLAG_C        0x10
+#define ND_OPT_6CO_FLAG_CID      0x0F
+#define ND_OPT_6CO_FLAG_RESERVED 0xE0
+
+static const value_string nd_opt_6lowpannd_status_val[] = {
+    { 0, "Success" },
+    { 1, "Duplicate Exists" },
+    { 2, "Neighbor Cache Full" },
+    { 0, NULL }
+};
+
 static const value_string icmpv6_option_name_type_vals[] = {
     { 1,    "DER Encoded X.501 Name" },
     { 2,    "FQDN" },
@@ -769,12 +897,138 @@ static const value_string icmpv6_option_cert_type_vals[] = {
     { 0,    NULL }
 };
 
+/* RFC 4191: Default Router Preferences and More-Specific Routes  */
+
+#define ND_RA_FLAG_RTPREF_MASK	0x18 /* 00011000 */
+#define ND_RA_FLAG_RESERV_MASK	0xE7 /* 11100111 */
+
+/* RFC 5075/5175 : IPv6 Router Advertisement Flags Option */
 #define FLAGS_EO_M      0x8000
 #define FLAGS_EO_O      0x4000
 #define FLAGS_EO_H      0x2000
 #define FLAGS_EO_PRF    0x1800
 #define FLAGS_EO_P      0x0400
 #define FLAGS_EO_RSV    0x02FF
+
+
+
+/* RPL: draft-ietf-roll-rpl-17.txt: Routing over Low-Power and Lossy Networks. */
+/* Pending IANA Assignment */
+/* RPL ICMPv6 Codes */
+#define ICMP6_RPL_DIS       0x00   /* DODAG Information Solicitation */
+#define ICMP6_RPL_DIO       0x01   /* DODAG Information Object */
+#define ICMP6_RPL_DAO       0x02   /* Destination Advertisement Object */
+#define ICMP6_RPL_DAOACK    0x03   /* Destination Advertisement Object Ack */
+#define ICMP6_RPL_SDIS      0x80   /* Secure DODAG Information Solicitation */
+#define ICMP6_RPL_SDIO      0x81   /* Secure DODAG Information Object */
+#define ICMP6_RPL_SDAO      0x82   /* Secure Destination Advertisement Object */
+#define ICMP6_RPL_SDAOACK   0x83   /* Secure Destination Advertisement Object Ack */
+#define ICMP6_RPL_CC        0x8A   /* Consistency Check */
+
+
+/* RPL DIO Flags */
+#define RPL_DIO_FLAG_G           0x80
+#define RPL_DIO_FLAG_0           0x40
+#define RPL_DIO_FLAG_MOP         0x38
+#define RPL_DIO_FLAG_PRF         0x07
+
+/* RPL DAO Flags */
+#define RPL_DAO_FLAG_K                  0x80
+#define RPL_DAO_FLAG_D                  0x40
+#define RPL_DAO_FLAG_RESERVED           0x3F
+
+/* RPL DAO ACK Flags */
+#define RPL_DAOACK_FLAG_D               0x80
+#define RPL_DAOACK_FLAG_RESERVED        0x7F
+
+/* RPL CC Flags */
+#define RPL_CC_FLAG_R               0x80
+#define RPL_CC_FLAG_RESERVED        0x7F
+
+/* RPL Secure */
+#define ICMP6_RPL_SECURE    0x80
+
+#define RPL_SECURE_FLAG_T   0x80
+#define RPL_SECURE_FLAG_RSV 0x7F
+
+#define RPL_SECURE_LVL      0x07  
+#define RPL_SECURE_KIM      0xC0
+#define RPL_SECURE_RSV      0x38
+
+/* RPL Option Bitfields */
+#define RPL_OPT_PREFIX_FLAG_L           0x80
+#define RPL_OPT_PREFIX_FLAG_A           0x40
+#define RPL_OPT_PREFIX_FLAG_R           0x20
+#define RPL_OPT_PREFIX_FLAG_RSV         0x1F
+#define RPL_OPT_ROUTE_PREFERENCE        0x18
+#define RPL_OPT_ROUTE_RESERVED          0xE7
+#define RPL_OPT_CONFIG_FLAG_AUTH        0x08
+#define RPL_OPT_CONFIG_FLAG_PCS         0x07
+#define RPL_OPT_CONFIG_FLAG_RESERVED    0xF0
+#define RPL_OPT_TRANSIT_FLAG_E          0x80
+#define RPL_OPT_TRANSIT_FLAG_RSV        0x7F
+#define RPL_OPT_SOLICITED_FLAG_V        0x80
+#define RPL_OPT_SOLICITED_FLAG_I        0x40
+#define RPL_OPT_SOLICITED_FLAG_D        0x20
+#define RPL_OPT_SOLICITED_FLAG_RSV      0x1F
+
+static const value_string rpl_dio_map_val[] = {
+    { 0, "No downward routes maintained by RPL" },
+    { 1, "Non storing mode" },
+    { 2, "Storing without multicast support" },
+    { 3, "Storing with multicast support" },
+    { 0, NULL }
+};
+static const value_string rpl_code_val[] = {
+    { ICMP6_RPL_DIS,    "DODAG Information Solicitation" },
+    { ICMP6_RPL_DIO,    "DODAG Information Object" },
+    { ICMP6_RPL_DAO,    "Destination Advertisement Object" },
+    { ICMP6_RPL_DAOACK, "Destination Advertisement Object Acknowledgement" },
+    { ICMP6_RPL_SDIS,   "Secure DODAG Information Solicitation" },
+    { ICMP6_RPL_SDIO,   "Secure DODAG Information Object" },
+    { ICMP6_RPL_SDAO,   "Secure Destination Advertisement Object" },
+    { ICMP6_RPL_SDAOACK,"Secure Destination Advertisement Object Acknowledgement" },
+    { ICMP6_RPL_CC,     "Consistency Check" },
+    { 0, NULL }
+};
+
+static const value_string rpl_secure_algorithm_encryption_val[] = {
+    { 0, "CCM with AES-128" },
+    { 0, NULL }
+};
+
+static const value_string rpl_secure_algorithm_signature_val[] = {
+    { 0, "RSA with SHA-256" },
+    { 0, NULL }
+};
+/* RPL Option Types */
+/* Pending IANA Assignment */
+#define RPL_OPT_PAD1        0   /* 1-byte padding */
+#define RPL_OPT_PADN        1   /* n-byte padding */
+#define RPL_OPT_METRIC      2   /* DAG metric container */
+#define RPL_OPT_ROUTING     3   /* Routing Information */
+#define RPL_OPT_CONFIG      4   /* DAG configuration */
+#define RPL_OPT_TARGET      5   /* RPL Target */
+#define RPL_OPT_TRANSIT     6   /* Transit */
+#define RPL_OPT_SOLICITED   7   /* Solicited Information */
+#define RPL_OPT_PREFIX      8   /* Destination prefix */
+#define RPL_OPT_TARGETDESC  9   /* RPL Target Descriptor */
+
+static const value_string rpl_option_vals[] = {
+    { RPL_OPT_PAD1,     "1-byte padding" },
+    { RPL_OPT_PADN,     "n-byte padding" },
+    { RPL_OPT_METRIC,   "Metric container" },
+    { RPL_OPT_ROUTING,  "Routing"},
+    { RPL_OPT_CONFIG,   "DODAG configuration" },
+    { RPL_OPT_TARGET,   "RPL Target" },
+    { RPL_OPT_TRANSIT,  "Transit Information" },
+    { RPL_OPT_SOLICITED,"Solicited Information"},
+    { RPL_OPT_PREFIX,   "Prefix Information"},
+    { RPL_OPT_TARGETDESC, "RPL Target Descriptor"},
+    { 0, NULL }
+};
+
+
 
 static void
 dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
@@ -803,7 +1057,7 @@ dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 }
 
 static void
-dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *icmp6opt_tree, *flag_tree;
     proto_item *ti, *ti_opt, *ti_opt_len;
@@ -817,7 +1071,7 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	/* ICMPv6 Option */
 	opt_len = tvb_get_guint8(tvb, offset + 1) * 8; 
 	ti = proto_tree_add_item(tree, hf_icmpv6_opt, tvb, offset, opt_len, FALSE);
-	icmp6opt_tree = proto_item_add_subtree(ti, ett_icmpv6opt);
+	icmp6opt_tree = proto_item_add_subtree(ti, ett_icmpv6_opt);
         opt_offset = offset;
 
 	/* Option type */
@@ -870,7 +1124,7 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
             	proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr_mac, tvb, opt_offset, 6, FALSE);
                 ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_target_linkaddr_mac, tvb, opt_offset, 6, FALSE);
                 PROTO_ITEM_SET_HIDDEN(ti_opt);
-
+    
                 link_addr = tvb_get_ptr(tvb, opt_offset, 6);
 	        col_append_fstr(pinfo->cinfo, COL_INFO, " is at %s", ether_to_str(link_addr));
                 proto_item_append_text(ti, " : %s",  ether_to_str(link_addr));
@@ -886,7 +1140,6 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	case ND_OPT_PREFIX_INFORMATION: /* Prefix Information (3) */
 	{
             guint8 prefix_len;
-            struct e_in6_addr prefix;
             /* RFC 4861 */
 
             /* Prefix Length */
@@ -896,7 +1149,7 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
             /* Flags */
             ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_prefix_flag, tvb, opt_offset, 1, FALSE);
-            flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6flag);
+            flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_flag_prefix);
 
             proto_tree_add_item(flag_tree, hf_icmpv6_opt_prefix_flag_l, tvb, opt_offset, 1, FALSE);
             proto_tree_add_item(flag_tree, hf_icmpv6_opt_prefix_flag_a, tvb, opt_offset, 1, FALSE);
@@ -932,8 +1185,7 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
             
             /* Prefix */
             proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_prefix, tvb, opt_offset, 16, FALSE);
-            tvb_get_ipv6(tvb, opt_offset, &prefix);
-            proto_item_append_text(ti, " : %s/%d", ip6_to_str(&prefix), prefix_len);
+            proto_item_append_text(ti, " : %s/%d", tvb_ip6_to_str(tvb, opt_offset), prefix_len);
             opt_offset += 16;         
 
 	    break;
@@ -992,14 +1244,12 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
         case  ND_OPT_SOURCE_ADDRLIST: /* Source Address List (9) */
         case  ND_OPT_TARGET_ADDRLIST: /* Target Address List (10)*/
         {
-            struct e_in6_addr ipv6_address;
             proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 6, FALSE);
             opt_offset += 6;
 
             while(opt_offset < (offset + opt_len) ) {
 		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_ipv6_address, tvb, opt_offset, 16, FALSE);
-                tvb_get_ipv6(tvb, opt_offset, &ipv6_address);
-                proto_item_append_text(ti, " %s", ip6_to_str(&ipv6_address));
+                proto_item_append_text(ti, " %s", tvb_ip6_to_str(tvb, opt_offset));
 		opt_offset += 16;
 	    }
             break;
@@ -1032,7 +1282,7 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	    cga_item = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_cga, tvb, opt_offset, par_len, FALSE);
 	    par_len += opt_offset; 
 
-	    cga_tree = proto_item_add_subtree(cga_item, ett_cga_param_name);
+	    cga_tree = proto_item_add_subtree(cga_item, ett_icmpv6_cga_param_name);
 	    proto_tree_add_item(cga_tree, hf_icmpv6_opt_cga_modifier, tvb, opt_offset, 16, FALSE);
 	    opt_offset += 16;
 
@@ -1132,7 +1382,7 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	    case 1:
 		/* DER Encoded X.501 Name */
 		name_item = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_name_x501, tvb, opt_offset, par_len, FALSE);
-		name_tree = proto_item_add_subtree(name_item, ett_icmpv6opt_name);
+		name_tree = proto_item_add_subtree(name_item, ett_icmpv6_opt_name);
 		asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 		dissect_x509if_Name(FALSE, tvb, opt_offset, &asn1_ctx, name_tree, hf_icmpv6_x509if_Name);
 		break;
@@ -1182,7 +1432,6 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	case ND_OPT_IP_ADDRESS_PREFIX: /* IP Address/Prefix Option (17) */
         {
             guint8 prefix_len;
-            struct e_in6_addr ipv6_address;
 
             /* Option-code */
             proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_ipa_option_code, tvb, opt_offset, 1, FALSE);
@@ -1198,10 +1447,9 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
             /* IPv6 Address */
             proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_ipa_ipv6_address, tvb, opt_offset, 16, FALSE);
-            tvb_get_ipv6(tvb, opt_offset, &ipv6_address);
             opt_offset += 16;
 
-            proto_item_append_text(ti, " %s/%d", ip6_to_str(&ipv6_address), prefix_len);
+            proto_item_append_text(ti, " %s/%d", tvb_ip6_to_str(tvb, opt_offset), prefix_len);
 
 	    break;
 	}
@@ -1209,7 +1457,6 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	{
 
             guint8 prefix_len;
-            struct e_in6_addr prefix;
 
             /* Option-code */
             proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_nrpi_option_code, tvb, opt_offset, 1, FALSE);
@@ -1225,10 +1472,9 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
             /* Prefix */
             proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_nrpi_prefix, tvb, opt_offset, 16, FALSE);
-            tvb_get_ipv6(tvb, opt_offset, &prefix);
             opt_offset += 16;
 
-            proto_item_append_text(ti, " %s/%d", ip6_to_str(&prefix), prefix_len);
+            proto_item_append_text(ti, " %s/%d", tvb_ip6_to_str(tvb, opt_offset), prefix_len);
 	    break;
 	}
 	case ND_OPT_LINK_LAYER_ADDRESS: /* Link-layer Address Option (19) */
@@ -1274,7 +1520,7 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
             
             /* Flags */
 	    ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_map_flag, tvb, opt_offset, 1, FALSE);
-	    flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6flag);
+	    flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_flag_map);
 
             proto_tree_add_item(flag_tree, hf_icmpv6_opt_map_flag_r, tvb, opt_offset, 1, FALSE);
 	    proto_tree_add_item(flag_tree, hf_icmpv6_opt_map_flag_reserved, tvb, opt_offset, 1, FALSE);
@@ -1303,14 +1549,14 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
             /* Flags */
             ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_route_info_flag, tvb, opt_offset, 1, FALSE);
-            flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6flag);
+            flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_flag_route_info);
 
             proto_tree_add_item(flag_tree, hf_icmpv6_opt_route_info_flag_route_preference, tvb, opt_offset, 1, FALSE);
             proto_tree_add_item(flag_tree, hf_icmpv6_opt_route_info_flag_reserved, tvb, opt_offset, 1, FALSE);
 
             route_preference = tvb_get_guint8(tvb, opt_offset);
             route_preference = (route_preference & ND_RA_FLAG_RTPREF_MASK) >> 3;
-            proto_item_append_text(ti, " : %s", val_to_str(route_preference, names_router_pref, "Unknown %d") );
+            proto_item_append_text(ti, " : %s", val_to_str(route_preference, nd_flag_router_pref, "Unknown %d") );
             opt_offset += 1;
 
             /* Route Lifetime */
@@ -1337,9 +1583,8 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
                     proto_item_append_text(ti, " %s/%d", ip6_to_str(&prefix), prefix_len);
                 break;
                 case 24: 
-                    tvb_get_ipv6(tvb, opt_offset, &prefix);
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_prefix, tvb, opt_offset, 16, FALSE);
-                    proto_item_append_text(ti, " %s/%d", ip6_to_str(&prefix), prefix_len);
+                    proto_item_append_text(ti, " %s/%d", tvb_ip6_to_str(tvb, opt_offset), prefix_len);
                 break;
                 default:
 		    expert_add_info_format(pinfo, ti_opt_len, PI_MALFORMED, PI_ERROR, "Invalid Option Length");
@@ -1351,7 +1596,6 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
 	case ND_OPT_RECURSIVE_DNS_SERVER: /* Recursive DNS Server Option (25) */
         {
-            struct e_in6_addr rdnss;
             /* Reserved */
             proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, FALSE);
             opt_offset += 2;
@@ -1375,8 +1619,7 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
             
             while(opt_offset < (offset + opt_len) ) {
 		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_rdnss, tvb, opt_offset, 16, FALSE);
-                tvb_get_ipv6(tvb, opt_offset, &rdnss);
-                proto_item_append_text(ti, " %s", ip6_to_str(&rdnss));
+                proto_item_append_text(ti, " %s", tvb_ip6_to_str(tvb, opt_offset));
                 opt_offset += 16;
 
 	    }
@@ -1385,7 +1628,7 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	case ND_OPT_FLAGS_EXTENSION: /* RA Flags Extension Option (26) */
 	{
             ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_efo, tvb, opt_offset, 6, FALSE);
-            flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6flag);
+            flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_flag_efo);
 
             proto_tree_add_item(flag_tree, hf_icmpv6_opt_efo_m, tvb, opt_offset, 2, FALSE);
             proto_tree_add_item(flag_tree, hf_icmpv6_opt_efo_o, tvb, opt_offset, 2, FALSE);
@@ -1546,7 +1789,7 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
 	    /*  Flags & CID */
 	    ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_6co_flag, tvb, opt_offset, 1, FALSE);
-	    flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6flag);
+	    flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_flag_6lowpan);
             proto_tree_add_item(flag_tree, hf_icmpv6_opt_6co_flag_c, tvb, opt_offset, 1, FALSE);
             proto_tree_add_item(flag_tree, hf_icmpv6_opt_6co_flag_cid, tvb, opt_offset, 1, FALSE);
             proto_tree_add_item(flag_tree, hf_icmpv6_opt_6co_flag_reserved, tvb, opt_offset, 1, FALSE);
@@ -1572,9 +1815,8 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
                     proto_item_append_text(ti, " %s/%d", ip6_to_str(&context_prefix), context_len);
                 break;
                 case 24: 
-                    tvb_get_ipv6(tvb, opt_offset, &context_prefix);
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_6co_context_prefix, tvb, opt_offset, 16, FALSE);
-                    proto_item_append_text(ti, " %s/%d", ip6_to_str(&context_prefix), context_len);
+                    proto_item_append_text(ti, " %s/%d", tvb_ip6_to_str(tvb, opt_offset), context_len);
                 break;
                 default:
 		    expert_add_info_format(pinfo, ti_opt_len, PI_MALFORMED, PI_ERROR, "Invalid Option Length");
@@ -1604,7 +1846,7 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	    /* EUI-64 */ 
 	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_eui64, tvb, opt_offset, 8, FALSE);
             eui64 = tvb_bytes_to_str_punct(tvb, opt_offset, 8, ':');
-            proto_item_append_text(ti, " : Register %s %s", eui64, val_to_str(status, names_6lowpannd_aro_status_str, "Unknown %d"));
+            proto_item_append_text(ti, " : Register %s %s", eui64, val_to_str(status, nd_opt_6lowpannd_status_val, "Unknown %d"));
             opt_offset += 8;
 
 	}
@@ -1612,7 +1854,6 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	case ND_OPT_AUTH_BORDER_ROUTER: /* Authoritative Border Router (33) */
 	{
 	    guint16 version;
-            struct e_in6_addr addr_6lbr;
 
             /* Version */
 	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_abro_version, tvb, opt_offset, 2, FALSE);
@@ -1625,8 +1866,7 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
             /* 6LBR Address */ 
 	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_abro_6lbr_address, tvb, opt_offset, 16, FALSE);
-            tvb_get_ipv6(tvb, opt_offset, &addr_6lbr);
-            proto_item_append_text(ti, " : Version %d, 6LBR : %s", version, ip6_to_str(&addr_6lbr));
+            proto_item_append_text(ti, " : Version %d, 6LBR : %s", version, tvb_ip6_to_str(tvb, opt_offset));
             opt_offset += 16;
 
 	}
@@ -1634,6 +1874,7 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
             default : 
 	        expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_NOTE, "Dissector for ICMPv6 Option (%d) code not implemented, Contact Wireshark developers if you want this supported", opt_type);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_data, tvb, opt_offset, opt_len, FALSE);
             break;
 
 	} /* switch (opt_type) */
@@ -1646,7 +1887,7 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 }
 
 
-/* RPL: draft-ietf-roll-rpl-12.txt: Routing over Low-Power and Lossy Networks. */
+/* RPL: draft-ietf-roll-rpl-17.txt: Routing over Low-Power and Lossy Networks. */
 static void
 dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
@@ -1661,7 +1902,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 	/* ICMPv6 RPL Option */
 	ti = proto_tree_add_item(tree, hf_icmpv6_rpl_opt, tvb, offset, 1, FALSE);
-	icmp6opt_tree = proto_item_add_subtree(ti, ett_icmpv6opt);
+	icmp6opt_tree = proto_item_add_subtree(ti, ett_icmpv6_rpl_opt);
         opt_offset = offset;
 
 	/* Option type */
@@ -1675,6 +1916,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	/* The Pad1 option is a special case, and contains no data. */
 	if (opt_type == RPL_OPT_PAD1) {
 	    offset += 1;
+	    proto_item_append_text(ti, ")");
 	    continue;
 	}
 
@@ -1707,7 +1949,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
             /* Flags */
             ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_route_flag, tvb, opt_offset, 1, FALSE);
-            flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6flag);
+            flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_rpl_flag_routing);
 
             proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_route_pref, tvb, opt_offset, 1, FALSE);
             proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_route_reserved, tvb, opt_offset, 1, FALSE);		
@@ -1736,9 +1978,8 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                     proto_item_append_text(ti, " %s/%d", ip6_to_str(&prefix), prefix_len);
                 break;
                 case 22: 
-                    tvb_get_ipv6(tvb, opt_offset, &prefix);
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_route_prefix, tvb, opt_offset, 16, FALSE);
-                    proto_item_append_text(ti, " %s/%d", ip6_to_str(&prefix), prefix_len);
+                    proto_item_append_text(ti, " %s/%d", tvb_ip6_to_str(tvb, opt_offset), prefix_len);
                 break;
                 default:
 		    expert_add_info_format(pinfo, ti_opt_len, PI_MALFORMED, PI_ERROR, "Invalid Option Length");
@@ -1750,7 +1991,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 	    /* Flags */
             ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_flag, tvb, opt_offset, 1, FALSE);
-            flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6flag);
+            flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_rpl_flag_config);
 
 	    proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_config_reserved, tvb, opt_offset, 1, FALSE);
 	    proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_config_auth, tvb, opt_offset, 1, FALSE);
@@ -1820,9 +2061,8 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                     proto_item_append_text(ti, " %s/%d", ip6_to_str(&target_prefix), prefix_len);
                 break;
                 case 18: 
-                    tvb_get_ipv6(tvb, opt_offset, &target_prefix);
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_target_prefix, tvb, opt_offset, 16, FALSE);
-                    proto_item_append_text(ti, " %s/%d", ip6_to_str(&target_prefix), prefix_len);
+                    proto_item_append_text(ti, " %s/%d", tvb_ip6_to_str(tvb, opt_offset), prefix_len);
                 break;
                 default:
 		    expert_add_info_format(pinfo, ti_opt_len, PI_MALFORMED, PI_ERROR, "Invalid Option Length");
@@ -1831,10 +2071,9 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	    break;
 	    }
 	    case RPL_OPT_TRANSIT: {
-
 	    /* Flags */
 	    ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_transit_flag, tvb, opt_offset, 1, FALSE);
-            flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6flag);
+            flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_rpl_flag_transit);
 
 	    proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_transit_flag_e, tvb, opt_offset, 1, FALSE);
 	    proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_transit_flag_rsv, tvb, opt_offset, 1, FALSE);
@@ -1856,6 +2095,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	    if(opt_len > 4)
 	    {
 	       proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_transit_parent, tvb, opt_offset, 16, FALSE);
+               proto_item_append_text(ti, " %s", tvb_ip6_to_str(tvb, opt_offset));
 	       opt_offset += 16;
 	    }
 
@@ -1869,7 +2109,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 	    /* Flags */
             ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_solicited_flag, tvb, opt_offset, 1, FALSE);
-            flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6flag);
+            flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_rpl_flag_solicited);
 
 	    proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_solicited_flag_v, tvb, opt_offset, 1, FALSE);
 	    proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_solicited_flag_i, tvb, opt_offset, 1, FALSE);
@@ -1890,7 +2130,6 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	    case RPL_OPT_PREFIX: {
 	    /* Destination prefix option. */
 	    guint8              prefix_len;
-	    struct e_in6_addr   prefix;
 
 	    /* Prefix length */
 	    prefix_len = tvb_get_guint8(tvb, opt_offset);
@@ -1899,7 +2138,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	
 	    /* Flags */
 	    ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_flag, tvb, opt_offset, 1, FALSE);
-            flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6flag);
+            flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_rpl_flag_prefix);
 
 	    proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_prefix_flag_l, tvb, opt_offset, 1, FALSE);
 	    proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_prefix_flag_a, tvb, opt_offset, 1, FALSE);
@@ -1934,9 +2173,8 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	    opt_offset += 4;
 
 	    /* Prefix */
-            tvb_get_ipv6(tvb, opt_offset, &prefix);
 	    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix, tvb, opt_offset, 16, FALSE);
-            proto_item_append_text(ti, " %s/%d", ip6_to_str(&prefix), prefix_len);
+            proto_item_append_text(ti, " %s/%d", tvb_ip6_to_str(tvb, opt_offset), prefix_len);
 	    opt_offset += 16;
 
 	    break;
@@ -1951,6 +2189,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	    }
             default : 
 	        expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_NOTE, "Dissector for ICMPv6 RPL Option (%d) code not implemented, Contact Wireshark developers if you want this supported", opt_type);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_data, tvb, opt_offset, opt_len, FALSE);
             break;
 	} /* switch (opt_type) */
 
@@ -1961,17 +2200,256 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
     }
 }
 
-/*
- * RFC 4620 - IPv6 Node Information Queries
- */
+static void
+dissect_rpl_control(tvbuff_t *tvb, int rpl_offset, packet_info *pinfo _U_, proto_tree *icmp6_tree, guint8 icmp6_type _U_, guint8 icmp6_code)
+{
+    proto_tree *flag_tree;
+    proto_item *ti;
+
+    /* Secure RPL ? (ICMP Code start to 0x8x) */
+    if(icmp6_code & ICMP6_RPL_SECURE)
+    {
+        guint8 kim, lvl;
+
+        /* Flags */
+        ti = proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_secure_flag, tvb, rpl_offset, 1, FALSE);
+        flag_tree = proto_item_add_subtree(ti, ett_icmpv6_flag_secure);
+        proto_tree_add_item(flag_tree, hf_icmpv6_rpl_secure_flag_t, tvb, rpl_offset, 1, FALSE);    
+        proto_tree_add_item(flag_tree, hf_icmpv6_rpl_secure_flag_rsv, tvb, rpl_offset, 1, FALSE);   
+        rpl_offset += 1;
+
+        /* Algorithm */
+        ti = proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_secure_algorithm, tvb, rpl_offset, 1, FALSE);
+        flag_tree = proto_item_add_subtree(ti, ett_icmpv6_flag_secure);
+        proto_tree_add_item(flag_tree, hf_icmpv6_rpl_secure_algorithm_encryption, tvb, rpl_offset, 1, FALSE);    
+        proto_tree_add_item(flag_tree, hf_icmpv6_rpl_secure_algorithm_signature, tvb, rpl_offset, 1, FALSE);   
+        rpl_offset += 1;
+
+        /* KIM & LVL */ 
+        ti = proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_secure_flag, tvb, rpl_offset, 1, FALSE);
+        flag_tree = proto_item_add_subtree(ti, ett_icmpv6_flag_secure);
+        proto_tree_add_item(flag_tree, hf_icmpv6_rpl_secure_kim, tvb, rpl_offset, 1, FALSE);    
+        proto_tree_add_item(flag_tree, hf_icmpv6_rpl_secure_lvl, tvb, rpl_offset, 1, FALSE);  
+        proto_tree_add_item(flag_tree, hf_icmpv6_rpl_secure_rsv, tvb, rpl_offset, 1, FALSE); 
+        kim = tvb_get_guint8(tvb, rpl_offset) & RPL_SECURE_KIM >> 6;
+        lvl = tvb_get_guint8(tvb, rpl_offset) & RPL_SECURE_LVL;  
+        rpl_offset += 1;
+
+        /* Flags */
+        proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_secure_flag, tvb, rpl_offset, 1, FALSE);
+        rpl_offset += 1;
+
+        /* Counter */
+        proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_secure_counter, tvb, rpl_offset, 4, FALSE);
+        rpl_offset += 4;
+
+        /*  Key Identifier */
+        switch(kim){
+            case 0:
+            {
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_secure_key_index, tvb, rpl_offset, 1, FALSE);
+                rpl_offset += 1;
+                break;
+            }
+            case 1:
+            {
+                /* No Key Identifier */
+                break;
+            }
+            case 2:
+            {
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_secure_key_source, tvb, rpl_offset, 8, FALSE);
+                rpl_offset += 8;
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_secure_key_index, tvb, rpl_offset, 1, FALSE);
+                rpl_offset += 1;
+                break;
+            }
+            case 3:
+            {
+                if(lvl == 1 || lvl == 3)
+                {
+                    proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_secure_key_source, tvb, rpl_offset, 8, FALSE);
+                    rpl_offset += 8;
+                    proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_secure_key_index, tvb, rpl_offset, 1, FALSE);
+                    rpl_offset += 1;
+                }
+                break;
+            }
+
+        }
+
+    }
+    switch(icmp6_code){
+        case ICMP6_RPL_DIS: /* DODAG Information Solicitation (0) */
+        case ICMP6_RPL_SDIS: /* Secure DODAG Information Solicitation (128) */
+        {
+            /* Flags */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_dis_flag, tvb, rpl_offset, 1, FALSE);
+            rpl_offset += 1;
+
+            /* Reserved */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, rpl_offset, 1, FALSE);
+            rpl_offset += 1;
+
+            /* RPL Options */
+            dissect_icmpv6_rpl_opt(tvb, rpl_offset, pinfo, icmp6_tree);
+            break;
+        }
+        case ICMP6_RPL_DIO: /* DODAG Information Object (1) */
+        case ICMP6_RPL_SDIO: /* Secure DODAG Information Object (129) */
+        {
+            /* RPLInstanceID */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_dio_instance, tvb, rpl_offset, 1, FALSE);
+            rpl_offset += 1;
+
+            /* Version Number */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_dio_version, tvb, rpl_offset, 1, FALSE);
+            rpl_offset += 1;
+
+            /* Rank */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_dio_rank, tvb, rpl_offset, 2, FALSE);
+            rpl_offset += 2;
+
+            /* Flags */
+            ti = proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_dio_flag, tvb, rpl_offset, 1, FALSE);
+            flag_tree = proto_item_add_subtree(ti, ett_icmpv6_flag_rpl_dio);
+            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_dio_flag_g, tvb, rpl_offset, 1, FALSE);
+            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_dio_flag_0, tvb, rpl_offset, 1, FALSE);
+            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_dio_flag_mop, tvb, rpl_offset, 1, FALSE);
+            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_dio_flag_prf, tvb, rpl_offset, 1, FALSE);
+            rpl_offset += 1;
+
+            /* Destination Advertisement Trigger Sequence Number (DTSN) */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_dio_dtsn, tvb, rpl_offset, 1, FALSE);
+            rpl_offset += 1;
+
+            /* Flags */ 
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_dio_flag, tvb, rpl_offset, 1, FALSE);
+            rpl_offset += 1;
+
+            /* Reserved */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, rpl_offset, 1, FALSE);
+            rpl_offset += 1;
+
+            /* DODAGID */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_dio_dagid, tvb, rpl_offset, 16, FALSE);
+            rpl_offset += 16;
+
+            /* RPL Options */
+            dissect_icmpv6_rpl_opt(tvb, rpl_offset, pinfo, icmp6_tree);
+            break;
+        }
+        case ICMP6_RPL_DAO: /* Destination Advertisement Object (2) */
+        case ICMP6_RPL_SDAO: /* Secure Destination Advertisement Object (130) */
+        {
+            guint8 flags;
+
+            /* DAO Instance */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_dao_instance, tvb, rpl_offset, 1, FALSE);
+            rpl_offset += 1;
+
+            /* Flags */
+            ti = proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_dao_flag, tvb, rpl_offset, 1, FALSE);
+            flag_tree = proto_item_add_subtree(ti, ett_icmpv6_flag_rpl_dao);
+            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_dao_flag_k, tvb, rpl_offset, 1, FALSE);
+            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_dao_flag_d, tvb, rpl_offset, 1, FALSE);
+            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_dao_flag_rsv, tvb, rpl_offset, 1, FALSE);
+            flags = tvb_get_guint8(tvb, rpl_offset);
+            rpl_offset += 1;
+
+            /* Reserved */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, rpl_offset, 1, FALSE);
+            rpl_offset += 1;
+
+            /* Sequence */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_dao_sequence, tvb, rpl_offset, 1, FALSE);
+            rpl_offset += 1;
+
+            /* DODAGID */
+            if(flags & RPL_DAO_FLAG_D)
+            {
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_dao_dodagid, tvb, rpl_offset, 16, FALSE);
+                rpl_offset += 16;
+            }
+            /* Options */
+            dissect_icmpv6_rpl_opt(tvb, rpl_offset, pinfo, icmp6_tree);
+            break;
+        }
+        case ICMP6_RPL_DAOACK: /* Destination Advertisement Object Acknowledgment (3) */
+        case ICMP6_RPL_SDAOACK: /* Secure Destination Advertisement Object Acknowledgment (131) */
+        {
+            guint8 flags;
+
+            /* DAO Instance */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_daoack_instance, tvb, rpl_offset, 1, FALSE);
+            rpl_offset += 1;
+
+            /* Flags */
+            ti = proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_daoack_flag, tvb, rpl_offset, 1, FALSE);
+            flag_tree = proto_item_add_subtree(ti, ett_icmpv6_flag_rpl_daoack);
+            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_daoack_flag_d, tvb, rpl_offset, 1, FALSE);
+            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_daoack_flag_rsv, tvb, rpl_offset, 1, FALSE);
+            flags = tvb_get_guint8(tvb, rpl_offset);
+            rpl_offset += 1;
+
+            /* DAO Sequence */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_daoack_sequence, tvb, rpl_offset, 1, FALSE);
+            rpl_offset += 1;
+
+            /* Status */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_daoack_status, tvb, rpl_offset, 1, FALSE);
+            rpl_offset += 1;
+
+            /* DODAGID */
+            if(flags & RPL_DAOACK_FLAG_D)
+            {
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_daoack_dodagid, tvb, rpl_offset, 16, FALSE);
+            }
+
+            /* Options */
+            dissect_icmpv6_rpl_opt(tvb, rpl_offset, pinfo, icmp6_tree);
+            break;
+        }
+       case ICMP6_RPL_CC:
+       {
+            /* CC Instance */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_cc_instance, tvb, rpl_offset, 1, FALSE);
+            rpl_offset += 1;
+
+            /* Flags */
+            ti = proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_cc_flag, tvb, rpl_offset, 1, FALSE);
+            flag_tree = proto_item_add_subtree(ti, ett_icmpv6_flag_rpl_cc);
+            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_cc_flag_r, tvb, rpl_offset, 1, FALSE);
+            proto_tree_add_item(flag_tree, hf_icmpv6_rpl_cc_flag_rsv, tvb, rpl_offset, 1, FALSE);
+            rpl_offset += 1;
+
+            /* CC Nonce */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_cc_nonce, tvb, rpl_offset, 2, FALSE);
+            rpl_offset += 2;
+
+            /* DODAGID */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_cc_dodagid, tvb, rpl_offset, 16, FALSE);
+            rpl_offset += 16;
+
+            /* Destination Counter */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_cc_destination_counter, tvb, rpl_offset, 4, FALSE);
+            rpl_offset += 4; 
+
+            /* Options */
+            dissect_icmpv6_rpl_opt(tvb, rpl_offset, pinfo, icmp6_tree);
+            break;
+       }
+        
+    }
+}
+/* RFC 4620 - IPv6 Node Information Queries */
 
 static void
-dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint8 icmp6_type, guint8 icmp6_code)
+dissect_nodeinfo(tvbuff_t *tvb, int ni_offset, packet_info *pinfo _U_, proto_tree *tree, guint8 icmp6_type, guint8 icmp6_code)
 {
     proto_tree *flag_tree;
     proto_item *ti;
     guint16 qtype;
-    int ni_offset = offset + 4;
 
     /* Qtype */
     proto_tree_add_item(tree, hf_icmpv6_ni_qtype, tvb, ni_offset, 2, FALSE);
@@ -1980,7 +2458,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *
 
     /* Flags */
     ti = proto_tree_add_item(tree, hf_icmpv6_ni_flag, tvb, ni_offset, 2, FALSE);
-    flag_tree = proto_item_add_subtree(ti, ett_icmpv6flag);
+    flag_tree = proto_item_add_subtree(ti, ett_icmpv6_flag_ni);
     proto_tree_add_item(flag_tree, hf_icmpv6_ni_flag_g, tvb, ni_offset, 2, FALSE);
     proto_tree_add_item(flag_tree, hf_icmpv6_ni_flag_s, tvb, ni_offset, 2, FALSE);
     proto_tree_add_item(flag_tree, hf_icmpv6_ni_flag_l, tvb, ni_offset, 2, FALSE);
@@ -2071,15 +2549,13 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *
         }
     }
 }
-/*
- * RFC 2894 - Router Renumbering for IPv6
-*/
+/* RFC 2894 - Router Renumbering for IPv6 */
+
 static void
-dissect_rrenum(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint8 icmp6_type _U_, guint8 icmp6_code)
+dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo _U_, proto_tree *tree, guint8 icmp6_type _U_, guint8 icmp6_code)
 {
     proto_tree *flag_tree, *mp_tree, *up_tree, *rm_tree;
     proto_item *ti, *ti_mp, *ti_up, *ti_rm;
-    int rr_offset = offset + 4;
 
     /* Sequence Number */
     proto_tree_add_item(tree, hf_icmpv6_rr_sequencenumber, tvb, rr_offset, 4, FALSE);
@@ -2091,7 +2567,7 @@ dissect_rrenum(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
 
     /* Flags */
     ti = proto_tree_add_item(tree, hf_icmpv6_rr_flag, tvb, rr_offset, 1, FALSE);
-    flag_tree = proto_item_add_subtree(ti, ett_icmpv6flag);
+    flag_tree = proto_item_add_subtree(ti, ett_icmpv6_flag_rr);
     proto_tree_add_item(flag_tree, hf_icmpv6_rr_flag_t, tvb, rr_offset, 1, FALSE);
     proto_tree_add_item(flag_tree, hf_icmpv6_rr_flag_r, tvb, rr_offset, 1, FALSE);
     proto_tree_add_item(flag_tree, hf_icmpv6_rr_flag_a, tvb, rr_offset, 1, FALSE);
@@ -2116,10 +2592,9 @@ dissect_rrenum(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
     if(icmp6_code == ICMP6_ROUTER_RENUMBERING_COMMAND){
         /* Match-Prefix Part */
         guint8 opcode, oplength, matchlen, minlen, maxlen;
-        struct e_in6_addr matchprefix;
 
         ti_mp = proto_tree_add_item(tree, hf_icmpv6_rr_pco_mp_part, tvb, rr_offset, 24, FALSE);
-        mp_tree = proto_item_add_subtree(ti_mp, ett_icmpv6opt);
+        mp_tree = proto_item_add_subtree(ti_mp, ett_icmpv6_rr_mp);
 
         /* OpCode */
         proto_tree_add_item(mp_tree, hf_icmpv6_rr_pco_mp_opcode, tvb, rr_offset, 1, FALSE);
@@ -2156,19 +2631,17 @@ dissect_rrenum(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
 
         /* Match Prefix  */
         proto_tree_add_item(mp_tree, hf_icmpv6_rr_pco_mp_matchprefix, tvb, rr_offset, 16, FALSE);
-        tvb_get_ipv6(tvb, rr_offset, &matchprefix);
         rr_offset += 16; 
 
         /* Add Info (Prefix, Length...) to Match Prefix Part label */
-        proto_item_append_text(ti_mp, ": %s %s/%u (%u-%u)", val_to_str(opcode, rr_pco_mp_opcode_val, "Unknown %d"), ip6_to_str(&matchprefix), matchlen, minlen, maxlen);
+        proto_item_append_text(ti_mp, ": %s %s/%u (%u-%u)", val_to_str(opcode, rr_pco_mp_opcode_val, "Unknown %d"), tvb_ip6_to_str(tvb, rr_offset), matchlen, minlen, maxlen);
 
         while ((int)tvb_reported_length(tvb) > rr_offset) {   
             /* Use-Prefix Part */
             guint8 uselen, keeplen;
-            struct e_in6_addr useprefix;
 
             ti_up = proto_tree_add_item(tree, hf_icmpv6_rr_pco_up_part, tvb, rr_offset, 32, FALSE);
-            up_tree = proto_item_add_subtree(ti_up, ett_icmpv6opt);
+            up_tree = proto_item_add_subtree(ti_up, ett_icmpv6_rr_up);
 
             /* UseLen */
             proto_tree_add_item(up_tree, hf_icmpv6_rr_pco_up_uselen, tvb, rr_offset, 1, FALSE);
@@ -2182,7 +2655,7 @@ dissect_rrenum(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
 
             /* FlagMask */
             ti = proto_tree_add_item(up_tree, hf_icmpv6_rr_pco_up_flagmask, tvb, rr_offset, 1, FALSE);
-            flag_tree = proto_item_add_subtree(ti, ett_icmpv6flag);
+            flag_tree = proto_item_add_subtree(ti, ett_icmpv6_rr_up_flag_mask);
             proto_tree_add_item(flag_tree, hf_icmpv6_rr_pco_up_flagmask_l, tvb, rr_offset, 1, FALSE);
             proto_tree_add_item(flag_tree, hf_icmpv6_rr_pco_up_flagmask_a, tvb, rr_offset, 1, FALSE);
             proto_tree_add_item(flag_tree, hf_icmpv6_rr_pco_up_flagmask_reserved, tvb, rr_offset, 1, FALSE);
@@ -2190,7 +2663,7 @@ dissect_rrenum(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
 
             /* RaFlags */
             ti = proto_tree_add_item(up_tree, hf_icmpv6_rr_pco_up_raflags, tvb, rr_offset, 1, FALSE);
-            flag_tree = proto_item_add_subtree(ti, ett_icmpv6flag);
+            flag_tree = proto_item_add_subtree(ti, ett_icmpv6_rr_up_flag_ra);
             proto_tree_add_item(flag_tree, hf_icmpv6_rr_pco_up_raflags_l, tvb, rr_offset, 1, FALSE);
             proto_tree_add_item(flag_tree, hf_icmpv6_rr_pco_up_raflags_a, tvb, rr_offset, 1, FALSE);
             proto_tree_add_item(flag_tree, hf_icmpv6_rr_pco_up_raflags_reserved, tvb, rr_offset, 1, FALSE);
@@ -2220,7 +2693,7 @@ dissect_rrenum(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
 
             /* Flags */
             ti = proto_tree_add_item(up_tree, hf_icmpv6_rr_pco_up_flag, tvb, rr_offset, 4, FALSE);
-            flag_tree = proto_item_add_subtree(ti, ett_icmpv6flag);
+            flag_tree = proto_item_add_subtree(ti, ett_icmpv6_rr_up_flag);
             proto_tree_add_item(flag_tree, hf_icmpv6_rr_pco_up_flag_v, tvb, rr_offset, 4, FALSE);
             proto_tree_add_item(flag_tree, hf_icmpv6_rr_pco_up_flag_p, tvb, rr_offset, 4, FALSE);
             proto_tree_add_item(flag_tree, hf_icmpv6_rr_pco_up_flag_reserved, tvb, rr_offset, 4, FALSE);
@@ -2228,26 +2701,24 @@ dissect_rrenum(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
 
             /* UsePrefix */
             proto_tree_add_item(up_tree, hf_icmpv6_rr_pco_up_useprefix, tvb, rr_offset, 16, FALSE);
-            tvb_get_ipv6(tvb, rr_offset, &useprefix);
             rr_offset += 16;      
 
             /* Add Info (Prefix, Length...) to Use Prefix Part label */
-            proto_item_append_text(ti_up, ": %s/%u (keep %u)", ip6_to_str(&useprefix), uselen, keeplen);
+            proto_item_append_text(ti_up, ": %s/%u (keep %u)", tvb_ip6_to_str(tvb, rr_offset), uselen, keeplen);
         }
         
     }else if(icmp6_code == ICMP6_ROUTER_RENUMBERING_RESULT){
         while ((int)tvb_reported_length(tvb) > rr_offset) {   
         guint8 matchlen;
-        guint32 interfaceindex;
-        struct e_in6_addr matchedprefix;     
+        guint32 interfaceindex; 
         /* Result Message */
 
         ti_rm = proto_tree_add_item(tree, hf_icmpv6_rr_rm, tvb, rr_offset, 24, FALSE);
-        rm_tree = proto_item_add_subtree(ti_rm, ett_icmpv6opt);
+        rm_tree = proto_item_add_subtree(ti_rm, ett_icmpv6_rr_rm);
 
         /* Flags */
         ti = proto_tree_add_item(rm_tree, hf_icmpv6_rr_rm_flag, tvb, rr_offset, 2, FALSE);
-        flag_tree = proto_item_add_subtree(ti, ett_icmpv6flag);
+        flag_tree = proto_item_add_subtree(ti, ett_icmpv6_rr_rm_flag);
         proto_tree_add_item(flag_tree, hf_icmpv6_rr_rm_flag_b, tvb, rr_offset, 2, FALSE);
         proto_tree_add_item(flag_tree, hf_icmpv6_rr_rm_flag_f, tvb, rr_offset, 2, FALSE);
         proto_tree_add_item(flag_tree, hf_icmpv6_rr_rm_flag_reserved, tvb, rr_offset, 2, FALSE);
@@ -2269,11 +2740,10 @@ dissect_rrenum(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
 
         /* MatchedPrefix */ 
         proto_tree_add_item(rm_tree, hf_icmpv6_rr_rm_matchedprefix, tvb, rr_offset, 16, FALSE);
-        tvb_get_ipv6(tvb, rr_offset, &matchedprefix);
         rr_offset +=16;
 
         /* Add Info (Prefix, Length...) to Use Resultat Message label */
-        proto_item_append_text(ti_rm, ": %s/%u (interface %u)", ip6_to_str(&matchedprefix), matchlen, interfaceindex);
+        proto_item_append_text(ti_rm, ": %s/%u (interface %u)", tvb_ip6_to_str(tvb, rr_offset), matchlen, interfaceindex);
         }
     }
 
@@ -2287,6 +2757,7 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tre
     proto_item *ti_mar;
     guint16 nb_mcast_records;
     int mldr_offset = offset;
+
     /* Reserved */
     proto_tree_add_item(tree, hf_icmpv6_reserved, tvb, mldr_offset, 2, FALSE );
     mldr_offset += 2;
@@ -2303,7 +2774,7 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tre
         struct e_in6_addr multicast_address;
 
         ti_mar = proto_tree_add_item(tree, hf_icmpv6_mldr_mar, tvb, mldr_offset, -1, FALSE);
-        mar_tree = proto_item_add_subtree(ti_mar, ett_icmpv6mar);
+        mar_tree = proto_item_add_subtree(ti_mar, ett_icmpv6_mar);
         
         /* Record Type */
         proto_tree_add_item(mar_tree, hf_icmpv6_mldr_mar_record_type, tvb, mldr_offset, 1, FALSE);
@@ -2349,197 +2820,88 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tre
 static void
 dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree *icmp6_tree, *field_tree, *flag_tree;
-    proto_item *ti, *hidden_item, *tf, *ti_flag = NULL;
-    struct icmp6_hdr icmp6_hdr, *dp;
-    const char *codename, *typename;
-    const char *colcodename, *coltypename;
-    int len;
+    proto_tree *icmp6_tree = NULL, *flag_tree = NULL;
+    proto_item *ti = NULL, *hidden_item, *checksum_item, *code_item= NULL, *ti_flag = NULL;
+    const char *code_name = NULL;
     guint length, reported_length;
     vec_t cksum_vec[4];
     guint32 phdr[2];
     guint16 cksum, computed_cksum;
     int offset;
     tvbuff_t *next_tvb;
+    guint8 icmp6_type, icmp6_code;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICMPv6");
     col_clear(pinfo->cinfo, COL_INFO);
 
     offset = 0;
-    tvb_memcpy(tvb, (guint8 *)&icmp6_hdr, offset, sizeof icmp6_hdr);
-    dp = &icmp6_hdr;
-    typename = coltypename = val_to_str (dp->icmp6_type, icmpv6_type_str, "Unknown");
-    codename = colcodename = NULL;
-
-    len = sizeof(*dp);
-    switch (dp->icmp6_type) {
-    case ICMP6_DST_UNREACH:
-        codename = colcodename = val_to_str (dp->icmp6_code, icmpv6_unreach_code_str, "Unknown");
-        break;
-    case ICMP6_TIME_EXCEEDED:
-        codename = colcodename = val_to_str (dp->icmp6_code, icmpv6_timeex_code_str, "Unknown");
-        break;
-    case ICMP6_PARAM_PROB:
-        codename = colcodename = val_to_str (dp->icmp6_code, icmpv6_paramprob_code_str, "Unknown");
-        break;
-    case ND_ROUTER_SOLICIT:
-        len = sizeof(struct nd_router_solicit);
-        break;
-    case ND_ROUTER_ADVERT:
-        len = sizeof(struct nd_router_advert);
-        break;
-    case ND_NEIGHBOR_SOLICIT:
-        len = sizeof(struct nd_neighbor_solicit);
-        break;
-    case ND_NEIGHBOR_ADVERT:
-        len = sizeof(struct nd_neighbor_advert);
-        break;
-    case ND_REDIRECT:
-        len = sizeof(struct nd_redirect);
-        break;
-    case ICMP6_ROUTER_RENUMBERING:
-        codename = colcodename = val_to_str (dp->icmp6_code, icmpv6_router_renum_code_str, "Unknown");
-        len = 16;
-        break;
-    case ICMP6_NI_QUERY:
-    case ICMP6_NI_REPLY:
-    {
-        struct icmp6_nodeinfo icmp6_nodeinfo, *ni;
-
-        ni = &icmp6_nodeinfo;
-        tvb_memcpy(tvb, (guint8 *)ni, offset, sizeof *ni);
-
-        if (ni->ni_type == ICMP6_NI_QUERY) {
-            switch (ni->ni_code) {
-            case ICMP6_NI_SUBJ_IPV6:
-                codename = "Query subject = IPv6 addresses";
-                break;
-            case ICMP6_NI_SUBJ_FQDN:
-                if (tvb_bytes_exist(tvb, offset, sizeof(*ni)))
-                    codename = "Query subject = DNS name";
-                else
-                    codename = "Query subject = empty";
-                break;
-            case ICMP6_NI_SUBJ_IPV4:
-                codename = "Query subject = IPv4 addresses";
-                break;
-            default:
-                codename = "Unknown";
-                break;
-            }
-        } else {
-            switch (ni->ni_code) {
-            case ICMP6_NI_SUCCESS:
-                codename = "Successful";
-                break;
-            case ICMP6_NI_REFUSED:
-                codename = "Refused";
-                break;
-            case ICMP6_NI_UNKNOWN:
-                codename = "Unknown query type";
-                break;
-            default:
-                codename = "Unknown";
-                break;
-            }
-        }
-        colcodename = val_to_str(pntohs(&ni->ni_qtype), ni_qtype_val, "Unknown");
-        len = sizeof(struct icmp6_nodeinfo);
-        break;
-    }
-    case ICMP6_ECHO_REQUEST:
-    case ICMP6_ECHO_REPLY:
-    case ICMP6_MEMBERSHIP_REPORT:
-    case ICMP6_MIP6_DHAAD_REQUEST:
-    case ICMP6_MIP6_DHAAD_REPLY:
-    case ICMP6_MIP6_MPS:
-    case ICMP6_MIP6_MPA:
-    case ICMP6_CERT_PATH_SOL:
-    case ICMP6_CERT_PATH_AD:
-    case ICMP6_MLDV2_REPORT:
-        codename = "Should always be zero";
-        break;
-    case ICMP6_EXPERIMENTAL_MOBILITY:
-        switch (dp->icmp6_data8[0]) {
-        case FMIP6_SUBTYPE_RTSOLPR:
-            typename = coltypename = "RtSolPr (ICMPv6 Experimental Mobility)";
-            codename = "Should always be zero";
-            break;
-        case FMIP6_SUBTYPE_PRRTADV:
-            typename = coltypename = "PrRtAdv (ICMPv6 Experimental Mobility)";
-            codename = val_to_str(dp->icmp6_code, names_fmip6_prrtadv_code, "Unknown");
-            break;
-        case FMIP6_SUBTYPE_HI:
-            typename = coltypename = "HI (ICMPv6 Experimental Mobility)";
-            codename = val_to_str(dp->icmp6_code, names_fmip6_hi_code, "Unknown");
-            break;
-        case FMIP6_SUBTYPE_HACK:
-            typename = coltypename = "HAck (ICMPv6 Experimental Mobility)";
-            codename = val_to_str(dp->icmp6_code, names_fmip6_hack_code, "Unknown");
-            break;
-        default:
-            codename = colcodename = "Unknown";
-            break;
-        } /* switch (dp->icmp6_data8[0]) */
-        break;
-    case ICMP6_RPL_CONTROL:
-        codename = colcodename = val_to_str (dp->icmp6_code, names_rpl_code, "Unknown");
-        break;
-    default:
-        codename = colcodename = "Unknown";
-        break;
-    } /* switch (dp->icmp6_type) */
-
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        char typebuf[256], codebuf[256];
-
-
-        if (pinfo->destport == 0x0dd8 && dp->icmp6_type == ICMP6_ECHO_REQUEST) {
-            /* RFC 4380
-             * 5.2.9. Direct IPv6 Connectivity Test
-             */
-            col_set_str(pinfo->cinfo, COL_PROTOCOL, "Teredo");
-            col_set_str(pinfo->cinfo, COL_INFO, "Direct IPv6 Connectivity Test");
-        } else {
-            if (coltypename && strcmp(coltypename, "Unknown") == 0) {
-                g_snprintf(typebuf, sizeof(typebuf), "Unknown (0x%02x)",
-                           dp->icmp6_type);
-                coltypename = typebuf;
-            }
-            if (colcodename && strcmp(colcodename, "Unknown") == 0) {
-                g_snprintf(codebuf, sizeof(codebuf), "Unknown (0x%02x)",
-                           dp->icmp6_code);
-                colcodename = codebuf;
-            }
-            if (colcodename) {
-                col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%s)", coltypename, colcodename);
-            } else {
-                col_add_str(pinfo->cinfo, COL_INFO, coltypename);
-            }
-        }
-    }
 
     if (tree) {
-        /* !!! specify length */
         ti = proto_tree_add_item(tree, proto_icmpv6, tvb, offset, -1, FALSE);
         icmp6_tree = proto_item_add_subtree(ti, ett_icmpv6);
 
-        proto_tree_add_uint_format(icmp6_tree, hf_icmpv6_type, tvb,
-                                   offset + offsetof(struct icmp6_hdr, icmp6_type), 1,
-                                   dp->icmp6_type,
-                                   "Type: %u (%s)", dp->icmp6_type, typename);
-        if (codename) {
-            proto_tree_add_uint_format(icmp6_tree, hf_icmpv6_code, tvb,
-                                       offset + offsetof(struct icmp6_hdr, icmp6_code), 1,
-                                       dp->icmp6_code,
-                                       "Code: %u (%s)", dp->icmp6_code, codename);
-        } else {
-            proto_tree_add_uint_format(icmp6_tree, hf_icmpv6_code, tvb,
-                                       offset + offsetof(struct icmp6_hdr, icmp6_code), 1,
-                                       dp->icmp6_code,
-                                       "Code: %u", dp->icmp6_code);
+        /* Type */ 
+        proto_tree_add_item(icmp6_tree, hf_icmpv6_type, tvb, offset, 1, FALSE);
+    }
+    icmp6_type = tvb_get_guint8(tvb, offset);
+    offset += 1;
+
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(icmp6_type, icmpv6_type_val, "Unknown (%d)"));
+
+    if (tree) {
+        /* Code */ 
+        code_item = proto_tree_add_item(icmp6_tree, hf_icmpv6_code, tvb, offset, 1, FALSE);
+    }
+
+    icmp6_code = tvb_get_guint8(tvb, offset);
+    offset += 1;
+
+    switch (icmp6_type) {
+    case ICMP6_DST_UNREACH:
+        code_name = val_to_str(icmp6_code, icmpv6_unreach_code_val, "Unknown");
+        break;
+    case ICMP6_TIME_EXCEEDED:
+        code_name = val_to_str(icmp6_code, icmpv6_timeex_code_val, "Unknown (%d)");
+        break;
+    case ICMP6_PARAM_PROB:
+        code_name = val_to_str(icmp6_code, icmpv6_paramprob_code_val, "Unknown (%d)");
+        break;
+    case ICMP6_ROUTER_RENUMBERING:
+        code_name = val_to_str(icmp6_code, icmpv6_rr_code_val, "Unknown (%d)");
+        break;
+    case ICMP6_NI_QUERY:
+        code_name = val_to_str(icmp6_code, ni_query_code_val, "Unknown (%d)");
+        break;
+    case ICMP6_NI_REPLY:
+        code_name = val_to_str(icmp6_code, ni_reply_code_val, "Unknown (%d)");
+        break;
+    case ICMP6_RPL_CONTROL:
+        code_name = val_to_str(icmp6_code, rpl_code_val, "Unknown (%d)");
+        break;
+    }
+
+    if(code_name)
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", code_name);
+    }
+
+    /* RFC 4380 5.2.9. Direct IPv6 Connectivity Test  */
+    if (pinfo->destport == 0x0dd8 && icmp6_type == ICMP6_ECHO_REQUEST) {
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "Teredo");
+        col_set_str(pinfo->cinfo, COL_INFO, "Direct IPv6 Connectivity Test");
+    }
+
+    if (tree) {
+
+        if(code_name)
+        {
+            proto_item_append_text(code_item, " (%s)", code_name);
         }
-        cksum = (guint16)g_htons(dp->icmp6_cksum);
+
+        /* Checksum */
+        checksum_item = proto_tree_add_item(icmp6_tree, hf_icmpv6_checksum, tvb, offset, 2, FALSE);
+
+        cksum = tvb_get_ntohs(tvb, offset);
         length = tvb_length(tvb);
         reported_length = tvb_reported_length(tvb);
         if (!pinfo->fragmented && length >= reported_length) {
@@ -2556,85 +2918,80 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             phdr[1] = g_htonl(IP_PROTO_ICMPV6);
             cksum_vec[2].len = 8;
             cksum_vec[3].len = tvb_reported_length(tvb);
-            cksum_vec[3].ptr = tvb_get_ptr(tvb, offset, cksum_vec[3].len);
+            cksum_vec[3].ptr = tvb_get_ptr(tvb, 0, cksum_vec[3].len);
             computed_cksum = in_cksum(cksum_vec, 4);
+
             if (computed_cksum == 0) {
-                proto_tree_add_uint_format(icmp6_tree, hf_icmpv6_checksum,
-                                           tvb,
-                                           offset + offsetof(struct icmp6_hdr, icmp6_cksum), 2,
-                                           cksum,
-                                           "Checksum: 0x%04x [correct]", cksum);
+                proto_item_append_text(checksum_item, " [correct]");
             } else {
-                hidden_item = proto_tree_add_boolean(icmp6_tree, hf_icmpv6_checksum_bad,
-                                                     tvb,
-                                                     offset + offsetof(struct icmp6_hdr, icmp6_cksum), 2,
-                                                     TRUE);
-                PROTO_ITEM_SET_HIDDEN(hidden_item);
-                proto_tree_add_uint_format(icmp6_tree, hf_icmpv6_checksum,
-                                           tvb,
-                                           offset + offsetof(struct icmp6_hdr, icmp6_cksum), 2,
-                                           cksum,
-                                           "Checksum: 0x%04x [incorrect, should be 0x%04x]",
-                                           cksum, in_cksum_shouldbe(cksum, computed_cksum));
+                hidden_item = proto_tree_add_boolean(icmp6_tree, hf_icmpv6_checksum_bad, tvb, offset, 2, TRUE);
+
+                PROTO_ITEM_SET_GENERATED(hidden_item);
+                proto_item_append_text(checksum_item, " [incorrect, should be 0x%04x]", in_cksum_shouldbe(cksum, computed_cksum));
+                expert_add_info_format(pinfo, checksum_item, PI_CHECKSUM, PI_WARN, "ICMPv6 Checksum Incorrect, should be 0x%04x",in_cksum_shouldbe(cksum, computed_cksum));
             }
-        } else {
-            proto_tree_add_uint(icmp6_tree, hf_icmpv6_checksum, tvb,
-                                offset + offsetof(struct icmp6_hdr, icmp6_cksum), 2,
-                                cksum);
         }
+            
+        offset +=2;
 
-#define ICMP6_DATA_OFFSET 4
-#define ICMP6_SEQ_OFFSET 6
         /* decode... */
-        switch (dp->icmp6_type) {
-        case ICMP6_DST_UNREACH:
-        case ICMP6_TIME_EXCEEDED:
-            dissect_contained_icmpv6(tvb, offset + sizeof(*dp), pinfo,
-                                     icmp6_tree);
-            break;
-        case ICMP6_PACKET_TOO_BIG:
-            proto_tree_add_text(icmp6_tree, tvb,
-                                offset + ICMP6_DATA_OFFSET, 4,
-                                "MTU: %u", pntohl(&dp->icmp6_mtu));
-            dissect_contained_icmpv6(tvb, offset + sizeof(*dp), pinfo,
-                                     icmp6_tree);
-            break;
-        case ICMP6_PARAM_PROB:
-            proto_tree_add_text(icmp6_tree, tvb,
-                                offset + ICMP6_DATA_OFFSET, 4,
-                                "Problem pointer: 0x%04x", pntohl(&dp->icmp6_pptr));
-            dissect_contained_icmpv6(tvb, offset + sizeof(*dp), pinfo,
-                                     icmp6_tree);
-            break;
-        case ICMP6_ECHO_REQUEST:
-        case ICMP6_ECHO_REPLY:
-            proto_tree_add_text(icmp6_tree, tvb,
-                                offset + ICMP6_DATA_OFFSET, 2,
-                                "ID: 0x%04x", (guint16)g_ntohs(dp->icmp6_id));
-            proto_tree_add_text(icmp6_tree, tvb,
-                                offset + ICMP6_SEQ_OFFSET, 2,
-                                "Sequence: %u", (guint16)g_ntohs(dp->icmp6_seq));
-            col_append_fstr(pinfo->cinfo, COL_INFO,
-                            " id=0x%04x, seq=%u",
-                            g_ntohs(dp->icmp6_id), g_ntohs(dp->icmp6_seq));
+        switch (icmp6_type) {
+        case ICMP6_DST_UNREACH: /* Destination Unreachable (1) */
+        case ICMP6_TIME_EXCEEDED: /* Time Exceeded (3) */
+            /* Reserved */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 4, FALSE);
+            offset += 4;
 
-            if (pinfo->destport == 0x0dd8 && dp->icmp6_type == ICMP6_ECHO_REQUEST) {
+            dissect_contained_icmpv6(tvb, offset, pinfo, icmp6_tree);
+            break;
+        case ICMP6_PACKET_TOO_BIG: /* Packet Too Big (2) */
+            /* MTU */ 
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_mtu, tvb, offset, 4, FALSE);
+            offset += 4;
+
+            dissect_contained_icmpv6(tvb, offset, pinfo, icmp6_tree);
+            break;
+        case ICMP6_PARAM_PROB: /* Parameter Problem (4) */
+            /* MTU */ 
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_pointer, tvb, offset, 4, FALSE);
+            offset += 4;
+
+            dissect_contained_icmpv6(tvb, offset, pinfo, icmp6_tree);
+            break;
+        case ICMP6_ECHO_REQUEST: /* Echo Request (128) */
+        case ICMP6_ECHO_REPLY:  /* Echo Reply (129) */
+        {
+            guint16 identifier, sequence;
+            /* Identifier */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_echo_identifier, tvb, offset, 2, FALSE);
+            identifier = tvb_get_ntohs(tvb, offset);
+            offset += 2;
+            
+            /* Sequence Number */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_echo_sequence_number, tvb, offset, 2, FALSE);
+            sequence = tvb_get_ntohs(tvb, offset);
+            offset += 2;
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, " id=0x%04x, seq=%u", identifier, sequence);
+
+            if (pinfo->destport == 0x0dd8 && icmp6_type == ICMP6_ECHO_REQUEST) {
                 /* RFC 4380
                  * 5.2.9. Direct IPv6 Connectivity Test
                  */
-                proto_tree_add_text(icmp6_tree, tvb, offset + ICMP6_SEQ_OFFSET + 2, 4,
-                                    "Nonce: 0x%08x", tvb_get_ntohl(tvb, offset + ICMP6_SEQ_OFFSET + 2));
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_nonce, tvb, offset, 4, FALSE);
+                offset += 4;
             } else {
-                next_tvb = tvb_new_subset(tvb, offset + sizeof(*dp), -1, -1);
+                next_tvb = tvb_new_subset(tvb, offset, -1, -1);
                 call_dissector(data_handle,next_tvb, pinfo, icmp6_tree);
             }
             break;
-        case ICMP6_MEMBERSHIP_QUERY:
-        case ICMP6_MEMBERSHIP_REPORT:
-        case ICMP6_MEMBERSHIP_REDUCTION:
-            offset += 4;
+        }
+        case ICMP6_MEMBERSHIP_QUERY: /* Multicast Listener Query (130) */
+        case ICMP6_MEMBERSHIP_REPORT: /* Multicast Listener Report (131) */
+        case ICMP6_MEMBERSHIP_REDUCTION: /* Multicast Listener Done (132) */
+        {
             /* It is MLDv2 packet ? (the min length for a MLDv2 packet is 28) */
-            if ((dp->icmp6_type == ICMP6_MEMBERSHIP_QUERY) && (length >= MLDV2_PACKET_MINLEN)) {
+            if ((icmp6_type == ICMP6_MEMBERSHIP_QUERY) && (length >= MLDV2_PACKET_MINLEN)) {
                 guint32 mrc;
                 guint16 qqi, i, nb_sources;
 
@@ -2656,7 +3013,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 /* Flag */
                 ti_flag = proto_tree_add_item(icmp6_tree, hf_icmpv6_mld_flag, tvb, offset, 1, FALSE);
-                flag_tree = proto_item_add_subtree(ti_flag, ett_icmpv6flag);
+                flag_tree = proto_item_add_subtree(ti_flag, ett_icmpv6_flag_mld);
                 proto_tree_add_item(flag_tree, hf_icmpv6_mld_flag_s, tvb, offset, 1, FALSE);
                 proto_tree_add_item(flag_tree, hf_icmpv6_mld_flag_qrv, tvb, offset, 1, FALSE);
                 proto_tree_add_item(flag_tree, hf_icmpv6_mld_flag_rsv, tvb, offset, 1, FALSE);
@@ -2695,128 +3052,94 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset += 16;     
             }
             break;
-        case ND_ROUTER_SOLICIT:
-            dissect_icmpv6ndopt(tvb, offset + sizeof(*dp), pinfo, icmp6_tree);
-            break;
-        case ICMP6_MLDV2_REPORT:
+        }
+        case ICMP6_ND_ROUTER_SOLICIT: /* Router Solicitation (133) */
         {
-            dissect_mldrv2( tvb, offset+4, pinfo, icmp6_tree );
+            /* Reserved */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 4, FALSE);
+            offset += 4;
+
+            /* Show options */     
+            dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree);
             break;
         }
-#define ND_RA_CURHOPLIMIT_OFFSET 4
-#define ND_RA_FLAGS_RESERVED_OFFSET 5
-#define ND_RA_ROUTER_LIFETIME_OFFSET 6
-        case ND_ROUTER_ADVERT:
+        case ICMP6_ND_ROUTER_ADVERT: /* Router Advertisement (134) */
         {
-            struct nd_router_advert nd_router_advert, *ra;
-            int flagoff;
-            guint32 ra_flags;
-
-            ra = &nd_router_advert;
-            tvb_memcpy(tvb, (guint8 *)ra, offset, sizeof *ra);
 
             /* Current hop limit */
-            proto_tree_add_uint(icmp6_tree, hf_icmpv6_ra_cur_hop_limit, tvb,
-                                offset + ND_RA_CURHOPLIMIT_OFFSET,
-                                1, ra->nd_ra_curhoplimit);
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_nd_ra_cur_hop_limit, tvb, offset, 1, FALSE);
+            offset += 1;
 
             /* Flags */
-            flagoff = offset + ND_RA_FLAGS_RESERVED_OFFSET;
-            ra_flags = tvb_get_guint8(tvb, flagoff);
-            tf = proto_tree_add_text(icmp6_tree, tvb, flagoff, 1, "Flags: 0x%02x", ra_flags);
-            field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
+            ti_flag = proto_tree_add_item(icmp6_tree, hf_icmpv6_nd_ra_flag, tvb, offset, 1, FALSE);
+            flag_tree = proto_item_add_subtree(ti_flag, ett_icmpv6_flag_ra);
 
-            proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-                                decode_boolean_bitfield(ra_flags,
-                                                        ND_RA_FLAG_MANAGED, 8, "Managed", "Not managed"));
-            proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-                                decode_boolean_bitfield(ra_flags,
-                                                        ND_RA_FLAG_OTHER, 8, "Other", "Not other"));
-            proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-                                decode_boolean_bitfield(ra_flags,
-                                                        ND_RA_FLAG_HOME_AGENT, 8,
-                                                        "Home Agent", "Not Home Agent"));
-            proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-                                decode_enumerated_bitfield(ra_flags, ND_RA_FLAG_RTPREF_MASK, 8,
-                                                           names_router_pref, "Router preference: %s"));
-            proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-                                decode_boolean_bitfield(ra_flags,
-                                                        ND_RA_FLAG_ND_PROXY, 8,
-                                                        "Proxied", "Not Proxied"));
+            proto_tree_add_item(flag_tree, hf_icmpv6_nd_ra_flag_m, tvb, offset, 1, FALSE);
+            proto_tree_add_item(flag_tree, hf_icmpv6_nd_ra_flag_o, tvb, offset, 1, FALSE);
+            proto_tree_add_item(flag_tree, hf_icmpv6_nd_ra_flag_h, tvb, offset, 1, FALSE);
+            proto_tree_add_item(flag_tree, hf_icmpv6_nd_ra_flag_prf, tvb, offset, 1, FALSE);
+            proto_tree_add_item(flag_tree, hf_icmpv6_nd_ra_flag_p, tvb, offset, 1, FALSE);
+            proto_tree_add_item(flag_tree, hf_icmpv6_nd_ra_flag_rsv, tvb, offset, 1, FALSE);
+            offset += 1;
 
             /* Router lifetime */
-            proto_tree_add_uint(icmp6_tree, hf_icmpv6_ra_router_lifetime, tvb,
-                                offset + ND_RA_ROUTER_LIFETIME_OFFSET,
-                                2, (guint16)g_ntohs(ra->nd_ra_router_lifetime));
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_nd_ra_router_lifetime, tvb, offset, 2, FALSE);
+            offset += 2;
 
             /* Reachable time */
-            proto_tree_add_uint(icmp6_tree, hf_icmpv6_ra_reachable_time, tvb,
-                                offset + offsetof(struct nd_router_advert, nd_ra_reachable), 4,
-                                pntohl(&ra->nd_ra_reachable));
+            proto_tree_add_uint(icmp6_tree, hf_icmpv6_nd_ra_reachable_time, tvb, offset, 4, FALSE);
+            offset += 4;
 
             /* Retrans timer */
-            proto_tree_add_uint(icmp6_tree, hf_icmpv6_ra_retrans_timer, tvb,
-                                offset + offsetof(struct nd_router_advert, nd_ra_retransmit), 4,
-                                pntohl(&ra->nd_ra_retransmit));
+            proto_tree_add_uint(icmp6_tree, hf_icmpv6_nd_ra_retrans_timer, tvb, offset, 4, FALSE);
+            offset += 4;
 
-            dissect_icmpv6ndopt(tvb, offset + sizeof(struct nd_router_advert), pinfo, icmp6_tree);
+            /* Show options */
+            dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree);
             break;
         }
-        case ND_NEIGHBOR_SOLICIT:
+        case ICMP6_ND_NEIGHBOR_SOLICIT: /* Neighbor Solicitation (135) */
         {
-            struct nd_neighbor_solicit nd_neighbor_solicit, *ns;
+            /* Reserved */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 4, FALSE);
+            offset += 4;
 
-            ns = &nd_neighbor_solicit;
-            tvb_memcpy(tvb, (guint8 *)ns, offset, sizeof *ns);
-            proto_tree_add_text(icmp6_tree, tvb, offset+4, 4, "Reserved: %d (Should always be zero)",
-                                tvb_get_ntohl (tvb, offset+4));
-            proto_tree_add_text(icmp6_tree, tvb,
-                                offset + offsetof(struct nd_neighbor_solicit, nd_ns_target), 16,
-                                "Target: %s (%s)",
-                                get_hostname6(&ns->nd_ns_target),
-                                ip6_to_str(&ns->nd_ns_target));
-            col_append_fstr(pinfo->cinfo, COL_INFO,
-                            " for %s", ip6_to_str(&ns->nd_ns_target));
+            /* Target Address */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_nd_ns_target_address, tvb, offset, 16, FALSE);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " for %s", tvb_ip6_to_str(tvb, offset));
 
-            dissect_icmpv6ndopt(tvb, offset + sizeof(*ns), pinfo, icmp6_tree);
+            offset += 16;
+
+            /* Show options */
+            dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree);
             break;
         }
-#define ND_NA_FLAGS_RESERVED_OFFSET 4
-        case ND_NEIGHBOR_ADVERT:
+        case ICMP6_ND_NEIGHBOR_ADVERT: /* Neighbor Advertisement (136) */
         {
-            int flagoff, targetoff;
             guint32 na_flags;
-            struct e_in6_addr na_target;
             emem_strbuf_t *flags_strbuf = ep_strbuf_new_label("");
 
-            flagoff = offset + ND_NA_FLAGS_RESERVED_OFFSET;
-            na_flags = tvb_get_ntohl(tvb, flagoff);
+            /* Flags */
+            ti_flag = proto_tree_add_item(icmp6_tree, hf_icmpv6_nd_na_flag, tvb, offset, 4, FALSE);
+            flag_tree = proto_item_add_subtree(ti_flag, ett_icmpv6_flag_na);
+            proto_tree_add_item(flag_tree, hf_icmpv6_nd_na_flag_r, tvb, offset, 4, FALSE);
+            proto_tree_add_item(flag_tree, hf_icmpv6_nd_na_flag_s, tvb, offset, 4, FALSE);
+            proto_tree_add_item(flag_tree, hf_icmpv6_nd_na_flag_o, tvb, offset, 4, FALSE);
+            proto_tree_add_item(flag_tree, hf_icmpv6_nd_na_flag_rsv, tvb, offset, 4, FALSE);
+            na_flags = tvb_get_ntohl(tvb, offset);
+            offset += 4;
 
-            tf = proto_tree_add_text(icmp6_tree, tvb, flagoff, 4, "Flags: 0x%08x", na_flags);
-            field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
-            proto_tree_add_text(field_tree, tvb, flagoff, 4, "%s",
-                                decode_boolean_bitfield(na_flags,
-                                                        ND_NA_FLAG_ROUTER, 32, "Router", "Not router"));
-            proto_tree_add_text(field_tree, tvb, flagoff, 4, "%s",
-                                decode_boolean_bitfield(na_flags,
-                                                        ND_NA_FLAG_SOLICITED, 32, "Solicited", "Not adverted"));
-            proto_tree_add_text(field_tree, tvb, flagoff, 4, "%s",
-                                decode_boolean_bitfield(na_flags,
-                                                        ND_NA_FLAG_OVERRIDE, 32, "Override", "Not override"));
+            /* Target Address */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_nd_na_target_address, tvb, offset, 16, FALSE);
 
-            targetoff = offset + offsetof(struct nd_neighbor_advert, nd_na_target);
-            tvb_memcpy(tvb, (guint8 *)&na_target, targetoff, sizeof na_target);
-            proto_tree_add_text(icmp6_tree, tvb, targetoff, 16,
-                                "Target: %s (%s)",
-                                get_hostname6(&na_target),
-                                ip6_to_str(&na_target));
-            if (na_flags & ND_NA_FLAG_ROUTER) {
+
+            if (na_flags & ND_NA_FLAG_R) {
                 ep_strbuf_append(flags_strbuf, "rtr, ");
             }
-            if (na_flags & ND_NA_FLAG_SOLICITED) {
+            if (na_flags & ND_NA_FLAG_S) {
                 ep_strbuf_append(flags_strbuf, "sol, ");
             }
-            if (na_flags & ND_NA_FLAG_OVERRIDE) {
+            if (na_flags & ND_NA_FLAG_O) {
                 ep_strbuf_append(flags_strbuf, "ovr, ");
             }
             if (flags_strbuf->len > 2) {
@@ -2824,330 +3147,238 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             } else {
                 ep_strbuf_printf(flags_strbuf, "none");
             }
-            col_append_fstr(pinfo->cinfo, COL_INFO,
-                            " %s (%s)", ip6_to_str(&na_target), flags_strbuf->str);
 
-            dissect_icmpv6ndopt(tvb, offset + sizeof(struct nd_neighbor_advert), pinfo, icmp6_tree);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " %s (%s)", tvb_ip6_to_str(tvb, offset), flags_strbuf->str);
+            offset += 16;
+
+            /* Show options */
+            dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree);
             break;
         }
-        case ND_REDIRECT:
+        case ICMP6_ND_REDIRECT: /* Redirect Message (137) */
         {
-            struct nd_redirect nd_redirect, *rd;
-
-            rd = &nd_redirect;
-            tvb_memcpy(tvb, (guint8 *)rd, offset, sizeof *rd);
-            proto_tree_add_text(icmp6_tree, tvb, offset+4, 4, "Reserved: %d (Should always be zero)",
-                                tvb_get_ntohs (tvb, offset+4));
-            proto_tree_add_text(icmp6_tree, tvb,
-                                offset + offsetof(struct nd_redirect, nd_rd_target), 16,
-                                "Target: %s (%s)",
-                                get_hostname6(&rd->nd_rd_target),
-                                ip6_to_str(&rd->nd_rd_target));
-
-            proto_tree_add_text(icmp6_tree, tvb,
-                                offset + offsetof(struct nd_redirect, nd_rd_dst), 16,
-                                "Destination: %s (%s)",
-                                get_hostname6(&rd->nd_rd_dst),
-                                ip6_to_str(&rd->nd_rd_dst));
-
-            dissect_icmpv6ndopt(tvb, offset + sizeof(*rd), pinfo, icmp6_tree);
-            break;
-        }
-        case ICMP6_ROUTER_RENUMBERING:
-            dissect_rrenum(tvb, offset, pinfo, icmp6_tree, dp->icmp6_type, dp->icmp6_code);
-            break;
-        case ICMP6_NI_QUERY:
-        case ICMP6_NI_REPLY:
-        {
-            dissect_nodeinfo(tvb, offset, pinfo, icmp6_tree, dp->icmp6_type, dp->icmp6_code);
-            break;
-        }
-        case ICMP6_MIP6_DHAAD_REQUEST:
-            proto_tree_add_text(icmp6_tree, tvb,
-                                offset + 4, 2, "Identifier: %d (0x%02x)",
-                                tvb_get_ntohs(tvb, offset + 4),
-                                tvb_get_ntohs(tvb, offset + 4));
-            proto_tree_add_text(icmp6_tree, tvb,
-                                offset + 6, 2, "Reserved: %d",
-                                tvb_get_ntohs(tvb, offset + 6));
-            break;
-        case ICMP6_MIP6_DHAAD_REPLY:
-            proto_tree_add_text(icmp6_tree, tvb,
-                                offset + 4, 2, "Identifier: %d (0x%02x)",
-                                tvb_get_ntohs(tvb, offset + 4),
-                                tvb_get_ntohs(tvb, offset + 4));
-            proto_tree_add_text(icmp6_tree, tvb,
-                                offset + 6, 2, "Reserved: %d",
-                                tvb_get_ntohs(tvb, offset + 6));
-            /* Show all Home Agent Addresses */
-            {
-                int i, suboffset;
-                int ha_num = (length - 8)/16;
-
-                for (i = 0; i < ha_num; i++) {
-                    suboffset = 16 * i;
-                    proto_tree_add_item(icmp6_tree, hf_icmpv6_haad_ha_addrs,
-                                        tvb, offset + 8 + suboffset, 16,
-                                        ENC_NA);
-                }
-            }
-            break;
-        case ICMP6_MIP6_MPS:
-            proto_tree_add_text(icmp6_tree, tvb,
-                                offset + 4, 2, "Identifier: %d (0x%02x)",
-                                tvb_get_ntohs(tvb, offset + 4),
-                                tvb_get_ntohs(tvb, offset + 4));
-            proto_tree_add_text(icmp6_tree, tvb,
-                                offset + 6, 2, "Reserved: %d",
-                                tvb_get_ntohs(tvb, offset + 6));
-            break;
-        case ICMP6_MIP6_MPA:
-            proto_tree_add_text(icmp6_tree, tvb,
-                                offset + 4, 2, "Identifier: %d (0x%02x)",
-                                tvb_get_ntohs(tvb, offset + 4),
-                                tvb_get_ntohs(tvb, offset + 4));
-            proto_tree_add_text(icmp6_tree, tvb,
-                                offset + 6, 1, "%s",
-                                decode_boolean_bitfield(tvb_get_guint8(tvb, offset + 6),
-                                                        0x80, 8,
-                                                        "Managed Address Configuration",
-                                                        "No Managed Address Configuration"));
-            proto_tree_add_text(icmp6_tree, tvb,
-                                offset + 6, 1, "%s",
-                                decode_boolean_bitfield(tvb_get_guint8(tvb, offset + 6),
-                                                        0x40, 8,
-                                                        "Other Stateful Configuration",
-                                                        "No Other Stateful Configuration"));
-            proto_tree_add_text(icmp6_tree, tvb,
-                                offset + 7, 1, "Reserved: %d",
-                                tvb_get_guint8(tvb, offset + 7));
-            /* Show all options */
-            dissect_icmpv6ndopt(tvb, offset + 8, pinfo, icmp6_tree);
-            break;
-        case ICMP6_EXPERIMENTAL_MOBILITY:
-            switch (dp->icmp6_data8[0]) {
-            case FMIP6_SUBTYPE_RTSOLPR:
-            {
-                struct fmip6_rtsolpr *rtsolpr;
-                rtsolpr = (struct fmip6_rtsolpr*) dp;
-                proto_tree_add_text(icmp6_tree, tvb,
-                                    offset + 4, 1,
-                                    "Subtype: Router Solicitation for Proxy Advertisement");
-                proto_tree_add_text(icmp6_tree, tvb,
-                                    offset + 6, 2,
-                                    "Identifier: %d", pntohs(&rtsolpr->fmip6_rtsolpr_id));
-                dissect_icmpv6ndopt(tvb, offset + sizeof(*dp), pinfo, icmp6_tree);
-                break;
-            }
-            case FMIP6_SUBTYPE_PRRTADV:
-            {
-                struct fmip6_prrtadv *prrtadv;
-                prrtadv = (struct fmip6_prrtadv*) dp;
-                proto_tree_add_text(icmp6_tree, tvb,
-                                    offset + 4, 1,
-                                    "Subtype: Proxy Router Advertisement");
-                proto_tree_add_text(icmp6_tree, tvb,
-                                    offset + 6, 2,
-                                    "Identifier: %d", pntohs(&prrtadv->fmip6_prrtadv_id));
-                dissect_icmpv6ndopt(tvb, offset + sizeof(*dp), pinfo, icmp6_tree);
-                break;
-            }
-            case FMIP6_SUBTYPE_HI:
-            {
-                struct fmip6_hi *hi;
-                int flagoff;
-                guint8 hi_flags;
-                hi = (struct fmip6_hi*) dp;
-                proto_tree_add_text(icmp6_tree, tvb,
-                                    offset + 4, 1,
-                                    "Subtype: Handover Initiate");
-
-                flagoff = offset + 5;
-                hi_flags = tvb_get_guint8(tvb, flagoff);
-                tf = proto_tree_add_text(icmp6_tree, tvb, flagoff, 1, "Flags: 0x%02x", hi_flags);
-                field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
-                proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-                                    decode_boolean_bitfield(hi_flags,
-                                                            FMIP_HI_FLAG_ASSIGNED, 8, "Assigned", "Not assigned"));
-                proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
-                                    decode_boolean_bitfield(hi_flags,
-                                                            FMIP_HI_FLAG_BUFFER, 8, "Buffered", "Not buffered"));
-                proto_tree_add_text(icmp6_tree, tvb,
-                                    offset + 6, 2,
-                                    "Identifier: %d", pntohs(&hi->fmip6_hi_id));
-                dissect_icmpv6ndopt(tvb, offset + sizeof(*dp), pinfo, icmp6_tree);
-                break;
-            }
-            case FMIP6_SUBTYPE_HACK:
-            {
-                struct fmip6_hack *hack;
-                hack = (struct fmip6_hack*) dp;
-                proto_tree_add_text(icmp6_tree, tvb,
-                                    offset + 4, 1,
-                                    "Subtype: Handover Acknowledge");
-                proto_tree_add_text(icmp6_tree, tvb,
-                                    offset + 6, 2,
-                                    "Identifier: %d", pntohs(&hack->fmip6_hack_id));
-                dissect_icmpv6ndopt(tvb, offset + sizeof(*dp), pinfo, icmp6_tree);
-                break;
-            }
-            } /* switch (dp->icmp6_data8[0]) */
-            break;
-        case ICMP6_CERT_PATH_SOL:
-            /*RFC 3971 6.4.1.  Certification Path Solicitation Message Format */
+            /* Reserved */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 4, FALSE);
             offset += 4;
-            proto_tree_add_text(icmp6_tree, tvb, offset, -1,
-                                "Certification Path Solicitation Message");
-            /* Identifier A 16-bit unsigned integer field */
-            proto_tree_add_item(icmp6_tree, hf_icmpv6_identifier, tvb, offset,
-                                2, FALSE);
-            offset += 2;
-            /* Component A 16-bit unsigned integer field,
-             * 65,535 if the sender seeks to retrieve all certificates.
-             * Otherwise, set to the identifier that the receiver wants.
-             */
-            proto_tree_add_item(icmp6_tree, hf_icmpv6_comp, tvb, offset, 2,
-                                FALSE);
-            offset += 2;
-            dissect_icmpv6ndopt(tvb, offset, pinfo, icmp6_tree);
+
+            /* Target Address */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_nd_rd_target_address, tvb, offset, 16, FALSE);
+            offset += 16;
+
+            /* Destination Address */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_nd_rd_destination_address, tvb, offset, 16, FALSE);
+            offset += 16;
+
+            /* Show options */
+            dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree);
             break;
-        case ICMP6_CERT_PATH_AD:
-            /*RFC 3971 6.4.2.  Certification Path Advertisement Message Format */
-            offset = offset +4;
-            proto_tree_add_text(icmp6_tree, tvb, offset, -1,"Certification Path Advertisement Message");
+        }
+        case ICMP6_ROUTER_RENUMBERING: /* Router Renumbering (138) */
+        {
+            dissect_rrenum(tvb, offset, pinfo, icmp6_tree, icmp6_type, icmp6_code);
+            break;
+        }
+        case ICMP6_NI_QUERY: /* ICMP Node Information Query (139) */
+        case ICMP6_NI_REPLY: /* ICMP Node Information Response (140) */
+        {
+            dissect_nodeinfo(tvb, offset, pinfo, icmp6_tree, icmp6_type, icmp6_code);
+            break;
+        }
+        case ICMP6_IND_SOLICIT: /* Inverse Neighbor Discovery Solicitation Message (141) */
+        case ICMP6_IND_ADVERT: /* Inverse Neighbor Discovery Advertisement Message (142) */
+        {
+            /* Reserved */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 4, FALSE);
+            offset += 4;
 
-            /* Identifier A 16-bit unsigned integer field */
-            proto_tree_add_item(icmp6_tree, hf_icmpv6_identifier, tvb, offset, 2, FALSE);
-            offset = offset + 2;
-            /* All Components  A 16-bit unsigned integer field*/
-            proto_tree_add_item(icmp6_tree, hf_icmpv6_all_comp, tvb, offset, 2, FALSE);
-            offset = offset + 2;
-
-            /* Component A 16-bit unsigned integer field, used to inform the receiver
-             * which certificate is being sent.
-             */
-            proto_tree_add_item(icmp6_tree, hf_icmpv6_comp, tvb, offset, 2, FALSE);
-            offset = offset + 2;
+            /* Show options */            
+            dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree);
+            break;
+        }
+        case ICMP6_MLDV2_REPORT: /* Version 2 Multicast Listener Report (143) */
+        {
+            dissect_mldrv2( tvb, offset, pinfo, icmp6_tree );
+            break;
+        }
+        case ICMP6_MIP6_DHAAD_REQUEST: /* Home Agent Address Discovery Request Message (144) */
+        {
+            /* Identifier */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_mip6_identifier, tvb, offset, 2, FALSE);
+            offset += 2; 
 
             /* Reserved */
-            proto_tree_add_text(icmp6_tree, tvb, offset, 2,"Reserved");
-            offset = offset + 2;
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 2, FALSE);
+            offset += 2;
 
-            dissect_icmpv6ndopt(tvb, offset, pinfo, icmp6_tree);
             break;
-        case ICMP6_RPL_CONTROL:
-            /* RPL: draft-ietf-roll-rpl-12.txt: Routing over Low-Power and Lossy Networks. */
-            offset += 4; /* Skip the type, code and checksum. */
-            if (dp->icmp6_code == ICMP6_RPL_DIS) {
+        }
+        case ICMP6_MIP6_DHAAD_REPLY: /* Home Agent Address Discovery Reply Message (145) */
+        {
+            /* Identifier */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_mip6_identifier, tvb, offset, 2, FALSE);
+            offset += 2; 
 
-                /* Reserved */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_dis_reserved, tvb, offset, 2, FALSE);
-                offset += 2;
+            /* Reserved */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 2, FALSE);
+            offset += 2;
 
-            }
-            else if (dp->icmp6_code == ICMP6_RPL_DIO) {
-                /* DODAG Information Object */
-                guint8  flags;
-
-                /* RPLInstanceID */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_dio_instance, tvb, offset, 1, FALSE);
-                offset += 1;
-
-                /* RPLInstanceID */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_dio_version, tvb, offset, 1, FALSE);
-                offset += 1;
-
-                /* Rank */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_dio_rank, tvb, offset, 2, FALSE);
-                offset += 2;
-
-                /* flags */
-                flags = tvb_get_guint8(tvb, offset);
-                proto_tree_add_boolean(icmp6_tree, hf_icmpv6_dio_grounded, tvb, offset, 1, flags & RPL_DIO_FLAG_GROUNDED);
-                proto_tree_add_boolean(icmp6_tree, hf_icmpv6_dio_zero, tvb, offset, 1, flags & RPL_DIO_FLAG_ZERO);
-                proto_tree_add_uint(icmp6_tree, hf_icmpv6_dio_mop, tvb, offset, 1, flags & RPL_DIO_FLAG_MOP);
-                proto_tree_add_uint(icmp6_tree, hf_icmpv6_dio_preference, tvb, offset, 1, flags & RPL_DIO_FLAG_PREFERENCE);
-                offset += 1;
-
-                /* Destination Advertisement Trigger Sequence Number (DTSN) */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_dio_trigger_seqnum, tvb, offset, 1, FALSE);
-                offset += 1;
-                offset += 2;
-
-                /* DODAGID */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_dio_dagid, tvb, offset, 16, FALSE);
+            /* Show all Home Agent Addresses */
+            while((int)length > offset) 
+            {
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_mip6_home_agent_address, tvb, offset, 16, FALSE);
                 offset += 16;
             }
-            else if (dp->icmp6_code == ICMP6_RPL_DAO) {
-                /* Destination Advertisement Object */
-                struct e_in6_addr   addr6;
-                guint8 flags;
-
-                /* DAO Instance */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_dao_instance, tvb, offset, 1, FALSE);
-                offset += 1;
-
-                /* flags */
-                flags = tvb_get_guint8(tvb, offset);
-                proto_tree_add_boolean(icmp6_tree, hf_icmpv6_dao_flag_k, tvb, offset, 1, flags & RPL_DAO_FLAG_K);
-                proto_tree_add_boolean(icmp6_tree, hf_icmpv6_dao_flag_d, tvb, offset, 1, flags & RPL_DAO_FLAG_D);
-                proto_tree_add_uint(icmp6_tree, hf_icmpv6_dao_flag_rsv, tvb, offset, 1, flags & RPL_DAO_FLAG_RESERVED);
-                offset += 1;
-
-                /* DAO Reserved */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_dao_reserved, tvb, offset, 1, FALSE);
-                offset += 1;
-
-                /* DAO Reserved */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_dao_seqnum, tvb, offset, 1, FALSE);
-                offset += 1;
-
-                if(flags & RPL_DAO_FLAG_D)
-                {
-                    tvb_memcpy(tvb, addr6.bytes, offset, 16);
-                    proto_tree_add_ipv6(icmp6_tree, hf_icmpv6_dao_dodagid, tvb, offset, 16, addr6.bytes);
-                    offset += 16;
-                }
-            }
-            else if (dp->icmp6_code == ICMP6_RPL_DAOACK) {
-                /* Destination Advertisement Object */
-                struct e_in6_addr   addr6;
-                guint8 flags;
-
-                /* DAO Instance */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_daoack_instance, tvb, offset, 1, FALSE);
-                offset += 1;
-
-                /* flags */
-                flags = tvb_get_guint8(tvb, offset);
-                proto_tree_add_boolean(icmp6_tree, hf_icmpv6_daoack_flag_d, tvb, offset, 1, flags & RPL_DAOACK_FLAG_D);
-                proto_tree_add_uint(icmp6_tree, hf_icmpv6_daoack_flag_rsv, tvb, offset, 1, flags & RPL_DAOACK_FLAG_RESERVED);
-                offset += 1;
-
-                /* DAO Sequence */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_daoack_seqnum, tvb, offset, 1, FALSE);
-                offset += 1;
-
-                /* DAO Status */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_daoack_status, tvb, offset, 1, FALSE);
-                offset += 1;
-
-                if(flags & RPL_DAOACK_FLAG_D)
-                {
-                    tvb_memcpy(tvb, addr6.bytes, offset, 16);
-                    proto_tree_add_ipv6(icmp6_tree, hf_icmpv6_daoack_dodagid, tvb, offset, 16, addr6.bytes);
-                    offset += 16;
-                }
-                return;
-            }
-            /* Options */
-            dissect_icmpv6_rpl_opt(tvb, offset, pinfo, icmp6_tree);
             break;
+        }
+        case ICMP6_MIP6_MPS: /* Mobile Prefix Solicitation (146) */ 
+        {
+            /* Identifier */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_mip6_identifier, tvb, offset, 2, FALSE);
+            offset += 2; 
+
+            /* Reserved */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 2, FALSE);
+            offset += 2;
+            break;
+        }
+        case ICMP6_MIP6_MPA: /* Mobile Prefix Advertisement (147) */
+        {
+            /* Identifier */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_mip6_identifier, tvb, offset, 2, FALSE);
+            offset += 2; 
+            
+            /* Flag */
+            ti_flag = proto_tree_add_item(icmp6_tree, hf_icmpv6_mip6_flag, tvb,offset, 6, FALSE);
+            flag_tree = proto_item_add_subtree(ti_flag, ett_icmpv6_flag_mip6);
+            proto_tree_add_item(flag_tree, hf_icmpv6_mip6_flag_m, tvb, offset, 2, FALSE);
+            proto_tree_add_item(flag_tree, hf_icmpv6_mip6_flag_o, tvb, offset, 2, FALSE);
+            proto_tree_add_item(flag_tree, hf_icmpv6_mip6_flag_rsv, tvb, offset, 2, FALSE);
+            offset += 2;
+
+            /* Show options */
+            dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree);
+            break;
+        }
+        case ICMP6_CERT_PATH_SOL: /* Certification Path Solicitation Message (148) */
+        {
+
+            /* Identifier */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_send_identifier, tvb, offset, 2, FALSE);
+            offset += 2;
+
+            /* Component  */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_send_component, tvb, offset, 2, FALSE);
+            offset += 2;
+
+            /* Show options */
+            dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree);
+            break;
+        }
+        case ICMP6_CERT_PATH_AD: /* Certification Path Advertisement Message (149) */
+        {
+
+            /* Identifier */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_send_identifier, tvb, offset, 2, FALSE);
+            offset += 2;
+
+            /* All Components */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_send_all_components, tvb, offset, 2, FALSE);
+            offset += 2;
+
+            /* Component  */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_send_component, tvb, offset, 2, FALSE);
+            offset += 2;
+
+            /* Reserved */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 2, FALSE);
+            offset += 2;
+
+            /* Show options */
+            dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree);
+            break;
+        }
+        case ICMP6_EXPERIMENTAL_MOBILITY: /* ICMP messages utilized by experimental mobility protocols (150) */
+        case ICMP6_FMIPV6_MESSAGES:  /* FMIPv6 Messages (154)*/
+        {
+            guint8 subtype;
+
+            /* Subtype */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_fmip6_subtype, tvb, offset, 1, FALSE);
+            subtype = tvb_get_guint8(tvb, offset);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str(subtype, fmip6_subtype_val, "Unknown (%d)"));
+            offset += 1;
+
+            switch(subtype){
+                case FMIP6_SUBTYPE_RTSOLPR:
+                {
+                    /* Reserved */
+                    proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 1, FALSE);
+                }
+                break;
+                case FMIP6_SUBTYPE_PRRTADV:
+                {
+                    proto_item_append_text(code_item, " (%s)", val_to_str(icmp6_code, fmip6_prrtadv_code_val, "Unknown %d") );
+                    /* Reserved */
+                    proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 1, FALSE);
+                }
+                break;
+                case FMIP6_SUBTYPE_HI:
+                {
+                    proto_item_append_text(code_item, " (%s)", val_to_str(icmp6_code, fmip6_hi_code_val, "Unknown %d") );
+                    /* Flags */
+                    ti_flag = proto_tree_add_item(icmp6_tree, hf_icmpv6_fmip6_hi_flag, tvb, offset, 1, FALSE);
+                    flag_tree = proto_item_add_subtree(ti_flag, ett_icmpv6_flag_fmip6);
+
+                    proto_tree_add_item(flag_tree, hf_icmpv6_fmip6_hi_flag_s, tvb, offset, 1, FALSE);
+                    proto_tree_add_item(flag_tree, hf_icmpv6_fmip6_hi_flag_u, tvb, offset, 1, FALSE);
+                    proto_tree_add_item(flag_tree, hf_icmpv6_fmip6_hi_flag_reserved, tvb, offset, 1, FALSE);
+                }      
+                break;
+                case FMIP6_SUBTYPE_HACK:
+                {
+                    proto_item_append_text(code_item, " (%s)", val_to_str(icmp6_code, fmip6_hack_code_val, "Unknown %d") );
+                    /* Reserved */
+                    proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 1, FALSE);
+                }
+                break;
+            }
+            offset +=1;
+
+            /* Identifier */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_fmip6_identifier, tvb, offset, 2, FALSE);
+            offset += 2;
+
+            /* Show options */
+            dissect_icmpv6_nd_opt(tvb, offset, pinfo, icmp6_tree);
+            break;
+        }
+        case ICMP6_MCAST_ROUTER_ADVERT: /* Multicast Router Advertisement (151) */
+        {
+            /* Query Interval */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_mcast_ra_query_interval, tvb, offset, 2, FALSE);
+            offset += 2;
+
+            /* Robustness Variable */
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_mcast_ra_robustness_variable, tvb, offset, 2, FALSE);
+            offset += 2;
+        }
+        case ICMP6_MCAST_ROUTER_SOLICIT: /* Multicast Router Solicitation (152) */
+        case ICMP6_MCAST_ROUTER_TERM: /* Multicast Router Termination (153) */
+        {  
+            /* No Action... */
+            break;
+        }
+        case ICMP6_RPL_CONTROL: /* RPL Control (155) */
+        {
+            /* RPL: draft-ietf-roll-rpl-17.txt: Routing over Low-Power and Lossy Networks. */
+            dissect_rpl_control(tvb, offset, pinfo, icmp6_tree, icmp6_type, icmp6_code);
+            break;
+        }
         default:
-            next_tvb = tvb_new_subset(tvb, offset + sizeof(*dp), -1, -1);
-            call_dissector(data_handle,next_tvb, pinfo, tree);
+            expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_NOTE, "Dissector for ICMPv6 Type (%d) code not implemented, Contact Wireshark developers if you want this supported", icmp6_type);
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_data, tvb, offset, -1, FALSE);
             break;
-        } /* switch (dp->icmp6_type) */
+        } /* switch (icmp6_type) */
     } /* if (tree) */
 }
 
@@ -3156,91 +3387,99 @@ proto_register_icmpv6(void)
 {
     static hf_register_info hf[] = {
         { &hf_icmpv6_type,
-          { "Type",           "icmpv6.type",    FT_UINT8,  BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
+          { "Type",           "icmpv6.type",    FT_UINT8,  BASE_DEC, VALS(icmpv6_type_val), 0x0,
+            "Indicates the type of the message", HFILL }},
         { &hf_icmpv6_code,
           { "Code",           "icmpv6.code",    FT_UINT8,  BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
+            "Depends on the message type.  It is used to create an additional level of message granularity", HFILL }},
         { &hf_icmpv6_checksum,
           { "Checksum",       "icmpv6.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
+            "Used to detect data corruption in the ICMPv6 message and parts of the IPv6 header", HFILL }},
         { &hf_icmpv6_checksum_bad,
           { "Bad Checksum",   "icmpv6.checksum_bad", FT_BOOLEAN, BASE_NONE,  NULL, 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_reserved,
           { "Reserved",           "icmpv6.reserved",    FT_BYTES,  BASE_NONE, NULL, 0x0,
             "Must be Zero", HFILL }},
-        /* RFC2710:  Multicast Listener Discovery for IPv6 */
-        { &hf_icmpv6_mld_mrd,
-          { "Maximum Response Delay [ms]", "icmpv6.mld.maximum_response_delay", FT_UINT16, BASE_DEC, NULL, 0x0,
-            "Specifies the maximum allowed delay before sending a responding Report, in units of milliseconds", HFILL }},
-        { &hf_icmpv6_mld_multicast_address,
-          { "Multicast Address", "icmpv6.mld.multicast_address", FT_IPv6, BASE_NONE, NULL, 0x0,
-            "Specific IPv6 multicast address", HFILL }},
-        /* RFC3810: Multicast Listener Discovery Version 2 (MLDv2) for IPv6 */
-        { &hf_icmpv6_mld_mrc,
-          { "Maximum Response Code", "icmpv6.mld.maximum_response_code", FT_UINT16, BASE_DEC, NULL, 0x0,
-            "Specifies the maximum allowed delay before sending a responding Report", HFILL }},
-       { &hf_icmpv6_mld_flag,
-          { "Flags", "icmpv6.mld.flag", FT_UINT8, BASE_HEX, NULL, 0x0,
+        { &hf_icmpv6_data,
+          { "Data",           "icmpv6.data",    FT_BYTES,  BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
-       { &hf_icmpv6_mld_flag_s,
-          { "Suppress Router-Side Processing", "icmpv6.mld.flag.s", FT_BOOLEAN, 8, NULL, MLD_FLAG_S,
-            "Indicates to any receiving multicast routers that they have to suppress the normal timer updates they perform upon hearing a Query", HFILL }},
-       { &hf_icmpv6_mld_flag_qrv,
-          { "QRV (Querier's Robustness Variable)", "icmpv6.mld.flag.qrv", FT_UINT8, BASE_DEC, NULL, MLD_FLAG_QRV,
-            "Contains the RV (Robustness Variable) value used by the Querier", HFILL }},
-       { &hf_icmpv6_mld_flag_rsv,
-          { "Reserved", "icmpv6.mld.flag.reserved", FT_UINT8, BASE_DEC, NULL, MLD_FLAG_RSV,
-            "Must Be Zero", HFILL }},
-       { &hf_icmpv6_mld_qqi,
-          { "QQIC (Querier's Query Interval Code)", "icmpv6.mld.qqi", FT_UINT8, BASE_DEC, NULL, 0x0,
-            "Specifies the QI (Query Interval) used by the Querier", HFILL }},
-       { &hf_icmpv6_mld_nb_sources,
-          { "Number of Sources", "icmpv6.mld.nb_sources", FT_UINT16, BASE_DEC, NULL, 0x0,
-            "Specifies how many source addresses are present in the Query", HFILL }},
-       { &hf_icmpv6_mld_source_address,
-          { "Source Address", "icmpv6.mld.source_address", FT_IPv6, BASE_NONE, NULL, 0x0,
-            "The Source Address fields are a vector of unicast addresses", HFILL }},
-        { &hf_icmpv6_mldr_nb_mcast_records,
-          { "Number of Multicast Address Records", "icmpv6.mldr.nb_mcast_records", FT_UINT16, BASE_DEC, NULL, 0x0,
-            "Specifies how many Multicast Address Records are present in this Report", HFILL }},
-        { &hf_icmpv6_mldr_mar,
-          { "Multicast Address Record", "icmpv6.mldr.mar", FT_NONE, BASE_NONE, NULL, 0x0,
-            "Each Multicast Address Record is a block of fields that contain information on the sender listening to a single multicast address on the interface from which the Report is sent", HFILL }},
-        { &hf_icmpv6_mldr_mar_record_type,
-          { "Record Type", "icmpv6.mldr.mar.record_type", FT_UINT8, BASE_DEC, VALS(mldr_record_type_val), 0x0,
-            "It specifies the type of the Multicast Address Record", HFILL }},
-        { &hf_icmpv6_mldr_mar_aux_data_len,
-          { "Aux Data Len", "icmpv6.mldr.mar.aux_data_len", FT_UINT8, BASE_DEC, NULL, 0x0,
-            "The Aux Data Len field contains the length (in units of 32-bit words) of the Auxiliary Data Field in this Multicast Address Record", HFILL }},
-        { &hf_icmpv6_mldr_mar_nb_sources,
-          { "Number of Sources", "icmpv6.mldr.mar.nb_sources", FT_UINT16, BASE_DEC, NULL, 0x0,
-            "The Number of Sources field specifies how many source addresses are present in this Multicast Address Record", HFILL }},
-        { &hf_icmpv6_mldr_mar_multicast_address,
-          { "Multicast Address", "icmpv6.mldr.mar.multicast_address", FT_IPv6, BASE_NONE, NULL, 0x0,
-            "The Multicast Address field contains the multicast address to which this Multicast Address Record pertains", HFILL }},
-        { &hf_icmpv6_mldr_mar_source_address,
-          { "Source Address", "icmpv6.mldr.mar.source_address", FT_IPv6, BASE_NONE, NULL, 0x0,
-            "The Source Address fields are a vector of unicast addresses", HFILL }},
-        { &hf_icmpv6_mldr_mar_auxiliary_data,
-          { "Auxiliary Data", "icmpv6.mldr.mar.auxiliary_data", FT_BYTES, BASE_NONE, NULL, 0x0,
-            "Contains additional information that pertain to this Multicast Address Record", HFILL }},
-        { &hf_icmpv6_haad_ha_addrs,
-          { "Home Agent Addresses", "icmpv6.haad.ha_addrs", FT_IPv6, BASE_NONE, NULL, 0x0,
+        { &hf_icmpv6_mtu,
+          { "MTU",           "icmpv6.mtu",    FT_UINT32,  BASE_DEC, NULL, 0x0,
+            "The Maximum Transmission Unit of the next-hop link", HFILL }},
+        { &hf_icmpv6_pointer,
+          { "Pointer",           "icmpv6.pointer",    FT_UINT32,  BASE_DEC, NULL, 0x0,
+            "Identifies the octet offset within the invoking packet where the error was detected", HFILL }},
+        { &hf_icmpv6_echo_identifier,
+          { "Identifier",           "icmpv6.echo.identifier",    FT_UINT16,  BASE_HEX, NULL, 0x0,
+            "An identifier to aid in matching with Request and Reply", HFILL }},
+        { &hf_icmpv6_echo_sequence_number,
+          { "Sequence",           "icmpv6.echo.sequence_number",    FT_UINT16,  BASE_DEC, NULL, 0x0,
+            "A sequence number to aid in matching Echo Replies to this Echo Request", HFILL }},
+        { &hf_icmpv6_nonce,
+          { "Nonce",           "icmpv6.nonce",    FT_BYTES,  BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
-        { &hf_icmpv6_ra_cur_hop_limit,
-          { "Cur hop limit",           "icmpv6.ra.cur_hop_limit", FT_UINT8,  BASE_DEC, NULL, 0x0,
-            "Current hop limit", HFILL }},
-        { &hf_icmpv6_ra_router_lifetime,
-          { "Router lifetime",         "icmpv6.ra.router_lifetime", FT_UINT16,  BASE_DEC, NULL, 0x0,
-            "Router lifetime (s)", HFILL }},
-        { &hf_icmpv6_ra_reachable_time,
-          { "Reachable time",          "icmpv6.ra.reachable_time", FT_UINT32,  BASE_DEC, NULL, 0x0,
-            "Reachable time (ms)", HFILL }},
-        { &hf_icmpv6_ra_retrans_timer,
-          { "Retrans timer",           "icmpv6.ra.retrans_timer", FT_UINT32,  BASE_DEC, NULL, 0x0,
-            "Retrans timer (ms)", HFILL }},
+        /* RFC 2461/4861 : Neighbor Discovery for IP version 6 (IPv6) */ 
+        { &hf_icmpv6_nd_ra_cur_hop_limit,
+          { "Cur hop limit",           "icmpv6.nd.ra.cur_hop_limit", FT_UINT8,  BASE_DEC, NULL, 0x0,
+            "The default value that should be placed in the Hop Count field of the IP header for outgoing IP packets", HFILL }},
+        { &hf_icmpv6_nd_ra_flag,
+          { "Flags", "icmpv6.nd.ra.flag", FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_icmpv6_nd_ra_flag_m,
+          { "Managed address configuration", "icmpv6.nd.ra.flag.m", FT_BOOLEAN, 8, TFS(&tfs_set_notset), ND_RA_FLAG_M,
+            "When set, it indicates that addresses are available via DHCPv6", HFILL }},
+        { &hf_icmpv6_nd_ra_flag_o,
+          { "Other configuration", "icmpv6.nd.ra.flag.o", FT_BOOLEAN, 8, TFS(&tfs_set_notset), ND_RA_FLAG_O,
+            "When set, it indicates that other configuration information is available via DHCPv6", HFILL }},
+        { &hf_icmpv6_nd_ra_flag_h,
+          { "Home Agent", "icmpv6.nd.ra.flag.h", FT_BOOLEAN, 8, TFS(&tfs_set_notset), ND_RA_FLAG_H,
+            "When set, it indicate that the router sending this Router Advertisement is also functioning as a Mobile IPv6 home agent on this link", HFILL }},
+        { &hf_icmpv6_nd_ra_flag_prf,
+          { "Prf (Default Router Preference)", "icmpv6.nd.ra.flag.prf", FT_UINT8, BASE_DEC, VALS(nd_flag_router_pref), ND_RA_FLAG_PRF,
+            "Indicates whether to prefer this router over other default routers", HFILL }},
+        { &hf_icmpv6_nd_ra_flag_p,
+          { "Proxy", "icmpv6.nd.ra.flag.p", FT_BOOLEAN, 8, TFS(&tfs_set_notset), ND_RA_FLAG_P,
+           NULL, HFILL }},
+        { &hf_icmpv6_nd_ra_flag_rsv,
+          { "Reserved", "icmpv6.nd.ra.flag.rsv", FT_UINT8, BASE_DEC, NULL, ND_RA_FLAG_RSV,
+            "Must be Zero", HFILL }},
+        { &hf_icmpv6_nd_ra_router_lifetime,
+          { "Router lifetime (s)",         "icmpv6.nd.ra.router_lifetime", FT_UINT16,  BASE_DEC, NULL, 0x0,
+            "The lifetime associated with the default router", HFILL }},
+        { &hf_icmpv6_nd_ra_reachable_time,
+          { "Reachable time (ms)",          "icmpv6.nd.ra.reachable_time", FT_UINT32,  BASE_DEC, NULL, 0x0,
+            "The time that a node assumes a neighbor is reachable after having received a reachability  confirmation", HFILL }},
+        { &hf_icmpv6_nd_ra_retrans_timer,
+          { "Retrans timer (ms)",           "icmpv6.nd.ra.retrans_timer", FT_UINT32,  BASE_DEC, NULL, 0x0,
+            "The time between retransmitted Neighbor Solicitation messages", HFILL }},
+        { &hf_icmpv6_nd_ns_target_address,
+          { "Target Address",           "icmpv6.nd.ns.target_address", FT_IPv6,  BASE_NONE, NULL, 0x0,
+            "The IP address of the target of the solicitation", HFILL }},
+        { &hf_icmpv6_nd_na_flag,
+          { "Flags", "icmpv6.nd.na.flag", FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_icmpv6_nd_na_flag_r,
+          { "Router", "icmpv6.nd.na.flag.r", FT_BOOLEAN, 32, TFS(&tfs_set_notset), ND_NA_FLAG_R,
+            "When set, it indicates that the sender is a router", HFILL }},
+        { &hf_icmpv6_nd_na_flag_s,
+          { "Solicited", "icmpv6.nd.na.flag.s", FT_BOOLEAN, 32, TFS(&tfs_set_notset), ND_NA_FLAG_S,
+            "When set, it indicates that the advertisement was sent in response to a Neighbor Solicitation from the Destination address", HFILL }},
+        { &hf_icmpv6_nd_na_flag_o,
+          { "Override", "icmpv6.nd.na.flag.o", FT_BOOLEAN, 32, TFS(&tfs_set_notset), ND_NA_FLAG_O,
+            "When set, it indicates that the advertisement should override an existing cache entry and update the cached link-layer address", HFILL }},
+        { &hf_icmpv6_nd_na_flag_rsv,
+          { "Reserved", "icmpv6.nd.na.flag.rsv", FT_UINT32, BASE_DEC, NULL, ND_NA_FLAG_RSV,
+            "Must be Zero", HFILL }},
+        { &hf_icmpv6_nd_na_target_address,
+          { "Target Address",           "icmpv6.nd.na.target_address", FT_IPv6,  BASE_NONE, NULL, 0x0,
+            "the Target Address field in the Neighbor Solicitation message that prompted this advertisement", HFILL }},
+        { &hf_icmpv6_nd_rd_target_address,
+          { "Target Address",           "icmpv6.nd.rd.target_address", FT_IPv6,  BASE_NONE, NULL, 0x0,
+            "An IP address that is a better first hop to use for the ICMP Destination Address", HFILL }},
+        { &hf_icmpv6_nd_rd_destination_address,
+          { "Destination Address",           "icmpv6.rd.na.destination_address", FT_IPv6,  BASE_NONE, NULL, 0x0,
+            "The IP address of the destination that is redirected to the target", HFILL }},
         { &hf_icmpv6_opt,
           { "ICMPv6 Option",           "icmpv6.opt", FT_NONE,  BASE_NONE, NULL, 0x0,
             "Option", HFILL }},
@@ -3284,7 +3523,7 @@ proto_register_icmpv6(void)
           { "On-link flag(L)", "icmpv6.opt.prefix.flag.l", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
             "When set, indicates that this prefix can be used for on-link determination", HFILL }},
 	{ &hf_icmpv6_opt_prefix_flag_a,
-          { "Autonomous address-configuration flag(A)", "icmpv6.opt_prefix.flag.a", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
+          { "Autonomous address-configuration flag(A)", "icmpv6.opt.prefix.flag.a", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
             "When set indicates that this prefix can be used for stateless address configuration", HFILL }},
 	{ &hf_icmpv6_opt_prefix_flag_reserved,
           { "Reserved", "icmpv6.opt.prefix.flag.reserved", FT_UINT8, BASE_DEC, NULL, 0x3f,
@@ -3370,7 +3609,6 @@ proto_register_icmpv6(void)
 	{ &hf_icmpv6_opt_naack_supplied_ncoa,
           { "Supplied NCoA", "icmpv6.opt.naack.supplied_ncoa", FT_IPv6, BASE_NONE, NULL, 0x00,
             NULL, HFILL }}, 
-
         { &hf_icmpv6_opt_map_dist,
           { "Distance",       "icmpv6.opt.map.distance", FT_UINT8,  BASE_DEC, NULL, 0xF0,
             "Identifying the distance between MAP and the receiver of the advertisement (in the number of hops)", HFILL }},
@@ -3396,7 +3634,7 @@ proto_register_icmpv6(void)
           { "Flag", "icmpv6.opt.route_info.flag", FT_UINT8, BASE_HEX, NULL, 0x00,
             NULL, HFILL }},
 	{ &hf_icmpv6_opt_route_info_flag_route_preference,
-          { "Route Preference", "icmpv6.opt.route_info.flag.route_preference", FT_UINT8, BASE_DEC, VALS(names_router_pref), ND_RA_FLAG_RTPREF_MASK,
+          { "Route Preference", "icmpv6.opt.route_info.flag.route_preference", FT_UINT8, BASE_DEC, VALS(nd_flag_router_pref), ND_RA_FLAG_RTPREF_MASK,
             "The Route Preference indicates whether to prefer the router associated with this prefix over others", HFILL }},
 	{ &hf_icmpv6_opt_route_info_flag_reserved,
           { "Reserved", "icmpv6.opt.route_info.flag.reserved", FT_UINT8, BASE_DEC, NULL, ND_RA_FLAG_RESERV_MASK,
@@ -3404,7 +3642,6 @@ proto_register_icmpv6(void)
 	{ &hf_icmpv6_opt_route_lifetime,
           { "Route Lifetime", "icmpv6.opt.route_lifetime", FT_UINT32, BASE_DEC, NULL, 0x00,
             "The length of time in seconds that the prefix is valid for the purpose of route determination", HFILL }},
-	
         { &hf_icmpv6_opt_name_type,
           { "Name Type",      "icmpv6.opt.name_type", FT_UINT8,  BASE_DEC, VALS(icmpv6_option_name_type_vals), 0x0,
             NULL, HFILL }},
@@ -3417,15 +3654,17 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_opt_cert_type,
           { "Cert Type",       "icmpv6.opt.name_type", FT_UINT8,  BASE_DEC, VALS(icmpv6_option_cert_type_vals), 0x0,
             NULL, HFILL }},
-        { &hf_icmpv6_identifier,
-          { "Identifier",      "icmpv6.identifier", FT_UINT16,  BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-        { &hf_icmpv6_all_comp,
-          { "All Components",  "icmpv6.all_comp", FT_UINT16,  BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-        { &hf_icmpv6_comp,
-          { "Component",       "icmpv6.comp", FT_UINT16,  BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
+        /* RFC3971:  SEcure Neighbor Discovery (SEND) */
+        { &hf_icmpv6_send_identifier,
+          { "Identifier",      "icmpv6.send.identifier", FT_UINT16,  BASE_DEC, NULL, 0x0,
+            "An identifier to aid in matching with Request and Reply", HFILL }},
+        { &hf_icmpv6_send_all_components,
+          { "All Components",  "icmpv6.send.all_components", FT_UINT16,  BASE_DEC, NULL, 0x0,
+            "Inform the receiver of the number of certificates in the entire path", HFILL }},
+        { &hf_icmpv6_send_component,
+          { "Component",       "icmpv6.send.component", FT_UINT16,  BASE_DEC, NULL, 0x0,
+            "If the field is set to 65,535 if the sender seeks to retrieve all certificates", HFILL }},
+
         { &hf_icmpv6_x509if_Name,
           { "Name",            "icmpv6.x509_Name", FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0x0,
             NULL, HFILL }},
@@ -3472,14 +3711,14 @@ proto_register_icmpv6(void)
           { "Home Agent", "icmpv6.opt.efo.h", FT_BOOLEAN, 16, TFS(&tfs_set_notset), FLAGS_EO_H,
             "When set, it indicate that the router sending this Router Advertisement is also functioning as a Mobile IPv6 home agent on this link", HFILL }},
         { &hf_icmpv6_opt_efo_prf,
-          { "Prf (Default Router Preference)", "icmpv6.opt.efo.prf", FT_UINT16, BASE_DEC, VALS(names_router_pref), FLAGS_EO_PRF,
+          { "Prf (Default Router Preference)", "icmpv6.opt.efo.prf", FT_UINT16, BASE_DEC, VALS(nd_flag_router_pref), FLAGS_EO_PRF,
             "Indicates whether to prefer this router over other default routers", HFILL }},
         { &hf_icmpv6_opt_efo_p,
           { "Proxy", "icmpv6.opt.efo.p", FT_BOOLEAN, 16, TFS(&tfs_set_notset), FLAGS_EO_P,
            NULL, HFILL }},
         { &hf_icmpv6_opt_efo_rsv,
-          { "Reserved (Must be Zero)", "icmpv6.opt.efo.rsv", FT_UINT16, BASE_DEC, NULL, FLAGS_EO_RSV,
-            NULL, HFILL }},
+          { "Reserved", "icmpv6.opt.efo.rsv", FT_UINT16, BASE_DEC, NULL, FLAGS_EO_RSV,
+            "Must be Zero", HFILL }},
         { &hf_icmpv6_opt_hkr_pad_length,
           { "Pad Length", "icmpv6.opt.hkr.pad_length", FT_UINT8, BASE_DEC, NULL, 0x0,
             "The number of padding octets beyond the end of the Handover Key", HFILL }},
@@ -3526,11 +3765,11 @@ proto_register_icmpv6(void)
           { "Domain Names", "icmpv6.opt.dnssl", FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_opt_aro_status,
-          { "Status", "icmpv6.opt.aro.status", FT_UINT8, BASE_DEC, VALS(names_6lowpannd_aro_status_str), 0x00,
-            "The amount of time (in a unit of 10 seconds) that the router should retain the Neighbor Cache entry", HFILL }},
+          { "Status", "icmpv6.opt.aro.status", FT_UINT8, BASE_DEC, VALS(nd_opt_6lowpannd_status_val), 0x00,
+            "The amount of time (in a unit of 60 seconds) that the router should retain the Neighbor Cache entry", HFILL }},
         { &hf_icmpv6_opt_aro_registration_lifetime,
           { "Registration  Lifetime", "icmpv6.opt.aro.registration_lifetime", FT_UINT16, BASE_DEC, NULL, 0x00,
-            "The amount of time (in a unit of 10 seconds) that the router should retain the Neighbor Cache entry", HFILL }},
+            "The amount of time (in a unit of 60 seconds) that the router should retain the Neighbor Cache entry", HFILL }},
         { &hf_icmpv6_opt_aro_eui64, /*  TODO: add a FT_EUI64 Type ? */
           { "EUI-64", "icmpv6.opt.aro.eui64", FT_BYTES, BASE_NONE, NULL, 0x00,
             "This field is used to uniquely identify the interface of the registered address", HFILL }},
@@ -3551,7 +3790,7 @@ proto_register_icmpv6(void)
             "Must be zero", HFILL }},
         { &hf_icmpv6_opt_6co_valid_lifetime,
           { "Lifetime", "icmpv6.opt.6co.valid_lifetime", FT_UINT16, BASE_DEC, NULL, 0x00,
-            "The length of time in a unit of 10 seconds that the context is valid for the purpose of header compression or decompression", HFILL }},
+            "The length of time in a unit of 60 seconds that the context is valid for the purpose of header compression or decompression", HFILL }},
         { &hf_icmpv6_opt_6co_context_prefix,
           { "Context Prefix", "icmpv6.opt.6co.context_prefix", FT_IPv6, BASE_NONE, NULL, 0x00,
             "The IPv6 prefix or address corresponding to the Context ID (CID) field", HFILL }},
@@ -3561,288 +3800,14 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_opt_abro_6lbr_address,
           { "6LBR Address", "icmpv6.opt.abro.6lbr_address", FT_IPv6, BASE_NONE, NULL, 0x00,
             "IPv6 address of the 6LBR that is the origin of the included version number", HFILL }},
-        /* RPL: draft-ietf-roll-rpl-12.txt: Routing over Low-Power and Lossy Networks. */
-        { &hf_icmpv6_dis_reserved,
-           { "Grounded",          "icmpv6.rpl.dis.reserved", FT_UINT16, BASE_DEC, NULL, 0x0,
-             NULL, HFILL }},
-        { &hf_icmpv6_dio_grounded,
-           { "Grounded",          "icmpv6.rpl.dio.grounded", FT_BOOLEAN, 8, NULL, RPL_DIO_FLAG_GROUNDED,
-             NULL, HFILL }},
-        { &hf_icmpv6_dio_zero,
-           { "Zero",              "icmpv6.rpl.dio.zero", FT_BOOLEAN, 8, NULL, RPL_DIO_FLAG_ZERO,
-             NULL, HFILL }},
-        { &hf_icmpv6_dio_mop,
-           { "MOP",               "icmpv6.rpl.dio.mop", FT_UINT8, BASE_HEX, NULL, RPL_DIO_FLAG_MOP,
-             NULL, HFILL }},
-        { &hf_icmpv6_dio_preference,
-           { "DAG Preference",    "icmpv6.rpl.dio.preference", FT_UINT8, BASE_DEC, NULL, RPL_DIO_FLAG_PREFERENCE,
-             NULL, HFILL }},
-        { &hf_icmpv6_dio_rank,
-           { "Rank",              "icmpv6.rpl.dio.rank", FT_UINT16, BASE_DEC, NULL, 0x0,
-             NULL, HFILL }},
-        { &hf_icmpv6_dio_instance,
-           { "RPLInstanceID",     "icmpv6.rpl.dio.instance", FT_UINT8, BASE_DEC, NULL, 0x0,
-             NULL, HFILL }},
-        { &hf_icmpv6_dio_version,
-           { "version",           "icmpv6.rpl.dio.version", FT_UINT8, BASE_DEC, NULL, 0x0,
-             NULL, HFILL }},
-        { &hf_icmpv6_dio_trigger_seqnum,
-           { "DTSN",              "icmpv6.rpl.dio.dtsn", FT_UINT8, BASE_DEC, NULL, 0x0,
-             "Destination advertisement trigger sequence number", HFILL }},
-        { &hf_icmpv6_dao_instance,
-           { "DAO Instance",      "icmpv6.rpl.dao.instance", FT_UINT8, BASE_DEC, NULL, 0x0,
-             NULL, HFILL }},
-        { &hf_icmpv6_dio_dagid,
-           { "DODAGID",           "icmpv6.rpl.dio.dagid", FT_IPv6, BASE_NONE, NULL, 0x0,
-             NULL, HFILL }},
-        { &hf_icmpv6_dao_seqnum,
-           { "DAO Sequence",      "icmpv6.rpl.dao.sequence", FT_UINT8, BASE_DEC, NULL, 0x0,
-             NULL, HFILL }},
-        { &hf_icmpv6_dao_reserved,
-           { "Reserved",          "icmpv6.rpl.dao.reserved", FT_UINT8, BASE_DEC, NULL, 0x0,
-             NULL, HFILL }},
-        { &hf_icmpv6_dao_flag_k,
-           { "DAO-ACK Request",   "icmpv6.rpl.dao.flag_k", FT_BOOLEAN, 8, NULL, RPL_DAO_FLAG_K,
-             NULL, HFILL }},
-        { &hf_icmpv6_dao_flag_d,
-           { "DODAGID Present",   "icmpv6.rpl.dao.flag_d", FT_BOOLEAN, 8, NULL, RPL_DAO_FLAG_D,
-             NULL, HFILL }},
-        { &hf_icmpv6_dao_flag_rsv,
-           { "Reserved",          "icmpv6.rpl.dao.flag_rsv", FT_UINT8, BASE_DEC, NULL, RPL_DAO_FLAG_RESERVED,
-             NULL, HFILL }},
-        { &hf_icmpv6_dao_dodagid,
-           { "DODAGID",           "icmpv6.rpl.dao.dodagid", FT_IPv6, BASE_NONE, NULL, 0x0,
-             NULL, HFILL }},
-        { &hf_icmpv6_daoack_instance,
-           { "Instance",          "icmpv6.rpl.daoack.instance", FT_UINT8, BASE_DEC, NULL, 0x0,
-             NULL, HFILL }},
-        { &hf_icmpv6_daoack_seqnum,
-           { "DAO-ACK Sequence",  "icmpv6.rpl.daoack.sequence", FT_UINT8, BASE_DEC, NULL, 0x0,
-             NULL, HFILL }},
-        { &hf_icmpv6_daoack_status,
-           { "Status",            "icmpv6.rpl.daoack.status", FT_UINT8, BASE_DEC, NULL, 0x0,
-             NULL, HFILL }},
-        { &hf_icmpv6_daoack_flag_d,
-           { "DODAGID Present",   "icmpv6.rpl.daoack.flag_d", FT_BOOLEAN, 8, NULL, RPL_DAOACK_FLAG_D,
-             NULL, HFILL }},
-        { &hf_icmpv6_daoack_flag_rsv,
-           { "Reserved",          "icmpv6.rpl.daoack.flag_rsv", FT_UINT8, BASE_DEC, NULL, RPL_DAOACK_FLAG_RESERVED,
-             NULL, HFILL }},
-        { &hf_icmpv6_daoack_dodagid,
-           { "DODAGID",           "icmpv6.rpl.daoack.dodagid", FT_IPv6, BASE_NONE, NULL, 0x0,
-             NULL, HFILL }},
-        { &hf_icmpv6_rpl_opt,
-          { "ICMPv6 RPL Option",           "icmpv6.opt", FT_NONE,  BASE_NONE, NULL, 0x0,
-            "Option", HFILL }},
-        { &hf_icmpv6_rpl_opt_type,
-          { "Type",           "icmpv6.rpl.opt.type", FT_UINT8,  BASE_DEC, VALS(rpl_option_vals), 0x0,
-            "Options type", HFILL }},
-        { &hf_icmpv6_rpl_opt_length,
-          { "Length",         "icmpv6.rpl.opt.length", FT_UINT8,  BASE_DEC, NULL, 0x0,
-            "The length of the option in octets excluding the Type and Length fields", HFILL }},
-        { &hf_icmpv6_rpl_opt_reserved,
-          { "Reserved", "icmpv6.rpl.opt.reserved", FT_NONE, BASE_NONE, NULL, 0x0,
-            "Reserved (Must be 0)", HFILL }},
-        { &hf_icmpv6_rpl_opt_padn,
-          { "Paddn", "icmpv6.rpl.opt.padn", FT_NONE, BASE_NONE, NULL, 0x0,
-            "Padding (Must be 0)", HFILL }},
-        { &hf_icmpv6_rpl_opt_route_prefix_length,
-           { "Prefix Length",      "icmpv6.rpl.opt.route.prefix_length", FT_UINT8, BASE_DEC, NULL, 0x0,
-             "The number of leading bits in the Prefix that are valid", HFILL }},
-        { &hf_icmpv6_rpl_opt_route_flag,
-           { "Flag","icmpv6.rpl.opt.route.flag", FT_NONE, BASE_NONE, NULL, 0x0,
-             NULL, HFILL }},
-        { &hf_icmpv6_rpl_opt_route_pref,
-           { "Preference","icmpv6.rpl.opt.route.pref", FT_UINT8, BASE_DEC, VALS(names_router_pref), RPL_OPT_ROUTE_PREFERENCE,
-             "The Route Preference indicates whether to prefer the router associated with this prefix over others, when multiple identical prefixes (for different routers) have been received", HFILL }},
-        { &hf_icmpv6_rpl_opt_route_reserved,
-           { "Reserved","icmpv6.rpl.opt.route.reserved", FT_UINT8, BASE_DEC, NULL, RPL_OPT_ROUTE_RESERVED,
-             "Reserved (Must be Zero)", HFILL }},
-        { &hf_icmpv6_rpl_opt_route_lifetime,
-           { "Route Lifetime",    "icmpv6.rpl.opt.route.lifetime", FT_UINT32, BASE_DEC, NULL, 0x0,
-             "The length of time in seconds (relative to the time the packet is sent) that the prefix is valid for route determination", HFILL }},
-        { &hf_icmpv6_rpl_opt_route_prefix,
-           { "Prefix",             "icmpv6.rpl.opt.route.prefix", FT_IPv6, BASE_NONE, NULL, 0x0,
-             "Variable-length field containing an IP address or a prefix of an IPv6 address", HFILL }},
-        { &hf_icmpv6_rpl_opt_config_flag,
-           { "Flag","icmpv6.rpl.opt.config.flag", FT_NONE, BASE_NONE, NULL, 0x0,
-             NULL, HFILL }},
-        { &hf_icmpv6_rpl_opt_config_reserved,
-           { "Reserved","icmpv6.rpl.opt.config.reserved", FT_UINT8, BASE_DEC, NULL, RPL_OPT_CONFIG_FLAG_RESERVED,
-             "Must be Zero", HFILL }},
-        { &hf_icmpv6_rpl_opt_config_auth,
-           { "Authentication Enabled","icmpv6.rpl.opt.config.auth", FT_BOOLEAN, 8, TFS(&tfs_set_notset), RPL_OPT_CONFIG_FLAG_AUTH,
-             "One bit flag describing the security mode of the network", HFILL }},
-        { &hf_icmpv6_rpl_opt_config_pcs,
-           { "Path Control Size",  "icmpv6.rpl.opt.config.pcs", FT_UINT8, BASE_DEC, NULL, RPL_OPT_CONFIG_FLAG_PCS,
-             "Used to configure the number of bits that may be allocated to the Path Control field", HFILL }},
-        { &hf_icmpv6_rpl_opt_config_doublings,
-           { "DIOIntervalDoublings","icmpv6.rpl.opt.config.interval_double", FT_UINT8, BASE_DEC, NULL, 0x0,
-             "Used to configure Imax of the DIO trickle timer", HFILL }},
-        { &hf_icmpv6_rpl_opt_config_min_interval,
-           { "DIOIntervalMin",     "icmpv6.rpl.opt.config.interval_min", FT_UINT16, BASE_DEC, NULL, 0x0,
-             "Used to configure Imin of the DIO trickle timer", HFILL }},
-        { &hf_icmpv6_rpl_opt_config_redundancy,
-           { "DIORedundancyConstant", "icmpv6.rpl.opt.config.redundancy", FT_UINT8, BASE_DEC, NULL, 0x0,
-             "Used to configure k of the DIO trickle timer", HFILL }},
-        { &hf_icmpv6_rpl_opt_config_rank_incr,
-           { "MaxRankInc",         "icmpv6.rpl.opt.config.max_rank_inc", FT_UINT16, BASE_DEC, NULL, 0x0,
-             "Used to configure DAGMaxRankIncrease", HFILL }},
-        { &hf_icmpv6_rpl_opt_config_hop_rank_inc,
-           { "MinHopRankInc",      "icmpv6.rpl.opt.config.min_hop_rank_inc", FT_UINT16, BASE_DEC, NULL, 0x0,
-              "Used to configure MinHopRankIncrease", HFILL }},
-        { &hf_icmpv6_rpl_opt_config_ocp,
-           { "OCP (Objective Code Point)","icmpv6.rpl.opt.config.ocp", FT_UINT16, BASE_DEC, NULL, 0x0,
-              "The OCP field identifies the OF and is managed by the IANA", HFILL }},
-        { &hf_icmpv6_rpl_opt_config_rsv,
-           { "Reserved",           "icmpv6.rpl.opt.config.rsv", FT_UINT8, BASE_DEC, NULL, 0x0,
-              NULL, HFILL }},
-        { &hf_icmpv6_rpl_opt_config_def_lifetime,
-           { "Default Lifetime",   "icmpv6.rpl.opt.config.def_lifetime", FT_UINT8, BASE_DEC, NULL, 0x0,
-              "This is the lifetime that is used as default for all RPL routes", HFILL }},
-        { &hf_icmpv6_rpl_opt_config_lifetime_unit,
-           { "Lifetime Unit",      "icmpv6.rpl.opt.config.lifetime_unit", FT_UINT16, BASE_DEC, NULL, 0x0,
-              "Provides the unit in seconds that is used to express route lifetimes in RPL", HFILL }},
-        { &hf_icmpv6_rpl_opt_target_flag,
-           { "Reserved",           "icmpv6.rpl.opt.target.flag", FT_NONE, BASE_NONE, NULL, 0x0,
-              "Unused field reserved for flags", HFILL }},
-        { &hf_icmpv6_rpl_opt_target_prefix_length,
-           { "Target Length",      "icmpv6.rpl.opt.target.prefix_length", FT_UINT8, BASE_DEC, NULL, 0x0,
-              "Number of valid leading bits in the IPv6 Prefix", HFILL }},
 
-        { &hf_icmpv6_rpl_opt_target_prefix,
-           { "Target",             "icmpv6.rpl.opt.target.prefix", FT_IPv6, BASE_NONE, NULL, 0x0,
-              "Identifying an IPv6 destination address, prefix, or multicast group", HFILL }},
-
-        { &hf_icmpv6_rpl_opt_transit_flag,
-           { "Flags",              "icmpv6.rpl.opt.transit.flag", FT_NONE, BASE_NONE, NULL, 0x0,
-             NULL, HFILL }},
-         { &hf_icmpv6_rpl_opt_transit_flag_e,
-           { "External",           "icmpv6.rpl.opt.transit.flag.e", FT_BOOLEAN, 8, TFS(&tfs_set_notset), RPL_OPT_TRANSIT_FLAG_E,
-             "Indicate that the parent router redistributes external targets into the RPL network", HFILL }},
-         { &hf_icmpv6_rpl_opt_transit_flag_rsv,
-           { "Reserved",           "icmpv6.rpl.opt.transit.flag.rsv", FT_UINT8, BASE_DEC, NULL, RPL_OPT_TRANSIT_FLAG_RSV,
-             "Must be Zero", HFILL }},
-        { &hf_icmpv6_rpl_opt_transit_pathctl,
-           { "Path Control",       "icmpv6.rpl.opt.transit.pathctl", FT_UINT8, BASE_DEC, NULL, 0x0,
-              "Limits the number of DAO-Parents to which a DAO message advertising connectivity", HFILL }},
-        { &hf_icmpv6_rpl_opt_transit_pathseq,
-           { "Path Sequence",      "icmpv6.rpl.opt.transit.pathseq", FT_UINT8, BASE_DEC, NULL, 0x0,
-              "Increments the Path Sequence each time it issues a RPL Target option with updated information", HFILL }},
-        { &hf_icmpv6_rpl_opt_transit_pathlifetime,
-           { "Path Lifetime",      "icmpv6.rpl.opt.transit.pathlifetime", FT_UINT8, BASE_DEC, NULL, 0x0,
-              "The length of time in Lifetime Units that the prefix is valid for route determination", HFILL }},
-        { &hf_icmpv6_rpl_opt_transit_parent,
-           { "Parent Address",     "icmpv6.rpl.opt.transit.parent", FT_IPv6, BASE_NONE, NULL, 0x0,
-              "IPv6 Address of the DODAG Parent of the node originally issuing the Transit Information Option", HFILL }},
-        { &hf_icmpv6_rpl_opt_solicited_instance,
-           { "Instance",           "icmpv6.rpl.opt.solicited.instance", FT_UINT8, BASE_DEC, NULL, 0x0,
-              "Containing the RPLInstanceID that is being solicited when valid", HFILL }},
-        { &hf_icmpv6_rpl_opt_solicited_flag,
-           { "Flag",  "icmpv6.rpl.opt.solicited.flag", FT_NONE, BASE_NONE, NULL, 0x0,
-              NULL, HFILL }},
-        { &hf_icmpv6_rpl_opt_solicited_flag_v,
-           { "Version predicate",  "icmpv6.rpl.opt.solicited.flag.v", FT_BOOLEAN, 8, TFS(&tfs_true_false), RPL_OPT_SOLICITED_FLAG_V,
-              "The Version predicate is true if the receiver's DODAGVersionNumber matches the requested Version Number", HFILL }},
-        { &hf_icmpv6_rpl_opt_solicited_flag_i,
-           { "InstanceID predicate","icmpv6.rpl.opt.solicited.flag.i", FT_BOOLEAN, 8, TFS(&tfs_true_false), RPL_OPT_SOLICITED_FLAG_I,
-              "The InstanceID predicate is true when the RPL node's current RPLInstanceID matches the requested RPLInstanceID", HFILL }},
-        { &hf_icmpv6_rpl_opt_solicited_flag_d,
-           { "DODAGID predicate",  "icmpv6.rpl.opt.solicited.flag.d", FT_BOOLEAN, 8, TFS(&tfs_true_false), RPL_OPT_SOLICITED_FLAG_D,
-              "The DODAGID predicate is true if the RPL node's parent set has the same DODAGID as the DODAGID field", HFILL }},
-         { &hf_icmpv6_rpl_opt_solicited_flag_rsv,
-           { "Reserved",           "icmpv6.rpl.opt.solicited.flag.rsv", FT_UINT8, BASE_DEC, NULL, RPL_OPT_SOLICITED_FLAG_RSV,
-             "Must be Zero", HFILL }},
-        { &hf_icmpv6_rpl_opt_solicited_dodagid,
-           { "DODAGID",            "icmpv6.rpl.opt.solicited.dodagid", FT_IPv6, BASE_NONE, NULL, 0x0,
-              "the DODAGID that is being solicited when valid", HFILL }},
-        { &hf_icmpv6_rpl_opt_solicited_version,
-           { "Version",            "icmpv6.rpl.opt.solicited.version", FT_UINT8, BASE_DEC, NULL, 0x0,
-              "the value of  DODAGVersionNumber that is being solicited when valid", HFILL }},
-
-        { &hf_icmpv6_rpl_opt_prefix_length,
-           { "Prefix Length",      "icmpv6.rpl.opt.prefix.length", FT_UINT8, BASE_DEC, NULL, 0x0,
-             "The number of leading bits in the Prefix that are valid", HFILL }},
-        { &hf_icmpv6_rpl_opt_prefix_flag,
-           { "Flag",            "icmpv6.rpl.opt.prefix.flag", FT_NONE, BASE_NONE, NULL, 0x0,
-             NULL, HFILL }},
-        { &hf_icmpv6_rpl_opt_prefix_flag_l,
-           { "On Link",            "icmpv6.rpl.opt.prefix.flag.l", FT_BOOLEAN, 8, TFS(&tfs_set_notset), RPL_OPT_PREFIX_FLAG_L,
-             "When set, indicates that this prefix can be used for on-link determination", HFILL }},
-        { &hf_icmpv6_rpl_opt_prefix_flag_a,
-           { "Auto Address Config","icmpv6.rpl.opt.config.flag.a", FT_BOOLEAN, 8, TFS(&tfs_set_notset), RPL_OPT_PREFIX_FLAG_A,
-             "When set indicates that this prefix can be used for stateless address configuration", HFILL }},
-        { &hf_icmpv6_rpl_opt_prefix_flag_r,
-           { "Router Address",     "icmpv6.rpl.opt.config.flag.r", FT_BOOLEAN, 8, TFS(&tfs_set_notset), RPL_OPT_PREFIX_FLAG_R,
-             "When set, indicates that the Prefix field contains a complete IPv6 address assigned to the sending router that can be used as parent in a target option", HFILL }},
-        { &hf_icmpv6_rpl_opt_prefix_flag_rsv,
-           { "Reserved",     "icmpv6.rpl.opt.config.flag.rsv", FT_UINT8, BASE_DEC, NULL, RPL_OPT_PREFIX_FLAG_RSV,
-             "Must Be Zero", HFILL }},
-        { &hf_icmpv6_rpl_opt_prefix_vlifetime,
-           { "Valid Lifetime",    "icmpv6.rpl.opt.prefix.valid_lifetime", FT_UINT32, BASE_DEC, NULL, 0x0,
-             "The length of time in seconds that the prefix is valid for the purpose of on-link determination", HFILL }},
-        { &hf_icmpv6_rpl_opt_prefix_plifetime,
-           { "Preferred Lifetime", "icmpv6.rpl.opt.prefix.preferred_lifetime", FT_UINT32, BASE_DEC, NULL, 0x0,
-             "The length of time in seconds that addresses generated from the prefix via stateless address autoconfiguration remain preferred", HFILL }},
-        { &hf_icmpv6_rpl_opt_prefix,
-           { "Destination Prefix", "icmpv6.rpl.opt.prefix", FT_IPv6, BASE_NONE, NULL, 0x0,
-             "An IPv6 address or a prefix of an IPv6 address", HFILL }},
-        { &hf_icmpv6_rpl_opt_targetdesc,
-           { "Descriptor",         "icmpv6.rpl.opt.targetdesc.descriptor", FT_UINT32, BASE_HEX, NULL, 0x0,
-             "Opaque Data", HFILL }},
-        /* RFC 4620 IPv6 Node Information Queries */
-        { &hf_icmpv6_ni_qtype,
-           { "Qtype",         "icmpv6.ni.qtype", FT_UINT16, BASE_DEC, VALS(ni_qtype_val), 0x0,
-             "Designates the type of information", HFILL }},
-        { &hf_icmpv6_ni_flag,
-           { "Flags",         "icmpv6.ni.flag", FT_UINT16, BASE_HEX, NULL, 0x0,
-             "Qtype-specific flags that may be defined for certain Query types and their Replies", HFILL }},
-        { &hf_icmpv6_ni_flag_g,
-           { "Global-scope addresses",         "icmpv6.ni.flag.g", FT_BOOLEAN, 16, TFS(&tfs_set_notset), NI_FLAG_G,
-             "Global-scope addresses are requested", HFILL }},
-        { &hf_icmpv6_ni_flag_s,
-           { "Site-local addresses",         "icmpv6.ni.flag.s", FT_BOOLEAN, 16, TFS(&tfs_set_notset), NI_FLAG_S,
-             "Site-local addresses are requested", HFILL }},
-        { &hf_icmpv6_ni_flag_l,
-           { "Link-local addresses",         "icmpv6.ni.flag.l", FT_BOOLEAN, 16, TFS(&tfs_set_notset), NI_FLAG_L,
-             "Link-local addresses are requested", HFILL }},
-        { &hf_icmpv6_ni_flag_c,
-           { "Compression",         "icmpv6.ni.flag.c", FT_BOOLEAN, 16, TFS(&tfs_set_notset), NI_FLAG_C,
-             "IPv4-compatible (now deprecated) and IPv4-mapped addresses are requested", HFILL }},
-        { &hf_icmpv6_ni_flag_a,
-           { "Unicast Addresses",         "icmpv6.ni.flag.a", FT_BOOLEAN, 16, TFS(&tfs_ni_flag_a), NI_FLAG_A,
-             "Responder's unicast addresses", HFILL }},
-        { &hf_icmpv6_ni_flag_t,
-           { "Truncated",         "icmpv6.ni.flag.t", FT_BOOLEAN, 16, TFS(&tfs_set_notset), NI_FLAG_T,
-             "Defined in a Reply only, indicates that the set of addresses is incomplete for space reasons", HFILL }},
-        { &hf_icmpv6_ni_flag_rsv,
-           { "Reserved",         "icmpv6.ni.flag.rsv", FT_UINT16, BASE_HEX, NULL, NI_FLAG_RSV,
-             "Must be Zero", HFILL }},
-        { &hf_icmpv6_ni_nonce,
-           { "Nonce",         "icmpv6.ni.nonce", FT_UINT64, BASE_HEX, NULL, 0x0,
-             "An opaque 64-bit field", HFILL }},
-        { &hf_icmpv6_ni_query_subject_ipv6,
-           { "IPv6 subject address",         "icmpv6.ni.query.subject_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0,
-             NULL, HFILL }},
-        { &hf_icmpv6_ni_query_subject_fqdn,
-           { "FQDN subject",         "icmpv6.ni.query.subject_fqdn", FT_STRING, BASE_NONE, NULL, 0x0,
-             NULL, HFILL }},
-        { &hf_icmpv6_ni_query_subject_ipv4,
-           { "IPv4 subject address",         "icmpv6.ni.query.subject_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
-             NULL, HFILL }},
-        { &hf_icmpv6_ni_reply_node_ttl,
-           { "TTL",         "icmpv6.ni.query.subject_ipv4", FT_UINT32, BASE_DEC, NULL, 0x0,
-             NULL, HFILL }},
-        { &hf_icmpv6_ni_reply_node_name,
-           { "Name Node",         "icmpv6.ni.query.node_name", FT_STRING, BASE_NONE, NULL, 0x0,
-             NULL, HFILL }},
-        { &hf_icmpv6_ni_reply_node_address,
-           { "IPv6 Node address",         "icmpv6.ni.query.node_address", FT_IPv6, BASE_NONE, NULL, 0x0,
-             NULL, HFILL }},
-        { &hf_icmpv6_ni_reply_ipv4_address,
-           { "IPv4 Node address",         "icmpv6.ni.query.ipv4_address", FT_IPv4, BASE_NONE, NULL, 0x0,
-             NULL, HFILL }},
-
+        /* RFC2710:  Multicast Listener Discovery for IPv6 */
+        { &hf_icmpv6_mld_mrd,
+          { "Maximum Response Delay [ms]", "icmpv6.mld.maximum_response_delay", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Specifies the maximum allowed delay before sending a responding Report, in units of milliseconds", HFILL }},
+        { &hf_icmpv6_mld_multicast_address,
+          { "Multicast Address", "icmpv6.mld.multicast_address", FT_IPv6, BASE_NONE, NULL, 0x0,
+            "Specific IPv6 multicast address", HFILL }},
         /* RFC 2894: Router Renumbering for IPv6 */
         { &hf_icmpv6_rr_sequencenumber,
            { "Sequence Number",         "icmpv6.rr.sequence_number", FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -3981,16 +3946,485 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_rr_rm_matchedprefix,
            { "MatchedPrefix",         "icmpv6.rr.rm.matchedprefix", FT_IPv6, BASE_NONE, NULL, 0x0,
              "The 128 Bits MatchedPrefix", HFILL }},
+
+        /* RFC3775: Mobility Support in IPv6 */
+        { &hf_icmpv6_mip6_identifier,
+          { "Identifier", "icmpv6.mip6.identifier", FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+            "An identifier to aid in matching with Request and Reply", HFILL }},
+        { &hf_icmpv6_mip6_home_agent_address,
+          { "Home Agent Address", "icmpv6.mip6.home_agent_address", FT_IPv6, BASE_NONE, NULL, 0x0,
+            "A list of addresses of home agents on the home link for the mobile node", HFILL }},
+        { &hf_icmpv6_mip6_flag,
+          { "Flags", "icmpv6.mip6.flag", FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_icmpv6_mip6_flag_m,
+          { "Managed address configuration", "icmpv6.mip6.flag.m", FT_BOOLEAN, 16, TFS(&tfs_set_notset), FLAGS_EO_M,
+            "When set, it indicates that addresses are available via DHCPv6", HFILL }},
+        { &hf_icmpv6_mip6_flag_o,
+          { "Other configuration", "icmpv6.mip6.flag.o", FT_BOOLEAN, 16, TFS(&tfs_set_notset), FLAGS_EO_O,
+            "When set, it indicates that other configuration information is available via DHCPv6", HFILL }},
+        { &hf_icmpv6_mip6_flag_rsv,
+          { "Reserved", "icmpv6.mip6.flag.rsv", FT_UINT16, BASE_DEC, NULL, 0x2FFF,
+            "Must be Zero", HFILL }},
+
+        /* RFC3810: Multicast Listener Discovery Version 2 (MLDv2) for IPv6 */
+        { &hf_icmpv6_mld_mrc,
+          { "Maximum Response Code", "icmpv6.mld.maximum_response_code", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Specifies the maximum allowed delay before sending a responding Report", HFILL }},
+       { &hf_icmpv6_mld_flag,
+          { "Flags", "icmpv6.mld.flag", FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+       { &hf_icmpv6_mld_flag_s,
+          { "Suppress Router-Side Processing", "icmpv6.mld.flag.s", FT_BOOLEAN, 8, NULL, MLD_FLAG_S,
+            "Indicates to any receiving multicast routers that they have to suppress the normal timer updates they perform upon hearing a Query", HFILL }},
+       { &hf_icmpv6_mld_flag_qrv,
+          { "QRV (Querier's Robustness Variable)", "icmpv6.mld.flag.qrv", FT_UINT8, BASE_DEC, NULL, MLD_FLAG_QRV,
+            "Contains the RV (Robustness Variable) value used by the Querier", HFILL }},
+       { &hf_icmpv6_mld_flag_rsv,
+          { "Reserved", "icmpv6.mld.flag.reserved", FT_UINT8, BASE_DEC, NULL, MLD_FLAG_RSV,
+            "Must Be Zero", HFILL }},
+       { &hf_icmpv6_mld_qqi,
+          { "QQIC (Querier's Query Interval Code)", "icmpv6.mld.qqi", FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Specifies the QI (Query Interval) used by the Querier", HFILL }},
+       { &hf_icmpv6_mld_nb_sources,
+          { "Number of Sources", "icmpv6.mld.nb_sources", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Specifies how many source addresses are present in the Query", HFILL }},
+       { &hf_icmpv6_mld_source_address,
+          { "Source Address", "icmpv6.mld.source_address", FT_IPv6, BASE_NONE, NULL, 0x0,
+            "The Source Address fields are a vector of unicast addresses", HFILL }},
+        { &hf_icmpv6_mldr_nb_mcast_records,
+          { "Number of Multicast Address Records", "icmpv6.mldr.nb_mcast_records", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Specifies how many Multicast Address Records are present in this Report", HFILL }},
+        { &hf_icmpv6_mldr_mar,
+          { "Multicast Address Record", "icmpv6.mldr.mar", FT_NONE, BASE_NONE, NULL, 0x0,
+            "Each Multicast Address Record is a block of fields that contain information on the sender listening to a single multicast address on the interface from which the Report is sent", HFILL }},
+        { &hf_icmpv6_mldr_mar_record_type,
+          { "Record Type", "icmpv6.mldr.mar.record_type", FT_UINT8, BASE_DEC, VALS(mldr_record_type_val), 0x0,
+            "It specifies the type of the Multicast Address Record", HFILL }},
+        { &hf_icmpv6_mldr_mar_aux_data_len,
+          { "Aux Data Len", "icmpv6.mldr.mar.aux_data_len", FT_UINT8, BASE_DEC, NULL, 0x0,
+            "The Aux Data Len field contains the length (in units of 32-bit words) of the Auxiliary Data Field in this Multicast Address Record", HFILL }},
+        { &hf_icmpv6_mldr_mar_nb_sources,
+          { "Number of Sources", "icmpv6.mldr.mar.nb_sources", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "The Number of Sources field specifies how many source addresses are present in this Multicast Address Record", HFILL }},
+        { &hf_icmpv6_mldr_mar_multicast_address,
+          { "Multicast Address", "icmpv6.mldr.mar.multicast_address", FT_IPv6, BASE_NONE, NULL, 0x0,
+            "The Multicast Address field contains the multicast address to which this Multicast Address Record pertains", HFILL }},
+        { &hf_icmpv6_mldr_mar_source_address,
+          { "Source Address", "icmpv6.mldr.mar.source_address", FT_IPv6, BASE_NONE, NULL, 0x0,
+            "The Source Address fields are a vector of unicast addresses", HFILL }},
+        { &hf_icmpv6_mldr_mar_auxiliary_data,
+          { "Auxiliary Data", "icmpv6.mldr.mar.auxiliary_data", FT_BYTES, BASE_NONE, NULL, 0x0,
+            "Contains additional information that pertain to this Multicast Address Record", HFILL }},
+        /* RFC 4068/5268/5568: Fast Handovers for Mobile IPv6 ( Mobile IPv6 Fast Handovers ) */
+        { &hf_icmpv6_fmip6_subtype,
+           { "Subtype",         "icmpv6.fmip6.subtype", FT_UINT8, BASE_DEC, VALS(fmip6_subtype_val), 0x0,
+             "Designates the Subtype of information", HFILL }},
+	{ &hf_icmpv6_fmip6_hi_flag,
+          { "Flag", "icmpv6.fmip6.hi.flag", FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }},
+	{ &hf_icmpv6_fmip6_hi_flag_s,
+          { "Assigned address configuration", "icmpv6.fmip6.hi.flag.s", FT_BOOLEAN, 8, TFS(&tfs_set_notset), FMIP6_HI_FLAG_S,
+            "When set, this message requests a new CoA to be returned by the destination", HFILL }},
+	{ &hf_icmpv6_fmip6_hi_flag_u,
+          { "Buffer", "icmpv6.fmip6.hi.flag.a", FT_BOOLEAN, 8, TFS(&tfs_set_notset), FMIP6_HI_FLAG_U,
+            "When set, the destination SHOULD buffer any packets toward the node indicated in the options of this message", HFILL }},
+	{ &hf_icmpv6_fmip6_hi_flag_reserved,
+          { "Reserved", "icmpv6.fmip6.hi.flag.reserved", FT_UINT8, BASE_DEC, NULL, FMIP6_HI_FLAG_RSV,
+            NULL, HFILL }},
+        { &hf_icmpv6_fmip6_identifier,
+          { "Identifier", "icmpv6.fmip6.identifier", FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+            "An identifier to aid in matching with Request and Reply", HFILL }},
+
+        /* RFC 4286: Multicast Router Discovery */
+        { &hf_icmpv6_mcast_ra_query_interval,
+          { "Query Interval", "icmpv6.mcast_ra.query_interval", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "The Query Interval value (in seconds) in use by MLD on the interface.", HFILL }},
+        { &hf_icmpv6_mcast_ra_robustness_variable,
+          { "Robustness Variable", "icmpv6.mcast_ra.robustness_variable", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "The Robustness Variable in use by MLD on the advertising interface", HFILL }},
+
+        /* RFC 4620: IPv6 Node Information Queries */
+        { &hf_icmpv6_ni_qtype,
+           { "Qtype",         "icmpv6.ni.qtype", FT_UINT16, BASE_DEC, VALS(ni_qtype_val), 0x0,
+             "Designates the type of information", HFILL }},
+        { &hf_icmpv6_ni_flag,
+           { "Flags",         "icmpv6.ni.flag", FT_UINT16, BASE_HEX, NULL, 0x0,
+             "Qtype-specific flags that may be defined for certain Query types and their Replies", HFILL }},
+        { &hf_icmpv6_ni_flag_g,
+           { "Global-scope addresses",         "icmpv6.ni.flag.g", FT_BOOLEAN, 16, TFS(&tfs_set_notset), NI_FLAG_G,
+             "Global-scope addresses are requested", HFILL }},
+        { &hf_icmpv6_ni_flag_s,
+           { "Site-local addresses",         "icmpv6.ni.flag.s", FT_BOOLEAN, 16, TFS(&tfs_set_notset), NI_FLAG_S,
+             "Site-local addresses are requested", HFILL }},
+        { &hf_icmpv6_ni_flag_l,
+           { "Link-local addresses",         "icmpv6.ni.flag.l", FT_BOOLEAN, 16, TFS(&tfs_set_notset), NI_FLAG_L,
+             "Link-local addresses are requested", HFILL }},
+        { &hf_icmpv6_ni_flag_c,
+           { "Compression",         "icmpv6.ni.flag.c", FT_BOOLEAN, 16, TFS(&tfs_set_notset), NI_FLAG_C,
+             "IPv4-compatible (now deprecated) and IPv4-mapped addresses are requested", HFILL }},
+        { &hf_icmpv6_ni_flag_a,
+           { "Unicast Addresses",         "icmpv6.ni.flag.a", FT_BOOLEAN, 16, TFS(&tfs_ni_flag_a), NI_FLAG_A,
+             "Responder's unicast addresses", HFILL }},
+        { &hf_icmpv6_ni_flag_t,
+           { "Truncated",         "icmpv6.ni.flag.t", FT_BOOLEAN, 16, TFS(&tfs_set_notset), NI_FLAG_T,
+             "Defined in a Reply only, indicates that the set of addresses is incomplete for space reasons", HFILL }},
+        { &hf_icmpv6_ni_flag_rsv,
+           { "Reserved",         "icmpv6.ni.flag.rsv", FT_UINT16, BASE_HEX, NULL, NI_FLAG_RSV,
+             "Must be Zero", HFILL }},
+        { &hf_icmpv6_ni_nonce,
+           { "Nonce",         "icmpv6.ni.nonce", FT_UINT64, BASE_HEX, NULL, 0x0,
+             "An opaque 64-bit field", HFILL }},
+        { &hf_icmpv6_ni_query_subject_ipv6,
+           { "IPv6 subject address",         "icmpv6.ni.query.subject_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_ni_query_subject_fqdn,
+           { "FQDN subject",         "icmpv6.ni.query.subject_fqdn", FT_STRING, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_ni_query_subject_ipv4,
+           { "IPv4 subject address",         "icmpv6.ni.query.subject_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_ni_reply_node_ttl,
+           { "TTL",         "icmpv6.ni.query.subject_ipv4", FT_UINT32, BASE_DEC, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_ni_reply_node_name,
+           { "Name Node",         "icmpv6.ni.query.node_name", FT_STRING, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_ni_reply_node_address,
+           { "IPv6 Node address",         "icmpv6.ni.query.node_address", FT_IPv6, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_ni_reply_ipv4_address,
+           { "IPv4 Node address",         "icmpv6.ni.query.ipv4_address", FT_IPv4, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }},
+
+        /* RPL: draft-ietf-roll-rpl-17.txt: Routing over Low-Power and Lossy Networks. */
+        { &hf_icmpv6_rpl_dis_flag,
+           { "Flags",          "icmpv6.rpl.dis.flags", FT_UINT8, BASE_DEC, NULL, 0x0,
+             "8-bit unused field reserved for flags", HFILL }},
+        { &hf_icmpv6_rpl_dio_instance,
+           { "RPLInstanceID",     "icmpv6.rpl.dio.instance", FT_UINT8, BASE_DEC, NULL, 0x0,
+             "Set by the DODAG root that indicates which RPL Instance the DODAG is part of", HFILL }},
+        { &hf_icmpv6_rpl_dio_version,
+           { "Version",           "icmpv6.rpl.dio.version", FT_UINT8, BASE_DEC, NULL, 0x0,
+             "Set by the DODAG root to the DODAGVersionNumber", HFILL }},
+        { &hf_icmpv6_rpl_dio_rank,
+           { "Rank",              "icmpv6.rpl.dio.rank", FT_UINT16, BASE_DEC, NULL, 0x0,
+             "Indicating the DODAG rank of the node sending the DIO message", HFILL }},
+        { &hf_icmpv6_rpl_dio_flag,
+           { "Flags",              "icmpv6.rpl.dio.flag", FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_dio_flag_g,
+           { "Grounded (G)",              "icmpv6.rpl.dio.flag.g", FT_BOOLEAN, 8, NULL, RPL_DIO_FLAG_G,
+             "Indicates whether the DODAG advertised can satisfy the application-defined goal", HFILL }},
+        { &hf_icmpv6_rpl_dio_flag_0,
+           { "Zero",              "icmpv6.rpl.dio.flag.0", FT_BOOLEAN, 8, NULL, RPL_DIO_FLAG_0,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_dio_flag_mop,
+           { "Mode of Operation (MOP)",               "icmpv6.rpl.dio.flag.mop", FT_UINT8, BASE_HEX, VALS(rpl_dio_map_val), RPL_DIO_FLAG_MOP,
+             "Identifies the mode of operation of the RPL Instance as administratively provisioned at and distributed by the DODAG Root", HFILL }},
+        { &hf_icmpv6_rpl_dio_flag_prf,
+           { "DODAG Preference",    "icmpv6.rpl.dio.flag.preference", FT_UINT8, BASE_DEC, NULL, RPL_DIO_FLAG_PRF,
+             "Defines how preferable the root of this DODAG is compared to other DODAG roots within the instance", HFILL }},
+        { &hf_icmpv6_rpl_dio_dtsn,
+           { "Destination Advertisement Trigger Sequence Number (DTSN)",              "icmpv6.rpl.dio.dtsn", FT_UINT8, BASE_DEC, NULL, 0x0,
+             "The DTSN is used as part of the procedure to maintain downward routes.", HFILL }},
+        { &hf_icmpv6_rpl_dio_dagid,
+           { "DODAGID",           "icmpv6.rpl.dio.dagid", FT_IPv6, BASE_NONE, NULL, 0x0,
+             "IPv6 address set by a DODAG root which uniquely identifies a DODAG", HFILL }},
+        { &hf_icmpv6_rpl_dao_instance,
+           { "RPLInstanceID",      "icmpv6.rpl.dao.instance", FT_UINT8, BASE_DEC, NULL, 0x0,
+             "Indicating the topology instance associated with the DODAG as learned from the DIO", HFILL }},
+        { &hf_icmpv6_rpl_dao_flag,
+           { "Flags",   "icmpv6.rpl.dao.flag", FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_dao_flag_k,
+           { "DAO-ACK Request (K)",   "icmpv6.rpl.dao.flag.k", FT_BOOLEAN, 8, NULL, RPL_DAO_FLAG_K,
+             "Indicates that the recipient is expected to send a DAO-ACK back", HFILL }},
+        { &hf_icmpv6_rpl_dao_flag_d,
+           { "DODAGID Present (D)",   "icmpv6.rpl.dao.flag.d", FT_BOOLEAN, 8, NULL, RPL_DAO_FLAG_D,
+             "Indicates that the DODAGID field is present", HFILL }},
+        { &hf_icmpv6_rpl_dao_flag_rsv,
+           { "Reserved",          "icmpv6.rpl.dao.flag.rsv", FT_UINT8, BASE_DEC, NULL, RPL_DAO_FLAG_RESERVED,
+             "Must be zero", HFILL }},
+        { &hf_icmpv6_rpl_dao_sequence,
+           { "DAO Sequence",      "icmpv6.rpl.dao.sequence", FT_UINT8, BASE_DEC, NULL, 0x0,
+             "Incremented at each unique DAO message from a node and echoed in the DAO-ACK message", HFILL }},
+        { &hf_icmpv6_rpl_dao_dodagid,
+           { "DODAGID",           "icmpv6.rpl.dao.dodagid", FT_IPv6, BASE_NONE, NULL, 0x0,
+             "IPv6 address set by a DODAG root which uniquely identifies a DODAG", HFILL }},
+        { &hf_icmpv6_rpl_daoack_instance,
+           { "RPLInstanceID",          "icmpv6.rpl.daoack.instance", FT_UINT8, BASE_DEC, NULL, 0x0,
+             "Indicating the topology instance associated with the DODAG, as learned from the DIO", HFILL }},
+        { &hf_icmpv6_rpl_daoack_flag,
+           { "Flag",   "icmpv6.rpl.daoack.flag", FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_daoack_flag_d,
+           { "DODAGID Present (D)",   "icmpv6.rpl.daoack.flag.d", FT_BOOLEAN, 8, NULL, RPL_DAOACK_FLAG_D,
+             "Indicates that the DODAGID field is present", HFILL }},
+        { &hf_icmpv6_rpl_daoack_flag_rsv,
+           { "Reserved",          "icmpv6.rpl.daoack.flag.rsv", FT_UINT8, BASE_DEC, NULL, RPL_DAOACK_FLAG_RESERVED,
+             "Must be zero", HFILL }},
+        { &hf_icmpv6_rpl_daoack_sequence,
+           { "DAO-ACK Sequence",  "icmpv6.rpl.daoack.sequence", FT_UINT8, BASE_DEC, NULL, 0x0,
+             "Incremented at each DAO message from a node, and echoed in the DAO-ACK by the recipient", HFILL }},
+        { &hf_icmpv6_rpl_daoack_status,
+           { "Status",            "icmpv6.rpl.daoack.status", FT_UINT8, BASE_DEC, NULL, 0x0,
+             "Indicates the completion", HFILL }},
+        { &hf_icmpv6_rpl_daoack_dodagid,
+           { "DODAGID",           "icmpv6.rpl.daoack.dodagid", FT_IPv6, BASE_NONE, NULL, 0x0,
+             "IPv6 address integer set by a DODAG root which uniquely identifies a DODAG", HFILL }},
+        { &hf_icmpv6_rpl_cc_instance,
+           { "RPLInstanceID",          "icmpv6.rpl.cc.instance", FT_UINT8, BASE_DEC, NULL, 0x0,
+             "Indicating the topology instance associated with the DODAG, as learned from the DIO", HFILL }},
+        { &hf_icmpv6_rpl_cc_flag,
+           { "Flag",   "icmpv6.rpl.cc.flag", FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_cc_flag_r,
+           { "Reponse (R)",   "icmpv6.rpl.cc.flag.r", FT_BOOLEAN, 8, NULL, RPL_CC_FLAG_R,
+             "Indicates whether the CC message is a response", HFILL }},
+        { &hf_icmpv6_rpl_cc_flag_rsv,
+           { "Reserved",          "icmpv6.rpl.cc.flag.rsv", FT_UINT8, BASE_DEC, NULL, RPL_CC_FLAG_RESERVED,
+             "Must be zero", HFILL }},
+        { &hf_icmpv6_rpl_cc_nonce,
+           { "CC Nonce",          "icmpv6.rpl.cc.nonce", FT_UINT16, BASE_HEX, NULL, 0x0,
+             "The corresponding CC response includes the same CC nonce value as the request, as learned from the DIO", HFILL }},
+        { &hf_icmpv6_rpl_cc_dodagid,
+           { "DODAGID",           "icmpv6.rpl.cc.dodagid", FT_IPv6, BASE_NONE, NULL, 0x0,
+             "IPv6 address integer set by a DODAG root which uniquely identifies a DODAG", HFILL }},
+        { &hf_icmpv6_rpl_cc_destination_counter,
+           { "Destination Counter",          "icmpv6.rpl.cc.destination_counter", FT_UINT32, BASE_DEC, NULL, 0x0,
+             "Indicating the sender's estimate of the destination's current security Counter value", HFILL }},
+        { &hf_icmpv6_rpl_secure_flag,
+           { "Flags",          "icmpv6.rpl.secure.flag", FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_secure_flag_t,
+           { "Counter is Time (T)",          "icmpv6.rpl.secure.flag.t", FT_BOOLEAN, 8, NULL, RPL_SECURE_FLAG_T,
+             "If it is set then the Counter field is a timestamp", HFILL }},
+        { &hf_icmpv6_rpl_secure_flag_rsv,
+           { "Reserved",          "icmpv6.rpl.secure.flag.rsv", FT_UINT8, BASE_DEC, NULL, RPL_SECURE_FLAG_RSV,
+             "Must be zero", HFILL }},
+        { &hf_icmpv6_rpl_secure_algorithm,
+           { "Algorithm",          "icmpv6.rpl.secure.algorithm", FT_UINT8, BASE_DEC, NULL, 0x0,
+             "The Security Algorithm field specifies the encryption, MAC, and signature scheme the network uses", HFILL }},
+        { &hf_icmpv6_rpl_secure_algorithm_encryption,
+           { "Algorithm (Encryption)",          "icmpv6.rpl.secure.algorithm.encryption", FT_UINT8, BASE_DEC, VALS(rpl_secure_algorithm_encryption_val), 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_secure_algorithm_signature,
+           { "Algorithm (Signature)",          "icmpv6.rpl.secure.algorithm.signature", FT_UINT8, BASE_DEC, VALS(rpl_secure_algorithm_signature_val), 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_secure_kim,
+           { "Key Identifier Mode (KIM)",          "icmpv6.rpl.secure.kim", FT_UINT8, BASE_DEC, NULL, RPL_SECURE_KIM,
+             "That indicates whether the key used for packet protection is determined implicitly or explicitly and indicates the particular representation of the Key Identifier field", HFILL }},
+        { &hf_icmpv6_rpl_secure_lvl,
+           { "Security Level (LVL)",          "icmpv6.rpl.secure.lvl", FT_UINT8, BASE_DEC, NULL, RPL_SECURE_LVL,
+             "Indicates the provided packet protection", HFILL }},
+        { &hf_icmpv6_rpl_secure_rsv,
+           { "Reserved",          "icmpv6.rpl.secure.rsv", FT_UINT8, BASE_DEC, NULL, RPL_SECURE_RSV,
+             "Must be zero", HFILL }},
+        { &hf_icmpv6_rpl_secure_counter,
+           { "Counter",          "icmpv6.rpl.secure.counter", FT_UINT32, BASE_DEC, NULL, 0x0,
+             "Indicates the non-repeating 4-octet value used to construct the cryptographic mechanism that implements packet protection and allows for the provision of semantic security", HFILL }},
+        { &hf_icmpv6_rpl_secure_key_source,
+           { "Key Source",          "icmpv6.rpl.secure.key.source", FT_BYTES, BASE_NONE, NULL, 0x0,
+             "Indicates the logical identifier of the originator of a group key", HFILL }},
+        { &hf_icmpv6_rpl_secure_key_index,
+           { "Key Source",          "icmpv6.rpl.secure.key.index", FT_UINT8, BASE_DEC, NULL, 0x0,
+             "Allows unique identification of different keys with the same originator", HFILL }},
+        { &hf_icmpv6_rpl_opt,
+          { "ICMPv6 RPL Option",           "icmpv6.opt", FT_NONE,  BASE_NONE, NULL, 0x0,
+            "Option", HFILL }},
+        { &hf_icmpv6_rpl_opt_type,
+          { "Type",           "icmpv6.rpl.opt.type", FT_UINT8,  BASE_DEC, VALS(rpl_option_vals), 0x0,
+            "Options type", HFILL }},
+        { &hf_icmpv6_rpl_opt_length,
+          { "Length",         "icmpv6.rpl.opt.length", FT_UINT8,  BASE_DEC, NULL, 0x0,
+            "The length of the option in octets excluding the Type and Length fields", HFILL }},
+        { &hf_icmpv6_rpl_opt_reserved,
+          { "Reserved", "icmpv6.rpl.opt.reserved", FT_NONE, BASE_NONE, NULL, 0x0,
+            "Reserved (Must be 0)", HFILL }},
+        { &hf_icmpv6_rpl_opt_padn,
+          { "Paddn", "icmpv6.rpl.opt.padn", FT_NONE, BASE_NONE, NULL, 0x0,
+            "Padding (Must be 0)", HFILL }},
+        { &hf_icmpv6_rpl_opt_route_prefix_length,
+           { "Prefix Length",      "icmpv6.rpl.opt.route.prefix_length", FT_UINT8, BASE_DEC, NULL, 0x0,
+             "The number of leading bits in the Prefix that are valid", HFILL }},
+        { &hf_icmpv6_rpl_opt_route_flag,
+           { "Flag","icmpv6.rpl.opt.route.flag", FT_NONE, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_route_pref,
+           { "Preference","icmpv6.rpl.opt.route.pref", FT_UINT8, BASE_DEC, VALS(nd_flag_router_pref), RPL_OPT_ROUTE_PREFERENCE,
+             "The Route Preference indicates whether to prefer the router associated with this prefix over others, when multiple identical prefixes (for different routers) have been received", HFILL }},
+        { &hf_icmpv6_rpl_opt_route_reserved,
+           { "Reserved","icmpv6.rpl.opt.route.reserved", FT_UINT8, BASE_DEC, NULL, RPL_OPT_ROUTE_RESERVED,
+             "Reserved (Must be Zero)", HFILL }},
+        { &hf_icmpv6_rpl_opt_route_lifetime,
+           { "Route Lifetime",    "icmpv6.rpl.opt.route.lifetime", FT_UINT32, BASE_DEC, NULL, 0x0,
+             "The length of time in seconds (relative to the time the packet is sent) that the prefix is valid for route determination", HFILL }},
+        { &hf_icmpv6_rpl_opt_route_prefix,
+           { "Prefix",             "icmpv6.rpl.opt.route.prefix", FT_IPv6, BASE_NONE, NULL, 0x0,
+             "Variable-length field containing an IP address or a prefix of an IPv6 address", HFILL }},
+        { &hf_icmpv6_rpl_opt_config_flag,
+           { "Flag","icmpv6.rpl.opt.config.flag", FT_NONE, BASE_NONE, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_config_reserved,
+           { "Reserved","icmpv6.rpl.opt.config.reserved", FT_UINT8, BASE_DEC, NULL, RPL_OPT_CONFIG_FLAG_RESERVED,
+             "Must be Zero", HFILL }},
+        { &hf_icmpv6_rpl_opt_config_auth,
+           { "Authentication Enabled","icmpv6.rpl.opt.config.auth", FT_BOOLEAN, 8, TFS(&tfs_set_notset), RPL_OPT_CONFIG_FLAG_AUTH,
+             "One bit flag describing the security mode of the network", HFILL }},
+        { &hf_icmpv6_rpl_opt_config_pcs,
+           { "Path Control Size",  "icmpv6.rpl.opt.config.pcs", FT_UINT8, BASE_DEC, NULL, RPL_OPT_CONFIG_FLAG_PCS,
+             "Used to configure the number of bits that may be allocated to the Path Control field", HFILL }},
+        { &hf_icmpv6_rpl_opt_config_doublings,
+           { "DIOIntervalDoublings","icmpv6.rpl.opt.config.interval_double", FT_UINT8, BASE_DEC, NULL, 0x0,
+             "Used to configure Imax of the DIO trickle timer", HFILL }},
+        { &hf_icmpv6_rpl_opt_config_min_interval,
+           { "DIOIntervalMin",     "icmpv6.rpl.opt.config.interval_min", FT_UINT16, BASE_DEC, NULL, 0x0,
+             "Used to configure Imin of the DIO trickle timer", HFILL }},
+        { &hf_icmpv6_rpl_opt_config_redundancy,
+           { "DIORedundancyConstant", "icmpv6.rpl.opt.config.redundancy", FT_UINT8, BASE_DEC, NULL, 0x0,
+             "Used to configure k of the DIO trickle timer", HFILL }},
+        { &hf_icmpv6_rpl_opt_config_rank_incr,
+           { "MaxRankInc",         "icmpv6.rpl.opt.config.max_rank_inc", FT_UINT16, BASE_DEC, NULL, 0x0,
+             "Used to configure DAGMaxRankIncrease", HFILL }},
+        { &hf_icmpv6_rpl_opt_config_hop_rank_inc,
+           { "MinHopRankInc",      "icmpv6.rpl.opt.config.min_hop_rank_inc", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "Used to configure MinHopRankIncrease", HFILL }},
+        { &hf_icmpv6_rpl_opt_config_ocp,
+           { "OCP (Objective Code Point)","icmpv6.rpl.opt.config.ocp", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "The OCP field identifies the OF and is managed by the IANA", HFILL }},
+        { &hf_icmpv6_rpl_opt_config_rsv,
+           { "Reserved",           "icmpv6.rpl.opt.config.rsv", FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_config_def_lifetime,
+           { "Default Lifetime",   "icmpv6.rpl.opt.config.def_lifetime", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "This is the lifetime that is used as default for all RPL routes", HFILL }},
+        { &hf_icmpv6_rpl_opt_config_lifetime_unit,
+           { "Lifetime Unit",      "icmpv6.rpl.opt.config.lifetime_unit", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "Provides the unit in seconds that is used to express route lifetimes in RPL", HFILL }},
+        { &hf_icmpv6_rpl_opt_target_flag,
+           { "Reserved",           "icmpv6.rpl.opt.target.flag", FT_NONE, BASE_NONE, NULL, 0x0,
+              "Unused field reserved for flags", HFILL }},
+        { &hf_icmpv6_rpl_opt_target_prefix_length,
+           { "Target Length",      "icmpv6.rpl.opt.target.prefix_length", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "Number of valid leading bits in the IPv6 Prefix", HFILL }},
+        { &hf_icmpv6_rpl_opt_target_prefix,
+           { "Target",             "icmpv6.rpl.opt.target.prefix", FT_IPv6, BASE_NONE, NULL, 0x0,
+              "Identifying an IPv6 destination address, prefix, or multicast group", HFILL }},
+        { &hf_icmpv6_rpl_opt_transit_flag,
+           { "Flags",              "icmpv6.rpl.opt.transit.flag", FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }},
+         { &hf_icmpv6_rpl_opt_transit_flag_e,
+           { "External",           "icmpv6.rpl.opt.transit.flag.e", FT_BOOLEAN, 8, TFS(&tfs_set_notset), RPL_OPT_TRANSIT_FLAG_E,
+             "Indicate that the parent router redistributes external targets into the RPL network", HFILL }},
+         { &hf_icmpv6_rpl_opt_transit_flag_rsv,
+           { "Reserved",           "icmpv6.rpl.opt.transit.flag.rsv", FT_UINT8, BASE_DEC, NULL, RPL_OPT_TRANSIT_FLAG_RSV,
+             "Must be Zero", HFILL }},
+        { &hf_icmpv6_rpl_opt_transit_pathctl,
+           { "Path Control",       "icmpv6.rpl.opt.transit.pathctl", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "Limits the number of DAO-Parents to which a DAO message advertising connectivity", HFILL }},
+        { &hf_icmpv6_rpl_opt_transit_pathseq,
+           { "Path Sequence",      "icmpv6.rpl.opt.transit.pathseq", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "Increments the Path Sequence each time it issues a RPL Target option with updated information", HFILL }},
+        { &hf_icmpv6_rpl_opt_transit_pathlifetime,
+           { "Path Lifetime",      "icmpv6.rpl.opt.transit.pathlifetime", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "The length of time in Lifetime Units that the prefix is valid for route determination", HFILL }},
+        { &hf_icmpv6_rpl_opt_transit_parent,
+           { "Parent Address",     "icmpv6.rpl.opt.transit.parent", FT_IPv6, BASE_NONE, NULL, 0x0,
+              "IPv6 Address of the DODAG Parent of the node originally issuing the Transit Information Option", HFILL }},
+        { &hf_icmpv6_rpl_opt_solicited_instance,
+           { "Instance",           "icmpv6.rpl.opt.solicited.instance", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "Containing the RPLInstanceID that is being solicited when valid", HFILL }},
+        { &hf_icmpv6_rpl_opt_solicited_flag,
+           { "Flag",  "icmpv6.rpl.opt.solicited.flag", FT_UINT8, BASE_HEX, NULL, 0x0,
+              NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_solicited_flag_v,
+           { "Version predicate",  "icmpv6.rpl.opt.solicited.flag.v", FT_BOOLEAN, 8, TFS(&tfs_true_false), RPL_OPT_SOLICITED_FLAG_V,
+              "The Version predicate is true if the receiver's DODAGVersionNumber matches the requested Version Number", HFILL }},
+        { &hf_icmpv6_rpl_opt_solicited_flag_i,
+           { "InstanceID predicate","icmpv6.rpl.opt.solicited.flag.i", FT_BOOLEAN, 8, TFS(&tfs_true_false), RPL_OPT_SOLICITED_FLAG_I,
+              "The InstanceID predicate is true when the RPL node's current RPLInstanceID matches the requested RPLInstanceID", HFILL }},
+        { &hf_icmpv6_rpl_opt_solicited_flag_d,
+           { "DODAGID predicate",  "icmpv6.rpl.opt.solicited.flag.d", FT_BOOLEAN, 8, TFS(&tfs_true_false), RPL_OPT_SOLICITED_FLAG_D,
+              "The DODAGID predicate is true if the RPL node's parent set has the same DODAGID as the DODAGID field", HFILL }},
+         { &hf_icmpv6_rpl_opt_solicited_flag_rsv,
+           { "Reserved",           "icmpv6.rpl.opt.solicited.flag.rsv", FT_UINT8, BASE_DEC, NULL, RPL_OPT_SOLICITED_FLAG_RSV,
+             "Must be Zero", HFILL }},
+        { &hf_icmpv6_rpl_opt_solicited_dodagid,
+           { "DODAGID",            "icmpv6.rpl.opt.solicited.dodagid", FT_IPv6, BASE_NONE, NULL, 0x0,
+              "the DODAGID that is being solicited when valid", HFILL }},
+        { &hf_icmpv6_rpl_opt_solicited_version,
+           { "Version",            "icmpv6.rpl.opt.solicited.version", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "the value of  DODAGVersionNumber that is being solicited when valid", HFILL }},
+
+        { &hf_icmpv6_rpl_opt_prefix_length,
+           { "Prefix Length",      "icmpv6.rpl.opt.prefix.length", FT_UINT8, BASE_DEC, NULL, 0x0,
+             "The number of leading bits in the Prefix that are valid", HFILL }},
+        { &hf_icmpv6_rpl_opt_prefix_flag,
+           { "Flag",            "icmpv6.rpl.opt.prefix.flag", FT_UINT8, BASE_HEX, NULL, 0x0,
+             NULL, HFILL }},
+        { &hf_icmpv6_rpl_opt_prefix_flag_l,
+           { "On Link",            "icmpv6.rpl.opt.prefix.flag.l", FT_BOOLEAN, 8, TFS(&tfs_set_notset), RPL_OPT_PREFIX_FLAG_L,
+             "When set, indicates that this prefix can be used for on-link determination", HFILL }},
+        { &hf_icmpv6_rpl_opt_prefix_flag_a,
+           { "Auto Address Config","icmpv6.rpl.opt.config.flag.a", FT_BOOLEAN, 8, TFS(&tfs_set_notset), RPL_OPT_PREFIX_FLAG_A,
+             "When set indicates that this prefix can be used for stateless address configuration", HFILL }},
+        { &hf_icmpv6_rpl_opt_prefix_flag_r,
+           { "Router Address",     "icmpv6.rpl.opt.config.flag.r", FT_BOOLEAN, 8, TFS(&tfs_set_notset), RPL_OPT_PREFIX_FLAG_R,
+             "When set, indicates that the Prefix field contains a complete IPv6 address assigned to the sending router that can be used as parent in a target option", HFILL }},
+        { &hf_icmpv6_rpl_opt_prefix_flag_rsv,
+           { "Reserved",     "icmpv6.rpl.opt.config.flag.rsv", FT_UINT8, BASE_DEC, NULL, RPL_OPT_PREFIX_FLAG_RSV,
+             "Must Be Zero", HFILL }},
+        { &hf_icmpv6_rpl_opt_prefix_vlifetime,
+           { "Valid Lifetime",    "icmpv6.rpl.opt.prefix.valid_lifetime", FT_UINT32, BASE_DEC, NULL, 0x0,
+             "The length of time in seconds that the prefix is valid for the purpose of on-link determination", HFILL }},
+        { &hf_icmpv6_rpl_opt_prefix_plifetime,
+           { "Preferred Lifetime", "icmpv6.rpl.opt.prefix.preferred_lifetime", FT_UINT32, BASE_DEC, NULL, 0x0,
+             "The length of time in seconds that addresses generated from the prefix via stateless address autoconfiguration remain preferred", HFILL }},
+        { &hf_icmpv6_rpl_opt_prefix,
+           { "Destination Prefix", "icmpv6.rpl.opt.prefix", FT_IPv6, BASE_NONE, NULL, 0x0,
+             "An IPv6 address or a prefix of an IPv6 address", HFILL }},
+        { &hf_icmpv6_rpl_opt_targetdesc,
+           { "Descriptor",         "icmpv6.rpl.opt.targetdesc.descriptor", FT_UINT32, BASE_HEX, NULL, 0x0,
+             "Opaque Data", HFILL }},
     };
 
     static gint *ett[] = {
         &ett_icmpv6,
-        &ett_icmpv6opt,
-        &ett_icmpv6flag,
-        &ett_icmpv6mar,
-        &ett_icmpv6opt_name,
-        &ett_cga_param_name,
-        &ett_dao_rr_stack
+        &ett_icmpv6_opt,
+        &ett_icmpv6_mar,
+        &ett_icmpv6_flag_prefix,
+        &ett_icmpv6_flag_map,
+        &ett_icmpv6_flag_route_info,
+        &ett_icmpv6_flag_6lowpan,
+        &ett_icmpv6_flag_efo,
+        &ett_icmpv6_rpl_opt,
+        &ett_icmpv6_rpl_flag_routing,
+        &ett_icmpv6_rpl_flag_config,
+        &ett_icmpv6_rpl_flag_transit,
+        &ett_icmpv6_rpl_flag_solicited,
+        &ett_icmpv6_rpl_flag_prefix,
+        &ett_icmpv6_flag_ni,
+        &ett_icmpv6_flag_rr,
+        &ett_icmpv6_rr_mp,
+        &ett_icmpv6_rr_up,
+        &ett_icmpv6_rr_up_flag_mask,
+        &ett_icmpv6_rr_up_flag_ra,
+        &ett_icmpv6_rr_up_flag,
+        &ett_icmpv6_rr_rm,
+        &ett_icmpv6_rr_rm_flag,
+        &ett_icmpv6_flag_mld,
+        &ett_icmpv6_flag_ra,
+        &ett_icmpv6_flag_na,
+        &ett_icmpv6_flag_mip6,
+        &ett_icmpv6_flag_fmip6,
+        &ett_icmpv6_flag_secure,
+        &ett_icmpv6_flag_rpl_dio,
+        &ett_icmpv6_flag_rpl_dao,
+        &ett_icmpv6_flag_rpl_daoack,
+        &ett_icmpv6_flag_rpl_cc,
+        &ett_icmpv6_opt_name,
+        &ett_icmpv6_cga_param_name
     };
 
     proto_icmpv6 = proto_register_protocol("Internet Control Message Protocol v6",
