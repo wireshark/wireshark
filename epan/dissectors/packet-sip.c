@@ -756,7 +756,7 @@ static dissector_table_t media_type_dissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 
 #define SIP2_HDR "SIP/2.0"
-#define SIP2_HDR_LEN ((gint)strlen (SIP2_HDR))
+#define SIP2_HDR_LEN 7
 
 /* Store the info needed by the SIP tap for one packet */
 static sip_info_value_t *stat_info;
