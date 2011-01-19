@@ -579,6 +579,16 @@ highlight_field(tvbuff_t *tvb, gint byte, GtkTreeView *tree_view,
     gtk_tree_selection_select_path(gtk_tree_view_get_selection(tree_view),
                                    first_path);
 
+	/* If the last search was a string or hex search within "Packet data", the entire field might 
+       not be highlighted. If the user just clicked on one of the bytes comprising that field, the
+       above call didn't trigger a 'gtk_tree_view_get_selection' event. Call redraw_packet_bytes()
+       to make the highlighting of the entire field visible. */   
+    if (!cfile.search_in_progress) {        
+        if (cfile.hex || (cfile.string && !(cfile.summary_data || cfile.decode_data))) {
+            redraw_packet_bytes(byte_nb_ptr_gbl, cfile.current_frame, cfile.finfo_selected);
+        }
+    }
+
     /* And position the window so the selection is visible.
      * Position the selection in the middle of the viewable
      * pane. */
@@ -1562,8 +1572,23 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
 
 
     if (finfo != NULL) {
-        bstart = finfo->start;
-        blen = finfo->length;
+
+        if (cfile.search_in_progress) { 
+            if (cfile.hex || (cfile.string && !(cfile.summary_data || cfile.decode_data))) {        
+                /* In the hex view, only highlight the target bytes or string. The entire
+                   field can then be displayed by clicking on any of the bytes in the field. */
+                if (cfile.hex) {
+                    blen = strlen(cfile.sfilter)/2;
+                } else {
+                    blen = strlen(cfile.sfilter);
+                }
+                bstart = cfile.search_pos - (blen-1);
+            }
+        } else {	
+            blen = finfo->length;
+            bstart = finfo->start;
+        }
+
         /* bmask = finfo->hfinfo->bitmask << finfo->hfinfo->bitshift; */ /* (value & mask) >> shift */
         bmask = finfo->hfinfo->bitmask;
         astart = finfo->appendix_start;

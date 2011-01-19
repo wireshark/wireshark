@@ -3992,7 +3992,10 @@ find_packet(capture_file *cf,
   if (new_fd != NULL) {
 #ifdef NEW_PACKET_LIST
     /* Find and select */
+    cf->search_in_progress = TRUE;
     row = new_packet_list_find_row_from_data(fdata, TRUE);
+    cf->search_in_progress = FALSE;
+    cf->search_pos = 0; /* Reset the position */
 #else
     /* We found a frame.  Find what row it's in. */
     row = packet_list_find_row_from_data(new_fd);

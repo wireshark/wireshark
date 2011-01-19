@@ -79,6 +79,7 @@ typedef struct _capture_file {
   gboolean     case_type;       /* TRUE if case-insensitive text search */
   gboolean     decode_data;     /* TRUE if searching protocol tree text */
   gboolean     summary_data;    /* TRUE if searching Info column text */
+  gboolean     search_in_progress; /* TRUE if user just clicked OK in the Find dialog or hit <control>N/B */
   /* packet data */
   union wtap_pseudo_header pseudo_header; /* Packet pseudo_header */
   guint8       pd[WTAP_MAX_PACKET_SIZE];  /* Packet data */
