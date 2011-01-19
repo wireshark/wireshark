@@ -269,6 +269,7 @@ static int hf_ulp_utran_GPSReferenceTimeAssistance = -1;  /* UTRAN_GPSReferenceT
 static int hf_ulp_utran_GANSSReferenceTimeAssistance = -1;  /* UTRAN_GANSSReferenceTimeAssistance */
 static int hf_ulp_emergencyCallLocation = -1;     /* NULL */
 static int hf_ulp_serviceCapabilities = -1;       /* ServiceCapabilities */
+static int hf_ulp_supportedBearers = -1;          /* SupportedBearers */
 static int hf_ulp_servicesSupported = -1;         /* ServicesSupported */
 static int hf_ulp_reportingCapabilities = -1;     /* ReportingCap */
 static int hf_ulp_eventTriggerCapabilities = -1;  /* EventTriggerCapabilities */
@@ -284,6 +285,14 @@ static int hf_ulp_polygonArea_01 = -1;            /* BOOLEAN */
 static int hf_ulp_maxNumberTotalSessions = -1;    /* INTEGER_1_128 */
 static int hf_ulp_maxNumberPeriodicSessions = -1;  /* INTEGER_1_32 */
 static int hf_ulp_maxNumberTriggeredSessions = -1;  /* INTEGER_1_32 */
+static int hf_ulp_gsm = -1;                       /* BOOLEAN */
+static int hf_ulp_wcdma = -1;                     /* BOOLEAN */
+static int hf_ulp_lte = -1;                       /* BOOLEAN */
+static int hf_ulp_cdma = -1;                      /* BOOLEAN */
+static int hf_ulp_hprd = -1;                      /* BOOLEAN */
+static int hf_ulp_umb = -1;                       /* BOOLEAN */
+static int hf_ulp_wlan = -1;                      /* BOOLEAN */
+static int hf_ulp_wiMAX = -1;                     /* BOOLEAN */
 static int hf_ulp_lpp = -1;                       /* BOOLEAN */
 static int hf_ulp_posProtocolVersionRRLP = -1;    /* PosProtocolVersion3GPP */
 static int hf_ulp_posProtocolVersionRRC = -1;     /* PosProtocolVersion3GPP */
@@ -350,7 +359,10 @@ static int hf_ulp_gPSWeek = -1;                   /* INTEGER_0_1023 */
 static int hf_ulp_gPSTOWhour = -1;                /* INTEGER_0_167 */
 static int hf_ulp_gANSSday = -1;                  /* INTEGER_0_8191 */
 static int hf_ulp_gANSSTODhour = -1;              /* INTEGER_0_23 */
-static int hf_ulp_lPPPayload = -1;                /* OCTET_STRING_SIZE_1_8192 */
+static int hf_ulp_lPPPayload = -1;                /* T_lPPPayload */
+static int hf_ulp_lPPPayload_item = -1;           /* OCTET_STRING_SIZE_1_60000 */
+static int hf_ulp_tIA801Payload = -1;             /* T_tIA801Payload */
+static int hf_ulp_tIA801Payload_item = -1;        /* OCTET_STRING_SIZE_1_60000 */
 static int hf_ulp_maj = -1;                       /* INTEGER_0_255 */
 static int hf_ulp_min = -1;                       /* INTEGER_0_255 */
 static int hf_ulp_servind = -1;                   /* INTEGER_0_255 */
@@ -740,6 +752,7 @@ static gint ett_ulp_ServicesSupported = -1;
 static gint ett_ulp_EventTriggerCapabilities = -1;
 static gint ett_ulp_GeoAreaShapesSupported = -1;
 static gint ett_ulp_SessionCapabilities = -1;
+static gint ett_ulp_SupportedBearers = -1;
 static gint ett_ulp_Ver2_PosProtocol_extension = -1;
 static gint ett_ulp_PosProtocolVersion3GPP = -1;
 static gint ett_ulp_PosProtocolVersion3GPP2 = -1;
@@ -765,6 +778,8 @@ static gint ett_ulp_GanssExtendedEphCheck = -1;
 static gint ett_ulp_GPSTime = -1;
 static gint ett_ulp_GANSSextEphTime = -1;
 static gint ett_ulp_Ver2_PosPayLoad_extension = -1;
+static gint ett_ulp_T_lPPPayload = -1;
+static gint ett_ulp_T_tIA801Payload = -1;
 static gint ett_ulp_Version = -1;
 static gint ett_ulp_SessionID = -1;
 static gint ett_ulp_SetSessionID = -1;
@@ -2280,8 +2295,30 @@ dissect_ulp_ServiceCapabilities(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 }
 
 
+static const per_sequence_t SupportedBearers_sequence[] = {
+  { &hf_ulp_gsm             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { &hf_ulp_wcdma           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { &hf_ulp_lte             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { &hf_ulp_cdma            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { &hf_ulp_hprd            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { &hf_ulp_umb             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { &hf_ulp_wlan            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { &hf_ulp_wiMAX           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ulp_SupportedBearers(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ulp_SupportedBearers, SupportedBearers_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t Ver2_SETCapabilities_extension_sequence[] = {
   { &hf_ulp_serviceCapabilities, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_ServiceCapabilities },
+  { &hf_ulp_supportedBearers, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_SupportedBearers },
   { NULL, 0, 0, NULL }
 };
 
@@ -2720,9 +2757,9 @@ dissect_ulp_INTEGER_0_8191(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 
 static const value_string ulp_TAResolution_vals[] = {
-  {   0, "res1-0chip" },
-  {   1, "res0-5chip" },
-  {   2, "res0-125chip" },
+  {   0, "res10chip" },
+  {   1, "res05chip" },
+  {   2, "res0125chip" },
   { 0, NULL }
 };
 
@@ -4493,8 +4530,47 @@ dissect_ulp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
+
+static int
+dissect_ulp_OCTET_STRING_SIZE_1_60000(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       1, 60000, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_lPPPayload_sequence_of[1] = {
+  { &hf_ulp_lPPPayload_item , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_OCTET_STRING_SIZE_1_60000 },
+};
+
+static int
+dissect_ulp_T_lPPPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_ulp_T_lPPPayload, T_lPPPayload_sequence_of,
+                                                  1, 3, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_tIA801Payload_sequence_of[1] = {
+  { &hf_ulp_tIA801Payload_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_OCTET_STRING_SIZE_1_60000 },
+};
+
+static int
+dissect_ulp_T_tIA801Payload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_ulp_T_tIA801Payload, T_tIA801Payload_sequence_of,
+                                                  1, 3, FALSE);
+
+  return offset;
+}
+
+
 static const per_sequence_t Ver2_PosPayLoad_extension_sequence[] = {
-  { &hf_ulp_lPPPayload      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_OCTET_STRING_SIZE_1_8192 },
+  { &hf_ulp_lPPPayload      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_T_lPPPayload },
+  { &hf_ulp_tIA801Payload   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_T_tIA801Payload },
   { NULL, 0, 0, NULL }
 };
 
@@ -7049,6 +7125,10 @@ void proto_register_ulp(void) {
       { "serviceCapabilities", "ulp.serviceCapabilities",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_ulp_supportedBearers,
+      { "supportedBearers", "ulp.supportedBearers",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_ulp_servicesSupported,
       { "servicesSupported", "ulp.servicesSupported",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -7109,6 +7189,38 @@ void proto_register_ulp(void) {
       { "maxNumberTriggeredSessions", "ulp.maxNumberTriggeredSessions",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_1_32", HFILL }},
+    { &hf_ulp_gsm,
+      { "gsm", "ulp.gsm",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_ulp_wcdma,
+      { "wcdma", "ulp.wcdma",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_ulp_lte,
+      { "lte", "ulp.lte",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_ulp_cdma,
+      { "cdma", "ulp.cdma",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_ulp_hprd,
+      { "hprd", "ulp.hprd",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_ulp_umb,
+      { "umb", "ulp.umb",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_ulp_wlan,
+      { "wlan", "ulp.wlan",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_ulp_wiMAX,
+      { "wiMAX", "ulp.wiMAX",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
     { &hf_ulp_lpp,
       { "lpp", "ulp.lpp",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
@@ -7375,8 +7487,20 @@ void proto_register_ulp(void) {
         "INTEGER_0_23", HFILL }},
     { &hf_ulp_lPPPayload,
       { "lPPPayload", "ulp.lPPPayload",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ulp_lPPPayload_item,
+      { "lPPPayload item", "ulp.lPPPayload_item",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_1_8192", HFILL }},
+        "OCTET_STRING_SIZE_1_60000", HFILL }},
+    { &hf_ulp_tIA801Payload,
+      { "tIA801Payload", "ulp.tIA801Payload",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ulp_tIA801Payload_item,
+      { "tIA801Payload item", "ulp.tIA801Payload_item",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_1_60000", HFILL }},
     { &hf_ulp_maj,
       { "maj", "ulp.maj",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -8679,6 +8803,7 @@ void proto_register_ulp(void) {
     &ett_ulp_EventTriggerCapabilities,
     &ett_ulp_GeoAreaShapesSupported,
     &ett_ulp_SessionCapabilities,
+    &ett_ulp_SupportedBearers,
     &ett_ulp_Ver2_PosProtocol_extension,
     &ett_ulp_PosProtocolVersion3GPP,
     &ett_ulp_PosProtocolVersion3GPP2,
@@ -8704,6 +8829,8 @@ void proto_register_ulp(void) {
     &ett_ulp_GPSTime,
     &ett_ulp_GANSSextEphTime,
     &ett_ulp_Ver2_PosPayLoad_extension,
+    &ett_ulp_T_lPPPayload,
+    &ett_ulp_T_tIA801Payload,
     &ett_ulp_Version,
     &ett_ulp_SessionID,
     &ett_ulp_SetSessionID,
