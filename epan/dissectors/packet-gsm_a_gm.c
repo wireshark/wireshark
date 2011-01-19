@@ -2457,6 +2457,14 @@ de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 	proto_tree_add_item(subtree, hf_gsm_a_gm_rac, tvb, curr_offset+5, 1, FALSE);
 
 	curr_offset+=6;
+    if (add_string)
+    {
+        if (add_string[0] == '\0')
+        {
+            g_snprintf(add_string, string_len, " - RAI: %x-%x-%u-%u", mcc,mnc,lac,rac);
+        }
+    }
+
 
 	/* no length check possible */
 
