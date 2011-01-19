@@ -1578,9 +1578,9 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
                 /* In the hex view, only highlight the target bytes or string. The entire
                    field can then be displayed by clicking on any of the bytes in the field. */
                 if (cfile.hex) {
-                    blen = strlen(cfile.sfilter)/2;
+                    blen = (int)strlen(cfile.sfilter)/2;
                 } else {
-                    blen = strlen(cfile.sfilter);
+                    blen = (int)strlen(cfile.sfilter);
                 }
                 bstart = cfile.search_pos - (blen-1);
             }
