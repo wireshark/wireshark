@@ -3689,13 +3689,11 @@ static int decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _
 {
 
     guint16 length, quint_len, con_len;
-    guint8 cksn, count, sec_mode, len;
+    guint8 cksn, count, sec_mode, len, iei;
     proto_tree *ext_tree_mm;
     proto_item *te;
     proto_item *tf = NULL;
     proto_tree *tf_tree = NULL;
-    tvbuff_t *l3_tvb;
-
 
     te = proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str_ext_const(GTP_EXT_MM_CNTXT, &gtp_val_ext, "Unknown message"));
     ext_tree_mm = proto_item_add_subtree(te, ett_gtp_mm);
@@ -3791,9 +3789,23 @@ static int decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _
     de_gmm_ms_net_cap(tvb, tf_tree, offset, len, NULL, 0);
     offset = offset + len;
 
-/* Container contains one or several optional information elements as described in the clause 'Overview',
- * from the clause 'General message format and information elements coding' in 3GPP TS 24.008.
- * The IMEISV shall, if available, be included in the Container.
+/* 3GPP TS 29.060 version 9.4.0 Release 9
+ *  The two octets Container Length holds the length of the Container, excluding the Container Length octets.
+ * Container contains one or several optional information elements as described in the clause "Overview", from the clause
+ * "General message format and information elements coding" in 3GPP TS 24.008 [5]. For the definition of the IEI see
+ * table 47a, "IEIs for information elements used in the container". The IMEISV shall, if available, be included in the
+ * Container. The IMEISV is included in the Mobile identity IE. If Container is not included, its Length field value shall
+ * be set to 0. If the MS is emergency attached and the MS is UICCless or the IMSI is unauthenticated, the International
+ * Mobile Equipment Identity (IMEI) shall be used as the MS identity.
+ * 
+ * Table 47A: IEIs for information elements used in the container
+ * IEI            Information element
+ * 0x23           Mobile identity
+ *
+ * NOTE: In 3GPP TS 24.008 [5] the IEI definition is
+ * message dependent. The table is added to
+ * have a unique definition in the present
+ * document for the used IEI in the MMcontext.
  */
 
     con_len = tvb_get_ntohs(tvb, offset);
@@ -3801,10 +3813,19 @@ static int decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _
     offset = offset + 2;
 
     if (con_len > 0) {
+		proto_tree_add_text(ext_tree_mm, tvb, offset, con_len, "Container", con_len);
 
-        l3_tvb = tvb_new_subset(tvb, offset, con_len, con_len);
-        if (!dissector_try_uint(bssap_pdu_type_table, BSSAP_PDU_TYPE_DTAP, l3_tvb, pinfo, ext_tree_mm))
-            call_dissector(data_handle, l3_tvb, pinfo, ext_tree_mm);
+ 		iei = tvb_get_guint8(tvb,offset);
+		if (iei == 0x23){
+			proto_tree_add_text(ext_tree_mm, tvb, offset, 1, "Mobile identity IEI %u",iei);
+			offset++;
+			len = tvb_get_guint8(tvb,offset);
+			proto_tree_add_text(ext_tree_mm, tvb, offset, 1, "Length %u",len);
+			offset++;
+			de_mid(tvb, ext_tree_mm, offset, len, NULL, NULL);
+		}else{
+			proto_tree_add_text(ext_tree_mm, tvb, offset, 1, "Unknown IEI %u - Later spec than TS 29.060 9.4.0 used?",iei);
+		}
     }
 
     return 3 + length;
