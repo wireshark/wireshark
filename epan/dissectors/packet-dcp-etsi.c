@@ -167,7 +167,7 @@ dissect_dcp_etsi (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
    *
    * 7.1 PFT fragment structure
    * PFT Header
-   * 14, 16, 18 or 20 bytes (depending on options)                                                                              Optional present if FEC=1 Optional present if Addr = 1  
+   * 14, 16, 18 or 20 bytes (depending on options)                                                                              Optional present if FEC=1 Optional present if Addr = 1
    * Psync              Pseq            Findex          Fcount          FEC             HCRC            Addr    Plen    | RSk           RSz                     | Source        Dest
    * 16 bits    16 bits         24 bits         24 bits         1 bit   16 bits         1 bit   14 bits | 8 bits        8 bits          | 16 bits       16 bits
    *
@@ -323,7 +323,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
         }
         for(; current_findex<next_fragment_we_have; current_findex++) {
           frag = fragment_add_seq_check (dummytvb, 0, pinfo, seq,
-                                         dcp_fragment_table, dcp_reassembled_table, 
+                                         dcp_fragment_table, dcp_reassembled_table,
                                          current_findex, plen, (current_findex+1!=fcount));
         }
         current_findex++; /* skip over the fragment we have */
@@ -642,16 +642,17 @@ dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       bytes++;
     if(tree) {
       proto_item *i = NULL;
-      const guint8 *p = tvb_get_ptr(tvb, offset, bytes);
       if(strcmp(tag, "*ptr")==0) {
         prot = (char*)tvb_get_ephemeral_string (tvb, offset, 4);
         maj = tvb_get_ntohs(tvb, offset+4);
         min = tvb_get_ntohs(tvb, offset+6);
         i = proto_tree_add_bytes_format(tpl_tree, hf_tpl_tlv, tvb,
-              offset-8, bytes+8, p, "%s %s rev %d.%d", tag, prot, maj, min);
+              offset-8, bytes+8, tvb_get_ptr(tvb, offset, bytes),
+	      "%s %s rev %d.%d", tag, prot, maj, min);
       } else {
         i = proto_tree_add_bytes_format(tpl_tree, hf_tpl_tlv, tvb,
-              offset-8, bytes+8, p, "%s (%u bits)", tag, bits);
+              offset-8, bytes+8, tvb_get_ptr(tvb, offset, bytes),
+	      "%s (%u bits)", tag, bits);
       }
     }
     offset += bytes;

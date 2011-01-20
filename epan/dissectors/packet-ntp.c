@@ -658,7 +658,6 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	gint8		precision;
 	double		rootdelay;
 	double		rootdispersion;
-	const guint8	*refid;
 	guint32		refid_addr;
 	const guint8	*reftime;
 	const guint8	*org;
@@ -748,7 +747,6 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	 * But, all V3 and V4 servers set this to IP adress of their
 	 * higher level server. My decision was to resolve this address.
 	 */
-	refid = tvb_get_ptr(tvb, 12, 4);
 	buff = ep_alloc(NTP_TS_SIZE);
 	if (stratum <= 1) {
 		g_snprintf (buff, NTP_TS_SIZE, "Unidentified reference source '%.4s'",
@@ -772,7 +770,7 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 		}
 	}
 	proto_tree_add_bytes_format(ntp_tree, hf_ntp_refid, tvb, 12, 4,
-				   refid,
+				   tvb_get_ptr(tvb, 12, 4),
 				   "Reference Clock ID: %s", buff);
 
 	/* Reference Timestamp: This is the time at which the local clock was

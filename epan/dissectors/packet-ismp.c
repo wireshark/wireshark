@@ -228,8 +228,6 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 	guint16 num_tuples = 0;
 	guint16 tuple_type = 0;
 	guint16 tuple_length = 0;
-	const guint8 *neighbors_ptr;
-	const guint8 *tuples_ptr;
 
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *edp_ti;
@@ -362,15 +360,14 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 			tvb_ensure_bytes_exist(tvb, offset, num_neighbors*10);
 			if (tvb_reported_length_remaining(tvb, offset) >= (num_neighbors *10))
 			{
-				neighbors_ptr = tvb_get_ptr( tvb, offset, (num_neighbors*10) );
 				edp_neighbors_ti = proto_tree_add_bytes_format(edp_tree, hf_ismp_edp_neighbors, tvb,
-					offset, num_neighbors*10, neighbors_ptr, "Neighbors:");
+					offset, num_neighbors*10, tvb_get_ptr(tvb, offset, (num_neighbors*10)), "Neighbors:");
 			}
 			else
 			{
-				neighbors_ptr = tvb_get_ptr( tvb, offset, tvb_reported_length_remaining(tvb, offset) );
 				edp_neighbors_ti = proto_tree_add_bytes_format(edp_tree, hf_ismp_edp_neighbors, tvb,
-					offset, num_neighbors *10, neighbors_ptr, "Neighbors:");
+					offset, num_neighbors *10,
+					tvb_get_ptr(tvb, offset, tvb_reported_length_remaining(tvb, offset)), "Neighbors:");
 			}
 			edp_neighbors_tree = proto_item_add_subtree(edp_neighbors_ti, ett_ismp_edp_neighbors);
 			while ( neighbors_count < num_neighbors && tvb_reported_length_remaining(tvb, offset) >= 10)
@@ -416,9 +413,9 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 		/* start populating tuple information */
 		if (num_tuples && tvb_reported_length_remaining(tvb, offset) >= 4)
 		{
-			tuples_ptr = tvb_get_ptr(tvb, offset, tvb_reported_length_remaining(tvb, offset));
 			edp_tuples_ti = proto_tree_add_bytes_format(edp_tree, hf_ismp_edp_tuples, tvb,
-				offset, tvb_reported_length_remaining(tvb, offset), tuples_ptr, "Tuples");
+				offset, tvb_reported_length_remaining(tvb, offset),
+				tvb_get_ptr(tvb, offset, tvb_reported_length_remaining(tvb, offset)), "Tuples");
 			edp_tuples_tree = proto_item_add_subtree(edp_tuples_ti, ett_ismp_edp_tuples);
 
 			while ( (tuples_count < num_tuples) && (tvb_reported_length_remaining(tvb, offset) >= 4) )

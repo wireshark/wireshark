@@ -211,7 +211,6 @@ static int dissect_olsrorg_lq_tc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   while (offset < message_end) {
     proto_item *address_group;
     proto_tree *address_tree;
-    const guint8 *ptr;
     guint8 lq, nlq;
 
     if (pinfo->src.type == AT_IPv4) {
@@ -220,12 +219,12 @@ static int dissect_olsrorg_lq_tc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             offset, message_end - offset), "Not enough bytes for last entry (need 8 bytes)");
         return message_end;
       }
-      ptr = tvb_get_ptr(tvb, offset, 8);
       lq = tvb_get_guint8(tvb, offset + 4);
       nlq = tvb_get_guint8(tvb, offset + 5);
 
-      address_group = proto_tree_add_bytes_format(olsr_tree, hf_olsr_neighbor, tvb, offset, 8, ptr,
-          "Neighbor Address: %s (%d/%d)", ip_to_str(ptr), lq, nlq);
+      address_group = proto_tree_add_bytes_format(olsr_tree, hf_olsr_neighbor, tvb, offset, 8,
+          tvb_get_ptr(tvb, offset, 8), "Neighbor Address: %s (%d/%d)",
+	  tvb_ip_to_str(tvb, offset), lq, nlq);
 
       address_tree = proto_item_add_subtree(address_group, ett_olsr_message_neigh);
 
@@ -233,16 +232,16 @@ static int dissect_olsrorg_lq_tc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
       offset += 4;
     } else if (pinfo->src.type == AT_IPv6) {
       if (message_end - offset < 20) {
-        proto_tree_add_bytes_format(olsr_tree, hf_olsr_neighbor, tvb, offset, message_end - offset, tvb_get_ptr(tvb,
-            offset, message_end - offset), "Not enough bytes for last entry (need 20 bytes)");
+        proto_tree_add_bytes_format(olsr_tree, hf_olsr_neighbor, tvb, offset, message_end - offset,
+            tvb_get_ptr(tvb, offset, message_end - offset), "Not enough bytes for last entry (need 20 bytes)");
         return message_end;
       }
-      ptr = tvb_get_ptr(tvb, offset, 20);
       lq = tvb_get_guint8(tvb, offset + 16);
       nlq = tvb_get_guint8(tvb, offset + 17);
 
-      address_group = proto_tree_add_bytes_format(olsr_tree, hf_olsr_neighbor, tvb, offset, 20, ptr,
-          "Neighbor Address: %s (%d/%d)", ip6_to_str((const struct e_in6_addr *) ptr), lq, nlq);
+      address_group = proto_tree_add_bytes_format(olsr_tree, hf_olsr_neighbor, tvb, offset, 20,
+          tvb_get_ptr(tvb, offset, 20), "Neighbor Address: %s (%d/%d)",
+	  tvb_ip6_to_str(tvb, offset), lq, nlq);
 
       address_tree = proto_item_add_subtree(address_group, ett_olsr_message_neigh);
 
@@ -374,7 +373,6 @@ static int handle_olsr_hello_olsrorg(tvbuff_t *tvb, packet_info *pinfo, proto_tr
   while (offset < link_message_end) {
     proto_item *address_group;
     proto_tree *address_tree;
-    const guint8 *ptr;
     guint8 lq, nlq;
 
     if (link_message_end - offset < pinfo->src.len + 4) {
@@ -384,24 +382,24 @@ static int handle_olsr_hello_olsrorg(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     }
 
     if (pinfo->src.type == AT_IPv4) {
-      ptr = tvb_get_ptr(tvb, offset, 8);
       lq = tvb_get_guint8(tvb, offset + 4);
       nlq = tvb_get_guint8(tvb, offset + 5);
 
-      address_group = proto_tree_add_bytes_format(olsr_tree, hf_olsr_neighbor, tvb, offset, 8, ptr,
-          "Neighbor Address: %s (%d/%d)", ip_to_str(ptr), lq, nlq);
+      address_group = proto_tree_add_bytes_format(olsr_tree, hf_olsr_neighbor, tvb, offset, 8,
+           tvb_get_ptr(tvb, offset, 8), "Neighbor Address: %s (%d/%d)",
+	   tvb_ip_to_str(tvb, offset), lq, nlq);
 
       address_tree = proto_item_add_subtree(address_group, ett_olsr_message_neigh);
 
       proto_tree_add_item(address_tree, hf_olsr_neighbor_addr, tvb, offset, 4, FALSE);
       offset += 4;
     } else if (pinfo->src.type == AT_IPv6) {
-      ptr = tvb_get_ptr(tvb, offset, 20);
       lq = tvb_get_guint8(tvb, offset + 16);
       nlq = tvb_get_guint8(tvb, offset + 17);
 
-      address_group = proto_tree_add_bytes_format(olsr_tree, hf_olsr_neighbor, tvb, offset, 20, ptr,
-          "Neighbor Address: %s (%d/%d)", ip6_to_str((const struct e_in6_addr *) ptr), lq, nlq);
+      address_group = proto_tree_add_bytes_format(olsr_tree, hf_olsr_neighbor, tvb, offset, 20,
+          tvb_get_ptr(tvb, offset, 20), "Neighbor Address: %s (%d/%d)",
+          tvb_ip6_to_str(tvb, offset), lq, nlq);
 
       address_tree = proto_item_add_subtree(address_group, ett_olsr_message_neigh);
 
