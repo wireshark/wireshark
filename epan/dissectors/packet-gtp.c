@@ -4804,6 +4804,11 @@ static int decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo 
     offset = offset + 1;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
     offset = offset + 2;
+	/* The Target Identification information element contains the identification of a target RNC. Octets 4-n shall be encoded
+	 * as the "Target RNC-ID" part of the "Target ID" parameter in 3GPP TS 25.413 [7]. Therefore, the "Choice Target ID"
+	 * that indicates "Target RNC-ID" (numerical value of 0x20) shall not be included in the "Target RNC-ID" value in octets
+	 * 4-n.
+	 */
     next_tvb = tvb_new_subset(tvb, offset, length, length);
     dissect_ranap_TargetRNC_ID(next_tvb, 0, &asn1_ctx, ext_tree, hf_gtp_targetRNC_ID);
 
