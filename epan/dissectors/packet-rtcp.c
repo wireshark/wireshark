@@ -2618,7 +2618,7 @@ static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 static int
 rtcp_packet_type_to_tree( int rtcp_packet_type)
 {
-    int tree = ett_rtcp;
+    int tree;
 
     switch(rtcp_packet_type) {
     case RTCP_SR: tree = ett_rtcp_sr; break;

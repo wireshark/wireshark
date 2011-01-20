@@ -5497,8 +5497,8 @@ static gint dissect_r3_command (tvbuff_t *tvb, guint32 start_offset, guint32 len
     proto_item *cmd_item = NULL;
     proto_tree *cmd_tree = NULL;
     const gchar *cn = NULL;
-    guint8 cmdLen = tvb_get_guint8 (tvb, start_offset + 0);
-    guint8 cmd = tvb_get_guint8 (tvb, start_offset + 1);
+    guint8 cmdLen;
+    guint8 cmd;
 
     tvb_ensure_bytes_exist (tvb, start_offset, 2);
 

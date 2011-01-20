@@ -3031,7 +3031,7 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, const gint offset, int len,
 gint tvb_skip_wsp(tvbuff_t* tvb, const gint offset, const gint maxlength)
 {
 	gint counter = offset;
-	gint end = offset + maxlength,tvb_len;
+	gint end, tvb_len;
 	guint8 tempchar;
 
 	/* Get the length remaining */

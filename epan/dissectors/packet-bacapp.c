@@ -8905,7 +8905,7 @@ static void
 dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 flag, bacapp_type;
-	guint save_fragmented = FALSE, data_offset = 0, bacapp_apdu_size = fGetMaxAPDUSize(0), fragment = FALSE;
+	guint save_fragmented = FALSE, data_offset = 0, bacapp_apdu_size, fragment = FALSE;
 	tvbuff_t* new_tvb = NULL;
 	guint offset = 0;
 	guint8 bacapp_seqno = 0;

@@ -1258,7 +1258,7 @@ pcap_read_erf_exheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
   guint8 erf_exhdr[8];
   guint64 erf_exhdr_sw;
   int i = 0, max = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
-  guint8 type = pseudo_header->erf.phdr.type;
+  guint8 type;
   *psize = 0;
   if (pseudo_header->erf.phdr.type & 0x80){
     do{

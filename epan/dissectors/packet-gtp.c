@@ -6444,7 +6444,7 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
     guint8 sub_proto, acfield_len = 0, control_field;
     gtp_msg_hash_t *gcrp=NULL;
     conversation_t *conversation=NULL;
-    gtp_conv_info_t *gtp_info=(gtp_conv_info_t *)pinfo->private_data;
+    gtp_conv_info_t *gtp_info;
     void* pd_save;
 
 
