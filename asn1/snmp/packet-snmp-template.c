@@ -730,23 +730,26 @@ indexing_done:
 	if (oid_info_is_ok && oid_info->value_type) {
 		if (ber_class == BER_CLASS_UNI && tag == BER_UNI_TAG_NULL) {
 			pi_value = proto_tree_add_item(pt_varbind,hf_snmp_unSpecified,tvb,value_offset,value_len,FALSE);
-		}  else {
+		} else {
+			/* Provide a tree_item to attach errors to, if needed. */
+			pi_value = pi_name;
+
 			if ((oid_info->value_type->ber_class != BER_CLASS_ANY) &&
 				(ber_class != oid_info->value_type->ber_class))
 				format_error = BER_WRONG_TAG;
-
-			if ((oid_info->value_type->ber_tag != BER_TAG_ANY) &&
+			else if ((oid_info->value_type->ber_tag != BER_TAG_ANY) &&
 				(tag != oid_info->value_type->ber_tag))
 				format_error = BER_WRONG_TAG;
+			else {
+				max_len = oid_info->value_type->max_len == -1 ? 0xffffff : oid_info->value_type->max_len;
+				min_len  = oid_info->value_type->min_len;
 
-			max_len = oid_info->value_type->max_len == -1 ? 0xffffff : oid_info->value_type->max_len;
-			min_len  = oid_info->value_type->min_len;
-
-			if ((int)value_len < min_len || (int)value_len > max_len) {
-				format_error = BER_WRONG_LENGTH;
-			} else {
-				pi_value = proto_tree_add_item(pt_varbind,oid_info->value_hfid,tvb,value_offset,value_len,FALSE);
+				if ((int)value_len < min_len || (int)value_len > max_len)
+					format_error = BER_WRONG_LENGTH;
 			}
+
+			if (format_error == BER_NO_ERROR)
+				pi_value = proto_tree_add_item(pt_varbind,oid_info->value_hfid,tvb,value_offset,value_len,FALSE);
 		}
 	} else {
 		switch(ber_class|(tag<<4)) {
