@@ -3813,7 +3813,7 @@ static int decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _
     offset = offset + 2;
 
     if (con_len > 0) {
-		proto_tree_add_text(ext_tree_mm, tvb, offset, con_len, "Container", con_len);
+		proto_tree_add_text(ext_tree_mm, tvb, offset, con_len, "Container");
 
  		iei = tvb_get_guint8(tvb,offset);
 		if (iei == 0x23){
@@ -3822,7 +3822,7 @@ static int decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _
 			len = tvb_get_guint8(tvb,offset);
 			proto_tree_add_text(ext_tree_mm, tvb, offset, 1, "Length %u",len);
 			offset++;
-			de_mid(tvb, ext_tree_mm, offset, len, NULL, NULL);
+			de_mid(tvb, ext_tree_mm, offset, len, NULL, 0);
 		}else{
 			proto_tree_add_text(ext_tree_mm, tvb, offset, 1, "Unknown IEI %u - Later spec than TS 29.060 9.4.0 used?",iei);
 		}
