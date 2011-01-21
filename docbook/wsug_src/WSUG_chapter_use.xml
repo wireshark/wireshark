@@ -1,4 +1,4 @@
-<!-- WSUG Chapter Three -->
+﻿<!-- WSUG Chapter Three -->
 <!-- $Id$ -->
 
 <chapter id="ChapterUsing">
@@ -352,16 +352,25 @@
 	    </para>
 	  </listitem>
 	</varlistentry>
+	<varlistentry><term><command>Internals</command></term>
+	  <listitem>
+	    <para>
+	      This menu contains items that show information about the internals
+	      of Wireshark.
+		  See <xref linkend="ChUseInternalsMenuSection"/>.
+	    </para>
+	  </listitem>
+	</varlistentry>
 	<varlistentry><term><command>Help</command></term>
 	  <listitem>
 	    <para>
 	      This menu contains items to help the user, e.g. access to some basic
-		  help, a list of the supported protocols, manual pages, online access
+		  help, manual pages of the various command line tools, online access
 		  to some of the webpages, and the usual about dialog.
 		  See <xref linkend="ChUseHelpMenuSection"/>.
 	    </para>
 	  </listitem>
-	  </varlistentry>
+	</varlistentry>
 	</variablelist>
       Each of these menu items is described in more detail in the sections
 	  that follow.
@@ -424,7 +433,7 @@
 			It is discussed in more detail in <xref linkend="ChIOMergeSection"/>.
 		  </para></entry>
 	      </row>
-	      <!--<row>
+	      <row>
 		<entry><command>Import...</command></entry>
 		<entry></entry>
 		<entry><para>
@@ -432,7 +441,7 @@
 		    allows you to import a text file into a new temporary capture.
 			It is discussed in more detail in <xref linkend="ChIOImportSection"/>.
 		  </para></entry>
-	      </row>-->
+	      </row>
 	      <row>
 		<entry><command>Close</command></entry>
 		<entry>Ctrl+W</entry>
@@ -553,6 +562,15 @@
 		<entry><para>
 		    This menu item allows you to export all or some of the captured DICOM objects
 		    into local files. It pops up the Wireshark DICOM object list (which is discussed
+		    further in <xref linkend="ChIOExportObjectsDialog"/>)
+		</para></entry>
+	      </row>
+	      <row>
+		<entry><command>Export > Objects > SMB</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item allows you to export all or some of the captured SMB objects
+		    into local files. It pops up the Wireshark SMB object list (which is discussed
 		    further in <xref linkend="ChIOExportObjectsDialog"/>)
 		</para></entry>
 	      </row>
@@ -690,6 +708,27 @@
 		  </para></entry>
 	      </row>
 	      <row>
+		<entry><command>Toggle Marking Of All Displayed Packets</command></entry>
+		<entry>Shift+Ctrl+Alt+M</entry>
+		<entry><para>
+		    This menu item toggles the mark on all displayed packets.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Mark All Displayed Packets</command></entry>
+		<entry>Shift+Ctrl+M</entry>
+		<entry><para>
+		    This menu item "marks" all displayed packets.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Unmark All Displayed Packets</command></entry>
+		<entry>Ctrl+Alt+M</entry>
+		<entry><para>
+		    This menu item "unmarks" all displayed packets.
+		  </para></entry>
+	      </row>
+	      <row>
 		<entry><command>Find Next Mark</command></entry>
 		<entry>Shift+Ctrl+N</entry>
 		<entry><para>
@@ -704,41 +743,28 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><command>Mark All Displayed Packets</command></entry>
-		<entry></entry>
-		<entry><para>
-		    This menu item "marks" all displayed packets.
-		  </para></entry>
-	      </row>
-	      <row>
-		<entry><command>Unmark All Packets</command></entry>
-		<entry></entry>
-		<entry><para>This menu item "unmarks" all marked packets.
-		  </para></entry>
-	      </row>
-	      <row>
 		<entry><command>------</command></entry>
 		<entry></entry>
 		<entry></entry>
 	      </row>
 	      <row>
 		<entry><command>Ignore Packet (toggle)</command></entry>
-		<entry>Ctrl+X</entry>
+		<entry>Ctrl+D</entry>
 		<entry><para>
 		    This menu item marks the currently selected packet as ignored.
 		    See <xref linkend="ChWorkIgnorePacketSection"/> for details.
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><command>Ignore All Displayed Packets</command></entry>
-		<entry>Shift-Ctrl-Alt-X</entry>
+		<entry><command>Ignore All Displayed Packets (toggle)</command></entry>
+		<entry>Shift+Ctrl+D</entry>
 		<entry><para>
 		    This menu item marks all displayed packets as ignored.
 		  </para></entry>
 	      </row>
 	      <row>
 		<entry><command>Un-Ignore All Packets</command></entry>
-		<entry>Shift-Ctrl-X</entry>
+		<entry>Ctrl+Alt+D</entry>
 		<entry><para>
 		    This menu item unmarks all ignored packets.
 		  </para></entry>
@@ -758,15 +784,22 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><command>Find Next Reference</command></entry>
-		<entry></entry>
+		<entry><command>Un-Time Reference All Packets</command></entry>
+		<entry>Ctrl+Alt+T</entry>
+		<entry><para>
+		    This menu item removes all time references on the packets.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Find Next Time Reference</command></entry>
+		<entry>Ctrl+Alt+N</entry>
 		<entry><para>
 		    This menu item tries to find the next time referenced packet.
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><command>Find Previous Reference</command></entry>
-		<entry></entry>
+		<entry><command>Find Previous Time Reference</command></entry>
+		<entry>Ctrl+Alt+B</entry>
 		<entry><para>
 		    This menu item tries to find the previous time referenced packet.
 		  </para></entry>
@@ -778,7 +811,7 @@
 	      </row>
 	      <row>
 		<entry><command>Configuration Profiles...</command></entry>
-		<entry>Shift-Ctrl-A</entry>
+		<entry>Shift+Ctrl+A</entry>
 		<entry><para>
 		    This menu item brings up a dialog box for handling configuration
 		    profiles.  More detail is provided in
@@ -1081,7 +1114,7 @@
 	      </row>
 	      <row>
 		<entry><command>Resize All Columns</command></entry>
-		<entry></entry>
+		<entry>Shift+Ctrl+R</entry>
 		<entry><para>
 		  Resize all column widths so the content will fit into it.
 		  </para>
@@ -1107,7 +1140,7 @@
 	      </row>
 	      <row>
 		<entry><command>Expand Subtrees</command></entry>
-		<entry></entry>
+		<entry>Shift+Right</entry>
 		<entry><para>
 		    This menu item expands the currently selected subtree in the
 		    packet details tree.
@@ -1115,7 +1148,7 @@
 	      </row>
 	      <row>
 		<entry><command>Expand All</command></entry>
-		<entry></entry>
+		<entry>Ctrl+Right</entry>
 		<entry><para>
 		    Wireshark keeps a list of all the protocol subtrees
 		    that are expanded, and uses it to ensure that the
@@ -1126,7 +1159,7 @@
 	      </row>
 	      <row>
 		<entry><command>Collapse All</command></entry>
-		<entry></entry>
+		<entry>Ctrl+Left</entry>
 		<entry><para>
 		    This menu item collapses the tree view of all packets
 		    in the capture list.
@@ -1200,7 +1233,7 @@
 	      </row>
 	      <row>
 		<entry><command>Reload</command></entry>
-		<entry>Ctrl-R</entry>
+		<entry>Ctrl+R</entry>
 		<entry><para>
 		    This menu item allows you to reload the current
 		    capture file.
@@ -1251,7 +1284,7 @@
 	      </row>
 	      <row>
 		<entry><command>Go to Packet...</command></entry>
-		<entry>Ctrl-G</entry>
+		<entry>Ctrl+G</entry>
 		<entry><para>
 		    Bring up a dialog box that allows you
 		    to specify a packet number, and then goes to that packet. See
@@ -1304,6 +1337,24 @@
 		    Jump to the last packet of the capture file.
 		  </para></entry>
 	      </row>
+	      <row>
+		<entry><command>Previous Packet In Conversation</command></entry>
+		<entry>Ctrl+,</entry>
+		<entry><para>
+		    Move to the previous packet in the current conversation.  This can be
+                    used to move to the previous packet even if the packet
+                    list doesn't have keyboard focus.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Next Packet In Conversation</command></entry>
+		<entry>Ctrl+.</entry>
+		<entry><para>
+		    Move to the next packet in the current conversation.  This can be
+                    used to move to the previous packet even if the packet
+                    list doesn't have keyboard focus.
+		  </para></entry>
+	      </row>
 	    </tbody>
       </tgroup>
     </table>
@@ -1333,7 +1384,7 @@
 	    <tbody>
 	      <row>
 		<entry><command>Interfaces...</command></entry>
-		<entry></entry>
+		<entry>Ctrl+I</entry>
 		<entry><para>
 		    This menu item brings up a dialog box that shows what's going on
 			at the network interfaces Wireshark knows of, see
@@ -1352,7 +1403,7 @@
 	      </row>
 	      <row>
 		<entry><command>Start</command></entry>
-		<entry></entry>
+		<entry>Ctrl+E</entry>
 		<entry><para>
 		    Immediately start capturing packets with the same settings than
 			the last time.
@@ -1368,7 +1419,7 @@
 	      </row>
 	      <row>
 		<entry><command>Restart</command></entry>
-		<entry></entry>
+		<entry>Ctrl+R</entry>
 		<entry><para>
 		    This menu item stops the currently running capture and starts
 			again with the same options, this is just for convenience.
@@ -1473,7 +1524,7 @@
 	      </row>
   	      <row>
 		<entry><command>Enabled Protocols...</command></entry>
-		<entry>Shift+Ctrl+R</entry>
+		<entry>Shift+Ctrl+E</entry>
 		<entry><para>
 			This menu item allows the user to enable/disable protocol
 			dissectors, see <xref linkend="ChAdvEnabledProtocols"/>
@@ -1718,6 +1769,11 @@
 		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
 	      </row>
 	      <row>
+		<entry><command>Sametime</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
 		<entry><command>TCP Stream Graph</command></entry>
 		<entry></entry>
 		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
@@ -1799,16 +1855,11 @@
 		<entry><para>See <xref linkend="ChTelXXX"/></para></entry>
 	      </row>
 	      <row>
-		<entry><command>LTE MAC...</command></entry>
+		<entry><command>LTE</command></entry>
 		<entry></entry>
 		<entry><para>See <xref linkend="ChTelLTEMACTraffic"/></para></entry>
 	      </row>
-	      <row>
-		<entry><command>LTE RLC...</command></entry>
-		<entry></entry>
-		<entry><para>See <xref linkend="ChTelLTERLCTraffic"/></para></entry>
-	      </row>
-	      <row>
+        <row>
 		<entry><command>MTP3</command></entry>
 		<entry></entry>
 		<entry><para>See <xref linkend="ChTelXXX"/></para></entry>
@@ -1891,6 +1942,49 @@
     </table>
   </section>
 
+  <section id="ChUseInternalsMenuSection"><title>The "Internals" menu</title>
+    <para>
+      The Wireshark Internals menu contains the fields shown in
+      <xref linkend="ChUseInternals"/>.
+    </para>
+    <figure id="ChUseWiresharkInternalsMenu">
+      <title>The "Internals" Menu</title>
+      <graphic entityref="WiresharkInternalsMenu" format="PNG"/>
+    </figure>
+    <table id="ChUseInternals" frame="none">
+      <title>Help menu items</title>
+      <tgroup cols="3">
+	<colspec colnum="1" colwidth="72pt"/>
+	  <colspec colnum="2" colwidth="80pt"/>
+	    <thead>
+	      <row>
+		<entry>Menu Item</entry>
+		<entry>Accelerator</entry>
+		<entry>Description</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry><command>Dissector tables</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item brings up a dialog box showing the tables 
+		    with subdissector relationships.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Supported Protocols (slow!)</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item brings up a dialog box showing the supported
+			protocols and protocol fields.
+		  </para></entry>
+	      </row>
+	    </tbody>
+      </tgroup>
+    </table>
+  </section>
+
   <section id="ChUseHelpMenuSection"><title>The "Help" menu</title>
     <para>
       The Wireshark Help menu contains the fields shown in
@@ -1921,13 +2015,6 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><command>FAQ's</command></entry>
-		<entry></entry>
-		<entry><para>
-		    This menu item starts a Web browser showing various FAQ's.
-		  </para></entry>
-	      </row>
-	      <row>
 		<entry><command>Manual Pages > ...</command></entry>
 		<entry></entry>
 		<entry><para>
@@ -1941,11 +2028,27 @@
 		<entry></entry>
 	      </row>
 	      <row>
-		<entry><command>Wireshark Online > ...</command></entry>
+		<entry><command>Website</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item starts a Web browser showing the chosen
+		    This menu item starts a Web browser showing the 
 			webpage from:
+			<ulink url="&WiresharkWebSite;">&WiresharkWebSite;</ulink>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>FAQ's</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item starts a Web browser showing various FAQ's.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Downloads</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item starts a Web browser showing the 
+			downloads from:
 			<ulink url="&WiresharkWebSite;">&WiresharkWebSite;</ulink>.
 		  </para></entry>
 	      </row>
@@ -1955,11 +2058,21 @@
 		<entry></entry>
 	      </row>
 	      <row>
-		<entry><command>Supported Protocols (slow!)</command></entry>
+		<entry><command>Wiki</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item brings up a dialog box showing the supported
-			protocols and protocol fields.
+		    This menu item starts a Web browser showing the 
+			front page from:
+			<ulink url="&WiresharkWikiPage;">&WiresharkWikiPage;</ulink>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Sample Captures</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item starts a Web browser showing the 
+			sample captures from:
+			<ulink url="&WiresharkWikiPage;">&WiresharkWikiPage;</ulink>.
 		  </para></entry>
 	      </row>
 	      <row>
@@ -1972,8 +2085,8 @@
 		<entry></entry>
 		<entry><para>
 		    This menu item brings up an information window that
-		    provides some information on Wireshark, such as the plugins, the
-			used folders, ...
+		    provides various detailed information items on Wireshark, 
+		    such as how it's build, the plugins loaded, the used folders, ...
 		  </para></entry>
 	      </row>
 	    </tbody>
