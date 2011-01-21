@@ -63,6 +63,7 @@
 #include <string.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/asn1.h>
@@ -712,7 +713,7 @@ de_gmm_ptmsi_sig2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	proto_item_append_text(curr_item,"%s",add_string ? add_string : "");
 	curr_offset+=3;
 
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
 
 	return(curr_offset - offset);
 }
@@ -810,7 +811,7 @@ de_gmm_rec_npdu_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
 	} while ( curr_len > 1 );
 
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
 
 	return(curr_offset - offset);
 }
@@ -970,7 +971,7 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+6, 2, FALSE);
 
 	curr_offset++;
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
 
 	return(curr_offset - offset);
 }
@@ -2332,7 +2333,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 	curr_offset+= curr_len;
 
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
 
 	return(curr_offset - offset);
 }
@@ -2650,7 +2651,7 @@ de_gmm_ps_lcs_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 
 	curr_offset++;
 
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
 
 	return(curr_offset - offset);
 }
@@ -2750,7 +2751,7 @@ de_gc_context_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 
 	curr_offset++;
 
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
 
 	return(curr_offset - offset);
 }
@@ -2989,7 +2990,7 @@ de_sm_apn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 
 	curr_offset+= len;
 
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
 
 	return(curr_offset - offset);
 }
@@ -3179,7 +3180,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	}
 	curr_offset+= curr_len;
 
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
 
 	return(curr_offset - offset);
 }
@@ -3280,7 +3281,7 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 			curr_offset+=4;
 	}
 
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
 
 	return(curr_offset - offset);
 }
@@ -3717,7 +3718,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 
 	curr_offset+= 1;
 
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
 
 	return(curr_offset - offset);
 }
@@ -3857,7 +3858,7 @@ de_sm_linked_ti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
 	curr_offset+= curr_len;
 
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
 
 	return(curr_offset - offset);
 }
@@ -3919,13 +3920,18 @@ guint16
 de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
+	guint value;
 
 	curr_offset = offset;
+	value = tvb_get_guint8(tvb,curr_offset);
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset << 3, 1, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_sm_packet_flow_id, tvb, curr_offset, 1, FALSE);
 	curr_offset++;
 
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+    if (add_string)
+        g_snprintf(add_string, string_len, " - %s", rval_to_str(value, gsm_a_sm_packet_flow_id_vals, "Unknown"));
+
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
 
 	return(curr_offset - offset);
 }
@@ -4234,7 +4240,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 		}
 	}
 
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
 
 	return(len);
 }
@@ -4255,7 +4261,7 @@ de_sm_tmgi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	NO_MORE_DATA_CHECK(len);
 	curr_offset = dissect_e212_mcc_mnc(tvb, gsm_a_dtap_pinfo, tree, curr_offset, TRUE);
 
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
 
 	return(curr_offset - offset);
 }
@@ -4304,7 +4310,7 @@ de_sm_mbms_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 
 	curr_offset+= 1;
 
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
 
 	return(curr_offset - offset);
 }
@@ -4321,7 +4327,7 @@ de_sm_mbms_prot_conf_opt(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 8, FALSE);
 	curr_offset++;
 
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
 
 	return(curr_offset - offset);
 }
@@ -4472,7 +4478,7 @@ dtap_gmm_attach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_OPT_TLV( 0x33 , GSM_A_PDU_TYPE_GM, DE_PS_LCS_CAP , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -4526,7 +4532,7 @@ dtap_gmm_attach_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -4545,7 +4551,7 @@ dtap_gmm_attach_com(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_RECV;
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -4567,7 +4573,7 @@ dtap_gmm_attach_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_OPT_TLV( 0x2A , GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2 , " - T3302" );
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -4598,7 +4604,7 @@ dtap_gmm_detach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_OPT_TLV( 0x19 , GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -4625,7 +4631,7 @@ dtap_gmm_detach_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 		ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND );
 	}
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -4655,7 +4661,7 @@ dtap_gmm_ptmsi_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 
 	ELEM_OPT_TV( 0x19 , GSM_A_PDU_TYPE_COMMON, DE_MID , " - P-TMSI Signature" );
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -4673,7 +4679,7 @@ dtap_gmm_ptmsi_realloc_com(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_RECV;
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -4728,13 +4734,13 @@ dtap_gmm_auth_ciph_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
 	if ( curr_len == 0  )
 	{
-		EXTRANEOUS_DATA_CHECK(curr_len, 0);
+		EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 	return;
 	}
 
 	ELEM_OPT_TLV( 0x28 , GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_AUTN , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -4764,7 +4770,7 @@ dtap_gmm_auth_ciph_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 	ELEM_OPT_TLV( 0x29 , GSM_A_PDU_TYPE_DTAP, DE_AUTH_RESP_PARAM_EXT , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -4781,7 +4787,7 @@ dtap_gmm_auth_ciph_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -4803,7 +4809,7 @@ dtap_gmm_auth_ciph_fail(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 	ELEM_OPT_TLV( 0x30 , GSM_A_PDU_TYPE_DTAP, DE_AUTH_FAIL_PARAM , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -4834,7 +4840,7 @@ dtap_gmm_ident_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset+=1;
 	curr_len-=1;
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -4854,7 +4860,7 @@ dtap_gmm_ident_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -4900,7 +4906,7 @@ dtap_gmm_rau_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_OPT_TLV( 0x33 , GSM_A_PDU_TYPE_GM, DE_PS_LCS_CAP , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -4952,7 +4958,7 @@ dtap_gmm_rau_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -4975,7 +4981,7 @@ dtap_gmm_rau_com(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/*TO DO: Implement */
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_RAT_INFO_CONTAINER , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5003,7 +5009,7 @@ dtap_gmm_rau_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_OPT_TLV( 0x26 , GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2 , " - T3302" );
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5023,7 +5029,7 @@ dtap_gmm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE );
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5053,7 +5059,7 @@ dtap_gmm_information(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_OPT_TLV( 0x49 , GSM_A_PDU_TYPE_DTAP, DE_DAY_SAVING_TIME , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5087,7 +5093,7 @@ dtap_gmm_service_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* MBMS context status 10.5.7.6 TLV 2 - 18 */
 	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_CTX_STATUS , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5110,7 +5116,7 @@ dtap_gmm_service_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* MBMS context status 10.5.7.6 TLV 2 - 18 */
 	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_CTX_STATUS , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5130,7 +5136,7 @@ dtap_gmm_service_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE );
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5165,7 +5171,7 @@ dtap_sm_act_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_OPT_TV_SHORT(0xA0, GSM_A_PDU_TYPE_GM, DE_REQ_TYPE, NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5207,7 +5213,7 @@ dtap_sm_act_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_OPT_TLV( 0x39 , GSM_A_PDU_TYPE_GM, DE_SM_CAUSE_2, NULL );
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5232,7 +5238,7 @@ dtap_sm_act_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5266,7 +5272,7 @@ dtap_sm_act_sec_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5304,7 +5310,7 @@ dtap_sm_act_sec_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5329,7 +5335,7 @@ dtap_sm_act_sec_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5356,7 +5362,7 @@ dtap_sm_req_pdp_act(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5381,7 +5387,7 @@ dtap_sm_req_pdp_act_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5420,7 +5426,7 @@ dtap_sm_mod_pdp_req_net(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5449,7 +5455,7 @@ dtap_sm_mod_pdp_req_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5472,7 +5478,7 @@ dtap_sm_mod_pdp_acc_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5503,7 +5509,7 @@ dtap_sm_mod_pdp_acc_net(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5529,7 +5535,7 @@ dtap_sm_mod_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5558,7 +5564,7 @@ dtap_sm_deact_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	/* MBMS context status 10.5.7.6 TLV 2 - 18 */
 	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_CTX_STATUS , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5583,7 +5589,7 @@ dtap_sm_deact_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	/* MBMS context status 10.5.7.6 TLV 2 - 18 */
 	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_CTX_STATUS , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5605,7 +5611,7 @@ dtap_sm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE );
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5642,7 +5648,7 @@ dtap_sm_act_mbms_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* 35 MBMS protocol configuration options MBMS protocol configuration options 10.5.6.15 O TLV 3 - 253 */
 	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5667,7 +5673,7 @@ dtap_sm_act_mbms_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5690,7 +5696,7 @@ dtap_sm_act_mbms_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5717,7 +5723,7 @@ dtap_sm_req_mbms_act(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 /*
@@ -5740,7 +5746,7 @@ dtap_sm_req_mbms_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT , NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gsm_a_dtap_pinfo);
 }
 
 #define	NUM_GSM_DTAP_MSG_GMM (sizeof(gsm_a_dtap_msg_gmm_strings)/sizeof(value_string))

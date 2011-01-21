@@ -35,6 +35,7 @@
 #include <math.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/tap.h>
 
 #include "packet-bssap.h"
@@ -2113,7 +2114,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 		break;
 	}
 
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
 
 	return(curr_offset - offset);
 }
@@ -2219,7 +2220,7 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 
 	curr_offset++;
 
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
 
 	return(curr_offset - offset);
 }
@@ -2861,7 +2862,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 
 	/* translate to byte offset (we already know that we are on an octet boundary) */
 	curr_offset = bit_offset >> 3;
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
 
 	return(len);
 }
@@ -3077,28 +3078,28 @@ de_plmn_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 	g_snprintf(add_string, string_len, " - %u PLMN%s",
 		num_plmn, plurality(num_plmn, "", "s"));
 
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
 
 	return(curr_offset - offset);
 }
 
 guint16 (*common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* Common Information Elements 10.5.1 */
-	de_cell_id,			/* Cell Identity */
-	de_ciph_key_seq_num,		/* Ciphering Key Sequence Number */
-	de_lai,				/* Location Area Identification */
-	de_mid,				/* Mobile Identity */
-	de_ms_cm_1,			/* Mobile Station Classmark 1 */
-	de_ms_cm_2,			/* Mobile Station Classmark 2 */
-	de_ms_cm_3,			/* Mobile Station Classmark 3 */
+	de_cell_id,				/* Cell Identity */
+	de_ciph_key_seq_num,	/* Ciphering Key Sequence Number */
+	de_lai,					/* Location Area Identification */
+	de_mid,					/* Mobile Identity */
+	de_ms_cm_1,				/* Mobile Station Classmark 1 */
+	de_ms_cm_2,				/* Mobile Station Classmark 2 */
+	de_ms_cm_3,				/* Mobile Station Classmark 3 */
 	de_spare_nibble,		/* Spare Half Octet */
 	de_d_gb_call_ref,		/* Descriptive group or broadcast call reference */
-	NULL				/* handled inline */,	/* Group Cipher Key Number */
-	de_pd_sapi,			/* PD and SAPI $(CCBS)$ */
+	NULL					/* handled inline */,	/* Group Cipher Key Number */
+	de_pd_sapi,				/* PD and SAPI $(CCBS)$ */
 	/* Pos 10 */
-	de_prio				/* handled inline */,	/* Priority Level */
+	de_prio					/* handled inline */,	/* Priority Level */
 	de_plmn_list,			/* PLMN List */
-	NULL,				/* NONE */
+	NULL,					/* NONE */
 };
 
 /* Register the protocol with Wireshark */
