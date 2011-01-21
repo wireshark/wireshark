@@ -1228,9 +1228,9 @@ static const char *ui_desc_menubar =
 "      <separator/>\n"
 "      <menuitem name='Website' action='/Help/Website'/>\n"
 "      <menuitem name='FAQs' action='/Help/FAQs'/>\n"
+"      <menuitem name='Downloads' action='/Help/Downloads'/>\n"
 "      <separator/>\n"
 "      <menuitem name='Wiki' action='/Help/Wiki'/>\n"
-"      <menuitem name='Downloads' action='/Help/Downloads'/>\n"
 "      <menuitem name='SampleCaptures' action='/Help/SampleCaptures'/>\n"
 "      <separator/>\n"
 "      <menuitem name='AboutWireshark' action='/Help/AboutWireshark'/>\n"
@@ -1554,8 +1554,8 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 
    { "/Help/Website",				GTK_STOCK_HOME,					"Website",				NULL,							NULL,				G_CALLBACK(help_menu_Website_cb) },
    { "/Help/FAQs",					NULL,							"FAQ's",				NULL,							NULL,				G_CALLBACK(help_menu_faq_cb) },
-   { "/Help/Wiki",					WIRESHARK_STOCK_WIKI,			"Wiki",					NULL,							NULL,				G_CALLBACK(help_menu_Wiki_cb) },
    { "/Help/Downloads",				NULL,							"Downloads",			NULL,							NULL,				G_CALLBACK(help_menu_Downloads_cb) },
+   { "/Help/Wiki",					WIRESHARK_STOCK_WIKI,			"Wiki",					NULL,							NULL,				G_CALLBACK(help_menu_Wiki_cb) },
    { "/Help/SampleCaptures",		NULL,							"Sample Captures",		NULL,							NULL,				G_CALLBACK(help_menu_SampleCaptures_cb) },
    { "/Help/AboutWireshark",		WIRESHARK_STOCK_ABOUT,			"_About Wireshark",		NULL,							NULL,				G_CALLBACK(about_wireshark_cb) },
 };
@@ -2066,9 +2066,9 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Help/Website", NULL, GTK_MENU_FUNC(topic_menu_cb), ONLINEPAGE_HOME, "<StockItem>", GTK_STOCK_HOME,},
     {"/Help/FAQ's", NULL, GTK_MENU_FUNC(topic_menu_cb), ONLINEPAGE_FAQ, NULL, NULL,},
+    {"/Help/Downloads", NULL, GTK_MENU_FUNC(topic_menu_cb), ONLINEPAGE_DOWNLOAD, NULL, NULL,},
     {"/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Help/Wiki", NULL, GTK_MENU_FUNC(topic_menu_cb), ONLINEPAGE_WIKI, "<StockItem>", WIRESHARK_STOCK_WIKI,},
-    {"/Help/Downloads", NULL, GTK_MENU_FUNC(topic_menu_cb), ONLINEPAGE_DOWNLOAD, NULL, NULL,},
     {"/Help/Sample Captures", NULL, GTK_MENU_FUNC(topic_menu_cb), ONLINEPAGE_SAMPLE_FILES, NULL, NULL,},
     {"/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Help/_About Wireshark", NULL, GTK_MENU_FUNC(about_wireshark_cb),
