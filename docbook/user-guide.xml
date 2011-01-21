@@ -67,7 +67,7 @@ DOCUMENT SECTION
   <!ENTITY DocumentCopyrightHolder1 "Ulf Lamping ">
   <!ENTITY DocumentCopyrightHolder2 "Richard Sharpe ">
   <!ENTITY DocumentCopyrightHolder3 "Ed Warnicke ">
-  <!ENTITY DocumentCopyrightYear "2004-2010">
+  <!ENTITY DocumentCopyrightYear "2004-2011">
 
   <!ENTITY DocumentEdition "Third ">
   <!ENTITY DocumentVersion "V3.0.2">
@@ -80,7 +80,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.4">
+  <!ENTITY WiresharkCurrentVersion "1.5">
   <!ENTITY WiresharkWebSite "http://www.wireshark.org">
   <!ENTITY WiresharkUsersGuidePage "&WiresharkWebSite;/docs/">
   <!ENTITY WiresharkDownloadPage "&WiresharkWebSite;/download.html">
@@ -190,6 +190,7 @@ FILE SECTION
   <!ENTITY WiresharkStatisticsMenu SYSTEM "./wsug_graphics/ws-statistics-menu.png" NDATA PNG>
   <!ENTITY WiresharkTelephonyMenu SYSTEM "./wsug_graphics/ws-telephony-menu.png" NDATA PNG>
   <!ENTITY WiresharkToolsMenu SYSTEM "./wsug_graphics/ws-tools-menu.png" NDATA PNG>
+  <!ENTITY WiresharkInternalsMenu SYSTEM "./wsug_graphics/ws-internals-menu.png" NDATA PNG>
   <!ENTITY WiresharkHelpMenu SYSTEM "./wsug_graphics/ws-help-menu.png" NDATA PNG>
   <!ENTITY WiresharkColumnHeaderPopupMenu SYSTEM "./wsug_graphics/ws-column-header-popup-menu.png" NDATA PNG>
   <!ENTITY WiresharkPacketPanePopupMenu SYSTEM "./wsug_graphics/ws-packet-pane-popup-menu.png" NDATA PNG>
