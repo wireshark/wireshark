@@ -2074,6 +2074,12 @@ array of pointers to "gint" variables to hold the subtree type values to
 in your "register" routine, just as you register the protocol and the
 fields for that protocol.
 
+The ett_ variables identify particular type of subtree so that if you expand
+one of them, Wireshark keeps track of that and, when you click on
+another packet, it automatically opens all subtrees of that type.
+If you close one of them, all subtrees of that type will be closed when
+you move to another packet.
+
 There are several functions that the programmer can use to add either
 protocol or field labels to the proto_tree:
 
