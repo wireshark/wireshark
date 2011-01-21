@@ -1,5 +1,5 @@
 /* packet-prp.c
- * Routines for PRP (Parallel Redundancy Protocol; IEC62439 Chapter 6) dissection
+ * Routines for PRP (Parallel Redundancy Protocol; IEC62439 Part 3) dissection
  * Copyright 2007, Sven Meier <msv[AT]zhwin.ch>
  *
  * $Id$
@@ -340,7 +340,7 @@ void proto_register_prp(void)
 
 
     /* Register the protocol name and description */
-    proto_prp = proto_register_protocol("Parallel Redundancy Protocol (IEC62439 Chapter 6)",
+    proto_prp = proto_register_protocol("Parallel Redundancy Protocol (IEC62439 Part 3)",
                         "PRP", "prp");
     prp_module = prefs_register_protocol(proto_prp, proto_reg_handoff_prp);
 
