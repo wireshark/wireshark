@@ -63,6 +63,7 @@ static int hf_sgsap_service_indicator_value = -1;
 static int hf_sgsap_sgs_cause = -1;
 static int hf_sgsap_ue_emm_mode = -1;
 static int hf_sgsap_eci	= -1;
+static int hf_sgsap_cn_id = -1;
 static int hf_sgsap_imsi_det_eps = -1;
 static int hf_sgsap_lcs_indic = -1;
 
@@ -153,6 +154,21 @@ de_sgsap_ecgi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
  * least significant bit of the CN-Id field is bit 1 of octet 7 and the most significant bit is bit 8 of octet 6. If the CN-Id does
  * not fill the field reserved for it, the rest of the bits are set to '0'.
  */
+static guint16
+de_sgsap_g_cn_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+    dissect_e212_mcc_mnc(tvb, gpinfo, tree, offset, TRUE);
+    curr_offset+=3;
+
+	proto_tree_add_item(tree, hf_sgsap_cn_id, tvb, curr_offset, 2, FALSE);
+	curr_offset+=2;
+
+	return(curr_offset-offset);
+}
 /*
  * 9.4.5	IMEISV
  * See subclause 18.4.9 in 3GPP TS 29.018 [16].
@@ -513,53 +529,61 @@ const value_string sgsap_elem_strings[] = {
 
 #define	NUM_SGSAP_ELEM (sizeof(sgsap_elem_strings)/sizeof(value_string))
 gint ett_sgsap_elem[NUM_SGSAP_ELEM];
+#if 0
+This enum has been moved to packet-gsm_a_common to
+make it possible to use element dissecton from this dissector
+in other dissectors.
+It is left here as a comment for easier reference.
+
+Note this enum must be of the same size as the element decoding list
 
 typedef enum
 {
 
-	DE_SGSAP_IMSI,									/* 9.4.6 IMSI*/
-	DE_SGSAP_VLR_NAME,								/* 9.4.22 VLR name*/
-	DE_SGSAP_TMSI,									/* 9.4.20 TMSI */
-	DE_SGSAP_LOC_AREA_ID,							/* 9.4.11 Location area identifier */
-	DE_SGSAP_CH_NEEDED,								/* 9.4.23 Channel Needed */
-	DE_SGSAP_EMLPP_PRIO,							/* 9.4.24 eMLPP Priority*/
-	DE_SGSAP_TMSI_STATUS,							/* 9.4.21 TMSI status */
-	DE_SGSAP_SGS_CAUSE,								/* 9.4.18 SGs cause*/
-	DE_SGSAP_MME_NAME,								/* 9.4.13 MME name*/
-	DE_SGSAP_EPS_LOC_UPD_TYPE,						/* 9.4.2 EPS location update type*/
-	DE_SGSAP_GLOBAL_CN_ID,							/* 9.4.4 Global CN-Id*/
+	DE_SGSAP_IMSI,									/. 9.4.6 IMSI./
+	DE_SGSAP_VLR_NAME,								/. 9.4.22 VLR name./
+	DE_SGSAP_TMSI,									/. 9.4.20 TMSI ./
+	DE_SGSAP_LOC_AREA_ID,							/. 9.4.11 Location area identifier ./
+	DE_SGSAP_CH_NEEDED,								/. 9.4.23 Channel Needed ./
+	DE_SGSAP_EMLPP_PRIO,							/. 9.4.24 eMLPP Priority./
+	DE_SGSAP_TMSI_STATUS,							/. 9.4.21 TMSI status ./
+	DE_SGSAP_SGS_CAUSE,								/. 9.4.18 SGs cause./
+	DE_SGSAP_MME_NAME,								/. 9.4.13 MME name./
+	DE_SGSAP_EPS_LOC_UPD_TYPE,						/. 9.4.2 EPS location update type./
+	DE_SGSAP_GLOBAL_CN_ID,							/. 9.4.4 Global CN-Id./
 
-	DE_SGSAP_UDEF_12,								/* Undefined */
-	DE_SGSAP_UDEF_13,								/* Undefined */
+	DE_SGSAP_UDEF_12,								/. Undefined ./
+	DE_SGSAP_UDEF_13,								/. Undefined ./
 
-	DE_SGSAP_MID,									/* 9.4.14 Mobile identity*/
-	DE_SGSAP_REJ_CAUSE,								/* 9.4.16 Reject cause */
-	DE_SGSAP_IMSI_DET_EPS,							/* 9.4.7 IMSI detach from EPS service type */
-	DE_SGSAP_IMSI_DET_NON_EPS,						/* 9.4.8 IMSI detach from non-EPS service type */
+	DE_SGSAP_MID,									/. 9.4.14 Mobile identity./
+	DE_SGSAP_REJ_CAUSE,								/. 9.4.16 Reject cause ./
+	DE_SGSAP_IMSI_DET_EPS,							/. 9.4.7 IMSI detach from EPS service type ./
+	DE_SGSAP_IMSI_DET_NON_EPS,						/. 9.4.8 IMSI detach from non-EPS service type ./
 
-	DE_SGSAP_IMEISV,								/* 9.4.5 IMEISV */
-	DE_SGSAP_NAS_MSG_CONTAINER,						/* 9.4.15 NAS message container*/
-	DE_SGSAP_MM_INFO,								/* 9.4.12 MM information*/
+	DE_SGSAP_IMEISV,								/. 9.4.5 IMEISV ./
+	DE_SGSAP_NAS_MSG_CONTAINER,						/. 9.4.15 NAS message container./
+	DE_SGSAP_MM_INFO,								/. 9.4.12 MM information./
 
-	DE_SGSAP_UDEF_24,								/* Undefined */
-	DE_SGSAP_UDEF_25,								/* Undefined */
-	DE_SGSAP_UDEF_26,								/* Undefined */
+	DE_SGSAP_UDEF_24,								/. Undefined ./
+	DE_SGSAP_UDEF_25,								/. Undefined ./
+	DE_SGSAP_UDEF_26,								/. Undefined ./
 
-	DE_SGSAP_ERR_MSG,								/* 9.4.3 Erroneous message*/
-	DE_SGSAP_CLI,									/* 9.4.1 CLI */
-	DE_SGSAP_LCS_CLIENT_ID,							/* 9.4.9 LCS client identity */
-	DE_SGSAP_LCS_INDIC,								/* 9.4.10 LCS indicator */
-	DE_SGSAP_SS_CODE,								/* 9.4.19 SS code */
-	DE_SGSAP_SERV_INDIC,							/* 9.4.17 Service indicator */
-	DE_SGSAP_UE_TZ,									/* 9.4.21b UE Time Zone */
-	DE_SGSAP_MSC_2,									/* 9.4.14a Mobile Station Classmark 2 */
-	DE_SGSAP_TAID,									/* 9.4.21a Tracking Area Identity */
-	DE_SGSAP_ECGI,									/* 9.4.3a E-UTRAN Cell Global Identity */
-	DE_SGSAP_UE_EMM_MODE,							/* 9.4.21c UE EMM mode*/
+	DE_SGSAP_ERR_MSG,								/. 9.4.3 Erroneous message./
+	DE_SGSAP_CLI,									/. 9.4.1 CLI ./
+	DE_SGSAP_LCS_CLIENT_ID,							/. 9.4.9 LCS client identity ./
+	DE_SGSAP_LCS_INDIC,								/. 9.4.10 LCS indicator ./
+	DE_SGSAP_SS_CODE,								/. 9.4.19 SS code ./
+	DE_SGSAP_SERV_INDIC,							/. 9.4.17 Service indicator ./
+	DE_SGSAP_UE_TZ,									/. 9.4.21b UE Time Zone ./
+	DE_SGSAP_MSC_2,									/. 9.4.14a Mobile Station Classmark 2 ./
+	DE_SGSAP_TAID,									/. 9.4.21a Tracking Area Identity ./
+	DE_SGSAP_ECGI,									/. 9.4.3a E-UTRAN Cell Global Identity ./
+	DE_SGSAP_UE_EMM_MODE,							/. 9.4.21c UE EMM mode./
 
-	DE_SGAP_NONE							/* NONE */
+	DE_SGAP_NONE							/. NONE ./
 }
 sgsap_elem_idx_t;
+#endif /* 0 */
 
 guint16 (*sgsap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	NULL/*DE_SGSAP_IMSI*/,									/* 9.4.6 IMSI*/
@@ -572,7 +596,7 @@ guint16 (*sgsap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	de_sgsap_sgs_cause,										/* 9.4.18 SGs cause*/
 	de_sgsap_mme_name,										/* 9.4.13 MME name*/
 	de_sgsap_eps_loc_upd_type,								/* 9.4.2 EPS location update type*/
-	NULL/*DE_SGSAP_GLOBAL_CN-ID*/,							/* 9.4.4 Global CN-Id*/
+	de_sgsap_g_cn_id,										/* 9.4.4 Global CN-Id*/
 
 	NULL/*DE_SGSAP_UDEF_12*/,								/* Undefined */
 	NULL/*DE_SGSAP_UDEF_13*/,								/* Undefined */
@@ -916,6 +940,7 @@ sgsap_paging_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* Location area identifier	Location area identifier 9.4.11	O	TLV	7 */
 	ELEM_OPT_TLV(0x04, GSM_A_PDU_TYPE_COMMON, DE_LAI, NULL);
 	/* Global CN-Id	Global CN-Id 9.4.4	O	TLV	7 */
+	ELEM_OPT_TLV(0x0b, SGSAP_PDU_TYPE, DE_SGSAP_GLOBAL_CN_ID, NULL);
 	/* SS code	SS code 9.4.19	O	TLV	3 */
 	ELEM_OPT_TLV(0x1f, NAS_PDU_TYPE_EMM, DE_EMM_SS_CODE, NULL);
 	/* LCS indicator	LCS indicator 9.4.10	O	TLV	3 */

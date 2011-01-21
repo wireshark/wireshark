@@ -1283,4 +1283,51 @@ typedef enum
 }
 nas_emm_elem_idx_t;
 
+typedef enum
+{
+
+	DE_SGSAP_IMSI,									/* 9.4.6 IMSI*/
+	DE_SGSAP_VLR_NAME,								/* 9.4.22 VLR name*/
+	DE_SGSAP_TMSI,									/* 9.4.20 TMSI */
+	DE_SGSAP_LOC_AREA_ID,							/* 9.4.11 Location area identifier */
+	DE_SGSAP_CH_NEEDED,								/* 9.4.23 Channel Needed */
+	DE_SGSAP_EMLPP_PRIO,							/* 9.4.24 eMLPP Priority*/
+	DE_SGSAP_TMSI_STATUS,							/* 9.4.21 TMSI status */
+	DE_SGSAP_SGS_CAUSE,								/* 9.4.18 SGs cause*/
+	DE_SGSAP_MME_NAME,								/* 9.4.13 MME name*/
+	DE_SGSAP_EPS_LOC_UPD_TYPE,						/* 9.4.2 EPS location update type*/
+	DE_SGSAP_GLOBAL_CN_ID,							/* 9.4.4 Global CN-Id*/
+
+	DE_SGSAP_UDEF_12,								/* Undefined */
+	DE_SGSAP_UDEF_13,								/* Undefined */
+
+	DE_SGSAP_MID,									/* 9.4.14 Mobile identity*/
+	DE_SGSAP_REJ_CAUSE,								/* 9.4.16 Reject cause */
+	DE_SGSAP_IMSI_DET_EPS,							/* 9.4.7 IMSI detach from EPS service type */
+	DE_SGSAP_IMSI_DET_NON_EPS,						/* 9.4.8 IMSI detach from non-EPS service type */
+
+	DE_SGSAP_IMEISV,								/* 9.4.5 IMEISV */
+	DE_SGSAP_NAS_MSG_CONTAINER,						/* 9.4.15 NAS message container*/
+	DE_SGSAP_MM_INFO,								/* 9.4.12 MM information*/
+
+	DE_SGSAP_UDEF_24,								/* Undefined */
+	DE_SGSAP_UDEF_25,								/* Undefined */
+	DE_SGSAP_UDEF_26,								/* Undefined */
+
+	DE_SGSAP_ERR_MSG,								/* 9.4.3 Erroneous message*/
+	DE_SGSAP_CLI,									/* 9.4.1 CLI */
+	DE_SGSAP_LCS_CLIENT_ID,							/* 9.4.9 LCS client identity */
+	DE_SGSAP_LCS_INDIC,								/* 9.4.10 LCS indicator */
+	DE_SGSAP_SS_CODE,								/* 9.4.19 SS code */
+	DE_SGSAP_SERV_INDIC,							/* 9.4.17 Service indicator */
+	DE_SGSAP_UE_TZ,									/* 9.4.21b UE Time Zone */
+	DE_SGSAP_MSC_2,									/* 9.4.14a Mobile Station Classmark 2 */
+	DE_SGSAP_TAID,									/* 9.4.21a Tracking Area Identity */
+	DE_SGSAP_ECGI,									/* 9.4.3a E-UTRAN Cell Global Identity */
+	DE_SGSAP_UE_EMM_MODE,							/* 9.4.21c UE EMM mode*/
+
+	DE_SGAP_NONE							/* NONE */
+}
+sgsap_elem_idx_t;
+
 #endif /* __PACKET_GSM_A_COMMON_H__ */
