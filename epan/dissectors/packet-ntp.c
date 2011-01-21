@@ -744,7 +744,7 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	 * asks from stratum-2 - stratum-15 servers to set this to the
 	 * low order 32 bits of the latest transmit timestamp of the
 	 * reference source.
-	 * But, all V3 and V4 servers set this to IP adress of their
+	 * But, all V3 and V4 servers set this to IP address of their
 	 * higher level server. My decision was to resolve this address.
 	 */
 	buff = ep_alloc(NTP_TS_SIZE);

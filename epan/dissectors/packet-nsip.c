@@ -209,7 +209,7 @@ static const value_string tab_nsip_cause_values[] = {
 #define NSIP_IE_FORMAT_TV 2
 #define NSIP_IE_FORMAT_TLV 3
 
-/* IP adress types, v 5.3.0, chapter 10.3.2b, p. 48 */
+/* IP address types, v 5.3.0, chapter 10.3.2b, p. 48 */
 #define NSIP_IP_ADDRESS_TYPE_IPV4 1
 #define NSIP_IP_ADDRESS_TYPE_IPV6 2
 #define NSIP_IP_VERSION_4 4

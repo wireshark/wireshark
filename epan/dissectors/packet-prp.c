@@ -48,7 +48,7 @@
 #define    PRP_SOURCEMACADDRESSB_OFFSET            10
 #define    PRP_TYPE2_OFFSET                        16
 #define    PRP_LENGTH2_OFFSET                      17
-#define    PRP_REDBOXVDANMACADRESS_OFFSET          18
+#define    PRP_REDBOXVDANMACADDRESS_OFFSET         18
 
 /**********************************************************/
 /* Lengths of fields within a PRP packet.          */
@@ -176,13 +176,13 @@ dissect_prp_supervision_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         if(tlv2 == 0x1e06)
         {
             proto_tree_add_item(prp_tree, hf_prp_supervision_frame_red_box_mac_address,
-                                tvb, PRP_REDBOXVDANMACADRESS_OFFSET, PRP_SOURCE_LENGTH,
+                                tvb, PRP_REDBOXVDANMACADDRESS_OFFSET, PRP_SOURCE_LENGTH,
                                 FALSE);
         }
         else
         {
             proto_tree_add_item(prp_tree, hf_prp_supervision_frame_vdan_mac_address,
-                                tvb, PRP_REDBOXVDANMACADRESS_OFFSET, PRP_SOURCE_LENGTH,
+                                tvb, PRP_REDBOXVDANMACADDRESS_OFFSET, PRP_SOURCE_LENGTH,
                                 FALSE);
         }
 

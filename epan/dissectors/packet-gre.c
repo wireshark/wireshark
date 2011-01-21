@@ -580,7 +580,7 @@ proto_register_gre(void)
 	FT_NONE, BASE_NONE, NULL, 0x0,
 	"The Routing field is a list of Source Route Entries (SREs)", HFILL }},
     { &hf_gre_routing_address_family,
-      { "Address Family", "gre.routing.adress_family", 
+      { "Address Family", "gre.routing.address_family", 
 	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"The Address Family field contains a two octet value which indicates the syntax and semantics of the Routing Information field", HFILL }},
     { &hf_gre_routing_sre_offset,

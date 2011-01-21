@@ -5935,7 +5935,7 @@ proto_register_gsm_a_gm(void)
 		  NULL, HFILL }
 	},
 	{ &hf_gsm_a_sm_ip4_address,
-		{ "IPv4 adress", "gsm_a.sm.ip4_address",
+		{ "IPv4 address", "gsm_a.sm.ip4_address",
 		  FT_IPv4, BASE_NONE, NULL, 0x0,
 		NULL, HFILL }
 	},
@@ -5945,12 +5945,12 @@ proto_register_gsm_a_gm(void)
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_sm_ip6_address,
-		{ "IPv6 adress", "gsm_a.sm.ip6_address",
+		{ "IPv6 address", "gsm_a.sm.ip6_address",
 		  FT_IPv6, BASE_NONE, NULL, 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_sm_ip6_mask,
-		{ "IPv6 adress mask", "gsm_a.sm.ip6_mask",
+		{ "IPv6 address mask", "gsm_a.sm.ip6_mask",
 		  FT_IPv6, BASE_NONE, NULL, 0x0,
 		NULL, HFILL }
 	},

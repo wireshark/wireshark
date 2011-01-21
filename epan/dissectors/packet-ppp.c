@@ -996,7 +996,7 @@ static void dissect_vsncp_errorcode_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 static void dissect_vsncp_attachtype_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                                 int offset, guint length, packet_info *pinfo,
                                 proto_tree *tree);
-static void dissect_vsncp_ipv4adress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+static void dissect_vsncp_ipv4address_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                                 int offset, guint length, packet_info *pinfo,
                                 proto_tree *tree);
 static void dissect_vsncp_addressalloc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
@@ -1066,7 +1066,7 @@ static const ip_tcp_opt vsncp_opts[] = {
     NULL,
     FIXED_LENGTH,
     6,
-    dissect_vsncp_ipv4adress_opt
+    dissect_vsncp_ipv4address_opt
   },
   {
     CI_ADDRESS_ALLOC,
@@ -2948,7 +2948,7 @@ dissect_vsncp_pdnaddress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 }
 
 static void
-dissect_vsncp_ipv4adress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+dissect_vsncp_ipv4address_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                              int offset, guint length, packet_info *pinfo _U_,
                              proto_tree *tree)
 {

@@ -182,7 +182,7 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case 0x81: /* Register Read Answer */
     if (packet_plsize == 0) {
       ep_strbuf_append(info, " <missing arg(s)>");
-    } else { /* packet contains adress(es) to read from */
+    } else { /* packet contains address(es) to read from */
       ep_strbuf_append_printf(info, " 0x%08x", tvb_get_ntohl(tvb, 8));
       if (packet_plsize >= 8) {
         ep_strbuf_append_printf(info, ", 0x%08x", tvb_get_ntohl(tvb, 12));
@@ -194,7 +194,7 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case 0x82: /* Register Write Request */
     if (packet_plsize < 8) {
       ep_strbuf_append(info, " <missing arg(s)>");
-    } else { /* packet contains adress/value pairs to read from */
+    } else { /* packet contains address/value pairs to read from */
       ep_strbuf_append_printf(info, " *0x%08x = 0x%08x", tvb_get_ntohl(tvb, 8),
                               tvb_get_ntohl(tvb, 12));
       if (packet_plsize >= 16) {
@@ -217,7 +217,7 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case 0x84: /* Block Read Request */
     if (packet_plsize < 8) {
       ep_strbuf_append(info, " <missing args>");
-    } else { /* packet contains adress/size pair to read from */
+    } else { /* packet contains address/size pair to read from */
       ep_strbuf_append_printf(info, " 0x%08x (%d bytes, X=0x%04x)", 
                               tvb_get_ntohl(tvb, 8), tvb_get_ntohs(tvb, 14),
                               tvb_get_ntohs(tvb, 12));

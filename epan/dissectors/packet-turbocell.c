@@ -281,7 +281,7 @@ void proto_register_turbocell(void)
         { &hf_turbocell_ip,
             { "IP", "turbocell.ip",
             FT_IPv4, BASE_NONE, NULL, 0,
-            "IP adress of base station ?", HFILL }
+            "IP address of base station ?", HFILL }
         },
 
         { &hf_turbocell_unknown,

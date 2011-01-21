@@ -70,7 +70,7 @@ static void esis_dissect_redirect_pdu( guint8 len, tvbuff_t *tvb,
  * Source Address Parameter:
  *
  * Octet:    Length:   Parameter Type:
- *     10          1   Number of Source Adresses ( NSAPs served by this Network
+ *     10          1   Number of Source Addresses ( NSAPs served by this Network
  *     11          1   Source Address Length Indicator ( SAL )     #    Entity )
  * 12-m-1   variable   Source Address ( NSAP )
  *      m              Options, dissected in osi.c
