@@ -172,10 +172,17 @@ de_sgsap_g_cn_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 /*
  * 9.4.5	IMEISV
  * See subclause 18.4.9 in 3GPP TS 29.018 [16].
+ * The IMEISV is coded as a sequence of BCD digits, compressed two into each octet. 
+ * The IMEISV consists of 16 digits
+ * (see 3GPP TS 23.003).
  */
 /*
  * 9.4.6	IMSI
  * See subclause 18.4.10 in 3GPP TS 29.018 [16].
+ */
+/* The IMSI is coded as a sequence of BCD digits, compressed two into each octet. 
+ * This is a variable length element, and includes a length indicator. 
+ * The IMSI is defined in 3GPP TS 23.003. It shall not exceed 15 digits (see 3GPP TS 23.003).
  */
 /*
  * 9.4.7	IMSI detach from EPS service type
@@ -944,13 +951,13 @@ sgsap_paging_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* SS code	SS code 9.4.19	O	TLV	3 */
 	ELEM_OPT_TLV(0x1f, NAS_PDU_TYPE_EMM, DE_EMM_SS_CODE, NULL);
 	/* LCS indicator	LCS indicator 9.4.10	O	TLV	3 */
-	ELEM_MAND_TLV(0x1e, SGSAP_PDU_TYPE, DE_SGSAP_LCS_INDIC, NULL);
+	ELEM_OPT_TLV(0x1e, SGSAP_PDU_TYPE, DE_SGSAP_LCS_INDIC, NULL);
 	/* LCS client identity	LCS client identity 9.4.9	O	TLV	3-n */
 	ELEM_OPT_TLV(0x1d, NAS_PDU_TYPE_EMM, DE_EMM_LCS_CLIENT_ID, NULL);
 	/* Channel needed	Channel needed 9.4.23	O	TLV	3 */
-	ELEM_OPT_TV(0x05, GSM_A_PDU_TYPE_BSSMAP, BE_CHAN_NEEDED, NULL);
+	ELEM_OPT_TLV(0x05, GSM_A_PDU_TYPE_BSSMAP, BE_CHAN_NEEDED, NULL);
 	/* eMLPP Priority	eMLPP Priority 9.4.24	O	TLV	3 */
-	ELEM_OPT_TV(0x06, GSM_A_PDU_TYPE_BSSMAP, BE_EMLPP_PRIO, NULL);
+	ELEM_OPT_TLV(0x06, GSM_A_PDU_TYPE_BSSMAP, BE_EMLPP_PRIO, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -1281,7 +1288,7 @@ void get_sgsap_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int 
 {
 	gint			idx;
 
-	*msg_str = match_strval_idx((guint32) (oct & 0xff), sgsap_msg_strings, &idx);
+	*msg_str = match_strval_idx_ext((guint32) (oct & 0xff), &sgsap_msg_strings_ext, &idx);
 	*ett_tree = ett_sgsap_msg[idx];
 	*hf_idx = hf_sgsap_msg_type;
 	*msg_fcn = sgsap_msg_fcn[idx];
