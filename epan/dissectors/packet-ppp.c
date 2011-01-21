@@ -2121,7 +2121,7 @@ dissect_lcp_multilink_ep_disc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                             length, plurality(length, "", "s"));
       } else {
         proto_tree_add_text(field_tree, tvb, offset, length,
-                            "Address: %s", ether_to_str(tvb_get_ptr(tvb, offset, 6)));
+                            "Address: %s", tvb_ether_to_str(tvb, offset));
       }
       break;
 

@@ -686,7 +686,7 @@ dissect_netb_datagram( tvbuff_t *tvb, int offset, proto_tree *tree)
 	if (tvb_memeql(tvb, offset + NB_SENDER_NAME, zeroes, 10) == 0) {
 		proto_tree_add_text( tree, tvb, offset + NB_SENDER_NAME + 10, 6,
 		    "Sender's MAC Address: %s",
-		    ether_to_str( tvb_get_ptr( tvb,offset + NB_SENDER_NAME + 10, 6)));
+		    tvb_ether_to_str(tvb, offset + NB_SENDER_NAME + 10));
 	} else {
 		netbios_add_name("Sender's Name", tvb, offset + NB_SENDER_NAME,
 		    tree);
@@ -705,7 +705,7 @@ dissect_netb_datagram_bcast( tvbuff_t *tvb, int offset, proto_tree *tree)
 	if (tvb_memeql(tvb, offset + NB_SENDER_NAME, zeroes, 10) == 0) {
 		proto_tree_add_text( tree, tvb, offset + NB_SENDER_NAME + 10, 6,
 		    "Sender's Node Address: %s",
-		    ether_to_str( tvb_get_ptr( tvb,offset + NB_SENDER_NAME + 10, 6)));
+		    tvb_ether_to_str(tvb, offset + NB_SENDER_NAME + 10));
 	} else {
 		netbios_add_name("Sender's Name", tvb, offset + NB_SENDER_NAME,
 		    tree);

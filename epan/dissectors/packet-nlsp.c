@@ -307,7 +307,7 @@ dissect_neighbor_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		if (tree) {
 			proto_tree_add_text(tree, tvb, offset, 6,
 			    "Neighbor: %s",
-			    ether_to_str(tvb_get_ptr(tvb, offset, 6)));
+			    tvb_ether_to_str(tvb, offset));
 		}
 		offset += 6;
 		length -= 6;
@@ -441,11 +441,11 @@ nlsp_dissect_nlsp_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (tree) {
 		proto_tree_add_text(tree, tvb, offset, 6,
 		    "Sending Router System ID: %s",
-		    ether_to_str(tvb_get_ptr(tvb, offset, 6)));
+		    tvb_ether_to_str(tvb, offset));
 	}
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", System ID: %s",
-		    ether_to_str(tvb_get_ptr(tvb, offset, 6)));
+		    tvb_ether_to_str(tvb, offset));
 	}
 	offset += 6;
 
@@ -481,7 +481,7 @@ nlsp_dissect_nlsp_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (tree) {
 			proto_tree_add_text(tree, tvb, offset, 6,
 			    "Designated Router System ID: %s",
-			    ether_to_str(tvb_get_ptr(tvb, offset, 6)));
+			    tvb_ether_to_str(tvb, offset));
 			proto_tree_add_text(tree, tvb, offset+6, 1,
 			    "Designated Router Pseudonode ID: %u",
 			    tvb_get_guint8(tvb, offset+6));
@@ -547,7 +547,7 @@ dissect_lsp_mgt_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	if (tree) {
 		proto_tree_add_text(tree, tvb, offset, 6,
 		    "Node number: %s",
-		    ether_to_str(tvb_get_ptr(tvb, offset, 6)));
+		    tvb_ether_to_str(tvb, offset));
 	}
 	offset += 6;
 	length -= 6;
@@ -696,7 +696,7 @@ dissect_lsp_link_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	if (tree) {
 		proto_tree_add_text(tree, tvb, offset, 6,
 		    "Router System ID: %s",
-		    ether_to_str(tvb_get_ptr(tvb, offset, 6)));
+		    tvb_ether_to_str(tvb, offset));
 		proto_tree_add_text(tree, tvb, offset+6, 1,
 		    "Router Pseudonode ID: %u",
 		    tvb_get_guint8(tvb, offset+6));
@@ -811,7 +811,7 @@ dissect_lsp_svcs_info_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	if (tree) {
 		proto_tree_add_text(tree, tvb, offset, 6,
 		    "Node number: %s",
-		    ether_to_str(tvb_get_ptr(tvb, offset, 6)));
+		    tvb_ether_to_str(tvb, offset));
 	}
 	offset += 6;
 	length -= 6;
@@ -1013,12 +1013,12 @@ nlsp_dissect_nlsp_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", LSP ID: %s",
-		    ether_to_str(tvb_get_ptr(tvb, offset, 6)));
+		    tvb_ether_to_str(tvb, offset));
 	}
 	if (tree) {
 		proto_tree_add_text(tree, tvb, offset, 6,
 		    "LSP ID system ID: %s",
-		    ether_to_str(tvb_get_ptr(tvb, offset, 6)));
+		    tvb_ether_to_str(tvb, offset));
 	}
 	offset += 6;
 	/* XXX - append the pseudonode ID */
@@ -1117,7 +1117,7 @@ dissect_csnp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 		ti = proto_tree_add_text(tree, tvb, offset, 16,
 		    "LSP-ID: %s, Sequence: 0x%08x, Lifetime: %5us, Checksum: 0x%04x",
-		    ether_to_str(tvb_get_ptr(tvb, offset+2, 6)), /* XXX - rest of system ID */
+		    tvb_ether_to_str(tvb, offset+2), /* XXX - rest of system ID */
 		    tvb_get_ntohl(tvb, offset+10),
 		    tvb_get_ntohs(tvb, offset),
 		    tvb_get_ntohs(tvb, offset+14));
@@ -1126,7 +1126,7 @@ dissect_csnp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 		proto_tree_add_text(subtree, tvb, offset+2, 6,
 		    "LSP ID source ID: %s",
-		    ether_to_str(tvb_get_ptr(tvb, offset+2, 6)));
+		    tvb_ether_to_str(tvb, offset+2));
 		proto_tree_add_text(subtree, tvb, offset+8, 1,
 		    "LSP ID pseudonode ID: %u",
 		    tvb_get_guint8(tvb, offset+8));
@@ -1166,7 +1166,7 @@ dissect_psnp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 		ti = proto_tree_add_text(tree, tvb, offset, 16,
 		    "LSP-ID: %s, Sequence: 0x%08x, Lifetime: %5us, Checksum: 0x%04x",
-		    ether_to_str(tvb_get_ptr(tvb, offset+2, 6)), /* XXX - rest of system ID */
+		    tvb_ether_to_str(tvb, offset+2), /* XXX - rest of system ID */
 		    tvb_get_ntohl(tvb, offset+10),
 		    tvb_get_ntohs(tvb, offset),
 		    tvb_get_ntohs(tvb, offset+14));
@@ -1175,7 +1175,7 @@ dissect_psnp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 		proto_tree_add_text(subtree, tvb, offset+2, 6,
 		    "LSP ID source ID: %s",
-		    ether_to_str(tvb_get_ptr(tvb, offset+2, 6)));
+		    tvb_ether_to_str(tvb, offset+2));
 		proto_tree_add_text(subtree, tvb, offset+8, 1,
 		    "LSP ID pseudonode ID: %u",
 		    tvb_get_guint8(tvb, offset+8));
@@ -1248,12 +1248,12 @@ nlsp_dissect_nlsp_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Source ID: %s",
-		    ether_to_str(tvb_get_ptr(tvb, offset, 6)));
+		    tvb_ether_to_str(tvb, offset));
 	}
 	if (tree) {
 		proto_tree_add_text(tree, tvb, offset, 6,
 		    "Source ID system ID: %s",
-		    ether_to_str(tvb_get_ptr(tvb, offset, 6)));
+		    tvb_ether_to_str(tvb, offset));
 	}
 	offset += 6;
 	/* XXX - add the pseudonode ID */
@@ -1266,12 +1266,12 @@ nlsp_dissect_nlsp_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Start LSP ID: %s",
-		    ether_to_str(tvb_get_ptr(tvb, offset, 6)));
+		    tvb_ether_to_str(tvb, offset));
 	}
 	if (tree) {
 		proto_tree_add_text(tree, tvb, offset, 6,
 		    "Start LSP ID source ID: %s",
-		    ether_to_str(tvb_get_ptr(tvb, offset, 6)));
+		    tvb_ether_to_str(tvb, offset));
 	}
 	offset += 6;
 	/* XXX - append the pseudonode ID */
@@ -1290,12 +1290,12 @@ nlsp_dissect_nlsp_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", End LSP ID: %s",
-		    ether_to_str(tvb_get_ptr(tvb, offset, 6)));
+		    tvb_ether_to_str(tvb, offset));
 	}
 	if (tree) {
 		proto_tree_add_text(tree, tvb, offset, 6,
 		    "End LSP ID source ID: %s",
-		    ether_to_str(tvb_get_ptr(tvb, offset, 6)));
+		    tvb_ether_to_str(tvb, offset));
 	}
 	offset += 6;
 	/* XXX - append the pseudonode ID */
@@ -1369,12 +1369,12 @@ nlsp_dissect_nlsp_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Source ID: %s",
-		    ether_to_str(tvb_get_ptr(tvb, offset, 6)));
+		    tvb_ether_to_str(tvb, offset));
 	}
 	if (tree) {
 		proto_tree_add_text(tree, tvb, offset, 6,
 		    "Source ID system ID: %s",
-		    ether_to_str(tvb_get_ptr(tvb, offset, 6)));
+		    tvb_ether_to_str(tvb, offset));
 	}
 	offset += 6;
 	/* XXX - add the pseudonode ID */

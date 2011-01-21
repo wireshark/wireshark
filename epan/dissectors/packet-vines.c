@@ -1478,7 +1478,7 @@ rtp_show_gateway_info(proto_tree *tree, tvbuff_t *tvb, int offset,
 		proto_tree_add_text(tree, tvb, offset, link_addr_length,
 		    "Preferred Gateway Data Link Address: %s",
 		    link_addr_length == 6 ?
-		    ether_to_str(tvb_get_ptr(tvb, offset, link_addr_length)) :
+		    tvb_ether_to_str(tvb, offset) :
 		    tvb_bytes_to_str(tvb, offset, link_addr_length));
 		offset += link_addr_length;
 	}

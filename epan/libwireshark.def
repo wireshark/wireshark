@@ -614,10 +614,8 @@ InfoRequestNakReason_vals       DATA
 init_dissection
 init_progfile_dir
 ip6_to_str
-tvb_ip6_to_str
 in_cksum
 ip_to_str
-tvb_ip_to_str
 ipprotostr
 ipv4_get_net_order_addr
 is_big_endian
@@ -1033,7 +1031,10 @@ tvb_bytes_to_str
 tvb_bytes_to_str_punct
 tvb_ensure_bytes_exist
 tvb_ensure_length_remaining
+tvb_eth_to_str
 tvb_fake_unicode
+tvb_fc_to_str
+tvb_fcwwm_to_str
 tvb_find_guint8
 tvb_find_line_end
 tvb_find_line_end_unquoted
@@ -1077,6 +1078,8 @@ tvb_get_ntohs
 tvb_get_ptr
 tvb_get_string
 tvb_get_stringz
+tvb_ip6_to_str
+tvb_ip_to_str
 tvb_length
 tvb_length_remaining
 tvb_memcpy

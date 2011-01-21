@@ -501,10 +501,10 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				tvb_get_guint8(tvb, offset+20));
 	    proto_tree_add_text(tlv_tree, tvb, offset+21, 6,
 				"Cluster Commander MAC: %s",
-				ether_to_str(tvb_get_ptr(tvb, offset+21, 6)));
+				tvb_ether_to_str(tvb, offset+21));
 	    proto_tree_add_text(tlv_tree, tvb, offset+27, 6,
 				"Switch's MAC: %s",
-				ether_to_str(tvb_get_ptr(tvb, offset+27, 6)));
+				tvb_ether_to_str(tvb, offset+27));
 	    proto_tree_add_text(tlv_tree, tvb, offset+33, 1,
 				"UNKNOWN: 0x%02X",
 				tvb_get_guint8(tvb, offset+33));
@@ -893,7 +893,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       case TYPE_SPARE_POE:
 	if (tree) {
-	  tlvi = proto_tree_add_text(cdp_tree, tvb, offset, length, 
+	  tlvi = proto_tree_add_text(cdp_tree, tvb, offset, length,
 				     "Spare Pair PoE");
 	  tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
 
@@ -1176,8 +1176,8 @@ dissect_nrgyz_tlv(tvbuff_t *tvb, int offset, guint16 length, guint16 num,
 }
 
 static void
-dissect_spare_poe_tlv(tvbuff_t *tvb, int offset, int length, 
-		      proto_tree *tree) 
+dissect_spare_poe_tlv(tvbuff_t *tvb, int offset, int length,
+		      proto_tree *tree)
 {
     proto_item *ti;
     proto_tree *tlv_tree;
@@ -1188,7 +1188,7 @@ dissect_spare_poe_tlv(tvbuff_t *tvb, int offset, int length,
     }
 
     tlv_data = tvb_get_guint8(tvb, offset);
-    ti = proto_tree_add_text(tree, tvb, offset, length, 
+    ti = proto_tree_add_text(tree, tvb, offset, length,
 			     "Spare Pair PoE: 0x%02x", tlv_data);
     tlv_tree = proto_item_add_subtree(ti, ett_cdp_spare_poe_tlv);
 

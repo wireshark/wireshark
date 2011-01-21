@@ -724,7 +724,7 @@ void radius_ether(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U
 	}
 
 	proto_tree_add_item(tree, a->hf, tvb, offset, len, FALSE);
-	proto_item_append_text(avp_item, "%s", ether_to_str(tvb_get_ptr(tvb, offset, len)));
+	proto_item_append_text(avp_item, "%s", tvb_ether_to_str(tvb, offset));
 }
 
 void radius_ifid(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_, tvbuff_t* tvb, int offset, int len, proto_item* avp_item) {

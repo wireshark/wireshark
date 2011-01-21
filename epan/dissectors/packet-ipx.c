@@ -1266,7 +1266,7 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_text(s_tree, tvb, cursor+50, 4, "Network: %s",
 						ipxnet_to_string(tvb_get_ptr(tvb, cursor+50, 4)));
 				proto_tree_add_text(s_tree, tvb, cursor+54, 6, "Node: %s",
-						ether_to_str(tvb_get_ptr(tvb, cursor+54, 6)));
+						tvb_ether_to_str(tvb, cursor+54));
 				server_port = tvb_get_ntohs(tvb, cursor+60);
 				proto_tree_add_text(s_tree, tvb, cursor+60, 2, "Socket: %s (0x%04x)",
 						socket_text(server_port),

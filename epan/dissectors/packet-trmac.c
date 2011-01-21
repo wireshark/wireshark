@@ -181,7 +181,7 @@ sv_text(tvbuff_t *tvb, int svoff, proto_tree *tree)
 		case 0x0A: /* Address of last neighbor notification */
 			proto_tree_add_text(tree, tvb, svoff+1, sv_length-1,
 				"Address of Last Neighbor Notification: %s",
-				ether_to_str(tvb_get_ptr(tvb, svoff+2, 6)));
+				tvb_ether_to_str(tvb, svoff+2));
 			break;
 
 		case 0x0B: /* Physical Location */

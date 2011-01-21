@@ -125,8 +125,8 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	type = tvb_get_guint8(tvb, 1);
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s > %s Type: %s",
-		     ether_to_str(tvb_get_ptr(tvb, 2, 6)),
-		     ether_to_str(tvb_get_ptr(tvb, 8, 6)),
+		     tvb_ether_to_str(tvb, 2),
+		     tvb_ether_to_str(tvb, 8),
 		     val_to_str(type, packettypenames, "Unknown Type:0x%02x"));
 
 	if (tree) {

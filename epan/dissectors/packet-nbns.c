@@ -775,7 +775,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
 		}
 		proto_tree_add_text(rr_tree, tvb, cur_offset, 6,
 		    "Unit ID: %s",
-		    ether_to_str(tvb_get_ptr(tvb, cur_offset, 6)));
+		    tvb_ether_to_str(tvb, cur_offset));
 		cur_offset += 6;
 		data_len -= 6;
 

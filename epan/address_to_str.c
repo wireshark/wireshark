@@ -91,6 +91,12 @@ ether_to_str(const guint8 *ad)
 	return bytestring_to_str(ad, 6, ':');
 }
 
+gchar *
+tvb_ether_to_str(tvbuff_t *tvb, const gint offset)
+{
+	return bytestring_to_str(tvb_get_ptr(tvb, offset, 6), 6, ':');
+}
+
 /*
  This function is very fast and this function is called a lot.
  XXX update the ep_address_to_str stuff to use this function.

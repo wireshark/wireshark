@@ -220,7 +220,7 @@ dissect_lan_destination(tvbuff_t *tvb, int offset, const char *type, proto_tree 
 
   case TAG_MAC_ADDRESS:
     proto_tree_add_text(dest_tree, tvb, offset, 6, "MAC address: %s",
-                        ether_to_str(tvb_get_ptr(tvb, offset, 6)));
+                        tvb_ether_to_str(tvb, offset));
     break;
 
   case TAG_ROUTE_DESCRIPTOR:
