@@ -264,7 +264,7 @@ static const value_string cba_qos_type_short_vals[] = {
 };
 
 
-typedef struct cba_frame_s {    
+typedef struct cba_frame_s {
     cba_ldev_t      *consparent;
     cba_ldev_t      *provparent;
     GList           *conns;
@@ -284,7 +284,7 @@ typedef struct cba_frame_s {
     guint16         offset;
 } cba_frame_t;
 
-typedef struct cba_connection_s {    
+typedef struct cba_connection_s {
     cba_ldev_t      *consparentacco;
     cba_ldev_t      *provparentacco;
     cba_frame_t     *parentframe;
@@ -335,18 +335,18 @@ static void
 cba_connection_dump(cba_connection_t *conn, const char *role)
 {
     if(conn->qostype != 0x30) {
-        g_warning("   %s#%5u: CID:0x%8x PID:0x%8x PItem:\"%s\" Type:%s QoS:%s/%u Ret:%s Data#%5u-#%5u", 
+        g_warning("   %s#%5u: CID:0x%8x PID:0x%8x PItem:\"%s\" Type:%s QoS:%s/%u Ret:%s Data#%5u-#%5u",
             role,
-            conn->packet_connect, 
+            conn->packet_connect,
             conn->consid, conn->provid, conn->provitem,
             conn->typedesclen != 0 ? val_to_str(conn->typedesc[0], dcom_variant_type_vals, "Unknown (0x%08x)") : "-",
             val_to_str(conn->qostype, cba_qos_type_short_vals, "0x%x"), conn->qosvalue,
 		    conn->connret==0xffffffff ? "[pending]" : val_to_str(conn->connret, dcom_hresult_vals, "Unknown (0x%08x)"),
             conn->packet_first, conn->packet_last);
     } else {
-        g_warning("   %s#%5u: CID:0x%8x PID:0x%8x PItem:\"%s\" Type:%s QoS:%s/%u Ret:%s Off:%u", 
+        g_warning("   %s#%5u: CID:0x%8x PID:0x%8x PItem:\"%s\" Type:%s QoS:%s/%u Ret:%s Off:%u",
             role,
-            conn->packet_connect, 
+            conn->packet_connect,
             conn->consid, conn->provid, conn->provitem,
             conn->typedesclen != 0 ? val_to_str(conn->typedesc[0], dcom_variant_type_vals, "Unknown (0x%08x)") : "-",
             val_to_str(conn->qostype, cba_qos_type_short_vals, "0x%x"), conn->qosvalue,
@@ -372,17 +372,17 @@ cba_object_dump(void)
 
     for(pdevs = cba_pdevs; pdevs != NULL; pdevs = g_list_next(pdevs)) {
         pdev = pdevs->data;
-        g_warning("PDev #%5u: %s IFs:%u", pdev->first_packet, ip_to_str(pdev->ip), 
+        g_warning("PDev #%5u: %s IFs:%u", pdev->first_packet, ip_to_str(pdev->ip),
             pdev->object ? g_list_length(pdev->object->interfaces) : 0);
 
         for(ldevs = pdev->ldevs; ldevs != NULL; ldevs = g_list_next(ldevs)) {
             ldev = ldevs->data;
-            g_warning(" LDev#%5u: \"%s\" LDevIFs:%u AccoIFs:%u", ldev->first_packet, ldev->name, 
+            g_warning(" LDev#%5u: \"%s\" LDevIFs:%u AccoIFs:%u", ldev->first_packet, ldev->name,
                 ldev->ldev_object ? g_list_length(ldev->ldev_object->interfaces) : 0,
                 ldev->acco_object ? g_list_length(ldev->acco_object->interfaces) : 0);
             for(frames = ldev->consframes; frames != NULL; frames = g_list_next(frames)) {
                 frame = frames->data;
-                g_warning("  ConsFrame#%5u: CCRID:0x%x PCRID:0x%x Len:%u Ret:%s Data#%5u-#%5u", 
+                g_warning("  ConsFrame#%5u: CCRID:0x%x PCRID:0x%x Len:%u Ret:%s Data#%5u-#%5u",
                     frame->packet_connect, frame->conscrid, frame->provcrid, frame->length,
 		            frame->conncrret==0xffffffff ? "[pending]" : val_to_str(frame->conncrret, dcom_hresult_vals, "Unknown (0x%08x)"),
                     frame->packet_first, frame->packet_last);
@@ -392,7 +392,7 @@ cba_object_dump(void)
             }
             for(frames = ldev->provframes; frames != NULL; frames = g_list_next(frames)) {
                 frame = frames->data;
-                g_warning("  ProvFrame#%5u: CCRID:0x%x PCRID:0x%x Len:%u Ret:%s Data#%5u-#%5u", 
+                g_warning("  ProvFrame#%5u: CCRID:0x%x PCRID:0x%x Len:%u Ret:%s Data#%5u-#%5u",
                     frame->packet_connect, frame->conscrid, frame->provcrid, frame->length,
 		            frame->conncrret==0xffffffff ? "[pending]" : val_to_str(frame->conncrret, dcom_hresult_vals, "Unknown (0x%08x)"),
                     frame->packet_first, frame->packet_last);
@@ -423,11 +423,11 @@ cba_pdev_find(packet_info *pinfo, const guint8 *ip, e_uuid_t *ipid)
     if(interf != NULL) {
         pdev = interf->parent->private_data;
         if(pdev == NULL) {
-	        expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, "pdev_find: no pdev for IP:%s IPID:%s", 
+	        expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, "pdev_find: no pdev for IP:%s IPID:%s",
                 ip_to_str(ip), guids_resolve_uuid_to_str(ipid));
         }
     } else {
-	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, "pdev_find: unknown interface of IP:%s IPID:%s", 
+	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, "pdev_find: unknown interface of IP:%s IPID:%s",
             ip_to_str(ip), guids_resolve_uuid_to_str(ipid));
         pdev = NULL;
     }
@@ -551,11 +551,11 @@ cba_ldev_find(packet_info *pinfo, const guint8 *ip, e_uuid_t *ipid) {
             ldev = interf->parent->private_data;
         }
         if(ldev == NULL) {
-	        expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, "Unknown LDev of %s", 
+	        expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, "Unknown LDev of %s",
                 ip_to_str(ip));
         }
     } else {
-	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, "Unknown IPID of %s", 
+	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, "Unknown IPID of %s",
             ip_to_str(ip));
         ldev = NULL;
     }
@@ -594,7 +594,7 @@ cba_acco_add(packet_info *pinfo, const char *acco)
     ldev = cba_ldev_add(pinfo, pdev, delim);
 
     g_free(ip_str);
-    
+
     return ldev;
 }
 
@@ -630,7 +630,7 @@ cba_frame_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, cba_fram
 
 	if (tree) {
 		sub_item = proto_tree_add_text(tree, tvb, 0, 0, "Cons:\"%s\" CCRID:0x%x Prov:\"%s\" PCRID:0x%x QoS:%s/%ums Len:%u",
-            frame->consparent ? frame->consparent->name : "", frame->conscrid, 
+            frame->consparent ? frame->consparent->name : "", frame->conscrid,
             frame->provparent ? frame->provparent->name : "", frame->provcrid,
             val_to_str(frame->qostype, cba_qos_type_short_vals, "%u"), frame->qosvalue, frame->length);
 		sub_tree = proto_item_add_subtree(sub_item, ett_cba_frame_info);
@@ -676,7 +676,7 @@ cba_frame_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, cba_fram
 
 
 static cba_frame_t *
-cba_frame_connect(packet_info *pinfo, cba_ldev_t *cons_ldev, cba_ldev_t *prov_ldev, 
+cba_frame_connect(packet_info *pinfo, cba_ldev_t *cons_ldev, cba_ldev_t *prov_ldev,
               guint16 qostype, guint16 qosvalue, const guint8 *consmac, guint16 conscrid, guint16 length)
 {
     GList *cba_iter;
@@ -685,7 +685,7 @@ cba_frame_connect(packet_info *pinfo, cba_ldev_t *cons_ldev, cba_ldev_t *prov_ld
     /* find frame */
     for(cba_iter = cons_ldev->consframes; cba_iter != NULL; cba_iter = g_list_next(cba_iter)) {
         frame = cba_iter->data;
-        if( frame->conscrid == conscrid && 
+        if( frame->conscrid == conscrid &&
             memcmp(frame->consmac, consmac, 6) == 0 &&
             cba_packet_in_range(pinfo, frame->packet_connect, frame->packet_disconnect, frame->packet_disconnectme)) {
             return frame;
@@ -731,7 +731,7 @@ cba_frame_disconnect(packet_info *pinfo, cba_frame_t *frame)
     }
 
     if(frame->packet_disconnect != pinfo->fd->num) {
-        g_warning("cba_frame_disconnect#%u: frame already disconnected in #%u", 
+        g_warning("cba_frame_disconnect#%u: frame already disconnected in #%u",
             pinfo->fd->num, frame->packet_disconnect);
     }
 }
@@ -757,7 +757,7 @@ cba_frame_disconnectme(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, cba_
             }
 
             if(frame->packet_disconnectme != pinfo->fd->num) {
-                g_warning("cba_frame_disconnectme#%u: frame already disconnectme'd in #%u", 
+                g_warning("cba_frame_disconnectme#%u: frame already disconnectme'd in #%u",
                     pinfo->fd->num, frame->packet_disconnectme);
             }
         }
@@ -788,7 +788,7 @@ cba_frame_find_by_cons(packet_info *pinfo, const guint8 *consmac, guint16 conscr
             for(frames = ldev->consframes; frames != NULL; frames = g_list_next(frames)) {
                 frame = frames->data;
 
-                if( frame->conscrid == conscrid && 
+                if( frame->conscrid == conscrid &&
                     memcmp(frame->consmac, consmac, 6) == 0 &&
                     cba_packet_in_range(pinfo, frame->packet_connect, frame->packet_disconnect, frame->packet_disconnectme)) {
                     return frame;
@@ -814,14 +814,14 @@ cba_frame_find_by_provcrid(packet_info *pinfo, cba_ldev_t *prov_ldev, guint32 pr
 
     for(frames = prov_ldev->provframes; frames != NULL; frames = g_list_next(frames)) {
         frame = frames->data;
-    
+
         if( frame->provcrid == provcrid &&
             cba_packet_in_range(pinfo, frame->packet_connect, frame->packet_disconnect, frame->packet_disconnectme)) {
             return frame;
         }
     }
 
-	expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
+	expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE,
         "Unknown provider frame ProvCRID");
 
     return NULL;
@@ -871,10 +871,10 @@ cba_connection_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, cba
         PROTO_ITEM_SET_GENERATED(item);
 
         if(conn->qostype != 0x30) {
-	        item = proto_tree_add_uint(sub_tree, hf_cba_acco_conn_qos_type, 
+	        item = proto_tree_add_uint(sub_tree, hf_cba_acco_conn_qos_type,
                         tvb, 0, 0, conn->qostype);
             PROTO_ITEM_SET_GENERATED(item);
-	        item = proto_tree_add_uint(sub_tree, hf_cba_acco_conn_qos_value, 
+	        item = proto_tree_add_uint(sub_tree, hf_cba_acco_conn_qos_value,
                         tvb, 0, 0, conn->qosvalue);
             PROTO_ITEM_SET_GENERATED(item);
 		    item = proto_tree_add_uint(sub_tree, hf_cba_connect_in,
@@ -898,7 +898,7 @@ cba_connection_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, cba
 
 
 static cba_connection_t *
-cba_connection_connect(packet_info *pinfo, cba_ldev_t *cons_ldev, cba_ldev_t *prov_ldev, cba_frame_t *cons_frame, 
+cba_connection_connect(packet_info *pinfo, cba_ldev_t *cons_ldev, cba_ldev_t *prov_ldev, cba_frame_t *cons_frame,
                    guint16 qostype, guint16 qosvalue, const char *provitem, guint32 consid, guint16 length,
                    guint16 *typedesc, guint16 typedesclen)
 {
@@ -919,7 +919,7 @@ cba_connection_connect(packet_info *pinfo, cba_ldev_t *cons_ldev, cba_ldev_t *pr
         /* DCOM: search in ldev */
         for(cba_iter = cons_ldev->consconns; cba_iter != NULL; cba_iter = g_list_next(cba_iter)) {
             conn = cba_iter->data;
-            if( conn->consid == consid && 
+            if( conn->consid == consid &&
                 cba_packet_in_range(pinfo, conn->packet_connect, conn->packet_disconnect, conn->packet_disconnectme)) {
                 return conn;
             }
@@ -970,8 +970,8 @@ cba_connection_disconnect(packet_info *pinfo, cba_connection_t *conn)
     /* XXX - detect multiple disconnects? */
     if(conn->packet_disconnect == 0) {
         conn->packet_disconnect = pinfo->fd->num;
-    } 
-    
+    }
+
     if(conn->packet_disconnect != pinfo->fd->num) {
         g_warning("connection_disconnect#%u: already disconnected",
                   conn->packet_disconnect);
@@ -985,11 +985,11 @@ cba_connection_disconnectme(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     GList *conns;
     cba_connection_t *conn;
 
-    
+
     for(conns = cons_ldev->consconns; conns != NULL; conns = g_list_next(conns)) {
         conn = conns->data;
 
-        if( conn->provparentacco == prov_ldev && 
+        if( conn->provparentacco == prov_ldev &&
             cba_packet_in_range(pinfo, conn->packet_connect, conn->packet_disconnect, conn->packet_disconnectme)) {
 
             cba_connection_info(tvb, pinfo, tree, conn);
@@ -997,7 +997,7 @@ cba_connection_disconnectme(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             if(conn->packet_disconnectme == 0) {
                 conn->packet_disconnectme = pinfo->fd->num;
             }
-            
+
             if(conn->packet_disconnectme != pinfo->fd->num) {
                 g_warning("connection_disconnectme#%u: already disconnectme'd",
                           conn->packet_disconnectme);
@@ -1013,7 +1013,7 @@ cba_connection_find_by_provid(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree 
     GList *cba_iter;
     cba_connection_t *conn;
 
-    
+
     for(cba_iter = prov_ldev->provconns; cba_iter != NULL; cba_iter = g_list_next(cba_iter)) {
         conn = cba_iter->data;
         if( conn->provid == provid &&
@@ -1053,23 +1053,23 @@ dissect_HResultArray_resp(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
                         &u32Pointer);
 
 	if (u32Pointer) {
-		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
 							&u32ArraySize);
 
 		u32Idx = 1;
 		u32Tmp = u32ArraySize;
 		while (u32Tmp--) {
-			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, tree, drep, 
+			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, tree, drep,
 								&u32HResult, u32Idx);
 			u32Idx++;
 		}
 	}
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 						&u32HResult);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u -> %s",
@@ -1098,23 +1098,23 @@ dissect_ICBAAccoServer_SetActivation_resp(tvbuff_t *tvb, int offset,
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 1;
 
-	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
                         &u32Pointer);
 
 	if (u32Pointer) {
-		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
 							&u32ArraySize);
 
 		u32Idx = 1;
 		u32Tmp = u32ArraySize;
 		while (u32Tmp--) {
-			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, tree, drep, 
+			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, tree, drep,
 								&u32HResult, u32Idx);
 			u32Idx++;
 		}
 	}
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 						&u32HResult);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u -> %s",
@@ -1143,23 +1143,23 @@ dissect_ICBAAccoServerSRT_Disconnect_resp(tvbuff_t *tvb, int offset,
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 3;
 
-	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
                         &u32Pointer);
 
 	if (u32Pointer) {
-		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
 							&u32ArraySize);
 
 		u32Idx = 1;
 		u32Tmp = u32ArraySize;
 		while (u32Tmp--) {
-			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, tree, drep, 
+			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, tree, drep,
 								&u32HResult, u32Idx);
 			u32Idx++;
 		}
 	}
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 						&u32HResult);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u -> %s",
@@ -1188,23 +1188,23 @@ dissect_ICBAAccoServerSRT_SetActivation_resp(tvbuff_t *tvb, int offset,
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 3;
 
-	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
                         &u32Pointer);
 
 	if (u32Pointer) {
-		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
 							&u32ArraySize);
 
 		u32Idx = 1;
 		u32Tmp = u32ArraySize;
 		while (u32Tmp--) {
-			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, tree, drep, 
+			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, tree, drep,
 								&u32HResult, u32Idx);
 			u32Idx++;
 		}
 	}
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 						&u32HResult);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u -> %s",
@@ -1255,22 +1255,22 @@ dissect_ICBAAccoServer_Connect_rqst(tvbuff_t *tvb, int offset,
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 2;
 
-	offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep,
                        hf_cba_acco_conn_consumer, szCons, u32MaxConsLen);
 
     /* find the consumer ldev by it's name */
     cons_ldev = cba_acco_add(pinfo, szCons);
 
-	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_conn_qos_type, &u16QoSType);
-	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_conn_qos_value, &u16QoSValue);
-	offset = dissect_dcom_BYTE(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_BYTE(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_conn_state, &u8State);
 
 	offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, drep, 0, &cons_interf);
     if(cons_interf == NULL) {
-	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
+	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE,
             "Server_Connect: consumer interface invalid");
     }
 
@@ -1279,10 +1279,10 @@ dissect_ICBAAccoServer_Connect_rqst(tvbuff_t *tvb, int offset,
         cba_ldev_link_acco(pinfo, cons_ldev, cons_interf);
     }
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_count, &u32Count);
 
-	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
 						&u32ArraySize);
 
     /* link connections infos to the call */
@@ -1306,31 +1306,31 @@ dissect_ICBAAccoServer_Connect_rqst(tvbuff_t *tvb, int offset,
 		u32SubStart = offset;
 
 		/* ProviderItem */
-		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 							&u32Pointer);
 		if (u32Pointer) {
-			u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
+			u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 							hf_cba_acco_conn_provider_item, szItem, u32MaxItemLen);
 		}
-		
+
 		/* DataType */
 		offset = dissect_dcom_VARTYPE(tvb, offset, pinfo, sub_tree, drep,
 							&u16VarType);
 
 		/* Epsilon */
-		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 							&u32Pointer);
 		if (u32Pointer) {
 			u32VariableOffset = dissect_dcom_VARIANT(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 							hf_cba_acco_conn_epsilon);
 		}
 		/* ConsumerID */
-		offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
+		offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep,
 							hf_cba_acco_conn_cons_id, &u32ConsID);
 
         /* add to object database */
         if(prov_ldev != NULL && cons_ldev != NULL) {
-            conn = cba_connection_connect(pinfo, cons_ldev, prov_ldev, /*cons_frame*/ NULL, 
+            conn = cba_connection_connect(pinfo, cons_ldev, prov_ldev, /*cons_frame*/ NULL,
                 u16QoSType, u16QoSValue, szItem, u32ConsID, 0,
                 /* XXX - VarType must be translated to new type description if it includes an array (0x2000) */
                 se_memdup(&u16VarType, 2), 1);
@@ -1347,7 +1347,7 @@ dissect_ICBAAccoServer_Connect_rqst(tvbuff_t *tvb, int offset,
         }
 
 		/* update subtree header */
-		proto_item_append_text(sub_item, "[%u]: ConsID=0x%x, ProvItem=\"%s\", VarType=%s", 
+		proto_item_append_text(sub_item, "[%u]: ConsID=0x%x, ProvItem=\"%s\", VarType=%s",
 			u32Idx, u32ConsID, szItem,
 			val_to_str(u16VarType, dcom_variant_type_vals, "Unknown (0x%04x)") );
 		proto_item_set_len(sub_item, offset - u32SubStart);
@@ -1401,22 +1401,22 @@ dissect_ICBAAccoServer2_Connect2_rqst(tvbuff_t *tvb, int offset,
 
     /* get corresponding provider ldev */
     prov_ldev = cba_ldev_find(pinfo, pinfo->net_dst.data, &info->call_data->object_uuid);
-    
+
     item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 2;
 
-	offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep,
                        hf_cba_acco_conn_consumer, szCons, u32MaxConsLen);
 
     /* find the consumer ldev by it's name */
     cons_ldev = cba_acco_add(pinfo, szCons);
 
-	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_conn_qos_type, &u16QoSType);
-	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_conn_qos_value, &u16QoSValue);
-	offset = dissect_dcom_BYTE(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_BYTE(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_conn_state, &u8State);
 
 	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, &u32Pointer);
@@ -1424,7 +1424,7 @@ dissect_ICBAAccoServer2_Connect2_rqst(tvbuff_t *tvb, int offset,
 	if (u32Pointer) {
 	    offset = dissect_dcom_MInterfacePointer(tvb, offset, pinfo, tree, drep, 0, &cons_interf);
         if(cons_interf == NULL) {
-	        expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
+	        expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE,
                 "Server2_Connect2: consumer interface invalid");
         }
     } else {
@@ -1437,10 +1437,10 @@ dissect_ICBAAccoServer2_Connect2_rqst(tvbuff_t *tvb, int offset,
         cba_ldev_link_acco(pinfo, cons_ldev, cons_interf);
     }
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_count, &u32Count);
 
-	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
 						&u32ArraySize);
 
     /* link connection infos to the call */
@@ -1464,24 +1464,24 @@ dissect_ICBAAccoServer2_Connect2_rqst(tvbuff_t *tvb, int offset,
 		u32SubStart = offset;
 
 		/* ProviderItem */
-		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 							&u32Pointer);
 		if (u32Pointer) {
-			u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
+			u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 							hf_cba_acco_conn_provider_item, szItem, u32MaxItemLen);
 		}
-		
+
 		/* TypeDescLen */
-		offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
+		offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep,
 							hf_cba_type_desc_len, &u16TypeDescLen);
 
-		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 							&u32Pointer);
 		/* pTypeDesc */
 		if (u32Pointer) {
-			u32VariableOffset = dissect_dcom_dcerpc_array_size(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
+			u32VariableOffset = dissect_dcom_dcerpc_array_size(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 								&u32ArraySize2);
-			
+
             /* limit the allocation to a reasonable size */
             if(u32ArraySize2 < 1000) {
                 typedesc = se_alloc0(u32ArraySize2 * 2);
@@ -1511,19 +1511,19 @@ dissect_ICBAAccoServer2_Connect2_rqst(tvbuff_t *tvb, int offset,
 		}
 
 		/* Epsilon */
-		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 							&u32Pointer);
 		if (u32Pointer) {
 			u32VariableOffset = dissect_dcom_VARIANT(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 							hf_cba_acco_conn_epsilon);
 		}
 		/* ConsumerID */
-		offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
+		offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep,
 							hf_cba_acco_conn_cons_id, &u32ConsID);
 
         /* add to object database */
         if(prov_ldev != NULL && cons_ldev != NULL) {
-            conn = cba_connection_connect(pinfo, cons_ldev, prov_ldev, /*cons_frame*/ NULL, 
+            conn = cba_connection_connect(pinfo, cons_ldev, prov_ldev, /*cons_frame*/ NULL,
                 u16QoSType, u16QoSValue, szItem, u32ConsID, 0,
                 typedesc, typedesclen);
 
@@ -1539,7 +1539,7 @@ dissect_ICBAAccoServer2_Connect2_rqst(tvbuff_t *tvb, int offset,
         }
 
 		/* update subtree header */
-		proto_item_append_text(sub_item, "[%u]: ConsID=0x%x, ProvItem=\"%s\", TypeDesc=%s", 
+		proto_item_append_text(sub_item, "[%u]: ConsID=0x%x, ProvItem=\"%s\", TypeDesc=%s",
 			u32Idx, u32ConsID, szItem,
 			val_to_str(u16VarType2, dcom_variant_type_vals, "Unknown (0x%04x)") );
 		proto_item_set_len(sub_item, offset - u32SubStart);
@@ -1576,7 +1576,7 @@ dissect_ICBAAccoServer_Connect_resp(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
     if(call == NULL) {
-	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
+	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE,
             "No request info, response data ignored");
     }
 
@@ -1584,14 +1584,14 @@ dissect_ICBAAccoServer_Connect_resp(tvbuff_t *tvb, int offset,
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 1;
 
-	offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_server_first_connect, &u8FirstConnect);
 
-	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
 						&u32Pointer);
 
 	if (u32Pointer) {
-		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
 							&u32ArraySize);
 
 		/* array of CONNECTOUTs */
@@ -1600,10 +1600,10 @@ dissect_ICBAAccoServer_Connect_resp(tvbuff_t *tvb, int offset,
 			sub_tree = proto_item_add_subtree(sub_item, ett_cba_connectout);
 			u32SubStart = offset;
 
-			offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_prov_id, &u32ProvID);
 
-			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, sub_tree, drep,
 								&u32HResult, u32Idx);
 
             /* put response data into the connection */
@@ -1615,8 +1615,8 @@ dissect_ICBAAccoServer_Connect_resp(tvbuff_t *tvb, int offset,
                 cba_connection_info(tvb, pinfo, sub_tree, conn);
             }
 
-			proto_item_append_text(sub_item, "[%u]: ProvID=0x%x %s", 
-				u32Idx, u32ProvID, 
+			proto_item_append_text(sub_item, "[%u]: ProvID=0x%x %s",
+				u32Idx, u32ProvID,
 				val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 			proto_item_set_len(sub_item, offset - u32SubStart);
 
@@ -1624,7 +1624,7 @@ dissect_ICBAAccoServer_Connect_resp(tvbuff_t *tvb, int offset,
 		}
 	}
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
                         &u32HResult);
 
     /* this might be a global HRESULT */
@@ -1665,10 +1665,10 @@ dissect_ICBAAccoServer_Disconnect_rqst(tvbuff_t *tvb, int offset,
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 2;
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_count, &u32Count);
 
-	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
                         &u32ArraySize);
 
     prov_ldev = cba_ldev_find(pinfo, pinfo->net_dst.data, &info->call_data->object_uuid);
@@ -1686,7 +1686,7 @@ dissect_ICBAAccoServer_Disconnect_rqst(tvbuff_t *tvb, int offset,
 
 	u32Idx = 1;
 	while (u32ArraySize--) {
-		offset = dissect_dcom_indexed_DWORD(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_indexed_DWORD(tvb, offset, pinfo, tree, drep,
 						hf_cba_acco_conn_prov_id, &u32ProvID, u32Idx);
 
         /* add to current call */
@@ -1725,7 +1725,7 @@ dissect_ICBAAccoServer_Disconnect_resp(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
     if(call == NULL) {
-	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
+	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE,
             "No request info, response data ignored");
     }
 
@@ -1733,17 +1733,17 @@ dissect_ICBAAccoServer_Disconnect_resp(tvbuff_t *tvb, int offset,
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 1;
 
-	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
                         &u32Pointer);
 
 	if (u32Pointer) {
-		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
 							&u32ArraySize);
 
 		u32Idx = 1;
 		u32Tmp = u32ArraySize;
 		while (u32Tmp--) {
-			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, tree, drep, 
+			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, tree, drep,
 								&u32HResult, u32Idx);
 
             /* mark this connection as disconnected */
@@ -1758,7 +1758,7 @@ dissect_ICBAAccoServer_Disconnect_resp(tvbuff_t *tvb, int offset,
 		}
 	}
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 						&u32HResult);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u -> %s",
@@ -1786,15 +1786,15 @@ dissect_ICBAAccoServerSRT_Disconnect_rqst(tvbuff_t *tvb, int offset,
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 4;
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_count, &u32Count);
 
-	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
                         &u32ArraySize);
 
 	u32Idx = 1;
 	while (u32ArraySize--) {
-		offset = dissect_dcom_indexed_DWORD(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_indexed_DWORD(tvb, offset, pinfo, tree, drep,
 						hf_cba_acco_conn_prov_id, &u32ProvID, u32Idx);
 		u32Idx++;
 	}
@@ -1823,12 +1823,12 @@ dissect_ICBAAccoServer_DisconnectMe_rqst(tvbuff_t *tvb, int offset,
 
     /* get corresponding provider ldev */
     prov_ldev = cba_ldev_find(pinfo, pinfo->net_dst.data, &info->call_data->object_uuid);
-    
+
     item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 2;
 
-	offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep,
 		hf_cba_acco_conn_consumer, szStr, u32MaxStr);
 
     /* find the consumer ldev by it's name */
@@ -1848,7 +1848,7 @@ dissect_ICBAAccoServer_DisconnectMe_rqst(tvbuff_t *tvb, int offset,
 }
 
 
-static int 
+static int
 dissect_ICBAAccoServer_DisconnectMe_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
@@ -1864,7 +1864,7 @@ dissect_ICBAAccoServer_DisconnectMe_resp(tvbuff_t *tvb, int offset,
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 1;
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
                     &u32HResult);
 
     call = info->call_data->private_data;
@@ -1872,7 +1872,7 @@ dissect_ICBAAccoServer_DisconnectMe_resp(tvbuff_t *tvb, int offset,
         cba_connection_disconnectme(tvb, pinfo, tree, call->cons, call->prov);
     }
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
@@ -1896,12 +1896,12 @@ dissect_ICBAAccoServerSRT_DisconnectMe_rqst(tvbuff_t *tvb, int offset,
 
     /* get corresponding provider ldev */
     prov_ldev = cba_ldev_find(pinfo, pinfo->net_dst.data, &info->call_data->object_uuid);
-    
+
     item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 4;
 
-	offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep,
 		hf_cba_acco_conn_consumer, szStr, u32MaxStr);
 
     /* find the consumer ldev by it's name */
@@ -1921,7 +1921,7 @@ dissect_ICBAAccoServerSRT_DisconnectMe_rqst(tvbuff_t *tvb, int offset,
 }
 
 
-static int 
+static int
 dissect_ICBAAccoServerSRT_DisconnectMe_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
@@ -1937,7 +1937,7 @@ dissect_ICBAAccoServerSRT_DisconnectMe_resp(tvbuff_t *tvb, int offset,
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 3;
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
                     &u32HResult);
 
     call = info->call_data->private_data;
@@ -1945,14 +1945,14 @@ dissect_ICBAAccoServerSRT_DisconnectMe_resp(tvbuff_t *tvb, int offset,
         cba_frame_disconnectme(tvb, pinfo, tree, call->cons, call->prov);
     }
 
-  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
 	val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
 
 
-static int 
+static int
 dissect_ICBAAccoServer_Ping_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
@@ -1966,10 +1966,10 @@ dissect_ICBAAccoServer_Ping_resp(tvbuff_t *tvb, int offset,
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 1;
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
                     &u32HResult);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
@@ -1994,18 +1994,18 @@ dissect_ICBAAccoServer_SetActivation_rqst(tvbuff_t *tvb, int offset,
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 2;
 
-	offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_conn_state, &u8State);
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_count, &u32Count);
 
-	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
                         &u32ArraySize);
 
 	u32Idx = 1;
 	while (u32ArraySize--) {
-		offset = dissect_dcom_indexed_DWORD(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_indexed_DWORD(tvb, offset, pinfo, tree, drep,
 					 hf_cba_acco_conn_prov_id, &u32ProvID, u32Idx);
 		u32Idx++;
 	}
@@ -2036,18 +2036,18 @@ dissect_ICBAAccoServerSRT_SetActivation_rqst(tvbuff_t *tvb, int offset,
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 4;
 
-	offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_conn_state, &u8State);
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_count, &u32Count);
 
-	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
                         &u32ArraySize);
 
 	u32Idx = 1;
 	while (u32ArraySize--) {
-		offset = dissect_dcom_indexed_DWORD(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_indexed_DWORD(tvb, offset, pinfo, tree, drep,
 					 hf_cba_acco_conn_prov_id, &u32ProvID, u32Idx);
 		u32Idx++;
 	}
@@ -2074,7 +2074,7 @@ dissect_ICBAAccoServer_Ping_rqst(tvbuff_t *tvb, int offset,
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 2;
 
-	offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep,
 		hf_cba_acco_conn_consumer, szStr, u32MaxStr);
 
 	/* update column info now */
@@ -2116,26 +2116,26 @@ dissect_ICBAAccoServerSRT_ConnectCR_rqst(tvbuff_t *tvb, int offset,
 
     /* get corresponding provider ldev */
     prov_ldev = cba_ldev_find(pinfo, pinfo->net_dst.data, &info->call_data->object_uuid);
-    
+
     item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 4;
 
 	/* szCons */
-	offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep,
                        hf_cba_acco_conn_consumer, szCons, u32MaxConsLen);
 
     /* find the consumer ldev by it's name */
     cons_ldev = cba_acco_add(pinfo, szCons);
 
-	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_conn_qos_type, &u16QoSType);
-	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_conn_qos_value, &u16QoSValue);
 
 	offset = dissect_dcom_PMInterfacePointer(tvb, offset, pinfo, tree, drep, 0, &cons_interf);
     if(cons_interf == NULL) {
-	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
+	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE,
             "ServerSRT_ConnectCR: consumer interface invalid");
     }
 
@@ -2147,15 +2147,15 @@ dissect_ICBAAccoServerSRT_ConnectCR_rqst(tvbuff_t *tvb, int offset,
 	/* ConsumerMAC (big-endian, 1byte-aligned) */
 	tvb_memcpy(tvb, u8ConsMac, offset, 6);
 
-	proto_tree_add_ether(tree, hf_cba_acco_serversrt_cons_mac, tvb, 
+	proto_tree_add_ether(tree, hf_cba_acco_serversrt_cons_mac, tvb,
 		offset, 6, u8ConsMac);
 	offset += 6;
 
     /* add flags subtree */
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, NULL /*tree*/, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, NULL /*tree*/, drep,
                         0 /* hfindex */, &u32Flags);
     offset -= 4;
-	item = proto_tree_add_uint_format_value(tree, hf_cba_acco_serversrt_cr_flags, 
+	item = proto_tree_add_uint_format_value(tree, hf_cba_acco_serversrt_cr_flags,
 		tvb, offset, 4, u32Flags,
 		"0x%02x (%s, %s)", u32Flags,
 		(u32Flags & 0x2) ? "Reconfigure" : "not Reconfigure",
@@ -2165,10 +2165,10 @@ dissect_ICBAAccoServerSRT_ConnectCR_rqst(tvbuff_t *tvb, int offset,
     proto_tree_add_boolean(flags_tree, hf_cba_acco_serversrt_cr_flags_timestamped, tvb, offset, 4, u32Flags);
 	offset += 4;
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_count, &u32Count);
 
-	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
                         &u32ArraySize);
 
     /* link frame infos to the call */
@@ -2188,10 +2188,10 @@ dissect_ICBAAccoServerSRT_ConnectCR_rqst(tvbuff_t *tvb, int offset,
 		sub_tree = proto_item_add_subtree(sub_item, ett_cba_connectincr);
 		u32SubStart = offset;
 
-		offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
+		offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep,
 							hf_cba_acco_serversrt_cr_id, &u16CRID);
 
-		offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
+		offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep,
 							hf_cba_acco_serversrt_cr_length, &u16CRLength);
 
         /* add to object database */
@@ -2210,7 +2210,7 @@ dissect_ICBAAccoServerSRT_ConnectCR_rqst(tvbuff_t *tvb, int offset,
         }
 
 		/* update subtree header */
-		proto_item_append_text(sub_item, "[%u]: CRID=0x%x, CRLength=%u", 
+		proto_item_append_text(sub_item, "[%u]: CRID=0x%x, CRLength=%u",
 			u32Idx, u16CRID, u16CRLength);
 		proto_item_set_len(sub_item, offset - u32SubStart);
 
@@ -2249,7 +2249,7 @@ dissect_ICBAAccoServerSRT_ConnectCR_resp(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
     if(call == NULL) {
-	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
+	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE,
             "No request info, response data ignored");
     }
 
@@ -2257,22 +2257,22 @@ dissect_ICBAAccoServerSRT_ConnectCR_resp(tvbuff_t *tvb, int offset,
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 3;
 
-	offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_server_first_connect, &u8FirstConnect);
 
 	/* ProviderMAC (big-endian, 1byte-aligned) */
 	tvb_memcpy(tvb, u8ProvMac, offset, 6);
 
-	proto_tree_add_ether(tree, hf_cba_acco_serversrt_prov_mac, tvb, 
+	proto_tree_add_ether(tree, hf_cba_acco_serversrt_prov_mac, tvb,
 		offset, 6, u8ProvMac);
 	offset += 6;
 
 
-	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
 						&u32Pointer);
 	if (u32Pointer) {
 
-		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
 							&u32ArraySize);
 
 		while (u32ArraySize--) {
@@ -2281,10 +2281,10 @@ dissect_ICBAAccoServerSRT_ConnectCR_resp(tvbuff_t *tvb, int offset,
 		        sub_tree = proto_item_add_subtree(sub_item, ett_cba_connectoutcr);
 		        u32SubStart = offset;
 
-				offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
+				offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep,
 									hf_cba_acco_prov_crid, &u32ProvCRID);
 
-				offset = dissect_dcom_HRESULT(tvb, offset, pinfo, sub_tree, drep, 
+				offset = dissect_dcom_HRESULT(tvb, offset, pinfo, sub_tree, drep,
 									&u32HResult);
 
                 /* put response data into the frame */
@@ -2297,8 +2297,8 @@ dissect_ICBAAccoServerSRT_ConnectCR_resp(tvbuff_t *tvb, int offset,
                 }
 
 		        /* update subtree header */
-		        proto_item_append_text(sub_item, "[%u]: ProvCRID=0x%x, %s", 
-			        u32Idx, u32ProvCRID, 
+		        proto_item_append_text(sub_item, "[%u]: ProvCRID=0x%x, %s",
+			        u32Idx, u32ProvCRID,
                     val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 		        proto_item_set_len(sub_item, offset - u32SubStart);
 
@@ -2306,7 +2306,7 @@ dissect_ICBAAccoServerSRT_ConnectCR_resp(tvbuff_t *tvb, int offset,
 		}
 	}
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
                         &u32HResult);
 
     /* this might be a global HRESULT */
@@ -2350,10 +2350,10 @@ dissect_ICBAAccoServerSRT_DisconnectCR_rqst(tvbuff_t *tvb, int offset,
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 4;
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_count, &u32Count);
 
-	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
                         &u32ArraySize);
 
     /* link frame infos to the call */
@@ -2368,7 +2368,7 @@ dissect_ICBAAccoServerSRT_DisconnectCR_rqst(tvbuff_t *tvb, int offset,
 
 	u32Idx = 1;
 	while (u32ArraySize--) {
-		offset = dissect_dcom_indexed_DWORD(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_indexed_DWORD(tvb, offset, pinfo, tree, drep,
 						hf_cba_acco_prov_crid, &u32ProvCRID, u32Idx);
 
         /* find frame and add it to current call */
@@ -2388,7 +2388,7 @@ dissect_ICBAAccoServerSRT_DisconnectCR_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-	
+
 static int
 dissect_ICBAAccoServerSRT_DisconnectCR_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
@@ -2410,17 +2410,17 @@ dissect_ICBAAccoServerSRT_DisconnectCR_resp(tvbuff_t *tvb, int offset,
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 3;
 
-	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
                         &u32Pointer);
 
 	if (u32Pointer) {
-		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
 							&u32ArraySize);
 
 		u32Idx = 1;
 		u32Tmp = u32ArraySize;
 		while (u32Tmp--) {
-			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, tree, drep, 
+			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, tree, drep,
 								&u32HResult, u32Idx);
             /* put response data into the frame */
             if(call && u32Idx <= call->frame_count) {
@@ -2434,7 +2434,7 @@ dissect_ICBAAccoServerSRT_DisconnectCR_resp(tvbuff_t *tvb, int offset,
 		}
 	}
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 						&u32HResult);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
@@ -2487,7 +2487,7 @@ dissect_ICBAAccoServerSRT_Connect_rqst(tvbuff_t *tvb, int offset,
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 4;
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
 						hf_cba_acco_prov_crid, &u32ProvCRID);
 
     frame = cba_frame_find_by_provcrid(pinfo, prov_ldev, u32ProvCRID);
@@ -2496,17 +2496,17 @@ dissect_ICBAAccoServerSRT_Connect_rqst(tvbuff_t *tvb, int offset,
         cba_frame_info(tvb, pinfo, tree, frame);
     }
 
-	offset = dissect_dcom_BYTE(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_BYTE(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_conn_state, &u8State);
 
-	offset = dissect_dcom_BYTE(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_BYTE(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_serversrt_last_connect, &u8LastConnect);
 
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_count, &u32Count);
 
-	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
                         &u32ArraySize);
 
     /* link connections infos to the call */
@@ -2530,24 +2530,24 @@ dissect_ICBAAccoServerSRT_Connect_rqst(tvbuff_t *tvb, int offset,
 		u32SubStart = offset;
 
 		/* ProviderItem */
-		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 							&u32Pointer);
 		if (u32Pointer) {
-			u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
+			u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 							hf_cba_acco_conn_provider_item, szProvItem, u32MaxProvItemLen);
 		}
 
 		/* TypeDescLen */
-		offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
+		offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep,
 							hf_cba_type_desc_len, &u16TypeDescLen);
 
-		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 							&u32Pointer);
 		/* pTypeDesc */
 		if (u32Pointer) {
-			u32VariableOffset = dissect_dcom_dcerpc_array_size(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
+			u32VariableOffset = dissect_dcom_dcerpc_array_size(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 								&u32ArraySize2);
-			
+
             typedesc = se_alloc0(u32ArraySize2 * 2);
             typedesclen = u32ArraySize2;
 
@@ -2571,16 +2571,16 @@ dissect_ICBAAccoServerSRT_Connect_rqst(tvbuff_t *tvb, int offset,
 		}
 
 		/* ConsumerID */
-		offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
+		offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep,
 							hf_cba_acco_conn_cons_id, &u32ConsID);
 
 		/* RecordLength */
-		offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
+		offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep,
 							hf_cba_acco_serversrt_record_length, &u16RecordLength);
 
         /* add to object database */
         if(frame != NULL) {
-            conn = cba_connection_connect(pinfo, frame->consparent, frame->provparent, frame, 
+            conn = cba_connection_connect(pinfo, frame->consparent, frame->provparent, frame,
                 frame->qostype, frame->qosvalue, szProvItem, u32ConsID, u16RecordLength,
                 typedesc, typedesclen);
 
@@ -2596,12 +2596,12 @@ dissect_ICBAAccoServerSRT_Connect_rqst(tvbuff_t *tvb, int offset,
         }
 
 		/* update subtree header */
-		proto_item_append_text(sub_item, "[%u]: ConsID=0x%x, ProvItem=\"%s\", TypeDesc=%s", 
+		proto_item_append_text(sub_item, "[%u]: ConsID=0x%x, ProvItem=\"%s\", TypeDesc=%s",
 			u32Idx, u32ConsID, szProvItem,
 			val_to_str(u16VarType2, dcom_variant_type_vals, "Unknown (0x%04x)") );
 		proto_item_set_len(sub_item, offset - u32SubStart);
 
-	
+
 		u32Idx++;
 	}
 
@@ -2636,7 +2636,7 @@ dissect_ICBAAccoServerSRT_Connect_resp(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
     if(call == NULL) {
-	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
+	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE,
             "No request info, response data ignored");
     }
 
@@ -2644,7 +2644,7 @@ dissect_ICBAAccoServerSRT_Connect_resp(tvbuff_t *tvb, int offset,
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 3;
 
-	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
 						&u32Pointer);
 
     if(call && call->frame != NULL) {
@@ -2652,7 +2652,7 @@ dissect_ICBAAccoServerSRT_Connect_resp(tvbuff_t *tvb, int offset,
     }
 
 	if (u32Pointer) {
-		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
 							&u32ArraySize);
 
 		/* array of CONNECTOUTs */
@@ -2661,10 +2661,10 @@ dissect_ICBAAccoServerSRT_Connect_resp(tvbuff_t *tvb, int offset,
 			sub_tree = proto_item_add_subtree(sub_item, ett_cba_connectout);
 			u32SubStart = offset;
 
-			offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_prov_id, &u32ProvID);
 
-			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, sub_tree, drep,
 								&u32HResult, u32Idx);
 
             /* put response data into the frame */
@@ -2676,8 +2676,8 @@ dissect_ICBAAccoServerSRT_Connect_resp(tvbuff_t *tvb, int offset,
                 cba_connection_info(tvb, pinfo, sub_tree, conn);
             }
 
-			proto_item_append_text(sub_item, "[%u]: ProvID=0x%x %s", 
-				u32Idx, u32ProvID, 
+			proto_item_append_text(sub_item, "[%u]: ProvID=0x%x %s",
+				u32Idx, u32ProvID,
 				val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 			proto_item_set_len(sub_item, offset - u32SubStart);
 
@@ -2685,7 +2685,7 @@ dissect_ICBAAccoServerSRT_Connect_resp(tvbuff_t *tvb, int offset,
 		}
 	}
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
                         &u32HResult);
 
     /* this might be a global HRESULT */
@@ -2718,7 +2718,7 @@ dissect_Server_GetProvIDs_resp(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_count, &u32Count);
 
 	if (u32Count) {
@@ -2727,16 +2727,16 @@ dissect_Server_GetProvIDs_resp(tvbuff_t *tvb, int offset,
 		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
 	}
 
-	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
 						&u32Pointer);
 	if (u32Pointer) {
-		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
 							&u32ArraySize);
 
 		u32Idx = 1;
 		while (u32ArraySize--) {
 			offset = dissect_dcom_indexed_DWORD(tvb, offset, pinfo,
-					 tree, drep, 
+					 tree, drep,
 					 hf_cba_acco_conn_prov_id, &u32ProvID, u32Idx);
 
 			if (u32Idx == 1) {
@@ -2751,10 +2751,10 @@ dissect_Server_GetProvIDs_resp(tvbuff_t *tvb, int offset,
 		}
 	}
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
                         &u32HResult);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
@@ -2773,15 +2773,15 @@ dissect_Server_GetProvConnections_rqst(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_count, &u32Count);
 
-	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
                         &u32ArraySize);
 
 	u32Idx = 1;
 	while (u32ArraySize--) {
-		offset = dissect_dcom_indexed_DWORD(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_indexed_DWORD(tvb, offset, pinfo, tree, drep,
 						hf_cba_acco_conn_prov_id, &u32ProvID, u32Idx);
 		u32Idx++;
 	}
@@ -2818,13 +2818,13 @@ dissect_Server_GetProvConnections_resp(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
 						&u32Pointer);
 
 	u32VariableOffset = offset;
 
 	if (u32Pointer) {
-		offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
 							hf_cba_acco_count, &u32Count);
 
 		u32VariableOffset = offset + u32Count*28;
@@ -2838,25 +2838,25 @@ dissect_Server_GetProvConnections_resp(tvbuff_t *tvb, int offset,
 			u32SubStart = offset;
 
 			/* wszConsumer */
-			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 								&u32Pointer);
 			if (u32Pointer) {
-				u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
+				u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 							   hf_cba_acco_conn_consumer, szCons, u32MaxConsLen);
 			}
 			/* wszProviderItem */
-			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 								&u32Pointer);
 			if (u32Pointer) {
-				u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
+				u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 							   hf_cba_acco_conn_provider_item, szProvItem, u32MaxProvItemLen);
 			}
 			/* dwConsID */
-			offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_cons_id, &u32ConsID);
 
 			/* Epsilon */
-			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 								&u32Pointer);
 			if (u32Pointer) {
 				u32VariableOffset = dissect_dcom_VARIANT(tvb, u32VariableOffset, pinfo, sub_tree, drep,
@@ -2864,20 +2864,20 @@ dissect_Server_GetProvConnections_resp(tvbuff_t *tvb, int offset,
 			}
 
 			/* QoS Type */
-			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_qos_type, &u16QoSType);
 			/* QoS Value */
-			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_qos_value, &u16QoSValue);
 			/* State */
-			offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_state, &u8State);
 			/* PartialResult */
-			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, sub_tree, drep,
 								&u32HResult, u32Idx);
 
-			proto_item_append_text(sub_item, "[%u]: %s", 
-				u32Idx, 
+			proto_item_append_text(sub_item, "[%u]: %s",
+				u32Idx,
 				val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 			proto_item_set_len(sub_item, offset - u32SubStart);
 
@@ -2885,10 +2885,10 @@ dissect_Server_GetProvConnections_resp(tvbuff_t *tvb, int offset,
 		}
 	}
 
-	u32VariableOffset = dissect_dcom_HRESULT(tvb, u32VariableOffset, pinfo, tree, drep, 
+	u32VariableOffset = dissect_dcom_HRESULT(tvb, u32VariableOffset, pinfo, tree, drep,
                         &u32HResult);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return u32VariableOffset;
@@ -2901,7 +2901,7 @@ dissect_Server_GetProvConnections_resp(tvbuff_t *tvb, int offset,
 
 
 int
-dissect_CBA_Connection_Data(tvbuff_t *tvb, 
+dissect_CBA_Connection_Data(tvbuff_t *tvb,
 	packet_info *pinfo, proto_tree *tree, cba_ldev_t *cons_ldev, cba_frame_t *frame)
 {
 	guint8  u8Version;
@@ -2974,8 +2974,8 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
 #endif
 
 	/* is this an OnDataChanged buffer format (version), we know? */
-	if (u8Version != CBA_MRSH_VERSION_DCOM && 
-		u8Version != CBA_MRSH_VERSION_SRT_WITH_CONSID && 
+	if (u8Version != CBA_MRSH_VERSION_DCOM &&
+		u8Version != CBA_MRSH_VERSION_SRT_WITH_CONSID &&
 		u8Version != CBA_MRSH_VERSION_SRT_WITHOUT_CONSID)
 	{
 		return offset;
@@ -2993,8 +2993,8 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
 		u16Len = tvb_get_letohs (tvb, offset);
 
 		/* trapped inside an empty hole? -> try to find next record header */
-		if (u16Len == 0 && 
-			(u8Version == CBA_MRSH_VERSION_SRT_WITH_CONSID || 
+		if (u16Len == 0 &&
+			(u8Version == CBA_MRSH_VERSION_SRT_WITH_CONSID ||
 			u8Version == CBA_MRSH_VERSION_SRT_WITHOUT_CONSID))
 		{
 			u32HoleIdx++;
@@ -3012,9 +3012,9 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
 					u16Len = 0;
 				}
 			}
-			proto_tree_add_none_format(conn_data_tree, hf_cba_acco_cb_item_hole, tvb, 
+			proto_tree_add_none_format(conn_data_tree, hf_cba_acco_cb_item_hole, tvb,
 				offset_hole, offset - offset_hole,
-				"Hole(--): -------------, offset=%2u, length=%2u", 
+				"Hole(--): -------------, offset=%2u, length=%2u",
 				offset_hole, offset - offset_hole);
 		}
 
@@ -3079,20 +3079,19 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
 			u8Version == CBA_MRSH_VERSION_SRT_WITH_CONSID)
 		{
 			proto_item_append_text(sub_item,
-				"[%2u]: ConsID=0x%08x, offset=%2u, length=%2u (user-length=%2u), QC=%s (0x%02x)", 
+				"[%2u]: ConsID=0x%08x, offset=%2u, length=%2u (user-length=%2u), QC=%s (0x%02x)",
 				u32ItemIdx, u32ID, offset - u16HdrLen, u16Len, u16DataLen,
 				val_to_str(u8QC, cba_acco_qc_vals, "Unknown (0x%02x)"), u8QC );
 		} else {
 			proto_item_append_text(sub_item,
-				"[%2u]: ConsID=-, offset=%2u, length=%2u (user-length=%2u), QC=%s (0x%02x)", 
+				"[%2u]: ConsID=-, offset=%2u, length=%2u (user-length=%2u), QC=%s (0x%02x)",
 				u32ItemIdx, offset - u16HdrLen, u16Len, u16DataLen,
 				val_to_str(u8QC, cba_acco_qc_vals, "Unknown (0x%02x)"), u8QC );
 		}
 		proto_item_set_len(sub_item, u16Len);
 
 		/* hexdump of user data */
-		proto_tree_add_bytes(sub_tree, hf_cba_acco_cb_item_data, tvb, offset, u16DataLen,
-			tvb_get_ptr(tvb, offset, u16DataLen));
+		proto_tree_add_item(sub_tree, hf_cba_acco_cb_item_data, tvb, offset, u16DataLen, ENC_NA);
 		offset += u16DataLen;
 
         if(frame != NULL ) {
@@ -3135,7 +3134,7 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
 	}
 	proto_item_set_len(conn_data_item, offset);
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", QC (G:%u,U:%u,B:%u)", 
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", QC (G:%u,U:%u,B:%u)",
 		qc_good, qc_uncertain, qc_bad);
 
 	return offset;
@@ -3143,7 +3142,7 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
 
 
 static gboolean
-dissect_CBA_Connection_Data_heur(tvbuff_t *tvb, 
+dissect_CBA_Connection_Data_heur(tvbuff_t *tvb,
 	packet_info *pinfo, proto_tree *tree)
 {
 	guint8  u8Version;
@@ -3187,7 +3186,7 @@ dissect_ICBAAccoCallback_OnDataChanged_rqst(tvbuff_t *tvb, int offset,
 	proto_item *item;
     dcerpc_info *info = (dcerpc_info *)pinfo->private_data;
     cba_ldev_t *cons_ldev;
-	
+
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
 
@@ -3199,11 +3198,11 @@ dissect_ICBAAccoCallback_OnDataChanged_rqst(tvbuff_t *tvb, int offset,
     pinfo->profinet_type = 1;
 
 	/* length */
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_cb_length, &u32Length);
 
 	/* array size */
-	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
 						&u32ArraySize);
 
 	/*** the data below is NOT ndr encoded (especially NOT aligned)!!! ***/
@@ -3219,7 +3218,7 @@ dissect_ICBAAccoCallback_OnDataChanged_rqst(tvbuff_t *tvb, int offset,
 }
 
 
-static int 
+static int
 dissect_ICBAAccoCallback_OnDataChanged_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
@@ -3233,17 +3232,17 @@ dissect_ICBAAccoCallback_OnDataChanged_resp(tvbuff_t *tvb, int offset,
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 2;
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
                     &u32HResult);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
 
 
-static int 
+static int
 dissect_ICBAAccoCallback_Gnip_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
@@ -3260,7 +3259,7 @@ dissect_ICBAAccoCallback_Gnip_rqst(tvbuff_t *tvb, int offset,
 }
 
 
-static int 
+static int
 dissect_ICBAAccoCallback_Gnip_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
@@ -3274,10 +3273,10 @@ dissect_ICBAAccoCallback_Gnip_resp(tvbuff_t *tvb, int offset,
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 4;
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
                     &u32HResult);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
@@ -3302,7 +3301,7 @@ dissect_ICBAAccoServer2_GetConnectionData_rqst(tvbuff_t *tvb, int offset,
     PROTO_ITEM_SET_GENERATED(item);
     pinfo->profinet_type = 2;
 
-	offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep,
 		hf_cba_acco_conn_consumer, szStr, u32MaxStr);
 
     cons_ldev = cba_acco_add(pinfo, szStr);
@@ -3339,7 +3338,7 @@ dissect_ICBAAccoServer2_GetConnectionData_resp(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
     if(cons_ldev == NULL) {
-	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE, 
+	    expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_NOTE,
             "No request info, response data ignored");
     }
 
@@ -3348,14 +3347,14 @@ dissect_ICBAAccoServer2_GetConnectionData_resp(tvbuff_t *tvb, int offset,
     pinfo->profinet_type = 1;
 
 	/* length */
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_cb_length, &u32Length);
 
-	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
 						&u32Pointer);
 	if (u32Pointer) {
 	    /* array size */
-	    offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+	    offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
 						    &u32ArraySize);
 
 	    /*** the data below is NOT ndr encoded (especially NOT aligned)!!! ***/
@@ -3368,11 +3367,11 @@ dissect_ICBAAccoServer2_GetConnectionData_resp(tvbuff_t *tvb, int offset,
 	    /* tvb_free(next_tvb);*/
     }
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 						&u32HResult);
 
 	/* update column info now */
-	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
 			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
@@ -3405,19 +3404,19 @@ dissect_ICBAAccoMgt_AddConnections_rqst(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep,
 						hf_cba_acco_conn_provider, szConsumer, u32MaxConsLen);
-	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_conn_qos_type, &u16QoSType);
-	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_conn_qos_value, &u16QoSValue);
-	offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_conn_state, &u8State);
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_count, &u32Count);
 
-	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
                         &u32ArraySize);
 
 	u32VariableOffset = offset + u32ArraySize * 20;
@@ -3428,34 +3427,34 @@ dissect_ICBAAccoMgt_AddConnections_rqst(tvbuff_t *tvb, int offset,
 		sub_tree = proto_item_add_subtree(sub_item, ett_cba_addconnectionin);
 		u32SubStart = offset;
 
-		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 							&u32Pointer);
 		if (u32Pointer) {
-			u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
+			u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 							hf_cba_acco_conn_provider_item, szProvItem, u32MaxProvItemLen);
 		}
-		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 							&u32Pointer);
 		if (u32Pointer) {
-			u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
+			u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 							hf_cba_acco_conn_consumer_item, szConsItem, u32MaxConsItemLen);
 		}
-		offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
+		offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep,
 							hf_cba_acco_conn_persist, &u16Persistence);
-		
-		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+
+		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 							&u32Pointer);
 		if (u32Pointer) {
 			u32VariableOffset = dissect_dcom_VARIANT(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 							hf_cba_acco_conn_substitute);
 		}
-		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 							&u32Pointer);
 		if (u32Pointer) {
 			u32VariableOffset = dissect_dcom_VARIANT(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 							hf_cba_acco_conn_epsilon);
 		}
-		proto_item_append_text(sub_item, "[%u]: ConsItem=\"%s\" ProvItem=\"%s\" %s Pers=%u", 
+		proto_item_append_text(sub_item, "[%u]: ConsItem=\"%s\" ProvItem=\"%s\" %s Pers=%u",
 			u32Idx, szConsItem, szProvItem,
 			val_to_str(u16Persistence, cba_persist_vals, "Unknown (0x%02x)"), u16Persistence);
 		proto_item_set_len(sub_item, offset - u32SubStart);
@@ -3464,8 +3463,8 @@ dissect_ICBAAccoMgt_AddConnections_rqst(tvbuff_t *tvb, int offset,
 	}
 
 	/* update column info now */
-	col_append_fstr(pinfo->cinfo, COL_INFO, ": Prov=\"%s\" State=%s Cnt=%u", 
-			szConsumer, 
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Prov=\"%s\" State=%s Cnt=%u",
+			szConsumer,
 			val_to_str(u8State, cba_acco_conn_state_vals, "Unknown (0x%02x)"),
 			u32Count);
 
@@ -3487,15 +3486,15 @@ dissect_ICBAAccoMgt_AddConnections_resp(tvbuff_t *tvb, int offset,
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 	guint32 u32SubStart;
-	
+
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
-    offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
+    offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
 						&u32Pointer);
 
 	if (u32Pointer) {
-		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
 							&u32ArraySize);
 
 		u32Count = u32ArraySize;
@@ -3505,16 +3504,16 @@ dissect_ICBAAccoMgt_AddConnections_resp(tvbuff_t *tvb, int offset,
 			sub_tree = proto_item_add_subtree(sub_item, ett_cba_addconnectionout);
 			u32SubStart = offset;
 
-			offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep,
 							hf_cba_acco_conn_cons_id, &u32ConsID);
-								
-			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
+
+			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_version, &u16ConnVersion);
 
-			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, sub_tree, drep,
 								&u32HResult, u32Idx);
 
-			proto_item_append_text(sub_item, "[%u]: ConsID=0x%x Version=%u %s", 
+			proto_item_append_text(sub_item, "[%u]: ConsID=0x%x Version=%u %s",
 				u32Idx, u32ConsID, u16ConnVersion,
 				val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 			proto_item_set_len(sub_item, offset - u32SubStart);
@@ -3525,18 +3524,18 @@ dissect_ICBAAccoMgt_AddConnections_resp(tvbuff_t *tvb, int offset,
 	    /* update column info now */
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
     }
-	
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 						&u32HResult);
 
 	/* update column info now */
-	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
-	
-	
+
+
 static int
 dissect_ICBAAccoMgt_RemoveConnections_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
@@ -3549,15 +3548,15 @@ dissect_ICBAAccoMgt_RemoveConnections_rqst(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_count, &u32Count);
 
-	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
                         &u32ArraySize);
 
 	u32Idx = 1;
 	while (u32ArraySize--) {
-		offset = dissect_dcom_indexed_DWORD(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_indexed_DWORD(tvb, offset, pinfo, tree, drep,
 						hf_cba_acco_conn_cons_id, &u32ConsID, u32Idx);
 		u32Idx++;
 	}
@@ -3582,18 +3581,18 @@ dissect_ICBAAccoMgt_SetActivationState_rqst(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_conn_state, &u8State);
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_count, &u32Count);
 
-	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
                         &u32ArraySize);
 
 	u32Idx = 1;
 	while (u32ArraySize--) {
-		offset = dissect_dcom_indexed_DWORD(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_indexed_DWORD(tvb, offset, pinfo, tree, drep,
 						hf_cba_acco_conn_cons_id, &u32ConsID, u32Idx);
 		u32Idx++;
 	}
@@ -3616,16 +3615,16 @@ dissect_ICBAAccoMgt_GetInfo_resp(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_info_max, &u32Max);
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_info_curr, &u32CurCnt);
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
                         &u32HResult);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, ": %u/%u -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %u/%u -> %s",
 	  u32CurCnt, u32Max,
 	  val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
@@ -3652,7 +3651,7 @@ dissect_ICBAAccoMgt_GetIDs_resp(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_count, &u32Count);
 
 	if (u32Count) {
@@ -3661,10 +3660,10 @@ dissect_ICBAAccoMgt_GetIDs_resp(tvbuff_t *tvb, int offset,
 		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
 	}
 
-	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
 						&u32Pointer);
 	if (u32Pointer) {
-		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
 							&u32ArraySize);
 
 		u32Idx = 1;
@@ -3673,16 +3672,16 @@ dissect_ICBAAccoMgt_GetIDs_resp(tvbuff_t *tvb, int offset,
 			sub_tree = proto_item_add_subtree(sub_item, ett_cba_getidout);
 			u32SubStart = offset;
 
-			offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_cons_id, &u32ConsID);
-			offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_state, &u8State);
-			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_version, &u16Version);
-			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, sub_tree, drep,
 								&u32HResult, u32Idx);
 
-			proto_item_append_text(sub_item, "[%u]: ConsID=0x%x State=%s Version=%u %s", 
+			proto_item_append_text(sub_item, "[%u]: ConsID=0x%x State=%s Version=%u %s",
 				u32Idx, u32ConsID,
 				val_to_str(u8State, cba_acco_conn_state_vals, "Unknown (0x%02x)"),
 				u16Version,
@@ -3701,10 +3700,10 @@ dissect_ICBAAccoMgt_GetIDs_resp(tvbuff_t *tvb, int offset,
 		}
 	}
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
                         &u32HResult);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
@@ -3725,7 +3724,7 @@ dissect_ICBAAccoMgt2_GetConsIDs_resp(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_count, &u32Count);
 
 	if (u32Count) {
@@ -3734,16 +3733,16 @@ dissect_ICBAAccoMgt2_GetConsIDs_resp(tvbuff_t *tvb, int offset,
 		col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u", u32Count);
 	}
 
-	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
 						&u32Pointer);
 	if (u32Pointer) {
-		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
 							&u32ArraySize);
 
 		u32Idx = 1;
 		while (u32ArraySize--) {
 			offset = dissect_dcom_indexed_DWORD(tvb, offset, pinfo,
-					 tree, drep, 
+					 tree, drep,
 					 hf_cba_acco_conn_cons_id, &u32ConsID, u32Idx);
 
 			if (u32Idx == 1) {
@@ -3758,10 +3757,10 @@ dissect_ICBAAccoMgt2_GetConsIDs_resp(tvbuff_t *tvb, int offset,
 		}
 	}
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
                         &u32HResult);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
@@ -3796,13 +3795,13 @@ dissect_ICBAAccoMgt2_GetConsConnections_resp(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
 						&u32Pointer);
 
 	u32VariableOffset = offset;
 
 	if (u32Pointer) {
-		offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
 							hf_cba_acco_count, &u32Count);
 
 		u32VariableOffset = offset + u32Count*32;
@@ -3815,50 +3814,50 @@ dissect_ICBAAccoMgt2_GetConsConnections_resp(tvbuff_t *tvb, int offset,
 			sub_tree = proto_item_add_subtree(sub_item, ett_cba_getconnectionout);
 			u32SubStart = offset;
 
-			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 								&u32Pointer);
 			if (u32Pointer) {
-				u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
+				u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 							   hf_cba_acco_conn_provider, szProv, u32MaxProvLen);
 			}
-			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 								&u32Pointer);
 			if (u32Pointer) {
-				u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
+				u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 							   hf_cba_acco_conn_provider_item, szProvItem, u32MaxProvItemLen);
 			}
-			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 								&u32Pointer);
 			if (u32Pointer) {
-				u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
+				u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_consumer_item, szConsItem, u32MaxConsItemLen);
 			}
-			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 								&u32Pointer);
 			if (u32Pointer) {
 				u32VariableOffset = dissect_dcom_VARIANT(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_substitute);
 			}
-			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 								&u32Pointer);
 			if (u32Pointer) {
 				u32VariableOffset = dissect_dcom_VARIANT(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_epsilon);
 			}
 
-			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_qos_type, &u16QoSType);
-			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_qos_value, &u16QoSValue);
-			offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_state, &u8State);
-			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_persist, &u16Persistence);
-			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, sub_tree, drep,
 								&u32HResult, u32Idx);
 
-			proto_item_append_text(sub_item, "[%u]: %s", 
-				u32Idx, 
+			proto_item_append_text(sub_item, "[%u]: %s",
+				u32Idx,
 				val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 			proto_item_set_len(sub_item, offset - u32SubStart);
 
@@ -3866,10 +3865,10 @@ dissect_ICBAAccoMgt2_GetConsConnections_resp(tvbuff_t *tvb, int offset,
 		}
 	}
 
-	u32VariableOffset = dissect_dcom_HRESULT(tvb, u32VariableOffset, pinfo, tree, drep, 
+	u32VariableOffset = dissect_dcom_HRESULT(tvb, u32VariableOffset, pinfo, tree, drep,
                         &u32HResult);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return u32VariableOffset;
@@ -3898,13 +3897,13 @@ dissect_ICBAAccoMgt2_DiagConsConnections_resp(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
-    offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
+    offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
 						&u32Pointer);
 
 	u32VariableOffset = offset;
 
 	if (u32Pointer) {
-		offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
 							hf_cba_acco_count, &u32Count);
 
 		u32VariableOffset = offset + u32Count*16;
@@ -3917,26 +3916,26 @@ dissect_ICBAAccoMgt2_DiagConsConnections_resp(tvbuff_t *tvb, int offset,
 			sub_tree = proto_item_add_subtree(sub_item, ett_cba_getconnectionout);
 			u32SubStart = offset;
 
-			offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_state, &u8State);
-			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_persist, &u16Persistence);
-			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_version, &u16ConnVersion);
                         /* connection state */
-/*			offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
+/*			offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_error_state, &u32ConnErrorState);*/
-                        offset = dissect_dcom_HRESULT_item(tvb, offset,	pinfo, sub_tree, drep, 
+                        offset = dissect_dcom_HRESULT_item(tvb, offset,	pinfo, sub_tree, drep,
 					 &u32ConnErrorState, hf_cba_acco_conn_error_state, &state_item);
                         proto_item_set_text(state_item, "ConnErrorState: %s (0x%x)",
                             val_to_str(u32ConnErrorState, dcom_hresult_vals, "Unknown (0x%08x)"),
                             u32ConnErrorState);
 
-			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, sub_tree, drep,
 								&u32HResult, u32Idx);
 
-			proto_item_append_text(sub_item, "[%u]: %s", 
-				u32Idx, 
+			proto_item_append_text(sub_item, "[%u]: %s",
+				u32Idx,
 				val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 			proto_item_set_len(sub_item, offset - u32SubStart);
 
@@ -3944,10 +3943,10 @@ dissect_ICBAAccoMgt2_DiagConsConnections_resp(tvbuff_t *tvb, int offset,
 		}
 	}
 
-	u32VariableOffset = dissect_dcom_HRESULT(tvb, u32VariableOffset, pinfo, tree, drep, 
+	u32VariableOffset = dissect_dcom_HRESULT(tvb, u32VariableOffset, pinfo, tree, drep,
                         &u32HResult);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return u32VariableOffset;
@@ -3966,15 +3965,15 @@ dissect_ICBAAccoMgt_GetConnections_rqst(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_count, &u32Count);
 
-	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
 						&u32ArraySize);
 
 	u32Idx = 1;
 	while (u32ArraySize--){
-		offset = dissect_dcom_indexed_DWORD(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_indexed_DWORD(tvb, offset, pinfo, tree, drep,
 						hf_cba_acco_conn_cons_id, &u32ConsID, u32Idx);
 		u32Idx++;
 	}
@@ -4012,13 +4011,13 @@ dissect_ICBAAccoMgt_GetConnections_resp(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
 						&u32Pointer);
 
 	u32VariableOffset = offset;
 
 	if (u32Pointer) {
-		offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
 							hf_cba_acco_count, &u32Count);
 
 		u32VariableOffset = offset + u32Count*36;
@@ -4031,52 +4030,52 @@ dissect_ICBAAccoMgt_GetConnections_resp(tvbuff_t *tvb, int offset,
 			sub_tree = proto_item_add_subtree(sub_item, ett_cba_getconnectionout);
 			u32SubStart = offset;
 
-			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 								&u32Pointer);
 			if (u32Pointer) {
-				u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
+				u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 							   hf_cba_acco_conn_provider, szProv, u32MaxProvLen);
 			}
-			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 								&u32Pointer);
 			if (u32Pointer) {
-				u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
+				u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 							   hf_cba_acco_conn_provider_item, szProvItem, u32MaxProvItemLen);
 			}
-			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 								&u32Pointer);
 			if (u32Pointer) {
-				u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
+				u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_consumer_item, szConsItem, u32MaxConsItemLen);
 			}
-			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 								&u32Pointer);
 			if (u32Pointer) {
 				u32VariableOffset = dissect_dcom_VARIANT(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_substitute);
 			}
-			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 								&u32Pointer);
 			if (u32Pointer) {
 				u32VariableOffset = dissect_dcom_VARIANT(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_epsilon);
 			}
 
-			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_qos_type, &u16QoSType);
-			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_qos_value, &u16QoSValue);
-			offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_state, &u8State);
-			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_persist, &u16Persistence);
-			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep,
 								hf_cba_acco_conn_version, &u16ConnVersion);
-			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, sub_tree, drep,
 								&u32HResult, u32Idx);
 
-			proto_item_append_text(sub_item, "[%u]: %s", 
-				u32Idx, 
+			proto_item_append_text(sub_item, "[%u]: %s",
+				u32Idx,
 				val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 			proto_item_set_len(sub_item, offset - u32SubStart);
 
@@ -4084,10 +4083,10 @@ dissect_ICBAAccoMgt_GetConnections_resp(tvbuff_t *tvb, int offset,
 		}
 	}
 
-	u32VariableOffset = dissect_dcom_HRESULT(tvb, u32VariableOffset, pinfo, tree, drep, 
+	u32VariableOffset = dissect_dcom_HRESULT(tvb, u32VariableOffset, pinfo, tree, drep,
                         &u32HResult);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return u32VariableOffset;
@@ -4106,17 +4105,17 @@ dissect_ICBAAccoMgt_ReviseQoS_rqst(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, drep,
 						hf_cba_acco_rtauto, szStr, u32MaxStr);
 
-	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_conn_qos_type, &u16QoSType);
 
-	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_conn_qos_value, &u16QoSValue);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, ": RTAuto=\"%s\" QoSType=%s QoSValue=%u", 
-			szStr, 
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": RTAuto=\"%s\" QoSType=%s QoSValue=%u",
+			szStr,
 			val_to_str(u16QoSType, cba_qos_type_vals, "Unknown (0x%04x)"),
 			u16QoSValue);
 
@@ -4134,13 +4133,13 @@ dissect_ICBAAccoMgt_ReviseQoS_resp(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_conn_qos_value, &u16QoSValue);
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
                         &u32HResult);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, ": %u -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %u -> %s",
 	  u16QoSValue,
 	  val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
@@ -4158,13 +4157,13 @@ dissect_ICBAAccoMgt_get_PingFactor_resp(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_ping_factor, &u16PF);
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
                         &u32HResult);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, ": %u -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %u -> %s",
 	  u16PF,
 	  val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
@@ -4181,7 +4180,7 @@ dissect_ICBAAccoMgt_put_PingFactor_rqst(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_ping_factor, &u16PF);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ": %u", u16PF);
@@ -4201,14 +4200,14 @@ dissect_ICBAAccoMgt_get_CDBCookie_resp(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_cdb_cookie, &u32Cookie);
 
-	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
                         &u32HResult);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, ": CDBCookie=0x%x -> %s", 
-			u32Cookie, 
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": CDBCookie=0x%x -> %s",
+			u32Cookie,
 			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
@@ -4226,13 +4225,13 @@ dissect_ICBAAccoMgt_GetDiagnosis_rqst(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_diag_req, &u32Request);
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_diag_in_length, &u32InLength);
 
-	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
 						&u32ArraySize);
 
     if(u32ArraySize != 0) {
@@ -4256,14 +4255,14 @@ dissect_ICBAAccoMgt_GetDiagnosis_resp(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_diag_out_length, &u32OutLength);
 
     if(u32OutLength != 0) {
 	    proto_tree_add_item(tree, hf_cba_acco_diag_data, tvb, offset, u32OutLength, FALSE);
     }
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, ": %u bytes", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": %u bytes",
             u32OutLength);
 
 	return offset;
@@ -4285,20 +4284,20 @@ dissect_ICBAAccoSync_ReadItems_rqst(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_count, &u32Count);
 
-	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
 						&u32ArraySize);
 
 	u32VariableOffset = offset + u32ArraySize*4;
 
 	u32Idx = 1;
 	while (u32ArraySize--) {
-		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
 							&u32Pointer);
 		if (u32Pointer) {
-			u32VariableOffset = dissect_dcom_indexed_LPWSTR(tvb, u32VariableOffset, pinfo, tree, drep, 
+			u32VariableOffset = dissect_dcom_indexed_LPWSTR(tvb, u32VariableOffset, pinfo, tree, drep,
 							hf_cba_acco_item, szStr, u32MaxStr, u32Idx);
 		}
 
@@ -4331,12 +4330,12 @@ dissect_ICBAAccoSync_ReadItems_resp(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
 						&u32Pointer);
 	u32VariableOffset = offset;
 
 	if (u32Pointer) {
-		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
 							&u32ArraySize);
 
 		u32VariableOffset = offset + u32ArraySize * 20;
@@ -4347,35 +4346,35 @@ dissect_ICBAAccoSync_ReadItems_resp(tvbuff_t *tvb, int offset,
 			sub_tree = proto_item_add_subtree(sub_item, ett_cba_readitemout);
 			u32SubStart = offset;
 
-			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 								&u32Pointer);
 			if (u32Pointer) {
 				u32VariableOffset = dissect_dcom_VARIANT(tvb, u32VariableOffset, pinfo, sub_tree, drep, hf_cba_acco_data);
 			}
 
-			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep,
 								hf_cba_acco_qc, &u16QC);
-			offset = dissect_dcom_FILETIME(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_FILETIME(tvb, offset, pinfo, sub_tree, drep,
 								hf_cba_acco_time_stamp, NULL);
 
-			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, sub_tree, drep, 
+			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, sub_tree, drep,
 								&u32HResult, u32Idx);
 
-			proto_item_append_text(sub_item, "[%u]: QC=%s (0x%02x) %s", 
-				u32Idx, 
-				val_to_str(u16QC, cba_acco_qc_vals, "Unknown"), 
+			proto_item_append_text(sub_item, "[%u]: QC=%s (0x%02x) %s",
+				u32Idx,
+				val_to_str(u16QC, cba_acco_qc_vals, "Unknown"),
                 u16QC,
 				val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 			proto_item_set_len(sub_item, offset - u32SubStart);
-			
+
 			u32Idx++;
 		}
 	}
 
-	u32VariableOffset = dissect_dcom_HRESULT(tvb, u32VariableOffset, pinfo, tree, drep, 
+	u32VariableOffset = dissect_dcom_HRESULT(tvb, u32VariableOffset, pinfo, tree, drep,
                        &u32HResult);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u -> %s", 
+	col_append_fstr(pinfo->cinfo, COL_INFO, ": Cnt=%u -> %s",
 	  u32ArraySize,
 	  val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
@@ -4401,10 +4400,10 @@ dissect_ICBAAccoSync_WriteItems_rqst(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_count, &u32Count);
 
-	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
                         &u32ArraySize);
 
 	u32VariableOffset = offset + u32ArraySize * 8;
@@ -4414,13 +4413,13 @@ dissect_ICBAAccoSync_WriteItems_rqst(tvbuff_t *tvb, int offset,
 		sub_tree = proto_item_add_subtree(sub_item, ett_cba_writeitemin);
 		u32SubStart = offset;
 
-		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 							&u32Pointer);
 		if (u32Pointer) {
-			u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
+			u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 							hf_cba_acco_item, szStr, u32MaxStr);
 		}
-		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 							&u32Pointer);
 		if (u32Pointer) {
 			u32VariableOffset = dissect_dcom_VARIANT(tvb, u32VariableOffset, pinfo, sub_tree, drep,
@@ -4458,10 +4457,10 @@ dissect_ICBAAccoSync_WriteItemsQCD_rqst(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                         hf_cba_acco_count, &u32Count);
 
-	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
+	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep,
                         &u32ArraySize);
 
 	u32VariableOffset = offset + u32ArraySize * 20;
@@ -4471,27 +4470,27 @@ dissect_ICBAAccoSync_WriteItemsQCD_rqst(tvbuff_t *tvb, int offset,
 		sub_tree = proto_item_add_subtree(sub_item, ett_cba_writeitemin);
 		u32SubStart = offset;
 
-		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 							&u32Pointer);
 		if (u32Pointer) {
-		u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
+		u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 							hf_cba_acco_item, szStr, u32MaxStr);
 		}
 
-		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep, 
+		offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, drep,
 							&u32Pointer);
 		if (u32Pointer) {
 		u32VariableOffset = dissect_dcom_VARIANT(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 							hf_cba_acco_data);
 		}
 
-		offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
+		offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep,
 							hf_cba_acco_qc, &u16QC);
-		
-		offset = dissect_dcom_FILETIME(tvb, offset, pinfo, sub_tree, drep, 
+
+		offset = dissect_dcom_FILETIME(tvb, offset, pinfo, sub_tree, drep,
 							hf_cba_acco_time_stamp, NULL);
 
-		proto_item_append_text(sub_item, "[%u]: Item=\"%s\" QC=%s (0x%02x)", 
+		proto_item_append_text(sub_item, "[%u]: Item=\"%s\" QC=%s (0x%02x)",
 			u32Idx, szStr,
 			val_to_str(u16QC, cba_acco_qc_vals, "Unknown"), u16QC);
 
@@ -4844,18 +4843,18 @@ proto_reg_handoff_dcom_cba_acco (void)
 	dcerpc_init_uuid(proto_ICBAAccoCallback2, ett_ICBAAccoCallback,
 		&uuid_ICBAAccoCallback2, ver_ICBAAccoCallback2, ICBAAccoCallback_dissectors, hf_cba_acco_opnum);
 
-	dcerpc_init_uuid(proto_ICBAAccoServer, ett_ICBAAccoServer, 
+	dcerpc_init_uuid(proto_ICBAAccoServer, ett_ICBAAccoServer,
 		&uuid_ICBAAccoServer, ver_ICBAAccoServer, ICBAAccoServer_dissectors, hf_cba_acco_opnum);
 
-	dcerpc_init_uuid(proto_ICBAAccoServer2, ett_ICBAAccoServer, 
+	dcerpc_init_uuid(proto_ICBAAccoServer2, ett_ICBAAccoServer,
 		&uuid_ICBAAccoServer2, ver_ICBAAccoServer2, ICBAAccoServer_dissectors, hf_cba_acco_opnum);
 
-	dcerpc_init_uuid(proto_ICBAAccoServerSRT, ett_ICBAAccoServerSRT, 
+	dcerpc_init_uuid(proto_ICBAAccoServerSRT, ett_ICBAAccoServerSRT,
 		&uuid_ICBAAccoServerSRT, ver_ICBAAccoServerSRT, ICBAAccoServerSRT_dissectors, hf_cba_acco_opnum);
 
-	dcerpc_init_uuid(proto_ICBAAccoSync, ett_ICBAAccoSync, 
+	dcerpc_init_uuid(proto_ICBAAccoSync, ett_ICBAAccoSync,
 		&uuid_ICBAAccoSync, ver_ICBAAccoSync, ICBAAccoSync_dissectors, hf_cba_acco_opnum);
 
-    
+
 	heur_dissector_add("pn_rt", dissect_CBA_Connection_Data_heur, proto_ICBAAccoServer);
 }

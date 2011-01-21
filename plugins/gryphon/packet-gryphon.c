@@ -1103,7 +1103,7 @@ resp_events(tvbuff_t *tvb, int offset, proto_tree *pt)
 	proto_tree_add_text(tree, tvb, offset, 1, "Event ID: %u",
 	    tvb_get_guint8(tvb, offset));
 	proto_tree_add_text(tree, tvb, offset+1, 19, "Event name: %.19s",
-		tvb_get_ptr(tvb, offset+1, 19));
+		tvb_get_ephemeral_string(tvb, offset+1, 19));
 	offset += 20;
 	msglen -= 20;
 	i++;
@@ -1115,10 +1115,10 @@ static int
 cmd_register(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     proto_tree_add_text(pt, tvb, offset, 16, "Username: %.16s",
-	tvb_get_ptr(tvb, offset, 16));
+	tvb_get_ephemeral_string(tvb, offset, 16));
     offset += 16;
     proto_tree_add_text(pt, tvb, offset, 32, "Password: %.32s",
-	tvb_get_ptr(tvb, offset, 32));
+	tvb_get_ephemeral_string(tvb, offset, 32));
     offset += 32;
     return offset;
 }
@@ -1221,36 +1221,36 @@ resp_config(tvbuff_t *tvb, int offset, proto_tree *pt)
     };
 
     proto_tree_add_text(pt, tvb, offset, 20, "Device name: %.20s",
-	tvb_get_ptr(tvb, offset, 20));
+	tvb_get_ephemeral_string(tvb, offset, 20));
     offset += 20;
 
     proto_tree_add_text(pt, tvb, offset, 8, "Device version: %.8s",
-	tvb_get_ptr(tvb, offset, 8));
+	tvb_get_ephemeral_string(tvb, offset, 8));
     offset += 8;
 
     proto_tree_add_text(pt, tvb, offset, 20, "Device serial number: %.20s",
-	tvb_get_ptr(tvb, offset, 20));
+	tvb_get_ephemeral_string(tvb, offset, 20));
     offset += 20;
 
     devices = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(pt, tvb, offset, 1, "Number of channels: %d", devices);
     proto_tree_add_text(pt, tvb, offset+1, 11, "Name & version extension: %.11s",
-	tvb_get_ptr(tvb, offset+1, 11));
+	tvb_get_ephemeral_string(tvb, offset+1, 11));
     proto_tree_add_text(pt, tvb, offset+12, 4, "reserved");
     offset += 16;
     for (i = 1; i <= devices; i++) {
 	ti = proto_tree_add_text(pt, tvb, offset, 80, "Channel %d:", i);
 	ft = proto_item_add_subtree(ti, ett_gryphon_cmd_config_device);
 	proto_tree_add_text(ft, tvb, offset, 20, "Driver name: %.20s",
-	    tvb_get_ptr(tvb, offset, 20));
+	    tvb_get_ephemeral_string(tvb, offset, 20));
 	offset += 20;
 
 	proto_tree_add_text(ft, tvb, offset, 8, "Driver version: %.8s",
-	    tvb_get_ptr(tvb, offset, 8));
+	    tvb_get_ephemeral_string(tvb, offset, 8));
 	offset += 8;
 
 	proto_tree_add_text(ft, tvb, offset, 16, "Device security string: %.16s",
-	    tvb_get_ptr(tvb, offset, 16));
+	    tvb_get_ephemeral_string(tvb, offset, 16));
 	offset += 16;
 
         x = tvb_get_ntohl (tvb, offset);
@@ -1279,7 +1279,7 @@ resp_config(tvbuff_t *tvb, int offset, proto_tree *pt)
 	offset += 2;
 
 	proto_tree_add_text(ft, tvb, offset, 20, "Hardware serial number: %.20s",
-	    tvb_get_ptr(tvb, offset, 20));
+	    tvb_get_ephemeral_string(tvb, offset, 20));
 	offset += 20;
 
     	x = tvb_get_ntohs(tvb, offset);
@@ -1640,10 +1640,10 @@ cmd_desc(tvbuff_t *tvb, int offset, proto_tree *pt)
 	tvb_get_ntohl(tvb, offset));
     offset += 4;
     proto_tree_add_text(pt, tvb, offset, 32, "Program name: %.32s",
-	tvb_get_ptr(tvb, offset, 32));
+	tvb_get_ephemeral_string(tvb, offset, 32));
     offset += 32;
     proto_tree_add_text(pt, tvb, offset, 80, "Program description: %.80s",
-	tvb_get_ptr(tvb, offset, 80));
+	tvb_get_ephemeral_string(tvb, offset, 80));
     offset += 80;
     return offset;
 }
@@ -1698,7 +1698,7 @@ static int
 cmd_delete(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     proto_tree_add_text(pt, tvb, offset, 32, "Program name: %.32s",
-	tvb_get_ptr(tvb, offset, 32));
+	tvb_get_ephemeral_string(tvb, offset, 32));
     offset += 32;
     return offset;
 }
@@ -1731,10 +1731,10 @@ resp_list(tvbuff_t *tvb, int offset, proto_tree *pt)
 	item = proto_tree_add_text(pt, tvb, offset, 112, "Program %u", i);
 	tree = proto_item_add_subtree (item, ett_gryphon_pgm_list);
 	proto_tree_add_text(tree, tvb, offset, 32, "Name: %.32s",
-	    tvb_get_ptr(tvb, offset, 32));
+	    tvb_get_ephemeral_string(tvb, offset, 32));
 	offset += 32;
 	proto_tree_add_text(tree, tvb, offset, 80, "Description: %.80s",
-	    tvb_get_ptr(tvb, offset, 80));
+	    tvb_get_ephemeral_string(tvb, offset, 80));
 	offset += 80;
     }
     return offset;
@@ -1891,7 +1891,7 @@ cmd_files(tvbuff_t *tvb, int offset, proto_tree *pt)
 
     proto_tree_add_text(pt, tvb, offset, 1, "%s", which);
     proto_tree_add_text(pt, tvb, offset+1, msglen-1, "Directory: %.*s",
-	msglen-1, tvb_get_ptr(tvb, offset+1, msglen-1));
+	msglen-1, tvb_get_ephemeral_string(tvb, offset+1, msglen-1));
     offset += msglen;
     return offset;
 }

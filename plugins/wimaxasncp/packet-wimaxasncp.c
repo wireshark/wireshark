@@ -1989,7 +1989,6 @@ static guint dissect_wimaxasncp_backend(
     guint offset = 0;
     guint16 ui16;
     guint32 ui32;
-    const guint8 *p;
     guint8 *pmsid = NULL;
     guint16 tid = 0;
     gboolean dbit_show;
@@ -2000,15 +1999,13 @@ static guint dissect_wimaxasncp_backend(
      * ------------------------------------------------------------------------
      */
 
-    p = tvb_get_ptr(tvb, offset, 6);
-
     if (tree)
     {
-        proto_tree_add_ether(
+        proto_tree_add_item(
             tree, hf_wimaxasncp_msid,
-            tvb, offset, 6, p);
+            tvb, offset, 6, ENC_NA);
     }
-    pmsid = ether_to_str(p);
+    pmsid = tvb_ether_to_str(tvb, offset);
 
     offset += 6;
 

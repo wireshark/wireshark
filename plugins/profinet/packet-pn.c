@@ -135,7 +135,7 @@ dissect_pn_int32(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 }
 
 /* dissect a 24bit OUI (IEC organizational unique id) */
-int 
+int
 dissect_pn_oid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                     proto_tree *tree, int hfindex, guint32 *pdata)
 {
@@ -152,7 +152,7 @@ dissect_pn_oid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 /* dissect a 6 byte MAC address */
-int 
+int
 dissect_pn_mac(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                     proto_tree *tree, int hfindex, guint8 *pdata)
 {
@@ -169,7 +169,7 @@ dissect_pn_mac(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 /* dissect an IPv4 address */
-int 
+int
 dissect_pn_ipv4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                     proto_tree *tree, int hfindex, guint32 *pdata)
 {
@@ -186,7 +186,7 @@ dissect_pn_ipv4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 /* dissect a 16 byte UUID address */
-int 
+int
 dissect_pn_uuid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                     proto_tree *tree, int hfindex, e_uuid_t *uuid)
 {
@@ -206,7 +206,7 @@ dissect_pn_undecoded(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_item *item;
 
 
-    item = proto_tree_add_string_format(tree, hf_pn_undecoded_data, tvb, offset, length, "data", 
+    item = proto_tree_add_string_format(tree, hf_pn_undecoded_data, tvb, offset, length, "data",
         "Undecoded Data: %d bytes", length);
 
     expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
@@ -223,7 +223,7 @@ dissect_pn_user_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_item *item;
 
 
-    item = proto_tree_add_string_format(tree, hf_pn_user_data, tvb, offset, length, "data", 
+    item = proto_tree_add_string_format(tree, hf_pn_user_data, tvb, offset, length, "data",
         "%s: %d bytes", text, length);
 
     return offset + length;
@@ -234,35 +234,34 @@ int
 dissect_pn_malformed(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                     proto_tree *tree, guint32 length)
 {
-    proto_tree_add_bytes(tree, hf_pn_malformed, tvb, 0, 10000, 
-	    tvb_get_ptr(tvb, 0, 10000));
+    proto_tree_add_item(tree, hf_pn_malformed, tvb, 0, 10000, ENC_NA);
 
     return offset + length;
 }
 
 
 /* dissect some padding data (with the given length) */
-int 
+int
 dissect_pn_padding(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                     proto_tree *tree, int length)
 {
-    proto_tree_add_string_format(tree, hf_pn_padding, tvb, offset, length, "data", 
+    proto_tree_add_string_format(tree, hf_pn_padding, tvb, offset, length, "data",
         "Padding: %u byte", length);
 
     return offset + length;
 }
 
 /* align offset to 4 */
-int 
+int
 dissect_pn_align4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     guint padding = 0;
 
-    
+
     if (offset % 4) {
         padding = 4 - (offset % 4);
 
-        proto_tree_add_string_format(tree, hf_pn_padding, tvb, offset, padding, "data", 
+        proto_tree_add_string_format(tree, hf_pn_padding, tvb, offset, padding, "data",
             "Padding: %u byte", padding);
     }
 
