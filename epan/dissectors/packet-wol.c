@@ -137,7 +137,7 @@ dissect_wol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if ( len >= 106 && len < 108 )
     {
         len = 106;
-        passwd = ip_to_str(ep_tvb_memdup(tvb, 102, 4));
+        passwd = tvb_ip_to_str(tvb, 102);
     }
     else if ( len >= 108 )
     {
