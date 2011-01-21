@@ -1558,8 +1558,8 @@ dissect_gtpv2_g_cn_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
 	offset +=3;
 
 	/* >CN-ID M INTEGER (0..4095) */
-	proto_tree_add_text(tree, tvb, offset, 1, "CN-Id: %s",
-		tvb_bytes_to_str(tvb, offset, 1));
+	proto_tree_add_text(tree, tvb, offset, 2, "CN-Id: %s",
+		tvb_bytes_to_str(tvb, offset, 2));
 }
 /*
  * 8.25 S103 PDN Data Forwarding Info (S103PDF)
