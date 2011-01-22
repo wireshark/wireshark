@@ -1128,13 +1128,15 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
 {
   dmp_id_val *dmp_data = NULL, *pkg_data = NULL;
   dmp_id_key *dmp_key = NULL;
-  nstime_t    msg_time = { 0, 0 };
+  nstime_t    msg_time;
   guint       msg_id = 0;
 
   if (pinfo->in_error_pkt) {
     /* No analysis of error packets */
     return;
   }
+
+  nstime_set_zero(&msg_time);
 
   dmp_key = se_alloc (sizeof (dmp_id_key));
 
