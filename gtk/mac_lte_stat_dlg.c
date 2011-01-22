@@ -173,7 +173,9 @@ typedef struct mac_lte_stat_t {
 
     /* Labels */
     GtkWidget  *mac_lte_stat_ues_lb;
-    GtkWidget  *filter_bt;
+    GtkWidget  *ul_filter_bt;
+    GtkWidget  *dl_filter_bt;
+    GtkWidget  *uldl_filter_bt;
 
     GtkWidget  *show_dct_errors_cb;
     GtkWidget  *dct_error_substring_lb;
@@ -584,7 +586,9 @@ mac_lte_ue_details(mac_lte_ep_t *mac_stat_ep, mac_lte_stat_t *hs)
     }
 
     /* Enable/disable filter controls */
-    gtk_widget_set_sensitive(hs->filter_bt, mac_stat_ep != NULL);
+    gtk_widget_set_sensitive(hs->ul_filter_bt, mac_stat_ep != NULL);
+    gtk_widget_set_sensitive(hs->dl_filter_bt, mac_stat_ep != NULL);
+    gtk_widget_set_sensitive(hs->uldl_filter_bt, mac_stat_ep != NULL);
     gtk_widget_set_sensitive(hs->show_dct_errors_cb, mac_stat_ep != NULL);
     gtk_widget_set_sensitive(hs->dct_error_substring_lb, mac_stat_ep != NULL);
     gtk_widget_set_sensitive(hs->dct_error_substring_te, mac_stat_ep != NULL);
@@ -726,9 +730,71 @@ mac_lte_stat_draw(void *phs)
 }
 
 
-/* Filter button has been clicked.  Compose and set appropriate
-   display filter */
-static void filter_clicked(GtkWindow *win _U_, mac_lte_stat_t* hs)
+/* Compose and set appropriate display filter */
+typedef enum Direction_t {UL_Only, DL_Only, UL_and_DL} Direction_t;
+static void set_filter_expression(guint16  ueid,
+                                  guint16  rnti,
+                                  Direction_t direction,
+                                  gint     showDCTErrors,
+                                  const gchar    *DCTErrorSubstring,
+                                  mac_lte_stat_t *hs)
+{
+    #define MAX_FILTER_LEN 256
+    static char buffer[MAX_FILTER_LEN];
+    int offset = 0;
+
+    /* Create the filter expression */
+
+    /* Errors */
+    if (showDCTErrors) {
+        if (strlen(DCTErrorSubstring) > 0) {
+            offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
+                                 "(dct2000.error-comment and (dct2000.comment contains \"%s\")) or (",
+                                 DCTErrorSubstring);
+        }
+        else {
+            offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
+                                 "dct2000.error-comment or (");
+        }
+    }
+
+    /* Filter expression */
+    if (hs->filter) {
+        offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, "%s and ", hs->filter);
+    }
+
+    /* Direction */
+    switch (direction) {
+        case UL_Only:
+            offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, "(mac-lte.direction == 0) and ");
+            break;
+        case DL_Only:
+            offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, "(mac-lte.direction == 1) and ");
+            break;
+        default:
+            break;
+    }
+
+    /* Selected UE */
+    offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
+                         "mac-lte.rnti == %u and mac-lte.ueid == %u",
+                         rnti, ueid);
+
+    /* Close parenthesis */
+    if (showDCTErrors) {
+            offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
+                                 ")");
+    }
+
+    /* Set its value to our new string */
+    gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), buffer);
+
+    /* Run the filter */
+    main_filter_packets(&cfile, buffer, TRUE);
+}
+
+/* Respond to UL filter button being clicked by building and using filter */
+static void ul_filter_clicked(GtkWindow *win _U_, mac_lte_stat_t* hs)
 {
     GtkTreeSelection *sel;
     GtkTreeModel *model;
@@ -738,53 +804,62 @@ static void filter_clicked(GtkWindow *win _U_, mac_lte_stat_t* hs)
     sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(hs->ue_table));
     if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
         mac_lte_ep_t *ep;
-        #define MAX_FILTER_LEN 256
-        static char buffer[MAX_FILTER_LEN];
-        int offset = 0;
 
         /* Get the UE details */
         gtk_tree_model_get(model, &iter, TABLE_COLUMN, &ep, -1);
 
-        /* Create the filter expression */
-
-        /* Errors */
-        if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb))) {
-            if (strlen(gtk_entry_get_text(GTK_ENTRY(hs->dct_error_substring_te))) > 0) {
-                offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
-                                     "(dct2000.error-comment and (dct2000.comment contains \"%s\")) or (",
-                                     gtk_entry_get_text(GTK_ENTRY(hs->dct_error_substring_te)));
-            }
-            else {
-                offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
-                                     "dct2000.error-comment or (");
-            }
-        }
-
-        /* Filter expression */
-        if (hs->filter) {
-            offset += g_snprintf(buffer+offset, MAX_FILTER_LEN, "%s and ", hs->filter);
-        }
-
-        /* Selected UE */
-        offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
-                             "mac-lte.rnti == %u and mac-lte.ueid == %u",
-                             ep->stats.rnti, ep->stats.ueid);
-
-        /* Close parenthesis */
-        if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb))) {
-                offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
-                                     ")");
-        }
-
-
-        /* Set its value to our new string */
-        gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), buffer);
-
-        /* Run the filter */
-        main_filter_packets(&cfile, buffer, TRUE);
+        set_filter_expression(ep->stats.ueid, ep->stats.rnti, UL_Only,
+                              gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb)),
+                              gtk_entry_get_text(GTK_ENTRY(hs->dct_error_substring_te)),
+                              hs);
     }
 }
 
+/* Respond to DL filter button being clicked by building and using filter */
+static void dl_filter_clicked(GtkWindow *win _U_, mac_lte_stat_t* hs)
+{
+    GtkTreeSelection *sel;
+    GtkTreeModel *model;
+    GtkTreeIter iter;
+
+    /* If there is a UE selected, update its counters in details window */
+    sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(hs->ue_table));
+    if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
+        mac_lte_ep_t *ep;
+
+        /* Get the UE details */
+        gtk_tree_model_get(model, &iter, TABLE_COLUMN, &ep, -1);
+
+        set_filter_expression(ep->stats.ueid, ep->stats.rnti, DL_Only,
+                              gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb)),
+                              gtk_entry_get_text(GTK_ENTRY(hs->dct_error_substring_te)),
+                              hs);
+    }
+
+}
+
+/* Respond to UL/DL filter button being clicked by building and using filter */
+static void uldl_filter_clicked(GtkWindow *win _U_, mac_lte_stat_t* hs)
+{
+    GtkTreeSelection *sel;
+    GtkTreeModel *model;
+    GtkTreeIter iter;
+
+    /* If there is a UE selected, update its counters in details window */
+    sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(hs->ue_table));
+    if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
+        mac_lte_ep_t *ep;
+
+        /* Get the UE details */
+        gtk_tree_model_get(model, &iter, TABLE_COLUMN, &ep, -1);
+
+        set_filter_expression(ep->stats.ueid, ep->stats.rnti, UL_and_DL,
+                              gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb)),
+                              gtk_entry_get_text(GTK_ENTRY(hs->dct_error_substring_te)),
+                              hs);
+    }
+
+}
 
 
 /* What to do when a list item is selected/unselected */
@@ -1062,16 +1137,38 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     /* Add filters box to top-level window */
     gtk_box_pack_start(GTK_BOX(top_level_vbox), mac_lte_stat_filters_lb, FALSE, FALSE, 0);
 
-    /* Filter button */
-    hs->filter_bt = gtk_button_new_with_label("Filter on selected this RNTI / UEId");
-    gtk_box_pack_start(GTK_BOX(filter_buttons_hb), hs->filter_bt, FALSE, FALSE, 0);
-    g_signal_connect(hs->filter_bt, "clicked", G_CALLBACK(filter_clicked), hs);
-    /* Initially disabled */
-    gtk_widget_set_sensitive(hs->filter_bt, FALSE);
-    gtk_widget_show(hs->filter_bt);
-    gtk_tooltips_set_tip(tooltips, hs->filter_bt,
+    /* Filter buttons */
+
+    /* UL only */
+    hs->ul_filter_bt = gtk_button_new_with_label("Set UL display filter on selected this RNTI / UEId");
+    gtk_box_pack_start(GTK_BOX(filter_buttons_hb), hs->ul_filter_bt, FALSE, FALSE, 0);
+    g_signal_connect(hs->ul_filter_bt, "clicked", G_CALLBACK(ul_filter_clicked), hs);
+    gtk_widget_set_sensitive(hs->ul_filter_bt, FALSE);
+    gtk_widget_show(hs->ul_filter_bt);
+    gtk_tooltips_set_tip(tooltips, hs->ul_filter_bt,
+                         "Generate and set a filter showing only UL frames with selected RNTI and UEId",
+                         NULL);
+
+    /* DL only */
+    hs->dl_filter_bt = gtk_button_new_with_label("Set DL display filter on selected this RNTI / UEId");
+    gtk_box_pack_start(GTK_BOX(filter_buttons_hb), hs->dl_filter_bt, FALSE, FALSE, 0);
+    g_signal_connect(hs->dl_filter_bt, "clicked", G_CALLBACK(dl_filter_clicked), hs);
+    gtk_widget_set_sensitive(hs->dl_filter_bt, FALSE);
+    gtk_widget_show(hs->dl_filter_bt);
+    gtk_tooltips_set_tip(tooltips, hs->dl_filter_bt,
+                         "Generate and set a filter showing only DL frames with selected RNTI and UEId",
+                         NULL);
+
+    /* UL and DL */
+    hs->uldl_filter_bt = gtk_button_new_with_label("Set UL / DL display filter on selected this RNTI / UEId");
+    gtk_box_pack_start(GTK_BOX(filter_buttons_hb), hs->uldl_filter_bt, FALSE, FALSE, 0);
+    g_signal_connect(hs->uldl_filter_bt, "clicked", G_CALLBACK(uldl_filter_clicked), hs);
+    gtk_widget_set_sensitive(hs->uldl_filter_bt, FALSE);
+    gtk_widget_show(hs->uldl_filter_bt);
+    gtk_tooltips_set_tip(tooltips, hs->uldl_filter_bt,
                          "Generate and set a filter showing only frames with selected RNTI and UEId",
                          NULL);
+
 
     /* Allow DCT errors to be shown... */
     hs->show_dct_errors_cb = gtk_check_button_new_with_mnemonic("Show DCT2000 error strings");
