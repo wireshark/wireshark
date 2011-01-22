@@ -956,6 +956,7 @@ profile_show_popup_cb (GtkWidget *w _U_, GdkEvent *event, gpointer user_data _U_
 	gtk_widget_show (menu_item);
       }
     }
+    ws_dir_close (dir);
   }
 
   if (bevent->button != 1) {
