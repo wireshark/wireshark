@@ -719,7 +719,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 {
 	GtkWidget	*streamwindow, *vbox, *txt_scrollw, *text;
 	GtkWidget	*hbox, *bbox, *button, *radio_bt;
-	GtkWidget	*stream_fr, *stream_vb;
+	GtkWidget	*stream_fr, *stream_vb, *direction_hbox;
 	GtkWidget	*stream_cmb;
 	GtkTooltips	*tooltips;
 	follow_stats_t stats;
@@ -769,32 +769,9 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	gtk_container_add(GTK_CONTAINER(txt_scrollw), text);
 	follow_info->text = text;
 
-	/* stream hbox */
-	hbox = gtk_hbox_new(FALSE, 1);
-	gtk_box_pack_start(GTK_BOX(stream_vb), hbox, FALSE, FALSE, 0);
-
-	/* Create Find Button */
-	button = gtk_button_new_from_stock(GTK_STOCK_FIND);
-	g_signal_connect(button, "clicked", G_CALLBACK(follow_find_cb), follow_info);
-	gtk_tooltips_set_tip (tooltips, button, "Find text in the displayed content", NULL);
-	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
-
-	/* Create Save As Button */
-	button = gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);
-	g_signal_connect(button, "clicked", G_CALLBACK(follow_save_as_cmd_cb), follow_info);
-	gtk_tooltips_set_tip (tooltips, button, "Save the content as currently displayed", NULL);
-	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
-
-	/* Create Print Button */
-        button = gtk_button_new_from_stock(GTK_STOCK_PRINT);
-        g_signal_connect(button, "clicked", G_CALLBACK(follow_print_stream), follow_info);
-        gtk_tooltips_set_tip(tooltips, button, "Print the content as currently displayed", NULL);
-        gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
-
-	/* Stream to show */
-	follow_stats(&stats);
-
-	follow_info->is_ipv6 = stats.is_ipv6;
+	/* direction hbox */
+	direction_hbox = gtk_hbox_new(FALSE, 1);
+	gtk_box_pack_start(GTK_BOX(stream_vb), direction_hbox, FALSE, FALSE, 0);
 
 	stream_cmb = gtk_combo_box_new_text();
 
@@ -817,14 +794,41 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 
 	gtk_tooltips_set_tip (tooltips, stream_cmb,
 			      "Select the stream direction to display", NULL);
-	gtk_box_pack_start(GTK_BOX(hbox), stream_cmb, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(direction_hbox), stream_cmb, TRUE, TRUE, 0);
+
+	/* stream hbox */
+	hbox = gtk_hbox_new(FALSE, 1);
+	gtk_box_pack_start(GTK_BOX(stream_vb), hbox, FALSE, FALSE, 0);
+
+	/* Create Find Button */
+	button = gtk_button_new_from_stock(GTK_STOCK_FIND);
+	g_signal_connect(button, "clicked", G_CALLBACK(follow_find_cb), follow_info);
+	gtk_tooltips_set_tip (tooltips, button, "Find text in the displayed content", NULL);
+	gtk_box_pack_start(GTK_BOX(hbox), button, TRUE, TRUE, 0);
+
+	/* Create Save As Button */
+	button = gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);
+	g_signal_connect(button, "clicked", G_CALLBACK(follow_save_as_cmd_cb), follow_info);
+	gtk_tooltips_set_tip (tooltips, button, "Save the content as currently displayed", NULL);
+	gtk_box_pack_start(GTK_BOX(hbox), button, TRUE, TRUE, 0);
+
+	/* Create Print Button */
+        button = gtk_button_new_from_stock(GTK_STOCK_PRINT);
+        g_signal_connect(button, "clicked", G_CALLBACK(follow_print_stream), follow_info);
+        gtk_tooltips_set_tip(tooltips, button, "Print the content as currently displayed", NULL);
+        gtk_box_pack_start(GTK_BOX(hbox), button, TRUE, TRUE, 0);
+
+	/* Stream to show */
+	follow_stats(&stats);
+
+	follow_info->is_ipv6 = stats.is_ipv6;
 
 	/* ASCII radio button */
 	radio_bt = gtk_radio_button_new_with_label(NULL, "ASCII");
 	gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"ASCII\" format", NULL);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt),
 		IS_SHOW_TYPE(SHOW_ASCII));
-	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, TRUE, TRUE, 0);
 	g_signal_connect(radio_bt, "toggled", G_CALLBACK(follow_charset_toggle_cb),
                        follow_info);
 	follow_info->ascii_bt = radio_bt;
@@ -836,7 +840,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"EBCDIC\" format", NULL);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt),
 		IS_SHOW_TYPE(SHOW_EBCDIC));
-	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, TRUE, TRUE, 0);
 	g_signal_connect(radio_bt, "toggled", G_CALLBACK(follow_charset_toggle_cb),
                        follow_info);
 	follow_info->ebcdic_bt = radio_bt;
@@ -848,7 +852,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"Hexdump\" format", NULL);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt),
 		IS_SHOW_TYPE(SHOW_HEXDUMP));
-	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, TRUE, TRUE, 0);
 	g_signal_connect(radio_bt, "toggled", G_CALLBACK(follow_charset_toggle_cb),
                        follow_info);
 	follow_info->hexdump_bt = radio_bt;
@@ -860,7 +864,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"C Array\" format", NULL);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt),
 		IS_SHOW_TYPE(SHOW_CARRAY));
-	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, TRUE, TRUE, 0);
 	g_signal_connect(radio_bt, "toggled", G_CALLBACK(follow_charset_toggle_cb),
                        follow_info);
 	follow_info->carray_bt = radio_bt;
@@ -872,7 +876,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"Raw\" (binary) format. As this contains non printable characters, the screen output will be in ASCII format", NULL);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt),
 		IS_SHOW_TYPE(SHOW_RAW));
-	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, TRUE, TRUE, 0);
 	g_signal_connect(radio_bt, "toggled", G_CALLBACK(follow_charset_toggle_cb),
                        follow_info);
 	follow_info->raw_bt = radio_bt;
