@@ -18,10 +18,91 @@
     <para>
       <application>TShark</application> is a terminal oriented version
       of Wireshark designed for capturing and displaying packets when an
-	  interactive user interface isn't necessary or available. It supports
-	  the same options as <command>wireshark</command>. For more
+      interactive user interface isn't necessary or available. It supports
+      the same options as <command>wireshark</command>. For more
       information on <command>tshark</command>, see the manual pages
       (<command>man tshark</command>).
+    </para>
+    <para>
+    <example id="AppToolstsharkEx">
+      <title>Help information available from tshark</title>
+      <programlisting>
+TShark 1.5.0
+Dump and analyze network traffic.
+See http://www.wireshark.org for more information.
+
+Copyright 1998-2011 Gerald Combs &lt;gerald@wireshark.org&gt; and contributors.
+This is free software; see the source for copying conditions. There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Usage: tshark [options] ...
+
+Capture interface:
+  -i &lt;interface&gt;           name or idx of interface (def: first non-loopback)
+  -f &lt;capture filter&gt;      packet filter in libpcap filter syntax
+  -s &lt;snaplen&gt;             packet snapshot length (def: 65535)
+  -p                       don't capture in promiscuous mode
+  -I                       capture in monitor mode, if available
+  -B &lt;buffer size&gt;         size of kernel buffer (def: 1MB)
+  -y &lt;link type&gt;           link layer type (def: first appropriate)
+  -D                       print list of interfaces and exit
+  -L                       print list of link-layer types of iface and exit
+
+Capture stop conditions:
+  -c &lt;packet count&gt;        stop after n packets (def: infinite)
+  -a &lt;autostop cond.&gt; ...  duration:NUM - stop after NUM seconds
+                           filesize:NUM - stop this file after NUM KB
+                              files:NUM - stop after NUM files
+Capture output:
+  -b &lt;ringbuffer opt.&gt; ... duration:NUM - switch to next file after NUM secs
+                           filesize:NUM - switch to next file after NUM KB
+                              files:NUM - ringbuffer: replace after NUM files
+Input file:
+  -r &lt;infile&gt;              set the filename to read from (no pipes or stdin!)
+
+Processing:
+  -R &lt;read filter&gt;         packet filter in Wireshark display filter syntax
+  -n                       disable all name resolutions (def: all enabled)
+  -N &lt;name resolve flags&gt;  enable specific name resolution(s): "mntC"
+  -d &lt;layer_type&gt;==&lt;selector&gt;,&lt;decode_as_protocol&gt; ...
+                           "Decode As", see the man page for details
+                           Example: tcp.port==8888,http
+Output:
+  -w &lt;outfile|-&gt;           write packets to a pcap-format file named "outfile"
+                           (or to the standard output for "-")
+  -C &lt;config profile&gt;      start with specified configuration profile
+  -F &lt;output file type&gt;    set the output file type, default is libpcap
+                           an empty "-F" option will list the file types
+  -V                       add output of packet tree        (Packet Details)
+  -S                       display packets even when writing to a file
+  -x                       add output of hex and ASCII dump (Packet Bytes)
+  -T pdml|ps|psml|text|fields
+                           format of text output (def: text)
+  -e &lt;field&gt;               field to print if -Tfields selected (e.g. tcp.port);
+                           this option can be repeated to print multiple fields
+  -E&lt;fieldsoption&gt;=&lt;value&gt; set options for output when -Tfields selected:
+     header=y|n            switch headers on and off
+     separator=/t|/s|&lt;char&gt; select tab, space, printable character as separator
+     occurrence=f|l|a      print first, last or all occurrences of each field
+     aggregator=,|/s|&lt;char&gt; select comma, space, printable character as aggregator
+     quote=d|s|n           select double, single, no quotes for values
+  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)
+  -u s|hms                 output format of seconds (def: s: seconds)
+  -l                       flush standard output after each packet
+  -q                       be more quiet on stdout (e.g. when using statistics)
+  -X &lt;key&gt;:&lt;value&gt;         eXtension options, see the man page for details
+  -z &lt;statistics&gt;          various statistics, see the man page for details
+
+Miscellaneous:
+  -h                       display this help and exit
+  -v                       display version info and exit
+  -o &lt;name&gt;:&lt;value&gt; ...    override preference setting
+  -K &lt;keytab&gt;              keytab file to use for kerberos decryption
+  -G [report]              dump one of several available reports and exit
+                           default report="fields"
+                           use "-G ?" for more help
+      </programlisting>
+    </example>
     </para>
   </section>
 
@@ -83,8 +164,7 @@ tcpdump -i &lt;interface> -s 65535 -w &lt;some-file>
     <example id="AppToolsdumpcapEx">
       <title>Help information available from dumpcap</title>
       <programlisting>
-dumpcap -h
-Dumpcap 1.4.0
+Dumpcap 1.5.0
 Capture network packets and dump them into a libpcap file.
 See http://www.wireshark.org for more information.
 
@@ -95,12 +175,14 @@ Capture interface:
   -f &lt;capture filter&gt;      packet filter in libpcap filter syntax
   -s &lt;snaplen&gt;             packet snapshot length (def: 65535)
   -p                       don't capture in promiscuous mode
+  -I                       capture in monitor mode, if available
   -B &lt;buffer size&gt;         size of kernel buffer (def: 1MB)
   -y &lt;link type&gt;           link layer type (def: first appropriate)
   -D                       print list of interfaces and exit
   -L                       print list of link-layer types of iface and exit
+  -d                       print generated BPF code for capture filter
   -S                       print statistics for each interface once every second
-  -M                       for -D, -L, and -S produce machine-readable output
+  -M                       for -D, -L, and -S, produce machine-readable output
 
 Stop conditions:
   -c &lt;packet count&gt;        stop after n packets (def: infinite)
@@ -109,6 +191,7 @@ Stop conditions:
                               files:NUM - stop after NUM files
 Output (files):
   -w &lt;filename&gt;            name of file to save (def: tempfile)
+  -g                       enable group read access on the output file(s)
   -b &lt;ringbuffer opt.&gt; ... duration:NUM - switch to next file after NUM secs
                            filesize:NUM - switch to next file after NUM KB
                               files:NUM - ringbuffer: replace after NUM files
