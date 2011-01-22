@@ -22,11 +22,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Ref:  http://www.jcs.mil/j6/cceb/acps/Acp142.pdf
+ * Ref:  http://jcs.dtic.mil/j6/cceb/acps/acp142/
  */
 
 /*
@@ -250,7 +250,7 @@ static enum_val_t decode_options[] = {
   { NULL,   NULL,                   0           }
 };
 
-static const true_false_string yes_no = {
+static const true_false_string no_yes = {
   "No", "Yes"
 };
 
@@ -332,6 +332,7 @@ static void p_mul_id_value_destroy (p_mul_seq_val *pkg_data)
   if (pkg_data->ack_data) {
     g_hash_table_destroy (pkg_data->ack_data);
   }
+  g_free (pkg_data);
 }
 
 static void p_mul_package_data_destroy (GHashTable *pkg_list, gpointer user_data _U_)
@@ -466,7 +467,11 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
       }
     } else {
       /* New message */
-      p_mul_data = se_alloc0 (sizeof (p_mul_seq_val));
+      if (pdu_type == Ack_PDU) {
+        p_mul_data = se_alloc0 (sizeof (p_mul_seq_val));
+      } else {
+        p_mul_data = g_malloc0 (sizeof (p_mul_seq_val));
+      }
       p_mul_data->msg_type = pdu_type;
       if (pdu_type == Address_PDU || pdu_type == Ack_PDU) {
         p_mul_data->ack_data = g_hash_table_new (NULL, NULL);
@@ -1362,10 +1367,10 @@ void proto_register_p_mul (void)
         NULL, 0x0, NULL, HFILL } },
     { &hf_map_first,
       { "First", "p_mul.first", FT_BOOLEAN, 8,
-        TFS (&yes_no), 0x80, NULL, HFILL } },
+        TFS (&no_yes), 0x80, NULL, HFILL } },
     { &hf_map_last,
       { "Last", "p_mul.last", FT_BOOLEAN, 8,
-        TFS (&yes_no), 0x40, NULL, HFILL } },
+        TFS (&no_yes), 0x40, NULL, HFILL } },
     { &hf_map_unused,
       { "MAP unused", "p_mul.unused", FT_UINT8, BASE_DEC,
         NULL, 0xC0, NULL, HFILL } },
