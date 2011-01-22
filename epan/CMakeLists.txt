@@ -716,6 +716,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-ldss.c
 	dissectors/packet-lge_monitor.c
 	dissectors/packet-linx.c
+	dissectors/packet-lisp.c
 	dissectors/packet-llc.c
 	dissectors/packet-lldp.c
 	dissectors/packet-llt.c

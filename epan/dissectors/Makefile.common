@@ -626,6 +626,7 @@ DISSECTOR_SRC = \
 	packet-ldss.c		\
 	packet-lge_monitor.c	\
 	packet-linx.c		\
+	packet-lisp-data.c	\
 	packet-llc.c		\
 	packet-lldp.c		\
 	packet-llt.c		\
