@@ -1230,8 +1230,8 @@ file_import_dlg_new()
 
     g_signal_emit_by_name(G_OBJECT(header_eth_rb), "toggled", header_frm);
 
-    g_signal_connect(encap_co, "changed", G_CALLBACK(encap_co_changed), header_frm);
     gtk_combo_box_set_active(GTK_COMBO_BOX(encap_co), 0);
+    g_signal_connect(encap_co, "changed", G_CALLBACK(encap_co_changed), header_frm);
 
     /* Frame length */
     framelen_hb = gtk_hbox_new(FALSE, 3);
