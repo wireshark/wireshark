@@ -106,6 +106,7 @@ geoip_dat_scan_dir(const char *dirname) {
 				g_free(datname);
 			}
 		}
+		ws_dir_close (dir);
 	}
 }
 
