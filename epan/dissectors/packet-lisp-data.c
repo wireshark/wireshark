@@ -28,10 +28,6 @@
 #include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -134,7 +130,7 @@ dissect_lisp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += 1;
 
         if (flags&LISP_DATA_FLAG_E && !(flags&LISP_DATA_FLAG_N)) {
-            proto_tree_add_text(lisp_data_tree, tvb, offset, 0, 
+            proto_tree_add_text(lisp_data_tree, tvb, offset, 0,
                     "Invalid flag combination: if E is set, N MUST be set");
         }
 
@@ -292,4 +288,15 @@ proto_reg_handoff_lisp_data(void)
     data_handle = find_dissector("data");
 }
 
-/* vim: set expandtab tabstop=4 shiftwidth=4: */
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=4 expandtab
+ * :indentSize=4:tabSize=4:noTabs=true:
+ */
