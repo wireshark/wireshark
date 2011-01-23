@@ -2413,7 +2413,7 @@ capture_if_details_open_win(char *iface)
 
     wpcap_packet_close(adapter);
 
-    label = gtk_label_new("Note: accuracy of all of these values are only relying on the network card driver!");
+    label = gtk_label_new("Note: the accuracy of all of these values relies only on the network card driver!");
     gtk_box_pack_start(GTK_BOX(main_vb), label, FALSE /*expand*/, FALSE /*fill*/, 0 /*padding*/);
 
     /* Button row. */
