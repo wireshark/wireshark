@@ -18,6 +18,8 @@ HandoverPreparationInformation
 HandoverPreparationInformation_PDU
 UERadioAccessCapabilityInformation
 UERadioAccessCapabilityInformation_PDU
+UE-EUTRA-Capability
+UE-EUTRA-Capability_PDU
 #UEInformationResponse
 
 #.PDU_NEW
@@ -97,7 +99,7 @@ if(ue_eutra_cap_tvb){
 	switch(lte_rrc_rat_type_value){
 	case 0:
 		/* eutra */
-		dissect_UE_EUTRA_Capability_PDU(ue_eutra_cap_tvb,%(ACTX)s->pinfo, tree);
+		dissect_lte_rrc_UE_EUTRA_Capability_PDU(ue_eutra_cap_tvb,%(ACTX)s->pinfo, tree);
 		break;
 	case 1:
 		/* utra */

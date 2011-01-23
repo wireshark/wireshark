@@ -109,7 +109,7 @@ static int hf_lte_rrc_DL_DCCH_Message_PDU = -1;   /* DL_DCCH_Message */
 static int hf_lte_rrc_UL_CCCH_Message_PDU = -1;   /* UL_CCCH_Message */
 static int hf_lte_rrc_UL_DCCH_Message_PDU = -1;   /* UL_DCCH_Message */
 static int hf_lte_rrc_UECapabilityInformation_PDU = -1;  /* UECapabilityInformation */
-static int hf_lte_rrc_UE_EUTRA_Capability_PDU = -1;  /* UE_EUTRA_Capability */
+static int hf_lte_rrc_lte_rrc_UE_EUTRA_Capability_PDU = -1;  /* UE_EUTRA_Capability */
 static int hf_lte_rrc_lte_rrc_HandoverCommand_PDU = -1;  /* HandoverCommand */
 static int hf_lte_rrc_lte_rrc_HandoverPreparationInformation_PDU = -1;  /* HandoverPreparationInformation */
 static int hf_lte_rrc_lte_rrc_UERadioAccessCapabilityInformation_PDU = -1;  /* UERadioAccessCapabilityInformation */
@@ -2012,7 +2012,7 @@ static gint ett_lte_rrc_featureGroupIndicators = -1;
 /* Forward declarations */
 static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
 static int dissect_UECapabilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
-static int dissect_UE_EUTRA_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
+int dissect_lte_rrc_UE_EUTRA_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
 
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_1_val = {
   "Intra-subframe freq hopping for PUSCH scheduled by UL grant; DCI format 3a; Multi-user MIMO for PDSCH; Aperiodic CQI/PMI/RI report on PUSCH: Mode 2-0 and 2-2 - Supported",
@@ -15696,7 +15696,7 @@ if(ue_eutra_cap_tvb){
 	switch(lte_rrc_rat_type_value){
 	case 0:
 		/* eutra */
-		dissect_UE_EUTRA_Capability_PDU(ue_eutra_cap_tvb,actx->pinfo, tree);
+		dissect_lte_rrc_UE_EUTRA_Capability_PDU(ue_eutra_cap_tvb,actx->pinfo, tree);
 		break;
 	case 1:
 		/* utra */
@@ -17765,7 +17765,7 @@ static const per_sequence_t UE_EUTRA_Capability_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static int
+int
 dissect_lte_rrc_UE_EUTRA_Capability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_UE_EUTRA_Capability, UE_EUTRA_Capability_sequence);
@@ -18513,11 +18513,11 @@ static int dissect_UECapabilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *p
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_UE_EUTRA_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+int dissect_lte_rrc_UE_EUTRA_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
-  offset = dissect_lte_rrc_UE_EUTRA_Capability(tvb, offset, &asn1_ctx, tree, hf_lte_rrc_UE_EUTRA_Capability_PDU);
+  offset = dissect_lte_rrc_UE_EUTRA_Capability(tvb, offset, &asn1_ctx, tree, hf_lte_rrc_lte_rrc_UE_EUTRA_Capability_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -18670,7 +18670,7 @@ void proto_register_lte_rrc(void) {
       { "UECapabilityInformation", "lte-rrc.UECapabilityInformation",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_UE_EUTRA_Capability_PDU,
+    { &hf_lte_rrc_lte_rrc_UE_EUTRA_Capability_PDU,
       { "UE-EUTRA-Capability", "lte-rrc.UE_EUTRA_Capability",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
@@ -24343,7 +24343,7 @@ void proto_register_lte_rrc(void) {
   new_register_dissector("lte-rrc.ul.ccch", dissect_UL_CCCH_Message_PDU, proto_lte_rrc);
   new_register_dissector("lte-rrc.ul.dcch", dissect_UL_DCCH_Message_PDU, proto_lte_rrc);
   new_register_dissector("lte-rrc.ue_cap_info", dissect_UECapabilityInformation_PDU, proto_lte_rrc);
-  new_register_dissector("lte-rrc.ue_eutra_cap", dissect_UE_EUTRA_Capability_PDU, proto_lte_rrc);
+  new_register_dissector("lte-rrc.ue_eutra_cap", dissect_lte_rrc_UE_EUTRA_Capability_PDU, proto_lte_rrc);
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
