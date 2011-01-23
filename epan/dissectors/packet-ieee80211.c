@@ -1215,19 +1215,13 @@ static int hf_ieee80211_ff_delba_param_reserved = -1;
 static int hf_ieee80211_ff_delba_param_init = -1;
 static int hf_ieee80211_ff_delba_param_tid = -1;
 
-static int ff_max_reg_pwr = -1;
-
-static int ff_measurement_pilot_int = -1;
-
-static int ff_country_str = -1;
-
-static int ff_max_tx_pwr = -1;
-
-static int ff_tx_pwr_used = -1;
-
-static int ff_transceiver_noise_floor = -1;
-
-static int ff_channel_width = -1;
+static int hf_ieee80211_ff_max_reg_pwr = -1;
+static int hf_ieee80211_ff_measurement_pilot_int = -1;
+static int hf_ieee80211_ff_country_str = -1;
+static int hf_ieee80211_ff_max_tx_pwr = -1;
+static int hf_ieee80211_ff_tx_pwr_used = -1;
+static int hf_ieee80211_ff_transceiver_noise_floor = -1;
+static int hf_ieee80211_ff_channel_width = -1;
 
 static int hf_ieee80211_ff_qos_info_ap = -1;
 static int hf_ieee80211_ff_qos_info_ap_edca_param_set_counter = -1;
@@ -3217,12 +3211,12 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       }
 
     case FIELD_MAX_REG_PWR:
-      proto_tree_add_uint(tree, ff_max_reg_pwr, tvb, offset, 2, tvb_get_letohs (tvb, offset));
+      proto_tree_add_uint(tree, hf_ieee80211_ff_max_reg_pwr, tvb, offset, 2, tvb_get_letohs (tvb, offset));
       length +=2;
       break;
 
     case FIELD_MEASUREMENT_PILOT_INT:
-      proto_tree_add_uint(tree, ff_measurement_pilot_int, tvb, offset, 2, tvb_get_letohs (tvb, offset));
+      proto_tree_add_uint(tree, hf_ieee80211_ff_measurement_pilot_int, tvb, offset, 2, tvb_get_letohs (tvb, offset));
       length +=2;
       break;
 
@@ -3231,27 +3225,27 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         guint8 *country_string;
 
         country_string = tvb_get_ephemeral_string(tvb, offset, 3);
-        proto_tree_add_string (tree, ff_country_str, tvb, offset, 3, (char *) country_string);
+        proto_tree_add_string (tree, hf_ieee80211_ff_country_str, tvb, offset, 3, (char *) country_string);
         break;
       }
 
     case FIELD_MAX_TX_PWR:
-      proto_tree_add_uint(tree, ff_max_tx_pwr, tvb, offset, 1, tvb_get_guint8 (tvb, offset));
+      proto_tree_add_uint(tree, hf_ieee80211_ff_max_tx_pwr, tvb, offset, 1, tvb_get_guint8 (tvb, offset));
       length +=1;
       break;
 
     case FIELD_TX_PWR_USED:
-      proto_tree_add_uint(tree, ff_tx_pwr_used, tvb, offset, 1, tvb_get_guint8 (tvb, offset));
+      proto_tree_add_uint(tree, hf_ieee80211_ff_tx_pwr_used, tvb, offset, 1, tvb_get_guint8 (tvb, offset));
       length +=1;
       break;
 
     case FIELD_TRANSCEIVER_NOISE_FLOOR:
-      proto_tree_add_uint(tree, ff_transceiver_noise_floor, tvb, offset, 1, tvb_get_guint8 (tvb, offset));
+      proto_tree_add_uint(tree, hf_ieee80211_ff_transceiver_noise_floor, tvb, offset, 1, tvb_get_guint8 (tvb, offset));
       length +=1;
       break;
 
     case FIELD_CHANNEL_WIDTH:
-      proto_tree_add_item(tree, ff_channel_width, tvb, offset, 1, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_channel_width, tvb, offset, 1, TRUE);
       length +=1;
       break;
 
@@ -11717,31 +11711,31 @@ proto_register_ieee80211 (void)
      {"TID", "wlan_mgt.fixed.delba.param.tid",
       FT_UINT16, BASE_HEX, 0, 0xf000, "Traffic Identifier (TID)", HFILL }},
 
-    {&ff_max_reg_pwr,
+    {&hf_ieee80211_ff_max_reg_pwr,
      {"Maximum Regulation Power", "wlan_mgt.fixed.maxregpwr",
       FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL }},
 
-    {&ff_measurement_pilot_int,
+    {&hf_ieee80211_ff_measurement_pilot_int,
      {"Measurement Pilot Interval", "wlan_mgt.fixed.msmtpilotint",
       FT_UINT16, BASE_HEX, 0, 0, "Measurement Pilot Interval Fixed Field", HFILL }},
 
-    {&ff_country_str,
+    {&hf_ieee80211_ff_country_str,
      {"Country String", "wlan_mgt.fixed.country",
       FT_STRING, BASE_NONE, 0, 0, NULL, HFILL }},
 
-    {&ff_max_tx_pwr,
+    {&hf_ieee80211_ff_max_tx_pwr,
      {"Maximum Transmit Power", "wlan_mgt.fixed.maxtxpwr",
       FT_UINT8, BASE_HEX, 0, 0, NULL, HFILL }},
 
-    {&ff_tx_pwr_used,
+    {&hf_ieee80211_ff_tx_pwr_used,
      {"Transmit Power Used", "wlan_mgt.fixed.txpwr",
       FT_UINT8, BASE_HEX, 0, 0, NULL, HFILL }},
 
-    {&ff_transceiver_noise_floor,
+    {&hf_ieee80211_ff_transceiver_noise_floor,
      {"Transceiver Noise Floor", "wlan_mgt.fixed.tnoisefloor",
       FT_UINT8, BASE_HEX, 0, 0, NULL, HFILL }},
 
-    {&ff_channel_width,
+    {&hf_ieee80211_ff_channel_width,
      {"Supported Channel Width", "wlan_mgt.fixed.chanwidth",
       FT_UINT8, BASE_HEX, VALS (ff_channel_width_vals), 0, NULL, HFILL }},
 
