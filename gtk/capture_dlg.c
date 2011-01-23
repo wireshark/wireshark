@@ -159,11 +159,15 @@
 
 /*
  * Keep a static pointer to the current "Capture Options" window, if
- * any, so that if somebody tries to do "Capture:Start" while there's
+ * any, so that if somebody tries to do "Capture:Options" while there's
  * already a "Capture Options" window up, we just pop up the existing
  * one, rather than creating a new one.
+ * Also: Capture:Start obtains info from the "Capture Options" window
+ *       if it exists and if its creation is complete.
  */
-static GtkWidget *cap_open_w;
+static GtkWidget *cap_open_w = NULL;
+static gboolean   cap_open_complete;  /* valid only if cap_open_w != NULL */
+
 static GHashTable *cap_settings_history=NULL;
 
 #ifdef HAVE_PCAP_REMOTE
@@ -368,9 +372,9 @@ set_if_capabilities(gboolean monitor_mode_changed)
     if (iftype >= CAPTURE_IFREMOTE)
       if_list = (GList *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IF_LIST_KEY);
     else
-      if_list = capture_interface_list(&err, NULL);
+      if_list = capture_interface_list(&err, NULL);   /* Warning: see capture_prep_cb() */
 #else
-    if_list = capture_interface_list(&err, NULL);
+    if_list = capture_interface_list(&err, NULL);     /* Warning: see capture_prep_cb() */
 #endif
     if (if_list != NULL) {
       /*
@@ -909,7 +913,7 @@ update_interface_list()
                                         &err, &err_str);
     g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IF_LIST_KEY, if_list);
   } else {
-    if_list = capture_interface_list(&err, &err_str);
+    if_list = capture_interface_list(&err, &err_str);   /* Warning: see capture_prep_cb() */
     g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IF_LIST_KEY, NULL);
   }
 
@@ -1557,6 +1561,38 @@ capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
 #endif
 
 /* show capture prepare (options) dialog */
+
+/* XXX: Warning:
+        Note that capture_interface_list() is called directly (or indirectly) during the
+         creation of (and changes to) the capture options dialog window.
+
+        Also note that capture_interface_list() indirectly runs the gtk main loop temporarily
+         to process queued events (which may include button-presses, key-presses, etc).
+         (This is done while awaiting a response from dumpcap which is invoked to obtain
+          the capture interface list).
+        This means other Wireshark callbacks can be invoked while the capture options window
+         is being created or updated (in effect an "interrupt" can occur).
+
+        Needless to say, "race conditions" may occur in "interrupt" code which depends upon the exact
+        state of the capture options dialog window and which may be invoked during the
+        creation of (or changes to) the capture options dialog window.
+
+        For example: if a user hits "Capture:Options" and then immediately hits "Capture:Start",
+         capture_start_cb() may be invoked before capture_prep_cb() has been completed (i.e., during
+         a call to capture_interface_list() in the code which creates the capture options window).
+        capture_start_cb() depends upon certain properties of the capture options window having been
+         initialized and thus fails if the properties have not (yet) been initialized.
+
+        An interlock has been added to handle this particular situation;
+        Ideally a more general solution should be implemented since it's probably difficult
+         (if not nearly impossible) to identify all the possible "race conditions".
+
+        ? Prevent the temporary running of the gtk main loop in cases wherein dumpcap is invoked for a
+          simple request/reply ? (e.g., capture_interface_list()) ??
+
+        ? Other ??
+*/
+
 void
 capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 {
@@ -1642,11 +1678,11 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   /* use user-defined title if preference is set */
   cap_title = create_user_window_title("Wireshark: Capture Options");
 
+  cap_open_complete = FALSE;
   cap_open_w = dlg_window_new(cap_title);
   g_free(cap_title);
 
   tooltips = gtk_tooltips_new();
-
 #ifdef HAVE_PCAP_REMOTE
   if (global_capture_opts.src_type == CAPTURE_IFREMOTE) {
     if_list = get_remote_interface_list(global_capture_opts.remote_host,
@@ -1665,18 +1701,18 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
         g_free (global_capture_opts.iface_descr);
         global_capture_opts.iface_descr = NULL;
       }
-      if_list = capture_interface_list(&err, &err_str);
+      if_list = capture_interface_list(&err, &err_str);   /* Warning: see capture_prep_cb() */
       global_capture_opts.src_type = CAPTURE_IFLOCAL;
       g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IF_LIST_KEY, NULL);
     } else {
       g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IF_LIST_KEY, if_list);
     }
   } else {
-    if_list = capture_interface_list(&err, &err_str);
+    if_list = capture_interface_list(&err, &err_str);   /* Warning: see capture_prep_cb() */
     g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IF_LIST_KEY, NULL);
   }
 #else
-  if_list = capture_interface_list(&err, &err_str);
+  if_list = capture_interface_list(&err, &err_str);   /* Warning: see capture_prep_cb() */
 #endif
   if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
@@ -1746,6 +1782,9 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
        make the one from the preferences file the default */
     if_device = g_strdup(prefs.capture_device);
     global_capture_opts.iface = g_strdup(get_if_name(if_device));
+    /* Warning: see capture_prep_cb() */
+    /* XXX: Could the following code be changed to use the if_list obtained above instead  */
+    /*      of maybe calling capture_interface_list() again ?                           */
     global_capture_opts.iface_descr = get_interface_descriptive_name(global_capture_opts.iface);
     g_free(if_device);
   }
@@ -2437,6 +2476,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
   gtk_widget_show_all(cap_open_w);
   window_present(cap_open_w);
+
+  cap_open_complete = TRUE;   /* "Capture:Start" is now OK */
 }
 
 /* everythings prepared, now it's really time to start the capture */
@@ -2531,6 +2572,13 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
      */
     gboolean success;
 
+    /* Determine if "capture start" while building of the "capture options" window */
+    /*  is in progress. If so, ignore the "capture start.                          */
+    /* XXX: Would it be better/cleaner for the "capture options" window code to    */
+    /*      disable the capture start button temporarily ?                         */
+    if (cap_open_complete == FALSE) {
+      return;  /* Building options window: ignore "capture start" */
+    }
     success = capture_dlg_prep(cap_open_w);
     window_destroy(GTK_WIDGET(cap_open_w));
     if (!success)
