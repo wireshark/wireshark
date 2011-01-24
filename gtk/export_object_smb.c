@@ -32,8 +32,6 @@
 # include "config.h"
 #endif
 
-#include <string.h>
-#include <glib.h>
 #include <gtk/gtk.h>
 
 #include <epan/packet.h>
@@ -61,7 +59,7 @@ static const value_string smb_eo_contains_string[]={
 
 
 /* This struct contains the relationship between
-   the row# in the export_object window and the file beeing captured;
+   the row# in the export_object window and the file being captured;
    the row# in this GSList will match the row# in the entry list */
 
 typedef struct _active_file {
@@ -79,26 +77,11 @@ typedef struct _active_file {
         } active_file ;
 
 /* This is the GSList that will contain all the files that we are tracking */
-static GSList	*GSL_active_files;
+static GSList	*GSL_active_files = NULL;
 
-/* This is the binary tree that will contain all the packets already processed
+/* This is the hash table that will contain the frame numbers of the packets already processed.
    We want to process each smb packet only once */
-static GTree	*btree_visited_packet;
-
-/* The comparison function for the btree_visited_packet */
-static gint
-btree_visited_packet_cmpkey(gconstpointer keya, gconstpointer keyb, gpointer user_data) {
-	gint nop_value;
-	guint32 *a = (guint32 *)keya;
-	guint32 *b = (guint32 *)keyb;
-	gboolean *data = (gboolean *)user_data;
-
-	if (*data == TRUE) nop_value=0;
-
-	if (*a == *b) { return 0; }
-	else 	if (*a > *b) { return 1; }
-		else { return -1; }
-}
+static GHashTable	*visited_packet_hash_table = NULL;
 
 /* We define a free chunk in a file as an start offset and end offset
    Consider a free chunk as a "hole" in a file that we are capturing */
@@ -295,7 +278,7 @@ find_incoming_file(GSList *GSL_active_files,active_file *incoming_file)
  *
  * Since: 2.6
  **/
-guint
+static guint
 g_strv_length (gchar **str_array)
 {
 	guint i = 0;
@@ -310,9 +293,8 @@ g_strv_length (gchar **str_array)
 #endif
 
 /* This is the function answering to the registered tap listener call */
-static int
-eo_smb_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
-	       const void *data)
+static gboolean
+eo_smb_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
 {
 	export_object_list_t *object_list = tapdata;
 	const smb_eo_t *eo_info = data;
@@ -325,147 +307,144 @@ eo_smb_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
 	active_file		*current_file;
 	guint8			contains;
 	gboolean		is_supported_filetype;
-
-	guint32			*packetnum;
-	gboolean		*visited_packet;
-	gboolean		new_packet;
 	gfloat			percent;
 
 	gchar			**aux_string_v;
 
 
+	if (eo_info == NULL) { /* XXX: Can this happen ? */
+		return FALSE; /* State unchanged - no window updates needed */
+	}
+
 	/* Obtain the packet number that originates the analysis */
-	packetnum=g_malloc(sizeof(guint32));
-	*packetnum=pinfo->fd->num;
-
-	/* Lets look for that packet number */
 	#ifdef SMB_DEBUG
-	printf("\tbtree_visited_packet: Looking for packet %u\n",*packetnum);
+	printf("\tbtree_visited_packet: Looking for packet %u\n",pinfo->fd-num);
 	#endif
-	visited_packet = g_tree_lookup(btree_visited_packet, packetnum);
-	if (visited_packet==NULL) {
-		new_packet=TRUE;
-		visited_packet=g_malloc(sizeof(gboolean));
-		*visited_packet=TRUE;
-		g_tree_insert(btree_visited_packet,packetnum,visited_packet);
-	} else {
-		new_packet=FALSE;
+
+	if (g_hash_table_lookup(visited_packet_hash_table, GUINT_TO_POINTER(pinfo->fd->num)) != NULL) {
+		return FALSE; /* already seen: State unchanged - no window updates needed */
+	}
+
+	/* remember that we've seen this packet */
+	/* XXX: TBD: Is this needed ?                                              */
+        /*           Under what circumstances will a packet be encountered twice ? */
+	g_hash_table_insert(visited_packet_hash_table, GUINT_TO_POINTER(pinfo->fd->num), GUINT_TO_POINTER(1));
+
+	/* Is this an eo_smb supported file_type? (right now we only support FILE */
+	is_supported_filetype = (eo_info->fid_type==SMB_FID_TYPE_FILE);
+
+	/* What kind of data this packet contains? */
+	switch(eo_info->cmd) {
+	case SMB_COM_READ_ANDX:
+		contains=SMB_EO_CONTAINS_READS;
+		break;
+	case SMB_COM_WRITE_ANDX:
+		contains=SMB_EO_CONTAINS_WRITES;
+		break;
+	default:
+		contains=SMB_EO_CONTAINS_NOTHING;
+		break;
+	}
+
+	/* Is this data from an already tracked file or not? */
+	incoming_file.tid=eo_info->tid;
+	incoming_file.uid=eo_info->uid;
+	incoming_file.fid=eo_info->fid;
+	active_row=find_incoming_file(GSL_active_files, &incoming_file);
+
+	if (active_row==-1) { /* This is a new-tracked file */
+
+		/* Construct the entry in the list of active files */
+		entry = g_malloc(sizeof(export_object_entry_t));
+		entry->payload_data=NULL;
+		entry->payload_len=0;
+		new_file = g_malloc(sizeof(active_file));
+		new_file->tid=incoming_file.tid;
+		new_file->uid=incoming_file.uid;
+		new_file->fid=incoming_file.fid;
+		new_file->file_length = eo_info->end_of_file;
+		new_file->flag_contains=contains;
+		new_file->free_chunk_list=NULL;
+		new_file->data_gathered=0;
+		new_file->is_out_of_memory=FALSE;
+		entry->pkt_num = pinfo->fd->num;
+		entry->hostname = g_strdup(eo_info->hostname);
+		if (g_str_has_prefix(eo_info->filename,"\\")) {
+			aux_string_v = g_strsplit(eo_info->filename, "\\", -1);
+			entry->filename = g_strdup(aux_string_v[g_strv_length(aux_string_v)-1]);
+			g_strfreev(aux_string_v);
+		} else {
+			entry->filename = g_strdup(eo_info->filename);
 		}
 
-	if(eo_info && new_packet) { /* We have new data waiting for us */
-		/* Is a eo_smb supported file_type? (right now we only support FILE */
-		is_supported_filetype = (eo_info->fid_type==SMB_FID_TYPE_FILE);
+		/* Insert the first chunk in the chunk list of this file */
+		if (is_supported_filetype) {
+			insert_chunk(new_file, entry, eo_info);
+		}
 
-		/* What kind of data this packet contains? */
-		switch(eo_info->cmd) {
-			case SMB_COM_READ_ANDX:
-				contains=SMB_EO_CONTAINS_READS;
-				break;
-			case SMB_COM_WRITE_ANDX:
-				contains=SMB_EO_CONTAINS_WRITES;
-				break;
-			default:
-				contains=SMB_EO_CONTAINS_NOTHING;
-				break;
-			}
-
-		/* Is this data from an already tracked file or not? */
-		incoming_file.tid=eo_info->tid;
-		incoming_file.uid=eo_info->uid;
-		incoming_file.fid=eo_info->fid;
-		active_row=find_incoming_file(GSL_active_files, &incoming_file);
-
-		if (active_row==-1) { /* This is a new-tracked file */
-
-			/* Construct the entry in the list of active files */
-			entry = g_malloc(sizeof(export_object_entry_t));
-			entry->payload_data=NULL;
-			entry->payload_len=0;
-			new_file = g_malloc(sizeof(active_file));
-			new_file->tid=incoming_file.tid;
-			new_file->uid=incoming_file.uid;
-			new_file->fid=incoming_file.fid;
-			new_file->file_length = eo_info->end_of_file;
-			new_file->flag_contains=contains;
-                        new_file->free_chunk_list=NULL;
-			new_file->data_gathered=0;
-			new_file->is_out_of_memory=FALSE;
-			entry->pkt_num = pinfo->fd->num;
-			entry->hostname = g_strdup(eo_info->hostname);
-			if (g_str_has_prefix(eo_info->filename,"\\")) {
-				aux_string_v = g_strsplit(eo_info->filename, "\\", -1);
-				entry->filename = g_strdup(aux_string_v[g_strv_length(aux_string_v)-1]);
-				g_strfreev(aux_string_v);
-			} else {
-				entry->filename = g_strdup(eo_info->filename);
-			}
-
-			/* Insert the first chunk in the chunk list of this file */
-			if (is_supported_filetype) {
-				insert_chunk(new_file, entry, eo_info);
-			}
-
-			if(new_file->is_out_of_memory) {
-				entry->content_type =
-					g_strdup_printf("%s (%"G_GUINT64_FORMAT"?/%"G_GUINT64_FORMAT") %s [mem!!]",
-					match_strval(eo_info->fid_type, smb_fid_types),
-					new_file->data_gathered,
-					new_file->file_length,
-					match_strval(contains, smb_eo_contains_string));
-			} else {
+		if(new_file->is_out_of_memory) {
+			entry->content_type =
+				g_strdup_printf("%s (%"G_GUINT64_FORMAT"?/%"G_GUINT64_FORMAT") %s [mem!!]",
+						match_strval(eo_info->fid_type, smb_fid_types),
+						new_file->data_gathered,
+						new_file->file_length,
+						match_strval(contains, smb_eo_contains_string));
+		} else {
+			if (new_file->file_length > 0) {
 				percent=(gfloat) 100*new_file->data_gathered/new_file->file_length;
-				entry->content_type =
-					g_strdup_printf("%s (%"G_GUINT64_FORMAT"/%"G_GUINT64_FORMAT") %s [%5.2f%%]",
-					match_strval(eo_info->fid_type, smb_fid_types),
-					new_file->data_gathered,
-					new_file->file_length,
-					match_strval(contains, smb_eo_contains_string),
-					percent);
-			}
-
-			object_list->entries =
-				g_slist_append(object_list->entries, entry);
-			GSL_active_files =
-				g_slist_append(GSL_active_files, new_file);
-			}
-		else if (is_supported_filetype) {
-			current_file=g_slist_nth_data(GSL_active_files,active_row);
-			/* Recalculate the current file flags */
-			current_file->flag_contains=current_file->flag_contains|contains;
-			current_entry=g_slist_nth_data(object_list->entries,active_row);
-
-			insert_chunk(current_file, current_entry, eo_info);
-
-			/* Modify the current_entry object_type string */
-			if(current_file->is_out_of_memory) {
-				current_entry->content_type =
-					g_strdup_printf("%s (%"G_GUINT64_FORMAT"?/%"G_GUINT64_FORMAT") %s [mem!!]",
-					match_strval(eo_info->fid_type, smb_fid_types),
-					current_file->data_gathered,
-					current_file->file_length,
-					match_strval(current_file->flag_contains, smb_eo_contains_string));
 			} else {
-				percent=(gfloat) 100*current_file->data_gathered/current_file->file_length;
-				current_entry->content_type =
-					g_strdup_printf("%s (%"G_GUINT64_FORMAT"/%"G_GUINT64_FORMAT") %s [%5.2f%%]",
-					match_strval(eo_info->fid_type, smb_fid_types),
-					current_file->data_gathered,
-					current_file->file_length,
-					match_strval(current_file->flag_contains, smb_eo_contains_string),
-					percent);
+				percent = 0.0;
 			}
+
+			entry->content_type =
+				g_strdup_printf("%s (%"G_GUINT64_FORMAT"/%"G_GUINT64_FORMAT") %s [%5.2f%%]",
+						match_strval(eo_info->fid_type, smb_fid_types),
+						new_file->data_gathered,
+						new_file->file_length,
+						match_strval(contains, smb_eo_contains_string),
+						percent);
 		}
-		return 1; /* State changed - window should be redrawn */
+
+		object_list->entries =
+			g_slist_append(object_list->entries, entry);
+		GSL_active_files =
+			g_slist_append(GSL_active_files, new_file);
 	}
-	else {
-		return 0; /* State unchanged - no window updates needed */
+	else if (is_supported_filetype) {
+		current_file=g_slist_nth_data(GSL_active_files,active_row);
+		/* Recalculate the current file flags */
+		current_file->flag_contains=current_file->flag_contains|contains;
+		current_entry=g_slist_nth_data(object_list->entries,active_row);
+
+		insert_chunk(current_file, current_entry, eo_info);
+
+		/* Modify the current_entry object_type string */
+		if(current_file->is_out_of_memory) {
+			current_entry->content_type =
+				g_strdup_printf("%s (%"G_GUINT64_FORMAT"?/%"G_GUINT64_FORMAT") %s [mem!!]",
+						match_strval(eo_info->fid_type, smb_fid_types),
+						current_file->data_gathered,
+						current_file->file_length,
+						match_strval(current_file->flag_contains, smb_eo_contains_string));
+		} else {
+			percent=(gfloat) 100*current_file->data_gathered/current_file->file_length;
+			current_entry->content_type =
+				g_strdup_printf("%s (%"G_GUINT64_FORMAT"/%"G_GUINT64_FORMAT") %s [%5.2f%%]",
+						match_strval(eo_info->fid_type, smb_fid_types),
+						current_file->data_gathered,
+						current_file->file_length,
+						match_strval(current_file->flag_contains, smb_eo_contains_string),
+						percent);
+		}
 	}
+
+	return TRUE; /* State changed - window should be redrawn */
 }
 
 void
 eo_smb_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
-	int 	i=0,last;
+	int 	         i,last;
 	active_file	*in_list_file;
 
 	/* Free any previous data structures used in previous invocation to the
@@ -486,11 +465,11 @@ eo_smb_cb(GtkWidget *widget _U_, gpointer data _U_)
 	}
 
 	/* Initialize the tree */
-	if (btree_visited_packet) {
-		g_tree_destroy(btree_visited_packet);
-		btree_visited_packet=NULL;
+	if (visited_packet_hash_table) {
+		g_hash_table_destroy(visited_packet_hash_table);
+		visited_packet_hash_table=NULL;
 	}
-	btree_visited_packet=g_tree_new_full(btree_visited_packet_cmpkey,NULL,g_free,g_free);
+	visited_packet_hash_table=g_hash_table_new(NULL,NULL);
 
 	/* Then call the export_object window */
 	export_object_window("smb_eo", "SMB", eo_smb_packet);
