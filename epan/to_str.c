@@ -367,7 +367,7 @@ time_secs_to_str(const gint32 time_val)
   buf=ep_strbuf_sized_new(TIME_SECS_LEN+1, TIME_SECS_LEN+1);
 
   if (time_val == 0) {
-    ep_strbuf_append(buf, "0 time");
+    ep_strbuf_append(buf, "0 seconds");
     return buf->str;
   }
 
@@ -420,7 +420,7 @@ time_secs_to_str_unsigned(const guint32 time_val)
   buf=ep_strbuf_sized_new(TIME_SECS_LEN+1, TIME_SECS_LEN+1);
 
   if (time_val == 0) {
-    ep_strbuf_append(buf, "0 time");
+    ep_strbuf_append(buf, "0 seconds");
     return buf->str;
   }
 
@@ -438,7 +438,7 @@ time_msecs_to_str(gint32 time_val)
   buf=ep_strbuf_sized_new(TIME_SECS_LEN+1+3+1, TIME_SECS_LEN+1+3+1);
 
   if (time_val == 0) {
-    ep_strbuf_append(buf, "0 time");
+    ep_strbuf_append(buf, "0 seconds");
     return buf->str;
   }
 
