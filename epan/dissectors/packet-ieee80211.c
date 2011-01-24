@@ -3942,6 +3942,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
           case CAT_TDLS:
           {
             guint8 code;
+            guint16 status;
             guint start = offset;
 
             offset += add_fixed_field(action_tree, tvb, offset,
@@ -3957,16 +3958,36 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                                         FIELD_CAP_INFO);
               break;
             case TDLS_SETUP_RESPONSE:
+              status = tvb_get_letohs(tvb, offset);
               offset += add_fixed_field(action_tree, tvb, offset,
                                         FIELD_STATUS_CODE);
               offset += add_fixed_field(action_tree, tvb, offset,
                                         FIELD_DIALOG_TOKEN);
+              if (tvb_reported_length_remaining(tvb, offset) < 2) {
+                if (status == 0) {
+                  expert_add_info_format(g_pinfo, action_item,
+                                         PI_MALFORMED, PI_ERROR,
+                                         "TDLS Setup Response (success) "
+                                         "does not include mandatory fields");
+                }
+                break;
+              }
               offset += add_fixed_field(action_tree, tvb, offset,
                                         FIELD_CAP_INFO);
               break;
             case TDLS_SETUP_CONFIRM:
+              status = tvb_get_letohs(tvb, offset);
               offset += add_fixed_field(action_tree, tvb, offset,
                                         FIELD_STATUS_CODE);
+              if (tvb_reported_length_remaining(tvb, offset) < 1) {
+                if (status == 0) {
+                  expert_add_info_format(g_pinfo, action_item,
+                                         PI_MALFORMED, PI_ERROR,
+                                         "TDLS Setup Confirm (success) does "
+                                         "not include mandatory fields");
+                }
+                break;
+              }
               offset += add_fixed_field(action_tree, tvb, offset,
                                         FIELD_DIALOG_TOKEN);
               break;
