@@ -38,46 +38,14 @@ Wireshark Info
 
         <listitem>
           <para>
-            FRAsse discovered that the MAC-LTE dissector could overflow a buffer.
-            <!-- Fixed in trunk: r35292 -->
-            <!-- Fixed in trunk-1.4: r35457 -->
-            <!-- Fixed in trunk-1.2: r35469 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5530">Bug
-            5530</ulink>)
+            ?.
+            <!-- Fixed in trunk: r????? -->
+            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.2: r????? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
+            ????</ulink>)
           </para>
-          <para>Versions affected: 1.2.0 to 1.2.13 and 1.4.0 to 1.4.2.</para>
-<!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
-          </para>
--->
-        </listitem>
-
-        <listitem>
-          <para>
-            FRAsse discovered that the ENTTEC dissector could overflow a buffer.
-            <!-- Fixed in trunk: r35318 -->
-            <!-- Fixed in trunk-1.4: r35458 -->
-            <!-- Fixed in trunk-1.2: r35471 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5539">Bug
-            5539</ulink>)
-          </para>
-          <para>Versions affected: 1.2.0 to 1.2.13 and 1.4.0 to 1.4.2.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-4538">CVE-2010-4538</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The ASN.1 BER dissector could assert and make Wireshark exit
-            prematurely.
-            <!-- Fixed in trunk: r35342 -->
-            <!-- Fixed in trunk-1.4: r35464 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5537">Bug
-            5537</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.2.</para>
+          <para>Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3.</para>
 <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-????">CVE-2010-????</ulink>
@@ -102,150 +70,6 @@ Wireshark Info
           0000</ulink>)
         </para></listitem>
 -->
-
-        <listitem><para>
-          AMQP failed assertion.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4048">Bug
-          4048</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Reassemble.c leaks memory for GLIB > 2.8.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4141">Bug
-          4141</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Fuzz testing reports possible dissector bug: TCP.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4211">Bug
-          4211</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wrong length calculation in new_octet_aligned_subset_bits() (PER dissector).
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5393">Bug
-          5393</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Function dissect_per_bit_string_display might read more bytes than available (PER dissector).
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5394">Bug
-          5394</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Cannot load wpcap.dll &amp; packet.dll from Wireshark program directory.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5420">Bug
-          5420</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark crashes with Copy -> Description on date/time fields.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5421">Bug
-          5421</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          DHCPv6 OPTION_CLIENT_FQDN parse error.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5426">Bug
-          5426</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Information element Error for supported channels.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5430">Bug
-          5430</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Assert when using ASN.1 dissector with loading a 'type table'.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5447">Bug
-          5447</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Bug with RWH parsing in Infiniband dissector.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5444">Bug
-          5444</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Help->About Wireshark mis-reports OS.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5453">Bug
-          5453</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Delegated-IPv6-Prefix(123) is shown incorrect as X-Ascend-Call-Attempt-Limit(123).
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5455">Bug
-          5455</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          "tshark -r file -T fields" is truncating exported data.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5463">Bug
-          5463</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          gsm_a_dtap: incorrect "Extraneous Data" when decoding Packet Flow Identifier.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5475">Bug
-          5475</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Improper decode of TLS 1.2 packet containing both CertificateRequest and ServerHelloDone messages.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5485">Bug
-          5485</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          LTE-PDCP UL and DL problem.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5505">Bug
-          5505</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          CIGI 3.2/3.3 support broken.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5510">Bug
-          5510</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Prepare Filter in RTP Streams dialog does not work correctly.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5513">Bug
-          5513</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wrong decode at ethernet OAM Y.1731 ETH-CC.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5517">Bug
-          5517</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          WPS: RF bands decryption.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5523">Bug
-          5523</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Incorrect LTP SDNV value handling.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5521">Bug
-          5521</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          LTP bug found by randpkt.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5323">Bug
-          5323</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Buffer overflow in SNMP EngineID preferences.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5530">Bug
-          5530</ulink>)
-        </para></listitem>
 
       </itemizedlist>
 
