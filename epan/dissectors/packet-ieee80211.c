@@ -1239,71 +1239,71 @@ static int hf_ieee80211_ff_qos_info_sta_q_ack = -1;
 static int hf_ieee80211_ff_qos_info_sta_max_sp_len = -1;
 static int hf_ieee80211_ff_qos_info_sta_more_data_ack = -1;
 
-static int ff_sm_pwr_save = -1;
-static int ff_sm_pwr_save_enabled = -1;
-static int ff_sm_pwr_save_sm_mode = -1;
-static int ff_sm_pwr_save_reserved = -1;
+static int hf_ieee80211_ff_sm_pwr_save = -1;
+static int hf_ieee80211_ff_sm_pwr_save_enabled = -1;
+static int hf_ieee80211_ff_sm_pwr_save_sm_mode = -1;
+static int hf_ieee80211_ff_sm_pwr_save_reserved = -1;
 
-static int ff_pco_phase_cntrl = -1;
+static int hf_ieee80211_ff_pco_phase_cntrl = -1;
 
-static int ff_psmp_param_set = -1;
-static int ff_psmp_param_set_n_sta = -1;
-static int ff_psmp_param_set_more_psmp = -1;
-static int ff_psmp_param_set_psmp_sequence_duration = -1;
+static int hf_ieee80211_ff_psmp_param_set = -1;
+static int hf_ieee80211_ff_psmp_param_set_n_sta = -1;
+static int hf_ieee80211_ff_psmp_param_set_more_psmp = -1;
+static int hf_ieee80211_ff_psmp_param_set_psmp_sequence_duration = -1;
 
-static int ff_mimo_cntrl_nc_index = -1;
-static int ff_mimo_cntrl_nr_index = -1;
-static int ff_mimo_cntrl_channel_width = -1;
-static int ff_mimo_cntrl_grouping = -1;
-static int ff_mimo_cntrl_coefficient_size = -1;
-static int ff_mimo_cntrl_codebook_info = -1;
-static int ff_mimo_cntrl_remaining_matrix_segment = -1;
-static int ff_mimo_cntrl_reserved = -1;
-static int ff_mimo_cntrl_sounding_timestamp = -1;
+static int hf_ieee80211_ff_mimo_cntrl_nc_index = -1;
+static int hf_ieee80211_ff_mimo_cntrl_nr_index = -1;
+static int hf_ieee80211_ff_mimo_cntrl_channel_width = -1;
+static int hf_ieee80211_ff_mimo_cntrl_grouping = -1;
+static int hf_ieee80211_ff_mimo_cntrl_coefficient_size = -1;
+static int hf_ieee80211_ff_mimo_cntrl_codebook_info = -1;
+static int hf_ieee80211_ff_mimo_cntrl_remaining_matrix_segment = -1;
+static int hf_ieee80211_ff_mimo_cntrl_reserved = -1;
+static int hf_ieee80211_ff_mimo_cntrl_sounding_timestamp = -1;
 
-static int ff_ant_selection = -1;
-static int ff_ant_selection_0 = -1;
-static int ff_ant_selection_1 = -1;
-static int ff_ant_selection_2 = -1;
-static int ff_ant_selection_3 = -1;
-static int ff_ant_selection_4 = -1;
-static int ff_ant_selection_5 = -1;
-static int ff_ant_selection_6 = -1;
-static int ff_ant_selection_7 = -1;
+static int hf_ieee80211_ff_ant_selection = -1;
+static int hf_ieee80211_ff_ant_selection_0 = -1;
+static int hf_ieee80211_ff_ant_selection_1 = -1;
+static int hf_ieee80211_ff_ant_selection_2 = -1;
+static int hf_ieee80211_ff_ant_selection_3 = -1;
+static int hf_ieee80211_ff_ant_selection_4 = -1;
+static int hf_ieee80211_ff_ant_selection_5 = -1;
+static int hf_ieee80211_ff_ant_selection_6 = -1;
+static int hf_ieee80211_ff_ant_selection_7 = -1;
 
-static int ff_ext_channel_switch_announcement = -1;
+static int hf_ieee80211_ff_ext_channel_switch_announcement = -1;
 
-static int ff_ht_info = -1;
-static int ff_ht_info_information_request = -1;
-static int ff_ht_info_40_mhz_intolerant = -1;
-static int ff_ht_info_sta_chan_width = -1;
-static int ff_ht_info_reserved = -1;
+static int hf_ieee80211_ff_ht_info = -1;
+static int hf_ieee80211_ff_ht_info_information_request = -1;
+static int hf_ieee80211_ff_ht_info_40_mhz_intolerant = -1;
+static int hf_ieee80211_ff_ht_info_sta_chan_width = -1;
+static int hf_ieee80211_ff_ht_info_reserved = -1;
 
-static int ff_ht_action = -1;
+static int hf_ieee80211_ff_ht_action = -1;
 
-static int ff_psmp_sta_info = -1;
-static int ff_psmp_sta_info_dtt_start_offset = -1;
-static int ff_psmp_sta_info_dtt_duration = -1;
-static int ff_psmp_sta_info_sta_id = -1;
-static int ff_psmp_sta_info_utt_start_offset = -1;
-static int ff_psmp_sta_info_utt_duration = -1;
-static int ff_psmp_sta_info_reserved_small= -1;
-static int ff_psmp_sta_info_reserved_large = -1;
-static int ff_psmp_sta_info_psmp_multicast_id = -1;
+static int hf_ieee80211_ff_psmp_sta_info = -1;
+static int hf_ieee80211_ff_psmp_sta_info_dtt_start_offset = -1;
+static int hf_ieee80211_ff_psmp_sta_info_dtt_duration = -1;
+static int hf_ieee80211_ff_psmp_sta_info_sta_id = -1;
+static int hf_ieee80211_ff_psmp_sta_info_utt_start_offset = -1;
+static int hf_ieee80211_ff_psmp_sta_info_utt_duration = -1;
+static int hf_ieee80211_ff_psmp_sta_info_reserved_small= -1;
+static int hf_ieee80211_ff_psmp_sta_info_reserved_large = -1;
+static int hf_ieee80211_ff_psmp_sta_info_psmp_multicast_id = -1;
 
-static int ff_mimo_csi_snr = -1;
+static int hf_ieee80211_ff_mimo_csi_snr = -1;
 
 #ifdef MESH_OVERRIDES
 
 /*** Begin: Mesh Frame Format ***/
-static int ff_mesh_mgt_action_ps_code = -1;/* Mesh Management path selection action code */
-static int ff_mesh_mgt_action_pl_code = -1;/* Mesh Management peer link action code */
-static int ff_mesh_mgt_ie_id = -1;                /* Mesh Management ID */
+static int hf_ieee80211_ff_mesh_mgt_action_ps_code = -1;/* Mesh Management path selection action code */
+static int hf_ieee80211_ff_mesh_mgt_action_pl_code = -1;/* Mesh Management peer link action code */
+static int hf_ieee80211_ff_mesh_mgt_ie_id = -1;                /* Mesh Management ID */
 /* NB: see above for more items */
-static int ff_mesh_mgt_dest_flags= -1;     /* Mesh Management destination flags */
-static int ff_mesh_mgt_srccount = -1;  /* Mesh Management src count */
-static int ff_mesh_mgt_dest_do_flags = -1;  /* Mesh Management Destination Only flag */
-static int ff_mesh_mgt_dest_rf_flags = -1;  /* Mesh Management Reply and Forward flag */
+static int hf_ieee80211_ff_mesh_mgt_dest_flags = -1;     /* Mesh Management destination flags */
+static int hf_ieee80211_ff_mesh_mgt_srccount = -1;  /* Mesh Management src count */
+static int hf_ieee80211_ff_mesh_mgt_dest_do_flags = -1;  /* Mesh Management Destination Only flag */
+static int hf_ieee80211_ff_mesh_mgt_dest_rf_flags = -1;  /* Mesh Management Reply and Forward flag */
 
 
 /* variable header fields */
@@ -1853,25 +1853,15 @@ static gint ett_tag_neighbor_report_sub_tag_tree = -1;
 
 static gint ett_ff_ba_param_tree = -1;
 static gint ett_ff_ba_ssc_tree = -1;
-
 static gint ett_ff_delba_param_tree = -1;
-
 static gint ett_ff_qos_info = -1;
-
 static gint ett_ff_sm_pwr_save = -1;
-
 static gint ett_ff_psmp_param_set = -1;
-
 static gint ett_ff_mimo_cntrl = -1;
-
 static gint ett_ff_ant_sel = -1;
-
 static gint ett_mimo_report = -1;
-
 static gint ett_ff_chan_switch_announce = -1;
-
 static gint ett_ff_ht_info = -1;
-
 static gint ett_ff_psmp_sta_info = -1;
 
 static gint ett_msdu_aggregation_parent_tree = -1;
@@ -2213,7 +2203,7 @@ int add_mimo_csi_matrices_report (proto_tree *tree, tvbuff_t *tvb, int offset, m
     guint8 snr;
 
     snr = tvb_get_guint8(tvb, offset);
-    proto_tree_add_uint_format(snr_tree, ff_mimo_csi_snr, tvb, offset, 1, snr, "Channel %d - Signal to Noise Ratio: 0x%02X", i, snr);
+    proto_tree_add_uint_format(snr_tree, hf_ieee80211_ff_mimo_csi_snr, tvb, offset, 1, snr, "Channel %d - Signal to Noise Ratio: 0x%02X", i, snr);
     offset++;
   }
 
@@ -2241,7 +2231,7 @@ int add_mimo_beamforming_feedback_report (proto_tree *tree, tvbuff_t *tvb, int o
     guint8 snr;
 
     snr = tvb_get_guint8(tvb, offset);
-    proto_tree_add_uint_format(snr_tree, ff_mimo_csi_snr, tvb, offset, 1, snr, "Stream %d - Signal to Noise Ratio: 0x%02X", i, snr);
+    proto_tree_add_uint_format(snr_tree, hf_ieee80211_ff_mimo_csi_snr, tvb, offset, 1, snr, "Stream %d - Signal to Noise Ratio: 0x%02X", i, snr);
     offset++;
   }
 
@@ -2269,7 +2259,7 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
     guint8 snr;
 
     snr = tvb_get_guint8(tvb, offset);
-    proto_tree_add_uint_format(snr_tree, ff_mimo_csi_snr, tvb, offset, 1, snr, "Stream %d - Signal to Noise Ratio: 0x%02X", i, snr);
+    proto_tree_add_uint_format(snr_tree, hf_ieee80211_ff_mimo_csi_snr, tvb, offset, 1, snr, "Stream %d - Signal to Noise Ratio: 0x%02X", i, snr);
     offset++;
   }
 
@@ -3162,12 +3152,12 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 #ifdef MESH_OVERRIDES
     /* Mesh Management */
     case FIELD_MESH_MGT_ACTION_PS_CODE:
-      proto_tree_add_item (tree, ff_mesh_mgt_action_ps_code, tvb, offset, 1, TRUE);
+      proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_action_ps_code, tvb, offset, 1, TRUE);
       length += 1;
       break;
 
     case FIELD_MESH_MGT_ACTION_PL_CODE:
-      proto_tree_add_item (tree, ff_mesh_mgt_action_pl_code, tvb, offset, 1, TRUE);
+      proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_action_pl_code, tvb, offset, 1, TRUE);
       length += 1;
       break;
 #endif /* MESH_OVERRIDES */
@@ -3300,18 +3290,18 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 
         info = tvb_get_guint8 (tvb, offset);
 
-        info_item = proto_tree_add_uint(tree, ff_sm_pwr_save, tvb, offset, 1, info);
+        info_item = proto_tree_add_uint(tree, hf_ieee80211_ff_sm_pwr_save, tvb, offset, 1, info);
         info_tree = proto_item_add_subtree (info_item, ett_ff_sm_pwr_save);
 
-        proto_tree_add_boolean(info_tree, ff_sm_pwr_save_enabled, tvb, offset, 1, info);
-        proto_tree_add_boolean(info_tree, ff_sm_pwr_save_sm_mode, tvb, offset, 1, info);
-        proto_tree_add_uint(info_tree, ff_sm_pwr_save_reserved, tvb, offset, 1, info);
+        proto_tree_add_boolean(info_tree, hf_ieee80211_ff_sm_pwr_save_enabled, tvb, offset, 1, info);
+        proto_tree_add_boolean(info_tree, hf_ieee80211_ff_sm_pwr_save_sm_mode, tvb, offset, 1, info);
+        proto_tree_add_uint(info_tree, hf_ieee80211_ff_sm_pwr_save_reserved, tvb, offset, 1, info);
         length +=1;
         break;
       }
 
     case FIELD_PCO_PHASE_CNTRL:
-        proto_tree_add_item(tree, ff_pco_phase_cntrl, tvb, offset, 1, TRUE);
+        proto_tree_add_item(tree, hf_ieee80211_ff_pco_phase_cntrl, tvb, offset, 1, TRUE);
         length +=1;
         break;
 
@@ -3323,12 +3313,12 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 
         params = tvb_get_letohs (tvb, offset);
 
-        param_item = proto_tree_add_uint(tree, ff_psmp_param_set, tvb, offset, 2, params);
+        param_item = proto_tree_add_uint(tree, hf_ieee80211_ff_psmp_param_set, tvb, offset, 2, params);
         param_tree = proto_item_add_subtree (param_item, ett_ff_psmp_param_set);
 
-        proto_tree_add_uint(param_tree, ff_psmp_param_set_n_sta, tvb, offset, 1, params & 0x000F);
-        proto_tree_add_boolean(param_tree, ff_psmp_param_set_more_psmp, tvb, offset, 1, (params & 0x0010) >> 4);
-        proto_tree_add_uint_format(param_tree, ff_psmp_param_set_psmp_sequence_duration, tvb, offset, 2,
+        proto_tree_add_uint(param_tree, hf_ieee80211_ff_psmp_param_set_n_sta, tvb, offset, 1, params & 0x000F);
+        proto_tree_add_boolean(param_tree, hf_ieee80211_ff_psmp_param_set_more_psmp, tvb, offset, 1, (params & 0x0010) >> 4);
+        proto_tree_add_uint_format(param_tree, hf_ieee80211_ff_psmp_param_set_psmp_sequence_duration, tvb, offset, 2,
           (params & 0xFFE0) >> 5, "PSMP Sequence Duration: %u [us]", ((params & 0xFFE0) >> 5) * 8);
         length +=2;
         break;
@@ -3346,18 +3336,18 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         mimo_item = proto_tree_add_text(tree, tvb, offset, 2, "MIMO Control");
         mimo_tree = proto_item_add_subtree (mimo_item, ett_ff_mimo_cntrl);
 
-        proto_tree_add_uint(mimo_tree, ff_mimo_cntrl_nc_index, tvb, offset, 1, mimo);
-        proto_tree_add_uint(mimo_tree, ff_mimo_cntrl_nr_index, tvb, offset, 1, mimo);
-        proto_tree_add_boolean(mimo_tree, ff_mimo_cntrl_channel_width, tvb, offset, 1, mimo);
-        proto_tree_add_uint(mimo_tree, ff_mimo_cntrl_grouping, tvb, offset, 1, mimo);
-        proto_tree_add_uint(mimo_tree, ff_mimo_cntrl_coefficient_size, tvb, offset, 2, mimo);
-        proto_tree_add_uint(mimo_tree, ff_mimo_cntrl_codebook_info, tvb, offset+1, 1, mimo);
-        proto_tree_add_uint(mimo_tree, ff_mimo_cntrl_remaining_matrix_segment, tvb, offset+1, 1, mimo);
-        proto_tree_add_uint(mimo_tree, ff_mimo_cntrl_reserved, tvb, offset+1, 1, mimo);
+        proto_tree_add_uint(mimo_tree, hf_ieee80211_ff_mimo_cntrl_nc_index, tvb, offset, 1, mimo);
+        proto_tree_add_uint(mimo_tree, hf_ieee80211_ff_mimo_cntrl_nr_index, tvb, offset, 1, mimo);
+        proto_tree_add_boolean(mimo_tree, hf_ieee80211_ff_mimo_cntrl_channel_width, tvb, offset, 1, mimo);
+        proto_tree_add_uint(mimo_tree, hf_ieee80211_ff_mimo_cntrl_grouping, tvb, offset, 1, mimo);
+        proto_tree_add_uint(mimo_tree, hf_ieee80211_ff_mimo_cntrl_coefficient_size, tvb, offset, 2, mimo);
+        proto_tree_add_uint(mimo_tree, hf_ieee80211_ff_mimo_cntrl_codebook_info, tvb, offset+1, 1, mimo);
+        proto_tree_add_uint(mimo_tree, hf_ieee80211_ff_mimo_cntrl_remaining_matrix_segment, tvb, offset+1, 1, mimo);
+        proto_tree_add_uint(mimo_tree, hf_ieee80211_ff_mimo_cntrl_reserved, tvb, offset+1, 1, mimo);
 
         offset+=2;
         timestamp = tvb_get_letohl (tvb, offset);
-        proto_tree_add_uint(mimo_tree, ff_mimo_cntrl_sounding_timestamp, tvb, offset, 4, timestamp);
+        proto_tree_add_uint(mimo_tree, hf_ieee80211_ff_mimo_cntrl_sounding_timestamp, tvb, offset, 4, timestamp);
         length +=6;
         break;
       }
@@ -3370,17 +3360,17 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 
         ant = tvb_get_guint8 (tvb, offset);
 
-        ant_item = proto_tree_add_uint(tree, ff_ant_selection, tvb, offset, 1, ant);
+        ant_item = proto_tree_add_uint(tree, hf_ieee80211_ff_ant_selection, tvb, offset, 1, ant);
         ant_tree = proto_item_add_subtree (ant_item, ett_ff_ant_sel);
 
-        proto_tree_add_uint(ant_tree, ff_ant_selection_0, tvb, offset, 1, ant);
-        proto_tree_add_uint(ant_tree, ff_ant_selection_1, tvb, offset, 1, ant);
-        proto_tree_add_uint(ant_tree, ff_ant_selection_2, tvb, offset, 1, ant);
-        proto_tree_add_uint(ant_tree, ff_ant_selection_3, tvb, offset, 1, ant);
-        proto_tree_add_uint(ant_tree, ff_ant_selection_4, tvb, offset, 1, ant);
-        proto_tree_add_uint(ant_tree, ff_ant_selection_5, tvb, offset, 1, ant);
-        proto_tree_add_uint(ant_tree, ff_ant_selection_6, tvb, offset, 1, ant);
-        proto_tree_add_uint(ant_tree, ff_ant_selection_7, tvb, offset, 1, ant);
+        proto_tree_add_uint(ant_tree, hf_ieee80211_ff_ant_selection_0, tvb, offset, 1, ant);
+        proto_tree_add_uint(ant_tree, hf_ieee80211_ff_ant_selection_1, tvb, offset, 1, ant);
+        proto_tree_add_uint(ant_tree, hf_ieee80211_ff_ant_selection_2, tvb, offset, 1, ant);
+        proto_tree_add_uint(ant_tree, hf_ieee80211_ff_ant_selection_3, tvb, offset, 1, ant);
+        proto_tree_add_uint(ant_tree, hf_ieee80211_ff_ant_selection_4, tvb, offset, 1, ant);
+        proto_tree_add_uint(ant_tree, hf_ieee80211_ff_ant_selection_5, tvb, offset, 1, ant);
+        proto_tree_add_uint(ant_tree, hf_ieee80211_ff_ant_selection_6, tvb, offset, 1, ant);
+        proto_tree_add_uint(ant_tree, hf_ieee80211_ff_ant_selection_7, tvb, offset, 1, ant);
 
         length +=1;
         break;
@@ -3394,7 +3384,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 
         ext_chan = tvb_get_letohl (tvb, offset);
 
-        chan_item = proto_tree_add_uint(tree, ff_ext_channel_switch_announcement, tvb, offset, 1, ext_chan);
+        chan_item = proto_tree_add_uint(tree, hf_ieee80211_ff_ext_channel_switch_announcement, tvb, offset, 1, ext_chan);
         chan_tree = proto_item_add_subtree (chan_item, ett_ff_chan_switch_announce);
 
         proto_tree_add_uint(chan_tree, hf_tag_ext_channel_switch_announcement_switch_mode, tvb, offset++, 1, (ext_chan & 0x000000FF));
@@ -3413,19 +3403,19 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 
         info = tvb_get_guint8 (tvb, offset);
 
-        ht_item = proto_tree_add_uint(tree, ff_ht_info, tvb, offset, 1, info);
+        ht_item = proto_tree_add_uint(tree, hf_ieee80211_ff_ht_info, tvb, offset, 1, info);
         ht_tree = proto_item_add_subtree (ht_item, ett_ff_ht_info);
 
-        proto_tree_add_boolean(ht_tree, ff_ht_info_information_request, tvb, offset, 1, info);
-        proto_tree_add_boolean(ht_tree, ff_ht_info_40_mhz_intolerant, tvb, offset, 1, info);
-        proto_tree_add_boolean(ht_tree, ff_ht_info_sta_chan_width, tvb, offset, 1, info);
-        proto_tree_add_uint(ht_tree, ff_ht_info_reserved, tvb, offset, 1, info);
+        proto_tree_add_boolean(ht_tree, hf_ieee80211_ff_ht_info_information_request, tvb, offset, 1, info);
+        proto_tree_add_boolean(ht_tree, hf_ieee80211_ff_ht_info_40_mhz_intolerant, tvb, offset, 1, info);
+        proto_tree_add_boolean(ht_tree, hf_ieee80211_ff_ht_info_sta_chan_width, tvb, offset, 1, info);
+        proto_tree_add_uint(ht_tree, hf_ieee80211_ff_ht_info_reserved, tvb, offset, 1, info);
         length += 1;
         break;
       }
 
     case FIELD_HT_ACTION_CODE:
-        proto_tree_add_uint(tree, ff_ht_action, tvb, offset, 1, tvb_get_guint8 (tvb, offset));
+        proto_tree_add_uint(tree, hf_ieee80211_ff_ht_action, tvb, offset, 1, tvb_get_guint8 (tvb, offset));
         length +=1;
         break;
 
@@ -3445,41 +3435,41 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         info_medium = tvb_get_letohl (tvb, offset);
         type = info_medium & 0x3;
 
-        psmp_item = proto_tree_add_uint(tree, ff_psmp_sta_info, tvb, offset, 8, type);
+        psmp_item = proto_tree_add_uint(tree, hf_ieee80211_ff_psmp_sta_info, tvb, offset, 8, type);
         psmp_tree = proto_item_add_subtree (psmp_item, ett_ff_psmp_sta_info);
 
         switch (type)
           {
             case BROADCAST:
               {
-                proto_tree_add_uint(psmp_tree, ff_psmp_sta_info_dtt_start_offset, tvb, offset, 2, (info_medium & 0x00001FFC) >> 2);
-                proto_tree_add_uint(psmp_tree, ff_psmp_sta_info_dtt_duration, tvb, offset+1, 2, (info_medium & 0x001FE000) >> 13);
+                proto_tree_add_uint(psmp_tree, hf_ieee80211_ff_psmp_sta_info_dtt_start_offset, tvb, offset, 2, (info_medium & 0x00001FFC) >> 2);
+                proto_tree_add_uint(psmp_tree, hf_ieee80211_ff_psmp_sta_info_dtt_duration, tvb, offset+1, 2, (info_medium & 0x001FE000) >> 13);
                 info_large = tvb_get_letoh64 (tvb, offset);
-                proto_tree_add_uint64(psmp_tree, ff_psmp_sta_info_reserved_large, tvb, offset, 6, (info_large & G_GINT64_CONSTANT(0xFFFFFFFFFFE00000)) >> 21);
+                proto_tree_add_uint64(psmp_tree, hf_ieee80211_ff_psmp_sta_info_reserved_large, tvb, offset, 6, (info_large & G_GINT64_CONSTANT(0xFFFFFFFFFFE00000)) >> 21);
                 break;
               }
 
             case MULTICAST:
               {
-                proto_tree_add_uint(psmp_tree, ff_psmp_sta_info_dtt_start_offset, tvb, offset, 2, (info_medium & 0x00001FFC) >> 2);
-                proto_tree_add_uint(psmp_tree, ff_psmp_sta_info_dtt_duration, tvb, offset+1, 2, (info_medium & 0x001FE000) >> 13);
+                proto_tree_add_uint(psmp_tree, hf_ieee80211_ff_psmp_sta_info_dtt_start_offset, tvb, offset, 2, (info_medium & 0x00001FFC) >> 2);
+                proto_tree_add_uint(psmp_tree, hf_ieee80211_ff_psmp_sta_info_dtt_duration, tvb, offset+1, 2, (info_medium & 0x001FE000) >> 13);
                 info_large = tvb_get_letoh64 (tvb, offset);
-                proto_tree_add_uint64(psmp_tree, ff_psmp_sta_info_psmp_multicast_id, tvb, offset, 6, (info_large & G_GINT64_CONSTANT(0xFFFFFFFFFFE00000)) >> 21);
+                proto_tree_add_uint64(psmp_tree, hf_ieee80211_ff_psmp_sta_info_psmp_multicast_id, tvb, offset, 6, (info_large & G_GINT64_CONSTANT(0xFFFFFFFFFFE00000)) >> 21);
                 break;
               }
 
             case INDIVIDUALLY_ADDRESSED:
               {
-                proto_tree_add_uint(psmp_tree, ff_psmp_sta_info_dtt_start_offset, tvb, offset, 2, (info_medium & 0x00001FFC) >> 2);
-                proto_tree_add_uint(psmp_tree, ff_psmp_sta_info_dtt_duration, tvb, offset+1, 2, (info_medium & 0x001FE000) >> 13);
+                proto_tree_add_uint(psmp_tree, hf_ieee80211_ff_psmp_sta_info_dtt_start_offset, tvb, offset, 2, (info_medium & 0x00001FFC) >> 2);
+                proto_tree_add_uint(psmp_tree, hf_ieee80211_ff_psmp_sta_info_dtt_duration, tvb, offset+1, 2, (info_medium & 0x001FE000) >> 13);
                 offset+=2;
                 info_medium = tvb_get_letohl (tvb, offset);
-                proto_tree_add_uint(psmp_tree, ff_psmp_sta_info_sta_id, tvb, offset, 3, (info_medium & 0x001FFFE0) >> 5);
-                proto_tree_add_uint(psmp_tree, ff_psmp_sta_info_utt_start_offset, tvb, offset+2, 2, (info_medium & 0xFFE00000) >> 21);
+                proto_tree_add_uint(psmp_tree, hf_ieee80211_ff_psmp_sta_info_sta_id, tvb, offset, 3, (info_medium & 0x001FFFE0) >> 5);
+                proto_tree_add_uint(psmp_tree, hf_ieee80211_ff_psmp_sta_info_utt_start_offset, tvb, offset+2, 2, (info_medium & 0xFFE00000) >> 21);
                 offset+=4;
                 info_small = tvb_get_letohs (tvb, offset);
-                proto_tree_add_uint(psmp_tree, ff_psmp_sta_info_utt_duration, tvb, offset, 2, info_small & 0x03FF);
-                proto_tree_add_uint(psmp_tree, ff_psmp_sta_info_reserved_small, tvb, offset+1, 1, (info_small & 0xFC00) >> 10);
+                proto_tree_add_uint(psmp_tree, hf_ieee80211_ff_psmp_sta_info_utt_duration, tvb, offset, 2, info_small & 0x03FF);
+                proto_tree_add_uint(psmp_tree, hf_ieee80211_ff_psmp_sta_info_reserved_small, tvb, offset+1, 1, (info_small & 0xFC00) >> 10);
                 break;
               }
           }
@@ -6487,10 +6477,10 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_metric, tvb, offset + 21, 4, TRUE);
         proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_dstcount, tvb, offset + 25, 1, TRUE);
         flags = tvb_get_letohs (tvb, offset + 26);
-        item = proto_tree_add_item (tree, ff_mesh_mgt_dest_flags, tvb, offset + 26, 1, TRUE);
+        item = proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_dest_flags, tvb, offset + 26, 1, TRUE);
         subtree = proto_item_add_subtree(item, ett_msh_dest_flags_tree);
-        proto_tree_add_boolean(subtree, ff_mesh_mgt_dest_do_flags, tvb, offset + 26, 1, flags);
-        proto_tree_add_boolean(subtree, ff_mesh_mgt_dest_rf_flags, tvb, offset + 26, 1, flags);
+        proto_tree_add_boolean(subtree, hf_ieee80211_ff_mesh_mgt_dest_do_flags, tvb, offset + 26, 1, flags);
+        proto_tree_add_boolean(subtree, hf_ieee80211_ff_mesh_mgt_dest_rf_flags, tvb, offset + 26, 1, flags);
         proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_da, tvb, offset + 27, 6, FALSE);
         proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_dsn, tvb, offset + 33, 4, TRUE);
         break;
@@ -6516,7 +6506,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       {
         offset += 2;
         proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_flags, tvb, offset, 1, TRUE);
-        proto_tree_add_item (tree, ff_mesh_mgt_srccount, tvb, offset + 1, 1, FALSE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_srccount, tvb, offset + 1, 1, FALSE);
         proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_sa, tvb, offset + 2, 6, FALSE);
         proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_ssn, tvb, offset + 8, 4, TRUE);
         break;
@@ -11795,179 +11785,179 @@ proto_register_ieee80211 (void)
      {"More Data Ack", "wlan_mgt.fixed.qosinfo.sta.moredataack",
       FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_more_data_ack_flag), 0x80, NULL, HFILL }},
 
-    {&ff_sm_pwr_save,
+    {&hf_ieee80211_ff_sm_pwr_save,
      {"Spatial Multiplexing (SM) Power Control", "wlan_mgt.fixed.sm.powercontrol",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
-    {&ff_sm_pwr_save_enabled,
+    {&hf_ieee80211_ff_sm_pwr_save_enabled,
      {"SM Power Save", "wlan_mgt.fixed.sm.powercontrol.enabled",
       FT_BOOLEAN, 8, TFS (&tfs_enabled_disabled), 0x01, "Spatial Multiplexing (SM) Power Save", HFILL }},
 
-    {&ff_sm_pwr_save_sm_mode,
+    {&hf_ieee80211_ff_sm_pwr_save_sm_mode,
      {"SM Mode", "wlan_mgt.fixed.sm.powercontrol.mode",
       FT_BOOLEAN, 8, TFS (&ff_sm_pwr_save_sm_mode_flag), 0x02, "Spatial Multiplexing (SM) Mode", HFILL }},
 
-    {&ff_sm_pwr_save_reserved,
+    {&hf_ieee80211_ff_sm_pwr_save_reserved,
      {"Reserved", "wlan_mgt.fixed.sm.powercontrol.reserved",
       FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL }},
 
-    {&ff_pco_phase_cntrl,
+    {&hf_ieee80211_ff_pco_phase_cntrl,
      {"Phased Coexistence Operation (PCO) Phase Control", "wlan_mgt.fixed.pco.phasecntrl",
       FT_BOOLEAN, BASE_NONE, TFS (&ff_pco_phase_cntrl_flag), 0x0, NULL, HFILL }},
 
-    {&ff_psmp_param_set,
+    {&hf_ieee80211_ff_psmp_param_set,
      {"Power Save Multi-Poll (PSMP) Parameter Set", "wlan_mgt.fixed.psmp.paramset",
       FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL }},
 
-    {&ff_psmp_param_set_n_sta,
+    {&hf_ieee80211_ff_psmp_param_set_n_sta,
      {"Number of STA Info Fields Present", "wlan_mgt.fixed.psmp.paramset.nsta",
       FT_UINT8, BASE_HEX, 0, 0, NULL, HFILL }},
 
-    {&ff_psmp_param_set_more_psmp,
+    {&hf_ieee80211_ff_psmp_param_set_more_psmp,
      {"More PSMP", "wlan_mgt.fixed.psmp.paramset.more",
       FT_BOOLEAN, BASE_NONE, TFS(&ff_psmp_param_set_more_psmp_flag), 0x0, "More Power Save Multi-Poll (PSMP)", HFILL }},
 
-    {&ff_psmp_param_set_psmp_sequence_duration,
+    {&hf_ieee80211_ff_psmp_param_set_psmp_sequence_duration,
      {"PSMP Sequence Duration", "wlan_mgt.fixed.psmp.paramset.seqduration",
       FT_UINT16, BASE_DEC, 0, 0, "Power Save Multi-Poll (PSMP) Sequence Duration", HFILL }},
 
-    {&ff_mimo_cntrl_nc_index,
+    {&hf_ieee80211_ff_mimo_cntrl_nc_index,
      {"Nc Index", "wlan_mgt.fixed.mimo.control.ncindex",
       FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_nc_index_flags), 0x0003, "Number of Columns Less One", HFILL }},
 
-    {&ff_mimo_cntrl_nr_index,
+    {&hf_ieee80211_ff_mimo_cntrl_nr_index,
      {"Nr Index", "wlan_mgt.fixed.mimo.control.nrindex",
       FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_nr_index_flags), 0x000C, "Number of Rows Less One", HFILL }},
 
-    {&ff_mimo_cntrl_channel_width,
+    {&hf_ieee80211_ff_mimo_cntrl_channel_width,
      {"Channel Width", "wlan_mgt.fixed.mimo.control.chanwidth",
       FT_BOOLEAN, 16, TFS(&ff_mimo_cntrl_channel_width_flag), 0x0010, NULL, HFILL }},
 
-    {&ff_mimo_cntrl_grouping,
+    {&hf_ieee80211_ff_mimo_cntrl_grouping,
      {"Grouping (Ng)", "wlan_mgt.fixed.mimo.control.grouping",
       FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_grouping_flags), 0x0060, NULL, HFILL }},
 
-    {&ff_mimo_cntrl_coefficient_size,
+    {&hf_ieee80211_ff_mimo_cntrl_coefficient_size,
      {"Coefficient Size (Nb)", "wlan_mgt.fixed.mimo.control.cosize",
       FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_coefficient_size_flags), 0x0180, NULL, HFILL }},
 
-    {&ff_mimo_cntrl_codebook_info,
+    {&hf_ieee80211_ff_mimo_cntrl_codebook_info,
      {"Codebook Information", "wlan_mgt.fixed.mimo.control.codebookinfo",
       FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_codebook_info_flags), 0x0600, NULL, HFILL }},
 
-    {&ff_mimo_cntrl_remaining_matrix_segment,
+    {&hf_ieee80211_ff_mimo_cntrl_remaining_matrix_segment,
      {"Remaining Matrix Segment", "wlan_mgt.fixed.mimo.control.matrixseg",
       FT_UINT16, BASE_HEX, 0, 0x3800, NULL, HFILL }},
 
-    {&ff_mimo_cntrl_reserved,
+    {&hf_ieee80211_ff_mimo_cntrl_reserved,
      {"Reserved", "wlan_mgt.fixed.mimo.control.reserved",
       FT_UINT16, BASE_HEX, 0, 0xC000, NULL, HFILL }},
 
-    {&ff_mimo_cntrl_sounding_timestamp,
+    {&hf_ieee80211_ff_mimo_cntrl_sounding_timestamp,
      {"Sounding Timestamp", "wlan_mgt.fixed.mimo.control.soundingtime",
       FT_UINT32, BASE_HEX, 0, 0, NULL, HFILL }},
 
-    {&ff_psmp_sta_info,
+    {&hf_ieee80211_ff_psmp_sta_info,
      {"Power Save Multi-Poll (PSMP) Station Information", "wlan_mgt.fixed.psmp.stainfo",
       FT_UINT8, BASE_HEX, VALS (&ff_psmp_sta_info_flags), 0, NULL, HFILL }},
 
-    {&ff_psmp_sta_info_dtt_start_offset,
+    {&hf_ieee80211_ff_psmp_sta_info_dtt_start_offset,
      {"DTT Start Offset", "wlan_mgt.fixed.psmp.stainfo.dttstart",
       FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL }},
 
-    {&ff_psmp_sta_info_dtt_duration,
+    {&hf_ieee80211_ff_psmp_sta_info_dtt_duration,
      {"DTT Duration", "wlan_mgt.fixed.psmp.stainfo.dttduration",
       FT_UINT8, BASE_HEX, 0, 0, NULL, HFILL }},
 
-    {&ff_psmp_sta_info_sta_id,
+    {&hf_ieee80211_ff_psmp_sta_info_sta_id,
      {"Target Station ID", "wlan_mgt.fixed.psmp.stainfo.staid",
       FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL }},
 
-    {&ff_psmp_sta_info_utt_start_offset,
+    {&hf_ieee80211_ff_psmp_sta_info_utt_start_offset,
      {"UTT Start Offset", "wlan_mgt.fixed.psmp.stainfo.uttstart",
       FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL }},
 
-    {&ff_psmp_sta_info_utt_duration,
+    {&hf_ieee80211_ff_psmp_sta_info_utt_duration,
      {"UTT Duration", "wlan_mgt.fixed.psmp.stainfo.uttduration",
       FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL }},
 
-    {&ff_psmp_sta_info_reserved_small,
+    {&hf_ieee80211_ff_psmp_sta_info_reserved_small,
      {"Reserved", "wlan_mgt.fixed.psmp.stainfo.reserved",
       FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL }},
 
-    {&ff_psmp_sta_info_reserved_large,
+    {&hf_ieee80211_ff_psmp_sta_info_reserved_large,
      {"Reserved", "wlan_mgt.fixed.psmp.stainfo.reserved",
       FT_UINT64, BASE_HEX, 0, 0, NULL, HFILL }},
 
-    {&ff_psmp_sta_info_psmp_multicast_id,
+    {&hf_ieee80211_ff_psmp_sta_info_psmp_multicast_id,
      {"Power Save Multi-Poll (PSMP) Multicast ID", "wlan_mgt.fixed.psmp.stainfo.multicastid",
       FT_UINT64, BASE_HEX, 0, 0, NULL, HFILL }},
 
-    {&ff_ant_selection,
+    {&hf_ieee80211_ff_ant_selection,
      {"Antenna Selection", "wlan_mgt.fixed.antsel",
       FT_UINT8, BASE_HEX, 0, 0, NULL, HFILL }},
 
-    {&ff_ant_selection_0,
+    {&hf_ieee80211_ff_ant_selection_0,
      {"Antenna 0", "wlan_mgt.fixed.antsel.ant0",
       FT_UINT8, BASE_HEX, 0, 0x01, NULL, HFILL }},
 
-    {&ff_ant_selection_1,
+    {&hf_ieee80211_ff_ant_selection_1,
      {"Antenna 1", "wlan_mgt.fixed.antsel.ant1",
       FT_UINT8, BASE_HEX, 0, 0x02, NULL, HFILL }},
 
-    {&ff_ant_selection_2,
+    {&hf_ieee80211_ff_ant_selection_2,
      {"Antenna 2", "wlan_mgt.fixed.antsel.ant2",
       FT_UINT8, BASE_HEX, 0, 0x04, NULL, HFILL }},
 
-    {&ff_ant_selection_3,
+    {&hf_ieee80211_ff_ant_selection_3,
      {"Antenna 3", "wlan_mgt.fixed.antsel.ant3",
       FT_UINT8, BASE_HEX, 0, 0x08, NULL, HFILL }},
 
-    {&ff_ant_selection_4,
+    {&hf_ieee80211_ff_ant_selection_4,
      {"Antenna 4", "wlan_mgt.fixed.antsel.ant4",
       FT_UINT8, BASE_HEX, 0, 0x10, NULL, HFILL }},
 
-    {&ff_ant_selection_5,
+    {&hf_ieee80211_ff_ant_selection_5,
      {"Antenna 5", "wlan_mgt.fixed.antsel.ant5",
       FT_UINT8, BASE_HEX, 0, 0x20, NULL, HFILL }},
 
-    {&ff_ant_selection_6,
+    {&hf_ieee80211_ff_ant_selection_6,
      {"Antenna 6", "wlan_mgt.fixed.antsel.ant6",
       FT_UINT8, BASE_HEX, 0, 0x40, NULL, HFILL }},
 
-    {&ff_ant_selection_7,
+    {&hf_ieee80211_ff_ant_selection_7,
      {"Antenna 7", "wlan_mgt.fixed.antsel.ant7",
       FT_UINT8, BASE_HEX, 0, 0x80, NULL, HFILL }},
 
-    {&ff_ext_channel_switch_announcement,
+    {&hf_ieee80211_ff_ext_channel_switch_announcement,
      {"Extended Channel Switch Announcement", "wlan_mgt.fixed.extchansw",
       FT_UINT32, BASE_HEX, 0, 0, NULL, HFILL }},
 
-    {&ff_ht_info,
+    {&hf_ieee80211_ff_ht_info,
      {"HT Information", "wlan_mgt.fixed.extchansw",
       FT_UINT8, BASE_HEX, 0, 0, "HT Information Fixed Field", HFILL }},
 
-    {&ff_ht_info_information_request,
+    {&hf_ieee80211_ff_ht_info_information_request,
      {"Information Request", "wlan_mgt.fixed.mimo.control.chanwidth",
       FT_BOOLEAN, 8, TFS(&ff_ht_info_information_request_flag), 0x01, NULL, HFILL }},
 
-    {&ff_ht_info_40_mhz_intolerant,
+    {&hf_ieee80211_ff_ht_info_40_mhz_intolerant,
      {"40 MHz Intolerant", "wlan_mgt.fixed.mimo.control.chanwidth",
       FT_BOOLEAN, 8, TFS(&ff_ht_info_40_mhz_intolerant_flag), 0x02, NULL, HFILL }},
 
-    {&ff_ht_info_sta_chan_width,
+    {&hf_ieee80211_ff_ht_info_sta_chan_width,
      {"Station Channel Width", "wlan_mgt.fixed.mimo.control.chanwidth",
       FT_BOOLEAN, 8, TFS(&ff_ht_info_sta_chan_width_flag), 0x04, NULL, HFILL }},
 
-    {&ff_ht_info_reserved,
+    {&hf_ieee80211_ff_ht_info_reserved,
      {"Reserved", "wlan_mgt.fixed.extchansw",
       FT_UINT8, BASE_HEX, 0, 0xF8, "Reserved Field", HFILL }},
 
-    {&ff_ht_action,
+    {&hf_ieee80211_ff_ht_action,
      {"HT Action", "wlan_mgt.fixed.htact",
       FT_UINT8, BASE_HEX, VALS (&ff_ht_action_flags), 0, "HT Action Code", HFILL }},
 
-    {&ff_mimo_csi_snr,
+    {&hf_ieee80211_ff_mimo_csi_snr,
      {"Signal to Noise Ratio (SNR)", "wlan_mgt.mimo.csimatrices.snr",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
@@ -12152,12 +12142,12 @@ proto_register_ieee80211 (void)
       "Management notification setup response status code", HFILL }},
 
 #ifdef MESH_OVERRIDES
-    {&ff_mesh_mgt_action_ps_code,
+    {&hf_ieee80211_ff_mesh_mgt_action_ps_code,
      {"Action code", "wlan_mgt.fixed.action_code",
       FT_UINT16, BASE_HEX, VALS (&mesh_mgt_action_ps_codes), 0,
       "Mesh Management Path Selection action code", HFILL }},
 
-    {&ff_mesh_mgt_action_pl_code,
+    {&hf_ieee80211_ff_mesh_mgt_action_pl_code,
      {"Action code", "wlan_mgt.fixed.action_code",
       FT_UINT16, BASE_HEX, VALS (&mesh_mgt_action_pl_codes), 0,
       "Mesh Management Peer Link action code", HFILL }},
@@ -12212,26 +12202,26 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_HEX, NULL, 0,
       "Mesh Configuration Capability", HFILL }},
 
-    {&ff_mesh_mgt_ie_id,
+    {&hf_ieee80211_ff_mesh_mgt_ie_id,
      {"Mesh Managment IE ID", "wlan.mesh_ie",
       FT_UINT8, BASE_HEX, VALS (&mesh_mgt_ie_codes), 0,
       "Information Element ID", HFILL }},
 
-    {&ff_mesh_mgt_dest_flags,
+    {&hf_ieee80211_ff_mesh_mgt_dest_flags,
      {"Destination Flags", "wlan.preq.dest_flags",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
-    {&ff_mesh_mgt_dest_do_flags,
+    {&hf_ieee80211_ff_mesh_mgt_dest_do_flags,
      {"Destination Flags", "wlan.preq.dest_flags.do",
       FT_BOOLEAN, 8, TFS (&mesh_dest_do_flags), 0x01,
       "Dest Flags", HFILL }},
 
-    {&ff_mesh_mgt_dest_rf_flags,
+    {&hf_ieee80211_ff_mesh_mgt_dest_rf_flags,
      {"Destination Flags", "wlan.preq.dest_flags.rf",
       FT_BOOLEAN, 8, TFS (&mesh_dest_rf_flags), 0x02,
       "Dest Flags", HFILL }},
 
-    {&ff_mesh_mgt_srccount,
+    {&hf_ieee80211_ff_mesh_mgt_srccount,
      {"Source Count", "wlan.mesh.srccount",
       FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 #endif /* MESH_OVERRIDES */
