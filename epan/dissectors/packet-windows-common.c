@@ -1489,7 +1489,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 				const char *name, char **sid_str, int hf_sid)
 {
 	int offset_sid_start = offset, sa_offset, rid_offset=0, wkwn_sid1_len=0,
-		wkwn_sid2_len, i;
+		wkwn_sid2_len = 0, i;
 	guint8 revision, num_auth;
 	guint32 sa_field, rid=0;
 	guint64 authority=0;
