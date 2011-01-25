@@ -6483,7 +6483,7 @@ de_bssgp_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
  * value part of the Channel Needed IE defined in 3GPP TS 44.018.
  */
 static guint16
-de_bssgp_chnl_needed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+de_bssgp_chnl_needed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
@@ -7324,7 +7324,6 @@ de_bssgp_mbms_session_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 /*
  * 11.3.77	TMGI (Temporary Mobile Group Identity)
  */
-/*
 /* Rest of element coded as in 3GPP TS 24.008, not including 3GPP
  * TS 24.008 IEI and 3GPP TS 24.008 length indicator.
  */
@@ -8196,6 +8195,7 @@ guint16 (*bssgp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	de_bssgp_bucket_full_ratio,									/* 11.3.46	0x3c Bucket Full Ratio */
 	de_bssgp_serv_utran_cco,									/* 11.3.47	0x3d Service UTRAN CCO */
 	de_bssgp_nsei,												/* 11.3.48	0x3e NSEI (Network Service Entity Identifier) */
+        de_bssgp_pfc_flow_ctrl,										/*  11.3.68	PFC Flow Control parameters */
 	NULL,														/* 11.3.69	0x53 Global CN-Id */
 	de_bssgp_mbms_session_id,									/* 11.3.71	MBMS Session Identity */
 	NULL,														/* 11.3.77	TMGI (Temporary Mobile Group Identity) */
