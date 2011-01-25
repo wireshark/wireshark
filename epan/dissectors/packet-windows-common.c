@@ -2820,11 +2820,11 @@ proto_do_register_windows_common(int proto_smb)
 
   		{ &hf_nt_sid_wkwn,
 		  { "Well-known SID", "nt.sid.wkwn", FT_STRING, BASE_NONE,
-		  NULL, 0, "Well-known SID", HFILL }},
+		  NULL, 0, NULL, HFILL }},
 
 		{ &hf_nt_sid_domain,
 		  { "Domain:", "nt.sid.domain", FT_STRING, BASE_NONE,
-		  NULL, 0, "Domain", HFILL }},
+		  NULL, 0, NULL, HFILL }},
 
 		/* ACLs */
 
