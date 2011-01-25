@@ -2628,8 +2628,9 @@ get_hostname6(const struct e_in6_addr *addr)
   gboolean resolve = gbl_resolv_flags & RESOLV_NETWORK;
   hashipv6_t *tp = host_lookup6(addr, resolve, &found);
 
-  if (!resolve || E_IN6_IS_ADDR_LINKLOCAL(addr) || E_IN6_IS_ADDR_MULTICAST(addr))
+  if (!resolve)
     return tp->ip6;
+
   return tp->name;
 }
 
