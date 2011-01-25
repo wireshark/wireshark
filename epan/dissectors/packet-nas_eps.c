@@ -1374,7 +1374,7 @@ de_emm_nas_short_mac(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
  * 9.9.3.32	Tracking area identity
  */
 
-static guint16
+guint16
 de_emm_trac_area_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
