@@ -66,5 +66,6 @@ WS_VAR_IMPORT const true_false_string tfs_used_notused;
 WS_VAR_IMPORT const true_false_string tfs_high_low;
 WS_VAR_IMPORT const true_false_string tfs_pressed_not_pressed;
 WS_VAR_IMPORT const true_false_string tfs_implemented_not_implemented;
-
+WS_VAR_IMPORT const true_false_string tfs_requested_not_requested;
+WS_VAR_IMPORT const true_false_string tfs_reliable_not_reliable;
 #endif

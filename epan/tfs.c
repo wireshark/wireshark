@@ -59,4 +59,6 @@ const true_false_string tfs_used_notused = { "Used", "Not used" };
 const true_false_string tfs_high_low = { "High", "Low" };
 const true_false_string tfs_pressed_not_pressed = { "Pressed", "Not pressed" };
 const true_false_string tfs_implemented_not_implemented = { "Implemented", "Not Implemented" };
+const true_false_string tfs_requested_not_requested = { "Requested", "Not Requested" };
+const true_false_string tfs_reliable_not_reliable = { "Reliable", "Not Reliable" };
 
