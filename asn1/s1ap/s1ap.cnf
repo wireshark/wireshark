@@ -22,6 +22,7 @@ CauseMisc
 
 #.EXPORTS
 ENB-StatusTransfer-TransparentContainer_PDU
+Global-ENB-ID_PDU
 
 #.PDU_NEW
 S1AP-PDU
