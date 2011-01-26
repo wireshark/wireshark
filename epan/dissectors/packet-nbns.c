@@ -1352,7 +1352,7 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /*
- * NetBIOS Session Service message types.
+ * NetBIOS Session Service message types (RFC 1002).
  */
 #define	SESSION_MESSAGE			0x00
 #define	SESSION_REQUEST			0x81
@@ -1493,12 +1493,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	  ti = proto_tree_add_item(tree, proto_nbss, tvb, offset, length + 4, FALSE);
 	  nbss_tree = proto_item_add_subtree(ti, ett_nbss);
 
-	  proto_tree_add_uint_format(nbss_tree, hf_nbss_type, tvb,
-				     offset, 1,
-				     msg_type,
-				     "Message Type: %s",
-				     val_to_str(msg_type, message_types,
-						"Unknown (%x)"));
+	  proto_tree_add_item(nbss_tree, hf_nbss_type, tvb, offset, 1, ENC_NA);
 	}
 
 	offset += 1;
@@ -1928,7 +1923,7 @@ proto_register_nbt(void)
   static hf_register_info hf_nbss[] = {
     { &hf_nbss_type,
       { "Message Type",		"nbss.type",
-	FT_UINT8, BASE_DEC, NULL, 0x0,
+	FT_UINT8, BASE_HEX, VALS(message_types), 0x0,
 	"NBSS message type", HFILL }},
     { &hf_nbss_flags,
       { "Flags",		"nbss.flags",
@@ -1937,11 +1932,11 @@ proto_register_nbt(void)
     { &hf_nbss_length,
       { "Length",		"nbss.length",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"NBSS message length", HFILL }},
+	"Length of trailer (payload) following this field in bytes", HFILL }},
     { &hf_nbss_cifs_length,
       { "Length",		"nbss.length",
 	FT_UINT24, BASE_DEC, NULL, 0x0,
-	"NBSS message length", HFILL }}
+	"Length trailer (payload) following this field in bytes", HFILL }}
   };
   static gint *ett[] = {
     &ett_nbns,
