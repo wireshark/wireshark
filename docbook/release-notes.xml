@@ -96,31 +96,6 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
     <para>
 
-AMQP,
-ASN.1 BER,
-ASN.1 PER,
-CFM,
-CIGI,
-DHCPv6,
-Diameter,
-ENTTEC,
-GSM A GM,
-IEEE 802.11,
-InfiniBand,
-LTE-PDCP,
-LTP,
-MAC-LTE,
-MP2T,
-RADIUS,
-SAMR,
-SCCP,
-SIP,
-SNMP,
-TCP,
-TLS,
-TN3270,
-UNISTIM,
-WPS
 
     </para>
     </section>
@@ -128,7 +103,6 @@ WPS
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-Endace ERF, Microsoft Network Monitor, VMS TCPtrace.
 
     </para>
     </section>
