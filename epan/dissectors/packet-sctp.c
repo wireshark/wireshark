@@ -28,8 +28,9 @@
  * - RFC 3309
  * - RFC 3758
  * - RFC 4460
- * - http://tools.ietf.org/html/draft-ietf-tsvwg-addip-sctp-18
- * - http://tools.ietf.org/html/draft-ietf-tsvwg-sctp-auth-08
+ * - RFC 4895
+ * - RFC 4960
+ * - RFC 5061
  * - http://tools.ietf.org/html/draft-stewart-sctp-pktdrprep-02
  * - http://tools.ietf.org/html/draft-stewart-sctpstrrst-01
  * - http://tools.ietf.org/html/draft-ladha-sctp-nonce-02
@@ -2925,6 +2926,7 @@ dissect_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
   proto_tree *acks_tree;
   guint32 tsns_gap_acked = 0;
   guint32 a_rwnd;
+  guint16 last_end;
 
   flags_tree  = proto_item_add_subtree(flags_item, ett_sctp_sack_chunk_flags);
   proto_tree_add_item(flags_tree, hf_sack_chunk_ns,                    chunk_tvb, CHUNK_FLAGS_OFFSET,                      CHUNK_FLAGS_LENGTH,                      ENC_BIG_ENDIAN);
@@ -2946,6 +2948,7 @@ dissect_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
   acks_tree = proto_item_add_subtree(ctsa_item,ett_sctp_ack);
   sctp_ack_block(pinfo, ha, chunk_tvb, acks_tree, NULL, cum_tsn_ack);
 
+  last_end = 0;
   for(gap_block_number = 1; gap_block_number <= number_of_gap_blocks; gap_block_number++) {
     proto_item *pi;
     proto_tree *pt;
@@ -2974,6 +2977,15 @@ dissect_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
     gap_block_offset += SACK_CHUNK_GAP_BLOCK_LENGTH;
 
     tsns_gap_acked += (end+1 - start);
+
+    /* Check validity */
+    if (start > end) {
+       expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_ERROR, "Malformed gap block");
+    }
+    if (last_end > start) {
+       expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN, "Gap blocks not in strict order");
+    }
+    last_end = end;
   }
 
   if (tsns_gap_acked) {
@@ -3051,6 +3063,7 @@ dissect_nr_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
   proto_tree *acks_tree;
   guint32 tsns_gap_acked = 0;
   guint32 tsns_nr_gap_acked = 0;
+  guint16 last_end;
 
   flags_tree  = proto_item_add_subtree(flags_item, ett_sctp_nr_sack_chunk_flags);
   proto_tree_add_item(flags_tree, hf_nr_sack_chunk_ns, chunk_tvb, CHUNK_FLAGS_OFFSET, CHUNK_FLAGS_LENGTH, ENC_BIG_ENDIAN);
@@ -3072,6 +3085,7 @@ dissect_nr_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
   acks_tree = proto_item_add_subtree(ctsa_item,ett_sctp_ack);
   sctp_ack_block(pinfo, ha, chunk_tvb, acks_tree, NULL, cum_tsn_ack);
 
+  last_end = 0;
   for(gap_block_number = 1; gap_block_number <= number_of_gap_blocks; gap_block_number++) {
     proto_item *pi;
     proto_tree *pt;
@@ -3099,6 +3113,15 @@ dissect_nr_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
     sctp_ack_block(pinfo, ha, chunk_tvb, block_tree, &tsn_start, cum_tsn_ack + end);
     gap_block_offset += NR_SACK_CHUNK_GAP_BLOCK_LENGTH;
     tsns_gap_acked += (end - start) + 1;
+
+    /* Check validity */
+    if (start > end) {
+       expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_ERROR, "Malformed gap block");
+    }
+    if (last_end > start) {
+       expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN, "Gap blocks not in strict order");
+    }
+    last_end = end;
   }
 
   if (tsns_gap_acked) {
@@ -3119,6 +3142,7 @@ dissect_nr_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
   number_of_nr_gap_blocks = tvb_get_ntohs(chunk_tvb, NR_SACK_CHUNK_NUMBER_OF_NR_GAP_BLOCKS_OFFSET);
   nr_gap_block_offset     = gap_block_offset;
 
+  last_end = 0;
   for(nr_gap_block_number = 1; nr_gap_block_number <= number_of_nr_gap_blocks; nr_gap_block_number++) {
     proto_item *pi;
     proto_tree *pt;
@@ -3146,6 +3170,15 @@ dissect_nr_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk
     /* sctp_ack_block(pinfo, ha, chunk_tvb, block_tree, &tsn_start, cum_tsn_ack + end); */
     nr_gap_block_offset += NR_SACK_CHUNK_NR_GAP_BLOCK_LENGTH;
     tsns_nr_gap_acked += (end - start) + 1;
+
+    /* Check validity */
+    if (start > end) {
+       expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_ERROR, "Malformed gap block");
+    }
+    if (last_end > start) {
+       expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN, "Gap blocks not in strict order");
+    }
+    last_end = end;
   }
 
   if (tsns_nr_gap_acked) {
