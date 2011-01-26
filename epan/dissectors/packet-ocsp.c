@@ -52,7 +52,7 @@
 #define PFNAME "ocsp"
 
 /* Initialize the protocol and registered fields */
-proto_ocsp = -1;
+int proto_ocsp = -1;
 static int hf_ocsp_responseType_id = -1;
 
 /*--- Included file: packet-ocsp-hf.c ---*/
