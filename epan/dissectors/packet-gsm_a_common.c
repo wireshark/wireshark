@@ -3096,7 +3096,7 @@ static const value_string gsm_a_pld_xid_vals[] = {
 	{ 0,			NULL }
 };
 guint16
-de_nas_cont_for_ps_ho(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+de_nas_cont_for_ps_ho(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 

@@ -7410,7 +7410,7 @@ de_bssgp_pfcs_to_be_set_up_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
 		pi = proto_tree_add_text(pfc_tree, tvb, curr_offset, 3, "Aggregate BSS QoS Profile(ABQP)");
 		abqp_tree = proto_item_add_subtree(ti2, ett_bssgp_pfcs_to_be_set_up_list_abqp);
 		/* Unsure about length 16 */
-		curr_offset = curr_offset + de_sm_qos(tvb, tree, curr_offset, 16, NULL, NULL);
+		curr_offset = curr_offset + de_sm_qos(tvb, tree, curr_offset, 16, NULL, 0);
 
 		/* Allocation/Retention Priority: Allocation Retention Priority. 
 		 * Coded as the Priority information element, see subclause 11.3.27. 
@@ -7419,7 +7419,7 @@ de_bssgp_pfcs_to_be_set_up_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
 		if(pfc_len>17){
 			pi = proto_tree_add_text(pfc_tree, tvb, curr_offset, 3, "Allocation/Retention Priority");
 			arp_tree = proto_item_add_subtree(ti2, ett_bssgp_pfcs_to_be_set_up_list_arp);
-			curr_offset = curr_offset + be_prio(tvb, arp_tree, curr_offset, 1, NULL, NULL);
+			curr_offset = curr_offset + be_prio(tvb, arp_tree, curr_offset, 1, NULL, 0);
 		}
 		/* T10: T10. 
 		 * Coded as the GPRS Timer information element, see sub-clause 11.3.44.
@@ -10021,7 +10021,7 @@ static void (*bssgp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
 	bssgp_ps_ho_required,			/* 10.4.27 PS-HANDOVER-REQUIRED */
 	bssgp_ps_ho_required_ack,		/* 10.4.28 PS-HANDOVER-REQUIRED-ACK */
 	bssgp_ps_ho_required_nack,		/* 10.4.29 PS-HANDOVER-REQUIRED-NACK */
-	bssgp_ps_ho_request.			/* 10.4.30 PS-HANDOVER-REQUEST */
+	bssgp_ps_ho_request,			/* 10.4.30 PS-HANDOVER-REQUEST */
 	NULL,	/* NONE */
 };
 
