@@ -219,6 +219,8 @@ static int hf_smb2_share_flags_restrict_exclusive_opens = -1;
 static int hf_smb2_share_flags_force_shared_delete = -1;
 static int hf_smb2_share_flags_allow_namespace_caching = -1;
 static int hf_smb2_share_flags_access_based_dir_enum = -1;
+static int hf_smb2_share_flags_force_levelii_oplock = -1;
+static int hf_smb2_share_flags_enable_hash = -1;
 static int hf_smb2_share_caching = -1;
 static int hf_smb2_share_caps = -1;
 static int hf_smb2_share_caps_dfs = -1;
@@ -1914,10 +1916,10 @@ dissect_smb2_ses_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 #define SHARE_FLAGS_no_caching			0x00000030
 
 static const value_string share_cache_vals[] = {
-	{ SHARE_FLAGS_manual_caching,	"manual_caching" },
-	{ SHARE_FLAGS_auto_caching,	"auto_caching" },
-	{ SHARE_FLAGS_vdo_caching,	"vdo_caching" },
-	{ SHARE_FLAGS_no_caching,	"no_caching" },
+	{ SHARE_FLAGS_manual_caching,	"Manual caching" },
+	{ SHARE_FLAGS_auto_caching,	"Auto caching" },
+	{ SHARE_FLAGS_vdo_caching,	"VDO caching" },
+	{ SHARE_FLAGS_no_caching,	"No caching" },
 	{ 0, NULL }
 };
 
@@ -1927,6 +1929,8 @@ static const value_string share_cache_vals[] = {
 #define SHARE_FLAGS_force_shared_delete		0x00000200
 #define SHARE_FLAGS_allow_namespace_caching	0x00000400
 #define SHARE_FLAGS_access_based_dir_enum	0x00000800
+#define SHARE_FLAGS_force_levelii_oplock	0x00001000
+#define SHARE_FLAGS_enable_hash			0x00002000
 
 static int
 dissect_smb2_share_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
@@ -1938,6 +1942,8 @@ dissect_smb2_share_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
 		&hf_smb2_share_flags_force_shared_delete,
 		&hf_smb2_share_flags_allow_namespace_caching,
 		&hf_smb2_share_flags_access_based_dir_enum,
+		&hf_smb2_share_flags_force_levelii_oplock,
+		&hf_smb2_share_flags_enable_hash,
 		NULL
 	};
 	proto_item *item;
@@ -6295,28 +6301,36 @@ proto_register_smb2(void)
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_share_flags_dfs,
-		{ "dfs", "smb2.share_flags.dfs", FT_BOOLEAN, 32,
-		NULL, SHARE_FLAGS_dfs, NULL, HFILL }},
+		{ "DFS", "smb2.share_flags.dfs", FT_BOOLEAN, 32,
+		NULL, SHARE_FLAGS_dfs, "The specified share is present in a Distributed File System (DFS) tree structure", HFILL }},
 
 	{ &hf_smb2_share_flags_dfs_root,
-		{ "dfs_root", "smb2.share_flags.dfs_root", FT_BOOLEAN, 32,
-		NULL, SHARE_FLAGS_dfs_root, NULL, HFILL }},
+		{ "DFS root", "smb2.share_flags.dfs_root", FT_BOOLEAN, 32,
+		NULL, SHARE_FLAGS_dfs_root, "The specified share is present in a Distributed File System (DFS) tree structure", HFILL }},
 
 	{ &hf_smb2_share_flags_restrict_exclusive_opens,
-		{ "restrict_exclusive_opens", "smb2.share_flags.restrict_exclusive_opens", FT_BOOLEAN, 32,
-		NULL, SHARE_FLAGS_restrict_exclusive_opens, NULL, HFILL }},
+		{ "Restrict exclusive opens", "smb2.share_flags.restrict_exclusive_opens", FT_BOOLEAN, 32,
+		NULL, SHARE_FLAGS_restrict_exclusive_opens, "The specified share disallows exclusive file opens that deny reads to an open file", HFILL }},
 
 	{ &hf_smb2_share_flags_force_shared_delete,
-		{ "force_shared_delete", "smb2.share_flags.force_shared_delete", FT_BOOLEAN, 32,
-		NULL, SHARE_FLAGS_force_shared_delete, NULL, HFILL }},
+		{ "Force shared delete", "smb2.share_flags.force_shared_delete", FT_BOOLEAN, 32,
+		NULL, SHARE_FLAGS_force_shared_delete, "Shared files in the specified share can be forcibly deleted", HFILL }},
 
 	{ &hf_smb2_share_flags_allow_namespace_caching,
-		{ "allow_namespace_caching", "smb2.share_flags.allow_namespace_caching", FT_BOOLEAN, 32,
-		NULL, SHARE_FLAGS_allow_namespace_caching, NULL, HFILL }},
+		{ "Allow namepsace caching", "smb2.share_flags.allow_namespace_caching", FT_BOOLEAN, 32,
+		NULL, SHARE_FLAGS_allow_namespace_caching, "Clients are allowed to cache the namespace of the specified share", HFILL }},
 
 	{ &hf_smb2_share_flags_access_based_dir_enum,
-		{ "access_based_dir_enum", "smb2.share_flags.access_based_dir_enum", FT_BOOLEAN, 32,
-		NULL, SHARE_FLAGS_access_based_dir_enum, NULL, HFILL }},
+		{ "Access based directory enum", "smb2.share_flags.access_based_dir_enum", FT_BOOLEAN, 32,
+		NULL, SHARE_FLAGS_access_based_dir_enum, "The server will filter directory entries based on the access permissions of the client", HFILL }},
+
+	{ &hf_smb2_share_flags_force_levelii_oplock,
+	  	{ "Force level II oplock", "smb2.share_flags.force_levelii_oplock", FT_BOOLEAN, 32,
+		NULL, SHARE_FLAGS_force_levelii_oplock, "The server will not issue exclusive caching rights on this share", HFILL }},
+
+	{ &hf_smb2_share_flags_enable_hash,
+	  	{ "Enable hash", "smb2.share_flags.enable_hash", FT_BOOLEAN, 32,
+		NULL, SHARE_FLAGS_force_levelii_oplock, "The share supports hash generation for branch cache retrieval of data (see also section 2.2.31.2 of MS-SMB2)", HFILL }},
 
 	{ &hf_smb2_share_caching,
 		{ "Caching policy", "smb2.share.caching", FT_UINT32, BASE_HEX,
@@ -6325,6 +6339,10 @@ proto_register_smb2(void)
 	{ &hf_smb2_share_caps,
 		{ "Share Capabilities", "smb2.share_caps", FT_UINT32, BASE_HEX,
 		NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb2_share_caps_dfs,
+		{ "DFS", "smb2.share_caps.dfs", FT_BOOLEAN, 32,
+		NULL, SHARE_CAPS_DFS, "The specified share is present in a DFS tree structure", HFILL }},
 
 	{ &hf_smb2_ioctl_flags,
 		{ "Flags", "smb2.ioctl.flags", FT_UINT32, BASE_HEX,
@@ -6344,10 +6362,6 @@ proto_register_smb2(void)
 	{ &hf_smb2_channel_info_length,
 		{ "Channel Info Length", "smb2.channel_info_length", FT_UINT16, BASE_DEC,
 		NULL, 0, NULL, HFILL }},
-
-	{ &hf_smb2_share_caps_dfs,
-		{ "dfs", "smb2.share_caps.dfs", FT_BOOLEAN, 32,
-		NULL, SHARE_CAPS_DFS, NULL, HFILL }},
 
 	{ &hf_smb2_ioctl_is_fsctl,
 		{ "Is FSCTL", "smb2.ioctl.is_fsctl", FT_BOOLEAN, 32,
