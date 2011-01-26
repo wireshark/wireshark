@@ -1645,7 +1645,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   GtkAdjustment *snap_adj, *ringbuffer_nbf_adj,
                 *stop_packets_adj, *stop_filesize_adj, *stop_duration_adj, *stop_files_adj,
                 *ring_filesize_adj, *file_duration_adj;
-  GList         *if_list, *combo_list, *cfilter_list;
+  GList         *if_list, *combo_list, *cfilter_list, *if_entry;
   int           row;
   int           err;
   gchar         *err_str;
@@ -1655,7 +1655,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #endif
   guint32       value;
   gchar         *cap_title;
-  gchar         *if_device;
+  gchar         *if_device="";
+  if_info_t     *if_info;
 
   if (cap_open_w != NULL) {
     /* There's already a "Capture Options" dialog box; reactivate it. */
@@ -1781,11 +1782,17 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
        capture, but there is one specified in the preferences file;
        make the one from the preferences file the default */
     if_device = g_strdup(prefs.capture_device);
-    global_capture_opts.iface = g_strdup(get_if_name(if_device));
-    /* Warning: see capture_prep_cb() */
-    /* XXX: Could the following code be changed to use the if_list obtained above instead  */
-    /*      of maybe calling capture_interface_list() again ?                           */
-    global_capture_opts.iface_descr = get_interface_descriptive_name(global_capture_opts.iface);
+    for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
+      if_info = (if_info_t*)if_entry->data;
+      if (strcmp(if_info->name, get_if_name(if_device)) == 0) { 
+        global_capture_opts.iface = g_strdup(get_if_name(if_device));
+        /* Warning: see capture_prep_cb() */
+        /* XXX: Could the following code be changed to use the if_list obtained above instead  */
+        /*      of maybe calling capture_interface_list() again ?                           */
+        global_capture_opts.iface_descr = get_interface_descriptive_name(global_capture_opts.iface);
+        break;
+      }
+    }
     g_free(if_device);
   }
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY, if_cb);
