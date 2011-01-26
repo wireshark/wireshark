@@ -61,4 +61,5 @@ const true_false_string tfs_pressed_not_pressed = { "Pressed", "Not pressed" };
 const true_false_string tfs_implemented_not_implemented = { "Implemented", "Not Implemented" };
 const true_false_string tfs_requested_not_requested = { "Requested", "Not Requested" };
 const true_false_string tfs_reliable_not_reliable = { "Reliable", "Not Reliable" };
+const true_false_string tfs_allowed_not_allowed = { "Allowed", "Not Allowed" };
 
