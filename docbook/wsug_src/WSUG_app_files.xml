@@ -709,7 +709,7 @@ Source port=Transmission_Control_Protocol#TCP_ports
 	<para>
       <variablelist>
 	<varlistentry>
-	  <term><command>Vista</command></term>
+	  <term><command>7/Vista</command></term>
 	  <listitem>
 	<para>
 	<filename>C:\Users\&lt;username&gt;\AppData\Roaming\Wireshark</filename>
@@ -759,7 +759,7 @@ Source port=Transmission_Control_Protocol#TCP_ports
 	</section>
 
 	<section id="ChWindowsRoamingProfiles">
-	<title>Windows Vista/XP/2000/NT roaming profiles</title>
+	<title>Windows 7/Vista/XP/2000/NT roaming profiles</title>
 	<para>
 	The following will only be applicable if you are using roaming profiles.
 	This might be the case, if you work in a Windows domain environment 
@@ -790,10 +790,10 @@ Source port=Transmission_Control_Protocol#TCP_ports
 	<para>
       <variablelist>
 	<varlistentry>
-	  <term><command>Vista</command></term>
+	  <term><command>7/Vista</command></term>
 	  <listitem>
 	<para>
-	<filename>XXX - could someone give information about this?</filename>
+	<filename>C:\Users\&lt;username&gt;\AppData\Local\Temp</filename>
 	</para>
 	  </listitem>
 	</varlistentry>
