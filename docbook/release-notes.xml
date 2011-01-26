@@ -71,6 +71,18 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+        A crash can occur in the NTLMSSP dissector.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5157">Bug
+          5157</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+        NTLMSSP dissector may fail to compile due to space embedded in C comment delimiters.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5614">Bug
+          5614</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -96,6 +108,7 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
     <para>
 
+NTLMSSP
 
     </para>
     </section>
