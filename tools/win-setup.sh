@@ -1,6 +1,6 @@
 #!/bin/bash
 (shopt -s igncr) 2>/dev/null && shopt -s igncr; # hack to force this file to be processed by cygwin bash with -o igncr
-                                                # needed when this file is exec'd from win32-set.sh & win64-setup.sh
+                                                # needed when this file is exec'd from win32-setup.sh & win64-setup.sh
 #
 # $Id$
 
