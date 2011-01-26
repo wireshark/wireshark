@@ -2,8 +2,11 @@
  * Routines for smb2 packet dissection
  * Ronnie Sahlberg 2005
  *
- * See http://wiki.wireshark.org/SMB2  for documentation of
- * this protocol.
+ * For documentation of this protocol, see:
+ *
+ * http://wiki.wireshark.org/SMB2
+ * http://msdn.microsoft.com/en-us/library/cc246482(PROT.10).aspx
+ *
  * If you edit this file, keep the wiki updated as well.
  *
  * $Id$
