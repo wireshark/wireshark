@@ -219,6 +219,12 @@ static gint ett_bssgp_feature_bitmap = -1;
 static gint ett_bssgp_positioning_data = -1;
 static gint ett_bssgp_tlli = -1;
 static gint ett_bssgp_tmsi_ptmsi = -1;
+static gint ett_bssgp_pfcs_to_be_set_up_list = -1;
+static gint ett_bssgp_pfcs_to_be_set_up_list_pft = -1;
+static gint ett_bssgp_pfcs_to_be_set_up_list_abqp = -1;
+static gint ett_bssgp_pfcs_to_be_set_up_list_arp = -1;
+static gint ett_bssgp_pfcs_to_be_set_up_list_t10 = -1;
+static gint ett_bssgp_list_of_setup_pfcs = -1;
 
 /* PDU type coding, v6.5.0, table 11.3.26, p 80 */
 #define BSSGP_PDU_DL_UNITDATA                  0x00
@@ -7353,6 +7359,83 @@ de_bssgp_mbms_session_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 /*
  * 11.3.82	PFCs to be set-up list
  */
+static guint16
+de_bssgp_pfcs_to_be_set_up_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	proto_tree *pfc_tree, *pft_tree, *abqp_tree, *arp_tree, *t10_tree;
+	proto_item *pi, *ti2;
+
+	guint32	curr_offset;
+	guint8 num_pfc, i, pfc_len;
+
+	curr_offset = offset;
+
+	num_pfc = tvb_get_guint8(tvb, curr_offset);
+	pi = proto_tree_add_text(tree, tvb, curr_offset, 1,
+			   "Number of PFCs: ");
+
+	if (num_pfc < 12) {
+		proto_item_append_text(pi, "%u", num_pfc);
+	}else {
+		proto_item_append_text(pi, "Reserved");
+		return (len);
+	}
+	curr_offset++;
+	if (num_pfc == 0) 
+		return (curr_offset-offset);
+
+	pfc_len = (len - 1) / num_pfc;
+
+	for (i = 0; i < num_pfc; i++) {
+		ti2 = proto_tree_add_text(tree, tvb, curr_offset, pfc_len,
+					  "PFC (%u)", i + 1);
+		pfc_tree = proto_item_add_subtree(ti2, ett_bssgp_pfcs_to_be_set_up_list);
+
+		pi = proto_tree_add_text(pfc_tree, tvb, curr_offset, 1, "PFI");
+		bssgp_pi_append_pfi(pi, tvb, curr_offset);
+		curr_offset++;
+
+		/* PFT: Packet Flow Timer. Coded as the GPRS Timer information element, 
+		 * see sub-clause 11.3.44.
+		 */
+		pi = proto_tree_add_text(pfc_tree, tvb, curr_offset, 3, "Packet Flow Timer(PFT)");
+		pft_tree = proto_item_add_subtree(ti2, ett_bssgp_pfcs_to_be_set_up_list_pft);
+		proto_tree_add_item(pft_tree, hf_bssgp_unit_val, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+		proto_tree_add_item(pft_tree, hf_bssgp_gprs_timer, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+		curr_offset += 3;
+
+		/* ABQP: Aggregate BSS QoS Profile. 
+		 * Coded as the Aggregate BSS QoS Profile information element, see sub-clause 11.3.43.
+		 */
+		pi = proto_tree_add_text(pfc_tree, tvb, curr_offset, 3, "Aggregate BSS QoS Profile(ABQP)");
+		abqp_tree = proto_item_add_subtree(ti2, ett_bssgp_pfcs_to_be_set_up_list_abqp);
+		/* Unsure about length 16 */
+		curr_offset = curr_offset + de_sm_qos(tvb, tree, curr_offset, 16, NULL, NULL);
+
+		/* Allocation/Retention Priority: Allocation Retention Priority. 
+		 * Coded as the Priority information element, see subclause 11.3.27. 
+		 * This information element is optionally included.
+		 */
+		if(pfc_len>17){
+			pi = proto_tree_add_text(pfc_tree, tvb, curr_offset, 3, "Allocation/Retention Priority");
+			arp_tree = proto_item_add_subtree(ti2, ett_bssgp_pfcs_to_be_set_up_list_arp);
+			curr_offset = curr_offset + be_prio(tvb, arp_tree, curr_offset, 1, NULL, NULL);
+		}
+		/* T10: T10. 
+		 * Coded as the GPRS Timer information element, see sub-clause 11.3.44.
+		 * This information element shall be present for a PFC if the Allocation/Retention Priority
+		 * is present and if queuing is allowed for the PFC.
+		 */
+		if(pfc_len>18){
+			pi = proto_tree_add_text(pfc_tree, tvb, curr_offset, 3, "T10");
+			t10_tree = proto_item_add_subtree(ti2, ett_bssgp_pfcs_to_be_set_up_list_t10);
+			proto_tree_add_item(t10_tree, hf_bssgp_unit_val, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+			proto_tree_add_item(t10_tree, hf_bssgp_gprs_timer, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+			curr_offset += 3;
+		}
+	}
+	return(curr_offset-offset);
+}
 /*
  * 11.3.83	List of set-up PFCs
  */
@@ -7384,7 +7467,7 @@ de_bssgp_list_of_setup_pfcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	for (i = 0; i < num_pfc; i++) {
 		ti2 = proto_tree_add_text(tree, tvb, curr_offset, 1,
 					  "PFC (%u)", i + 1);
-		pfc_tree = proto_item_add_subtree(ti2, ett_bssgp_pfc_flow_control_parameters_pfc);
+		pfc_tree = proto_item_add_subtree(ti2, ett_bssgp_list_of_setup_pfcs);
 
 		pi = proto_tree_add_text(pfc_tree, tvb, curr_offset, 1, "PFI");
 		bssgp_pi_append_pfi(pi, tvb, curr_offset);
@@ -8024,7 +8107,7 @@ const value_string bssgp_elem_strings[] = {
 	{ 0x00, "Source BSS to Target BSS Transparent Container" },		/* 11.3.79	Source BSS to Target BSS Transparent Container */
 	{ 0x00, "Target BSS to Source BSS Transparent Container" },		/* 11.3.80	Target BSS to Source BSS Transparent Container */
  /* 11.3.81	NAS container for PS Handover */
- /* 11.3.82	PFCs to be set-up list */
+	{ 0x00, "PFCs to be set-up list" },								/* 11.3.82	PFCs to be set-up list */
 	{ 0x00, "List of set-up PFCs" },								/* 11.3.83	List of set-up PFCs */
 	{ 0x00, "Extended Feature Bitmap" },							/* 11.3.84	Extended Feature Bitmap */
 	{ 0x00, "Source to Target Transparent Container" },				/* 11.3.85	Source to Target Transparent Container */
@@ -8120,7 +8203,7 @@ typedef enum
 	DE_BSSGP_TMGI,												/* 11.3.77	TMGI (Temporary Mobile Group Identity) GSM_A_PDU_TYPE_GM, DE_TMGI*/
 	DE_BSSGP_SOURCE_BSS_TO_TARGET_BSS_TRANSP_CONT,				/* 11.3.79	Source BSS to Target BSS Transparent Container */
 	DE_BSSGP_TARGET_BSS_TO_SOURCE_BSS_TRANSP_CONT,				/* 11.3.80	Target BSS to Source BSS Transparent Container */
-
+	DE_BSSGP_PFCS_TO_BE_SET_UP_LIST,							/* 11.3.82	PFCs to be set-up list */
 	DE_BSSGP_LIST_OF_SETUP_PFCS,								/* 11.3.83	List of set-up PFCs */
 	DE_BSSGP_EXT_FEATURE_BITMAP,								/* 11.3.84	Extended Feature Bitmap */
 	DE_BSSGP_SRC_TO_TRG_TRANSP_CONT,							/* 11.3.85	Source to Target Transparent Container */
@@ -8195,12 +8278,13 @@ guint16 (*bssgp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
 	de_bssgp_bucket_full_ratio,									/* 11.3.46	0x3c Bucket Full Ratio */
 	de_bssgp_serv_utran_cco,									/* 11.3.47	0x3d Service UTRAN CCO */
 	de_bssgp_nsei,												/* 11.3.48	0x3e NSEI (Network Service Entity Identifier) */
-        de_bssgp_pfc_flow_ctrl,										/*  11.3.68	PFC Flow Control parameters */
+    de_bssgp_pfc_flow_ctrl,										/*  11.3.68	PFC Flow Control parameters */
 	NULL,														/* 11.3.69	0x53 Global CN-Id */
 	de_bssgp_mbms_session_id,									/* 11.3.71	MBMS Session Identity */
 	NULL,														/* 11.3.77	TMGI (Temporary Mobile Group Identity) */
 	de_bssgp_source_BSS_to_target_BSS_transp_cont,				/* 11.3.79	Source BSS to Target BSS Transparent Container */
 	de_bssgp_target_BSS_to_source_BSS_transp_cont,				/* 11.3.80	Target BSS to Source BSS Transparent Container */
+	de_bssgp_pfcs_to_be_set_up_list,							/* 11.3.82	PFCs to be set-up list */
 	de_bssgp_list_of_setup_pfcs,								/* 11.3.83	List of set-up PFCs */
 	de_bssgp_ext_feature_bitmap,								/* 11.3.84	Extended Feature Bitmap */
 	de_bssgp_src_to_trg_transp_cont,							/* 11.3.85	Source to Target Transparent Container */
@@ -9551,7 +9635,7 @@ bssgp_delete_bss_pfc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
  * 10.4.27	PS-HANDOVER-REQUIRED
  */
 static void
-bssgp_ps_ho_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_ps_ho_required(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -9577,7 +9661,7 @@ bssgp_ps_ho_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	 */
 	ELEM_OPT_TELV(0x64,BSSGP_PDU_TYPE, DE_BSSGP_SOURCE_BSS_TO_TARGET_BSS_TRANSP_CONT, NULL);
 	/* Target RNC Identifier (note 2) (note 3) RNC Identifier/11.3.87 C TLV 10 */
-	ELEM_OPT_TELV(0x6c,BSSGP_PDU_TYPE, BE_BSSGP_RNC_ID, NULL);
+	ELEM_OPT_TELV(0x6c,BSSGP_PDU_TYPE, BE_BSSGP_RNC_ID, " - Target");
 	/* Source to Target Transparent Container (note 1)
 	 * Source to Target Transparent Container/11.3.85 C TLV 3-? 
 	 */
@@ -9601,7 +9685,7 @@ bssgp_ps_ho_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 10.4.28	PS-HANDOVER-REQUIRED-ACK
  */
 static void
-bssgp_ps_ho_req_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_ps_ho_required_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -9636,7 +9720,7 @@ bssgp_ps_ho_req_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * 10.4.29	PS-HANDOVER-REQUIRED-NACK
  */
 static void
-bssgp_ps_ho_req_nack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bssgp_ps_ho_required_nack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -9658,6 +9742,50 @@ bssgp_ps_ho_req_nack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 /*
  * 10.4.30	PS-HANDOVER-REQUEST
+ */
+static void
+bssgp_ps_ho_request(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/* This PDU initiates the allocation of resources for one or more PFCs in the target BSS for an MS. */
+	/* Direction: SGSN to BSS */
+	gpinfo->link_dir = P2P_DIR_DL;
+
+	/* TLLI TLLI/11.3.35 M TLV 6 */
+	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
+	/* IMSI IMSI/11.3.14 M TLV 5-10 */
+	ELEM_MAND_TELV(BSSGP_IEI_IMSI, BSSGP_PDU_TYPE, DE_BSSGP_IMSI , NULL);
+	/* Cause Cause/11.3.8 M TLV 3 */
+	ELEM_MAND_TELV(BSSGP_IEI_CAUSE,BSSGP_PDU_TYPE, DE_BSSGP_CAUSE, NULL);
+	/* Source Cell Identifier (note 1) Cell Identifier/11.3.9 C TLV 10 */
+	ELEM_OPT_TELV(0x08, BSSGP_PDU_TYPE, DE_BSSGP_CELL_ID , " - Source");
+	/* Source RNC Identifier (note 1) RNC Identifier/11.3.87 C TLV 10 */
+	ELEM_OPT_TELV(0x6c,BSSGP_PDU_TYPE, BE_BSSGP_RNC_ID, " - Source");
+	/* Target Cell Identifier Cell Identifier/11.3.9 M TLV 10 */
+	ELEM_OPT_TELV(0x08, BSSGP_PDU_TYPE, DE_BSSGP_CELL_ID , " - Target");
+	/* Source BSS to Target BSS Transparent Container Source BSS to Target BSS Transparent Container/11.3.79 M TLV 7-? */
+	ELEM_OPT_TELV(0x64,BSSGP_PDU_TYPE, DE_BSSGP_SOURCE_BSS_TO_TARGET_BSS_TRANSP_CONT, NULL);
+	/* PFCs to be set-up list PFCs to be set-up list/11.3.82 M TLV 22-? */
+	ELEM_OPT_TELV(0x67,BSSGP_PDU_TYPE, DE_BSSGP_PFCS_TO_BE_SET_UP_LIST, NULL);
+	/* NAS container for PS Handover NAS container for PS Handover/11.3.81 O TLV 3-? */
+	ELEM_OPT_TELV(0x10,GSM_A_PDU_TYPE_COMMON, DE_NAS_CONT_FOR_PS_HO, NULL);
+	/* Service UTRAN CCO Service UTRAN CCO/11.3.47 O TLV 3 */
+	ELEM_OPT_TELV(0x3d, BSSGP_PDU_TYPE, DE_BSSGP_SERV_UTRAN_CCO, NULL);
+	/* Subscriber Profile ID for RAT/Frequency priority (note 2) Subscriber Profile ID for RAT/Frequency priority/11.3.105 O TLV 3 */
+	ELEM_OPT_TELV(0x81, BSSGP_PDU_TYPE, DE_BSSGP_SUB_PROF_ID_F_RAT_FRQ_PRIO, NULL);
+	/* Reliable Inter RAT Handover Info (note 3) Reliable Inter RAT Handover Info/11.3.107 C TLV 3 */
+	ELEM_OPT_TELV(0x83,BSSGP_PDU_TYPE, DE_BSSGP_RELIABLE_INTER_RAT_HO_INF, NULL);
+
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+}
+
+/*
  * 10.4.31	PS-HANDOVER-REQUEST-ACK
  * 10.4.32	PS-HANDOVER-REQUEST-NACK
  * 10.4.33	PS-HANDOVER-COMPLETE
@@ -9783,7 +9911,7 @@ static const value_string bssgp_msg_strings[] = {
 /* 0x59 */  { BSSGP_PDU_PS_HANDOVER_REQUIRED,          "PS-HANDOVER-REQUIRED" },		/* 10.4.27 PS-HANDOVER-REQUIRED */
 /* 0x5a */  { BSSGP_PDU_PS_HANDOVER_REQUIRED_ACK,      "PS-HANDOVER-REQUIRED-ACK" },	/* 10.4.28 PS-HANDOVER-REQUIRED-ACK */
 /* 0x5b */  { BSSGP_PDU_PS_HANDOVER_REQUIRED_NACK,     "PS-HANDOVER-REQUIRED-NACK" },	/* 10.4.29 PS-HANDOVER-REQUIRED-NACK */
-/* 0x5c */  { BSSGP_PDU_PS_HANDOVER_REQUEST,           "PS-HANDOVER-REQUEST" },			
+/* 0x5c */  { BSSGP_PDU_PS_HANDOVER_REQUEST,           "PS-HANDOVER-REQUEST" },			/* 10.4.30 PS-HANDOVER-REQUEST */
 /* 0x5d */  { BSSGP_PDU_PS_HANDOVER_REQUEST_ACK,       "PS-HANDOVER-REQUEST-ACK" },		
 /* 0x5e */  { BSSGP_PDU_PS_HANDOVER_REQUEST_NACK,      "PS-HANDOVER-REQUEST-NACK" },
 
@@ -9890,9 +10018,10 @@ static void (*bssgp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
 	bssgp_delete_bss_pfc,			/* 10.4.22 DELETE-BSS-PFC */
 	bssgp_delete_bss_pfc_ack,		/* 10.4.23 DELETE-BSS-PFC-ACK */
 	bssgp_delete_bss_pfc_req,		/* 10.4.26 DELETE-BSS-PFC-REQ */
-	bssgp_ps_ho_req,				/* 10.4.27 PS-HANDOVER-REQUIRED */
-	bssgp_ps_ho_req_ack,			/* 10.4.28 PS-HANDOVER-REQUIRED-ACK */
-	bssgp_ps_ho_req_nack,			/* 10.4.29 PS-HANDOVER-REQUIRED-NACK */
+	bssgp_ps_ho_required,			/* 10.4.27 PS-HANDOVER-REQUIRED */
+	bssgp_ps_ho_required_ack,		/* 10.4.28 PS-HANDOVER-REQUIRED-ACK */
+	bssgp_ps_ho_required_nack,		/* 10.4.29 PS-HANDOVER-REQUIRED-NACK */
+	bssgp_ps_ho_request.			/* 10.4.30 PS-HANDOVER-REQUEST */
 	NULL,	/* NONE */
 };
 
@@ -9962,7 +10091,7 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						   "Unknown PDU type"));
 
   /* PDU's with msg no lover than this value are converted to common dissection style */
-  if(oct>0x5b){
+  if(oct>0x5c){
 	  proto_tree_add_item(bssgp_tree, hf_bssgp_msg_type, tvb, 0, 1, ENC_BIG_ENDIAN);
 	  decode_pdu(&bi);
   }else{
@@ -10412,7 +10541,7 @@ proto_register_bssgp(void)
   };
 
   /* Setup protocol subtree array */
-#define	NUM_INDIVIDUAL_ELEMS	45
+#define	NUM_INDIVIDUAL_ELEMS	51
 	gint *ett[NUM_INDIVIDUAL_ELEMS +
 		  NUM_BSSGP_ELEM +
 		  NUM_BSSGP_MSG];
@@ -10461,6 +10590,12 @@ proto_register_bssgp(void)
     ett[42] = &ett_bssgp_tlli;
     ett[43] = &ett_bssgp_tmsi_ptmsi;
 	ett[44] = &ett_bssgp_new;
+	ett[45] = &ett_bssgp_pfcs_to_be_set_up_list;
+	ett[46] = &ett_bssgp_pfcs_to_be_set_up_list_pft;
+	ett[47] = &ett_bssgp_pfcs_to_be_set_up_list_abqp;
+	ett[48] = &ett_bssgp_pfcs_to_be_set_up_list_arp;
+	ett[49] = &ett_bssgp_pfcs_to_be_set_up_list_t10;
+	ett[50] = &ett_bssgp_list_of_setup_pfcs;
   
 	last_offset = NUM_INDIVIDUAL_ELEMS;
 

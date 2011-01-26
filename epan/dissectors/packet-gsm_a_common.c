@@ -3115,8 +3115,11 @@ de_nas_cont_for_ps_ho(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	 * The IOV-UI value consists of 32 bits, the format is defined in 3GPP TS 44.064 [78a].
 	 */
 	proto_tree_add_item(tree, hf_gsm_a_iov_ui, tvb, curr_offset, 4, FALSE);
+	curr_offset+=4;
 	
-	return(len);
+	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, gsm_a_dtap_pinfo);
+
+	return(curr_offset - offset);
 }
 
 

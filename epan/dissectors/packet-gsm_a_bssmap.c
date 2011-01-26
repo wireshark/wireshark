@@ -468,6 +468,9 @@ static int hf_gsm_a_bssmap_dlci_spare = -1;
 static int hf_gsm_a_bssmap_dlci_sapi = -1;
 static int hf_gsm_a_bssmap_cause = -1;
 static int hf_gsm_a_bssmap_be_cell_id_disc = -1;
+static int hf_gsm_a_bssmap_pci = -1;
+static int hf_gsm_a_bssmap_qa = -1;
+static int hf_gsm_a_bssmap_pvi = -1;
 static int hf_gsm_a_bssmap_lsa_only = -1;
 static int hf_gsm_a_bssmap_act = -1;
 static int hf_gsm_a_bssmap_pref = -1;
@@ -1739,7 +1742,17 @@ be_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 /*
  * [2] 3.2.2.18 Priority
  */
-static guint16
+static const true_false_string bssmap_pci_value = {
+   "This allocation request may preempt an existing connection",
+   "This allocation request shall not preempt an existing connection"
+};
+
+static const true_false_string bssmap_pvi_value = {
+   "This connection might be preempted by another allocation request",
+   "This connection shall not be preempted by another allocation request"
+};
+
+guint16
 be_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint8  oct;
@@ -1751,13 +1764,8 @@ be_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *a
     oct = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_item(tree, hf_gsm_a_b8spare, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_a_bssmap_pci, tvb, curr_offset, 1, FALSE);
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
-    proto_tree_add_text(tree,
-        tvb, curr_offset, 1,
-        "%s = Preemption Capability Indicator (PCI): this allocation request %s preempt an existing connection",
-        a_bigbuf,
-        (oct & 0x40) ? "may" : "shall not");
 
     switch ((oct & 0x3c) >> 2)
     {
@@ -1779,19 +1787,8 @@ be_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *a
     if (add_string)
         g_snprintf(add_string, string_len, " - (%u)", (oct & 0x3c) >> 2);
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
-    proto_tree_add_text(tree,
-        tvb, curr_offset, 1,
-        "%s = Queuing Allowed Indicator (QA): queuing %sallowed",
-        a_bigbuf,
-        (oct & 0x02) ? "" : "not ");
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
-    proto_tree_add_text(tree,
-        tvb, curr_offset, 1,
-        "%s = Preemption Vulnerability Indicator (PVI): this connection %s be preempted by another allocation request",
-        a_bigbuf,
-        (oct & 0x01) ? "might" : "shall not");
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_qa, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_pvi, tvb, curr_offset, 1, FALSE);
 
     curr_offset++;
 
@@ -6478,6 +6475,26 @@ proto_register_gsm_a_bssmap(void)
     { &hf_gsm_a_bssmap_be_cell_id_disc,
         { "Cell identification discriminator","gsm_a.be.cell_id_disc",
         FT_UINT8,BASE_DEC|BASE_EXT_STRING,  &gsm_a_be_cell_id_disc_vals_ext, 0x0f,
+        NULL, HFILL }
+    },
+	{ &hf_gsm_a_bssmap_pci,
+        { "Preemption Capability indicator(PCI)","ggsm_a_bssmap.pci",
+        FT_BOOLEAN,8, TFS(&bssmap_pci_value), 0x40,
+        NULL, HFILL }
+    },
+	{ &hf_gsm_a_bssmap_qa,
+        { "Queuing Allowed Indicator(QA)","ggsm_a_bssmap.qa",
+        FT_BOOLEAN,8, TFS(&tfs_allowed_not_allowed), 0x02,
+        NULL, HFILL }
+    },
+	{ &hf_gsm_a_bssmap_pvi,
+        { "Preemption Vulnerability Indicator(PVI)","ggsm_a_bssmap.pvi",
+        FT_BOOLEAN,8, TFS(&bssmap_pvi_value), 0x01,
+        NULL, HFILL }
+    },
+    { &hf_gsm_a_bssmap_lsa_only,
+        { "LSA only","ggsm_a_bssmap.lsa_only",
+        FT_BOOLEAN,8, TFS(&bssmap_lsa_only_value), 0x01,
         NULL, HFILL }
     },
     { &hf_gsm_a_bssmap_lsa_only,
