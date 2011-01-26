@@ -337,13 +337,13 @@ static const value_string smb2_class_vals[] = {
 	{ 0, NULL }
 };
 
-#define SMB2_SHARE_TYPE_FILE	0x0001
-#define SMB2_SHARE_TYPE_IPC	0x0002
-#define SMB2_SHARE_TYPE_PRINT	0x0003
+#define SMB2_SHARE_TYPE_DISK	0x01
+#define SMB2_SHARE_TYPE_PIPE	0x02
+#define SMB2_SHARE_TYPE_PRINT	0x03
 static const value_string smb2_share_type_vals[] = {
-	{ SMB2_SHARE_TYPE_FILE,		"File Share" },
-	{ SMB2_SHARE_TYPE_IPC,		"IPC share" },
-	{ SMB2_SHARE_TYPE_PRINT,	"Print Share" },
+	{ SMB2_SHARE_TYPE_DISK,		"Physical disk" },
+	{ SMB2_SHARE_TYPE_PIPE,		"Named pipe" },
+	{ SMB2_SHARE_TYPE_PRINT,	"Printer" },
 	{ 0, NULL }
 };
 
@@ -2166,7 +2166,8 @@ dissect_smb2_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	/* share type */
 	share_type = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_share_type, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb2_share_type, tvb, offset, 1, TRUE);
+	/* Next byte is reserved  and must be set to zero */
 	offset += 2;
 
 	if(!pinfo->fd->flags.visited && si->saved && si->saved->extra_info_type==SMB2_EI_TREENAME && si->session) {
@@ -3655,7 +3656,7 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 4;
         
 	/* data or dcerpc ?*/
-	if(length && si->tree && si->tree->share_type == SMB2_SHARE_TYPE_IPC){
+	if(length && si->tree && si->tree->share_type == SMB2_SHARE_TYPE_PIPE){
 		offset = dissect_file_data_dcerpc(tvb, pinfo, tree, offset, length, si->top_tree);
 		return offset;
 	}
@@ -4138,7 +4139,7 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	 * If the pidvalid flag is set we assume it is a deferred
 	 * STATUS_PENDING read and thus a named pipe (==dcerpc)
 	 */
-	if(length && ( (si->tree && si->tree->share_type == SMB2_SHARE_TYPE_IPC)||(si->flags & SMB2_FLAGS_ASYNC_CMD))){
+	if(length && ( (si->tree && si->tree->share_type == SMB2_SHARE_TYPE_PIPE)||(si->flags & SMB2_FLAGS_ASYNC_CMD))){
 		offset = dissect_file_data_dcerpc(tvb, pinfo, tree, offset, length, si->top_tree);
 		return offset;
 	}
@@ -6158,7 +6159,7 @@ proto_register_smb2(void)
 		VALS(compression_format_vals), 0, "Compression to use", HFILL }},
 
 	{ &hf_smb2_share_type,
-		{ "Share Type", "smb2.share_type", FT_UINT16, BASE_DEC,
+		{ "Share Type", "smb2.share_type", FT_UINT8, BASE_HEX,
 		VALS(smb2_share_type_vals), 0, "Type of share", HFILL }},
 
 	{ &hf_smb2_epoch,
