@@ -648,6 +648,7 @@ void dtap_mm_mm_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 guint16 be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len, guint8 disc);
 guint16 be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 be_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len);
 
 guint16 de_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len);
@@ -727,6 +728,7 @@ extern const value_string gsm_a_type_of_number_values[];
 extern const value_string gsm_a_numbering_plan_id_values[]; 
 extern const value_string gsm_a_sms_vals[];
 extern value_string_ext gsm_a_rr_rxlev_vals_ext;
+extern const value_string gsm_a_gm_type_of_ciph_alg_vals[];
 
 typedef enum
 {
@@ -744,6 +746,7 @@ typedef enum
 	DE_PD_SAPI,				/* PD and SAPI $(CCBS)$ */
 	DE_PRIO,				/* Priority Level */
 	DE_PLMN_LIST,			/* PLMN List */
+	DE_NAS_CONT_FOR_PS_HO,	/* 10.5.1.14 NAS container for PS HO */
 
 	DE_COMMON_NONE							/* NONE */
 }

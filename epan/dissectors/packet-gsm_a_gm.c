@@ -411,7 +411,7 @@ de_gmm_attach_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 /*
  * [9] 10.5.5.3 Ciphering algorithm
  */
-static const value_string gsm_a_gm_type_of_ciph_alg_vals[] = {
+const value_string gsm_a_gm_type_of_ciph_alg_vals[] = {
 	{ 0x00, "ciphering not used" },
 	{ 0x01, "GPRS Encryption Algorithm GEA/1" },
 	{ 0x02, "GPRS Encryption Algorithm GEA/2" },

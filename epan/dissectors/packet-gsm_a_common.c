@@ -62,6 +62,7 @@ const value_string gsm_common_elem_strings[] = {
 	{ 0x00,	"PD and SAPI $(CCBS)$" },
 	{ 0x00,	"Priority Level" },
 	{ 0x00,	"PLMN List" },
+	{ 0x00,	"NAS container for PS HO" },
 	{ 0, NULL }
 };
 
@@ -576,7 +577,9 @@ int hf_gsm_a_call_prio = -1;
 int hf_gsm_a_skip_ind = -1;
 int hf_gsm_a_spare_bits = -1;
 int hf_gsm_a_lac = -1;
-
+static int hf_gsm_a_type_of_ciph_alg = -1;
+static int hf_gsm_a_old_xid = -1;
+static int hf_gsm_a_iov_ui = -1;
 static int hf_gsm_a_b7spare = -1;
 int hf_gsm_a_b8spare = -1;
 static int hf_gsm_a_multi_bnd_sup_fields = -1;
@@ -3082,6 +3085,40 @@ de_plmn_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 
 	return(curr_offset - offset);
 }
+/*
+ * 10.5.1.14 NAS container for PS HO
+ */
+
+
+static const value_string gsm_a_pld_xid_vals[] = {
+	{ 0x00,	"The MS shall perform a Reset of LLC and SNDCP without old XID indicator" },
+	{ 0x01,	"The MS shall perform a Reset of LLC and SNDCP with old XID indicator" },
+	{ 0,			NULL }
+};
+guint16
+de_nas_cont_for_ps_ho(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_text(tree, tvb, curr_offset, len, "IE not dissected yet");
+	/*     8     7     6     5     4     3     2      1 
+	 *     0     0     0   old     0     Type of ciphering
+	 * spare  spare  spare XID  spare      algorithm
+	 */
+	proto_tree_add_item(tree, hf_gsm_a_old_xid, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_type_of_ciph_alg, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	/* IOV-UI value (octet 2 to 5)
+	 * The IOV-UI value consists of 32 bits, the format is defined in 3GPP TS 44.064 [78a].
+	 */
+	proto_tree_add_item(tree, hf_gsm_a_iov_ui, tvb, curr_offset, 4, FALSE);
+	
+	return(len);
+}
+
 
 guint16 (*common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* Common Information Elements 10.5.1 */
@@ -3098,7 +3135,8 @@ guint16 (*common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gu
 	de_pd_sapi,				/* PD and SAPI $(CCBS)$ */
 	/* Pos 10 */
 	de_prio					/* handled inline */,	/* Priority Level */
-	de_plmn_list,			/* PLMN List */
+	de_plmn_list,			/* 10.5.1.13 PLMN list */
+	de_nas_cont_for_ps_ho,	/* 10.5.1.14 NAS container for PS HO */
 	NULL,					/* NONE */
 };
 
@@ -3285,6 +3323,21 @@ proto_register_gsm_a_common(void)
 	{ &hf_gsm_a_call_prio,
 		{ "Call priority", "gsm_a.call_prio",
 		FT_UINT8, BASE_DEC, VALS(gsm_a_call_prio_vals), 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_type_of_ciph_alg,
+		{ "Call priority", "gsm_a.call_prio",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_gm_type_of_ciph_alg_vals), 0x07,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_old_xid,
+		{ "Old XID", "gsm_a.old_xid",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_pld_xid_vals), 0x10,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_iov_ui,
+		{ "IOV-UI", "gsm_a.iov_ui",
+		FT_UINT32, BASE_HEX, NULL, 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_skip_ind,
