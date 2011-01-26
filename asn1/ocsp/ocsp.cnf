@@ -13,6 +13,7 @@ PKIX1Explicit88 pkix1explicit
 #.INCLUDE ../pkix1explicit/pkix1explicit_exp.cnf
 
 #.EXPORTS
+OCSPResponse
 
 #.PDU
 

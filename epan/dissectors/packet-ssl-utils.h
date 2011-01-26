@@ -84,6 +84,7 @@
 #define SSL_HND_CERT_VERIFY            15
 #define SSL_HND_CLIENT_KEY_EXCHG       16
 #define SSL_HND_FINISHED               20
+#define SSL_HND_CERT_STATUS            22
 
 #define SSL2_HND_ERROR                 0x00
 #define SSL2_HND_CLIENT_HELLO          0x01
@@ -147,6 +148,8 @@
 #define SSL_HND_HELLO_EXT_ELLIPTIC_CURVES    0x000a
 #define SSL_HND_HELLO_EXT_EC_POINT_FORMATS   0x000b
 
+#define SSL_HND_CERT_STATUS_TYPE_OCSP  1
+
 /*
  * Lookup tables
  */
@@ -176,6 +179,7 @@ extern const value_string pct_error_code[];
 extern const value_string tls_hello_extension_types[];
 extern const value_string tls_hash_algorithm[];
 extern const value_string tls_signature_algorithm[];
+extern const value_string tls_cert_status_type[];
 extern const value_string ssl_extension_curves[];
 extern const value_string ssl_extension_ec_point_formats[];
 

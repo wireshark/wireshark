@@ -52,7 +52,7 @@
 #define PFNAME "ocsp"
 
 /* Initialize the protocol and registered fields */
-static int proto_ocsp = -1;
+proto_ocsp = -1;
 static int hf_ocsp_responseType_id = -1;
 
 /*--- Included file: packet-ocsp-hf.c ---*/
@@ -321,7 +321,7 @@ dissect_ocsp_T_responseType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_ocsp_T_response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 37 "ocsp.cnf"
+#line 38 "ocsp.cnf"
   gint8 class;
   gboolean pc, ind;
   gint32 tag;
@@ -358,7 +358,7 @@ static const ber_sequence_t OCSPResponse_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_ocsp_OCSPResponse(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    OCSPResponse_sequence, hf_index, ett_ocsp_OCSPResponse);

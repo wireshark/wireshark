@@ -472,6 +472,7 @@ const value_string ssl_31_handshake_type[] = {
     { SSL_HND_CERT_VERIFY,       "Certificate Verify" },
     { SSL_HND_CLIENT_KEY_EXCHG,  "Client Key Exchange" },
     { SSL_HND_FINISHED,          "Finished" },
+    { SSL_HND_CERT_STATUS,       "Certificate Status" },
     { 0x00, NULL }
 };
 
@@ -902,6 +903,11 @@ const value_string tls_signature_algorithm[] = {
     { 1, "RSA" },
     { 2, "DSA" },
     { 3, "ECDSA" },
+    { 0, NULL }
+};
+
+const value_string tls_cert_status_type[] = {
+    { SSL_HND_CERT_STATUS_TYPE_OCSP, "OCSP" },
     { 0, NULL }
 };
 

@@ -117,6 +117,7 @@
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-x509af.h>
+#include <epan/dissectors/packet-ocsp.h>
 #include <epan/tap.h>
 #include <epan/filesystem.h>
 #include <epan/report_err.h>
@@ -192,6 +193,9 @@ static gint hf_ssl_handshake_sig_hash_algs    = -1;
 static gint hf_ssl_handshake_sig_hash_alg     = -1;
 static gint hf_ssl_handshake_sig_hash_hash    = -1;
 static gint hf_ssl_handshake_sig_hash_sig     = -1;
+static gint hf_ssl_handshake_cert_status      = -1;
+static gint hf_ssl_handshake_cert_status_type = -1;
+static gint hf_ssl_handshake_cert_status_len  = -1;
 static gint hf_ssl_handshake_finished         = -1;
 static gint hf_ssl_handshake_md5_hash         = -1;
 static gint hf_ssl_handshake_sha_hash         = -1;
@@ -252,6 +256,8 @@ static gint ett_ssl_sig_hash_algs     = -1;
 static gint ett_ssl_sig_hash_alg      = -1;
 static gint ett_ssl_dnames            = -1;
 static gint ett_ssl_random            = -1;
+static gint ett_ssl_cert_status       = -1;
+static gint ett_ssl_ocsp_resp         = -1;
 static gint ett_pct_cipher_suites     = -1;
 static gint ett_pct_hash_suites       = -1;
 static gint ett_pct_cert_suites       = -1;
@@ -439,6 +445,10 @@ static void dissect_ssl3_hnd_finished(tvbuff_t *tvb,
                                       const guint32 offset,
                                       const guint* conv_version);
 
+static void dissect_ssl3_hnd_cert_status(tvbuff_t *tvb,
+                                         proto_tree *tree,
+                                         guint32 offset,
+                                         packet_info *pinfo);
 
 /*
  * SSL version 2 dissectors
@@ -1958,6 +1968,10 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 dissect_ssl3_hnd_finished(tvb, ssl_hand_tree,
                                           offset, conv_version);
                 break;
+
+            case SSL_HND_CERT_STATUS:
+                dissect_ssl3_hnd_cert_status(tvb, ssl_hand_tree, offset, pinfo);
+                break;
             }
 
         }
@@ -2682,6 +2696,59 @@ dissect_ssl3_hnd_finished(tvbuff_t *tvb,
         proto_tree_add_item(tree, hf_ssl_handshake_sha_hash,
                             tvb, offset + 16, 20, FALSE);
         break;
+    }
+}
+
+static void
+dissect_ssl3_hnd_cert_status(tvbuff_t *tvb, proto_tree *tree,
+                             guint32 offset, packet_info *pinfo)
+{
+    guint8 cert_status_type;
+    guint cert_status_len;
+    proto_tree *ti;
+    proto_tree *cert_status_tree;
+
+    if (tree)
+    {
+        cert_status_type = tvb_get_guint8(tvb, offset);
+        cert_status_len  = tvb_get_ntoh24(tvb, offset+1);
+        tvb_ensure_bytes_exist(tvb, offset, cert_status_len+4);
+        ti = proto_tree_add_none_format(tree, hf_ssl_handshake_cert_status,
+                                        tvb, offset, cert_status_len+4,
+                                        "Certificate Status (%u byte%s)",
+                                        cert_status_len+4,
+                                        plurality(cert_status_len+4, "", "s"));
+        cert_status_tree = proto_item_add_subtree(ti, ett_ssl_cert_status);
+        proto_tree_add_item(cert_status_tree, hf_ssl_handshake_cert_status_type,
+                            tvb, offset, 1, FALSE);
+        offset++;
+        proto_tree_add_uint(cert_status_tree, hf_ssl_handshake_cert_status_len,
+                            tvb, offset, 3, cert_status_len);
+        offset += 3;
+        if (cert_status_len > 0)
+        {
+            switch (cert_status_type) {
+            case SSL_HND_CERT_STATUS_TYPE_OCSP:
+                {
+                    proto_item *ocsp_resp;
+                    proto_tree *ocsp_resp_tree;
+                    asn1_ctx_t asn1_ctx;
+
+                    ocsp_resp = proto_tree_add_item(cert_status_tree,
+                                                    proto_ocsp, tvb, offset,
+                                                    cert_status_len, FALSE);
+                    proto_item_set_text(ocsp_resp, "OCSP Response");
+                    ocsp_resp_tree = proto_item_add_subtree(ocsp_resp,
+                                                            ett_ssl_ocsp_resp);
+                    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+                    dissect_ocsp_OCSPResponse(FALSE, tvb, offset, &asn1_ctx,
+                                              ocsp_resp_tree, -1);
+                    break;
+                }
+            default:
+                break;
+            }
+        }
     }
 }
 
@@ -4368,6 +4435,21 @@ proto_register_ssl(void)
             FT_UINT8, BASE_DEC, VALS(tls_signature_algorithm), 0x0,
             NULL, HFILL }
         },
+        { &hf_ssl_handshake_cert_status,
+          { "Certificate Status", "ssl.handshake.cert_status",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            "Certificate Status Data", HFILL }
+        },
+        { &hf_ssl_handshake_cert_status_type,
+          { "Certificate Status Type", "ssl.handshake.cert_status_type",
+            FT_UINT8, BASE_DEC, VALS(tls_cert_status_type), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ssl_handshake_cert_status_len,
+          { "Certificate Status Length", "ssl.handshake.cert_status_len",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            "Length of certificate status", HFILL }
+        },
         { &hf_ssl_handshake_finished,
           { "Verify Data", "ssl.handshake.verify_data",
             FT_NONE, BASE_NONE, NULL, 0x0,
@@ -4596,6 +4678,8 @@ proto_register_ssl(void)
         &ett_ssl_sig_hash_alg,
         &ett_ssl_dnames,
         &ett_ssl_random,
+        &ett_ssl_cert_status,
+        &ett_ssl_ocsp_resp,
         &ett_pct_cipher_suites,
         &ett_pct_hash_suites,
         &ett_pct_cert_suites,
