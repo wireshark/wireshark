@@ -902,6 +902,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-rpl.c
 	dissectors/packet-rquota.c
 	dissectors/packet-rsh.c
+	dissectors/packet-rsip.c
 	dissectors/packet-rsl.c
 	dissectors/packet-rstat.c
 	dissectors/packet-rsvp.c
