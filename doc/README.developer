@@ -3595,7 +3595,9 @@ Where: module - Returned by the prefs_register_protocol routine
 		    "." between them, to construct a name that identifies
 		    the field in the preference file; the name itself
 		    should not include the protocol name, as the name in
-		    the preference file will already have it
+		    the preference file will already have it. Make sure that
+		    only lower-case ASCII letters, numbers, underscores and
+		    dots appear in the preference name.
 	 title    - Field title in the preferences dialog
 	 description - Comments added to the preference file above the
 		       preference value and shown as tooltip in the GUI, or NULL
