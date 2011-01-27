@@ -6497,11 +6497,6 @@ proto_register_gsm_a_bssmap(void)
         FT_BOOLEAN,8, TFS(&bssmap_lsa_only_value), 0x01,
         NULL, HFILL }
     },
-    { &hf_gsm_a_bssmap_lsa_only,
-        { "LSA only","ggsm_a_bssmap.lsa_only",
-        FT_BOOLEAN,8, TFS(&bssmap_lsa_only_value), 0x01,
-        NULL, HFILL }
-    },
     { &hf_gsm_a_bssmap_act,
         { "Active mode support","gsm_a_bssmap.act",
         FT_BOOLEAN,8, NULL, 0x20,
