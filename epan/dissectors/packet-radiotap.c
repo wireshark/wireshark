@@ -832,7 +832,7 @@ void proto_register_radiotap(void)
 		{&hf_radiotap_mcs_format,
 		 {"format", "radiotap.mcs.format",
 		  FT_UINT8, BASE_DEC, VALS(mcs_format), IEEE80211_RADIOTAP_MCS_FMT_GF,
-		  "format", HFILL}},
+		  NULL, HFILL}},
 		{&hf_radiotap_mcs_fec,
 		 {"FEC", "radiotap.mcs.fec",
 		  FT_UINT8, BASE_DEC, VALS(mcs_fec), IEEE80211_RADIOTAP_MCS_FEC_LDPC,
