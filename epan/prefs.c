@@ -593,8 +593,9 @@ register_preference(module_t *module, const char *name, const char *title,
 	 * and shouldn't require quoting, shifting, etc.
 	 */
 	for (p = name; *p != '\0'; p++)
-		g_assert(isascii((guchar)*p) &&
-		    (islower((guchar)*p) || isdigit((guchar)*p) || *p == '_' || *p == '.'));
+		if (!(isascii((guchar)*p) &&
+		    (islower((guchar)*p) || isdigit((guchar)*p) || *p == '_' || *p == '.')))
+			g_error("Preference %s.%s contains invalid characters", module->name, name);
 
 	/*
 	 * Make sure there's not already a preference with that
@@ -602,15 +603,17 @@ register_preference(module_t *module, const char *name, const char *title,
 	 * code, and the code has to be fixed not to register
 	 * more than one preference with the same name.
 	 */
-	g_assert(prefs_find_preference(module, name) == NULL);
+	if (prefs_find_preference(module, name) != NULL)
+		g_error("Preference %s has already been registered", name);
 
 	if (type != PREF_OBSOLETE) {
 		/*
 		 * Make sure the preference name doesn't begin with the
 		 * module name, as that's redundant and Just Silly.
 		 */
-		g_assert((strncmp(name, module->name, strlen(module->name)) != 0) ||
-			(((name[strlen(module->name)]) != '.') && ((name[strlen(module->name)]) != '_')));
+		if(!((strncmp(name, module->name, strlen(module->name)) != 0) ||
+		    (((name[strlen(module->name)]) != '.') && ((name[strlen(module->name)]) != '_'))))
+			g_error("Preference %s begins with the module name", name);
 	}
 
 	/*
