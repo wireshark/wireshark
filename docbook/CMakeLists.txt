@@ -97,6 +97,7 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-gui-layout-preferences.png
 	wsug_graphics/ws-gui-preferences.png
 	wsug_graphics/ws-help-menu.png
+	wsug_graphics/ws-internals-menu.png
 	wsug_graphics/ws-list-pane.png
 	wsug_graphics/ws-logo.png
 	wsug_graphics/ws-main-toolbar.png
