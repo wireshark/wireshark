@@ -75,6 +75,7 @@ static int hf_per_single_ASN1_type = -1;          /* T_single_ASN1_type */
 static int hf_per_octet_aligned = -1;             /* T_octet_aligned */
 static int hf_per_arbitrary = -1;                 /* T_arbitrary */
 static int hf_per_integer_length = -1;			  /* Show integer length if "show internal per fields" */
+static int hf_per_debug_pos = -1;
 
 static gint ett_per_open_type = -1;
 static gint ett_per_containing = -1;
@@ -201,8 +202,8 @@ static const guint16 bit_mask16_unalligned[] = {
     0xfe00
 };
 
-/* Fetch a number of bits to a new tvb right adjusted to the nearest number of bytes.
- * (add proceeding zeros in case of aligned PER)
+/* Fetch the number of bits left adjusted to a new tvb with a size of the nearest number of bytes.
+ * pad the remaining bits with 0
  */
 tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 boffset, asn1_ctx_t *actx, guint32 no_of_bits)
 {
@@ -246,48 +247,31 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 boffset, asn1_ctx
   tvb_ensure_bytes_exist(tvb, offset, check_length);
   buf = g_malloc(new_length);
 
-  if (actx->aligned)
-  {
-	if(no_of_bits<=8){
-		buf[0] = tvb_get_bits8(tvb, boffset, no_of_bits);
-	}else{
-		/* Add with padding */
-		buf[0] = tvb_get_bits8(tvb, boffset, 8-remainderval);
-		boffset = boffset + (8-remainderval);
-		for (i=1; i<new_length; i++){
-			 buf[i] = tvb_get_bits8(tvb, boffset,8);
-			 boffset+= 8;
-		}
-	}
-  }
-  else
-  {
-    /* Do not preceed with zeros in case of PER unaligned */
-    i = 0;
-    shift1 = boffset & 0x07;
-    shift0 = 8 - shift1;
+  i = 0;
+  shift1 = boffset & 0x07;
+  shift0 = 8 - shift1;
 
-    if (new_length > 1){
-      octet0 = tvb_get_guint8(tvb, offset);
-      for (; i < new_length-1; i++) {
-        octet1 = octet0;
-        octet0 = tvb_get_guint8(tvb, offset + i + 1);
-        buf[i] = (octet1 << shift1) | (octet0 >> shift0);
-      }
+  if (new_length > 1){
+    octet0 = tvb_get_guint8(tvb, offset);
+    for (; i < new_length-1; i++) {
+      octet1 = octet0;
+      octet0 = tvb_get_guint8(tvb, offset + i + 1);
+      buf[i] = (octet1 << shift1) | (octet0 >> shift0);
     }
-    /* get the 'odd' bits */
-    if ((no_of_bits - 8*i) > shift0){
-      word = tvb_get_ntohs(tvb,offset+i) << shift1;
-    }else{
-      word = tvb_get_guint8(tvb,offset+i) << (shift1 + 8);
-    }
-    word = word & bit_mask16_unalligned[remainderval];
-    word = word >> 8;
-    buf[i] = (guint8) (word & 0x00ff);
   }
+  /* get the 'odd' bits */
+  if ((no_of_bits - 8*i) > shift0){
+    word = tvb_get_ntohs(tvb,offset+i) << shift1;
+  }else{
+    word = tvb_get_guint8(tvb,offset+i) << (shift1 + 8);
+  }
+  word = word & bit_mask16_unalligned[remainderval];
+  word = word >> 8;
+  buf[i] = (guint8) (word & 0x00ff);
+
   sub_tvb = tvb_new_child_real_data(tvb, buf, new_length, new_length);
   tvb_set_free_cb(sub_tvb, g_free);
-  add_new_data_source(actx->pinfo, sub_tvb, "Unaligned OCTET STRING");
+  add_new_data_source(actx->pinfo, sub_tvb, "Bitstring tvb");
 
   return sub_tvb;
 }
@@ -2057,11 +2041,7 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 		proto_item_append_text(actx->created_item, " [bit length %u", length);
 		if (length%8) {
 			pad_length = 8-(length%8);
-			if (actx->aligned){
-				proto_item_append_text(actx->created_item, ", %u MSB pad bits", pad_length);
-			}else{
-				proto_item_append_text(actx->created_item, ", %u LSB pad bits", pad_length);
-			}
+			proto_item_append_text(actx->created_item, ", %u LSB pad bits", pad_length);
 		}
 		 
 		if (length<=64) { /* if read into 64 bits also handle length <= 24, 40, 48, 56 bits */
@@ -2092,13 +2072,8 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 			}else {
 				value = tvb_get_bits64(out_tvb, 0, length, FALSE);
 			}
-			if (actx->aligned){
-				proto_item_append_text(actx->created_item, ", %s decimal value %" G_GINT64_MODIFIER "u", 
-					decode_bits_in_field(pad_length, length, value), value);
-			}else{
-				proto_item_append_text(actx->created_item, ", %s decimal value %" G_GINT64_MODIFIER "u", 
-					decode_bits_in_field(0, length, value), value);
-			}
+			proto_item_append_text(actx->created_item, ", %s decimal value %" G_GINT64_MODIFIER "u", 
+				decode_bits_in_field(0, length, value), value);
 		}
 		proto_item_append_text(actx->created_item, "]");
 	}
@@ -2168,7 +2143,6 @@ DEBUG_ENTRY("dissect_per_bit_string");
 		 * align to byte
 		 */
 		if (actx->aligned){
-			/* TODO the displayed value will be wrong for the unaligned variant */
 			BYTE_ALIGN_OFFSET(offset);
 		}
 		out_tvb = dissect_per_bit_string_display(tvb, offset, actx, tree, hf_index, hfi, min_len);
@@ -2636,6 +2610,10 @@ proto_register_per(void)
         "per.T_arbitrary", HFILL }},
     { &hf_per_integer_length,
       { "integer length", "per.integer_length",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+	{ &hf_per_debug_pos,
+      { "Current bit offset", "per.debug_pos",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
 	};
