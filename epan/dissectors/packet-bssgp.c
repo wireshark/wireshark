@@ -6315,12 +6315,18 @@ static guint16
 de_bssgp_bvci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
+	guint16 bvci;
 
 	curr_offset = offset;
 
 	/* octet 3-4 Unstructured value */
+	bvci = tvb_get_ntohs(tvb,curr_offset);
 	proto_tree_add_item(tree, hf_bssgp_bvci, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 	curr_offset+=2;
+
+	if (add_string)
+		g_snprintf(add_string, string_len, " - 0x%x", bvci);
+
 
 	return(curr_offset-offset);
 }
@@ -6530,12 +6536,17 @@ static guint16
 de_bssgp_flush_action(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
+	guint8  oct;
 
 	curr_offset = offset;
 
 	/* Action value */
-	proto_tree_add_item(tree, hf_bssgp_flush_action, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
-	curr_offset+=2;
+	oct = tvb_get_guint8(tvb,curr_offset);
+	proto_tree_add_item(tree, hf_bssgp_flush_action, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	curr_offset+=1;
+	if (add_string)
+		g_snprintf(add_string, string_len, " - %s", val_to_str_const(oct, bssgp_flush_action_vals, "Reserved"));
+
 
 	return(curr_offset-offset);
 }
@@ -6585,12 +6596,17 @@ static guint16
 de_bssgp_llc_frames_disc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
+	guint8 oct;
 
 	curr_offset = offset;
 
 	/* Action value */
+	oct = tvb_get_guint8(tvb,curr_offset);
 	proto_tree_add_item(tree, hf_bssgp_llc_frames_disc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset+=1;
+
+	if (add_string)
+		g_snprintf(add_string, string_len, " - %u Frames", oct);
 
 	return(curr_offset-offset);
 }
@@ -7014,13 +7030,18 @@ static guint16
 de_bssgp_no_of_oct_affected(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
+	guint32 no_of_oct;
 
 	curr_offset = offset;
 
 	/* octet 3-5 number of octets transferred or deleted */
+	no_of_oct = tvb_get_ntoh24(tvb,curr_offset);
 	proto_tree_add_item(tree, hf_bssgp_no_of_oct, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
 
 	curr_offset+=3;
+
+	if (add_string)
+		g_snprintf(add_string, string_len, " - %u", no_of_oct);
 
 	return(curr_offset-offset);
 }
