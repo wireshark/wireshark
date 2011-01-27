@@ -141,6 +141,14 @@
 #define LINUX_ENOMEM            12
 #define LINUX_INVAL             22
 
+#define DLM3_ERRNO_EDEADLK       35
+#define DLM3_ERRNO_EBADR         53
+#define DLM3_ERRNO_EBADSLT       57
+#define DLM3_ERRNO_EPROTO        71
+#define DLM3_ERRNO_EOPNOTSUPP    95
+#define DLM3_ERRNO_ETIMEDOUT    110
+#define DLM3_ERRNO_EINPROGRESS  115
+
 #define DLM3_ECANCEL            0x10001
 #define DLM3_EUNLOCK            0x10002
 
@@ -353,6 +361,13 @@ static const value_string dlm3_result[] = {
   { -LINUX_EAGAIN, "blocked"                       },
   { -LINUX_ENOMEM, "no memory"                     },
   { -LINUX_INVAL,  "invalid parameters"            },
+  { -DLM3_ERRNO_EDEADLK,     "Resource deadlock avoided"  },
+  { -DLM3_ERRNO_EBADR,       "Invalid request descriptor" },
+  { -DLM3_ERRNO_EBADSLT,     "Invalid slot"               },
+  { -DLM3_ERRNO_EPROTO,      "Protocol error"             },
+  { -DLM3_ERRNO_EOPNOTSUPP,  "Operation not supported"    },
+  { -DLM3_ERRNO_ETIMEDOUT,   "Connection timed out"       },
+  { -DLM3_ERRNO_EINPROGRESS, "Operation now in progress"  },
   { -DLM3_ECANCEL, "cancel completed successfully" },
   { -DLM3_EUNLOCK, "unlock request was successful" },
   { 0,             "successful"                    },
