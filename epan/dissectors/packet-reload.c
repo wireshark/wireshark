@@ -1,4 +1,3 @@
-/* -*- Mode: C; tab-width: 2 -*- */
 /* packet-reload.c
  * Routines forREsource LOcation And Discovery (RELOAD) Base Protocol
  * Author: Stephane Bryant <sbryant@glycon.org>
@@ -42,6 +41,7 @@
 static int proto_reload = -1;
 
 static gboolean reload_defragment = TRUE;
+static guint reload_nodeid_length = 16;
 
 static int hf_reload_response_in = -1;
 static int hf_reload_response_to = -1;
@@ -69,7 +69,7 @@ static int hf_reload_destination = -1;
 static int hf_reload_destination_compressed = -1;
 static int hf_reload_destination_type = -1;
 static int hf_reload_destination_length = -1;
-static int hf_reload_node_id = -1;
+static int hf_reload_nodeid = -1;
 static int hf_reload_resource_id = -1;
 static int hf_reload_destination_data_compressed_id = -1;
 static int hf_reload_destination_list = -1;
@@ -185,6 +185,8 @@ static int hf_reload_configupdatereq_type = -1;
 static int hf_reload_configupdatereq_length = -1;
 static int hf_reload_configupdatereq_configdata = -1;
 static int hf_reload_configupdatereq_kinds = -1;
+static int hf_reload_padding = -1;
+
 
 static dissector_handle_t data_handle;
 
@@ -355,6 +357,7 @@ static gint ett_reload_findkinddata = -1;
 static gint ett_reload_fragments = -1;
 static gint ett_reload_fragment  = -1;
 static gint ett_reload_configupdatereq = -1;
+static gint ett_reload_storekindresponse_replicas = -1;
 
 static const fragment_items reload_frag_items = {
   &ett_reload_fragment,
@@ -567,7 +570,7 @@ get_opaque_length(tvbuff_t *tvb, guint16 offset, guint16 length_size)
 }
 
 static int
-dissect_opaque(tvbuff_t *tvb, packet_info *pinfo,proto_tree *tree, int anchor_index, guint16 offset, guint16 length_size, gint32 field_length)
+dissect_opaque(tvbuff_t *tvb, packet_info *pinfo,proto_tree *tree, int anchor_index, guint16 offset, guint16 length_size, gint32 max_field_length)
 {
   proto_tree *opaque_tree;
   proto_item *ti_anchor;
@@ -600,13 +603,10 @@ dissect_opaque(tvbuff_t *tvb, packet_info *pinfo,proto_tree *tree, int anchor_in
 
   ti_anchor = proto_tree_add_item(tree, anchor_index, tvb, offset, length_size + length, FALSE);
 
-  if (field_length > 0) {
-    if ((length + length_size) > field_length) {
-      expert_add_info_format(pinfo, ti_anchor, PI_PROTOCOL, PI_ERROR, "computed length > field length");
-      length = field_length - length_size;
-    }
-    else if ((length + length_size) != field_length) {
-      expert_add_info_format(pinfo, ti_anchor, PI_PROTOCOL, PI_WARN, "computed length != field length");
+  if (max_field_length > 0) {
+    if ((length + length_size) > max_field_length) {
+      expert_add_info_format(pinfo, ti_anchor, PI_PROTOCOL, PI_ERROR, "computed length > max_field length");
+      length = max_field_length - length_size;
     }
   }
 
@@ -650,11 +650,18 @@ dissect_destination(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
     switch(destination_type) {
     case DESTINATIONTYPE_NODE:
       {
-        proto_item *ti_node_id;
+        proto_item *ti_nodeid;
+        guint nodeid_length = destination_length;
         /* We don't know the node ID. Just assume that all the data is part of it */
-        ti_node_id = proto_tree_add_item(destination_tree, hf_reload_node_id, tvb, offset+ 2, destination_length, FALSE);
-        if ((destination_length < 16) || (destination_length > 20)) {
-          expert_add_info_format(pinfo, ti_node_id, PI_PROTOCOL, PI_ERROR, "node id length is not in the correct range");
+        if (nodeid_length < reload_nodeid_length) {
+          expert_add_info_format(pinfo, ti_destination, PI_PROTOCOL, PI_ERROR, "truncated node id");
+        }
+        else {
+          nodeid_length = reload_nodeid_length;
+        }
+        ti_nodeid = proto_tree_add_item(destination_tree, hf_reload_nodeid, tvb, offset+ 2, nodeid_length, FALSE);
+        if ((nodeid_length < 16) || (nodeid_length > 20)) {
+          expert_add_info_format(pinfo, ti_nodeid, PI_PROTOCOL, PI_ERROR, "node id length is not in the correct range");
         }
       }
       break;
@@ -1032,7 +1039,7 @@ dissect_kinddata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 of
   values_length = tvb_get_ntohl(tvb, offset + 4 + 8);
   if (12 + values_length > length) {
     ti_kinddata = proto_tree_add_item(tree, hf_reload_kinddata, tvb, offset, length, FALSE);
-    expert_add_info_format(pinfo, ti_kinddata, PI_PROTOCOL, PI_ERROR, "Truncated storereq");
+    expert_add_info_format(pinfo, ti_kinddata, PI_PROTOCOL, PI_ERROR, "Truncated kind data");
     return length;
   }
   ti_kinddata = proto_tree_add_item(tree, hf_reload_kinddata, tvb, offset, 12+values_length, FALSE);
@@ -1068,11 +1075,17 @@ dissect_storereq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 of
   guint32 kind_data_length;
 
 
-  local_offset += get_opaque_length(tvb, offset, 1); /* resource id length */
+  local_offset += get_opaque_length(tvb, offset, 1) + 1; /* resource id length */
+  if (local_offset > length) {
+    ti_storereq = proto_tree_add_item(tree, hf_reload_storereq, tvb, offset, length, FALSE);
+    expert_add_info_format(pinfo, ti_storereq, PI_PROTOCOL, PI_ERROR, "Truncated storereq: resource too long");
+    return length;
+  }
+
   local_offset += 1; /* replica_num */
   if (local_offset > length) {
     ti_storereq = proto_tree_add_item(tree, hf_reload_storereq, tvb, offset, length, FALSE);
-    expert_add_info_format(pinfo, ti_storereq, PI_PROTOCOL, PI_ERROR, "Truncated storereq");
+    expert_add_info_format(pinfo, ti_storereq, PI_PROTOCOL, PI_ERROR, "Truncated storereq: no room for replica_number");
     return length;
   }
 
@@ -1080,7 +1093,7 @@ dissect_storereq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 of
   local_offset += 4;
   if (local_offset + kind_data_length > length) {
     ti_storereq = proto_tree_add_item(tree, hf_reload_storereq, tvb, offset, length, FALSE);
-    expert_add_info_format(pinfo, ti_storereq, PI_PROTOCOL, PI_ERROR, "Truncated storereq");
+    expert_add_info_format(pinfo, ti_storereq, PI_PROTOCOL, PI_ERROR, "Truncated storereq: kind_date too long");
     return length;
   }
   local_offset += kind_data_length;
@@ -1090,7 +1103,7 @@ dissect_storereq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 of
 
   /* Parse from start */
   local_offset = 0;
-  local_offset += dissect_opaque(tvb, pinfo, storereq_tree, hf_reload_resource_id, offset +4, 1, length);
+  local_offset += dissect_opaque(tvb, pinfo, storereq_tree, hf_reload_resource_id, offset +local_offset, 1, length);
   proto_tree_add_item(storereq_tree, hf_reload_store_replica_num, tvb, offset + local_offset, 1, FALSE);
   local_offset += 1;
   proto_tree_add_item(storereq_tree, hf_reload_store_kind_data_length, tvb, offset + local_offset, 4, FALSE);
@@ -1154,7 +1167,7 @@ dissect_statans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 off
   kind_responses_length = tvb_get_ntohl(tvb, offset);
   if (4 + kind_responses_length > length) {
     ti_statans = proto_tree_add_item(tree, hf_reload_statans, tvb, offset, length, FALSE);
-    expert_add_info_format(pinfo, ti_statans, PI_PROTOCOL, PI_ERROR, "Truncated storereq");
+    expert_add_info_format(pinfo, ti_statans, PI_PROTOCOL, PI_ERROR, "Truncated statans");
     return length;
   }
   ti_statans = proto_tree_add_item(tree, hf_reload_statans, tvb, offset, 4 + kind_responses_length, FALSE);
@@ -1251,6 +1264,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   message_code = tvb_get_ntohs(tvb, forwarding_length);
 
+  /* Do we already have a conversation ? */
   conversation = find_or_create_conversation(pinfo);
 
   /*
@@ -1495,12 +1509,17 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           option_offset += dissect_attachreqans(tvb, pinfo, directresponseforwarding_tree, offset + local_offset + option_offset, option_length);
           /* requesting node */
           {
-            gint node_id_length = option_length - option_offset;
-            proto_item *ti_node_id;
-            /* We don't know the node ID. Just assume that all the data is part of it */
-            ti_node_id = proto_tree_add_item(option_tree, hf_reload_node_id, tvb, offset+local_offset+option_offset, node_id_length, FALSE);
-            if ((node_id_length < 16) || (node_id_length > 20)) {
-              expert_add_info_format(pinfo, ti_node_id, PI_PROTOCOL, PI_ERROR, "node id length is not in the correct range");
+            guint nodeid_length = (guint) (option_length - option_offset);
+            proto_item *ti_nodeid;
+            if (reload_nodeid_length > nodeid_length) {
+              expert_add_info_format(pinfo, ti_directresponseforwarding, PI_PROTOCOL, PI_ERROR, "nodeid length truncated");
+            }
+            else {
+              nodeid_length = reload_nodeid_length;
+            }
+            ti_nodeid = proto_tree_add_item(option_tree, hf_reload_nodeid, tvb, offset+local_offset+option_offset, nodeid_length, FALSE);
+            if ((nodeid_length < 16) || (nodeid_length > 20)) {
+              expert_add_info_format(pinfo, ti_nodeid, PI_PROTOCOL, PI_ERROR, "node id length is not in the correct range");
             }
           }
         }
@@ -1516,7 +1535,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   offset += options_length;
 
   save_fragmented = pinfo->fragmented;
-  if ((reload_defragment) && (fragmented != FALSE)) {
+  if ((reload_defragment) && ((fragmented != FALSE) && !((fragment == 0) && (last_fragment)))) {
     tvbuff_t   *next_tvb = NULL;
 
     pinfo->fragmented = TRUE;
@@ -1552,12 +1571,14 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
 
+
   /* Message Contents */
-  if (message_code != ERROR) {
+  {
     guint32 message_body_length;
     guint32 extensions_length;
     proto_item *ti_message_contents;
     proto_tree *message_contents_tree;
+
     message_body_length = tvb_get_ntohl(tvb, offset + 2);
     extensions_length = tvb_get_ntohl(tvb, offset + 2 + 4 + message_body_length);
     if (forwarding_length + 2 + 4 + message_body_length + 4 + extensions_length > msg_length) {
@@ -1569,356 +1590,374 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti_message_contents = proto_tree_add_item(reload_tree, hf_reload_message_contents, tvb, offset, 2 + 4 + message_body_length + 4 + extensions_length, FALSE);
     message_contents_tree = proto_item_add_subtree(ti_message_contents, ett_reload_message_contents);
 
-    /* message_code was already parsed */
-    proto_tree_add_uint_format_value(message_contents_tree, hf_reload_message_code, tvb,
-                                     offset, 2,
-                                     message_code,
-                                     "%s-%s", msg_method_str, msg_class_str);
-    offset += 2;
-    switch(MSGCODE_TO_METHOD(message_code)) {
-    case METHOD_ROUTEQUERY:
-      {
-        if (IS_REQUEST(message_code)) {
-          proto_item *ti_message_body;
-          proto_tree *message_body_tree;
-          ti_message_body = proto_tree_add_item(message_contents_tree, hf_reload_message_body, tvb, offset, 4 + message_body_length, FALSE);
-          message_body_tree = proto_item_add_subtree(ti_message_body, ett_reload_message_body);
-          proto_tree_add_uint(message_body_tree, hf_reload_opaque_length_uint32, tvb, offset, 4, message_body_length);
-          {
-            proto_item * ti_routequeryreq;
-            proto_tree * routequeryreq_tree;
-            int destination_length;
-            ti_routequeryreq = proto_tree_add_item(message_body_tree, hf_reload_routequeryreq, tvb, offset+4, message_body_length, FALSE);
-            routequeryreq_tree = proto_item_add_subtree(ti_routequeryreq, ett_reload_routequeryreq);
-            proto_tree_add_item(routequeryreq_tree, hf_reload_sendupdate, tvb, offset+4, 1, FALSE);
-            destination_length = dissect_destination(tvb, pinfo, routequeryreq_tree, offset + 4 + 1, message_body_length - 1 - 2);
-            dissect_opaque(tvb, pinfo, routequeryreq_tree, hf_reload_overlay_specific, offset + 4 + 1 + destination_length, 2, (message_body_length - 1 - destination_length));
-          }
-        }
-          /* Answer is entirely Overlay-specific */
-      }
-      break;
+    if (message_code != ERROR) {
+      proto_item *ti_message_body;
+      proto_tree *message_body_tree;
 
-    case METHOD_PROBE:
-      {
-        proto_item *ti_message_body;
-        proto_tree *message_body_tree;
-        ti_message_body = proto_tree_add_item(message_contents_tree, hf_reload_message_body, tvb, offset, 4 + message_body_length, FALSE);
-        message_body_tree = proto_item_add_subtree(ti_message_body, ett_reload_message_body);
-        proto_tree_add_uint(message_body_tree, hf_reload_opaque_length_uint32, tvb, offset, 4, message_body_length);
+      /* message_code was already parsed */
+      proto_tree_add_uint_format_value(message_contents_tree, hf_reload_message_code, tvb,
+                                       offset, 2,
+                                       message_code,
+                                       "%s-%s", msg_method_str, msg_class_str);
+      offset += 2;
+      /* Message body */
+      ti_message_body = proto_tree_add_item(message_contents_tree, hf_reload_message_body, tvb, offset, 4 + message_body_length, FALSE);
+      message_body_tree = proto_item_add_subtree(ti_message_body, ett_reload_message_body);
+      proto_tree_add_uint(message_body_tree, hf_reload_opaque_length_uint32, tvb, offset, 4, message_body_length);
+      offset +=4;
 
-        if (IS_REQUEST(message_code)) {
-          proto_item * ti_probereq;
-          proto_tree * probereq_tree;
-          guint8 info_list_length = 0;
-          ti_probereq = proto_tree_add_item(message_body_tree, hf_reload_probereq, tvb, offset+4, message_body_length, FALSE);
-          probereq_tree = proto_item_add_subtree(ti_probereq, ett_reload_probereq);
-          info_list_length = tvb_get_guint8(tvb, offset + 4);
-
-          proto_tree_add_uint(probereq_tree, hf_reload_opaque_length_uint8, tvb, offset+4, 1, info_list_length);
-
-          if (info_list_length > message_body_length - 1) {
-            expert_add_info_format(pinfo, ti_probereq, PI_PROTOCOL, PI_ERROR, "requested info list too long for field size");
-            info_list_length = message_body_length - 1;
-          }
-          {
-            int probe_offset = 0;
-            while (probe_offset < info_list_length) {
-              proto_tree_add_item(probereq_tree, hf_reload_probe_information_type, tvb, offset + 4 + 1 + probe_offset, 1, FALSE);
-              probe_offset += 1;
-            }
-          }
-        }
-        else {
-          /* response */
-          proto_item * ti_probeans;
-          proto_tree * probeans_tree;
-          guint16 info_list_length = 0;
-
-          ti_probeans = proto_tree_add_item(message_body_tree, hf_reload_probeans, tvb, offset+4, message_body_length, FALSE);
-          probeans_tree = proto_item_add_subtree(ti_probeans, ett_reload_probeans);
-          info_list_length = tvb_get_ntohs(tvb, offset + 4);
-
-          proto_tree_add_uint(probeans_tree, hf_reload_opaque_length_uint16, tvb, offset+4, 2, info_list_length);
-
-          if (info_list_length > message_body_length - 2) {
-            expert_add_info_format(pinfo, ti_probeans, PI_PROTOCOL, PI_ERROR, "requested info list too long for field size");
-            info_list_length = message_body_length - 2;
-          }
-          {
-            int probe_offset = 0;
-            int probe_increment;
-            while (probe_offset < info_list_length) {
-              probe_increment = dissect_probe_information(tvb, pinfo, probeans_tree, offset + 4 + 2 + probe_offset, info_list_length - probe_offset);
-              if (probe_increment == 0) {
-                break;
-              }
-              probe_offset += probe_increment;
-            }
-          }
-        }
-      }
-      break;
-
-    case METHOD_ATTACH:
-      {
-        proto_item *ti_message_body;
-        proto_tree *message_body_tree;
-        ti_message_body = proto_tree_add_item(message_contents_tree, hf_reload_message_body, tvb, offset, 4 + message_body_length, FALSE);
-        message_body_tree = proto_item_add_subtree(ti_message_body, ett_reload_message_body);
-        proto_tree_add_uint(message_body_tree, hf_reload_opaque_length_uint32, tvb, offset, 4, message_body_length);
-        dissect_attachreqans(tvb, pinfo, message_body_tree, offset+4, message_body_length);
-      }
-      break;
-
-    case METHOD_APPATTACH:
-      {
-        proto_item *ti_message_body;
-        proto_tree *message_body_tree;
-        ti_message_body = proto_tree_add_item(message_contents_tree, hf_reload_message_body, tvb, offset, 4 + message_body_length, FALSE);
-        message_body_tree = proto_item_add_subtree(ti_message_body, ett_reload_message_body);
-        proto_tree_add_uint(message_body_tree, hf_reload_opaque_length_uint32, tvb, offset, 4, message_body_length);
-
-        /* Parse AppAttachReq/Ans */
-
+      switch(MSGCODE_TO_METHOD(message_code)) {
+      case METHOD_ROUTEQUERY:
         {
-          guint16 local_offset = 0;
-          proto_item *ti_appattach;
-          proto_tree *appattach_tree;
-          ti_appattach = proto_tree_add_item(tree, hf_reload_appattach, tvb, offset+4+local_offset, message_body_length, FALSE);
-          appattach_tree  = proto_item_add_subtree(ti_appattach, ett_reload_appattach);
-          local_offset += dissect_opaque(tvb, pinfo,appattach_tree, hf_reload_ufrag,offset+4+local_offset, 1, message_body_length);
-          local_offset += dissect_opaque(tvb, pinfo,appattach_tree, hf_reload_password,offset+4+local_offset, 1, message_body_length-local_offset);
-          proto_tree_add_item(appattach_tree, hf_reload_application, tvb, offset+4+local_offset, message_body_length-local_offset, FALSE);
-          local_offset += 2;
-          local_offset += dissect_opaque(tvb, pinfo,appattach_tree, hf_reload_role,offset+4+local_offset, 1, message_body_length-local_offset);
-          dissect_icecandidates(tvb, pinfo, appattach_tree, offset+4+local_offset, message_body_length-local_offset);
-        }
-      }
-      break;
-
-    case METHOD_PING:
-      {
-        proto_item *ti_message_body;
-        proto_tree *message_body_tree;
-        ti_message_body = proto_tree_add_item(message_contents_tree, hf_reload_message_body, tvb, offset, 4 + message_body_length, FALSE);
-        message_body_tree = proto_item_add_subtree(ti_message_body, ett_reload_message_body);
-        proto_tree_add_uint(message_body_tree, hf_reload_opaque_length_uint32, tvb, offset, 4, message_body_length);
-
-        if (IS_REQUEST(message_code)) {
-          if (message_body_length != 0) {
-            expert_add_info_format(pinfo, ti_message_contents, PI_PROTOCOL, PI_WARN, "ping request body should be empty");
+          if (IS_REQUEST(message_code)) {
+            {
+              proto_item * ti_routequeryreq;
+              proto_tree * routequeryreq_tree;
+              int destination_length;
+              ti_routequeryreq = proto_tree_add_item(message_body_tree, hf_reload_routequeryreq, tvb, offset, message_body_length, FALSE);
+              routequeryreq_tree = proto_item_add_subtree(ti_routequeryreq, ett_reload_routequeryreq);
+              proto_tree_add_item(routequeryreq_tree, hf_reload_sendupdate, tvb, offset, 1, FALSE);
+              destination_length = dissect_destination(tvb, pinfo, routequeryreq_tree, offset + 1, message_body_length - 1 - 2);
+              dissect_opaque(tvb, pinfo, routequeryreq_tree, hf_reload_overlay_specific, offset + 1 + destination_length, 2, (message_body_length - 1 - destination_length));
+            }
           }
+          /* Answer is entirely Overlay-specific */
         }
-        else {
-          if (message_body_length < 16) {
-            expert_add_info_format(pinfo, ti_message_contents, PI_PROTOCOL, PI_ERROR, "Truncated ping Answer");
+        break;
+
+      case METHOD_PROBE:
+        {
+          if (IS_REQUEST(message_code)) {
+            proto_item * ti_probereq;
+            proto_tree * probereq_tree;
+            guint8 info_list_length = 0;
+            ti_probereq = proto_tree_add_item(message_body_tree, hf_reload_probereq, tvb, offset, message_body_length, FALSE);
+            probereq_tree = proto_item_add_subtree(ti_probereq, ett_reload_probereq);
+            info_list_length = tvb_get_guint8(tvb, offset);
+
+            proto_tree_add_uint(probereq_tree, hf_reload_opaque_length_uint8, tvb, offset, 1, info_list_length);
+
+            if (info_list_length > message_body_length - 1) {
+              expert_add_info_format(pinfo, ti_probereq, PI_PROTOCOL, PI_ERROR, "requested info list too long for field size");
+              info_list_length = message_body_length - 1;
+            }
+            {
+              int probe_offset = 0;
+              while (probe_offset < info_list_length) {
+                proto_tree_add_item(probereq_tree, hf_reload_probe_information_type, tvb, offset + 1 + probe_offset, 1, FALSE);
+                probe_offset += 1;
+              }
+            }
           }
           else {
-            proto_tree_add_item(message_body_tree, hf_reload_ping_response_id, tvb, offset + 4, 8, FALSE);
-            proto_tree_add_item(message_body_tree, hf_reload_ping_time, tvb, offset + 12, 8, FALSE);
+            /* response */
+            proto_item * ti_probeans;
+            proto_tree * probeans_tree;
+            guint16 info_list_length = 0;
+
+            ti_probeans = proto_tree_add_item(message_body_tree, hf_reload_probeans, tvb, offset, message_body_length, FALSE);
+            probeans_tree = proto_item_add_subtree(ti_probeans, ett_reload_probeans);
+            info_list_length = tvb_get_ntohs(tvb, offset);
+
+            proto_tree_add_uint(probeans_tree, hf_reload_opaque_length_uint16, tvb, offset, 2, info_list_length);
+
+            if (info_list_length > message_body_length - 2) {
+              expert_add_info_format(pinfo, ti_probeans, PI_PROTOCOL, PI_ERROR, "requested info list too long for field size");
+              info_list_length = message_body_length - 2;
+            }
+            {
+              int probe_offset = 0;
+              int probe_increment;
+              while (probe_offset < info_list_length) {
+                probe_increment = dissect_probe_information(tvb, pinfo, probeans_tree, offset + 2 + probe_offset, info_list_length - probe_offset);
+                if (probe_increment == 0) {
+                  break;
+                }
+              probe_offset += probe_increment;
+              }
+            }
           }
         }
-      }
-      break;
+        break;
 
-    case METHOD_CONFIGUPDATE:
-      {
-        proto_item *ti_message_body;
-        proto_tree *message_body_tree;
-        ti_message_body = proto_tree_add_item(message_contents_tree, hf_reload_message_body, tvb, offset, 4 + message_body_length, FALSE);
-        message_body_tree = proto_item_add_subtree(ti_message_body, ett_reload_message_body);
-        proto_tree_add_uint(message_body_tree, hf_reload_opaque_length_uint32, tvb, offset, 4, message_body_length);
-        if (IS_REQUEST(message_code)) {
-          guint16 local_offset = 0;
-          proto_item *ti_configupdate;
-          proto_tree *configupdate_tree;
-          guint8 configupdate_type;
-          guint32 configupdate_length;
-          ti_configupdate = proto_tree_add_item(message_body_tree, hf_reload_configupdatereq, tvb, offset+4+local_offset, message_body_length, FALSE);
-          configupdate_tree  = proto_item_add_subtree(ti_configupdate, ett_reload_configupdatereq);
-          configupdate_type = tvb_get_guint8(tvb, offset + 4 + local_offset);
-          proto_tree_add_uint(configupdate_tree, hf_reload_configupdatereq_type, tvb, offset+4+local_offset, 1, configupdate_type);
-          local_offset += 1;
-          configupdate_length = tvb_get_ntohl(tvb, offset + 4 + local_offset);
-          proto_tree_add_uint(configupdate_tree, hf_reload_configupdatereq_length, tvb,  offset + 4 + local_offset, 4, configupdate_length);
-          if (5 + configupdate_length > message_body_length) {
-            expert_add_info_format(pinfo, ti_configupdate, PI_PROTOCOL, PI_ERROR, "Truncated ConfigupdateReq");
-            break;
-          }
-          local_offset += 4;
-          switch(configupdate_type) {
-          case CONFIGUPDATETYPE_CONFIG:
-            local_offset +=
-              dissect_opaque(tvb, pinfo, configupdate_tree, hf_reload_configupdatereq_configdata,
-                             offset + 4 + local_offset, 3, configupdate_length);
-
-            break;
-
-          case CONFIGUPDATETYPE_KIND:
-            local_offset +=
-              dissect_opaque(tvb, pinfo, configupdate_tree, hf_reload_configupdatereq_kinds,
-                             offset + 4 + local_offset, 3, configupdate_length);
-            break;
-          }
-
+      case METHOD_ATTACH:
+        {
+          dissect_attachreqans(tvb, pinfo, message_body_tree, offset, message_body_length);
         }
-      }
+        break;
 
-    case METHOD_STORE:
-      {
-        proto_item *ti_message_body;
-        proto_tree *message_body_tree;
-        ti_message_body = proto_tree_add_item(message_contents_tree, hf_reload_message_body, tvb, offset, 4 + message_body_length, FALSE);
-        message_body_tree = proto_item_add_subtree(ti_message_body, ett_reload_message_body);
-        proto_tree_add_uint(message_body_tree, hf_reload_opaque_length_uint32, tvb, offset, 4, message_body_length);
-        if (IS_REQUEST(message_code)) {
-          dissect_storereq(tvb, pinfo, message_body_tree, offset + 4, message_body_length);
-        }
-        else {
-          guint16 storeans_kind_responses_length;
-          guint32 local_offset = 0;
-          proto_item *ti_storeans_kind_responses;
-          proto_tree *storeans_kind_responses_tree;
-          ti_storeans_kind_responses = proto_tree_add_item(message_body_tree, hf_reload_storeans_kind_responses, tvb, offset + 4, message_body_length, FALSE);
-          storeans_kind_responses_tree = proto_item_add_subtree(ti_storeans_kind_responses, ett_reload_storeans_kind_responses);
-          storeans_kind_responses_length = tvb_get_ntohs(tvb, offset + 4);
-          proto_tree_add_uint(storeans_kind_responses_tree, hf_reload_storeans_kind_responses_length, tvb, offset + 4, 2, storeans_kind_responses_length);
-          if ((guint32)storeans_kind_responses_length + 2 > message_body_length) {
-            expert_add_info_format(pinfo, ti_storeans_kind_responses, PI_PROTOCOL, PI_ERROR, "Truncated StoreAns");
-            break;
+      case METHOD_APPATTACH:
+        {
+          /* Parse AppAttachReq/Ans */
+
+          {
+            guint16 local_offset = 0;
+            proto_item *ti_appattach;
+            proto_tree *appattach_tree;
+            ti_appattach = proto_tree_add_item(message_body_tree, hf_reload_appattach, tvb, offset+local_offset, message_body_length, FALSE);
+            appattach_tree  = proto_item_add_subtree(ti_appattach, ett_reload_appattach);
+            local_offset += dissect_opaque(tvb, pinfo,appattach_tree, hf_reload_ufrag,offset+local_offset, 1, message_body_length-local_offset);
+            local_offset += dissect_opaque(tvb, pinfo,appattach_tree, hf_reload_password,offset+local_offset, 1, message_body_length-local_offset);
+            proto_tree_add_item(appattach_tree, hf_reload_application, tvb, offset+local_offset, 2, FALSE);
+            local_offset += 2;
+            local_offset += dissect_opaque(tvb, pinfo,appattach_tree, hf_reload_role,offset+local_offset, 1, message_body_length-local_offset);
+            dissect_icecandidates(tvb, pinfo, appattach_tree, offset+local_offset, message_body_length-local_offset);
           }
-          while (local_offset + 4 + 8 + 2< storeans_kind_responses_length) {
-            proto_item *ti_storekindresponse;
-            proto_tree *storekindresponse_tree;
-            guint16 replicas_length;
-            replicas_length = tvb_get_ntohs(tvb, offset + 4 + local_offset +4 + 8);
-            if (local_offset + 4 + 8 + 2 +replicas_length > storeans_kind_responses_length) {
-              expert_add_info_format(pinfo, ti_storeans_kind_responses, PI_PROTOCOL, PI_ERROR, "Truncated StoreKindResponse");
+        }
+        break;
+
+      case METHOD_PING:
+        {
+          if (IS_REQUEST(message_code)) {
+            dissect_opaque(tvb, pinfo, message_body_tree, hf_reload_padding, offset, 2, message_body_length);
+          }
+          else {
+            if (message_body_length < 16) {
+              expert_add_info_format(pinfo, ti_message_contents, PI_PROTOCOL, PI_ERROR, "Truncated ping Answer");
+            }
+            else {
+              proto_tree_add_item(message_body_tree, hf_reload_ping_response_id, tvb, offset, 8, FALSE);
+              proto_tree_add_item(message_body_tree, hf_reload_ping_time, tvb, offset + 8, 8, FALSE);
+            }
+          }
+        }
+        break;
+
+      case METHOD_CONFIGUPDATE:
+        {
+          if (IS_REQUEST(message_code)) {
+            guint16 local_offset = 0;
+            proto_item *ti_configupdate;
+            proto_tree *configupdate_tree;
+            guint8 configupdate_type;
+            guint32 configupdate_length;
+            ti_configupdate = proto_tree_add_item(message_body_tree, hf_reload_configupdatereq, tvb, offset+local_offset, message_body_length, FALSE);
+            configupdate_tree  = proto_item_add_subtree(ti_configupdate, ett_reload_configupdatereq);
+            configupdate_type = tvb_get_guint8(tvb, offset + local_offset);
+            proto_tree_add_uint(configupdate_tree, hf_reload_configupdatereq_type, tvb, offset+local_offset, 1, configupdate_type);
+            local_offset += 1;
+            configupdate_length = tvb_get_ntohl(tvb, offset + local_offset);
+            proto_tree_add_uint(configupdate_tree, hf_reload_configupdatereq_length, tvb,  offset + local_offset, 4, configupdate_length);
+            if (5 + configupdate_length > message_body_length) {
+              expert_add_info_format(pinfo, ti_configupdate, PI_PROTOCOL, PI_ERROR, "Truncated ConfigupdateReq");
               break;
             }
-            ti_storekindresponse =
-              proto_tree_add_item(storeans_kind_responses_tree, hf_reload_storekindresponse, tvb, offset+4+local_offset, 4+ 8 + 2 + replicas_length, FALSE);
-            storekindresponse_tree = proto_item_add_subtree(ti_storekindresponse, ett_reload_storekindresponse);
-            proto_tree_add_item(storekindresponse_tree, hf_reload_kindid, tvb, offset+4+local_offset, 4, FALSE);
             local_offset += 4;
-            proto_tree_add_item(storekindresponse_tree, hf_reload_kinddata_generation_counter, tvb, offset+4+local_offset, 8, FALSE);
-            local_offset += 8;
-            local_offset +=
-              dissect_opaque(tvb, pinfo, storekindresponse_tree, hf_reload_storekindresponse_replicas,
-                             offset + 4 + local_offset, 2, (storeans_kind_responses_length-(local_offset+4+8)));
-          }
-        }
-      }
-      break;
+            switch(configupdate_type) {
+            case CONFIGUPDATETYPE_CONFIG:
+              local_offset +=
+                dissect_opaque(tvb, pinfo, configupdate_tree, hf_reload_configupdatereq_configdata,
+                               offset + local_offset, 3, configupdate_length);
 
-    case METHOD_FETCH:
-      {
-        proto_item *ti_message_body;
-        proto_tree *message_body_tree;
-        ti_message_body = proto_tree_add_item(message_contents_tree, hf_reload_message_body, tvb, offset, 4 + message_body_length, FALSE);
-        message_body_tree = proto_item_add_subtree(ti_message_body, ett_reload_message_body);
-        proto_tree_add_uint(message_body_tree, hf_reload_opaque_length_uint32, tvb, offset, 4, message_body_length);
-        if (IS_REQUEST(message_code)) {
-          guint16 fetch_offset = 0;
-          fetch_offset += dissect_opaque(tvb, pinfo, message_body_tree, hf_reload_resource_id, offset + 4, 1, message_body_length);
-          fetch_offset += dissect_opaque(tvb, pinfo, message_body_tree, hf_reload_storeddataspecifiers, offset + fetch_offset,
-                                         2, message_body_length - fetch_offset);
-        }
-        else {
-          /* response */
-          dissect_fetchans(tvb, pinfo, message_body_tree, offset + 4, message_body_length);
-        }
-      }
-      break;
+              break;
 
-    case METHOD_STAT:
-      {
-        proto_item *ti_message_body;
-        proto_tree *message_body_tree;
-        ti_message_body = proto_tree_add_item(message_contents_tree, hf_reload_message_body, tvb, offset, 4 + message_body_length, FALSE);
-        message_body_tree = proto_item_add_subtree(ti_message_body, ett_reload_message_body);
-        proto_tree_add_uint(message_body_tree, hf_reload_opaque_length_uint32, tvb, offset, 4, message_body_length);
-        if (IS_REQUEST(message_code)) {
-          guint16 stat_offset = 0;
-          stat_offset += dissect_opaque(tvb, pinfo, message_body_tree, hf_reload_resource_id, offset + 4, 1, message_body_length);
-          stat_offset += dissect_opaque(tvb, pinfo, message_body_tree, hf_reload_storeddataspecifiers, offset + stat_offset,
-                                        2, message_body_length - stat_offset);
-        }
-        else {
-          dissect_statans(tvb, pinfo, message_body_tree, offset + 4, message_body_length);
-        }
-
-      }
-      break;
-
-    case METHOD_FIND:
-      {
-        proto_item *ti_message_body;
-        proto_tree *message_body_tree;
-        ti_message_body = proto_tree_add_item(message_contents_tree, hf_reload_message_body, tvb, offset, 4 + message_body_length, FALSE);
-        message_body_tree = proto_item_add_subtree(ti_message_body, ett_reload_message_body);
-        proto_tree_add_uint(message_body_tree, hf_reload_opaque_length_uint32, tvb, offset, 4, message_body_length);
-        if (IS_REQUEST(message_code)) {
-          guint32 find_offset = 0;
-          guint8 kinds_length;
-          find_offset += dissect_opaque(tvb, pinfo, message_body_tree, hf_reload_resource_id, offset + 4, 1, message_body_length);
-          kinds_length = tvb_get_guint8(tvb, offset + 4 + find_offset);
-          if (find_offset + 1 + kinds_length > message_body_length) {
-            expert_add_info_format(pinfo, ti_message_body, PI_PROTOCOL, PI_ERROR, "Truncated Find Request");
-            break;
-          }
-          proto_tree_add_uint(message_body_tree, hf_reload_findreq_kinds_length, tvb, offset + 4 + find_offset, 1, kinds_length);
-          find_offset += 1;
-          {
-            guint8 kinds_offset = 0;
-            while (kinds_offset < kinds_length) {
-              proto_tree_add_item(message_body_tree, hf_reload_kindid, tvb, offset+find_offset+kinds_offset, 4, FALSE);
-
-              kinds_offset += 4;
+            case CONFIGUPDATETYPE_KIND:
+              local_offset +=
+                dissect_opaque(tvb, pinfo, configupdate_tree, hf_reload_configupdatereq_kinds,
+                               offset + local_offset, 3, configupdate_length);
+              break;
             }
-          }
-        }
-        else {
-          guint16 results_length;
 
-          results_length = tvb_get_ntohs(tvb, offset + 4);
-          if ((guint32)results_length + 2 > message_body_length) {
-            expert_add_info_format(pinfo, ti_message_body, PI_PROTOCOL, PI_ERROR, "Truncated Find Answer");
-            break;
           }
-          proto_tree_add_uint(message_body_tree, hf_reload_findans_results_length, tvb, offset + 4, 2, results_length);
-          {
-            guint16 results_offset = 0;
-            while (results_offset < results_length) {
-              proto_item *ti_findkinddata;
-              proto_tree *findkinddata_tree;
-              guint16 findkinddata_length;
-              findkinddata_length = 4 + get_opaque_length(tvb,offset + 4 + results_offset + 4, 1);
-              if (results_offset + findkinddata_length > results_length) {
-                ti_findkinddata = proto_tree_add_item(tree, hf_reload_findkinddata, tvb, offset + 4 + results_offset, results_length - results_offset, FALSE);
-                expert_add_info_format(pinfo, ti_findkinddata, PI_PROTOCOL, PI_ERROR, "Truncated FindKindData");
+          break;
+        }
+
+      case METHOD_STORE:
+        {
+          if (IS_REQUEST(message_code)) {
+            dissect_storereq(tvb, pinfo, message_body_tree, offset, message_body_length);
+          }
+          else {
+            guint16 storeans_kind_responses_length;
+            guint32 local_offset = 0;
+            proto_item *ti_storeans_kind_responses;
+            proto_tree *storeans_kind_responses_tree;
+            ti_storeans_kind_responses = proto_tree_add_item(message_body_tree, hf_reload_storeans_kind_responses, tvb, offset, message_body_length, FALSE);
+            storeans_kind_responses_tree = proto_item_add_subtree(ti_storeans_kind_responses, ett_reload_storeans_kind_responses);
+            storeans_kind_responses_length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(storeans_kind_responses_tree, hf_reload_storeans_kind_responses_length, tvb, offset, 2, storeans_kind_responses_length);
+            if ((guint32)storeans_kind_responses_length + 2 > message_body_length) {
+              expert_add_info_format(pinfo, ti_storeans_kind_responses, PI_PROTOCOL, PI_ERROR, "Truncated StoreAns");
+              break;
+            }
+            while (local_offset + 4 + 8 + 2< storeans_kind_responses_length) {
+              proto_item *ti_storekindresponse;
+              proto_tree *storekindresponse_tree;
+              guint16 replicas_length;
+              replicas_length = tvb_get_ntohs(tvb, offset + 2 + local_offset +4 + 8);
+              if (local_offset + 4/*kindId*/ + 8/*generationcounter*/ + 2 +replicas_length > storeans_kind_responses_length) {
+                expert_add_info_format(pinfo, ti_storeans_kind_responses, PI_PROTOCOL, PI_ERROR, "Truncated StoreKindResponse");
                 break;
               }
-              ti_findkinddata = proto_tree_add_item(tree, hf_reload_findkinddata, tvb, offset + 4 + results_offset, findkinddata_length, FALSE);
-              findkinddata_tree = proto_item_add_subtree(ti_findkinddata, ett_reload_findkinddata);
-
-              proto_tree_add_item(findkinddata_tree, hf_reload_kindid, tvb, offset + 4 + results_offset, 4, FALSE);
-              dissect_opaque(tvb, pinfo, findkinddata_tree, hf_reload_resource_id, offset + 4 + results_offset + 4, 1, results_length - 4 - results_offset);
-
-              results_offset += findkinddata_length;
+              ti_storekindresponse =
+              proto_tree_add_item(storeans_kind_responses_tree, hf_reload_storekindresponse, tvb, offset+2+local_offset, 4+ 8 + 2 + replicas_length, FALSE);
+              storekindresponse_tree = proto_item_add_subtree(ti_storekindresponse, ett_reload_storekindresponse);
+              proto_tree_add_item(storekindresponse_tree, hf_reload_kindid, tvb, offset+2+local_offset, 4, FALSE);
+              local_offset += 4;
+              proto_tree_add_item(storekindresponse_tree, hf_reload_kinddata_generation_counter, tvb, offset+2+local_offset, 8, FALSE);
+              local_offset += 8;
+              {
+                guint16 replicas_length;
+                proto_item *ti_replicas;
+                proto_tree *replicas_tree;
+                guint16 replicas_offset = 0;
+                replicas_length = tvb_get_ntohs(tvb, offset + 2 + local_offset);
+                ti_replicas = proto_tree_add_item(storekindresponse_tree, hf_reload_storekindresponse_replicas, tvb,
+                                                  offset+2+local_offset, 2 + replicas_length, FALSE);
+                replicas_tree = proto_item_add_subtree(storekindresponse_tree, ett_reload_storekindresponse_replicas);
+                proto_tree_add_uint(replicas_tree, hf_reload_opaque_length_uint16, tvb, offset + 2+local_offset, 2, replicas_length);
+                local_offset +=2;
+                while (replicas_offset < replicas_length) {
+                  if ((replicas_offset + reload_nodeid_length) > replicas_length) {
+                    expert_add_info_format(pinfo, ti_replicas, PI_PROTOCOL, PI_ERROR, "Truncated NodeId");
+                    break;
+                  }
+                  proto_tree_add_item(replicas_tree, hf_reload_nodeid, tvb, offset+2+local_offset+replicas_offset,
+                                      reload_nodeid_length, FALSE);
+                  replicas_offset += reload_nodeid_length;
+                }
+                local_offset += replicas_length;
+              }
             }
           }
         }
+        break;
+
+      case METHOD_FETCH:
+        {
+          if (IS_REQUEST(message_code)) {
+            guint16 fetch_offset = 0;
+            fetch_offset += dissect_opaque(tvb, pinfo, message_body_tree, hf_reload_resource_id, offset, 1, message_body_length);
+            fetch_offset += dissect_opaque(tvb, pinfo, message_body_tree, hf_reload_storeddataspecifiers, offset + fetch_offset,
+                                           2, message_body_length - fetch_offset);
+          }
+          else {
+            /* response */
+            dissect_fetchans(tvb, pinfo, message_body_tree, offset, message_body_length);
+          }
+        }
+        break;
+
+      case METHOD_STAT:
+        {
+          if (IS_REQUEST(message_code)) {
+            guint16 stat_offset = 0;
+            stat_offset += dissect_opaque(tvb, pinfo, message_body_tree, hf_reload_resource_id, offset, 1, message_body_length);
+            stat_offset += dissect_opaque(tvb, pinfo, message_body_tree, hf_reload_storeddataspecifiers, offset + stat_offset,
+                                          2, message_body_length - stat_offset);
+          }
+          else {
+            dissect_statans(tvb, pinfo, message_body_tree, offset, message_body_length);
+          }
+
+        }
+        break;
+
+      case METHOD_FIND:
+        {
+          if (IS_REQUEST(message_code)) {
+            guint32 find_offset = 0;
+            guint8 kinds_length;
+            find_offset += dissect_opaque(tvb, pinfo, message_body_tree, hf_reload_resource_id, offset, 1, message_body_length);
+            kinds_length = tvb_get_guint8(tvb, offset + find_offset);
+            if (find_offset + 1 + kinds_length > message_body_length) {
+              expert_add_info_format(pinfo, ti_message_body, PI_PROTOCOL, PI_ERROR, "Truncated Find Request");
+              break;
+            }
+            proto_tree_add_uint(message_body_tree, hf_reload_findreq_kinds_length, tvb, offset + find_offset, 1, kinds_length);
+            find_offset += 1;
+            {
+              guint8 kinds_offset = 0;
+              while (kinds_offset < kinds_length) {
+                proto_tree_add_item(message_body_tree, hf_reload_kindid, tvb, offset+find_offset+kinds_offset, 4, FALSE);
+
+                kinds_offset += 4;
+              }
+            }
+          }
+          else {
+            guint16 results_length;
+
+            results_length = tvb_get_ntohs(tvb, offset);
+            if ((guint32)results_length + 2 > message_body_length) {
+              expert_add_info_format(pinfo, ti_message_body, PI_PROTOCOL, PI_ERROR, "Truncated Find Answer");
+              break;
+            }
+            proto_tree_add_uint(message_body_tree, hf_reload_findans_results_length, tvb, offset, 2, results_length);
+            {
+              guint16 results_offset = 0;
+              while (results_offset < results_length) {
+                proto_item *ti_findkinddata;
+                proto_tree *findkinddata_tree;
+                guint16 findkinddata_length;
+                findkinddata_length = 4/*kind id */ + 1 + get_opaque_length(tvb,offset + 2 + results_offset + 4, 1)/* resourceId */;
+                if (results_offset + findkinddata_length > results_length) {
+                  ti_findkinddata = proto_tree_add_item(message_body_tree, hf_reload_findkinddata, tvb, offset + results_offset, results_length - results_offset, FALSE);
+                  expert_add_info_format(pinfo, ti_findkinddata, PI_PROTOCOL, PI_ERROR, "Truncated FindKindData");
+                  break;
+                }
+                ti_findkinddata = proto_tree_add_item(message_body_tree, hf_reload_findkinddata, tvb, offset + 2 + results_offset, findkinddata_length, FALSE);
+                findkinddata_tree = proto_item_add_subtree(ti_findkinddata, ett_reload_findkinddata);
+
+                proto_tree_add_item(findkinddata_tree, hf_reload_kindid, tvb, offset + 2 + results_offset, 4, FALSE);
+                dissect_opaque(tvb, pinfo, findkinddata_tree, hf_reload_resource_id, offset + 2 + results_offset + 4, 1, results_length - 4 - results_offset);
+
+                results_offset += findkinddata_length;
+              }
+            }
+          }
+        }
+        break;
+
+      case METHOD_LEAVE:
+      case METHOD_JOIN:
+        {
+          if (IS_REQUEST(message_code)) {
+            proto_tree_add_item(message_body_tree, hf_reload_nodeid, tvb, offset, reload_nodeid_length, FALSE);
+            dissect_opaque(tvb, pinfo, message_body_tree, hf_reload_overlay_specific, offset + reload_nodeid_length, 2,
+                           message_body_length - reload_nodeid_length);
+          }
+          else {
+            dissect_opaque(tvb, pinfo, message_body_tree, hf_reload_overlay_specific, offset, 2, message_body_length);
+          }
+        }
+        break;
+
+      default:
+        break;
       }
-      break;
-
-    default:
-      dissect_opaque(tvb, pinfo, message_contents_tree, hf_reload_message_body, offset, 4, -1);
-      break;
     }
+    else {
+      /* Error Response */
+      guint16 error_length;
+      proto_item *ti_message_body;
+      proto_tree *message_body_tree;
+      proto_item *ti_error;
+      proto_tree *error_tree;
 
-    offset += 4 + message_body_length;
+      /* message_code was already parsed */
+      proto_tree_add_uint_format_value(message_contents_tree, hf_reload_message_code, tvb, offset, 2, message_code, "ERROR Response");
+      offset += 2;
+
+      /* Message body */
+      ti_message_body = proto_tree_add_item(message_contents_tree, hf_reload_message_body, tvb, offset, 4 + message_body_length, FALSE);
+      message_body_tree = proto_item_add_subtree(ti_message_body, ett_reload_message_body);
+      proto_tree_add_uint(message_body_tree, hf_reload_opaque_length_uint32, tvb, offset, 4, message_body_length);
+      offset +=4;
+
+      error_length = tvb_get_ntohs(tvb, offset + 2);
+      if ((guint)offset + 2 + 2 + error_length > msg_length) {
+        expert_add_info_format(pinfo, ti_message_body, PI_PROTOCOL, PI_ERROR, "truncated error message");
+        return msg_length;
+      }
+
+      ti_error = proto_tree_add_item(message_body_tree, hf_reload_error_response, tvb, offset, 2 + 2 + error_length, FALSE);
+      error_tree = proto_item_add_subtree(ti_error, ett_reload_error_response);
+      proto_tree_add_item(error_tree, hf_reload_error_response_code, tvb, offset, 2, FALSE);
+      dissect_opaque(tvb, pinfo, error_tree, hf_reload_error_response_info, offset+2, 2, -1);
+      proto_item_append_text(error_tree, ": %s (%s)", val_to_str(error_code, errorcodes, "Unknown"), tvb_get_ephemeral_string(tvb, offset+4, error_length));
+    }
+    offset += message_body_length;
     {
       proto_tree *extension_tree;
       guint16 extension_offset = 0;
@@ -1936,40 +1975,11 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         extension_tree = proto_item_add_subtree(ti_extension, ett_reload_message_extension);
         proto_tree_add_item(extension_tree, hf_reload_message_extension_type, tvb, offset+ extension_offset, 2, FALSE);
         proto_tree_add_item(extension_tree, hf_reload_message_extension_critical, tvb, offset+ extension_offset + 2, 1, FALSE);
-        dissect_opaque(tvb, pinfo, extension_tree, hf_reload_message_extension_content, offset + extension_offset + 3, 4, -1);
-        extension_offset += 3 + 4 + extension_content_length;
+          dissect_opaque(tvb, pinfo, extension_tree, hf_reload_message_extension_content, offset + extension_offset + 3, 4, -1);
+          extension_offset += 3 + 4 + extension_content_length;
       }
     }
     offset += extensions_length;
-  }
-  else {
-    /* Error Response */
-    guint16 error_length;
-    proto_item *ti_message_contents;
-    proto_tree *message_contents_tree;
-
-    proto_item *ti_error;
-    proto_tree *error_tree;
-
-    error_length = tvb_get_ntohs(tvb, offset + 2 + 2);
-    if ((guint)offset + 2 + 2 + 2 + error_length > msg_length) {
-      expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "truncated error message");
-      return msg_length;
-    }
-
-    ti_message_contents = proto_tree_add_item(reload_tree, hf_reload_message_contents, tvb, offset, 2 + 2 + 2 + error_length , FALSE);
-    message_contents_tree = proto_item_add_subtree(ti_message_contents, ett_reload_message_contents);
-
-    /* message_code was already parsed */
-    proto_tree_add_uint_format_value(message_contents_tree, hf_reload_message_code, tvb, offset, 2, message_code, "ERROR Response");
-    offset += 2;
-    ti_error = proto_tree_add_item(message_contents_tree, hf_reload_error_response, tvb, offset, 2 + 2 + error_length, FALSE);
-    error_tree = proto_item_add_subtree(ti_error, ett_reload_error_response);
-    proto_tree_add_item(error_tree, hf_reload_error_response_code, tvb, offset, 2, FALSE);
-    offset += 2;
-    dissect_opaque(tvb, pinfo, error_tree, hf_reload_error_response_info, offset, 2, -1);
-    proto_item_append_text(error_tree, ": %s (%s)", val_to_str(error_code, errorcodes, "Unknown"), tvb_get_ephemeral_string(tvb, offset+2, error_length));
-    offset += 2 + error_length;
   }
 
   /* Security Block */
@@ -2161,7 +2171,7 @@ proto_register_reload(void)
         BASE_NONE,  NULL,   0x0,  NULL, HFILL }
     },
     { &hf_reload_token,
-      { "ReLOAD token", "reload.forwarding.token",  FT_UINT32,
+      { "RELOAD token", "reload.forwarding.token",  FT_UINT32,
         BASE_HEX, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_overlay,
@@ -2206,7 +2216,7 @@ proto_register_reload(void)
     },
     { &hf_reload_trans_id,
       { "Transaction ID", "reload.forwarding.trans_id", FT_UINT64,
-        BASE_DEC, NULL, 0x0,  NULL, HFILL }
+        BASE_HEX, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_max_response_length,
       { "Max response length",  "reload.forwarding.max_response_length",  FT_UINT32,
@@ -2244,8 +2254,8 @@ proto_register_reload(void)
       { "Destination length",   "reload.forwarding.destination.length", FT_UINT8,
         BASE_DEC, NULL,   0x0,  NULL, HFILL }
     },
-    { &hf_reload_node_id,
-      { "node id",    "reload.node_id", FT_BYTES,
+    { &hf_reload_nodeid,
+      { "node id",    "reload.nodeid", FT_BYTES,
         BASE_NONE,  NULL,   0x0,  NULL, HFILL }
     },
     { &hf_reload_resource_id,
@@ -2553,7 +2563,7 @@ proto_register_reload(void)
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_application,
-      { "Uptime", "reload.uptime", FT_UINT16,
+      { "Application", "reload.application", FT_UINT16,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_ping_response_id,
@@ -2605,7 +2615,7 @@ proto_register_reload(void)
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_store_kind_data_length,
-      { "replica num",  "reload.store.kind_data.length",  FT_UINT32,
+      { "StoreReq Kind Data Length",  "reload.store.kind_data.length",  FT_UINT32,
         BASE_DEC, NULL, 0x0,  NULL, HFILL }
     },
     { &hf_reload_storeans_kind_responses,
@@ -2684,10 +2694,6 @@ proto_register_reload(void)
       { "Reassembled ReLOAD in frame", "reload.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
         "This ReLOAD packet is reassembled in this frame", HFILL }},
 
-    { &hf_reload_reassembled_length,
-      { "Reassembled ReLOAD length", "reload.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
-        "The total length of the reassembled payload", HFILL }},
-
     { &hf_reload_configupdatereq,
       { "ConfigUpdate Req",  "reload.configupdatereq.",  FT_BYTES,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
@@ -2710,6 +2716,11 @@ proto_register_reload(void)
 
     { &hf_reload_configupdatereq_kinds,
       { "ConfigUpdate Req Kinds",  "reload.configupdatereq.kinds",  FT_NONE,
+        BASE_NONE,  NULL, 0x0,  NULL, HFILL }
+    },
+
+    { &hf_reload_padding,
+      { "padding",  "reload.padding",  FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL }
     },
 
@@ -2760,6 +2771,7 @@ proto_register_reload(void)
     &ett_reload_fragments,
     &ett_reload_fragment,
     &ett_reload_configupdatereq,
+    &ett_reload_storekindresponse_replicas,
   };
 
   /* Register the protocol name and description */
@@ -2774,6 +2786,12 @@ proto_register_reload(void)
                                  "Reassemble fragmented reload datagrams",
                                  "Whether fragmented ReLOAD datagrams should be reassembled",
                                  &reload_defragment);
+  prefs_register_uint_preference(reload_module, "nodeid_length",
+                                 "NodeId Length",
+                                 "Length of the NodeId as defined in the overlay.",
+                                 10,
+                                 &reload_nodeid_length);
+
 
   register_init_routine(reload_defragment_init);
 }
@@ -2795,3 +2813,15 @@ proto_reg_handoff_reload(void)
 
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 2
+ * tab-width: 2
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=2 expandtab
+ * :indentSize=2:tabSize=2:noTabs=true:
+ */
