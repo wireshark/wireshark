@@ -2256,9 +2256,15 @@ Henry Ptasinski		<henryp [AT] broadcom.com> {
 	Support for 802.11e WME/QoS info
 }
 
-Roberto Morro		<Roberto.Morro [AT] TILAB.COM> {
+Roberto Morro		<roberto.morro [AT] telecomitalia.it> {
 	Support for GMPLS UNI and E-NNI objects/TLVs
 	    in RSVP and OSPF
+	RSVP: Support for PROTECTION obj c-type 2 (RFC4872),
+	    new TLVs for IF_ID (RFC4920), Path Key subobj in ERO (RFC5520),
+	    new ASSOCIATION obj c-type 4 (oif2008.389),
+	    new LSP_ATTRIBUTES and LSP_REQUIRED_ATTRIBUTES objects (RFC5420),
+            and various changes/improvements
+
 }
 
 Chris Maynard		<Christopher.Maynard [AT] GTECH.COM> {

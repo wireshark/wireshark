@@ -79,7 +79,17 @@
  * Dec 3, 2010: add support for vendor private class object and ERO/RRO
  * sub-object (see RFC 3936).
  * (FF) <francesco.fondelli[AT]gmail.com>
+ *
+ * Dec 21, 2010: add new PROTECTION obj c-type 2 (RFC4872),
+ * new TLVs for IF_ID (RFC4920), Path Key subobj in ERO (RFC5520),
+ * new ASSOCIATION obj c-type 4 (oif2008.389), new LSP_ATTRIBUTES and
+ * LSP_REQUIRED_ATTRIBUTES objects (RFC5420), improved ERROR object dissection,
+ * new ADMIN_STATUS flags and fix to conversation (not applied to ACK, SREFRESH
+ * and HELLO messages).
+ * (Roberto Morro) <roberto.morro[AT]telecomitalia.it>
+ *
  */
+
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -109,6 +119,7 @@
 #include "packet-ip.h"
 #include "packet-frame.h"
 #include "packet-diffserv-mpls-common.h"
+#include "packet-osi.h"
 
 /* RSVP over UDP encapsulation */
 #define UDP_PORT_PRSVP 3455
@@ -259,6 +270,8 @@ enum {
     TT_RECORD_ROUTE_SUBOBJ_FLAGS,
     TT_ADMIN_STATUS,
     TT_ADMIN_STATUS_FLAGS,
+    TT_LSP_ATTRIBUTES,
+    TT_LSP_ATTRIBUTES_FLAGS,
     TT_ASSOCIATION,
     TT_GEN_UNI,
     TT_GEN_UNI_SUBOBJ,
@@ -266,6 +279,9 @@ enum {
     TT_BUNDLE_COMPMSG,
     TT_RESTART_CAP,
     TT_PROTECTION_INFO,
+    TT_PROTECTION_INFO_LINK,
+    TT_PROTECTION_INFO_LSP,
+    TT_PROTECTION_INFO_SEG,
     TT_FAST_REROUTE,
     TT_FAST_REROUTE_FLAGS,
     TT_DETOUR,
@@ -407,7 +423,7 @@ enum rsvp_classes {
     RSVP_CLASS_CLASSTYPE, /* FF: RFC4124 */
     RSVP_CLASS_LSP_REQUIRED_ATTRIBUTES,
 
-    /* 68-127  Unassigned */
+    /* 68-123  Unassigned */
 
     RSVP_CLASS_VENDOR_PRIVATE_1=124,
     RSVP_CLASS_VENDOR_PRIVATE_2=125,
@@ -421,7 +437,7 @@ enum rsvp_classes {
 
     /* 132-160 Unassigned */
 
-    /* 166-191 Unassigned */
+    /* 166-187 Unassigned */
 
     RSVP_CLASS_VENDOR_PRIVATE_5=188,
     RSVP_CLASS_VENDOR_PRIVATE_6=189,
@@ -434,8 +450,8 @@ enum rsvp_classes {
     RSVP_CLASS_NOTIFY_REQUEST = 195,
     RSVP_CLASS_ADMIN_STATUS,
     RSVP_CLASS_LSP_ATTRIBUTES,
-
-    RSVP_CLASS_ASSOCIATION = 199,
+    RSVP_CLASS_ALARM_SPEC,
+    RSVP_CLASS_ASSOCIATION,
 
     /* 203-204  Unassigned */
     RSVP_CLASS_FAST_REROUTE = 205,
@@ -447,7 +463,6 @@ enum rsvp_classes {
       RSVP will silently ignore, but FORWARD an object with a Class Number
       in this range that it does not understand.
     */
-
     /* 224  Unassigned */
     RSVP_CLASS_DCLASS = 225,
     RSVP_CLASS_PACKETCABLE_EXTENSIONS,
@@ -457,7 +472,7 @@ enum rsvp_classes {
     RSVP_CLASS_CALL_ID,
     RSVP_CLASS_3GPP2_OBJECT,
 
-    /* 232-255 Unassigned */
+    /* 232-251 Unassigned */
 
     RSVP_CLASS_VENDOR_PRIVATE_9=252,
     RSVP_CLASS_VENDOR_PRIVATE_10=253,
@@ -505,6 +520,7 @@ static const value_string rsvp_class_vals[] = {
     {RSVP_CLASS_LSP_TUNNEL_IF_ID, "LSP-TUNNEL INTERFACE-ID object"},
     {RSVP_CLASS_NOTIFY_REQUEST, "NOTIFY-REQUEST object"},
     {RSVP_CLASS_ADMIN_STATUS, "ADMIN-STATUS object"},
+    {RSVP_CLASS_LSP_ATTRIBUTES, "LSP ATTRIBUTES object"},
     {RSVP_CLASS_ASSOCIATION, "ASSOCIATION object"},
     {RSVP_CLASS_GENERALIZED_UNI, "GENERALIZED-UNI object"},
     {RSVP_CLASS_CALL_ID, "CALL-ID object"},
@@ -554,76 +570,18 @@ enum rsvp_error_types {
     RSVP_ERROR_UNKNOWN_CLASS,
     RSVP_ERROR_UNKNOWN_C_TYPE,
     RSVP_ERROR_TRAFFIC = 21,
-    RSVP_ERROR_TRAFFIC_SYSTEM, /* 22 */
-    RSVP_ERROR_SYSTEM,         /* 23 */
-    RSVP_ERROR_ROUTING,        /* 24 */
-    RSVP_ERROR_NOTIFY,         /* 25 */
-    RSVP_ERROR_DIFFSERV = 27,
-    RSVP_ERROR_DSTE = 28 /* FF: RFC4124 */
-    /*missing (11-2006) :
-      - 29 : Unknown Attributes TLV ,  RFC4420
-      - 30 : Unknown Attributes Bit RFC4420
-      - 31 : Alarms RFC-ietf-ccamp-gmpls-alarm-spec-06.txt
-    */
-};
-
-enum {
-    RSVP_AC_ERROR_DELAY_BOUND_ERROR = 1,
-    RSVP_AC_ERROR_BANDWITH_UNAVAILABLE,
-    RSVP_AC_ERROR_LARGE_MTU
-};
-
-enum {
-    RSVP_TRAFFIC_CONTROL_ERROR_SERVICE_CONFLICT = 1,
-    RSVP_TRAFFIC_CONTROL_ERROR_SERVIEC_UNSUPPORTED,
-    RSVP_TRAFFIC_CONTROL_ERROR_BAD_FLOWSPEC,
-    RSVP_TRAFFIC_CONTROL_ERROR_BAD_TSPEC,
-    RSVP_TRAFFIC_CONTROL_ERROR_BAD_ADSPEC
-};
-
-enum {
-    RSVP_ROUTING_ERROR_BAD_ERO = 1,
-    RSVP_ROUTING_ERROR_BAD_STRICT,
-    RSVP_ROUTING_ERROR_BAD_LOOSE,
-    RSVP_ROUTING_ERROR_BAD_INITIAL_SUBOBJ,
-    RSVP_ROUTING_ERROR_NO_ROUTE,
-    RSVP_ROUTING_ERROR_UNACCEPTABLE_LABEL,
-    RSVP_ROUTING_ERROR_RRO_LOOP,
-    RSVP_ROUTING_ERROR_NON_RSVP_CAPABLE_ROUTER,
-    RSVP_ROUTING_ERROR_LABEL_ALLOC_FAIL,
-    RSVP_ROUTING_ERROR_UNSUPPORTED_L3PID
-};
-
-enum {
-    RSVP_NOTIFY_ERROR_RRO_TOO_LARGE = 1,
-    RSVP_NOTIFY_ERROR_RRO_NOTIFICATION,
-    RSVP_NOTIFY_ERROR_RRO_TUNNEL_LOCAL_REPAIRED,
-    RSVP_NOTIFY_ERROR_RRO_CC_ACTIVE_STATE,       /* RFC3473*/
-    RSVP_NOTIFY_ERROR_RRO_CC_DEGRADED_STATE,     /* RFC3473*/
-    RSVP_NOTIFY_ERROR_LSP_FAILURE,               /* Private */
-    RSVP_NOTIFY_ERROR_LSP_RECOVERED,             /* Private */
-    RSVP_NOTIFY_ERROR_LSP_LOCAL_FAILURE          /* Private */
-
-};
-
-enum {
-    RSVP_DIFFSERV_ERROR_UNEXPECTED_DIFFSERVOBJ = 1,
-    RSVP_DIFFSERV_ERROR_UNSUPPORTED_PHB,
-    RSVP_DIFFSERV_ERROR_INVALID_EXP_PHB_MAPPING,
-    RSVP_DIFFSERV_ERROR_UNSUPPORTED_PSC,
-    RSVP_DIFFSERV_ERROR_PERLSP_CONTEXT_ALLOC_FAIL
-};
-
-/* FF: RFC4124 */
-enum {
-    RSVP_DSTE_ERROR_UNEXPECTED_CLASSTYPEOBJ = 1,
-    RSVP_DSTE_ERROR_UNSUPPORTED_CLASSTYPE,
-    RSVP_DSTE_ERROR_INVALID_CLASSTYPE_VALUE,
-    RSVP_DSTE_ERROR_CT_SETUP_PRIO_NOT_CONFIGURED,
-    RSVP_DSTE_ERROR_CT_HOLDING_PRIO_NOT_CONFIGURED,
-    RSVP_DSTE_ERROR_CT_SETUP_PRIO_AND_CT_HOLDING_PRIO_NOT_CONFIGURED,
-    RSVP_DSTE_ERROR_INCONSISTENCY_PSC_CT,
-    RSVP_DSTE_ERROR_INCONSISTENCY_PHB_CT
+    RSVP_ERROR_TRAFFIC_SYSTEM,
+    RSVP_ERROR_SYSTEM,
+    RSVP_ERROR_ROUTING,
+    RSVP_ERROR_NOTIFY,
+    RSVP_ERROR_NEW_AGGR,          /* RFC3175 */
+    RSVP_ERROR_DIFFSERV,
+    RSVP_ERROR_DSTE,          /* FF: RFC4124 */
+    RSVP_ERROR_UNKNOWN_ATTR_TLV,  /* RFC5420 */
+    RSVP_ERROR_UNKNOWN_ATTR_BIT,  /* RFC5420 */
+    RSVP_ERROR_ALARMS,            /* RFC4783 */
+    RSVP_ERROR_CALL_MGMT,         /* RFC4974 */
+    RSVP_ERROR_USER_ERROR_SPEC    /* RFC5284 */
 };
 
 static const value_string rsvp_error_codes[] = {
@@ -644,73 +602,158 @@ static const value_string rsvp_error_codes[] = {
     {RSVP_ERROR_SYSTEM, "RSVP System Error"},
     {RSVP_ERROR_ROUTING, "Routing Error"},
     {RSVP_ERROR_NOTIFY, "RSVP Notify Error"},
+    {RSVP_ERROR_NEW_AGGR, "New aggregate needed"},
     {RSVP_ERROR_DIFFSERV, "RSVP Diff-Serv Error"},
     {RSVP_ERROR_DSTE, "RSVP DiffServ-aware TE Error"},
+    {RSVP_ERROR_UNKNOWN_ATTR_TLV, "Unknown attributes TLV"},
+    {RSVP_ERROR_UNKNOWN_ATTR_BIT, "Unknown attributes bit"},
+    {RSVP_ERROR_ALARMS, "Alarms"},
+    {RSVP_ERROR_CALL_MGMT, "Call management"},
+    {RSVP_ERROR_USER_ERROR_SPEC, "User error spec"},
     {0, NULL}
 };
 
 static const value_string rsvp_admission_control_error_vals[] = {
-    {RSVP_AC_ERROR_DELAY_BOUND_ERROR, "Delay bound cannot be met"},
-    {RSVP_AC_ERROR_BANDWITH_UNAVAILABLE, "Requested bandwidth unavailable"},
-    {RSVP_AC_ERROR_LARGE_MTU, "MTU in flowspec larger than interface MTU"},
+    {1, "Delay bound cannot be met"},
+    {2, "Requested bandwidth unavailable"},
+    {3, "MTU in flowspec larger than interface MTU"},
+    {4, "LSP Admission Failure"},
+    {5, "Bad Association Type"},
+    {0, NULL}
+};
+
+static const value_string rsvp_policy_control_error_vals[] = {
+    {0, "Information reporting"},
+    {1, "Warning"},
+    {2, "Reason unknown"},
+    {3, "Generic Policy Rejection"},
+    {4, "Quota or Accounting violation"},
+    {5, "Flow was preempted"},
+    {6, "Previously installed policy expired (not refreshed)"},
+    {7, "Previous policy data was replaced & caused rejection"},
+    {8, "Policies could not be merged (multicast)"},
+    {9, "PDP down or non functioning"},
+    {10, "Third Party Server (e.g., Kerberos) unavailable"},
+    {11, "POLICY_DATA object has bad syntax"},
+    {12, "POLICY_DATA object failed Integrity Check"},
+    {13, "POLICY_ELEMENT object has bad syntax"},
+    {14, "Mandatory PE Missing (Empty PE is in the PD object)"},
+    {15, "PEP Out of resources to handle policies."},
+    {16, "PDP encountered bad RSVP objects or syntax"},
+    {17, "Service type was rejected"},
+    {18, "Reservation Style was rejected"},
+    {19, "FlowSpec was rejected (too large)"},
+    {20, "Hard Pre-empted"},
+    {100, "Unauthorized sender"},
+    {101, "Unauthorized receiver"},
+    {102, "ERR_PARTIAL_PREEMPT"},
+    {103, "Inter-domain policy failure"},
+    {104, "Inter-domain explicit route rejected"},
     {0, NULL}
 };
 
 static const value_string rsvp_traffic_control_error_vals[] = {
-    {RSVP_TRAFFIC_CONTROL_ERROR_SERVICE_CONFLICT, "Service conflict"},
-    {RSVP_TRAFFIC_CONTROL_ERROR_SERVIEC_UNSUPPORTED, "Service unsupported"},
-    {RSVP_TRAFFIC_CONTROL_ERROR_BAD_FLOWSPEC, "Bad Flowspec value"},
-    {RSVP_TRAFFIC_CONTROL_ERROR_BAD_TSPEC, "Bad Tspec value"},
-    {RSVP_TRAFFIC_CONTROL_ERROR_BAD_ADSPEC, "Bad Adspec value"},
+    {1, "Service conflict"},
+    {2, "Service unsupported"},
+    {3, "Bad Flowspec value"},
+    {4, "Bad Tspec value"},
+    {5, "Bad Adspec value"},
     {0, NULL}
 };
 
 static const value_string rsvp_routing_error_vals[] = {
-    {RSVP_ROUTING_ERROR_BAD_ERO, "Bad EXPLICIT_ROUTE object"},
-    {RSVP_ROUTING_ERROR_BAD_STRICT, "Bad strict node"},
-    {RSVP_ROUTING_ERROR_BAD_LOOSE, "Bad loose node"},
-    {RSVP_ROUTING_ERROR_BAD_INITIAL_SUBOBJ, "Bad initial subobject"},
-    {RSVP_ROUTING_ERROR_NO_ROUTE, "No route available toward destination"},
-    {RSVP_ROUTING_ERROR_UNACCEPTABLE_LABEL, "Unacceptable label value"},
-    {RSVP_ROUTING_ERROR_RRO_LOOP, "RRO indicated routing loops"},
-    {RSVP_ROUTING_ERROR_NON_RSVP_CAPABLE_ROUTER, "non-RSVP-capable router stands in the path"},
-    {RSVP_ROUTING_ERROR_LABEL_ALLOC_FAIL, "MPLS label allocation failure"},
-    {RSVP_ROUTING_ERROR_UNSUPPORTED_L3PID, "Unsupported L3PID"},
+    {1, "Bad EXPLICIT_ROUTE object"},
+    {2, "Bad strict node"},
+    {3, "Bad loose node"},
+    {4, "Bad initial subobject"},
+    {5, "No route available toward destination"},
+    {6, "Unacceptable label value"},
+    {7, "RRO indicated routing loops"},
+    {8, "non-RSVP-capable router stands in the path"},
+    {9, "MPLS label allocation failure"},
+    {10, "Unsupported L3PID"},
+    {11, "Label Set"},
+    {12, "Switching Type"},
+    {13, "Unassigned"},
+    {14, "Unsupported Encoding"},
+    {15, "Unsupported Link Protection"},
+    {16, "Unknown Interface Index"},
+    {17, "Unsupported LSP Protection"},
+    {18, "PROTECTION object not applicable"},
+    {19, "Bad PRIMARY_PATH_ROUTE object"},
+    {20, "PRIMARY_PATH_ROUTE object not applicable"},
+    {21, "LSP Segment Protection Failed"},
+    {22, "Re-routing limit exceeded"},
+    {23, "Unable to Branch"},
+    {24, "Unsupported LSP Integrity"},
+    {25, "P2MP Re-Merge Detected"},
+    {26, "P2MP Re-Merge Parameter Mismatch"},
+    {27, "ERO Resulted in Re-Merge"},
+    {28, "Contiguous LSP type not supported"},
+    {29, "ERO conflicts with inter-domain signaling method"},
+    {30, "Stitching unsupported"},
+    {31, "Unknown PCE-ID for PKS expansion"},
+    {32, "Unreachable PCE for PKS expansion"},
+    {33, "Unknown Path Key for PKS expansion"},
+    {34, "ERO too large for MTU"},
+    {64, "Unsupported Exclude Route Subobject Type"},
+    {65, "Inconsistent Subobject"},
+    {66, "Local Node in Exclude Route"},
+    {67, "Route Blocked by Exclude Route"},
+    {68, "XRO Too Complex"},
+    {69, "EXRS Too Complex"},
+    {100, "Diversity not available"},
+    {101, "Service level not available"},
+    {102, "Invalid/Unknown connection ID"},
+    {103, "No route available toward source (ASON)"},
+    {104, "Unacceptable interface ID (ASON)"},
+    {105, "Invalid/unknown call ID (ASON)"},
+    {106, "Invalid SPC interface ID/label (ASON)"},
     {0, NULL}
 };
 
 static const value_string rsvp_notify_error_vals[] = {
-    {RSVP_NOTIFY_ERROR_RRO_TOO_LARGE, "RRO too large for MTU"},
-    {RSVP_NOTIFY_ERROR_RRO_NOTIFICATION, "RRO Notification"},
-    {RSVP_NOTIFY_ERROR_RRO_TUNNEL_LOCAL_REPAIRED, "Tunnel locally repaired"},
-    {RSVP_NOTIFY_ERROR_RRO_CC_ACTIVE_STATE, "Control Channel Active State"},/* RFC3473*/
-    {RSVP_NOTIFY_ERROR_RRO_CC_DEGRADED_STATE,"Control Channel Degraded State"}, /* RFC3473*/
-    {RSVP_NOTIFY_ERROR_LSP_FAILURE,  "Private : LSP Failure"},/* Private */
-    {RSVP_NOTIFY_ERROR_LSP_RECOVERED,"Private : LSP recovered"},/* Private */
-    {RSVP_NOTIFY_ERROR_LSP_LOCAL_FAILURE,"Private : LSP Local Failure"},/* Private */
+    {1, "RRO too large for MTU"},
+    {2, "RRO Notification"},
+    {3, "Tunnel locally repaired"},
+    {4, "Control Channel Active State"},
+    {5, "Control Channel Degraded State"},
+    {6, "Preferable path exists"},
+    {7, "Link maintenance required"},
+    {8, "Node maintenance required"},
+    {9, "LSP Failure"},
+    {10, "LSP recovered"},
+    {11, "LSP Local Failure"},
     {0, NULL}
 };
 
 static const value_string rsvp_diffserv_error_vals[] = {
-    {RSVP_DIFFSERV_ERROR_UNEXPECTED_DIFFSERVOBJ, "Unexpected DIFFSERV object"},
-    {RSVP_DIFFSERV_ERROR_UNSUPPORTED_PHB, "Unsupported PHB"},
-    {RSVP_DIFFSERV_ERROR_INVALID_EXP_PHB_MAPPING, "Invalid `EXP<->PHB mapping'"},
-    {RSVP_DIFFSERV_ERROR_UNSUPPORTED_PSC, "Unsupported PSC"},
-    {RSVP_DIFFSERV_ERROR_PERLSP_CONTEXT_ALLOC_FAIL, "Per-LSP context allocation failure"},
+    {1, "Unexpected DIFFSERV object"},
+    {2, "Unsupported PHB"},
+    {3, "Invalid `EXP<->PHB mapping'"},
+    {4, "Unsupported PSC"},
+    {5, "Per-LSP context allocation failure"},
     {0, NULL}
 };
 
 /* FF: RFC4124 */
 static const value_string rsvp_diffserv_aware_te_error_vals[] = {
-    {RSVP_DSTE_ERROR_UNEXPECTED_CLASSTYPEOBJ, "Unexpected CLASSTYPE object"},
-    {RSVP_DSTE_ERROR_UNSUPPORTED_CLASSTYPE, "Unsupported Class-Type"},
-    {RSVP_DSTE_ERROR_INVALID_CLASSTYPE_VALUE, "Invalid Class-Type value"},
-    {RSVP_DSTE_ERROR_CT_SETUP_PRIO_NOT_CONFIGURED, "CT and setup priority do not form a configured TE-Class"},
-    {RSVP_DSTE_ERROR_CT_HOLDING_PRIO_NOT_CONFIGURED, "CT and holding priority do not form a configured TE-Class"},
-    {RSVP_DSTE_ERROR_CT_SETUP_PRIO_AND_CT_HOLDING_PRIO_NOT_CONFIGURED,
-     "CT and setup priority do not form a configured TE-Class AND CT and holding priority do not form a configured TE-Class"},
-    {RSVP_DSTE_ERROR_INCONSISTENCY_PSC_CT, "Inconsistency between signaled PSC and signaled CT"},
-    {RSVP_DSTE_ERROR_INCONSISTENCY_PHB_CT, "Inconsistency between signaled PHBs and signaled CT"},
+    {1, "Unexpected CLASSTYPE object"},
+    {2, "Unsupported Class-Type"},
+    {3, "Invalid Class-Type value"},
+    {4, "CT and setup priority do not form a configured TE-Class"},
+    {5, "CT and holding priority do not form a configured TE-Class"},
+    {6, "CT and setup priority do not form a configured TE-Class AND CT and holding priority do not form a configured TE-Class"},
+    {7, "Inconsistency between signaled PSC and signaled CT"},
+    {8, "Inconsistency between signaled PHBs and signaled CT"},
+    {0, NULL}
+};
+
+static const value_string rsvp_call_mgmt_error_vals[] = {
+    {1, "Call ID Contention"},
+    {2, "Connections still Exist"},
+    {3, "Unknown Call ID"},
+    {4, "Duplicate Call"},
     {0, NULL}
 };
 
@@ -760,7 +803,7 @@ enum    qos_service_type {
     QOS_CONTROLLED_LOAD=    5,		/* Controlled Load Service */
     QOS_GUARANTEED =        2,		/* Guaranteed service */
     QOS_TSPEC =             1		/* Traffic specification */
-    };
+};
 
 static const value_string qos_vals[] = {
     { QOS_QUALITATIVE, "Qualitative QoS" },
@@ -865,11 +908,17 @@ const range_string gmpls_switching_type_rvals[] = {
     {   2,   2, "Packet-Switch Capable-2 (PSC-2)" },
     {   3,   3, "Packet-Switch Capable-3 (PSC-3)" },
     {   4,   4, "Packet-Switch Capable-4 (PSC-4)" },
-    {   5,  50, "Unassigned" },
+    {   5,  29, "Unassigned" },
+    {  30,  30, "Ethernet Virtual Private Line (EVPL)" },
+    {  31,  39, "Unassigned" },
+    {  40,  40, "802.1 PBB-TE" },
+    {  41,  50, "Unassigned" },
     {  51,  51, "Layer-2 Switch Capable (L2SC)" },
     {  52,  99, "Unassigned" },
     { 100, 100, "Time-Division-Multiplex Capable (TDM)" },
-    { 101, 149, "Unassigned" },
+    { 101, 124, "Unassigned" },
+    { 125, 125, "Data Channel Switching Capable (DCSC)" },
+    { 126, 149, "Unassigned" },
     { 150, 150, "Lambda-Switch Capable (LSC)" },
     { 151, 169, "Unassigned" },
     { 200, 200, "Fiber-Switch Capable (FSC)" },
@@ -1088,6 +1137,15 @@ enum hf_rsvp_filter_keys {
     RSVPF_LSP_TUNNEL_IF_ID,
     RSVPF_NOTIFY_REQUEST,
     RSVPF_ADMIN_STATUS,
+    RSVPF_ADMIN_STATUS_REFLECT,
+    RSVPF_ADMIN_STATUS_HANDOVER,
+    RSVPF_ADMIN_STATUS_LOCKOUT,
+    RSVPF_ADMIN_STATUS_INHIBIT,
+    RSVPF_ADMIN_STATUS_CALL_MGMT,
+    RSVPF_ADMIN_STATUS_TESTING,
+    RSVPF_ADMIN_STATUS_DOWN,
+    RSVPF_ADMIN_STATUS_DELETE,
+    RSVPF_LSP_ATTRIBUTES,
     RSVPF_ASSOCIATION,
     RSVPF_GENERALIZED_UNI,
     RSVPF_CALL_ID,
@@ -1331,6 +1389,8 @@ static inline int rsvp_class_to_filter_num(int classnum)
 	return RSVPF_NOTIFY_REQUEST;
     case RSVP_CLASS_ADMIN_STATUS :
 	return RSVPF_ADMIN_STATUS;
+    case RSVP_CLASS_LSP_ATTRIBUTES :
+	return RSVPF_LSP_ATTRIBUTES;
     case RSVP_CLASS_ASSOCIATION :
 	return RSVPF_ASSOCIATION;
 
@@ -1357,7 +1417,7 @@ static inline int rsvp_class_to_filter_num(int classnum)
     case RSVP_CLASS_VENDOR_PRIVATE_10:
     case RSVP_CLASS_VENDOR_PRIVATE_11:
     case RSVP_CLASS_VENDOR_PRIVATE_12:
-	return RSVPF_PRIVATE_OBJ;
+       return RSVPF_PRIVATE_OBJ;
 
     default:
 	return RSVPF_UNKNOWN_OBJ;
@@ -1430,6 +1490,9 @@ static inline int rsvp_class_to_tree_type(int classnum)
 	return TT_UNKNOWN_CLASS;
     case RSVP_CLASS_ADMIN_STATUS :
 	return TT_ADMIN_STATUS;
+    case RSVP_CLASS_LSP_ATTRIBUTES :
+    case RSVP_CLASS_LSP_REQUIRED_ATTRIBUTES :
+	return TT_LSP_ATTRIBUTES;
     case RSVP_CLASS_ASSOCIATION :
 	return TT_ASSOCIATION;
     case RSVP_CLASS_SESSION_ATTRIBUTE :
@@ -1762,69 +1825,106 @@ dissect_rsvp_session (proto_item *ti, proto_tree *rsvp_object_tree,
     }
 }
 
-
 /*------------------------------------------------------------------------------
- * TLVs for HOP, ERROR and other IF_ID extended objects
+ * TLVs for HOP, ERROR and other IF_ID extended objects (RFC4920)
+ * (TODO: TLV type 12, 13, 25)
  *------------------------------------------------------------------------------*/
 static void
 dissect_rsvp_ifid_tlv (proto_tree *ti, proto_tree *rsvp_object_tree,
-		       tvbuff_t *tvb, int offset, int obj_length,
+		       tvbuff_t *tvb, int offset, int length,
 		       int subtree_type)
 {
-    int     tlv_off;
+    int       tlv_off;
     guint16   tlv_type;
-    guint     tlv_len;
-    const char *ifindex_name;
+    int       tlv_len;
+    guint8    isis_len;
+    const char *tlv_name;
     proto_tree *rsvp_ifid_subtree, *ti2;
 
-    for (tlv_off = 0; tlv_off < obj_length - 12; ) {
+    for (tlv_off = 0; tlv_off < length; ) {
 	tlv_type = tvb_get_ntohs(tvb, offset+tlv_off);
 	tlv_len = tvb_get_ntohs(tvb, offset+tlv_off+2);
 
-	if (tlv_len == 0) {
+	if (tlv_len == 0 || tlv_off+tlv_len > length) {
 	    proto_tree_add_text(rsvp_object_tree, tvb, offset+tlv_off+2, 2,
-		"Invalid length (0)");
-	    return;
+				"Invalid TLV length");
 	}
-
 	switch(tlv_type) {
-	case 1:
+	case 1:				/* IPv4 */
+	    tlv_name = "";
+	    goto ifid_ipv4;
+	case 14:			/* PREVIOUS_HOP_IPV4 */
+	    tlv_name = "Previous-Hop ";
+	    goto ifid_ipv4;
+	case 16:			/* INCOMING_IPV4 */
+	    tlv_name = "Incoming ";
+	ifid_ipv4:
 	    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
-				      offset+tlv_off, 8,
-				      "IPv4 TLV - %s",
+				      offset+tlv_off, tlv_len,
+				      "%sIPv4 TLV - %s", tlv_name,
 				      tvb_ip_to_str(tvb, offset+tlv_off+4));
 
 	    rsvp_ifid_subtree = proto_item_add_subtree(ti2, subtree_type);
 	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off, 2,
-				"Type: 1 (IPv4)");
+				"Type: %d (%sIPv4)", tlv_type, tlv_name);
 	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off+2, 2,
 				"Length: %u",
 				tvb_get_ntohs(tvb, offset+tlv_off+2));
 	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off+4, 4,
 				"IPv4 address: %s",
 				tvb_ip_to_str(tvb, offset+tlv_off+4));
-	    proto_item_append_text(ti, "Data IPv4: %s. ",
+	    proto_item_append_text(ti, "%sIPv4: %s. ", tlv_name,
 				   tvb_ip_to_str(tvb, offset+tlv_off+4));
 	    break;
 
-	case 3:
-	    ifindex_name = "";
+	case 2:				/* IPv6 */
+	    tlv_name = "";
+	    goto ifid_ipv6;
+	case 15:			/* PREVIOUS_HOP_IPV6 */
+	    tlv_name = "Previous-Hop ";
+	    goto ifid_ipv6;
+	case 17:			/* INCOMING_IPV6 */
+	    tlv_name = "Incoming ";
+	ifid_ipv6:
+	    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+				      offset+tlv_off, tlv_len,
+				      "%sIPv6 TLV - %s", tlv_name,
+				      tvb_ip6_to_str(tvb, offset+tlv_off+4));
+
+	    rsvp_ifid_subtree = proto_item_add_subtree(ti2, subtree_type);
+	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off, 2,
+				"Type: %d (%sIPv6)", tlv_type, tlv_name);
+	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off+2, 2,
+				"Length: %u",
+				tvb_get_ntohs(tvb, offset+tlv_off+2));
+	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off+4, 4,
+				"IPv6 address: %s",
+				tvb_ip6_to_str(tvb, offset+tlv_off+4));
+	    proto_item_append_text(ti, "%sIPv6: %s. ", tlv_name,
+				   tvb_ip6_to_str(tvb, offset+tlv_off+4));
+	    break;
+
+	case 3:				/* IF_INDEX */
+	    tlv_name = "";
 	    goto ifid_ifindex;
-	case 4:
-	    ifindex_name = " Forward";
+	case 4:				/* COMPONENT_IF_DOWNSTREAM */
+	    tlv_name = " Forward";
 	    goto ifid_ifindex;
-	case 5:
-	    ifindex_name = " Reverse";
+	case 5:				/* COMPONENT_IF_UPSTREAM */
+	    tlv_name = " Reverse";
+	    goto ifid_ifindex;
+	case 18:			/* INCOMING_IF_INDEX */
+	    tlv_name = " Incoming";
 	ifid_ifindex:
 	    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
-				      offset+tlv_off, 12,
+				      offset+tlv_off, tlv_len,
 				      "Interface-Index%s TLV - %s, %d",
-				      ifindex_name,
+				      tlv_name,
 				      tvb_ip_to_str(tvb, offset+tlv_off+4),
 				      tvb_get_ntohl(tvb, offset+tlv_off+8));
 	    rsvp_ifid_subtree =	proto_item_add_subtree(ti2, subtree_type);
 	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off, 2,
-				"Type: %d (Interface Index%s)", tlv_type, ifindex_name);
+				"Type: %d (Interface Index%s)", tlv_type, tlv_name);
 	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off+2, 2,
 				"Length: %u",
 				tvb_get_ntohs(tvb, offset+tlv_off+2));
@@ -1832,13 +1932,162 @@ dissect_rsvp_ifid_tlv (proto_tree *ti, proto_tree *rsvp_object_tree,
 				"IPv4 address: %s",
 				tvb_ip_to_str(tvb, offset+tlv_off+4));
 	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off+8, 4,
-				"Interface-ID: %d",
+				"Interface-ID: %d (0x%0x)",
+				tvb_get_ntohl(tvb, offset+tlv_off+8),
 				tvb_get_ntohl(tvb, offset+tlv_off+8));
-	    proto_item_append_text(ti, "Data If-Index%s: %s, %d. ", ifindex_name,
+	    proto_item_append_text(ti, "Data If-Index%s: %s, %d. ", tlv_name,
 				   tvb_ip_to_str(tvb, offset+tlv_off+4),
 				   tvb_get_ntohl(tvb, offset+tlv_off+8));
 	    break;
 
+	case 6:				/* DOWNSTREAM_LABEL */
+	    tlv_name = "Downstream";
+	    goto ifid_label;
+	case 7:				/* UPSTREAM_LABEL */
+	    tlv_name = "Upstream";
+	    goto ifid_label;
+	case 19:			/* INCOMING_DOWN_LABEL */
+	    tlv_name = "Incoming-Downstream";
+	    goto ifid_label;
+	case 20:                	/* INCOMING_UP_LABEL */
+	    tlv_name = "Incoming-Upstream";
+	ifid_label:
+	    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+				      offset+tlv_off, tlv_len,
+				      "%s-Label TLV - %u", tlv_name,
+				      tvb_get_ntohl(tvb, offset+tlv_off+4));
+	    rsvp_ifid_subtree = proto_item_add_subtree(ti2, subtree_type);
+	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off, 2,
+				"Type: %d (%s-Label)", tlv_type, tlv_name);
+	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off+2, 2,
+				"Length: %u",
+				tvb_get_ntohs(tvb, offset+tlv_off+2));
+	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off+4, 4,
+				"Label: %u",
+				tvb_get_ntohl(tvb, offset+tlv_off+4));
+	    proto_item_append_text(ti, "%s-Label: %u. ", tlv_name,
+				   tvb_get_ntohl(tvb, offset+tlv_off+4));
+	    break;
+
+
+	case 8:				/* NODE_ID */
+	    tlv_name = "";
+	    goto ifid_nodeid;
+	case 21:			/* REPORTING_NODE_ID */
+	    tlv_name = "Reporting-";
+	ifid_nodeid:
+	    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+				      offset+tlv_off, tlv_len,
+				      "%sNode-ID TLV - %s", tlv_name,
+				      tvb_ip_to_str(tvb, offset+tlv_off+4));
+	    rsvp_ifid_subtree = proto_item_add_subtree(ti2, subtree_type);
+	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off, 2,
+				"Type: %d (%sNode-ID)", tlv_type, tlv_name);
+	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off+2, 2,
+				"Length: %u",
+				tvb_get_ntohs(tvb, offset+tlv_off+2));
+	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off+4, 4,
+				"Node ID: %s",
+				tvb_ip_to_str(tvb, offset+tlv_off+4));
+	    proto_item_append_text(ti, "%sNode-ID: %s. ", tlv_name,
+				   tvb_ip_to_str(tvb, offset+tlv_off+4));
+	    break;
+
+	case 9:				/* OSPF_AREA */
+	    tlv_name = "";
+	    goto ifid_ospf;
+	case 22:			/* REPORTING_OSPF_AREA */
+	    tlv_name = "Reporting-";
+	ifid_ospf:
+	    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+				      offset+tlv_off, tlv_len,
+				      "%sOSPF-Area TLV - %u", tlv_name,
+				      tvb_get_ntohl(tvb, offset+tlv_off+4));
+	    rsvp_ifid_subtree = proto_item_add_subtree(ti2, subtree_type);
+	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off, 2,
+				"Type: %d (%sOSPF-Area)", tlv_type, tlv_name);
+	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off+2, 2,
+				"Length: %u",
+				tvb_get_ntohs(tvb, offset+tlv_off+2));
+	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off+4, 4,
+				"Area: %u",
+				tvb_get_ntohl(tvb, offset+tlv_off+4));
+	    proto_item_append_text(ti, "%sOSPF-Area: %u. ", tlv_name,
+				   tvb_get_ntohl(tvb, offset+tlv_off+4));
+	    break;
+
+	case 10:			/* ISIS_AREA */
+	    tlv_name = "";
+	    goto ifid_isis;
+	case 23:			/* REPORTING_ISIS_AREA */
+	    tlv_name = "Reporting-";
+	ifid_isis:
+	    isis_len = tvb_get_guint8(tvb, offset+tlv_off+4);
+	    if (isis_len < 2 || isis_len > 11)
+	    {
+	      proto_tree_add_text(rsvp_object_tree, tvb, offset+tlv_off, tlv_len,
+				  "%sISIS-Area TLV - Invalid Length field", tlv_name);
+	      break;
+	    }
+	    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+				      offset+tlv_off, tlv_len,
+				      "%sISIS-Area TLV - %s", tlv_name,
+				      print_nsap_net(tvb_get_ptr(tvb, offset+tlv_off+5, isis_len),
+						     isis_len));
+	    rsvp_ifid_subtree = proto_item_add_subtree(ti2, subtree_type);
+	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off, 2,
+				"Type: %d (%sISIS-Area)", tlv_type, tlv_name);
+	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off+2, 2,
+				"Length: %u",
+				tvb_get_ntohs(tvb, offset+tlv_off+2));
+	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off+4, 4,
+				"IS-IS Area Identifier: %s",
+				 print_nsap_net(tvb_get_ptr(tvb, offset+tlv_off+5, isis_len), isis_len));
+	    proto_item_append_text(ti, "%sISIS-Area: %s. ", tlv_name,
+				   print_nsap_net(tvb_get_ptr(tvb, offset+tlv_off+5, isis_len), isis_len));
+	    break;
+
+	case 11:			/* AUTONOMOUS_SYSTEM */
+	    tlv_name = "";
+	    goto ifid_as;
+	case 24:			/* REPORTING_AUTONOMOUS_SYSTEM */
+	    tlv_name = "Reporting-";
+	ifid_as:
+	    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+				      offset+tlv_off, tlv_len,
+				      "%sAS TLV - %u", tlv_name,
+				      tvb_get_ntohl(tvb, offset+tlv_off+4));
+	    rsvp_ifid_subtree = proto_item_add_subtree(ti2, subtree_type);
+	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off, 2,
+				"Type: %d (%sAS)", tlv_type, tlv_name);
+	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off+2, 2,
+				"Length: %u",
+				tvb_get_ntohs(tvb, offset+tlv_off+2));
+	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off+4, 4,
+				"Autonomous System: %u",
+				tvb_get_ntohl(tvb, offset+tlv_off+4));
+	    proto_item_append_text(ti, "%sAS: %u. ", tlv_name,
+				   tvb_get_ntohl(tvb, offset+tlv_off+4));
+	    break;
+
+	case 26:			/* NODE_EXCLUSIONS */
+	    tlv_name = "Node";
+	    goto ifid_ex;
+	case 27:			/* LINK_EXCLUSIONS */
+	    tlv_name = "Link";
+	ifid_ex:
+	    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+				      offset+tlv_off, tlv_len,
+				      "%s-Exclusions TLV - ", tlv_name);
+	    rsvp_ifid_subtree = proto_item_add_subtree(ti2, subtree_type);
+	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off, 2,
+				"Type: %d (%s-Exclusions)", tlv_type, tlv_name);
+	    proto_tree_add_text(rsvp_ifid_subtree, tvb, offset+tlv_off+2, 2,
+				"Length: %u",
+				tvb_get_ntohs(tvb, offset+tlv_off+2));
+	    dissect_rsvp_ifid_tlv(ti2, rsvp_ifid_subtree, tvb, offset+tlv_off+4,
+				  tlv_len-4, TREE(TT_HOP_SUBOBJ));
+	    break;
         case 516:
             /* FF: ERROR_STRING TLV, RFC 4783 */
             ti2 =
@@ -1933,7 +2182,7 @@ dissect_rsvp_hop (proto_item *ti, proto_tree *rsvp_object_tree,
 	proto_item_set_text(ti, "HOP: IPv4 IF-ID. Control IPv4: %s. ",
 			    tvb_ip_to_str(tvb, offset2));
 
-	dissect_rsvp_ifid_tlv(ti, rsvp_object_tree, tvb, offset+12, obj_length,
+	dissect_rsvp_ifid_tlv(ti, rsvp_object_tree, tvb, offset+12, obj_length-12,
 			      TREE(TT_HOP_SUBOBJ));
 
 	break;
@@ -1988,12 +2237,16 @@ dissect_rsvp_error_value (proto_tree *ti, tvbuff_t *tvb,
                           int offset, guint8 error_code)
 {
     guint16 error_val;
+    guint8 error_class, error_ctype;
     const value_string *rsvp_error_vals = NULL;
 
     error_val = tvb_get_ntohs(tvb, offset);
     switch (error_code) {
     case RSVP_ERROR_ADMISSION:
 	rsvp_error_vals = rsvp_admission_control_error_vals;
+	break;
+    case RSVP_ERROR_POLICY:
+	rsvp_error_vals = rsvp_policy_control_error_vals;
 	break;
     case RSVP_ERROR_TRAFFIC:
 	rsvp_error_vals = rsvp_traffic_control_error_vals;
@@ -2010,23 +2263,48 @@ dissect_rsvp_error_value (proto_tree *ti, tvbuff_t *tvb,
     case RSVP_ERROR_DSTE:
 	rsvp_error_vals = rsvp_diffserv_aware_te_error_vals;
 	break;
+    case RSVP_ERROR_CALL_MGMT:
+	rsvp_error_vals = rsvp_call_mgmt_error_vals;
+        break;
     }
     switch (error_code) {
     case RSVP_ERROR_ADMISSION:
     case RSVP_ERROR_TRAFFIC:
-    case RSVP_ERROR_NOTIFY:
-    case RSVP_ERROR_ROUTING:
-    case RSVP_ERROR_DIFFSERV:
-    case RSVP_ERROR_DSTE:
 	if ((error_val & 0xc0) == 0) {
 	    proto_tree_add_text(ti, tvb, offset, 2,
 		"Error value: %u - %s", error_val,
 		val_to_str(error_val, rsvp_error_vals, "Unknown (%d)"));
-	    break;
-	}
+        }
+        else if ((error_val & 0xc0) == 0x80) {
+	    proto_tree_add_text(ti, tvb, offset, 2,
+		"Error value: %u - Organization specific subcode (%u)", error_val,
+		error_val);
+        }
+        else if ((error_val & 0xc0) == 0xc0) {
+	    proto_tree_add_text(ti, tvb, offset, 2,
+		"Error value: %u - Service specific subcode (%u)", error_val,
+		error_val);
+        }
+	break;
+    case RSVP_ERROR_UNKNOWN_CLASS:
+    case RSVP_ERROR_UNKNOWN_C_TYPE:
+	error_class = error_val / 256;
+        error_ctype = error_val % 256;
+	proto_tree_add_text(ti, tvb, offset, 2, "Class: %u (%s) - CType: %u",
+			    error_class, val_to_str (error_class, rsvp_class_vals, "Unknown"),
+			    error_ctype);
+	break;
+    case RSVP_ERROR_POLICY:
+    case RSVP_ERROR_NOTIFY:
+    case RSVP_ERROR_ROUTING:
+    case RSVP_ERROR_DIFFSERV:
+    case RSVP_ERROR_DSTE:
+    case RSVP_ERROR_CALL_MGMT:
+	proto_tree_add_text(ti, tvb, offset, 2, "Error value: %u - %s", error_val,
+		val_to_str(error_val, rsvp_error_vals, "Unknown (%d)"));
+	break;
     default:
-	proto_tree_add_text(ti, tvb, offset, 2,
-	    "Error value: %u", error_val);
+	proto_tree_add_text(ti, tvb, offset, 2, "Error value: %u", error_val);
     }
     return error_val;
 }
@@ -2123,7 +2401,7 @@ dissect_rsvp_error (proto_item *ti, proto_tree *rsvp_object_tree,
 	proto_item_set_text(ti, "ERROR: IPv4 IF-ID, Error code: %s, Value: %d, Control Node: %s. ",
 			    val_to_str(error_code, rsvp_error_codes, "Unknown (%d)"),
 			    error_val, tvb_ip_to_str(tvb, offset2));
-	dissect_rsvp_ifid_tlv(ti, rsvp_object_tree, tvb, offset+12, obj_length,
+	dissect_rsvp_ifid_tlv(ti, rsvp_object_tree, tvb, offset+12, obj_length-12,
 			      TREE(TT_ERROR_SUBOBJ));
 	break;
     }
@@ -2341,8 +2619,7 @@ dissect_rsvp_template_filter (proto_item *ti, proto_tree *rsvp_object_tree,
 }
 
 /*------------------------------------------------------------------------------
- * TLVs for Ethernet SENDER TSPEC and FLOWSPEC
- * draft-ietf-ccamp-ethernet-traffic-parameters-02
+ * TLVs for Ethernet SENDER TSPEC and FLOWSPEC (RFC6003)
  *------------------------------------------------------------------------------*/
 static void
 dissect_rsvp_eth_tspec_tlv(proto_item *ti, proto_tree *rsvp_object_tree,
@@ -2365,18 +2642,21 @@ dissect_rsvp_eth_tspec_tlv(proto_item *ti, proto_tree *rsvp_object_tree,
 	    return;
 	}
 	switch(tlv_type) {
-	case 128:
+	case 0:
+	case 1:
+	case 255:
 	    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
 				      offset+tlv_off, tlv_len,
-				      "RESERVED (TBD)");
+				      "RESERVED (RFC6003)");
 	    rsvp_ethspec_subtree = proto_item_add_subtree(ti2, subtree_type);
 	    proto_tree_add_text(rsvp_ethspec_subtree, tvb, offset+tlv_off, 2,
-				"Type: 128 (RESERVED)");
+				"Type: %u (RESERVED)", tlv_type);
 	    proto_tree_add_text(rsvp_ethspec_subtree, tvb, offset+tlv_off+2, 2,
 				"Length: %u", tlv_len);
 	    break;
 
-	case 129:
+	case 2:
+	case 129:     /* OIF demo 2009 */
 	    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
 				      offset+tlv_off, tlv_len,
 				      "Ethernet Bandwidth Profile TLV: CIR=%.10g, CBS=%.10g, "
@@ -2387,7 +2667,7 @@ dissect_rsvp_eth_tspec_tlv(proto_item *ti, proto_tree *rsvp_object_tree,
 				      tvb_get_ntohieee_float(tvb, offset+tlv_off+20));
 	    rsvp_ethspec_subtree = proto_item_add_subtree(ti2, subtree_type);
 	    proto_tree_add_text(rsvp_ethspec_subtree, tvb, offset+tlv_off, 2,
-				"Type: %d - Ethernet Bandwidth Profile", tlv_type);
+				"Type: %u - Ethernet Bandwidth Profile", tlv_type);
 	    proto_tree_add_text(rsvp_ethspec_subtree, tvb, offset+tlv_off+2, 2,
 				"Length: %u", tlv_len);
 	    profile = tvb_get_guint8(tvb, offset+tlv_off+4);
@@ -2743,12 +3023,15 @@ dissect_rsvp_tspec (proto_item *ti, proto_tree *rsvp_object_tree,
                                tvb_get_ntohs(tvb, offset2 + 6));
         break;
 
-    case 6:   /* Ethernet TSPEC  draft-ietf-ccamp-ethernet-traffic-parameters-02 */
+    case 6:   /* Ethernet TSPEC (RFC6003)  */
 	proto_item_set_text(ti, "SENDER TSPEC: Ethernet, ");
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			    "C-type: 6 - Ethernet");
         switch_gran = tvb_get_ntohs(tvb, offset2);
-        if (switch_gran == 1)
+        if (switch_gran == 0)
+	  proto_tree_add_text(rsvp_object_tree, tvb, offset2, 2,
+			      "Switching granularity: 0 - Provided in signaling");
+        else if (switch_gran == 1)
 	  proto_tree_add_text(rsvp_object_tree, tvb, offset2, 2,
 			      "Switching granularity: 1 - Ethernet port");
 	else if (switch_gran == 2)
@@ -3104,12 +3387,15 @@ dissect_rsvp_flowspec (proto_item *ti, proto_tree *rsvp_object_tree,
                                tvb_get_ntohs(tvb, offset2 + 6));
         break;
 
-    case 6:   /* Ethernet FLOWSPEC  draft-ietf-ccamp-ethernet-traffic-parameters-02 */
+    case 6:   /* Ethernet FLOWSPEC (RFC6003)  */
 	proto_item_set_text(ti, "FLOWSPEC: Ethernet, ");
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			    "C-type: 6 - Ethernet");
         switch_gran = tvb_get_ntohs(tvb, offset2);
-        if (switch_gran == 1)
+        if (switch_gran == 0)
+	  proto_tree_add_text(rsvp_object_tree, tvb, offset2, 2,
+			      "Switching granularity: 0 - Provided in signaling");
+        else if (switch_gran == 1)
 	  proto_tree_add_text(rsvp_object_tree, tvb, offset2, 2,
 			      "Switching granularity: 1 - Ethernet port");
 	else if (switch_gran == 2)
@@ -3295,12 +3581,21 @@ dissect_rsvp_label_request (proto_item *ti, proto_tree *rsvp_object_tree,
 			    int class _U_, int type)
 {
     int offset2 = offset + 4;
+    const value_string lab_req_type_str[] = {
+      { 1, ""},
+      { 2, "(Label Request with ATM label Range)"},
+      { 3, "(Label Request with Frame-Relay label Range)"},
+      { 4, "(Generalized Label Request)"},
+      { 5, "(Generalized Channel_set Label Request)"},
+      { 0, NULL }
+    };
 
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
+			"C-type: %d %s", type,
+			val_to_str(type, lab_req_type_str, "Unknown"));
     switch(type) {
     case 1: {
 	unsigned short l3pid = tvb_get_ntohs(tvb, offset2+2);
-	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
-			    "C-type: 1");
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2,
 			    "L3PID: %s (0x%04x)",
 			    val_to_str(l3pid, etype_vals, "Unknown"),
@@ -3314,8 +3609,6 @@ dissect_rsvp_label_request (proto_item *ti, proto_tree *rsvp_object_tree,
     case 2: {
 	unsigned short l3pid = tvb_get_ntohs(tvb, offset2+2);
 	unsigned short min_vpi, min_vci, max_vpi, max_vci;
-	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
-			    "C-type: 2 (Label Request with ATM label Range)");
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2,
 			    "L3PID: %s (0x%04x)",
 			    val_to_str(l3pid, etype_vals, "Unknown"),
@@ -3346,8 +3639,6 @@ dissect_rsvp_label_request (proto_item *ti, proto_tree *rsvp_object_tree,
     case 3: {
 	guint16 l3pid = tvb_get_ntohs(tvb, offset2+2);
 	guint32 min_dlci, max_dlci, dlci_len, dlci_len_code;
-	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
-			    "C-type: 2 (Label Request with ATM label Range)");
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2,
 			    "L3PID: %s (0x%04x)",
 			    val_to_str(l3pid, etype_vals, "Unknown"),
@@ -3384,11 +3675,10 @@ dissect_rsvp_label_request (proto_item *ti, proto_tree *rsvp_object_tree,
 			    "INVALID", min_dlci, max_dlci);
 	break;
     }
-    case 4: {
+    case 4:
+    case 5: {
 	unsigned short l3pid = tvb_get_ntohs(tvb, offset2+2);
 	unsigned char  lsp_enc = tvb_get_guint8(tvb,offset2);
-	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
-			    "C-type: 4 (Generalized Label Request)");
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
 			    "LSP Encoding Type: %s",
 			    rval_to_str(lsp_enc, gmpls_lsp_enc_rvals, "Unknown (%d)"));
@@ -3414,9 +3704,6 @@ dissect_rsvp_label_request (proto_item *ti, proto_tree *rsvp_object_tree,
     }
 
     default: {
-	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
-			    "C-type: Unknown (%u)",
-			    type);
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
 			    "Data (%d bytes)", obj_length - 4);
 	break;
@@ -3479,6 +3766,21 @@ dissect_glabel_lambda(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                           n,
                           /* frequency */
                           freq);
+    proto_item_append_text(ti, ": Wavelength: "
+                          "grid=%s, "
+                          "channel spacing=%s, "
+                          "n=%d, "
+                          "freq=%.2fTHz",
+                          grid == 1 ? "DWDM" :
+                          grid == 2 ? "CWDM" :
+                          "unknown",
+                          cs == 1 ? "100GHz" :
+                          cs == 2 ? "50GHz" :
+                          cs == 3 ? "25GHz" :
+                          cs == 4 ? "12.5GHz" :
+                          "unknown",
+                          n,
+                          freq);
     } else if (grid == 2) {
       /* CWDM grid: Wavelength (nm) = 1471 nm + n * 20 nm  */
       wavelength = 1471 + (n * 20);
@@ -3499,10 +3801,27 @@ dissect_glabel_lambda(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                           n,
                           /* wavelength */
                           wavelength);
+    proto_item_append_text(ti, ": Wavelength: "
+                          "grid=%s, "
+                          "channel spacing=%s, "
+                          "n=%d, "
+                          "wavelength=%unm",
+                          grid == 1 ? "DWDM" :
+                          grid == 2 ? "CWDM" :
+                          "unknown",
+                          cs == 1 ? "20nm" :
+                          "unknown",
+                          n,
+                          wavelength);
     } else {
       /* unknown grid: */
       proto_tree_add_text(rsvp_object_tree, tvb, offset, 4,
                           "Wavelength Label: "
+                          "grid=%u, "
+                          "channel spacing=%u, "
+                          "n=%d",
+                          grid, cs, n);
+    proto_item_append_text(ti, ": Wavelength: "
                           "grid=%u, "
                           "channel spacing=%u, "
                           "n=%d",
@@ -3539,6 +3858,13 @@ dissect_glabel_sdh(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                         "L=%u, "
                         "M=%u",
                         s, u, k, l, m);
+    proto_item_append_text(ti, ": SONET/SDH: "
+                           "S=%u, "
+                           "U=%u, "
+                           "K=%u, "
+                           "L=%u, "
+                           "M=%u",
+                           s, u, k, l, m);
 }
 
 /*
@@ -3563,6 +3889,11 @@ dissect_glabel_g709(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
 
     proto_tree_add_text(rsvp_object_tree, tvb, offset, 4,
                         "G.709 ODUk Label: "
+                        "t3=%u, "
+                        "t2=%u, "
+                        "t1=%u",
+                        t3, t2, t1);
+    proto_item_append_text(ti, ": G.709 ODUk: "
                         "t3=%u, "
                         "t2=%u, "
                         "t1=%u",
@@ -3622,16 +3953,23 @@ dissect_rsvp_label (proto_tree *ti, proto_tree *rsvp_object_tree,
 	  dissect_glabel_lambda(ti, rsvp_object_tree, tvb, offset2);
 	}
 	break;
+
+    case 4:
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
+			    "C-type: 4 (Generalized Channel_set)");
+	proto_item_append_text(ti, ": Generalized Channel_set");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
+			    "Data (%d bytes)", mylen);
+	break;
+
     default:
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
-			    "C-type: Unknown (%u)",
-			    type);
+			    "C-type: Unknown (%u)", type);
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
 			    "Data (%d bytes)", mylen);
 	break;
     }
 }
-
 /*------------------------------------------------------------------------------
  * LABEL_SET
  *------------------------------------------------------------------------------*/
@@ -4047,7 +4385,6 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 				       tvb_get_ntohl(tvb, offset+l+8),
 				       k ? " [L]":"");
 	    }
-
 	    break;
 
 	case 32: /* AS */
@@ -4070,7 +4407,56 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 		proto_item_append_text(ti, "AS %d",
 				       tvb_get_ntohs(tvb, offset+l+2));
 	    }
+	    break;
 
+	case 64: /* PKSv4 - RFC5520 */
+	    if (class == RSVP_CLASS_RECORD_ROUTE) goto defaultsub;
+	    k = tvb_get_ntohs(tvb, offset+l+2);
+	    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+				      offset+l, 8,
+				      "Path Key subobject - %s, %u",
+				      tvb_ip_to_str(tvb, offset+l+4),
+                                      k);
+	    rsvp_ro_subtree =
+		proto_item_add_subtree(ti2, tree_type);
+	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
+				"Type: 64 (Path Key with IPv4 PCE-ID)");
+	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+1, 1,
+				"Length: %u",
+				tvb_get_guint8(tvb, offset+l+1));
+	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+2, 2,
+				"Path Key: %u", k);
+	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+4, 4,
+				"PCE-ID: %s",
+				tvb_ip_to_str(tvb, offset+l+4));
+	    if (i < 4) {
+		proto_item_append_text(ti, "Path Key %d", k);
+	    }
+	    break;
+
+	case 65: /* PKSv6 - RFC5520 */
+	    if (class == RSVP_CLASS_RECORD_ROUTE) goto defaultsub;
+	    k = tvb_get_ntohs(tvb, offset+l+2);
+	    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+				      offset+l, 8,
+				      "Path Key subobject - %s, %u",
+			              tvb_ip6_to_str(tvb, offset+l+4),
+                                      k);
+	    rsvp_ro_subtree =
+		proto_item_add_subtree(ti2, tree_type);
+	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
+				"Type: 65 (Path Key with IPv6 PCE-ID)");
+	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+1, 1,
+				"Length: %u",
+				tvb_get_guint8(tvb, offset+l+1));
+	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+2, 2,
+				"Path Key: %u", k);
+	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+4, 4,
+				"PCE-ID: %s",
+			        tvb_ip6_to_str(tvb, offset+l+4));
+	    if (i < 4) {
+		proto_item_append_text(ti, "Path Key %d", k);
+	    }
 	    break;
 
         case 124:
@@ -4146,7 +4532,7 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 	    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
 				      offset+l,
 				      tvb_get_guint8(tvb, offset+l+1),
-				      "Unknown Subobject: %d", j);
+				      "Unknown subobject: %d", j);
 	    rsvp_ro_subtree =
 		proto_item_add_subtree(ti2, tree_type);
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
@@ -4156,6 +4542,7 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+1, 1,
 				"Length: %u",
 				tvb_get_guint8(tvb, offset+l+1));
+
 	}
 
 	if (tvb_get_guint8(tvb, offset+l+1) < 1) {
@@ -4212,7 +4599,6 @@ dissect_rsvp_record_route (proto_item *ti, proto_tree *rsvp_object_tree,
 			   int class, int type)
 {
     proto_item_set_text(ti, "RECORD ROUTE: ");
-
     switch(type) {
     case 1:
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
@@ -4436,7 +4822,6 @@ dissect_rsvp_admin_status (proto_tree *ti, proto_tree *rsvp_object_tree,
 {
     int offset2 = offset + 4;
     proto_tree *ti2, *rsvp_admin_subtree;
-    int mylen;
     guint32 status;
 
     proto_item_set_text(ti, "ADMIN STATUS: ");
@@ -4449,31 +4834,43 @@ dissect_rsvp_admin_status (proto_tree *ti, proto_tree *rsvp_object_tree,
 				  "Admin Status: 0x%08x", status);
 	rsvp_admin_subtree =
 	    proto_item_add_subtree(ti2, TREE(TT_ADMIN_STATUS_FLAGS));
-	proto_tree_add_text(rsvp_admin_subtree, tvb, offset2, 4, "%s",
-			    decode_boolean_bitfield(status, 0x80000000, 32,
-						    "R: Reflect",
-						    "R: Do not reflect"));
-	proto_tree_add_text(rsvp_admin_subtree, tvb, offset2, 4, "%s",
-			    decode_boolean_bitfield(status, 0x04, 32,
-						    "T: Testing",
-						    "T: "));
-	proto_tree_add_text(rsvp_admin_subtree, tvb, offset2, 4, "%s",
-			    decode_boolean_bitfield(status, 0x02, 32,
-						    "A: Administratively Down",
-						    "A: "));
-	proto_tree_add_text(rsvp_admin_subtree, tvb, offset2, 4, "%s",
-			    decode_boolean_bitfield(status, 0x01, 32,
-						    "D: Delete In Progress",
-						    "D: "));
-	proto_item_set_text(ti, "ADMIN-STATUS: %s %s %s %s",
-			    (status & (1<<31)) ? "Reflect" : "",
-			    (status & (1<<2))  ? "Testing" : "",
-			    (status & (1<<1))  ? "Admin-Down" : "",
-			    (status & (1<<0))  ? "Deleting" : "");
+
+	proto_tree_add_boolean(rsvp_admin_subtree,
+			       hf_rsvp_filter[RSVPF_ADMIN_STATUS_REFLECT],
+			       tvb, offset2, 4, status);
+	proto_tree_add_boolean(rsvp_admin_subtree,
+			       hf_rsvp_filter[RSVPF_ADMIN_STATUS_HANDOVER],
+			       tvb, offset2, 4, status);
+	proto_tree_add_boolean(rsvp_admin_subtree,
+			       hf_rsvp_filter[RSVPF_ADMIN_STATUS_LOCKOUT],
+			       tvb, offset2, 4, status);
+	proto_tree_add_boolean(rsvp_admin_subtree,
+			       hf_rsvp_filter[RSVPF_ADMIN_STATUS_INHIBIT],
+			       tvb, offset2, 4, status);
+	proto_tree_add_boolean(rsvp_admin_subtree,
+			       hf_rsvp_filter[RSVPF_ADMIN_STATUS_CALL_MGMT],
+			       tvb, offset2, 4, status);
+	proto_tree_add_boolean(rsvp_admin_subtree,
+			       hf_rsvp_filter[RSVPF_ADMIN_STATUS_TESTING],
+			       tvb, offset2, 4, status);
+	proto_tree_add_boolean(rsvp_admin_subtree,
+			       hf_rsvp_filter[RSVPF_ADMIN_STATUS_DOWN],
+			       tvb, offset2, 4, status);
+	proto_tree_add_boolean(rsvp_admin_subtree,
+			       hf_rsvp_filter[RSVPF_ADMIN_STATUS_DELETE],
+			       tvb, offset2, 4, status);
+	proto_item_set_text(ti, "ADMIN-STATUS: %s%s%s%s%s%s%s%s",
+			    (status & (1<<31)) ? "Reflect " : "",
+			    (status & (1<<6)) ? "Handover " : "",
+			    (status & (1<<5)) ? "Lockout " : "",
+			    (status & (1<<4)) ? "Inhibit " : "",
+			    (status & (1<<3)) ? "Call " : "",
+			    (status & (1<<2)) ? "Testing " : "",
+			    (status & (1<<1)) ? "Admin-Down " : "",
+			    (status & (1<<0)) ? "Deleting " : "");
 	break;
 
     default:
-	mylen = obj_length - 4;
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			    "C-type: Unknown (%u)",
 			    type);
@@ -4481,6 +4878,80 @@ dissect_rsvp_admin_status (proto_tree *ti, proto_tree *rsvp_object_tree,
 			    "Data (%d bytes)", obj_length - 4);
 	break;
     }
+}
+
+/*------------------------------------------------------------------------------
+ * LSP ATTRIBUTES
+ *------------------------------------------------------------------------------*/
+static void
+dissect_rsvp_lsp_attributes (proto_tree *ti, proto_tree *rsvp_object_tree,
+			     tvbuff_t *tvb, int offset, int obj_length,
+			      int class _U_, int type)
+{
+    int tlv_off;
+    guint32 attributes;
+    guint16 tlv_type, tlv_len;
+    proto_tree *ti2, *rsvp_lsp_attr_subtree;
+
+    if (class == RSVP_CLASS_LSP_REQUIRED_ATTRIBUTES)
+      proto_item_set_text(ti, "LSP REQUIRED ATTRIBUTES: ");
+    else
+      proto_item_set_text(ti, "LSP ATTRIBUTES: ");
+
+    switch(type) {
+    case 1:
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
+			    "C-type: 1");
+        for (tlv_off = 4; tlv_off < obj_length-4; ) {
+    	  tlv_type = tvb_get_ntohs(tvb, offset+tlv_off);
+	  tlv_len = tvb_get_ntohs(tvb, offset+tlv_off+2);
+
+	  if (tlv_len == 0 || tlv_off+tlv_len > obj_length-4) {
+	      proto_tree_add_text(rsvp_object_tree, tvb, offset+tlv_off+2, 2,
+				  "Invalid length");
+	    return;
+	  }
+	  switch(tlv_type) {
+            case 1:
+	      attributes = tvb_get_ntohl(tvb, offset+tlv_off+4);
+              ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset+tlv_off, tlv_len,
+					"LSP attributes TLV: 0x%08x", attributes);
+	      rsvp_lsp_attr_subtree = proto_item_add_subtree(ti2, TREE(TT_LSP_ATTRIBUTES_FLAGS));
+	      proto_tree_add_text(rsvp_lsp_attr_subtree, tvb, offset+tlv_off+4, 4,
+				  "%s", decode_boolean_bitfield(attributes, 0x01, 32,
+								"E2E re-routing desired",
+								"E2E re-routing NOT desired"));
+	      proto_tree_add_text(rsvp_lsp_attr_subtree, tvb, offset+tlv_off+4, 4,
+				  "%s", decode_boolean_bitfield(attributes, 0x02, 32,
+								"Boundary re-routing desired",
+								"Boundary re-routing NOT desired"));
+	      proto_tree_add_text(rsvp_lsp_attr_subtree, tvb, offset+tlv_off+4, 4,
+				  "%s", decode_boolean_bitfield(attributes, 0x04, 32,
+								"Segment-based re-routing desired",
+								"Segment-based re-routing NOT desired"));
+	      proto_item_append_text(ti, "LSP Attribute:%s%s%s",
+			    (attributes & 0x01) ? " End-to-end re-routing" : "",
+			    (attributes & 0x02) ? " Boundary re-routing" : "",
+			    (attributes & 0x04) ? " Segment-based re-routing" : "");
+	      break;
+
+	    default:
+	      proto_tree_add_text(rsvp_object_tree, tvb, offset+tlv_off, tlv_len,
+				  "Unknown TLV");
+	      break;
+        }
+	tlv_off += tlv_len;
+      }
+      break;
+
+    default:
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
+			    "C-type: Unknown (%u)",
+			    type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+4, obj_length - 4,
+			    "Data (%d bytes)", obj_length - 4);
+	break;
+  }
 }
 
 /*------------------------------------------------------------------------------
@@ -4497,7 +4968,10 @@ dissect_rsvp_association (proto_tree *ti, proto_tree *rsvp_object_tree,
     static const value_string association_type_vals[] = {
         {0, "Reserved"},
         {1, "Recovery"},
-        { 0, NULL}
+        {2, "Resource Sharing"},
+        {3, "Segment Recovery"},
+        {4, "Inter-domain Recovery"},
+        {0, NULL}
     };
 
     proto_item_set_text(ti, "ASSOCIATION ");
@@ -4538,6 +5012,28 @@ dissect_rsvp_association (proto_tree *ti, proto_tree *rsvp_object_tree,
 	proto_item_append_text(ti, "Src: %s", tvb_ip6_to_str(tvb, offset+8));
 	break;
 
+    case 4:       /* oif2008.389 */
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
+			    "C-type: 4 (Routing Area)");
+	proto_item_append_text(ti, "(Routing Area): ");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+4, 2,
+			    "Association type: %s",
+			    val_to_str(association_type, association_type_vals, "Unknown (%u)"));
+	proto_item_append_text(ti, "%s. ",
+			       val_to_str(association_type, association_type_vals, "Unknown (%u)"));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+6, 2,
+			    "Association ID: %u", association_id);
+	proto_item_append_text(ti, "Association ID: %u, ", association_id);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+8, 4,
+			    "Routing Area ID: %u", tvb_get_ntohl (tvb, offset+8));
+	proto_item_append_text(ti, "Routing Area ID: %u, ", tvb_get_ntohl (tvb, offset+8));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+12, 4,
+			    "Node ID: %s", tvb_ip_to_str(tvb, offset+12));
+	proto_item_append_text(ti, "Node ID: %s", tvb_ip_to_str(tvb, offset+12));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+8, 16,
+			    "Padding: %s", tvb_bytes_to_str_punct(tvb, offset+16, 8, ' '));
+	break;
+
     default:
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			    "C-type: Unknown (%u)", type);
@@ -4546,7 +5042,6 @@ dissect_rsvp_association (proto_tree *ti, proto_tree *rsvp_object_tree,
 	break;
     }
 }
-
 /*------------------------------------------------------------------------------
  * TLVs for LSP TUNNEL IF ID object
  * draft-ietf-ccamp-lsp-hierarchy-bis-02
@@ -4781,7 +5276,7 @@ dissect_rsvp_notify_request (proto_item *ti, proto_tree *rsvp_object_tree,
 			    "Notify node address: %s",
 			    tvb_ip_to_str(tvb, offset2));
 	proto_item_append_text(ti, ": Notify node: %s",
-			       tvb_ip_to_str(tvb, offset2));
+			    tvb_ip_to_str(tvb, offset2));
 	break;
     }
 
@@ -4819,7 +5314,7 @@ dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
     int mylen, i, j, k, l, m;
     proto_item *ti2;
     proto_tree *rsvp_gen_uni_subtree, *rsvp_session_subtree, *rsvp_template_subtree;
-    int s_len, s_class, s_type;
+    int s_len, s_class, s_type, sobj_len, nsap_len;
     int offset3;
 
     proto_item_set_text(ti, "GENERALIZED UNI: ");
@@ -4831,6 +5326,7 @@ dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			    "C-type: 1");
 	for (i=1, l = 0; l < mylen; i++) {
+	    sobj_len = tvb_get_ntohs(tvb, offset2+l);
 	    j = tvb_get_guint8(tvb, offset2+l+2);
 	    switch(j) {
 	    case 1:
@@ -4850,8 +5346,7 @@ dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
 		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+3, 1,
 					"Type: 1 (IPv4)");
 		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l, 2,
-					"Length: %u",
-					tvb_get_ntohs(tvb, offset2+l));
+					"Length: %u", sobj_len);
 		    if (j==1)
 		      proto_tree_add_item(rsvp_gen_uni_subtree, hf_rsvp_filter[RSVPF_GUNI_SRC_IPV4],
 				          tvb, offset2+l+4, 4, FALSE);
@@ -4867,7 +5362,7 @@ dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
 		case 2:
 		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
 					      offset2+l, 20,
-					      "%s IPv6 TNA", c);
+					      "%s IPv6 TNA:", c);
 		    rsvp_gen_uni_subtree =
 			proto_item_add_subtree(ti2, TREE(TT_GEN_UNI_SUBOBJ));
 		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+2, 1,
@@ -4875,8 +5370,7 @@ dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
 		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+3, 1,
 					"Type: 2 (IPv6)");
 		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l, 2,
-					"Length: %u",
-					tvb_get_ntohs(tvb, offset2+l));
+					"Length: %u", sobj_len);
 		    if (j==1)
 		      proto_tree_add_item(rsvp_gen_uni_subtree, hf_rsvp_filter[RSVPF_GUNI_SRC_IPV6],
 				          tvb, offset2+l+4, 16, FALSE);
@@ -4884,7 +5378,7 @@ dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
 		      proto_tree_add_item(rsvp_gen_uni_subtree, hf_rsvp_filter[RSVPF_GUNI_DST_IPV6],
 				          tvb, offset2+l+4, 16, FALSE);
 		    if (i < 4) {
-			proto_item_append_text(ti, "%s IPv6 %s", c,
+			proto_item_append_text(ti, "%s IPv6 TNA: %s", c,
 					       tvb_ip6_to_str(tvb, offset2+l+4));
 		    }
 		    break;
@@ -4892,21 +5386,25 @@ dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
 		case 3:
 		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
 					      offset2+l, tvb_get_ntohs(tvb, offset2+l),
-					      "%s NSAP TNA", c);
+					      "%s NSAP TNA: ", c);
 		    rsvp_gen_uni_subtree =
 			proto_item_add_subtree(ti2, TREE(TT_GEN_UNI_SUBOBJ));
+		    nsap_len = tvb_get_guint8(tvb, offset2+l+4);
 		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+2, 1,
 					"Class: %d (%s)", j, c);
 		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+3, 1,
 					"Type: 3 (NSAP)");
 		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l, 2,
-					"Length: %u",
-					tvb_get_ntohs(tvb, offset2+l));
-		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+4,
-					tvb_get_ntohs(tvb, offset2+l)-4,
-					"Data");
+					"Length: %u", sobj_len);
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+4, 1,
+					"NSAP Length: %u", nsap_len);
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+5,
+					sobj_len-4,
+					"NSAP address: %s",
+					print_nsap_net(tvb_get_ptr(tvb, offset2+l+5, nsap_len), nsap_len));
 		    if (i < 4) {
-			proto_item_append_text(ti, "%s NSAP", c);
+			proto_item_append_text(ti, "%s NSAP TNA: %s", c,
+					       print_nsap_net(tvb_get_ptr(tvb, offset2+l+5, nsap_len), nsap_len));
 		    }
 		    break;
 
@@ -4921,10 +5419,9 @@ dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
 		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+3, 1,
 					"Type: %d (UNKNOWN)", j);
 		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l, 2,
-					"Length: %u",
-					tvb_get_ntohs(tvb, offset2+l));
+					"Length: %u", sobj_len);
 		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+4,
-					tvb_get_ntohs(tvb, offset2+l)-4,
+					sobj_len-4,
 					"Data");
 		    if (i < 4) {
 			proto_item_append_text(ti, "%s UNKNOWN", c);
@@ -4948,8 +5445,7 @@ dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
 		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+3, 1,
 					"Type: %d", tvb_get_guint8(tvb, offset2+l+3));
 		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l, 2,
-					"Length: %u",
-					tvb_get_ntohs(tvb, offset2+l));
+					"Length: %u", sobj_len);
 		    m = tvb_get_guint8(tvb, offset2+l+4) >> 4;
 		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+4, 1,
 					"Diversity: %d - %s", m,
@@ -5004,15 +5500,15 @@ dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
 		k = tvb_get_guint8(tvb, offset2+l+3);
 		if (k == 1)		/* Egress label sub-type */
 		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
-					      offset2+l, tvb_get_ntohs(tvb, offset2+l),
+					      offset2+l, sobj_len,
 					      "Egress Label Subobject");
 		else if (k == 2)	/* SPC_label sub-type (see G.7713.2) */
 		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
-					      offset2+l, tvb_get_ntohs(tvb, offset2+l),
+					      offset2+l, sobj_len,
 					      "SPC Label Subobject");
 		else
 		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
-					      offset2+l, tvb_get_ntohs(tvb, offset2+l),
+					      offset2+l, sobj_len,
 					      "Unknown Label Subobject");
 		rsvp_gen_uni_subtree = proto_item_add_subtree(ti2, TREE(TT_GEN_UNI_SUBOBJ));
 		proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+2, 1,
@@ -5020,8 +5516,7 @@ dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
 		proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+3, 1,
 				    "Type: %d", k);
 		proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l, 2,
-				    "Length: %u",
-				    tvb_get_ntohs(tvb, offset2+l));
+				    "Length: %u", sobj_len);
 		proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+4, 1,
 				    "Direction: %s",
 				    decode_boolean_bitfield(
@@ -5037,7 +5532,7 @@ dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
 				       "Upstream" : "Downstream",
 				       tvb_get_guint8(tvb, offset2+l+7),
 				       tvb_get_ntohl(tvb, offset2+l+8));
-		for (j=12; j < tvb_get_ntohs(tvb, offset2+l); j+=4) {
+		for (j=12; j < sobj_len; j+=4) {
 			proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+j, 4,
 					    "Label: %u", tvb_get_ntohl(tvb, offset2+l+j));
 			proto_item_append_text(ti2, "%u ", tvb_get_ntohl(tvb, offset2+l+j));
@@ -5056,17 +5551,16 @@ dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
 		default:
 		case 1:
 		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
-					      offset2+l, tvb_get_ntohs(tvb, offset2+l),
+					      offset2+l, sobj_len,
 					      "Service Level Subobject");
 		    rsvp_gen_uni_subtree =
 			proto_item_add_subtree(ti2, TREE(TT_GEN_UNI_SUBOBJ));
 		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+2, 1,
-					"Class: %d (Egress Label)", j);
+					"Class: %d (Service Level)", j);
 		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+3, 1,
 					"Type: %d", tvb_get_guint8(tvb, offset2+l+3));
 		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l, 2,
-					"Length: %u",
-					tvb_get_ntohs(tvb, offset2+l));
+					"Length: %u", sobj_len);
 		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+4, 1,
 					"Service Level: %u", tvb_get_guint8(tvb, offset2+l+4));
 		    proto_item_append_text(ti2, ": %u", tvb_get_guint8(tvb, offset2+l+4));
@@ -5079,8 +5573,7 @@ dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
 
 	    default: /* Unknown subobject */
 		ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
-					  offset2+l,
-					  tvb_get_ntohs(tvb, offset2+l),
+					  offset2+l, sobj_len,
 					  "Unknown subobject: %u",
 					  j);
 		rsvp_gen_uni_subtree =
@@ -5128,8 +5621,8 @@ dissect_rsvp_call_id (proto_tree *ti, proto_tree *rsvp_object_tree,
 		      int offset, int obj_length,
 		      int class _U_, int c_type)
 {
-    int type;
-    char *str;
+    int type = 0;
+    const char *str;
     int offset2 = offset + 4;
     int offset3, offset4, len;
 
@@ -5143,17 +5636,18 @@ dissect_rsvp_call_id (proto_tree *ti, proto_tree *rsvp_object_tree,
     };
 
     proto_item_set_text(ti, "CALL-ID: ");
-    type = tvb_get_guint8 (tvb, offset2);
     switch(c_type) {
     case 0:
         proto_item_append_text(ti,"Empty");
         proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
-                            "C-type: Empty (%u)", type);
-        proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length-4,
-			      "Data (%d bytes)", obj_length-4);
+                            "C-type: Empty (%u)", c_type);
+        if (obj_length > 4)
+          proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length-4,
+                              "Data (%d bytes)", obj_length-4);
         break;
     case 1:
     case 2:
+	type = tvb_get_guint8 (tvb, offset2);
 	if (c_type == 1) {
             offset3 = offset2 + 4;
             len = obj_length - 16;
@@ -5165,8 +5659,8 @@ dissect_rsvp_call_id (proto_tree *ti, proto_tree *rsvp_object_tree,
                                 tvb_get_ntoh24(tvb, offset2+1));
             proto_item_append_text(ti, "Operator-Specific. Addr Type: %s. ",
                                    val_to_str(type, address_type_vals, "Unknown (%u)"));
-	}
-	else {
+       }
+       else {
             offset3 = offset2 + 16;
             len = obj_length - 28;
             proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
@@ -5180,53 +5674,54 @@ dissect_rsvp_call_id (proto_tree *ti, proto_tree *rsvp_object_tree,
                                    val_to_str(type, address_type_vals, "Unknown (%u)"), str);
             str = tvb_get_ephemeral_string (tvb, offset2 + 4, 12);
             proto_tree_add_text(rsvp_object_tree, tvb, offset2 + 4, 12,
-			      "National Segment: %s", str);
+                                "National Segment: %s", str);
             proto_item_append_text(ti, "Natl Segment: %s. ", str);
-	}
+       }
 
 	switch(type) {
 	case 1:
             offset4 = offset3 + 4;
+            str = tvb_ip_to_str(tvb, offset3);
             proto_tree_add_item(rsvp_object_tree, hf_rsvp_filter[RSVPF_CALL_ID_SRC_ADDR_IPV4],
                                 tvb, offset3, 4, FALSE);
-            proto_item_append_text(ti, "Src: %s. ", tvb_ip_to_str(tvb, offset3));
             break;
 
 	case 2:
             offset4 = offset3 + 16;
+            str = tvb_ip6_to_str(tvb, offset3);
             proto_tree_add_item(rsvp_object_tree, hf_rsvp_filter[RSVPF_CALL_ID_SRC_ADDR_IPV6],
                                 tvb, offset3, 16, FALSE);
-            proto_item_append_text(ti, "Src: %s. ",
-                                   tvb_ip6_to_str(tvb, offset3));
             break;
 
 	case 3:
             offset4 = offset3 + 20;
-            proto_tree_add_text(rsvp_object_tree, tvb, offset3, 20, "Source Transport Network addr: %s",
-                                tvb_bytes_to_str(tvb, offset3, 20));
-            proto_item_append_text(ti, "Src: %s. ", tvb_bytes_to_str(tvb, offset3, 20));
+            str = print_nsap_net(tvb_get_ptr(tvb, offset3, 20), 20);
+            proto_tree_add_text(rsvp_object_tree, tvb, offset3, 20,
+                                "Source Transport Network addr: %s", str);
             break;
 
 	case 4:
             offset4 = offset3 + 6;
-            proto_tree_add_text(rsvp_object_tree, tvb, offset3, 6, "Source Transport Network addr: %s",
-                                tvb_bytes_to_str(tvb, offset3, 6));
-            proto_item_append_text(ti, "Src: %s. ", tvb_bytes_to_str(tvb, offset3, 6));
+            str = ether_to_str(tvb_get_ptr(tvb, offset3, 6));
+            proto_tree_add_text(rsvp_object_tree, tvb, offset3, 6,
+                                "Source Transport Network addr: %s", str);
             break;
 
 	case 0x7F:
             offset4 = offset3 + len;
-            proto_tree_add_text(rsvp_object_tree, tvb, offset3, len, "Source Transport Network addr: %s",
-                                tvb_bytes_to_str(tvb, offset3, len));
-            proto_item_append_text(ti, "Src: %s. ", tvb_bytes_to_str(tvb, offset3, len));
+            str = tvb_bytes_to_str(tvb, offset3, len);
+            proto_tree_add_text(rsvp_object_tree, tvb, offset3, len,
+                                "Source Transport Network addr: %s", str);
             break;
 
 	default:
             offset4 = offset3 + len;
+            str = "???";
             proto_tree_add_text(rsvp_object_tree, tvb, offset3, len, "Unknown Transport Network type: %d",
                                 type);
 	}
 
+	proto_item_append_text(ti, "Src: %s. ", str);
 	proto_tree_add_text(rsvp_object_tree, tvb, offset4, 8, "Local Identifier: %s",
 			    tvb_bytes_to_str(tvb, offset4, 8));
 	proto_item_append_text(ti, "Local ID: %s. ", tvb_bytes_to_str(tvb, offset4, 8));
@@ -5235,9 +5730,9 @@ dissect_rsvp_call_id (proto_tree *ti, proto_tree *rsvp_object_tree,
     default:
 	proto_item_append_text(ti, " Unknown");
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
-			    "C-type: Unknown (%u)", type);
-	proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
-			    "Data (%d bytes)", obj_length - 4);
+			    "C-type: Unknown (%u)", c_type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length-4,
+			    "Data (%d bytes)", obj_length-4);
 	break;
     }
 }
@@ -5287,57 +5782,201 @@ dissect_rsvp_protection_info (proto_tree *ti, proto_tree *rsvp_object_tree,
 			      int offset, int obj_length,
 			      int class _U_, int type)
 {
-    guint8 flags, flag;
-    proto_tree *ti2, *rsvp_pi_flags_tree;
+    guint8 flags1, flags2, lsp_flags, link_flags, seg_flags;
+    proto_tree *ti2, *ti3, *ti4, *rsvp_pi_link_flags_tree, *rsvp_pi_lsp_flags_tree, *rsvp_pi_seg_flags_tree;
     int offset2 = offset + 4;
 
     proto_item_set_text(ti, "PROTECTION_INFO: ");
     switch(type) {
     case 1:
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
-			    "C-type: 1 - Protection");
-	flag = tvb_get_guint8(tvb, offset2);
+			    "C-type: 1");
+	flags1 = tvb_get_guint8(tvb, offset2);
+	flags1 >>= 4;
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
 			    "Secondary LSP: %s",
-			    decode_boolean_bitfield(flag, 0x80, 8, "Yes", "No"));
+			    decode_boolean_bitfield(flags1, 0x08, 4, "Yes", "No"));
 
-	flags = tvb_get_guint8(tvb, offset2+3);
+	link_flags = tvb_get_guint8(tvb, offset2+3);
 	ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2+3, 1,
-				  "Link Flags: 0x%02x", flags);
-	rsvp_pi_flags_tree = proto_item_add_subtree(ti2,
-						    TREE(TT_PROTECTION_INFO));
-	proto_tree_add_text(rsvp_pi_flags_tree, tvb, offset2+3, 1, "%s",
-			    decode_boolean_bitfield(flags, 0x01, 8,
+				  "Link Flags: 0x%02x", link_flags);
+	rsvp_pi_link_flags_tree = proto_item_add_subtree(ti2, TREE(TT_PROTECTION_INFO_LINK));
+	proto_tree_add_text(rsvp_pi_link_flags_tree, tvb, offset2+3, 1, "%s",
+			    decode_boolean_bitfield(link_flags, 0x01, 8,
 						    "Extra Traffic desired",
-						    "Extra Traffic not desired"));
-	proto_tree_add_text(rsvp_pi_flags_tree, tvb, offset2+3, 1, "%s",
-			    decode_boolean_bitfield(flags, 0x02, 8,
+						    "Extra Traffic NOT desired"));
+	proto_tree_add_text(rsvp_pi_link_flags_tree, tvb, offset2+3, 1, "%s",
+			    decode_boolean_bitfield(link_flags, 0x02, 8,
 						    "Unprotected desired",
-						    "Unprotected not desired"));
-	proto_tree_add_text(rsvp_pi_flags_tree, tvb, offset2+3, 1, "%s",
-			    decode_boolean_bitfield(flags, 0x04, 8,
+						    "Unprotected NOT desired"));
+	proto_tree_add_text(rsvp_pi_link_flags_tree, tvb, offset2+3, 1, "%s",
+			    decode_boolean_bitfield(link_flags, 0x04, 8,
 						    "Shared desired",
-						    "Shared not desired"));
-	proto_tree_add_text(rsvp_pi_flags_tree, tvb, offset2+3, 1, "%s",
-			    decode_boolean_bitfield(flags, 0x08, 8,
+						    "Shared NOT desired"));
+	proto_tree_add_text(rsvp_pi_link_flags_tree, tvb, offset2+3, 1, "%s",
+			    decode_boolean_bitfield(link_flags, 0x08, 8,
 						    "Dedicated 1:1 desired",
-						    "Dedicated 1:1 not desired"));
-	proto_tree_add_text(rsvp_pi_flags_tree, tvb, offset2+3, 1, "%s",
-			    decode_boolean_bitfield(flags, 0x10, 8,
+						    "Dedicated 1:1 NOT desired"));
+	proto_tree_add_text(rsvp_pi_link_flags_tree, tvb, offset2+3, 1, "%s",
+			    decode_boolean_bitfield(link_flags, 0x10, 8,
 						    "Dedicated 1+1 desired",
-						    "Dedicated 1+1 not desired"));
-	proto_tree_add_text(rsvp_pi_flags_tree, tvb, offset2+3, 1, "%s",
-			    decode_boolean_bitfield(flags, 0x20, 8,
+						    "Dedicated 1+1 NOT desired"));
+	proto_tree_add_text(rsvp_pi_link_flags_tree, tvb, offset2+3, 1, "%s",
+			    decode_boolean_bitfield(link_flags, 0x20, 8,
 						    "Enhanced desired",
-						    "Enhanced not desired"));
+						    "Enhanced NOT desired"));
 	proto_item_append_text(ti, "%s%s%s%s%s%s%s.",
-			       flag  &0x80 ? "SecondaryLSP " : "",
-			       flags &0x01 ? "ExtraTraffic " : "",
-			       flags &0x02 ? "Unprotected " : "",
-			       flags &0x04 ? "Shared " : "",
-			       flags &0x08 ? "Dedicated1:1 " : "",
-			       flags &0x10 ? "Dedicated1+1 " : "",
-			       flags &0x20 ? "Enhanced " : "");
+			       flags1&0x08 ? "SecondaryLSP ":"",
+			       link_flags&0x01 ? "ExtraTraffic ":"",
+			       link_flags&0x02 ? "Unprotected ":"",
+			       link_flags&0x04 ? "Shared ":"",
+			       link_flags&0x08 ? "Dedicated1:1 ":"",
+			       link_flags&0x10 ? "Dedicated1+1 ":"",
+			       link_flags&0x20 ? "Enhanced ":"");
+	break;
+
+    case 2:       /* RFC4872 */
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
+			    "C-type:2");
+	flags1 = tvb_get_guint8(tvb, offset2);
+	flags1 >>= 4;
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
+			    "Secondary LSP:    %s",
+			    decode_boolean_bitfield(flags1, 0x08, 4, "Yes", "No"));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
+			    "Protecting LSP:   %s",
+			    decode_boolean_bitfield(flags1, 0x04, 4, "Yes", "No"));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
+			    "Notification msg: %s",
+			    decode_boolean_bitfield(flags1, 0x02, 4, "Yes", "No"));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
+			    "Operational LSP:  %s",
+			    decode_boolean_bitfield(flags1, 0x01, 4, "Yes", "No"));
+
+	lsp_flags = tvb_get_guint8(tvb, offset2+1);
+	ti3 = proto_tree_add_text(rsvp_object_tree, tvb, offset2+1, 1,
+				  "LSP Flags: 0x%02x -%s%s%s%s%s%s", lsp_flags,
+				  lsp_flags == 0 ? " Unprotected":"",
+				  lsp_flags&0x01 ? " Rerouting":"",
+				  lsp_flags&0x02 ? " Rerouting with extra-traffic":"",
+				  lsp_flags&0x04 ? " 1:N Protection with extra-traffic":"",
+				  lsp_flags&0x08 ? " 1+1 Unidirectional protection":"",
+				  lsp_flags&0x10 ? " 1+1 Bidirectional protection":"");
+	rsvp_pi_lsp_flags_tree = proto_item_add_subtree(ti3, TREE(TT_PROTECTION_INFO_LSP));
+	proto_tree_add_text(rsvp_pi_lsp_flags_tree, tvb, offset2+1, 1, "%s",
+			    decode_boolean_bitfield(lsp_flags, 0x01, 6,
+						    "(Full) rerouting desired",
+						    "(Full) rerouting NOT desired"));
+	proto_tree_add_text(rsvp_pi_lsp_flags_tree, tvb, offset2+1, 1, "%s",
+			    decode_boolean_bitfield(lsp_flags, 0x02, 6,
+						    "Rerouting without extra-traffic desired",
+						    "Rerouting without extra-traffic NOT desired"));
+	proto_tree_add_text(rsvp_pi_lsp_flags_tree, tvb, offset2+1, 1, "%s",
+			    decode_boolean_bitfield(lsp_flags, 0x04, 6,
+						    "1:N protection with extra-traffic desired",
+						    "1:N protection with extra-traffic NOT desired"));
+	proto_tree_add_text(rsvp_pi_lsp_flags_tree, tvb, offset2+1, 1, "%s",
+			    decode_boolean_bitfield(lsp_flags, 0x08, 6,
+						    "1+1 unidirectional protection desired",
+						    "1+1 unidirectional protection NOT desired"));
+	proto_tree_add_text(rsvp_pi_lsp_flags_tree, tvb, offset2+1, 1, "%s",
+			    decode_boolean_bitfield(lsp_flags, 0x10, 6,
+						    "1+1 bidirectional protection desired",
+						    "1+1 bidirectional protection NOT desired"));
+
+	link_flags = tvb_get_guint8(tvb, offset2+3);
+	ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2+3, 1,
+				  "Link Flags: 0x%02x -%s%s%s%s%s%s", link_flags,
+				  link_flags&0x01 ? " ExtraTraffic":"",
+				  link_flags&0x02 ? " Unprotected":"",
+				  link_flags&0x04 ? " Shared":"",
+				  link_flags&0x08 ? " Dedicated1:1":"",
+				  link_flags&0x10 ? " Dedicated1+1":"",
+				  link_flags&0x20 ? " Enhanced":"");
+	rsvp_pi_link_flags_tree = proto_item_add_subtree(ti2,
+							 TREE(TT_PROTECTION_INFO_LINK));
+	proto_tree_add_text(rsvp_pi_link_flags_tree, tvb, offset2+3, 1, "%s",
+			    decode_boolean_bitfield(link_flags, 0x01, 8,
+						    "Extra Traffic desired",
+						    "Extra Traffic NOT desired"));
+	proto_tree_add_text(rsvp_pi_link_flags_tree, tvb, offset2+3, 1, "%s",
+			    decode_boolean_bitfield(link_flags, 0x02, 8,
+						    "Unprotected desired",
+						    "Unprotected NOT desired"));
+	proto_tree_add_text(rsvp_pi_link_flags_tree, tvb, offset2+3, 1, "%s",
+			    decode_boolean_bitfield(link_flags, 0x04, 8,
+						    "Shared desired",
+						    "Shared NOT desired"));
+	proto_tree_add_text(rsvp_pi_link_flags_tree, tvb, offset2+3, 1, "%s",
+			    decode_boolean_bitfield(link_flags, 0x08, 8,
+						    "Dedicated 1:1 desired",
+						    "Dedicated 1:1 NOT desired"));
+	proto_tree_add_text(rsvp_pi_link_flags_tree, tvb, offset2+3, 1, "%s",
+			    decode_boolean_bitfield(link_flags, 0x10, 8,
+						    "Dedicated 1+1 desired",
+						    "Dedicated 1+1 NOT desired"));
+	proto_tree_add_text(rsvp_pi_link_flags_tree, tvb, offset2+3, 1, "%s",
+			    decode_boolean_bitfield(link_flags, 0x20, 8,
+						    "Enhanced desired",
+						    "Enhanced NOT desired"));
+
+	flags2 = tvb_get_guint8(tvb, offset2+4);
+	flags2 >>= 6;
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 1,
+			    "In-Place:   %s",
+			    decode_boolean_bitfield(flags2, 0x02, 2, "Yes", "No"));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 1,
+			    "Required:   %s",
+			    decode_boolean_bitfield(flags2, 0x01, 2, "Yes", "No"));
+
+	seg_flags = tvb_get_guint8(tvb, offset2+5);
+	ti4 = proto_tree_add_text(rsvp_object_tree, tvb, offset2+5, 1,
+				 "Segment recovery Flags: 0x%02x - %s%s%s%s%s%s", seg_flags,
+				  seg_flags == 0 ? " Unprotected":"",
+				  seg_flags&0x01 ? " Rerouting":"",
+				  seg_flags&0x02 ? " Rerouting with extra-traffic":"",
+				  seg_flags&0x04 ? " 1:N Protection with extra-traffic":"",
+				  seg_flags&0x08 ? " 1+1 Unidirectional protection":"",
+				  seg_flags&0x10 ? " 1+1 Bidirectional protection":"");
+	rsvp_pi_seg_flags_tree = proto_item_add_subtree(ti4, TREE(TT_PROTECTION_INFO_SEG));
+	proto_tree_add_text(rsvp_pi_seg_flags_tree, tvb, offset2+5, 1, "%s",
+			    decode_boolean_bitfield(seg_flags, 0x01, 6,
+						    "(Full) rerouting desired",
+						    "(Full) rerouting NOT desired"));
+	proto_tree_add_text(rsvp_pi_seg_flags_tree, tvb, offset2+5, 1, "%s",
+			    decode_boolean_bitfield(seg_flags, 0x02, 6,
+						    "Rerouting without extra-traffic desired",
+						    "Rerouting without extra-traffic NOT desired"));
+	proto_tree_add_text(rsvp_pi_seg_flags_tree, tvb, offset2+5, 1, "%s",
+			    decode_boolean_bitfield(seg_flags, 0x04, 6,
+						    "1:N protection with extra-traffic desired",
+						    "1:N protection with extra-traffic NOT desired"));
+	proto_tree_add_text(rsvp_pi_seg_flags_tree, tvb, offset2+5, 1, "%s",
+			    decode_boolean_bitfield(seg_flags, 0x08, 6,
+						    "1+1 unidirectional protection desired",
+						    "1+1 unidirectional protection NOT desired"));
+	proto_tree_add_text(rsvp_pi_seg_flags_tree, tvb, offset2+5, 1, "%s",
+			    decode_boolean_bitfield(seg_flags, 0x10, 6,
+						    "1+1 bidirectional protection desired",
+						    "1+1 bidirectional protection NOT desired"));
+
+	proto_item_append_text(ti, "%s%s%s%s Link:%s%s%s%s%s%s, LSP:%s%s%s%s%s%s.",
+			       flags1&0x08 ? "SecondaryLSP ":"",
+			       flags1&0x04 ? "ProtectingLSP ":"",
+			       flags1&0x02 ? "Notification ":"",
+			       flags1&0x01 ? "OperationalLSP ":"",
+			       link_flags&0x01 ? " ExtraTraffic":"",
+			       link_flags&0x02 ? " Unprotected":"",
+			       link_flags&0x04 ? " Shared":"",
+			       link_flags&0x08 ? " Dedicated1:1":"",
+			       link_flags&0x10 ? " Dedicated1+1":"",
+			       link_flags&0x20 ? " Enhanced":"",
+			       lsp_flags == 0 ? " Unprotected":"",
+			       lsp_flags&0x01 ? " Rerouting":"",
+			       lsp_flags&0x02 ? " Rerouting with extra-traffic":"",
+			       lsp_flags&0x04 ? " 1:N Protection with extra-traffic":"",
+			       lsp_flags&0x08 ? " 1+1 Unidirectional protection":"",
+			       lsp_flags&0x10 ? " 1+1 Bidirectional protection":"");
 	break;
 
     default:
@@ -5861,6 +6500,11 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    dissect_rsvp_admin_status(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
+	case RSVP_CLASS_LSP_ATTRIBUTES:
+	case RSVP_CLASS_LSP_REQUIRED_ATTRIBUTES:
+	    dissect_rsvp_lsp_attributes(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    break;
+
 	case RSVP_CLASS_ASSOCIATION:
 	    dissect_rsvp_association(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
@@ -5990,6 +6634,13 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree) {
         dissect_rsvp_msg_tree(tvb, pinfo, tree, TREE(TT_RSVP), rsvph);
     }
+
+    /* ACK, SREFRESH and HELLO messages don't have any associated SESSION and,
+       therefore, no conversation */
+    if (message_type == RSVP_MSG_ACK ||
+        message_type == RSVP_MSG_SREFRESH ||
+        message_type == RSVP_MSG_HELLO)
+      return;
 
     /* Find out what conversation this packet is part of. */
     conversation = find_or_create_conversation(pinfo);
@@ -6302,6 +6953,42 @@ proto_register_rsvp(void)
          { "ADMIN STATUS", "rsvp.admin_status", FT_NONE, BASE_NONE, NULL, 0x0,
            NULL, HFILL }},
 
+	{&hf_rsvp_filter[RSVPF_ADMIN_STATUS_REFLECT],
+	 { "Reflect", "rsvp.admin_status.reflect", FT_BOOLEAN, 32, NULL, 0x80000000,
+           NULL, HFILL }},
+
+	{&hf_rsvp_filter[RSVPF_ADMIN_STATUS_HANDOVER],
+	 { "Handover", "rsvp.admin_status.handover", FT_BOOLEAN, 32, NULL, 0x40,
+           NULL, HFILL }},
+
+	{&hf_rsvp_filter[RSVPF_ADMIN_STATUS_LOCKOUT],
+	 { "Lockout", "rsvp.admin_status.lockout", FT_BOOLEAN, 32, NULL, 0x20,
+           NULL, HFILL }},
+
+	{&hf_rsvp_filter[RSVPF_ADMIN_STATUS_INHIBIT],
+	 { "Inhibit Alarm Communication", "rsvp.admin_status.inhibit", FT_BOOLEAN, 32, NULL, 0x10,
+           NULL, HFILL }},
+
+	{&hf_rsvp_filter[RSVPF_ADMIN_STATUS_CALL_MGMT],
+	 { "Call Management", "rsvp.admin_status.callmgmt", FT_BOOLEAN, 32, NULL, 0x08,
+           NULL, HFILL }},
+
+	{&hf_rsvp_filter[RSVPF_ADMIN_STATUS_TESTING],
+	 { "Testing", "rsvp.admin_status.testing", FT_BOOLEAN, 32, NULL, 0x04,
+           NULL, HFILL }},
+
+	{&hf_rsvp_filter[RSVPF_ADMIN_STATUS_DOWN],
+	 { "Administratively down", "rsvp.admin_status.down", FT_BOOLEAN, 32, NULL, 0x02,
+           NULL, HFILL }},
+
+	{&hf_rsvp_filter[RSVPF_ADMIN_STATUS_DELETE],
+	 { "Delete in progress", "rsvp.admin_status.delete", FT_BOOLEAN, 32, NULL, 0x01,
+           NULL, HFILL }},
+
+        {&hf_rsvp_filter[RSVPF_LSP_ATTRIBUTES],
+         { "LSP ATTRIBUTES", "rsvp.lsp_attributes", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
         {&hf_rsvp_filter[RSVPF_ASSOCIATION],
          { "ASSOCIATION", "rsvp.association", FT_NONE, BASE_NONE, NULL, 0x0,
            NULL, HFILL }},
@@ -6423,7 +7110,6 @@ proto_register_rsvp(void)
         {&hf_rsvp_filter[RSVPF_CALL_ID_SRC_ADDR_IPV6],
          { "Source Transport Network Address", "rsvp.callid.srcaddr.ipv6", FT_IPv6,
            BASE_NONE, NULL, 0x0, NULL, HFILL }},
-
         /*
          * FF: Vendor Private object field, please see
          * http://www.iana.org/assignments/enterprise-numbers
