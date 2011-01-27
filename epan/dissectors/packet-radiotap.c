@@ -161,6 +161,12 @@ static int hf_radiotap_ven_oui = -1;
 static int hf_radiotap_ven_subns = -1;
 static int hf_radiotap_ven_skip = -1;
 static int hf_radiotap_ven_data = -1;
+static int hf_radiotap_mcs = -1;
+static int hf_radiotap_mcs_bw = -1;
+static int hf_radiotap_mcs_index = -1;
+static int hf_radiotap_mcs_gi = -1;
+static int hf_radiotap_mcs_format = -1;
+static int hf_radiotap_mcs_fec = -1;
 
 /* "Present" flags */
 static int hf_radiotap_present_tsft = -1;
@@ -180,6 +186,7 @@ static int hf_radiotap_present_db_antnoise = -1;
 static int hf_radiotap_present_hdrfcs = -1;
 static int hf_radiotap_present_rxflags = -1;
 static int hf_radiotap_present_xchannel = -1;
+static int hf_radiotap_present_mcs = -1;
 static int hf_radiotap_present_rtap_ns = -1;
 static int hf_radiotap_present_vendor_ns = -1;
 static int hf_radiotap_present_ext = -1;
@@ -206,6 +213,7 @@ static gint ett_radiotap_rxflags = -1;
 static gint ett_radiotap_channel_flags = -1;
 static gint ett_radiotap_xchannel_flags = -1;
 static gint ett_radiotap_vendor = -1;
+static gint ett_radiotap_mcs = -1;
 
 static dissector_handle_t ieee80211_handle;
 static dissector_handle_t ieee80211_datapad_handle;
@@ -352,7 +360,33 @@ void proto_register_radiotap(void)
 		{IEEE80211_CHAN_108PUREG, "802.11g (pure-g, turbo)"},
 		{IEEE80211_CHAN_108G, "802.11g (turbo)"},
 		{IEEE80211_CHAN_FHSS, "FHSS"},
+		{0, NULL}
+	};
+
+	static const value_string mcs_bandwidth[] = {
+		{ IEEE80211_RADIOTAP_MCS_BW_20, "20 MHz" },
+		{ IEEE80211_RADIOTAP_MCS_BW_40, "40 MHz" },
+		{ IEEE80211_RADIOTAP_MCS_BW_20L, "20 MHz lower" },
+		{ IEEE80211_RADIOTAP_MCS_BW_20U, "20 MHz upper" },
+		{0, NULL}
+	};
+
+	static const value_string mcs_format[] = {
+		{ 0, "mixed" },
+		{ 1, "greenfield" },
 		{0, NULL},
+	};
+
+	static const value_string mcs_fec[] = {
+		{ 0, "BCC" },
+		{ 1, "LDPC" },
+		{0, NULL}
+	};
+
+	static const value_string mcs_gi[] = {
+		{ 0, "long" },
+		{ 1, "short" },
+		{0, NULL}
 	};
 
 	static const true_false_string preamble_type = {
@@ -478,6 +512,11 @@ void proto_register_radiotap(void)
 		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(XCHANNEL),
 		  "Specifies if the extended channel info field is present",
 		  HFILL}},
+
+		{&hf_radiotap_present_mcs,
+		 {"HT information", "radiotap.present.mcs",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(MCS),
+		  "Specifies if the HT field is present", HFILL}},
 
 		{&hf_radiotap_present_rtap_ns,
 		 {"Radiotap NS next", "radiotap.present.rtap_ns",
@@ -779,6 +818,29 @@ void proto_register_radiotap(void)
 		  FT_INT32, BASE_DEC, NULL, 0x0,
 		  "Transmit power in decibels per one milliwatt (dBm)", HFILL}},
 
+		{&hf_radiotap_mcs,
+		 {"MCS information", "radiotap.mcs",
+		  FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+		{&hf_radiotap_mcs_bw,
+		 {"bandwidth", "radiotap.mcs.bw",
+		  FT_UINT8, BASE_DEC, VALS(mcs_bandwidth),
+		  IEEE80211_RADIOTAP_MCS_BW_MASK, NULL, HFILL}},
+		{&hf_radiotap_mcs_gi,
+		 {"guard interval", "radiotap.mcs.gi",
+		  FT_UINT8, BASE_DEC, VALS(mcs_gi), IEEE80211_RADIOTAP_MCS_SGI,
+		  "Sent/Received guard interval", HFILL}},
+		{&hf_radiotap_mcs_format,
+		 {"format", "radiotap.mcs.format",
+		  FT_UINT8, BASE_DEC, VALS(mcs_format), IEEE80211_RADIOTAP_MCS_FMT_GF,
+		  "format", HFILL}},
+		{&hf_radiotap_mcs_fec,
+		 {"FEC", "radiotap.mcs.fec",
+		  FT_UINT8, BASE_DEC, VALS(mcs_fec), IEEE80211_RADIOTAP_MCS_FEC_LDPC,
+		  "forward error correction", HFILL}},
+		{&hf_radiotap_mcs_index,
+		 {"MCS index", "radiotap.mcs.index",
+		  FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
 		{&hf_radiotap_vendor_ns,
 		 {"Vendor namespace", "radiotap.vendor_namespace",
 		  FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -820,6 +882,7 @@ void proto_register_radiotap(void)
 		&ett_radiotap_channel_flags,
 		&ett_radiotap_xchannel_flags,
 		&ett_radiotap_vendor,
+		&ett_radiotap_mcs,
 	};
 	module_t *radiotap_module;
 
@@ -1418,6 +1481,39 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 						    tvb, offset + 7, 1, maxpower);
 #endif
 			}
+			break;
+		}
+		case IEEE80211_RADIOTAP_MCS: {
+			proto_item *it;
+			proto_tree *mcs_tree;
+			guint8 mcs_known, mcs_flags;
+			guint8 mcs;
+
+			if (!tree)
+				break;
+
+			mcs_known = tvb_get_guint8(tvb, offset);
+			mcs_flags = tvb_get_guint8(tvb, offset + 1);
+			mcs = tvb_get_guint8(tvb, offset + 2);
+
+			it = proto_tree_add_item(radiotap_tree, hf_radiotap_mcs,
+						 tvb, offset, 3, FALSE);
+			mcs_tree = proto_item_add_subtree(it, ett_radiotap_mcs);
+			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_BW)
+				proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_bw,
+						    tvb, offset + 1, 1, mcs_flags);
+			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_GI)
+				proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_gi,
+						    tvb, offset + 1, 1, mcs_flags);
+			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_FMT)
+				proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_format,
+						    tvb, offset + 1, 1, mcs_flags);
+			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_FEC)
+				proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_fec,
+						    tvb, offset + 1, 1, mcs_flags);
+			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_MCS)
+				proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_index,
+						    tvb, offset + 2, 1, mcs);
 			break;
 		}
 		}
