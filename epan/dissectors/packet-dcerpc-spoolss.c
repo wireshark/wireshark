@@ -646,7 +646,7 @@ dissect_printerdata_data(tvbuff_t *tvb, int offset,
 
 		switch(type) {
 		case DCERPC_REG_SZ: {
-			char *data = tvb_fake_unicode(tvb, offset - size, size/2, TRUE);
+			char *data = tvb_get_unicode_string(tvb, offset - size, size, ENC_LITTLE_ENDIAN);
 
 			proto_item_append_text(item, ": %s", data);
 
@@ -1028,11 +1028,6 @@ SpoolssSetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-/* Yet another way to represent a unicode string - sheesh. This function
-   dissects a NULL terminate unicode string at the current offset and
-   returns the (char *) equivalent.  This really should return UTF8 or
-   something but we use tvb_fake_unicode() instead. */
-
 /* XXX - "name" should be an hf_ value for an FT_STRING. */
 static int
 dissect_spoolss_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
@@ -1047,8 +1042,8 @@ dissect_spoolss_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	/* Get remaining data in buffer as a string */
 
-	remaining = tvb_length_remaining(tvb, offset) / 2;
-	text = tvb_fake_unicode(tvb, offset, remaining, TRUE);
+	remaining = tvb_length_remaining(tvb, offset);
+	text = tvb_get_unicode_string(tvb, offset, remaining, ENC_LITTLE_ENDIAN);
 	len = (int)strlen(text);
 
 	proto_tree_add_text(tree, tvb, offset, len * 2, "%s: %s",
@@ -5877,8 +5872,8 @@ cb_notify_str_postprocess(packet_info *pinfo _U_,
 
 	len = tvb_get_letohl(tvb, start_offset);
 
-	s = tvb_fake_unicode(
-		tvb, start_offset + 4, (end_offset - start_offset - 4) / 2, TRUE);
+	s = tvb_get_unicode_string(
+		tvb, start_offset + 4, (end_offset - start_offset - 4), TRUE);
 
 	/* Append string to upper-level proto_items */
 
