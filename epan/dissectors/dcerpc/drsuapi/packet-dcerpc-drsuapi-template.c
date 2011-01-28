@@ -72,7 +72,7 @@ ucarray_drsuapi_dissect_DsReplicaSyncRequest1Info_nc_dn(tvbuff_t *tvb, int offse
 
 	ALIGN_TO_2_BYTES;
 
-	s = tvb_get_unicode_string(tvb, offset, len, ENC_LITTLE_ENDIAN);
+	s = tvb_get_unicode_string(tvb, offset, len*2, ENC_LITTLE_ENDIAN);
         if (tree && len) {
             hfinfo = proto_registrar_get_nth(hf_drsuapi_DsReplicaSyncRequest1Info_nc_dn);
             if (hfinfo->type == FT_STRING) {
