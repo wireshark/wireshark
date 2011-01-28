@@ -444,6 +444,9 @@ extern gint tvb_strnlen(tvbuff_t*, const gint offset, const guint maxlength);
  * assuming all characters are ASCII  )-:  The len parameter is the number
  * of guint16's to convert from Unicode.
  *
+ * XXX - These functions have been superceded by tvb_get_unicode_string()
+ *       and tvb_get_ephemeral_unicode_string()
+ *
  * tvb_fake_unicode() returns a buffer allocated by g_malloc() and must
  *                    be g_free() by the caller.
  * tvb_get_ephemeral_faked_unicode() returns a buffer that does not need

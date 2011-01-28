@@ -2135,6 +2135,7 @@ tvb_memeql(tvbuff_t *tvb, const gint offset, const guint8 *str, size_t size)
  * replacing all non-ASCII characters with a '.' )-:  The caller must
  * free the result returned.  The len parameter is the number of guint16's
  * to convert from Unicode. */
+/* XXX - this function has been superceded by tvb_get_unicode_string() */
 char *
 tvb_fake_unicode(tvbuff_t *tvb, int offset, const int len, const gboolean little_endian)
 {
