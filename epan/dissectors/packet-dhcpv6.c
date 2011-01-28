@@ -931,8 +931,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, tvbuff_t *tvb, int voff, int
                     }
                 }
                 else
-                    proto_tree_add_text(subtree, tvb, sub_off,
-                                        sizeof(0), "empty");
+                    proto_tree_add_text(subtree, tvb, sub_off, 0, "empty");
                 break;
 
             case CL_CM_MAC_ADDR :
