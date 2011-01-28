@@ -1,18 +1,4 @@
 /* packet-irc.c
- * Routines for IRC packet dissection
- *
- * See
- *
- *	http://www.irchelp.org/irchelp/rfc/
- *
- * and the RFCs and other documents it mentions, such as RFC 1459, RFCs
- * 2810, 2811, 2812, and 2813,
- *
- *	http://www.irchelp.org/irchelp/rfc/ctcpspec.html
- *
- * and
- *
- *	http://www.invlogic.com/irc/ctcp.html
  *
  * $Id$
  *
@@ -35,6 +21,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+/*
+ * Routines for IRC packet dissection
+ *
+ * See
+ *
+ *	http://www.irchelp.org/irchelp/rfc/
+ *
+ * and the RFCs and other documents it mentions, such as RFC 1459, RFCs
+ * 2810, 2811, 2812, and 2813,
+ *
+ *	http://www.irchelp.org/irchelp/rfc/ctcpspec.html
+ *
+ * and
+ *
+ *	http://www.invlogic.com/irc/ctcp.html
  */
 
 #ifdef HAVE_CONFIG_H
