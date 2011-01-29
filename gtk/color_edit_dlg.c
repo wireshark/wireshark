@@ -470,7 +470,11 @@ color_sel_win_new(color_filter_t *colorf, gboolean is_bg)
     color_t_to_gdkcolor(&gcolor, color);
     gtk_color_selection_set_current_color(
       GTK_COLOR_SELECTION(
+#ifdef GTK_CHECK_VERSION(2,14,0)
+       gtk_color_selection_dialog_get_color_selection(color_sel_win), &gcolor);
+#else
         GTK_COLOR_SELECTION_DIALOG(color_sel_win)->colorsel), &gcolor);
+#endif
   }
 
   color_sel_ok = GTK_COLOR_SELECTION_DIALOG (color_sel_win)->ok_button;
