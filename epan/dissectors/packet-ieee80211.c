@@ -947,15 +947,25 @@ static int hf_rawrssi_antnoise = -1;
 static int hf_signal_strength = -1;
 
 /* Prism radio header */
-static int hf_prism_msgcode = -1;
-static int hf_prism_msglen = -1;
-static int hf_prism_rssi_data = -1;
-static int hf_prism_sq_data = -1;
-static int hf_prism_signal_data = -1;
-static int hf_prism_noise_data = -1;
-static int hf_prism_rate_data = -1;
-static int hf_prism_istx_data = -1;
-static int hf_prism_frmlen_data = -1;
+
+static int hf_ieee80211_prism_msgcode = -1;
+static int hf_ieee80211_prism_msglen = -1;
+static int hf_ieee80211_prism_devname = -1;
+static int hf_ieee80211_prism_did = -1;
+static int hf_ieee80211_prism_did_type = -1;
+static int hf_ieee80211_prism_did_status = -1;
+static int hf_ieee80211_prism_did_length = -1;
+static int hf_ieee80211_prism_did_hosttime = -1;
+static int hf_ieee80211_prism_did_mactime = -1;
+static int hf_ieee80211_prism_did_channel = -1;
+static int hf_ieee80211_prism_did_rssi = -1;
+static int hf_ieee80211_prism_did_sq = -1;
+static int hf_ieee80211_prism_did_signal = -1;
+static int hf_ieee80211_prism_did_noise = -1;
+static int hf_ieee80211_prism_did_rate = -1;
+static int hf_ieee80211_prism_did_istx = -1;
+static int hf_ieee80211_prism_did_frmlen = -1;
+static int hf_ieee80211_prism_did_unknown = -1;
 
 /* AVS WLANCAP radio header */
 static int hf_wlan_magic = -1;
@@ -1882,6 +1892,8 @@ static gint ett_sched_tree = -1;
 static gint ett_fcs = -1;
 
 static gint ett_radio = -1;
+static gint ett_prism = -1;
+static gint ett_prism_did = -1;
 
 static gint ett_adv_proto = -1;
 static gint ett_adv_proto_tuple = -1;
@@ -2431,6 +2443,7 @@ capture_ieee80211_ht (const guchar * pd, int offset, int len, packet_counts * ld
 #define WLANCAP_MAGIC_COOKIE_V1 0x80211001
 #define WLANCAP_MAGIC_COOKIE_V2 0x80211002
 
+
 /*
  * Prism II-based wlan devices have a monitoring mode that sticks
  * a proprietary header on each packet with lots of good
@@ -2457,11 +2470,7 @@ capture_ieee80211_ht (const guchar * pd, int offset, int len, packet_counts * ld
  * Note: all of those values are in the *host* byte order of the machine
  * on which the capture was written.
  */
-struct val_80211 {
-  unsigned int did;
-  unsigned short status, len;
-  unsigned int data;
-};
+
 
 /*
  * Header attached during Prism monitor mode.
@@ -2491,19 +2500,72 @@ struct val_80211 {
  * XXX - what about other drivers that supply Prism headers, such as
  * old versions of the MadWifi driver?
  */
-struct prism_hdr {
-  unsigned int msgcode, msglen;
-  char devname[16];
-  struct val_80211 hosttime, mactime, channel, rssi, sq, signal,
-    noise, rate, istx, frmlen;
+
+#define PRISM_HEADER_LENGTH	144             /* Default Prism Header Length */
+#define PRISM_DID_HOSTTIME 	0x00010044 	/* Host time element */
+#define PRISM_DID_MACTIME 	0x00020044 	/* Mac time element */
+#define PRISM_DID_CHANNEL 	0x00030044 	/* Channel element */
+#define PRISM_DID_RSSI 		0x00040044 	/* RSSI element */
+#define PRISM_DID_SQ 		0x00050044	/* SQ element */
+#define PRISM_DID_SIGNAL 	0x00060044 	/* Signal element */
+#define PRISM_DID_NOISE 	0x00070044 	/* Noise element */
+#define PRISM_DID_RATE 		0x00080044 	/* Rate element */
+#define PRISM_DID_ISTX 		0x00090044 	/* Is Tx frame */
+#define PRISM_DID_FRMLEN 	0x000A0044 	/* Frame length */
+
+static const value_string prism_did_vals[] =
+{
+  { PRISM_DID_HOSTTIME,   "Host Time" },
+  { PRISM_DID_MACTIME,    "Mac Time" },
+  { PRISM_DID_CHANNEL,    "Channel" },
+  { PRISM_DID_RSSI,       "RSSI" },
+  { PRISM_DID_SQ,         "SQ" },
+  { PRISM_DID_SIGNAL,     "Signal" },
+  { PRISM_DID_NOISE,      "Noise" },
+  { PRISM_DID_RATE,       "Rate" },
+  { PRISM_DID_ISTX,       "Is Tx" },
+  { PRISM_DID_FRMLEN,     "Frame Length" },
+  { 0, NULL}
 };
+
+static const value_string prism_status_vals[] =
+{
+  { 0,   "Not Supplied" },
+  { 1,   "Supplied" },
+  { 0, NULL}
+};
+
+static const value_string prism_istx_vals[] =
+{
+  { 0,   "Rx Packet" },
+  { 1,   "Tx Packet" },
+  { 0, NULL}
+};
+
+static void
+prism_rate_base_custom(gchar *result, guint32 rate)
+{
+   g_snprintf(result, ITEM_LABEL_LENGTH, "%u.%u", rate /2, rate & 1 ? 5 : 0);
+}
+
+static gchar *
+prism_rate_return(guint32 rate)
+{
+    gchar *result=NULL;
+    result = ep_alloc(SHORT_STR);
+    result[0] = '\0';
+    prism_rate_base_custom(result, rate);
+   
+    return result;
+}
+
 
 void
 capture_prism(const guchar *pd, int offset, int len, packet_counts *ld)
 {
   guint32 cookie;
 
-  if (!BYTES_ARE_IN_FRAME(offset, len, sizeof(guint32))) {
+  if (!BYTES_ARE_IN_FRAME(offset, len, 4)) {
     ld->other++;
     return;
   }
@@ -2517,11 +2579,11 @@ capture_prism(const guchar *pd, int offset, int len, packet_counts *ld)
   }
 
   /* Prism header */
-  if (!BYTES_ARE_IN_FRAME(offset, len, (int)sizeof(struct prism_hdr))) {
+  if (!BYTES_ARE_IN_FRAME(offset, len, PRISM_HEADER_LENGTH)) {
     ld->other++;
     return;
   }
-  offset += sizeof(struct prism_hdr);
+  offset += PRISM_HEADER_LENGTH;
 
   /* 802.11 header follows */
   capture_ieee80211(pd, offset, len, ld);
@@ -9225,55 +9287,18 @@ wlan_retransmit_init(void)
 
 }
 
-/* ------------- */
-
-/*
- * yah, I know, macros, ugh, but it makes the code
- * below more readable
- * XXX - This should be rewritten to use ptvcursors, then.
- */
-#define FIELD_PRESENT(name)     (hdr.name.status == 0 && hdr.name.did != 0)
-#define IFHELP(size, name, var, str) \
-        if(tree) {                                                \
-            proto_tree_add_uint_format(prism_tree, hf_prism_ ## name, \
-                tvb, offset, size, hdr.var, str, hdr.var);                \
-        }                                                                 \
-        offset += (size)
-#define INTFIELD(size, name, str)       IFHELP(size, name, name, str)
-#define VALFIELD(name, str) \
-        if (FIELD_PRESENT(name)) {                                      \
-            if(tree) {                                                  \
-                proto_tree_add_uint_format(prism_tree, hf_ ## name,     \
-                    tvb, offset, 12, hdr.name.data,                     \
-                    str ": 0x%x (DID 0x%x, Status 0x%x, Length 0x%x)",  \
-                    hdr.name.data, hdr.name.did,                        \
-                    hdr.name.status, hdr.name.len);                     \
-            }                                                           \
-        }                                                               \
-        offset += 12
-#define VALFIELD_PRISM(name, str) \
-        if (FIELD_PRESENT(name)) {                                      \
-            if(tree) {                                            \
-                proto_tree_add_uint_format(prism_tree, hf_prism_ ## name ## _data, \
-                    tvb, offset, 12, hdr.name.data,                        \
-                    str ": 0x%x (DID 0x%x, Status 0x%x, Length 0x%x)",     \
-                    hdr.name.data, hdr.name.did,                           \
-                    hdr.name.status, hdr.name.len);                        \
-            }                                                              \
-        }                                                                  \
-        offset += 12
-
 static void
 dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    struct prism_hdr hdr;
-    proto_tree *prism_tree = NULL;
-    proto_item *ti;
+    proto_tree *prism_tree = NULL, *prism_did_tree = NULL;
+    proto_item *ti = NULL, *ti_did = NULL;
     tvbuff_t *next_tvb;
     int offset;
-    guint32 msgcode;
+    guint32 msgcode, msglen, did;
+    guint8 *devname;
 
     offset = 0;
+    did = 0;
 
     /* handle the new capture type. */
     msgcode = tvb_get_ntohl(tvb, offset);
@@ -9283,86 +9308,145 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       return;
     }
 
-    tvb_memcpy(tvb, (guint8 *)&hdr, offset, sizeof(hdr));
-
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Prism");
     col_clear(pinfo->cinfo, COL_INFO);
 
+    if(tree) {
+        ti = proto_tree_add_item(tree, proto_prism, tvb, 0, 144, FALSE);
+        prism_tree = proto_item_add_subtree(ti, ett_prism);
+    }
+
+    /* Message Code */
+    if(tree) {
+        proto_tree_add_item(prism_tree, hf_ieee80211_prism_msgcode, tvb, offset, 4, TRUE);
+    }
+    msgcode = tvb_get_letohl(tvb, offset);
+    offset += 4;
+
+    /* Message Length */
+    if(tree) {
+        proto_tree_add_item(prism_tree, hf_ieee80211_prism_msglen, tvb, offset, 4, TRUE);
+    }
+    msglen = tvb_get_letohl(tvb, offset);
+    offset += 4;
+
+    /* Device Name */
+    if(tree) {
+       proto_tree_add_item(prism_tree, hf_ieee80211_prism_devname, tvb, offset, 16, TRUE);
+    }
+    devname = tvb_get_ephemeral_string(tvb, offset, 16);
+    offset += 16;
+
     if(check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Device: %.16s  "
-                     "Message 0x%x, Length %d", hdr.devname,
-                     hdr.msgcode, hdr.msglen);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Device: %s, Message 0x%x, Length %d", devname, msgcode, msglen);
 
-    if(tree) {
-        ti = proto_tree_add_item(tree, proto_prism, tvb, 0, sizeof hdr, FALSE);
-        prism_tree = proto_item_add_subtree(ti, ett_radio);
-    }
 
-    INTFIELD(4, msgcode, "Message Code: %d");
-    INTFIELD(4, msglen, "Message Length: %d");
-    if(tree) {
-        proto_tree_add_text(prism_tree, tvb, offset, sizeof hdr.devname,
-            "Device: %s", hdr.devname);
-    }
-    offset += sizeof hdr.devname;
+    while(offset < PRISM_HEADER_LENGTH)
+    {
+        /* DID */
+        if(tree) {
+            ti_did = proto_tree_add_item(prism_tree, hf_ieee80211_prism_did, tvb, offset, 12, TRUE);
+	    prism_did_tree = proto_item_add_subtree(ti_did, ett_prism_did);
 
-    if (FIELD_PRESENT(hosttime)) {
-      if(tree) {
-        proto_tree_add_uint64_format(prism_tree, hf_hosttime,
-            tvb, offset, 12, hdr.hosttime.data,
-            "Host timestamp: 0x%x (DID 0x%x, Status 0x%x, Length 0x%x)",
-            hdr.hosttime.data, hdr.hosttime.did,
-            hdr.hosttime.status, hdr.hosttime.len);
-      }
+            proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_type, tvb, offset, 4, TRUE);
+            did = tvb_get_letohl(tvb, offset);
+            proto_item_append_text(ti_did, " %s", val_to_str(did, prism_did_vals, "Unknown %x") );
+        }
+        offset += 4; 
+
+
+        /* Status */
+        if(tree) {
+            proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_status, tvb, offset, 2, TRUE);
+        }
+        offset += 2; 
+
+        /* Length */
+        if(tree) {
+            proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_length, tvb, offset, 2, TRUE);
+        }
+        offset += 2;
+
+        /* Data... */
+        switch(did){
+          case PRISM_DID_HOSTTIME:
+            if(tree){
+                proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_hosttime, tvb, offset, 4, TRUE);
+                proto_item_append_text(ti_did, " %d", tvb_get_letohl(tvb, offset) );
+            }
+          break;
+          case PRISM_DID_MACTIME:
+            if(tree){
+                proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_mactime, tvb, offset, 4, TRUE);
+                proto_item_append_text(ti_did, " %d", tvb_get_letohl(tvb, offset) );
+            }
+          break;
+          case PRISM_DID_CHANNEL:
+            if(tree){
+                proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_channel, tvb, offset, 4, TRUE);
+                proto_item_append_text(ti_did, " %d", tvb_get_letohl(tvb, offset) );
+            }
+            if (check_col(pinfo->cinfo, COL_FREQ_CHAN))
+                col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u", tvb_get_letohl(tvb, offset));
+          break;
+          case PRISM_DID_RSSI:
+            if(tree){
+                proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_rssi, tvb, offset, 4, TRUE);
+                proto_item_append_text(ti_did, " 0x%x", tvb_get_letohl(tvb, offset) );
+            }
+            if (check_col(pinfo->cinfo, COL_RSSI))
+                col_add_fstr(pinfo->cinfo, COL_RSSI, "%d", tvb_get_letohl(tvb, offset));
+          break;
+          case PRISM_DID_SQ:
+            if(tree){
+                  proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_sq, tvb, offset, 4, TRUE);
+                  proto_item_append_text(ti_did, " 0x%x", tvb_get_letohl(tvb, offset) );
+            }
+          break;
+          case PRISM_DID_SIGNAL:
+            if(tree){
+                proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_signal, tvb, offset, 4, TRUE);
+                proto_item_append_text(ti_did, " 0x%x", tvb_get_letohl(tvb, offset) );
+            }
+          break;
+          case PRISM_DID_NOISE:
+            if(tree){
+                proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_noise, tvb, offset, 4, TRUE);
+                proto_item_append_text(ti_did, " 0x%x", tvb_get_letohl(tvb, offset) );
+            }
+          break;
+          case PRISM_DID_RATE:
+            if(tree){
+                proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_rate, tvb, offset, 4, TRUE);
+                proto_item_append_text(ti_did, " %s Mb/s", prism_rate_return(tvb_get_letohl(tvb, offset)) );
+            }
+            if (check_col(pinfo->cinfo, COL_TX_RATE)) 
+                col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%s", prism_rate_return(tvb_get_letohl(tvb, offset)) );
+
+          break;
+          case PRISM_DID_ISTX:
+            if(tree){
+                proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_istx, tvb, offset, 4, TRUE);
+                proto_item_append_text(ti_did, " 0x%x", tvb_get_letohl(tvb, offset) );
+            }
+          break;
+          case PRISM_DID_FRMLEN:
+            if(tree){
+                proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_frmlen, tvb, offset, 4, TRUE);
+                proto_item_append_text(ti_did, " %d", tvb_get_letohl(tvb, offset) );
+            }
+          break;
+          default:
+            if(tree){
+                  proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_unknown, tvb, offset, 4, TRUE);
+            }
+          break;  
+        }
+        offset += 4;
     }
-    offset += 12;
-    if (FIELD_PRESENT(mactime)) {
-      if(tree) {
-        proto_tree_add_uint64_format(prism_tree, hf_mactime,
-            tvb, offset, 12, hdr.mactime.data,
-            "MAC timestamp: 0x%x (DID 0x%x, Status 0x%x, Length 0x%x)",
-            hdr.mactime.data, hdr.mactime.did,
-            hdr.mactime.status, hdr.mactime.len);
-      }
-    }
-    offset += 12;
-    if (FIELD_PRESENT(channel)) {
-      if (check_col(pinfo->cinfo, COL_FREQ_CHAN))
-        col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u", hdr.channel.data);
-    }
-    VALFIELD(channel, "Channel");
-    if (FIELD_PRESENT(rssi)) {
-      if (check_col(pinfo->cinfo, COL_RSSI))
-        col_add_fstr(pinfo->cinfo, COL_RSSI, "%d", hdr.rssi.data);
-      if (tree) {
-        proto_tree_add_uint_format(prism_tree, hf_prism_rssi_data,
-            tvb, offset, 12, hdr.rssi.data,
-            "RSSI: 0x%x (DID 0x%x, Status 0x%x, Length 0x%x)",
-            hdr.rssi.data, hdr.rssi.did, hdr.rssi.status, hdr.rssi.len);
-      }
-    }
-    offset += 12;
-    VALFIELD_PRISM(sq, "SQ");
-    VALFIELD_PRISM(signal, "Signal");
-    VALFIELD_PRISM(noise, "Noise");
-    if (FIELD_PRESENT(rate)) {
-      if (check_col(pinfo->cinfo, COL_TX_RATE)) {
-        col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%u.%u",
-                  hdr.rate.data / 2, hdr.rate.data & 1 ? 5 : 0);
-      }
-      if (tree) {
-          proto_tree_add_uint64_format(prism_tree, hf_data_rate,
-                  tvb, offset, 12, (guint64)hdr.rate.data * 500000,
-                  "Data Rate: %u.%u Mb/s",
-                  hdr.rate.data / 2, hdr.rate.data & 1 ? 5 : 0);
-      }
-    }
-    offset += 12;
-    VALFIELD_PRISM(istx, "IsTX");
-    VALFIELD_PRISM(frmlen, "Frame Length");
 
     /* dissect the 802.11 header next */
-    next_tvb = tvb_new_subset_remaining(tvb, sizeof hdr);
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector(ieee80211_handle, next_tvb, pinfo, tree);
 }
 
@@ -11085,40 +11169,76 @@ proto_register_ieee80211 (void)
   static hf_register_info hf_prism[] = {
     /* Prism-specific header fields
        XXX - make as many of these generic as possible. */
-    { &hf_prism_msgcode,
-     {"Message Code", "prism.msgcode", FT_UINT32, BASE_HEX, NULL, 0x0,
+    { &hf_ieee80211_prism_msgcode,
+     {"Message Code", "prism.msgcode", FT_UINT32, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
-    { &hf_prism_msglen,
-     {"Message Length", "prism.msglen", FT_UINT32, BASE_HEX, NULL, 0x0,
+    { &hf_ieee80211_prism_msglen,
+     {"Message Length", "prism.msglen", FT_UINT32, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
-    { &hf_prism_rssi_data,
-     {"RSSI Field", "prism.rssi.data", FT_UINT32, BASE_HEX, NULL, 0x0,
+    { &hf_ieee80211_prism_devname,
+     {"Device Name", "prism.devname", FT_STRING, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
-    { &hf_prism_sq_data,
-     {"SQ Field", "prism.sq.data", FT_UINT32, BASE_HEX, NULL, 0x0,
+    { &hf_ieee80211_prism_did,
+     {"DID", "prism.did.type", FT_NONE, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
-    { &hf_prism_signal_data,
-     {"Signal Field", "prism.signal.data", FT_UINT32, BASE_HEX, NULL, 0x0,
+    { &hf_ieee80211_prism_did_type,
+     {"DID", "prism.did.type", FT_UINT32, BASE_HEX, VALS(&prism_did_vals), 0x0,
+      "Different ID for each parameter", HFILL }},
+
+    { &hf_ieee80211_prism_did_status,
+     {"Status", "prism.did.status", FT_UINT16, BASE_DEC, VALS(&prism_status_vals), 0x0,
+      "Supplied by the driver or not", HFILL }},
+
+    { &hf_ieee80211_prism_did_length,
+     {"Length", "prism.did.length", FT_UINT16, BASE_DEC, NULL, 0x0,
+      "Length of data", HFILL }},
+
+    { &hf_ieee80211_prism_did_hosttime,
+     {"Host Time", "prism.did.hosttime", FT_UINT32, BASE_DEC, NULL, 0x0,
+      "In jiffies - for our system this is in 10ms units", HFILL }},
+
+    { &hf_ieee80211_prism_did_mactime,
+     {"Mac Time", "prism.did.hosttime", FT_UINT32, BASE_DEC, NULL, 0x0,
+      "In micro-seconds", HFILL }},
+
+    { &hf_ieee80211_prism_did_channel,
+     {"Channel", "prism.did.hosttime", FT_UINT32, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
-    { &hf_prism_noise_data,
-     {"Noise Field", "prism.noise.data", FT_UINT32, BASE_HEX, NULL, 0x0,
+    { &hf_ieee80211_prism_did_rssi,
+     {"RSSI", "prism.did.rssi", FT_UINT32, BASE_HEX, NULL, 0x0,
       NULL, HFILL }},
 
-    { &hf_prism_rate_data,
-     {"Rate Field", "prism.rate.data", FT_UINT32, BASE_HEX, NULL, 0x0,
+    { &hf_ieee80211_prism_did_sq,
+     {"SQ", "prism.did.sq", FT_UINT32, BASE_HEX, NULL, 0x0,
       NULL, HFILL }},
 
-    { &hf_prism_istx_data,
-     {"IsTX Field", "prism.istx.data", FT_UINT32, BASE_HEX, NULL, 0x0,
+    { &hf_ieee80211_prism_did_signal,
+     {"Signal", "prism.did.signal", FT_UINT32, BASE_HEX, NULL, 0x0,
       NULL, HFILL }},
 
-    { &hf_prism_frmlen_data,
-     {"Frame Length Field", "prism.frmlen.data", FT_UINT32, BASE_HEX, NULL, 0x0,
+    { &hf_ieee80211_prism_did_noise,
+     {"Noise", "prism.did.noise", FT_UINT32, BASE_HEX, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_ieee80211_prism_did_rate,
+     {"Rate (In Mb/s)", "prism.did.rate", FT_UINT32, BASE_CUSTOM, prism_rate_base_custom, 0x0,
+      "In Mb/s", HFILL }},
+
+    { &hf_ieee80211_prism_did_istx,
+     {"IsTX", "prism.did.istx", FT_UINT32, BASE_HEX, VALS(&prism_istx_vals), 0x0,
+      "Type of packet (RX or TX ?)", HFILL }},
+
+    { &hf_ieee80211_prism_did_frmlen,
+     {"Frame Length", "prism.did.frmlen", FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
+      "Length of the following frame in bytes", HFILL }},
+
+    { &hf_ieee80211_prism_did_unknown,
+     {"Unknown DID Field", "prism.did.unknown", FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
       NULL, HFILL }}
   };
 
@@ -13925,6 +14045,8 @@ proto_register_ieee80211 (void)
     &ett_sched_tree,
     &ett_fcs,
     &ett_radio,
+    &ett_prism,
+    &ett_prism_did,
     &ett_pst_tree,
     &ett_pst_cap_tree,
     &ett_chan_noc_tree,
