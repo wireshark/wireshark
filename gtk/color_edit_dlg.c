@@ -469,12 +469,12 @@ color_sel_win_new(color_filter_t *colorf, gboolean is_bg)
   if (color != NULL) {
     color_t_to_gdkcolor(&gcolor, color);
     gtk_color_selection_set_current_color(
-      GTK_COLOR_SELECTION(
-#ifdef GTK_CHECK_VERSION(2,14,0)
-       gtk_color_selection_dialog_get_color_selection(color_sel_win), &gcolor);
+#if GTK_CHECK_VERSION(2,14,0)
+      GTK_COLOR_SELECTION(gtk_color_selection_dialog_get_color_selection(GTK_COLOR_SELECTION_DIALOG(color_sel_win))),
 #else
-        GTK_COLOR_SELECTION_DIALOG(color_sel_win)->colorsel), &gcolor);
+      GTK_COLOR_SELECTION(GTK_COLOR_SELECTION_DIALOG(color_sel_win)->colorsel),
 #endif
+      &gcolor);
   }
 
   color_sel_ok = GTK_COLOR_SELECTION_DIALOG (color_sel_win)->ok_button;
