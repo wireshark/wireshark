@@ -7,6 +7,9 @@
  * Updates and corrections:
  * Copyright 2006 - 2009, Anders Broman <anders.broman@ericsson.com>
  *
+ * Added Bearer control mode dissection:
+ * Copyright 2011, Grzegorz Szczytowski <grzegorz.szczytowski@gmail.com> 
+ *
  * $Id$
  *
  * Control Plane Request-Response tracking code Largely based on similar routines in
@@ -31,7 +34,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- * Ref: 3GPP TS 29.060 version 6.8.0 Release 6
+ * Ref: 3GPP TS 29.060 
+ * http://www.3gpp.org/ftp/Specs/html-info/29060.htm
  */
 
 #ifdef HAVE_CONFIG_H
@@ -234,6 +238,7 @@ static int hf_gtp_ext_ei = -1;
 static int hf_gtp_ext_gcsi = -1;
 static int hf_gtp_ext_dti = -1;
 static int hf_gtp_ra_prio_lcs = -1;
+static int hf_gtp_bcm = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_gtp = -1;
@@ -304,6 +309,8 @@ static gint ett_gtp_ext_ra_prio_lcs = -1;
 static gint ett_gtp_ext_ps_handover_xid = -1;
 static gint ett_gtp_target_id = -1;
 static gint ett_gtp_utran_cont = -1;
+static gint ett_gtp_bcm = -1;
+
 
 static gboolean g_gtp_tpdu = TRUE;
 static gboolean g_gtp_etsi_order = FALSE;
@@ -6210,7 +6217,14 @@ static int decode_gtp_corrl_id(tvbuff_t * tvb, int offset, packet_info * pinfo _
 }
 /*
  * Bearer Control Mode  7.7.83
+ * version 10.0.0
  */
+static const value_string gtp_pdp_bcm_type_vals[] = {
+    {0, "MS_only"},
+    {1, "MS/NW"},
+    {0, NULL}
+};
+
 static int decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
 
@@ -6220,15 +6234,15 @@ static int decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info *
 
     length = tvb_get_ntohs(tvb, offset + 1);
     te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_BEARER_CONTROL_MODE, &gtp_val_ext, "Unknown"));
-    ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
+    ext_tree = proto_item_add_subtree(te, ett_gtp_bcm);
 
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
     offset = offset + 2;
-    /* TODO add decoding of data */
-    proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
 
-    return 3 + length;
+	proto_tree_add_item(ext_tree, hf_gtp_bcm, tvb, offset, 1, FALSE);
+
+	return 3 + length;
 
 }
 /* GPRS:        12.15
@@ -7120,11 +7134,16 @@ void proto_register_gtp(void)
            FT_UINT8, BASE_DEC, NULL, 0x01,
            NULL, HFILL}
         },
-		{ &hf_gtp_ra_prio_lcs,
-		  {"Radio Priority LCS", "gtp.raplcs",
-		   FT_UINT8, BASE_DEC, NULL, 0x07,
-		   NULL, HFILL}
-		},
+        { &hf_gtp_ra_prio_lcs,
+          {"Radio Priority LCS", "gtp.raplcs",
+           FT_UINT8, BASE_DEC, NULL, 0x07,
+           NULL, HFILL}
+        },
+        { &hf_gtp_bcm,
+         {"Bearer Control Mode", "gtp.bcm", 
+          FT_UINT8, BASE_DEC, VALS(gtp_pdp_bcm_type_vals), 0, 
+          NULL, HFILL}
+        },
 
     };
 
