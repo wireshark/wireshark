@@ -1,5 +1,5 @@
 /* mate.h
-* MATE -- Meta Analysis and Tracing Engine 
+* MATE -- Meta Analysis and Tracing Engine
 *
 * Copyright 2004, Luis E. Garcia Ontanon <luis@ontanon.org>
 *
@@ -13,12 +13,12 @@
 * modify it under the terms of the GNU General Public License
 * as published by the Free Software Foundation; either version 2
 * of the License, or (at your option) any later version.
-* 
+*
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU General Public License for more details.
-* 
+*
 * You should have received a copy of the GNU General Public License
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -35,7 +35,7 @@
 #ifndef ENABLE_STATIC
 #include "moduleinfo.h"
 #include <gmodule.h>
-#else 
+#else
 #include <glib.h>
 #endif
 
@@ -97,18 +97,18 @@ typedef struct _mate_cfg_pdu {
 
 	GHashTable* items; /* all the items of this type */
 	GPtrArray* transforms; /* transformations to be applied */
-	
+
 	int hfid;
-	
+
 	int hfid_proto;
 	int hfid_pdu_rel_time;
 	int hfid_pdu_time_in_gop;
 
 	GHashTable* my_hfids; /* for creating register info */
-	
+
 	gint ett;
 	gint ett_attr;
-	
+
 	GHashTable* hfids_attr; /* k=hfid v=avp_name */
 
 	gboolean discard;
@@ -117,7 +117,7 @@ typedef struct _mate_cfg_pdu {
 
 	GPtrArray* transport_ranges; /* hfids of candidate transport ranges from which to extract attributes */
 	GPtrArray* payload_ranges; /* hfids of candidate payload ranges from which to extract attributes */
-	
+
 	avpl_match_mode criterium_match_mode;
 	accept_mode_t criterium_accept_mode;
 	AVPL* criterium;
@@ -136,15 +136,15 @@ typedef struct _mate_cfg_gop {
 	AVPL* start; /* start candidate avpl */
 	AVPL* stop;  /* stop candidate avpl */
 	AVPL* extra; /* attributes to be added */
-	
+
 	float expiration;
 	float idle_timeout;
 	float lifetime;
-	
+
 	gboolean drop_unassigned;
 	gop_pdu_tree_t pdu_tree_mode;
 	gboolean show_times;
-	
+
 	GHashTable* my_hfids; /* for creating register info */
 	int hfid;
 	int hfid_start_time;
@@ -152,12 +152,12 @@ typedef struct _mate_cfg_gop {
 	int hfid_last_time;
 	int hfid_gop_pdu;
 	int hfid_gop_num_pdus;
-	
+
 	gint ett;
 	gint ett_attr;
 	gint ett_times;
 	gint ett_children;
-	
+
 	GHashTable* gop_index;
 	GHashTable* gog_index;
 } mate_cfg_gop;
@@ -168,7 +168,7 @@ typedef struct _mate_cfg_gog {
 
 	GHashTable* items; /* all the items of this type */
 	guint last_id; /* keeps the last id given to an item of this kind */
-	
+
 	GPtrArray* transforms; /* transformations to be applied */
 
 	LoAL* keys;
@@ -177,13 +177,13 @@ typedef struct _mate_cfg_gog {
 	float expiration;
 	gop_tree_mode_t gop_tree_mode;
 	gboolean show_times;
-	
+
 	GHashTable* my_hfids; /* for creating register info */
 	int hfid;
 	int hfid_gog_num_of_gops;
 	int hfid_gog_gop;
 	int hfid_gog_gopstart;
-	int hfid_gog_gopstop;	
+	int hfid_gog_gopstop;
 	int hfid_start_time;
 	int hfid_stop_time;
 	int hfid_last_time;
@@ -198,66 +198,66 @@ typedef struct _mate_config {
 	gchar* mate_config_file; /* name of the config file */
 
 	int hfid_mate;
-	
+
 	GString* fields_filter; /* "ip.addr || dns.id || ... " for the tap */
 	GString* protos_filter; /* "dns || ftp || ..." for the tap */
 	gchar* tap_filter;
-	
+
 	FILE* dbg_facility; /* where to dump dbgprint output g_message if null */
-	
+
 	gchar* mate_lib_path; /* where to look for "Include" files first */
-	
+
 	GHashTable* pducfgs; /* k=pducfg->name v=pducfg */
 	GHashTable* gopcfgs; /* k=gopcfg->name v=gopcfg */
 	GHashTable* gogcfgs; /* k=gogcfg->name v=gogcfg */
 	GHashTable* transfs; /* k=transform->name v=transform */
-	
+
 	GPtrArray* pducfglist; /* pducfgs in order of "execution" */
 	GHashTable* gops_by_pduname; /* k=pducfg->name v=gopcfg */
 	GHashTable* gogs_by_gopname; /* k=gopname v=loal where avpl->name == matchedgop->name */
-	
+
 	GArray* hfrs;
 	gint ett_root;
 	GArray* ett;
-	
+
 	/* defaults */
 	struct _mate_cfg_defaults {
 		struct _pdu_defaults {
 			avpl_match_mode match_mode;
 			avpl_replace_mode replace_mode;
 			gboolean last_extracted;
-			
+
 			gboolean drop_unassigned;
 			gboolean discard;
 		} pdu;
-		
+
 		struct _gop_defaults {
 			float expiration;
 			float idle_timeout;
 			float lifetime;
-			
+
 			gop_pdu_tree_t pdu_tree_mode;
 			gboolean show_times;
 			gboolean drop_unassigned;
 
 		} gop;
-		
+
 		struct _gog_defaults {
 			float expiration;
 			gboolean show_times;
 			gop_tree_mode_t gop_tree_mode;
 		} gog;
 	} defaults;
-	
+
 	/* what to dbgprint */
-	int dbg_lvl;	
+	int dbg_lvl;
 	int dbg_pdu_lvl;
 	int dbg_gop_lvl;
 	int dbg_gog_lvl;
-	
+
 	GPtrArray* config_stack;
 	GString* config_error;
-	
+
 } mate_config;
 
 
@@ -272,9 +272,9 @@ typedef struct _mate_runtime_data {
 	GMemChunk* mate_items;
 	float now;
 	guint highest_analyzed_frame;
-	
+
 	GHashTable* frames; /* k=frame.num v=pdus */
-	
+
 } mate_runtime_data;
 
 typedef struct _mate_pdu mate_pdu;
@@ -287,39 +287,39 @@ struct _mate_pdu {
 	mate_cfg_pdu* cfg; /* the type of this item */
 
 	AVPL* avpl;
-	
+
 	guint32 frame; /* wich frame I belog to? */
 	mate_pdu* next_in_frame; /* points to the next pdu in this frame */
 	float rel_time; /* time since start of capture  */
-	
+
 	mate_gop* gop; /* the gop the pdu belongs to (if any) */
 	mate_pdu* next; /* next in gop */
 	float time_in_gop; /* time since gop start */
-	
+
 	gboolean first; /* is this the first pdu in this frame? */
 	gboolean is_start; /* this is the start pdu for this gop */
 	gboolean is_stop; /* this is the stop pdu for this gop */
 	gboolean after_release; /* this pdu comes after the stop */
-	
+
 };
 
 
 struct _mate_gop {
 	guint32 id;
-	mate_cfg_gop* cfg; 
-	
+	mate_cfg_gop* cfg;
+
 	gchar* gop_key;
 	AVPL* avpl; /* the attributes of the pdu/gop/gog */
 	guint last_n;
-	
+
 	mate_gog* gog; /* the gog of a gop */
 	mate_gop* next; /* next in gog; */
-	
+
 	float expiration; /* when will it expire after release (all gops releases if gog)? */
 	float idle_expiration; /* when will it expire if no new pdus are assigned to it */
 	float time_to_die;
 	float time_to_timeout;
-	
+
 	float start_time; /* time of start */
 	float release_time; /* when this gop/gog was released */
 	float last_time; /* the rel_time at which the last pdu has been added (to gop or gog's gop) */
@@ -329,31 +329,31 @@ struct _mate_gop {
 	int num_of_after_release_pdus;  /* how many pdus have arrived since it's been released */
 	mate_pdu* pdus; /* pdus that belong to a gop (NULL in gog) */
 	mate_pdu* last_pdu; /* last pdu in pdu's list */
-	
+
 	gboolean released; /* has this gop been released? */
 };
 
 
 struct _mate_gog {
 	guint32 id;
-	mate_cfg_gog* cfg; 
-	
+	mate_cfg_gog* cfg;
+
 	AVPL* avpl; /* the attributes of the pdu/gop/gog */
 	guint last_n; /* the number of attributes the avpl had the last time we checked */
-	
+
 	gboolean released; /* has this gop been released? */
-	
+
 	float expiration; /* when will it expire after release (all gops releases if gog)? */
 	float idle_expiration; /* when will it expire if no new pdus are assigned to it */
-	
+
 	/* on gop and gog: */
 	float start_time; /* time of start */
 	float release_time; /* when this gog was released */
 	float last_time; /* the rel_time at which the last pdu has been added */
-	
+
 	mate_gop* gops; /* gops that belong to a gog (NULL in gop) */
 	mate_gop* last_gop; /* last gop in gop's list */
-	
+
 	int num_of_gops; /* how many gops a gog has? */
 	int num_of_counting_gops;  /* how many of them count for gog release */
 	int num_of_released_gops;  /* how many of them have already been released */
