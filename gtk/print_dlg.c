@@ -51,7 +51,7 @@
 #include "gtk/range_utils.h"
 #include "gtk/help_dlg.h"
 
-#if _WIN32
+#ifdef _WIN32
 #include <gdk/gdkwin32.h>
 #include <windows.h>
 #include "win32/file_dlg_win32.h"
@@ -182,15 +182,18 @@ static print_args_t  export_text_args;
 static gboolean export_text_prefs_init = FALSE;
 
 
+#ifdef _WIN32
+void
+export_text_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
+{
+  win32_export_file(GDK_WINDOW_HWND(top_level->window), export_type_text);
+  return;
+}
+#else
 void
 export_text_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
   print_args_t *args = &export_text_args;
-
-#if _WIN32
-  win32_export_file(GDK_WINDOW_HWND(top_level->window), export_type_text);
-  return;
-#endif
 
   if (export_text_win != NULL) {
     /* There's already a "Export text" dialog box; reactivate it. */
@@ -217,6 +220,7 @@ export_text_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   export_text_win = open_print_dialog("Wireshark: Export as \"Plain Text\" File", output_action_export_text, args);
   g_signal_connect(export_text_win, "destroy", G_CALLBACK(print_destroy_cb), &export_text_win);
 }
+#endif
 
 
 /*
@@ -231,15 +235,18 @@ static print_args_t  export_ps_args;
 static gboolean export_ps_prefs_init = FALSE;
 
 
+#ifdef _WIN32
+void
+export_ps_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
+{
+  win32_export_file(GDK_WINDOW_HWND(top_level->window), export_type_ps);
+  return;
+}
+#else
 void
 export_ps_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
   print_args_t *args = &export_ps_args;
-
-#if _WIN32
-  win32_export_file(GDK_WINDOW_HWND(top_level->window), export_type_ps);
-  return;
-#endif
 
   if (export_ps_win != NULL) {
     /* There's already a "Export ps" dialog box; reactivate it. */
@@ -266,6 +273,7 @@ export_ps_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   export_ps_win = open_print_dialog("Wireshark: Export as \"PostScript\" file", output_action_export_ps, args);
   g_signal_connect(export_ps_win, "destroy", G_CALLBACK(print_destroy_cb), &export_ps_win);
 }
+#endif
 
 
 /*
@@ -280,15 +288,18 @@ static print_args_t  export_psml_args;
 static gboolean export_psml_prefs_init = FALSE;
 
 
+#ifdef _WIN32
+void
+export_psml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
+{
+  win32_export_file(GDK_WINDOW_HWND(top_level->window), export_type_psml);
+  return;
+}
+#else
 void
 export_psml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
   print_args_t *args = &export_psml_args;
-
-#if _WIN32
-  win32_export_file(GDK_WINDOW_HWND(top_level->window), export_type_psml);
-  return;
-#endif
 
   if (export_psml_win != NULL) {
     /* There's already a "Export psml" dialog box; reactivate it. */
@@ -315,7 +326,7 @@ export_psml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   export_psml_win = open_print_dialog("Wireshark: Export as \"PSML\" file", output_action_export_psml, args);
   g_signal_connect(export_psml_win, "destroy", G_CALLBACK(print_destroy_cb), &export_psml_win);
 }
-
+#endif
 
 /*
  * Keep a static pointer to the current "Export pdml" window, if any, so that if
@@ -329,15 +340,18 @@ static print_args_t  export_pdml_args;
 static gboolean export_pdml_prefs_init = FALSE;
 
 
+#ifdef _WIN32
+void
+export_pdml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
+{
+  win32_export_file(GDK_WINDOW_HWND(top_level->window), export_type_pdml);
+  return;
+}
+#else
 void
 export_pdml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
   print_args_t *args = &export_pdml_args;
-
-#if _WIN32
-  win32_export_file(GDK_WINDOW_HWND(top_level->window), export_type_pdml);
-  return;
-#endif
 
   if (export_pdml_win != NULL) {
     /* There's already a "Export pdml" dialog box; reactivate it. */
@@ -364,6 +378,7 @@ export_pdml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   export_pdml_win = open_print_dialog("Wireshark: Export as \"PDML\" file", output_action_export_pdml, args);
   g_signal_connect(export_pdml_win, "destroy", G_CALLBACK(print_destroy_cb), &export_pdml_win);
 }
+#endif
 
 /*
  * Keep a static pointer to the current "Export csv" window, if any, so that if
@@ -376,15 +391,18 @@ static print_args_t  export_csv_args;
 
 static gboolean export_csv_prefs_init = FALSE;
 
+#ifdef _WIN32
+void
+export_csv_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
+{
+  win32_export_file(GDK_WINDOW_HWND(top_level->window), export_type_csv);
+  return;
+}
+#else
 void
 export_csv_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
   print_args_t *args = &export_csv_args;
-
-#if _WIN32
-  win32_export_file(GDK_WINDOW_HWND(top_level->window), export_type_csv);
-  return;
-#endif
 
   if (export_csv_win != NULL) {
     /* There's already a "Export csv" dialog box; reactivate it. */
@@ -411,6 +429,7 @@ export_csv_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   export_csv_win = open_print_dialog("Wireshark: Export as \"Comma Separated Values\" File", output_action_export_csv, args);
   g_signal_connect(export_csv_win, "destroy", G_CALLBACK(print_destroy_cb), &export_csv_win);
 }
+#endif
 
 /*
  * Keep a static pointer to the current "Export carrays" window, if any, so that if
@@ -423,15 +442,18 @@ static print_args_t export_carrays_args;
 
 static gboolean export_carrays_prefs_init = FALSE;
 
+#ifdef _WIN32
+void
+export_carrays_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
+{
+  win32_export_file(GDK_WINDOW_HWND(top_level->window), export_type_carrays);
+  return;
+}
+#else
 void
 export_carrays_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
   print_args_t *args = &export_carrays_args;
-
-#if _WIN32
-  win32_export_file(GDK_WINDOW_HWND(top_level->window), export_type_carrays);
-  return;
-#endif
 
   if (export_carrays_win != NULL) {
     /* There's already a "Export carrays" dialog box; reactivate it. */
@@ -459,6 +481,7 @@ export_carrays_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 					 output_action_export_carrays, args);
   g_signal_connect(export_carrays_win, "destroy", G_CALLBACK(print_destroy_cb), &export_carrays_win);
 }
+#endif
 
 static void
 print_browse_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
@@ -806,7 +829,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
     help_bt  = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_PRINT_DIALOG);
   } else {
-#if _WIN32
+#ifdef _WIN32
     help_bt  = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_EXPORT_FILE_WIN32_DIALOG);
 #else
@@ -908,7 +931,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   gboolean          win_printer = FALSE;
   int               tmp_fd;
   char              *tmp_namebuf;
-  char              *tmp_oldfile;
+  char              *tmp_oldfile = NULL;
 #endif
   cf_print_status_t status;
 
