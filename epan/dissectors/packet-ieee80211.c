@@ -975,8 +975,6 @@ static int hf_wlan_phytype = -1;
 static int hf_wlan_antenna = -1;
 static int hf_wlan_priority = -1;
 static int hf_wlan_ssi_type = -1;
-static int hf_wlan_ssi_signal = -1;
-static int hf_wlan_ssi_noise = -1;
 static int hf_wlan_preamble = -1;
 static int hf_wlan_encoding = -1;
 static int hf_wlan_sequence = -1;
@@ -1032,7 +1030,6 @@ static int hf_addr_da = -1;  /* Destination address subfield */
 static int hf_addr_sa = -1;  /* Source address subfield */
 static int hf_addr_ra = -1;  /* Receiver address subfield */
 static int hf_addr_ta = -1;  /* Transmitter address subfield */
-static int hf_addr_addr1 = -1;
 static int hf_addr_bssid = -1;  /* address is bssid */
 
 static int hf_addr = -1;  /* Source or destination address subfield */
@@ -1400,8 +1397,6 @@ static int hf_tag_measure_request_bssid = -1;
 static int hf_tag_measure_request_reporting_condition = -1;
 static int hf_tag_measure_request_threshold_offset_unsigned = -1;
 static int hf_tag_measure_request_threshold_offset_signed = -1;
-
-static int hf_tag_measure_request_report_mac = -1;
 
 static int hf_tag_measure_request_group_id = -1;
 
@@ -5101,8 +5096,15 @@ dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean basic, gbo
   guint16 capability;
 
   /* 16 byte Supported MCS set */
-  ti = proto_tree_add_string(tree, vs ? hf_ieee80211_mcsset_vs : hf_ieee80211_mcsset, tvb, offset, 16,
+  if(vs)
+  {
+    ti = proto_tree_add_string(tree, hf_ieee80211_mcsset_vs, tvb, offset, 16,
       basic ? "Basic MCS Set" : "MCS Set");
+  }else
+  {
+    ti = proto_tree_add_string(tree, hf_ieee80211_mcsset, tvb, offset, 16,
+      basic ? "Basic MCS Set" : "MCS Set");
+  }
   mcs_tree = proto_item_add_subtree(ti, ett_mcsset_tree);
 
   /* Rx MCS Bitmask */
@@ -5372,8 +5374,14 @@ dissect_ht_capability_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 
   /* 2 byte HT Capabilities  Info*/
   capability = tvb_get_letohs (tvb, offset);
-  cap_item = proto_tree_add_item(tree, vs ? hf_ieee80211_ht_vs_cap : hf_ieee80211_ht_cap, tvb,
-                    offset, 2, TRUE);
+  if(vs)
+  {
+    cap_item = proto_tree_add_item(tree, hf_ieee80211_ht_vs_cap, tvb, offset, 2, TRUE);
+  }
+  else
+  {
+    cap_item = proto_tree_add_item(tree, hf_ieee80211_ht_cap, tvb, offset, 2, TRUE);
+  }
   cap_tree = proto_item_add_subtree(cap_item, ett_ht_cap_tree);
   proto_tree_add_boolean(cap_tree, hf_ieee80211_ht_ldpc_coding, tvb, offset, 1,
              capability);
@@ -5409,8 +5417,13 @@ dissect_ht_capability_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 
   /* 1 byte A-MPDU Parameters */
   capability = tvb_get_guint8 (tvb, offset);
-  cap_item = proto_tree_add_item(tree, vs ? hf_ieee80211_ampduparam_vs : hf_ieee80211_ampduparam, tvb,
-                    offset, 1, TRUE);
+  if(vs)
+  {
+    cap_item = proto_tree_add_item(tree, hf_ieee80211_ampduparam_vs, tvb, offset, 1, TRUE);
+  }else
+  {
+    cap_item = proto_tree_add_item(tree, hf_ieee80211_ampduparam, tvb, offset, 1, TRUE);
+  }
   cap_tree = proto_item_add_subtree(cap_item, ett_ampduparam_tree);
   proto_tree_add_uint_format(cap_tree, hf_ieee80211_ampduparam_mpdu, tvb, offset, 1, capability,
                              "%sMaximum Rx A-MPDU Length: %04.0f [Bytes]",
@@ -5496,8 +5509,14 @@ dissect_ht_capability_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 
   /* 1 byte Antenna Selection (ASEL) capabilities */
   capability = tvb_get_guint8 (tvb, offset);
-  cap_item = proto_tree_add_item(tree, vs ? hf_ieee80211_antsel_vs : hf_ieee80211_antsel, tvb,
-                    offset, 1, TRUE);
+  if(vs)
+  {
+    cap_item = proto_tree_add_item(tree, hf_ieee80211_antsel_vs, tvb, offset, 1, TRUE);
+  }
+  else
+  {
+    cap_item = proto_tree_add_item(tree, hf_ieee80211_antsel, tvb,  offset, 1, TRUE);
+  }
   cap_tree = proto_item_add_subtree(cap_item, ett_antsel_tree);
   proto_tree_add_boolean(cap_tree, hf_ieee80211_antsel_b0, tvb, offset, 1,
              capability);
@@ -6985,7 +7004,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
             proto_tree_add_uint_format(sub_tree, hf_tag_measure_report_rsni, tvb, offset, 1, rsni, "Received Signal to Noise Indicator (RSNI): 0x%02X dB", rsni);
 
             offset++;
-            proto_tree_add_item(sub_tree, hf_tag_measure_request_bssid, tvb, offset, 6, ENC_NA);
+            proto_tree_add_item(sub_tree, hf_tag_measure_report_bssid, tvb, offset, 6, ENC_NA);
 
             offset+=6;
             ant_id = tvb_get_guint8 (tvb, offset);
@@ -7948,7 +7967,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
                 proto_tree *bar_mtid_tree, *bar_mtid_sub_tree;
 
                 tid_count = ((bar_control & 0xF000) >> 12) + 1;
-                proto_tree_add_uint_format(bar_sub_tree, hf_block_ack_control_compressed_tid_info, tvb, offset+1, 1, bar_control,
+                proto_tree_add_uint_format(bar_sub_tree, hf_block_ack_control_multi_tid_info, tvb, offset+1, 1, bar_control,
                 decode_numeric_bitfield(bar_control, 0xF000, 16,"Number of TIDs Present: 0x%%X"), tid_count);
                 offset += 2;
 
@@ -10831,10 +10850,6 @@ proto_register_ieee80211 (void)
      {"Transmitter address", "wlan.ta", FT_ETHER, BASE_NONE, NULL, 0,
       "Transmitting Station Hardware Address", HFILL }},
 
-    {&hf_addr_addr1,
-     {"First Address of Contained Frame", "wlan.controlwrap.addr1", FT_ETHER, BASE_NONE, NULL, 0,
-      NULL, HFILL }},
-
     {&hf_addr_bssid,
      {"BSS Id", "wlan.bssid", FT_ETHER, BASE_NONE, NULL, 0,
       "Basic Service Set ID", HFILL }},
@@ -11259,10 +11274,6 @@ proto_register_ieee80211 (void)
                            NULL, 0x0, NULL, HFILL } },
     { &hf_wlan_ssi_type, { "SSI Type", "wlancap.ssi_type", FT_UINT32, BASE_DEC,
                            VALS(ssi_type), 0x0, NULL, HFILL } },
-    { &hf_wlan_ssi_signal, { "SSI Signal", "wlancap.ssi_signal", FT_INT32,
-                           BASE_DEC, NULL, 0x0, NULL, HFILL } },
-    { &hf_wlan_ssi_noise, { "SSI Noise", "wlancap.ssi_noise", FT_INT32,
-                           BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_wlan_preamble, { "Preamble", "wlancap.preamble", FT_UINT32,
                            BASE_DEC, VALS(preamble_type), 0x0, NULL, HFILL } },
     { &hf_wlan_encoding, { "Encoding Type", "wlancap.encoding", FT_UINT32,
@@ -13151,10 +13162,6 @@ proto_register_ieee80211 (void)
     {&hf_tag_measure_request_threshold_offset_signed,
      {"Threshold/Offset", "wlan_mgt.measure.req.threshold",
       FT_UINT8, BASE_HEX, 0, 0, NULL, HFILL }},
-
-    {&hf_tag_measure_request_report_mac,
-     {"MAC on wich to gather data", "wlan_mgt.measure.req.reportmac",
-      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_tag_measure_request_group_id,
      {"Group ID", "wlan_mgt.measure.req.groupid",
