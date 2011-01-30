@@ -507,9 +507,7 @@ WSLUA_METAMETHOD Columns__newindex(lua_State *L) {
         }
     }
 
-	WSLUA_ARG_ERROR(Columns__newindex,COLUMN,"the column name must be a valid column");
-
-    return 0;
+    WSLUA_ARG_ERROR(Columns__newindex,COLUMN,"the column name must be a valid column");
 }
 
 WSLUA_METAMETHOD Columns_index(lua_State *L) {

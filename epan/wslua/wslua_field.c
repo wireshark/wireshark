@@ -424,7 +424,6 @@ WSLUA_METAMETHOD Field__call (lua_State* L) {
 
     if (! lua_pinfo ) {
         WSLUA_ERROR(Field__call,"Fields cannot be used outside dissectors or taps");
-        return 0;
     }
 
     for (;in;in = in->same_name_next) {

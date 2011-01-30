@@ -388,7 +388,6 @@ WSLUA_METAMETHOD Prefs__index(lua_State* L) {
     } while (( prefs_p = prefs_p->next ));
 
     WSLUA_ARG_ERROR(Prefs__index,NAME,"no preference named like this");
-    WSLUA_RETURN(0);
 }
 
 WSLUA_META Prefs_meta[] = {
@@ -605,10 +604,8 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
     f->type = get_ftenum(luaL_checkstring(L,WSLUA_ARG_ProtoField_new_TYPE));
 
     /*XXX do it better*/
-    if (f->type == FT_NONE) {
+    if (f->type == FT_NONE)
         WSLUA_ARG_ERROR(ProtoField_new,TYPE,"invalid FT_type");
-        return 0;
-    }
 
     if (! lua_isnil(L,WSLUA_OPTARG_ProtoField_new_VOIDSTRING) ) {
         if (f->type == FT_BOOLEAN) {
@@ -1086,9 +1083,8 @@ WSLUA_CONSTRUCTOR Proto_new(lua_State* L) {
 
             WSLUA_RETURN(1); /* The newly created protocol */
         }
-    } else {
+    } else
         WSLUA_ARG_ERROR(Proto_new,NAME,"must be a string");
-    }
 
     return 0;
 }

@@ -216,17 +216,14 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
 
     if (! (title  = luaL_checkstring(L,WSLUA_ARG_new_dialog_TITLE)) ) {
         WSLUA_ARG_ERROR(new_dialog,TITLE,"Must be a string");
-        return 0;
     }
 
     if (! lua_isfunction(L,WSLUA_ARG_new_dialog_ACTION)) {
         WSLUA_ARG_ERROR(new_dialog,ACTION,"Must be a function");
-        return 0;
     }
 
     if (top < 3) {
         WSLUA_ERROR(new_dialog,"At least one field required");
-        return 0;
     }
 
 

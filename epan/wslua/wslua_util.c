@@ -287,7 +287,6 @@ WSLUA_CONSTRUCTOR Dir_open(lua_State* L) {
 		g_free(dir);
 
 		WSLUA_ARG_ERROR(Dir_open,PATHNAME,"could not open directory");
-		return 0;
 	}
 
 	pushDir(L,dir);

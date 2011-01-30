@@ -45,10 +45,8 @@ WSLUA_CONSTRUCTOR ByteArray_new(lua_State* L) { /* Creates a ByteArray Object */
     if (lua_gettop(L) == 1) {
         s = luaL_checkstring(L,WSLUA_OPTARG_ByteArray_new_HEXBYTES);
 
-        if (!s) {
+        if (!s)
             WSLUA_OPTARG_ERROR(ByteArray_new,HEXBYTES,"must be a string");
-            return 0;
-        }
 
         /* XXX: slow! */
         for (; (c = *s); s++) {
@@ -144,10 +142,8 @@ WSLUA_METHOD ByteArray_set_size(lua_State* L) {
     guint8* padding;
 
     if (!ba) return 0;
-    if (siz < 0) {
+    if (siz < 0)
         WSLUA_ERROR(ByteArray_set_size,"ByteArray size must be non-negative");
-        return 0;
-    }
 
     if (ba->len >= (guint)siz) { /* truncate */
         g_byte_array_set_size(ba,siz);
