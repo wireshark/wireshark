@@ -57,8 +57,9 @@ megacostat_is_duplicate_reply(const gcp_cmd_t* cmd)
 		{
 			gcp_cmd_msg_t *cmd_msg;
 			/* cycle through commands to find same command in the transaction */
-			for (cmd_msg = cmd->trx->cmds; cmd_msg->cmd->msg->framenum != cmd->msg->framenum &&
-					cmd_msg != NULL; cmd_msg = cmd_msg->next) {
+			for (cmd_msg = cmd->trx->cmds;
+			     (cmd_msg != NULL) && (cmd_msg->cmd->msg->framenum != cmd->msg->framenum);
+			     cmd_msg = cmd_msg->next) {
 				if (cmd_msg->cmd->type == cmd->type)
 					return TRUE;
 			}
@@ -83,8 +84,9 @@ megacostat_had_request(const gcp_cmd_t* cmd)
 		{
 			gcp_cmd_msg_t *cmd_msg;
 			/* cycle through commands to find a request in the transaction */
-			for (cmd_msg = cmd->trx->cmds; cmd_msg->cmd->msg->framenum != cmd->msg->framenum &&
-					cmd_msg != NULL; cmd_msg = cmd_msg->next) {
+			for (cmd_msg = cmd->trx->cmds;
+			     (cmd_msg != NULL) && (cmd_msg->cmd->msg->framenum != cmd->msg->framenum);
+			     cmd_msg = cmd_msg->next) {
 
 				switch (cmd_msg->cmd->type) {
 
