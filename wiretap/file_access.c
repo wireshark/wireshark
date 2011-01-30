@@ -669,7 +669,7 @@ const char *wtap_file_type_string(int filetype)
 {
 	if (filetype < 0 || filetype >= wtap_num_file_types) {
 		g_error("Unknown capture file type %d", filetype);
-		return NULL;
+		/** g_error() does an abort() and thus never returns **/
 	} else
 		return dump_open_table[filetype].name;
 }

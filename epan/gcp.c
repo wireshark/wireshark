@@ -511,7 +511,6 @@ gcp_term_t* gcp_cmd_add_term(gcp_msg_t* m, gcp_trx_t* tr, gcp_cmd_t* c, gcp_term
             }
 
             DISSECTOR_ASSERT_NOT_REACHED();
-            return NULL;
         }
     } else {
         ct = ep_new(gcp_terms_t);

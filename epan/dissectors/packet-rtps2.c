@@ -5511,7 +5511,7 @@ static gint dissect_parameter_sequence(proto_tree *tree,
     offset += param_length;
 
   } /* for all the parameters */
-  return offset;
+  g_assert_not_reached();
 }
 #undef ENSURE_LENGTH
 

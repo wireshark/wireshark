@@ -100,7 +100,7 @@ void buffer_remove_start(Buffer* buffer, gsize bytes)
 		g_error("buffer_remove_start trying to remove %" G_GINT64_MODIFIER "u bytes. s=%" G_GINT64_MODIFIER "u ff=%" G_GINT64_MODIFIER "u!\n",
 			(guint64)bytes, (guint64)buffer->start,
 			(guint64)buffer->first_free);
-		exit(1);
+		/** g_error() does an abort() and thus never returns **/
 	}
 	buffer->start += bytes;
 

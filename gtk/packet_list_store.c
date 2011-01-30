@@ -970,7 +970,7 @@ packet_list_compare_records(gint sort_id, PacketListRecord *a,
 	} else
 		return (a->fdata->col_text[sort_id] == NULL) ? -1 : 1;
 
-	g_return_val_if_reached(0);
+	g_assert_not_reached();
 }
 
 static gint

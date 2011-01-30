@@ -119,8 +119,8 @@ find_last_pathname_separator(const char *path)
 	return strchr(path, ':');
 #else
 	separator = strrchr(path, '/');
-#endif
 	return separator;
+#endif
 }
 
 /*

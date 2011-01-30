@@ -873,7 +873,6 @@ composite_ensure_contiguous_no_exception(tvbuff_t *tvb, const guint abs_offset,
 	}
 
 	DISSECTOR_ASSERT_NOT_REACHED();
-	return NULL;
 }
 
 static const guint8*
@@ -1035,7 +1034,6 @@ composite_memcpy(tvbuff_t *tvb, guint8* target, guint abs_offset, size_t abs_len
 	}
 
 	DISSECTOR_ASSERT_NOT_REACHED();
-	return NULL;
 }
 
 void*
