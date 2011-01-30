@@ -72,7 +72,7 @@
 #include "gtk/main_proto_draw.h"
 #include "gtk/recent.h"
 
-#if _WIN32
+#ifdef _WIN32
 #include <gdk/gdkwin32.h>
 #include <windows.h>
 #include "win32/file_dlg_win32.h"
@@ -1022,6 +1022,14 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 }
 
 /* Launch the dialog box to put up the file selection box etc */
+#ifdef _WIN32
+void
+savehex_cb(GtkWidget * w _U_, gpointer data _U_)
+{
+    win32_export_raw_file(GDK_WINDOW_HWND(top_level->window));
+    return;
+}
+#else
 void
 savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 {
@@ -1031,11 +1039,6 @@ savehex_cb(GtkWidget * w _U_, gpointer data _U_)
     gchar *label;
     GtkWidget   *bv;
     GtkWidget   *dlg_lb;
-
-#if _WIN32
-    win32_export_raw_file(GDK_WINDOW_HWND(top_level->window));
-    return;
-#endif
 
     /* don't show up the dialog, if no data has to be saved */
     bv = get_notebook_bv_ptr(byte_nb_ptr_gbl);
@@ -1105,6 +1108,7 @@ savehex_cb(GtkWidget * w _U_, gpointer data _U_)
     }
     window_destroy(savehex_dlg);
 }
+#endif
 
 static GtkTextMark *
 packet_hex_apply_reverse_tag(GtkTextBuffer *buf, int bstart, int bend, guint32 mask, int mask_le, int use_digits, int create_mark)
