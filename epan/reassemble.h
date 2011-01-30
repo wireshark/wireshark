@@ -306,6 +306,7 @@ typedef struct _fragment_items {
 	int	*hf_fragment_multiple_tails;
 	int	*hf_fragment_too_long_fragment;
 	int	*hf_fragment_error;
+	int     *hf_fragment_count;
 	int	*hf_reassembled_in;
 	int	*hf_reassembled_length;
 

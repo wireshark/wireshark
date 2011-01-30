@@ -67,6 +67,7 @@ static int hf_clnp_segment_overlap_conflict = -1;
 static int hf_clnp_segment_multiple_tails = -1;
 static int hf_clnp_segment_too_long_segment = -1;
 static int hf_clnp_segment_error = -1;
+static int hf_clnp_segment_count = -1;
 static int hf_clnp_reassembled_in = -1;
 static int hf_clnp_reassembled_length = -1;
 
@@ -80,6 +81,7 @@ static const fragment_items clnp_frag_items = {
 	&hf_clnp_segment_multiple_tails,
 	&hf_clnp_segment_too_long_segment,
 	&hf_clnp_segment_error,
+	&hf_clnp_segment_count,
 	&hf_clnp_reassembled_in,
 	&hf_clnp_reassembled_length,
 	"segments"
@@ -610,6 +612,10 @@ void proto_register_clnp(void)
     { &hf_clnp_segment_error,
       { "Reassembly error", "clnp.segment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 	"Reassembly error due to illegal segments", HFILL }},
+
+    { &hf_clnp_segment_count,
+      { "Segment count", "clnp.segment.count", FT_UINT32, BASE_DEC, NULL, 0x0,
+	NULL, HFILL }},
 
     { &hf_clnp_segment,
       { "CLNP Segment", "clnp.segment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,

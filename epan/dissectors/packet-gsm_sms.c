@@ -217,6 +217,7 @@ static int hf_gsm_sms_ud_fragment_overlap_conflicts = -1;
 static int hf_gsm_sms_ud_fragment_multiple_tails = -1;
 static int hf_gsm_sms_ud_fragment_too_long_fragment = -1;
 static int hf_gsm_sms_ud_fragment_error = -1;
+static int hf_gsm_sms_ud_fragment_count = -1;
 static int hf_gsm_sms_ud_reassembled_in = -1;
 static int hf_gsm_sms_ud_reassembled_length = -1;
 
@@ -232,6 +233,7 @@ static const fragment_items sm_frag_items = {
     &hf_gsm_sms_ud_fragment_multiple_tails,
     &hf_gsm_sms_ud_fragment_too_long_fragment,
     &hf_gsm_sms_ud_fragment_error,
+    &hf_gsm_sms_ud_fragment_count,
     /* Reassembled in field */
     &hf_gsm_sms_ud_reassembled_in,
     /* Reassembled length field */
@@ -3499,6 +3501,13 @@ proto_register_gsm_sms(void)
                         FT_FRAMENUM, BASE_NONE, NULL, 0x00,
                         "GSM Short Message defragmentation error due to illegal fragments",
                         HFILL
+                }
+            },
+            {	&hf_gsm_sms_ud_fragment_count,
+                {	"Short Message fragment count",
+                        "gsm_sms.fragment.count",
+                        FT_UINT32, BASE_DEC, NULL, 0x00,
+                        NULL, HFILL
                 }
             },
             {	&hf_gsm_sms_ud_reassembled_in,

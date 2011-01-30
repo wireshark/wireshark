@@ -437,6 +437,7 @@ static int hf_tds_fragment_overlap_conflict = -1;
 static int hf_tds_fragment_multiple_tails = -1;
 static int hf_tds_fragment_too_long_fragment = -1;
 static int hf_tds_fragment_error = -1;
+static int hf_tds_fragment_count = -1;
 
 static int hf_tds7_login_total_size = -1;
 static int hf_tds7_version = -1;
@@ -537,6 +538,7 @@ static const fragment_items tds_frag_items = {
     &hf_tds_fragment_multiple_tails,
     &hf_tds_fragment_too_long_fragment,
     &hf_tds_fragment_error,
+    &hf_tds_fragment_count,
     &hf_tds_reassembled_in,
     &hf_tds_reassembled_length,
     "fragments"
@@ -2718,6 +2720,11 @@ proto_register_tds(void)
           { "Defragmentation error",    "tds.fragment.error",
             FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             "Defragmentation error due to illegal fragments", HFILL }
+        },
+        { &hf_tds_fragment_count,
+          { "Segment count", "tds.fragment.count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
         },
         { &hf_tds_fragment,
           { "TDS Fragment",     "tds.fragment",

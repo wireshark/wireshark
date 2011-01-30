@@ -112,6 +112,7 @@ static int hf_rtp_fragment_overlap_conflict = -1;
 static int hf_rtp_fragment_multiple_tails = -1;
 static int hf_rtp_fragment_too_long_fragment = -1;
 static int hf_rtp_fragment_error = -1;
+static int hf_rtp_fragment_count = -1;
 static int hf_rtp_reassembled_in = -1;
 static int hf_rtp_reassembled_length = -1;
 
@@ -128,6 +129,7 @@ static const fragment_items rtp_fragment_items = {
   &hf_rtp_fragment_multiple_tails,
   &hf_rtp_fragment_too_long_fragment,
   &hf_rtp_fragment_error,
+  &hf_rtp_fragment_count,
   &hf_rtp_reassembled_in,
   &hf_rtp_reassembled_length,
   "RTP fragments"
@@ -2068,6 +2070,12 @@ proto_register_rtp(void)
 		 {"Defragmentation error", "rtp.fragment.error",
 		  FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		  "Defragmentation error due to illegal fragments", HFILL }
+		},
+
+		{&hf_rtp_fragment_count,
+		 {"Fragment count", "rtp.fragment.count",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL }
 		},
 
 		{&hf_rtp_reassembled_in,

@@ -129,6 +129,7 @@ static int hf_tcp_segment_overlap_conflict = -1;
 static int hf_tcp_segment_multiple_tails = -1;
 static int hf_tcp_segment_too_long_fragment = -1;
 static int hf_tcp_segment_error = -1;
+static int hf_tcp_segment_count = -1;
 static int hf_tcp_options = -1;
 static int hf_tcp_option_kind = -1;
 static int hf_tcp_option_len = -1;
@@ -313,6 +314,7 @@ static const fragment_items tcp_segment_items = {
     &hf_tcp_segment_multiple_tails,
     &hf_tcp_segment_too_long_fragment,
     &hf_tcp_segment_error,
+    &hf_tcp_segment_count,
     &hf_tcp_reassembled_in,
     &hf_tcp_reassembled_length,
     "Segments"
@@ -4477,6 +4479,10 @@ proto_register_tcp(void)
         { &hf_tcp_segment_error,
         { "Reassembling error", "tcp.segment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             "Reassembling error due to illegal segments", HFILL }},
+
+        { &hf_tcp_segment_count,
+        { "Segment count", "tcp.segment.count", FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
 
         { &hf_tcp_segment,
         { "TCP Segment", "tcp.segment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,

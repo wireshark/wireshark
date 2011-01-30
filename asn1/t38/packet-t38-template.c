@@ -135,6 +135,7 @@ static int hf_t38_fragment_overlap_conflicts = -1;
 static int hf_t38_fragment_multiple_tails = -1;
 static int hf_t38_fragment_too_long_fragment = -1;
 static int hf_t38_fragment_error = -1;
+static int hf_t38_fragment_count = -1;
 static int hf_t38_reassembled_in = -1;
 static int hf_t38_reassembled_length = -1;
 
@@ -163,6 +164,7 @@ static const fragment_items data_frag_items = {
 	&hf_t38_fragment_multiple_tails,
 	&hf_t38_fragment_too_long_fragment,
 	&hf_t38_fragment_error,
+	&hf_t38_fragment_count,
 	/* Reassembled in field */
 	&hf_t38_reassembled_in,
 	/* Reassembled length field */
@@ -700,6 +702,9 @@ proto_register_t38(void)
 		{&hf_t38_fragment_error,
 			{"Message defragmentation error", "t38.fragment.error",
 			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+		{&hf_t38_fragment_count,
+			{"Message fragment count", "t38.fragment.count",
+			FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
 		{&hf_t38_reassembled_in,
 			{"Reassembled in", "t38.reassembled.in",
 			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },

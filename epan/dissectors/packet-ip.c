@@ -124,6 +124,7 @@ static int hf_ip_fragment_overlap_conflict = -1;
 static int hf_ip_fragment_multiple_tails = -1;
 static int hf_ip_fragment_too_long_fragment = -1;
 static int hf_ip_fragment_error = -1;
+static int hf_ip_fragment_count = -1;
 static int hf_ip_reassembled_in = -1;
 static int hf_ip_reassembled_length = -1;
 
@@ -178,6 +179,7 @@ static const fragment_items ip_frag_items = {
 	&hf_ip_fragment_multiple_tails,
 	&hf_ip_fragment_too_long_fragment,
 	&hf_ip_fragment_error,
+	&hf_ip_fragment_count,
 	&hf_ip_reassembled_in,
 	&hf_ip_reassembled_length,
 	"IP fragments"
@@ -1967,6 +1969,10 @@ proto_register_ip(void)
 		{ &hf_ip_fragment_error,
 		{ "Defragmentation error", "ip.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			"Defragmentation error due to illegal fragments", HFILL }},
+
+		{ &hf_ip_fragment_count,
+		{ "Fragment count", "ip.fragment.count", FT_UINT32, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }},
 
 		{ &hf_ip_fragment,
 		{ "IP Fragment", "ip.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,

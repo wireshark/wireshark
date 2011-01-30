@@ -1037,6 +1037,7 @@ static int   hf_dnp3_fragment_overlap_conflict = -1;
 static int   hf_dnp3_fragment_multiple_tails = -1;
 static int   hf_dnp3_fragment_too_long_fragment = -1;
 static int   hf_dnp3_fragment_error = -1;
+static int   hf_dnp3_fragment_count = -1;
 static int   hf_dnp3_fragment_reassembled_in = -1;
 static int   hf_dnp3_fragment_reassembled_length = -1;
 static gint ett_dnp3_fragment  = -1;
@@ -1052,6 +1053,7 @@ static const fragment_items dnp3_frag_items = {
   &hf_dnp3_fragment_multiple_tails,
   &hf_dnp3_fragment_too_long_fragment,
   &hf_dnp3_fragment_error,
+  &hf_dnp3_fragment_count,
   &hf_dnp3_fragment_reassembled_in,
   &hf_dnp3_fragment_reassembled_length,
   "DNP 3.0 fragments"
@@ -3437,6 +3439,10 @@ proto_register_dnp3(void)
     { &hf_dnp3_fragment_error,
     { "Defragmentation error", "dnp3.al.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
       "Defragmentation error due to illegal fragments", HFILL }},
+
+    { &hf_dnp3_fragment_count,
+    { "Fragment count", "dnp3.al.fragment.count", FT_UINT32, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
 
     { &hf_dnp3_fragment_reassembled_in,
     { "Reassembled PDU In Frame", "dnp3.al.fragment.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,

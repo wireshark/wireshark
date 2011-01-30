@@ -176,6 +176,7 @@ static gint hf_x25_segment_overlap_conflict = -1;
 static gint hf_x25_segment_multiple_tails = -1;
 static gint hf_x25_segment_too_long_segment = -1;
 static gint hf_x25_segment_error = -1;
+static gint hf_x25_segment_count = -1;
 static gint hf_x25_reassembled_length = -1;
 
 static const value_string vals_modulo[] = {
@@ -220,6 +221,7 @@ static const fragment_items x25_frag_items = {
 	&hf_x25_segment_multiple_tails,
 	&hf_x25_segment_too_long_segment,
 	&hf_x25_segment_error,
+	&hf_x25_segment_count,
 	NULL,
 	&hf_x25_reassembled_length,
 	"segments"
@@ -2636,6 +2638,10 @@ proto_register_x25(void)
 	{ &hf_x25_segment_error,
 	  { "Defragmentation error", "x25.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 	    "Defragmentation error due to illegal fragments", HFILL }},
+	
+	{ &hf_x25_segment_count,
+	  { "Fragment count", "x25.fragment.count", FT_UINT32, BASE_DEC, NULL, 0x0,
+	    NULL, HFILL }},
 	
 	{ &hf_x25_reassembled_length,
 	  { "Reassembled X.25 length", "x25.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,

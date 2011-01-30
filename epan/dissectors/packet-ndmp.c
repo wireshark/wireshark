@@ -238,6 +238,7 @@ static int hf_ndmp_fragment_overlap_conflicts = -1;
 static int hf_ndmp_fragment_multiple_tails = -1;
 static int hf_ndmp_fragment_too_long_fragment = -1;
 static int hf_ndmp_fragment_error = -1;
+static int hf_ndmp_fragment_count = -1;
 static int hf_ndmp_reassembled_in = -1;
 static int hf_ndmp_reassembled_length = -1;
 
@@ -274,6 +275,7 @@ static const fragment_items ndmp_frag_items = {
        &hf_ndmp_fragment_multiple_tails,
        &hf_ndmp_fragment_too_long_fragment,
        &hf_ndmp_fragment_error,
+       &hf_ndmp_fragment_count,
        /* Reassembled in field */
        &hf_ndmp_reassembled_in,
        /* Reassembled length field */
@@ -4265,6 +4267,9 @@ proto_register_ndmp(void)
 	{&hf_ndmp_fragment_error,
 		{"NDMP defragmentation error", "ndmp.fragment.error",
 		FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+	{&hf_ndmp_fragment_count,
+		{"NDMP fragment count", "ndmp.fragment.count",
+		FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
 	{&hf_ndmp_reassembled_in,
 		{"Reassembled in", "ndmp.reassembled.in",
 		FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },

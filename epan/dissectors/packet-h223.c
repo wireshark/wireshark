@@ -79,6 +79,7 @@ static int hf_h223_mux_fragment_overlap_conflict = -1;
 static int hf_h223_mux_fragment_multiple_tails = -1;
 static int hf_h223_mux_fragment_too_long_fragment = -1;
 static int hf_h223_mux_fragment_error = -1;
+static int hf_h223_mux_fragment_count = -1;
 static int hf_h223_mux_reassembled_in = -1;
 static int hf_h223_mux_reassembled_length = -1;
 
@@ -89,6 +90,7 @@ static int hf_h223_al_fragment_overlap_conflict = -1;
 static int hf_h223_al_fragment_multiple_tails = -1;
 static int hf_h223_al_fragment_too_long_fragment = -1;
 static int hf_h223_al_fragment_error = -1;
+static int hf_h223_al_fragment_count = -1;
 static int hf_h223_al_reassembled_in = -1;
 static int hf_h223_al_reassembled_length = -1;
 
@@ -134,6 +136,7 @@ static const fragment_items h223_mux_frag_items _U_ = {
     &hf_h223_mux_fragment_multiple_tails,
     &hf_h223_mux_fragment_too_long_fragment,
     &hf_h223_mux_fragment_error,
+    &hf_h223_mux_fragment_count,
     &hf_h223_mux_reassembled_in,
     &hf_h223_mux_reassembled_length,
     "fragments"
@@ -149,6 +152,7 @@ static const fragment_items h223_al_frag_items = {
     &hf_h223_al_fragment_multiple_tails,
     &hf_h223_al_fragment_too_long_fragment,
     &hf_h223_al_fragment_error,
+    &hf_h223_al_fragment_count,
     &hf_h223_al_reassembled_in,
     &hf_h223_al_reassembled_length,
     "fragments"
@@ -1474,6 +1478,10 @@ void proto_register_h223 (void)
           { "Defragmentation error", "h223.mux.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             "Defragmentation error due to illegal fragments", HFILL }},
 
+        { &hf_h223_mux_fragment_count,
+          { "Fragment count", "h223.mux.fragment.count", FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
         { &hf_h223_mux_fragment,
           { "H.223 MUX-PDU Fragment", "h223.mux.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
@@ -1510,6 +1518,10 @@ void proto_register_h223 (void)
         { &hf_h223_al_fragment_error,
           { "Defragmentation error", "h223.al.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             "Defragmentation error due to illegal fragments", HFILL }},
+
+        { &hf_h223_al_fragment_count,
+          { "Fragment count", "h223.al.fragment.count", FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
 
         { &hf_h223_al_fragment,
           { "H.223 AL-PDU Fragment", "h223.al.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,

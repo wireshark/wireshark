@@ -178,6 +178,7 @@ static int hf_reload_fragment_overlap_conflict = -1;
 static int hf_reload_fragment_multiple_tails = -1;
 static int hf_reload_fragment_too_long_fragment = -1;
 static int hf_reload_fragment_error = -1;
+static int hf_reload_fragment_count = -1;
 static int hf_reload_reassembled_in = -1;
 static int hf_reload_reassembled_length = -1;
 static int hf_reload_configupdatereq = -1;
@@ -369,6 +370,7 @@ static const fragment_items reload_frag_items = {
   &hf_reload_fragment_multiple_tails,
   &hf_reload_fragment_too_long_fragment,
   &hf_reload_fragment_error,
+  &hf_reload_fragment_count,
   &hf_reload_reassembled_in,
   &hf_reload_reassembled_length,
   "ReLOAD fragments"
@@ -2682,6 +2684,10 @@ proto_register_reload(void)
       { "Defragmentation error", "reload.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
         "Defragmentation error due to illegal fragments", HFILL }},
 
+		{ &hf_reload_fragment_count,
+		  { "Fragment count", "reload.fragment.count", FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL}},
+
     { &hf_reload_fragment,
       { "ReLOAD Fragment", "reload.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
@@ -2693,6 +2699,10 @@ proto_register_reload(void)
     { &hf_reload_reassembled_in,
       { "Reassembled ReLOAD in frame", "reload.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
         "This ReLOAD packet is reassembled in this frame", HFILL }},
+
+		{ &hf_reload_reassembled_length,
+		  { "Reassembled ReLOAD length", "reload.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
+        "The total length of the reassembled payload", HFILL}},
 
     { &hf_reload_configupdatereq,
       { "ConfigUpdate Req",  "reload.configupdatereq.",  FT_BYTES,

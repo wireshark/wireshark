@@ -69,6 +69,7 @@ static int hf_pipe_fragment_overlap_conflict = -1;
 static int hf_pipe_fragment_multiple_tails = -1;
 static int hf_pipe_fragment_too_long_fragment = -1;
 static int hf_pipe_fragment_error = -1;
+static int hf_pipe_fragment_count = -1;
 static int hf_pipe_reassembled_in = -1;
 static int hf_pipe_reassembled_length = -1;
 
@@ -86,6 +87,7 @@ static const fragment_items smb_pipe_frag_items = {
 	&hf_pipe_fragment_multiple_tails,
 	&hf_pipe_fragment_too_long_fragment,
 	&hf_pipe_fragment_error,
+	&hf_pipe_fragment_count,
 	NULL,
 	&hf_pipe_reassembled_length,
 	"fragments"
@@ -3908,6 +3910,9 @@ proto_register_smb_pipe(void)
 		{ &hf_pipe_fragment_error,
 			{ "Defragmentation error", "pipe.fragment.error", FT_FRAMENUM,
 			BASE_NONE, NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
+		{ &hf_pipe_fragment_count,
+			{ "Fragment count", "pipe.fragment.count", FT_UINT32,
+			BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_pipe_fragment,
 			{ "Fragment", "pipe.fragment", FT_FRAMENUM,
 			BASE_NONE, NULL, 0x0, "Pipe Fragment", HFILL }},

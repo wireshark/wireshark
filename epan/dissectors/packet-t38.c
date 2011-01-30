@@ -166,6 +166,7 @@ static int hf_t38_fragment_overlap_conflicts = -1;
 static int hf_t38_fragment_multiple_tails = -1;
 static int hf_t38_fragment_too_long_fragment = -1;
 static int hf_t38_fragment_error = -1;
+static int hf_t38_fragment_count = -1;
 static int hf_t38_reassembled_in = -1;
 static int hf_t38_reassembled_length = -1;
 
@@ -184,7 +185,7 @@ static gint ett_t38_T_fec_info = -1;
 static gint ett_t38_T_fec_data = -1;
 
 /*--- End of included file: packet-t38-ett.c ---*/
-#line 143 "packet-t38-template.c"
+#line 144 "packet-t38-template.c"
 static gint ett_t38_setup = -1;
 
 static gint ett_data_fragment = -1;
@@ -208,6 +209,7 @@ static const fragment_items data_frag_items = {
 	&hf_t38_fragment_multiple_tails,
 	&hf_t38_fragment_too_long_fragment,
 	&hf_t38_fragment_error,
+	&hf_t38_fragment_count,
 	/* Reassembled in field */
 	&hf_t38_reassembled_in,
 	/* Reassembled length field */
@@ -967,7 +969,7 @@ static int dissect_UDPTLPacket_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-t38-fn.c ---*/
-#line 393 "packet-t38-template.c"
+#line 395 "packet-t38-template.c"
 
 /* initialize the tap t38_info and the conversation */
 static void
@@ -1322,7 +1324,7 @@ proto_register_t38(void)
         "OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-t38-hfarr.c ---*/
-#line 671 "packet-t38-template.c"
+#line 673 "packet-t38-template.c"
 		{   &hf_t38_setup,
 		    { "Stream setup", "t38.setup", FT_STRING, BASE_NONE,
 		    NULL, 0x0, "Stream setup, method and frame number", HFILL }},
@@ -1355,6 +1357,9 @@ proto_register_t38(void)
 		{&hf_t38_fragment_error,
 			{"Message defragmentation error", "t38.fragment.error",
 			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+		{&hf_t38_fragment_count,
+			{"Message fragment count", "t38.fragment.count",
+			FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
 		{&hf_t38_reassembled_in,
 			{"Reassembled in", "t38.reassembled.in",
 			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -1380,7 +1385,7 @@ proto_register_t38(void)
     &ett_t38_T_fec_data,
 
 /*--- End of included file: packet-t38-ettarr.c ---*/
-#line 715 "packet-t38-template.c"
+#line 720 "packet-t38-template.c"
 		&ett_t38_setup,
 		&ett_data_fragment,
 		&ett_data_fragments

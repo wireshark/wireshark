@@ -130,6 +130,7 @@ static int hf_zbee_aps_fragment_overlap_conflicts = -1;
 static int hf_zbee_aps_fragment_multiple_tails = -1;
 static int hf_zbee_aps_fragment_too_long_fragment = -1;
 static int hf_zbee_aps_fragment_error = -1;
+static int hf_zbee_aps_fragment_count = -1;
 static int hf_zbee_aps_reassembled_in = -1;
 static int hf_zbee_aps_reassembled_length = -1;
 static gint ett_zbee_aps_fragment = -1;
@@ -162,6 +163,7 @@ static const fragment_items zbee_aps_frag_items = {
     &hf_zbee_aps_fragment_multiple_tails,
     &hf_zbee_aps_fragment_too_long_fragment,
     &hf_zbee_aps_fragment_error,
+    &hf_zbee_aps_fragment_count,
     /* Reassembled in field */
     &hf_zbee_aps_reassembled_in,
     /* Reassembled length field */
@@ -1937,6 +1939,10 @@ void proto_register_zbee_aps(void)
 
             { &hf_zbee_aps_fragment_error,
             { "Message defragmentation error",  "zbee.aps.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
+
+            { &hf_zbee_aps_fragment_count,
+            { "Message fragment count",         "zbee.aps.fragment.count", FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_aps_reassembled_in,

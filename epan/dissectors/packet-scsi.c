@@ -225,6 +225,7 @@ static int hf_scsi_fragment_overlap_conflict    = -1;
 static int hf_scsi_fragment_multiple_tails      = -1;
 static int hf_scsi_fragment_too_long_fragment   = -1;
 static int hf_scsi_fragment_error               = -1;
+static int hf_scsi_fragment_count               = -1;
 static int hf_scsi_reassembled_in               = -1;
 static int hf_scsi_reassembled_length           = -1;
 static int hf_scsi_log_ppc_flags                = -1;
@@ -354,6 +355,7 @@ static const fragment_items scsi_frag_items = {
     &hf_scsi_fragment_multiple_tails,
     &hf_scsi_fragment_too_long_fragment,
     &hf_scsi_fragment_error,
+    &hf_scsi_fragment_count,
     &hf_scsi_reassembled_in,
     &hf_scsi_reassembled_length,
     "fragments"
@@ -5375,6 +5377,9 @@ proto_register_scsi (void)
         { &hf_scsi_fragment_error,
           { "Defragmentation error", "scsi.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
            "Defragmentation error due to illegal fragments", HFILL }},
+        { &hf_scsi_fragment_count,
+          { "Fragment count", "scsi.fragment.count", FT_UINT32, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }},
         { &hf_scsi_fragment,
           { "SCSI DATA Fragment", "scsi.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
            NULL, HFILL }},

@@ -191,6 +191,7 @@ static int hf_wtp_fragment_overlap_conflict	= HF_EMPTY;
 static int hf_wtp_fragment_multiple_tails	= HF_EMPTY;
 static int hf_wtp_fragment_too_long_fragment	= HF_EMPTY;
 static int hf_wtp_fragment_error		= HF_EMPTY;
+static int hf_wtp_fragment_count		= HF_EMPTY;
 static int hf_wtp_reassembled_in		= HF_EMPTY;
 static int hf_wtp_reassembled_length		= HF_EMPTY;
 
@@ -212,6 +213,7 @@ static const fragment_items wtp_frag_items = {
     &hf_wtp_fragment_multiple_tails,
     &hf_wtp_fragment_too_long_fragment,
     &hf_wtp_fragment_error,
+    &hf_wtp_fragment_count,
     &hf_wtp_reassembled_in,
     &hf_wtp_reassembled_length,
     "fragments"
@@ -1028,6 +1030,13 @@ proto_register_wtp(void)
 		"wtp.fragment.error",
 		FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		"Defragmentation error due to illegal fragments", HFILL
+	    }
+	},
+	{ &hf_wtp_fragment_count,
+	    {	"Fragment count",
+		"wtp.fragment.count",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL
 	    }
 	},
 	{ &hf_wtp_reassembled_in,

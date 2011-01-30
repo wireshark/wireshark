@@ -70,6 +70,7 @@ static int hf_ndps_segment_overlap_conflict = -1;
 static int hf_ndps_segment_multiple_tails = -1;
 static int hf_ndps_segment_too_long_segment = -1;
 static int hf_ndps_segment_error = -1;
+static int hf_ndps_segment_count = -1;
 static int hf_ndps_reassembled_length = -1;
 
 static gint ett_ndps_segments = -1;
@@ -4034,6 +4035,7 @@ static const fragment_items ndps_frag_items = {
 	&hf_ndps_segment_multiple_tails,
 	&hf_ndps_segment_too_long_segment,
 	&hf_ndps_segment_error,
+	&hf_ndps_segment_count,
 	NULL,
 	&hf_ndps_reassembled_length,
 	"segments"
@@ -9360,6 +9362,10 @@ proto_register_ndps(void)
         { &hf_ndps_segment_error,
           {"Desegmentation error",	"ndps.segment.error", FT_FRAMENUM, BASE_NONE,
     		NULL, 0x0, "Desegmentation error due to illegal segments", HFILL }},
+
+        { &hf_ndps_segment_count,
+          {"Segment count",	"ndps.segment.count", FT_UINT32, BASE_DEC,
+    		NULL, 0x0, NULL, HFILL }},
 
         { &hf_ndps_reassembled_length,
           {"Reassembled NDPS length",	"ndps.reassembled.length", FT_UINT32, BASE_DEC,

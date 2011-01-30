@@ -1817,6 +1817,7 @@ static int hf_isup_apm_msg_fragment_overlap_conflicts = -1;
 static int hf_isup_apm_msg_fragment_multiple_tails = -1;
 static int hf_isup_apm_msg_fragment_too_long_fragment = -1;
 static int hf_isup_apm_msg_fragment_error = -1;
+static int hf_isup_apm_msg_fragment_count = -1;
 static int hf_isup_apm_msg_reassembled_in = -1;
 static int hf_isup_apm_msg_reassembled_length = -1;
 
@@ -1855,6 +1856,7 @@ static const fragment_items isup_apm_msg_frag_items = {
   &hf_isup_apm_msg_fragment_multiple_tails,
   &hf_isup_apm_msg_fragment_too_long_fragment,
   &hf_isup_apm_msg_fragment_error,
+  &hf_isup_apm_msg_fragment_count,
   /* Reassembled in field */
   &hf_isup_apm_msg_reassembled_in,
   /* Reassembled length field */
@@ -8557,6 +8559,10 @@ proto_register_isup(void)
     {&hf_isup_apm_msg_fragment_error,
      {"Message defragmentation error", "isup_apm.msg.fragment.error",
       FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
+    },
+    {&hf_isup_apm_msg_fragment_count,
+     {"Message fragment count", "isup_apm.msg.fragment.count",
+      FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
     },
     {&hf_isup_apm_msg_reassembled_in,
      {"Reassembled in", "isup_apm.msg.reassembled.in",

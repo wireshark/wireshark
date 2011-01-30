@@ -353,6 +353,7 @@ static int hf_dcm_pdv_fragment_overlap_conflicts = -1;
 static int hf_dcm_pdv_fragment_multiple_tails = -1;
 static int hf_dcm_pdv_fragment_too_long_fragment = -1;
 static int hf_dcm_pdv_fragment_error = -1;
+static int hf_dcm_pdv_fragment_count = -1;
 static int hf_dcm_pdv_reassembled_in = -1;
 static int hf_dcm_pdv_reassembled_length = -1;
 
@@ -368,6 +369,7 @@ static const fragment_items dcm_pdv_fragment_items = {
     &hf_dcm_pdv_fragment_multiple_tails,
     &hf_dcm_pdv_fragment_too_long_fragment,
     &hf_dcm_pdv_fragment_error,
+    &hf_dcm_pdv_fragment_count,
     &hf_dcm_pdv_reassembled_in,
     &hf_dcm_pdv_reassembled_length,
     /* Tag */
@@ -6770,6 +6772,9 @@ proto_register_dcm(void)
     { &hf_dcm_pdv_fragment_error,
 	    { "Message defragmentation error", "dicom.pdv.fragment.error",
 	    FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+    { &hf_dcm_pdv_fragment_count,
+	    { "Message fragment count", "dicom.pdv.fragment_count",
+	    FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
     { &hf_dcm_pdv_reassembled_in,
 	    { "Reassembled in", "dicom.pdv.reassembled.in",
 	    FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },

@@ -112,6 +112,7 @@ static int hf_q931_segment_overlap_conflict = -1;
 static int hf_q931_segment_multiple_tails = -1;
 static int hf_q931_segment_too_long_segment = -1;
 static int hf_q931_segment_error = -1;
+static int hf_q931_segment_count = -1;
 static int hf_q931_reassembled_in = -1;
 static int hf_q931_reassembled_length = -1;
 
@@ -132,6 +133,7 @@ static const fragment_items q931_frag_items = {
 	&hf_q931_segment_multiple_tails,
 	&hf_q931_segment_too_long_segment,
 	&hf_q931_segment_error,
+	&hf_q931_segment_count,
 	&hf_q931_reassembled_in,
 	&hf_q931_reassembled_length,
 	"segments"
@@ -3527,6 +3529,10 @@ proto_register_q931(void)
 		{ &hf_q931_segment_error,
 		  { "Defragmentation error", "q931.segment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			"Defragmentation error due to illegal fragments", HFILL }},
+
+		{ &hf_q931_segment_count,
+		  { "Segment count", "q931.segment.count", FT_UINT32, BASE_DEC, NULL, 0x0,
+			NULL, HFILL}},
 
 		{ &hf_q931_segment,
 		  { "Q.931 Segment", "q931.segment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,

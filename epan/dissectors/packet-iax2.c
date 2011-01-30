@@ -136,6 +136,7 @@ static int hf_iax2_fragment_overlap_conflict = -1;
 static int hf_iax2_fragment_multiple_tails = -1;
 static int hf_iax2_fragment_too_long_fragment = -1;
 static int hf_iax2_fragment_error = -1;
+static int hf_iax2_fragment_count = -1;
 static int hf_iax2_reassembled_in = -1;
 static int hf_iax2_reassembled_length = -1;
 
@@ -181,6 +182,7 @@ static const fragment_items iax2_fragment_items = {
   &hf_iax2_fragment_multiple_tails,
   &hf_iax2_fragment_too_long_fragment,
   &hf_iax2_fragment_error,
+  &hf_iax2_fragment_count,
   &hf_iax2_reassembled_in,
   &hf_iax2_reassembled_length,
   "iax2 fragments"
@@ -2757,6 +2759,11 @@ proto_register_iax2 (void)
      {"Defragmentation error", "iax2.fragment.error",
       FT_FRAMENUM, BASE_NONE, NULL, 0x0,
       "Defragmentation error due to illegal fragments", HFILL }},
+
+    {&hf_iax2_fragment_count,
+     {"Fragment count", "iax2.fragment.count",
+      FT_UINT32, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
 
     {&hf_iax2_reassembled_in,
      {"IAX2 fragment, reassembled in frame", "iax2.reassembled_in",

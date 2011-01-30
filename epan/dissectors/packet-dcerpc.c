@@ -565,6 +565,7 @@ static int hf_dcerpc_fragment_overlap_conflict = -1;
 static int hf_dcerpc_fragment_multiple_tails = -1;
 static int hf_dcerpc_fragment_too_long_fragment = -1;
 static int hf_dcerpc_fragment_error = -1;
+static int hf_dcerpc_fragment_count = -1;
 static int hf_dcerpc_reassembled_in = -1;
 static int hf_dcerpc_reassembled_length = -1;
 static int hf_dcerpc_unknown_if_id = -1;
@@ -597,6 +598,7 @@ static const fragment_items dcerpc_frag_items = {
     &hf_dcerpc_fragment_multiple_tails,
     &hf_dcerpc_fragment_too_long_fragment,
     &hf_dcerpc_fragment_error,
+    &hf_dcerpc_fragment_count,
     NULL,
     &hf_dcerpc_reassembled_length,
     "fragments"
@@ -5853,6 +5855,10 @@ proto_register_dcerpc (void)
         { &hf_dcerpc_fragment_error,
           { "Defragmentation error", "dcerpc.fragment.error", FT_FRAMENUM, BASE_NONE,
             NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
+
+        { &hf_dcerpc_fragment_count,
+          { "Fragment count", "dcerpc.fragment.count", FT_UINT32, BASE_DEC,
+            NULL, 0x0, NULL, HFILL }},
 
         { &hf_dcerpc_time,
           { "Time from request", "dcerpc.time", FT_RELATIVE_TIME, BASE_NONE,

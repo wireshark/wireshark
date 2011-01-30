@@ -65,6 +65,7 @@ static int hf_npdu_fragment_overlap_conflict	= -1;
 static int hf_npdu_fragment_multiple_tails	= -1;
 static int hf_npdu_fragment_too_long_fragment	= -1;
 static int hf_npdu_fragment_error		= -1;
+static int hf_npdu_fragment_count		= -1;
 static int hf_npdu_reassembled_in		= -1;
 static int hf_npdu_reassembled_length		= -1;
 
@@ -89,6 +90,7 @@ static const fragment_items npdu_frag_items = {
     &hf_npdu_fragment_multiple_tails,
     &hf_npdu_fragment_too_long_fragment,
     &hf_npdu_fragment_error,
+    &hf_npdu_fragment_count,
     &hf_npdu_reassembled_in,
     &hf_npdu_reassembled_length,
     "fragments"
@@ -507,6 +509,13 @@ proto_register_sndcp(void)
 	"npdu.fragment.error",
 	FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 	"Defragmentation error due to illegal fragments", HFILL
+      }
+    },
+    { &hf_npdu_fragment_count,
+      {	"Fragment count",
+	"npdu.fragment.count",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	NULL, HFILL
       }
     },
     { &hf_npdu_reassembled_in,

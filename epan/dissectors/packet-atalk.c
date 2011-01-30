@@ -131,6 +131,7 @@ static int hf_atp_segment_overlap_conflict = -1;
 static int hf_atp_segment_multiple_tails = -1;
 static int hf_atp_segment_too_long_segment = -1;
 static int hf_atp_segment_error = -1;
+static int hf_atp_segment_count = -1;
 static int hf_atp_reassembled_in = -1;
 static int hf_atp_reassembled_length = -1;
 
@@ -349,6 +350,7 @@ static const fragment_items atp_frag_items = {
   &hf_atp_segment_multiple_tails,
   &hf_atp_segment_too_long_segment,
   &hf_atp_segment_error,
+  &hf_atp_segment_count,
   &hf_atp_reassembled_in,
   &hf_atp_reassembled_length,
   "segments"
@@ -2082,6 +2084,10 @@ proto_register_atalk(void)
     { &hf_atp_segment_error,
       {"Desegmentation error",  "atp.segment.error", FT_FRAMENUM, BASE_NONE,
                 NULL, 0x0, "Desegmentation error due to illegal segments", HFILL }},
+
+    { &hf_atp_segment_count,
+      { "Segment count", "atp.segment.count", FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
 
     { &hf_atp_segment,
       { "ATP Fragment",         "atp.fragment", FT_FRAMENUM, BASE_NONE,

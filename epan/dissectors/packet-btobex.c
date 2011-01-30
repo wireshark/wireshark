@@ -67,6 +67,7 @@ static int hf_btobex_fragment_overlap_conflict = -1;
 static int hf_btobex_fragment_multiple_tails = -1;
 static int hf_btobex_fragment_too_long_fragment = -1;
 static int hf_btobex_fragment_error = -1;
+static int hf_btobex_fragment_count = -1;
 static int hf_btobex_reassembled_in = -1;
 static int hf_btobex_reassembled_length = -1;
 static gint ett_btobex_fragment = -1;
@@ -85,6 +86,7 @@ static const fragment_items btobex_frag_items = {
     &hf_btobex_fragment_multiple_tails,
     &hf_btobex_fragment_too_long_fragment,
     &hf_btobex_fragment_error,
+    &hf_btobex_fragment_count,
     &hf_btobex_reassembled_in,
     &hf_btobex_reassembled_length,
     "fragments"
@@ -676,6 +678,10 @@ proto_register_btobex(void)
 		{ &hf_btobex_fragment_error,
 			{ "Defragmentation error", "btobex.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 				"Defragmentation error due to illegal fragments", HFILL }
+		},
+		{ &hf_btobex_fragment_count,
+			{ "Fragment count", "btobex.fragment.count", FT_UINT32, BASE_DEC, NULL, 0x0,
+			  NULL, HFILL }
 		},
 		{ &hf_btobex_fragment,
 			{ "OBEX Fragment", "btobex.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,

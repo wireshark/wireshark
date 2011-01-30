@@ -87,6 +87,7 @@ static int hf_idmp_fragment_overlap_conflicts = -1;
 static int hf_idmp_fragment_multiple_tails = -1;
 static int hf_idmp_fragment_too_long_fragment = -1;
 static int hf_idmp_fragment_error = -1;
+static int hf_idmp_fragment_count = -1;
 static int hf_idmp_reassembled_in = -1;
 static int hf_idmp_reassembled_length = -1;
 
@@ -105,6 +106,7 @@ static const fragment_items idmp_frag_items = {
 	&hf_idmp_fragment_multiple_tails,
 	&hf_idmp_fragment_too_long_fragment,
 	&hf_idmp_fragment_error,
+	&hf_idmp_fragment_count,
 	/* Reassembled in field */
 	&hf_idmp_reassembled_in,
 	/* Reassembled length field */
@@ -171,7 +173,7 @@ static int hf_idmp_present = -1;                  /* INTEGER */
 static int hf_idmp_absent = -1;                   /* NULL */
 
 /*--- End of included file: packet-idmp-hf.c ---*/
-#line 130 "packet-idmp-template.c"
+#line 132 "packet-idmp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_idmp = -1;
@@ -190,7 +192,7 @@ static gint ett_idmp_Code = -1;
 static gint ett_idmp_InvokeId = -1;
 
 /*--- End of included file: packet-idmp-ett.c ---*/
-#line 134 "packet-idmp-template.c"
+#line 136 "packet-idmp-template.c"
 
 
 /*--- Included file: packet-idmp-fn.c ---*/
@@ -614,7 +616,7 @@ dissect_idmp_IDM_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 /*--- End of included file: packet-idmp-fn.c ---*/
-#line 136 "packet-idmp-template.c"
+#line 138 "packet-idmp-template.c"
 
 void
 register_idmp_protocol_info(const char *oid, const ros_info_t *rinfo, int proto _U_, const char *name)
@@ -790,6 +792,9 @@ void proto_register_idmp(void) {
     { &hf_idmp_fragment_error,
       { "IDMP defragmentation error", "idmp.fragment.error", FT_FRAMENUM,
 	BASE_NONE, NULL, 0x00, NULL, HFILL } },
+    { &hf_idmp_fragment_count,
+      { "IDMP fragment count", "idmp.fragment.count", FT_UINT32, BASE_DEC,
+	NULL, 0x00, NULL, HFILL } },
     { &hf_idmp_reassembled_in,
       { "Reassembled IDMP in frame", "idmp.reassembled.in", FT_FRAMENUM, BASE_NONE,
 	NULL, 0x00, "This IDMP packet is reassembled in this frame", HFILL } },
@@ -930,7 +935,7 @@ void proto_register_idmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-idmp-hfarr.c ---*/
-#line 319 "packet-idmp-template.c"
+#line 324 "packet-idmp-template.c"
   };
 
   /* List of subtrees */
@@ -953,7 +958,7 @@ void proto_register_idmp(void) {
     &ett_idmp_InvokeId,
 
 /*--- End of included file: packet-idmp-ettarr.c ---*/
-#line 327 "packet-idmp-template.c"
+#line 332 "packet-idmp-template.c"
   };
   module_t *idmp_module;
 

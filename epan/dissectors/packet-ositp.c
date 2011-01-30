@@ -74,6 +74,7 @@ static int hf_cotp_segment_overlap_conflict = -1;
 static int hf_cotp_segment_multiple_tails = -1;
 static int hf_cotp_segment_too_long_segment = -1;
 static int hf_cotp_segment_error = -1;
+static int hf_cotp_segment_count = -1;
 static int hf_cotp_reassembled_in = -1;
 static int hf_cotp_reassembled_length = -1;
 
@@ -98,6 +99,7 @@ static const fragment_items cotp_frag_items = {
 	&hf_cotp_segment_multiple_tails,
 	&hf_cotp_segment_too_long_segment,
 	&hf_cotp_segment_error,
+	&hf_cotp_segment_count,
 	&hf_cotp_reassembled_in,
 	&hf_cotp_reassembled_length,
 	"segments"
@@ -1792,6 +1794,9 @@ void proto_register_cotp(void)
     { &hf_cotp_segment_error,
       { "Reassembly error", "cotp.segment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 	"Reassembly error due to illegal segments", HFILL }},
+    { &hf_cotp_segment_count,
+      { "Segment count", "cotp.segment.count", FT_UINT32, BASE_DEC, NULL, 0x0,
+	NULL, HFILL }},
     { &hf_cotp_segment,
       { "COTP Segment", "cotp.segment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 	NULL, HFILL }},

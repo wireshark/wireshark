@@ -2171,6 +2171,12 @@ show_fragment_tree(fragment_data *fd_head, const fragment_items *fit,
 		first_frag = FALSE;
 	}
 
+	if (fit->hf_fragment_count) {
+		proto_item *fli = proto_tree_add_uint(ft, *(fit->hf_fragment_count),
+						      tvb, 0, 0, count);
+		PROTO_ITEM_SET_GENERATED(fli);
+	}
+
 	if (fit->hf_reassembled_length) {
 		proto_item *fli = proto_tree_add_uint(ft, *(fit->hf_reassembled_length),
 						      tvb, 0, 0, tvb_length (tvb));
@@ -2218,6 +2224,12 @@ show_fragment_seq_tree(fragment_data *fd_head, const fragment_items *fit,
 		last_fd = fd;
 		show_fragment(fd, offset, fit, ft, *fi, first_frag, count, tvb);
 		first_frag = FALSE;
+	}
+
+	if (fit->hf_fragment_count) {
+		proto_item *fli = proto_tree_add_uint(ft, *(fit->hf_fragment_count),
+						      tvb, 0, 0, count);
+		PROTO_ITEM_SET_GENERATED(fli);
 	}
 
 	if (fit->hf_reassembled_length) {

@@ -112,6 +112,7 @@ static int hf_netb_fragment_overlap_conflict = -1;
 static int hf_netb_fragment_multiple_tails = -1;
 static int hf_netb_fragment_too_long_fragment = -1;
 static int hf_netb_fragment_error = -1;
+static int hf_netb_fragment_count = -1;
 static int hf_netb_reassembled_length = -1;
 
 static gint ett_netb = -1;
@@ -131,6 +132,7 @@ static const fragment_items netbios_frag_items = {
 	&hf_netb_fragment_multiple_tails,
 	&hf_netb_fragment_too_long_fragment,
 	&hf_netb_fragment_error,
+	&hf_netb_fragment_count,
 	NULL,
 	&hf_netb_reassembled_length,
 	"fragments"
@@ -1389,6 +1391,10 @@ void proto_register_netbios(void)
 		{ &hf_netb_fragment_error,
 		{"Defragmentation error",	"netbios.fragment.error", FT_FRAMENUM, BASE_NONE,
 			NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
+
+		{ &hf_netb_fragment_count,
+		{"Fragment count",	"netbios.fragment.count", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_netb_fragment,
 		{ "NetBIOS Fragment",		"netbios.fragment", FT_FRAMENUM, BASE_NONE,

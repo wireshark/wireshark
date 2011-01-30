@@ -147,6 +147,7 @@ static int hf_ipv6_fragment_overlap_conflict  = -1;
 static int hf_ipv6_fragment_multiple_tails    = -1;
 static int hf_ipv6_fragment_too_long_fragment = -1;
 static int hf_ipv6_fragment_error	      = -1;
+static int hf_ipv6_fragment_count	      = -1;
 static int hf_ipv6_reassembled_in	      = -1;
 static int hf_ipv6_reassembled_length	      = -1;
 
@@ -219,6 +220,7 @@ static const fragment_items ipv6_frag_items = {
 	&hf_ipv6_fragment_multiple_tails,
 	&hf_ipv6_fragment_too_long_fragment,
 	&hf_ipv6_fragment_error,
+	&hf_ipv6_fragment_count,
 	&hf_ipv6_reassembled_in,
 	&hf_ipv6_reassembled_length,
 	"fragments"
@@ -1999,6 +2001,11 @@ proto_register_ipv6(void)
       { "Defragmentation error", "ipv6.fragment.error",
 				FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 				"Defragmentation error due to illegal fragments", HFILL }},
+
+    { &hf_ipv6_fragment_count,
+      { "Fragment count", "ipv6.fragment.count",
+				FT_UINT32, BASE_DEC, NULL, 0x0,
+				NULL, HFILL }},
 
     { &hf_ipv6_fragment,
       { "IPv6 Fragment",	"ipv6.fragment",

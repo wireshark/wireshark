@@ -239,6 +239,7 @@ static int hf_ssl_segment_overlap_conflict    = -1;
 static int hf_ssl_segment_multiple_tails      = -1;
 static int hf_ssl_segment_too_long_fragment   = -1;
 static int hf_ssl_segment_error               = -1;
+static int hf_ssl_segment_count               = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_ssl                   = -1;
@@ -279,6 +280,7 @@ static const fragment_items ssl_segment_items = {
     &hf_ssl_segment_multiple_tails,
     &hf_ssl_segment_too_long_fragment,
     &hf_ssl_segment_error,
+    &hf_ssl_segment_count,
     &hf_ssl_reassembled_in,
     &hf_ssl_reassembled_length,
     "Segments"
@@ -4639,6 +4641,11 @@ proto_register_ssl(void)
           { "Reassembling error", "ssl.segment.error",
             FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             "Reassembling error due to illegal segments", HFILL }},
+
+        { &hf_ssl_segment_count,
+          { "Segment count", "ssl.segment.count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
 
         { &hf_ssl_segment,
           { "SSL Segment", "ssl.segment",

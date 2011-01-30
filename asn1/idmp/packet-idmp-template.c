@@ -79,6 +79,7 @@ static int hf_idmp_fragment_overlap_conflicts = -1;
 static int hf_idmp_fragment_multiple_tails = -1;
 static int hf_idmp_fragment_too_long_fragment = -1;
 static int hf_idmp_fragment_error = -1;
+static int hf_idmp_fragment_count = -1;
 static int hf_idmp_reassembled_in = -1;
 static int hf_idmp_reassembled_length = -1;
 
@@ -97,6 +98,7 @@ static const fragment_items idmp_frag_items = {
 	&hf_idmp_fragment_multiple_tails,
 	&hf_idmp_fragment_too_long_fragment,
 	&hf_idmp_fragment_error,
+	&hf_idmp_fragment_count,
 	/* Reassembled in field */
 	&hf_idmp_reassembled_in,
 	/* Reassembled length field */
@@ -308,6 +310,9 @@ void proto_register_idmp(void) {
     { &hf_idmp_fragment_error,
       { "IDMP defragmentation error", "idmp.fragment.error", FT_FRAMENUM,
 	BASE_NONE, NULL, 0x00, NULL, HFILL } },
+    { &hf_idmp_fragment_count,
+      { "IDMP fragment count", "idmp.fragment.count", FT_UINT32, BASE_DEC,
+	NULL, 0x00, NULL, HFILL } },
     { &hf_idmp_reassembled_in,
       { "Reassembled IDMP in frame", "idmp.reassembled.in", FT_FRAMENUM, BASE_NONE,
 	NULL, 0x00, "This IDMP packet is reassembled in this frame", HFILL } },

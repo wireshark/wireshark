@@ -102,6 +102,7 @@ static int hf_ltp_fragment_overlap_conflicts = -1;
 static int hf_ltp_fragment_multiple_tails = -1;
 static int hf_ltp_fragment_too_long_fragment = -1;
 static int hf_ltp_fragment_error = -1;
+static int hf_ltp_fragment_count = -1;
 static int hf_ltp_reassembled_in = -1;
 static int hf_ltp_reassembled_length = -1;
 
@@ -191,6 +192,7 @@ static const fragment_items ltp_frag_items = {
     &hf_ltp_fragment_multiple_tails,
     &hf_ltp_fragment_too_long_fragment,
     &hf_ltp_fragment_error,
+    &hf_ltp_fragment_count,
     /*Reassembled in field*/
     &hf_ltp_reassembled_in,
     /*Reassembled length field*/
@@ -915,6 +917,10 @@ proto_register_ltp(void)
 	  {&hf_ltp_fragment_error,
 		  {"LTP defragmentation error", "ltp.fragment.error",
 		  FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL}
+	  },
+	  {&hf_ltp_fragment_count,
+		  {"LTP fragment count", "ltp.fragment.count",
+		  FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_reassembled_in,
 		  {"LTP reassembled in", "ltp.reassembled.in",

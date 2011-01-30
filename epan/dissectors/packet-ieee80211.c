@@ -1098,6 +1098,7 @@ static int hf_fragment_overlap_conflict = -1;
 static int hf_fragment_multiple_tails = -1;
 static int hf_fragment_too_long_fragment = -1;
 static int hf_fragment_error = -1;
+static int hf_fragment_count = -1;
 static int hf_reassembled_in = -1;
 static int hf_reassembled_length = -1;
 
@@ -1905,6 +1906,7 @@ static const fragment_items frag_items = {
   &hf_fragment_multiple_tails,
   &hf_fragment_too_long_fragment,
   &hf_fragment_error,
+  &hf_fragment_count,
   &hf_reassembled_in,
   &hf_reassembled_length,
   "fragments"
@@ -10944,6 +10946,10 @@ proto_register_ieee80211 (void)
       {"Defragmentation error", "wlan.fragment.error",
        FT_FRAMENUM, BASE_NONE, NULL, 0x0,
        "Defragmentation error due to illegal fragments", HFILL }},
+
+    {&hf_fragment_count,
+      {"Fragment count", "wlan.fragment.count", FT_UINT32, BASE_DEC, NULL, 0x0,
+       NULL, HFILL }},
 
     {&hf_fragment,
       {"802.11 Fragment", "wlan.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,

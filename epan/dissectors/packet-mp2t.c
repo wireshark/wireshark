@@ -208,6 +208,7 @@ static int hf_depi_msg_fragment_overlap_conflicts = -1;
 static int hf_depi_msg_fragment_multiple_tails = -1;
 static int hf_depi_msg_fragment_too_long_fragment = -1;
 static int hf_depi_msg_fragment_error = -1;
+static int hf_depi_msg_fragment_count = -1;
 static int hf_depi_msg_reassembled_in = -1;
 static int hf_depi_msg_reassembled_length = -1;
 
@@ -223,6 +224,7 @@ static const fragment_items depi_msg_frag_items = {
     &hf_depi_msg_fragment_multiple_tails,
     &hf_depi_msg_fragment_too_long_fragment,
     &hf_depi_msg_fragment_error,
+    &hf_depi_msg_fragment_count,
     /* Reassembled in field */
     &hf_depi_msg_reassembled_in,
     /* Reassembled length field */
@@ -1310,6 +1312,10 @@ proto_register_mp2t(void)
 		{  &hf_depi_msg_fragment_error, {
 			"Message defragmentation error", "mp2t.depi_msg.fragment.error",
 			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL
+		} },
+		{  &hf_depi_msg_fragment_count, {
+			"Message fragment count", "mp2t.depi_msg.fragment.count",
+			FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL
 		} },
 		{  &hf_depi_msg_reassembled_in, {
 			"Reassembled in", "mp2t.depi_msg.reassembled.in",

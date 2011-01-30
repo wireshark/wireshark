@@ -102,6 +102,7 @@ static int hf_msg_fragment_overlap_conflicts = -1;
 static int hf_msg_fragment_multiple_tails = -1;
 static int hf_msg_fragment_too_long_fragment = -1;
 static int hf_msg_fragment_error = -1;
+static int hf_msg_fragment_count = -1;
 static int hf_msg_reassembled_in = -1;
 static int hf_msg_reassembled_length = -1;
 
@@ -253,6 +254,7 @@ static const fragment_items msg_frag_items = {
     &hf_msg_fragment_multiple_tails,
     &hf_msg_fragment_too_long_fragment,
     &hf_msg_fragment_error,
+    &hf_msg_fragment_count,
     /*Reassembled in field*/
     &hf_msg_reassembled_in,
     /*Reassembled length field*/
@@ -2227,6 +2229,10 @@ proto_register_bundle(void)
     {&hf_msg_fragment_error,
         {"Message defragmentation error", "bundle.msg.fragment.error",
 		FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_msg_fragment_count,
+        {"Message fragment count", "bundle.msg.fragment.count",
+		FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     {&hf_msg_reassembled_in,
         {"Reassembled in", "bundle.msg.reassembled.in",

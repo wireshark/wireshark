@@ -60,6 +60,7 @@ static int hf_pop_data_fragment_overlap_conflicts = -1;
 static int hf_pop_data_fragment_multiple_tails = -1;
 static int hf_pop_data_fragment_too_long_fragment = -1;
 static int hf_pop_data_fragment_error = -1;
+static int hf_pop_data_fragment_count = -1;
 static int hf_pop_data_reassembled_in = -1;
 static int hf_pop_data_reassembled_length = -1;
 
@@ -93,6 +94,7 @@ static const fragment_items pop_data_frag_items = {
   &hf_pop_data_fragment_multiple_tails,
   &hf_pop_data_fragment_too_long_fragment,
   &hf_pop_data_fragment_error,
+  &hf_pop_data_fragment_count,
   /* Reassembled in field */
   &hf_pop_data_reassembled_in,
   /* Reassembled length field */
@@ -411,6 +413,9 @@ proto_register_pop(void)
     { &hf_pop_data_fragment_error,
       { "DATA defragmentation error", "pop.data.fragment.error", FT_FRAMENUM,
         BASE_NONE, NULL, 0x00, "Message defragmentation error", HFILL } },
+    { &hf_pop_data_fragment_count,
+      { "DATA fragment count", "pop.data.fragment.count", FT_UINT32, BASE_DEC,
+        NULL, 0x00, NULL, HFILL } },
     { &hf_pop_data_reassembled_in,
       { "Reassembled DATA in frame", "pop.data.reassembled.in", FT_FRAMENUM, BASE_NONE,
         NULL, 0x00, "This DATA fragment is reassembled in this frame", HFILL } },
