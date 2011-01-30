@@ -151,6 +151,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-smrse.c \
 	packet-spnego.c \
 	packet-sv.c \
+	packet-t38.c		\
 	packet-ulp.c \
 	packet-wlancertextn.c \
 	packet-x224.c \
@@ -898,7 +899,6 @@ DISSECTOR_SRC = \
 	packet-synphasor.c      \
 	packet-syslog.c		\
 	packet-t30.c		\
-	packet-t38.c		\
 	packet-tacacs.c		\
 	packet-tali.c		\
 	packet-tapa.c		\
