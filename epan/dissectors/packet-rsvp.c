@@ -1834,12 +1834,12 @@ dissect_rsvp_ifid_tlv (proto_tree *ti, proto_tree *rsvp_object_tree,
 		       tvbuff_t *tvb, int offset, int length,
 		       int subtree_type)
 {
-    int       tlv_off;
+    int       tlv_off, padding;
     guint16   tlv_type;
     int       tlv_len;
     guint8    isis_len;
     const char *tlv_name;
-    proto_tree *rsvp_ifid_subtree, *ti2;
+    proto_tree *rsvp_ifid_subtree = NULL, *ti2;
 
     for (tlv_off = 0; tlv_off < length; ) {
 	tlv_type = tvb_get_ntohs(tvb, offset+tlv_off);
@@ -1848,6 +1848,7 @@ dissect_rsvp_ifid_tlv (proto_tree *ti, proto_tree *rsvp_object_tree,
 	if (tlv_len == 0 || tlv_off+tlv_len > length) {
 	    proto_tree_add_text(rsvp_object_tree, tvb, offset+tlv_off+2, 2,
 				"Invalid TLV length");
+            return;
 	}
 	switch(tlv_type) {
 	case 1:				/* IPv4 */
@@ -2126,10 +2127,16 @@ dissect_rsvp_ifid_tlv (proto_tree *ti, proto_tree *rsvp_object_tree,
                                 tvb_get_ntohs(tvb, offset + tlv_off + 2));
             proto_tree_add_text(rsvp_ifid_subtree, tvb, offset + tlv_off + 4,
                                 tlv_len - 4,
-                                "Data (%d bytes)", tlv_len - 4);
+                                "Data: %s",
+                                tvb_bytes_to_str_punct(tvb, offset + tlv_off + 4, tlv_len - 4, ' '));
             break;
         }
-        tlv_off += tlv_len;
+
+        padding = (4 - (tlv_len % 4)) % 4;
+        if (padding != 0)
+            proto_tree_add_text(rsvp_ifid_subtree, tvb, offset + tlv_off + tlv_len, padding, "Padding: %s",
+                                tvb_bytes_to_str_punct(tvb, offset + tlv_off + tlv_len, padding, ' '));
+        tlv_off += tlv_len + padding;
     }
 }
 
