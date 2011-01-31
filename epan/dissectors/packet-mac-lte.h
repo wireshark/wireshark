@@ -96,21 +96,35 @@ typedef struct mac_lte_info
     /* Extra info to display */
     guint16         rnti;
     guint16         ueid;
+
+    /* Timing info. TODO: sysframe too? */
     guint16         subframeNumber;
+
+    /* Optional field. More interesting for TDD (FDD is always -4 subframeNumber) */
     gboolean        subframeNumberOfGrantPresent;
     guint16         subframeNumberOfGrant;
+
+    /* Flag set only if doing PHY-level data test - i.e. there may not be a
+       well-formed MAC PDU so just show as raw data */
     gboolean        isPredefinedData;
+
+    /* Length of DL PDU or UL grant size in bytes */
     guint16         length;
-    guint8          reTxCount;   /* UL */
+
+    /* UL only.  0=newTx, 1=first-retx, etc */
+    guint8          reTxCount;
+
+    /* DL only.  Status of CRC check */
     mac_lte_crc_status   crcStatusValid;
 
+    /* DL only.  Is this known to be a retransmission? */
     mac_lte_dl_retx dl_retx;
 
-    /* More Physical layer info (direction-specific) */
+    /* More Physical layer info (see direction above for which side of union to use) */
     union {
         struct mac_lte_ul_phy_info
         {
-            guint8 present;
+            guint8 present;  /* Remaining UL fields are present and should be displayed */
             guint8 modulation_type;
             guint8 tbs_index;
             guint8 resource_block_length;
@@ -120,7 +134,7 @@ typedef struct mac_lte_info
         } ul_info;
         struct mac_lte_dl_phy_info
         {
-            guint8 present;
+            guint8 present; /* Remaining UL fields are present and should be displayed */
             guint8 dci_format;
             guint8 resource_allocation_type;
             guint8 aggregation_level;
@@ -130,11 +144,12 @@ typedef struct mac_lte_info
             mac_lte_crc_status crc_status;
             guint8 harq_id;
             gboolean ndi;
-            guint8   transport_block;  /* 1-2 */
+            guint8   transport_block;  /* 1..2 */
         } dl_info;
     } detailed_phy_info;
-    
+
     /* Relating to out-of-band events */
+    /* N.B. dissector will only look to these fields if length is 0... */
     mac_lte_oob_event  oob_event;
     guint8             rapid;
     guint8             rach_attempt_number;
