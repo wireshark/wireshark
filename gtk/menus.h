@@ -30,7 +30,6 @@ extern "C" {
 #endif /* __cplusplus */
 
 /*#define MAIN_MENU_USE_UIMANAGER 1 */
-#define MAIN_MENU_USE_UIMANAGER 1
 
 	/* Add a new recent capture filename to the "Recent Files" submenu
    (duplicates will be ignored) */

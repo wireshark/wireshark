@@ -1216,8 +1216,13 @@ new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_)
 		gtk_notebook_remove_page(GTK_NOTEBOOK(byte_nb_ptr_gbl), 0);
 
 	cf_select_packet(&cfile, row);
-	gtk_widget_grab_focus(packetlist->view);
-
+	/* If searching the tree, set the focus there; otherwise, focus on the packet list */
+	if (cfile.search_in_progress && (cfile.decode_data || cfile.decode_data)) { 
+		gtk_widget_grab_focus(tree_view_gbl);
+	} else {
+		gtk_widget_grab_focus(packetlist->view);
+	}
+	
 	/* Add newly selected frame to packet history (breadcrumbs) */
 	packet_history_add(row);
 }
