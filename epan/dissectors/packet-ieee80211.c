@@ -10056,7 +10056,7 @@ proto_register_ieee80211 (void)
     "Bits 8-15 of QoS Control field are TXOP Duration Requested"
   };
 
-  static const true_false_string hf_qos_amsdu_present_flag = {
+  static const true_false_string ieee80211_qos_amsdu_present_flag = {
     "A-MSDU",
     "MSDU"
   };
@@ -10621,12 +10621,12 @@ proto_register_ieee80211 (void)
     {0, NULL}
   };
 
-  static const true_false_string hf_block_ack_control_ack_policy_flag = {
+  static const true_false_string ieee80211_block_ack_control_ack_policy_flag = {
       "Immediate Acknowledgement Required",
       "Sender Does Not Require Immediate Acknowledgement"
   };
 
-  static const value_string hf_block_ack_request_type_flags[] = {
+  static const value_string ieee80211_block_ack_request_type_flags[] = {
     {0x00, "Basic Block Ack Request"},
     {0x01, "Reserved"},
     {0x02, "Compressed Block Ack Request"},
@@ -10634,7 +10634,7 @@ proto_register_ieee80211 (void)
     {0x00, NULL}
   };
 
-  static const value_string hf_block_ack_type_flags[] = {
+  static const value_string ieee80211_block_ack_type_flags[] = {
     {0x00, "Basic Block Ack"},
     {0x01, "Reserved"},
     {0x02, "Compressed Block"},
@@ -10697,7 +10697,7 @@ proto_register_ieee80211 (void)
     {0, NULL}
   };
 
-  static const value_string hf_ieee80211_data_encap_payload_types[] = {
+  static const value_string ieee80211_data_encap_payload_types[] = {
     {1, "Remote Request/Response"},
     {2, "TDLS"},
     {0, NULL}
@@ -10882,7 +10882,7 @@ proto_register_ieee80211 (void)
 
     {&hf_qos_amsdu_present,
      {"Payload Type", "wlan.qos.amsdupresent", FT_BOOLEAN, BASE_NONE,
-      TFS (&hf_qos_amsdu_present_flag), 0x0, NULL, HFILL }},
+      TFS (&ieee80211_qos_amsdu_present_flag), 0x0, NULL, HFILL }},
 
     {&hf_qos_txop_limit,
      {"TXOP Limit", "wlan.qos.txop_limit", FT_UINT16, BASE_DEC, NULL, 0,
@@ -11089,7 +11089,7 @@ proto_register_ieee80211 (void)
 
     {&hf_block_ack_control_ack_policy,
      {"BAR Ack Policy", "wlan.ba.control.ackpolicy",
-      FT_BOOLEAN, 16, TFS (&hf_block_ack_control_ack_policy_flag), 0x01, "Block Ack Request (BAR) Ack Policy", HFILL }},
+      FT_BOOLEAN, 16, TFS (&ieee80211_block_ack_control_ack_policy_flag), 0x01, "Block Ack Request (BAR) Ack Policy", HFILL }},
 
     {&hf_block_ack_control_multi_tid,
      {"Multi-TID", "wlan.ba.control.multitid",
@@ -11129,11 +11129,11 @@ proto_register_ieee80211 (void)
 
     {&hf_block_ack_request_type,
      {"Block Ack Request Type", "wlan.bar.type",
-      FT_UINT8, BASE_HEX, VALS(hf_block_ack_request_type_flags), 0, "Block Ack Request (BAR) Type", HFILL }},
+      FT_UINT8, BASE_HEX, VALS(ieee80211_block_ack_request_type_flags), 0, "Block Ack Request (BAR) Type", HFILL }},
 
     {&hf_block_ack_type,
      {"Block Ack Type", "wlan.ba.type",
-      FT_UINT8, BASE_HEX, VALS(hf_block_ack_type_flags), 0, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, VALS(ieee80211_block_ack_type_flags), 0, NULL, HFILL }},
 
     {&hf_block_ack_bitmap,
      {"Block Ack Bitmap", "wlan.ba.bm",
@@ -11141,7 +11141,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_data_encap_payload_type,
      {"Payload Type", "wlan.data_encap.payload_type",
-      FT_UINT8, BASE_DEC, VALS(hf_ieee80211_data_encap_payload_types), 0, NULL,
+      FT_UINT8, BASE_DEC, VALS(ieee80211_data_encap_payload_types), 0, NULL,
       HFILL }},
 
     {&hf_ieee80211_ff_tdls_action_code,
@@ -11630,7 +11630,7 @@ proto_register_ieee80211 (void)
     "No MCS feedback requested"
   };
 
-  static const value_string hf_htc_lac_asel_command_flags[] = {
+  static const value_string ieee80211_htc_lac_asel_command_flags[] = {
     {0x00, "Transmit Antenna Selection Sounding Indication (TXASSI)"},
     {0x01, "Transmit Antenna Selection Sounding Request (TXASSR)"},
     {0x02, "Receive Antenna Selection Sounding Indication (RXASSI)"},
@@ -11642,7 +11642,7 @@ proto_register_ieee80211 (void)
     {0x00, NULL}
   };
 
-  static const value_string hf_htc_cal_pos_flags[] = {
+  static const value_string ieee80211_htc_cal_pos_flags[] = {
     {0x00, "Not a calibration frame"},
     {0x01, "Calibration Start"},
     {0x02, "Sounding Response"},
@@ -11650,12 +11650,12 @@ proto_register_ieee80211 (void)
     {0x00, NULL}
   };
 
-  static const true_false_string hf_htc_ndp_announcement_flag = {
+  static const true_false_string ieee80211_htc_ndp_announcement_flag = {
     "NDP will follow",
     "No NDP will follow"
   };
 
-  static const value_string hf_htc_csi_steering_flags[] = {
+  static const value_string ieee80211_htc_csi_steering_flags[] = {
     {0x00, "No feedback required"},
     {0x01, "CSI"},
     {0x02, "Non-compressed Beamforming Feedback Matrix"},
@@ -11663,7 +11663,7 @@ proto_register_ieee80211 (void)
     {0x00, NULL}
   };
 
-  static const value_string hf_tag_secondary_channel_offset_flags[] = {
+  static const value_string ieee80211_tag_secondary_channel_offset_flags[] = {
     {0x00, "No Secondary Channel"},
     {0x01, "Above Primary Channel"},
     {0x02, "Reserved"},
@@ -11671,12 +11671,7 @@ proto_register_ieee80211 (void)
     {0x00, NULL}
   };
 
-  static const true_false_string hf_tag_measure_acc_not_acc = {
-    "Accepted",
-    "Not Accepted"
-  };
-
-  static const value_string hf_tag_measure_request_type_flags[] = {
+  static const value_string ieee80211_tag_measure_request_type_flags[] = {
     {0x00, "Basic Request"},
     {0x01, "Clear Channel Assessment (CCA) Request"},
     {0x02, "Receive Power Indication (RPI) Histogram Request"},
@@ -11691,7 +11686,7 @@ proto_register_ieee80211 (void)
     {0x00, NULL}
   };
 
-  static const value_string hf_tag_measure_report_type_flags[] = {
+  static const value_string ieee80211_tag_measure_report_type_flags[] = {
     {0x00, "Basic Report"},
     {0x01, "Clear Channel Assessment (CCA) Report"},
     {0x02, "Receive Power Indication (RPI) Histogram Report"},
@@ -11705,29 +11700,24 @@ proto_register_ieee80211 (void)
     {0x00, NULL}
   };
 
-  static const true_false_string hf_tag_measure_report_frame_info_frame_type_flag = {
+  static const true_false_string ieee80211_tag_measure_report_frame_info_frame_type_flag = {
     "Measurement Pilot Frame",
     "Beacon/Probe Response Frame"
   };
 
-  static const true_false_string hf_tag_measure_map_field_bss_flag = {
+  static const true_false_string ieee80211_tag_measure_map_field_bss_flag = {
     "At least one MPDU was received by another BSS or IBSS in the measurement period.",
     "No MPDUs were received from another BSS or IBSS in the measurement period."
   };
 
-  static const true_false_string hf_tag_measure_detected_not_detected = {
-    "Detected",
-    "Not Detected"
-  };
-
-  static const value_string hf_tag_measure_request_measurement_mode_flags[] = {
+  static const value_string ieee80211_tag_measure_request_measurement_mode_flags[] = {
     {0x00, "Passive"},
     {0x01, "Active"},
     {0x02, "Beacon Table"},
     {0x00, NULL}
   };
 
-  static const value_string hf_tag_measure_request_reporting_condition_flags[] = {
+  static const value_string ieee80211_tag_measure_request_reporting_condition_flags[] = {
     {0x00, "Report to be issued after each measurement."},
     {0x01, "The measured RCPI level is greater than an absolute threshold."},
     {0x02, "The measured RCPI level is less than an absolute threshold."},
@@ -11743,7 +11733,7 @@ proto_register_ieee80211 (void)
     {0x00, NULL}
   };
 
-  static const value_string hf_tag_measure_request_group_id_flags[] = {
+  static const value_string ieee80211_tag_measure_request_group_id_flags[] = {
     {0x00, "STA Counters from dot11CountersTable"},
     {0x01, "STA Counters from dot11MacStatistics group"},
     {0x02, "QoS STA Counters for UP0 from dot11QosCountersTable"},
@@ -11763,7 +11753,7 @@ proto_register_ieee80211 (void)
     {0x00, NULL}
   };
 
-  static const value_string hf_tag_ext_channel_switch_announcement_switch_mode_flags[] = {
+  static const value_string ieee80211_tag_ext_channel_switch_announcement_switch_mode_flags[] = {
     {0x00, "Frames may be transmitted before the channel switch has been completed"},
     {0x01, "No more frames are to be transmitted until the channel switch has been completed"},
     {0x00, NULL}
@@ -13069,7 +13059,7 @@ proto_register_ieee80211 (void)
 
     {&hf_tag_secondary_channel_offset,
      {"Secondary Channel Offset", "wlan_mgt.secchanoffset",
-      FT_UINT8, BASE_HEX, VALS (&hf_tag_secondary_channel_offset_flags), 0,
+      FT_UINT8, BASE_HEX, VALS (&ieee80211_tag_secondary_channel_offset_flags), 0,
       NULL, HFILL }},
 
     {&hf_tag_power_capability_min,
@@ -13115,11 +13105,11 @@ proto_register_ieee80211 (void)
 
     {&hf_tag_measure_request_mode_request,
      {"Measurement Reports", "wlan_mgt.measure.req.reqmode.request",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_acc_not_acc), 0x04, NULL, HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_accepted_not_accepted), 0x04, NULL, HFILL }},
 
     {&hf_tag_measure_request_mode_report,
      {"Autonomous Measurement Reports", "wlan_mgt.measure.req.reqmode.report",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_acc_not_acc), 0x08, NULL, HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_accepted_not_accepted), 0x08, NULL, HFILL }},
 
     {&hf_tag_measure_request_mode_reserved2,
      {"Reserved", "wlan_mgt.measure.req.reqmode.reserved2",
@@ -13127,7 +13117,7 @@ proto_register_ieee80211 (void)
 
     {&hf_tag_measure_request_type,
      {"Measurement Request Type", "wlan_mgt.measure.req.reqtype",
-      FT_UINT8, BASE_HEX, VALS (&hf_tag_measure_request_type_flags), 0x00, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, VALS (&ieee80211_tag_measure_request_type_flags), 0x00, NULL, HFILL }},
 
     {&hf_tag_measure_request_channel_number,
      {"Measurement Channel Number", "wlan_mgt.measure.req.channelnumber",
@@ -13151,7 +13141,7 @@ proto_register_ieee80211 (void)
 
     {&hf_tag_measure_request_measurement_mode,
      {"Measurement Mode", "wlan_mgt.measure.req.measurementmode",
-      FT_UINT8, BASE_HEX, VALS(hf_tag_measure_request_measurement_mode_flags), 0, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, VALS(ieee80211_tag_measure_request_measurement_mode_flags), 0, NULL, HFILL }},
 
     {&hf_tag_measure_request_bssid,
      {"BSSID", "wlan_mgt.measure.req.bssid",
@@ -13159,7 +13149,7 @@ proto_register_ieee80211 (void)
 
     {&hf_tag_measure_request_reporting_condition,
      {"Reporting Condition", "wlan_mgt.measure.req.repcond",
-      FT_UINT8, BASE_HEX, VALS(hf_tag_measure_request_reporting_condition_flags), 0, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, VALS(ieee80211_tag_measure_request_reporting_condition_flags), 0, NULL, HFILL }},
 
     {&hf_tag_measure_request_threshold_offset_unsigned,
      {"Threshold/Offset", "wlan_mgt.measure.req.threshold",
@@ -13171,7 +13161,7 @@ proto_register_ieee80211 (void)
 
     {&hf_tag_measure_request_group_id,
      {"Group ID", "wlan_mgt.measure.req.groupid",
-      FT_UINT8, BASE_HEX, VALS(hf_tag_measure_request_group_id_flags), 0, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, VALS(ieee80211_tag_measure_request_group_id_flags), 0, NULL, HFILL }},
 
     {&hf_tag_measure_report_measurement_token,
      {"Measurement Token", "wlan_mgt.measure.req.clr",
@@ -13187,11 +13177,11 @@ proto_register_ieee80211 (void)
 
     {&hf_tag_measure_report_mode_incapable,
      {"Measurement Reports", "wlan_mgt.measure.rep.repmode.incapable",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_acc_not_acc), 0x02, NULL, HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_accepted_not_accepted), 0x02, NULL, HFILL }},
 
     {&hf_tag_measure_report_mode_refused,
      {"Autonomous Measurement Reports", "wlan_mgt.measure.rep.repmode.refused",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_acc_not_acc), 0x04, NULL, HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_accepted_not_accepted), 0x04, NULL, HFILL }},
 
     {&hf_tag_measure_report_mode_reserved,
      {"Reserved", "wlan_mgt.measure.rep.repmode.reserved",
@@ -13199,7 +13189,7 @@ proto_register_ieee80211 (void)
 
     {&hf_tag_measure_report_type,
      {"Measurement Report Type", "wlan_mgt.measure.rep.reptype",
-      FT_UINT8, BASE_HEX, VALS (&hf_tag_measure_report_type_flags), 0x00, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, VALS (&ieee80211_tag_measure_report_type_flags), 0x00, NULL, HFILL }},
 
     {&hf_tag_measure_report_channel_number,
      {"Measurement Channel Number", "wlan_mgt.measure.rep.channelnumber",
@@ -13223,19 +13213,19 @@ proto_register_ieee80211 (void)
 
     {&hf_tag_measure_map_field_bss,
      {"BSS", "wlan_mgt.measure.rep.repmode.mapfield.bss",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_map_field_bss_flag), 0x01, NULL, HFILL }},
+      FT_BOOLEAN, 8, TFS (&ieee80211_tag_measure_map_field_bss_flag), 0x01, NULL, HFILL }},
 
     {&hf_tag_measure_map_field_odfm,
      {"Orthogonal Frequency Division Multiplexing (ODFM) Preamble", "wlan_mgt.measure.rep.repmode.mapfield.bss",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_detected_not_detected), 0x02, NULL, HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_detected_not_detected), 0x02, NULL, HFILL }},
 
     {&hf_tag_measure_map_field_unident_signal,
      {"Unidentified Signal", "wlan_mgt.measure.rep.repmode.mapfield.unidentsig",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_detected_not_detected), 0x04, NULL, HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_detected_not_detected), 0x04, NULL, HFILL }},
 
     {&hf_tag_measure_map_field_radar,
      {"Radar", "wlan_mgt.measure.rep.repmode.mapfield.radar",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_detected_not_detected), 0x08, NULL, HFILL }},
+      FT_BOOLEAN, 8, TFS (&tfs_detected_not_detected), 0x08, NULL, HFILL }},
 
     {&hf_tag_measure_map_field_unmeasured,
      {"Unmeasured", "wlan_mgt.measure.rep.repmode.mapfield.unmeasured",
@@ -13299,7 +13289,7 @@ proto_register_ieee80211 (void)
 
     {&hf_tag_measure_report_frame_info_frame_type,
      {"Reported Frame Type", "wlan_mgt.measure.rep.frameinfo.frametype",
-      FT_UINT8, BASE_HEX, TFS(&hf_tag_measure_report_frame_info_frame_type_flag), 0x80, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, TFS(&ieee80211_tag_measure_report_frame_info_frame_type_flag), 0x80, NULL, HFILL }},
 
     {&hf_tag_measure_report_rcpi,
      {"Received Channel Power Indicator (RCPI)", "wlan_mgt.measure.rep.rcpi",
@@ -13461,7 +13451,7 @@ proto_register_ieee80211 (void)
 
     {&hf_tag_ext_channel_switch_announcement_switch_mode,
      {"Channel Switch Mode", "wlan_mgt.extchanswitch.switchmode",
-      FT_UINT8, BASE_HEX, VALS (&hf_tag_ext_channel_switch_announcement_switch_mode_flags), 0, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, VALS (&ieee80211_tag_ext_channel_switch_announcement_switch_mode_flags), 0, NULL, HFILL }},
 
     {&hf_tag_ext_channel_switch_announcement_new_reg_class,
      {"New Regulatory Class", "wlan_mgt.extchanswitch.new.regclass",
@@ -13793,7 +13783,7 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_DEC, NULL, 0x01C0, "High Throughput Control Link Adaptation Control MCS Feedback Sequence Identifier (MSI)", HFILL }},
     {&hf_htc_lac_asel_command,
      {"Antenna Selection (ASEL) Command", "wlan_mgt.htc.lac.asel.command",
-      FT_UINT16, BASE_HEX, VALS (&hf_htc_lac_asel_command_flags), 0x0E00, "High Throughput Control Link Adaptation Control Antenna Selection (ASEL) Command", HFILL }},
+      FT_UINT16, BASE_HEX, VALS (&ieee80211_htc_lac_asel_command_flags), 0x0E00, "High Throughput Control Link Adaptation Control Antenna Selection (ASEL) Command", HFILL }},
     {&hf_htc_lac_asel_data,
      {"Antenna Selection (ASEL) Data", "wlan_mgt.htc.lac.asel.data",
       FT_UINT16, BASE_HEX, NULL, 0xF000, "High Throughput Control Link Adaptation Control Antenna Selection (ASEL) Data", HFILL }},
@@ -13802,7 +13792,7 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_HEX, NULL, 0xFE00, "High Throughput Control Link Adaptation Control MCS Feedback", HFILL }},
     {&hf_htc_cal_pos,
      {"Calibration Position", "wlan_mgt.htc.cal.pos",
-      FT_UINT16, BASE_DEC, VALS (&hf_htc_cal_pos_flags), 0x0003, "High Throughput Control Calibration Position", HFILL }},
+      FT_UINT16, BASE_DEC, VALS (&ieee80211_htc_cal_pos_flags), 0x0003, "High Throughput Control Calibration Position", HFILL }},
     {&hf_htc_cal_seq,
      {"Calibration Sequence Identifier", "wlan_mgt.htc.cal.seq",
       FT_UINT16, BASE_DEC, NULL, 0x000C, "High Throughput Control Calibration Sequence Identifier", HFILL }},
@@ -13811,10 +13801,10 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_DEC, NULL, 0x0030, "High Throughput Control Reserved", HFILL }},
     {&hf_htc_csi_steering,
      {"CSI/Steering", "wlan_mgt.htc.csi_steering",
-      FT_UINT16, BASE_DEC, VALS (&hf_htc_csi_steering_flags), 0x00C0, "High Throughput Control CSI/Steering", HFILL }},
+      FT_UINT16, BASE_DEC, VALS (&ieee80211_htc_csi_steering_flags), 0x00C0, "High Throughput Control CSI/Steering", HFILL }},
     {&hf_htc_ndp_announcement,
      {"NDP Announcement", "wlan_mgt.htc.ndp_announcement",
-      FT_BOOLEAN, 16, TFS(&hf_htc_ndp_announcement_flag), 0x0100, "High Throughput Control NDP Announcement", HFILL }},
+      FT_BOOLEAN, 16, TFS(&ieee80211_htc_ndp_announcement_flag), 0x0100, "High Throughput Control NDP Announcement", HFILL }},
     {&hf_htc_reserved2,
      {"Reserved", "wlan_mgt.htc.reserved2",
       FT_UINT16, BASE_HEX, NULL, 0x3E00, "High Throughput Control Reserved", HFILL }},
