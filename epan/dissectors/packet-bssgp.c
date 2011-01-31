@@ -10172,8 +10172,8 @@ static const value_string bssgp_msg_strings[] = {
 
 /* 0x5f */  { BSSGP_PDU_RESERVED_0X5F,                 "Reserved" },					/*  */
 
-/* 0x60 */  { BSSGP_PDU_PERFORM_LOCATION_REQUEST,     "PERFORM-LOCATION-REQUEST" },
-/* 0x61 */  { BSSGP_PDU_PERFORM_LOCATION_RESPONSE,    "PERFORM-LOCATION-RESPONSE" },
+/* 0x60 */  { BSSGP_PDU_PERFORM_LOCATION_REQUEST,     "PERFORM-LOCATION-REQUEST" },		/* 10.5.1 PERFORM-LOCATION-REQUEST */
+/* 0x61 */  { BSSGP_PDU_PERFORM_LOCATION_RESPONSE,    "PERFORM-LOCATION-RESPONSE" },	/* 10.5.2 PERFORM-LOCATION-RESPONSE */
 /* 0x62 */  { BSSGP_PDU_PERFORM_LOCATION_ABORT,       "PERFORM-LOCATION-ABORT" },
 /* 0x63 */  { BSSGP_PDU_POSITION_COMMAND,             "POSITION-COMMAND" },
 /* 0x64 */  { BSSGP_PDU_POSITION_RESPONSE,            "POSITION-RESPONSE" },
@@ -10299,6 +10299,7 @@ static void (*bssgp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
 
 /* 0x60 */
     bssgp_perform_loc_request,       /* 10.5.1 PERFORM-LOCATION-REQUEST */
+	bssgp_perform_loc_response,		 /* 10.5.2 PERFORM-LOCATION-RESPONSE */
 
     NULL,    /* NONE */
 };
