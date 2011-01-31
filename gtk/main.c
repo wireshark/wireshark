@@ -1683,7 +1683,8 @@ main_cf_cb_packet_selected(gpointer data)
 
     /* Note: Both string and hex value searches in the packet data produce a non-zero 
        search_pos if successful */
-    if(cf->search_in_progress && cf->search_pos != 0) {
+    if(cf->search_in_progress && 
+      (cf->search_pos != 0 || (cf->string && cf->decode_data))) {
         highlight_field(cf->edt->tvb, cf->search_pos,
                         (GtkTreeView *)tree_view_gbl, cf->edt->tree);
     } 

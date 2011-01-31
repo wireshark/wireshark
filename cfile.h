@@ -70,15 +70,16 @@ typedef struct _capture_file {
   gchar       *dfilter;         /* Display filter string */
   gboolean     redissecting;    /* TRUE if currently redissecting (cf_redissect_packets) */
   /* search */
-  gchar       *sfilter;         /* Search filter string */
-  search_direction dir;         /* Direction in which to do searches */
-  gboolean     hex;             /* TRUE is raw data search is being performed */
-  gboolean     string;          /* TRUE is text search is being performed */
-  guint32      search_pos;      /* Position of last character found in search */
-  search_charset_t scs_type;    /* Character set for text search */
+  gchar       *sfilter;         /* Filter, hex value, or string being searched */
+  gboolean     hex;             /* TRUE if "Hex value" search was last selected */
+  gboolean     string;          /* TRUE if "String" search was last selected */
+  gboolean     summary_data;    /* TRUE if "String" search in "Packet list" (Info column) was last selected */
+  gboolean     decode_data;     /* TRUE if "String" search in "Packet details" was last selected */
+  gboolean     packet_data;     /* TRUE if "String" search in "Packet data" was last selected */
+  guint32      search_pos;      /* Byte position of last byte found in a hex search */
   gboolean     case_type;       /* TRUE if case-insensitive text search */
-  gboolean     decode_data;     /* TRUE if searching protocol tree text */
-  gboolean     summary_data;    /* TRUE if searching Info column text */
+  search_charset_t scs_type;    /* Character set for text search */
+  search_direction dir;         /* Direction in which to do searches */
   gboolean     search_in_progress; /* TRUE if user just clicked OK in the Find dialog or hit <control>N/B */
   /* packet data */
   union wtap_pseudo_header pseudo_header; /* Packet pseudo_header */

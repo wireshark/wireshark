@@ -71,6 +71,14 @@ typedef enum {
 
 typedef void (*cf_callback_t) (gint event, gpointer data, gpointer user_data);
 
+typedef struct {
+    const char    *string;
+    size_t         string_len;
+    capture_file  *cf;
+    gboolean       frame_matched;
+    field_info    *finfo;
+} match_data;
+
 extern void
 cf_callback_add(cf_callback_t func, gpointer user_data);
 
@@ -403,6 +411,17 @@ cf_print_status_t cf_write_carrays_packets(capture_file *cf, print_args_t *print
  */
 gboolean cf_find_packet_protocol_tree(capture_file *cf, const char *string,
                                       search_direction dir);
+
+/**
+ * Find field with a label that contains text string cfile->sfilter.
+ *
+ * @param cf the capture file
+ * @param tree the protocol tree
+ * @param mdata the first field (mdata->finfo) that matched the string
+ * @return TRUE if a packet was found, FALSE otherwise
+ */
+extern gboolean cf_find_string_protocol_tree(capture_file *cf, proto_tree *tree,
+                                             match_data *mdata);
 
 /**
  * Find packet whose summary line contains a specified text string.

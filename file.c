@@ -3408,14 +3408,6 @@ cf_change_time_formats(capture_file *cf)
 }
 #endif /* NEW_PACKET_LIST */
 
-
-typedef struct {
-    const char  *string;
-    size_t      string_len;
-    capture_file    *cf;
-    gboolean    frame_matched;
-} match_data;
-
 gboolean
 cf_find_packet_protocol_tree(capture_file *cf, const char *string,
                              search_direction dir)
@@ -3425,6 +3417,18 @@ cf_find_packet_protocol_tree(capture_file *cf, const char *string,
   mdata.string = string;
   mdata.string_len = strlen(string);
   return find_packet(cf, match_protocol_tree, &mdata, dir);
+}
+
+gboolean
+cf_find_string_protocol_tree(capture_file *cf, proto_tree *tree,  match_data *mdata)
+{
+  mdata->frame_matched = FALSE;
+  mdata->string = convert_string_case(cf->sfilter, cf->case_type);
+  mdata->string_len = strlen(mdata->string);
+  mdata->cf = cf;
+  /* Iterate through all the nodes looking for matching text */
+  proto_tree_children_foreach(tree, match_subtree_text, mdata);
+  return mdata->frame_matched ? MR_MATCHED : MR_NOTMATCHED; 
 }
 
 static match_result
@@ -3498,6 +3502,7 @@ match_subtree_text(proto_node *node, gpointer data)
       if (c_match == string_len) {
         /* No need to look further; we have a match */
         mdata->frame_matched = TRUE;
+        mdata->finfo = fi;
         return;
       }
     } else

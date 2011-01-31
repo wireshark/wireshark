@@ -60,7 +60,7 @@
 #define E_FIND_STRINGTYPE_KEY "find_string_type"
 #define E_FIND_STRINGTYPE_LABEL_KEY "find_string_type_label"
 #define E_CASE_SEARCH_KEY     "case_insensitive_search"
-#define E_SOURCE_HEX_KEY      "hex_data_source"
+#define E_SOURCE_DATA_KEY     "packet_data_source"
 #define E_SOURCE_DECODE_KEY   "decode_data_source"
 #define E_SOURCE_SUMMARY_KEY  "summary_data_source"
 #define E_FILT_TE_BUTTON_KEY  "find_filter_button"
@@ -68,6 +68,7 @@
 static gboolean case_type = TRUE;
 static gboolean summary_data = FALSE;
 static gboolean decode_data = FALSE;
+static gboolean packet_data = FALSE;
 
 static void
 find_filter_te_syntax_check_cb(GtkWidget *w, gpointer parent_w);
@@ -119,7 +120,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
                 *up_rb, *down_rb,
 
                 *data_frame, *data_vb,
-                *hex_data_rb, *decode_data_rb, *summary_data_rb,
+                *packet_data_rb, *decode_data_rb, *summary_data_rb,
 
                 *string_opt_frame, *string_opt_vb,
                 *case_cb, *combo_lb, *combo_cb,
@@ -245,22 +246,22 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   summary_data_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "Packet list");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(summary_data_rb), summary_data);
   gtk_box_pack_start(GTK_BOX(data_vb), summary_data_rb, TRUE, TRUE, 0);
-  gtk_tooltips_set_tip (tooltips, summary_data_rb, ("Search for string in the Info column of the packet summary (top pane)"), NULL);
+  gtk_tooltips_set_tip (tooltips, summary_data_rb, ("Search for string in the Info column of the packet summary (summary pane)"), NULL);
   gtk_widget_show(summary_data_rb);
 
   /* Packet details */
   decode_data_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(summary_data_rb), "Packet details");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(decode_data_rb), decode_data);
   gtk_box_pack_start(GTK_BOX(data_vb), decode_data_rb, TRUE, TRUE, 0);
-  gtk_tooltips_set_tip (tooltips, decode_data_rb, ("Search for string in the decoded packet display (middle pane)"), NULL);
+  gtk_tooltips_set_tip (tooltips, decode_data_rb, ("Search for string among the decoded packet display labels (tree view pane)"), NULL);
   gtk_widget_show(decode_data_rb);
 
   /* Packet bytes */
-  hex_data_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(summary_data_rb), "Packet bytes");
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hex_data_rb), !decode_data && !summary_data);
-  gtk_box_pack_start(GTK_BOX(data_vb), hex_data_rb, TRUE, TRUE, 0);
-  gtk_tooltips_set_tip (tooltips, hex_data_rb, ("Search for string in the packet data"), NULL);
-  gtk_widget_show(hex_data_rb);
+  packet_data_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(summary_data_rb), "Packet bytes");
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(packet_data_rb), packet_data);
+  gtk_box_pack_start(GTK_BOX(data_vb), packet_data_rb, TRUE, TRUE, 0);
+  gtk_tooltips_set_tip (tooltips, packet_data_rb, ("Search for string in the ASCII-converted packet data (hex view pane)"), NULL);
+  gtk_widget_show(packet_data_rb);
 
   /* string options frame */
   string_opt_frame = gtk_frame_new("String Options");
@@ -344,7 +345,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   g_object_set_data(G_OBJECT(find_frame_w), E_FIND_STRINGTYPE_LABEL_KEY, combo_lb);
   g_object_set_data(G_OBJECT(find_frame_w), E_FIND_STRINGTYPE_KEY, combo_cb);
   g_object_set_data(G_OBJECT(find_frame_w), E_CASE_SEARCH_KEY, case_cb);
-  g_object_set_data(G_OBJECT(find_frame_w), E_SOURCE_HEX_KEY, hex_data_rb);
+  g_object_set_data(G_OBJECT(find_frame_w), E_SOURCE_DATA_KEY, packet_data_rb);
   g_object_set_data(G_OBJECT(find_frame_w), E_SOURCE_DECODE_KEY, decode_data_rb);
   g_object_set_data(G_OBJECT(find_frame_w), E_SOURCE_SUMMARY_KEY, summary_data_rb);
   g_object_set_data(G_OBJECT(find_frame_w), E_FILT_TE_BUTTON_KEY, filter_bt);
@@ -472,11 +473,11 @@ hex_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
 static void
 string_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
 {
-    GtkWidget   *string_rb, *hex_data_rb, *decode_data_rb, *summary_data_rb,
+    GtkWidget   *string_rb, *packet_data_rb, *decode_data_rb, *summary_data_rb,
                 *data_combo_lb, *data_combo_cb, *data_case_cb, *filter_tb;
 
     string_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_STRINGDATA_KEY);
-    hex_data_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_SOURCE_HEX_KEY);
+    packet_data_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_SOURCE_DATA_KEY);
     decode_data_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_SOURCE_DECODE_KEY);
     summary_data_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_SOURCE_SUMMARY_KEY);
 
@@ -486,7 +487,7 @@ string_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
     filter_tb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_FILT_TE_PTR_KEY);
 
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(string_rb))) {
-        gtk_widget_set_sensitive(GTK_WIDGET(hex_data_rb), TRUE);
+        gtk_widget_set_sensitive(GTK_WIDGET(packet_data_rb), TRUE);
         gtk_widget_set_sensitive(GTK_WIDGET(decode_data_rb), TRUE);
         gtk_widget_set_sensitive(GTK_WIDGET(summary_data_rb), TRUE);
         gtk_widget_set_sensitive(GTK_WIDGET(data_combo_lb), TRUE);
@@ -500,7 +501,7 @@ string_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
 	}
 
     } else {
-        gtk_widget_set_sensitive(GTK_WIDGET(hex_data_rb), FALSE);
+        gtk_widget_set_sensitive(GTK_WIDGET(packet_data_rb), FALSE);
         gtk_widget_set_sensitive(GTK_WIDGET(decode_data_rb), FALSE);
         gtk_widget_set_sensitive(GTK_WIDGET(summary_data_rb), FALSE);
         gtk_widget_set_sensitive(GTK_WIDGET(data_combo_lb), FALSE);
@@ -545,7 +546,7 @@ static void
 find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 {
   GtkWidget       *filter_te, *up_rb, *hex_rb, *string_rb, *combo_cb,
-                  *case_cb, *decode_data_rb, *summary_data_rb;
+                  *case_cb, *packet_data_rb, *decode_data_rb, *summary_data_rb;
   const gchar     *filter_text;
   search_charset_t scs_type = SCS_ASCII_AND_UNICODE;
   guint8          *bytes = NULL;
@@ -561,6 +562,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   string_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_STRINGDATA_KEY);
   combo_cb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_STRINGTYPE_KEY);
   case_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CASE_SEARCH_KEY);
+  packet_data_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_SOURCE_DATA_KEY);
   decode_data_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_SOURCE_DECODE_KEY);
   summary_data_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_SOURCE_SUMMARY_KEY);
 
@@ -578,6 +580,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   string_type = gtk_combo_box_get_active (GTK_COMBO_BOX(combo_cb));
 
   case_type = !gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(case_cb));
+  packet_data = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(packet_data_rb));
   decode_data = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(decode_data_rb));
   summary_data = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(summary_data_rb));
 
@@ -646,10 +649,12 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   cfile.string = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (string_rb));
   cfile.scs_type = scs_type;
   cfile.case_type = case_type;
+  cfile.packet_data = packet_data;
   cfile.decode_data = decode_data;
   cfile.summary_data = summary_data;
 
   if (cfile.hex) {
+    /* Hex value in packet data */ 
     found_packet = cf_find_packet_data(&cfile, bytes, nbytes, cfile.dir);
     g_free(bytes);
     if (!found_packet) {
@@ -658,50 +663,36 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
       return;
     }
   } else if (cfile.string) {
-    /* OK, what are we searching? */
-    if (cfile.decode_data) {
-      /* The text in the protocol tree */
-      if(string){
-        found_packet = cf_find_packet_protocol_tree(&cfile, string, cfile.dir);
-        g_free(string);
-      }
+    if (cfile.summary_data) {
+      /* String in the Info column of the summary line */
+      found_packet = cf_find_packet_summary_line(&cfile, string, cfile.dir);
+      g_free(string);
       if (!found_packet) {
-        /* We didn't find the packet. */
+        statusbar_push_temporary_msg("No packet contained that string in its Info column.");
+        return;
+      }
+    } else if (cfile.decode_data) {
+      /* String in the protocol tree headings */
+      found_packet = cf_find_packet_protocol_tree(&cfile, string, cfile.dir);
+      g_free(string);
+      if (!found_packet) {
         statusbar_push_temporary_msg("No packet contained that string in its dissected display.");
         return;
       }
-    } else if (cfile.summary_data) {
-      /* The text in the summary line */
-      if(string){
-        found_packet = cf_find_packet_summary_line(&cfile, string, cfile.dir);
-        g_free(string);
-      }
+    } else if (cfile.packet_data) {
+      /* String in the ASCII-converted packet data */
+      found_packet = cf_find_packet_data(&cfile, string, strlen(string), cfile.dir);
+      g_free(string);
       if (!found_packet) {
-        /* We didn't find the packet. */
-        simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
-            "%sNo match found!%s\n\n"
-            "No packet contained that string in its Info column.",
-            simple_dialog_primary_start(), simple_dialog_primary_end());
-        return;
-      }
-    } else {
-      /* The raw packet data */
-      if(string){
-	found_packet = cf_find_packet_data(&cfile, string, strlen(string),
-	                                   cfile.dir);
-        g_free(string);
-      }
-      if (!found_packet) {
-        /* We didn't find the packet. */
-        statusbar_push_temporary_msg("No packet contained that string in its data.");
+        statusbar_push_temporary_msg("No packet contained that string in its ASCII-converted data.");
         return;
       }
     }
   } else {
+    /* Search via display filter */
     found_packet = cf_find_packet_dfilter(&cfile, sfcode, cfile.dir);
     dfilter_free(sfcode);
     if (!found_packet) {
-      /* We didn't find a packet */
       statusbar_push_temporary_msg("No packet matched that filter.");
       g_free(bytes);
       return;

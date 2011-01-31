@@ -541,14 +541,23 @@ gboolean
 highlight_field(tvbuff_t *tvb, gint byte, GtkTreeView *tree_view,
                 proto_tree *tree)
 {
-    GtkTreeModel *model;
-    GtkTreePath  *first_path, *path;
+    GtkTreeModel *model = NULL;
+    GtkTreePath  *first_path = NULL, *path = NULL;
     GtkTreeIter   parent;
+    field_info   *finfo = NULL;
+    match_data    mdata;
     struct field_lookup_info fli;
-    field_info   *finfo;
 
-    /* Find the finfo that corresponds to our byte. */
-    finfo = proto_find_field_from_offset(tree, byte, tvb);
+    if (cfile.search_in_progress && cfile.string && cfile.decode_data) {
+        /* The tree where the target string matched one of the labels was discarded in
+           match_protocol_tree() so we have to search again in the latest tree. (Uugh) */
+        if (cf_find_string_protocol_tree(&cfile, tree, &mdata)) {
+            finfo = mdata.finfo;
+        }
+    } else {
+        /* Find the finfo that corresponds to our byte. */
+        finfo = proto_find_field_from_offset(tree, byte, tvb);
+    }
 
     if (!finfo) {
         return FALSE;
@@ -583,8 +592,8 @@ highlight_field(tvbuff_t *tvb, gint byte, GtkTreeView *tree_view,
        not be highlighted. If the user just clicked on one of the bytes comprising that field, the
        above call didn't trigger a 'gtk_tree_view_get_selection' event. Call redraw_packet_bytes()
        to make the highlighting of the entire field visible. */   
-    if (!cfile.search_in_progress) {        
-        if (cfile.hex || (cfile.string && !(cfile.summary_data || cfile.decode_data))) {
+    if (!cfile.search_in_progress) {
+        if (cfile.hex || (cfile.string && cfile.packet_data)) {
             redraw_packet_bytes(byte_nb_ptr_gbl, cfile.current_frame, cfile.finfo_selected);
         }
     }
@@ -1577,17 +1586,16 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
 
     if (finfo != NULL) {
 
-        if (cfile.search_in_progress) { 
-            if (cfile.hex || (cfile.string && !(cfile.summary_data || cfile.decode_data))) {        
-                /* In the hex view, only highlight the target bytes or string. The entire
-                   field can then be displayed by clicking on any of the bytes in the field. */
-                if (cfile.hex) {
-                    blen = (int)strlen(cfile.sfilter)/2;
-                } else {
-                    blen = (int)strlen(cfile.sfilter);
-                }
-                bstart = cfile.search_pos - (blen-1);
+        if (cfile.search_in_progress && (cfile.hex || (cfile.string && cfile.packet_data))) {
+            /* In the hex view, only highlight the target bytes or string. The entire
+               field can then be displayed by clicking on any of the bytes in the field. */
+            if (cfile.hex) {
+                blen = (int)strlen(cfile.sfilter)/2;
+            } else {
+                blen = (int)strlen(cfile.sfilter);
             }
+            bstart = cfile.search_pos - (blen-1);
+
         } else {	
             blen = finfo->length;
             bstart = finfo->start;
