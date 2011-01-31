@@ -92,9 +92,8 @@ static dissector_handle_t data_handle;
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
 
-static const char dtmf_digits[16] = "?1234567890?????";
-static const char bcd_digits[16] = "0123456789??????";
-
+static const char dtmf_digits[16] = {'?','1','2','3','4','5','6','7','8','9','0','?','?','?','?','?'};
+static const char bcd_digits[16]  = {'0','1','2','3','4','5','6','7','8','9','?','?','?','?','?','?'};
 
 /* FUNCTIONS */
 
