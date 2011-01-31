@@ -825,6 +825,7 @@ view_menu_colorize_pkt_lst_cb(GtkAction *action _U_, gpointer user_data)
 
 }
 
+#ifdef HAVE_LIBPCAP
 static void
 view_menu_auto_scroll_live_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
@@ -836,6 +837,7 @@ view_menu_auto_scroll_live_cb(GtkAction *action _U_, gpointer user_data _U_)
 		menu_auto_scroll_live_changed(GTK_CHECK_MENU_ITEM(widget)->active);
 	}
 }
+#endif
 
 static void
 view_menu_color_conv_color1_cb(GtkAction *action _U_, gpointer user_data)
