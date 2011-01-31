@@ -3,7 +3,7 @@
  *
  * Richard Sharpe <rsharpe@ns.aus.com>
  * Craig Newell <CraigN@cheque.uq.edu.au>
- *	RFC2347 TFTP Option Extension
+ *      RFC2347 TFTP Option Extension
  * Joerg Mayer (see AUTHORS file)
  *      RFC2348 TFTP Blocksize Option
  *
@@ -75,6 +75,7 @@ static gint ett_tftp = -1;
 static gint ett_tftp_option = -1;
 
 static dissector_handle_t tftp_handle;
+static dissector_handle_t data_handle;
 
 #define UDP_PORT_TFTP_RANGE    "69"
 
@@ -143,10 +144,8 @@ tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	  offset += option_len + value_len;
 
-	  if (check_col(pinfo->cinfo, COL_INFO)) {
-	    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s=%s",
-			    optionname, optionvalue);
-	  }
+	  col_append_fstr(pinfo->cinfo, COL_INFO, ", %s=%s",
+			  optionname, optionvalue);
 
 	  /* Special code to handle individual options */
 	  if (!g_ascii_strcasecmp((const char *)optionname, "blksize") &&
@@ -155,9 +154,8 @@ tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		if (blocksize < 8 || blocksize > 65464) {
 			expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE,
 				PI_WARN, "TFTP blocksize out of range");
-
 		} else {
-                	tftp_info->blocksize = blocksize;
+			tftp_info->blocksize = blocksize;
 		}
 	  }
 	}
@@ -173,39 +171,34 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 	guint16		 opcode;
 	guint16		 bytes;
 	guint16		 blocknum;
-	guint            i1;
+	guint		 i1;
 	guint16	         error;
 
-  	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TFTP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TFTP");
 
 	opcode = tvb_get_ntohs(tvb, offset);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-
-	  col_add_str(pinfo->cinfo, COL_INFO,
-	    val_to_str(opcode, tftp_opcode_vals, "Unknown (0x%04x)"));
-
-	}
+	col_add_str(pinfo->cinfo, COL_INFO,
+		    val_to_str(opcode, tftp_opcode_vals, "Unknown (0x%04x)"));
 
 	if (tree) {
-
 	  ti = proto_tree_add_item(tree, proto_tftp, tvb, offset, -1, FALSE);
 	  tftp_tree = proto_item_add_subtree(ti, ett_tftp);
 
-	  if(tftp_info->source_file) {
+	  if (tftp_info->source_file) {
 	    ti = proto_tree_add_string(tftp_tree, hf_tftp_source_file, tvb,
 				       0, 0, tftp_info->source_file);
 	    PROTO_ITEM_SET_GENERATED(ti);
 	  }
 
-	  if(tftp_info->destination_file) {
+	  if (tftp_info->destination_file) {
 	    ti = proto_tree_add_string(tftp_tree, hf_tftp_destination_file, tvb,
 				       0, 0, tftp_info->destination_file);
 	    PROTO_ITEM_SET_GENERATED(ti);
 	  }
 
 	  proto_tree_add_uint(tftp_tree, hf_tftp_opcode, tvb,
-			    offset, 2, opcode);
+			      offset, 2, opcode);
 	}
 	offset += 2;
 
@@ -213,149 +206,121 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
 	case TFTP_RRQ:
 	  i1 = tvb_strsize(tvb, offset);
-	  if (tree) {
-	    proto_tree_add_item(tftp_tree, hf_tftp_source_file,
-			    tvb, offset, i1, FALSE);
-	  }
+	  proto_tree_add_item(tftp_tree, hf_tftp_source_file,
+			      tvb, offset, i1, FALSE);
 
 	  tftp_info->source_file = tvb_get_seasonal_string(tvb, offset, i1);
 
-	  if (check_col(pinfo->cinfo, COL_INFO)) {
-	    col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
-			    tvb_format_stringzpad(tvb, offset, i1));
-	  }
+	  col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
+			  tvb_format_stringzpad(tvb, offset, i1));
+
 	  offset += i1;
 
 	  i1 = tvb_strsize(tvb, offset);
-	  if (tree) {
-	    ti = proto_tree_add_item(tftp_tree, hf_tftp_transfer_type,
-			    tvb, offset, i1, FALSE);
-	  }
-	  if (check_col(pinfo->cinfo, COL_INFO)) {
-	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Transfer type: %s",
-			    tvb_format_stringzpad(tvb, offset, i1));
-	  }
+	  ti = proto_tree_add_item(tftp_tree, hf_tftp_transfer_type,
+			           tvb, offset, i1, FALSE);
+
+	  col_append_fstr(pinfo->cinfo, COL_INFO, ", Transfer type: %s",
+			  tvb_format_stringzpad(tvb, offset, i1));
+
 	  offset += i1;
 
-	  if (tree)
-	    tftp_dissect_options(tvb, pinfo,  offset, tftp_tree,
-		opcode, tftp_info);
+	  tftp_dissect_options(tvb, pinfo,  offset, tftp_tree,
+			       opcode, tftp_info);
 	  break;
 
 	case TFTP_WRQ:
 	  i1 = tvb_strsize(tvb, offset);
-	  if (tree) {
-	    proto_tree_add_item(tftp_tree, hf_tftp_destination_file,
-			    tvb, offset, i1, FALSE);
-	  }
+	  proto_tree_add_item(tftp_tree, hf_tftp_destination_file,
+			      tvb, offset, i1, FALSE);
 
 	  tftp_info->destination_file =
-	   tvb_get_seasonal_string(tvb, offset, i1);
+	    tvb_get_seasonal_string(tvb, offset, i1);
 
-	  if (check_col(pinfo->cinfo, COL_INFO)) {
-	    col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
-			    tvb_format_stringzpad(tvb, offset, i1));
-	  }
+	  col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
+			  tvb_format_stringzpad(tvb, offset, i1));
+
 	  offset += i1;
 
 	  i1 = tvb_strsize(tvb, offset);
-	  if (tree) {
-	    ti = proto_tree_add_item(tftp_tree, hf_tftp_transfer_type,
-			    tvb, offset, i1, FALSE);
-	  }
+	  ti = proto_tree_add_item(tftp_tree, hf_tftp_transfer_type,
+			           tvb, offset, i1, FALSE);
 
-	  if (check_col(pinfo->cinfo, COL_INFO)) {
-	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Transfer type: %s",
-			    tvb_format_stringzpad(tvb, offset, i1));
-	  }
+	  col_append_fstr(pinfo->cinfo, COL_INFO, ", Transfer type: %s",
+			  tvb_format_stringzpad(tvb, offset, i1));
+
 	  offset += i1;
 
-	  if (tree)
-	    tftp_dissect_options(tvb, pinfo, offset, tftp_tree,
-		opcode,  tftp_info);
+	  tftp_dissect_options(tvb, pinfo, offset, tftp_tree,
+			       opcode,  tftp_info);
 	  break;
 
 	case TFTP_INFO:
-	  if (tree)
-	    tftp_dissect_options(tvb, pinfo, offset, tftp_tree,
-		opcode,  tftp_info);
+	  tftp_dissect_options(tvb, pinfo, offset, tftp_tree,
+			       opcode,  tftp_info);
 	  break;
 
 	case TFTP_DATA:
 	  blocknum = tvb_get_ntohs(tvb, offset);
-	  if (tree) {
-	    proto_tree_add_uint(tftp_tree, hf_tftp_blocknum, tvb, offset, 2,
-	    		    blocknum);
-	  }
+	  proto_tree_add_uint(tftp_tree, hf_tftp_blocknum, tvb, offset, 2,
+			      blocknum);
+
 	  offset += 2;
 
 	  bytes = tvb_reported_length_remaining(tvb, offset);
 
-	  if (check_col(pinfo->cinfo, COL_INFO)) {
-	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Block: %i%s",
-		    blocknum,
-		    (bytes < tftp_info->blocksize)?" (last)":"" );
-	  }
+	  col_append_fstr(pinfo->cinfo, COL_INFO, ", Block: %i%s",
+			  blocknum,
+			  (bytes < tftp_info->blocksize)?" (last)":"" );
 
 	  if (bytes != 0) {
-	    if (tree) {
-	      proto_tree_add_text(tftp_tree, tvb, offset, -1,
-		"Data (%d bytes)", bytes);
-	    }
+	    tvbuff_t *data_tvb = tvb_new_subset(tvb, offset, -1, bytes);
+	    call_dissector(data_handle, data_tvb, pinfo, tree);
 	  }
 	  break;
 
 	case TFTP_ACK:
 	  blocknum = tvb_get_ntohs(tvb, offset);
-	  if (tree) {
-	    proto_tree_add_uint(tftp_tree, hf_tftp_blocknum, tvb, offset, 2,
-	    		    blocknum);
-	  }
-	  if (check_col(pinfo->cinfo, COL_INFO)) {
-	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Block: %i",
-			    blocknum);
-	  }
+	  proto_tree_add_uint(tftp_tree, hf_tftp_blocknum, tvb, offset, 2,
+			      blocknum);
+
+	  col_append_fstr(pinfo->cinfo, COL_INFO, ", Block: %i",
+			  blocknum);
 	  break;
 
 	case TFTP_ERROR:
 	  error = tvb_get_ntohs(tvb, offset);
-	  if (tree) {
-	    proto_tree_add_uint(tftp_tree, hf_tftp_error_code, tvb, offset, 2,
-			    error);
-	  }
-	  if (check_col(pinfo->cinfo, COL_INFO)) {
-	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Code: %s",
-			    val_to_str(error, tftp_error_code_vals, "Unknown (%u)"));
-	  }
+	  proto_tree_add_uint(tftp_tree, hf_tftp_error_code, tvb, offset, 2,
+			      error);
+
+	  col_append_fstr(pinfo->cinfo, COL_INFO, ", Code: %s",
+			  val_to_str(error, tftp_error_code_vals, "Unknown (%u)"));
+
 	  offset += 2;
 
 	  i1 = tvb_strsize(tvb, offset);
-	  if (tree) {
-	    proto_tree_add_item(tftp_tree, hf_tftp_error_string, tvb, offset,
-	        i1, FALSE);
-	  }
-	  if (check_col(pinfo->cinfo, COL_INFO)) {
-	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Message: %s",
-			    tvb_format_stringzpad(tvb, offset, i1));
-	  }
+	  proto_tree_add_item(tftp_tree, hf_tftp_error_string, tvb, offset,
+			      i1, FALSE);
+
+	  col_append_fstr(pinfo->cinfo, COL_INFO, ", Message: %s",
+			  tvb_format_stringzpad(tvb, offset, i1));
+
 	  expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE,
-		PI_NOTE, "TFTP blocksize out of range");
+			         PI_NOTE, "TFTP blocksize out of range");
 	  break;
 
 	case TFTP_OACK:
-	  if (tree)
-	    tftp_dissect_options(tvb, pinfo, offset, tftp_tree,
-		opcode, tftp_info);
+	  tftp_dissect_options(tvb, pinfo, offset, tftp_tree,
+			       opcode, tftp_info);
 	  break;
 
 	default:
-	  if (tree) {
-	    proto_tree_add_text(tftp_tree, tvb, offset, -1,
-		"Data (%d bytes)", tvb_reported_length_remaining(tvb, offset));
-	  }
+	  proto_tree_add_text(tftp_tree, tvb, offset, -1,
+			      "Data (%d bytes)", tvb_reported_length_remaining(tvb, offset));
 	  break;
 
 	}
+
   return;
 }
 
@@ -366,7 +331,7 @@ dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      that the TFTP is the only protocol used by that port, and
      that TFTP may not be carried by UDP */
   conversation_t   *conversation = NULL;
-  guint16		 opcode;
+  guint16           opcode;
   tftp_conv_info_t *tftp_info;
 
   conversation = find_or_create_conversation(pinfo);
@@ -431,7 +396,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  }
 	} else {
 	  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-		pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+					   pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	  if( (conversation == NULL) || (conversation->dissector_handle!=tftp_handle) ){
 	    conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
 					    pinfo->destport, pinfo->srcport, 0);
@@ -446,7 +411,6 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  tftp_info->destination_file = NULL;
 	  conversation_add_proto_data(conversation, proto_tftp, tftp_info);
 	}
-
 
 	dissect_tftp_message(tftp_info, tvb, pinfo, tree);
 
@@ -494,12 +458,12 @@ proto_register_tftp(void)
       	"Error string in case of TFTP error message", HFILL }},
 
     { &hf_tftp_option_name,
-      { "Option name",              "tftp.option.name",
+      { "Option name",        "tftp.option.name",
 	FT_STRINGZ, BASE_NONE, NULL, 0x0,
       	NULL, HFILL }},
 
     { &hf_tftp_option_value,
-      { "Option value",              "tftp.option.value",
+      { "Option value",       "tftp.option.value",
 	FT_STRINGZ, BASE_NONE, NULL, 0x0,
       	NULL, HFILL }},
 
@@ -519,24 +483,24 @@ proto_register_tftp(void)
   register_dissector("tftp", dissect_tftp, proto_tftp);
 
   /* Set default UDP ports */
-  range_convert_str (&global_tftp_port_range, UDP_PORT_TFTP_RANGE, MAX_UDP_PORT);
+  range_convert_str(&global_tftp_port_range, UDP_PORT_TFTP_RANGE, MAX_UDP_PORT);
 
-  tftp_module = prefs_register_protocol (proto_tftp, proto_reg_handoff_tftp);
-  prefs_register_range_preference (tftp_module, "udp_ports",
+  tftp_module = prefs_register_protocol(proto_tftp, proto_reg_handoff_tftp);
+  prefs_register_range_preference(tftp_module, "udp_ports",
 				  "TFTP port numbers",
 				  "Port numbers used for TFTP traffic "
-				   "(default " UDP_PORT_TFTP_RANGE ")",
-				   &global_tftp_port_range, MAX_UDP_PORT);
+				  "(default " UDP_PORT_TFTP_RANGE ")",
+				  &global_tftp_port_range, MAX_UDP_PORT);
 }
 
 static void range_delete_callback (guint32 port)
 {
-    dissector_delete_uint ("udp.port", port, tftp_handle);
+  dissector_delete_uint("udp.port", port, tftp_handle);
 }
 
 static void range_add_callback (guint32 port)
 {
-    dissector_add_uint ("udp.port", port, tftp_handle);
+  dissector_add_uint("udp.port", port, tftp_handle);
 }
 
 void
@@ -547,13 +511,27 @@ proto_reg_handoff_tftp(void)
 
   if (!tftp_initialized) {
     tftp_handle = find_dissector("tftp");
+    data_handle = find_dissector("data");
     heur_dissector_add("stun", dissect_embeddedtftp_heur, proto_tftp);
     tftp_initialized = TRUE;
   } else {
-    range_foreach (tftp_port_range, range_delete_callback);
-    g_free (tftp_port_range);
+    range_foreach(tftp_port_range, range_delete_callback);
+    g_free(tftp_port_range);
   }
 
-  tftp_port_range = range_copy (global_tftp_port_range);
-  range_foreach (tftp_port_range, range_add_callback);
+  tftp_port_range = range_copy(global_tftp_port_range);
+  range_foreach(tftp_port_range, range_add_callback);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
