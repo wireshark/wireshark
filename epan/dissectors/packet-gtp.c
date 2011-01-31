@@ -1,5 +1,7 @@
 /* packet-gtp.c
  *
+ * $Id$
+ *
  * Routines for GTP dissection
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
@@ -10,12 +12,12 @@
  * Added Bearer control mode dissection:
  * Copyright 2011, Grzegorz Szczytowski <grzegorz.szczytowski@gmail.com> 
  *
- * $Id$
+ * Updates and corrections:
+ * Copyright 2011, Anders Broman <anders.broman@ericsson.com>
  *
  * Control Plane Request-Response tracking code Largely based on similar routines in
  * packet-ldap.c by Ronnie Sahlberg
  * Added by Kari Tiirikainen <kari.tiirikainen@nsn.com>
- *
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -220,6 +222,10 @@ static int hf_gtp_targetRNC_ID = -1;
 static int hf_gtp_bssgp_cause = -1;
 static int hf_gtp_sapi = -1;
 static int hf_gtp_xid_par_len = -1;
+static int hf_gtp_earp_pvi = -1;
+static int hf_gtp_earp_pl = -1;
+static int hf_gtp_earp_pci = -1;
+static int hf_gtp_spare = -1;
 static int hf_gtp_cmn_flg_ppc = -1;
 static int hf_gtp_cmn_flg_mbs_srv_type = -1;
 static int hf_gtp_cmn_flg_mbs_ran_pcd_rdy = -1;
@@ -584,7 +590,7 @@ static value_string_ext message_type_ext = VALUE_STRING_EXT_INIT(message_type);
 #define GTP_EXT_FLOW_II               0x12
 #define GTP_EXT_TEID_II               0x12    /* 0xFF12 3G */
 
-#define GTP_EXT_19                    0x13
+#define GTP_EXT_19                    0x13    /* 19	TV	Teardown Ind	7.7.16 */
 #define GTP_EXT_MS_REASON             0x13    /* same as 0x1D GTPv1_EXT_MS_REASON */
 #define GTP_EXT_TEAR_IND              0x13    /* 0xFF13 3G */
 
@@ -597,9 +603,10 @@ static value_string_ext message_type_ext = VALUE_STRING_EXT_INIT(message_type);
 #define GTP_EXT_CHRG_CHAR             0x1A    /* 3G */
 #define GTP_EXT_TRACE_REF             0x1B    /* 3G */
 #define GTP_EXT_TRACE_TYPE            0x1C    /* 3G */
-#define GTPv1_EXT_MS_REASON           0x1D    /* 3G */
+#define GTPv1_EXT_MS_REASON           0x1D    /* 3G 29	TV	MS Not Reachable Reason	7.7.25A */
+/* 117-126	Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33]) */
 #define GTP_EXT_TR_COMM               0x7E    /* charging */
-#define GTP_EXT_CHRG_ID               0x7F
+#define GTP_EXT_CHRG_ID               0x7F    /* 127	TV	Charging ID	7.7.26 */
 #define GTP_EXT_USER_ADDR             0x80
 #define GTP_EXT_MM_CNTXT              0x81
 #define GTP_EXT_PDP_CNTXT             0x82
@@ -626,8 +633,7 @@ static value_string_ext message_type_ext = VALUE_STRING_EXT_INIT(message_type);
 #define GTP_EXT_RAT_TYPE              0x97    /* 3G   151 TLV RAT Type 7.7.50 */
 #define GTP_EXT_USR_LOC_INF           0x98    /* 3G   152 TLV User Location Information 7.7.51 */
 #define GTP_EXT_MS_TIME_ZONE          0x99    /* 3G   153 TLV MS Time Zone 7.7.52 */
-
-#define GTP_EXT_IMEISV                0x9A    /* 3G */
+#define GTP_EXT_IMEISV                0x9A    /* 3G   154 TLV IMEI(SV)	7.7.53 */
 #define GTP_EXT_CAMEL_CHG_INF_CON     0x9B    /* 3G   155 TLV CAMEL Charging Information Container 7.7.54 */
 #define GTP_EXT_MBMS_UE_CTX           0x9C    /* 3G   156 TLV MBMS UE Context 7.7.55 */
 #define GTP_EXT_TMGI                  0x9D    /* 3G   157 TLV Temporary Mobile Group Identity (TMGI) 7.7.56 */
@@ -658,6 +664,25 @@ static value_string_ext message_type_ext = VALUE_STRING_EXT_INIT(message_type);
 #define GTP_EXT_DIRECT_TUNNEL_FLGS    0xB6    /* 3G   182 TLV Direct Tunnel Flags     7.7.81 */
 #define GTP_EXT_CORRELATION_ID        0xB7    /* 3G   183 TLV Correlation-ID  7.7.82 */
 #define GTP_EXT_BEARER_CONTROL_MODE   0xB8    /* 3G   184 TLV Bearer Control Mode     7.7.83 */
+/* 3G   185	TLV	MBMS Flow Identifier	7.7.84 */
+/* 3G   186	TLV	MBMS IP Multicast Distribution	7.7.85 */
+/* 3G   187	TLV	MBMS Distribution Acknowledgement	7.7.86 */
+/* 3G   188	TLV	Reliable INTER RAT HANDOVER INFO 	7.7.87 */
+/* 3G   189	TLV	RFSP Index	7.7.88 */
+/* 3G   190	TLV	Fully Qualified Domain Name (FQDN)	7.7.90 */
+#define GTP_EXT_EVO_ALLO_RETE_P1      0xBF       /* 3G   191	TLV	Evolved Allocation/Retention Priority I	7.7.91 */
+/* 3G   192	TLV	Evolved Allocation/Retention Priority II	7.7.92 */
+/* 3G   193	TLV	Extended Common Flags	7.7.93 */
+/* 3G   194	TLV	User CSG Information (UCI)	7.7.94 */
+/* 3G   195	TLV	CSG Information Reporting Action	7.7.95 */
+/* 3G   196	TLV	CSG ID	7.7.96 */
+/* 3G   197	TLV	CSG Membership Indication (CMI)	7.7.97 */
+/* 3G   198	TLV	Aggregate Maximum Bit Rate (AMBR)	7.7.98 */
+/* 3G   199	TLV	UE Network Capability	7.7.99 */
+/* 3G   200	TLV	UE-AMBR	7.7.100 */
+/* 3G   201	TLV	APN-AMBR with NSAPI	7.7.101 */
+/* 202-238	TLV	Spare. For future use.	 */
+
 /* 239-250  Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33])*/
 
 #define GTP_EXT_C1                    0xC1
@@ -773,6 +798,24 @@ static const value_string gtp_val[] = {
     {GTP_EXT_DIRECT_TUNNEL_FLGS, "Direct Tunnel Flags"},    /* 7.7.81 */
     {GTP_EXT_CORRELATION_ID, "Correlation-ID"}, /* 7.7.82 */
     {GTP_EXT_BEARER_CONTROL_MODE, "Bearer Control Mode"},   /* 7.7.83 */
+    {185, "MBMS Flow Identifier"},   /* 7.7.84 */
+    {186, "MBMS IP Multicast Distribution"},   /* 7.7.85 */
+    {187, "MBMS Distribution Acknowledgement"},   /* 7.7.86 */
+    {188, "Reliable INTER RAT HANDOVER INFO"},   /* 7.7.87 */
+    {189, "RFSP Index"},   /* 7.7.88 */
+    {190, "Fully Qualified Domain Name (FQDN)"},   /* 7.7.90 */
+    {GTP_EXT_EVO_ALLO_RETE_P1, "Evolved Allocation/Retention Priority I"},   /* 7.7.91 */
+    {192, "Evolved Allocation/Retention Priority II"},   /* 7.7.92 */
+    {193, "Extended Common Flags"},   /* 7.7.93 */
+    {194, "User CSG Information (UCI)"},   /* 7.7.94 */
+    {195, "CSG Information Reporting Action"},   /* 7.7.95 */
+    {196, "CSG ID"},   /* 7.7.96 */
+    {197, "CSG Membership Indication (CMI)"},   /* 7.7.97 */
+    {198, "Aggregate Maximum Bit Rate (AMBR)"},   /* 7.7.98 */
+    {199, "UE Network Capability"},   /* 7.7.99 */
+    {200, "UE-AMBR"},   /* 7.7.100 */
+    {201, "APN-AMBR with NSAPI"},   /* 7.7.101 */
+
     {GTP_EXT_REL_PACK, "Sequence numbers of released packets IE"},  /* charging */
     {GTP_EXT_CAN_PACK, "Sequence numbers of canceled packets IE"},  /* charging */
     {GTP_EXT_CHRG_ADDR, "Charging Gateway address"},
@@ -1297,6 +1340,8 @@ static const value_string ms_not_reachable_type[] = {
     {8, "MS purged for GPRS"},
     {9, "Unidentified subscriber via the MSC"},
     {10, "Unidentified subscriber via the SGSN"},
+    {11, "Deregistered in the HSS/HLR for IMS"},
+    {12, "No response via the IP-SM-GW"},
     {0, NULL}
 };
 
@@ -1552,6 +1597,7 @@ static int decode_gtp_ps_handover_xid(tvbuff_t * tvb, int offset, packet_info * 
 static int decode_gtp_direct_tnl_flg(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_ms_inf_chg_rep_act(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_corrl_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
+static int decode_gtp_evolved_allc_rtn_p1(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_chrg_addr(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_rel_pack(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
@@ -1655,7 +1701,7 @@ static const gtp_opt_t gtpopt[] = {
     {GTP_EXT_DIRECT_TUNNEL_FLGS, decode_gtp_direct_tnl_flg},    /* 7.7.81 */
     {GTP_EXT_CORRELATION_ID, decode_gtp_corrl_id},  /* 7.7.82 */
     {GTP_EXT_BEARER_CONTROL_MODE, decode_gtp_bearer_cntrl_mod}, /* 7.7.83 */
-
+    {GTP_EXT_EVO_ALLO_RETE_P1, decode_gtp_evolved_allc_rtn_p1},	/* 7.7.91 */
     {GTP_EXT_REL_PACK, decode_gtp_rel_pack},    /* charging */
     {GTP_EXT_CAN_PACK, decode_gtp_can_pack},    /* charging */
     {GTP_EXT_CHRG_ADDR, decode_gtp_chrg_addr},
@@ -3515,6 +3561,7 @@ static int decode_gtp_ms_reason(tvbuff_t * tvb, int offset, packet_info * pinfo 
 
     reason = tvb_get_guint8(tvb, offset + 1);
 
+	/* Reason for Absence is defined in 3GPP TS 23.040  */
     proto_tree_add_uint(tree, hf_gtp_ms_reason, tvb, offset, 2, reason);
 
     return 2;
@@ -6245,6 +6292,33 @@ static int decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info *
 	return 3 + length;
 
 }
+
+/*
+ * 7.7.91	Evolved Allocation/Retention Priority I
+ */
+static int decode_gtp_evolved_allc_rtn_p1(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+
+    guint16 length;
+    proto_tree *ext_tree;
+    proto_item *te;
+
+    length = tvb_get_ntohs(tvb, offset + 1);   
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_EVO_ALLO_RETE_P1, &gtp_val_ext, "Unknown")); 
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
+    offset = offset + 2;
+    
+    proto_tree_add_item(ext_tree, hf_gtp_earp_pvi, tvb, offset, 1, FALSE);
+    proto_tree_add_item(ext_tree, hf_gtp_earp_pl, tvb, offset, 1, FALSE);
+    proto_tree_add_item(ext_tree, hf_gtp_earp_pci, tvb, offset, 1, FALSE);
+
+    return 3 + length;
+    
+
+}
 /* GPRS:        12.15
  * UMTS:        33.015
  */
@@ -7057,6 +7131,22 @@ void proto_register_gtp(void)
          {"PS Handover XID parameter length", "gtp.ps_handover_xid_par_len",
           FT_UINT8, BASE_DEC, NULL, 0xFF,
           "XID parameter length", HFILL}},
+		{&hf_gtp_earp_pvi,
+		 {"PVI Pre-emption Vulnerability", "gtp.EARP_pre_emption_par_vulnerability",
+		  FT_UINT8, BASE_DEC, NULL, 0x01,
+		  "PVI Pre-emption Vulnerability", HFILL}},
+		{&hf_gtp_earp_pl,
+		 {"PL Priority Level", "gtp.EARP_priority_level",
+		  FT_UINT8, BASE_DEC, NULL, 0x3C,
+		  "PL Priority Level", HFILL}},
+		{&hf_gtp_earp_pci,
+		 {"PCI Pre-emption Capability", "gtp.EARP_pre_emption_Capability",
+		  FT_UINT8, BASE_DEC, NULL, 0x40,
+		  "PCI Pre-emption Capability", HFILL}},
+		{&hf_gtp_spare,
+		 {"Spare", "gtp.spare",
+		  FT_UINT8, BASE_DEC, NULL, 0x02,
+		  "Spare", HFILL}},
         {&hf_gtp_cmn_flg_ppc,
          {"Prohibit Payload Compression", "gtp.cmn_flg.ppc",
           FT_BOOLEAN, 8, NULL, 0x01,
