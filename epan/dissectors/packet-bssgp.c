@@ -7249,6 +7249,10 @@ de_bssgp_nsei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 /*
  * 11.3.56	Deciphering Keys
  */
+/* Rest of element coded as the value part defined in
+ * 3GPP TS 49.031, not including 3GPP TS 49.031 IEI and
+ * 3GPP TS 49.031 octet length indicator
+ */
 /*
  * 11.3.57	LCS Priority
  */
@@ -7258,6 +7262,10 @@ de_bssgp_nsei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
  */
 /*
  * 11.3.58	LCS Cause
+ */
+/* Rest of element coded as the value part defined in
+ * 3GPP TS 49.031, not including 3GPP TS 49.031 IEI and
+ * 3GPP TS 49.031 octet length indicator
  */
 /*
  * 11.3.59	LCS Capability
@@ -7877,6 +7885,21 @@ de_bssgp_active_pfcs_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 /*
  * 11.3.96	Velocity Data
  */
+static guint16
+de_bssgp_velocity_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	/* The rest of the information element contains an octet sequence
+	 * identical to that for Description of Velocity defined in 3GPP TS
+	 * 23.032.
+	 */
+	curr_offset = dissect_description_of_velocity(tvb, tree, curr_offset, len, add_string, string_len);
+
+	return(curr_offset-offset);
+}
 /*
  * 11.3.97	DTM Handover Command
  */
@@ -8144,11 +8167,11 @@ const value_string bssgp_elem_strings[] = {
 																	/* 11.3.51	LCS Client Type BSSGP_IEI_LCS_CLIENT_TYPE, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CLIENT_TYPE*/
 																	/* 11.3.52	Requested GPS Assistance Data BSSGP_IEI_REQUESTED_GPS_ASSISTANCE_DATA, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_REQ_GPS_ASSIST_D*/
 																	/* 11.3.53	Location Type 0x7c, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_GANSS_LOC_TYPE*/
- /* 11.3.54	Location Estimate */
- /* 11.3.55	Positioning Data */
- /* 11.3.56	Deciphering Keys */
- /* 11.3.57	LCS Priority */
- /* 11.3.58	LCS Cause */
+																	/* 11.3.54	Location Estimate BSSGP_IEI_LOCATION_ESTIMATE, GSM_A_PDU_TYPE_BSSMAP, BE_LOC_EST*/
+																	/* 11.3.55	Positioning Data 0x7d, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_POS_DATA*/
+																	/* 11.3.56	Deciphering Keys BSSGP_IEI_DECIPHERING_KEYS, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_DECIPH_KEYS */
+																	/* 11.3.57	LCS Priority BSSGP_IEI_LCS_PRIORITY, GSM_A_PDU_TYPE_BSSMAP, BE_LCS_PRIO;*/
+																	/* 11.3.58	LCS Cause BSSGP_IEI_LCS_CAUSE, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CAUSE */
 																	/* 11.3.59	LCS Capability 0x49 , GSM_A_PDU_TYPE_GM, DE_PS_LCS_CAP*/
  /* 11.3.60	RRLP Flags */
  /* 11.3.61	RIM Application Identity */
@@ -8216,7 +8239,7 @@ const value_string bssgp_elem_strings[] = {
  	{ 0x00, "PS Handover Indications" },							/* 11.3.95a	PS Handover Indications */
  	{ 0x00, "SI/PSI Container" },									/* 11.3.95b	SI/PSI Container */
  	{ 0x00, "Active PFCs List" },									/* 11.3.95c	Active PFCs List */
- /* 11.3.96	Velocity Data */
+ 	{ 0x00, "Velocity Data" },										/* 11.3.96	Velocity Data */
  	{ 0x00, "DTM Handover Command" },								/* 11.3.97	DTM Handover Command */
 	{ 0x00, "PS Handover Indications" },							/* 11.3.98	CS Indication */
 																	/* 11.3.99	Requested GANSS Assistance Data 0x7b, GSM_A_PDU_TYPE_BSSMAP, BE_GANSS_ASS_DTA*/
@@ -8310,6 +8333,7 @@ typedef enum
  	DE_BSSGP_PS_HO_INDICATIONS,									/* 11.3.95a	PS Handover Indications */
  	DE_BSSGP_SIPSI_CONTAINER,									/* 11.3.95b	SI/PSI Container */
  	DE_BSSGP_ACTIVE_PFCS_LIST,									/* 11.3.95c	Active PFCs List */
+	DE_BSSGP_VELOCITY_DATA,										/* 11.3.96	Velocity Data */
  	DE_BBSGP_DTM_HO_CMD,										/* 11.3.97	DTM Handover Command */
 	DE_BSSGP_CS_INDICATION,										/* 11.3.98	CS Indication */
 	DE_BSSGP_FLOW_CONTROL_GRAN,									/* 11.3.102	Flow Control Granularity */
@@ -8390,6 +8414,7 @@ guint16 (*bssgp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gui
  	de_bssgp_ps_ho_indications,									/* 11.3.95a	PS Handover Indications */
  	de_bssgp_sipsi_container,									/* 11.3.95b	SI/PSI Container */
 	de_bssgp_active_pfcs_list,									/* 11.3.95c	Active PFCs List */
+	de_bssgp_velocity_data,										/* 11.3.96	Velocity Data */
  	de_bssgp_dtm_ho_cmd,										/* 11.3.97	DTM Handover Command */
 	de_bssgp_cs_indication,										/* 11.3.98	CS Indication */
 	de_bssgp_flow_control_gran,									/* 11.3.102	Flow Control Granularity */
@@ -9989,6 +10014,41 @@ bssgp_perform_loc_request(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 
 /*
  * 10.5.2	PERFORM-LOCATION-RESPONSE
+ */
+static void
+bssgp_perform_loc_response(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+	/*This PDU allows the BSS to respond to the SGSN after the completion of the location procedure. */
+	/* Direction: BSS to SGSN */
+	gpinfo->link_dir = P2P_DIR_UL;
+
+	/* TLLI TLLI/11.3.35 M TLV 6 */
+	ELEM_MAND_TELV(BSSGP_IEI_TLLI, GSM_A_PDU_TYPE_RR, DE_RR_TLLI , NULL);
+	/* BVCI (PCU-PTP) BVCI/11.3.6 M TLV 4 */
+	ELEM_MAND_TELV(BSSGP_IEI_BVCI, BSSGP_PDU_TYPE, DE_BSSGP_BVCI , " - (PCU-PTP)");
+	/* Location Estimate (note 1) Location Estimate/11.3.54 C TLV 3-? */
+	ELEM_OPT_TELV(BSSGP_IEI_LOCATION_ESTIMATE, GSM_A_PDU_TYPE_BSSMAP, BE_LOC_EST, NULL);
+	/* Positioning Data Positioning Data/11.3.55 O TLV 3-? */
+	ELEM_OPT_TELV(0x7d, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_POS_DATA, NULL);
+	/* Deciphering Keys (note 2) Deciphering Keys/11.3.56 C TLV 3-? */
+	ELEM_OPT_TELV(BSSGP_IEI_DECIPHERING_KEYS, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_DECIPH_KEYS, NULL);
+	/* LCS Cause (note 3) LCS Cause/11.3.58 O TLV 3-? */
+	ELEM_OPT_TELV(BSSGP_IEI_LCS_CAUSE, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CAUSE, NULL);
+	/* Velocity Data Velocity Data/11.3.96 O TLV 3-? */
+	ELEM_MAND_TELV(0x78, BSSGP_PDU_TYPE, DE_BSSGP_VELOCITY_DATA , NULL);
+	/* GANSS Positioning Data GANSS Positioning Data /11.3.101 O TLV 3-? */
+
+	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
+}
+
+/*
  * 10.5.3	PERFORM-LOCATION-ABORT
  * 10.5.4	POSITION-COMMAND
  * 10.5.5	POSITION-RESPONSE

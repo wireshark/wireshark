@@ -680,6 +680,14 @@ static int hf_gsm_a_geo_loc_orientation_of_major_axis = -1;
 static int hf_gsm_a_geo_loc_uncertainty_altitude = -1;
 static int hf_gsm_a_geo_loc_confidence = -1;
 static int hf_gsm_a_geo_loc_no_of_points = -1;
+static int hf_gsm_a_velocity_type = -1;
+static int hf_gsm_a_bearing = -1;
+static int hf_gsm_a_horizontal_speed = -1;
+static int hf_gsm_a_uncertainty_speed = -1;
+static int hf_gsm_a_h_uncertainty_speed = -1;
+static int hf_gsm_a_v_uncertainty_speed = -1;
+static int hf_gsm_a_vertical_speed = -1;
+static int hf_gsm_a_d = -1;
 static int hf_gsm_a_geo_loc_D = -1;
 static int hf_gsm_a_geo_loc_altitude = -1;
 static int hf_gsm_a_geo_loc_inner_radius = -1;
@@ -907,6 +915,155 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 		break;
 	}
 
+}
+
+/* TS 23.032
+ * Ch. 8 Description of Velocity
+ */
+/* 8.6 Coding of Velocity Type */
+static const value_string gsm_a_velocity_type_vals[] = {
+	{ 0,		"Horizontal Velocity"},
+	{ 1,		"Horizontal with Vertical Velocity"},
+	{ 2,		"Horizontal Velocity with Uncertainty"},
+	{ 3,		"Horizontal with Vertical Velocity and Uncertainty"},
+	{ 4,		"reserved for future use"},
+	{ 5,		"reserved for future use"},
+	{ 6,		"reserved for future use"},
+	{ 7,		"reserved for future use"},
+	{ 8,		"reserved for future use"},
+	{ 9,		"reserved for future use"},
+	{ 10,		"reserved for future use"},
+	{ 11,		"reserved for future use"},
+	{ 12,		"reserved for future use"},
+	{ 13,		"reserved for future use"},
+	{ 14,		"reserved for future use"},
+	{ 15,		"reserved for future use"},
+	{ 0,	NULL }
+};
+
+static const value_string gsm_a_dir_of_ver_speed_vals[] = {
+    { 0, "Downward" },
+    { 1, "Upward" },
+    { 0, NULL}
+};
+
+guint16
+dissect_description_of_velocity(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	proto_item *velocity_item;
+	guint32	curr_offset;
+	guint8 velocity_type, uncertainty_speed=0;
+
+	curr_offset = offset;
+
+	/* Bit 8 - 5 Velocity Type */
+	velocity_type = tvb_get_guint8(tvb,curr_offset);
+	proto_tree_add_item(tree, hf_gsm_a_velocity_type, tvb, offset, 1, FALSE);
+	curr_offset++;
+
+	switch(velocity_type){
+		case 0:
+			/* 8.12 Coding of Horizontal Velocity */
+			/* Spare bits */
+			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 3, FALSE);
+			/* Bearing is encoded in increments of 1 degree measured clockwise from North using a 9 bit binary coded number N. */
+			proto_tree_add_bits_item(tree, hf_gsm_a_bearing, tvb, (curr_offset<<3)+7, 9, FALSE);
+			curr_offset+=2;
+			/* Horizontal speed is encoded in increments of 1 kilometre per hour using a 16 bit binary coded number N. */
+			velocity_item = proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, FALSE);
+			proto_item_append_text(velocity_item," km/h");
+			curr_offset+=2;
+			break;
+		case 1:
+			/* 8.13 Coding of Horizontal with Vertical Velocity */
+			/* Spare bits */
+			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 2, FALSE);
+			/* D: Direction of Vertical Speed */
+			proto_tree_add_item(tree, hf_gsm_a_d, tvb, offset, 1, FALSE);
+			/* Bearing is encoded in increments of 1 degree measured clockwise from North using a 9 bit binary coded number N. */
+			proto_tree_add_bits_item(tree, hf_gsm_a_bearing, tvb, (curr_offset<<3)+7, 9, FALSE);
+			curr_offset+=2;
+			/* Horizontal speed is encoded in increments of 1 kilometre per hour using a 16 bit binary coded number N. */
+			velocity_item = proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, FALSE);
+			proto_item_append_text(velocity_item," km/h");
+			curr_offset+=2;
+			/* Vertical Speed Octet 5 
+			 * Vertical speed is encoded in increments of 1 kilometre per hour using 8 bits giving a number N between 0 and 28-1.
+			 */
+			velocity_item = proto_tree_add_item(tree, hf_gsm_a_vertical_speed, tvb, offset, 1, FALSE);
+			proto_item_append_text(velocity_item," km/h");
+			curr_offset++;
+			break;
+		case 2:
+			/* 8.14 Coding of Horizontal Velocity with Uncertainty */
+			/* Spare bits */
+			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 3, FALSE);
+			/* Bearing is encoded in increments of 1 degree measured clockwise from North using a 9 bit binary coded number N. */
+			proto_tree_add_bits_item(tree, hf_gsm_a_bearing, tvb, (curr_offset<<3)+7, 9, FALSE);
+			curr_offset+=2;
+			/* Horizontal speed is encoded in increments of 1 kilometre per hour using a 16 bit binary coded number N. */
+			velocity_item = proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, FALSE);
+			proto_item_append_text(velocity_item," km/h");
+			curr_offset+=2;
+			/* Uncertainty Speed Octet 5 
+			 * Uncertainty speed is encoded in increments of 1 kilometre per hour using an 8 bit binary coded number N. The value of
+			 * N gives the uncertainty speed except for N=255 which indicates that the uncertainty is not specified.
+			 */
+			uncertainty_speed = tvb_get_guint8(tvb,curr_offset);
+			velocity_item = proto_tree_add_item(tree, hf_gsm_a_uncertainty_speed, tvb, offset, 2, FALSE);
+			if(uncertainty_speed==255){
+				proto_item_append_text(velocity_item," not specified");
+			}else{
+				proto_item_append_text(velocity_item," km/h");
+			}
+			offset++;
+			break;
+		case 3:
+			/* 8.15 Coding of Horizontal with Vertical Velocity and Uncertainty */
+			/* Spare bits */
+			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 2, FALSE);
+			/* D: Direction of Vertical Speed */
+			proto_tree_add_item(tree, hf_gsm_a_d, tvb, offset, 1, FALSE);
+			/* Bearing is encoded in increments of 1 degree measured clockwise from North using a 9 bit binary coded number N. */
+			proto_tree_add_bits_item(tree, hf_gsm_a_bearing, tvb, (curr_offset<<3)+7, 9, FALSE);
+			curr_offset+=2;
+			/* Horizontal speed is encoded in increments of 1 kilometre per hour using a 16 bit binary coded number N. */
+			velocity_item = proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, FALSE);
+			proto_item_append_text(velocity_item," km/h");
+			curr_offset+=2;
+			/* Vertical Speed Octet 5 
+			 * Vertical speed is encoded in increments of 1 kilometre per hour using 8 bits giving a number N between 0 and 28-1.
+			 */
+			velocity_item = proto_tree_add_item(tree, hf_gsm_a_vertical_speed, tvb, offset, 1, FALSE);
+			proto_item_append_text(velocity_item," km/h");
+			curr_offset++;
+
+			/* Horizontal Uncertainty Speed Octet 6 */
+			uncertainty_speed = tvb_get_guint8(tvb,curr_offset);
+			velocity_item = proto_tree_add_item(tree, hf_gsm_a_h_uncertainty_speed, tvb, offset, 2, FALSE);
+			if(uncertainty_speed==255){
+				proto_item_append_text(velocity_item," not specified");
+			}else{
+				proto_item_append_text(velocity_item," km/h");
+			}
+			offset++;
+
+			/* Vertical Uncertainty Speed Octet 7 */
+			uncertainty_speed = tvb_get_guint8(tvb,curr_offset);
+			velocity_item = proto_tree_add_item(tree, hf_gsm_a_v_uncertainty_speed, tvb, offset, 2, FALSE);
+			if(uncertainty_speed==255){
+				proto_item_append_text(velocity_item," not specified");
+			}else{
+				proto_item_append_text(velocity_item," km/h");
+			}
+			offset++;
+
+			break;
+		default:
+			break;
+	}
+
+	return(curr_offset-offset);
 }
 
 const char* get_gsm_a_msg_string(int pdu_type, int idx)
@@ -3842,6 +3999,46 @@ proto_register_gsm_a_common(void)
 		{ "Number of points","gsm_a.gad.no_of_points",
 		FT_UINT8,BASE_DEC, NULL, 0x0f,
 		NULL, HFILL }
+	},
+	{ &hf_gsm_a_velocity_type,
+		{ "Number of points","gsm_a.gad.velocity_type",
+		FT_UINT8,BASE_DEC, VALS(gsm_a_velocity_type_vals), 0xf0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_bearing,
+		{ "Bearing","gsm_a.gad.bearing",
+		FT_UINT16,BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_horizontal_speed,
+		{ "Horizontal Speed","gsm_a.gad.horizontal_velocity",
+		FT_UINT16,BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_vertical_speed,
+		{ "Vertical Speed","gsm_a.gad.vertical_speed",
+		FT_UINT8,BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_uncertainty_speed,
+		{ "Uncertainty Speed","gsm_a.gad.uncertainty_speed",
+		FT_UINT8,BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_h_uncertainty_speed,
+		{ "Horizontal Uncertainty Speed","gsm_a.gad.v_uncertainty_speed",
+		FT_UINT8,BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_v_uncertainty_speed,
+		{ "Vertical Uncertainty Speed","gsm_a.gad.h_uncertainty_speed",
+		FT_UINT8,BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_d,
+		{ "Direction of Vertical Speed", "gsm_a.gad.d",
+		FT_BOOLEAN, 8, TFS(&gsm_a_dir_of_ver_speed_vals), 0x08,
+		NULL, HFILL}
 	},
 	{ &hf_gsm_a_geo_loc_D,
 		{ "D: Direction of Altitude","gsm_a.gad.D",

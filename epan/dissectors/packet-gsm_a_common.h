@@ -160,6 +160,8 @@ extern packet_info *gsm_a_dtap_pinfo;
 
 /* TS 23 032 */
 void dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+guint16 dissect_description_of_velocity(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
+
 
 /* common field values */
 extern int hf_gsm_a_length;
