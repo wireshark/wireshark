@@ -99,9 +99,6 @@
 #include <unistd.h>
 #endif
 
-#include <stdlib.h>
-#include <string.h>
-
 #include <glib.h>
 
 #include <epan/tvbuff.h>
@@ -347,20 +344,20 @@ typedef enum {
 } rsvp_message_types;
 
 static const value_string message_type_vals[] = {
-    {RSVP_MSG_PATH,		"PATH Message. "},
-    {RSVP_MSG_RESV,		"RESV Message. "},
-    {RSVP_MSG_PERR,		"PATH ERROR Message. "},
-    {RSVP_MSG_RERR,		"RESV ERROR Message. "},
-    {RSVP_MSG_PTEAR,		"PATH TEAR Message. "},
-    {RSVP_MSG_RTEAR,		"RESV TEAR Message. "},
-    {RSVP_MSG_CONFIRM,		"CONFIRM Message. "},
-    {RSVP_MSG_RTEAR_CONFIRM, 	"RESV TEAR CONFIRM Message. "},
-    {RSVP_MSG_BUNDLE,		"BUNDLE Message. "},
-    {RSVP_MSG_ACK,		"ACK Message. "},
-    {RSVP_MSG_SREFRESH,		"SREFRESH Message. "},
-    {RSVP_MSG_HELLO,		"HELLO Message. "},
-    {RSVP_MSG_NOTIFY,		"NOTIFY Message. "},
-    {0, NULL}
+    { RSVP_MSG_PATH,		"PATH Message. "},
+    { RSVP_MSG_RESV,		"RESV Message. "},
+    { RSVP_MSG_PERR,		"PATH ERROR Message. "},
+    { RSVP_MSG_RERR,		"RESV ERROR Message. "},
+    { RSVP_MSG_PTEAR,		"PATH TEAR Message. "},
+    { RSVP_MSG_RTEAR,		"RESV TEAR Message. "},
+    { RSVP_MSG_CONFIRM,		"CONFIRM Message. "},
+    { RSVP_MSG_RTEAR_CONFIRM, 	"RESV TEAR CONFIRM Message. "},
+    { RSVP_MSG_BUNDLE,		"BUNDLE Message. "},
+    { RSVP_MSG_ACK,		"ACK Message. "},
+    { RSVP_MSG_SREFRESH,	"SREFRESH Message. "},
+    { RSVP_MSG_HELLO,		"HELLO Message. "},
+    { RSVP_MSG_NOTIFY,		"NOTIFY Message. "},
+    { 0, NULL}
 };
 
 /*
@@ -481,76 +478,76 @@ enum rsvp_classes {
 };
 
 static const value_string rsvp_class_vals[] = {
-    {RSVP_CLASS_NULL, "NULL object"},
-    {RSVP_CLASS_SESSION, "SESSION object"},
-    {RSVP_CLASS_HOP, "HOP object"},
-    {RSVP_CLASS_INTEGRITY, "INTEGRITY object"},
-    {RSVP_CLASS_TIME_VALUES, "TIME VALUES object"},
-    {RSVP_CLASS_ERROR, "ERROR object"},
-    {RSVP_CLASS_SCOPE, "SCOPE object"},
-    {RSVP_CLASS_STYLE, "STYLE object"},
-    {RSVP_CLASS_FLOWSPEC, "FLOWSPEC object"},
-    {RSVP_CLASS_FILTER_SPEC, "FILTER SPEC object"},
-    {RSVP_CLASS_SENDER_TEMPLATE, "SENDER TEMPLATE object"},
-    {RSVP_CLASS_SENDER_TSPEC, "SENDER TSPEC object"},
-    {RSVP_CLASS_ADSPEC, "ADSPEC object"},
-    {RSVP_CLASS_POLICY, "POLICY object"},
-    {RSVP_CLASS_CONFIRM, "CONFIRM object"},
-    {RSVP_CLASS_LABEL, "LABEL object"},
-    {RSVP_CLASS_HOP_COUNT, "HOP_COUNT object"},
-    {RSVP_CLASS_STRICT_SOURCE_ROUTE, "STRICT_SOURCE_ROUTE object"},
-    {RSVP_CLASS_LABEL_REQUEST, "LABEL REQUEST object"},
-    {RSVP_CLASS_EXPLICIT_ROUTE, "EXPLICIT ROUTE object"},
-    {RSVP_CLASS_RECORD_ROUTE, "RECORD ROUTE object"},
-    {RSVP_CLASS_SESSION_ATTRIBUTE, "SESSION ATTRIBUTE object"},
-    {RSVP_CLASS_MESSAGE_ID, "MESSAGE-ID object"},
-    {RSVP_CLASS_MESSAGE_ID_ACK, "MESSAGE-ID ACK/NACK object"},
-    {RSVP_CLASS_MESSAGE_ID_LIST, "MESSAGE-ID LIST object"},
-    {RSVP_CLASS_HELLO, "HELLO object"},
-    {RSVP_CLASS_RECOVERY_LABEL, "RECOVERY-LABEL object"},
-    {RSVP_CLASS_UPSTREAM_LABEL, "UPSTREAM-LABEL object"},
-    {RSVP_CLASS_LABEL_SET, "LABEL-SET object"},
-    {RSVP_CLASS_PROTECTION, "PROTECTION object"},
-    {RSVP_CLASS_DIFFSERV, "DIFFSERV object"},
-    {RSVP_CLASS_CLASSTYPE, "CLASSTYPE object"},
-    {RSVP_CLASS_SUGGESTED_LABEL, "SUGGESTED-LABEL object"},
-    {RSVP_CLASS_ACCEPTABLE_LABEL_SET, "ACCEPTABLE-LABEL-SET object"},
-    {RSVP_CLASS_RESTART_CAP, "RESTART-CAPABILITY object"},
-    {RSVP_CLASS_DCLASS, "DCLASS object"},
-    {RSVP_CLASS_LSP_TUNNEL_IF_ID, "LSP-TUNNEL INTERFACE-ID object"},
-    {RSVP_CLASS_NOTIFY_REQUEST, "NOTIFY-REQUEST object"},
-    {RSVP_CLASS_ADMIN_STATUS, "ADMIN-STATUS object"},
-    {RSVP_CLASS_LSP_ATTRIBUTES, "LSP ATTRIBUTES object"},
-    {RSVP_CLASS_ASSOCIATION, "ASSOCIATION object"},
-    {RSVP_CLASS_GENERALIZED_UNI, "GENERALIZED-UNI object"},
-    {RSVP_CLASS_CALL_ID, "CALL-ID object"},
-    {RSVP_CLASS_DETOUR, "DETOUR object"},
-    {RSVP_CLASS_FAST_REROUTE, "FAST-REROUTE object"},
-    {RSVP_CLASS_VENDOR_PRIVATE_1, "VENDOR PRIVATE object (0bbbbbbb: "
-                                  "reject if unknown)"},
-    {RSVP_CLASS_VENDOR_PRIVATE_2, "VENDOR PRIVATE object (0bbbbbbb: "
-                                  "reject if unknown)"},
-    {RSVP_CLASS_VENDOR_PRIVATE_3, "VENDOR PRIVATE object (0bbbbbbb: "
-                                  "reject if unknown)"},
-    {RSVP_CLASS_VENDOR_PRIVATE_4, "VENDOR PRIVATE object (0bbbbbbb: "
-                                  "reject if unknown)"},
-    {RSVP_CLASS_VENDOR_PRIVATE_5, "VENDOR PRIVATE object (10bbbbbb: "
-                                  "ignore if unknown)"},
-    {RSVP_CLASS_VENDOR_PRIVATE_6, "VENDOR PRIVATE object (10bbbbbb: "
-                                  "ignore if unknown)"},
-    {RSVP_CLASS_VENDOR_PRIVATE_7, "VENDOR PRIVATE object (10bbbbbb: "
-                                  "ignore if unknown)"},
-    {RSVP_CLASS_VENDOR_PRIVATE_8, "VENDOR PRIVATE object (10bbbbbb: "
-                                  "ignore if unknown)"},
-    {RSVP_CLASS_VENDOR_PRIVATE_9, "VENDOR PRIVATE object (11bbbbbb: "
-                                  "forward if unknown)"},
-    {RSVP_CLASS_VENDOR_PRIVATE_10, "VENDOR PRIVATE object (11bbbbbb: "
-                                   "forward if unknown)"},
-    {RSVP_CLASS_VENDOR_PRIVATE_11, "VENDOR PRIVATE object (11bbbbbb: "
-                                   "forward if unknown)"},
-    {RSVP_CLASS_VENDOR_PRIVATE_12, "VENDOR PRIVATE object (11bbbbbb: "
-                                   "forward if unknown)"},
-    {0, NULL}
+    { RSVP_CLASS_NULL,                  "NULL object"},
+    { RSVP_CLASS_SESSION,               "SESSION object"},
+    { RSVP_CLASS_HOP,                   "HOP object"},
+    { RSVP_CLASS_INTEGRITY,             "INTEGRITY object"},
+    { RSVP_CLASS_TIME_VALUES,           "TIME VALUES object"},
+    { RSVP_CLASS_ERROR,                 "ERROR object"},
+    { RSVP_CLASS_SCOPE,                 "SCOPE object"},
+    { RSVP_CLASS_STYLE,                 "STYLE object"},
+    { RSVP_CLASS_FLOWSPEC,              "FLOWSPEC object"},
+    { RSVP_CLASS_FILTER_SPEC,           "FILTER SPEC object"},
+    { RSVP_CLASS_SENDER_TEMPLATE,       "SENDER TEMPLATE object"},
+    { RSVP_CLASS_SENDER_TSPEC,          "SENDER TSPEC object"},
+    { RSVP_CLASS_ADSPEC,                "ADSPEC object"},
+    { RSVP_CLASS_POLICY,                "POLICY object"},
+    { RSVP_CLASS_CONFIRM,               "CONFIRM object"},
+    { RSVP_CLASS_LABEL,                 "LABEL object"},
+    { RSVP_CLASS_HOP_COUNT,             "HOP_COUNT object"},
+    { RSVP_CLASS_STRICT_SOURCE_ROUTE,   "STRICT_SOURCE_ROUTE object"},
+    { RSVP_CLASS_LABEL_REQUEST,         "LABEL REQUEST object"},
+    { RSVP_CLASS_EXPLICIT_ROUTE,        "EXPLICIT ROUTE object"},
+    { RSVP_CLASS_RECORD_ROUTE,          "RECORD ROUTE object"},
+    { RSVP_CLASS_SESSION_ATTRIBUTE,     "SESSION ATTRIBUTE object"},
+    { RSVP_CLASS_MESSAGE_ID,            "MESSAGE-ID object"},
+    { RSVP_CLASS_MESSAGE_ID_ACK,        "MESSAGE-ID ACK/NACK object"},
+    { RSVP_CLASS_MESSAGE_ID_LIST,       "MESSAGE-ID LIST object"},
+    { RSVP_CLASS_HELLO,                 "HELLO object"},
+    { RSVP_CLASS_RECOVERY_LABEL,        "RECOVERY-LABEL object"},
+    { RSVP_CLASS_UPSTREAM_LABEL,        "UPSTREAM-LABEL object"},
+    { RSVP_CLASS_LABEL_SET,             "LABEL-SET object"},
+    { RSVP_CLASS_PROTECTION,            "PROTECTION object"},
+    { RSVP_CLASS_DIFFSERV,              "DIFFSERV object"},
+    { RSVP_CLASS_CLASSTYPE,             "CLASSTYPE object"},
+    { RSVP_CLASS_SUGGESTED_LABEL,       "SUGGESTED-LABEL object"},
+    { RSVP_CLASS_ACCEPTABLE_LABEL_SET,  "ACCEPTABLE-LABEL-SET object"},
+    { RSVP_CLASS_RESTART_CAP,           "RESTART-CAPABILITY object"},
+    { RSVP_CLASS_DCLASS,                "DCLASS object"},
+    { RSVP_CLASS_LSP_TUNNEL_IF_ID,      "LSP-TUNNEL INTERFACE-ID object"},
+    { RSVP_CLASS_NOTIFY_REQUEST,        "NOTIFY-REQUEST object"},
+    { RSVP_CLASS_ADMIN_STATUS,          "ADMIN-STATUS object"},
+    { RSVP_CLASS_LSP_ATTRIBUTES,        "LSP ATTRIBUTES object"},
+    { RSVP_CLASS_ASSOCIATION,           "ASSOCIATION object"},
+    { RSVP_CLASS_GENERALIZED_UNI,       "GENERALIZED-UNI object"},
+    { RSVP_CLASS_CALL_ID,               "CALL-ID object"},
+    { RSVP_CLASS_DETOUR,                "DETOUR object"},
+    { RSVP_CLASS_FAST_REROUTE,          "FAST-REROUTE object"},
+    { RSVP_CLASS_VENDOR_PRIVATE_1,      "VENDOR PRIVATE object (0bbbbbbb: "
+                                        "reject if unknown)"},
+    { RSVP_CLASS_VENDOR_PRIVATE_2,      "VENDOR PRIVATE object (0bbbbbbb: "
+                                         "reject if unknown)"},
+    { RSVP_CLASS_VENDOR_PRIVATE_3,      "VENDOR PRIVATE object (0bbbbbbb: "
+                                         "reject if unknown)"},
+    { RSVP_CLASS_VENDOR_PRIVATE_4,      "VENDOR PRIVATE object (0bbbbbbb: "
+                                         "reject if unknown)"},
+    { RSVP_CLASS_VENDOR_PRIVATE_5,      "VENDOR PRIVATE object (10bbbbbb: "
+                                         "ignore if unknown)"},
+    { RSVP_CLASS_VENDOR_PRIVATE_6,      "VENDOR PRIVATE object (10bbbbbb: "
+                                         "ignore if unknown)"},
+    { RSVP_CLASS_VENDOR_PRIVATE_7,      "VENDOR PRIVATE object (10bbbbbb: "
+                                         "ignore if unknown)"},
+    { RSVP_CLASS_VENDOR_PRIVATE_8,      "VENDOR PRIVATE object (10bbbbbb: "
+                                         "ignore if unknown)"},
+    { RSVP_CLASS_VENDOR_PRIVATE_9,      "VENDOR PRIVATE object (11bbbbbb: "
+                                         "forward if unknown)"},
+    { RSVP_CLASS_VENDOR_PRIVATE_10,     "VENDOR PRIVATE object (11bbbbbb: "
+                                          "forward if unknown)"},
+    { RSVP_CLASS_VENDOR_PRIVATE_11,     "VENDOR PRIVATE object (11bbbbbb: "
+                                          "forward if unknown)"},
+    { RSVP_CLASS_VENDOR_PRIVATE_12,     "VENDOR PRIVATE object (11bbbbbb: "
+                                          "forward if unknown)"},
+    { 0, NULL}
 };
 
 /*
@@ -585,176 +582,176 @@ enum rsvp_error_types {
 };
 
 static const value_string rsvp_error_codes[] = {
-    {RSVP_ERROR_CONFIRM, "Confirmation"},
-    {RSVP_ERROR_ADMISSION, "Admission Control Failure "},
-    {RSVP_ERROR_POLICY, "Policy Control Failure"},
-    {RSVP_ERROR_NO_PATH, "No PATH information for this RESV message"},
-    {RSVP_ERROR_NO_SENDER, "No sender information for this RESV message"},
-    {RSVP_ERROR_CONFLICT_RESV_STYLE, "Conflicting reservation styles"},
-    {RSVP_ERROR_UNKNOWN_RESV_STYLE, "Unknown reservation style"},
-    {RSVP_ERROR_CONFLICT_DEST_PORTS, "Conflicting destination ports"},
-    {RSVP_ERROR_CONFLICT_SRC_PORTS, "Conflicting source ports"},
-    {RSVP_ERROR_PREEMPTED, "Service preempted"},
-    {RSVP_ERROR_UNKNOWN_CLASS, "Unknown object class"},
-    {RSVP_ERROR_UNKNOWN_C_TYPE, "Unknown object C-type"},
-    {RSVP_ERROR_TRAFFIC, "Traffic Control Error"},
-    {RSVP_ERROR_TRAFFIC_SYSTEM, "Traffic Control System Error"},
-    {RSVP_ERROR_SYSTEM, "RSVP System Error"},
-    {RSVP_ERROR_ROUTING, "Routing Error"},
-    {RSVP_ERROR_NOTIFY, "RSVP Notify Error"},
-    {RSVP_ERROR_NEW_AGGR, "New aggregate needed"},
-    {RSVP_ERROR_DIFFSERV, "RSVP Diff-Serv Error"},
-    {RSVP_ERROR_DSTE, "RSVP DiffServ-aware TE Error"},
-    {RSVP_ERROR_UNKNOWN_ATTR_TLV, "Unknown attributes TLV"},
-    {RSVP_ERROR_UNKNOWN_ATTR_BIT, "Unknown attributes bit"},
-    {RSVP_ERROR_ALARMS, "Alarms"},
-    {RSVP_ERROR_CALL_MGMT, "Call management"},
-    {RSVP_ERROR_USER_ERROR_SPEC, "User error spec"},
-    {0, NULL}
+    { RSVP_ERROR_CONFIRM,              "Confirmation"},
+    { RSVP_ERROR_ADMISSION,            "Admission Control Failure "},
+    { RSVP_ERROR_POLICY,               "Policy Control Failure"},
+    { RSVP_ERROR_NO_PATH,              "No PATH information for this RESV message"},
+    { RSVP_ERROR_NO_SENDER,            "No sender information for this RESV message"},
+    { RSVP_ERROR_CONFLICT_RESV_STYLE,  "Conflicting reservation styles"},
+    { RSVP_ERROR_UNKNOWN_RESV_STYLE,   "Unknown reservation style"},
+    { RSVP_ERROR_CONFLICT_DEST_PORTS,  "Conflicting destination ports"},
+    { RSVP_ERROR_CONFLICT_SRC_PORTS,   "Conflicting source ports"},
+    { RSVP_ERROR_PREEMPTED,            "Service preempted"},
+    { RSVP_ERROR_UNKNOWN_CLASS,        "Unknown object class"},
+    { RSVP_ERROR_UNKNOWN_C_TYPE,       "Unknown object C-type"},
+    { RSVP_ERROR_TRAFFIC,              "Traffic Control Error"},
+    { RSVP_ERROR_TRAFFIC_SYSTEM,       "Traffic Control System Error"},
+    { RSVP_ERROR_SYSTEM,               "RSVP System Error"},
+    { RSVP_ERROR_ROUTING,              "Routing Error"},
+    { RSVP_ERROR_NOTIFY,               "RSVP Notify Error"},
+    { RSVP_ERROR_NEW_AGGR,             "New aggregate needed"},
+    { RSVP_ERROR_DIFFSERV,             "RSVP Diff-Serv Error"},
+    { RSVP_ERROR_DSTE,                 "RSVP DiffServ-aware TE Error"},
+    { RSVP_ERROR_UNKNOWN_ATTR_TLV,     "Unknown attributes TLV"},
+    { RSVP_ERROR_UNKNOWN_ATTR_BIT,     "Unknown attributes bit"},
+    { RSVP_ERROR_ALARMS,               "Alarms"},
+    { RSVP_ERROR_CALL_MGMT,            "Call management"},
+    { RSVP_ERROR_USER_ERROR_SPEC,      "User error spec"},
+    { 0, NULL}
 };
 
 static const value_string rsvp_admission_control_error_vals[] = {
-    {1, "Delay bound cannot be met"},
-    {2, "Requested bandwidth unavailable"},
-    {3, "MTU in flowspec larger than interface MTU"},
-    {4, "LSP Admission Failure"},
-    {5, "Bad Association Type"},
-    {0, NULL}
+    { 1, "Delay bound cannot be met"},
+    { 2, "Requested bandwidth unavailable"},
+    { 3, "MTU in flowspec larger than interface MTU"},
+    { 4, "LSP Admission Failure"},
+    { 5, "Bad Association Type"},
+    { 0, NULL}
 };
 
 static const value_string rsvp_policy_control_error_vals[] = {
-    {0, "Information reporting"},
-    {1, "Warning"},
-    {2, "Reason unknown"},
-    {3, "Generic Policy Rejection"},
-    {4, "Quota or Accounting violation"},
-    {5, "Flow was preempted"},
-    {6, "Previously installed policy expired (not refreshed)"},
-    {7, "Previous policy data was replaced & caused rejection"},
-    {8, "Policies could not be merged (multicast)"},
-    {9, "PDP down or non functioning"},
-    {10, "Third Party Server (e.g., Kerberos) unavailable"},
-    {11, "POLICY_DATA object has bad syntax"},
-    {12, "POLICY_DATA object failed Integrity Check"},
-    {13, "POLICY_ELEMENT object has bad syntax"},
-    {14, "Mandatory PE Missing (Empty PE is in the PD object)"},
-    {15, "PEP Out of resources to handle policies."},
-    {16, "PDP encountered bad RSVP objects or syntax"},
-    {17, "Service type was rejected"},
-    {18, "Reservation Style was rejected"},
-    {19, "FlowSpec was rejected (too large)"},
-    {20, "Hard Pre-empted"},
-    {100, "Unauthorized sender"},
-    {101, "Unauthorized receiver"},
-    {102, "ERR_PARTIAL_PREEMPT"},
-    {103, "Inter-domain policy failure"},
-    {104, "Inter-domain explicit route rejected"},
-    {0, NULL}
+    {   0, "Information reporting"},
+    {   1, "Warning"},
+    {   2, "Reason unknown"},
+    {   3, "Generic Policy Rejection"},
+    {   4, "Quota or Accounting violation"},
+    {   5, "Flow was preempted"},
+    {   6, "Previously installed policy expired (not refreshed)"},
+    {   7, "Previous policy data was replaced & caused rejection"},
+    {   8, "Policies could not be merged (multicast)"},
+    {   9, "PDP down or non functioning"},
+    {  10, "Third Party Server (e.g., Kerberos) unavailable"},
+    {  11, "POLICY_DATA object has bad syntax"},
+    {  12, "POLICY_DATA object failed Integrity Check"},
+    {  13, "POLICY_ELEMENT object has bad syntax"},
+    {  14, "Mandatory PE Missing (Empty PE is in the PD object)"},
+    {  15, "PEP Out of resources to handle policies."},
+    {  16, "PDP encountered bad RSVP objects or syntax"},
+    {  17, "Service type was rejected"},
+    {  18, "Reservation Style was rejected"},
+    {  19, "FlowSpec was rejected (too large)"},
+    {  20, "Hard Pre-empted"},
+    { 100, "Unauthorized sender"},
+    { 101, "Unauthorized receiver"},
+    { 102, "ERR_PARTIAL_PREEMPT"},
+    { 103, "Inter-domain policy failure"},
+    { 104, "Inter-domain explicit route rejected"},
+    {   0, NULL}
 };
 
 static const value_string rsvp_traffic_control_error_vals[] = {
-    {1, "Service conflict"},
-    {2, "Service unsupported"},
-    {3, "Bad Flowspec value"},
-    {4, "Bad Tspec value"},
-    {5, "Bad Adspec value"},
-    {0, NULL}
+    { 1, "Service conflict"},
+    { 2, "Service unsupported"},
+    { 3, "Bad Flowspec value"},
+    { 4, "Bad Tspec value"},
+    { 5, "Bad Adspec value"},
+    { 0, NULL}
 };
 
 static const value_string rsvp_routing_error_vals[] = {
-    {1, "Bad EXPLICIT_ROUTE object"},
-    {2, "Bad strict node"},
-    {3, "Bad loose node"},
-    {4, "Bad initial subobject"},
-    {5, "No route available toward destination"},
-    {6, "Unacceptable label value"},
-    {7, "RRO indicated routing loops"},
-    {8, "non-RSVP-capable router stands in the path"},
-    {9, "MPLS label allocation failure"},
-    {10, "Unsupported L3PID"},
-    {11, "Label Set"},
-    {12, "Switching Type"},
-    {13, "Unassigned"},
-    {14, "Unsupported Encoding"},
-    {15, "Unsupported Link Protection"},
-    {16, "Unknown Interface Index"},
-    {17, "Unsupported LSP Protection"},
-    {18, "PROTECTION object not applicable"},
-    {19, "Bad PRIMARY_PATH_ROUTE object"},
-    {20, "PRIMARY_PATH_ROUTE object not applicable"},
-    {21, "LSP Segment Protection Failed"},
-    {22, "Re-routing limit exceeded"},
-    {23, "Unable to Branch"},
-    {24, "Unsupported LSP Integrity"},
-    {25, "P2MP Re-Merge Detected"},
-    {26, "P2MP Re-Merge Parameter Mismatch"},
-    {27, "ERO Resulted in Re-Merge"},
-    {28, "Contiguous LSP type not supported"},
-    {29, "ERO conflicts with inter-domain signaling method"},
-    {30, "Stitching unsupported"},
-    {31, "Unknown PCE-ID for PKS expansion"},
-    {32, "Unreachable PCE for PKS expansion"},
-    {33, "Unknown Path Key for PKS expansion"},
-    {34, "ERO too large for MTU"},
-    {64, "Unsupported Exclude Route Subobject Type"},
-    {65, "Inconsistent Subobject"},
-    {66, "Local Node in Exclude Route"},
-    {67, "Route Blocked by Exclude Route"},
-    {68, "XRO Too Complex"},
-    {69, "EXRS Too Complex"},
-    {100, "Diversity not available"},
-    {101, "Service level not available"},
-    {102, "Invalid/Unknown connection ID"},
-    {103, "No route available toward source (ASON)"},
-    {104, "Unacceptable interface ID (ASON)"},
-    {105, "Invalid/unknown call ID (ASON)"},
-    {106, "Invalid SPC interface ID/label (ASON)"},
-    {0, NULL}
+    {   1, "Bad EXPLICIT_ROUTE object"},
+    {   2, "Bad strict node"},
+    {   3, "Bad loose node"},
+    {   4, "Bad initial subobject"},
+    {   5, "No route available toward destination"},
+    {   6, "Unacceptable label value"},
+    {   7, "RRO indicated routing loops"},
+    {   8, "non-RSVP-capable router stands in the path"},
+    {   9, "MPLS label allocation failure"},
+    {  10, "Unsupported L3PID"},
+    {  11, "Label Set"},
+    {  12, "Switching Type"},
+    {  13, "Unassigned"},
+    {  14, "Unsupported Encoding"},
+    {  15, "Unsupported Link Protection"},
+    {  16, "Unknown Interface Index"},
+    {  17, "Unsupported LSP Protection"},
+    {  18, "PROTECTION object not applicable"},
+    {  19, "Bad PRIMARY_PATH_ROUTE object"},
+    {  20, "PRIMARY_PATH_ROUTE object not applicable"},
+    {  21, "LSP Segment Protection Failed"},
+    {  22, "Re-routing limit exceeded"},
+    {  23, "Unable to Branch"},
+    {  24, "Unsupported LSP Integrity"},
+    {  25, "P2MP Re-Merge Detected"},
+    {  26, "P2MP Re-Merge Parameter Mismatch"},
+    {  27, "ERO Resulted in Re-Merge"},
+    {  28, "Contiguous LSP type not supported"},
+    {  29, "ERO conflicts with inter-domain signaling method"},
+    {  30, "Stitching unsupported"},
+    {  31, "Unknown PCE-ID for PKS expansion"},
+    {  32, "Unreachable PCE for PKS expansion"},
+    {  33, "Unknown Path Key for PKS expansion"},
+    {  34, "ERO too large for MTU"},
+    {  64, "Unsupported Exclude Route Subobject Type"},
+    {  65, "Inconsistent Subobject"},
+    {  66, "Local Node in Exclude Route"},
+    {  67, "Route Blocked by Exclude Route"},
+    {  68, "XRO Too Complex"},
+    {  69, "EXRS Too Complex"},
+    { 100, "Diversity not available"},
+    { 101, "Service level not available"},
+    { 102, "Invalid/Unknown connection ID"},
+    { 103, "No route available toward source (ASON)"},
+    { 104, "Unacceptable interface ID (ASON)"},
+    { 105, "Invalid/unknown call ID (ASON)"},
+    { 106, "Invalid SPC interface ID/label (ASON)"},
+    {   0, NULL}
 };
 
 static const value_string rsvp_notify_error_vals[] = {
-    {1, "RRO too large for MTU"},
-    {2, "RRO Notification"},
-    {3, "Tunnel locally repaired"},
-    {4, "Control Channel Active State"},
-    {5, "Control Channel Degraded State"},
-    {6, "Preferable path exists"},
-    {7, "Link maintenance required"},
-    {8, "Node maintenance required"},
-    {9, "LSP Failure"},
-    {10, "LSP recovered"},
-    {11, "LSP Local Failure"},
-    {0, NULL}
+    {  1, "RRO too large for MTU"},
+    {  2, "RRO Notification"},
+    {  3, "Tunnel locally repaired"},
+    {  4, "Control Channel Active State"},
+    {  5, "Control Channel Degraded State"},
+    {  6, "Preferable path exists"},
+    {  7, "Link maintenance required"},
+    {  8, "Node maintenance required"},
+    {  9, "LSP Failure"},
+    { 10, "LSP recovered"},
+    { 11, "LSP Local Failure"},
+    {  0, NULL}
 };
 
 static const value_string rsvp_diffserv_error_vals[] = {
-    {1, "Unexpected DIFFSERV object"},
-    {2, "Unsupported PHB"},
-    {3, "Invalid `EXP<->PHB mapping'"},
-    {4, "Unsupported PSC"},
-    {5, "Per-LSP context allocation failure"},
-    {0, NULL}
+    { 1, "Unexpected DIFFSERV object"},
+    { 2, "Unsupported PHB"},
+    { 3, "Invalid `EXP<->PHB mapping'"},
+    { 4, "Unsupported PSC"},
+    { 5, "Per-LSP context allocation failure"},
+    { 0, NULL}
 };
 
 /* FF: RFC4124 */
 static const value_string rsvp_diffserv_aware_te_error_vals[] = {
-    {1, "Unexpected CLASSTYPE object"},
-    {2, "Unsupported Class-Type"},
-    {3, "Invalid Class-Type value"},
-    {4, "CT and setup priority do not form a configured TE-Class"},
-    {5, "CT and holding priority do not form a configured TE-Class"},
-    {6, "CT and setup priority do not form a configured TE-Class AND CT and holding priority do not form a configured TE-Class"},
-    {7, "Inconsistency between signaled PSC and signaled CT"},
-    {8, "Inconsistency between signaled PHBs and signaled CT"},
-    {0, NULL}
+    { 1, "Unexpected CLASSTYPE object"},
+    { 2, "Unsupported Class-Type"},
+    { 3, "Invalid Class-Type value"},
+    { 4, "CT and setup priority do not form a configured TE-Class"},
+    { 5, "CT and holding priority do not form a configured TE-Class"},
+    { 6, "CT and setup priority do not form a configured TE-Class AND CT and holding priority do not form a configured TE-Class"},
+    { 7, "Inconsistency between signaled PSC and signaled CT"},
+    { 8, "Inconsistency between signaled PHBs and signaled CT"},
+    { 0, NULL}
 };
 
 static const value_string rsvp_call_mgmt_error_vals[] = {
-    {1, "Call ID Contention"},
-    {2, "Connections still Exist"},
-    {3, "Unknown Call ID"},
-    {4, "Duplicate Call"},
-    {0, NULL}
+    { 1, "Call ID Contention"},
+    { 2, "Connections still Exist"},
+    { 3, "Unknown Call ID"},
+    { 4, "Duplicate Call"},
+    { 0, NULL}
 };
 
 /*
@@ -833,11 +830,11 @@ enum intsrv_services {
 };
 
 static const value_string intsrv_services_str[] = {
-    {INTSRV_GENERAL, "Default General Parameters"},
-    {INTSRV_GTD, "Guaranteed Rate"},
-    {INTSRV_CLOAD, "Controlled Load"},
-    {INTSRV_NULL, "Null Service"},
-    {INTSRV_QUALITATIVE, "Null Service"},
+    { INTSRV_GENERAL,     "Default General Parameters"},
+    { INTSRV_GTD,         "Guaranteed Rate"},
+    { INTSRV_CLOAD,       "Controlled Load"},
+    { INTSRV_NULL,        "Null Service"},
+    { INTSRV_QUALITATIVE, "Null Service"},
     { 0, NULL }
 };
 
@@ -863,15 +860,15 @@ enum intsrv_field_name {
 #endif
 
 static const value_string adspec_params[] = {
-    {4, "IS Hop Count"},
-    {6, "Path b/w estimate"},
-    {8, "Minimum path latency"},
-    {10, "Composed MTU"},
-    {133, "End-to-end composed value for C"},
-    {134, "End-to-end composed value for D"},
-    {135, "Since-last-reshaping point composed C"},
-    {136, "Since-last-reshaping point composed D"},
-    { 0, NULL }
+    {   4, "IS Hop Count"},
+    {   6, "Path b/w estimate"},
+    {   8, "Minimum path latency"},
+    {  10, "Composed MTU"},
+    { 133, "End-to-end composed value for C"},
+    { 134, "End-to-end composed value for D"},
+    { 135, "Since-last-reshaping point composed C"},
+    { 136, "Since-last-reshaping point composed D"},
+    {   0, NULL }
 };
 
 /*
@@ -994,57 +991,57 @@ static const range_string gmpls_gpid_rvals[] = {
 };
 
 const value_string gmpls_protection_cap_str[] = {
-    { 1, "Extra Traffic"},
-    { 2, "Unprotected"},
-    { 4, "Shared"},
-    { 8, "Dedicated 1:1"},
-    {16, "Dedicated 1+1"},
-    {32, "Enhanced"},
-    {64, "Reserved"},
-    {128,"Reserved"},
-    { 0, NULL }
+    {   1, "Extra Traffic"},
+    {   2, "Unprotected"},
+    {   4, "Shared"},
+    {   8, "Dedicated 1:1"},
+    {  16, "Dedicated 1+1"},
+    {  32, "Enhanced"},
+    {  64, "Reserved"},
+    { 128,"Reserved"},
+    {   0, NULL }
 };
 
 const value_string gmpls_sonet_signal_type_str[] = {
-    { 1, "VT1.5 SPE / VC-11"},
-    { 2, "VT2 SPE / VC-12"},
-    { 3, "VT3 SPE"},
-    { 4, "VT6 SPE / VC-2"},
-    { 5, "STS-1 SPE / VC-3"},
-    { 6, "STS-3c SPE / VC-4"},
-    { 7, "STS-1 / STM-0 (transp)"},
-    { 8, "STS-3 / STM-1 (transp)"},
-    { 9, "STS-12 / STM-4 (transp)"},
-    {10, "STS-48 / STM-16 (transp)"},
-    {11, "STS-192 / STM-64 (transp)"},
-    {12, "STS-768 / STM-256 (transp)"},
+    {  1, "VT1.5 SPE / VC-11"},
+    {  2, "VT2 SPE / VC-12"},
+    {  3, "VT3 SPE"},
+    {  4, "VT6 SPE / VC-2"},
+    {  5, "STS-1 SPE / VC-3"},
+    {  6, "STS-3c SPE / VC-4"},
+    {  7, "STS-1 / STM-0 (transp)"},
+    {  8, "STS-3 / STM-1 (transp)"},
+    {  9, "STS-12 / STM-4 (transp)"},
+    { 10, "STS-48 / STM-16 (transp)"},
+    { 11, "STS-192 / STM-64 (transp)"},
+    { 12, "STS-768 / STM-256 (transp)"},
 
     /* Extended non-SONET signal types */
-    {13, "VTG / TUG-2"},
-    {14, "TUG-3"},
-    {15, "STSG-3 / AUG-1"},
-    {16, "STSG-12  / AUG-4"},
-    {17, "STSG-48  / AUG-16"},
-    {18, "STSG-192 / AUG-64"},
-    {19, "STSG-768 / AUG-256"},
+    { 13, "VTG / TUG-2"},
+    { 14, "TUG-3"},
+    { 15, "STSG-3 / AUG-1"},
+    { 16, "STSG-12  / AUG-4"},
+    { 17, "STSG-48  / AUG-16"},
+    { 18, "STSG-192 / AUG-64"},
+    { 19, "STSG-768 / AUG-256"},
 
     /* Other SONEt signal types */
-    {21, "STS-12c SPE / VC-4-4c"},
-    {22, "STS-48c SPE / VC-4-16c"},
-    {23, "STS-192c SPE / VC-4-64c"},
-    {0, NULL}
+    { 21, "STS-12c SPE / VC-4-4c"},
+    { 22, "STS-48c SPE / VC-4-16c"},
+    { 23, "STS-192c SPE / VC-4-64c"},
+    {  0, NULL}
 };
 
 static const value_string ouni_guni_diversity_str[] = {
-    {1, "Node Diverse"},
-    {2, "Link Diverse"},
-    {3, "Shared-Risk Link Group Diverse"},
-    {4, "Shared Path"},
-    {0, NULL}
+    { 1, "Node Diverse"},
+    { 2, "Link Diverse"},
+    { 3, "Shared-Risk Link Group Diverse"},
+    { 4, "Shared Path"},
+    { 0, NULL}
 };
 
 /* FF: RFC 4328 G.709 signal type */
-const range_string gmpls_g709_signal_type_rvals[] = {
+static const range_string gmpls_g709_signal_type_rvals[] = {
     { 0,   0, "Not significant"},
     { 1,   1, "ODU1 (i.e., 2.5 Gbps)"},
     { 2,   2, "ODU2 (i.e., 10  Gbps)"},
@@ -1059,12 +1056,12 @@ const range_string gmpls_g709_signal_type_rvals[] = {
 
 /* -------------------- Stuff for MPLS/TE objects -------------------- */
 
-static const value_string proto_vals[] = { {IP_PROTO_ICMP, "ICMP"},
-                                           {IP_PROTO_IGMP, "IGMP"},
-                                           {IP_PROTO_TCP,  "TCP" },
-                                           {IP_PROTO_UDP,  "UDP" },
-                                           {IP_PROTO_OSPF, "OSPF"},
-                                           {0,             NULL  } };
+static const value_string proto_vals[] = { { IP_PROTO_ICMP, "ICMP"},
+                                           { IP_PROTO_IGMP, "IGMP"},
+                                           { IP_PROTO_TCP,  "TCP" },
+                                           { IP_PROTO_UDP,  "UDP" },
+                                           { IP_PROTO_OSPF, "OSPF"},
+                                           { 0,             NULL  } };
 
 /* Filter keys */
 enum hf_rsvp_filter_keys {
@@ -1340,7 +1337,8 @@ rsvp_init_protocol (void)
     rsvp_request_hash = g_hash_table_new(rsvp_hash, rsvp_equal);
 }
 
-static inline int rsvp_class_to_filter_num(int classnum)
+static inline int
+rsvp_class_to_filter_num(int classnum)
 {
     switch(classnum) {
     case RSVP_CLASS_SESSION :
@@ -1424,7 +1422,8 @@ static inline int rsvp_class_to_filter_num(int classnum)
     }
 }
 
-static inline int rsvp_class_to_tree_type(int classnum)
+static inline int
+rsvp_class_to_tree_type(int classnum)
 {
     switch(classnum) {
     case RSVP_CLASS_SESSION :
@@ -1535,8 +1534,7 @@ find_rsvp_session_tempfilt(tvbuff_t *tvb, int hdr_offset, int *session_offp, int
 
     len = tvb_get_ntohs(tvb, hdr_offset+6) + hdr_offset;
     off = hdr_offset + 8;
-    for (off = hdr_offset + 8; off < len && tvb_bytes_exist(tvb, off, 3);
-    	 off += obj_length) {
+    for (off = hdr_offset + 8; off < len && tvb_bytes_exist(tvb, off, 3); off += obj_length) {
 	obj_length = tvb_get_ntohs(tvb, off);
 	if (obj_length == 0)
 	    break;
@@ -1558,22 +1556,23 @@ find_rsvp_session_tempfilt(tvbuff_t *tvb, int hdr_offset, int *session_offp, int
     if (tempfilt_offp) *tempfilt_offp = t_off;
 }
 
-static char *summary_session (tvbuff_t *tvb, int offset)
+static char *
+summary_session (tvbuff_t *tvb, int offset)
 {
     static char buf[100];
 
     switch(tvb_get_guint8(tvb, offset+3)) {
     case RSVP_SESSION_TYPE_IPV4:
 	g_snprintf(buf, 100, "SESSION: IPv4, Destination %s, Protocol %d, Port %d. ",
-		 tvb_ip_to_str(tvb, offset+4),
-		 tvb_get_guint8(tvb, offset+8),
-		 tvb_get_ntohs(tvb, offset+10));
+		   tvb_ip_to_str(tvb, offset+4),
+		   tvb_get_guint8(tvb, offset+8),
+		   tvb_get_ntohs(tvb, offset+10));
 	break;
     case RSVP_SESSION_TYPE_IPV4_LSP:
 	g_snprintf(buf, 100, "SESSION: IPv4-LSP, Destination %s, Tunnel ID %d, Ext ID %0x. ",
-		 tvb_ip_to_str(tvb, offset+4),
-		 tvb_get_ntohs(tvb, offset+10),
-		 tvb_get_ntohl(tvb, offset+12));
+		   tvb_ip_to_str(tvb, offset+4),
+		   tvb_get_ntohs(tvb, offset+10),
+		   tvb_get_ntohl(tvb, offset+12));
 	break;
     case RSVP_SESSION_TYPE_AGGREGATE_IPV4:
 	g_snprintf(buf, 100, "SESSION: IPv4-Aggregate, Destination %s, DSCP %d. ",
@@ -1582,15 +1581,15 @@ static char *summary_session (tvbuff_t *tvb, int offset)
 	break;
     case RSVP_SESSION_TYPE_IPV4_UNI:
 	g_snprintf(buf, 100, "SESSION: IPv4-UNI, Destination %s, Tunnel ID %d, Ext Address %s. ",
-		 tvb_ip_to_str(tvb, offset+4),
-		 tvb_get_ntohs(tvb, offset+10),
-		 tvb_ip_to_str(tvb, offset+12));
+		   tvb_ip_to_str(tvb, offset+4),
+		   tvb_get_ntohs(tvb, offset+10),
+		   tvb_ip_to_str(tvb, offset+12));
 	break;
     case RSVP_SESSION_TYPE_IPV4_E_NNI:
 	g_snprintf(buf, 100, "SESSION: IPv4-E-NNI, Destination %s, Tunnel ID %d, Ext Address %s. ",
-		 tvb_ip_to_str(tvb, offset+4),
-		 tvb_get_ntohs(tvb, offset+10),
-		 tvb_ip_to_str(tvb, offset+12));
+		   tvb_ip_to_str(tvb, offset+4),
+		   tvb_get_ntohs(tvb, offset+10),
+		   tvb_ip_to_str(tvb, offset+12));
 	break;
     default:
 	g_snprintf(buf, 100, "SESSION: Type %d. ", tvb_get_guint8(tvb, offset+3));
@@ -1599,7 +1598,8 @@ static char *summary_session (tvbuff_t *tvb, int offset)
     return buf;
 }
 
-static char *summary_template (tvbuff_t *tvb, int offset)
+static char *
+summary_template (tvbuff_t *tvb, int offset)
 {
     static char buf[80];
     const char *objtype;
@@ -1612,13 +1612,13 @@ static char *summary_template (tvbuff_t *tvb, int offset)
     switch(tvb_get_guint8(tvb, offset+3)) {
     case 1:
 	g_snprintf(buf, 80, "%s: IPv4, Sender %s, Port %d. ", objtype,
-		 tvb_ip_to_str(tvb, offset+4),
-		 tvb_get_ntohs(tvb, offset+10));
+		   tvb_ip_to_str(tvb, offset+4),
+		   tvb_get_ntohs(tvb, offset+10));
 	break;
     case 7:
 	g_snprintf(buf, 80, "%s: IPv4-LSP, Tunnel Source: %s, LSP ID: %d. ", objtype,
-		 tvb_ip_to_str(tvb, offset+4),
-		 tvb_get_ntohs(tvb, offset+10));
+		   tvb_ip_to_str(tvb, offset+4),
+		   tvb_get_ntohs(tvb, offset+10));
 	break;
     case 9:
 	g_snprintf(buf, 80, "%s: IPv4-Aggregate, Aggregator %s. ", objtype,
@@ -1651,7 +1651,7 @@ dissect_rsvp_session (proto_item *ti, proto_tree *rsvp_object_tree,
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			    "C-type: 1 - IPv4");
 	proto_tree_add_item(rsvp_object_tree,
-			    hf_rsvp_filter[RSVPF_SESSION_IP],
+                            hf_rsvp_filter[RSVPF_SESSION_IP],
 			    tvb, offset2, 4, FALSE);
 
 	proto_tree_add_item(rsvp_object_tree,
@@ -3400,17 +3400,17 @@ dissect_rsvp_flowspec (proto_item *ti, proto_tree *rsvp_object_tree,
 			    "C-type: 6 - Ethernet");
         switch_gran = tvb_get_ntohs(tvb, offset2);
         if (switch_gran == 0)
-	  proto_tree_add_text(rsvp_object_tree, tvb, offset2, 2,
-			      "Switching granularity: 0 - Provided in signaling");
+            proto_tree_add_text(rsvp_object_tree, tvb, offset2, 2,
+                                "Switching granularity: 0 - Provided in signaling");
         else if (switch_gran == 1)
-	  proto_tree_add_text(rsvp_object_tree, tvb, offset2, 2,
-			      "Switching granularity: 1 - Ethernet port");
+            proto_tree_add_text(rsvp_object_tree, tvb, offset2, 2,
+                                "Switching granularity: 1 - Ethernet port");
 	else if (switch_gran == 2)
-	  proto_tree_add_text(rsvp_object_tree, tvb, offset2, 2,
-			      "Switching granularity: 2 - Ethernet frame");
+            proto_tree_add_text(rsvp_object_tree, tvb, offset2, 2,
+                                "Switching granularity: 2 - Ethernet frame");
         else
-	  proto_tree_add_text(rsvp_object_tree, tvb, offset2, 2,
-			      "Switching granularity: %u - ???", switch_gran);
+            proto_tree_add_text(rsvp_object_tree, tvb, offset2, 2,
+                                "Switching granularity: %u - ???", switch_gran);
 
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2,
 			    "MTU: %u", tvb_get_ntohs(tvb, offset2+2));
@@ -3422,8 +3422,6 @@ dissect_rsvp_flowspec (proto_item *ti, proto_tree *rsvp_object_tree,
     default:
 	break;
     }
-
-
 }
 
 /*------------------------------------------------------------------------------
@@ -3589,12 +3587,12 @@ dissect_rsvp_label_request (proto_item *ti, proto_tree *rsvp_object_tree,
 {
     int offset2 = offset + 4;
     const value_string lab_req_type_str[] = {
-      { 1, ""},
-      { 2, "(Label Request with ATM label Range)"},
-      { 3, "(Label Request with Frame-Relay label Range)"},
-      { 4, "(Generalized Label Request)"},
-      { 5, "(Generalized Channel_set Label Request)"},
-      { 0, NULL }
+        { 1, ""},
+        { 2, "(Label Request with ATM label Range)"},
+        { 3, "(Label Request with Frame-Relay label Range)"},
+        { 4, "(Generalized Label Request)"},
+        { 5, "(Generalized Channel_set Label Request)"},
+        { 0, NULL }
     };
 
     proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
@@ -3715,7 +3713,7 @@ dissect_rsvp_label_request (proto_item *ti, proto_tree *rsvp_object_tree,
 			    "Data (%d bytes)", obj_length - 4);
 	break;
     }
-    }
+    } /* switch(type) */
 }
 
 /*-----------------------------------------------------------------------------
@@ -3741,98 +3739,98 @@ dissect_glabel_lambda(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
     float cs_thz = 0.0;
 
     guint8 grid = ((tvb_get_guint8(tvb, offset) & 0xE0) >> 5);
-    guint8 cs = ((tvb_get_guint8(tvb, offset) & 0x1E) >> 1);
-    gint16 n = tvb_get_ntohs(tvb, offset + 2);
+    guint8 cs   = ((tvb_get_guint8(tvb, offset) & 0x1E) >> 1);
+    gint16 n    = tvb_get_ntohs(tvb, offset + 2);
 
     if (grid == 1) {
-      /* DWDM grid: Frequency (THz) = 193.1 THz + n * channel spacing (THz) */
-      cs_thz =
-        cs == 1 ? 0.1f :
-        cs == 2 ? 0.05f :
-        cs == 3 ? 0.025f :
-        cs == 4 ? 0.0125f :
+        /* DWDM grid: Frequency (THz) = 193.1 THz + n * channel spacing (THz) */
+        cs_thz =
+            cs == 1 ? 0.1f :
+            cs == 2 ? 0.05f :
+            cs == 3 ? 0.025f :
+            cs == 4 ? 0.0125f :
         0.0f;
-      freq = 193.1f + (n * cs_thz);
-      proto_tree_add_text(rsvp_object_tree, tvb, offset, 4,
-                          "Wavelength Label: "
-                          "grid=%s, "
-                          "channel spacing=%s, "
-                          "n=%d, "
-                          "freq=%.2fTHz",
-                          /* grid */
-                          grid == 1 ? "DWDM" :
-                          grid == 2 ? "CWDM" :
-                          "unknown",
-                          /* channel spacing */
-                          cs == 1 ? "100GHz" :
-                          cs == 2 ? "50GHz" :
-                          cs == 3 ? "25GHz" :
-                          cs == 4 ? "12.5GHz" :
-                          "unknown",
-                          /* n */
-                          n,
-                          /* frequency */
-                          freq);
-    proto_item_append_text(ti, ": Wavelength: "
-                          "grid=%s, "
-                          "channel spacing=%s, "
-                          "n=%d, "
-                          "freq=%.2fTHz",
-                          grid == 1 ? "DWDM" :
-                          grid == 2 ? "CWDM" :
-                          "unknown",
-                          cs == 1 ? "100GHz" :
-                          cs == 2 ? "50GHz" :
-                          cs == 3 ? "25GHz" :
-                          cs == 4 ? "12.5GHz" :
-                          "unknown",
-                          n,
-                          freq);
+        freq = 193.1f + (n * cs_thz);
+        proto_tree_add_text(rsvp_object_tree, tvb, offset, 4,
+                            "Wavelength Label: "
+                            "grid=%s, "
+                            "channel spacing=%s, "
+                            "n=%d, "
+                            "freq=%.2fTHz",
+                            /* grid */
+                            grid == 1 ? "DWDM" :
+                            grid == 2 ? "CWDM" :
+                            "unknown",
+                            /* channel spacing */
+                            cs == 1 ? "100GHz" :
+                            cs == 2 ? "50GHz" :
+                            cs == 3 ? "25GHz" :
+                            cs == 4 ? "12.5GHz" :
+                            "unknown",
+                            /* n */
+                            n,
+                            /* frequency */
+                            freq);
+        proto_item_append_text(ti, ": Wavelength: "
+                               "grid=%s, "
+                               "channel spacing=%s, "
+                               "n=%d, "
+                               "freq=%.2fTHz",
+                               grid == 1 ? "DWDM" :
+                               grid == 2 ? "CWDM" :
+                               "unknown",
+                               cs == 1 ? "100GHz" :
+                               cs == 2 ? "50GHz" :
+                               cs == 3 ? "25GHz" :
+                               cs == 4 ? "12.5GHz" :
+                               "unknown",
+                               n,
+                               freq);
     } else if (grid == 2) {
-      /* CWDM grid: Wavelength (nm) = 1471 nm + n * 20 nm  */
-      wavelength = 1471 + (n * 20);
-      proto_tree_add_text(rsvp_object_tree, tvb, offset, 4,
-                          "Wavelength Label: "
-                          "grid=%s, "
-                          "channel spacing=%s, "
-                          "n=%d, "
-                          "wavelength=%unm",
-                          /* grid */
-                          grid == 1 ? "DWDM" :
-                          grid == 2 ? "CWDM" :
-                          "unknown",
-                          /* channel spacing */
-                          cs == 1 ? "20nm" :
-                          "unknown",
-                          /* n */
-                          n,
-                          /* wavelength */
-                          wavelength);
-    proto_item_append_text(ti, ": Wavelength: "
-                          "grid=%s, "
-                          "channel spacing=%s, "
-                          "n=%d, "
-                          "wavelength=%unm",
-                          grid == 1 ? "DWDM" :
-                          grid == 2 ? "CWDM" :
-                          "unknown",
-                          cs == 1 ? "20nm" :
-                          "unknown",
-                          n,
-                          wavelength);
+        /* CWDM grid: Wavelength (nm) = 1471 nm + n * 20 nm  */
+        wavelength = 1471 + (n * 20);
+        proto_tree_add_text(rsvp_object_tree, tvb, offset, 4,
+                            "Wavelength Label: "
+                            "grid=%s, "
+                            "channel spacing=%s, "
+                            "n=%d, "
+                            "wavelength=%unm",
+                            /* grid */
+                            grid == 1 ? "DWDM" :
+                            grid == 2 ? "CWDM" :
+                            "unknown",
+                            /* channel spacing */
+                            cs == 1 ? "20nm" :
+                            "unknown",
+                            /* n */
+                            n,
+                            /* wavelength */
+                            wavelength);
+        proto_item_append_text(ti, ": Wavelength: "
+                               "grid=%s, "
+                               "channel spacing=%s, "
+                               "n=%d, "
+                               "wavelength=%unm",
+                               grid == 1 ? "DWDM" :
+                               grid == 2 ? "CWDM" :
+                               "unknown",
+                               cs == 1 ? "20nm" :
+                               "unknown",
+                               n,
+                               wavelength);
     } else {
-      /* unknown grid: */
-      proto_tree_add_text(rsvp_object_tree, tvb, offset, 4,
-                          "Wavelength Label: "
-                          "grid=%u, "
-                          "channel spacing=%u, "
-                          "n=%d",
-                          grid, cs, n);
-    proto_item_append_text(ti, ": Wavelength: "
-                          "grid=%u, "
-                          "channel spacing=%u, "
-                          "n=%d",
-                          grid, cs, n);
+        /* unknown grid: */
+        proto_tree_add_text(rsvp_object_tree, tvb, offset, 4,
+                            "Wavelength Label: "
+                            "grid=%u, "
+                            "channel spacing=%u, "
+                            "n=%d",
+                            grid, cs, n);
+        proto_item_append_text(ti, ": Wavelength: "
+                               "grid=%u, "
+                               "channel spacing=%u, "
+                               "n=%d",
+                               grid, cs, n);
     }
     return;
 }
@@ -3937,27 +3935,27 @@ dissect_rsvp_label (proto_tree *ti, proto_tree *rsvp_object_tree,
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			    "C-type: 2 (Generalized Label)");
 	if (rsvp_generalized_label_option == 1) {
-	  /* FF: no generalized label interpretation */
-	  proto_item_set_text(ti, "%s: Generalized: ", name);
-	  for (i = 0; i < mylen; i += 4) {
-	    proto_tree_add_text(rsvp_object_tree, tvb, offset2+i, 4,
-				"Generalized Label: %u (0x%x)",
-				tvb_get_ntohl(tvb, offset2+i),
-				tvb_get_ntohl(tvb, offset2+i));
-	    if (i < 16) {
-	      proto_item_append_text(ti, "0x%x%s",
-				     tvb_get_ntohl(tvb, offset2+i),
-				     i+4<mylen?", ":"");
-	    } else if (i == 16) {
-	      proto_item_append_text(ti, "...");
-	    }
-	  }
+            /* FF: no generalized label interpretation */
+            proto_item_set_text(ti, "%s: Generalized: ", name);
+            for (i = 0; i < mylen; i += 4) {
+                proto_tree_add_text(rsvp_object_tree, tvb, offset2+i, 4,
+                                    "Generalized Label: %u (0x%x)",
+                                    tvb_get_ntohl(tvb, offset2+i),
+                                    tvb_get_ntohl(tvb, offset2+i));
+                if (i < 16) {
+                    proto_item_append_text(ti, "0x%x%s",
+                                           tvb_get_ntohl(tvb, offset2+i),
+                                           i+4<mylen?", ":"");
+                } else if (i == 16) {
+                    proto_item_append_text(ti, "...");
+                }
+            }
 	} else if (rsvp_generalized_label_option == 2) {
-	  dissect_glabel_sdh(ti, rsvp_object_tree, tvb, offset2);
+            dissect_glabel_sdh(ti, rsvp_object_tree, tvb, offset2);
 	} else if (rsvp_generalized_label_option == 4) {
-	  dissect_glabel_g709(ti, rsvp_object_tree, tvb, offset2);
+            dissect_glabel_g709(ti, rsvp_object_tree, tvb, offset2);
 	} else if (rsvp_generalized_label_option == 3) {
-	  dissect_glabel_lambda(ti, rsvp_object_tree, tvb, offset2);
+            dissect_glabel_lambda(ti, rsvp_object_tree, tvb, offset2);
 	}
 	break;
 
@@ -3991,11 +3989,11 @@ dissect_rsvp_label_set (proto_item *ti, proto_tree *rsvp_object_tree,
     int len, i;
 
     static const value_string action_type_vals[] = {
-        {0, "Inclusive list"},
-        {1, "Exclusive list"},
-        {2, "Inclusive range"},
-        {3, "Exclusive range"},
-        {0, NULL}
+        { 0, "Inclusive list"},
+        { 1, "Exclusive list"},
+        { 2, "Inclusive range"},
+        { 3, "Exclusive range"},
+        { 0, NULL}
    };
 
     len = obj_length - 8;
@@ -4010,7 +4008,7 @@ dissect_rsvp_label_set (proto_item *ti, proto_tree *rsvp_object_tree,
     proto_tree_add_text(rsvp_object_tree, tvb, offset+7, 1, "Label type: %s",
 			label_type==1 ? "Packet Label" : "Generalized Label");
     proto_item_append_text(ti, ", %s",
-			label_type==1 ? "Packet Label: " : "Generalized Label: ");
+                           label_type==1 ? "Packet Label: " : "Generalized Label: ");
 
     for (i = 0; i < len/4; i++) {
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+i*4, 4,
@@ -4019,11 +4017,11 @@ dissect_rsvp_label_set (proto_item *ti, proto_tree *rsvp_object_tree,
 			    tvb_get_ntohl(tvb, offset2+i*4));
 
 	if (i<5) {
-		if (i!=0)
-		  proto_item_append_text(ti, ", ");
+            if (i!=0)
+                proto_item_append_text(ti, ", ");
 
-		proto_item_append_text(ti, "%u",
-					tvb_get_ntohl(tvb, offset2+i*4));
+            proto_item_append_text(ti, "%u",
+                                   tvb_get_ntohl(tvb, offset2+i*4));
 	}
     }
 }
@@ -4504,32 +4502,32 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
            * code in network octet order.
            */
           {
-            guint8 private_so_len = tvb_get_guint8(tvb, offset+l+1);
-            k = tvb_get_guint8(tvb, offset+l) & 0x80;
-            ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
-                                      offset+l,
-                                      tvb_get_guint8(tvb, offset+l+1),
-                                      "Private Subobject: %d", j);
-            rsvp_ro_subtree =
-              proto_item_add_subtree(ti2, tree_type);
-            proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
-                                k ? "Loose Hop " : "Strict Hop");
-            proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
-                                "Type: %u (Private)", j);
-            proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+1, 1,
-                                "Length: %u",
-                                private_so_len);
+              guint8 private_so_len = tvb_get_guint8(tvb, offset+l+1);
+              k = tvb_get_guint8(tvb, offset+l) & 0x80;
+              ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+                                        offset+l,
+                                        tvb_get_guint8(tvb, offset+l+1),
+                                        "Private Subobject: %d", j);
+              rsvp_ro_subtree =
+                  proto_item_add_subtree(ti2, tree_type);
+              proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
+                                  k ? "Loose Hop " : "Strict Hop");
+              proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
+                                  "Type: %u (Private)", j);
+              proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+1, 1,
+                                  "Length: %u",
+                                  private_so_len);
 
-            proto_tree_add_item(rsvp_ro_subtree,
-                                hf_rsvp_filter[RSVPF_ENT_CODE],
-                                tvb, offset+l+4, 4, FALSE);
-            if (private_so_len > 8) {
-              /* some private data */
-              proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+8,
-                                  private_so_len - 8,
-                                  "Data (%d bytes)",
-                                  private_so_len - 8);
-            }
+              proto_tree_add_item(rsvp_ro_subtree,
+                                  hf_rsvp_filter[RSVPF_ENT_CODE],
+                                  tvb, offset+l+4, 4, FALSE);
+              if (private_so_len > 8) {
+                  /* some private data */
+                  proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+8,
+                                      private_so_len - 8,
+                                      "Data (%d bytes)",
+                                      private_so_len - 8);
+              }
           }
           break;
 
@@ -4901,55 +4899,55 @@ dissect_rsvp_lsp_attributes (proto_tree *ti, proto_tree *rsvp_object_tree,
     proto_tree *ti2, *rsvp_lsp_attr_subtree;
 
     if (class == RSVP_CLASS_LSP_REQUIRED_ATTRIBUTES)
-      proto_item_set_text(ti, "LSP REQUIRED ATTRIBUTES: ");
+        proto_item_set_text(ti, "LSP REQUIRED ATTRIBUTES: ");
     else
-      proto_item_set_text(ti, "LSP ATTRIBUTES: ");
+        proto_item_set_text(ti, "LSP ATTRIBUTES: ");
 
     switch(type) {
     case 1:
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			    "C-type: 1");
         for (tlv_off = 4; tlv_off < obj_length-4; ) {
-    	  tlv_type = tvb_get_ntohs(tvb, offset+tlv_off);
-	  tlv_len = tvb_get_ntohs(tvb, offset+tlv_off+2);
+            tlv_type = tvb_get_ntohs(tvb, offset+tlv_off);
+            tlv_len = tvb_get_ntohs(tvb, offset+tlv_off+2);
 
-	  if (tlv_len == 0 || tlv_off+tlv_len > obj_length-4) {
-	      proto_tree_add_text(rsvp_object_tree, tvb, offset+tlv_off+2, 2,
-				  "Invalid length");
-	    return;
-	  }
-	  switch(tlv_type) {
+            if (tlv_len == 0 || tlv_off+tlv_len > obj_length-4) {
+                proto_tree_add_text(rsvp_object_tree, tvb, offset+tlv_off+2, 2,
+                                    "Invalid length");
+                return;
+            }
+            switch(tlv_type) {
             case 1:
-	      attributes = tvb_get_ntohl(tvb, offset+tlv_off+4);
-              ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset+tlv_off, tlv_len,
-					"LSP attributes TLV: 0x%08x", attributes);
-	      rsvp_lsp_attr_subtree = proto_item_add_subtree(ti2, TREE(TT_LSP_ATTRIBUTES_FLAGS));
-	      proto_tree_add_text(rsvp_lsp_attr_subtree, tvb, offset+tlv_off+4, 4,
-				  "%s", decode_boolean_bitfield(attributes, 0x01, 32,
-								"E2E re-routing desired",
-								"E2E re-routing NOT desired"));
-	      proto_tree_add_text(rsvp_lsp_attr_subtree, tvb, offset+tlv_off+4, 4,
-				  "%s", decode_boolean_bitfield(attributes, 0x02, 32,
-								"Boundary re-routing desired",
-								"Boundary re-routing NOT desired"));
-	      proto_tree_add_text(rsvp_lsp_attr_subtree, tvb, offset+tlv_off+4, 4,
-				  "%s", decode_boolean_bitfield(attributes, 0x04, 32,
-								"Segment-based re-routing desired",
-								"Segment-based re-routing NOT desired"));
-	      proto_item_append_text(ti, "LSP Attribute:%s%s%s",
-			    (attributes & 0x01) ? " End-to-end re-routing" : "",
-			    (attributes & 0x02) ? " Boundary re-routing" : "",
-			    (attributes & 0x04) ? " Segment-based re-routing" : "");
-	      break;
+                attributes = tvb_get_ntohl(tvb, offset+tlv_off+4);
+                ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset+tlv_off, tlv_len,
+                                          "LSP attributes TLV: 0x%08x", attributes);
+                rsvp_lsp_attr_subtree = proto_item_add_subtree(ti2, TREE(TT_LSP_ATTRIBUTES_FLAGS));
+                proto_tree_add_text(rsvp_lsp_attr_subtree, tvb, offset+tlv_off+4, 4,
+                                    "%s", decode_boolean_bitfield(attributes, 0x01, 32,
+                                                                  "E2E re-routing desired",
+                                                                  "E2E re-routing NOT desired"));
+                proto_tree_add_text(rsvp_lsp_attr_subtree, tvb, offset+tlv_off+4, 4,
+                                    "%s", decode_boolean_bitfield(attributes, 0x02, 32,
+                                                                  "Boundary re-routing desired",
+                                                                  "Boundary re-routing NOT desired"));
+                proto_tree_add_text(rsvp_lsp_attr_subtree, tvb, offset+tlv_off+4, 4,
+                                    "%s", decode_boolean_bitfield(attributes, 0x04, 32,
+                                                                  "Segment-based re-routing desired",
+                                                                  "Segment-based re-routing NOT desired"));
+                proto_item_append_text(ti, "LSP Attribute:%s%s%s",
+                                       (attributes & 0x01) ? " End-to-end re-routing" : "",
+                                       (attributes & 0x02) ? " Boundary re-routing" : "",
+                                       (attributes & 0x04) ? " Segment-based re-routing" : "");
+                break;
 
 	    default:
-	      proto_tree_add_text(rsvp_object_tree, tvb, offset+tlv_off, tlv_len,
-				  "Unknown TLV");
-	      break;
+                proto_tree_add_text(rsvp_object_tree, tvb, offset+tlv_off, tlv_len,
+                                    "Unknown TLV");
+                break;
+            }
+            tlv_off += tlv_len;
         }
-	tlv_off += tlv_len;
-      }
-      break;
+        break;
 
     default:
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
@@ -4958,7 +4956,7 @@ dissect_rsvp_lsp_attributes (proto_tree *ti, proto_tree *rsvp_object_tree,
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+4, obj_length - 4,
 			    "Data (%d bytes)", obj_length - 4);
 	break;
-  }
+    }
 }
 
 /*------------------------------------------------------------------------------
@@ -4973,12 +4971,12 @@ dissect_rsvp_association (proto_tree *ti, proto_tree *rsvp_object_tree,
     guint16 association_type;
     guint16 association_id;
     static const value_string association_type_vals[] = {
-        {0, "Reserved"},
-        {1, "Recovery"},
-        {2, "Resource Sharing"},
-        {3, "Segment Recovery"},
-        {4, "Inter-domain Recovery"},
-        {0, NULL}
+        { 0, "Reserved"},
+        { 1, "Recovery"},
+        { 2, "Resource Sharing"},
+        { 3, "Segment Recovery"},
+        { 4, "Inter-domain Recovery"},
+        { 0, NULL}
     };
 
     proto_item_set_text(ti, "ASSOCIATION ");
@@ -5163,11 +5161,11 @@ dissect_rsvp_lsp_tunnel_if_id (proto_tree *ti, proto_tree *rsvp_object_tree,
     guint8  action;
 
     static const value_string lsp_tunnel_if_id_action_str[] = {
-        {0, "LSP is FA (MPLS-TE topology advertisement only)"},
-        {1, "LSP is RA (IP network advertisement only)"},
-        {2, "LSP is RA (both IP and MPLS-TE topology advertisement)"},
-        {3, "LSP is to be used as a virtual local link"},
-        {0, NULL}
+        { 0, "LSP is FA (MPLS-TE topology advertisement only)"},
+        { 1, "LSP is RA (IP network advertisement only)"},
+        { 2, "LSP is RA (both IP and MPLS-TE topology advertisement)"},
+        { 3, "LSP is to be used as a virtual local link"},
+        { 0, NULL}
     };
 
     proto_item_set_text(ti, "LSP INTERFACE-ID: ");
@@ -5634,12 +5632,12 @@ dissect_rsvp_call_id (proto_tree *ti, proto_tree *rsvp_object_tree,
     int offset3, offset4, len;
 
     static const value_string address_type_vals[] = {
-        {1, "1 (IPv4)"},
-        {2, "2 (IPv6)"},
-        {3, "3 (NSAP)"},
-        {4, "4 (MAC)"},
-        {0x7f, "0x7f (Vendor-defined)"},
-        {0, NULL}
+        { 1, "1 (IPv4)"},
+        { 2, "2 (IPv6)"},
+        { 3, "3 (NSAP)"},
+        { 4, "4 (MAC)"},
+        { 0x7f, "0x7f (Vendor-defined)"},
+        { 0, NULL}
     };
 
     proto_item_set_text(ti, "CALL-ID: ");

@@ -34,7 +34,7 @@ typedef struct rsvp_conversation_info
     guint16 udp_source_port;
     guint16 udp_dest_port;
     guint8  protocol;
-    guint32 ext_tunnel_id; 
+    guint32 ext_tunnel_id;
     guint8 dscp;
 } rsvp_conversation_info;
 
