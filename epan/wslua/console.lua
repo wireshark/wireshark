@@ -101,11 +101,16 @@ if (gui_enabled()) then
 		info("Console opened")
 	end
 
+	function ref_manual()
+		browser_open_url("http://www.wireshark.org/docs/wsug_html_chunked/wsluarm.html")
+	end
+	
 	function wiki_page()
 		browser_open_url("http://wiki.wireshark.org/Lua")
 	end
 
 	register_menu("Lua/Evaluate", evaluate_lua, MENU_TOOLS_UNSORTED)
 	register_menu("Lua/Console", run_console, MENU_TOOLS_UNSORTED)
+	register_menu("Lua/Manual", ref_manual, MENU_TOOLS_UNSORTED)
 	register_menu("Lua/Wiki", wiki_page, MENU_TOOLS_UNSORTED)
 end
