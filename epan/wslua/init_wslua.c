@@ -264,6 +264,7 @@ static void basic_logger(const gchar *log_domain _U_,
 static int wslua_panic(lua_State* LS) {
     g_error("LUA PANIC: %s",lua_tostring(LS,-1));
     /** g_error() does an abort() and thus never returns **/
+    return 0; /* keep gcc happy */
 }
 
 static void lua_load_plugins (const char *dirname)
