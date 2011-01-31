@@ -10074,112 +10074,122 @@ static value_string_ext bssgp_msg_strings_ext = VALUE_STRING_EXT_INIT(bssgp_msg_
 #define	NUM_BSSGP_MSG (sizeof(bssgp_msg_strings)/sizeof(value_string))
 static gint ett_bssgp_msg[NUM_BSSGP_MSG];
 static void (*bssgp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
-/* 0x00 */	bssgp_dl_unitdata,				/* 10.2.1 DL-UNITDATA */
-	bssgp_ul_unitdata,				/* 10.2.2 UL-UNITDATA */
-	bssgp_ra_cap,					/* 10.2.3 RA-CAPABILITY */
-	NULL,							/* 10.2.4 (void) */
-	bssgp_dl_mbms_unitdata,			/* 10.2.5 DL-MBMS-UNITDATA */
-	bssgp_ul_mbms_unitdata,			/* 10.2.6 UL-MBMS-UNITDATA */
-	bssgp_paging_ps,				/* 10.3.1 PAGING PS */
-	bssgp_paging_cs,				/* 10.3.2 PAGING CS */
-	bssgp_ra_cap_upd,				/* 10.3.3 RA-CAPABILITY-UPDATE */
-	bssgp_ra_cap_upd_ack,			/* 10.3.3 RA-CAPABILITY-UPDATE */
-	bssgp_ra_status,				/* 10.3.5 RADIO-STATUS */
-	bssgp_suspend,					/* 10.3.6 SUSPEND */
-	bssgp_suspend_ack,				/* 10.3.7 SUSPEND-ACK */
-	bssgp_suspend_nack,				/* 10.3.8 SUSPEND-NACK */
-	bssgp_resume,					/* 10.3.9 RESUME */
-	bssgp_resume_ack,				/* 10.3.10 RESUME-ACK */
-	bssgp_resume_nack,				/* 10.3.11 RESUME-NACK */
-  /* 0x11 to 0x1f Reserved */
-	NULL,							/* 0x11 */  
-	NULL,							/* 0x12 */  
-	NULL,							/* 0x13 */  
-	NULL,							/* 0x14 */  
-	NULL,							/* 0x15 */  
-	NULL,							/* 0x16 */  
-	NULL,							/* 0x17 */  
-	NULL,							/* 0x18 */  
-	NULL,							/* 0x19 */  
-	NULL,							/* 0x1A */  
-	NULL,							/* 0x1B */  
-	NULL,							/* 0x1C */  
-	NULL,							/* 0x1D */  
-	NULL,							/* 0x1E */  
-	NULL,							/* 0x1F */  
+/* 0x00 to 0x10 */
+    bssgp_dl_unitdata,               /* 10.2.1 DL-UNITDATA */
+    bssgp_ul_unitdata,               /* 10.2.2 UL-UNITDATA */
+    bssgp_ra_cap,                    /* 10.2.3 RA-CAPABILITY */
+    NULL,                            /* 10.2.4 (void) */
+    bssgp_dl_mbms_unitdata,          /* 10.2.5 DL-MBMS-UNITDATA */
+    bssgp_ul_mbms_unitdata,          /* 10.2.6 UL-MBMS-UNITDATA */
+    bssgp_paging_ps,                 /* 10.3.1 PAGING PS */
+    bssgp_paging_cs,                 /* 10.3.2 PAGING CS */
+    bssgp_ra_cap_upd,                /* 10.3.3 RA-CAPABILITY-UPDATE */
+    bssgp_ra_cap_upd_ack,            /* 10.3.3 RA-CAPABILITY-UPDATE */
+    bssgp_ra_status,                 /* 10.3.5 RADIO-STATUS */
+    bssgp_suspend,                   /* 10.3.6 SUSPEND */
+    bssgp_suspend_ack,               /* 10.3.7 SUSPEND-ACK */
+    bssgp_suspend_nack,              /* 10.3.8 SUSPEND-NACK */
+    bssgp_resume,                    /* 10.3.9 RESUME */
+    bssgp_resume_ack,                /* 10.3.10 RESUME-ACK */
+    bssgp_resume_nack,               /* 10.3.11 RESUME-NACK */
 
-	bssgp_bvc_block,				/* 10.4.8 BVC-BLOCK */
-	bssgp_bvc_block_ack,			/* 10.4.9 BVC-BLOCK-ACK */
-	bssgp_bvc_reset,	            /* 10.4.12 BVC-RESET */
-	bssgp_bvc_reset_ack,            /* 10.4.13 BVC-RESET-ACK */
-	bssgp_bvc_un_block,             /* 10.4.10 BVC-UNBLOCK */
-    bssgp_bvc_un_block_ack,         /* 10.4.11 BVC-UNBLOCK-ACK */
-    bssgp_flow_control_bvc,         /* 10.4.4 FLOW-CONTROL-BVC */
-	bssgp_flow_control_bvc_ack,		/* 10.4.5 FLOW-CONTROL-BVC-ACK */
-	bssgp_flow_control_ms,			/* 10.4.6 FLOW-CONTROL-MS */
-	bssgp_flow_control_ms_ack,		/* 10.4.7 FLOW-CONTROL-MS-ACK */
-	bssgp_flush_ll,					/* 10.4.1 FLUSH-LL */
-	bssgp_flush_ll_ack,				/* 10.4.2 FLUSH-LL-ACK */
-	bssgp_llc_discarded,			/* 10.4.3 LLC-DISCARDED */
-	bssgp_flow_cntrl_pfc,			/* 10.4.24 FLOW-CONTROL-PFC */
-	bssgp_flow_cntrl_pfc_ack,		/* 10.4.25 FLOW-CONTROL-PFC-ACK */
+/* 0x11 to 0x1f Reserved */
+    NULL,                            /* 0x11 */  
+    NULL,                            /* 0x12 */  
+    NULL,                            /* 0x13 */  
+    NULL,                            /* 0x14 */  
+    NULL,                            /* 0x15 */  
+    NULL,                            /* 0x16 */  
+    NULL,                            /* 0x17 */  
+    NULL,                            /* 0x18 */  
+    NULL,                            /* 0x19 */  
+    NULL,                            /* 0x1A */  
+    NULL,                            /* 0x1B */  
+    NULL,                            /* 0x1C */  
+    NULL,                            /* 0x1D */  
+    NULL,                            /* 0x1E */  
+    NULL,                            /* 0x1F */  
 
-	/* 0x2f to 0x3f Reserved */
-  	NULL,							/* 0x2f */  
-  	NULL,							/* 0x30 */  
-  	NULL,							/* 0x31 */  
-	NULL,							/* 0x32 */  
-	NULL,							/* 0x33 */  
-	NULL,							/* 0x34 */  
-	NULL,							/* 0x35 */  
-	NULL,							/* 0x36 */  
-	NULL,							/* 0x37 */  
-	NULL,							/* 0x38 */  
-	NULL,							/* 0x39 */  
-	NULL,							/* 0x3A */  
-	NULL,							/* 0x3B */  
-	NULL,							/* 0x3C */  
-	NULL,							/* 0x3D */  
-	NULL,							/* 0x3E */  
-	NULL,							/* 0x3F */  
+/* 0x20 to 0x2e */
+    bssgp_bvc_block,                 /* 10.4.8 BVC-BLOCK */
+    bssgp_bvc_block_ack,             /* 10.4.9 BVC-BLOCK-ACK */
+    bssgp_bvc_reset,                 /* 10.4.12 BVC-RESET */
+    bssgp_bvc_reset_ack,             /* 10.4.13 BVC-RESET-ACK */
+    bssgp_bvc_un_block,              /* 10.4.10 BVC-UNBLOCK */
+    bssgp_bvc_un_block_ack,          /* 10.4.11 BVC-UNBLOCK-ACK */
+    bssgp_flow_control_bvc,          /* 10.4.4 FLOW-CONTROL-BVC */
+    bssgp_flow_control_bvc_ack,      /* 10.4.5 FLOW-CONTROL-BVC-ACK */
+    bssgp_flow_control_ms,           /* 10.4.6 FLOW-CONTROL-MS */
+    bssgp_flow_control_ms_ack,       /* 10.4.7 FLOW-CONTROL-MS-ACK */
+    bssgp_flush_ll,                  /* 10.4.1 FLUSH-LL */
+    bssgp_flush_ll_ack,              /* 10.4.2 FLUSH-LL-ACK */
+    bssgp_llc_discarded,             /* 10.4.3 LLC-DISCARDED */
+    bssgp_flow_cntrl_pfc,            /* 10.4.24 FLOW-CONTROL-PFC */
+    bssgp_flow_cntrl_pfc_ack,        /* 10.4.25 FLOW-CONTROL-PFC-ACK */
 
-	bssgp_sgsn_invoke_trace,		/* 10.4.15 SGSN-INVOKE-TRACE */
-	bssgp_status,					/* 10.4.14 STATUS */
-  /* 0x42 to 0x4f Reserved */
-	NULL,							/* 0x42 */  
-	NULL,							/* 0x43 */  
-	NULL,							/* 0x44 */  
-	NULL,							/* 0x45 */  
-	NULL,							/* 0x46 */  
-	NULL,							/* 0x47 */  
-	NULL,							/* 0x48 */  
-	NULL,							/* 0x49 */  
-	NULL,							/* 0x4A */  
-	NULL,							/* 0x4B */  
-	NULL,							/* 0x4C */  
-	NULL,							/* 0x4D */  
-	NULL,							/* 0x4E */  
-	NULL,							/* 0x4F */
+/* 0x2f to 0x3f Reserved */
+    NULL,                            /* 0x2f */  
+    NULL,                            /* 0x30 */  
+    NULL,                            /* 0x31 */  
+    NULL,                            /* 0x32 */  
+    NULL,                            /* 0x33 */  
+    NULL,                            /* 0x34 */  
+    NULL,                            /* 0x35 */  
+    NULL,                            /* 0x36 */  
+    NULL,                            /* 0x37 */  
+    NULL,                            /* 0x38 */  
+    NULL,                            /* 0x39 */  
+    NULL,                            /* 0x3A */  
+    NULL,                            /* 0x3B */  
+    NULL,                            /* 0x3C */  
+    NULL,                            /* 0x3D */  
+    NULL,                            /* 0x3E */  
+    NULL,                            /* 0x3F */  
 
-	bssgp_download_bss_pfc,			/* 10.4.16	DOWNLOAD-BSS-PFC */
-	bssgp_create_bss_pfc,			/* 10.4.17 CREATE-BSS-PFC */
-	bssgp_create_bss_pfc_ack,		/* 10.4.18 CREATE-BSS-PFC-ACK */
-	bssgp_create_bss_pfc_nack,		/* 10.4.19 CREATE-BSS-PFC-NACK */
-	bssgp_modify_bss_pfc,			/* 10.4.20 MODIFY-BSS-PFC */
-	bssgp_modify_bss_pfc_ack,		/* 10.4.21 MODIFY-BSS-PFC-ACK */
-	bssgp_delete_bss_pfc,			/* 10.4.22 DELETE-BSS-PFC */
-	bssgp_delete_bss_pfc_ack,		/* 10.4.23 DELETE-BSS-PFC-ACK */
-	bssgp_delete_bss_pfc_req,		/* 10.4.26 DELETE-BSS-PFC-REQ */
-	bssgp_ps_ho_required,			/* 10.4.27 PS-HANDOVER-REQUIRED */
-	bssgp_ps_ho_required_ack,		/* 10.4.28 PS-HANDOVER-REQUIRED-ACK */
-	bssgp_ps_ho_required_nack,		/* 10.4.29 PS-HANDOVER-REQUIRED-NACK */
-	bssgp_ps_ho_request,			/* 10.4.30 PS-HANDOVER-REQUEST */
-	bssgp_ps_ho_request_ack,		/* 10.4.31 PS-HANDOVER-REQUEST-ACK */
-	bssgp_ps_ho_request_nack,		/* 10.4.31 10.4.32 PS-HANDOVER-REQUEST-NACK */
+/* 0x40 to 0x41 */
+    bssgp_sgsn_invoke_trace,         /* 10.4.15 SGSN-INVOKE-TRACE */
+    bssgp_status,                    /* 10.4.14 STATUS */
 
-	NULL,							/* 0x5F */
+/* 0x42 to 0x4f Reserved */
+    NULL,                            /* 0x42 */  
+    NULL,                            /* 0x43 */  
+    NULL,                            /* 0x44 */  
+    NULL,                            /* 0x45 */  
+    NULL,                            /* 0x46 */  
+    NULL,                            /* 0x47 */  
+    NULL,                            /* 0x48 */  
+    NULL,                            /* 0x49 */  
+    NULL,                            /* 0x4A */  
+    NULL,                            /* 0x4B */  
+    NULL,                            /* 0x4C */  
+    NULL,                            /* 0x4D */  
+    NULL,                            /* 0x4E */  
+    NULL,                            /* 0x4F */
 
-	NULL,	/* NONE */
+/* 0x50 to 0x5e */
+    bssgp_download_bss_pfc,          /* 10.4.16    DOWNLOAD-BSS-PFC */
+    bssgp_create_bss_pfc,            /* 10.4.17 CREATE-BSS-PFC */
+    bssgp_create_bss_pfc_ack,        /* 10.4.18 CREATE-BSS-PFC-ACK */
+    bssgp_create_bss_pfc_nack,       /* 10.4.19 CREATE-BSS-PFC-NACK */
+    bssgp_modify_bss_pfc,            /* 10.4.20 MODIFY-BSS-PFC */
+    bssgp_modify_bss_pfc_ack,        /* 10.4.21 MODIFY-BSS-PFC-ACK */
+    bssgp_delete_bss_pfc,            /* 10.4.22 DELETE-BSS-PFC */
+    bssgp_delete_bss_pfc_ack,        /* 10.4.23 DELETE-BSS-PFC-ACK */
+    bssgp_delete_bss_pfc_req,        /* 10.4.26 DELETE-BSS-PFC-REQ */
+    bssgp_ps_ho_required,            /* 10.4.27 PS-HANDOVER-REQUIRED */
+    bssgp_ps_ho_required_ack,        /* 10.4.28 PS-HANDOVER-REQUIRED-ACK */
+    bssgp_ps_ho_required_nack,       /* 10.4.29 PS-HANDOVER-REQUIRED-NACK */
+    bssgp_ps_ho_request,             /* 10.4.30 PS-HANDOVER-REQUEST */
+    bssgp_ps_ho_request_ack,         /* 10.4.31 PS-HANDOVER-REQUEST-ACK */
+    bssgp_ps_ho_request_nack,        /* 10.4.31 10.4.32 PS-HANDOVER-REQUEST-NACK */
+
+/* 0x5f Reserved */
+    NULL,                            /* 0x5F */
+
+/* 0x60 */
+    bssgp_perform_loc_request,       /* 10.5.1 PERFORM-LOCATION-REQUEST */
+
+    NULL,    /* NONE */
 };
 
 void get_bssgp_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn)
@@ -10201,18 +10211,18 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   proto_item *ti;
   proto_tree *bssgp_tree = NULL;
-	int				offset = 0;
-	guint32			len;
-	const gchar		*msg_str = NULL;
-	gint			ett_tree;
-	int				hf_idx;
-	void			(*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
-	guint8			oct;
+  int				offset = 0;
+  guint32			len;
+  const gchar		*msg_str = NULL;
+  gint			ett_tree;
+  int				hf_idx;
+  void			(*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
+  guint8			oct;
 
-	/* Save pinfo */
-	gpinfo = pinfo;
-	parent_tree = tree;
-	len = tvb_length(tvb);
+  /* Save pinfo */
+  gpinfo = pinfo;
+  parent_tree = tree;
+  len = tvb_length(tvb);
 
 
   bi.tvb = tvb;
@@ -10248,7 +10258,7 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						   "Unknown PDU type"));
 
   /* PDU's with msg no lover than this value are converted to common dissection style */
-  if(oct>0x5f){
+  if(oct>0x60){
 	  proto_tree_add_item(bssgp_tree, hf_bssgp_msg_type, tvb, 0, 1, ENC_BIG_ENDIAN);
 	  decode_pdu(&bi);
   }else{
