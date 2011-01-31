@@ -10,7 +10,7 @@
  * Copyright 2006 - 2009, Anders Broman <anders.broman@ericsson.com>
  *
  * Added Bearer control mode dissection:
- * Copyright 2011, Grzegorz Szczytowski <grzegorz.szczytowski@gmail.com> 
+ * Copyright 2011, Grzegorz Szczytowski <grzegorz.szczytowski@gmail.com>
  *
  * Updates and corrections:
  * Copyright 2011, Anders Broman <anders.broman@ericsson.com>
@@ -36,7 +36,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- * Ref: 3GPP TS 29.060 
+ * Ref: 3GPP TS 29.060
  * http://www.3gpp.org/ftp/Specs/html-info/29060.htm
  */
 
@@ -3851,7 +3851,7 @@ static int decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _
  * Container. The IMEISV is included in the Mobile identity IE. If Container is not included, its Length field value shall
  * be set to 0. If the MS is emergency attached and the MS is UICCless or the IMSI is unauthenticated, the International
  * Mobile Equipment Identity (IMEI) shall be used as the MS identity.
- * 
+ *
  * Table 47A: IEIs for information elements used in the container
  * IEI            Information element
  * 0x23           Mobile identity
@@ -6303,20 +6303,20 @@ static int decode_gtp_evolved_allc_rtn_p1(tvbuff_t * tvb, int offset, packet_inf
     proto_tree *ext_tree;
     proto_item *te;
 
-    length = tvb_get_ntohs(tvb, offset + 1);   
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_EVO_ALLO_RETE_P1, &gtp_val_ext, "Unknown")); 
+    length = tvb_get_ntohs(tvb, offset + 1);
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_EVO_ALLO_RETE_P1, &gtp_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
 
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
     offset = offset + 2;
-    
+
     proto_tree_add_item(ext_tree, hf_gtp_earp_pvi, tvb, offset, 1, FALSE);
     proto_tree_add_item(ext_tree, hf_gtp_earp_pl, tvb, offset, 1, FALSE);
     proto_tree_add_item(ext_tree, hf_gtp_earp_pci, tvb, offset, 1, FALSE);
 
     return 3 + length;
-    
+
 
 }
 /* GPRS:        12.15
@@ -7134,19 +7134,19 @@ void proto_register_gtp(void)
 		{&hf_gtp_earp_pvi,
 		 {"PVI Pre-emption Vulnerability", "gtp.EARP_pre_emption_par_vulnerability",
 		  FT_UINT8, BASE_DEC, NULL, 0x01,
-		  "PVI Pre-emption Vulnerability", HFILL}},
+		  NULL, HFILL}},
 		{&hf_gtp_earp_pl,
 		 {"PL Priority Level", "gtp.EARP_priority_level",
 		  FT_UINT8, BASE_DEC, NULL, 0x3C,
-		  "PL Priority Level", HFILL}},
+		  NULL, HFILL}},
 		{&hf_gtp_earp_pci,
 		 {"PCI Pre-emption Capability", "gtp.EARP_pre_emption_Capability",
 		  FT_UINT8, BASE_DEC, NULL, 0x40,
-		  "PCI Pre-emption Capability", HFILL}},
+		  NULL, HFILL}},
 		{&hf_gtp_spare,
 		 {"Spare", "gtp.spare",
 		  FT_UINT8, BASE_DEC, NULL, 0x02,
-		  "Spare", HFILL}},
+		  NULL, HFILL}},
         {&hf_gtp_cmn_flg_ppc,
          {"Prohibit Payload Compression", "gtp.cmn_flg.ppc",
           FT_BOOLEAN, 8, NULL, 0x01,
@@ -7230,8 +7230,8 @@ void proto_register_gtp(void)
            NULL, HFILL}
         },
         { &hf_gtp_bcm,
-         {"Bearer Control Mode", "gtp.bcm", 
-          FT_UINT8, BASE_DEC, VALS(gtp_pdp_bcm_type_vals), 0, 
+         {"Bearer Control Mode", "gtp.bcm",
+          FT_UINT8, BASE_DEC, VALS(gtp_pdp_bcm_type_vals), 0,
           NULL, HFILL}
         },
 
