@@ -166,9 +166,9 @@ static gboolean bittorrent_desegment = TRUE;
 static gboolean decode_client_information = FALSE;
 
 struct client_information {
-   char id[4];
+   char id[5];       /* string length must be <= 4 to allow space for NUL termination byte */
    char ver_len;
-   const char *name;
+   const char *name; /* NULL means array entry terminates the array */
 };
 
 static struct client_information peer_id[] = {
@@ -759,7 +759,7 @@ static void dissect_bittorrent_welcome (tvbuff_t *tvb, packet_info *pinfo _U_, p
 
    proto_tree_add_item(tree, hf_bittorrent_peer_id, tvb, offset, 20, FALSE);
    if(decode_client_information) {
-      for(i = 0; peer_id[i].id[0] != '\0'; ++i)
+      for(i = 0; peer_id[i].name != NULL; ++i)
       {
          if(tvb_memeql(tvb, offset, peer_id[i].id, (int)strlen(peer_id[i].id)) == 0) {
             version = tvb_get_ephemeral_string(tvb, offset + (int)strlen(peer_id[i].id),
