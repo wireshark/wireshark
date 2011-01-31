@@ -68,6 +68,7 @@
 #include "gtk/prefs_dlg.h"
 #include "gtk/dlg_utils.h"
 #include "gtk/filter_dlg.h"
+#include "gtk/filter_autocomplete.h"
 
 #define COLUMN_WIDTH_MIN 40
 
@@ -377,6 +378,8 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), field_te, 1, 2, 2, 3);
 	g_object_set_data (G_OBJECT(field_te), E_FILT_FIELD_NAME_ONLY_KEY, "");
 	g_signal_connect(field_te, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
+	g_signal_connect(field_te, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
+	g_signal_connect(win, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
 	gtk_tooltips_set_tip (tooltips, field_te,
 			      "Field name used when field type is \"Custom\". "
 			      "This string has the same syntax as a display filter string.", NULL);
