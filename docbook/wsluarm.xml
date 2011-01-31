@@ -167,6 +167,7 @@ end
 	<para>
 	  This Part of the User Guide describes the Wireshark specific functions in the embedded Lua.
 	</para>
+  </section>
 	&WsLuaDumper;
 	&WsLuaField;
 	&WsLuaGui;
@@ -176,5 +177,4 @@ end
 	&WsLuaTree;
 	&WsLuaTvb;
 	&WsLuaUtility;
-  </section>
 </chapter>
