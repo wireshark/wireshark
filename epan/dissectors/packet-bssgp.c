@@ -7206,8 +7206,24 @@ de_bssgp_nsei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
  */
 /*
  * 11.3.50	LCS QoS
+ */
+/* Rest of element coded as the value part defined in
+ * 3GPP TS 48.008, not including 3GPP TS 48.008 IEI and
+ * 3GPP TS 48.008 octet length indicator
+ */
+/*
  * 11.3.51	LCS Client Type
+ */
+/* Rest of element coded as the value part defined in
+ * 3GPP TS 49.031, not including 3GPP TS 49.031 IEI and
+ * 3GPP TS 49.031 octet length indicator
+ */
+/*
  * 11.3.52	Requested GPS Assistance Data
+ */
+/* Rest of element coded as the value part defined in
+ * 3GPP TS 49.031, not including 3GPP TS 49.031 IEI and
+ * 3GPP TS 49.031 octet length indicator
  */
 /*
  * 11.3.53	Location Type
@@ -7218,7 +7234,19 @@ de_bssgp_nsei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
  */
 /*
  * 11.3.54	Location Estimate
+ */
+/* Rest of element coded as the value part defined in
+ * 3GPP TS 48.008, not including 3GPP TS 48.008 IEI and
+ * 3GPP TS 48.008 octet length indicator
+ */
+/*
  * 11.3.55	Positioning Data
+ */
+/* Rest of element coded as the value part defined in
+ * 3GPP TS 49.031, not including 3GPP TS 49.031 IEI and
+ * 3GPP TS 49.031 octet length indicator
+ */
+/*
  * 11.3.56	Deciphering Keys
  */
 /*
@@ -7698,6 +7726,12 @@ de_bssgp_global_tfi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 }
 /*
  * 11.3.91	IMEI
+ */
+/* Octets 3-10 contain the IMEI coded as the value part of the Mobile
+ * Identity IE defined in 3GPP TS 24.008
+ * (NOTE 1)
+ */
+/*
  * 11.3.92	Time to MBMS Data Transfer
  * 11.3.93	MBMS Session Repetition Number
  */
@@ -7884,7 +7918,19 @@ de_bssgp_cs_indication(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 }
 /*
  * 11.3.99	Requested GANSS Assistance Data
+ */
+/* Rest of element coded as the value part defined in
+ * 3GPP TS 49.031, not including 3GPP TS 49.031 IEI and
+ * 3GPP TS 49.031 octet length indicator
+ */
+/*
  * 11.3.100 	GANSS Location Type
+ */
+/* Rest of element coded as the value part defined in
+ * 3GPP TS 49.031, not including 3GPP TS 49.031 IEI and
+ * 3GPP TS 49.031 octet length indicator
+ */
+/*
  * 11.3.101 	GANSS Positioning Data
  */
 /*
@@ -8094,10 +8140,9 @@ const value_string bssgp_elem_strings[] = {
 	{ 0x3c, "Bucket Full Ratio" },									/* 11.3.46	Bucket Full Ratio */
 	{ 0x3d, "Service UTRAN CCO" },									/* 11.3.47	Service UTRAN CCO */
 	{ 0x3e, "NSEI (Network Service Entity Identifier)" },			/* 11.3.48	NSEI (Network Service Entity Identifier) */
-
- /* 11.3.50	LCS QoS */
- /* 11.3.51	LCS Client Type */
- /* 11.3.52	Requested GPS Assistance Data */
+																	/* 11.3.50	LCS QoS BSSGP_IEI_LCS_QOS, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCSQOS*/
+																	/* 11.3.51	LCS Client Type BSSGP_IEI_LCS_CLIENT_TYPE, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CLIENT_TYPE*/
+																	/* 11.3.52	Requested GPS Assistance Data BSSGP_IEI_REQUESTED_GPS_ASSISTANCE_DATA, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_REQ_GPS_ASSIST_D*/
 																	/* 11.3.53	Location Type 0x7c, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_GANSS_LOC_TYPE*/
  /* 11.3.54	Location Estimate */
  /* 11.3.55	Positioning Data */
@@ -8174,8 +8219,8 @@ const value_string bssgp_elem_strings[] = {
  /* 11.3.96	Velocity Data */
  	{ 0x00, "DTM Handover Command" },								/* 11.3.97	DTM Handover Command */
 	{ 0x00, "PS Handover Indications" },							/* 11.3.98	CS Indication */
- /* 11.3.99	Requested GANSS Assistance Data */
- /* 11.3.100 	GANSS Location Type */
+																	/* 11.3.99	Requested GANSS Assistance Data 0x7b, GSM_A_PDU_TYPE_BSSMAP, BE_GANSS_ASS_DTA*/
+																	/* 11.3.100 	GANSS Location Type 0x7c, GSM_A_PDU_TYPE_BSSMAP, BE_GANSS_LOC_TYP*/
  /* 11.3.101 	GANSS Positioning Data */
 	{ 0x00, "Flow Control Granularity" },							/* 11.3.102 	Flow Control Granularity */
 	{ 0x00, "eNB Identifier" },										/* 11.3.103 	eNB Identifier */
@@ -8207,7 +8252,7 @@ typedef enum
 	DE_BSSGP_CELL_ID,											/* 11.3.9	0x08 Cell Identifier */
 	DE_BSSGP_CHLN_NEEDED,										/* 11.3.10	0x09 Channel needed */
 	DE_BBSGP_DRX_PARAM,											/* 11.3.11	0x0a DRX Parameters GSM_A_PDU_TYPE_GM, DE_DRX_PARAM */
-	DE_BBSGP_EMLPP_PRIO,										/* 11.3.12	0x0b eMLPP-Priority BSSAP_PDU_TYPE_BSSMAP, BE_EMLPP_PRIO*/
+	DE_BBSGP_EMLPP_PRIO,										/* 11.3.12	0x0b eMLPP-Priority GSM_A_PDU_TYPE_BSSMAP, BE_EMLPP_PRIO*/
 	DE_BSSGP_FLUSH_ACTION,										/* 11.3.13	0x0c Flush Action */
 	DE_BSSGP_IMSI,												/* 11.3.14	0x0d IMSI */
 	DE_BSSGP_LLC_PDU,											/* 11.3.15	0x0e LLC-PDU */
@@ -8501,7 +8546,7 @@ bssgp_ul_unitdata(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* PFI PFI/11.3.42 O TLV 3 */
 	ELEM_OPT_TELV(BSSGP_IEI_PFI , GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID , NULL);
 	/* LSA Identifier List LSA Identifier List/11.3.18 O TLV 3-?  */
-	ELEM_OPT_TLV(0x26, GSM_A_PDU_TYPE_BSSMAP, BE_LSA_ID_LIST, NULL);
+	ELEM_OPT_TELV(0x26, GSM_A_PDU_TYPE_BSSMAP, BE_LSA_ID_LIST, NULL);
 	/* Alignment octets Alignment octets/11.3.1 O TLV 2-5  */
 	ELEM_OPT_TELV(0x00, BSSGP_PDU_TYPE, DE_BSSGP_ALIGNMENT_OCTETS, NULL);
 	/* LLC-PDU (note) LLC-PDU/11.3.15 M TLV 2-?  */
@@ -9919,19 +9964,25 @@ bssgp_perform_loc_request(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 	/* NSEI (PCU-PTP) NSEI/11.3.48 M TLV 4-? */
 	ELEM_OPT_TELV(0x3e, GSM_A_PDU_TYPE_RR, DE_BSSGP_NSEI , " - (PCU-PTP)");
 	/* Location Type Location Type/11.3.53 M TLV 3-? */
-	ELEM_OPT_TLV(0x7c, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_GANSS_LOC_TYPE, NULL);
+	ELEM_OPT_TELV(0x7c, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_GANSS_LOC_TYPE, NULL);
 	/* Cell Identifier Cell Identifier/11.3.9 M TLV 10 */
 	ELEM_OPT_TELV(BSSGP_IEI_CELL_IDENTIFIER, BSSGP_PDU_TYPE, DE_BSSGP_CELL_ID , NULL);
 	/* LCS Capability (note 2) LCS Capability/11.3.59 O TLV 3-? */
-	ELEM_OPT_TLV( BSSGP_IEI_LCS_CAPABILITY , GSM_A_PDU_TYPE_GM, DE_PS_LCS_CAP , NULL);
+	ELEM_OPT_TELV( BSSGP_IEI_LCS_CAPABILITY , GSM_A_PDU_TYPE_GM, DE_PS_LCS_CAP , NULL);
 	/* LCS Priority LCS Priority/11.3.57 O TLV 3-? */
-	ELEM_OPT_TLV(BSSGP_IEI_LCS_PRIORITY, GSM_A_PDU_TYPE_BSSMAP, BE_LCS_PRIO, NULL);
+	ELEM_OPT_TELV(BSSGP_IEI_LCS_PRIORITY, GSM_A_PDU_TYPE_BSSMAP, BE_LCS_PRIO, NULL);
 	/* LCS QoS LCS QoS/11.3.50 O TLV 3-? */
+	ELEM_OPT_TELV(BSSGP_IEI_LCS_QOS, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCSQOS, NULL);
 	/* LCS Client Type (note 3) LCS Client Type/11.3.51 C TLV 3-? */
+	ELEM_OPT_TELV(BSSGP_IEI_LCS_CLIENT_TYPE, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CLIENT_TYPE, NULL);
 	/* Requested GPS Assistance Data (note 4) Requested GPS Assistance Data/11.3.52 O TLV 3-? */
+	ELEM_OPT_TELV(BSSGP_IEI_REQUESTED_GPS_ASSISTANCE_DATA, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_REQ_GPS_ASSIST_D, NULL);
 	/* IMEI (note 5) IMEI/11.3.91 O TLV 10 */
+	ELEM_OPT_TELV(0x70,GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
 	/* GANSS Location Type GANSS Location Type / 11.3.100 C TLV 3 */
+	ELEM_OPT_TELV(0x7c, GSM_A_PDU_TYPE_BSSMAP, BE_GANSS_LOC_TYP, NULL);
 	/* Requested GANSS Assistance Data (note 6) Requested GANSS Assistance Data/11.3.99 O TLV 3-? */
+	ELEM_OPT_TLV(0x7b, GSM_A_PDU_TYPE_BSSMAP, BE_GANSS_ASS_DTA, NULL);
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, gpinfo);
 }

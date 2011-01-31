@@ -512,6 +512,9 @@ static int hf_gsm_a_bssmap_asind_b3 = -1;
 static int hf_gsm_a_bssmap_bss_res = -1;
 static int hf_gsm_a_bssmap_tcp = -1;
 static int hf_gsm_a_bssmap_filler_bits = -1;
+static int hf_gsm_a_bssmap_method = -1;
+static int hf_gsm_a_bssmap_ganss_id = -1;
+static int hf_gsm_a_bssmap_usage = -1;
 static int hf_gsm_a_bssmap_aoip_trans_ipv4 = -1;
 static int hf_gsm_a_bssmap_aoip_trans_ipv6 = -1;
 static int hf_gsm_a_bssmap_aoip_trans_port = -1;
@@ -3458,6 +3461,7 @@ be_vgcs_talker_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 /*
  * 3.2.2.95 GANSS Assistance Data
  * The GANSS Assistance Data octets 3 to n are coded as the Requested GANSS Data element of 3GPP TS 49.031 (BSSAP-LE)
+ * XXX move to packet-gsm_bssmap_le.c
  */
 guint16
 be_ganss_ass_dta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -3472,7 +3476,35 @@ be_ganss_ass_dta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 }
 /*
  * 3.2.2.96 GANSS Positioning Data
+ * XXX move to packet-gsm_bssmap_le.c
  */
+
+static const value_string gsm_a_bssmap_method_vals[] = {
+    { 0x00,     "MS-Based" },
+    { 0x01,     "MS-Assisted" },
+    { 0x02,     "Conventional" },
+    { 0x03,     "Reserved" },
+    { 0,        NULL }
+};
+
+static const value_string gsm_a_bssmap_ganss_id_vals[] = {
+    { 0x00,     "Galileo" },
+    { 0x01,     "Satellite Based Augmentation Systems (SBAS)" },
+    { 0x02,     "Modernized GPS" },
+    { 0x03,     "Quasi Zenith Satellite System (QZSS)" },
+    { 0x04,     "GLONASS" },
+    { 0,        NULL }
+};
+
+static const value_string gsm_a_bssmap_usage_vals[] = {
+    { 0x00,     "Attempted unsuccessfully due to failure or interruption" },
+    { 0x01,     "Attempted successfully: results not used to generate location" },
+    { 0x02,     "Attempted successfully: results used to verify but not generate location" },
+    { 0x03,     "Attempted successfully: results used to generate location" },
+    { 0x04,     "Attempted successfully: case where MS supports multiple mobile based positioning methods and the actual method or methods used by the MS cannot be determined" },
+    { 0,        NULL }
+};
+
 guint16
 be_ganss_pos_dta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -3480,9 +3512,12 @@ be_ganss_pos_dta(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 
     curr_offset = offset;
 
-    proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_method, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_ganss_id, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_usage, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
 
-    return(len);
+    return(curr_offset-offset);
 }
 /*
  * 3.2.2.97 GANSS Location Type
@@ -6696,6 +6731,21 @@ proto_register_gsm_a_bssmap(void)
     { &hf_gsm_a_bssmap_filler_bits,
         { "Filler Bits","gsm_a_bssmap.filler_bits",
         FT_UINT8, BASE_DEC,NULL, 0x07,
+        NULL, HFILL }
+    },
+	{ &hf_gsm_a_bssmap_method,
+        { "Method","gsm_a_bssmap.method",
+        FT_UINT8, BASE_DEC,VALS(gsm_a_bssmap_method_vals), 0xc0,
+        NULL, HFILL }
+    },
+	{ &hf_gsm_a_bssmap_ganss_id,
+        { "GANSS Id","gsm_a_bssmap.ganss_id",
+        FT_UINT8, BASE_DEC,VALS(gsm_a_bssmap_ganss_id_vals), 0x38,
+        NULL, HFILL }
+    },
+	{ &hf_gsm_a_bssmap_usage,
+        { "Usage","gsm_a_bssmap.usage",
+        FT_UINT8, BASE_DEC,VALS(gsm_a_bssmap_usage_vals), 0x07,
         NULL, HFILL }
     },
     { &hf_gsm_a_bssmap_aoip_trans_ipv4,

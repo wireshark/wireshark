@@ -195,6 +195,17 @@ static int hf_gsm_bssmap_le_spare = -1;
 static int hf_gsm_bssmap_le_ciphering_key_flag = -1;
 static int hf_gsm_bssmap_le_current_deciphering_key_value = -1;
 static int hf_gsm_bssmap_le_next_deciphering_key_value = -1;
+static int hf_gsm_bssmap_le_acq_ass = -1;
+static int hf_gsm_bssmap_le_ref_time = -1;
+static int hf_gsm_bssmap_le_ref_loc = -1;
+static int hf_gsm_bssmap_le_dgps_corr = -1;
+static int hf_gsm_bssmap_le_nav_mod = -1;
+static int hf_gsm_bssmap_le_iono_mod = -1;
+static int hf_gsm_bssmap_le_utc_mod = -1;
+static int hf_gsm_bssmap_le_almanac = -1;
+static int hf_gsm_bssmap_le_ephemeris_ext_chk = -1;
+static int hf_gsm_bssmap_le_ephemeris_ext = -1;
+static int hf_gsm_bssmap_le_real_time_int = -1;
 static int hf_gsm_bssmap_le_lcs_cause_value =-1;
 static int hf_gsm_bssmap_le_diagnostic_value = -1;
 static int hf_gsm_bssmap_le_client_category = -1;
@@ -328,6 +339,47 @@ de_bmaple_decihp_keys(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 /*
  * 10.10 Requested GPS Assistance Data
  */
+static guint16
+de_bmaple_req_gps_ass_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	/* Octet 3 H G F E D C B A */
+	/* bit H Acquisition Assistance */
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_acq_ass, tvb, curr_offset, 1, FALSE);
+	/* bit G Reference Time */
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_ref_time, tvb, curr_offset, 1, FALSE);
+	/* bit F Reference Location */
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_ref_loc, tvb, curr_offset, 1, FALSE);
+	/* bit E DGPS Corrections */
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_dgps_corr, tvb, curr_offset, 1, FALSE);
+	/* bit D Navigation Model */
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_nav_mod, tvb, curr_offset, 1, FALSE);
+	/* bit C Ionospheric Model */
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_iono_mod, tvb, curr_offset, 1, FALSE);
+	/* bit B UTC Model */
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_utc_mod, tvb, curr_offset, 1, FALSE);
+	/* bit A Almanac */
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_almanac, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	/* Octet 4 P O N M L K J I 
+	 * bits L through P are Spare bits
+	 */
+	/* bit K Ephemeris Extension Check */
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_ephemeris_ext_chk, tvb, curr_offset, 1, FALSE);
+	/* bit J Ephemeris Extension */
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_ephemeris_ext, tvb, curr_offset, 1, FALSE);
+	/* bit I Real-Time Integrity */
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_real_time_int, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	/* Octet 5 to Octet 8+2n Satellite related data */
+	proto_tree_add_text(tree, tvb, curr_offset, len-2, "Satellite related data Not decoded yet");
+	return(len);
+}
 /*
  * 10.11 IMSI
  * coded as the value part of the Mobile Identity IE defined in 3GPP TS 24.008 (NOTE 1)
@@ -659,36 +711,36 @@ bssmap_le_elem_idx_t;
 
 guint16 (*bssmap_le_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* NOTE: The null types below are defined elsewhere. i.e in packet-gsm_a_bssmap.c */
-	de_bmaple_lcs_qos,		/* 10.16 LCS QoS */
-	NULL,					/* LCS Priority */
-	NULL,					/* 10.18 Location Type */
-	be_ganss_loc_type,		/* GANSS Location Type */
-	NULL,					/* 10.9 Geographic Location */
-	de_bmaple_pos_dta,		/* 10.20 Positioning Data */
-	be_ganss_pos_dta,   /* GANSS Positioning Data */
-	NULL,	/* Velocity Data */
-	de_bmaple_cause,   /* 10.13 LCS Cause */
-	de_bmaple_client,   /* LCS Client Type */
-	de_bmaple_apdu,	/* APDU */
-	NULL,	/* Network Element Identity */
-	NULL,   /* Requested GPS Assitance Data */
-	be_ganss_ass_dta,   /* Requested GANSS Assistance Data */
-	de_bmaple_decihp_keys,   /* 10.8 Deciphering Keys */
-	NULL,   /* Return Error Request */
-	NULL,	/* Return Error Cause */
-	NULL,   /* Segmentation */
-	NULL,	/* 10.7 Classmark Information Type 3 */
-	NULL,   /* Cause */
-	NULL,   /* Cell Identifier */
-	NULL,   /* 10.6 Chosen Channel */
-	de_mid,   /* 10.11 IMSI */
-	NULL,   /* Reserved */
-	NULL,   /* Reserved */
-	NULL,   /* Reserved */
-	be_lcs_capability, /* LCS Capability */
-	be_packet_meas_rep, /* Packet Measurement Report */
-	be_measured_cell_identity, /* Measured Cell Identity List */
-	de_mid,    /* IMEI (use same dissector as IMSI) */
+	de_bmaple_lcs_qos,				/* 10.16 LCS QoS */
+	NULL,							/* LCS Priority */
+	NULL,							/* 10.18 Location Type */
+	be_ganss_loc_type,				/* GANSS Location Type */
+	NULL,							/* 10.9 Geographic Location */
+	de_bmaple_pos_dta,				/* 10.20 Positioning Data */
+	be_ganss_pos_dta,				/* GANSS Positioning Data */
+	NULL,							/* Velocity Data */
+	de_bmaple_cause,				/* 10.13 LCS Cause */
+	de_bmaple_client,				/* LCS Client Type */
+	de_bmaple_apdu,					/* APDU */
+	NULL,							/* Network Element Identity */
+	de_bmaple_req_gps_ass_data,		/* 10.10 Requested GPS Assistance Data */
+	be_ganss_ass_dta,				/* Requested GANSS Assistance Data */
+	de_bmaple_decihp_keys,			/* 10.8 Deciphering Keys */
+	NULL,							/* Return Error Request */
+	NULL,							/* Return Error Cause */
+	NULL,							/* Segmentation */
+	NULL,							/* 10.7 Classmark Information Type 3 */
+	NULL,							/* Cause */
+	NULL,							/* Cell Identifier */
+	NULL,							/* 10.6 Chosen Channel */
+	de_mid,							/* 10.11 IMSI */
+	NULL,							/* Reserved */
+	NULL,							/* Reserved */
+	NULL,							/* Reserved */
+	be_lcs_capability,				/* LCS Capability */
+	be_packet_meas_rep,				/* Packet Measurement Report */
+	be_measured_cell_identity,		/* Measured Cell Identity List */
+	de_mid,							/* IMEI (use same dissector as IMSI) */
 
 	NULL,	/* NONE */
 	
@@ -1002,6 +1054,61 @@ proto_register_gsm_bssmap_le(void)
 		  { "Next Deciphering Key Value", "gsm_bssmap_le.decipheringKeys.next", 
 		    FT_UINT8, BASE_DEC, NULL, 0x0, 
 		    NULL, HFILL}
+		},
+		{ &hf_gsm_bssmap_le_acq_ass,
+          { "Acquisition Assistance", "bssap.acq_ass",
+            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x80,
+            NULL, HFILL }
+		},
+		{ &hf_gsm_bssmap_le_ref_time,
+          { "Reference Time", "bssap.ref_time",
+            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x40,
+            NULL, HFILL }
+		},
+		{ &hf_gsm_bssmap_le_ref_loc,
+          { "Reference Location", "bssap.ref_loc",
+            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x20,
+            NULL, HFILL }
+		},
+		{ &hf_gsm_bssmap_le_dgps_corr,
+          { "DGPS Corrections", "bssap.gps_corr",
+            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x08,
+            NULL, HFILL }
+		},
+		{ &hf_gsm_bssmap_le_nav_mod,
+          { "Navigation Model", "bssap.nav_mod",
+            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x10,
+            NULL, HFILL }
+		},
+		{ &hf_gsm_bssmap_le_iono_mod,
+          { "Ionospheric Model", "bssap.iono_mod",
+            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x04,
+            NULL, HFILL }
+		},
+		{ &hf_gsm_bssmap_le_utc_mod,
+          { "UTC Model", "bssap.utc_mod",
+            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x02,
+            NULL, HFILL }
+		},
+		{ &hf_gsm_bssmap_le_almanac,
+          { "Almanac", "bssap.almanac",
+            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x01,
+            NULL, HFILL }
+		},
+		{ &hf_gsm_bssmap_le_ephemeris_ext_chk,
+          { "Ephemeris Extension Check", "bssap.ephemeris_ext_chk",
+            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x04,
+            NULL, HFILL }
+		},
+		{ &hf_gsm_bssmap_le_ephemeris_ext,
+          { "Ephemeris Extension", "bssap.ephemeris_ext",
+            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x02,
+            NULL, HFILL }
+		},
+		{ &hf_gsm_bssmap_le_real_time_int,
+          { "Real-Time Integrity", "bssap.real_time_int",
+            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x01,
+            NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_lcs_cause_value,
 		  { "Cause Value", "gsm_bssmap_le.lcsCauseValue", 
