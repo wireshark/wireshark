@@ -102,13 +102,13 @@ my @control =
 (
 # This will be scanned in order trying to match the re if it matches
 # the body will be executed immediatelly after.
-['WSLUA_MODULE\s*([A-Z][a-zA-Z]+)([^\*]*)',
+[ 'WSLUA_MODULE\s*([A-Z][a-zA-Z]+)([^\*]*)',
 sub {
 	$module{name} = $1;
 	$module{descr} = $2
-}],
+} ],
 
- [ 'WSLUA_CLASS_DEFINE\050\s*([A-Z][a-zA-Z]+).*?\051;' . $TRAILING_COMMENT_RE,
+[ 'WSLUA_CLASS_DEFINE\050\s*([A-Z][a-zA-Z]+).*?\051;' . $TRAILING_COMMENT_RE,
 sub {
 	deb ">c=$1=$2=$3=$4=$5=$6=$7=\n";
 	$class = {
@@ -119,7 +119,7 @@ sub {
 		attributes => []
 	};
 	$classes{$1} = $class;
-}],
+} ],
 
 [ 'WSLUA_FUNCTION\s+wslua_([a-z_]+)[^\173]*\173' . $TRAILING_COMMENT_RE,
 sub {
@@ -133,7 +133,7 @@ sub {
 		type => 'standalone'
 	};
 	push @functions, $function;
-} ] ,
+} ],
 
 [ 'WSLUA_CONSTRUCTOR\s+([A-Za-z0-9]+)_([a-z0-9_]+).*?\173' . $TRAILING_COMMENT_RE,
 sub {
@@ -147,56 +147,56 @@ sub {
 		type => 'constructor'
 	};
 	push @{${$class}{constructors}}, $function;
-} ] ,
+} ],
 
 [ '_WSLUA_CONSTRUCTOR_\s+([A-Za-z0-9]+)_([a-z0-9_]+)\s*(.*?)\052\057',
-	sub {
-		deb ">cc=$1=$2=$3=$4=$5=$6=$7=\n";
-		$function = {
-			returns => [],
-			arglist => [],
-			args => {},
-			name => "$1.$2",
-			descr => gorolla($3),
-			type => 'constructor'
-		};
-		push @{${$class}{constructors}}, $function;
-	} ] ,
+sub {
+	deb ">cc=$1=$2=$3=$4=$5=$6=$7=\n";
+	$function = {
+		returns => [],
+		arglist => [],
+		args => {},
+		name => "$1.$2",
+		descr => gorolla($3),
+		type => 'constructor'
+	};
+	push @{${$class}{constructors}}, $function;
+} ],
 
 [ 'WSLUA_METHOD\s+([A-Za-z]+)_([a-z0-9_]+)[^\173]*\173' . $TRAILING_COMMENT_RE,
-	sub {
-		deb ">cm=$1=$2=$3=$4=$5=$6=$7=\n";
-		my $name = "$1";
-		$name =~ tr/A-Z/a-z/;
-		$name .= ":$2";
-		$function = {
-			returns => [],
-			arglist => [],
-			args => {},
-			name => $name,
-			descr => gorolla($5),
-			type => 'method'
-		};
-		push @{${$class}{methods}}, $function;
-	} ] ,
+sub {
+	deb ">cm=$1=$2=$3=$4=$5=$6=$7=\n";
+	my $name = "$1";
+	$name =~ tr/A-Z/a-z/;
+	$name .= ":$2";
+	$function = {
+		returns => [],
+		arglist => [],
+		args => {},
+		name => $name,
+		descr => gorolla($5),
+		type => 'method'
+	};
+	push @{${$class}{methods}}, $function;
+} ],
 
 [ 'WSLUA_METAMETHOD\s+([A-Za-z]+)(__[a-z0-9]+)[^\173]*\173' . $TRAILING_COMMENT_RE,
-	sub {
-		deb ">cm=$1=$2=$3=$4=$5=$6=$7=\n";
-		my $name = "$1";
-		$name =~ tr/A-Z/a-z/;
-		$name .= ":$2";
-		my ($c,$d) = ($1,$5);
-		$function = {
-			returns => [],
-			arglist => [],
-			args => {},
-			name => $name,
-			descr => gorolla($5),
-			type => 'metamethod'
-		};
-		push @{${$class}{methods}}, $function;
-	} ] ,
+sub {
+	deb ">cm=$1=$2=$3=$4=$5=$6=$7=\n";
+	my $name = "$1";
+	$name =~ tr/A-Z/a-z/;
+	$name .= ":$2";
+	my ($c,$d) = ($1,$5);
+	$function = {
+		returns => [],
+		arglist => [],
+		args => {},
+		name => $name,
+		descr => gorolla($5),
+		type => 'metamethod'
+	};
+	push @{${$class}{methods}}, $function;
+} ],
 
 [ '#define WSLUA_(OPT)?ARG_([a-z0-9_]+)_([A-Z0-9]+)\s+\d+' . $TRAILING_COMMENT_RE,
 sub {
@@ -207,11 +207,11 @@ sub {
 } ],
 
 [ '\057\052\s*WSLUA_(OPT)?ARG_([A-Za-z0-9_]+)_([A-Z0-9]+)\s*(.*?)\052\057',
-	sub {
-		deb ">a=$1=$2=$3=$4=$5=$6=$7=\n";
-		my $name = $1 eq 'OPT' ? "[$3]" : $3;
-		push @{${$function}{arglist}} , $name;
-		${${$function}{args}}{$name} = {descr=>$4,}
+sub {
+	deb ">a=$1=$2=$3=$4=$5=$6=$7=\n";
+	my $name = $1 eq 'OPT' ? "[$3]" : $3;
+	push @{${$function}{arglist}} , $name;
+	${${$function}{args}}{$name} = {descr=>$4,}
 } ],
 
 [ '#define WSLUA_(OPT)?ARG_([A-Za-z]+)_([a-z_]+)_([A-Z0-9]+)\s+\d+' . $TRAILING_COMMENT_RE,
@@ -223,27 +223,29 @@ sub {
 } ],
 
 [ '/\052\s+WSLUA_ATTRIBUTE\s+([A-Za-z]+)_([a-z_]+)\s+([A-Z]*)\s*(.*?)\052/',
-	sub {
-		deb ">at=$1=$2=$3=$4=$5=$6=$7=\n";
-		my $name = "$1";
-		$name =~ tr/A-Z/a-z/;
-		$name .= ".$2";
-		push @{${$class}{attributes}}, { name => $name, descr => gorolla($4), mode=>$3 };
-	} ],
+sub {
+	deb ">at=$1=$2=$3=$4=$5=$6=$7=\n";
+	my $name = "$1";
+	$name =~ tr/A-Z/a-z/;
+	$name .= ".$2";
+	push @{${$class}{attributes}}, { name => $name, descr => gorolla($4), mode=>$3 };
+} ],
+
 [ 'WSLUA_ATTR_GET\s+([A-Za-z]+)_([a-z_]+).*?' . $TRAILING_COMMENT_RE,
-        sub {
-                deb ">at=$1=$2=$3=$4=$5=$6=$7=\n";
-                my $name = "$1";
-                $name =~ tr/A-Z/a-z/;
-                $name .= ".$2";
-                push @{${$class}{attributes}}, { name => $name, descr => gorolla($4), mode=>$3 };
-        } ],
+sub {
+	deb ">at=$1=$2=$3=$4=$5=$6=$7=\n";
+	my $name = "$1";
+	$name =~ tr/A-Z/a-z/;
+	$name .= ".$2";
+	push @{${$class}{attributes}}, { name => $name, descr => gorolla($4), mode=>$3 };
+} ],
+
 [ '/\052\s+WSLUA_MOREARGS\s+([A-Za-z_]+)\s+(.*?)\052/',
-	sub {
-		deb ">ma=$1=$2=$3=$4=$5=$6=$7=\n";
-		push @{${$function}{arglist}} , "...";
-		${${$function}{args}}{"..."} = {descr=>gorolla($2)}
-	} ],
+sub {
+	deb ">ma=$1=$2=$3=$4=$5=$6=$7=\n";
+	push @{${$function}{arglist}} , "...";
+	${${$function}{args}}{"..."} = {descr=>gorolla($2)}
+} ],
 
 [ 'WSLUA_(FINAL_)?RETURN\050\s*.*?\s*\051\s*;' . $TRAILING_COMMENT_RE,
 sub {
@@ -252,36 +254,35 @@ sub {
 } ],
 
 [ '\057\052\s*_WSLUA_RETURNS_\s*(.*?)\052\057',
-	sub {
-		deb ">fr2=$1=$2=$3=$4=$5=$6=$7=\n";
-		push @{${$function}{returns}} , gorolla($1) if $1 ne '';
+sub {
+	deb ">fr2=$1=$2=$3=$4=$5=$6=$7=\n";
+	push @{${$function}{returns}} , gorolla($1) if $1 ne '';
 } ],
 
 [ 'WSLUA_ERROR\s*\050\s*(([A-Z][A-Za-z]+)_)?([a-z_]+),' . $QUOTED_RE ,
-	sub {
-		deb ">e=$1=$2=$3=$4=$5=$6=$7=\n";
-		my $errors;
-		unless (exists ${$function}{errors}) {
-			$errors =  ${$function}{errors} = [];
-		} else {
-			$errors = ${$function}{errors};
-		}
-
-		push @{$errors}, gorolla($4);
-	} ],
+sub {
+	deb ">e=$1=$2=$3=$4=$5=$6=$7=\n";
+	my $errors;
+	unless (exists ${$function}{errors}) {
+		$errors =  ${$function}{errors} = [];
+	} else {
+		$errors = ${$function}{errors};
+	}
+	push @{$errors}, gorolla($4);
+} ],
 
 [ 'WSLUA_(OPT)?ARG_ERROR\s*\050\s*(([A-Z][A-Za-z]+)_)?([a-z_]+)\s*,\s*([A-Z0-9]+)\s*,\s*' . $QUOTED_RE,
-	sub {
-		deb ">ae=$1=$2=$3=$4=$5=$6=$7=\n";
-		my $errors;
-		unless (exists ${${${$function}{args}}{$5}}{errors}) {
-			$errors =  ${${${$function}{args}}{$5}}{errors} = [];
-		} else {
-			$errors = ${${${$function}{args}}{$5}}{errors};
-		}
+sub {
+	deb ">ae=$1=$2=$3=$4=$5=$6=$7=\n";
+	my $errors;
+	unless (exists ${${${$function}{args}}{$5}}{errors}) {
+		$errors =  ${${${$function}{args}}{$5}}{errors} = [];
+	} else {
+		$errors = ${${${$function}{args}}{$5}}{errors};
+	}
+	push @{$errors}, gorolla($6);
+} ],
 
-		push @{$errors}, gorolla($6);
-	} ] ,
 );
 
 my $anymatch = '(^ThIsWiLlNeVeRmAtCh$';
