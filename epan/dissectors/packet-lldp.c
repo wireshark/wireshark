@@ -1346,7 +1346,7 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
 /* Dissect IEEE 802.3 TLVs */
 static void
-dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
+dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint16 tlvLen)
 {
 	guint8 subType;
 	guint8 tempByte;
@@ -1623,6 +1623,9 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 			proto_tree_add_text(tree, tvb, tempOffset, 1, "Power Class: %u", tempByte);
 
 		tempOffset++;
+
+		if (tlvLen == 4)
+			break;
 
 		/* Get first byte */
 		tempByte = tvb_get_guint8(tvb, tempOffset);
@@ -2542,7 +2545,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		dissect_ieee_802_1_tlv(tvb, pinfo, org_tlv_tree, (offset+5));
 		break;
 	case OUI_IEEE_802_3:
-		dissect_ieee_802_3_tlv(tvb, pinfo, org_tlv_tree, (offset+5));
+		dissect_ieee_802_3_tlv(tvb, pinfo, org_tlv_tree, (offset+5), (guint16) (tempLen-3));
 		break;
 	case OUI_MEDIA_ENDPOINT:
 		dissect_media_tlv(tvb, pinfo, org_tlv_tree, (offset+5), (guint16) (tempLen-3));
