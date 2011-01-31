@@ -2481,7 +2481,7 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 			}
 
 			/* if there is a Busy or ReorderTone, and the call was Ringing or Setup the call is Rejected */
-			if ( (isSignal("ro", pi->signalReq) || isSignal("bz", pi->signalReq)) && ((callsinfo->call_state == VOIP_CALL_SETUP) || (callsinfo->call_state = VOIP_RINGING)) ) {
+			if ( (isSignal("ro", pi->signalReq) || isSignal("bz", pi->signalReq)) && ((callsinfo->call_state == VOIP_CALL_SETUP) || (callsinfo->call_state == VOIP_RINGING)) ) {
 					callsinfo->call_state = VOIP_REJECTED;
 			}
 

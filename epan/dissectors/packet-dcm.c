@@ -5348,7 +5348,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
 	    else if ((val8 >= 0x20) && (val8 <= 0x7E)) {
 		/* No extended ASCII, 0-9, A-Z, a-z */
 	    }
-	    else if ((i == vl_max -1) && (val8 = 0x00)) {
+	    else if ((i == vl_max -1) && (val8 == 0x00)) {
 		/* Last Byte can be null*/
 		is_padded = TRUE;
 	    }
