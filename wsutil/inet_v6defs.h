@@ -34,7 +34,7 @@
  *  (without resorting to fragile link ordering tricks), we give our versions
  *  of those functions Wireshark-specific names.
  */
-#ifdef WIN32
+#ifdef _WIN32
 #define inet_pton ws_inet_pton
 #define inet_ntop ws_inet_ntop
 #endif

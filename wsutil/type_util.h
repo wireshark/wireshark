@@ -37,13 +37,13 @@
  * gstutils.h: Header for various utility functions
  *
  * GNU GPL v2
- * 
+ *
  */
 
 guint64         type_util_gdouble_to_guint64(gdouble value);
-gdouble         type_util_guint64_to_gdouble(guint64 value); 
+gdouble         type_util_guint64_to_gdouble(guint64 value);
 
-#ifdef WIN32
+#ifdef _WIN32
 #define         gdouble_to_guint64(value)   type_util_gdouble_to_guint64(value)
 #define         guint64_to_gdouble(value)   type_util_guint64_to_gdouble(value)
 #else

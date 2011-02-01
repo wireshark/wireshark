@@ -1389,7 +1389,7 @@ make_basename(char* fullname)
 	/* Find the last forward slash */
 	cp = strrchr(fullname, '/');
 
-#ifdef WIN32
+#ifdef _WIN32
 	/* On Windows, if no forward slash was found, look ofr
 	 * backslash also */
 	if (!cp)
