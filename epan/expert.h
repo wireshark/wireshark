@@ -30,6 +30,9 @@
 #include <epan/proto.h>
 #include "value_string.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /** only for internal and display use. */
 typedef struct expert_info_s {
@@ -65,5 +68,9 @@ extern void
 expert_add_info_format(packet_info *pinfo, proto_item *pi, int group,
 	int severity, const char *format, ...)
 	G_GNUC_PRINTF(5, 6);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __EXPERT_H__ */
