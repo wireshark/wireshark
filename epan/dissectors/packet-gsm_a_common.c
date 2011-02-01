@@ -4037,7 +4037,7 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_d,
 		{ "Direction of Vertical Speed", "gsm_a.gad.d",
-		FT_BOOLEAN, 8, TFS(&gsm_a_dir_of_ver_speed_vals), 0x08,
+		FT_BOOLEAN, 8, VALS(gsm_a_dir_of_ver_speed_vals), 0x08,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_geo_loc_D,
