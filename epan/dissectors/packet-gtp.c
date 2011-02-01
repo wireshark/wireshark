@@ -1721,13 +1721,14 @@ struct _gtp_hdr {
 static guint8 gtp_version = 0;
 static const char *yesno[] = { "no", "yes" };
 
+static const gchar hex_digits[10] = {'0','1','2','3','4','5','6','7','8','9'};
+
 static gchar *id_to_str(const guint8 * ad)
 {
 
     static gchar str[17] = "                ";
     guint8 bits8to5, bits4to1;
     int i, j = 0;
-    static const gchar hex_digits[10] = "0123456789";
 
     for (i = 0; i < 8; i++) {
         bits8to5 = (ad[i] >> 4) & 0x0F;
@@ -1764,7 +1765,6 @@ static gchar *msisdn_to_str(const guint8 * ad, int len)
     static gchar str[18] = "+                ";
     guint8 bits8to5, bits4to1;
     int i, j = 1;
-    static const gchar hex_digits[10] = "0123456789";
 
     for (i = 1; i < len && i < 9; i++) {
         bits8to5 = (ad[i] >> 4) & 0x0F;
