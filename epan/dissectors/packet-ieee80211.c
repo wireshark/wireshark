@@ -1103,7 +1103,7 @@ static int proto_wlan_mgt = -1;
 
 static int hf_pst_timingquality = -1;
 static int hf_pst_providercount = -1;
-static int hf_pst_providercap = -1;
+static int hf_pst_providercap =   -1;
 static int hf_pst_length =        -1;
 static int hf_pst_contents =      -1;
 
@@ -1441,13 +1441,13 @@ static int hf_ieee80211_mcsset_tx_rx_mcs_set_not_equal = -1;
 static int hf_ieee80211_mcsset_tx_max_spatial_streams = -1;
 static int hf_ieee80211_mcsset_tx_unequal_modulation = -1;
 
-static int htex_cap = -1;
-static int htex_vs_cap = -1;
-static int htex_pco = -1;
-static int htex_transtime = -1;
-static int htex_mcs = -1;
-static int htex_htc_support = -1;
-static int htex_rd_responder = -1;
+static int hf_ieee80211_htex_cap = -1;
+static int hf_ieee80211_htex_vs_cap = -1;
+static int hf_ieee80211_htex_pco = -1;
+static int hf_ieee80211_htex_transtime = -1;
+static int hf_ieee80211_htex_mcs = -1;
+static int hf_ieee80211_htex_htc_support = -1;
+static int hf_ieee80211_htex_rd_responder = -1;
 
 static int hf_ieee80211_txbf = -1;
 static int hf_ieee80211_txbf_vs = -1;
@@ -5441,18 +5441,22 @@ dissect_ht_capability_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 
   /* 2 byte HT Extended Capabilities */
   capability = tvb_get_letohs (tvb, offset);
-  cap_item = proto_tree_add_item(tree, vs ? htex_vs_cap : htex_cap, tvb,
-                    offset, 2, TRUE);
+  if(vs)
+  {
+    cap_item = proto_tree_add_item(tree, hf_ieee80211_htex_vs_cap, tvb, offset, 2, TRUE);
+  } else {
+    cap_item = proto_tree_add_item(tree, hf_ieee80211_htex_cap, tvb, offset, 2, TRUE);
+  }
   cap_tree = proto_item_add_subtree(cap_item, ett_htex_cap_tree);
-  proto_tree_add_boolean(cap_tree, htex_pco, tvb, offset, 1,
+  proto_tree_add_boolean(cap_tree, hf_ieee80211_htex_pco, tvb, offset, 1,
              capability);
-  proto_tree_add_uint(cap_tree, htex_transtime, tvb, offset, 1,
+  proto_tree_add_uint(cap_tree, hf_ieee80211_htex_transtime, tvb, offset, 1,
              capability);
-  proto_tree_add_uint(cap_tree, htex_mcs, tvb, offset+1, 1,
+  proto_tree_add_uint(cap_tree, hf_ieee80211_htex_mcs, tvb, offset+1, 1,
              capability);
-  proto_tree_add_boolean(cap_tree, htex_htc_support, tvb, offset+1, 1,
+  proto_tree_add_boolean(cap_tree, hf_ieee80211_htex_htc_support, tvb, offset+1, 1,
              capability);
-  proto_tree_add_boolean(cap_tree, htex_rd_responder, tvb, offset+1, 1,
+  proto_tree_add_boolean(cap_tree, hf_ieee80211_htex_rd_responder, tvb, offset+1, 1,
              capability);
 
   offset += 2;
@@ -12709,35 +12713,35 @@ proto_register_ieee80211 (void)
       FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x0010,
       NULL, HFILL }},
 
-    {&htex_cap,
+    {&hf_ieee80211_htex_cap,
      {"HT Extended Capabilities", "wlan_mgt.htex.capabilities", FT_UINT16, BASE_HEX,
       NULL, 0, "HT Extended Capability information", HFILL }},
 
-    {&htex_vs_cap,
+    {&hf_ieee80211_htex_vs_cap,
      {"HT Extended Capabilities (VS)", "wlan_mgt.vs.htex.capabilities", FT_UINT16, BASE_HEX,
       NULL, 0, "Vendor Specific HT Extended Capability information", HFILL }},
 
-    {&htex_pco,
+    {&hf_ieee80211_htex_pco,
      {"Transmitter supports PCO", "wlan_mgt.htex.capabilities.pco",
       FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x0001,
       NULL, HFILL }},
 
-    {&htex_transtime,
+    {&hf_ieee80211_htex_transtime,
      {"Time needed to transition between 20MHz and 40MHz", "wlan_mgt.htex.capabilities.transtime",
       FT_UINT16, BASE_HEX, VALS (&htex_transtime_flags), 0x0006,
       NULL, HFILL }},
 
-    {&htex_mcs,
+    {&hf_ieee80211_htex_mcs,
      {"MCS Feedback capability", "wlan_mgt.htex.capabilities.mcs",
       FT_UINT16, BASE_HEX, VALS (&htex_mcs_flags), 0x0300,
       NULL, HFILL }},
 
-    {&htex_htc_support,
+    {&hf_ieee80211_htex_htc_support,
      {"High Throughput", "wlan_mgt.htex.capabilities.htc",
       FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x0400,
       NULL, HFILL }},
 
-    {&htex_rd_responder,
+    {&hf_ieee80211_htex_rd_responder,
      {"Reverse Direction Responder", "wlan_mgt.htex.capabilities.rdresponder",
       FT_BOOLEAN, 16, TFS (&tfs_supported_not_supported), 0x0800,
       NULL, HFILL }},
