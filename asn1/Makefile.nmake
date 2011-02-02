@@ -63,6 +63,7 @@ BER_LIST= \
 	gnm			\
 	goose			\
 	gsm_map			\
+	gprscdr			\
 	h248			\
 	HI2Operations		\
 	inap			\

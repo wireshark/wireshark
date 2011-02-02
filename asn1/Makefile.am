@@ -43,6 +43,7 @@ SUBDIRS = 		\
 	gnm		\
 	goose		\
 	gsm_map		\
+	gprscdr		\
 	h225		\
 	h235		\
 	h245		\
