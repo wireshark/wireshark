@@ -1,6 +1,8 @@
 /* packet-tetra.c
  * Routines for TETRA packet dissection
  *
+ *$Id$
+ *
  * Copyright (c) 2007 - 2011 Professional Mobile Communication Research Group,
  *    Beijing Institute of Technology, China
  * Copyright (c) 2011 Holger Hans Peter Freyther
@@ -539,7 +541,7 @@ void proto_reg_handoff_tetra(void)
 	if (!initialized) {
 		data_handle = find_dissector("data");
 		tetra_handle = create_dissector_handle(dissect_tetra, proto_tetra);
-		dissector_add("udp.port", global_tetra_port, tetra_handle);
+		dissector_add_uint("udp.port", global_tetra_port, tetra_handle);
 	}
 
 }
@@ -583,7 +585,7 @@ void proto_register_tetra (void)
 		 "Receive Status Register", HFILL }},
 		{ &hf_tetra_carriernumber,
 		{ "Carrier Number", "tetra.carrier", FT_UINT16, BASE_HEX, NULL, 0x0,
-		 "Carrier Number", HFILL }},
+		 NULL, HFILL }},
 		{ &hf_tetra_rxchannel1,
 		{ "Channel 1", "tetra.rxchannel1", FT_UINT8, BASE_DEC, VALS(recvchanneltypenames), 0x0,
 		"Logical channels type", HFILL }},
@@ -601,7 +603,7 @@ void proto_register_tetra (void)
 		 "Length of the PDU", HFILL }},
 		{ &hf_tetra_pdu,
 		{ "PDU", "tetra.pdu", FT_BYTES, BASE_NONE, NULL, 0x0,
-		 "PDU", HFILL }} ,
+		 NULL, HFILL }} ,
 
 #include "packet-tetra-hfarr.c"
  	};

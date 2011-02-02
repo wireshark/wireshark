@@ -9,6 +9,8 @@
 /* packet-tetra.c
  * Routines for TETRA packet dissection
  *
+ *$Id$
+ *
  * Copyright (c) 2007 - 2011 Professional Mobile Communication Research Group,
  *    Beijing Institute of Technology, China
  * Copyright (c) 2011 Holger Hans Peter Freyther
@@ -693,7 +695,7 @@ static int hf_tetra_proprietary_element_owner_extension = -1;  /* BIT_STRING */
 static int hf_tetra_simplex_duplex_selection_06 = -1;  /* T_simplex_duplex_selection_05 */
 
 /*--- End of included file: packet-tetra-hf.c ---*/
-#line 84 "packet-tetra-template.c"
+#line 86 "packet-tetra-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_umac = -1;
@@ -982,7 +984,7 @@ static gint ett_tetra_Type2 = -1;
 static gint ett_tetra_Modify_type = -1;
 
 /*--- End of included file: packet-tetra-ett.c ---*/
-#line 96 "packet-tetra-template.c"
+#line 98 "packet-tetra-template.c"
 
 
 /*--- Included file: packet-tetra-fn.c ---*/
@@ -8906,7 +8908,7 @@ static void dissect_MAC_ACCESS_DEFINE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-tetra-fn.c ---*/
-#line 98 "packet-tetra-template.c"
+#line 100 "packet-tetra-template.c"
 
 static const value_string channeltypenames[] = {
 	{ 0, "Reserved" },
@@ -9351,7 +9353,7 @@ void proto_reg_handoff_tetra(void)
 	if (!initialized) {
 		data_handle = find_dissector("data");
 		tetra_handle = create_dissector_handle(dissect_tetra, proto_tetra);
-		dissector_add("udp.port", global_tetra_port, tetra_handle);
+		dissector_add_uint("udp.port", global_tetra_port, tetra_handle);
 	}
 
 }
@@ -9395,7 +9397,7 @@ void proto_register_tetra (void)
 		 "Receive Status Register", HFILL }},
 		{ &hf_tetra_carriernumber,
 		{ "Carrier Number", "tetra.carrier", FT_UINT16, BASE_HEX, NULL, 0x0,
-		 "Carrier Number", HFILL }},
+		 NULL, HFILL }},
 		{ &hf_tetra_rxchannel1,
 		{ "Channel 1", "tetra.rxchannel1", FT_UINT8, BASE_DEC, VALS(recvchanneltypenames), 0x0,
 		"Logical channels type", HFILL }},
@@ -9413,7 +9415,7 @@ void proto_register_tetra (void)
 		 "Length of the PDU", HFILL }},
 		{ &hf_tetra_pdu,
 		{ "PDU", "tetra.pdu", FT_BYTES, BASE_NONE, NULL, 0x0,
-		 "PDU", HFILL }} ,
+		 NULL, HFILL }} ,
 
 
 /*--- Included file: packet-tetra-hfarr.c ---*/
@@ -11820,7 +11822,7 @@ void proto_register_tetra (void)
         "T_simplex_duplex_selection_05", HFILL }},
 
 /*--- End of included file: packet-tetra-hfarr.c ---*/
-#line 607 "packet-tetra-template.c"
+#line 609 "packet-tetra-template.c"
  	};
 
 	/* List of subtrees */
@@ -12107,7 +12109,7 @@ void proto_register_tetra (void)
     &ett_tetra_Modify_type,
 
 /*--- End of included file: packet-tetra-ettarr.c ---*/
-#line 617 "packet-tetra-template.c"
+#line 619 "packet-tetra-template.c"
 	};
 
 	/* execute protocol initialization only once */
