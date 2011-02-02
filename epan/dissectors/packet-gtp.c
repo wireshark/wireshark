@@ -6397,78 +6397,80 @@ static int decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo _
     proto_tree *ext_tree, *ver_tree, *cdr_dr_tree;
     proto_item *te, *fmt_item, *ver_item;
     tvbuff_t *next_tvb;
-	gint8 tmp_cls;
-	gint32 tmp_tag;
-	guint32 tmp_len;
+#if 0
+    gint8 tmp_cls;
+    gint32 tmp_tag;
+    guint32 tmp_len;
+#endif
 
     te = proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str_ext_const(GTP_EXT_DATA_REQ, &gtp_val_ext, "Unknown message"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext);
-	offset++;
+    offset++;
 
     length = tvb_get_ntohs(tvb, offset);
     proto_tree_add_text(ext_tree, tvb, offset, 2, "Length: %u", length);
-	offset+=2;
+    offset+=2;
 
-	/* Octet 4 Number of Data Records */
-	no = tvb_get_guint8(tvb, offset);
+    /* Octet 4 Number of Data Records */
+    no = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(ext_tree, tvb, offset, 1, "Number of data records: %u", no);
-	offset++;
+    offset++;
 
-	/* Octet 5 Data Record Format */
-	format = tvb_get_guint8(tvb, offset);
+    /* Octet 5 Data Record Format */
+    format = tvb_get_guint8(tvb, offset);
     fmt_item = proto_tree_add_text(ext_tree, tvb, offset, 1, "Data record format: %u", format);
-	offset++;
-	/* The value range is 1-255 in decimal. The value '0' should not be used.
-	 * Only the values 1-10 and 51-255 can be used for standards purposes.
-	 * Values in the range of 11-50 are to be configured only by operators, and are not subject to standardization.
-	 */
-	if(format<4){
-		proto_item_append_text(fmt_item, " %s", val_to_str_const(format, gtp_cdr_fmt_vals, "Unknown"));
-		/* Octet 6 -7  Data Record Format Version 
-		 *    8 7 6 5             4 3 2 1
-		 * 6 Application Identifier Release Identifier
-		 * 7 Version Identifier
-		 */
-		app_id = tvb_get_guint8(tvb,offset);
-		rel_id = app_id & 0x0f;
-		app_id = app_id >>4;
-		ver_id =tvb_get_guint8(tvb,offset+1);
-		/* The second octet (#7 in Data Record Packet IE) identifies the version of the TS used to encode the CDR,
-		 * i.e. its value corresponds to the second digit of the version number of the document [51]
-		 * (as shown on the cover sheet), plus '1'.
-		 * E.g. for version 3.4.0, the Version Identifier would be "5".
-		 * In circumstances where the second digit is an alphabetical character, (e.g. 3.b.0), the corresponding ASCII value shall
-		 * be taken, e.g. the Version Identifier would be "66" (ASCII(b)).
-		 */
-		if(ver_id<0x65)
-			ver_id = ver_id -1;
-		/* XXX We don't handle ASCCI version */
+    offset++;
+    /* The value range is 1-255 in decimal. The value '0' should not be used.
+     * Only the values 1-10 and 51-255 can be used for standards purposes.
+     * Values in the range of 11-50 are to be configured only by operators, and are not subject to standardization.
+     */
+    if(format<4){
+        proto_item_append_text(fmt_item, " %s", val_to_str_const(format, gtp_cdr_fmt_vals, "Unknown"));
+        /* Octet 6 -7  Data Record Format Version 
+         *    8 7 6 5             4 3 2 1
+         * 6 Application Identifier Release Identifier
+         * 7 Version Identifier
+         */
+        app_id = tvb_get_guint8(tvb,offset);
+        rel_id = app_id & 0x0f;
+        app_id = app_id >>4;
+        ver_id =tvb_get_guint8(tvb,offset+1);
+        /* The second octet (#7 in Data Record Packet IE) identifies the version of the TS used to encode the CDR,
+         * i.e. its value corresponds to the second digit of the version number of the document [51]
+         * (as shown on the cover sheet), plus '1'.
+         * E.g. for version 3.4.0, the Version Identifier would be "5".
+         * In circumstances where the second digit is an alphabetical character, (e.g. 3.b.0), the corresponding ASCII value shall
+         * be taken, e.g. the Version Identifier would be "66" (ASCII(b)).
+         */
+        if(ver_id<0x65)
+            ver_id = ver_id -1;
+        /* XXX We don't handle ASCCI version */
 
-		ver_item = proto_tree_add_text(ext_tree, tvb, offset, 2, "Data record format version: AppId %u Rel %u.%u.0", app_id,rel_id,ver_id);
-		ver_tree = proto_item_add_subtree(ver_item, ett_gtp_cdr_ver);
-		proto_tree_add_item(ver_tree, hf_gtp_cdr_app, tvb, offset, 1, FALSE);
-		proto_tree_add_item(ver_tree, hf_gtp_cdr_rel, tvb, offset, 1, FALSE);
-		offset++;
-		proto_tree_add_item(ver_tree, hf_gtp_cdr_ver, tvb, offset, 1, FALSE);
-		offset++;
-		for(i = 0; i < no; ++i) {
-			cdr_length = tvb_get_ntohs(tvb, offset);
-			te = proto_tree_add_text(ext_tree, tvb, offset, cdr_length+2, "Data record %d", i + 1);
-			cdr_dr_tree = proto_item_add_subtree(te, ett_gtp_cdr_dr);
-			proto_tree_add_text(cdr_dr_tree, tvb, offset, 2, "Length: %u", cdr_length);
-			offset+=2;
-			proto_tree_add_text(cdr_dr_tree, tvb, offset, cdr_length, "Content");
+        ver_item = proto_tree_add_text(ext_tree, tvb, offset, 2, "Data record format version: AppId %u Rel %u.%u.0", app_id,rel_id,ver_id);
+        ver_tree = proto_item_add_subtree(ver_item, ett_gtp_cdr_ver);
+        proto_tree_add_item(ver_tree, hf_gtp_cdr_app, tvb, offset, 1, FALSE);
+        proto_tree_add_item(ver_tree, hf_gtp_cdr_rel, tvb, offset, 1, FALSE);
+        offset++;
+        proto_tree_add_item(ver_tree, hf_gtp_cdr_ver, tvb, offset, 1, FALSE);
+        offset++;
+        for(i = 0; i < no; ++i) {
+            cdr_length = tvb_get_ntohs(tvb, offset);
+            te = proto_tree_add_text(ext_tree, tvb, offset, cdr_length+2, "Data record %d", i + 1);
+            cdr_dr_tree = proto_item_add_subtree(te, ett_gtp_cdr_dr);
+            proto_tree_add_text(cdr_dr_tree, tvb, offset, 2, "Length: %u", cdr_length);
+            offset+=2;
+            proto_tree_add_text(cdr_dr_tree, tvb, offset, cdr_length, "Content");
 #if 0
-			dissect_ber_identifier(pinfo, cdr_dr_tree, tvb, offset, &tmp_cls, NULL, &tmp_tag);
-			dissect_ber_length(pinfo, cdr_dr_tree, tvb, offset+1, &tmp_len, NULL);
+            dissect_ber_identifier(pinfo, cdr_dr_tree, tvb, offset, &tmp_cls, NULL, &tmp_tag);
+            dissect_ber_length(pinfo, cdr_dr_tree, tvb, offset+1, &tmp_len, NULL);
 #endif
-			offset = offset + cdr_length;
-		}
+            offset = offset + cdr_length;
+        }
 
-	}else{
-		/* Proprietary CDR format */
-		proto_item_append_text(fmt_item, " Proprietary or un documented format");
-	}
+    }else{
+        /* Proprietary CDR format */
+        proto_item_append_text(fmt_item, " Proprietary or un documented format");
+    }
 
     if (gtpcdr_handle) {
         next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -7203,34 +7205,34 @@ void proto_register_gtp(void)
          {"PS Handover XID parameter length", "gtp.ps_handover_xid_par_len",
           FT_UINT8, BASE_DEC, NULL, 0xFF,
           "XID parameter length", HFILL}},
-		{&hf_gtp_earp_pvi,
-		 {"PVI Pre-emption Vulnerability", "gtp.EARP_pre_emption_par_vulnerability",
-		  FT_UINT8, BASE_DEC, NULL, 0x01,
-		  NULL, HFILL}},
-		{&hf_gtp_earp_pl,
-		 {"PL Priority Level", "gtp.EARP_priority_level",
-		  FT_UINT8, BASE_DEC, NULL, 0x3C,
-		  NULL, HFILL}},
-		{&hf_gtp_earp_pci,
-		 {"PCI Pre-emption Capability", "gtp.EARP_pre_emption_Capability",
-		  FT_UINT8, BASE_DEC, NULL, 0x40,
-		  NULL, HFILL}},
-		{&hf_gtp_cdr_app,
-		 {"Application Identifier", "gtp.cdr_app",
-		  FT_UINT8, BASE_DEC, NULL, 0xf0,
-		  NULL, HFILL}},
-		{ &hf_gtp_cdr_rel,
-		 {"Release Identifier", "gtp.cdr_rel",
-		  FT_UINT8, BASE_DEC, NULL, 0x0f,
-		  NULL, HFILL}},
-		{ &hf_gtp_cdr_ver,
-		 {"Version Identifier", "gtp.cdr_ver",
-		  FT_UINT8, BASE_DEC, NULL, 0x0,
-		  NULL, HFILL}},
-		{&hf_gtp_spare,
-		 {"Spare", "gtp.spare",
-		  FT_UINT8, BASE_DEC, NULL, 0x02,
-		  NULL, HFILL}},
+        {&hf_gtp_earp_pvi,
+         {"PVI Pre-emption Vulnerability", "gtp.EARP_pre_emption_par_vulnerability",
+          FT_UINT8, BASE_DEC, NULL, 0x01,
+          NULL, HFILL}},
+        {&hf_gtp_earp_pl,
+         {"PL Priority Level", "gtp.EARP_priority_level",
+          FT_UINT8, BASE_DEC, NULL, 0x3C,
+          NULL, HFILL}},
+        {&hf_gtp_earp_pci,
+         {"PCI Pre-emption Capability", "gtp.EARP_pre_emption_Capability",
+          FT_UINT8, BASE_DEC, NULL, 0x40,
+          NULL, HFILL}},
+        {&hf_gtp_cdr_app,
+         {"Application Identifier", "gtp.cdr_app",
+          FT_UINT8, BASE_DEC, NULL, 0xf0,
+          NULL, HFILL}},
+        { &hf_gtp_cdr_rel,
+         {"Release Identifier", "gtp.cdr_rel",
+          FT_UINT8, BASE_DEC, NULL, 0x0f,
+          NULL, HFILL}},
+        { &hf_gtp_cdr_ver,
+         {"Version Identifier", "gtp.cdr_ver",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_gtp_spare,
+         {"Spare", "gtp.spare",
+          FT_UINT8, BASE_DEC, NULL, 0x02,
+          NULL, HFILL}},
         {&hf_gtp_cmn_flg_ppc,
          {"Prohibit Payload Compression", "gtp.cmn_flg.ppc",
           FT_BOOLEAN, 8, NULL, 0x01,
@@ -7390,8 +7392,8 @@ void proto_register_gtp(void)
         &ett_gtp_ext_ps_handover_xid,
         &ett_gtp_target_id,
         &ett_gtp_utran_cont,
-		&ett_gtp_cdr_ver,
-		&ett_gtp_cdr_dr,
+        &ett_gtp_cdr_ver,
+        &ett_gtp_cdr_dr,
     };
 
     module_t *gtp_module;
