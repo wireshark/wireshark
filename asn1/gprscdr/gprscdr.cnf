@@ -26,6 +26,49 @@ GPRSCallEventRecord
 
    proto_tree_add_text(tree, tvb, offset, -1, "Not dissected");
    
+#.FN_BODY Timestamp VAL_PTR = &parameter_tvb
+
+/*
+	TimeStamp					::= OCTET STRING (SIZE(9))
+	-- The contents of this field are a compact form of the UTCTime format
+	-- containing local time plus an offset to universal time. Binary coded
+	-- decimal encoding is employed for the digits to reduce the storage and
+	-- transmission overhead
+	-- e.g. YYMMDDhhmmssShhmm
+	-- where
+	-- YY 	= 	Year 00 to 99		BCD encoded
+	-- MM 	= 	Month 01 to 12 		BCD encoded
+	-- DD	=	Day 01 to 31		BCD encoded
+	-- hh	=	hour 00 to 23		BCD encoded
+	-- mm	=	minute 00 to 59		BCD encoded
+	-- ss	=	second 00 to 59		BCD encoded
+	-- S	=	Sign 0 = "+", "-"	ASCII encoded
+	-- hh	=	hour 00 to 23		BCD encoded
+	-- mm	=	minute 00 to 59		BCD encoded
+	--
+*/
+ tvbuff_t	*parameter_tvb;
+ proto_tree *subtree;
+ guint8 YY,MM,DD,hh,mm,S,hh2,mm2;
+
+%(DEFAULT_BODY)s
+
+ if (!parameter_tvb)
+	return offset;
+
+ subtree = proto_item_add_subtree(actx->created_item, ett_gprscdr_timestamp);
+ yy = tvb_get_guint8(tvb,0);
+ MM = tvb_get_guint8(tvb,1);
+ DD = tvb_get_guint8(tvb,2);
+ hh = tvb_get_guint8(tvb,3);
+ mm = tvb_get_guint8(tvb,4);
+ ss = tvb_get_guint8(tvb,5);
+ S = tvb_get_guint8(tvb,6);
+ hh2 = tvb_get_guint8(tvb,7);
+ mm2 = tvb_get_guint8(tvb,9);
+ proto_tree_add_text(subtree, tvb, offset, -1, "UTCTime %u%u%u %u:%u.%u",YY,MM,DD,hh,mm,ss);
+
+   
 #.TYPE_ATTR
 IPBinaryAddress/iPBinV4Address TYPE = FT_IPv4  DISPLAY = BASE_NONE   
 IPBinaryAddress/iPBinV6Address TYPE = FT_IPv6  DISPLAY = BASE_NONE   

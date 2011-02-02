@@ -45,6 +45,7 @@ static int proto_gprscdr = -1;
 #include "packet-gprscdr-hf.c"
 
 static int ett_gprscdr = -1;
+static int ett_gprscdr_timestamp = -1;
 #include "packet-gprscdr-ett.c"
 
 static dissector_handle_t gprscdr_handle;
@@ -65,6 +66,7 @@ proto_register_gprscdr(void)
   /* List of subtrees */
     static gint *ett[] = {
     &ett_gprscdr,
+	&ett_gprscdr_timestamp,
 #include "packet-gprscdr-ettarr.c"
         };
 
