@@ -485,11 +485,16 @@ static void show_PDU_in_info(packet_info *pinfo,
 }
 
 
-/* Show an AM PDU.  If configured, pass to PDCP dissector */
-static void show_AM_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, gint offset, gint length,
-                                rlc_lte_info *rlc_info, gboolean whole_pdu)
+/* Show an SDU.  If configured, pass to PDCP dissector */
+static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, gint offset, gint length,
+                             rlc_lte_info *rlc_info, gboolean whole_pdu)
 {
-    proto_item *data_ti = proto_tree_add_item(tree, hf_rlc_lte_am_data, tvb, offset, length, FALSE);
+    /* Add raw data (according to mode) */
+    proto_item *data_ti = proto_tree_add_item(tree,
+                                              (rlc_info->rlcMode == RLC_AM_MODE) ?
+                                                    hf_rlc_lte_am_data :
+                                                    hf_rlc_lte_um_data,
+                                              tvb, offset, length, FALSE);
 
     /* Decode signalling PDUs as PDCP */
     if (whole_pdu &&
@@ -1440,7 +1445,8 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
         /* Show each data segment separately */
         int n;
         for (n=0; n < s_number_of_extensions; n++) {
-            proto_tree_add_item(tree, hf_rlc_lte_um_data, tvb, offset, s_lengths[n], FALSE);
+            show_PDU_in_tree(pinfo, tree, tvb, offset, s_lengths[n], p_rlc_lte_info,
+                             (n==0) ? first_includes_start : TRUE);
             show_PDU_in_info(pinfo, top_ti, s_lengths[n],
                              (n==0) ? first_includes_start : TRUE,
                              TRUE);
@@ -1450,7 +1456,10 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     /* Final data element */
-    proto_tree_add_item(tree, hf_rlc_lte_um_data, tvb, offset, -1, FALSE);
+    show_PDU_in_tree(pinfo, tree, tvb, offset, -1, p_rlc_lte_info,
+                     ((s_number_of_extensions == 0) ? first_includes_start : TRUE) && last_includes_end);
+
+
     show_PDU_in_info(pinfo, top_ti, (guint16)tvb_length_remaining(tvb, offset),
                      (s_number_of_extensions == 0) ? first_includes_start : TRUE,
                      last_includes_end);
@@ -1765,8 +1774,8 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
         /* Show each data segment separately */
         int n;
         for (n=0; n < s_number_of_extensions; n++) {
-            show_AM_PDU_in_tree(pinfo, tree, tvb, offset, s_lengths[n], p_rlc_lte_info,
-                                (n==0) ? first_includes_start : TRUE);
+            show_PDU_in_tree(pinfo, tree, tvb, offset, s_lengths[n], p_rlc_lte_info,
+                             (n==0) ? first_includes_start : TRUE);
             show_PDU_in_info(pinfo, top_ti, s_lengths[n],
                              (n==0) ? first_includes_start : TRUE,
                              TRUE);
@@ -1777,8 +1786,8 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Final data element */
     if (tvb_length_remaining(tvb, offset) > 0) {
-        show_AM_PDU_in_tree(pinfo, tree, tvb, offset, -1, p_rlc_lte_info,
-                            ((s_number_of_extensions == 0) ? first_includes_start : TRUE) && last_includes_end);
+        show_PDU_in_tree(pinfo, tree, tvb, offset, -1, p_rlc_lte_info,
+                         ((s_number_of_extensions == 0) ? first_includes_start : TRUE) && last_includes_end);
         show_PDU_in_info(pinfo, top_ti, (guint16)tvb_length_remaining(tvb, offset),
                          (s_number_of_extensions == 0) ? first_includes_start : TRUE,
                          last_includes_end);
