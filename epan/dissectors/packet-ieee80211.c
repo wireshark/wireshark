@@ -1107,14 +1107,15 @@ static int proto_wlan_mgt = -1;
 /* ************************************************************************* */
 /*                   Header values for WAVE                                  */
 /* ************************************************************************* */
+
 static int hf_pst_timingquality = -1;
 static int hf_pst_providercount = -1;
+static int hf_pst_providercap = -1;
 static int hf_pst_length =        -1;
 static int hf_pst_contents =      -1;
 
 static int hf_pst_acid =        -1;
 static int hf_pst_acm_length =  -1;
-static int hf_pst_acm =         -1;
 static int hf_pst_acm_contents =-1;
 static int hf_pst_acf =         -1;
 static int hf_pst_priority =    -1;
@@ -5257,50 +5258,54 @@ dissect_wsie_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len _
   for (i=0;i<providercount;i++) {
 
     local_offset = offset;
-    cap_item = proto_tree_add_text (pst_tree, tvb, local_offset, pst_length, "Capabilities of Provider :%u", i+1);
+    cap_item = proto_tree_add_item(pst_tree, hf_pst_providercap, tvb, local_offset, 0, TRUE);
+    proto_item_append_text(cap_item, ": %u", i+1);
     cap_tree = proto_item_add_subtree(cap_item, ett_pst_cap_tree);
 
     pst_length = tvb_get_letohl(tvb, local_offset);
+    proto_item_set_len(cap_item, pst_length);
     proto_tree_add_item(cap_tree, hf_pst_length, tvb, local_offset, 2, TRUE);
-    local_offset+=2;
+    local_offset += 2;
 
     pst_contents = tvb_get_guint8 (tvb, local_offset);
     proto_tree_add_item(cap_tree, hf_pst_contents, tvb, local_offset, 1, TRUE);
-    local_offset++;
+    local_offset += 1;
 
     if (pst_contents & WAVE_ACID) {
       proto_tree_add_item(cap_tree, hf_pst_acid, tvb, local_offset, 1, TRUE);
-      local_offset++;
+      local_offset += 1;
     }
 
     if (pst_contents & WAVE_ACM) {
       pst_acm_length = tvb_get_guint8 (tvb, local_offset);
       proto_tree_add_item(cap_tree, hf_pst_acm_length, tvb, local_offset, 1, TRUE);
-      local_offset++;
-      proto_tree_add_item(cap_tree, hf_pst_acm, tvb, local_offset, pst_acm_length, FALSE);
+      local_offset += 1;
+      proto_tree_add_item(cap_tree, hf_pst_acm_contents, tvb, local_offset, pst_acm_length, FALSE);
+      local_offset += pst_acm_length;
     }
     if (pst_contents & WAVE_ACF) {
-      local_offset +=32;
+      proto_tree_add_item(cap_tree, hf_pst_acf, tvb, local_offset, 32, FALSE);
+      local_offset += 32;
     }
     if (pst_contents & WAVE_PRIORITY) {
       proto_tree_add_item(cap_tree, hf_pst_priority, tvb, local_offset, 1, TRUE);
-      local_offset++;
+      local_offset += 1;
     }
     if (pst_contents & WAVE_IPV6ADDR) {
       proto_tree_add_item(cap_tree, hf_pst_ipv6addr, tvb, local_offset, 16, FALSE);
-      local_offset +=16;
+      local_offset += 16;
       proto_tree_add_item(cap_tree, hf_pst_serviceport, tvb, local_offset, 2, FALSE);
-      local_offset +=2;
+      local_offset += 2;
       proto_tree_add_item(cap_tree, hf_pst_addressing, tvb, local_offset, 1, FALSE);
-      local_offset++;
+      local_offset += 1;
     }
     if (pst_contents & WAVE_PEERMAC) {
       proto_tree_add_item(cap_tree, hf_pst_macaddr, tvb, local_offset, 6, FALSE);
-      local_offset +=6;
+      local_offset += 6;
     }
     if (pst_contents & WAVE_CHANNEL) {
       proto_tree_add_item(cap_tree, hf_pst_channel, tvb, local_offset, 1, FALSE);
-      local_offset++;
+      local_offset += 1;
     }
 
     offset = offset + pst_length;
@@ -10991,6 +10996,8 @@ proto_register_ieee80211 (void)
      {"WEP ICV", "wlan.wep.icv", FT_UINT32, BASE_HEX, NULL, 0,
       NULL, HFILL }},
     /***  Begin: WAVE Service information element Dissection - IEEE 802.11p Draft 4.0 ***/
+
+
     {&hf_pst_timingquality,
      {"Timing Quality", "pst.timingQuality", FT_UINT16, BASE_DEC, NULL, 0,
       "PST Timing Quality", HFILL }},
@@ -10998,6 +11005,10 @@ proto_register_ieee80211 (void)
     {&hf_pst_providercount,
      {"No. of Providers announcing their Services", "pst.providerCount", FT_UINT8, BASE_DEC, NULL, 0,
       "Provider Count", HFILL }},
+
+    {&hf_pst_providercap,
+     {"Capabilities of Provider", "pst.providercap", FT_NONE, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
 
     {&hf_pst_length,
      {"Provider Service Table Length", "pst.length", FT_UINT16, BASE_DEC, NULL, 0,
@@ -11015,16 +11026,12 @@ proto_register_ieee80211 (void)
      {"Application Context Mask (ACM) Length", "pst.ACM.length", FT_UINT8, BASE_DEC, NULL, 0,
       "PST ACM Length", HFILL }},
 
-    {&hf_pst_acm,
-     {"Application Context Mask", "pst.ACM", FT_STRING, BASE_NONE, NULL, 0,
-      "PST ACM", HFILL }},
-
     {&hf_pst_acm_contents,
-     {"Application Context Mask Contents (ACM)", "pst.ACM.contents", FT_UINT32, BASE_DEC, NULL, 0,
+     {"Application Context Mask Contents (ACM)", "pst.ACM.contents", FT_STRING, BASE_NONE, NULL, 0,
       "PST ACM Contents", HFILL }},
 
     {&hf_pst_acf,
-     {"Application Contents Field (ACF)", "pst.ACF", FT_UINT32, BASE_DEC, NULL, 0,
+     {"Application Contents Field (ACF)", "pst.ACF", FT_STRING, BASE_NONE, NULL, 0,
       "PST ACF", HFILL }},
 
     {&hf_pst_priority,
