@@ -695,6 +695,7 @@ proto_reg_handoff_lapd(void)
 
 		lapd_handle = find_dissector("lapd");
 		dissector_add_uint("wtap_encap", WTAP_ENCAP_LINUX_LAPD, lapd_handle);
+		dissector_add_uint("wtap_encap", WTAP_ENCAP_LAPD, lapd_handle);
 
 		lapd_bitstream_handle = create_dissector_handle(dissect_lapd_bitstream, proto_lapd);
 		data_handle = find_dissector("data");
