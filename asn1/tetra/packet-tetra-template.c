@@ -3,6 +3,7 @@
  *
  * Copyright (c) 2007 - 2011 Professional Mobile Communication Research Group,
  *    Beijing Institute of Technology, China
+ * Copyright (c) 2011 Holger Hans Peter Freyther
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -21,6 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
+ * REF: ETSI EN 300 392-2 V3.2.1
  */
 
 #ifdef HAVE_CONFIG_H
@@ -45,10 +48,10 @@
 static int proto_tetra = -1;
 
 /* These are the handles of our subdissectors */
-static dissector_handle_t data_handle=NULL;
+static dissector_handle_t data_handle = NULL;
 
 static dissector_handle_t tetra_handle;
-void dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static int global_tetra_port = 7074;
 
@@ -90,35 +93,6 @@ static gint ett_tetra_txreg = -1;
 static gint ett_tetra_text = -1;
 
 #include "packet-tetra-ett.c"
-
-guint32
-dissect_my_bit_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, tvbuff_t **value_tvb)
-{
-	proto_item *tetra_sub_item = NULL;
-	char s[256], s2[10];
-	guint32 i, byte_len, byte_offset = offset >> 3;
-	guint8 shift0, shift1, c;
-	const guint8* p;
-
-	max_len -= (offset - 104); // MAC-ACCESS only
-  shift1 = offset & 0x07;
-  shift0 = 8 - shift1;
-	byte_len = (max_len + shift1) >> 3;
-	if((max_len + shift1) & 0x07)
-		byte_len++;
-	p = tvb_get_ptr(tvb, byte_offset, byte_len);
-	s[0] = 0;
-	tetra_sub_item = proto_tree_add_item(tree, hf_index, tvb, offset >> 3, byte_len, 0);
-	for(i = 0; i < byte_len; i++)
-	{
-		s2[0] = 0;
-		c = (p[i] << shift1) | (p[i + 1] >> shift0);
-		sprintf(s2, "%02x", c);
-		strcat(s, s2);
-	}
-	proto_item_set_text(tetra_sub_item, "TM-SDU: %s", s);
-	return(offset + max_len);
-}
 
 #include "packet-tetra-fn.c"
 
@@ -169,12 +143,15 @@ static const value_string recvchanneltypenames[] = {
 };
 void proto_register_tetra (void)
 {
-	/* A header field is something you can search/filter on.
-	*
-	* We create a structure to register our fields. It consists of an
-	* array of hf_register_info structures, each of which are of the format
-	* {&(field id), {name, abbrev, type, display, strings, bitmask, blurb, HFILL}}.
-	*/
+	module_t *per_module;
+
+	/*
+	 * A header field is something you can search/filter on.
+	 *
+	 * We create a structure to register our fields. It consists of an
+	 * array of hf_register_info structures, each of which are of the format
+	 * {&(field id), {name, abbrev, type, display, strings, bitmask, blurb, HFILL}}.
+	 */
 	static hf_register_info hf[] = {
 		{ &hf_tetra,
 		{ "Data", "tetra.data", FT_NONE, BASE_NONE, NULL, 0x0,
@@ -219,78 +196,75 @@ void proto_register_tetra (void)
 		{ "Length", "tetra.len0", FT_UINT16, BASE_DEC, NULL, 0x0,
 		 "Length of the PDU", HFILL }},
 		{ &hf_tetra_pdu,
-		{ "PDU", "tetra.pdu", FT_BYTES, BASE_HEX, NULL, 0x0,
+		{ "PDU", "tetra.pdu", FT_BYTES, BASE_NONE, NULL, 0x0,
 		 "PDU", HFILL }} ,
 
 #include "packet-tetra-hfarr.c"
-  };
+ 	};
 
-  /* List of subtrees */
-  static gint *ett[] = {
+	/* List of subtrees */
+  	static gint *ett[] = {
 		&ett_tetra,
 		&ett_tetra_header,
 		&ett_tetra_length,
 		&ett_tetra_txreg,
 		&ett_tetra_text,
 #include "packet-tetra-ettarr.c"
-  };
+	};
 
-  if (proto_tetra == -1)
-  {  /* execute protocol initialization only once */
-     module_t *per_module;
+	/* execute protocol initialization only once */
+  	if (proto_tetra != -1)
+		return;
 
-	   proto_tetra = proto_register_protocol ("TETRA Protocol", "tetra", "tetra");
+	proto_tetra = proto_register_protocol("TETRA Protocol", "tetra", "tetra");
+	proto_register_field_array (proto_tetra, hf, array_length (hf));
+	proto_register_subtree_array (ett, array_length (ett));
+	register_dissector("tetra", dissect_tetra, proto_tetra);
 
-	   proto_register_field_array (proto_tetra, hf, array_length (hf));
-	   proto_register_subtree_array (ett, array_length (ett));
-	   register_dissector("tetra", dissect_tetra, proto_tetra);
-
-     per_module = prefs_register_protocol(proto_tetra, NULL);
-	 prefs_register_bool_preference(per_module, "include_carrier_number",
-			  "The data include carrier numbers",
-			  "Whether the captured data include carrier number",
-			  &include_carrier_number);
-	}
+	per_module = prefs_register_protocol(proto_tetra, NULL);
+	prefs_register_bool_preference(per_module, "include_carrier_number",
+			"The data include carrier numbers",
+			"Whether the captured data include carrier number",
+			&include_carrier_number);
 }
 
-// Get the length of received pdu
-gint get_rx_pdu_length(guint32 channel_type)
+/* Get the length of received pdu */
+static gint get_rx_pdu_length(guint32 channel_type)
 {
 	gint len = 0;
 
-	switch(channel_type)
-	{
-	case 1: // AACH
+	switch(channel_type) {
+	case TETRA_CHAN_AACH:
 		len = 14;
 		break;
-	case 2: // SCH/F
+	case TETRA_CHAN_SCH_F:
 		len = 268;
 		break;
-	case 3: // SCH/HD
+	case TETRA_CHAN_SCH_D:
 		len = 124; ;
 		break;
-	case 5: // BSCH
+	case TETRA_CHAN_BSCH:
 		len = 60;
 		break;
-	case 6:	// BNCH
+	case TETRA_CHAN_BNCH:
 		len = 124;
 		break;
-	case 7: // TCH/F
+	case TETRA_CHAN_TCH_F:
 		len = 274;
 		break;
-	case 8: // TCH/H
+	case TETRA_CHAN_TCH_H:
 		len = 137;
 		break;
-	case 9: // TCH2.4
+	case TETRA_CHAN_TCH_2_4:
 		len = 144;
 		break;
-	case 10: // TCH4.8
+	case TETRA_CHAN_TCH_4_8:
 		len = 288;
 		break;
-	case 11: //STCH
+	case TETRA_CHAN_STCH:
 		len = 124;
 		break;
-	case 15: // SCH/HU
+	case TETRA_CHAN_SCH_HU:
 		len = 92;
 		break;
 	default:
@@ -301,41 +275,40 @@ gint get_rx_pdu_length(guint32 channel_type)
 	return len;
 }
 
-// Get the length of transmitted pdu
-gint get_tx_pdu_length(guint32 channel_type)
+/* Get the length of transmitted pdu */
+static gint get_tx_pdu_length(guint32 channel_type)
 {
 	gint len = 0;
 
-	switch(channel_type)
-	{
-	case 1: // AACH
+	switch(channel_type) {
+	case TETRA_CHAN_AACH:
 		len = 14;
 		break;
-	case 2: // SCH/F
+	case TETRA_CHAN_SCH_F:
 		len = 268;
 		break;
-	case 3: // SCH/HD
+	case TETRA_CHAN_SCH_D:
 		len = 124;
 		break;
-	case 5: // BSCH
+	case TETRA_CHAN_BSCH:
 		len = 60;
 		break;
-	case 6:	// BNCH
+	case TETRA_CHAN_BNCH:
 		len = 124;
 		break;
-	case 7: // TCH/F
+	case TETRA_CHAN_TCH_F:
 		len = 274;
 		break;
-	case 8: // TCH/H
+	case TETRA_CHAN_TCH_H:
 		len = 137;
 		break;
-	case 9: // TCH/2.4
+	case TETRA_CHAN_TCH_2_4:
 		len = 144;
 		break;
-	case 10: // TCH/4.8
+	case TETRA_CHAN_TCH_4_8:
 		len = 288;
 		break;
-	case 11: // STCH
+	case TETRA_CHAN_STCH:
 		len = 124;
 		break;
 	}
@@ -343,23 +316,116 @@ gint get_tx_pdu_length(guint32 channel_type)
 	return len;
 }
 
-void dissect_tetra_UNITDATA_IND(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tetra_tree, int offset)
+void tetra_dissect_pdu(int channel_type, int dir, tvbuff_t *pdu, proto_tree *tree, packet_info *pinfo)
+{
+	proto_item *tetra_sub_item;
+	proto_tree *tetra_sub_tree;
+	guint8 p;
+
+	tetra_sub_item = proto_tree_add_item(tree, hf_tetra_pdu,
+					     pdu, 0, tvb_length(pdu), FALSE);
+
+	tetra_sub_tree = proto_item_add_subtree(tetra_sub_item, ett_tetra);
+
+	switch(channel_type) {
+	case TETRA_CHAN_AACH:
+		dissect_AACH_PDU(pdu, pinfo, tetra_sub_tree );
+		break;
+	case TETRA_CHAN_SCH_F:
+		p = tvb_get_guint8(pdu, 0);
+		switch(p >> 6) {
+		case 0:
+			dissect_MAC_RESOURCE_PDU(pdu, pinfo, tetra_sub_tree );
+			break;
+		case 1: // MAC-FRAG or MAC-END
+			if((p >> 5) == 3) {
+				if (dir == TETRA_DOWNLINK)
+					dissect_MAC_END_DOWNLINK_PDU(pdu, pinfo, tetra_sub_tree );
+				else
+					dissect_MAC_END_UPLINK_PDU(pdu, pinfo, tetra_sub_tree);
+
+			} else
+				dissect_MAC_FRAG_PDU(pdu, pinfo, tetra_sub_tree );
+			break;
+		case 2:
+			dissect_MAC_ACCESS_DEFINE_PDU(pdu, pinfo, tetra_sub_tree );
+			break;
+		}
+		break;
+	case TETRA_CHAN_SCH_D:
+		p = tvb_get_guint8(pdu, 0);
+		switch(p >> 6) {
+		case 0:
+			dissect_MAC_RESOURCE_PDU(pdu, pinfo, tetra_sub_tree );
+			break;
+		case 1: // MAC-FRAG or MAC-END
+			if((p >> 5) == 3)
+				dissect_MAC_END_DOWN111_PDU(pdu, pinfo, tetra_sub_tree );
+			else
+				dissect_MAC_FRAG120_PDU(pdu, pinfo, tetra_sub_tree );
+		break;
+		case 2:
+			dissect_MAC_ACCESS_DEFINE_PDU(pdu, pinfo, tetra_sub_tree );
+			break;
+		}
+		break;
+	case TETRA_CHAN_SCH_HU:
+		p = tvb_get_guint8(pdu, 0);
+		switch(p >> 7) {
+		case 0: //MAC-ACCESS
+			dissect_MAC_ACCESS_PDU(pdu, pinfo, tetra_sub_tree);
+			break;
+		case 1: //MAC-END-HU
+			dissect_MAC_END_HU_PDU(pdu, pinfo, tetra_sub_tree);
+			break;
+		}
+		break;
+	case TETRA_CHAN_BSCH:
+		dissect_BSCH_PDU(pdu, pinfo, tetra_sub_tree );
+		break;
+	case TETRA_CHAN_BNCH:
+		dissect_BNCH_PDU(pdu, pinfo, tetra_sub_tree );
+		break;
+	case TETRA_CHAN_STCH:
+		p = tvb_get_guint8(pdu, 0);
+		switch(p >> 6) {
+		case 0:
+			dissect_MAC_RESOURCE_PDU(pdu, pinfo, tetra_sub_tree );
+			break;
+		case 1: // MAC-FRAG or MAC-END
+			if((p >> 5) == 3) {
+				if (dir == TETRA_DOWNLINK)
+					dissect_MAC_END_DOWN111_PDU(pdu, pinfo, tetra_sub_tree );
+				else
+					dissect_MAC_END_UP114_PDU(pdu, pinfo, tetra_sub_tree);
+			} else
+				dissect_MAC_FRAG120_PDU(pdu, pinfo, tetra_sub_tree );
+			break;
+		case 2:
+			dissect_MAC_ACCESS_DEFINE_PDU(pdu, pinfo, tetra_sub_tree );
+			break;
+		}
+		break;
+	}
+}
+
+static void dissect_tetra_UNITDATA_IND(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tetra_tree, int offset)
 {
 	guint32 rxreg = 0;
 	guint32 channels = 0, i;
 	guint32 channel_type;
 	gint pdu_offset = 0;
-	proto_item *tetra_sub_item = NULL;
-	proto_tree *tetra_header_tree = NULL, *tetra_sub_tree = NULL;
-	const guint8* p;
+	proto_item *tetra_sub_item;
+	proto_tree *tetra_header_tree = NULL;
+	tvbuff_t *payload_tvb;
 
 	// Length
-	tvb_memcpy(tvb, (guint8 *)&rxreg, offset, 4);
+	rxreg = tvb_get_letohl(tvb, offset);
 	tetra_sub_item = proto_tree_add_uint(tetra_tree, hf_tetra_len0, tvb, offset, 4, rxreg);
 
 	// RvSteR
 	offset += 4;
-	tvb_memcpy(tvb, (guint8 *)&rxreg, offset, 4);
+	rxreg = tvb_get_letohl(tvb, offset);
 	tetra_sub_item = proto_tree_add_uint(tetra_tree, hf_tetra_rvstr, tvb, offset, 4, rxreg);
 
 	// Logical channels
@@ -368,8 +434,7 @@ void dissect_tetra_UNITDATA_IND(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	tetra_header_tree = proto_item_add_subtree(tetra_sub_item, ett_tetra);
 
 	pdu_offset = offset + 4;
-	for(i = 0; i < channels; i++)
-	{
+	for(i = 0; i < channels; i++) {
 		gint hf_channel[] = {hf_tetra_rxchannel1, hf_tetra_rxchannel2};
 		gint byte_len, bits_len, remaining_bits;
 
@@ -386,57 +451,9 @@ void dissect_tetra_UNITDATA_IND(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		remaining_bits = bits_len % 8;
 		if ((remaining_bits)!=0)
 			byte_len++;
-		tetra_sub_item = proto_tree_add_item( tetra_header_tree, hf_tetra_pdu, tvb, pdu_offset, byte_len, FALSE );
-		if(!(rxreg >> (i + 2) & 0x01)) // CRC is true
-		{
-			tetra_sub_tree = proto_item_add_subtree(tetra_sub_item, ett_tetra);
-			switch(channel_type)
-			{
-			case 15: // SCH/HU
-				p = tvb_get_ptr(tvb, pdu_offset, 1);
-				switch(p[0]>>7)
-				{
-				case 0: //MAC-ACCESS
 
-					dissect_MAC_ACCESS_PDU(tvb, pdu_offset << 3, pinfo, tetra_sub_tree);
-					break;
-				case 1: //MAC-END-HU
-					dissect_MAC_END_HU_PDU(tvb, pdu_offset << 3, pinfo, tetra_sub_tree);
-					break;
-				}
-				break;
-			case 2: // SCH/F
-				p = tvb_get_ptr(tvb, pdu_offset, 1);
-				switch(p[0] >> 6)
-				{
-				case 0: // MAC-DATA
-					dissect_MAC_DATA_PDU(tvb, pdu_offset << 3, pinfo, tetra_sub_tree);
-				case 1: // MAC-FRAG and MAC-END
-					if((p[0] >> 5) == 3)
-						dissect_MAC_END_UPLINK_PDU(tvb, pdu_offset << 3, pinfo, tetra_sub_tree);
-					else
-						dissect_MAC_FRAG_PDU(tvb, pdu_offset << 3, pinfo, tetra_sub_tree);
-					break;
-				}
-				break;
-			case 11: // STCH
-				p = tvb_get_ptr(tvb, pdu_offset, 1);
-				switch(p[0] >> 6)
-				{
-				case 0: // MAC-DATA
-					dissect_MAC_DATA_PDU(tvb, pdu_offset << 3, pinfo, tetra_sub_tree);
-					break;
-				case 1: // MAC-FRAG and MAC-END
-					if((p[0] >> 5) == 3)
-						dissect_MAC_END_UP114_PDU(tvb, pdu_offset << 3, pinfo, tetra_sub_tree);
-
-					else
-						dissect_MAC_FRAG120_PDU(tvb, pdu_offset << 3, pinfo, tetra_sub_tree);
-					break;
-				}
-				break;
-			}
-		} // if(!(rxreg >> (i + 2) & 0x01))
+		payload_tvb = tvb_new_subset(tvb, pdu_offset, byte_len, byte_len);
+		tetra_dissect_pdu(channel_type, TETRA_UPLINK, payload_tvb, tetra_header_tree, pinfo);
 
 		if ((remaining_bits)!=0)
 			byte_len--;
@@ -451,11 +468,11 @@ void dissect_tetra_UNITDATA_REQ(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	guint32 channel_type;
 	gint pdu_offset = 0;
 	proto_item *tetra_sub_item = NULL;
-	proto_tree *tetra_header_tree = NULL, *tetra_sub_tree = NULL;
-	const guint8* p;
+	proto_tree *tetra_header_tree = NULL;
+	tvbuff_t *payload_tvb;
 
 	// TxR
-	tvb_memcpy(tvb, (guint8 *)&txreg, offset, 4);
+	txreg = tvb_get_letohl(tvb, offset);
 	tetra_sub_item = proto_tree_add_uint(tetra_tree, hf_tetra_txreg, tvb, offset, 4, txreg);
 
 	// Logical channels
@@ -468,8 +485,7 @@ void dissect_tetra_UNITDATA_REQ(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		txreg >>= 4;
 
 	pdu_offset = offset + 4;
-	for(i = 0; i < channels; i++)
-	{
+	for(i = 0; i < channels; i++) {
 		gint hf_channel[] = {hf_tetra_channel1, hf_tetra_channel2, hf_tetra_channel3};
 		gint byte_len, bits_len, remaining_bits;
 
@@ -482,78 +498,9 @@ void dissect_tetra_UNITDATA_REQ(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		remaining_bits = bits_len % 8;
 		if ((remaining_bits)!=0)
 				byte_len++;
-		tetra_sub_item = proto_tree_add_item( tetra_header_tree, hf_tetra_pdu, tvb, pdu_offset, byte_len, FALSE );
-		if(dissect)
-		{
-			tetra_sub_tree = proto_item_add_subtree(tetra_sub_item, ett_tetra);
-			switch(channel_type)
-			{
-			case 1: // AACH
-				dissect_AACH_PDU(tvb, pdu_offset << 3, pinfo, tetra_sub_tree );
-				break;
-			case 2: // SCH/F
-				p = tvb_get_ptr(tvb, pdu_offset, 1);
-				switch(p[0] >> 6)
-				{
-				case 0:
-					dissect_MAC_RESOURCE_PDU(tvb, pdu_offset << 3, pinfo, tetra_sub_tree );
-					break;
-				case 1: // MAC-FRAG or MAC-END
-					if((p[0] >> 5) == 3)
-						dissect_MAC_END_DOWNLINK_PDU(tvb, pdu_offset << 3, pinfo, tetra_sub_tree );
-					else
-						dissect_MAC_FRAG_PDU(tvb, pdu_offset << 3, pinfo, tetra_sub_tree );
-					break;
-				case 2:
-					dissect_MAC_ACCESS_DEFINE_PDU(tvb, pdu_offset << 3, pinfo, tetra_sub_tree );
-					break;
-				}
-				break;
-			case 3: // SCH/HD
-				p = tvb_get_ptr(tvb, pdu_offset, 1);
-				switch(p[0] >> 6)
-				{
-				case 0:
-					dissect_MAC_RESOURCE_PDU(tvb, pdu_offset << 3, pinfo, tetra_sub_tree );
-					break;
-				case 1: // MAC-FRAG or MAC-END
-					if((p[0] >> 5) == 3)
-						dissect_MAC_END_DOWN111_PDU(tvb, pdu_offset << 3, pinfo, tetra_sub_tree );
-					else
-						dissect_MAC_FRAG120_PDU(tvb, pdu_offset << 3, pinfo, tetra_sub_tree );
-					break;
-				case 2:
-					dissect_MAC_ACCESS_DEFINE_PDU(tvb, pdu_offset << 3, pinfo, tetra_sub_tree );
-					break;
-				}
-				break;
-			case 5: // BSCH
-				dissect_BSCH_PDU(tvb, pdu_offset << 3, pinfo, tetra_sub_tree );
-				break;
-			case 6: // BNCH
-				dissect_BNCH_PDU(tvb, pdu_offset << 3, pinfo, tetra_sub_tree );
-				break;
-			case 11: // STCH
-				p = tvb_get_ptr(tvb, pdu_offset, 1);
-				switch(p[0] >> 6)
-				{
-				case 0:
-					dissect_MAC_RESOURCE_PDU(tvb, pdu_offset << 3, pinfo, tetra_sub_tree );
-					break;
-				case 1: // MAC-FRAG or MAC-END
-					if((p[0] >> 5) == 3)
-						dissect_MAC_END_DOWN111_PDU(tvb, pdu_offset << 3, pinfo, tetra_sub_tree );
-					else
-						dissect_MAC_FRAG120_PDU(tvb, pdu_offset << 3, pinfo, tetra_sub_tree );
-					break;
-				case 2:
-					dissect_MAC_ACCESS_DEFINE_PDU(tvb, pdu_offset << 3, pinfo, tetra_sub_tree );
-					break;
-				}
-				break;
-			}
-		} // if(dissect)
 
+		payload_tvb = tvb_new_subset(tvb, pdu_offset, byte_len, byte_len);
+		tetra_dissect_pdu(channel_type, TETRA_DOWNLINK, payload_tvb, tetra_header_tree, pinfo);
 		//if ((remaining_bits)!=0)
 				//byte_len--;
 		pdu_offset += byte_len;
@@ -574,22 +521,23 @@ dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_tetra);
 	/* Clear out stuff in the info column */
-	if(check_col(pinfo->cinfo,COL_INFO)){
+	if (check_col(pinfo->cinfo,COL_INFO))
 		col_clear(pinfo->cinfo,COL_INFO);
+
+	/*
+	 * This is not a good way of dissecting packets.  The tvb length should
+	 * be sanity checked so we aren't going past the actual size of the buffer.
+	 */
+	type = tvb_get_guint8(tvb, 0);
+
+	if(include_carrier_number) {
+		carriernumber = tvb_get_guint8(tvb, 1);
+		carriernumber |= 0xff00;
 	}
-
-	// This is not a good way of dissecting packets.  The tvb length should
-	// be sanity checked so we aren't going past the actual size of the buffer.
-//	type = tvb_get_guint8( tvb, 1 ); // Get the type byte
-	tvb_memcpy(tvb, (guint8 *)&type, 0, 1);
-
-	if(include_carrier_number)
-		tvb_memcpy(tvb, (guint8 *)&carriernumber, 1, 1);
 
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		switch(type)
-		{
+		switch(type) {
 		case 1:
 			if(include_carrier_number)
 				col_add_fstr(pinfo->cinfo, COL_INFO, "%d > %d tetra-UNITDATA-REQ, Carrier: %d",
@@ -649,8 +597,7 @@ dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset ++;
 
 		// Carrier number
-		if(include_carrier_number)
-		{
+		if(include_carrier_number) {
 			tetra_sub_item = proto_tree_add_uint(tetra_tree, hf_tetra_carriernumber, tvb, offset, 1, carriernumber);
 			offset ++;
 		}
@@ -660,7 +607,7 @@ dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tetra_header_tree = proto_item_add_subtree(tetra_sub_item, ett_tetra);
 
 		// Timer
-		tvb_memcpy(tvb, (guint8 *)&txtimer, offset, 4);
+		txtimer = tvb_get_letohl(tvb, offset);
 		tetra_sub_item = proto_tree_add_item(tetra_header_tree, hf_tetra_timer, tvb, offset, 4, TRUE);
 		tslot = ((txtimer & 0x7800) >> 11);
 		if(tslot==4)
@@ -673,8 +620,7 @@ dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		offset += 4;
 
-		switch(type)
-		{
+		switch(type) {
 		case 1: // tetra-UNITDATA-REQ
 		case 128: // tetra-UNITDATA-REQ Done
 			dissect_tetra_UNITDATA_REQ(tvb, pinfo, tetra_header_tree, offset, 1);

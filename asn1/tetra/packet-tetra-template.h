@@ -1,4 +1,4 @@
-/* packet-AzPort.h
+/* packet-tetra.h
  * Routines for TETRA packet dissection
  *
  * Copyright (c) 2007 - 2011 Professional Mobile Communication Research Group,
@@ -23,11 +23,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
+ * REF: ETSI EN 300 392-2 V3.2.1
  */
 
 #ifndef PACKET_TETRA_H
 #define PACKET_TETRA_H
 
-#include "packet-tetra-exp.h"
+enum {
+	TETRA_CHAN_AACH		= 1,
+	TETRA_CHAN_SCH_F	= 2,
+	TETRA_CHAN_SCH_D	= 3,
+	TETRA_CHAN_BSCH		= 5,
+	TETRA_CHAN_BNCH		= 6,
+	TETRA_CHAN_TCH_F	= 7,
+	TETRA_CHAN_TCH_H	= 8,
+	TETRA_CHAN_TCH_2_4	= 9,
+	TETRA_CHAN_TCH_4_8	= 10,
+	TETRA_CHAN_STCH		= 11,
+	TETRA_CHAN_SCH_HU	= 15
+};
+
+enum {
+	TETRA_UPLINK,
+	TETRA_DOWNLINK
+};
+
+void tetra_dissect_pdu(int channel_type, int dir, tvbuff_t *pdu, proto_tree *head, packet_info *pinfo);
 
 #endif  /* PACKET_TETRA_H */

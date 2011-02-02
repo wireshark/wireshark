@@ -25,12 +25,7 @@ BSCH ::= SEQUENCE
 	u-plane-dtx      U-Plane-DTX,
 	frame-18-extension  Frame-18-Extension,
 	reserved         Reserved ,
-	tm-sud INTEGER(0..536870911),
-  mcc                 INTEGER(0..1023),
-	mnc                 INTEGER(0..16383),
-	neighbour-cell-broadcast INTEGER(0..3),
-	cell-service-level  INTEGER(0..3),
-	late-entry-information INTEGER(0..1)
+	tm-sdu		MLE-Sync
 }
     System-Code ::= ENUMERATED
 	 {
@@ -260,6 +255,14 @@ BSCH ::= SEQUENCE
 	   default(0),
            not-used(1)
          }
+    MLE-Sync  ::= SEQUENCE
+         {
+	   mcc                INTEGER(0..1023),
+	   mnc                INTEGER(0..16383),
+	   neighbour-cell-broadcast INTEGER(0..3),
+	   cell-service-level  INTEGER(0..3),
+	   late-entry-information INTEGER(0..1)
+	 }
 
 
 BNCH ::= SEQUENCE
