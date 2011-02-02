@@ -110,7 +110,6 @@ ASN1_DISSECTOR_SRC = \
 	packet-ess.c \
 	packet-ftam.c \
 	packet-goose.c \
-	packet-gprscdr.c \
 	packet-h225.c \
 	packet-h235.c \
 	packet-h245.c \
@@ -169,6 +168,7 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-ansi_map.c \
 	packet-gnm.c \
 	packet-gsm_map.c \
+	packet-gprscdr.c \
 	packet-HI2Operations.c \
 	packet-hnbap.c \
 	packet-inap.c \
