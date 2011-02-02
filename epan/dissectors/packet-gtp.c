@@ -61,8 +61,8 @@
 #include "packet-bssap.h"
 #include "packet-gsm_a_common.h"
 #include "packet-gsm_map.h"
+#include "packet-gprscdr.h"
 #include "packet-per.h"
-#include "packet-ber.h"
 #include "packet-ranap.h"
 #include "packet-bssgp.h"
 #include "packet-gtp.h"
@@ -322,7 +322,6 @@ static gint ett_gtp_utran_cont = -1;
 static gint ett_gtp_bcm = -1;
 static gint ett_gtp_cdr_ver = -1;
 static gint ett_gtp_cdr_dr = -1;
-
 
 static gboolean g_gtp_tpdu = TRUE;
 static gboolean g_gtp_etsi_order = FALSE;
@@ -935,7 +934,7 @@ static value_string_ext gtpv1_val_ext = VALUE_STRING_EXT_INIT(gtpv1_val);
 
 /* GPRS:    9.60 v7.6.0, page 37
  * UMTS:    29.060 v4.0, page 45
- * ETSI TS 129 060 V9.4.0 (2010-10)
+ * ETSI TS 129 060 V9.4.0 (2010-10) Ch 7.7.1
  */
 static const value_string cause_type[] = {
     {  0, "Request IMSI"},
@@ -963,7 +962,9 @@ static const value_string cause_type[] = {
      * protocol use (see GTP' in 3GPP TS 32.295 [33])
      * 177-191
      */
-    {192, "Non-existent"},
+    {177, "CDR decoding error"},
+
+	{192, "Non-existent"},
     {193, "Invalid message format"},
     {194, "IMSI not known"},
     {195, "MS is GPRS detached"},
@@ -6383,6 +6384,8 @@ static int decode_gtp_can_pack(tvbuff_t * tvb, int offset, packet_info * pinfo _
 /* CDRs dissector 
  * 3GPP TS 32.295 version 9.0.0 Release 9
  */
+
+
 static const value_string gtp_cdr_fmt_vals[] = {
     {1, "Basic Encoding Rules (BER)"},
     {2, "Unaligned basic Packed Encoding Rules (PER)"},
@@ -6397,11 +6400,6 @@ static int decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo _
     proto_tree *ext_tree, *ver_tree, *cdr_dr_tree;
     proto_item *te, *fmt_item, *ver_item;
     tvbuff_t *next_tvb;
-#if 0
-    gint8 tmp_cls;
-    gint32 tmp_tag;
-    guint32 tmp_len;
-#endif
 
     te = proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str_ext_const(GTP_EXT_DATA_REQ, &gtp_val_ext, "Unknown message"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext);
@@ -6460,11 +6458,14 @@ static int decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo _
             proto_tree_add_text(cdr_dr_tree, tvb, offset, 2, "Length: %u", cdr_length);
             offset+=2;
             proto_tree_add_text(cdr_dr_tree, tvb, offset, cdr_length, "Content");
-#if 0
-            dissect_ber_identifier(pinfo, cdr_dr_tree, tvb, offset, &tmp_cls, NULL, &tmp_tag);
-            dissect_ber_length(pinfo, cdr_dr_tree, tvb, offset+1, &tmp_len, NULL);
-#endif
-            offset = offset + cdr_length;
+			next_tvb = tvb_new_subset_remaining(tvb, offset);
+
+			/* XXX this is for release 6, may not work for higer releases */ 
+			if(format==1){
+				dissect_gprscdr_GPRSCallEventRecord_PDU(next_tvb, pinfo, cdr_dr_tree);
+			}
+
+			offset = offset + cdr_length;
         }
 
     }else{
@@ -7320,7 +7321,6 @@ void proto_register_gtp(void)
           FT_UINT8, BASE_DEC, VALS(gtp_pdp_bcm_type_vals), 0,
           NULL, HFILL}
         },
-
     };
 
     static gint *ett_gtp_array[] = {
