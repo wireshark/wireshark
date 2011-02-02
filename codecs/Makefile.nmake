@@ -7,7 +7,8 @@ include ..\config.nmake
 
 ############### no need to modify below this line #########
 
-CFLAGS=-WX -DHAVE_CONFIG_H $(GLIB_CFLAGS) -D_U_="" $(LOCAL_CFLAGS)
+CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
+	$(GLIB_CFLAGS)
 
 .c.obj::
 	$(CC) $(CFLAGS)  -Fd.\ -c $<
@@ -17,8 +18,8 @@ CODEC_OBJECTS= \
 	G711adecode.obj
 
 
-codecs.lib	:  $(CODEC_OBJECTS) 
-	link /lib /out:codecs.lib $(CODEC_OBJECTS) 
+codecs.lib	:  $(CODEC_OBJECTS)
+	link /lib /out:codecs.lib $(CODEC_OBJECTS)
 
 
 G711adecode.obj: G711a\G711adecode.c G711a\G711adecode.h G711a\G711atable.h
@@ -34,7 +35,7 @@ distclean: clean
 
 maintainer-clean: distclean
 
-checkapi: 
+checkapi:
 	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput \
 	G711a/G711adecode.c \
 	G711u/G711udecode.c

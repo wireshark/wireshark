@@ -8,15 +8,16 @@ include Makefile.common
 
 ############### no need to modify below this line #########
 
-CFLAGS=-WX -DHAVE_CONFIG_H $(GLIB_CFLAGS) -D_U_="" /I../.. $(LOCAL_CFLAGS)
+CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
+	 /I../.. $(GLIB_CFLAGS)
 
 .c.obj::
 	$(CC) $(CFLAGS)  -Fd.\ -c $<
 
 CRC_OBJECTS = $(CRC_SRC:.c=.obj)
 
-crc.lib: $(CRC_OBJECTS) 
-	link /lib /out:crc.lib $(CRC_OBJECTS) 
+crc.lib: $(CRC_OBJECTS)
+	link /lib /out:crc.lib $(CRC_OBJECTS)
 
 clean:
         rm -f $(CRC_OBJECTS) crc.lib *.pdb

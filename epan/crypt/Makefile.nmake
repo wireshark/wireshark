@@ -8,15 +8,16 @@ include Makefile.common
 
 ############### no need to modify below this line #########
 
-CFLAGS=-WX -DHAVE_CONFIG_H $(GLIB_CFLAGS) -D_U_="" /I../.. $(LOCAL_CFLAGS)
+CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
+	 /I../.. $(GLIB_CFLAGS)
 
 .c.obj::
 	$(CC) $(CFLAGS)  -Fd.\ -c $<
 
 AIRPDCAP_OBJECTS = $(LIBAIRPDCAP_SRC:.c=.obj)
 
-airpdcap.lib: $(AIRPDCAP_OBJECTS) 
-	link /lib /out:airpdcap.lib $(AIRPDCAP_OBJECTS) 
+airpdcap.lib: $(AIRPDCAP_OBJECTS)
+	link /lib /out:airpdcap.lib $(AIRPDCAP_OBJECTS)
 
 clean:
         rm -f $(AIRPDCAP_OBJECTS) airpdcap.lib *.pdb

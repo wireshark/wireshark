@@ -6,8 +6,9 @@ include ..\..\config.nmake
 
 ############### no need to modify below this line #########
 
-CFLAGS=/WX /DHAVE_CONFIG_H /I../.. $(GLIB_CFLAGS) \
-	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
+CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
+	/I../.. $(GLIB_CFLAGS) \
+	/I$(PCAP_DIR)\include
 
 LDFLAGS = $(PLUGIN_LDFLAGS)
 

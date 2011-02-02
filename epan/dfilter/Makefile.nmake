@@ -11,11 +11,13 @@ include Makefile.common
 LEMON=..\..\tools\lemon
 
 # We GENERATED_CFLAGS to get around flex's non-LLP64-compliant output
-GENERATED_CFLAGS=-DHAVE_CONFIG_H /I. /I.. /I..\.. /I$(LEMON) \
-	$(GLIB_CFLAGS) $(PCRE_CFLAGS) /I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
-CFLAGS=-WX $(GENERATED_CFLAGS)
+GENERATED_CFLAGS=\
+	$(STANDARD_CFLAGS) \
+	/I. /I.. /I..\.. $(GLIB_CFLAGS) \
+	/I$(LEMON) \
+	$(PCRE_CFLAGS) /I$(PCAP_DIR)\include
 
-CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
+CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS)
 
 .c.obj::
    $(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<

@@ -9,8 +9,9 @@ include moduleinfo.nmake
 
 include Makefile.common
 
-CFLAGS=/WX /DHAVE_CONFIG_H /I../.. $(GLIB_CFLAGS) \
-	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
+CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
+	/I../.. $(GLIB_CFLAGS) \
+	/I$(PCAP_DIR)\include
 
 .c.obj::
 	$(CC) $(CFLAGS) -Fdstats_tree.pdb -c $<

@@ -39,14 +39,15 @@ CHECK_TAG=
 LDFLAGS = /NOLOGO /INCREMENTAL:no $(LOCAL_LDFLAGS)
 
 # We use GENERATED_CFLAGS to get around flex's non-LLP64-compliant output
-GENERATED_CFLAGS=-DHAVE_CONFIG_H $(LOCAL_CFLAGS) $(GLIB_CFLAGS) /I. /Iwiretap \
+GENERATED_CFLAGS=\
+	$(STANDARD_CFLAGS) \
+	-D_NEED_VAR_IMPORT_ \
+	/I.  /Iwiretap $(GLIB_CFLAGS) \
 	$(ZLIB_CFLAGS) /I$(PCAP_DIR)\include $(AIRPCAP_CFLAGS) \
 	$(C_ARES_CFLAGS) $(ADNS_CFLAGS) $(PCRE_CFLAGS) $(GNUTLS_CFLAGS) \
-	$(PYTHON_CFLAGS) $(SMI_CFLAGS) $(GEOIP_CFLAGS) \
-	-D_U_="" -D_NEED_VAR_IMPORT_
-CFLAGS=-WX $(GENERATED_CFLAGS)
+	$(PYTHON_CFLAGS) $(SMI_CFLAGS) $(GEOIP_CFLAGS)
 
-CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
+CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS)
 
 .c.obj::
 	$(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
@@ -439,7 +440,7 @@ text2pcap-scanner.obj : text2pcap-scanner.c
 text2pcap.obj mergecap.obj capinfos.obj editcap.obj version_info.obj: svnversion.h
 
 
-clean-local: clean-deps
+clean-local:
 	rm -f $(wireshark_OBJECTS) $(tshark_OBJECTS) $(dumpcap_OBJECTS) $(rawshark_OBJECTS) \
  		$(EXECUTABLES) *.pdb *.exe.manifest \
 		capinfos.obj editcap.obj mergecap.obj text2pcap.obj \
@@ -451,6 +452,7 @@ clean-local: clean-deps
 		$(RESOURCES) libwireshark.dll wiretap-$(WTAP_VERSION).dll \
 		libwsutil.dll \
 		wireshark.bsc
+	rm -rf $(INSTALL_DIR)
 
 clean: clean-local
 	cd asn1
@@ -1080,12 +1082,6 @@ install-all: install-generated-files
 	xcopy "$(SMI_DIR)\lib\smi.dll" $(INSTALL_DIR) /d
 	xcopy "$(SMI_DIR)\mibs\*" $(INSTALL_DIR)\snmp\mibs /d
 !ENDIF
-
-clean-deps:
-	rm -rf $(INSTALL_DIR)
-	cd plugins
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean-deps
-	cd ..
 
 checkapi_local:
 	$(PERL) tools/checkAPIs.pl \

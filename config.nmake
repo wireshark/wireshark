@@ -758,22 +758,47 @@ MANIFEST_INFO_REQUIRED=1
 !ENDIF
 
 # Compiler flags:
-# /W3  warning level 3 (0 less - 4 most, 1 default)
-# /Zi  create .pdb file for debugging
-# /MD  use "Multithreading Debug" libraries
-# /D_CRT_SECURE_NO_DEPRECATE        Don't warn for "insecure" calls, see MSDN "Security Enhancements in the CRT"
+# /W3                               Warning level 3 (0 less - 4 most, 1 default)
+# /Zi                               Create .pdb file for debugging
+# /MD                               Use "multithread- and DLL-specific version" of run-time libraries
+#                                    msvc documentation states that /MD causes _MT and _DLL to be defined
+#                                    See: http://msdn.microsoft.com/en-us/library/2kzt1wy3%28v=VS.90%29.aspx
+# /D_CRT_SECURE_NO_DEPRECATE        Don't warn for "insecure" calls,
+#                                     see MSDN "Security Enhancements in the CRT"
 # /D_CRT_NONSTDC_NO_DEPRECATE       Don't warn for "Deprecated CRT Functions" as MSDN calls this
-# /D_BIND_TO_CURRENT_CRT_VERSION=1  Make sure our CRT and manifest versions match (http://msdn.microsoft.com/en-us/library/cc664727.aspx)
+# /D_BIND_TO_CURRENT_CRT_VERSION=1  Make sure our CRT and manifest versions match
+#                                    (http://msdn.microsoft.com/en-us/library/cc664727.aspx)
 # /DWIN32_LEAN_AND_MEAN             Don't include unnecessary Windows include files (see windows.h)
-# /MANIFEST:no                      Don't create a SxS manifest. Makes sure our plugins don't load a second copy of the CRT.
+# /MANIFEST:no                      Don't create a SxS manifest. Makes sure our plugins don't load
+#                                     a second copy of the CRT.
 #
-!IF "$(MSVC_VARIANT)" == "MSVC6" || "$(MSVC_VARIANT)" == "MSVC2002" || "$(MSVC_VARIANT)" == "DOTNET10" || "$(MSVC_VARIANT)" == "MSVC2003" || "$(MSVC_VARIANT)" == "DOTNET11"
+##Note: LOCAL_CFLAGS is used used for *all* compilations
+!IF     "$(MSVC_VARIANT)" == "MSVC6"      || \
+        "$(MSVC_VARIANT)" == "MSVC2002"   || \
+        "$(MSVC_VARIANT)" == "DOTNET10"   || \
+        "$(MSVC_VARIANT)" == "MSVC2003"   || \
+        "$(MSVC_VARIANT)" == "DOTNET11"
 LOCAL_CFLAGS=/Zi /W3 /MD /DWIN32_LEAN_AND_MEAN /DMSC_VER_REQUIRED=$(MSC_VER_REQUIRED)
-!ELSEIF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" || "$(MSVC_VARIANT)" == "MSVC2008" || "$(MSVC_VARIANT)" == "MSVC2008EE" || "$(MSVC_VARIANT)" == "MSVC2010" || "$(MSVC_VARIANT)" == "MSVC2010EE"
-LOCAL_CFLAGS=/Zi /W3 /MD /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE /DWIN32_LEAN_AND_MEAN /DMSC_VER_REQUIRED=$(MSC_VER_REQUIRED)
+
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2005"   || \
+        "$(MSVC_VARIANT)" == "MSVC2005EE" || \
+        "$(MSVC_VARIANT)" == "DOTNET20"   || \
+        "$(MSVC_VARIANT)" == "MSVC2008"   || \
+        "$(MSVC_VARIANT)" == "MSVC2008EE" || \
+        "$(MSVC_VARIANT)" == "MSVC2010"   || \
+        "$(MSVC_VARIANT)" == "MSVC2010EE"
+LOCAL_CFLAGS=/Zi /W3 /MD /DWIN32_LEAN_AND_MEAN /DMSC_VER_REQUIRED=$(MSC_VER_REQUIRED) \
+	     /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE
+
 !IF "$(WIRESHARK_TARGET_PLATFORM)" != "win64"
 LOCAL_CFLAGS=$(LOCAL_CFLAGS) /D_BIND_TO_CURRENT_CRT_VERSION=1
 !ENDIF
+
+# Additional compiler warnings to be treated as "Level 3"
+#  when compiling Wireshark sources. (Selected from "level 4" warnings).
+## 4295: array is too small to include a terminating null character
+WARNINGS_CFLAGS=/w34295
+
 !ELSE
 !ERROR MSVC_VARIANT unknown
 !ENDIF
@@ -791,16 +816,27 @@ LOCAL_CFLAGS=$(LOCAL_CFLAGS) /D_BIND_TO_CURRENT_CRT_VERSION=1
 # * /showIncludes
 # * /Yc
 #
-!IF "$(MSVC_VARIANT)" == "MSVC2008" || "$(MSVC_VARIANT)" == "MSVC2008EE" || "$(MSVC_VARIANT)" == "MSVC2010" || "$(MSVC_VARIANT)" == "MSVC2010EE"
+!IF     "$(MSVC_VARIANT)" == "MSVC2008"   || \
+        "$(MSVC_VARIANT)" == "MSVC2008EE" || \
+        "$(MSVC_VARIANT)" == "MSVC2010"   || \
+        "$(MSVC_VARIANT)" == "MSVC2010EE"
 LOCAL_CFLAGS= $(LOCAL_CFLAGS) /MP
 !ENDIF
 
 # Optional: Static analysis. Only supported in the full-frontal MSVC editions.
 # http://msdn.microsoft.com/en-us/library/ms182025.aspx
 
-#!IF "$(MSVC_VARIANT)" == "MSVC2010" && "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
+#!IF    "$(MSVC_VARIANT)" == "MSVC2010" && "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
 #LOCAL_CFLAGS= $(LOCAL_CFLAGS) /analyze
 #!ENDIF
+
+#STANDARD_CFLAGS is used only for Wireshark source compiles
+STANDARD_CFLAGS=-DHAVE_CONFIG_H -D_U_="" $(LOCAL_CFLAGS) $(WARNINGS_CFLAGS)
+
+WARNINGS_ARE_ERRORS=-WX
+
+## XXX: _MT and _DLL are defined when /MD is used so CVARSDLL is apparently unneeded
+##CVARSDLL=-D_MT -D_DLL
 
 # Linker flags:
 # /DEBUG  generate debug info
