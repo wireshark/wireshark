@@ -1,0 +1,32 @@
+# gprscdr.cnf
+# Anders Broman 2011
+# $Id$
+
+#.IMPORT ../gsm_map/gsm_map-exp.cnf
+
+#.MODULE
+
+#.EXPORTS
+GPRSCallEventRecord
+GPRSCallEventRecord_PDU
+
+#.CLASS ATTRIBUTE
+&id                    ObjectIdentifierType
+&Value
+
+#.CLASS CONTEXT
+&id                    ObjectIdentifierType
+&Value
+
+#.PDU_NEW
+GPRSCallEventRecord
+
+
+#.FN_BODY ManagementExtension/information
+
+   proto_tree_add_text(tree, tvb, offset, -1, "Not dissected");
+   
+#.TYPE_ATTR
+IPBinaryAddress/iPBinV4Address TYPE = FT_IPv4  DISPLAY = BASE_NONE   
+IPBinaryAddress/iPBinV6Address TYPE = FT_IPv6  DISPLAY = BASE_NONE   
+#.END
