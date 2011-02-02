@@ -596,7 +596,7 @@ static value_string_ext message_type_ext = VALUE_STRING_EXT_INIT(message_type);
 #define GTP_EXT_FLOW_II               0x12
 #define GTP_EXT_TEID_II               0x12    /* 0xFF12 3G */
 
-#define GTP_EXT_19                    0x13    /* 19	TV	Teardown Ind	7.7.16 */
+#define GTP_EXT_19                    0x13    /* 19 TV Teardown Ind 7.7.16 */
 #define GTP_EXT_MS_REASON             0x13    /* same as 0x1D GTPv1_EXT_MS_REASON */
 #define GTP_EXT_TEAR_IND              0x13    /* 0xFF13 3G */
 
@@ -609,10 +609,10 @@ static value_string_ext message_type_ext = VALUE_STRING_EXT_INIT(message_type);
 #define GTP_EXT_CHRG_CHAR             0x1A    /* 3G */
 #define GTP_EXT_TRACE_REF             0x1B    /* 3G */
 #define GTP_EXT_TRACE_TYPE            0x1C    /* 3G */
-#define GTPv1_EXT_MS_REASON           0x1D    /* 3G 29	TV	MS Not Reachable Reason	7.7.25A */
+#define GTPv1_EXT_MS_REASON           0x1D    /* 3G 29	TV MS Not Reachable Reason 7.7.25A */
 /* 117-126	Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33]) */
 #define GTP_EXT_TR_COMM               0x7E    /* charging */
-#define GTP_EXT_CHRG_ID               0x7F    /* 127	TV	Charging ID	7.7.26 */
+#define GTP_EXT_CHRG_ID               0x7F    /* 127	TV Charging ID 7.7.26 */
 #define GTP_EXT_USER_ADDR             0x80
 #define GTP_EXT_MM_CNTXT              0x81
 #define GTP_EXT_PDP_CNTXT             0x82
@@ -639,7 +639,7 @@ static value_string_ext message_type_ext = VALUE_STRING_EXT_INIT(message_type);
 #define GTP_EXT_RAT_TYPE              0x97    /* 3G   151 TLV RAT Type 7.7.50 */
 #define GTP_EXT_USR_LOC_INF           0x98    /* 3G   152 TLV User Location Information 7.7.51 */
 #define GTP_EXT_MS_TIME_ZONE          0x99    /* 3G   153 TLV MS Time Zone 7.7.52 */
-#define GTP_EXT_IMEISV                0x9A    /* 3G   154 TLV IMEI(SV)	7.7.53 */
+#define GTP_EXT_IMEISV                0x9A    /* 3G   154 TLV IMEI(SV) 7.7.53 */
 #define GTP_EXT_CAMEL_CHG_INF_CON     0x9B    /* 3G   155 TLV CAMEL Charging Information Container 7.7.54 */
 #define GTP_EXT_MBMS_UE_CTX           0x9C    /* 3G   156 TLV MBMS UE Context 7.7.55 */
 #define GTP_EXT_TMGI                  0x9D    /* 3G   157 TLV Temporary Mobile Group Identity (TMGI) 7.7.56 */
@@ -1707,7 +1707,7 @@ static const gtp_opt_t gtpopt[] = {
     {GTP_EXT_DIRECT_TUNNEL_FLGS, decode_gtp_direct_tnl_flg},    /* 7.7.81 */
     {GTP_EXT_CORRELATION_ID, decode_gtp_corrl_id},  /* 7.7.82 */
     {GTP_EXT_BEARER_CONTROL_MODE, decode_gtp_bearer_cntrl_mod}, /* 7.7.83 */
-    {GTP_EXT_EVO_ALLO_RETE_P1, decode_gtp_evolved_allc_rtn_p1},	/* 7.7.91 */
+    {GTP_EXT_EVO_ALLO_RETE_P1, decode_gtp_evolved_allc_rtn_p1}, /* 7.7.91 */
     {GTP_EXT_REL_PACK, decode_gtp_rel_pack},    /* charging */
     {GTP_EXT_CAN_PACK, decode_gtp_can_pack},    /* charging */
     {GTP_EXT_CHRG_ADDR, decode_gtp_chrg_addr},
@@ -3567,7 +3567,7 @@ static int decode_gtp_ms_reason(tvbuff_t * tvb, int offset, packet_info * pinfo 
 
     reason = tvb_get_guint8(tvb, offset + 1);
 
-	/* Reason for Absence is defined in 3GPP TS 23.040  */
+    /* Reason for Absence is defined in 3GPP TS 23.040  */
     proto_tree_add_uint(tree, hf_gtp_ms_reason, tvb, offset, 2, reason);
 
     return 2;
@@ -3592,7 +3592,7 @@ static int decode_gtp_ra_prio_lcs(tvbuff_t * tvb, int offset, packet_info * pinf
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
     offset = offset + 2;
 
-	proto_tree_add_item(ext_tree, hf_gtp_ra_prio_lcs, tvb, offset, 1, FALSE);
+    proto_tree_add_item(ext_tree, hf_gtp_ra_prio_lcs, tvb, offset, 1, FALSE);
 
     return 3 + length;
 
@@ -3873,19 +3873,19 @@ static int decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _
     offset = offset + 2;
 
     if (con_len > 0) {
-		proto_tree_add_text(ext_tree_mm, tvb, offset, con_len, "Container");
+        proto_tree_add_text(ext_tree_mm, tvb, offset, con_len, "Container");
 
- 		iei = tvb_get_guint8(tvb,offset);
-		if (iei == 0x23){
-			proto_tree_add_text(ext_tree_mm, tvb, offset, 1, "Mobile identity IEI %u",iei);
-			offset++;
-			len = tvb_get_guint8(tvb,offset);
-			proto_tree_add_text(ext_tree_mm, tvb, offset, 1, "Length %u",len);
-			offset++;
-			de_mid(tvb, ext_tree_mm, offset, len, NULL, 0);
-		}else{
-			proto_tree_add_text(ext_tree_mm, tvb, offset, 1, "Unknown IEI %u - Later spec than TS 29.060 9.4.0 used?",iei);
-		}
+        iei = tvb_get_guint8(tvb,offset);
+        if (iei == 0x23){
+            proto_tree_add_text(ext_tree_mm, tvb, offset, 1, "Mobile identity IEI %u",iei);
+            offset++;
+            len = tvb_get_guint8(tvb,offset);
+            proto_tree_add_text(ext_tree_mm, tvb, offset, 1, "Length %u",len);
+            offset++;
+            de_mid(tvb, ext_tree_mm, offset, len, NULL, 0);
+        }else{
+            proto_tree_add_text(ext_tree_mm, tvb, offset, 1, "Unknown IEI %u - Later spec than TS 29.060 9.4.0 used?",iei);
+        }
     }
 
     return 3 + length;
@@ -4333,13 +4333,13 @@ static int decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo 
     ext_tree_pdp = proto_item_add_subtree(te, ett_gtp_pdp);
 
     vaa = (tvb_get_guint8(tvb, offset + 3) >> 6) & 0x01;
-	asi = (tvb_get_guint8(tvb, offset + 3) >> 5) & 0x01;
+    asi = (tvb_get_guint8(tvb, offset + 3) >> 5) & 0x01;
     order = (tvb_get_guint8(tvb, offset + 3) >> 4) & 0x01;
     nsapi = tvb_get_guint8(tvb, offset + 3) & 0x0F;
     sapi = tvb_get_guint8(tvb, offset + 4) & 0x0F;
 
     proto_tree_add_text(ext_tree_pdp, tvb, offset + 3, 1, "VPLMN address allowed: %s", yesno[vaa]);
-	proto_tree_add_text(ext_tree_pdp, tvb, offset + 3, 1, "Activity Status Indicator: %s", yesno[asi]);
+    proto_tree_add_text(ext_tree_pdp, tvb, offset + 3, 1, "Activity Status Indicator: %s", yesno[asi]);
     proto_tree_add_text(ext_tree_pdp, tvb, offset + 3, 1, "Reordering required: %s", yesno[order]);
     proto_tree_add_text(ext_tree_pdp, tvb, offset + 3, 1, "NSAPI: %u", nsapi);
     proto_tree_add_text(ext_tree_pdp, tvb, offset + 4, 1, "SAPI: %u", sapi);
@@ -4864,11 +4864,11 @@ static int decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo 
     offset = offset + 1;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
     offset = offset + 2;
-	/* The Target Identification information element contains the identification of a target RNC. Octets 4-n shall be encoded
-	 * as the "Target RNC-ID" part of the "Target ID" parameter in 3GPP TS 25.413 [7]. Therefore, the "Choice Target ID"
-	 * that indicates "Target RNC-ID" (numerical value of 0x20) shall not be included in the "Target RNC-ID" value in octets
-	 * 4-n.
-	 */
+    /* The Target Identification information element contains the identification of a target RNC. Octets 4-n shall be encoded
+     * as the "Target RNC-ID" part of the "Target ID" parameter in 3GPP TS 25.413 [7]. Therefore, the "Choice Target ID"
+     * that indicates "Target RNC-ID" (numerical value of 0x20) shall not be included in the "Target RNC-ID" value in octets
+     * 4-n.
+     */
     next_tvb = tvb_new_subset(tvb, offset, length, length);
     dissect_ranap_TargetRNC_ID(next_tvb, 0, &asn1_ctx, ext_tree, hf_gtp_targetRNC_ID);
 
@@ -6293,14 +6293,14 @@ static int decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info *
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
     offset = offset + 2;
 
-	proto_tree_add_item(ext_tree, hf_gtp_bcm, tvb, offset, 1, FALSE);
+    proto_tree_add_item(ext_tree, hf_gtp_bcm, tvb, offset, 1, FALSE);
 
-	return 3 + length;
+    return 3 + length;
 
 }
 
 /*
- * 7.7.91	Evolved Allocation/Retention Priority I
+ * 7.7.91 Evolved Allocation/Retention Priority I
  */
 static int decode_gtp_evolved_allc_rtn_p1(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
