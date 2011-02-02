@@ -323,6 +323,8 @@ AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wformat-security)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-fexcess-precision=fast)
 
 AC_WIRESHARK_GCC_LDFLAGS_CHECK([-Wl,--as-needed])
+###AC_WIRESHARK_GCC_LDFLAGS_CHECK([-Wl,-M])
+###AC_WIRESHARK_GCC_LDFLAGS_CHECK([-Wl,--cref])
 # AC_WIRESHARK_GCC_LDFLAGS_CHECK([-flto])
 # AC_WIRESHARK_GCC_LDFLAGS_CHECK([-fwhopr])
 # AC_WIRESHARK_GCC_LDFLAGS_CHECK([-fwhole-program])
@@ -1816,7 +1818,6 @@ AC_OUTPUT(
   asn1/goose/Makefile
   asn1/gprscdr/Makefile
   asn1/gsm_map/Makefile
-  asn1/gprscdr/Makefile
   asn1/h225/Makefile
   asn1/h235/Makefile
   asn1/h245/Makefile
