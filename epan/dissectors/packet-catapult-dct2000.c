@@ -196,7 +196,6 @@ static guint outhdr_values[MAX_OUTHDR_VALUES];
 static gint outhdr_values_found = 0;
 
 extern int proto_fp;
-extern int proto_mac_lte;
 extern int proto_rlc_lte;
 extern int proto_pdcp_lte;
 
@@ -1403,7 +1402,7 @@ static void attach_mac_lte_info(packet_info *pinfo)
     unsigned int i=0;
 
     /* Only need to set info once per session. */
-    p_mac_lte_info = p_get_proto_data(pinfo->fd, proto_mac_lte);
+    p_mac_lte_info = get_mac_lte_proto_data(pinfo);
     if (p_mac_lte_info != NULL) {
         return;
     }
@@ -1473,6 +1472,7 @@ static void attach_mac_lte_info(packet_info *pinfo)
             }
         }
         else {
+            /* Uplink */
             p_mac_lte_info->detailed_phy_info.ul_info.present = outhdr_values[i++];
             p_mac_lte_info->detailed_phy_info.ul_info.modulation_type = outhdr_values[i++];
             p_mac_lte_info->detailed_phy_info.ul_info.tbs_index = outhdr_values[i++];
@@ -1496,7 +1496,7 @@ static void attach_mac_lte_info(packet_info *pinfo)
     }
 
     /* Store info in packet */
-    p_add_proto_data(pinfo->fd, proto_mac_lte, p_mac_lte_info);
+    set_mac_lte_proto_data(pinfo, p_mac_lte_info);
 }
 
 
@@ -1663,7 +1663,7 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
 
     /* We have an event */
     /* Only need to set info once per session. */
-    p_mac_lte_info = p_get_proto_data(pinfo->fd, proto_mac_lte);
+    p_mac_lte_info = get_mac_lte_proto_data(pinfo);
     if (p_mac_lte_info == NULL) {
 
         /* Allocate & zero struct */
@@ -1695,7 +1695,7 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
         p_mac_lte_info->oob_event = oob_event;
 
         /* Store info in packet */
-        p_add_proto_data(pinfo->fd, proto_mac_lte, p_mac_lte_info);
+        set_mac_lte_proto_data(pinfo, p_mac_lte_info);
     }
 
     /* Call MAC dissector */

@@ -4084,6 +4084,19 @@ void proto_register_mac_lte(void)
     register_init_routine(&mac_lte_init_protocol);
 }
 
+
+/* Function to be called from outside this module (e.g. in a plugin) to get per-packet data */
+mac_lte_info *get_mac_lte_proto_data(packet_info *pinfo)
+{
+    return p_get_proto_data(pinfo->fd, proto_mac_lte);
+}
+
+/* Function to be called from outside this module (e.g. in a plugin) to set per-packet data */
+void set_mac_lte_proto_data(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
+{
+    p_add_proto_data(pinfo->fd, proto_mac_lte, p_mac_lte_info);
+}
+
 void
 proto_reg_handoff_mac_lte(void)
 {

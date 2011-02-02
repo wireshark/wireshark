@@ -242,3 +242,9 @@ int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction);
    continues until the end of the frame) */
 #define MAC_LTE_PAYLOAD_TAG 0x01
 
+
+/* Functions to be called from outside this module (e.g. in a plugin, where mac_lte_info
+   isn't available) to get/set per-packet data */
+mac_lte_info *get_mac_lte_proto_data(packet_info *pinfo);
+void set_mac_lte_proto_data(packet_info *pinfo, mac_lte_info *p_mac_lte_info);
+

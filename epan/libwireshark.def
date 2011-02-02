@@ -549,6 +549,7 @@ get_host_ipaddr6
 get_hostname
 get_hostname6
 get_key_string
+get_mac_lte_proto_data
 get_manuf_name_if_known
 get_persconffile_path
 get_persdatafile_dir
@@ -932,6 +933,7 @@ set_column_resolved
 set_column_title
 set_column_visible
 set_actual_length
+set_mac_lte_proto_data
 set_profile_name
 set_tap_dfilter
 show_exception
