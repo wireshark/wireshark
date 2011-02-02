@@ -904,13 +904,6 @@ static const value_string aruba_mgt_typevals[] = {
 #define MESH_MAX_RETRIES                        6
 #define MESH_CONFIRM_TIMEOUT                    7
 
-#define MESH_MGMT_IE_CONFIGURATION       36
-#define MESH_MGMT_IE_ID                  37
-#define MESH_MGMT_IE_PEER_LINK           40
-#define MESH_MGMT_IE_PREQ                53
-#define MESH_MGMT_IE_PREP                54
-#define MESH_MGMT_IE_PERR                55
-
 /* Vendor actions */
 /* MARVELL */
 #define MRVL_ACTION_MESH_MANAGEMENT     1
@@ -1307,7 +1300,6 @@ static int hf_ieee80211_ff_mimo_csi_snr = -1;
 /*** Begin: Mesh Frame Format ***/
 static int hf_ieee80211_ff_mesh_mgt_action_ps_code = -1;/* Mesh Management path selection action code */
 static int hf_ieee80211_ff_mesh_mgt_action_pl_code = -1;/* Mesh Management peer link action code */
-static int hf_ieee80211_ff_mesh_mgt_ie_id = -1;                /* Mesh Management ID */
 /* NB: see above for more items */
 static int hf_ieee80211_ff_mesh_mgt_dest_flags = -1;     /* Mesh Management destination flags */
 static int hf_ieee80211_ff_mesh_mgt_srccount = -1;  /* Mesh Management src count */
@@ -1326,6 +1318,7 @@ static int hf_mesh_config_path_sel_metric = -1;
 static int hf_mesh_config_congestion_control = -1;
 static int hf_mesh_config_channel_prec = -1;
 static int hf_mesh_config_capability = -1;
+static int hf_ieee80211_mesh_id = -1;
 /*** End: Mesh Frame Format ***/
 
 #endif /* MESH_OVERRIDES */
@@ -6554,17 +6547,14 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
     case TAG_MESH_ID:
       {
-        guint8 *id;
         offset += 2;
 
-        id = tvb_get_ephemeral_string(tvb, offset, tag_len);
-        proto_tree_add_string (tree, hf_ieee80211_tag_interpretation, tvb, offset, tag_len, (char *) id);
-        if (check_col (pinfo->cinfo, COL_INFO)) {
-          if (tag_len > 0) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", MESHID=\"%s\"",
-                            format_text(id, tag_len));
-          }
+        proto_tree_add_item(tree, hf_ieee80211_mesh_id, tvb, offset, tag_len, FALSE);
+        if (tag_len > 0) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", MESHID=%s", tvb_get_ephemeral_string(tvb, offset, tag_len));
+            proto_item_append_text(ti, ": %s", tvb_get_ephemeral_string(tvb, offset, tag_len));
         }
+
       break;
       }
 
@@ -10526,17 +10516,6 @@ proto_register_ieee80211 (void)
     {0x00, NULL}
   };
 
-  static const value_string mesh_mgt_ie_codes[] ={
-    /* TODO: incomplete */
-    {MESH_MGMT_IE_CONFIGURATION, "Mesh Configuration"},
-    {MESH_MGMT_IE_ID, "Mesh ID"},
-    {MESH_MGMT_IE_PEER_LINK, "Peer Link Management"},
-    {MESH_MGMT_IE_PREQ, "Path Request"},
-    {MESH_MGMT_IE_PREP, "Path Response"},
-    {MESH_MGMT_IE_PERR, "Path Error"},
-    {0, NULL}
-  };
-
   static const true_false_string mesh_dest_rf_flags ={
     "[RF = 1] Intermediate Nodes That Respond Will Also Forward",
     "[RF = 0] Intermediate Nodes That Respond Will Not Forward"
@@ -12357,10 +12336,10 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_HEX, NULL, 0,
       "Mesh Configuration Capability", HFILL }},
 
-    {&hf_ieee80211_ff_mesh_mgt_ie_id,
-     {"Mesh Managment IE ID", "wlan.mesh_ie",
-      FT_UINT8, BASE_HEX, VALS (&mesh_mgt_ie_codes), 0,
-      "Information Element ID", HFILL }},
+    {&hf_ieee80211_mesh_id,
+     {"Mesh ID", "wlan.mesh.id",
+      FT_STRING, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
 
     {&hf_ieee80211_ff_mesh_mgt_dest_flags,
      {"Destination Flags", "wlan.preq.dest_flags",
