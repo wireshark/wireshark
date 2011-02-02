@@ -110,6 +110,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-ess.c \
 	packet-ftam.c \
 	packet-goose.c \
+	packet-gprscdr.c \
 	packet-h225.c \
 	packet-h235.c \
 	packet-h245.c \
@@ -1116,6 +1117,7 @@ DISSECTOR_INCLUDES =	\
 	packet-giop.h	\
 	packet-gnm.h	\
 	packet-gnutella.h	\
+	packet-gprscdr.h \
 	packet-gre.h	\
 	packet-gsm_a_common.h	\
 	packet-gsm_map.h	\
