@@ -258,6 +258,7 @@ set(DIRTY_ASN1_DISSECTOR_SRC
 	dissectors/packet-ansi_map.c
 	dissectors/packet-gnm.c
 	dissectors/packet-gsm_map.c
+	dissectors/packet-gprscdr.c
 	dissectors/packet-HI2Operations.c
 	dissectors/packet-hnbap.c
 	dissectors/packet-inap.c
@@ -273,6 +274,7 @@ set(DIRTY_ASN1_DISSECTOR_SRC
 	dissectors/packet-snmp.c
 	dissectors/packet-t125.c
 	dissectors/packet-tcap.c
+	dissectors/packet-tetra.c
 	dissectors/packet-x411.c
 	dissectors/packet-x420.c
 )

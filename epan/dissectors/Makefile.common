@@ -184,6 +184,7 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-snmp.c \
 	packet-t125.c \
 	packet-tcap.c \
+	packet-tetra.c \
 	packet-x411.c \
 	packet-x420.c
 

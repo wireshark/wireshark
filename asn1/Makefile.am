@@ -101,6 +101,7 @@ SUBDIRS = 		\
 	t125		\
 	t38		\
 	tcap		\
+	tetra		\
 	ulp		\
 	wlancertextn	\
 	x2ap		\

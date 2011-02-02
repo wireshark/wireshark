@@ -129,6 +129,7 @@ PER_LIST= \
 	s1ap			\
 	sabp			\
 	t38			\
+	tetra			\
 	ulp			\
 	x2ap
 
