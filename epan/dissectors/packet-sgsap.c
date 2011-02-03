@@ -1,7 +1,7 @@
 /* packet-sgsap.c
  * Routines for SGs Application Part (SGsAP) protocol dissection
  *
- * Copyright 2010, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2010 - 2011, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
@@ -66,6 +66,8 @@ static int hf_sgsap_eci	= -1;
 static int hf_sgsap_cn_id = -1;
 static int hf_sgsap_imsi_det_eps = -1;
 static int hf_sgsap_lcs_indic = -1;
+static int hf_sgsap_mme_name = -1;
+static int hf_sgsap_vlr_name = -1;
 
 static int ett_sgsap = -1;
 
@@ -98,11 +100,17 @@ static guint16
 de_sgsap_eps_loc_upd_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
+	guint8 oct;
 
 	curr_offset = offset;
 
 	/* Octet 3	EPS location update type value */
 	proto_tree_add_item(tree, hf_sgsap_eps_location_update_type, tvb, offset, 1, FALSE);
+	if(add_string){
+		oct = tvb_get_guint8(tvb,curr_offset);
+		g_snprintf(add_string, string_len, " - %s", val_to_str_const(oct, sgsap_eps_location_update_type_values, "Reserved"));
+	}
+
 	curr_offset++;
 
 	return(curr_offset - offset);
@@ -295,10 +303,36 @@ static guint16
 de_sgsap_mme_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
+	guint   name_len, tmp;
+	guint8 	*fqdn = NULL;
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len, "IE data not dissected yet");
+	/* The MME name information element specifies the MME name and is coded as shown in figure 9.4.13.1. Octets 3
+	 * through n contain the name in the form of a fully qualified domain name (FQDN) as specified in 3GPP TS 23.003 [3].
+	 * The value part of the MME name information element (not including IEI and length indicator) shall have a length of 55
+	 * octets.
+	 */
+	if (len > 0) {
+		name_len = tvb_get_guint8(tvb, offset);
+
+		if (name_len < 0x20) {
+			fqdn = tvb_get_ephemeral_string(tvb, offset + 1, len - 1);
+			for (;;) {
+				if (name_len >= len - 1)
+					break;
+				tmp = name_len;
+				name_len = name_len + fqdn[tmp] + 1;
+				fqdn[tmp] = '.';
+			}
+		} else{
+			fqdn = tvb_get_ephemeral_string(tvb, offset, len);
+		}
+		proto_tree_add_string(tree, hf_sgsap_mme_name, tvb, offset, len, fqdn);
+		if (add_string)
+			g_snprintf(add_string, string_len, " - %s", fqdn);
+
+	}
 
 	return(len);
 }
@@ -359,11 +393,16 @@ static guint16
 de_sgsap_serv_indic(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
+	guint8 oct;
 
 	curr_offset = offset;
 
 	/* Octet 3	Service indicator value */
 	proto_tree_add_item(tree, hf_sgsap_service_indicator_value, tvb, offset, 1, FALSE);
+	if(add_string){
+		oct = tvb_get_guint8(tvb,curr_offset);
+		g_snprintf(add_string, string_len, " - %s", val_to_str_const(oct, sgsap_service_indicator_values, "Reserved"));
+	}
 	curr_offset++;
 
 	return(curr_offset - offset);
@@ -397,10 +436,15 @@ static guint16
 de_sgsap_sgs_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
+	guint8 oct;
 
 	curr_offset = offset;
 
 	proto_tree_add_item(tree, hf_sgsap_sgs_cause, tvb, offset, 1, FALSE);
+	if(add_string){
+		oct = tvb_get_guint8(tvb,curr_offset);
+		g_snprintf(add_string, string_len, " - %s", val_to_str_ext_const(oct, &sgsap_sgs_cause_values_ext, "Reserved"));
+	}
 	curr_offset++;
 
 	return(curr_offset - offset);
@@ -463,13 +507,33 @@ static guint16
 de_sgsap_vlr_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
+	guint     name_len, tmp;
+	guint8 	*fqdn = NULL;
 
 	curr_offset = offset;
 	/* The VLR name information element specifies the VLR name and is coded as shown in figure 9.4.22.1. 
 	 * Octets 3 through n contain the VLR name in the form of a fully qualified domain name (FQDN) 
 	 * as specified in IETF RFC 1035 [21]. 
 	 */
-	proto_tree_add_text(tree, tvb, curr_offset, len, "IE data not dissected yet");
+	if (len > 0) {
+		name_len = tvb_get_guint8(tvb, offset);
+
+		if (name_len < 0x20) {
+			fqdn = tvb_get_ephemeral_string(tvb, offset + 1, len - 1);
+			for (;;) {
+				if (name_len >= len - 1)
+					break;
+				tmp = name_len;
+				name_len = name_len + fqdn[tmp] + 1;
+				fqdn[tmp] = '.';
+			}
+		} else{
+			fqdn = tvb_get_ephemeral_string(tvb, offset, len);
+		}
+		proto_tree_add_string(tree, hf_sgsap_vlr_name, tvb, offset, len, fqdn);
+		if (add_string)
+			g_snprintf(add_string, string_len, " - %s", fqdn);
+	}
 
 	return(len);
 }
@@ -1339,7 +1403,7 @@ dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * Add SGSAP message name
 	 */
-	proto_tree_add_item(tree, hf_idx, tvb, offset, 1, FALSE);
+	proto_tree_add_item(sgsap_tree, hf_idx, tvb, offset, 1, FALSE);
 	offset++;
 
 
@@ -1348,14 +1412,14 @@ dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	if (msg_fcn == NULL)
 	{
-		proto_tree_add_text(tree, tvb, offset, len - offset,
+		proto_tree_add_text(sgsap_tree, tvb, offset, len - offset,
 			"Message Elements");
 	}
 	else
 	{
 		/* If calling any "gsm" ie dissectors needing pinfo */
 		gsm_a_dtap_pinfo = pinfo;
-		(*msg_fcn)(tvb, tree, offset, len - offset);
+		(*msg_fcn)(tvb, sgsap_tree, offset, len - offset);
 	}
 
 }
@@ -1414,7 +1478,16 @@ void proto_register_sgsap(void) {
 		FT_UINT8, BASE_DEC, VALS(sgsap_lcs_indic_values),0x0,
 		NULL, HFILL }
 	},
-
+	{ &hf_sgsap_mme_name,
+        {"MME name", "sgsap.mme_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL}
+	},
+	{ &hf_sgsap_vlr_name,
+        {"VLR name", "sgsap.mme_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL}
+	},
   };
 
 	/* Setup protocol subtree array */
