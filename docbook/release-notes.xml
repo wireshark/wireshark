@@ -39,12 +39,14 @@ Wireshark Info
 
         <listitem>
           <para>
-            ?.
-            <!-- Fixed in trunk: r????? -->
-            <!-- Fixed in trunk-1.4: r????? -->
-            <!-- Fixed in trunk-1.2: r????? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
-            ????</ulink>)
+            Huzaifa Sidhpurwala of the Red Hat Security Response Team discovered
+            that Wireshark could free an uninitialized pointer while reading a
+            malformed pcap-ng file.
+            <!-- Fixed in trunk: r35791 -->
+            <!-- Fixed in trunk-1.4: r35792 -->
+            <!-- Fixed in trunk-1.2: r35793 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5652">Bug
+            5652</ulink>)
           </para>
           <para>Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3.</para>
 <!--
@@ -104,7 +106,7 @@ There are no new protocols in this release.
     <section id="NewCapture"><title>Updated Capture File Support</title>
     <para>
 
-?
+Pcap-ng
 
     </para>
     </section>
