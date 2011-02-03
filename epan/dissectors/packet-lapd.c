@@ -710,4 +710,3 @@ proto_reg_handoff_lapd(void)
 	if ((lapd_rtp_payload_type > 95) && (lapd_rtp_payload_type < 128))
 		dissector_add_uint("rtp.pt", lapd_rtp_payload_type, lapd_bitstream_handle);
 }
-
