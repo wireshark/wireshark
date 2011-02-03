@@ -1070,29 +1070,29 @@ static int hf_ieee80211_htc_rdg_more_ppdu = -1;
 /* ************************************************************************* */
 /*                Header values for sequence number field                    */
 /* ************************************************************************* */
-static int hf_frag_number = -1;
-static int hf_seq_number = -1;
+static int hf_ieee80211_frag_number = -1;
+static int hf_ieee80211_seq_number = -1;
 
 /* ************************************************************************* */
 /*                   Header values for Frame Check field                     */
 /* ************************************************************************* */
-static int hf_fcs = -1;
-static int hf_fcs_good = -1;
-static int hf_fcs_bad = -1;
+static int hf_ieee80211_fcs = -1;
+static int hf_ieee80211_fcs_good = -1;
+static int hf_ieee80211_fcs_bad = -1;
 
 /* ************************************************************************* */
 /*                   Header values for reassembly                            */
 /* ************************************************************************* */
-static int hf_fragments = -1;
-static int hf_fragment = -1;
-static int hf_fragment_overlap = -1;
-static int hf_fragment_overlap_conflict = -1;
-static int hf_fragment_multiple_tails = -1;
-static int hf_fragment_too_long_fragment = -1;
-static int hf_fragment_error = -1;
-static int hf_fragment_count = -1;
-static int hf_reassembled_in = -1;
-static int hf_reassembled_length = -1;
+static int hf_ieee80211_fragments = -1;
+static int hf_ieee80211_fragment = -1;
+static int hf_ieee80211_fragment_overlap = -1;
+static int hf_ieee80211_fragment_overlap_conflict = -1;
+static int hf_ieee80211_fragment_multiple_tails = -1;
+static int hf_ieee80211_fragment_too_long_fragment = -1;
+static int hf_ieee80211_fragment_error = -1;
+static int hf_ieee80211_fragment_count = -1;
+static int hf_ieee80211_reassembled_in = -1;
+static int hf_ieee80211_reassembled_length = -1;
 
 static int proto_wlan_mgt = -1;
 
@@ -1100,41 +1100,40 @@ static int proto_wlan_mgt = -1;
 /*                   Header values for WAVE                                  */
 /* ************************************************************************* */
 
-static int hf_pst_timingquality = -1;
-static int hf_pst_providercount = -1;
-static int hf_pst_providercap =   -1;
-static int hf_pst_length =        -1;
-static int hf_pst_contents =      -1;
+static int hf_ieee80211_pst_timingquality = -1;
+static int hf_ieee80211_pst_providercount = -1;
+static int hf_ieee80211_pst_providercap =   -1;
+static int hf_ieee80211_pst_length =        -1;
+static int hf_ieee80211_pst_contents =      -1;
+static int hf_ieee80211_pst_acid =        -1;
+static int hf_ieee80211_pst_acm_length =  -1;
+static int hf_ieee80211_pst_acm_contents =-1;
+static int hf_ieee80211_pst_acf =         -1;
+static int hf_ieee80211_pst_priority =    -1;
+static int hf_ieee80211_pst_ipv6addr =    -1;
+static int hf_ieee80211_pst_serviceport = -1;
+static int hf_ieee80211_pst_addressing =  -1;
+static int hf_ieee80211_pst_macaddr =     -1;
+static int hf_ieee80211_pst_channel =     -1;
 
-static int hf_pst_acid =        -1;
-static int hf_pst_acm_length =  -1;
-static int hf_pst_acm_contents =-1;
-static int hf_pst_acf =         -1;
-static int hf_pst_priority =    -1;
-static int hf_pst_ipv6addr =    -1;
-static int hf_pst_serviceport = -1;
-static int hf_pst_addressing =  -1;
-static int hf_pst_macaddr =     -1;
-static int hf_pst_channel =     -1;
-
-static int hf_chan_noc =        -1;
-static int hf_chan_length =     -1;
-static int hf_chan_content =    -1;
-static int hf_chan_channel =    -1;
-static int hf_chan_adapt   =    -1;
-static int hf_chan_rate    =    -1;
-static int hf_chan_tx_pow  =    -1;
+static int hf_ieee80211_chan_noc =        -1;
+static int hf_ieee80211_chan_length =     -1;
+static int hf_ieee80211_chan_content =    -1;
+static int hf_ieee80211_chan_channel =    -1;
+static int hf_ieee80211_chan_adapt   =    -1;
+static int hf_ieee80211_chan_rate    =    -1;
+static int hf_ieee80211_chan_tx_pow  =    -1;
 
 #ifdef MESH_OVERRIDES
 /* ************************************************************************* */
 /*                   Header values for Mesh Header field                     */
 /* ************************************************************************* */
-static int hf_mesh_ttl = -1;
-static int hf_mesh_seq = -1;
-static int hf_mesh_flags = -1;
-static int hf_mesh_ae1 = -1;
-static int hf_mesh_ae2 = -1;
-static int hf_mesh_ae3 = -1;
+static int hf_ieee80211_mesh_ttl = -1;
+static int hf_ieee80211_mesh_seq = -1;
+static int hf_ieee80211_mesh_flags = -1;
+static int hf_ieee80211_mesh_ae1 = -1;
+static int hf_ieee80211_mesh_ae2 = -1;
+static int hf_ieee80211_mesh_ae3 = -1;
 #endif /* MESH_OVERRIDES */
 
 /* ************************************************************************* */
@@ -1307,16 +1306,16 @@ static int hf_ieee80211_ff_mesh_mgt_dest_rf_flags = -1;  /* Mesh Management Repl
 
 
 /* variable header fields */
-static int hf_mesh_mgt_pl_subtype = -1;/* Mesh Management peer link frame subtype */
-static int hf_mesh_mgt_pl_local_link_id = -1;/* Mesh Management local link id */
-static int hf_mesh_mgt_pl_peer_link_id = -1;/* Mesh Management peer link id */
-static int hf_mesh_mgt_pl_reason_code = -1;/* Mesh Management peer link reason code */
-static int hf_mesh_config_version = -1;
-static int hf_mesh_config_path_sel_protocol = -1;
-static int hf_mesh_config_path_sel_metric = -1;
-static int hf_mesh_config_congestion_control = -1;
-static int hf_mesh_config_channel_prec = -1;
-static int hf_mesh_config_capability = -1;
+static int hf_ieee80211_mesh_mgt_pl_subtype = -1;/* Mesh Management peer link frame subtype */
+static int hf_ieee80211_mesh_mgt_pl_local_link_id = -1;/* Mesh Management local link id */
+static int hf_ieee80211_mesh_mgt_pl_peer_link_id = -1;/* Mesh Management peer link id */
+static int hf_ieee80211_mesh_mgt_pl_reason_code = -1;/* Mesh Management peer link reason code */
+static int hf_ieee80211_mesh_config_version = -1;
+static int hf_ieee80211_mesh_config_path_sel_protocol = -1;
+static int hf_ieee80211_mesh_config_path_sel_metric = -1;
+static int hf_ieee80211_mesh_config_congestion_control = -1;
+static int hf_ieee80211_mesh_config_channel_prec = -1;
+static int hf_ieee80211_mesh_config_capability = -1;
 static int hf_ieee80211_mesh_id = -1;
 /*** End: Mesh Frame Format ***/
 
@@ -1737,15 +1736,15 @@ static int hf_ieee80211_tspec_min_phy = -1;
 static int hf_ieee80211_tspec_surplus = -1;
 static int hf_ieee80211_tspec_medium = -1;
 static int hf_ieee80211_ts_delay = -1;
-static int hf_class_type = -1;
-static int hf_class_mask = -1;
-static int hf_ether_type = -1;
-static int hf_tclas_process = -1;
-static int hf_sched_info = -1;
-static int hf_sched_srv_start = -1;
-static int hf_sched_srv_int = -1;
-static int hf_sched_spec_int = -1;
-static int hf_action = -1;
+static int hf_ieee80211_class_type = -1;
+static int hf_ieee80211_class_mask = -1;
+static int hf_ieee80211_ether_type = -1;
+static int hf_ieee80211_tclass_process = -1;
+static int hf_ieee80211_sched_info = -1;
+static int hf_ieee80211_sched_srv_start = -1;
+static int hf_ieee80211_sched_srv_int = -1;
+static int hf_ieee80211_sched_spec_int = -1;
+static int hf_ieee80211_action = -1;
 static int hf_ieee80211_cf_version = -1;
 static int hf_ieee80211_cf_ipv4_src = -1;
 static int hf_ieee80211_cf_ipv4_dst = -1;
@@ -1892,16 +1891,16 @@ static gint ett_gas_anqp = -1;
 static const fragment_items frag_items = {
   &ett_fragment,
   &ett_fragments,
-  &hf_fragments,
-  &hf_fragment,
-  &hf_fragment_overlap,
-  &hf_fragment_overlap_conflict,
-  &hf_fragment_multiple_tails,
-  &hf_fragment_too_long_fragment,
-  &hf_fragment_error,
-  &hf_fragment_count,
-  &hf_reassembled_in,
-  &hf_reassembled_length,
+  &hf_ieee80211_fragments,
+  &hf_ieee80211_fragment,
+  &hf_ieee80211_fragment_overlap,
+  &hf_ieee80211_fragment_overlap_conflict,
+  &hf_ieee80211_fragment_multiple_tails,
+  &hf_ieee80211_fragment_too_long_fragment,
+  &hf_ieee80211_fragment_error,
+  &hf_ieee80211_fragment_count,
+  &hf_ieee80211_reassembled_in,
+  &hf_ieee80211_reassembled_length,
   "fragments"
 };
 
@@ -3535,7 +3534,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         proto_tree *sched_tree;
         guint16 sched;
 
-        sched_item = proto_tree_add_item(tree, hf_sched_info,
+        sched_item = proto_tree_add_item(tree, hf_ieee80211_sched_info,
           tvb, offset, 2, TRUE);
         sched_tree = proto_item_add_subtree(sched_item, ett_sched_tree);
         sched = tvb_get_letohs(tvb, offset);
@@ -3563,7 +3562,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         proto_item *action_item;
         proto_tree *action_tree;
 
-        action_item = proto_tree_add_item(tree, hf_action, tvb, offset, 1, TRUE);
+        action_item = proto_tree_add_item(tree, hf_ieee80211_action, tvb, offset, 1, TRUE);
         action_tree = proto_item_add_subtree(action_item, ett_sched_tree);
 
         switch (tvb_get_guint8(tvb, offset) & 0x7f)
@@ -5239,64 +5238,64 @@ dissect_wsie_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len _
   guint8 chan_length = 0;
   int local_offset;
 
-  proto_tree_add_item(tree, hf_pst_timingquality, tvb, offset, 2, TRUE);
+  proto_tree_add_item(tree, hf_ieee80211_pst_timingquality, tvb, offset, 2, TRUE);
   offset+=2;
 
   providercount = tvb_get_guint8 (tvb, offset);
-  pst_item = proto_tree_add_item(tree, hf_pst_providercount, tvb, offset, 1, TRUE);
-  pst_tree = proto_item_add_subtree(pst_item,ett_pst_tree);
+  pst_item = proto_tree_add_item(tree, hf_ieee80211_pst_providercount, tvb, offset, 1, TRUE);
+  pst_tree = proto_item_add_subtree(pst_item, ett_pst_tree);
   offset++;
 
   for (i=0;i<providercount;i++) {
 
     local_offset = offset;
-    cap_item = proto_tree_add_item(pst_tree, hf_pst_providercap, tvb, local_offset, 0, TRUE);
+    cap_item = proto_tree_add_item(pst_tree, hf_ieee80211_pst_providercap, tvb, local_offset, 0, TRUE);
     proto_item_append_text(cap_item, ": %u", i+1);
     cap_tree = proto_item_add_subtree(cap_item, ett_pst_cap_tree);
 
     pst_length = tvb_get_letohl(tvb, local_offset);
     proto_item_set_len(cap_item, pst_length);
-    proto_tree_add_item(cap_tree, hf_pst_length, tvb, local_offset, 2, TRUE);
+    proto_tree_add_item(cap_tree, hf_ieee80211_pst_length, tvb, local_offset, 2, TRUE);
     local_offset += 2;
 
     pst_contents = tvb_get_guint8 (tvb, local_offset);
-    proto_tree_add_item(cap_tree, hf_pst_contents, tvb, local_offset, 1, TRUE);
+    proto_tree_add_item(cap_tree, hf_ieee80211_pst_contents, tvb, local_offset, 1, TRUE);
     local_offset += 1;
 
     if (pst_contents & WAVE_ACID) {
-      proto_tree_add_item(cap_tree, hf_pst_acid, tvb, local_offset, 1, TRUE);
+      proto_tree_add_item(cap_tree, hf_ieee80211_pst_acid, tvb, local_offset, 1, TRUE);
       local_offset += 1;
     }
 
     if (pst_contents & WAVE_ACM) {
       pst_acm_length = tvb_get_guint8 (tvb, local_offset);
-      proto_tree_add_item(cap_tree, hf_pst_acm_length, tvb, local_offset, 1, TRUE);
+      proto_tree_add_item(cap_tree, hf_ieee80211_pst_acm_length, tvb, local_offset, 1, TRUE);
       local_offset += 1;
-      proto_tree_add_item(cap_tree, hf_pst_acm_contents, tvb, local_offset, pst_acm_length, FALSE);
+      proto_tree_add_item(cap_tree, hf_ieee80211_pst_acm_contents, tvb, local_offset, pst_acm_length, FALSE);
       local_offset += pst_acm_length;
     }
     if (pst_contents & WAVE_ACF) {
-      proto_tree_add_item(cap_tree, hf_pst_acf, tvb, local_offset, 32, FALSE);
+      proto_tree_add_item(cap_tree, hf_ieee80211_pst_acf, tvb, local_offset, 32, FALSE);
       local_offset += 32;
     }
     if (pst_contents & WAVE_PRIORITY) {
-      proto_tree_add_item(cap_tree, hf_pst_priority, tvb, local_offset, 1, TRUE);
+      proto_tree_add_item(cap_tree, hf_ieee80211_pst_priority, tvb, local_offset, 1, TRUE);
       local_offset += 1;
     }
     if (pst_contents & WAVE_IPV6ADDR) {
-      proto_tree_add_item(cap_tree, hf_pst_ipv6addr, tvb, local_offset, 16, FALSE);
+      proto_tree_add_item(cap_tree, hf_ieee80211_pst_ipv6addr, tvb, local_offset, 16, FALSE);
       local_offset += 16;
-      proto_tree_add_item(cap_tree, hf_pst_serviceport, tvb, local_offset, 2, FALSE);
+      proto_tree_add_item(cap_tree, hf_ieee80211_pst_serviceport, tvb, local_offset, 2, FALSE);
       local_offset += 2;
-      proto_tree_add_item(cap_tree, hf_pst_addressing, tvb, local_offset, 1, FALSE);
+      proto_tree_add_item(cap_tree, hf_ieee80211_pst_addressing, tvb, local_offset, 1, FALSE);
       local_offset += 1;
     }
     if (pst_contents & WAVE_PEERMAC) {
-      proto_tree_add_item(cap_tree, hf_pst_macaddr, tvb, local_offset, 6, FALSE);
+      proto_tree_add_item(cap_tree, hf_ieee80211_pst_macaddr, tvb, local_offset, 6, FALSE);
       local_offset += 6;
     }
     if (pst_contents & WAVE_CHANNEL) {
-      proto_tree_add_item(cap_tree, hf_pst_channel, tvb, local_offset, 1, FALSE);
+      proto_tree_add_item(cap_tree, hf_ieee80211_pst_channel, tvb, local_offset, 1, FALSE);
       local_offset += 1;
     }
 
@@ -5304,7 +5303,7 @@ dissect_wsie_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len _
   }
 
   chan_noc = tvb_get_guint8 (tvb, offset);
-  chan_noc_item = proto_tree_add_item(tree, hf_chan_noc, tvb, offset, 1, TRUE);
+  chan_noc_item = proto_tree_add_item(tree, hf_ieee80211_chan_noc, tvb, offset, 1, TRUE);
   chan_noc_tree = proto_item_add_subtree(chan_noc_item,ett_chan_noc_tree);
   offset++;
 
@@ -5313,12 +5312,12 @@ dissect_wsie_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len _
       chan_length = tvb_get_guint8 (tvb, offset);
       chnl_item = proto_tree_add_text (chan_noc_tree, tvb, offset, chan_length, "Channel :%u Information ", i+1);
       chnl_tree = proto_item_add_subtree(chnl_item, ett_wave_chnl_tree);
-      proto_tree_add_item(chnl_tree, hf_chan_length, tvb, offset, 1, TRUE);
-      proto_tree_add_item(chnl_tree, hf_chan_content, tvb, offset+1, 1, TRUE);
-      proto_tree_add_item(chnl_tree, hf_chan_channel, tvb, offset+2, 1, TRUE);
-      proto_tree_add_item(chnl_tree, hf_chan_adapt, tvb, offset+3, 1, TRUE);
-      proto_tree_add_item(chnl_tree, hf_chan_rate, tvb, offset+4, 1, TRUE);
-      proto_tree_add_item(chnl_tree, hf_chan_tx_pow, tvb, offset+5, 1, TRUE);
+      proto_tree_add_item(chnl_tree, hf_ieee80211_chan_length, tvb, offset, 1, TRUE);
+      proto_tree_add_item(chnl_tree, hf_ieee80211_chan_content, tvb, offset+1, 1, TRUE);
+      proto_tree_add_item(chnl_tree, hf_ieee80211_chan_channel, tvb, offset+2, 1, TRUE);
+      proto_tree_add_item(chnl_tree, hf_ieee80211_chan_adapt, tvb, offset+3, 1, TRUE);
+      proto_tree_add_item(chnl_tree, hf_ieee80211_chan_rate, tvb, offset+4, 1, TRUE);
+      proto_tree_add_item(chnl_tree, hf_ieee80211_chan_tx_pow, tvb, offset+5, 1, TRUE);
       offset = offset + chan_length;
     }
   }
@@ -6211,8 +6210,8 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
       type = tvb_get_guint8(tvb, offset + 2);
       proto_tree_add_item(tree, hf_tsinfo_up, tvb, offset + 2, 1, TRUE);
-      proto_tree_add_item(tree, hf_class_type, tvb, offset + 3, 1, TRUE);
-      proto_tree_add_item(tree, hf_class_mask, tvb, offset + 4, 1, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_class_type, tvb, offset + 3, 1, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_class_mask, tvb, offset + 4, 1, TRUE);
       switch (type)
         {
           case 0:
@@ -6220,7 +6219,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
                     6, TRUE);
             proto_tree_add_item(tree, hf_ieee80211_ff_dst_mac_addr, tvb, offset + 11,
                     6, TRUE);
-            proto_tree_add_item(tree, hf_ether_type, tvb, offset + 17,
+            proto_tree_add_item(tree, hf_ieee80211_ether_type, tvb, offset + 17,
                     2, TRUE);
             break;
 
@@ -6275,7 +6274,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
             "TCLAS_PROCESS element length %u != 1", tag_len);
         break;
       }
-      proto_tree_add_item(tree, hf_tclas_process, tvb, offset + 2, 1, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_tclass_process, tvb, offset + 2, 1, TRUE);
       break;
 
     case TAG_SCHEDULE:
@@ -6286,9 +6285,9 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         break;
       }
       add_fixed_field(tree, tvb, offset + 2, FIELD_SCHEDULE_INFO);
-      proto_tree_add_item(tree, hf_sched_srv_start, tvb, offset + 4, 4, TRUE);
-      proto_tree_add_item(tree, hf_sched_srv_int, tvb, offset + 8, 4, TRUE);
-      proto_tree_add_item(tree, hf_sched_spec_int, tvb, offset + 12, 2, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_sched_srv_start, tvb, offset + 4, 4, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_sched_srv_int, tvb, offset + 8, 4, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_sched_spec_int, tvb, offset + 12, 2, TRUE);
       break;
 
     case TAG_CHALLENGE_TEXT:
@@ -6513,23 +6512,23 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
     case TAG_MESH_PEER_LINK_MGMT:
       {
         offset += 2;
-        proto_tree_add_item (tree, hf_mesh_mgt_pl_subtype, tvb, offset, 1, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_mesh_mgt_pl_subtype, tvb, offset, 1, TRUE);
         offset += 1;
         switch (tvb_get_guint8(tvb, 1))
           {                                         /* IE subtype */
           case MESH_PL_PEER_LINK_OPEN:
-            proto_tree_add_item (tree, hf_mesh_mgt_pl_local_link_id, tvb, offset, 2, TRUE);
+            proto_tree_add_item (tree, hf_ieee80211_mesh_mgt_pl_local_link_id, tvb, offset, 2, TRUE);
             break;
 
           case MESH_PL_PEER_LINK_CONFIRM:
-            proto_tree_add_item (tree, hf_mesh_mgt_pl_local_link_id, tvb, offset, 2, TRUE);
-            proto_tree_add_item (tree, hf_mesh_mgt_pl_peer_link_id, tvb, offset + 2, 2, TRUE);
+            proto_tree_add_item (tree, hf_ieee80211_mesh_mgt_pl_local_link_id, tvb, offset, 2, TRUE);
+            proto_tree_add_item (tree, hf_ieee80211_mesh_mgt_pl_peer_link_id, tvb, offset + 2, 2, TRUE);
             break;
 
           case MESH_PL_PEER_LINK_CLOSE:
-            proto_tree_add_item (tree, hf_mesh_mgt_pl_local_link_id, tvb, offset, 2, TRUE);
-            proto_tree_add_item (tree, hf_mesh_mgt_pl_peer_link_id, tvb, offset + 2, 2, TRUE);
-            proto_tree_add_item (tree, hf_mesh_mgt_pl_reason_code, tvb, offset + 4, 2, TRUE);
+            proto_tree_add_item (tree, hf_ieee80211_mesh_mgt_pl_local_link_id, tvb, offset, 2, TRUE);
+            proto_tree_add_item (tree, hf_ieee80211_mesh_mgt_pl_peer_link_id, tvb, offset + 2, 2, TRUE);
+            proto_tree_add_item (tree, hf_ieee80211_mesh_mgt_pl_reason_code, tvb, offset + 4, 2, TRUE);
             break;
 
           /* undefined values */
@@ -6543,12 +6542,12 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
     case TAG_MESH_CONFIGURATION:
       {
         offset += 2;
-        proto_tree_add_item (tree, hf_mesh_config_version, tvb, offset, 1, TRUE);
-        proto_tree_add_item (tree, hf_mesh_config_path_sel_protocol, tvb, offset + 1, 4, TRUE);
-        proto_tree_add_item (tree, hf_mesh_config_path_sel_metric, tvb, offset + 5, 4, TRUE);
-        proto_tree_add_item (tree, hf_mesh_config_congestion_control, tvb, offset + 9, 4, TRUE);
-        proto_tree_add_item (tree, hf_mesh_config_channel_prec, tvb, offset + 13, 4, TRUE);
-        proto_tree_add_item (tree, hf_mesh_config_capability, tvb, offset + 17, 2, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_mesh_config_version, tvb, offset, 1, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_mesh_config_path_sel_protocol, tvb, offset + 1, 4, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_mesh_config_path_sel_metric, tvb, offset + 5, 4, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_mesh_config_congestion_control, tvb, offset + 9, 4, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_mesh_config_channel_prec, tvb, offset + 13, 4, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_mesh_config_capability, tvb, offset + 17, 2, TRUE);
         break;
       }
 
@@ -7806,10 +7805,10 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
         proto_tree_add_item (hdr_tree, hf_ieee80211_addr_bssid, tvb, 16, 6, ENC_NA);
 
-        proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
+        proto_tree_add_uint (hdr_tree, hf_ieee80211_frag_number, tvb, 22, 2,
             frag_number);
 
-        proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
+        proto_tree_add_uint (hdr_tree, hf_ieee80211_seq_number, tvb, 22, 2,
             seq_number);
       }
       break;
@@ -8153,9 +8152,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
             proto_tree_add_ether (hdr_tree, hf_ieee80211_addr_da, tvb, 4, 6, dst);
             proto_tree_add_ether (hdr_tree, hf_ieee80211_addr_sa, tvb, 10, 6, src);
             proto_tree_add_ether (hdr_tree, hf_ieee80211_addr_bssid, tvb, 16, 6, bssid);
-            proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
+            proto_tree_add_uint (hdr_tree, hf_ieee80211_frag_number, tvb, 22, 2,
                frag_number);
-            proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
+            proto_tree_add_uint (hdr_tree, hf_ieee80211_seq_number, tvb, 22, 2,
                seq_number);
 
             /* add items for wlan.addr filter */
@@ -8169,9 +8168,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
             proto_tree_add_ether (hdr_tree, hf_ieee80211_addr_da, tvb, 4, 6, dst);
             proto_tree_add_ether (hdr_tree, hf_ieee80211_addr_bssid, tvb, 10, 6, bssid);
             proto_tree_add_ether (hdr_tree, hf_ieee80211_addr_sa, tvb, 16, 6, src);
-            proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
+            proto_tree_add_uint (hdr_tree, hf_ieee80211_frag_number, tvb, 22, 2,
                frag_number);
-            proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
+            proto_tree_add_uint (hdr_tree, hf_ieee80211_seq_number, tvb, 22, 2,
                seq_number);
 
             /* add items for wlan.addr filter */
@@ -8186,9 +8185,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
             proto_tree_add_ether (hdr_tree, hf_ieee80211_addr_sa, tvb, 10, 6, src);
             proto_tree_add_ether (hdr_tree, hf_ieee80211_addr_da, tvb, 16, 6, dst);
 
-            proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
+            proto_tree_add_uint (hdr_tree, hf_ieee80211_frag_number, tvb, 22, 2,
                frag_number);
-            proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
+            proto_tree_add_uint (hdr_tree, hf_ieee80211_seq_number, tvb, 22, 2,
                seq_number);
 
             /* add items for wlan.addr filter */
@@ -8202,9 +8201,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
             proto_tree_add_item (hdr_tree, hf_ieee80211_addr_ra, tvb, 4, 6, ENC_NA);
             proto_tree_add_item (hdr_tree, hf_ieee80211_addr_ta, tvb, 10, 6, ENC_NA);
             proto_tree_add_ether (hdr_tree, hf_ieee80211_addr_da, tvb, 16, 6, dst);
-            proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
+            proto_tree_add_uint (hdr_tree, hf_ieee80211_frag_number, tvb, 22, 2,
                frag_number);
-            proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
+            proto_tree_add_uint (hdr_tree, hf_ieee80211_seq_number, tvb, 22, 2,
                seq_number);
             proto_tree_add_ether (hdr_tree, hf_ieee80211_addr_sa, tvb, 24, 6, src);
 
@@ -8248,17 +8247,17 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         msh_fields = proto_tree_add_text(hdr_tree, tvb, mshoff, mesh_hdr_len, "Mesh Header");
         msh_tree = proto_item_add_subtree (msh_fields, ett_msh_parameters);
 
-        proto_tree_add_boolean_format (msh_tree, hf_mesh_flags,
+        proto_tree_add_boolean_format (msh_tree, hf_ieee80211_mesh_flags,
               tvb, mshoff, 1, mesh_flags, "Address Extension %x", mesh_flags & MESH_FLAGS_ADDRESS_EXTENSION);
-        proto_tree_add_uint (msh_tree, hf_mesh_ttl, tvb, mshoff + 1, 1, mesh_ttl);
-        proto_tree_add_uint (msh_tree, hf_mesh_seq, tvb, mshoff + 2, 4, mesh_seq_number);
+        proto_tree_add_uint (msh_tree, hf_ieee80211_mesh_ttl, tvb, mshoff + 1, 1, mesh_ttl);
+        proto_tree_add_uint (msh_tree, hf_ieee80211_mesh_seq, tvb, mshoff + 2, 4, mesh_seq_number);
         switch (mesh_hdr_len) {
           case 24:
-            proto_tree_add_item(msh_tree, hf_mesh_ae3, tvb, mshoff + 18, 6, ENC_NA);
+            proto_tree_add_item(msh_tree, hf_ieee80211_mesh_ae3, tvb, mshoff + 18, 6, ENC_NA);
           case 18:
-            proto_tree_add_item(msh_tree, hf_mesh_ae2, tvb, mshoff + 12, 6, ENC_NA);
+            proto_tree_add_item(msh_tree, hf_ieee80211_mesh_ae2, tvb, mshoff + 12, 6, ENC_NA);
           case 12:
-            proto_tree_add_item(msh_tree, hf_mesh_ae1, tvb, mshoff + 6, 6, ENC_NA);
+            proto_tree_add_item(msh_tree, hf_ieee80211_mesh_ae1, tvb, mshoff + 6, 6, ENC_NA);
           case 6:
             break;
           default:
@@ -8345,11 +8344,11 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
           }
 
           if(fcs_good) {
-            fcs_item = proto_tree_add_uint_format(hdr_tree, hf_fcs, tvb,
+            fcs_item = proto_tree_add_uint_format(hdr_tree, hf_ieee80211_fcs, tvb,
                 hdr_len + len, 4, sent_fcs,
                 "Frame check sequence: 0x%08x [correct]", sent_fcs);
           } else {
-            fcs_item = proto_tree_add_uint_format(hdr_tree, hf_fcs, tvb,
+            fcs_item = proto_tree_add_uint_format(hdr_tree, hf_ieee80211_fcs, tvb,
                 hdr_len + len, 4, sent_fcs,
                 "Frame check sequence: 0x%08x [incorrect, should be 0x%08x]",
                 sent_fcs, fcs);
@@ -8361,13 +8360,13 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
           fcs_tree = proto_item_add_subtree(fcs_item, ett_fcs);
 
           fcs_item = proto_tree_add_boolean(fcs_tree,
-              hf_fcs_good, tvb,
+              hf_ieee80211_fcs_good, tvb,
               hdr_len + len, 4,
               fcs_good);
           PROTO_ITEM_SET_GENERATED(fcs_item);
 
           fcs_item = proto_tree_add_boolean(fcs_tree,
-              hf_fcs_bad, tvb,
+              hf_ieee80211_fcs_bad, tvb,
               hdr_len + len, 4,
               fcs_bad);
           PROTO_ITEM_SET_GENERATED(fcs_item);
@@ -10847,11 +10846,11 @@ proto_register_ieee80211 (void)
      {"BSS Id", "wlan.bssid", FT_ETHER, BASE_NONE, NULL, 0,
       "Basic Service Set ID", HFILL }},
 
-    {&hf_frag_number,
+    {&hf_ieee80211_frag_number,
      {"Fragment number", "wlan.frag", FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_seq_number,
+    {&hf_ieee80211_seq_number,
      {"Sequence number", "wlan.seq", FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
@@ -10902,59 +10901,59 @@ proto_register_ieee80211 (void)
      {"Queue Size", "wlan.qos.queue_size", FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_fcs,
+    {&hf_ieee80211_fcs,
      {"Frame check sequence", "wlan.fcs", FT_UINT32, BASE_HEX,
       NULL, 0, "Frame Check Sequence (FCS)", HFILL }},
 
-    {&hf_fcs_good,
+    {&hf_ieee80211_fcs_good,
      {"Good", "wlan.fcs_good", FT_BOOLEAN, BASE_NONE,
       NULL, 0x0, "True if the FCS is correct", HFILL }},
 
-    {&hf_fcs_bad,
+    {&hf_ieee80211_fcs_bad,
      {"Bad", "wlan.fcs_bad", FT_BOOLEAN, BASE_NONE,
       NULL, 0x0, "True if the FCS is incorrect", HFILL }},
 
-    {&hf_fragment_overlap,
+    {&hf_ieee80211_fragment_overlap,
       {"Fragment overlap", "wlan.fragment.overlap", FT_BOOLEAN, BASE_NONE,
        NULL, 0x0, "Fragment overlaps with other fragments", HFILL }},
 
-    {&hf_fragment_overlap_conflict,
+    {&hf_ieee80211_fragment_overlap_conflict,
       {"Conflicting data in fragment overlap", "wlan.fragment.overlap.conflict",
        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
        "Overlapping fragments contained conflicting data", HFILL }},
 
-    {&hf_fragment_multiple_tails,
+    {&hf_ieee80211_fragment_multiple_tails,
       {"Multiple tail fragments found", "wlan.fragment.multipletails",
        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
        "Several tails were found when defragmenting the packet", HFILL }},
 
-    {&hf_fragment_too_long_fragment,
+    {&hf_ieee80211_fragment_too_long_fragment,
       {"Fragment too long", "wlan.fragment.toolongfragment",
        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
        "Fragment contained data past end of packet", HFILL }},
 
-    {&hf_fragment_error,
+    {&hf_ieee80211_fragment_error,
       {"Defragmentation error", "wlan.fragment.error",
        FT_FRAMENUM, BASE_NONE, NULL, 0x0,
        "Defragmentation error due to illegal fragments", HFILL }},
 
-    {&hf_fragment_count,
+    {&hf_ieee80211_fragment_count,
       {"Fragment count", "wlan.fragment.count", FT_UINT32, BASE_DEC, NULL, 0x0,
        NULL, HFILL }},
 
-    {&hf_fragment,
+    {&hf_ieee80211_fragment,
       {"802.11 Fragment", "wlan.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
        NULL, HFILL }},
 
-    {&hf_fragments,
+    {&hf_ieee80211_fragments,
       {"802.11 Fragments", "wlan.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
        NULL, HFILL }},
 
-    {&hf_reassembled_in,
+    {&hf_ieee80211_reassembled_in,
       {"Reassembled 802.11 in frame", "wlan.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
        "This 802.11 packet is reassembled in this frame", HFILL }},
 
-    {&hf_reassembled_length,
+    {&hf_ieee80211_reassembled_length,
       {"Reassembled 802.11 length", "wlan.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
        "The total length of the reassembled payload", HFILL }},
 
@@ -10984,91 +10983,91 @@ proto_register_ieee80211 (void)
     /***  Begin: WAVE Service information element Dissection - IEEE 802.11p Draft 4.0 ***/
 
 
-    {&hf_pst_timingquality,
+    {&hf_ieee80211_pst_timingquality,
      {"Timing Quality", "pst.timingQuality", FT_UINT16, BASE_DEC, NULL, 0,
       "PST Timing Quality", HFILL }},
 
-    {&hf_pst_providercount,
+    {&hf_ieee80211_pst_providercount,
      {"No. of Providers announcing their Services", "pst.providerCount", FT_UINT8, BASE_DEC, NULL, 0,
       "Provider Count", HFILL }},
 
-    {&hf_pst_providercap,
+    {&hf_ieee80211_pst_providercap,
      {"Capabilities of Provider", "pst.providercap", FT_NONE, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_pst_length,
+    {&hf_ieee80211_pst_length,
      {"Provider Service Table Length", "pst.length", FT_UINT16, BASE_DEC, NULL, 0,
       "PST Length", HFILL }},
 
-    {&hf_pst_contents,
+    {&hf_ieee80211_pst_contents,
      {"Provider Service Table Contents", "pst.contents", FT_UINT8, BASE_HEX, NULL, 0,
       "PST Contents", HFILL }},
 
-    {&hf_pst_acid,
+    {&hf_ieee80211_pst_acid,
      {"Application Class ID (ACID)", "pst.ACID", FT_UINT8, BASE_DEC, NULL, 0,
       "PST ACID", HFILL }},
 
-    {&hf_pst_acm_length,
+    {&hf_ieee80211_pst_acm_length,
      {"Application Context Mask (ACM) Length", "pst.ACM.length", FT_UINT8, BASE_DEC, NULL, 0,
       "PST ACM Length", HFILL }},
 
-    {&hf_pst_acm_contents,
+    {&hf_ieee80211_pst_acm_contents,
      {"Application Context Mask Contents (ACM)", "pst.ACM.contents", FT_STRING, BASE_NONE, NULL, 0,
       "PST ACM Contents", HFILL }},
 
-    {&hf_pst_acf,
+    {&hf_ieee80211_pst_acf,
      {"Application Contents Field (ACF)", "pst.ACF", FT_STRING, BASE_NONE, NULL, 0,
       "PST ACF", HFILL }},
 
-    {&hf_pst_priority,
+    {&hf_ieee80211_pst_priority,
      {"Application Priority", "pst.priority", FT_UINT8, BASE_DEC, NULL, 0,
       "PST Priority", HFILL }},
 
-    {&hf_pst_ipv6addr,
+    {&hf_ieee80211_pst_ipv6addr,
      {"Internet Protocol V6 Address", "pst.ipv6addr", FT_IPv6, BASE_NONE, NULL, 0,
       "IP v6 Addr", HFILL }},
 
-    {&hf_pst_macaddr,
+    {&hf_ieee80211_pst_macaddr,
      {"Medium Access Control Address (MAC addr)", "pst.macaddr", FT_ETHER, BASE_NONE, NULL, 0,
       "MAC Address", HFILL }},
 
-    {&hf_pst_serviceport,
+    {&hf_ieee80211_pst_serviceport,
      {"Service Port", "pst.serviceport", FT_UINT16, BASE_DEC, NULL, 0,
       "PST Service Port", HFILL }},
 
-    {&hf_pst_addressing,
+    {&hf_ieee80211_pst_addressing,
      {"Addressing", "pst.addressing", FT_UINT8, BASE_DEC, NULL, 0,
       "PST Addressing", HFILL }},
 
-    {&hf_pst_channel,
+    {&hf_ieee80211_pst_channel,
      {"Service (IEE802.11) Channel", "pst.channel", FT_UINT8, BASE_DEC, NULL, 0,
       "PST Service Channel", HFILL }},
 
-    {&hf_chan_noc,
+    {&hf_ieee80211_chan_noc,
      {"Number of Channels", "chan.chan_uknown", FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_chan_length,
+    {&hf_ieee80211_chan_length,
      {"Length", "chan.chan_length", FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_chan_content,
+    {&hf_ieee80211_chan_content,
      {"Contents", "chan.chan_content", FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_chan_channel,
+    {&hf_ieee80211_chan_channel,
      {"channel", "chan.chan_channel", FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_chan_adapt,
+    {&hf_ieee80211_chan_adapt,
      {"Adaptable", "chan.chan_adapt", FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_chan_rate,
+    {&hf_ieee80211_chan_rate,
      {"Rate", "chan.chan_rate", FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_chan_tx_pow,
+    {&hf_ieee80211_chan_tx_pow,
      {"Tx Power", "chan.chan_tx_pow", FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
@@ -11152,28 +11151,28 @@ proto_register_ieee80211 (void)
 
 #ifdef MESH_OVERRIDES
     ,
-    {&hf_mesh_flags,
+    {&hf_ieee80211_mesh_flags,
       {"Mesh Flags", "wlan.mesh.flags",
        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
        NULL, HFILL }},
 
-    {&hf_mesh_seq,
+    {&hf_ieee80211_mesh_seq,
       {"Mesh Seq", "wlan.mesh.seq", FT_UINT32, BASE_DEC, NULL, 0,
        "Mesh End-to-End sequence number", HFILL }},
 
-    {&hf_mesh_ttl,
+    {&hf_ieee80211_mesh_ttl,
       {"Mesh TTL", "wlan.mesh.ttl", FT_UINT8, BASE_DEC, NULL, 0,
        NULL, HFILL }},
 
-    {&hf_mesh_ae1,
+    {&hf_ieee80211_mesh_ae1,
       {"Mesh A4", "wlan.mesh.a4", FT_ETHER, BASE_NONE, NULL, 0,
        "Mesh Address4", HFILL }},
 
-    {&hf_mesh_ae2,
+    {&hf_ieee80211_mesh_ae2,
       {"Mesh A5", "wlan.mesh.a5", FT_ETHER, BASE_NONE, NULL, 0,
        "Mesh Address5", HFILL }},
 
-    {&hf_mesh_ae3,
+    {&hf_ieee80211_mesh_ae3,
       {"Mesh A6", "wlan.mesh.a6", FT_ETHER, BASE_NONE, NULL, 0,
        "Mesh Address6", HFILL }}
 
@@ -12293,52 +12292,52 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_HEX, VALS (&mesh_mgt_action_pl_codes), 0,
       "Mesh Management Peer Link action code", HFILL }},
 
-    {&hf_mesh_mgt_pl_local_link_id,
+    {&hf_ieee80211_mesh_mgt_pl_local_link_id,
      {"Local Link ID", "wlan.pl.local_id",
       FT_UINT16, BASE_HEX, NULL, 0,
       "Mesh Management Local Link ID", HFILL }},
 
-    {&hf_mesh_mgt_pl_subtype,
+    {&hf_ieee80211_mesh_mgt_pl_subtype,
      {"Peer Link Subtype", "wlan.pl.subtype",
       FT_UINT16, BASE_HEX, VALS (&mesh_mgt_action_pl_codes), 0,
       "Mesh Management Peer Link Subtype", HFILL }},
 
-    {&hf_mesh_mgt_pl_reason_code,
+    {&hf_ieee80211_mesh_mgt_pl_reason_code,
      {"Reason Code", "wlan.pl.reason_code",
       FT_UINT16, BASE_HEX, VALS (&mesh_mgt_pl_reason_codes), 0,
       "Mesh Management Reason Code", HFILL }},
 
-    {&hf_mesh_mgt_pl_peer_link_id,
+    {&hf_ieee80211_mesh_mgt_pl_peer_link_id,
      {"Peer Link ID", "wlan.pl.peer_id",
       FT_UINT16, BASE_HEX, NULL, 0,
       "Mesh Management Peer Link ID", HFILL }},
 
-    {&hf_mesh_config_version,
+    {&hf_ieee80211_mesh_config_version,
      {"Version", "wlan.mesh.config.version",
       FT_UINT16, BASE_HEX, NULL, 0,
       "Mesh Configuration Version", HFILL }},
 
-    {&hf_mesh_config_path_sel_protocol,
+    {&hf_ieee80211_mesh_config_path_sel_protocol,
      {"Path Selection Protocol", "wlan.mesh.config.ps_protocol",
       FT_UINT16, BASE_HEX, NULL, 0,
       "Mesh Configuration Path Selection Protocol", HFILL }},
 
-    {&hf_mesh_config_path_sel_metric,
+    {&hf_ieee80211_mesh_config_path_sel_metric,
      {"Path Selection Metric", "wlan.mesh.config.ps_metric",
       FT_UINT16, BASE_HEX, NULL, 0,
       "Mesh Configuration Path Selection Metric", HFILL }},
 
-    {&hf_mesh_config_congestion_control,
+    {&hf_ieee80211_mesh_config_congestion_control,
      {"Congestion Control", "wlan.mesh.config.cong_ctl",
       FT_UINT16, BASE_HEX, NULL, 0,
       "Mesh Configuration Congestion Control", HFILL }},
 
-    {&hf_mesh_config_channel_prec,
+    {&hf_ieee80211_mesh_config_channel_prec,
      {"Channel Precedence", "wlan.mesh.config.chan_prec",
       FT_UINT16, BASE_HEX, NULL, 0,
       "Mesh Configuration Channel Precedence", HFILL }},
 
-    {&hf_mesh_config_capability,
+    {&hf_ieee80211_mesh_config_capability,
      {"Capability", "wlan.mesh.config.cap",
       FT_UINT16, BASE_HEX, NULL, 0,
       "Mesh Configuration Capability", HFILL }},
@@ -13654,39 +13653,39 @@ proto_register_ieee80211 (void)
      {"Traffic Stream (TS) Delay", "wlan_mgt.ts_delay",
       FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
-    {&hf_class_type,
+    {&hf_ieee80211_class_type,
      {"Classifier Type", "wlan_mgt.tclas.class_type", FT_UINT8, BASE_DEC,
       VALS (classifier_type), 0, NULL, HFILL }},
 
-    {&hf_class_mask,
+    {&hf_ieee80211_class_mask,
      {"Classifier Mask", "wlan_mgt.tclas.class_mask", FT_UINT8, BASE_HEX,
       NULL, 0, NULL, HFILL }},
 
-    {&hf_ether_type,
+    {&hf_ieee80211_ether_type,
      {"Ethernet Type", "wlan_mgt.tclas.params.type", FT_UINT8, BASE_DEC,
       NULL, 0, "Classifier Parameters Ethernet Type", HFILL }},
 
-    {&hf_tclas_process,
+    {&hf_ieee80211_tclass_process,
      {"Processing", "wlan_mgt.tclas_proc.processing", FT_UINT8, BASE_DEC,
       VALS (tclas_process), 0, "TCLAS Processing", HFILL }},
 
-    {&hf_sched_info,
+    {&hf_ieee80211_sched_info,
      {"Schedule Info", "wlan_mgt.sched.sched_info",
       FT_UINT16, BASE_HEX, NULL, 0, "Schedule Info field", HFILL }},
 
-    {&hf_sched_srv_start,
+    {&hf_ieee80211_sched_srv_start,
      {"Service Start Time", "wlan_mgt.sched.srv_start",
       FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 
-    {&hf_sched_srv_int,
+    {&hf_ieee80211_sched_srv_int,
      {"Service Interval", "wlan_mgt.sched.srv_int",
       FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 
-    {&hf_sched_spec_int,
+    {&hf_ieee80211_sched_spec_int,
      {"Specification Interval", "wlan_mgt.sched.spec_int",
       FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 
-    {&hf_action,
+    {&hf_ieee80211_action,
      {"Action", "wlan_mgt.fixed.action",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
