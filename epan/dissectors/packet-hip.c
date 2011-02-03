@@ -97,7 +97,7 @@ typedef enum {
 #define PARAM_VIA_RVS                   65502
 /* RFC 5206 */
 #define PARAM_LOCATOR                   193
-/* RFC-ietf-hip-nat-traversal-09.txt */
+/* RFC 5770 */
 #define PARAM_NAT_TRAVERSAL_MODE        608
 #define PARAM_TRANSACTION_PACING        610
 #define PARAM_REG_FROM                  950
@@ -119,7 +119,7 @@ typedef enum {
 #define HIP_CONTROL_C_MASK              0x0002
 #define HI_HDR_FLAGS_MASK               0xFFFF0000
 #define HI_HDR_PROTO_MASK               0x0000FF00
-#define HI_HDR_ALG_MASK                         0x000000FF
+#define HI_HDR_ALG_MASK                 0x000000FF
 
 static const value_string pinfo_vals[] = {
         { HIP_I1, "HIP I1 (HIP Initiator Packet)" },
@@ -194,7 +194,7 @@ static const value_string transform_id_vals[] = {
 
 static const value_string reg_type_vals[] = {
         { 0x01, "RENDEZVOUS" }, /* RFC 5204 */
-        { 0x02, "RELAY_UDP_HIP" }, /* draft-ietf-hip-nat-traversal-09.txt */
+        { 0x02, "RELAY_UDP_HIP" }, /* RFC 5770 */
         { 0, NULL }
 };
 
@@ -206,7 +206,7 @@ static const value_string sig_alg_vals[] = {
         { 0, NULL }
 };
 
-/* draft-ietf-hip-nat-traversal-09.txt */
+/* RFC 5770 */
 static const value_string mode_id_vals[] = {
         { 0x0, "Reserved" },
         { 0x01, "UDP-encapsulation" },
@@ -264,7 +264,7 @@ static const value_string notification_vals[] = {
         { 0, NULL }
 };
 
-/* draft-ietf-hip-nat-traversal-09.txt */
+/* RFC 5770 */
 static const value_string nat_traversal_mode_vals[] = {
         { 0, "Reserved"},
         { 1, "UDP-encapsulation"},
@@ -486,13 +486,20 @@ dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                            "Checksum: 0x%04x (correct)",
                                                            checksum_h);
                         } else {
-                                proto_tree_add_uint_format(hip_tree, hf_hip_checksum, tvb,
-                                                           offset+4, 2, checksum_h,
-                                                           "Checksum: 0x%04x (incorrect, "
-                                                           "should be 0x%04x)",
-                                                           checksum_h,
-                                                           in_cksum_shouldbe(checksum_h,
-                                                                             computed_checksum));
+                               if (checksum_h == 0 && pinfo->ipproto == IP_PROTO_UDP) {
+                                       proto_tree_add_uint_format(hip_tree, hf_hip_checksum, tvb,
+                                                                  offset+4, 2, checksum_h,
+                                                                  "Checksum: 0x%04x (correct)",
+                                                                  checksum_h);
+                               } else {
+                                       proto_tree_add_uint_format(hip_tree, hf_hip_checksum, tvb,
+                                                                  offset+4, 2, checksum_h,
+                                                                  "Checksum: 0x%04x (incorrect, "
+                                                                  "should be 0x%04x)",
+                                                                  checksum_h,
+                                                                  in_cksum_shouldbe(checksum_h,
+                                                                  computed_checksum));
+                               }
                         }
                 } else {
                         proto_tree_add_uint_format(hip_tree, hf_hip_checksum, tvb,
@@ -596,9 +603,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                 proto_tree_add_item(t, hf_hip_tlv_r1count, tvb, newoffset, 8, FALSE);
                 break;
         case PARAM_LOCATOR:
-                /* RFC 5206 section 4. and
-                 * draft-ietf-hip-nat-raversal-06.txt section 5.7.
-                 * for type 2 locators
+                /* RFC 5206 section 4. and  RFC 5770 section 5.7. for type 2 locators
                  */
                 t = proto_item_add_subtree(ti, ett_hip_tlv_data);
                 tlv_len -= 4;
@@ -610,9 +615,12 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                          * tree_item for this subtree
                          */
                         locator_type = tvb_get_guint8(tvb, newoffset + 1);
-                        if (locator_type == 1 || locator_type == 0) {
+                        if (locator_type == 0) {
                                 ti_loc = proto_tree_add_item(t, hf_hip_tlv_locator_address,
                                                              tvb, newoffset + 8, 16, FALSE);
+                        } else if (locator_type == 1) {
+                                ti_loc = proto_tree_add_item(t, hf_hip_tlv_locator_address,
+                                                             tvb, newoffset + 12, 16, FALSE);
                         } else if (locator_type == 2) {
                                 ti_loc = proto_tree_add_item(t, hf_hip_tlv_locator_address,
                                                              tvb, newoffset + 20, 16, FALSE);
@@ -648,22 +656,33 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                                 proto_tree_add_item(ti_loc, hf_hip_tlv_locator_lifetime, tvb,
                                                     newoffset, 4, FALSE);
                                 newoffset += 4;
-                                /* Locator types 1 and 0 RFC 5206 section 4.2.*/
-                                if (locator_type == 1 || locator_type == 0) {
+                                if (locator_type == 0) {
+                                        /* Locator types 1 and 0 RFC 5206 section 4.2.*/
                                         /* Locator */
                                         proto_tree_add_item(ti_loc, hf_hip_tlv_locator_address,
                                                             tvb, newoffset, 16, FALSE);
-                                        newoffset += 16;
+                                        newoffset += 16;                                       
                                         tlv_len -= 24;
-                                        /* Locator type 2 draft-ietf-hip-nat-raversal-06.txt section 5.7. */
+                                } else if (locator_type == 1) {
+                                        /* Locator types 1 and 0 RFC 5206 section 4.2.*/
+                                        /* SPI */
+                                        proto_tree_add_item(ti_loc, hf_hip_tlv_locator_spi, tvb,
+                                                            newoffset, 4, FALSE);
+                                        newoffset += 4;
+                                        /* Locator */
+                                        proto_tree_add_item(ti_loc, hf_hip_tlv_locator_address,
+                                                            tvb, newoffset, 16, FALSE);
+                                        newoffset += 16;                                       
+                                        tlv_len -= 28;
                                 } else if (locator_type == 2) {
+                                        /* Locator type 2 RFC 5770 section 5.7. */
                                         /* Tansport port */
                                         proto_tree_add_item(ti_loc, hf_hip_tlv_locator_port, tvb,
                                                             newoffset, 2, FALSE);
                                         newoffset += 2;
                                         /* Transport protocol */
                                         transport_proto = tvb_get_guint8(tvb, newoffset);
-                                        /* draft-ietf-hip-nat-traversal-09 section 5.6 */
+                                        /* RFC 5770 section 5.6 */
                                         proto_tree_add_uint_format(ti_loc, hf_hip_tlv_locator_transport_protocol,
                                                                    tvb, newoffset, 1, transport_proto,
                                                                    "Transport protocol: %d %s",
@@ -1416,7 +1435,7 @@ proto_register_hip(void)
                     FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_hip_tlv_locator_spi,
-                  { "Locator spi", "hip.tlv.locator_spi",
+                  { "Locator SPI", "hip.tlv.locator_spi",
                     FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_hip_tlv_locator_address,
