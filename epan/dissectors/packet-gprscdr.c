@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-gprscdr.c                                                           */
-/* ../../tools/asn2wrs.py -b -e -k -p gprscdr -c ./gprscdr.cnf -s ./packet-gprscdr-template -D . 3GPPGenericChargingDataTypes.asn GPRSChargingDataTypes.asn */
+/* ../../tools/asn2wrs.py -b -e -p gprscdr -c ./gprscdr.cnf -s ./packet-gprscdr-template -D . 3GPPGenericChargingDataTypes.asn GPRSChargingDataTypes.asn */
 
 /* Input file: packet-gprscdr-template.c */
 
@@ -218,6 +218,7 @@ static int hf_gprscdr_LevelOfCAMELService_onlineCharging = -1;
 #line 46 "packet-gprscdr-template.c"
 
 static int ett_gprscdr = -1;
+static int ett_gprscdr_timestamp = -1;
 
 /*--- Included file: packet-gprscdr-ett.c ---*/
 #line 1 "packet-gprscdr-ett.c"
@@ -258,7 +259,7 @@ static gint ett_gprscdr_PSFurnishChargingInformation = -1;
 static gint ett_gprscdr_MBMSInformation = -1;
 
 /*--- End of included file: packet-gprscdr-ett.c ---*/
-#line 49 "packet-gprscdr-template.c"
+#line 50 "packet-gprscdr-template.c"
 
 static dissector_handle_t gprscdr_handle;
 
@@ -467,6 +468,8 @@ dissect_gprscdr_T_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 #line 26 "gprscdr.cnf"
 
    proto_tree_add_text(tree, tvb, offset, -1, "Not dissected");
+   
+
    
 
 
@@ -1089,6 +1092,16 @@ dissect_gprscdr_ChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb
   return offset;
 }
 
+
+static const value_string gprscdr_RATType_vals[] = {
+  {   0, "reserved" },
+  {   1, "utran" },
+  {   2, "geran" },
+  {   3, "wlan" },
+  {   4, "gan" },
+  {   5, "hspa-evolution" },
+  { 0, NULL }
+};
 
 
 static int
@@ -2031,7 +2044,7 @@ int dissect_gprscdr_GPRSCallEventRecord_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 
 
 /*--- End of included file: packet-gprscdr-fn.c ---*/
-#line 53 "packet-gprscdr-template.c"
+#line 54 "packet-gprscdr-template.c"
 
 
 
@@ -2290,7 +2303,7 @@ proto_register_gprscdr(void)
         "IMEI", HFILL }},
     { &hf_gprscdr_rATType,
       { "rATType", "gprscdr.rATType",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(gprscdr_RATType_vals), 0,
         NULL, HFILL }},
     { &hf_gprscdr_mSTimeZone,
       { "mSTimeZone", "gprscdr.mSTimeZone",
@@ -2682,12 +2695,13 @@ proto_register_gprscdr(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-gprscdr-hfarr.c ---*/
-#line 63 "packet-gprscdr-template.c"
+#line 64 "packet-gprscdr-template.c"
   };
 
   /* List of subtrees */
     static gint *ett[] = {
     &ett_gprscdr,
+	&ett_gprscdr_timestamp,
 
 /*--- Included file: packet-gprscdr-ettarr.c ---*/
 #line 1 "packet-gprscdr-ettarr.c"
@@ -2728,7 +2742,7 @@ proto_register_gprscdr(void)
     &ett_gprscdr_MBMSInformation,
 
 /*--- End of included file: packet-gprscdr-ettarr.c ---*/
-#line 69 "packet-gprscdr-template.c"
+#line 71 "packet-gprscdr-template.c"
         };
 
   proto_gprscdr = proto_register_protocol(PNAME, PSNAME, PFNAME);
