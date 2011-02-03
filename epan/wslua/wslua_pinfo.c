@@ -502,7 +502,7 @@ WSLUA_METAMETHOD Columns__newindex(lua_State *L) {
 
     for(cn = colnames; cn->name; cn++) {
         if( g_str_equal(cn->name,colname) ) {
-            col_set_str(cols->cinfo, cn->id, text);
+            col_add_str(cols->cinfo, cn->id, text);
             return 0;
         }
     }
