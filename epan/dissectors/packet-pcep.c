@@ -633,11 +633,11 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
 		switch (tlv_type)
 		{
 		    case 1:    /* NO-PATH TLV */
-			proto_tree_add_text(tlv, tvb, offset+4+j, tlv_length, "%s", 
+			proto_tree_add_text(tlv, tvb, offset+4+j, tlv_length, "%s",
 					    decode_boolean_bitfield(tvb_get_ntohl(tvb, offset+4+j), 0x0001, 32, "PCE currently unavailable", ""));
-			proto_tree_add_text(tlv, tvb, offset+4+j, tlv_length, "%s", 
+			proto_tree_add_text(tlv, tvb, offset+4+j, tlv_length, "%s",
 					    decode_boolean_bitfield(tvb_get_ntohl(tvb, offset+4+j), 0x0002, 32, "Unknown destination", ""));
-			proto_tree_add_text(tlv, tvb, offset+4+j, tlv_length, "%s", 
+			proto_tree_add_text(tlv, tvb, offset+4+j, tlv_length, "%s",
 					    decode_boolean_bitfield(tvb_get_ntohl(tvb, offset+4+j), 0x0004, 32, "Unknown source", ""));
 			break;
 
@@ -653,7 +653,7 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
 			break;
 
 		    default:
-			proto_tree_add_text(tlv, tvb, offset+4+j, tlv_length, "Data: %s", 
+			proto_tree_add_text(tlv, tvb, offset+4+j, tlv_length, "Data: %s",
 					bytestring_to_str(tvb_get_ptr(tvb, (offset) + 4 + j, tlv_length), tlv_length, ' '));
 		}
 
@@ -1364,7 +1364,7 @@ dissect_pcep_bandwidth_obj(proto_tree *pcep_object_tree, tvbuff_t *tvb, int offs
  *------------------------------------------------------------------------------*/
 #define METRIC_OBJ_LEN	8
 
-static void 
+static void
 dissect_pcep_metric_obj(proto_tree *pcep_object_tree,
 		  tvbuff_t *tvb, int offset2, int obj_length)
 {
@@ -1900,7 +1900,7 @@ dissect_pcep_close_obj(proto_tree *pcep_object_tree, tvbuff_t *tvb, int offset2,
 /*------------------------------------------------------------------------------
  * PATH-KEY OBJECT
  *------------------------------------------------------------------------------*/
-static void 
+static void
 dissect_pcep_path_key_obj(proto_tree *pcep_object_tree,
 		  tvbuff_t *tvb, int offset2, int obj_length)
 {
@@ -1950,8 +1950,8 @@ dissect_pcep_path_key_obj(proto_tree *pcep_object_tree,
 }
 
 /*------------------------------------------------------------------------------
- * XRO OBJECT 
- *------------------------------------------------------------------------------*/	
+ * XRO OBJECT
+ *------------------------------------------------------------------------------*/
 #define XRO_OBJ_MIN_LEN	4
 
 static void
@@ -2048,10 +2048,10 @@ dissect_pcep_xro_obj(proto_tree *pcep_object_tree, tvbuff_t *tvb, int offset2, i
  *------------------------------------------------------------------------------*/
 #define OF_OBJ_MIN_LEN 4
 
-static void 
+static void
 dissect_pcep_of_obj(proto_tree *pcep_object_tree, tvbuff_t *tvb, int offset2, int obj_length)
-{    
-	guint8 of_code;
+{
+	guint16 of_code;
 
 	if (obj_length < OBJ_HDR_LEN+OF_OBJ_MIN_LEN) {
 		proto_tree_add_text(pcep_object_tree, tvb, offset2, obj_length,
