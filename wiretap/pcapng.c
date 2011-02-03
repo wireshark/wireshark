@@ -806,12 +806,14 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 		pcapng_debug2("pcapng_read_packet_block:cap_len %d is larger than packet_len %u.",
 		              wblock->data.packet.cap_len, wblock->data.packet.packet_len);
 		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = strdup("pcapng_read_packet_block:cap_len is larger than packet_len");
 		return 0;
 	}
 	if (wblock->data.packet.cap_len > WTAP_MAX_PACKET_SIZE) {
 		pcapng_debug2("pcapng_read_packet_block:cap_len %d is larger than WTAP_MAX_PACKET_SIZE %u.",
 		              wblock->data.packet.cap_len, WTAP_MAX_PACKET_SIZE);
 		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = strdup("pcapng_read_packet_block:cap_len is larger than WTAP_MAX_PACKET_SIZE");
 		return 0;
 	}
 	pcapng_debug3("pcapng_read_packet_block: packet data: packet_len %u captured_len %u interface_id %u",

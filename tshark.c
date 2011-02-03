@@ -2524,7 +2524,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
   int          snapshot_length;
   wtap_dumper *pdh;
   int          err;
-  gchar        *err_info;
+  gchar        *err_info = NULL;
   gint64       data_offset;
   char         *save_file_string = NULL;
   gboolean     filtering_tap_listeners;
