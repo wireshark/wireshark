@@ -132,7 +132,7 @@ de_sgsap_err_msg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 	 * Octet 3 - Octet n
 	 * Erroneous message including the message type.
 	 */
-	proto_tree_add_item(sgsap_tree, hf_sgsap_msg_type, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_sgsap_msg_type, tvb, offset, 1, FALSE);
 
 	return(len);
 }
@@ -145,17 +145,17 @@ de_sgsap_err_msg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 static guint16
 de_sgsap_ecgi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
+    guint32    curr_offset;
 
-	curr_offset = offset;
+    curr_offset = offset;
 
     dissect_e212_mcc_mnc(tvb, gpinfo, tree, offset, TRUE);
     curr_offset+=3;
 
-	proto_tree_add_item(tree, hf_sgsap_eci, tvb, curr_offset, 4, FALSE);
-	curr_offset+=4;
+    proto_tree_add_item(tree, hf_sgsap_eci, tvb, curr_offset, 4, FALSE);
+    curr_offset+=4;
 
-	return(curr_offset-offset);
+    return(curr_offset-offset);
 }
 /*
  * 9.4.4	Global CN-Id
@@ -170,17 +170,17 @@ de_sgsap_ecgi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 static guint16
 de_sgsap_g_cn_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
+    guint32    curr_offset;
 
-	curr_offset = offset;
+    curr_offset = offset;
 
     dissect_e212_mcc_mnc(tvb, gpinfo, tree, offset, TRUE);
     curr_offset+=3;
 
-	proto_tree_add_item(tree, hf_sgsap_cn_id, tvb, curr_offset, 2, FALSE);
-	curr_offset+=2;
+    proto_tree_add_item(tree, hf_sgsap_cn_id, tvb, curr_offset, 2, FALSE);
+    curr_offset+=2;
 
-	return(curr_offset-offset);
+    return(curr_offset-offset);
 }
 /*
  * 9.4.5	IMEISV
@@ -1432,125 +1432,125 @@ dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 void proto_register_sgsap(void) {
-	guint		i;
-	guint		last_offset;
+    guint        i;
+    guint        last_offset;
 
-	/* List of fields */
+    /* List of fields */
 
   static hf_register_info hf[] = {
-	{ &hf_sgsap_msg_type,
-		{ "SGSAP Message Type",	"sgsap.msg_type",
-		FT_UINT8, BASE_HEX|BASE_EXT_STRING, &sgsap_msg_strings_ext, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_sgsap_elem_id,
-		{ "Element ID",	"sgsap.elem_id",
-		FT_UINT8, BASE_DEC, NULL, 0x0,
-		NULL, HFILL }
-	},
-	{ &hf_sgsap_eps_location_update_type,
-		{ "EPS location update type",	"sgsap.eps_location_update_type",
-		FT_UINT8, BASE_DEC, VALS(sgsap_eps_location_update_type_values),0x0,
-		NULL, HFILL }
-	},
-	{ &hf_sgsap_service_indicator_value,
-		{ "Service indicator",	"sgsap.service_indicator",
-		FT_UINT8, BASE_DEC, VALS(sgsap_service_indicator_values),0x0,
-		NULL, HFILL }
-	},
-	{ &hf_sgsap_sgs_cause,
-		{ "SGs cause",	"sgsap.sgs_cause",
-		FT_UINT8, BASE_DEC|BASE_EXT_STRING, &sgsap_sgs_cause_values_ext,0x0,
-		NULL, HFILL }
-	},
-	{ &hf_sgsap_ue_emm_mode,
-		{ "UE EMM mode",	"sgsap.ue_emm_mode",
-		FT_UINT8, BASE_DEC, VALS(sgsap_ue_emm_mode_values),0x0,
-		NULL, HFILL }
-	},
-	{ &hf_sgsap_eci,
-		{"ECI (E-UTRAN Cell Identifier)", "sgsap.eci",
+    { &hf_sgsap_msg_type,
+        { "SGSAP Message Type",    "sgsap.msg_type",
+        FT_UINT8, BASE_HEX|BASE_EXT_STRING, &sgsap_msg_strings_ext, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_sgsap_elem_id,
+        { "Element ID",    "sgsap.elem_id",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_sgsap_eps_location_update_type,
+        { "EPS location update type",    "sgsap.eps_location_update_type",
+        FT_UINT8, BASE_DEC, VALS(sgsap_eps_location_update_type_values),0x0,
+        NULL, HFILL }
+    },
+    { &hf_sgsap_service_indicator_value,
+        { "Service indicator",    "sgsap.service_indicator",
+        FT_UINT8, BASE_DEC, VALS(sgsap_service_indicator_values),0x0,
+        NULL, HFILL }
+    },
+    { &hf_sgsap_sgs_cause,
+        { "SGs cause",    "sgsap.sgs_cause",
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &sgsap_sgs_cause_values_ext,0x0,
+        NULL, HFILL }
+    },
+    { &hf_sgsap_ue_emm_mode,
+        { "UE EMM mode",    "sgsap.ue_emm_mode",
+        FT_UINT8, BASE_DEC, VALS(sgsap_ue_emm_mode_values),0x0,
+        NULL, HFILL }
+    },
+    { &hf_sgsap_eci,
+        {"ECI (E-UTRAN Cell Identifier)", "sgsap.eci",
         FT_UINT32, BASE_DEC, NULL, 0x0fffffff,
         NULL, HFILL}
-	},
-	{ &hf_sgsap_imsi_det_eps, 
-		{ "IMSI detach from EPS service type",	"sgsap.imsi_det_eps",
-		FT_UINT8, BASE_DEC, VALS(sgsap_imsi_det_from_eps_serv_type_values),0x0,
-		NULL, HFILL }
-	},
-	{ &hf_sgsap_lcs_indic,
-		{ "LCS indicator",	"sgsap.lcs_indicator",
-		FT_UINT8, BASE_DEC, VALS(sgsap_lcs_indic_values),0x0,
-		NULL, HFILL }
-	},
-	{ &hf_sgsap_mme_name,
+    },
+    { &hf_sgsap_imsi_det_eps, 
+        { "IMSI detach from EPS service type",    "sgsap.imsi_det_eps",
+        FT_UINT8, BASE_DEC, VALS(sgsap_imsi_det_from_eps_serv_type_values),0x0,
+        NULL, HFILL }
+    },
+    { &hf_sgsap_lcs_indic,
+        { "LCS indicator",    "sgsap.lcs_indicator",
+        FT_UINT8, BASE_DEC, VALS(sgsap_lcs_indic_values),0x0,
+        NULL, HFILL }
+    },
+    { &hf_sgsap_mme_name,
         {"MME name", "sgsap.mme_name",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL}
-	},
-	{ &hf_sgsap_vlr_name,
+    },
+    { &hf_sgsap_vlr_name,
         {"VLR name", "sgsap.mme_name",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL}
-	},
+    },
   };
 
-	/* Setup protocol subtree array */
+    /* Setup protocol subtree array */
 #define	NUM_INDIVIDUAL_ELEMS	1
-	gint *ett[NUM_INDIVIDUAL_ELEMS +
-		  NUM_SGSAP_ELEM +
-		  NUM_SGSAP_MSG];
+    gint *ett[NUM_INDIVIDUAL_ELEMS +
+          NUM_SGSAP_ELEM +
+          NUM_SGSAP_MSG];
 
-	ett[0] = &ett_sgsap;
+    ett[0] = &ett_sgsap;
 
-	last_offset = NUM_INDIVIDUAL_ELEMS;
+    last_offset = NUM_INDIVIDUAL_ELEMS;
 
-	for (i=0; i < NUM_SGSAP_ELEM; i++, last_offset++)
-	{
-		ett_sgsap_elem[i] = -1;
-		ett[last_offset] = &ett_sgsap_elem[i];
-	}
+    for (i=0; i < NUM_SGSAP_ELEM; i++, last_offset++)
+    {
+        ett_sgsap_elem[i] = -1;
+        ett[last_offset] = &ett_sgsap_elem[i];
+    }
 
-	for (i=0; i < NUM_SGSAP_MSG; i++, last_offset++)
-	{
-		ett_sgsap_msg[i] = -1;
-		ett[last_offset] = &ett_sgsap_msg[i];
-	}
+    for (i=0; i < NUM_SGSAP_MSG; i++, last_offset++)
+    {
+        ett_sgsap_msg[i] = -1;
+        ett[last_offset] = &ett_sgsap_msg[i];
+    }
 
-	/* Register protocol */
-	proto_sgsap = proto_register_protocol(PNAME, PSNAME, PFNAME);
-	/* Register fields and subtrees */
-	proto_register_field_array(proto_sgsap, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
+    /* Register protocol */
+    proto_sgsap = proto_register_protocol(PNAME, PSNAME, PFNAME);
+    /* Register fields and subtrees */
+    proto_register_field_array(proto_sgsap, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
  
-	/* Register dissector */
-	register_dissector(PFNAME, dissect_sgsap, proto_sgsap);
+    /* Register dissector */
+    register_dissector(PFNAME, dissect_sgsap, proto_sgsap);
 }
 
 void
 proto_reg_handoff_sgsap(void)
 {
-	/* The registered SCTP port number for SGsAP is 29118.
+    /* The registered SCTP port number for SGsAP is 29118.
      * The payload protocol identifier to be used for SGsAP is 0.
-	 */
-	static gboolean Initialized=FALSE;
-	static dissector_handle_t sgsap_handle;
-	static guint SctpPort;
+     */
+    static gboolean Initialized=FALSE;
+    static dissector_handle_t sgsap_handle;
+    static guint SctpPort;
 
-	sgsap_handle = find_dissector("sgsap");
-	gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
+    sgsap_handle = find_dissector("sgsap");
+    gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
 
-	if (!Initialized) {
-		dissector_add_handle("sctp.port", sgsap_handle);   /* for "decode-as"  */
-		Initialized=TRUE;
-	} else {
-		if (SctpPort != 0) {
-			dissector_delete_uint("sctp.port", SctpPort, sgsap_handle);
-		}
-	}
+    if (!Initialized) {
+        dissector_add_handle("sctp.port", sgsap_handle);   /* for "decode-as"  */
+        Initialized=TRUE;
+    } else {
+        if (SctpPort != 0) {
+            dissector_delete_uint("sctp.port", SctpPort, sgsap_handle);
+        }
+    }
 
-	SctpPort=gbl_sgsapSctpPort;
-	if (SctpPort != 0) {
-		dissector_add_uint("sctp.port", SctpPort, sgsap_handle);
-	}
+    SctpPort=gbl_sgsapSctpPort;
+    if (SctpPort != 0) {
+        dissector_add_uint("sctp.port", SctpPort, sgsap_handle);
+    }
 }
