@@ -506,6 +506,7 @@ mac_lte_ue_details(mac_lte_ep_t *mac_stat_ep, mac_lte_stat_t *hs)
 {
     int n;
     gchar buff[32];
+    guint8 show_dct_errors;
 
     /**********************************/
     /* Set data one row at a time     */
@@ -590,8 +591,11 @@ mac_lte_ue_details(mac_lte_ep_t *mac_stat_ep, mac_lte_stat_t *hs)
     gtk_widget_set_sensitive(hs->dl_filter_bt, mac_stat_ep != NULL);
     gtk_widget_set_sensitive(hs->uldl_filter_bt, mac_stat_ep != NULL);
     gtk_widget_set_sensitive(hs->show_dct_errors_cb, mac_stat_ep != NULL);
-    gtk_widget_set_sensitive(hs->dct_error_substring_lb, mac_stat_ep != NULL);
-    gtk_widget_set_sensitive(hs->dct_error_substring_te, mac_stat_ep != NULL);
+
+    /* Enabling substring control only if errors enabled */
+    show_dct_errors = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb));
+    gtk_widget_set_sensitive(hs->dct_error_substring_lb, show_dct_errors && (mac_stat_ep != NULL));
+    gtk_widget_set_sensitive(hs->dct_error_substring_te, show_dct_errors && (mac_stat_ep != NULL));
 }
 
 
@@ -880,6 +884,15 @@ static void mac_lte_select_cb(GtkTreeSelection *sel, gpointer data)
     }
 }
 
+/* When DCT errors check-box is toggled, enable substring controls accordingly */
+static void mac_lte_dct_errors_cb(GtkTreeSelection *sel _U_, gpointer data)
+{
+    mac_lte_stat_t *hs = (mac_lte_stat_t*)data;
+    guint8 show_dct_errors = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb));
+
+    gtk_widget_set_sensitive(hs->dct_error_substring_lb, show_dct_errors);
+    gtk_widget_set_sensitive(hs->dct_error_substring_te, show_dct_errors);
+}
 
 
 /* Destroy the stats window */
@@ -1174,6 +1187,7 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     hs->show_dct_errors_cb = gtk_check_button_new_with_mnemonic("Show DCT2000 error strings");
     gtk_container_add(GTK_CONTAINER(filter_buttons_hb), hs->show_dct_errors_cb);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb), FALSE);
+    g_signal_connect(hs->show_dct_errors_cb, "toggled", G_CALLBACK(mac_lte_dct_errors_cb), hs);
     gtk_tooltips_set_tip(tooltips, hs->show_dct_errors_cb, "When checked, generated filters will "
                          "include DCT2000 error strings", NULL);
     /* Initially disabled */
