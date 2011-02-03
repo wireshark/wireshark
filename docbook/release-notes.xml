@@ -42,8 +42,8 @@ Wireshark Info
             that Wireshark could free an uninitialized pointer while reading a
             malformed pcap-ng file.
             <!-- Fixed in trunk: r35791 -->
-            <!-- Fixed in trunk-1.4: r????? -->
-            <!-- Fixed in trunk-1.2: r????? -->
+            <!-- Fixed in trunk-1.4: r35792 -->
+            <!-- Fixed in trunk-1.2: r35793 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5652">Bug
             5652</ulink>)
           </para>
