@@ -585,10 +585,7 @@ static FILE *wimaxasncp_dict_open(
 	gchar *fname;
 	if (system_directory)
 	{
-		int len =  strlen(system_directory) + strlen(filename)
-			+ strlen(G_DIR_SEPARATOR_S) + 1;
-		fname = g_malloc(len);
-		g_snprintf(fname, len, "%s%s%s",
+		fname = g_strdup_printf("%s%s%s",
 			   system_directory, G_DIR_SEPARATOR_S,filename);
 	}
 	else
