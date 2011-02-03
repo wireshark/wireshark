@@ -127,7 +127,12 @@ de_sgsap_err_msg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len, "IE data not dissected yet");
+	/* 18.4.5 Erroneous message
+	 * The Erroneous message IE is a TLV IE that encapsulates the message in error.
+	 * Octet 3 - Octet n
+	 * Erroneous message including the message type.
+	 */
+	proto_tree_add_item(sgsap_tree, hf_sgsap_msg_type, tvb, offset, 1, FALSE);
 
 	return(len);
 }
