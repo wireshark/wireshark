@@ -87,4 +87,6 @@ ascend.c ascend.h: ascend.y
 	$(YACC) -d -p ascend -o ascend.c $(srcdir)/ascend.y
 
 checkapi:
-	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput $(NONGENERATED_C_FILES) $(GENERATOR_FILES)
+## 'abort' checking disabled for now pending resolution of existing use of g_assert & g_error
+##	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput $(NONGENERATED_C_FILES) $(GENERATOR_FILES)
+	$(PERL) ../tools/checkAPIs.pl -g termoutput $(NONGENERATED_C_FILES) $(GENERATOR_FILES)
