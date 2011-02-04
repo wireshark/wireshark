@@ -159,7 +159,7 @@ dissector_handle_t data_handle;
 
 static gint dissect_etf_type(const gchar *label, packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree *tree);
 
-static gint dissect_etf_dist_header(packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree *tree) {
+static gint dissect_etf_dist_header(packet_info *pinfo _U_, tvbuff_t *tvb, gint offset, proto_tree *tree) {
   guint8 num, flen, i, flg, isi;
   gint flg_offset, acrs_offset, acr_offset;
   guint32 atom_txt_len;
@@ -174,22 +174,22 @@ static gint dissect_etf_dist_header(packet_info *pinfo, tvbuff_t *tvb, gint offs
 
   if (num == 0)
     return offset;
-  
+
   flg_offset = offset;
   flen = num / 2 + 1;
   ti_tmp = proto_tree_add_text(tree, tvb, offset, flen, "Flags: %s", tvb_bytes_to_str(tvb, offset, flen));
   flags_tree = proto_item_add_subtree(ti_tmp, ett_etf_flags);
   for (i=0; i<num; i++) {
     flg = tvb_get_guint8(tvb, offset + i / 2);
-    proto_tree_add_text(flags_tree, tvb, offset + i / 2, 1, 
+    proto_tree_add_text(flags_tree, tvb, offset + i / 2, 1, "%s",
             decode_boolean_bitfield(flg, 0x08 << 4*(i%2), 8,
                         ep_strdup_printf("NewCacheEntryFlag[%2d]: SET", i),
                         ep_strdup_printf("NewCacheEntryFlag[%2d]: ---", i)));
-    proto_tree_add_text(flags_tree, tvb, offset + i / 2, 1, 
+    proto_tree_add_text(flags_tree, tvb, offset + i / 2, 1, "%s",
             decode_numeric_bitfield(flg, 0x07 << 4*(i%2), 8, ep_strdup_printf("SegmentIndex     [%2d]: %%u", i)));
   }
   flg = tvb_get_guint8(tvb, offset + num / 2);
-  proto_tree_add_text(flags_tree, tvb, offset + num / 2, 1, 
+  proto_tree_add_text(flags_tree, tvb, offset + num / 2, 1, "%s",
           decode_boolean_bitfield(flg, 0x01 << 4*(num%2), 8,
                       "LongAtoms: YES",
                       "LongAtoms: NO"));
@@ -225,7 +225,7 @@ static gint dissect_etf_dist_header(packet_info *pinfo, tvbuff_t *tvb, gint offs
   return offset;
 }
 
-static gint dissect_etf_tuple_content(gboolean large, packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree *tree, gchar **value_str) {
+static gint dissect_etf_tuple_content(gboolean large, packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree *tree, gchar **value_str _U_) {
   guint32 arity, i;
 
   arity = (large) ? tvb_get_ntohl(tvb, offset) : tvb_get_guint8(tvb, offset);
@@ -329,7 +329,7 @@ static gint dissect_etf_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return 0;
   }
 
-  ti = proto_tree_add_text(tree, tvb, offset, -1, (label) ? label : "External Term Format");
+  ti = proto_tree_add_text(tree, tvb, offset, -1, "%s", (label) ? label : "External Term Format");
   etf_tree = proto_item_add_subtree(ti, ett_etf);
 
   proto_tree_add_text(etf_tree, tvb, offset, 1, "VERSION_MAGIC: %d", mag);
@@ -356,7 +356,7 @@ static gint dissect_etf_type(const gchar *label, packet_info *pinfo, tvbuff_t *t
   proto_tree *etf_tree;
   gchar *value_str = NULL;
 
-  ti = proto_tree_add_text(tree, tvb, offset, -1, (label) ? label : "External Term Format");
+  ti = proto_tree_add_text(tree, tvb, offset, -1, "%s", (label) ? label : "External Term Format");
   etf_tree = proto_item_add_subtree(ti, ett_etf);
 
   tag = tvb_get_guint8(tvb, offset);
@@ -378,7 +378,7 @@ static gint dissect_etf_type(const gchar *label, packet_info *pinfo, tvbuff_t *t
 static gboolean is_handshake(tvbuff_t *tvb, int offset) {
   guint32 len = tvb_get_ntohs(tvb, offset);
   guint8 tag = tvb_get_guint8(tvb, offset + 2);
-  return ((len > 0) && strchr("nras", tag) && (len == tvb_length_remaining(tvb, offset + 2)));
+  return ((len > 0) && strchr("nras", tag) && (len == (guint32)tvb_length_remaining(tvb, offset + 2)));
 }
 
 /*--- dissect_erldp_handshake -------------------------------------------------*/
@@ -501,7 +501,10 @@ static void dissect_erldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 /*--- get_erldp_pdu_len -------------------------------------------------*/
 static guint get_erldp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset) {
-  return (is_handshake(tvb, offset)) ? 2 + tvb_get_ntohs(tvb, offset) : 4 + tvb_get_ntohl(tvb, offset);
+  if (is_handshake(tvb, offset))
+    return(2 + tvb_get_ntohs(tvb, offset));
+  else
+    return(4 + tvb_get_ntohl(tvb, offset));
 }
 
 /*--- dissect_erldp -------------------------------------------------*/
@@ -555,7 +558,7 @@ void proto_register_erldp(void) {
     { &hf_erldp_length_4, { "Length", "erldp.len",
                         FT_UINT32, BASE_DEC, NULL, 0x0,
                         "Message Length", HFILL}},
-    
+
     /*--- ETF  ---*/
     { &hf_etf_tag,    { "Tag", "etf.tag",
                         FT_UINT8, BASE_DEC, VALS(etf_tag_vals), 0x0,
