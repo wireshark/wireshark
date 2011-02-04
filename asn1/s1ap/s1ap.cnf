@@ -191,6 +191,32 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 	dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, tree, 0, FALSE);
 #.END
 
+#.FN_BODY ENBname VAL_PTR = parameter_tvb
+  tvbuff_t *parameter_tvb=NULL;
+  int length;
+  int p_offset;
+  gboolean is_ascii;
+
+%(DEFAULT_BODY)s
+
+  if (!parameter_tvb)
+    return offset;
+
+  length = tvb_length(parameter_tvb);
+ 
+  is_ascii = TRUE;
+  for (p_offset=0; p_offset < length; p_offset++){
+	 if(!isalpha(tvb_get_guint8(parameter_tvb, p_offset ))){
+		is_ascii = FALSE;
+		break;
+	 }
+  }
+  if (is_ascii)
+  		proto_item_append_text(actx->created_item,"(%%s)",tvb_format_text(parameter_tvb, 0, length));
+
+#.END
+
+
 #.FN_BODY NAS-PDU VAL_PTR = &parameter_tvb
 
   tvbuff_t *parameter_tvb=NULL;
