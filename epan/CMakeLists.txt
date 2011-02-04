@@ -519,6 +519,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-eapol.c
 	dissectors/packet-echo.c
 	dissectors/packet-edonkey.c
+	dissectors/packet-erldp.c
 	dissectors/packet-egd.c
 	dissectors/packet-ehs.c
 	dissectors/packet-eigrp.c

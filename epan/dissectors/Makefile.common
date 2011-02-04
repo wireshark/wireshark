@@ -430,6 +430,7 @@ DISSECTOR_SRC = \
 	packet-eapol.c		\
 	packet-echo.c		\
 	packet-edonkey.c	\
+	packet-erldp.c		\
 	packet-egd.c		\
 	packet-ehs.c		\
 	packet-eigrp.c		\
@@ -1094,6 +1095,7 @@ DISSECTOR_INCLUDES =	\
 	packet-enc.h	\
 	packet-epl.h	\
 	packet-epl_v1.h	\
+	packet-epmd.h  	\
 	packet-esis.h	\
 	packet-ess.h	\
 	packet-eth.h	\
