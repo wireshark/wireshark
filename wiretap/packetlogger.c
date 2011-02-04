@@ -104,8 +104,8 @@ packetlogger_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		return FALSE;
 
 	if (pl_hdr.len < 8) {
-		*err_info = g_strdup_printf("packetlogger: record length %u is too small", pl_hdr.len);
 		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("packetlogger: record length %u is too small", pl_hdr.len);
 		return FALSE;
 	}
 	
