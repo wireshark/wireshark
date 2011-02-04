@@ -1710,16 +1710,16 @@ static int hf_ieee80211_qbss2_scount = -1;
 static int hf_ieee80211_qbss_version = -1;
 static int hf_ieee80211_qbss_adc = -1;
 
-static int hf_ts_info = -1;
-static int hf_tsinfo_type = -1;
-static int hf_tsinfo_tsid = -1;
-static int hf_tsinfo_dir = -1;
-static int hf_tsinfo_access = -1;
-static int hf_tsinfo_agg = -1;
-static int hf_tsinfo_apsd = -1;
-static int hf_tsinfo_up = -1;
-static int hf_tsinfo_ack = -1;
-static int hf_tsinfo_sched = -1;
+static int hf_ieee80211_tsinfo = -1;
+static int hf_ieee80211_tsinfo_type = -1;
+static int hf_ieee80211_tsinfo_tsid = -1;
+static int hf_ieee80211_tsinfo_dir = -1;
+static int hf_ieee80211_tsinfo_access = -1;
+static int hf_ieee80211_tsinfo_agg = -1;
+static int hf_ieee80211_tsinfo_apsd = -1;
+static int hf_ieee80211_tsinfo_up = -1;
+static int hf_ieee80211_tsinfo_ack = -1;
+static int hf_ieee80211_tsinfo_sched = -1;
 static int hf_ieee80211_tspec_nor_msdu = -1;
 static int hf_ieee80211_tspec_max_msdu = -1;
 static int hf_ieee80211_tspec_min_srv = -1;
@@ -3166,11 +3166,11 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         proto_tree *tsinfo_tree;
         guint32 tsi;
 
-        tsinfo_item = proto_tree_add_item(tree, hf_ts_info, tvb,
+        tsinfo_item = proto_tree_add_item(tree, hf_ieee80211_tsinfo, tvb,
           offset, 3, TRUE);
         tsinfo_tree = proto_item_add_subtree(tsinfo_item, ett_tsinfo_tree);
         tsi = tvb_get_letoh24(tvb, offset);
-        proto_tree_add_uint(tsinfo_tree, hf_tsinfo_type, tvb,
+        proto_tree_add_uint(tsinfo_tree, hf_ieee80211_tsinfo_type, tvb,
           offset, 3, TSI_TYPE (tsi));
         if (TSI_TSID (tsi) < 8)
         {
@@ -3179,22 +3179,22 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         }
         else
         {
-          proto_tree_add_uint(tsinfo_tree, hf_tsinfo_tsid, tvb,
+          proto_tree_add_uint(tsinfo_tree, hf_ieee80211_tsinfo_tsid, tvb,
             offset, 3, TSI_TSID (tsi));
         }
-        proto_tree_add_uint(tsinfo_tree, hf_tsinfo_dir, tvb,
+        proto_tree_add_uint(tsinfo_tree, hf_ieee80211_tsinfo_dir, tvb,
           offset, 3, TSI_DIR (tsi));
-        proto_tree_add_uint(tsinfo_tree, hf_tsinfo_access, tvb,
+        proto_tree_add_uint(tsinfo_tree, hf_ieee80211_tsinfo_access, tvb,
           offset, 3, TSI_ACCESS (tsi));
-        proto_tree_add_uint(tsinfo_tree, hf_tsinfo_agg, tvb,
+        proto_tree_add_uint(tsinfo_tree, hf_ieee80211_tsinfo_agg, tvb,
           offset, 3, TSI_AGG (tsi));
-        proto_tree_add_uint(tsinfo_tree, hf_tsinfo_apsd, tvb,
+        proto_tree_add_uint(tsinfo_tree, hf_ieee80211_tsinfo_apsd, tvb,
           offset, 3, TSI_APSD (tsi));
-        proto_tree_add_uint(tsinfo_tree, hf_tsinfo_up, tvb,
+        proto_tree_add_uint(tsinfo_tree, hf_ieee80211_tsinfo_up, tvb,
           offset, 3, TSI_UP (tsi));
-        proto_tree_add_uint(tsinfo_tree, hf_tsinfo_ack, tvb,
+        proto_tree_add_uint(tsinfo_tree, hf_ieee80211_tsinfo_ack, tvb,
           offset, 3, TSI_ACK (tsi));
-        proto_tree_add_uint(tsinfo_tree, hf_tsinfo_sched, tvb,
+        proto_tree_add_uint(tsinfo_tree, hf_ieee80211_tsinfo_sched, tvb,
           offset, 3, TSI_SCHED (tsi));
         length += 3;
         break;
@@ -3538,13 +3538,13 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
           tvb, offset, 2, TRUE);
         sched_tree = proto_item_add_subtree(sched_item, ett_sched_tree);
         sched = tvb_get_letohs(tvb, offset);
-        proto_tree_add_uint(sched_tree, hf_tsinfo_agg, tvb, offset,
+        proto_tree_add_uint(sched_tree, hf_ieee80211_tsinfo_agg, tvb, offset,
           2, sched & 0x0001);
         if (sched & 0x0001)
         {
-          proto_tree_add_uint(sched_tree, hf_tsinfo_tsid, tvb, offset,
+          proto_tree_add_uint(sched_tree, hf_ieee80211_tsinfo_tsid, tvb, offset,
             2, (sched & 0x001E) >> 1);
-          proto_tree_add_uint(sched_tree, hf_tsinfo_dir, tvb, offset,
+          proto_tree_add_uint(sched_tree, hf_ieee80211_tsinfo_dir, tvb, offset,
             2, (sched & 0x0060) >> 5);
         }
 
@@ -6209,7 +6209,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       guint8 version;
 
       type = tvb_get_guint8(tvb, offset + 2);
-      proto_tree_add_item(tree, hf_tsinfo_up, tvb, offset + 2, 1, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_tsinfo_up, tvb, offset + 2, 1, TRUE);
       proto_tree_add_item(tree, hf_ieee80211_class_type, tvb, offset + 3, 1, TRUE);
       proto_tree_add_item(tree, hf_ieee80211_class_mask, tvb, offset + 4, 1, TRUE);
       switch (type)
@@ -13549,43 +13549,43 @@ proto_register_ieee80211 (void)
      {"Aironet IE QoS valueset", "wlan_mgt.aironet.qos.val",
       FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
-    {&hf_ts_info,
+    {&hf_ieee80211_tsinfo,
      {"Traffic Stream (TS) Info", "wlan_mgt.ts_info",
       FT_UINT24, BASE_HEX, NULL, 0, "Traffic Stream (TS) Info field", HFILL }},
 
-    {&hf_tsinfo_type,
+    {&hf_ieee80211_tsinfo_type,
      {"Traffic Type", "wlan_mgt.ts_info.type", FT_UINT8, BASE_DEC,
       VALS (&tsinfo_type), 0, "Traffic Stream (TS) Info Traffic Type", HFILL }},
 
-    {&hf_tsinfo_tsid,
+    {&hf_ieee80211_tsinfo_tsid,
      {"Traffic Stream ID (TSID)", "wlan_mgt.ts_info.tsid",
       FT_UINT8, BASE_DEC, NULL, 0, "Traffic Stream ID (TSID) Info TSID", HFILL }},
 
-    {&hf_tsinfo_dir,
+    {&hf_ieee80211_tsinfo_dir,
      {"Direction", "wlan_mgt.ts_info.dir", FT_UINT8, BASE_DEC,
       VALS (&tsinfo_direction), 0, "Traffic Stream (TS) Info Direction", HFILL }},
 
-    {&hf_tsinfo_access,
+    {&hf_ieee80211_tsinfo_access,
      {"Access Policy", "wlan_mgt.ts_info.dir", FT_UINT8, BASE_DEC,
       VALS (&tsinfo_access), 0, "Traffic Stream (TS) Info Access Policy", HFILL }},
 
-    {&hf_tsinfo_agg,
+    {&hf_ieee80211_tsinfo_agg,
      {"Aggregation", "wlan_mgt.ts_info.agg", FT_UINT8, BASE_DEC,
       NULL, 0, "Traffic Stream (TS) Info Access Policy", HFILL }},
 
-    {&hf_tsinfo_apsd,
+    {&hf_ieee80211_tsinfo_apsd,
      {"Automatic Power-Save Delivery (APSD)", "wlan_mgt.ts_info.apsd", FT_UINT8, BASE_DEC,
       NULL, 0, "Traffic Stream (TS) Info Automatic Power-Save Delivery (APSD)", HFILL }},
 
-    {&hf_tsinfo_up,
+    {&hf_ieee80211_tsinfo_up,
      {"User Priority", "wlan_mgt.ts_info.up", FT_UINT8, BASE_DEC,
       VALS (&qos_up), 0, "Traffic Stream (TS) Info User Priority", HFILL }},
 
-    {&hf_tsinfo_ack,
+    {&hf_ieee80211_tsinfo_ack,
      {"Ack Policy", "wlan_mgt.ts_info.ack", FT_UINT8, BASE_DEC,
       VALS (&ack_policy), 0, "Traffic Stream (TS) Info Ack Policy", HFILL }},
 
-    {&hf_tsinfo_sched,
+    {&hf_ieee80211_tsinfo_sched,
      {"Schedule", "wlan_mgt.ts_info.sched", FT_UINT8, BASE_DEC,
       NULL, 0, "Traffic Stream (TS) Info Schedule", HFILL }},
 
