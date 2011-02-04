@@ -207,9 +207,15 @@ typedef struct _k12_src_desc_t {
  *   This reads the next record without the eventual 0x10 bytes.
  *   returns the length of the record + the stuffing (if any)
  *
+ *   Returns number of bytes read on success, 0 on EOF, -1 on error;
+ *   if -1 is returned, *err is set to the error indication and, for
+ *   errors where that's appropriate, *err_info is set to an additional
+ *   error string.
+ *
  * XXX: works at most with 0x1FFF bytes per record
  */
-static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
+static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset,
+                       int *err, gchar **err_info) {
     static guint8* buffer = NULL;
     static guint buffer_len = 0x2000 ;
     guint bytes_read;
@@ -239,7 +245,11 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
             K12_DBG(1,("get_record: EOF"));
             return 0;
         } else if ( bytes_read < 0x14 ){
-            K12_DBG(1,("get_record: SHORT READ"));
+            K12_DBG(1,("get_record: SHORT READ OR ERROR"));
+            *err = file_error(fh);
+            if (*err == 0) {
+                *err = WTAP_ERR_SHORT_READ;
+            }
             return -1;
         }
 
@@ -252,7 +262,11 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
             K12_DBG(1,("get_record: EOF"));
             return 0;
         } else if ( bytes_read != 0x4 ) {
-            K12_DBG(1,("get_record: SHORT READ"));
+            K12_DBG(1,("get_record: SHORT READ OR ERROR"));
+            *err = file_error(fh);
+            if (*err == 0) {
+                *err = WTAP_ERR_SHORT_READ;
+            }
             return -1;
         }
     }
@@ -265,7 +279,8 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
     /* XXX - Is WTAP_MAX_PACKET_SIZE */
     if (left < 4 || left > WTAP_MAX_PACKET_SIZE) {
         K12_DBG(1,("get_record: Invalid GET length=%u",left));
-        errno = WTAP_ERR_BAD_RECORD;
+        *err = WTAP_ERR_BAD_RECORD;
+        *err_info = g_strdup_printf("get_record: Invalid GET length=%u",left);
         return -1;
     }
 
@@ -281,7 +296,11 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
             bytes_read += last_read = file_read(writep,1, left, fh);
 
             if ( last_read != left ) {
-                K12_DBG(1,("get_record: SHORT READ"));
+                K12_DBG(1,("get_record: SHORT READ OR ERROR"));
+                *err = file_error(fh);
+                if (*err == 0) {
+                    *err = WTAP_ERR_SHORT_READ;
+                }
                 return -1;
             } else {
                 K12_HEXDMP(5,file_offset, "GOT record", buffer, actual_len);
@@ -291,7 +310,11 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
             bytes_read += last_read = file_read(writep,1, junky_offset, fh);
 
             if ( last_read != junky_offset ) {
-                K12_DBG(1,("get_record: SHORT READ, read=%d expected=%d",last_read, junky_offset));
+                K12_DBG(1,("get_record: SHORT READ OR ERROR, read=%d expected=%d",last_read, junky_offset));
+                *err = file_error(fh);
+                if (*err == 0) {
+                    *err = WTAP_ERR_SHORT_READ;
+                }
                 return -1;
             }
 
@@ -300,7 +323,11 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
             bytes_read += last_read = file_read(junk,1, 0x10, fh);
 
             if ( last_read != 0x10 ) {
-                K12_DBG(1,("get_record: SHORT READ"));
+                K12_DBG(1,("get_record: SHORT READ OR ERROR"));
+                *err = file_error(fh);
+                if (*err == 0) {
+                    *err = WTAP_ERR_SHORT_READ;
+                }
                 return -1;
             }
 
@@ -314,7 +341,7 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
     return bytes_read;
 }
 
-static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset) {
+static gboolean k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset) {
     k12_t *k12 = (k12_t *)wth->priv;
     k12_src_desc_t* src_desc;
     guint8* buffer = NULL;
@@ -333,10 +360,9 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data
 
         *data_offset = offset;
 
-        len = get_record(&buffer, wth->fh, offset);
+        len = get_record(&buffer, wth->fh, offset, err, err_info);
 
         if (len < 0) {
-            *err = WTAP_ERR_SHORT_READ;
             return FALSE;
         } else if (len == 0) {
             *err = 0;
@@ -417,7 +443,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data
 }
 
 
-static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err _U_, gchar **err_info _U_) {
+static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err _U_, gchar **err_info) {
     k12_t *k12 = (k12_t *)wth->priv;
     k12_src_desc_t* src_desc;
     guint8* buffer;
@@ -432,8 +458,14 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
         return FALSE;
     }
 
-    if ((len = get_record(&buffer, wth->random_fh, seek_off)) < 1) {
+    len = get_record(&buffer, wth->random_fh, seek_off, err, err_info);
+    if (len < 0) {
         K12_DBG(5,("k12_seek_read: READ ERROR"));
+        return FALSE;
+    }
+    if (len < 1) {
+        K12_DBG(5,("k12_seek_read: SHORT READ"));
+        *err = WTAP_ERR_SHORT_READ;
         return FALSE;
     }
 
@@ -453,16 +485,16 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
     input = pntohl(buffer + K12_RECORD_SRC_ID);
     K12_DBG(5,("k12_seek_read: input=%.8x",input));
 
-	if ( ! (src_desc = g_hash_table_lookup(k12->src_by_id,GUINT_TO_POINTER(input))) ) {
-		/*
-		 * Some records from K15 files have a port ID of an undeclared
-		 * interface which happens to be the only one with the first byte changed.
-		 * It is still unknown how to recognize when this happens.
-		 * If the lookup of the interface record fails we'll mask it
-		 * and retry.
-		 */
-		src_desc = g_hash_table_lookup(k12->src_by_id,GUINT_TO_POINTER(input&K12_RECORD_SRC_ID_MASK));
-	}
+    if ( ! (src_desc = g_hash_table_lookup(k12->src_by_id,GUINT_TO_POINTER(input))) ) {
+        /*
+         * Some records from K15 files have a port ID of an undeclared
+         * interface which happens to be the only one with the first byte changed.
+         * It is still unknown how to recognize when this happens.
+         * If the lookup of the interface record fails we'll mask it
+         * and retry.
+         */
+        src_desc = g_hash_table_lookup(k12->src_by_id,GUINT_TO_POINTER(input&K12_RECORD_SRC_ID_MASK));
+    }
 
     if (src_desc) {
         K12_DBG(5,("k12_seek_read: input_name='%s' stack_file='%s' type=%x",src_desc->input_name,src_desc->stack_file,src_desc->input_type));
@@ -576,7 +608,7 @@ static void k12_close(wtap *wth) {
 }
 
 
-int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
+int k12_open(wtap *wth, int *err, gchar **err_info) {
     k12_src_desc_t* rec;
     guint8 header_buffer[0x200];
     guint8* read_buffer;
@@ -600,7 +632,11 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
 #endif
 
     if ( file_read(header_buffer,1,0x200,wth->fh) != 0x200 ) {
-        K12_DBG(1,("k12_open: FILE HEADER TOO SHORT"));
+        K12_DBG(1,("k12_open: FILE HEADER TOO SHORT OR READ ERROR"));
+        *err = file_error(wth->fh);
+        if (*err != 0) {
+            return -1;
+        }
         return 0;
     } else {
         if ( memcmp(header_buffer,k12_file_magic,8) != 0 ) {
@@ -623,10 +659,17 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
 
     do {
 
-        len = get_record(&read_buffer, wth->fh, offset);
+        len = get_record(&read_buffer, wth->fh, offset, err, err_info);
 
-        if ( len <= 0 ) {
+        if ( len < 0 ) {
             K12_DBG(1,("k12_open: BAD HEADER RECORD",len));
+            destroy_k12_file_data(file_data);
+            g_free(file_data);
+            return -1;
+        }
+        if (len == 0) {
+            K12_DBG(1,("k12_open: BAD HEADER RECORD",len));
+            *err = WTAP_ERR_SHORT_READ;
             destroy_k12_file_data(file_data);
             g_free(file_data);
             return -1;
@@ -677,7 +720,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
                             rec->input_info.ds0mask |= ( *(read_buffer + K12_SRCDESC_DS0_MASK + i) == 0xff ) ? 0x1<<(31-i) : 0x0;
                         }
 
-                            break;
+                        break;
                     case K12_PORT_ATMPVC:
                         rec->input_info.atm.vp = pntohs( read_buffer + K12_SRCDESC_ATM_VPI );
                         rec->input_info.atm.vc = pntohs( read_buffer + K12_SRCDESC_ATM_VCI );
