@@ -4597,7 +4597,7 @@ dissect_enc(tvbuff_t *tvb,
     tvb_set_free_cb(decr_tvb, g_free);
     tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
     add_new_data_source(pinfo, decr_tvb, "Decrypted Data");
-    item = proto_tree_add_item(tree, hf_isakmp_enc_decrypted_data, decr_tvb, 0, decr_data_len, FALSE),
+    item = proto_tree_add_item(tree, hf_isakmp_enc_decrypted_data, decr_tvb, 0, decr_data_len, FALSE);
     proto_item_append_text(item, " (%d byte%s)", decr_data_len, plurality(decr_data_len, "", "s"));
 
     /* Move the ICD item to the bottom of the tree. */
@@ -4610,7 +4610,7 @@ dissect_enc(tvbuff_t *tvb,
     payloads_len = decr_data_len - 1 - pad_len;
 
     if (payloads_len > 0) {
-      item = proto_tree_add_item(decr_tree, hf_isakmp_enc_contained_data, decr_tvb, 0, payloads_len, FALSE),
+      item = proto_tree_add_item(decr_tree, hf_isakmp_enc_contained_data, decr_tvb, 0, payloads_len, FALSE);
       proto_item_append_text(item, " (%d byte%s)", payloads_len, plurality(payloads_len, "", "s"));
       decr_payloads_tree = proto_item_add_subtree(item, ett_isakmp_decrypted_payloads);
     }
