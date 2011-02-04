@@ -30,6 +30,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/oids.h>
 #include <epan/emem.h>
 #include <epan/asn1.h>
@@ -44,6 +45,10 @@
 #define PNAME  "ANSI Transaction Capabilities Application Part"
 #define PSNAME "ANSI_TCAP"
 #define PFNAME "ansi_tcap"
+
+
+/* Preferences defaults */
+gint ansi_tcap_response_matching_type = 0;
 
 /* Initialize the protocol and registered fields */
 static int proto_ansi_tcap = -1;
@@ -179,9 +184,17 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
           /* The hash string needs to contain src and dest to distiguish differnt flows */
           buf = ep_alloc(MAX_TID_STR_LEN);
           buf[0] = '\0';
-          g_snprintf(buf, MAX_TID_STR_LEN, "%s%s%s",
-                ansi_tcap_private.TransactionID_str, ep_address_to_str(src),
-                ep_address_to_str(dst));
+		  switch(ansi_tcap_response_matching_type){
+				case 0:
+					g_snprintf(buf,MAX_TID_STR_LEN,"%s",ansi_tcap_private.TransactionID_str);
+					break;
+				case 1:
+					g_snprintf(buf,MAX_TID_STR_LEN,"%s%s",ansi_tcap_private.TransactionID_str,ep_address_to_str(src));
+					break;
+				default:
+					g_snprintf(buf,MAX_TID_STR_LEN,"%s%s%s",ansi_tcap_private.TransactionID_str,ep_address_to_str(src),ep_address_to_str(dst));
+					break;
+			}
 
           /* If the entry allready exists don't owervrite it */
           ansi_tcap_saved_invokedata = g_hash_table_lookup(TransactionId_table,buf);
@@ -220,6 +233,17 @@ find_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U
   g_snprintf(buf, MAX_TID_STR_LEN, "%s%s%s",
         ansi_tcap_private.TransactionID_str, ep_address_to_str(dst),
         ep_address_to_str(src));
+  switch(ansi_tcap_response_matching_type){
+		case 0:
+			g_snprintf(buf,MAX_TID_STR_LEN,"%s",ansi_tcap_private.TransactionID_str);
+			break;
+		case 1:
+			g_snprintf(buf,MAX_TID_STR_LEN,"%s%s",ansi_tcap_private.TransactionID_str,ep_address_to_str(dst));
+			break;
+		default:
+			g_snprintf(buf,MAX_TID_STR_LEN,"%s%s%s",ansi_tcap_private.TransactionID_str,ep_address_to_str(dst),ep_address_to_str(src));
+			break;
+	}
 
   ansi_tcap_saved_invokedata = g_hash_table_lookup(TransactionId_table, buf);
   if(ansi_tcap_saved_invokedata){
@@ -390,6 +414,8 @@ proto_reg_handoff_ansi_tcap(void)
 void
 proto_register_ansi_tcap(void)
 {
+    module_t    *ansi_tcap_module;
+
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
@@ -437,11 +463,12 @@ proto_register_ansi_tcap(void)
         #include "packet-ansi_tcap-ettarr.c"
     };
 
-    /*static enum_val_t tcap_options[] = {
-        { "itu", "ITU",  ITU_TCAP_STANDARD },
-        { "ansi", "ANSI", ANSI_TCAP_STANDARD },
-        { NULL, NULL, 0 }
-    };*/
+	static enum_val_t ansi_tcap_response_matching_type_values[] = {
+		{"Only Transaction ID will be used in Invoke/response matching",					"Transaction ID only", 0},
+		{"Transaction ID and Source will be used in Invoke/response matching",				"Transaction ID and Source", 1}, 
+		{"Transaction ID Source and Destination will be used in Invoke/response matching",	"Transaction ID Source and Destination", 2},
+		{NULL, NULL, -1}
+	};
 
 
 /* Register the protocol name and description */
@@ -452,6 +479,12 @@ proto_register_ansi_tcap(void)
     proto_register_field_array(proto_ansi_tcap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    ansi_tcap_module = prefs_register_protocol(proto_ansi_tcap, proto_reg_handoff_ansi_tcap);
+
+	prefs_register_enum_preference(ansi_tcap_module, "transaction.matchtype",
+				       "Type of matching invoke/response",
+				       "Type of matching invoke/response, risk of missmatch if loose matching choosen",
+				       &ansi_tcap_response_matching_type, ansi_tcap_response_matching_type_values, FALSE);
 
     register_init_routine(&ansi_tcap_init_protocol);
 }

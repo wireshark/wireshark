@@ -116,6 +116,9 @@
 /* Preference settings default */
 #define MAX_SSN 254
 static range_t *global_ssn_range;
+gint ansi_map_response_matching_type = 1;
+
+#define ANSI_MAP_TID_ONLY 0
 
 static dissector_handle_t ansi_map_handle=NULL;
 
@@ -876,7 +879,7 @@ static int hf_ansi_map_interSystemSMSDeliveryPointToPointRes = -1;  /* InterSyst
 static int hf_ansi_map_qualificationRequest2Res = -1;  /* QualificationRequest2Res */
 
 /*--- End of included file: packet-ansi_map-hf.c ---*/
-#line 320 "packet-ansi_map-template.c"
+#line 323 "packet-ansi_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ansi_map = -1;
@@ -1136,7 +1139,7 @@ static gint ett_ansi_map_InvokeData = -1;
 static gint ett_ansi_map_ReturnData = -1;
 
 /*--- End of included file: packet-ansi_map-ett.c ---*/
-#line 352 "packet-ansi_map-template.c"
+#line 355 "packet-ansi_map-template.c"
 
 /* Global variables */
 static dissector_table_t is637_tele_id_dissector_table; /* IS-637 Teleservice ID */
@@ -1216,7 +1219,17 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
         if ((!pinfo->fd->flags.visited)&&(p_private_tcap->TransactionID_str)){
             /* Only do this once XXX I hope its the right thing to do */
             /* The hash string needs to contain src and dest to distiguish differnt flows */
-            g_snprintf(buf,1024,"%s%s%s",p_private_tcap->TransactionID_str,src_str,dst_str);
+			switch(ansi_map_response_matching_type){
+				case ANSI_MAP_TID_ONLY:
+					g_snprintf(buf,1024,"%s",p_private_tcap->TransactionID_str);
+					break;
+				case 1:
+					g_snprintf(buf,1024,"%s%s",p_private_tcap->TransactionID_str,src_str);
+					break;
+				default:
+					g_snprintf(buf,1024,"%s%s%s",p_private_tcap->TransactionID_str,src_str,dst_str);
+					break;
+			}
             /* If the entry allready exists don't owervrite it */
             ansi_map_saved_invokedata = g_hash_table_lookup(TransactionId_table,buf);
             if(ansi_map_saved_invokedata)
@@ -1229,9 +1242,7 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
             g_hash_table_insert(TransactionId_table,
                                 g_strdup(buf),
                                 ansi_map_saved_invokedata);
-            /*
-              g_warning("Invoke Hash string %s",buf);
-            */
+            g_warning("Invoke Hash string %s pkt: %u",buf,pinfo->fd->num);
         }
     }
 
@@ -15523,7 +15534,7 @@ dissect_ansi_map_ReturnData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3646 "packet-ansi_map-template.c"
+#line 3657 "packet-ansi_map-template.c"
 
 /*
  * 6.5.2.dk N.S0013-0 v 1.0,X.S0004-550-E v1.0 2.301
@@ -16243,10 +16254,19 @@ find_saved_invokedata(asn1_ctx_t *actx){
         src_str = ep_address_to_str(src);
         dst_str = ep_address_to_str(dst);
         /* Reverse order to invoke */
-        g_snprintf(buf,1024,"%s%s%s",p_private_tcap->TransactionID_str,dst_str,src_str);
-        /*
-          g_warning("Find Hash string %s",buf);
-        */
+		switch(ansi_map_response_matching_type){
+			case ANSI_MAP_TID_ONLY:
+				g_snprintf(buf,1024,"%s",p_private_tcap->TransactionID_str);
+				break;
+			case 1:
+				g_snprintf(buf,1024,"%s%s",p_private_tcap->TransactionID_str,dst_str);
+				break;
+			default:
+				g_snprintf(buf,1024,"%s%s%s",p_private_tcap->TransactionID_str,dst_str,src_str);
+				break;
+		}
+
+		g_warning("Find Hash string %s pkt: %u",buf,actx->pinfo->fd->num);
         ansi_map_saved_invokedata = g_hash_table_lookup(TransactionId_table, buf);
         if(ansi_map_saved_invokedata){
             OperationCode = ansi_map_saved_invokedata->opcode & 0xff;
@@ -16255,6 +16275,7 @@ find_saved_invokedata(asn1_ctx_t *actx){
             OperationCode = OperationCode & 0x00ff;
         }
     }else{
+		g_warning("No private data pkt: %u",actx->pinfo->fd->num);
         OperationCode = OperationCode & 0x00ff;
     }
     return OperationCode;
@@ -16307,22 +16328,22 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case 1:
         OperationCode = p_private_tcap->d.OperationCode_private & 0x00ff;
         ansi_map_is_invoke = TRUE;
-	col_add_fstr(pinfo->cinfo, COL_INFO,"%s Invoke ", val_to_str_ext(OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
+        col_add_fstr(pinfo->cinfo, COL_INFO,"%s Invoke ", val_to_str_ext(OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
         proto_item_append_text(p_private_tcap->d.OperationCode_item," %s",val_to_str_ext(OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
         offset = dissect_invokeData(ansi_map_tree, tvb, 0, &asn1_ctx);
         update_saved_invokedata(pinfo, ansi_map_tree, tvb);
         break;
     case 2:
         OperationCode = find_saved_invokedata(&asn1_ctx);
-	col_add_fstr(pinfo->cinfo, COL_INFO,"%s ReturnResult ", val_to_str_ext(OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
+        col_add_fstr(pinfo->cinfo, COL_INFO,"%s ReturnResult ", val_to_str_ext(OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
         proto_item_append_text(p_private_tcap->d.OperationCode_item," %s",val_to_str_ext(OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
         offset = dissect_returnData(ansi_map_tree, tvb, 0, &asn1_ctx);
         break;
     case 3:
-	col_add_fstr(pinfo->cinfo, COL_INFO,"%s ReturnError ", val_to_str_ext(OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
+        col_add_fstr(pinfo->cinfo, COL_INFO,"%s ReturnError ", val_to_str_ext(OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
         break;
     case 4:
-	col_add_fstr(pinfo->cinfo, COL_INFO,"%s Reject ", val_to_str_ext(OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
+        col_add_fstr(pinfo->cinfo, COL_INFO,"%s Reject ", val_to_str_ext(OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
         break;
     default:
         /* Must be Invoke ReturnResult ReturnError or Reject */
@@ -19365,7 +19386,7 @@ void proto_register_ansi_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5295 "packet-ansi_map-template.c"
+#line 5316 "packet-ansi_map-template.c"
     };
 
     /* List of subtrees */
@@ -19626,9 +19647,15 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5328 "packet-ansi_map-template.c"
+#line 5349 "packet-ansi_map-template.c"
     };
 
+	static enum_val_t ansi_map_response_matching_type_values[] = {
+		{"Only Transaction ID will be used in Invoke/response matching",					"Transaction ID only", 0},
+		{"Transaction ID and Source will be used in Invoke/response matching",				"Transaction ID and Source", 1}, 
+		{"Transaction ID Source and Destination will be used in Invoke/response matching",	"Transaction ID Source and Destination", 2},
+		{NULL, NULL, -1}
+	};
 
     /* Register protocol */
     proto_ansi_map = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -19661,6 +19688,11 @@ void proto_register_ansi_map(void) {
     prefs_register_range_preference(ansi_map_module, "map.ssn", "ANSI MAP SSNs",
                                     "ANSI MAP SSNs to decode as ANSI MAP",
                                     &global_ssn_range, MAX_SSN);
+
+	prefs_register_enum_preference(ansi_map_module, "transaction.matchtype",
+				       "Type of matching invoke/response",
+				       "Type of matching invoke/response, risk of missmatch if loose matching choosen",
+				       &ansi_map_response_matching_type, ansi_map_response_matching_type_values, FALSE);
 
     register_init_routine(&ansi_map_init_protocol);
 }
