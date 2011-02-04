@@ -617,6 +617,27 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
 }
 
 
+/* Write the given formatted text to:
+   - the info column
+   - the top-level RLC PDU item */
+static void write_pdu_label_and_info(proto_item *pdu_ti,
+                                     packet_info *pinfo, const char *format, ...)
+{
+    #define MAX_INFO_BUFFER 256
+    static char info_buffer[MAX_INFO_BUFFER];
+
+    va_list ap;
+
+    va_start(ap, format);
+    g_vsnprintf(info_buffer, MAX_INFO_BUFFER, format, ap);
+    va_end(ap);
+
+    /* Add to indicated places */
+    col_append_str(pinfo->cinfo, COL_INFO, info_buffer);
+    proto_item_append_text(pdu_ti, "%s", info_buffer);
+}
+
+
 
 /***************************************************************/
 
@@ -1945,9 +1966,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             seqnum = tvb_get_guint8(tvb, offset) & 0x1f;
             seqnum_set = TRUE;
             proto_tree_add_item(pdcp_tree, hf_pdcp_lte_seq_num_5, tvb, offset, 1, FALSE);
-            col_append_fstr(pinfo->cinfo, COL_INFO, " sn=%-2u ", seqnum);
+            write_pdu_label_and_info(root_ti, pinfo, " sn=%-2u ", seqnum);
             offset++;
-
 
             /* RRC data is all but last 4 bytes.
                Call lte-rrc dissector (according to direction and channel type) */
@@ -2032,7 +2052,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     return;
                 }
 
-                col_append_fstr(pinfo->cinfo, COL_INFO, " sn=%-4u ", seqnum);
+                write_pdu_label_and_info(root_ti, pinfo, " (SN=%u)", seqnum);
             }
             else {
                 /*******************************/
@@ -2081,9 +2101,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                             if (bitmap_ti != NULL) {
                                 proto_item_append_text(bitmap_ti, " (not-received=%u)", not_received);
                             }
-                            col_append_fstr(pinfo->cinfo, COL_INFO,
-                                           " Status Report (fms=%u) not-received=%u",
-                                           fms, not_received);
+                            write_pdu_label_and_info(root_ti, pinfo, " Status Report (fms=%u) not-received=%u",
+                                                    fms, not_received);
                         }
                         return;
 
@@ -2098,8 +2117,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         }
         else {
             /* Invalid plane setting...! */
-            col_append_fstr(pinfo->cinfo, COL_INFO, " - INVALID PLANE (%u)",
-                            p_pdcp_info->plane);
+            write_pdu_label_and_info(root_ti, pinfo, " - INVALID PLANE (%u)",
+                                     p_pdcp_info->plane);
             return;
         }
 
@@ -2115,7 +2134,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
     else {
         /* Show that its a no-header PDU */
-        col_append_str(pinfo->cinfo, COL_INFO, " No-Header ");
+        write_pdu_label_and_info(root_ti, pinfo, " No-Header ");
     }
 
 
@@ -2154,8 +2173,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 }
             }
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(%u bytes data)",
-                            tvb_length_remaining(tvb, offset));
+            write_pdu_label_and_info(root_ti, pinfo, "(%u bytes data)",
+                                     tvb_length_remaining(tvb, offset));
         }
         return;
     }
