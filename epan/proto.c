@@ -3999,6 +3999,15 @@ void
 proto_tree_move_item(proto_tree *tree, proto_item *fixed_item,
 		     proto_item *item_to_move)
 {
+
+	/* Revert part of: http://anonsvn.wireshark.org/viewvc?view=rev&revision=32443
+	 * See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5500
+	 */
+	/* This function doesn't generate any values. It only reorganizes the prococol tree
+	 * so we can bail out immediately if it isn't visible. */
+	if (!tree || !PTREE_DATA(tree)->visible)
+		return;
+
 	DISSECTOR_ASSERT(item_to_move->parent == tree);
 	DISSECTOR_ASSERT(fixed_item->parent == tree);
 
