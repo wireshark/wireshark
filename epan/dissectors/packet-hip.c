@@ -1289,11 +1289,11 @@ proto_register_hip(void)
 
                 { &hf_hip_tlv_host_di_type,
                   { "Domain Identifier Type", "hip.tlv.host_domain_id_type",
-                    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+                    FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
 
                 { &hf_hip_tlv_host_di_len,
                   { "Domain Identifier Length", "hip.tlv.host_domain_id_length",
-                    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+                    FT_UINT16, BASE_DEC, NULL, 0x0FFF, NULL, HFILL }},
 
                 { &hf_hip_tlv_host_id_hdr,
                   { "Host Identity flags", "hip.tlv.host_id_hdr",
