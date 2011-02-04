@@ -334,7 +334,7 @@ pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
 	bytes_read = file_read(content, 1, oh->option_length, fh);
 	if (bytes_read != oh->option_length) {
 		pcapng_debug1("pcapng_read_if_descr_block: failed to read content of option %u", oh->option_code);
-			      *err = file_error(fh);
+		*err = file_error(fh);
 		if (*err != 0)
 			return -1;
 		return 0;
