@@ -289,9 +289,8 @@ dissect_amr_nb_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 		return;
 	proto_tree_add_text(tree, tvb, offset+1, -1, "Speech data");
 
-	if(check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-				val_to_str_ext(octet, &amr_nb_codec_mode_request_vals_ext, "Unknown (%d)" ));
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+			val_to_str_ext(octet, &amr_nb_codec_mode_request_vals_ext, "Unknown (%d)" ));
 }
 
 static void
@@ -312,9 +311,8 @@ dissect_amr_wb_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 		return;
 	proto_tree_add_text(tree, tvb, offset+1, -1, "Speech data");
 
-	if(check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-				val_to_str_ext(octet, &amr_wb_codec_mode_request_vals_ext, "Unknown (%d)" ));
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+			val_to_str_ext(octet, &amr_wb_codec_mode_request_vals_ext, "Unknown (%d)" ));
 }
 
 static void
