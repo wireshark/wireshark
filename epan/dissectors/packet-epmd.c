@@ -181,11 +181,11 @@ dissect_epmd_request(packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree 
   if (name) {
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name);
   }
- 
+
 }
 
 static void
-dissect_epmd_response_names(packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree *tree) {
+dissect_epmd_response_names(packet_info *pinfo _U_, tvbuff_t *tvb, gint offset, proto_tree *tree) {
   proto_tree_add_item(tree, hf_epmd_port_no, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
   proto_tree_add_item(tree, hf_epmd_names, tvb, offset, -1, ENC_NA);
@@ -225,7 +225,7 @@ dissect_epmd_response(packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree
       }
       break;
 
-    case EPMD_PORT2_RESP: 
+    case EPMD_PORT2_RESP:
       result = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(tree, hf_epmd_result, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
