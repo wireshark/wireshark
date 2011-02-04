@@ -407,8 +407,29 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     offset += 2;
     proto_item_set_len(ti, offset);
 
-    ethertype(ehdr->type, tvb, offset, pinfo, parent_tree, fh_tree,
-              hf_eth_type, hf_eth_trailer, 0);
+    if (ehdr->type <= IEEE_802_3_MAX_LEN) {
+      /* Is there an 802.2 layer? I can tell by looking at the first 2
+         bytes after the VLAN header. If they are 0xffff, then what
+         follows the VLAN header is an IPX payload, meaning no 802.2.
+         (IPX/SPX is they only thing that can be contained inside a
+         straight 802.3 packet, so presumably the same applies for
+         Ethernet VLAN packets). A non-0xffff value means that there's an
+         802.2 layer inside the VLAN layer */
+      is_802_2 = TRUE;
+
+      /* Don't throw an exception for this check (even a BoundsError) */
+      if (tvb_length_remaining(tvb, offset) >= 2) {
+          if (tvb_get_ntohs(tvb, offset) == 0xffff) {
+              is_802_2 = FALSE;
+          }
+      }
+
+      dissect_802_3(ehdr->type, is_802_2, tvb, offset, pinfo, parent_tree, fh_tree,
+                    hf_eth_len, hf_eth_trailer, 0);
+    } else {
+      ethertype(ehdr->type, tvb, offset, pinfo, parent_tree, fh_tree,
+                         hf_eth_type, hf_eth_trailer, 0);
+    }
   }
 }
 
