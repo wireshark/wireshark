@@ -113,18 +113,18 @@ my %APIs = (
 
 	# APIs that SHOULD NOT be used in Wireshark (any more)
 	'deprecated' => { 'count_errors' => 1, 'functions' => [
-		'perror',				# Use strerror() and report messages in whatever
-							#  fashion is appropriate for the code in question.
-		'ctime',				# Use abs_time_secs_to_str()
-		'dissector_add',			# Use dissector_add_uint()
-		'dissector_change',			# Use dissector_change_uint()
-		'dissector_delete',			# Use dissector_delete_uint()
-		'dissector_get_port_handle',		# Use dissector_get_uint_handle()
-		'dissector_reset',			# Use dissector_reset_uint()
+		'perror',						# Use strerror() and report messages in whatever
+										#  fashion is appropriate for the code in question.
+		'ctime',						# Use abs_time_secs_to_str()
+		'dissector_add',				# Use dissector_add_uint()
+		'dissector_change',				# Use dissector_change_uint()
+		'dissector_delete',				# Use dissector_delete_uint()
+		'dissector_get_port_handle',	# Use dissector_get_uint_handle()
+		'dissector_reset',				# Use dissector_reset_uint()
 		'dissector_try_port',			# Use dissector_try_uint()
 		'dissector_try_port_new',		# Use dissector_try_uint_new()
 		'next_tvb_add_port',			# Use next_tvb_add_uint() (and a matching change
-							#  of NTVB_PORT -> NTVB_UINT)
+										#  of NTVB_PORT -> NTVB_UINT)
 
 		### Deprecated GLib/GObject functions/macros
 		# (The list is based upon the GLib 2.24.1 & GObject 2.24.1 documentation;
@@ -134,13 +134,13 @@ my %APIs = (
 		#  currently supports (ie: versions starting with GLib 2.4)).
 		'G_ALLOC_AND_FREE',
 		'G_ALLOC_ONLY',
-		'g_allocator_free',			# "use slice allocator" (avail since 2.10,2.14)
-		'g_allocator_new',			# "use slice allocator" (avail since 2.10,2.14)
+		'g_allocator_free',					# "use slice allocator" (avail since 2.10,2.14)
+		'g_allocator_new',					# "use slice allocator" (avail since 2.10,2.14)
 		'g_async_queue_ref_unlocked',		# g_async_queue_ref()   (OK since 2.8)
 		'g_async_queue_unref_and_unlock',	# g_async_queue_unref() (OK since 2.8)
 		'g_basename',
-		'g_cache_value_foreach',		# g_cache_key_foreach()
-		'g_date_set_time',			# g_date_set_time_t (avail since 2.10)
+		'g_cache_value_foreach',			# g_cache_key_foreach()
+		'g_date_set_time',					# g_date_set_time_t (avail since 2.10)
 		'g_dirname',
 		'G_GNUC_FUNCTION',
 		'G_GNUC_PRETTY_FUNCTION',
@@ -151,8 +151,8 @@ my %APIs = (
 		'g_io_channel_read',
 		'g_io_channel_seek',
 		'g_io_channel_write',
-		'g_list_pop_allocator',			# "does nothing since 2.10"
-		'g_list_push_allocator',		# "does nothing since 2.10"
+		'g_list_pop_allocator',				# "does nothing since 2.10"
+		'g_list_push_allocator',			# "does nothing since 2.10"
 		'g_main_destroy',
 		'g_main_is_running',
 		'g_main_iteration',
@@ -161,17 +161,17 @@ my %APIs = (
 		'g_main_quit',
 		'g_main_run',
 		'g_main_set_poll_func',
-		'g_node_pop_allocator',			# "does nothing since 2.10"
-		'g_node_push_allocator',		# "does nothing since 2.10"
+		'g_node_pop_allocator',				# "does nothing since 2.10"
+		'g_node_push_allocator',			# "does nothing since 2.10"
 		'g_scanner_add_symbol',
 		'g_scanner_remove_symbol',
 		'g_scanner_foreach_symbol',
 		'g_scanner_freeze_symbol_table',
 		'g_scanner_thaw_symbol_table',
-		'g_slist_pop_allocator',		# "does nothing since 2.10"
-		'g_slist_push_allocator',		# "does nothing since 2.10"
-		'g_string_sprintf',			# use g_string_printf() instead
-		'g_string_sprintfa',			# use g_string_append_printf instead
+		'g_slist_pop_allocator',			# "does nothing since 2.10"
+		'g_slist_push_allocator',			# "does nothing since 2.10"
+		'g_string_sprintf',					# use g_string_printf() instead
+		'g_string_sprintfa',				# use g_string_append_printf instead
 		'g_tree_traverse',
 		'g_value_set_boxed_take_ownership',
 		'g_value_set_object_take_ownership',
@@ -190,22 +190,22 @@ my %APIs = (
 ###      or use GMemChunks for GLib < 2.10 and GSlice (or whatever) for newer GLibs.
 ## 2.10		'g_mem_chunk_alloc',			# "use slice allocator" (avail since 2.10)
 ## 2.10		'g_mem_chunk_alloc0',			# "use slice allocator" (avail since 2.10)
-		'g_mem_chunk_clean',			# "use slice allocator" (avail since 2.10)
+			'g_mem_chunk_clean',			# "use slice allocator" (avail since 2.10)
 ## 2.10		'g_mem_chunk_create',			# "use slice allocator" (avail since 2.10)
 ## 2.10		'g_mem_chunk_destroy',			# "use slice allocator" (avail since 2.10)
-## 2.10		'g_mem_chunk_free',			# "use slice allocator" (avail since 2.10)
-		'g_mem_chunk_info',			# "use slice allocator" (avail since 2.10)
-## 2.10		'g_mem_chunk_new',			# "use slice allocator" (avail since 2.10)
-		'g_mem_chunk_print',			# "use slice allocator" (avail since 2.10)
-		'g_mem_chunk_reset',			# "use slice allocator" (avail since 2.10)
-		'g_blow_chunks',			# "use slice allocator" (avail since 2.10,2.14)
-## 2.10		'g_chunk_free',				# g_slice_free (avail since 2.10)
-## 2.10		'g_chunk_new',				# g_slice_new  (avail since 2.10)
-		'g_chunk_new0',				# g_slice_new0 (avail since 2.10)
+## 2.10		'g_mem_chunk_free',				# "use slice allocator" (avail since 2.10)
+			'g_mem_chunk_info',				# "use slice allocator" (avail since 2.10)
+## 2.10		'g_mem_chunk_new',				# "use slice allocator" (avail since 2.10)
+			'g_mem_chunk_print',			# "use slice allocator" (avail since 2.10)
+			'g_mem_chunk_reset',			# "use slice allocator" (avail since 2.10)
+			'g_blow_chunks',				# "use slice allocator" (avail since 2.10,2.14)
+## 2.10		'g_chunk_free',					# g_slice_free (avail since 2.10)
+## 2.10		'g_chunk_new',					# g_slice_new  (avail since 2.10)
+			'g_chunk_new0',					# g_slice_new0 (avail since 2.10)
 ###
 ## Following Deprecated as of GLib 2.22;
 ## Note: Not currently used by Wireshark
-		'g_mapped_file_free',			# [as of 2.22: use g_map_file_unref]
+		'g_mapped_file_free',				# [as of 2.22: use g_map_file_unref]
 		] },
 
 	# APIs that make the program exit. Dissectors shouldn't call these
@@ -248,15 +248,15 @@ my %APIs = (
 my %deprecatedGtkFunctions = (
 		'gtk_about_dialog_get_name',			'E',
 		'gtk_about_dialog_set_name',			'E',
-		'gtk_accel_group_ref',				'E',
-		'gtk_accel_group_unref',			'E',
+		'gtk_accel_group_ref',					'E',
+		'gtk_accel_group_unref',				'E',
 		'gtk_action_block_activate_from',		'E', # since 2.16
-		'gtk_action_connect_proxy',			'E', # since 2.16: use gtk_activatable_set_related_action() (as of 2.16)
+		'gtk_action_connect_proxy',				'E', # since 2.16: use gtk_activatable_set_related_action() (as of 2.16)
 		'gtk_action_disconnect_proxy',			'E', # since 2.16: use gtk_activatable_set_related_action() (as of 2.16)
 		'gtk_action_unblock_activate_from',		'E', # since 2.16
-		'gtk_binding_entry_add',			'E',
+		'gtk_binding_entry_add',				'E',
 		'gtk_binding_entry_add_signall',		'E',
-		'gtk_binding_entry_clear',			'E',
+		'gtk_binding_entry_clear',				'E',
 		'gtk_binding_parse_binding',			'E',
 		'gtk_box_pack_end_defaults',			'E',
 		'gtk_box_pack_start_defaults',			'E',
@@ -490,24 +490,24 @@ my %deprecatedGtkFunctions = (
 		'gtk_draw_string',				'E',
 		'gtk_draw_tab',					'E',
 		'gtk_draw_vline',				'E',
-		'gtk_drawing_area_size',			'E', # >> g_object_set() [==] ?
-								     #    gtk_widget_set_size_request() [==?]
-		'gtk_entry_append_text',			'E', # >> gtk_editable_insert_text() [==?]
-		'gtk_entry_new_with_max_length',		'E', # gtk_entry_new(); gtk_entry_set_max_length()
-		'gtk_entry_prepend_text',			'E',
-		'gtk_entry_select_region',			'E',
-		'gtk_entry_set_editable',			'E', # >> gtk_editable_set_editable() [==?]
-		'gtk_entry_set_position',			'E',
-		'gtk_exit',					'E', # exit() [==]
-		'gtk_file_chooser_button_new_with_backend',	'E',
-		'gtk_file_chooser_dialog_new_with_backend',	'E',
-		'gtk_file_chooser_widget_new_with_backend',	'E',
-		'gtk_file_selection_complete',			'E',
-		'gtk_file_selection_get_filename',		'E', # GtkFileChooser ...
-		'gtk_file_selection_get_select_multiple',	'E',
-		'gtk_file_selection_get_selections',		'E',
-		'gtk_file_selection_hide_fileop_buttons',	'E',
-		'gtk_file_selection_new',			'E',
+		'gtk_drawing_area_size',						'E', # >> g_object_set() [==] ?
+															 #    gtk_widget_set_size_request() [==?]
+		'gtk_entry_append_text',						'E', # >> gtk_editable_insert_text() [==?]
+		'gtk_entry_new_with_max_length',				'E', # gtk_entry_new(); gtk_entry_set_max_length()
+		'gtk_entry_prepend_text',						'E',
+		'gtk_entry_select_region',						'E',
+		'gtk_entry_set_editable',						'E', # >> gtk_editable_set_editable() [==?]
+		'gtk_entry_set_position',						'E',
+		'gtk_exit',										'E', # exit() [==]
+		'gtk_file_chooser_button_new_with_backend',		'E',
+		'gtk_file_chooser_dialog_new_with_backend',		'E',
+		'gtk_file_chooser_widget_new_with_backend',		'E',
+		'gtk_file_selection_complete',					'E',
+		'gtk_file_selection_get_filename',				'E', # GtkFileChooser ...
+		'gtk_file_selection_get_select_multiple',		'E',
+		'gtk_file_selection_get_selections',			'E',
+		'gtk_file_selection_hide_fileop_buttons',		'E',
+		'gtk_file_selection_new',						'E',
 		'gtk_file_selection_set_filename',				'E',
 		'gtk_file_selection_set_select_multiple',		'E',
 		'gtk_file_selection_show_fileop_buttons',		'E',
@@ -542,22 +542,22 @@ my %deprecatedGtkFunctions = (
 		'gtk_item_factory_create_menu_entries',			'E',
 		'gtk_item_factory_delete_entries',				'E',
 		'gtk_item_factory_delete_entry',				'E',
-		'gtk_item_factory_delete_item',			'W',
-		'gtk_item_factory_from_path',			'E',
-		'gtk_item_factory_from_widget',			'W',
-		'gtk_item_factory_get_item',			'W',
-		'gtk_item_factory_get_item_by_action',		'E',
-		'gtk_item_factory_get_widget',			'W',
-		'gtk_item_factory_get_widget_by_action',	'E',
-		'gtk_item_factory_new',				'W',
-		'gtk_item_factory_path_from_widget',		'E',
-		'gtk_item_factory_popup',			'E',
-		'gtk_item_factory_popup_data',			'E',
-		'gtk_item_factory_popup_data_from_widget',	'E',
-		'gtk_item_factory_popup_with_data',		'E',
-		'gtk_item_factory_set_translate_func',		'E',
-		'gtk_label_get',							'E', # gtk_label_get_text() [!=]
-		'gtk_label_parse_uline',					'E',
+		'gtk_item_factory_delete_item',					'W',
+		'gtk_item_factory_from_path',					'E',
+		'gtk_item_factory_from_widget',					'W',
+		'gtk_item_factory_get_item',					'W',
+		'gtk_item_factory_get_item_by_action',			'E',
+		'gtk_item_factory_get_widget',					'W',
+		'gtk_item_factory_get_widget_by_action',		'E',
+		'gtk_item_factory_new',							'W',
+		'gtk_item_factory_path_from_widget',			'E',
+		'gtk_item_factory_popup',						'E',
+		'gtk_item_factory_popup_data',					'E',
+		'gtk_item_factory_popup_data_from_widget',		'E',
+		'gtk_item_factory_popup_with_data',				'E',
+		'gtk_item_factory_set_translate_func',			'E',
+		'gtk_label_get',								'E', # gtk_label_get_text() [!=]
+		'gtk_label_parse_uline',						'E',
 		'gtk_label_set',							'E', # gtk_label_set_text() [==]
 		'gtk_layout_freeze',						'E',
 		'gtk_layout_thaw',							'E',
