@@ -2997,9 +2997,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         temp_double = temp_double * 1024 / 1000000;
         proto_tree_add_double_format (tree, hf_ieee80211_ff_beacon_interval, tvb, offset, 2,
           temp_double,"Beacon Interval: %f [Seconds]", temp_double);
-        if (check_col (g_pinfo->cinfo, COL_INFO)) {
-          col_append_fstr(g_pinfo->cinfo, COL_INFO, ", BI=%d", capability);
-        }
+        col_append_fstr(g_pinfo->cinfo, COL_INFO, ", BI=%d", capability);
         length += 2;
         break;
       }
@@ -5879,13 +5877,11 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 #endif
         ti = proto_tree_add_string (tree, hf_ieee80211_tag_interpretation, tvb, offset + 2,
                                tag_len, (char *) ssid);
-        if (check_col (pinfo->cinfo, COL_INFO)) {
-          if (tag_len > 0) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID=\"%s\"",
+        if (tag_len > 0) {
+          col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID=\"%s\"",
                             format_text(ssid, tag_len));
-          } else {
-            col_append_str(pinfo->cinfo, COL_INFO, ", SSID=Broadcast");
-          }
+        } else {
+          col_append_str(pinfo->cinfo, COL_INFO, ", SSID=Broadcast");
         }
         if (tag_len > MAX_SSID_LEN) {
           expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
@@ -6351,9 +6347,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
            out_buff,
            /* Total number off associated clients and repeater access points */
            tvb_get_guint8(tvb, offset + 28));
-      if (check_col (pinfo->cinfo, COL_INFO)) {
-          col_append_fstr(pinfo->cinfo, COL_INFO, ", Name=\"%s\"", out_buff);
-      }
+      col_append_fstr(pinfo->cinfo, COL_INFO, ", Name=\"%s\"", out_buff);
       break;
 
 /* Std 802.11-2007
@@ -7594,21 +7588,17 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 static void
 set_src_addr_cols(packet_info *pinfo, const guint8 *addr, const char *type)
 {
-  if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
-    col_add_fstr(pinfo->cinfo, COL_RES_DL_SRC, "%s (%s)",
+  col_add_fstr(pinfo->cinfo, COL_RES_DL_SRC, "%s (%s)",
         get_ether_name(addr), type);
-  if (check_col(pinfo->cinfo, COL_UNRES_DL_SRC))
-    col_add_str(pinfo->cinfo, COL_UNRES_DL_SRC, ether_to_str(addr));
+  col_add_str(pinfo->cinfo, COL_UNRES_DL_SRC, ether_to_str(addr));
 }
 
 static void
 set_dst_addr_cols(packet_info *pinfo, const guint8 *addr, const char *type)
 {
-  if (check_col(pinfo->cinfo, COL_RES_DL_DST))
-    col_add_fstr(pinfo->cinfo, COL_RES_DL_DST, "%s (%s)",
+  col_add_fstr(pinfo->cinfo, COL_RES_DL_DST, "%s (%s)",
         get_ether_name(addr), type);
-  if (check_col(pinfo->cinfo, COL_UNRES_DL_DST))
-    col_add_str(pinfo->cinfo, COL_UNRES_DL_DST, ether_to_str(addr));
+  col_add_str(pinfo->cinfo, COL_UNRES_DL_DST, ether_to_str(addr));
 }
 
 static guint32
@@ -7712,8 +7702,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
   fts_str = val_to_str_const(frame_type_subtype, frame_type_subtype_vals,
               "Unrecognized (Reserved frame)");
-  if (check_col (pinfo->cinfo, COL_INFO))
-      col_set_str (pinfo->cinfo, COL_INFO, fts_str);
+  col_set_str (pinfo->cinfo, COL_INFO, fts_str);
 
 
   flags = FCF_FLAGS (fcf);
@@ -7782,14 +7771,11 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       frag_number = SEQCTL_FRAGMENT_NUMBER(seq_control);
       seq_number = SEQCTL_SEQUENCE_NUMBER(seq_control);
 
-      if (check_col (pinfo->cinfo, COL_INFO))
-      {
-        col_append_fstr(pinfo->cinfo, COL_INFO,
+      col_append_fstr(pinfo->cinfo, COL_INFO,
             ", SN=%d", seq_number);
 
-        col_append_fstr(pinfo->cinfo, COL_INFO,
+      col_append_fstr(pinfo->cinfo, COL_INFO,
             ", FN=%d",frag_number);
-      }
 
       if (tree)
       {
@@ -8135,11 +8121,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       frag_number = SEQCTL_FRAGMENT_NUMBER(seq_control);
       seq_number = SEQCTL_SEQUENCE_NUMBER(seq_control);
 
-      if (check_col (pinfo->cinfo, COL_INFO))
-      {
-        col_append_fstr(pinfo->cinfo, COL_INFO,
+      col_append_fstr(pinfo->cinfo, COL_INFO,
             ", SN=%d, FN=%d", seq_number,frag_number);
-      }
 
       /* Now if we have a tree we start adding stuff */
       if (tree)
@@ -8377,8 +8360,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     }
 
     proto_item_append_text(ti, ", Flags: %s", flag_str);
-    if (check_col (pinfo->cinfo, COL_INFO))
-      col_append_fstr (pinfo->cinfo, COL_INFO, ", Flags=%s", flag_str);
+    col_append_fstr (pinfo->cinfo, COL_INFO, ", Flags=%s", flag_str);
 
 
   /*
@@ -9169,16 +9151,12 @@ dissect_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   col_clear(pinfo->cinfo, COL_INFO);
 
   /* Add the radio information to the column information */
-  if (check_col(pinfo->cinfo, COL_TX_RATE)) {
-    col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%u.%u",
+  col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%u.%u",
         pinfo->pseudo_header->ieee_802_11.data_rate / 2,
         pinfo->pseudo_header->ieee_802_11.data_rate & 1 ? 5 : 0);
-  }
-  if (check_col(pinfo->cinfo, COL_RSSI)) {
     /* XX - this is a percentage, not a dBm or normalized or raw RSSI */
-    col_add_fstr(pinfo->cinfo, COL_RSSI, "%u",
+  col_add_fstr(pinfo->cinfo, COL_RSSI, "%u",
         pinfo->pseudo_header->ieee_802_11.signal_level);
-  }
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_radio, tvb, 0, 0, FALSE);
@@ -9359,8 +9337,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     devname = tvb_get_ephemeral_string(tvb, offset, 16);
     offset += 16;
 
-    if(check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Device: %s, Message 0x%x, Length %d", devname, msgcode, msglen);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Device: %s, Message 0x%x, Length %d", devname, msgcode, msglen);
 
 
     while(offset < PRISM_HEADER_LENGTH)
@@ -9408,16 +9385,14 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_channel, tvb, offset, 4, TRUE);
                 proto_item_append_text(ti_did, " %d", tvb_get_letohl(tvb, offset) );
             }
-            if (check_col(pinfo->cinfo, COL_FREQ_CHAN))
-                col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u", tvb_get_letohl(tvb, offset));
+            col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u", tvb_get_letohl(tvb, offset));
           break;
           case PRISM_DID_RSSI:
             if(tree){
                 proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_rssi, tvb, offset, 4, TRUE);
                 proto_item_append_text(ti_did, " 0x%x", tvb_get_letohl(tvb, offset) );
             }
-            if (check_col(pinfo->cinfo, COL_RSSI))
-                col_add_fstr(pinfo->cinfo, COL_RSSI, "%d", tvb_get_letohl(tvb, offset));
+            col_add_fstr(pinfo->cinfo, COL_RSSI, "%d", tvb_get_letohl(tvb, offset));
           break;
           case PRISM_DID_SQ:
             if(tree){
@@ -9442,8 +9417,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_rate, tvb, offset, 4, TRUE);
                 proto_item_append_text(ti_did, " %s Mb/s", prism_rate_return(tvb_get_letohl(tvb, offset)) );
             }
-            if (check_col(pinfo->cinfo, COL_TX_RATE)) 
-                col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%s", prism_rate_return(tvb_get_letohl(tvb, offset)) );
+            col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%s", prism_rate_return(tvb_get_letohl(tvb, offset)) );
 
           break;
           case PRISM_DID_ISTX:
@@ -9748,8 +9722,7 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     length = tvb_get_ntohl(tvb, offset+4);
 
-    if(check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "AVS WLAN Capture v%x, Length %d",version, length);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "AVS WLAN Capture v%x, Length %d",version, length);
 
     if (version > 2) {
       goto skip;
@@ -9779,19 +9752,16 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* XXX cook channel (fh uses different numbers) */
     channel = tvb_get_ntohl(tvb, offset);
     if (channel < 256) {
-      if (check_col(pinfo->cinfo, COL_FREQ_CHAN))
-        col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u", channel);
+      col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u", channel);
       if (tree)
         proto_tree_add_uint(wlan_tree, hf_channel, tvb, offset, 4, channel);
     } else if (channel < 10000) {
-      if (check_col(pinfo->cinfo, COL_FREQ_CHAN))
-        col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u MHz", channel);
+      col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u MHz", channel);
       if (tree)
         proto_tree_add_uint_format(wlan_tree, hf_channel_frequency, tvb, offset,
                                    4, channel, "Frequency: %u MHz", channel);
     } else {
-      if (check_col(pinfo->cinfo, COL_FREQ_CHAN))
-        col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u KHz", channel);
+      col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u KHz", channel);
       if (tree)
         proto_tree_add_uint_format(wlan_tree, hf_channel_frequency, tvb, offset,
                                    4, channel, "Frequency: %u KHz", channel);
@@ -9802,11 +9772,10 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* In units of 100 Kb/s; convert to b/s */
       datarate *= 100000;
     }
-    if (check_col(pinfo->cinfo, COL_TX_RATE)) {
-      col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%u.%u",
+
+    col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%u.%u",
                    datarate / 1000000,
                    ((datarate % 1000000) > 500000) ? 5 : 0);
-    }
     if (tree) {
       proto_tree_add_uint64_format(wlan_tree, hf_data_rate, tvb, offset, 4,
                                    datarate,
@@ -9834,24 +9803,21 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case SSI_NORM_RSSI:
       /* Normalized RSSI */
-      if (check_col(pinfo->cinfo, COL_RSSI))
-        col_add_fstr(pinfo->cinfo, COL_RSSI, "%u (norm)", tvb_get_ntohl(tvb, offset));
+      col_add_fstr(pinfo->cinfo, COL_RSSI, "%u (norm)", tvb_get_ntohl(tvb, offset));
       if (tree)
         proto_tree_add_item(wlan_tree, hf_normrssi_antsignal, tvb, offset, 4, FALSE);
       break;
 
     case SSI_DBM:
       /* dBm */
-      if (check_col(pinfo->cinfo, COL_RSSI))
-        col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", tvb_get_ntohl(tvb, offset));
+      col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", tvb_get_ntohl(tvb, offset));
       if (tree)
         proto_tree_add_item(wlan_tree, hf_dbm_antsignal, tvb, offset, 4, FALSE);
       break;
 
     case SSI_RAW_RSSI:
       /* Raw RSSI */
-      if (check_col(pinfo->cinfo, COL_RSSI))
-        col_add_fstr(pinfo->cinfo, COL_RSSI, "%u (raw)", tvb_get_ntohl(tvb, offset));
+      col_add_fstr(pinfo->cinfo, COL_RSSI, "%u (raw)", tvb_get_ntohl(tvb, offset));
       if (tree)
         proto_tree_add_item(wlan_tree, hf_rawrssi_antsignal, tvb, offset, 4, FALSE);
       break;
