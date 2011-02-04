@@ -1379,7 +1379,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		wth->phdr.pkt_encap = WTAP_ENCAP_UNKNOWN;
 		*err = WTAP_ERR_BAD_RECORD;
 		*err_info = g_strdup_printf("pcapng: interface index %u is not less than interface count %u.",
-		    wblock.data.packet.interface_id, pcapng->number_of_interfaces);
+		    wblock.data.packet.interface_id, wth->capture.pcapng->number_of_interfaces);
 		return FALSE;
 	}
 
