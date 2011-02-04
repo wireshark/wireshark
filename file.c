@@ -4579,10 +4579,10 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
       if (for_writing) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
               "Wireshark can't save this capture in that format.");
       } else {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
               "The file \"%s\" is a capture for a network type that Wireshark doesn't support.\n"
               "(%s)",
               filename, err_info);
@@ -4592,10 +4592,10 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
 
     case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
       if (for_writing) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
               "Wireshark can't save this capture in that format.");
       } else {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
               "The file \"%s\" is a capture for a network type that Wireshark doesn't support.",
               filename);
       }
@@ -4612,11 +4612,11 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
 
     case WTAP_ERR_CANT_OPEN:
       if (for_writing) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
               "The file \"%s\" could not be created for some unknown reason.",
               filename);
       } else {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
               "The file \"%s\" could not be opened for some unknown reason.",
               filename);
       }
