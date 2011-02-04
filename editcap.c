@@ -699,7 +699,9 @@ usage(gboolean is_error)
   fprintf(output, "\n");
   fprintf(output, "Packet manipulation:\n");
   fprintf(output, "  -s <snaplen>           truncate each packet to max. <snaplen> bytes of data.\n");
-  fprintf(output, "  -C <choplen>           chop each packet at the end by <choplen> bytes.\n");
+  fprintf(output, "  -C <choplen>           chop each packet by <choplen> bytes. Positive values\n");
+  fprintf(output, "                         chop at the packet beginning, negative values at the\n");
+  fprintf(output, "                         packet end.\n");
   fprintf(output, "  -t <time adjustment>   adjust the timestamp of each packet;\n");
   fprintf(output, "                         <time adjustment> is in relative seconds (e.g. -0.5).\n");
   fprintf(output, "  -S <strict adjustment> adjust timestamp of packets if necessary to insure\n");
@@ -823,7 +825,7 @@ main(int argc, char *argv[])
 
   char *p;
   unsigned int snaplen = 0;             /* No limit               */
-  unsigned int choplen = 0;             /* No chop                */
+  int choplen = 0;                      /* No chop                */
   wtap_dumper *pdh = NULL;
   int count = 1;
   unsigned duplicate_count = 0;
@@ -912,7 +914,7 @@ main(int argc, char *argv[])
       break;
 
     case 'C':
-      choplen = strtol(optarg, &p, 10);
+	  choplen = strtol(optarg, &p, 10);
       if (p == optarg || *p != '\0') {
         fprintf(stderr, "editcap: \"%s\" isn't a valid chop length\n",
             optarg);
@@ -1131,6 +1133,7 @@ main(int argc, char *argv[])
 
     while (wtap_read(wth, &err, &err_info, &data_offset)) {
       phdr = wtap_phdr(wth);
+      buf = wtap_buf_ptr(wth);
 
       if (nstime_is_unset(&block_start)) {  /* should only be the first packet */
         block_start.secs = phdr->ts.secs;
@@ -1228,9 +1231,17 @@ main(int argc, char *argv[])
 
         phdr = wtap_phdr(wth);
 
-        if (choplen != 0 && phdr->caplen > choplen) {
+        if (choplen < 0 && (phdr->caplen + choplen) > 0) {
+          snap_phdr = *phdr;
+          snap_phdr.caplen += choplen;
+          phdr = &snap_phdr;
+        }
+
+        if (choplen > 0 && phdr->caplen > (unsigned int) choplen) {
           snap_phdr = *phdr;
           snap_phdr.caplen -= choplen;
+          snap_phdr.len -= choplen;
+		  buf += choplen;
           phdr = &snap_phdr;
         }
 
@@ -1335,7 +1346,6 @@ main(int argc, char *argv[])
 
         /* suppress duplicates by packet window */
         if (dup_detect) {
-          buf = wtap_buf_ptr(wth);
           if (is_duplicate(buf, phdr->caplen)) {
             if (verbose) {
               fprintf(stdout, "Skipped: %u, Len: %u, MD5 Hash: ", count, phdr->caplen);
@@ -1365,8 +1375,6 @@ main(int argc, char *argv[])
           current.secs = phdr->ts.secs;
           current.nsecs = phdr->ts.nsecs;
 
-          buf = wtap_buf_ptr(wth);
-
           if (is_duplicate_rel_time(buf, phdr->caplen, &current)) {
             if (verbose) {
               fprintf(stdout, "Skipped: %u, Len: %u, MD5 Hash: ", count, phdr->caplen);
@@ -1392,7 +1400,6 @@ main(int argc, char *argv[])
         /* Random error mutation */
         if (err_prob > 0.0) {
           int real_data_start = 0;
-          buf = wtap_buf_ptr(wth);
           /* Protect non-protocol data */
           if (wtap_file_type(wth) == WTAP_FILE_CATAPULT_DCT2000) {
             real_data_start = find_dct2000_real_data(buf);
@@ -1440,8 +1447,7 @@ main(int argc, char *argv[])
           }
         }
 
-        if (!wtap_dump(pdh, phdr, wtap_pseudoheader(wth), wtap_buf_ptr(wth),
-                       &err)) {
+        if (!wtap_dump(pdh, phdr, wtap_pseudoheader(wth), buf, &err)) {
           fprintf(stderr, "editcap: Error writing to %s: %s\n",
                   filename, wtap_strerror(err));
           exit(2);
