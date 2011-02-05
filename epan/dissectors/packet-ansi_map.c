@@ -1242,7 +1242,8 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
             g_hash_table_insert(TransactionId_table,
                                 g_strdup(buf),
                                 ansi_map_saved_invokedata);
-            g_warning("Invoke Hash string %s pkt: %u",buf,pinfo->fd->num);
+
+            /*g_warning("Invoke Hash string %s pkt: %u",buf,pinfo->fd->num);*/
         }
     }
 
@@ -15534,7 +15535,7 @@ dissect_ansi_map_ReturnData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3657 "packet-ansi_map-template.c"
+#line 3658 "packet-ansi_map-template.c"
 
 /*
  * 6.5.2.dk N.S0013-0 v 1.0,X.S0004-550-E v1.0 2.301
@@ -16266,7 +16267,7 @@ find_saved_invokedata(asn1_ctx_t *actx){
 				break;
 		}
 
-		g_warning("Find Hash string %s pkt: %u",buf,actx->pinfo->fd->num);
+		/*g_warning("Find Hash string %s pkt: %u",buf,actx->pinfo->fd->num);*/
         ansi_map_saved_invokedata = g_hash_table_lookup(TransactionId_table, buf);
         if(ansi_map_saved_invokedata){
             OperationCode = ansi_map_saved_invokedata->opcode & 0xff;
@@ -16275,7 +16276,7 @@ find_saved_invokedata(asn1_ctx_t *actx){
             OperationCode = OperationCode & 0x00ff;
         }
     }else{
-		g_warning("No private data pkt: %u",actx->pinfo->fd->num);
+		/*g_warning("No private data pkt: %u",actx->pinfo->fd->num);*/
         OperationCode = OperationCode & 0x00ff;
     }
     return OperationCode;
@@ -19386,7 +19387,7 @@ void proto_register_ansi_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5316 "packet-ansi_map-template.c"
+#line 5317 "packet-ansi_map-template.c"
     };
 
     /* List of subtrees */
@@ -19647,7 +19648,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5349 "packet-ansi_map-template.c"
+#line 5350 "packet-ansi_map-template.c"
     };
 
 	static enum_val_t ansi_map_response_matching_type_values[] = {

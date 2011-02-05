@@ -454,7 +454,8 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
             g_hash_table_insert(TransactionId_table,
                                 g_strdup(buf),
                                 ansi_map_saved_invokedata);
-            g_warning("Invoke Hash string %s pkt: %u",buf,pinfo->fd->num);
+
+            /*g_warning("Invoke Hash string %s pkt: %u",buf,pinfo->fd->num);*/
         }
     }
 
@@ -4385,7 +4386,7 @@ find_saved_invokedata(asn1_ctx_t *actx){
 				break;
 		}
 
-		g_warning("Find Hash string %s pkt: %u",buf,actx->pinfo->fd->num);
+		/*g_warning("Find Hash string %s pkt: %u",buf,actx->pinfo->fd->num);*/
         ansi_map_saved_invokedata = g_hash_table_lookup(TransactionId_table, buf);
         if(ansi_map_saved_invokedata){
             OperationCode = ansi_map_saved_invokedata->opcode & 0xff;
@@ -4394,7 +4395,7 @@ find_saved_invokedata(asn1_ctx_t *actx){
             OperationCode = OperationCode & 0x00ff;
         }
     }else{
-		g_warning("No private data pkt: %u",actx->pinfo->fd->num);
+		/*g_warning("No private data pkt: %u",actx->pinfo->fd->num);*/
         OperationCode = OperationCode & 0x00ff;
     }
     return OperationCode;
