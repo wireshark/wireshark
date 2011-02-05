@@ -4587,7 +4587,7 @@ InterSystemPositionRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.hj h
 	servingCellID							[2] IMPLICIT ServingCellID OPTIONAL,
 	-- O 6.5.2.117 p f
-	tdma-MAHORequest						[364] IMPLICIT TDMA-MAHORequest
+	tdma-MAHORequest						[364] IMPLICIT TDMA-MAHORequest OPTIONAL
 	-- O 6.5.2.gu
 }
 
@@ -4698,7 +4698,7 @@ InterSystemPositionRequestForward ::= [PRIVATE 18] SET {
 	-- O 6.5.2.hi g
 	pqos-VerticalVelocity					[378] IMPLICIT PQOS-VerticalVelocity OPTIONAL,
 	-- O 6.5.2.hj h
- 	tdma-MAHORequest						[364] IMPLICIT TDMA-MAHORequest
+ 	tdma-MAHORequest						[364] IMPLICIT TDMA-MAHORequest OPTIONAL
 	-- O 6.5.2.gu c
 }
 --InterSystemPositionRequestForward RETURN RESULT Parameters
@@ -7202,8 +7202,8 @@ ScriptResult ::= OCTET STRING
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 0 0 0 1 1 1 0 (0x0e) (270)
 ServiceDataAccessElement ::= SEQUENCE {
-	dataAccessElementList	[250] IMPLICIT DataAccessElementList OPTIONAL,
-	serviceID				[246] IMPLICIT ServiceID
+	dataAccessElementList	[250] IMPLICIT DataAccessElementList,
+	serviceID				[246] IMPLICIT ServiceID OPTIONAL
 	}
 
 -- 6.5.2.cz
@@ -7217,8 +7217,8 @@ ServiceDataAccessElementList ::= SEQUENCE OF [270] IMPLICIT ServiceDataAccessEle
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 0 0 1 0 0 0 0 (0x10)(272)
 ServiceDataResult ::= SEQUENCE {
-	dataUpdateResultList	[255] IMPLICIT DataUpdateResultList OPTIONAL,
-	serviceID				[246] IMPLICIT ServiceID
+	dataUpdateResultList	[255] IMPLICIT DataUpdateResultList,
+	serviceID				[246] IMPLICIT ServiceID OPTIONAL
 	}
 
 -- 6.5.2.db
@@ -7791,7 +7791,7 @@ CDMAPSMMCount ::= OCTET STRING
 	-- M 6.5.2.gd
 	cdmaTargetMAHOList			[136] IMPLICIT CDMATargetMAHOList,
 	-- M 6.5.2.43
-	cdmaTargetMAHOList2			[136] IMPLICIT CDMATargetMAHOList
+	cdmaTargetMAHOList2			[136] IMPLICIT CDMATargetMAHOList OPTIONAL
 	-- O 6.5.2.43 a
 }
 
