@@ -314,28 +314,9 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define HTC_RDG_MORE_PPDU(htc) (((htc) >> 31) & 0x1)
 
 /*
- * Extract the association ID from the value in an association ID field.
- */
-#define ASSOC_ID(x)            ((x) & 0x3FFF)
-
-/*
  * Extract subfields from the key octet in WEP-encrypted frames.
  */
 #define KEY_OCTET_WEP_KEY(x)   (((x) & 0xC0) >> 6)
-
-/*
- * Extract subfields from TS Info field.
- */
-#define TSI_TYPE(x)      (((x) & 0x000001) >> 0)
-#define TSI_TSID(x)      (((x) & 0x00001E) >> 1)
-#define TSI_DIR(x)       (((x) & 0x000060) >> 5)
-#define TSI_ACCESS(x)    (((x) & 0x000180) >> 7)
-#define TSI_AGG(x)       (((x) & 0x000200) >> 9)
-#define TSI_APSD(x)      (((x) & 0x000400) >> 10)
-#define TSI_UP(x)        (((x) & 0x003800) >> 11)
-#define TSI_ACK(x)       (((x) & 0x00C000) >> 14)
-#define TSI_SCHED(x)     (((x) & 0x010000) >> 16)
-#define TSI_RESERVED(x)  (((x) & 0xFE0000) >> 17)
 
 #define KEY_EXTIV    0x20
 #define EXTIV_LEN    8
@@ -411,14 +392,6 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define DATA_QOS_NULL               0x2C  /* QoS Null        */
 #define DATA_QOS_CF_POLL_NOD        0x2E  /* QoS CF-Poll (No Data)      */
 #define DATA_QOS_CF_ACK_POLL_NOD    0x2F  /* QoS CF-Ack + CF-Poll (No Data) */
-
-
-/* ************************************************************************* */
-/*          Macros used to extract information about fixed fields            */
-/* ************************************************************************* */
-#define ESS_SET(x)  ((x) & 0x0001)
-#define IBSS_SET(x) ((x) & 0x0002)
-
 
 
 /* ************************************************************************* */
@@ -1251,6 +1224,7 @@ static int hf_ieee80211_ff_psmp_param_set_n_sta = -1;
 static int hf_ieee80211_ff_psmp_param_set_more_psmp = -1;
 static int hf_ieee80211_ff_psmp_param_set_psmp_sequence_duration = -1;
 
+static int hf_ieee80211_ff_mimo_cntrl = -1;
 static int hf_ieee80211_ff_mimo_cntrl_nc_index = -1;
 static int hf_ieee80211_ff_mimo_cntrl_nr_index = -1;
 static int hf_ieee80211_ff_mimo_cntrl_channel_width = -1;
@@ -1272,6 +1246,10 @@ static int hf_ieee80211_ff_ant_selection_6 = -1;
 static int hf_ieee80211_ff_ant_selection_7 = -1;
 
 static int hf_ieee80211_ff_ext_channel_switch_announcement = -1;
+static int hf_ieee80211_ff_ext_channel_switch_announcement_switch_mode = -1;
+static int hf_ieee80211_ff_ext_channel_switch_announcement_new_reg_class = -1;
+static int hf_ieee80211_ff_ext_channel_switch_announcement_new_chan_number = -1;
+static int hf_ieee80211_ff_ext_channel_switch_announcement_switch_count = -1;
 
 static int hf_ieee80211_ff_ht_info = -1;
 static int hf_ieee80211_ff_ht_info_information_request = -1;
@@ -1282,6 +1260,7 @@ static int hf_ieee80211_ff_ht_info_reserved = -1;
 static int hf_ieee80211_ff_ht_action = -1;
 
 static int hf_ieee80211_ff_psmp_sta_info = -1;
+static int hf_ieee80211_ff_psmp_sta_info_type = -1;
 static int hf_ieee80211_ff_psmp_sta_info_dtt_start_offset = -1;
 static int hf_ieee80211_ff_psmp_sta_info_dtt_duration = -1;
 static int hf_ieee80211_ff_psmp_sta_info_sta_id = -1;
@@ -1603,11 +1582,6 @@ static int hf_ieee80211_tag_neighbor_report_reg_class = -1;
 static int hf_ieee80211_tag_neighbor_report_channel_number = -1;
 static int hf_ieee80211_tag_neighbor_report_phy_type = -1;
 
-static int hf_ieee80211_tag_ext_channel_switch_announcement_switch_mode = -1;
-static int hf_ieee80211_tag_ext_channel_switch_announcement_new_reg_class = -1;
-static int hf_ieee80211_tag_ext_channel_switch_announcement_new_chan_number = -1;
-static int hf_ieee80211_tag_ext_channel_switch_announcement_switch_count = -1;
-
 static int hf_ieee80211_tag_supported_reg_classes_current = -1;
 static int hf_ieee80211_tag_supported_reg_classes_alternate = -1;
 
@@ -1720,6 +1694,7 @@ static int hf_ieee80211_tsinfo_apsd = -1;
 static int hf_ieee80211_tsinfo_up = -1;
 static int hf_ieee80211_tsinfo_ack = -1;
 static int hf_ieee80211_tsinfo_sched = -1;
+static int hf_ieee80211_tsinfo_rsv = -1;
 static int hf_ieee80211_tspec_nor_msdu = -1;
 static int hf_ieee80211_tspec_max_msdu = -1;
 static int hf_ieee80211_tspec_min_srv = -1;
@@ -1741,6 +1716,9 @@ static int hf_ieee80211_class_mask = -1;
 static int hf_ieee80211_ether_type = -1;
 static int hf_ieee80211_tclass_process = -1;
 static int hf_ieee80211_sched_info = -1;
+static int hf_ieee80211_sched_info_agg = -1;
+static int hf_ieee80211_sched_info_tsid = -1;
+static int hf_ieee80211_sched_info_dir = -1;
 static int hf_ieee80211_sched_srv_start = -1;
 static int hf_ieee80211_sched_srv_int = -1;
 static int hf_ieee80211_sched_spec_int = -1;
@@ -1953,6 +1931,36 @@ static const value_string tdls_action_codes[] ={
   {TDLS_DISCOVERY_REQUEST, "TDLS Discovery Request"},
   {0, NULL}
 };
+
+#define PSMP_STA_INFO_BROADCAST 0
+#define PSMP_STA_INFO_MULTICAST 1
+#define PSMP_STA_INFO_INDIVIDUALLY_ADDRESSED 2
+
+#define PSMP_STA_INFO_FLAG_TYPE         0x00000003
+#define PSMP_STA_INFO_FLAG_DTT_START    0x00001FFC
+#define PSMP_STA_INFO_FLAG_DTT_DURATION 0x001FE000
+
+#define PSMP_STA_INFO_FLAG_STA_ID       0x001FFFE0
+
+#define PSMP_STA_INFO_FLAG_UTT_START    0x0000FFE0
+#define PSMP_STA_INFO_FLAG_UTT_DURATION 0x03FF0000
+
+#define PSMP_STA_INFO_FLAG_IA_RESERVED  0xFC000000
+
+static const value_string ff_psmp_sta_info_flags[] = {
+  { PSMP_STA_INFO_BROADCAST, "Broadcast"},
+  { PSMP_STA_INFO_MULTICAST, "Multicast"},
+  { PSMP_STA_INFO_INDIVIDUALLY_ADDRESSED, "Individually Addressed"},
+  {0, NULL}
+};
+
+static void
+beacon_interval_base_custom(gchar *result, guint32 beacon_interval)
+{
+   double temp_double;
+   temp_double = (double)beacon_interval;
+   g_snprintf(result, ITEM_LABEL_LENGTH, "%f [Seconds]", (temp_double * 1024 / 1000000) );
+}
 
 /*     Davide Schiera (2006-11-22): including AirPDcap project                */
 #ifdef HAVE_AIRPDCAP
@@ -2638,7 +2646,7 @@ get_tagged_parameter_tree (proto_tree * tree, tvbuff_t *tvb, int start, int size
 
 
 static int
-dissect_vendor_action_marvell (proto_tree *tree, tvbuff_t *tvb, int offset)
+dissect_vendor_action_marvell(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
   guint8 octet;
 
@@ -2963,197 +2971,156 @@ dissect_gas_comeback_response(proto_tree *tree, tvbuff_t *tvb, int offset,
 static guint
 add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 {
-  const guint8 *dataptr;
-  char out_buff[SHORT_STR];
-  guint16 capability;
-  proto_item *cap_item;
-  static proto_tree *cap_tree;
-  double temp_double;
+
   guint length = 0;
 
   switch (lfcode)
   {
     case FIELD_TIMESTAMP:
-      dataptr = tvb_get_ptr (tvb, offset, 8);
-      memset (out_buff, 0, SHORT_STR);
-      g_snprintf (out_buff, SHORT_STR, "0x%02X%02X%02X%02X%02X%02X%02X%02X",
-        dataptr[7],
-        dataptr[6],
-        dataptr[5],
-        dataptr[4],
-        dataptr[3],
-        dataptr[2],
-        dataptr[1],
-        dataptr[0]);
-
-      proto_tree_add_string (tree, hf_ieee80211_ff_timestamp, tvb, offset, 8, out_buff);
+      proto_tree_add_item(tree, hf_ieee80211_ff_timestamp, tvb, offset, 8, TRUE);
       length += 8;
       break;
 
     case FIELD_BEACON_INTERVAL:
       {
-        capability = tvb_get_letohs (tvb, offset);
-        temp_double = (double)capability;
-        temp_double = temp_double * 1024 / 1000000;
-        proto_tree_add_double_format (tree, hf_ieee80211_ff_beacon_interval, tvb, offset, 2,
-          temp_double,"Beacon Interval: %f [Seconds]", temp_double);
-        col_append_fstr(g_pinfo->cinfo, COL_INFO, ", BI=%d", capability);
+        proto_tree_add_item(tree, hf_ieee80211_ff_beacon_interval, tvb, offset, 2, TRUE);
+        col_append_fstr(g_pinfo->cinfo, COL_INFO, ", BI=%d", tvb_get_letohs (tvb, offset));
         length += 2;
         break;
       }
 
     case FIELD_CAP_INFO:
       {
-        capability = tvb_get_letohs (tvb, offset);
 
-        cap_item = proto_tree_add_uint_format (tree, hf_ieee80211_ff_capture,
-          tvb, offset, 2, capability,
-          "Capability Information: 0x%04X", capability);
+        proto_item *cap_item;
+        proto_tree *cap_tree;
+
+        cap_item = proto_tree_add_item(tree, hf_ieee80211_ff_capture, tvb, offset, 2, TRUE);
         cap_tree = proto_item_add_subtree (cap_item, ett_cap_tree);
-        proto_tree_add_boolean (cap_tree, hf_ieee80211_ff_cf_ess, tvb, offset, 2, capability);
-        proto_tree_add_boolean (cap_tree, hf_ieee80211_ff_cf_ibss, tvb, offset, 2, capability);
-        if (ESS_SET (capability) != 0)  /* This is an AP */
-          proto_tree_add_uint (cap_tree, hf_ieee80211_ff_cf_ap_poll, tvb, offset, 2,
-            capability);
-        else      /* This is a STA */
-        proto_tree_add_uint (cap_tree, hf_ieee80211_ff_cf_sta_poll, tvb, offset, 2,
-          capability);
 
-        proto_tree_add_boolean (cap_tree, hf_ieee80211_ff_cf_privacy, tvb, offset, 2,
-          capability);
-        proto_tree_add_boolean (cap_tree, hf_ieee80211_ff_cf_preamble, tvb, offset, 2,
-          capability);
-        proto_tree_add_boolean (cap_tree, hf_ieee80211_ff_cf_pbcc, tvb, offset, 2,
-          capability);
-        proto_tree_add_boolean (cap_tree, hf_ieee80211_ff_cf_agility, tvb, offset, 2,
-          capability);
-        proto_tree_add_boolean (cap_tree, hf_ieee80211_ff_cf_spec_man, tvb, offset, 2,
-          capability);
-        proto_tree_add_boolean (cap_tree, hf_ieee80211_ff_short_slot_time, tvb, offset, 2,
-          capability);
-        proto_tree_add_boolean (cap_tree, hf_ieee80211_ff_cf_apsd, tvb, offset, 2,
-          capability);
-        proto_tree_add_boolean (cap_tree, hf_ieee80211_ff_dsss_ofdm, tvb, offset, 2,
-          capability);
-        proto_tree_add_boolean (cap_tree, hf_ieee80211_ff_cf_del_blk_ack, tvb, offset, 2,
-          capability);
-        proto_tree_add_boolean (cap_tree, hf_ieee80211_ff_cf_imm_blk_ack, tvb, offset, 2,
-          capability);
+        proto_tree_add_item(cap_tree, hf_ieee80211_ff_cf_ess, tvb, offset, 2, TRUE);
+        proto_tree_add_item(cap_tree, hf_ieee80211_ff_cf_ibss, tvb, offset, 2, TRUE);
+        if ((tvb_get_letohs(tvb, offset) & 0x0001) != 0)  /* This is an AP */
+          proto_tree_add_item(cap_tree, hf_ieee80211_ff_cf_ap_poll, tvb, offset, 2, TRUE);
+        else      /* This is a STA */
+          proto_tree_add_item(cap_tree, hf_ieee80211_ff_cf_sta_poll, tvb, offset, 2, TRUE);
+
+        proto_tree_add_item(cap_tree, hf_ieee80211_ff_cf_privacy, tvb, offset, 2, TRUE);
+        proto_tree_add_item(cap_tree, hf_ieee80211_ff_cf_preamble, tvb, offset, 2, TRUE);
+        proto_tree_add_item(cap_tree, hf_ieee80211_ff_cf_pbcc, tvb, offset, 2, TRUE);
+        proto_tree_add_item(cap_tree, hf_ieee80211_ff_cf_agility, tvb, offset, 2, TRUE);
+        proto_tree_add_item(cap_tree, hf_ieee80211_ff_cf_spec_man, tvb, offset, 2, TRUE);
+        proto_tree_add_item(cap_tree, hf_ieee80211_ff_short_slot_time, tvb, offset, 2, TRUE);
+        proto_tree_add_item(cap_tree, hf_ieee80211_ff_cf_apsd, tvb, offset, 2, TRUE);
+        proto_tree_add_item(cap_tree, hf_ieee80211_ff_dsss_ofdm, tvb, offset, 2, TRUE);
+        proto_tree_add_item(cap_tree, hf_ieee80211_ff_cf_del_blk_ack, tvb, offset, 2, TRUE);
+        proto_tree_add_item(cap_tree, hf_ieee80211_ff_cf_imm_blk_ack, tvb, offset, 2, TRUE);
         length += 2;
         break;
       }
     case FIELD_AUTH_ALG:
-      proto_tree_add_item (tree, hf_ieee80211_ff_auth_alg, tvb, offset, 2, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_auth_alg, tvb, offset, 2, TRUE);
       length += 2;
       break;
 
     case FIELD_AUTH_TRANS_SEQ:
-      proto_tree_add_item (tree, hf_ieee80211_ff_auth_seq, tvb, offset, 2, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_auth_seq, tvb, offset, 2, TRUE);
       length += 2;
       break;
 
     case FIELD_CURRENT_AP_ADDR:
-      proto_tree_add_item (tree, hf_ieee80211_ff_current_ap, tvb, offset, 6, FALSE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_current_ap, tvb, offset, 6, FALSE);
       length += 6;
       break;
 
     case FIELD_LISTEN_IVAL:
-      proto_tree_add_item (tree, hf_ieee80211_ff_listen_ival, tvb, offset, 2, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_listen_ival, tvb, offset, 2, TRUE);
       length += 2;
       break;
 
     case FIELD_REASON_CODE:
-      proto_tree_add_item (tree, hf_ieee80211_ff_reason, tvb, offset, 2, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_reason, tvb, offset, 2, TRUE);
       length += 2;
       break;
 
     case FIELD_ASSOC_ID:
-      proto_tree_add_uint(tree, hf_ieee80211_ff_assoc_id, tvb, offset, 2,
-        ASSOC_ID(tvb_get_letohs(tvb,offset)));
-      /* proto_tree_add_item (tree, hf_ieee80211_ff_assoc_id, tvb, offset, 2, TRUE); */
+      proto_tree_add_item(tree, hf_ieee80211_ff_assoc_id, tvb, offset, 2, TRUE); 
       length += 2;
       break;
 
     case FIELD_STATUS_CODE:
-      proto_tree_add_item (tree, hf_ieee80211_ff_status_code, tvb, offset, 2, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_status_code, tvb, offset, 2, TRUE);
       length += 2;
       break;
 
     case FIELD_CATEGORY_CODE:
-      proto_tree_add_item (tree, hf_ieee80211_ff_category_code, tvb, offset, 1, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_category_code, tvb, offset, 1, TRUE);
       length += 1;
       break;
 
     case FIELD_ACTION_CODE:
-      proto_tree_add_item (tree, hf_ieee80211_ff_action_code, tvb, offset, 1, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_action_code, tvb, offset, 1, TRUE);
       length += 1;
       break;
 
     case FIELD_DIALOG_TOKEN:
-      proto_tree_add_item (tree, hf_ieee80211_ff_dialog_token, tvb, offset, 1, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_dialog_token, tvb, offset, 1, TRUE);
       length += 1;
       break;
 
     case FIELD_WME_ACTION_CODE:
-      proto_tree_add_item (tree, hf_ieee80211_ff_wme_action_code, tvb, offset, 1, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_wme_action_code, tvb, offset, 1, TRUE);
       length += 1;
       break;
 
     case FIELD_WME_STATUS_CODE:
-      proto_tree_add_item (tree, hf_ieee80211_ff_wme_status_code, tvb, offset, 1, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_wme_status_code, tvb, offset, 1, TRUE);
       length += 1;
       break;
 
     case FIELD_QOS_ACTION_CODE:
-      proto_tree_add_item (tree, hf_ieee80211_ff_qos_action_code, tvb, offset, 1, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_qos_action_code, tvb, offset, 1, TRUE);
       length += 1;
       break;
 
     case FIELD_BLOCK_ACK_ACTION_CODE:
-      proto_tree_add_item (tree, hf_ieee80211_ff_ba_action, tvb, offset, 1, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_ba_action, tvb, offset, 1, TRUE);
       length += 1;
       break;
 
     case FIELD_BLOCK_ACK_PARAM:
       {
-        guint16 params;
         proto_item *param_item;
         proto_tree *param_tree;
 
-        params = tvb_get_letohs (tvb, offset);
-
-        param_item = proto_tree_add_uint(tree, hf_ieee80211_ff_block_ack_params, tvb, offset, 2, params);
+        param_item = proto_tree_add_item(tree, hf_ieee80211_ff_block_ack_params, tvb, offset, 2, TRUE);
         param_tree = proto_item_add_subtree (param_item, ett_ff_ba_param_tree);
 
-        proto_tree_add_boolean(param_tree, hf_ieee80211_ff_block_ack_params_amsdu_permitted, tvb, offset, 1, params);
-        proto_tree_add_boolean(param_tree, hf_ieee80211_ff_block_ack_params_policy, tvb, offset, 1, params);
-        proto_tree_add_uint(param_tree, hf_ieee80211_ff_block_ack_params_tid, tvb, offset, 1, params);
-        proto_tree_add_uint(param_tree, hf_ieee80211_ff_block_ack_params_buffer_size, tvb, offset, 2, params);
+        proto_tree_add_item(param_tree, hf_ieee80211_ff_block_ack_params_amsdu_permitted, tvb, offset, 2, TRUE);
+        proto_tree_add_item(param_tree, hf_ieee80211_ff_block_ack_params_policy, tvb, offset, 2, TRUE);
+        proto_tree_add_item(param_tree, hf_ieee80211_ff_block_ack_params_tid, tvb, offset, 2, TRUE);
+        proto_tree_add_item(param_tree, hf_ieee80211_ff_block_ack_params_buffer_size, tvb, offset, 2, TRUE);
         length += 2;
         break;
       }
 
     case FIELD_BLOCK_ACK_TIMEOUT:
       {
-        guint16 timeout;
-
-        timeout = tvb_get_letohs (tvb, offset);
-        proto_tree_add_uint(tree, hf_ieee80211_ff_block_ack_timeout, tvb, offset, 2, timeout);
+        proto_tree_add_item(tree, hf_ieee80211_ff_block_ack_timeout, tvb, offset, 2, TRUE);
         length += 2;
         break;
       }
 
     case FIELD_BLOCK_ACK_SSC:
       {
-        guint16 ssc;
         proto_item *ssc_item;
         proto_tree *ssc_tree;
 
-        ssc = tvb_get_letohs (tvb, offset);
-        ssc_item = proto_tree_add_uint(tree, hf_ieee80211_ff_block_ack_ssc, tvb, offset, 2, ssc);
+        ssc_item = proto_tree_add_item(tree, hf_ieee80211_ff_block_ack_ssc, tvb, offset, 2, TRUE);
         ssc_tree = proto_item_add_subtree (ssc_item, ett_ff_ba_ssc_tree);
-        proto_tree_add_uint(ssc_tree, hf_ieee80211_ff_block_ack_ssc_fragment, tvb, offset, 1, ssc);
-        proto_tree_add_uint(ssc_tree, hf_ieee80211_ff_block_ack_ssc_sequence, tvb, offset, 2, ssc);
+
+        proto_tree_add_item(ssc_tree, hf_ieee80211_ff_block_ack_ssc_fragment, tvb, offset, 2, TRUE);
+        proto_tree_add_item(ssc_tree, hf_ieee80211_ff_block_ack_ssc_sequence, tvb, offset, 2, TRUE);
         length += 2;
         break;
       }
@@ -3162,38 +3129,20 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       {
         proto_item *tsinfo_item;
         proto_tree *tsinfo_tree;
-        guint32 tsi;
 
-        tsinfo_item = proto_tree_add_item(tree, hf_ieee80211_tsinfo, tvb,
-          offset, 3, TRUE);
+        tsinfo_item = proto_tree_add_item(tree, hf_ieee80211_tsinfo, tvb, offset, 3, TRUE);
         tsinfo_tree = proto_item_add_subtree(tsinfo_item, ett_tsinfo_tree);
-        tsi = tvb_get_letoh24(tvb, offset);
-        proto_tree_add_uint(tsinfo_tree, hf_ieee80211_tsinfo_type, tvb,
-          offset, 3, TSI_TYPE (tsi));
-        if (TSI_TSID (tsi) < 8)
-        {
-          proto_tree_add_text(tsinfo_tree, tvb, offset, 3,
-            "TSID: %u (< 8 is invalid)", TSI_TSID (tsi));
-        }
-        else
-        {
-          proto_tree_add_uint(tsinfo_tree, hf_ieee80211_tsinfo_tsid, tvb,
-            offset, 3, TSI_TSID (tsi));
-        }
-        proto_tree_add_uint(tsinfo_tree, hf_ieee80211_tsinfo_dir, tvb,
-          offset, 3, TSI_DIR (tsi));
-        proto_tree_add_uint(tsinfo_tree, hf_ieee80211_tsinfo_access, tvb,
-          offset, 3, TSI_ACCESS (tsi));
-        proto_tree_add_uint(tsinfo_tree, hf_ieee80211_tsinfo_agg, tvb,
-          offset, 3, TSI_AGG (tsi));
-        proto_tree_add_uint(tsinfo_tree, hf_ieee80211_tsinfo_apsd, tvb,
-          offset, 3, TSI_APSD (tsi));
-        proto_tree_add_uint(tsinfo_tree, hf_ieee80211_tsinfo_up, tvb,
-          offset, 3, TSI_UP (tsi));
-        proto_tree_add_uint(tsinfo_tree, hf_ieee80211_tsinfo_ack, tvb,
-          offset, 3, TSI_ACK (tsi));
-        proto_tree_add_uint(tsinfo_tree, hf_ieee80211_tsinfo_sched, tvb,
-          offset, 3, TSI_SCHED (tsi));
+
+        proto_tree_add_item(tsinfo_tree, hf_ieee80211_tsinfo_type, tvb, offset, 3, TRUE);
+        proto_tree_add_item(tsinfo_tree, hf_ieee80211_tsinfo_tsid, tvb, offset, 3, TRUE);
+        proto_tree_add_item(tsinfo_tree, hf_ieee80211_tsinfo_dir, tvb, offset, 3, TRUE);
+        proto_tree_add_item(tsinfo_tree, hf_ieee80211_tsinfo_access, tvb, offset, 3, TRUE);
+        proto_tree_add_item(tsinfo_tree, hf_ieee80211_tsinfo_agg, tvb, offset, 3, TRUE);
+        proto_tree_add_item(tsinfo_tree, hf_ieee80211_tsinfo_apsd, tvb, offset, 3, TRUE);
+        proto_tree_add_item(tsinfo_tree, hf_ieee80211_tsinfo_up, tvb, offset, 3, TRUE);
+        proto_tree_add_item(tsinfo_tree, hf_ieee80211_tsinfo_ack, tvb, offset, 3, TRUE);
+        proto_tree_add_item(tsinfo_tree, hf_ieee80211_tsinfo_sched, tvb, offset, 3, TRUE);
+        proto_tree_add_item(tsinfo_tree, hf_ieee80211_tsinfo_rsv, tvb, offset, 3, TRUE);
         length += 3;
         break;
       }
@@ -3201,328 +3150,286 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 #ifdef MESH_OVERRIDES
     /* Mesh Management */
     case FIELD_MESH_MGT_ACTION_PS_CODE:
-      proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_action_ps_code, tvb, offset, 1, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_mesh_mgt_action_ps_code, tvb, offset, 1, TRUE);
       length += 1;
       break;
 
     case FIELD_MESH_MGT_ACTION_PL_CODE:
-      proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_action_pl_code, tvb, offset, 1, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_mesh_mgt_action_pl_code, tvb, offset, 1, TRUE);
       length += 1;
       break;
 #endif /* MESH_OVERRIDES */
 
     case FIELD_DLS_ACTION_CODE:
-      proto_tree_add_item (tree, hf_ieee80211_ff_dls_action_code, tvb, offset, 1, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_dls_action_code, tvb, offset, 1, TRUE);
       length += 1;
       break;
 
     case FIELD_DST_MAC_ADDR:
-      proto_tree_add_item (tree, hf_ieee80211_ff_dst_mac_addr, tvb, offset, 6, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_dst_mac_addr, tvb, offset, 6, TRUE);
       length += 6;
       break;
 
     case FIELD_SRC_MAC_ADDR:
-      proto_tree_add_item (tree, hf_ieee80211_ff_src_mac_addr, tvb, offset, 6, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_src_mac_addr, tvb, offset, 6, TRUE);
       length += 6;
       break;
 
     case FIELD_DLS_TIMEOUT:
-      proto_tree_add_item (tree, hf_ieee80211_ff_dls_timeout, tvb, offset, 2, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_dls_timeout, tvb, offset, 2, TRUE);
       length += 2;
       break;
 
     case FIELD_DELBA_PARAM_SET:
       {
-        guint16 params;
         proto_item *param_item;
         proto_tree *param_tree;
 
-        params = tvb_get_letohs (tvb, offset);
-
-        param_item = proto_tree_add_uint(tree, hf_ieee80211_ff_delba_param, tvb, offset, 2, params);
+        param_item = proto_tree_add_item(tree, hf_ieee80211_ff_delba_param, tvb, offset, 2, TRUE);
         param_tree = proto_item_add_subtree (param_item, ett_ff_ba_param_tree);
 
-        proto_tree_add_uint(param_tree, hf_ieee80211_ff_delba_param_reserved, tvb, offset, 2, params);
-        proto_tree_add_boolean(param_tree, hf_ieee80211_ff_delba_param_init, tvb, offset+1, 1, params);
-        proto_tree_add_uint(param_tree, hf_ieee80211_ff_delba_param_tid, tvb, offset+1, 1, params);
-        length +=2;
+        proto_tree_add_item(param_tree, hf_ieee80211_ff_delba_param_reserved, tvb, offset, 2, TRUE);
+        proto_tree_add_item(param_tree, hf_ieee80211_ff_delba_param_init, tvb, offset, 2, TRUE);
+        proto_tree_add_item(param_tree, hf_ieee80211_ff_delba_param_tid, tvb, offset, 2, TRUE);
+        length += 2;
         break;
       }
 
     case FIELD_MAX_REG_PWR:
-      proto_tree_add_uint(tree, hf_ieee80211_ff_max_reg_pwr, tvb, offset, 2, tvb_get_letohs (tvb, offset));
-      length +=2;
+      proto_tree_add_item(tree, hf_ieee80211_ff_max_reg_pwr, tvb, offset, 2, TRUE);
+      length += 2;
       break;
 
     case FIELD_MEASUREMENT_PILOT_INT:
-      proto_tree_add_uint(tree, hf_ieee80211_ff_measurement_pilot_int, tvb, offset, 2, tvb_get_letohs (tvb, offset));
-      length +=2;
+      proto_tree_add_item(tree, hf_ieee80211_ff_measurement_pilot_int, tvb, offset, 2, TRUE);
+      length += 2;
       break;
 
     case FIELD_COUNTRY_STR:
-      {
-        guint8 *country_string;
+      proto_tree_add_string (tree, hf_ieee80211_ff_country_str, tvb, offset, 3, FALSE);
+      length += 3;
+      break;
 
-        country_string = tvb_get_ephemeral_string(tvb, offset, 3);
-        proto_tree_add_string (tree, hf_ieee80211_ff_country_str, tvb, offset, 3, (char *) country_string);
-        break;
-      }
 
     case FIELD_MAX_TX_PWR:
-      proto_tree_add_uint(tree, hf_ieee80211_ff_max_tx_pwr, tvb, offset, 1, tvb_get_guint8 (tvb, offset));
-      length +=1;
+      proto_tree_add_item(tree, hf_ieee80211_ff_max_tx_pwr, tvb, offset, 1, TRUE);
+      length += 1;
       break;
 
     case FIELD_TX_PWR_USED:
-      proto_tree_add_uint(tree, hf_ieee80211_ff_tx_pwr_used, tvb, offset, 1, tvb_get_guint8 (tvb, offset));
-      length +=1;
+      proto_tree_add_item(tree, hf_ieee80211_ff_tx_pwr_used, tvb, offset, 1, TRUE);
+      length += 1;
       break;
 
     case FIELD_TRANSCEIVER_NOISE_FLOOR:
-      proto_tree_add_uint(tree, hf_ieee80211_ff_transceiver_noise_floor, tvb, offset, 1, tvb_get_guint8 (tvb, offset));
-      length +=1;
+      proto_tree_add_item(tree, hf_ieee80211_ff_transceiver_noise_floor, tvb, offset, 1, TRUE);
+      length += 1;
       break;
 
     case FIELD_CHANNEL_WIDTH:
       proto_tree_add_item(tree, hf_ieee80211_ff_channel_width, tvb, offset, 1, TRUE);
-      length +=1;
+      length += 1;
       break;
 
     case FIELD_QOS_INFO_AP:
       {
-        guint8 info;
         proto_item *info_item;
         proto_tree *info_tree;
 
-        info = tvb_get_guint8 (tvb, offset);
-
-        info_item = proto_tree_add_uint(tree, hf_ieee80211_ff_qos_info_ap, tvb, offset, 1, info);
+        info_item = proto_tree_add_item(tree, hf_ieee80211_ff_qos_info_ap, tvb, offset, 1, TRUE);
         info_tree = proto_item_add_subtree (info_item, ett_ff_qos_info);
 
-        proto_tree_add_uint(info_tree, hf_ieee80211_ff_qos_info_ap_edca_param_set_counter, tvb, offset, 1, info);
-        proto_tree_add_uint(info_tree, hf_ieee80211_ff_qos_info_ap_q_ack, tvb, offset, 1, info);
-        proto_tree_add_boolean(info_tree, hf_ieee80211_ff_qos_info_ap_queue_req, tvb, offset, 1, info);
-        proto_tree_add_boolean(info_tree, hf_ieee80211_ff_qos_info_ap_txop_request, tvb, offset, 1, info);
-        proto_tree_add_boolean(info_tree, hf_ieee80211_ff_qos_info_ap_reserved, tvb, offset, 1, info);
-        length +=1;
+        proto_tree_add_item(info_tree, hf_ieee80211_ff_qos_info_ap_edca_param_set_counter, tvb, offset, 1, TRUE);
+        proto_tree_add_item(info_tree, hf_ieee80211_ff_qos_info_ap_q_ack, tvb, offset, 1, TRUE);
+        proto_tree_add_item(info_tree, hf_ieee80211_ff_qos_info_ap_queue_req, tvb, offset, 1, TRUE);
+        proto_tree_add_item(info_tree, hf_ieee80211_ff_qos_info_ap_txop_request, tvb, offset, 1, TRUE);
+        proto_tree_add_item(info_tree, hf_ieee80211_ff_qos_info_ap_reserved, tvb, offset, 1, TRUE);
+        length += 1;
         break;
       }
 
     case FIELD_QOS_INFO_STA:
       {
-        guint8 info;
         proto_item *info_item;
         proto_tree *info_tree;
 
-        info = tvb_get_guint8 (tvb, offset);
-
-        info_item = proto_tree_add_uint(tree, hf_ieee80211_ff_qos_info_sta, tvb, offset, 1, info);
+        info_item = proto_tree_add_item(tree, hf_ieee80211_ff_qos_info_sta, tvb, offset, 1, TRUE);
         info_tree = proto_item_add_subtree (info_item, ett_ff_qos_info);
 
-        proto_tree_add_boolean(info_tree, hf_ieee80211_ff_qos_info_sta_ac_vo, tvb, offset, 1, info);
-        proto_tree_add_boolean(info_tree, hf_ieee80211_ff_qos_info_sta_ac_vi, tvb, offset, 1, info);
-        proto_tree_add_boolean(info_tree, hf_ieee80211_ff_qos_info_sta_ac_bk, tvb, offset, 1, info);
-        proto_tree_add_boolean(info_tree, hf_ieee80211_ff_qos_info_sta_ac_be, tvb, offset, 1, info);
-        proto_tree_add_boolean(info_tree, hf_ieee80211_ff_qos_info_sta_q_ack, tvb, offset, 1, info);
-        proto_tree_add_uint(info_tree, hf_ieee80211_ff_qos_info_sta_max_sp_len, tvb, offset, 1, info);
-        proto_tree_add_boolean(info_tree, hf_ieee80211_ff_qos_info_sta_more_data_ack, tvb, offset, 1, info);
-
-        length +=1;
+        proto_tree_add_item(info_tree, hf_ieee80211_ff_qos_info_sta_ac_vo, tvb, offset, 1, TRUE);
+        proto_tree_add_item(info_tree, hf_ieee80211_ff_qos_info_sta_ac_vi, tvb, offset, 1, TRUE);
+        proto_tree_add_item(info_tree, hf_ieee80211_ff_qos_info_sta_ac_bk, tvb, offset, 1, TRUE);
+        proto_tree_add_item(info_tree, hf_ieee80211_ff_qos_info_sta_ac_be, tvb, offset, 1, TRUE);
+        proto_tree_add_item(info_tree, hf_ieee80211_ff_qos_info_sta_q_ack, tvb, offset, 1, TRUE);
+        proto_tree_add_item(info_tree, hf_ieee80211_ff_qos_info_sta_max_sp_len, tvb, offset, 1, TRUE);
+        proto_tree_add_item(info_tree, hf_ieee80211_ff_qos_info_sta_more_data_ack, tvb, offset, 1, TRUE);
+        length += 1;
         break;
       }
 
     case FIELD_SM_PWR_CNTRL:
       {
-        guint8 info;
         proto_item *info_item;
         proto_tree *info_tree;
 
-        info = tvb_get_guint8 (tvb, offset);
-
-        info_item = proto_tree_add_uint(tree, hf_ieee80211_ff_sm_pwr_save, tvb, offset, 1, info);
+        info_item = proto_tree_add_item(tree, hf_ieee80211_ff_sm_pwr_save, tvb, offset, 1, TRUE);
         info_tree = proto_item_add_subtree (info_item, ett_ff_sm_pwr_save);
 
-        proto_tree_add_boolean(info_tree, hf_ieee80211_ff_sm_pwr_save_enabled, tvb, offset, 1, info);
-        proto_tree_add_boolean(info_tree, hf_ieee80211_ff_sm_pwr_save_sm_mode, tvb, offset, 1, info);
-        proto_tree_add_uint(info_tree, hf_ieee80211_ff_sm_pwr_save_reserved, tvb, offset, 1, info);
-        length +=1;
+        proto_tree_add_item(info_tree, hf_ieee80211_ff_sm_pwr_save_enabled, tvb, offset, 1, TRUE);
+        proto_tree_add_item(info_tree, hf_ieee80211_ff_sm_pwr_save_sm_mode, tvb, offset, 1, TRUE);
+        proto_tree_add_item(info_tree, hf_ieee80211_ff_sm_pwr_save_reserved, tvb, offset, 1, TRUE);
+        length += 1;
         break;
       }
 
     case FIELD_PCO_PHASE_CNTRL:
         proto_tree_add_item(tree, hf_ieee80211_ff_pco_phase_cntrl, tvb, offset, 1, TRUE);
-        length +=1;
+        length += 1;
         break;
 
     case FIELD_PSMP_PARAM_SET:
       {
-        guint16 params;
         proto_item *param_item;
         proto_tree *param_tree;
 
-        params = tvb_get_letohs (tvb, offset);
-
-        param_item = proto_tree_add_uint(tree, hf_ieee80211_ff_psmp_param_set, tvb, offset, 2, params);
+        param_item = proto_tree_add_item(tree, hf_ieee80211_ff_psmp_param_set, tvb, offset, 2, TRUE);
         param_tree = proto_item_add_subtree (param_item, ett_ff_psmp_param_set);
 
-        proto_tree_add_uint(param_tree, hf_ieee80211_ff_psmp_param_set_n_sta, tvb, offset, 1, params & 0x000F);
-        proto_tree_add_boolean(param_tree, hf_ieee80211_ff_psmp_param_set_more_psmp, tvb, offset, 1, (params & 0x0010) >> 4);
-        proto_tree_add_uint_format(param_tree, hf_ieee80211_ff_psmp_param_set_psmp_sequence_duration, tvb, offset, 2,
-          (params & 0xFFE0) >> 5, "PSMP Sequence Duration: %u [us]", ((params & 0xFFE0) >> 5) * 8);
-        length +=2;
+        proto_tree_add_item(param_tree, hf_ieee80211_ff_psmp_param_set_n_sta, tvb, offset, 2, TRUE);
+        proto_tree_add_item(param_tree, hf_ieee80211_ff_psmp_param_set_more_psmp, tvb, offset, 2, TRUE );
+        proto_tree_add_item(param_tree, hf_ieee80211_ff_psmp_param_set_psmp_sequence_duration, tvb, offset, 2, TRUE);
+        length += 2;
         break;
       }
 
     case FIELD_MIMO_CNTRL:
       {
-        guint16 mimo;
-        guint32 timestamp;
         proto_item *mimo_item;
         proto_tree *mimo_tree;
 
-        mimo = tvb_get_letohs (tvb, offset);
-
-        mimo_item = proto_tree_add_text(tree, tvb, offset, 2, "MIMO Control");
+        mimo_item = proto_tree_add_item(tree, hf_ieee80211_ff_mimo_cntrl, tvb, offset, 6, TRUE);
         mimo_tree = proto_item_add_subtree (mimo_item, ett_ff_mimo_cntrl);
 
-        proto_tree_add_uint(mimo_tree, hf_ieee80211_ff_mimo_cntrl_nc_index, tvb, offset, 1, mimo);
-        proto_tree_add_uint(mimo_tree, hf_ieee80211_ff_mimo_cntrl_nr_index, tvb, offset, 1, mimo);
-        proto_tree_add_boolean(mimo_tree, hf_ieee80211_ff_mimo_cntrl_channel_width, tvb, offset, 1, mimo);
-        proto_tree_add_uint(mimo_tree, hf_ieee80211_ff_mimo_cntrl_grouping, tvb, offset, 1, mimo);
-        proto_tree_add_uint(mimo_tree, hf_ieee80211_ff_mimo_cntrl_coefficient_size, tvb, offset, 2, mimo);
-        proto_tree_add_uint(mimo_tree, hf_ieee80211_ff_mimo_cntrl_codebook_info, tvb, offset+1, 1, mimo);
-        proto_tree_add_uint(mimo_tree, hf_ieee80211_ff_mimo_cntrl_remaining_matrix_segment, tvb, offset+1, 1, mimo);
-        proto_tree_add_uint(mimo_tree, hf_ieee80211_ff_mimo_cntrl_reserved, tvb, offset+1, 1, mimo);
+        proto_tree_add_item(mimo_tree, hf_ieee80211_ff_mimo_cntrl_nc_index, tvb, offset, 1, TRUE);
+        proto_tree_add_item(mimo_tree, hf_ieee80211_ff_mimo_cntrl_nr_index, tvb, offset, 1, TRUE);
+        proto_tree_add_item(mimo_tree, hf_ieee80211_ff_mimo_cntrl_channel_width, tvb, offset, 1, TRUE);
+        proto_tree_add_item(mimo_tree, hf_ieee80211_ff_mimo_cntrl_grouping, tvb, offset, 1, TRUE);
+        proto_tree_add_item(mimo_tree, hf_ieee80211_ff_mimo_cntrl_coefficient_size, tvb, offset, 2, TRUE);
+        proto_tree_add_item(mimo_tree, hf_ieee80211_ff_mimo_cntrl_codebook_info, tvb, offset, 1, TRUE);
+        proto_tree_add_item(mimo_tree, hf_ieee80211_ff_mimo_cntrl_remaining_matrix_segment, tvb, offset, 1, TRUE);
+        proto_tree_add_item(mimo_tree, hf_ieee80211_ff_mimo_cntrl_reserved, tvb, offset, 1, TRUE);
 
-        offset+=2;
-        timestamp = tvb_get_letohl (tvb, offset);
-        proto_tree_add_uint(mimo_tree, hf_ieee80211_ff_mimo_cntrl_sounding_timestamp, tvb, offset, 4, timestamp);
-        length +=6;
+        offset += 2;
+        proto_tree_add_item(mimo_tree, hf_ieee80211_ff_mimo_cntrl_sounding_timestamp, tvb, offset, 4, TRUE);
+        length += 6;
         break;
       }
 
     case FIELD_ANT_SELECTION:
       {
-        guint8 ant;
         proto_item *ant_item;
         proto_tree *ant_tree;
 
-        ant = tvb_get_guint8 (tvb, offset);
-
-        ant_item = proto_tree_add_uint(tree, hf_ieee80211_ff_ant_selection, tvb, offset, 1, ant);
+        ant_item = proto_tree_add_item(tree, hf_ieee80211_ff_ant_selection, tvb, offset, 1, TRUE);
         ant_tree = proto_item_add_subtree (ant_item, ett_ff_ant_sel);
 
-        proto_tree_add_uint(ant_tree, hf_ieee80211_ff_ant_selection_0, tvb, offset, 1, ant);
-        proto_tree_add_uint(ant_tree, hf_ieee80211_ff_ant_selection_1, tvb, offset, 1, ant);
-        proto_tree_add_uint(ant_tree, hf_ieee80211_ff_ant_selection_2, tvb, offset, 1, ant);
-        proto_tree_add_uint(ant_tree, hf_ieee80211_ff_ant_selection_3, tvb, offset, 1, ant);
-        proto_tree_add_uint(ant_tree, hf_ieee80211_ff_ant_selection_4, tvb, offset, 1, ant);
-        proto_tree_add_uint(ant_tree, hf_ieee80211_ff_ant_selection_5, tvb, offset, 1, ant);
-        proto_tree_add_uint(ant_tree, hf_ieee80211_ff_ant_selection_6, tvb, offset, 1, ant);
-        proto_tree_add_uint(ant_tree, hf_ieee80211_ff_ant_selection_7, tvb, offset, 1, ant);
+        proto_tree_add_item(ant_tree, hf_ieee80211_ff_ant_selection_0, tvb, offset, 1, TRUE);
+        proto_tree_add_item(ant_tree, hf_ieee80211_ff_ant_selection_1, tvb, offset, 1, TRUE);
+        proto_tree_add_item(ant_tree, hf_ieee80211_ff_ant_selection_2, tvb, offset, 1, TRUE);
+        proto_tree_add_item(ant_tree, hf_ieee80211_ff_ant_selection_3, tvb, offset, 1, TRUE);
+        proto_tree_add_item(ant_tree, hf_ieee80211_ff_ant_selection_4, tvb, offset, 1, TRUE);
+        proto_tree_add_item(ant_tree, hf_ieee80211_ff_ant_selection_5, tvb, offset, 1, TRUE);
+        proto_tree_add_item(ant_tree, hf_ieee80211_ff_ant_selection_6, tvb, offset, 1, TRUE);
+        proto_tree_add_item(ant_tree, hf_ieee80211_ff_ant_selection_7, tvb, offset, 1, TRUE);
 
-        length +=1;
+        length += 1;
         break;
       }
 
     case FIELD_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT:
       {
-        guint32 ext_chan;
         proto_item *chan_item;
         proto_tree *chan_tree;
 
-        ext_chan = tvb_get_letohl (tvb, offset);
-
-        chan_item = proto_tree_add_uint(tree, hf_ieee80211_ff_ext_channel_switch_announcement, tvb, offset, 1, ext_chan);
+        chan_item = proto_tree_add_item(tree, hf_ieee80211_ff_ext_channel_switch_announcement, tvb, offset, 4, TRUE);
         chan_tree = proto_item_add_subtree (chan_item, ett_ff_chan_switch_announce);
 
-        proto_tree_add_uint(chan_tree, hf_ieee80211_tag_ext_channel_switch_announcement_switch_mode, tvb, offset++, 1, (ext_chan & 0x000000FF));
-        proto_tree_add_uint(chan_tree, hf_ieee80211_tag_ext_channel_switch_announcement_new_reg_class, tvb, offset++, 1, (ext_chan & 0x0000FF00) >> 8);
-        proto_tree_add_uint(chan_tree, hf_ieee80211_tag_ext_channel_switch_announcement_new_chan_number, tvb, offset++, 1, (ext_chan & 0x00FF0000) >> 16);
-        proto_tree_add_uint(chan_tree, hf_ieee80211_tag_ext_channel_switch_announcement_switch_count, tvb, offset++, 1, (ext_chan & 0xFF000000) >> 24);
+        proto_tree_add_item(chan_tree, hf_ieee80211_ff_ext_channel_switch_announcement_switch_mode, tvb, offset, 4, TRUE);
+        proto_tree_add_item(chan_tree, hf_ieee80211_ff_ext_channel_switch_announcement_new_reg_class, tvb, offset, 4, TRUE);
+        proto_tree_add_item(chan_tree, hf_ieee80211_ff_ext_channel_switch_announcement_new_chan_number, tvb, offset, 4, TRUE);
+        proto_tree_add_item(chan_tree, hf_ieee80211_ff_ext_channel_switch_announcement_switch_count, tvb, offset, 4, TRUE);
         length += 4;
         break;
       }
 
     case FIELD_HT_INFORMATION:
       {
-        guint8 info;
         proto_item *ht_item;
         proto_tree *ht_tree;
 
-        info = tvb_get_guint8 (tvb, offset);
-
-        ht_item = proto_tree_add_uint(tree, hf_ieee80211_ff_ht_info, tvb, offset, 1, info);
+        ht_item = proto_tree_add_uint(tree, hf_ieee80211_ff_ht_info, tvb, offset, 1, TRUE);
         ht_tree = proto_item_add_subtree (ht_item, ett_ff_ht_info);
 
-        proto_tree_add_boolean(ht_tree, hf_ieee80211_ff_ht_info_information_request, tvb, offset, 1, info);
-        proto_tree_add_boolean(ht_tree, hf_ieee80211_ff_ht_info_40_mhz_intolerant, tvb, offset, 1, info);
-        proto_tree_add_boolean(ht_tree, hf_ieee80211_ff_ht_info_sta_chan_width, tvb, offset, 1, info);
-        proto_tree_add_uint(ht_tree, hf_ieee80211_ff_ht_info_reserved, tvb, offset, 1, info);
+        proto_tree_add_item(ht_tree, hf_ieee80211_ff_ht_info_information_request, tvb, offset, 1, TRUE);
+        proto_tree_add_item(ht_tree, hf_ieee80211_ff_ht_info_40_mhz_intolerant, tvb, offset, 1, TRUE);
+        proto_tree_add_item(ht_tree, hf_ieee80211_ff_ht_info_sta_chan_width, tvb, offset, 1, TRUE);
+        proto_tree_add_item(ht_tree, hf_ieee80211_ff_ht_info_reserved, tvb, offset, 1, TRUE);
         length += 1;
         break;
       }
 
     case FIELD_HT_ACTION_CODE:
-        proto_tree_add_uint(tree, hf_ieee80211_ff_ht_action, tvb, offset, 1, tvb_get_guint8 (tvb, offset));
-        length +=1;
+        proto_tree_add_item(tree, hf_ieee80211_ff_ht_action, tvb, offset, 1,  TRUE);
+        length += 1;
         break;
 
     case FIELD_PSMP_STA_INFO:
       {
-        #define BROADCAST 0
-        #define MULTICAST 1
-        #define INDIVIDUALLY_ADDRESSED 2
 
-        guint64 info_large;
-        guint32 info_medium;
-        guint16 info_small;
-        guint8 type;
         proto_item *psmp_item;
         proto_tree *psmp_tree;
 
-        info_medium = tvb_get_letohl (tvb, offset);
-        type = info_medium & 0x3;
+        psmp_item = proto_tree_add_item(tree, hf_ieee80211_ff_psmp_sta_info, tvb, offset, 8, TRUE);
+        psmp_tree = proto_item_add_subtree(psmp_item, ett_ff_psmp_sta_info);
 
-        psmp_item = proto_tree_add_uint(tree, hf_ieee80211_ff_psmp_sta_info, tvb, offset, 8, type);
-        psmp_tree = proto_item_add_subtree (psmp_item, ett_ff_psmp_sta_info);
+        proto_tree_add_item(psmp_item, hf_ieee80211_ff_psmp_sta_info_type, tvb, offset, 4, TRUE);
 
-        switch (type)
+        switch (tvb_get_letohl(tvb, offset) & PSMP_STA_INFO_FLAG_TYPE)
           {
-            case BROADCAST:
+            case PSMP_STA_INFO_BROADCAST:
               {
-                proto_tree_add_uint(psmp_tree, hf_ieee80211_ff_psmp_sta_info_dtt_start_offset, tvb, offset, 2, (info_medium & 0x00001FFC) >> 2);
-                proto_tree_add_uint(psmp_tree, hf_ieee80211_ff_psmp_sta_info_dtt_duration, tvb, offset+1, 2, (info_medium & 0x001FE000) >> 13);
-                info_large = tvb_get_letoh64 (tvb, offset);
-                proto_tree_add_uint64(psmp_tree, hf_ieee80211_ff_psmp_sta_info_reserved_large, tvb, offset, 6, (info_large & G_GINT64_CONSTANT(0xFFFFFFFFFFE00000)) >> 21);
+                proto_tree_add_item(psmp_tree, hf_ieee80211_ff_psmp_sta_info_dtt_start_offset, tvb, offset, 4, TRUE);
+                proto_tree_add_item(psmp_tree, hf_ieee80211_ff_psmp_sta_info_dtt_duration, tvb, offset, 4, TRUE);
+                /* Missing 64 bit bitmask... */
+                proto_tree_add_uint64(psmp_tree, hf_ieee80211_ff_psmp_sta_info_reserved_large, tvb, offset, 8, (tvb_get_letoh64 (tvb, offset) & G_GINT64_CONSTANT(0xFFFFFFFFFFE00000)) >> 21);
                 break;
               }
 
-            case MULTICAST:
+            case PSMP_STA_INFO_MULTICAST:
               {
-                proto_tree_add_uint(psmp_tree, hf_ieee80211_ff_psmp_sta_info_dtt_start_offset, tvb, offset, 2, (info_medium & 0x00001FFC) >> 2);
-                proto_tree_add_uint(psmp_tree, hf_ieee80211_ff_psmp_sta_info_dtt_duration, tvb, offset+1, 2, (info_medium & 0x001FE000) >> 13);
-                info_large = tvb_get_letoh64 (tvb, offset);
-                proto_tree_add_uint64(psmp_tree, hf_ieee80211_ff_psmp_sta_info_psmp_multicast_id, tvb, offset, 6, (info_large & G_GINT64_CONSTANT(0xFFFFFFFFFFE00000)) >> 21);
+                proto_tree_add_item(psmp_tree, hf_ieee80211_ff_psmp_sta_info_dtt_start_offset, tvb, offset, 4, TRUE);
+                proto_tree_add_item(psmp_tree, hf_ieee80211_ff_psmp_sta_info_dtt_duration, tvb, offset, 4, TRUE);
+                /* Missing 64 bit bitmask... */
+                proto_tree_add_uint64(psmp_tree, hf_ieee80211_ff_psmp_sta_info_psmp_multicast_id, tvb, offset, 6, (tvb_get_letoh64 (tvb, offset) & G_GINT64_CONSTANT(0xFFFFFFFFFFE00000)) >> 21);
                 break;
               }
 
-            case INDIVIDUALLY_ADDRESSED:
+            case PSMP_STA_INFO_INDIVIDUALLY_ADDRESSED:
               {
-                proto_tree_add_uint(psmp_tree, hf_ieee80211_ff_psmp_sta_info_dtt_start_offset, tvb, offset, 2, (info_medium & 0x00001FFC) >> 2);
-                proto_tree_add_uint(psmp_tree, hf_ieee80211_ff_psmp_sta_info_dtt_duration, tvb, offset+1, 2, (info_medium & 0x001FE000) >> 13);
+                proto_tree_add_item(psmp_tree, hf_ieee80211_ff_psmp_sta_info_dtt_start_offset, tvb, offset, 4, TRUE);
+                proto_tree_add_item(psmp_tree, hf_ieee80211_ff_psmp_sta_info_dtt_duration, tvb, offset, 4, TRUE);
+
                 offset+=2;
-                info_medium = tvb_get_letohl (tvb, offset);
-                proto_tree_add_uint(psmp_tree, hf_ieee80211_ff_psmp_sta_info_sta_id, tvb, offset, 3, (info_medium & 0x001FFFE0) >> 5);
-                proto_tree_add_uint(psmp_tree, hf_ieee80211_ff_psmp_sta_info_utt_start_offset, tvb, offset+2, 2, (info_medium & 0xFFE00000) >> 21);
-                offset+=4;
-                info_small = tvb_get_letohs (tvb, offset);
-                proto_tree_add_uint(psmp_tree, hf_ieee80211_ff_psmp_sta_info_utt_duration, tvb, offset, 2, info_small & 0x03FF);
-                proto_tree_add_uint(psmp_tree, hf_ieee80211_ff_psmp_sta_info_reserved_small, tvb, offset+1, 1, (info_small & 0xFC00) >> 10);
+                proto_tree_add_item(psmp_tree, hf_ieee80211_ff_psmp_sta_info_sta_id, tvb, offset, 4, TRUE);
+                offset+=2;
+
+                proto_tree_add_item(psmp_tree, hf_ieee80211_ff_psmp_sta_info_utt_start_offset, tvb, offset, 4, TRUE);
+                proto_tree_add_item(psmp_tree, hf_ieee80211_ff_psmp_sta_info_utt_duration, tvb, offset, 4, TRUE);
+                proto_tree_add_item(psmp_tree, hf_ieee80211_ff_psmp_sta_info_reserved_small, tvb, offset, 4, TRUE);
                 break;
               }
           }
-        length +=8;
+        length += 8;
         break;
       }
 
@@ -3530,20 +3437,15 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       {
         proto_item *sched_item;
         proto_tree *sched_tree;
-        guint16 sched;
 
-        sched_item = proto_tree_add_item(tree, hf_ieee80211_sched_info,
-          tvb, offset, 2, TRUE);
+        sched_item = proto_tree_add_item(tree, hf_ieee80211_sched_info, tvb, offset, 2, TRUE);
         sched_tree = proto_item_add_subtree(sched_item, ett_sched_tree);
-        sched = tvb_get_letohs(tvb, offset);
-        proto_tree_add_uint(sched_tree, hf_ieee80211_tsinfo_agg, tvb, offset,
-          2, sched & 0x0001);
-        if (sched & 0x0001)
+
+        proto_tree_add_item(sched_tree, hf_ieee80211_sched_info_agg, tvb, offset, 2, TRUE);
+        if (tvb_get_letohs(tvb, offset) & 0x0001)
         {
-          proto_tree_add_uint(sched_tree, hf_ieee80211_tsinfo_tsid, tvb, offset,
-            2, (sched & 0x001E) >> 1);
-          proto_tree_add_uint(sched_tree, hf_ieee80211_tsinfo_dir, tvb, offset,
-            2, (sched & 0x0060) >> 5);
+          proto_tree_add_item(sched_tree, hf_ieee80211_sched_info_tsid, tvb, offset, 2, TRUE);
+          proto_tree_add_item(sched_tree, hf_ieee80211_sched_info_dir, tvb, offset, 2, TRUE);
         }
 
         length += 2;
@@ -3751,8 +3653,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                                             "Subtype %u", subtype);
                         offset++;
                         if (subtype == WFA_SUBTYPE_P2P)
-                          offset = dissect_wifi_p2p_public_action(action_tree,
-                                                                  tvb, offset);
+                          offset = dissect_wifi_p2p_public_action(action_tree, tvb, offset);
                         break;
                       default:
                         /* Don't know how to handle this vendor */
@@ -3762,67 +3663,42 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                     case PA_GAS_INITIAL_REQUEST:
                     {
                       gboolean anqp;
-                      offset += add_fixed_field(action_tree, tvb, offset,
-                                                FIELD_DIALOG_TOKEN);
-                      offset += dissect_advertisement_protocol(g_pinfo,
-                                                               action_tree,
-                                                               tvb, offset,
-                                                               &anqp);
-                      offset += dissect_gas_initial_request(action_tree, tvb,
-                                                            offset, anqp);
+                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
+                      offset += dissect_advertisement_protocol(g_pinfo, action_tree, tvb, offset, &anqp);
+                      offset += dissect_gas_initial_request(action_tree, tvb, offset, anqp);
                       break;
                     }
                     case PA_GAS_INITIAL_RESPONSE:
                     {
                       gboolean anqp;
-                      offset += add_fixed_field(action_tree, tvb, offset,
-                                                FIELD_DIALOG_TOKEN);
-                      offset += add_fixed_field(action_tree, tvb, offset,
-                                                FIELD_STATUS_CODE);
-                      offset += add_fixed_field(action_tree, tvb, offset,
-                                                FIELD_GAS_COMEBACK_DELAY);
-                      offset += dissect_advertisement_protocol(g_pinfo,
-                                                               action_tree,
-                                                               tvb, offset,
-                                                               &anqp);
-                      offset += dissect_gas_initial_response(action_tree, tvb,
-                                                             offset, anqp);
+                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
+                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_STATUS_CODE);
+                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_GAS_COMEBACK_DELAY);
+                      offset += dissect_advertisement_protocol(g_pinfo, action_tree, tvb, offset, &anqp);
+                      offset += dissect_gas_initial_response(action_tree, tvb, offset, anqp);
                       break;
                     }
                     case PA_GAS_COMEBACK_REQUEST:
-                      offset += add_fixed_field(action_tree, tvb, offset,
-                                                FIELD_DIALOG_TOKEN);
+                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
                       break;
                     case PA_GAS_COMEBACK_RESPONSE:
                     {
                       gboolean anqp;
                       guint8 frag;
-                      offset += add_fixed_field(action_tree, tvb, offset,
-                                                FIELD_DIALOG_TOKEN);
-                      offset += add_fixed_field(action_tree, tvb, offset,
-                                                FIELD_STATUS_CODE);
+                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
+                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_STATUS_CODE);
                       frag = tvb_get_guint8(tvb, offset) & 0x7f;
-                      offset += add_fixed_field(action_tree, tvb, offset,
-                                                FIELD_GAS_FRAGMENT_ID);
-                      offset += add_fixed_field(action_tree, tvb, offset,
-                                                FIELD_GAS_COMEBACK_DELAY);
-                      offset += dissect_advertisement_protocol(g_pinfo,
-                                                               action_tree,
-                                                               tvb, offset,
-                                                               &anqp);
-                      offset += dissect_gas_comeback_response(action_tree,
-                                                              tvb, offset,
-                                                              anqp, frag);
+                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_GAS_FRAGMENT_ID);
+                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_GAS_COMEBACK_DELAY);
+                      offset += dissect_advertisement_protocol(g_pinfo, action_tree, tvb, offset, &anqp);
+                      offset += dissect_gas_comeback_response(action_tree, tvb, offset, anqp, frag);
                       break;
                     }
                     case PA_TDLS_DISCOVERY_RESPONSE:
                       col_set_str(g_pinfo->cinfo, COL_PROTOCOL, "TDLS");
-                      col_set_str(g_pinfo->cinfo, COL_INFO,
-                                  "TDLS Discovery Response");
-                      offset += add_fixed_field(action_tree, tvb, offset,
-                                                FIELD_DIALOG_TOKEN);
-                      offset += add_fixed_field(action_tree, tvb, offset,
-                                                FIELD_CAP_INFO);
+                      col_set_str(g_pinfo->cinfo, COL_INFO, "TDLS Discovery Response");
+                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
+                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_CAP_INFO);
                       break;
                   }
                 length += offset - start;  /* Size of fixed fields */
@@ -3833,43 +3709,31 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
               {
                 guint start = offset;
                 guint8 code;
-                offset += add_fixed_field(action_tree, tvb, offset,
-                                          FIELD_CATEGORY_CODE);
+                offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
                 code = tvb_get_guint8(tvb, offset);
-                offset += add_fixed_field(action_tree, tvb, offset,
-                                          FIELD_FT_ACTION_CODE);
+                offset += add_fixed_field(action_tree, tvb, offset, FIELD_FT_ACTION_CODE);
 
                 switch (code) {
                 case FT_ACTION_REQUEST:
-                  offset += add_fixed_field(action_tree, tvb, offset,
-                                            FIELD_STA_ADDRESS);
-                  offset += add_fixed_field(action_tree, tvb, offset,
-                                            FIELD_TARGET_AP_ADDRESS);
+                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_STA_ADDRESS);
+                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_TARGET_AP_ADDRESS);
                   /* Followed by FT Request frame body (IEs) */
                   break;
                 case FT_ACTION_RESPONSE:
-                  offset += add_fixed_field(action_tree, tvb, offset,
-                                            FIELD_STA_ADDRESS);
-                  offset += add_fixed_field(action_tree, tvb, offset,
-                                            FIELD_TARGET_AP_ADDRESS);
-                  offset += add_fixed_field(action_tree, tvb, offset,
-                                            FIELD_STATUS_CODE);
+                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_STA_ADDRESS);
+                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_TARGET_AP_ADDRESS);
+                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_STATUS_CODE);
                   /* Followed by FT Response frame body (IEs) */
                   break;
                 case FT_ACTION_CONFIRM:
-                  offset += add_fixed_field(action_tree, tvb, offset,
-                                            FIELD_STA_ADDRESS);
-                  offset += add_fixed_field(action_tree, tvb, offset,
-                                            FIELD_TARGET_AP_ADDRESS);
+                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_STA_ADDRESS);
+                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_TARGET_AP_ADDRESS);
                   /* Followed by FT Confirm frame body (IEs) */
                   break;
                 case FT_ACTION_ACK:
-                  offset += add_fixed_field(action_tree, tvb, offset,
-                                            FIELD_STA_ADDRESS);
-                  offset += add_fixed_field(action_tree, tvb, offset,
-                                            FIELD_TARGET_AP_ADDRESS);
-                  offset += add_fixed_field(action_tree, tvb, offset,
-                                            FIELD_STATUS_CODE);
+                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_STA_ADDRESS);
+                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_TARGET_AP_ADDRESS);
+                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_STATUS_CODE);
                   /* Followed by FT Ack frame body (IEs) */
                   break;
                 }
@@ -3882,20 +3746,16 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
               {
                 guint start = offset;
                 guint8 code;
-                offset += add_fixed_field(action_tree, tvb, offset,
-                                          FIELD_CATEGORY_CODE);
+                offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
                 code = tvb_get_guint8(tvb, offset);
-                offset += add_fixed_field(action_tree, tvb, offset,
-                                          FIELD_SA_QUERY_ACTION_CODE);
+                offset += add_fixed_field(action_tree, tvb, offset, FIELD_SA_QUERY_ACTION_CODE);
 
                 switch (code) {
                 case SA_QUERY_REQUEST:
-                  offset += add_fixed_field(action_tree, tvb, offset,
-                                            FIELD_TRANSACTION_ID);
+                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_TRANSACTION_ID);
                   break;
                 case SA_QUERY_RESPONSE:
-                  offset += add_fixed_field(action_tree, tvb, offset,
-                                            FIELD_TRANSACTION_ID);
+                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_TRANSACTION_ID);
                   break;
                 }
 
@@ -3994,87 +3854,62 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
             guint16 status;
             guint start = offset;
 
-            offset += add_fixed_field(action_tree, tvb, offset,
-                                      FIELD_CATEGORY_CODE);
+            offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
             code = tvb_get_guint8(tvb, offset);
-            offset += add_fixed_field(action_tree, tvb, offset,
-                                      FIELD_TDLS_ACTION_CODE);
+            offset += add_fixed_field(action_tree, tvb, offset, FIELD_TDLS_ACTION_CODE);
             switch (code) {
             case TDLS_SETUP_REQUEST:
-              offset += add_fixed_field(action_tree, tvb, offset,
-                                        FIELD_DIALOG_TOKEN);
-              offset += add_fixed_field(action_tree, tvb, offset,
-                                        FIELD_CAP_INFO);
+              offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
+              offset += add_fixed_field(action_tree, tvb, offset, FIELD_CAP_INFO);
               break;
             case TDLS_SETUP_RESPONSE:
               status = tvb_get_letohs(tvb, offset);
-              offset += add_fixed_field(action_tree, tvb, offset,
-                                        FIELD_STATUS_CODE);
-              offset += add_fixed_field(action_tree, tvb, offset,
-                                        FIELD_DIALOG_TOKEN);
+              offset += add_fixed_field(action_tree, tvb, offset, FIELD_STATUS_CODE);
+              offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
               if (tvb_reported_length_remaining(tvb, offset) < 2) {
                 if (status == 0) {
-                  expert_add_info_format(g_pinfo, action_item,
-                                         PI_MALFORMED, PI_ERROR,
-                                         "TDLS Setup Response (success) "
-                                         "does not include mandatory fields");
+                  expert_add_info_format(g_pinfo, action_item, PI_MALFORMED, PI_ERROR, "TDLS Setup Response (success) does not include mandatory fields");
                 }
                 break;
               }
-              offset += add_fixed_field(action_tree, tvb, offset,
-                                        FIELD_CAP_INFO);
+              offset += add_fixed_field(action_tree, tvb, offset, FIELD_CAP_INFO);
               break;
             case TDLS_SETUP_CONFIRM:
               status = tvb_get_letohs(tvb, offset);
-              offset += add_fixed_field(action_tree, tvb, offset,
-                                        FIELD_STATUS_CODE);
+              offset += add_fixed_field(action_tree, tvb, offset, FIELD_STATUS_CODE);
               if (tvb_reported_length_remaining(tvb, offset) < 1) {
                 if (status == 0) {
-                  expert_add_info_format(g_pinfo, action_item,
-                                         PI_MALFORMED, PI_ERROR,
-                                         "TDLS Setup Confirm (success) does "
-                                         "not include mandatory fields");
+                  expert_add_info_format(g_pinfo, action_item, PI_MALFORMED, PI_ERROR, "TDLS Setup Confirm (success) does not include mandatory fields");
                 }
                 break;
               }
-              offset += add_fixed_field(action_tree, tvb, offset,
-                                        FIELD_DIALOG_TOKEN);
+              offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
               break;
             case TDLS_TEARDOWN:
-              offset += add_fixed_field(action_tree, tvb, offset,
-                                        FIELD_REASON_CODE);
+              offset += add_fixed_field(action_tree, tvb, offset, FIELD_REASON_CODE);
               break;
             case TDLS_PEER_TRAFFIC_INDICATION:
-              offset += add_fixed_field(action_tree, tvb, offset,
-                                        FIELD_DIALOG_TOKEN);
+              offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
               break;
             case TDLS_CHANNEL_SWITCH_REQUEST:
-              offset += add_fixed_field(action_tree, tvb, offset,
-                                        FIELD_TARGET_CHANNEL);
-              offset += add_fixed_field(action_tree, tvb, offset,
-                                        FIELD_REGULATORY_CLASS);
+              offset += add_fixed_field(action_tree, tvb, offset, FIELD_TARGET_CHANNEL);
+              offset += add_fixed_field(action_tree, tvb, offset, FIELD_REGULATORY_CLASS);
               break;
             case TDLS_CHANNEL_SWITCH_RESPONSE:
-              offset += add_fixed_field(action_tree, tvb, offset,
-                                        FIELD_STATUS_CODE);
+              offset += add_fixed_field(action_tree, tvb, offset, FIELD_STATUS_CODE);
               break;
             case TDLS_PEER_PSM_REQUEST:
-              offset += add_fixed_field(action_tree, tvb, offset,
-                                        FIELD_DIALOG_TOKEN);
+              offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
               break;
             case TDLS_PEER_PSM_RESPONSE:
-              offset += add_fixed_field(action_tree, tvb, offset,
-                                        FIELD_DIALOG_TOKEN);
-              offset += add_fixed_field(action_tree, tvb, offset,
-                                        FIELD_STATUS_CODE);
+              offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
+              offset += add_fixed_field(action_tree, tvb, offset, FIELD_STATUS_CODE);
               break;
             case TDLS_PEER_TRAFFIC_RESPONSE:
-              offset += add_fixed_field(action_tree, tvb, offset,
-                                        FIELD_DIALOG_TOKEN);
+              offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
               break;
             case TDLS_DISCOVERY_REQUEST:
-              offset += add_fixed_field(action_tree, tvb, offset,
-                                        FIELD_DIALOG_TOKEN);
+              offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
               break;
             }
 
@@ -4110,10 +3945,10 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                 switch (oui)
                   {
                     case OUI_MARVELL:
-                      offset = dissect_vendor_action_marvell (action_tree, tvb, offset);
+                      offset = dissect_vendor_action_marvell(action_tree, tvb, offset);
                       break;
                     case OUI_WFA:
-                      subtype = tvb_get_guint8(tvb, offset);
+                      subtype = tvb_get_guint8(tvb, offset); 
                       proto_tree_add_text(action_tree, tvb, offset, 1,
                                           "Subtype %u", subtype);
                       offset++;
@@ -4166,27 +4001,27 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                     case HT_ACTION_MIMO_CSI:
                       {
                         mimo_control_t mimo_cntrl;
-                        mimo_cntrl = get_mimo_control (tvb, offset);
+                        mimo_cntrl = get_mimo_control(tvb, offset);
                         offset += add_fixed_field(action_tree, tvb, offset, FIELD_MIMO_CNTRL);
-                        offset += add_mimo_csi_matrices_report (action_tree, tvb, offset, mimo_cntrl);
+                        offset += add_mimo_csi_matrices_report(action_tree, tvb, offset, mimo_cntrl);
                         break;
                       }
 
                     case HT_ACTION_MIMO_BEAMFORMING:
                       {
                         mimo_control_t mimo_cntrl;
-                        mimo_cntrl = get_mimo_control (tvb, offset);
+                        mimo_cntrl = get_mimo_control(tvb, offset);
                         offset += add_fixed_field(action_tree, tvb, offset, FIELD_MIMO_CNTRL);
-                        offset += add_mimo_beamforming_feedback_report (action_tree, tvb, offset, mimo_cntrl);
+                        offset += add_mimo_beamforming_feedback_report(action_tree, tvb, offset, mimo_cntrl);
                         break;
                       }
 
                     case HT_ACTION_MIMO_COMPRESSED_BEAMFORMING:
                       {
                         mimo_control_t mimo_cntrl;
-                        mimo_cntrl = get_mimo_control (tvb, offset);
+                        mimo_cntrl = get_mimo_control(tvb, offset);
                         offset += add_fixed_field(action_tree, tvb, offset, FIELD_MIMO_CNTRL);
-                        offset += add_mimo_compressed_beamforming_feedback_report (action_tree, tvb, offset, mimo_cntrl);
+                        offset += add_mimo_compressed_beamforming_feedback_report(action_tree, tvb, offset, mimo_cntrl);
                         break;
                       }
 
@@ -4215,46 +4050,38 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       }
 
     case FIELD_FT_ACTION_CODE:
-      proto_tree_add_item(tree, hf_ieee80211_ff_ft_action_code, tvb, offset, 1,
-                          FALSE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_ft_action_code, tvb, offset, 1, FALSE);
       length += 1;
       break;
 
     case FIELD_STA_ADDRESS:
-      proto_tree_add_item(tree, hf_ieee80211_ff_sta_address, tvb, offset, 6,
-                          FALSE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_sta_address, tvb, offset, 6, FALSE);
       length += 6;
       break;
 
     case FIELD_TARGET_AP_ADDRESS:
-      proto_tree_add_item(tree, hf_ieee80211_ff_target_ap_address, tvb, offset, 6,
-                          FALSE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_target_ap_address, tvb, offset, 6, FALSE);
       length += 6;
       break;
 
     case FIELD_GAS_COMEBACK_DELAY:
-      proto_tree_add_item(tree, hf_ieee80211_ff_gas_comeback_delay,
-                          tvb, offset, 2, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_gas_comeback_delay, tvb, offset, 2, TRUE);
       length += 2;
       break;
 
     case FIELD_GAS_FRAGMENT_ID:
-      proto_tree_add_item(tree, hf_ieee80211_ff_gas_fragment_id,
-                          tvb, offset, 1, FALSE);
-      proto_tree_add_item(tree, hf_ieee80211_ff_more_gas_fragments,
-                          tvb, offset, 1, FALSE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_gas_fragment_id, tvb, offset, 1, FALSE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_more_gas_fragments, tvb, offset, 1, FALSE);
       length += 1;
       break;
 
     case FIELD_SA_QUERY_ACTION_CODE:
-      proto_tree_add_item(tree, hf_ieee80211_ff_sa_query_action_code, tvb,
-                          offset, 1, FALSE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_sa_query_action_code, tvb, offset, 1, FALSE);
       length += 1;
       break;
 
     case FIELD_TRANSACTION_ID:
-      proto_tree_add_item(tree, hf_ieee80211_ff_transaction_id,
-                          tvb, offset, 2, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_transaction_id, tvb, offset, 2, TRUE);
       length += 2;
       break;
 
@@ -4262,24 +4089,19 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
     {
       guint8 code;
       code = tvb_get_guint8(tvb, offset);
-      col_set_str(g_pinfo->cinfo, COL_INFO,
-                  val_to_str_const(code, tdls_action_codes,
-                                   "Unknown TDLS Action"));
-      proto_tree_add_item(tree, hf_ieee80211_ff_tdls_action_code, tvb, offset,
-                          1, FALSE);
+      col_set_str(g_pinfo->cinfo, COL_INFO, val_to_str_const(code, tdls_action_codes, "Unknown TDLS Action"));
+      proto_tree_add_item(tree, hf_ieee80211_ff_tdls_action_code, tvb, offset, 1, FALSE);
       length += 1;
       break;
     }
 
     case FIELD_TARGET_CHANNEL:
-      proto_tree_add_item(tree, hf_ieee80211_ff_target_channel, tvb, offset, 1,
-                          FALSE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_target_channel, tvb, offset, 1,  FALSE);
       length += 1;
       break;
 
     case FIELD_REGULATORY_CLASS:
-      proto_tree_add_item(tree, hf_ieee80211_ff_regulatory_class, tvb, offset,
-                          1, FALSE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_regulatory_class, tvb, offset, 1, FALSE);
       length += 1;
       break;
   }
@@ -7730,8 +7552,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       dissect_frame_control(hdr_tree, tvb, wlan_broken_fc, 0);
 
       if (frame_type_subtype == CTRL_PS_POLL)
-        proto_tree_add_uint(hdr_tree, hf_ieee80211_assoc_id,tvb,2,2,
-            ASSOC_ID(tvb_get_letohs(tvb,2)));
+        proto_tree_add_uint(hdr_tree, hf_ieee80211_assoc_id, tvb, 2, 2, TRUE);
 
       else
         proto_tree_add_uint (hdr_tree, hf_ieee80211_did_duration, tvb, 2, 2,
@@ -10202,13 +10023,7 @@ proto_register_ieee80211 (void)
     {0, NULL}
   };
 
-  static const value_string ff_psmp_sta_info_flags[] = {
-    {0x00, "Broadcast"},
-    {0x01, "Multicast"},
-    {0x02, "Individually Addressed"},
-    {0x03, "Unknown"},
-    {0, NULL}
-  };
+
 
   static const value_string ff_pa_action_codes[] = {
     {PA_DSE_ENABLEMENT, "DSE enablement"},
@@ -10781,7 +10596,7 @@ proto_register_ieee80211 (void)
       "Strictly ordered flag", HFILL }},
 
     {&hf_ieee80211_assoc_id,
-     {"Association ID","wlan.aid",FT_UINT16, BASE_DEC,NULL,0,
+     {"Association ID","wlan.aid",FT_UINT16, BASE_DEC, NULL, 0x3FFF,
       "Association-ID field", HFILL }},
 
     {&hf_ieee80211_did_duration,
@@ -11732,7 +11547,7 @@ proto_register_ieee80211 (void)
   static hf_register_info ff[] = {
 
     {&hf_ieee80211_ff_timestamp,
-     {"Timestamp", "wlan_mgt.fixed.timestamp", FT_STRING, BASE_NONE,
+     {"Timestamp", "wlan_mgt.fixed.timestamp", FT_UINT64, BASE_HEX,
       NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_ff_auth_alg,
@@ -11740,7 +11555,7 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_DEC, VALS (&auth_alg), 0, NULL, HFILL }},
 
     {&hf_ieee80211_ff_beacon_interval,
-     {"Beacon Interval", "wlan_mgt.fixed.beacon", FT_DOUBLE, BASE_NONE, NULL, 0,
+     {"Beacon Interval", "wlan_mgt.fixed.beacon", FT_UINT32, BASE_CUSTOM, beacon_interval_base_custom, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_fixed_parameters,
@@ -11769,7 +11584,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_ff_block_ack_params_tid,
       {"Traffic Identifier", "wlan_mgt.fixed.baparams.tid",
-      FT_UINT8, BASE_HEX, NULL, 0x003C, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x003C, NULL, HFILL }},
 
     {&hf_ieee80211_ff_block_ack_params_buffer_size,
       {"Number of Buffers (1 Buffer = 2304 Bytes)", "wlan_mgt.fixed.baparams.buffersize",
@@ -11917,23 +11732,27 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_ff_psmp_param_set_n_sta,
      {"Number of STA Info Fields Present", "wlan_mgt.fixed.psmp.paramset.nsta",
-      FT_UINT8, BASE_HEX, 0, 0, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0x000F, NULL, HFILL }},
 
     {&hf_ieee80211_ff_psmp_param_set_more_psmp,
      {"More PSMP", "wlan_mgt.fixed.psmp.paramset.more",
-      FT_BOOLEAN, BASE_NONE, TFS(&ff_psmp_param_set_more_psmp_flag), 0x0, "More Power Save Multi-Poll (PSMP)", HFILL }},
+      FT_BOOLEAN, 16, TFS(&ff_psmp_param_set_more_psmp_flag), 0x0010, "More Power Save Multi-Poll (PSMP)", HFILL }},
 
     {&hf_ieee80211_ff_psmp_param_set_psmp_sequence_duration,
-     {"PSMP Sequence Duration", "wlan_mgt.fixed.psmp.paramset.seqduration",
-      FT_UINT16, BASE_DEC, 0, 0, "Power Save Multi-Poll (PSMP) Sequence Duration", HFILL }},
+     {"PSMP Sequence Duration [us]", "wlan_mgt.fixed.psmp.paramset.seqduration",
+      FT_UINT16, BASE_DEC, 0, 0xFFE0, "Power Save Multi-Poll (PSMP) Sequence Duration", HFILL }},
+
+    {&hf_ieee80211_ff_mimo_cntrl,
+     {"MIMO Control", "wlan_mgt.fixed.mimo.control.",
+      FT_BYTES, BASE_NONE, 0, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_ff_mimo_cntrl_nc_index,
      {"Nc Index", "wlan_mgt.fixed.mimo.control.ncindex",
-      FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_nc_index_flags), 0x0003, "Number of Columns Less One", HFILL }},
+      FT_UINT16, BASE_HEX, VALS(&ff_mimo_cntrl_nc_index_flags), 0x0003, "Number of Columns Less One", HFILL }},
 
     {&hf_ieee80211_ff_mimo_cntrl_nr_index,
      {"Nr Index", "wlan_mgt.fixed.mimo.control.nrindex",
-      FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_nr_index_flags), 0x000C, "Number of Rows Less One", HFILL }},
+      FT_UINT16, BASE_HEX, VALS(&ff_mimo_cntrl_nr_index_flags), 0x000C, "Number of Rows Less One", HFILL }},
 
     {&hf_ieee80211_ff_mimo_cntrl_channel_width,
      {"Channel Width", "wlan_mgt.fixed.mimo.control.chanwidth",
@@ -11941,15 +11760,15 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_ff_mimo_cntrl_grouping,
      {"Grouping (Ng)", "wlan_mgt.fixed.mimo.control.grouping",
-      FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_grouping_flags), 0x0060, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, VALS(&ff_mimo_cntrl_grouping_flags), 0x0060, NULL, HFILL }},
 
     {&hf_ieee80211_ff_mimo_cntrl_coefficient_size,
      {"Coefficient Size (Nb)", "wlan_mgt.fixed.mimo.control.cosize",
-      FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_coefficient_size_flags), 0x0180, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, VALS(&ff_mimo_cntrl_coefficient_size_flags), 0x0180, NULL, HFILL }},
 
     {&hf_ieee80211_ff_mimo_cntrl_codebook_info,
      {"Codebook Information", "wlan_mgt.fixed.mimo.control.codebookinfo",
-      FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_codebook_info_flags), 0x0600, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, VALS(&ff_mimo_cntrl_codebook_info_flags), 0x0600, NULL, HFILL }},
 
     {&hf_ieee80211_ff_mimo_cntrl_remaining_matrix_segment,
      {"Remaining Matrix Segment", "wlan_mgt.fixed.mimo.control.matrixseg",
@@ -11965,31 +11784,35 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_ff_psmp_sta_info,
      {"Power Save Multi-Poll (PSMP) Station Information", "wlan_mgt.fixed.psmp.stainfo",
-      FT_UINT8, BASE_HEX, VALS (&ff_psmp_sta_info_flags), 0, NULL, HFILL }},
+      FT_UINT64, BASE_HEX, 0, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_psmp_sta_info_type,
+     {"Sta Info Type", "wlan_mgt.fixed.psmp.stainfo.type",
+      FT_UINT32, BASE_HEX, VALS(&ff_psmp_sta_info_flags), PSMP_STA_INFO_FLAG_TYPE, NULL, HFILL }},
 
     {&hf_ieee80211_ff_psmp_sta_info_dtt_start_offset,
      {"DTT Start Offset", "wlan_mgt.fixed.psmp.stainfo.dttstart",
-      FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL }},
+      FT_UINT32, BASE_HEX, 0, PSMP_STA_INFO_FLAG_DTT_START, NULL, HFILL }},
 
     {&hf_ieee80211_ff_psmp_sta_info_dtt_duration,
      {"DTT Duration", "wlan_mgt.fixed.psmp.stainfo.dttduration",
-      FT_UINT8, BASE_HEX, 0, 0, NULL, HFILL }},
+      FT_UINT32, BASE_HEX, 0, PSMP_STA_INFO_FLAG_DTT_DURATION, NULL, HFILL }},
 
     {&hf_ieee80211_ff_psmp_sta_info_sta_id,
      {"Target Station ID", "wlan_mgt.fixed.psmp.stainfo.staid",
-      FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL }},
+      FT_UINT32, BASE_HEX, 0, PSMP_STA_INFO_FLAG_STA_ID, NULL, HFILL }},
 
     {&hf_ieee80211_ff_psmp_sta_info_utt_start_offset,
      {"UTT Start Offset", "wlan_mgt.fixed.psmp.stainfo.uttstart",
-      FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL }},
+      FT_UINT32, BASE_HEX, 0, PSMP_STA_INFO_FLAG_UTT_START, NULL, HFILL }},
 
     {&hf_ieee80211_ff_psmp_sta_info_utt_duration,
      {"UTT Duration", "wlan_mgt.fixed.psmp.stainfo.uttduration",
-      FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL }},
+      FT_UINT32, BASE_HEX, 0, PSMP_STA_INFO_FLAG_UTT_DURATION, NULL, HFILL }},
 
     {&hf_ieee80211_ff_psmp_sta_info_reserved_small,
      {"Reserved", "wlan_mgt.fixed.psmp.stainfo.reserved",
-      FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL }},
+      FT_UINT32, BASE_HEX, 0, PSMP_STA_INFO_FLAG_IA_RESERVED, NULL, HFILL }},
 
     {&hf_ieee80211_ff_psmp_sta_info_reserved_large,
      {"Reserved", "wlan_mgt.fixed.psmp.stainfo.reserved",
@@ -12039,6 +11862,22 @@ proto_register_ieee80211 (void)
      {"Extended Channel Switch Announcement", "wlan_mgt.fixed.extchansw",
       FT_UINT32, BASE_HEX, 0, 0, NULL, HFILL }},
 
+    {&hf_ieee80211_ff_ext_channel_switch_announcement_switch_mode,
+     {"Channel Switch Mode", "wlan_mgt.fixed.extchansw.switchmode",
+      FT_UINT32, BASE_HEX, VALS(&ieee80211_tag_ext_channel_switch_announcement_switch_mode_flags), 0x000000FF, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ext_channel_switch_announcement_new_reg_class,
+     {"New Regulatory Class", "wlan_mgt.fixed.extchansw.new.regclass",
+      FT_UINT32, BASE_HEX, NULL, 0x0000FF00, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ext_channel_switch_announcement_new_chan_number,
+     {"New Channel Number", "wlan_mgt.fixed.extchansw.new.channumber",
+      FT_UINT32, BASE_HEX, NULL, 0x00FF0000, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ext_channel_switch_announcement_switch_count,
+     {"Channel Switch Count", "wlan_mgt.extchanswitch.switchcount",
+      FT_UINT32, BASE_HEX, NULL, 0xFF000000, NULL, HFILL }},
+
     {&hf_ieee80211_ff_ht_info,
      {"HT Information", "wlan_mgt.fixed.extchansw",
       FT_UINT8, BASE_HEX, 0, 0, "HT Information Fixed Field", HFILL }},
@@ -12072,7 +11911,7 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_HEX, VALS(ff_pa_action_codes), 0, "Public Action Code", HFILL }},
 
     {&hf_ieee80211_ff_capture,
-     {"Capabilities", "wlan_mgt.fixed.capabilities", FT_UINT16, BASE_HEX, NULL, 0,
+     {"Capabilities Information", "wlan_mgt.fixed.capabilities", FT_UINT16, BASE_HEX, NULL, 0,
       "Capability information", HFILL }},
 
     {&hf_ieee80211_ff_cf_ess,
@@ -12141,7 +11980,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_ff_assoc_id,
      {"Association ID", "wlan_mgt.fixed.aid",
-      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x3FFF, NULL, HFILL }},
 
     {&hf_ieee80211_ff_listen_ival,
      {"Listen Interval", "wlan_mgt.fixed.listen_ival",
@@ -13407,22 +13246,6 @@ proto_register_ieee80211 (void)
      {"PHY Type", "wlan_mgt.nreport.phytype",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
-    {&hf_ieee80211_tag_ext_channel_switch_announcement_switch_mode,
-     {"Channel Switch Mode", "wlan_mgt.extchanswitch.switchmode",
-      FT_UINT8, BASE_HEX, VALS (&ieee80211_tag_ext_channel_switch_announcement_switch_mode_flags), 0, NULL, HFILL }},
-
-    {&hf_ieee80211_tag_ext_channel_switch_announcement_new_reg_class,
-     {"New Regulatory Class", "wlan_mgt.extchanswitch.new.regclass",
-      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-
-    {&hf_ieee80211_tag_ext_channel_switch_announcement_new_chan_number,
-     {"New Channel Number", "wlan_mgt.extchanswitch.new.channumber",
-      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-
-    {&hf_ieee80211_tag_ext_channel_switch_announcement_switch_count,
-     {"Channel Switch Count", "wlan_mgt.extchanswitch.switchcount",
-      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-
     {&hf_ieee80211_tag_supported_reg_classes_current,
      {"Current Regulatory Class", "wlan_mgt.supregclass.current",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -13520,40 +13343,44 @@ proto_register_ieee80211 (void)
       FT_UINT24, BASE_HEX, NULL, 0, "Traffic Stream (TS) Info field", HFILL }},
 
     {&hf_ieee80211_tsinfo_type,
-     {"Traffic Type", "wlan_mgt.ts_info.type", FT_UINT8, BASE_DEC,
-      VALS (&tsinfo_type), 0, "Traffic Stream (TS) Info Traffic Type", HFILL }},
+     {"Traffic Type", "wlan_mgt.ts_info.type", FT_UINT24, BASE_DEC,
+      VALS (&tsinfo_type), 0x000001, "Traffic Stream (TS) Info Traffic Type", HFILL }},
 
     {&hf_ieee80211_tsinfo_tsid,
      {"Traffic Stream ID (TSID)", "wlan_mgt.ts_info.tsid",
-      FT_UINT8, BASE_DEC, NULL, 0, "Traffic Stream ID (TSID) Info TSID", HFILL }},
+      FT_UINT24, BASE_DEC, NULL, 0x00001E, "Traffic Stream ID (TSID) Info TSID", HFILL }},
 
     {&hf_ieee80211_tsinfo_dir,
-     {"Direction", "wlan_mgt.ts_info.dir", FT_UINT8, BASE_DEC,
-      VALS (&tsinfo_direction), 0, "Traffic Stream (TS) Info Direction", HFILL }},
+     {"Direction", "wlan_mgt.ts_info.dir", FT_UINT24, BASE_DEC,
+      VALS (&tsinfo_direction), 0x000060, "Traffic Stream (TS) Info Direction", HFILL }},
 
     {&hf_ieee80211_tsinfo_access,
-     {"Access Policy", "wlan_mgt.ts_info.dir", FT_UINT8, BASE_DEC,
-      VALS (&tsinfo_access), 0, "Traffic Stream (TS) Info Access Policy", HFILL }},
+     {"Access Policy", "wlan_mgt.ts_info.dir", FT_UINT24, BASE_DEC,
+      VALS (&tsinfo_access), 0x000180, "Traffic Stream (TS) Info Access Policy", HFILL }},
 
     {&hf_ieee80211_tsinfo_agg,
-     {"Aggregation", "wlan_mgt.ts_info.agg", FT_UINT8, BASE_DEC,
-      NULL, 0, "Traffic Stream (TS) Info Access Policy", HFILL }},
+     {"Aggregation", "wlan_mgt.ts_info.agg", FT_UINT24, BASE_DEC,
+      NULL, 0x000200, "Traffic Stream (TS) Info Access Policy", HFILL }},
 
     {&hf_ieee80211_tsinfo_apsd,
-     {"Automatic Power-Save Delivery (APSD)", "wlan_mgt.ts_info.apsd", FT_UINT8, BASE_DEC,
-      NULL, 0, "Traffic Stream (TS) Info Automatic Power-Save Delivery (APSD)", HFILL }},
+     {"Automatic Power-Save Delivery (APSD)", "wlan_mgt.ts_info.apsd", FT_UINT24, BASE_DEC,
+      NULL, 0x000400, "Traffic Stream (TS) Info Automatic Power-Save Delivery (APSD)", HFILL }},
 
     {&hf_ieee80211_tsinfo_up,
-     {"User Priority", "wlan_mgt.ts_info.up", FT_UINT8, BASE_DEC,
-      VALS (&qos_up), 0, "Traffic Stream (TS) Info User Priority", HFILL }},
+     {"User Priority", "wlan_mgt.ts_info.up", FT_UINT24, BASE_DEC,
+      VALS (&qos_up), 0x003800, "Traffic Stream (TS) Info User Priority", HFILL }},
 
     {&hf_ieee80211_tsinfo_ack,
-     {"Ack Policy", "wlan_mgt.ts_info.ack", FT_UINT8, BASE_DEC,
-      VALS (&ack_policy), 0, "Traffic Stream (TS) Info Ack Policy", HFILL }},
+     {"Ack Policy", "wlan_mgt.ts_info.ack", FT_UINT24, BASE_DEC,
+      VALS (&ack_policy), 0x00C000, "Traffic Stream (TS) Info Ack Policy", HFILL }},
 
     {&hf_ieee80211_tsinfo_sched,
-     {"Schedule", "wlan_mgt.ts_info.sched", FT_UINT8, BASE_DEC,
-      NULL, 0, "Traffic Stream (TS) Info Schedule", HFILL }},
+     {"Schedule", "wlan_mgt.ts_info.sched", FT_UINT24, BASE_DEC,
+      NULL, 0x010000, "Traffic Stream (TS) Info Schedule", HFILL }},
+
+    {&hf_ieee80211_tsinfo_rsv,
+     {"Reserved", "wlan_mgt.ts_info.rsv", FT_UINT24, BASE_HEX,
+      NULL, 0xFE0000, "Must be Zero", HFILL }},
 
     {&hf_ieee80211_tspec_nor_msdu,
      {"Normal MSDU Size", "wlan_mgt.tspec.nor_msdu",
@@ -13638,6 +13465,18 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_sched_info,
      {"Schedule Info", "wlan_mgt.sched.sched_info",
       FT_UINT16, BASE_HEX, NULL, 0, "Schedule Info field", HFILL }},
+
+    {&hf_ieee80211_sched_info_agg,
+     {"Schedule Aggregation", "wlan_mgt.sched_info.agg", FT_UINT16, BASE_DEC,
+      NULL, 0x0001, "Traffic Stream (TS) Info Access Policy", HFILL }},
+
+    {&hf_ieee80211_sched_info_tsid,
+     {"Schedule Traffic Stream ID (TSID)", "wlan_mgt.sched_info.tsid",
+      FT_UINT16, BASE_DEC, NULL, 0x001E, "Traffic Stream ID (TSID) Info TSID", HFILL }},
+
+    {&hf_ieee80211_sched_info_dir,
+     {"Schedule Direction", "wlan_mgt.sched_info.dir", FT_UINT16, BASE_DEC,
+      VALS (&tsinfo_direction), 0x0060, "Traffic Stream (TS) Info Direction", HFILL }},
 
     {&hf_ieee80211_sched_srv_start,
      {"Service Start Time", "wlan_mgt.sched.srv_start",
