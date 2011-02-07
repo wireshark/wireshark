@@ -761,7 +761,7 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name,
   gtk_widget_size_request(treeview, &requisition);
 
 #if GTK_CHECK_VERSION(2,18,0)
-  gtk_widget_get_allocation(filter_te, filter_te_alloc);
+  gtk_widget_get_allocation(filter_te, &filter_te_alloc);
 #else
   filter_te_alloc = filter_te->allocation;
 #endif

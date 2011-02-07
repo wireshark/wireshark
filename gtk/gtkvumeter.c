@@ -524,7 +524,7 @@ static void gtk_vumeter_setup_colors (GtkVUMeter *vumeter)
     gtk_vumeter_free_colors (vumeter);
     
 #if GTK_CHECK_VERSION(2,18,0)
-    gtk_widget_get_allocation(GTK_WIDGET(vumeter), vumeter_alloc);
+    gtk_widget_get_allocation(GTK_WIDGET(vumeter), &vumeter_alloc);
 #else
     vumeter_alloc = GTK_WIDGET(vumeter)->allocation;
 #endif
