@@ -53,6 +53,24 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            Huzaifa Sidhpurwala of the Red Hat Security Response Team discovered
+            that a large packet length in a pcap-ng file could crash Wireshark.
+            <!-- Fixed in trunk: r35855 -->
+            <!-- Fixed in trunk-1.4: r35857 -->
+            <!-- Fixed in trunk-1.2: r358558 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5661">Bug
+            5661</ulink>)
+          </para>
+          <para>Versions affected: 1.2.0 to 1.2.14 and 1.4.0 to 1.4.3.</para>
+          <!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
+          </para>
+          -->
+        </listitem>
+
       </itemizedlist>
 
     </para>
