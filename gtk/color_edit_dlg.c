@@ -475,7 +475,7 @@ color_sel_win_new(color_filter_t *colorf, gboolean is_bg)
 #endif
   }
 
-  g_object_get(color_sel_win, "ok-button", color_sel_ok, NULL);
+  g_object_get(color_sel_win, "ok-button", &color_sel_ok, NULL);
   g_object_set_data(G_OBJECT(color_sel_win), "color_sel_ok", color_sel_ok);
 #if GTK_CHECK_VERSION(2,18,0)
   gtk_widget_set_can_default(color_sel_ok, TRUE);
@@ -483,7 +483,7 @@ color_sel_win_new(color_filter_t *colorf, gboolean is_bg)
   GTK_WIDGET_SET_FLAGS (color_sel_ok, GTK_CAN_DEFAULT);
 #endif
 
-  g_object_get(color_sel_win, "cancel-button", color_sel_cancel, NULL);
+  g_object_get(color_sel_win, "cancel-button", &color_sel_cancel, NULL);
   g_object_set_data(G_OBJECT(color_sel_win), "color_sel_cancel", color_sel_cancel);
 #if GTK_CHECK_VERSION(2,18,0)
   gtk_widget_set_can_default(color_sel_cancel, TRUE);
@@ -495,7 +495,7 @@ color_sel_win_new(color_filter_t *colorf, gboolean is_bg)
   /* gtk_color_selection_dialog widget          */
   /*  doesn't result in this happening.         */
 
-  g_object_get(color_sel_win, "help-button", color_sel_help, NULL);
+  g_object_get(color_sel_win, "help-button", &color_sel_help, NULL);
   g_object_set_data(G_OBJECT(color_sel_win), "color_sel_help", color_sel_help);
 #if GTK_CHECK_VERSION(2,18,0)
   gtk_widget_set_can_default(color_sel_help, TRUE);
