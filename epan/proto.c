@@ -1212,8 +1212,9 @@ proto_lookup_or_create_interesting_hfids(proto_tree *tree,
 static proto_item *
 proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 		    tvbuff_t *tvb, gint start, gint length,
-		    const guint encoding)
+		    const guint encoding_arg)
 {
+	guint		encoding = encoding_arg;
 	proto_item	*pi;
 	guint32		value, n;
 	float		floatval;
@@ -1258,6 +1259,12 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_UINT_BYTES:
+			/*
+			 * Map all non-zero values to little-endian for
+			 * backwards compatibility.
+			 */
+			if (encoding)
+				encoding = ENC_LITTLE_ENDIAN;
 			n = get_uint_value(tvb, start, length, encoding);
 			proto_tree_set_bytes_tvb(new_fi, tvb, start + length, n);
 
@@ -1267,6 +1274,12 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_BOOLEAN:
+			/*
+			 * Map all non-zero values to little-endian for
+			 * backwards compatibility.
+			 */
+			if (encoding)
+				encoding = ENC_LITTLE_ENDIAN;
 			proto_tree_set_boolean(new_fi,
 				get_uint_value(tvb, start, length, encoding));
 			break;
@@ -1276,12 +1289,24 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 		case FT_UINT16:
 		case FT_UINT24:
 		case FT_UINT32:
+			/*
+			 * Map all non-zero values to little-endian for
+			 * backwards compatibility.
+			 */
+			if (encoding)
+				encoding = ENC_LITTLE_ENDIAN;
 			proto_tree_set_uint(new_fi,
 				get_uint_value(tvb, start, length, encoding));
 			break;
 
 		case FT_INT64:
 		case FT_UINT64:
+			/*
+			 * Map all non-zero values to little-endian for
+			 * backwards compatibility.
+			 */
+			if (encoding)
+				encoding = ENC_LITTLE_ENDIAN;
 			DISSECTOR_ASSERT( length <= 8 && length >= 1);
 			proto_tree_set_uint64_tvb(new_fi, tvb, start, length, encoding);
 			break;
@@ -1291,11 +1316,23 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
+			/*
+			 * Map all non-zero values to little-endian for
+			 * backwards compatibility.
+			 */
+			if (encoding)
+				encoding = ENC_LITTLE_ENDIAN;
 			proto_tree_set_int(new_fi,
 				get_int_value(tvb, start, length, encoding));
 			break;
 
 		case FT_IPv4:
+			/*
+			 * Map all non-zero values to little-endian for
+			 * backwards compatibility.
+			 */
+			if (encoding)
+				encoding = ENC_LITTLE_ENDIAN;
 			DISSECTOR_ASSERT(length == FT_IPv4_LEN);
 			value = tvb_get_ipv4(tvb, start);
 			/*
@@ -1326,6 +1363,12 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_GUID:
+			/*
+			 * Map all non-zero values to little-endian for
+			 * backwards compatibility.
+			 */
+			if (encoding)
+				encoding = ENC_LITTLE_ENDIAN;
 			DISSECTOR_ASSERT(length == FT_GUID_LEN);
 			proto_tree_set_guid_tvb(new_fi, tvb, start, encoding);
 			break;
@@ -1335,7 +1378,6 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_FLOAT:
-			DISSECTOR_ASSERT(length == 4);
 			/*
 			 * NOTE: to support code written when
 			 * proto_tree_add_item() took a gboolean as its
@@ -1349,6 +1391,9 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 * formats in the encoding as well
 			 * (IEEE decimal, System/3x0, VAX).
 			 */
+			if (encoding)
+				encoding = ENC_LITTLE_ENDIAN;
+			DISSECTOR_ASSERT(length == 4);
 			if (encoding)
 				floatval = tvb_get_letohieee_float(tvb, start);
 			else
@@ -1370,6 +1415,8 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 * formats in the encoding as well
 			 * (IEEE decimal, System/3x0, VAX).
 			 */
+			if (encoding == TRUE)
+				encoding = ENC_LITTLE_ENDIAN;
 			DISSECTOR_ASSERT(length == 8);
 			if (encoding)
 				doubleval = tvb_get_letohieee_double(tvb, start);
@@ -1445,6 +1492,20 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_UINT_STRING:
+			/*
+			 * NOTE: to support code written when
+			 * proto_tree_add_item() took a gboolean as its
+			 * last argument, with FALSE meaning "big-endian"
+			 * and TRUE meaning "little-endian", we treat any
+			 * non-zero value of "encoding" as meaning
+			 * "little-endian".
+			 *
+			 * At some point in the future, we might
+			 * support character encodings in the
+			 * encoding value as well.
+			 */
+			if (encoding)
+				encoding = ENC_LITTLE_ENDIAN;
 			n = get_uint_value(tvb, start, length, encoding);
 			proto_tree_set_string_tvb(new_fi, tvb, start + length, n);
 
@@ -1461,21 +1522,56 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_ABSOLUTE_TIME:
-		case FT_RELATIVE_TIME:
-			/* Historically, FT_TIMEs were only timespecs and 'encoding'
-			 * only specified if the timespec was stored in big- or
-			 * little-endian format.
+			/*
+			 * Absolute times can be in any of a number of
+			 * formats, and they can be big-endian or
+			 * little-endian.
+			 *
+			 * Historically FT_TIMEs were only timespecs;
+			 * the only question was whether they were stored
+			 * in big- or little-endian format.
+			 *
+			 * For backwards compatibility, we interpret an
+			 * encoding of 1 as meaning "little-endian timespec",
+			 * so that passing TRUE is interpreted as that.
 			 */
-			if (encoding == ENC_TIME_TIMESPEC_BE) { /* or FALSE/ENC_BIG_ENDIAN */
+			if (encoding == TRUE)
+				encoding = ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN;
+			switch (encoding) {
+
+			case ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN:
+				/*
+				 * 4-byte UNIX epoch, possibly followed by
+				 * 4-byte fractional time in nanoseconds,
+				 * both big-endian.
+				 */
 				DISSECTOR_ASSERT(length == 8 || length == 4);
 				time_stamp.secs  = tvb_get_ntohl(tvb, start);
 				if (length == 8)
 					time_stamp.nsecs = tvb_get_ntohl(tvb, start+4);
 				else
 					time_stamp.nsecs = 0;
-			} else if (encoding == ENC_TIME_NTP) {
+				break;
+
+			case ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN:
+				/*
+				 * 4-byte UNIX epoch, possibly followed by
+				 * 4-byte fractional time in nanoseconds,
+				 * both little-endian.
+				 */
+				DISSECTOR_ASSERT(length == 8 || length == 4);
+				time_stamp.secs  = tvb_get_letohl(tvb, start);
+				if (length == 8)
+					time_stamp.nsecs = tvb_get_letohl(tvb, start+4);
+				else
+					time_stamp.nsecs = 0;
+				break;
+
+			case ENC_TIME_NTP|ENC_BIG_ENDIAN:
+				/*
+				 * NTP time stamp, big-endian.
+				 */
 				DISSECTOR_ASSERT(length == 8);
-				DISSECTOR_ASSERT(new_fi->hfinfo->display == ABSOLUTE_TIME_UTC);
 
 /* XXX - where should this go? */
 #define NTP_BASETIME 2208988800ul
@@ -1483,21 +1579,90 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				if (time_stamp.secs)
 					time_stamp.secs -= NTP_BASETIME;
 
-				/* We're using nanoseconds here (and we will display nanoseconds),
-				 * but NTP's timestamps have a precision in microseconds or greater.
+				/*
+				 * We're using nanoseconds here (and we will
+				 * display nanoseconds), but NTP's timestamps
+				 * have a precision in microseconds or greater.
 				 * Round to 1 microsecond.
 				 */
-				time_stamp.nsecs = 1000000*(tvb_get_ntohl(tvb, start+4)/4294967296.0);
+				time_stamp.nsecs = (int)(1000000*(tvb_get_ntohl(tvb, start+4)/4294967296.0));
 				time_stamp.nsecs *= 1000;
-			} else { /* TRUE or ENC_LITTLE_ENDIAN/ENC_TIME_TIMESPEC_LE */
+				break;
+
+			case ENC_TIME_NTP|ENC_LITTLE_ENDIAN:
+				/*
+				 * NTP time stamp, big-endian.
+				 */
+				DISSECTOR_ASSERT(length == 8);
+				time_stamp.secs  = tvb_get_letohl(tvb, start);
+				if (time_stamp.secs)
+					time_stamp.secs -= NTP_BASETIME;
+
+				/*
+				 * We're using nanoseconds here (and we will
+				 * display nanoseconds), but NTP's timestamps
+				 * have a precision in microseconds or greater.
+				 * Round to 1 microsecond.
+				 */
+				time_stamp.nsecs = (int)(1000000*(tvb_get_letohl(tvb, start+4)/4294967296.0));
+				time_stamp.nsecs *= 1000;
+				break;
+
+			default:
+				DISSECTOR_ASSERT_NOT_REACHED();
+				time_stamp.secs = 0;
+				time_stamp.nsecs = 0;
+				break;
+			}
+			proto_tree_set_time(new_fi, &time_stamp);
+			break;
+
+		case FT_RELATIVE_TIME:
+			/*
+			 * Relative times can be in any of a number of
+			 * formats, and they can be big-endian or
+			 * little-endian.
+			 *
+			 * Historically FT_TIMEs were only timespecs;
+			 * the only question was whether they were stored
+			 * in big- or little-endian format.
+			 *
+			 * For backwards compatibility, we interpret an
+			 * encoding of 1 as meaning "little-endian timespec",
+			 * so that passing TRUE is interpreted as that.
+			 */
+			if (encoding == TRUE)
+				encoding = ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN;
+			switch (encoding) {
+
+			case ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN:
+				/*
+				 * 4-byte UNIX epoch, possibly followed by
+				 * 4-byte fractional time in nanoseconds,
+				 * both big-endian.
+				 */
+				DISSECTOR_ASSERT(length == 8 || length == 4);
+				time_stamp.secs  = tvb_get_ntohl(tvb, start);
+				if (length == 8)
+					time_stamp.nsecs = tvb_get_ntohl(tvb, start+4);
+				else
+					time_stamp.nsecs = 0;
+				break;
+
+			case ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN:
+				/*
+				 * 4-byte UNIX epoch, possibly followed by
+				 * 4-byte fractional time in nanoseconds,
+				 * both little-endian.
+				 */
 				DISSECTOR_ASSERT(length == 8 || length == 4);
 				time_stamp.secs  = tvb_get_letohl(tvb, start);
 				if (length == 8)
 					time_stamp.nsecs = tvb_get_letohl(tvb, start+4);
 				else
 					time_stamp.nsecs = 0;
+				break;
 			}
-
 			proto_tree_set_time(new_fi, &time_stamp);
 			break;
 
@@ -1508,12 +1673,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			DISSECTOR_ASSERT_NOT_REACHED();
 			break;
 	}
-	/*
-	 * XXX - this should just check the ENC_*_ENDIAN bit, with
-	 * those fields for which we treat any non-zero value of
-	 * "encoding" checking the rest of the bits.
-	 */
-	FI_SET_FLAG(new_fi, (encoding) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN);
+	FI_SET_FLAG(new_fi, (encoding & ENC_LITTLE_ENDIAN) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN);
 
 	/* Don't add new node to proto_tree until now so that any exceptions
 	 * raised by a tvbuff access method doesn't leave junk in the proto_tree. */

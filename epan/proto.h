@@ -205,13 +205,16 @@ typedef struct _protocol protocol_t;
  */
 #define ENC_BIG_ENDIAN		0x00000000
 #define ENC_LITTLE_ENDIAN	0x80000000
-/* Historically FT_TIMEs were only timespecs, the only question was whether
- * they were stored in big- or little-endian format.  These macros use the
- * big/little-endian values for backwards compatibility.
+
+/*
+ * Historically FT_TIMEs were only timespecs; the only question was whether
+ * they were stored in big- or little-endian format.
+ *
+ * For backwards compatibility, we interpret an encoding of 1 as meaning
+ * "little-endian timespec", so that passing TRUE is interpreted as that.
  */
-#define ENC_TIME_TIMESPEC_BE	ENC_BIG_ENDIAN
-#define ENC_TIME_TIMESPEC_LE	ENC_LITTLE_ENDIAN
-#define ENC_TIME_NTP		0x00000002
+#define ENC_TIME_TIMESPEC	0
+#define ENC_TIME_NTP		2
 
 #define ENC_NA			0x00000000
 

@@ -641,7 +641,7 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		/* Adding NTP item and subtree */
-		ti = proto_tree_add_item(tree, proto_ntp, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_ntp, tvb, 0, -1, ENC_BIG_ENDIAN);
 		ntp_tree = proto_item_add_subtree(ti, ett_ntp);
 
 		(*dissector)(tvb, ntp_tree, flags);
@@ -772,22 +772,22 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	/* Reference Timestamp: This is the time at which the local clock was
 	 * last set or corrected.
 	 */
-	proto_tree_add_item(ntp_tree, hf_ntp_reftime, tvb, 16, 8, ENC_TIME_NTP);
+	proto_tree_add_item(ntp_tree, hf_ntp_reftime, tvb, 16, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
 
 	/* Originate Timestamp: This is the time at which the request departed
 	 * the client for the server.
 	 */
-	proto_tree_add_item(ntp_tree, hf_ntp_org, tvb, 24, 8, ENC_TIME_NTP);
+	proto_tree_add_item(ntp_tree, hf_ntp_org, tvb, 24, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
 
 	/* Receive Timestamp: This is the time at which the request arrived at
 	 * the server.
 	 */
-	proto_tree_add_item(ntp_tree, hf_ntp_rec, tvb, 32, 8, ENC_TIME_NTP);
+	proto_tree_add_item(ntp_tree, hf_ntp_rec, tvb, 32, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
 
 	/* Transmit Timestamp: This is the time at which the reply departed the
 	 * server for the client.
 	 */
-	proto_tree_add_item(ntp_tree, hf_ntp_xmt, tvb, 40, 8, ENC_TIME_NTP);
+	proto_tree_add_item(ntp_tree, hf_ntp_xmt, tvb, 40, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
 
 	/* MAX_MAC_LEN is the largest message authentication code
 	 * (MAC) length.  If we have more data left in the packet
@@ -805,12 +805,12 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	 */
 	if (tvb_reported_length_remaining(tvb, macofs) >= 4)
 		proto_tree_add_item(ntp_tree, hf_ntp_keyid, tvb, macofs, 4,
-				    FALSE);
+				    ENC_NA);
 	macofs += 4;
 	maclen = tvb_reported_length_remaining(tvb, macofs);
 	if (maclen > 0)
 		proto_tree_add_item(ntp_tree, hf_ntp_mac, tvb, macofs,
-				    maclen, FALSE);
+				    maclen, ENC_NA);
 }
 
 static int
@@ -848,7 +848,7 @@ dissect_ntp_ext(tvbuff_t *tvb, proto_tree *ntp_tree, int offset)
 	endoffset = offset + extlen;
 
 	tf = proto_tree_add_item(ntp_tree, hf_ntp_ext, tvb, offset, extlen,
-	    FALSE);
+	    ENC_NA);
 	ext_tree = proto_item_add_subtree(tf, ett_ntp_ext);
 
 	flags = tvb_get_guint8(tvb, offset);
@@ -863,7 +863,7 @@ dissect_ntp_ext(tvbuff_t *tvb, proto_tree *ntp_tree, int offset)
 			    flags);
 	offset++;
 
-	proto_tree_add_item(ext_tree, hf_ntp_ext_op, tvb, offset, 1, FALSE);
+	proto_tree_add_item(ext_tree, hf_ntp_ext_op, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	proto_tree_add_uint(ext_tree, hf_ntp_ext_len, tvb, offset, 2, extlen);
@@ -875,7 +875,7 @@ dissect_ntp_ext(tvbuff_t *tvb, proto_tree *ntp_tree, int offset)
 	}
 
 	proto_tree_add_item(ext_tree, hf_ntp_ext_associd, tvb, offset, 4,
-			    FALSE);
+			    ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* check whether everything up to "vallen" is present */
@@ -885,10 +885,10 @@ dissect_ntp_ext(tvbuff_t *tvb, proto_tree *ntp_tree, int offset)
 	}
 
 	proto_tree_add_item(ext_tree, hf_ntp_ext_tstamp, tvb, offset, 4,
-			    FALSE);
+			    ENC_BIG_ENDIAN);
 	offset += 4;
 	proto_tree_add_item(ext_tree, hf_ntp_ext_fstamp, tvb, offset, 4,
-			    FALSE);
+			    ENC_BIG_ENDIAN);
 	offset += 4;
 	/* XXX fstamp can be server flags */
 
@@ -909,7 +909,7 @@ dissect_ntp_ext(tvbuff_t *tvb, proto_tree *ntp_tree, int offset)
 			return endoffset;
 		}
 		proto_tree_add_item(ext_tree, hf_ntp_ext_val, tvb, offset,
-				    vallen, FALSE);
+				    vallen, ENC_NA);
 	}
 	offset += vallen_round;
 
@@ -929,7 +929,7 @@ dissect_ntp_ext(tvbuff_t *tvb, proto_tree *ntp_tree, int offset)
 			return endoffset;
 		}
 		proto_tree_add_item(ext_tree, hf_ntp_ext_sig, tvb,
-			offset, siglen, FALSE);
+			offset, siglen, ENC_NA);
 	}
 	return endoffset;
 }
@@ -1079,7 +1079,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	 */
 	if (datalen) {
 		data_offset = 12;
-		td = proto_tree_add_item(ntp_tree, hf_ntpctrl_data, tvb, data_offset, datalen, TRUE);
+		td = proto_tree_add_item(ntp_tree, hf_ntpctrl_data, tvb, data_offset, datalen, ENC_NA);
 		data_tree = proto_item_add_subtree(td, ett_ntpctrl_data);
 		switch(flags2 & NTPCTRL_OP_MASK) {
 		case NTPCTRL_OP_READSTAT:
@@ -1089,7 +1089,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 				 * <association identifier><status word>,
 				 */
 				while(datalen) {
-					ti = proto_tree_add_item(data_tree, hf_ntpctrl_item, tvb, data_offset, 4, TRUE);
+					ti = proto_tree_add_item(data_tree, hf_ntpctrl_item, tvb, data_offset, 4, ENC_NA);
 					item_tree = proto_item_add_subtree(ti, ett_ntpctrl_item);
 					proto_tree_add_uint(item_tree, hf_ntpctrl_associd, tvb, data_offset, 2, tvb_get_ntohs(tvb, data_offset));
 					data_offset += 2;
