@@ -46,8 +46,6 @@
 /* Include vendor id translation */
 #include <epan/sminmpec.h>
 
-#include "packet-ntp.h"
-
 /* Initialize the protocol and registered fields */
 static int proto_a11 = -1;
 static int hf_a11_type = -1;
@@ -1383,7 +1381,6 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8        type;
     guint8        flags;
     guint         offset=0;
-    const guint8 *reftime;
 
     if (!tvb_bytes_exist(tvb, offset, 1))
         return 0;       /* not enough data to check message type */
@@ -1442,11 +1439,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset += 4;
 
             /* Identifier - assumed to be an NTP time here */
-            reftime = tvb_get_ptr(tvb, offset, 8);
-            proto_tree_add_bytes_format_value(a11_tree, hf_a11_ident, tvb,
-                                              offset, 8, reftime,
-                                              "%s",
-                                              ntp_fmt_ts(reftime));
+            proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP);
             offset += 8;
 
         } /* if tree */
@@ -1481,12 +1474,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset += 4;
 
             /* Identifier - assumed to be an NTP time here */
-            reftime = tvb_get_ptr(tvb, offset, 8);
-            proto_tree_add_bytes_format_value(a11_tree, hf_a11_ident, tvb,
-                                              offset, 8,
-                                              reftime,
-                                              "%s",
-                                              ntp_fmt_ts(reftime));
+            proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP);
             offset += 8;
         } /* if tree */
 
@@ -1515,12 +1503,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset += 4;
 
             /* Identifier - assumed to be an NTP time here */
-            reftime = tvb_get_ptr(tvb, offset, 8);
-            proto_tree_add_bytes_format_value(a11_tree, hf_a11_ident, tvb,
-                                              offset, 8,
-                                              reftime,
-                                              "%s",
-                                              ntp_fmt_ts(reftime));
+            proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP);
             offset += 8;
 
         } /* if tree */
@@ -1554,12 +1537,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset += 4;
 
             /* Identifier - assumed to be an NTP time here */
-            reftime = tvb_get_ptr(tvb, offset, 8);
-            proto_tree_add_bytes_format_value(a11_tree, hf_a11_ident, tvb,
-                                              offset, 8,
-                                              reftime,
-                                              "%s",
-                                              ntp_fmt_ts(reftime));
+            proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP);
             offset += 8;
 
         } /* if tree */
@@ -1588,12 +1566,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset += 4;
 
             /* Identifier - assumed to be an NTP time here */
-            reftime = tvb_get_ptr(tvb, offset, 8);
-            proto_tree_add_bytes_format_value(a11_tree, hf_a11_ident, tvb,
-                                              offset, 8,
-                                              reftime,
-                                              "%s",
-                                              ntp_fmt_ts(reftime));
+            proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP);
             offset += 8;
 
         } /* if tree */
@@ -1627,12 +1600,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset += 4;
 
             /* Identifier - assumed to be an NTP time here */
-            reftime = tvb_get_ptr(tvb, offset, 8);
-            proto_tree_add_bytes_format_value(a11_tree, hf_a11_ident, tvb,
-                                              offset, 8,
-                                              reftime,
-                                              "%s",
-                                              ntp_fmt_ts(reftime));
+            proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP);
             offset += 8;
 
         } /* if tree */
@@ -1666,12 +1634,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset += 4;
 
             /* Identifier - assumed to be an NTP time here */
-            reftime = tvb_get_ptr(tvb, offset, 8);
-            proto_tree_add_bytes_format_value(a11_tree, hf_a11_ident, tvb,
-                                              offset, 8,
-                                              reftime,
-                                              "%s",
-                                              ntp_fmt_ts(reftime));
+            proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP);
             offset += 8;
 
         } /* if tree */
@@ -1700,12 +1663,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset += 4;
 
             /* Identifier - assumed to be an NTP time here */
-            reftime = tvb_get_ptr(tvb, offset, 8);
-            proto_tree_add_bytes_format_value(a11_tree, hf_a11_ident, tvb,
-                                              offset, 8,
-                                              reftime,
-                                              "%s",
-                                              ntp_fmt_ts(reftime));
+            proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP);
             offset += 8;
 
         } /* if tree */
@@ -1807,7 +1765,7 @@ proto_register_a11(void)
         },
         { &hf_a11_ident,
           { "Identification",           "a11.ident",
-            FT_BYTES, BASE_NONE, NULL, 0,
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
             "MN Identification.", HFILL }
         },
         { &hf_a11_ext_type,

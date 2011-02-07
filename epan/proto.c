@@ -1434,9 +1434,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				 * we made string values counted
 				 * rather than null-terminated.)
 				 */
-				string = tvb_get_ephemeral_string(tvb,
-									  start,
-									  length);
+				string = tvb_get_ephemeral_string(tvb, start, length);
 			}
 			new_fi->length = length;
 			proto_tree_set_string(new_fi, string);
@@ -1464,33 +1462,42 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 
 		case FT_ABSOLUTE_TIME:
 		case FT_RELATIVE_TIME:
-			DISSECTOR_ASSERT(length == 8 || length == 4);
-			/*
-			 * NOTE: to support code written when
-			 * proto_tree_add_item() took a gboolean as its
-			 * last argument, with FALSE meaning "big-endian"
-			 * and TRUE meaning "little-endian", we treat any
-			 * non-zero value of "encoding" as meaning
-			 * "little-endian".
-			 *
-			 * At some point in the future, we might
-			 * support non-struct timespec formats in
-			 * the encoding as well (struct timeval,
-			 * NTP time, Windows NT FILETIME, time_t, etc.).
+			/* Historically, FT_TIMEs were only timespecs and 'encoding'
+			 * only specified if the timespec was stored in big- or
+			 * little-endian format.
 			 */
-			if (encoding) {
-				time_stamp.secs  = tvb_get_letohl(tvb, start);
-				if (length == 8)
-					time_stamp.nsecs = tvb_get_letohl(tvb, start+4);
-				else
-					time_stamp.nsecs = 0;
-			} else {
+			if (encoding == ENC_TIME_TIMESPEC_BE) { /* or FALSE/ENC_BIG_ENDIAN */
+				DISSECTOR_ASSERT(length == 8 || length == 4);
 				time_stamp.secs  = tvb_get_ntohl(tvb, start);
 				if (length == 8)
 					time_stamp.nsecs = tvb_get_ntohl(tvb, start+4);
 				else
 					time_stamp.nsecs = 0;
+			} else if (encoding == ENC_TIME_NTP) {
+				DISSECTOR_ASSERT(length == 8);
+				DISSECTOR_ASSERT(new_fi->hfinfo->display == ABSOLUTE_TIME_UTC);
+
+/* XXX - where should this go? */
+#define NTP_BASETIME 2208988800ul
+				time_stamp.secs  = tvb_get_ntohl(tvb, start);
+				if (time_stamp.secs)
+					time_stamp.secs -= NTP_BASETIME;
+
+				/* We're using nanoseconds here (and we will display nanoseconds),
+				 * but NTP's timestamps have a precision in microseconds or greater.
+				 * Round to 1 microsecond.
+				 */
+				time_stamp.nsecs = 1000000*(tvb_get_ntohl(tvb, start+4)/4294967296.0);
+				time_stamp.nsecs *= 1000;
+			} else { /* TRUE or ENC_LITTLE_ENDIAN/ENC_TIME_TIMESPEC_LE */
+				DISSECTOR_ASSERT(length == 8 || length == 4);
+				time_stamp.secs  = tvb_get_letohl(tvb, start);
+				if (length == 8)
+					time_stamp.nsecs = tvb_get_letohl(tvb, start+4);
+				else
+					time_stamp.nsecs = 0;
 			}
+
 			proto_tree_set_time(new_fi, &time_stamp);
 			break;
 

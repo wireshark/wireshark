@@ -659,10 +659,6 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	double		rootdelay;
 	double		rootdispersion;
 	guint32		refid_addr;
-	const guint8	*reftime;
-	const guint8	*org;
-	const guint8	*rec;
-	const guint8	*xmt;
 	const gchar	*buffc;
 	gchar           *buff;
 	int		i;
@@ -776,38 +772,22 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	/* Reference Timestamp: This is the time at which the local clock was
 	 * last set or corrected.
 	 */
-	reftime = tvb_get_ptr(tvb, 16, 8);
-	proto_tree_add_bytes_format(ntp_tree, hf_ntp_reftime, tvb, 16, 8,
-				   reftime,
-			           "Reference Clock Update Time: %s",
-				   ntp_fmt_ts(reftime));
+	proto_tree_add_item(ntp_tree, hf_ntp_reftime, tvb, 16, 8, ENC_TIME_NTP);
 
 	/* Originate Timestamp: This is the time at which the request departed
 	 * the client for the server.
 	 */
-	org = tvb_get_ptr(tvb, 24, 8);
-	proto_tree_add_bytes_format(ntp_tree, hf_ntp_org, tvb, 24, 8,
-				   org,
-			           "Originate Time Stamp: %s",
-				   ntp_fmt_ts(org));
+	proto_tree_add_item(ntp_tree, hf_ntp_org, tvb, 24, 8, ENC_TIME_NTP);
 
 	/* Receive Timestamp: This is the time at which the request arrived at
 	 * the server.
 	 */
-	rec = tvb_get_ptr(tvb, 32, 8);
-	proto_tree_add_bytes_format(ntp_tree, hf_ntp_rec, tvb, 32, 8,
-				   rec,
-			           "Receive Time Stamp: %s",
-				   ntp_fmt_ts(rec));
+	proto_tree_add_item(ntp_tree, hf_ntp_rec, tvb, 32, 8, ENC_TIME_NTP);
 
 	/* Transmit Timestamp: This is the time at which the reply departed the
 	 * server for the client.
 	 */
-	xmt = tvb_get_ptr(tvb, 40, 8);
-	proto_tree_add_bytes_format(ntp_tree, hf_ntp_xmt, tvb, 40, 8,
-				   xmt,
-			           "Transmit Time Stamp: %s",
-				   ntp_fmt_ts(xmt));
+	proto_tree_add_item(ntp_tree, hf_ntp_xmt, tvb, 40, 8, ENC_TIME_NTP);
 
 	/* MAX_MAC_LEN is the largest message authentication code
 	 * (MAC) length.  If we have more data left in the packet
@@ -1248,16 +1228,16 @@ proto_register_ntp(void)
 			"Reference Clock ID", "ntp.refid", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_reftime, {
-			"Reference Clock Update Time", "ntp.reftime", FT_BYTES, BASE_NONE,
+			"Reference Clock Update Time", "ntp.reftime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_org, {
-			"Originate Time Stamp", "ntp.org", FT_BYTES, BASE_NONE,
+			"Originate Time Stamp", "ntp.org", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_rec, {
-			"Receive Time Stamp", "ntp.rec", FT_BYTES, BASE_NONE,
+			"Receive Time Stamp", "ntp.rec", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_xmt, {
-			"Transmit Time Stamp", "ntp.xmt", FT_BYTES, BASE_NONE,
+			"Transmit Time Stamp", "ntp.xmt", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntp_keyid, {
 			"Key ID", "ntp.keyid", FT_BYTES, BASE_NONE,
