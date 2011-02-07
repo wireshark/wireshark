@@ -2583,8 +2583,11 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
     window_present(conversations->win);
 
     cf_retap_packets(&cfile);
+#if GTK_CHECK_VERSION(2,14,0)
+    gdk_window_raise(gtk_widget_get_window(conversations->win));
+#else
     gdk_window_raise(conversations->win->window);
-
+#endif
 }
 
 
@@ -2724,7 +2727,11 @@ ct_filter_toggle_dest(GtkWidget *widget, gpointer data)
 
     cf_retap_packets(&cfile);
     if (conversations) {
+#if GTK_CHECK_VERSION(2,14,0)
+        gdk_window_raise(gtk_widget_get_window(conversations->win));
+#else
         gdk_window_raise(conversations->win->window);
+#endif
     }
 }
 
@@ -2840,8 +2847,11 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     window_present(win);
 
     cf_retap_packets(&cfile);
+#if GTK_CHECK_VERSION(2,14,0)
+    gdk_window_raise(gtk_widget_get_window(win));
+#else
     gdk_window_raise(win->window);
-
+#endif
 }
 
 typedef struct _key {

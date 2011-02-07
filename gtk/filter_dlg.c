@@ -638,7 +638,11 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 
     if(construct_args->modal_and_transient) {
         parent = gtk_widget_get_parent_window(parent_filter_te);
+#if GTK_CHECK_VERSION(2,14,0)
+        gdk_window_set_transient_for(gtk_widget_get_window(main_w), parent);
+#else
         gdk_window_set_transient_for(main_w->window, parent);
+#endif
         gtk_window_set_modal(GTK_WINDOW(main_w), TRUE);
     }
 

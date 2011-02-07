@@ -48,7 +48,11 @@ dlg_button_new(GtkWidget *hbox, GtkWidget *button_hbox, const gchar *stock_id)
     GtkWidget *button;
 
     button = gtk_button_new_from_stock(stock_id);
+#if GTK_CHECK_VERSION(2,18,0)
+    gtk_widget_set_can_default(button, TRUE);
+#else
     GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
+#endif
     g_object_set_data(G_OBJECT(hbox), stock_id, button);
     gtk_box_pack_end(GTK_BOX(button_hbox), button, FALSE, FALSE, 0);
     gtk_widget_show(button);
@@ -230,7 +234,11 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     /* do we have a help button? -> special handling for it */
     if (help) {
         button = gtk_button_new_from_stock(help);
+#if GTK_CHECK_VERSION(2,18,0)
+	gtk_widget_set_can_default(button, TRUE);
+#else
         GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
+#endif
         g_object_set_data(G_OBJECT(hbox), help, button);
         gtk_box_pack_start(GTK_BOX(help_hbox), button, FALSE, FALSE, 0);
         gtk_widget_show(button);
@@ -240,7 +248,11 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     /* do we have a copy button? -> special handling for it */
     if (copy) {
         button = gtk_button_new_from_stock(copy);
+#if GTK_CHECK_VERSION(2,18,0)
+	gtk_widget_set_can_default(button, TRUE);
+#else
         GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
+#endif
         g_object_set_data(G_OBJECT(hbox), copy, button);
         gtk_box_pack_start(GTK_BOX(help_hbox), button, FALSE, FALSE, 0);
         gtk_widget_show(button);

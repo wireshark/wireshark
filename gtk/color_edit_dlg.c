@@ -475,23 +475,33 @@ color_sel_win_new(color_filter_t *colorf, gboolean is_bg)
 #endif
   }
 
-  color_sel_ok = GTK_COLOR_SELECTION_DIALOG (color_sel_win)->ok_button;
+  g_object_get(color_sel_win, "ok-button", color_sel_ok, NULL);
   g_object_set_data(G_OBJECT(color_sel_win), "color_sel_ok", color_sel_ok);
+#if GTK_CHECK_VERSION(2,18,0)
+  gtk_widget_set_can_default(color_sel_ok, TRUE);
+#else
   GTK_WIDGET_SET_FLAGS (color_sel_ok, GTK_CAN_DEFAULT);
+#endif
 
-  color_sel_cancel = GTK_COLOR_SELECTION_DIALOG (color_sel_win)->cancel_button;
+  g_object_get(color_sel_win, "cancel-button", color_sel_cancel, NULL);
   g_object_set_data(G_OBJECT(color_sel_win), "color_sel_cancel", color_sel_cancel);
+#if GTK_CHECK_VERSION(2,18,0)
+  gtk_widget_set_can_default(color_sel_cancel, TRUE);
+#else
   GTK_WIDGET_SET_FLAGS (color_sel_cancel, GTK_CAN_DEFAULT);
+#endif
   window_set_cancel_button(color_sel_win, color_sel_cancel, NULL); /* ensure esc does req'd local cxl action.    */
   /* esc as handled by the                      */
   /* gtk_color_selection_dialog widget          */
   /*  doesn't result in this happening.         */
 
-  color_sel_help = GTK_COLOR_SELECTION_DIALOG (color_sel_win)->help_button;
+  g_object_get(color_sel_win, "help-button", color_sel_help, NULL);
   g_object_set_data(G_OBJECT(color_sel_win), "color_sel_help", color_sel_help);
-
-
+#if GTK_CHECK_VERSION(2,18,0)
+  gtk_widget_set_can_default(color_sel_help, TRUE);
+#else
   GTK_WIDGET_SET_FLAGS (color_sel_help, GTK_CAN_DEFAULT);
+#endif
 
   g_signal_connect(color_sel_ok, "clicked", G_CALLBACK(color_sel_ok_cb), color_sel_win);
   g_signal_connect(color_sel_cancel, "clicked", G_CALLBACK(color_sel_cancel_cb), color_sel_win);
@@ -540,8 +550,11 @@ color_sel_ok_cb                        (GtkButton       *button _U_,
 
   color_dialog = (GtkWidget *)user_data;
 
-  gtk_color_selection_get_current_color(GTK_COLOR_SELECTION(
-                                          GTK_COLOR_SELECTION_DIALOG(color_dialog)->colorsel), &new_color);
+#if GTK_CHECK_VERSION(2,14,0)
+  gtk_color_selection_get_current_color(GTK_COLOR_SELECTION(gtk_color_selection_dialog_get_color_selection(GTK_COLOR_SELECTION_DIALOG(color_dialog))), &new_color);
+#else
+  gtk_color_selection_get_current_color(GTK_COLOR_SELECTION(GTK_COLOR_SELECTION_DIALOG(color_dialog)->colorsel), &new_color);
+#endif
 
   if ( ! get_color(&new_color) ){
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,

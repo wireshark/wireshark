@@ -644,7 +644,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
    */
   g_free(cfile.sfilter);
   cfile.sfilter = g_strdup(filter_text);
-  cfile.dir = GTK_TOGGLE_BUTTON (up_rb)->active ? SD_BACKWARD : SD_FORWARD;
+  cfile.dir = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (up_rb)) ? SD_BACKWARD : SD_FORWARD;
   cfile.hex = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (hex_rb));
   cfile.string = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (string_rb));
   cfile.scs_type = scs_type;

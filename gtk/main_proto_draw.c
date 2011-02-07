@@ -108,7 +108,7 @@ get_notebook_bv_ptr(GtkWidget *nb_ptr)
     num = gtk_notebook_get_current_page(GTK_NOTEBOOK(nb_ptr));
     bv_page = gtk_notebook_get_nth_page(GTK_NOTEBOOK(nb_ptr), num);
     if (bv_page)
-        return GTK_BIN(bv_page)->child;
+        return gtk_bin_get_child(GTK_BIN(bv_page));
     else
         return NULL;
 }
@@ -146,7 +146,7 @@ set_notebook_page(GtkWidget *nb_ptr, tvbuff_t *tvb)
     for (num = 0;
          (bv_page = gtk_notebook_get_nth_page(GTK_NOTEBOOK(nb_ptr), num)) != NULL;
          num++) {
-        bv = GTK_BIN(bv_page)->child;
+        bv = gtk_bin_get_child(GTK_BIN(bv_page));
         bv_tvb = g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_TVBUFF_KEY);
         if (bv_tvb == tvb) {
             /* Found it. */

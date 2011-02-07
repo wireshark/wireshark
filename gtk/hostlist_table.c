@@ -1406,7 +1406,11 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
     window_present(hosttable->win);
 
     cf_retap_packets(&cfile);
+#if GTK_CHECK_VERSION(2,14,0)
+    gdk_window_raise(gtk_widget_get_window(hosttable->win));
+#else
     gdk_window_raise(hosttable->win->window);
+#endif
 }
 
 
@@ -1552,7 +1556,11 @@ hostlist_filter_toggle_dest(GtkWidget *widget, gpointer data)
 
     cf_retap_packets(&cfile);
     if (hosttable) {
+#if GTK_CHECK_VERSION(2,14,0)
+        gdk_window_raise(gtk_widget_get_window(hosttable->win));
+#else
         gdk_window_raise(hosttable->win->window);
+#endif
     }
 }
 
@@ -1675,7 +1683,11 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     window_present(win);
 
     cf_retap_packets(&cfile);
+#if GTK_CHECK_VERSION(2,14,0)
+    gdk_window_raise(gtk_widget_get_window(win));
+#else
     gdk_window_raise(win->window);
+#endif
 }
 
 /*

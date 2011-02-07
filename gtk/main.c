@@ -1374,10 +1374,17 @@ resolv_update_cb(gpointer data _U_)
 {
   /* Anything new show up? */
   if (host_name_lookup_process(NULL)) {
+#if GTK_CHECK_VERSION(2,14,0)
+    if (gtk_widget_get_window(pkt_scrollw))
+	gdk_window_invalidate_rect(gtk_widget_get_window(pkt_scrollw), NULL, TRUE);
+    if (gtk_widget_get_window(tv_scrollw))
+	gdk_window_invalidate_rect(gtk_widget_get_window(tv_scrollw), NULL, TRUE);
+#else
     if (pkt_scrollw->window)
 	gdk_window_invalidate_rect(pkt_scrollw->window, NULL, TRUE);
     if (tv_scrollw->window)
 	gdk_window_invalidate_rect(tv_scrollw->window, NULL, TRUE);
+#endif
   }
 
   /* Always check. Even if we don't do async lookups we could still get
@@ -3667,7 +3674,11 @@ show_main_window(gboolean doing_work)
   display_queued_messages();
 
   /* Move the main window to the front, in case it isn't already there */
+#if GTK_CHECK_VERSION(2,14,0)
+  gdk_window_raise(gtk_widget_get_window(top_level));
+#else
   gdk_window_raise(top_level->window);
+#endif
 
 #ifdef HAVE_AIRPCAP
   airpcap_toolbar_show(airpcap_tb);

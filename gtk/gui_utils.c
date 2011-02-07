@@ -116,12 +116,22 @@ window_icon_realize_cb (GtkWidget *win, gpointer data _U_)
     style = gtk_widget_get_style (win);
 
     if (icon_pmap == NULL) {
+#if GTK_CHECK_VERSION(2,14,0)
+        icon_pmap = gdk_pixmap_create_from_xpm_d (gtk_widget_get_window(win),
+                                                  &icon_mask, &style->bg[GTK_STATE_NORMAL],
+                                                  (gchar **) wsicon16_xpm);
+#else
         icon_pmap = gdk_pixmap_create_from_xpm_d (win->window,
                                                   &icon_mask, &style->bg[GTK_STATE_NORMAL],
                                                   (gchar **) wsicon16_xpm);
+#endif
     }
 
+#if GTK_CHECK_VERSION(2,14,0)
+    gdk_window_set_icon (gtk_widget_get_window(win), NULL, icon_pmap, icon_mask);
+#else /* GTK_CHECK_VERSION(2,14,0) */
     gdk_window_set_icon (win->window, NULL, icon_pmap, icon_mask);
+#endif /* GTK_CHECK_VERSION(2,14,0) */
 #endif
 }
 
@@ -287,6 +297,7 @@ window_get_geometry(GtkWidget *widget, window_geometry_t *geom)
 {
     gint desk_x, desk_y;
     GdkWindowState state;
+    GdkWindow *widget_window;
 
     /* Try to grab our geometry.
 
@@ -304,10 +315,16 @@ window_get_geometry(GtkWidget *widget, window_geometry_t *geom)
         http://www.gtk.org/faq/#AEN606
      */
 
-    gdk_window_get_root_origin(widget->window,
+#if GTK_CHECK_VERSION(2,14,0)
+    widget_window = gtk_widget_get_window(widget);
+#else
+    widget_window = widget_window;
+#endif
+
+    gdk_window_get_root_origin(widget_window,
         &geom->x,
         &geom->y);
-    if (gdk_window_get_deskrelative_origin(widget->window,
+    if (gdk_window_get_deskrelative_origin(widget_window,
                                            &desk_x, &desk_y)) {
         if (desk_x <= geom->x &&
             desk_y <= geom->y)
@@ -318,11 +335,11 @@ window_get_geometry(GtkWidget *widget, window_geometry_t *geom)
     }
 
     /* XXX - Is this the "approved" method? */
-    gdk_window_get_size(widget->window,
+    gdk_window_get_size(widget_window,
         &geom->width,
         &geom->height);
 
-    state = gdk_window_get_state(widget->window);
+    state = gdk_window_get_state(widget_window);
     geom->maximized = (state == GDK_WINDOW_STATE_MAXIMIZED);
 }
 
@@ -372,11 +389,20 @@ window_set_geometry(GtkWidget *widget, window_geometry_t *geom)
     }
 
     if(geom->set_maximized) {
+#if GTK_CHECK_VERSION(2,14,0)
+        if (geom->maximized) {
+            gdk_window_maximize(gtk_widget_get_window(widget));
+        } else {
+            gdk_window_unmaximize(gtk_widget_get_window(widget));
+        }
+#else
         if (geom->maximized) {
             gdk_window_maximize(widget->window);
         } else {
             gdk_window_unmaximize(widget->window);
         }
+
+#endif
     }
 }
 
@@ -813,8 +839,16 @@ void pipe_input_set_handler(gint source, gpointer user_data, int *child_process,
 void
 reactivate_window(GtkWidget *win)
 {
-    gdk_window_show(win->window);
-    gdk_window_raise(win->window);
+    GdkWindow *win_window;
+	
+#if GTK_CHECK_VERSION(2,14,0)
+    win_window = gtk_widget_get_window(win);
+#else
+    win_window = win->window;
+#endif
+
+    gdk_window_show(win_window);
+    gdk_window_raise(win_window);
 }
 
 /* List of all GtkScrolledWindows, so we can globally set the scrollbar

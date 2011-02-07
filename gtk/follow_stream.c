@@ -192,7 +192,7 @@ follow_charset_toggle_cb(GtkWidget * w _U_, gpointer data)
 	 * delivered.  We only want to reprocess the display once,
 	 * so we do it only when the button goes on.
 	 */
-	if (GTK_TOGGLE_BUTTON(w)->active) {
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(w))) {
 		if (w == follow_info->ebcdic_bt)
 			follow_info->show_type = SHOW_EBCDIC;
 		else if (w == follow_info->hexdump_bt)
