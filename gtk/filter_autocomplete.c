@@ -263,6 +263,7 @@ autocompletion_list_lookup(GtkWidget *filter_te, GtkWidget *popup_win, GtkWidget
   GtkRequisition requisition;
   GtkListStore *store;
   GtkTreeIter iter;
+  GtkAllocation *popup_win_alloc;
   gchar *curr_str;
   unsigned int str_len = (unsigned int) strlen(str);
   gchar *first = NULL;
@@ -312,9 +313,15 @@ autocompletion_list_lookup(GtkWidget *filter_te, GtkWidget *popup_win, GtkWidget
     gtk_tree_view_columns_autosize(GTK_TREE_VIEW(list));
     gtk_widget_size_request(list, &requisition);
 
-    gtk_widget_set_size_request(popup_win, popup_win->allocation.width,
+#if GTK_CHECK_VERSION(2,18,0)
+    gtk_widget_get_allocation(popup_win, popup_win_alloc);
+#else
+    popup_win_alloc = popup_win->allocation;
+#endif
+
+    gtk_widget_set_size_request(popup_win, popup_win_alloc->width,
                                 (requisition.height<200? requisition.height+8:200));
-    gtk_window_resize(GTK_WINDOW(popup_win), popup_win->allocation.width,
+    gtk_window_resize(GTK_WINDOW(popup_win), popup_win_alloc->width,
                       (requisition.height<200? requisition.height+8:200));
 
     return TRUE;
@@ -713,6 +720,7 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name,
   GtkTreeSelection *selection;
   GtkRequisition requisition;
   GtkWidget *w_toplevel;
+  GtkAllocation *filter_te_alloc;
 
   w_toplevel = gtk_widget_get_toplevel(filter_te);
 
@@ -752,13 +760,23 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name,
 
   gtk_widget_size_request(treeview, &requisition);
 
-  gtk_widget_set_size_request(popup_win, filter_te->allocation.width,
+#if GTK_CHECK_VERSION(2,18,0)
+  gtk_widget_get_allocation(filter_te, filter_te_alloc);
+#else
+  filter_te_alloc = filter_te->allocation;
+#endif
+
+  gtk_widget_set_size_request(popup_win, filter_te_alloc->width,
                               (requisition.height<200? requisition.height+8:200));
-  gtk_window_resize(GTK_WINDOW(popup_win), filter_te->allocation.width,
+  gtk_window_resize(GTK_WINDOW(popup_win), filter_te_alloc->width,
                     (requisition.height<200? requisition.height+8:200));
 
+#if GTK_CHECK_VERSION(2,14,0)
+  gdk_window_get_origin(gtk_widget_get_window(filter_te), &x_pos, &y_pos);
+#else
   gdk_window_get_origin(filter_te->window, &x_pos, &y_pos);
-  y_pos = y_pos + filter_te->allocation.height;
+#endif
+  y_pos = y_pos + filter_te_alloc->height;
   gtk_window_move(GTK_WINDOW(popup_win), x_pos, y_pos);
 
   gtk_widget_show_all (popup_win);
@@ -778,6 +796,7 @@ filter_autocomplete_handle_backspace(GtkWidget *filter_te, GtkWidget *list, GtkW
   GtkRequisition requisition;
   size_t prefix_len;
   gboolean protocols_only = FALSE;
+  GtkAllocation *popup_win_alloc;
 
   prefix_len = strlen(prefix);
 
@@ -817,9 +836,15 @@ filter_autocomplete_handle_backspace(GtkWidget *filter_te, GtkWidget *list, GtkW
   gtk_tree_view_columns_autosize(GTK_TREE_VIEW(list));
   gtk_widget_size_request(list, &requisition);
 
-  gtk_widget_set_size_request(popup_win, popup_win->allocation.width,
+#if GTK_CHECK_VERSION(2,18,0)
+  gtk_widget_get_allocation(popup_win, popup_win_alloc);
+#else
+  popup_win_alloc = popup_win->allocation;
+#endif
+
+  gtk_widget_set_size_request(popup_win, popup_win_alloc->width,
                               (requisition.height<200? requisition.height+8:200));
-  gtk_window_resize(GTK_WINDOW(popup_win), popup_win->allocation.width,
+  gtk_window_resize(GTK_WINDOW(popup_win), popup_win_alloc->width,
                     (requisition.height<200? requisition.height+8:200));
 }
 
