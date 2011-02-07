@@ -1,6 +1,6 @@
 /* packet-batadv.c
  * Routines for B.A.T.M.A.N. Advanced dissection
- * Copyright 2008-2010  Sven Eckelmann <sven.eckelmann@gmx.de>
+ * Copyright 2008-2010  Sven Eckelmann <sven@narfation.org>
  *
  * $Id$
  *

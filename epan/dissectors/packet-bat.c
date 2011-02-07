@@ -1,6 +1,6 @@
 /* packet-bat.c
  * Routines for B.A.T.M.A.N. Layer 3 dissection
- * Copyright 2008-2010 Sven Eckelmann <sven.eckelmann@gmx.de>
+ * Copyright 2008-2010 Sven Eckelmann <sven@narfation.org>
  *
  * $Id$
  *
