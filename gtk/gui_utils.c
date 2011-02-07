@@ -318,7 +318,7 @@ window_get_geometry(GtkWidget *widget, window_geometry_t *geom)
 #if GTK_CHECK_VERSION(2,14,0)
     widget_window = gtk_widget_get_window(widget);
 #else
-    widget_window = widget_window;
+    widget_window = widget->window;
 #endif
 
     gdk_window_get_root_origin(widget_window,
