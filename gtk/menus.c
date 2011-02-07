@@ -4492,7 +4492,7 @@ remove_menu_recent_capture_filename(gchar *cf_name) {
     child_list = gtk_container_get_children(GTK_CONTAINER(submenu_recent_files));
     child_list_item = child_list;
     while(child_list_item) {
-        menu_item_child = (GTK_BIN(child_list_item->data))->child;
+        menu_item_child = gtk_bin_get_child(GTK_BIN(child_list_item->data));
         if (menu_item_child != NULL) { /* Note: there are two "extra" items on the end of the child_list: */
                                        /*  - a separator (with no menu_item_child and thus no text label) */
                                        /*  - a 2nd item with a menu_child with text label "Clear"         */
@@ -4825,7 +4825,7 @@ menu_open_recent_file_cmd(GtkWidget *w)
     submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH_OLD);
 
     /* get capture filename from the menu item label */
-    menu_item_child = (GTK_BIN(w))->child;
+    menu_item_child = gtk_bin_get_child(GTK_BIN(w));
     cf_name = gtk_label_get_text(GTK_LABEL(menu_item_child));
 
     /* open and read the capture file (this will close an existing file) */
@@ -5102,27 +5102,27 @@ show_hide_cb(GtkWidget *w, gpointer data _U_, gint action)
     /* save current setting in recent */
     switch(action) {
     case(SHOW_HIDE_MAIN_TOOLBAR):
-        recent.main_toolbar_show = GTK_CHECK_MENU_ITEM(w)->active;
+        recent.main_toolbar_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w));
         break;
     case(SHOW_HIDE_FILTER_TOOLBAR):
-        recent.filter_toolbar_show = GTK_CHECK_MENU_ITEM(w)->active;
+        recent.filter_toolbar_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w));
         break;
 #ifdef HAVE_AIRPCAP
     case(SHOW_HIDE_AIRPCAP_TOOLBAR):
-        recent.airpcap_toolbar_show = GTK_CHECK_MENU_ITEM(w)->active;
+        recent.airpcap_toolbar_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w));
         break;
 #endif
     case(SHOW_HIDE_STATUSBAR):
-        recent.statusbar_show = GTK_CHECK_MENU_ITEM(w)->active;
+        recent.statusbar_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w));
         break;
     case(SHOW_HIDE_PACKET_LIST):
-        recent.packet_list_show = GTK_CHECK_MENU_ITEM(w)->active;
+        recent.packet_list_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w));
         break;
     case(SHOW_HIDE_TREE_VIEW):
-        recent.tree_view_show = GTK_CHECK_MENU_ITEM(w)->active;
+        recent.tree_view_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w));
         break;
     case(SHOW_HIDE_BYTE_VIEW):
-        recent.byte_view_show = GTK_CHECK_MENU_ITEM(w)->active;
+        recent.byte_view_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w));
         break;
     default:
         g_assert_not_reached();
@@ -5174,7 +5174,7 @@ timestamp_precision_cb(GtkWidget *w _U_, gpointer d _U_, gint action)
 static void
 timestamp_seconds_time_cb(GtkWidget *w, gpointer d _U_, gint action _U_)
 {
-    if (GTK_CHECK_MENU_ITEM(w)->active) {
+    if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w))) {
         recent.gui_seconds_format = TS_SECONDS_HOUR_MIN_SEC;
     } else {
         recent.gui_seconds_format = TS_SECONDS_DEFAULT;
@@ -5228,7 +5228,7 @@ menu_name_resolution_changed(void)
 static void
 name_resolution_cb(GtkWidget *w, gpointer d _U_, gint action)
 {
-    if (GTK_CHECK_MENU_ITEM(w)->active) {
+    if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w))) {
         gbl_resolv_flags |= action;
     } else {
         gbl_resolv_flags &= ~action;
@@ -5250,7 +5250,7 @@ menu_auto_scroll_live_changed(gboolean auto_scroll_live_in) {
 #else
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Auto Scroll in Live Capture");
 #endif /* MAIN_MENU_USE_UIMANAGER */
-    if( ((gboolean) GTK_CHECK_MENU_ITEM(menu)->active) != auto_scroll_live_in) {
+    if( ((gboolean) gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menu)) != auto_scroll_live_in) ) {
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), auto_scroll_live_in);
     }
 
@@ -5267,7 +5267,7 @@ menu_auto_scroll_live_changed(gboolean auto_scroll_live_in) {
 static void
 auto_scroll_live_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-    menu_auto_scroll_live_changed(GTK_CHECK_MENU_ITEM(w)->active);
+    menu_auto_scroll_live_changed(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w)));
 }
 #endif /* MAIN_MENU_USE_UIMANAGER */
 
@@ -5310,7 +5310,7 @@ menu_colorize_changed(gboolean packet_list_colorize) {
 static void
 colorize_cb(GtkWidget *w, gpointer d _U_)
 {
-    menu_colorize_changed(GTK_CHECK_MENU_ITEM(w)->active);
+    menu_colorize_changed(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w)));
 }
 
 
