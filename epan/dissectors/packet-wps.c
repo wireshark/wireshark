@@ -273,7 +273,7 @@ static const value_string eapwps_wfa_ext_types[] = {
   { WPS_WFA_EXT_SETTINGS_DELAY_TIME,   "Settings Delay Time" },
   { 0, NULL }
 };
-
+#define WFA_OUI             0x0050F204
 
 static int proto_wps = -1;
 
@@ -382,8 +382,8 @@ static int hf_eapwps_tlv_permitted_config_methods = -1;
 static int hf_eapwps_tlv_selected_registrar_config_methods = -1;
 static int hf_eapwps_tlv_primary_device_type = -1;
 static int hf_eapwps_tlv_primary_device_type_category = -1;
-static int hf_eapwps_tlv_primary_device_type_oui = -1;
-static int hf_eapwps_tlv_primary_device_type_subcategory = -1;
+#define WPS_DEVICE_TYPE_CATEGORY_MAX 11
+static int hf_eapwps_tlv_primary_device_type_subcategory[WPS_DEVICE_TYPE_CATEGORY_MAX] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
 static int hf_eapwps_tlv_secondary_device_type_list = -1;
 static int hf_eapwps_tlv_portable_device = -1;
 static int hf_eapwps_tlv_ap_setup_locked = -1;
@@ -645,6 +645,117 @@ static const value_string eapwps_tlv_wifi_protected_setup_state[] = {
   { 0x01, "Not configured" },
   { 0x02, "Configured" },
   { 0, NULL }
+};
+
+static const value_string eapwps_tlv_primary_device_type_category[] = {
+  { 0x01, "Computer" },
+  { 0x02, "Input Device" },
+  { 0x03, "Printers, Scanners, Faxes and Copiers" },
+  { 0x04, "Camera" },
+  { 0x05, "Storage" },
+  { 0x06, "Network Infrastructure" },
+  { 0x07, "Displays" },
+  { 0x08, "Multimedia Devices" },
+  { 0x09, "Gaming Devices" },
+  { 0x0A, "Telephone" },
+  { 0x0B, "Audio Devices" },
+  { 0, NULL }
+};
+
+#define WPS_DEVICE_TYPE_SUB_CATEGORY_MAX 9
+static const value_string eapwps_tlv_primary_device_type_subcategory[WPS_DEVICE_TYPE_CATEGORY_MAX][WPS_DEVICE_TYPE_SUB_CATEGORY_MAX + 1] = {
+  {
+    { 0x01, "PC" },
+    { 0x02, "Server" },
+    { 0x03, "Media Center" },
+    { 0x04, "Ultra-mobile PC" },
+    { 0x05, "Notebook" },
+    { 0x06, "Desktop" },
+    { 0x07, "MID (Mobile Internet Device)" },
+    { 0x08, "Netbook" },
+    { 0, NULL }
+  },
+  {
+    { 0x01, "Keyboard" },
+    { 0x02, "Mouse" },
+    { 0x03, "Joystick" },
+    { 0x04, "Trackball" },
+    { 0x05, "Gaming controller" },
+    { 0x06, "Remote" },
+    { 0x07, "Touchscreen" },
+    { 0x08, "Biometric reader" },
+    { 0x09, "Barcode reader" },
+    { 0, NULL }
+  },
+  {
+    { 0x01, "Printer or Print Server" },
+    { 0x02, "Scanner" },
+    { 0x03, "Fax" },
+    { 0x04, "Copier" },
+    { 0x05, "All-in-one (Printer, Scanner, Fax, Copier)" },
+    { 0, NULL }
+  },
+  {
+    { 0x01, "Digital Still Camera" },
+    { 0x02, "Video Camera" },
+    { 0x03, "Web Camera" },
+    { 0x04, "Security Camera" },
+    { 0, NULL }
+  },
+  {
+    { 0x01, "NAS" },
+    { 0, NULL }
+  },
+  {
+    { 0x01, "AP" },
+    { 0x02, "Router" },
+    { 0x03, "Switch" },
+    { 0x04, "Gateway" },
+    { 0x05, "Bridge" },
+    { 0, NULL }
+  },
+  {
+    { 0x01, "Television" },
+    { 0x02, "Electronic Picture Frame" },
+    { 0x03, "Projector" },
+    { 0x04, "Monitor" },
+    { 0, NULL }
+  },
+  {
+    { 0x01, "DAR" },
+    { 0x02, "PVR" },
+    { 0x03, "MCX" },
+    { 0x04, "Set-top box" },
+    { 0x05, "Media Server/Media Adapter/Media Extender" },
+    { 0x06, "Portable Video Player" },
+    { 0, NULL }
+  },
+  {
+    { 0x01, "Xbox" },
+    { 0x02, "Xbox360" },
+    { 0x03, "Playstation" },
+    { 0x04, "Game Console/Game Console Adapter" },
+    { 0x05, "Portable Gaming Device" },
+    { 0, NULL }
+  },
+  {
+    { 0x01, "Windows Mobile" },
+    { 0x02, "Phone - single mode" },
+    { 0x03, "Phone - dual mode" },
+    { 0x04, "Smartphone - single mode" },
+    { 0x05, "Smartphone - dual mode" },
+    { 0, NULL }
+  },
+  {
+    { 0x01, "Audio tuner/receiver" },
+    { 0x02, "Speakers" },
+    { 0x03, "Portable Music Player (PMP)" },
+    { 0x04, "Headset (headphones + microphone)" },
+    { 0x05, "Headphones" },
+    { 0x06, "Microphone" },
+    { 0x07, "Home Theater Systems" },
+    { 0, NULL }
+  }
 };
 
 /*  ********************************************************************** */
@@ -1345,12 +1456,14 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
     case WPS_TLV_TYPE_PRIMARY_DEVICE_TYPE:
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_primary_device_type, tvb, offset+4, 8, FALSE);
       hfindex = hf_eapwps_tlv_primary_device_type;
-
-      /* NYI: Implement vals for OUI==WFA  */
-      proto_tree_add_item(tlv_root, hf_eapwps_tlv_primary_device_type_category,   tvb, offset+4,  2, FALSE);
-      proto_tree_add_item(tlv_root, hf_eapwps_tlv_primary_device_type_oui,        tvb, offset+6,  4, FALSE);
-      proto_tree_add_item(tlv_root, hf_eapwps_tlv_primary_device_type_subcategory,tvb, offset+10, 2, FALSE);
-
+      if (tvb_get_ntohl(tvb, offset+6) == WFA_OUI) {
+        guint16 dev_cat = tvb_get_ntohs(tvb, offset+4);
+        if (dev_cat > 0 && dev_cat <= WPS_DEVICE_TYPE_CATEGORY_MAX) {
+          proto_tree_add_item(tlv_root, hf_eapwps_tlv_primary_device_type_category, tvb, offset+4, 2, FALSE);
+          proto_tree_add_item(tlv_root, hf_eapwps_tlv_primary_device_type_subcategory[dev_cat-1], tvb, offset+10, 2, FALSE);
+        }
+      }
+      
       break;
 
     case WPS_TLV_TYPE_SECONDARY_DEVICE_TYPE_LIST:
@@ -1942,13 +2055,40 @@ proto_register_wps(void)
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_primary_device_type_category,
       { "Category", "wps.primary_device_type.category",
-        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_primary_device_type_oui,
-      { "OUI", "wps.primary_device_type.oui",
-        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-    { &hf_eapwps_tlv_primary_device_type_subcategory,
-      { "Subcategory", "wps.primary_device_type.subcategory",
-        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_primary_device_type_category), 0x0, NULL, HFILL }},
+    { &hf_eapwps_tlv_primary_device_type_subcategory[0],
+      { "Subcategory", "wps.primary_device_type.subcategory_1",
+        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_primary_device_type_subcategory[0]), 0x0, NULL, HFILL }},
+    { &hf_eapwps_tlv_primary_device_type_subcategory[1],
+      { "Subcategory", "wps.primary_device_type.subcategory_2",
+        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_primary_device_type_subcategory[1]), 0x0, NULL, HFILL }},
+    { &hf_eapwps_tlv_primary_device_type_subcategory[2],
+      { "Subcategory", "wps.primary_device_type.subcategory_3",
+        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_primary_device_type_subcategory[2]), 0x0, NULL, HFILL }},
+    { &hf_eapwps_tlv_primary_device_type_subcategory[3],
+      { "Subcategory", "wps.primary_device_type.subcategory_4",
+        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_primary_device_type_subcategory[3]), 0x0, NULL, HFILL }},
+    { &hf_eapwps_tlv_primary_device_type_subcategory[4],
+      { "Subcategory", "wps.primary_device_type.subcategory_5",
+        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_primary_device_type_subcategory[4]), 0x0, NULL, HFILL }},
+    { &hf_eapwps_tlv_primary_device_type_subcategory[5],
+      { "Subcategory", "wps.primary_device_type.subcategory_6",
+        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_primary_device_type_subcategory[5]), 0x0, NULL, HFILL }},
+    { &hf_eapwps_tlv_primary_device_type_subcategory[6],
+      { "Subcategory", "wps.primary_device_type.subcategory_7",
+        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_primary_device_type_subcategory[6]), 0x0, NULL, HFILL }},
+    { &hf_eapwps_tlv_primary_device_type_subcategory[7],
+      { "Subcategory", "wps.primary_device_type.subcategory_8",
+        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_primary_device_type_subcategory[7]), 0x0, NULL, HFILL }},
+    { &hf_eapwps_tlv_primary_device_type_subcategory[8],
+      { "Subcategory", "wps.primary_device_type.subcategory_9",
+        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_primary_device_type_subcategory[8]), 0x0, NULL, HFILL }},
+    { &hf_eapwps_tlv_primary_device_type_subcategory[9],
+      { "Subcategory", "wps.primary_device_type.subcategory_10",
+        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_primary_device_type_subcategory[9]), 0x0, NULL, HFILL }},
+    { &hf_eapwps_tlv_primary_device_type_subcategory[10],
+      { "Subcategory", "wps.primary_device_type.subcategory_11",
+        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_primary_device_type_subcategory[10]), 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_secondary_device_type_list,
       { "Secondary Device Type List", "wps.secondary_device_type_list",
