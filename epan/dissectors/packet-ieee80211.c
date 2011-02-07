@@ -1649,6 +1649,23 @@ static int hf_ieee80211_antsel_b5 = -1;
 static int hf_ieee80211_antsel_b6 = -1;
 static int hf_ieee80211_antsel_b7 = -1;
 
+static int hf_ieee80211_rsn_version = -1;
+static int hf_ieee80211_rsn_gcs = -1;
+static int hf_ieee80211_rsn_gcs_oui = -1;
+static int hf_ieee80211_rsn_gcs_type = -1;
+static int hf_ieee80211_rsn_gcs_80211_type = -1;
+static int hf_ieee80211_rsn_pcs_count = -1;
+static int hf_ieee80211_rsn_pcs_list = -1;
+static int hf_ieee80211_rsn_pcs = -1;
+static int hf_ieee80211_rsn_pcs_oui = -1;
+static int hf_ieee80211_rsn_pcs_80211_type = -1;
+static int hf_ieee80211_rsn_pcs_type = -1;
+static int hf_ieee80211_rsn_akms_count = -1;
+static int hf_ieee80211_rsn_akms_list = -1;
+static int hf_ieee80211_rsn_akms = -1;
+static int hf_ieee80211_rsn_akms_oui = -1;
+static int hf_ieee80211_rsn_akms_80211_type = -1;
+static int hf_ieee80211_rsn_akms_type = -1;
 static int hf_ieee80211_rsn_cap = -1;
 static int hf_ieee80211_rsn_cap_preauth = -1;
 static int hf_ieee80211_rsn_cap_no_pairwise = -1;
@@ -1657,6 +1674,13 @@ static int hf_ieee80211_rsn_cap_gtksa_replay_counter = -1;
 static int hf_ieee80211_rsn_cap_mfpr = -1;
 static int hf_ieee80211_rsn_cap_mfpc = -1;
 static int hf_ieee80211_rsn_cap_peerkey = -1;
+static int hf_ieee80211_rsn_pmkid_count = -1;
+static int hf_ieee80211_rsn_pmkid_list = -1;
+static int hf_ieee80211_rsn_pmkid = -1;
+static int hf_ieee80211_rsn_gmcs = -1;
+static int hf_ieee80211_rsn_gmcs_oui = -1;
+static int hf_ieee80211_rsn_gmcs_type = -1;
+static int hf_ieee80211_rsn_gmcs_80211_type = -1;
 
 static int hf_ieee80211_aironet_ie_type = -1;
 static int hf_ieee80211_aironet_ie_version = -1;
@@ -1799,7 +1823,14 @@ static gint ett_msh_parameters = -1;
 static gint ett_msh_dest_flags_tree = -1;
 #endif /* MESH_OVERRIDES */
 
+static gint ett_rsn_gcs_tree = -1;
+static gint ett_rsn_pcs_tree = -1;
+static gint ett_rsn_sub_pcs_tree = -1;
+static gint ett_rsn_akms_tree = -1;
+static gint ett_rsn_sub_akms_tree = -1;
 static gint ett_rsn_cap_tree = -1;
+static gint ett_rsn_pmkid_tree = -1;
+static gint ett_rsn_gmcs_tree = -1;
 
 static gint ett_ht_cap_tree = -1;
 static gint ett_ampduparam_tree = -1;
@@ -4121,6 +4152,114 @@ static const value_string wpa_cipher_vals[] =
   {0, NULL}
 };
 
+static const value_string ieee80211_rsn_cipher_vals[] =
+{
+  {0, "NONE"},
+  {1, "WEP (40-bit)"},
+  {2, "TKIP"},
+  {3, "AES (OCB)"},
+  {4, "AES (CCM)"},
+  {5, "WEP (104-bit)"},
+  {6, "BIP"},
+  {7, "Group addressed traffic not allowed"},
+  {0, NULL}
+};
+
+static const value_string ieee80211_rsn_keymgmt_vals[] =
+{
+  {0, "NONE"},
+  {1, "WPA"},
+  {2, "PSK"},
+  {3, "FT over IEEE 802.1X"},
+  {4, "FT using PSK"},
+  {5, "WPA (SHA256)"},
+  {6, "PSK (SHA256)"},
+  {7, "TDLS / TPK Handshake"},
+  {0, NULL}
+};
+
+static void
+oui_base_custom(gchar *result, guint32 oui)
+{
+  guint8 p_oui[3];
+  const gchar *manuf_name;
+  p_oui[0] = oui >> 16 & 0xFF;
+  p_oui[1] = oui >> 8 & 0xFF;
+  p_oui[2] = oui & 0xFF;
+
+  /* Attempt an OUI lookup. */
+  manuf_name = get_manuf_name_if_known(p_oui);
+  if (manuf_name == NULL) {
+      /* Could not find an OUI. */
+      g_snprintf(result, ITEM_LABEL_LENGTH, "%.2x-%.2x-%.2x", p_oui[0], p_oui[1], p_oui[2] );
+  }
+  else {
+      /* Found an address string. */
+      g_snprintf(result, ITEM_LABEL_LENGTH, "%s", manuf_name );
+  }
+}
+static void
+rsn_gcs_base_custom(gchar *result, guint32 gcs)
+{
+  gchar *oui_result=NULL;
+  oui_result = ep_alloc(SHORT_STR);
+  oui_result[0] = '\0';
+  oui_base_custom(oui_result, gcs >>8);
+  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, val_to_str( gcs & 0xFF, ieee80211_rsn_cipher_vals, "Unknown %d") );
+}
+
+static void
+rsn_pcs_base_custom(gchar *result, guint32 pcs)
+{
+  gchar *oui_result=NULL;
+  oui_result = ep_alloc(SHORT_STR);
+  oui_result[0] = '\0';
+  oui_base_custom(oui_result, pcs >>8);
+  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, val_to_str( pcs & 0xFF, ieee80211_rsn_cipher_vals, "Unknown %d") );
+
+}
+static void
+rsn_akms_base_custom(gchar *result, guint32 akms)
+{
+  gchar *oui_result=NULL;
+  oui_result = ep_alloc(SHORT_STR);
+  oui_result[0] = '\0';
+  oui_base_custom(oui_result, akms >>8);
+  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, val_to_str( akms & 0xFF, ieee80211_rsn_keymgmt_vals, "Unknown %d") );
+}
+
+static gchar *
+rsn_pcs_return(guint32 pcs)
+{
+    gchar *result=NULL;
+    result = ep_alloc(SHORT_STR);
+    result[0] = '\0';
+    rsn_pcs_base_custom(result, pcs);
+   
+    return result;
+}
+
+static gchar *
+rsn_akms_return(guint32 akms)
+{
+    gchar *result=NULL;
+    result = ep_alloc(SHORT_STR);
+    result[0] = '\0';
+    rsn_akms_base_custom(result, akms);
+   
+    return result;
+}
+
+static void
+rsn_gmcs_base_custom(gchar *result, guint32 gmcs)
+{
+  gchar *oui_result=NULL;
+  oui_result = ep_alloc(SHORT_STR);
+  oui_result[0] = '\0';
+  oui_base_custom(oui_result, gmcs >>8);
+  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, val_to_str( gmcs & 0xFF, ieee80211_rsn_cipher_vals, "Unknown %d") );
+}
+
 static const value_string wpa_keymgmt_vals[] =
 {
   {0, "NONE"},
@@ -4504,131 +4643,125 @@ dissect_vendor_ie_aironet(proto_item * aironet_item, proto_tree * ietree,
       val_to_str(type, aironet_ie_type_vals, "Unknown"));
   }
 }
-
+/* 7.3.2.25 RSN information element */
 static void
-dissect_rsn_ie(proto_tree * tree, tvbuff_t * tag_tvb)
+dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
 {
-  guint tag_off = 0;
-  guint tag_len = tvb_length(tag_tvb);
-  char out_buff[SHORT_STR];
-  int i, count;
-  proto_item *cap_item;
-  proto_tree *cap_tree;
+  proto_item *rsn_gcs_item, *rsn_pcs_item, *rsn_akms_item, *rsn_cap_item, *rsn_pmkid_item, *rsn_gmcs_item;
+  proto_item *rsn_sub_pcs_item, *rsn_sub_akms_item;
+  proto_tree *rsn_gcs_tree, *rsn_pcs_tree, *rsn_akms_tree, *rsn_cap_tree, *rsn_pmkid_tree, *rsn_gmcs_tree;
+  proto_tree *rsn_sub_pcs_tree, *rsn_sub_akms_tree;
+  guint16 i, pcs_count, akms_count, pmkid_count;
+  int tag_end = offset + tag_len;
 
-  if (tag_off + 2 > tag_len) {
-    proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tag_tvb, tag_off, tag_len,
-        "Not interpreted");
+  proto_tree_add_item(tree, hf_ieee80211_rsn_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  /* 7.3.2.25.1 Cipher suites */
+  rsn_gcs_item = proto_tree_add_item(tree, hf_ieee80211_rsn_gcs, tvb, offset, 4, FALSE);
+  rsn_gcs_tree = proto_item_add_subtree(rsn_gcs_item, ett_rsn_gcs_tree);
+  proto_tree_add_item(rsn_gcs_tree, hf_ieee80211_rsn_gcs_oui, tvb, offset, 3, FALSE);
+    /* Check if OUI is 00:0F:AC	(ieee80211) */
+  if(tvb_get_ntoh24(tvb, offset) == 0x000FAC)
+  {
+    proto_tree_add_item(rsn_gcs_tree, hf_ieee80211_rsn_gcs_80211_type, tvb, offset + 3, 1, FALSE); 
+  } else {
+    proto_tree_add_item(rsn_gcs_tree, hf_ieee80211_rsn_gcs_type, tvb, offset + 3, 1, FALSE);
+  }
+  offset += 4;
+
+  proto_tree_add_item(tree, hf_ieee80211_rsn_pcs_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  pcs_count = tvb_get_letohs(tvb, offset);
+  offset += 2;
+
+  rsn_pcs_item = proto_tree_add_item(tree, hf_ieee80211_rsn_pcs_list, tvb, offset, pcs_count * 4, FALSE);
+  rsn_pcs_tree = proto_item_add_subtree(rsn_pcs_item, ett_rsn_pcs_tree);
+  for(i=1; i <= pcs_count; i++)
+  {
+    rsn_sub_pcs_item = proto_tree_add_item(rsn_pcs_tree, hf_ieee80211_rsn_pcs, tvb, offset, 4, FALSE);
+    rsn_sub_pcs_tree = proto_item_add_subtree(rsn_sub_pcs_item, ett_rsn_sub_pcs_tree);
+    proto_tree_add_item(rsn_sub_pcs_tree, hf_ieee80211_rsn_pcs_oui, tvb, offset, 3, FALSE);
+    /* Check if OUI is 00:0F:AC	(ieee80211) */
+    if(tvb_get_ntoh24(tvb, offset) == 0x000FAC)
+    {
+      proto_tree_add_item(rsn_sub_pcs_tree, hf_ieee80211_rsn_pcs_80211_type, tvb, offset+3, 1, FALSE);
+      proto_item_append_text(rsn_pcs_item, " %s", rsn_pcs_return(tvb_get_ntohl(tvb, offset)));  
+    } else {
+      proto_tree_add_item(rsn_sub_pcs_tree, hf_ieee80211_rsn_pcs_type, tvb, offset+3, 1, FALSE);
+    }
+    offset += 4;
+  }
+
+  /* 7.3.2.25.2 AKM suites */
+  proto_tree_add_item(tree, hf_ieee80211_rsn_akms_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  akms_count = tvb_get_letohs(tvb, offset);
+  offset += 2;
+
+  rsn_akms_item = proto_tree_add_item(tree, hf_ieee80211_rsn_akms_list, tvb, offset, akms_count * 4, FALSE);
+  rsn_akms_tree = proto_item_add_subtree(rsn_akms_item, ett_rsn_akms_tree);
+  for(i=1; i <= akms_count; i++)
+  {
+    rsn_sub_akms_item = proto_tree_add_item(rsn_akms_tree, hf_ieee80211_rsn_akms, tvb, offset, 4, FALSE);
+    rsn_sub_akms_tree = proto_item_add_subtree(rsn_sub_akms_item, ett_rsn_sub_akms_tree);
+    proto_tree_add_item(rsn_sub_akms_tree, hf_ieee80211_rsn_akms_oui, tvb, offset, 3, FALSE);
+
+    /* Check if OUI is 00:0F:AC	(ieee80211) */
+    if(tvb_get_ntoh24(tvb, offset) == 0x000FAC)
+    {
+      proto_tree_add_item(rsn_sub_akms_tree, hf_ieee80211_rsn_akms_80211_type, tvb, offset+3, 1, FALSE);
+      proto_item_append_text(rsn_akms_item, " %s", rsn_akms_return(tvb_get_ntohl(tvb, offset)));
+    } else {
+      proto_tree_add_item(rsn_sub_akms_tree, hf_ieee80211_rsn_akms_type, tvb, offset+3, 1, FALSE);
+    }
+    offset += 4;
+  }
+
+  /* 7.3.2.25.3 RSN capabilities */
+  rsn_cap_item = proto_tree_add_item(tree, hf_ieee80211_rsn_cap, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  rsn_cap_tree = proto_item_add_subtree(rsn_cap_item, ett_rsn_cap_tree);
+
+  proto_tree_add_item(rsn_cap_tree, hf_ieee80211_rsn_cap_preauth, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(rsn_cap_tree, hf_ieee80211_rsn_cap_no_pairwise, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(rsn_cap_tree, hf_ieee80211_rsn_cap_ptksa_replay_counter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(rsn_cap_tree, hf_ieee80211_rsn_cap_gtksa_replay_counter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(rsn_cap_tree, hf_ieee80211_rsn_cap_mfpr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(rsn_cap_tree, hf_ieee80211_rsn_cap_mfpc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(rsn_cap_tree, hf_ieee80211_rsn_cap_peerkey, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+  if(offset >= tag_end)
+  {
     return;
   }
+  /* 7.3.2.25.4 PMKID */
+  proto_tree_add_item(tree, hf_ieee80211_rsn_pmkid_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  pmkid_count = tvb_get_letohs(tvb, offset);
+  offset += 2;
 
-  g_snprintf(out_buff, SHORT_STR, "RSN IE, version %u",
-     tvb_get_letohs(tag_tvb, tag_off));
-  proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tag_tvb, tag_off, 2, out_buff);
-
-  tag_off += 2;
-
-  if (tag_off + 4 > tag_len)
-    goto done;
-
-  /* multicast cipher suite */
-  if (!tvb_memeql(tag_tvb, tag_off, RSN_OUI, 3)) {
-    g_snprintf(out_buff, SHORT_STR, "Multicast cipher suite: %s",
-       val_to_str(tvb_get_guint8(tag_tvb, tag_off + 3),
-         wpa_cipher_vals, "UNKNOWN"));
-    proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tag_tvb, tag_off, 4, out_buff);
-    tag_off += 4;
+  rsn_pmkid_item = proto_tree_add_item(tree, hf_ieee80211_rsn_pmkid_list, tvb, offset, pmkid_count * 16, FALSE);
+  rsn_pmkid_tree = proto_item_add_subtree(rsn_pmkid_item, ett_rsn_pmkid_tree);
+  for(i=1; i <= pmkid_count; i++)
+  {
+    proto_tree_add_item(rsn_pmkid_tree, hf_ieee80211_rsn_pmkid, tvb, offset, 16, FALSE);
+    offset +=16;
   }
 
-  if (tag_off + 2 > tag_len)
-    goto done;
-
-  /* unicast cipher suites */
-  count = tvb_get_letohs(tag_tvb, tag_off);
-  g_snprintf(out_buff, SHORT_STR, "# of unicast cipher suites: %u", count);
-  proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tag_tvb, tag_off, 2, out_buff);
-  tag_off += 2;
-  i = 1;
-  while (tag_off + 4 <= tag_len && i <= count) {
-    if (tvb_memeql(tag_tvb, tag_off, RSN_OUI, 3) != 0)
-      goto done;
-    g_snprintf(out_buff, SHORT_STR, "Unicast cipher suite %u: %s",
-       i, val_to_str(tvb_get_guint8(tag_tvb, tag_off + 3),
-         wpa_cipher_vals, "UNKNOWN"));
-    proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tag_tvb, tag_off, 4, out_buff);
-    tag_off += 4;
-    i++;
+  if(offset >= tag_end)
+  {
+    return;
   }
-
-  if (i <= count || tag_off + 2 > tag_len)
-    goto done;
-
-  /* authenticated key management suites */
-  count = tvb_get_letohs(tag_tvb, tag_off);
-  g_snprintf(out_buff, SHORT_STR, "# of auth key management suites: %u", count);
-  proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tag_tvb, tag_off, 2, out_buff);
-  tag_off += 2;
-  i = 1;
-  while (tag_off + 4 <= tag_len && i <= count) {
-    if (tvb_memeql(tag_tvb, tag_off, RSN_OUI, 3) != 0)
-      goto done;
-    g_snprintf(out_buff, SHORT_STR, "auth key management suite %u: %s",
-       i, val_to_str(tvb_get_guint8(tag_tvb, tag_off + 3),
-         wpa_keymgmt_vals, "UNKNOWN"));
-    proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tag_tvb, tag_off, 4, out_buff);
-    tag_off += 4;
-    i++;
+  /* Group Management Cipher Suite (802.11w)*/ 
+  rsn_gmcs_item = proto_tree_add_item(tree, hf_ieee80211_rsn_gmcs, tvb, offset, 4, FALSE);
+  rsn_gmcs_tree = proto_item_add_subtree(rsn_gmcs_item, ett_rsn_gmcs_tree);
+  proto_tree_add_item(rsn_gmcs_tree, hf_ieee80211_rsn_gmcs_oui, tvb, offset, 3, FALSE);
+    /* Check if OUI is 00:0F:AC	(ieee80211) */
+  if(tvb_get_ntoh24(tvb, offset) == 0x000FAC)
+  {
+    proto_tree_add_item(rsn_gmcs_tree, hf_ieee80211_rsn_gmcs_80211_type, tvb, offset + 3, 1, FALSE); 
+  } else {
+    proto_tree_add_item(rsn_gmcs_tree, hf_ieee80211_rsn_gmcs_type, tvb, offset + 3, 1, FALSE);
   }
+  offset += 4;
 
-  if (i <= count || tag_off + 2 > tag_len)
-    goto done;
-
-  cap_item = proto_tree_add_item(tree, hf_ieee80211_rsn_cap, tag_tvb, tag_off, 2, ENC_LITTLE_ENDIAN);
-  cap_tree = proto_item_add_subtree(cap_item, ett_rsn_cap_tree);
-
-  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_preauth, tag_tvb, tag_off, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_no_pairwise, tag_tvb, tag_off, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_ptksa_replay_counter, tag_tvb, tag_off, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_gtksa_replay_counter, tag_tvb, tag_off, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_mfpr, tag_tvb, tag_off, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_mfpc, tag_tvb, tag_off, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(cap_tree, hf_ieee80211_rsn_cap_peerkey, tag_tvb, tag_off, 2, ENC_LITTLE_ENDIAN);
-  tag_off += 2;
-
-  if (tag_off + 2 > tag_len)
-    goto done;
-
-  count = tvb_get_letohs(tag_tvb, tag_off);
-  g_snprintf(out_buff, SHORT_STR, "# of PMKIDs: %u", count);
-  proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tag_tvb, tag_off, 2, out_buff);
-  tag_off += 2;
-
-  /* PMKID List (16 * n octets) */
-  for (i = 0; i < count; i++) {
-    if (tag_off + PMKID_LEN > tag_len)
-      break;
-    g_snprintf(out_buff, SHORT_STR, "PMKID %u: %s", i,
-        tvb_bytes_to_str(tag_tvb, tag_off, PMKID_LEN));
-    proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tag_tvb, tag_off,
-        PMKID_LEN, out_buff);
-    tag_off += PMKID_LEN;
-  }
-
-  if (tag_off + 4 > tag_len)
-    goto done;
-
-  if (!tvb_memeql(tag_tvb, tag_off, RSN_OUI, 3)) {
-    g_snprintf(out_buff, SHORT_STR, "Group management cipher suite: %s",
-               val_to_str(tvb_get_guint8(tag_tvb, tag_off + 3),
-                          wpa_cipher_vals, "UNKNOWN"));
-    proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tag_tvb, tag_off, 4,
-                          out_buff);
-    tag_off += 4;
-  }
-
-done:
-  if (tag_off < tag_len)
-    proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tag_tvb, tag_off,
-        tag_len - tag_off, "Not interpreted");
 }
 
 static void
@@ -6231,8 +6364,8 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       break;
 
     case TAG_RSN_IE:
-      tag_tvb = tvb_new_subset(tvb, offset + 2, tag_len, tag_len);
-      dissect_rsn_ie(tree, tag_tvb);
+      /* Add Expert Info to check tag_len ? */
+      dissect_rsn_ie(tree, tvb, offset + 2, tag_len);
       break;
 
     case TAG_MOBILITY_DOMAIN:
@@ -12310,30 +12443,98 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_rsn_version,
+     {"RSN Version", "wlan_mgt.rsn.version", FT_UINT16, BASE_DEC,
+      NULL, 0, "Indicates the version number of the RSNA protocol", HFILL }},
+
+    {&hf_ieee80211_rsn_gcs,
+     {"Group Cipher Suite", "wlan_mgt.rsn.gcs", FT_UINT32, BASE_CUSTOM,
+      rsn_gcs_base_custom, 0, "Contains the cipher suite selector used by the BSS to protect broadcast/multicast traffic", HFILL }},
+
+    {&hf_ieee80211_rsn_gcs_oui,
+     {"Group Cipher Suite OUI", "wlan_mgt.rsn.gcs.oui", FT_UINT24, BASE_CUSTOM,
+      oui_base_custom, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_gcs_type,
+     {"Group Cipher Suite type", "wlan_mgt.rsn.gcs.type", FT_UINT8, BASE_DEC,
+      NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_gcs_80211_type,
+     {"Group Cipher Suite type", "wlan_mgt.rsn.gcs.type", FT_UINT8, BASE_DEC,
+      VALS(ieee80211_rsn_cipher_vals), 0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_pcs_count,
+     {"Pairwise Cipher Suite Count", "wlan_mgt.rsn.pcs.count", FT_UINT16, BASE_DEC,
+      NULL, 0, "Indicates the number of pairwise cipher suite selectors that are contained in the Pairwise Cipher Suite List", HFILL }},
+
+    {&hf_ieee80211_rsn_pcs_list,
+     {"Pairwise Cipher Suite List", "wlan_mgt.rsn.pcs.list", FT_NONE, BASE_NONE,
+      NULL, 0, "Contains a series of cipher suite selectors that indicate the pairwisecipher suites", HFILL }},
+
+    {&hf_ieee80211_rsn_pcs,
+     {"Pairwise Cipher Suite", "wlan_mgt.rsn.pcs", FT_UINT32, BASE_CUSTOM,
+      rsn_pcs_base_custom, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_pcs_oui,
+     {"Pairwise Cipher Suite OUI", "wlan_mgt.rsn.pcs.oui", FT_UINT24, BASE_CUSTOM,
+      oui_base_custom, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_pcs_type,
+     {"Pairwise Cipher Suite type", "wlan_mgt.rsn.pcs.type", FT_UINT8, BASE_DEC,
+      NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_pcs_80211_type,
+     {"Pairwise Cipher Suite type", "wlan_mgt.rsn.pcs.type", FT_UINT8, BASE_DEC,
+      VALS(ieee80211_rsn_cipher_vals), 0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_akms_count,
+     {"Auth Key Management (AKM) Suite Count", "wlan_mgt.rsn.akms.count", FT_UINT16, BASE_DEC,
+      NULL, 0, "Indicates the number of Auth Key Management suite selectors that are contained in the Auth Key Management Suite List", HFILL }},
+
+    {&hf_ieee80211_rsn_akms_list,
+     {"Auth Key Management (AKM) List", "wlan_mgt.rsn.akms.list", FT_NONE, BASE_NONE,
+      NULL, 0, "Contains a series of cipher suite selectors that indicate the AKM suites", HFILL }},
+
+    {&hf_ieee80211_rsn_akms,
+     {"Auth Key Management (AKM) Suite", "wlan_mgt.rsn.akms", FT_UINT32, BASE_CUSTOM,
+      rsn_akms_base_custom, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_akms_oui,
+     {"Auth Key Management (AKM) OUI", "wlan_mgt.rsn.akms.oui", FT_UINT24, BASE_CUSTOM,
+      oui_base_custom, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_akms_type,
+     {"Auth Key Management (AKM) type", "wlan_mgt.rsn.akms.type", FT_UINT8, BASE_DEC,
+      NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_akms_80211_type,
+     {"Auth Key Management (AKM) type", "wlan_mgt.rsn.akms.type", FT_UINT8, BASE_DEC,
+      VALS(ieee80211_rsn_keymgmt_vals), 0, NULL, HFILL }},
+
     {&hf_ieee80211_rsn_cap,
      {"RSN Capabilities", "wlan_mgt.rsn.capabilities", FT_UINT16, BASE_HEX,
       NULL, 0, "RSN Capability information", HFILL }},
 
     {&hf_ieee80211_rsn_cap_preauth,
      {"RSN Pre-Auth capabilities", "wlan_mgt.rsn.capabilities.preauth",
-      FT_BOOLEAN, 16, TFS (&rsn_preauth_flags), 0x0001,
+      FT_BOOLEAN, 16, TFS(&rsn_preauth_flags), 0x0001,
       NULL, HFILL }},
 
     {&hf_ieee80211_rsn_cap_no_pairwise,
      {"RSN No Pairwise capabilities", "wlan_mgt.rsn.capabilities.no_pairwise",
-      FT_BOOLEAN, 16, TFS (&rsn_no_pairwise_flags), 0x0002,
+      FT_BOOLEAN, 16, TFS(&rsn_no_pairwise_flags), 0x0002,
       NULL, HFILL }},
 
     {&hf_ieee80211_rsn_cap_ptksa_replay_counter,
      {"RSN PTKSA Replay Counter capabilities",
       "wlan_mgt.rsn.capabilities.ptksa_replay_counter",
-      FT_UINT16, BASE_HEX, VALS (&rsn_cap_replay_counter), 0x000C,
+      FT_UINT16, BASE_HEX, VALS(&rsn_cap_replay_counter), 0x000C,
       NULL, HFILL }},
 
     {&hf_ieee80211_rsn_cap_gtksa_replay_counter,
      {"RSN GTKSA Replay Counter capabilities",
       "wlan_mgt.rsn.capabilities.gtksa_replay_counter",
-      FT_UINT16, BASE_HEX, VALS (&rsn_cap_replay_counter), 0x0030,
+      FT_UINT16, BASE_HEX, VALS(&rsn_cap_replay_counter), 0x0030,
       NULL, HFILL }},
 
     {&hf_ieee80211_rsn_cap_mfpr,
@@ -12350,6 +12551,35 @@ proto_register_ieee80211 (void)
      {"PeerKey Enabled",
       "wlan_mgt.rsn.capabilities.peerkey",
       FT_BOOLEAN, 16, NULL, 0x0200, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_pmkid_count,
+     {"PMKID Count", "wlan_mgt.rsn.pmkid.count", FT_UINT16, BASE_DEC,
+      NULL, 0, "Indicates the number of PMKID  selectors that are contained in the PMKID Suite List", HFILL }},
+
+    {&hf_ieee80211_rsn_pmkid_list,
+     {"PMKID List", "wlan_mgt.rsn.pmkid.list", FT_NONE, BASE_NONE,
+      NULL, 0, "Contains a series of cipher suite selectors that indicate the AKM suites", HFILL }},
+
+    {&hf_ieee80211_rsn_pmkid,
+     {"PMKID", "wlan_mgt.pmkid.akms", FT_BYTES, BASE_NONE,
+      NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_gmcs,
+     {"Group Managemement Cipher Suite", "wlan_mgt.rsn.gmcs", FT_UINT32, BASE_CUSTOM,
+      rsn_gmcs_base_custom, 0, "Contains the cipher suite selector used by the BSS to protect broadcast/multicast traffic", HFILL }},
+
+    {&hf_ieee80211_rsn_gmcs_oui,
+     {"Group Managemement Cipher Suite OUI", "wlan_mgt.rsn.gmcs.oui", FT_UINT24, BASE_CUSTOM,
+      oui_base_custom, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_gmcs_type,
+     {"Group Managemement Cipher Suite type", "wlan_mgt.rsn.gmcs.type", FT_UINT8, BASE_DEC,
+      NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_rsn_gmcs_80211_type,
+     {"Group Managemement Cipher Suite type", "wlan_mgt.rsn.gmcs.type", FT_UINT8, BASE_DEC,
+      VALS(ieee80211_rsn_cipher_vals), 0, NULL, HFILL }},
+
 
     {&hf_ieee80211_ht_cap,
      {"HT Capabilities Info", "wlan_mgt.ht.capabilities", FT_UINT16, BASE_HEX,
@@ -13803,7 +14033,14 @@ proto_register_ieee80211 (void)
     &ett_msh_dest_flags_tree,
 #endif /* MESH_OVERRIDES */
     &ett_cap_tree,
-    &ett_rsn_cap_tree,
+    &ett_rsn_gcs_tree,
+    &ett_rsn_pcs_tree,
+    &ett_rsn_sub_pcs_tree,
+    &ett_rsn_akms_tree,
+    &ett_rsn_sub_akms_tree,
+    &ett_rsn_cap_tree,    
+    &ett_rsn_pmkid_tree,
+    &ett_rsn_gmcs_tree,
     &ett_ht_cap_tree,
     &ett_ff_ba_param_tree,
     &ett_ff_qos_info,
