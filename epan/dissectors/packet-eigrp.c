@@ -286,8 +286,8 @@ static dissector_handle_t ipxsap_handle;
 static const value_string eigrp_opcode_vals[] = {
 	{ EIGRP_HELLO,		"Hello/Ack" },
 	{ EIGRP_UPDATE,		"Update" },
-   	{ EIGRP_REPLY, 		"Reply" },
-   	{ EIGRP_QUERY, 		"Query" },
+	{ EIGRP_REPLY, 		"Reply" },
+	{ EIGRP_QUERY, 		"Query" },
 	{ EIGRP_REQUEST,	"Request" },
 	{ EIGRP_SAP,		"IPX/SAP Update" },
 	{ EIGRP_SIA_QUERY, 	"SIA-Query" },
@@ -467,7 +467,7 @@ static void dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 					break;
 				case TLV_AT_EXT:
 					dissect_eigrp_at_ext(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree, ti);
-					break;			
+					break;
 
 				case TLV_IP6_INT:
 					dissect_eigrp_ip6_int(tvb_new_subset(tvb, offset + 4, size - 4, -1), pinfo, tlv_tree, ti);
@@ -578,22 +578,22 @@ static void dissect_eigrp_seq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static void dissect_eigrp_sv(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
 
 	int offset = 0;
-        guint8 ios_rel_major, ios_rel_minor;
-        guint8 eigrp_rel_major, eigrp_rel_minor;
+	guint8 ios_rel_major, ios_rel_minor;
+	guint8 eigrp_rel_major, eigrp_rel_minor;
 
-        ios_rel_major = tvb_get_guint8(tvb, 0);
-        ios_rel_minor = tvb_get_guint8(tvb, 1);
-        proto_tree_add_text(tree, tvb, offset, 2, "IOS release version: %u.%u",
-                             ios_rel_major, ios_rel_minor);
+	ios_rel_major = tvb_get_guint8(tvb, 0);
+	ios_rel_minor = tvb_get_guint8(tvb, 1);
+	proto_tree_add_text(tree, tvb, offset, 2, "IOS release version: %u.%u",
+			    ios_rel_major, ios_rel_minor);
 	offset += 2;
-        proto_item_append_text(ti, ": IOS=%u.%u", ios_rel_major, ios_rel_minor);
+	proto_item_append_text(ti, ": IOS=%u.%u", ios_rel_major, ios_rel_minor);
 
-        eigrp_rel_major = tvb_get_guint8(tvb, 2);
-        eigrp_rel_minor = tvb_get_guint8(tvb, 3);
-        proto_tree_add_text(tree,tvb,offset, 2, "EIGRP release version: %u.%u",
-                             eigrp_rel_major, eigrp_rel_minor);
-        proto_item_append_text(ti, ", EIGRP=%u.%u",
-                                eigrp_rel_major, eigrp_rel_minor);
+	eigrp_rel_major = tvb_get_guint8(tvb, 2);
+	eigrp_rel_minor = tvb_get_guint8(tvb, 3);
+	proto_tree_add_text(tree,tvb,offset, 2, "EIGRP release version: %u.%u",
+			    eigrp_rel_major, eigrp_rel_minor);
+	proto_item_append_text(ti, ", EIGRP=%u.%u",
+			       eigrp_rel_major, eigrp_rel_minor);
 }
 
 static void dissect_eigrp_nms(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
@@ -763,7 +763,7 @@ static void dissect_eigrp_ipx_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	proto_tree_add_item(tree, hf_eigrp_ipx_int_reserved, tvb, offset, 2, FALSE);
 	offset += 2;
 	ti_dst = proto_tree_add_item(tree, hf_eigrp_ipx_int_dst, tvb, offset, 4, FALSE);
-        proto_item_append_text(ti, "  =   %08x%s", tvb_get_ntohl(tvb, 26), ((tvb_get_ntohl(tvb, 10) == 0xffffffff) ? " - Destination unreachable":""));
+	proto_item_append_text(ti, "  =   %08x%s", tvb_get_ntohl(tvb, 26), ((tvb_get_ntohl(tvb, 10) == 0xffffffff) ? " - Destination unreachable":""));
 	if (tvb_get_ntohl(tvb, 10) == 0xffffffff) {
 		expert_add_info_format(pinfo, ti_dst, PI_RESPONSE_CODE, PI_NOTE, "Destination unreachable");
 	}
@@ -808,7 +808,7 @@ static void dissect_eigrp_ipx_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	proto_tree_add_item(tree, hf_eigrp_ipx_ext_reserved2, tvb, offset, 2, FALSE);
 	offset += 2;
 	ti_dst = proto_tree_add_item(tree, hf_eigrp_ipx_ext_dst, tvb, offset, 4, FALSE);
-        proto_item_append_text(ti, "  =   %08x%s", tvb_get_ntohl(tvb, 46), ((tvb_get_ntohl(tvb, 30) == 0xffffffff) ? " - Destination unreachable":""));
+	proto_item_append_text(ti, "  =   %08x%s", tvb_get_ntohl(tvb, 46), ((tvb_get_ntohl(tvb, 30) == 0xffffffff) ? " - Destination unreachable":""));
 	if (tvb_get_ntohl(tvb, 30) == 0xffffffff) {
 		expert_add_info_format(pinfo, ti_dst, PI_RESPONSE_CODE, PI_NOTE, "Destination unreachable");
 	}
@@ -818,9 +818,9 @@ static void dissect_eigrp_ipx_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 static void dissect_eigrp_at_cbl(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
 
-        proto_tree_add_text(tree, tvb, 0, 4, "AppleTalk Cable Range = %u-%u", tvb_get_ntohs(tvb, 0), tvb_get_ntohs(tvb, 2));
+	proto_tree_add_text(tree, tvb, 0, 4, "AppleTalk Cable Range = %u-%u", tvb_get_ntohs(tvb, 0), tvb_get_ntohs(tvb, 2));
 	proto_tree_add_item(tree, hf_eigrp_at_cbl_routerid, tvb, 4, 4, FALSE);
-        proto_item_append_text(ti, ": Cable range= %u-%u, Router ID= %u", tvb_get_ntohs(tvb, 0), tvb_get_ntohs(tvb, 2), tvb_get_ntohl(tvb, 4));
+	proto_item_append_text(ti, ": Cable range= %u-%u, Router ID= %u", tvb_get_ntohs(tvb, 0), tvb_get_ntohs(tvb, 2), tvb_get_ntohl(tvb, 4));
 
 }
 
@@ -847,7 +847,7 @@ static void dissect_eigrp_at_int(tvbuff_t *tvb, proto_tree *tree, proto_item *ti
 	offset += 2;
 	proto_tree_add_text(tree,tvb,offset,4,"Cable range = %u-%u",tvb_get_ntohs(tvb,20),tvb_get_ntohs(tvb,22));
 
-        proto_item_append_text(ti, ": %u-%u", tvb_get_ntohs(tvb, 20), tvb_get_ntohs(tvb, 22));
+	proto_item_append_text(ti, ": %u-%u", tvb_get_ntohs(tvb, 20), tvb_get_ntohs(tvb, 22));
 }
 
 static void dissect_eigrp_at_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
@@ -894,7 +894,7 @@ static void dissect_eigrp_at_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *ti
 	offset += 2;
 	proto_tree_add_text(tree, tvb, offset, 4, "Cable range = %u-%u", tvb_get_ntohs(tvb, 36), tvb_get_ntohs(tvb, 38));
 
-        proto_item_append_text(ti, ": %u-%u", tvb_get_ntohs(tvb, 36), tvb_get_ntohs(tvb, 38));
+	proto_item_append_text(ti, ": %u-%u", tvb_get_ntohs(tvb, 36), tvb_get_ntohs(tvb, 38));
 }
 
 static void dissect_eigrp_ip6_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti) {
@@ -1028,727 +1028,727 @@ static void dissect_eigrp_ip6_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 void proto_register_eigrp(void) {
 
-  static hf_register_info hf[] = {
-   { &hf_eigrp_version,
-    { "Version", "eigrp.version",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-     }, 
-   { &hf_eigrp_opcode,
-    { "Opcode", "eigrp.opcode",
-     FT_UINT8, BASE_DEC, VALS(eigrp_opcode_vals), 0x0,
-     "Opcode number", HFILL }
-     },
-   { &hf_eigrp_checksum,
-    { "Checksum", "eigrp.checksum",
-     FT_UINT16, BASE_HEX, NULL, 0x0,
-     NULL, HFILL }
-     },
-   { &hf_eigrp_flags,
-    { "Flags", "eigrp.flags",
-     FT_UINT32, BASE_HEX, NULL, 0x0,
-     NULL, HFILL }
-     },
-   { &hf_eigrp_flags_init,
-    { "Init", "eigrp.flags.init",
-     FT_BOOLEAN, 32, NULL, EIGRP_FLAGS_INIT,
-     NULL, HFILL }
-     },
-   { &hf_eigrp_flags_condrecv,
-    { "Conditional Receive", "eigrp.flags.condrecv",
-     FT_BOOLEAN, 32, NULL, EIGRP_FLAGS_CONDRECV,
-     NULL, HFILL }
-     },
-   { &hf_eigrp_sequence,
-    { "Sequence", "eigrp.seq",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-     },
-   { &hf_eigrp_acknowledge,
-    { "Acknowledge", "eigrp.ack",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-     },
-   { &hf_eigrp_as,
-    { "Autonomous System", "eigrp.as",
-      FT_UINT16, BASE_DEC, NULL, 0x0,
-     "Autonomous System number", HFILL }
-    },
-   { &hf_eigrp_tlv,
-    { "Type",           "eigrp.tlv",
-      FT_UINT16, BASE_DEC, VALS(eigrp_tlv_vals), 0x0,
-     "Type/Length/Value", HFILL }
-    },
-   { &hf_eigrp_tlv_size,
-    { "Size", "eigrp.tlv.size",
-      FT_UINT16, BASE_DEC, NULL, 0x0,
-     "TLV size", HFILL }
-    },
+	static hf_register_info hf[] = {
+		{ &hf_eigrp_version,
+		  { "Version", "eigrp.version",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_opcode,
+		  { "Opcode", "eigrp.opcode",
+		    FT_UINT8, BASE_DEC, VALS(eigrp_opcode_vals), 0x0,
+		    "Opcode number", HFILL }
+		},
+		{ &hf_eigrp_checksum,
+		  { "Checksum", "eigrp.checksum",
+		    FT_UINT16, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_flags,
+		  { "Flags", "eigrp.flags",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_flags_init,
+		  { "Init", "eigrp.flags.init",
+		    FT_BOOLEAN, 32, NULL, EIGRP_FLAGS_INIT,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_flags_condrecv,
+		  { "Conditional Receive", "eigrp.flags.condrecv",
+		    FT_BOOLEAN, 32, NULL, EIGRP_FLAGS_CONDRECV,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_sequence,
+		  { "Sequence", "eigrp.seq",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_acknowledge,
+		  { "Acknowledge", "eigrp.ack",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_as,
+		  { "Autonomous System", "eigrp.as",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    "Autonomous System number", HFILL }
+		},
+		{ &hf_eigrp_tlv,
+		  { "Type",           "eigrp.tlv",
+		    FT_UINT16, BASE_DEC, VALS(eigrp_tlv_vals), 0x0,
+		    "Type/Length/Value", HFILL }
+		},
+		{ &hf_eigrp_tlv_size,
+		  { "Size", "eigrp.tlv.size",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    "TLV size", HFILL }
+		},
 /* EIGRP Parameters TLV */
-   { &hf_eigrp_par_k1,
-    { "K1", "eigrp.par.k1",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_par_k2,
-    { "K2", "eigrp.par.k2",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_par_k3,
-    { "K3", "eigrp.par.k3",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_par_k4,
-    { "K4", "eigrp.par.k4",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_par_k5,
-    { "K5", "eigrp.par.k5",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_par_reserved,
-    { "Reserved", "eigrp.par.reserved",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_par_holdtime,
-    { "Hold Time", "eigrp.par.holdtime",
-     FT_UINT16, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-     },
+		{ &hf_eigrp_par_k1,
+		  { "K1", "eigrp.par.k1",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_par_k2,
+		  { "K2", "eigrp.par.k2",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_par_k3,
+		  { "K3", "eigrp.par.k3",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_par_k4,
+		  { "K4", "eigrp.par.k4",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_par_k5,
+		  { "K5", "eigrp.par.k5",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_par_reserved,
+		  { "Reserved", "eigrp.par.reserved",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_par_holdtime,
+		  { "Hold Time", "eigrp.par.holdtime",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 /* Authentication TLV */
-   { &hf_eigrp_auth_type,
-    { "Authentication Type", "eigrp.auth.type",
-     FT_UINT16, BASE_DEC, VALS(eigrp_auth_type_vals), 0x0,
-     NULL, HFILL }
-    },
-   { &hf_eigrp_auth_keysize,
-    { "Key size", "eigrp.auth.keysize",
-     FT_UINT16, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    },
-   { &hf_eigrp_auth_keyid,
-    { "Key ID", "eigrp.auth.keyid",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    },
-   { &hf_eigrp_auth_nullpad,
-    { "Nullpad", "eigrp.auth.nullapd",
-     FT_STRING, BASE_NONE, NULL, 0x0,
-     NULL, HFILL }
-    },
-   { &hf_eigrp_auth_data,
-    { "Data", "eigrp.auth.data",
-     FT_STRING, BASE_NONE, NULL, 0x0,
-     NULL, HFILL }
-    },
+		{ &hf_eigrp_auth_type,
+		  { "Authentication Type", "eigrp.auth.type",
+		    FT_UINT16, BASE_DEC, VALS(eigrp_auth_type_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_auth_keysize,
+		  { "Key size", "eigrp.auth.keysize",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_auth_keyid,
+		  { "Key ID", "eigrp.auth.keyid",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_auth_nullpad,
+		  { "Nullpad", "eigrp.auth.nullapd",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_auth_data,
+		  { "Data", "eigrp.auth.data",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 /* Sequence TLV */
-   { &hf_eigrp_seq_addrlen,
-    { "Address length", "eigrp.seq.addrlen",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_seq_ipaddr,
-    { "IP Address", "eigrp.seq.ipaddr",
-     FT_IPv4, BASE_NONE, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_seq_ip6addr,
-    { "IPv6 Address", "eigrp.seq.ip6addr",
-     FT_IPv6, BASE_NONE, NULL, 0x0,
-     NULL, HFILL }
-    }, 
+		{ &hf_eigrp_seq_addrlen,
+		  { "Address length", "eigrp.seq.addrlen",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_seq_ipaddr,
+		  { "IP Address", "eigrp.seq.ipaddr",
+		    FT_IPv4, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_seq_ip6addr,
+		  { "IPv6 Address", "eigrp.seq.ip6addr",
+		    FT_IPv6, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 /* Software Version TLV */
-   { &hf_eigrp_sv_ios,
-    { "IOS release version", "eigrp.sv.ios",
-     FT_STRING, BASE_NONE, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_sv_eigrp,
-    { "EIGRP release version", "eigrp.sv.eigrp",
-     FT_STRING, BASE_NONE, NULL, 0x0,
-     NULL, HFILL }
-    }, 
+		{ &hf_eigrp_sv_ios,
+		  { "IOS release version", "eigrp.sv.ios",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_sv_eigrp,
+		  { "EIGRP release version", "eigrp.sv.eigrp",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 /* Next multicast sequence TLV */
-   { &hf_eigrp_nms,
-    { "Next Multicast Sequence", "eigrp.nms",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-     },
+		{ &hf_eigrp_nms,
+		  { "Next Multicast Sequence", "eigrp.nms",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 /* Stub routing TLV */
-   { &hf_eigrp_stub_flags,
-    { "Stub Flags", "eigrp.stub_flags",
-     FT_UINT16, BASE_HEX, NULL, 0x0,
-     NULL, HFILL }
-     },
-   { &hf_eigrp_stub_flags_connected,
-    { "Connected", "eigrp.stub_flags.connected",
-     FT_BOOLEAN, 16, NULL, EIGRP_STUB_FLAGS_CONNECTED,
-     NULL, HFILL }
-     },
-   { &hf_eigrp_stub_flags_static,
-    { "Static", "eigrp.stub_flags.static",
-     FT_BOOLEAN, 16, NULL, EIGRP_STUB_FLAGS_STATIC,
-     NULL, HFILL }
-     },
-   { &hf_eigrp_stub_flags_summary,
-    { "Summary", "eigrp.stub_flags.summary",
-     FT_BOOLEAN, 16, NULL, EIGRP_STUB_FLAGS_SUMMARY,
-     NULL, HFILL }
-     },
-   { &hf_eigrp_stub_flags_recvonly,
-    { "Receive-Only", "eigrp.stub_flags.recvonly",
-     FT_BOOLEAN, 16, NULL, EIGRP_STUB_FLAGS_RECVONLY,
-     NULL, HFILL }
-     },
-   { &hf_eigrp_stub_flags_redist,
-    { "Redistributed", "eigrp.stub_flags.redist",
-     FT_BOOLEAN, 16, NULL, EIGRP_STUB_FLAGS_REDIST,
-     NULL, HFILL }
-     },
-   { &hf_eigrp_stub_flags_leakmap,
-    { "Leak-Map", "eigrp.stub_flags.leakmap",
-     FT_BOOLEAN, 16, NULL, EIGRP_STUB_FLAGS_LEAKMAP,
-     NULL, HFILL }
-     },
+		{ &hf_eigrp_stub_flags,
+		  { "Stub Flags", "eigrp.stub_flags",
+		    FT_UINT16, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_stub_flags_connected,
+		  { "Connected", "eigrp.stub_flags.connected",
+		    FT_BOOLEAN, 16, NULL, EIGRP_STUB_FLAGS_CONNECTED,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_stub_flags_static,
+		  { "Static", "eigrp.stub_flags.static",
+		    FT_BOOLEAN, 16, NULL, EIGRP_STUB_FLAGS_STATIC,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_stub_flags_summary,
+		  { "Summary", "eigrp.stub_flags.summary",
+		    FT_BOOLEAN, 16, NULL, EIGRP_STUB_FLAGS_SUMMARY,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_stub_flags_recvonly,
+		  { "Receive-Only", "eigrp.stub_flags.recvonly",
+		    FT_BOOLEAN, 16, NULL, EIGRP_STUB_FLAGS_RECVONLY,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_stub_flags_redist,
+		  { "Redistributed", "eigrp.stub_flags.redist",
+		    FT_BOOLEAN, 16, NULL, EIGRP_STUB_FLAGS_REDIST,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_stub_flags_leakmap,
+		  { "Leak-Map", "eigrp.stub_flags.leakmap",
+		    FT_BOOLEAN, 16, NULL, EIGRP_STUB_FLAGS_LEAKMAP,
+		    NULL, HFILL }
+		},
 /* IP internal route TLV */
-   { &hf_eigrp_ip_int_nexthop,
-    { "Next Hop", "eigrp.ip_int.nexthop",
-     FT_IPv4, BASE_NONE, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip_int_delay,
-    { "Delay", "eigrp.ip_int.delay",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip_int_bandwidth,
-    { "Bandwidth", "eigrp.ip_int.bandwidth",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip_int_mtu,
-    { "MTU", "eigrp.ip_int.mtu",
-     FT_UINT24, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip_int_hopcount,
-    { "Hop Count", "eigrp.ip_int.hopcount",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip_int_reliability,
-    { "Reliability", "eigrp.ip_int.reliability",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip_int_load,
-    { "Load", "eigrp.ip_int.load",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip_int_reserved,
-    { "Reserved", "eigrp.ip_int.reserved",
-     FT_UINT16, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip_int_prefixlen,
-    { "Prefix Length", "eigrp.ip_int.prefixlen",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip_int_dst,
-    { "Destination", "eigrp.ip_int.dst",
-     FT_STRING, BASE_NONE, NULL, 0x0,
-     NULL, HFILL }
-    }, 
+		{ &hf_eigrp_ip_int_nexthop,
+		  { "Next Hop", "eigrp.ip_int.nexthop",
+		    FT_IPv4, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_int_delay,
+		  { "Delay", "eigrp.ip_int.delay",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_int_bandwidth,
+		  { "Bandwidth", "eigrp.ip_int.bandwidth",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_int_mtu,
+		  { "MTU", "eigrp.ip_int.mtu",
+		    FT_UINT24, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_int_hopcount,
+		  { "Hop Count", "eigrp.ip_int.hopcount",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_int_reliability,
+		  { "Reliability", "eigrp.ip_int.reliability",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_int_load,
+		  { "Load", "eigrp.ip_int.load",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_int_reserved,
+		  { "Reserved", "eigrp.ip_int.reserved",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_int_prefixlen,
+		  { "Prefix Length", "eigrp.ip_int.prefixlen",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_int_dst,
+		  { "Destination", "eigrp.ip_int.dst",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 /* IP external route TLV */
-   { &hf_eigrp_ip_ext_nexthop,
-    { "Next Hop", "eigrp.ip_ext.nexthop",
-     FT_IPv4, BASE_NONE, NULL, 0x0,
-     NULL, HFILL }
-    },
-   { &hf_eigrp_ip_ext_origrouter,
-    { "Originating router", "eigrp.ip_ext.origrouter",
-     FT_IPv4, BASE_NONE, NULL, 0x0,
-     NULL, HFILL }
-    },
-   { &hf_eigrp_ip_ext_as,
-    { "Originating A.S.", "eigrp.ip_ext.as",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip_ext_tag,
-    { "Arbitrary tag", "eigrp.ip_ext.tag",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip_ext_metric,
-    { "External protocol metric", "eigrp.ip_ext.metric",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip_ext_reserved,
-    { "Reserved", "eigrp.ip_ext.reserved",
-     FT_UINT16, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip_ext_proto,
-    { "External protocol ID", "eigrp.ip_ext.proto",
-     FT_UINT8, BASE_DEC, VALS(eigrp_pid_vals), 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip_ext_flags,
-    { "Flags", "eigrp.ip_ext.flags",
-     FT_UINT8, BASE_HEX, NULL, 0x0,
-     NULL, HFILL }
-     },
-   { &hf_eigrp_ip_ext_flags_ext,
-    { "External Route", "eigrp.ip_ext.flags.ext",
-     FT_BOOLEAN, 8, NULL, EIGRP_IP_EXT_FLAGS_EXT,
-     NULL, HFILL }
-     },
-   { &hf_eigrp_ip_ext_flags_default,
-    { "Candidate Default Route", "eigrp.ip_ext.flags.default",
-     FT_BOOLEAN, 8, NULL, EIGRP_IP_EXT_FLAGS_DEFAULT,
-     NULL, HFILL }
-     },
-   { &hf_eigrp_ip_ext_delay,
-    { "Delay", "eigrp.ip_ext.delay",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip_ext_bandwidth,
-    { "Bandwidth", "eigrp.ip_ext.bandwidth",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip_ext_mtu,
-    { "MTU", "eigrp.ip_ext.mtu",
-     FT_UINT24, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip_ext_hopcount,
-    { "Hop Count", "eigrp.ip_ext.hopcount",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip_ext_reliability,
-    { "Reliability", "eigrp.ip_ext.reliability",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip_ext_load,
-    { "Load", "eigrp.ip_ext.load",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip_ext_reserved2,
-    { "Reserved", "eigrp.ip_ext.reserved2",
-     FT_UINT16, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip_ext_prefixlen,
-    { "Prefix Length", "eigrp.ip_ext.prefixlen",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
+		{ &hf_eigrp_ip_ext_nexthop,
+		  { "Next Hop", "eigrp.ip_ext.nexthop",
+		    FT_IPv4, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_ext_origrouter,
+		  { "Originating router", "eigrp.ip_ext.origrouter",
+		    FT_IPv4, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_ext_as,
+		  { "Originating A.S.", "eigrp.ip_ext.as",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_ext_tag,
+		  { "Arbitrary tag", "eigrp.ip_ext.tag",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_ext_metric,
+		  { "External protocol metric", "eigrp.ip_ext.metric",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_ext_reserved,
+		  { "Reserved", "eigrp.ip_ext.reserved",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_ext_proto,
+		  { "External protocol ID", "eigrp.ip_ext.proto",
+		    FT_UINT8, BASE_DEC, VALS(eigrp_pid_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_ext_flags,
+		  { "Flags", "eigrp.ip_ext.flags",
+		    FT_UINT8, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_ext_flags_ext,
+		  { "External Route", "eigrp.ip_ext.flags.ext",
+		    FT_BOOLEAN, 8, NULL, EIGRP_IP_EXT_FLAGS_EXT,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_ext_flags_default,
+		  { "Candidate Default Route", "eigrp.ip_ext.flags.default",
+		    FT_BOOLEAN, 8, NULL, EIGRP_IP_EXT_FLAGS_DEFAULT,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_ext_delay,
+		  { "Delay", "eigrp.ip_ext.delay",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_ext_bandwidth,
+		  { "Bandwidth", "eigrp.ip_ext.bandwidth",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_ext_mtu,
+		  { "MTU", "eigrp.ip_ext.mtu",
+		    FT_UINT24, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_ext_hopcount,
+		  { "Hop Count", "eigrp.ip_ext.hopcount",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_ext_reliability,
+		  { "Reliability", "eigrp.ip_ext.reliability",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_ext_load,
+		  { "Load", "eigrp.ip_ext.load",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_ext_reserved2,
+		  { "Reserved", "eigrp.ip_ext.reserved2",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip_ext_prefixlen,
+		  { "Prefix Length", "eigrp.ip_ext.prefixlen",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 /* IPX internal route TLV */
-   { &hf_eigrp_ipx_int_nexthop_addr,
-    { "Next Hop Address", "eigrp.ipx_int.nexthop_addr",
-     FT_IPXNET, BASE_NONE, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ipx_int_nexthop_id,
-    { "Next Hop ID", "eigrp.ipx_int.nexthop_id",
-     FT_ETHER, BASE_NONE, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ipx_int_delay,
-    { "Delay", "eigrp.ipx_int.delay",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ipx_int_bandwidth,
-    { "Bandwidth", "eigrp.ipx_int.bandwidth",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ipx_int_mtu,
-    { "MTU", "eigrp.ipx_int.mtu",
-     FT_UINT24, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ipx_int_hopcount,
-    { "Hop Count", "eigrp.ipx_int.hopcount",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ipx_int_reliability,
-    { "Reliability", "eigrp.ipx_int.reliability",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ipx_int_load,
-    { "Load", "eigrp.ipx_int.load",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ipx_int_reserved,
-    { "Reserved", "eigrp.ipx_int.reserved",
-     FT_UINT16, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ipx_int_dst,
-    { "Destination", "eigrp.ipx_int.dst",
-     FT_IPXNET, BASE_NONE, NULL, 0x0,
-     NULL, HFILL }
-    },
+		{ &hf_eigrp_ipx_int_nexthop_addr,
+		  { "Next Hop Address", "eigrp.ipx_int.nexthop_addr",
+		    FT_IPXNET, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ipx_int_nexthop_id,
+		  { "Next Hop ID", "eigrp.ipx_int.nexthop_id",
+		    FT_ETHER, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ipx_int_delay,
+		  { "Delay", "eigrp.ipx_int.delay",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ipx_int_bandwidth,
+		  { "Bandwidth", "eigrp.ipx_int.bandwidth",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ipx_int_mtu,
+		  { "MTU", "eigrp.ipx_int.mtu",
+		    FT_UINT24, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ipx_int_hopcount,
+		  { "Hop Count", "eigrp.ipx_int.hopcount",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ipx_int_reliability,
+		  { "Reliability", "eigrp.ipx_int.reliability",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ipx_int_load,
+		  { "Load", "eigrp.ipx_int.load",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ipx_int_reserved,
+		  { "Reserved", "eigrp.ipx_int.reserved",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ipx_int_dst,
+		  { "Destination", "eigrp.ipx_int.dst",
+		    FT_IPXNET, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 /* IPX external route TLV */
-   { &hf_eigrp_ipx_ext_nexthop_addr,
-    { "Next Hop Address", "eigrp.ipx_ext.nexthop_addr",
-     FT_IPXNET, BASE_NONE, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ipx_ext_nexthop_id,
-    { "Next Hop ID", "eigrp.ipx_ext.nexthop_id",
-     FT_ETHER, BASE_NONE, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ipx_ext_origrouter,
-    { "Originating router", "eigrp.ipx_ext.origrouter",
-     FT_ETHER, BASE_NONE, NULL, 0x0,
-     NULL, HFILL }
-    },
-   { &hf_eigrp_ipx_ext_as,
-    { "Originating A.S.", "eigrp.ipx_ext.as",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ipx_ext_tag,
-    { "Arbitrary tag", "eigrp.ipx_ext.tag",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ipx_ext_proto,
-    { "External protocol ID", "eigrp.ipx_ext.proto",
-     FT_UINT8, BASE_DEC, VALS(eigrp_pid_vals), 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ipx_ext_reserved,
-    { "Reserved", "eigrp.ipx_ext.reserved",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ipx_ext_metric,
-    { "External protocol metric", "eigrp.ipx_ext.metric",
-     FT_UINT16, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ipx_ext_extdelay,
-    { "External protocol delay", "eigrp.ipx_ext.extdelay",
-     FT_UINT16, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ipx_ext_delay,
-    { "Delay", "eigrp.ipx_ext.delay",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ipx_ext_bandwidth,
-    { "Bandwidth", "eigrp.ipx_ext.bandwidth",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ipx_ext_mtu,
-    { "MTU", "eigrp.ipx_ext.mtu",
-     FT_UINT24, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ipx_ext_hopcount,
-    { "Hop Count", "eigrp.ipx_ext.hopcount",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ipx_ext_reliability,
-    { "Reliability", "eigrp.ipx_ext.reliability",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ipx_ext_load,
-    { "Load", "eigrp.ipx_ext.load",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ipx_ext_reserved2,
-    { "Reserved", "eigrp.ipx_ext.reserved2",
-     FT_UINT16, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ipx_ext_dst,
-    { "Destination", "eigrp.ipx_ext.dst",
-     FT_IPXNET, BASE_NONE, NULL, 0x0,
-     NULL, HFILL }
-    },
+		{ &hf_eigrp_ipx_ext_nexthop_addr,
+		  { "Next Hop Address", "eigrp.ipx_ext.nexthop_addr",
+		    FT_IPXNET, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ipx_ext_nexthop_id,
+		  { "Next Hop ID", "eigrp.ipx_ext.nexthop_id",
+		    FT_ETHER, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ipx_ext_origrouter,
+		  { "Originating router", "eigrp.ipx_ext.origrouter",
+		    FT_ETHER, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ipx_ext_as,
+		  { "Originating A.S.", "eigrp.ipx_ext.as",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ipx_ext_tag,
+		  { "Arbitrary tag", "eigrp.ipx_ext.tag",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ipx_ext_proto,
+		  { "External protocol ID", "eigrp.ipx_ext.proto",
+		    FT_UINT8, BASE_DEC, VALS(eigrp_pid_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ipx_ext_reserved,
+		  { "Reserved", "eigrp.ipx_ext.reserved",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ipx_ext_metric,
+		  { "External protocol metric", "eigrp.ipx_ext.metric",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ipx_ext_extdelay,
+		  { "External protocol delay", "eigrp.ipx_ext.extdelay",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ipx_ext_delay,
+		  { "Delay", "eigrp.ipx_ext.delay",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ipx_ext_bandwidth,
+		  { "Bandwidth", "eigrp.ipx_ext.bandwidth",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ipx_ext_mtu,
+		  { "MTU", "eigrp.ipx_ext.mtu",
+		    FT_UINT24, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ipx_ext_hopcount,
+		  { "Hop Count", "eigrp.ipx_ext.hopcount",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ipx_ext_reliability,
+		  { "Reliability", "eigrp.ipx_ext.reliability",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ipx_ext_load,
+		  { "Load", "eigrp.ipx_ext.load",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ipx_ext_reserved2,
+		  { "Reserved", "eigrp.ipx_ext.reserved2",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ipx_ext_dst,
+		  { "Destination", "eigrp.ipx_ext.dst",
+		    FT_IPXNET, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 /* AppleTalk cable configuration TLV */
-   { &hf_eigrp_at_cbl_routerid,
-    { "AppleTalk Router ID", "eigrp.at_cbl.routerid",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    },
+		{ &hf_eigrp_at_cbl_routerid,
+		  { "AppleTalk Router ID", "eigrp.at_cbl.routerid",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 /* AppleTalk internal route TLV */
-   { &hf_eigrp_at_int_delay,
-    { "Delay", "eigrp.at_int.delay",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_at_int_bandwidth,
-    { "Bandwidth", "eigrp.at_int.bandwidth",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_at_int_mtu,
-    { "MTU", "eigrp.at_int.mtu",
-     FT_UINT24, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_at_int_hopcount,
-    { "Hop Count", "eigrp.at_int.hopcount",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_at_int_reliability,
-    { "Reliability", "eigrp.at_int.reliability",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_at_int_load,
-    { "Load", "eigrp.at_int.load",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_at_int_reserved,
-    { "Reserved", "eigrp.at_int.reserved",
-     FT_UINT16, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
+		{ &hf_eigrp_at_int_delay,
+		  { "Delay", "eigrp.at_int.delay",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_at_int_bandwidth,
+		  { "Bandwidth", "eigrp.at_int.bandwidth",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_at_int_mtu,
+		  { "MTU", "eigrp.at_int.mtu",
+		    FT_UINT24, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_at_int_hopcount,
+		  { "Hop Count", "eigrp.at_int.hopcount",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_at_int_reliability,
+		  { "Reliability", "eigrp.at_int.reliability",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_at_int_load,
+		  { "Load", "eigrp.at_int.load",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_at_int_reserved,
+		  { "Reserved", "eigrp.at_int.reserved",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 /* AppleTalk external route TLV */
-   { &hf_eigrp_at_ext_origrouter,
-    { "Originating router", "eigrp.at_ext.origrouter",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    },
-   { &hf_eigrp_at_ext_as,
-    { "Originating A.S.", "eigrp.at_ext.as",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_at_ext_tag,
-    { "Arbitrary tag", "eigrp.at_ext.tag",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_at_ext_proto,
-    { "External protocol ID", "eigrp.at_ext.proto",
-     FT_UINT8, BASE_DEC, VALS(eigrp_pid_vals), 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_at_ext_flags,
-    { "Flags", "eigrp.at_ext.flags",
-     FT_UINT8, BASE_HEX, NULL, 0x0,
-     NULL, HFILL }
-     },
-   { &hf_eigrp_at_ext_flags_ext,
-    { "External Route", "eigrp.at_ext.flags.ext",
-     FT_BOOLEAN, 8, NULL, EIGRP_IP_EXT_FLAGS_EXT,
-     NULL, HFILL }
-     },
-   { &hf_eigrp_at_ext_flags_default,
-    { "Candidate Default Route", "eigrp.at_ext.flags.default",
-     FT_BOOLEAN, 8, NULL, EIGRP_IP_EXT_FLAGS_DEFAULT,
-     NULL, HFILL }
-     },
-   { &hf_eigrp_at_ext_metric,
-    { "External protocol metric", "eigrp.at_ext.metric",
-     FT_UINT16, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_at_ext_delay,
-    { "Delay", "eigrp.at_ext.delay",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_at_ext_bandwidth,
-    { "Bandwidth", "eigrp.at_ext.bandwidth",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_at_ext_mtu,
-    { "MTU", "eigrp.at_ext.mtu",
-     FT_UINT24, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_at_ext_hopcount,
-    { "Hop Count", "eigrp.at_ext.hopcount",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_at_ext_reliability,
-    { "Reliability", "eigrp.at_ext.reliability",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_at_ext_load,
-    { "Load", "eigrp.at_ext.load",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_at_ext_reserved,
-    { "Reserved", "eigrp.at_ext.reserved",
-     FT_UINT16, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
+		{ &hf_eigrp_at_ext_origrouter,
+		  { "Originating router", "eigrp.at_ext.origrouter",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_at_ext_as,
+		  { "Originating A.S.", "eigrp.at_ext.as",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_at_ext_tag,
+		  { "Arbitrary tag", "eigrp.at_ext.tag",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_at_ext_proto,
+		  { "External protocol ID", "eigrp.at_ext.proto",
+		    FT_UINT8, BASE_DEC, VALS(eigrp_pid_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_at_ext_flags,
+		  { "Flags", "eigrp.at_ext.flags",
+		    FT_UINT8, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_at_ext_flags_ext,
+		  { "External Route", "eigrp.at_ext.flags.ext",
+		    FT_BOOLEAN, 8, NULL, EIGRP_IP_EXT_FLAGS_EXT,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_at_ext_flags_default,
+		  { "Candidate Default Route", "eigrp.at_ext.flags.default",
+		    FT_BOOLEAN, 8, NULL, EIGRP_IP_EXT_FLAGS_DEFAULT,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_at_ext_metric,
+		  { "External protocol metric", "eigrp.at_ext.metric",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_at_ext_delay,
+		  { "Delay", "eigrp.at_ext.delay",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_at_ext_bandwidth,
+		  { "Bandwidth", "eigrp.at_ext.bandwidth",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_at_ext_mtu,
+		  { "MTU", "eigrp.at_ext.mtu",
+		    FT_UINT24, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_at_ext_hopcount,
+		  { "Hop Count", "eigrp.at_ext.hopcount",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_at_ext_reliability,
+		  { "Reliability", "eigrp.at_ext.reliability",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_at_ext_load,
+		  { "Load", "eigrp.at_ext.load",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_at_ext_reserved,
+		  { "Reserved", "eigrp.at_ext.reserved",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 /* IPv6 internal route TLV */
-   { &hf_eigrp_ip6_int_nexthop,
-    { "Next Hop", "eigrp.ip6_int.nexthop",
-     FT_IPv6, BASE_NONE, NULL, 0x0,
-     NULL, HFILL }
-    },
-   { &hf_eigrp_ip6_int_delay,
-    { "Delay", "eigrp.ip6_int.delay",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip6_int_bandwidth,
-    { "Bandwidth", "eigrp.ip6_int.bandwidth",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip6_int_mtu,
-    { "MTU", "eigrp.ip6_int.mtu",
-     FT_UINT24, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip6_int_hopcount,
-    { "Hop Count", "eigrp.ip6_int.hopcount",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip6_int_reliability,
-    { "Reliability", "eigrp.ip6_int.reliability",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip6_int_load,
-    { "Load", "eigrp.ip6_int.load",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip6_int_reserved,
-    { "Reserved", "eigrp.ip6_int.reserved",
-     FT_UINT16, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip6_int_prefixlen,
-    { "Prefix Length", "eigrp.ip6_int.prefixlen",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
+		{ &hf_eigrp_ip6_int_nexthop,
+		  { "Next Hop", "eigrp.ip6_int.nexthop",
+		    FT_IPv6, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip6_int_delay,
+		  { "Delay", "eigrp.ip6_int.delay",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip6_int_bandwidth,
+		  { "Bandwidth", "eigrp.ip6_int.bandwidth",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip6_int_mtu,
+		  { "MTU", "eigrp.ip6_int.mtu",
+		    FT_UINT24, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip6_int_hopcount,
+		  { "Hop Count", "eigrp.ip6_int.hopcount",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip6_int_reliability,
+		  { "Reliability", "eigrp.ip6_int.reliability",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip6_int_load,
+		  { "Load", "eigrp.ip6_int.load",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip6_int_reserved,
+		  { "Reserved", "eigrp.ip6_int.reserved",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip6_int_prefixlen,
+		  { "Prefix Length", "eigrp.ip6_int.prefixlen",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 /* IPv6 external route TLV */
-   { &hf_eigrp_ip6_ext_nexthop,
-    { "Next Hop", "eigrp.ip6_ext.nexthop",
-     FT_IPv6, BASE_NONE, NULL, 0x0,
-     NULL, HFILL }
-    },
-   { &hf_eigrp_ip6_ext_origrouter,
-    { "Originating router", "eigrp.ip6_ext.origrouter",
-     FT_IPv4, BASE_NONE, NULL, 0x0,
-     NULL, HFILL }
-    },
-   { &hf_eigrp_ip6_ext_as,
-    { "Originating A.S.", "eigrp.ip6_ext.as",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip6_ext_tag,
-    { "Arbitrary tag", "eigrp.ip6_ext.tag",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip6_ext_metric,
-    { "External protocol metric", "eigrp.ip6_ext.metric",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip6_ext_reserved,
-    { "Reserved", "eigrp.ip6_ext.reserved",
-     FT_UINT16, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip6_ext_proto,
-    { "External protocol ID", "eigrp.ip6_ext.proto",
-     FT_UINT8, BASE_DEC, VALS(eigrp_pid_vals), 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip6_ext_flags,
-    { "Flags", "eigrp.ip6_ext.flags",
-     FT_UINT8, BASE_HEX, NULL, 0x0,
-     NULL, HFILL }
-     },
-   { &hf_eigrp_ip6_ext_flags_ext,
-    { "External Route", "eigrp.ip6_ext.flags.ext",
-     FT_BOOLEAN, 8, NULL, EIGRP_IP_EXT_FLAGS_EXT,
-     NULL, HFILL }
-     },
-   { &hf_eigrp_ip6_ext_flags_default,
-    { "Candidate Default Route", "eigrp.ip6_ext.flags.default",
-     FT_BOOLEAN, 8, NULL, EIGRP_IP_EXT_FLAGS_DEFAULT,
-     NULL, HFILL }
-     },
-   { &hf_eigrp_ip6_ext_delay,
-    { "Delay", "eigrp.ip6_ext.delay",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip6_ext_bandwidth,
-    { "Bandwidth", "eigrp.ip6_ext.bandwidth",
-     FT_UINT32, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip6_ext_mtu,
-    { "MTU", "eigrp.ip6_ext.mtu",
-     FT_UINT24, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip6_ext_hopcount,
-    { "Hop Count", "eigrp.ip6_ext.hopcount",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip6_ext_reliability,
-    { "Reliability", "eigrp.ip6_ext.reliability",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip6_ext_load,
-    { "Load", "eigrp.ip6_ext.load",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip6_ext_reserved2,
-    { "Reserved", "eigrp.ip6_ext.reserved2",
-     FT_UINT16, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    }, 
-   { &hf_eigrp_ip6_ext_prefixlen,
-    { "Prefix Length", "eigrp.ip6_ext.prefixlen",
-     FT_UINT8, BASE_DEC, NULL, 0x0,
-     NULL, HFILL }
-    } 
+		{ &hf_eigrp_ip6_ext_nexthop,
+		  { "Next Hop", "eigrp.ip6_ext.nexthop",
+		    FT_IPv6, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip6_ext_origrouter,
+		  { "Originating router", "eigrp.ip6_ext.origrouter",
+		    FT_IPv4, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip6_ext_as,
+		  { "Originating A.S.", "eigrp.ip6_ext.as",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip6_ext_tag,
+		  { "Arbitrary tag", "eigrp.ip6_ext.tag",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip6_ext_metric,
+		  { "External protocol metric", "eigrp.ip6_ext.metric",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip6_ext_reserved,
+		  { "Reserved", "eigrp.ip6_ext.reserved",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip6_ext_proto,
+		  { "External protocol ID", "eigrp.ip6_ext.proto",
+		    FT_UINT8, BASE_DEC, VALS(eigrp_pid_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip6_ext_flags,
+		  { "Flags", "eigrp.ip6_ext.flags",
+		    FT_UINT8, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip6_ext_flags_ext,
+		  { "External Route", "eigrp.ip6_ext.flags.ext",
+		    FT_BOOLEAN, 8, NULL, EIGRP_IP_EXT_FLAGS_EXT,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip6_ext_flags_default,
+		  { "Candidate Default Route", "eigrp.ip6_ext.flags.default",
+		    FT_BOOLEAN, 8, NULL, EIGRP_IP_EXT_FLAGS_DEFAULT,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip6_ext_delay,
+		  { "Delay", "eigrp.ip6_ext.delay",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip6_ext_bandwidth,
+		  { "Bandwidth", "eigrp.ip6_ext.bandwidth",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip6_ext_mtu,
+		  { "MTU", "eigrp.ip6_ext.mtu",
+		    FT_UINT24, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip6_ext_hopcount,
+		  { "Hop Count", "eigrp.ip6_ext.hopcount",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip6_ext_reliability,
+		  { "Reliability", "eigrp.ip6_ext.reliability",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip6_ext_load,
+		  { "Load", "eigrp.ip6_ext.load",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip6_ext_reserved2,
+		  { "Reserved", "eigrp.ip6_ext.reserved2",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_eigrp_ip6_ext_prefixlen,
+		  { "Prefix Length", "eigrp.ip6_ext.prefixlen",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		}
 	};
 
 	static gint *ett[] = {

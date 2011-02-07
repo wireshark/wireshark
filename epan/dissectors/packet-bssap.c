@@ -35,7 +35,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
 #include <glib.h>
 
 #ifdef HAVE_SYS_TYPES_H
@@ -215,39 +214,39 @@ static const value_string bssap_plus_message_type_values[] = {
 
 
 
-static const value_string bssap_plus_ie_id_values[] = { 
+static const value_string bssap_plus_ie_id_values[] = {
     { BSSAP_IMSI,                               "IMSI" },                                       /* 18.4.10 */
-    { BSSAP_VLR_NUMBER,                         "VLR number" },                                 /* 18.4.26 */ 
+    { BSSAP_VLR_NUMBER,                         "VLR number" },                                 /* 18.4.26 */
     { BSSAP_TMSI,                               "TMSI" },                                       /* 18.4.23 */
-    { BSSAP_LOC_AREA_ID,                        "Location area identifier" },                   /* 18.4.14 */ 
-    { BSSAP_CHANNEL_NEEDED,                     "Channel Needed" },                             /* 18.4.2  */ 
-    { BSSAP_EMLPP_PRIORITY,                     "eMLPP Priority" },                             /* 18.4.4  */ 
-    { BSSAP_TMSI_STATUS,                        "TMSI status" },                                /* 18.4.24 */ 
-    { BSSAP_GS_CAUSE,                           "Gs cause" },                                   /* 18.4.7  */ 
-    { BSSAP_SGSN_NUMBER,                        "SGSN number" },                                /* 18.4.22 */ 
-    { BSSAP_GPRS_LOC_UPD_TYPE,                  "GPRS location update type" },                  /* 18.4.6  */ 
-    { BSSAP_GLOBAL_CN_ID,                       "Global CN-Id" },                               /* 18.4.27 */ 
-    { 0x0c,                                     "Unassigned: treated as an unknown IEI." },     /* 18 and 16 */ 
-    { BSSAP_MOBILE_STN_CLS_MRK1,                "Mobile station classmark 1" },                 /* 18.4.18 */ 
-    { BSSAP_MOBILE_ID,                          "Mobile identity" },                            /* 18.4.17 */ 
-    { BSSAP_REJECT_CAUSE,                       "Reject cause" },                               /* 18.4.21 */ 
-    { BSSAP_IMSI_DET_FROM_GPRS_SERV_TYPE,       "IMSI detach from GPRS service type" },         /* 18.4.11 */ 
-    { BSSAP_IMSI_DET_FROM_NON_GPRS_SERV_TYPE,   "IMSI detach from non-GPRS service type" },     /* 18.4.12 */ 
+    { BSSAP_LOC_AREA_ID,                        "Location area identifier" },                   /* 18.4.14 */
+    { BSSAP_CHANNEL_NEEDED,                     "Channel Needed" },                             /* 18.4.2  */
+    { BSSAP_EMLPP_PRIORITY,                     "eMLPP Priority" },                             /* 18.4.4  */
+    { BSSAP_TMSI_STATUS,                        "TMSI status" },                                /* 18.4.24 */
+    { BSSAP_GS_CAUSE,                           "Gs cause" },                                   /* 18.4.7  */
+    { BSSAP_SGSN_NUMBER,                        "SGSN number" },                                /* 18.4.22 */
+    { BSSAP_GPRS_LOC_UPD_TYPE,                  "GPRS location update type" },                  /* 18.4.6  */
+    { BSSAP_GLOBAL_CN_ID,                       "Global CN-Id" },                               /* 18.4.27 */
+    { 0x0c,                                     "Unassigned: treated as an unknown IEI." },     /* 18 and 16 */
+    { BSSAP_MOBILE_STN_CLS_MRK1,                "Mobile station classmark 1" },                 /* 18.4.18 */
+    { BSSAP_MOBILE_ID,                          "Mobile identity" },                            /* 18.4.17 */
+    { BSSAP_REJECT_CAUSE,                       "Reject cause" },                               /* 18.4.21 */
+    { BSSAP_IMSI_DET_FROM_GPRS_SERV_TYPE,       "IMSI detach from GPRS service type" },         /* 18.4.11 */
+    { BSSAP_IMSI_DET_FROM_NON_GPRS_SERV_TYPE,   "IMSI detach from non-GPRS service type" },     /* 18.4.12 */
     { BSSAP_INFO_REQ,                           "Information requested" },                      /* 18.4.13 */
     { BSSAP_PTMSI,                              "PTMSI" },                                      /* 18.4.20 */
     { BSSAP_IMEI,                               "IMEI" },                                       /* 18.4.8  */
     { BSSAP_IMEISV,                             "IMEISV" },                                     /* 18.4.9 */
-    { 0x16,                                     "Unassigned: treated as an unknown IEI." },     /* 18 and 16 */ 
-    { BSSAP_MM_INFORMATION,                     "MM information" },                             /* 18.4.16 */ 
-    { BSSAP_CELL_GBL_ID,                        "Cell Global Identity" },                       /* 18.4.1 */ 
-    { BSSAP_LOC_INF_AGE,                        "Location information age" },                   /* 18.4.15 */ 
-    { BSSAP_MOBILE_STN_STATE,                   "Mobile station state" },                       /* 18.4.19 */ 
-    { BSSAP_ERRONEOUS_MSG,                      "Erroneous message" },                          /* 18.4.5 */ 
-    { BSSAP_DLINK_TNL_PLD_CTR_AND_INF,          "Downlink Tunnel Payload Control and Info" },   /* 18.4.3 */ 
-    { BSSAP_ULINK_TNL_PLD_CTR_AND_INF,          "Uplink Tunnel Payload Control and Info" },     /* 18.4.25 */ 
-    { BSSAP_SERVICE_AREA_ID,                    "Service Area Identification" },                /* 18.4.21b */ 
-    { 0,                NULL } 
-}; 
+    { 0x16,                                     "Unassigned: treated as an unknown IEI." },     /* 18 and 16 */
+    { BSSAP_MM_INFORMATION,                     "MM information" },                             /* 18.4.16 */
+    { BSSAP_CELL_GBL_ID,                        "Cell Global Identity" },                       /* 18.4.1 */
+    { BSSAP_LOC_INF_AGE,                        "Location information age" },                   /* 18.4.15 */
+    { BSSAP_MOBILE_STN_STATE,                   "Mobile station state" },                       /* 18.4.19 */
+    { BSSAP_ERRONEOUS_MSG,                      "Erroneous message" },                          /* 18.4.5 */
+    { BSSAP_DLINK_TNL_PLD_CTR_AND_INF,          "Downlink Tunnel Payload Control and Info" },   /* 18.4.3 */
+    { BSSAP_ULINK_TNL_PLD_CTR_AND_INF,          "Uplink Tunnel Payload Control and Info" },     /* 18.4.25 */
+    { BSSAP_SERVICE_AREA_ID,                    "Service Area Identification" },                /* 18.4.21b */
+    { 0,                NULL }
+};
 
 /* Initialize the protocol and registered fields */
 static int proto_bssap = -1;
@@ -286,7 +285,7 @@ static int hf_bssap_global_cn_id_ie = -1;
 static int hf_bssap_plus_ie_data = -1;
 
 static int hf_bssap_extension = -1;
-static int hf_bssap_type_of_number = -1; 
+static int hf_bssap_type_of_number = -1;
 static int hf_bssap_numbering_plan_id = -1;
 static int hf_bssap_sgsn_number = -1;
 static int hf_bssap_vlr_number = -1;
@@ -608,7 +607,7 @@ dissect_bssap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_set_str(pinfo->cinfo, COL_PROTOCOL, ((bssap_or_bsap_global == BSSAP) ? "BSSAP" : "BSAP"));
     }
 
-    if ( pinfo->sccp_info && pinfo->sccp_info->data.co.assoc  ) 
+    if ( pinfo->sccp_info && pinfo->sccp_info->data.co.assoc  )
         pinfo->sccp_info->data.co.assoc->payload = SCCP_PLOAD_BSSAP;
 
     /*
@@ -625,7 +624,7 @@ dissect_bssap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-/* 
+/*
  * BSSAP+ Routines
  */
 
@@ -644,7 +643,7 @@ static dgt_set_t Dgt1_9_bcd = {
      '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?'
     }
 };
-/* Assumes the rest of the tvb contains the digits to be turned into a string 
+/* Assumes the rest of the tvb contains the digits to be turned into a string
  */
 static const char*
 unpack_digits(tvbuff_t *tvb, int offset,dgt_set_t *dgt,gboolean skip_first){
@@ -663,7 +662,7 @@ unpack_digits(tvbuff_t *tvb, int offset,dgt_set_t *dgt,gboolean skip_first){
 
         octet = tvb_get_guint8(tvb,offset);
         if (!skip_first){
-            digit_str[i] = dgt->out[octet & 0x0f]; 
+            digit_str[i] = dgt->out[octet & 0x0f];
             i++;
         }
         skip_first = FALSE;
@@ -676,7 +675,7 @@ unpack_digits(tvbuff_t *tvb, int offset,dgt_set_t *dgt,gboolean skip_first){
         if (octet == 0x0f)  /* odd number bytes - hit filler */
             break;
 
-        digit_str[i] = dgt->out[octet & 0x0f]; 
+        digit_str[i] = dgt->out[octet & 0x0f];
         i++;
         offset++;
 
@@ -693,7 +692,8 @@ check_ie(tvbuff_t *tvb, proto_tree *tree, int *offset, guint8 expected_ie){
     ie_type = tvb_get_guint8(tvb,*offset);
     if (ie_type != expected_ie){
         proto_tree_add_text(tree, tvb, *offset, 1, "Mandatory IE %s expected but IE %s Found",
-            val_to_str(expected_ie,bssap_plus_ie_id_values,"Unknown %u"), val_to_str(ie_type,bssap_plus_ie_id_values,"Unknown %u"));
+                            val_to_str(expected_ie,bssap_plus_ie_id_values,"Unknown %u"),
+                            val_to_str(ie_type,bssap_plus_ie_id_values,"Unknown %u"));
         (*offset)++;
         ie_len = tvb_get_guint8(tvb,*offset);
         *offset = *offset + ie_len;
@@ -725,7 +725,7 @@ dissect_bssap_cell_global_id(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_item  *cgi_item = NULL;
     proto_tree  *cgi_tree = NULL;
     guint8           ie_len;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_cell_global_id_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bssap_cell_global_id);
@@ -764,7 +764,7 @@ dissect_bssap_channel_needed(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
     guint8           ie_len;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_channel_needed_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bssap_channel_needed);
@@ -793,7 +793,7 @@ dissect_bssap_dlink_tunnel_payload_control_and_info(tvbuff_t *tvb, packet_info *
     guint8 ie_len;
     guint8 octet;
     guint8 prot_disc;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_dlink_tnl_pld_cntrl_amd_inf_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bssap_dlink_tnl_pld_cntrl_amd_inf);
@@ -817,7 +817,7 @@ dissect_bssap_dlink_tunnel_payload_control_and_info(tvbuff_t *tvb, packet_info *
      */
     proto_tree_add_item(ie_tree, hf_bssap_e_bit, tvb, offset, 1, FALSE);
 
-    /* octet 3 bit 2 - 1 
+    /* octet 3 bit 2 - 1
      * Tunnel Priority: Indicates the priority of the Tunnel Payload. For coding, see Table 20.1: Association
      * between Tunnel Priority and LLC SAPs.
      */
@@ -837,16 +837,16 @@ dissect_bssap_dlink_tunnel_payload_control_and_info(tvbuff_t *tvb, packet_info *
 
 /* 18.4.4 eMLPP Priority */
 /* Call priority */
-static const value_string bssap_call_priority_values[] = { 
+static const value_string bssap_call_priority_values[] = {
     { 0x00,             "No priority applied" },
-    { 0x01,             "Call priority level 4" }, 
-    { 0x02,             "Call priority level 3" },   
-    { 0x03,             "Call priority level 2" },   
-    { 0x04,             "Call priority level 1" },   
-    { 0x05,             "Call priority level 0" },   
-    { 0x06,             "Call priority level B" },   
-    { 0x07,             "Call priority level A" },   
-    { 0,                NULL } 
+    { 0x01,             "Call priority level 4" },
+    { 0x02,             "Call priority level 3" },
+    { 0x03,             "Call priority level 2" },
+    { 0x04,             "Call priority level 1" },
+    { 0x05,             "Call priority level 0" },
+    { 0x06,             "Call priority level B" },
+    { 0x07,             "Call priority level A" },
+    { 0,                NULL }
 };
 static int
 dissect_bssap_emlpp_priority(tvbuff_t *tvb, proto_tree *tree, int offset)
@@ -854,7 +854,7 @@ dissect_bssap_emlpp_priority(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
     guint8 ie_len;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_emlpp_prio_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bssap_emlpp_prio);
@@ -867,7 +867,7 @@ dissect_bssap_emlpp_priority(tvbuff_t *tvb, proto_tree *tree, int offset)
         the eMLPP-Priority IE defined in 3GPP TS 48.008 (not including
         3GPP TS 48.008 IEI and 3GPP TS 48.008 length indicator).
         3.2.2.56 eMLPP Priority
-        The call priority field (bit 3 to 1 of octet 2) is coded in the same way 
+        The call priority field (bit 3 to 1 of octet 2) is coded in the same way
         as the call priority field (bit 3 to 1 of octet 5) in the Descriptive group
         or broadcast call reference information element as defined in 3GPP TS 24.008.
      */
@@ -885,7 +885,7 @@ dissect_bssap_gprs_erroneous_msg(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
     guint8 ie_len;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_gprs_erroneous_msg_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bssap_erroneous_msg);
@@ -903,12 +903,12 @@ dissect_bssap_gprs_erroneous_msg(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 
 
-static const value_string bssap_plus_GPRS_loc_upd_type_values[] = { 
+static const value_string bssap_plus_GPRS_loc_upd_type_values[] = {
     { 0x00,             "Shall not be sent in this version of the protocol. If received, shall be treated as '00000010'." },
-    { 0x01,             "IMSI attach" }, 
-    { 0x02,             "Normal location update" },  
-    { 0,                NULL } 
-}; 
+    { 0x01,             "IMSI attach" },
+    { 0x02,             "Normal location update" },
+    { 0,                NULL }
+};
 /* 18.4.6 GPRS location update type */
 static int
 dissect_bssap_gprs_location_update_type(tvbuff_t *tvb, proto_tree *tree, int offset)
@@ -916,7 +916,7 @@ dissect_bssap_gprs_location_update_type(tvbuff_t *tvb, proto_tree *tree, int off
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
     guint8 ie_len;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_gprs_loc_upd_type_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bssap_gprs_loc_upd);
@@ -925,15 +925,15 @@ dissect_bssap_gprs_location_update_type(tvbuff_t *tvb, proto_tree *tree, int off
     offset++;
     proto_tree_add_item(ie_tree, hf_bssap_plus_ie_len, tvb, offset, 1, FALSE);
     offset++;
-    
+
     /* GPRS location update type value (octet 3) */
     proto_tree_add_item(ie_tree, hf_bssap_gprs_loc_upd_type, tvb, offset, ie_len, FALSE);
-    
+
     return offset + ie_len;
 }
 
 /* Gs Cause value (octet 3) */
-static const value_string bssap_Gs_cause_values[] = { 
+static const value_string bssap_Gs_cause_values[] = {
 
     { 0x00,     "Normal, unspecified in this version of the protocol." },
     { 0x01,     "IMSI detached for GPRS services" },
@@ -951,8 +951,8 @@ static const value_string bssap_Gs_cause_values[] = {
     { 0x0d,     "Address error" },
     { 0x0e,     "TOM functionality not supported" },
     { 0x0f,     "Ciphering request cannot be accommodated" },
-    { 0,        NULL } 
-}; 
+    { 0,        NULL }
+};
 
 /* 18.4.7 Gs cause */
 static int
@@ -961,7 +961,7 @@ dissect_bssap_Gs_cause(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
     guint8 ie_len;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_Gs_cause_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bassp_Gs_cause);
@@ -1014,7 +1014,7 @@ dissect_bssap_imesiv(tvbuff_t *tvb, proto_tree *tree, int offset)
     guint8 ie_len;
     tvbuff_t *ie_tvb;
     const char *digit_str;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_imesiv_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bassp_imesiv);
@@ -1033,8 +1033,8 @@ dissect_bssap_imesiv(tvbuff_t *tvb, proto_tree *tree, int offset)
     return offset + ie_len;
 
 }
-/* 18.4.10 IMSI 
- * The IMSI is coded as a sequence of BCD digits, compressed two into each octet. 
+/* 18.4.10 IMSI
+ * The IMSI is coded as a sequence of BCD digits, compressed two into each octet.
  * This is a variable length element, and includes a length indicator.
  * The IMSI is defined in 3GPP TS 23.003. It shall not exceed 15 digits (see 3GPP TS 23.003).
  */
@@ -1048,7 +1048,7 @@ dissect_bssap_imsi(tvbuff_t *tvb, proto_tree *tree, int offset)
     guint8 ie_len;
     tvbuff_t *ie_tvb;
     const char *digit_str;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_imsi_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bssap_imsi);
@@ -1060,17 +1060,17 @@ dissect_bssap_imsi(tvbuff_t *tvb, proto_tree *tree, int offset)
     ie_tvb = tvb_new_subset(tvb, offset, ie_len,ie_len);
     digit_str = unpack_digits(ie_tvb, 0, &Dgt1_9_bcd, TRUE);
     proto_tree_add_string(ie_tree, hf_bssap_imsi, ie_tvb, 0, -1, digit_str);
-    
+
     return offset + ie_len;
 
 }
-static const value_string bssap_imsi_det_from_gprs_serv_type_values[] _U_ = { 
+static const value_string bssap_imsi_det_from_gprs_serv_type_values[] _U_ = {
     { 0x00,     "Interpreted as reserved in this version of the protocol" },
-    { 0x01,     "Network initiated IMSI detach from GPRS service" }, 
+    { 0x01,     "Network initiated IMSI detach from GPRS service" },
     { 0x02,     "MS initiated IMSI detach from GPRS service" },
     { 0x03,     "GPRS services not allowed" },
-    { 0,                NULL } 
-}; 
+    { 0,                NULL }
+};
 
 /* 18.4.11 IMSI detach from GPRS service type */
 static int
@@ -1079,7 +1079,7 @@ dissect_bssap_imsi_det_from_gprs_serv_type(tvbuff_t *tvb, proto_tree *tree, int 
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
     guint8 ie_len;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_imsi_det_from_gprs_serv_type_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bssap_imsi_det_from_gprs_serv_type);
@@ -1102,7 +1102,7 @@ dissect_bssap_imsi_det_from_non_gprs_serv_type(tvbuff_t *tvb, proto_tree *tree, 
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
     guint8 ie_len;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_imsi_det_from_non_gprs_serv_type_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bssap_imsi_det_from_non_gprs_serv_type);
@@ -1117,9 +1117,9 @@ dissect_bssap_imsi_det_from_non_gprs_serv_type(tvbuff_t *tvb, proto_tree *tree, 
     return offset + ie_len;
 
 }
-static const value_string bssap_info_req_values[] = { 
+static const value_string bssap_info_req_values[] = {
     { 0x00,     "Interpreted as Not supported in this version of the protocol." },
-    { 0x01,     "PTMSI" }, 
+    { 0x01,     "PTMSI" },
     { 0x02,     "IMEI" },
     { 0x03,     "IMEISV" },
     { 0x04,     "PTMSI and IMEI" },
@@ -1128,8 +1128,8 @@ static const value_string bssap_info_req_values[] = {
     { 0x07,     "PTMSI, IMEI, and IMEISV" },
     { 0x08,     "Mobile location information" },
     { 0x09,     "TMSI" },
-    { 0,                NULL } 
-}; 
+    { 0,                NULL }
+};
 /* 18.4.13 Information requested */
 static int
 dissect_bssap_info_req(tvbuff_t *tvb, proto_tree *tree, int offset)
@@ -1137,7 +1137,7 @@ dissect_bssap_info_req(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
     guint8 ie_len;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_info_req_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bssap_info_req);
@@ -1160,7 +1160,7 @@ dissect_bssap_loc_area_id(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
     guint8 ie_len;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_loc_area_id_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bssap_loc_area_id);
@@ -1186,7 +1186,7 @@ dissect_bssap_location_information_age(tvbuff_t *tvb, proto_tree *tree, int offs
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
     guint8 ie_len;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_loc_inf_age_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bssap_loc_inf_age);
@@ -1219,7 +1219,7 @@ dissect_bssap_MM_information(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
     guint8 ie_len;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_mm_information_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bssap_mm_information);
@@ -1235,7 +1235,7 @@ dissect_bssap_MM_information(tvbuff_t *tvb, proto_tree *tree, int offset)
      *  indicatior of the other information elements.
      */
     dtap_mm_mm_info(tvb, ie_tree, offset, ie_len);
-    
+
 
     return offset + ie_len;
 
@@ -1247,7 +1247,7 @@ dissect_bssap_mobile_id(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
     guint ie_len;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_mobile_id_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bssap_mobile_id);
@@ -1273,7 +1273,7 @@ dissect_bssap_mobile_stn_cls_mrk1(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
     guint8 ie_len;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_mobile_stn_cls_mrk1_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bssap_mobile_stn_cls_mrk1);
@@ -1292,9 +1292,9 @@ dissect_bssap_mobile_stn_cls_mrk1(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 }
 /* 18.4.19 Mobile station state */
-static const value_string bssap_mobile_station_state_values[] = { 
+static const value_string bssap_mobile_station_state_values[] = {
     { 0x00,     "IDLE or PMM-DETACHED" },
-    { 0x01,     "STANDBY or PMM-IDLE, 0 PDP contexts active" }, 
+    { 0x01,     "STANDBY or PMM-IDLE, 0 PDP contexts active" },
     { 0x02,     "STANDBY or PMM-IDLE, 1 or more PDP contexts active" },
     { 0x03,     "SUSPENDED, 0 PDP contexts active" },
     { 0x04,     "SUSPENDED, 1 or more PDP contexts active" },
@@ -1302,7 +1302,7 @@ static const value_string bssap_mobile_station_state_values[] = {
     { 0x06,     "READY or PMM-CONNECTED, 1 or more PDP contexts active" },
     { 0x07,     "IMSI unknown" },
     { 0x08,     "Information requested not supported" },
-    { 0,                NULL } 
+    { 0,                NULL }
 };
 static int
 dissect_bssap_mobile_station_state(tvbuff_t *tvb, proto_tree *tree, int offset)
@@ -1310,7 +1310,7 @@ dissect_bssap_mobile_station_state(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
     guint8 ie_len;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_mobile_station_state_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bssap_mobile_station_state);
@@ -1332,7 +1332,7 @@ dissect_bssap_ptmsi(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
     guint8 ie_len;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_ptmsi_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bssap_ptmsi);
@@ -1356,7 +1356,7 @@ dissect_bssap_reject_cause(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
     guint8 ie_len;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_reject_cause_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bssap_reject_cause);
@@ -1382,7 +1382,7 @@ dissect_bssap_service_area_id(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
     guint8 ie_len;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_service_area_id_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bssap_service_area_id);
@@ -1416,7 +1416,7 @@ dissect_bssap_sgsn_number(tvbuff_t *tvb, proto_tree *tree, int offset)
     guint8 ie_len;
     tvbuff_t *number_tvb;
     const char *digit_str;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_sgsn_nr_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bssap_sgsn_nr);
@@ -1425,10 +1425,10 @@ dissect_bssap_sgsn_number(tvbuff_t *tvb, proto_tree *tree, int offset)
     offset++;
     proto_tree_add_item(ie_tree, hf_bssap_plus_ie_len, tvb, offset, 1, FALSE);
     offset++;
-    /* The SGSN number is coded as a sequence of TBCD digits (as specified in 3GPP TS 29.002), 
+    /* The SGSN number is coded as a sequence of TBCD digits (as specified in 3GPP TS 29.002),
      * compressed two into each octet. The Number is in international E.164 format as indicated by Octet 3
-     * which coding is specified in 3GPP TS 29.002. This is a variable length information element, 
-     * and includes a length indicator. The value part of the SGSN number information element 
+     * which coding is specified in 3GPP TS 29.002. This is a variable length information element,
+     * and includes a length indicator. The value part of the SGSN number information element
      * (not including IEI, Length indicator and Octet 3) shall not exceed 15 digits.
      */
     proto_tree_add_item(ie_tree, hf_bssap_extension, tvb, offset, 1, FALSE);
@@ -1450,7 +1450,7 @@ dissect_bssap_tmsi(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
     guint8 ie_len;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_tmsi_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bssap_tmsi);
@@ -1459,7 +1459,7 @@ dissect_bssap_tmsi(tvbuff_t *tvb, proto_tree *tree, int offset)
     offset++;
     proto_tree_add_item(ie_tree, hf_bssap_plus_ie_len, tvb, offset, 1, FALSE);
     offset++;
-    /* The TMSI consists of 4 octets. It can be coded using a full hexadecimal representation 
+    /* The TMSI consists of 4 octets. It can be coded using a full hexadecimal representation
      * (see 3GPP TS 23.003).
      */
     proto_tree_add_item(ie_tree, hf_bssap_tmsi, tvb, offset, ie_len, FALSE);
@@ -1480,7 +1480,7 @@ dissect_bssap_tmsi_status(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_item  *item = NULL;
     proto_tree  *ie_tree = NULL;
     guint8 ie_len;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_tmsi_status_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bssap_tmsi_status);
@@ -1502,12 +1502,12 @@ static const true_false_string bssap_E_flag = {
   "SGSN did not receive the payload in ciphered form"
 };
 /* 3GPP TS 44.064 B.1.1 TOM Protocol Discriminator */
-static const value_string bssap_tom_prot_disc_values[] = { 
+static const value_string bssap_tom_prot_disc_values[] = {
     { 0x00,     "Not specified" },
-    { 0x01,     "TIA/EIA-136" }, 
+    { 0x01,     "TIA/EIA-136" },
     { 0x02,     "RRLP" },
     { 0x03,     "Reserved for extension" },
-    { 0,                NULL } 
+    { 0,                NULL }
 };
 static int
 dissect_bssap_ulink_tunnel_payload_control_and_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
@@ -1518,7 +1518,7 @@ dissect_bssap_ulink_tunnel_payload_control_and_info(tvbuff_t *tvb, packet_info *
     guint8 ie_len;
     guint8 octet;
     guint8 prot_disc;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_ulink_tnl_pld_cntrl_amd_inf_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bssap_ulink_tnl_pld_cntrl_amd_inf);
@@ -1528,7 +1528,7 @@ dissect_bssap_ulink_tunnel_payload_control_and_info(tvbuff_t *tvb, packet_info *
     proto_tree_add_item(ie_tree, hf_bssap_plus_ie_len, tvb, offset, 1, FALSE);
     offset++;
     /* octet 3 bit 8 Spare */
-    /* octet 3 bit 7 - 4 
+    /* octet 3 bit 7 - 4
      * TOM Protocol Discriminator: Identifies the protocol using tunnelling of non-GSM signalling.
      * For coding, see 3GPP TS 44.064.
      */
@@ -1541,7 +1541,7 @@ dissect_bssap_ulink_tunnel_payload_control_and_info(tvbuff_t *tvb, packet_info *
      */
     proto_tree_add_item(ie_tree, hf_bssap_e_bit, tvb, offset, 1, FALSE);
 
-    /* octet 3 bit 2 - 1 
+    /* octet 3 bit 2 - 1
      * Tunnel Priority: Indicates the priority of the Tunnel Payload. For coding, see Table 20.1: Association
      * between Tunnel Priority and LLC SAPs.
      */
@@ -1567,7 +1567,7 @@ dissect_bssap_vlr_number(tvbuff_t *tvb, proto_tree *tree, int offset)
     guint8 ie_len;
     tvbuff_t *number_tvb;
     const char *digit_str;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_vlr_number_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bssap_vlr_number);
@@ -1576,7 +1576,7 @@ dissect_bssap_vlr_number(tvbuff_t *tvb, proto_tree *tree, int offset)
     offset++;
     proto_tree_add_item(ie_tree, hf_bssap_plus_ie_len, tvb, offset, 1, FALSE);
     offset++;
-    /*  The VLR number is coded as a sequence of TBCD digits (as specified in 3GPP TS 29.002), 
+    /*  The VLR number is coded as a sequence of TBCD digits (as specified in 3GPP TS 29.002),
      *  compressed two into each octet. The Number is in international E.164 format as indicated by Octet 3
      *  which coding is specified in 3GPP TS 29.002. This is a variable length information element,
      *  and includes a length indicator. The value part of the VLR number information element
@@ -1605,7 +1605,7 @@ dissect_bssap_global_cn_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     proto_item  *global_cn_id_item = NULL;
     proto_tree  *global_cn_id_tree = NULL;
     guint8 ie_len;
-    
+
     ie_len = tvb_get_guint8(tvb,offset+1);
     item = proto_tree_add_item(tree, hf_bssap_global_cn_id_ie, tvb, offset, ie_len+2, FALSE);
     ie_tree = proto_item_add_subtree(item, ett_bssap_global_cn);
@@ -1614,7 +1614,7 @@ dissect_bssap_global_cn_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     offset++;
     proto_tree_add_item(ie_tree, hf_bssap_plus_ie_len, tvb, offset, 1, FALSE);
     offset++;
-    /* The Global CN-Id consists of a PLMN-Id and a CN-Id, see 3GPP TS 23.003. 
+    /* The Global CN-Id consists of a PLMN-Id and a CN-Id, see 3GPP TS 23.003.
      *  The PLMN-Id consists of MCC and MNC coded according to Location Area Identification
      * in 3GPP TS 24.008. The CN-Id is an integer defined by O&M.
      * The least significant bit of the CN-Id field is bit 1 of octet 7 and
@@ -1650,14 +1650,14 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
      * Make entry in the Protocol column on summary display
      */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BSSAP+");
-    
+
     if (pinfo->sccp_info && pinfo->sccp_info->data.co.assoc)
         pinfo->sccp_info->data.co.assoc->payload = SCCP_PLOAD_BSSAP;
-    
+
     /* create the BSSAP+ protocol tree */
     bssap_item = proto_tree_add_item(tree, proto_bssap, tvb, 0, -1, FALSE);
     bssap_tree = proto_item_add_subtree(bssap_item, ett_bssap);
-    
+
     message_type = tvb_get_guint8(tvb,offset);
     proto_tree_add_item(bssap_tree, hf_bssap_plus_message_type, tvb, offset, 1,FALSE);
     offset++;
@@ -1672,10 +1672,10 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         if ( check_ie(tvb, tree, &offset, BSSAP_IMSI))
             offset = dissect_bssap_imsi(tvb, bssap_tree, offset);
 
-        /* VLR number VLR number 18.4.26 M TLV 5-11 */ 
+        /* VLR number VLR number 18.4.26 M TLV 5-11 */
         if ( check_ie(tvb, tree, &offset, BSSAP_VLR_NUMBER))
             offset = dissect_bssap_vlr_number(tvb, bssap_tree, offset);
-        
+
         /* End of mandatory elements */
         if (tvb_length_remaining(tvb,offset) == 0)
             return;
@@ -1733,7 +1733,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         if ( check_ie(tvb, tree, &offset, BSSAP_VLR_NUMBER))
             offset = dissect_bssap_vlr_number(tvb, bssap_tree, offset);
 
-        /* Downlink Tunnel Payload Control and Info 18.4.3 M TLV 3-223 */ 
+        /* Downlink Tunnel Payload Control and Info 18.4.3 M TLV 3-223 */
         if ( check_ie(tvb, tree, &offset, BSSAP_DLINK_TNL_PLD_CTR_AND_INF))
             offset = dissect_bssap_dlink_tunnel_payload_control_and_info(tvb, pinfo, bssap_tree, offset);
 
@@ -1770,19 +1770,19 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         /* New Cell global identity Cell global identity 18.4.1 M TLV 10 */
         if ( check_ie(tvb, tree, &offset, BSSAP_CELL_GBL_ID))
             offset = dissect_bssap_cell_global_id(tvb, bssap_tree, offset);
-        
+
         /* Mobile station classmark Mobile station classmark 1 18.4.18 M TLV 3 */
         if ( check_ie(tvb, tree, &offset, BSSAP_MOBILE_STN_CLS_MRK1))
             offset = dissect_bssap_mobile_stn_cls_mrk1(tvb, bssap_tree, offset);
         if (tvb_length_remaining(tvb,offset) == 0)
             return;
-        
+
         /* Old location area identifier Location area identifier 18.4.14 O TLV 7 */
         if ( check_optional_ie(tvb, offset, BSSAP_LOC_AREA_ID))
             offset = dissect_bssap_loc_area_id(tvb, bssap_tree, offset);
         if (tvb_length_remaining(tvb,offset) == 0)
             return;
-        
+
         /* TMSI status TMSI status 18.4.24 O TLV 3 */
         if ( check_optional_ie(tvb, offset, BSSAP_TMSI_STATUS))
             offset = dissect_bssap_tmsi_status(tvb, bssap_tree, offset);
@@ -1814,7 +1814,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         if (tvb_length_remaining(tvb,offset) == 0)
             return;
 
-        /* New TMSI, or IMSI Mobile identity 18.4.17 O TLV 6-10 */ 
+        /* New TMSI, or IMSI Mobile identity 18.4.17 O TLV 6-10 */
         if ( check_optional_ie(tvb, offset, BSSAP_MOBILE_ID))
             offset = dissect_bssap_mobile_id(tvb, bssap_tree, offset);
         if (tvb_length_remaining(tvb,offset) == 0)
@@ -1955,7 +1955,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         if ( check_ie(tvb, tree, &offset, BSSAP_SGSN_NUMBER))
             offset = dissect_bssap_sgsn_number(tvb, bssap_tree, offset);
 
-        /* Detach type IMSI detach from non-GPRS service type 18.4.11 M TLV 3 */ 
+        /* Detach type IMSI detach from non-GPRS service type 18.4.11 M TLV 3 */
         if ( check_ie(tvb, tree, &offset, BSSAP_IMSI_DET_FROM_NON_GPRS_SERV_TYPE))
             offset = dissect_bssap_imsi_det_from_non_gprs_serv_type(tvb, bssap_tree, offset);
 
@@ -2164,7 +2164,7 @@ dissect_bssap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
     case 0x00:
         if (tvb_get_guint8(tvb, 1) != (tvb_length(tvb) - 2)) { return(FALSE); }
-        if (tvb_get_guint8(tvb, 2) == 0x40 && tvb_get_guint8(tvb, 3) != 0x01) { 
+        if (tvb_get_guint8(tvb, 2) == 0x40 && tvb_get_guint8(tvb, 3) != 0x01) {
             return(FALSE); }
         break;
 
@@ -2353,11 +2353,11 @@ proto_register_bssap(void)
         { &hf_bssap_sgsn_nr_ie,
           { "SGSN number IE", "bssap.imsi_ie",
             FT_NONE, BASE_NONE, NULL, 0,
-            NULL, HFILL }}, 
+            NULL, HFILL }},
         { &hf_bssap_tmsi_ie,
           { "TMSI IE", "bssap.tmsi_ie",
             FT_NONE, BASE_NONE, NULL, 0,
-            NULL, HFILL }}, 
+            NULL, HFILL }},
         { &hf_bssap_tmsi_status_ie,
           { "TMSI status IE", "bssap.tmsi_status_ie",
             FT_NONE, BASE_NONE, NULL, 0,
@@ -2563,7 +2563,7 @@ proto_reg_handoff_bssap(void)
         rrlp_handle = find_dissector("rrlp");
         initialized = TRUE;
     } else {
-        dissector_delete_uint("sccp.ssn", old_bssap_ssn, bssap_plus_handle); 
+        dissector_delete_uint("sccp.ssn", old_bssap_ssn, bssap_plus_handle);
     }
 
     dissector_add_uint("sccp.ssn", global_bssap_ssn, bssap_plus_handle);

@@ -25,8 +25,6 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-#include <stdlib.h>
-#include <string.h>
 
 #include <glib.h>
 #include <epan/packet.h>
@@ -65,7 +63,7 @@ static int hf_erf_wlen      = -1;
 static int hf_erf_ehdr_int_res1 = -1;
 static int hf_erf_ehdr_int_id = -1;
 static int hf_erf_ehdr_int_res2 = -1;
- 
+
 /* Raw Link extension header */
 static int hf_erf_ehdr_raw_link_res = -1;
 static int hf_erf_ehdr_raw_link_seqnum = -1;
@@ -195,7 +193,7 @@ static dissector_handle_t ipv6_handle;
 static dissector_handle_t infiniband_handle;
 static dissector_handle_t infiniband_link_handle;
 
-typedef enum { 
+typedef enum {
   ERF_HDLC_CHDLC = 0,
   ERF_HDLC_PPP = 1,
   ERF_HDLC_FRELAY = 2,
@@ -316,7 +314,7 @@ static const value_string erf_type_vals[] = {
   { ERF_TYPE_HDLC_POS,"HDLC_POS"},
   { ERF_TYPE_ETH,"ETH"},
   { ERF_TYPE_ATM,"ATM"},
-  { ERF_TYPE_AAL5,"AAL5"}, 
+  { ERF_TYPE_AAL5,"AAL5"},
   { ERF_TYPE_MC_HDLC,"MC_HDLC"},
   { ERF_TYPE_MC_RAW,"MC_RAW"},
   { ERF_TYPE_MC_ATM,"MC_ATM"},
@@ -372,103 +370,103 @@ static void
 erf_atm_guess_lane_type(const guint8 *pd, guint len,
     union wtap_pseudo_header *pseudo_header)
 {
-	if (len >= 2) {
-		if (pd[0] == 0xff && pd[1] == 0x00) {
-			/*
-			 * Looks like LE Control traffic.
-			 */
-			pseudo_header->atm.subtype = TRAF_ST_LANE_LE_CTRL;
-		} else {
-			/*
-			 * XXX - Ethernet, or Token Ring?
-			 * Assume Ethernet for now; if we see earlier
-			 * LANE traffic, we may be able to figure out
-			 * the traffic type from that, but there may
-			 * still be situations where the user has to
-			 * tell us.
-			 */
-			pseudo_header->atm.subtype = TRAF_ST_LANE_802_3;
-		}
-	}
+  if (len >= 2) {
+    if (pd[0] == 0xff && pd[1] == 0x00) {
+      /*
+       * Looks like LE Control traffic.
+       */
+      pseudo_header->atm.subtype = TRAF_ST_LANE_LE_CTRL;
+    } else {
+      /*
+       * XXX - Ethernet, or Token Ring?
+       * Assume Ethernet for now; if we see earlier
+       * LANE traffic, we may be able to figure out
+       * the traffic type from that, but there may
+       * still be situations where the user has to
+       * tell us.
+       */
+      pseudo_header->atm.subtype = TRAF_ST_LANE_802_3;
+    }
+  }
 }
 
 static void
 erf_atm_guess_traffic_type(const guint8 *pd, guint len,
     union wtap_pseudo_header *pseudo_header)
 {
-	/*
-	 * Start out assuming nothing other than that it's AAL5.
-	 */
-	pseudo_header->atm.aal = AAL_5;
-	pseudo_header->atm.type = TRAF_UNKNOWN;
-	pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+  /*
+   * Start out assuming nothing other than that it's AAL5.
+   */
+  pseudo_header->atm.aal = AAL_5;
+  pseudo_header->atm.type = TRAF_UNKNOWN;
+  pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
 
-	if (pseudo_header->atm.vpi == 0) {
-		/*
-		 * Traffic on some PVCs with a VPI of 0 and certain
-		 * VCIs is of particular types.
-		 */
-		switch (pseudo_header->atm.vci) {
+  if (pseudo_header->atm.vpi == 0) {
+    /*
+     * Traffic on some PVCs with a VPI of 0 and certain
+     * VCIs is of particular types.
+     */
+    switch (pseudo_header->atm.vci) {
 
-		case 5:
-			/*
-			 * Signalling AAL.
-			 */
-			pseudo_header->atm.aal = AAL_SIGNALLING;
-			return;
+    case 5:
+      /*
+       * Signalling AAL.
+       */
+      pseudo_header->atm.aal = AAL_SIGNALLING;
+      return;
 
-		case 16:
-			/*
-			 * ILMI.
-			 */
-			pseudo_header->atm.type = TRAF_ILMI;
-			return;
-		}
-	}
+    case 16:
+      /*
+       * ILMI.
+       */
+      pseudo_header->atm.type = TRAF_ILMI;
+      return;
+    }
+  }
 
-	/*
-	 * OK, we can't tell what it is based on the VPI/VCI; try
-	 * guessing based on the contents, if we have enough data
-	 * to guess.
-	 */
-	 
-	if (len >= 3) {
-		if (pd[0] == 0xaa && pd[1] == 0xaa && pd[2] == 0x03) {
-			/*
-			 * Looks like a SNAP header; assume it's LLC
-			 * multiplexed RFC 1483 traffic.
-			 */
-			pseudo_header->atm.type = TRAF_LLCMX;
-		} else if ((pseudo_header->atm.aal5t_len &&
-			pseudo_header->atm.aal5t_len < 16) || len<16) {
-			/*
-			 * As this cannot be a LANE Ethernet frame (less
-			 * than 2 bytes of LANE header + 14 bytes of
-			 * Ethernet header) we can try it as a SSCOP frame.
-			 */
-			pseudo_header->atm.aal = AAL_SIGNALLING;
-		} else if (pd[0] == 0x83 || pd[0] == 0x81) {
-			/*
-			 * MTP3b headers often encapsulate
-			 * a SCCP or MTN in the 3G network.
-			 * This should cause 0x83 or 0x81
-			 * in the first byte.
-			 */
-			pseudo_header->atm.aal = AAL_SIGNALLING;
-		} else {
-			/*
-			 * Assume it's LANE.
-			 */
-			pseudo_header->atm.type = TRAF_LANE;
-			erf_atm_guess_lane_type(pd, len, pseudo_header);
-		}
-	} else {
-	       /*
-		* Not only VCI 5 is used for signaling. It might be
-		* one of these VCIs.
-		*/
-	       pseudo_header->atm.aal = AAL_SIGNALLING;
-	}
+  /*
+   * OK, we can't tell what it is based on the VPI/VCI; try
+   * guessing based on the contents, if we have enough data
+   * to guess.
+   */
+
+  if (len >= 3) {
+    if (pd[0] == 0xaa && pd[1] == 0xaa && pd[2] == 0x03) {
+      /*
+       * Looks like a SNAP header; assume it's LLC
+       * multiplexed RFC 1483 traffic.
+       */
+      pseudo_header->atm.type = TRAF_LLCMX;
+    } else if ((pseudo_header->atm.aal5t_len &&
+                pseudo_header->atm.aal5t_len < 16) || len<16) {
+      /*
+       * As this cannot be a LANE Ethernet frame (less
+       * than 2 bytes of LANE header + 14 bytes of
+       * Ethernet header) we can try it as a SSCOP frame.
+       */
+      pseudo_header->atm.aal = AAL_SIGNALLING;
+    } else if (pd[0] == 0x83 || pd[0] == 0x81) {
+      /*
+       * MTP3b headers often encapsulate
+       * a SCCP or MTN in the 3G network.
+       * This should cause 0x83 or 0x81
+       * in the first byte.
+       */
+      pseudo_header->atm.aal = AAL_SIGNALLING;
+    } else {
+      /*
+       * Assume it's LANE.
+       */
+      pseudo_header->atm.type = TRAF_LANE;
+      erf_atm_guess_lane_type(pd, len, pseudo_header);
+    }
+  } else {
+    /*
+     * Not only VCI 5 is used for signaling. It might be
+     * one of these VCIs.
+     */
+    pseudo_header->atm.aal = AAL_SIGNALLING;
+  }
 }
 
 static void
@@ -478,17 +476,17 @@ dissect_classification_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree 
   proto_tree *int_tree = NULL, *flags_tree = NULL;
   guint64 hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
   guint32 value = (guint32)(hdr >> 32);
-  
+
   if (pseudo_hdr_tree){
     int_item = proto_tree_add_text(pseudo_hdr_tree, tvb, 0, 0, "Classification");
-    int_tree = proto_item_add_subtree(int_item, ett_erf_pseudo_hdr);  
+    int_tree = proto_item_add_subtree(int_item, ett_erf_pseudo_hdr);
     PROTO_ITEM_SET_GENERATED(int_item);
-    
+
     proto_tree_add_uint(int_tree, hf_erf_ehdr_t , tvb, 0, 0, (guint8)((hdr >> 56) & 0x7F));
     flags_item=proto_tree_add_uint(int_tree, hf_erf_ehdr_class_flags, tvb, 0, 0, value & 0xFFFFFF);
     flags_tree = proto_item_add_subtree(flags_item, ett_erf_flags);
 
-    
+
     proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_sh, tvb, 0, 0, value);
     proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_shm, tvb, 0, 0,  value);
     proto_tree_add_uint(flags_tree, hf_erf_ehdr_class_flags_res1, tvb, 0, 0, value);
@@ -508,13 +506,13 @@ dissect_intercept_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *pseu
   guint64 hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
   if (pseudo_hdr_tree){
     int_item = proto_tree_add_text(pseudo_hdr_tree, tvb, 0, 0, "InterceptID");
-    int_tree = proto_item_add_subtree(int_item, ett_erf_pseudo_hdr);  
+    int_tree = proto_item_add_subtree(int_item, ett_erf_pseudo_hdr);
     PROTO_ITEM_SET_GENERATED(int_item);
-    
+
     proto_tree_add_uint(int_tree, hf_erf_ehdr_t , tvb, 0, 0, (guint8)((hdr >> 56) & 0x7F));
-    proto_tree_add_uint(int_tree, hf_erf_ehdr_int_res1, tvb, 0, 0, (guint8)((hdr >> 48) & 0xFF)); 
-    proto_tree_add_uint(int_tree, hf_erf_ehdr_int_id, tvb, 0, 0, (guint16)((hdr >> 32 ) & 0xFFFF)); 
-    proto_tree_add_uint(int_tree, hf_erf_ehdr_int_res2, tvb, 0, 0, (guint32)hdr); 
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_int_res1, tvb, 0, 0, (guint8)((hdr >> 48) & 0xFF));
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_int_id, tvb, 0, 0, (guint16)((hdr >> 32 ) & 0xFFFF));
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_int_res2, tvb, 0, 0, (guint32)hdr);
   }
 }
 
@@ -524,14 +522,14 @@ dissect_raw_link_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *pseud
   proto_item *int_item= NULL;
   proto_tree *int_tree = NULL;
   guint64 hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
-  
+
   if (pseudo_hdr_tree){
     int_item = proto_tree_add_text(pseudo_hdr_tree, tvb, 0, 0, "Raw Link");
-    int_tree = proto_item_add_subtree(int_item, ett_erf_pseudo_hdr);  
+    int_tree = proto_item_add_subtree(int_item, ett_erf_pseudo_hdr);
     PROTO_ITEM_SET_GENERATED(int_item);
-    
+
     proto_tree_add_uint(int_tree, hf_erf_ehdr_t , tvb, 0, 0, (guint8)((hdr >> 56) & 0x7F));
-    proto_tree_add_uint(int_tree, hf_erf_ehdr_raw_link_res , tvb, 0, 0,  (guint32)((hdr >> 32) & 0xFFFFFF)); 
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_raw_link_res , tvb, 0, 0,  (guint32)((hdr >> 32) & 0xFFFFFF));
     proto_tree_add_uint(int_tree, hf_erf_ehdr_raw_link_seqnum , tvb, 0, 0, (guint32)((hdr >> 16) & 0xffff));
     proto_tree_add_uint(int_tree, hf_erf_ehdr_raw_link_rate, tvb, 0, 0, (guint32)((hdr >> 8) & 0x00ff));
     proto_tree_add_uint(int_tree, hf_erf_ehdr_raw_link_type, tvb, 0, 0, (guint32)(hdr & 0x00ff));
@@ -544,12 +542,12 @@ dissect_bfs_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *pseudo_hdr
   proto_item *int_item= NULL;
   proto_tree *int_tree = NULL;
   guint64 hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
-  
+
   if (pseudo_hdr_tree){
     int_item = proto_tree_add_text(pseudo_hdr_tree, tvb, 0, 0, "BFS Filter/Hash");
-    int_tree = proto_item_add_subtree(int_item, ett_erf_pseudo_hdr);  
+    int_tree = proto_item_add_subtree(int_item, ett_erf_pseudo_hdr);
     PROTO_ITEM_SET_GENERATED(int_item);
-    
+
     proto_tree_add_uint(int_tree, hf_erf_ehdr_t , tvb, 0, 0, (guint8)((hdr >> 56) & 0x7F));
     proto_tree_add_uint(int_tree, hf_erf_ehdr_bfs_hash, tvb, 0, 0, (guint32)((hdr >> 48) & 0xFF));
     proto_tree_add_uint(int_tree, hf_erf_ehdr_bfs_color, tvb, 0, 0, (guint32)((hdr >> 32) & 0xFFFF));
@@ -563,10 +561,10 @@ dissect_unknown_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *pseudo
   proto_item *unk_item= NULL;
   proto_tree *unk_tree = NULL;
   guint64 hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
-  
+
   if (pseudo_hdr_tree){
     unk_item = proto_tree_add_text(pseudo_hdr_tree, tvb, 0, 0, "Unknown");
-    unk_tree = proto_item_add_subtree(unk_item, ett_erf_pseudo_hdr);  
+    unk_tree = proto_item_add_subtree(unk_item, ett_erf_pseudo_hdr);
     PROTO_ITEM_SET_GENERATED(unk_item);
 
     proto_tree_add_uint(unk_tree, hf_erf_ehdr_t , tvb, 0, 0, (guint8)((hdr >> 56) & 0x7F));
@@ -576,18 +574,18 @@ dissect_unknown_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *pseudo
 
 static void
 dissect_mc_hdlc_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree)
-{ 
+{
   proto_item *mc_hdlc_item = NULL;
   proto_tree *mc_hdlc_tree = NULL;
   struct erf_mc_hdlc_hdrx * mc_hdlc;
 
-  if (tree) { 
+  if (tree) {
     mc_hdlc_item = proto_tree_add_text(tree, tvb, 0, 0, "Multi Channel HDLC Header");
-    mc_hdlc_tree = proto_item_add_subtree(mc_hdlc_item, ett_erf_mc_hdlc);  
+    mc_hdlc_tree = proto_item_add_subtree(mc_hdlc_item, ett_erf_mc_hdlc);
     PROTO_ITEM_SET_GENERATED(mc_hdlc_item);
     mc_hdlc = (struct erf_mc_hdlc_hdrx *) (&pinfo->pseudo_header->erf.subhdr.mc_hdr);
 
-    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_cn, tvb, 0, 0,  mc_hdlc->byte01); 
+    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_cn, tvb, 0, 0,  mc_hdlc->byte01);
     proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res1, tvb, 0, 0,  mc_hdlc->byte01);
     proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res2, tvb, 0, 0,  mc_hdlc->byte2);
     proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_fcse, tvb, 0, 0,  mc_hdlc->byte3);
@@ -603,12 +601,12 @@ dissect_mc_hdlc_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree)
 
 static void
 dissect_mc_raw_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree)
-{ 
+{
   proto_item *mc_raw_item = NULL;
   proto_tree *mc_raw_tree = NULL;
   struct erf_mc_raw_hdrx * mc_raw;
 
-  if (tree) { 
+  if (tree) {
     mc_raw_item = proto_tree_add_text(tree, tvb, 0, 0, "Multi Channel RAW Header");
     mc_raw_tree = proto_item_add_subtree(mc_raw_item, ett_erf_mc_raw);
     PROTO_ITEM_SET_GENERATED(mc_raw_item);
@@ -629,12 +627,12 @@ dissect_mc_raw_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree)
 
 static void
 dissect_mc_atm_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree)
-{ 
+{
   proto_item *mc_atm_item = NULL;
   proto_tree *mc_atm_tree = NULL;
   struct erf_mc_atm_hdrx * mc_atm;
-  
-  if (tree) { 
+
+  if (tree) {
     mc_atm_item = proto_tree_add_text(tree, tvb, 0, 0, "Multi Channel ATM Header");
     mc_atm_tree = proto_item_add_subtree(mc_atm_item, ett_erf_mc_atm);
     PROTO_ITEM_SET_GENERATED(mc_atm_item);
@@ -658,12 +656,12 @@ dissect_mc_atm_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree)
 
 static void
 dissect_mc_rawlink_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{ 
+{
   proto_item *mc_rawl_item = NULL;
   proto_tree *mc_rawl_tree = NULL;
   struct erf_mc_rawl_hdrx * mc_rawl;
 
-  if (tree) { 
+  if (tree) {
     mc_rawl_item = proto_tree_add_text(tree, tvb, 0, 0, "Multi Channel RAW Link Header");
     mc_rawl_tree = proto_item_add_subtree(mc_rawl_item, ett_erf_mc_rawlink);
     PROTO_ITEM_SET_GENERATED(mc_rawl_item);
@@ -679,12 +677,12 @@ dissect_mc_rawlink_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void
 dissect_mc_aal5_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{ 
+{
   proto_item *mc_aal5_item = NULL;
   proto_tree *mc_aal5_tree = NULL;
   struct erf_mc_aal5_hdrx * mc_aal5;
 
-  if (tree) { 
+  if (tree) {
     mc_aal5_item = proto_tree_add_text(tree, tvb, 0, 0, "Multi Channel AAL5 Header");
     mc_aal5_tree = proto_item_add_subtree(mc_aal5_item, ett_erf_mc_aal5);
     PROTO_ITEM_SET_GENERATED(mc_aal5_item);
@@ -707,17 +705,17 @@ dissect_mc_aal5_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void
 dissect_mc_aal2_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{ 
+{
   proto_item *mc_aal2_item = NULL;
   proto_tree *mc_aal2_tree = NULL;
   struct erf_mc_aal2_hdrx * mc_aal2;
 
-  if (tree) { 
+  if (tree) {
     mc_aal2_item = proto_tree_add_text(tree, tvb, 0, 0, "Multi Channel AAL2 Header");
     mc_aal2_tree = proto_item_add_subtree(mc_aal2_item, ett_erf_mc_aal2);
     PROTO_ITEM_SET_GENERATED(mc_aal2_item);
     mc_aal2 = (struct erf_mc_aal2_hdrx *) (&pinfo->pseudo_header->erf.subhdr.mc_hdr);
-    
+
     proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_cn,   tvb, 0, 0, mc_aal2->byte01);
     proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_res1, tvb, 0, 0, mc_aal2->byte01);
     proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_res2, tvb, 0, 0, mc_aal2->byte01);
@@ -734,17 +732,17 @@ dissect_mc_aal2_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void
 dissect_aal2_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{ 
+{
   proto_item *aal2_item = NULL;
   proto_tree *aal2_tree = NULL;
   struct erf_aal2_hdrx * aal2;
 
-  if (tree) { 
+  if (tree) {
     aal2_item = proto_tree_add_text(tree, tvb, 0, 0, "AAL2 Header");
     aal2_tree = proto_item_add_subtree(aal2_item, ett_erf_aal2);
     PROTO_ITEM_SET_GENERATED(aal2_item);
     aal2 = (struct erf_aal2_hdrx*) (&pinfo->pseudo_header->erf.subhdr.mc_hdr);
-    
+
     proto_tree_add_uint(aal2_tree, hf_erf_aal2_cid,   tvb, 0, 0, aal2->byte0);
 
     proto_tree_add_uint(aal2_tree, hf_erf_aal2_maale, tvb, 0, 0, aal2->byte1);
@@ -758,17 +756,17 @@ dissect_aal2_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void
 dissect_eth_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{ 
+{
   proto_item *eth_item = NULL;
   proto_tree *eth_tree = NULL;
   struct erf_eth_hdrx * eth_hdr;
-  
-  if (tree) { 
+
+  if (tree) {
     eth_item = proto_tree_add_text(tree, tvb, 0, 0, "Ethernet Header");
     eth_tree = proto_item_add_subtree(eth_item, ett_erf_eth);
     PROTO_ITEM_SET_GENERATED(eth_item);
     eth_hdr = (struct erf_eth_hdrx *) (&pinfo->pseudo_header->erf.subhdr.eth_hdr);
-    
+
     proto_tree_add_uint(eth_tree, hf_erf_eth_off, tvb, 0, 0, eth_hdr->byte0);
     proto_tree_add_uint(eth_tree, hf_erf_eth_res1, tvb, 0, 0, eth_hdr->byte1);
   }
@@ -776,7 +774,7 @@ dissect_eth_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void
 dissect_erf_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{  
+{
   proto_item *pi;
   proto_item *pseudo_hdr_item = NULL, *flags_item = NULL, *types_item = NULL;
   proto_tree *pseudo_hdr_tree = NULL, *flags_tree = NULL, *types_tree = NULL;
@@ -796,7 +794,7 @@ dissect_erf_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   flags_item=proto_tree_add_uint(pseudo_hdr_tree, hf_erf_flags, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   flags_tree = proto_item_add_subtree(flags_item, ett_erf_flags);
-  
+
   pi=proto_tree_add_uint(flags_tree, hf_erf_flags_cap, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   pi=proto_tree_add_uint(flags_tree, hf_erf_flags_vlen, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
   pi=proto_tree_add_uint(flags_tree, hf_erf_flags_trunc, tvb, 0, 0, pinfo->pseudo_header->erf.phdr.flags);
@@ -814,7 +812,7 @@ dissect_erf_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void
 dissect_erf_pseudo_extension_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{  
+{
   proto_item *pi;
   proto_item *pseudo_hdr_item = NULL;
   proto_tree *pseudo_hdr_tree = NULL;
@@ -829,12 +827,12 @@ dissect_erf_pseudo_extension_header(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
   while(has_more && i < max){
     type = (guint8) (pinfo->pseudo_header->erf.ehdr_list[i].ehdr >> 56);
-    
+
     switch(type & 0x7f){
-    case EXT_HDR_TYPE_CLASSIFICATION: 
+    case EXT_HDR_TYPE_CLASSIFICATION:
       dissect_classification_ex_header(tvb, pinfo, pseudo_hdr_tree, i);
       break;
-    case EXT_HDR_TYPE_INTERCEPTID: 
+    case EXT_HDR_TYPE_INTERCEPTID:
       dissect_intercept_ex_header(tvb, pinfo, pseudo_hdr_tree, i);
       break;
     case EXT_HDR_TYPE_RAW_LINK:
@@ -875,22 +873,22 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   erf_type=pinfo->pseudo_header->erf.phdr.type & 0x7F;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ERF");
-  
+
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
        val_to_str(erf_type, erf_type_vals, "Unknown type %u"));
-  }  
+  }
 
   if (tree) {
     erf_item = proto_tree_add_item(tree, proto_erf, tvb, 0, -1, FALSE);
     erf_tree = proto_item_add_subtree(erf_item, ett_erf);
-  
+
     dissect_erf_pseudo_header(tvb, pinfo, erf_tree);
     if (pinfo->pseudo_header->erf.phdr.type & 0x80){
 	dissect_erf_pseudo_extension_header(tvb, pinfo, erf_tree);
     }
   }
-  
+
   flags = pinfo->pseudo_header->erf.phdr.flags;
   /*
    * Set if frame is Received or Sent.
@@ -903,7 +901,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * between the two links.
    */
   pinfo->p2p_dir = ( (flags & 0x01) ? P2P_DIR_RECV : P2P_DIR_SENT);
-  
+
   switch(erf_type) {
 
   case ERF_TYPE_RAW_LINK:
@@ -947,23 +945,23 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case ERF_TYPE_PAD:
     /* Nothing to do */
     break;
-      
+
   case ERF_TYPE_MC_RAW:
     dissect_mc_raw_header(tvb, pinfo, erf_tree);
     if (data_handle)
       call_dissector(data_handle, tvb, pinfo, tree);
     break;
-      
+
   case ERF_TYPE_MC_RAW_CHANNEL:
     dissect_mc_rawlink_header(tvb, pinfo, erf_tree);
     if (data_handle)
       call_dissector(data_handle, tvb, pinfo, tree);
     break;
-      
+
   case ERF_TYPE_MC_ATM:
     dissect_mc_atm_header(tvb, pinfo, erf_tree);
     /* continue with type ATM */
-      
+
   case ERF_TYPE_ATM:
     memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
     atm_hdr = tvb_get_ntohl(tvb, 0);
@@ -1007,8 +1005,8 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case ERF_TYPE_MC_AAL5:
     dissect_mc_aal5_header(tvb, pinfo, erf_tree);
     /* continue with type AAL5 */
-      
-  case ERF_TYPE_AAL5: 
+
+  case ERF_TYPE_AAL5:
     atm_hdr = tvb_get_ntohl(tvb, 0);
     memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
     pinfo->pseudo_header->atm.vpi = ((atm_hdr & 0x0ff00000) >> 20);
@@ -1108,7 +1106,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case ERF_TYPE_MC_HDLC:
     dissect_mc_hdlc_header(tvb, pinfo, erf_tree);
     /* continue with type HDLC */
-      
+
   case ERF_TYPE_HDLC_POS:
   case ERF_TYPE_COLOR_HDLC_POS:
   case ERF_TYPE_DSM_COLOR_HDLC_POS:
@@ -1135,7 +1133,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case ERF_HDLC_PPP:
       call_dissector(ppp_handle, tvb, pinfo, tree);
       break;
-    case ERF_HDLC_FRELAY: 
+    case ERF_HDLC_FRELAY:
       memset(&pinfo->pseudo_header->x25, 0, sizeof(pinfo->pseudo_header->x25));
       call_dissector(frelay_handle, tvb, pinfo, tree);
       break;
@@ -1148,7 +1146,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
     }
     break;
-      
+
   default:
     break;
   } /* erf type */
@@ -1159,7 +1157,7 @@ proto_register_erf(void)
 {
 
   static hf_register_info hf[] = {
-    /* ERF Header */ 
+    /* ERF Header */
     { &hf_erf_ts, { "Timestamp", "erf.ts", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_erf_types, { "types", "erf.types", FT_UINT8, BASE_DEC,  NULL, 0xFF, NULL, HFILL } },
     { &hf_erf_type, { "type", "erf.types.type", FT_UINT8, BASE_DEC,  VALS(erf_type_vals), 0x7F, NULL, HFILL } },
@@ -1175,7 +1173,7 @@ proto_register_erf(void)
     { &hf_erf_lctr, { "loss counter", "erf.lctr", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_erf_wlen, { "wire length", "erf.wlen", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
-		{ &hf_erf_ehdr_t, { "Extension Type", "erf.ehdr.types", FT_UINT8, BASE_DEC,  VALS(ehdr_type_vals), 0x0, NULL, HFILL } },
+    { &hf_erf_ehdr_t, { "Extension Type", "erf.ehdr.types", FT_UINT8, BASE_DEC,  VALS(ehdr_type_vals), 0x0, NULL, HFILL } },
 
     /* Intercept ID Extension Header */
     { &hf_erf_ehdr_int_res1, { "Reserved", "erf.ehdr.int.res1", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -1304,7 +1302,7 @@ proto_register_erf(void)
     &ett_erf_eth
   };
 
-  static enum_val_t erf_hdlc_options[] = { 
+  static enum_val_t erf_hdlc_options[] = {
     { "chdlc",  "Cisco HDLC",       ERF_HDLC_CHDLC },
     { "ppp",    "PPP serial",       ERF_HDLC_PPP },
     { "frelay", "Frame Relay",      ERF_HDLC_FRELAY },
@@ -1313,7 +1311,7 @@ proto_register_erf(void)
     { NULL, NULL, 0 }
   };
 
-  static enum_val_t erf_aal5_options[] = { 
+  static enum_val_t erf_aal5_options[] = {
     { "guess", "Attempt to guess", ERF_AAL5_GUESS },
     { "llc",   "LLC multiplexed",  ERF_AAL5_LLC },
     { NULL, NULL, 0 }
@@ -1326,7 +1324,7 @@ proto_register_erf(void)
 
   proto_register_field_array(proto_erf, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  
+
   erf_module = prefs_register_protocol(proto_erf, NULL);
 
   prefs_register_enum_preference(erf_module, "hdlc_type", "ERF_HDLC Layer 2",
@@ -1364,7 +1362,7 @@ proto_reg_handoff_erf(void)
   /* Get handle for IP dissectors) */
   ipv4_handle = find_dissector("ip");
   ipv6_handle = find_dissector("ipv6");
-	
+
   /* Get handle for Infiniband dissector */
   infiniband_handle = find_dissector("infiniband");
   infiniband_link_handle = find_dissector("infiniband_link");
@@ -1379,6 +1377,6 @@ proto_reg_handoff_erf(void)
   atm_untruncated_handle = find_dissector("atm_untruncated");
 
   /* Get handles for Ethernet dissectors */
-  ethwithfcs_handle = find_dissector("eth_withfcs");  
+  ethwithfcs_handle = find_dissector("eth_withfcs");
   ethwithoutfcs_handle = find_dissector("eth_withoutfcs");
 }
