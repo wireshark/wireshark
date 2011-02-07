@@ -1762,14 +1762,22 @@ decode_as_cb (GtkWidget * w _U_, gpointer user_data _U_)
 
     button = gtk_button_new_with_label("Show Current");
     g_signal_connect(button, "clicked", G_CALLBACK(decode_show_cb), NULL);
+#if GTK_CHECK_VERSION(2,18,0)
+    gtk_widget_set_can_default(button, TRUE);
+#else
     GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
+#endif
     gtk_box_pack_start(GTK_BOX(button_vb), button, FALSE, FALSE, 0);
     gtk_tooltips_set_tip(tooltips, button,
         "Open a dialog showing the current settings.", NULL);
 
     button = gtk_button_new_from_stock(GTK_STOCK_CLEAR);
     g_signal_connect(button, "clicked", G_CALLBACK(decode_clear_cb), NULL);
+#if GTK_CHECK_VERSION(2,18,0)
+    gtk_widget_set_can_default(button, TRUE);
+#else
     GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
+#endif
     gtk_box_pack_start(GTK_BOX(button_vb), button, FALSE, FALSE, 0);
     gtk_tooltips_set_tip(tooltips, button,
         "Clear ALL settings.", NULL);
