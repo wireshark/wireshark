@@ -24,7 +24,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -62,6 +61,14 @@
 #include "airpcap_dlg.h"
 
 /*
+ * This structure is used because we need to store infos about the currently selected
+ * row in the key list.
+ */
+typedef struct{
+    gint row;
+}airpcap_key_ls_selected_info_t;
+
+/*
  * This function is used to write the preferences to the preferences file.
  * It has the same behaviour as prefs_main_write() in prefs_dlg.c
  */
@@ -94,47 +101,69 @@ write_prefs_to_file(void)
 /*
  * Callback for the select row event in the key list widget
  */
-void
-on_key_ls_select_row(GtkWidget *widget _U_,
-                     gint row,
-                     gint column,
-                     GdkEventButton *event _U_,
-                     gpointer data)
+static void
+on_key_list_select_row(GtkTreeSelection *selection, gpointer data)
 {
-    airpcap_key_ls_selected_info_t*  selected_item;
+    GtkWidget *add_new_key_bt, *edit_key_bt, *remove_key_bt;
+    GtkWidget *move_key_up_bt, *move_key_down_bt;
+    GtkTreeIter iter;
+    GtkTreeModel *model;
+    GtkTreePath *path, *path_up, *path_down;
 
-    selected_item = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_SELECTED_KEY_LIST_ITEM_KEY);
+    add_new_key_bt = g_object_get_data(G_OBJECT(data), AIRPCAP_KEY_MGMT_NEW_KEY);
+    edit_key_bt = g_object_get_data(G_OBJECT(data), AIRPCAP_KEY_MGMT_EDIT_KEY);
+    remove_key_bt = g_object_get_data(G_OBJECT(data), AIRPCAP_KEY_MGMT_DELETE_KEY);
+    move_key_up_bt = g_object_get_data(G_OBJECT(data), AIRPCAP_KEY_MGMT_UP_KEY);
+    move_key_down_bt = g_object_get_data(G_OBJECT(data), AIRPCAP_KEY_MGMT_DOWN_KEY);
 
-    selected_item->row = row;
-    selected_item->column = column;
+    if (gtk_tree_selection_get_selected(selection, &model, &iter)) {
+        path = gtk_tree_model_get_path(model, &iter);
+        path_up = gtk_tree_path_copy(path);
+        path_down = gtk_tree_path_copy(path);
+        gtk_tree_path_next(path_down);
+        
+        if (gtk_tree_model_iter_n_children(model, NULL) >= MAX_ENCRYPTION_KEYS) {
+            gtk_widget_set_sensitive(add_new_key_bt, FALSE);
+        } else {
+            gtk_widget_set_sensitive(add_new_key_bt, TRUE);
+        }
+
+        gtk_widget_set_sensitive(edit_key_bt, TRUE);
+        gtk_widget_set_sensitive(remove_key_bt, TRUE);
+
+        /* ...and we have to use two different methods to figure out first/last because? */
+        if (gtk_tree_path_prev(path_up)) {
+            gtk_widget_set_sensitive(move_key_up_bt, TRUE);
+        } else {
+            gtk_widget_set_sensitive(move_key_up_bt, FALSE);
+        }
+
+        if (gtk_tree_model_get_iter(model, &iter, path_down)) {
+            gtk_widget_set_sensitive(move_key_down_bt, TRUE);
+        } else {
+            gtk_widget_set_sensitive(move_key_down_bt, FALSE);
+        }
+
+        gtk_tree_path_free(path);
+        gtk_tree_path_free(path_up);
+        gtk_tree_path_free(path_down);
+    } else {
+        gtk_widget_set_sensitive(add_new_key_bt, FALSE);
+        gtk_widget_set_sensitive(edit_key_bt, FALSE);
+        gtk_widget_set_sensitive(remove_key_bt, FALSE);
+        gtk_widget_set_sensitive(move_key_up_bt, FALSE);
+        gtk_widget_set_sensitive(move_key_down_bt, FALSE);
+    }
 }
-
 /*
- * Callback for the unselect row event in the key list widget
+ * Callback for the select row event in the key list widget
  */
-void
-on_key_ls_unselect_row(GtkWidget *widget _U_,
-                       gint row _U_,
-                       gint column _U_,
-                       GdkEventButton *event _U_,
-                       gpointer data)
-{
-    airpcap_key_ls_selected_info_t*  selected_item;
-
-    selected_item = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_SELECTED_KEY_LIST_ITEM_KEY);
-
-    selected_item->row = NO_ROW_SELECTED;
-    selected_item->column = NO_COLUMN_SELECTED;
-}
-
-/*
- * Callback for the click column event in the key list widget
- */
-void
-on_key_ls_click_column(GtkWidget *widget _U_,
-                       gint column _U_,
-                       gpointer data _U_)
-{
+static void
+on_key_list_reorder(GtkTreeModel *model _U_, GtkTreePath *path _U_, GtkTreeIter *iter _U_, gpointer no _U_, gpointer data) {
+    GtkTreeSelection *selection;
+    
+    selection = g_object_get_data(G_OBJECT(data), AIRPCAP_ADVANCED_EDIT_KEY_SELECTION_KEY);
+    on_key_list_select_row(selection, data);
 }
 
 /*
@@ -182,7 +211,7 @@ on_edit_type_cb_changed(GtkWidget *w, gpointer data)
 
     type_text = gtk_combo_box_get_active_text(GTK_COMBO_BOX(type_cb));
 
-    if (string_is_not_empty(type_text))
+    if (g_ascii_strcasecmp(type_text, ""))
     {
         /*
          * If it is a WEP key, no SSID is required! Gray out the entry text so
@@ -250,7 +279,7 @@ on_add_type_cb_changed(GtkWidget *w, gpointer data)
 
     type_text = gtk_combo_box_get_active_text(GTK_COMBO_BOX(type_cb));
 
-    if (string_is_not_empty(type_text))
+    if (g_ascii_strcasecmp(type_text, ""))
     {
         /*
          * If it is a WEP key, no SSID is required! Gray out rhe entry text so
@@ -293,19 +322,6 @@ on_add_type_cb_changed(GtkWidget *w, gpointer data)
     gtk_widget_show(add_ssid_te);
 
     g_free(type_text);
-}
-
-/*
- * Returns FALSE if a text string has length 0, i.e. the first char
- * is '\0', TRUE otherwise
- */
-gboolean
-string_is_not_empty(gchar *s)
-{
-    if (g_ascii_strcasecmp(s,"") != 0)
-        return TRUE;
-    else
-        return FALSE;
 }
 
 /*
@@ -354,7 +370,8 @@ on_capture_type_cb_changed(GtkWidget *cb, gpointer user_data _U_)
 /*
  * Thread function used to blink the led
  */
-gboolean update_blink(gpointer data)
+static gboolean
+update_blink(gpointer data)
 {
     airpcap_if_info_t* sel;
     PAirpcapHandle ad;
@@ -383,7 +400,7 @@ gboolean update_blink(gpointer data)
 /*
  * Blink button callback
  */
-void
+static void
 on_blink_bt_clicked( GtkWidget *blink_bt, gpointer data _U_)
 {
     PAirpcapHandle ad = NULL;
@@ -418,7 +435,7 @@ on_blink_bt_clicked( GtkWidget *blink_bt, gpointer data _U_)
 /*
  * Callback for the 'Any' adapter What's This button.
  */
-void
+static void
 on_what_s_this_bt_clicked( GtkWidget *blink_bt _U_, gpointer data _U_)
 {
     simple_dialog(ESD_TYPE_INFO,ESD_BTN_OK,
@@ -433,7 +450,7 @@ on_what_s_this_bt_clicked( GtkWidget *blink_bt _U_, gpointer data _U_)
 }
 
 /* the window was closed, cleanup things */
-void
+static void
 on_key_management_destroy(GtkWidget *w _U_, gpointer data)
 {
     GtkWidget *airpcap_advanced_w,
@@ -508,7 +525,7 @@ on_airpcap_advanced_destroy(GtkWidget *w _U_, gpointer data)
  * can't revert back to the old set of keys by pressing 'Cancel'.  We
  * either need to fix reversion or get rid of the 'Apply' button.
  */
-void
+static void
 on_key_management_apply_bt_clicked(GtkWidget *button _U_, gpointer data)
 {
     /* advenced window */
@@ -517,8 +534,9 @@ on_key_management_apply_bt_clicked(GtkWidget *button _U_, gpointer data)
     /* widgets in the toolbar */
     GtkWidget   *toolbar;
     GtkWidget   *toolbar_cb;
-    GtkWidget   *key_ls;
     GtkWidget   *decryption_mode_cb;
+
+    GtkListStore *key_list_store;
 
     module_t *wlan_module = prefs_find_module("wlan");
     gchar *decryption_mode_string;
@@ -526,7 +544,7 @@ on_key_management_apply_bt_clicked(GtkWidget *button _U_, gpointer data)
     /* retrieve main window */
     key_management_w      = GTK_WIDGET(data);
     decryption_mode_cb    = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_DECRYPTION_MODE_KEY));
-    key_ls                = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY));
+    key_list_store        = GTK_LIST_STORE(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY));
     toolbar               = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_TOOLBAR_KEY));
     toolbar_cb            = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_TOOLBAR_DECRYPTION_KEY));
 
@@ -553,22 +571,13 @@ on_key_management_apply_bt_clicked(GtkWidget *button _U_, gpointer data)
     g_free(decryption_mode_string);
 
     /* Save the configuration */
-    airpcap_read_and_save_decryption_keys_from_clist(key_ls,airpcap_if_selected,airpcap_if_list); /* This will save the keys for every adapter */
+    airpcap_read_and_save_decryption_keys_from_list_store(key_list_store,airpcap_if_selected,airpcap_if_list); /* This will save the keys for every adapter */
 
     /* The update will make redissect al the packets... no need to do it here again */
     update_decryption_mode(toolbar_cb);
 
     /* Redissect all the packets, and re-evaluate the display filter. */
     prefs_apply(wlan_module);
-}
-
-/*
- * Callback for the 'Reset Configuration' button.
- */
-void
-on_reset_configuration_bt_clicked(GtkWidget *button _U_, gpointer data _U_)
-{
-    return;
 }
 
 /*
@@ -581,7 +590,7 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
                 *key_en,
                 *ssid_en;
 
-    GtkWidget   *key_ls;
+    GtkListStore *key_list_store;
 
     GString     *new_type_string,
                 *new_key_string,
@@ -591,25 +600,12 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
     gchar       *key_entered = NULL;
     gchar       *ssid_entered = NULL;
 
-    airpcap_key_ls_selected_info_t *selected_item;
-
-    int keys_in_list = 0;
-
     unsigned int i;
 
-    gint r = NO_ROW_SELECTED;
-    gint c = NO_COLUMN_SELECTED;
-
-    key_ls = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_ADD_KEY_LIST_KEY);
-    selected_item = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_SELECTED_KEY_LIST_ITEM_KEY);
+    key_list_store = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_ADD_KEY_LIST_KEY);
     type_cb = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_ADD_KEY_TYPE_KEY);
     key_en = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_ADD_KEY_KEY_KEY);
     ssid_en = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_ADD_KEY_SSID_KEY);
-
-    r = selected_item->row;
-    c = selected_item->column;
-
-    keys_in_list = GTK_CLIST(key_ls)->rows;
 
     type_entered = gtk_combo_box_get_active_text(GTK_COMBO_BOX(type_cb));
     key_entered  = g_strdup(gtk_entry_get_text(GTK_ENTRY(key_en)));
@@ -624,11 +620,8 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
     g_free(key_entered );
     g_free(ssid_entered);
 
-    g_strchug(new_key_string->str);
-    g_strchomp(new_key_string->str);
-
-    g_strchug(new_ssid_string->str);
-    g_strchomp(new_ssid_string->str);
+    g_strstrip(new_key_string->str);
+    g_strstrip(new_ssid_string->str);
 
     /* Check which type of key the user has entered */
     if (g_ascii_strcasecmp(new_type_string->str,AIRPCAP_WEP_KEY_STRING) == 0) /* WEP key */
@@ -671,7 +664,7 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
         }
 
         /* If so... add key */
-        airpcap_add_key_to_list(key_ls, new_type_string->str, new_key_string->str, new_ssid_string->str);
+        airpcap_add_key_to_list(key_list_store, new_type_string->str, new_key_string->str, new_ssid_string->str);
 
         if (airpcap_if_selected != NULL) airpcap_if_selected->saved = FALSE;
     }
@@ -706,7 +699,7 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
         }
 
         /* If so... add key */
-        airpcap_add_key_to_list(key_ls, new_type_string->str, new_key_string->str, new_ssid_string->str);
+        airpcap_add_key_to_list(key_list_store, new_type_string->str, new_key_string->str, new_ssid_string->str);
 
         if (airpcap_if_selected != NULL) airpcap_if_selected->saved = FALSE;
     }
@@ -741,7 +734,7 @@ on_add_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
         }
 
         /* If so... add key */
-        airpcap_add_key_to_list(key_ls, new_type_string->str, new_key_string->str, new_ssid_string->str);
+        airpcap_add_key_to_list(key_list_store, new_type_string->str, new_key_string->str, new_ssid_string->str);
 
         if (airpcap_if_selected != NULL) airpcap_if_selected->saved = FALSE;
     }
@@ -768,7 +761,9 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
                 *key_en,
                 *ssid_en;
 
-    GtkWidget   *key_ls;
+    GtkListStore *key_list_store;
+    GtkTreeSelection *selection;
+    GtkTreeIter iter;
 
     GString     *new_type_string,
                 *new_key_string,
@@ -778,29 +773,23 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
     gchar       *key_entered = NULL;
     gchar       *ssid_entered = NULL;
 
-    airpcap_key_ls_selected_info_t *selected_item;
-
-    int keys_in_list = 0;
-
     unsigned int i;
 
-    gint r = NO_ROW_SELECTED;
-    gint c = NO_COLUMN_SELECTED;
-
-    key_ls = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_EDIT_KEY_LIST_KEY);
-    selected_item = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_EDIT_KEY_SELECTED_KEY);
+    key_list_store = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_EDIT_KEY_LIST_KEY);
+    selection = g_object_get_data(G_OBJECT(data), AIRPCAP_ADVANCED_EDIT_KEY_SELECTION_KEY);
     type_cb = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_EDIT_KEY_TYPE_KEY);
     key_en = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_EDIT_KEY_KEY_KEY);
     ssid_en = g_object_get_data(G_OBJECT(data),AIRPCAP_ADVANCED_EDIT_KEY_SSID_KEY);
 
-    r = selected_item->row;
-    c = selected_item->column;
-
-    keys_in_list = GTK_CLIST(key_ls)->rows;
+    if (!gtk_tree_selection_get_selected(selection, NULL, &iter))
+      return;
 
     type_entered = gtk_combo_box_get_active_text(GTK_COMBO_BOX(type_cb));
     key_entered  = g_strdup(gtk_entry_get_text(GTK_ENTRY(key_en)));
     ssid_entered = g_strdup(gtk_entry_get_text(GTK_ENTRY(ssid_en)));
+
+    g_strstrip(key_entered);
+    g_strstrip(ssid_entered);
 
     /* Check if key is correct */
     new_type_string = g_string_new(type_entered);
@@ -810,12 +799,6 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
     g_free(type_entered);
     g_free(key_entered );
     g_free(ssid_entered);
-
-    g_strchug(new_key_string->str);
-    g_strchomp(new_key_string->str);
-
-    g_strchug(new_ssid_string->str);
-    g_strchomp(new_ssid_string->str);
 
     /* Check which type of key the user has entered */
     if (g_ascii_strcasecmp(new_type_string->str,AIRPCAP_WEP_KEY_STRING) == 0) /* WEP key */
@@ -858,7 +841,13 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
         }
 
         /* If so... Modify key */
-        airpcap_modify_key_in_list(key_ls, r, new_type_string->str, new_key_string->str, new_ssid_string->str);
+        gtk_list_store_set(key_list_store, &iter,
+            KL_COL_TYPE, new_type_string->str,
+            KL_COL_KEY, new_key_string->str,
+#ifdef HAVE_AIRPDCAP
+            KL_COL_SSID, new_ssid_string->str,
+#endif
+            -1);
 
         if (airpcap_if_selected != NULL) airpcap_if_selected->saved = FALSE;
     }
@@ -893,7 +882,13 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
         }
 
         /* If so... Modify key */
-        airpcap_modify_key_in_list(key_ls, r, new_type_string->str, new_key_string->str, new_ssid_string->str);
+        gtk_list_store_set(key_list_store, &iter,
+            KL_COL_TYPE, new_type_string->str,
+            KL_COL_KEY, new_key_string->str,
+#ifdef HAVE_AIRPDCAP
+            KL_COL_SSID, new_ssid_string->str,
+#endif
+            -1);
 
         if (airpcap_if_selected != NULL) airpcap_if_selected->saved = FALSE;
     }
@@ -928,7 +923,13 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
         }
 
         /* If so... Modify key */
-        airpcap_modify_key_in_list(key_ls, r, new_type_string->str, new_key_string->str, new_ssid_string->str);
+        gtk_list_store_set(key_list_store, &iter,
+            KL_COL_TYPE, new_type_string->str,
+            KL_COL_KEY, new_key_string->str,
+#ifdef HAVE_AIRPDCAP
+            KL_COL_SSID, new_ssid_string->str,
+#endif
+            -1);
 
         if (airpcap_if_selected != NULL) airpcap_if_selected->saved = FALSE;
     }
@@ -948,7 +949,7 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget _U_, gpointer data)
 /*
  * Callback for the 'Add Key' button.
  */
-void
+static void
 on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data)
 {
     GtkWidget *add_key_window;
@@ -969,30 +970,13 @@ on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data)
 
     GtkWidget *airpcap_advanced_w;
 
-    /* Key List Widget */
-    GtkWidget *key_ls;
-
-    gint keys_in_list = 0;
-
-    /* Selected entry in the key list (if any)*/
-    airpcap_key_ls_selected_info_t* selected_item;
-
-    gint r,c;
+    GtkListStore *key_list_store;
 
     airpcap_advanced_w = GTK_WIDGET(data);
 
-    /* Retrieve the selected item... if no row is selected, this is null... */
-    selected_item = g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_SELECTED_KEY_LIST_ITEM_KEY);
+    key_list_store = g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_KEYLIST_KEY);
 
-    r = selected_item->row;
-    c = selected_item->column;
-
-    /* Retrieve the key list widget pointer, and add it to the add_key_w */
-    key_ls = g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_KEYLIST_KEY);
-
-    keys_in_list = GTK_CLIST(key_ls)->rows;
-
-    if (keys_in_list >= MAX_ENCRYPTION_KEYS) /* Check if we have already reached the maximum number of allowed keys... */
+    if (gtk_tree_model_iter_n_children(GTK_TREE_MODEL(key_list_store), NULL) >= MAX_ENCRYPTION_KEYS)
     {
         simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Maximum number (%d) of decryption keys reached! You cannot add another key!\n",MAX_ENCRYPTION_KEYS);
         return;
@@ -1002,7 +986,7 @@ on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     gtk_widget_set_sensitive(airpcap_advanced_w,FALSE);
 
     /* Pop-up a new window */
-    add_key_window = window_new (GTK_WINDOW_TOPLEVEL, "Add Decryption Key");
+    add_key_window = dlg_window_new ("Add Decryption Key");
     gtk_widget_set_name (add_key_window, "add_key_window");
     gtk_container_set_border_width (GTK_CONTAINER (add_key_window), 5);
     gtk_window_set_resizable (GTK_WINDOW (add_key_window), FALSE);
@@ -1119,8 +1103,7 @@ on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     g_signal_connect(add_key_window, "destroy", G_CALLBACK(on_add_key_w_destroy), data);
 
     /* Add widget data */
-    g_object_set_data(G_OBJECT(add_key_window),AIRPCAP_ADVANCED_ADD_KEY_LIST_KEY,key_ls);
-    g_object_set_data(G_OBJECT(add_key_window),AIRPCAP_ADVANCED_SELECTED_KEY_LIST_ITEM_KEY,selected_item);
+    g_object_set_data(G_OBJECT(add_key_window),AIRPCAP_ADVANCED_ADD_KEY_LIST_KEY,key_list_store);
     g_object_set_data(G_OBJECT(add_key_window),AIRPCAP_ADVANCED_ADD_KEY_TYPE_KEY,add_type_cb);
     g_object_set_data(G_OBJECT(add_key_window),AIRPCAP_ADVANCED_ADD_KEY_KEY_KEY,add_key_te);
     g_object_set_data(G_OBJECT(add_key_window),AIRPCAP_ADVANCED_ADD_KEY_SSID_KEY,add_ssid_te);
@@ -1133,7 +1116,7 @@ on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data)
 /*
  * Edit key window destroy callback
  */
-void
+static void
 on_edit_key_w_destroy(GtkWidget *button _U_, gpointer data)
 {
     GtkWidget *airpcap_advanced_w;
@@ -1148,7 +1131,7 @@ on_edit_key_w_destroy(GtkWidget *button _U_, gpointer data)
 /*
  * Add key window destroy callback
  */
-void
+static void
 on_add_key_w_destroy(GtkWidget *button _U_, gpointer data)
 {
     GtkWidget *airpcap_advanced_w;
@@ -1163,45 +1146,23 @@ on_add_key_w_destroy(GtkWidget *button _U_, gpointer data)
 /*
  * Callback for the 'Remove Key' button.
  */
-void
+static void
 on_remove_key_bt_clicked(GtkWidget *button _U_, gpointer data)
 {
-    GtkWidget *key_ls;
-    GtkWidget *airpcap_advanced_w;
-
-    gint keys_in_list;
-
-    airpcap_key_ls_selected_info_t *selected_item;
-
-    gint c = NO_COLUMN_SELECTED;
-    gint r = NO_ROW_SELECTED;
-
-    airpcap_advanced_w = GTK_WIDGET(data);
+    GtkTreeModel *model;
+    GtkTreeIter iter;
+    GtkTreeSelection *selection;
 
     /* retrieve needed stuff */
-    key_ls        = g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_KEYLIST_KEY);
-    selected_item = g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_SELECTED_KEY_LIST_ITEM_KEY);
+    selection = g_object_get_data(G_OBJECT(data), AIRPCAP_ADVANCED_EDIT_KEY_SELECTION_KEY);
 
-    /*
-     * Better to store the selected_item data in two new variables, because maybe some
-     * select_row signal will be emitted somewhere...
-     */
-    r = selected_item->row;
-    c = selected_item->column;
-
-    keys_in_list = GTK_CLIST(key_ls)->rows;
-
-    if ( r == NO_ROW_SELECTED ) /* No key selected */
-        return;
+    if (!gtk_tree_selection_get_selected(selection, &model, &iter))
+      return;
 
     /* Remove selected key */
-    gtk_clist_remove(GTK_CLIST(key_ls),r);
-
-    /* Reselect another row, if any... */
-    if ( r < (keys_in_list-1) )
-        gtk_clist_select_row(GTK_CLIST(key_ls),r,c);
-    else
-        gtk_clist_select_row(GTK_CLIST(key_ls),r-1,c);
+    gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
+    gtk_tree_selection_select_iter(selection, &iter);
+    /* XXX - select the last item if needed? */
 
     /* Need to save config... */
     if (airpcap_if_selected != NULL) airpcap_if_selected->saved = FALSE;
@@ -1210,7 +1171,7 @@ on_remove_key_bt_clicked(GtkWidget *button _U_, gpointer data)
 /*
  * Callback for the 'Edit Key' button.
  */
-void
+static void
 on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
 {
     GtkWidget *edit_key_window;
@@ -1231,288 +1192,211 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
 
     GtkWidget *airpcap_advanced_w;
 
-    /* Key List Widget */
-    GtkWidget *key_ls;
+    GtkTreeModel *model;
+    GtkTreeIter iter;
+    GtkTreeSelection *selection;
 
-    /* Selected entry in the key list (if any)*/
-    airpcap_key_ls_selected_info_t* selected_item;
+    /* Key List Store */
+    GtkListStore *key_list_store;
 
     gchar *row_type,
           *row_key,
-          *row_ssid;
-
-    gint r,c;
+          *row_ssid = "";
 
     airpcap_advanced_w = GTK_WIDGET(data);
 
     /* Retrieve the selected item... if no row is selected, this is null... */
-    selected_item = g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_SELECTED_KEY_LIST_ITEM_KEY);
+    selection = g_object_get_data(G_OBJECT(data), AIRPCAP_ADVANCED_EDIT_KEY_SELECTION_KEY);
+    key_list_store = g_object_get_data (G_OBJECT(data), AIRPCAP_ADVANCED_KEYLIST_KEY);
 
-    r = selected_item->row;
-    c = selected_item->column;
 
-    /* Retrieve the key list widget pointer, and add it to the edit_key_w */
-    key_ls = g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_KEYLIST_KEY);
+    if (!gtk_tree_selection_get_selected(selection, &model, &iter))
+      return;
 
-    if ((r != NO_ROW_SELECTED) && (c != NO_COLUMN_SELECTED))
-    {
-        gtk_clist_get_text(GTK_CLIST(key_ls),r,0,&row_type);
-        gtk_clist_get_text(GTK_CLIST(key_ls),r,1,&row_key);
-        gtk_clist_get_text(GTK_CLIST(key_ls),r,2,&row_ssid);
+    gtk_tree_model_get(model, &iter,
+                       KL_COL_TYPE, &row_type,
+                       KL_COL_KEY, &row_key,
+#ifdef HAVE_AIRPDCAP
+                       KL_COL_SSID, &row_ssid,
+#endif
+                       -1);
 
-        /* Gray out the Advanced Wireless Setting window */
-        gtk_widget_set_sensitive(airpcap_advanced_w,FALSE);
+    /* Gray out the Advanced Wireless Setting window */
+    gtk_widget_set_sensitive(airpcap_advanced_w,FALSE);
 
-        /* Pop-up a new window */
-        edit_key_window = window_new (GTK_WINDOW_TOPLEVEL, "Edit Decryption Key");
-        gtk_widget_set_name (edit_key_window, "edit_key_window");
-        gtk_container_set_border_width (GTK_CONTAINER (edit_key_window), 5);
-        gtk_window_set_resizable (GTK_WINDOW (edit_key_window), FALSE);
+    /* Pop-up a new window */
+    edit_key_window = dlg_window_new("Edit Decryption Key");
+    gtk_widget_set_name (edit_key_window, "edit_key_window");
+    gtk_container_set_border_width (GTK_CONTAINER (edit_key_window), 5);
+    gtk_window_set_resizable (GTK_WINDOW (edit_key_window), FALSE);
 
-        main_v_box = gtk_vbox_new (FALSE, 0);
-        gtk_widget_set_name (main_v_box, "main_v_box");
-        gtk_widget_show (main_v_box);
-        gtk_container_add (GTK_CONTAINER (edit_key_window), main_v_box);
+    main_v_box = gtk_vbox_new (FALSE, 0);
+    gtk_widget_set_name (main_v_box, "main_v_box");
+    gtk_widget_show (main_v_box);
+    gtk_container_add (GTK_CONTAINER (edit_key_window), main_v_box);
 
-        edit_frame = gtk_frame_new (NULL);
-        gtk_widget_set_name (edit_frame, "edit_frame");
-        gtk_widget_show (edit_frame);
-        gtk_box_pack_start (GTK_BOX (main_v_box), edit_frame, TRUE, TRUE, 0);
+    edit_frame = gtk_frame_new (NULL);
+    gtk_widget_set_name (edit_frame, "edit_frame");
+    gtk_widget_show (edit_frame);
+    gtk_box_pack_start (GTK_BOX (main_v_box), edit_frame, TRUE, TRUE, 0);
 
-        edit_frame_al = gtk_alignment_new (0.5, 0.5, 1, 1);
-        gtk_widget_set_name (edit_frame_al, "edit_frame_al");
-        gtk_widget_show (edit_frame_al);
-        gtk_container_add (GTK_CONTAINER (edit_frame), edit_frame_al);
-        gtk_alignment_set_padding (GTK_ALIGNMENT (edit_frame_al), 0, 0, 12, 0);
+    edit_frame_al = gtk_alignment_new (0.5, 0.5, 1, 1);
+    gtk_widget_set_name (edit_frame_al, "edit_frame_al");
+    gtk_widget_show (edit_frame_al);
+    gtk_container_add (GTK_CONTAINER (edit_frame), edit_frame_al);
+    gtk_alignment_set_padding (GTK_ALIGNMENT (edit_frame_al), 0, 0, 12, 0);
 
-        edit_tb = gtk_table_new (2, 3, FALSE);
-        gtk_widget_set_name (edit_tb, "edit_tb");
-        gtk_container_set_border_width(GTK_CONTAINER(edit_tb),5);
-        gtk_widget_show (edit_tb);
-        gtk_container_add (GTK_CONTAINER (edit_frame_al), edit_tb);
+    edit_tb = gtk_table_new (2, 3, FALSE);
+    gtk_widget_set_name (edit_tb, "edit_tb");
+    gtk_container_set_border_width(GTK_CONTAINER(edit_tb),5);
+    gtk_widget_show (edit_tb);
+    gtk_container_add (GTK_CONTAINER (edit_frame_al), edit_tb);
 
-        edit_type_cb = gtk_combo_box_new_text();
-        gtk_combo_box_append_text(GTK_COMBO_BOX(edit_type_cb), AIRPCAP_WEP_KEY_STRING);
+    edit_type_cb = gtk_combo_box_new_text();
+    gtk_combo_box_append_text(GTK_COMBO_BOX(edit_type_cb), AIRPCAP_WEP_KEY_STRING);
 
 #ifdef HAVE_AIRPDCAP
-        gtk_combo_box_append_text(GTK_COMBO_BOX(edit_type_cb), AIRPCAP_WPA_PWD_KEY_STRING);
-        gtk_combo_box_append_text(GTK_COMBO_BOX(edit_type_cb), AIRPCAP_WPA_BIN_KEY_STRING);
+    gtk_combo_box_append_text(GTK_COMBO_BOX(edit_type_cb), AIRPCAP_WPA_PWD_KEY_STRING);
+    gtk_combo_box_append_text(GTK_COMBO_BOX(edit_type_cb), AIRPCAP_WPA_BIN_KEY_STRING);
 #endif
-        /* Set current type */
-        gtk_combo_box_set_active(GTK_COMBO_BOX(edit_type_cb), 0);
+    /* Set current type */
+    gtk_combo_box_set_active(GTK_COMBO_BOX(edit_type_cb), 0);
 #ifdef HAVE_AIRPDCAP
-        if (g_ascii_strcasecmp(row_type, AIRPCAP_WPA_PWD_KEY_STRING) == 0) {
-            gtk_combo_box_set_active(GTK_COMBO_BOX(edit_type_cb), 1);
-        } else if (g_ascii_strcasecmp(row_type, AIRPCAP_WPA_BIN_KEY_STRING) == 0) {
-            gtk_combo_box_set_active(GTK_COMBO_BOX(edit_type_cb), 2);
-        }
-#endif
-        gtk_widget_set_name (edit_type_cb, "edit_type_cb");
-        gtk_widget_show (edit_type_cb);
-        gtk_table_attach (GTK_TABLE (edit_tb), edit_type_cb, 0, 1, 1, 2,
-                          (GtkAttachOptions) (GTK_FILL),
-                          (GtkAttachOptions) (0), 0, 0);
-        gtk_widget_set_size_request (edit_type_cb, 83, -1);
-
-        edit_key_te = gtk_entry_new ();
-        gtk_widget_set_name (edit_key_te, "edit_key_te");
-        /* Set current key */
-        gtk_entry_set_text(GTK_ENTRY(edit_key_te),row_key);
-        gtk_widget_show (edit_key_te);
-        gtk_table_attach (GTK_TABLE (edit_tb), edit_key_te, 1, 2, 1, 2,
-                          (GtkAttachOptions) (0), (GtkAttachOptions) (0), 0, 0);
-        gtk_widget_set_size_request (edit_key_te, 178, -1);
-
-        edit_ssid_te = gtk_entry_new ();
-        gtk_widget_set_name (edit_ssid_te, "edit_ssid_te");
-
-        /* Set current ssid (if key type is not WEP!)*/
-        if (g_ascii_strcasecmp(row_type,AIRPCAP_WEP_KEY_STRING) == 0)
-        {
-            gtk_widget_set_sensitive(edit_ssid_te,FALSE);
-        }
-        else
-        {
-            gtk_widget_set_sensitive(edit_ssid_te,TRUE);
-            gtk_entry_set_text(GTK_ENTRY(edit_ssid_te),row_ssid);
-        }
-
-        /* XXX - Decomment only when WPA and WPA@ will be ready */
-#ifdef HAVE_AIRPDCAP
-        gtk_widget_show (edit_ssid_te);
-#endif
-        gtk_table_attach (GTK_TABLE (edit_tb), edit_ssid_te, 2, 3, 1, 2,
-                          (GtkAttachOptions) (0), (GtkAttachOptions) (0), 0, 0);
-
-        edit_type_lb = gtk_label_new ("Type");
-        gtk_widget_set_name (edit_type_lb, "edit_type_lb");
-        gtk_widget_show (edit_type_lb);
-        gtk_table_attach (GTK_TABLE (edit_tb), edit_type_lb, 0, 1, 0, 1,
-                          (GtkAttachOptions) (GTK_FILL),
-                          (GtkAttachOptions) (0), 0, 0);
-        gtk_label_set_justify (GTK_LABEL (edit_type_lb), GTK_JUSTIFY_CENTER);
-
-        edit_key_lb = gtk_label_new ("Key");
-        gtk_widget_set_name (edit_key_lb, "edit_key_lb");
-        gtk_widget_show (edit_key_lb);
-        gtk_table_attach (GTK_TABLE (edit_tb), edit_key_lb, 1, 2, 0, 1,
-                          (GtkAttachOptions) (GTK_FILL),
-                          (GtkAttachOptions) (0), 0, 0);
-        gtk_label_set_justify (GTK_LABEL (edit_key_lb), GTK_JUSTIFY_CENTER);
-
-        edit_ssid_lb = gtk_label_new ("");
-        gtk_widget_set_name (edit_ssid_lb, "edit_ssid_lb");
-        /* XXX - Decomment only when WPA and WPA_BIN will be ready */
-        gtk_widget_show (edit_ssid_lb);
-        gtk_table_attach (GTK_TABLE (edit_tb), edit_ssid_lb, 2, 3, 0, 1,
-                          (GtkAttachOptions) (GTK_FILL),
-                          (GtkAttachOptions) (0), 0, 0);
-        gtk_label_set_justify (GTK_LABEL (edit_ssid_lb), GTK_JUSTIFY_CENTER);
-
-        low_h_button_box = gtk_hbutton_box_new ();
-        gtk_widget_set_name (low_h_button_box, "low_h_button_box");
-        gtk_container_set_border_width (GTK_CONTAINER (low_h_button_box), 5);
-        gtk_widget_show (low_h_button_box);
-        gtk_box_pack_end (GTK_BOX (main_v_box), low_h_button_box, FALSE, FALSE, 0);
-        gtk_button_box_set_layout (GTK_BUTTON_BOX (low_h_button_box),
-                                   GTK_BUTTONBOX_END);
-
-        ok_bt = gtk_button_new_with_mnemonic ("OK");
-        gtk_widget_set_name (ok_bt, "ok_bt");
-        gtk_widget_show (ok_bt);
-        gtk_container_add (GTK_CONTAINER (low_h_button_box), ok_bt);
-        GTK_WIDGET_SET_FLAGS (ok_bt, GTK_CAN_DEFAULT);
-
-        cancel_bt = gtk_button_new_with_mnemonic ("Cancel");
-        gtk_widget_set_name (cancel_bt, "cancel_bt");
-        gtk_widget_show (cancel_bt);
-        gtk_container_add (GTK_CONTAINER (low_h_button_box), cancel_bt);
-        GTK_WIDGET_SET_FLAGS (cancel_bt, GTK_CAN_DEFAULT);
-
-        edit_frame_lb = gtk_label_new ("<b>Modify Selected Key</b>");
-        gtk_widget_set_name (edit_frame_lb, "edit_frame_lb");
-        gtk_widget_show (edit_frame_lb);
-        gtk_frame_set_label_widget (GTK_FRAME (edit_frame), edit_frame_lb);
-        gtk_label_set_use_markup (GTK_LABEL (edit_frame_lb), TRUE);
-
-        /* Add callbacks */
-        g_signal_connect(ok_bt, "clicked", G_CALLBACK(on_edit_key_ok_bt_clicked), edit_key_window );
-        g_signal_connect(cancel_bt, "clicked", G_CALLBACK(window_cancel_button_cb), edit_key_window );
-        g_signal_connect(edit_type_cb, "changed", G_CALLBACK(on_edit_type_cb_changed), edit_key_window);
-        g_signal_connect(edit_key_window, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
-        g_signal_connect(edit_key_window, "destroy", G_CALLBACK(on_edit_key_w_destroy), data);
-
-        /* Add widget data */
-        g_object_set_data(G_OBJECT(edit_key_window),AIRPCAP_ADVANCED_EDIT_KEY_LIST_KEY,key_ls);
-        g_object_set_data(G_OBJECT(edit_key_window),AIRPCAP_ADVANCED_EDIT_KEY_SELECTED_KEY,selected_item);
-        g_object_set_data(G_OBJECT(edit_key_window),AIRPCAP_ADVANCED_EDIT_KEY_TYPE_KEY,edit_type_cb);
-        g_object_set_data(G_OBJECT(edit_key_window),AIRPCAP_ADVANCED_EDIT_KEY_KEY_KEY,edit_key_te);
-        g_object_set_data(G_OBJECT(edit_key_window),AIRPCAP_ADVANCED_EDIT_KEY_SSID_KEY,edit_ssid_te);
-        g_object_set_data(G_OBJECT(edit_key_window),AIRPCAP_ADVANCED_EDIT_KEY_KEY_LABEL_KEY,edit_key_lb);
-        g_object_set_data(G_OBJECT(edit_key_window),AIRPCAP_ADVANCED_EDIT_KEY_SSID_LABEL_KEY,edit_ssid_lb);
-
-        gtk_widget_show(edit_key_window);
+    if (g_ascii_strcasecmp(row_type, AIRPCAP_WPA_PWD_KEY_STRING) == 0) {
+        gtk_combo_box_set_active(GTK_COMBO_BOX(edit_type_cb), 1);
+    } else if (g_ascii_strcasecmp(row_type, AIRPCAP_WPA_BIN_KEY_STRING) == 0) {
+        gtk_combo_box_set_active(GTK_COMBO_BOX(edit_type_cb), 2);
     }
+#endif
+    gtk_widget_set_name (edit_type_cb, "edit_type_cb");
+    gtk_widget_show (edit_type_cb);
+    gtk_table_attach (GTK_TABLE (edit_tb), edit_type_cb, 0, 1, 1, 2,
+                      (GtkAttachOptions) (GTK_FILL),
+                      (GtkAttachOptions) (0), 0, 0);
+    gtk_widget_set_size_request (edit_type_cb, 83, -1);
+
+    edit_key_te = gtk_entry_new ();
+    gtk_widget_set_name (edit_key_te, "edit_key_te");
+    /* Set current key */
+    gtk_entry_set_text(GTK_ENTRY(edit_key_te),row_key);
+    gtk_widget_show (edit_key_te);
+    gtk_table_attach (GTK_TABLE (edit_tb), edit_key_te, 1, 2, 1, 2,
+                      (GtkAttachOptions) (0), (GtkAttachOptions) (0), 0, 0);
+    gtk_widget_set_size_request (edit_key_te, 178, -1);
+
+    edit_ssid_te = gtk_entry_new ();
+    gtk_widget_set_name (edit_ssid_te, "edit_ssid_te");
+
+    /* Set current ssid (if key type is not WEP!)*/
+    if (g_ascii_strcasecmp(row_type,AIRPCAP_WEP_KEY_STRING) == 0)
+    {
+        gtk_widget_set_sensitive(edit_ssid_te,FALSE);
+    }
+    else
+    {
+        gtk_widget_set_sensitive(edit_ssid_te,TRUE);
+        gtk_entry_set_text(GTK_ENTRY(edit_ssid_te),row_ssid);
+    }
+
+    /* XXX - Decomment only when WPA and WPA@ will be ready */
+#ifdef HAVE_AIRPDCAP
+    gtk_widget_show (edit_ssid_te);
+#endif
+    gtk_table_attach (GTK_TABLE (edit_tb), edit_ssid_te, 2, 3, 1, 2,
+                      (GtkAttachOptions) (0), (GtkAttachOptions) (0), 0, 0);
+
+    edit_type_lb = gtk_label_new ("Type");
+    gtk_widget_set_name (edit_type_lb, "edit_type_lb");
+    gtk_widget_show (edit_type_lb);
+    gtk_table_attach (GTK_TABLE (edit_tb), edit_type_lb, 0, 1, 0, 1,
+                      (GtkAttachOptions) (GTK_FILL),
+                      (GtkAttachOptions) (0), 0, 0);
+    gtk_label_set_justify (GTK_LABEL (edit_type_lb), GTK_JUSTIFY_CENTER);
+
+    edit_key_lb = gtk_label_new ("Key");
+    gtk_widget_set_name (edit_key_lb, "edit_key_lb");
+    gtk_widget_show (edit_key_lb);
+    gtk_table_attach (GTK_TABLE (edit_tb), edit_key_lb, 1, 2, 0, 1,
+                      (GtkAttachOptions) (GTK_FILL),
+                      (GtkAttachOptions) (0), 0, 0);
+    gtk_label_set_justify (GTK_LABEL (edit_key_lb), GTK_JUSTIFY_CENTER);
+
+    edit_ssid_lb = gtk_label_new ("");
+    gtk_widget_set_name (edit_ssid_lb, "edit_ssid_lb");
+    /* XXX - Decomment only when WPA and WPA_BIN will be ready */
+    gtk_widget_show (edit_ssid_lb);
+    gtk_table_attach (GTK_TABLE (edit_tb), edit_ssid_lb, 2, 3, 0, 1,
+                      (GtkAttachOptions) (GTK_FILL),
+                      (GtkAttachOptions) (0), 0, 0);
+    gtk_label_set_justify (GTK_LABEL (edit_ssid_lb), GTK_JUSTIFY_CENTER);
+
+    low_h_button_box = gtk_hbutton_box_new ();
+    gtk_widget_set_name (low_h_button_box, "low_h_button_box");
+    gtk_container_set_border_width (GTK_CONTAINER (low_h_button_box), 5);
+    gtk_widget_show (low_h_button_box);
+    gtk_box_pack_end (GTK_BOX (main_v_box), low_h_button_box, FALSE, FALSE, 0);
+    gtk_button_box_set_layout (GTK_BUTTON_BOX (low_h_button_box),
+                               GTK_BUTTONBOX_END);
+
+    ok_bt = gtk_button_new_with_mnemonic ("OK");
+    gtk_widget_set_name (ok_bt, "ok_bt");
+    gtk_widget_show (ok_bt);
+    gtk_container_add (GTK_CONTAINER (low_h_button_box), ok_bt);
+    GTK_WIDGET_SET_FLAGS (ok_bt, GTK_CAN_DEFAULT);
+
+    cancel_bt = gtk_button_new_with_mnemonic ("Cancel");
+    gtk_widget_set_name (cancel_bt, "cancel_bt");
+    gtk_widget_show (cancel_bt);
+    gtk_container_add (GTK_CONTAINER (low_h_button_box), cancel_bt);
+    GTK_WIDGET_SET_FLAGS (cancel_bt, GTK_CAN_DEFAULT);
+
+    edit_frame_lb = gtk_label_new ("<b>Modify Selected Key</b>");
+    gtk_widget_set_name (edit_frame_lb, "edit_frame_lb");
+    gtk_widget_show (edit_frame_lb);
+    gtk_frame_set_label_widget (GTK_FRAME (edit_frame), edit_frame_lb);
+    gtk_label_set_use_markup (GTK_LABEL (edit_frame_lb), TRUE);
+
+    /* Add callbacks */
+    g_signal_connect(ok_bt, "clicked", G_CALLBACK(on_edit_key_ok_bt_clicked), edit_key_window );
+    g_signal_connect(cancel_bt, "clicked", G_CALLBACK(window_cancel_button_cb), edit_key_window );
+    g_signal_connect(edit_type_cb, "changed", G_CALLBACK(on_edit_type_cb_changed), edit_key_window);
+    g_signal_connect(edit_key_window, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+    g_signal_connect(edit_key_window, "destroy", G_CALLBACK(on_edit_key_w_destroy), data);
+
+    /* Add widget data */
+    g_object_set_data(G_OBJECT(edit_key_window),AIRPCAP_ADVANCED_EDIT_KEY_LIST_KEY,key_list_store);
+    g_object_set_data(G_OBJECT(edit_key_window),AIRPCAP_ADVANCED_EDIT_KEY_SELECTION_KEY,selection);
+    g_object_set_data(G_OBJECT(edit_key_window),AIRPCAP_ADVANCED_EDIT_KEY_TYPE_KEY,edit_type_cb);
+    g_object_set_data(G_OBJECT(edit_key_window),AIRPCAP_ADVANCED_EDIT_KEY_KEY_KEY,edit_key_te);
+    g_object_set_data(G_OBJECT(edit_key_window),AIRPCAP_ADVANCED_EDIT_KEY_SSID_KEY,edit_ssid_te);
+    g_object_set_data(G_OBJECT(edit_key_window),AIRPCAP_ADVANCED_EDIT_KEY_KEY_LABEL_KEY,edit_key_lb);
+    g_object_set_data(G_OBJECT(edit_key_window),AIRPCAP_ADVANCED_EDIT_KEY_SSID_LABEL_KEY,edit_ssid_lb);
+
+
+    g_free(row_type);
+    g_free(row_key);
+#ifdef HAVE_AIRPDCAP
+    g_free(row_ssid);
+#endif
+    gtk_widget_show(edit_key_window);
 }
 
 /*
  * Callback for the 'Move Key Up' button.
  */
-void
-on_move_key_up_bt_clicked(GtkWidget *button _U_, gpointer data)
+static void
+on_move_key_up_bt_clicked(GtkWidget *button _U_, gpointer key_list)
 {
-    GtkWidget *airpcap_advanced_w;
-    GtkWidget *key_ls;
-
-    gint keys_in_list;
-
-    airpcap_key_ls_selected_info_t *selected_item;
-
-    gint c = NO_COLUMN_SELECTED;
-    gint r = NO_ROW_SELECTED;
-
-    airpcap_advanced_w = GTK_WIDGET(data);
-
-    /* retrieve needed stuff */
-    key_ls        = g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_KEYLIST_KEY);
-    selected_item = g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_SELECTED_KEY_LIST_ITEM_KEY);
-
-    /*
-     * Better to store the selected_item data in two new variables, because maybe some
-     * select_row signal will be emitted somewhere...
-     */
-    r = selected_item->row;
-    c = selected_item->column;
-
-    keys_in_list = GTK_CLIST(key_ls)->rows;
-
-    if (keys_in_list < 2) /* With less than 2 keys, nothing can be moved ... */
-        return;
-
-    if ( r == 0 ) /* Cannot move up the first row */
-        return;
-
-    /* Move up selected key */
-    gtk_clist_swap_rows (GTK_CLIST(key_ls),r-1,r);
-
-    /*
-     * Re-select the just moved key... so the user can keep pressing 'Move Key Up'
-     * without re-select the row...
-     */
-    gtk_clist_select_row (GTK_CLIST(key_ls),r-1,c);
-
-    /* Need to save config... */
-    if (airpcap_if_selected != NULL) airpcap_if_selected->saved = FALSE;
+    tree_view_list_store_move_selection(GTK_TREE_VIEW(key_list), TRUE);
 }
 
 /*
  * Callback for the 'Move Key Down' button.
  */
 void
-on_move_key_down_bt_clicked(GtkWidget *button _U_, gpointer data)
+on_move_key_down_bt_clicked(GtkWidget *button _U_, gpointer list_view)
 {
-    GtkWidget *airpcap_advanced_w;
-    GtkWidget *key_ls;
-
-    gint keys_in_list;
-
-    airpcap_key_ls_selected_info_t *selected_item;
-
-    gint c = NO_COLUMN_SELECTED;
-    gint r = NO_ROW_SELECTED;
-
-    airpcap_advanced_w = GTK_WIDGET(data);
-
-    /* retrieve needed stuff */
-    key_ls        = g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_KEYLIST_KEY);
-    selected_item = g_object_get_data(G_OBJECT(airpcap_advanced_w),AIRPCAP_ADVANCED_SELECTED_KEY_LIST_ITEM_KEY);
-
-    /*
-     * Better to store the selected_item data in two new variables, because maybe some
-     * select_row signal will be emitted somewhere...
-     */
-    r = selected_item->row;
-    c = selected_item->column;
-
-    keys_in_list = GTK_CLIST(key_ls)->rows;
-
-    if (keys_in_list < 2) /* With less than 2 keys, nothing can be moved ... */
-        return;
-
-    if ( (r+1) == keys_in_list ) /* Cannot move down the last row */
-        return;
-
-    /* Move down selected key */
-    gtk_clist_swap_rows (GTK_CLIST(key_ls),r,r+1);
-
-    /*
-     * Re-select the just moved key... so the user can keep pressing 'Move Key Down'
-     * without re-select the row...
-     */
-    gtk_clist_select_row (GTK_CLIST(key_ls),r+1,c);
-
-    /* Need to save config... */
-    if (airpcap_if_selected != NULL) airpcap_if_selected->saved = FALSE;
+    tree_view_list_store_move_selection(GTK_TREE_VIEW(list_view), FALSE);
 }
 
 /* Turns the decryption on or off */
@@ -1660,7 +1544,6 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     GtkWidget *basic_parameters_frame_lb;
     GtkWidget *low_buttons_h_box;
     GtkWidget *left_h_button_box;
-    GtkWidget *reset_configuration_bt;
     GtkWidget *right_h_button_box;
     GtkWidget *ok_bt;
     GtkWidget *apply_bt;
@@ -1925,13 +1808,6 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     gtk_box_pack_start (GTK_BOX (low_buttons_h_box), left_h_button_box, FALSE,
                         FALSE, 0);
 
-    reset_configuration_bt = gtk_button_new_with_mnemonic ("Reset Configuration");
-    gtk_widget_set_name (reset_configuration_bt, "reset_configuration_bt");
-    /* gtk_widget_show (reset_configuration_bt); */
-    gtk_container_add (GTK_CONTAINER (low_buttons_h_box),
-                       reset_configuration_bt);
-    GTK_WIDGET_SET_FLAGS (reset_configuration_bt, GTK_CAN_DEFAULT);
-
     right_h_button_box = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, NULL);
     gtk_widget_show (right_h_button_box);
     gtk_box_pack_end (GTK_BOX (low_buttons_h_box), right_h_button_box, FALSE,
@@ -1961,7 +1837,6 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     g_signal_connect (capture_type_cb, "changed", G_CALLBACK(on_capture_type_cb_changed), NULL);
     g_signal_connect (fcs_ck, "toggled", G_CALLBACK(on_fcs_ck_toggled), NULL);
     g_signal_connect (fcs_filter_cb, "changed", G_CALLBACK(on_fcs_filter_cb_changed), NULL);
-    g_signal_connect (reset_configuration_bt, "clicked", G_CALLBACK(on_reset_configuration_bt_clicked), NULL);
     g_signal_connect (apply_bt, "clicked", G_CALLBACK(on_advanced_apply_bt_clicked), airpcap_advanced_w);
     g_signal_connect (ok_bt,"clicked", G_CALLBACK(on_advanced_ok_bt_clicked), airpcap_advanced_w);
     g_signal_connect (cancel_bt,"clicked", G_CALLBACK(on_advanced_cancel_bt_clicked), airpcap_advanced_w);
@@ -1994,7 +1869,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
 /*
  * Callback for the Wireless Advanced Settings 'Apply' button.
  */
-void
+static void
 on_advanced_apply_bt_clicked(GtkWidget *button _U_, gpointer data)
 {
     /* advenced window */
@@ -2042,7 +1917,7 @@ on_advanced_apply_bt_clicked(GtkWidget *button _U_, gpointer data)
 /*
  * Callback for the OK button 'clicked' in the Advanced Wireless Settings window.
  */
-void
+static void
 on_advanced_ok_bt_clicked(GtkWidget *button _U_, gpointer data)
 {
     PAirpcapHandle ad = NULL;
@@ -2078,7 +1953,7 @@ on_advanced_ok_bt_clicked(GtkWidget *button _U_, gpointer data)
 /*
  * Callback for the CANCEL button 'clicked' in the Advanced Wireless Settings window.
  */
-void
+static void
 on_advanced_cancel_bt_clicked(GtkWidget *button _U_, gpointer data)
 {
     PAirpcapHandle ad = NULL;
@@ -2159,12 +2034,8 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     GtkWidget *decryption_mode_cb;
     GtkWidget *keys_v_sub_box;
     GtkWidget *keys_scrolled_w;
-    GtkWidget *key_ls;
-    GtkWidget *key_list_decryption_type_col_lb;
-    GtkWidget *key_list_decryption_key_col_lb;
-#ifdef HAVE_AIRPDCAP
-    GtkWidget *key_ls_decryption_ssid_col_lb;
-#endif
+    GtkListStore *key_list_store;
+    GtkWidget *key_list;
     GtkWidget *key_v_button_box;
     GtkWidget *add_new_key_bt;
     GtkWidget *remove_key_bt;
@@ -2174,7 +2045,6 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     GtkWidget *keys_frame_lb;
     GtkWidget *low_buttons_h_box;
     GtkWidget *left_h_button_box;
-    GtkWidget *reset_configuration_bt;
     GtkWidget *right_h_button_box;
     GtkWidget *ok_bt;
     GtkWidget *apply_bt;
@@ -2184,15 +2054,17 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     GtkWidget *toolbar,
               *toolbar_decryption_ck;
 
-    /* other stuff */
-    /*GList   *channel_list,*capture_list;*/
-    /*GList   *linktype_list = NULL;*/
+    /* key list */
+    GtkTreeViewColumn *column;
+    GtkCellRenderer   *renderer;
+    GtkTreeSortable   *sortable;
+    GtkTreeSelection  *selection;
+    GtkTreeIter        iter;
 
     /* Selected row/column structure */
     airpcap_key_ls_selected_info_t *key_ls_selected_item;
     key_ls_selected_item = (airpcap_key_ls_selected_info_t*)g_malloc(sizeof(airpcap_key_ls_selected_info_t));
     key_ls_selected_item->row = NO_ROW_SELECTED;
-    key_ls_selected_item->column = NO_COLUMN_SELECTED;
 
     /* user data - RETRIEVE pointers of toolbar widgets */
     toolbar               = GTK_WIDGET(data);
@@ -2281,47 +2153,84 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
                         0);
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (keys_scrolled_w), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 
+
+
+    /* Create the store */
+    key_list_store = gtk_list_store_new(KL_NUM_COLS,
+                                        G_TYPE_STRING, /* Type */
+                                        G_TYPE_STRING /* Key */
 #ifdef HAVE_AIRPDCAP
-    key_ls = gtk_clist_new (3);
-#else
-    key_ls = gtk_clist_new (2);
+                                        , G_TYPE_STRING /* SSID */
+#endif
+                                       );
+
+    /* Create a view */
+    key_list = gtk_tree_view_new_with_model(GTK_TREE_MODEL(key_list_store));
+
+    sortable = GTK_TREE_SORTABLE(key_list_store);
+
+#if GTK_CHECK_VERSION(2,6,0)
+    /* Speed up the list display */
+    gtk_tree_view_set_fixed_height_mode(GTK_TREE_VIEW(key_list), TRUE);
 #endif
 
-    gtk_widget_set_name (key_ls, "key_ls");
-    gtk_widget_show (key_ls);
+    /* Setup the sortable columns */
+    gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(key_list), FALSE);
 
-    gtk_container_add (GTK_CONTAINER (keys_scrolled_w), key_ls);
-    gtk_clist_set_column_width (GTK_CLIST (key_ls), 0, 54);
-    gtk_clist_set_column_width (GTK_CLIST (key_ls), 1, 113);
+    /* The view now holds a reference.  We can get rid of our own reference */
+    g_object_unref(G_OBJECT(key_list_store));
+
+    /*
+     * Create the first column packet, associating the "text" attribute of the
+     * cell_renderer to the first column of the model
+     */
+    renderer = gtk_cell_renderer_text_new();
+    column = gtk_tree_view_column_new_with_attributes("Type", renderer,
+            "text", KL_COL_TYPE, NULL);
+    gtk_tree_view_column_set_sort_column_id(column, KL_COL_TYPE);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 60);
+    gtk_tree_view_column_set_fixed_width(column, 100);
+    /* Add the column to the view. */
+    gtk_tree_view_append_column(GTK_TREE_VIEW(key_list), column);
+
+    /* Key */
+    renderer = gtk_cell_renderer_text_new();
+    column = gtk_tree_view_column_new_with_attributes("Key", renderer,
+            "text", KL_COL_KEY, NULL);
+    gtk_tree_view_column_set_sort_column_id(column, KL_COL_KEY);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 120);
+    gtk_tree_view_column_set_fixed_width(column, 200);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(key_list), column);
+
 #ifdef HAVE_AIRPDCAP
-    gtk_clist_set_column_width (GTK_CLIST (key_ls), 2, 80);
-#endif
-    gtk_clist_column_titles_show (GTK_CLIST (key_ls));
-    gtk_clist_set_shadow_type (GTK_CLIST (key_ls), GTK_SHADOW_ETCHED_IN);
-    gtk_clist_set_column_justification(GTK_CLIST (key_ls),0,GTK_JUSTIFY_CENTER);
-
-    key_list_decryption_type_col_lb = gtk_label_new ("Type");
-    gtk_widget_set_name (key_list_decryption_type_col_lb,
-                         "key_list_decryption_type_col_lb");
-    gtk_widget_show (key_list_decryption_type_col_lb);
-    gtk_clist_set_column_widget (GTK_CLIST (key_ls), 0, key_list_decryption_type_col_lb);
-
-    key_list_decryption_key_col_lb = gtk_label_new ("Key");
-    gtk_widget_set_name (key_list_decryption_key_col_lb,
-                         "key_list_decryption_key_col_lb");
-    gtk_widget_show (key_list_decryption_key_col_lb);
-    gtk_clist_set_column_widget (GTK_CLIST (key_ls), 1,
-                                 key_list_decryption_key_col_lb);
-
-#ifdef HAVE_AIRPDCAP
-    key_ls_decryption_ssid_col_lb = gtk_label_new ("SSID");
-    gtk_widget_set_name (key_ls_decryption_ssid_col_lb,
-                         "key_ls_decryption_ssid_col_lb");
-    gtk_widget_show (key_ls_decryption_ssid_col_lb);
-    gtk_clist_set_column_widget (GTK_CLIST (key_ls), 2,
-                                 key_ls_decryption_ssid_col_lb);
+    /* SSID */
+    renderer = gtk_cell_renderer_text_new();
+    column = gtk_tree_view_column_new_with_attributes("SSID", renderer,
+            "text", KL_COL_SSID,
+            NULL);
+    gtk_tree_view_column_set_sort_column_id(column, KL_COL_SSID);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 80);
+    gtk_tree_view_column_set_fixed_width(column, 150);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(key_list), column);
 #endif
 
+    /* Now enable the sorting of each column */
+    gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(key_list), TRUE);
+    gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(key_list), TRUE);
+
+    /* Setup the selection handler */
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(key_list));
+    gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+
+    gtk_widget_show (key_list);
+
+    gtk_container_add (GTK_CONTAINER (keys_scrolled_w), key_list);
 
     key_v_button_box = gtk_vbutton_box_new ();
     gtk_widget_set_name (key_v_button_box, "key_v_button_box");
@@ -2377,13 +2286,6 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     gtk_box_pack_start (GTK_BOX (low_buttons_h_box), left_h_button_box, FALSE,
                         FALSE, 0);
 
-    reset_configuration_bt = gtk_button_new_with_mnemonic ("Reset Configuration");
-    gtk_widget_set_name (reset_configuration_bt, "reset_configuration_bt");
-    /* gtk_widget_show (reset_configuration_bt); */
-    gtk_container_add (GTK_CONTAINER (left_h_button_box),
-                       reset_configuration_bt);
-    GTK_WIDGET_SET_FLAGS (reset_configuration_bt, GTK_CAN_DEFAULT);
-
     right_h_button_box = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, NULL);
     gtk_widget_set_name (right_h_button_box, "right_h_button_box");
     gtk_widget_show (right_h_button_box);
@@ -2402,27 +2304,32 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     g_signal_connect (add_new_key_bt, "clicked", G_CALLBACK(on_add_new_key_bt_clicked), key_management_w);
     g_signal_connect (remove_key_bt, "clicked", G_CALLBACK(on_remove_key_bt_clicked), key_management_w);
     g_signal_connect (edit_key_bt, "clicked", G_CALLBACK(on_edit_key_bt_clicked), key_management_w);
-    g_signal_connect (move_key_up_bt, "clicked", G_CALLBACK(on_move_key_up_bt_clicked), key_management_w);
-    g_signal_connect (move_key_down_bt, "clicked", G_CALLBACK(on_move_key_down_bt_clicked), key_management_w);
-    g_signal_connect (reset_configuration_bt, "clicked", G_CALLBACK(on_reset_configuration_bt_clicked), NULL);
+    g_signal_connect (move_key_up_bt, "clicked", G_CALLBACK(on_move_key_up_bt_clicked), key_list);
+    g_signal_connect (move_key_down_bt, "clicked", G_CALLBACK(on_move_key_down_bt_clicked), key_list);
     g_signal_connect (apply_bt, "clicked", G_CALLBACK(on_key_management_apply_bt_clicked), key_management_w);
     g_signal_connect (ok_bt, "clicked", G_CALLBACK(on_key_management_ok_bt_clicked), key_management_w);
     g_signal_connect (cancel_bt, "clicked", G_CALLBACK(on_key_management_cancel_bt_clicked), key_management_w);
-    g_signal_connect (key_ls, "select_row", G_CALLBACK(on_key_ls_select_row), key_management_w);
-    g_signal_connect (key_ls, "unselect_row", G_CALLBACK(on_key_ls_unselect_row), key_management_w);
-    g_signal_connect (key_ls, "click_column", G_CALLBACK(on_key_ls_click_column), NULL);
+    g_signal_connect (selection, "changed", G_CALLBACK(on_key_list_select_row), key_management_w);
+    g_signal_connect (key_list_store, "rows_reordered", G_CALLBACK(on_key_list_reorder), key_management_w);
 
     /* Different because the window will be closed ... */
     /*window_set_cancel_button(key_management_w, ok_bt, window_cancel_button_cb);
     window_set_cancel_button(key_management_w, cancel_bt, window_cancel_button_cb);*/
 
-    g_object_set_data (G_OBJECT(key_management_w), AIRPCAP_ADVANCED_SELECTED_KEY_LIST_ITEM_KEY,key_ls_selected_item);
+    g_object_set_data (G_OBJECT(key_management_w), AIRPCAP_ADVANCED_EDIT_KEY_SELECTION_KEY,selection);
 
     /* Store pointers to all widgets, for use by lookup_widget(). */
     g_object_set_data (G_OBJECT(key_management_w), AIRPCAP_ADVANCED_DECRYPTION_MODE_KEY, decryption_mode_cb);
-    g_object_set_data (G_OBJECT(key_management_w), AIRPCAP_ADVANCED_KEYLIST_KEY, key_ls);
+    g_object_set_data (G_OBJECT(key_management_w), AIRPCAP_ADVANCED_KEYLIST_KEY, key_list_store);
     g_object_set_data (G_OBJECT(key_management_w), AIRPCAP_ADVANCED_OK_KEY, ok_bt);
     g_object_set_data (G_OBJECT(key_management_w), AIRPCAP_ADVANCED_CANCEL_KEY, cancel_bt);
+
+    /* Enable / disable buttons */
+    g_object_set_data (G_OBJECT(key_management_w), AIRPCAP_KEY_MGMT_NEW_KEY, add_new_key_bt);
+    g_object_set_data (G_OBJECT(key_management_w), AIRPCAP_KEY_MGMT_EDIT_KEY, edit_key_bt);
+    g_object_set_data (G_OBJECT(key_management_w), AIRPCAP_KEY_MGMT_DELETE_KEY, remove_key_bt);
+    g_object_set_data (G_OBJECT(key_management_w), AIRPCAP_KEY_MGMT_UP_KEY, move_key_up_bt);
+    g_object_set_data (G_OBJECT(key_management_w), AIRPCAP_KEY_MGMT_DOWN_KEY, move_key_down_bt);
 
     /*
      * I will need the toolbar and the main widget in some callback,
@@ -2444,16 +2351,19 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     else /* Keys from lists are equals, or Wireshark has got no keys */
     {
         airpcap_load_decryption_keys(airpcap_if_list);
-        airpcap_fill_key_list(key_ls);
+        airpcap_fill_key_list(key_list_store);
         /* At the end, so that it appears completely all together ... */
         gtk_widget_show (key_management_w);
     }
+    
+    gtk_tree_model_get_iter_first(GTK_TREE_MODEL(key_list_store), &iter);
+    gtk_tree_selection_select_iter(selection, &iter);
 }
 
 /*
  * Callback for the OK button 'clicked' in the Decryption Key Management window.
  */
-void
+static void
 on_key_management_ok_bt_clicked(GtkWidget *button, gpointer data)
 {
     /* advanced window */
@@ -2474,28 +2384,25 @@ on_key_management_ok_bt_clicked(GtkWidget *button, gpointer data)
 /*
  * Callback for the CANCEL button 'clicked' in the Decryption Key Management window.
  */
-void
+static void
 on_key_management_cancel_bt_clicked(GtkWidget *button _U_, gpointer data)
 {
     /* Retrieve object data */
     GtkWidget *key_management_w;
     GtkWidget *cancel_bt;
     GtkWidget *ok_bt;
-    GtkWidget *key_ls;
+    GtkListStore *key_list_store;
 
     /* widgets in the toolbar */
     GtkWidget *toolbar,
               *toolbar_decryption_ck,
               *key_management_bt;
 
-    /* Row selected structure */
-    airpcap_key_ls_selected_info_t *selected_item;
-
     /* Retrieve the GUI object pointers */
     key_management_w    = GTK_WIDGET(data);
     cancel_bt           = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_CANCEL_KEY));
     ok_bt               = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_OK_KEY));
-    key_ls              = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY));
+    key_list_store      = GTK_LIST_STORE(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY));
     key_management_bt   = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEY));
 
     toolbar = GTK_WIDGET(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_TOOLBAR_KEY));
@@ -2503,12 +2410,66 @@ on_key_management_cancel_bt_clicked(GtkWidget *button _U_, gpointer data)
     /* retrieve toolbar info */
     toolbar_decryption_ck    = GTK_WIDGET(g_object_get_data(G_OBJECT(toolbar),AIRPCAP_TOOLBAR_DECRYPTION_KEY));
 
-    /* Retrieve the selected row item pointer... */
-    selected_item            = (airpcap_key_ls_selected_info_t*)(g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_SELECTED_KEY_LIST_ITEM_KEY));
-    /* And free it */
-    g_free(selected_item);
-
     gtk_widget_destroy(key_management_w);
+}
+
+
+static void
+on_keys_check_cancel_bt_clicked (GtkWidget *button _U_, gpointer user_data)
+{
+    GtkWidget *key_management_w;
+    GtkWidget *keys_check_w;
+    GtkListStore *key_list_store;
+
+    keys_check_w = GTK_WIDGET(user_data);
+
+    key_management_w = g_object_get_data(G_OBJECT(keys_check_w),AIRPCAP_CHECK_WINDOW_KEY);
+
+    /* w may be NULL if airpcap_keys_check_w() has been called while Wireshark was loading,
+       and is not NULL if it was called when the Key Management widget has been clicked */
+    if (key_management_w != NULL)
+    {
+        /*  ... */
+        key_list_store = g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY);
+        airpcap_fill_key_list(key_list_store);
+        gtk_widget_show (key_management_w);
+    }
+
+    gtk_widget_destroy(keys_check_w);
+}
+
+static void
+on_keys_check_ok_bt_clicked (GtkWidget *button _U_, gpointer user_data)
+{
+    GtkWidget *key_management_w;
+    GtkWidget *keys_check_w;
+
+    GtkWidget *merge_rb,
+              *keep_rb,
+              *import_rb,
+              *ignore_rb;
+
+    keys_check_w = GTK_WIDGET(user_data);
+
+    key_management_w = g_object_get_data(G_OBJECT(keys_check_w),AIRPCAP_CHECK_WINDOW_KEY);
+    merge_rb  = g_object_get_data(G_OBJECT(keys_check_w),AIRPCAP_CHECK_WINDOW_RADIO_MERGE_KEY);
+    keep_rb   = g_object_get_data(G_OBJECT(keys_check_w),AIRPCAP_CHECK_WINDOW_RADIO_KEEP_KEY);
+    import_rb = g_object_get_data(G_OBJECT(keys_check_w),AIRPCAP_CHECK_WINDOW_RADIO_IMPORT_KEY);
+    ignore_rb = g_object_get_data(G_OBJECT(keys_check_w),AIRPCAP_CHECK_WINDOW_RADIO_IGNORE_KEY);
+
+    /* Find out which radio button is selected and call the correct function */
+    if (GTK_TOGGLE_BUTTON(merge_rb)->active) on_merge_bt_clicked (merge_rb,keys_check_w);
+    else if (GTK_TOGGLE_BUTTON(keep_rb)->active) on_keep_bt_clicked (keep_rb,keys_check_w);
+    else if (GTK_TOGGLE_BUTTON(import_rb)->active) on_import_bt_clicked (import_rb,keys_check_w);
+    else if (GTK_TOGGLE_BUTTON(ignore_rb)->active) on_ignore_bt_clicked (ignore_rb,keys_check_w);
+    else on_keys_check_cancel_bt_clicked(NULL,keys_check_w);
+}
+
+static void
+on_keys_check_w_destroy (GtkWidget *w _U_, gpointer user_data)
+{
+    gtk_widget_set_sensitive(top_level,TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(user_data),TRUE);
 }
 
 /*
@@ -2670,70 +2631,12 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
     gtk_widget_show(keys_check_w);
 }
 
-void
-on_keys_check_cancel_bt_clicked (GtkWidget *button _U_, gpointer user_data)
-{
-    GtkWidget *key_management_w;
-    GtkWidget *keys_check_w;
-    GtkWidget *key_ls;
-
-    keys_check_w = GTK_WIDGET(user_data);
-
-    key_management_w = g_object_get_data(G_OBJECT(keys_check_w),AIRPCAP_CHECK_WINDOW_KEY);
-
-    /* w may be NULL if airpcap_keys_check_w() has been called while Wireshark was loading,
-       and is not NULL if it was called when the Key Management widget has been clicked */
-    if (key_management_w != NULL)
-    {
-        /*  ... */
-        key_ls = g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY);
-        airpcap_fill_key_list(key_ls);
-        gtk_widget_show (key_management_w);
-    }
-
-    gtk_widget_destroy(keys_check_w);
-}
-
-void
-on_keys_check_ok_bt_clicked (GtkWidget *button _U_, gpointer user_data)
-{
-    GtkWidget *key_management_w;
-    GtkWidget *keys_check_w;
-
-    GtkWidget *merge_rb,
-              *keep_rb,
-              *import_rb,
-              *ignore_rb;
-
-    keys_check_w = GTK_WIDGET(user_data);
-
-    key_management_w = g_object_get_data(G_OBJECT(keys_check_w),AIRPCAP_CHECK_WINDOW_KEY);
-    merge_rb  = g_object_get_data(G_OBJECT(keys_check_w),AIRPCAP_CHECK_WINDOW_RADIO_MERGE_KEY);
-    keep_rb   = g_object_get_data(G_OBJECT(keys_check_w),AIRPCAP_CHECK_WINDOW_RADIO_KEEP_KEY);
-    import_rb = g_object_get_data(G_OBJECT(keys_check_w),AIRPCAP_CHECK_WINDOW_RADIO_IMPORT_KEY);
-    ignore_rb = g_object_get_data(G_OBJECT(keys_check_w),AIRPCAP_CHECK_WINDOW_RADIO_IGNORE_KEY);
-
-    /* Find out which radio button is selected and call the correct function */
-    if (GTK_TOGGLE_BUTTON(merge_rb)->active) on_merge_bt_clicked (merge_rb,keys_check_w);
-    else if (GTK_TOGGLE_BUTTON(keep_rb)->active) on_keep_bt_clicked (keep_rb,keys_check_w);
-    else if (GTK_TOGGLE_BUTTON(import_rb)->active) on_import_bt_clicked (import_rb,keys_check_w);
-    else if (GTK_TOGGLE_BUTTON(ignore_rb)->active) on_ignore_bt_clicked (ignore_rb,keys_check_w);
-    else on_keys_check_cancel_bt_clicked(NULL,keys_check_w);
-}
-
-void
-on_keys_check_w_destroy (GtkWidget *w _U_, gpointer user_data)
-{
-    gtk_widget_set_sensitive(top_level,TRUE);
-    gtk_widget_set_sensitive(GTK_WIDGET(user_data),TRUE);
-}
-
-void
+static void
 on_keep_bt_clicked (GtkWidget *button _U_, gpointer user_data)
 {
     GtkWidget *key_management_w;
     GtkWidget *keys_check_w;
-    GtkWidget *key_ls=NULL;
+    GtkListStore *key_list_store=NULL;
 
     GList* wireshark_keys=NULL;
     guint n_wireshark_keys = 0;
@@ -2775,18 +2678,18 @@ on_keep_bt_clicked (GtkWidget *button _U_, gpointer user_data)
     if (key_management_w != NULL)
     {
         /*  ... */
-        key_ls = g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY);
-        airpcap_fill_key_list(key_ls);
+        key_list_store = g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY);
+        airpcap_fill_key_list(key_list_store);
         gtk_widget_show (key_management_w);
     }
 }
 
-void
+static void
 on_merge_bt_clicked (GtkWidget* button _U_, gpointer user_data)
 {
     GtkWidget *key_management_w;
     GtkWidget *keys_check_w;
-    GtkWidget *key_ls;
+    GtkListStore *key_list_store;
 
     guint n_adapters = 0;
     guint n_wireshark_keys = 0;
@@ -2856,19 +2759,18 @@ on_merge_bt_clicked (GtkWidget* button _U_, gpointer user_data)
     if (key_management_w != NULL)
     {
         /*  ... */
-        key_ls = g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY);
-        airpcap_fill_key_list(key_ls);
+        key_list_store = g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY);
+        airpcap_fill_key_list(key_list_store);
         gtk_widget_show (key_management_w);
     }
 }
 
-
-void
+static void
 on_import_bt_clicked (GtkWidget* button _U_, gpointer user_data)
 {
     GtkWidget *key_management_w;
     GtkWidget *keys_check_w;
-    GtkWidget *key_ls;
+    GtkListStore *key_list_store;
 
     guint n_adapters = 0;
     guint n_wireshark_keys = 0;
@@ -2935,19 +2837,18 @@ on_import_bt_clicked (GtkWidget* button _U_, gpointer user_data)
     if (key_management_w != NULL)
     {
         /*  ... */
-        key_ls = g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY);
-        airpcap_fill_key_list(key_ls);
+        key_list_store = g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY);
+        airpcap_fill_key_list(key_list_store);
         gtk_widget_show (key_management_w);
     }
 }
 
-
-void
+static void
 on_ignore_bt_clicked (GtkWidget* button _U_, gpointer user_data)
 {
     GtkWidget *key_management_w;
     GtkWidget *keys_check_w;
-    GtkWidget *key_ls;
+    GtkListStore *key_list_store;
 
     keys_check_w = GTK_WIDGET(user_data);
 
@@ -2958,8 +2859,8 @@ on_ignore_bt_clicked (GtkWidget* button _U_, gpointer user_data)
     if (key_management_w != NULL)
     {
         /*  ... */
-        key_ls = g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY);
-        airpcap_fill_key_list(key_ls);
+        key_list_store = g_object_get_data(G_OBJECT(key_management_w),AIRPCAP_ADVANCED_KEYLIST_KEY);
+        airpcap_fill_key_list(key_list_store);
         gtk_widget_show (key_management_w);
     }
 

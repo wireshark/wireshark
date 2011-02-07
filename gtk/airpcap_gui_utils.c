@@ -250,40 +250,23 @@ airpcap_set_toolbar_stop_capture(airpcap_if_info_t* if_info)
  * Add a key (string) to the given list
  */
 void
-airpcap_add_key_to_list(GtkWidget *keylist, gchar* type, gchar* key, gchar* ssid)
+airpcap_add_key_to_list(GtkListStore *key_list_store, gchar* type, gchar* key, gchar* ssid)
 {
-    gchar*       new_row[3];
+    GtkTreeIter iter;
 
-    new_row[0] = g_strdup(type);
-    new_row[1] = g_strdup(key);
-    new_row[2] = g_strdup(ssid);
+#if GTK_CHECK_VERSION(2,6,0)
+    gtk_list_store_insert_with_values(key_list_store , &iter, G_MAXINT,
+#else
+    gtk_list_store_append(key_list_store, &iter);
+    gtk_list_store_set(key_list_store, &iter,
+#endif
+        KL_COL_TYPE, type,
+        KL_COL_KEY, key,
+#ifdef HAVE_AIRPDCAP
+        KL_COL_SSID, ssid,
+#endif
+        -1);
 
-    gtk_clist_append(GTK_CLIST(keylist),new_row);
-
-    g_free(new_row[0]);
-    g_free(new_row[1]);
-    g_free(new_row[2]);
-}
-
-/*
- * Modify a key given a list and a row
- */
-void
-airpcap_modify_key_in_list(GtkWidget *keylist, gint row, gchar* type, gchar* key, gchar* ssid)
-{
-    gchar*       new_row[3];
-
-    new_row[0] = g_strdup(type);
-    new_row[1] = g_strdup(key);
-    new_row[2] = g_strdup(ssid);
-
-    gtk_clist_set_text(GTK_CLIST(keylist),row,0,new_row[0]);
-    gtk_clist_set_text(GTK_CLIST(keylist),row,1,new_row[1]);
-    gtk_clist_set_text(GTK_CLIST(keylist),row,2,new_row[2]);
-
-    g_free(new_row[0]);
-    g_free(new_row[1]);
-    g_free(new_row[2]);
 }
 
 /*
@@ -293,15 +276,15 @@ airpcap_modify_key_in_list(GtkWidget *keylist, gint row, gchar* type, gchar* key
  * (i.e. the WPA problem)
  */
 void
-airpcap_fill_key_list(GtkWidget *keylist)
+airpcap_fill_key_list(GtkListStore *key_list_store)
 {
     gchar*         s = NULL;
     gchar*         s2 = NULL;
     unsigned int i,n;
-    gchar*       new_row[3];
     airpcap_if_info_t* fake_if_info;
     GList*         wireshark_key_list=NULL;
     decryption_key_t* curr_key = NULL;
+    GtkTreeIter    iter;
 
     n = 0;
 
@@ -317,61 +300,55 @@ airpcap_fill_key_list(GtkWidget *keylist)
 
         if(curr_key->type == AIRPDCAP_KEY_TYPE_WEP)
         {
-            s = g_strdup(curr_key->key->str);
-
-            new_row[0] = g_strdup(AIRPCAP_WEP_KEY_STRING);
-            new_row[1] = g_strdup(s);
-            new_row[2] = g_strdup("");
-
-            gtk_clist_append(GTK_CLIST(keylist),new_row);
-
-            g_free(new_row[0]);
-            g_free(new_row[1]);
-            g_free(new_row[2]);
-
-            g_free(s);
+#if GTK_CHECK_VERSION(2,6,0)
+            gtk_list_store_insert_with_values(key_list_store , &iter, G_MAXINT,
+#else
+            gtk_list_store_append(key_list_store, &iter);
+            gtk_list_store_set(key_list_store, &iter,
+#endif
+                KL_COL_TYPE, AIRPCAP_WEP_KEY_STRING,
+                KL_COL_KEY, curr_key->key->str,
+#ifdef HAVE_AIRPDCAP
+                KL_COL_SSID, "",
+#endif
+                -1);
         }
         else if(curr_key->type == AIRPDCAP_KEY_TYPE_WPA_PWD)
         {
-            s = g_strdup(curr_key->key->str);
             if(curr_key->ssid != NULL)
-                s2= g_strdup(format_uri(curr_key->ssid, ":"));
+                s2 = format_uri(curr_key->ssid, ":");
             else
-                s2 = NULL;
+                s2 = "";
 
-            new_row[0] = g_strdup(AIRPCAP_WPA_PWD_KEY_STRING);
-            new_row[1] = g_strdup(s);
+#if GTK_CHECK_VERSION(2,6,0)
+            gtk_list_store_insert_with_values(key_list_store , &iter, G_MAXINT,
+#else
+            gtk_list_store_append(key_list_store, &iter);
+            gtk_list_store_set(key_list_store, &iter,
+#endif
+                KL_COL_TYPE, AIRPCAP_WPA_PWD_KEY_STRING,
+                KL_COL_KEY, curr_key->key->str,
+#ifdef HAVE_AIRPDCAP
+                KL_COL_SSID, s2,
+#endif
+                -1);
 
-            if(curr_key->ssid != NULL)
-                new_row[2] = g_strdup(s2);
-            else
-                new_row[2] = g_strdup("");
-
-            gtk_clist_append(GTK_CLIST(keylist),new_row);
-
-            g_free(new_row[0]);
-            g_free(new_row[1]);
-            g_free(new_row[2]);
-
-            g_free(s);
-            if(s2 != NULL)
-                g_free(s2);
         }
         else if(curr_key->type == AIRPDCAP_KEY_TYPE_WPA_PMK)
         {
-            s = g_strdup(curr_key->key->str);
+#if GTK_CHECK_VERSION(2,6,0)
+            gtk_list_store_insert_with_values(key_list_store , &iter, G_MAXINT,
+#else
+            gtk_list_store_append(key_list_store, &iter);
+            gtk_list_store_set(key_list_store, &iter,
+#endif
+                KL_COL_TYPE, AIRPCAP_WPA_BIN_KEY_STRING,
+                KL_COL_KEY, curr_key->key->str,
+#ifdef HAVE_AIRPDCAP
+                KL_COL_SSID, "",
+#endif
+                -1);
 
-            new_row[0] = g_strdup(AIRPCAP_WPA_BIN_KEY_STRING);
-            new_row[1] = g_strdup(s);
-            new_row[2] = g_strdup("");
-
-            gtk_clist_append(GTK_CLIST(keylist),new_row);
-
-            g_free(new_row[0]);
-            g_free(new_row[1]);
-            g_free(new_row[2]);
-
-            g_free(s);
         }
     }
 
@@ -745,10 +722,12 @@ airpcap_update_channel_combo(GtkWidget* channel_cb, airpcap_if_info_t* if_info)
 /*
  * Takes the keys from the GtkList widget, and add them to the interface list
  */
-void
-airpcap_add_keys_from_list(GtkWidget *key_ls, airpcap_if_info_t *if_info _U_)
+static void
+airpcap_add_keys_from_list(GtkListStore *key_list_store, airpcap_if_info_t *if_info _U_)
 {
-    GString                *new_key;
+    GtkTreePath *path;
+    GtkTreeIter iter;
+    GtkTreeModel *model = GTK_TREE_MODEL(key_list_store);
 
     /* airpcap stuff */
     guint i, j;
@@ -759,16 +738,10 @@ airpcap_add_keys_from_list(GtkWidget *key_ls, airpcap_if_info_t *if_info _U_)
 
     guint keys_in_list = 0;
 
-    gchar *row_type,
-          *row_key,
-          *row_ssid;
+    gchar *row_type, *row_key; /* SSID not needed for AirPcap */
+    size_t key_len;
 
-    keys_in_list = GTK_CLIST(key_ls)->rows;
-
-    /*
-     * Save the encryption keys, if we have any of them
-     */
-    KeysCollectionSize = 0;
+    keys_in_list = gtk_tree_model_iter_n_children(model, NULL);
 
     /*
      * Calculate the size of the keys collection
@@ -779,12 +752,6 @@ airpcap_add_keys_from_list(GtkWidget *key_ls, airpcap_if_info_t *if_info _U_)
      * Allocate the collection
      */
     KeysCollection = (PAirpcapKeysCollection)g_malloc(KeysCollectionSize);
-    if(!KeysCollection)
-    {
-        /* Simple dialog ERROR */
-        simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"%s","Failed memory allocation for KeysCollection!");
-        return;
-    }
 
     /*
      * Populate the key collection
@@ -793,10 +760,13 @@ airpcap_add_keys_from_list(GtkWidget *key_ls, airpcap_if_info_t *if_info _U_)
 
     for(i = 0; i < keys_in_list; i++)
     {
-        /* Retrieve the row infos */
-        gtk_clist_get_text(GTK_CLIST(key_ls),i,0,&row_type);
-        gtk_clist_get_text(GTK_CLIST(key_ls),i,1,&row_key);
-        gtk_clist_get_text(GTK_CLIST(key_ls),i,2,&row_ssid);
+        path = gtk_tree_path_new_from_indices(i, -1);
+        gtk_tree_model_get_iter(model, &iter, path);
+        gtk_tree_path_free(path);
+        gtk_tree_model_get(model, &iter,
+                           KL_COL_TYPE, &row_type,
+                           KL_COL_KEY, &row_key,
+                           -1);
 
         if(g_ascii_strcasecmp(row_type,AIRPCAP_WEP_KEY_STRING) == 0)
             KeysCollection->Keys[i].KeyType = AIRPDCAP_KEY_TYPE_WEP;
@@ -806,19 +776,20 @@ airpcap_add_keys_from_list(GtkWidget *key_ls, airpcap_if_info_t *if_info _U_)
             KeysCollection->Keys[i].KeyType = AIRPCAP_KEYTYPE_CCMP;
 
         /* Retrieve the Item corresponding to the i-th key */
-        new_key = g_string_new(row_key);
-
-        KeysCollection->Keys[i].KeyLen = (guint) new_key->len / 2;
+        key_len = strlen(row_key);
+        KeysCollection->Keys[i].KeyLen = (guint) key_len / 2;
         memset(&KeysCollection->Keys[i].KeyData, 0, sizeof(KeysCollection->Keys[i].KeyData));
 
-        for(j = 0 ; j < new_key->len; j += 2)
+        for(j = 0 ; j < key_len; j += 2)
         {
-            s[0] = new_key->str[j];
-            s[1] = new_key->str[j+1];
+            s[0] = row_key[j];
+            s[1] = row_key[j+1];
             s[2] = '\0';
             KeyByte = (guint8)strtol(s, NULL, 16);
             KeysCollection->Keys[i].KeyData[j / 2] = KeyByte;
         }
+        g_free(row_type);
+        g_free(row_key);
     }
 
     /*
@@ -839,10 +810,12 @@ airpcap_add_keys_from_list(GtkWidget *key_ls, airpcap_if_info_t *if_info _U_)
 /*
  * Takes the keys from the GtkList widget, and add them to the interface list
  */
-void
-airpcap_add_keys_to_driver_from_list(GtkWidget *key_ls,airpcap_if_info_t *fake_if_info)
+static void
+airpcap_add_keys_to_driver_from_list(GtkListStore *key_list_store, airpcap_if_info_t *fake_if_info)
 {
-    GString                *new_key;
+    GtkTreePath *path;
+    GtkTreeIter iter;
+    GtkTreeModel *model = GTK_TREE_MODEL(key_list_store);
 
     /* airpcap stuff */
     guint i, j;
@@ -853,14 +826,13 @@ airpcap_add_keys_to_driver_from_list(GtkWidget *key_ls,airpcap_if_info_t *fake_i
 
     guint keys_in_list = 0;
 
-    gchar *row_type,
-          *row_key,
-          *row_ssid;
+    gchar *row_type, *row_key; /* SSID not needed for AirPcap */
+    size_t key_len;
 
     if(fake_if_info == NULL)
         return;
 
-    keys_in_list = GTK_CLIST(key_ls)->rows;
+    keys_in_list = gtk_tree_model_iter_n_children(model, NULL);
 
     /*
      * Save the encryption keys, if we have any of them
@@ -876,12 +848,6 @@ airpcap_add_keys_to_driver_from_list(GtkWidget *key_ls,airpcap_if_info_t *fake_i
      * Allocate the collection
      */
     KeysCollection = (PAirpcapKeysCollection)g_malloc(KeysCollectionSize);
-    if(!KeysCollection)
-    {
-        /* Simple dialog ERROR */
-        simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"%s","Failed memory allocation for KeysCollection!");
-        return;
-    }
 
     /*
      * Populate the key collection
@@ -890,10 +856,13 @@ airpcap_add_keys_to_driver_from_list(GtkWidget *key_ls,airpcap_if_info_t *fake_i
 
     for(i = 0; i < keys_in_list; i++)
     {
-        /* Retrieve the row infos */
-        gtk_clist_get_text(GTK_CLIST(key_ls),i,0,&row_type);
-        gtk_clist_get_text(GTK_CLIST(key_ls),i,1,&row_key);
-        gtk_clist_get_text(GTK_CLIST(key_ls),i,2,&row_ssid);
+        path = gtk_tree_path_new_from_indices(i, -1);
+        gtk_tree_model_get_iter(model, &iter, path);
+        gtk_tree_path_free(path);
+        gtk_tree_model_get(model, &iter,
+                           KL_COL_TYPE, &row_type,
+                           KL_COL_KEY, &row_key,
+                           -1);
 
         if(g_ascii_strcasecmp(row_type,AIRPCAP_WEP_KEY_STRING) == 0)
             KeysCollection->Keys[i].KeyType = AIRPDCAP_KEY_TYPE_WEP;
@@ -903,24 +872,25 @@ airpcap_add_keys_to_driver_from_list(GtkWidget *key_ls,airpcap_if_info_t *fake_i
             KeysCollection->Keys[i].KeyType = AIRPDCAP_KEY_TYPE_WPA_PMK;
 
         /* Retrieve the Item corresponding to the i-th key */
-        new_key = g_string_new(row_key);
+        key_len = strlen(row_key);
 
-        KeysCollection->Keys[i].KeyLen = (guint) new_key->len / 2;
+        KeysCollection->Keys[i].KeyLen = (guint) key_len / 2;
         memset(&KeysCollection->Keys[i].KeyData, 0, sizeof(KeysCollection->Keys[i].KeyData));
 
         /* Key must be saved in adifferent way, depending on its type... */
         if(KeysCollection->Keys[i].KeyType == AIRPDCAP_KEY_TYPE_WEP)
         {
-            for(j = 0 ; j < new_key->len; j += 2)
+            for(j = 0 ; j < key_len; j += 2)
             {
-                s[0] = new_key->str[j];
-                s[1] = new_key->str[j+1];
+                s[0] = row_key[j];
+                s[1] = row_key[j+1];
                 s[2] = '\0';
                 KeyByte = (guint8)strtol(s, NULL, 16);
                 KeysCollection->Keys[i].KeyData[j / 2] = KeyByte;
             }
         }
-        /* XXX - Save the keys that are not WEP!!! */
+        g_free(row_type);
+        g_free(row_key);
     }
 
     /*
@@ -942,19 +912,21 @@ airpcap_add_keys_to_driver_from_list(GtkWidget *key_ls,airpcap_if_info_t *fake_i
  * current adapter, and save them as default for ALL the others.
  */
 void
-airpcap_read_and_save_decryption_keys_from_clist(GtkWidget* key_ls, airpcap_if_info_t* info_if, GList* if_list)
+airpcap_read_and_save_decryption_keys_from_list_store(GtkListStore* key_list_store, airpcap_if_info_t* info_if, GList* if_list)
 {
+    GtkTreeIter iter;
+    GtkTreeModel *model = GTK_TREE_MODEL(key_list_store);
+    gboolean items_left;
     gint if_n = 0;
     gint i = 0;
     gint r = 0;
-    gint n = 0;
     airpcap_if_info_t* curr_if = NULL;
     airpcap_if_info_t* fake_info_if = NULL;
     GList* key_list=NULL;
 
     char* tmp_type = NULL;
     char* tmp_key = NULL;
-    char* tmp_ssid = NULL;
+    char* tmp_ssid = "";
 
     decryption_key_t* tmp_dk=NULL;
 
@@ -962,17 +934,20 @@ airpcap_read_and_save_decryption_keys_from_clist(GtkWidget* key_ls, airpcap_if_i
      * Save the keys for Wireshark...
      */
 
-    /* Create a list of keys from the list widget... */
-    n = GTK_CLIST(key_ls)->rows;
+    /* Create a list of keys from the list store */
+    for (items_left = gtk_tree_model_get_iter_first (model, &iter);
+         items_left;
+         items_left = gtk_tree_model_iter_next (model, &iter)) {
 
-    for(i = 0; i < n; i++)
-    {
-        /* XXX - Create a decryption_key_t struct, and pass a list of those structs!!! */
-        gtk_clist_get_text(GTK_CLIST(key_ls),i,0,&tmp_type);
-        gtk_clist_get_text(GTK_CLIST(key_ls),i,1,&tmp_key);
-        gtk_clist_get_text(GTK_CLIST(key_ls),i,2,&tmp_ssid);
+        gtk_tree_model_get(model, &iter,
+                           KL_COL_TYPE, &tmp_type,
+                           KL_COL_KEY, &tmp_key,
+#ifdef HAVE_AIRPDCAP
+                           KL_COL_SSID, &tmp_ssid,
+#endif
+                           -1);
 
-        if(g_ascii_strcasecmp(tmp_type,AIRPCAP_WEP_KEY_STRING) == 0)
+        if(g_ascii_strcasecmp(tmp_type, AIRPCAP_WEP_KEY_STRING) == 0)
         {
             tmp_dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
             tmp_dk->key = g_string_new(tmp_key);
@@ -981,7 +956,7 @@ airpcap_read_and_save_decryption_keys_from_clist(GtkWidget* key_ls, airpcap_if_i
             tmp_dk->bits = (guint) tmp_dk->key->len * 4;
             key_list = g_list_append(key_list,tmp_dk);
         }
-        else if(g_ascii_strcasecmp(tmp_type,AIRPCAP_WPA_PWD_KEY_STRING) == 0)
+        else if(g_ascii_strcasecmp(tmp_type, AIRPCAP_WPA_PWD_KEY_STRING) == 0)
         {
             tmp_dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
             tmp_dk->key = g_string_new(tmp_key);
@@ -991,7 +966,7 @@ airpcap_read_and_save_decryption_keys_from_clist(GtkWidget* key_ls, airpcap_if_i
             tmp_dk->bits = 256;
             key_list = g_list_append(key_list,tmp_dk);
         }
-        else if(g_ascii_strcasecmp(tmp_type,AIRPCAP_WPA_BIN_KEY_STRING) == 0)
+        else if(g_ascii_strcasecmp(tmp_type, AIRPCAP_WPA_BIN_KEY_STRING) == 0)
         {
             tmp_dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
             tmp_dk->key = g_string_new(tmp_key);
@@ -1000,6 +975,10 @@ airpcap_read_and_save_decryption_keys_from_clist(GtkWidget* key_ls, airpcap_if_i
             tmp_dk->bits = 256;
             key_list = g_list_append(key_list,tmp_dk);
         }
+        g_free(tmp_type);
+#ifdef HAVE_AIRPDCAP
+        g_free(tmp_ssid);
+#endif
     }
 
     r = save_wlan_wireshark_wep_keys(key_list);
@@ -1012,7 +991,7 @@ airpcap_read_and_save_decryption_keys_from_clist(GtkWidget* key_ls, airpcap_if_i
 
     fake_info_if = airpcap_driver_fake_if_info_new();
 
-    airpcap_add_keys_to_driver_from_list(key_ls,fake_info_if);
+    airpcap_add_keys_to_driver_from_list(key_list_store,fake_info_if);
     airpcap_save_driver_if_configuration(fake_info_if);
     airpcap_if_info_free(fake_info_if);
 

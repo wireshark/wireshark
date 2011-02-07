@@ -62,7 +62,7 @@
 #ifdef HAVE_AIRPCAP
 #define AIRPCAP_TOOLBAR_KEY						"airpcap_toolbar_key"
 #define AIRPCAP_TOOLBAR_INTERFACE_KEY			"airpcap_toolbar_if_key"
-#define AIRPCAP_TOOLBAR_LINK_TYPE_KEY			"airpcap_toolbar_lt_key" 
+#define AIRPCAP_TOOLBAR_LINK_TYPE_KEY			"airpcap_toolbar_lt_key"
 #define AIRPCAP_TOOLBAR_CHANNEL_KEY				"airpcap_toolbar_ch_key"
 #define AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY		"airpcap_toolbar_ch_lb_key"
 #define AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY		"airpcap_toolbar_ch_offset_key"
@@ -77,7 +77,7 @@
 
 #define AIRPCAP_ADVANCED_KEY				"airpcap_advanced_key"
 #define AIRPCAP_ADVANCED_INTERFACE_KEY		"airpcap_advanced_if_key"
-#define AIRPCAP_ADVANCED_LINK_TYPE_KEY		"airpcap_advanced_lt_key" 
+#define AIRPCAP_ADVANCED_LINK_TYPE_KEY		"airpcap_advanced_lt_key"
 #define AIRPCAP_ADVANCED_CHANNEL_KEY		"airpcap_advanced_ch_key"
 #define AIRPCAP_ADVANCED_CHANNEL_OFFSET_KEY	"airpcap_advanced_ch_offset_key"
 #define AIRPCAP_ADVANCED_FCS_CHECK_KEY		"airpcap_advanced_fcs_check_key"
@@ -113,11 +113,17 @@
 
 #define AIRPCAP_CHECK_WINDOW_KEY				"airpcap_check_window_key"
 
-#define AIRPCAP_ADVANCED_SELECTED_KEY_LIST_ITEM_KEY		"airpcap_advanced_selected_key_list_item_key"
+#define AIRPCAP_ADVANCED_EDIT_KEY_SELECTION_KEY		"airpcap_advanced_edit_key_selection_key"
 
 #define AIRPCAP_OPTIONS_ADVANCED_KEY			"airpcap_options_advanced_key"
 
 #define AIRPCAP_ADVANCED_FROM_KEY				"airpcap_advanced_from_key"
+
+#define AIRPCAP_KEY_MGMT_NEW_KEY	"airpcap_key_mgmt_new_key"
+#define AIRPCAP_KEY_MGMT_EDIT_KEY	"airpcap_key_mgmt_edit_key"
+#define AIRPCAP_KEY_MGMT_DELETE_KEY	"airpcap_key_mgmt_delete_key"
+#define AIRPCAP_KEY_MGMT_UP_KEY		"airpcap_key_mgmt_up_key"
+#define AIRPCAP_KEY_MGMT_DOWN_KEY	"airpcap_key_mgmt_down_key"
 #endif /* HAVE_AIRPCAP */
 
 #endif /* __KEYS_H__ */

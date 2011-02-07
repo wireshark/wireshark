@@ -47,19 +47,19 @@
 #define AIRPCAP_DECRYPTION_TYPE_STRING_NONE      "None"
 
 #define NO_ROW_SELECTED -1
-#define NO_COLUMN_SELECTED -1
+
+/* Key list columns */
+enum {
+  KL_COL_TYPE,
+  KL_COL_KEY,
+#ifdef HAVE_AIRPDCAP
+  KL_COL_SSID,
+#endif
+  KL_NUM_COLS
+};
 
 /* Controls the releay of settings back to the adapter. */
 extern gboolean change_airpcap_settings;
-
-/*
- * This structure is used because we need to store infos about the currently selected
- * row in the key list.
- */
-typedef struct{
-    gint row;
-    gint column;
-}airpcap_key_ls_selected_info_t;
 
 /*
  * set up the airpcap toolbar for the new capture interface
@@ -77,25 +77,13 @@ airpcap_set_toolbar_stop_capture(airpcap_if_info_t* if_info);
  * Add a key (string) to the given list
  */
 void
-airpcap_add_key_to_list(GtkWidget *keylist, gchar* type, gchar* key, gchar* ssid);
-
-/*
- * Takes the keys from the GtkList widget, and add them to the interface list
- */
-void
-airpcap_add_keys_to_driver_from_list(GtkWidget *key_ls,airpcap_if_info_t *fake_if_info);
-
-/*
- * Modify a key given a list and a row
- */
-void
-airpcap_modify_key_in_list(GtkWidget *keylist, gint row, gchar* type, gchar* key, gchar* ssid);
+airpcap_add_key_to_list(GtkListStore *key_list_store, gchar* type, gchar* key, gchar* ssid);
 
 /*
  * Fill the list with the keys
  */
 void
-airpcap_fill_key_list(GtkWidget *keylist);
+airpcap_fill_key_list(GtkListStore *key_list_store);
 
 /*
  * Function used to retrieve the AirpcapValidationType given the string name.
@@ -190,12 +178,6 @@ int
 airpcap_if_is_any(airpcap_if_info_t* if_info);
 
 /*
- * Takes the keys from the GtkList widget, and add them to the interface list
- */
-void
-airpcap_add_keys_from_list(GtkWidget *w, airpcap_if_info_t *if_info);
-
-/*
  * Update channel combo box. If the airpcap interface is "Any", the combo box will be disabled.
  */
 void
@@ -206,7 +188,7 @@ airpcap_update_channel_combo(GtkWidget* channel_cb, airpcap_if_info_t* if_info);
  * current adapter, and save them as default for ALL the others.
  */
 void
-airpcap_read_and_save_decryption_keys_from_clist(GtkWidget* key_ls, airpcap_if_info_t* info_if, GList* if_list);
+airpcap_read_and_save_decryption_keys_from_list_store(GtkListStore* key_list_store, airpcap_if_info_t* info_if, GList* if_list);
 
 /*
  * This function will load from the preferences file ALL the
