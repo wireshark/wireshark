@@ -2781,6 +2781,7 @@ SMSRequest ::= [PRIVATE 18] SET {
 	}
 
 -- SMSRequest RETURN RESULT Parameters
+-- X.S0004-540-E v2.0
 SMSRequestRes ::= [PRIVATE 18] SET {
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
 	-- O 6.5.2.63 a
@@ -2790,8 +2791,10 @@ SMSRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.122 b, c
 	sms-Address								[104] IMPLICIT SMS-Address OPTIONAL,
 	-- O 6.5.2.123 c, d
-	sms-CauseCode							[153] IMPLICIT SMS-CauseCode OPTIONAL
+	sms-CauseCode							[153] IMPLICIT SMS-CauseCode OPTIONAL,
 	-- O 6.5.2.125
+	transactionCapability					[123] IMPLICIT TransactionCapability OPTIONAL
+	-- O 2.285 f
 	}
 
 -- 6.4.2.46 TransferToNumberRequest Updated with N.S0023-0 v 1.0

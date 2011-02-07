@@ -11270,6 +11270,7 @@ static const ber_sequence_t SMSRequestRes_U_set[] = {
   { &hf_ansi_map_sms_AccessDeniedReason, BER_CLASS_CON, 152, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_AccessDeniedReason },
   { &hf_ansi_map_sms_Address, BER_CLASS_CON, 104, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_Address },
   { &hf_ansi_map_sms_CauseCode, BER_CLASS_CON, 153, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_SMS_CauseCode },
+  { &hf_ansi_map_transactionCapability, BER_CLASS_CON, 123, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_TransactionCapability },
   { NULL, 0, 0, 0, NULL }
 };
 
