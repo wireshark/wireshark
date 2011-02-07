@@ -154,7 +154,7 @@ static void gtk_vumeter_realize (GtkWidget *widget)
     GtkVUMeter *vumeter;
     GdkWindowAttr attributes;
     gint attributes_mask;
-    GtkAllocation *widget_alloc;
+    GtkAllocation widget_alloc;
     
     g_return_if_fail (widget != NULL);
     g_return_if_fail (GTK_IS_VUMETER (widget));
@@ -167,15 +167,15 @@ static void gtk_vumeter_realize (GtkWidget *widget)
     vumeter = GTK_VUMETER (widget);
 
 #if GTK_CHECK_VERSION(2,18,0)
-    gtk_widget_get_allocation(widget, widget_alloc);
+    gtk_widget_get_allocation(widget, &widget_alloc);
 #else
     widget_alloc = widget->allocation;
 #endif
 
-    attributes.x = widget_alloc->x;
-    attributes.y = widget_alloc->y;
-    attributes.width = widget_alloc->width;
-    attributes.height = widget_alloc->height;
+    attributes.x = widget_alloc.x;
+    attributes.y = widget_alloc.y;
+    attributes.width = widget_alloc.width;
+    attributes.height = widget_alloc.height;
     attributes.wclass = GDK_INPUT_OUTPUT;
     attributes.window_type = GDK_WINDOW_CHILD;
     attributes.event_mask = gtk_widget_get_events (widget) | GDK_EXPOSURE_MASK;
@@ -321,8 +321,12 @@ static gboolean gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
     gint width, height;
     gint w, h, inc;
     GList * current;
-    GtkAllocation *widget_alloc;
+    GtkAllocation widget_alloc;
+#if GTK_CHECK_VERSION(2,14,0)
     GdkWindow *widget_window = gtk_widget_get_window(widget);
+#else
+    GdkWindow *widget_window = widget->window;
+#endif
     
     g_return_val_if_fail (GTK_IS_VUMETER (widget), FALSE);
     g_return_val_if_fail (event != NULL, FALSE);
@@ -335,18 +339,18 @@ static gboolean gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
     }
 
 #if GTK_CHECK_VERSION(2,18,0)
-    gtk_widget_get_allocation(widget, widget_alloc);
+    gtk_widget_get_allocation(widget, &widget_alloc);
 #else
     widget_alloc = widget->allocation;
 #endif
 
     /* the dimentions of the bar (leaving some space for the scale) */
-    width = widget_alloc->width - vumeter->padding_left - vumeter->padding_right;
-    height = widget_alloc->height - vumeter->padding_top - vumeter->padding_bottom;
+    width = widget_alloc.width - vumeter->padding_left - vumeter->padding_right;
+    height = widget_alloc.height - vumeter->padding_top - vumeter->padding_bottom;
 
     /* clear widget and draw border */
     gtk_paint_box (gtk_widget_get_style(widget), widget_window, GTK_STATE_NORMAL, GTK_SHADOW_IN, 
-        NULL, widget, "trough", 0, 0, widget_alloc->width, widget_alloc->height);
+        NULL, widget, "trough", 0, 0, widget_alloc.width, widget_alloc.height);
 
 #if 0
     /* clear bar only */
@@ -513,19 +517,23 @@ static void gtk_vumeter_setup_colors (GtkVUMeter *vumeter)
     gint f_step, b_step;
     gint first, second;
     gint max = 0, min = 0, log_max = 0;
-    GtkAllocation *vumeter_alloc;
+    GtkAllocation vumeter_alloc;
     
     g_return_if_fail (vumeter->colormap != NULL);
     
     gtk_vumeter_free_colors (vumeter);
     
+#if GTK_CHECK_VERSION(2,18,0)
     gtk_widget_get_allocation(GTK_WIDGET(vumeter), vumeter_alloc);
+#else
+    vumeter_alloc = GTK_WIDGET(vumeter)->allocation;
+#endif
 
     /* Set new size */
     if (vumeter->vertical == TRUE) {
-        vumeter->colors = MAX(vumeter_alloc->height - vumeter->padding_top - vumeter->padding_bottom, 0);
+        vumeter->colors = MAX(vumeter_alloc.height - vumeter->padding_top - vumeter->padding_bottom, 0);
     } else {
-        vumeter->colors = MAX(vumeter_alloc->width - vumeter->padding_left - vumeter->padding_right, 0);
+        vumeter->colors = MAX(vumeter_alloc.width - vumeter->padding_left - vumeter->padding_right, 0);
     }
     
     /* allocate new memory */
