@@ -146,6 +146,7 @@ static gint hf_gsm_sms_tp_udhi = -1;
 static gint hf_gsm_sms_tp_rd = -1;
 static gint hf_gsm_sms_tp_srq = -1;
 static gint hf_gsm_sms_text = -1;
+static gint hf_gsm_sms_tp_fail_cause = -1;
 #if 0
 static gint hf_gsm_sms_tp_scts = -1;
 static gint hf_gsm_sms_tp_vp = -1;
@@ -489,9 +490,7 @@ dis_field_pid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
     const gchar	*str = NULL;
 
 
-    item =
-	proto_tree_add_item(tree, hf_gsm_sms_tp_pid, tvb,
-	    offset, 1, FALSE);
+    item = proto_tree_add_item(tree, hf_gsm_sms_tp_pid, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     subtree = proto_item_add_subtree(item, ett_pid);
 
@@ -656,13 +655,13 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
     *ucs2 = FALSE;
     *compressed = FALSE;
 
-    item = proto_tree_add_item(tree, hf_gsm_sms_tp_dcs, tvb, offset, 1, FALSE);
+    item = proto_tree_add_item(tree, hf_gsm_sms_tp_dcs, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     subtree = proto_item_add_subtree(item, ett_dcs);
     if (oct&0x80) {
-        proto_tree_add_item(subtree, hf_gsm_sms_coding_group_bits4, tvb, offset, 1, FALSE);
+        proto_tree_add_item(subtree, hf_gsm_sms_coding_group_bits4, tvb, offset, 1, ENC_BIG_ENDIAN);
     } else {
-        proto_tree_add_item(subtree, hf_gsm_sms_coding_group_bits2, tvb, offset, 1, FALSE);
+        proto_tree_add_item(subtree, hf_gsm_sms_coding_group_bits2, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
 
     if (oct == 0x00)
@@ -1436,80 +1435,165 @@ dis_field_st(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 /* 9.2.3.21 */
 /* done in-line in the message functions */
 
-/* 9.2.3.22 */
+/* 
+ * 9.2.3.22 TP-Failure-Cause (TP-FCS)
+ */
+
+
+static const value_string gsm_sms_tp_failure_cause_values[] = {
+	/* 00 - 7F Reserved */
+	/* 80 - 8F TP-PID errors */
+  { 0x80,	"Telematic interworking not supported" },
+  { 0x81,	"Short message Type 0 not supported" },
+  { 0x82,	"Cannot replace short message" },
+	/* 83 - 8E Reserved */
+  { 0x83,	"Reserved" },
+  { 0x84,	"Reserved" },
+  { 0x85,	"Reserved" },
+  { 0x86,	"Reserved" },
+  { 0x87,	"Reserved" },
+  { 0x88,	"Reserved" },
+  { 0x89,	"Reserved" },
+  { 0x8a,	"Reserved" },
+  { 0x8b,	"Reserved" },
+  { 0x8c,	"Reserved" },
+  { 0x8d,	"Reserved" },
+  { 0x8e,	"Reserved" },
+
+  { 0x8F,	"Unspecified TP-PID error" },
+	/* 90 - 9F TP-DCS errors */
+  { 0x90,	"Data coding scheme (alphabet) not supported" },
+  { 0x91,	"Message class not supported" },
+	/* 92 - 9E Reserved */
+  { 0x92,	"Reserved" },
+  { 0x93,	"Reserved" },
+  { 0x94,	"Reserved" },
+  { 0x95,	"Reserved" },
+  { 0x96,	"Reserved" },
+  { 0x97,	"Reserved" },
+  { 0x98,	"Reserved" },
+  { 0x99,	"Reserved" },
+  { 0x9a,	"Reserved" },
+  { 0x9b,	"Reserved" },
+  { 0x9c,	"Reserved" },
+  { 0x9d,	"Reserved" },
+  { 0x9e,	"Reserved" },
+
+  { 0x9F,	"Unspecified TP-DCS error" },
+	/* A0 - AF TP-Command Errors */
+  { 0xA0,	"Command cannot be actioned" },
+  { 0xA1,	"Command unsupported" },
+	/* A2 - AE Reserved */
+  { 0xa2,	"Reserved" },
+  { 0xa3,	"Reserved" },
+  { 0xa4,	"Reserved" },
+  { 0xa5,	"Reserved" },
+  { 0xa6,	"Reserved" },
+  { 0xa7,	"Reserved" },
+  { 0xa8,	"Reserved" },
+  { 0xa9,	"Reserved" },
+  { 0xaa,	"Reserved" },
+  { 0xab,	"Reserved" },
+  { 0xac,	"Reserved" },
+  { 0xad,	"Reserved" },
+  { 0xae,	"Reserved" },
+
+  { 0xAF,	"Unspecified TP-Command error" },
+  { 0xB0,	"TPDU not supported" },
+	/* B1 - BF Reserved */
+  { 0xb1,	"Reserved" },
+  { 0xb2,	"Reserved" },
+  { 0xb3,	"Reserved" },
+  { 0xb4,	"Reserved" },
+  { 0xb5,	"Reserved" },
+  { 0xb6,	"Reserved" },
+  { 0xb7,	"Reserved" },
+  { 0xb8,	"Reserved" },
+  { 0xb9,	"Reserved" },
+  { 0xba,	"Reserved" },
+  { 0xbb,	"Reserved" },
+  { 0xbc,	"Reserved" },
+  { 0xbd,	"Reserved" },
+  { 0xbe,	"Reserved" },
+  { 0xbf,	"Reserved" },
+
+  { 0xC0,	"SC busy" },
+  { 0xC1,	"No SC subscription" },
+  { 0xC2,	"SC system failure" },
+  { 0xC3,	"Invalid SME address" },
+  { 0xC4,	"Destination SME barred" },
+  { 0xC5,	"SM Rejected-Duplicate SM" },
+  { 0xC6,	"TP-VPF not supported" },
+  { 0xC7,	"TP-VP not supported" },
+	/* C8 - CF Reserved */
+  { 0xc8,	"Reserved" },
+  { 0xc9,	"Reserved" },
+  { 0xca,	"Reserved" },
+  { 0xcb,	"Reserved" },
+  { 0xcc,	"Reserved" },
+  { 0xcd,	"Reserved" },
+  { 0xce,	"Reserved" },
+  { 0xcf,	"Reserved" },
+
+  { 0xD0,	"(U)SIM SMS storage full" },
+  { 0xD1,	"No SMS storage capability in (U)SIM" },
+  { 0xD2,	"Error in MS" },
+  { 0xD3,	"Memory Capacity Exceeded" },
+  { 0xD4,	"(U)SIM Application Toolkit Busy" },
+  { 0xD5,	"(U)SIM data download error" },
+	/* D6 - DF Reserved */
+  { 0xd6,	"Reserved" },
+  { 0xd8,	"Reserved" },
+  { 0xd9,	"Reserved" },
+  { 0xda,	"Reserved" },
+  { 0xdb,	"Reserved" },
+  { 0xdc,	"Reserved" },
+  { 0xdd,	"Reserved" },
+  { 0xde,	"Reserved" },
+  { 0xdf,	"Reserved" },
+
+  /* E0 - FE Values specific to an application */
+  { 0xe0,	"Value specific to an application" },
+  { 0xe1,	"Value specific to an application" },
+  { 0xe2,	"Value specific to an application" },
+  { 0xe3,	"Value specific to an application" },
+  { 0xe4,	"Value specific to an application" },
+  { 0xe5,	"Value specific to an application" },
+  { 0xe6,	"Value specific to an application" },
+  { 0xe7,	"Value specific to an application" },
+  { 0xe8,	"Value specific to an application" },
+  { 0xe9,	"Value specific to an application" },
+  { 0xea,	"Value specific to an application" },
+  { 0xeb,	"Value specific to an application" },
+  { 0xec,	"Value specific to an application" },
+  { 0xed,	"Value specific to an application" },
+  { 0xee,	"Value specific to an application" },
+  { 0xef,	"Value specific to an application" },
+  { 0xf0,	"Value specific to an application" },
+  { 0xf1,	"Value specific to an application" },
+  { 0xf2,	"Value specific to an application" },
+  { 0xf3,	"Value specific to an application" },
+  { 0xf4,	"Value specific to an application" },
+  { 0xf5,	"Value specific to an application" },
+  { 0xf6,	"Value specific to an application" },
+  { 0xf7,	"Value specific to an application" },
+  { 0xf8,	"Value specific to an application" },
+  { 0xf9,	"Value specific to an application" },
+  { 0xfa,	"Value specific to an application" },
+  { 0xfb,	"Value specific to an application" },
+  { 0xfc,	"Value specific to an application" },
+  { 0xfd,	"Value specific to an application" },
+  { 0xfe,	"Value specific to an application" },
+
+  { 0xFF,	"Unspecified error cause" },
+  { 0,		NULL }
+ };
+static value_string_ext gsm_sms_tp_failure_cause_values_ext = VALUE_STRING_EXT_INIT(gsm_sms_tp_failure_cause_values);
+
 static void
 dis_field_fcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 {
-    proto_item	*item;
-    proto_tree	*subtree = NULL;
-    const gchar	*str = NULL;
-
-
-    item =
-	proto_tree_add_text(tree, tvb,
-	    offset, 1,
-	    "TP-Failure-Cause");
-
-    subtree = proto_item_add_subtree(item, ett_fcs);
-
-    switch (oct)
-    {
-    case 0x80: str = "Telematic interworking not supported"; break;
-    case 0x81: str = "Short message Type 0 not supported"; break;
-    case 0x82: str = "Cannot replace short message"; break;
-    case 0x8F: str = "Unspecified TP-PID error"; break;
-    case 0x90: str = "Data coding scheme (alphabet) not supported"; break;
-    case 0x91: str = "Message class not supported"; break;
-    case 0x9F: str = "Unspecified TP-DCS error"; break;
-    case 0xA0: str = "Command cannot be actioned"; break;
-    case 0xA1: str = "Command unsupported"; break;
-    case 0xAF: str = "Unspecified TP-Command error"; break;
-    case 0xB0: str = "TPDU not supported"; break;
-    case 0xC0: str = "SC busy"; break;
-    case 0xC1: str = "No SC subscription"; break;
-    case 0xC2: str = "SC system failure"; break;
-    case 0xC3: str = "Invalid SME address"; break;
-    case 0xC4: str = "Destination SME barred"; break;
-    case 0xC5: str = "SM Rejected-Duplicate SM"; break;
-    case 0xC6: str = "TP-VPF not supported"; break;
-    case 0xC7: str = "TP-VP not supported"; break;
-    case 0xD0: str = "(U)SIM SMS storage full"; break;
-    case 0xD1: str = "No SMS storage capability in (U)SIM"; break;
-    case 0xD2: str = "Error in MS"; break;
-    case 0xD3: str = "Memory Capacity Exceeded"; break;
-    case 0xD4: str = "(U)SIM Application Toolkit Busy"; break;
-    case 0xD5: str = "(U)SIM data download error"; break;
-    case 0xFF: str = "Unspecified error cause"; break;
-    default:
-	if ((oct >= 0x80) &&
-	    (oct <= 0x8F))
-	{
-	    str = "TP-PID errors"; break;
-	}
-	else if ((oct >= 0x90) &&
-	    (oct <= 0x9F))
-	{
-	    str = "TP-DCS errors"; break;
-	}
-	else if ((oct >= 0xA0) &&
-	    (oct <= 0xAF))
-	{
-	    str = "TP-Command errors"; break;
-	}
-	else if ((oct >= 0xE0) &&
-	    (oct <= 0xFE))
-	{
-	    str = "Values specific to an application"; break;
-	}
-	else
-	{
-	    str = "Reserved"; break;
-	}
-    }
-
-    proto_tree_add_text(subtree, tvb,
-	offset, 1, "%s",
-	str);
+	proto_tree_add_item(tree, hf_gsm_sms_tp_fail_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /* 9.2.3.23 */
@@ -1992,7 +2076,8 @@ static const value_string text_color_values[] = {
   { 0x0D,	"Bright Cyan" },
   { 0x0E,	"Bright Blue" },
   { 0x0F,	"Bright Magenta" },
-  { 0,		NULL } };
+  { 0,		NULL }
+};
 
 /* 9.2.3.24.10.1.1 */
 static void
@@ -2797,11 +2882,11 @@ dis_msg_deliver(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     oct = tvb_get_guint8(tvb, offset);
     udhi = oct & 0x40;
 
-    proto_tree_add_item(tree, hf_gsm_sms_tp_rp, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_gsm_sms_tp_sri, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_gsm_sms_tp_mms, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_gsm_sms_tp_mti_down, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_rp, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_sri, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_mms, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_mti_down, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
 
@@ -2859,9 +2944,9 @@ dis_msg_deliver_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     oct = tvb_get_guint8(tvb, offset);
     udhi = oct & 0x40;
 
-    proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_gsm_sms_tp_mms, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_gsm_sms_tp_mti_up, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_mms, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_mti_up, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     if (length < 2)
     {
@@ -2979,17 +3064,17 @@ dis_msg_submit(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     udhi = oct & 0x40;
     vp_form = ((oct & 0x18) >> 3);
 
-    proto_tree_add_item(tree, hf_gsm_sms_tp_rp, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_gsm_sms_tp_srr, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_gsm_sms_tp_vpf, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_gsm_sms_tp_rd, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_gsm_sms_tp_mti_up, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_rp, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_srr, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_vpf, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_rd, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_mti_up, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
     oct = tvb_get_guint8(tvb, offset);
 
-    proto_tree_add_item(tree, hf_gsm_sms_tp_mr, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_mr, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
 
@@ -3047,8 +3132,8 @@ dis_msg_submit_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     oct = tvb_get_guint8(tvb, offset);
     udhi = oct & 0x40;
 
-    proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_gsm_sms_tp_mti_down, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_mti_down, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /*
      * there does not seem to be a way to determine that this
@@ -3157,15 +3242,15 @@ dis_msg_status_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     oct = tvb_get_guint8(tvb, offset);
     udhi = oct & 0x40;
 
-    proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_gsm_sms_tp_srq, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_gsm_sms_tp_mms, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_gsm_sms_tp_mti_down, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_srq, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_mms, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_mti_down, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
     oct = tvb_get_guint8(tvb, offset);
 
-    proto_tree_add_item(tree, hf_gsm_sms_tp_mr, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_mr, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
 
@@ -3273,14 +3358,14 @@ dis_msg_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     oct = tvb_get_guint8(tvb, offset);
     udhi = oct & 0x40;
 
-    proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_gsm_sms_tp_srr, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_gsm_sms_tp_mti_up, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_srr, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_mti_up, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
     oct = tvb_get_guint8(tvb, offset);
 
-    proto_tree_add_item(tree, hf_gsm_sms_tp_mr, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_mr, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
     oct = tvb_get_guint8(tvb, offset);
@@ -3630,7 +3715,12 @@ proto_register_gsm_sms(void)
 	      { "SMS text", "gsm_sms.sms_text",
 	        FT_STRING, BASE_NONE, NULL, 0x00,
 	        "The text of the SMS", HFILL }
-            }
+            },
+		  { &hf_gsm_sms_tp_fail_cause,
+			{ "TP-Failure-Cause (TP-FCS)", "gsm_sms.tp-fcs",
+	        FT_UINT8, BASE_HEX_DEC|BASE_EXT_STRING, &gsm_sms_tp_failure_cause_values_ext, 0x0,
+	        "TP-Validity-Period-Format", HFILL }
+            },
         };
 
     /* Setup protocol subtree array */
