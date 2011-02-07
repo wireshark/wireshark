@@ -1,7 +1,8 @@
 /* packet-gsmtap.c
  * Routines for GSMTAP captures
  *
- * (C) 2008-2010 by Harald Welte <laforge@gnumonks.org>
+ * (C) 2008-2011 by Harald Welte <laforge@gnumonks.org>
+ * (C) 2011 by Holger Hans Peter Freyther
  *
  * $Id$
  *
@@ -33,6 +34,9 @@
  *
  * Example programs generating GSMTAP data are airprobe
  * (http://airprobe.org/) or OsmocomBB (http://bb.osmocom.org/)
+ *
+ * It has also been used for Tetra by the OsmocomTETRA project.
+ * (http://tetra.osmocom.org/)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -43,9 +47,14 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
-#define GSMTAP_TYPE_UM			0x01
-#define GSMTAP_TYPE_ABIS		0x02
-#define GSMTAP_TYPE_UM_BURST	0x03	/* raw burst bits */
+#include "packet-tetra.h"
+
+#define GSMTAP_TYPE_UM				0x01
+#define GSMTAP_TYPE_ABIS			0x02
+#define GSMTAP_TYPE_UM_BURST		0x03	/* raw burst bits */
+#define GSMTAP_TYPE_SIM				0x04
+#define GSMTAP_TYPE_TETRA_I1		0x05	/* tetra air interface */
+#define GSMTAP_TTPE_TETRA_I1_BURST	0x06	/* tetra air interface */
 
 #define GSMTAP_BURST_UNKNOWN		0x00
 #define GSMTAP_BURST_FCCH			0x01
@@ -58,24 +67,34 @@
 #define GSMTAP_BURST_ACCESS			0x08
 #define GSMTAP_BURST_NONE			0x09
 
-#define GSMTAP_CHANNEL_UNKNOWN	0x00
-#define GSMTAP_CHANNEL_BCCH		0x01
-#define GSMTAP_CHANNEL_CCCH		0x02
-#define GSMTAP_CHANNEL_RACH		0x03
-#define GSMTAP_CHANNEL_AGCH		0x04
-#define GSMTAP_CHANNEL_PCH		0x05
-#define GSMTAP_CHANNEL_SDCCH	0x06
-#define GSMTAP_CHANNEL_SDCCH4	0x07
-#define GSMTAP_CHANNEL_SDCCH8	0x08
-#define GSMTAP_CHANNEL_TCH_F	0x09
-#define GSMTAP_CHANNEL_TCH_H	0x0a
-#define GSMTAP_CHANNEL_ACCH		0x80
+#define GSMTAP_CHANNEL_UNKNOWN		0x00
+#define GSMTAP_CHANNEL_BCCH			0x01
+#define GSMTAP_CHANNEL_CCCH			0x02
+#define GSMTAP_CHANNEL_RACH			0x03
+#define GSMTAP_CHANNEL_AGCH			0x04
+#define GSMTAP_CHANNEL_PCH			0x05
+#define GSMTAP_CHANNEL_SDCCH		0x06
+#define GSMTAP_CHANNEL_SDCCH4		0x07
+#define GSMTAP_CHANNEL_SDCCH8		0x08
+#define GSMTAP_CHANNEL_TCH_F		0x09
+#define GSMTAP_CHANNEL_TCH_H		0x0a
+#define GSMTAP_CHANNEL_ACCH			0x80
 
-#define GSMTAP_ARFCN_F_PCS		0x8000
-#define GSMTAP_ARFCN_F_UPLINK	0x4000
-#define GSMTAP_ARFCN_MASK		0x3fff
+/* sub-types for TYPE_TETRA_AIR */
+#define GSMTAP_TETRA_BSCH			0x01
+#define GSMTAP_TETRA_AACH			0x02
+#define GSMTAP_TETRA_SCH_HU			0x03
+#define GSMTAP_TETRA_SCH_HD			0x04
+#define GSMTAP_TETRA_SCH_F			0x05
+#define GSMTAP_TETRA_BNCH			0x06
+#define GSMTAP_TETRA_STCH			0x07
+#define GSMTAP_TETRA_TCH_F			0x08
 
-#define GSMTAP_UDP_PORT			4729
+#define GSMTAP_ARFCN_F_PCS			0x8000
+#define GSMTAP_ARFCN_F_UPLINK		0x4000
+#define GSMTAP_ARFCN_MASK			0x3fff
+
+#define GSMTAP_UDP_PORT				4729
 
 /* This is the header as it is used by gsmtap-generating software.
  * It is not used by the wireshark dissector and provided for reference only.
@@ -112,6 +131,7 @@ static int hf_gsmtap_signal_dbm = -1;
 static int hf_gsmtap_frame_nr = -1;
 static int hf_gsmtap_burst_type = -1;
 static int hf_gsmtap_channel_type = -1;
+static int hf_gsmtap_tetra_channel_type = -1;
 static int hf_gsmtap_antenna = -1;
 
 static int hf_sacch_l1h_power_lev = -1;
@@ -169,10 +189,28 @@ static const value_string gsmtap_channels[] = {
 	{ 0,				NULL },
 };
 
+static const value_string gsmtap_tetra_channels[] = {
+	{ GSMTAP_TETRA_BSCH,		"BSCH"   },
+	{ GSMTAP_TETRA_AACH,		"AACH"   },
+	{ GSMTAP_TETRA_SCH_HU,		"SCH/HU" },
+	{ GSMTAP_TETRA_SCH_HD,		"SCH/HD" },
+	{ GSMTAP_TETRA_SCH_F,		"SCH/F"	 },
+	{ GSMTAP_TETRA_BNCH,		"BNCH"   },
+	{ GSMTAP_TETRA_STCH,		"STCH"   },
+	{ GSMTAP_TETRA_TCH_F,		"AACH"   },
+	{ 0,				NULL     },
+};
+
+/* the mapping is not complete */
+static const int gsmtap_to_tetra[8] = { TETRA_CHAN_BSCH, TETRA_CHAN_AACH, TETRA_CHAN_SCH_HU, 0,TETRA_CHAN_SCH_F, TETRA_CHAN_BNCH, TETRA_CHAN_STCH, 0};
+
 static const value_string gsmtap_types[] = {
 	{ GSMTAP_TYPE_UM,	"GSM Um (MS<->BTS)" },
 	{ GSMTAP_TYPE_ABIS,	"GSM Abis (BTS<->BSC)" },
 	{ GSMTAP_TYPE_UM_BURST,	"GSM Um burst (MS<->BTS)" },
+	{ GSMTAP_TYPE_SIM,	"SIM" },
+	{ GSMTAP_TYPE_TETRA_I1, "TETRA V+D"},
+	{ GSMTAP_TTPE_TETRA_I1_BURST, "TETRA V+D burst"},
 	{ 0,			NULL },
 };
 
@@ -198,6 +236,21 @@ dissect_sacch_l1h(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(l1h_tree, hf_sacch_l1h_fpc, tvb, 0, 1, FALSE);
 	/* Acutal Timing Advance */
 	proto_tree_add_item(l1h_tree, hf_sacch_l1h_ta, tvb, 1, 1, FALSE);
+}
+
+
+static void
+handle_tetra(int channel _U_, tvbuff_t *payload_tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
+{
+	int tetra_chan;
+	if (channel < 0 || channel > GSMTAP_TETRA_TCH_F)
+		return;
+
+	tetra_chan = gsmtap_to_tetra[channel];
+	if (tetra_chan <= 0)
+		return;
+
+	tetra_dissect_pdu(tetra_chan, TETRA_DOWNLINK, payload_tvb, tree, pinfo);
 }
 
 /* dissect a GSMTAP header and hand payload off to respective dissector */
@@ -259,12 +312,20 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
+		guint8 channel;
+		const char *channel_str;
+		channel = tvb_get_guint8(tvb, offset+12);
+		if (type == GSMTAP_TYPE_TETRA_I1)
+			channel_str = val_to_str(channel, gsmtap_tetra_channels, "Unknown: %d");
+		else
+			channel_str = val_to_str(channel, gsmtap_channels, "Unknown: %d");
+
 		ti = proto_tree_add_protocol_format(tree, proto_gsmtap, tvb, 0, hdr_len,
 			"GSM TAP Header, ARFCN: %u (%s), TS: %u, Channel: %s (%u)",
 			arfcn & GSMTAP_ARFCN_MASK,
 			arfcn & GSMTAP_ARFCN_F_UPLINK ? "Uplink" : "Downlink",
 			tvb_get_guint8(tvb, offset+3),
-			val_to_str(tvb_get_guint8(tvb, offset+12), gsmtap_channels, "Unknown: %d"),
+			channel_str,
 			tvb_get_guint8(tvb, offset+14));
 		gsmtap_tree = proto_item_add_subtree(ti, ett_gsmtap);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_version,
@@ -291,6 +352,9 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    tvb, offset+12, 1, FALSE);
 		else if (type == GSMTAP_TYPE_UM)
 			proto_tree_add_item(gsmtap_tree, hf_gsmtap_channel_type,
+					    tvb, offset+12, 1, FALSE);
+		else if (type == GSMTAP_TYPE_TETRA_I1)
+			proto_tree_add_item(gsmtap_tree, hf_gsmtap_tetra_channel_type,
 					    tvb, offset+12, 1, FALSE);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_antenna,
 				    tvb, offset+13, 1, FALSE);
@@ -323,6 +387,9 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 		break;
+	case GSMTAP_TYPE_TETRA_I1:
+		handle_tetra(tvb_get_guint8(tvb, offset+12), payload_tvb, pinfo, tree);
+		return;
 	case GSMTAP_TYPE_UM_BURST:
 	default:
 		sub_handle = GSMTAP_SUB_DATA;
@@ -362,6 +429,8 @@ proto_register_gsmtap(void)
 		  FT_UINT8, BASE_DEC, VALS(gsmtap_bursts), 0, NULL, HFILL }},
 		{ &hf_gsmtap_channel_type, { "Channel Type", "gsmtap.chan_type",
 		  FT_UINT8, BASE_DEC, VALS(gsmtap_channels), 0, NULL, HFILL }},
+		{ &hf_gsmtap_tetra_channel_type, { "Channel Type", "gsmtap.tetra_chan_type",
+		  FT_UINT8, BASE_DEC, VALS(gsmtap_tetra_channels), 0, NULL, HFILL }},
 		{ &hf_gsmtap_antenna, { "Antenna Number", "gsmtap.antenna",
 		  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 		{ &hf_gsmtap_subslot, { "Sub-Slot", "gsmtap.sub_slot",
