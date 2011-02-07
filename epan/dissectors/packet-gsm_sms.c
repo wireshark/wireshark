@@ -1435,7 +1435,7 @@ dis_field_st(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 /* 9.2.3.21 */
 /* done in-line in the message functions */
 
-/* 
+/*
  * 9.2.3.22 TP-Failure-Cause (TP-FCS)
  */
 
@@ -1591,7 +1591,7 @@ static const value_string gsm_sms_tp_failure_cause_values[] = {
 static value_string_ext gsm_sms_tp_failure_cause_values_ext = VALUE_STRING_EXT_INIT(gsm_sms_tp_failure_cause_values);
 
 static void
-dis_field_fcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
+dis_field_fcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct _U_)
 {
 	proto_tree_add_item(tree, hf_gsm_sms_tp_fail_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
