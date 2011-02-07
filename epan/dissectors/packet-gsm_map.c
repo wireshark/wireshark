@@ -289,6 +289,7 @@ static int hf_gsm_map_sm_sm_RP_SMEA = -1;         /* SM_RP_SMEA */
 static int hf_gsm_map_sm_sm_deliveryNotIntended = -1;  /* SM_DeliveryNotIntended */
 static int hf_gsm_map_sm_imsi = -1;               /* IMSI */
 static int hf_gsm_map_sm_locationInfoWithLMSI = -1;  /* LocationInfoWithLMSI */
+static int hf_gsm_map_sm_mwd_Set = -1;            /* BOOLEAN */
 static int hf_gsm_map_sm_networkNode_Number = -1;  /* ISDN_AddressString */
 static int hf_gsm_map_sm_lmsi = -1;               /* LMSI */
 static int hf_gsm_map_sm_gprsNodeIndicator = -1;  /* NULL */
@@ -5675,6 +5676,7 @@ dissect_gsm_map_sm_LocationInfoWithLMSI(gboolean implicit_tag _U_, tvbuff_t *tvb
 static const ber_sequence_t gsm_map_sm_RoutingInfoForSM_Res_sequence[] = {
   { &hf_gsm_map_sm_imsi     , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_gsm_map_IMSI },
   { &hf_gsm_map_sm_locationInfoWithLMSI, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_map_sm_LocationInfoWithLMSI },
+  { &hf_gsm_map_sm_mwd_Set  , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_sm_BOOLEAN },
   { &hf_gsm_map_sm_extensionContainer, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ExtensionContainer },
   { NULL, 0, 0, 0, NULL }
 };
@@ -17857,7 +17859,11 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
     offset=dissect_gsm_map_sm_MO_ForwardSM_Res(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 47: /*reportSM-DeliveryStatus*/
-    offset=dissect_gsm_map_sm_ReportSM_DeliveryStatusRes(FALSE, tvb, offset, actx, tree, -1);
+    offset=dissect_mc_message(tvb, offset, actx, tree,
+			      FALSE, dissect_gsm_map_ISDN_AddressString, hf_gsm_map_sm_storedMSISDN,
+			      FALSE, NULL, -1,
+			      FALSE , dissect_gsm_map_sm_ReportSM_DeliveryStatusRes, -1);/*undefined*/
+
     break;
   case 48: /*noteSubscriberPresent*/
     break;
@@ -19419,6 +19425,10 @@ void proto_register_gsm_map(void) {
       { "locationInfoWithLMSI", "gsm_map.sm.locationInfoWithLMSI",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_gsm_map_sm_mwd_Set,
+      { "mwd-Set", "gsm_map.sm.mwd_Set",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
     { &hf_gsm_map_sm_networkNode_Number,
       { "networkNode-Number", "gsm_map.sm.networkNode_Number",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -24469,7 +24479,7 @@ void proto_register_gsm_map(void) {
         "LCS_QoS", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2451 "packet-gsm_map-template.c"
+#line 2455 "packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -25073,7 +25083,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2479 "packet-gsm_map-template.c"
+#line 2483 "packet-gsm_map-template.c"
   };
 
   /* Register protocol */
@@ -25149,7 +25159,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 2497 "packet-gsm_map-template.c"
+#line 2501 "packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );

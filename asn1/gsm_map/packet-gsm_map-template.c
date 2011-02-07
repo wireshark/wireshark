@@ -1391,7 +1391,11 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
     offset=dissect_gsm_map_sm_MO_ForwardSM_Res(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 47: /*reportSM-DeliveryStatus*/
-    offset=dissect_gsm_map_sm_ReportSM_DeliveryStatusRes(FALSE, tvb, offset, actx, tree, -1);
+    offset=dissect_mc_message(tvb, offset, actx, tree,
+			      FALSE, dissect_gsm_map_ISDN_AddressString, hf_gsm_map_sm_storedMSISDN,
+			      FALSE, NULL, -1,
+			      FALSE , dissect_gsm_map_sm_ReportSM_DeliveryStatusRes, -1);/*undefined*/
+
     break;
   case 48: /*noteSubscriberPresent*/
     break;

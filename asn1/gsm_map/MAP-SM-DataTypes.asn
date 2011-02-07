@@ -92,6 +92,9 @@ SM-RP-SMEA ::= OCTET STRING (SIZE (1..12))
 RoutingInfoForSM-Res ::= SEQUENCE {
 	imsi			IMSI,
 	locationInfoWithLMSI	[0] LocationInfoWithLMSI,
+-- WS extension to handle old versions
+	mwd-Set [2] BOOLEAN OPTIONAL,	
+	-- mwd-Set must be absent in version greater 1
 	extensionContainer	[4] ExtensionContainer	OPTIONAL,
 	...}
 
