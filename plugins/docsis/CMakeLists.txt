@@ -28,6 +28,7 @@ set(DISSECTOR_SRC
 	packet-bpkmrsp.c
 	packet-cmctrlreq.c
 	packet-cmctrlrsp.c
+	packet-cmstatus.c
 	packet-intrngreq.c
 	packet-dbcreq.c
 	packet-dbcrsp.c
