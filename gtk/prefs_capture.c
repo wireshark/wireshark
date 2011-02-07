@@ -242,15 +242,15 @@ capture_prefs_fetch(GtkWidget *w)
 	}
 	prefs.capture_device = if_text;
 
-	prefs.capture_prom_mode = GTK_TOGGLE_BUTTON (promisc_cb)->active;
+	prefs.capture_prom_mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(promisc_cb));
 
-	prefs.capture_pcap_ng = GTK_TOGGLE_BUTTON (pcap_ng_cb)->active;
+	prefs.capture_pcap_ng = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(pcap_ng_cb));
 
-	prefs.capture_real_time = GTK_TOGGLE_BUTTON (sync_cb)->active;
+	prefs.capture_real_time = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(sync_cb));
 
-	prefs.capture_auto_scroll = GTK_TOGGLE_BUTTON (auto_scroll_cb)->active;
+	prefs.capture_auto_scroll = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(auto_scroll_cb));
 
-	prefs.capture_show_info = !(GTK_TOGGLE_BUTTON (show_info_cb)->active);
+	prefs.capture_show_info = !(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(show_info_cb)));
 }
 
 void
