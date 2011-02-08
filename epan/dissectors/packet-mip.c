@@ -37,7 +37,6 @@
 
 #include <epan/packet.h>
 #include <epan/sminmpec.h>
-#include "packet-ntp.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_mip = -1;
@@ -663,7 +662,6 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8         type;
   guint16        flags;
   gint           offset=0;
-  const guint8  *reftime;
   tvbuff_t      *next_tvb;
 
   /* Make entries in Protocol column and Info column on summary display */
@@ -719,11 +717,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  offset += 4;
 
 	  /* Identifier - assumed to be an NTP time here */
-	  reftime = tvb_get_ptr(tvb, offset, 8);
-	  proto_tree_add_bytes_format(mip_tree, hf_mip_ident, tvb, offset, 8,
-				      reftime,
-				      "Identification: %s",
-				      ntp_fmt_ts(reftime));
+	  proto_tree_add_item(mip_tree, hf_mip_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
 	  offset += 8;
 
 	} /* if tree */
@@ -761,11 +755,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  offset += 4;
 
 	  /* Identifier - assumed to be an NTP time here */
-	  reftime = tvb_get_ptr(tvb, offset, 8);
-	  proto_tree_add_bytes_format(mip_tree, hf_mip_ident, tvb, offset, 8,
-				      reftime,
-				      "Identification: %s",
-				      ntp_fmt_ts(reftime));
+	  proto_tree_add_item(mip_tree, hf_mip_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
 	  offset += 8;
 	} /* if tree */
 	break;
@@ -973,7 +963,7 @@ void proto_register_mip(void)
 	  },
 	  { &hf_mip_ident,
 		 { "Identification",           "mip.ident",
-			FT_BYTES, BASE_NONE, NULL, 0,
+			FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
 			"MN Identification.", HFILL }
 	  },
 	  { &hf_mip_ext_type,

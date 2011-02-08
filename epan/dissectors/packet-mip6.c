@@ -40,7 +40,6 @@
 #include <epan/ip_opts.h>
 #include <epan/expert.h>
 #include <epan/sminmpec.h>
-#include "packet-ntp.h"
 
 /* Mobility Header types */
 typedef enum {
@@ -135,7 +134,7 @@ typedef enum {
 	MIP6_MNLLAII   = 42,	/* 42 Mobile Node Link-local Address Interface Identifier Option [RFC5949] */
 	MIP6_TB        = 43,	/* 43 Transient Binding [RFC-ietf-mipshop-transient-bce-pmipv6-07] */
 	MIP6_FS        = 44,	/* 44 Flow Summary Mobility Option [RFC-ietf-mext-flow-binding-11] */
-	MIP6_FI        = 45,	/* 45 Flow Identification Mobility Option [RFC-ietf-mext-flow-binding-11]] */ 
+	MIP6_FI        = 45,	/* 45 Flow Identification Mobility Option [RFC-ietf-mext-flow-binding-11]] */
 
 } optTypes;
 
@@ -185,7 +184,7 @@ static const true_false_string pmip6_bu_t_flag_value = {
 	"No TLV-header format"
 };
 
-/* Binding Acknowledgement status values 
+/* Binding Acknowledgement status values
  * http://www.iana.org/assignments/mobility-parameters/mobility-parameters.xhtml
  */
 static const value_string mip6_ba_status_value[] = {
@@ -196,7 +195,7 @@ static const value_string mip6_ba_status_value[] = {
 	{   4, "MCOA NOTCOMPLETE" },							/* [RFC5648] */
 	{   5, "MCOA RETURNHOME WO/NDP" },						/* [RFC5648] */
 	{   6, "PBU_ACCEPTED_TB_IGNORED_SETTINGSMISMATCH" },	/* [RFC-ietf-mipshop-transient-bce-pmipv6-07] */
-	/* 7-127 Unassigned */  
+	/* 7-127 Unassigned */
 
 	{ 128, "Reason unspecified" },
 	{ 129, "Administratively prohibited" },
@@ -463,7 +462,7 @@ static const value_string mip6_mobility_options[] = {
 	{ MIP6_MNLLAII,	  "Mobile Node Link-local Address Interface Identifier Option"}, /* RFC5949 */
 	{ MIP6_TB,	      "Transient Binding"},							/* [RFC-ietf-mipshop-transient-bce-pmipv6-07] */
 	{ MIP6_FS,	      "Flow Summary"},								/* [RFC-ietf-mext-flow-binding-11] */
-	{ MIP6_FI,	      "Flow Identification"},						/* [RFC-ietf-mext-flow-binding-11]] */ 
+	{ MIP6_FI,	      "Flow Identification"},						/* [RFC-ietf-mext-flow-binding-11]] */
 
 	{ 0, NULL }
 };
@@ -1252,21 +1251,21 @@ dissect_pmip6_bri(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 
 			proto_tree_add_item(field_tree, hf_pmip6_bri_brtype, tvb,
 				PMIP6_BRI_BRTYPE_OFF, PMIP6_BRI_BRTYPE_LEN, FALSE);
-			
+
 			proto_tree_add_item(field_tree, hf_pmip6_bri_rtrigger, tvb,
 				PMIP6_BRI_RTRIGGER_OFF, PMIP6_BRI_RTRIGGER_LEN, FALSE);
-			
+
 			proto_tree_add_item(field_tree, hf_pmip6_bri_seqnr, tvb,
 				PMIP6_BRI_SEQNR_OFF, PMIP6_BRI_SEQNR_LEN, FALSE);
-			
+
 			proto_tree_add_item(field_tree, hf_pmip6_bri_ip_flag, tvb,
-				PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, FALSE);	
+				PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, FALSE);
 
 			proto_tree_add_item(field_tree, hf_pmip6_bri_ia_flag, tvb,
-				PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, FALSE);	
+				PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, FALSE);
 
 			proto_tree_add_item(field_tree, hf_pmip6_bri_ig_flag, tvb,
-				PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, FALSE);	
+				PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, FALSE);
 
 			proto_tree_add_item(field_tree, hf_pmip6_bri_res, tvb,
 				PMIP6_BRI_RES_OFF, PMIP6_BRI_RES_LEN, FALSE);
@@ -1284,18 +1283,18 @@ dissect_pmip6_bri(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 
 			proto_tree_add_item(field_tree, hf_pmip6_bri_brtype, tvb,
 				PMIP6_BRI_BRTYPE_OFF, PMIP6_BRI_BRTYPE_LEN, FALSE);
-			
+
 			proto_tree_add_item(field_tree, hf_pmip6_bri_status, tvb,
 				PMIP6_BRI_STATUS_OFF, PMIP6_BRI_STATUS_LEN, FALSE);
-			
+
 			proto_tree_add_item(field_tree, hf_pmip6_bri_seqnr, tvb,
 				PMIP6_BRI_SEQNR_OFF, PMIP6_BRI_SEQNR_LEN, FALSE);
-			
+
 			proto_tree_add_item(field_tree, hf_pmip6_bri_ap_flag, tvb,
-				PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, FALSE);	
+				PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, FALSE);
 
 			proto_tree_add_item(field_tree, hf_pmip6_bri_ag_flag, tvb,
-				PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, FALSE);	
+				PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, FALSE);
 
 			proto_tree_add_item(field_tree, hf_pmip6_bri_res, tvb,
 				PMIP6_BRI_RES_OFF, PMIP6_BRI_RES_LEN, FALSE);
@@ -1539,7 +1538,7 @@ static void dissect_pmip6_opt_lla(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int
     proto_tree      *field_tree;
 
     if (opt_tree){
-		ti = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
+	ti = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
         field_tree = proto_item_add_subtree(ti, *optp->subtree_index);
 
         proto_tree_add_item(field_tree, hf_pmip6_opt_lila_lla, tvb, offset + 2, 16, FALSE);
@@ -1549,13 +1548,10 @@ static void dissect_pmip6_opt_lla(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int
 /* 27 Timestamp */
 static void
 dissect_pmip6_opt_ts(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-		     guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+		     guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree)
 {
-	const guint8 *reftime;
-
-	reftime = tvb_get_ptr(tvb, offset + 2, optlen);
-	proto_tree_add_bytes_format(opt_tree, hf_pmip6_timestamp, tvb, offset , 10,
-			reftime, "Timestamp: %s", ntp_fmt_ts(reftime));
+	proto_tree_add_item(opt_tree, hf_pmip6_timestamp, tvb, offset+2, 8,
+			    ENC_TIME_NTP|ENC_BIG_ENDIAN);
 }
 
  /* 28 Restart Counter [RFC5847] */
@@ -2385,7 +2381,7 @@ proto_register_mip6(void)
 				      NULL, HFILL }},
 
 	{ &hf_pmip6_timestamp,      { "Timestamp", "mip6.timestamp",
-				      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+				      FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0, NULL, HFILL }},
 
 	{ &hf_pmip6_opt_lila_lla,       { "Link-local Address", "mip6.lila_lla",
 	                                FT_IPv6, BASE_NONE, NULL, 0x0, "", HFILL }},
@@ -2423,7 +2419,7 @@ proto_register_mip6(void)
 				      NULL, HFILL }},
 	{ &hf_pmip6_bri_brtype,		{ "B.R. Type",	"mip6.bri_br.type",
 					FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-						
+
 	{ &hf_pmip6_bri_rtrigger,	{ "R. Trigger", "mip6.bri_r.trigger",
 					FT_UINT8, BASE_DEC, VALS(pmip6_bri_rtrigger), 0x0, NULL, HFILL }},
 

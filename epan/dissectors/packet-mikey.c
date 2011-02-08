@@ -46,7 +46,6 @@
 #include <epan/prefs.h>
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-x509af.h>
-#include "packet-ntp.h"
 
 #ifdef HAVE_LIBGCRYPT
 #include <gcrypt.h>
@@ -858,18 +857,10 @@ dissect_payload_t(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pro
 
 	switch (ts_type) {
 	case T_NTP:
-	case T_NTP_UTC: {
-		const gchar *buff;
-
-		tvb_ensure_bytes_exist(tvb, offset+2, 8);
-		buff = ntp_fmt_ts(tvb_get_ptr(tvb, offset+2, 8));
-
-		if (tree)
-			proto_tree_add_string_format(tree, hf_mikey[POS_TS_NTP], tvb, offset+2, 8, (const char*)buff, "NTP timestamp: %s", buff);
-
+	case T_NTP_UTC:
+		proto_tree_add_item(tree, hf_mikey[POS_TS_NTP], tvb, offset+2, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
 		len = 10;
 		break;
-	}
 	case T_COUNTER:
 		len = 6;
 		break;
@@ -1520,7 +1511,7 @@ proto_register_mikey(void)
 		    NULL, HFILL }},
 		{ &hf_mikey[POS_TS_NTP],
 		  { "NTP timestamp", "mikey.t.ntp",
-		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_mikey[POS_PAYLOAD_STR],

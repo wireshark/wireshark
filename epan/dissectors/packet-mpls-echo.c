@@ -32,7 +32,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
-#include "packet-ntp.h"
 #include "packet-ldp.h"
 #include "packet-mpls.h"
 
@@ -974,7 +973,6 @@ dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_item *ti = NULL;
         proto_tree *mpls_echo_tree = NULL, *mpls_echo_gflags = NULL;
         guint8 msgtype;
-        const guint8 *ts_sent, *ts_rec;
 
         /* If version != 1 we assume it's not an mpls ping packet */
         if (tvb_length(tvb) < 5) {
@@ -1046,13 +1044,10 @@ dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     hf_mpls_echo_sequence, tvb, offset + 12, 4, FALSE);
 
 		if(MSGTYPE_MPLS_ECHO(msgtype)){
-                	/* Using NTP routine to calculate the timestamp */
-                	ts_sent = tvb_get_ptr(tvb, 16, 8);
-                	proto_tree_add_bytes_format(mpls_echo_tree, hf_mpls_echo_ts_sent, tvb,
-                	    offset + 16, 8, ts_sent, "Timestamp Sent: %s", ntp_fmt_ts(ts_sent));
-                	ts_rec = tvb_get_ptr(tvb, 24, 8);
-                	proto_tree_add_bytes_format(mpls_echo_tree, hf_mpls_echo_ts_rec, tvb,
-                	    offset + 24, 8, ts_rec, "Timestamp Received: %s", ntp_fmt_ts(ts_rec));
+                	proto_tree_add_item(mpls_echo_tree, hf_mpls_echo_ts_sent, tvb,
+                	    offset + 16, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+                	proto_tree_add_item(mpls_echo_tree, hf_mpls_echo_ts_rec, tvb,
+                	    offset + 24, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
 		}
 
         }
@@ -1128,11 +1123,11 @@ proto_register_mpls_echo(void)
                 },
                 { &hf_mpls_echo_ts_sent,
                         { "Timestamp Sent", "mpls_echo.timestamp_sent",
-                        FT_BYTES, BASE_NONE, NULL, 0x0, "MPLS ECHO Timestamp Sent", HFILL}
+                        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, "MPLS ECHO Timestamp Sent", HFILL}
                 },
                 { &hf_mpls_echo_ts_rec,
                         { "Timestamp Received", "mpls_echo.timestamp_rec",
-                        FT_BYTES, BASE_NONE, NULL, 0x0, "MPLS ECHO Timestamp Received", HFILL}
+                        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, "MPLS ECHO Timestamp Received", HFILL}
                 },
                 { &hf_mpls_echo_tlv_type,
                         { "Type", "mpls_echo.tlv.type",
