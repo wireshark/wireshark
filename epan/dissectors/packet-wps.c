@@ -662,100 +662,107 @@ static const value_string eapwps_tlv_primary_device_type_category[] = {
   { 0, NULL }
 };
 
-#define WPS_DEVICE_TYPE_SUB_CATEGORY_MAX 9
-static const value_string eapwps_tlv_primary_device_type_subcategory[WPS_DEVICE_TYPE_CATEGORY_MAX][WPS_DEVICE_TYPE_SUB_CATEGORY_MAX + 1] = {
-  {
-    { 0x01, "PC" },
-    { 0x02, "Server" },
-    { 0x03, "Media Center" },
-    { 0x04, "Ultra-mobile PC" },
-    { 0x05, "Notebook" },
-    { 0x06, "Desktop" },
-    { 0x07, "MID (Mobile Internet Device)" },
-    { 0x08, "Netbook" },
-    { 0, NULL }
-  },
-  {
-    { 0x01, "Keyboard" },
-    { 0x02, "Mouse" },
-    { 0x03, "Joystick" },
-    { 0x04, "Trackball" },
-    { 0x05, "Gaming controller" },
-    { 0x06, "Remote" },
-    { 0x07, "Touchscreen" },
-    { 0x08, "Biometric reader" },
-    { 0x09, "Barcode reader" },
-    { 0, NULL }
-  },
-  {
-    { 0x01, "Printer or Print Server" },
-    { 0x02, "Scanner" },
-    { 0x03, "Fax" },
-    { 0x04, "Copier" },
-    { 0x05, "All-in-one (Printer, Scanner, Fax, Copier)" },
-    { 0, NULL }
-  },
-  {
-    { 0x01, "Digital Still Camera" },
-    { 0x02, "Video Camera" },
-    { 0x03, "Web Camera" },
-    { 0x04, "Security Camera" },
-    { 0, NULL }
-  },
-  {
-    { 0x01, "NAS" },
-    { 0, NULL }
-  },
-  {
-    { 0x01, "AP" },
-    { 0x02, "Router" },
-    { 0x03, "Switch" },
-    { 0x04, "Gateway" },
-    { 0x05, "Bridge" },
-    { 0, NULL }
-  },
-  {
-    { 0x01, "Television" },
-    { 0x02, "Electronic Picture Frame" },
-    { 0x03, "Projector" },
-    { 0x04, "Monitor" },
-    { 0, NULL }
-  },
-  {
-    { 0x01, "DAR" },
-    { 0x02, "PVR" },
-    { 0x03, "MCX" },
-    { 0x04, "Set-top box" },
-    { 0x05, "Media Server/Media Adapter/Media Extender" },
-    { 0x06, "Portable Video Player" },
-    { 0, NULL }
-  },
-  {
-    { 0x01, "Xbox" },
-    { 0x02, "Xbox360" },
-    { 0x03, "Playstation" },
-    { 0x04, "Game Console/Game Console Adapter" },
-    { 0x05, "Portable Gaming Device" },
-    { 0, NULL }
-  },
-  {
-    { 0x01, "Windows Mobile" },
-    { 0x02, "Phone - single mode" },
-    { 0x03, "Phone - dual mode" },
-    { 0x04, "Smartphone - single mode" },
-    { 0x05, "Smartphone - dual mode" },
-    { 0, NULL }
-  },
-  {
-    { 0x01, "Audio tuner/receiver" },
-    { 0x02, "Speakers" },
-    { 0x03, "Portable Music Player (PMP)" },
-    { 0x04, "Headset (headphones + microphone)" },
-    { 0x05, "Headphones" },
-    { 0x06, "Microphone" },
-    { 0x07, "Home Theater Systems" },
-    { 0, NULL }
-  }
+static const value_string eapwps_tlv_computer_subcategory[] = {
+  { 0x01, "PC" },
+  { 0x02, "Server" },
+  { 0x03, "Media Center" },
+  { 0x04, "Ultra-mobile PC" },
+  { 0x05, "Notebook" },
+  { 0x06, "Desktop" },
+  { 0x07, "MID (Mobile Internet Device)" },
+  { 0x08, "Netbook" },
+  { 0, NULL }
+};
+
+static const value_string eapwps_tlv_input_device_subcategory[] = {
+  { 0x01, "Keyboard" },
+  { 0x02, "Mouse" },
+  { 0x03, "Joystick" },
+  { 0x04, "Trackball" },
+  { 0x05, "Gaming controller" },
+  { 0x06, "Remote" },
+  { 0x07, "Touchscreen" },
+  { 0x08, "Biometric reader" },
+  { 0x09, "Barcode reader" },
+  { 0, NULL }
+};
+
+static const value_string eapwps_tlv_printers_scanners_faxes_copiers_subcategory[] = {
+  { 0x01, "Printer or Print Server" },
+  { 0x02, "Scanner" },
+  { 0x03, "Fax" },
+  { 0x04, "Copier" },
+  { 0x05, "All-in-one (Printer, Scanner, Fax, Copier)" },
+  { 0, NULL }
+};
+
+static const value_string eapwps_tlv_camera_subcategory[] = {
+  { 0x01, "Digital Still Camera" },
+  { 0x02, "Video Camera" },
+  { 0x03, "Web Camera" },
+  { 0x04, "Security Camera" },
+  { 0, NULL }
+};
+
+static const value_string eapwps_tlv_storage_subcategory[] = {
+  { 0x01, "NAS" },
+  { 0, NULL }
+};
+
+static const value_string eapwps_tlv_network_infrastructure_subcategory[] = {
+  { 0x01, "AP" },
+  { 0x02, "Router" },
+  { 0x03, "Switch" },
+  { 0x04, "Gateway" },
+  { 0x05, "Bridge" },
+  { 0, NULL }
+};
+
+static const value_string eapwps_tlv_displays_subcategory[] = {
+  { 0x01, "Television" },
+  { 0x02, "Electronic Picture Frame" },
+  { 0x03, "Projector" },
+  { 0x04, "Monitor" },
+  { 0, NULL }
+};
+
+static const value_string eapwps_tlv_multimedia_devices_subcategory[] = {
+  { 0x01, "DAR" },
+  { 0x02, "PVR" },
+  { 0x03, "MCX" },
+  { 0x04, "Set-top box" },
+  { 0x05, "Media Server/Media Adapter/Media Extender" },
+  { 0x06, "Portable Video Player" },
+  { 0, NULL }
+};
+
+static const value_string eapwps_tlv_gaming_devices_subcategory[] = {
+  { 0x01, "Xbox" },
+  { 0x02, "Xbox360" },
+  { 0x03, "Playstation" },
+  { 0x04, "Game Console/Game Console Adapter" },
+  { 0x05, "Portable Gaming Device" },
+  { 0, NULL }
+};
+
+static const value_string eapwps_tlv_telephone_subcategory[] = {
+  { 0x01, "Windows Mobile" },
+  { 0x02, "Phone - single mode" },
+  { 0x03, "Phone - dual mode" },
+  { 0x04, "Smartphone - single mode" },
+  { 0x05, "Smartphone - dual mode" },
+  { 0, NULL }
+};
+
+static const value_string eapwps_tlv_audio_devices_subcategory[] = {
+  { 0x01, "Audio tuner/receiver" },
+  { 0x02, "Speakers" },
+  { 0x03, "Portable Music Player (PMP)" },
+  { 0x04, "Headset (headphones + microphone)" },
+  { 0x05, "Headphones" },
+  { 0x06, "Microphone" },
+  { 0x07, "Home Theater Systems" },
+  { 0, NULL }
 };
 
 /*  ********************************************************************** */
@@ -2057,38 +2064,38 @@ proto_register_wps(void)
       { "Category", "wps.primary_device_type.category",
         FT_UINT16, BASE_HEX, VALS(eapwps_tlv_primary_device_type_category), 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_primary_device_type_subcategory[0],
-      { "Subcategory", "wps.primary_device_type.subcategory_1",
-        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_primary_device_type_subcategory[0]), 0x0, NULL, HFILL }},
+      { "Subcategory", "wps.primary_device_type.subcategory_computer",
+        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_computer_subcategory), 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_primary_device_type_subcategory[1],
-      { "Subcategory", "wps.primary_device_type.subcategory_2",
-        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_primary_device_type_subcategory[1]), 0x0, NULL, HFILL }},
+      { "Subcategory", "wps.primary_device_type.subcategory_input_device",
+        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_input_device_subcategory), 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_primary_device_type_subcategory[2],
-      { "Subcategory", "wps.primary_device_type.subcategory_3",
-        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_primary_device_type_subcategory[2]), 0x0, NULL, HFILL }},
+      { "Subcategory", "wps.primary_device_type.subcategory_printers_scanners_faxes_copiers",
+        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_printers_scanners_faxes_copiers_subcategory), 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_primary_device_type_subcategory[3],
-      { "Subcategory", "wps.primary_device_type.subcategory_4",
-        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_primary_device_type_subcategory[3]), 0x0, NULL, HFILL }},
+      { "Subcategory", "wps.primary_device_type.subcategory_camera",
+        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_camera_subcategory), 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_primary_device_type_subcategory[4],
-      { "Subcategory", "wps.primary_device_type.subcategory_5",
-        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_primary_device_type_subcategory[4]), 0x0, NULL, HFILL }},
+      { "Subcategory", "wps.primary_device_type.subcategory_storage",
+        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_storage_subcategory), 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_primary_device_type_subcategory[5],
-      { "Subcategory", "wps.primary_device_type.subcategory_6",
-        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_primary_device_type_subcategory[5]), 0x0, NULL, HFILL }},
+      { "Subcategory", "wps.primary_device_type.subcategory_network_infrastructure",
+        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_network_infrastructure_subcategory), 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_primary_device_type_subcategory[6],
-      { "Subcategory", "wps.primary_device_type.subcategory_7",
-        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_primary_device_type_subcategory[6]), 0x0, NULL, HFILL }},
+      { "Subcategory", "wps.primary_device_type.subcategory_displays",
+        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_displays_subcategory), 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_primary_device_type_subcategory[7],
-      { "Subcategory", "wps.primary_device_type.subcategory_8",
-        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_primary_device_type_subcategory[7]), 0x0, NULL, HFILL }},
+      { "Subcategory", "wps.primary_device_type.subcategory_multimedia_devices",
+        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_multimedia_devices_subcategory), 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_primary_device_type_subcategory[8],
-      { "Subcategory", "wps.primary_device_type.subcategory_9",
-        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_primary_device_type_subcategory[8]), 0x0, NULL, HFILL }},
+      { "Subcategory", "wps.primary_device_type.subcategory_gaming_devices",
+        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_gaming_devices_subcategory), 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_primary_device_type_subcategory[9],
-      { "Subcategory", "wps.primary_device_type.subcategory_10",
-        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_primary_device_type_subcategory[9]), 0x0, NULL, HFILL }},
+      { "Subcategory", "wps.primary_device_type.subcategory_telephone",
+        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_telephone_subcategory), 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_primary_device_type_subcategory[10],
-      { "Subcategory", "wps.primary_device_type.subcategory_11",
-        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_primary_device_type_subcategory[10]), 0x0, NULL, HFILL }},
+      { "Subcategory", "wps.primary_device_type.subcategory_audio_devices",
+        FT_UINT16, BASE_HEX, VALS(eapwps_tlv_audio_devices_subcategory), 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_secondary_device_type_list,
       { "Secondary Device Type List", "wps.secondary_device_type_list",
