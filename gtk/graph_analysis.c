@@ -1,4 +1,4 @@
-/* graph_analysis.c
+ /* graph_analysis.c
  * Graphic Analysis addition for Wireshark
  *
  * $Id$
@@ -1447,7 +1447,7 @@ static gboolean pane_callback(GtkWidget *widget, GParamSpec *pspec _U_, gpointer
 	gtk_widget_get_allocation(user_data->dlg.draw_area_comments, &draw_area_comments_alloc);
 	draw_area_comments_style = gtk_widget_get_style(user_data->dlg.draw_area_comments);
 #else
-	draw_area_comments_alloc = user_data->dlg.draw_area_comments->style->allocation;
+	draw_area_comments_alloc = user_data->dlg.draw_area_comments->allocation;
 	draw_area_comments_style = user_data->dlg.draw_area_comments->style;
 #endif
 
