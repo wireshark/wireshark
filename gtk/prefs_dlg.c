@@ -780,12 +780,12 @@ fetch_preference_radio_buttons_val(GtkWidget *button,
   for (rb_entry = rb_group; rb_entry != NULL;
        rb_entry = g_slist_next(rb_entry)) {
     button = rb_entry->data;
-    if (GTK_TOGGLE_BUTTON(button)->active)
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
       break;
   }
 
   /* OK, now return the value corresponding to that button's label. */
-  return label_to_enum_val(GTK_BIN(button)->child, enumvals);
+  return label_to_enum_val(gtk_bin_get_child(GTK_BIN(button)), enumvals);
 }
 
 GtkWidget *
@@ -1017,7 +1017,7 @@ pref_fetch(pref_t *pref, gpointer user_data)
     break;
 
   case PREF_BOOL:
-    bval = GTK_TOGGLE_BUTTON(pref->control)->active;
+    bval = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(pref->control));
     if (*pref->varp.boolp != bval) {
       *pref_changed_p = TRUE;
       *pref->varp.boolp = bval;

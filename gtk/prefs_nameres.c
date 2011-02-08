@@ -265,11 +265,11 @@ nameres_prefs_fetch(GtkWidget *w)
 #endif /* HAVE_C_ARES || HAVE_GNU_ADNS */
 
 	prefs.name_resolve = RESOLV_NONE;
-	prefs.name_resolve |= (GTK_TOGGLE_BUTTON (m_resolv_cb)->active ? RESOLV_MAC : RESOLV_NONE);
-	prefs.name_resolve |= (GTK_TOGGLE_BUTTON (n_resolv_cb)->active ? RESOLV_NETWORK : RESOLV_NONE);
-	prefs.name_resolve |= (GTK_TOGGLE_BUTTON (t_resolv_cb)->active ? RESOLV_TRANSPORT : RESOLV_NONE);
+	prefs.name_resolve |= (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (m_resolv_cb)) ? RESOLV_MAC : RESOLV_NONE);
+	prefs.name_resolve |= (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (n_resolv_cb)) ? RESOLV_NETWORK : RESOLV_NONE);
+	prefs.name_resolve |= (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (t_resolv_cb)) ? RESOLV_TRANSPORT : RESOLV_NONE);
 #if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
-	prefs.name_resolve |= (GTK_TOGGLE_BUTTON (c_resolv_cb)->active ? RESOLV_CONCURRENT : RESOLV_NONE);
+	prefs.name_resolve |= (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (c_resolv_cb)) ? RESOLV_CONCURRENT : RESOLV_NONE);
 
 	prefs.name_resolve_concurrency = strtol (gtk_entry_get_text(
 		GTK_ENTRY(resolv_concurrency_te)), NULL, 10);

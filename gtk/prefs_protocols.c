@@ -75,7 +75,7 @@ protocols_prefs_fetch(GtkWidget *w _U_)
         GtkWidget *display_hidden_cb;
 
         display_hidden_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), PROTOCOLS_SHOW_HIDDEN_KEY);
-        prefs.display_hidden_proto_items = (GTK_TOGGLE_BUTTON (display_hidden_cb)->active ? TRUE : FALSE);
+        prefs.display_hidden_proto_items = (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (display_hidden_cb)) ? TRUE : FALSE);
 }
 
 void
