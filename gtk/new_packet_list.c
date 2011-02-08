@@ -192,6 +192,8 @@ right_justify_column (gint col)
 	return right_justify;
 }
 
+#ifndef GSEAL_ENABLE
+/* XXX - See comment at other places where "#ifndef GSEAL_ENABLE" is in this file */
 static gboolean
 resolve_column (gint col)
 {
@@ -220,6 +222,7 @@ resolve_column (gint col)
 
 	return resolve;
 }
+#endif /* !GSEAL_ENABLE */
 
 static void
 col_title_change_ok (GtkWidget *w, gpointer parent_w)
@@ -655,6 +658,8 @@ new_packet_list_column_menu_cb (GtkWidget *w, gpointer user_data _U_, COLUMN_SEL
 	}
 }
 
+#ifndef GSEAL_ENABLE
+/* XXX - See comment where this is used as in G_CALLBACK() */
 static gboolean
 new_packet_list_column_button_pressed_cb (GtkWidget *widget, GdkEvent *event, gpointer data)
 {
@@ -668,6 +673,7 @@ new_packet_list_column_button_pressed_cb (GtkWidget *widget, GdkEvent *event, gp
 	g_object_set_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_COLUMN_KEY, col);
 	return popup_menu_handler (widget, event, menu);
 }
+#endif
 
 static void
 column_dnd_changed_cb(GtkTreeView *tree_view, gpointer data _U_)
@@ -718,7 +724,10 @@ create_view_and_model(void)
 	header_field_info *hfi;
 	gint col_min_width;
 	gchar *escaped_title;
+#ifndef GSEAL_ENABLE
+	/* XXX - See comment below */
 	GtkTooltips *tooltips = gtk_tooltips_new ();
+#endif
 
 	packetlist = new_packet_list_new();
 
@@ -819,7 +828,11 @@ create_view_and_model(void)
 		}else{
 			gtk_tree_view_column_set_fixed_width(col, col_width);
 		}
+
 		gtk_tree_view_append_column(GTK_TREE_VIEW(packetlist->view), col);
+#ifndef GSEAL_ENABLE
+		/* XXX See Gnome bug #641089 -- GtkTreeViewColumn's button variable is sealed, but
+		 * the accessor function isn't available until GTK+ 3.0.  */
 
 		/* XXX Breaks the GTK+ API, but this is the only way to attach a signal to
 		 * a GtkTreeView column header. See GTK bug #141937.
@@ -828,6 +841,7 @@ create_view_and_model(void)
 		g_free(tooltip_text);
 		g_signal_connect(col->button, "button_press_event",
 				 G_CALLBACK(new_packet_list_column_button_pressed_cb), col);
+#endif /* !GSEAL_ENABLE */
 
 		if (i == 0) {  /* Default sort on first column */
 			g_object_set_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_COLUMN_KEY, col);
@@ -1103,11 +1117,19 @@ new_packet_list_check_end(void)
 	adj = gtk_tree_view_get_vadjustment(GTK_TREE_VIEW(packetlist->view));
 	g_return_val_if_fail(adj != NULL, FALSE);
 
+#if GTK_CHECK_VERSION(2,14,0)
+	if (gtk_adjustment_get_value(adj) >= gtk_adjustment_get_upper(adj) - gtk_adjustment_get_page_size(adj)) {
+#else
 	if (adj->value >= adj->upper - adj->page_size) {
+#endif
 		at_end = TRUE;
 	}
 #ifdef HAVE_LIBPCAP
+#if GTK_CHECK_VERSION(2,14,0)
+	if (gtk_adjustment_get_value(adj) > 0 && at_end != last_at_end && at_end != auto_scroll_live) {
+#else
 	if (adj->value > 0 && at_end != last_at_end && at_end != auto_scroll_live) {
+#endif
 		menu_auto_scroll_live_changed(at_end);
 	}
 #endif

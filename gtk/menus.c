@@ -5288,7 +5288,7 @@ menu_colorize_changed(gboolean packet_list_colorize) {
 #else
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Colorize Packet List");
 #endif /* MAIN_MENU_USE_UIMANAGER */
-    if( ((gboolean) GTK_CHECK_MENU_ITEM(menu)->active) != packet_list_colorize) {
+    if( (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menu)) != packet_list_colorize) ) {
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), packet_list_colorize);
     }
 
@@ -6788,7 +6788,7 @@ menus_set_column_align_default (gboolean right_justify)
     child_list = gtk_container_get_children(GTK_CONTAINER(submenu));
     child_list_item = child_list;
     while(child_list_item) {
-        menu_item_child = (GTK_BIN(child_list_item->data))->child;
+        menu_item_child = gtk_bin_get_child(GTK_BIN(child_list_item->data));
         if (menu_item_child != NULL) {
             menu_item_name = gtk_label_get_text(GTK_LABEL(menu_item_child));
             menu_item_len = strlen (menu_item_name);
