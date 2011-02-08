@@ -1537,6 +1537,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 */
 			if (encoding == TRUE)
 				encoding = ENC_TIME_TIMESPEC|ENC_LITTLE_ENDIAN;
+
 			switch (encoding) {
 
 			case ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN:
@@ -1571,7 +1572,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				/*
 				 * NTP time stamp, big-endian.
 				 */
-				DISSECTOR_ASSERT(length == 8);
+				DISSECTOR_ASSERT(length == 8 || length == 4);
 
 /* XXX - where should this go? */
 #define NTP_BASETIME 2208988800ul
@@ -1579,33 +1580,41 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				if (time_stamp.secs)
 					time_stamp.secs -= NTP_BASETIME;
 
-				/*
-				 * We're using nanoseconds here (and we will
-				 * display nanoseconds), but NTP's timestamps
-				 * have a precision in microseconds or greater.
-				 * Round to 1 microsecond.
-				 */
-				time_stamp.nsecs = (int)(1000000*(tvb_get_ntohl(tvb, start+4)/4294967296.0));
-				time_stamp.nsecs *= 1000;
+				if (length == 8) {
+					/*
+					 * We're using nanoseconds here (and we will
+					 * display nanoseconds), but NTP's timestamps
+					 * have a precision in microseconds or greater.
+					 * Round to 1 microsecond.
+					 */
+					time_stamp.nsecs = (int)(1000000*(tvb_get_ntohl(tvb, start+4)/4294967296.0));
+					time_stamp.nsecs *= 1000;
+				} else {
+					time_stamp.nsecs = 0;
+				}
 				break;
 
 			case ENC_TIME_NTP|ENC_LITTLE_ENDIAN:
 				/*
 				 * NTP time stamp, big-endian.
 				 */
-				DISSECTOR_ASSERT(length == 8);
+				DISSECTOR_ASSERT(length == 8 || length == 4);
 				time_stamp.secs  = tvb_get_letohl(tvb, start);
 				if (time_stamp.secs)
 					time_stamp.secs -= NTP_BASETIME;
 
-				/*
-				 * We're using nanoseconds here (and we will
-				 * display nanoseconds), but NTP's timestamps
-				 * have a precision in microseconds or greater.
-				 * Round to 1 microsecond.
-				 */
-				time_stamp.nsecs = (int)(1000000*(tvb_get_letohl(tvb, start+4)/4294967296.0));
-				time_stamp.nsecs *= 1000;
+				if (length == 8) {
+					/*
+					 * We're using nanoseconds here (and we will
+					 * display nanoseconds), but NTP's timestamps
+					 * have a precision in microseconds or greater.
+					 * Round to 1 microsecond.
+					 */
+					time_stamp.nsecs = (int)(1000000*(tvb_get_letohl(tvb, start+4)/4294967296.0));
+					time_stamp.nsecs *= 1000;
+				} else {
+					time_stamp.nsecs = 0;
+				}
 				break;
 
 			default:

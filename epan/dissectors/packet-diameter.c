@@ -61,7 +61,6 @@
 #include <epan/tap.h>
 #include <epan/diam_dict.h>
 #include "packet-tcp.h"
-#include "packet-ntp.h"
 #include "packet-diameter.h"
 
 /* Diameter Header Flags */
@@ -557,22 +556,19 @@ static const char*
 time_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 {
 	int len = tvb_length(tvb);
-	guint8 ntptime[8] = {0,0,0,0,0,0,0,0};
-	const char* label;
+	char* label = ep_alloc(ITEM_LABEL_LENGTH+1);
 	proto_item* pi;
 
 	if ( len != 4 ) {
-		proto_item* pi_local = proto_tree_add_text(c->tree, tvb, 0, 4,
-							   "Error! AVP value MUST be 4 bytes");
-		expert_add_info_format(c->pinfo, pi_local, PI_MALFORMED, PI_NOTE,
+		pi = proto_tree_add_text(c->tree, tvb, 0, 4, "Error! AVP value MUST be 4 bytes");
+		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
 				       "Bad Timestamp Length (%u)", len);
 		return "[Malformed]";
 	}
 
-	pi = proto_tree_add_item(c->tree, (a->hf_value), tvb, 0, 4, FALSE);
-	tvb_memcpy(tvb,ntptime,0,4);
-	label = ntp_fmt_ts(ntptime);
-	proto_item_append_text(pi,"  %s",label);
+	pi = proto_tree_add_item(c->tree, (a->hf_value), tvb, 0, 4, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+	proto_item_fill_label(PITEM_FINFO(pi), label);
+	label = strstr(label,": ")+2;
 	return label;
 }
 
@@ -1294,21 +1290,21 @@ build_simple_avp(const avp_type_t* type, guint32 code, const diam_vnd_t* vendor,
 
 
 static const avp_type_t basic_types[] = {
-	{"octetstring"				, simple_avp	, simple_avp	, FT_BYTES			, BASE_NONE	, build_simple_avp  },
-	{"utf8string"				, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE	, build_simple_avp  },
-	{"grouped"				, grouped_avp	, grouped_avp	, FT_BYTES			, BASE_NONE	, build_simple_avp  },
-	{"integer32"				, integer32_avp	, integer32_avp	, FT_INT32			, BASE_DEC	, build_simple_avp  },
-	{"unsigned32"				, unsigned32_avp, unsigned32_avp, FT_UINT32			, BASE_DEC	, build_simple_avp  },
-	{"integer64"				, integer64_avp	, integer64_avp	, FT_INT64			, BASE_DEC	, build_simple_avp  },
-	{"unsigned64"				, unsigned64_avp, unsigned64_avp	, FT_UINT64			, BASE_DEC	, build_simple_avp  },
-	{"float32"				, float32_avp	, float32_avp	, FT_FLOAT			, BASE_NONE	, build_simple_avp  },
-	{"float64"				, float64_avp	, float64_avp	, FT_DOUBLE			, BASE_NONE	, build_simple_avp  },
-	{"ipaddress"				,  NULL		, NULL			, FT_NONE			, BASE_NONE	, build_address_avp },
-	{"diameteruri"				, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE	, build_simple_avp  },
-	{"diameteridentity"			, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE	, build_simple_avp  },
-	{"ipfilterrule"				, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE	, build_simple_avp  },
-	{"qosfilterrule"			, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE	, build_simple_avp  },
-	{"time"					, time_avp	, time_avp	, FT_UINT32			, BASE_DEC	, build_simple_avp  },
+	{"octetstring"				, simple_avp	, simple_avp	, FT_BYTES			, BASE_NONE		, build_simple_avp  },
+	{"utf8string"				, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE		, build_simple_avp  },
+	{"grouped"				, grouped_avp	, grouped_avp	, FT_BYTES			, BASE_NONE		, build_simple_avp  },
+	{"integer32"				, integer32_avp	, integer32_avp	, FT_INT32			, BASE_DEC		, build_simple_avp  },
+	{"unsigned32"				, unsigned32_avp, unsigned32_avp, FT_UINT32			, BASE_DEC		, build_simple_avp  },
+	{"integer64"				, integer64_avp	, integer64_avp	, FT_INT64			, BASE_DEC		, build_simple_avp  },
+	{"unsigned64"				, unsigned64_avp, unsigned64_avp, FT_UINT64			, BASE_DEC		, build_simple_avp  },
+	{"float32"				, float32_avp	, float32_avp	, FT_FLOAT			, BASE_NONE		, build_simple_avp  },
+	{"float64"				, float64_avp	, float64_avp	, FT_DOUBLE			, BASE_NONE		, build_simple_avp  },
+	{"ipaddress"				,  NULL		, NULL		, FT_NONE			, BASE_NONE		, build_address_avp },
+	{"diameteruri"				, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE		, build_simple_avp  },
+	{"diameteridentity"			, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE		, build_simple_avp  },
+	{"ipfilterrule"				, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE		, build_simple_avp  },
+	{"qosfilterrule"			, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE		, build_simple_avp  },
+	{"time"					, time_avp	, time_avp	, FT_ABSOLUTE_TIME		, ABSOLUTE_TIME_UTC	, build_simple_avp  },
 	{NULL, NULL, NULL, FT_NONE, BASE_NONE, NULL }
 };
 
