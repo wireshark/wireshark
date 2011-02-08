@@ -1029,7 +1029,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 #else
 	if (GDK_IS_DRAWABLE(user_data->dlg.draw_area->window) )
 		gdk_draw_pixmap(user_data->dlg.draw_area->window,
-						draw_area_style->fg_gc[gtk_widget_get_state(user_data->dlg.draw_area)],
+						draw_area_style->fg_gc[GTK_WIDGET_STATE(user_data->dlg.draw_area)],
 #endif
 						user_data->dlg.pixmap_main,
 						0, 0,
@@ -1183,7 +1183,9 @@ static gboolean key_press_event(GtkWidget *widget _U_, GdkEventKey *event, gpoin
 static gboolean expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
 	graph_analysis_data_t *user_data = data;
+#if GTK_CHECK_VERSION(2,18,0)
 	GtkStyle *widget_style;
+#endif
 
 #if GTK_CHECK_VERSION(2,18,0)
 	widget_style = gtk_widget_get_style(widget);
@@ -1208,7 +1210,9 @@ static gboolean expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer 
 static gboolean expose_event_comments(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
 	graph_analysis_data_t *user_data = data;
+#if GTK_CHECK_VERSION(2,18,0)
 	GtkStyle *widget_style;
+#endif
 
 #if GTK_CHECK_VERSION(2,18,0)
 	widget_style = gtk_widget_get_style(widget);
@@ -1233,7 +1237,9 @@ static gboolean expose_event_comments(GtkWidget *widget, GdkEventExpose *event, 
 static gboolean expose_event_time(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
 	graph_analysis_data_t *user_data = data;
+#if GTK_CHECK_VERSION(2,18,0)
 	GtkStyle *widget_style;
+#endif
 
 #if GTK_CHECK_VERSION(2,18,0)
 	widget_style = gtk_widget_get_style(widget);
@@ -1441,7 +1447,7 @@ static gboolean pane_callback(GtkWidget *widget, GParamSpec *pspec _U_, gpointer
 	gtk_widget_get_allocation(user_data->dlg.draw_area_comments, &draw_area_comments_alloc);
 	draw_area_comments_style = gtk_widget_get_style(user_data->dlg.draw_area_comments);
 #else
-	draw_area_comments_alloc = user_data->dlg.draw_area_comments->style->alloc;
+	draw_area_comments_alloc = user_data->dlg.draw_area_comments->style->allocation;
 	draw_area_comments_style = user_data->dlg.draw_area_comments->style;
 #endif
 
