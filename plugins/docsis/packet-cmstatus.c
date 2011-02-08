@@ -2,7 +2,7 @@
  * Routines for DOCSIS 3.0 CM-STATUS Report Message dissection.
  * Copyright 2011, Hendrik Robbel <hendrik.robbel[AT]kabeldeutschland.de>
  *
- * $Id$ 
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -49,20 +49,20 @@
 /* Initialize the protocol and registered fields */
 static int proto_docsis_cmstatus = -1;
 static int hf_docsis_cmstatus_tranid = -1;
-static int hf_cmstatus_e_t_mdd_t = -1;
-static int hf_cmstatus_e_t_qfl_f = -1;
-static int hf_cmstatus_e_t_s_o = -1;
-static int hf_cmstatus_e_t_mdd_r = -1;
-static int hf_cmstatus_e_t_qfl_r = -1;
-static int hf_cmstatus_e_t_t4_t = -1;
-static int hf_cmstatus_e_t_t3_e = -1;
-static int hf_cmstatus_e_t_rng_s = -1;
-static int hf_cmstatus_e_t_cm_b = -1;
-static int hf_cmstatus_e_t_cm_a = -1;
-static int hf_event_ds_ch_id = -1;
-static int hf_event_us_ch_id = -1;
-static int hf_event_dsid = -1;
-static int hf_event_descr = -1;
+static int hf_docsis_cmstatus_e_t_mdd_t = -1;
+static int hf_docsis_cmstatus_e_t_qfl_f = -1;
+static int hf_docsis_cmstatus_e_t_s_o = -1;
+static int hf_docsis_cmstatus_e_t_mdd_r = -1;
+static int hf_docsis_cmstatus_e_t_qfl_r = -1;
+static int hf_docsis_cmstatus_e_t_t4_t = -1;
+static int hf_docsis_cmstatus_e_t_t3_e = -1;
+static int hf_docsis_cmstatus_e_t_rng_s = -1;
+static int hf_docsis_cmstatus_e_t_cm_b = -1;
+static int hf_docsis_cmstatus_e_t_cm_a = -1;
+static int hf_docsis_cmstatus_ds_ch_id = -1;
+static int hf_docsis_cmstatus_us_ch_id = -1;
+static int hf_docsis_cmstatus_dsid = -1;
+static int hf_docsis_cmstatus_descr = -1;
 
 
 /* Initialize the subtree pointers */
@@ -87,10 +87,10 @@ dissect_cmstatus_tlv (tvbuff_t * tvb, proto_tree * tree, guint8 start, guint16 l
     type = tvb_get_guint8 (tvb, pos++);
     switch (type)
     {
-      case EVENT_DS_CH_ID:
+    case EVENT_DS_CH_ID:
       if (length == 3)
       {
-        proto_tree_add_item (tlv_tree, hf_event_ds_ch_id, tvb, pos + 1, 1, FALSE);
+        proto_tree_add_item (tlv_tree, hf_docsis_cmstatus_ds_ch_id, tvb, pos + 1, 1, FALSE);
       }
       else
       {
@@ -98,10 +98,10 @@ dissect_cmstatus_tlv (tvbuff_t * tvb, proto_tree * tree, guint8 start, guint16 l
       }
       break;
 
-      case EVENT_US_CH_ID:
+    case EVENT_US_CH_ID:
       if (length == 3)
       {
-        proto_tree_add_item (tlv_tree, hf_event_us_ch_id, tvb, pos + 1, 1, FALSE);
+        proto_tree_add_item (tlv_tree, hf_docsis_cmstatus_us_ch_id, tvb, pos + 1, 1, FALSE);
       }
       else
       {
@@ -109,10 +109,10 @@ dissect_cmstatus_tlv (tvbuff_t * tvb, proto_tree * tree, guint8 start, guint16 l
       }
       break;
 
-      case EVENT_DSID:
+    case EVENT_DSID:
       if (length == 5)
       {
-        proto_tree_add_item (tlv_tree, hf_event_dsid, tvb, pos + 1, 3, FALSE);
+        proto_tree_add_item (tlv_tree, hf_docsis_cmstatus_dsid, tvb, pos + 1, 3, FALSE);
       }
       else
       {
@@ -120,14 +120,14 @@ dissect_cmstatus_tlv (tvbuff_t * tvb, proto_tree * tree, guint8 start, guint16 l
       }
       break;
 
-      case EVENT_DESCR:
+    case EVENT_DESCR:
       if (length >= 3 && length <= 82)
       {
-         proto_tree_add_item (tlv_tree, hf_event_descr, tvb, pos + 1, length - 2, FALSE);
+        proto_tree_add_item (tlv_tree, hf_docsis_cmstatus_descr, tvb, pos + 1, length - 2, FALSE);
       }
       else
       {
-         THROW (ReportedBoundsError);
+        THROW (ReportedBoundsError);
       }
       break;
     } /* switch */
@@ -150,57 +150,57 @@ dissect_cmstatus (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   col_add_fstr (pinfo->cinfo, COL_INFO, "CM-STATUS Report: Transaction ID = %u", transid);
 
   if (tree)
+  {
+    it = proto_tree_add_protocol_format (tree, proto_docsis_cmstatus, tvb, 0, -1, "CM-STATUS Report");
+    cmstatus_tree = proto_item_add_subtree (it, ett_docsis_cmstatus);
+    proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_tranid, tvb, 0, 2, FALSE);
+
+    switch (event_type)
     {
-      it = proto_tree_add_protocol_format (tree, proto_docsis_cmstatus, tvb, 0, -1, "CM-STATUS Report");
-      cmstatus_tree = proto_item_add_subtree (it, ett_docsis_cmstatus);
-      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_tranid, tvb, 0, 2, FALSE);
+    case SEC_CH_MDD_TIMEOUT:
+      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_mdd_t, tvb, 2, 1, FALSE);
+      break;
 
-      switch (event_type)
-      {
-        case SEC_CH_MDD_TIMEOUT:
-          proto_tree_add_item (cmstatus_tree, hf_cmstatus_e_t_mdd_t, tvb, 2, 1, FALSE);
-        break;
+    case QAM_FEC_LOCK_FAILURE:
+      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_qfl_f, tvb, 2, 1, FALSE);
+      break;
 
-        case QAM_FEC_LOCK_FAILURE:
-          proto_tree_add_item (cmstatus_tree, hf_cmstatus_e_t_qfl_f, tvb, 2, 1, FALSE);
-        break;
+    case SEQ_OUT_OF_RANGE:
+      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_s_o, tvb, 2, 1, FALSE);
+      break;
 
-        case SEQ_OUT_OF_RANGE:
-          proto_tree_add_item (cmstatus_tree, hf_cmstatus_e_t_s_o, tvb, 2, 1, FALSE);
-        break;
+    case SEC_CH_MDD_RECOVERY:
+      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_mdd_r, tvb, 2, 1, FALSE);
+      break;
 
-        case SEC_CH_MDD_RECOVERY:
-          proto_tree_add_item (cmstatus_tree, hf_cmstatus_e_t_mdd_r, tvb, 2, 1, FALSE);
-        break;
+    case QAM_FEC_LOCK_RECOVERY:
+      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_qfl_r, tvb, 2, 1, FALSE);
+      break;
 
-        case QAM_FEC_LOCK_RECOVERY:
-          proto_tree_add_item (cmstatus_tree, hf_cmstatus_e_t_qfl_r, tvb, 2, 1, FALSE);
-        break;
+    case T4_TIMEOUT:
+      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_t4_t, tvb, 2, 1, FALSE);
+      break;
 
-        case T4_TIMEOUT:
-          proto_tree_add_item (cmstatus_tree, hf_cmstatus_e_t_t4_t, tvb, 2, 1, FALSE);
-        break;
+    case T3_RETRIES_EXCEEDED:
+      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_t3_e, tvb, 2, 1, FALSE);
+      break;
 
-        case T3_RETRIES_EXCEEDED:
-          proto_tree_add_item (cmstatus_tree, hf_cmstatus_e_t_t3_e, tvb, 2, 1, FALSE);
-        break;
+    case SUCCESS_RANGING_AFTER_T3_RETRIES_EXCEEDED:
+      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_rng_s, tvb, 2, 1, FALSE);
+      break;
 
-        case SUCCESS_RANGING_AFTER_T3_RETRIES_EXCEEDED:
-          proto_tree_add_item (cmstatus_tree, hf_cmstatus_e_t_rng_s, tvb, 2, 1, FALSE);
-        break;
+    case CM_ON_BATTERY:
+      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_cm_b, tvb, 2, 1, FALSE);
+      break;
 
-        case CM_ON_BATTERY:
-          proto_tree_add_item (cmstatus_tree, hf_cmstatus_e_t_cm_b, tvb, 2, 1, FALSE);
-        break;
+    case CM_ON_AC_POWER:
+      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_cm_a, tvb, 2, 1, FALSE);
+      break;
+    } /* switch */
 
-        case CM_ON_AC_POWER:
-          proto_tree_add_item (cmstatus_tree, hf_cmstatus_e_t_cm_a, tvb, 2, 1, FALSE);
-        break;
-      } /* switch */
-
-    }
+  }
     /* Call Dissector TLV's */
-    dissect_cmstatus_tlv(tvb, cmstatus_tree, 3, len); 
+  dissect_cmstatus_tlv(tvb, cmstatus_tree, 3, len);
 }
 
 
@@ -219,46 +219,46 @@ proto_register_docsis_cmstatus (void)
     },
     /* See Table 10-3 in CM-SP-MULPIv3.0-I14-101008 */
 
-    {&hf_cmstatus_e_t_mdd_t,
+    {&hf_docsis_cmstatus_e_t_mdd_t,
       {"Secondary Channel MDD timeout", "docsis_cmstatus.mdd_timeout", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
-    {&hf_cmstatus_e_t_qfl_f,
+    {&hf_docsis_cmstatus_e_t_qfl_f,
       {"QAM/FEC lock failure", "docsis_cmstatus.qam_fec_lock_failure", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
-    {&hf_cmstatus_e_t_s_o,
+    {&hf_docsis_cmstatus_e_t_s_o,
       {"Sequence out-of-range", "docsis_cmstatus.sequence_out_of_range", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
-    {&hf_cmstatus_e_t_mdd_r,
+    {&hf_docsis_cmstatus_e_t_mdd_r,
       {"Secondary Channel MDD Recovery", "docsis_cmstatus.mdd_recovery", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
-    {&hf_cmstatus_e_t_qfl_r,
+    {&hf_docsis_cmstatus_e_t_qfl_r,
       {"QAM/FEC Lock Recovery", "docsis_cmstatus.qam_fec_lock_recovery", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
-    {&hf_cmstatus_e_t_t4_t,
+    {&hf_docsis_cmstatus_e_t_t4_t,
       {"T4 timeout", "docsis_cmstatus.t4_timeout", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
-    {&hf_cmstatus_e_t_t3_e,
+    {&hf_docsis_cmstatus_e_t_t3_e,
       {"T3 retries exceeded", "docsis_cmstatus.t3_retries_exceeded", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
-    {&hf_cmstatus_e_t_rng_s,
+    {&hf_docsis_cmstatus_e_t_rng_s,
       {"Successful ranging after T3 retries exceeded", "docsis_cmstatus.successful_ranging_after_t3_retries_exceeded", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
-    {&hf_cmstatus_e_t_cm_b,
+    {&hf_docsis_cmstatus_e_t_cm_b,
       {"CM operating on battery backup", "docsis_cmstatus.cm_on_battery", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
-    {&hf_cmstatus_e_t_cm_a,
+    {&hf_docsis_cmstatus_e_t_cm_a,
       {"CM returned to A/C power", "docsis_cmstatus.cm_on_ac_power", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
-    {&hf_event_descr,  
+    {&hf_docsis_cmstatus_descr,
       {"1.2 Description", "docsis_cmstatus.description",FT_BYTES, BASE_NONE, NULL, 0x0,"Description", HFILL}
     },
-    {&hf_event_ds_ch_id,
+    {&hf_docsis_cmstatus_ds_ch_id,
       {"1.4 Downstream Channel ID", "docsis_cmstatus.ds_chid",FT_UINT8, BASE_DEC, NULL, 0x0, "Downstream Channel ID", HFILL}
     },
-    {&hf_event_us_ch_id,
+    {&hf_docsis_cmstatus_us_ch_id,
       {"1.5 Upstream Channel ID", "docsis_cmstatus.us_chid",FT_UINT8, BASE_DEC, NULL, 0x0, "Upstream Channel ID", HFILL}
     },
-    {&hf_event_dsid,
+    {&hf_docsis_cmstatus_dsid,
       {"1.6 DSID", "docsis_cmstatus.dsid", FT_UINT24, BASE_DEC, NULL, 0x0, "DSID", HFILL}
     }
   };
