@@ -961,7 +961,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
      *=====================================================
      */
     /* The Auxiliary Security Header only exists in IEEE 802.15.4-2006 */
-    if (packet->security_enable && (packet->version == 1)) {
+    if (packet->security_enable && (packet->version == IEEE802154_VERSION_2006)) {
       proto_tree *header_tree, *field_tree;
       guint8                    security_control;
       guint                     aux_length = 5; /* Minimum length of the auxiliary header. */
@@ -1841,14 +1841,27 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
     unsigned char       key[16];
     unsigned char       tmp[16];
     unsigned char       rx_mic[16];
-    guint               M = IEEE802154_MIC_LENGTH(packet->security_level);
+    guint               M;
     gint                captured_len;
     gint                reported_len;
     ieee802154_hints_t *ieee_hints;
 
+    /*
+     * Check the version; we only support IEEE 802.15.4-2006.
+     * We must do this first, as, if this isn't IEEE 802.15.4-2006,
+     * we don't have the Auxiliary Security Header, and haven't
+     * filled in the information for it, and none of the stuff
+     * we do afterwards, which uses that information, is doable.
+     */
+    if (packet->version != IEEE802154_VERSION_2006) {
+        *status = DECRYPT_VERSION_UNSUPPORTED;
+        return NULL;
+    }
+
     ieee_hints = p_get_proto_data(pinfo->fd, proto_ieee802154);
 
     /* Get the captured and on-the-wire length of the payload. */
+    M = IEEE802154_MIC_LENGTH(packet->security_level);
     reported_len = tvb_reported_length_remaining(tvb, offset) - IEEE802154_FCS_LEN - M;
     if (reported_len < 0) {
         *status = DECRYPT_PACKET_TOO_SMALL;
@@ -1860,12 +1873,6 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
     }
     else {
         captured_len = tvb_length_remaining(tvb, offset);
-    }
-
-    /* Check the version, we only support IEEE 802.15.4-2006 */
-    if (packet->version < IEEE802154_VERSION_2006) {
-        *status = DECRYPT_VERSION_UNSUPPORTED;
-        return NULL;
     }
 
     /* Check if the MIC is present in the captured data. */
